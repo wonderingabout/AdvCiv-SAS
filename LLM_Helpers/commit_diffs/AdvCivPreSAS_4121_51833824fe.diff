@@ -1,0 +1,52 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4121
+# Commit: 51833824fe1adf0abe3a741b9b861a799a396eae
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fa79315fb62f301a9e3d5b3ae5dfc3716f579f97
+# Title: Just a couple of comment changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvDLLEngineIFaceBase.h
+1	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLEngineIFaceBase.h b/CvGameCoreDLL/CvDLLEngineIFaceBase.h
+index acf76688b..ce6d44a41 100644
+--- a/CvGameCoreDLL/CvDLLEngineIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLEngineIFaceBase.h
+@@ -77,7 +77,7 @@ public:
+ 	virtual void TriggerEffectExternal(int iEffect, NiPoint3 pt3Point, float fRotation = 0) = 0;
+ 	// <advc> Renamed the above and added this wrapper:
+ 	void TriggerEffect(EffectTypes eEffect, NiPoint3 pt3Point, float fRotation = 0)
+-	{	/*	Seems that ibvalid effects (or none) can crash the EXE at a later point,
++	{	/*	Seems that invalid effects (or none) can crash the EXE at a later point,
+ 			i.e. in a way that is difficult to debug. The WtP mod had this problem. */
+ 		if (!checkEnumBounds(eEffect))
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index a4f3a3a6f..a60876ef6 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1699,7 +1699,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 	}
+ 
+ 	pOldCity->kill(false, /* advc.001: */ false); // Don't bump units yet
+-	pOldCity = NULL; // advc: Mustn't access that past this point
++	pOldCity = NULL; // advc: Mustn't be accessed past this point
+ 
+ 	if (bTrade) // Repercussions of cession: tile culture, war success (city culture: further down)
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1324

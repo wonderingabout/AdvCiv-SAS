@@ -1,0 +1,106 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5520
+# Commit: 16ff40ba1ee46f762ea83603331de2cd37d10c4e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0acd3abeac444fd1a972ede16e850832ebc4e4c1
+# Title: upscale conceptinfos ("Outdated") and newconceptinfos ("Mods Infos")
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	AGENTS.md
+9	1	Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+5	5	Assets/XML/GlobalDefines_advciv_sas.xml
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 7e5254c92..b91f2401b 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -165,6 +165,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ ### Python (Civ4)
+ 
+ - Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
++- For UI text, do not hardcode font tags like `<font=2/3/4>`; use `SASFontUtils` (`SAS_FONT_TAG_*` / `getSASUIFont*`) so XML defines control scaling globally. Example good: `SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE`; avoid: `u"<font=3>%s</font>" % szText`.
+ - Treat linting output as hints only; Civ4 runs Python 2.4 and engine imports can look unused to Python 3 linters.
+ - Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only).
+ - Prefer robust UI identifiers: widget names can strip numeric suffixes, so use descriptive text suffixes and map widget IDs to data for event handling.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+index 72a74fe76..f4a73caa9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+@@ -15,10 +15,14 @@ from CvPythonExtensions import *
+ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
++import re
++from SASFontUtils import *
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
++SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)
++SAS_FONT_CLOSE_RE = re.compile(u"</font>", re.IGNORECASE)
+ 
+ 
+ 
+@@ -44,7 +48,11 @@ class SevoPediaHistory:
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
+ 		szText = self.getCivilopedia(iEntry)
+-		screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		szText = SAS_FONT_OPEN_RE.sub(u"", szText)
++		szText = SAS_FONT_CLOSE_RE.sub(u"", szText)
++		szText = SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE
++		textName = self.top.getNextWidgetName()
++		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 25c313902..c69b321a5 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -321,27 +321,27 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited. Keep in [1..4]. (GPT-5.3-Codex) -->
++	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 1. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_TINY</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: shared UI body font size for standard list/table/content text. Keep in [1..4]. (GPT-5.3-Codex) -->
++	<!-- custom: shared UI body font size for standard list/table/content text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 2. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_BODY</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4]. (GPT-5.3-Codex) -->
++	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 3. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_LABEL</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: shared UI title font size for advisor/screen titles and primary action text. Keep in [1..4]. (GPT-5.3-Codex) -->
++	<!-- custom: shared UI title font size for advisor/screen titles and primary action text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 4. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_TITLE</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default). Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). (Claude code Opus 4.6) -->
++	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default). Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings) (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4861

@@ -1,0 +1,494 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1277
+# Commit: 354927dbd0f9ca7bfe320221ae5cfc2624325c40
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d6ec40eead25f18975f1bafe07e04f8f3fdb43fa
+# Title: v0.90b:
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+0	1	Assets/Python/K-Mod/ChangePlayer.py
+1	1	Assets/Python/Screens/CvMainInterface.py
+48	13	CvGameCoreDLL/CvCity.cpp
+3	1	CvGameCoreDLL/CvCity.h
+5	1	CvGameCoreDLL/CvGameTextMgr.cpp
+26	0	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+77	27	CvGameCoreDLL/CvPlayerAI.cpp
+-	-	manual.pdf
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/K-Mod/ChangePlayer.py b/Assets/Python/K-Mod/ChangePlayer.py
+index ebe030cfc..35f7e30d6 100644
+--- a/Assets/Python/K-Mod/ChangePlayer.py
++++ b/Assets/Python/K-Mod/ChangePlayer.py
+@@ -287,7 +287,6 @@ def changeHuman( newHumanIdx, oldHumanIdx ) :
+     game.changeHumanPlayer( newHumanIdx )
+     
+     doRefortify( newHumanIdx )
+-    
+     return True
+ 
+ ########################## Utility functions ###########################################
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 3b850fd3c..45efb5a60 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -365,7 +365,7 @@ class CvMainInterface:
+ 		self.sFieldOfView_Text = localText.getText("TXT_KEY_BUG_OPT_MAININTERFACE__FIELDOFVIEW_TEXT", ())
+ 		#self.DEFAULT_FIELD_OF_VIEW = max(40, min(80, self.xResolution / 30)) # K-Mod (bigger FoW for bigger monitors. They'll appreciate it. Trust me.)
+ 		# <advc.004m> (Replacing the above) Don't just ignore the XML setting. Problem: BUG stores the value computed for self.DEFAULT_FIELD_OF_VIEW in CvGlobals, overwriting the FIELD_OF_VIEW set through XML until the game is restarted. This makes my computation below recursive, leading to a shift in the field-of-view value each time that the game returns to the main menu, which, incidentally, it does frequently because of change 003d. Therefore only make the resolution-based adjustment if the BUG slider is not used. If the slider is used, people are going to set it manually anyway.
+-		if not MainOpt.isRememberFieldOfView() and not MainOpt.isShowFieldOfView():
++		if (not MainOpt.isRememberFieldOfView() and not MainOpt.isShowFieldOfView()) or int(MainOpt.getFieldOfView()) < 0:
+ 			fovxml = gc.getFIELD_OF_VIEW()
+ 			self.DEFAULT_FIELD_OF_VIEW = int(max(fovxml, min(2 * fovxml, self.xResolution / max(70 - fovxml, 10)))) # </advc.004m>
+ 		if MainOpt.isRememberFieldOfView():
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index a62cd0fc7..130eb87f7 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -531,8 +531,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+ 		m_abEspionageVisibility[iI] = false;
+-	}
+-
++	} // <advc.004x>
++	mrWasUnit = false;
++	mrOrder = -1; // </advc.004x>
+ 	m_szName.clear();
+ 	m_szScriptData = "";
+ 
+@@ -959,8 +960,24 @@ void CvCity::doTurn()
+ 				}
+ 			}
+ 		}
+-	}
+-
++	} // <advc.004x>
++	else {
++		CvPlayer& owner = GET_PLAYER(getOwnerINLINE());
++		if(isHuman() && !isProduction() && !isProductionAutomated() &&
++				owner.getAnarchyTurns() == 1 && GC.getGameINLINE().getGameState() != GAMESTATE_EXTENDED) {
++			UnitTypes mrUnit = NO_UNIT;
++			BuildingTypes mrBuilding = NO_BUILDING;
++			ProjectTypes mrProject = NO_PROJECT;
++			if(mrOrder >= 0) {
++				if(mrWasUnit)
++					mrUnit = (UnitTypes)mrOrder;
++				else if(mrOrder >= GC.getNumBuildingInfos())
++					mrProject = (ProjectTypes)(mrOrder - GC.getNumBuildingInfos());
++				else mrBuilding = (BuildingTypes)mrOrder;
++			}
++			chooseProduction(mrUnit, mrBuilding, mrProject, mrOrder >= 0);
++		}
++	} // </advc.004x>
+ 	if (getCultureUpdateTimer() > 0)
+ 	{
+ 		changeCultureUpdateTimer(-1);
+@@ -1381,7 +1398,7 @@ void CvCity::chooseProduction(UnitTypes eTrainUnit, BuildingTypes eConstructBuil
+ {
+ 	// K-Mod. don't create the popup if the city is in disorder
+ 	FAssert(isHuman() && !isProductionAutomated());
+-	if (isDisorder())
++	if (isOccupation()) // advc.004x: was isDisorder
+ 	{
+ 		AI_setChooseProductionDirty(true);
+ 		return;
+@@ -3263,6 +3280,7 @@ void CvCity::setProduction(int iNewValue)
+ 	{
+ 		setProjectProduction(getProductionProject(), iNewValue);
+ 	}
++	mrOrder = -1; mrWasUnit = false; // advc.004x
+ }
+ 
+ 
+@@ -12532,8 +12550,7 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
+ 			gDLL->getInterfaceIFace()->setDirty(CityScreen_DIRTY_BIT, true);
+ 			gDLL->getInterfaceIFace()->setDirty(PlotListButtons_DIRTY_BIT, true);
+ 		}
+-	} /* <advc.004x> (Fixme: Accomplishes nothing b/c, unlike choose-tech,
+-		choose-production popups aren't queued at CvPlayer.) */
++	} // <advc.004x>
+ 	if(wasEmpty && getOwnerINLINE() == GC.getGameINLINE().getActivePlayer())
+ 		GET_PLAYER(getOwnerINLINE()).killAll(BUTTONPOPUP_CHOOSEPRODUCTION,
+ 				getID()); // </advc.004x>
+@@ -12989,7 +13006,14 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 				}
+ 
+ 				chooseProduction(eTrainUnit, eConstructBuilding, eCreateProject, bFinish);
+-
++				/*  <advc.004x> Remember the order in case the popups needs to
++					be delayed */
++				mrWasUnit = (eTrainUnit != NO_UNIT);
++				if(mrWasUnit)
++					mrOrder = eTrainUnit;
++				else if(eCreateProject != NO_PROJECT)
++					mrOrder = GC.getNumBuildingInfos() + eCreateProject;
++				else mrOrder = eConstructBuilding; // </advc.004x>
+ 				bMessage = true;
+ 			}
+ 		}
+@@ -14187,7 +14211,11 @@ void CvCity::read(FDataStreamBase* pStream)
+ 		int iChange;
+ 		pStream->Read(&iChange);
+ 		m_aBuildingHealthChange.push_back(std::make_pair((BuildingClassTypes)iBuildingClass, iChange));
+-	}
++	} // <advc.004x>
++	if(uiFlag >= 2) {
++		pStream->Read(&mrOrder);
++		pStream->Read(&mrWasUnit);
++	} // </advc.004x>
+ }
+ 
+ void CvCity::write(FDataStreamBase* pStream)
+@@ -14195,6 +14223,7 @@ void CvCity::write(FDataStreamBase* pStream)
+ 	int iI;
+ 
+ 	uint uiFlag=1;
++	uiFlag++; // advc.004x
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iID);
+@@ -14409,7 +14438,9 @@ void CvCity::write(FDataStreamBase* pStream)
+ 	{
+ 		pStream->Write((*it).first);
+ 		pStream->Write((*it).second);
+-	}
++	} // <advc.004x>
++	pStream->Write(mrOrder);
++	pStream->Write(mrWasUnit); // </advc.004x>
+ }
+ 
+ 
+@@ -14439,6 +14470,12 @@ void CvCity::getVisibleBuildings(std::list<BuildingTypes>& kChosenVisible, int&
+ 	std::vector<BuildingTypes> kVisible;
+ 
+ 	iNumBuildings = GC.getNumBuildingInfos();
++	// <advc.045>
++	PlayerTypes activePl = GC.getGameINLINE().getActivePlayer();
++	bool allVisible = (activePl == NO_PLAYER ||
++			plot()->isInvestigate(TEAMID(activePl)) ||
++			plot()->plotCount(NULL, -1, -1, activePl) > 0 ||
++			GC.getGameINLINE().isDebugMode()); // </advc.045>
+ 	for(int i = 0; i < iNumBuildings; i++)
+ 	{
+ 		eCurType = (BuildingTypes) i;
+@@ -14451,9 +14488,7 @@ void CvCity::getVisibleBuildings(std::list<BuildingTypes>& kChosenVisible, int&
+ 				getBuildingClassType());
+ 		bool bIsDefense = (kBuilding.getDefenseModifier() > 0);
+ 		PlayerTypes activePl = GC.getGameINLINE().getActivePlayer();
+-		if(activePl != NO_PLAYER && !plot()->isInvestigate(TEAMID(activePl)) &&
+-				!bIsWonder && !bIsDefense && !GC.getGameINLINE().isDebugMode()) {
+-			// Not from Rise of Mankind:
++		if(!allVisible && !bIsWonder && !bIsDefense) {
+ 			bool visibleYieldChange = false;
+ 			int* seaPlotYieldChanges = kBuilding.getSeaPlotYieldChangeArray();
+ 			int* riverPlotYieldChanges = kBuilding.getRiverPlotYieldChangeArray();
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 3292b28ba..212c5cd61 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1280,7 +1280,9 @@ protected:
+ 	bool* m_abTradeRoute;
+ 	bool* m_abRevealed;
+ 	bool* m_abEspionageVisibility;
+-
++	// <advc.004x> Most recently completed order
++	int mrOrder;
++	bool mrWasUnit; // </advc.004x>
+ 	//CvWString m_szName; // advc.003: Moved up
+ 	CvString m_szScriptData;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 9420e32e0..ba3344e86 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -16284,6 +16284,10 @@ void CvGameTextMgr::parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity& city
+ 
+ 		std::vector< std::pair<UnitTypes, int> > aUnitProgress;
+ 		int iTotalTruncated = 0;
++		/*  advc.001c: This should be owner.greatPeopleThreshold(false), but
++			I don't want to predict GPP overflow here. */
++		int target = std::max(1, city.getGreatPeopleProgress() +
++				iTurnsLeft * city.getGreatPeopleRate());
+ 		for (iI = 0; iI < GC.getNumUnitInfos(); ++iI)
+ 		{
+ 			// <advc.001c>
+@@ -16292,7 +16296,7 @@ void CvGameTextMgr::parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity& city
+ 					(iTurnsLeft * city.getGreatPeopleUnitRate(gpType)
+ 					* city.getTotalGreatPeopleRateModifier()) / 100;
+ 			iProgress *= 100;
+-			iProgress /= owner.greatPeopleThreshold(false);
++			iProgress /= target;
+ 			//int iProgress = ((city.getGreatPeopleUnitProgress((UnitTypes)iI) * 100) / iTotalGreatPeopleUnitProgress);
+ 			// </advc.001c>
+ 			if (iProgress > 0)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index cbe6e2471..2f9288e17 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5516,6 +5516,32 @@ int CvPlayer::getNumTradeBonusImports(PlayerTypes ePlayer) const
+ 	return iCount;
+ }
+ 
++// <advc.149> Based on getNumTradeBonusImports
++double CvPlayer::bonusImportValue(PlayerTypes fromId) const {
++
++	
++	double r = 0;
++	CvGame& g = GC.getGameINLINE(); int dummy=-1;
++	for(CvDeal* d = g.firstDeal(&dummy); d != NULL; d = g.nextDeal(&dummy)) {
++		CLinkList<TradeData> const* list = NULL;
++		if(d->getFirstPlayer() == getID() && d->getSecondPlayer() == fromId)
++			list = d->getSecondTrades();
++		else if(d->getSecondPlayer() == getID() && d->getFirstPlayer() == fromId)
++			list = d->getFirstTrades();
++		if(list == NULL)
++			continue;
++		CLLNode<TradeData>* node=NULL;
++		for(node = list->head(); node != NULL; node = list->next(node)) {
++			if(node->m_data.m_eItemType == TRADE_RESOURCES) {
++				r += GET_PLAYER(getID()).AI_bonusVal((BonusTypes)
++						node->m_data.m_iData, -1);
++			}
++		}
++	}
++	return r / 10.0; // Assuming that 10 is a typical bonusVal
++} // </advc.149>
++
++
+ // advc.003: Renamed parameter
+ bool CvPlayer::isTradingWithTeam(TeamTypes eTeam, bool bIncludeUncancelable) const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 50ede2a3d..4e5fc5606 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -209,6 +209,7 @@ public:
+ 	int getNumAvailableBonuses(BonusTypes eBonus) const;																									// Exposed to Python
+ 	DllExport int getNumTradeableBonuses(BonusTypes eBonus) const;																				// Exposed to Python
+ 	int getNumTradeBonusImports(PlayerTypes ePlayer) const;																								// Exposed to Python
++	double bonusImportValue(PlayerTypes fromId) const; // advc.149
+ 	bool hasBonus(BonusTypes eBonus) const;									// Exposed to Python
+ 	// advc.003: Said "IncludeCancelable" but it actually does the opposite
+ 	bool isTradingWithTeam(TeamTypes eTeam, bool bIncludeUncancelable) const;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b6da82e0f..b905b8e39 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3153,10 +3153,14 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 				so this is about snow. Perhaps snow river should be
+ 				just 1 bad tile(?). Bonus check added (Incense). */
+ 				pLoopPlot->getBonusType() == NO_BONUS &&
+-				!pLoopPlot->isHills() &&
+ 				(pLoopPlot->calculateBestNatureYield(YIELD_FOOD, getTeam()) == 0 || pLoopPlot->calculateTotalBestNatureYield(getTeam()) <= 1))
+-			{
+-				iBadTile += 2;
++			{	// <advc.031>
++				iBadTile++; /*  Snow hills had previously not been counted as bad,
++				but they are. Worthless even unless the city is deperate for
++				production or has plenty of food. */
++				if(!pLoopPlot->isHills() || (baseProduction >= 10 &&
++						iSpecialFoodPlus - iSpecialFoodMinus < 5))
++					iBadTile++; // </advc.031>
+ 			}
+ 			else if (pLoopPlot->isWater() && pLoopPlot->calculateBestNatureYield(YIELD_FOOD, getTeam()) <= 1)
+ 			{	/* <advc.031> Removed the bIsCoastal check from the
+@@ -3245,7 +3249,9 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 	int iTakenTiles = 0;
+ 	int iTeammateTakenTiles = 0;
+ 	int iHealth = 0;
+-	int iRiver = 0; // advc.031
++	// <advc.031>
++	int iRiver = 0;
++	int iGreen  = 0; // </advc.031>
+ 	int iValue = 800; // was 1000
+ 
+ 	// <advc.040>
+@@ -3421,7 +3427,9 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 							// advc.031: was 30 *...
+ 							iPlotValue += 25 * kFeature.getYieldChange(eYield);
+ 						}
+-					}
++					} // <advc.031>
++					if(aiYield[YIELD_FOOD] >= 2)
++						iGreen++; // </advc.031>
+ 				}
+ 				// K-Mod end
+ 			}
+@@ -3548,8 +3556,8 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 				}
+ 			} /* <advc.030> Details chosen so that iPlotValue=150 is a fixpoint;
+ 				 150 seems like a pretty average plot value to me. */
+-			iPlotValue = ::round(std::pow((double)std::max(
+-					iPlotValue/3, iPlotValue - 35), 1.25) / 2.5);
++			iPlotValue = ::round(std::max(iPlotValue/3.0,
++					std::pow(std::max(0.0, iPlotValue - 35.0), 1.25) / 2.5));
+ 			// </advc.130>
+ 			// K-Mod version (original code deleted)
+ 			if (kSet.bEasyCulture)
+@@ -3597,9 +3605,17 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 					viBonusCount[eBonus]++; // (this use to be above the iBonusValue initialization)
+ 					FAssert(viBonusCount[eBonus] > 0);
+ 
+-					iBonusValue *= (kSet.bStartingLoc ? 100 : kSet.iGreed);
++					iBonusValue *= (kSet.bStartingLoc ? 100 :
++						/*  advc.031: Greed perhaps shouldn't matter here at all.
++							Civs that like founding lots of cities are going to
++							have lots of resources anyway; that's one thing they
++							don't need to be grredy for. */
++							(kSet.iGreed + 200) / 3);
+ 					iBonusValue /= 100;
+-					/*  <advc.031> Stop the AI from securing more than one Oil
++					// <advc.031>
++					if(pLoopPlot->getOwnerINLINE() == getID())
++						iBonusValue = 0; // We've already got it
++					/*  Stop the AI from securing more than one Oil
+ 						source when Oil is revealed but not yet workable */
+ 					if(eBonusImprovement == NO_IMPROVEMENT &&
+ 							getNumAvailableBonuses(eBonus) <= 0) { int dummy=-1;
+@@ -3715,6 +3731,8 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 		iResourceValue /= 4; // try not to make the value of strategic resources too overwhelming. (note: I removed a bigger value reduction from the original code higher up.)
+ 	// Note: iSpecialFood is whatever food happens to be asscioated with bonuses. Don't value it highly, because it's also counted in a bunch of other ways.
+ 	// <advc.031>
++	// Preserve this for later
++	int nonYieldResourceVal = std::max(0, iResourceValue);
+ 	if(specials > 0.01) {
+ 		double perSpecial[NUM_YIELD_TYPES];
+ 		for(int i = 0; i < NUM_YIELD_TYPES; i++)
+@@ -3742,7 +3760,17 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 	{
+ 		return 0;
+ 	}
+-
++	/*  <advc.031> There's already a food surplus factor toward the end of
++		the function, but that one doesn't punish cities with low food much;
++		not sure if it's intended to do that. */
++	if(!kSet.bStartingLoc && getCurrentEra() < 4) {
++		double lowFoodFactor = (7 + iGreen + iSpecialFoodPlus -
++				iSpecialFoodMinus) / 10.0;
++		lowFoodFactor = ::dRange(lowFoodFactor, 0.45, 1.0);
++		// Don't apply this to the value from happiness/health/strategic
++		iValue = ::round((iValue - nonYieldResourceVal) * lowFoodFactor)
++				+ nonYieldResourceVal;
++	} // </advc.031>
+ 	/* original bts code (K-Mod: just go look at what "iTeammateTakenTiles" actually is...)
+ 	if (iTeammateTakenTiles > 1)
+ 	{
+@@ -16936,7 +16964,10 @@ void CvPlayerAI::AI_rememberEvent(PlayerTypes civId, MemoryTypes mem) {
+ 	}
+ 	int delta = 2;
+ 	// Need a finer granularity for DoW
+-	if(mem == MEMORY_DECLARED_WAR) delta = 3;
++	if(mem == MEMORY_DECLARED_WAR)
++		delta = 3;
++// This disables the bulk of change 130j:
++#if 0
+ 	// We're surprised by the actions of civId
+ 	if((sign < 0 && (AI_getAttitude(civId) >= ATTITUDE_FRIENDLY ||
+ 			// <advc.130o> Surprised by war despite tribute
+@@ -16948,6 +16979,7 @@ void CvPlayerAI::AI_rememberEvent(PlayerTypes civId, MemoryTypes mem) {
+ 	if((sign > 0 && AI_getAttitude(civId) >= ATTITUDE_FRIENDLY) ||
+ 			(sign < 0 && AI_getAttitude(civId) <= ATTITUDE_ANNOYED))
+ 		delta--;
++#endif
+ 	// <advc.130y> Cap DoW penalty for vassals
+ 	if(mem == MEMORY_DECLARED_WAR && (GET_TEAM(getTeam()).isAVassal() ||
+ 			TEAMREF(civId).isAVassal()))
+@@ -17107,38 +17139,56 @@ void CvPlayerAI::AI_doCounter()
+ 				AI_changeFavoriteCivicCounter(civId, t.randomCounterChange());
+ 			else AI_setFavoriteCivicCounter(civId, (int)(
+ 				mult * AI_getFavoriteCivicCounter(civId)));
+-		}
+-		int iBonusImports = getNumTradeBonusImports(civId);
++		} // <advc.130p>
++		AI_setPeacetimeGrantValue(civId, (int)(
++				mult * AI_getPeacetimeGrantValue(civId)));
++		AI_setPeacetimeTradeValue(civId, (int)(
++				mult * AI_getPeacetimeTradeValue(civId)));
++		// </advc.130p>
+ 		// <advc.149>
+ 		int attitudeDiv = lh.getBonusTradeAttitudeDivisor();
++		if(attitudeDiv <= 0)
++			continue;
++		//int iBonusImports = getNumTradeBonusImports(civId);
++		// Same scale as the above, but taking into account utility.
++		double bonusVal = bonusImportValue(civId);
+ 		int c = AI_getBonusTradeCounter(civId);
+-		if(iBonusImports <= ::round(c / (1.5 * attitudeDiv))) {
++		if(bonusVal <= c / (1.5 * attitudeDiv)) {
+ 			/*  BtS decreases the BonusTradeCounter by 1 + civ.getNumCities() / 4,
+ 				but let's just do exponential decay instead. */
+ 			AI_setBonusTradeCounter(civId, (int)(
+ 					mult * AI_getBonusTradeCounter(civId)));
+ 		}
+ 		else {
+-			double incr = iBonusImports;
+-			CvCity* capital = getCapitalCity();
+-			if(capital != NULL && iBonusImports > 0) {
+-				int capBonuses = capital->countUniqueBonuses() - iBonusImports;
++			double incr = bonusVal;
++			if(bonusVal > 0.01) {
++				CvCity* capital = getCapitalCity();
++				double capBonuses = 0;
++				if(capital != NULL) {
++					capBonuses = std::max(0.0,
++							capital->countUniqueBonuses() - bonusVal);
++				}
++				double exportable = 0;
++				for(int j = 0; j < GC.getNumBonusInfos(); j++) {
++					BonusTypes bt = (BonusTypes)j;
++					int avail = civ.getNumAvailableBonuses(bt)
++							+ civ.getBonusExport(bt);
++					if(avail > 1)
++						exportable += std::min(avail - 1, 3);
++				} /* Mean of capBonuses and a multiple of exportable, but
++					 no more than 1.5 times capBonuses. */
++				double weight1 = (capBonuses + std::min(capBonuses * 2,
++						3.1 * std::max(bonusVal, exportable))) / 2;
+ 				/*  Rather than changing attitudeDiv in XML for every leader,
+ 					do the fine-tuning here. */
+-				double weight = attitudeDiv / 8.5;
+-				if(capBonuses >= weight)
+-					incr = (iBonusImports / (double)capBonuses) * weight;
++				double weight2 = attitudeDiv / 8.5;
++				if(weight1 >= weight2)
++					incr = (bonusVal / weight1) * weight2;
+ 			}
+ 			AI_changeBonusTradeCounter(civId, t.randomCounterChange(::round(
+ 					1.25 * attitudeDiv * lh.getBonusTradeAttitudeChangeLimit()),
+ 					incr / 2)); // Halved b/c it's binomial distrib. w/ 2 trials
+ 		} // </advc.149></advc.130k>
+-		// <advc.130p>
+-		AI_setPeacetimeGrantValue(civId, (int)(
+-				mult * AI_getPeacetimeGrantValue(civId)));
+-		AI_setPeacetimeTradeValue(civId, (int)(
+-				mult * AI_getPeacetimeTradeValue(civId)));
+-		// </advc.130p>
+ 	}
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+
+[PATCH OMITTED] file=a/manual.pdf b/manual.pdf reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=8 omittedFiles=2 embeddedPatchBytes=19233

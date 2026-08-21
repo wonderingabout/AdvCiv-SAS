@@ -12,9 +12,9 @@
 	 date="08/15/2006"
 	 url="http://forums.civfanatics.com/showthread.php?t=182426" 
 	 module="CvAllErasDawnOfManScreenEventManager">
-	
+
 	<init module="CvAllErasDawnOfManScreenEventManager"/>
-	
+
 	<event type="GameStart" 
 		   module="CvAllErasDawnOfManScreenEventManager" function="onGameStart"/>
 </mod>

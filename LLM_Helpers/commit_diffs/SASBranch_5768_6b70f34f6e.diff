@@ -1,0 +1,186 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5768
+# Commit: 6b70f34f6e263556f15e33380d0c7f2fb9503c78
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 22cc5b07fcc3d73c943406c80cf0b7bf3ec871dd
+# Title: record retreats in battles tab
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+6	0	Assets/Python/CvEventManager.py
+41	0	Assets/Python/SASBattleHistory.py
+5	1	Assets/Python/Screens/CvMilitaryAdvisor.py
+4	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+14	0	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/CvEventManager.py b/Assets/Python/CvEventManager.py
+index 72843e9e5..719c7ab85 100644
+--- a/Assets/Python/CvEventManager.py
++++ b/Assets/Python/CvEventManager.py
+@@ -118,6 +118,7 @@ class CvEventManager:
+ 			'endTurnReady'			: self.onEndTurnReady,
+ 			'combatResult' 			: self.onCombatResult,
+ 			'sasBattleHistoryCombatDetails'	: self.onSASBattleHistoryCombatDetails,
++			'sasBattleHistoryCombatRetreat'	: self.onSASBattleHistoryCombatRetreat,
+ 			'combatLogCalc'	 		: self.onCombatLogCalc,
+ 			'combatLogHit'				: self.onCombatLogHit,
+ 			'improvementBuilt' 		: self.onImprovementBuilt,
+@@ -401,6 +402,11 @@ class CvEventManager:
+ 		genericArgs = argsList[0][0]
+ 		SASBattleHistory.noteCombatActors(genericArgs[0], genericArgs[1])
+ 
++	def onSASBattleHistoryCombatRetreat(self, argsList):
++		# <!-- custom: record non-lethal withdrawal/combat-limit fights in the Military Advisor Battles tab; combatResult only fires when a unit dies, so retreats need their own battle-history event. (GPT-5.5) -->
++		genericArgs = argsList[0][0]
++		SASBattleHistory.recordCombatRetreat(genericArgs[0], genericArgs[1], genericArgs[2], genericArgs[3], genericArgs[4], genericArgs[5], genericArgs[6], genericArgs[7])
++
+ 	def onCombatLogHit(self, argsList):
+ 		'Combat Message'
+ 		global gCombatMessages, gCombatLog
+
+diff --git a/Assets/Python/SASBattleHistory.py b/Assets/Python/SASBattleHistory.py
+index b9946226b..67ff41b59 100644
+--- a/Assets/Python/SASBattleHistory.py
++++ b/Assets/Python/SASBattleHistory.py
+@@ -14,6 +14,8 @@ _MAX_ENTRIES = None
+ _PENDING_COMBAT_ACTORS = None
+ _CAPTURE_DATA_START = 13
+ _END_STRENGTH_DATA_START = 16
++_OUTCOME_DATA_START = 18
++_OUTCOME_RETREAT = 1
+ 
+ # <!-- custom: BugData persists this table in the save without DLL or save-format changes; old saves simply start with no rows and record battles from the first combat after loading. Store rows per player because advisor perspective can change. (GPT-5.5) -->
+ 
+@@ -169,6 +171,41 @@ def recordCombatResult(pWinner, pLoser):
+ 	_saveEntriesByPlayer(entriesByPlayer)
+ 
+ 
++def recordCombatRetreat(iAttacker, iDefender, iAttackerUnit, iDefenderUnit, iX, iY, iAttackerEndStr, iDefenderEndStr):
++	global _PENDING_COMBAT_ACTORS
++	iMaxEntries = _getMaxEntries()
++	if iMaxEntries == 0:
++		return
++	iAttacker = int(iAttacker)
++	iDefender = int(iDefender)
++	if iAttacker < 0 or iDefender < 0:
++		return
++	entry = (
++		CyGame().getGameTurn(),
++		iAttacker,
++		iDefender,
++		int(iAttackerUnit),
++		int(iDefenderUnit),
++		int(iX),
++		int(iY),
++	)
++	if _PENDING_COMBAT_ACTORS is not None and _PENDING_COMBAT_ACTORS[0] == iAttacker and _PENDING_COMBAT_ACTORS[1] == iDefender:
++		entry += _PENDING_COMBAT_ACTORS
++	while len(entry) < _END_STRENGTH_DATA_START:
++		entry += (0,)
++	entry += (int(iAttackerEndStr), int(iDefenderEndStr))
++	# <!-- custom: retreat rows have no winner/loser, but older rows use entry[1]/entry[2] as winner/loser. Store attacker/defender there for role/unit perspective, and add the outcome flag after capture/end-strength fields so old saved rows keep their offsets. (GPT-5.5) -->
++	while len(entry) < _OUTCOME_DATA_START:
++		entry += (0,)
++	entry += (_OUTCOME_RETREAT,)
++	_PENDING_COMBAT_ACTORS = None
++	entriesByPlayer = _getEntriesByPlayer()
++	_appendEntry(entriesByPlayer, iAttacker, entry, iMaxEntries)
++	if iDefender != iAttacker:
++		_appendEntry(entriesByPlayer, iDefender, entry, iMaxEntries)
++	_saveEntriesByPlayer(entriesByPlayer)
++
++
+ def recordUnitCaptured(iOldOwner, iOldUnitType, pNewUnit):
+ 	# <!-- custom: cast event args to plain int; PlayerTypes/UnitTypes arrive as enum/SWIG wrappers from CyArgsList, which makes str(iOldOwner) miss the "3"-style per-player key and entry[2] == iOldOwner fail on int-vs-enum comparison, leaving Cap# / Cap blank. Same pattern as noteCombatActors. (Claude Code Opus 4.7) -->
+ 	iOldOwner = int(iOldOwner)
+@@ -193,3 +230,7 @@ def getEntriesForPlayer(iPlayer):
+ 	if isinstance(entries, list):
+ 		return entries
+ 	return []
++
++
++def isRetreatEntry(entry):
++	return (len(entry) > _OUTCOME_DATA_START and entry[_OUTCOME_DATA_START] == _OUTCOME_RETREAT)
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index a67bfb353..d8aca6022 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -135,6 +135,7 @@ class CvMilitaryAdvisor:
+ 		self.TEXT_BATTLES_LOG_BUTTON = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_LOG_BUTTON", ())
+ 		self.TEXT_BATTLE_WON = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_WON", ())
+ 		self.TEXT_BATTLE_LOST = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_LOST", ())
++		self.TEXT_BATTLE_RETREAT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_RETREAT", ())
+ 		self.TEXT_BATTLE_TURN = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TURN", ())
+ 		self.TEXT_BATTLE_YEAR = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_YEAR", ())
+ 		self.TEXT_BATTLE_RESULT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_RESULT", ())
+@@ -301,7 +302,10 @@ class CvMilitaryAdvisor:
+ 		iTurn, iWinner, iLoser, iWinnerUnit, iLoserUnit, iX, iY = entry[:7]
+ 		if iWinnerUnit < 0 or iWinnerUnit >= gc.getNumUnitInfos() or iLoserUnit < 0 or iLoserUnit >= gc.getNumUnitInfos():
+ 			return None
+-		if iWinner == self.iActivePlayer:
++		if SASBattleHistory.isRetreatEntry(entry):
++			szResult = self.TEXT_BATTLE_RETREAT
++			iColor = self.COLOR_YELLOW
++		elif iWinner == self.iActivePlayer:
+ 			szResult = self.TEXT_BATTLE_WON
+ 			iColor = self.COLOR_GREEN
+ 		else:
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index b22a5993e..c3bbf38bd 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -56,6 +56,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_LOST</Tag>
+ 		<English>Lost</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_RETREAT</Tag>
++		<English>Ret.</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TURN</Tag>
+ 		<English>Turn</English>
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index def1f092f..08808381e 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1309,6 +1309,20 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ 			gDLL->getEntityIFace()->AddMission(&kBattle);
+ 		}
+ 	}
++	// <!-- custom: record non-lethal combat as a retreat in the Military Advisor Battles tab; combatResult only fires on kills, so withdrawal/combat-limit fights otherwise disappear despite having useful start/end strength data. (GPT-5.5) -->
++	if (!isDead() && !pDefender->isDead())
++	{
++		CyArgsList pyArgsSASBattleRetreat;
++		pyArgsSASBattleRetreat.add(getOwner());
++		pyArgsSASBattleRetreat.add(pDefender->getOwner());
++		pyArgsSASBattleRetreat.add(getUnitType());
++		pyArgsSASBattleRetreat.add(pDefender->getUnitType());
++		pyArgsSASBattleRetreat.add(pPlot->getX());
++		pyArgsSASBattleRetreat.add(pPlot->getY());
++		pyArgsSASBattleRetreat.add((cdAttackerDetails.iMaxCombatStr * currHitPoints()) / maxHitPoints());
++		pyArgsSASBattleRetreat.add((cdDefenderDetails.iMaxCombatStr * pDefender->currHitPoints()) / pDefender->maxHitPoints());
++		CvEventReporter::getInstance().genericEvent("sasBattleHistoryCombatRetreat", pyArgsSASBattleRetreat.makeFunctionArgs());
++	}
+ #ifdef LOG_COMBAT_OUTCOMES
+ 	// (don't log barb battles, because they have special rules.)
+ 	if (!isBarbarian() && !pDefender->isBarbarian())
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=7552

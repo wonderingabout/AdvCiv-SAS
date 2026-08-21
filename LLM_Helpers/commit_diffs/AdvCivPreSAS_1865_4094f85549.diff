@@ -1,0 +1,85 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1865
+# Commit: 4094f85549e4f7238191f1687a11ba432c3a99dd
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 01547266a491090bfe1e42f806fc80c295478c5d
+# Title: Move the scoreboard up a tiny bit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	5	Assets/Python/BUG/Scoreboard.py
+6	1	Assets/Python/Screens/CvMainInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 58881a408..292b77aa7 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -401,10 +401,15 @@ class Scoreboard:
+ 		interface = CyInterface()
+ 		xResolution = screen.getXResolution()
+ 		yResolution = screen.getYResolution()
+-		
++		# <advc.106d>
++		# Was effectively 18 in BtS regardless of resolution
++		iVOffset = 0
++		if screen.getYResolution() > 1100:
++			iVOffset = 6
++		# </advc.106d>
+ 		x = xResolution - 12 # start here and shift left with each column
+ 		if ( interface.getShowInterface() == InterfaceVisibility.INTERFACE_SHOW or interface.isInAdvancedStart()):
+-			y = yResolution - 188 # advc.106d: was yResolution-206
++			y = yResolution - 188 - iVOffset # advc.106d: was yResolution-206
+ 		else:
+ 			y = yResolution - 88
+ 		totalWidth = 0
+@@ -584,7 +589,7 @@ class Scoreboard:
+ 			interface.checkFlashReset( playerScore.getID() )
+ 		
+ 		if ( interface.getShowInterface() == InterfaceVisibility.INTERFACE_SHOW or interface.isInAdvancedStart()):
+-			y = yResolution - 168 # advc.106d: was yResolution-186
++			y = yResolution - 168 - iVOffset # advc.106d: was yResolution-186
+ 		else:
+ 			y = yResolution - 68
+ 		screen.setPanelSize( "ScoreBackground", xResolution - 21 - totalWidth, y - (height * self.size()) - 4, 
+@@ -599,8 +604,8 @@ class TeamScores:
+ 		self._team = team
+ 		self._rank = rank
+ 		self._playerScores = []
+-		#self._isVassal = team.isAVassal()
+-		self._isVassal = team.isAVassal() and gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(team.getID()) # K-Mod
++		# advc.127: Debug mode check added; the hasMet check is from K-Mod.
++		self._isVassal = team.isAVassal() and (gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(team.getID()) or gc.getGame().isDebugMode())
+ 		self._master = None
+ 		self._vassalTeamScores = []
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index f12903d40..a60624e10 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -294,7 +294,12 @@ class CvMainInterface:
+ 		self.iField_View_Prev = -1
+ 		self.iFoVPos_Prev = -1 # advc.090
+ # BUG - field of view slider - end
+-
++		# <advc.092> To make sure that Python reload doesn't crash
++		self.iMiniMapX1 = 0
++		self.iMiniMapX2 = 0
++		self.iMiniMapY1 = 0
++		self.iMiniMapY2 = 0
++		# </advc.092>
+ 
+ 
+ ############## Basic operational functions ###################
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2472

@@ -1,0 +1,245 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4064
+# Commit: e8af49a7a7e207072ed65cb23bf06652b6aea35f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4fb246b37ddff683c5924d4350ef26ab45358fac
+# Title: Minor misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/XML/GlobalDefines_advc.xml
+5	3	CvGameCoreDLL/CvGameTextMgr.cpp
+6	8	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+15	10	CvGameCoreDLL/CvPlot.cpp
+2	7	CvGameCoreDLL/CyPlayerInterface1.cpp
+8	0	CvGameCoreDLL/CyPlayerInterface2.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 52759593c..d13946624 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1355,8 +1355,8 @@
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
+ 	<!-- Replaces the base chance above on the turn that war has been declared
+-		 on a captured unit. Use 100 for BtS behavior. Recommended: 0, to
+-		 discourage surprise attacks on workers. -->
++		 on a captured unit's owner. Use 100 for BtS behavior. Recommended: 0,
++		 to discourage surprise attacks against workers. -->
+ 	<Define>
+ 		<DefineName>DOW_UNIT_CAPTURE_CHANCE</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 79e577d86..b3fede3f0 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -3041,12 +3041,12 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
+ 						aieCulturePerPlayer.push_back(std::make_pair(iCulture, kPlayer.getID()));
+ 					}
+ 				}
+-			} // <advc.099g>
++			}  // <advc.099g>
+ 			std::stable_sort(aieCulturePerPlayer.begin(), aieCulturePerPlayer.end());
+-			if(eActivePlayer != eRevealedOwner)
++			if (eActivePlayer != eRevealedOwner)
+ 			{
+ 				int iCulture = kPlot.calculateCulturePercent(eActivePlayer);
+-				if(iCulture >= 1)
++				if (iCulture >= 1)
+ 					aieCulturePerPlayer.push_back(std::make_pair(iCulture, eActivePlayer));
+ 			}
+ 			if(eRevealedOwner != NO_PLAYER) // advc.099f
+@@ -8502,6 +8502,8 @@ void CvGameTextMgr::setDiscoverPathHelp(CvWStringBuffer& szBuffer, UnitTypes eUn
+ 	{
+ 		if (!kPlayer.canResearch(eResearchOption))
+ 			continue;
++		/*	(Would not be so difficult to do this cleanly - pass eResearchOption
++			to CvPlayer::canResearch via CvPlayer::getDiscoveryTech; tbd.?) */
+ 		kTeam.setHasTechTemporarily(eResearchOption, true);
+ 		TechTypes eNextDiscover = kPlayer.getDiscoveryTech(eUnit);
+ 		kTeam.setHasTechTemporarily(eResearchOption, false);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index da2f13fa1..8542a2b2b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2404,8 +2404,8 @@ CvSelectionGroup* CvPlayer::getNextGroupInCycle(CvUnit* pUnit, bool bForward,
+ 				// advc.153: with moves
+ 				pLoopSelectionGroup->hasWorkerWithMoves())
+ 			{
+-				/*if (pUnit && pLoopSelectionGroup == pUnit->getGroup())
+-					if (pbWrap != NULL) *pbWrap = true;*/
++				/*if (pUnit != NULL && pLoopSelectionGroup == pUnit->getGroup())
++					bWrap = true;*/ // K-Mod: disabled
+ 				return pLoopSelectionGroup;
+ 			}
+ 		}
+@@ -2415,7 +2415,7 @@ CvSelectionGroup* CvPlayer::getNextGroupInCycle(CvUnit* pUnit, bool bForward,
+ 			if (pSelectionGroupNode == NULL)
+ 			{
+ 				pSelectionGroupNode = headGroupCycleNode();
+-				// if (pbWrap != NULL) *pbWrap = true;
++				//bWrap = true; // K-Mod: disabled
+ 			}
+ 		}
+ 		else
+@@ -2424,17 +2424,15 @@ CvSelectionGroup* CvPlayer::getNextGroupInCycle(CvUnit* pUnit, bool bForward,
+ 			if (pSelectionGroupNode == NULL)
+ 			{
+ 				pSelectionGroupNode = tailGroupCycleNode();
+-				// if (pbWrap != NULL) *pbWrap = true;
++				//bWrap = true; // K-Mod: disabled
+ 			}
+ 		}
+ 		if (pSelectionGroupNode == pFirstSelectionGroupNode)
+ 		{
+-			// break;
+-			// K-Mod
++			// break; /* <K-Mod> */
+ 			if (bWrap)
+ 				break;
+-			bWrap = true;
+-			// K-Mod end
++			bWrap = true; // </K-Mod>
+ 		}
+ 	}
+ 	return NULL;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 64989a2f6..cb2395cf1 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -27477,7 +27477,7 @@ void CvPlayerAI::AI_advancedStartRouteTerritory()
+ 
+ void CvPlayerAI::AI_doAdvancedStart(bool bNoExit)
+ {
+-	FAssertMsg(!isBarbarian(), "Should not be called for barbarians!");
++	FAssert(!isBarbarian());
+ 
+ 	if (getStartingPlot() == NULL)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 858e6d116..55bb59f0a 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1509,7 +1509,7 @@ bool CvPlot::canHavePotentialIrrigation() const
+ {
+ 	//PROFILE_FUNC(); // advc (not called very frequently)
+ 	// <advc.opt>
+-	if(isWater())
++	if (isWater())
+ 		return false; // </advc.opt>
+ 	// advc: 2nd condition was !isHills. Mods might allow cities on peaks.
+ 	if (isCity() && isFlatlands())
+@@ -2163,9 +2163,11 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam,
+ 			return false;
+ 	}
+ 
+-	if (getBonusType(eTeam) != NO_BONUS && GC.getInfo(eImprovement).isImprovementBonusMakesValid(getBonusType(eTeam)))
++	if (getBonusType(eTeam) != NO_BONUS &&
++		GC.getInfo(eImprovement).isImprovementBonusMakesValid(getBonusType(eTeam)))
++	{
+ 		return true;
+-
++	}
+ 	if (GC.getInfo(eImprovement).isNoFreshWater() && isFreshWater())
+ 		return false;
+ 
+@@ -2178,14 +2180,17 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam,
+ 		bool bValid = false;
+ 		if (GC.getInfo(eImprovement).isHillsMakesValid() && isHills())
+ 			bValid = true;
+-		if (GC.getInfo(eImprovement).isFreshWaterMakesValid() && isFreshWater())
++		else if (GC.getInfo(eImprovement).isFreshWaterMakesValid() && isFreshWater())
+ 			bValid = true;
+-		if (GC.getInfo(eImprovement).isRiverSideMakesValid() && isRiverSide())
++		else if (GC.getInfo(eImprovement).isRiverSideMakesValid() && isRiverSide())
+ 			bValid = true;
+-		if (GC.getInfo(eImprovement).getTerrainMakesValid(getTerrainType()))
++		else if (GC.getInfo(eImprovement).getTerrainMakesValid(getTerrainType()))
+ 			bValid = true;
+-		if (isFeature() && GC.getInfo(eImprovement).getFeatureMakesValid(getFeatureType()))
++		else if (isFeature() &&
++			GC.getInfo(eImprovement).getFeatureMakesValid(getFeatureType()))
++		{
+ 			bValid = true;
++		}
+ 		if (!bValid)
+ 			return false;
+ 	}
+@@ -2374,7 +2379,7 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
+ 	if (isFeature())
+ 	{
+ 		if (GC.getInfo(eBuild).isFeatureRemove(getFeatureType()))
+-		{	/*if (isOwned() && (GET_PLAYER(ePlayer).getTeam() != getTeam()) && !atWar(GET_PLAYER(ePlayer).getTeam(), getTeam()))
++		{	/*if (isOwned() && TEAMID(ePlayer) != getTeam() && !GET_TEAM(ePlayer).isAtWar(getTeam()))
+ 				return false;
+ 			bValid = true;*/
+ 			// <advc.119> Replacing the above
+@@ -2397,8 +2402,8 @@ int CvPlot::getBuildTime(BuildTypes eBuild, /* advc.251: */ PlayerTypes ePlayer)
+ 	iTime *= std::max(0, GC.getInfo(getTerrainType()).getBuildModifier() + 100);
+ 	iTime /= 100;
+ 	// <advc.251>
+-	iTime = (int)(GC.getInfo(GET_PLAYER(ePlayer).getHandicapType()).
+-			getBuildTimePercent() * 0.01 * iTime);
++	iTime = (per100(GC.getInfo(GET_PLAYER(ePlayer).getHandicapType()).
++			getBuildTimePercent()) * iTime).floor();
+ 	iTime -= (iTime % 50); // Round down to a multiple of 50
+ 	// </advc.251>
+ 	iTime *= GC.getInfo(GC.getGame().getGameSpeedType()).getBuildPercent();
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index 99419c205..650b0cd35 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -464,12 +464,7 @@ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
+ 		.def("nextSelectionGroup", &CyPlayer::nextSelectionGroup, "tuple(CySelectionGroup, int iterOut) (int iterIn, bool bReverse) - gets the next selectionGroup")
+ 		.def("getNumSelectionGroups", &CyPlayer::getNumSelectionGroups, "int ()")
+ 		.def("getSelectionGroup", &CyPlayer::getSelectionGroup, python::return_value_policy<python::manage_new_object>(), "CvSelectionGroup* (int iID)")
+-
+-		.def("trigger", &CyPlayer::trigger, "void (/*EventTriggerTypes*/int eEventTrigger)")
+-		.def("getEventOccured", &CyPlayer::getEventOccured, python::return_value_policy<python::reference_existing_object>(), "EventTriggeredData* (int /*EventTypes*/ eEvent)")
+-		.def("resetEventOccured", &CyPlayer::resetEventOccured, "void (int /*EventTypes*/ eEvent)")
+-		.def("getEventTriggered", &CyPlayer::getEventTriggered, python::return_value_policy<python::reference_existing_object>(), "EventTriggeredData* (int iID)")
+-		.def("initTriggeredData", &CyPlayer::initTriggeredData, python::return_value_policy<python::reference_existing_object>(), "EventTriggeredData* (int eEventTrigger, bool bFire, int iCityId, int iPlotX, int iPlotY, PlayerTypes eOtherPlayer, int iOtherPlayerCityId, ReligionTypes eReligion, CorporationTypes eCorporation, int iUnitId, BuildingTypes eBuilding)")
+-		.def("getEventTriggerWeight", &CyPlayer::getEventTriggerWeight, "int getEventTriggerWeight(int eEventTrigger)")
++		/*	kekm.34: Moved functions related to random events to CyPlayerInterface2.cpp
++			to keep the size of the module's debug info in check */
+ 		;
+ }
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface2.cpp b/CvGameCoreDLL/CyPlayerInterface2.cpp
+index dc3992381..92f116cc1 100644
+--- a/CvGameCoreDLL/CyPlayerInterface2.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface2.cpp
+@@ -15,6 +15,14 @@ void CyPlayerPythonInterface2(python::class_<CyPlayer>& x)
+ 	// set the docstring of the current module scope
+ 	python::scope().attr("__doc__") = "Civilization IV Player Class";
+ 	x
++		// (kekm.34: Moved this block from CyPlayerInterface1.cpp)
++		.def("trigger", &CyPlayer::trigger, "void (/*EventTriggerTypes*/int eEventTrigger)")
++		.def("getEventOccured", &CyPlayer::getEventOccured, python::return_value_policy<python::reference_existing_object>(), "EventTriggeredData* (int /*EventTypes*/ eEvent)")
++		.def("resetEventOccured", &CyPlayer::resetEventOccured, "void (int /*EventTypes*/ eEvent)")
++		.def("getEventTriggered", &CyPlayer::getEventTriggered, python::return_value_policy<python::reference_existing_object>(), "EventTriggeredData* (int iID)")
++		.def("initTriggeredData", &CyPlayer::initTriggeredData, python::return_value_policy<python::reference_existing_object>(), "EventTriggeredData* (int eEventTrigger, bool bFire, int iCityId, int iPlotX, int iPlotY, PlayerTypes eOtherPlayer, int iOtherPlayerCityId, ReligionTypes eReligion, CorporationTypes eCorporation, int iUnitId, BuildingTypes eBuilding)")
++		.def("getEventTriggerWeight", &CyPlayer::getEventTriggerWeight, "int getEventTriggerWeight(int eEventTrigger)")
++
+ 		.def("AI_updateFoundValues", &CyPlayer::AI_updateFoundValues, "void (bool bStartingLoc)")
+ 		.def("AI_foundValue", &CyPlayer::AI_foundValue, "int (int, int, int, bool)")
+ 		.def("AI_isFinancialTrouble", &CyPlayer::AI_isFinancialTrouble, "bool ()")
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=10417

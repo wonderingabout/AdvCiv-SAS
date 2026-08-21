@@ -1,0 +1,76 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2576
+# Commit: 1e7aa062dcad0e59cad8c621174c1978a924d148
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 293bb874ef1944d452dd1e99808f3ee806eeee87
+# Title: Fix AdvCiv bug: Random Personalities option had no effect
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	31	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 32e346b29..b307604c6 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -103,36 +103,7 @@ bool CvPlayer::initOtherData()
+ 		return false;
+ 	initAlerts(); // advc.210
+ 	setAlive(true);
+-	LeaderHeadTypes ePersonality = NO_LEADER; // advc.104: Moved up
+-	if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) &&
+-		!isBarbarian() && !isMinorCiv())
+-	{
+-		int iBestValue = 0;
+-		int const iBARBARIAN_LEADER = GC.getDefineINT("BARBARIAN_LEADER"); // advc.opt
+-		FOR_EACH_ENUM2(LeaderHead, eLoopPersonality)
+-		{
+-			if (eLoopPersonality == iBARBARIAN_LEADER) // XXX minor civ???
+-				continue;
+-
+-			int iValue = (1 + GC.getGame().getSorenRandNum(10000, "Choosing Personality"));
+-			for (int iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
+-			{
+-				if (GET_PLAYER((PlayerTypes)iJ).isAlive())
+-				{
+-					if (GET_PLAYER((PlayerTypes)iJ).
+-						getPersonalityType() == eLoopPersonality)
+-					{
+-						iValue /= 2;
+-					}
+-				}
+-			}
+-			if (iValue > iBestValue)
+-			{
+-				iBestValue = iValue;
+-				ePersonality = eLoopPersonality;
+-			}
+-		}
+-	}
++	changePersonalityType(); // advc.003q: Use BBAI subroutine
+ 
+ 	changeBaseFreeUnits(GC.getDefineINT("INITIAL_BASE_FREE_UNITS"));
+ 	changeBaseFreeMilitaryUnits(GC.getDefineINT("INITIAL_BASE_FREE_MILITARY_UNITS"));
+@@ -624,7 +595,8 @@ void CvPlayer::processTraits(int iChange)
+ 	}
+ }
+ 
+-
++/*	advc (note): The Change Player mod has copied this from CvPlayer::init.
++	I've deleted the code there, so now it has effectively been moved from init.*/
+ void CvPlayer::changePersonalityType()
+ {
+ 	if (isBarbarian())
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1648

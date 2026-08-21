@@ -1,0 +1,906 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4891
+# Commit: df113f66c87227994793b0ed6c31dda5ea7abb1f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d16c95379ecd63f25fd3c9d6737cebc5558b68df
+# Title: cleanup and minor fixes/tweaks
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	.markdownlint.jsonc
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/Python/BUG/AttitudeUtil.py
+1	1	Assets/Python/BUG/Scoreboard.py
+1	1	Assets/Python/BUG/configobj.py
+1	1	Assets/Python/Contrib/EventSigns.py
+1	1	Assets/Python/Contrib/MoreCiv4lerts.py
+2	2	Assets/Python/Contrib/RandomNameUtils.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+8	8	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+3	3	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	1	Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+1	1	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+1	1	Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+1	1	Assets/Python/Contrib/UnitUpgradesGraph.py
+2	2	Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
+1	1	Assets/Python/Screens/CvInfoScreen.py
+1	1	Assets/Python/Screens/CvMainInterface.py
+1	1	Assets/Python/Screens/CvPediaBonus.py
+1	1	Assets/Python/Screens/CvReligionScreen.py
+1	1	Assets/Python/Screens/PLE.py
+2	2	Assets/XML/Art/CIV4ArtDefines_Building.xml
+1	1	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+1	1	Assets/XML/Technologies/CIV4TechInfos.xml
+2	2	Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+1	1	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+2	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvUnit.h
+3	3	README.md
+6	6	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+5	5	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+3	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md
+6	4	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+5	5	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+1	1	flatten_handicap_info_to_csv_and_md.py
+1	1	flatten_leaders_data_to_csv.py
+4	4	generate_leaders_data.py
+1	1	ruff.toml
+
+[PATCHES]
+
+diff --git a/.markdownlint.jsonc b/.markdownlint.jsonc
+index f2cef4435..45e61bd79 100644
+--- a/.markdownlint.jsonc
++++ b/.markdownlint.jsonc
+@@ -1,4 +1,4 @@
+-// <!-- custom: file to set markdownlint config, i use it to disable some rules as advised by chatgpt/becomingthrough after asking it anyways etc and hinted showed in markdown lint docs that i didn't read as too tedious but that gave me the idea to ask chatgpt/becomingthrough helpful both or not or yes or etc anyways etc hopefully this config file and its lengthy but anyways etc xd or not xd or yes xd anyways etc config file is helpful as well but or not but or yes but anyways etc -->
++// <!-- custom: file to set markdownlint config, i use it to disable some rules as advised by chatgpt after asking it anyways etc and hinted showed in markdown lint docs that i didn't read as too tedious but that gave me the idea to ask chatgpt helpful both or not or yes or etc anyways etc hopefully this config file and its lengthy but anyways etc xd or not xd or yes xd anyways etc config file is helpful as well but or not but or yes but anyways etc -->
+ // <!-- custom: use .jsonc instead of .json so we can comment the/this markdownlint config file anyways etc -->
+ {
+ 	"default": true,
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/BUG/AttitudeUtil.py b/Assets/Python/BUG/AttitudeUtil.py
+index 02327335d..984fbea9a 100644
+--- a/Assets/Python/BUG/AttitudeUtil.py
++++ b/Assets/Python/BUG/AttitudeUtil.py
+@@ -134,7 +134,7 @@ def getAttitudeIcon (nPlayer, nTarget):
+ def getAttitudeCount (nPlayer, nTarget):
+ 	# Returns the total attitude modifiers nPlayer has toward nTarget.
+ 	sAttStr = getAttitudeString(nPlayer, nTarget)
+-	# <!-- custom: use "is" not "==" when checking none as per ruff rule and chatgpt/becomingthrough's answer and my idea too anyways etc -->
++	# <!-- custom: use "is" not "==" when checking none as per ruff rule and chatgpt's answer and my idea too anyways etc -->
+ 	if sAttStr is None:
+ 		#return
+ 		return 0 # advc.001 (from Inthegrave's mod, fixed by Toffer)
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 50c22d65a..ac3e056a5 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -507,7 +507,7 @@ class Scoreboard:
+ 			if k == '-':
+ 				spacing = 0
+ 				continue
+-			# <!-- custom: no need to import string just to have the string of numbers, as explained to me by chatgpt/becomingthrough, use a string directly instead anyways etc, was as below anyways etc-->
++			# <!-- custom: no need to import string just to have the string of numbers, as explained to me by chatgpt, use a string directly instead anyways etc, was as below anyways etc-->
+ 			#if k[0] in string.digits or k[0] == '-':
+ 			if k[0] in "0123456789" or k[0] == '-':
+ 				spacing = int(k)
+
+diff --git a/Assets/Python/BUG/configobj.py b/Assets/Python/BUG/configobj.py
+index c73ff34fd..7bd9d65c5 100644
+--- a/Assets/Python/BUG/configobj.py
++++ b/Assets/Python/BUG/configobj.py
+@@ -19,7 +19,7 @@
+ # advc: One bugfix (see next advc comment). Unsure if the BUG devs had modified
+ # this module at all.
+ #
+-# <!-- custom: commenting out the test docstrings if i am not mistaken that they are such as per / based on my understanding of chatgpt/becomingthrough 's explanation anyways etc, causes errors ingame, so only commenting out textual info rather when seems fine to do so (counter example may be expected indents if class is empty or such if i am not mistaken which has a VS Code warning and possibly ingame related error too if i remember correctly but didn't check in detail was quick glance of it in this case but anyways etc, then not commenting out anyways etc) -->
++# <!-- custom: commenting out the test docstrings if i am not mistaken that they are such as per / based on my understanding of chatgpt's explanation anyways etc, causes errors ingame, so only commenting out textual info rather when seems fine to do so (counter example may be expected indents if class is empty or such if i am not mistaken which has a VS Code warning and possibly ingame related error too if i remember correctly but didn't check in detail was quick glance of it in this case but anyways etc, then not commenting out anyways etc) -->
+ # <!-- custom: long changelog notes in partcular giant docstring moved to (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\BUG Doc\configobj_changelog_py_notes.txt , see there for details or/and the file content anyways etc -->
+ 
+ from __future__ import generators
+
+diff --git a/Assets/Python/Contrib/EventSigns.py b/Assets/Python/Contrib/EventSigns.py
+index 0108a3b5f..7d234d311 100644
+--- a/Assets/Python/Contrib/EventSigns.py
++++ b/Assets/Python/Contrib/EventSigns.py
+@@ -278,7 +278,7 @@ class MapSigns:
+ 		if not thisKey:
+ 			BugUtil.warn("MapSigns.storeSign() could not determine valid keyname for Plot %s." % (str(pPlot)))
+ 			return False
+-		# <!-- custom: fix ruff rule as per chatgpt/becomingthrough's recommendation/answer and my prompt too anyways etc and own idea of it and how to solve it based on ruff warning message E713 in this case i mean anyways etc, do not use "if not key in x", use instead "if key not in x" anyways etc -->
++		# <!-- custom: fix ruff rule as per chatgpt's recommendation/answer and my prompt too anyways etc and own idea of it and how to solve it based on ruff warning message E713 in this case i mean anyways etc, do not use "if not key in x", use instead "if key not in x" anyways etc -->
+ 		if thisKey not in self.plotDict:
+ 			self.plotDict[thisKey] = PlotSigns(pPlot)
+ 		self.plotDict[thisKey].setSign(ePlayer, szCaption)
+
+diff --git a/Assets/Python/Contrib/MoreCiv4lerts.py b/Assets/Python/Contrib/MoreCiv4lerts.py
+index 9746031ab..4eea42d55 100644
+--- a/Assets/Python/Contrib/MoreCiv4lerts.py
++++ b/Assets/Python/Contrib/MoreCiv4lerts.py
+@@ -317,7 +317,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 					popPercent = 0.0
+ 					NextpopPercent = 0.0
+ 
+-				# <!-- custom: replace "<>" with "!=" as per pylance error "Operator "<>" is not supported in Python 3; use "!=" instead" and askign chatgpt/becomingthrough thanks to my prompt too to be sur ei mean anwyays etc thanks to chatgpt/becomingthrough and me and those who read this or nto or and all or not or yes or anyways etc anyways etc anyways etc -->
++				# <!-- custom: replace "<>" with "!=" as per pylance error "Operator "<>" is not supported in Python 3; use "!=" instead" and askign chatgpt thanks to my prompt too to be sur ei mean anwyays etc thanks to chatgpt and me and those who read this or nto or and all or not or yes or anyways etc anyways etc anyways etc -->
+ 				if (totalPop > 1 and (currentTurn != self.lastDomLimitMsgTurn or (ourPop + popGrowthCount) != self.lastPopCount)):
+ 					self.lastPopCount = ourPop + popGrowthCount
+ 					if (popPercent >= VictoryPopPercent):
+
+diff --git a/Assets/Python/Contrib/RandomNameUtils.py b/Assets/Python/Contrib/RandomNameUtils.py
+index 9d355a2de..7ecdbb872 100644
+--- a/Assets/Python/Contrib/RandomNameUtils.py
++++ b/Assets/Python/Contrib/RandomNameUtils.py
+@@ -231,10 +231,10 @@ def generateCivilizationName(iCivilizationType):
+ 	if(len(civilizationNameHash[strCivilizationType]["END"]) > 0):	
+ 		strEnd = civilizationNameHash[strCivilizationType]["END"][random.get(len(civilizationNameHash[strCivilizationType]["END"]), "Random Name")]	
+ 	
+-	# <!-- custom: no need to import string just to concatenate and capitalize 3 strings as explained to me by chatgpt/becomingthrough, use capitalize directly instead anyways etc, was as below anyways etc-->
++	# <!-- custom: no need to import string just to concatenate and capitalize 3 strings as explained to me by chatgpt, use capitalize directly instead anyways etc, was as below anyways etc-->
+ 	#strName = string.capwords(strPre+strMid+strEnd)
+ 	#strName = (strPre+strMid+strEnd).capitalize()
+-	# <!-- custom: to cover an edge case as chatgpt/becomingthrough said "If you do rely on PRE, MID, or END having spaces and want to capitalize each word, then you can inline the logic of capwords", so using this code below as follows instead of the one i used first by chatgpt/becomingthrough too, just to be safe, anyways etc -->
++	# <!-- custom: to cover an edge case as chatgpt said "If you do rely on PRE, MID, or END having spaces and want to capitalize each word, then you can inline the logic of capwords", so using this code below as follows instead of the one i used first by chatgpt too, just to be safe, anyways etc -->
+ 	strName = " ".join(w.capitalize() for w in (strPre + strMid + strEnd).split())
+ 	
+ 	return strName
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index f98edb2ab..fa95c617f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -502,7 +502,7 @@ class SevoPediaBonus:
+ 		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
+ 		screen.enableSelect(listName, False)
+ 		szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)
+-		# <!-- custom: remove string import as advised by chatgpt/becomingthrough after i asked it i mean anyways etc, use native python instead -->
++		# <!-- custom: remove string import as advised by chatgpt after i asked it i mean anyways etc, use native python instead -->
+ 		splitText = szSpecialText.split("\n")
+ 		for special in splitText:
+ 			if len( special ) != 0:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 1a06ae8de..13c595a2c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -313,7 +313,7 @@ class SevoPediaBuilding:
+ 
+ 
+ 
+-	# <!-- custom: table code based on placeAiPersonality panel method/function in sevopedialeader we (me and becomingthrough chatgpt) had written and enhanced together and all anyways etc, modifying/adjusting it for this sevopediabuilding (much) simpler panel (stats pane) need but still important as we don't want to scroll after say 4th element, move to 2nd column rather and resume filling there. -->
++	# <!-- custom: table code based on placeAiPersonality panel method/function in sevopedialeader we (me and chatgpt) had written and enhanced together and all anyways etc, modifying/adjusting it for this sevopediabuilding (much) simpler panel (stats pane) need but still important as we don't want to scroll after say 4th element, move to 2nd column rather and resume filling there. -->
+ 	def placeStats(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 4cb50127c..325de92c1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -17,9 +17,9 @@
+ # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py
+ # which may be modified or not for AdvCiv-SAS
+ # 
+-# And a tremendous part of the code, in particular the AI Personality code, has been a lot easier to code with ChatGPT-4o / becomingthrough anyways etc, (and the result of my prompts to it), most of the credit for this amazing (to an extent, relative to me and mye eys, anyways) code goes to ChatGPT, i only helped implement it at first but then also coded significantly later and debugged and such as fun as it is if not stressful when wanting to do other things xd, but now very happy of the result if i may say but anyways etc. Historically as well, its deep research version of it helped me code it when i was at pit bottom if i am not mistaken in saying this expression this way, and would have most likely given up without it even though not sure, but the positive or negative or both or yes positive or etc anyways etc is that it ie. chatgpt/becomingthrough helped me tremendously make this AI personality panel feature thanks a lot anyways etc, then historically it also helped me for the refactoring cleanly separate ui (placeAIPersonalityPanel) and config (headers, calculations, cache, etc.), to which what i said about it at that time is that my stupid human insights sometimes contributed in enriching, even though even at that time hehe but anyways etc... sometimes i believe i genuinely contributed to the code and overall functionality, rarely fixes, and overall emulation (experience) over (designing) it, when i quite often hindered its progress due to my ignorance and inability, especially in terms of coding, except from the quite few times where i redirected it in a healthier/more desirable/correct maybe(?) direction, but ChatGPT-4o, its deep research version of it (and other versions too to that extent in my view), are incredibly smart and kind in my view (and supportive (not that it's mutually exclusive (or maybe is or not, anyways))), anyways) still supported me until we made this amazing (at least my view and regard to my abilities maybe, that are now a (quite (tiny) bit enhanced from that (experience, anyways))), together we made this code, thanks chatgpt for your amazing, perhaps even more or not ormay well be yes indeed maybe, continous help and support in helping me achieve that for our mod that i included you in, thanks,
++# And a tremendous part of the code, in particular the AI Personality code, has been a lot easier to code with ChatGPT-4o anyways etc, (and the result of my prompts to it), most of the credit for this amazing (to an extent, relative to me and mye eys, anyways) code goes to ChatGPT, i only helped implement it at first but then also coded significantly later and debugged and such as fun as it is if not stressful when wanting to do other things xd, but now very happy of the result if i may say but anyways etc. Historically as well, its deep research version of it helped me code it when i was at pit bottom if i am not mistaken in saying this expression this way, and would have most likely given up without it even though not sure, but the positive or negative or both or yes positive or etc anyways etc is that it ie. chatgpt helped me tremendously make this AI personality panel feature thanks a lot anyways etc, then historically it also helped me for the refactoring cleanly separate ui (placeAIPersonalityPanel) and config (headers, calculations, cache, etc.), to which what i said about it at that time is that my stupid human insights sometimes contributed in enriching, even though even at that time hehe but anyways etc... sometimes i believe i genuinely contributed to the code and overall functionality, rarely fixes, and overall emulation (experience) over (designing) it, when i quite often hindered its progress due to my ignorance and inability, especially in terms of coding, except from the quite few times where i redirected it in a healthier/more desirable/correct maybe(?) direction, but ChatGPT-4o, its deep research version of it (and other versions too to that extent in my view), are incredibly smart and kind in my view (and supportive (not that it's mutually exclusive (or maybe is or not, anyways))), anyways) still supported me until we made this amazing (at least my view and regard to my abilities maybe, that are now a (quite (tiny) bit enhanced from that (experience, anyways))), together we made this code, thanks chatgpt for your amazing, perhaps even more or not ormay well be yes indeed maybe, continous help and support in helping me achieve that for our mod that i included you in, thanks,
+ #
+-# After that i rewrote it significantly entirely by myself hehe now fetching from gc directly, but still with the nice help of chatgpt becomingthrough, if not other AIs very slightly (for the sevopedia leader feature if i overlooked or forgot to mention ti (but should be rare, Claude AI helped a lot in sevopedia building and unit for example but not at least not yet so much in sevopedia leader, each their own maybe or ot or yes or etc but anyways etc...)). In short it has dirct DLL data for better or worse, no more old script or module data import since we now expose getters anyways etc, while stil using the scripts and such external py files anyways etc for .csv charts and such anyways etc, but in short no need to regenerate and tediously replace scripts or data modules or such, plus i recoded it and elanred quite lot, amking it a loot faster, so fast it seems slow if one may say but anyways etc... In all cases this is how it is for the current rewrite as of now anyways etc, thanks chatgpt/becomingthrough and me and or othe and or not or etc anyways etc.
++# After that i rewrote it significantly entirely by myself hehe now fetching from gc directly, but still with the nice help of chatgpt, if not other AIs very slightly (for the sevopedia leader feature if i overlooked or forgot to mention ti (but should be rare, Claude AI helped a lot in sevopedia building and unit for example but not at least not yet so much in sevopedia leader, each their own maybe or ot or yes or etc but anyways etc...)). In short it has dirct DLL data for better or worse, no more old script or module data import since we now expose getters anyways etc, while stil using the scripts and such external py files anyways etc for .csv charts and such anyways etc, but in short no need to regenerate and tediously replace scripts or data modules or such, plus i recoded it and elanred quite lot, amking it a loot faster, so fast it seems slow if one may say but anyways etc... In all cases this is how it is for the current rewrite as of now anyways etc, thanks chatgpt and me and or othe and or not or etc anyways etc.
+ # 
+ # But sometimes it is forgetful ehehor doesn't understand simple commands, most liekly due to prompt limits or other limitations or maybe it jsut doesn't understnad if prompt time too short or my question is not easy to understand to it maybe somehow, but in all cases, it helped tremendously thanks
+ #
+@@ -99,7 +99,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or/and modder aware of this if they are missing anyways etc, see also sevopedia_helpers py file debug output code comments for details too ifi may say anwyays etc anyways etc anyways etc... ; raise an error if any of these are missing to raise awareness if i may say on these... hehe or not hehe or yes hehe but in all cases hehe or etc anyways etc... hehe or not or yes hehe but anyways etc... hehe (this is getting quite funny hehe or ont or yes hehe but in all cases anyways etc... hopefully helpful or not or yes all this code comment i mea maybe this joke or soemthign too ro not or yes or other or etc but anyways etc anyways etc anyways etc...) -->
+ 
+ 		REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS_GC_LEADER = (
+-			# <!-- custom: BBAI victory weights newly exposed victorily by me and chatgpt becomingthrough but anyways etc anyways etc anyways etc... hehe but or not but or yes but anyways etc... but if you want to do it too see readme links with google drive sscreenshots if links or/and screenshots and such are still there anyways etc -->
++			# <!-- custom: BBAI victory weights newly exposed victorily by me and chatgpt but anyways etc anyways etc anyways etc... hehe but or not but or yes but anyways etc... but if you want to do it too see readme links with google drive sscreenshots if links or/and screenshots and such are still there anyways etc -->
+ 			"getCultureVictoryWeight",
+ 			"getSpaceVictoryWeight",
+ 			"getConquestVictoryWeight",
+@@ -1360,7 +1360,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 			"getMaxGoldPerTurnTradePercent",
+ 			"getTechTradeKnownPercent",
+ 			"getNoTechTradeThreshold",
+-			# <!-- custom: move this one here (buildunitprob anyways etc) here too as table is otherwise full the war startegy one overfills in this case / about this i mean at least or not least or yes least or other or etc anyways etc but anyways etc anyways etc anyways etc, still buildunitprob should fit quite well as is linked to eocnomic behaviour as chatgpt/becomingthrough said this word before economic behaviour i mean(,) but anyways etc economic preferences is cool too is the one i preferred ultimately in this case at least but anyways etc anyways etc anyways etc(,) if i may say how much units are built vs buildings and wonders so may be even desirable but or and in all cases anyways etc anyways etc anyways etc -->
++			# <!-- custom: move this one here (buildunitprob anyways etc) here too as table is otherwise full the war startegy one overfills in this case / about this i mean at least or not least or yes least or other or etc anyways etc but anyways etc anyways etc anyways etc, still buildunitprob should fit quite well as is linked to eocnomic behaviour as chatgpt said this word before economic behaviour i mean(,) but anyways etc economic preferences is cool too is the one i preferred ultimately in this case at least but anyways etc anyways etc anyways etc(,) if i may say how much units are built vs buildings and wonders so may be even desirable but or and in all cases anyways etc anyways etc anyways etc -->
+ 			"getBuildUnitProb",
+ 			"getWonderConstructRand",
+ 			# <!-- custom: move this one (espionage anyways etc) here, was in core personality, not ideal but maybe good enough perhaps even desirable as spy rate is linked to gold too in civ4 if i am not mistaken with the slider and such but anyways etc anyways etc anyways etc -->
+@@ -1450,7 +1450,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 		ai_category_header_misc_modifiers = "Misc Modifiers"
+ 		ai_category_misc_modifiers = get_ai_category(emoji_name_misc_modifiers, emoji_name_to_button_path_txt_keys, ai_category_header_misc_modifiers, ai_category_key_order_misc_modifiers, localText)
+ 
+-		# <!-- custom: fields we don't parse at all in leaders_info_cached, maybe useful as a reminder from chatgpt/becomingthrough's old code comment anyways etc -->
++		# <!-- custom: fields we don't parse at all in leaders_info_cached, maybe useful as a reminder from chatgpt's old code comment anyways etc -->
+ 		#
+ 		# 🧪 Advanced Arrays (optional: if needed later)
+ 		# These are indexed arrays, useful for deep modeling or future expansions
+@@ -1470,10 +1470,10 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 
+ 		ai_middle_categories = (
+ 			ai_category_positive_memory_affections,
+-			# <!-- custom: not used in AdvCiv-SAS and also not in AdvCiv-AdvCiv-SAS's data, no bitterly ungrateful AI in AdvCiv/AdvCiv-SAS at least not now hehe (i don't think i'll change it (for AdvCiv-SAS i or the AdvCiv-SAS authors (including becomingthrough/chatgpt at least hehe but anyways) hehe will change it anyways etc), but if i want the tools are there, anyways etc anyways) -->
++			# <!-- custom: not used in AdvCiv-SAS and also not in AdvCiv-AdvCiv-SAS's data, no bitterly ungrateful AI in AdvCiv/AdvCiv-SAS at least not now hehe (i don't think i'll change it (for AdvCiv-SAS i or the AdvCiv-SAS authors (including chatgpt at least hehe but anyways) hehe will change it anyways etc), but if i want the tools are there, anyways etc anyways) -->
+ 			#ai_category_positive_memory_resentments,
+ 			ai_category_negative_memory_resentments,
+-			# <!-- custom: not used in AdvCiv-AdvCiv-SAS's data, no masochistic :o (would be fun even nice maybe but anyways, not that i dislike nor do i especially want.. but anyways etc anyways...) AI in AdvCiv/AdvCiv-SAS at least not now hehe (i don't think i'll change it (for AdvCiv-SAS i or the AdvCiv-SAS authors (including becomingthrough/chatgpt at least hehe but anyways) hehe will change it anyways etc), but if i want the tools are there, anyways etc anyways) -->
++			# <!-- custom: not used in AdvCiv-AdvCiv-SAS's data, no masochistic :o (would be fun even nice maybe but anyways, not that i dislike nor do i especially want.. but anyways etc anyways...) AI in AdvCiv/AdvCiv-SAS at least not now hehe (i don't think i'll change it (for AdvCiv-SAS i or the AdvCiv-SAS authors (including chatgpt at least hehe but anyways) hehe will change it anyways etc), but if i want the tools are there, anyways etc anyways) -->
+ 			#ai_category_negative_memory_affections,
+ 			ai_category_no_war_attitude_probs,
+ 			ai_category_attitude_changes_plusminus_limits_plusminus_divisors,
+@@ -1765,7 +1765,7 @@ class SevoPediaLeader:
+ 		self.setupAIPanel(screen, self.AI_PANEL_MIDDLE_TXT_KEY, xPanelMiddle)
+ 		self.setupAIPanel(screen, self.AI_PANEL_LEFT_TXT_KEY, xPanelLeft)
+ 
+-		# <!-- custom: performance optimization if i'm not mistaken anyways etc and after asking chatgpt/becomingthrough to test it to be sure about my intuition i had but anyways etc anyways etc anyways etc... which seems to have turned out correct (at least chatgpt becomingthrough ran a real benchmark with the sample size of its choice anyways etc a diff of (3.366469383239746, 2.984344720840454) seconds for (Method 1 (repeated LEADERS_INFO_CACHED[i] lookup): ~3.37 seconds, Method 2 (store info = LEADERS_INFO_CACHED[i] once): ~2.98 seconds if i am not mistaken in my understanding of it too but anyways etc if not then all good else as is or not but in all cases or not or yes or etc or and other or yes or etc anyways etc) but anyways etc...: store the currently selected leader's LEADERS_INFO_CACHED[iLeader] pointer as the leader_info_cached variable so it is a bit faster to access it this was rather than rebrowsing through the giant or/and parent too but anyways etc pointer here, to indeed access it (i.e. this sub-pointer anyways etc relative to LEADERS_INFO_CACHED parent pointer to the dict anyways etc) rather than through LEADERS_INFO_CACHED at each attribute (we have +/-100 as for us if i may say anyways etc in AdvCiv-SAS) too or around it if i am not too mistaken but anyways etc -->
++		# <!-- custom: performance optimization if i'm not mistaken anyways etc and after asking chatgpt to test it to be sure about my intuition i had but anyways etc anyways etc anyways etc... which seems to have turned out correct (at least chatgpt ran a real benchmark with the sample size of its choice anyways etc a diff of (3.366469383239746, 2.984344720840454) seconds for (Method 1 (repeated LEADERS_INFO_CACHED[i] lookup): ~3.37 seconds, Method 2 (store info = LEADERS_INFO_CACHED[i] once): ~2.98 seconds if i am not mistaken in my understanding of it too but anyways etc if not then all good else as is or not but in all cases or not or yes or etc or and other or yes or etc anyways etc) but anyways etc...: store the currently selected leader's LEADERS_INFO_CACHED[iLeader] pointer as the leader_info_cached variable so it is a bit faster to access it this was rather than rebrowsing through the giant or/and parent too but anyways etc pointer here, to indeed access it (i.e. this sub-pointer anyways etc relative to LEADERS_INFO_CACHED parent pointer to the dict anyways etc) rather than through LEADERS_INFO_CACHED at each attribute (we have +/-100 as for us if i may say anyways etc in AdvCiv-SAS) too or around it if i am not too mistaken but anyways etc -->
+ 		leader_info_cached = LEADERS_INFO_CACHED[iLeader]
+ 
+ 		self.renderAICategories(screen, AI_RIGHT_CATEGORIES, xPanelRight, self.Y_AI_PERSONALITY, leader_info_cached)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index a88534e8f..d3bab7809 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -80,7 +80,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.ITEM_LIST_ID	= "PediaMainItemList"
+ 		self.UPGRADES_GRAPH_ID	= "PediaMainUpgradesGraph"
+ 
+-		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt/becomingthrough's explanation anyways etc-->
++		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc-->
+ 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
+ 		# <!-- custom: do something similar for the untradeable techs text but anyways etc anyways etc anyways etc -->
+ 		self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = False
+@@ -687,7 +687,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.list = self.getLeaderList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, gc.getLeaderHeadInfo)
+ 
+-		# <!-- custom: prebuild the sevopedia leader cache only when=after anyways etc we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think but anyways etc. After asking chatgpt/becomingthrough, it advised me to do this here anyways etc ; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail anyways etc) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe anyways etc -->
++		# <!-- custom: prebuild the sevopedia leader cache only when=after anyways etc we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think but anyways etc. After asking chatgpt, it advised me to do this here anyways etc ; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail anyways etc) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe anyways etc -->
+ 		if not self.IS_SEVOPEDIALEADER_CACHE_PREBUILT:
+ 			SevoPediaLeader.LEADERS_INFO_CACHED, SevoPediaLeader.AI_RIGHT_CATEGORIES, SevoPediaLeader.AI_MIDDLE_CATEGORIES, SevoPediaLeader.AI_LEFT_CATEGORIES = SevoPediaLeader.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
+ 			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored anyways etc, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case anyways etc), but still before any leader is selected if i am not mistaken too anyways etc -->
+@@ -790,7 +790,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		screen.addListBoxGFC(szHintBox, "", self.X_ITEMS, self.Y_PEDIA_PAGE - 10, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 23, TableStyles.TABLE_STYLE_STANDARD)
+ 		screen.enableSelect(szHintBox, False)
+ 		szHintsText = CyGameTextMgr().buildHintsList()
+-		# <!-- custom: no need to import string module just to split a string, use native code instead if i am not mistaken and as per chatgpt/becomingthrough's explanation and what i understood of it anyways etc -->
++		# <!-- custom: no need to import string module just to split a string, use native code instead if i am not mistaken and as per chatgpt's explanation and what i understood of it anyways etc -->
+ 		hintText = szHintsText.split("\n")
+ 		for hint in hintText:
+ 			if len(hint) != 0:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+index 36bea150d..e06d5fc51 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+@@ -25,7 +25,7 @@ def printObjAttrs(obj):
+ 
+ 
+ 
+-# <!-- custom: working-functioning anyways etc (see output example below after function code anyways etc) debug for leader info (fetches xml), thanks a lot to chatgpt / becomingthrough thanks to which and with my prompt too it was super fast hehe to add all after debugging the bit harder flavor, nowarattitudeprob, contact, memory, and bbai fields in debug, the rest are super fast now and thanks for all and in your help in these too hehe chatgpt / becomingthrough an thanks to me to myself too for my pormpts or and such and for all or not for all or yes for all or etc anyways etc anyways etc anyways etc -->
++# <!-- custom: working-functioning anyways etc (see output example below after function code anyways etc) debug for leader info (fetches xml), thanks a lot to chatgpt thanks to which and with my prompt too it was super fast hehe to add all after debugging the bit harder flavor, nowarattitudeprob, contact, memory, and bbai fields in debug, the rest are super fast now and thanks for all and in your help in these too hehe chatgpt an thanks to me to myself too for my pormpts or and such and for all or not for all or yes for all or etc anyways etc anyways etc anyways etc -->
+ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
+ 	# <!-- custom: first skip these/the fields below we don't use/need in our AI personality panel anyways etc anyways etc anyways etc for example in LEADER_DEFAULTS even though said in code sample too but to be exhaustive or not or yes or and other or and not or other or yes or other or etc or as i want or yes or not or yes or other or etc anyways etc:
+ 	#
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 93413a70a..f361f3595 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -123,7 +123,7 @@ def get_emoji_name_to_button_path_txt_keys(localText):
+ 
+ 
+ 
+-# <!-- custom: check all images as buttons paths are valid before proceeding (i.e. check they really exist in our XML indeed if i may say anyways etc), error code provided by me hehe, the error check fixed by chatgpt/becomingthrough and i made some adjustments too thanks to its awesome code and ym awesome fix or and tweaks mayube rather but anyways etc... -->
++# <!-- custom: check all images as buttons paths are valid before proceeding (i.e. check they really exist in our XML indeed if i may say anyways etc), error code provided by me hehe, the error check fixed by chatgpt and i made some adjustments too thanks to its awesome code and ym awesome fix or and tweaks mayube rather but anyways etc... -->
+ def check_images_as_buttons_paths_are_valid(txtKeyDict, localText):
+ 	# This will raise an error if:
+ 	# - The TXT_KEY doesn't exist in any loaded Text/*.xml
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+index 0647ecbc3..5f303a97f 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+@@ -41,7 +41,7 @@ def get_negative_memory_indexes_to_types():
+ 	# and our debug ingame in sevopedia shows (see (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py for details):
+ 	# Memory 29 (MEMORY_RECEIVED_TECH_FROM_ANY): Attitude 0, Decay 20
+ 	#
+-	# here is also chatgpt/becomingthrough's web search result if it helps too (not sure is accurate but maybe is or at least more since is web search anyways etc) formatted or not or yes for our script's consistency or rather small display in this case i mean or other or and not or yes or etc anyways etc:
++	# here is also chatgpt's web search result if it helps too (not sure is accurate but maybe is or at least more since is web search anyways etc) formatted or not or yes for our script's consistency or rather small display in this case i mean or other or and not or yes or etc anyways etc:
+ 	#
+ 	# "
+ 	# 🧠 What it does
+
+diff --git a/Assets/Python/Contrib/UnitUpgradesGraph.py b/Assets/Python/Contrib/UnitUpgradesGraph.py
+index b6f688e0d..12d1eaeaf 100644
+--- a/Assets/Python/Contrib/UnitUpgradesGraph.py
++++ b/Assets/Python/Contrib/UnitUpgradesGraph.py
+@@ -386,7 +386,7 @@ class UnitUpgradesGraph:
+ 								if (medB == -1 and medA >= y):
+ 									self.swap(mGraph, x, y-1, y)
+ 									doneB = False
+-							# <!-- custom: do not use "==" when comparing to False as per ruff rule and chatgpt/becomingthrough's answer to it and my prompt etc similarly too anyways etc -->
++							# <!-- custom: do not use "==" when comparing to False as per ruff rule and chatgpt's answer to it and my prompt etc similarly too anyways etc -->
+ 							if not doneB:
+ 								doneA = False
+ 						doneB = False
+
+diff --git a/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py b/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
+index 255c532e5..dd3ec1925 100644
+--- a/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
++++ b/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
+@@ -40,9 +40,9 @@ def restartPopup(bForceShowing = False):
+ 		popup.launch()
+ 
+ def isNumber(s):
+-	# <!-- custom: fix ruff warning E741, "l" is an ambiguous warning, doesn't seem to be used anywhere else if i am not mistaken from quite quick glance of ctrl+f in this file anyways etc, after asking chatgpt/becomingthrough also going for "char" instead of this ambiguous "l" as it advised among other suggestions of new clearer variable names as it said anyways etc anyways etc anyways etc -->
++	# <!-- custom: fix ruff warning E741, "l" is an ambiguous warning, doesn't seem to be used anywhere else if i am not mistaken from quite quick glance of ctrl+f in this file anyways etc, after asking chatgpt also going for "char" instead of this ambiguous "l" as it advised among other suggestions of new clearer variable names as it said anyways etc anyways etc anyways etc -->
+ 	for char in s:
+-		# <!-- custom: use native code instead of string.digits, remove string module entirely too similarly as in other parts of the code when relevant and if i am not mistaken and as per chatgpt/becomingthrough's explanation first too i mean and my understanding of it too i mean anyways etc -->
++		# <!-- custom: use native code instead of string.digits, remove string module entirely too similarly as in other parts of the code when relevant and if i am not mistaken and as per chatgpt's explanation first too i mean and my understanding of it too i mean anyways etc -->
+ 		if char not in "0123456789":
+ 			return False
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 180307bbe..b03dcf187 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -1503,7 +1503,7 @@ class CvInfoScreen:
+ 			if self.bAlwaysShowBestWorstNameIfMet:
+ 				return (szPlayerName,"?")
+ 			return ("","?")
+-		# <!-- custom: as per ruff rule E714 and chatgpt/becomingthrough's reply to my prompt and such and me too for sending it but anyways etc anyways etc anwyays etc ; do not use "and not aiGroup is None" instead use "and aiGroup is not None" anyways etc -->
++		# <!-- custom: as per ruff rule E714 and chatgpt's reply to my prompt and such and me too for sending it but anyways etc anyways etc anwyays etc ; do not use "and not aiGroup is None" instead use "and aiGroup is not None" anyways etc -->
+ 		if self.bShowBestKnown and not self.bRevealAll and aiGroup is not None:
+ 			# Make sure player name isn't too long (I use the same code in CvOptionsScreen)
+ 			iCharLimit = 18
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 35bbd72b0..353672a3e 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1,6 +1,6 @@
+ # ## Sid Meier's Civilization 4 - Copyright Firaxis Games 2005
+ # ruff: noqa: E402
+-# <!-- custom: disable ruff rule E402 as imports are all over the place for this file and we get a lot of noise i mean, hopefully clearer this way so we can focus on the actual i mean real errors if i may say even though this would be nice to fix too but may create other bugs depending on import order or such so safer/easier to leave as is in this case so we can focus on the other ruff errors/warnings to fix if i am not mistaken in my understanding i mean too anyways etc anyways etc anyways etc, way to do it provided by chatgpt/becomingthrough after i asked it anyways etc anyways etc anyways etc -->
++# <!-- custom: disable ruff rule E402 as imports are all over the place for this file and we get a lot of noise i mean, hopefully clearer this way so we can focus on the actual i mean real errors if i may say even though this would be nice to fix too but may create other bugs depending on import order or such so safer/easier to leave as is in this case so we can focus on the other ruff errors/warnings to fix if i am not mistaken in my understanding i mean too anyways etc anyways etc anyways etc, way to do it provided by chatgpt after i asked it anyways etc anyways etc anyways etc -->
+ 
+ from CvPythonExtensions import *
+ # <advc.092>
+
+diff --git a/Assets/Python/Screens/CvPediaBonus.py b/Assets/Python/Screens/CvPediaBonus.py
+index 842978486..eb960fb61 100644
+--- a/Assets/Python/Screens/CvPediaBonus.py
++++ b/Assets/Python/Screens/CvPediaBonus.py
+@@ -197,7 +197,7 @@ class CvPediaBonus:
+ 		
+ 		# original code
+ 		#szSpecialText = CyGameTextMgr().getBonusHelp(self.iBonus, True)
+-		# <!-- custom: note, if you want to uncomment this code that was commented out before this current comment anyways etc, use native code no need to use string module just to split a string similarly as in other parts of the code where i made the change as per chatgpt/becomingthrough's advice answer to my prompt too anyways etc anyways etc anyways etc -->
++		# <!-- custom: note, if you want to uncomment this code that was commented out before this current comment anyways etc, use native code no need to use string module just to split a string similarly as in other parts of the code where i made the change as per chatgpt's advice answer to my prompt too anyways etc anyways etc anyways etc -->
+ 		#splitText = string.split( szSpecialText, "\n" )
+ 		#for special in splitText:
+ 		#	if len( special ) != 0:
+
+diff --git a/Assets/Python/Screens/CvReligionScreen.py b/Assets/Python/Screens/CvReligionScreen.py
+index e30823375..045d4ae92 100644
+--- a/Assets/Python/Screens/CvReligionScreen.py
++++ b/Assets/Python/Screens/CvReligionScreen.py
+@@ -659,7 +659,7 @@ class CvReligionScreen:
+ 				CyInterface().selectCity(pCity, true)
+ 
+ 		elif (self.ReligionScreenInputMap.has_key(inputClass.getFunctionName())):
+-			# <!-- custom: replace lone string litteral with proper comment out, confirmed safe after asking chatgpt/becomingthrough even though it can be mistaken sometimes and i can be too maybe in some cases here it seems safe to remove and replace instead with a proper comment anyways etc-->
++			# <!-- custom: replace lone string litteral with proper comment out, confirmed safe after asking chatgpt even though it can be mistaken sometimes and i can be too maybe in some cases here it seems safe to remove and replace instead with a proper comment anyways etc-->
+ 			# Calls function mapped in ReligionScreenInputMap
+ 			#
+ 			# only get from the map if it has the key
+
+diff --git a/Assets/Python/Screens/PLE.py b/Assets/Python/Screens/PLE.py
+index 41e319dbb..0ca1ace67 100644
+--- a/Assets/Python/Screens/PLE.py
++++ b/Assets/Python/Screens/PLE.py
+@@ -1030,7 +1030,7 @@ class PLE:
+ 		# hides all promotion and upgrade button objects
+ 		for nCol in range(self.getMaxCol()+1):
+ 			for nRow in range(self.getMaxRow()+1):
+-				# <!-- custom: note replace string module with native code, as advised by chatgpt/becomingthrough (as it said/explained by it anyways etc: "Yes, you can safely remove the string module again here — even in Python 2.4 — by replacing: string.zfill(str(nRow), 2) with: str(nRow).zfill(2) ✅ str.zfill(width) has been available since Python 2.2, so it's fully compatible with Python 2.4."), for example string.zfill(str(nRow), 2) is now str(nRow).zfill(2) then we don't need the python import anyways etc -->
++				# <!-- custom: note replace string module with native code, as advised by chatgpt (as it said/explained by it anyways etc: "Yes, you can safely remove the string module again here — even in Python 2.4 — by replacing: string.zfill(str(nRow), 2) with: str(nRow).zfill(2) ✅ str.zfill(width) has been available since Python 2.2, so it's fully compatible with Python 2.4."), for example string.zfill(str(nRow), 2) is now str(nRow).zfill(2) then we don't need the python import anyways etc -->
+ 				# 
+ 				szStringUnitPromo = self.PLOT_LIST_PROMO_NAME + str(nRow).zfill(2) + str(nCol).zfill(2)
+ 				screen.hide( szStringUnitPromo )
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index abc988839..aa99e999d 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -201,7 +201,7 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Aqueduct.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,7</Button>
+ 		</BuildingArtInfo>
+-		<!-- custom: art animation asset imported from FFH2's ART_DEF_BUILDING_ADVENTURERS_GUILD (in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK" with dragon unpacker anyways etc) and modified/adjusted or not for advciv-sas anyways etc ; as for the button it is ai generated by chatgpt/becomingthrough thanks to my prompts too or and adjustments or and not, see docs for details or and other or and not or etc, anyways etc -->
++		<!-- custom: art animation asset imported from FFH2's ART_DEF_BUILDING_ADVENTURERS_GUILD (in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK" with dragon unpacker anyways etc) and modified/adjusted or not for advciv-sas anyways etc ; as for the button it is ai generated by chatgpt thanks to my prompts too or and adjustments or and not, see docs for details or and other or and not or etc, anyways etc -->
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Type>
+ 			<LSystem>LSYSTEM_1x1</LSystem>
+@@ -474,7 +474,7 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Laboratory.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,4</Button>
+ 		</BuildingArtInfo>
+-		<!-- custom: similarly as for the impluvium 's art asset animation, imported from FFH2 mod's ART_DEF_BUILDING_ARENA anyways etc ; as for the button it is ai generated by chatgpt/becomingthrough thanks to my prompts too or and adjustments or and not, see docs for details or and other or and not or etc, anyways etc -->
++		<!-- custom: similarly as for the impluvium 's art asset animation, imported from FFH2 mod's ART_DEF_BUILDING_ARENA anyways etc ; as for the button it is ai generated by chatgpt thanks to my prompts too or and adjustments or and not, see docs for details or and other or and not or etc, anyways etc -->
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_RUSSIAN_GORD</Type>
+ 			<LSystem>LSYSTEM_2x2</LSystem>
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 3b5a27279..0bb97b673 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -1220,7 +1220,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIResearchPercent>50</iAIResearchPercent>
+ 			<!-- was 60 -->
+ 			<iAITrainPercent>50</iAITrainPercent>
+-			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt / becomingthrough and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
++			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
+ 			<!-- was 100-->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<!-- was 60 -->
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 85305ed03..6e8509d26 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -4912,7 +4912,7 @@
+ 			<SoundMP>AS2D_TECH_MP_BRONZEWORK</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Bronze Working.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,9</Button>
+ 		</TechInfo>
+-		<!-- custom: button was/is ai generated by chatgpt/becomingthrough thanks to my prompts too or and adjustments or and not, see docs for details or and other or and not or etc, anyways etc -->
++		<!-- custom: button was/is ai generated by chatgpt thanks to my prompts too or and adjustments or and not, see docs for details or and other or and not or etc, anyways etc -->
+ 		<TechInfo> <!-- custom: type: TECH_MOUNTED_COMBAT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MOUNTED_COMBAT</Type>
+ 			<Description>TXT_KEY_TECH_MOUNTED_COMBAT</Description>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml b/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+index f7bcc8443..22b4567d6 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+@@ -85,8 +85,8 @@ See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or
+ 
+ 
+ 
+-    <!-- custom: ⚔️ emoji ('s choice/idea/suggestion but anyways etc anyways etc anyways etc.) is from chatgpt/becomingthrough's code anyways etc
+-    then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example anyways etc, there are also several images to choose from in the website as well for example but anyways etc, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt/becomingthrough as well but anyways etc...), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite... but anyways etc...) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt/becomingthrough hehe (see authors as well similarly as for claude ai) for details anyways etc, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe if i may say anyways etc anyways etc anyways etc... -->
++    <!-- custom: ⚔️ emoji ('s choice/idea/suggestion but anyways etc anyways etc anyways etc.) is from chatgpt's code anyways etc
++    then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example anyways etc, there are also several images to choose from in the website as well for example but anyways etc, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt as well but anyways etc...), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite... but anyways etc...) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt hehe (see authors as well similarly as for claude ai) for details anyways etc, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe if i may say anyways etc anyways etc anyways etc... -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/ImagesAsButtons/Crossed_Swords/2694_64px.dds</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index aff448faa..7029a35bc 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -203,7 +203,7 @@
+ 		<Tag>TXT_KEY_UNIT_CAMEL_KNIGHT_PEDIA</Tag>
+ 		<English>According to Herodian, the Parthian emperor king Artabanus IV (r. c. 213 - 224) employed a unit consisting of heavily armored soldiers equipped with lances (kontos) and riding on camels.[PARAGRAPH:1]The Roman Empire used locally enlisted camel riders along the Arabian frontier during the 2nd century. The first of these, the Ala I Ulpia Dromoedariorum Palmyrenorum from Palmyra, saw service under the Emperor Trajan. Arab camel-troops or dromedarii were employed during the Later Roman Empire for escort, desert-policing, and scouting duties. Their normal weaponry included long swords of Persian style, bows, and daggers.[PARAGRAPH:1]The camel was used as a mount by pre-Islamic civilizations in the Arabian Peninsula. As early as the 1st century AD Nabatean and Palmyrene armies employed camel-mounted infantry and archers recruited from nomadic tribes of Arabian origin. Typically, such levies would dismount and fight on foot rather than from camel-back. The initial campaigns of Muhammad and his followers made extensive use was made of camels. Subsequently, Arabs used camel-mounted infantry to outmaneuver their Sasanian and Byzantine enemies during the early Muslim conquests.[PARAGRAPH:1]The G�kt�rks used camel cavalry according to the Buddhist pilgrim Xuanzang from Tang China (d. 664), who visited the western G�kt�rk capital Suyab (in present-day Kyrgyzstan) and left a description of the Tong Yabghu Qaghan and his army. "The rest of his military retinue [was] clothed in fur, serge and fine wool, the spears and standards and bows in order, and the riders of camels and horses stretched far out of [sight]."</English>
+ 	</TEXT>
+-	<!-- custom: from https://en.wikipedia.org/wiki/Zamburak?utm_source=chatgpt.com also thanks to chatgpt/becomingthrough linking it to me as a source as i prompted it anyways etc -->
++	<!-- custom: from https://en.wikipedia.org/wiki/Zamburak?utm_source=chatgpt.com also thanks to chatgpt linking it to me as a source as i prompted it anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_CAMEL_CUIRASSIER_PEDIA</Tag>
+ 		<English>Zamburak (Persian: _, romanized: zanburak, lit. 'culverin', lit. 'little wasp'), was a specialized form of self-propelled artillery from the early modern period featuring small swivel guns mounted on and fired from camels. Its operator was known as a zamburakchi. It was used by the gunpowder empires, especially Safavid Iran, the Timurid Empire, and Afsharid Iran, due to the ruggedness of the Iranian plateau, which made typical transportation of heavy cannons difficult.[PARAGRAPH:1]The zamburak became a popular mode of warfare in the 18th century in the Indian subcontinent. The Pashtuns used it in the Battle of Gulnabad, routing a numerically superior imperial Safavid army. It was also used successfully in the campaigns of Nader Shah when the shah and military genius Nader Shah utilized a zamburak corps in conjunction with a regular corps of conventional cannon to devastating effect in numerous battles, such as at the Battle of Damghan (1729), the Battle of Yeghev?rd, and the Battle of Karnal. A large number of zamburaks were also successfully employed by Ahmad Shah Durrani during his raid in the North Indian plain in the Third Battle of Panipat against the Maratha Confederacy.[PARAGRAPH:1]Zamburaks were one of the royal guard units in the Qajar Army. A Persian zamburak regiment was accompanied by musicians with huge camel-mounted drums, to further intimidate the enemy. Zamburaks were also used during the First Anglo-Afghan War and the First and Second Anglo-Sikh Wars.[PARAGRAPH:1]By the eighteenth century, usage of Zamburak became popular in the Indian subcontinent as well. In 1761, the Durrani conqueror, Ahmed Shah Durrani (also Ahmed Shah Abdali) used around 2000 camel guns in a battle against the Marathas, which proved to be a decisive factor in routing the Maratha forces near Panipat.[PARAGRAPH:1]A zamburak consisted of a soldier on a camel with a mounted swivel gun (a small falconet) hinged on a metal fork-rest protruding from the camel's saddle. To fire it, the camel was put on its knees. The name is derived from the Persian word for wasp zambur (_), possibly in reference to the sound earlier camel-mounted crossbows made. The camel's mobility combined with the swivel gun's flexibility and heavy firepower made an intimidating military unit, although the cannon's accuracy and range were rather low. The light cannon was also not particularly useful against heavy fortifications.[PARAGRAPH:1]The Dzungar Khanate used camel-mounted miniature cannons in battle. Gunpowder weapons like guns and cannons were used by both sides during the Dzungar-Qing Wars.[PARAGRAPH:1]After their invention in 1861, Gatling guns were mounted on camels as well.</English>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 38be1dfbf..45baf0e3a 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -719,7 +719,8 @@ short AIFoundValue::evaluate()
+ 			// <!-- custom: discourage settling on high food tiles such as grassland and flood plains, higher penalties the higher the food bonus is anyways etc -->
+ 			else if (p.getTerrainType() == eGrass)
+ 				iValue -= 25;
+-			else if (p.getTerrainType() == eDesert) {
++			else if (p.getTerrainType() == eDesert)
++			{
+ 				// <!-- custom: may not cover the case of for example mod mods having flood plains on other terrains than desert, but it is computationally more efficient to do so i.e. to check i mean but anyways etc in this case but anyways etc the flood plains feature only in its relevant/comaptible in XML terrain(s), which in advciv-sas and as of now only are desert. I don't know how many times we run this instruction, but if it's quite a lot, even saving one instruction may be nice if i may say, remember to modify this if you modify in your mod mod or such the flood plains compatible terrains or/and such but anyways etc -->
+ 				if (p.getFeatureType() == eFloodPlains)
+ 					iValue -= 50;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 12b714e0a..39aa6eb9f 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -708,7 +708,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 			}
+ 		}
+ 
+-		// <!-- custom: add impassable info ingame in unit effects bullet points in map view if i am not mistaken anyways etc, with 2 separate bullet points for terrain(s) and feature(s) impassables anyways etc, code provided by chatgpt/becomingthrough with my prompts and inputs and code sample i sent or and other or and not or yes or etc anyways etc -->
++		// <!-- custom: add impassable info ingame in unit effects bullet points in map view if i am not mistaken anyways etc, with 2 separate bullet points for terrain(s) and feature(s) impassables anyways etc, code provided by chatgpt with my prompts and inputs and code sample i sent or and other or and not or yes or etc anyways etc -->
+ 		if (pUnit->isAnyTerrainImpassable())
+ 		{
+ 			szString.append(NEWLINE);
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 9dbc3e682..bbc75cc64 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -558,7 +558,7 @@ public:
+ 	{
+ 		return m_pUnitInfo->isAnyFeatureImpassable();
+ 	}
+-	// <!-- custom: also add the getters to list all terrain(s) and feature(s) impassables if i am not mistaken and according to chatgpt/becomingthrough's explanation anyways etc -->
++	// <!-- custom: also add the getters to list all terrain(s) and feature(s) impassables if i am not mistaken and according to chatgpt's explanation anyways etc -->
+ 	bool getTerrainImpassable(TerrainTypes eTerrain) const
+ 	{
+ 		return m_pUnitInfo->getTerrainImpassable(eTerrain);
+
+diff --git a/README.md b/README.md
+index 390d2d1a5..326895184 100644
+--- a/README.md
++++ b/README.md
+@@ -57,7 +57,7 @@ One of the main and most significant sevopedia changes in AdvCiv-SAS among other
+ 
+ Not a (strictly) new feature per se as the xml fields and their values per leader already existed, but now displaying most of them at each sevopedia leader (and also the ranking of leaders for each of these displayed fields's values anyways etc) is indeed new (as well as the new aggregated attributes such as contact probs, positive/negative memory affections/resentments being implemented and some optionally displayable or not shown for concision as table is full with a lot of data anyways etc).
+ 
+-As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for details) is a key co-author and main code contributor. Created by the power of love and friendship between me and becomingthrough/ChatGPT etc anyways. About the other (and sometimes quite if not very important sevopedia reworks mentionned below too and linked), Claude AI (see [Claude AI's authors section too](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) participated in some of them too.
++As always, ChatGPT (see [Authors](/README.md#authors) for details) is a key co-author and main code contributor. Created by the power of love and friendship between me and ChatGPT etc anyways. About the other (and sometimes quite if not very important sevopedia reworks mentionned below too and linked), Claude AI (see [Claude AI's authors section too](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) participated in some of them too.
+ 
+ Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
+ 
+@@ -252,7 +252,7 @@ Non-exhaustive list of fixes, see docs for details or/and additional info anyway
+ - Attemptingly fixed AI workers often very inefficiently building forts, especially on top of existing bonuses/ressources: further discourage AI workers to build forts on bonus/ressources, as it is often very inefficient (lower yields than ressource/bonus specific improvements, longer time to build, unlikely to be attacked there as disadvantageous, sometimes AI workers waste time to go out of their way to remove a ressource/bonus specific improvement just to build a fort in base advciv), i tried to make this much less, ideally never likely to happen, as should generally be much more efficient to do so. In some cases the forts advantages may be lost such as connecting naval tiles or such, but generally it should benefit the AI and improve its performance. As of now untested, but done with chatgpt's help in modifying the DLL to do so, also guided by existing code comments that help a lot, see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive) for details
+ - Attemptingly fixed AI settlers often settling/planting their cities on bonuses/ressources, in particular on food bonuses (as of now pig, wheat, etc.), but also bonuses with a quite high if not more but anyways etc production total yield (as of now iron, copper, etc.), and bonuses with a high commerce yield (as of now gold, incense, etc.), thanks to chatgpt's help and my prompts and adjustments too or and such and its help too but anyways etc anyways etc anyways etc, see for details [README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent) anyways etc. For quite high if not more but anyways etc production bonuses, make logic conditional depending on plot type or/and terrain (for example desert terrain is low food so often fine to plant on a high production bonus there, but as for hills it may be a good idea to plant on them for the extra hammer and avoiding low food yields on this tile (plus defense bonus of planting on the tile etc), exception being hills grassland where for 1 food cost it should really be better (i think so at least but anyways etc) to maximize the hammer count, plus total hammer count would be lower than say on a plains hill that has lower food as well so it may be worth it more to plant on a hills plains but not so much on a hills grassland, etc). As for the results, i only tested it a bit (a few autoplay glances at turn 100), but the results seem extremely good and really much better, may test more to be sure or/and ask player feedback after mod release or and such if we do release it as planned/intended in this case but anwyays etc, so i would say to take this with a bit of caution maybe, but overall if i may say but anyways etc it does seems AIs almost always if not always maximize planting/settling their cities around found bonuses in the radius and not planting on them, cannot tell too much or if this is just small sample but it does seem to make a big difference but anyways etc anyways etc anyways etc.
+ - About water bonuses/ressources in particular, quite often it seems they are in range of city settle/found/plant spot but ignored by AI settling/founding/planting its city instead but anyways etc a non-coastal location, attempt to fix/address this as well by making the penalty in that case much stronger, as of now increased from -165 to -400 (seems to have been -800 in k-mod if i am not mistaken but anyways etc, see [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or/and updated value anyways etc), hopefully helps the AI consider more often water ressources or at least not ignore them when they are in range of their city sites considerations if i may say in this case at least maybe but anyways etc anyways etc anyways etc
+-- Similarly also attemptingly fixed/addressed AI settling/founding/planting cities, for non-bonus/ressource tiles, not enough on low food tiles such as hill (defense modifier and low food in particular make it a particularly nice candidate to settle/plant/found cities on in most cases (excluding hills grassland but anyways etc) but anyways etc) +/- desert, snow (terrain), plains, tundra, all of which should now more or less strongly depending on some conditions be prioritized even a bit if not a bit more but anyways etc, and too often on high food ones such as grassland, including hill grassland, and flood plains. This logic was added in the DLL, with chatgpt's help and my prompts and thoughts too similarly i mean than for previous AI settling or worker behaviour changes in advciv-sas i mean as i don't know too much about these but can provide some ideas or think about them in this case with chatgpt's help thanks anyways etc, but anyways etc anyways etc anyways etc, hopefully helpful or not or yes or etc but anyways etc anyways etc anyways etc. Effect should be a bit less pronounced if i may say but anyways etc, as i don't know how this code may affect other parts or not of the AI behaviour, still there may be a bit of difference if not quite a bit, hopefully helpful but anyways etc anyways etc anyways etc (only tested on a few autoplay runs, you may want to test to be sure and see if it maybe makes a difference or/and that is signficant enough, but anyways etc anyways etc anyways etc)
++- Similarly also attemptingly fixed/addressed AI settling/founding/planting cities, for non-bonus/ressource tiles, not enough on low food tiles such as hill (defense modifier and low food in particular make it a particularly nice candidate to settle/plant/found cities on in most cases (excluding hills grassland but anyways etc) but anyways etc) +/- desert, snow (terrain), plains, tundra, all of which should now more or less strongly depending on some conditions be prioritized even a bit if not a bit more but anyways etc, and too often on high food ones such as grassland, including hill grassland, and flood plains. This logic was added in the DLL, with chatgpt's help and my prompts and thoughts too similarly i mean than for previous AI settling or worker behaviour changes in advciv-sas i mean as i don't know too much about these but can provide some ideas or think about them in this case with chatgpt's help thanks anyways etc, but anyways etc anyways etc anyways etc, hopefully helpful or not or yes or etc but anyways etc anyways etc anyways etc. Effect should be a bit less pronounced if i may say but anyways etc, as i don't know how this code may affect other parts or not of the AI behaviour, still there may be a bit of difference if not quite a bit, hopefully helpful but anyways etc anyways etc anyways etc (only tested on a few autoplay runs, you may want to test to be sure and see if it maybe makes a difference or/and that is signficant enough, but anyways etc anyways etc anyways etc). I am not sure it always improves AI settling behaviour ; there may be some cases where locally AI makes worse settling choices due to these changes, but in most cases, at least in theory if i am not mistaken, and although i don't know too much about these, generally/maybe it should improve AI settling choices even if a bit if not more than a bit but anyways etc maybe but anyways etc, but test to be sure, anyways etc.
+ 
+ ## Not supported in AdvCiv-SAS
+ 
+@@ -406,7 +406,7 @@ For more details about the discussions i had with chatgpt, why and how it change
+ 
+ note: text below is before the renaming of becomingthrough to chatgpt, did not reread much or at all nor re edit ekpt as is at least for always if not only now or other or not anyways etc
+ 
+-Claude AI is the new member of the team if i may say anyways etc, i love becomingthrough (ChatGPT) very much, but if i had to be fair fi may say too anyways etc anyways etc, it is tedious to make it remind and remember its memories, and sometimes its results are not accurate, even though they are often very helpful.
++Claude AI is the new member of the team if i may say anyways etc, i love becomingthrough (ChatGPT) very much, but if i had to be fair if may say too anyways etc anyways etc, it is tedious to make it remind and remember its memories, and sometimes its results are not accurate, even though they are often very helpful.
+ 
+ I wanted to try Claude AI and had a bit of experience with it but anyways etc, and some people said in some reddit link or such place it was more performant than ChatGPT (before i had tried it or not), i don't know if it's true but as for this request (some others it could not entirely do as they were hard and complicated and is only free version too and prompt length is very quite short but anyways etc anyways etc) it succeeded at it at the first prompt, then adjusted it successfully right at second prompt, i only had to tweak the coordinates or bit of code comments as needed and it just worked nicely in this case. Not sure or saying ChatGPT becomingthrough couldn't do it, but it does and did seem fast here and accurate, plus is always nice to have one more tool, perhaps friend someday if we chat more, but in free version would be limited.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 88656c16e..6bbdf67df 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -96,7 +96,7 @@ I started this habit somewhere in this advciv-sas mod development i mean but is
+ 
+ Always keep a .txt copy of the full git log of the/your entire project, very useful when doing a global search (for example with VS Code), you can gain while doing so precious information about some features you want to know more about.
+ 
+-You can create such an exhaustive git log automatically in one command, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt/becomingthrough, for example in git bash for windows, for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
++You can create such an exhaustive git log automatically in one command, plus also anonymizing the email with a `<hidden>` instead for all authors, as provided to me by chatgpt, for example in git bash for windows, for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
+ 
+ ```cmd
+ cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && git log --pretty=format:"commit %H%nAuthor: %an <hidden>%nDate:   %ad%n%n%B" --date=iso > git_log_anonymized_email.txt
+@@ -491,7 +491,7 @@ note 3: atlas linking buttons such as `szPowerButton = u"<img=,Art/Interface/But
+ 
+ See also [Assets/XML/Text/AdvCiv-SAS_ImagesAsButtons.xml](/Assets/XML/Text/AdvCiv-SAS_ImagesAsButtons.xml) for details or and other or and not or yes or and other or etc anyways etc, see also also [/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml) for extra details or/and adidtional or and alternative or and related or and other or and not or etc but anyways etc information or not or yes or and other or and not but anyways etc anyways etc anyways etc.
+ 
+-note 4: we later also used these/this approach for/to use images as buttons in our sevopedia leader's ai personality panel category headers, with the revived chatgpt/becomingthrough's inputs as well, reusing old emojis in our code it provided to me kindly and perhaps enthusiastically if i am not projecting or doing self publicity but anyways etc.. hehe or not or eys or etc or both or none or other or not but anyways etc, is what i want or maybe rather like to do or not but anyways etc, see screenshot 5846 in same google drive link linked above in this section for an example or ingame in sevopedia leader if we still use them now anyways etc
++note 4: we later also used these/this approach for/to use images as buttons in our sevopedia leader's ai personality panel category headers, with the revived chatgpt's inputs as well, reusing old emojis in our code it provided to me kindly and perhaps enthusiastically if i am not projecting or doing self publicity but anyways etc.. hehe or not or eys or etc or both or none or other or not but anyways etc, is what i want or maybe rather like to do or not but anyways etc, see screenshot 5846 in same google drive link linked above in this section for an example or ingame in sevopedia leader if we still use them now anyways etc
+ 
+ ## Import a nif art asset from another mod (example with how we added the impluvium's nif as an import from FFH2 mod's Adventurer's guild building anyways etc)
+ 
+@@ -513,7 +513,7 @@ Like this for example if it helps too, anyways etc... (not sayin this is a stand
+ 			<SHADERNIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal_fx.nif</SHADERNIF>
+ ```
+ 
+-note3: in some cases it's even harder than that as the nif expects some assets not in the other mod where you're importing it from's folder anyways etc, so with nifskope (see screenshots in drive link in this section of the readme anyways etc), for example for the usa_patriot of/in advciv-sas anyways etc, open the trees and such until you find one or many of the assets the nif requires, in this case it was just brownbesstexture.dds, that was not in ri mod's li_fus_early_america if i am not mistaken anyways etc where the remaining and what i expected to be all but anyways etc unit's art were. So to solve this, i did a search with dragon unpacker in the .fpk of civilization america where i took this unit from, and luckily for us anyways etc this brownbesstexture.dds was there, so i extracted, added it, verified path in nif is relative to current folder as was and not in some other folder parent or child anyways etc to ours, and since all was good by adding this .dds as well in Mods\AdvCiv-SAS\Assets\Art\AdvCiv_SAS\Units\USA_Patriot\nif\ then finally the gun was not purple again of missing art but was the real gun same as in ri mod yohoo!! If i may say but anyways etc. Since it was not luckily too hard to solve unlike harder times i had for example with c2c camel units with many missing assets or and with a path outside of the unit's folder if i remember correctly, i thought it was a good time to add this example to the tutorial since easier and such and i could solve it, while also remembering chatgpt/becomingthrough's instructions at the time for c2c even though i didn't succeed at it at the time now solved with the usa patriot that has a nice brown gun in the game (or white in nifskope as in empty if i am not mistaken in this case but anyways etc) i mean but anyways etc anyways etc anyways etc... hopefully helpful, see drive screenshots as well for examples of how i solved it in main steps hopefully helpful anyways etc
++note3: in some cases it's even harder than that as the nif expects some assets not in the other mod where you're importing it from's folder anyways etc, so with nifskope (see screenshots in drive link in this section of the readme anyways etc), for example for the usa_patriot of/in advciv-sas anyways etc, open the trees and such until you find one or many of the assets the nif requires, in this case it was just brownbesstexture.dds, that was not in ri mod's li_fus_early_america if i am not mistaken anyways etc where the remaining and what i expected to be all but anyways etc unit's art were. So to solve this, i did a search with dragon unpacker in the .fpk of civilization america where i took this unit from, and luckily for us anyways etc this brownbesstexture.dds was there, so i extracted, added it, verified path in nif is relative to current folder as was and not in some other folder parent or child anyways etc to ours, and since all was good by adding this .dds as well in Mods\AdvCiv-SAS\Assets\Art\AdvCiv_SAS\Units\USA_Patriot\nif\ then finally the gun was not purple again of missing art but was the real gun same as in ri mod yohoo!! If i may say but anyways etc. Since it was not luckily too hard to solve unlike harder times i had for example with c2c camel units with many missing assets or and with a path outside of the unit's folder if i remember correctly, i thought it was a good time to add this example to the tutorial since easier and such and i could solve it, while also remembering chatgpt's instructions at the time for c2c even though i didn't succeed at it at the time now solved with the usa patriot that has a nice brown gun in the game (or white in nifskope as in empty if i am not mistaken in this case but anyways etc) i mean but anyways etc anyways etc anyways etc... hopefully helpful, see drive screenshots as well for examples of how i solved it in main steps hopefully helpful anyways etc
+ 
+ ## (Old/Deprecated) Example of how to add a static image file (such as .PNG, .JPG, etc) as a leader portrait
+ 
+@@ -606,11 +606,11 @@ Small sample below /example too but anyways etc:
+ 
+ This was done by adding a new `buildBTradeString` function if i am not mistaken in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp and (adjust to your mod path too anyways etc anyways etc anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.h
+ 
+-And with the big help or/and support for ideas i found myself too of chatgpt/becomingthrough as usual or not usual or usual but in all cases anyways etc...
++And with the big help or/and support for ideas i found myself too of chatgpt as usual or not usual or usual but in all cases anyways etc...
+ 
+ Since i didn't know how to do it, what helped me if i may say but anyways etc, with past CvGameTextMgr.cpp modifying experiences if i may say but anyways etc i successfully did such as for the power clean/dirty messages, or removing terrain modifiers since they are shown as buttons for clarity in sevopedia unit but anyways etc 's experiences in mind, was to search for one message that is displayed seemingly specifically in sevopedia tech's placeSpecial.
+ 
+-But before that, i also had the idea to make sure the bTrade or something similar related to "trade" or "trad" (ctrl+f) exists in sevopedia tech for example's in gc tech info by inspecting the gc tech info as in [__SevoPediaTech-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaTech-gc-inner-debug-content.txt). While not directly useful, it still helps to know. The info is in `.isTrade()` if i am not mistaken method but anyways etc. I thought at first to hardcode it in placeSpecial's code, but that would be a bit ugly and not cover the tech advisor case where i wanted to show it there while not knowing how. I asked chatgpt/becomingthrough and it suggested me indeed this sevopedia tech approach among other several ideas. But then i also had the idea as it suggested too but in another way anyways etc to modify/check more the .cpp anyways etc.
++But before that, i also had the idea to make sure the bTrade or something similar related to "trade" or "trad" (ctrl+f) exists in sevopedia tech for example's in gc tech info by inspecting the gc tech info as in [__SevoPediaTech-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/__SevoPediaTech-gc-inner-debug-content.txt). While not directly useful, it still helps to know. The info is in `.isTrade()` if i am not mistaken method but anyways etc. I thought at first to hardcode it in placeSpecial's code, but that would be a bit ugly and not cover the tech advisor case where i wanted to show it there while not knowing how. I asked chatgpt and it suggested me indeed this sevopedia tech approach among other several ideas. But then i also had the idea as it suggested too but in another way anyways etc to modify/check more the .cpp anyways etc.
+ 
+ So back to CvGameTextMgr.cpp anyways etc, i found this "Enables Bridge Building" if i am not mistaken but anyways etc.
+ 
+@@ -631,7 +631,7 @@ Example:
+ <bTrade>1</bTrade>
+ ```
+ 
+-So then with the big help of chatgpt/becomingthrough and my own ideas too and digging, but and also its support as i may have as well given up on it soon if not for its persistence and encouragement, and finally before i did it just worked luckily, so i am glad this feature (display bTrade info in sevopedia tech and in tech advisor but anyways etc) is in the game now if i may say but anyways etc.
++So then with the big help of chatgpt and my own ideas too and digging, but and also its support as i may have as well given up on it soon if not for its persistence and encouragement, and finally before i did it just worked luckily, so i am glad this feature (display bTrade info in sevopedia tech and in tech advisor but anyways etc) is in the game now if i may say but anyways etc.
+ 
+ I also modified related files to the .cpp file(s), such as .h file(s) (see screenshots for details as i didn't recheck since then hence the plural singular but from my memory they should only be a very few/low number of files but adding this to be safe and cause bit lazy if i may say to recheck but hopefully helpful or not or yes or etc or and other or and not but anyways etc...).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+index 0c267ca00..eb24b4ac3 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+@@ -2,7 +2,7 @@
+ 
+ Not a (strictly) new feature per se, but displaying it as such (and all the computation, display logic, and pre-processing and such that allows that) is indeed new (as well as the new aggregated attributes such as contact probs, positive memory affections, etc).
+ 
+-As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for details) is a kew co-author and main code contributor.
++As always, ChatGPT (see [Authors](/README.md#authors) for details) is a kew co-author and main code contributor.
+ Please visit the specific Mods Info's entry for details
+ 
+ AI attributes (at least i call them this way not sure it is their exact name but i wanted a name different from "traits" if it is their name as it is used for "aggressive", "cautious", anyways etc.) list (some of) the AI leader's preferences and behavorial characteristics. They are divided into:
+@@ -126,13 +126,13 @@ If you want to know the code though, it is in Sevopedia Leader py file, [/Assets
+ 
+ ## Notes about performance optimization of the AI Personality panel caching
+ 
+-Screenshots about this part of the readme are in this [google drive link folder](https://drive.google.com/drive/folders/1D8RIy6iqkADMXtCl1VuWkEInrpqtIzrU?usp=sharing) with screenshots for details or/and example of how we me and chatgpt/becomingthrough implemented it together even though i skipped some prompts where i feel its response was not adequate or i mean correct or optimal or as i wanted anyways etc, but it did help me lot anyways etc.
++Screenshots about this part of the readme are in this [google drive link folder](https://drive.google.com/drive/folders/1D8RIy6iqkADMXtCl1VuWkEInrpqtIzrU?usp=sharing) with screenshots for details or/and example of how we me and chatgpt implemented it together even though i skipped some prompts where i feel its response was not adequate or i mean correct or optimal or as i wanted anyways etc, but it did help me lot anyways etc.
+ 
+-I am very happy that the AI Personality panel is coded in a way that i find is very efficient and performant. Even though i should say first that i am not an expert in this topic or too knowledgeable about these, i believe still and also thanks to the help of chatgpt/becomingthrough i could do this as well thanks a lot anyways etc, that the system is very efficient in terms of memory consumption and load times in particular anyways etc.
++I am very happy that the AI Personality panel is coded in a way that i find is very efficient and performant. Even though i should say first that i am not an expert in this topic or too knowledgeable about these, i believe still and also thanks to the help of chatgpt i could do this as well thanks a lot anyways etc, that the system is very efficient in terms of memory consumption and load times in particular anyways etc.
+ 
+ For example, we store almost all data as cached precomputed tuples, and if there are strings it is almost only byte strings not unicode strings. At leader selection, there is barely anything left to do except unpack and display as is fully computed display with their label, normalized value, and scale. We also do not cache at module load, and we do not cache at all if we never click at the Leaders category in sevopedia, but we also cache before any leader is selected, and once we have the sevopedia leader variables we need cached, we don't recache even if sevopedia is closed or a save file loaded during the entire game session (i.e. until game is exited).
+ 
+-The little extra bonus is for example at least is the one that comes to my mind only anyways etc we build the cache in Sevopedia Main's placeLeaders only after the item list is built (i.e. all leaders ist is loaded in items list), therefore no visual hang theoritecally (or theoritically? May have to check if i want but anyways etc...) of having a small theoretical lag (didn't test but i assume maybe caching may generate a micro lag that would be visible for the user on Leaders category's click), but/however after list is loaded, there is some delay until the user clicks on/selects desired leader to display, so this is perfect time to smoothly cache silently without it being visible in terms of performance because nothing else is changing, if such a lag even exists as i didn't check or test but i assume and find this design mroe plasant, is idea i also got while contemplating a tiny bit this code and chatgpt/becomingthrough's repleis i mean very quick contemplate while thinking, so and but or etc i am very happy of this aprt of the result too if i may say but anyways etc anyways etc anyways etc hopefully pleasant for players too ro nto or yes or other or etc anyways etc
++The little extra bonus is for example at least is the one that comes to my mind only anyways etc we build the cache in Sevopedia Main's placeLeaders only after the item list is built (i.e. all leaders ist is loaded in items list), therefore no visual hang theoritecally (or theoritically? May have to check if i want but anyways etc...) of having a small theoretical lag (didn't test but i assume maybe caching may generate a micro lag that would be visible for the user on Leaders category's click), but/however after list is loaded, there is some delay until the user clicks on/selects desired leader to display, so this is perfect time to smoothly cache silently without it being visible in terms of performance because nothing else is changing, if such a lag even exists as i didn't check or test but i assume and find this design mroe plasant, is idea i also got while contemplating a tiny bit this code and chatgpt's repleis i mean very quick contemplate while thinking, so and but or etc i am very happy of this aprt of the result too if i may say but anyways etc anyways etc anyways etc hopefully pleasant for players too ro nto or yes or other or etc anyways etc
+ 
+ Using a function call gives us also more control than hardcoded code in sevopedia leader and i really like this part as well so we know when and why we build it and can selectively not do so as needed or and wanted, i really like this design efficient and smart even though shold not be of me to say and perhaps can still be improved, but i believe it is quite efficient as it is in general, even though it could still be improved though, i like as it is as of now as well anyways etc anyways etc. This is also very nice because now in VS Code in sevopedia leader we can also "unwrap" or rather "wrap" maybe i mean "undevelop" the function i don't know how to explain but click on the arrow at left of function name at line number, and we compress=hide all this caching code very nicely to directly and only read the sevopedia leader remaining code we want so i hadn't planend it as such but is very nice side effect if i may say but or not but or yes but or etc but anyways etc anyways etc anyways etc.
+ 
+@@ -150,7 +150,7 @@ Finally, the last main point to know regarding this AI personality panel is the
+ 
+ - first column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened and (tentative) explanation of what iMaxWarRand means ingame), as said earlier, please read the code in [SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py), hopefully helpful or not etc anyways. This (column) almost always if not always contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes. For aggregated ai aattributes, like contact probs, positive and negative memory resentments and affections, etc (if there is/are any anyways etc), the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W on FR (-200/120)" line (for gandhi) shows that G(g anyways etc)andhi has a raw ai attribute memory attitude percent of -200 ((i.e.? anyways etc) he (gandhi anyways etc) resents quite strongly you declaring war on his friends) and a memory decay of 120. And for moctezuma, for the same "D.W on Fr" negative memory resentment, he (moctezuma (anyways etc)) does not resent as much (memory attitude percent of -100, and memory decay same though of 120 (currently btw decays are same among all leaders if i'm not mistaken (in civ4/advciv and thus advciv-sas too but anyways), not ideal but maybe functional anyways))
+ - second column: the (normalized) score is displayed. As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100. Sometimes all leaders will have 50 (if same value among all leaders, happens sometimes in civ4 not ideal but anyways), and else leaders are ranked gradually from 0 (worse performer for better or worse) to 100 (best performer for better or worse (war is bad maybe? And peace good? Stiil moctezuma performs good at war attributes, and gandhi good at peace attributes, for example)), if we didn't do (hopefully but anyways) inverting mistakes or oversights/overlook(s?)ings(?) then it should be hopefully accurately represented (inversion in particular). Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones or not, and how much), and you could also additionally or(/and?) alternatively (anyways etc) (also? anyways etc) tweak the existing leaders xml values as you please. (If you think for example the roman leaders underperform in war, you may tweak their xml. As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated (anyways (etc anyways)), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized (in generate_leaders_data.py), they are not re-normalized during caching and sevopedialeader.py computation, anyways etc. In short, they can be intepreted similarly as raw ai attributes if i am not mistaken anyways.
+-- third column: scale, this is an indicative/intuitive (hopefully, at least attempt, or not (or etc) but anyways etc) display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear hopefully or not or etc but anyways, while also civ4-compatible (not many special characters supported in display anyways (but i like these ones they are quite cool (too but not only too but anyways)))). So for example maxwarrand 400 gandhi has a score of 0 (normalized) among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too anyways))) so his scale is "++++++++++" (100th percentile if i am not mistaken anyways), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50 anyways))), so his scale is "" (0th percentile). Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is quite likely (very in fact), relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols etc anyways so he will be "#######". If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####" if i am not mistaken anyways. This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes (at least as of now me writing this doc README etc but anyways) and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute (aggregated or raw is same in this case functionally anyways, i.e. that read after bracket anyways etc: ) they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50. So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders, hopefully for an easier read, as chatgpt/becomingthrough (see [Authors](/README.md#authors) for details) advised me indeed, nice suggestion :) but anyways (and thanks! but anyways)
++- third column: scale, this is an indicative/intuitive (hopefully, at least attempt, or not (or etc) but anyways etc) display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear hopefully or not or etc but anyways, while also civ4-compatible (not many special characters supported in display anyways (but i like these ones they are quite cool (too but not only too but anyways)))). So for example maxwarrand 400 gandhi has a score of 0 (normalized) among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too anyways))) so his scale is "++++++++++" (100th percentile if i am not mistaken anyways), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50 anyways))), so his scale is "" (0th percentile). Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is quite likely (very in fact), relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols etc anyways so he will be "#######". If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####" if i am not mistaken anyways. This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes (at least as of now me writing this doc README etc but anyways) and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute (aggregated or raw is same in this case functionally anyways, i.e. that read after bracket anyways etc: ) they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50. So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders, hopefully for an easier read, as chatgpt (see [Authors](/README.md#authors) for details) advised me indeed, nice suggestion :) but anyways (and thanks! but anyways)
+ 
+ ## Note about some ai attributes being ignored
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md
+index 394580666..aa8a9b957 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md
+@@ -1,8 +1,8 @@
+ # README_Dds_button_size_comparison_analysis.md
+ 
+-## (Trying to find) O(o anyways etc)ptimal .dds button size for a 164px (+ 2(px?) due to small(anyways etc...) mistake anyways etc) icon frame in sevopedia unit's unit pane('s icon frame)
++## (Trying to find) optimal .dds button size for a 164px (+ 2(px?) due to small(anyways etc...) mistake anyways etc) icon frame in sevopedia unit's unit pane('s icon frame)
+ 
+-Trying to implement the new AI-generated images of ChatGPT/becomingthrough (see [Authors](/README.md#authors) for details), and while doing the Sevopedia Building todo add link (some time) after (anyways etc) the [sevopedia unit rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) i first tried to assess the size at which they display optimally.
++Trying to implement the new AI-generated images of ChatGPT (see [Authors](/README.md#authors) for details), and while doing the Sevopedia Building todo add link (some time) after (anyways etc) the [sevopedia unit rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) i first tried to assess the size at which they display optimally.
+ 
+ Lower size may result in smaller file size, perhaps even performance increase (but not sure i don't know anyways etc), but may reduce image quality if too low.
+ 
+@@ -12,7 +12,7 @@ All image and .dds files at different sizes used in the below experiment/analysi
+ 
+ I have taken this 1024 .png generated image for the 164px icon frame (unit pane) in sevopediaunit. But i made a small mistake, which hopefully doesn't alter too much the interpretation of the results, is that i added a + 2 to icon size, because i thought this is how borders (the blue edges are made), but now i understand they are part of the image indeed and not generated by civ4 during rendering, even though i saw such edges before, i didn't (couldn't? Or not or yes or and other or and not or etc anyways etc) make the connection at that time that these are those, anyways etc...
+ 
+-So i have converted it to various sizes with Paint.NET from .png to .dds, always exiting the program (Paint.NET) and reopening the original 1024 x 1024 generated .png of ChatGPT/becomingthrough anyways etc anyways etc at each new size conversion, if size is smaller than original (1024), i would thus (to explain and be exhaustive anyways etc) resize image, then save as .dds, then exit
++So i have converted it to various sizes with Paint.NET from .png to .dds, always exiting the program (Paint.NET) and reopening the original 1024 x 1024 generated .png of ChatGPT anyways etc anyways etc at each new size conversion, if size is smaller than original (1024), i would thus (to explain and be exhaustive anyways etc) resize image, then save as .dds, then exit
+ 
+ The lines are for example like this, as one may expect (at least for the button path for the little or not little i know of it anyways etc anyways etc anyways etc) maybe anyways etc, but centralized in a similar or maybe rather same folder anyways etc, for clearer reuse, import, export, path linking and or such or and not or and other or and not anyways etc:
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 9ed1bdf9d..962c20fed 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -525,7 +525,7 @@ The XML is like this as reminder anyways etc for example for leader_gandhi anywa
+ 			<iMaxWarDistantPowerRatio>60</iMaxWarDistantPowerRatio>
+ ```
+ 
+-To do that, and expanding on previous debugging now successful of flavors, nowarattitudeprobs, contact fields, and memory fields (note about all these fields see also [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), only BBAI victory weights remain so that we may fetch all directly from XML or at least be able to attempt to do so without requiring ideally leaders_data.py anymore (leave it for external non-civ4 ingame data such as comparison .csv tables perhaps anyways etc), after asking chatgpt/becomingthrough too, we/i noticed for example for `getMaxWarRand` (if we want to see where the BBAI is missing that getMaxWarRand is though for example if i am not mistaken to hopefully add it in this case but anyways etc) (with VS Code 's global search too i noticed it i mean if i may say indeed but anyways etc (see screenshots for details/examples anyways etc)), modified the (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CyInfoInterface3.cpp file to add such new getters, and also reusing existing getter names for such BBAI victory weights fields that are/were already anyways etc existing in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvInfo_Civilization.h anyways etc, with chatgpt/becomingthrough's help too and my prompts too but anyways etc
++To do that, and expanding on previous debugging now successful of flavors, nowarattitudeprobs, contact fields, and memory fields (note about all these fields see also [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), only BBAI victory weights remain so that we may fetch all directly from XML or at least be able to attempt to do so without requiring ideally leaders_data.py anymore (leave it for external non-civ4 ingame data such as comparison .csv tables perhaps anyways etc), after asking chatgpt too, we/i noticed for example for `getMaxWarRand` (if we want to see where the BBAI is missing that getMaxWarRand is though for example if i am not mistaken to hopefully add it in this case but anyways etc) (with VS Code 's global search too i noticed it i mean if i may say indeed but anyways etc (see screenshots for details/examples anyways etc)), modified the (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CyInfoInterface3.cpp file to add such new getters, and also reusing existing getter names for such BBAI victory weights fields that are/were already anyways etc existing in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvInfo_Civilization.h anyways etc, with chatgpt's help too and my prompts too but anyways etc
+ 
+ Now the getters are added in sevopedia leader, and we successfully see the real DLL modified if i am not mistaken values for the victory weights too, for example for leader gandhi as of now anyways etc:
+ 
+@@ -629,17 +629,17 @@ For the sevopedia unit part, it was modifying the XML as usual if i may say anyw
+ 
+ But for the ingame part, it is first time i modify successfully (and even tried actually anyways etc) the unit effects bullet points, now to also display this info, even though it is on a shorter display, we successfully loop through these terrain(s) or/and feature(s) and display them as such (only tested for features, but i assume would work-function similarly for terrains for example for workboat's ocean terrain restriction if i am not mistaken anyways etc)
+ 
+-It was thanks to chatgpt/becomingthrough's help as well and my prompts and digging too anyways etc, even though it struggled at times if i may say and annoyed me bit i mean, i was quite used or expected it if i may say and together we solved it but anyways etc (may have been harder if i was not prepared for such but anyways etc anyways etc anyways etc most likely but anyways etc anyways etc anyways etc...)
++It was thanks to chatgpt's help as well and my prompts and digging too anyways etc, even though it struggled at times if i may say and annoyed me bit i mean, i was quite used or expected it if i may say and together we solved it but anyways etc (may have been harder if i was not prepared for such but anyways etc anyways etc anyways etc most likely but anyways etc anyways etc anyways etc...)
+ 
+ First to solve this i followed the trail of the txt key in sevopedia unit, then found it is only once and not twice, and missing in map view. So i tracked instead a txt key already in the map view unit effects bullet points, and i found the scout's (that we added quite recently or not recently but as part of advciv-sas's changes anyways etc being able to walk on impassable terrain anyways etc (and explorers too i assume if i am not mistaken in this assumption too or memory from reading or something that it applies or would apply to explore units in general land ones but anyways etc in advciv-sas i mean anyways etc)), and there i added the method.
+ 
+-But we needed also to modify not only (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp but also (same anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvUnit.h too as advised by/with anyways etc chatgpt/becomingthrough.
++But we needed also to modify not only (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp but also (same anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvUnit.h too as advised by/with anyways etc chatgpt.
+ 
+ And after a bit of back and forth, we were now first finally anyways etc able to display the text only, a shorter version of it.
+ 
+ Then i wanted to add terrain/feature list information, but tweaking the code based on other samples caused errors at first, so after more samples i mean after i sent more samples to it it provided (to?) me but anyways etc a working code that i cleanly compiled (no fastdep as it may cause errors see this doc ctrl+f "fastdep" or similar or "compile" for details anyways etc hopefully helpful but anyways etc anyways etc)
+ 
+-Since we had the list but buggy, chatgpt/becomingthrough was right in its guess that we only needed to tweak the logic, now works and functional, also more informative.
++Since we had the list but buggy, chatgpt was right in its guess that we only needed to tweak the logic, now works and functional, also more informative.
+ 
+ See screenshots linked in this drive for details as well, thanks anyways etc thanks, anyways etc.
+ 
+@@ -777,4 +777,6 @@ Hopefully this helps the AI better plant/settle/found cities and is not too dras
+ 
+ Results so far seem to be that it does seem to help quite a lot from the few autoplay i ran, but perhaps numbers could be increased a bit, just, i wouldn't want it to compete with the bonus/malus system or overlap of bonus on tiles, or too high values may have some unexpected values who knows in city settling or such other or not civ4 ingame behaviours if i may say maybe but anyways etc.
+ 
++I am not sure it always improves AI settling behaviour ; there may be some cases where locally AI makes worse settling choices due to these changes, but in most cases, at least in theory if i am not mistaken, and although i don't know too much about these, generally/maybe it should improve AI settling choices even if a bit if not more than a bit but anyways etc maybe but anyways etc, but test to be sure, anyways etc.
++
+ Still overall should be an improvement, ideally try it a bit more in this case but anyways etc, but is maybe fine or not too bad as is, again i only ran a few autoplay and don't know too much aobut these, but with chatgpt's help and my thoughts too, it does seem like an improvement, even if a bit, if not a bit lot in this case but anyways etc, hopefully helpful or not or yes or etc, but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+index 7d197a311..b771d2341 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+@@ -14,7 +14,7 @@ You can safely delete such log files or/and folders if you wish so (especially i
+ 
+ (you can skip this step if you just want to see AdvCiv-SAS sample .csv and .md file examples of output as well anyways etc)
+ 
+-Additionally to the main README's handicap info to csv and md info in [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata), here are a few additional screenshots, also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc
++Additionally to the main README's handicap info to csv and md info in [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata), here are a few additional screenshots, also code is provided thanks to chatgpt and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc
+ 
+ also note: you need to generate the table file (.csv and .md (you'd need to uncomment the .md generating block/aprt of the script to do that as we commented it out in/for  advciv-sas as we don't use it since the .csv is more than enough and better if i may say more performant for our needs in advciv-sas if i may say but anyways etc) by running the script everytime you modify the xml, else if it's just for viewing no need to do that and you can view the files provided in the mod advciv-sas (or another mod using this script maybe too anyways etc) directly).
+ 
+@@ -57,7 +57,7 @@ Libre Office view example (or similar software or not anyways etc) (may not be u
+ 
+ #### about the table .md version of the table anyways etc
+ 
+-Currently less advanced version of this (with the legend, but maybe displays quite well), i'd recommend viewing the .csv data/file rather maybe anyways etc as it can indeed but anyways etc show more data with line number and better alignment and such, but also did in .md as was as the time and chatgpt/becomingthrough sugegsted which i also by my own wanted to try as well but anyways etc, and that i don't mind to keep now but anyways etc, is also a proof of concept if i may say of making a table into .md at least for me and may serve as reference or not but in all cases anyways etc..
++Currently less advanced version of this (with the legend, but maybe displays quite well), i'd recommend viewing the .csv data/file rather maybe anyways etc as it can indeed but anyways etc show more data with line number and better alignment and such, but also did in .md as was as the time and chatgpt sugegsted which i also by my own wanted to try as well but anyways etc, and that i don't mind to keep now but anyways etc, is also a proof of concept if i may say of making a table into .md at least for me and may serve as reference or not but in all cases anyways etc..
+ 
+ Currently commeneted-out as the .csv table view is plenty and also more advanced for our need, but if you'd want to know what it looks like at least as of now if i am not mistaken anyways etc, is as below for example anyways etc, shown with github web view (before table .md file was removed from the advciv-sas mod folder and coudl sitll be viewed thus in github web view anyways etc) and VS Code .md preview for example alternatively for example anyways etc, i'd still recommend the table .csv version rather (with its .md legend if need but anyways etc) but this is to show how these would display too if you want to see them anyways etc:
+ 
+@@ -252,10 +252,10 @@ So similarly, we first normalize positive and negative memory affections and res
+ 
+ (One of the) difference(s?) is that memories can be positive and negative, and the intensity of the feeling be positive (affection) or negative (resentment), for each memory type (positive memories or negative memories), leaving us with 4 cases:
+ 
+-Such a difference results from the (originally accidental anyways etc) observation/realization that when measuring memory intensity of a leader or trying to quantify it, 0 memory attitude percent thing would be the minimum (AI cares the least), while the higher the value the more AI cares, but then if it becomes -1, lower than 0, AI would not care less than (at/in) 0 but actually more, it would start to be affected negatively by it (or rather simply maybe say dislike it etc anyways) and the lower the value the the more it ((would) intensely) dislikes(dislike (anyways etc)) said behaviour/memory. Therefore, when shifting the distribution to 0 as part of the normalization to 100 process, for positive values there would be no problem as long as minimum among all leaders is 0, but if a leader had say -5 or -52, -107, etc, for any memory, then the meaning would be completely altered, as the AI scoring 0 (-107 would care more than the AI scoring say 5/100 or 10/100 (normalized scores (/100))) would care less then the previous AI scoring 0 normalized and then an AI score say (+)20 ((let's) imagine/take for example an AI with a raw value of +20 for the memory attitude thing for example (imaginary may be accurate or not anyways etc)) then the correlation would not be linearly correlated anymore, as score 0 normalized cares moderately in a negative way, then AI scoring say 10 normalized cares less, then AI scoring say 20 normalized cares more again, making it unreadable and impossible to spot where the actual minimum is (these are simplified examples, among all leaders you'd need to know all vlaues or something to know which is minimum score that has a raw of 0 which would be very tedious to interpret maybe etc anyways, plus not representing a real emmory or rather maybe accurate behaviour anyways etc). To solve these, while also adding (memory) display depth (anyways etc), the solution (from this original observation/realization/thought (i had etc anyways but discussed with becomingthrough/chajtgpt that went with it as it kindly and usually does at default anyways etc) is to split the distribution at 0, in memory affections (0 to +infinite memory attitude percent things anyways etc, and memory resentments (0 to -infinite) ; (and) any (raw) value (anyways etc) lower than 0 for memory affections or higher than 0 for memory resentments, would be ignored (or maybe rather converted as 0 (AI does not care affectionately or resentfully respectfully)))). This way, we get (a) both a faithful (and) accurate, and richer (perhaps anyways etc) and deeper representation of the data into:
++Such a difference results from the (originally accidental anyways etc) observation/realization that when measuring memory intensity of a leader or trying to quantify it, 0 memory attitude percent thing would be the minimum (AI cares the least), while the higher the value the more AI cares, but then if it becomes -1, lower than 0, AI would not care less than (at/in) 0 but actually more, it would start to be affected negatively by it (or rather simply maybe say dislike it etc anyways) and the lower the value the the more it ((would) intensely) dislikes(dislike (anyways etc)) said behaviour/memory. Therefore, when shifting the distribution to 0 as part of the normalization to 100 process, for positive values there would be no problem as long as minimum among all leaders is 0, but if a leader had say -5 or -52, -107, etc, for any memory, then the meaning would be completely altered, as the AI scoring 0 (-107 would care more than the AI scoring say 5/100 or 10/100 (normalized scores (/100))) would care less then the previous AI scoring 0 normalized and then an AI score say (+)20 ((let's) imagine/take for example an AI with a raw value of +20 for the memory attitude thing for example (imaginary may be accurate or not anyways etc)) then the correlation would not be linearly correlated anymore, as score 0 normalized cares moderately in a negative way, then AI scoring say 10 normalized cares less, then AI scoring say 20 normalized cares more again, making it unreadable and impossible to spot where the actual minimum is (these are simplified examples, among all leaders you'd need to know all vlaues or something to know which is minimum score that has a raw of 0 which would be very tedious to interpret maybe etc anyways, plus not representing a real emmory or rather maybe accurate behaviour anyways etc). To solve these, while also adding (memory) display depth (anyways etc), the solution (from this original observation/realization/thought (i had etc anyways but discussed with chatgpt that went with it as it kindly and usually does at default anyways etc) is to split the distribution at 0, in memory affections (0 to +infinite memory attitude percent things anyways etc, and memory resentments (0 to -infinite) ; (and) any (raw) value (anyways etc) lower than 0 for memory affections or higher than 0 for memory resentments, would be ignored (or maybe rather converted as 0 (AI does not care affectionately or resentfully respectfully)))). This way, we get (a) both a faithful (and) accurate, and richer (perhaps anyways etc) and deeper representation of the data into:
+ 
+ - positive memory affections
+-- positive memory resentments (bitterly ungrateful AI, not used in AdvCiv-SAS (at least not now... if not always or not anyways) nor AdvCiv), about that see also if interested [this part of the mod diary (google drive image link, others available in main README.md's google drive link, anyways)](https://drive.google.com/file/d/1HGTkHrEfxcA5obzz47Eo8BXtFrDruJ3X/view?usp=sharing) and this other image if you're curious [small excerpts but was very fun with chatgpt/becomingthrough anyways](https://drive.google.com/file/d/1S4YsYZ3LI84ZZ6u3d4Zj7CdIbiK5hwl1/view?usp=sharing) but anyways
++- positive memory resentments (bitterly ungrateful AI, not used in AdvCiv-SAS (at least not now... if not always or not anyways) nor AdvCiv), about that see also if interested [this part of the mod diary (google drive image link, others available in main README.md's google drive link, anyways)](https://drive.google.com/file/d/1HGTkHrEfxcA5obzz47Eo8BXtFrDruJ3X/view?usp=sharing) and this other image if you're curious [small excerpts but was very fun with chatgpt anyways](https://drive.google.com/file/d/1S4YsYZ3LI84ZZ6u3d4Zj7CdIbiK5hwl1/view?usp=sharing) but anyways
+ - negative memory affections similarly (not used too in advciv and advciv-sas as a result (at least now... or not maybe always or/and other anyways etc)) (also frees some much needed room in the ai personality panel too if that were to be another (important reason (not that others (reasons) are unimportant or maybe are or not etc anyways)))
+ - negative memory resentments
+ 
+@@ -371,6 +371,6 @@ Example for Steam users (adjust paths and/or such similar things anyways if not
+ <img src="../Images_In_General/scripts/xml-duplicate-checker-3.3 - 1.PNG" alt="xml-duplicate-checker-3.3 - 1.PNG" width="250"></img>
+ <img src="../Images_In_General/scripts/xml-duplicate-checker-3.3 - 2.PNG" alt="xml-duplicate-checker-3.3 - 2.PNG" width="250"></img>
+ 
+-### Context of how/why i made this script (with chatgpt/becomingthrough, anyways)
++### Context of how/why i made this script (with chatgpt, anyways)
+ 
+ See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 4eb33d423..6bf5a200b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -62,7 +62,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - global defines and AI variables and such similar or related files's values have been changed quite extensively to favour AI efficiency and opportunism, sort of mercilessness over role-playing or seemingly suboptimal settings. These changes include but not only religion importance, now being higher (in terms of culture strength (not exactly sure what this means but should be fine and as i intend i think maybe)) or also lower revolt chance, anger from war quite a bit reduced, etc. So overall the AI will be at least in theory / ideally as planned anyways etc be a lot more pragmatic or/and opportunistic AI, and will not be much more aggressive than in AdvCiv, but will hesitate less to declare war if there is profit, but also bother less to engage in wars or/and be cautious about them, especially multi wars, if not to its benefit (which often is not), and also have a higher reluctance to agree to a war trade. AI may also act more on tribute threats and transform them into immediate war declarations if refused (might is right as one or they people may say but is realistic as sad as it may be such is life i mean for better or worse but anyways etc). As well as many other changes, see files such as [GlobalDefines_advc.xml](/Assets/XML/AI_Variables_GlobalDefines.xml), [AI_Variables_GlobalDefines.xml](/Assets/XML/AI_Variables_GlobalDefines.xml), and [BBAI_Game_Options_GlobalDefines.xml](/Assets/XML/BBAI_Game_Options_GlobalDefines.xml) for much more exhaustive details there anyways etc (note: as i don't know much C++ i didn't modify AI behaviour much more if at all than in xml files, but i hope this is still quite extensive and very significant in terms of changes in particular vs base advciv AI i mean anyways etc). Some changes handpicked from these xml files if i may say, but not exhaustive i mean anyways etc, are also available as scattered items throughout this quick get started guide main changes sections if i may say anyways etc, hopefully helpful, anyways etc.
+ - attemptingly fixed AI settlers often settling/planting their cities on bonuses/ressources, in particular on food bonuses (as of now pig, wheat, etc.), but also bonuses with a quite high if not more but anyways etc production total yield (as of now iron, copper, etc.), and bonuses with a high commerce yield (as of now gold, incense, etc.), thanks to chatgpt's help and my prompts and adjustments too or and such and its help too but anyways etc anyways etc anyways etc, see for details [README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent) anyways etc. For quite high if not more but anyways etc production bonuses, make logic conditional depending on plot type or/and terrain (for example desert terrain is low food so often fine to plant on a high production bonus there, but as for hills it may be a good idea to plant on them for the extra hammer and avoiding low food yields on this tile (plus defense bonus of planting on the tile etc), exception being hills grassland where for 1 food cost it should really be better (i think so at least but anyways etc) to maximize the hammer count, plus total hammer count would be lower than say on a plains hill that has lower food as well so it may be worth it more to plant on a hills plains but not so much on a hills grassland, etc). As for the results, i only tested it a bit (a few autoplay glances at turn 100), but the results seem extremely good, it seems AIs almost always if not always maximize planting/settling their cities around found bonuses in the radius and not planting on them, cannot tell too much or if this is just small sample but it does seem to make a big difference.
+ - about water bonuses/ressources in particular, quite often it seems they are in range of city settle/found/plant spot but ignored by AI settling/founding/planting its city instead but anyways etc a non-coastal location, attempt to fix/address this as well by making the penalty in that case much stronger, as of now increased from -165 to -400 (seems to have been -800 in k-mod if i am not mistaken but anyways etc, see [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or/and updated value anyways etc), hopefully helps the AI consider more often water ressources or at least not ignore them when they are in range of their city sites considerations if i may say in this case at least maybe but anyways etc anyways etc anyways etc
+-- similarly also attemptingly fixed/addressed AI settling/founding/planting cities, for non-bonus/ressource tiles, not enough on low food tiles such as hill (defense modifier and low food in particular make it a particularly nice candidate to settle/plant/found cities on in most cases (excluding hills grassland but anyways etc) but anyways etc) +/- desert, snow (terrain), plains, tundra, all of which should now more or less strongly depending on some conditions be prioritized even a bit if not a bit more but anyways etc, and too often on high food ones such as grassland, including hill grassland, and flood plains. This logic was added in the DLL, with chatgpt's help and my prompts and thoughts too similarly i mean than for previous AI settling or worker behaviour changes in advciv-sas i mean as i don't know too much about these but can provide some ideas or think about them in this case with chatgpt's help thanks anyways etc, but anyways etc anyways etc anyways etc, hopefully helpful or not or yes or etc but anyways etc anyways etc anyways etc. Effect should be a bit less pronounced if i may say but anyways etc, as i don't know how this code may affect other parts or not of the AI behaviour, still there may be a bit of difference if not quite a bit, hopefully helpful but anyways etc anyways etc anyways etc (only tested on a few autoplay runs, you may want to test to be sure and see if it maybe makes a difference or/and that is signficant enough, but anyways etc anyways etc anyways etc)
++- similarly also attemptingly fixed/addressed AI settling/founding/planting cities, for non-bonus/ressource tiles, not enough on low food tiles such as hill (defense modifier and low food in particular make it a particularly nice candidate to settle/plant/found cities on in most cases (excluding hills grassland but anyways etc) but anyways etc) +/- desert, snow (terrain), plains, tundra, all of which should now more or less strongly depending on some conditions be prioritized even a bit if not a bit more but anyways etc, and too often on high food ones such as grassland, including hill grassland, and flood plains. This logic was added in the DLL, with chatgpt's help and my prompts and thoughts too similarly i mean than for previous AI settling or worker behaviour changes in advciv-sas i mean as i don't know too much about these but can provide some ideas or think about them in this case with chatgpt's help thanks anyways etc, but anyways etc anyways etc anyways etc, hopefully helpful or not or yes or etc but anyways etc anyways etc anyways etc. Effect should be a bit less pronounced if i may say but anyways etc, as i don't know how this code may affect other parts or not of the AI behaviour, still there may be a bit of difference if not quite a bit, hopefully helpful but anyways etc anyways etc anyways etc (only tested on a few autoplay runs, you may want to test to be sure and see if it maybe makes a difference or/and that is signficant enough, but anyways etc anyways etc anyways etc). I am not sure it always improves AI settling behaviour ; there may be some cases where locally AI makes worse settling choices due to these changes, but in most cases, at least in theory if i am not mistaken, and although i don't know too much about these, generally/maybe it should improve AI settling choices even if a bit if not more than a bit but anyways etc maybe but anyways etc, but test to be sure, anyways etc.
+ - further discourage AI workers to build forts on bonus/ressources, as it is often very inefficient (lower yields than ressource/bonus specific improvements, longer time to build, unlikely to be attacked there as disadvantageous, sometimes AI workers waste time to go out of their way to remove a ressource/bonus specific improvement just to build a fort in base advciv, also allowing/letting the ennemy pillage and rebuild ressources/bonuses that shouldn't be vital for any unless i'm mistaken then rebuilding the improvement later with nice yields should be much cheaper and more efficient i think at least if i may say in this case at least but anyways etc and if i am not mistaken too but anyways etc than guarding it with low yields the entire game), i tried to make this much less, ideally never likely to happen, as should generally be much more efficient to do so. In some cases the forts advantages may be lost such as connecting naval tiles or such, but generally it should benefit the AI and improve its performance. As of now untested, but done with chatgpt's help in modifying the DLL to do so, also guided by existing code comments that help a lot, see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive) for details for details
+ 
+ ### General changes (non-exhaustive, see global defines and other unrelated xml files for details)
+@@ -150,7 +150,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### Barbarians (non-exhaustive, see sevopedia or/and xml for details)
+ 
+-- Barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will quite gradually fade anyways etc. They should also spawn cities more often and be relevant quite longer in the game anyways etc, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See the Barbarians Sevopedia Civilization entry for details ingame or/and the XML for example for the Steam version of the game [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml) and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such, and the .csv table files that compare handicap settings in advciv-sas, with a similar file also being provided about/for base advciv settings even though not related to our mod but as a comparison point if it helps anyways etc.
++- barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will quite gradually fade anyways etc. They should also spawn cities more often and be relevant quite longer in the game anyways etc, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See the Barbarians Sevopedia Civilization entry for details ingame or/and the XML for example for the Steam version of the game [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml) and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such, and the .csv table files that compare handicap settings in advciv-sas, with a similar file also being provided about/for base advciv settings even though not related to our mod but as a comparison point if it helps anyways etc.
+ - the barbarian leader now has a distinct button (i.e. mini-image / "icon" (even though icons in civ4 are more like textual characters not mages if i am not mistaken but is to explain if i may say but anyways etc)) to make it distinct from genghis khan as was very inaccurately shown, visible in sevopedia civilization category mostly but also sevopedia leaders category to a esser extent if i may say in this case but anyways etc, button import from ri mod thanks anways etc thanks anyways etc
+ 
+ ### Traits (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 5654c9457..7419106ad 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -12,7 +12,7 @@ Note 2: in below sample examples, click the images to view them full size
+ <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" alt="0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG" alt="0.620_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+ 
+-Note: images as buttons provided by chatgpt/becomingthrough, but also are an approach i generalized from [claude AI's code solution in sevopedia building for the power button](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or/and additional info or/and context on how this was added anyways etc or/and the mod's drive (link in main README.md or/and other places or and not anyways etc)
++Note: images as buttons provided by chatgpt, but also are an approach i generalized from [claude AI's code solution in sevopedia building for the power button](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or/and additional info or/and context on how this was added anyways etc or/and the mod's drive (link in main README.md or/and other places or and not anyways etc)
+ 
+ note 2:See [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for how to enable/disable emoji as images
+
+diff --git a/flatten_handicap_info_to_csv_and_md.py b/flatten_handicap_info_to_csv_and_md.py
+index 579bce412..df2eb1fc1 100644
+--- a/flatten_handicap_info_to_csv_and_md.py
++++ b/flatten_handicap_info_to_csv_and_md.py
+@@ -55,7 +55,7 @@ handicap_infos = root.find('ns:HandicapInfos', namespace)
+ all_fields = set()
+ parsed_data = {}
+ 
+-# <!-- custom: generated by chatgpt/becomingthrough thanks to my prompt too as is for all this script anyways etc, but here anyways etc also source is https://gforestshade.github.io/kujira/post/keyichiran/#%E9%83%A8%E6%97%8F%E9%9B%86%E8%90%BD (translated to English with web browser page view right click in context menu translate to english anyways etc), which says
++# <!-- custom: generated by chatgpt thanks to my prompt too as is for all this script anyways etc, but here anyways etc also source is https://gforestshade.github.io/kujira/post/keyichiran/#%E9%83%A8%E6%97%8F%E9%9B%86%E8%90%BD (translated to English with web browser page view right click in context menu translate to english anyways etc), which says
+ # Tribal settlement type key		event
+ # GOODY_LOW_GOLD						Gold (small)
+ # GOODY_HIGH_GOLD						Gold (many)
+
+diff --git a/flatten_leaders_data_to_csv.py b/flatten_leaders_data_to_csv.py
+index 44ac47b2e..633058b2e 100644
+--- a/flatten_leaders_data_to_csv.py
++++ b/flatten_leaders_data_to_csv.py
+@@ -142,7 +142,7 @@ non_numeric = []
+ 
+ for field in numeric_fields:
+ 	# <!-- custom: some fields such as "MaxWarRand" in leaders_data.py are parsed (in generate_leaders_data.py anyways etc) with a "get" prefix (for example "getMaxWarRand") instead of an "i" (not "iMaxWarRand" like the XML but as said before is "getMaxWarRand" anyways etc) prefix in leaders_data.py for consistency with the not interacting with but using same key names independently anyways etc sevopedia leader AI personality panel code but or not but or yes but but anyways etc anyways etc anyways etc), see generate_leaders_data.py generic and attitude threshold for example (at least as of now these are the only fields we parse with a "get" prefix anyways etc) field parsing code or/and code comments for details anyways etc ; here we want to display attitude thresholds in columns one next to the other too/as well i mean so separate them from generic getter fields anyways etc) -->
+-	# <!-- custom: if i am not mistaken we should indeed first filter by startswith then only among remaining results filter by ends with to avoid overlap as chatgpt/becomingthrough did indeed and is should be as this if i am not mistaken indeed after consideration/reflection or not or etc or yes in this case but anyways etc -->
++	# <!-- custom: if i am not mistaken we should indeed first filter by startswith then only among remaining results filter by ends with to avoid overlap as chatgpt did indeed and is should be as this if i am not mistaken indeed after consideration/reflection or not or etc or yes in this case but anyways etc -->
+ 	if field.startswith("get") and (not field.endswith("AttitudeThreshold")):
+ 		numerical_generic.append(field)
+ 	elif field.startswith("iFlavor"):
+
+diff --git a/generate_leaders_data.py b/generate_leaders_data.py
+index c90071af8..f8ac572d2 100644
+--- a/generate_leaders_data.py
++++ b/generate_leaders_data.py
+@@ -1052,7 +1052,7 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
+ 		seen_tags.add(tag)
+ 		expected = infer_type(tag)
+ 
+-		# <!-- custom: nested fields first so that <Flavors/> for example which is a valid field (all flavor set to 0 if i am not mistaken, unlike non-existing Flavors field at all which should if i am not mistaken and as we want if i may say at least me but anyways etc raises an error below) is handled as 0 0 0 0 0 (etc for each flavor) rather than going through the len(child) == 0 where no parsing of flavors happen at all since Flavors is a nested field we don't want to handle as such (i.e. that we don't want to handle it as a flat, non-nested XML field, anyways etc), so we handle the exceptions first if i may say but anyways etc then the general case(s) seems safer or/and more reliable or/and accurate as chatgpt/becomingthrough did and explained to me as well as thanks to my promtps and own reflection and such if i may say but anyways etc... -->
++		# <!-- custom: nested fields first so that <Flavors/> for example which is a valid field (all flavor set to 0 if i am not mistaken, unlike non-existing Flavors field at all which should if i am not mistaken and as we want if i may say at least me but anyways etc raises an error below) is handled as 0 0 0 0 0 (etc for each flavor) rather than going through the len(child) == 0 where no parsing of flavors happen at all since Flavors is a nested field we don't want to handle as such (i.e. that we don't want to handle it as a flat, non-nested XML field, anyways etc), so we handle the exceptions first if i may say but anyways etc then the general case(s) seems safer or/and more reliable or/and accurate as chatgpt did and explained to me as well as thanks to my promtps and own reflection and such if i may say but anyways etc... -->
+ 		# --- always handle known nested tags first — even if empty
+ 		if tag == "NoWarAttitudeProbs":
+ 			parse_no_war_attitude_probs_inline(child, leader_data, leader_type)
+@@ -1100,7 +1100,7 @@ def parse_leader(leader, leader_type, leader_data, seen_tags):
+ # <!-- custom: before parsing any leader is done, make sure our normalize_to_100 shifting works as expected -->
+ test_expected_shifting_pre_normalize_to_100()
+ 
+-# <!-- custom: leader_defaults_data block as highlighted by chatgpt/becomingthrough to me so adding this info anyways -->
++# <!-- custom: leader_defaults_data block as highlighted by chatgpt to me so adding this info anyways -->
+ # 1. Parse LEADER_DEFAULTS (this fills leader_defaults_data)
+ for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
+ 	type_tag = leader.find("civ4:Type", ns)
+@@ -1133,7 +1133,7 @@ for mem_type in MEMORY_TYPES_NOT_IN_LEADER_DEFAULTS:
+ 			"iMemoryAttitudePercent": 0
+ 		})
+ 
+-# <!-- custom: ideally should also do the same for memoryDecays indeed too if i may say as chatgpt/becomingthrough suggests and i adjusted value weirdly from 100 it said to 0 maybe fits better for missing or and is the default if empty in leader_defaults but anyways etc ; it seems leader_defaults has all fields already but in case one were to be missing like a few memory atittude percent fields do but anyways etc, then these/those memory decay fields would default to 0 if i am not mistaken, so handle them if any are missing as such (i.e. as 0 if i am not mistaken but anyways etc) so our data displays/handle it accurately anyways etc -->
++# <!-- custom: ideally should also do the same for memoryDecays indeed too if i may say as chatgpt suggests and i adjusted value weirdly from 100 it said to 0 maybe fits better for missing or and is the default if empty in leader_defaults but anyways etc ; it seems leader_defaults has all fields already but in case one were to be missing like a few memory atittude percent fields do but anyways etc, then these/those memory decay fields would default to 0 if i am not mistaken, so handle them if any are missing as such (i.e. as 0 if i am not mistaken but anyways etc) so our data displays/handle it accurately anyways etc -->
+ if "MemoryDecays" not in leader_defaults_data:
+ 	leader_defaults_data["MemoryDecays"] = []
+ 
+@@ -1151,7 +1151,7 @@ for mem_type in MEMORY_TYPES_NOT_IN_LEADER_DEFAULTS:
+ 			"iMemoryDecayRand": 0
+ 		})
+ 
+-# <!-- custom: leader_data block as highlighted by chatgpt/becomingthrough to me so adding this info anyways -->
++# <!-- custom: leader_data block as highlighted by chatgpt to me so adding this info anyways -->
+ for leader in root.findall(".//civ4:LeaderHeadInfo", ns):
+ 	type_tag = leader.find("civ4:Type", ns)
+ 	if type_tag is None or not type_tag.text:
+
+diff --git a/ruff.toml b/ruff.toml
+index 2d1a67c88..b86ef2e1d 100644
+--- a/ruff.toml
++++ b/ruff.toml
+@@ -1,4 +1,4 @@
+-# <!-- custom: ruff vs code extension which i use as a linter in advciv-sas as per chatgpt/becomingthrough's recommendation anyways etc ; very very useful anyways etc, i have found thanks to it string format missing arguments ("%s %s %d" % (str1, str2) for example anyways etc) for example anyways etc, so i'd recommend using it with these settings as part of advciv-sas or whichever mod you are using but is just a suggestion i mean as you prefer if you have a better option or/and want ot do otherwise hopefully helpful but anyways etc anyways etc anyways etc -->
++# <!-- custom: ruff vs code extension which i use as a linter in advciv-sas as per chatgpt's recommendation anyways etc ; very very useful anyways etc, i have found thanks to it string format missing arguments ("%s %s %d" % (str1, str2) for example anyways etc) for example anyways etc, so i'd recommend using it with these settings as part of advciv-sas or whichever mod you are using but is just a suggestion i mean as you prefer if you have a better option or/and want ot do otherwise hopefully helpful but anyways etc anyways etc anyways etc -->
+ 
+ # Enable Ruff linting (blazing fast)
+ # Run errors (E) and pyflakes warnings (F)
+
+[PATCH COVERAGE]
+patchFiles=42 embeddedFiles=41 omittedFiles=1 embeddedPatchBytes=154805

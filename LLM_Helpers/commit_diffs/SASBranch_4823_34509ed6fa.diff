@@ -1,0 +1,123 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4823
+# Commit: 34509ed6fa7ec5b08e9ee0832af91b39fcde985c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3b4013f45ef24fd96286ddd34217bec290d326f6
+# Title: minor add missing CIV4CityLSystem and other minor changes anyways etc in case they are useful anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Art/CIV4ArtDefines_Building.xml
+7	3	Assets/XML/Buildings/CIV4BuildingInfos.xml
+11	4	Assets/XML/Buildings/CIV4CityLSystem.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index 0d8e3b145..a04859fc4 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -158,7 +158,7 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Granary.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,4</Button>
+ 		</BuildingArtInfo>
+-		<!-- custom: german_longhouse art animation import from the RI mod (seemingly scattered accross RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so had to import both and gather them all in one advciv-sas folder if i'm not mistaken anyways etc) see modding ressources example nif import info for details (screenshots and such for example mainly but anyways etc) anyways etc ; as for the button, import from RI mod's longhouse.dds in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Interface1.FPK and a part of the smokehouse1 structure's nif files (here only asian_building_shadow.dds it seems if i am not mistaken anyways etc) was scattered in RI_37_Structures9.FPK as well anyways etc, and modified/adjusted or not for AdvCiv-SAS anyways etc -->
++		<!-- custom: german_longhouse art animation import from the RI mod 's ART_DEF_BUILDING_SMOKEHOUSE1 (nif seemingly scattered accross RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so had to import both and gather them all in one advciv-sas folder if i'm not mistaken anyways etc) see modding ressources example nif import info for details (screenshots and such for example mainly but anyways etc) anyways etc ; as for the button, import from RI mod's longhouse.dds in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Interface1.FPK and a part of the smokehouse1 structure's nif files (here only asian_building_shadow.dds it seems if i am not mistaken anyways etc) was scattered in RI_37_Structures9.FPK as well anyways etc, and modified/adjusted or not for AdvCiv-SAS anyways etc -->
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_GERMAN_LONGHOUSE</Type>
+ 			<LSystem>LSYSTEM_2x1</LSystem>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index ee931d18c..799f466f2 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -4267,7 +4267,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+ 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+ 			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>2</iHealth>
++			<iHealth>1</iHealth>
+ 			<iAreaHealth>0</iAreaHealth>
+ 			<iGlobalHealth>0</iGlobalHealth>
+ 			<iHappiness>0</iHappiness>
+@@ -4296,7 +4296,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
++			<YieldChanges>
++				<iYield>1</iYield>
++				<iYield>0</iYield>
++				<iYield>0</iYield>
++			</YieldChanges>
+ 			<CommerceChanges/>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+@@ -4810,7 +4814,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges>
+-				<iYield>2</iYield>
++				<iYield>1</iYield>
+ 				<iYield>0</iYield>
+ 				<iYield>0</iYield>
+ 			</YieldChanges>
+
+diff --git a/Assets/XML/Buildings/CIV4CityLSystem.xml b/Assets/XML/Buildings/CIV4CityLSystem.xml
+index 0baae9fa2..9bc120725 100644
+--- a/Assets/XML/Buildings/CIV4CityLSystem.xml
++++ b/Assets/XML/Buildings/CIV4CityLSystem.xml
+@@ -282,6 +282,9 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 		<ArtRef Name="building:BUILDING_VI_LEGENDARY_SAGA">
+ 			<Scale>1</Scale>
+ 		</ArtRef>
++		<ArtRef Name="building:BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM">
++			<Scale>2.3</Scale>
++		</ArtRef>
+ 	</LNode>
+ 	<LNode Name="Leaf_2x1">
+ 		<Width>2</Width>
+@@ -755,6 +758,10 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 			<Attribute Class="Rotation">0,180</Attribute>
+ 			<Scale>0.8</Scale>
+ 		</ArtRef>
++		<ArtRef Name="building:BUILDING_GERMAN_LONGHOUSE">
++			<Attribute Class="Rotation">90,180,270</Attribute>
++			<Scale>3.9</Scale>
++		</ArtRef>
+ 	</LNode>
+ 	<!-- LEAF 3x1 BUILDINGS -->
+ 	<LNode Name="Leaf_3x1">
+@@ -848,10 +855,6 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 			<Attribute Class="Rotation">0,180</Attribute>
+ 			<Scale>1.66</Scale>
+ 		</ArtRef>
+-		<ArtRef Name="building:BUILDING_RUSSIAN_GORD">
+-			<Attribute Class="Rotation">0,180</Attribute>
+-			<Scale>1.3</Scale>
+-		</ArtRef>
+ 	</LNode>
+ 	<LNode Name="Leaf_2x2">
+ 		<Width>2</Width>
+@@ -1075,6 +1078,10 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 			<Attribute Class="Rotation">0,180</Attribute>
+ 			<Scale>0.8</Scale>
+ 		</ArtRef>
++		<ArtRef Name="building:BUILDING_RUSSIAN_GORD">
++			<Attribute Class="Rotation">0,180</Attribute>
++			<Scale>1.3</Scale>
++		</ArtRef>
+ 	</LNode>
+ 	<LNode Name="Leaf_3x2">
+ 		<Width>3</Width>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5473

@@ -37,7 +37,7 @@ with GFC_Control_ToolTip
 		{
 			.Text								=	GFC_CtrlTheme_Bitmap_Control_ToolTip_Renderer_Text;
 		}									
-										
+
 		with GFC_Control_Flag
 		{									
 			// Base control flags							
@@ -51,7 +51,7 @@ with GFC_Control_ToolTip
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-												
+
 			// Control flag change masks		
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -69,7 +69,7 @@ with GFC_Control_ToolTip
 			// ToolTip flag change masks
 			//.ToolTipMask_InvalidateControl	=	GFlags(GToolTipCtrl);
 		}							
-							
+
 		with .Color							
 		{								
 			.Inner								=	SF_CtrlTheme_Civ4_Control_Color_BG;
@@ -77,7 +77,7 @@ with GFC_Control_ToolTip
 			.Text								=	GFC_Control_Color_Text_Default;
 			.TextShadow							=	GFC_Control_Color_TextShadow_Default;
 		}								
-											
+
 		with .Combine						
 		{								
 			.Inner								=	GFC_Control_Combine_Surface;
@@ -87,7 +87,7 @@ with GFC_Control_ToolTip
 			.TextShadow_Dest					=	GFC_Control_Combine_TextShadow_Default_Dest;
 			.TextShadow_Factor					=	GFC_Control_Combine_TextShadow_Default_Factor;
 		}
-		
+
 		with .Size
 		{
 			.ExtraMargin						=	GRectMargin(10,4,10,4);
@@ -96,12 +96,12 @@ with GFC_Control_ToolTip
 			.MaxWidth							=	500;
 			.MaxHeight							=	0;
 		}
-		
+
 		.Font_Text								=	SF_CtrlTheme_Civ4_Control_Font_Size1_Normal;
-		
+
 
 		// ******* Initialize all the Bitmap theme ToolTip properties to avoid inheritance problems
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_ToolTip_Skin
 		{
 			.Inner_Default			=	0;	
@@ -114,7 +114,7 @@ with GFC_Control_ToolTip
 
 
 	// **** Normal ToolTip style
-	
+
 	GFC_Control_StandardToolTip_Style
 	{
 		// ToolTip border and inner bitmap skins	
@@ -163,7 +163,7 @@ with GFC_Control_ToolTip
 				}
 			*/
 			}						
-			
+
 			.Inner_Default
 			{
 				layer
@@ -193,6 +193,6 @@ with GFC_Control_ToolTip
 		map GFC_CtrlTheme_Bitmap_Control	= GFC_Control_DefaultToolTip_Style;
 		map GFC_Control						= GFC_Control_DefaultToolTip_Style;
 	}
-	
+
 }
 

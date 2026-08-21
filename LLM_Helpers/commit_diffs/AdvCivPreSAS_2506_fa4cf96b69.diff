@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2506
+# Commit: fa4cf96b69bfb5f23414822038dd4c49070ff4f4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 83dfa8b606e1b3d5827e7e6c409a5eb105060e76
+# Title: Revert small accidental change in recent commit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5f7748f38..296f52f7c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -16659,8 +16659,8 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 		iCounterValue /= std::max(1, 50 * iEra * (iEra + 1) +
+ 				GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(eTargetTeam)) / 2;
+ 		iCounterValue *=
+-				ROUND_DIVIDE(AI_getMemoryCount(eTargetPlayer, MEMORY_SPY_CAUGHT), 2) // advc.130j
+-				+ (GET_TEAM(getTeam()).isAtWar(eTargetTeam)?2 :0) +
++				scaled(AI_getMemoryCount(eTargetPlayer, MEMORY_SPY_CAUGHT), 2).ceil() // advc.130j
++				+ (GET_TEAM(getTeam()).isAtWar(eTargetTeam) ? 2 : 0) +
+ 				(AI_atVictoryStage(AI_VICTORY_CULTURE4 | AI_VICTORY_SPACE3) ? 2 : 0);
+ 		iValue += iCounterValue;
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=831

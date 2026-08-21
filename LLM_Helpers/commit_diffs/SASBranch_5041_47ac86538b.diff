@@ -1,0 +1,160 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5041
+# Commit: 47ac86538b82513d9df5ccbcc948b25f1c3f509b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a308df2945232ca7c5697d0baac855109d4f2b10
+# Title: rework and buff the UNIT_FRENCH_MUSKETEER and other minor or not changes anyways etc - small buff/rework the chinese civ-specific crossbow anyways etc - rewo...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+45	5	Assets/XML/Units/CIV4UnitInfos.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+3	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index f43496a3a..f5781c6b6 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -9,6 +9,27 @@
+ - also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them
+ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Units\CIV4UnitInf_os_UnitAI_and_notes.txt for details anyways etc -->
+ <!-- custom: units now have terrain and feature (+/- plot types e.g. hill for some units such as of now the quechua warrior but anyways etc) attack or/and defense combat modifiers. Civ-specific units in particular as of now all have terrain +/- feature modifiers. I tried to follow a dominant terrain and minor ones approach and not make it too op yet still significant (else people would use civ-specific units instead of longbowmen for defense or their verison of the axeman instead of macemen which wouldn't make sense), and was more permissive for features as long as they don't impact city combat (no forest or jungle in city tiles in particular if i am not mistaken but anyways etc). See sevopedia entry of each unit for details or sevopedia terrain or/and sevopedia feature page(s) to easily visualize these with the new UI additions we made there as well but anyways etc. For example as of now the camel knight or the persian immortal are stronger in desert dominantly, or/and other terrains as well, or possibly in features as well. I was more permissive with terrains that are otherwise especially weak, such as snow (ice sheet) and desert. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the  since all players can build them and as is quite needless otherwise and would add too much complication not necessarily in a way that would improve gameplay or experience but anyways etc, so only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. Note: as of now i'm using plains as a representative of savanna more or less anyways etc -->
++<!-- custom: note about collateral damage calculation in advciv and by extension in our mod xd if i'm not mistaken since i as of now didn't change it, according to chatgpt 5 and thanks to my prompt / after i asked it and or such but anyways etc, and about whether it is additive or multiplicative or other, after feeding it our relevant code (which i found in CvUnit::collateralCombat if i was not mistaken in how i found it  (check if accurate as i don't know too much about these but i could or not be right or not or yes or other or etc but anyways etc), manual, and it doing a quite extensive web search before but anyways etc. I formatted this comment too if i may say, check if accurate, hopefully helpful or not or yes or etc, but anyways etc:
++
++"
++Great catch digging into your own DLL + notes — that settles it.
++In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple add-on:
++	- The “collateral strength” is
++
++	iCollateralStrength = baseCombatStr * collateralDamage() / 100
++
++	If collateralDamage() == 0, that term is 0.
++
++	- However, the function doesn’t bail if your unit has promotion-based bonus: it returns only if iCollateralStrength <= 0 && getExtraCollateralDamage() <= 0.
++	- The actual damage per target is then computed from a ratio that still includes a non-zero iStrengthFactor based on the defender’s strength, and finally scaled by 100 + getExtraCollateralDamage() (your Collateral I, II, …).
++	→ With base collateral 0, promotions still work, but the numbers are modest (exactly what your doc meant by “with the multiplicative formula, 0 base ⇒ Barrage does little”).
++
++	So the mental model is:
++	- Not 0 + 15 = 15%.
++	- Also not 0 × 1.15 = 0% (i.e., “no effect”).
++	- It’s “small baseline from the strength-ratio” × (1 + promo bonus), and capped by your MaxUnits and Limit.
++"
++-->
+ <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
+ 	<UnitInfos>
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_LION, type: UNIT_LION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+@@ -11039,7 +11060,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<!-- custom: was 0 -->
+ 			<iWithdrawalProb>25</iWithdrawalProb>
+ 			<!-- custom: was 50 -->
+-			<iCollateralDamage>25</iCollateralDamage>
++			<iCollateralDamage>15</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>5</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+@@ -11113,7 +11134,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: was empty -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_COLLATERAL_DAMAGE1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -12084,7 +12111,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>2</iMoves>
++			<!-- custom: no strong enough reason if at all to give extra move here according to chatgpt 5, check if accurate anyways etc, was 2 -->
++			<iMoves>1</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+@@ -12174,7 +12202,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+ 			<!-- custom: was 9 -->
+-			<iPower>12</iPower>
++			<iPower>13</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -12192,7 +12220,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: very nice idea by chatgpt 5 thanks to my prompt too hehe but anyways etc thanks lot anyways etc; seems thematically fitting and quite relevant, makes the unit more varied and stronger (especially against cuirassiers so very effective and seemingly nicely thematic and relevant thanks again chatgpt 5 if i may say hehe thanks but anyways etc) as well hopefully as was way too weak if i'm not mistaken in my thinking, check also if accurate but anyways etc, was empty -->
++			<!-- History cue: French line infantry excelled at disciplined volley fire and square formations vs cavalry. They weren’t inherently “fast” on foot (the 2-move in BtS is really a “dragoon flavor” abstraction). So your instinct to drop the extra move is spot-on. -->
++			<!-- custom: see note at the top of this xml file about how collateral is calculated according to chatgpt 5 and whether it is additive or multiplicative or other, after feeding it our relevant code, manual, and it doing a quite extensive web search before but anyways etc. As for us, keeping base 0 and adding this free promotion of as of now collateral_damage1 still results in non 0 collateral damage so no need to add collateral and make the unit op, but it doesn't seem that big/high in this case i mean but anyways etc so it seems we don't need to increase unit iCost and leave it as such otherwise if i'm not mistaken but anyways etc -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_COUNTER_MOUNTED</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_COLLATERAL_DAMAGE1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index e7df476c6..e81ebfea7 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -407,7 +407,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - rebalanced the grenadier and bazooka (old anti-tank) as as of now hybrid foot versatile bombers anyways etc
+ - unit promotions are reworked or/and rebalanced: woodsman for example is buffed, some other like Hills Master 2 and 3 (guerilla) are rebalanced or nerfed, and other some promotions have also their requirements changed, for example archers have access to city bombard promotion (units are reworked too, see below), or "Logistics" (named "Commando" before) is now accessible after Combat 1 or City Raider 1, or City Raider 3 or City Garrison 3 or First Strike 3 as of now also require (i.e. additionally, on top of previous prereq if i'm not mistaken but anyways etc) Combat 2 before that not only the previous level (else was a bit too op before i think but anyways etc). Some are available sooner too, for example "Logistics" is available at "The Wheel", not "Military Science" anymore, since we understand roads we can use them, maybe, more strategic importance now too maybe hopefully.
+ - removed some promotions such as PROMOTION_TACTICS, as effect is redundant with retreat 1 and retreat 2 plus bypassing it, having too high retreat chance would be broken as well and inefficient as a promotion tree maybe anyways etc
+-- military units are reworked: for example the holy roman empire special unit, to better accomodate its history and stats, can be built starting from a different tech
++- military units are reworked: for example the holy roman empire special unit, to better accomodate its history and stats, can be built starting from a different tech, and the french_musketeer has 1 move not 2 anymore but instead has as of now now anti mounted and small collateral kit which is much stronger and relevant for renaissance plus anyways etc, which is nice as the unit was way too weak and underwhelming if i may say but anyways etc.
+ - military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), the mongol khishigten (medieval horse knight based as of now anyways etc (replaces the mongol keshik anyways etc)), or the english yeoman archer (crossbow based, better match with the english empire's overall defensive profile, plus nice cover if no early bonus anyways etc); also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values.
+ - some units have been removed: sometimes for gameplay reasons: for example the nuclear_submarine is not relevant enough and does not actually hold nuclear weapons, only is nuclear powered if i am not mistaken, but effect is not strong enough to justify the hassle so just remove them anyways etc; or for example the caravel as it was not very sensical / nonsensical to me at least anyways etc that openly nation-specific and announced caravels could freely travel in outer borders even if borders are not open (and send annoying spies and such) without declaring war while doing so, so now this ability is now specific only to the privateer, among visible units at least (unlike the (normal) submarine for example if i am not mistaken anyways etc), and the privateer is now also buffed, see sevopedia for latest values and effects anyways etc, as for the caravel its transportation effect or faster mobility (if i am not mistaken about it being faster due to it being smaller if i am not mistaken about this as well anyways etc) is not worth the hassle of having 2 naval units (i.e. than the galleon anyways etc) at same era that do otherwise about the same thing anyways etc
+ - some military units have no military support cost such as for example as of now for example the robotic_infantry or the robotic_tank we added in advciv-sas anyways etc, and some no longer have a free cost such as of now the privateer that was free, but now costs like all or almost all military units (even if it has nationality, it would still cost gold/money to run if i may say but anyways etc, but the AI can be considered cheap labor enough that can be considered free to maintain after it has been produced at least in our mod and as of now if i may say but anyways etc). This information is displayed in sevopedia (As of now "No military support cost"), see also [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) for related info anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 1b5d6a148..5388208ac 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -373,7 +373,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ 
+ ### Military & related units (non-exhaustive)
+ 
+-- **Unit Combat Types** expanded/refined (e.g., archers split into short/long/crossbow; mounted split into `UNITCOMBAT_MOUNTED_MELEE` vs `UNITCOMBAT_MOUNTED_RANGED`). Lets counters be more specific (e.g., pikes vs mounted-melee but not vs mounted-ranged). Some civ UUs shift types accordingly (e.g., **Ballista Elephant** is mounted-ranged while **War Elephant** is mounted-melee). **Airship** becomes **Recon** (no longer sees subs; later recon can).
++- **Unit Combat Types** expanded/refined (e.g., archers split into short/long/crossbow; mounted split into `UNITCOMBAT_MOUNTED_MELEE` vs `UNITCOMBAT_MOUNTED_RANGED`). Lets counters be more specific (e.g., pikes vs mounted-melee but not vs mounted-ranged). Some civ-specific units shift types accordingly (e.g., **Ballista Elephant** is mounted-ranged while **War Elephant** is mounted-melee). **Airship** becomes **Recon** (no longer sees subs; later recon can).
+ - **Melee Unit Combat Type split (rework + balance change):** `UNITCOMBAT_MELEE` is now split into `UNITCOMBAT_MELEE_POLEARM` (melee units that attack from some distance with a lance-like weapon; e.g. Spearmen, Pikemen) and `UNITCOMBAT_MELEE_SHOCK` (close-contact/brawl; e.g. Axemen, Swordsmen, Macemen). For example, after this change, axes still counter polearms but are only slightly stronger than swords; pikemen are no longer worse than axemen which was very odd considering cost and tech requirements difference. Civ-specific variants such as the Babylonian Bowman, or simply the generic Crossbow, now only apply vs. `UNITCOMBAT_MELEE_SHOCK` (i.e., weak vs pikes). **General idea for melee units:** Axeman > Spearman; Crossbow > Axeman/Swordsman/Maceman; Pikeman > Crossbow; Pikeman ≈ Axeman; Maceman > Pikeman. Civ variants retagged to match gear (e.g., Persia Immortal → polearm). **General idea for mounted units:** Spearman > Chariot (`UNITCOMBAT_MOUNTED_MELEE`); generic Horse/Camel Archer (`UNITCOMBAT_MOUNTED_RANGED`) > Spearman; generic Horse/Camel Knights (`UNITCOMBAT_MOUNTED_MELEE`) < Pikemen (`UNITCOMBAT_MELEE_POLEARM`); generic Horse/Camel Cuirassiers > Pikemen (`UNITCOMBAT_MELEE_POLEARM`). See Sevopedia/XML.
+ - **Reassignments:** e.g., **Mechanized Infantry** counts as **Armored** (not “Gun”) for counter logic.
+ - **City defenses** affect all units, including gunpowder and later. See `bIgnoreBuildingDefense` in `CIV4UnitInfos.xml`.
+@@ -393,7 +393,8 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+   - **Logistics** now at **The Wheel** (was Military Science).
+   - Removed redundant promotions (e.g., **Tactics**), to avoid broken retreat odds.
+ - **Unit redesigns:**
+-  - Weak/late UUs replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**; Mongol **Keshik** → **Khishigten** — better window with the **Ger**, longer medieval span, higher hammer rate, and more historical; English **Redcoat** → **Yeoman archer** — crossbow-based, fits England’s defensive profile, and gives cover when short on early bonuses).
++  - Weak/late civ-specific units replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**; Mongol **Keshik** → **Khishigten** — better window with the Ger, longer medieval span, higher hammer rate, and more historical; English **Redcoat** → **Yeoman archer** — crossbow-based, fits England’s defensive profile, and gives cover when short on early bonuses).
++  - **Broad unit reworks/rebalances:** e.g., French **Musketeer** — Move 2 → 1; gains anti-mounted and small collateral kit for a stronger Renaissance+ role (especially vs Cuirassier units and their upgrades).
+   - **Air** unit costs generally increased.
+ - **Upgrade paths** simplified and made more sensible:
+   - Mounted tiers upgrade along mounted lines (e.g., **Chariot → Horse Archer**; **War Elephant → Knight**).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=18721

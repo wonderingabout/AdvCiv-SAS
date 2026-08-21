@@ -1,0 +1,113 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 227
+# Commit: 380e0563e5b25ece0d0cba05b76f9c09db65cb0e
+# History segment: K-Mod history
+# Parent used for diff: c390d49c6f5ba95a3ccee2c5aa5f2c4832f6983d
+# Title: Rewrore the unit group loop in AI_unitUpdate - just for efficiency. Updated the changelog. This is version 1.02c.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+31	3	CvGameCoreDLL/CvPlayerAI.cpp
+4	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index caa3945f8..3b9f0ab35 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1414,9 +1414,9 @@ void CvPlayerAI::AI_unitUpdate()
+ 
+ 	CLLNode<int>* pCurrUnitNode;
+ 	CvSelectionGroup* pLoopSelectionGroup;
+-	CLinkList<int> tempGroupCycle;
+-	CLinkList<int> finalGroupCycle;
+-	int iValue;
++	//CLinkList<int> tempGroupCycle;
++	//CLinkList<int> finalGroupCycle;
++	//int iValue;
+ 
+ 	if (!hasBusyUnit())
+ 	{
+@@ -1454,6 +1454,7 @@ void CvPlayerAI::AI_unitUpdate()
+ 		}
+ 		else
+ 		{
++			/* original bts code
+ 			tempGroupCycle.clear();
+ 			finalGroupCycle.clear();
+ 
+@@ -1505,7 +1506,34 @@ void CvPlayerAI::AI_unitUpdate()
+ 				}
+ 
+ 				pCurrUnitNode = finalGroupCycle.next(pCurrUnitNode);
++			} */
++			// K-Mod. It seems to me that all we're trying to do is run AI_update
++			// on the highest priority groups until one of them becomes busy.
++			// ... if only they had used the STL, this would be a lot easier.
++			std::vector<std::pair<int, int> > groupList;
++
++			pCurrUnitNode = headGroupCycleNode();
++			while (pCurrUnitNode != NULL)
++			{
++				pLoopSelectionGroup = getSelectionGroup(pCurrUnitNode->m_data);
++				FAssertMsg(pLoopSelectionGroup != NULL, "selection group node with NULL selection group");
++
++				int iPriority = AI_movementPriority(pLoopSelectionGroup);
++				groupList.push_back(std::make_pair(iPriority, pCurrUnitNode->m_data));
++
++				pCurrUnitNode = nextGroupCycleNode(pCurrUnitNode);
+ 			}
++
++			std::sort(groupList.begin(), groupList.end());
++			for (size_t i = 0; i < groupList.size(); i++)
++			{
++				pLoopSelectionGroup = getSelectionGroup(groupList[i].second);
++				if (pLoopSelectionGroup && pLoopSelectionGroup->AI_update())
++				{
++					return;
++				}
++			}
++			// K-Mod end
+ 		}
+ 	}
+ }
+
+diff --git a/changelog.txt b/changelog.txt
+index eecb761fa..67f581b12 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,4 +1,4 @@
+-This is K-Mod version 1.02.
++This is K-Mod version 1.02c.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+@@ -7,6 +7,7 @@ v1.02 changelist
+ 
+ + Reduced the global warming defence of forests and jungles, from 20 to 15.
+ + Reduced the grip effect of religious shrines from 20 to 10. (This affects the probability that a religion will be bumped out of a city when a new missionary comes.)
+++ Tech trades in which the receiving player is more than 2/3 of the way through researching the tech or when the tech is behind the 'game era' no longer count towards tech trade memory. ie. They don't contribute to causing "we fear you are becoming too advanced".
+ 
+ + Adjusted the AI's max unit spending formula so that it is very close to the original BtS formula, but without the BtS problems.
+ + The AI will now take obsoletion of buildings into account when evaluating techs.
+@@ -33,6 +34,8 @@ v1.02 changelist
+ + Fixed an original BtS bug which affected when / who would receive feature growth messages. (With this change, you'll probably see more "a forest as grown" messages. The actual growth rate is unchanged, but the message will show up a bit more often.)
+ + Fixed a potential double-counting bug in AI_rivalAirPower (triggered by the existence of any unique air units).
+ + Fixed a minor problem with super-medic creation in AI_promotionValue (triggered if there is more than one "leader" promotion).
+++ Added some new options to PythonCallbackDefines.xml to allow various AI python callbacks to be blocked (for efficiency).
++
+ --
+ 
+ v1.01 changelist
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3590

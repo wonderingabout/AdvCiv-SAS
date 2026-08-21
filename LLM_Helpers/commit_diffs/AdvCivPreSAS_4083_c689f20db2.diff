@@ -1,0 +1,61 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4083
+# Commit: c689f20db22dbf7037bcf804cb169c92fb552377
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2480516dc40d55b5c28f021eab0dcd19e234d29b
+# Title: Remove hard limit for hurry population sacrifice
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	0	Assets/XML/GlobalDefines_advc.xml
+3	3	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 83bf5f784..831dcb294 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1382,4 +1382,15 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.064c: Until AdvCiv 1.09, the number of citizens sacrificed in a
++		 single use of Slavery was capped at 3, even in cities with 8 or more
++		 population. Recommended: A high value such as 1000 to keep this cap
++		 disabled, meaning that up to half a city's population, rounded down,
++		 can be sacrificed as in BtS. Or 3 to restore the AdvCiv 1.08 behavior,
++		 i.e. an additional cap at 3 sacrificed citizens. -->
++	<Define>
++		<DefineName>MAX_HURRY_POP</DefineName>
++		<iDefineIntVal>1000</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 3bba9f857..de69235e3 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3974,9 +3974,9 @@ int CvCity::hurryAngerLength(HurryTypes eHurry) const
+ 
+ 
+ int CvCity::maxHurryPopulation() const
+-{
+-	return std::min(3, // advc.064c: Allow at most 3 pop to be sacrificed at once
+-			getPopulation() / 2);
++{	// <advc.064c>
++	static int const iMAX_HURRY_POP = GC.getDefineINT("MAX_HURRY_POP");
++	return std::min(iMAX_HURRY_POP, /* </advc.064c> */ getPopulation() / 2);
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1372

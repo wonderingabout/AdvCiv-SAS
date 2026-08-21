@@ -27,8 +27,7 @@ void CvDLLEntity::setEntity(CvEntity* pEntity)
 	m_pEntity = pEntity;
 }
 
-void CvDLLEntity::PlayAnimation(AnimationTypes eAnim, float fSpeed, bool bQueue,
-	int iLayer, float fStartPct, float fEndPct)
+void CvDLLEntity::PlayAnimation(AnimationTypes eAnim, float fSpeed, bool bQueue, int iLayer, float fStartPct, float fEndPct)
 {
 	gDLL->getEntityIFace()->PlayAnimation(getGenericEntity(), eAnim, fSpeed, bQueue,
 			iLayer, fStartPct, fEndPct);

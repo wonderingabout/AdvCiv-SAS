@@ -140,7 +140,11 @@ public:
 	int calculateTotalCityUnhealthiness();
 
 	int calculateUnitCost();
+	// <!-- custom: Expose exact unit support cost intermediates for the Military Advisor Summary tab so Python can show the actual DLL calculation instead of guessing hidden K-Mod/AdvCiv multipliers. (GPT-5.5) -->
+	python::tuple calculateUnitCostBreakdown();
 	int calculateUnitSupply();
+	// <!-- custom: Expose exact outside-unit supply intermediates for the Military Advisor Summary tab, including AdvCiv game-speed free outside-unit adjustments not otherwise visible to Python. (GPT-5.5) -->
+	python::tuple calculateUnitSupplyBreakdown();
 	int calculatePreInflatedCosts();
 	int calculateInflationRate();
 	int calculateInflatedCosts();
@@ -235,8 +239,7 @@ public:
 	bool canDoEspionageMission(int /*EspionageMissionTypes*/ eMission, int /*PlayerTypes*/ eTargetPlayer, CyPlot* pPlot, int iExtraData);
 	int getEspionageMissionCost(int /*EspionageMissionTypes*/ eMission, int /*PlayerTypes*/ eTargetPlayer, CyPlot* pPlot, int iExtraData);
 	// <advc.120d>
-	int getEspionageGoldQuantity(int /*EspionageMissionTypes*/ eMission,
-			int /*PlayerTypes*/ eTargetPlayer, CyCity* pCity);
+	int getEspionageGoldQuantity(int /*EspionageMissionTypes*/ eMission, int /*PlayerTypes*/ eTargetPlayer, CyCity* pCity);
 	int getStealCostTech(int eTargetPlayer);
 	bool canSeeTech(int eTargetPlayer);
 	bool canSpy(); // </advc.120d>

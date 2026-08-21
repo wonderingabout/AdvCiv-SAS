@@ -31,32 +31,14 @@ class PathNodeBase
 {
 public:
 	PathNodeBase(); // public - to avoid a compiler warning (c4610), but w/o implementation.
-	bool isState(PathNodeState eState) const
-	{
-		return (m_iState == eState);
-	}
-	void setState(PathNodeState eState)
-	{
-		m_iState = static_cast<char>(eState);
-	}
+	bool isState(PathNodeState eState) const { return (m_iState == eState); }
+	void setState(PathNodeState eState) { m_iState = static_cast<char>(eState); }
 	/*	Consistent with a getPlot function added to FAStarNode.
 		To make PathNodes and FAStarNodes interchangeable as template parameters. */
-	CvPlot& getPlot() const
-	{
-		return *m_pPlot;
-	}
-	void setPlot(CvPlot& kPlot)
-	{
-		m_pPlot = &kPlot;
-	}
-	int getPathLength() const
-	{
-		return m_iPathLength;
-	}
-	void setPathLength(int iPathLength)
-	{
-		m_iPathLength = iPathLength;
-	}
+	CvPlot& getPlot() const { return *m_pPlot; }
+	void setPlot(CvPlot& kPlot) { m_pPlot = &kPlot; }
+	int getPathLength() const { return m_iPathLength; }
+	void setPathLength(int iPathLength) { m_iPathLength = iPathLength; }
 protected:
 	CvPlot* m_pPlot; // FAStarNode::m_iX, m_iY in K-Mod
 	int m_iPathLength; // FAStarNode::m_iData2 in K-Mod
@@ -200,18 +182,12 @@ public:
 		Note that the initialPathLength call is not polymorphic,
 		so derived classes that wish to change the initial path length will
 		have to replace both initialPathLength and initializePathData. */
-	void initializePathData(Node& kNode) const
-	{
-		kNode.setPathLength(initialPathLength());
-	}
+	void initializePathData(Node& kNode) const { kNode.setPathLength(initialPathLength()); }
 	/*	Called before generating a path if the start node is already initialized
 		from a previous pathfinder call. Returning false will cause the
 		pathfinder's node data to be reset. Don't check kStart.getPathLength();
 		KmodPathFinder handles that. */
-	bool canReuseInitialPathData(Node const& kStart) const
-	{
-		return true;
-	}
+	bool canReuseInitialPathData(Node const& kStart) const { return true; }
 };
 
 /*	The first parameter should be derived from StepMetricBase,
@@ -232,47 +208,23 @@ protected:
 		typedef std::vector<Node*> container_t;
 		typedef typename container_t::iterator iterator;
 		typedef typename container_t::const_iterator const_iterator;
-		const_iterator begin() const
-		{
-			return m_nodes.begin();
-		}
-		const_iterator end() const
-		{
-			return m_nodes.end();
-		}
-		iterator begin()
-		{
-			return m_nodes.begin();
-		}
-		iterator end()
-		{
-			return m_nodes.end();
-		}
+		const_iterator begin() const { return m_nodes.begin(); }
+		const_iterator end() const { return m_nodes.end(); }
+		iterator begin() { return m_nodes.begin(); }
+		iterator end() { return m_nodes.end(); }
 		/*	Backwards traversal doesn't seem to help with branch prediction.
 			Was worth a try. NB: Will have to call close(--it.base())
 			when using a reverse iterator. */
 		/*typedef typename container_t::reverse_iterator reverse_iterator;
 		typedef typename container_t::const_reverse_iterator const_reverse_iterator;
-		const_reverse_iterator rbegin() const
-		{
-			return m_nodes.rbegin();
-		}
-		const_reverse_iterator rend() const
-		{
-			return m_nodes.rend();
-		}
-		reverse_iterator rbegin()
-		{
-			return m_nodes.rbegin();
-		}
+		const_reverse_iterator rbegin() const { return m_nodes.rbegin(); }
+		const_reverse_iterator rend() const { return m_nodes.rend(); }
+		reverse_iterator rbegin() { return m_nodes.rbegin(); }
 		reverse_iterator rend()
 		{
 			return m_nodes.rend();
 		}*/
-		void reserve(int iCapacity)
-		{
-			m_nodes.reserve(iCapacity);
-		}
+		void reserve(int iCapacity) { m_nodes.reserve(iCapacity); }
 		void clear() // Does not change the state of any nodes
 		{
 			/*	This erases every element. So does resize(0).
@@ -331,10 +283,7 @@ protected:
 		{
 			delete[] m_data;
 		}
-		Node& get(PlotNumTypes ePlot)
-		{
-			return reinterpret_cast<Node*>(m_data)[ePlot];
-		}
+		Node& get(PlotNumTypes ePlot) { return reinterpret_cast<Node*>(m_data)[ePlot]; }
 		void reset()
 		{
 			if (!m_bDirty)
@@ -351,19 +300,13 @@ protected:
 			}
 			m_bDirty = false;
 		}
-		void setDirty(bool bDirty)
-		{
-			m_bDirty = bDirty;
-		}
+		void setDirty(bool bDirty) { m_bDirty = bDirty; }
 	private:
 		byte* m_data;
 		PlotNumTypes m_eMaxPlots;
 		bool m_bDirty; // advc.opt: Make sure we're not resetting unnecessarily
 
-		int numBytes()
-		{
-			return sizeof(Node) * m_eMaxPlots;
-		}
+		int numBytes() { return sizeof(Node) * m_eMaxPlots; }
 	};
 
 	StepMetric m_stepMetric;
@@ -384,10 +327,7 @@ public:
 	void reset();
 	bool generatePath(CvPlot const& kStart, CvPlot const& kDest);
 	bool isPathComplete() const { return (m_pEndNode != NULL); }
-	int getPathLength() const // advc: Was "getPathTurns"; too specific.
-	{
-		return m_pEndNode->getPathLength();
-	}
+	int getPathLength() const { return m_pEndNode->getPathLength(); } // advc: Was "getPathTurns"; too specific.
 	CvPlot& getPathFirstPlot() const;
 	// Both group and team pathfinder need this, so I'll keep it at the base class.
 	static void initHeuristicWeights(int iMinMovementCost, int iMinFlatMovementCost);
@@ -408,8 +348,7 @@ protected:
 	void recalculateHeuristics();
 	bool processNode();
 	// <advc> Cut out of process node
-	void processChild(Node& kParentNode,
-			CvPlot const& kParentPlot, CvPlot& kChildPlot); // </advc>
+	void processChild(Node& kParentNode, CvPlot const& kParentPlot, CvPlot& kChildPlot); // </advc>
 	void forwardPropagate(Node& kHead, int iCostDelta);
 	//void addStartNode(); // advc: Better not to put that in a subroutine
 	// advc: Moved into NodeMap
@@ -423,20 +362,14 @@ template<class StepMetric, class Node>
 int KmodPathFinder<StepMetric,Node>::iAdmissibleScaledWeight = 1;
 
 template<class StepMetric, class Node>
-void KmodPathFinder<StepMetric,Node>::initHeuristicWeights(
-	// advc: Let CvMap compute these; don't want to include CvInfo_Terrain.h here.
-	int iMinMovementCost, int iMinFlatMovementCost)
+// advc: Let CvMap compute these; don't want to include CvInfo_Terrain.h here. <!-- custom: hoisted from multiline signature before `iMinMovementCost` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void KmodPathFinder<StepMetric,Node>::initHeuristicWeights(int iMinMovementCost, int iMinFlatMovementCost)
 {
 	iAdmissibleBaseWeight = std::min(GC.getMOVE_DENOMINATOR() / 2, iMinMovementCost);
 	iAdmissibleScaledWeight = std::min(GC.getMOVE_DENOMINATOR() / 2, iMinFlatMovementCost);
 }
 
-template<class StepMetric, class Node>
-int KmodPathFinder<StepMetric,Node>::minimumStepCost(int iBaseMoves)
-{
-	return std::max(1, std::min(iAdmissibleBaseWeight,
-			iBaseMoves * iAdmissibleScaledWeight));
-}
+template<class StepMetric, class Node> int KmodPathFinder<StepMetric,Node>::minimumStepCost(int iBaseMoves) { return std::max(1, std::min(iAdmissibleBaseWeight, iBaseMoves * iAdmissibleScaledWeight)); }
 
 // (Comments below are from K-Mod unless stating otherwise)
 
@@ -448,8 +381,7 @@ KmodPathFinder<StepMetric,Node>::~KmodPathFinder()
 }
 
 template<class StepMetric, class Node>
-bool KmodPathFinder<StepMetric,Node>::generatePath(
-	CvPlot const& kStart, CvPlot const& kDest)
+bool KmodPathFinder<StepMetric,Node>::generatePath(CvPlot const& kStart, CvPlot const& kDest)
 {
 	PROFILE_FUNC();
 
@@ -634,8 +566,7 @@ template<class StepMetric, class Node>
 #ifndef _DEBUG
 	__forceinline
 #endif
-void KmodPathFinder<StepMetric,Node>::processChild(
-	Node& kParent, CvPlot const& kParentPlot, CvPlot& kChildPlot)
+void KmodPathFinder<StepMetric,Node>::processChild(Node& kParent, CvPlot const& kParentPlot, CvPlot& kChildPlot)
 {
 	if (kParent.m_pParent != NULL && &kChildPlot == &kParent.m_pParent->getPlot())
 		return; // don't backtrack

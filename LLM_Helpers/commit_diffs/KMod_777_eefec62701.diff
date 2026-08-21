@@ -1,0 +1,53 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 777
+# Commit: eefec62701263d4ee8cdea54c7697d1b988b2f52
+# History segment: K-Mod history
+# Parent used for diff: 976635fa7886371427515f337e2d346f46cba406
+# Title: Fixed the subset options for BUG religious advisor.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	8	Assets/Python/Screens/CvReligionScreen.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvReligionScreen.py b/Assets/Python/Screens/CvReligionScreen.py
+index 9d83527db..6eda34bc8 100644
+--- a/Assets/Python/Screens/CvReligionScreen.py
++++ b/Assets/Python/Screens/CvReligionScreen.py
+@@ -192,13 +192,8 @@ class CvReligionScreen:
+ 			self.Y_RELIGION_AREA = 84
+ 			self.W_RELIGION_AREA = 934
+ 			self.H_RELIGION_AREA = 175
+-			##
+-			# K-Mod, 8/dec/10, karadoc
+-			# fixed a bug. (wtf were the BUG guys thinking with this?)
+-			##
+-			# self.RELIGIONS = ReligionUtil.getAllReligions() + list((ReligionUtil.getNumReligions(),))# I may have changed this from something worse.
+-			self.RELIGIONS = ReligionUtil.getAllReligions()
+-			# K-Mod end
++			# self.RELIGIONS = ReligionUtil.getAllReligions() + (ReligionUtil.getNumReligions(),)
++			self.RELIGIONS = range(gc.getNumReligionInfos()) # K-Mod. (the original BUG code simply doesn't run.)
+ 
+ 		# Make the scrollable area for the religions list...
+ 		screen.addPanel(self.RELIGION_PANEL_ID, "", "", False, True, self.X_RELIGION_AREA, self.Y_RELIGION_AREA, self.W_RELIGION_AREA, self.H_RELIGION_AREA+5, PanelStyles.PANEL_STYLE_MAIN)
+@@ -222,7 +217,7 @@ class CvReligionScreen:
+ 
+ 		# Religion buttons at the top
+ 		xLoop = self.X_RELIGION_START
+-		for iRel in range(gc.getNumReligionInfos()):
++		for iRel in self.RELIGIONS:
+ 			szButtonName = self.getReligionButtonName(iRel)
+ 			if gc.getGame().getReligionGameTurnFounded(iRel) >= 0:
+ 				screen.addCheckBoxGFCAt(szArea, szButtonName, gc.getReligionInfo(iRel).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_SCROLLABLE_RELIGION_AREA + xLoop - 25, self.Y_SCROLLABLE_RELIGION_AREA + 5, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1774

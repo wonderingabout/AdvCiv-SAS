@@ -43,8 +43,7 @@ namespace
 	}
 }
 
-void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
-	CvWidgetDataStruct &widgetDataExternal)
+void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &widgetDataExternal)
 {	// advc: Copy - to make sure not to write to the param
 	CvWidgetDataStruct widgetDataStruct(widgetDataExternal);
 	// <advc.085> Replacing a few sporadic tests in the parse... functions
@@ -79,10 +78,22 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		break;
 
 	case WIDGET_PLOT_LIST_SHIFT:
-		szBuffer.assign(gDLL->getText("TXT_KEY_MISC_CTRL_SHIFT",
-				GC.getDefineINT("MAX_PLOT_LIST_SIZE") - 1));
-		break;
+	// <!-- custom: when making a static const here we got a compile error:
+	// 	1>..\CvDLLWidgetData.cpp(89): error C2360: initialization of 'iMaxPlotListSize' is skipped by 'case' label
+	// 	1>          ..\CvDLLWidgetData.cpp(83) : see declaration of 'iMaxPlotListSize'
+ 	// 
+	// So i  added braces here as recommended by chatgpt 5, check if accurate as i don't know a lot about these errors if at all -->
+	// You hit the classic MSVC “switch-init" rule. In old MSVC (and standard C++), a declaration with an initializer directly under a case label is illegal unless you introduce a new block. The compiler treats case labels like gotos; control can jump into the middle and “skip" the initialization → C2360.
+	//
+	// Fix (wrap the case in braces)
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iMaxPlotListSize = GC.getDefineINT("MAX_PLOT_LIST_SIZE");
 
+		szBuffer.assign(gDLL->getText("TXT_KEY_MISC_CTRL_SHIFT",
+				iMaxPlotListSize - 1));
+		break;
+	}
 	case WIDGET_CITY_SCROLL:
 		break;
 
@@ -639,20 +650,53 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 		break;
 
 	case WIDGET_LEADERHEAD:
+	{
 		parseLeaderheadHelp(widgetDataStruct, szBuffer);
+
+		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
+		// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
+		// Vassal Check for Leaderhead Widget (Column Headers / General)
+		// eRival = m_iData1 (The face we are hovering), ePlayer = Us
+		parseVassalWillingnessHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, getActivePlayer());
+		// End - Vassal Check for Leaderhead Widget (Column Headers / General)
+
 		break;
+	}
+
 	// <advc.152>
 	case WIDGET_LH_GLANCE:
+	{
 		//parseLeaderheadHelp(widgetDataStruct, szBuffer);
 		parseLeaderheadRelationsHelp(widgetDataStruct, szBuffer); // BULL - Leaderhead Relations
-		// Might as well call GAMETEXT right here
-		GAMETEXT.parseWarTradesHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
-				(PlayerTypes)widgetDataStruct.m_iData2);
+
+		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
+		// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
+		// Vassal Check for Glance Screen
+		// eRival = m_iData1 (Column), ePlayer = m_iData2 (Row)
+		parseVassalWillingnessHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2);
+		// End - Vassal Check for Glance Screen
+
 		break; // </advc.152>
+	}
 	// BULL - Leaderhead Relations - start
 	case WIDGET_LEADERHEAD_RELATIONS:
+	{
 		parseLeaderheadRelationsHelp(widgetDataStruct, szBuffer);
+
+		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
+		// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
+		// The issue is that the Glance screen uses two different widget types depending on your BUG Mod settings ("Show War Trades").
+		// 	1. WIDGET_LH_GLANCE: Used when "Show War Trades" is ON.
+		// 	2. WIDGET_LEADERHEAD_RELATIONS: Used when "Show War Trades" is OFF (or default).
+		// You added the code to the first one, but your game is likely using the second one. You need to add the same logic to case WIDGET_LEADERHEAD_RELATIONS in CvDLLWidgetData.cpp.
+		// Here is the corrected code block for CvDLLWidgetData.cpp
+		// Vassal Check for Glance Screen (Standard Widget)
+		// eRival = m_iData1 (Column), ePlayer = m_iData2 (Row)
+		parseVassalWillingnessHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2);
+		// End - Vassal Check for Glance Screen
+
 		break; // BULL - Leaderhead Relations - end
+	}
 
 	case WIDGET_LEADER_LINE:
 		parseLeaderLineHelp(widgetDataStruct, szBuffer);
@@ -742,6 +786,19 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
 				widgetDataStruct.m_iData2, true, szBuffer);
 		break;
 	}
+	// <!-- custom: Optionally upscale hover help text via SAS_UI_FONT_HOVER define (Claude code Opus 4.6) -->
+	if (!szBuffer.isEmpty())
+	{
+		static int const iFontSize = GC.getDefineINT("SAS_UI_FONT_HOVER");
+		if (iFontSize >= 1 && iFontSize <= 4)
+		{
+			CvWString szWrapped;
+			szWrapped.Format(L"<font=%d>", iFontSize);
+			szWrapped.append(szBuffer.getCString());
+			szWrapped.append(L"</font>");
+			szBuffer.assign(szWrapped);
+		}
+	} // <!-- custom: (Claude code Opus 4.6) -->
 	if (getActivePlayer() == NO_PLAYER)
 		return;
 	static WidgetTypes aeExpandTypes[] =
@@ -1132,9 +1189,13 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_HELP_YIELD_CHANGE:
 		py.jumpToPedia(widgetDataStruct.m_iData2, "Improvement");
 		break;
+	// <!-- custom: after fixing the obsolete bonus buttons in tech advisor, it seems now that non obsolete ones (e.g. cattle or camel bonuses at tech_animal_husbandry) generate same error that obsolete tech had before, trying to fix it by reenabling old code for non-obsolete bonuses only; result: fixed the issue it seems! So left as such -->
 	case WIDGET_HELP_BONUS_REVEAL:
-	case WIDGET_HELP_OBSOLETE_BONUS:
 		py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");
+		break;
+	// <!-- custom: fix the obsolete bonus error known issue number 22 in advciv-sas (see known issues readme for details), replace line `py.jumpToPedia(widgetDataStruct.m_iData2, "Bonus");` with one using iData1 as obsolete buildings in tech advisor don't have the id bug, as advised by chatgpt also thanks to my prompt too, and it indeed fixed the issue now -->
+	case WIDGET_HELP_OBSOLETE_BONUS:
+		py.jumpToPedia(iData1, "Bonus");
 		break;
 	case WIDGET_CITIZEN:
 	case WIDGET_FREE_CITIZEN:
@@ -1270,8 +1331,11 @@ void CvDLLWidgetData::doPlotListShift(int iChange, bool bMaxStep)
 	int iStep = 10;
 	if (gDLL->UI().isCityScreenUp())
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iMaxPlotListSize = GC.getDefineINT("MAX_PLOT_LIST_SIZE");
+
 		// (Not sure that this is really a maximal limit of anything)
-		int const iBigStep = GC.getDefineINT("MAX_PLOT_LIST_SIZE"); // 100
+		int const iBigStep = iMaxPlotListSize; // 100
 		/*	BUG drawing method will only ever show a single row on the city screen.
 			Don't want to expand rapidly upon the first right-shift then.
 			Instead, let the bMaxStep param jump to the final column. */
@@ -1984,7 +2048,10 @@ void CvDLLWidgetData::parseConscriptHelp(CvWidgetDataStruct &widgetDataStruct, C
 		}
 	}
 	{
-		int iMinCulturePercent = GC.getDefineINT("CONSCRIPT_MIN_CULTURE_PERCENT");
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iConscriptMinCulturePercent = GC.getDefineINT("CONSCRIPT_MIN_CULTURE_PERCENT");
+
+		int iMinCulturePercent = iConscriptMinCulturePercent;
 		if (pHeadSelectedCity->getPlot().calculateTeamCulturePercent(
 			pHeadSelectedCity->getTeam()) < iMinCulturePercent)
 		{
@@ -2011,12 +2078,11 @@ void CvDLLWidgetData::parseConscriptHelp(CvWidgetDataStruct &widgetDataStruct, C
 }
 
 
-void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvWString szTemp;
 	CvActionInfo const& kAction = GC.getActionInfo(widgetDataStruct.m_iData1);
-	szTemp.Format(SETCOLR L"%s" ENDCOLR , TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
+	szTemp.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
 			kAction.getHotKeyDescription().c_str());
 	szBuffer.assign(szTemp);
 	CvDLLInterfaceIFaceBase& kUI = *gDLL->getInterfaceIFace();
@@ -2310,8 +2376,7 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 // advc: Cut from parseActionHelp, refactored.
-void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
-	CvUnit const& kUnit, MissionTypes eMission, CvWStringBuffer& szBuffer)
+void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction, CvUnit const& kUnit, MissionTypes eMission, CvWStringBuffer& szBuffer)
 {
 	CvGame const& kGame = GC.getGame();
 	CvPlayer const& kUnitOwner = GET_PLAYER(kUnit.getOwner());
@@ -3357,8 +3422,7 @@ void CvDLLWidgetData::parseAngryCitizenHelp(CvWidgetDataStruct &widgetDataStruct
 }
 
 
-void CvDLLWidgetData::parseChangeSpecialistHelp(
-	CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseChangeSpecialistHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity == NULL)
@@ -3367,8 +3431,11 @@ void CvDLLWidgetData::parseChangeSpecialistHelp(
 	int const iChange = widgetDataStruct.m_iData2;
 	if (iChange > 0)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+
 		GAMETEXT.parseSpecialistHelp(szBuffer, eSpecialist, pHeadSelectedCity);
-		if (widgetDataStruct.m_iData1 != GC.getDEFAULT_SPECIALIST())
+		if (widgetDataStruct.m_iData1 != eDefaultSpecialist)
 		{
 			if (!GET_PLAYER(pHeadSelectedCity->getOwner()).
 					isSpecialistValid((SpecialistTypes)widgetDataStruct.m_iData1))
@@ -3655,8 +3722,7 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct, 
 
 /*	K-Mod. The cheat mode text associated with parseContactCivHelp.
 	Mostly BBAI code. */
-void CvDLLWidgetData::parseScoreboardCheatText(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseScoreboardCheatText(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	PlayerTypes const ePlayer = (PlayerTypes)widgetDataStruct.m_iData1;
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
@@ -4619,8 +4685,7 @@ void CvDLLWidgetData::parseEmphasizeHelp(CvWidgetDataStruct &widgetDataStruct, C
 }
 
 
-void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	szBuffer.clear();
 	CvGame& kGame = GC.getGame();
@@ -4987,8 +5052,7 @@ void CvDLLWidgetData::parseHealthHelp(CvWidgetDataStruct &widgetDataStruct, CvWS
 }
 
 
-void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	wchar szTempBuffer[1024];
 
@@ -5122,8 +5186,7 @@ void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseHappinessHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseHappinessHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity == NULL)
@@ -5144,8 +5207,7 @@ void CvDLLWidgetData::parseHappinessHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parsePopulationHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parsePopulationHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity != NULL)
@@ -5156,8 +5218,7 @@ void CvDLLWidgetData::parsePopulationHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseProductionHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseProductionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity != NULL &&
@@ -5177,8 +5238,7 @@ void CvDLLWidgetData::parseProductionHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseCultureHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseCultureHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity == NULL)
@@ -5210,8 +5270,7 @@ void CvDLLWidgetData::parseCultureHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseGreatPeopleHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseGreatPeopleHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity != NULL)
@@ -5219,16 +5278,14 @@ void CvDLLWidgetData::parseGreatPeopleHelp(CvWidgetDataStruct &widgetDataStruct,
 }
 
 
-void CvDLLWidgetData::parseGreatGeneralHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseGreatGeneralHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	if (getActivePlayer() != NO_PLAYER)
 		GAMETEXT.parseGreatGeneralHelp(szBuffer, GET_PLAYER(getActivePlayer()));
 }
 
 
-void CvDLLWidgetData::parseSelectedHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseSelectedHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
 	if (pHeadSelectedCity == NULL)
@@ -5348,8 +5405,7 @@ void CvDLLWidgetData::parseTechPrereqHelp(CvWidgetDataStruct &widgetDataStruct, 
 			GC.getInfo((TechTypes)widgetDataStruct.m_iData1).getTextKeyWide()));
 }
 
-void CvDLLWidgetData::parseTechTreePrereq(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer, bool bTreeInfo)
+void CvDLLWidgetData::parseTechTreePrereq(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer, bool bTreeInfo)
 {
 	GAMETEXT.setTechHelp(szBuffer, (TechTypes)widgetDataStruct.m_iData1, false,
 			false, false, bTreeInfo, (TechTypes)widgetDataStruct.m_iData2);
@@ -5674,10 +5730,10 @@ void CvDLLWidgetData::parseBonusTradeHelp(CvWidgetDataStruct &widgetDataStruct, 
 	else /* <advc.073> Hack. Need to distinguish between the import and export columns.
 			Too few iData parameters for that and widgetDataStruct.m_bOption
 			can't be set from Python (via setImageButton in the EXE).
-			I'm adding +1000 to the bonus id in Python (CvExoticForeignAdvisor.
+			I'm adding +1000 to the bonus id in Python (CvForeignAdvisor.
 			drawResourceDeals) to signal that the widget is in the import column,
 			Proper solution: Two separate widget types - probably wouldn't be that
-			much work to implement either. */
+			much work to implement either.; <!-- custom: removed "Exotic" since it is now unified in a single file --> */
 	{
 		bool bImport = false;
 		if(widgetDataStruct.m_iData1 >= 1000)
@@ -5765,14 +5821,66 @@ void CvDLLWidgetData::parseLeaderheadRelationsHelp(CvWidgetDataStruct &widgetDat
 	GAMETEXT.parseLeaderHeadRelationsHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
 			(PlayerTypes)widgetDataStruct.m_iData2);
 } // BULL - Leaderhead Relations - end
+
+// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab -->
+// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
+// Helper for Vassal Willingness Tooltip
+// eRival  = The Foreign Leader we are hovering over (Potential Vassal)
+// ePlayer = The Active Player / Viewer (Potential Master)
+void CvDLLWidgetData::parseVassalWillingnessHelp(CvWStringBuffer &szBuffer, PlayerTypes eRival, PlayerTypes ePlayer)
+{
+	// 1. Safety Checks
+	if (eRival == NO_PLAYER || ePlayer == NO_PLAYER) return;
+
+	// 2. Spoiler Check: Only show this if WE (Active Player) are the potential master.
+	if (ePlayer != getActivePlayer()) return;
+
+	// 3. Don't check ourselves
+	if (eRival == ePlayer) return;
+
+	// 4. Index safety check
+	if (eRival >= MAX_CIV_PLAYERS || ePlayer >= MAX_CIV_PLAYERS) return;
+
+	CvPlayer& kRival = GET_PLAYER(eRival);
+
+	// 5. Check Voluntary Vassal (Peace)
+	TradeData itemVassal;
+	itemVassal.m_eItemType = TRADE_VASSAL;
+
+	// Can eRival trade it to ePlayer?
+	if (kRival.canTradeItem(ePlayer, itemVassal, false))
+	{
+		if (kRival.getTradeDenial(ePlayer, itemVassal) == NO_DENIAL)
+		{
+			szBuffer.append(NEWLINE);
+			szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_VOLUNTARY"));
+		}
+	}
+	// 6. Check Capitulation (War)
+	// Only check if eRival is at war with ePlayer's team
+	else if (GET_TEAM(kRival.getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+	{
+		TradeData itemSurrender;
+		itemSurrender.m_eItemType = TRADE_SURRENDER;
+
+		if (kRival.canTradeItem(ePlayer, itemSurrender, false))
+		{
+			if (kRival.getTradeDenial(ePlayer, itemSurrender) == NO_DENIAL)
+			{
+				szBuffer.append(NEWLINE);
+				szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_CAPITULATE"));
+			}
+		}
+	}
+}
+
 // advc.003j (comment): unused
 void CvDLLWidgetData::parseCloseScreenHelp(CvWStringBuffer& szBuffer)
 {
 	szBuffer.assign(gDLL->getText("TXT_KEY_MISC_CLOSE_SCREEN"));
 }
 
-void CvDLLWidgetData::parseDescriptionHelp(CvWidgetDataStruct& widgetDataStruct,
-	CvWStringBuffer& szBuffer, bool bMinimal)
+void CvDLLWidgetData::parseDescriptionHelp(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer, bool bMinimal)
 {
 	CivilopediaPageTypes eType = (CivilopediaPageTypes)widgetDataStruct.m_iData1;
 	switch (eType)
@@ -5965,8 +6073,7 @@ void CvDLLWidgetData::parseDescriptionHelp(CvWidgetDataStruct& widgetDataStruct,
 	}
 }
 
-void CvDLLWidgetData::parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct,
-		CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvWString szTemp = szBuffer.getCString();
 	CvDeal const* pDeal = GC.getGame().getDeal(widgetDataStruct.m_iData1);
@@ -6019,36 +6126,31 @@ void CvDLLWidgetData::parseProductionModHelp(CvWidgetDataStruct &widgetDataStruc
 		GAMETEXT.setProductionHelp(szBuffer, *pCity);
 }
 
-void CvDLLWidgetData::parseLeaderheadHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseLeaderheadHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	GAMETEXT.parseLeaderHeadHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
 			(PlayerTypes)widgetDataStruct.m_iData2);
 }
 
-void CvDLLWidgetData::parseLeaderLineHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseLeaderLineHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	GAMETEXT.parseLeaderLineHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
 			(PlayerTypes)widgetDataStruct.m_iData2);
 }
 
-void CvDLLWidgetData::parseCommerceModHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseCommerceModHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity* pCity = gDLL->UI().getHeadSelectedCity();
 	if (pCity != NULL)
 		GAMETEXT.setCommerceHelp(szBuffer, *pCity, (CommerceTypes)widgetDataStruct.m_iData1);
 }
 
-void CvDLLWidgetData::parseScoreHelp(CvWidgetDataStruct& widgetDataStruct,
-	CvWStringBuffer& szBuffer)
+void CvDLLWidgetData::parseScoreHelp(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer)
 {
 	GAMETEXT.setScoreHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
 }
 // BULL - Trade Hover - start
-void CvDLLWidgetData::parseTradeRoutes(CvWidgetDataStruct& widgetDataStruct,
-	CvWStringBuffer& szBuffer)
+void CvDLLWidgetData::parseTradeRoutes(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer& szBuffer)
 {
 	GAMETEXT.buildTradeString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
 			(PlayerTypes)widgetDataStruct.m_iData2);
@@ -6057,8 +6159,7 @@ void CvDLLWidgetData::parseTradeRoutes(CvWidgetDataStruct& widgetDataStruct,
 			true); // advc.087
 } // BULL - Trade Hover - end
 // BULL - Food Rate Hover - start
-void CvDLLWidgetData::parseFoodModHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseFoodModHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvCity const* pCity = gDLL->UI().getHeadSelectedCity();
 	if(pCity == NULL)
@@ -6122,8 +6223,7 @@ void CvDLLWidgetData::parsePowerRatioHelp(CvWidgetDataStruct &widgetDataStruct, 
 }
 
 
-void CvDLLWidgetData::parseGoldenAgeAnarchyHelp(PlayerTypes ePlayer, int iData2,
-	bool bAnarchy, CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parseGoldenAgeAnarchyHelp(PlayerTypes ePlayer, int iData2, bool bAnarchy, CvWStringBuffer &szBuffer)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	if(bAnarchy)
@@ -6143,8 +6243,7 @@ void CvDLLWidgetData::parseGoldenAgeAnarchyHelp(PlayerTypes ePlayer, int iData2,
 } // </advc.085>
 
 // <K-Mod> 5/jan/11: Environmental advisor mouse-over text
-void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_OFFSETS_HELP"));
 	FOR_EACH_ENUM(Feature)
@@ -6159,8 +6258,7 @@ void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataSt
 	}
 }
 
-void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
-	CvWStringBuffer &szBuffer)
+void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
 	CvPlayer::PollutionFlags eFlags = (CvPlayer::PollutionFlags)widgetDataStruct.m_iData1;
 
@@ -6168,39 +6266,50 @@ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
 
 	if (eFlags & CvPlayer::POLLUTION_POPULATION)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGlobalWarmingPopulationWeight = GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT");
+
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POPULATION",
-				GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT")));
+				iGlobalWarmingPopulationWeight));
 	}
 	if (eFlags & CvPlayer::POLLUTION_BUILDINGS)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGlobalWarmingBuildingWeight = GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT");
+
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BUILDINGS",
-				GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT")));
+				iGlobalWarmingBuildingWeight));
 	}
 	if (eFlags & CvPlayer::POLLUTION_BONUSES)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGlobalWarmingBonusWeight = GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT");
+
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BONUSES",
-				GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT")));
+				iGlobalWarmingBonusWeight));
 	}
 	if (eFlags & CvPlayer::POLLUTION_POWER)
 	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iGlobalWarmingPowerWeight = GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT");
+
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POWER",
-				GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT")));
+				iGlobalWarmingPowerWeight));
 	}
 } // </K-Mod>
 
 // advc.ctr:
-bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget,
-	CvCity*& pCity, PlayerTypes& eWhoTo) const
+bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget, CvCity*& pCity, PlayerTypes& eWhoTo) const
 {
 	bool bListMore = false;
 	// bListMore, eOwner and eWhoTo are all folded into data1
 	int iPlayerCode = kWidget.m_iData1;
 	FAssert(iPlayerCode >= 100);
-	// Undo the computation in drawCityDeals (CvExoticForeignAdvisor.py)
+	// Undo the computation in drawCityDeals (CvForeignAdvisor.py); <!-- custom: removed "Exotic" since it is now unified in a single file -->
 	if (iPlayerCode >= 10000)
 	{
 		bListMore = true;

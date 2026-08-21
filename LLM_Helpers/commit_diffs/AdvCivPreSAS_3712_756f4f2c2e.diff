@@ -1,0 +1,151 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3712
+# Commit: 756f4f2c2e4edb5224ddd2324e1cf11b7f5853b2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e784db04a695e7029991f2612d24a7d5791a0150
+# Title: Language-independent check for Balanced Resources option
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	1	CvGameCoreDLL/CvMap.cpp
+3	1	CvGameCoreDLL/CvMap.h
+1	1	CvGameCoreDLL/CvMapGenerator.cpp
+0	14	CvGameCoreDLL/CvPythonCaller.cpp
+0	1	CvGameCoreDLL/CvPythonCaller.h
+2	1	CvGameCoreDLL/TrueStarts.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index d80f84afb..866648297 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -930,7 +930,9 @@ CvWString CvMap::getNonDefaultCustomMapOptionDesc(int iOption) const
+ 	Checks for an exact match ignoring case unless bCheckContains is set to true
+ 	or bIgnoreCase to false.
+ 	So that the DLL can implement special treatment for particular custom map options
+-	(that may or may not be present in only one particular map script). */
++	(that may or may not be present in only one particular map script).
++	Translations will have to be handled by the caller (by generating szOptionsValue
++	through gDLL->getText). */
+ bool CvMap::isCustomMapOption(char const* szOptionsValue, bool bCheckContains,
+ 	bool bIgnoreCase) const
+ {
+@@ -956,6 +958,15 @@ bool CvMap::isCustomMapOption(char const* szOptionsValue, bool bCheckContains,
+ 	return false;
+ }
+ 
++/*	For convenience, especially when working with translated strings
++	(which use wide characters). */
++bool CvMap::isCustomMapOption(CvWString szOptionsValue, bool bCheckContains,
++	bool bIgnoreCase) const
++{
++	CvString szNarrow(szOptionsValue);
++	return isCustomMapOption(szNarrow.c_str());
++}
++
+ 
+ int CvMap::getNumBonuses(BonusTypes eIndex) const
+ {
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 10ef6ce5f..31db4890f 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -420,7 +420,9 @@ public: // advc: made several functions const
+ 	CvWString getNonDefaultCustomMapOptionDesc(int iOption) const; // advc.190b (exposed to Python)
+ 	// <advc.108b>
+ 	bool isCustomMapOption(char const* szOptionsValue, bool bCheckContains = false,
+-			bool bIgnoreCase = true) const; // </advc.108b>
++			bool bIgnoreCase = true) const;
++	bool isCustomMapOption(CvWString szOptionsValue, bool bCheckContains = false,
++		bool bIgnoreCase = true) const; // </advc.108b>
+ 
+ 	int getNumBonuses(BonusTypes eIndex) const;																	// Exposed to Python
+ 	void changeNumBonuses(BonusTypes eIndex, int iChange);
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index aecae6786..d054ceccd 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -901,7 +901,7 @@ void CvMapGenerator::generateRandomMap()
+ 	   is called during map generation, tile yields aren't yet set. */
+ 	GC.getMap().computeShelves();
+ 	// <advc.108>
+-	if (py.isAnyCustomMapOptionSetTo(gDLL->getText("TXT_KEY_MAP_BALANCED")))
++	if (GC.getMap().isCustomMapOption(gDLL->getText("TXT_KEY_MAP_BALANCED")))
+ 		GC.getGame().setStartingPlotNormalizationLevel(CvGame::NORMALIZE_HIGH);
+ 	// </advc.108>
+ }
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.cpp b/CvGameCoreDLL/CvPythonCaller.cpp
+index 9c8e88fa9..a509265ef 100644
+--- a/CvGameCoreDLL/CvPythonCaller.cpp
++++ b/CvGameCoreDLL/CvPythonCaller.cpp
+@@ -1254,20 +1254,6 @@ CvWString CvPythonCaller::customMapOptionDescription(char const* szMapScriptName
+ 	FAssert(m_bLastCallSuccessful || GC.getInitCore().getSavedGame());
+ 	return szResult;
+ }
+-// advc.108:
+-bool CvPythonCaller::isAnyCustomMapOptionSetTo(CvWString szTranslatedDesc) const
+-{
+-	CvString szMapScriptNameNarrow(GC.getInitCore().getMapScriptName());
+-	for (int i = 0; i < GC.getMap().getNumCustomMapOptions(); i++)
+-	{
+-		CustomMapOptionTypes eOptionValue = GC.getInitCore().getCustomMapOption(i);
+-		CvWString szOptionDescr(customMapOptionDescription(
+-				szMapScriptNameNarrow.c_str(), i, eOptionValue));
+-		if (szOptionDescr == szTranslatedDesc)
+-			return true;
+-	}
+-	return false;
+-}
+ 
+ void CvPythonCaller::mapGridDimensions(WorldSizeTypes eWorldSize, int& iWidth, int& iHeight) const
+ {
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.h b/CvGameCoreDLL/CvPythonCaller.h
+index 8853e5295..975e5ece7 100644
+--- a/CvGameCoreDLL/CvPythonCaller.h
++++ b/CvGameCoreDLL/CvPythonCaller.h
+@@ -139,7 +139,6 @@ public:
+ 	// <advc.004>
+ 	CvWString customMapOptionDescription(char const* szMapScriptName, int iOption,
+ 			CustomMapOptionTypes eOptionValue) const; // </advc.004>
+-	bool isAnyCustomMapOptionSetTo(CvWString szTranslatedDesc) const; // advc.108
+ 	void mapGridDimensions(WorldSizeTypes eWorldSize, int& iWidth, int& iHeight) const;
+ 	void mapLatitudeExtremes(int& iTop, int& iBottom) const;
+ 	void mapWraps(bool& bWrapX, bool& bWrapY) const;
+
+diff --git a/CvGameCoreDLL/TrueStarts.cpp b/CvGameCoreDLL/TrueStarts.cpp
+index 2b430b885..267aa5b4b 100644
+--- a/CvGameCoreDLL/TrueStarts.cpp
++++ b/CvGameCoreDLL/TrueStarts.cpp
+@@ -56,7 +56,7 @@ TrueStarts::TrueStarts()
+ 	}
+ 	m_bBonusesIgnoreLatitude = (!m_bMapHasLatitudes ||
+ 			GC.getPythonCaller()->isBonusIgnoreLatitude());
+-	m_bBalancedResources = kMap.isCustomMapOption("Balanced");
++	m_bBalancedResources = kMap.isCustomMapOption(gDLL->getText("TXT_KEY_MAP_BALANCED"));
+ 	/*	Don't focus on the initial human player when
+ 		any civ may come under human control later on */
+ 	m_bPrioritizeHumans = !GC.getGame().isOption(GAMEOPTION_RISE_FALL);
+@@ -834,6 +834,7 @@ void TrueStarts::changeCivs()
+ 				((szMapName == CvWString("PerfectMongoose") ||
+ 				szMapName == CvWString("Tectonics") ||
+ 				szMapName == CvWString("RandomScriptMap")) &&
++				// This will only work when playing in English
+ 				GC.getMap().isCustomMapOption("Old World", true)) ||
+ 				(szMapName == CvWString("NewWorld") &&
+ 				/*	If someone adds options to that map, then there might be
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=5375

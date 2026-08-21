@@ -1,0 +1,54 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3491
+# Commit: aa8e1a270f64fbcf8c26a99b457ce53598934bea
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7a1f0fe14dcdb4184a375058ab2a4c7b7a0a2e44
+# Title: Peaceful AI leaders don't try to cinch games through war
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	3	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 0337ea0b1..63c0a2877 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2300,7 +2300,13 @@ int KingMaking::preEvaluate()
+ 		return 0;
+ 	addWinning(m_winningFuture, true);
+ 	addWinning(m_winningPresent, false);
+-	if (m_winningFuture.count(kOurTeam.getLeaderID()) > 0 &&
++	scaled const rEraFactor = kOurTeam.AI_getCurrEraFactor();
++	// Sealing the deal through war is a pretty aggressive move
++	int const iPeaceWeight = kWe.AI_getPeaceWeight();
++	int const iVeryHighPeaceWeight = 11;
++	if (iPeaceWeight < iVeryHighPeaceWeight &&
++		rEraFactor > 0 &&
++		m_winningFuture.count(kOurTeam.getLeaderID()) > 0 &&
+ 		m_winningFuture.size() <= 1 &&
+ 		// We don't want to be the only winner if it means betraying our partners
+ 		(m_kParams.getTarget() == NO_TEAM ||
+@@ -2308,8 +2314,8 @@ int KingMaking::preEvaluate()
+ 		kOurTeam.AI_isChosenWar(m_kParams.getTarget()) ||
+ 		!kOurTeam.AI_isAvoidWar(m_kParams.getTarget(), true)))
+ 	{
+-		log("We'll be the only winners");
+-		return (kOurTeam.AI_getCurrEraFactor() * 9).round();
++		log("We'll be the only winners; peace weight: %d", iPeaceWeight);
++		return (rEraFactor * (iVeryHighPeaceWeight - iPeaceWeight)).round();
+ 	}
+ 	return 0;
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1307

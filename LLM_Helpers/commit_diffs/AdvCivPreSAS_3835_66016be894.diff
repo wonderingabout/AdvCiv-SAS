@@ -1,0 +1,133 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3835
+# Commit: 66016be89413b4ae0cb111fd6719acd036404ad3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5b4259a38aa54e863332245236b44b552b1cf167
+# Title: Adjust city cam distance to screen dimensions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	12	CvGameCoreDLL/CvGameInterface.cpp
+20	5	CvGameCoreDLL/CvGlobals.cpp
+1	0	CvGameCoreDLL/CvGlobals.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 25046d283..ad2bec3ba 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2792,18 +2792,18 @@ bool CvGame::isAboutToShowDawnOfMan() const
+ /*	<advc.061> Could get this through winuser.h, but that's not trivial.
+ 	Let's just let Python provide the info to us. */
+ void CvGame::setScreenDimensions(int iWidth, int iHeight)
+-{	// <advc.001> Avoid warped plot indicators upon changing resolution
+-	if (m_iScreenWidth != iWidth || m_iScreenHeight != iHeight)
+-		gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true); // </advc.001>
++{
++	if (m_iScreenWidth == iWidth && m_iScreenHeight == iHeight)
++		return;
+ 	m_iScreenWidth = iWidth;
+-	if (m_iScreenHeight != iHeight)
+-	{
+-		m_iScreenHeight = iHeight;
+-		/*	<advc.092b> Do this as soon as we know the screen dimensions, before
+-			a plot indicator gets created for the initially selected units. */
+-		if (m_iScreenHeight > 0)
+-			smc::BtS_EXE.patchPlotIndicatorSize(); // </advc.092b>
+-	}
++	m_iScreenHeight = iHeight;
++	// advc.001: Avoid warped plot indicators upon changing resolution
++	gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
++	CvGlobals::getInstance().updateCityCamDist(); // advc.004m
++	/*	<advc.092b> Do this as soon as we know the screen dimensions, before
++		a plot indicator gets created for the initially selected units. */
++	if (m_iScreenHeight > 0)
++		smc::BtS_EXE.patchPlotIndicatorSize(); // </advc.092b>
+ }
+ 
+ int CvGame::getScreenWidth() const
+@@ -2838,7 +2838,7 @@ void CvGame::onCityScreenChange()
+ 			{
+ 				NiPoint3 nOneNorth = pOneNorth->getPoint();
+ 				NiPoint3 nCity = pCityPlot->getPoint();
+-				float const fDisplWeight = 0.24f +
++				float const fDisplWeight = 0.23f +
+ 						(BUGOption::isEnabled("MainInterface__EnlargeHUD", true) ?
+ 						0.03f : 0);
+ 				NiPoint3 nLookAt(nCity.x,
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index dcb76a59d..858359244 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -738,10 +738,7 @@ void CvGlobals::cacheGlobalFloats(
+ 	if (fNewFoV != m_fFIELD_OF_VIEW)
+ 	{
+ 		m_fFIELD_OF_VIEW = fNewFoV;
+-		// Adjust camera distance on city screen to FoV
+-		float fCityCamDist = getDefineFLOAT("CAMERA_BASE_CITY_DISTANCE");
+-		fCityCamDist *= std::sqrt(40 / fNewFoV);
+-		setDefineFLOAT("CAMERA_CITY_ZOOM_IN_DISTANCE", fCityCamDist);
++		updateCityCamDist();
+ 		if (bAllowRecursion && IsGraphicsInitialized())
+ 		{
+ 			GC.getPythonCaller()->callScreenFunction("updateCameraStartDistance");
+@@ -858,7 +855,7 @@ void CvGlobals::setDefineSTRING(char const* szName, char const* szValue, /* advc
+ 	FAssertMsg(!bUpdateCache, "No strings to update"); // advc.opt
+ }
+ 
+-// advc.004m:
++// <advc.004m>
+ void CvGlobals::updateCameraStartDistance(bool bReset)
+ {
+ 	static float m_fCAMERA_START_DISTANCE_Override = std::max(1000.f,
+@@ -886,6 +883,24 @@ void CvGlobals::updateCameraStartDistance(bool bReset)
+ 	cacheGlobalFloats(false);
+ }
+ 
++void CvGlobals::updateCityCamDist()
++{
++	float fCityCamDist = getDefineFLOAT("CAMERA_BASE_CITY_DISTANCE");
++	/*	Exponentiate to let the player yet exert _some_ control (through the FoV)
++		over the city-screen camera distance. */
++	fCityCamDist *= std::pow(40 / GC.getFIELD_OF_VIEW(), 0.85f);
++	float fDefaultAspectRatio = 8/5.f;
++	int const iW = getGame().getScreenWidth();
++	int const iH = getGame().getScreenHeight();
++	float fAspectRatio = (iH <= 0 ? fDefaultAspectRatio : iW / (float)iH);
++	float fScreenDimMult = fAspectRatio / fDefaultAspectRatio;
++	// On small screens, width can be the limiting dimension.
++	if (iW > 0 && iW < 1400)
++		fScreenDimMult *= std::pow(1280.f / getGame().getScreenWidth(), 0.85f);
++	fCityCamDist *= ::range(fScreenDimMult, 2/3.f, 1.5f);
++	setDefineFLOAT("CAMERA_CITY_ZOOM_IN_DISTANCE", fCityCamDist);
++}
++
+ int CvGlobals::getMaxCivPlayers() const
+ {
+ 	return MAX_CIV_PLAYERS;
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index d0f732ce1..71aa02e6b 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -667,6 +667,7 @@ public:
+ 	DllExport float getUNIT_MULTISELECT_DISTANCE() { CvGlobals const& kThis = *this; return kThis.getUNIT_MULTISELECT_DISTANCE(); }
+ 	float getUNIT_MULTISELECT_DISTANCE() const { return m_fUNIT_MULTISELECT_DISTANCE; }
+ 	void updateCameraStartDistance(bool bReset); // advc.004m  (exposed to Python)
++	void updateCityCamDist(); // advc.004m
+ 
+ 	DllExport int getUSE_FINISH_TEXT_CALLBACK();
+ 	// advc.003y: Moved the other callback getters to CvPythonCaller
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4566

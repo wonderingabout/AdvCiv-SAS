@@ -25,7 +25,8 @@ enum PlayerTypes
 	/*  advc.056 (note): Scenario (WB) files are now compatible so long
 		as the player ids in the WB file don't exceed MAX_CIV_PLAYERS in the DLL.
 		Savegames are still incompatible. */
-	MAX_CIV_PLAYERS = 18,
+	MAX_CIV_PLAYERS = 48,
+	// MAX_CIV_PLAYERS = 18,
 	BARBARIAN_PLAYER = MAX_CIV_PLAYERS,
 	MAX_PLAYERS
 };
@@ -61,22 +62,28 @@ DEFINE_INCREMENT_OPERATORS(CivTeamTypes);
 // This generates most of the enums with associated XML data
 DO_FOR_EACH_DYN_INFO_TYPE(MAKE_INFO_ENUM)
 
-/*  The order of the enums is mostly as in BtS (i.e. arbitrary) except that the
-	info enums are generated upfront and enums that don't support FOR_EACH_ENUM
-	have been moved to the end. */ // </advc.enum>
+// The order of the enums is mostly as in BtS (i.e. arbitrary) except that the
+// info enums are generated upfront and enums that don't support FOR_EACH_ENUM
+// have been moved to the end. // </advc.enum>
 
-/*  advc: WorldSize and Flavor are special -- there are hardcoded values, but it's
-	still possible to add values through XML only.
-	(The harcoded world sizes are used by map scripts and random events.) */
+// advc: WorldSize and Flavor are special -- there are hardcoded values, but it's
+// still possible to add values through XML only.
+// (The hardcoded world sizes are used by map scripts and random events.)
+// <!-- custom: Keep WorldSizeTypes aligned with CIV4WorldInfo.xml so C++ and Python enum values match runtime XML indices. New Arena is inserted before Duel and new SAS24/32/40/48 extend beyond Huge, so the old BtS-only Duel..Huge enum made constants such as WORLDSIZE_HUGE point at the wrong XML row. (ChatGPT-5.5) -->
 enum WorldSizeTypes
 {
 	NO_WORLDSIZE = -1,
+	WORLDSIZE_ARENA,
 	WORLDSIZE_DUEL,
 	WORLDSIZE_TINY,
 	WORLDSIZE_SMALL,
 	WORLDSIZE_STANDARD,
 	WORLDSIZE_LARGE,
 	WORLDSIZE_HUGE,
+	WORLDSIZE_SAS24,
+	WORLDSIZE_SAS32,
+	WORLDSIZE_SAS40,
+	WORLDSIZE_SAS48,
 };
 
 enum FlavorTypes
@@ -825,12 +832,12 @@ ENUM_START(UnitAI, UNITAI)
 	UNITAI_CITY_SPECIAL,
 	UNITAI_EXPLORE,
 	UNITAI_MISSIONARY,
-	UNITAI_PROPHET,
-	UNITAI_ARTIST,
-	UNITAI_SCIENTIST,
-	UNITAI_GENERAL,
-	UNITAI_MERCHANT,
-	UNITAI_ENGINEER,
+	UNITAI_GREAT_PROPHET,
+	UNITAI_GREAT_ARTIST,
+	UNITAI_GREAT_SCIENTIST,
+	UNITAI_GREAT_GENERAL,
+	UNITAI_GREAT_MERCHANT,
+	UNITAI_GREAT_ENGINEER,
 	UNITAI_GREAT_SPY, // K-Mod
 	UNITAI_SPY,
 	UNITAI_ICBM,
@@ -1040,13 +1047,14 @@ ENUM_START(Control, CONTROL)
 	CONTROL_MOUSE_FLYING_CAMERA,
 	CONTROL_TOP_DOWN_CAMERA,
 	CONTROL_CIVILOPEDIA,
-	CONTROL_RELIGION_SCREEN,
-	CONTROL_CORPORATION_SCREEN,
+	// <!-- custom: Religion/Corporation controls removed; those screens are planned as Civics tabs. (GPT-5.3-Codex) -->
 	CONTROL_CIVICS_SCREEN,
 	CONTROL_FOREIGN_SCREEN,
-	CONTROL_FINANCIAL_SCREEN,
+	CONTROL_FOREIGN_DIPLOMACY_SCREEN,
 	CONTROL_MILITARY_SCREEN,
 	CONTROL_TECH_CHOOSER,
+	// <!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
+	CONTROL_WORLD_ADVISOR_SCREEN,
 	CONTROL_TURN_LOG,
 	CONTROL_CHAT_ALL,
 	CONTROL_CHAT_TEAM,
@@ -1112,6 +1120,54 @@ ENUM_START(Function, FUNC)
 	FUNC_EULERKEY,	// = NiAnimationKey::EULERKEY,
 	FUNC_STEPKEY,	// = NiAnimationKey::STEPKEY,
 ENUM_END(Function, FUNC)
+
+// <!-- custom: DLL-only shared metadata for the direct or cascading origin of a declaration of war. This is not an XML-indexed, Python-exposed, savegame-serialized, or gameplay-evaluated enum. (GPT-5.6-Sol) -->
+enum WarDeclarationCause
+{
+	WAR_DECLARATION_DIRECT,
+	WAR_DECLARATION_GAME_SETUP,
+	WAR_DECLARATION_ALWAYS_WAR,
+	WAR_DECLARATION_PERMANENT_ALLIANCE,
+	WAR_DECLARATION_DEFENSIVE_PACT,
+	WAR_DECLARATION_VASSAL_ALIGNMENT,
+	WAR_DECLARATION_DIPLOMACY,
+	WAR_DECLARATION_VOTE,
+	WAR_DECLARATION_NUCLEAR_ATTACK
+};
+
+// <!-- custom: DLL-only acquisition metadata carried to GameRecord when a technology is completed or granted. This is not XML-indexed, Python-exposed, savegame-serialized, or gameplay-evaluated; Python/script callers that cannot provide reliable context remain UNKNOWN. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+enum TechAcquisitionCause
+{
+	TECH_ACQUISITION_UNKNOWN,
+	TECH_ACQUISITION_RESEARCH,
+	TECH_ACQUISITION_TRADE,
+	TECH_ACQUISITION_FREE_CHOICE,
+	TECH_ACQUISITION_GOODY,
+	TECH_ACQUISITION_GREAT_PERSON,
+	TECH_ACQUISITION_ESPIONAGE,
+	TECH_ACQUISITION_RANDOM_EVENT,
+	TECH_ACQUISITION_TECH_SHARE,
+	TECH_ACQUISITION_TEAM_MERGE,
+	TECH_ACQUISITION_INHERITANCE,
+	TECH_ACQUISITION_ADVANCED_START,
+	TECH_ACQUISITION_BARBARIAN_RESEARCH,
+	TECH_ACQUISITION_GAME_SETUP,
+	TECH_ACQUISITION_DEBUG
+};
+
+// <!-- custom: Explicit source for ending AI Auto Play, shared between the DLL, Python controller, and SASGameRecord. This is runtime control/diagnostic metadata, not XML-indexed or savegame-serialized. See KI#203. (GPT-5.6-Sol) -->
+enum SASAutoPlayEndCause
+{
+	SAS_AUTOPLAY_END_UNSPECIFIED = -1,
+	SAS_AUTOPLAY_END_SCHEDULED,
+	SAS_AUTOPLAY_END_USER_INTERRUPTED,
+	SAS_AUTOPLAY_END_VICTORY,
+	SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED,
+	SAS_AUTOPLAY_END_DESYNC,
+	SAS_AUTOPLAY_END_ASSERTION,
+	SAS_AUTOPLAY_END_RISE_FALL,
+	SAS_AUTOPLAY_END_OTHER
+};
 
 enum TradeableItems
 {
@@ -1265,10 +1321,15 @@ ENUM_START(CitySafety, CITYSAFETY)
 	CITYSAFETY_PERFECT, // for advc.ctr
 ENUM_END(CitySafety, CITYSAFETY) // </advc.139>
 
+/* <!-- custom: new unit combat types and modifying existing ones --> */
 ENUM_START(Feat, FEAT)
-	FEAT_UNITCOMBAT_ARCHER,
-	FEAT_UNITCOMBAT_MOUNTED,
-	FEAT_UNITCOMBAT_MELEE,
+	FEAT_UNITCOMBAT_ARCHER_BOW_SHORT,
+	FEAT_UNITCOMBAT_ARCHER_BOW_LONG,
+	FEAT_UNITCOMBAT_ARCHER_CROSSBOW,
+	FEAT_UNITCOMBAT_MOUNTED_MELEE,
+	FEAT_UNITCOMBAT_MOUNTED_RANGED,
+	FEAT_UNITCOMBAT_MELEE_POLEARM,
+	FEAT_UNITCOMBAT_MELEE_SHOCK,
 	FEAT_UNITCOMBAT_SIEGE,
 	FEAT_UNITCOMBAT_GUN,
 	FEAT_UNITCOMBAT_ARMOR,

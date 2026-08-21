@@ -1,0 +1,1145 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3887
+# Commit: 6f8d41a1ac548879d04f56ff9210e9a5e10aa975
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 706e7cb064d20daedce11d937c77e32f895aae8d
+# Title: Help text for feature health made more flexible, refactored.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+22	67	CvGameCoreDLL/CvCity.cpp
+5	248	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	10	CvGameCoreDLL/CvDLLWidgetData.h
+451	154	CvGameCoreDLL/CvGameTextMgr.cpp
+9	2	CvGameCoreDLL/CvGameTextMgr.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 37529e279..e91872acc 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3731,80 +3731,35 @@ int CvCity::totalBadBuildingHealth() const
+ 
+ int CvCity::goodHealth() const
+ {
+-	int iTotalHealth = 0;
+-	int iHealth = getFreshWaterGoodHealth();
+-	if (iHealth > 0)
+-		iTotalHealth += iHealth;
+-
+-	iHealth = getSurroundingGoodHealth();
+-	if (iHealth > 0)
+-		iTotalHealth += iHealth;
+-
+-	iHealth = getPowerGoodHealth();
+-	if (iHealth > 0)
+-		iTotalHealth += iHealth;
+-
+-	iHealth = getBonusGoodHealth();
+-	if (iHealth > 0)
+-		iTotalHealth += iHealth;
+-
+-	iHealth = totalGoodBuildingHealth();
+-	if (iHealth > 0)
+-		iTotalHealth += iHealth;
+-
+-	iHealth = GET_PLAYER(getOwner()).getExtraHealth() + getExtraHealth();
+-	if (iHealth > 0)
+-		iTotalHealth += iHealth;
+-
+-	iHealth = GC.getInfo(getHandicapType()).getHealthBonus();
+-	if (iHealth > 0)
+-		iTotalHealth += iHealth;
+-
+-	return iTotalHealth;
++	int iHealth = 0;
++	iHealth += std::max(0, getFreshWaterGoodHealth());
++	iHealth += std::max(0, getSurroundingGoodHealth());
++	iHealth += std::max(0, getPowerGoodHealth());
++	iHealth += std::max(0, getBonusGoodHealth());
++	iHealth += std::max(0, totalGoodBuildingHealth());
++	iHealth += std::max(0,
++			GET_PLAYER(getOwner()).getExtraHealth() + getExtraHealth());
++	iHealth += std::max(0, GC.getInfo(getHandicapType()).getHealthBonus());
++	return iHealth;
+ }
+ 
+ 
+ int CvCity::badHealth(bool bNoAngry, int iExtra) const
+ {
+-	int iTotalHealth = 0;
+-	int iHealth = getEspionageHealthCounter();
+-	if (iHealth > 0)
+-		iTotalHealth -= iHealth;
+-
+-	iHealth = getFreshWaterBadHealth();
+-	if (iHealth < 0)
+-		iTotalHealth += iHealth;
+-
+-	iHealth = getSurroundingBadHealth();
+-	if (iHealth < 0)
+-		iTotalHealth += iHealth;
+-
+-	iHealth = getPowerBadHealth();
+-	if (iHealth < 0)
+-		iTotalHealth += iHealth;
+-
+-	iHealth = getBonusBadHealth();
+-	if (iHealth < 0)
+-		iTotalHealth += iHealth;
+-
+-	iHealth = totalBadBuildingHealth();
+-	if (iHealth < 0)
+-		iTotalHealth += iHealth;
+-
+-	iHealth = GET_PLAYER(getOwner()).getExtraHealth() + getExtraHealth();
+-	if (iHealth < 0)
+-		iTotalHealth += iHealth;
+-
+-	iHealth = GC.getInfo(getHandicapType()).getHealthBonus();
+-	if (iHealth < 0)
+-		iTotalHealth += iHealth;
++	int iHealth = 0;
++	iHealth -= std::max(0, getEspionageHealthCounter());
++	iHealth += std::min(0, getFreshWaterBadHealth());
++	iHealth += std::min(0, getSurroundingBadHealth());
++	iHealth += std::min(0, getPowerBadHealth());
++	iHealth += std::min(0, getBonusBadHealth());
++	iHealth += std::min(0, totalBadBuildingHealth());
++	iHealth += std::min(0,
++			GET_PLAYER(getOwner()).getExtraHealth() + getExtraHealth());
++	iHealth += std::min(0, GC.getInfo(getHandicapType()).getHealthBonus());
+ 	/*	advc.001 (from Better BUG AI, fix by Fuyu):
+ 		Already counted by totalBadBuildingHealth. */
+-	/*iHealth = getExtraBuildingBadHealth();
+-	if (iHealth < 0)
+-		iTotalHealth += iHealth;*/
+-
+-	return (unhealthyPopulation(bNoAngry, iExtra) - iTotalHealth);
++	//iHealth += std::min(0, getExtraBuildingBadHealth());
++	return (unhealthyPopulation(bNoAngry, iExtra) - iHealth);
+ }
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 67dbac664..ca1b161ac 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2478,10 +2478,10 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 		else
+ 		{
+ 			// No projection for the initial city
+-			if(kUnitOwner.getNumCities() > 0)
+-				szBuffer.append(getFoundCostText(kMissionPlot, kUnitOwner.getID()));
+-			szBuffer.append(getHomePlotYieldText(kMissionPlot, kUnitOwner.getID()));
+-			szBuffer.append(getNetFeatureHealthText(kMissionPlot, kUnitOwner.getID()));
++			if (kUnitOwner.getNumCities() > 0)
++				GAMETEXT.setFoundCostHelp(szBuffer, kMissionPlot);
++			GAMETEXT.setHomePlotYieldHelp(szBuffer, kMissionPlot);
++			GAMETEXT.setFoundHealthHelp(szBuffer, kMissionPlot);
+ 			// To set the info apart from TXT_KEY_MISSION_BUILD_CITY_HELP
+ 			szBuffer.append(NEWLINE);
+ 		} // </advc.004b>
+@@ -3223,7 +3223,7 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 	if (!CvWString(GC.getInfo(eMission).getHelp()).empty())
+ 	{	// <advc.004a>
+ 		if (eMission == MISSION_DISCOVER)
+-			szBuffer.append(getDiscoverPathText(kUnit.getUnitType(), kUnitOwner.getID()));
++			GAMETEXT.setDiscoverPathHelp(szBuffer, kUnit.getUnitType());
+ 		else // </advc.004a>  <advc.004c>
+ 		if (eMission == MISSION_BOMBARD && kUnit.bombardTarget(kMissionPlot) != NULL)
+ 		{} // Fully handled in switch block above
+@@ -6217,246 +6217,3 @@ bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget,
+ 	FAssert(pCity != NULL);
+ 	return bListMore;
+ }
+-
+-// advc.004a:
+-CvWString CvDLLWidgetData::getDiscoverPathText(UnitTypes eUnit,
+-	PlayerTypes ePlayer) const
+-{
+-	CvWString szRetVal = NEWLINE;
+-	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+-	/*	Could have ported the code in BUG TechPrefs.py, but it's unnecessarily
+-		complicated for what I'm trying to do. Use getDiscoveryTech and,
+-		in between calls, pretend that the previous tech has already been discovered. */
+-	TechTypes eCurrentDiscover = kPlayer.getDiscoveryTech(eUnit);
+-	if (eCurrentDiscover == NO_TECH || eUnit == NO_UNIT)
+-		return szRetVal;
+-	FlavorTypes eGPFlavor = NO_FLAVOR;
+-	int iMaxFlavor = -1;
+-	CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+-	FOR_EACH_ENUM(Flavor)
+-	{
+-		int iFlavor = kUnit.getFlavorValue(eLoopFlavor);
+-		if (iFlavor > iMaxFlavor)
+-		{
+-			eGPFlavor = eLoopFlavor;
+-			iMaxFlavor = iFlavor;
+-		}
+-	}
+-	CvString szFlavor;
+-	switch (eGPFlavor)
+-	{
+-		case FLAVOR_SCIENCE: szFlavor = "SCIENCE"; break;
+-		case FLAVOR_MILITARY: szFlavor = "MILITARY"; break;
+-		case FLAVOR_RELIGION: szFlavor = "RELIGION"; break;
+-		case FLAVOR_PRODUCTION: szFlavor = "PRODUCTION"; break;
+-		case FLAVOR_GOLD: szFlavor = "GOLD"; break;
+-		case FLAVOR_CULTURE: szFlavor = "CULTURE"; break;
+-		case FLAVOR_GROWTH: szFlavor = "GROWTH"; break;
+-		default: FAssert(false); return szRetVal;
+-	}
+-	szRetVal.append(gDLL->getText("TXT_KEY_MISSION_DISCOVER_HELP1"));
+-	szRetVal.append(L" ");
+-	CvString szFlavorKey("TXT_KEY_FLAVOR_" + szFlavor + "_TECH");
+-	szRetVal.append(gDLL->getText(szFlavorKey));
+-	szRetVal.append(L". ");
+-	CvTeam& kTeam = GET_TEAM(ePlayer);
+-	/*	The same discovery could be enabled by multiple currently researchable techs.
+-		The map lists the alt. reqs for each target tech. */
+-	ArrayEnumMap2D<TechTypes,TechTypes,bool> discoverMap;
+-	FOR_EACH_ENUM2(Tech, eResearchOption)
+-	{
+-		if (!kPlayer.canResearch(eResearchOption))
+-			continue;
+-		kTeam.setHasTechTemporarily(eResearchOption, true);
+-		TechTypes eNextDiscover = kPlayer.getDiscoveryTech(eUnit);
+-		kTeam.setHasTechTemporarily(eResearchOption, false);
+-		if (eNextDiscover != eCurrentDiscover && eNextDiscover != NO_TECH)
+-			discoverMap.set(eNextDiscover, eResearchOption, true);
+-	}
+-	int iSize = discoverMap.numNonDefault();
+-	if (iSize <= 0)
+-		return szRetVal;
+-	szRetVal.append(gDLL->getText("TXT_KEY_MISSION_DISCOVER_HELP2"));
+-	szRetVal.append(L" ");
+-	if (iSize == 1)
+-		szRetVal.append(gDLL->getText(szFlavorKey));
+-	else
+-	{
+-		CvString szPluralKey = "TXT_KEY_FLAVOR_" + szFlavor + "_PLURAL";
+-		szRetVal.append(gDLL->getText(szPluralKey));
+-	}
+-	szRetVal.append(L": ");
+-	bool bFirst = true;
+-	FOR_EACH_ENUM2(Tech, eNextDiscover)
+-	{
+-		if (discoverMap.get(eNextDiscover) == NULL)
+-			continue;
+-		if (bFirst)
+-			bFirst = false;
+-		else szRetVal.append(L", ");
+-		CvTechInfo const& kNextDiscover = GC.getInfo(eNextDiscover);
+-		CvWString szTemp;
+-		szTemp.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_TECH_TEXT"),
+-				kNextDiscover.getDescription());
+-		szRetVal.append(szTemp);
+-		szRetVal.append(L" (");
+-		szRetVal.append(gDLL->getText("TXT_KEY_MISSION_DISCOVER_REQ"));
+-		szRetVal.append(L" ");
+-		bool bFirstInner = true;
+-		FOR_EACH_ENUM2(Tech, eReqTech)
+-		{
+-			if (!discoverMap.get(eNextDiscover, eReqTech))
+-				continue;
+-			if (bFirstInner)
+-				bFirstInner = false;
+-			else
+-			{
+-				szRetVal.append(L" ");
+-				szRetVal.append(gDLL->getText("TXT_KEY_MISSION_DISCOVER_OR"));
+-				szRetVal.append(L" ");
+-			}
+-			szTemp.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_TECH_TEXT"),
+-					GC.getInfo(eReqTech).getDescription());
+-			szRetVal.append(szTemp);
+-		}
+-		szRetVal.append(L")");
+-	}
+-	szRetVal.append(L".");
+-	return szRetVal;
+-}
+-
+-// <advc.004b>
+-CvWString CvDLLWidgetData::getFoundCostText(CvPlot const& p, PlayerTypes eOwner) const
+-{
+-	CvPlayer const& kOwner = GET_PLAYER(eOwner);
+-	if (kOwner.isAnarchy())
+-		return "";
+-	int iProjPreInfl = 0;
+-	// New city increases other cities' maintenance
+-	FOR_EACH_CITY (c, kOwner)
+-	{
+-		if (c->isDisorder()) // Can't account for these
+-			continue;
+-		int iProjected = // Distance and corp. maintenance stay the same
+-				c->calculateDistanceMaintenanceTimes100() +
+-				c->calculateCorporationMaintenanceTimes100() +
+-				CvCity::calculateNumCitiesMaintenanceTimes100(*c->plot(),
+-				eOwner, c->getPopulation(), 1) +
+-				CvCity::calculateColonyMaintenanceTimes100(*c->plot(),
+-				eOwner, c->getPopulation(), 1);
+-		// Snippet from CvCity::updateMaintenance
+-		iProjPreInfl += (iProjected *
+-				std::max(0, c->getMaintenanceModifier() + 100)) / 100;
+-	}
+-	int iNewCityMaint =
+-			CvCity::calculateDistanceMaintenanceTimes100(p, eOwner) +
+-			// Last param: +1 for the newly founded city
+-			CvCity::calculateNumCitiesMaintenanceTimes100(p, eOwner, -1, 1) +
+-			CvCity::calculateColonyMaintenanceTimes100(p, eOwner);
+-	iProjPreInfl += iNewCityMaint;
+-	iProjPreInfl /= 100;
+-	// Civic upkeep
+-	iProjPreInfl += kOwner.getCivicUpkeep(NULL, true, 1);
+-	// Unit cost (new city increases free units, Settler unit goes away)
+-	iProjPreInfl += kOwner.calculateUnitCost(CvCity::initialPopulation(), -1);
+-	// Unit supply (Settler unit goes away)
+-	iProjPreInfl += kOwner.calculateUnitSupply(p.getOwner() == eOwner ? 0 : -1);
+-	// Inflation
+-	int iCost = (iProjPreInfl * (kOwner.calculateInflationRate() + 100)) / 100;
+-	// Difference from current expenses
+-	iCost -= kOwner.calculateInflatedCosts();
+-	/* Could, in theory, be negative due to unit cost. Don't output
+-	   a negative cost (too confusing). */
+-	iCost = std::max(0, iCost);
+-	CvWString szRetVal = L"\n";
+-	CvWString costStr = CvWString::format(L"%d", iCost);
+-	szRetVal.append(gDLL->getText("TXT_KEY_PROJECTED_COST", costStr.GetCString()));
+-	return szRetVal;
+-}
+-
+-CvWString CvDLLWidgetData::getNetFeatureHealthText(CvPlot const& kCityPlot,
+-	PlayerTypes eOwner) const
+-{
+-	int iGoodHealthPercent = 0;
+-	int iBadHealthPercent = 0;
+-	// bIncludeCityPlot=false: Feature gets removed upon founding
+-	for (CityPlotIter it(kCityPlot, false); it.hasNext(); ++it)
+-	{
+-		CvPlot const& p = *it;
+-		if (!p.isFeature() || !p.isRevealed(TEAMID(eOwner)))
+-			continue;
+-		int iHealthPercent = GC.getInfo(p.getFeatureType()).getHealthPercent();
+-		if (iHealthPercent > 0)
+-			iGoodHealthPercent += iHealthPercent;
+-		else iBadHealthPercent -= iHealthPercent;
+-	}
+-	CvWString szRetVal;
+-	if (kCityPlot.isFreshWater())
+-	{
+-		szRetVal.append(NEWLINE);
+-		szRetVal.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_FRESH_WATER",
+-				GC.getDefineINT(CvGlobals::FRESH_WATER_HEALTH_CHANGE)));
+-	}
+-	int iGoodHealth = iGoodHealthPercent / 100;
+-	int iBadHealth = iBadHealthPercent / 100;
+-	if (iGoodHealth > 0 || iBadHealth > 0)
+-	{
+-		szRetVal.append(NEWLINE);
+-		szRetVal.append(L"+");
+-		int iIcon = 0;
+-		if (iGoodHealth > 0)
+-		{
+-			iIcon = gDLL->getSymbolID(HEALTHY_CHAR);
+-			/*  Turns out good and bad health are rounded individually;
+-				no need, then, to show fractions. */
+-			// float fGoodHealth = iGoodHealthPercent / 100.0f;
+-			//szRetVal.append(CvWString::format((iGoodHealthPercent % 10 == 0 ?
+-			//		L"%.1f%c" : L"%.2f%c"), fGoodHealth, iIcon));
+-			szRetVal.append(CvWString::format(L"%d%c", iGoodHealth, iIcon));
+-		}
+-		if (iBadHealth > 0)
+-		{
+-			if (iGoodHealth > 0)
+-				szRetVal.append(CvWString::format(L", "));
+-			iIcon = gDLL->getSymbolID(UNHEALTHY_CHAR);
+-			szRetVal.append(CvWString::format(L"%d%c", iBadHealth, iIcon));
+-		}
+-		szRetVal.append(gDLL->getText("TXT_KEY_FROM_FEATURES"));
+-	}
+-	int iExtraHealth = GET_PLAYER(eOwner).getExtraHealth();
+-	if (iExtraHealth != 0)
+-	{
+-		szRetVal.append(NEWLINE);
+-		int iIcon = 0;
+-		szRetVal.append(L"+");
+-		if (iExtraHealth > 0)
+-		{
+-			iIcon = gDLL->getSymbolID(HEALTHY_CHAR);
+-			szRetVal.append(CvWString::format(L"%d%c", iExtraHealth, iIcon));
+-		}
+-		else
+-		{
+-			iIcon = gDLL->getSymbolID(UNHEALTHY_CHAR);
+-			szRetVal.append(CvWString::format(L"%d%c", iBadHealth, iIcon));
+-		}
+-		szRetVal.append(gDLL->getText("TXT_KEY_FROM_TRAIT"));
+-	}
+-	return szRetVal;
+-}
+-
+-CvWString CvDLLWidgetData::getHomePlotYieldText(CvPlot const& p, PlayerTypes eOwner) const
+-{
+-	CvWString szRetVal = NEWLINE;
+-	szRetVal.append(gDLL->getText("TXT_KEY_HOME_TILE_YIELD"));
+-	FOR_EACH_ENUM(Yield)
+-	{
+-		int iYieldRate = p.calculateNatureYield(eLoopYield, TEAMID(eOwner), true);
+-		CvYieldInfo const& kLoopYield = GC.getInfo(eLoopYield);
+-		iYieldRate = std::max(iYieldRate, kLoopYield.getMinCity());
+-		if (iYieldRate == 0)
+-			continue;
+-		CvWString szYield = CvWString::format(L", %d%c", iYieldRate, kLoopYield.getChar());
+-		szRetVal.append(szYield);
+-	}
+-	return szRetVal;
+-} // </advc.004b>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.h b/CvGameCoreDLL/CvDLLWidgetData.h
+index 77e7f6adc..0b29fcf85 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.h
++++ b/CvGameCoreDLL/CvDLLWidgetData.h
+@@ -213,15 +213,6 @@ protected:
+ 	// K-Mod end  <advc.ctr>
+ 	bool parseCityTradeHelp(CvWidgetDataStruct const& kWidget, CvCity*& pCity,
+ 			PlayerTypes& eWhoTo) const; // </advc.ctr>
+-	// <advc.004a> Additional help text:
+-	 // Discover ("bulb") button
+-	CvWString getDiscoverPathText(UnitTypes eUnit, PlayerTypes ePlayer) const;
+-	// </advc.004a> <advc.004b> Found button
+-	CvWString getFoundCostText(CvPlot const& p, PlayerTypes eOwner) const;
+-	CvWString getHomePlotYieldText(CvPlot const& p, PlayerTypes eOwner) const;
+-	CvWString getNetFeatureHealthText(CvPlot const& kCityPlot, PlayerTypes eOwner) const;
+-	// </advc.004b>
+-
+ };
+ 
+-#endif//_CVDLLWIDGETDATA_H_
++#endif
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 0f61b90fb..e6b46e2be 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -8418,6 +8418,111 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 	}
+ }
+ 
++// advc.004a:
++void CvGameTextMgr::setDiscoverPathHelp(CvWStringBuffer& szBuffer, UnitTypes eUnit)
++{
++	szBuffer.append(NEWLINE);
++	CvPlayer const& kPlayer = GET_PLAYER(getActivePlayer());
++	/*	Could have ported the code in BUG TechPrefs.py, but it's unnecessarily
++		complicated for what I'm trying to do. Use getDiscoveryTech and,
++		in between calls, pretend that the previous tech has already been discovered. */
++	TechTypes eCurrentDiscover = kPlayer.getDiscoveryTech(eUnit);
++	if (eCurrentDiscover == NO_TECH || eUnit == NO_UNIT)
++		return;
++	FlavorTypes eGPFlavor = NO_FLAVOR;
++	int iMaxFlavor = -1;
++	CvUnitInfo const& kUnit = GC.getInfo(eUnit);
++	FOR_EACH_ENUM(Flavor)
++	{
++		int iFlavor = kUnit.getFlavorValue(eLoopFlavor);
++		if (iFlavor > iMaxFlavor)
++		{
++			eGPFlavor = eLoopFlavor;
++			iMaxFlavor = iFlavor;
++		}
++	}
++	CvString szFlavor;
++	switch (eGPFlavor)
++	{
++		case FLAVOR_SCIENCE: szFlavor = "SCIENCE"; break;
++		case FLAVOR_MILITARY: szFlavor = "MILITARY"; break;
++		case FLAVOR_RELIGION: szFlavor = "RELIGION"; break;
++		case FLAVOR_PRODUCTION: szFlavor = "PRODUCTION"; break;
++		case FLAVOR_GOLD: szFlavor = "GOLD"; break;
++		case FLAVOR_CULTURE: szFlavor = "CULTURE"; break;
++		case FLAVOR_GROWTH: szFlavor = "GROWTH"; break;
++		default: FAssert(false); return;
++	}
++	szBuffer.append(gDLL->getText("TXT_KEY_MISSION_DISCOVER_HELP1"));
++	szBuffer.append(L" ");
++	CvString szFlavorKey("TXT_KEY_FLAVOR_" + szFlavor + "_TECH");
++	szBuffer.append(gDLL->getText(szFlavorKey));
++	szBuffer.append(L". ");
++	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
++	/*	The same discovery could be enabled by multiple currently researchable techs.
++		The map lists the alt. reqs for each target tech. */
++	ArrayEnumMap2D<TechTypes,TechTypes,bool> discoverMap;
++	FOR_EACH_ENUM2(Tech, eResearchOption)
++	{
++		if (!kPlayer.canResearch(eResearchOption))
++			continue;
++		kTeam.setHasTechTemporarily(eResearchOption, true);
++		TechTypes eNextDiscover = kPlayer.getDiscoveryTech(eUnit);
++		kTeam.setHasTechTemporarily(eResearchOption, false);
++		if (eNextDiscover != eCurrentDiscover && eNextDiscover != NO_TECH)
++			discoverMap.set(eNextDiscover, eResearchOption, true);
++	}
++	int iSize = discoverMap.numNonDefault();
++	if (iSize <= 0)
++		return;
++	szBuffer.append(gDLL->getText("TXT_KEY_MISSION_DISCOVER_HELP2"));
++	szBuffer.append(L" ");
++	if (iSize == 1)
++		szBuffer.append(gDLL->getText(szFlavorKey));
++	else
++	{
++		CvString szPluralKey = "TXT_KEY_FLAVOR_" + szFlavor + "_PLURAL";
++		szBuffer.append(gDLL->getText(szPluralKey));
++	}
++	szBuffer.append(L": ");
++	bool bFirst = true;
++	FOR_EACH_ENUM2(Tech, eNextDiscover)
++	{
++		if (discoverMap.get(eNextDiscover) == NULL)
++			continue;
++		if (bFirst)
++			bFirst = false;
++		else szBuffer.append(L", ");
++		CvTechInfo const& kNextDiscover = GC.getInfo(eNextDiscover);
++		CvWString szTemp;
++		szTemp.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_TECH_TEXT"),
++				kNextDiscover.getDescription());
++		szBuffer.append(szTemp);
++		szBuffer.append(L" (");
++		szBuffer.append(gDLL->getText("TXT_KEY_MISSION_DISCOVER_REQ"));
++		szBuffer.append(L" ");
++		bool bFirstInner = true;
++		FOR_EACH_ENUM2(Tech, eReqTech)
++		{
++			if (!discoverMap.get(eNextDiscover, eReqTech))
++				continue;
++			if (bFirstInner)
++				bFirstInner = false;
++			else
++			{
++				szBuffer.append(L" ");
++				szBuffer.append(gDLL->getText("TXT_KEY_MISSION_DISCOVER_OR"));
++				szBuffer.append(L" ");
++			}
++			szTemp.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_TECH_TEXT"),
++					GC.getInfo(eReqTech).getDescription());
++			szBuffer.append(szTemp);
++		}
++		szBuffer.append(L")");
++	}
++	szBuffer.append(L".");
++}
++
+ // advc.ctr:
+ void CvGameTextMgr::setCityTradeHelp(CvWStringBuffer& szBuffer, CvCity const& kCity,
+ 	PlayerTypes eWhoTo, bool bListMore)
+@@ -12382,220 +12487,412 @@ void CvGameTextMgr::setProductionDecayHelp(CvWStringBuffer &szBuffer,
+ 	}
+ }
+ 
+-
+-void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity& city)
++// advc.901: Based on code cut from setBadHealthHelp, setGoodHealthHelp.
++namespace
+ {
+-	if(city.badHealth() <= 0)
+-		return;
+-
+-	int iHealth = -(city.getFreshWaterBadHealth());
+-	if (iHealth > 0)
+-	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_FROM_FRESH_WATER", iHealth));
+-		szBuffer.append(NEWLINE);
+-	}
+-
+-	iHealth = -(city.getSurroundingBadHealth());
+-	if (iHealth > 0)
++	/*	If all health from surroundings of iSign can be attributed to one type
++		of feature, return that feature type, otherwise NO_FEATURE. */
++	FeatureTypes getSurroundingHealthFeature(CvCity const& kCity, int iSign,
++		bool& bOnlyFeatureHealth)
+ 	{
+-		FeatureTypes eFeature = NO_FEATURE;
+-		for (CityPlotIter it(city); it.hasNext(); ++it)
++		bOnlyFeatureHealth = false;
++		FeatureTypes eHealthFeature = NO_FEATURE;
++		bool bMultipleHealthFeatures = false;
++		for (CityPlotIter it(kCity); it.hasNext(); ++it)
+ 		{
+ 			CvPlot const& kPlot = *it;
+-			if (!kPlot.isFeature())
+-				continue; // advc
+-			// <advc.901>
+-			int iHealthPercent = GC.getInfo(kPlot.getFeatureType()).getHealthPercent();
+-			if (kPlot.getOwner() == city.getOwner())
+-			{
+-				ImprovementTypes eImprov = kPlot.getImprovementType();
+-				if (eImprov != NO_IMPROVEMENT)
+-					iHealthPercent += GC.getInfo(eImprov).get(CvImprovementInfo::HealthPercent);
++			ImprovementTypes const eImprov = kPlot.getImprovementType();
++			int iImprovHealthPercent = 0;
++			if (eImprov != NO_IMPROVEMENT)
++			{
++				iImprovHealthPercent = GC.getInfo(eImprov).get(
++						CvImprovementInfo::HealthPercent);
++				if (!GET_TEAM(getActiveTeam()).canAccessHappyHealth(kPlot,
++					iImprovHealthPercent))
++				{
++					iImprovHealthPercent = 0;
++				}
+ 			}
+-			if (iHealthPercent < 0) // </advc.901>
++			FeatureTypes const eFeature = kPlot.getFeatureType();
++			int iFeatureHealthPercent = 0;
++			if (eFeature != NO_FEATURE)
+ 			{
+-				if (eFeature == NO_FEATURE)
+-					eFeature = kPlot.getFeatureType();
+-				else if (eFeature != kPlot.getFeatureType())
++				iFeatureHealthPercent = GC.getInfo(eFeature).getHealthPercent();
++				if (!GET_TEAM(getActiveTeam()).canAccessHappyHealth(kPlot,
++					iFeatureHealthPercent))
+ 				{
+-					eFeature = NO_FEATURE;
+-					break;
++					iFeatureHealthPercent = 0;
++				}
++			}
++			/*	Improvements on top of a feature can be lumped together under the
++				feature's name if the signs match. Not improvements w/o feature. */
++			if (iImprovHealthPercent != 0 && iFeatureHealthPercent * iImprovHealthPercent <= 0)
++			{
++				bOnlyFeatureHealth = false;
++				return NO_FEATURE;
++			}
++			/*	Require iSign. Note that good and bad surrounding health are
++				tallied and rounded separately. */
++			if (iFeatureHealthPercent * iSign > 0 &&
++				/*	If improv and feature have the same sign (Preserved Forest),
++					we can attribute it all to the feature. Not if signs are
++					opposed (Preserved Jungle). */
++				iFeatureHealthPercent * iImprovHealthPercent >= 0)
++			{
++				if (eHealthFeature == NO_FEATURE)
++				{	/*	Found a relevant feature,
++						but it might not be the only one. */
++					eHealthFeature = kPlot.getFeatureType();
+ 				}
++				else if (eHealthFeature != kPlot.getFeatureType())
++					bMultipleHealthFeatures = true;
+ 			}
+ 		}
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_FEAT_HEALTH", iHealth,
+-				(eFeature == NO_FEATURE ?
+-				L"TXT_KEY_MISC_SURROUNDINGS" : // advc.901: was TXT_KEY_MISC_FEATURES
+-				GC.getInfo(eFeature).getTextKeyWide())));
+-		szBuffer.append(NEWLINE);
++		bOnlyFeatureHealth = (eHealthFeature != NO_FEATURE);
++		if (bMultipleHealthFeatures)
++			return NO_FEATURE;
++		return eHealthFeature;
+ 	}
++}
+ 
+-	iHealth = city.getEspionageHealthCounter();
+-	if (iHealth > 0)
++
++void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
++{
++	if (kCity.badHealth() <= 0)
++		return;
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_ESPIONAGE", iHealth));
+-		szBuffer.append(NEWLINE);
++		int iHealth = kCity.getFreshWaterBadHealth();
++		if (iHealth < 0)
++		{
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_FROM_FRESH_WATER", -iHealth));
++			szBuffer.append(NEWLINE);
++		}
+ 	}
+-
+-	iHealth = -(city.getPowerBadHealth());
+-	if (iHealth > 0)
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_POWER", iHealth));
+-		szBuffer.append(NEWLINE);
++		int iHealth = kCity.getSurroundingBadHealth();
++		if (iHealth < 0)
++		{	// <advc.901>
++			bool bOnlyFeatures;
++			FeatureTypes eFeature = getSurroundingHealthFeature(kCity, iHealth,
++					bOnlyFeatures); // </advc.901>
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_FEAT_HEALTH", -iHealth,
++					/* <advc.901> */ (eFeature == NO_FEATURE ?
++					(bOnlyFeatures ? L"TXT_KEY_MISC_FEATURES" :
++					L"TXT_KEY_MISC_SURROUNDINGS") : // </advc.901>
++					GC.getInfo(eFeature).getTextKeyWide())));
++			szBuffer.append(NEWLINE);
++		}
+ 	}
+-
+-	iHealth = -(city.getBonusBadHealth());
+-	if (iHealth > 0)
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_BONUSES", iHealth));
+-		szBuffer.append(NEWLINE);
++		int iBadHealth = kCity.getEspionageHealthCounter();
++		if (iBadHealth > 0)
++		{
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_ESPIONAGE", iBadHealth));
++			szBuffer.append(NEWLINE);
++		}
+ 	}
+-
+-	iHealth = -(city.totalBadBuildingHealth());
+-	if (iHealth > 0)
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_BUILDINGS", iHealth));
+-		szBuffer.append(NEWLINE);
++		int iHealth = kCity.getPowerBadHealth();
++		if (iHealth < 0)
++		{
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_POWER", -iHealth));
++			szBuffer.append(NEWLINE);
++		}
+ 	}
+-
+-	iHealth = -(GET_PLAYER(city.getOwner()).getExtraHealth());
+-	if (iHealth > 0)
+ 	{
+-		//szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_CIV", iHealth));
+-		// <advc.004g>
+-		szBuffer.append(CvWString::format(L"%d%c ", iHealth, gDLL->getSymbolID(UNHEALTHY_CHAR)));
+-		szBuffer.append(gDLL->getText("TXT_KEY_FROM_TRAIT")); // </advc.004g>
+-		szBuffer.append(NEWLINE);
++		int iHealth = kCity.getBonusBadHealth();
++		if (iHealth < 0)
++		{
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_BONUSES", -iHealth));
++			szBuffer.append(NEWLINE);
++		}
+ 	}
+-
+-	iHealth = -city.getExtraHealth();
+-	if (iHealth > 0)
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_UNHEALTH_EXTRA", iHealth));
+-		szBuffer.append(NEWLINE);
++		int iHealth = kCity.totalBadBuildingHealth();
++		if (iHealth < 0)
++		{
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_BUILDINGS", -iHealth));
++			szBuffer.append(NEWLINE);
++		}
+ 	}
+-
+-	iHealth = -(GC.getInfo(city.getHandicapType()).getHealthBonus());
+-	if (iHealth > 0)
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_HANDICAP", iHealth));
+-		szBuffer.append(NEWLINE);
++		int iHealth = GET_PLAYER(kCity.getOwner()).getExtraHealth();
++		if (iHealth < 0)
++		{
++			//szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_CIV", -iHealth));
++			// <advc.004g>
++			szBuffer.append(CvWString::format(L"%d%c ", -iHealth,
++					gDLL->getSymbolID(UNHEALTHY_CHAR)));
++			szBuffer.append(gDLL->getText("TXT_KEY_FROM_TRAIT")); // </advc.004g>
++			szBuffer.append(NEWLINE);
++		}
+ 	}
+-
+-	iHealth = city.unhealthyPopulation();
+-	if (iHealth > 0)
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_POP", iHealth));
+-		// K-Mod, 29/dec/10: added modifier text
+-		if (city.getUnhealthyPopulationModifier() != 0)
++		int iHealth = kCity.getExtraHealth();
++		if (iHealth < 0)
+ 		{
+-			wchar szTempBuffer[1024];
+-			swprintf(szTempBuffer, 1024, L" (%+d%%)", city.getUnhealthyPopulationModifier());
+-			szBuffer.append(szTempBuffer);
+-		} // K-Mod end
+-		szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_UNHEALTH_EXTRA", -iHealth));
++			szBuffer.append(NEWLINE);
++		}
++	}
++	{
++		int iHealth = GC.getInfo(kCity.getHandicapType()).getHealthBonus();
++		if (iHealth < 0)
++		{
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_HANDICAP", -iHealth));
++			szBuffer.append(NEWLINE);
++		}
++	}
++	{
++		int iBadHealth = kCity.unhealthyPopulation();
++		if (iBadHealth > 0)
++		{
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_POP", iBadHealth));
++			// K-Mod, 29/dec/10: added modifier text
++			if (kCity.getUnhealthyPopulationModifier() != 0)
++			{
++				wchar szTempBuffer[1024];
++				swprintf(szTempBuffer, 1024, L" (%+d%%)",
++						kCity.getUnhealthyPopulationModifier());
++				szBuffer.append(szTempBuffer);
++			} // K-Mod end
++			szBuffer.append(NEWLINE);
++		}
+ 	}
+ 	szBuffer.append(L"-----------------------\n");
+-	szBuffer.append(gDLL->getText("TXT_KEY_MISC_TOTAL_UNHEALTHY", city.badHealth()));
++	szBuffer.append(gDLL->getText("TXT_KEY_MISC_TOTAL_UNHEALTHY", kCity.badHealth()));
+ }
+ 
+-void CvGameTextMgr::setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity& city)
++
++void CvGameTextMgr::setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
+ {
+-	if(city.goodHealth() <= 0)
++	if (kCity.goodHealth() <= 0)
+ 		return;
+-
+-	int iHealth = city.getFreshWaterGoodHealth();
+-	if (iHealth > 0)
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_FRESH_WATER", iHealth));
+-		szBuffer.append(NEWLINE);
++		int iHealth = kCity.getFreshWaterGoodHealth();
++		if (iHealth > 0)
++		{
++			szBuffer.append(gDLL->getText(
++					"TXT_KEY_MISC_HEALTH_FROM_FRESH_WATER", iHealth));
++			szBuffer.append(NEWLINE);
++		}
++	}
++	{
++		int iHealth = kCity.getSurroundingGoodHealth();
++		if (iHealth > 0)
++		{	// <advc.901>
++			bool bOnlyFeatures;
++			FeatureTypes eFeature = getSurroundingHealthFeature(kCity, iHealth,
++					bOnlyFeatures); // </advc.901>
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_FEAT_GOOD_HEALTH", iHealth,
++					/* <advc.901> */ (eFeature == NO_FEATURE ?
++					(bOnlyFeatures ? L"TXT_KEY_MISC_FEATURES" :
++					L"TXT_KEY_MISC_SURROUNDINGS") : // </advc.901>
++					GC.getInfo(eFeature).getTextKeyWide())));
++			szBuffer.append(NEWLINE);
++		}
+ 	}
+-
+-	iHealth = city.getSurroundingGoodHealth();
+-	if (iHealth > 0)
+ 	{
+-		FeatureTypes eFeature = NO_FEATURE;
+-		for (CityPlotIter it(city); it.hasNext(); ++it)
++		int iHealth = kCity.getPowerGoodHealth();
++		if (iHealth > 0)
+ 		{
+-			CvPlot const& kPlot = *it;
+-			if (!kPlot.isFeature())
+-				continue; // advc
+-			// <advc.901>
+-			int iHealthPercent = GC.getInfo(kPlot.getFeatureType()).getHealthPercent();
+-			if (kPlot.getOwner() == city.getOwner())
+-			{
+-				ImprovementTypes eImprov = kPlot.getImprovementType();
+-				if (eImprov != NO_IMPROVEMENT)
+-					iHealthPercent += GC.getInfo(eImprov).get(CvImprovementInfo::HealthPercent);
+-			}
+-			if (iHealthPercent > 0) // </advc.901>
+-			{
+-				if (eFeature == NO_FEATURE)
+-					eFeature = kPlot.getFeatureType();
+-				else if (eFeature != kPlot.getFeatureType())
+-				{
+-					eFeature = NO_FEATURE;
+-					break;
+-				}
+-			}
++			szBuffer.append(gDLL->getText(
++					"TXT_KEY_MISC_GOOD_HEALTH_FROM_POWER", iHealth));
++			szBuffer.append(NEWLINE);
+ 		}
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_FEAT_GOOD_HEALTH", iHealth,
+-				(eFeature == NO_FEATURE ?
+-				L"TXT_KEY_MISC_SURROUNDINGS" : // advc.004g: was TXT_KEY_MISC_FEATURES
+-				GC.getInfo(eFeature).getTextKeyWide())));
+-		szBuffer.append(NEWLINE);
+ 	}
+-
+-	iHealth = city.getPowerGoodHealth();
+-	if (iHealth > 0)
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_GOOD_HEALTH_FROM_POWER", iHealth));
+-		szBuffer.append(NEWLINE);
++		int iHealth = kCity.getBonusGoodHealth();
++		if (iHealth > 0)
++		{
++			szBuffer.append(gDLL->getText(
++					"TXT_KEY_MISC_GOOD_HEALTH_FROM_BONUSES", iHealth));
++			szBuffer.append(NEWLINE);
++		}
+ 	}
+-
+-	iHealth = city.getBonusGoodHealth();
+-	if (iHealth > 0)
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_GOOD_HEALTH_FROM_BONUSES", iHealth));
+-		szBuffer.append(NEWLINE);
++		int iHealth = kCity.totalGoodBuildingHealth();
++		if (iHealth > 0)
++		{
++			szBuffer.append(gDLL->getText(
++					"TXT_KEY_MISC_GOOD_HEALTH_FROM_BUILDINGS", iHealth));
++			szBuffer.append(NEWLINE);
++		}
+ 	}
+-
+-	iHealth = city.totalGoodBuildingHealth();
+-	if (iHealth > 0)
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_GOOD_HEALTH_FROM_BUILDINGS", iHealth));
+-		szBuffer.append(NEWLINE);
++		int iHealth = GET_PLAYER(kCity.getOwner()).getExtraHealth();
++		if (iHealth > 0)
++		{
++			//szBuffer.append(gDLL->getText("TXT_KEY_MISC_GOOD_HEALTH_FROM_CIV", iHealth));
++			// <advc.004g>
++			szBuffer.append(CvWString::format(L"+%d%c ",
++					iHealth, gDLL->getSymbolID(HEALTHY_CHAR)));
++			szBuffer.append(gDLL->getText("TXT_KEY_FROM_TRAIT")); // </advc.004g>
++			szBuffer.append(NEWLINE);
++		}
+ 	}
++	{
++		int iHealth = kCity.getExtraHealth();
++		if (iHealth > 0)
++		{
++			szBuffer.append(gDLL->getText(
++					"TXT_KEY_MISC_HEALTH_EXTRA", iHealth));
++			szBuffer.append(NEWLINE);
++		}
++	}
++	{
++		int iHealth = GC.getInfo(kCity.getHandicapType()).getHealthBonus();
++		if (iHealth > 0)
++		{
++			szBuffer.append(gDLL->getText(
++					"TXT_KEY_MISC_GOOD_HEALTH_FROM_HANDICAP", iHealth));
++			szBuffer.append(NEWLINE);
++		}
++	}
++	szBuffer.append(L"-----------------------\n");
++	szBuffer.append(gDLL->getText("TXT_KEY_MISC_TOTAL_HEALTHY", kCity.goodHealth()));
++}
+ 
+-	iHealth = GET_PLAYER(city.getOwner()).getExtraHealth();
+-	if (iHealth > 0)
++// <advc.004b>
++void CvGameTextMgr::setFoundHealthHelp(CvWStringBuffer& szBuffer, CvPlot const& kCityPlot)
++{
++	int iGoodHealthPercent = 0;
++	int iBadHealthPercent = 0;
++	// bIncludeCityPlot=false b/c feature gets removed upon founding
++	for (CityPlotIter it(kCityPlot, false); it.hasNext(); ++it)
++	{
++		CvPlot const& p = *it;
++		if (!p.isFeature() || !p.isRevealed(getActiveTeam()))
++			continue;
++		int iHealthPercent = GC.getInfo(p.getFeatureType()).getHealthPercent();
++		if (!GET_TEAM(getActiveTeam()).canAccessHappyHealth(p, iHealthPercent))
++			continue;
++		if (iHealthPercent > 0)
++			iGoodHealthPercent += iHealthPercent;
++		else iBadHealthPercent -= iHealthPercent;
++	}
++	if (kCityPlot.isFreshWater())
+ 	{
+-		//szBuffer.append(gDLL->getText("TXT_KEY_MISC_GOOD_HEALTH_FROM_CIV", iHealth));
+-		// <advc.004g>
+-		szBuffer.append(CvWString::format(L"+%d%c ", iHealth, gDLL->getSymbolID(HEALTHY_CHAR)));
+-		szBuffer.append(gDLL->getText("TXT_KEY_FROM_TRAIT")); // </advc.004g>
+ 		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_FRESH_WATER",
++				GC.getDefineINT(CvGlobals::FRESH_WATER_HEALTH_CHANGE)));
+ 	}
+-
+-	iHealth = city.getExtraHealth();
+-	if (iHealth > 0)
++	int iGoodHealth = iGoodHealthPercent / 100;
++	int iBadHealth = iBadHealthPercent / 100;
++	if (iGoodHealth > 0 || iBadHealth > 0)
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_EXTRA", iHealth));
+ 		szBuffer.append(NEWLINE);
++		szBuffer.append(L"+");
++		int iIcon = 0;
++		if (iGoodHealth > 0)
++		{
++			iIcon = gDLL->getSymbolID(HEALTHY_CHAR);
++			/*  Turns out good and bad health are rounded individually;
++				no need, then, to show fractions. */
++			// float fGoodHealth = iGoodHealthPercent / 100.0f;
++			//szRetVal.append(CvWString::format((iGoodHealthPercent % 10 == 0 ?
++			//		L"%.1f%c" : L"%.2f%c"), fGoodHealth, iIcon));
++			szBuffer.append(CvWString::format(L"%d%c", iGoodHealth, iIcon));
++		}
++		if (iBadHealth > 0)
++		{
++			if (iGoodHealth > 0)
++				szBuffer.append(CvWString::format(L", "));
++			iIcon = gDLL->getSymbolID(UNHEALTHY_CHAR);
++			szBuffer.append(CvWString::format(L"%d%c", iBadHealth, iIcon));
++		}
++		szBuffer.append(gDLL->getText("TXT_KEY_FROM_FEATURES"));
+ 	}
+-
+-	iHealth = GC.getInfo(city.getHandicapType()).getHealthBonus();
+-	if (iHealth > 0)
++	int iExtraHealth = GET_PLAYER(getActivePlayer()).getExtraHealth();
++	if (iExtraHealth != 0)
+ 	{
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_GOOD_HEALTH_FROM_HANDICAP", iHealth));
+ 		szBuffer.append(NEWLINE);
++		int iIcon = 0;
++		szBuffer.append(L"+");
++		if (iExtraHealth > 0)
++		{
++			iIcon = gDLL->getSymbolID(HEALTHY_CHAR);
++			szBuffer.append(CvWString::format(L"%d%c", iExtraHealth, iIcon));
++		}
++		else
++		{
++			iIcon = gDLL->getSymbolID(UNHEALTHY_CHAR);
++			szBuffer.append(CvWString::format(L"%d%c", iBadHealth, iIcon));
++		}
++		szBuffer.append(gDLL->getText("TXT_KEY_FROM_TRAIT"));
+ 	}
++}
+ 
+-	szBuffer.append(L"-----------------------\n");
+ 
+-	szBuffer.append(gDLL->getText("TXT_KEY_MISC_TOTAL_HEALTHY", city.goodHealth()));
++void CvGameTextMgr::setFoundCostHelp(CvWStringBuffer& szBuffer, CvPlot const& kCityPlot)
++{
++	CvPlayer const& kPlayer = GET_PLAYER(getActivePlayer());
++	if (kPlayer.isAnarchy())
++		return;
++	int iProjPreInfl = 0;
++	// New city increases other cities' maintenance
++	FOR_EACH_CITY (c, kPlayer)
++	{
++		if (c->isDisorder()) // Can't account for these
++			continue;
++		int iProjected = // Distance and corp. maintenance stay the same
++				c->calculateDistanceMaintenanceTimes100() +
++				c->calculateCorporationMaintenanceTimes100() +
++				CvCity::calculateNumCitiesMaintenanceTimes100(*c->plot(),
++				kPlayer.getID(), c->getPopulation(), 1) +
++				CvCity::calculateColonyMaintenanceTimes100(*c->plot(),
++				kPlayer.getID(), c->getPopulation(), 1);
++		// Snippet from CvCity::updateMaintenance
++		iProjPreInfl += (iProjected *
++				std::max(0, c->getMaintenanceModifier() + 100)) / 100;
++	}
++	int iNewCityMaint =
++			CvCity::calculateDistanceMaintenanceTimes100(
++			kCityPlot, kPlayer.getID()) +
++			// Last param: +1 for the newly founded city
++			CvCity::calculateNumCitiesMaintenanceTimes100(
++			kCityPlot, kPlayer.getID(), -1, 1) +
++			CvCity::calculateColonyMaintenanceTimes100(
++			kCityPlot, kPlayer.getID());
++	iProjPreInfl += iNewCityMaint;
++	iProjPreInfl /= 100;
++	// Civic upkeep
++	iProjPreInfl += kPlayer.getCivicUpkeep(NULL, true, 1);
++	// Unit cost (new city increases free units, Settler unit goes away)
++	iProjPreInfl += kPlayer.calculateUnitCost(CvCity::initialPopulation(), -1);
++	// Unit supply (Settler unit goes away)
++	if (kPlayer.calculateUnitSupply(kCityPlot.getOwner() != kPlayer.getID()))
++		iProjPreInfl--;
++	// Inflation
++	int iCost = (iProjPreInfl * (kPlayer.calculateInflationRate() + 100)) / 100;
++	// Difference from current expenses
++	iCost -= kPlayer.calculateInflatedCosts();
++	/* Could, in theory, be negative due to unit cost. Don't output
++	   a negative cost (too confusing). */
++	iCost = std::max(0, iCost);
++	szBuffer.append(NEWLINE);
++	CvWString szCostStr = CvWString::format(L"%d", iCost);
++	szBuffer.append(gDLL->getText("TXT_KEY_PROJECTED_COST", szCostStr.c_str()));
+ }
+ 
++
++void CvGameTextMgr::setHomePlotYieldHelp(CvWStringBuffer& szBuffer, CvPlot const& kCityPlot)
++{
++	szBuffer.append(NEWLINE);
++	szBuffer.append(gDLL->getText("TXT_KEY_HOME_TILE_YIELD"));
++	FOR_EACH_ENUM(Yield)
++	{
++		int iYieldRate = kCityPlot.calculateNatureYield(
++				eLoopYield, getActiveTeam(), true);
++		CvYieldInfo const& kLoopYield = GC.getInfo(eLoopYield);
++		iYieldRate = std::max(iYieldRate, kLoopYield.getMinCity());
++		if (iYieldRate == 0)
++			continue;
++		CvWString szYield = CvWString::format(L", %d%c", iYieldRate, kLoopYield.getChar());
++		szBuffer.append(szYield);
++	}
++} // </advc.004b>
++
+ // BUG - Building Additional Health - start
+ bool CvGameTextMgr::setBuildingAdditionalHealthHelp(CvWStringBuffer &szBuffer, const CvCity& city, const CvWString& szStart, bool bStarted)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 64c1b4e26..1e0a94830 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -101,6 +101,8 @@ public:
+ 			bool bPlayerContext = false, bool bStrategyText = false,
+ 			bool bTreeInfo = true, TechTypes eFromTech = NO_TECH);
+ // BULL - Trade Denial - end
++	// advc.004a:
++	void setDiscoverPathHelp(CvWStringBuffer& szBuffer, UnitTypes eUnit);
+ 	// <advc.ctr>
+ 	void setCityTradeHelp(CvWStringBuffer& szBuffer, CvCity const& kCity,
+ 			PlayerTypes eWhoTo, bool bListMore); // </advc.ctr>
+@@ -115,8 +117,13 @@ public:
+ 	void setProcessHelp(CvWStringBuffer &szBuffer, ProcessTypes eProcess);
+ 	// BULL - Production Decay: (advc.094)
+ 	void setProductionDecayHelp(CvWStringBuffer &szBuffer, int iTurnsLeft, int iThreshold, int iDecay, bool bProducing);
+-	void setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity& city);
+-	void setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity& city);
++	void setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kCity);
++	void setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kCity);
++	// <advc.004b>
++	void setFoundHealthHelp(CvWStringBuffer& szBuffer, CvPlot const& kCityPlot);
++	void setFoundCostHelp(CvWStringBuffer& szBuffer, CvPlot const& kCityPlot);
++	void setHomePlotYieldHelp(CvWStringBuffer& szBuffer, CvPlot const& kCityPlot);
++	// </advc.004b>
+ // BUG - Building Additional Health - start
+ 	bool setBuildingAdditionalHealthHelp(CvWStringBuffer &szBuffer, const CvCity& city, const CvWString& szStart, bool bStarted = false);
+ // BUG - Building Additional Health - end
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=39134

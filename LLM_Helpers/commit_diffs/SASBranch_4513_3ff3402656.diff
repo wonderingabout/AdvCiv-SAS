@@ -1,0 +1,118 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4513
+# Commit: 3ff3402656d67d822e009eaf2319f494327bbb02
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 391913e624db429d7c661ca322544fbb3e59edd7
+# Title: rename all references of placeRequire and their coordinate to Reveals as Reveals has now inherited the half from requires, while the other half became, about...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	17	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 083828e68..0f494a690 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -59,16 +59,16 @@ class SevoPediaBonus:
+ 		self.Y_EFFECTS_PANE = self.Y_IMPROVEMENTS_PANE
+ 		self.H_EFFECTS_PANE = self.H_IMPROVEMENTS_PANE
+ 
+-		self.X_REQUIRES = self.X_BONUS_PANE
+-		self.W_REQUIRES = self.W_BONUS_PANE
+-		self.Y_REQUIRES = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + 10
+-		self.H_REQUIRES = 110
++		self.X_REVEALS = self.X_BONUS_PANE
++		self.W_REVEALS = self.W_BONUS_PANE
++		self.Y_REVEALS = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + 10
++		self.H_REVEALS = 110
+ 
+ 		# <!-- custom: todo add self.X_ENABLES and similar i mean anyways, thanks, -->
+ 
+ 		self.X_ALLOWS_PANE = self.X_BONUS_PANE
+ 		self.W_ALLOWS_PANE = self.top.R_PEDIA_PAGE - self.X_ALLOWS_PANE
+-		self.Y_ALLOWS_PANE = self.Y_REQUIRES + self.H_REQUIRES + 10
++		self.Y_ALLOWS_PANE = self.Y_REVEALS + self.H_REVEALS + 10
+ 		self.H_ALLOWS_PANE = 110
+ 
+ 		# <!-- custom: put the buildings panel under the units (allows) panel
+@@ -122,7 +122,7 @@ class SevoPediaBonus:
+ 		# placeRequires, into placeReveals and placeEnables (which is
+ 		# hopefully more accurate this way too i mean anyways, thanks,
+ 		# -->
+-		self.placeRequires()
++		self.placeReveals()
+ 		self.placeEnables()
+ 		self.placeAllows()
+ 		self.placeBuildings()
+@@ -217,7 +217,7 @@ class SevoPediaBonus:
+ 
+ 
+ 
+-	def placeRequires(self):
++	def placeReveals(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		# <!-- custom: note, i mean anyways: TXT_KEY_PEDIA_BONUS_APPEARANCE
+@@ -231,7 +231,7 @@ class SevoPediaBonus:
+ 		# but as is or not, i mean, or not, but anyways, as is or not,
+ 		# i mean anyways, maybe or not, as is, thanks,
+ 		# -->
+-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_BONUS_APPEARANCE", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
++		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_BONUS_APPEARANCE", ()), "", False, True, self.X_REVEALS, self.Y_REVEALS, self.W_REVEALS, self.H_REVEALS, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		screen.attachLabel(panelName, "", "  ")
+ 
+ 		iTech = gc.getBonusInfo(self.iBonus).getTechReveal()
+@@ -248,19 +248,23 @@ class SevoPediaBonus:
+ 
+ 
+ 
+-	# <!-- custom: base this on the now/soon to be, about this i
+-	# mean anyways, at least i mean anyways, as is, i mean anyways,
+-	# thanks, as is, former placeRequires function as it is very
+-	# similar, only moved to the right, at least about this i mean
+-	# anyways, thanks, slightly adjust values, about this, i mean,
+-	# anyways, maybe or not maybe, as is, but anyways, thanks, i
+-	# mean anyways, thanks, -->
++	# <!-- custom: base this on former placeRequires (now split
++	# between placeReveals and placeEnables with some adjustments
++	# and quite minor tweaks maybe i mean anywyas but that i still
++	# did and do feel quite proudly about, about this i mean anyways,
++	# but continuing the code now i mean hope helps if i may say
++	# maybe me too or not or yes or not, but anyways as is i mean
++	# anyways, thanks, ) function as it is very similar, only moved
++	# to the right, at least about this i mean anyways, thanks,
++	# slightly adjust values, about this, i mean, anyways, maybe or
++	# not maybe, as is, but anyways, thanks, i mean anyways, thanks,
++	# -->
+ 	def placeEnables(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		# <!-- custom: move it at the right, in this case at least i mean anyways,
+ 		# of the requires panel, about this i mean anyways, at least, maybe, thanks,
+-		# note: self.X_REQUIRES + 685 works i mean about this anyways, but since the
++		# note: self.X_REVEALS + 685 works i mean about this anyways, but since the
+ 		# new Enables panel is aligned with the effects panel, easier to use same 
+ 		# horizontal postion (X) i mean anyways, about this at least, i mean anyways,
+ 		# thanks,
+@@ -272,7 +276,7 @@ class SevoPediaBonus:
+ 		# -->
+ 		# <!-- custom: note, i mean anyways: TXT_KEY_PEDIA_BONUS_TRADE
+ 		# is "Enables" thanks, about this i mean anyways, thanks, -->
+-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()), "", False, True, self.X_EFFECTS_PANE, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
++		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()), "", False, True, self.X_EFFECTS_PANE, self.Y_REVEALS, self.W_REVEALS, self.H_REVEALS, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		screen.attachLabel(panelName, "", "  ")
+ 
+ 		iTech = gc.getBonusInfo(self.iBonus).getTechCityTrade()
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4813

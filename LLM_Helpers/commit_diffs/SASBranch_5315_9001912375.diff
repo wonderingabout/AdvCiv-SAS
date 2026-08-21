@@ -1,0 +1,302 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5315
+# Commit: 90019123753bbb974b1c7351db94a3e6862387fc
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e8659a5e4c4afae41306dfc04e8ec62eeb77eb99
+# Title: reduce SAS48 dimensions fom 102 x 73 was a bit too big and not scaling as well with past ones.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	42	AGENTS.md
+1	1	Assets/XML/GameInfo/CIV4WorldInfo.xml
+17	17	Assets/XML/Interface/CIV4WorldPickerInfos.xml
+7	3	README.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index c0c6fc0ac..deb8444a2 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -86,48 +86,6 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
+ - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
+ 
+-### Indentation level: avoid no indent where an indentation is expected or parent
+-
+-- Do not do no-indent code or comments inside functions or scope where we generally expect an indent, because adding an indent allows to easily toggle the function to hide it with VS Code.
+-
+-Example 1:
+-
+-```cpp
+-void CvPlayerAI::AI_advancedStartRouteTerritory()
+-{
+-//	//This uses a heuristic to create a road network
+-//	//which is at least efficient if not all inclusive
+-```
+-
+-fixed:
+-
+-```cpp
+-void CvPlayerAI::AI_advancedStartRouteTerritory()
+-{
+-	// //This uses a heuristic to create a road network
+-	// //which is at least efficient if not all inclusive
+-```
+-
+-Example 2:
+-
+-```cpp
+-	FAssert(techs_to_depth.size() == iMaxPathLength+1);
+-	//FAssert(techs.size() == values.size());
+-
+-#ifdef USE_OLD_TECH_STUFF
+-	bool bPathways = false && getID() < GC.getGame().getCivPlayersEverAlive()/2; // testing (temp)
+-```
+-
+-fixed:
+-
+-```cpp
+-	FAssert(techs_to_depth.size() == iMaxPathLength+1);
+-	//FAssert(techs.size() == values.size());
+-
+-	#ifdef USE_OLD_TECH_STUFF
+-	bool bPathways = false && getID() < GC.getGame().getCivPlayersEverAlive()/2; // testing (temp)
+-```
+-
+ ### Python (Civ4)
+ 
+ - Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
+@@ -149,6 +107,9 @@ fixed:
+ - When changing attack logic, account for special unit roles (bombard/collateral) and UWAI expectations.
+ - Prefer low-level entry points (e.g., `canScrap`, `canUpgrade`, `AI_chooseUnit` or equivalent) to avoid edge cases from higher-level callers; keep logic close to core decisions. Example: for attack order changes, hook `groupAttack`/`AI_getBestGroupAttacker` rather than odds-estimation helpers, so other functions or pieces of logic don't overlap with or override our code.
+ - When doing performance optimizations, such as caching to `CvTeamAI const& kTeam = GET_TEAM(getTeam());` redundant definitions in a function, reuse existing variable names unless not relevant for our needs. It is fine if some functions have `kTeam` while others have `kOurTeam` in the same file, what matters is same function is consistent when using the same variable. This avoids errors too. Same reasoning with `kPlayer` and `kOwner`, etc.
++- When doing performance optimizations, a good trick that may help find many entries fairly cheaply is to append `.` or `)` or ` ` or `,`, etc., to what we want to simplify. For example `GET_TEAM(getTeam()).` or `GET_TEAM(getTeam()))`, or `GET_TEAM(getTeam()) `, or `GET_TEAM(getTeam()),`, etc. Basically any charcter other than `;`, for example `GET_TEAM(getTeam());`, most likely indicates this is not a cached variable and so most likely an optimize candidate.
++- When doing performance optimizations, also optimize commented-out code for exhaustiveness.
++- When doing performance optimizations, if there are returns and they don't use our cached variable, cache after them.
+ 
+ ### Docs
+
+diff --git a/Assets/XML/GameInfo/CIV4WorldInfo.xml b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+index bc7a9aa56..75a68ea8e 100644
+--- a/Assets/XML/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+@@ -341,7 +341,7 @@
+ 			<iWarWearinessModifier>-65</iWarWearinessModifier>
+ 			<iUnitCostPercent>82</iUnitCostPercent>
+ 			<iGridWidth>102</iGridWidth>
+-			<iGridHeight>73</iGridHeight>
++			<iGridHeight>71</iGridHeight>
+ 			<iTerrainGrainChange>2</iTerrainGrainChange>
+ 			<iFeatureGrainChange>2</iFeatureGrainChange>
+ 			<iResearchPercent>130</iResearchPercent>
+
+diff --git a/Assets/XML/Interface/CIV4WorldPickerInfos.xml b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+index 2ae22a831..5e4c4b310 100644
+--- a/Assets/XML/Interface/CIV4WorldPickerInfos.xml
++++ b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+@@ -28,7 +28,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -55,7 +55,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -93,7 +93,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -131,7 +131,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -169,7 +169,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -207,7 +207,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -245,7 +245,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -283,7 +283,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -321,7 +321,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+@@ -359,7 +359,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath>
+@@ -389,7 +389,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -416,7 +416,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -443,7 +443,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -470,7 +470,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -497,7 +497,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -524,7 +524,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+@@ -551,7 +551,7 @@
+ 				<Size>3.186</Size> <!-- SAS24 -->
+ 				<Size>4.408</Size> <!-- SAS32 -->
+ 				<Size>5.308</Size> <!-- SAS40 -->
+-				<Size>6.819</Size> <!-- SAS48 -->
++				<Size>6.632</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+
+diff --git a/README.md b/README.md
+index 0f248cb35..4f63b9cd0 100644
+--- a/README.md
++++ b/README.md
+@@ -455,16 +455,18 @@ Note 2: in the [development version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Se
+ 
+ This DLL is the recommended DLL for the new World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) added in AdvCiv-SAS based on the XXL World mod's world sizes. For the larger than huge world sizes, as their Default Player number is higher than the 18 `MAX_CIV_PLAYERS` in the base DLL, it is recommended to use the 48 civs DLL to play them (else the Map may never get populated with too few players relative to world size).
+ 
+-The adjustment of the XXL World Mod's World sizes was made by GPT-5.2-Codex. For information, here is a comparative .md table showing how the XXL World's World Sizes compare to the AdvCiv-SAS' new World Sizes.
++The adjustment of the XXL World Mod's World sizes was made by GPT-5.2-Codex. For information, here is a comparative .md table showing how the XXL World's World Sizes compare to the AdvCiv-SAS' new World Sizes, and notes, by GPT-5.2-Codex as well.
+ 
+ | AdvCiv-SAS size | SAS Grid (W x H) | SAS Tiles | SAS Default players | SAS Ratio vs Std | XXL reference size | XXL Grid (W x H) | XXL Tiles | XXL Default players | XXL Ratio vs Std |
+ | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
+ | SAS24 | 71 x 49 | 3479 | 24 | 3.186 | XXL | 40 x 25 | 1000 | 24 | 3.663 |
+ | SAS32 | 83 x 58 | 4814 | 32 | 4.408 | XXL | 40 x 25 | 1000 | 24 | 3.663 |
+ | SAS40 | 92 x 63 | 5796 | 40 | 5.308 | GIGA | 50 x 32 | 1600 | 34 | 5.861 |
+-| SAS48 | 102 x 73 | 7446 | 48 | 6.819 | GIGA | 50 x 32 | 1600 | 34 | 5.861 |
++| SAS48 | 102 x 71 | 7242 | 48 | 6.632 | ULTRA | 60 x 40 | 2400 | 34 | 8.791 |
+ 
+-Note: "tiles/player" uses each file's iDefaultPlayers. XXL World sets Giant/Ultra to 34 default players; AdvCiv-SAS uses 32 and 40.
++Note: XXL/GIGA/ULTRA values come from XXL World `CIV4WorldInfo.xml`. XXL ratio vs Std uses XXL World's Standard size (21 x 13 = 273 tiles). SAS ratio vs Std uses the AdvCiv-SAS standard size in our XML.
++Note 2: XXL uses a much smaller baseline and far fewer tiles per default player. In XXL World, Standard is 21 x 13 = 273 tiles for 7 players (~39 tiles/player), and XXL is 40 x 25 = 1000 tiles for 24 players (~41.7 tiles/player). In AdvCiv-SAS, Standard is 39 x 28 = 1092 tiles for 8 players (~137 tiles/player), and SAS24 is 71 x 49 = 3479 tiles for 24 players (~145 tiles/player). That’s why SAS24 is much larger even though both list 24 default players.
++Note 3: XXL map scripts also override grid sizes directly (e.g., XXL World Pangaea uses 16 x 10 for Standard and 40 x 25 for XXL in `PrivateMaps/Pangaea.py`), so the XML sizes aren’t the only source of truth; this keeps XXL maps smaller while still advertising higher default player counts.
+ 
+ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
+ 
+@@ -495,6 +497,8 @@ Below is the recap by GPT-5.2-Codex thanks.
+ >
+ >- This does change save format because CvPlot::m_aiFoundValue and CvArea::m_aiBestFoundValue are serialized. Old saves will likely be incompatible or read garbage for found values.
+ 
++See [commit/e8659a5e4c4afae41306dfc04e8ec62eeb77eb99](https://github.com/wonderingabout/AdvCiv-SAS/commit/e8659a5e4c4afae41306dfc04e8ec62eeb77eb99).
++
+ ## Long Comments Archive
+ 
+ Context: after AI performed measurably better following a DLL refactor, the only other change was moving a very heavy XML comment (UnitAI XML info, not C++), which made it a suspect for the improvement and prompted us to archive long comments out of game files (AdvCiv-SAS 5240; see [update notes](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/) and the CFC download/update page for [that version](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/)). To keep files readable, we consolidated long comments into [Long_Comments/](/Long_Comments/). See details in [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb) and [PR #17](/pull/17).
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG
+index ad7a27d55..45a1c2239 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.627_sevopedia_world_sizes_chart.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=14612

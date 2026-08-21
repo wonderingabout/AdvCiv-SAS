@@ -1,0 +1,160 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1765
+# Commit: da459d97dedf6e1b54aa558aaca4a87ccc7f6a67
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d166644ae54c501cb441eebf322e201fb5020ddf
+# Title: Some polishing on the previous commit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	14	CvGameCoreDLL/CvCityAI.cpp
+3	3	CvGameCoreDLL/CvCityAI.h
+3	2	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlot.h
+3	1	CvGameCoreDLL/FAssert.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index eb3f4c758..59ba013d7 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6877,17 +6877,13 @@ bool CvCityAI::AI_isGoodPlot(int iPlot, int* aiYields) const
+ 
+ 		if (eBuild != NO_BUILD)
+ 		{
+-			for (YieldTypes y = (YieldTypes)0; y < NUM_YIELD_TYPES; y=(YieldTypes)(y+1))
+-			{
+-				aiYields[y] = pPlot->getYieldWithBuild(eBuild, y, true);
+-			}
++			FOR_EACH_ENUM(Yield)
++				aiYields[eLoopYield] = pPlot->getYieldWithBuild(eBuild, eLoopYield, true);
+ 		}
+ 		else
+ 		{
+-			for (YieldTypes y = (YieldTypes)0; y < NUM_YIELD_TYPES; y=(YieldTypes)(y+1))
+-			{
+-				aiYields[y] = pPlot->getYield(y);
+-			}
++			FOR_EACH_ENUM(Yield)
++				aiYields[eLoopYield] = pPlot->getYield(eLoopYield);
+ 		}
+ 	}
+ 
+@@ -9457,10 +9453,11 @@ int CvCityAI::AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel, int iNewAng
+ 	return iCost;
+ } // K-Mod end
+ 
+-/*  advc.enum: Param was a pointer to a CvPlot member array of yields.
+-	Replaced all uses of that param with kPlot.getYield(YieldTypes), which,
+-	due to inlining, should be just as fast. */ 
+-bool CvCityAI::AI_potentialPlot(CvPlot const& kPlot) const
++//  advc.enum: Param was a pointer to a CvPlot member array of yields.
++//	Replaced all uses of that param with kPlot.getYield(YieldTypes), which,
++//	due to inlining, should be just as fast.
++// Never mind - it's unused anyway.
++/*bool CvCityAI::AI_potentialPlot(CvPlot const& kPlot) const
+ {
+ 	int iNetFood = kPlot.getYield(YIELD_FOOD) - GC.getFOOD_CONSUMPTION_PER_POPULATION();
+ 	if (iNetFood < 0)
+@@ -9479,7 +9476,6 @@ bool CvCityAI::AI_potentialPlot(CvPlot const& kPlot) const
+ 	return true;
+ }
+ 
+-
+ bool CvCityAI::AI_foodAvailable(int iExtra) const
+ {
+ 	PROFILE_FUNC();
+@@ -9536,7 +9532,7 @@ bool CvCityAI::AI_foodAvailable(int iExtra) const
+ 		return false;
+ 
+ 	return true;
+-}
++}*/
+ 
+ // K-Mod: I've rewritten large chunks of this function. I've deleted much of the original code, rather than commenting it; just to keep things a bit tidier and clearer.
+ // Note. I've changed the scale to match the building evaluation code: ~4x commerce.
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index d6e3e1fbe..957ce82fe 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -212,9 +212,9 @@ protected:
+ 	bool AI_removeWorstCitizen(SpecialistTypes eIgnoreSpecialist = NO_SPECIALIST);
+ 	void AI_juggleCitizens();
+ 	int AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel = 0, int iNewAnger = 0, int iAngerTimer = 0); // K-Mod
+-
+-	bool AI_potentialPlot(CvPlot const& kPlot) const; // advc.enum: param was 'short* piYields'
+-	bool AI_foodAvailable(int iExtra = 0) const;
++	// advc: Both unused
++	/*bool AI_potentialPlot(CvPlot const& kPlot) const; // advc.enum: param was 'short* piYields'
++	bool AI_foodAvailable(int iExtra = 0) const;*/
+ 	//int AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false, bool bIgnoreStarvation = false, bool bWorkerOptimization = false) const;
+ 	//int AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false, bool bIgnoreStarvation = false) const;
+ 	// K-Mod. Note: iGrowthValue < 0 means "automatic". It will use AI_growthValuePerFood. iGrowthValue == 0 means "ignore growth".
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6738c96e1..af86bca2d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -19873,8 +19873,9 @@ PlayerTypes CvPlayer::getSplitEmpirePlayer(CvArea const& kArea) const // advc: w
+ 		for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
+ 		{
+ 			if (!GET_PLAYER((PlayerTypes)i).isAlive())
+-			{	// advc.test (see under dlph.24 in manual)
+-				FAssertMsg(false, "About to reuse a defeated player -- this may or may not work correctly");
++			{	/*  advc.test (see under dlph.24 in manual). No need for a warning if
++					there's only one city. AI_doSplit won't actually split then. */
++				FAssertMsg(kArea.getCitiesPerPlayer(getID()) <= 1 && !isHuman(), "About to reuse a defeated player -- this may or may not work correctly");
+ 				eNewPlayer = (PlayerTypes)i;
+ 				break;
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 8d85ed469..bf832d1c2 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -700,6 +700,7 @@ protected:
+ 	// BETTER_BTS_AI_MOD, Efficiency (plot danger cache), 08/21/09, jdog5000: START
+ 	//bool m_bActivePlayerNoDangerCache;
+ 	mutable int m_iActivePlayerSafeRangeCache; // K-Mod (the bbai implementation was flawed)
++	// <advc.enum>
+ 	mutable EnumMap<TeamTypes,bool> m_abBorderDangerCache;
+ 	// BETTER_BTS_AI_MOD: END  // advc: 2x mutable
+ 
+@@ -719,7 +720,7 @@ protected:
+ 	EnumMap<BuildTypes,short> m_aiBuildProgress;
+ 	EnumMap2D<PlayerTypes,CultureLevelTypes,char> m_aaiCultureRangeCities;
+ 	EnumMap2D<TeamTypes,InvisibleTypes,short> m_aaiInvisibleVisibilityCount;
+-
++	// </advc.enum>
+ 	CvFeature* m_pFeatureSymbol;
+ 	CvRoute* m_pRouteSymbol;
+ 	CvRiver* m_pRiverSymbol;
+
+diff --git a/CvGameCoreDLL/FAssert.h b/CvGameCoreDLL/FAssert.h
+index ea35c1a08..ab58ccd78 100644
+--- a/CvGameCoreDLL/FAssert.h
++++ b/CvGameCoreDLL/FAssert.h
+@@ -12,7 +12,9 @@
+ #endif
+ 
+ #ifdef FASSERT_ENABLE
+-
++/*  advc.make: Inlining functions with assertions could be a bad choice. Let's
++	at least not force-inline. */
++#define __forceinline inline
+ #ifdef WIN32
+ 
+ bool FAssertDlg( const char*, const char*, const char*, unsigned int, bool& );
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=5531

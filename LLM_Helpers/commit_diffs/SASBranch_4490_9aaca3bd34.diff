@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4490
+# Commit: 9aaca3bd34e1b4ede8aacfffa465bdc2e2b8ac61
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 919a0918f4472202bf63daac3967781eaedb4a12
+# Title: rename improvements yied txt keys to "natural bonus tile yields" and "improvements bonus tile yields" making it extra clear improvements bonuses are only loc...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	11	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index 7fd353a0e..3c77f29b3 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -80,25 +80,33 @@
+ 		<Italian>Forme di governo e Religioni preferite</Italian>
+ 		<Spanish>Principio y religi�n favoritos</Spanish>
+ 	</TEXT>
++	<!-- custom: translate everything technical i want to
++	clarify in English, not sure the translation are
++	accurate (enough), about this i mean anyways, at least
++	i mean anyways, i mean anyways, thanks, -->
+ 	<!-- advc.004y: To replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT.
+ 		 I've kept the FIS translations from there. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_IMPROVEMENT_YIELD</Tag>
+-		<English>Improvement Yields</English>
+-		<French>Am&#233;nagements</French>
+-		<German>Gesteigerte Ertr�ge</German>
+-		<Italian>Miglioramenti</Italian>
+-		<Spanish>Mejoras</Spanish>
+-	</TEXT>
++		<English>Improvements Bonus Tile Yields</English>
++		<French>Improvements Bonus Tile Yields</French>
++		<German>Improvements Bonus Tile Yields</German>
++		<Italian>Improvements Bonus Tile Yields</Italian>
++		<Spanish>Improvements Bonus Tile Yields</Spanish>
++	</TEXT>
++	<!-- custom: update to a clearer name, not translating
++	though, easier this way, hopefully clear enough else
++	i may make a mistake in translation, but worth improving
++	about this i mean anyways -->
+ 	<!-- advc.004y: From CIV4GameTextInfos.xml. Only English and German
+ 		 changed. -->
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS</Tag>
+-		<English>Bonus Resources</English>
+-		<French>Rendement bonus</French>
+-		<German>Bonusressourcen</German>
+-		<Italian>Prodotti bonus</Italian>
+-		<Spanish>Rendim. bonif.</Spanish>
++		<English>Natural Bonus Tile Yields</English>
++		<French>Natural Bonus Tile Yields</French>
++		<German>Natural Bonus Tile Yields</German>
++		<Italian>Natural Bonus Tile Yields</Italian>
++		<Spanish>Natural Bonus Tile Yields</Spanish>
+ 	</TEXT>
+ 		<!-- advc.004y: Originally in CIV4GameTextInfos.xml. Only removed the
+ 		 parentheses and "Total"; more comprehensible this way. -->
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2151

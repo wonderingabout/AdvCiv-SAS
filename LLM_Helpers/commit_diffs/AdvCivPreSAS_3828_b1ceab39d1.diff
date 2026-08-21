@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3828
+# Commit: b1ceab39d1ec87c502c836ae2ca398bf02575e12
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f9ad9fb5c11e02575faa2bb8f1cda2e0e6e0d30e
+# Title: Let "Stacker" specialist buttons show specialist help
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	5	CvGameCoreDLL/CvDLLWidgetData.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 14f73de8e..b4a3d39ec 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3344,10 +3344,11 @@ void CvDLLWidgetData::parseChangeSpecialistHelp(
+ 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
+ 	if (pHeadSelectedCity == NULL)
+ 		return;
+-
+-	if (widgetDataStruct.m_iData2 > 0)
++	SpecialistTypes const eSpecialist = (SpecialistTypes)widgetDataStruct.m_iData1;
++	int const iChange = widgetDataStruct.m_iData2;
++	if (iChange > 0)
+ 	{
+-		GAMETEXT.parseSpecialistHelp(szBuffer, (SpecialistTypes)widgetDataStruct.m_iData1, pHeadSelectedCity);
++		GAMETEXT.parseSpecialistHelp(szBuffer, eSpecialist, pHeadSelectedCity);
+ 		if (widgetDataStruct.m_iData1 != GC.getDEFAULT_SPECIALIST())
+ 		{
+ 			if (!GET_PLAYER(pHeadSelectedCity->getOwner()).
+@@ -3366,9 +3367,16 @@ void CvDLLWidgetData::parseChangeSpecialistHelp(
+ 	}
+ 	else
+ 	{
+-		szBuffer.assign(gDLL->getText("TXT_KEY_MISC_REMOVE_SPECIALIST", GC.getInfo(
++		/*	<advc.004> Stacker display has no separate remove button;
++			should therefore show yields regardless of iChange. */
++		bool const bStacker = (BUGOption::getValue("CityScreen__Specialists", 2) == 1);
++		if (bStacker)
++		{
++			GAMETEXT.parseSpecialistHelp(szBuffer, eSpecialist, pHeadSelectedCity);
++			szBuffer.append(NEWLINE);
++		} // </advc.004>
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_REMOVE_SPECIALIST", GC.getInfo(
+ 				(SpecialistTypes)widgetDataStruct.m_iData1).getTextKeyWide()));
+-
+ 		if (pHeadSelectedCity->getForceSpecialistCount((SpecialistTypes)widgetDataStruct.m_iData1) > 0)
+ 		{
+ 			szBuffer.append(NEWLINE);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1676

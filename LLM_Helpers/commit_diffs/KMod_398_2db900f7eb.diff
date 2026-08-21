@@ -1,0 +1,118 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 398
+# Commit: 2db900f7eb848d4db7c6b6d237feb62bcda5833a
+# History segment: K-Mod history
+# Parent used for diff: 41fb90cb77ada37e6879fd5e9527e383cd3cb549
+# Title: Fixed a rare crash bug in AI_getWeightedOdds (caused when a seige unit considers attacking something outside their combat limit. Added MOVE_DECLARE_WAR to th...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	19	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index b528b4bcc..7ef577ae0 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1285,6 +1285,9 @@ bool CvUnitAI::AI_considerPathDOW(CvPlot* pPlot, int iFlags)
+ {
+ 	PROFILE_FUNC();
+ 
++	if (!(iFlags & MOVE_DECLARE_WAR))
++		return false;
++
+ 	if (!generatePath(pPlot, iFlags, true))
+ 	{
+ 		FAssertMsg(false, "AI_considerPathDOW didn't find a path.");
+@@ -16184,28 +16187,21 @@ bool CvUnitAI::AI_blockade()
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvCity* pCity;
+-	CvPlot* pLoopPlot;
+-	CvPlot* pBestPlot;
+-	CvPlot* pBestBlockadePlot;
+-	int iPathTurns;
+-	int iValue;
+-	int iBestValue;
+-	int iI;
++	int iBestValue = 0;
++	CvPlot* pBestPlot = NULL;
++	CvPlot* pBestBlockadePlot = NULL;
+ 
+-	iBestValue = 0;
+-	pBestPlot = NULL;
+-	pBestBlockadePlot = NULL;
++	int iFlags = MOVE_DECLARE_WAR; // K-Mod
+ 
+-	for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++	for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 	{
+-		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+ 
+ 		if (AI_plotValid(pLoopPlot))
+ 		{
+ 			if (potentialWarAction(pLoopPlot))
+ 			{
+-				pCity = pLoopPlot->getWorkingCity();
++				CvCity* pCity = pLoopPlot->getWorkingCity();
+ 
+ 				if (pCity != NULL)
+ 				{
+@@ -16219,9 +16215,10 @@ bool CvUnitAI::AI_blockade()
+ 							{
+ 								if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BLOCKADE, getGroup(), 2) == 0)
+ 								{
+-									if (generatePath(pLoopPlot, 0, true, &iPathTurns))
++									int iPathTurns;
++									if (generatePath(pLoopPlot, iFlags, true, &iPathTurns))
+ 									{
+-										iValue = 1;
++										int iValue = 1;
+ 
+ 										iValue += std::min(pCity->getPopulation(), pCity->countNumWaterPlots());
+ 
+@@ -16273,7 +16270,7 @@ bool CvUnitAI::AI_blockade()
+ 		if (atPlot(pBestBlockadePlot) && !isEnemy(pBestBlockadePlot->getTeam(), pBestBlockadePlot))
+ 		{
+ 			//getGroup()->groupDeclareWar(pBestBlockadePlot, true);
+-			AI_considerPathDOW(pBestBlockadePlot, 0); // K-Mod
++			AI_considerPathDOW(pBestBlockadePlot, iFlags); // K-Mod
+ 		}
+ 
+ 		if (atPlot(pBestBlockadePlot))
+@@ -16291,7 +16288,7 @@ bool CvUnitAI::AI_blockade()
+ 		else
+ 		{
+ 			FAssert(!atPlot(pBestPlot));
+-			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), 0, false, false, MISSIONAI_BLOCKADE, pBestBlockadePlot);
++			getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), iFlags, false, false, MISSIONAI_BLOCKADE, pBestBlockadePlot);
+ 			return true;
+ 		}
+ 	}
+@@ -24116,9 +24113,11 @@ int CvUnitAI::AI_finalOddsThreshold(CvPlot* pPlot, int iOddsThreshold)
+ // (note: I would like to put this in CvSelectionGroupAI ... but - well - I don't need to say it, right?
+ int CvUnitAI::AI_getWeightedOdds(CvPlot* pPlot, bool bPotentialEnemy)
+ {
++	PROFILE_FUNC();
+ 	int iOdds;
+ 	CvUnit* pAttacker = getGroup()->AI_getBestGroupAttacker(pPlot, bPotentialEnemy, iOdds);
+-	FAssert(pAttacker);
++	if (!pAttacker)
++		return 0;
+ 	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), pAttacker, !bPotentialEnemy, bPotentialEnemy);
+ 
+ 	if (!pDefender)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3218

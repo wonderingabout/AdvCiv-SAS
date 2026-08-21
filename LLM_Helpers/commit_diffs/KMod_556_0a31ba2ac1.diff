@@ -1,0 +1,98 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 556
+# Commit: 0a31ba2ac199b223e68ba390a5b9b80e02d802a2
+# History segment: K-Mod history
+# Parent used for diff: 057b0f5a5ae440fcea88c53c730a1c4dfe9b65ba
+# Title: Made some changes to the exec value in AI_bestSpreadUnit. In particular, it no longer cares about how much the corp costs to spread. (If anywhere, that cost...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	3	CvGameCoreDLL/CvCityAI.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 8b6b925ec..8369898a9 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -661,7 +661,8 @@ int CvCityAI::AI_specialistValue(SpecialistTypes eSpecialist, bool bAvoidGrowth,
+ 			// (note: I haven't tried to match this value decrease with the actual cost increase,
+ 			// because the value of the great people changes as well.)
+ 			iTempValue *= 100;
+-			iTempValue /= 90 + 10 * kOwner.getGreatPeopleCreated();
++			iTempValue /= 90 + 7 * kOwner.getGreatPeopleCreated(); // it would be nice if we had a flavour modifier for this.
++			//iTempValue /= 90 + kOwner.getGreatPeopleCreated() * 900/std::max(10, kOwner.AI_getGreatPersonWeight((UnitClassTypes)GC.getSpecialistInfo(eSpecialist).getGreatPeopleUnitClass()));
+ 		}
+ 
+ 		iTempValue *= getTotalGreatPeopleRateModifier();
+@@ -4526,6 +4527,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 							!kOwner.canConstruct(eLoopBuilding, false, true, false))
+ 						{
+ 							// either we don't need eBuilding in order to build eLoopBuilding, or we can't construct eLoopBuilding anyway
++							// NOTE: the above call to canConstruct will return true even if the city already has the maximum number of national wonders. This is a minor flaw in the AI.
+ 							continue;
+ 						}
+ 
+@@ -8562,6 +8564,7 @@ bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseCha
+ 								{
+ 									if (canTrain(eLoopUnit))
+ 									{
++										/* original bts code
+ 										int iValue = iCorporationValue;
+ 										iValue /= kUnitInfo.getProductionCost();
+ 
+@@ -8579,8 +8582,17 @@ bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseCha
+ 												}
+ 											}
+ 										}
+-										iCorporationValue /= std::max(1, (iTotalCount / 4) + iPlotCount);
++										iCorporationValue /= std::max(1, (iTotalCount / 4) + iPlotCount); */
++										// K-Mod
++										int iExistingUnits = kPlayer.getUnitClassCount((UnitClassTypes)iI) + kPlayer.getUnitClassMaking((UnitClassTypes)iI)/2;
++										iCorporationValue *= 3;
++										iCorporationValue /= iExistingUnits > 1 ? 2 + iExistingUnits : 3;
++
++										int iValue = iCorporationValue;
++										iValue /= kUnitInfo.getProductionCost();
++										// K-Mod end
+ 
++										/* original bts code
+ 										int iCost = std::max(0, GC.getCorporationInfo(eCorporation).getSpreadCost() * (100 + GET_PLAYER(getOwnerINLINE()).calculateInflationRate()));
+ 										iCost /= 100;
+ 
+@@ -8596,7 +8608,7 @@ bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseCha
+ 										else if (iTotalCount > 1)
+ 										{
+ 											iCorporationValue /= 5;
+-										}
++										} */
+ 										if (iValue > iBestValue)
+ 										{
+ 											iBestValue = iValue;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0cd93adbe..e0ba04cc3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12140,7 +12140,8 @@ int CvPlayerAI::AI_executiveValue(CvArea* pArea, CorporationTypes eCorporation,
+ 					else if (GET_TEAM(kLoopPlayer.getTeam()).isVassal(getTeam()))
+ 						iAttitudeWeight = 50;
+ 					else
+-						iAttitudeWeight = AI_getAttitudeWeight((PlayerTypes)iPlayer) - 75;
++						iAttitudeWeight = AI_getAttitudeWeight((PlayerTypes)iPlayer) - (isHuman() ? 125 : 75);
++					// note: this is to discourage automated human units from spreading to the AI, not AI to human.
+ 
+ 					// a rough check to save us some time.
+ 					if (iAttitudeWeight <= 0 && iSpreadExternalValue <= 0)
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3613

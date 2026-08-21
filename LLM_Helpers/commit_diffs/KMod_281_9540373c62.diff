@@ -1,0 +1,122 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 281
+# Commit: 9540373c62b9feed61bde94121d51a763b126e52
+# History segment: K-Mod history
+# Parent used for diff: bb3487370bbe67ba4ad1804979d1c5ab6ce112fb
+# Title: Adjusted some BUG default settings, and fixed some minor interface problems.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Config/Advanced Scoreboard.xml
+2	2	Assets/Config/BUG Advisors.xml
+4	4	Assets/Config/BUG City Screen.xml
+1	2	Assets/Python/Screens/CvInfoScreen.py
+1	1	Assets/Python/Screens/EconomicsAdvisor.py
+
+[PATCHES]
+
+diff --git a/Assets/Config/Advanced Scoreboard.xml b/Assets/Config/Advanced Scoreboard.xml
+index bb0fbd3e5..5d2fb5ab6 100644
+--- a/Assets/Config/Advanced Scoreboard.xml	
++++ b/Assets/Config/Advanced Scoreboard.xml	
+@@ -98,7 +98,7 @@
+ 			
+ 			<!-- Power Ratio -->
+ 			<option id="Power" key="Power" 
+-					type="boolean" default="True" 
++					type="boolean" default="False" 
+ 					get="isShowPower" set="setShowPower" dirtyBit="Score"/>
+ 			<list   id="PowerFormula" key="Power Formula" 
+ 					type="int" default="1" listType="string"
+
+diff --git a/Assets/Config/BUG Advisors.xml b/Assets/Config/BUG Advisors.xml
+index 46934416d..8ae1477c1 100644
+--- a/Assets/Config/BUG Advisors.xml	
++++ b/Assets/Config/BUG Advisors.xml	
+@@ -32,7 +32,7 @@
+ 				<choice id="Both" get="isShowGlanceNumbers isShowGlanceSmilies"/>
+ 			</list>
+ 			<option id="EFAImprovedInfo" key="EFA Improved Info" 
+-					type="boolean" default="False" 
++					type="boolean" default="True" 
+ 					get="isUseImprovedEFAInfo"/>
+ 			<option id="EFADealTurnsLeft" key="EFA Deal Turns Left" 
+ 					type="boolean" default="True" 
+@@ -82,7 +82,7 @@
+ 					type="boolean" default="False" 
+ 					get="isGraphsLogScale"/>
+ 			<option id="BugStatsTab" key="Improvements" 
+-					type="boolean" default="False" 
++					type="boolean" default="True" 
+ 					get="isShowImprovements"/>
+ 			<option id="BugInfoWonders" key="Wonders" 
+ 					type="boolean" default="False"
+
+diff --git a/Assets/Config/BUG City Screen.xml b/Assets/Config/BUG City Screen.xml
+index 9447bd64a..3e7fe309a 100644
+--- a/Assets/Config/BUG City Screen.xml	
++++ b/Assets/Config/BUG City Screen.xml	
+@@ -54,20 +54,20 @@
+ 			
+ 			<!-- Culture Turns by Chinese American -->
+ 			<option id="CultureTurns" key="Culture Turns" 
+-					type="boolean" default="False" 
++					type="boolean" default="True" 
+ 					get="isShowCultureTurns" dirtyBit="CityScreen"/>
+ 			
+ 			<!-- Great Person Info by Chinese American, EmperorFool -->
+ 			<option id="GreatPersonTurns" key="Great Person Turns" 
+-					type="boolean" default="False" 
++					type="boolean" default="True" 
+ 					get="isShowGreatPersonTurns" dirtyBit="CityScreen"/>
+ 			<option id="GreatPersonInfo" key="Great Person Info" 
+-					type="boolean" default="False" 
++					type="boolean" default="True" 
+ 					get="isShowCityGreatPersonInfo" dirtyBit="CityScreen"/>
+ 			
+ 			<!-- Anger Counter by Ruff_Hi -->
+ 			<option id="Anger_Counter" key="Anger Counter" 
+-					type="boolean" default="False" 
++					type="boolean" default="True" 
+ 					get="isShowAngerCounter" dirtyBit="CityScreen"/>
+ 			
+ 			<!-- Show Only Present and Extra Religions/Corporations by johny smith -->
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index ce49adc74..dc71204cc 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -813,8 +813,7 @@ class CvInfoScreen:
+ 			screen.setText(self.sGraph1in1, "", "1/1", CvUtil.FONT_CENTER_JUSTIFY, 22,  90, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			screen.setText(self.sGraph3in1, "", "3/1", CvUtil.FONT_CENTER_JUSTIFY, 22, 110, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			screen.setText(self.sGraph7in1, "", "7/1", CvUtil.FONT_CENTER_JUSTIFY, 22, 130, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-
+-		screen.setLabel(self.getNextWidgetName(), "", self.BUG_GRAPH_HELP, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_EXIT - 40, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++			screen.setLabel(self.getNextWidgetName(), "", self.BUG_GRAPH_HELP, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_EXIT - 40, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		self.iNumPreDemoChartWidgets = self.nWidgetCount
+
+diff --git a/Assets/Python/Screens/EconomicsAdvisor.py b/Assets/Python/Screens/EconomicsAdvisor.py
+index 6c9d29f83..7f9c9b0ed 100644
+--- a/Assets/Python/Screens/EconomicsAdvisor.py
++++ b/Assets/Python/Screens/EconomicsAdvisor.py
+@@ -96,7 +96,7 @@ class EconomicsAdvisor:
+ 		if (CyGame().isDebugMode()):
+ 			self.szDropdownName = self.DEBUG_DROPDOWN_ID
+ 			screen.addDropDownBoxGFC(self.szDropdownName, 22, 12, 300, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.GAME_FONT)
+-			for j in range(gc.getMAX_PLAYERS()):
++			for j in range(gc.getMAX_CIV_PLAYERS()):
+ 				if (gc.getPlayer(j).isAlive()):
+ 					screen.addPullDownString(self.szDropdownName, gc.getPlayer(j).getName(), j, j, False )
+ 		self.drawContents()
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=4473

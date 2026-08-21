@@ -1,0 +1,685 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2468
+# Commit: f91c93bea834f12a3f5da1894d8afaa1a07b4cac
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bd28bb2c7e04f29c866aa3f123344ee21e2ac98f
+# Title: Show score graph (Info screen) regardless of espionage
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+66	25	Assets/Python/Screens/CvInfoScreen.py
+31	0	CvGameCoreDLL/CvPlayer.cpp
+7	0	CvGameCoreDLL/CvPlayer.h
+49	22	CvGameCoreDLL/CvTeam.cpp
+7	6	CvGameCoreDLL/CvTeam.h
+5	1	CvGameCoreDLL/CyPlayer.cpp
+1	0	CvGameCoreDLL/CyPlayer.h
+2	0	CvGameCoreDLL/CyPlayerInterface1.cpp
+5	0	CvGameCoreDLL/CyTeam.cpp
+1	0	CvGameCoreDLL/CyTeam.h
+1	0	CvGameCoreDLL/CyTeamInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index de3814ab5..da10edec1 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -26,6 +26,7 @@ import BugUtil
+ AdvisorOpt = BugCore.game.Advisors
+ ScoreOpt = BugCore.game.Scores
+ #BUG: Change Graphs - end
++import copy # advc.091
+ 
+ # globals
+ gc = CyGlobalContext()
+@@ -865,9 +866,17 @@ class CvInfoScreen:
+ 
+ #		print("Rebuilding score cache")
+ 
++		# <advc.091>
++		aiCachePlayers = copy.copy(self.aiPlayersMet)
++		if scoreType == self.TOTAL_SCORE:
++			for p in self.aiPlayersMetNAEspionage:
++				if self.showTotalScoreGraph(p):
++					aiCachePlayers.append(p)
++		# </advc.091>
++
+ 		# Get the player with the highest ID
+ 		maxPlayer = 0
+-		for p in self.aiPlayersMet:
++		for p in aiCachePlayers: # advc.091: was self.aiPlayersMet
+ 			if (maxPlayer < p):
+ 				maxPlayer = p
+ 
+@@ -875,7 +884,7 @@ class CvInfoScreen:
+ 		self.scoreCache[scoreType] = []
+ 		for p in range(maxPlayer + 1):
+ 
+-			if (p not in self.aiPlayersMet):
++			if (p not in aiCachePlayers): # advc.091: was self.aiPlayersMet
+ 				# Don't compute score for people we haven't met
+ 				self.scoreCache[scoreType].append(None)
+ 			else:
+@@ -883,8 +892,15 @@ class CvInfoScreen:
+ 				firstTurn	= CyGame().getStartTurn()
+ 				thisTurn	= CyGame().getGameTurn()
+ 				turn	= firstTurn
++				# advc.091:
++				bHideBeginning = (scoreType == self.TOTAL_SCORE and not self.pActivePlayer.hasEverSeenDemographics(p) and p in self.aiPlayersMetNAEspionage)
+ 				while (turn <= thisTurn):
+-					self.scoreCache[scoreType][p].append(self.computeHistory(scoreType, p, turn))
++					# <advc.091>
++					if bHideBeginning and turn < self.pActiveTeam.getHasMetTurn(gc.getPlayer(p).getTeam()):
++						score = -1
++					else: # </advc.091>
++						score = self.computeHistory(scoreType, p, turn)
++					self.scoreCache[scoreType][p].append(score)
+ 					turn += 1
+ 
+ 		return
+@@ -1129,6 +1145,9 @@ class CvInfoScreen:
+ 		for p in self.aiPlayersMet:
+ 			for turn in range(firstTurn,lastTurn + 1):
+ 				score = self.getHistory(iGraphID, p, turn - startTurn)
++				# <advc.091>
++				if score < 0:
++					continue # </advc.091>
+ 				if (max < score):
+ 					max = score
+ 				if (min > score):
+@@ -1154,8 +1173,16 @@ class CvInfoScreen:
+ #		self.timer.log("drawGraph - max, min")
+ #		self.timer.start()
+ 
++		# <advc.091>
++		aiLinePlayers = copy.copy(self.aiPlayersMet)
++		if iGraphID == self.TOTAL_SCORE:
++			for p in self.aiPlayersMetNAEspionage:
++				if self.showTotalScoreGraph(p):
++					aiLinePlayers.append(p)
++		# </advc.091>
++
+ 		# Draw the lines
+-		for p in self.aiPlayersMet:
++		for p in aiLinePlayers: # advc.091: was self.aiPlayersMet
+ 
+ #BUG: Change Graphs - start
+ 			if AdvisorOpt.isGraphs():
+@@ -1179,6 +1206,10 @@ class CvInfoScreen:
+ 			while (turn >= firstTurn):
+ 
+ 				score = self.getHistory(iGraphID, p, turn - startTurn)
++				# <advc.091>
++				if score < 0:
++					turn -= 1
++					continue # </advc.091>
+ 				if AdvisorOpt.isGraphsLogScale():
+ 					y = iH_GRAPH - int(yFactor * (self.getLog10(score) - self.getLog10(min)))
+ 				else:
+@@ -1223,31 +1254,41 @@ class CvInfoScreen:
+ 
+ 	def drawLegend(self):
+ 		screen = self.getScreen()
++		# <advc.091>
++		aiLegendPlayers = copy.copy(self.aiPlayersMet)
++		bIgnoreEspionage = False
++		if not AdvisorOpt.isGraphs() or (self.Graph_Status_Current == self.Graph_Status_7in1 or (self.Graph_Status_Current == self.Graph_Status_3in1 and (self.iGraph_3in1[0] == self.TOTAL_SCORE or self.iGraph_3in1[1] == self.TOTAL_SCORE) or self.iGraph_3in1[2] == self.TOTAL_SCORE) or (self.Graph_Status_Current == self.Graph_Status_1in1 and self.iGraphTabID == self.TOTAL_SCORE)):
++			bIgnoreEspionage = True
++		if bIgnoreEspionage:
++			for p in self.aiPlayersMetNAEspionage:
++				if self.showTotalScoreGraph(p):
++					aiLegendPlayers.append(p)
++		# </advc.091>
+ 
+ #BUG: Change Graphs - start
+ 		iW_LEGEND = self.W_LEGEND
+ 		if AdvisorOpt.isGraphs():
+-			for p in self.aiPlayersMet:
++			for p in aiLegendPlayers:
+ 				szPlayerName = self.getPlayerName(p)
+ 				if not gc.getPlayer(p).isAlive(): szPlayerName += " [" + self.BUG_LEGEND_DEAD + "]"
+-
+ 				if iW_LEGEND < self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10:
+ 					iW_LEGEND = self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10
+-
+ 			for p in self.aiPlayersMetNAEspionage:
++				# <advc.091>
++				if bIgnoreEspionage and self.showTotalScoreGraph(p):
++					continue # </advc.091>
+ 				szPlayerName = self.getPlayerName(p)
+ 				if not gc.getPlayer(p).isAlive(): szPlayerName += " [" + self.BUG_LEGEND_DEAD + "]"
+-
+ 				if iW_LEGEND < self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10:
+ 					iW_LEGEND = self.X_LEGEND_TEXT + CyInterface().determineWidth(szPlayerName) + 10
+-
++		iLegendRows = self.iNumPlayersMet + self.iNumPlayersMetNAEspionage # advc.091
+ 		if not AdvisorOpt.isGraphs():
+-			self.H_LEGEND = 2 * self.Y_LEGEND_MARGIN + self.iNumPlayersMet * self.H_LEGEND_TEXT + 3
++			self.H_LEGEND = 2 * self.Y_LEGEND_MARGIN + iLegendRows * self.H_LEGEND_TEXT + 3
+ 			if AdvisorOpt.isGraphsLogScale():
+ 				self.H_LEGEND += self.H_LEGEND_TEXT
+ 			self.Y_LEGEND = self.Y_GRAPH + self.H_GRAPH - self.H_LEGEND
+ 		else:
+-			self.H_LEGEND = 2 * self.Y_LEGEND_MARGIN + (self.iNumPlayersMet + self.iNumPlayersMetNAEspionage + 4) * self.H_LEGEND_TEXT + 3
++			self.H_LEGEND = 2 * self.Y_LEGEND_MARGIN + (iLegendRows + 4) * self.H_LEGEND_TEXT + 3
+ 			if AdvisorOpt.isGraphsLogScale():
+ 				self.H_LEGEND += self.H_LEGEND_TEXT
+ 
+@@ -1270,16 +1311,16 @@ class CvInfoScreen:
+ 		yLine = self.Y_LEGEND_LINE
+ 		yText = self.Y_LEGEND + self.Y_LEGEND_TEXT
+ 
+-		for p in self.aiPlayersMet:
++		for p in aiLegendPlayers:
+ #BUG: Change Graphs - start
+ 			if AdvisorOpt.isGraphs():
+ 				name = self.getPlayerName(p)
+ 			else:
+ 				name = gc.getPlayer(p).getName()
+ 
+-			i = gc.getPlayer(p).getID()
+-			if (self.bPlayerInclude[i]
+-			or not AdvisorOpt.isGraphs()):
++			#i = gc.getPlayer(p).getID() # advc: redundant
++			# advc.091: No line when there'll be no graph - also with the non-BUG Advisor
++			if self.bPlayerInclude[p] or (not AdvisorOpt.isGraphs() and (p in self.aiPlayersMet or (self.iGraphTabID == self.TOTAL_SCORE and p in self.aiPlayersMetNAEspionage and self.showTotalScoreGraph(p)))):
+ 				textColorR = gc.getPlayer(p).getPlayerTextColorR()
+ 				textColorG = gc.getPlayer(p).getPlayerTextColorG()
+ 				textColorB = gc.getPlayer(p).getPlayerTextColorB()
+@@ -1298,10 +1339,10 @@ class CvInfoScreen:
+ 
+ #BUG: Change Graphs - start
+ 			if AdvisorOpt.isGraphs():
+-				screen.setText(self.sPlayerTextWidget[i], "", u"<font=2>" + str + u"</font>", CvUtil.FONT_LEFT_JUSTIFY,
++				screen.setText(self.sPlayerTextWidget[p], "", u"<font=2>" + str + u"</font>", CvUtil.FONT_LEFT_JUSTIFY,
+ 							   self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			else:
+-				screen.setLabel(self.sPlayerTextWidget[i], "", u"<font=2>" + str + u"</font>", CvUtil.FONT_LEFT_JUSTIFY,
++				screen.setLabel(self.sPlayerTextWidget[p], "", u"<font=2>" + str + u"</font>", CvUtil.FONT_LEFT_JUSTIFY,
+ 								self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ #BUG: Change Graphs - end
+ 
+@@ -1315,10 +1356,11 @@ class CvInfoScreen:
+ 			yLine += self.H_LEGEND_TEXT
+ 			yText += self.H_LEGEND_TEXT
+ 			for p in self.aiPlayersMetNAEspionage:
++				# <advc.091>
++				if bIgnoreEspionage and self.showTotalScoreGraph(p):
++					continue # </advc.091>
+ 				i = gc.getPlayer(p).getID()
+-
+ 				name = self.getPlayerName(p)
+-
+ 				if not gc.getPlayer(p).isAlive(): # player is dead!
+ 					textColorR = 175
+ 					textColorG = 175
+@@ -1330,12 +1372,8 @@ class CvInfoScreen:
+ 					textColorG = gc.getPlayer(p).getPlayerTextColorG()
+ 					textColorB = gc.getPlayer(p).getPlayerTextColorB()
+ 					textColorA = gc.getPlayer(p).getPlayerTextColorA()
+-
+ 				str = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
+-
+-				screen.setLabel(self.sPlayerTextWidget[i], "", u"<font=2>" + str + u"</font>", CvUtil.FONT_LEFT_JUSTIFY,
+-								self.X_LEGEND + self.X_LEGEND_TEXT + 2, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-
++				screen.setLabel(self.sPlayerTextWidget[i], "", u"<font=2>" + str + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT + 2, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				yLine += self.H_LEGEND_TEXT
+ 				yText += self.H_LEGEND_TEXT
+ 
+@@ -1367,12 +1405,15 @@ class CvInfoScreen:
+ 		return szPlayerName
+ #BUG: Change Graphs - end
+ 
++	# advc.091:
++	def showTotalScoreGraph(self, iPlayer):
++		return gc.getGame().getGameTurn() - self.pActiveTeam.getHasMetTurn(gc.getPlayer(iPlayer).getTeam()) >= 5 or self.pActivePlayer.hasEverSeenDemographics(iPlayer)
++
+ #############################################################################################################
+ ################################################# DEMOGRAPHICS ##############################################
+ #############################################################################################################
+ 
+ 	def drawDemographicsTab(self):
+-
+ 		self.drawTextChart()
+ 		
+ 	def getHappyValue(self, pPlayer):
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index cb461926b..e281b76e3 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -474,7 +474,10 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	if (!bConstructorCall && getID() != NO_PLAYER)
+ 	{
+ 		for (int i = 0; i < MAX_PLAYERS; i++)
++		{
+ 			GET_PLAYER((PlayerTypes)i).m_aiGoldPerTurnByPlayer.reset(getID());
++			GET_PLAYER((PlayerTypes)i).m_abEverSeenDemographics.reset(getID()); // advc.091
++		}
+ 	}
+ 	m_aiEspionageSpendingWeightAgainstTeam.reset();
+ 	if (!bConstructorCall && getTeam() != NO_TEAM)
+@@ -509,6 +512,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_abFeatAccomplished.reset();
+ 	m_abOptions.reset();
+ 	m_abResearchingTech.reset();
++	m_abEverSeenDemographics.reset(); // advc.091
+ 	m_abLoyalMember.reset();
+ 	m_aaeSpecialistExtraYield.reset();
+ 	m_aaeImprovementYieldChange.reset();
+@@ -6538,6 +6542,16 @@ int CvPlayer::espionageNeededToSee(PlayerTypes ePlayer, bool bDemographics) cons
+ 	return iR;
+ }
+ 
++// advc.091:
++void CvPlayer::updateEverSeenDemographics(TeamTypes eTargetTeam)
++{
++	for (MemberIter it(eTargetTeam); it.hasNext(); ++it)
++	{
++		if (!hasEverSeenDemographics(it->getID()) && canSeeDemographics(it->getID()))
++			m_abEverSeenDemographics.set(it->getID(), true);
++	}
++}
++
+ // advc.550e:
+ bool CvPlayer::isSignificantDiscovery(TechTypes eTech) const
+ {
+@@ -14004,6 +14018,21 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	m_aiUpkeepCount.Read(pStream);
+ 	m_aiSpecialistValidCount.Read(pStream);
+ 	m_abResearchingTech.Read(pStream);
++	// <advc.091>
++	if (uiFlag >= 12)
++		m_abEverSeenDemographics.Read(pStream);
++	else if(isBarbarian()) // Once all players have been loaded
++	{
++		for (PlayerIter<CIV_ALIVE> itSpyPlayer; itSpyPlayer.hasNext(); ++itSpyPlayer)
++		{
++			for (PlayerIter<CIV_ALIVE> itTargetPlayer; itTargetPlayer.hasNext();
++				++itTargetPlayer)
++			{
++				itSpyPlayer->m_abEverSeenDemographics.set(itTargetPlayer->getID(),
++						itSpyPlayer->canSeeDemographics(itTargetPlayer->getID()));
++			}
++		}
++	} // </advc.091>
+ 	m_abLoyalMember.Read(pStream);
+ 	m_aeCivics.Read(pStream);
+ 	m_aaeSpecialistExtraYield.Read(pStream);
+@@ -14360,6 +14389,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	uiFlag = 9; // advc.078
+ 	uiFlag = 10; // advc.064b
+ 	uiFlag = 11; // advc.001x
++	uiFlag = 12; // advc.091
+ 	pStream->Write(uiFlag);
+ 
+ 	// <advc.027>
+@@ -14526,6 +14556,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	m_aiUpkeepCount.Write(pStream);
+ 	m_aiSpecialistValidCount.Write(pStream);
+ 	m_abResearchingTech.Write(pStream);
++	m_abEverSeenDemographics.Write(pStream); // advc.091
+ 	m_abLoyalMember.Write(pStream);
+ 	m_aeCivics.Write(pStream);
+ 	m_aaeSpecialistExtraYield.Write(pStream);
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 0af871b25..f2d946daf 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -348,6 +348,12 @@ public:
+ 			bool bCheckPoints = true) const; // advc.085
+ 	// advc.085:
+ 	int espionageNeededToSee(PlayerTypes ePlayer, bool bDemographics) const;
++	// <advc.091>
++	bool hasEverSeenDemographics(PlayerTypes eOther) const // (exposed to python)
++	{
++		return m_abEverSeenDemographics.get(eOther);
++	}
++	void updateEverSeenDemographics(TeamTypes eTargetTeam); // </advc.091>
+ 	// advc.550e; also need it for advc.314
+ 	bool isSignificantDiscovery(TechTypes eTech) const;
+ 
+@@ -1572,6 +1578,7 @@ protected:  // <advc.210>
+ 	EnumMap<FeatTypes,bool> m_abFeatAccomplished;
+ 	EnumMap<PlayerOptionTypes,bool> m_abOptions;
+ 	EnumMap<TechTypes,bool> m_abResearchingTech;
++	EnumMap<PlayerTypes,bool> m_abEverSeenDemographics; // advc.091
+ 	EnumMapDefault<VoteSourceTypes,bool,true> m_abLoyalMember;
+ 
+ 	EnumMap2D<SpecialistTypes,YieldTypes,int> m_aaeSpecialistExtraYield;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index adb47f562..142ac8122 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -153,10 +153,10 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
+ 	m_aiTechCount.reset();
+ 	m_aiTerrainTradeCount.reset();
+ 	m_aiVictoryCountdown.reset();
++	m_aiHasMetTurn.reset(); // advc.091
+ 	m_aaiImprovementYieldChange.reset();
+ 	m_abAtWar.reset();
+ 	m_abJustDeclaredWar.reset(); // advc.162
+-	m_abHasMet.reset();
+ 	m_abHasSeen.reset(); // K-Mod
+ 	m_abPermanentWarPeace.reset();
+ 	m_abOpenBorders.reset();
+@@ -177,7 +177,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
+ 			kLoopTeam.m_aiEspionagePointsAgainstTeam.reset(getID());
+ 			kLoopTeam.m_aiCounterespionageTurnsLeftAgainstTeam.reset(getID());
+ 			kLoopTeam.m_aiCounterespionageModAgainstTeam.reset(getID());
+-			kLoopTeam.m_abHasMet.reset(getID());
++			kLoopTeam.m_aiHasMetTurn.reset(getID()); // advc.091
+ 			kLoopTeam.m_abHasSeen.reset(getID()); // K-Mod
+ 			kLoopTeam.m_abAtWar.reset(getID());
+ 			kLoopTeam.m_abJustDeclaredWar.reset(getID()); // advc.162
+@@ -2730,18 +2730,23 @@ void CvTeam::changeExtraMoves(DomainTypes eIndex, int iChange)
+ }
+ 
+ 
+-void CvTeam::makeHasMet(TeamTypes eIndex, bool bNewDiplo,
++void CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
+ 	FirstContactData* pData) // advc.071
+ {
+-	if(isHasMet(eIndex))
++	if(isHasMet(eOther))
+ 		return;
+ 
+-	makeHasSeen(eIndex); // K-mod
+-	m_abHasMet.set(eIndex, true);
+-
++	makeHasSeen(eOther); // K-Mod
++	//m_abHasMet.set(eOther, true);
++	// <advc.091>
++	{
++		int iGameTurn = GC.getGame().getGameTurn();
++		FAssert(iGameTurn >= 0);
++		m_aiHasMetTurn.set(eOther, iGameTurn);
++	} // </advc.091>
+ 	updateTechShare();
+ 
+-	/*if(GET_TEAM(eIndex).isHuman()) {
++	/*if(GET_TEAM(eOther).isHuman()) {
+ 		for (iI = 0; iI < MAX_PLAYERS; iI++) {
+ 			if (GET_PLAYER((PlayerTypes)iI).isAlive()) {
+ 				if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID()) {
+@@ -2754,15 +2759,15 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bNewDiplo,
+ 	//if (isAVassal()) ...  // advc.001: Vassal/ master meetings moved to CvTeam::meet
+ 
+ 	// report event to Python, along with some other key state
+-	CvEventReporter::getInstance().firstContact(getID(), eIndex);
++	CvEventReporter::getInstance().firstContact(getID(), eOther);
+ 	// <advc.071> ^Moved EventReporter call up // advc.001n:
+-	if(eIndex == getID() || isBarbarian() || GET_TEAM(eIndex).isBarbarian())
++	if(eOther == getID() || isBarbarian() || GET_TEAM(eOther).isBarbarian())
+ 		return; // </advc.071>
+ 
+ 	// K-Mod: Initialize attitude cache for players on our team towards player's on their team.
+ 	// advc.001: Too early for that. Moved to caller (CvTeam::meet).
+ 
+-	if (getID() == GC.getGame().getActiveTeam() || eIndex == GC.getGame().getActiveTeam())
++	if (getID() == GC.getGame().getActiveTeam() || eOther == GC.getGame().getActiveTeam())
+ 		gDLL->UI().setDirty(Score_DIRTY_BIT, true);
+ 	// <advc.071>
+ 	bool bShowMessage = (isHuman() && pData != NULL);
+@@ -2779,13 +2784,13 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bNewDiplo,
+ 	} // </advc.071>
+ 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+ 	{
+-		if (isHuman() && getID() != eIndex)
+-			declareWar(eIndex, false, NO_WARPLAN);
++		if (isHuman() && getID() != eOther)
++			declareWar(eOther, false, NO_WARPLAN);
+ 	}  // advc: reduce indentation in else branch
+ 	else if (GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode() &&
+-		bNewDiplo && !isHuman() && !isAtWar(eIndex))
++		bNewDiplo && !isHuman() && !isAtWar(eOther))
+ 	{
+-		for (PlayerIter<HUMAN,MEMBER_OF> it(eIndex); it.hasNext(); ++it)
++		for (PlayerIter<HUMAN,MEMBER_OF> it(eOther); it.hasNext(); ++it)
+ 		{
+ 			CvPlayer const& kMember = *it;
+ 			if (GET_PLAYER(getLeaderID()).canContact(kMember.getID()))
+@@ -2809,27 +2814,27 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bNewDiplo,
+ 		CvUnit const* pUnitMet = NULL;
+ 		CvPlot const* pAt = NULL;
+ 		PlayerTypes ePlayerMet = NO_PLAYER;
+-		if (pUnit1 != NULL && pUnit1->getTeam() == eIndex)
++		if (pUnit1 != NULL && pUnit1->getTeam() == eOther)
+ 		{
+ 			ePlayerMet = pUnit1->getOwner();
+ 			if (pUnit1->getPlot().isVisible(getID()))
+ 				pUnitMet = pUnit1;
+ 		}
+-		if (pUnit2 != NULL && pUnit2->getTeam() == eIndex)
++		if (pUnit2 != NULL && pUnit2->getTeam() == eOther)
+ 		{
+ 			if (ePlayerMet == NO_PLAYER)
+ 				ePlayerMet = pUnit2->getOwner();
+ 			if (pUnit2->getPlot().isVisible(getID()))
+ 				pUnitMet = pUnit2;
+ 		}
+-		if (pAt1 != NULL && pAt1->isOwned() && pAt1->getTeam() == eIndex)
++		if (pAt1 != NULL && pAt1->isOwned() && pAt1->getTeam() == eOther)
+ 		{
+ 			if (pAt1->isVisible(getID()))
+ 				pAt = pAt1;
+ 			if (ePlayerMet == NO_PLAYER)
+ 				ePlayerMet = pAt1->getOwner();
+ 		}
+-		if (pAt2 != NULL && pAt2->isOwned() && pAt2->getTeam() == eIndex)
++		if (pAt2 != NULL && pAt2->isOwned() && pAt2->getTeam() == eOther)
+ 		{
+ 			if (pAt2->isVisible(getID()))
+ 				pAt = pAt2;
+@@ -2837,7 +2842,7 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bNewDiplo,
+ 				ePlayerMet = pAt2->getOwner();
+ 		}
+ 		if (ePlayerMet == NO_PLAYER)
+-			ePlayerMet = GET_TEAM(eIndex).getLeaderID();
++			ePlayerMet = GET_TEAM(eOther).getLeaderID();
+ 		if (pUnitMet != NULL && pUnitMet->getPlot().isVisible(getID()))
+ 			pAt = pUnitMet->plot();
+ 		if (pAt == NULL) // We can't see any of their tiles or units, but they see ours.
+@@ -4745,11 +4750,15 @@ int CvTeam::getEspionagePointsAgainstTeam(TeamTypes eIndex) const
+ 
+ void CvTeam::setEspionagePointsAgainstTeam(TeamTypes eIndex, int iValue)
+ {
++	PROFILE_FUNC(); // advc.test: To be profiled
+ 	if (iValue != getEspionagePointsAgainstTeam(eIndex))
+ 	{
+ 		m_aiEspionagePointsAgainstTeam.set(eIndex, iValue);
+ 		verifySpyUnitsValidPlot();
+ 		GET_TEAM(eIndex).verifySpyUnitsValidPlot();
++		// <advc.091>
++		for (MemberIter itOurMember(getID()); itOurMember.hasNext(); ++itOurMember)
++			itOurMember->updateEverSeenDemographics(eIndex); // </advc.091>
+ 	}
+ }
+ 
+@@ -5529,7 +5538,24 @@ void CvTeam::read(FDataStreamBase* pStream)
+ 		m_aiCommerceFlexibleCount.set(COMMERCE_ESPIONAGE, 1); // </advc.120g>
+ 	m_aiExtraMoves.Read(pStream);
+ 	m_aiForceTeamVoteEligibilityCount.Read(pStream);
+-	m_abHasMet.Read(pStream);
++	// <advc.091>
++	if (uiFlag < 12)
++	{
++		EnumMap<TeamTypes,bool> abHasMet;
++		abHasMet.Read(pStream);
++		CvGame const& kGame = GC.getGame();
++		int iGameTurn = kGame.getGameTurn();
++		int iStartTurn = kGame.getStartTurn();
++		FAssert(iGameTurn >= 0 && iStartTurn >= 0);
++		for (TeamIter<> itTeam; itTeam.hasNext(); ++itTeam)
++		{
++			TeamTypes eTeam = itTeam->getID();
++			if (abHasMet.get(eTeam))
++				m_aiHasMetTurn.set(eTeam, eTeam == getID() ? iStartTurn : iGameTurn);
++		}
++	}
++	else m_aiHasMetTurn.Read(pStream);
++	// </advc.091>
+ 	/*if (uiFlag >= 1)
+ 		pStream->Read(MAX_TEAMS, m_abHasSeen);
+ 	else memcpy(m_abHasSeen, m_abHasMet, sizeof(*m_abHasSeen)*MAX_TEAMS);*/ // K-Mod
+@@ -5665,6 +5691,7 @@ void CvTeam::write(FDataStreamBase* pStream)
+ 	uiFlag = 9; // advc.opt: remove m_abVassal; advc.enum/ advc.034: write m_abDisengage[BARBARIAN_TEAM]
+ 	uiFlag = 10; // advc.101: m_iTechCount
+ 	uiFlag = 11; // advc.opt: fix m_aiVictoryCountdown bug
++	uiFlag = 12; // advc.091
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iNumMembers);
+@@ -5713,7 +5740,7 @@ void CvTeam::write(FDataStreamBase* pStream)
+ 	m_aiExtraMoves.Write(pStream);
+ 	m_aiForceTeamVoteEligibilityCount.Write(pStream);
+ 
+-	m_abHasMet.Write(pStream);
++	m_aiHasMetTurn.Write(pStream); // advc.091
+ 	m_abHasSeen.Write(pStream); // K-Mod. uiFlag >= 1
+ 	m_abAtWar.Write(pStream);
+ 	m_abJustDeclaredWar.Write(pStream); // advc.162
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 93e422b8e..1f679e955 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -250,14 +250,15 @@ public:
+ 	int getExtraMoves(DomainTypes eIndex) const;																				// Exposed to Python
+ 	void changeExtraMoves(DomainTypes eIndex, int iChange);								// Exposed to Python
+ 
+-	inline bool isHasMet(TeamTypes eIndex) const // advc.inl													// Exposed to Python
++	inline bool isHasMet(TeamTypes eOther) const // advc.inl													// Exposed to Python
+ 	{
+-		return m_abHasMet.get(eIndex);
++		return (m_aiHasMetTurn.get(eOther) >= 0); // advc.091
+ 	}
+-	void makeHasMet(TeamTypes eIndex, bool bNewDiplo,
++	int getHasMetTurn(TeamTypes eOther) { return m_aiHasMetTurn.get(eOther); } // advc.091  (exposed to Python)
++	void makeHasMet(TeamTypes eOther, bool bNewDiplo,
+ 			FirstContactData* pData = NULL); // advc.071
+-	bool isHasSeen(TeamTypes eIndex) const { return m_abHasSeen.get(eIndex); }; // K-Mod
+-	void makeHasSeen(TeamTypes eIndex) { m_abHasSeen.set(eIndex, true); }; // K-Mod
++	bool isHasSeen(TeamTypes eOther) const { return m_abHasSeen.get(eOther); }; // K-Mod
++	void makeHasSeen(TeamTypes eOther) { m_abHasSeen.set(eOther, true); }; // K-Mod
+ 	// <advc.134a>
+ 	bool isAtWarExternal(TeamTypes eIndex) const; // Exported through .def file
+ 	inline bool isAtWar(TeamTypes eIndex) const																	// Exposed to Python
+@@ -564,12 +565,12 @@ protected:
+ 	EnumMap<TechTypes,int> m_aiTechCount;
+ 	EnumMap<TerrainTypes,int> m_aiTerrainTradeCount;
+ 	EnumMapDefault<VictoryTypes,int,-1> m_aiVictoryCountdown;
++	EnumMapDefault<TeamTypes,short,-1> m_aiHasMetTurn; // advc.091
+ 
+ 	EnumMap2D<ImprovementTypes,YieldTypes,int> m_aaiImprovementYieldChange; // Should make this <...,char>
+ 
+ 	EnumMap<TeamTypes,bool> m_abAtWar;
+ 	EnumMap<TeamTypes,bool> m_abJustDeclaredWar; // advc.162
+-	EnumMap<TeamTypes,bool> m_abHasMet;
+ 	EnumMap<TeamTypes,bool> m_abHasSeen; // K-Mod
+ 	EnumMap<TeamTypes,bool> m_abPermanentWarPeace;
+ 	EnumMap<TeamTypes,bool> m_abOpenBorders;
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 4d7594997..5ca232831 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -623,8 +623,12 @@ bool CyPlayer::canSeeResearch(int /*PlayerTypes*/ ePlayer) const
+ bool CyPlayer::canSeeDemographics(int /*PlayerTypes*/ ePlayer) const
+ {
+ 	return m_pPlayer ? m_pPlayer->canSeeDemographics((PlayerTypes)ePlayer) : false;
++} // K-Mod end
++// advc.091:
++bool CyPlayer::hasEverSeenDemographics(int iPlayer) const
++{
++	return m_pPlayer ? m_pPlayer->hasEverSeenDemographics((PlayerTypes)iPlayer) : false;
+ }
+-// K-Mod end
+ 
+ bool CyPlayer::isCivic(int /*CivicTypes*/ eCivic)
+ {
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index d33967ab9..ebbe0f161 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -160,6 +160,7 @@ public:
+ 
+ 	bool canSeeResearch(int /*PlayerTypes*/ ePlayer) const; // K-Mod
+ 	bool canSeeDemographics(int /*PlayerTypes*/ ePlayer) const; // K-Mod
++	bool hasEverSeenDemographics(int iPlayer) const; // advc.091
+ 
+ 	bool isCivic(int /*CivicTypes*/ eCivic);
+ 	bool canDoCivics(int /*CivicTypes*/ eCivic);
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index 5c57d71f0..08c403947 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -145,6 +145,8 @@ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
+ 
+ 		.def("canSeeResearch", &CyPlayer::canSeeResearch, "bool (int /*PlayerTypes*/ ePlayer)") // K-Mod
+ 		.def("canSeeDemographics", &CyPlayer::canSeeDemographics, "bool (int /*PlayerTypes*/ ePlayer)") // K-Mod
++		// advc.091:
++		.def("hasEverSeenDemographics", &CyPlayer::hasEverSeenDemographics, "bool (int /*PlayerTypes*/ iPlayer)")
+ 
+ 		.def("isCivic", &CyPlayer::isCivic, "bool (int (CivicTypes) eCivic)")
+ 		.def("canDoCivics", &CyPlayer::canDoCivics, "bool (int (CivicTypes) eCivic)")
+
+diff --git a/CvGameCoreDLL/CyTeam.cpp b/CvGameCoreDLL/CyTeam.cpp
+index 7a42642a3..8bb992468 100644
+--- a/CvGameCoreDLL/CyTeam.cpp
++++ b/CvGameCoreDLL/CyTeam.cpp
+@@ -653,6 +653,11 @@ bool CyTeam::isHasMet(int /*TeamTypes*/ eIndex)
+ {
+ 	return m_pTeam ? m_pTeam->isHasMet((TeamTypes)eIndex) : false;
+ }
++// advc.091:
++int CyTeam::getHasMetTurn(int iOtherTeam)
++{
++	return m_pTeam ? m_pTeam->getHasMetTurn((TeamTypes)iOtherTeam) : -1;
++}
+ 
+ bool CyTeam::isAtWar(int /*TeamTypes*/ iIndex)
+ {
+
+diff --git a/CvGameCoreDLL/CyTeam.h b/CvGameCoreDLL/CyTeam.h
+index e85f5cd5c..433466d81 100644
+--- a/CvGameCoreDLL/CyTeam.h
++++ b/CvGameCoreDLL/CyTeam.h
+@@ -157,6 +157,7 @@ public:
+ 	void changeExtraMoves(int /*DomainTypes*/ eIndex, int iChange);
+ 
+ 	bool isHasMet(int /*TeamTypes*/ eIndex);
++	int getHasMetTurn(int iOtherTeam); // advc.091
+ 	bool isAtWar(int /*TeamTypes*/ eIndex);
+ 	bool isPermanentWarPeace(int /*TeamTypes*/ eIndex);
+ 	void setPermanentWarPeace(int /*TeamTypes*/ eIndex, bool bNewValue);
+
+diff --git a/CvGameCoreDLL/CyTeamInterface.cpp b/CvGameCoreDLL/CyTeamInterface.cpp
+index 3e12910e5..b1169dd91 100644
+--- a/CvGameCoreDLL/CyTeamInterface.cpp
++++ b/CvGameCoreDLL/CyTeamInterface.cpp
+@@ -155,6 +155,7 @@ void CyTeamPythonInterface()
+ 		.def("changeExtraMoves", &CyTeam::changeExtraMoves, "void (int /*DomainTypes*/ eIndex, int iChange)")
+ 
+ 		.def("isHasMet", &CyTeam::isHasMet, "bool (int /*TeamTypes*/ eIndex)")
++		.def("getHasMetTurn", &CyTeam::getHasMetTurn, "int (int /*TeamTypes*/ iOtherTeam)") // advc.091
+ 		.def("isAtWar", &CyTeam::isAtWar, "bool (int /*TeamTypes*/ eIndex)")
+ 		.def("isPermanentWarPeace", &CyTeam::isPermanentWarPeace, "bool (int /*TeamTypes*/ eIndex)")
+ 		.def("setPermanentWarPeace", &CyTeam::setPermanentWarPeace, "void (int /*TeamTypes*/ eIndex, bool bNewValue)")
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=26458

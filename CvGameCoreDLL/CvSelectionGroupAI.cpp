@@ -1,4 +1,5 @@
 #include "CvGameCoreDLL.h"
+#include "CvGame.h" // <!-- custom: WAR_ATTACK_ORDER diagnostics need CvGame::getGameTurn for unit-age logging. (GPT-5.6 Thinking) -->
 #include "CvSelectionGroupAI.h"
 #include "CvUnitAI.h"
 // <advc.004c> for AI_bestUnitForMission
@@ -8,6 +9,7 @@
 #include "CvTeamAI.h"
 #include "AgentIterator.h"
 #include "CvMap.h"
+#include "BBAILog.h" // <!-- custom: WAR_ATTACK_ORDER diagnostics log the selected and final stack attacker. (GPT-5.6 Thinking) -->
 
 
 CvSelectionGroupAI::CvSelectionGroupAI()
@@ -152,11 +154,61 @@ bool CvSelectionGroupAI::AI_update()
 		/*  <advc.001y> Moved out of the block below so I can see what the loop does
 			before it terminates. Debugger stops in CvSelectionGroup::pushMission,
 			startMission and in CvUnitAI::AI_update have been helpful to me. */
+
+		// <!-- custom: attempt to fix this issue as advised by chatgpt 5, check if accurate -->
+		// 1) Snapshot state at the start of each loop iteration
+		// Place this right after setForceUpdate(false); and the iAttempts++; line, before any attack/AI_update logic:
+		// --- SAS no-progress snapshot (begin) ---
+		CvUnitAI const* sas_u0 = AI_getHeadUnit();
+		int sas_x0 = (sas_u0 ? sas_u0->getX() : -1);
+		int sas_y0 = (sas_u0 ? sas_u0->getY() : -1);
+		int sas_m0 = (sas_u0 ? sas_u0->movesLeft() : -1);
+		int sas_q0 = getLengthMissionQueue();
+		// --- SAS no-progress snapshot (end) ---
 	#ifdef _DEBUG
 		iMaxAttempts -= 4; // Trigger assert early
 	#endif
-		FAssertMsg(iAttempts != iMaxAttempts, "Unit stuck in a loop");
+		// <!-- custom: make assert more informative as it fires and we'd want info on what is causing it, done with the help of chatgpt 5, check if accurate -->
+		// FAssertMsg(iAttempts != iMaxAttempts, "Unit stuck in a loop");
+		// <!-- custom: save computation and do not always compute this assert's content if 'm not mistaken in my thinking and as chatgpt 5 advised after i asked it i mean, check if accurate, so i moved the assert so it is inside the debug flag as it advised, check if accurate -->
 	#ifdef _DEBUG
+		// Do it lazily and safely like this (drop-in):
+		// <!-- custom: added an extra layer with this assert condition we check first to not do it for each and every unit or such (i don't know too much so check if accurate, but seems much more efficient as such even in debug). Note: i didn't test if the assert fires correctly again, but since our fix is unchanged by this extra condition i added by moving it out of the assert, hopefully fine as such to save computation, but check if accurate as i don't know too much about these -->
+		const bool bAssertCondition = (iAttempts != iMaxAttempts);
+		if (!bAssertCondition)
+		{
+			CvUnitAI const* u = AI_getHeadUnit();
+			int x = -1, y = -1, moves = -1, uid = -1, uai = -1, dom = -1;
+			const wchar* udesc = L"NONE";
+			if (u)
+			{
+				x    = u->getX(); 
+				y    = u->getY();
+				moves= u->movesLeft();
+				uid  = u->getID();
+				uai  = u->AI_getUnitAIType();
+				dom  = u->getDomainType();
+				udesc= GC.getUnitInfo(u->getUnitType()).getDescription();
+			}
+			FAssertMsg(bAssertCondition, CvString::format(
+				"Unit stuck in a loop | grp=%d owner=%d at=(%d,%d) unit=%S id=%d AI=%d dom=%d "
+				"moves=%d ready=%d busy=%d queue=%d forceUpd=%d grpAtk=%d forceSep=%d attempts=%d max=%d",
+				getID(), getOwner(), x, y, udesc, uid, uai, dom, moves,
+				(int)readyToMove(), (int)isBusy(), getLengthMissionQueue(),
+				(int)isForceUpdate(), (int)AI_isGroupAttack(), (int)AI_isForceSeparate(),
+				iAttempts, iMaxAttempts
+			).c_str());
+			// <!-- custom: now we have more info thanks chatgpt 5 and thanks to me too i guess i mean if i may say as well -->
+			// Assert Failed
+			// File:  ..\.\CvSelectionGroupAI.cpp
+			// Line:  180
+			// Func:  CvSelectionGroupAI::AI_update
+			// Expression:  iAttempts != iMaxAttempts
+			// Message:  Unit stuck in a loop | grp=73732 owner=8 at=(61,28) unit=Scout id=57348 AI=13 dom=2 moves=120 ready=1 busy=0 queue=0 forceUpd=0 grpAtk=0 forceSep=0 attempts=16 max=16
+			//
+			// <!-- custom: note: happens many times after first one, with various owner's units, but udesc is seemingly always a scout unit in all of these. -->
+			//
+		}
 		iMaxAttempts += 4; // Restore extra iterations
 	#endif
 		if (iAttempts >= iMaxAttempts) // was > 100 </advc.001y>
@@ -195,6 +247,25 @@ bool CvSelectionGroupAI::AI_update()
 				break;
 			}
 		}
+
+		// <!-- custom: attempt to fix this issue as advised by chatgpt 5, check if accurate -->
+		// 2) Tripwire right after the action block
+		// insert the no-progress check before the existing if (doDelayedDeath()):
+		// --- SAS no-progress tripwire (begin) ---
+		// If this iteration didn't move, push, or get busy, consume the turn to avoid spin.
+		CvUnitAI const* sas_u1 = AI_getHeadUnit();
+		if (!isBusy() && readyToMove(true) && sas_u1 &&
+			sas_u1->getX() == sas_x0 && sas_u1->getY() == sas_y0 &&
+			sas_u1->movesLeft() == sas_m0 && getLengthMissionQueue() == sas_q0)
+		{
+			pushMission(MISSION_SKIP); // finishes moves cleanly
+			break;
+		}
+		// --- SAS no-progress tripwire (end) ---
+		// That’s it.
+		// Why this fixes your scout spins
+		// Your asserts show unit=Scout, AI=13 (Explorer), moves=120, ready=1, busy=0, queue=0, and attempts hitting the cap. That means AI_update() returns false without moving or queuing anything. The tripwire detects exactly that “no state change" iteration and safely MISSION_SKIPs the group so the loop exits (same end result as the built-in bailout, just immediate and deterministic).
+		// You can keep your current early-assert block; with the tripwire in place, you shouldn’t hit it anymore.
 
 		if (doDelayedDeath())
 		{
@@ -356,10 +427,8 @@ int CvSelectionGroupAI::AI_getWeightedOdds(CvPlot const* pPlot, bool bPotentialE
 }
 
 
-CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
-	bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz,
-	// <advc.048>
-	bool bSacrifice, bool bMaxSurvival) const
+// <advc.048> <!-- custom: hoisted from multiline signature between `bNoBlitz` and `bSacrifice` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz, bool bSacrifice, bool bMaxSurvival, bool bPreferLowPower) const
 {
 	int const iOddsThresh = 68; // Should this be lower if bHuman?
 	FAssert(!bMaxSurvival || !bSacrifice); // </advc.048>
@@ -367,10 +436,21 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
 
 	int iBestValue = 0;
 	int iBestOdds = 0;
+	int iBestXP = 0;
+	int iBestHealthRank = 0;
 	CvUnitAI* pBestUnit = NULL;
 	CLLNode<IDInfo> const* pUnitNode = headUnitNode();
 	bool const bHuman = (pUnitNode == NULL ? true :
 			GET_PLAYER(::getUnit(pUnitNode->m_data)->getOwner()).isHuman());
+	static const bool bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE");
+	bool const bUseLowPower = (bPreferLowPower && !bHuman &&
+			bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE);
+	if (bUseLowPower)
+	{
+		iBestValue = 1 << 30;
+		iBestXP = 1 << 30;
+		iBestHealthRank = 1 << 30;
+	}
 	FAssert(!bMaxSurvival || bHuman); // advc.048
 	while (pUnitNode != NULL)
 	{
@@ -397,6 +477,41 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
 
 		if (!bForce && !kLoopUnit.canMoveInto(*pPlot, true, bPotentialEnemy))
 			continue;
+
+		// <!-- custom: For AI stack attacks, spend expendable units first to preserve elite finishers.
+		// This is economically efficient: older/weaker units cost upkeep but scale poorly, while elite units are costly to lose
+		// and can secure the fight if early attacks go badly; keeping them as finishers preserves flexibility and escape odds.
+		// Once bombard is done and we have decided to attack, siege/collateral units go first because they are less useful on defense
+		// and have already contributed their main value; this also front-loads collateral damage to soften the defenders.
+		// Order by lowest effective power, then lowest XP; among healthy units (>= SAS_*_MIN_HEALTH_PERCENT), lower health first. (GPT-5.2-Codex) -->
+		if (bUseLowPower)
+		{
+			int const iOdds = kLoopUnit.AI_attackOdds(pPlot, bPotentialEnemy);
+			bool const bCollateral = (kLoopUnit.collateralDamage() > 0);
+			int iBaseCollateral = (bCollateral ? estimateCollateralWeight(pPlot, getTeam()) : 0);
+			int const iEffectiveStr = kLoopUnit.AI_currEffectiveStr(pPlot, &kLoopUnit,
+					bCollateral, iBaseCollateral, true);
+			int iValue = iEffectiveStr;
+			if (kLoopUnit.bombardRate() > 0 || bCollateral)
+				iValue -= 1000000;
+			int const iXP = kLoopUnit.getExperience();
+			int const iMaxHP = std::max(1, kLoopUnit.maxHitPoints());
+			static const int iSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT");
+			int const iHealthPercent = (100 * (iMaxHP - kLoopUnit.getDamage())) / iMaxHP;
+			int iHealthRank = (iHealthPercent >= iSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT
+					? iHealthPercent : 100);
+			if (pBestUnit == NULL || iValue < iBestValue ||
+				(iValue == iBestValue && iXP < iBestXP) ||
+				(iValue == iBestValue && iXP == iBestXP && iHealthRank < iBestHealthRank))
+			{
+				iBestValue = iValue;
+				iBestOdds = iOdds;
+				iBestXP = iXP;
+				iBestHealthRank = iHealthRank;
+				pBestUnit = &kLoopUnit;
+			}
+			continue;
+		}
 
 		// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000: START
 		if (GC.getDefineBOOL(CvGlobals::LFB_ENABLE) &&
@@ -442,26 +557,194 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
 		}
 		// BETTER_BTS_AI_MOD: END
 	}
+	CvUnitAI* const pLowPowerSelected = (bUseLowPower ? pBestUnit : NULL);
+	int const iLowPowerSelectedOdds = (bUseLowPower ? iBestOdds : -1);
+	CvUnitAI* pInheritedBestSacrifice = NULL;
+	CvUnitAI* pSASObsoleteSacrifice = NULL;
+	int iInheritedBestSacrificeOdds = -1;
+	int iSASObsoleteSacrificeOdds = -1;
 	iUnitOdds = iBestOdds;
 	// <advc.048> Cut from CvSelectionGroup::groupAttack
 	if(bSacrifice && iUnitOdds < iOddsThresh)
 	{
 		CvUnitAI* pBestSacrifice = AI_getBestGroupSacrifice(pPlot,
 				bPotentialEnemy, bForce, /* advc.164: */ bNoBlitz);
+		pInheritedBestSacrifice = pBestSacrifice;
 		if(pBestSacrifice != NULL)
 		{
+			// <!-- custom: When the inherited sacrifice choice would spend a current unit at risky odds, prefer an obsolete sacrifice that retains enough inherited tactical value. Obsolete units remain useful as deliberate expenditures: losing them reduces support/upgrade pressure while preserving current units for future wars.
+			// A current unit with very high odds is allowed to attack because it is unlikely to be lost; once the current choice is itself in sacrifice territory, the normal odds-deficit limit can be bypassed and sacrifice value/tactical role become the safeguards. Do not protect obsolete units merely for XP. See KI#200. (GPT-5.6 Thinking) -->
+			static const bool bSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_OPTIMIZE");
+			static const int iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT");
+			static const int iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT");
+			static const int iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT");
+			static const int iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT");
+			iInheritedBestSacrificeOdds = pBestSacrifice->AI_attackOdds(pPlot, bPotentialEnemy);
+			TechTypes const eInheritedObsoleteTech = pBestSacrifice->getUnitInfo().getObsoleteTech();
+			bool const bInheritedObsolete = (eInheritedObsoleteTech != NO_TECH && GET_TEAM(pBestSacrifice->getTeam()).isHasTech(eInheritedObsoleteTech));
+			if (bUseLowPower && bSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_OPTIMIZE && !bInheritedObsolete && iInheritedBestSacrificeOdds < iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT)
+			{
+				int const iInheritedSacrificeValue = pBestSacrifice->AI_sacrificeValue(pPlot);
+				bool const bInheritedTacticalSacrifice = (pBestSacrifice->bombardRate() > 0 || pBestSacrifice->collateralDamage() > 0);
+				int iBestObsoleteSacrificeValue = -1;
+				for (CLLNode<IDInfo> const* pObsoleteNode = headUnitNode(); pObsoleteNode != NULL; pObsoleteNode = nextUnitNode(pObsoleteNode))
+				{
+					CvUnitAI* pObsoleteUnit = ::AI_getUnit(pObsoleteNode->m_data);
+					if (pObsoleteUnit->isDead()) continue;
+					bool bCanAttack = (pObsoleteUnit->getDomainType() == DOMAIN_AIR ? pObsoleteUnit->canAirAttack() : pObsoleteUnit->canAttack());
+					if (bCanAttack && pObsoleteUnit->getDomainType() != DOMAIN_AIR && bNoBlitz && pObsoleteUnit->isBlitz() && pObsoleteUnit->isMadeAttack()) bCanAttack = false;
+					if (!bCanAttack || (!bForce && !pObsoleteUnit->canMove()) || (!bForce && !pObsoleteUnit->canMoveInto(*pPlot, true))) continue;
+					TechTypes const eObsoleteTech = pObsoleteUnit->getUnitInfo().getObsoleteTech();
+					if (eObsoleteTech == NO_TECH || !GET_TEAM(pObsoleteUnit->getTeam()).isHasTech(eObsoleteTech)) continue;
+					if (bInheritedTacticalSacrifice && pObsoleteUnit->bombardRate() <= 0 && pObsoleteUnit->collateralDamage() <= 0) continue;
+					int const iObsoleteOdds = pObsoleteUnit->AI_attackOdds(pPlot, bPotentialEnemy);
+					// <!-- custom: Once the inherited current unit is itself in sacrifice territory, do not reject obsolete candidates merely for having still lower victory odds; the sacrifice-value and tactical-role gates remain the quality safeguards. Above that risk threshold, retain the normal maximum odds-deficit limit. See KI#200. (GPT-5.6 Thinking) -->
+					if (iInheritedBestSacrificeOdds > iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT && iObsoleteOdds + iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT < iInheritedBestSacrificeOdds) continue;
+					int const iObsoleteSacrificeValue = pObsoleteUnit->AI_sacrificeValue(pPlot);
+					if (100 * iObsoleteSacrificeValue < iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT * iInheritedSacrificeValue) continue;
+					if (pSASObsoleteSacrifice == NULL || iObsoleteSacrificeValue >= iBestObsoleteSacrificeValue)
+					{
+						pSASObsoleteSacrifice = pObsoleteUnit;
+						iSASObsoleteSacrificeOdds = iObsoleteOdds;
+						iBestObsoleteSacrificeValue = iObsoleteSacrificeValue;
+					}
+				}
+				if (pSASObsoleteSacrifice != NULL) pBestSacrifice = pSASObsoleteSacrifice;
+			}
 			pBestUnit = pBestSacrifice;
 			/*  I.e. caller mustn't use these odds. Don't want to compute them here
 				if the caller doesn't need them. */
 			iUnitOdds = -1;
 		}
 	} // </advc.048>
+	if (gWarLogLevel >= 3 && pSASObsoleteSacrifice != NULL && pInheritedBestSacrifice != NULL)
+	{
+		int const iOddsDeficitBypassMaxCurrentOdds = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT");
+		logBBAI("WAR_ATTACK_ORDER_OBSOLETE_EXPEND_OVERRIDE turn=%d player=%d group=%d target=(%d,%d) inheritedUnit=%s inheritedUnitId=%d inheritedOdds=%d inheritedSacrificeValue=%d obsoleteUnit=%s obsoleteUnitId=%d obsoleteOdds=%d obsoleteSacrificeValue=%d currentSafeOdds=%d oddsDeficitBypassMaxCurrentOdds=%d oddsDeficitBypassed=%d maxOddsDeficit=%d minValuePercentOfCurrent=%d",
+			GC.getGame().getGameTurn(), pSASObsoleteSacrifice->getOwner(), getID(), pPlot->getX(), pPlot->getY(), GC.getInfo(pInheritedBestSacrifice->getUnitType()).getType(), pInheritedBestSacrifice->getID(), iInheritedBestSacrificeOdds, pInheritedBestSacrifice->AI_sacrificeValue(pPlot), GC.getInfo(pSASObsoleteSacrifice->getUnitType()).getType(), pSASObsoleteSacrifice->getID(), iSASObsoleteSacrificeOdds, pSASObsoleteSacrifice->AI_sacrificeValue(pPlot), GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT"), iOddsDeficitBypassMaxCurrentOdds, (iInheritedBestSacrificeOdds <= iOddsDeficitBypassMaxCurrentOdds ? 1 : 0), GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT"), GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT"));
+	}
+	// <!-- custom: Diagnostic only: verify whether the low-power stack ordering spends old/obsolete units, whether the inherited sacrifice fallback replaces that choice, and when the SAS obsolete-expenditure refinement changes the inherited sacrifice. Compare the exact best obsolete/non-obsolete sacrifice-value and attack-odds alternatives so tuning can remain evidence-based. Age is intentionally logged rather than used for selection; the low-power stage still ranks bombard/collateral first, then low effective power, XP and health. Gate all extra diagnostic candidate scans behind WAR level 3. (GPT-5.6 Thinking) -->
+	if (bUseLowPower && gWarLogLevel >= 3 && pLowPowerSelected != NULL && pBestUnit != NULL)
+	{
+		int iEligibleAttackers = 0;
+		int iSacrificeEligibleAttackers = 0;
+		int iObsoleteEligible = 0;
+		int iObsoleteSacrificeEligible = 0;
+		int iObsoleteSacrificeAtOrAboveOddsThreshold = 0;
+		int iOldestAge = -1;
+		CvUnitAI const* pOldestEligible = NULL;
+		CvUnitAI const* pBestObsoleteSacrifice = NULL;
+		CvUnitAI const* pBestNonObsoleteSacrifice = NULL;
+		CvUnitAI const* pBestObsoleteOdds = NULL;
+		CvUnitAI const* pBestNonObsoleteOdds = NULL;
+		int iBestObsoleteSacrificeValue = -1;
+		int iBestObsoleteSacrificeOdds = -1;
+		int iBestNonObsoleteSacrificeValue = -1;
+		int iBestNonObsoleteSacrificeOdds = -1;
+		int iBestObsoleteOdds = -1;
+		int iBestObsoleteOddsSacrificeValue = -1;
+		int iBestNonObsoleteOdds = -1;
+		int iBestNonObsoleteOddsSacrificeValue = -1;
+		for (CLLNode<IDInfo> const* pLogNode = headUnitNode(); pLogNode != NULL; pLogNode = nextUnitNode(pLogNode))
+		{
+			CvUnitAI const& kLogUnit = *::AI_getUnit(pLogNode->m_data);
+			if (kLogUnit.isDead()) continue;
+			bool bCanAttack = (kLogUnit.getDomainType() == DOMAIN_AIR ? kLogUnit.canAirAttack() : kLogUnit.canAttack());
+			if (bCanAttack && kLogUnit.getDomainType() != DOMAIN_AIR && bNoBlitz && kLogUnit.isBlitz() && kLogUnit.isMadeAttack()) bCanAttack = false;
+			if (!bCanAttack || (!bForce && !kLogUnit.canMove()) || (!bForce && !kLogUnit.canMoveInto(*pPlot, true, bPotentialEnemy))) continue;
+			iEligibleAttackers++;
+			TechTypes const eObsoleteTech = kLogUnit.getUnitInfo().getObsoleteTech();
+			bool const bObsolete = (eObsoleteTech != NO_TECH && GET_TEAM(kLogUnit.getTeam()).isHasTech(eObsoleteTech));
+			if (bObsolete) iObsoleteEligible++;
+			int const iAge = GC.getGame().getGameTurn() - kLogUnit.getGameTurnCreated();
+			if (iAge > iOldestAge)
+			{
+				iOldestAge = iAge;
+				pOldestEligible = &kLogUnit;
+			}
+			// Match AI_getBestGroupSacrifice's own canMoveInto test for the alternative-candidate summaries below.
+			if (!bForce && !kLogUnit.canMoveInto(*pPlot, true)) continue;
+			iSacrificeEligibleAttackers++;
+			int const iSacrificeValue = kLogUnit.AI_sacrificeValue(pPlot);
+			int const iOdds = kLogUnit.AI_attackOdds(pPlot, bPotentialEnemy);
+			if (bObsolete)
+			{
+				iObsoleteSacrificeEligible++;
+				if (iOdds >= iOddsThresh) iObsoleteSacrificeAtOrAboveOddsThreshold++;
+				if (iSacrificeValue >= iBestObsoleteSacrificeValue)
+				{
+					pBestObsoleteSacrifice = &kLogUnit;
+					iBestObsoleteSacrificeValue = iSacrificeValue;
+					iBestObsoleteSacrificeOdds = iOdds;
+				}
+				if (iOdds > iBestObsoleteOdds || (iOdds == iBestObsoleteOdds && iSacrificeValue >= iBestObsoleteOddsSacrificeValue))
+				{
+					pBestObsoleteOdds = &kLogUnit;
+					iBestObsoleteOdds = iOdds;
+					iBestObsoleteOddsSacrificeValue = iSacrificeValue;
+				}
+			}
+			else
+			{
+				if (iSacrificeValue >= iBestNonObsoleteSacrificeValue)
+				{
+					pBestNonObsoleteSacrifice = &kLogUnit;
+					iBestNonObsoleteSacrificeValue = iSacrificeValue;
+					iBestNonObsoleteSacrificeOdds = iOdds;
+				}
+				if (iOdds > iBestNonObsoleteOdds || (iOdds == iBestNonObsoleteOdds && iSacrificeValue >= iBestNonObsoleteOddsSacrificeValue))
+				{
+					pBestNonObsoleteOdds = &kLogUnit;
+					iBestNonObsoleteOdds = iOdds;
+					iBestNonObsoleteOddsSacrificeValue = iSacrificeValue;
+				}
+			}
+		}
+		int const iLowPowerHealth = (100 * (std::max(1, pLowPowerSelected->maxHitPoints()) - pLowPowerSelected->getDamage())) / std::max(1, pLowPowerSelected->maxHitPoints());
+		int const iFinalHealth = (100 * (std::max(1, pBestUnit->maxHitPoints()) - pBestUnit->getDamage())) / std::max(1, pBestUnit->maxHitPoints());
+		TechTypes const eLowPowerObsoleteTech = pLowPowerSelected->getUnitInfo().getObsoleteTech();
+		TechTypes const eFinalObsoleteTech = pBestUnit->getUnitInfo().getObsoleteTech();
+		bool const bLowPowerObsolete = (eLowPowerObsoleteTech != NO_TECH && GET_TEAM(pLowPowerSelected->getTeam()).isHasTech(eLowPowerObsoleteTech));
+		bool const bFinalObsolete = (eFinalObsoleteTech != NO_TECH && GET_TEAM(pBestUnit->getTeam()).isHasTech(eFinalObsoleteTech));
+		int const iFinalActualOdds = (pBestUnit == pLowPowerSelected ? iLowPowerSelectedOdds : pBestUnit->AI_attackOdds(pPlot, bPotentialEnemy));
+		int const iLowPowerSacrificeValue = pLowPowerSelected->AI_sacrificeValue(pPlot);
+		int const iFinalSacrificeValue = pBestUnit->AI_sacrificeValue(pPlot);
+		logBBAI("WAR_ATTACK_ORDER turn=%d player=%d group=%d target=(%d,%d) eligible=%d obsoleteEligible=%d lowPowerUnit=%s lowPowerUnitId=%d lowPowerUnitAI=%d lowPowerAge=%d lowPowerXP=%d lowPowerHealth=%d lowPowerOdds=%d lowPowerSacrificeValue=%d lowPowerObsolete=%d finalUnit=%s finalUnitId=%d finalUnitAI=%d finalAge=%d finalXP=%d finalHealth=%d finalOdds=%d finalActualOdds=%d finalSacrificeValue=%d finalObsolete=%d sacrificeOverride=%d oldestUnit=%s oldestUnitAI=%d oldestAge=%d oldestXP=%d oldestObsolete=%d",
+			GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), iEligibleAttackers, iObsoleteEligible, GC.getInfo(pLowPowerSelected->getUnitType()).getType(), pLowPowerSelected->getID(), pLowPowerSelected->AI_getUnitAIType(), GC.getGame().getGameTurn() - pLowPowerSelected->getGameTurnCreated(), pLowPowerSelected->getExperience(), iLowPowerHealth, iLowPowerSelectedOdds, iLowPowerSacrificeValue, bLowPowerObsolete,
+			GC.getInfo(pBestUnit->getUnitType()).getType(), pBestUnit->getID(), pBestUnit->AI_getUnitAIType(), GC.getGame().getGameTurn() - pBestUnit->getGameTurnCreated(), pBestUnit->getExperience(), iFinalHealth, iUnitOdds, iFinalActualOdds, iFinalSacrificeValue, bFinalObsolete, pBestUnit != pLowPowerSelected,
+			(pOldestEligible == NULL ? "-" : GC.getInfo(pOldestEligible->getUnitType()).getType()), (pOldestEligible == NULL ? NO_UNITAI : pOldestEligible->AI_getUnitAIType()), iOldestAge, (pOldestEligible == NULL ? -1 : pOldestEligible->getExperience()), (pOldestEligible == NULL ? 0 : (pOldestEligible->getUnitInfo().getObsoleteTech() != NO_TECH && GET_TEAM(pOldestEligible->getTeam()).isHasTech(pOldestEligible->getUnitInfo().getObsoleteTech()))));
+		if (iObsoleteEligible > 0)
+		{
+			logBBAI("WAR_ATTACK_ORDER_CANDIDATE_SUMMARY turn=%d player=%d group=%d target=(%d,%d) sacrificeOddsThreshold=%d attackEligible=%d sacrificeEligible=%d obsoleteAttackEligible=%d obsoleteSacrificeEligible=%d obsoleteSacrificeAtOrAboveOddsThreshold=%d",
+				GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), iOddsThresh, iEligibleAttackers, iSacrificeEligibleAttackers, iObsoleteEligible, iObsoleteSacrificeEligible, iObsoleteSacrificeAtOrAboveOddsThreshold);
+			CvUnitAI const* apCandidates[4] = { pBestObsoleteSacrifice, pBestNonObsoleteSacrifice, pBestObsoleteOdds, pBestNonObsoleteOdds };
+			char const* aszRoles[4] = { "BEST_OBSOLETE_SACRIFICE", "BEST_NONOBSOLETE_SACRIFICE", "BEST_OBSOLETE_ODDS", "BEST_NONOBSOLETE_ODDS" };
+			int aiOdds[4] = { iBestObsoleteSacrificeOdds, iBestNonObsoleteSacrificeOdds, iBestObsoleteOdds, iBestNonObsoleteOdds };
+			int aiSacrificeValues[4] = { iBestObsoleteSacrificeValue, iBestNonObsoleteSacrificeValue, iBestObsoleteOddsSacrificeValue, iBestNonObsoleteOddsSacrificeValue };
+			for (int i = 0; i < 4; i++)
+			{
+				CvUnitAI const* pCandidate = apCandidates[i];
+				if (pCandidate == NULL) continue;
+				int const iCandidateMaxHP = std::max(1, pCandidate->maxHitPoints());
+				int const iCandidateHealth = (100 * (iCandidateMaxHP - pCandidate->getDamage())) / iCandidateMaxHP;
+				bool const bCandidateCollateral = (pCandidate->collateralDamage() > 0);
+				int const iCandidateBaseCollateral = (bCandidateCollateral ? estimateCollateralWeight(pPlot, getTeam()) : 0);
+				int const iCandidateEffectiveStr = pCandidate->AI_currEffectiveStr(pPlot, pCandidate, bCandidateCollateral, iCandidateBaseCollateral, true);
+				TechTypes const eCandidateObsoleteTech = pCandidate->getUnitInfo().getObsoleteTech();
+				bool const bCandidateObsolete = (eCandidateObsoleteTech != NO_TECH && GET_TEAM(pCandidate->getTeam()).isHasTech(eCandidateObsoleteTech));
+				CvPlot::DefenderFilters kDefenderFilters(pCandidate->getOwner(), pCandidate, !bPotentialEnemy, bPotentialEnemy, true, false);
+				CvUnit const* pCandidateDefender = pPlot->getBestDefender(NO_PLAYER, kDefenderFilters);
+				int const iCandidateDefenderHealth = (pCandidateDefender == NULL ? -1 : (100 * (std::max(1, pCandidateDefender->maxHitPoints()) - pCandidateDefender->getDamage())) / std::max(1, pCandidateDefender->maxHitPoints()));
+				logBBAI("WAR_ATTACK_ORDER_CANDIDATE turn=%d player=%d group=%d target=(%d,%d) role=%s unit=%s unitId=%d unitAI=%d obsolete=%d age=%d xp=%d health=%d odds=%d sacrificeValue=%d effectiveStr=%d productionCost=%d bombard=%d collateral=%d combatLimit=%d withdrawal=%d leaderUnit=%d sameTileHeal=%d adjacentTileHeal=%d lfbRelativeValue=%d defenderOwner=%d defenderUnit=%s defenderUnitId=%d defenderHealth=%d defenderBaseStr=%d isLowPower=%d isFinal=%d",
+					GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), aszRoles[i], GC.getInfo(pCandidate->getUnitType()).getType(), pCandidate->getID(), pCandidate->AI_getUnitAIType(), bCandidateObsolete, GC.getGame().getGameTurn() - pCandidate->getGameTurnCreated(), pCandidate->getExperience(), iCandidateHealth, aiOdds[i], aiSacrificeValues[i], iCandidateEffectiveStr, pCandidate->getUnitInfo().getProductionCost(), pCandidate->bombardRate() > 0, bCandidateCollateral, pCandidate->combatLimit(), pCandidate->withdrawalProbability(), pCandidate->getLeaderUnitType() != NO_UNIT, pCandidate->getSameTileHeal(), pCandidate->getAdjacentTileHeal(), pCandidate->LFBgetRelativeValueRating(), (pCandidateDefender == NULL ? NO_PLAYER : pCandidateDefender->getOwner()), (pCandidateDefender == NULL ? "-" : GC.getInfo(pCandidateDefender->getUnitType()).getType()), (pCandidateDefender == NULL ? -1 : pCandidateDefender->getID()), iCandidateDefenderHealth, (pCandidateDefender == NULL ? -1 : pCandidateDefender->baseCombatStr()), pCandidate == pLowPowerSelected, pCandidate == pBestUnit);
+			}
+		}
+	}
 	return pBestUnit;
 }
 
 
-CvUnitAI* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot,
-	bool bPotentialEnemy, bool bForce, bool bNoBlitz) const
+CvUnitAI* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce, bool bNoBlitz) const
 {
 	int iBestValue = -1; // advc.048: was 0
 	CvUnitAI* pBestUnit = NULL;
@@ -521,8 +804,7 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot,
 /*	Returns ratio of strengths of stacks times 100
 	(so 100 is an even ratio, numbers over 100 mean that
 	this group is more powerful than the stack on a plot) */
-int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAttack,
-	bool bConstCache) const // advc.001n
+int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAttack, bool bConstCache) const // advc.001n
 {
 	FAssert(pPlot != NULL);
 
@@ -575,8 +857,7 @@ int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAtta
 	for moves, and for hasAlreadyAttacked / blitz */
 /*  advc.159: No longer simply a sum of combat strength values; see the comment
 	above CvPlayerAI::AI_localDefenceStrength. */
-int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot,
-	DomainTypes eDomainType, bool bCheckCanAttack) const
+int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot, DomainTypes eDomainType, bool bCheckCanAttack) const
 {
 	FAssert(eDomainType != DOMAIN_AIR && eDomainType != DOMAIN_IMMOBILE); // advc: Air combat strength isn't counted
 	// <K-Mod>
@@ -649,8 +930,7 @@ namespace
 /*	advc.004c: (Not const b/c it needs to return a non-const unit.
 	Ideally, there would be a const version returning a const unit,
 	but that would lead to a lot of duplicate code.) */
-CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission,
-	CvPlot const* pMissionPlot, std::vector<int> const* pUnitsToSkip)
+CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission, CvPlot const* pMissionPlot, std::vector<int> const* pUnitsToSkip)
 {
 	PROFILE_FUNC(); // advc (neither frequently called nor expensive)
 	CvPlot const& kAt = getPlot();
@@ -828,8 +1108,7 @@ void CvSelectionGroupAI::AI_queueGroupAttack(int iX, int iY)
 }
 
 
-bool CvSelectionGroupAI::AI_isDeclareWar(
-	CvPlot const& kPlot) const // advc: param no longer optional
+bool CvSelectionGroupAI::AI_isDeclareWar(CvPlot const& kPlot) const // advc: param no longer optional
 {
 	FAssert(getHeadUnit() != NULL);
 
@@ -876,12 +1155,12 @@ bool CvSelectionGroupAI::AI_isDeclareWar(
 	case UNITAI_CITY_SPECIAL:
 	case UNITAI_EXPLORE:
 	case UNITAI_MISSIONARY:
-	case UNITAI_PROPHET:
-	case UNITAI_ARTIST:
-	case UNITAI_SCIENTIST:
-	case UNITAI_GENERAL:
-	case UNITAI_MERCHANT:
-	case UNITAI_ENGINEER:
+	case UNITAI_GREAT_PROPHET:
+	case UNITAI_GREAT_ARTIST:
+	case UNITAI_GREAT_SCIENTIST:
+	case UNITAI_GREAT_GENERAL:
+	case UNITAI_GREAT_MERCHANT:
+	case UNITAI_GREAT_ENGINEER:
 	case UNITAI_GREAT_SPY: // K-Mod
 	case UNITAI_SPY:
 	case UNITAI_ICBM:
@@ -951,8 +1230,7 @@ int CvSelectionGroupAI::AI_getBombardTurns(CvCity const* pCity) const
 }
 
 // advc: Param renamed from bIgnoreMinors b/c it also causes Barbarians to be ignored
-bool CvSelectionGroupAI::AI_isHasPathToAreaEnemyCity(bool bMajorOnly,
-	MovementFlags eFlags, int iMaxPathTurns) const
+bool CvSelectionGroupAI::AI_isHasPathToAreaEnemyCity(bool bMajorOnly, MovementFlags eFlags, int iMaxPathTurns) const
 {
 	PROFILE_FUNC();
 	//int iPass = 0; // advc: unused
@@ -970,8 +1248,7 @@ bool CvSelectionGroupAI::AI_isHasPathToAreaEnemyCity(bool bMajorOnly,
 }
 
 
-bool CvSelectionGroupAI::AI_isHasPathToAreaPlayerCity(PlayerTypes ePlayer,
-	MovementFlags eFlags, int iMaxPathTurns) const
+bool CvSelectionGroupAI::AI_isHasPathToAreaPlayerCity(PlayerTypes ePlayer, MovementFlags eFlags, int iMaxPathTurns) const
 {
 	PROFILE_FUNC();
 	// <advc> Instead of relying on the area checks to fail when the group has no area
@@ -1018,8 +1295,7 @@ bool CvSelectionGroupAI::AI_isForceSeparate() const
 }
 
 
-void CvSelectionGroupAI::AI_setMissionAI(MissionAITypes eNewMissionAI,
-	CvPlot const* pNewPlot, CvUnit const* pNewUnit)
+void CvSelectionGroupAI::AI_setMissionAI(MissionAITypes eNewMissionAI, CvPlot const* pNewPlot, CvUnit const* pNewUnit)
 {
 	//PROFILE_FUNC();
 

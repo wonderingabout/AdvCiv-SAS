@@ -1,0 +1,393 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3289
+# Commit: 211b2a94a3b1bb7ac83573e25f7bf44a006a4e4c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f7a82c4838f92cae0858bf0e1dc908898d50b3db
+# Title: Fix recent issue with city borders after conquest
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	5	CvGameCoreDLL/CvCity.cpp
+4	1	CvGameCoreDLL/CvPlot.cpp
+4	4	CvGameCoreDLL/PlotRadiusIterator.cpp
+126	57	CvGameCoreDLL/PlotRadiusIterator.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index de6597c01..4f3fa50e9 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -406,11 +406,12 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
+ 	GET_PLAYER(getOwner()).deleteCity(getID());
+ 
+ 	kPlot.updateCulture(/*true*/ bBumpUnits, false); // advc.001
++	/*	advc (note): setCultureLevel already updates culture in surrounding plots.
++		I think this loop is only needed for rare cases where kPlot is part of a
++		circle of plots granting ownership over a plot that is otherwise
++		out of ownership range (see the end of CvPlot::calculateCulturalOwner). */
+ 	FOR_EACH_ADJ_PLOT_VAR(kPlot)
+ 		pAdj->updateCulture(true, false);
+-	/*	advc: Surrounding plots can affect plot ownership. Important to update again
+-		when regenerating the map. (Don't know why this wasn't an issue in BtS/K-Mod.) */
+-	kPlot.updateCulture(bBumpUnits, false);
+ 
+ 	if (GET_TEAM(eOwner).isAVassal()) // advc: Replacing a loop over "all" masters
+ 	{
+@@ -6512,7 +6513,12 @@ void CvCity::setCultureLevel(CultureLevelTypes eNewValue, bool bUpdatePlotGroups
+ 	m_eCultureLevel = eNewValue;
+ 	if (eOldValue != NO_CULTURELEVEL)
+ 	{
+-		for (SquareIter itPlot(getPlot(), eOldValue); itPlot.hasNext(); ++itPlot)
++		/*	advc (note): The order of processing is important here b/c
++			plot ownership won't be cleared so long as a tile is surrounded by
++			owned tiles (even when a plot is no longer in range of any city);
++			see CvPlot::calculateCulturalOwner. */
++		for (ScanLinePlotIterator itPlot(getPlot(), eOldValue);
++			itPlot.hasNext(); ++itPlot)
+ 		{
+ 			int iCultureRange = cultureDistance(itPlot.currXDist(), itPlot.currYDist());
+ 			if (iCultureRange > getCultureLevel() && iCultureRange <= eOldValue)
+@@ -6525,7 +6531,8 @@ void CvCity::setCultureLevel(CultureLevelTypes eNewValue, bool bUpdatePlotGroups
+ 	}
+ 	if (getCultureLevel() != NO_CULTURELEVEL)
+ 	{
+-		for (SquareIter itPlot(getPlot(), getCultureLevel()); itPlot.hasNext(); ++itPlot)
++		for (ScanLinePlotIterator itPlot(getPlot(), getCultureLevel());
++			itPlot.hasNext(); ++itPlot)
+ 		{
+ 			int iCultureRange = cultureDistance(itPlot.currXDist(), itPlot.currYDist());
+ 			if (iCultureRange > eOldValue && iCultureRange <= getCultureLevel())
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 3d272affe..d8fff7082 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -431,7 +431,10 @@ void CvPlot::doImprovement()
+ 	}
+ }
+ 
+-
++/*	advc (caveat): When this function is called in a loop for a range of plots,
++	the order of traversal can be important b/c calculateCulturalOwner will grant
++	ownership of a plot to a player that owns all surrounding plots.
++	So far, this has only been a problem in CvCity::setCultureLevel. */
+ void CvPlot::updateCulture(bool bBumpUnits, bool bUpdatePlotGroups)
+ {
+ 	PROFILE_FUNC(); // advc (There's a plot group update when the owner changes)
+
+diff --git a/CvGameCoreDLL/PlotRadiusIterator.cpp b/CvGameCoreDLL/PlotRadiusIterator.cpp
+index bfe2ba040..56865d73a 100644
+--- a/CvGameCoreDLL/PlotRadiusIterator.cpp
++++ b/CvGameCoreDLL/PlotRadiusIterator.cpp
+@@ -6,11 +6,11 @@
+ 
+ // Not in the header b/c CvUnit.h isn't included there
+ template<bool bINCIRCLE>
+-CvPlot* SquareIterator<bINCIRCLE>::getUnitPlot(CvUnit const& kUnit) const
++CvPlot& SpiralPlotIterator<bINCIRCLE>::getUnitPlot(CvUnit const& kUnit) const
+ {
+-	return kUnit.plot();
++	return kUnit.getPlot();
+ }
+ 
+ // Explicit instantiations (for linker)
+-template class SquareIterator<true>;
+-template class SquareIterator<false>;
++template class SpiralPlotIterator<true>;
++template class SpiralPlotIterator<false>;
+
+diff --git a/CvGameCoreDLL/PlotRadiusIterator.h b/CvGameCoreDLL/PlotRadiusIterator.h
+index c5bb4a9b1..b0ec84805 100644
+--- a/CvGameCoreDLL/PlotRadiusIterator.h
++++ b/CvGameCoreDLL/PlotRadiusIterator.h
+@@ -7,10 +7,11 @@
+ 
+ #include "CvMap.h"
+ 
+-/*  Iterators over the CvPlot instances within a radius around a central plot or unit.
+-	If bINCIRCLE is false, then the radius is measured according to the
+-	stepDistance metric, which results in a square of plots. The center plot
+-	doesn't count toward the radius, so e.g. iRadius=3 yields a 7x7 square.
++/*	SpiralPlotIterator: Iterator over the CvPlot instances within a radius around
++	a central plot or unit. If bINCIRCLE is false, then the radius is measured
++	according to the stepDistance metric, which results in a square of plots.
++	The center plot doesn't count toward the radius, so e.g. iRadius=3 yields
++	a 7x7 square.
+ 
+ 	If bINCIRCLE is true, then the plotDistance metric is used, which corresponds
+ 	to a range of plots that approximates the incircle of a square of the same radius.
+@@ -28,64 +29,77 @@
+ 	checked when considering to move into a tile, and even then there can be faster
+ 	alternatives (see comments at the definition of AI_plotValid). */
+ 
+-template<bool bINCIRCLE = false>
+-class SquareIterator
++// Abstract base class for some behavior shared with ScanLinePlotIterator
++class SquareOfPlotsIterator
+ {
++protected:
++	SquareOfPlotsIterator(CvPlot const& kCenter, int iRadius)
++	:	m_pCenter(&kCenter), m_iRadius(iRadius), m_pNext(NULL)
++	{}
++
+ public:
+-	SquareIterator(CvPlot const& kCenter, int iRadius, bool bIncludeCenter = true)
++	bool hasNext() const
+ 	{
+-		/*	I had written a const and non-const version (as derived classes that
+-			set a "PlotType" template parameter), but CityPlotIterator and
+-			AgentIterator don't have const versions either, and const-correctness
+-			would make it harder to add more iterator classes in the future.
+-			So I've removed those derived classes.
+-			Const-casting CvPlot should generally be safe. */
+-		m_pNext = const_cast<CvPlot*>(&kCenter);
+-		init(iRadius, bIncludeCenter);
++		return (m_pNext != NULL);
+ 	}
+ 
+-	SquareIterator(CvUnit const& kUnit, int iRadius, bool bIncludeCenter = true)
++	CvPlot& operator*() const
+ 	{
+-		// Don't want to include CvUnit.h
+-		m_pNext = getUnitPlot(kUnit);
+-		init(iRadius, bIncludeCenter);
++		return *m_pNext;
+ 	}
+ 
+-	SquareIterator(int x, int y, int iRadius, bool bIncludeCenter = true)
++	CvPlot* operator->() const
+ 	{
+-		m_pNext = GC.getMap().plot(x, y);
+-		init(iRadius, bIncludeCenter);
++		return m_pNext;
+ 	}
+ 
+-	bool hasNext() const
++	int currStepDist() const
+ 	{
+-		return (m_pNext != NULL);
++		return ::stepDistance(m_pCenter, m_pNext);
+ 	}
+ 
+-	SquareIterator& operator++()
++	int currPlotDist() const
+ 	{
+-		computeNext();
+-		return *this;
++		return ::plotDistance(m_pCenter, m_pNext);
+ 	}
+ 
+-	CvPlot& operator*() const
++	int radius() const
+ 	{
+-		return *m_pNext;
++		return m_iRadius;
+ 	}
+ 
+-	CvPlot* operator->() const
++protected:
++	CvPlot* m_pNext;
++	CvPlot const* m_pCenter;
++	int m_iRadius;
++};
++
++template<bool bINCIRCLE = false>
++class SpiralPlotIterator : public SquareOfPlotsIterator
++{
++public:
++	SpiralPlotIterator(CvPlot const& kCenter, int iRadius, bool bIncludeCenter = true)
++	:	SquareOfPlotsIterator(kCenter, iRadius)
+ 	{
+-		return m_pNext;
++		init(bIncludeCenter);
+ 	}
+ 
+-	int currStepDist() const
++	SpiralPlotIterator(CvUnit const& kUnit, int iRadius, bool bIncludeCenter = true)
++	:	SquareOfPlotsIterator(getUnitPlot(kUnit), iRadius)
+ 	{
+-		return ::stepDistance(m_pCenter, m_pNext);
++		init(bIncludeCenter);
+ 	}
+ 
+-	int currPlotDist() const
++	SpiralPlotIterator(int x, int y, int iRadius, bool bIncludeCenter = true)
++	:	SquareOfPlotsIterator(*GC.getMap().plot(x, y), iRadius)
+ 	{
+-		return ::plotDistance(m_pCenter, m_pNext);
++		init(bIncludeCenter);
++	}
++
++	SpiralPlotIterator& operator++()
++	{
++		computeNext();
++		return *this;
+ 	}
+ 
+ 	int currXDist() const
+@@ -100,11 +114,6 @@ public:
+ 		return abs(m_pCenter->getY() - m_iCurrY);
+ 	}
+ 
+-	int radius() const
+-	{
+-		return m_iRadius;
+-	}
+-
+ protected:
+ 	void computeNext()
+ 	{
+@@ -143,22 +152,24 @@ protected:
+ 	}
+ 
+ private:
+-	CvPlot const* m_pCenter; // Only for curr...Dist functions
+-	int m_iRadius;
+ 	int m_iPos;
+ 	int m_iMaxPos;
+-	CvPlot* m_pNext;
+ 	int m_iCurrX, m_iCurrY;
+ 	CardinalDirectionTypes m_eDir;
+ 	int m_iConsecMoves;
+ 
+-	void init(int iRadius, bool bIncludeCenter)
++	void init(bool bIncludeCenter)
+ 	{
+-		m_pCenter = m_pNext;
++		/*	I had written a const and non-const version (as derived classes that
++			set a "PlotType" template parameter), but CityPlotIterator and
++			AgentIterator don't have const versions either, and const-correctness
++			would make it harder to add more iterator classes in the future.
++			So I've removed those derived classes. Const-casting CvPlot should
++			generally be safe. */
++		m_pNext = const_cast<CvPlot*>(m_pCenter);
+ 		m_iCurrX = m_pNext->getX();
+ 		m_iCurrY = m_pNext->getY();
+-		m_iMaxPos = SQR(2 * iRadius + 1) - 1;
+-		m_iRadius = iRadius;
++		m_iMaxPos = SQR(2 * m_iRadius + 1) - 1;
+ 		m_iPos = -1;
+ 		// (We'll immediately turn NORTH after kCenter)
+ 		m_eDir = CARDINALDIRECTION_WEST;
+@@ -169,23 +180,81 @@ private:
+ 			computeNext();
+ 		}
+ 	}
++	// To avoid including CvUnit.h
++	CvPlot& getUnitPlot(CvUnit const& kUnit) const;
++};
++
++/*	Traverses the square of plots in reading direction.
++	The implementation is pretty bare-bones b/c I need it only in one specific
++	context so far. */
++class ScanLinePlotIterator : public SquareOfPlotsIterator
++{
++	int m_iDeltaX, m_iDeltaY;
++	int m_iCurrXDist, m_iCurrYDist;
++public:
++	ScanLinePlotIterator(CvPlot const& kCenter, int iRadius)
++	:	SquareOfPlotsIterator(kCenter, iRadius),
++		m_iDeltaX(-iRadius), m_iDeltaY(iRadius),
++		m_iCurrXDist(iRadius), m_iCurrYDist(iRadius)
++	{
++		computeNext();
++	}
+ 
+-	CvPlot* getUnitPlot(CvUnit const& kUnit) const;
++	ScanLinePlotIterator& operator++()
++	{
++		computeNext();
++		return *this;
++	}
++
++	int currXDist() const
++	{
++		return m_iCurrXDist;
++	}
++
++	int currYDist() const
++	{
++		return m_iCurrYDist;
++	}
++
++protected:
++	void computeNext()
++	{
++		m_pNext = GC.getMap().plotXY(m_pCenter, m_iDeltaX, m_iDeltaY);
++		// Need to set these before updating the delta values
++		m_iCurrXDist = abs(m_iDeltaX);
++		m_iCurrYDist = abs(m_iDeltaY);
++		if (m_iDeltaX == m_iRadius)
++		{
++			if (m_iDeltaY <= -m_iRadius)
++			{
++				if (m_iDeltaY < -m_iRadius)
++					m_pNext = NULL;
++				// Next plot has been set to the lower right corner
++				m_iDeltaY--; // Signal that scan is complete
++				return;
++			}
++			m_iDeltaX = -m_iRadius; // carriage return
++			m_iDeltaY--; // go down one row
++		}
++		else m_iDeltaX++; // go right one column
++		if (m_pNext == NULL) // Past the edges of the map
++			computeNext();
++	}
+ };
+ 
+-// These two derived classes really only hide the template parameter ...
++// The standard square and circle iterators use spiral traversal ...
+ 
+-class SquareIter : public SquareIterator<false>
++class SquareIter : public SpiralPlotIterator<false>
+ {
+ public:
+ 	SquareIter(CvPlot const& kCenter, int iRadius, bool bIncludeCenter = true) :
+-			SquareIterator<false>(kCenter, iRadius, bIncludeCenter) {}
++			SpiralPlotIterator<false>(kCenter, iRadius, bIncludeCenter) {}
+ 
+ 	SquareIter(CvUnit const& kUnit, int iRadius, bool bIncludeCenter = true) :
+-			SquareIterator<false>(kUnit, iRadius, bIncludeCenter) {}
++			SpiralPlotIterator<false>(kUnit, iRadius, bIncludeCenter) {}
+ 
+ 	SquareIter(int x, int y, int iRadius, bool bIncludeCenter = true) :
+-			SquareIterator<false>(x, y, iRadius, bIncludeCenter) {}
++			SpiralPlotIterator<false>(x, y, iRadius, bIncludeCenter) {}
+ 
+ 	SquareIter& operator++()
+ 	{
+@@ -194,17 +263,17 @@ public:
+ 	}
+ };
+ 
+-class PlotCircleIter : public SquareIterator<true>
++class PlotCircleIter : public SpiralPlotIterator<true>
+ {
+ public:
+ 	PlotCircleIter(CvPlot const& kCenter, int iRadius, bool bIncludeCenter = true) :
+-			SquareIterator<true>(kCenter, iRadius, bIncludeCenter) {}
++			SpiralPlotIterator<true>(kCenter, iRadius, bIncludeCenter) {}
+ 
+ 	PlotCircleIter(CvUnit const& kUnit, int iRadius, bool bIncludeCenter = true) :
+-			SquareIterator<true>(kUnit, iRadius, bIncludeCenter) {}
++			SpiralPlotIterator<true>(kUnit, iRadius, bIncludeCenter) {}
+ 
+ 	PlotCircleIter(int x, int y, int iRadius, bool bIncludeCenter = true) :
+-			SquareIterator<true>(x, y, iRadius, bIncludeCenter) {}
++			SpiralPlotIterator<true>(x, y, iRadius, bIncludeCenter) {}
+ 
+ 	PlotCircleIter& operator++()
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=12177

@@ -1,0 +1,249 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3029
+# Commit: 4326e232ad4ab309bd717e3e7e16d46d23c136c7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 39f8bdbcf739be88ba82017be7b3b1425c5b3a29
+# Title: Replace ARRAY_LENGTH macro with ARRAYSIZE (WinNT.h)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCity.cpp
+2	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+0	5	CvGameCoreDLL/CvGameCoreUtils.h
+1	1	CvGameCoreDLL/CvGameInterface.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvGlobals.cpp
+3	3	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPythonCaller.cpp
+1	1	CvGameCoreDLL/MilitaryBranch.cpp
+1	1	CvGameCoreDLL/StartingPositionIteration.cpp
+3	3	CvGameCoreDLL/UWAI.cpp
+1	1	CvGameCoreDLL/UWAICache.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index aaf4807e1..9740956c1 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11757,7 +11757,7 @@ void CvCity::getVisibleEffects(ZoomLevelTypes eCurZoom,
+ 				"FIREWORKS_BLUE_LARGE_SLOW",
+ 				"FIREWORKS_BLUE_SMALL_FAST"
+ 			};
+-			int const iNumEffects = ARRAY_LENGTH(szFireworkEffects);
++			int const iNumEffects = ARRAYSIZE(szFireworkEffects);
+ 			for (int i = 0; i < (iNumEffects < 3 ? iNumEffects : 3); i++)
+ 			{
+ 				kEffectNames.push_back(szFireworkEffects[kRand.get(iNumEffects)]);
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index a708695e7..1dbe78d13 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -44,7 +44,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 		WIDGET_CONTACT_CIV, WIDGET_SCORE_BREAKDOWN, WIDGET_POWER_RATIO,
+ 		WIDGET_GOLDEN_AGE, WIDGET_ANARCHY
+ 	};
+-	for(int i = 0; i < ARRAY_LENGTH(aePlayerAsData1); i++)
++	for(int i = 0; i < ARRAYSIZE(aePlayerAsData1); i++)
+ 	{
+ 		if(widgetDataStruct.m_eWidgetType == aePlayerAsData1[i] &&
+ 			(widgetDataStruct.m_iData1 <= NO_PLAYER ||
+@@ -718,7 +718,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 		WIDGET_EXPAND_SCORES, WIDGET_SCORE_BREAKDOWN, WIDGET_POWER_RATIO,
+ 		WIDGET_GOLDEN_AGE, WIDGET_ANARCHY
+ 	};
+-	for(int i = 0; i < ARRAY_LENGTH(aeExpandTypes); i++)
++	for(int i = 0; i < ARRAYSIZE(aeExpandTypes); i++)
+ 	{
+ 		if((widgetDataStruct.m_eWidgetType == aeExpandTypes[i] &&
+ 			widgetDataStruct.m_iData2 == 0) ||
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 12ca2b30a..5a98582bf 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -186,11 +186,6 @@ void iota(ForwardIt first, ForwardIt last, T value)
+ }
+ };
+ 
+-/*	advc: For arrays initialized through brace-enclosed list.
+-	The array must not be empty. Corresponds to std::size in C++17
+-	(but we don't have constexpr, so it has to be a macro). */
+-#define ARRAY_LENGTH(aArray) (sizeof(aArray) / sizeof(aArray[0]))
+-
+ // advc.004w:
+ void applyColorToString(CvWString& s, char const* szColor, bool bLink = false);
+ void narrowUnsafe(CvWString const& szWideString, CvString& szNarowString); // advc
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 2cab0b612..8bcbec62e 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2656,7 +2656,7 @@ void CvGame::setCityBarWidth(bool bWide)
+ 		"INTERFACE_CITY_BAR_REGULAR_GLOW",
+ 		"INTERFACE_CITY_BAR_CAPITAL_GLOW"
+ 	};
+-	int const iCityBarTags = ARRAY_LENGTH(aszCityBarTags);
++	int const iCityBarTags = ARRAYSIZE(aszCityBarTags);
+ 	CvArtInfoInterface* apCityBarArtInfos[iCityBarTags];
+ 	for (int i = 0; i < iCityBarTags; i++)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b1766fb4b..cc60caafe 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -15681,7 +15681,7 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 			MEMORY_SPY_CAUGHT, MEMORY_ACCEPTED_STOP_TRADING,
+ 			MEMORY_NUKED_FRIEND, MEMORY_DECLARED_WAR_ON_FRIEND,
+ 		};
+-		int const iNumObscureMemoryTypes = ARRAY_LENGTH(aeObscureMemoryTypes);
++		int const iNumObscureMemoryTypes = ARRAYSIZE(aeObscureMemoryTypes);
+ 		// </advc.004q>
+ 		FOR_EACH_ENUM(Memory)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index e2ce03e05..5fd76362b 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -664,7 +664,7 @@ void CvGlobals::cacheGlobalInts(char const* szChangedDefine, int iNewValue)
+ 	const char* const aszGlobalDefinesTagNames[] = {
+ 		DO_FOR_EACH_GLOBAL_DEFINE(MAKE_STRING)
+ 	};
+-	FAssert(ARRAY_LENGTH(aszGlobalDefinesTagNames) == NUM_GLOBAL_DEFINES);
++	FAssert(ARRAYSIZE(aszGlobalDefinesTagNames) == NUM_GLOBAL_DEFINES);
+ 
+ 	if (szChangedDefine != NULL) // Cache update
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6bba6ea8c..8cf8757b1 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -10859,7 +10859,7 @@ void CvPlayer::postProcessMessages()
+ 				bRelevantDiplo = true;
+ 				break;
+ 			}
+-			for(int i = 0; i < ARRAY_LENGTH(aszRelevantNonOffers); i++)
++			for(int i = 0; i < ARRAYSIZE(aszRelevantNonOffers); i++)
+ 			{
+ 				if(dp->getDiploComment() == GC.getAIDiploCommentType(aszRelevantNonOffers[i]))
+ 				{
+@@ -18721,7 +18721,7 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
+ 	}
+ 	TradeableItems eForcePeaceItemType = NO_TRADE_ITEM;
+ 	TradeableItems aeForcePeace[] = { TRADE_CITIES, /* advc.146: */ TRADE_WAR };
+-	int const iForcePeaceSz = ARRAY_LENGTH(aeForcePeace);
++	int const iForcePeaceSz = ARRAYSIZE(aeForcePeace);
+ 	/*	When a player tries to deselect a peace treaty, the trade screen will
+ 		remove it (temporarily) only from one player's side. Therefore need
+ 		to check each player individually for an offered peace treaty. */
+@@ -19105,7 +19105,7 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption,
+ 					};
+ 					PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+ 					TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
+-					for (int j = 0; j < ARRAY_LENGTH(aePriorityList); j++)
++					for (int j = 0; j < ARRAYSIZE(aePriorityList); j++)
+ 					{
+ 						// Use unit owner as tiebreaker
+ 						for (int k = 0; k < 3; k++)
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.cpp b/CvGameCoreDLL/CvPythonCaller.cpp
+index 622702d3c..3c6c62b03 100644
+--- a/CvGameCoreDLL/CvPythonCaller.cpp
++++ b/CvGameCoreDLL/CvPythonCaller.cpp
+@@ -82,7 +82,7 @@ CvPythonCaller::CvPythonCaller() : m_python(*gDLL->getPythonIFace()), m_bLastCal
+ 	const char* const aszGlobalCallbackTagNames[] = {
+ 		DO_FOR_EACH_CALLBACK_DEFINE(MAKE_STRING)
+ 	};
+-	FAssert(ARRAY_LENGTH(aszGlobalCallbackTagNames) == NUM_CALLBACK_DEFINES);
++	FAssert(ARRAYSIZE(aszGlobalCallbackTagNames) == NUM_CALLBACK_DEFINES);
+ 	m_abUseCallback = new bool[NUM_CALLBACK_DEFINES];
+ 	for (int i = 0; i < NUM_CALLBACK_DEFINES; i++)
+ 		m_abUseCallback[i] = GC.getDefineBOOL(aszGlobalCallbackTagNames[i]);
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index c2bce04ba..fd1d43878 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -324,7 +324,7 @@ scaled MilitaryBranch::HomeGuard::initTotals(int iNonNavalUnits,
+ 	else
+ 	{
+ 		m_iUnits = 0;
+-		for (int i = 0; i < ARRAY_LENGTH(guardAITypes); i++)
++		for (int i = 0; i < ARRAYSIZE(guardAITypes); i++)
+ 			m_iUnits += kOwner.AI_getNumAIUnits(guardAITypes[i]);
+ 		/*	Units with aggressive AI types can be temporarily tied down
+ 			defending cities. So the count based on AI types isn't reliable. */
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index 1f08f9153..94fbda52b 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -115,7 +115,7 @@ StartingPositionIteration::StartingPositionIteration() :
+ 			{22, 36}, {19, 13}, {29, 12}, {29, 23},
+ 			{19, 29}, {32, 39}, {51, 11}, {55, 19},
+ 		};
+-		for (int j = 0; j < ARRAY_LENGTH(aiiForcedInitialPosition); j++)
++		for (int j = 0; j < ARRAYSIZE(aiiForcedInitialPosition); j++)
+ 		{
+ 			GET_PLAYER((PlayerTypes)j).setStartingPlot(&kMap.getPlot(
+ 					aiiForcedInitialPosition[j][0], aiiForcedInitialPosition[j][1]), false);
+
+diff --git a/CvGameCoreDLL/UWAI.cpp b/CvGameCoreDLL/UWAI.cpp
+index 262699c70..a0de64775 100644
+--- a/CvGameCoreDLL/UWAI.cpp
++++ b/CvGameCoreDLL/UWAI.cpp
+@@ -92,14 +92,14 @@ void UWAI::doXML()
+ 	char const* const aszAspectTagNames[] = {
+ 		DO_FOR_EACH_WAR_UTILITY_ASPECT(MAKE_TAG_NAME)
+ 	};
+-	FAssert(ARRAY_LENGTH(aszAspectTagNames) == NUM_ASPECTS);
++	FAssert(ARRAYSIZE(aszAspectTagNames) == NUM_ASPECTS);
+ 	for (int i = 0; i < NUM_ASPECTS; i++)
+ 		m_aiXmlWeights.push_back(GC.getDefineINT(aszAspectTagNames[i]));
+ 
+ 	char const* const aszAspectReportNames[] = {
+ 		DO_FOR_EACH_WAR_UTILITY_ASPECT(MAKE_REPORT_NAME)
+ 	};
+-	FAssert(ARRAY_LENGTH(aszAspectReportNames) == NUM_ASPECTS);
++	FAssert(ARRAYSIZE(aszAspectReportNames) == NUM_ASPECTS);
+ 	for (int i = 0; i < NUM_ASPECTS; i++)
+ 		m_aszAspectNames.push_back(aszAspectReportNames[i]);
+ 
+@@ -165,7 +165,7 @@ void UWAI::applyPersonalityWeight()
+ 			&kLeader.m_iPermanentAllianceRefuseAttitudeThreshold, &kLeader.m_iVassalRefuseAttitudeThreshold,
+ 			&kLeader.m_iVassalPowerModifier, &kLeader.m_iFreedomAppreciation,
+ 		};
+-		int const iPrimitiveMembers = ARRAY_LENGTH(aiPrimitiveMembers);
++		int const iPrimitiveMembers = ARRAYSIZE(aiPrimitiveMembers);
+ 		std::vector<int*>* paiPersonalityVector = new std::vector<int*>(
+ 				aiPrimitiveMembers, aiPrimitiveMembers + iPrimitiveMembers);
+ 		FOR_EACH_ENUM(Flavor)
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 695d93d57..959588fc8 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -574,7 +574,7 @@ scaled UWAICache::goldPerProdSites()
+ 	}
+ 	std::sort(aiFoundVals.begin(), aiFoundVals.end(), std::greater<int>());
+ 	scaled arSiteWeights[] = { 1, fixp(0.8), fixp(0.6), fixp(0.4), fixp(0.2) };
+-	int const iSitesMax = ARRAY_LENGTH(arSiteWeights);
++	int const iSitesMax = ARRAYSIZE(arSiteWeights);
+ 	scaled rSiteScore;
+ 	int const iSettlers = kOwner.AI_getNumAIUnits(UNITAI_SETTLE);
+ 	for (int i = iSettlers; i < std::min(iSitesMax, (int)aiFoundVals.size()); i++)
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=9565

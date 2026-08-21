@@ -1,0 +1,74 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2566
+# Commit: 4e77707cc02254975a0e01cecff1b5b19f2019db
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d4e2d2976df66398c8a38422a398530fea7fc3c8
+# Title: Remove redundant compiler flags from makefile
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	5	CvGameCoreDLL/Project/Makefile
+1	1	CvGameCoreDLL/Project/Makefile.project
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+index 3eb3260a7..5d7694447 100644
+--- a/CvGameCoreDLL/Project/Makefile
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -28,7 +28,7 @@
+ #   "FINAL_RELEASE", which had merely disabled the OutputDebugString function from
+ #   debugapi.h in release builds; do that based on _DEBUG instead.]
+ # CvGameCoreDLL.rc used only for final release.
+-# Use /arch:SSE2 for all release builds.
++# Use /arch:SSE2 for all release builds. Removed some redundant release-build flags.
+ # /W3 moved into PROJECT_CFLAGS.
+ 
+ ## User setup
+@@ -39,7 +39,7 @@
+ ## Not touching the makefile itself can be beneficial if the makefile is committed to svn/git
+ ## Makefile.settings can also accept CUSTOM_CFLAGS and CUSTOM_LDFLAGS if you want to ADD additional flags
+ ##   the custom flags will not overwrite any flags the makefile sets itself
+-##   An example could be you want to define ENABLE_MY_DEBUG_OUTPUT in C+, then you write
++##   An example could be you want to define ENABLE_MY_DEBUG_OUTPUT in C++, then you write
+ ##     CUSTOM_CFLAGS -DENABLE_MY_DEBUG_OUTPUT
+ ##     in Makefile.settings and it will be defined for you without the risk of committing active debug output to other people
+ ##
+@@ -193,10 +193,9 @@ FILE_DEPENDS = $(TEMP_TARGET_FILES)\depends
+ #### CFLAGS ####
+ GLOBAL_CFLAGS=/GR /Gy /EHsc /Gd /Gm- /Fd"$(Target_PDB)" $(CUSTOM_CFLAGS) $(PROJECT_CFLAGS)
+ Debug_CFLAGS=/MD /Z7 /Od /RTC1 $(Debug_DEFINES) $(GLOBAL_CFLAGS) $(PROJECT_Debug_CFLAGS)
+-# (Debug-opt: Using Debug_CFLAGS without /D_DEBUG /RTC1 might accomplish largely the same)
+-Debug_Opt_CFLAGS=/MD /O2 /Z7 /Oi /G7 /arch:SSE2 $(Release_DEFINES) $(GLOBAL_CFLAGS) $(PROJECT_DebugOpt_CFLAGS)
+-Release_CFLAGS=/MD /O2 /Oy /Oi /G7 /arch:SSE2 $(Release_DEFINES) $(GLOBAL_CFLAGS)
++Release_CFLAGS=/MD /O2 /G7 /arch:SSE2 $(Release_DEFINES) $(GLOBAL_CFLAGS)
+ Final_Release_CFLAGS=$(Release_CFLAGS) /GL
++Debug_Opt_CFLAGS=$(Release_CFLAGS) /Z7 $(PROJECT_DebugOpt_CFLAGS)
+ 
+ PRECOMPILE_CFLAGS1 = /Yu"
+ PRECOMPILE_CFLAGS2 = CvGameCoreDLL.h" /Fp"$(Target_PCH)"
+
+diff --git a/CvGameCoreDLL/Project/Makefile.project b/CvGameCoreDLL/Project/Makefile.project
+index 0d4c0fc78..c1a9af657 100644
+--- a/CvGameCoreDLL/Project/Makefile.project
++++ b/CvGameCoreDLL/Project/Makefile.project
+@@ -4,7 +4,7 @@ PROJECT_CFLAGS = /WX /W4
+ # Allow inline expansion of functions with an inline keyword even for debug builds
+ PROJECT_Debug_CFLAGS = /Ob1
+ # Should _not_ be set when inspecting disassembly as it will disable __forceinline
+-#PROJECT_DebugOpt_CFLAGS = /DFASSERT_ENABLE
++#PROJECT_DebugOpt_CFLAGS = /DFASSERT_ENABLE /Oy-
+ # DLL-internal profiler: /DUSE_INTERNAL_PROFILER
+ # Time Stamp Counter profiler: /DUSE_TSC_PROFILER
+ # External profiler, e.g. Very Sleepy: No profile flags needed; profile builds always use Z7.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2809

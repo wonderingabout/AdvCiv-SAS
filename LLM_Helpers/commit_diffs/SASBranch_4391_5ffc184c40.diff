@@ -1,0 +1,48 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4391
+# Commit: 5ffc184c4022be1b17a0d9828756057f57dc09fd
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8fb118e2557c5cadd6f3a3a78c8090e054e3e2e1
+# Title: Remove two duplicate city name entries
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 473874a64..2588ae725 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1527,7 +1527,8 @@
+ 				<City>TXT_KEY_CITY_NAME_PYLOS</City>
+ 				<City>TXT_KEY_CITY_NAME_PELLA</City>
+ 				<City>TXT_KEY_CITY_NAME_NAXOS</City>
+-				<City>TXT_KEY_CITY_NAME_SICYON</City>
++				<!-- advc.001: duplicate -->
++				<!--City>TXT_KEY_CITY_NAME_SICYON</City-->
+ 				<City>TXT_KEY_CITY_NAME_SMYRNA</City>
+ 				<City>TXT_KEY_CITY_NAME_LARISSA</City>
+ 				<City>TXT_KEY_CITY_NAME_APOLLONIA</City>
+@@ -2867,7 +2868,8 @@
+ 				<City>TXT_KEY_CITY_NAME_IZMIT</City>
+ 				<City>TXT_KEY_CITY_NAME_AFYON</City>
+ 				<City>TXT_KEY_CITY_NAME_BITLIS</City>
+-				<City>TXT_KEY_CITY_NAME_MARMARIS</City>
++				<!-- advc.001: duplicate -->
++				<!--City>TXT_KEY_CITY_NAME_MARMARIS</City-->
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=994

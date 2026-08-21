@@ -1,0 +1,150 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 949
+# Commit: 2fd3cd1c4792993ea432155ee95933ac1b6d2f90
+# History segment: K-Mod history
+# Parent used for diff: ed42bab36c0e93fd89495030a651598a4027881a
+# Title: Made some adjustments to the AI's floating defenders calculations.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	CvGameCoreDLL/CvCityAI.cpp
+4	21	CvGameCoreDLL/CvPlayerAI.cpp
+15	0	CvGameCoreDLL/CvTeam.cpp
+2	9	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e7e103186..78e3be08c 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -11907,6 +11907,9 @@ int CvCityAI::AI_cityThreat(bool bDangerPercent)
+ 						iTempValue += (stepDistance(getX_INLINE(), getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) <= 1) ? 2 : 1;
+ 					}
+ 				}
++				//if (getPreviousOwner() == iI && GC.getGameINLINE().getGameTurn() - getGameTurnAcquired() < 40)
++				if (getPreviousOwner() == iI) // lets try this first. If weird stuff happens, then we'll try the turn limit.
++					iTempValue = iTempValue * 3/2;
+ 				// K-Mod end
+ 
+ 				if (bCrushStrategy && GET_TEAM(getTeam()).AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index faf7c2777..7e5453ce8 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -21322,26 +21322,12 @@ int CvPlayerAI::AI_getTotalFloatingDefendersNeeded(CvArea* pArea) const
+ 	// K-Mod
+ 	iDefenders = 1 + iAreaCities + AI_totalAreaUnitAIs(pArea, UNITAI_SETTLE);
+ 	iDefenders += pArea->getPopulationPerPlayer(getID()) / 7;
++	if (AI_isLandWar(pArea))
++		iDefenders += 1 + (2+GET_TEAM(getTeam()).countEnemyCitiesByArea(pArea))/3;
+ 	iDefenders *= iCurrentEra + (GC.getGameINLINE().getMaxCityElimination() > 0 ? 3 : 2);
+ 	iDefenders /= 3;
+ 	// K-Mod end
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      04/01/10                                jdog5000      */
+-/*                                                                                              */
+-/* War strategy AI, Victory Strategy AI                                                         */
+-/************************************************************************************************/
+-	//if( pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE || pArea->getAreaAIType(getTeam()) == AREAAI_OFFENSIVE || pArea->getAreaAIType(getTeam()) == AREAAI_MASSING )
+-	if (AI_isLandWar(pArea)) // K-Mod
+-	{
+-		if( iAreaCities <= std::min(4, pArea->getNumCities()/3) )
+-		{
+-			// Land war here, as floating defenders are based on cities/population need to make sure
+-			// AI defends its footholds in new continents well.
+-			iDefenders += GET_TEAM(getTeam()).countEnemyPopulationByArea(pArea) / 14;
+-		}
+-	}
+-
+ 	if (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
+ 	{
+ 		iDefenders *= 2;
+@@ -21364,7 +21350,7 @@ int CvPlayerAI::AI_getTotalFloatingDefendersNeeded(CvArea* pArea) const
+ 		}
+ 		else if (pArea->getAreaAIType(getTeam()) == AREAAI_MASSING)
+ 		{
+-			if( GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true) < (10 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarNearbyPowerRatio()) )
++			if( GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true) < (10 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarNearbyPowerRatio()) ) // bbai
+ 			{
+ 				iDefenders *= 2;
+ 				iDefenders /= 3;
+@@ -21383,12 +21369,9 @@ int CvPlayerAI::AI_getTotalFloatingDefendersNeeded(CvArea* pArea) const
+ 		iDefenders /= 3;
+ 	}
+ 
+-	// Removed AI_STRATEGY_GET_BETTER_UNITS reduction, it was reducing defenses twice
++	// BBAI: Removed AI_STRATEGY_GET_BETTER_UNITS reduction, it was reducing defenses twice
+ 	
+ 	if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3))
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 	{
+ 		iDefenders += 2 * iAreaCities;
+ 		//if (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 44c3fee0d..52fcf0a42 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2734,6 +2734,21 @@ int CvTeam::countEnemyPowerByArea(CvArea* pArea) const
+ 	return iCount;
+ }
+ 
++// K-Mod
++// Note: this includes barbarian cities.
++int CvTeam::countEnemyCitiesByArea(CvArea* pArea) const
++{
++	int iCount = 0;
++	for (PlayerTypes i = (PlayerTypes)0; i < MAX_PLAYERS; i=(PlayerTypes)(i+1))
++	{
++		const CvPlayer& kLoopPlayer = GET_PLAYER(i);
++		if (kLoopPlayer.isAlive() && AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN)
++			iCount += pArea->getCitiesPerPlayer(i);
++	}
++	return 0;
++}
++// K-Mod end
++
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      04/01/10                                jdog5000      */
+ /*                                                                                              */
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index f02a71d31..5475082d5 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -105,17 +105,10 @@ public:
+ 	int countTotalPopulationByArea(CvArea* pArea) const;																// Exposed to Python
+ 	int countPowerByArea(CvArea* pArea) const;																					// Exposed to Python
+ 	int countEnemyPowerByArea(CvArea* pArea) const;																			// Exposed to Python
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/19/10                                jdog5000      */
+-/*                                                                                              */
+-/* War strategy AI                                                                              */
+-/************************************************************************************************/
+-	int countEnemyPopulationByArea(CvArea* pArea) const;
++	int countEnemyCitiesByArea(CvArea* pArea) const; // K-Mod
++	int countEnemyPopulationByArea(CvArea* pArea) const; // bbai
+ 	int countNumAIUnitsByArea(CvArea* pArea, UnitAITypes eUnitAI) const;								// Exposed to Python
+ 	int countEnemyDangerByArea(CvArea* pArea, TeamTypes eEnemyTeam = NO_TEAM) const;																		// Exposed to Python
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 	// K-Mod
+ 	int getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain = NO_DOMAIN) const;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=6494

@@ -1,0 +1,166 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4352
+# Commit: eba3bd684ee04f668da2c5ff44dbce979654179e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a671536ab0bfcea17327b34f5c2c86c0a2a0a8d4
+# Title: change a few free trades for more versatility and early potential - gunpowder replaced with optics - steel replaced with gunpowder - steam power replaced wit...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+36	18	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index addea3aa5..4caca2ed2 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -178,24 +178,29 @@
+ 					<TechType>TECH_DRAMA</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: optics should be more versatile than gunpowder, was TECH_GUNPOWDER -->
+ 				<FreeTech>
+-					<TechType>TECH_GUNPOWDER</TechType>
++					<TechType>TECH_OPTICS</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: gunpowder should be more versatile than steel plus is a sooner available tech, was TECH_STEEL -->
+ 				<FreeTech>
+-					<TechType>TECH_STEAM_POWER</TechType>
++					<TechType>TECH_GUNPOWDER</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
+ 				<FreeTech>
+-					<TechType>TECH_STEEL</TechType>
++					<TechType>TECH_CHEMISTRY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
+ 				<FreeTech>
+-					<TechType>TECH_PLASTICS</TechType>
++					<TechType>TECH_INDUSTRIALISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: biology should be more useful to the player than refrigeration, was TECH_REFRIGERATION -->
+ 				<FreeTech>
+-					<TechType>TECH_REFRIGERATION</TechType>
++					<TechType>TECH_BIOLOGY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -361,12 +366,14 @@
+ 					<TechType>TECH_DRAMA</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
+ 				<FreeTech>
+-					<TechType>TECH_STEAM_POWER</TechType>
++					<TechType>TECH_CHEMISTRY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
+ 				<FreeTech>
+-					<TechType>TECH_PLASTICS</TechType>
++					<TechType>TECH_INDUSTRIALISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -943,12 +950,14 @@
+ 					<TechType>TECH_DRAMA</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
+ 				<FreeTech>
+-					<TechType>TECH_STEAM_POWER</TechType>
++					<TechType>TECH_CHEMISTRY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
+ 				<FreeTech>
+-					<TechType>TECH_PLASTICS</TechType>
++					<TechType>TECH_INDUSTRIALISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</AIFreeTechs>
+@@ -1133,12 +1142,14 @@
+ 					<TechType>TECH_DRAMA</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
+ 				<FreeTech>
+-					<TechType>TECH_STEAM_POWER</TechType>
++					<TechType>TECH_CHEMISTRY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
+ 				<FreeTech>
+-					<TechType>TECH_PLASTICS</TechType>
++					<TechType>TECH_INDUSTRIALISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</AIFreeTechs>
+@@ -1345,12 +1356,14 @@
+ 					<TechType>TECH_DRAMA</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
+ 				<FreeTech>
+-					<TechType>TECH_STEAM_POWER</TechType>
++					<TechType>TECH_CHEMISTRY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
+ 				<FreeTech>
+-					<TechType>TECH_PLASTICS</TechType>
++					<TechType>TECH_INDUSTRIALISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</AIFreeTechs>
+@@ -1571,24 +1584,29 @@
+ 					<TechType>TECH_DRAMA</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: optics should be more versatile than gunpowder, was TECH_GUNPOWDER -->
+ 				<FreeTech>
+-					<TechType>TECH_GUNPOWDER</TechType>
++					<TechType>TECH_OPTICS</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: gunpowder should be more versatile than steel plus is a sooner available tech, was TECH_STEEL -->
+ 				<FreeTech>
+-					<TechType>TECH_STEAM_POWER</TechType>
++					<TechType>TECH_GUNPOWDER</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
+ 				<FreeTech>
+-					<TechType>TECH_STEEL</TechType>
++					<TechType>TECH_CHEMISTRY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
+ 				<FreeTech>
+-					<TechType>TECH_PLASTICS</TechType>
++					<TechType>TECH_INDUSTRIALISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: biology should be more useful to the player than refrigeration, was TECH_REFRIGERATION -->
+ 				<FreeTech>
+-					<TechType>TECH_REFRIGERATION</TechType>
++					<TechType>TECH_BIOLOGY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</AIFreeTechs>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=5740

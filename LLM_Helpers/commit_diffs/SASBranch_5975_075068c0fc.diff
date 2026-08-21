@@ -1,0 +1,758 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5975
+# Commit: 075068c0fcae4bf534d559559c5a65f6e1336dd8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3f503dec574cf2fa48a7488de50b9b112c9b82e8
+# Title: Add and test automated AIP predump refresh GitHub Actions workflow bot (#31)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+24	7	.github/workflows/README.md
+15	3	.github/workflows/aip-predump-refresh.yml
+57	57	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+2	2	Assets/XML/GlobalDefines_advciv_sas.xml
+2	2	Long_Comments/Long_Comments_XML.txt
+2	2	README.md
+4	3	_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index f0fed163f..c6f02bfc0 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -5,7 +5,7 @@ These files are developer/repository automation, not Civ4 runtime files.
+ - `python-ruff.yml` shows full Ruff output and runs critical Ruff Python sanity checks.
+ - `python24-compile.yml` runs the real CPython 2.4 parser/bytecode compiler through Docker.
+ - `build.yml` runs checks that should pass for ordinary committed builds.
+-- `aip-predump-refresh.yml` is a manual bot workflow that refreshes the committed Sevopedia Leader AI Personality predump and opens/updates a PR only when the predump file changes.
++- `aip-predump-refresh.yml` refreshes the committed Sevopedia Leader AI Personality predump and opens/updates a PR only when the predump file changes. It can be run manually and also runs automatically after pushes that touch known AIP predump dependency files.
+ - `build/` contains Python 3 build-check scripts used by `build.yml`.
+ - `lib/` contains shared Python 3 helpers used by workflow scripts.
+ - Future `release.yml` and `release/` checks can be added for release-only checks such as documentation marker cleanup and archive contents.
+@@ -25,13 +25,29 @@ For example, this helped spot [map scripts that were previously unclassified in
+ 
+ ## AIP predump refresh workflow
+ 
+-[`aip-predump-refresh.yml`](/.github/workflows/aip-predump-refresh.yml) is intentionally manual-only (`workflow_dispatch`) for now. Run it from GitHub Actions when leader XML or shared AI Personality Panel display logic may have made `SevoPediaLeaderCachePredumped.py` stale.
++[`aip-predump-refresh.yml`](/.github/workflows/aip-predump-refresh.yml) refreshes `SevoPediaLeaderCachePredumped.py` outside Civ4. It keeps the manual `workflow_dispatch` trigger, and also runs automatically on pushes that touch known AIP predump dependency files:
+ 
+-The workflow checks out the selected branch, runs `python .github/workflows/build/aip_predump_values.py --write`, reruns the normal checker, and then inspects the predump file diff. If there is no diff, the log says the predump is already current and no PR is created. If there is a diff, it commits only `SevoPediaLeaderCachePredumped.py` to `bot/refresh-aip-predump-cache-<base-branch>` and creates or updates a PR named `Refresh AIP predump cache`.
++- `Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml`
++- `Assets/XML/AI_Variables_GlobalDefines.xml`
++- `Assets/XML/GlobalDefines_advciv_sas.xml`
++- `Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py`
++- `Assets/Python/Contrib/Sevopedia/sas_utils_shared_with_civ4.py`
++- `Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py`
++- `.github/workflows/build/aip_predump_values.py`
++- `.github/workflows/aip-predump-refresh.yml`
+ 
+-This uses only official checkout/setup-python actions plus GitHub's runner-provided `git`/`gh` tools. If PR creation fails with a permission error, check the repository's Actions workflow permissions: the workflow needs `contents: write`, `pull-requests: write`, and repository settings that allow GitHub Actions to create pull requests.
++The workflow checks out the selected or pushed branch, runs `python .github/workflows/build/aip_predump_values.py --write`, reruns the normal checker, and then inspects the predump file diff. If there is no diff, the log says the predump is already current and no PR is created. If there is a diff, it commits only `SevoPediaLeaderCachePredumped.py` to `bot/refresh-aip-predump-cache-<base-branch>` and creates or updates a PR named `Refresh AIP predump cache` targeting the branch that triggered the workflow.
+ 
+-This is the first cautious bot step: manual trigger first, then later we can decide whether a scheduled or post-check-failure trigger is worth it.
++The bot ignores its own refresh branches and skips runs by `github-actions[bot]`, so a generated predump PR does not recursively trigger another refresh. This uses only official checkout/setup-python actions plus GitHub's runner-provided `git`/`gh` tools. If PR creation fails with a permission error, check the repository's Actions workflow permissions: the workflow needs `contents: write`, `pull-requests: write`, and repository settings that allow GitHub Actions to create pull requests.
++
++Validated behavior, tested in [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31):
++
++- current `tech-rework` predump already current -> no PR;
++- leader XML comment-only change (Test 0) -> no PR;
++- real AIP numeric XML change (e.g., Temporary test 1: increase LEADER_MOCTEZUMA's war likeliness iMaxWarRand from 50 to 10) -> predump refresh PR;
++- shared AIP label/display change (e.g., Temporary test 2: "Build Unit %" -> "Build Unit Prob") -> predump refresh PR.
++
++The [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) body keeps the detailed temporary test commits, GitHub Actions logs, and temporary bot PR links. The important result is that the bot reacts to actual generated predump drift, not merely to touched dependency files.
+ 
+ ## Python Ruff workflow
+ 
+@@ -207,8 +223,9 @@ This script is intentionally separate from [`build/aip.py`](#buildaippy). `aip.p
+ Practical predump workflow:
+ 
+ 1. The normal checker run reconstructs the expected AIP cache outside Civ4 and compares it with the committed `SevoPediaLeaderCachePredumped.py`. CI runs this automatically on commits/PRs, so a failure usually means the committed predump is stale relative to leader XML or shared AIP display logic.
+-2. To refresh the committed file without launching Civ4, run `python .github/workflows/build/aip_predump_values.py --write`, review the diff, then rerun the checker.
+-3. The old manual fallback still works: temporarily set `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun this checker.
++2. The `Refresh AIP predump cache` workflow can refresh the predump from GitHub. It runs automatically after pushes to known AIP dependency files and can also be started manually from the Actions tab. When the generated file changes, it opens or updates a bot PR containing only `SevoPediaLeaderCachePredumped.py`.
++3. To refresh locally without launching Civ4, run `python .github/workflows/build/aip_predump_values.py --write`, review the diff, then rerun the checker.
++4. The old manual fallback still works: temporarily set `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun this checker.
+ 
+ The generated file intentionally has no timestamp. This keeps no-op `--write` runs byte-identical when cache data is unchanged, avoiding false diffs and future bot/maintenance churn.
+
+diff --git a/.github/workflows/aip-predump-refresh.yml b/.github/workflows/aip-predump-refresh.yml
+index a8791992c..d38888ded 100644
+--- a/.github/workflows/aip-predump-refresh.yml
++++ b/.github/workflows/aip-predump-refresh.yml
+@@ -2,6 +2,18 @@ name: Refresh AIP predump cache
+ 
+ on:
+   workflow_dispatch:
++  push:
++    branches-ignore:
++      - 'bot/refresh-aip-predump-cache-*'
++    paths:
++      - 'Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml'
++      - 'Assets/XML/AI_Variables_GlobalDefines.xml'
++      - 'Assets/XML/GlobalDefines_advciv_sas.xml'
++      - 'Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py'
++      - 'Assets/Python/Contrib/Sevopedia/sas_utils_shared_with_civ4.py'
++      - 'Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py'
++      - '.github/workflows/build/aip_predump_values.py'
++      - '.github/workflows/aip-predump-refresh.yml'
+ 
+ permissions:
+   contents: write
+@@ -13,7 +25,7 @@ concurrency:
+ 
+ jobs:
+   refresh-aip-predump-cache:
+-    if: startsWith(github.ref, 'refs/heads/')
++    if: startsWith(github.ref, 'refs/heads/') && github.actor != 'github-actions[bot]'
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/<hidden-email>
+@@ -22,10 +34,10 @@ jobs:
+       - uses: actions/<hidden-email>
+         with:
+           python-version: "3.x"
++      # <!-- custom: Bot helper: rebuild the committed AIP predump with the same deterministic writer used locally. A following diff step decides whether there is anything worth proposing as a PR. Runs manually, and also automatically after pushes to AIP dependency files. (GPT-5.5) -->
+       - name: Refresh AIP predump cache
+         shell: bash
+         run: |
+-          # <!-- custom: Manual-only bot helper: rebuild the committed AIP predump with the same deterministic writer used locally. A following diff step decides whether there is anything worth proposing as a PR. (GPT-5.5) -->
+           python .github/workflows/build/aip_predump_values.py --write
+           python .github/workflows/build/aip_predump_values.py
+       - name: Check for predump diff
+@@ -65,7 +77,7 @@ jobs:
+           cat > "$pr_body_path" <<'EOF_PR_BODY'
+           Automated refresh of `SevoPediaLeaderCachePredumped.py`.
+ 
+-          This PR was created by the manual **Refresh AIP predump cache** workflow. It runs:
++          This PR was created by the **Refresh AIP predump cache** workflow. The workflow runs manually when requested, and automatically after pushes that touch known AIP predump dependency files. It runs:
+ 
+           ```bash
+           python .github/workflows/build/aip_predump_values.py --write
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index facec35f5..bb196d2b1 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -12,7 +12,7 @@ Created as part of AdvCiv-SAS improvements
+ <!-- custom: remember or be careful to put leaders in their alphabetical order (per TXT_KEY ingame visible name (for example "Roosevelt" not "FRANKLIN_ROOSEVELT")) so they are correctly alphabetically sorted in custom game leader dropdown -->
+ <Civ4LeaderHeadInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
+ 	<LeaderHeadInfos>
+-		<LeaderHeadInfo> <!-- custom: Barbarian (useful for VS Code upper tree view while scrolling) -->
++		<LeaderHeadInfo> <!-- custom: LEADER_BARBARIAN (useful for VS Code upper tree view while scrolling) -->
+ 			<Type>LEADER_BARBARIAN</Type>
+ 			<Description>TXT_KEY_LEADER_BARBARIAN</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_BARBARIAN_PEDIA</Civilopedia>
+@@ -197,7 +197,7 @@ Created as part of AdvCiv-SAS improvements
+ 			</DiplomacyMusicWar>
+ 		</LeaderHeadInfo>
+ 		<!-- custom: fake leader_defaults to initialize defaults; Long_Comments_XML.txt #361 -->
+-		<LeaderHeadInfo> <!-- custom: Defaults -->
++		<LeaderHeadInfo> <!-- custom: LEADER_DEFAULTS -->
+ 			<Type>LEADER_DEFAULTS</Type>
+ 			<Description></Description>
+ 			<Civilopedia></Civilopedia>
+@@ -865,7 +865,7 @@ Created as part of AdvCiv-SAS improvements
+ 		</LeaderHeadInfo>
+ 		<!-- advc.xmldefault (end) -->
+ 
+-		<LeaderHeadInfo> <!-- custom: Alexander -->
++		<LeaderHeadInfo> <!-- custom: LEADER_ALEXANDER -->
+ 			<Type>LEADER_ALEXANDER</Type>
+ 			<Description>TXT_KEY_LEADER_ALEXANDER</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_ALEXANDER_PEDIA</Civilopedia>
+@@ -1067,7 +1067,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Asoka -->
++		<LeaderHeadInfo> <!-- custom: LEADER_ASOKA -->
+ 			<Type>LEADER_ASOKA</Type>
+ 			<Description>TXT_KEY_LEADER_ASOKA</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_ASOKA_PEDIA</Civilopedia>
+@@ -1312,7 +1312,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Augustus -->
++		<LeaderHeadInfo> <!-- custom: LEADER_AUGUSTUS -->
+ 			<Type>LEADER_AUGUSTUS</Type>
+ 			<Description>TXT_KEY_LEADER_AUGUSTUS</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_AUGUSTUS_CAESAR_PEDIA</Civilopedia>
+@@ -1525,7 +1525,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Bismarck -->
++		<LeaderHeadInfo> <!-- custom: LEADER_BISMARCK -->
+ 			<Type>LEADER_BISMARCK</Type>
+ 			<Description>TXT_KEY_LEADER_BISMARCK</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_BISMARCK_PEDIA</Civilopedia>
+@@ -1736,7 +1736,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Boudica -->
++		<LeaderHeadInfo> <!-- custom: LEADER_BOUDICA -->
+ 			<Type>LEADER_BOUDICA</Type>
+ 			<Description>TXT_KEY_LEADER_BOUDICA</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_BOUDICA_PEDIA</Civilopedia>
+@@ -1940,7 +1940,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Brennus -->
++		<LeaderHeadInfo> <!-- custom: LEADER_BRENNUS -->
+ 			<Type>LEADER_BRENNUS</Type>
+ 			<Description>TXT_KEY_LEADER_BRENNUS</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_BRENNUS_PEDIA</Civilopedia>
+@@ -2147,7 +2147,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Catherine -->
++		<LeaderHeadInfo> <!-- custom: LEADER_CATHERINE -->
+ 			<Type>LEADER_CATHERINE</Type>
+ 			<Description>TXT_KEY_LEADER_CATHERINE</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_CATHERINE_PEDIA</Civilopedia>
+@@ -2387,7 +2387,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Charlemagne -->
++		<LeaderHeadInfo> <!-- custom: LEADER_CHARLEMAGNE -->
+ 			<Type>LEADER_CHARLEMAGNE</Type>
+ 			<Description>TXT_KEY_LEADER_CHARLEMAGNE</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_CHARLEMAGNE_PEDIA</Civilopedia>
+@@ -2596,7 +2596,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Churchill -->
++		<LeaderHeadInfo> <!-- custom: LEADER_CHURCHILL -->
+ 			<Type>LEADER_CHURCHILL</Type>
+ 			<Description>TXT_KEY_LEADER_CHURCHILL</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_WINSTON_CHURCHILL_PEDIA</Civilopedia>
+@@ -2807,7 +2807,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Cyrus -->
++		<LeaderHeadInfo> <!-- custom: LEADER_CYRUS -->
+ 			<Type>LEADER_CYRUS</Type>
+ 			<Description>TXT_KEY_LEADER_CYRUS</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_CYRUS_PEDIA</Civilopedia>
+@@ -3028,7 +3028,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Darius -->
++		<LeaderHeadInfo> <!-- custom: LEADER_DARIUS -->
+ 			<Type>LEADER_DARIUS</Type>
+ 			<Description>TXT_KEY_LEADER_DARIUS</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_DARIUS_PEDIA</Civilopedia>
+@@ -3252,7 +3252,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: De_Gaulle -->
++		<LeaderHeadInfo> <!-- custom: LEADER_DE_GAULLE -->
+ 			<Type>LEADER_DE_GAULLE</Type>
+ 			<Description>TXT_KEY_LEADER_DE_GAULLE</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_DE_GAULLE_PEDIA</Civilopedia>
+@@ -3466,7 +3466,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Elizabeth -->
++		<LeaderHeadInfo> <!-- custom: LEADER_ELIZABETH -->
+ 			<Type>LEADER_ELIZABETH</Type>
+ 			<Description>TXT_KEY_LEADER_ELIZABETH</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_ELIZABETH_PEDIA</Civilopedia>
+@@ -3681,7 +3681,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+ 		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #18 -->
+-		<LeaderHeadInfo> <!-- custom: Ewuare -->
++		<LeaderHeadInfo> <!-- custom: LEADER_EWUARE -->
+ 			<Type>LEADER_EWUARE</Type>
+ 			<Description>TXT_KEY_LEADER_EWUARE</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_EWUARE_PEDIA</Civilopedia>
+@@ -3907,7 +3907,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Frederick -->
++		<LeaderHeadInfo> <!-- custom: LEADER_FREDERICK -->
+ 			<Type>LEADER_FREDERICK</Type>
+ 			<Description>TXT_KEY_LEADER_FREDERICK</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_FREDERICK_PEDIA</Civilopedia>
+@@ -4122,7 +4122,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Gandhi -->
++		<LeaderHeadInfo> <!-- custom: LEADER_GANDHI -->
+ 			<Type>LEADER_GANDHI</Type>
+ 			<Description>TXT_KEY_LEADER_GANDHI</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_GANDHI_PEDIA</Civilopedia>
+@@ -4384,7 +4384,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Genghis_Khan -->
++		<LeaderHeadInfo> <!-- custom: LEADER_GENGHIS_KHAN -->
+ 			<Type>LEADER_GENGHIS_KHAN</Type>
+ 			<Description>TXT_KEY_LEADER_GENGHIS_KHAN</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_GENGHIS_KHAN_PEDIA</Civilopedia>
+@@ -4605,7 +4605,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Gilgamesh -->
++		<LeaderHeadInfo> <!-- custom: LEADER_GILGAMESH -->
+ 			<Type>LEADER_GILGAMESH</Type>
+ 			<Description>TXT_KEY_LEADER_GILGAMESH</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_GILGAMESH_PEDIA</Civilopedia>
+@@ -4811,7 +4811,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+ 		<!-- custom: Ireland leader based on Ragnar with economy-raider behavior and low ideology pressure. (GPT-5.3-Codex) -->
+-		<LeaderHeadInfo> <!-- custom: Grace O'Malley -->
++		<LeaderHeadInfo> <!-- custom: LEADER_GRACE_OMALLEY -->
+ 			<Type>LEADER_GRACE_OMALLEY</Type>
+ 			<Description>TXT_KEY_LEADER_GRACE_OMALLEY</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_GRACE_OMALLEY_PEDIA</Civilopedia>
+@@ -5078,7 +5078,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Hammurabi -->
++		<LeaderHeadInfo> <!-- custom: LEADER_HAMMURABI -->
+ 			<Type>LEADER_HAMMURABI</Type>
+ 			<Description>TXT_KEY_LEADER_HAMMURABI</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_HAMMURABI_PEDIA</Civilopedia>
+@@ -5278,7 +5278,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Hannibal -->
++		<LeaderHeadInfo> <!-- custom: LEADER_HANNIBAL -->
+ 			<Type>LEADER_HANNIBAL</Type>
+ 			<Description>TXT_KEY_LEADER_HANNIBAL</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_HANNIBAL_PEDIA</Civilopedia>
+@@ -5482,7 +5482,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Hatshepsut -->
++		<LeaderHeadInfo> <!-- custom: LEADER_HATSHEPSUT -->
+ 			<Type>LEADER_HATSHEPSUT</Type>
+ 			<Description>TXT_KEY_LEADER_HATSHEPSUT</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_HATSHEPSUT_PEDIA</Civilopedia>
+@@ -5719,7 +5719,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Huayna_Capac -->
++		<LeaderHeadInfo> <!-- custom: LEADER_HUAYNA_CAPAC -->
+ 			<Type>LEADER_HUAYNA_CAPAC</Type>
+ 			<Description>TXT_KEY_LEADER_HUAYNA_CAPAC</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_HUAYNA_CAPAC_PEDIA</Civilopedia>
+@@ -5942,7 +5942,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Isabella -->
++		<LeaderHeadInfo> <!-- custom: LEADER_ISABELLA -->
+ 			<Type>LEADER_ISABELLA</Type>
+ 			<Description>TXT_KEY_LEADER_ISABELLA</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_ISABELLA_PEDIA</Civilopedia>
+@@ -6184,7 +6184,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Joao -->
++		<LeaderHeadInfo> <!-- custom: LEADER_JOAO -->
+ 			<Type>LEADER_JOAO</Type>
+ 			<Description>TXT_KEY_LEADER_JOAO</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_JOAO_PEDIA</Civilopedia>
+@@ -6392,7 +6392,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Julius_Caesar -->
++		<LeaderHeadInfo> <!-- custom: LEADER_JULIUS_CAESAR -->
+ 			<Type>LEADER_JULIUS_CAESAR</Type>
+ 			<Description>TXT_KEY_LEADER_JULIUS_CAESAR</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_JULIUS_CAESAR_PEDIA</Civilopedia>
+@@ -6600,7 +6600,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Justinian -->
++		<LeaderHeadInfo> <!-- custom: LEADER_JUSTINIAN -->
+ 			<Type>LEADER_JUSTINIAN</Type>
+ 			<Description>TXT_KEY_LEADER_JUSTINIAN</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_JUSTINIAN_PEDIA</Civilopedia>
+@@ -6813,7 +6813,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Kublai_Khan -->
++		<LeaderHeadInfo> <!-- custom: LEADER_KUBLAI_KHAN -->
+ 			<Type>LEADER_KUBLAI_KHAN</Type>
+ 			<Description>TXT_KEY_LEADER_KUBLAI_KHAN</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_KUBLAI_KHAN_PEDIA</Civilopedia>
+@@ -7069,7 +7069,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Lincoln -->
++		<LeaderHeadInfo> <!-- custom: LEADER_LINCOLN -->
+ 			<Type>LEADER_LINCOLN</Type>
+ 			<Description>TXT_KEY_LEADER_LINCOLN</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_LINCOLN_PEDIA</Civilopedia>
+@@ -7278,7 +7278,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Louis_14 -->
++		<LeaderHeadInfo> <!-- custom: LEADER_LOUIS_XIV -->
+ 			<Type>LEADER_LOUIS_XIV</Type>
+ 			<Description>TXT_KEY_LEADER_LOUISXIV</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_LOUISXIV_PEDIA</Civilopedia>
+@@ -7500,7 +7500,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Mansa_Musa -->
++		<LeaderHeadInfo> <!-- custom: LEADER_MANSA_MUSA -->
+ 			<Type>LEADER_MANSA_MUSA</Type>
+ 			<Description>TXT_KEY_LEADER_MANSA_MUSA</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_MANSA_MUSA_PEDIA</Civilopedia>
+@@ -7704,7 +7704,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Mao_Zedong -->
++		<LeaderHeadInfo> <!-- custom: LEADER_MAO_ZEDONG -->
+ 			<Type>LEADER_MAO_ZEDONG</Type>
+ 			<Description>TXT_KEY_LEADER_MAO_ZEDONG</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_MAO_ZEDONG_PEDIA</Civilopedia>
+@@ -7913,7 +7913,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Mehmed -->
++		<LeaderHeadInfo> <!-- custom: LEADER_MEHMED -->
+ 			<Type>LEADER_MEHMED</Type>
+ 			<Description>TXT_KEY_LEADER_MEHMED</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_MEHMED_II_PEDIA</Civilopedia>
+@@ -8117,7 +8117,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+ 		<!-- custom: Ireland leader based on Frederick with disciplined intelligence-state behavior. (GPT-5.3-Codex) -->
+-		<LeaderHeadInfo> <!-- custom: Michael Collins -->
++		<LeaderHeadInfo> <!-- custom: LEADER_MICHAEL_COLLINS -->
+ 			<Type>LEADER_MICHAEL_COLLINS</Type>
+ 			<Description>TXT_KEY_LEADER_MICHAEL_COLLINS</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_MICHAEL_COLLINS_PEDIA</Civilopedia>
+@@ -8380,7 +8380,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Moctezuma (2) -->
++		<LeaderHeadInfo> <!-- custom: LEADER_MOCTEZUMA -->
+ 			<Type>LEADER_MOCTEZUMA</Type>
+ 			<Description>TXT_KEY_LEADER_MOCTEZUMA</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_MOCTEZUMA_PEDIA</Civilopedia>
+@@ -8608,7 +8608,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Napoleon -->
++		<LeaderHeadInfo> <!-- custom: LEADER_NAPOLEON -->
+ 			<Type>LEADER_NAPOLEON</Type>
+ 			<Description>TXT_KEY_LEADER_NAPOLEON</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_NAPOLEON_PEDIA</Civilopedia>
+@@ -8823,7 +8823,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Pacal (2) -->
++		<LeaderHeadInfo> <!-- custom: LEADER_PACAL -->
+ 			<Type>LEADER_PACAL</Type>
+ 			<Description>TXT_KEY_LEADER_PACAL</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_PACAL_PEDIA</Civilopedia>
+@@ -9038,7 +9038,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Pericles -->
++		<LeaderHeadInfo> <!-- custom: LEADER_PERICLES -->
+ 			<Type>LEADER_PERICLES</Type>
+ 			<Description>TXT_KEY_LEADER_PERICLES</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_PERICLES_PEDIA</Civilopedia>
+@@ -9247,7 +9247,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Peter -->
++		<LeaderHeadInfo> <!-- custom: LEADER_PETER -->
+ 			<Type>LEADER_PETER</Type>
+ 			<Description>TXT_KEY_LEADER_PETER</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_PETER_PEDIA</Civilopedia>
+@@ -9487,7 +9487,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Qin_Shi_Huang -->
++		<LeaderHeadInfo> <!-- custom: LEADER_QIN_SHI_HUANG -->
+ 			<Type>LEADER_QIN_SHI_HUANG</Type>
+ 			<Description>TXT_KEY_LEADER_QIN_SHI_HUANG</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_QIN_SHI_HUANG_PEDIA</Civilopedia>
+@@ -9718,7 +9718,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+ 		<!-- (advc: Swapped with Ramesses for alphabetical order) -->
+-		<LeaderHeadInfo> <!-- custom: Ragnar -->
++		<LeaderHeadInfo> <!-- custom: LEADER_RAGNAR -->
+ 			<Type>LEADER_RAGNAR</Type>
+ 			<Description>TXT_KEY_LEADER_RAGNAR</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_RAGNAR_PEDIA</Civilopedia>
+@@ -9920,7 +9920,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Ramesses -->
++		<LeaderHeadInfo> <!-- custom: LEADER_RAMESSES -->
+ 			<Type>LEADER_RAMESSES</Type>
+ 			<Description>TXT_KEY_LEADER_RAMESSES</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_RAMESSES_II_PEDIA</Civilopedia>
+@@ -10156,7 +10156,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Franklin_Roosevelt -->
++		<LeaderHeadInfo> <!-- custom: LEADER_FRANKLIN_ROOSEVELT -->
+ 			<Type>LEADER_FRANKLIN_ROOSEVELT</Type>
+ 			<Description>TXT_KEY_LEADER_ROOSEVELT</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_ROOSEVELT_PEDIA</Civilopedia>
+@@ -10375,7 +10375,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Saladin -->
++		<LeaderHeadInfo> <!-- custom: LEADER_SALADIN -->
+ 			<Type>LEADER_SALADIN</Type>
+ 			<Description>TXT_KEY_LEADER_SALADIN</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_SALADIN_PEDIA</Civilopedia>
+@@ -10616,7 +10616,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Shaka -->
++		<LeaderHeadInfo> <!-- custom: LEADER_SHAKA -->
+ 			<Type>LEADER_SHAKA</Type>
+ 			<Description>TXT_KEY_LEADER_SHAKA</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_SHAKA_PEDIA</Civilopedia>
+@@ -10810,7 +10810,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Sitting_Bull -->
++		<LeaderHeadInfo> <!-- custom: LEADER_SITTING_BULL -->
+ 			<Type>LEADER_SITTING_BULL</Type>
+ 			<Description>TXT_KEY_LEADER_SITTING_BULL</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_SITTING_BULL_PEDIA</Civilopedia>
+@@ -11015,7 +11015,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Stalin -->
++		<LeaderHeadInfo> <!-- custom: LEADER_STALIN -->
+ 			<Type>LEADER_STALIN</Type>
+ 			<Description>TXT_KEY_LEADER_STALIN</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_JOSEF_STALIN_PEDIA</Civilopedia>
+@@ -11257,7 +11257,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Suleiman -->
++		<LeaderHeadInfo> <!-- custom: LEADER_SULEIMAN -->
+ 			<Type>LEADER_SULEIMAN</Type>
+ 			<Description>TXT_KEY_LEADER_SULEIMAN</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_SULEIMAN_PEDIA</Civilopedia>
+@@ -11463,7 +11463,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Suryavarman -->
++		<LeaderHeadInfo> <!-- custom: LEADER_SURYAVARMAN -->
+ 			<Type>LEADER_SURYAVARMAN</Type>
+ 			<Description>TXT_KEY_LEADER_SURYAVARMAN</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_SURYAVARMAN_PEDIA</Civilopedia>
+@@ -11702,7 +11702,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Tokugawa -->
++		<LeaderHeadInfo> <!-- custom: LEADER_TOKUGAWA -->
+ 			<Type>LEADER_TOKUGAWA</Type>
+ 			<Description>TXT_KEY_LEADER_TOKUGAWA</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_TOKUGAWA_PEDIA</Civilopedia>
+@@ -11957,7 +11957,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Victoria -->
++		<LeaderHeadInfo> <!-- custom: LEADER_VICTORIA -->
+ 			<Type>LEADER_VICTORIA</Type>
+ 			<Description>TXT_KEY_LEADER_VICTORIA</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_VICTORIA_PEDIA</Civilopedia>
+@@ -12155,7 +12155,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Wangkon -->
++		<LeaderHeadInfo> <!-- custom: LEADER_WANGKON -->
+ 			<Type>LEADER_WANGKON</Type>
+ 			<Description>TXT_KEY_LEADER_WANGKON</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_WANG_KON_PEDIA</Civilopedia>
+@@ -12365,7 +12365,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Washington -->
++		<LeaderHeadInfo> <!-- custom: LEADER_WASHINGTON -->
+ 			<Type>LEADER_WASHINGTON</Type>
+ 			<Description>TXT_KEY_LEADER_WASHINGTON</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_WASHINGTON_PEDIA</Civilopedia>
+@@ -12599,7 +12599,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Willem_Van_Oranje -->
++		<LeaderHeadInfo> <!-- custom: LEADER_WILLEM_VAN_ORANJE -->
+ 			<Type>LEADER_WILLEM_VAN_ORANJE</Type>
+ 			<Description>TXT_KEY_LEADER_WILLEM_VAN_ORANJE</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_WILLEM_VAN_ORANJE_PEDIA</Civilopedia>
+@@ -12812,7 +12812,7 @@ Created as part of AdvCiv-SAS improvements
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Zara_Yaqob -->
++		<LeaderHeadInfo> <!-- custom: LEADER_ZARA_YAQOB -->
+ 			<Type>LEADER_ZARA_YAQOB</Type>
+ 			<Description>TXT_KEY_LEADER_ZARA_YAQOB</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_ZARA_YAQOB_PEDIA</Civilopedia>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 37b7ea87d..5499b7ab1 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -326,12 +326,12 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: Long_Comments_XML.txt #132 -->
+ 	<!-- custom: Set to 1 to load the committed pre-dumped module (SevoPediaLeaderCachePredumped.py).
+-	Set to 0 to compute the cache at runtime instead. Note that this old manual way of regenerating the predump (in case it changed for example, to update it) is no longer mandatory, because now aip_predump_values.py also checks the committed predump still matches XML leader info / Python UI code (e.g., "%" text in labels in AIP) automatically in CI/local runs, and if needed it is possible to run this script with its write mode to refresh SevoPediaLeaderCachePredumped.py without having to run Civ4. The Manual fallback remains alternatively: set this to 0 and SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG to 1, open the Leaders / AI Personality panel once, copy the PythonDbg.log cache block, then restore defaults. (ChatGPT-5.5) -->
++	Set to 0 to compute the cache at runtime instead. The old manual runtime regeneration path is no longer normally needed: CI/local checks now verify that the committed predump still matches Leader XML and shared Python AIP display logic, and the Refresh AIP predump cache GitHub workflow can run aip_predump_values.py write mode and open a bot PR when the generated file actually changes. Local modders can still run the script's write mode directly outside Civ4. Manual fallback remains: set this to 0 and SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG to 1, open the Leaders / AI Personality panel once, copy the PythonDbg.log cache block, then restore defaults. (ChatGPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Runtime cache logging only: 0 = don't dump to log, 1 = dump a PythonDbg.log block for the old manual predump refresh path (Note: not necessary to enable if you use the new script-based way of regenerating the predump). (ChatGPT-5.5); Long_Comments_XML.txt #192 -->
++	<!-- custom: Runtime cache logging only: 0 = don't dump to log, 1 = dump a PythonDbg.log block for the old manual predump refresh path. Normally leave disabled; the GitHub refresh bot or local aip_predump_values.py write mode can refresh the predump outside Civ4 without this log dump. (ChatGPT-5.5); Long_Comments_XML.txt #192 -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index a2aaebff4..2f19dee0d 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -2607,7 +2607,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
+ 	<!-- custom: Leader AI Cache:
+ 		0 = compute at runtime (still fairly fast, but needless computation: this ignores the predumped file (SevoPediaLeaderCachePredumped.py) and always recomputes the ai personality panel's values for the first time we access the Sevopedia leader panel, and the same again every time we start the game and do so again (i.e. computes only once during same session, not many times, and does not compute if we don't access Sevopedia leader, but still computes once every time we do for the first time during this session); optional for modders or temporarily for players who want to change some display options in the ai personality panel until they have updated the predump, then they can use 1 rather)
+ 
+-		1 = load from predumped file (SevoPediaLeaderCachePredumped.py) (recommended for most players: fastest and cheapest for your computer as all the values are computed, but if you want to change something like adding emojis in headers, changing any xml value in leader info, you need to manually update the predumped file (set this to 0 temporarily and when you have updated the file you can set this to 1 again if you want). -->
++		1 = load from predumped file (SevoPediaLeaderCachePredumped.py) (recommended for most players: fastest and cheapest for your computer as all the values are computed; if you change something like emojis in headers, shared AIP display labels, or leader XML values, the committed predump may need to be refreshed. The normal modern path is the GitHub AIP predump refresh bot or local aip_predump_values.py write mode outside Civ4; the old runtime PythonDbg.log dump path remains only a manual fallback). -->
+ 
+ ===== \Assets/XML/AI_Variables_GlobalDefines.xml =====
+ ----- Comment #133 -----
+@@ -3290,7 +3290,7 @@ enable so that even UNITAI_COUNTER default unitai units (e.g. as of now the gree
+ ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+ ----- Comment #192 -----
+ 
+-Set to 0 if you always want to compute despite it being more costly (for modding, etc.), but don't always want to dump to log as this needlessly crowds the log and is expensive if done every time. Recommended settings: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, the value of SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG here won't matter and is not used (we don't dump to log at all regardless), else if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 0, set this SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG temporarily to 1 so you can get from dbg log to update the cachepredumped py file, then you can disable it as no need to crowd your log with all this dmp and less expensive as such.
++Set to 0 if you always want to compute despite it being more costly (for modding, etc.), but don't always want to dump to log as this needlessly crowds the log and is expensive if done every time. Recommended settings: if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 1, the value of SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG here won't matter and is not used (we don't dump to log at all regardless), else if SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED is set to 0, set this temporarily to 1 only if you specifically need the old PythonDbg.log manual predump copy path. The normal modern path is to let the GitHub AIP predump refresh bot open/update a predump PR, or to run aip_predump_values.py write mode locally outside Civ4, so this logging define is usually unnecessary for predump maintenance.
+ 
+ ===== \Assets/XML/GlobalDefines_advciv_sas.xml =====
+ ----- Comment #193 -----
+
+diff --git a/README.md b/README.md
+index b8756587e..33d8b349c 100644
+--- a/README.md
++++ b/README.md
+@@ -523,7 +523,7 @@ note: its performance should be very very efficient and optimized. See [README_A
+ 
+ note 2: you can enable/disable the emoji display as you prefer (see [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader)) or display key names instead of abbreviated custom labels in the AI Personality Panel (see [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels)).
+ 
+-note 3: if you want to mod and modify the XML Civ4 leader info or shared AI Personality Panel display logic, the GitHub workflow now checks that [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) still matches automatically on commit/PR. If it fails, refresh the committed predump with `.github/workflows/build/aip_predump_values.py --write`, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). The old in-game `PythonDbg.log` dump path remains a manual fallback.
++note 3: if you want to mod and modify the XML Civ4 leader info or shared AI Personality Panel display logic, the GitHub workflows now check that [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) still matches automatically on commit/PR, and the [`Refresh AIP predump cache`](/.github/workflows/aip-predump-refresh.yml) workflow can refresh it outside Civ4. The refresh workflow runs automatically after pushes to known AIP predump dependency files and can also be started manually from the Actions tab; if the generated predump changes, it opens/updates a bot PR containing only `SevoPediaLeaderCachePredumped.py`. If needed, you can still refresh locally with `.github/workflows/build/aip_predump_values.py --write`, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). The old in-game `PythonDbg.log` dump path remains a manual fallback.
+ 
+ This predump file was added for perfance optimization, so players don't always recompute these values that do not change on their end, and rarely so even for modders, and should scale better (if i'm not mistaken) as there are more leaders or xml fields in a mod vs computing them once every time the civ4 game is launched. See: [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md)
+ 
+@@ -885,7 +885,7 @@ Active helper scripts for LLM-assisted review and tuning live in [LLM_Helpers](/
+ 
+ Or notably also [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), that creates a timestamped no-compression light source archive for quick local/LLM review handoffs (e.g., to ChatGPT) without manually selecting and tediously creating an updated ZIP of each file/folder each time, of the core/most useful files/folders, while leaving unneeded or too heavy to use ones (e.g., as of now no .fpk, .tga, .dll, or pycache folders, art assets folder).
+ 
+-GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions. They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size enum/XML drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md). For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
++GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions. They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size enum/XML drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md). For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change). The AIP predump refresh bot is a separate tested workflow that refreshes `SevoPediaLeaderCachePredumped.py` outside Civ4 and opens a bot PR only when the generated predump actually changes; [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) validated no-op, XML comment-only, numeric XML drift, and Python label/display drift cases.
+ 
+ This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)). This also helped spot and fix [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+index 42e53a996..150f81508 100644
+--- a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+@@ -114,10 +114,11 @@ Update: since then the computing the values logic from sevopedia leader to [Sevo
+ If you modify leader XML values or shared AIP display logic, the predumped cache may need to be refreshed. The current preferred path is:
+ 
+ 1. Let CI check it automatically on commit/PR, or run [`build/aip_predump_values.py`](/.github/workflows/build/aip_predump_values.py) locally. A failure usually means the committed predump no longer matches the XML/shared AIP logic.
+-2. Refresh outside Civ4 with `python .github/workflows/build/aip_predump_values.py --write`, review the diff, and rerun the checker. The generated file has no timestamp, so no-op `--write` runs stay byte-identical when cache data is unchanged instead of producing false diffs.
+-3. Manual fallback: set `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun `aip_predump_values.py`.
++2. Let the [`Refresh AIP predump cache`](/.github/workflows/aip-predump-refresh.yml) workflow handle it from GitHub when possible. It runs automatically after pushes to known AIP dependency files and can also be started manually from the Actions tab; if the generated predump changes, it opens/updates a bot PR containing only `SevoPediaLeaderCachePredumped.py`.
++3. To refresh locally without launching Civ4, run `python .github/workflows/build/aip_predump_values.py --write`, review the diff, and rerun the checker. The generated file has no timestamp, so no-op `--write` runs stay byte-identical when cache data is unchanged instead of producing false diffs.
++4. Manual fallback: set `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun `aip_predump_values.py`.
+ 
+-This means ordinary player builds stay fast by loading the predumped cache, while modders/LLMs get automatic stale-cache detection and a normal outside-Civ4 refresh path. During development, the full-tuple checker caught 394 stale label entries, including labels like `Build Unit (52)` that were missing the updated `%` text (`Build Unit % (52)`); write mode can now refresh that kind of drift without relying only on the old manual PythonDbg.log copy path.
++This means ordinary player builds stay fast by loading the predumped cache, while modders/LLMs get automatic stale-cache detection, bot-assisted predump refreshes, and a normal outside-Civ4 local refresh path. During development, the full-tuple checker caught 394 stale label entries, including labels like `Build Unit (52)` that were missing the updated `%` text (`Build Unit % (52)`); write mode can now refresh that kind of drift without relying only on the old manual PythonDbg.log copy path.
+ 
+ ## Note about some ai attributes being ignored
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 6dec0ff34..20a35b784 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -118,6 +118,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 5961+) **C++ inline-return cleanup:** collapsed simple inline DLL header functions whose bodies were exactly one `return` statement to one physical line, making trivial getters/wrappers easier to grep and compare. Done with the help of [`collapse_cpp_inline_returns.py`](/LLM_Helpers/README.md#collapse_cpp_inline_returnspy), a conservative mechanical helper that skips constructors/destructors, multi-statement bodies, body comments, multiline signatures, and overlong results. For example, `int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python`, instead of its old four-line equivalent.
+ - (Requires AdvCiv-SAS 5972+) **Build cleanup - disabled unneeded DLL test code in normal builds:** compile-gated disabled reproducibility-test code (`ReproTest.cpp`) so normal DLL builds no longer compile it unless explicitly enabled for debugging. This keeps dormant test/debug code out of normal builds, may slightly reduce DLL/build size, and does **not** change gameplay. Found with the help of the new [`find_cpp_dead_code_candidates.py`](/LLM_Helpers/find_cpp_dead_code_candidates.py) LLM/manual-review helper.
+ - (Requires AdvCiv-SAS 5930+) **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `WorldSizeTypes` enum/XML alignment, `CvGameCoreDLL/Project/temp_files/` staying effectively empty (only its tracked placeholder file), not being ignored by `.gitignore`, and being allowed only as an archive-excluded development marker through `.gitattributes` (helps catch stale fast-compile temp files. We check this because we suspect fast compiles can be unreliable, and also helps catch forgetting to replace the committed DLL after compiling; see [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-but-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwith-but-exact-same-source-files-if-i-am-not-mistaken-but) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe-but)), and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
++- (Requires AdvCiv-SAS 5975+) **AIP predump refresh bot:** added [`aip-predump-refresh.yml`](/.github/workflows/aip-predump-refresh.yml), a tested GitHub Actions bot workflow for the Sevopedia Leader AI Personality predump cache. The existing checker still fails when the committed predump is stale, but the refresh workflow can now run `aip_predump_values.py --write` outside Civ4 and open/update a bot PR containing only `SevoPediaLeaderCachePredumped.py` when real generated AIP data or display-label drift is detected. It runs automatically after pushes to known AIP predump dependency files. Tested in [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) with no-op, XML comment-only, numeric Leader XML, and Python label/display drift cases, so harmless comments do not refresh the cache while real generated predump changes do.
+ - Other examples: (Requires AdvCiv-SAS 5935+) This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)), and [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)). The checks also run locally with Python 3; see [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
+ - (Requires AdvCiv-SAS 5964+) **Python Ruff GitHub workflow:** added [`python-ruff.yml`](/.github/workflows/python-ruff.yml), which prints a full Ruff report and fails on a practical critical gate for syntax/parse errors and Pyflakes bug checks. This helped spot shadowed duplicate callbacks in base Civ4 `Oasis.py` (see [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-workflow)) and a Base AdvCiv bug of dormant undefined `Point` (instead of using `PointLayout`) helper in `RectLayout.py` (see [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-dormant-rectlayout-upperleft-helper-returned-undefined-point-found-by-python-ruff)).
+ - (Requires AdvCiv-SAS 5965+) **Python 2.4 Docker compile GitHub workflow:** added [`python24-compile.yml`](/.github/workflows/python24-compile.yml), which runs `Assets/Python` and `PrivateMaps` through real CPython 2.4 syntax/bytecode compilation using our separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) GHCR image. This complements Ruff by checking the old parser Civ4 embeds, without launching Civ4 or importing engine-only modules. A deliberate [test confirmed it fails](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27897204427) on Python 2.5+ ternary syntax such as `SAS_MAGIC_PY24_COMPILE_BREAK_TEST = 1 if True else 0` in `SASMagicNumbers.py`. See [`.github/workflows/README.md`](/.github/workflows/README.md#python-24-compile-workflow), and [README.md (Python Scripts)](/README.md#python-scripts) for screenshots.
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=57761

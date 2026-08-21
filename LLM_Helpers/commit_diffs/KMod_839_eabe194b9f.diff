@@ -1,0 +1,69 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 839
+# Commit: eabe194b9f2fec08c659c95463d966ebc1b85386
+# History segment: K-Mod history
+# Parent used for diff: 0461e8736cdc0b8059e239b73128bc513291b8f2
+# Title: Fixed a couple of bugs related to how commerce sliders are displayed.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	8	Assets/Python/Screens/CvMainInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index a91c3912d..095dd58ad 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1293,7 +1293,7 @@ class CvMainInterface:
+ 		if player.getCommercePercent(eCommerce) > 0:
+ 			return True
+ 
+-		if eCommerce == CommerceTypes.COMMERCE_ESPIONAGE and gc.getTeam(player.getTeam()).getHasMetCivCount(True) == 0:
++		if eCommerce == CommerceTypes.COMMERCE_ESPIONAGE and (gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) or gc.getTeam(player.getTeam()).getHasMetCivCount(True) == 0):
+ 			return False
+ 
+ 		if player.isCommerceFlexible(eCommerce):
+@@ -1330,9 +1330,7 @@ class CvMainInterface:
+ 					eCommerce = (iI + 1) % CommerceTypes.NUM_COMMERCE_TYPES
+ 										
+ 					#if (gc.getActivePlayer().isCommerceFlexible(eCommerce) or (CyInterface().isCityScreenUp() and (eCommerce == CommerceTypes.COMMERCE_GOLD))):
+-					# K-Mod
+-					if self.showCommercePercent(eCommerce, gc.getGame().getActivePlayer()):
+-					# K-Mod end
++					if self.showCommercePercent(eCommerce, gc.getGame().getActivePlayer()): # K-Mod
+ # BUG - Min/Max Sliders - start
+ 						bEnable = gc.getActivePlayer().isCommerceFlexible(eCommerce)
+ 						if MainOpt.isShowMinMaxCommerceButtons() and not CyInterface().isCityScreenUp():
+@@ -3039,9 +3037,7 @@ class CvMainInterface:
+ 				for iI in range( CommerceTypes.NUM_COMMERCE_TYPES ):
+ 					eCommerce = (iI + 1) % CommerceTypes.NUM_COMMERCE_TYPES
+ 					#if (gc.getPlayer(ePlayer).isCommerceFlexible(eCommerce) or (CyInterface().isCityScreenUp() and (eCommerce == CommerceTypes.COMMERCE_GOLD))):
+-					# K-Mod
+-					if self.showCommercePercent(eCommerce, ePlayer):
+-					# K-Mod end
++					if self.showCommercePercent(eCommerce, ePlayer): # K-Mod
+ 						szOutText = u"<font=2>%c:%d%%</font>" %(gc.getCommerceInfo(eCommerce).getChar(), gc.getPlayer(ePlayer).getCommercePercent(eCommerce))
+ 						szString = "PercentText" + str(iI)
+ 						screen.setLabel( szString, "Background", szOutText, CvUtil.FONT_LEFT_JUSTIFY, 14, 50 + (iCount * 19), -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+@@ -3720,7 +3716,8 @@ class CvMainInterface:
+ 				for i in range(CommerceTypes.NUM_COMMERCE_TYPES):
+ 					eCommerce = (i + 1) % CommerceTypes.NUM_COMMERCE_TYPES
+ 
+-					if ((gc.getPlayer(pHeadSelectedCity.getOwner()).isCommerceFlexible(eCommerce)) or (eCommerce == CommerceTypes.COMMERCE_GOLD)):
++					#if ((gc.getPlayer(pHeadSelectedCity.getOwner()).isCommerceFlexible(eCommerce)) or (eCommerce == CommerceTypes.COMMERCE_GOLD)):
++					if self.showCommercePercent(eCommerce, pHeadSelectedCity.getOwner()): # K-Mod
+ 						szBuffer = u"%d.%02d %c" %(pHeadSelectedCity.getCommerceRate(eCommerce), pHeadSelectedCity.getCommerceRateTimes100(eCommerce)%100, gc.getCommerceInfo(eCommerce).getChar())
+ 
+ 						iHappiness = pHeadSelectedCity.getCommerceHappinessByType(eCommerce)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2938

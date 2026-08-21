@@ -1,0 +1,78 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2038
+# Commit: 008c0f808778fdd9d37b813588476ff25517a82a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f37efff88b7c5c8f965e6d9f141be9349ab82768
+# Title: Loading screen hint about skipping music tracks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	Assets/XML/GameInfo/CIV4Hints.xml
+10	1	Assets/XML/Text/CIV4GameText_advc.008d.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4Hints.xml b/Assets/XML/GameInfo/CIV4Hints.xml
+index 320cd75ec..4e1823e27 100644
+--- a/Assets/XML/GameInfo/CIV4Hints.xml
++++ b/Assets/XML/GameInfo/CIV4Hints.xml
+@@ -672,7 +672,7 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_39</Description>
+ 		</HintInfo>
+-		<!-- Skip 40, 41 -->
++		<!-- Skip 40, 41, 42 -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_1</Description>
+ 		</HintInfo>
+@@ -789,7 +789,10 @@
+ 			<Description>TXT_KEY_ADVC_HINT_40</Description>
+ 		</HintInfo>
+ 		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_40</Description>
++			<Description>TXT_KEY_ADVC_HINT_41</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_42</Description>
+ 		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.008d.xml b/Assets/XML/Text/CIV4GameText_advc.008d.xml
+index ff2263747..1a8cbebca 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.008d.xml
+@@ -1035,7 +1035,7 @@
+ 
+ <!-- advc.savem -->
+ <TEXT>
+-	<Tag>TXT_KEY_ADVC_HINT_40</Tag>
++	<Tag>TXT_KEY_ADVC_HINT_41</Tag>
+ 	<English>(experimental) Press [Shift + Alt + M] to save the map you're playing on as a Python script, e.g. to start over with different game options.</English>
+ 	<French>(experimental) Press [Shift + Alt + M] to save the map you're playing on as a Python script, e.g. to start over with different game options.</French>
+ 	<German>(experimentell) Mit [Shift + Alt + M] k�nnen Sie im laufenden Spiel die Weltkarte als Python-Skript exportieren, z.B. um mit anderen Spieloptionen von vorne anzufangen.</German>
+@@ -1043,4 +1043,13 @@
+ 	<Spanish>(experimental) Press [Shift + Alt + M] to save the map you're playing on as a Python script, e.g. to start over with different game options.</Spanish>
+ </TEXT>
+ 
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_42</Tag>
++	<English>A quick way to skip a music track is to disable and then re-enable music by pressing [Ctrl + M] twice.</English>
++	<French>A quick way to skip a music track is to disable and then re-enable music by pressing [Ctrl + M] twice.</French>
++	<German>Durch Ab- und Wiedereinschalten der Hintergrundmusik (zweimal [Strg + M]) l�sst sich das aktuelle Musikst�ck �berspringen.</German>
++	<Italian>A quick way to skip a music track is to disable and then re-enable music by pressing [Ctrl + M] twice.</Italian>
++	<Spanish>A quick way to skip a music track is to disable and then re-enable music by pressing [Ctrl + M] twice.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2533

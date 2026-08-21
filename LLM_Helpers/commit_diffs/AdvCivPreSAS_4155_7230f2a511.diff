@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4155
+# Commit: 7230f2a511f9548c3f78b9306557f32852f06009
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 79c1aea3ade0ee6d176c42da584adb405a4ecf2e
+# Title: Add Ethnic Artstyles pack to link list
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	links.txt
+
+[PATCHES]
+
+diff --git a/links.txt b/links.txt
+index a10238dbd..188720d54 100644
+--- a/links.txt
++++ b/links.txt
+@@ -8,5 +8,5 @@ Discussion thread on CivFanatics:
+ 	https://forums.civfanatics.com/threads/advanced-civ.614217
+ Since July 2020, there is also a dedicated subforum:
+ 	https://forums.civfanatics.com/forums/civ-4-advanced-civ.603/
+-A half-finished Earth scenario for AdvCiv:
+-	https://github.com/f1rpo/Civ4EuroWorld
+\ No newline at end of file
++DeepWell's Ethnic Artstyles pack (Animations Frozen option not supported):
++	https://forums.civfanatics.com/threads/ethnic-artstyles-graphics-mod.683057/
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=597

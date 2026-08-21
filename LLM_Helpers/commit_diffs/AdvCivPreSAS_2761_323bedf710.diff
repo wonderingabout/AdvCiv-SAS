@@ -1,0 +1,418 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2761
+# Commit: 323bedf7100c0b52891900fd4279177c9ba070f1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ba0cc499649f87577611083f64b7b1d6f42b1968
+# Title: Better UI support for Avoid Growth
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	Assets/Config/BUG Main Interface.xml
+10	1	Assets/Python/BUG/CityUtil.py
+2	1	Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+3	1	Assets/Python/Contrib/MoreCiv4lerts.py
+6	1	Assets/Python/Screens/CvMainInterface.py
+4	1	Assets/XML/GameInfo/CIV4Hints.xml
+20	2	Assets/XML/Text/BUG Main Interface Options.xml
+53	0	Assets/XML/Text/CIV4GameText_advc.xml
+10	0	Assets/XML/Text/CIV4GameText_advc_hints.xml
+19	22	CvGameCoreDLL/CvCity.cpp
+35	12	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index 2a8692427..af5e41698 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -249,6 +249,8 @@
+ 			</list>
+ 
+ 			<!-- advc.002f: -->
++			<option id="AvoidGrowthIcon" key="Avoid Growth Icon" 
++					type="boolean" default="True" dirtyBit="CityInfo"/>
+ 			<option id="CityNetworkIcon" key="City Network Icon" 
+ 					type="boolean" default="False" dirtyBit="CityInfo"/>
+ 			<option id="AirportIcon" key="Airport Icon"
+
+diff --git a/Assets/Python/BUG/CityUtil.py b/Assets/Python/BUG/CityUtil.py
+index 2827d2016..928dca886 100644
+--- a/Assets/Python/BUG/CityUtil.py
++++ b/Assets/Python/BUG/CityUtil.py
+@@ -22,7 +22,16 @@ def willGrowThisTurn(city):
+ 	
+ 	Emphasize No Growth must be off for the city, and its food rate plus storage must reach the growth threshold.
+ 	"""
+-	return not city.AI_isEmphasize(5) and city.getFood() + city.foodDifference(True) >= city.growthThreshold()
++	if city.getFood() + city.foodDifference(True) < city.growthThreshold():
++		return False
++	return not avoidingGrowth(city) # advc: Don't hardcode emphasize id 5
++
++# advc:
++def avoidingGrowth(city):
++	for i in range(gc.getNumEmphasizeInfos()):
++		if gc.getEmphasizeInfo(i).isAvoidGrowth() and city.AI_isEmphasize(i):
++			return True
++	return False
+ 
+ def willShrinkThisTurn(city):
+ 	"""
+
+diff --git a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+index 76be7426d..5e4583a15 100644
+--- a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+@@ -59,8 +59,9 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		# <advc.002f>
+ 		self.addLabel(screen, center, "CityIcons", "City Billboards:")
+ 		# advc.095:
+-		self.addCheckbox(screen, center, "MainInterface__WideCityBars")
+ 		centerL, centerR = self.addTwoColumnLayout(screen, center, "CityIcons", False)
++		self.addCheckbox(screen, centerL, "MainInterface__WideCityBars")
++		self.addCheckbox(screen, centerR, "MainInterface__AvoidGrowthIcon")
+ 		self.addCheckbox(screen, centerL, "MainInterface__CityNetworkIcon")
+ 		self.addCheckbox(screen, centerR, "MainInterface__AirportIcon")
+ 		self.addCheckbox(screen, centerL, "MainInterface__TopProductionIcon")
+
+diff --git a/Assets/Python/Contrib/MoreCiv4lerts.py b/Assets/Python/Contrib/MoreCiv4lerts.py
+index d98e01b55..e821688e7 100644
+--- a/Assets/Python/Contrib/MoreCiv4lerts.py
++++ b/Assets/Python/Contrib/MoreCiv4lerts.py
+@@ -7,6 +7,7 @@ import PyHelpers
+ import BugCore
+ import PlayerUtil
+ import TradeUtil
++import CityUtil # advc
+ 
+ # BUG - Mac Support - start
+ import BugUtil
+@@ -265,7 +266,8 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 				lCity = PyPlayer(loopPlayer).getCityList()
+ 				for loopCity in range(len(lCity)):
+ 					city = gc.getPlayer(loopPlayer).getCity(loopCity)
+-					if (city.getFoodTurnsLeft() == 1 and not city.isFoodProduction()) and not city.AI_isEmphasize(5):
++					#if (city.getFoodTurnsLeft() == 1 and not city.isFoodProduction()) and not city.AI_isEmphasize(5):
++					if CityUtil.willGrowThisTurn(city): # advc
+ 						popGrowthCount = popGrowthCount + 1
+ 					if (BeginTurn and self.getCheckForCityBorderExpansion()):
+ 						if (city.getCultureLevel() != gc.getNumCultureLevelInfos() - 1):
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 770b99c6f..aa70a7655 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -3669,7 +3669,12 @@ class CvMainInterface:
+ #					if (CityUtil.willGrowThisTurn(pHeadSelectedCity)):   # K-Mod disabled this. I think 'Growth!' sounds lame.
+ #						szBuffer = localText.getText("INTERFACE_CITY_GROWTH", ()) #was elif on next line
+ 					if (iFoodDifference > 0):
+-						szBuffer = localText.getText("INTERFACE_CITY_GROWING", (pHeadSelectedCity.getFoodTurnsLeft(), ))	
++						# <advc.002f>
++						if CityUtil.avoidingGrowth(pHeadSelectedCity):
++							szBuffer = localText.getText("INTERFACE_CITY_AVOIDING_GROWTH", (pHeadSelectedCity.getFoodTurnsLeft(), ))
++						else:
++						# </advc.002f>
++							szBuffer = localText.getText("INTERFACE_CITY_GROWING", (pHeadSelectedCity.getFoodTurnsLeft(), ))
+ 					elif (iFoodDifference < 0):
+ 						if (CityScreenOpt.isShowFoodAssist()):
+ 							iTurnsToStarve = pHeadSelectedCity.getFood() / -iFoodDifference + 1
+
+diff --git a/Assets/XML/GameInfo/CIV4Hints.xml b/Assets/XML/GameInfo/CIV4Hints.xml
+index 23e259954..5d7eef690 100644
+--- a/Assets/XML/GameInfo/CIV4Hints.xml
++++ b/Assets/XML/GameInfo/CIV4Hints.xml
+@@ -679,7 +679,7 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_45</Description>
+ 		</HintInfo>
+-		<!-- Skip 46, 47 -->
++		<!-- Skip 46, 47, 49 -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_48</Description>
+ 		</HintInfo>
+@@ -819,5 +819,8 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_48</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_49</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 5551ce15b..3322466e1 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -869,6 +869,24 @@
+ 	</TEXT>
+ 	
+ 	<!-- advc.002f: -->
++	<!-- Based on TXT_KEY_EMPHASIZE_AVOID_GROWTH.
++		 There is very little space for German. -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__AVOIDGROWTHICON_TEXT</Tag>
++		<English>Avoid Growth</English>
++		<French>Evitant croissance</French>
++		<German>W�chst nie</German>
++		<Italian>Evitando crescita</Italian>
++		<Spanish>Evitando crecimiento</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__AVOIDGROWTHICON_HOVER</Tag>
++		<English>When checked, the [ICON_BAD_FOOD] icon is shown above the billboard of any cities that are set to "Avoid Growth".</English>
++		<French>When checked, the [ICON_BAD_FOOD] icon is shown above the billboard of any cities that are set to "Avoid Growth".</French>
++		<German>Zeigt das [ICON_BAD_FOOD]-Symbol �ber den Namen von St�dten an, in denen die Funktion "Wachstum vermeiden" aktiviert ist.</German>
++		<Italian>When checked, the [ICON_BAD_FOOD] icon is shown above the billboard of any cities that are set to "Avoid Growth".</Italian>
++		<Spanish>When checked, the [ICON_BAD_FOOD] icon is shown above the billboard of any cities that are set to "Avoid Growth".</Spanish>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__CITYNETWORKICON_TEXT</Tag>
+ 		<English>Trade Network</English>
+@@ -1038,7 +1056,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__WIDECITYBARS_TEXT</Tag>
+ 		<English>Wide City Bars</English>
+ 		<French>Wide City Bars</French>
+-		<German>Breite Fortschrittsbalken</German>
++		<German>Verbreitern</German>
+ 		<Italian>Wide City Bars</Italian>
+ 		<Spanish>Wide City Bars</Spanish>
+ 	</TEXT>
+@@ -1046,7 +1064,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__WIDECITYBARS_HOVER</Tag>
+ 		<English>When checked, the main map displays the wide city bars from the BUG mod. (Known issue with those bars: the right half can't be moused over.)</English>
+ 		<French>When checked, the main map displays the wide city bars from the BUG mod. (Known issue with those bars: the right half can't be moused over.)</French>
+-		<German>Zeigt die extra-breiten Stadtbalken aus der BUG-Mod auf der Hauptkarte an. (Die rechten H�lften dieser Balken lassen sich nicht anklicken - bekanntes Problem.)</German>
++		<German>Zeigt die extra-breiten Fortschritts-Balken aus der BUG-Mod auf der Hauptkarte an. (Die rechten H�lften dieser Balken lassen sich nicht anklicken - bekanntes Problem.)</German>
+ 		<Italian>When checked, the main map displays the wide city bars from the BUG mod. (Known issue with those bars: the right half can't be moused over.)</Italian>
+ 		<Spanish>When checked, the main map displays the wide city bars from the BUG mod. (Known issue with those bars: the right half can't be moused over.)</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index f3049931e..d6ce817ed 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -6419,4 +6419,57 @@
+ 		<Spanish>Debug tools have been enabled.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004 -->
++	<!-- Replacing key in Civ4GameTextInfos.xml.
++		 Don't refer to the food store as "growth" b/c that's a bit misleading
++		 when growth is stagnating. -->
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_GROWTH</Tag>
++		<English>[NEWLINE]%d1/%d2 [ICON_FOOD]</English>
++		<French>[NEWLINE]%d1/%d2 [ICON_FOOD]</French>
++		<German>[NEWLINE]%d1/%d2 [ICON_FOOD]</German>
++		<Italian>[NEWLINE]%d1/%d2 [ICON_FOOD]</Italian>
++		<Spanish>[NEWLINE]%d1/%d2 [ICON_FOOD]</Spanish>
++	</TEXT>
++	<!-- Replacing TXT_KEY_CITY_BAR_FOOD_GROWTH; Don't like the word "growth"
++		 here either. The idea is, apparently, to mirror the text for production,
++		 which names the production order and then shows the turns remaining.
++		 FIS unchanged. -->
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_FOOD_GROWTH</Tag>
++		<English>[NEWLINE]%d1 [ICON_FOOD]/Turn[NEWLINE]%d2/%d3 [ICON_FOOD] (%d4 [NUM4:Turn:Turns])</English>
++		<French>[NEWLINE]%d1 [ICON_FOOD]/tour[NEWLINE]Croissance : %d2/%d3 [ICON_FOOD] (%d4 [NUM4:tour:tours])</French>
++		<German>[NEWLINE]%d1 [ICON_FOOD]/Runde[ICON_FOOD]%d2/%d3 (%d4 [NUM4:Turn:Turns])</German>
++		<Italian>[NEWLINE]%d1 [ICON_FOOD]/Turno[NEWLINE]Crescita: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turni])</Italian>
++		<Spanish>[NEWLINE]%d1 [ICON_FOOD]/turno[NEWLINE]Crecimiento: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turnos])</Spanish>
++	</TEXT>
++	<!-- As above, but with bad food. (No need for text color in addition.) -->
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_STARVATION</Tag>
++		<English>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turn[NEWLINE]%d2/%d3 [ICON_FOOD] (%d4 [NUM4:Turn:Turns]) </English>
++		<French>[NEWLINE]%d1 [ICON_BAD_FOOD]/tour[NEWLINE]Croissance : %d2/%d3 [ICON_FOOD] (%d4 [NUM4:tour:tours])</French>
++		<German>[NEWLINE]%d1 [ICON_BAD_FOOD]/Runde[NEWLINE]%d2/%d3 [ICON_FOOD] (%d4 [NUM4:Turn:Turns])</German>
++		<Italian>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turno[NEWLINE]Crescita: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turni])</Italian>
++		<Spanish>[NEWLINE]%d1 [ICON_BAD_FOOD]/turno[NEWLINE]Crecimiento: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turnos])</Spanish>
++	</TEXT>
++
++	<!-- advc.002f: Based on INTERFACE_CITY_GROWING (Civ4GameTextInfos.xml) and
++		 TXT_KEY_BUG_OPT_MAININTERFACE__AVOIDGROWTHICON_TEXT. -->
++	<TEXT>
++		<Tag>INTERFACE_CITY_AVOIDING_GROWTH</Tag>
++		<English>Avoiding Growth ([COLOR_WARNING_TEXT]%d1 [NUM1:Turn:Turns][COLOR_REVERT])</English>
++		<French>Evitant croissance ([COLOR_WARNING_TEXT]%d1 [NUM1:tour:tours][COLOR_REVERT])</French>
++		<German>Vermeide Wachstum ([COLOR_WARNING_TEXT]%d1 [NUM1:Runde:Runden][COLOR_REVERT])</German>
++		<Italian>Evitando crescita ([COLOR_WARNING_TEXT]%d1 [NUM1:Turno:Turni][COLOR_REVERT])</Italian>
++		<Spanish>Evitando crecimiento ([COLOR_WARNING_TEXT]%d1 [NUM1:turno:turnos][COLOR_REVERT])</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_AVOID_GROWTH</Tag>
++		<English>Avoiding Growth</English>
++		<French>evitant croissance</French>
++		<German>vermeide Wachstum</German>
++		<Italian>evitando crescita</Italian>
++		<Spanish>evitando crecimiento</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index 32e36185b..a0f60e517 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -1116,4 +1116,14 @@
+ 	<Spanish>(AdvCiv) The audio mix is affected by the camera distance. If e.g. the music volume is too low at your preferred camera distance, consider changing the default camera distance on the "Map" tab of the BUG menu.</Spanish>
+ </TEXT>
+ 
++<!-- advc.002f -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_49</Tag>
++	<English>(AdvCiv) When a city is set to [COLOR_HIGHLIGHT_TEXT]Avoid Growth[COLOR_REVERT], a warning icon is (optionally) shown above the city bar on the main map. On a related note, make sure that citizen automation is enabled if you want the governor maximize production and commerce while avoiding growth.</English>
++	<French>(AdvCiv) When a city is set to [COLOR_HIGHLIGHT_TEXT]Avoid Growth[COLOR_REVERT], a warning icon is (optionally) shown above the city bar on the main map. On a related note, make sure that citizen automation is enabled if you want the governor maximize production and commerce while avoiding growth.</French>
++	<German>(AdvCiv) Wenn in einer Stadt [COLOR_HIGHLIGHT_TEXT]Wachstum vermeiden[COLOR_REVERT] aktiviert ist, erscheint (optional) zur Erinnerung ein Symbol �ber dem Stadtnamen auf der Hauptkarte. �brigens: Wenn der KI-Gouverneur beim Vermeiden von Wachstum andere Ertr�ge maximieren soll, muss auch die B�rgerautomatisierung aktiv sein.</German>
++	<Italian>(AdvCiv) When a city is set to [COLOR_HIGHLIGHT_TEXT]Avoid Growth[COLOR_REVERT], a warning icon is (optionally) shown above the city bar on the main map. On a related note, make sure that citizen automation is enabled if you want the governor maximize production and commerce while avoiding growth.</Italian>
++	<Spanish>(AdvCiv) When a city is set to [COLOR_HIGHLIGHT_TEXT]Avoid Growth[COLOR_REVERT], a warning icon is (optionally) shown above the city bar on the main map. On a related note, make sure that citizen automation is enabled if you want the governor maximize production and commerce while avoiding growth.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 4003613e6..2e2d86414 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11718,14 +11718,13 @@ void CvCity::getVisibleEffects(ZoomLevelTypes eCurZoom,
+ 
+ void CvCity::getCityBillboardSizeIconColors(NiColorA& kDotColor, NiColorA& kTextColor) const
+ {
+-	PlayerColorTypes ePlayerColor = //GET_PLAYER(getOwner()).getPlayerColor())
++	PlayerColorTypes const ePlayerColor = //GET_PLAYER(getOwner()).getPlayerColor())
+ 		/*  advc.001: CvPlayer::getPlayerColor will return the Barbarian color
+ 			if the city owner hasn't been met (city revealed through map trade) */
+ 			GC.getInitCore().getColor(getOwner());
+ 	NiColorA kPlayerColor = GC.getInfo(GC.getInfo(ePlayerColor).
+ 			getColorTypePrimary()).getColor();
+-	NiColorA kGrowing;
+-	kGrowing = NiColorA(0.73f, 1,0.73f, 1);
++	NiColorA kGrowing(0.73f, 1,0.73f, 1);
+ 	NiColorA kShrinking(1, 0.73f, 0.73f, 1);
+ 	NiColorA kStagnant(0.83f, 0.83f, 0.83f, 1);
+ 	NiColorA kUnknown(.5f, .5f, .5f, 1);
+@@ -11734,29 +11733,27 @@ void CvCity::getCityBillboardSizeIconColors(NiColorA& kDotColor, NiColorA& kText
+ 
+ 	if (getTeam() == GC.getGame().getActiveTeam() /* advc.127: */ && isHuman())
+ 	{
+-		if (foodDifference() < 0)
++		kTextColor = kBlack;
++		int const iFoodDifference = foodDifference();
++		int const iFood = getFood();
++		int const iGrowthThreshold = growthThreshold();
++		if (iFoodDifference < 0)
+ 		{
+-			if (foodDifference() == -1 && getFood() >= (75 * growthThreshold()) / 100)
+-			{
++			if (iFoodDifference == -1 && iFood * 100 >= 75 * iGrowthThreshold)
+ 				kDotColor = kStagnant;
+-				kTextColor = kBlack;
+-			}
+-			else
+-			{
+-				kDotColor = kShrinking;
+-				kTextColor = kBlack;
+-			}
++			else kDotColor = kShrinking;
+ 		}
+-		else if (foodDifference() > 0)
+-		{
+-			kDotColor = kGrowing;
+-			kTextColor = kBlack;
+-		}
+-		else if (foodDifference() == 0)
+-		{
+-			kDotColor = kStagnant;
+-			kTextColor = kBlack;
++		else if (iFoodDifference > 0)
++		{	// <advc.002f>
++			if (AI().AI_isEmphasizeAvoidGrowth())
++			{
++				if (iFood + iFoodDifference >= iGrowthThreshold) // Food being wasted
++					kDotColor = kShrinking;
++				else kDotColor = kStagnant; // Food will be wasted - and not growing
++			} // </advc.002f>
++			else kDotColor = kGrowing;
+ 		}
++		else kDotColor = kStagnant;
+ 	}
+ 	else
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 16bf60ad8..b50241dbe 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -6848,18 +6848,36 @@ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity)
+ 	CvWString szTempBuffer;
+ 
+ 	szString.append(pCity->getName());
+-
+-	int iFoodDifference = pCity->foodDifference();
+-	if (iFoodDifference <= 0)
+ 	{
+-		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_GROWTH",
+-				pCity->getFood(), pCity->growthThreshold()));
+-	}
+-	else
+-	{
+-		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_FOOD_GROWTH",
+-				iFoodDifference, pCity->getFood(), pCity->growthThreshold(),
+-				pCity->getFoodTurnsLeft()));
++		int const iFoodDifference = pCity->foodDifference();
++		// advc.002f:
++		bool const bAvoidGrowth = pCity->AI().AI_isEmphasizeAvoidGrowth();
++		if (iFoodDifference == 0) // advc.004: was <=
++		{
++			szString.append(gDLL->getText("TXT_KEY_CITY_BAR_GROWTH",
++					pCity->getFood(), pCity->growthThreshold()));
++		}
++		else
++		{
++			szString.append(gDLL->getText(
++					iFoodDifference < 0 ? "TXT_KEY_CITY_BAR_STARVATION" : // advc.004
++					"TXT_KEY_CITY_BAR_FOOD_GROWTH",
++					iFoodDifference < 0 ? -iFoodDifference : // advc.004
++					iFoodDifference, pCity->getFood(),
++					pCity->growthThreshold(), pCity->getFoodTurnsLeft()));
++		}
++		// <advc.002f>
++		if (bAvoidGrowth)
++		{
++			szTempBuffer += gDLL->getText("TXT_KEY_CITY_BAR_AVOID_GROWTH");
++			if (pCity->getFoodTurnsLeft() == 1)
++			{
++				szTempBuffer.Format(SETCOLR L"%s" ENDCOLR,
++						TEXT_COLOR("COLOR_WARNING_TEXT"), szTempBuffer.GetCString());
++			}
++			szString.append(L" - ");
++			szString.append(szTempBuffer);
++		} // </advc.002f>
+ 	}
+ 	if (pCity->getProductionNeeded() != MAX_INT)
+ 	{
+@@ -18629,7 +18647,12 @@ void CvGameTextMgr::buildCityBillboardIconString( CvWStringBuffer& szBuffer, CvC
+ 		szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(SILVER_STAR_CHAR)));
+ 	// happiness, healthiness, superlative icons
+ 	if (pCity->canBeSelected())
+-	{
++	{	// <advc.002f>
++		if (pCity->AI().AI_isEmphasizeAvoidGrowth() &&
++			BUGOption::isEnabled("MainInterface__AvoidGrowthIcon", false))
++		{
++			szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(BAD_FOOD_CHAR)));
++		} // </advc.002f>
+ 		if (pCity->angryPopulation() > 0)
+ 			szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(UNHAPPY_CHAR)));
+ 		if (pCity->healthRate() < 0)
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=18404

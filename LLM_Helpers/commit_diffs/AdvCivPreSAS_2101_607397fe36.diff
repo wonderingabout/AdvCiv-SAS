@@ -1,0 +1,56 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2101
+# Commit: 607397fe368384babeb6c635455caced3d46fa5f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 01311d9d51a6d553a175df8f15bbd3059be46a0a
+# Title: A couple more city trade tweaks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	3	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1a3887b29..07d0fbb62 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -20638,7 +20638,7 @@ bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer,
+ 			if (iKeepVal >= 0)
+ 			{
+ 				scaled rTotalResentment;
+-				for (TeamIter<MAJOR_CIV,OTHER_KNOWN_TO> it(kToPlayer.getTeam());
++				for (TeamIter<FREE_MAJOR_CIV,OTHER_KNOWN_TO> it(kToPlayer.getTeam());
+ 					it.hasNext(); ++it)
+ 				{
+ 					CvTeamAI const& kThirdParty = *it;
+@@ -20655,13 +20655,16 @@ bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer,
+ 				}
+ 				rEnemyTradeFactor += (2 * rTotalResentment) /
+ 						scaled(TeamIter<EVER_ALIVE>::count()).sqrt();
+-				rEnemyTradeFactor = (rEnemyTradeFactor + 1) / 2; // dilute
++				rEnemyTradeFactor = (rEnemyTradeFactor + fixp(5/3.)) / fixp(8/3.); // dilute
+ 			}
+ 			// City mustn't be too valuable to us
+ 			{
+ 				scaled rTotalYieldVal = AI_totalYieldVal();
+-				if (iKeepVal * rEnemyTradeFactor > rTotalYieldVal / 15)
++				if (iKeepVal * rEnemyTradeFactor > rTotalYieldVal /
++					(18 - iAttitudeLevel))
++				{
+ 					return false;
++				}
+ 			}
+ 			// Don't help them too much (depending on relations)
+ 			// Same crude formula as in AI_demandTribute
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1317

@@ -1,0 +1,1137 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1844
+# Commit: d69859907a71e062be91500b529701e0d22d5c39
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 488e1af47d4685c73f2f3d27b8826cb6a8fae6a5
+# Title: Options for replay minimap texture
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+55	29	Assets/Python/Screens/CvHallOfFameScreen.py
+20	3	Assets/Python/Screens/CvReplayScreen.py
+34	2	Assets/XML/GlobalDefines_advc.xml
+10	1	CvGameCoreDLL/CvGame.cpp
+2	0	CvGameCoreDLL/CvGame.h
+3	0	CvGameCoreDLL/CvGameCoreDLL.h
+1	0	CvGameCoreDLL/CvGlobals.h
+53	0	CvGameCoreDLL/CvMap.cpp
+6	1	CvGameCoreDLL/CvMap.h
+8	0	CvGameCoreDLL/CvPlayer.cpp
+131	149	CvGameCoreDLL/CvReplayInfo.cpp
+10	3	CvGameCoreDLL/CvReplayInfo.h
+2	0	CvGameCoreDLL/CyHallOfFameInterface.cpp
+9	0	CvGameCoreDLL/CyReplayInfo.cpp
+1	1	CvGameCoreDLL/CyReplayInfo.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvHallOfFameScreen.py b/Assets/Python/Screens/CvHallOfFameScreen.py
+index 17d92da3b..7589df9c8 100644
+--- a/Assets/Python/Screens/CvHallOfFameScreen.py
++++ b/Assets/Python/Screens/CvHallOfFameScreen.py
+@@ -255,16 +255,29 @@ class CvHallOfFameScreen:
+ 		screen.addTableControlGFC(self.TABLE_ID, 10, 2, 2 * self.DROPDOWN_SPACING_Y + self.DROPDOWN_Y, 1018, 545, True, True, 16, 16, TableStyles.TABLE_STYLE_STANDARD);
+ 		screen.enableSelect(self.TABLE_ID, False)
+ 		screen.enableSort(self.TABLE_ID)
+-		screen.setTableColumnHeader(self.TABLE_ID, 0, "", 20)
+-		screen.setTableColumnHeader(self.TABLE_ID, 1, localText.getText("TXT_KEY_PITBOSS_LEADER", ()), 202)
+-		screen.setTableColumnHeader(self.TABLE_ID, 2, localText.getText("TXT_KEY_NORMALIZED_SCORE", ()), 100)
+-		screen.setTableColumnHeader(self.TABLE_ID, 3, localText.getText("TXT_KEY_HALL_OF_FAME_SORT_BY_DATE", ()), 88)
+-		screen.setTableColumnHeader(self.TABLE_ID, 4, localText.getText("TXT_KEY_GAME_SCORE", ()), 100)
+-		screen.setTableColumnHeader(self.TABLE_ID, 5, localText.getText("TXT_KEY_CONCEPT_VICTORY", ()), 100)
+-		screen.setTableColumnHeader(self.TABLE_ID, 6, localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ()), 100)
+-		screen.setTableColumnHeader(self.TABLE_ID, 7, localText.getText("TXT_KEY_HOF_SCREEN_SIZE", ()), 100)
+-		screen.setTableColumnHeader(self.TABLE_ID, 8, localText.getText("TXT_KEY_HOF_SCREEN_STARTING_ERA", ()), 100)
+-		screen.setTableColumnHeader(self.TABLE_ID, 9, localText.getText("TXT_KEY_HOF_SCREEN_GAME_SPEED", ()), 105)
++		# <advc.106i> Don't show replay button column when game has just ended (replays are disabled then)
++		bAllowReplay = (gc.getGame().getGameState() != GameStateTypes.GAMESTATE_OVER)
++		iColumn = 0 # Replacing hardcoded column numbers
++		if bAllowReplay:
++			screen.setTableColumnHeader(self.TABLE_ID, iColumn, "", 20)
++			iColumn += 1 # </advc.106i>
++		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_PITBOSS_LEADER", ()), 202)
++		iColumn += 1
++		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_NORMALIZED_SCORE", ()), 100)
++		iColumn += 1
++		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HALL_OF_FAME_SORT_BY_DATE", ()), 88)
++		iColumn += 1
++		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_GAME_SCORE", ()), 100)
++		iColumn += 1
++		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_CONCEPT_VICTORY", ()), 100)
++		iColumn += 1
++		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ()), 100)
++		iColumn += 1
++		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_SIZE", ()), 100)
++		iColumn += 1
++		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_STARTING_ERA", ()), 100)
++		iColumn += 1
++		screen.setTableColumnHeader(self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HOF_SCREEN_GAME_SPEED", ()), 105)
+ #		screen.setTableColumnHeader(self.TABLE_ID, , "", 73)
+ 
+ 		# count the filtered replays
+@@ -274,7 +287,6 @@ class CvHallOfFameScreen:
+ 			if self.isDisplayed(replayInfo):
+ 				iNumGames += 1
+ 
+-		
+ 		self.infoList = [(-1,"",-1,"",-1,"","","","","",0)] * iNumGames
+ 		iItem = 0
+ 		for i in range(self.hallOfFame.getNumGames()):
+@@ -349,28 +361,42 @@ class CvHallOfFameScreen:
+ 		self.infoList.sort()
+ 
+ 		for i in range(len(self.infoList)):
+-		
+-			szButtonName = self.REPLAY_BUTTON_ID + str(i)
+-			# <advc.106i>
+-			data1 = 0
+-			if i > 22:
+-				data1 = 1
+-			# </advc.106i>
+-			screen.setButtonGFC(szButtonName, self.infoList[i][1], "", 0, 0, 10, 10, WidgetTypes.WIDGET_SHOW_REPLAY, data1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++			if bAllowReplay: # advc.106i
++				szButtonName = self.REPLAY_BUTTON_ID + str(i)
++				# <advc.106i>
++				data1 = 0
++				if i > 22:
++					data1 = 1
++				# </advc.106i>
++				screen.setButtonGFC(szButtonName, self.infoList[i][1], "", 0, 0, 10, 10, WidgetTypes.WIDGET_SHOW_REPLAY, data1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+ 		
+ 			screen.appendTableRow(self.TABLE_ID)
+-			screen.setTableText(self.TABLE_ID, 1, i, self.infoList[i][1], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# <advc.106i> Replacing hardcoded column numbers
++			iColumn = 0
++			if bAllowReplay: 
++				# Moved up:
++				screen.attachControlToTableCell(szButtonName, self.TABLE_ID, i, iColumn)
++				iColumn += 1
++			# </advc.106i>
++			screen.setTableText(self.TABLE_ID, iColumn, i, self.infoList[i][1], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iColumn += 1
+ 			if self.infoList[i][2] >= 0:
+-				screen.setTableInt(self.TABLE_ID, 2, i, u"%d" % self.infoList[i][2], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-			screen.setTableDate(self.TABLE_ID, 3, i, self.infoList[i][3], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				screen.setTableInt(self.TABLE_ID, iColumn, i, u"%d" % self.infoList[i][2], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++			iColumn += 1
++			screen.setTableDate(self.TABLE_ID, iColumn, i, self.infoList[i][3], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iColumn += 1
+ 			if self.infoList[i][4] >= 0:
+-				screen.setTableInt(self.TABLE_ID, 4, i, u"%d" % self.infoList[i][4], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-			screen.setTableText(self.TABLE_ID, 5, i, self.infoList[i][5], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			screen.setTableText(self.TABLE_ID, 6, i, self.infoList[i][6], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			screen.setTableText(self.TABLE_ID, 7, i, self.infoList[i][7], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			screen.setTableText(self.TABLE_ID, 8, i, self.infoList[i][8], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			screen.setTableText(self.TABLE_ID, 9, i, self.infoList[i][9], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-			screen.attachControlToTableCell(szButtonName, self.TABLE_ID, i, 0)		
++				screen.setTableInt(self.TABLE_ID, iColumn, i, u"%d" % self.infoList[i][4], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++			iColumn += 1
++			screen.setTableText(self.TABLE_ID, iColumn, i, self.infoList[i][5], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iColumn += 1
++			screen.setTableText(self.TABLE_ID, iColumn, i, self.infoList[i][6], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iColumn += 1
++			screen.setTableText(self.TABLE_ID, iColumn, i, self.infoList[i][7], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iColumn += 1
++			screen.setTableText(self.TABLE_ID, iColumn, i, self.infoList[i][8], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iColumn += 1
++			screen.setTableText(self.TABLE_ID, iColumn, i, self.infoList[i][9], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 								
+ 		return
+
+diff --git a/Assets/Python/Screens/CvReplayScreen.py b/Assets/Python/Screens/CvReplayScreen.py
+index 7eb18fdbd..adcea713e 100644
+--- a/Assets/Python/Screens/CvReplayScreen.py
++++ b/Assets/Python/Screens/CvReplayScreen.py
+@@ -36,6 +36,7 @@ class CvReplayScreen:
+ 		self.DZ = -0.2
+ 		# <advc.106m> Use this to avoid calling calculateLayout more than once
+ 		self.bLayoutDone = False
++		self.iOriginalMinimapRenderSize = -1
+ 
+ 	# Moved into a new function b/c getScreen can't be called in __init__
+ 	def calculateLayout(self):
+@@ -172,7 +173,11 @@ class CvReplayScreen:
+ 				self.replayInfo.createInfo(gc.getGame().getActivePlayer())
+ 
+ 		self.iTurn = self.replayInfo.getInitialTurn()
+-
++		# <advc.106m> Change MINIMAP_RENDER_SIZE until the replay is closed. (The EXE will access it.)
++		self.iOriginalMinimapRenderSize = gc.getDefineINT("MINIMAP_RENDER_SIZE")
++		iMinimapRenderSize = self.replayInfo.getMinimapSize()
++		gc.setDefineINT("MINIMAP_RENDER_SIZE", iMinimapRenderSize)
++		# </advc.106m>
+ 		self.deleteAllWidgets()
+ 
+ 		# Controls
+@@ -381,8 +386,8 @@ class CvReplayScreen:
+ 
+ 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED):
+ 			if (inputClass.getFunctionName() == self.EXIT_ID):
+-				screen = self.getScreen()
+-				screen.hideScreen()
++				# advc.106m: Moved into new function
++				self.uninit()
+ 
+ 			elif (szWidgetName == self.szPlayId):
+ 				self.setPlaying(not self.bPlaying)
+@@ -399,9 +404,21 @@ class CvReplayScreen:
+ 			if (szWidgetName == self.szSliderId):
+ 				screen = self.getScreen()
+ 				self.iSpeed = inputClass.getData() + 1
++		# <advc.106m> Intercept ESC and Enter so that MINIMAP_RENDER_SIZE can be restored
++		elif inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER and (inputClass.getData() == InputTypes.KB_ESCAPE or inputClass.getData() == InputTypes.KB_RETURN):
++			self.uninit() # </advc.106m>
+ 
+ 		return 0
+ 
++	# <advc.106m>
++	def uninit(self):
++		# Restore MINIMAP_RENDER_SIZE
++		gc.setDefineINT("MINIMAP_RENDER_SIZE", self.iOriginalMinimapRenderSize)
++		# Cut from handleInput (exit clicked)
++		screen = self.getScreen()
++		screen.hideScreen()
++	# </advc.106m>
++
+ 	def update(self, fDelta):
+ 
+ 		screen = self.getScreen()
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 8d7e6a6b9..8828c9fdb 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -71,6 +71,38 @@
+ 		<DefineName>HOF_DISPLAY_OTHER_MOD_REPLAYS</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
++	<!-- advc.106m: Resolution of the terrain texture on the minimap,
++		 more specifically, it's the number of pixels along the
++		 horizontal axis. The value is used for the minimap on the
++		 main screen, Military Advisor and Replay screen.
++		 Recommended: 512 as in BtS. A higher value (e.g. 1024) looks
++		 better on the (maximized) replay screen, but is incompatible
++		 with HOF_STORE_REPLAYS_AS_BTS=1. Higher values also increase
++		 the size of replay files.
++		 AdvCiv (since version 0.97) stores MINIMAP_RENDER_SIZE in
++		 replay files, so compatibility between within AdvCiv isn't
++		 an issue, but BtS can only read size 512. -->
++	<Define>
++		<DefineName>MINIMAP_RENDER_SIZE</DefineName>
++		<iDefineIntVal>512</iDefineIntVal>
++	</Define>
++	<!-- advc.106n: When to store the terrain texture for the replay file.
++		 0 (Ancient era) means that the map at game start is used,
++		 4 (Industrial era) would yield a pre-Industrial map with roads,
++		 most of the Forests gone, but no railroads or Global Warming effects.
++		 Recommended: A value greater than any era number, which means that the
++		 map at game end is used (as in BtS). That has the advantage that
++		 no texture data gets stored in savegame files. The texture has a size
++		 of 128 KB if MINIMAP_RENDER_SIZE is 512. (Savegame compression in the
++		 EXE might reduce that size a bit.)
++		 If an era number is used, then the texture gets stored once any
++		 player reaches the target era or immediately when loading an
++		 outdated savegame (i.e. without texture data) in which at least
++		 one player has reached the target era. -->
++	<Define>
++		<DefineName>REPLAY_TEXTURE_ERA</DefineName>
++		<iDefineIntVal>10</iDefineIntVal>
++	</Define>
+ 
+ 	<!-- advc.002h: 0 only hides the clouds. Their shadows are hidden through
+ 		 BML.fpk. Original value: 1. If BML.fpk is removed, then this value
+@@ -387,10 +419,10 @@
+ 
+ 	<!-- [advc.004m]
+ 	     No clue how this is measured. Original value is 2200
+-		 (GlobalDefines.xml), recommended: 4600. -->
++		 (GlobalDefines.xml), recommended: 5400 (4600?). -->
+ 	<Define>
+ 		<DefineName>CAMERA_START_DISTANCE</DefineName>
+-		<fDefineFloatVal>4600</fDefineFloatVal>
++		<fDefineFloatVal>5400</fDefineFloatVal>
+ 	</Define>
+ 
+ 	<!-- [advc.500b]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index d00ccf787..dcc198ea6 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -3747,6 +3747,14 @@ EraTypes CvGame::getCurrentEra() const
+ 	return NO_ERA;
+ }
+ 
++// <advc>
++EraTypes CvGame::getHighestEra() const
++{
++	EraTypes r = NO_ERA;
++	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
++		r = (EraTypes)std::max<int>(r, it->getCurrentEra());
++	return r;
++} // </advc>
+ 
+ TeamTypes CvGame::getActiveTeam() const
+ {
+@@ -8739,7 +8747,8 @@ void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType)
+ 				gDLL->getInterfaceIFace()->lookAt(pStartingPlot->getPoint(), CAMERALOOKAT_NORMAL);
+ 			break;
+ 		} // </advc.004j>
+-		default: FAssertMsg(false, "Unknown update timer type");
++		// advc.106n:
++		case UPDATE_STORE_REPLAY_TEXTURE: GC.getMap().updateReplayTexture(); break;		default: FAssertMsg(false, "Unknown update timer type");
+ 		}
+ 	}
+ 	m_aiUpdateTimers[eTimerType]--;
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index e7a623642..cf57bf7dd 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -164,6 +164,7 @@ public:
+ 
+ 	bool canTrainNukes() const;																		// Exposed to Python
+ 	EraTypes getCurrentEra() const;														// Exposed to Python
++	EraTypes getHighestEra() const; // advc
+ 
+ 	DllExport TeamTypes getActiveTeam() const;																		// Exposed to Python
+ 	CivilizationTypes getActiveCivilizationType() const;								// Exposed to Python
+@@ -314,6 +315,7 @@ public:
+ 		UPDATE_SCORE_BOARD_DIRTY, // advc.085
+ 		UPDATE_MOUSE_FOCUS, // advc.001w
+ 		UPDATE_LOOK_AT_STARTING_PLOT, // advc.004j
++		UPDATE_STORE_REPLAY_TEXTURE, // advc.106n
+ 		NUM_UPDATE_TIMER_TYPES
+ 	};
+ 	void setUpdateTimer(UpdateTimerTypes eTimerType, int iDelay); // </advc.003r>
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 172bda97f..fd7c89504 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -257,6 +257,9 @@ namespace python = boost::python;
+ #include "FFreeListArray.h"
+ #include "CvString.h"
+ #include "CvEnums.h" // includes CvDefines.h, CvInfoEnum.h
++/*  advc: Smaller numbers may already crash the EXE; the DLL assumes in some places
++	that player ids fit in a single byte. */
++BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+ #include "CvStructs.h"
+ #include "CvDLLUtilityIFaceBase.h" // includes LinkedList.h
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index e51581647..bbd12dcba 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -436,6 +436,7 @@ public:
+ 		DO(RELATIONS_THRESH_FURIOUS) \
+ 		DO(RELATIONS_THRESH_ANNOYED) \
+ 		/* </advc.148> */ \
++		DO(MINIMAP_RENDER_SIZE) /* advc.106m */ \
+ 		/* <advc.opt> */ \
+ 		DO(DIPLOMACY_VALUE_REMAINDER) \
+ 		DO(PEACE_TREATY_LENGTH) \
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 51d1f92e7..2ab980e0b 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -19,6 +19,7 @@
+ #include "CvMapGenerator.h"
+ #include "KmodPathFinder.h"
+ #include "CvInfo_GameOption.h"
++#include "CvReplayInfo.h" // advc.106n
+ #include "CvDLLIniParserIFaceBase.h"
+ #include <stack> // advc.030
+ 
+@@ -71,6 +72,7 @@ void CvMap::init(CvMapInitData* pInitInfo)
+ void CvMap::uninit()
+ {
+ 	SAFE_DELETE_ARRAY(m_pMapPlots);
++	m_replayTexture.clear(); // advc.106n
+ 	m_areas->uninit();
+ }
+ 
+@@ -172,6 +174,7 @@ void CvMap::setupGraphical() // graphical only setup
+ {
+ 	if (!GC.IsGraphicsInitialized())
+ 		return;
++
+ 	CvPlot::setMaxVisibilityRangeCache(); // advc.003h
+ 	if (m_pMapPlots != NULL)
+ 	{
+@@ -181,6 +184,13 @@ void CvMap::setupGraphical() // graphical only setup
+ 			getPlotByIndex(iI).setupGraphical();
+ 		}
+ 	}
++	// <advc.106n> For games starting in a later era
++	if (getReplayTexture() == NULL &&
++		GC.getGame().getHighestEra() >= GC.getDefineINT("REPLAY_TEXTURE_ERA"))
++	{
++		// The EXE isn't quite ready here to provide the texture
++		GC.getGame().setUpdateTimer(CvGame::UPDATE_STORE_REPLAY_TEXTURE, 5);
++	} // </advc.106n>
+ }
+ 
+ 
+@@ -188,6 +198,7 @@ void CvMap::erasePlots()
+ {
+ 	for (int iI = 0; iI < numPlots(); iI++)
+ 		plotByIndex(iI)->erase();
++	m_replayTexture.clear(); // advc.106n
+ }
+ 
+ 
+@@ -1102,12 +1113,26 @@ void CvMap::read(FDataStreamBase* pStream)
+ 		(The problem was that goody huts weren't always highlighted by the
+ 		Resource layer after loading a game.) */
+ 	gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
++	// <advc.106n>
++	if (uiFlag > 0)
++	{
++		size_t iPixels;
++		pStream->Read(&iPixels);
++		m_replayTexture.reserve(iPixels);
++		for (size_t i = 0; i < iPixels; i++)
++		{
++			byte ucPixel;
++			pStream->Read(&ucPixel);
++			m_replayTexture.push_back(ucPixel);
++		}
++	} // </advc.106n>
+ }
+ 
+ // save object to a stream
+ void CvMap::write(FDataStreamBase* pStream)
+ {
+ 	uint uiFlag=0;
++	uiFlag = 1; // advc.106n
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iGridWidth);
+@@ -1130,6 +1155,10 @@ void CvMap::write(FDataStreamBase* pStream)
+ 
+ 	// call the read of the free list CvArea class allocations
+ 	WriteStreamableFFreeListTrashArray(*m_areas, pStream);
++	// <advc.106n>
++	pStream->Write(m_replayTexture.size());
++	pStream->Write(m_replayTexture.size(), &m_replayTexture[0]);
++	// </advc.106n>
+ }
+ 
+ // used for loading WB maps
+@@ -1148,6 +1177,30 @@ void CvMap::rebuild(int iGridW, int iGridH, int iTopLatitude, int iBottomLatitud
+ 	init(&initData);
+ }
+ 
++// <advc.106n>
++void CvMap::updateReplayTexture()
++{
++	byte* pTexture = gDLL->getInterfaceIFace()->getMinimapBaseTexture();
++	FAssert(pTexture != NULL);
++	if (pTexture == NULL)
++		return;
++	int const iPixels = CvReplayInfo::minimapPixels(GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE));
++	m_replayTexture.clear();
++	m_replayTexture.reserve(iPixels);
++	for (int i = 0; i < iPixels; i++)
++		m_replayTexture.push_back(pTexture[i]);
++}
++
++
++byte const* CvMap::getReplayTexture() const
++{
++	// When in HoF or updateReplayTexture was never called or MINIMAP_RENDER_SIZE has changed
++	if (m_replayTexture.size() != CvReplayInfo::minimapPixels(
++			GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE)))
++		return NULL;
++	return &m_replayTexture[0];
++} // </advc.106n>
++
+ 
+ void CvMap::calculateAreas()
+ {
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 29c8fceb4..c9e64b39b 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -412,7 +412,11 @@ public: // advc: made several functions const
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+ 
+-	void rebuild(int iGridW, int iGridH, int iTopLatitude, int iBottomLatitude, bool bWrapX, bool bWrapY, WorldSizeTypes eWorldSize, ClimateTypes eClimate, SeaLevelTypes eSeaLevel, int iNumCustomMapOptions, CustomMapOptionTypes * eCustomMapOptions);		// Exposed to Python
++	void rebuild(int iGridW, int iGridH, int iTopLatitude, int iBottomLatitude,	bool bWrapX, bool bWrapY, 			// Exposed to Python
++			WorldSizeTypes eWorldSize, ClimateTypes eClimate, SeaLevelTypes eSeaLevel,
++			int iNumCustomMapOptions, CustomMapOptionTypes* eCustomMapOptions);
++	void updateReplayTexture(); // advc.106n
++	byte const* getReplayTexture() const; // advc.106n
+ 
+ protected:
+ 
+@@ -435,6 +439,7 @@ protected:
+ 
+ 	//FFreeListTrashArray<CvArea> m_areas;
+ 	CvAreaList* m_areas; // advc.003u
++	std::vector<byte> m_replayTexture; // advc.106n
+ 
+ 	void calculateAreas();
+ 	// <advc.030>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c08c8f077..ea030f0fe 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -10435,6 +10435,14 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue, /* advc.127c: */ bool bGraphics
+ 				getID(), szBuffer, -1, -1, (ColorTypes)
+ 				GC.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT"));
+ 	} // </advc.106>
++	// <advc.106n> Save pre-Industrial minimap terrain for replay
++	if (GC.getGame().isFinalInitialized() &&
++		getCurrentEra() >= GC.getDefineINT("REPLAY_TEXTURE_ERA"))
++	{
++		CvMap& kMap = GC.getMap();
++		if (kMap.getReplayTexture() == NULL)
++			kMap.updateReplayTexture();
++	} // </advc.106n>
+ }
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index c77612578..b33c8d8ca 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -30,7 +30,7 @@ CvReplayInfo::CvReplayInfo() :
+ 	m_bMultiplayer(false),
+ 	m_iStartYear(0)
+ {
+-	m_nMinimapSize = ((GC.getDefineINT("MINIMAP_RENDER_SIZE") * GC.getDefineINT("MINIMAP_RENDER_SIZE")) / 2);
++	m_iMinimapSize = -1; // advc.106m: To be read from replay file
+ 	m = new Data(); // advc.003k
+ 	m->iFinalScore = -1; // advc.707
+ 	// <advc.106i>
+@@ -48,6 +48,8 @@ CvReplayInfo::CvReplayInfo() :
+ 			GC.getNumWorldInfos() <= 6 && GC.getNumVictoryInfos() >= 7 &&
+ 			GC.getNumHandicapInfos() >= 9 && GC.getNumGameSpeedInfos() >= 4);
+ 	// </advc.106i>
++	// advc.106m:
++	FAssert(!STORE_REPLAYS_AS_BTS || GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE) == 512);
+ }
+ 
+ CvReplayInfo::~CvReplayInfo()
+@@ -62,14 +64,26 @@ CvReplayInfo::~CvReplayInfo()
+ 
+ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ {
++	if(!STORE_REPLAYS_AS_BTS) // advc.106i (and moved up)
++		m_szModName = gDLL->getModName();
+ 	CvGame& game = GC.getGame();
+ 	CvMap& map = GC.getMap();
++	/*  <advc>: createInfo gets called when Python scripts are (re-)loaded.
++		Somehow, skipping the code above gets the Python loading code stuck
++		in an infinite loop. Therefore I only skip the somewhat costly
++		copying of the terrain texture after loading scripts for the first time.
++		(Don't know how to identify a Python reload here. Mustn't break Shift+F1.) */
++	static bool bFirstCall = true;
++	if (bFirstCall && game.isFinalInitialized() && game.getGameState() != GAMESTATE_OVER)
++	{
++		bFirstCall = false;
++		return;
++	} // </advc>
+ 
+ 	if (ePlayer == NO_PLAYER)
+-	{
+ 		ePlayer = game.getActivePlayer();
+-	}
+-	if (NO_PLAYER != ePlayer)
++
++	if (ePlayer != NO_PLAYER)
+ 	{
+ 		CvPlayer const& player = GET_PLAYER(ePlayer);
+ 
+@@ -100,20 +114,13 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 		{
+ 			VictoryTypes eVictory = (VictoryTypes)i;
+ 			if (game.isVictoryValid(eVictory))
+-			{
+ 				m_listVictoryTypes.push_back(eVictory);
+-			}
+ 		}
+ 		if (game.getWinner() == player.getTeam())
+-		{
+ 			m_eVictoryType = game.getVictory();
+-		}
+-		else
+-		{
+-			m_eVictoryType = NO_VICTORY;
+-		}
++		else m_eVictoryType = NO_VICTORY;
+ 
+-		m_iNormalizedScore = player.calculateScore(true, player.getTeam() == GC.getGame().getWinner());
++		m_iNormalizedScore = player.calculateScore(true, player.getTeam() == game.getWinner());
+ 		// <advc.707> Treat R&F games as "Score" victory (previously unused)
+ 		if(game.isOption(GAMEOPTION_RISE_FALL))
+ 		{
+@@ -132,12 +139,12 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 	m_bMultiplayer = game.isGameMultiPlayer();
+ 
+ 
+-	m_iInitialTurn = GC.getGame().getStartTurn();
+-	m_iStartYear = GC.getGame().getStartYear();
++	m_iInitialTurn = game.getStartTurn();
++	m_iStartYear = game.getStartYear();
+ 	m_iFinalTurn = game.getGameTurn();
+-	GAMETEXT.setYearStr(m_szFinalDate, m_iFinalTurn, false, GC.getGame().getCalendar(), GC.getGame().getStartYear(), GC.getGame().getGameSpeedType());
++	GAMETEXT.setYearStr(m_szFinalDate, m_iFinalTurn, false, game.getCalendar(), game.getStartYear(), game.getGameSpeedType());
+ 
+-	m_eCalendar = GC.getGame().getCalendar();
++	m_eCalendar = game.getCalendar();
+ 
+ 
+ 	std::map<PlayerTypes, int> mapPlayers;
+@@ -150,15 +157,15 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 		{
+ 			mapPlayers[(PlayerTypes)iPlayer] = iPlayerIndex;
+ 			if ((PlayerTypes)iPlayer == game.getActivePlayer())
+-			{
+ 				m_iActivePlayer = iPlayerIndex;
+-			}
+-			++iPlayerIndex;
++			iPlayerIndex++;
+ 
+ 			PlayerInfo playerInfo;
+ 			playerInfo.m_eLeader = player.getLeaderType();
+-			//playerInfo.m_eColor = (ColorTypes)GC.getInfo(player.getPlayerColor()).getColorTypePrimary();
+-			playerInfo.m_eColor = (ColorTypes)GC.getInfo(GC.getInitCore().getColor((PlayerTypes)iPlayer)).getColorTypePrimary(); // K-Mod. (bypass the conceal colour check.)
++			playerInfo.m_eColor = (ColorTypes)GC.getInfo(
++					//player.getPlayerColor()).getColorTypePrimary();
++					// K-Mod. (bypass the conceal colour check.)
++					GC.getInitCore().getColor((PlayerTypes)iPlayer)).getColorTypePrimary();
+ 			for (int iTurn = m_iInitialTurn; iTurn <= m_iFinalTurn; iTurn++)
+ 			{
+ 				TurnData score;
+@@ -184,7 +191,7 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 		if (it != mapPlayers.end())
+ 		{
+ 			CvReplayMessage* pMsg = new CvReplayMessage(game.getReplayMessageTurn(i), game.getReplayMessageType(i), (PlayerTypes)it->second);
+-			if (NULL != pMsg)
++			if (pMsg != NULL)
+ 			{
+ 				pMsg->setColor(game.getReplayMessageColor(i));
+ 				pMsg->setText(game.getReplayMessageText(i));
+@@ -195,7 +202,7 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 		else
+ 		{
+ 			CvReplayMessage* pMsg = new CvReplayMessage(game.getReplayMessageTurn(i), game.getReplayMessageType(i), NO_PLAYER);
+-			if (NULL != pMsg)
++			if (pMsg != NULL)
+ 			{
+ 				pMsg->setColor(game.getReplayMessageColor(i));
+ 				pMsg->setText(game.getReplayMessageText(i));
+@@ -204,21 +211,24 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 			}
+ 		}
+ 	}
++	// <advc.707>
++	if(m->iFinalScore < 0)
++		m->iFinalScore = getFinalPlayerScore(); // </advc.707>
+ 
+ 	m_iMapWidth = GC.getMap().getGridWidth();
+ 	m_iMapHeight = GC.getMap().getGridHeight();
+-
++	// <advc.106m>
++	if (m_iMinimapSize == -1)
++		setMinimapSizeFromXML();
++	// </advc.106m>  <advc.106n>
++	byte const* pTexture = map.getReplayTexture();
++	if (pTexture == NULL)
++		pTexture = gDLL->getInterfaceIFace()->getMinimapBaseTexture();
++	// </advc.106n>
+ 	SAFE_DELETE(m_pcMinimapPixels);
+-	m_pcMinimapPixels = new unsigned char[m_nMinimapSize];
+-
+-	void *ptexture = (void*)gDLL->getInterfaceIFace()->getMinimapBaseTexture();
+-	if (ptexture)
+-		memcpy((void*)m_pcMinimapPixels, ptexture, m_nMinimapSize);
+-	if(!STORE_REPLAYS_AS_BTS) // advc.106i
+-		m_szModName = gDLL->getModName();
+-	// <advc.707>
+-	if(m->iFinalScore < 0)
+-		m->iFinalScore = getFinalPlayerScore(); // </advc.707>
++	m_pcMinimapPixels = new byte[/* advc.106m: */ minimapPixels()];
++	if (pTexture != NULL)
++		memcpy((void*)m_pcMinimapPixels, pTexture, /* advc.106m: */ minimapPixels());
+ }
+ 
+ // <advc.106h>
+@@ -368,26 +378,18 @@ int CvReplayInfo::getActivePlayer() const
+ LeaderHeadTypes CvReplayInfo::getLeader(int iPlayer) const
+ {
+ 	if (iPlayer < 0)
+-	{
+ 		iPlayer = m_iActivePlayer;
+-	}
+ 	if (isValidPlayer(iPlayer))
+-	{
+ 		return m_listPlayerScoreHistory[iPlayer].m_eLeader;
+-	}
+ 	return NO_LEADER;
+ }
+ 
+ ColorTypes CvReplayInfo::getColor(int iPlayer) const
+ {
+ 	if (iPlayer < 0)
+-	{
+ 		iPlayer = m_iActivePlayer;
+-	}
+ 	if (isValidPlayer(iPlayer))
+-	{
+ 		return m_listPlayerScoreHistory[iPlayer].m_eColor;
+-	}
+ 	return NO_COLOR;
+ }
+ 
+@@ -451,9 +453,7 @@ bool CvReplayInfo::isGameOption(GameOptionTypes eOption) const
+ 	for (uint i = 0; i < m_listGameOptions.size(); i++)
+ 	{
+ 		if (m_listGameOptions[i] == eOption)
+-		{
+ 			return true;
+-		}
+ 	}
+ 	return false;
+ }
+@@ -463,9 +463,7 @@ bool CvReplayInfo::isVictoryCondition(VictoryTypes eVictory) const
+ 	for (uint i = 0; i < m_listVictoryTypes.size(); i++)
+ 	{
+ 		if (m_listVictoryTypes[i] == eVictory)
+-		{
+ 			return true;
+-		}
+ 	}
+ 	return false;
+ }
+@@ -491,110 +489,52 @@ void CvReplayInfo::clearReplayMessageMap()
+ 	for (ReplayMessageList::const_iterator itList = m_listReplayMessages.begin(); itList != m_listReplayMessages.end(); itList++)
+ 	{
+ 		const CvReplayMessage* pMessage = *itList;
+-		if (NULL != pMessage)
++		if (pMessage != NULL)
+ 		{
+ 			delete pMessage;
+ 		}
+ 	}
+ 	m_listReplayMessages.clear();
+ }
++// <advc> To reduce code duplication
++bool CvReplayInfo::isReplayMsgValid(uint i) const
++{
++	return (i < m_listReplayMessages.size() && m_listReplayMessages[i] != NULL);
++} // </advc>
+ 
+ int CvReplayInfo::getReplayMessageTurn(uint i) const
+ {
+-	if (i >= m_listReplayMessages.size())
+-	{
+-		return (-1);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (-1);
+-	}
+-	return pMessage->getTurn();
++	return (isReplayMsgValid(i) ? m_listReplayMessages[i]->getTurn() : -1);
+ }
+ 
+ ReplayMessageTypes CvReplayInfo::getReplayMessageType(uint i) const
+ {
+-	if (i >= m_listReplayMessages.size())
+-	{
+-		return (NO_REPLAY_MESSAGE);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (NO_REPLAY_MESSAGE);
+-	}
+-	return pMessage->getType();
++	return (isReplayMsgValid(i) ? m_listReplayMessages[i]->getType() : NO_REPLAY_MESSAGE);
+ }
+ 
+ int CvReplayInfo::getReplayMessagePlotX(uint i) const
+ {
+-	if (i >= m_listReplayMessages.size())
+-	{
+-		return (-1);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (-1);
+-	}
+-	return pMessage->getPlotX();
++	return (isReplayMsgValid(i) ? m_listReplayMessages[i]->getPlotX() : -1);
+ }
+ 
+ int CvReplayInfo::getReplayMessagePlotY(uint i) const
+ {
+-	if (i >= m_listReplayMessages.size())
+-	{
+-		return (-1);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (-1);
+-	}
+-	return pMessage->getPlotY();
++	return (isReplayMsgValid(i) ? m_listReplayMessages[i]->getPlotY() : -1);
+ }
+ 
+ PlayerTypes CvReplayInfo::getReplayMessagePlayer(uint i) const
+ {
+-	if (i >= m_listReplayMessages.size())
+-	{
+-		return (NO_PLAYER);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (NO_PLAYER);
+-	}
+-	return pMessage->getPlayer();
++	return (isReplayMsgValid(i) ? m_listReplayMessages[i]->getPlayer() : NO_PLAYER);
+ }
+ 
+ LPCWSTR CvReplayInfo::getReplayMessageText(uint i) const
+ {
+-	if (i >= m_listReplayMessages.size())
+-	{
+-		return (NULL);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (NULL);
+-	}
+-	return pMessage->getText().GetCString();
++	return (isReplayMsgValid(i) ? m_listReplayMessages[i]->getText().GetCString() : NULL);
+ }
+ 
+ ColorTypes CvReplayInfo::getReplayMessageColor(uint i) const
+ {
+-	if (i >= m_listReplayMessages.size())
+-	{
+-		return (NO_COLOR);
+-	}
+-	const CvReplayMessage* pMessage =  m_listReplayMessages[i];
+-	if (NULL == pMessage)
+-	{
+-		return (NO_COLOR);
+-	}
+-	return pMessage->getColor();
++	return (isReplayMsgValid(i) ? m_listReplayMessages[i]->getColor() : NO_COLOR);
+ }
+ 
+ 
+@@ -628,42 +568,34 @@ CalendarTypes CvReplayInfo::getCalendar() const
+ {
+ 	return m_eCalendar;
+ }
+-
++// <advc>
++CvReplayInfo::TurnData const& CvReplayInfo::getTurnData(int iPlayer, int iTurn) const
++{
++	return m_listPlayerScoreHistory[iPlayer].m_listScore[iTurn-m_iInitialTurn];
++} // </advc>
+ 
+ int CvReplayInfo::getPlayerScore(int iPlayer, int iTurn) const
+ {
+-	if (isValidPlayer(iPlayer) && isValidTurn(iTurn))
+-	{
+-		return m_listPlayerScoreHistory[iPlayer].m_listScore[iTurn-m_iInitialTurn].m_iScore;
+-	}
+-	return 0;
++	return (isValidPlayer(iPlayer) && isValidTurn(iTurn) ?
++			getTurnData(iPlayer, iTurn).m_iScore : 0);
+ }
+ 
+ int CvReplayInfo::getPlayerEconomy(int iPlayer, int iTurn) const
+ {
+-	if (isValidPlayer(iPlayer) && isValidTurn(iTurn))
+-	{
+-		return m_listPlayerScoreHistory[iPlayer].m_listScore[iTurn-m_iInitialTurn].m_iEconomy;
+-	}
+-	return 0;
++	return (isValidPlayer(iPlayer) && isValidTurn(iTurn) ?
++			getTurnData(iPlayer, iTurn).m_iEconomy : 0);
+ }
+ 
+ int CvReplayInfo::getPlayerIndustry(int iPlayer, int iTurn) const
+ {
+-	if (isValidPlayer(iPlayer) && isValidTurn(iTurn))
+-	{
+-		return m_listPlayerScoreHistory[iPlayer].m_listScore[iTurn-m_iInitialTurn].m_iIndustry;
+-	}
+-	return 0;
++	return (isValidPlayer(iPlayer) && isValidTurn(iTurn) ?
++			getTurnData(iPlayer, iTurn).m_iIndustry : 0);
+ }
+ 
+ int CvReplayInfo::getPlayerAgriculture(int iPlayer, int iTurn) const
+ {
+-	if (isValidPlayer(iPlayer) && isValidTurn(iTurn))
+-	{
+-		return m_listPlayerScoreHistory[iPlayer].m_listScore[iTurn-m_iInitialTurn].m_iAgriculture;
+-	}
+-	return 0;
++	return (isValidPlayer(iPlayer) && isValidTurn(iTurn) ?
++			getTurnData(iPlayer, iTurn).m_iAgriculture : 0);
+ }
+ 
+ int CvReplayInfo::getFinalScore() const
+@@ -715,12 +647,20 @@ const unsigned char* CvReplayInfo::getMinimapPixels() const
+ {
+ 	return m_pcMinimapPixels;
+ }
++// <advc.106m>
++int CvReplayInfo::getMinimapSize() const
++{
++	return m_iMinimapSize;
++} // </advc.106m>
+ 
+ const char* CvReplayInfo::getModName() const
+ {	/*  <advc.106i> Pretend to the EXE that every replay is an AdvCiv replay.
+ 		(Let CvReplayInfo::read decide which ones to show in HoF.) */
+ 	if(STORE_REPLAYS_AS_BTS || GC.getDefineINT("HOF_DISPLAY_BTS_REPLAYS") > 0 ||
+-			GC.getDefineINT("HOF_DISPLAY_OTHER_MOD_REPLAYS") > 0)
++			GC.getDefineINT("HOF_DISPLAY_OTHER_MOD_REPLAYS") > 0 ||
++			/*  It seems that some earlier version of AdvCiv has written an empty string
++				as the mod name. (I don't remember if this was on purpose.) */
++			m_szModName.empty())
+ 		return m->szPurportedModName; // </advc.106i>
+ 	return m_szModName;
+ }
+@@ -757,6 +697,13 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
+ 		if (iVersion < 2)
+ 			return false;
+ 		stream.Read(&m_iActivePlayer);
++		// <advc.106m> Unpack active player id and minimap resolution
++		if (m_iActivePlayer >= MAX_CHAR)
++		{
++			m_iMinimapSize = m_iActivePlayer / MAX_CHAR;
++			m_iActivePlayer = m_iActivePlayer % MAX_CHAR;
++		}
++		else setDefaultMinimapSize(); // </advc.106m>
+ 		if(!checkBounds(m_iActivePlayer, 0, 64)) return false; // advc.106i
+ 		stream.Read(&iType);
+ 		m_eDifficulty = (HandicapTypes)iType;
+@@ -781,7 +728,8 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
+ 			m->iFinalScore = iType;
+ 			m_eSeaLevel = NO_SEALEVEL; // unused
+ 		}
+-		else {
++		else
++		{
+ 			m->iFinalScore = MIN_INT; // Compute it later
+ 			m_eSeaLevel = (SeaLevelTypes)iType;
+ 			if(!checkBounds(m_eSeaLevel, 0, GC.getNumSeaLevelInfos() - 1)) return false; // advc.106i
+@@ -815,10 +763,8 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
+ 		for (int i = 0; i < iNumTypes; i++)
+ 		{
+ 			CvReplayMessage* pMessage = new CvReplayMessage(0);
+-			if (NULL != pMessage)
+-			{
++			if (pMessage != NULL)
+ 				pMessage->read(stream);
+-			}
+ 			m_listReplayMessages.push_back(pMessage);
+ 		}
+ 		stream.Read(&m_iInitialTurn);
+@@ -864,8 +810,9 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
+ 		stream.Read(&m_iMapHeight);
+ 		if(!checkBounds(m_iMapHeight, 1, 1000)) return false; // advc.106i
+ 		SAFE_DELETE(m_pcMinimapPixels);
+-		m_pcMinimapPixels = new unsigned char[m_nMinimapSize];
+-		stream.Read(m_nMinimapSize, m_pcMinimapPixels);
++		m_pcMinimapPixels = new byte[/* advc.106m: */ minimapPixels()];
++		stream.Read(/* advc.106m: */ minimapPixels(),
++				const_cast<byte*>(m_pcMinimapPixels)); // advc.106n: cast
+ 		stream.Read(&m_bMultiplayer);
+ 		if (iVersion > 2)
+ 		{	// <advc.106i>
+@@ -910,7 +857,15 @@ void CvReplayInfo::write(FDataStreamBase& stream)
+ 	//stream.Write(REPLAY_VERSION);
+ 	// <advc.106i> Fold AdvCiv's (hopefully) globally unique id into the replay version
+ 	stream.Write(GC.getDefineINT("SAVE_VERSION") * 100 + REPLAY_VERSION);
+-	stream.Write(m_iActivePlayer);
++	// <advc.106m> Fold minimap resolution into m_iActivePlayer
++	if (!STORE_REPLAYS_AS_BTS)
++	{
++		setMinimapSizeFromXML();
++		FAssert(m_iMinimapSize > 0);
++		stream.Write(m_iMinimapSize * MAX_CHAR + m_iActivePlayer);
++	}
++	else // </advc.106m>
++		stream.Write(m_iActivePlayer);
+ 	stream.Write((int)m_eDifficulty);
+ 	stream.WriteString(m_szLeaderName);
+ 	stream.WriteString(m_szCivDescription);
+@@ -940,7 +895,7 @@ void CvReplayInfo::write(FDataStreamBase& stream)
+ 	stream.Write((int)m_listReplayMessages.size());
+ 	for (uint i = 0; i < m_listReplayMessages.size(); i++)
+ 	{
+-		if (NULL != m_listReplayMessages[i])
++		if (m_listReplayMessages[i] != NULL)
+ 		{
+ 			m_listReplayMessages[i]->write(stream);
+ 		}
+@@ -968,11 +923,38 @@ void CvReplayInfo::write(FDataStreamBase& stream)
+ 	}
+ 	stream.Write(m_iMapWidth);
+ 	stream.Write(m_iMapHeight);
+-	stream.Write(m_nMinimapSize, m_pcMinimapPixels);
++	stream.Write(/* <advc.106m> */ minimapPixels() /* </advc.106m> */, m_pcMinimapPixels);
+ 	stream.Write(m_bMultiplayer);
+ 	stream.WriteString(m_szModName);
+ }
++// <advc.106m>
++// (Same formula as in BtS; moved from constructor.)
++int CvReplayInfo::minimapPixels(int iMinimapSize)
++{
++	// i.e. 2:1 aspect ratio
++	return (iMinimapSize * iMinimapSize) / 2;
++}
++
++int CvReplayInfo::minimapPixels() const
++{
++	return minimapPixels(m_iMinimapSize);
++}
+ 
++void CvReplayInfo::setMinimapSizeFromXML()
++{
++	if (GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE) >= 10000)
++	{
++		// Not a reasonable resolution, and can't piggyback that safely into the replay file.
++		FAssertMsg(false, "MINIMAP_RENDER_SIZE too large");
++		return;
++	}
++	m_iMinimapSize = GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE);
++}
++
++void CvReplayInfo::setDefaultMinimapSize()
++{
++	m_iMinimapSize = 512; // As in BtS GlobalDefines
++} // </advc.106m>
+ // <advc.106i>
+ bool CvReplayInfo::checkBounds(int iValue, int iLower, int iUpper) const
+ {
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.h b/CvGameCoreDLL/CvReplayInfo.h
+index 23dc674c6..dd447d09e 100644
+--- a/CvGameCoreDLL/CvReplayInfo.h
++++ b/CvGameCoreDLL/CvReplayInfo.h
+@@ -65,6 +65,8 @@ public:
+ 	DllExport int getMapHeight() const;
+ 	DllExport int getMapWidth() const;
+ 	DllExport const unsigned char* getMinimapPixels() const;
++	int getMinimapSize() const; // advc.106m: for expo to Python
++	static int minimapPixels(int iMinimapSize); // advc.106m
+ 
+ 	DllExport const char* getModName() const;
+ 
+@@ -74,6 +76,11 @@ public:
+ protected:
+ 	bool isValidPlayer(int i) const;
+ 	bool isValidTurn(int i) const;
++	bool isReplayMsgValid(uint i) const; // advc
++	// <advc.106m>
++	int minimapPixels() const;
++	void setDefaultMinimapSize();
++	void setMinimapSizeFromXML(); // </advc.106m>
+ 	void addSettingsMsg(); // advc.106h
+ 	// <advc.106i>
+ 	bool checkBounds(int iValue, int iLower, int iUpper) const;
+@@ -117,6 +124,7 @@ protected:
+ 		int m_iAgriculture;
+ 	};
+ 	typedef std::vector<TurnData> ScoreHistory;
++	TurnData const& getTurnData(int iPlayer, int iTurn) const; // advc
+ 
+ 	struct PlayerInfo
+ 	{
+@@ -129,9 +137,8 @@ protected:
+ 
+ 	int m_iMapHeight;
+ 	int m_iMapWidth;
+-	unsigned char* m_pcMinimapPixels;
+-
+-	int m_nMinimapSize;
++	int m_iMinimapSize;
++	byte const* m_pcMinimapPixels; // advc.106n: const
+ 
+ 	CvString m_szModName;
+
+diff --git a/CvGameCoreDLL/CyHallOfFameInterface.cpp b/CvGameCoreDLL/CyHallOfFameInterface.cpp
+index f310bd957..84372cbee 100644
+--- a/CvGameCoreDLL/CyHallOfFameInterface.cpp
++++ b/CvGameCoreDLL/CyHallOfFameInterface.cpp
+@@ -65,6 +65,8 @@ void CyHallOfFameInterface()
+ 
+ 		.def("getMapWidth", &CyReplayInfo::getMapWidth, "int ()")
+ 		.def("getMapHeight", &CyReplayInfo::getMapHeight, "int ()")
++		// advc.106m:
++		.def("getMinimapSize", &CyReplayInfo::getMinimapSize, "int ()")
+ 
+ 		.def("getModName", &CyReplayInfo::getModName, "std::wstring ()")
+ 		;
+
+diff --git a/CvGameCoreDLL/CyReplayInfo.cpp b/CvGameCoreDLL/CyReplayInfo.cpp
+index ce7cbac6a..964fb448c 100644
+--- a/CvGameCoreDLL/CyReplayInfo.cpp
++++ b/CvGameCoreDLL/CyReplayInfo.cpp
+@@ -290,6 +290,15 @@ int CyReplayInfo::getMapHeight() const
+ 	}
+ 	return -1;
+ }
++// <advc.106m>
++int CyReplayInfo::getMinimapSize() const
++{
++	if (m_pHoF)
++	{
++		return m_pHoF->getMinimapSize();
++	}
++	return -1;
++} // </advc.106m>
+ 
+ int CyReplayInfo::getNumPlayers() const
+ {
+
+diff --git a/CvGameCoreDLL/CyReplayInfo.h b/CvGameCoreDLL/CyReplayInfo.h
+index c73e936e1..ae862a890 100644
+--- a/CvGameCoreDLL/CyReplayInfo.h
++++ b/CvGameCoreDLL/CyReplayInfo.h
+@@ -63,12 +63,12 @@ public:
+ 
+ 	int getMapWidth() const;
+ 	int getMapHeight() const;
++	int getMinimapSize() const; // advc.106m
+ 
+ 	const char* getModName() const;
+ 
+ private:
+ 	CvReplayInfo* m_pHoF;
+-
+ 	CvReplayInfo m_replay;
+ };
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=39565

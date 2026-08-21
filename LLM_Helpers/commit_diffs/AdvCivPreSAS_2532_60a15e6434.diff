@@ -1,0 +1,1163 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2532
+# Commit: 60a15e6434fe8379a8a642055dff0f34238bb50b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 30b804faeb64f142bc493466fa73b0e8ad0ce08c
+# Title: Handle assignment of random civs and leaders in the DLL
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+43	18	Assets/Python/Screens/CvMainInterface.py
+105	17	Assets/Python/Screens/CvVictoryScreen.py
+17	0	Assets/XML/GlobalDefines_advc.xml
+97	0	Assets/XML/Text/CIV4GameText_advc.xml
+1	1	CvGameCoreDLL/CvGame.h
+303	3	CvGameCoreDLL/CvInitCore.cpp
+20	5	CvGameCoreDLL/CvInitCore.h
+1	1	CvGameCoreDLL/CvMap.cpp
+1	1	CvGameCoreDLL/CvMap.h
+8	0	CvGameCoreDLL/CvRandom.cpp
+3	1	CvGameCoreDLL/CvRandom.h
+2	2	CvGameCoreDLL/CvReplayInfo.cpp
+10	0	CvGameCoreDLL/CyGame.cpp
+2	0	CvGameCoreDLL/CyGame.h
+2	0	CvGameCoreDLL/CyGameInterface.cpp
+1	1	CvGameCoreDLL/CyMap.cpp
+1	1	CvGameCoreDLL/CyMap.h
+1	1	CvGameCoreDLL/CyMapInterface.cpp
+15	0	CvGameCoreDLL/CyPlayer.cpp
+3	0	CvGameCoreDLL/CyPlayer.h
+5	2	CvGameCoreDLL/CyPlayerInterface2.cpp
+2	0	CvGameCoreDLL/Project/CvGameCoreDLL.def
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 1f5dcc93f..7eaa64100 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -5220,25 +5220,42 @@ class CvMainInterface:
+ 				if bAlignIcons:
+ 					scores.setWaiting()
+ # BUG - Dead Civs - start
+-		#if (ScoreOpt.isUsePlayerName()):
+-		if ScoreOpt.isUsePlayerName() or (not pActiveTeam.isHasMet(eTeam) and not g.isDebugMode()): # K-Mod
++		# <advc.190d>
++		# (based on K-Mod)
++		bConcealCiv = False
++		bConcealLeader = False
++		# Note: Not much of a  point in concealing anything in HotSeat mode
++		if not pActiveTeam.isHasMet(eTeam) and not g.isDebugMode() and pPlayer.isAlive() and g.isNetworkMultiPlayer():
++			# (not all uses of these variables are tagged with comments)
++			bConcealCiv = pPlayer.wasCivRandomlyChosen()
++			bConcealLeader = pPlayer.wasLeaderRandomlyChosen()
++			if bConcealCiv:
++				kGPColor = gc.getColorInfo(gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
++				rgba = kGPColor.getColor()
++				iUnmetR = int(255 * rgba.r)
++				iUnmetG = int(255 * rgba.g)
++				iUnmetB = int(255 * rgba.b)
++				iUnmetA = int(255 * rgba.a)
++		# </advc.190d>
++		if ScoreOpt.isUsePlayerName():
+ 			szPlayerName = pPlayer.getName()
+ 		else:
+ 			szPlayerName = gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getDescription()
+-		if ScoreOpt.isShowBothNames():
+-			szCivName = pPlayer.getCivilizationShortDescription(0)
+-			szPlayerName = szPlayerName + "/" + szCivName
+-		elif ScoreOpt.isShowBothNamesShort():
+-			szCivName = pPlayer.getCivilizationDescription(0)
+-			szPlayerName = szPlayerName + "/" + szCivName
+-		elif ScoreOpt.isShowLeaderName():
+-			pass
+-		elif ScoreOpt.isShowCivName():
+-			szCivName = pPlayer.getCivilizationShortDescription(0)
+-			szPlayerName = szCivName
+-		else:
+-			szCivName = pPlayer.getCivilizationDescription(0)
+-			szPlayerName = szCivName
++		if not bConcealCiv:
++			if ScoreOpt.isShowBothNames():
++				szCivName = pPlayer.getCivilizationShortDescription(0)
++				szPlayerName = szPlayerName + "/" + szCivName
++			elif ScoreOpt.isShowBothNamesShort():
++				szCivName = pPlayer.getCivilizationDescription(0)
++				szPlayerName = szPlayerName + "/" + szCivName
++			elif ScoreOpt.isShowLeaderName():
++				pass
++			elif ScoreOpt.isShowCivName():
++				szCivName = pPlayer.getCivilizationShortDescription(0)
++				szPlayerName = szCivName
++			else:
++				szCivName = pPlayer.getCivilizationDescription(0)
++				szPlayerName = szCivName
+ 		if not pPlayer.isAlive() and ScoreOpt.isShowDeadTag():
+ 			szPlayerScore = localText.getText("TXT_KEY_BUG_DEAD_CIV", ())
+ 			if bAlignIcons:
+@@ -5248,7 +5265,7 @@ class CvMainInterface:
+ 			szPlayerScore = u"%d" % iScore
+ 			# <advc.155>
+ 			# (To allow this option without the Advanced/Tabular layout option, simply remove the bAlignIcons check.)
+-			if bAlignIcons and gc.getTeam(eTeam).getAliveCount() > 1 and ScoreOpt.isColorCodeTeamScore():
++			if bAlignIcons and gc.getTeam(eTeam).getAliveCount() > 1 and ScoreOpt.isColorCodeTeamScore() and not bConcealCiv:
+ 				pTeamLeader = gc.getPlayer(gc.getTeam(eTeam).getLeaderID())
+ 				szPlayerScore = u"<color=%d,%d,%d,%d>%s</color>" %(pTeamLeader.getPlayerTextColorR(), pTeamLeader.getPlayerTextColorG(), pTeamLeader.getPlayerTextColorB(), pTeamLeader.getPlayerTextColorA(), szPlayerScore)
+ 			# </advc.155>
+@@ -5287,13 +5304,21 @@ class CvMainInterface:
+ 			else:
+ 				if not pPlayer.isAlive() and ScoreOpt.isGreyOutDeadCivs():
+ 					szPlayerName = u"<color=%d,%d,%d,%d>%s</color>" %(175, 175, 175, pPlayer.getPlayerTextColorA(), szPlayerName)
++				# <advc.190d>
++				elif bConcealCiv:
++					szPlayerName = u"<color=%d,%d,%d,%d>%s</color>" %(iUnmetR, iUnmetG, iUnmetB, iUnmetA, szPlayerName)
++				# </ advc.190d>
+ 				else:
+ 					szPlayerName = u"<color=%d,%d,%d,%d>%s</color>" %(pPlayer.getPlayerTextColorR(), pPlayer.getPlayerTextColorG(), pPlayer.getPlayerTextColorB(), pPlayer.getPlayerTextColorA(), szPlayerName)
+ 		szTempBuffer = u"%s: %s" %(szPlayerScore, szPlayerName)
+ 		szBuffer = szBuffer + szTempBuffer
+ 		if bAlignIcons:
+ 			scores.setName(szPlayerName)
+-			scores.setID(u"<color=%d,%d,%d,%d>%d</color>" %(pPlayer.getPlayerTextColorR(), pPlayer.getPlayerTextColorG(), pPlayer.getPlayerTextColorB(), pPlayer.getPlayerTextColorA(), ePlayer))
++			# <advc.190d>
++			if bConcealCiv:
++				scores.setID(u"<color=%d,%d,%d,%d>%d</color>" %(iUnmetR, iUnmetG, iUnmetB, iUnmetA, ePlayer))
++			else: # </advc.190d>
++				scores.setID(u"<color=%d,%d,%d,%d>%d</color>" %(pPlayer.getPlayerTextColorR(), pPlayer.getPlayerTextColorG(), pPlayer.getPlayerTextColorB(), pPlayer.getPlayerTextColorA(), ePlayer))
+ 		if pPlayer.isAlive():
+ 			if bAlignIcons:
+ 				scores.setAlive()
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 5c7c25af3..50a96737d 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -937,12 +937,45 @@ class CvVictoryScreen:
+ #			failedHOFChecks = True
+ #			showHOFSettingChecks = False
+ #			screen.appendListBoxStringNoUpdate(szSettingsTable, self.BuffyWarningMac, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-				
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (activePlayer.getNameKey(), activePlayer.getCivilizationShortDescriptionKey())), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(activePlayer.getLeaderType(), activePlayer.getCivilizationType(), True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		screen.appendListBoxStringNoUpdate(szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		g = gc.getGame() # advc
+ 		m = gc.getMap() # advc
++		# <advc.190c>
++		bCivLeaderSetupKnown = g.isCivLeaderSetupKnown()
++		bScenario = g.isScenario()
++		bAllRandom = False
++		bNoneRandom = False
++		bActiveCivRandom = False
++		bActiveLeaderRandom = False
++		if bCivLeaderSetupKnown:
++			bAllRandom = True
++			bNoneRandom = True
++			for iLoopPlayer in range(gc.getMAX_CIV_PLAYERS()):
++				p = gc.getPlayer(iLoopPlayer)
++				if not p.isEverAlive() or p.isMinorCiv():
++					continue
++				if p.wasCivRandomlyChosen() or p.wasLeaderRandomlyChosen():
++					bNoneRandom = False
++				if not p.wasCivRandomlyChosen() or not p.wasLeaderRandomlyChosen():
++					bAllRandom = False
++		if bCivLeaderSetupKnown and not bAllRandom and not bNoneRandom:
++			szActivePlayerChoice = u"     "
++			bActiveCivRandom = activePlayer.wasCivRandomlyChosen()
++			bActiveLeaderRandom = activePlayer.wasLeaderRandomlyChosen()
++			szCivDesc = activePlayer.getCivilizationShortDescriptionKey()
++			if bActiveCivRandom and bActiveLeaderRandom:
++				szActivePlayerChoice += localText.getText("TXT_KEY_RANDOMLY_CHOSEN", ())
++			elif bActiveCivRandom: # Can only happen with unrestricted leaders
++				szActivePlayerChoice += localText.getText("TXT_KEY_RANDOM_CIV", (szCivDesc,))
++			elif bActiveLeaderRandom:
++				szActivePlayerChoice += localText.getText("TXT_KEY_RANDOM_LEADER", (szCivDesc,))
++			else:
++				szActivePlayerChoice += localText.getText("TXT_KEY_MANUALLY_CHOSEN", ())
++			screen.appendListBoxStringNoUpdate(szSettingsTable, szActivePlayerChoice, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# </advc.190c>
++		screen.appendListBoxStringNoUpdate(szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		
+ 		#screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# K-Mod. In multiplayer games, show both the game difficulty and the player difficulty
+ 		if activePlayer.getHandicapType() == g.getHandicapType():
+@@ -958,15 +991,25 @@ class CvVictoryScreen:
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_MAP_SIZE", (gc.getWorldInfo(m.getWorldSize()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_CLIMATE", (gc.getClimateInfo(m.getClimate()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(m.getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		# <advc.004>
++		# <advc.190b>
+ 		for i in range(m.getNumCustomMapOptions()):
+ 			# Don't know how to call map script functions in Python, so I've implemented that in the DLL.
+ 			szDesc = m.getNonDefaultCustomMapOptionDesc(i)
+ 			if len(szDesc) <= 0: # Meaning that the option is set to its default value
+ 				continue
+-			screen.appendListBoxStringNoUpdate(szSettingsTable, szDesc, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.appendListBoxStringNoUpdate(szSettingsTable, str(g.countCivPlayersEverAlive()) + " " + localText.getText("TXT_KEY_MAIN_MENU_PLAYERS", ()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		# </advc.004>
++			screen.appendListBoxStringNoUpdate(szSettingsTable, szDesc, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY) # </advc.190b>
++		# <advc.190c>
++		szPlayerCountText = str(g.countCivPlayersEverAlive()) + " " + localText.getText("TXT_KEY_MAIN_MENU_PLAYERS", ())
++		if bAllRandom:
++			szPlayerCountText += " ("
++			szPlayerCountText += localText.getText("TXT_KEY_ALL_AT_RANDOM", ())
++			szPlayerCountText += ")"
++		elif bNoneRandom and not bScenario:
++			szPlayerCountText += " ("
++			szPlayerCountText += localText.getText("TXT_KEY_NONE_AT_RANDOM", ())
++			szPlayerCountText += ")"
++		screen.appendListBoxStringNoUpdate(szSettingsTable, szPlayerCountText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# </advc.190c>
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_STARTING_ERA", (gc.getEraInfo(g.getStartEra()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# <advc.251>
+@@ -976,7 +1019,7 @@ class CvVictoryScreen:
+ 			screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_START_TURN", (iStartTurn, szTurnDate)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# </advc.251>
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_GAME_SPEED", (gc.getGameSpeedInfo(g.getGameSpeedType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		# advc.106i
++		# advc.190a:
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, BugPath.getModName() + " Mod", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		screen.updateListBox(szSettingsTable)
+@@ -1010,11 +1053,11 @@ class CvVictoryScreen:
+ 						szDescr += " " + str(iBarbarianStartTurn) + ")"
+ 				# </advc.300>
+ 				screen.appendListBoxStringNoUpdate(szOptionsTable, szDescr, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		# <advc.004> Disabled victory conditions. Some overlap with CvReplayInfo::addSettingsMsg
++		# <advc.190a> Disabled victory conditions. Some overlap with CvReplayInfo::addSettingsMsg
+ 		for i in range(gc.getNumVictoryInfos()):
+ 			if not g.isVictoryValid(i):
+ 				screen.appendListBoxStringNoUpdate(szOptionsTable, gc.getVictoryInfo(i).getDescription() + " " + localText.getText("TXT_KEY_VICTORY_DISABLED",()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		# </advc.004>
++		# </advc.190a>
+ 
+ 		# <advc.104> AI settings
+ 		bLegacyAI = g.useKModAI()
+@@ -1062,18 +1105,63 @@ class CvVictoryScreen:
+ 		screen.updateListBox(szOptionsTable)
+ 
+ 		szCivsPanel = self.getNextWidgetName()
+-		screen.addPanel(szCivsPanel, localText.getText("TXT_KEY_RIVALS_MET", ()).upper(), "", True, True, self.SETTINGS_PANEL_X3, self.SETTINGS_PANEL_Y - 10, self.SETTINGS_PANEL_WIDTH, self.SETTINGS_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
++		# <advc.190c>
++		# "Rivals" is misleading: teammates and vassals aren't excluded. (The active player is excluded, but also hasn't "met" itself except in a technical sense.)
++		szRivalsHeadingTag = "TXT_KEY_PLAYERS_MET" #"TXT_KEY_RIVALS_MET"
++		if bCivLeaderSetupKnown:
++			szRivalsHeadingTag = "TXT_KEY_OTHER_PLAYERS" # </advc.190c>
++		screen.addPanel(szCivsPanel, localText.getText(szRivalsHeadingTag, ()).upper(), "", True, True, self.SETTINGS_PANEL_X3, self.SETTINGS_PANEL_Y - 10, self.SETTINGS_PANEL_WIDTH, self.SETTINGS_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+ 
+ 		szCivsTable = self.getNextWidgetName()
+ 		screen.addListBoxGFC(szCivsTable, "", self.SETTINGS_PANEL_X3 + self.MARGIN, self.SETTINGS_PANEL_Y + self.MARGIN, self.SETTINGS_PANEL_WIDTH - 2*self.MARGIN, self.SETTINGS_PANEL_HEIGHT - 2*self.MARGIN, TableStyles.TABLE_STYLE_EMPTY)
+ 		screen.enableSelect(szCivsTable, False)
+-
+-		for iLoopPlayer in range(gc.getMAX_CIV_PLAYERS()):
+-			player = gc.getPlayer(iLoopPlayer)
+-			if (player.isEverAlive() and iLoopPlayer != self.iActivePlayer and (gc.getTeam(player.getTeam()).isHasMet(activePlayer.getTeam()) or g.isDebugMode()) and not player.isBarbarian() and not player.isMinorCiv()):
+-				screen.appendListBoxStringNoUpdate(szCivsTable, localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (player.getNameKey(), player.getCivilizationShortDescriptionKey())), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-				screen.appendListBoxStringNoUpdate(szCivsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(player.getLeaderType(), player.getCivilizationType(), True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-				screen.appendListBoxStringNoUpdate(szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		# <advc.190c>
++		rivalsMet = []
++		knownRivalsNotMet = []
++		iUnknownRivals = 0
++		for i in range(gc.getMAX_CIV_PLAYERS()):
++			p = gc.getPlayer(i)
++			# No functional change here
++			if not p.isEverAlive() or p.getID() == activePlayer.getID() or p.isMinorCiv():
++				continue
++			if gc.getTeam(p.getTeam()).isHasMet(activePlayer.getTeam()):
++				rivalsMet.append(p)
++			elif bCivLeaderSetupKnown:
++				if p.wasCivRandomlyChosen() and p.wasLeaderRandomlyChosen() and not g.isDebugMode():
++					iUnknownRivals += 1
++				else:
++					knownRivalsNotMet.append(p)
++		for p in rivalsMet: # </advc.190c>
++			screen.appendListBoxStringNoUpdate(szCivsTable, localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (p.getNameKey(), p.getCivilizationShortDescriptionKey())), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.appendListBoxStringNoUpdate(szCivsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), p.getCivilizationType(), True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.appendListBoxStringNoUpdate(szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# <advc.190c>
++		for p in knownRivalsNotMet:
++			# Don't call CvPlayer functions here. Use XML data b/c that's what appears during game setup.
++			szLeader = gc.getLeaderHeadInfo(p.getLeaderType()).getDescription()
++			szCiv = gc.getCivilizationInfo(p.getCivilizationType()).getShortDescription(0)
++			szRivalInfo = localText.getText("TXT_KEY_RIVAL_NOT_MET", ())
++			szRivalInfo += ": "
++			if (not p.wasCivRandomlyChosen() and not p.wasLeaderRandomlyChosen()) or g.isDebugMode():
++				szRivalInfo += localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (szLeader, szCiv))
++			elif not p.wasCivRandomlyChosen():
++				szRivalInfo += szCiv
++			else:
++				szRivalInfo += szLeader
++			screen.appendListBoxStringNoUpdate(szCivsTable, szRivalInfo, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			if not p.wasLeaderRandomlyChosen():
++				# (Not relevant for the trait string, but let's pass a proper argument anyway.)
++				eCiv = CivilizationTypes.NO_CIVILIZATION
++				if not p.wasCivRandomlyChosen():
++					eCiv = p.getCivilizationType()
++				screen.appendListBoxStringNoUpdate(szCivsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), eCiv, True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.appendListBoxStringNoUpdate(szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY) # newline
++		if iUnknownRivals > 0:
++			szUnknown = localText.getText("TXT_KEY_UNKNOWN_RIVALS", (iUnknownRivals,))
++			if iUnknownRivals == 1:
++				szUnknown = localText.getText("TXT_KEY_ONE_UNKNOWN_RIVAL", ())
++			screen.appendListBoxStringNoUpdate(szCivsTable, szUnknown, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		# </advc.190c>
+ 
+ 		screen.updateListBox(szCivsTable)
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index b54006b54..db01485fd 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1183,4 +1183,21 @@
+ 		<iDefineIntVal>51</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.190c: This concerns the probability distribution for civs and
++		 leaders when both are set to "Random" during game setup and
++		 "Unrestricted Leaders" isn't checked. Use 0 for BtS behavior, meaning
++		 that the civ (e.g. Rome) gets chosen uniformly at random and then
++		 one of the available leaders (e.g. Julius or Augustus) gets chosen
++		 uniformly at random.
++		 A positive value results in a bias for civs with multiple leaders.
++		 100, specifically, gives every leader the same probability on the
++		 bottom line. A negative value (not recommended, not tested) makes
++		 civs with multiple leaders less likely to be chosen.
++		 Recommended: 20, meaning that e.g. Rome is 1.2 times as likely
++		 to be chosen than Mali and America is 1.4 times as likely as Mali. -->
++	<Define>
++		<DefineName>PER_LEADER_EXTRA_CIV_SELECTION_WEIGHT</DefineName>
++		<iDefineIntVal>20</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 949eb59d9..0747a5c7f 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -6231,4 +6231,101 @@
+ 		<Spanish>rodeado de hielo</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.190c -->
++	<!-- Based on TXT_KEY_RIVALS_MET (CIV4GameText_Misc1.xml),
++		 TXT_KEY_MAIN_MENU_PLAYERS (CIV4GameTextInfos.xml). -->
++	<TEXT>
++		<Tag>TXT_KEY_PLAYERS_MET</Tag>
++		<English>Players Met</English>
++		<French>Joueurs rencontr&#233;s</French>
++		<German>Bekannte Spieler</German>
++		<Italian>Giocatori incontrati</Italian>
++		<Spanish>Jugadores encontrados</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_OTHER_PLAYERS</Tag>
++		<English>Other Players</English>
++		<French>Autres joueurs</French>
++		<German>Andere Spieler</German>
++		<Italian>Altri giocatori</Italian>
++		<Spanish>Otros jugadores</Spanish>
++	</TEXT>
++	
++	<!-- Translations based on TXT_KEY_MAIN_MENU_RANDOM.
++		 (Don't have access to an AI translator right now,
++		 so this batch of FIS translations might be -even-
++		 worse than usual.) -->
++	<TEXT>
++		<Tag>TXT_KEY_ALL_AT_RANDOM</Tag>
++		<English>all at Random</English>
++		<French>tous al&#233;atoires</French>
++		<German>alle zuf�llig</German>
++		<Italian>tutti casuali</Italian>
++		<Spanish>todos al azar</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_NONE_AT_RANDOM</Tag>
++		<English>all manually chosen</English>
++		<French>choisi manuellement</French>
++		<German>alle voreingestellt</German>
++		<Italian>scelti manualemente</Italian>
++		<Spanish>escogidos al azar</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_RANDOMLY_CHOSEN</Tag>
++		<English>Randomly chosen</English>
++		<French>choix al&#233;atoire</French>
++		<German>zuf�llig gew�hlt</German>
++		<Italian>scelta casuale</Italian>
++		<Spanish>escogido al azar</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MANUALLY_CHOSEN</Tag>
++		<English>manually chosen</English>
++		<French>choix manuel</French>
++		<German>voreingestellt</German>
++		<Italian>scelta manuale</Italian>
++		<Spanish>escogido manualmente</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_RANDOM_LEADER</Tag>
++		<English>Random leader of %s1_Civ</English>
++		<French>chef al&#233;atoire de %s1_Civ</French>
++		<German>zuf�lliges %s1_Civ-Oberhaupt</German>
++		<Italian>leader casuale di %s1_Civ</Italian>
++		<Spanish>l&#237;der al azar de %s1_Civ</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_RANDOM_CIV</Tag>
++		<English>%s1_Civ chosen at Random</English>
++		<French>%s1_Civ choisi al&#233;atoirement</French>
++		<German>%s1_Civ zuf�llig gew�hlt</German>
++		<Italian>%s1_Civ scelta casualmente</Italian>
++		<Spanish>%s1_Civ escogido al azar</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_RIVAL_NOT_MET</Tag>
++		<English>not Met</English>
++		<French>sans contact</French>
++		<German>kein Kontakt</German>
++		<Italian>nessun contatto</Italian>
++		<Spanish>sin contacto</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNKNOWN_RIVALS</Tag>
++		<English>%d1 Unknown Rivals</English>
++		<French>%d1 rivaux inconnus</French>
++		<German>%d1 unbekannte Gegner</German>
++		<Italian>%d1 rivali sconosciuti</Italian>
++		<Spanish>%d1 rivales desconocidos</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_ONE_UNKNOWN_RIVAL</Tag>
++		<English>1 Unknown Rival</English>
++		<French>1 rival inconnu</French>
++		<German>1 unbekannter Gegner</German>
++		<Italian>1 rivale sconosciuto</Italian>
++		<Spanish>1 rival desconocido</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index bab4190fc..734b7275f 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -815,7 +815,7 @@ public:
+ 	GlobeLayerTypes getCurrentLayer() const;
+ 	void reportCurrentLayer(GlobeLayerTypes eLayer);		// (exposed to Python)
+ 	// </advc.004m>  <advc.052>
+-	bool isScenario() const { return m_bScenario; }
++	bool isScenario() const { return m_bScenario; }			// (exposed to Python)
+ 	void setScenario(bool b);
+ 	// </advc.052>  <advc.127b>
+ 	/*  Returns (-1,-1) if 'vs' doesn't exist in any city or (eObserver!=NO_TEAM)
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 44615fd19..e9816f005 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -251,6 +251,10 @@ void CvInitCore::reassignPlayer(PlayerTypes eOldID, PlayerTypes eNewID)
+ 	CvWString szFlagDecal = m_aszFlagDecal[eNewID];
+ 	CivilizationTypes eCiv = m_aeCiv.get(eNewID);
+ 	LeaderHeadTypes eLeader = m_aeLeader.get(eNewID);
++	// <advc.190c>
++	bool bRandomCiv = m_abCivChosenRandomly.get(eNewID);
++	bool bRandomLeader = m_abCivChosenRandomly.get(eNewID);
++	// </advc.190c>
+ 	TeamTypes eTeam = m_aeTeam.get(eNewID);
+ 	HandicapTypes eHandicap = m_aeHandicap.get(eNewID);
+ 	PlayerColorTypes eColor = m_aeColor.get(eNewID);
+@@ -281,6 +285,10 @@ void CvInitCore::reassignPlayer(PlayerTypes eOldID, PlayerTypes eNewID)
+ 	//m_aeCiv[eNewID] = m_aeCiv[eOldID];
+ 	setCiv(eNewID, m_aeCiv.get(eOldID)); // advc.003w
+ 	m_aeLeader.set(eNewID, m_aeLeader.get(eOldID));
++	// <advc.190c>
++	m_abCivChosenRandomly.set(eNewID, m_abCivChosenRandomly.get(eOldID));
++	m_abLeaderChosenRandomly.set(eNewID, m_abLeaderChosenRandomly.get(eOldID));
++	// </advc.190c>
+ 	m_aeTeam.set(eNewID, m_aeTeam.get(eOldID));
+ 	m_aeHandicap.set(eNewID, m_aeHandicap.get(eOldID));
+ 	m_aeColor.set(eNewID, m_aeColor.get(eOldID));
+@@ -311,6 +319,10 @@ void CvInitCore::reassignPlayer(PlayerTypes eOldID, PlayerTypes eNewID)
+ 	//m_aeCiv[eOldID] = eCiv;
+ 	setCiv(eOldID, eCiv); // advc.003w
+ 	m_aeLeader.set(eOldID, eLeader);
++	// <advc.190c>
++	m_abCivChosenRandomly.set(eOldID, bRandomCiv);
++	m_abLeaderChosenRandomly.set(eOldID, bRandomLeader);
++	// </advc.190c>
+ 	m_aeTeam.set(eOldID, eTeam);
+ 	m_aeHandicap.set(eOldID, eHandicap);
+ 	m_aeColor.set(eOldID, eColor);
+@@ -449,8 +461,7 @@ void CvInitCore::resetGame()
+ 
+ 	// Misc
+ 	m_bStatReporting = false;
+-
+-	m_abForceControls.reset();
++	m_bCivLeaderSetupKnown = false; // advc.190c
+ 
+ 	// Game turn mgmt
+ 	m_iGameTurn = 0;
+@@ -526,6 +537,7 @@ void CvInitCore::resetGame(CvInitCore* pSource, bool bClear, bool bSaveGameType)
+ 
+ 	// Misc
+ 	setStatReporting(pSource->getStatReporting());
++	m_bCivLeaderSetupKnown = pSource->m_bCivLeaderSetupKnown; // advc.190c
+ 
+ 	// Game turn mgmt
+ 	setGameTurn(pSource->getGameTurn());
+@@ -570,7 +582,11 @@ void CvInitCore::resetPlayer(PlayerTypes eID)
+ 	m_aszFlagDecal[eID].clear();
+ 
+ 	m_aeCiv.reset(eID);
+-	m_aeLeader.set(eID, NO_LEADER);
++	m_aeLeader.reset(eID);
++	// <advc.190c>
++	m_abCivChosenRandomly.reset(eID);
++	m_abLeaderChosenRandomly.reset(eID);
++	// </advc.190c>
+ 	m_aeTeam.set(eID, (TeamTypes)eID);
+ 	// <advc.003c> See comment in resetGame
+ 	m_aeHandicap.set(eID, GC.isCachingDone() ?
+@@ -1448,6 +1464,278 @@ void CvInitCore::resetAdvancedStartPoints()
+ 	setNumAdvancedStartPoints(iPoints);
+ }
+ 
++// <advc.190c>
++/*	Report external calls to CvRandom so that the DLL can figure out
++	which leaders and civs have been assigned at random by the EXE. */
++void CvInitCore::externalRNGCall(int iUpper, CvRandom const* pRandom)
++{
++	if (getSavedGame())
++		return;
++	/*	RNG call for loading screen hint makes sure that this gets set
++		when a new game is started */
++	m_bCivLeaderSetupKnown = true;
++	/*	With 34 playable civs and 5 players, all set to random civs and leaders,
++		I'm getting 167 calls plus/minus a few. That could be 34+33+32+31+30=160 plus 3 for
++		3 civs with just 1 available leader plus 2x2 for 2 civs 2 available leaders
++		or 4 civs with 1 available leader plus 1 civ with 3 available leaders).
++		I.e. the EXE seems to roll a die for each valid civ and leader. */
++
++	if (iUpper != 10000)
++		return;
++
++	/*	When a player i is set to "Random", m_aeCiv[i], m_aeLeader[i]
++		remain at -1 (NO_...) until the dice have been rolled.
++		So, there's no need to count the RNG calls; we just need to
++		find the first player who doesn't already have a civ, and,
++		if all have a civ, then the first player without a leader. */
++	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
++	{
++		if (GET_PLAYER((PlayerTypes)i).isEverAlive())
++			return; // We're already past the civ and leader assignment at game start
++	}
++
++	std::vector<PlayerTypes> aeSlotPlayer;
++	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
++	{
++		PlayerTypes ePlayer = (PlayerTypes)i;
++		if ((getSlotStatus(ePlayer) == SS_TAKEN ||
++			getSlotStatus(ePlayer) == SS_COMPUTER) &&
++			!getMinorNationCiv(ePlayer))
++		{
++			aeSlotPlayer.push_back(ePlayer);
++		}
++	}
++	for (size_t i = 0; i < aeSlotPlayer.size(); i++)
++	{
++		if (getCiv(aeSlotPlayer[i]) == NO_CIVILIZATION)
++		{
++			m_abCivChosenRandomly.set(aeSlotPlayer[i], true);
++			return;
++		}
++	}
++	bool const bLeadAnyCiv = getOption(GAMEOPTION_LEAD_ANY_CIV);
++	for (size_t i = 0; i < aeSlotPlayer.size(); i++)
++	{
++		if (getLeader(aeSlotPlayer[i]) == NO_LEADER)
++		{
++			// Not truly random if there is only one leader available
++			int iLeaders = 0;
++			FOR_EACH_ENUM(LeaderHead)
++			{
++				if (bLeadAnyCiv ||
++					GC.getInfo(getCiv(aeSlotPlayer[i])).isLeaders(eLoopLeaderHead))
++				{
++					iLeaders++;
++					if (iLeaders > 1)
++					{
++						m_abLeaderChosenRandomly.set(aeSlotPlayer[i], true);
++						break;
++					}
++				}
++			}
++			FAssertMsg(iLeaders > 0, "Civ type w/o any valid leader type");
++			return;
++		}
++	}
++}
++
++
++bool CvInitCore::wasCivRandomlyChosen(PlayerTypes eID) const
++{
++	return m_abCivChosenRandomly.get(eID);
++}
++
++
++bool CvInitCore::wasLeaderRandomlyChosen(PlayerTypes eID) const
++{
++	if (wasCivRandomlyChosen(eID) && !getOption(GAMEOPTION_LEAD_ANY_CIV))
++		return true;
++	return m_abLeaderChosenRandomly.get(eID);
++}
++
++// <advc.191>
++void CvInitCore::setLeaderExternal(PlayerTypes eID, LeaderHeadTypes eLeader)
++{
++	LeaderHeadTypes eOldLeader = getLeader(eID);
++	if (eOldLeader == eLeader)
++		return;
++	setLeader(eID, eLeader); // This is all that BtS did here
++	if (eOldLeader == NO_LEADER &&
++		// BtS behavior is sufficient when only one of them is randomized
++		wasLeaderRandomlyChosen(eID) &&
++		wasCivRandomlyChosen(eID) &&
++		!getSavedGame() && getActivePlayer() != NO_PLAYER)
++	{
++		for (int i = MAX_CIV_PLAYERS - 1; i > eID; i--)
++		{
++			PlayerTypes eLoopPlayer = (PlayerTypes)i;
++			if (getLeader(eLoopPlayer) == NO_LEADER &&
++				!getMinorNationCiv(eLoopPlayer) &&
++				(getSlotStatus(eLoopPlayer) == SS_TAKEN ||
++				getSlotStatus(eLoopPlayer) == SS_COMPUTER))
++			{
++				return;
++			}
++		}
++		// All random leaders have been assigned
++		reRandomizeCivsAndLeaders();
++	}
++}
++
++
++void CvInitCore::reRandomizeCivsAndLeaders()
++{
++	if (getOption(GAMEOPTION_LEAD_ANY_CIV))
++		return;
++	int const iPER_LEADER_EXTRA_CIV_SELECTION_WEIGHT = GC.getDefineINT(
++			"PER_LEADER_EXTRA_CIV_SELECTION_WEIGHT");
++	if (iPER_LEADER_EXTRA_CIV_SELECTION_WEIGHT == 0) // BtS behavior
++		return;
++	FOR_EACH_ENUM2(Civilization, eCiv)
++	{
++		if (GC.getInfo(eCiv).isAIPlayable() != GC.getInfo(eCiv).isPlayable())
++		{
++			FErrorMsg("Not sure how to handle (non)-AI playable leaders; "
++					"falling back on BtS algorithm.");
++			return;
++		}
++	}
++	EnumMap<PlayerTypes,bool> abRandomize;
++	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
++	{
++		PlayerTypes const ePlayer = (PlayerTypes)i;
++		// If only the leader was randomized, then the BtS behavior is fine.
++		if (wasCivRandomlyChosen(ePlayer) &&
++			wasLeaderRandomlyChosen(ePlayer))
++		{
++			abRandomize.set(ePlayer, true);
++		}
++	}
++	if (!abRandomize.hasContent())
++		return;
++	std::vector<PlayerTypes> aeSlotPlayers;
++	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
++	{
++		PlayerTypes const ePlayer = (PlayerTypes)i;
++		if (!getMinorNationCiv(ePlayer) &&
++			(getSlotStatus(ePlayer) == SS_TAKEN ||
++			getSlotStatus(ePlayer) == SS_COMPUTER))
++		{
++			aeSlotPlayers.push_back(ePlayer);
++			FAssert(getLeader(ePlayer) != NO_LEADER);
++			FAssert(getCiv(ePlayer) != NO_CIVILIZATION);
++		}
++	}
++	EnumMap<CivilizationTypes,int> aiTakersPerCiv;
++	EnumMap<LeaderHeadTypes,bool> abLeaderTaken;
++	int iRandomLeadersNeeded = 0;
++	for (size_t i = 0; i < aeSlotPlayers.size(); i++)
++	{
++		PlayerTypes const ePlayer = aeSlotPlayers[i];
++		if (!abRandomize.get(ePlayer))
++		{
++			abLeaderTaken.set(getLeader(ePlayer), true);
++			aiTakersPerCiv.add(getCiv(ePlayer), 1);
++		}
++		else iRandomLeadersNeeded++;
++	}
++	std::map<CivilizationTypes,std::vector<LeaderHeadTypes> > leadersPerCiv;
++	int iLeadersAvailable = 0;
++	FOR_EACH_ENUM2(LeaderHead, eLeader)
++	{
++		bool bPlayable = false;
++		FOR_EACH_ENUM2(Civilization, eCiv)
++		{
++			if (GC.getCivilizationInfo(eCiv).isLeaders(eLeader) &&
++				GC.getInfo(eCiv).isPlayable())
++			{
++				leadersPerCiv[eCiv].push_back(eLeader);
++				bPlayable = true;
++			}
++		}
++		if (bPlayable && !abLeaderTaken.get(eLeader))
++			iLeadersAvailable++;
++	}
++	if (iRandomLeadersNeeded > iLeadersAvailable)
++	{
++		FAssertMsg(iRandomLeadersNeeded <= iLeadersAvailable,
++				"Can't assign unique leaders; falling back on BtS algorithm.");
++		return;
++	}
++
++	CvRandom rand;
++	/*	Need to use a synchronized RNG. Don't want to include CvGame here;
++		using a synchronized seed should do. */
++	rand.init(getSyncRandSeed());
++	for (size_t i = 0; i < aeSlotPlayers.size(); i++)
++	{
++		PlayerTypes const ePlayer = aeSlotPlayers[i];
++		if (!abRandomize.get(ePlayer))
++			continue;
++		CivilizationTypes eNewCiv = NO_CIVILIZATION;
++		for (int iMaxTaken = 0; iMaxTaken < ((int)aeSlotPlayers.size()) &&
++			eNewCiv == NO_CIVILIZATION; iMaxTaken++)
++		{
++			EnumMap<CivilizationTypes,int> aiWeights;
++			int iTotalWeight = 0;
++			FOR_EACH_ENUM2(Civilization, eCiv)
++			{
++				if (aiTakersPerCiv.get(eCiv) > iMaxTaken)
++					continue;
++				CvCivilizationInfo const& kCiv = GC.getInfo(eCiv);
++				if (!kCiv.isPlayable())
++					continue;
++				int iWeight = 0;
++				for (size_t j = 0; j < leadersPerCiv[eCiv].size(); j++)
++				{
++					if (!abLeaderTaken.get(leadersPerCiv[eCiv][j]))
++						iWeight += iPER_LEADER_EXTRA_CIV_SELECTION_WEIGHT;
++				}
++				if (iWeight == 0) // All leaders already taken
++					continue;
++				iWeight += 100;
++				iWeight = std::max(iWeight, 0);
++				aiWeights.set(eCiv, iWeight);
++				iTotalWeight += iWeight;
++			}
++			if (iTotalWeight <= 0)
++				continue;
++			int const iRoll = rand.get(iTotalWeight);
++			int iPartialSum = 0;
++			FOR_EACH_ENUM2(Civilization, eCiv)
++			{
++				iPartialSum += aiWeights.get(eCiv);
++				if (iRoll < iPartialSum)
++				{
++					eNewCiv = eCiv;
++					aiTakersPerCiv.add(eNewCiv, 1);
++					break;
++				}
++			}
++		}
++		if (eNewCiv == NO_CIVILIZATION)
++		{
++			FAssert(eNewCiv != NO_CIVILIZATION);
++			return;
++		}
++		std::vector<LeaderHeadTypes> aeAvailableLeaders;
++		for (size_t j = 0; j < leadersPerCiv[eNewCiv].size(); j++)
++		{
++			if (!abLeaderTaken.get(leadersPerCiv[eNewCiv][j]))
++				aeAvailableLeaders.push_back(leadersPerCiv[eNewCiv][j]);
++		}
++		if (aeAvailableLeaders.empty())
++		{
++			FAssert(!aeAvailableLeaders.empty()); // Shouldn't have chosen eNewCiv then
++			return;
++		}
++		LeaderHeadTypes eNewLeader = aeAvailableLeaders[
++				rand.get(aeAvailableLeaders.size())];
++		setCiv(ePlayer, eNewCiv);
++		setLeader(ePlayer, eNewLeader);
++	}
++} // </advc.191>
++
+ // advc.250c:
+ int CvInitCore::getAdvancedStartMinPoints() const
+ {
+@@ -1558,6 +1846,13 @@ void CvInitCore::read(FDataStreamBase* pStream)
+ 	m_aeHandicap.Read(pStream);
+ 	m_aeColor.Read(pStream);
+ 	m_aeArtStyle.Read(pStream);
++	// <advc.190c>
++	if (uiFlag >= 5
++	{
++		m_abCivChosenRandomly.Read(pStream);
++		m_abLeaderChosenRandomly.Read(pStream);
++		pStream->Read(&m_bCivLeaderSetupKnown);
++	} // </advc.190c>
+ 
+ 	pStream->Read(MAX_PLAYERS, (int*)m_aeSlotStatus);
+ 	pStream->Read(MAX_PLAYERS, (int*)m_aeSlotClaim);
+@@ -1599,6 +1894,7 @@ void CvInitCore::write(FDataStreamBase* pStream)
+ 	uiFlag = 2; // advc.912d
+ 	uiFlag = 3; // advc: m_bPangaea
+ 	uiFlag = 4; // advc.enum: m_abOptions as byte map
++	uiFlag = 5; // advc.190c
+ 
+ 	pStream->Write(uiFlag);
+ 
+@@ -1692,6 +1988,10 @@ void CvInitCore::write(FDataStreamBase* pStream)
+ 	m_aeHandicap.Write(pStream);
+ 	m_aeColor.Write(pStream);
+ 	m_aeArtStyle.Write(pStream);
++	// <advc.190c>
++	m_abCivChosenRandomly.Write(pStream);
++	m_abLeaderChosenRandomly.Write(pStream);
++	pStream->Write(m_bCivLeaderSetupKnown); // </advc.190c>
+ 	REPRO_TEST_END_WRITE(); // (skip slot data)
+ 	pStream->Write(MAX_PLAYERS, (int*)m_aeSlotStatus);
+ 	pStream->Write(MAX_PLAYERS, (int*)m_aeSlotClaim);
+
+diff --git a/CvGameCoreDLL/CvInitCore.h b/CvGameCoreDLL/CvInitCore.h
+index add975f78..e7585059e 100644
+--- a/CvGameCoreDLL/CvInitCore.h
++++ b/CvGameCoreDLL/CvInitCore.h
+@@ -219,8 +219,13 @@ public:
+ 	DllExport void setCiv(PlayerTypes eID, CivilizationTypes eCiv);
+ 
+ 	DllExport LeaderHeadTypes getLeader(PlayerTypes eID) const { return m_aeLeader.get(eID); }
+-	DllExport void setLeader(PlayerTypes eID, LeaderHeadTypes eLeader);
+-
++	void setLeader(PlayerTypes eID, LeaderHeadTypes eLeader);
++	// advc.191: (exported through .def file)
++	void setLeaderExternal(PlayerTypes eID, LeaderHeadTypes eLeader);
++	// // <advc.190c> (all exposed to Python via CvPlayer, CvGame)
++	bool wasCivRandomlyChosen(PlayerTypes eID) const;
++	bool wasLeaderRandomlyChosen(PlayerTypes eID) const;
++	bool isCivLeaderSetupKnown() const { return m_bCivLeaderSetupKnown; } // </advc.190c>
+ 	DllExport TeamTypes getTeam(PlayerTypes eID) const { return m_aeTeam.get(eID); }
+ 	DllExport void setTeam(PlayerTypes eID, TeamTypes eTeam);
+ 
+@@ -262,6 +267,8 @@ public:
+ 
+ 	DllExport void resetAdvancedStartPoints();
+ 
++	void externalRNGCall(int iUpper, CvRandom const* pRandom); // advc.190c
++
+ protected:
+ 	/* advc.003k (caveat): It's not safe to add data members to this class
+ 		nor to reorder the existing data members. At least not in the upper half
+@@ -356,6 +363,10 @@ protected:
+ 	EnumMap<PlayerTypes,HandicapTypes> m_aeHandicap;
+ 	EnumMap<PlayerTypes,PlayerColorTypes> m_aeColor;
+ 	EnumMap<PlayerTypes,ArtStyleTypes> m_aeArtStyle;
++	// <advc.190c>
++	EnumMap<PlayerTypes,bool> m_abCivChosenRandomly;
++	EnumMap<PlayerTypes,bool> m_abLeaderChosenRandomly;
++	bool m_bCivLeaderSetupKnown; // </advc.190c>
+ 
+ 	// Slot data
+ 	SlotStatus* m_aeSlotStatus;
+@@ -373,6 +384,8 @@ protected:
+ 	CvString* m_aszXMLCheck;
+ 	mutable CvString m_szTempCheck;
+ 
++	void reRandomizeCivsAndLeaders(); // advc.191
++
+ 	void clearCustomMapOptions();
+ 	void refreshCustomMapOptions();
+ 	void updatePangaea(); // advc
+@@ -383,8 +396,10 @@ protected:
+ 
+ // Would increase the size of m_abMPOptions to 8 byte
+ BOOST_STATIC_ASSERT(NUM_MPOPTION_TYPES <= 32 && NUM_FORCECONTROL_TYPES <= 32);
+-/*  advc.003k: Probably OK to increase the size of CvInitCore. Just make sure that
+-	new data members are added in the right place. */
+-BOOST_STATIC_ASSERT(sizeof(CvInitCore) == (MAX_CIV_PLAYERS <= 32 || MAX_CIV_PLAYERS > 64 ? 404 : 420));
++/*  advc.003k: OK to increase the size of CvInitCore (and to update or remove this
++	assertion). Just make sure that new data members are added in the right place. */
++BOOST_STATIC_ASSERT(sizeof(CvInitCore) ==
++		// EnumMap<PlayerTypes,bool> has size 8 then
++		(MAX_CIV_PLAYERS > 32 && MAX_CIV_PLAYERS <= 64 ? 440 : 416)); 
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 275834e7a..c797c07c0 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -881,7 +881,7 @@ CustomMapOptionTypes CvMap::getCustomMapOption(int iOption) /* advc: */ const
+ 	return GC.getInitCore().getCustomMapOption(iOption);
+ }
+ 
+-// advc.004: Returns an empty string if the option is set to its default value
++// advc.190b: Returns an empty string if the option is set to its default value
+ CvWString CvMap::getNonDefaultCustomMapOptionDesc(int iOption) const
+ {
+ 	CvPythonCaller const& py = *GC.getPythonCaller();
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index dd164096e..ada6cee3f 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -400,7 +400,7 @@ public: // advc: made several functions const
+ 
+ 	int getNumCustomMapOptions() const;
+ 	CustomMapOptionTypes getCustomMapOption(int iOption) const;											// Exposed to Python
+-	CvWString getNonDefaultCustomMapOptionDesc(int iOption) const; // advc.004 (exposed to Python)
++	CvWString getNonDefaultCustomMapOptionDesc(int iOption) const; // advc.190b (exposed to Python)
+ 
+ 	int getNumBonuses(BonusTypes eIndex) const;																	// Exposed to Python
+ 	void changeNumBonuses(BonusTypes eIndex, int iChange);
+
+diff --git a/CvGameCoreDLL/CvRandom.cpp b/CvGameCoreDLL/CvRandom.cpp
+index 644b487e4..b34fd0843 100644
+--- a/CvGameCoreDLL/CvRandom.cpp
++++ b/CvGameCoreDLL/CvRandom.cpp
+@@ -41,6 +41,14 @@ unsigned short CvRandom::getInt(unsigned short usNum, TCHAR const* szLog,
+ 	return r;
+ }
+ 
++/*	advc.190c: Separate function for calls from the EXE. So that the DLL can figure out
++	which options were set to "Random" during game setup. */
++unsigned short CvRandom::getExternal(unsigned short usNum, TCHAR const* szLog)
++{
++	GC.getInitCore().externalRNGCall(usNum, this);
++	return get(usNum, szLog);
++}
++
+ 
+ float CvRandom::getFloat()
+ {
+
+diff --git a/CvGameCoreDLL/CvRandom.h b/CvGameCoreDLL/CvRandom.h
+index c18dadb5e..44e0f1d11 100644
+--- a/CvGameCoreDLL/CvRandom.h
++++ b/CvGameCoreDLL/CvRandom.h
+@@ -16,7 +16,7 @@ public:
+ 	/*	Returns a value from the half-open interval [0, iNum).
+ 		advc.006: iNum taken as an int but needs to be in [0, 65535].
+ 		Will return 0 for iNum=0 (and also for iNum=1). */
+-	DllExport inline unsigned short get(int iNum, TCHAR const* szLog = NULL,
++	inline unsigned short get(int iNum, TCHAR const* szLog = NULL,
+ 			int iData1 = MIN_INT, int iData2 = MIN_INT)
+ 	{	// <advc.001n>
+ 		return getInt(iNum, szLog, MIN_INT);
+@@ -33,6 +33,8 @@ public:
+ 	}
+ 	static inline int getRange() { return MAX_UNSIGNED_SHORT; } // Client code may want to check
+ 	// </advc.006>
++	// advc.190c: Exported through .def file
++	unsigned short getExternal(unsigned short usNum, TCHAR const* szLog = NULL);
+ 	DllExport float getFloat();
+ 
+ 	void reseed(unsigned long ulNewValue);
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index a4702ca89..cee9189f5 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -289,7 +289,7 @@ void CvReplayInfo::appendSettingsMsg(CvWString& szSettings, PlayerTypes ePlayer)
+ 			(getClimate() == 0 ? L"" : (L", " +
+ 			gDLL->getText("TXT_KEY_SETTINGS_CLIMATE",
+ 			GC.getInfo(getClimate()).getTextKeyWide())));
+-	// <advc.004>
++	// <advc.190b>
+ 	CvMap const& kMap = GC.getMap();
+ 	for(int i = 0; i < kMap.getNumCustomMapOptions(); i++)
+ 	{
+@@ -298,7 +298,7 @@ void CvReplayInfo::appendSettingsMsg(CvWString& szSettings, PlayerTypes ePlayer)
+ 			continue;
+ 		szSettings.append(L", ");
+ 		szSettings.append(szDesc);
+-	} // </advc.004>
++	} // </advc.190b>
+ 	szSettings.append(NEWLINE);
+ 	szSettings.append(gDLL->getText("TXT_KEY_SETTINGS_GAME_SPEED",
+ 			GC.getInfo(getGameSpeed()).getTextKeyWide()));
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index 2509e70bf..c57318c4d 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -1194,3 +1194,13 @@ void CyGame::reportCurrentLayer(int iLayer)
+ {
+ 	m_kGame.reportCurrentLayer((GlobeLayerTypes)iLayer);
+ }
++// advc.190c:
++bool CyGame::isCivLeaderSetupKnown()
++{
++	return GC.getInitCore().isCivLeaderSetupKnown();
++}
++// advc.052:
++bool CyGame::isScenario()
++{
++	return m_kGame.isScenario();
++}
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index df40b4c7c..a8a0bf5c5 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -302,6 +302,8 @@ public:
+ 	bool isRFInterlude();
+ 	bool isRFBlockPopups(); // </advc.706>
+ 	void reportCurrentLayer(int iLayer); // advc.004m
++	bool isCivLeaderSetupKnown(); // advc.190c
++	bool isScenario(); // advc.052
+ 
+ protected:
+ 	CvGame& m_kGame; // advc: was pointer
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 3624de306..6c7f70842 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -298,6 +298,8 @@ void CyGamePythonInterface()
+ 		.def("isRFBlockPopups", &CyGame::isRFBlockPopups, "bool ()") // </advc.706>
+ 		// advc.004m:
+ 		.def("reportCurrentLayer", &CyGame::reportCurrentLayer, "void(int /*GlobeLayerTypes*/)")
++		.def("isCivLeaderSetupKnown", &CyGame::isCivLeaderSetupKnown, "bool ()") // advc.190c
++		.def("isScenario", &CyGame::isScenario, "bool ()") // advc.052
+ 		;
+ 
+ 	python::class_<CyDeal>("CyDeal")
+
+diff --git a/CvGameCoreDLL/CyMap.cpp b/CvGameCoreDLL/CyMap.cpp
+index b3ccfa1fd..53a39ce93 100644
+--- a/CvGameCoreDLL/CyMap.cpp
++++ b/CvGameCoreDLL/CyMap.cpp
+@@ -168,7 +168,7 @@ CustomMapOptionTypes CyMap::getCustomMapOption(int iOption)
+ {
+ 	return m_kMap.getCustomMapOption(iOption);
+ }
+-// advc.004:
++// advc.190b:
+ std::wstring CyMap::getNonDefaultCustomMapOptionDesc(int iOption)
+ {
+ 	return m_kMap.getNonDefaultCustomMapOptionDesc(iOption);
+
+diff --git a/CvGameCoreDLL/CyMap.h b/CvGameCoreDLL/CyMap.h
+index 828baa8d7..bfb73b276 100644
+--- a/CvGameCoreDLL/CyMap.h
++++ b/CvGameCoreDLL/CyMap.h
+@@ -62,7 +62,7 @@ public:
+ 	SeaLevelTypes getSeaLevel();
+ 	int getNumCustomMapOptions();
+ 	CustomMapOptionTypes getCustomMapOption(int iOption);
+-	std::wstring getNonDefaultCustomMapOptionDesc(int iOption); // advc.004
++	std::wstring getNonDefaultCustomMapOptionDesc(int iOption); // advc.190b
+ 	std::wstring getSettingsString(); // advc.savem
+ 	int getNumBonuses(int /* BonusTypes */ eIndex);
+ 	int getNumBonusesOnLand(int /* BonusTypes */ eIndex);
+
+diff --git a/CvGameCoreDLL/CyMapInterface.cpp b/CvGameCoreDLL/CyMapInterface.cpp
+index 9b85cd7f3..87bec82ba 100644
+--- a/CvGameCoreDLL/CyMapInterface.cpp
++++ b/CvGameCoreDLL/CyMapInterface.cpp
+@@ -53,7 +53,7 @@ void CyMapPythonInterface()
+ 
+ 		.def("getNumCustomMapOptions", &CyMap::getNumCustomMapOptions, "int () - number of custom map settings")
+ 		.def("getCustomMapOption", &CyMap::getCustomMapOption, "CustomMapOptionTypes () - user defined map setting at this option id")
+-		// advc.004:
++		// advc.190b:
+ 		.def("getNonDefaultCustomMapOptionDesc", &CyMap::getNonDefaultCustomMapOptionDesc, "wstring (int)")
+ 		.def("getSettingsString", &CyMap::getSettingsString, "wstring ()") // advc.savem
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 86231ab4b..dc1718e05 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -2401,6 +2401,21 @@ bool CyPlayer::isScoreboardExpanded() const
+ 	return m_pPlayer->isScoreboardExpanded();
+ } // </advc.085>
+ 
++// <advc.190c>
++bool CyPlayer::wasCivRandomlyChosen() const
++{
++	if (m_pPlayer == NULL)
++		return false;
++	return GC.getInitCore().wasCivRandomlyChosen(m_pPlayer->getID());
++}
++
++bool CyPlayer::wasLeaderRandomlyChosen() const
++{
++	if (m_pPlayer == NULL)
++		return false;
++	return GC.getInitCore().wasLeaderRandomlyChosen(m_pPlayer->getID());
++} // </advc.190c>
++
+ // advc.001: In part cut from getCivicAnarchyLength
+ void CyPlayer::pyListToCivicMap(boost::python::list const& kFrom, CivicMap& kTo)
+ {
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index ebbe0f161..66ae5121c 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -533,6 +533,9 @@ public:
+ 	// <advc.085>
+ 	void setScoreboardExpanded(bool b);
+ 	bool isScoreboardExpanded() const; // </advc.085>
++	// <advc.190c>
++	bool wasCivRandomlyChosen() const;
++	bool wasLeaderRandomlyChosen() const; // </advc.190c>
+ 
+ private:
+ 	CvPlayerAI* m_pPlayer; // advc.003u: was CvPlayer*
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface2.cpp b/CvGameCoreDLL/CyPlayerInterface2.cpp
+index de166a4b9..a4b967f5d 100644
+--- a/CvGameCoreDLL/CyPlayerInterface2.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface2.cpp
+@@ -63,7 +63,10 @@ void CyPlayerPythonInterface2(python::class_<CyPlayer>& x)
+ 		.def("AI_corporationBonusVal", &CyPlayer::AI_corporationBonusVal, "int (int)")
+ 		// <advc.085>
+ 		.def("setScoreboardExpanded", &CyPlayer::setScoreboardExpanded, "void (bool)")
+-		.def("isScoreboardExpanded", &CyPlayer::isScoreboardExpanded, "bool (void)")
+-		// </advc.085>
++		.def("isScoreboardExpanded", &CyPlayer::isScoreboardExpanded, "bool ()")
++		// </advc.085> <advc.190c>
++		.def("wasCivRandomlyChosen", &CyPlayer::wasCivRandomlyChosen, "bool ()")
++		.def("wasLeaderRandomlyChosen", &CyPlayer::wasLeaderRandomlyChosen, "bool ()")
++		// </advc.190c>
+ 		;
+ }
+
+diff --git a/CvGameCoreDLL/Project/CvGameCoreDLL.def b/CvGameCoreDLL/Project/CvGameCoreDLL.def
+index a2afc3129..206b04a88 100644
+--- a/CvGameCoreDLL/Project/CvGameCoreDLL.def
++++ b/CvGameCoreDLL/Project/CvGameCoreDLL.def
+@@ -26,3 +26,5 @@ EXPORTS
+ ?<hidden-email>@@QBEHXZ=?<hidden-email>@@QBEHXZ
+ ?<hidden-email>@@QBEHXZ=?<hidden-email>@@QBEHXZ
+ ?<hidden-email>@@QBE?AW4PlayerColorTypes@@XZ=?<hidden-email>@@QBE?AW4PlayerColorTypes@@XZ
++?<hidden-email>@@<hidden-email>=?<hidden-email>@@<hidden-email>
++?<hidden-email>@@QAEXW4PlayerTypes@@W4LeaderHeadTypes@@@Z=?<hidden-email>@@QAEXW4PlayerTypes@@W4LeaderHeadTypes@@@Z
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=22 omittedFiles=0 embeddedPatchBytes=47168

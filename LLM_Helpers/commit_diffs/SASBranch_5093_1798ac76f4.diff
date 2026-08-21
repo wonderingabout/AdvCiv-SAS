@@ -1,0 +1,611 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5093
+# Commit: 1798ac76f438e0c42602efb5e09819192efc06b2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 453353c3f859bfc017258ce50f5c4a8e177850ac
+# Title: Seemingly fixed/addressed base advciv bug of calling scout units stuck in a loop related to iAttempts and iMaxAttempts in CvSelectionGroupAI::AI_update, then...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+65	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+16	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+0	218	_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_71.txt
+0	219	_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_72.txt
+ delete mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_71.txt
+ delete mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_72.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index e7cb70c92..3fb1cac30 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -152,11 +152,56 @@ bool CvSelectionGroupAI::AI_update()
+ 		/*  <advc.001y> Moved out of the block below so I can see what the loop does
+ 			before it terminates. Debugger stops in CvSelectionGroup::pushMission,
+ 			startMission and in CvUnitAI::AI_update have been helpful to me. */
++		
++		// <!-- custom: attempt to fix this issue as advised by chatgpt 5, check if accurate anyways etc -->
++		// 1) Snapshot state at the start of each loop iteration
++		// Place this right after setForceUpdate(false); and the iAttempts++; line, before any attack/AI_update logic:
++		// --- SAS no-progress snapshot (begin) ---
++		CvUnitAI const* sas_u0 = AI_getHeadUnit();
++		int sas_x0 = (sas_u0 ? sas_u0->getX() : -1);
++		int sas_y0 = (sas_u0 ? sas_u0->getY() : -1);
++		int sas_m0 = (sas_u0 ? sas_u0->movesLeft() : -1);
++		int sas_q0 = getLengthMissionQueue();
++		// --- SAS no-progress snapshot (end) ---
+ 	#ifdef _DEBUG
+ 		iMaxAttempts -= 4; // Trigger assert early
+ 	#endif
+-		FAssertMsg(iAttempts != iMaxAttempts, "Unit stuck in a loop");
++		// <!-- custom: make assert more informative as it fires and we'd want info on what is causing it anyways etc, done with the help of chatgpt 5, check if accurate anyways etc -->
++		// FAssertMsg(iAttempts != iMaxAttempts, "Unit stuck in a loop");
++		// <!-- custom: save computation and do not always compute this assert's content if 'm not mistaken in my thinking and as chatgpt 5 advised after i asked it i mean, check if accurate anyways etc, so i moved the assert so it is inside the debug flag as it advised, check if accurate i mean but anyways etc -->
+ 	#ifdef _DEBUG
++		// Do it lazily and safely like this (drop-in):
++        CvUnitAI const* u = AI_getHeadUnit();
++        int x = -1, y = -1, moves = -1, uid = -1, uai = -1, dom = -1;
++        const wchar* udesc = L"NONE";
++        if (u)
++		{
++            x    = u->getX(); 
++            y    = u->getY();
++            moves= u->movesLeft();
++            uid  = u->getID();
++            uai  = u->AI_getUnitAIType();
++            dom  = u->getDomainType();
++            udesc= GC.getUnitInfo(u->getUnitType()).getDescription();
++        }
++        FAssertMsg(iAttempts != iMaxAttempts, CvString::format(
++            "Unit stuck in a loop | grp=%d owner=%d at=(%d,%d) unit=%S id=%d AI=%d dom=%d "
++            "moves=%d ready=%d busy=%d queue=%d forceUpd=%d grpAtk=%d forceSep=%d attempts=%d max=%d",
++            getID(), getOwner(), x, y, udesc, uid, uai, dom, moves,
++            (int)readyToMove(), (int)isBusy(), getLengthMissionQueue(),
++            (int)isForceUpdate(), (int)AI_isGroupAttack(), (int)AI_isForceSeparate(),
++            iAttempts, iMaxAttempts
++        ).c_str());
++		// <!-- custom: now we have more info thanks chatgpt 5 and thanks to me too i guess i mean if i may say as well i mean but anyways etc -->
++		// Assert Failed
++		// File:  ..\.\CvSelectionGroupAI.cpp
++		// Line:  180
++		// Func:  CvSelectionGroupAI::AI_update
++		// Expression:  iAttempts != iMaxAttempts
++		// Message:  Unit stuck in a loop | grp=73732 owner=8 at=(61,28) unit=Scout id=57348 AI=13 dom=2 moves=120 ready=1 busy=0 queue=0 forceUpd=0 grpAtk=0 forceSep=0 attempts=16 max=16
++		//
++		// <!-- custom: note: happens many times after first one, with various owner's units, but udesc is seemingly always a scout unit in all of these. -->
++		//
+ 		iMaxAttempts += 4; // Restore extra iterations
+ 	#endif
+ 		if (iAttempts >= iMaxAttempts) // was > 100 </advc.001y>
+@@ -196,6 +241,25 @@ bool CvSelectionGroupAI::AI_update()
+ 			}
+ 		}
+ 
++		// <!-- custom: attempt to fix this issue as advised by chatgpt 5, check if accurate anyways etc -->
++		// 2) Tripwire right after the action block
++		// insert the no-progress check before the existing if (doDelayedDeath()):
++		// --- SAS no-progress tripwire (begin) ---
++		// If this iteration didn't move, push, or get busy, consume the turn to avoid spin.
++		CvUnitAI const* sas_u1 = AI_getHeadUnit();
++		if (!isBusy() && readyToMove(true) && sas_u1 &&
++			sas_u1->getX() == sas_x0 && sas_u1->getY() == sas_y0 &&
++			sas_u1->movesLeft() == sas_m0 && getLengthMissionQueue() == sas_q0)
++		{
++			pushMission(MISSION_SKIP); // finishes moves cleanly
++			break;
++		}
++		// --- SAS no-progress tripwire (end) ---
++		// That’s it.
++		// Why this fixes your scout spins
++		// Your asserts show unit=Scout, AI=13 (Explorer), moves=120, ready=1, busy=0, queue=0, and attempts hitting the cap. That means AI_update() returns false without moving or queuing anything. The tripwire detects exactly that “no state change” iteration and safely MISSION_SKIPs the group so the loop exits (same end result as the built-in bailout, just immediate and deterministic).
++		// You can keep your current early-assert block; with the tripwire in place, you shouldn’t hit it anymore.
++
+ 		if (doDelayedDeath())
+ 		{
+ 			bDead = true;
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index fed0d5739..8df855d03 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -104,6 +104,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [70 - (Seemingly fixed) Base advciv bug of forcing an artist specialist even if it is invalid and then firing a failed assert, in CvCityAI::AI_assignWorkingPlots](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#70---seemingly-fixed-base-advciv-bug-of-forcing-an-artist-specialist-even-if-it-is-invalid-and-then-firing-a-failed-assert-in-cvcityaiai_assignworkingplots)  
+ [71 - (Seemingly fixed) Base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#71---seemingly-fixed-base-advciv-bug-of-calling-cvbuildinfoisfeatureremove-when-efeature-is-not-a-valid-feature-then-firing-a-failed-assert)  
+ [72 - (Seemingly fixed/addressed) Base advciv bug of calling getInt in CvRandom.h when iNum is negative, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#72---seemingly-fixedaddressed-base-advciv-bug-of-calling-getint-in-cvrandomh-when-inum-is-negative-then-firing-a-failed-assert)  
++[73 - (Seemingly fixed/addressed) Base advciv bug of calling scout units stuck in a loop related to iAttempts and iMaxAttempts in CvSelectionGroupAI::AI_update, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#73---seemingly-fixedaddressed-base-advciv-bug-of-calling-scout-units-stuck-in-a-loop-related-to-iattempts-and-imaxattempts-in-cvselectiongroupaiai_update-then-firing-a-failed-assert)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -2748,14 +2749,26 @@ Update/note: most likely was caused by the forced artist code we added (see [Spe
+ 
+ ## 71 - (Seemingly fixed) Base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert
+ 
+-See code comments there i.e. in `CvBuildInfo::isFeatureRemove` for details anyways etc.
++See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1grZBqkHYUqtXAhdqRxpSqqa759_Q7gsI?usp=sharing) anyways etc.
++
++WinDbg !analyze -v result viewable in .txt as of now at above link for reference i mean but anyways etc (full dmp with a debug dll anyways etc (i don't know too much about these so check if accurate and if i did it correctly i mean, with chatgpt 5's help and review as well thanks i mean too i mean but anyways etc)).
+ 
+-WinDbg !analyze -v result viewable in .txt at [Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_71.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_71.txt) for reference i mean but anyways etc (full dmp with a debug dll anyways etc (i don't know too much about these so check if accurate and if i did it correctly i mean, with chatgpt 5's help and review as well thanks i mean too i mean but anyways etc)).
++See code comments there i.e. in `CvBuildInfo::isFeatureRemove` for details anyways etc.
+ 
+ ## 72 - (Seemingly fixed/addressed) Base advciv bug of calling getInt in CvRandom.h when iNum is negative, then firing a failed assert
+ 
++See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1oWBp58ADUKAHAAUnXGIARciHF47ncuW8?usp=sharing) anyways etc.
++
+ I patched 3 locations in `CvCityAI::AI_chooseProduction` and 1 location in `CvCityAI::AI_bestBuildingThreshold` that caused the assert to fire i mean, but i may have missed some, so i hope the general extra assert (if iNum is negative if i understand it correctly i mean but anyways etc) we added in `getInt` with chatgpt 5 i mean thanks i mean but anyways etc will be helpful to spot other similar issues.
+ 
++WinDbg !analyze -v result viewable in .txt as of now at above link.
++
+ See code comments there i.e. in `getInt` in for details anyways etc.
+ 
+-WinDbg !analyze -v result viewable in .txt at [Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_72.txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_72.txt)
++## 73 - (Seemingly fixed/addressed) Base advciv bug of calling scout units stuck in a loop related to iAttempts and iMaxAttempts in CvSelectionGroupAI::AI_update, then firing a failed assert
++
++See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1wkIJ-7KouMqDezmXmY_hlpmyk2vajrye?usp=sharing) anyways etc.
++
++WinDbg !analyze -v result viewable in .txt as of now at above link.
++
++See code comments there i.e. in `CvSelectionGroupAI::AI_update` in for details anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_71.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_71.txt
+deleted file mode 100644
+index ce69b342a..000000000
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_71.txt
++++ /dev/null
+@@ -1,218 +0,0 @@
+-************* Preparing the environment for Debugger Extensions Gallery repositories **************
+-   ExtensionRepository : Implicit
+-   UseExperimentalFeatureForNugetShare : true
+-   AllowNugetExeUpdate : true
+-   NonInteractiveNuget : true
+-   AllowNugetMSCredentialProviderInstall : true
+-   AllowParallelInitializationOfLocalRepositories : true
+-   EnableRedirectToChakraJsProvider : false
+-
+-   -- Configuring repositories
+-      ----> Repository : LocalInstalled, Enabled: true
+-      ----> Repository : UserExtensions, Enabled: true
+-
+->>>>>>>>>>>>> Preparing the environment for Debugger Extensions Gallery repositories completed, duration 0.000 seconds
+-
+-************* Waiting for Debugger Extensions Gallery to Initialize **************
+-
+->>>>>>>>>>>>> Waiting for Debugger Extensions Gallery to Initialize completed, duration 0.016 seconds
+-   ----> Repository : UserExtensions, Enabled: true, Packages count: 0
+-   ----> Repository : LocalInstalled, Enabled: true, Packages count: 46
+-
+-Microsoft (R) Windows Debugger Version 10.0.29457.1000 X86
+-Copyright (c) Microsoft Corporation. All rights reserved.
+-
+-
+-Loading Dump File [C:\Users\PC\AppData\Local\Temp\Civ4BeyondSword.exe.dmp]
+-User Mini Dump File with Full Memory : Only application data is available
+-
+-
+-************* Path validation summary **************
+-Response                         Time (ms)     Location
+-Deferred                                       srv*
+-Symbol search path is: srv*
+-Executable search path is: 
+-Windows 8 Version 9200 MP (16 procs) Free x86 compatible
+-Product: WinNt, suite: SingleUserTS
+-Debug session time: Wed Nov  5 07:16:36.000 2025 (UTC + 1:00)
+-System Uptime: 0 days 1:28:34.344
+-Process Uptime: 0 days 0:01:02.000
+-................................................................
+-.............................................................
+-Loading unloaded module list
+-.............
+-This dump file has a breakpoint exception stored in it.
+-The stored exception information can be accessed via .ecxr.
+-For analysis of this file, run !analyze -v
+-*** WARNING: Unable to verify checksum for CvGameCoreDLL.dll
+-eax=00000000 ebx=011cb218 ecx=00000001 edx=00000000 esi=011cb1f0 edi=011cb248
+-eip=76fc411c esp=0019baf4 ebp=0019bb00 iopl=0         nv up ei pl nz na po nc
+-cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000202
+-ntdll!NtGetContextThread+0xc:
+-76fc411c c20800          ret     8
+-0:000> !analyze -v
+-................................................................
+-.............................................................
+-Loading unloaded module list
+-.............
+-*******************************************************************************
+-*                                                                             *
+-*                        Exception Analysis                                   *
+-*                                                                             *
+-*******************************************************************************
+-
+-*** WARNING: Unable to verify checksum for Mss32.dll
+-
+-KEY_VALUES_STRING: 1
+-
+-    Key  : Analysis.CPU.mSec
+-    Value: 1828
+-
+-    Key  : Analysis.Elapsed.mSec
+-    Value: 9372
+-
+-    Key  : Analysis.IO.Other.Mb
+-    Value: 0
+-
+-    Key  : Analysis.IO.Read.Mb
+-    Value: 73
+-
+-    Key  : Analysis.IO.Write.Mb
+-    Value: 73
+-
+-    Key  : Analysis.Init.CPU.mSec
+-    Value: 234
+-
+-    Key  : Analysis.Init.Elapsed.mSec
+-    Value: 13505
+-
+-    Key  : Analysis.Memory.CommitPeak.Mb
+-    Value: 161
+-
+-    Key  : Analysis.Version.DbgEng
+-    Value: 10.0.29457.1000
+-
+-    Key  : Analysis.Version.Description
+-    Value: 10.2506.23.01 x86fre
+-
+-    Key  : Analysis.Version.Ext
+-    Value: 1.2506.23.1
+-
+-    Key  : Failure.Bucket
+-    Value: BREAKPOINT_80000003_CvGameCoreDLL.dll!enum_traits_detail::assertEnumBounds_enum_FeatureTypes_
+-
+-    Key  : Failure.Exception.Code
+-    Value: 0x80000003
+-
+-    Key  : Failure.Exception.IP.Address
+-    Value: 0x62fd8bc
+-
+-    Key  : Failure.Exception.IP.Module
+-    Value: CvGameCoreDLL
+-
+-    Key  : Failure.Exception.IP.Offset
+-    Value: 0x5ad8bc
+-
+-    Key  : Failure.Hash
+-    Value: {3df03b79-8467-d7cf-f402-60ecdd9baed9}
+-
+-    Key  : Failure.ProblemClass.Primary
+-    Value: BREAKPOINT
+-
+-    Key  : Timeline.OS.Boot.DeltaSec
+-    Value: 5314
+-
+-    Key  : Timeline.Process.Start.DeltaSec
+-    Value: 62
+-
+-    Key  : WER.Process.Version
+-    Value: 3.1.9.0
+-
+-
+-FILE_IN_CAB:  Civ4BeyondSword.exe.dmp
+-
+-NTGLOBALFLAG:  0
+-
+-APPLICATION_VERIFIER_FLAGS:  0
+-
+-CONTEXT:  (.ecxr)
+-eax=00000001 ebx=05d7937a ecx=00000001 edx=00000000 esi=0019d278 edi=0019d4a0
+-eip=062fd8bc esp=0019d278 ebp=0019d4a0 iopl=0         nv up ei pl nz na po nc
+-cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000202
+-CvGameCoreDLL!enum_traits_detail::assertEnumBounds<enum FeatureTypes>+0x8c:
+-062fd8bc cc              int     3
+-Resetting default scope
+-
+-EXCEPTION_RECORD:  (.exr -1)
+-ExceptionAddress: 062fd8bc (CvGameCoreDLL!enum_traits_detail::assertEnumBounds<enum FeatureTypes>+0x0000008c)
+-   ExceptionCode: 80000003 (Break instruction exception)
+-  ExceptionFlags: 00000000
+-NumberParameters: 1
+-   Parameter[0]: 00000000
+-
+-PROCESS_NAME:  Civ4BeyondSword.exe
+-
+-ERROR_CODE: (NTSTATUS) 0x80000003 - {EXCEPTION}  Point d arr t  Un point d arr t a  t  atteint.
+-
+-EXCEPTION_CODE_STR:  80000003
+-
+-EXCEPTION_PARAMETER1:  00000000
+-
+-STACK_TEXT:  
+-0019d4a0 06358ed0     ffffffff cccccccc 1ffff4e8 CvGameCoreDLL!enum_traits_detail::assertEnumBounds<enum FeatureTypes>+0x8c
+-0019d4b4 0682ae92     ffffffff 0019d7e4 0019ee18 CvGameCoreDLL!CvBuildInfo::isFeatureRemove+0x20
+-0019d7a4 06826f47     4ba6849c 0000000c 0019e2ec CvGameCoreDLL!CvUnitAI::AI_betterPlotBuild+0x4d2
+-0019d7e4 067d2b5e     4c3b1a58 0019ee00 0019ee18 CvGameCoreDLL!CvUnitAI::AI_improveCity+0x117
+-0019e2f8 067d24b8     00000000 0019f19c 0019ee18 CvGameCoreDLL!CvUnitAI::AI_workerMove+0x6fe
+-0019ee0c 067c796e     00000001 0019f4bc 0019f4d0 CvGameCoreDLL!CvUnitAI::AI_workerMove+0x58
+-0019f1a8 066bba40     0019f5c8 0019f4d0 cccccccc CvGameCoreDLL!CvUnitAI::AI_update+0xb8e
+-0019f4c8 06515f2c     0019f8a4 0019fbcc cccccccc CvGameCoreDLL!CvSelectionGroupAI::AI_update+0x370
+-0019f5d4 06175afd     0019fbc4 0019fbcc cccccccc CvGameCoreDLL!CvPlayerAI::AI_unitUpdate+0x3fc
+-0019f8a4 0614ef78     0019fe20 0019fbcc cccccccc CvGameCoreDLL!CvGame::updateMoves+0x25d
+-0019fbc4 0614ec5c     00671a78 079b7ee0 05c551b0 CvGameCoreDLL!CvGame::updateUnprofiled+0x208
+-0019fe20 00415951     76aa3580 02e59a38 00000000 CvGameCoreDLL!CvGame::update+0x27c
+-WARNING: Stack unwind information not available. Following frames may be wrong.
+-0019feb8 006873e8     76d10d00 004d7356 011c46fa Civ4BeyondSword+0x15951
+-0019ff70 76d0fcc9     002b0000 76d0fcb0 0019ffdc Civ4BeyondSword+0x2873e8
+-0019ff80 76fb82ae     002b0000 6700473e 00000000 kernel32!BaseThreadInitThunk+0x19
+-0019ffdc 76fb827e     ffffffff 76fd93e8 00000000 ntdll!__RtlUserThreadStart+0x2f
+-0019ffec 00000000     00fad2f0 002b0000 00000000 ntdll!_RtlUserThreadStart+0x1b
+-
+-
+-STACK_COMMAND: ~0s; .ecxr ; kb
+-
+-FAULTING_SOURCE_LINE:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\enumtraits.h
+-
+-FAULTING_SOURCE_FILE:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\enumtraits.h
+-
+-FAULTING_SOURCE_LINE_NUMBER:  193
+-
+-FAULTING_SOURCE_CODE:  
+-   189: {
+-   190: 	template<typename E>
+-   191: 	void assertEnumBounds(E eIndex)
+-   192: 	{
+->  193: 		FAssertBounds(0, enum_traits<E>::length(), eIndex);
+-   194: 	}
+-   195: 	template<typename E>
+-   196: 	void assertInfoEnum(E eIndex)
+-   197: 	{
+-   198: 		FAssertBounds(-1, enum_traits<E>::length(), eIndex);
+-
+-
+-SYMBOL_NAME:  CvGameCoreDLL!enum_traits_detail::assertEnumBounds<enum FeatureTypes>+8c
+-
+-MODULE_NAME: CvGameCoreDLL
+-
+-IMAGE_NAME:  CvGameCoreDLL.dll
+-
+-FAILURE_BUCKET_ID:  BREAKPOINT_80000003_CvGameCoreDLL.dll!enum_traits_detail::assertEnumBounds_enum_FeatureTypes_
+-
+-OSPLATFORM_TYPE:  x86
+-
+-OSNAME:  Windows 8
+-
+-FAILURE_ID_HASH:  {3df03b79-8467-d7cf-f402-60ecdd9baed9}
+-
+-Followup:     MachineOwner
+----------
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_72.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_72.txt
+deleted file mode 100644
+index 7acc008b4..000000000
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/WinDbg_Samples/sample_known_issue_72.txt
++++ /dev/null
+@@ -1,219 +0,0 @@
+-
+-************* Preparing the environment for Debugger Extensions Gallery repositories **************
+-   ExtensionRepository : Implicit
+-   UseExperimentalFeatureForNugetShare : true
+-   AllowNugetExeUpdate : true
+-   NonInteractiveNuget : true
+-   AllowNugetMSCredentialProviderInstall : true
+-   AllowParallelInitializationOfLocalRepositories : true
+-   EnableRedirectToChakraJsProvider : false
+-
+-   -- Configuring repositories
+-      ----> Repository : LocalInstalled, Enabled: true
+-      ----> Repository : UserExtensions, Enabled: true
+-
+->>>>>>>>>>>>> Preparing the environment for Debugger Extensions Gallery repositories completed, duration 0.000 seconds
+-
+-************* Waiting for Debugger Extensions Gallery to Initialize **************
+-
+->>>>>>>>>>>>> Waiting for Debugger Extensions Gallery to Initialize completed, duration 0.016 seconds
+-   ----> Repository : UserExtensions, Enabled: true, Packages count: 0
+-   ----> Repository : LocalInstalled, Enabled: true, Packages count: 46
+-
+-Microsoft (R) Windows Debugger Version 10.0.29457.1000 X86
+-Copyright (c) Microsoft Corporation. All rights reserved.
+-
+-
+-Loading Dump File [C:\Users\PC\AppData\Local\Temp\Civ4BeyondSword.exe.dmp]
+-User Mini Dump File with Full Memory : Only application data is available
+-
+-
+-************* Path validation summary **************
+-Response                         Time (ms)     Location
+-Deferred                                       srv*
+-Symbol search path is: srv*
+-Executable search path is: 
+-Windows 8 Version 9200 MP (16 procs) Free x86 compatible
+-Product: WinNt, suite: SingleUserTS
+-Debug session time: Wed Nov  5 08:12:23.000 2025 (UTC + 1:00)
+-System Uptime: 0 days 2:24:11.579
+-Process Uptime: 0 days 0:00:31.000
+-................................................................
+-.............................................................
+-Loading unloaded module list
+-.............
+-This dump file has a breakpoint exception stored in it.
+-The stored exception information can be accessed via .ecxr.
+-For analysis of this file, run !analyze -v
+-*** WARNING: Unable to verify checksum for CvGameCoreDLL.dll
+-eax=00000000 ebx=56818cd8 ecx=00000001 edx=00000000 esi=56818cb0 edi=56818d08
+-eip=76fc411c esp=00196b04 ebp=00196b10 iopl=0         nv up ei pl nz na po nc
+-cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000202
+-ntdll!NtGetContextThread+0xc:
+-76fc411c c20800          ret     8
+-0:000> !analyze -v
+-................................................................
+-.............................................................
+-Loading unloaded module list
+-.............
+-*******************************************************************************
+-*                                                                             *
+-*                        Exception Analysis                                   *
+-*                                                                             *
+-*******************************************************************************
+-
+-*** WARNING: Unable to verify checksum for Mss32.dll
+-
+-KEY_VALUES_STRING: 1
+-
+-    Key  : Analysis.CPU.mSec
+-    Value: 1906
+-
+-    Key  : Analysis.Elapsed.mSec
+-    Value: 6273
+-
+-    Key  : Analysis.IO.Other.Mb
+-    Value: 0
+-
+-    Key  : Analysis.IO.Read.Mb
+-    Value: 72
+-
+-    Key  : Analysis.IO.Write.Mb
+-    Value: 73
+-
+-    Key  : Analysis.Init.CPU.mSec
+-    Value: 250
+-
+-    Key  : Analysis.Init.Elapsed.mSec
+-    Value: 4454
+-
+-    Key  : Analysis.Memory.CommitPeak.Mb
+-    Value: 164
+-
+-    Key  : Analysis.Version.DbgEng
+-    Value: 10.0.29457.1000
+-
+-    Key  : Analysis.Version.Description
+-    Value: 10.2506.23.01 x86fre
+-
+-    Key  : Analysis.Version.Ext
+-    Value: 1.2506.23.1
+-
+-    Key  : Failure.Bucket
+-    Value: BREAKPOINT_80000003_CvGameCoreDLL.dll!CvRandom::getInt
+-
+-    Key  : Failure.Exception.Code
+-    Value: 0x80000003
+-
+-    Key  : Failure.Exception.IP.Address
+-    Value: 0x5f1685e
+-
+-    Key  : Failure.Exception.IP.Module
+-    Value: CvGameCoreDLL
+-
+-    Key  : Failure.Exception.IP.Offset
+-    Value: 0x22685e
+-
+-    Key  : Failure.Hash
+-    Value: {ef7b6350-16ed-f84d-7d01-54bcb524f46a}
+-
+-    Key  : Failure.ProblemClass.Primary
+-    Value: BREAKPOINT
+-
+-    Key  : Timeline.OS.Boot.DeltaSec
+-    Value: 8651
+-
+-    Key  : Timeline.Process.Start.DeltaSec
+-    Value: 31
+-
+-    Key  : WER.Process.Version
+-    Value: 3.1.9.0
+-
+-
+-FILE_IN_CAB:  Civ4BeyondSword.exe.dmp
+-
+-NTGLOBALFLAG:  0
+-
+-APPLICATION_VERIFIER_FLAGS:  0
+-
+-CONTEXT:  (.ecxr)
+-eax=00000001 ebx=05d1937a ecx=00000001 edx=00000000 esi=00198288 edi=001984a4
+-eip=05f1685e esp=00198288 ebp=001984a4 iopl=0         nv up ei pl nz na po nc
+-cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000202
+-CvGameCoreDLL!CvRandom::getInt+0x8e:
+-05f1685e cc              int     3
+-Resetting default scope
+-
+-EXCEPTION_RECORD:  (.exr -1)
+-ExceptionAddress: 05f1685e (CvGameCoreDLL!CvRandom::getInt+0x0000008e)
+-   ExceptionCode: 80000003 (Break instruction exception)
+-  ExceptionFlags: 00000000
+-NumberParameters: 1
+-   Parameter[0]: 00000000
+-
+-PROCESS_NAME:  Civ4BeyondSword.exe
+-
+-ERROR_CODE: (NTSTATUS) 0x80000003 - {EXCEPTION}  Point d arr t  Un point d arr t a  t  atteint.
+-
+-EXCEPTION_CODE_STR:  80000003
+-
+-EXCEPTION_PARAMETER1:  00000000
+-
+-STACK_TEXT:  
+-001984a4 05fcc2ec     fffffffc 07072644 80000000 CvGameCoreDLL!CvRandom::getInt+0x8e
+-001984c0 05fc5b1d     fffffffc 07072644 80000000 CvGameCoreDLL!CvGame::getSorenRandNum+0x2c
+-0019a644 05f6924d     0019d088 00000010 05d1937a CvGameCoreDLL!CvCityAI::AI_chooseProduction+0x587d
+-0019d028 05f6dd3a     00000000 00000001 00000003 CvGameCoreDLL!CvCity::popOrder+0x1f6d
+-0019d088 05f13046     00000000 0019e280 0019fbcc CvGameCoreDLL!CvCity::doProduction+0x1da
+-0019daa4 063e7af1     0019f594 0019fbcc cccccccc CvGameCoreDLL!CvCity::doTurn+0x406
+-0019e28c 064187d8     0019f8a4 0019fbcc cccccccc CvGameCoreDLL!CvPlayer::doTurn+0x701
+-0019f5a0 0641c339     00000000 00000001 0019fbcc CvGameCoreDLL!CvPlayer::setTurnActive+0xd88
+-0019f5d0 06115d02     00000000 0019fbc4 0019fbcc CvGameCoreDLL!CvPlayer::setAutoMoves+0x99
+-0019f8a4 060eef78     0019fe20 0019fbcc cccccccc CvGameCoreDLL!CvGame::updateMoves+0x462
+-0019fbc4 060eec5c     00671a78 0ef4bf58 05bf5318 CvGameCoreDLL!CvGame::updateUnprofiled+0x208
+-0019fe20 00415951     76aa3580 02ec9a38 00000000 CvGameCoreDLL!CvGame::update+0x27c
+-WARNING: Stack unwind information not available. Following frames may be wrong.
+-0019feb8 006873e8     76d10d00 004d7356 011d46fa Civ4BeyondSword+0x15951
+-0019ff70 76d0fcc9     003bb000 76d0fcb0 0019ffdc Civ4BeyondSword+0x2873e8
+-0019ff80 76fb82ae     003bb000 e11abd83 00000000 kernel32!BaseThreadInitThunk+0x19
+-0019ffdc 76fb827e     ffffffff 76fd93c2 00000000 ntdll!__RtlUserThreadStart+0x2f
+-0019ffec 00000000     00fad2f0 003bb000 00000000 ntdll!_RtlUserThreadStart+0x1b
+-
+-
+-STACK_COMMAND: ~0s; .ecxr ; kb
+-
+-FAULTING_SOURCE_LINE:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\cvrandom.h
+-
+-FAULTING_SOURCE_FILE:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\cvrandom.h
+-
+-FAULTING_SOURCE_LINE_NUMBER:  31
+-
+-FAULTING_SOURCE_CODE:  
+-    27: 	{	/*	</advc.001n>  <advc.006> The compiler doesn't warn when an int variable gets
+-    28: 			passed as a short int. It does warn when a large int literal is passed, but
+-    29: 			I think that's not quite good enough. (At the least, the wrapper functions at
+-    30: 			CvGame would have to take their param as unsigned short too.)*/
+->   31: 		FAssertBounds(0, getRange() + 1, iNum);
+-    32: 		/*	If the upper bound above is exceeded, then e.g. iNum=66868 gets cast to 1332,
+-    33: 			which is 66868-MAX_UNSIGNED_SHORT+1. Don't know how this works in general. */
+-    34: 		return getInt(static_cast<unsigned short>(iNum), szMsg, iData1, iData2);
+-    35: 	}
+-    36: 	static int getRange() { return MAX_UNSIGNED_SHORT; } // Client code may want to check
+-
+-
+-SYMBOL_NAME:  CvGameCoreDLL!CvRandom::getInt+8e
+-
+-MODULE_NAME: CvGameCoreDLL
+-
+-IMAGE_NAME:  CvGameCoreDLL.dll
+-
+-FAILURE_BUCKET_ID:  BREAKPOINT_80000003_CvGameCoreDLL.dll!CvRandom::getInt
+-
+-OSPLATFORM_TYPE:  x86
+-
+-OSNAME:  Windows 8
+-
+-FAILURE_ID_HASH:  {ef7b6350-16ed-f84d-7d01-54bcb524f46a}
+-
+-Followup:     MachineOwner
+----------
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=27599

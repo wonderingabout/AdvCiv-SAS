@@ -1,0 +1,114 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2602
+# Commit: fb8d13391a836c6556bd7979991e95e99c26625f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 682846f99276ae0d5095e47af127c14b4a0082fc
+# Title: Avoid some memory allocation in KmodPathFinder
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+29	9	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index 684225c5b..ab407f37e 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -231,6 +231,10 @@ protected:
+ 		{
+ 			return m_pNodes.end();
+ 		}
++		inline void reserve(int iCapacity)
++		{
++			m_pNodes.reserve(iCapacity);
++		}
+ 		// Does not change the state of the nodes
+ 		inline void clear()
+ 		{
+@@ -276,7 +280,7 @@ protected:
+ 	class NodeMap
+ 	{
+ 	public:
+-		inline NodeMap(PlotNumTypes eMaxPlots) : m_eMaxPlots(eMaxPlots)
++		inline NodeMap(PlotNumTypes eMaxPlots) : m_eMaxPlots(eMaxPlots), m_bDirty(true)
+ 		{
+ 			m_data = new byte[numBytes()];
+ 			reset();
+@@ -289,17 +293,30 @@ protected:
+ 		{
+ 			return reinterpret_cast<Node*>(m_data)[ePlot];
+ 		}
+-		inline void reset()
++		void reset()
+ 		{
+-			/*	advc: Might be able to save time here by resetting only those
+-				nodes that have -possibly- been initialized. There's a section
+-				"Beating memset" by Dan Higgins in the book mentioned in FAStarNode.h. */
+-			PROFILE_FUNC();
+-			memset(m_data, 0, numBytes());
++			if (!m_bDirty)
++				return;
++			{
++			/*	advc: Could keep track of the smallest and highest dirty index
++				(to be updated by the get function, using branchless ::min, ::max)
++				to save time here.
++				Or divide m_data into 4 or 8 columns with individual dirty bits.
++				There's a section "Beating memset" by Dan Higgins in the book
++				that's credited at the start of FAStarNode.h. */
++				PROFILE("NodeMap::reset - memset");
++				memset(m_data, 0, numBytes());
++			}
++			m_bDirty = false;
++		}
++		inline void setDirty(bool bDirty)
++		{
++			m_bDirty = bDirty;
+ 		}
+ 	private:
+ 		byte* m_data;
+ 		PlotNumTypes m_eMaxPlots;
++		bool m_bDirty; // advc.opt: Make sure we're not resetting unnecessarily
+ 
+ 		inline int numBytes()
+ 		{
+@@ -311,7 +328,7 @@ protected:
+ public:
+ 	/*	It's up to the derived classes to define a function for setting up m_stepMetric.
+ 		This constructor will only call the StepMetric default constructor. */
+-	KmodPathFinder()
++	inline KmodPathFinder()
+ 	:	m_pStart(NULL), m_pDest(NULL),
+ 		/*	[...] Ideally the pathfinder would be initialised with a given CvMap
+ 			and then not refer to any global objects. [...] */
+@@ -396,8 +413,10 @@ bool KmodPathFinder<StepMetric,Node>::generatePath(
+ 		return false;
+ 
+ 	if (m_pNodeMap == NULL)
++	{
+ 		m_pNodeMap = new NodeMap(m_kMap.numPlots());
+-
++		m_openList.reserve(32); // advc.opt
++	}
+ 	if (&kStart != m_pStart)
+ 	{
+ 		/*	Note: It may be possible to salvage some of the old data to
+@@ -415,6 +434,7 @@ bool KmodPathFinder<StepMetric,Node>::generatePath(
+ 	m_pStart = &kStart;
+ 	m_pDest = &kDest;
+ 	{
++		m_pNodeMap->setDirty(true); // advc.opt (start node will be set after this block)
+ 		Node& kStartNode = m_pNodeMap->get(m_kMap.plotNum(kStart));
+ 		if (!kStartNode.isState(PATHNODE_UNINITIALIZED))
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2864

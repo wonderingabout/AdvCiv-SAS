@@ -1,0 +1,204 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6045
+# Commit: bad9bfb0ca7eaaed972a4abe8db2c7b32963562f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 41c913b8d88a618155bc8159239b2f8d6250f984
+# Title: (Fixed/Improved) Base AdvCiv excessively devalued soon-connectable bonuses in AI city-site scoring (KI#187)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+6	0	Assets/XML/GlobalDefines_advciv_sas.xml
+44	7	CvGameCoreDLL/CitySiteEvaluator.cpp
+2	1	CvGameCoreDLL/CitySiteEvaluator.h
+23	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 56f7f07f9..8f5d07a7d 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -957,6 +957,12 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_HAPPINESS_VALUE</DefineName>
+ 		<iDefineIntVal>150</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Base AdvCiv reduced not-yet-connectable city-site bonus value to 70% when the required technology was currently researchable and about one third otherwise. This is too harsh and arbitrary for a permanent city: save file 453 valued Incense at only 70% immediately before Spain completed same-era Calendar on the founding turn.
++	Instead, health/happiness settlement value remains at 100% when the earliest valid connection is in the current/earlier era, then loses this percentage per later era (e.g. 15 gives 85% one era ahead, 70% two eras ahead). See KI#187. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_CONNECTION_ERA_VALUE_LOSS_PERCENT</DefineName>
++		<iDefineIntVal>15</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Building-effect gate uses era indexes: 0 Ancient, 1 Classical, 2 Medieval, etc.; -1 disables building health/happiness effects. This lets settlement value count early ordinary buildings such as Granary/Harbor because we are likely to build them, while excluding late or expensive buildings such as Supermarket because the city may die, win, or lose before they matter. See KI#178. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_BUILDING_EFFECT_MAX_PREREQ_ERA</DefineName>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index f47690e25..5d232cc35 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1079,7 +1079,7 @@ int AIFoundValue::evaluate()
+ 				int* const piBonusScoreBuildingHappyHealth = (bLogBonusScore ? &iBonusScoreBuildingHappyHealth : NULL);
+ 				int* const piBonusScoreAdjustPercent = (bLogBonusScore ? &iBonusScoreAdjustPercent : NULL);
+ 				int* const piBonusScoreWaterPenalty = (bLogBonusScore ? &iBonusScoreWaterPenalty : NULL);
+-				int iBonusValue = nonYieldBonusValue(p, eBonus, bBarbarian ? true : bCanTradeBonus, bBarbarian ? true : bCanSoonTradeBonus, bEasyAccess, bCoastal, &aiBonusCount, iCultureModifier, piBonusScoreHappyHealth, piBonusScoreBuildingHappyHealth, piBonusScoreAdjustPercent, piBonusScoreWaterPenalty);
++				int iBonusValue = nonYieldBonusValue(p, eBonus, bBarbarian ? true : bCanTradeBonus, bEasyAccess, bCoastal, &aiBonusCount, iCultureModifier, piBonusScoreHappyHealth, piBonusScoreBuildingHappyHealth, piBonusScoreAdjustPercent, piBonusScoreWaterPenalty);
+ 				if (kSet.isStartingLoc())
+ 				{
+ 					const int iStartingBonusValuePercent = (bStartingFoodBonus ? iStartingFoodBonusValuePercent : iStartingNonFoodBonusValuePercent);
+@@ -2894,7 +2894,37 @@ int AIFoundValue::calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool
+ }
+ 
+ 
+-int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool bCoastal, std::vector<int>* paiBonusCount, int iCultureModifier, int* piHappyHealthValue, int* piBuildingHappyHealthValue, int* piAdjustPercent, int* piWaterPenalty) const
++int AIFoundValue::calculateBonusConnectionEra(BonusTypes eBonus, CvPlot const& p) const
++{
++	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
++	TechTypes const eTradeTech = kBonus.getTechCityTrade();
++	TechTypes const eRevealTech = kBonus.getTechReveal();
++	int const iTradeEra = (eTradeTech == NO_TECH ? 0 : GC.getInfo(eTradeTech).getEra());
++	int const iRevealEra = (eRevealTech == NO_TECH ? 0 : GC.getInfo(eRevealTech).getEra());
++	FeatureTypes const eFeature = p.getFeatureType();
++	int iEarliestConnectionEra = MAX_INT;
++	FOR_EACH_ENUM(Build)
++	{
++		CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
++		ImprovementTypes const eImprovement = kLoopBuild.getImprovement();
++		if (eImprovement == NO_IMPROVEMENT)
++			continue;
++		CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
++		if (kImprovement.isActsAsCity() || !kImprovement.isImprovementBonusMakesValid(eBonus) || !kImprovement.isImprovementBonusTrade(eBonus))
++			continue;
++		TechTypes const eBuildTech = kLoopBuild.getTechPrereq();
++		TechTypes const eFeatureTech = (eFeature == NO_FEATURE ? NO_TECH : kLoopBuild.getFeatureTech(eFeature));
++		int const iBuildEra = (eBuildTech == NO_TECH ? 0 : GC.getInfo(eBuildTech).getEra());
++		int const iFeatureEra = (eFeatureTech == NO_TECH ? 0 : GC.getInfo(eFeatureTech).getEra());
++		int const iConnectionEra = std::max(std::max(iTradeEra, iRevealEra), std::max(iBuildEra, iFeatureEra));
++		iEarliestConnectionEra = std::min(iEarliestConnectionEra, iConnectionEra);
++	}
++	FAssertMsg(iEarliestConnectionEra != MAX_INT, "Every visible bonus should have a non-Fort improvement that can connect it");
++	return (iEarliestConnectionEra == MAX_INT ? GC.getNumEraInfos() - 1 : iEarliestConnectionEra);
++}
++
++
++int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bEasyAccess, bool bCoastal, std::vector<int>* paiBonusCount, int iCultureModifier, int* piHappyHealthValue, int* piBuildingHappyHealthValue, int* piAdjustPercent, int* piWaterPenalty) const
+ {
+ 	// <!-- custom: In save file 450, the old broad AI_bonusVal path made Elephants at (20,41) greatly outscore nearby Crab, pushing Shaka's uMgungundlovu toward the weaker (18,40) site over the Crab and greener (17,40) alternative; this is wrong because Crab is locally a valuable high food source, and its empire health gain remains useful especially later, while Elephants are mostly classical-era pressure with some happiness. Settlement scoring cares less about immediate current-era trade value than about long-term health and happiness city-site value, which can be very different.
+ 	// Score explicit new health/happiness, ordinary building effects, and conservatively estimated special-building effects here. The old first-growth/luxury extra is removed because explicit health/happiness already represents that empire-wide effect. Diversity, strategic AIObjective, and improvement yields are handled separately by the caller. See KI#178. (GPT-5.5 + GPT-5.6-Sol) -->
+@@ -2911,6 +2941,7 @@ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bC
+ 	// <!-- custom: The old coefficient, early-game modifier, strategic-resource dampening, and AI_bonusValue/bAssumeEnabled tech-requirement handling belonged to the old AI_bonusVal path commented out below. That path was replaced with explicit health/happiness settlement value; strategic need remains handled through AIObjective, and improvement availability remains handled through getBonusImprovement and separate bonus-yield scoring. See KI#178. (GPT-5.5) -->
+ 	static const int iHealthValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HEALTH_VALUE");
+ 	static const int iHappinessValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HAPPINESS_VALUE");
++	static const int iConnectionEraValueLossPercent = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_CONNECTION_ERA_VALUE_LOSS_PERCENT");
+ 	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
+ 	int const iBuildingHappyHealthValue = calculateBonusBuildingHappyHealthValue(eBonus, bCoastal);
+ 	int const iHappyHealthValue = kBonus.getHealth() * iHealthValue + kBonus.getHappiness() * iHappinessValue + iBuildingHappyHealthValue;
+@@ -3012,15 +3043,21 @@ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bC
+ 		*piBuildingHappyHealthValue = (bSurplus ? 0 : iBuildingHappyHealthValue);
+ 	scaled r = iEffectiveHappyHealthValue;
+ 	scaled rAdjustment = (r == 0 ? 0 : 1);
+-	// <!-- custom: Retain the old not-yet-tradeable and difficult-access reductions, but apply them to the new explicit settlement value. Surplus duplicates are zeroed here because local improvement yields and diversity are scored separately. See KI#178. (GPT-5.5) -->
++	// <!-- custom: Base AdvCiv gave only 70% value when a bonus was connectable through a currently researchable technology and about one third otherwise. That immediate-availability split was too harsh and arbitrary for long-term settlement value: save file 453 gave Incense only 70% immediately before Spain completed same-era Calendar on the founding turn.
++	// Keep full value when the earliest valid connection is in the current/earlier era, and lose an XML-tunable percent only per later era. Surplus duplicates remain zero because local improvement yields and diversity are scored separately. See KI#187. (GPT-5.6-Sol) -->
+ 	if (!bCanTrade)
+ 	{
+ 		IFLOG if(bSurplus) logBBAI("Surplus bonus");
+ 		if (bSurplus)
+ 			r = 0;
+-		else if (bCanTradeSoon)
+-			rAdjustment *= fixp(0.7);
+-		else rAdjustment *= fixp(1/3.);
++		else if (r != 0)
++		{
++			int const iConnectionEra = calculateBonusConnectionEra(eBonus, p);
++			int const iConnectionEraDistance = std::max(0, iConnectionEra - (int)eEra);
++			int const iConnectionEraAdjustPercent = std::max(0, 100 - iConnectionEraDistance * iConnectionEraValueLossPercent);
++			rAdjustment *= scaled(iConnectionEraAdjustPercent, 100);
++			IFLOG logBBAI("Bonus connection timing (%S): currentEra=%d connectionEra=%d eraDistance=%d lossPerEra=%d timingPercent=%d", GC.getInfo(eBonus).getDescription(), eEra, iConnectionEra, iConnectionEraDistance, iConnectionEraValueLossPercent, iConnectionEraAdjustPercent);
++		}
+ 		// <advc.040>
+ 		if (!bEasyAccess)
+ 		{
+@@ -4500,7 +4537,7 @@ scaled AIFoundValue::evaluateWorkablePlot(CvPlot const& p) const
+ 	if (eBonus != NO_BONUS)
+ 	{
+ 		// It won't necessarily be the first instance of eBonus, but we also want to look a bit farther ahead than "soon"; that ought to even out.
+-		scaled rNonYieldBonusVal = nonYieldBonusValue(p, eBonus, bCanTradeBonus, bCanSoonTradeBonus, true, kPlot.isCoastalLand(-1), NULL, 100);
++		scaled rNonYieldBonusVal = nonYieldBonusValue(p, eBonus, bCanTradeBonus, true, kPlot.isCoastalLand(-1), NULL, 100);
+ 		if (!bCanSoonImproveBonus)
+ 		{	/*	Midgame and late-game resources need to be (greatly) devalued though; b/c their reward is greatly delayed and b/c they're not supposed to steer starting positions much in any case. */
+ 			TechTypes eTech = GC.getInfo(eBonus).getTechImprove(p.isWater());
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.h b/CvGameCoreDLL/CitySiteEvaluator.h
+index 9f3587032..2efb594b8 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.h
++++ b/CvGameCoreDLL/CitySiteEvaluator.h
+@@ -171,7 +171,8 @@ private:
+ 	bool isBonusOwnedOrClaimedByFutureBFC(BonusTypes eBonus) const;
+ 	bool isBonusBuildingEffectValued(BuildingTypes eBuilding, int iMaxPrereqEra, bool bCoastal) const;
+ 	int calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool bCoastal) const;
+-	int nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool bCoastal, std::vector<int>* paiBonusCount, int iCultureModifier, int* piHappyHealthValue = NULL, int* piBuildingHappyHealthValue = NULL, int* piAdjustPercent = NULL, int* piWaterPenalty = NULL) const;
++	int calculateBonusConnectionEra(BonusTypes eBonus, CvPlot const& p) const;
++	int nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bEasyAccess, bool bCoastal, std::vector<int>* paiBonusCount, int iCultureModifier, int* piHappyHealthValue = NULL, int* piBuildingHappyHealthValue = NULL, int* piAdjustPercent = NULL, int* piWaterPenalty = NULL) const;
+ 	int calculateSpecialYieldModifier(int iCultureModifier, bool bEasyAccess, bool bBonus, bool bCanSoonImproveBonus, bool bCanImproveBonus) const;
+ 	void calculateSpecialYields(CvPlot const& p, int const* aiBonusImprovementYield, int const* aiNatureYield, int iModifier, int* aiSpecialYield, int& iSpecialFoodPlus, int& iSpecialFoodMinus, int& iSpecialYieldTiles) const;
+ 	void calculateBuildingYields(CvPlot const& p, int const* aiNatureYield, int* aiBuildingYield) const;
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 16ab95142..237f38c31 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -6966,3 +6966,26 @@ The same save also tested whether the distance limit should be increased from 8
+ The default distance limit therefore remains 8. It should not be raised merely because a distance-9 city looks valuable or could theoretically anchor further conquest: the slightly larger allowance was enough to split a powerful army around an exposed capture and give the developed city back to a nearer rival. The limit remains XML-tunable for other maps and rulesets, but the tested default favors durable military concentration over speculative bridgeheads.
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
++
++## 187 - (Fixed/Improved) Base AdvCiv excessively devalued soon-connectable bonuses in AI city-site scoring
++
++Base AdvCiv reduced a city site's non-yield bonus value to 70% when the bonus was not connectable yet but its required technology was currently researchable, and to roughly one third otherwise. AdvCiv-SAS initially preserved these inherited discounts when KI#178 replaced broad trade-style `AI_bonusVal` scoring with explicit long-term health/happiness settlement value.
++
++The old split was not a good fit for permanent city-site evaluation. `canResearch()` only says that a technology can currently be selected; it does not measure whether the AI is researching it, how many turns remain, or how strategically distant the benefit is. Conversely, a visible early bonus could lose 30% despite requiring only another technology in the same era.
++
++Save-file 453 made this especially clear. Spain evaluated the Incense near Barcelona at only 70% because it did not yet have Calendar, then completed Calendar on the same turn that it founded Barcelona. The log therefore called the bonus merely "soon" connectable and reduced its explicit health/happiness value from 325 to 228 immediately before the required same-era technology arrived. The resulting Barcelona site was still good and reached population 10, 15 production, and 35 commerce by turn 150, but the inherited penalty itself did not describe the actual long-term delay.
++
++Replace the binary 70% / roughly-one-third rule with a simple XML-tunable era-distance adjustment:
++
++- an earliest valid connection in the current or an earlier era keeps 100% health/happiness settlement value;
++- each later era loses `SAS_EVALUATE_NON_YIELD_BONUS_CONNECTION_ERA_VALUE_LOSS_PERCENT`, currently 15%;
++- therefore one era ahead receives 85%, two eras ahead 70%, and three eras ahead 55%;
++- the result is clamped only at 0% to avoid negative value in unusual modmods.
++
++The required connection era is the earliest era in which any valid non-Fort improvement can connect the bonus. For each valid improvement path, use the latest era among the bonus reveal technology, bonus city-trade technology, improvement build technology, and any technology needed to remove the plot's feature; then choose the earliest of those valid paths. This keeps the formula generic for XML changes and modmods instead of hardcoding Calendar resources or specific improvements.
++
++Most bonuses that are already visible in the current AdvCiv-SAS XML can be connected in the current era or earlier, so they now retain their full long-term health/happiness value even when the exact technology has not been completed. Local improvement yields remain handled separately by the existing improvement-availability and bonus-yield scoring paths, and difficult access from another landmass remains a separate inherited adjustment.
++
++Added detailed BBAI timing diagnostics with the current era, earliest connection era, era distance, XML loss per era, and resulting timing percentage for testing.
++
++Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index b9127f178..ee517884a 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -312,6 +312,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Unowned bonus extra valuation in city-site valuation:** for example, if we already own Wheat, a site with 1 Maize is **much better for the whole empire** than a city site with 2 more Wheat, which would have **more yields locally for this city** (e.g., ~+3-4 extra food per plot), **but much less long-term empire growth** (e.g., +1 Health +1 Health with Granary for all cities) (which is perhaps better even for this local city). Or, stone, happiness, or other bonuses could provide other advantages, for example **trading, military, accelerating buildables, etc**. Trade imports do not count as owned because they are not permanent. Applied once per bonus type and only after the first city. See [KI#147](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#147---fixedenhanced-base-advciv-issue-of-ai-settlers-not-adding-extra-valuation-to-unowned-bonuses-in-city-site-scoring). (Requires AdvCiv-SAS 6025+) Update: now do not count as unowned the ones plausibly claimed by one of our existing cities' future BFC (see below bullet and [KI#178](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value)).
+ - (Requires AdvCiv-SAS 6025+) **City-site bonus value now uses settlement-specific long-term value instead of broad trade value:** the old non-yield path reused `AI_bonusVal`, which is useful for immediate bonus trading but can be wrong for founding cities (for example health may be mostly useless early but very valuable late game, but short-term trading only the value of a bonus right now matters, the deal may be cancelled anytime or a bonus get obsolete later, but cities are founded generally early, and permanently, so `AI_bonusVal` seems unfit to be used for settler valuation). So AdvCiv-SAS now values explicit bonus health/happiness plus ordinary early building effects such as Granary/Harbor, while excluding late/expensive buildings through a tunable prerequisite-era gate (e.g., we'll likely benefit from Health from Harbor if city is Coastal and has connected Crab, but the game may end before we build a Supermarket for some bonus' effect so don't value it). In save file 450 BBAI testing, `AI_bonusVal` was massively, seemingly incorrectly valuing Elephants over Crab, despite the Crab site being better locally (food from bonus and greener, vs a desert/plains/hill site to get Elephants), so the AI preferred `(18,40)` Elephants/Rice/Camel site instead of seemingly better stronger `(17,40)` with Crab/Rice/Camel, this change now helped Shaka successfully found uMgungundlovu at stronger `(17,40)`, the log showed Crab and Rice receiving explicit `happyHealth=300 buildingHappyHealth=150` instead of relying on one opaque `AI_bonusVal` spike. See [KI#178](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value).
+ - (Requires AdvCiv-SAS 6044+) Note: Special-building effects are estimated conservatively: religion-linked variants receive a lower per-point value because we are unlikely to build every overlapping variant, nonreligious special buildings receive more, and a shared cap prevents mod-added sets from inflating a site without bound; for example, Incense's 7 Cathedral happiness effects contribute 175 in total instead of 7 * 150 = 1050
++- (Requires AdvCiv-SAS 6046+) **Bonuses that can be connected soon enough are no longer heavily devalued in city-site scoring:** Following the special building formula rework, save-file 453 BBAI logging also showed that Base AdvCiv valued Barcelona's Incense at only 70% of its health/happiness city-site value, reducing it from 325 to 228, even though Spain completed Calendar on the same turn that it founded the city and could benefit from it very soon. In AdvCiv-SAS, `TECH_CALENDAR` is an early Ancient technology, not Classical, but even in rulesets where Calendar is later, this Base AdvCiv blunt inflexible penalty did not properly account for the actual XML rules; if the required technology was not currently researchable, Base AdvCiv used an even harsher value of roughly 33% which seems very excessive. So the AI now applies a new XML-tunable penalty, as of now 15% per era until we can connect a bonus we can see, starting from the current era (so no penalty if it can be connected in this era, which seems correct as we'll be able to use it and benefit from it soon), one era ahead keeps 85%, two eras ahead keeps 70%, etc. In practice, most visible bonuses are no longer penalized because as of now in AdvCiv-SAS they can be connected soon after they are visible, while a bonus visible several eras before it can be connected still loses value gradually instead of falling into the old arbitrary 70% / 33% tiers. The confirming run restored Incense to the intended full value of 325, preserved strong Barcelona at `(18,16)`, and gave all 66 logged connection evaluations no timing penalty because they were connectable in the current era. See [KI#187](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#187---fixedimproved-base-advciv-excessively-devalued-soon-connectable-bonuses-in-ai-city-site-scoring). Note: this changes only health/happiness valuation; Food, Production, and Commerce from improving the bonus tile, and the difficulty of accessing it on another landmass, retain their existing separate rules.
+ - (Requires AdvCiv-SAS 6025+) **Duplicate bonus value no longer over-counts reliable future-BFC coverage:** trade imports still do not count as owned as in Base AdvCiv, but bonuses already owned or plausibly claimed by one of our existing cities' future BFC no longer receive another full empire-wide duplicate value. Contested bonuses can still count when a known rival future BFC also threatens them, because ownership is not reliable. This prevents new cities from chasing a safe duplicate Crab (better go for bonuses we don't have to grow more) while still letting a contested Camel near Arabia matter (don't count on it empire-wide, but still locally there's a chance we might steal it so value it enough for local valuation only, not empire-wide one as not reliable enough for that). See [KI#178](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value).
+ - **Settler site eval - devalue BFCs with many very bad tiles:** Candidate sites are **significantly devalued** (not auto-rejected) when enough non-home BFC plots are impassable or remain very low-yield after their best XML-valid improvement: the threshold as of now is dynamic `4 * food + 2 * production + commerce` (e.g., 1 food is not very bad, 1 hammer and 1 commerce is very bad, peak is very bad) (visible bonuses on usable plots are not counted because bonuses are likely to be always valuable). See [KI#26.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#262---enhanced-ai-settlers-not-devaluing-very-bad-non-home-tiles-peak-ice-cap-non-hill-desert-without-a-bonus-non-hill-snow-without-a-bonus-if-we-have-enough-of-them-in-bfc).
+ - **First-city Good enough plots threshold**: AI settlers now also require the first-city site to have **enough** (e.g., >=13) **“good enough”** (i.e. tile is not impassable, not persistently barren by yield-potential logic, or is a reachable/already-improved water bonus) **BFC tiles** before accepting it, so the first-city is less likely to be founded on a long-term disadvantageous location.
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=23881

@@ -1,0 +1,99 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2533
+# Commit: af46663b6a10014586e6b3fe384444569750f52e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 60a15e6434fe8379a8a642055dff0f34238bb50b
+# Title: Fix sign issues with negative int limits
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+23	18	CvGameCoreDLL/CvGameCoreDLL.h
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 2be6d713f..afb39a1ba 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -44,26 +44,31 @@
+ 
+ #define DllExport   __declspec( dllexport )
+ 
+-typedef unsigned char    byte;
++typedef unsigned char		byte;
+ // advc (note): A little strange to me, but consistent with WORD in winnt.h.
+-typedef unsigned short   word;
+-typedef unsigned int     uint;
+-typedef unsigned long    dword;
+-typedef unsigned __int64 qword;
+-typedef wchar_t          wchar;
++typedef unsigned short		word;
++typedef unsigned int		uint;
++typedef unsigned long		dword;
++typedef unsigned __int64	qword;
++typedef wchar_t				wchar;
+ 
+-#define MAX_CHAR                            (0x7f)
+-#define MIN_CHAR                            (0x80)
+-#define MAX_SHORT                           (0x7fff)
+-#define MIN_SHORT                           (0x8000)
+-#define MAX_INT                             (0x7fffffff)
+-#define MIN_INT                             (0x80000000)
+-#define MAX_UNSIGNED_CHAR                   (0xff)
+-#define MIN_UNSIGNED_CHAR                   (0x00)
+-#define MAX_UNSIGNED_SHORT                  (0xffff)
+-#define MIN_UNSIGNED_SHORT                  (0x0000)
+-#define MAX_UNSIGNED_INT                    (0xffffffff)
+-#define MIN_UNSIGNED_INT                    (0x00000000)
++/*	advc.001q: Put minus operators into the negative constants, otherwise,
++	if there's only a literal, it can get treated as an unsigned value. */
++#define MAX_CHAR							(0x7f)
++//#define MIN_CHAR							(0x80)
++#define MIN_CHAR							(-MAX_CHAR - 1)
++#define MAX_SHORT							(0x7fff)
++//#define MIN_SHORT							(0x8000)
++#define MIN_SHORT							(-MAX_SHORT - 1)
++#define MAX_INT								(0x7fffffff)
++//#define MIN_INT							(0x80000000)
++#define MIN_INT								(-MAX_INT - 1)
++#define MAX_UNSIGNED_CHAR					(0xff)
++#define MIN_UNSIGNED_CHAR					(0x00)
++#define MAX_UNSIGNED_SHORT					(0xffff)
++#define MIN_UNSIGNED_SHORT					(0x0000)
++#define MAX_UNSIGNED_INT					(0xffffffff)
++#define MIN_UNSIGNED_INT					(0x00000000)
+ 
+ // (advc.make: Some macros moved into new header Trigonometry.h)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index efd5ed57b..d5dababf4 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12240,13 +12240,13 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
+ 		iValue *= 3;
+ 	FOR_EACH_DEAL(pLoopDeal)
+ 	{
+-		// <advc.001q> BtS had only checked for ePlayer's team
++		// <advc.001> BtS had only checked for ePlayer's team
+ 		if (!pLoopDeal->isBetween(TEAMID(ePlayer), eTradeTeam))
+ 			continue;
+ 		/*  Should be pLoopDeal->isCancelable(ePlayer), but the param
+ 			doesn't really have an effect, and I'm disabling this check anyway. */
+ 		//if (pLoopDeal->isCancelable(getID()) && !(pLoopDeal->isPeaceDeal()))
+-		// </advc.001q>  // <advc.130f>
++		// </advc.001>  // <advc.130f>
+ 		if(pLoopDeal->isPeaceDeal() ||
+ 			/*  OB don't have a proper trade value and have already been
+ 				covered above */
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3073

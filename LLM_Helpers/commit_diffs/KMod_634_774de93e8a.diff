@@ -1,0 +1,103 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 634
+# Commit: 774de93e8a01319969aecd97a5c8af5ea55eb8ad
+# History segment: K-Mod history
+# Parent used for diff: 38c5d61f17be5275f44dc74d772c93ff6573fda8
+# Title: The total-espionage-point based modifiers to spy intercept chance and espionage mission cost are now scaled based on the population of the teams involve. Thi...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	6	CvGameCoreDLL/CvPlayer.cpp
+13	1	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index eb283ff8f..bf9b945fd 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14814,6 +14814,9 @@ int CvPlayer::getEspionageMissionCostModifier(EspionageMissionTypes eMission, Pl
+ 		eTargetPlayer = getID();
+ 	}
+ 
++	const CvTeam& kTeam = GET_TEAM(getTeam()); // K-Mod
++	const CvTeam& kTargetTeam = GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()); // (moved from the bottom of the function)
++
+ 	//if (pCity != NULL && kMission.isTargetsCity())
+ 	if (pCity != NULL && (eMission == NO_ESPIONAGEMISSION || GC.getEspionageMissionInfo(eMission).isTargetsCity()))
+ 	{
+@@ -14895,21 +14898,29 @@ int CvPlayer::getEspionageMissionCostModifier(EspionageMissionTypes eMission, Pl
+ 	}
+ 
+ 	// My points VS. Your points to mod cost
+-	int iTargetPoints = GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).getEspionagePointsEver();
+-	int iOurPoints = GET_TEAM(getTeam()).getEspionagePointsEver();
+-	iModifier *= (GC.getDefineINT("ESPIONAGE_SPENDING_MULTIPLIER") * (2 * iTargetPoints + iOurPoints)) / std::max(1, iTargetPoints + 2 * iOurPoints);
+-	iModifier /= 100;
++	/* original bts code
++	int iTargetPoints = kTargetTeam.getEspionagePointsEver();
++	int iOurPoints = kTeam.getEspionagePointsEver(); */
++	// K-Mod. Scale the points modifier based on the teams' population. (Note ESPIONAGE_SPENDING_MULTIPLIER is 100 in the default xml.)
++	{
++		int iPopScale = 7 * GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities();
++		int iTargetPoints = 10 * kTargetTeam.getEspionagePointsEver() / std::max(1, iPopScale + kTargetTeam.getTotalPopulation(false));
++		int iOurPoints = 10 * kTeam.getEspionagePointsEver() / std::max(1, iPopScale + kTeam.getTotalPopulation(false));
++	// K-Mod end
++		iModifier *= (GC.getDefineINT("ESPIONAGE_SPENDING_MULTIPLIER") * (2 * iTargetPoints + iOurPoints)) / std::max(1, iTargetPoints + 2 * iOurPoints);
++		iModifier /= 100;
++	} //
+ 	
+ 	// Counterespionage Mission Mod
+-	CvTeam& kTargetTeam = GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam());
+ 	/* if (kTargetTeam.getCounterespionageModAgainstTeam(getTeam()) > 0)
+ 	{
+ 		iModifier *= kTargetTeam.getCounterespionageModAgainstTeam(getTeam());
+ 		iModifier /= 100;
+ 	} */
+ 	// K-Mod
+-	iModifier *= (100 + std::max(-100, kTargetTeam.getCounterespionageModAgainstTeam(getTeam())));
++	iModifier *= 100 + std::max(-100, kTargetTeam.getCounterespionageModAgainstTeam(getTeam()));
+ 	iModifier /= 100;
++	// K-Mod end
+ 
+ 	return iModifier;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index d39064cb1..2c5ae67c7 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -6777,9 +6777,21 @@ int CvUnit::getSpyInterceptPercent(TeamTypes eTargetTeam) const
+ 
+ 	int iSuccess = 0;
+ 
++	/* original bts code
+ 	int iTargetPoints = GET_TEAM(eTargetTeam).getEspionagePointsEver();
+ 	int iOurPoints = GET_TEAM(getTeam()).getEspionagePointsEver();
+-	iSuccess += (GC.getDefineINT("ESPIONAGE_INTERCEPT_SPENDING_MAX") * iTargetPoints) / std::max(1, iTargetPoints + iOurPoints);
++	iSuccess += (GC.getDefineINT("ESPIONAGE_INTERCEPT_SPENDING_MAX") * iTargetPoints) / std::max(1, iTargetPoints + iOurPoints); */
++	// K-Mod. Scale based on the teams' population.
++	{
++		const CvTeam& kTeam = GET_TEAM(getTeam());
++		const CvTeam& kTargetTeam = GET_TEAM(eTargetTeam);
++
++		int iPopScale = 7 * GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities();
++		int iTargetPoints = 10 * kTargetTeam.getEspionagePointsEver() / std::max(1, iPopScale + kTargetTeam.getTotalPopulation(false));
++		int iOurPoints = 10 * kTeam.getEspionagePointsEver() / std::max(1, iPopScale + kTeam.getTotalPopulation(false));
++		iSuccess += GC.getDefineINT("ESPIONAGE_INTERCEPT_SPENDING_MAX") * iTargetPoints / std::max(1, iTargetPoints + iOurPoints);
++	}
++	// K-Mod end
+ 
+ 	if (plot()->isEspionageCounterSpy(eTargetTeam))
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3877

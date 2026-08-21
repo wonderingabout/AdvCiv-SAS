@@ -3,7 +3,8 @@
 import codecs
 import os
 import os.path
-import string
+# <!-- custom: remove or comment out seemingly unused imports -->
+#import string
 import BugCore
 import BugOptions
 import BugPath
@@ -68,8 +69,8 @@ class BugFileInstance:
 
 		## determine type of message
 		zStyle = BugFile.getFormatStyle()
-		if (zStyle < 0
-		or zStyle > 3): zStyle=0
+		if (zStyle < 0 or zStyle > 3):
+			zStyle=0
 
 		if zStyle == 0: # no formatting so do nothing
 			zMsg = zMsg
@@ -79,8 +80,7 @@ class BugFileInstance:
 				zMsg = "<b>%s</b>" % (zMsg)
 			if vUnderline:
 				zMsg = "<u>%s</u>" % (zMsg)
-			if (vColor != "Black"
-			and BugFile.isColorCoding()):
+			if (vColor != "Black" and BugFile.isColorCoding()):
 				zMsg = "<span style=\"color: %s\">%s</span>" % (vColor, zMsg)
 
 			zMsg = "%s<br>" % (zMsg)
@@ -90,8 +90,7 @@ class BugFileInstance:
 				zMsg = "[b]%s[/b]" % (zMsg)
 			if vUnderline:
 				zMsg = "[u]%s[/u]" % (zMsg)
-			if (vColor != "Black"
-			and BugFile.isColorCoding()):
+			if (vColor != "Black" and BugFile.isColorCoding()):
 				if zStyle == 2:  # color coding with "
 					zMsg = "[color=\"%s\"]%s[/color]" % (vColor, zMsg)
 				else:  # color coding without "

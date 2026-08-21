@@ -1,0 +1,147 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3627
+# Commit: cb0d876f2db705aed3e27b17892da1caf53634a2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1a2c5e35c217ad8a19afd5564ab241ee59862835
+# Title: Tweaks to base Barbarian creation rate
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+31	22	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 1bf45955d..2b6280c9b 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -58,8 +58,10 @@
+ 			<iAttitudeChange>3</iAttitudeChange>
+ 			<iNoTechTradeModifier>100</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>-100</iTechTradeKnownModifier>
+-			<iUnownedTilesPerGameAnimal>100</iUnownedTilesPerGameAnimal>
+-			<iUnownedTilesPerBarbarianUnit>150</iUnownedTilesPerBarbarianUnit>
++			<!-- advc.309: was 100 -->
++			<iUnownedTilesPerGameAnimal>85</iUnownedTilesPerGameAnimal>
++			<!-- advc.300: was 150 -->
++			<iUnownedTilesPerBarbarianUnit>125</iUnownedTilesPerBarbarianUnit>
+ 			<iUnownedWaterTilesPerBarbarianUnit>750</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>160</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 50 -->
+@@ -236,8 +238,10 @@
+ 			<!-- advc.251: was 90 -->
+ 			<iNoTechTradeModifier>85</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>-50</iTechTradeKnownModifier>
+-			<iUnownedTilesPerGameAnimal>80</iUnownedTilesPerGameAnimal>
+-			<iUnownedTilesPerBarbarianUnit>100</iUnownedTilesPerBarbarianUnit>
++			<!-- advc.309: was 80 -->
++			<iUnownedTilesPerGameAnimal>70</iUnownedTilesPerGameAnimal>
++			<!-- advc.300: was 100 -->
++			<iUnownedTilesPerBarbarianUnit>80</iUnownedTilesPerBarbarianUnit>
+ 			<iUnownedWaterTilesPerBarbarianUnit>600</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>150</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 45 -->
+@@ -390,8 +394,10 @@
+ 			<!-- advc.251: was 80 -->
+ 			<iNoTechTradeModifier>75</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>-25</iTechTradeKnownModifier>
+-			<iUnownedTilesPerGameAnimal>60</iUnownedTilesPerGameAnimal>
+-			<iUnownedTilesPerBarbarianUnit>80</iUnownedTilesPerBarbarianUnit>
++			<!-- advc.309: was 60 -->
++			<iUnownedTilesPerGameAnimal>62</iUnownedTilesPerGameAnimal>
++			<!-- advc.300: was 80 -->
++			<iUnownedTilesPerBarbarianUnit>66</iUnownedTilesPerBarbarianUnit>
+ 			<iUnownedWaterTilesPerBarbarianUnit>550</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>140</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 40 -->
+@@ -520,8 +526,10 @@
+ 			<!-- advc.251: was 70 -->
+ 			<iNoTechTradeModifier>64</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+-			<iUnownedTilesPerGameAnimal>50</iUnownedTilesPerGameAnimal>
+-			<iUnownedTilesPerBarbarianUnit>60</iUnownedTilesPerBarbarianUnit>
++			<!-- advc.309: was 50 -->
++			<iUnownedTilesPerGameAnimal>52</iUnownedTilesPerGameAnimal>
++			<!-- advc.300: was 60 -->
++			<iUnownedTilesPerBarbarianUnit>56</iUnownedTilesPerBarbarianUnit>
+ 			<iUnownedWaterTilesPerBarbarianUnit>500</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>130</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 35 -->
+@@ -643,9 +651,10 @@
+ 			<!-- advc.251: was 60 -->
+ 			<iNoTechTradeModifier>56</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+-			<!-- advc.300: was 40 -->
+-			<iUnownedTilesPerGameAnimal>45</iUnownedTilesPerGameAnimal>
+-			<iUnownedTilesPerBarbarianUnit>50</iUnownedTilesPerBarbarianUnit>
++			<!-- advc.309: was 40 -->
++			<iUnownedTilesPerGameAnimal>50</iUnownedTilesPerGameAnimal>
++			<!-- advc.300: was 50 -->
++			<iUnownedTilesPerBarbarianUnit>48</iUnownedTilesPerBarbarianUnit>
+ 			<iUnownedWaterTilesPerBarbarianUnit>450</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>120</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 30 -->
+@@ -770,10 +779,10 @@
+ 			<!-- advc.251: was 50 -->
+ 			<iNoTechTradeModifier>48</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+-			<!-- advc.300: was 35 -->
+-			<iUnownedTilesPerGameAnimal>40</iUnownedTilesPerGameAnimal>
++			<!-- advc.309: was 35 -->
++			<iUnownedTilesPerGameAnimal>44</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 40 -->
+-			<iUnownedTilesPerBarbarianUnit>45</iUnownedTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianUnit>42</iUnownedTilesPerBarbarianUnit>
+ 			<iUnownedWaterTilesPerBarbarianUnit>400</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>110</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 25 -->
+@@ -923,10 +932,10 @@
+ 			<iAttitudeChange>0</iAttitudeChange>
+ 			<iNoTechTradeModifier>40</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+-			<!-- advc.300: was 30 -->
+-			<iUnownedTilesPerGameAnimal>35</iUnownedTilesPerGameAnimal>
++			<!-- advc.309: was 30 -->
++			<iUnownedTilesPerGameAnimal>40</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 35 -->
+-			<iUnownedTilesPerBarbarianUnit>40</iUnownedTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianUnit>38</iUnownedTilesPerBarbarianUnit>
+ 			<iUnownedWaterTilesPerBarbarianUnit>350</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>100</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 20 -->
+@@ -1083,10 +1092,10 @@
+ 			<!-- advc.251: was 30 -->
+ 			<iNoTechTradeModifier>32</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+-			<!-- advc.300: was 25 -->
+-			<iUnownedTilesPerGameAnimal>30</iUnownedTilesPerGameAnimal>
++			<!-- advc.309: was 25 -->
++			<iUnownedTilesPerGameAnimal>36</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 30 -->
+-			<iUnownedTilesPerBarbarianUnit>35</iUnownedTilesPerBarbarianUnit>
++			<iUnownedTilesPerBarbarianUnit>34</iUnownedTilesPerBarbarianUnit>
+ 			<iUnownedWaterTilesPerBarbarianUnit>300</iUnownedWaterTilesPerBarbarianUnit>
+ 			<iUnownedTilesPerBarbarianCity>90</iUnownedTilesPerBarbarianCity>
+ 			<!-- advc.300: was 15 -->
+@@ -1248,8 +1257,8 @@
+ 			<!-- advc.251: was 20 -->
+ 			<iNoTechTradeModifier>24</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+-			<!-- advc.300: was 20 -->
+-			<iUnownedTilesPerGameAnimal>25</iUnownedTilesPerGameAnimal>
++			<!-- advc.309: was 20 -->
++			<iUnownedTilesPerGameAnimal>32</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 25 -->
+ 			<iUnownedTilesPerBarbarianUnit>30</iUnownedTilesPerBarbarianUnit>
+ 			<iUnownedWaterTilesPerBarbarianUnit>250</iUnownedWaterTilesPerBarbarianUnit>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=6273

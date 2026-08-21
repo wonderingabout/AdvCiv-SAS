@@ -1,0 +1,199 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3234
+# Commit: 16705588153a01f0bdc9b074fc0c47d0adf61040
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 02ef092063395a78b1e357f705e223e72f63f33a
+# Title: Changes resulting from Cppcheck analysis (#4)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/AgentIterator.h
+1	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+5	10	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+6	4	CvGameCoreDLL/CvUnit.h
+1	1	CvGameCoreDLL/CyStructsInterface1.cpp
+1	2	CvGameCoreDLL/StartingPositionIteration.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AgentIterator.h b/CvGameCoreDLL/AgentIterator.h
+index 295ee8924..b5774cdc6 100644
+--- a/CvGameCoreDLL/AgentIterator.h
++++ b/CvGameCoreDLL/AgentIterator.h
+@@ -172,7 +172,7 @@ protected:
+ 		m_iPos = 0;
+ 		// Cache the cache size (std::vector computes it as 'end' minus 'begin')
+ 		m_iCacheSize = static_cast<short>(m_pCache->size());
+-		//generateNext(); // Leave this up to the ctor of Derived
++		m_pNext = NULL; //generateNext(); // Leave this up to the ctor of Derived
+ 	}
+ 
+ 	AgentIterator& operator++()
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 6f8d8df97..066073c35 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -3211,7 +3211,7 @@ scaled AIFoundValue::evaluateWorkablePlot(CvPlot const& p) const
+ 		int iRemovableFeatureYieldVal = removableFeatureYieldVal(
+ 				eFeature, bRemovableFeature, eBonus != NO_BONUS);
+ 		int iNonPersistentFeatureYieldVal = removableFeatureYieldVal(
+-				eFeature, !bPersistentFeature, eBonus != NO_BONUS);
++				eFeature, true, eBonus != NO_BONUS);
+ 		/*	Weighted average to account for chopping becoming available later.
+ 			Mostly treat chopping as available b/c Jungle seems to get valued
+ 			too lowly; I guess b/c bonus improvement yields aren't counted. */
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 2e14a2d2a..9e47a719c 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4070,7 +4070,7 @@ void CvGameTextMgr::setPlotHelpDebug_Ctrl(CvWStringBuffer& szString, CvPlot cons
+ 			szTempBuffer.Format(L"\nAreaScore: %d", total); szString.append(szTempBuffer);
+ 		}
+ 	} // </advc.027>
+-	if(bShift && !bAlt)
++	if (bShift && !bAlt)
+ 	{
+ 		// BETTER_BTS_AI_MOD, DEBUG, 07/11/08, jdog5000
+ 		// advc.007: BBAI showed this regardless of pressed buttons
+@@ -4097,14 +4097,14 @@ void CvGameTextMgr::setPlotHelpDebug_Ctrl(CvWStringBuffer& szString, CvPlot cons
+ 		} // BETTER_BTS_AI_MOD: END
+ 		// <advc.test>, advc.104b
+ 		{
+-			static CvPlot const* pOldPlot = NULL;
+-			static CvUnit const* pOldUnit = NULL;
+-			static int iCost = MAX_INT;
+-			static int iLength = MAX_INT;
+ 			CvUnit const* pUnit = gDLL->UI().getHeadSelectedUnit();
+ 			CvPlot const* pPlot = gDLL->UI().getMouseOverPlot();
+ 			if (pUnit != NULL && pPlot != NULL)
+ 			{	// Avoid lag from computing the same path over and over
++				static CvPlot const* pOldPlot = NULL;
++				static CvUnit const* pOldUnit = NULL;
++				static int iCost = MAX_INT;
++				static int iLength = MAX_INT;
+ 				if (pPlot != pOldPlot || pUnit != pOldUnit)
+ 				{
+ 					pOldPlot = pPlot;
+@@ -19745,7 +19745,6 @@ void CvGameTextMgr::parseLeaderHeadRelationsHelp(CvWStringBuffer &szBuffer,
+ void CvGameTextMgr::setFoodHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
+ {
+ 	CvYieldInfo const& kFood = GC.getInfo(YIELD_FOOD);
+-	bool bNeedSubtotal = false;
+ 	int iBaseRate = 0;
+ 	bool bSimple = true; // advc.087
+ 
+@@ -19770,7 +19769,6 @@ void CvGameTextMgr::setFoodHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
+ 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_SPECIALIST_COMMERCE",
+ 				iTradeFood, kFood.getChar(), L"TXT_KEY_HEADING_TRADEROUTE_LIST"));
+ 		iBaseRate += iTradeFood;
+-		bNeedSubtotal = true;
+ 	}
+ 	// Specialists
+ 	int iSpecialistFood = 0;
+@@ -19788,7 +19786,6 @@ void CvGameTextMgr::setFoodHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
+ 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_SPECIALIST_COMMERCE",
+ 				iSpecialistFood, kFood.getChar(), L"TXT_KEY_CONCEPT_SPECIALISTS"));
+ 		iBaseRate += iSpecialistFood;
+-		bNeedSubtotal = true;
+ 	}
+ 	// Corporations
+ 	int iCorporationFood = kCity.getCorporationYield(YIELD_FOOD);
+@@ -19799,7 +19796,6 @@ void CvGameTextMgr::setFoodHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
+ 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_CORPORATION_COMMERCE",
+ 				iCorporationFood, kFood.getChar()));
+ 		iBaseRate += iCorporationFood;
+-		bNeedSubtotal = true;
+ 	}
+ 	// Buildings
+ 	int iBuildingFood = 0;
+@@ -19820,7 +19816,6 @@ void CvGameTextMgr::setFoodHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
+ 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_BUILDING_COMMERCE",
+ 				iBuildingFood, kFood.getChar()));
+ 		iBaseRate += iBuildingFood;
+-		bNeedSubtotal = true;
+ 	}
+ 	// Base and modifiers (only if there are modifiers since total is always shown)
+ 	if(kCity.getBaseYieldRateModifier(YIELD_FOOD) != 100)
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 99abfba65..9774ec3a9 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -6911,7 +6911,7 @@ int CvUnit::maxCombatStr(CvPlot const* pPlot, CvUnit const* pAttacker,
+ 		pAttackedPlot = plot();
+ 
+ 	if (pCombatDetails != NULL)
+-		pCombatDetails->reset(getOwner(), getVisualOwner(), getName().c_str()); // advc
++		pCombatDetails->reset(getOwner(), getVisualOwner()/*, getName().c_str()*/); // advc
+ 
+ 	if (baseCombatStr() == 0)
+ 		return 0;
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index ca299e815..35deaf32d 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -1254,15 +1254,17 @@ struct CombatDetails											// Exposed to Python
+ 	int iCurrCombatStr;
+ 	PlayerTypes eOwner;
+ 	PlayerTypes eVisualOwner;
+-	std::wstring sUnitName;
++	// <advc>
++	// Unused - and gets in the way of zeroing the memory
++	//std::wstring sUnitName;
+ 	// advc:
+-	void reset(PlayerTypes eOwner, PlayerTypes eVisualOwner, std::wstring sUnitName)
++	void reset(PlayerTypes eOwner, PlayerTypes eVisualOwner/*, std::wstring sUnitName*/)
+ 	{
+ 		ZeroMemory(this, sizeof(*this));
+ 		this->eOwner = eOwner;
+ 		this->eVisualOwner = eVisualOwner;
+-		this->sUnitName = sUnitName;
+-	}
++		//this->sUnitName = sUnitName;
++	} // </advc>
+ };
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CyStructsInterface1.cpp b/CvGameCoreDLL/CyStructsInterface1.cpp
+index af023ef0d..14fd3acd5 100644
+--- a/CvGameCoreDLL/CyStructsInterface1.cpp
++++ b/CvGameCoreDLL/CyStructsInterface1.cpp
+@@ -180,6 +180,6 @@ void CyStructsPythonInterface1()
+ 		.def_readwrite("iCurrCombatStr", &CombatDetails::iCurrCombatStr)
+ 		.def_readwrite("eOwner", &CombatDetails::eOwner)
+ 		.def_readwrite("eVisualOwner", &CombatDetails::eVisualOwner)
+-		.def_readwrite("sUnitName", &CombatDetails::sUnitName)
++		//.def_readwrite("sUnitName", &CombatDetails::sUnitName) // advc: unused
+ 		;
+ }
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index 79b31be8f..230449ff0 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -1797,8 +1797,7 @@ void StartingPositionIteration::doIterations(PotentialSites& kPotentialSites)
+ 			// Focus on negative outliers while the avg. error is high
+ 			scaled rNegativeOutlierExtraWeight = fixp(1.15) * 
+ 					(m_currSolutionAttribs.m_rAvgError - fixp(0.1));
+-			// A little bit of randomness
+-			if (iStepsConsidered % 2 == 0)
++			if (iStepsConsidered % 2 == 0) // A little bit of variation
+ 				rNegativeOutlierExtraWeight += fixp(0.25);
+ 			scaled rDummy;
+ 			scaled rOutlierVal = outlierValue(m_currSolutionAttribs.m_startValues,
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=7165

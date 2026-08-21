@@ -1,0 +1,1578 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5291
+# Commit: 55a2425f1e055eee2693a57d2e1a7f409d34fe5e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: db46076793d6fbb45acae1fc1b113f373e4b425e
+# Title: add new Handicap Chart category
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AGENTS.md
+387	0	Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+16	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+2	1	Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+2	4	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+11	0	Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+2	2	Assets/XML/Text/CIV4GameText_advc.xml
+49	45	README.md
+1	1	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+1	1	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+8	20	_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+2	2	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+5	15	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+5	0	_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+16	2	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (1).PNG
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (2).PNG
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (3).PNG
+-	-	_1_AdvCiv-SAS/Images/scripts/csv_and_md_handicap_info_cmd_usage_example.PNG
+-	-	_1_AdvCiv-SAS/Images/scripts/csv_handicap_github_view_search_bar_example.PNG
+-	-	_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_github_view_example.PNG
+-	-	_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (1).PNG
+-	-	_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (2).PNG
+-	-	_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_md_legend_github_view.PNG
+-	-	_1_AdvCiv-SAS/Images/scripts/csv_md_handicap_github_view_example.PNG
+-	-	_1_AdvCiv-SAS/Images/scripts/csv_md_handicap_vs_code_preview_example.PNG
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs.JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG
+0	375	flatten_handicap_info_to_csv_and_md.py
+ create mode 100644 Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (1).PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (2).PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (3).PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images/scripts/csv_and_md_handicap_info_cmd_usage_example.PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images/scripts/csv_handicap_github_view_search_bar_example.PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images/scripts/csv_handicap_info_github_view_example.PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (1).PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (2).PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images/scripts/csv_handicap_info_md_legend_github_view.PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images/scripts/csv_md_handicap_github_view_example.PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images/scripts/csv_md_handicap_vs_code_preview_example.PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs.JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG
+ delete mode 100644 flatten_handicap_info_to_csv_and_md.py
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 9c34054a7..2f0c5026f 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -97,7 +97,7 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
+ 
+ ### Docs
+ 
+-- For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user (AGENTS.md currently has markdownlint issues).
++- For markdownlint, try to resolve warnings; if a fix is unclear or risky, ask the user.
+ 
+ ## Comment Style Example
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+new file mode 100644
+index 000000000..19e47d7a0
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+@@ -0,0 +1,387 @@
++# --- Handicap chart page for Sevopedia (AdvCiv-SAS) ---
++# Created as part of AdvCiv-SAS improvements
++# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Based on the Middle-earth mod's PlatyPedia handicap approach: pull values from
++# CvHandicapInfo getters (rather than XML parsing) for Python 2.4 compatibility.
++#
++
++from CvPythonExtensions import *
++import CvUtil
++import re
++
++gc = CyGlobalContext()
++localText = CyTranslator()
++
++
++class SevoPediaHandicapChart:
++	def __init__(self, main):
++		self.top = main
++		self._cachedTable = None
++
++		self.MARGIN = 12
++		self.ROW_H = 28
++		self.W_FIELD = 340
++
++	def interfaceScreen(self):
++		screen = self.top.getScreen()
++		self._drawTable(screen)
++
++	def _drawTable(self, screen):
++		x = self.top.X_ITEMS
++		y = self.top.Y_PEDIA_PAGE
++		w = self.top.W_SCREEN - self.top.X_ITEMS - self.MARGIN
++		h = self.top.H_PEDIA_PAGE
++
++		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x, y, w, h, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x + self.MARGIN, y + self.MARGIN, w - (self.MARGIN * 2), h - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
++
++		table = self.top.getNextWidgetName()
++		tableX = x + self.MARGIN
++		tableY = y + self.MARGIN + 4
++		tableW = w - (self.MARGIN * 2)
++		tableH = h - (self.MARGIN * 2) - 4
++
++		data = self._getTableData()
++		if not data:
++			screen.setLabel(self.top.getNextWidgetName(), "Background",
++					u"<font=3>" + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()) + u": " + u"No data</font>",
++					CvUtil.FONT_LEFT_JUSTIFY, tableX, tableY, 0, FontTypes.GAME_FONT,
++					WidgetTypes.WIDGET_GENERAL, -1, -1)
++			return
++
++		header = data[0]
++		rows = data[1:]
++		nCols = len(header)
++
++		if nCols < 2:
++			return
++
++		remainingW = max(0, tableW - self.W_FIELD)
++		wNum = remainingW / (nCols - 1)
++
++		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, TableStyles.TABLE_STYLE_EMPTY)
++		screen.enableSort(table)
++
++		for iCol in range(nCols):
++			if iCol == 0:
++				colW = self.W_FIELD
++			else:
++				colW = wNum
++			label = u"<font=2>" + header[iCol] + u"</font>"
++			screen.setTableColumnHeader(table, iCol, label, colW)
++
++		for row in rows:
++			iRow = screen.appendTableRow(table)
++			for iCol in range(nCols):
++				if iCol < len(row):
++					cell = row[iCol]
++				else:
++					cell = u""
++				text = u"<font=2>" + cell + u"</font>"
++				if iCol == 0:
++					screen.setTableText(table, iCol, iRow, text, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				else:
++					screen.setTableText(table, iCol, iRow, text, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++	def _getTableData(self):
++		if self._cachedTable is not None:
++			return self._cachedTable
++
++		data = []
++		try:
++			data = self._buildTableFromGameData()
++		except:
++			data = []
++
++		self._cachedTable = data
++		return data
++
++	def _buildTableFromGameData(self):
++		field_getters = (
++			("iAIAttitudeChangePercent", "getAIAttitudeChangePercent"),
++			("iAIAdvancedStartPercent", "getAIAdvancedStartPercent"),
++			("iAIAnimalCombatModifier", "getAIAnimalCombatModifier"),
++			("iAIBarbarianCombatModifier", "getAIBarbarianCombatModifier"),
++			("iAICivicUpkeepPercent", "getAICivicUpkeepPercent"),
++			("iAICreatePercent", "getAICreatePercent"),
++			("iAIDeclareWarProb", "getAIDeclareWarProb"),
++			("iAIGrowthPercent", "getAIGrowthPercent"),
++			("iAIInflationPercent", "getAIInflationPercent"),
++			("iAIStartingDefenseUnits", "getAIStartingDefenseUnits"),
++			("iAIStartingExploreUnits", "getAIStartingExploreUnits"),
++			("iAIStartingUnitMultiplier", "getAIStartingUnitMultiplier"),
++			("iAIStartingWorkerUnits", "getAIStartingWorkerUnits"),
++			("iAITrainPercent", "getAITrainPercent"),
++			("iAIUnitCostPercent", "getAIUnitCostPercent"),
++			("iAIUnitSupplyPercent", "getAIUnitSupplyPercent"),
++			("iAIUnitUpgradePercent", "getAIUnitUpgradePercent"),
++			("iAIWarWearinessPercent", "getAIWarWearinessPercent"),
++			("iAIWorkRateModifier", "getAIWorkRateModifier"),
++			("iAIWorldConstructPercent", "getAIWorldConstructPercent"),
++			("iAIWorldCreatePercent", "getAIWorldCreatePercent"),
++			("iAIWorldTrainPercent", "getAIWorldTrainPercent"),
++			("iAnimalAttackProb", "getAnimalAttackProb"),
++			("iAnimalCombatModifier", "getAnimalCombatModifier"),
++			("iAttitudeChange", "getAttitudeChange"),
++			("iBarbarianCityCreationProb", "getBarbarianCityCreationProb"),
++			("iBarbarianCityCreationTurnsElapsed", "getBarbarianCityCreationTurnsElapsed"),
++			("iBarbarianCombatModifier", "getBarbarianCombatModifier"),
++			("iBarbarianCreationTurnsElapsed", "getBarbarianCreationTurnsElapsed"),
++			("iBarbarianInitialDefenders", "getBarbarianInitialDefenders"),
++			("iCivicUpkeepPercent", "getCivicUpkeepPercent"),
++			("iColonyMaintenancePercent", "getColonyMaintenancePercent"),
++			("iCorporationMaintenancePercent", "getCorporationMaintenancePercent"),
++			("iDifficulty", "getDifficulty"),
++			("iDistanceMaintenancePercent", "getDistanceMaintenancePercent"),
++			("iFreeUnits", "getFreeUnits"),
++			("iFreeWinsVsBarbs", "getFreeWinsVsBarbs"),
++			("iHappyBonus", "getHappyBonus"),
++			("iHealthBonus", "getHealthBonus"),
++			("iInflationPercent", "getInflationPercent"),
++			("iMaxColonyMaintenance", "getMaxColonyMaintenance"),
++			("iMaxNumCitiesMaintenance", "getMaxNumCitiesMaintenance"),
++			("iNoTechTradeModifier", "getNoTechTradeModifier"),
++			("iNumCitiesMaintenancePercent", "getNumCitiesMaintenancePercent"),
++			("iResearchPercent", "getResearchPercent"),
++			("iStartingDefenseUnits", "getStartingDefenseUnits"),
++			("iStartingExploreUnits", "getStartingExploreUnits"),
++			("iStartingGold", "getStartingGold"),
++			("iStartingLocPercent", "getStartingLocationPercent"),
++			("iStartingWorkerUnits", "getStartingWorkerUnits"),
++			("iTechTradeKnownModifier", "getTechTradeKnownModifier"),
++			("iUnownedTilesPerBarbarianCity", "getUnownedTilesPerBarbarianCity"),
++			("iUnownedTilesPerBarbarianUnit", "getUnownedTilesPerBarbarianUnit"),
++			("iUnownedTilesPerGameAnimal", "getUnownedTilesPerGameAnimal"),
++			("iUnownedWaterTilesPerBarbarianUnit", "getUnownedWaterTilesPerBarbarianUnit"),
++			("iUnitCostPercent", "getUnitCostPercent"),
++		)
++		goody_types = (
++			"GOODY_LOW_GOLD",
++			"GOODY_HIGH_GOLD",
++			"GOODY_MAP",
++			"GOODY_SETTLER",
++			"GOODY_WARRIOR",
++			"GOODY_SCOUT",
++			"GOODY_WORKER",
++			"GOODY_EXPERIENCE",
++			"GOODY_HEALING",
++			"GOODY_TECH",
++			"GOODY_BARBARIANS_WEAK",
++			"GOODY_BARBARIANS_STRONG",
++		)
++		anchor_field = gc.getDefineSTRING("SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD")
++		abbrev_tech_names = {
++			"Animal Husbandry": "Animal H.",
++			"Bronze Working": "Bronze W.",
++			"Iron Working": "Iron W.",
++			"Industrialism": "Industr.",
++		}
++		techs_per_cell = 1
++		none_text = localText.getText("TXT_KEY_PEDIA_SAS_HANDICAP_CHART_FREE_TECHS_NONE", ())
++
++		all_fields = {}
++		parsed_data = {}
++		difficulty_types = []
++		tech_types = []
++		for iTech in xrange(gc.getNumTechInfos()):
++			tech_types.append(gc.getTechInfo(iTech).getType())
++
++		for iHandicap in xrange(gc.getNumHandicapInfos()):
++			info = gc.getHandicapInfo(iHandicap)
++			handicap_type = info.getType()
++			difficulty_types.append(handicap_type)
++			handicap_dict = {}
++
++			for field_name, getter_name in field_getters:
++				value = ""
++				try:
++					getter = getattr(info, getter_name)
++					value = getter()
++				except:
++					value = ""
++				handicap_dict[field_name] = str(value)
++				all_fields[field_name] = 1
++
++			self._appendGoodyFields(handicap_dict, info, all_fields, goody_types)
++			self._appendFreeTechFields(handicap_dict, info, all_fields, tech_types)
++
++			parsed_data[handicap_type] = handicap_dict
++
++		fields = all_fields.keys()
++		fields.sort()
++
++		goody_fields = []
++		for gt in goody_types:
++			if gt in all_fields:
++				goody_fields.append(gt)
++
++		rows = []
++		for field in fields:
++			row = {"Field": field}
++			for difficulty in difficulty_types:
++				value = ""
++				if difficulty in parsed_data:
++					value = parsed_data[difficulty].get(field, "")
++				row[difficulty] = value
++			rows.append(row)
++
++		before = []
++		goody_rows = []
++		nested = []
++		for row in rows:
++			if row["Field"] in goody_fields:
++				goody_rows.append(row)
++			elif row["Field"] in ("AIFreeTechs", "FreeTechs"):
++				nested.append(row)
++			else:
++				before.append(row)
++
++		new_rows = []
++		for row in before:
++			new_rows.append(row)
++			if row["Field"] == anchor_field:
++				for grow in goody_rows:
++					new_rows.append(grow)
++				for nrow in nested:
++					new_rows.append(nrow)
++		if new_rows == before:
++			for grow in goody_rows:
++				new_rows.append(grow)
++			for nrow in nested:
++				new_rows.append(nrow)
++		rows = self._expandTechRows(new_rows, difficulty_types, techs_per_cell, none_text, abbrev_tech_names)
++
++		header = ["Field"]
++		for difficulty in difficulty_types:
++			header.append(self._beautify_enum_name(difficulty))
++
++		data = [header]
++		for row in rows:
++			field_name = row["Field"]
++			out_row = [field_name]
++			for difficulty in difficulty_types:
++				value = row.get(difficulty, "")
++				if row["Field"] in ("FreeTechs", "AIFreeTechs"):
++					value = self._format_tech_list(value, False, none_text, abbrev_tech_names)
++				out_row.append(value)
++			data.append(out_row)
++		return data
++
++	def _appendGoodyFields(self, handicap_dict, info, all_fields, goody_types):
++		goody_counts = {}
++		for gt in goody_types:
++			goody_counts[gt] = 0
++
++		try:
++			num_goodies = info.getNumGoodies()
++		except:
++			num_goodies = 0
++
++		for i in xrange(num_goodies):
++			try:
++				i_goody = info.getGoodies(i)
++			except:
++				i_goody = -1
++			if i_goody >= 0:
++				goody_info = gc.getGoodyInfo(i_goody)
++				goody_type = goody_info.getType()
++				if goody_type in goody_counts:
++					goody_counts[goody_type] = goody_counts[goody_type] + 1
++
++		for gt in goody_types:
++			handicap_dict[gt] = str(goody_counts.get(gt, 0))
++			all_fields[gt] = 1
++
++	def _appendFreeTechFields(self, handicap_dict, info, all_fields, tech_types):
++		free_list = []
++		ai_free_list = []
++		for iTech in xrange(len(tech_types)):
++			tech_type = tech_types[iTech]
++			if info.isFreeTechs(iTech):
++				free_list.append(tech_type)
++			if info.isAIFreeTechs(iTech):
++				ai_free_list.append(tech_type)
++
++		handicap_dict["FreeTechs"] = ", ".join(free_list)
++		handicap_dict["AIFreeTechs"] = ", ".join(ai_free_list)
++		all_fields["FreeTechs"] = 1
++		all_fields["AIFreeTechs"] = 1
++
++	def _beautify_enum_name(self, raw_name):
++		name = raw_name
++		for prefix in ("TECH_", "HANDICAP_", "GOODY_"):
++			if name.startswith(prefix):
++				name = name[len(prefix):]
++				break
++		name = re.sub(r"_", " ", name)
++		return name.title()
++
++	def _format_tech_list(self, value, return_list, none_text, abbrev_tech_names):
++		if not value:
++			if return_list:
++				return []
++			return none_text
++		parts = value.split(",")
++		out = []
++		for part in parts:
++			p = part.strip()
++			if not p:
++				continue
++			name = self._beautify_enum_name(p)
++			name = abbrev_tech_names.get(name, name)
++			out.append(name)
++		if return_list:
++			return out
++		if len(out) == 0:
++			return none_text
++		return ", ".join(out)
++
++	def _expandTechRows(self, rows, difficulty_types, techs_per_cell, none_text, abbrev_tech_names):
++		new_rows = []
++		for row in rows:
++			field = row["Field"]
++			if field not in ("FreeTechs", "AIFreeTechs"):
++				new_rows.append(row)
++				continue
++
++			per_diff_chunks = {}
++			max_chunks = 1
++			for difficulty in difficulty_types:
++				raw = row.get(difficulty, "")
++				items = self._format_tech_list(raw, True, none_text, abbrev_tech_names)
++				chunks = self._chunkList(items, techs_per_cell)
++				if not chunks:
++					chunks = [[none_text]]
++				per_diff_chunks[difficulty] = chunks
++				if len(chunks) > max_chunks:
++					max_chunks = len(chunks)
++
++			for i in xrange(max_chunks):
++				new_row = {}
++				if i == 0:
++					new_row["Field"] = field
++				else:
++					new_row["Field"] = ""
++				for difficulty in difficulty_types:
++					chunks = per_diff_chunks[difficulty]
++					if i < len(chunks):
++						new_row[difficulty] = ", ".join(chunks[i])
++					else:
++						new_row[difficulty] = ""
++				new_rows.append(new_row)
++		return new_rows
++
++	def _chunkList(self, items, size):
++		if size <= 0:
++			return [items]
++		chunks = []
++		current = []
++		for item in items:
++			current.append(item)
++			if len(current) >= size:
++				chunks.append(current)
++				current = []
++		if current:
++			chunks.append(current)
++		return chunks
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 8acd8f877..3f31a41f4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -47,7 +47,7 @@ B_WARN = False
+ if IS_DEBUG_LEADER:
+ 	print("[DEBUG] Leaders index to type is: %s" % str(get_leaders_index_to_type_map(gc)))
+ 
+-# <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL if i am not mistaken, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL if i am not mistaken so handle that edge case of LEADER_DEFAULTS specifically i mean anyways etc) unlike in generate_leaders_data.py for external to civ4 script usage (such as generating charts .csv, etc.), as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one if i am not mistaken but is to be exhaustive anyways etc -->
++# <!-- custom: note: LEADER_DEFAULTS doesn't seem to exist at all in the DLL if i am not mistaken, so no need to mention it here (also may cause errors in our code as we can't even refer to its index to exclude it to begin with since such a leader index doesn't seem to exist at all in gc/DLL if i am not mistaken so handle that edge case of LEADER_DEFAULTS specifically i mean anyways etc) unlike in generate_leaders_data.py for external to civ4 script usage, as for civ4 use only mention LEADER_BARBARIAN and similar existing leaders even if they are excluded, but not LEADER_DEFAULTS and any other DLL seemingly removed leader index as well if any other exist (as of now LEADER_DEFAULTS seems to be the only one if i am not mistaken but is to be exhaustive anyways etc -->
+ EXCLUDED_LEADER_TYPES_FROM_CALCULATIONS = (
+ 	"LEADER_BARBARIAN",
+ )
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index ba6144ed2..e5dc6d240 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -24,6 +24,7 @@ import SevoPediaUnit
+ import SevoPediaBuilding
+ import SevoPediaPromotion
+ import SevoPediaUnitChart
++import SevoPediaHandicapChart
+ import SevoPediaBonus
+ import SevoPediaTerrain
+ import SevoPediaFeature
+@@ -253,11 +254,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			SevoScreenEnums.PEDIA_BTS_CONCEPTS	: self.placeBTSConcepts,
+ 			SevoScreenEnums.PEDIA_HINTS		: self.placeHints,
+ 			SevoScreenEnums.PEDIA_SHORTCUTS  	: self.placeShortcuts,
++			SevoScreenEnums.PEDIA_HANDICAP_CHART	: self.placeHandicapChart,
+ 			}
+ 
+ 		self.pediaBuilding	= SevoPediaBuilding.SevoPediaBuilding(self)
+ 		self.pediaLeader	= SevoPediaLeader.SevoPediaLeader(self)
+ 		self.pediaIndex     = SevoPediaIndex.SevoPediaIndex(self)
++		self.pediaHandicapChart = SevoPediaHandicapChart.SevoPediaHandicapChart(self)
+ 
+ 		self.mapScreenFunctions = {
+ 			SevoScreenEnums.PEDIA_TECHS		: SevoPediaTech.SevoPediaTech(self),
+@@ -283,6 +286,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			SevoScreenEnums.PEDIA_CONCEPTS		: SevoPediaHistory.SevoPediaHistory(self),
+ 			SevoScreenEnums.PEDIA_BTS_CONCEPTS	: SevoPediaHistory.SevoPediaHistory(self),
+ 			SevoScreenEnums.PEDIA_SHORTCUTS  	: SevoPediaHistory.SevoPediaHistory(self),
++			SevoScreenEnums.PEDIA_HANDICAP_CHART	: self.pediaHandicapChart,
+ 			}
+ 
+ 
+@@ -653,6 +657,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.szCategoryConceptsNew	= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", ())
+ 		self.szCategoryHints		= localText.getText("TXT_KEY_PEDIA_CATEGORY_HINTS", ())
+ 		self.szCategoryShortcuts	= localText.getText("TXT_KEY_PEDIA_CATEGORY_SHORTCUTS", ())
++		self.szCategoryHandicapChart	= localText.getText("TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART", ())
+ 		
+ 		self.categoryList = [
+ 			["TECHS",	self.szCategoryTechs],
+@@ -681,6 +686,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			["HINTS",	self.szCategoryConceptsNew],
+ 			["HINTS",	self.szCategoryHints],
+ 			["HINTS",	self.szCategoryShortcuts], # advc.004y: Restored
++			["SAS",	self.szCategoryHandicapChart],
+ 			]
+ 
+ 		self.categoryGraphics = {
+@@ -693,6 +699,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			"CIVS"		: u"%c  " %(CyGame().getSymbolID(FontSymbols.MAP_CHAR)),
+ 			"CIVICS"	: u"%c  " %(gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()),
+ 			"HINTS"		: u"%c  " %(gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar()),
++			"SAS"		: u"%c  " %(CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR)),
+ 			}
+ 
+ 		screen = self.getScreen()
+@@ -945,6 +952,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		upgradesGraph.getGraph()
+ 		upgradesGraph.drawGraph()
+ 
++	def placeHandicapChart(self):
++		self.SAS_szSearchString = u""
++		self.SAS_lastItemsWidget = None
++		self.SAS_lastItemsInfo = None
++		self.SAS_deleteSearchWidgets()
++
++		self.getScreen().deleteWidget("PediaMainItemList")
++		self.pediaHandicapChart.interfaceScreen()
++
+ 
+ 	def placeUnitCategories(self):
+ 		self.list = self.getUnitCategoryList()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py b/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+index 92c89508e..0afe400ca 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+@@ -27,4 +27,5 @@ PEDIA_CONCEPTS		= 222
+ PEDIA_BTS_CONCEPTS	= 223
+ PEDIA_HINTS		   	= 224
+ PEDIA_SHORTCUTS 	= 225
+-PEDIA_STRATEGY  	= 226
++PEDIA_HANDICAP_CHART	= 226
++PEDIA_STRATEGY  	= 227
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 5c8b1c7d6..721959f8e 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -2,8 +2,6 @@
+ <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
+ <!-- Sid Meier's Civilization 4 -->
+ <!-- Copyright Firaxis Games 2005 -->
+-<!-- -->
+-<!-- custom: i added .csv and .md versions of the handicap table showing all handicap values in one table for advciv-sas and another table for old advciv, see docs for details. -->
+ <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #20 -->
+ <!-- custom: note: iResearchPercent and iAIResearchPercent are now in our mod used as of now to adjust AI building priorities for example as of now for espionage and espionage defense buildings in particular, in the DLL in as of now CvCityAI::AI_buildingValue, if you adjust these here, try to match the changes there, general idea is as of now that at highest difficulties where AI has a tech research advantage, it needs to protect itself against human in particular spy attempts, vs when having research penalties in lowest difficulties, it needs to engage in spying more and not care as much about spying defense, see there for details -->
+ <!-- Handicap Infos -->
+@@ -29,9 +27,9 @@
+ 			<!-- was 20 -->
+ 			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+-			<!-- custom: see code comment at iAIGPThresholdPercent for details anyways etc -->
++			<!-- custom: see code comment at iAIGPThresholdPercent -->
+ 			<iBaseGrowthThresholdPercent>85</iBaseGrowthThresholdPercent>
+-			<!-- custom: see code comment at iAIGPThresholdPercent for details anyways etc -->
++			<!-- custom: see code comment at iAIGPThresholdPercent -->
+ 			<iGPThresholdPercent>85</iGPThresholdPercent>
+ 			<!-- custom: make culture levels the same at all difficulties for human players, this is not where the difficulty should be i think if i am not mistaken in my assessment/guess anyways etc, plsu tedious to manage count points for players who do, not an interesting mechanic i find, anyways etc -->
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 710ffbba9..89f0640ba 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -116,6 +116,11 @@
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: For modders: set where GOODY and AIFreeTechs/FreeTechs rows resume in the Sevopedia handicap chart; default appends them at the end (excluding those rows). Based on Middle-earth Platypedia CvHandicapInfo approach. Credit: GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) --> 
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD</DefineName>
++		<DefineTextVal>iUnownedWaterTilesPerBarbarianUnit</DefineTextVal>
++	</Define>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+index d0e7f8e0a..31e9fb1a5 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+@@ -124,4 +124,15 @@
+ 		<Tag>TXT_KEY_CONCEPT_SCORING_SYSTEM_PEDIA</Tag>
+ 		<English>[H1]Scoring System[\H1][PARAGRAPH:2]In Civilization IV the leadership skills of players are compared to a subjective list of twenty of the best or worst leaders in history, similar to the list in Civilization I. The score is based on a number of factors, including military growth and success, technological advancement, construction of wonders and economic growth. It is shown at the end of the game.[PARAGRAPH:2]The released version of the game abandoned Civilization III's graded scale. In Civ3, a spectacular victory on the easiest difficulty would provide the player with only a middling score, and the best titles were only awarded to players attempting the hardest difficulties. The original Civ4, on the other hand, allows the player to obtain any score on any difficulty level. As of the v1.61 patch, the grading system has returned to the curved-by-difficulty scale.[NEWLINE][NEWLINE]Source with more info: https://civilization.fandom.com/wiki/Civilization_IV#Scoring_system</English>
+ 	</TEXT>
++
++
++
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART</Tag>
++		<English>Handicap</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_HANDICAP_CHART_FREE_TECHS_NONE</Tag>
++		<English>None</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 42f86ff25..4ec3b3976 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -1343,7 +1343,7 @@
+ 		 German. -->
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_HANDICAP_SETTLER_HELP</Tag>
+-		<English>Significantly harder than base AdvCiv settings. This handicap setting still grants some advantages (such as in AI tech costs, build costs, unit costs, overall economy values, etc. ; while the player's costs remain the same at all handicap settings unlike in base AdvCiv, for convenience of math and such), but AI should be expected to be quite merciless otherwise. There are no free techs nor AI free techs anymore in AdvCiv-SAS as of now at least in any handicap setting. Some exceptions may be the starting point that is worst at lower handicap settings to best in highest handicap settings, for the player, to compensate the overall difficulty. See the .csv (locally or on github) that compares all handicap settings and is updated as of now for details.</English>
++		<English>Significantly harder than base AdvCiv settings. This handicap setting still grants some advantages (such as in AI tech costs, build costs, unit costs, overall economy values, etc. ; while the player's costs remain the same at all handicap settings unlike in base AdvCiv, for convenience of math and such), but AI should be expected to be quite merciless otherwise. There are no free techs nor AI free techs anymore in AdvCiv-SAS as of now at least in any handicap setting. Some exceptions may be the starting point that is worst at lower handicap settings to best in highest handicap settings, for the player, to compensate the overall difficulty.</English>
+ 	</TEXT>
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Tag>
+@@ -1359,7 +1359,7 @@
+ 	</TEXT>
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_HANDICAP_PRINCE_HELP</Tag>
+-		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting has significant penalties. Barbarians are also getting stronger. I would again recommend to see the .csv (locally or on github) that compares all handicap settings and is updated as of now for details.</English>
++		<English>Significantly harder than base AdvCiv settings and gradually harder than previous one. This handicap setting has significant penalties. Barbarians are also getting stronger.</English>
+ 	</TEXT>
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_HANDICAP_MONARCH_HELP</Tag>
+
+diff --git a/README.md b/README.md
+index 720d86c85..f28e3b44c 100644
+--- a/README.md
++++ b/README.md
+@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
+ 
+ The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
+ 
+-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia (new Search Bar, Keyboard UP/DOWN navigation, AI Personality Panel, etc.), some advisors screens, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
++Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Handicap Chart category, AI Personality Panel, etc.), some advisors screens, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well.
+ 
+ Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+ 
+@@ -31,13 +31,13 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok
+ &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
+ &emsp;[City Screen rework](/README.md#city-screen-rework)  
+ [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
+-&emsp;[Sevopedia reworks (AI Personality Panel and other sevopedia reworks)](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)  
+ &emsp;[Some lower level Sevopedia reworks (search bar, keyboard UP/DOWN navigation, etc.)](/README.md#some-lower-level-sevopedia-reworks-search-bar-keyboard-updown-navigation-etc)  
++&emsp;[New categories (Handicap Chart, etc.)](/README.md#new-categories-handicap-chart-etc)  
++&emsp;[Some higher level reworks (AI Personality Panel, etc.)](/README.md#some-higher-level-reworks-ai-personality-panel-etc)  
+ &emsp;[Some other sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
+ [UI (Common)](/README.md#ui-common)  
+ &emsp;[Images as buttons](/README.md#images-as-buttons)  
+ &emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
+-[.csv and .md view of the handicap (difficulties info in a table for all difficulties) info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)  
+ [Less Generic unit names or/and combat types](/README.md#less-generic-unit-names-orand-combat-types)  
+ [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
+ &emsp;[World map with civs](/README.md#world-map-with-civs)  
+@@ -46,6 +46,7 @@ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok
+ [48 Civs DLL](/README.md#48-civs-dll)  
+ [Long Comments Archive](/README.md#long-comments-archive)  
+ [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
++[Python scripts](/README.md#python-scripts)  
+ [CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)  
+ [Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4-anyways-etc)  
+ ["Temporary" crashes](/README.md#temporary-crashes)  
+@@ -166,7 +167,33 @@ Additionally, also added a new specialists breakdown as of now on bottom-right.
+ 
+ ## UI (Main Sevopedia reworks)
+ 
+-### Sevopedia reworks (AI Personality Panel and other sevopedia reworks)
++Note: for more screenshots and documentation of the sevopedia reworks in AdvCiv-SAS, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
++
++### Some lower level Sevopedia reworks (search bar, keyboard UP/DOWN navigation, etc.)
++
++#### Search Bar
++
++With the help of claude opus 4.5 and chatgpt 5.2, we introduced a search bar in AdvCiv-SAS that is shared by several sevopedia pages. It allows to **search** for entries using the **keyboard**.
++
++The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See individual sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
++
++<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (1).JPG" alt="0.610_sevopedia_searchbar_example (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG" alt="0.610_sevopedia_searchbar_example (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG" alt="0.610_sevopedia_searchbar_example (3).JPG" width="250"></img>
++
++See for details: [example 0.1: added a search bar. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages).
++
++#### Keyboard Navigation with the UP/DOWN arrows
++
++Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt 5.2, we added support for keyboard navigation using the UP/DOWN arrows. See [example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
++
++### New categories (Handicap Chart, etc.)
++
++New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, added with the help of [GPT-5.2-Codex](/README.md#create-a-new-sevopedia-category-eg-handicap-chart) and based on the Middle-earth's Platypedia code.
++
++<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
++
++### Some higher level reworks (AI Personality Panel, etc.)
+ 
+ One of the main and most significant sevopedia changes in AdvCiv-SAS is the new AI Personality panel new feature.
+ 
+@@ -192,9 +219,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.750_sevopedia_projects_sample (1).JPG" alt="0.750_sevopedia_projects_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.760_sevopedia_specialists_sample (1).JPG" alt="0.760_sevopedia_specialists_sample (1).JPG" width="250"></img>
+ 
+-For the full more extensive screenshot of main new sevopedia reworks, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md)
+-
+-#### Extra notes specifically about the sevopedia leader's AI Personality Panel feature
++#### Notes about the sevopedia leader's AI Personality Panel
+ 
+ note 1: its performance should be very very efficient and optimized, see for details [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
+ 
+@@ -202,24 +227,6 @@ note 2: you can enable/disable the emoji display as you prefer (see [README_AI_P
+ 
+ note 3: if you want to mod and modify the xml civ4 leader info, then you need to either update the [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) file manually, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). This was done so players don't always recompute these values that do not change on their end, and rarely so even for modders, and should scale better (if i'm not mistaken) as there are more leaders or xml fields in a mod vs computing them once every time the civ4 game is launched. See for details: [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md)
+ 
+-### Some lower level Sevopedia reworks (search bar, keyboard UP/DOWN navigation, etc.)
+-
+-#### Search Bar
+-
+-With the help of claude opus 4.5 and chatgpt 5.2, we introduced a search bar in AdvCiv-SAS that is shared by several sevopedia pages. It allows to **search** for entries using the **keyboard**.
+-
+-The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See individual sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
+-
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (1).JPG" alt="0.610_sevopedia_searchbar_example (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG" alt="0.610_sevopedia_searchbar_example (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG" alt="0.610_sevopedia_searchbar_example (3).JPG" width="250"></img>
+-
+-See for details: [example 0.1: added a search bar. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages).
+-
+-#### Keyboard Navigation with the UP/DOWN arrows
+-
+-Based on C2C mod's code thanks and with the help of claude opus 4.5 and chatgpt 5.2, we added support for keyboard navigation using the UP/DOWN arrows. See [example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
+-
+ ### Some other sevopedia reworks
+ 
+ #### Concepts (as of now in the "Outdated" sevopedia category)
+@@ -348,25 +355,6 @@ See also for details:
+ - [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category)
+ - [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details anyways etc
+ 
+-## .csv and .md view of the handicap (difficulties info in a table for all difficulties) info
+-
+-Mostly for modders, and it is not required to modify or use these scripts at all in order just to play. I wrote them with the help of chatgpt greatly, added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
+-
+-Generated with the [flatten_handicap_info_to_csv_and_md.py](/flatten_handicap_info_to_csv_and_md.py) script. If you change the xml, regenerate new .csv file with the script.
+-
+-- view it here: [(github web viewer)](/handicap_info_to_csv_advciv-sas.csv)
+-- legend md: [handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md)
+-
+-You can use github's search bar for example, or view it with libreoffice for example.
+-
+-Note: base advciv handicap info in [/_0_Common_Docs/AdvCiv_Base_Doc/](/_0_Common_Docs/AdvCiv_Base_Doc/).
+-
+-<img src="./_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/scripts/csv_handicap_github_view_search_bar_example.PNG" alt="csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (1).PNG" alt="csv_handicap_info_libre_office (1).PNG" width="250"></img>
+-
+-For other scripts, see [python-scripts](https://github.com/wonderingabout/AdvCiv-SAS/tree/python-scripts).
+-
+ ## AI-generated images
+ 
+ While developping the AdvCiv-SAS mod, i have learned (despite having tried in the past a few times with Midjourney but not related to this anyways etc.) to and successfully generated some AI-generated images, first with tools like ChatGPT for buttons or/and such, and then for our main menu background images with other tools, in particular with the help of PixelCut AI that was very nice.
+@@ -446,6 +434,10 @@ os.path.join(cwd, "Mods", "AdvCiv-SAS", "_0_Common_Docs", "BUG_Doc", name)
+ 
+ This possibly theoretically could be used to open other external files in Civ4 maybe (check if accurate, as i don't know too much about these). See also [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+ 
++## Python scripts
++
++For modders: i have made several scripts with AI assistance. We don't use them anymore in AdvCiv-SAS, but they can be found on the [python-scripts](https://github.com/wonderingabout/AdvCiv-SAS/tree/python-scripts) branch.
++
+ ## CuCuGS
+ 
+ Recently, i've successfully replicated f1rpo's original CuCuGS-PoC approach that adds a custom custom game screen that we can customize despite it being seemingly otherwise unaccessible via DLL or python modding.[Claude code (VS Code extension)](/README.md#claude-code-vs-code-extension) heavily helped achieving that.
+@@ -694,13 +686,25 @@ After some more time using it, what i like the most is how really accurate and a
+ 
+ Note: see also [AGENTS.md](/AGENTS.md).
+ 
++#### Create a new Sevopedia category (e.g. Handicap Chart)
++
++Codex (e.g. GPT-5.2-Codex) very impressively helped me implement the [new Handicap Chart Sevopedia category](/README.md#new-categories-handicap-chart-etc).
++
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (1).PNG" alt="codex_ gpt_5.2_handicap_chart (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (2).PNG" alt="codex_ gpt_5.2_handicap_chart (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (3).PNG" alt="codex_ gpt_5.2_handicap_chart (3).PNG" width="250"></img>
++
++#### Long_Comments extracting
++
+ GPT-5.2-Codex Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments, replaced them in-place with short custom markers, and documented the archive layout. I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it. Details: [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb), [PR #17](/pull/17), and the files in [Long_Comments/](/Long_Comments/).
+ 
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (1).PNG" alt="gpt_codex (1).PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (2).PNG" alt="gpt_codex (2).PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex (3).PNG" alt="gpt_codex (3).PNG" width="250"></img>
+ 
+-Another example of code comments summarizing (from  [commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98](https://github.com/wonderingabout/AdvCiv-SAS/commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98):
++#### code comments summarizing
++
++Another example of code comments summarizing (from [commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98](https://github.com/wonderingabout/AdvCiv-SAS/commit/b8528d2c3ecf3158d8e7bc30ed84616ab2f82d98):
+ 
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (1).PNG" alt="codex_ gpt_5.2_comments_correct (1).PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_comments_correct (2).PNG" alt="codex_ gpt_5.2_comments_correct (2).PNG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index 3edb11786..79b6272b6 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -281,7 +281,7 @@ note: about the below example, a global search on "HandicapIncrementTurns" direc
+ 
+ VS Code's (for example) global search can be useful in particular but not only, for example, to try to understand what advciv id changes do.
+ 
+-For example while trying to tweak difficulty settings after having added our new script of handicap info display as explained in [/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info), i was trying, for example in this case but anyways etc, to understand what this unknown (to me at least but anyways etc) `iAIHandicapIncrementTurns` field does, no info in usual websites like kujira or and such anyways etc
++For example while trying to tweak difficulty settings after having added a script for handicap info, i was trying, for example in this case but anyways etc, to understand what this unknown (to me at least but anyways etc) `iAIHandicapIncrementTurns` field does, no info in usual websites like kujira or and such anyways etc
+ 
+ Output is as follows for a search on "251" and right click "copy" on the global search results (part of them that are in manual.txt i mean anyways etc):
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+index 3f12fce60..391e2e6ea 100644
+--- a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+@@ -90,7 +90,7 @@ A code block like this means for example that for the line:
+ "getMaxWarRand": ("T.W Likely", True),
+ ```
+ 
+-that in the label in sevopedia leader ingame "T.W Likely" refers to the field's getter name "getMaxWarRand", but to get info on what this field does, remove the "get" or some similar prefix to be safe, then search online what "MaxWarRand" means and does in civ4, for example go on the 2 sources mentionned [in README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks) (kujira's and modiki's websites (for example)), then you'll hopefully find more info about what they do that should be quite if not very reliable anyways.
++that in the label in sevopedia leader ingame "T.W Likely" refers to the field's getter name "getMaxWarRand", but to get info on what this field does, remove the "get" or some similar prefix to be safe, then search online what "MaxWarRand" means and does in civ4, for example go on the 2 sources mentionned in [Some higher level reworks (AI Personality Panel, etc.)](/README.md#some-higher-level-reworks-ai-personality-panel-etc) (kujira's and modiki's websites (for example)), then you'll hopefully find more info about what they do that should be quite if not very reliable anyways.
+ 
+ Be careful because AIs such as ChatGPT tend to invent what they don't know, so even though they often have a very good "broad" understanding of a topic, when delving in the (obscure or not anwyays etc) specifics, they may err, especially if you lead them astray with your (or mine in my case anyways etc) imprecision or lack of knowledge or understanding, so i would suggest to refer to these websites rather for technical info, even though they may be wrong sometimes and myself too, and ChatGPT is still great i think hehe, but this is a caveat i kindly if i may say give hehe anyways.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index 4c9cb4aa0..680f565fc 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -126,7 +126,7 @@ Done with the help of chatgpt 5 thanks a lot and thanks to my prompts too and/or
+ 
+ ### previous state
+ 
+-This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml) rather, as we had issues importing it from our custom leaders_data_to_csv or/and it took too much time, due to data being too big or i guess maybe if i'm not mistaken.
++This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml) rather, as we had issues importing it from our custom leaders_data_to_ or/and it took too much time, due to data being too big or i guess maybe if i'm not mistaken.
+ 
+ #### main table before changes to traits anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+index 1dae736bd..9c7c4fce9 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md
+@@ -12,7 +12,6 @@ The aim is to make more and more options player-tunable via XML in SAS defines,
+ 
+ [Full exhaustive very long and exhaustive changes](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#full-exhaustive-very-long-and-exhaustive-changes)  
+ [Sevopedia AdvCiv-SAS Entries](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#sevopedia-advciv-sas-entries)  
+-[Handicap info tables .csv and .md and info about the .py script that can regenerate them if need and how](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#handicap-info-tables-csv-and-md-and-info-about-the-py-script-that-can-regenerate-them-if-need-and-how)  
+ [Main Changes quick starter guide](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#main-changes-quick-starter-guide)  
+ &emsp;[Translations](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#translations)  
+ &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#renaming-non-exhaustive)  
+@@ -36,7 +35,7 @@ The aim is to make more and more options player-tunable via XML in SAS defines,
+ &emsp;&emsp;[Diplomacy (AI)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#diplomacy-ai)  
+ &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#military-ai)  
+ &emsp;[General changes (non-exhaustive…)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#general-changes-non-exhaustive-see-global-defines-and-other-unrelated-xml-files-for-details)  
+-&emsp;[Handicap i.e. difficulty settings (non-exhaustive…)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#handicap-ie-difficulty-settings-non-exhaustive-see-the-csv-comparison-tables-locally-libreoffice-etc-or-on-github-recommended-provided-orand-sevopedia-orand-xml-for-details)  
++&emsp;[Handicap i.e. difficulty settings (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#handicap-ie-difficulty-settings-non-exhaustive)  
+ &emsp;[Terrains / Features (non-exhaustive…)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Bonuses (non-exhaustive…)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#bonuses-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Improvements and worker builds (non-exhaustive…)](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#improvements-and-worker-builds-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+@@ -66,24 +65,15 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
+ 
+ Some of the changes from previous to AdvCiv-SAS mods (non-exhaustive) are also listed in the Sevopedia Entry (non-exhaustive), see the main [README.md#changes-from-one-mod-to-another-sevopedia-itemspages](/README.md#changes-from-one-mod-to-another-sevopedia-itemspages) for details.
+ 
+-There are new features and changes in AdvCiv-SAS, in particular written/coded by me wonderingabout, ChatGPT, and Claude AI, which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), hopefully useful in understanding how each and all AI leaders behave and relate to each other. A copy of the screenshots (may not be latest version of it but hopefully quite close to it at least as of now anyways etc) of how it looks ingame:
++New/updated Sevopedia content (e.g., the AI personality panel with raw attributes and cross-leader comparisons; new Handicap Chart page, etc.) aims to make leader behavior easier to understand. See the section above for images and details.
+ 
+ <img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
+-<img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG" alt="0.620_sevopedia_leaders_sample (3).JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
+ 
+ What these columns and symbols mean is explained here in [README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels).
+ 
+-For more screenshot samples of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks) link (for details (too anyways etc)).
+-
+-## Handicap info tables .csv and .md and info about the .py script that can regenerate them if need and how
+-
+-To follow/understand smoother difficulties (called handicap in civ4 if i am not mistaken but anyways etc), i have also added a table view of the differences between difficulties/handicap settings, please see [/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info) for details. Example output (non-exhaustive, also screenshot may not be updated, best to see link above i would say but anyways etc for details if interested but anyways etc):
+-
+-<img src="../Images/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
+-<img src="../Images/scripts/csv_md_handicap_vs_code_preview_example.PNG" alt="csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
+-
+-See also handicap changes in the main changes quick starter guide section anyways etc.
++For more screenshot samples of new sevopedia entries or udpated ones (not exhaustive), see the main README.md's [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks).
+ 
+ ## Main Changes quick starter guide
+ 
+@@ -129,7 +119,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### UI (Sevopedia reworks & related)
+ 
+-For sevopedia new content and most reworks, see above in this readme or in more detail at [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)
++For sevopedia new content and most reworks, see above the main README.md's [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks).
+ 
+ - Adjusted dimensions: expanded sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc. Also reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.
+ - in particular replaced some pedia entries of religions in particular but not only (also of some techs, buildings, units, bonuses, a few terrains/features as of now too, etc.), with wikipedia based entries (unless stated otherwise in the pedia entry or in code comments or docs), so that it is more accurate and possibly if i may say anyways etc instructive or/and informative or/and neutral/objective or/and perhaps also enjoyable anyways etc.
+@@ -305,15 +295,13 @@ Note 2: master-vassal(s) changes are made with the aim that they in most cases w
+ - rescale `iResearchPercent` for world sizes from 95/98/102/115/137/150 to 85/90/95/100/105/110, as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc. Also can we agree "standard" is the standard research rate, not 115, not 135, but 100??? And balance costs in xml tech info if we need to. So very stupid. But anyways etc. And now tech_mathematics costs 250 at worldsize_standard, not 285, as intended! Yay! But anyways etc... And tech_alien_life costs 16000 not 18400, as intended too! At least as of now, Yay!! But anyways etc...
+ - remove the very annoying base advciv rounding to 5 code for units, buildings, projects (in `CvPlayer::getProductionNeeded` functions if i'm not mistaken anyways etc), so that for example anyways etc a swordsman 42 hammer costs 42 not 40, and a 43 hammer costs 43 not 45. Was extremely annoying!! Also so that for example an ancient maceman 18 hammer costs 18 not 20! So much better if i may say and allows finer balance as well, anyways etc!! Fixes the mismatch between sevopedia displaying +/- having (?) correct XML vs tech advisor and city production not. What was even more annoying is that it applied only to the human player, so even if all handicap settings were somehow the same, AI would pay 42 (as per XML) at noble (no handicap as of now if i'm not mistaken anyways etc) while the human player would pay 40 (or 43 vs 45), it is messed up xd and i don't care about any visual clarity or beautification, if anything i find it more confusing and frustrating (i can't set the price/cost i want from/in XML ingame!!! Anyways etc...), so glad this is fixed (by me!! And chatgpt 5 too that helped me thanks anyways etc) but anyways etc. Also applied to similar codes in `CvPlayer::greatPeopleThreshold` and `CvPlayer::getNewCityProductionValue` and `CvTeam::getResearchCost` so that hopefully we get correct costs for the human player too as well anyways etc. Also (redundant word but anyways etc (but why not in this case i mean but anyways etc anyways etc)...), having a per 1 hammer grain is nice for balance (e.g. 40 or 41 or 42 or 43 or 44 or 45, not 40 else 45 else go home xd if i may say but anyways etc), which is think is nice (super nice!!! Actually, but anyways etc if i may say anyways etc...). See for details [67 - (Fixed/Enhanced) An ancient maceman 18 hammer costs 20 hammer ingame, and a swordsman 42 hammer costs 40 while a swordsman 43 hammer costs 45 which is a mess. Fixed by removing per 5 rounding in CvPlayer::getProductionNeeded and other related functions/issues anyways etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc).
+ 
+-### Handicap i.e. difficulty settings (non-exhaustive, see the .csv comparison tables locally (libreoffice, etc.) or on github (recommended) provided, or/and sevopedia, or/and xml for details)
+-
+-Note: please see note here as well in this custom main changes guide about the .csv tables where you can compare and view each handicap/difficulty's value and browse it even on github viewer but anyways etc, see info in the handicap tables readme section: [README_Custom_Main_Changes_Guide.md#handicap-info-tables-csv-and-md-and-info-about-the-py-script-that-can-regenerate-them-if-need-and-how](/_1_AdvCiv-SAS/Docs/README_Custom_Main_Changes_Guide.md#handicap-info-tables-csv-and-md-and-info-about-the-py-script-that-can-regenerate-them-if-need-and-how)
++### Handicap i.e. difficulty settings (non-exhaustive)
+ 
+ - handicap (i.e. difficulty) settings are now gradually harder, lower/lowest handicap being harder (i don't want them to be placeholders anymore), and highest difficulties being less of a grind and hard in their own ways at least in theory and ideally i mean anyways etc, see docs for details and status update on these or/and xml for details.
+ - AIs get no free techs now, they should perform well enough, and receive other types of bonuses, that they don't need techs for free, it won't feel anymore like they are playing a different kind of game hopefully, also less of a grind at higher difficulties. I also hope games will be more versatile this way with AIs not going on always same narrow tech paths even if a bit more if not lot but anyways etc
+ - free techs also disabled for human players.
+ - costs of tech and units (`iResearchPercent` and `iTrainPercent`) are always the same for the human player at all handicap/difficulties settings unlike in base AdvCiv, now only AI costs (`iAIResearchPercent` and `iAITrainPercent`) vary across difficulties anyways etc, maybe it helps for example for calculations and such to have a fixed unit or tech price at all difficulties if you want to go from one difficulty to the other, a unit or tech is always same price for the human player, so you can reuse some strategies more easily maybe or quicker adjust. Tech costs have been adjusted to match this change if i am not mistaken anyways etc.
+-- there are some exceptions to this, for example `iUnitCostPercent` and `iAIUnitCostPercent` (maintenance in gold per turn for the units if i am not mistaken anyways etc) are now in advciv-sas the same for all players, this is to allow for a fairer gameplay and more reliable at all difficulties, difficulty is adjusted indirectly or and through other parameters/settings to make game more or less hard(er?) accross difficulties, but i wanted the unit maintenance (gold per turn) cost especially to be closer at all difficulties, now exactly the same, see xml or handicap data table (see above at head of this doc for link to the table of all difficulties). Note: when it comes to military hammer cost, it still varies accross difficulties for AI players, but should feel closer now while hopefully still a challenging challenge iff i may say repeatedly but anyways etc, similar reasoning for tech beaker/i.e. flat gold cost i'd need to balance them though now if i want and if not already done after writing this anyways etc, please check docs xml or better or additionally maybe too anyways etc maybe also the [Handicap tables (AdvCiv-SAS, github viewer)](/handicap_info_to_csv_advciv-sas.csv) and [Handicap tables (base AdvCiv 1.12 for comparison, github viewer)](/_0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_base_advciv.csv).
++- there are some exceptions to this, for example `iUnitCostPercent` and `iAIUnitCostPercent` (maintenance in gold per turn for the units if i am not mistaken anyways etc) are now in advciv-sas the same for all players, this is to allow for a fairer gameplay and more reliable at all difficulties, difficulty is adjusted indirectly or and through other parameters/settings to make game more or less hard(er?) accross difficulties, but i wanted the unit maintenance (gold per turn) cost especially to be closer at all difficulties, now exactly the same, see xml or handicap data table (see above at head of this doc for link to the table of all difficulties). Note: when it comes to military hammer cost, it still varies accross difficulties for AI players, but should feel closer now while hopefully still a challenging challenge iff i may say repeatedly but anyways etc, similar reasoning for tech beaker/i.e. flat gold cost i'd need to balance them though now.
+ - increased `iAIUnitSupplyPercent` from 50 to 100 so human and AI players' unit supply outside of borders costs are no longer different (was half-cost for AI players in base advciv)
+ - Upgrade costs rework: AIs no longer have cheaper upgrade costs than human players (increased `iAIUnitUpgradePercent` from 50 to 100 (see xml for updated values anyways etc.)). Additionally, reduced upgrade costs for both human and AI players, in `CvUnit::upgradePrice`, to as of now 75% (tunable). So unlike in base advciv where AI paid half cost (too easily upgrade / too cheap but anyways etc.) and humans payed full cost (which btw felt too expensive ingame to me at least but anyways etc.), now both human and AI players pay the same upgrade cost, which is as of now 75% of what humans used to pay for unit upgrades.
+ - disabled `INCREASE_START_TURN`, so for immortal and deity and advanced starts if i am not mistaken too anyways etc, now game starts at turn 0 for everyone and all handicap/difficulty settings anyways. This is because i would want handicap/difficulty settings to be reliable and reliably harder at each difficulty, plus we don't have free techs nor ai free techs anymore now in advciv-sas, and the handicap/difficulty increase is gradual at all difficulties, so i would like all other matetrs to be equal as well anyways etc, reduce handicap/difficulty chosen if too hard or/and i or (other or same anyways etc) players/modders may have to adjust handicap settings directly rather if they are really out of reach anyways etc, see [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml) for details anyways etc. Handicap help texts (descriptions anyways etc) have also been rewritten in AdvCiv-SAS to accomodate this change as well as better reflect the new gradual settings and overall difficulty, as well as not commit to a specific number if i may say too in advciv-sas unlike in base advciv description if i am not mistaken.
+@@ -462,7 +450,7 @@ Note: please see note here as well in this custom main changes guide about the .
+ 
+ ### Barbarians (non-exhaustive, see sevopedia or/and xml for details)
+ 
+-- barbarians are now stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will quite gradually fade anyways etc. They should also spawn cities more often and be relevant a bit longer in the game anyways etc, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a more important part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Among the ways in which they are now stronger, their overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible but anwyays etc)) is gradual with difficulties, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See the Barbarians Sevopedia Civilization entry for details ingame or/and the XML for example for the Steam version of the game [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml) and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such, and the .csv table files that compare handicap settings in advciv-sas, with a similar file also being provided about/for base advciv settings even though not related to our mod but as a comparison point if it helps anyways etc. Since AIs are so efficient now in their hammer usage and availability (as of now no scrapping or weird no production bugs (or almost none if any but anyways etc) (at least much more than in base advciv +/- civ4 if i'm not mistaken but anyways etc)), they produce too much units, so barbarians are a nice help for that goal so that AIs don't go bankrupt too soon and that they can grow more earlier due to having less units as counter intuitive as it may seem, especially since barbarians should burn a bunch of the early and not so useful later units like ancient macemen, archers, longbowmen, etc, so should hopefully help a lot, and AIs are now seemingly (more than in this case i mean but anyways etc) strong enough to defend well or well enough even against such strong barbarians.
++- barbarians are now stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will quite gradually fade anyways etc. They should also spawn cities more often and be relevant a bit longer in the game anyways etc, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a more important part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Among the ways in which they are now stronger, their overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible but anwyays etc)) is gradual with difficulties, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See the Barbarians Sevopedia Civilization entry for details ingame or/and the XML for example for the Steam version of the game [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml) and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such, with a similar file also being provided about/for base advciv settings even though not related to our mod but as a comparison point if it helps anyways etc. Since AIs are so efficient now in their hammer usage and availability (as of now no scrapping or weird no production bugs (or almost none if any but anyways etc) (at least much more than in base advciv +/- civ4 if i'm not mistaken but anyways etc)), they produce too much units, so barbarians are a nice help for that goal so that AIs don't go bankrupt too soon and that they can grow more earlier due to having less units as counter intuitive as it may seem, especially since barbarians should burn a bunch of the early and not so useful later units like ancient macemen, archers, longbowmen, etc, so should hopefully help a lot, and AIs are now seemingly (more than in this case i mean but anyways etc) strong enough to defend well or well enough even against such strong barbarians.
+ - added a code in `CvCityAI::AI_chooseBuilding` so barbarians don't waste hammer attempting to or building world wonders, which they sometimes could successfully do before other players due to their economic strength improvement. I suspect/assume issue was also in base advciv, and they just are now able to actually complete them before other players, unless some other xml change i did somehow triggered this, but most likely not and it was already there although i am not 100% sure but anyways etc. As a result of this no world wonder for barbarians change, barbarians may be more efficient with their hammers if they sank some of these in base advciv into attempting to build world wonders rather than say units but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc) for details anyways etc
+ - the barbarian workers are now a civ-specific unit that cannot be captured (this avoids worker farming abuse and is perhaps thematically relevant as well anyways etc), see sevopedia unit where this info has now been added, or `<Capture>` in XML for updated values anyways etc. (Note: the barbarian workboat is a civ-specific unit as of now but only for balance and lower costs purpose to help barbarians catch up, as of now no special effect otherwise from the base workboat if i'm not mistaken, check if accurate, anyways etc)
+ - Barbarian civ-specific buildings can be captured (`iConquestProb`) with half the chance of their generic building equivalent (since their cities are overall easier and lower risk to capture, it balances it out). See Sevopedia/XML.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 2d66fe2fc..bede8505b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -180,7 +180,7 @@ PY:[WARNING] Attribute 'iShareWarAttitudeDivisor' has an identical *raw* value (
+ PY:[WARNING] Attribute 'iShareWarAttitudeDivisor' has an identical *normalized* value (0) across all 53 leaders
+ ```
+ 
+-Some of these such as iLoveOfPeace are not used in AdvCiv; i disabled (commented-out) from display (in SevoPediaLeader.py) such unused ai attributes to not clutter the display, see [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks) for (more) details, and more specifically in the full AI Personality Panel Feature this [README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored).
++Some of these such as iLoveOfPeace are not used in AdvCiv; i disabled (commented-out) from display (in SevoPediaLeader.py) such unused ai attributes to not clutter the display, see the main README.md's [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks), and more specifically in the full AI Personality Panel Feature this [README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored).
+ 
+ Leaving as is otherwise (except from hiding most or/and commenting out unused ones such as iLovePeace (in AdvCiv) anyways) for now if not always or not anyways etc.
+ 
+@@ -643,7 +643,7 @@ The XML is like this as reminder anyways etc for example for leader_gandhi anywa
+ 			<iMaxWarDistantPowerRatio>60</iMaxWarDistantPowerRatio>
+ ```
+ 
+-To do that, and expanding on previous debugging now successful of flavors, nowarattitudeprobs, contact fields, and memory fields (note about all these fields see also [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), only BBAI victory weights remain so that we may fetch all directly from XML or at least be able to attempt to do so without requiring ideally leaders_data.py anymore (leave it for external non-civ4 ingame data such as comparison .csv tables perhaps anyways etc), after asking chatgpt too, i noticed for example for `getMaxWarRand` (if we want to see where the BBAI is missing that getMaxWarRand is though for example if i am not mistaken to hopefully add it in this case but anyways etc) (with VS Code 's global search too i noticed it i mean if i may say indeed but anyways etc (see screenshots for details/examples anyways etc)), modified the (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CyInfoInterface3.cpp file to add such new getters, and also reusing existing getter names for such BBAI victory weights fields that are/were already anyways etc existing in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvInfo_Civilization.h, with chatgpt's help thanks.
++To do that, and expanding on previous debugging now successful of flavors, nowarattitudeprobs, contact fields, and memory fields (note about all these fields see also [Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), only BBAI victory weights remain so that we may fetch all directly from XML or at least be able to attempt to do so without requiring ideally leaders_data.py anymore, after asking chatgpt too, i noticed for example for `getMaxWarRand` (if we want to see where the BBAI is missing that getMaxWarRand is though for example if i am not mistaken to hopefully add it in this case but anyways etc) (with VS Code 's global search too i noticed it i mean if i may say indeed but anyways etc (see screenshots for details/examples anyways etc)), modified the (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CyInfoInterface3.cpp file to add such new getters, and also reusing existing getter names for such BBAI victory weights fields that are/were already anyways etc existing in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvInfo_Civilization.h, with chatgpt's help thanks.
+ 
+ Now the getters are added in sevopedia leader, and we successfully see the real DLL modified if i am not mistaken values for the victory weights too, for example for leader gandhi as of now anyways etc:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index fa91ef3fe..58a3a44bb 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -11,7 +11,6 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
+ 
+ [Full code diff (very long)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#full-code-diff-very-long)  
+ [Sevopedia](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sevopedia)  
+-[Handicap info tables (.csv / .md) and script](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#handicap-info-tables-csv--md-and-script)  
+ [Main Changes — quick starter guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#main-changes--quick-starter-guide)  
+ &emsp;[Translations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#translations)  
+ &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming-non-exhaustive)  
+@@ -64,22 +63,15 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
+ 
+ ## Sevopedia
+ 
+-Some changes are also summarized directly in the Sevopedia. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md). Sample screenshots are provided there.
+-
+-- New/updated Sevopedia content (e.g., the AI personality panel with raw attributes and cross-leader comparisons) aims to make leader behavior easier to understand. See the section above for images and details.
++- New/updated Sevopedia content (e.g., the AI personality panel with raw attributes and cross-leader comparisons; new Handicap Chart page, etc.) aims to make leader behavior easier to understand. See the section above for images and details.
+ 
+ <img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
+-<img src="../Images/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG" alt="0.620_sevopedia_leaders_sample (3).JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
+ 
+ - **AI Personality panel — legend:** column & symbol meanings: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels).
+ 
+-## Handicap info tables (.csv / .md) and script
+-
+-To help compare difficulty (“handicap”) settings, tables are generated as CSV/MD. See [handicap tables readme section](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info).
+-
+-<img src="../Images/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
+-<img src="../Images/scripts/csv_md_handicap_vs_code_preview_example.PNG" alt="csv_md_handicap_vs_code_preview_example.PNG" width="250"></img>
++See: [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
+ 
+ ## Main Changes — quick starter guide
+ 
+@@ -297,8 +289,6 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ ### Handicap i.e. difficulty settings (non-exhaustive)
+ 
+-See the **CSV/MD tables** for exact values ([handicap tables readme section](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info)).
+-
+ - **No free techs** for AI or human.
+ - **Human costs fixed** across difficulties for tech/unit (`iResearchPercent`, `iTrainPercent` stay constant for the human). AI equivalents scale with difficulty.
+ - **Unit maintenance** (`iUnitCostPercent`, `iAIUnitCostPercent`) aligned across difficulties for fairness; difficulty tuned through other params.
+@@ -308,7 +298,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - **AI worker speed**: `iAIWorkRateModifier` **0** on all difficulties.
+ - **AI starting workers**: `iAIStartingWorkerUnits` **0** on all difficulties.
+ - **Goodies (huts)**: remove **worker/settler** pops; rebalance barbarian outcomes (fewer strong, more weak at high difficulties); increase **experience** rewards at higher difficulties.
+-- **Handicap normalization (starting units)**: Reduced/standardized several handicap fields so they’re **the same at all difficulties**: `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`. This reflects recent AI improvements (workers, building choices, scrapping rules, unit mix) and aims to keep games fair while the AI remains competitive. See [Handicap tables (AdvCiv-SAS, github viewer)](/handicap_info_to_csv_advciv-sas.csv) and [Handicap tables (base AdvCiv 1.12 for comparison, github viewer)](/_0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_base_advciv.csv).
++- **Handicap normalization (starting units)**: Reduced/standardized several handicap fields so they’re **the same at all difficulties**: `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`. This reflects recent AI improvements (workers, building choices, scrapping rules, unit mix) and aims to keep games fair while the AI remains competitive.
+ - **Difficulty scaling — `iAIHandicapIncrementTurns`**: **disabled (set to 0 on all difficulties)**. This removes the **per-turn** AI discount that made games progressively harder; with AdvCiv-SAS’s improved hammer efficiency, that scaling led to runaway AIs at high levels. Now AI cost/research **modifiers** come **only** from the static **difficulty (handicap) XML fields** (e.g., `iAITrainPercent`, `iAIBuildingCostPercent`, `iAIResearchPercent`, …), which have been **retuned to be linear by difficulty (not per-turn)**—hard but fair. Practical effects: fewer excess units and lower bankruptcy risk, healthier mid→late-game economies, and challenge that relies on AI competency gains rather than exponential scaling.
+ 
+ ### Terrains / Features (non-exhaustive)
+@@ -453,7 +443,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ 
+ ### Barbarians (non-exhaustive)
+ 
+-- **Barbarians — stronger early game & smarter aggression**: economically **stronger in the early game**, growing at a pace closer to human/AI civs and **founding cities more often**, so they stay **relevant longer** before gradually fading by midgame. They still aren’t a full player (**no diplomacy**; **scattered independent cities** that collectively count as the Barbarian civilization). Difficulty scaling is adjusted so players have **less to no combat bonus vs. barbarians** (never a reverse bonus for barbs), with strength **rising gradually by difficulty**. Barbarians also **fill unclaimed land** if it’s left open, tend to **target weaker rivals**, and may **raze cities** more than base AdvCiv/Civ4. This pairs with the AI’s improved **hammer efficiency and availability** (far fewer scrapping/no-production issues): by engaging and “burning off” surplus early units (e.g., **ancient macemen, archers, longbowmen**), barbarians help prevent runaway over-production and early bankruptcies while empires keep growing. For definitions and exact knobs, see the Sevopedia **Barbarian Civilization** entry and XML: [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml), [CIV4BuildingInfos.xml](/Assets/XML/Buildings/CIV4BuildingInfos.xml), and [CIV4HandicapInfo.xml](/Assets/XML/GameInfo/CIV4HandicapInfo.xml); also see the AdvCiv-SAS **handicap tables** in the repo for comparative values.
++- **Barbarians — stronger early game & smarter aggression**: economically **stronger in the early game**, growing at a pace closer to human/AI civs and **founding cities more often**, so they stay **relevant longer** before gradually fading by midgame. They still aren’t a full player (**no diplomacy**; **scattered independent cities** that collectively count as the Barbarian civilization). Difficulty scaling is adjusted so players have **less to no combat bonus vs. barbarians** (never a reverse bonus for barbs), with strength **rising gradually by difficulty**. Barbarians also **fill unclaimed land** if it’s left open, tend to **target weaker rivals**, and may **raze cities** more than base AdvCiv/Civ4. This pairs with the AI’s improved **hammer efficiency and availability** (far fewer scrapping/no-production issues): by engaging and “burning off” surplus early units (e.g., **ancient macemen, archers, longbowmen**), barbarians help prevent runaway over-production and early bankruptcies while empires keep growing. For definitions and exact knobs, see the Sevopedia **Barbarian Civilization** entry and XML: [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml), [CIV4BuildingInfos.xml](/Assets/XML/Buildings/CIV4BuildingInfos.xml), and [CIV4HandicapInfo.xml](/Assets/XML/GameInfo/CIV4HandicapInfo.xml).
+ - **Barbarians** no longer attempt **world wonders** (prevents hammer sinks). See [KI#3](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc).
+ - Barbarian civ-specific **buildings** can be captured (`iConquestProb`) with **half the chance** of their generic building equivalent (since their cities are overall easier and lower risk to capture, it balances it out). See Sevopedia/XML.
+ - Barbarian **workers** are civ-specific and **cannot be captured** (prevents worker farming).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+index df195c18b..f2ed8faec 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+@@ -17,6 +17,7 @@ To install and play this mod AdvCiv-SAS, you can follow the steps in this docume
+ &emsp;[Full Development version (to modify it yourself)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#full-development-version-to-modify-it-yourself)  
+ [Configure your game](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#configure-your-game)  
+ &emsp;[General ideas](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#general-ideas)  
++&emsp;[Disable the Steam overlay](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#disable-the-steam-overlay)  
+ &emsp;[Relevant BUG Menu Options — enable if needed](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed)  
+ [Settings if you want to develop/modify the mod or try some autoplay or such anyways etc (skip this section if only playing without wanting extra details)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#settings-if-you-want-to-developmodify-the-mod-or-try-some-autoplay-or-such-anyways-etc-skip-this-section-if-only-playing-without-wanting-extra-details)  
+ [Where to download more/other mods](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#where-to-download-moreother-mods)  
+@@ -114,6 +115,10 @@ Then in BUG Menu options i also use this for example hehe but do as you prefer a
+ 
+ - wide city bars
+ 
++### Disable the Steam overlay
++
++Optionally, for steam users, consider disabling the Steam Overlay if you don't use it in Civ4; allows access to the F12 key that won't screenshot anymore (as of now default In-game is Open Sevopedia).
++
+ ### Relevant BUG Menu Options — enable if needed
+ 
+ Some of the [UI reworks or changes mentionned in the Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game) require to enable the corresponding **BUG MENU**'s Option to see them.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 27ebacc54..7b44ff5fe 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -1,6 +1,6 @@
+ # README_Sevopedia_Reworks.md
+ 
+-Below are more detailed examples of the sevopedia reworks [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks).
++Below are more detailed examples of the sevopedia reworks.
+ 
+ Not always listed in each specific sevopedia category as would be tedious and redundant and all but anyways etc., but several sevopedia pages now have their entries optionally groupable (as of now default but anyways etc.) by various options, such as civic type (e.g. Government, Economy, etc.) in the first implementation, or eras (Ancient Era, Classical Era, No Tech Prerequisite, etc.), and various other types of groupings.
+ 
+@@ -13,6 +13,8 @@ Note 2: in below sample examples, click the images to view them full size.
+ [Some Lower Level Changes or new features](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
+ &emsp;[example 0.1: added a search bar. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages)  
+ &emsp;[example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages)  
++[New categories (Handicap Chart, etc.)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#new-categories-handicap-chart-etc)  
++&emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
+ [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
+ &emsp;[example 1: more AI Personality examples (in leaders category)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category)  
+ &emsp;[example 2: unit chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-2-unit-chart-category)  
+@@ -46,7 +48,6 @@ The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain
+ - 1st commit: It minimally modifies a base AdvCiv 1.12 Sevopedia Main, and so it should be compatible with most mods (but check to be sure as i don't know too much about these). Seemingly fully functional ingame: [commit/6c67df16f99479500a820d34dddd4f4fe569bc8e](https://github.com/wonderingabout/AdvCiv-SAS/commit/6c67df16f99479500a820d34dddd4f4fe569bc8e).
+ - 2nd commit: now preserves headers and spacers, and seemingly functions just as well if groupings (headers + their spacers) are disabled, as in `SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA` for instance. See screenshot provided showing this being supported successfully in this sample: [commit/7b0f94bf009b78d5b193ef671742dcbc04efcc17](https://github.com/wonderingabout/AdvCiv-SAS/commit/7b0f94bf009b78d5b193ef671742dcbc04efcc17).
+ - 3rd commit: fix backspace key (delete to the left last written char if any) firing twice when pressed once in the search bar. Note: no need to support delete to the right key nor enter key if i'm not mistaken and as per chatgpt 5.2 and claude opus 4.5's review and solution thanks [commit/1b9d2c8d9eee565d2f5d7b5daba48514cb823234](https://github.com/wonderingabout/AdvCiv-SAS/commit/1b9d2c8d9eee565d2f5d7b5daba48514cb823234).
+-- 4th commit: fix an out of range python error that sometimes happened when scrolling beyond first entry with the help of chatgpt 5.2 thanks [commit/1f9b99fd955e07d83cd3984be22b61bad3bc4220](https://github.com/wonderingabout/AdvCiv-SAS/commit/1f9b99fd955e07d83cd3984be22b61bad3bc4220#diff-c8653fbee55dd4a1fa9f17ca80f217b2d5d87a7c49f8d7ac33979c0cf7eb8c2aR2090-R2094) (see commit notes for details as they are written by chatgpt 5.2 thanks who knows better about these and provided the fix).
+ 
+ See individual sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
+ 
+@@ -63,9 +64,22 @@ The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain
+ - 1st commit: It is the conservative first stable functional version. Has some minor issues such sometimes as the tree pages (Unit Tree, Promotions Tree) having the arrows not result in anything unless the player clicks on the page itself, or some similar or related issues: [commit/10fd402effc12c3fa90c265b74630a263a7e761e](https://github.com/wonderingabout/AdvCiv-SAS/commit/10fd402effc12c3fa90c265b74630a263a7e761e).
+ - 2nd commit: Conservative fixes with the help of chatgpt 5.2 and claude opus 4.5. Now scrolling in tree pages is functional without requiring a click, and when going from a tree page to a list page we can now use successfully the arrow keys without requiring a click. : [commit/ed2b7c658621f122e1824a858ab79856a5bef736](https://github.com/wonderingabout/AdvCiv-SAS/commit/ed2b7c658621f122e1824a858ab79856a5bef736).
+ - 3rd commit: Conservative performance optimizations: Category-aware caching (O(1) navigation) (as per claude opus 4.5's summary of chatgpt 5.2's implementation based on their previous version of this optimization. See commit notes for details as i don't know too much about these, but seems harmless and hopefully helps indeed (check if accurate)) : [commit/e81ea035ab3af8a3fc8e231dc0f86fb50eb59d02](https://github.com/wonderingabout/AdvCiv-SAS/commit/e81ea035ab3af8a3fc8e231dc0f86fb50eb59d02).
++- 4th commit: fix an out of range python error that sometimes happened when scrolling beyond first entry with the help of chatgpt 5.2 thanks [commit/1f9b99fd955e07d83cd3984be22b61bad3bc4220](https://github.com/wonderingabout/AdvCiv-SAS/commit/1f9b99fd955e07d83cd3984be22b61bad3bc4220#diff-c8653fbee55dd4a1fa9f17ca80f217b2d5d87a7c49f8d7ac33979c0cf7eb8c2aR2090-R2094) (see commit notes for details as they are written by chatgpt 5.2 thanks who knows better about these and provided the fix).
+ 
+ Note: history handling (i.e. not remembering all visited pages with the arrows inbetween original entry and entry we browsed to) purposely ignored and not supported as it caused issues and fixing it was not easy and created other issues as well, cleaner to just support it as it is (i.e. remembering all these entries as is the default) if i'm not mistaken (check if accurate).
+ 
++## New categories (Handicap Chart, etc.)
++
++### example 0.5: Handicap Chart category
++
++New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, added with the help of GPT-5.2-Codex and based on the Middle-earth's Platypedia code.
++
++Note: in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs so these are shown only for demonstration purposes.
++
++<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG" alt="0.625_sevopedia_handicap_chart (2).JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs" alt="0.6251_sevopedia_handicap_chart_free_techs.JPG" width="250"></img>
++
+ ## Sevopedia Pages individual reworks
+ 
+ This section focuses on the higher level changes we did to sevopedia, mostly about UI or such.
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (1).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (1).PNG
+new file mode 100644
+index 000000000..c0be3753d
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (1).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (2).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (2).PNG
+new file mode 100644
+index 000000000..5f57f6b8e
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (2).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (3).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (3).PNG
+new file mode 100644
+index 000000000..07c22be6a
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicap_chart (3).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/scripts/csv_and_md_handicap_info_cmd_usage_example.PNG b/_1_AdvCiv-SAS/Images/scripts/csv_and_md_handicap_info_cmd_usage_example.PNG
+deleted file mode 100644
+index 2360ef338..000000000
+Binary files a/_1_AdvCiv-SAS/Images/scripts/csv_and_md_handicap_info_cmd_usage_example.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/scripts/csv_handicap_github_view_search_bar_example.PNG b/_1_AdvCiv-SAS/Images/scripts/csv_handicap_github_view_search_bar_example.PNG
+deleted file mode 100644
+index a62eb39e9..000000000
+Binary files a/_1_AdvCiv-SAS/Images/scripts/csv_handicap_github_view_search_bar_example.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_github_view_example.PNG b/_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_github_view_example.PNG
+deleted file mode 100644
+index 130629f55..000000000
+Binary files a/_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_github_view_example.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (1).PNG b/_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (1).PNG
+deleted file mode 100644
+index c5d6d4f49..000000000
+Binary files a/_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (1).PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (2).PNG b/_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (2).PNG
+deleted file mode 100644
+index 62ea2ddc6..000000000
+Binary files a/_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_libre_office (2).PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_md_legend_github_view.PNG b/_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_md_legend_github_view.PNG
+deleted file mode 100644
+index 9bea2cc8a..000000000
+Binary files a/_1_AdvCiv-SAS/Images/scripts/csv_handicap_info_md_legend_github_view.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/scripts/csv_md_handicap_github_view_example.PNG b/_1_AdvCiv-SAS/Images/scripts/csv_md_handicap_github_view_example.PNG
+deleted file mode 100644
+index 2c1bd0afc..000000000
+Binary files a/_1_AdvCiv-SAS/Images/scripts/csv_md_handicap_github_view_example.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/scripts/csv_md_handicap_vs_code_preview_example.PNG b/_1_AdvCiv-SAS/Images/scripts/csv_md_handicap_vs_code_preview_example.PNG
+deleted file mode 100644
+index 1a298c780..000000000
+Binary files a/_1_AdvCiv-SAS/Images/scripts/csv_md_handicap_vs_code_preview_example.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs.JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs.JPG
+new file mode 100644
+index 000000000..ea5150f85
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG
+new file mode 100644
+index 000000000..475892b87
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG
+new file mode 100644
+index 000000000..b51fa6f6c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG differ
+
+diff --git a/flatten_handicap_info_to_csv_and_md.py b/flatten_handicap_info_to_csv_and_md.py
+deleted file mode 100644
+index a4cfb3a95..000000000
+--- a/flatten_handicap_info_to_csv_and_md.py
++++ /dev/null
+@@ -1,375 +0,0 @@
+-# --- Convert CIV4HandicapInfo.xml to CSV with Full Difficulty Settings and Goody Table ---
+-# This script is part of the AdvCiv-SAS mod project.
+-# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
+-#
+-# This script extracts and formats all game difficulty settings from CIV4HandicapInfo.xml
+-# into structured, spreadsheet-friendly output files suitable for data analysis or mod balancing.
+-#
+-# It parses each <HandicapInfo> entry and produces:
+-# - A CSV file with one row per numeric or structured field (e.g. iAIBarbarianBonus, iTrainPercent)
+-# - One column per difficulty (e.g. Settler → Deity), with beautified headers (e.g. "HANDICAP_PRINCE" → "Prince")
+-#
+-# Special handling is applied to:
+-#
+-# 1. <Goodies>:
+-#	- All GOODY_* entries (e.g. GOODY_LOW_GOLD, GOODY_SCOUT) are flattened into explicit fields.
+-#	- Output field names preserve their original enum format (e.g. "GOODY_TECH").
+-#	- In the CSV, each goody field is labeled with "(*)", and its behavior is explained in a separate Markdown footnote file.
+-#
+-# 2. <FreeTechs> and <AIFreeTechs>:
+-#	- These are parsed as comma-separated strings per difficulty.
+-#	- Long values are replaced by short legend keys (e.g. FT_0, AIFT_0), defined in `ABBREV_FREE_TECHS_HEADER_NAMES`.
+-#	- Technology names inside the legend are optionally shortened via `ABBREV_TECH_NAMES` (e.g. "Animal Husbandry" → "Animal H.").
+-#	- A right-shifted [LEGEND] block in the CSV aligns the mappings compactly.
+-#
+-# Output Files:
+-# - CSV table of all difficulty settings (main output)
+-# - Markdown legend file (footnotes + abbreviation keys), designed for GitHub compatibility
+-# - Optional Markdown table output (disabled in AdvCiv-SAS but preserved for reference)
+-#
+-# Other Features:
+-# - Beautification of difficulty level names (e.g. HANDICAP_IMMORTAL → Immortal)
+-# - Manual repositioning of nested fields (e.g. GoodyTypes, FreeTechs) after a fixed anchor
+-# - Consistent column widths, right-shifted legends, and zero malformed rows for clean GitHub rendering
+-
+-import csv
+-import xml.etree.ElementTree as ET
+-from datetime import datetime
+-import re
+-
+-# --- Step 1: Setup paths ---
+-XML_PATH = r"Assets\XML\GameInfo\CIV4HandicapInfo.xml"
+-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+-table_csv_filename = f"handicap_info_to_csv_{timestamp}.csv"
+-# <!-- custom: .md table output is disabled by default; CSV/legend is preferred but the option is kept. (GPT-5.2-Codex (summarized)) -->
+-#table_md_filename = f"handicap_info_to_md_{timestamp}.md"
+-legend_md_filename = f"handicap_info_legend_{timestamp}.md"
+-
+-# --- Step 2: Parse XML ---
+-tree = ET.parse(XML_PATH)
+-root = tree.getroot()
+-
+-# --- Step 3: Collect all HandicapInfo entries ---
+-namespace = {'ns': root.tag.split('}')[0].strip('{')}
+-handicap_infos = root.find('ns:HandicapInfos', namespace)
+-all_fields = set()
+-parsed_data = {}
+-
+-# <!-- custom: Goody type meanings from https://gforestshade.github.io/kujira/post/keyichiran/#%E9%83%A8%E6%97%8F%E9%9B%86%E8%90%BD (translated). Credit: ChatGPT. Mapping:
+-# GOODY_LOW_GOLD -> Gold (small)
+-# GOODY_HIGH_GOLD -> Gold (many)
+-# GOODY_MAP -> Map
+-# GOODY_SETTLER -> Settler
+-# GOODY_WARRIOR -> Warrior
+-# GOODY_SCOUT -> Scout
+-# GOODY_WORKER -> Laborer
+-# GOODY_EXPERIENCE -> Experience Points
+-# GOODY_HEALING -> Recovery
+-# GOODY_TECH -> Tech
+-# GOODY_BARBARIANS_WEAK -> Hostile (weak)
+-# GOODY_BARBARIANS_STRONG -> Hostile (strong). (GPT-5.2-Codex (summarized)) -->
+-ALL_GOODY_TYPES = (
+-	"GOODY_LOW_GOLD",
+-	"GOODY_HIGH_GOLD",
+-	"GOODY_MAP",
+-	"GOODY_SETTLER",
+-	"GOODY_WARRIOR",
+-	"GOODY_SCOUT",
+-	"GOODY_WORKER",
+-	"GOODY_EXPERIENCE",
+-	"GOODY_HEALING",
+-	"GOODY_TECH",
+-	"GOODY_BARBARIANS_WEAK",
+-	"GOODY_BARBARIANS_STRONG",
+-)
+-
+-ABBREV_FREE_TECHS_HEADER_NAMES = {
+-	"AIFreeTechs": "AIFT_",
+-	"FreeTechs":"FT_",
+-}
+-
+-ABBREV_TECH_NAMES = {
+-	"Animal Husbandry": "Animal H.",
+-	"Bronze Working": "Bronze W.",
+-	"Iron Working": "Iron W.",
+-	"Industrialism": "Industr.",
+-}
+-
+-def beautify_enum_name(raw_name):
+-	# Convert raw enum strings like 'TECH_THE_WHEEL',
+-	# 'HANDICAP_NOBLE' into human-readable display forms like:
+-	# 'The Wheel', 'Noble'
+-
+-	# Remove known Civ4 enum prefixes
+-	for prefix in ('TECH_', 'HANDICAP_'):
+-		if raw_name.startswith(prefix):
+-			raw_name = raw_name[len(prefix):]
+-			break
+-
+-	# Underscore to space, then title case
+-	return re.sub(r'_', ' ', raw_name).title()
+-
+-def shorten_legend_name(name, abbrev_tech_names):
+-	return abbrev_tech_names.get(name, name)
+-
+-for handicap_info in handicap_infos.findall('ns:HandicapInfo', namespace):
+-	handicap_dict = {}
+-	handicap_type = handicap_info.find('ns:Type', namespace).text
+-
+-	for elem in handicap_info:
+-		tag = elem.tag.split('}')[-1]
+-		if tag in ("Type", "Description", "Help"):
+-			continue
+-
+-		elif tag in ("Goodies"):
+-			# Count occurrences of each GoodyType
+-			goody_counts = {gt: 0 for gt in ALL_GOODY_TYPES}
+-
+-			for goody_elem in elem.findall('ns:GoodyType', namespace):
+-				goody = goody_elem.text.strip()
+-				if goody in goody_counts:
+-					goody_counts[goody] += 1
+-
+-			# Flatten into individual fields
+-			for gt in ALL_GOODY_TYPES:
+-				field_name = gt  # Just use the original full enum name
+-				handicap_dict[field_name] = str(goody_counts[gt])
+-
+-		elif tag in ("FreeTechs", "AIFreeTechs"):
+-			# Serialize list fields as comma-separated strings
+-			entries = []
+-			for child in elem.findall('.//*'):
+-				tagname = child.tag.split('}')[-1]
+-				if tagname not in ("TechType", "GoodyType"):
+-					continue
+-				text = child.text.strip() if child.text else ""
+-				if text:
+-					entries.append(text)
+-			handicap_dict[tag] = ', '.join(entries)
+-		else:
+-			if elem.text:
+-				handicap_dict[tag] = elem.text.strip()
+-
+-	all_fields.update(handicap_dict.keys())
+-	parsed_data[handicap_type] = handicap_dict
+-
+-# --- Step 4: Prepare CSV rows ---
+-all_fields = sorted(all_fields)
+-difficulty_types = list(parsed_data.keys())  # Preserve order from XML parse loop
+-
+-rows = []
+-for field in all_fields:
+-	row = {'Field': field}
+-	for difficulty in difficulty_types:
+-		row[difficulty] = parsed_data[difficulty].get(field, "")
+-	rows.append(row)
+-
+-# --- Step 4.5: Move nested fields to a fixed location ---
+-GOODY_FIELDS = tuple(sorted(gt for gt in ALL_GOODY_TYPES if gt in all_fields))
+-NESTED_FIELDS = ("AIFreeTechs", "FreeTechs")
+-ANCHOR_FIELD = "iUnownedWaterTilesPerBarbarianUnit"
+-
+-# Split rows into parts
+-before = []
+-goody_rows = []
+-nested = []
+-
+-for row in rows:
+-	if row["Field"] in GOODY_FIELDS:
+-		goody_rows.append(row)
+-	elif row["Field"] in NESTED_FIELDS:
+-		nested.append(row)
+-	else:
+-		before.append(row)
+-
+-# Reinsert in proper order
+-new_rows = []
+-for row in before:
+-	new_rows.append(row)
+-	if row["Field"] == ANCHOR_FIELD:
+-		new_rows.extend(goody_rows)
+-		new_rows.extend(nested)
+-rows = new_rows
+-
+-# --- Step 5: Prepare columns ---
+-# Create a map of full -> short column headers
+-difficulty_column_map = {
+-	difficulty: beautify_enum_name(difficulty)
+-	for difficulty in parsed_data.keys()
+-}
+-columns = ['Field'] + list(difficulty_column_map.values())
+-
+-# --- Step 6: Replace long values with references and collect legend ---
+-legend = {}
+-legend_counter = {}
+-
+-def get_legend_key(field_name, value):
+-	if not value.strip():
+-		return ""
+-
+-	count = legend_counter.get(ABBREV_FREE_TECHS_HEADER_NAMES[field_name], 0)
+-	legend_key = f"{ABBREV_FREE_TECHS_HEADER_NAMES[field_name]}{count}"
+-	legend_counter[ABBREV_FREE_TECHS_HEADER_NAMES[field_name]] = count + 1
+-	legend[legend_key] = value
+-	return legend_key
+-
+-for row in rows:
+-	for difficulty in difficulty_types:
+-		value = row.get(difficulty, "")
+-		# This ensures all values (even single items) in the specified fields are always substituted with a legend key, no matter the length.
+-		if row["Field"] in ("FreeTechs", "AIFreeTechs"):
+-			row[difficulty] = get_legend_key(row["Field"], value)
+-
+-# --- Step 7: Write CSV with right-shifted legend ---
+-with open(table_csv_filename, "w", newline="", encoding="utf-8") as f:
+-	writer = csv.DictWriter(f, fieldnames=columns)
+-	writer.writeheader()
+-
+-	for row in rows:
+-		field_name = row['Field']
+-		if field_name in GOODY_FIELDS:
+-			field_name += " (*)"
+-		shortened_row = {'Field': field_name}
+-		
+-		for full_difficulty, short_difficulty in difficulty_column_map.items():
+-			shortened_row[short_difficulty] = row.get(full_difficulty, "")
+-		writer.writerow(shortened_row)
+-
+-	def format_vertical_legend_block(legend_dict):
+-		def extract_ordered_unique(keys_ordered, prefix):
+-			unique = []
+-			seen = set()
+-			for k in keys_ordered:
+-				if not k or k not in legend_dict:
+-					continue
+-				for v in legend_dict[k].split(','):
+-					name = shorten_legend_name(beautify_enum_name(v.strip()), ABBREV_TECH_NAMES)
+-					if name not in seen:
+-						unique.append(name)
+-						seen.add(name)
+-			return unique
+-
+-		def build_columns(keys_ordered, unique, prefix):
+-			columns, headers, counter = [], [], 0
+-			for k in keys_ordered:
+-				if k and k in legend_dict:
+-					headers.append(f"{prefix}{counter}")
+-					values = {
+-						shorten_legend_name(beautify_enum_name(v.strip()), ABBREV_TECH_NAMES)
+-						for v in legend_dict[k].split(',')
+-					}
+-					columns.append([v if v in values else "-" for v in unique])
+-					counter += 1
+-				else:
+-					headers.append("-------")
+-					columns.append(["-"] * len(unique))
+-			return headers, columns
+-
+-		lines = []
+-
+-		# AIFT
+-		aift_keys_ordered = []
+-		for row in rows:
+-			if row["Field"] == "AIFreeTechs":
+-				for difficulty in difficulty_types:
+-					ref = row.get(difficulty, "")
+-					aift_keys_ordered.append(ref if ref in legend_dict else None if not ref else None)
+-
+-		aift_unique = extract_ordered_unique(aift_keys_ordered, ABBREV_FREE_TECHS_HEADER_NAMES["AIFreeTechs"])
+-		aift_headers, aift_columns = build_columns(aift_keys_ordered, aift_unique, ABBREV_FREE_TECHS_HEADER_NAMES["AIFreeTechs"])
+-		lines.append('\t'.join(aift_headers))
+-		for row in zip(*aift_columns):
+-			lines.append('\t'.join(row))
+-
+-		# FT (same style as AIFT)
+-		ft_keys_ordered = []
+-		for row in rows:
+-			if row["Field"] == "FreeTechs":
+-				for difficulty in difficulty_types:
+-					ref = row.get(difficulty, "")
+-					ft_keys_ordered.append(ref if ref in legend_dict else None if not ref else None)
+-
+-		ft_unique = extract_ordered_unique(ft_keys_ordered, ABBREV_FREE_TECHS_HEADER_NAMES["FreeTechs"])
+-		ft_headers, ft_columns = build_columns(ft_keys_ordered, ft_unique, ABBREV_FREE_TECHS_HEADER_NAMES["FreeTechs"])
+-		lines.append('\t'.join(ft_headers))
+-		for row in zip(*ft_columns):
+-			lines.append('\t'.join(row))
+-
+-		return lines
+-
+-	f.write("\n\n")
+-
+-	legend_lines = format_vertical_legend_block(legend)
+-
+-	# This writes each line as a true row, with each AIFT value in its own column — and will render properly in Excel or any spreadsheet.
+-	legend_csv = csv.writer(f)
+-	f.write("\n\n")
+-
+-	NUM_COLUMNS = len(columns)
+-
+-	# Write a fully padded [LEGEND] header row
+-	# Determine where actual legend columns begin (e.g., skip the 'Field' column)
+-	# <!-- custom: shift the "[LEGEND]" line one column right by inserting an empty cell. (GPT-5.2-Codex (summarized)) -->
+-	legend_header_row = [""] + ["[LEGEND]"] * (NUM_COLUMNS - 1)
+-	legend_csv.writerow(legend_header_row)
+-
+-	# Write padded legend rows
+-	for line in legend_lines:
+-		# Shift all contents one column to the right (like the LEGEND header)
+-		parts = [""] + line.split("\t")
+-
+-		# Pad to exactly NUM_COLUMNS columns
+-		parts += [""] * (NUM_COLUMNS - len(parts))
+-
+-		legend_csv.writerow(parts)
+-
+-print("✔ Export complete with legend references.")
+-print(f"→ Output CSV saved as: {table_csv_filename}")
+-
+-
+-# <!-- custom: do not leave previous columns in same line empty of the footnote/legend row, else we get the "We can make this file beautiful and searchable if this error is corrected: It looks like row 113 should actually have 10 columns, instead of 11 in line 112." in github web view, even though displays nicely in libre office for example though and fixed this way in the github web view, easiest way to cleanly solve this seems to move the footnote to a separate legend file, plus we can add other info there if needed. -->
+-# Save footnote to a separate file for GitHub-safe display
+-with open(legend_md_filename, "w", encoding="utf-8") as md:
+-	md.write("# Handicap Info Legend Notes\n\n")
+-
+-	md.write("## Goodies Footnote\n\n")
+-	md.write("> (*): This element is listed under the heading **\"Goodies (20)\"** in the XML file.\n")
+-	md.write("> It indicates the chance (x-in-20) of a goody hut yielding this result when \"popped\" by the player.\n")
+-	md.write("> Source: [Civ4 Difficulty Wiki](https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)\n\n")
+-
+-	md.write("## Abbreviation Keys\n\n")
+-	reverse_abbrev_free_techs_header_names = {v: k for k, v in ABBREV_FREE_TECHS_HEADER_NAMES.items()}
+-	for abbr in sorted(reverse_abbrev_free_techs_header_names.keys()):
+-		md.write(f"- **{abbr}**: `{reverse_abbrev_free_techs_header_names[abbr]}`\n")
+-
+-	md.write("\n## Abbreviated Tech Names\n\n")
+-	md.write("The following technology names were shortened for compactness in the table view:\n\n")
+-	for full, short in sorted(ABBREV_TECH_NAMES.items(), key=lambda x: x[1]):
+-		md.write(f"- **{short}** → `{full}`\n")
+-
+-print(f"→ Legend saved as: {legend_md_filename}")
+-
+-# <!-- custom: .md table output is unused in AdvCiv-SAS; uncomment if needed. (GPT-5.2-Codex (summarized)) -->
+-# --- Step 8: Write Markdown table ---
+-# with open(table_md_filename, "w", encoding="utf-8") as md:
+-# 	# Header
+-# 	md.write("| Field | " + " | ".join(columns[1:]) + " |\n")
+-# 	md.write("|" + "------|" * len(columns) + "\n")
+-
+-# 	# Rows
+-# 	for row in rows:
+-# 		md_row = [row["Field"]]
+-# 		for full_difficulty, short_difficulty in difficulty_column_map.items():
+-# 			md_row.append(row.get(full_difficulty, ""))
+-# 		md.write("| " + " | ".join(md_row) + " |\n")
+-
+-# 	# Legend header
+-# 	md.write("\n\n## Legend\n\n")
+-# 	md.write("| Key | Full Value |\n")
+-# 	md.write("|-----|-------------|\n")
+-# 	for key, value in legend.items():
+-# 		md.write(f"| {key} | {value} |\n")
+-
+-# print("✔ Markdown export complete.")
+-# print(f"→ Output Markdown saved as: {table_md_filename}")
+-
+
+[PATCH COVERAGE]
+patchFiles=33 embeddedFiles=33 omittedFiles=0 embeddedPatchBytes=116402

@@ -1,0 +1,83 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2315
+# Commit: 1fe31a19c76c7d533475898544d2d76856230147
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4f3c8067600864645d8b98e4fa74a0cd0830c0bd
+# Title: Disable a few removed/hidden BUG options more thoroughly
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/Python/Contrib/Civ4lerts.py
+3	3	Assets/Python/Contrib/MoreCiv4lerts.py
+2	1	Assets/Python/Screens/CvTechChooser.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index 99fb1fc1c..f705d64e3 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -627,7 +627,7 @@ class CityOccupation(AbstractCityTestAlert):
+ 		return city.isOccupation() and city.getOccupationTimer() > 1
+ 	
+ 	def _isShowAlert(self, passes):
+-		return Civ4lertsOpt.isShowCityOccupationAlert()
++		return False #Civ4lertsOpt.isShowCityOccupationAlert() # advc-106d: Disabled
+ 	
+ 	def _getAlertMessageIcon(self, city, passes):
+ 		if (passes):
+@@ -638,7 +638,7 @@ class CityOccupation(AbstractCityTestAlert):
+ 					HAPPY_ICON)
+ 	
+ 	def _isShowPendingAlert(self, passes):
+-		return Civ4lertsOpt.isShowCityPendingOccupationAlert()
++		return False #Civ4lertsOpt.isShowCityPendingOccupationAlert() # advc.106d: Disabled
+ 
+ 	def _getPendingAlertMessageIcon(self, city, passes):
+ 		if (passes):
+
+diff --git a/Assets/Python/Contrib/MoreCiv4lerts.py b/Assets/Python/Contrib/MoreCiv4lerts.py
+index 4969c9c9b..d98e01b55 100644
+--- a/Assets/Python/Contrib/MoreCiv4lerts.py
++++ b/Assets/Python/Contrib/MoreCiv4lerts.py
+@@ -163,11 +163,11 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 		#return self.options.isShowPeaceTradeAlert()
+ 
+ 	def getCheckForDomVictory(self):
+-		return self.getCheckForDomPopVictory() or self.getCheckForDomLandVictory()
++		return False # advc.210
++		#return self.getCheckForDomPopVictory() or self.getCheckForDomLandVictory()
+ 	
+ 	def getCheckForForeignCities(self):
+-		# advc.210c: Disable this by force b/c players upgrading to v0.91 could still have it enabled, leading to messages from both the DLL and Python.
+-		return False
++		return False # advc.210c
+ 		#return self.options.isShowCityFoundedAlert()
+ 
+ 	def onBeginActivePlayerTurn(self, argsList):
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index c68e86576..ba69aeb90 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -214,7 +214,8 @@ class CvTechChooser:
+ 			screen.hide("AddTechButton")
+ 
+ # BUG - Tech Screen Resolution - start
+-		if (BugOpt.isWideTechScreen() and screen.getXResolution() > 1024):
++		#BugOpt.isWideTechScreen() and # advc.004: No longer optional
++		if screen.getXResolution() > 1024:
+ 			xPanelWidth = screen.getXResolution() - 60
+ 		else:
+ 			xPanelWidth = 1024
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2386

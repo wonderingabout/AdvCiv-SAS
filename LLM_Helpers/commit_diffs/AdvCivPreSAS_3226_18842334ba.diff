@@ -1,0 +1,134 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3226
+# Commit: 18842334ba8cc7ea821e579395153b036030bf87
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1bcb6cd9673be843f2854cbef6139713298accfe
+# Title: Amend pathfinder reset commit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/GroupPathFinder.cpp
+5	2	CvGameCoreDLL/GroupPathFinder.h
+12	3	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index 9207f5c91..6fd851ea1 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -738,7 +738,7 @@ void GroupPathFinder::setGroup(CvSelectionGroup const& kGroup,
+ 	#endif //</advc.test>
+ 	CvSelectionGroup const* pOldGroup = m_stepMetric.getGroup();
+ 	if (pOldGroup != &kGroup)
+-		resetNodes();
++		reset();
+ 	else
+ 	{
+ 		/*	some flags are not relevant to pathfinder.
+@@ -754,7 +754,7 @@ void GroupPathFinder::setGroup(CvSelectionGroup const& kGroup,
+ 			if ((m_stepMetric.getFlags() & eRelevantFlags) != (eFlags & eRelevantFlags) ||
+ 				GET_TEAM(pOldGroup->getHeadTeam()).AI_isSneakAttackReady())
+ 			{
+-				resetNodes();
++				reset();
+ 			}
+ 		}
+ 	}
+@@ -785,7 +785,7 @@ void GroupPathFinder::invalidateGroup(CvSelectionGroup const& kGroup)
+ 	if (m_stepMetric.getGroup() == &kGroup)
+ 	{
+ 		PROFILE("GroupPathFinder::invalidateGroup - resetNodes");
+-		resetNodes();
++		reset();
+ 		m_stepMetric = GroupStepMetric();
+ 		// <advc.test>
+ 		#if VERIFY_PATHF
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.h b/CvGameCoreDLL/GroupPathFinder.h
+index a82d7eca7..4a4cc9bde 100644
+--- a/CvGameCoreDLL/GroupPathFinder.h
++++ b/CvGameCoreDLL/GroupPathFinder.h
+@@ -139,7 +139,6 @@ public:
+ 	// Unhide 2-argument version
+ 	using KmodPathFinder<GroupStepMetric,GroupPathNode>::generatePath;
+ 	int getPathTurns() const { return getPathLength(); }
+-	void reset() { resetNodes(); }
+ 	#endif // advc.test
+ 	CvPlot& getPathEndTurnPlot() const;
+ 	int getFinalMoves() const
+@@ -167,7 +166,11 @@ public:
+ 		FAssert(iTurns == kLegacyPathf.GetPathTurns());
+ 		return iTurns;
+ 	}
+-	void reset() { resetNodes(); kLegacyPathf.Reset(); }
++	void reset()
++	{
++		KmodPathFinder<GroupStepMetric, GroupPathNode>::reset();
++		kLegacyPathf.Reset();
++	}
+ 	CvPlot& getPathFirstPlot() const
+ 	{
+ 		CvPlot& kPlot = KmodPathFinder<GroupStepMetric, GroupPathNode>::getPathFirstPlot();
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index 2284c0391..72512e7c9 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -370,7 +370,7 @@ public:
+ 		/*new NodeMap(m_kMap.numPlots())*/)
+ 	{}
+ 	virtual ~KmodPathFinder();
+-	void resetNodes();
++	void reset();
+ 	bool generatePath(CvPlot const& kStart, CvPlot const& kDest);
+ 	bool isPathComplete() const { return (m_pEndNode != NULL); }
+ 	int getPathLength() const // advc: Was "getPathTurns"; too specific.
+@@ -393,6 +393,7 @@ protected:
+ 	static int iAdmissibleBaseWeight;
+ 	static int iAdmissibleScaledWeight;
+ 
++	void resetNodes();
+ 	void recalculateHeuristics();
+ 	bool processNode();
+ 	// <advc> Cut out of process node
+@@ -456,7 +457,7 @@ bool KmodPathFinder<StepMetric,Node>::generatePath(
+ 			(power of 2 does seem to help). K-Mod didn't reserve any memory. */
+ 		m_openList.reserve(128);
+ 	}
+-	if (&kStart != m_pStart && /* don't need to reset twice */ m_pStart != NULL)
++	if (&kStart != m_pStart && /* advc: Don't reset twice */ m_pStart != NULL)
+ 	{
+ 		/*	Note: It may be possible to salvage some of the old data to
+ 			get more speed. E.g. if the moves recorded on the node match the group
+@@ -554,10 +555,18 @@ void KmodPathFinder<StepMetric,Node>::resetNodes()
+ 	if (m_pNodeMap != NULL)
+ 		m_pNodeMap->reset();
+ 	m_openList.clear();
+-	m_pStart = m_pDest = NULL;
+ 	m_pEndNode = NULL;
+ }
+ 
++/*	advc: Allow derived classes to make a full reset, including the start plot
++	- which the internal resetNodes function mustn't reset. */
++template<class StepMetric, class Node>
++void KmodPathFinder<StepMetric,Node>::reset()
++{
++	resetNodes();
++	m_pStart = m_pDest = NULL;
++}
++
+ template<class StepMetric, class Node>
+ void KmodPathFinder<StepMetric,Node>::recalculateHeuristics()
+ {
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3753

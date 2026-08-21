@@ -1,0 +1,75 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2487
+# Commit: 673fc2aa15cc47b036f0e120a01d359e48b9596b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 458207b2f1a58578a664e3007fdfacdf28c2787d
+# Title: Civilized Jewelers doesn't require Mass Media
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	4	Assets/XML/Buildings/CIV4BuildingInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 8ed87ddaa..9a59bb80e 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -27508,6 +27508,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
++			<!-- K-Mod: was REFRIGERATION -->
+ 			<PrereqTech>TECH_MEDICINE</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+@@ -27691,6 +27692,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
++			<!-- K-Mod: was MEDICINE -->
+ 			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+@@ -27874,6 +27876,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
++			<!-- K-Mod: was PLASTICS -->
+ 			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+@@ -28057,6 +28060,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
++			<!-- K-Mod: was COMBUSTION -->
+ 			<PrereqTech>TECH_STEEL</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+@@ -28606,11 +28610,10 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- advc.200: Restored Mass Media and moved Corporation
+-			     into TechTypes -->
+-			<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
++			<!-- K-Mod: was MASS_MEDIA -->
++			<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_CORPORATION</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1881

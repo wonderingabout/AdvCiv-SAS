@@ -1,0 +1,304 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4424
+# Commit: 592eccd35eff4f9757e3685876d418adb089e5e6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 06c531e13f1d8b188768f586473206d97f346614
+# Title: move gitignore to root of project folder, minor fixes not sure why it is not at the root (same as why there was no readme), but i assume it is perhaps to unc...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	0	CvGameCoreDLL/Project/.gitignore => .gitignore
+0	0	AdvCiv.ini => _0_Base_AdvCiv_Docs/AdvCiv.ini
+0	0	K-Mod 1.46 changelog.txt => _0_Base_AdvCiv_Docs/K-Mod 1.46 changelog.txt
+0	0	links.txt => _0_Base_AdvCiv_Docs/links.txt
+-	-	manual.odt => _0_Base_AdvCiv_Docs/manual.odt
+-	-	manual.pdf => _0_Base_AdvCiv_Docs/manual.pdf
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+0	0	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+0	0	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_notes
+0	0	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/README.md
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/0.30 Techtree_modified.png
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/advciv-mod-difficulties_summary-htm-A3.pdf
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/civ4 civs default.png
+0	0	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+0	0	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/notes_about_game_design_choices
+0	0	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/notes_about_some_assets_content
+0	0	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/notes_about_tech_design_choices
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/world map_with_countries.png
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/world_map_terrain_empty_20.png
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/world_map_terrain_with_civs_21.png
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/world_map_terrain_with_new_civs.png
+0	0	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Lists/Special_Units_List
+0	0	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Lists/Wonders_List
+0	0	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Civs/Civs music credits.txt
+-	-	"New_Content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus" => "_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus"
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Neanderthal Bone Flute Music [sHy9FOblt7Y].opus
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 3 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 4 - Aka Forest People [HRVPieyKv8M].opus
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus
+-	-	{New_Content/Music_Civ4_Mod/Eras/2- Bronze Age => _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age}/Bronze Age 1 - PHARAOH [1rSStqL267c].opus
+-	-	{New_Content/Music_Civ4_Mod/Eras/2- Bronze Age => _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age}/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus
+-	-	New_Content/Music_Civ4_Mod/Eras/2- Bronze Age/Bronze Age 3 - Nordic Bronze Age Lures 1700-500 BC and the Kings grave [Ld6Dt-Lce6M].opus => _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 3 - Nordic Bronze Age Lures [Ld6Dt-Lce6M].opus
+0	0	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Eras/Music eras credits.txt
+0	0	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Game/Game music credits.txt
+-	-	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/African Voices [YtrouhSprzA].opus
+0	0	{New_Content => _1_AdvCiv_SBAIMTOCO_content}/README.md
+ rename CvGameCoreDLL/Project/.gitignore => .gitignore (92%)
+ rename AdvCiv.ini => _0_Base_AdvCiv_Docs/AdvCiv.ini (94%)
+ rename K-Mod 1.46 changelog.txt => _0_Base_AdvCiv_Docs/K-Mod 1.46 changelog.txt (98%)
+ rename links.txt => _0_Base_AdvCiv_Docs/links.txt (98%)
+ rename manual.odt => _0_Base_AdvCiv_Docs/manual.odt (100%)
+ rename manual.pdf => _0_Base_AdvCiv_Docs/manual.pdf (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_notes (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Civs/Kingdom_Of_Benin/README.md (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/0.30 Techtree_modified.png (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/advciv-mod-difficulties_summary-htm-A3.pdf (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/civ4 civs default.png (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/notes_about_civs_and_terrain_design (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/notes_about_game_design_choices (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/notes_about_some_assets_content (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/notes_about_tech_design_choices (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/world map_with_countries.png (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/world_map_terrain_empty_20.png (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/world_map_terrain_with_civs_21.png (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Docs_And_Appendixes/world_map_terrain_with_new_civs.png (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Lists/Special_Units_List (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Lists/Wonders_List (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Civs/Civs music credits.txt (100%)
+ rename "New_Content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus" => "_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus" (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Neanderthal Bone Flute Music [sHy9FOblt7Y].opus (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 3 - Art of Primitive Sound [Ttnb4ZlHv2s].opus (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 4 - Aka Forest People [HRVPieyKv8M].opus (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus (100%)
+ rename {New_Content/Music_Civ4_Mod/Eras/2- Bronze Age => _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age}/Bronze Age 1 - PHARAOH [1rSStqL267c].opus (100%)
+ rename {New_Content/Music_Civ4_Mod/Eras/2- Bronze Age => _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age}/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus (100%)
+ rename New_Content/Music_Civ4_Mod/Eras/2- Bronze Age/Bronze Age 3 - Nordic Bronze Age Lures 1700-500 BC and the Kings grave [Ld6Dt-Lce6M].opus => _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 3 - Nordic Bronze Age Lures [Ld6Dt-Lce6M].opus (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Eras/Music eras credits.txt (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Game/Game music credits.txt (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/African Voices [YtrouhSprzA].opus (100%)
+ rename {New_Content => _1_AdvCiv_SBAIMTOCO_content}/README.md (100%)
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/Project/.gitignore b/.gitignore
+similarity index 92%
+rename from CvGameCoreDLL/Project/.gitignore
+rename to .gitignore
+index a626f68d2..145a16109 100644
+
+diff --git a/AdvCiv.ini b/_0_Base_AdvCiv_Docs/AdvCiv.ini
+similarity index 94%
+rename from AdvCiv.ini
+rename to _0_Base_AdvCiv_Docs/AdvCiv.ini
+index 4f5c04400..ea64215ca 100644
+
+diff --git a/K-Mod 1.46 changelog.txt b/_0_Base_AdvCiv_Docs/K-Mod 1.46 changelog.txt
+similarity index 98%
+rename from K-Mod 1.46 changelog.txt
+rename to _0_Base_AdvCiv_Docs/K-Mod 1.46 changelog.txt
+index 37ae39b10..b85665370 100644
+
+diff --git a/links.txt b/_0_Base_AdvCiv_Docs/links.txt
+similarity index 98%
+rename from links.txt
+rename to _0_Base_AdvCiv_Docs/links.txt
+index 188720d54..eeda72f85 100644
+
+[PATCH OMITTED] file=a/manual.odt b/_0_Base_AdvCiv_Docs/manual.odt reason=binary/generated-file changedLines=0 bytes=142
+
+[PATCH OMITTED] file=a/manual.pdf b/_0_Base_AdvCiv_Docs/manual.pdf reason=binary/generated-file changedLines=0 bytes=142
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg b/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg
+similarity index 100%
+rename from New_Content/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg
+rename to _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png b/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+similarity index 100%
+rename from New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+rename to _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp b/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp
+similarity index 100%
+rename from New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp
+rename to _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba b/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+similarity index 100%
+rename from New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+rename to _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png b/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+similarity index 100%
+rename from New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+rename to _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary b/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+similarity index 100%
+rename from New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+rename to _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_notes b/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_notes
+similarity index 100%
+rename from New_Content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_notes
+rename to _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_notes
+
+diff --git a/New_Content/Civs/Kingdom_Of_Benin/README.md b/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/README.md
+similarity index 100%
+rename from New_Content/Civs/Kingdom_Of_Benin/README.md
+rename to _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/README.md
+
+diff --git a/New_Content/Docs_And_Appendixes/0.30 Techtree_modified.png b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.30 Techtree_modified.png
+similarity index 100%
+rename from New_Content/Docs_And_Appendixes/0.30 Techtree_modified.png
+rename to _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.30 Techtree_modified.png
+
+[PATCH OMITTED] file=a/New_Content/Docs_And_Appendixes/advciv-mod-difficulties_summary-htm-A3.pdf b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/advciv-mod-difficulties_summary-htm-A3.pdf reason=binary/generated-file changedLines=0 bytes=390
+
+diff --git a/New_Content/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods
+similarity index 100%
+rename from New_Content/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods
+rename to _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods
+
+diff --git a/New_Content/Docs_And_Appendixes/civ4 civs default.png b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/civ4 civs default.png
+similarity index 100%
+rename from New_Content/Docs_And_Appendixes/civ4 civs default.png
+rename to _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/civ4 civs default.png
+
+diff --git a/New_Content/Docs_And_Appendixes/notes_about_civs_and_terrain_design b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+similarity index 100%
+rename from New_Content/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+rename to _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+
+diff --git a/New_Content/Docs_And_Appendixes/notes_about_game_design_choices b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_game_design_choices
+similarity index 100%
+rename from New_Content/Docs_And_Appendixes/notes_about_game_design_choices
+rename to _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_game_design_choices
+
+diff --git a/New_Content/Docs_And_Appendixes/notes_about_some_assets_content b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_some_assets_content
+similarity index 100%
+rename from New_Content/Docs_And_Appendixes/notes_about_some_assets_content
+rename to _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_some_assets_content
+
+diff --git a/New_Content/Docs_And_Appendixes/notes_about_tech_design_choices b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_tech_design_choices
+similarity index 100%
+rename from New_Content/Docs_And_Appendixes/notes_about_tech_design_choices
+rename to _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_tech_design_choices
+
+diff --git a/New_Content/Docs_And_Appendixes/world map_with_countries.png b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/world map_with_countries.png
+similarity index 100%
+rename from New_Content/Docs_And_Appendixes/world map_with_countries.png
+rename to _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/world map_with_countries.png
+
+diff --git a/New_Content/Docs_And_Appendixes/world_map_terrain_empty_20.png b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/world_map_terrain_empty_20.png
+similarity index 100%
+rename from New_Content/Docs_And_Appendixes/world_map_terrain_empty_20.png
+rename to _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/world_map_terrain_empty_20.png
+
+diff --git a/New_Content/Docs_And_Appendixes/world_map_terrain_with_civs_21.png b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/world_map_terrain_with_civs_21.png
+similarity index 100%
+rename from New_Content/Docs_And_Appendixes/world_map_terrain_with_civs_21.png
+rename to _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/world_map_terrain_with_civs_21.png
+
+diff --git a/New_Content/Docs_And_Appendixes/world_map_terrain_with_new_civs.png b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/world_map_terrain_with_new_civs.png
+similarity index 100%
+rename from New_Content/Docs_And_Appendixes/world_map_terrain_with_new_civs.png
+rename to _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/world_map_terrain_with_new_civs.png
+
+diff --git a/New_Content/Lists/Special_Units_List b/_1_AdvCiv_SBAIMTOCO_content/Lists/Special_Units_List
+similarity index 100%
+rename from New_Content/Lists/Special_Units_List
+rename to _1_AdvCiv_SBAIMTOCO_content/Lists/Special_Units_List
+
+diff --git a/New_Content/Lists/Wonders_List b/_1_AdvCiv_SBAIMTOCO_content/Lists/Wonders_List
+similarity index 100%
+rename from New_Content/Lists/Wonders_List
+rename to _1_AdvCiv_SBAIMTOCO_content/Lists/Wonders_List
+
+diff --git a/New_Content/Music_Civ4_Mod/Civs/Civs music credits.txt b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Civs/Civs music credits.txt
+similarity index 100%
+rename from New_Content/Music_Civ4_Mod/Civs/Civs music credits.txt
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Civs/Civs music credits.txt
+
+diff --git "a/New_Content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus" "b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus"
+similarity index 100%
+rename from "New_Content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus"
+rename to "_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus"
+
+diff --git a/New_Content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Neanderthal Bone Flute Music [sHy9FOblt7Y].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Neanderthal Bone Flute Music [sHy9FOblt7Y].opus
+similarity index 100%
+rename from New_Content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Neanderthal Bone Flute Music [sHy9FOblt7Y].opus
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Neanderthal Bone Flute Music [sHy9FOblt7Y].opus
+
+diff --git a/New_Content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 3 - Art of Primitive Sound [Ttnb4ZlHv2s].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 3 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+similarity index 100%
+rename from New_Content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 3 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 3 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+
+diff --git a/New_Content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 4 - Aka Forest People [HRVPieyKv8M].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 4 - Aka Forest People [HRVPieyKv8M].opus
+similarity index 100%
+rename from New_Content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 4 - Aka Forest People [HRVPieyKv8M].opus
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 4 - Aka Forest People [HRVPieyKv8M].opus
+
+diff --git a/New_Content/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus
+similarity index 100%
+rename from New_Content/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus
+
+diff --git a/New_Content/Music_Civ4_Mod/Eras/2- Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus
+similarity index 100%
+rename from New_Content/Music_Civ4_Mod/Eras/2- Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus
+
+diff --git a/New_Content/Music_Civ4_Mod/Eras/2- Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus
+similarity index 100%
+rename from New_Content/Music_Civ4_Mod/Eras/2- Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus
+
+diff --git a/New_Content/Music_Civ4_Mod/Eras/2- Bronze Age/Bronze Age 3 - Nordic Bronze Age Lures 1700-500 BC and the Kings grave [Ld6Dt-Lce6M].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 3 - Nordic Bronze Age Lures [Ld6Dt-Lce6M].opus
+similarity index 100%
+rename from New_Content/Music_Civ4_Mod/Eras/2- Bronze Age/Bronze Age 3 - Nordic Bronze Age Lures 1700-500 BC and the Kings grave [Ld6Dt-Lce6M].opus
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 3 - Nordic Bronze Age Lures [Ld6Dt-Lce6M].opus
+
+diff --git a/New_Content/Music_Civ4_Mod/Eras/Music eras credits.txt b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt
+similarity index 100%
+rename from New_Content/Music_Civ4_Mod/Eras/Music eras credits.txt
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt
+
+diff --git a/New_Content/Music_Civ4_Mod/Game/Game music credits.txt b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Game/Game music credits.txt
+similarity index 100%
+rename from New_Content/Music_Civ4_Mod/Game/Game music credits.txt
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Game/Game music credits.txt
+
+diff --git a/New_Content/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/African Voices [YtrouhSprzA].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/African Voices [YtrouhSprzA].opus
+similarity index 100%
+rename from New_Content/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/African Voices [YtrouhSprzA].opus
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/African Voices [YtrouhSprzA].opus
+
+diff --git a/New_Content/README.md b/_1_AdvCiv_SBAIMTOCO_content/README.md
+similarity index 100%
+rename from New_Content/README.md
+rename to _1_AdvCiv_SBAIMTOCO_content/README.md
+
+[PATCH COVERAGE]
+patchFiles=41 embeddedFiles=38 omittedFiles=3 embeddedPatchBytes=13510

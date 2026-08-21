@@ -1,0 +1,127 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6088
+# Commit: a9690eb86bfbef33c92ca27d37de53c0f1945911
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6c8d14b04eb5077109296d1379231b3c883b60be
+# Title: (Fixed/Improved) Base AdvCiv/K-Mod final building short-circuit (`CvCityAI::AI_chooseProduction`'s short-circuit 3) ignored BuildUnitProb and could override...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+13	4	CvGameCoreDLL/CvCityAI.cpp
+18	1	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 2597d202f..3308b6e92 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -2179,6 +2179,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_MAX_BOOST_PERCENT</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
++	<!-- custom: How strongly normal AI build-unit probability reduces the final "short-circuit 3" building chance immediately before generic unit production, while the normal +15 military-spending gate still allows more units. 50 means BuildUnitProb 80 reduces this gate's base building odds by 40% (80 * 50% = 40%); existing production-progress preference inside AI_chooseBuilding remains unchanged. Set to 0 to restore the Base AdvCiv/K-Mod short-circuit 3 odds. See KI#197.2. (ChatGPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_3_BUILD_UNIT_PROB_WEIGHT_PERCENT</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ef7a74fa5..acc60a59a 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3842,15 +3842,24 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	// Short-circuit 3 - a last chance to catch important buildings
+ 	{
+-		int iOdds = std::max(0, (bLandWar ? 160 : 220) * iBestBuildingValue / (iBestBuildingValue
++		int const iBaseOdds = std::max(0, (bLandWar ? 160 : 220) * iBestBuildingValue / (iBestBuildingValue
+ 				/* <advc.131> was +32 */ + 20 /* </advc.131> */) - 100);
++		// <!-- custom: Base AdvCiv/K-Mod short-circuit 2 already lowers building odds as iBuildUnitProb rises, but this final building short-circuit discarded that military pressure immediately before the generic unit-production gate.
++		// Keep this last chance for important buildings while proportionally reducing its base odds when normal military-production pressure is high and the normal spending gate would still allow more units.
++		// This avoids making SC3 less likely once military spending is already above the same +15 spending threshold used by the generic unit-production gate; later role-specific unit exceptions remain unchanged.
++		// Full runs from save files 458 and 457 repeatedly showed strongly under-strength AIs reaching this gate with high BuildUnitProb and still choosing ordinary buildings, almost always while this spending headroom remained available.
++		// In the final save-file 458 validation, 375 of 640 SC3 evaluations were already over budget and kept Base odds; severe under-strength cases with headroom fell from 48.4% average base odds to 32.9%. See KI#197.2. (ChatGPT-5.6-Sol) -->
++		static const int iBuildUnitProbWeightPercent = std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_3_BUILD_UNIT_PROB_WEIGHT_PERCENT")));
++		bool const bShortCircuit3MilitaryPressureAllowed = (iUnitSpending < iMaxUnitSpending + 15);
++		int const iOddsReductionPercent = (bShortCircuit3MilitaryPressureAllowed ? (iBuildUnitProb * iBuildUnitProbWeightPercent) / 100 : 0);
++		int const iOdds = (iBaseOdds * (100 - iOddsReductionPercent)) / 100;
+ 		bool const bShortCircuit3BuildingChosen = AI_chooseBuilding(0, MAX_INT, 0, iOdds);
+-		if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d %S city=%S stage=SHORT_CIRCUIT_3_BUILDING bestBuilding=%s buildingValue=%d landWar=%d odds=%d chosen=%d",
++		if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NONUNIT_GATE turn=%d player=%d %S city=%S stage=SHORT_CIRCUIT_3_BUILDING bestBuilding=%s buildingValue=%d landWar=%d buildUnitProb=%d baseOdds=%d buildUnitProbWeightPercent=%d spendingAllowed=%d oddsReductionPercent=%d odds=%d chosen=%d",
+ 			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (eBestBuilding == NO_BUILDING ? "-" : GC.getInfo(eBestBuilding).getType()),
+-			iBestBuildingValue, bLandWar, iOdds, bShortCircuit3BuildingChosen);
++			iBestBuildingValue, bLandWar, iBuildUnitProb, iBaseOdds, iBuildUnitProbWeightPercent, bShortCircuit3MilitaryPressureAllowed, iOddsReductionPercent, iOdds, bShortCircuit3BuildingChosen);
+ 		if (bShortCircuit3BuildingChosen)
+ 		{
+-			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses building value short-circuit 3 (odds: %d)", sCityName, iOdds);
++			if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses building value short-circuit 3 (odds: %d, base odds: %d)", sCityName, iOdds, iBaseOdds);
+    			return;
+ 		}
+ 	}
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 54c0b0a0e..339abadb9 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -246,6 +246,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [195 - (Fixed/Improved) Two related Base AdvCiv Barbarian Work Boat bugs ignored outer-city-radius seafood and failed to count docked or queued boats](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#195---fixedimproved-two-related-base-advciv-barbarian-work-boat-bugs-ignored-outer-city-radius-seafood-and-failed-to-count-docked-or-queued-boats)\
+ [196 - (Fixed/Improved) AdvCiv-SAS's short-chain irrigation replacement could leave valuable BFC bonus Farms dry for up to 191 turns (Base AdvCiv had a similar untargeted routine, which AdvCiv-SAS does not use because it conflicted with SAS improvement choice)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#196---fixedimproved-advciv-sass-short-chain-irrigation-replacement-could-leave-valuable-bfc-bonus-farms-dry-for-up-to-191-turns-base-advciv-had-a-similar-untargeted-routine-which-advciv-sas-does-not-use-because-it-conflicted-with-sas-improvement-choice)\
+ [197 - (Fixed/Improved) Base AdvCiv/K-Mod military production could remain too low when an empire was under-strength for its size because relative-power logic only throttled strong AIs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#197---fixedimproved-base-advcivk-mod-military-production-could-remain-too-low-when-an-empire-was-under-strength-for-its-size-because-relative-power-logic-only-throttled-strong-ais)\
++[197.2 - (Fixed/Improved) Base AdvCiv/K-Mod final building short-circuit (`CvCityAI::AI_chooseProduction`'s short-circuit 3) ignored BuildUnitProb and could override strong military-production pressure immediately before generic unit production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1972---fixedimproved-base-advcivk-mod-final-building-short-circuit-cvcityaiai_chooseproductions-short-circuit-3-ignored-buildunitprob-and-could-override-strong-military-production-pressure-immediately-before-generic-unit-production)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7399,6 +7400,22 @@ In practical terms, the correction made the ordinary AI production logic noticea
+ 
+ The runs also retained substantial variation between civilizations rather than equalizing every army. Small empires were evaluated by military density rather than being asked to chase the raw total power of much larger rivals, while rapidly expanded empires could receive strong temporary pressure until their military caught up. The earlier SAS Process-fallback overproduction did not return: the refined runs continued to show only genuine empty-queue fallback contexts and no Process-replacement fallback.
+ 
+-A separate related Base AdvCiv/K-Mod follow-up remains under investigation: `AI_chooseProduction` short-circuit 2 explicitly lowers building odds as `iBuildUnitProb` rises, while the later short-circuit 3 does not use `iBuildUnitProb`. The new diagnostics show that this can still let a building intercept the final generic unit-production opportunity during severe under-strength. That possible follow-up is not part of the KI#197 cure above and can be evaluated separately.
++A separate related Base AdvCiv/K-Mod follow-up was also exposed by the same diagnostics: `AI_chooseProduction` short-circuit 2 explicitly lowers building odds as `iBuildUnitProb` rises, while the later short-circuit 3 did not use `iBuildUnitProb`. That distinct issue is now addressed separately in KI#197.2.
++
++Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
++
++## 197.2 - (Fixed/Improved) Base AdvCiv/K-Mod final building short-circuit (`CvCityAI::AI_chooseProduction`'s short-circuit 3) ignored BuildUnitProb and could override strong military-production pressure immediately before generic unit production
++
++The dedicated military-production diagnostics used for KI#197 exposed a second inherited issue in `CvCityAI::AI_chooseProduction`. Short-circuit 2 already lowers building odds as `iBuildUnitProb` rises, but short-circuit 3 - the final "last chance to catch important buildings" immediately before generic unit production - recalculated its building chance from building value and land-war state alone. Strong military-production pressure could therefore survive the earlier production logic and then be partly forgotten at the final building retry.
++
++This was repeatable across the pre-fix logs. During severe under-strength (`understrengthBoostPercent >= 40`), short-circuit 3 chose its building in 7 of 9 and 7 of 8 evaluated cases in two save-file 458 runs, and 15 of 25 cases in save file 457. A concrete save-file 457 example was Shaka's Nobamba at turn 185: `BuildUnitProb` was 84 and short-circuit 2 gave the Grocer only 8% odds, but the inherited short-circuit 3 formula restored a 52% building chance immediately before the generic unit gate.
++
++AdvCiv-SAS now keeps that last building chance, but proportionally reduces its base odds with the AI's already-computed `iBuildUnitProb`. `SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_3_BUILD_UNIT_PROB_WEIGHT_PERCENT`, 50 by default, controls how strongly that military pressure applies; for example, `BuildUnitProb=80` with the default weight reduces short-circuit 3 base building odds by 40%. Existing production-progress preference inside `AI_chooseBuilding` is unchanged, so an important building that is already underway still retains its normal continuity advantage. Setting the define to 0 restores the inherited Base AdvCiv/K-Mod short-circuit 3 odds.
++
++The first test version applied this reduction whenever `iBuildUnitProb` was high, but save file 458 exposed that this was too broad. At turn 119 Aachen already had unit spending 102 against the generic gate's `max+15` allowance of 99, yet the prototype still reduced a Forge from 32% to 25%; when the Forge roll then failed, a later inherited city-counter exception produced an Axeman despite the ordinary spending gate already saying that generic unit production was over budget. The final version therefore applies the short-circuit 3 reduction only while the same normal `+15` military-spending gate would still allow another generic unit. In the confirming rerun, the turn-119 Aachen case remained at 32% and chose the Forge, matching the pre-SC3 branch.
++
++The refined save-file 458 run evaluated short-circuit 3 640 times. 375 evaluations were already above the relevant spending allowance and were left completely unchanged; only the 265 cases with spending headroom could receive the new reduction. Among severe under-strength cases, 25 still had spending room: their average short-circuit 3 building chance fell from 48.4% to 32.9%, and the building was chosen in 5 of those 25 cases. The other 15 severe cases were already over the spending threshold and retained Base AdvCiv odds. The first causal divergence from the old save-file 458 branch moved from the over-budget Aachen case to turn 128 Vienne, where unit spending was 0 against a normal maximum of 98 and `BuildUnitProb` was 51; the Buddhist Monastery's final building chance fell from 52% to 39%, after which the city eventually chose a Spearman.
++
++The earlier save-file 457 prototype test also supported the intended direction: severe short-circuit 3 building choices fell from 15 of 25 in the old run to 11 of 27 after weighting. Retrospectively, 24 of the 25 old severe save-file 457 cases had the spending headroom required by the final refinement, so the added spending gate preserves almost all of the target correction while avoiding unrelated pressure once the AI is already over its normal unit budget.
+ 
+ Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 53c9717f4..2e9641e48 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -396,6 +396,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - Disable unreliable **UnitAIs** for AIs: `UNITAI_COLLATERAL`, `UNITAI_PILLAGE` (but despite that, AI still seems to occasionally pillage), `UNITAI_PIRATE_SEA` to reduce suicides/baiting and keep stacks focused.
+ - Retune UnitAI **selection/weights** in `AI_bestUnit`, `AI_bestUnitAI`, `AI_chooseProduction`: land maps emphasize `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` (with some `UNITAI_RESERVE`); defense mode emphasizes `UNITAI_CITY_DEFENSE` / `UNITAI_CITY_SPECIAL` / `UNITAI_RESERVE`; naval UnitAIs are downweighted on land-focused maps. Goal: fewer wandering/baited units; more decisive stacks.
+ - (Requires AdvCiv-SAS 6087+) **AI military production now catches up when an empire becomes under-strength for its size:** dedicated BBAI military-production logging together with SASGameRecord exposed a Base AdvCiv/K-Mod asymmetry: relative-power logic could reduce unit production when an AI was already strong, but there was no opposite catch-up when expansion outpaced army growth. This could leave a rapidly expanding empire with too little military for the amount of territory and cities it needed to defend. To address this, the AI now compares its power per city with the city-weighted average of relevant rivals and proportionally increases its normal willingness to build units while under-strength, while still respecting financial/economic reductions, the better-units strategy and the inherited high-power throttle. In two full post-fix runs from save file 458 and an independent post-fix run from save file 457, this catch-up activated in about 46-47% of logged military-production evaluations when applicable. For example, one save-file 458 state had Kublai at 9 cities and 579 power (about 64 power per city versus 125 for the relevant-rival average), increasing his BuildUnitProb from 47 to 70; save file 457 independently showed Shaka at 7 cities and 377 power (about 54 versus 94 per city), increasing it from 57 to 81. In practice, under-strength AIs therefore became noticeably more willing to reinforce their armies until they caught up, while already-strong AIs received no boost. See [KI#197](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#197---fixedimproved-base-advcivk-mod-military-production-could-remain-too-low-when-an-empire-was-under-strength-for-its-size-because-relative-power-logic-only-throttled-strong-ais).
++- (Requires AdvCiv-SAS 6088+) **The AI's final important-building retry now respects military-production pressure while another unit still fits its spending budget:** military-production logs showed that Base AdvCiv/K-Mod could reach the end of city production with strong reasons to build units, then give an important building one final chance that ignored that military pressure: in `CvCityAI::AI_chooseProduction`, short-circuit 2 already lowers building odds as `iBuildUnitProb` rises, but short-circuit 3 - the final "last chance to catch important buildings" immediately before generic unit production - recalculated its building chance from building value and land-war state alone. Strong military-production pressure could therefore survive the earlier production logic and then be partly forgotten at the final building retry. In the severe under-strength samples that exposed the issue, this late building retry won 7/9 and 7/8 times in two save-file 458 runs and 15/25 times in save file 457. To fix this, the AI now reduces only this final building chance in proportion to its existing willingness to build units, and only while the normal military-spending gate still has room; once the AI is already over that unit budget, the inherited building odds are left unchanged. The final save-file 458 validation left 375/640 already-over-budget evaluations untouched, while severe under-strength cases that still had spending room fell from about 48% average base building odds to about 33% and chose the building only 5/25 times. This keeps important infrastructure possible while preventing the last building retry from disproportionately overriding the military pressure already used by the surrounding production logic. See [KI#197.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1972---fixedimproved-base-advcivk-mod-final-building-short-circuit-cvcityaiai_chooseproductions-short-circuit-3-ignored-buildunitprob-and-could-override-strong-military-production-pressure-immediately-before-generic-unit-production).
+ - Rebalance perceived **iPower**: downweight some naval units; adjust certain land units (e.g., warrior, animals) to reduce **fake power** that triggers bad wars. See [Long_Comments/Long_Comments_XML.txt](/Long_Comments/Long_Comments_XML.txt) (search for `UnitAI notes (Units XML)`).
+ - XML **DefaultUnitAI / UnitAIs / NotUnitAIs**: align roles with efficiency (e.g., swordsmen primarily offensive even if versatile; longbows defensive unless explicitly set otherwise).
+ - Promotions logic in `CvUnitAI::AI_promotionValue`: add **hard rules** so AIs pick context-appropriate promotions (e.g., City Garrison for `UNITAI_CITY_DEFENSE`, City Raider for `UNITAI_ATTACK_CITY`; avoid Woodsman/Medic on front-line attackers unless context justifies). Rules apply per **UnitAI** (not just by unit type); with exceptions like recon. See **[KI#47](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more)**.
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=18461

@@ -1,0 +1,371 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5740
+# Commit: 9b8bd26265aafd886b6f39f61f7650ef1b222d6c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 588b84596f0c62bed5b25d58426d49a12ec37d17
+# Title: unify sevopedia search bar so sevopedia index uses the same one (no more duplicated logic or distinct search bar, no longer remembers search history)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	87	Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+38	16	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+2	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+index 75723b4c5..30f6ab571 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+@@ -26,13 +26,9 @@ class SevoPediaIndex:
+ 		
+ 		self.index = None
+ 		self.letterTextIDs = None
+-		self.SAS_INDEX_SEARCH_PANEL_ID = "PediaIndexSearchPanel"
+-		self.SAS_INDEX_SEARCH_LABEL_ID = "PediaIndexSearchLabel"
+-		self.SAS_INDEX_SEARCH_CLEAR_ID = "PediaIndexSearchClear"
+-		self.SAS_INDEX_SEARCH_DEFAULT_TEXT = u"Enter text"
+-		self.SAS_INDEX_SEARCH_H = 32
+-		self.SAS_szIndexSearchString = u""
+-		self.SAS_indexKeyDebounceByKey = {}
++		# <!-- custom: filter reads SevoPediaMain.SAS_szSearchString; the shared top-header search bar
++		# is drawn by SevoPediaMain.SAS_syncSearchPanel and refreshed via SAS_refreshActiveListView.
++		# This page owns no search state of its own. (Claude code Opus 4.7) -->
+ 		self.SAS_indexWidgetNames = []
+ 
+ 	def SAS_indexSetLayout(self, bCategory):
+@@ -56,43 +52,6 @@ class SevoPediaIndex:
+ 		self.buildIndex()
+ 		self.placeIndex()
+ 	
+-	def SAS_indexDeleteSearchWidgets(self):
+-		screen = self.top.getScreen()
+-		self.top.SAS_safeDeleteWidget(screen, self.SAS_INDEX_SEARCH_PANEL_ID)
+-		self.top.SAS_safeDeleteWidget(screen, self.SAS_INDEX_SEARCH_LABEL_ID)
+-		self.top.SAS_safeDeleteWidget(screen, self.SAS_INDEX_SEARCH_CLEAR_ID)
+-	
+-	def SAS_indexIsSearchActive(self):
+-		return (self.SAS_szIndexSearchString is not None and len(self.SAS_szIndexSearchString.strip()) > 0)
+-	
+-	def SAS_indexSyncSearchPanel(self):
+-		screen = self.top.getScreen()
+-		
+-		self.SAS_indexDeleteSearchWidgets()
+-		
+-		iX = self.X_INDEX
+-		iY = self.Y_INDEX
+-		iW = self.W_INDEX
+-		iH = self.SAS_INDEX_SEARCH_H
+-		
+-		screen.addPanel(self.SAS_INDEX_SEARCH_PANEL_ID, u"", u"", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_BLUE50)
+-		
+-		if self.SAS_indexIsSearchActive():
+-			szText = self.SAS_szIndexSearchString
+-		else:
+-			szText = self.SAS_INDEX_SEARCH_DEFAULT_TEXT
+-		
+-		screen.setLabel(self.SAS_INDEX_SEARCH_LABEL_ID, self.SAS_INDEX_SEARCH_PANEL_ID,
+-				SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE,
+-				CvUtil.FONT_LEFT_JUSTIFY, iX + 6, iY + 6, 0,
+-				FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-		
+-		if self.SAS_indexIsSearchActive():
+-			screen.setLabel(self.SAS_INDEX_SEARCH_CLEAR_ID, self.SAS_INDEX_SEARCH_PANEL_ID,
+-					SAS_FONT_TAG_LABEL + u"x" + SAS_FONT_TAG_CLOSE,
+-					CvUtil.FONT_RIGHT_JUSTIFY, iX + iW - 6, iY + 6, 0,
+-					FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-
+ 	def buildIndex(self):
+ 		if self.index:
+ 			return
+@@ -223,15 +182,21 @@ class SevoPediaIndex:
+ 					pass
+ 			self.SAS_indexWidgetNames = []
+ 		
+-		self.SAS_indexSyncSearchPanel()
++		# <!-- custom: draw the shared top-header search bar from SevoPediaMain, and register this
++		# method as the active refresher so Main's search handlers can invoke it on each keystroke
++		# without needing any category-specific branching. (Claude code Opus 4.7) -->
++		self.top.SAS_syncSearchPanel()
++		self.top.SAS_activeListRefresher = self.placeIndex
+ 
+ 		nColumns = 3
+ 		self.tableName = self.top.getNextWidgetName()
+ 		self.SAS_rowToBuild = {}
+ 		self.SAS_rowToTrait = {}  # <!-- custom: row-to-trait mapping for WIDGET_PYTHON trait handling. (Claude Opus 4.5) -->
+ 		self.iTableWidgetId = int(self.tableName.replace(self.top.WIDGET_ID, ""))
+-		iTableY = self.Y_INDEX + self.SAS_INDEX_SEARCH_H + 4
+-		iTableH = self.H_INDEX - (iTableY - self.Y_INDEX)
++		# <!-- custom: search bar lives in the top header, so the Index table uses the full Y_INDEX
++		# area below it. (Claude code Opus 4.7) -->
++		iTableY = self.Y_INDEX
++		iTableH = self.H_INDEX
+ 		# <!-- custom: For Build entries, table selection is the only reliable click signal, so keep the table selectable and capture
+ 		# row->Build mapping in handleInput. We previously tried overlay buttons, but they ignored table scrolling and desynced from rows.
+ 		# Also, if the table doesn't have focus on first open, NOTIFY_CHARACTER goes nowhere and the search bar appears "dead" until
+@@ -248,10 +213,10 @@ class SevoPediaIndex:
+ 		iColumn = 0
+ 		sLetter = "#"
+ 		iX = self.X_LETTER
+-		iLetterY = self.Y_INDEX + self.SAS_INDEX_SEARCH_H + 4
++		iLetterY = self.Y_INDEX
+ 		self.letterTextIDs = {}
+ 		# <!-- custom: note: while adding leaderhead art_def in AdvCiv-SAS-NIF-Gallery mod we saw the error "UnicodeDecodeError: 'ascii' codec can't decode byte 0xc8 in position 0" and in Sevopedia Leader, fixed by respecting path case sensitivity (e.g. "Art/LeaderHeads"). So reverted a previous patch that would workaround that: prefer to fail loudly instead and fix path or asset cause directly rather. See KI#111. (GPT-5.3-Codex) -->
+-		szFilter = self.SAS_szIndexSearchString.strip().lower()
++		szFilter = self.top.SAS_szSearchString.strip().lower()
+ 		bFilter = (len(szFilter) > 0)
+ 		for name, type, item in self.index:
+ 			if item[1] < 0:
+@@ -344,44 +309,8 @@ class SevoPediaIndex:
+ 
+ 	def handleInput (self, inputClass):
+ 		BugUtil.debugInput(inputClass)
+-		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
+-			if inputClass.getFunctionName() == self.SAS_INDEX_SEARCH_CLEAR_ID:
+-				if self.SAS_indexIsSearchActive():
+-					self.SAS_szIndexSearchString = u""
+-					self.SAS_indexKeyDebounceByKey = {}
+-					self.placeIndex()
+-				return 1
+-		
+-		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
+-			screen = self.top.getScreen()
+-			if screen.isActive():
+-				if (not inputClass.isAltKeyDown()) and (not inputClass.isCtrlKeyDown()):
+-					iKey = inputClass.getData()
+-					
+-					if self.top.SAS_shouldDebounceKey(iKey):
+-						if self.SAS_indexKeyDebounceByKey.get(iKey, 0):
+-							self.SAS_indexKeyDebounceByKey[iKey] = 0
+-							return 1
+-						self.SAS_indexKeyDebounceByKey[iKey] = 1
+-					
+-					szChar = self.top.SAS_getVisibleCharacter(inputClass)
+-					if len(szChar) > 0:
+-						self.SAS_szIndexSearchString = self.SAS_szIndexSearchString + szChar
+-						self.placeIndex()
+-						return 1
+-					
+-					if iKey == int(InputTypes.KB_BACKSPACE):
+-						if len(self.SAS_szIndexSearchString) > 0:
+-							self.SAS_szIndexSearchString = self.SAS_szIndexSearchString[:-1]
+-							self.placeIndex()
+-							return 1
+-					elif iKey == int(InputTypes.KB_ESCAPE):
+-						if self.SAS_indexIsSearchActive():
+-							self.SAS_szIndexSearchString = u""
+-							self.SAS_indexKeyDebounceByKey = {}
+-							self.placeIndex()
+-							return 1
+-		
++		# <!-- custom: search typing + CLEAR live in SevoPediaMain.handleInput; this method only
++		# handles letter buttons and table-row clicks specific to the Index page. (Claude code Opus 4.7) -->
+ 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED
+ 				and inputClass.getFunctionName() + str(inputClass.getID()) in self.letterTextIDs):
+ 			screen = self.top.getScreen()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 9b1dff9ae..54b69883d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -284,6 +284,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_szSearchString = u""
+ 		self.SAS_lastItemsWidget = None
+ 		self.SAS_lastItemsInfo = None
++		# <!-- custom: only one Sevopedia page renders at a time, so a single callable is enough to
++		# remember what to re-render after a search keystroke. Each list page sets this when drawn:
++		# placeItems for regular listbox categories, SevoPediaIndex.placeIndex for the Index 3-column
++		# table. Search handlers just invoke whichever is registered, no per-category branching. (Claude code Opus 4.7) -->
++		self.SAS_activeListRefresher = None
+ 
+ 		# <!-- custom: debounce for type-to-filter to prevent double keypress even when key-up events are interleaved (chatgpt 5.2 + claude opus 4.5) -->
+ 		# Note: BtS/AdvCiv can fire NOTIFY_CHARACTER twice per press for letters/digits, and the 2nd event can arrive after another key when typing fast.
+@@ -452,6 +457,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def SAS_isSearchActive(self):
+ 		return (self.SAS_szSearchString is not None and len(self.SAS_szSearchString.strip()) > 0)
+ 
++	# <!-- custom: invoke the registered refresher; see SAS_activeListRefresher comment in __init__. (Claude code Opus 4.7) -->
++	def SAS_refreshActiveListView(self):
++		if self.SAS_activeListRefresher is not None:
++			self.SAS_activeListRefresher()
++
++	def _SAS_refreshLastItems(self):
++		if self.SAS_lastItemsWidget is not None:
++			self.placeItems(self.SAS_lastItemsWidget, self.SAS_lastItemsInfo)
++
+ 	# <!-- custom: type-to-filter search bar sync panel (chatgpt 5.2 + claude opus 4.5) -->
+ 	def SAS_syncSearchPanel(self):
+ 		screen = self.getScreen()
+@@ -459,11 +473,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# Recreate each time: simple + safe (mirrors the approach used in other mod(s)).
+ 		self.SAS_deleteSearchWidgets(screen)
+ 
+-		# <!-- custom: search bar lives in the otherwise-empty top header now. Right edge stops
+-		# short of the central "Sevopedia" title so they don't visually collide; the gap also
+-		# hosts the CLEAR button, rendered outside the panel as a screen-level text widget so
+-		# clicks actually fire (the previous in-panel "x" was a setLabel under the search panel
+-		# parent, which never reached handleInput). (Claude code Opus 4.7) -->
++		# <!-- custom: search bar sits in the top header, X aligned with the items column. Right edge
++		# stops `iSafetyToTitle` pixels short of the central "Sevopedia" title to leave room for the
++		# CLEAR button and avoid visually colliding with the title. CLEAR is rendered OUTSIDE the
++		# panel as a screen-level setText widget; a setLabel inside the search panel parent does
++		# not reach handleInput in this engine, so the click never fires. (Claude code Opus 4.7) -->
+ 		iSafetyToTitle = 200
+ 		iClearGap = 8
+ 		iX = self.X_ITEMS
+@@ -766,7 +780,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def showContents(self, bForce=False, iCategory=None):
+ 		if iCategory is None:
+ 			iCategory = self.SAS_CATEGORY_DEFS[0][0]
+-		self.pediaIndex.SAS_indexDeleteSearchWidgets()
+ 		self.deleteAllWidgets()
+ 		# <!-- custom: keep Sevopedia layout as restart-based for resolution changes; main interface still needs restart after in-session resolution switches to avoid broken layout, so we don't add dynamic per-resolution reflow across Sevopedia screens. (GPT-5.3-Codex) -->
+ 		screen = self.getScreen()
+@@ -796,9 +809,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		if not self.isContentsShowing() or self.iCategory != iCategory or bForce:
+ 			BugUtil.debug("Drawing item list %d" % iCategory)
+ 			# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
++			# <!-- custom: reset search state on every category change. Players almost always want to
++			# look up something different on the next visit, so we drop the query rather than restoring
++			# it. (Claude code Opus 4.7) -->
+ 			# <!-- custom: reset search state when changing category (chatgpt 5.2 + claude opus 4.5) -->
+ 			self.SAS_lastItemsWidget = None
+ 			self.SAS_lastItemsInfo = None
++			self.SAS_activeListRefresher = None
+ 			if (not self.isContentsShowing()) or (self.iCategory != iCategory):
+ 				self.SAS_szSearchString = u""
+ 				# <!-- custom: reset debounce state when search is reset (chatgpt 5.2 + claude opus 4.5) -->
+@@ -846,6 +863,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		screen = self.getScreen()
+ 		self.SAS_lastItemsWidget = None
+ 		self.SAS_lastItemsInfo = None
++		self.SAS_activeListRefresher = None
+ 		self.SAS_szSearchString = u""
+ 		self.SAS_keyDebounceByKey = {}
+ 		self.SAS_deleteSearchWidgets(screen)
+@@ -2101,6 +2119,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# <!-- custom: remember last list kind so typing can rebuild it (chatgpt 5.2 + claude opus 4.5) -->
+ 		self.SAS_lastItemsWidget = widget
+ 		self.SAS_lastItemsInfo = info
++		# <!-- custom: register self as the active refresher; see SAS_activeListRefresher comment. (Claude code Opus 4.7) -->
++		self.SAS_activeListRefresher = self._SAS_refreshLastItems
+ 
+ 		# <!-- custom: search bar (top of item list) (chatgpt 5.2 + claude opus 4.5) -->
+ 		self.SAS_syncSearchPanel()
+@@ -2395,10 +2415,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			if iHandled:
+ 				return iHandled
+ 
+-		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+-		# Index has its own input (existing behavior).
++		# <!-- custom: forward to Index for its letter-button and table clicks; fall through if it
++		# does not consume the event so the shared search handler below can still process typing. (Claude code Opus 4.7) -->
+ 		if self.SAS_USE_BOTTOM_TABS and self.isIndexShowing():
+-			return self.pediaIndex.handleInput(inputClass)
++			iHandled = self.pediaIndex.handleInput(inputClass)
++			if iHandled:
++				return iHandled
+ 		if self.isContentsShowing() and self.iCategory == SevoScreenEnums.PEDIA_INDEX:
+ 			iHandled = self.pediaIndex.handleInput(inputClass)
+ 			if iHandled:
+@@ -2415,13 +2437,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 					self.SAS_szSearchString = u""
+ 					# <!-- custom: reset debounce state when clearing search (chatgpt 5.2 + claude opus 4.5) -->
+ 					self.SAS_keyDebounceByKey = {}
+-					if self.SAS_lastItemsWidget is not None:
+-						self.placeItems(self.SAS_lastItemsWidget, self.SAS_lastItemsInfo)
++					self.SAS_refreshActiveListView()
+ 				return 1
+ 
+ 		# <!-- custom: type-to-filter keyboard input using InputTypes constants like other mod(s) do (chatgpt 5.2 + claude opus 4.5) -->
++		# <!-- custom: gate fires whenever a list-rendering page has registered itself as the active
++		# refresher, regardless of which tab/mode hosts it. (Claude code Opus 4.7) -->
+ 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
+-			if self.SAS_lastItemsWidget is not None and self.isContentsShowing():
++			if (self.isContentsShowing() or self.isIndexShowing()) and self.SAS_activeListRefresher is not None:
+ 				screen = self.getScreen()
+ 				if screen.isActive():
+ 					if (not inputClass.isAltKeyDown()) and (not inputClass.isCtrlKeyDown()):
+@@ -2437,14 +2460,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 						szChar = self.SAS_getVisibleCharacter(inputClass)
+ 						if len(szChar) > 0:
+ 							self.SAS_szSearchString = self.SAS_szSearchString + szChar
+-							self.placeItems(self.SAS_lastItemsWidget, self.SAS_lastItemsInfo)
++							self.SAS_refreshActiveListView()
+ 							return 1
+ 
+ 						# Handle backspace to delete last character
+ 						if iKey == int(InputTypes.KB_BACKSPACE):
+ 							if len(self.SAS_szSearchString) > 0:
+ 								self.SAS_szSearchString = self.SAS_szSearchString[:-1]
+-								self.placeItems(self.SAS_lastItemsWidget, self.SAS_lastItemsInfo)
++								self.SAS_refreshActiveListView()
+ 								return 1
+ 						# Handle escape to clear search
+ 						elif iKey == int(InputTypes.KB_ESCAPE):
+@@ -2452,7 +2475,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 								self.SAS_szSearchString = u""
+ 								# <!-- custom: reset debounce state when clearing search (chatgpt 5.2 + claude opus 4.5) -->
+ 								self.SAS_keyDebounceByKey = {}
+-								self.placeItems(self.SAS_lastItemsWidget, self.SAS_lastItemsInfo)
++								self.SAS_refreshActiveListView()
+ 								return 1
+ 						# <!-- custom: Based on C2C mod's implementation thanks: add navigation of the item list with the UP/DOWN arrow keys. Code adjusted for AdvCiv-SAS with the help of chatgpt 5.2 and claude opus 4.5. -->
+ 						# <!-- custom: arrow key navigation for item list (chatgpt 5.2 + claude opus 4.5) -->
+@@ -2639,7 +2662,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+ 		# <!-- custom: also delete search widgets when deleting list widgets (chatgpt 5.2 + claude opus 4.5) -->
+ 		self.SAS_deleteSearchWidgets(screen)
+-		self.pediaIndex.SAS_indexDeleteSearchWidgets()
+ 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+ 
+ 	def SAS_setItemsWidth(self, iW):
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 68136dd50..5b077c1c7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -300,7 +300,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ Note: New panels added or modified mostly not mentioned here for concision. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
+ 
+ - Wider content area, narrower main category column; fills available screen space.
+-- **Search Bar**: shared by several Sevopedia pages; it allows to **search** for entries using the **keyboard**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: search bar](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages).
++- **Search Bar**: shared by eligible Sevopedia categories (i.e. that have an item list, including Sevopedia Index); it allows to **search** for entries using the **keyboard**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: search bar](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages).
+ - **Keyboard Navigation**: allows to **browse Sevopedia categories** using the keyboard in the list pages (e.g. In the Units Category: Axeman, Swordsman, Worker) or tree pages (e.g. Units Tree and Promotion Tree categories) using the **keyboard UP/DOWN arrow keys**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: keyboard (UP/DOWN) navigation](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
+ - (Requires AdvCiv-SAS 5678+) **Fix empty pages** in Sevopedia **category opening flow:** opening a category now jumps **directly to the first real entry (if any)** instead of landing on a **blank header/spacer** row first; this makes **navigation easier** and avoids **needless and disruptive BACK/NEXT history pollution**. See [KI#119](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#119---fixed-sevopedia-category-opening-on-blank-placeholder-rows-item--1-and-polluting-backnext-history).
+ - (Requires AdvCiv-SAS 5729+) **Fix BACK/NEXT navigation history being lost on sevopedia exit** (e.g., to revisit AI Personality Panel pages during a game, or other categories previously visited): now **persists** during the entire **gaming session**. Added a **CLEAR** link to clear history. See [KI#125](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#125---fixed-base-advciv-issue-sevopedia-backnext-history-is-lost-on-exit).
+@@ -308,7 +308,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5732+) New **Current-Game Player Id Previous/Next** links in **Sevopedia Leader** and **Sevopedia Civilization**: show `[-1` (previous) and `-1]` (next) greyed in the main menu/no **active game**. In game, they show nearby **known living** major-**player ids** for the **active player**, including the active player, without spoilers except in debug mode. Links are greyed when inactive. Example: if player ids are 0 to 10 and the active player is id 0 and knows ids 1, 4, and 9, possible links are `[-1` greyed / `0]` white from a leader/civ not in the current game list, `[0` greyed / `1]` white at id 0, `[0` white / `4]` white at id 1, `[1` white / `9]` white at id 4, and `[4` white / `9]` greyed at id 9. Corresponding **legend** sections added. Note: in custom games with duplicate leaders/civilizations, each duplicate leader/civilization appears once, using the first matching player id. Note 2: player id information is also available in the Info Screen's Score tab.
+ - **Entries Grouping**: Depending on the Sevopedia Page, Sevopedia lists are now grouped: **by Civic Type** (e.g. Government, Economy) in Sevopedia Civics; **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era)); **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist; **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig) in Sevopedia Bonus; **by Land/Water** (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) sometimes with additional subgroups. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py) and [_sevopedia_main_groupings.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py).
+ - the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+-- **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
++- **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories.
+ - **Beautify** Sevopedia Main: **Reorder categories** and **change category icon characters**. See [Sevopedia reworks (Main Refactor)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+ - **Chart categories (common)**: added a **"LOG" button** to print to `PythonDbg.log`.
+ - **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 8de1de862..b26141723 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -107,6 +107,8 @@ More recently, added the Builds entries to the Index. See [example 0.40 builds c
+ 
+ Then, to make those Index Builds entries fully clickable and stable, we kept the table selectable, mapped row->Build IDs, and routed the click in `SevoPediaIndex.handleInput` instead of overlaying buttons. The overlay approach looked correct at first but the buttons did not scroll with the table and became desynced. Also, the index search bar was dead on first open until the table received focus, so we explicitly set focus to the index table when building it. Credit: Claude code Opus 4.5 + GPT-5.2-Codex.
+ 
++Update: Sevopedia Index now uses the same search bar as the shared one the other sevopedia categories use (no longer duplicated Search bar logic in Sevopedia index).
++
+ <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (1).JPG" alt="0.611_sevopedia_index_as_category (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG" alt="0.611_sevopedia_index_as_category (3).JPG" width="250"></img>
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=23889

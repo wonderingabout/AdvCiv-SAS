@@ -1,0 +1,52 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2149
+# Commit: fa2c143435513123ee35a0acc97953cc5c544d1d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f21f7b3b8ad81208d7327fa705dbf7dc06a268bb
+# Title: Fix crash in Rise & Fall games
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/LinkedList.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c5c0851fd..316af0249 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -9501,7 +9501,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
+ 	{
+ 		if (kGame.getRiseFall().isCooperationRestricted(getID()))
+ 		{
+-			CLinkList<TradeData> kWeGiveTotal = (kWeGive.getLength() <= 0 ?
++			CLinkList<TradeData> const& kWeGiveTotal = (kWeGive.getLength() <= 0 ?
+ 					kWeAlsoGive : kWeGive);
+ 			double thresh = kGame.getRiseFall().dealThresh(isAnnualDeal(kWeGiveTotal));
+ 			if(bDeal && kGame.getRiseFall().pessimisticDealVal(getID(), iTheyReceive,
+
+diff --git a/CvGameCoreDLL/LinkedList.h b/CvGameCoreDLL/LinkedList.h
+index 36aa0b71e..719ed6321 100644
+--- a/CvGameCoreDLL/LinkedList.h
++++ b/CvGameCoreDLL/LinkedList.h
+@@ -30,7 +30,7 @@ protected:
+ 
+ /*	advc: Minor refactoring. Define one-line functions inline.
+ 	Removed unnecessary assertions. assert calls replaced with FAssert. */
+-template <class tVARTYPE> class CLinkList
++template <class tVARTYPE> class CLinkList /* advc.003e: */ : private boost::noncopyable
+ {
+ public:
+ 	inline CLinkList() : m_iLength(0), m_pHead(NULL), m_pTail(NULL) {}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1203

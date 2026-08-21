@@ -1,0 +1,79 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 423
+# Commit: bad9bfe26447c3c617303372b948d39091ada6b7
+# History segment: K-Mod history
+# Parent used for diff: 53d9ec14c611d1a9e4d588a8965654406c1df874
+# Title: Rewrote the probability formula for the natural spread of religion. It now depends on two new xml values: RELIGION_SPREAD_DIVISOR_BASE and RELIGION_SPREAD_DI...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	0	Assets/xml/GlobalDefinesAlt.xml
+16	1	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GlobalDefinesAlt.xml b/Assets/xml/GlobalDefinesAlt.xml
+index 28701290d..de4463fed 100644
+--- a/Assets/xml/GlobalDefinesAlt.xml
++++ b/Assets/xml/GlobalDefinesAlt.xml
+@@ -105,6 +105,14 @@
+ 		<DefineName>BONUS_OBSOLETE_VALUE_MODIFIER</DefineName>
+ 		<iDefineIntVal>150</iDefineIntVal>
+ 	</Define>-->
++	<Define>
++		<DefineName>RELIGION_SPREAD_DIVISOR_BASE</DefineName>
++		<iDefineIntVal>5</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>RELIGION_SPREAD_DISTANCE_FACTOR</DefineName>
++		<iDefineIntVal>7</iDefineIntVal>
++	</Define>
+ 	<Define>
+ 		<DefineName>RELIGION_INFLUENCE_POPULATION_WEIGHT</DefineName>
+ 		<iDefineIntVal>2</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 1a09eded8..deb1729ed 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -12599,6 +12599,8 @@ void CvCity::doReligion()
+ 	ReligionTypes eWeakestReligion = NO_RELIGION; // weakest religion already in the city
+ 	int iWeakestGrip = INT_MAX;
+ 	int iRandomWeight = GC.getDefineINT("RELIGION_INFLUENCE_RANDOM_WEIGHT");
++	int iDivisorBase = GC.getDefineINT("RELIGION_SPREAD_DIVISOR_BASE");
++	int iDistanceFactor = GC.getDefineINT("RELIGION_SPREAD_DISTANCE_FACTOR");
+ 
+ 	for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
+ 	{
+@@ -12650,7 +12652,20 @@ void CvCity::doReligion()
+ 
+ 								if (iSpread > 0)
+ 								{
+-									iSpread /= std::max(1, (((GC.getDefineINT("RELIGION_SPREAD_DISTANCE_DIVISOR") * plotDistance(getX_INLINE(), getY_INLINE(), pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE())) / GC.getMapINLINE().maxPlotDistance()) - 5));
++									//iSpread /= std::max(1, (((GC.getDefineINT("RELIGION_SPREAD_DISTANCE_DIVISOR") * plotDistance(getX_INLINE(), getY_INLINE(), pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE())) / GC.getMapINLINE().maxPlotDistance()) - 5));
++
++									// K-Mod. The original formula basically divided the spread by the percent of max distance.
++									// In my view, this produced too much spread at short distance, and too little at long.
++									// Note: in original bts, RELIGION_SPREAD_DISTANCE_DIVISOR == 100.
++									// RELIGION_SPREAD_BASE_DIVISOR and RELIGION_SPREAD_DISTANCE_FACTOR are new values, with defaults is 5 and 7 respectively.
++									int iDivisor = std::max(1, iDivisorBase);
++
++									iDivisor *= 100 + 100 * iDistanceFactor * plotDistance(getX_INLINE(), getY_INLINE(), pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE()) / GC.getMapINLINE().maxPlotDistance();
++									iDivisor /= 100;
++
++									// now iDivisor is in the range [1, 1+iDistanceFactor] * iDivisorBase. (ie. [5, 40].)
++									iSpread /= iDivisor;
++									// K-Mod end
+ 
+ 									//iSpread /= (getReligionCount() + 1);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2716

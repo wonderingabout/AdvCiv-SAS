@@ -1,0 +1,141 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2464
+# Commit: 82648fc9fbde6e70b16e677b82039fd6989b73de
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fd00cf5197afe3d1c519d62ffb288ea11955e968
+# Title: Fix a couple issues with prev. owner in raze-city AI code
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	12	CvGameCoreDLL/CvPlayer.cpp
+7	7	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 93c0209bc..cb461926b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1583,7 +1583,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 		abEverOwned.set(it->getID(), pOldCity->isEverOwned(it->getID()));
+ 		aiCulture.set(it->getID(), pOldCity->getCultureTimes100(it->getID()));
+ 	}
+-	abEverOwned.set(getID(), true);
++	// advc.ctr: This gets set automatically when kNewCity is initialized
++	//abEverOwned.set(getID(), true);
+ 
+ 	FOR_EACH_ENUM(Religion)
+ 	{
+@@ -1708,7 +1709,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 
+ 	for (PlayerIter<> it; it.hasNext(); ++it)
+ 	{
+-		kNewCity.setEverOwned(it->getID(), abEverOwned.get(it->getID()));
++		// advc.ctr: Don't overwrite this player's ownership status
++		if (!kNewCity.isEverOwned(it->getID()) && abEverOwned.get(it->getID()))
++			kNewCity.setEverOwned(it->getID(), true);
+ 		kNewCity.setCultureTimes100(it->getID(),
+ 				aiCulture.get(it->getID()), false, false);
+ 	} // <kekm.23>
+@@ -1819,15 +1822,15 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 		{
+ 			int iPopPercent = GC.getDefineINT("OCCUPATION_TURNS_POPULATION_PERCENT");
+ 			kNewCity.changeOccupationTimer(
+-				/*  advc.023: Population size as upper bound, and iPopPercent set to
+-					0 through XML. (Im multiplying by 1+100*iPopPercent so that the
+-					upper bound has no effect if iPopPercent is set back to 50 in XML.)
+-					NB: iTeamCulturePercent is city culture, not tile culture;
+-					only relevant when a city is reconquered. */
+-				std::min(kNewCity.getPopulation() * (1 + iPopPercent * 100),
+-				((GC.getDefineINT("BASE_OCCUPATION_TURNS") +
+-				((kNewCity.getPopulation() * iPopPercent) / 100)) *
+-				(100 - iTeamCulturePercent)) / 100));
++					/*  advc.023: Population size as upper bound, and iPopPercent set to
++						0 through XML. (Im multiplying by 1+100*iPopPercent so that the
++						upper bound has no effect if iPopPercent is set back to 50 in XML.)
++						NB: iTeamCulturePercent is city culture, not tile culture;
++						only relevant when a city is reconquered. */
++					std::min(kNewCity.getPopulation() * (1 + iPopPercent * 100),
++					((GC.getDefineINT("BASE_OCCUPATION_TURNS") +
++					((kNewCity.getPopulation() * iPopPercent) / 100)) *
++					(100 - iTeamCulturePercent)) / 100));
+ 		}
+ 		GC.getMap().verifyUnitValidPlot();
+ 	}
+@@ -1878,7 +1881,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 				kNewCity.doTask(TASK_RAZE);
+ 			}
+ 			else if (!isHuman())
+-				AI().AI_conquerCity(kNewCity); // could delete the pointer...
++			{	// May delete kNewCity!
++				AI().AI_conquerCity(kNewCity, abEverOwned.get(getID()));
++			}
+ 			else
+ 			{	// popup raze option
+ 				bool bRaze = canRaze(kNewCity);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 72d9dc6b6..509ad7343 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1607,8 +1607,9 @@ void CvPlayerAI::AI_makeProductionDirty()
+ 		pLoopCity->setChooseProductionDirty(true);
+ }
+ 
+-// BETTER_BTS_AI_MOD, War tactics AI, 05/16/10, jdog5000: START
+-void CvPlayerAI::AI_conquerCity(CvCityAI& kCity)  // advc: style changes, advc.003u: param was CvCity*
++// BETTER_BTS_AI_MOD, War tactics AI, 05/16/10, jdog5000:
++void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity*
++	bool bEverOwned) // advc.ctr: We already own it; but had we ever previously owned it?
+ {
+ 	if(!canRaze(kCity))
+ 	{
+@@ -1657,8 +1658,8 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity)  // advc: style changes, advc.0
+ 				if(bRaze) logBBAI("  Razing enemy cultural victory city");
+ 			}
+ 		} // </advc.116>
+-	} // <advc.ctr>
+-	if(!isBarbarian() && !kCity.isHolyCity() && !kCity.isEverOwned(getID()) &&
++	}  // <advc.ctr>
++	if (!isBarbarian() && !kCity.isHolyCity() && !bEverOwned &&
+ 		!kCity.hasActiveWorldWonder() && AI_isAwfulSite(kCity))
+ 	{
+ 		bRaze = true;
+@@ -1694,9 +1695,8 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity)  // advc: style changes, advc.0
+ 				iRazeValue += GC.getInfo(getPersonalityType()).getRazeCityProb();
+ 				//iRazeValue -= iCloseness;
+ 				// <advc.300>
+-				int iDeltaEraPop = 1 + std::max(3,
+-						(int)GET_PLAYER(kCity.getOwner()).getCurrentEra()) -
+-						kCity.getPopulation();
++				int iDeltaEraPop = 1 + std::max<int>(3, kPreviousOwner.getCurrentEra())
++						- kCity.getPopulation();
+ 				iRazeValue *= iDeltaEraPop;
+ 				// The BtS raze roll; now used exclusively for Barbarians
+ 				if(kGame.getSorenRandNum(100, "advc.300") < iRazeValue)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 93a329e8d..81b48bbde 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -95,7 +95,7 @@ public:
+ 	#if 0 // advc
+ 	void AI_doCentralizedProduction(); // K-Mod. (not used)
+ 	#endif
+-	void AI_conquerCity(CvCityAI& kCity);
++	void AI_conquerCity(CvCityAI& kCity, /* advc.ctr: */ bool bEverOwned = false);
+ 	double AI_razeMemoryScore(CvCity const& c) const; // advc.130q
+ 	bool AI_acceptUnit(CvUnit const& kUnit) const;
+ 	bool AI_captureUnit(UnitTypes eUnit, CvPlot const& kPlot) const;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5261

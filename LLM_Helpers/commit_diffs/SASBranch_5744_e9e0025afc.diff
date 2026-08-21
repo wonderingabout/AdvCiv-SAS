@@ -1,0 +1,142 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5744
+# Commit: e9e0025afc02061e59a27fd279ee79341d183c2c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 93b9a144a91472ea4c347bd013192162019de36a
+# Title: remove sas font size defaults, init to none, add init logging, and raise error if out of bounds instead of previous silent logging
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	35	Assets/Python/SASFontUtils.py
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/SASFontUtils.py b/Assets/Python/SASFontUtils.py
+index 28702cef7..1575e6ec4 100644
+--- a/Assets/Python/SASFontUtils.py
++++ b/Assets/Python/SASFontUtils.py
+@@ -6,59 +6,49 @@
+ from CvPythonExtensions import *
+ 
+ gc = CyGlobalContext()
+-_FONT_SIZE_CACHE = {}
++_SAS_UI_FONT_SIZE_CACHE = {}
+ 
+ 
+-def _getFontSizeOrDefault(szDefineName, iDefault):
+-	if szDefineName in _FONT_SIZE_CACHE:
+-		return _FONT_SIZE_CACHE[szDefineName]
++def _getSASUIFontSize(szDefineName):
++	if szDefineName in _SAS_UI_FONT_SIZE_CACHE:
++		return _SAS_UI_FONT_SIZE_CACHE[szDefineName]
+ 	iSize = gc.getDefineINT(szDefineName)
+ 	if iSize < 1 or iSize > 4:
+-		if iDefault > 0:
+-			print("SASFontUtils: invalid or unavailable %s=%d; using default %d" % (szDefineName, iSize, iDefault))
+-		return iDefault
+-	# Cache once valid to avoid repeated define lookups.
+-	_FONT_SIZE_CACHE[szDefineName] = iSize
++		_SAS_UI_FONT_SIZE_CACHE[szDefineName] = None
++		raise RuntimeError("SASFontUtils: %s=%d out of [1,4] - check CIV4SASDefines.xml" % (szDefineName, iSize))
++	_SAS_UI_FONT_SIZE_CACHE[szDefineName] = iSize
++	print("SASFontUtils: initialized %s = %d" % (szDefineName, iSize))
+ 	return iSize
+ 
+ 
+ def getSASUIFontTiny():
+-	return _getFontSizeOrDefault("SAS_UI_FONT_TINY", 1)
++	return _getSASUIFontSize("SAS_UI_FONT_TINY")
+ 
+ 
+ def getSASUIFontBody():
+-	return _getFontSizeOrDefault("SAS_UI_FONT_BODY", 2)
++	return _getSASUIFontSize("SAS_UI_FONT_BODY")
+ 
+ 
+ def getSASUIFontLabel():
+-	return _getFontSizeOrDefault("SAS_UI_FONT_LABEL", 3)
++	return _getSASUIFontSize("SAS_UI_FONT_LABEL")
+ 
+ 
+ def getSASUIFontTitle():
+-	return _getFontSizeOrDefault("SAS_UI_FONT_TITLE", 4)
++	return _getSASUIFontSize("SAS_UI_FONT_TITLE")
+ 
+ 
+ def getSASUIFontHover():
+-	# Returns 0 (disabled) or 1-4. 0 means no hover font scaling.
+-	szName = "SAS_UI_FONT_HOVER"
+-	if szName in _FONT_SIZE_CACHE:
+-		return _FONT_SIZE_CACHE[szName]
+-	iSize = gc.getDefineINT(szName)
+-	if iSize < 0 or iSize > 4:
+-		return 0
+-	_FONT_SIZE_CACHE[szName] = iSize
+-	return iSize
++	return _getSASUIFontSize("SAS_UI_FONT_HOVER")
+ 
+ 
+ class _DynamicFontTag:
+-	def __init__(self, szDefineName, iDefault, bBold):
++	def __init__(self, szDefineName, bBold):
+ 		self.szDefineName = szDefineName
+-		self.iDefault = iDefault
+ 		self.bBold = bBold
+ 
+ 	def _build(self):
+-		iSize = _getFontSizeOrDefault(self.szDefineName, self.iDefault)
+-		if iSize < 1:
++		iSize = _getSASUIFontSize(self.szDefineName)
++		if iSize is None:
+ 			return u""
+ 		if self.bBold:
+ 			return u"<font=%db>" % iSize
+@@ -79,13 +69,13 @@ class _DynamicFontTag:
+ 
+ SAS_FONT_TAG_CLOSE = u"</font>"
+ 
+-SAS_FONT_TAG_TINY = _DynamicFontTag("SAS_UI_FONT_TINY", 1, False)
+-SAS_FONT_TAG_BODY = _DynamicFontTag("SAS_UI_FONT_BODY", 2, False)
+-SAS_FONT_TAG_LABEL = _DynamicFontTag("SAS_UI_FONT_LABEL", 3, False)
+-SAS_FONT_TAG_TITLE = _DynamicFontTag("SAS_UI_FONT_TITLE", 4, False)
+-SAS_FONT_TAG_HOVER = _DynamicFontTag("SAS_UI_FONT_HOVER", 0, False)
++SAS_FONT_TAG_TINY = _DynamicFontTag("SAS_UI_FONT_TINY", False)
++SAS_FONT_TAG_BODY = _DynamicFontTag("SAS_UI_FONT_BODY", False)
++SAS_FONT_TAG_LABEL = _DynamicFontTag("SAS_UI_FONT_LABEL", False)
++SAS_FONT_TAG_TITLE = _DynamicFontTag("SAS_UI_FONT_TITLE", False)
++SAS_FONT_TAG_HOVER = _DynamicFontTag("SAS_UI_FONT_HOVER", False)
+ 
+-SAS_FONT_TAG_TINY_BOLD = _DynamicFontTag("SAS_UI_FONT_TINY", 1, True)
+-SAS_FONT_TAG_BODY_BOLD = _DynamicFontTag("SAS_UI_FONT_BODY", 2, True)
+-SAS_FONT_TAG_LABEL_BOLD = _DynamicFontTag("SAS_UI_FONT_LABEL", 3, True)
+-SAS_FONT_TAG_TITLE_BOLD = _DynamicFontTag("SAS_UI_FONT_TITLE", 4, True)
++SAS_FONT_TAG_TINY_BOLD = _DynamicFontTag("SAS_UI_FONT_TINY", True)
++SAS_FONT_TAG_BODY_BOLD = _DynamicFontTag("SAS_UI_FONT_BODY", True)
++SAS_FONT_TAG_LABEL_BOLD = _DynamicFontTag("SAS_UI_FONT_LABEL", True)
++SAS_FONT_TAG_TITLE_BOLD = _DynamicFontTag("SAS_UI_FONT_TITLE", True)
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 896a2b0cb..2aadf5abe 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -88,7 +88,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_UI_FONT_TITLE</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default); Long_Comments_XML.txt #106. (Claude code Opus 4.6). As of now changed from 2 to 3 so text is more readable. Base Civ4 Font size: 2. -->
++	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc); Long_Comments_XML.txt #106. Keep in [1..4]. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4816

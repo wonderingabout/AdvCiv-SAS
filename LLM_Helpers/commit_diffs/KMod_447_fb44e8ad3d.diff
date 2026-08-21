@@ -1,0 +1,53 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 447
+# Commit: fb44e8ad3da1bc69123fdebbfe8761daf353cd44
+# History segment: K-Mod history
+# Parent used for diff: bab621f752ca85cbd2fbfc33421b0c9e05f7900c
+# Title: The field-of-view BUG setting will now still apply after the adjustment slider is turned off. At the end of automoves, the normal cycle delay is now used eve...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Screens/CvMainInterface.py
+2	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 7cdee291f..9e9fab752 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -5567,7 +5567,7 @@ class CvMainInterface:
+ 
+ # BUG - field of view slider - start
+ 	def setFieldofView(self, screen, bDefault):
+-		if bDefault or not MainOpt.isShowFieldOfView():
++		if bDefault:# or not MainOpt.isShowFieldOfView(): # K-Mod disabled the second condition.
+ 			self._setFieldofView(screen, DEFAULT_FIELD_OF_VIEW)
+ 		else:
+ 			self._setFieldofView(screen, self.iField_View)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3fc2c81a3..00d7b7bfd 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -11273,7 +11273,8 @@ void CvPlayer::setAutoMoves(bool bNewValue)
+ 			{
+ 				if (getID() == GC.getGameINLINE().getActivePlayer())
+ 				{
+-					GC.getGameINLINE().cycleSelectionGroups_delayed(1, false, true);
++					gDLL->getInterfaceIFace()->setCycleSelectionCounter(1);
++					//GC.getGameINLINE().cycleSelectionGroups_delayed(1, false, true); // this is a subtle case. I think it's best to just use the normal delay
+ 				}
+ 			}
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1218

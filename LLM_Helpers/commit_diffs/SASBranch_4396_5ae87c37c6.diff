@@ -1,0 +1,43 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4396
+# Commit: 5ae87c37c6f6fbaa440d9371f537c48884c78e7a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e5b22895b05dc8317dcdb132fe4b5a798b171a77
+# Title: AI suspends pursuit of culture victory when launched SS is faster
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL[1.12].dll
+5	0	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL[1.12].dll b/Assets/CvGameCoreDLL[1.12].dll reason=binary/generated-file changedLines=0 bytes=200
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b76e68ff3..40adbbd29 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -24230,6 +24230,11 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(
+ 				iVictoryCities, countdownList.end());
+ 		iWinningCountdown = countdownList[iVictoryCities-1];
+ 	}
++	{	// <advc.sas>
++		int iOwnVictoryCountdown = GET_TEAM(getTeam()).AI_getLowestVictoryCountdown();
++		if (iOwnVictoryCountdown >= 0 && iOwnVictoryCountdown < iWinningCountdown)
++			return 1; // </advc.sas>
++	}
+ 	if (iCloseToLegendaryCount >= iVictoryCities ||
+ 		//getCurrentEra() >= (GC.getNumEraInfos() - (2 + AI_getStrategyRand(1) % 2))
+ 		// K-Mod (note: this matches the above)
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=737

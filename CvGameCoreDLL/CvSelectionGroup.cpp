@@ -196,6 +196,18 @@ void CvSelectionGroup::doTurn()
 
 	bool const bCouldAnyMove = canAnyMove(); // advc.153: was AllMove in K-Mod
 	CvUnit* pHeadUnit = getHeadUnit(); // advc
+	// <!-- custom: WORKER_MOVE_ENTRY cannot reveal a Worker group that remains asleep/held and never reaches Unit AI. At Worker log level 3, record every land Worker group's turn-boundary state, then log any wake/cleanup transition below so persistent parking can be distinguished from an ordinary one-turn Skip. No behavior change. (GPT-5.5) -->
+	bool const bLogSASWorkerTurn = (gWorkerLogLevel >= 3 && pHeadUnit != NULL && pHeadUnit->AI_getUnitAIType() == UNITAI_WORKER);
+	ActivityTypes const eSASWorkerActivityBefore = (bLogSASWorkerTurn ? getActivityType() : NO_ACTIVITY);
+	MissionAITypes const eSASWorkerMissionAIBefore = (bLogSASWorkerTurn ? AI().AI_getMissionAIType() : NO_MISSIONAI);
+	int const iSASWorkerQueueBefore = (bLogSASWorkerTurn ? getLengthMissionQueue() : 0);
+	if (bLogSASWorkerTurn)
+	{
+		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
+		logBBAI("    WORKER_GROUP_TURN phase=begin turn=%d player=%d %S workerId=%d groupId=%d worker=(%d,%d) activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d forceUpdate=%d canAnyMove=%d movesLeft=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pHeadUnit->getID(), getID(), getX(), getY(), getActivityType(), AI().AI_getMissionAIType(),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getLengthMissionQueue(), isForceUpdate(), canAnyMove(), pHeadUnit->movesLeft());
+	}
 	/*	K-Mod. Wake spies when they reach max fortify turns in foreign territory.
 		I'm only checking the head unit.
 		Note: We only want to wake once. So this needs to be done
@@ -204,8 +216,7 @@ void CvSelectionGroup::doTurn()
 	{
 		if (pHeadUnit->isSpy() && pHeadUnit->getPlot().getTeam() != getTeam())
 		{
-			if (pHeadUnit->getFortifyTurns() ==
-				GC.getDefineINT(CvGlobals::MAX_FORTIFY_TURNS) - 1)
+			if (pHeadUnit->getFortifyTurns() == GC.getDefineINT(CvGlobals::MAX_FORTIFY_TURNS) - 1)
 			{
 				setActivityType(ACTIVITY_AWAKE); // time to wake up!
 			}
@@ -286,16 +297,32 @@ void CvSelectionGroup::doTurn()
 			} // K-Mod end
 		}
 	}
+	if (bLogSASWorkerTurn)
+	{
+		CvUnit* pSASWorkerHead = getHeadUnit();
+		if (pSASWorkerHead != NULL && (getActivityType() != eSASWorkerActivityBefore || AI().AI_getMissionAIType() != eSASWorkerMissionAIBefore || getLengthMissionQueue() != iSASWorkerQueueBefore))
+		{
+			CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
+			logBBAI("    WORKER_GROUP_TURN phase=transition turn=%d player=%d %S workerId=%d groupId=%d worker=(%d,%d) activity=%d->%d missionAI=%d->%d missionTarget=(%d,%d) missionQueue=%d->%d forceUpdate=%d canAnyMove=%d movesLeft=%d",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorkerHead->getID(), getID(), getX(), getY(), eSASWorkerActivityBefore, getActivityType(), eSASWorkerMissionAIBefore, AI().AI_getMissionAIType(),
+				(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iSASWorkerQueueBefore, getLengthMissionQueue(), isForceUpdate(), canAnyMove(), pSASWorkerHead->movesLeft());
+		}
+	}
 
 	if (isHuman())
 	{
 		if (GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)
 			&& GET_TEAM(getTeam()).hasMetHuman()) // K-Mod
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			// <!-- custom: code/performance optimization: hoist -->
+			static const int iMIN_TIMER_UNIT_DOUBLE_MOVES = GC.getDefineINT("MIN_TIMER_UNIT_DOUBLE_MOVES");
+
 			int iBestWaitTurns = 0;
 			FOR_EACH_UNIT_IN(pUnit, *this)
 			{
-				int iWaitTurns = (GC.getDefineINT("MIN_TIMER_UNIT_DOUBLE_MOVES") -
+				// <!-- custom: seems like this can be made const -->
+				const int iWaitTurns = (iMIN_TIMER_UNIT_DOUBLE_MOVES -
 						(GC.getGame().getTurnSlice() - pUnit->getLastMoveTurn()));
 				if (iWaitTurns > iBestWaitTurns)
 					iBestWaitTurns = iWaitTurns;
@@ -546,10 +573,8 @@ void CvSelectionGroup::playActionSound()  // advc: refactored
 }
 
 
-void CvSelectionGroup::pushMission(MissionTypes eMission, int iData1, int iData2,
-	MovementFlags eFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI,
-	CvPlot const* pMissionAIPlot, CvUnit const* pMissionAIUnit, // advc: 2x const
-	bool bModified) // advc.011b
+// advc: 2x const <!-- custom: hoisted from multiline signature between `pMissionAIUnit` and `bModified` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvSelectionGroup::pushMission(MissionTypes eMission, int iData1, int iData2, MovementFlags eFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot const* pMissionAIPlot, CvUnit const* pMissionAIUnit, bool bModified) // advc.011b
 {
 	PROFILE_FUNC();
 
@@ -705,10 +730,8 @@ CvPlot* CvSelectionGroup::lastMissionPlot() const
 }
 
 
-bool CvSelectionGroup::canStartMission(
-	MissionTypes eMission, // advc: was int
-	int iData1, int iData2,
-	CvPlot const* pPlot, bool bTestVisible, bool bUseCache) /* advc: */ const
+// advc: was int <!-- custom: hoisted from multiline signature between `eMission` and `iData1` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvSelectionGroup::canStartMission(MissionTypes eMission, int iData1, int iData2, CvPlot const* pPlot, bool bTestVisible, bool bUseCache) /* advc: */ const
 {
 	if (bUseCache)
 	{
@@ -1273,6 +1296,23 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 	CvPlot* pFromPlot = plot(); // advc.102
 	bool bDone = false;
 	bool bAction = false;
+	// <!-- custom: Worker city jobs were selected repeatedly without reaching their target. At Worker log level 3, trace the queued MISSIONAI_BUILD movement/build through execution so path failure can be separated from scoring or reassignment. No behavior change. (GPT-5.5) -->
+	CvUnit const* pSASWorker = NULL;
+	bool bLogSASWorkerMission = false;
+	if (gWorkerLogLevel >= 3 && AI().AI_getMissionAIType() == MISSIONAI_BUILD)
+	{
+		pSASWorker = getHeadUnit();
+		bLogSASWorkerMission = (pSASWorker != NULL && pSASWorker->AI_getUnitAIType() == UNITAI_WORKER);
+	}
+	char const* szSASWorkerMissionOutcome = NULL;
+	if (bLogSASWorkerMission)
+	{
+		szSASWorkerMissionOutcome = "pending";
+		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
+		logBBAI("    WORKER_MISSION_EXECUTION phase=begin turn=%d player=%d %S workerId=%d groupId=%d mission=%d data=(%d,%d) flags=%d pushTurn=%d from=(%d,%d) missionTarget=(%d,%d) queue=%d activity=%d movesLeft=%d",
+			kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(), missionData.eMissionType, missionData.iData1, missionData.iData2, missionData.eFlags, missionData.iPushTurn, getX(), getY(),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getLengthMissionQueue(), getActivityType(), pSASWorker->movesLeft());
+	}
 
 	if (!(missionData.eFlags & MOVE_NO_ATTACK) && // K-Mod
 		(missionData.iPushTurn == kGame.getGameTurn() ||
@@ -1339,6 +1379,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 			else if (groupPathTo(missionData.iData1, missionData.iData2, missionData.eFlags))
 			{
 				bAction = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "move-step";
 				/*  advc: Not sure if groupPathTo can pop the head mission;
 					safer to update pHeadMission. */
 				pHeadMission = headMissionQueueNode();
@@ -1356,6 +1397,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 			else
 			{
 				bDone = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "move-no-path";
 				/*	<advc.pf> Failure to find a path here can be normal if the move
 					was scheduled on an earlier turn; it's probably also normal for
 					units ready to defend. If the unit doesn't get stuck in a loop
@@ -1387,8 +1429,15 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 
 		case MISSION_ROUTE_TO:
 			if (groupRoadTo(missionData.iData1, missionData.iData2, missionData.eFlags))
+			{
 				bAction = true;
-			else bDone = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "route-step";
+			}
+			else
+			{
+				bDone = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "route-failed";
+			}
 			break;
 
 		case MISSION_MOVE_TO_UNIT:
@@ -1506,15 +1555,26 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 				mission plot, but, if route-to or move-to fails and the mission plot
 				isn't reached, then any improvement build needs to be canceled. */
 			CvPlot const* pMissionAIPlot = AI().AI_getMissionAIPlot();
+			// <!-- custom: Save file 446 exposed a stale AI worker mission queue where a target plot 58,24 Cottage build executed on the current plot 59,24 after route movement failed, overwriting an intended Mine.
+			// MISSION_BUILD has no stored plot coordinates, so require non-route builds to still be standing on the mission target before allowing groupBuild to act on the current plot. The AdvCiv 1.14 version of this SAS fix correctly exempts route builds, which may intentionally be constructed along the way.
+			// Validation: the save-file-446 t200 replay after this guard fired this cancel 7 times (T64 Japan 59,24->58,24; T71 Ottoman 50,34->51,33; T110 Greece 66,24->67,25; T127 Greece 66,25->67,26; T162 Native America 54,32->55,32; T178 Celts 27,45->31,48; T181 Native America 53,31->56,32), confirming this was a systemic stale-target safety issue rather than only the original Japan tile. See KI#176. (ChatGPT-5.5 + GPT-5.5; AdvCiv 1.14 merge reviewed by ChatGPT-5.6-Sol) -->
 			bool bCancel = (pMissionAIPlot != NULL && eBuild != NO_BUILD &&
 					GC.getInfo(eBuild).getRoute() == NO_ROUTE && !atPlot(pMissionAIPlot));
-			if (bCancel || // </advc.001>
-				!groupBuild(eBuild, /* advc.011b: */ !missionData.bModified))
+			if (bCancel) // </advc.001>
 			{
 				bDone = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "build-target-mismatch-cancel";
 			}
+			else if (!groupBuild(eBuild, /* advc.011b: */ !missionData.bModified))
+			{
+				bDone = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "build-finished-or-invalid";
+			}
+			else if (bLogSASWorkerMission)
+				szSASWorkerMissionOutcome = "build-step";
 			break;
 		}
+
 		default: FAssert(false);
 		}
 	}
@@ -1533,6 +1593,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 			if (at(missionData.iData1, missionData.iData2))
 			{
 				bDone = true;
+				if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "move-reached-target";
 				handleBoarded(); // advc.075
 			}
 			break;
@@ -1541,7 +1602,10 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 			if (at(missionData.iData1, missionData.iData2))
 			{
 				if (getBestBuildRoute(getPlot()) == NO_ROUTE)
+				{
 					bDone = true;
+					if (bLogSASWorkerMission) szSASWorkerMissionOutcome = "route-reached-target";
+				}
 			}
 			break;
 
@@ -1644,6 +1708,14 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 		}
 	}
 
+	if (bLogSASWorkerMission)
+	{
+		CvPlot const* pMissionPlot = AI().AI_getMissionAIPlot();
+		logBBAI("    WORKER_MISSION_EXECUTION phase=result turn=%d player=%d %S workerId=%d groupId=%d outcome=%s mission=%d from=(%d,%d) to=(%d,%d) missionTarget=(%d,%d) done=%d action=%d ready=%d queue=%d activity=%d movesLeft=%d",
+			kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), pSASWorker->getID(), getID(), szSASWorkerMissionOutcome, missionData.eMissionType, pFromPlot->getX(), pFromPlot->getY(), getX(), getY(),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), bDone, bAction, readyForMission(), getLengthMissionQueue(), getActivityType(), pSASWorker->movesLeft());
+	}
+
 	if (bDone)
 	{	/*if (!isBusy()) {
 			if (isActiveOwned()) {
@@ -1700,9 +1772,13 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 			}
 			else deleteMissionQueueNode(pHeadMission);
 
-			// start the next mission
+			// <!-- custom: Explicit Chop/Clear followed by an evaluator-selected improvement was queued correctly, but completing the removal consumed all worker moves. Immediate activation deleted the follow-up; merely delaying activation left the group AWAKE, so AI turn-start cleanup still cleared it. Berlin (32,12), Beijing (28,12), and Cologne (29,11) therefore lost queued Mines and workers left their newly cleared Hills. Keep a waiting follow-up in MISSION activity until the next turn; invalid builds that consume no moves can continue immediately. (GPT-5.5) -->
 			if (headMissionQueueNode() != NULL)
-				activateHeadMission();
+			{
+				if (missionData.eMissionType != MISSION_BUILD || readyForMission())
+					activateHeadMission();
+				else setActivityType(ACTIVITY_MISSION);
+			}
 			// <advc.153>
 			else if (!isAIControlled() &&
 				(missionData.eMissionType == MISSION_BUILD ||
@@ -1765,8 +1841,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
 }
 
 
-bool CvSelectionGroup::canDoCommand(CommandTypes eCommand, int iData1, int iData2,
-	bool bTestVisible, bool bUseCache)
+bool CvSelectionGroup::canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible, bool bUseCache)
 {
 	PROFILE_FUNC();
 
@@ -1800,8 +1875,7 @@ bool CvSelectionGroup::canDoCommand(CommandTypes eCommand, int iData1, int iData
 	return (eCommand == COMMAND_LOAD); // advc.123c: instead of false
 }
 
-bool CvSelectionGroup::canEverDoCommand(CommandTypes eCommand, int iData1, int iData2,
-	bool bTestVisible, bool bUseCache)
+bool CvSelectionGroup::canEverDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible, bool bUseCache)
 {
 	if(eCommand == COMMAND_LOAD)
 	{
@@ -2260,8 +2334,7 @@ int CvSelectionGroup::getCargoSpace() const
 }
 
 // K-Mod:
-int CvSelectionGroup::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo,
-	DomainTypes eDomainCargo) const
+int CvSelectionGroup::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo, DomainTypes eDomainCargo) const
 {
 	int iSpace = 0;
 	FOR_EACH_UNIT_IN(pUnit, *this)
@@ -2336,8 +2409,7 @@ bool CvSelectionGroup::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPas
 	return true;
 }
 
-bool CvSelectionGroup::canEnterArea(TeamTypes eTeam, CvArea const& kArea,
-	bool bIgnoreRightOfPassage) const
+bool CvSelectionGroup::canEnterArea(TeamTypes eTeam, CvArea const& kArea, bool bIgnoreRightOfPassage) const
 {
 	if(getNumUnits() <= 0)
 		return false;
@@ -2363,8 +2435,7 @@ bool CvSelectionGroup::canMoveInto(CvPlot const& kPlot, bool bAttack) const
 }
 
 
-bool CvSelectionGroup::canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar,
-	bool bCheckMoves, bool bAssumeVisible) const // K-Mod
+bool CvSelectionGroup::canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar, bool bCheckMoves, bool bAssumeVisible) const // K-Mod
 {
 	if (getNumUnits() <= 0)
 		return false;
@@ -2624,8 +2695,7 @@ DomainTypes CvSelectionGroup::getDomainType() const
 }
 
 
-RouteTypes CvSelectionGroup::getBestBuildRoute(CvPlot const& kPlot,
-	BuildTypes* peBestBuild) const
+RouteTypes CvSelectionGroup::getBestBuildRoute(CvPlot const& kPlot, BuildTypes* peBestBuild) const
 {
 	PROFILE_FUNC();
 
@@ -2658,9 +2728,8 @@ RouteTypes CvSelectionGroup::getBestBuildRoute(CvPlot const& kPlot,
 }
 
 // Returns true if attack was made...
-bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags,
-	bool& bFailedAlreadyFighting, // advc (note): out-parameter
-	bool bMaxSurvival) // advc.048
+// advc (note): out-parameter <!-- custom: hoisted from multiline signature between `bFailedAlreadyFighting` and `bMaxSurvival` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags, bool& bFailedAlreadyFighting, bool bMaxSurvival) // advc.048
 {
 	PROFILE_FUNC();
 
@@ -2724,7 +2793,7 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags,
 		{
 			pBestAttackUnit = AI().AI_getBestGroupAttacker(pDestPlot, false,
 					iAttackOdds, false, /* advc.164: */ !bBlitz,
-					!bMaxSurvival, bMaxSurvival); // advc.048
+					!bMaxSurvival, bMaxSurvival, true); // advc.048
 			if (pBestAttackUnit == NULL)
 				break;
 
@@ -3057,6 +3126,11 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFini
 	}
 	// K-Mod end
 	bool bStopOtherWorkers = false; // advc.011c
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE"/*"COLOR_BUILDING_TEXT"*/);
+
 	FOR_EACH_UNIT_VAR_IN(pUnit, *this)
 	{
 		FAssertMsg(pUnit->at(kPlot), "pLoopUnit is expected to be at pPlot");
@@ -3088,7 +3162,7 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFini
 			CvWString szBuffer = gDLL->getText("TXT_KEY_BUILD_NOT_FINISHED", szBuild.c_str());
 			gDLL->UI().addMessage(getOwner(), false, -1, szBuffer, NULL, MESSAGE_TYPE_INFO,
 					GC.getInfo(eBuild).getButton()/*getHeadUnit()->getButton()*/,
-					GC.getColorType("WHITE"/*"COLOR_BUILDING_TEXT"*/),
+					eColorWhite,
 					getX(), getY(), true, false);
 			// </advc.011b>
 			// <advc.011c>
@@ -3118,8 +3192,7 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFini
 }
 
 
-void CvSelectionGroup::setTransportUnit(CvUnit* pTransportUnit,
-	CvSelectionGroup** pOtherGroup) // BETTER_BTS_AI_MOD, General AI, 04/18/10, jdog5000
+void CvSelectionGroup::setTransportUnit(CvUnit* pTransportUnit, CvSelectionGroup** pOtherGroup) // BETTER_BTS_AI_MOD, General AI, 04/18/10, jdog5000
 {
 	if (pTransportUnit != NULL) // if we are loading
 	{
@@ -3321,8 +3394,7 @@ bool CvSelectionGroup::readyForMission() const
 }
 
 
-bool CvSelectionGroup::canDoMission(MissionTypes eMission, int iData1, int iData2,
-	CvPlot const* pPlot, bool bTestVisible, bool bCheckMoves) const
+bool CvSelectionGroup::canDoMission(MissionTypes eMission, int iData1, int iData2, CvPlot const* pPlot, bool bTestVisible, bool bCheckMoves) const
 {
 	if (pPlot == NULL)
 		pPlot = plot();
@@ -3718,8 +3790,8 @@ void CvSelectionGroup::changeMissionTimer(int iChange)
 }
 
 
-void CvSelectionGroup::updateMissionTimer(int iSteps,  // advc: refactored
-	CvPlot* pFromPlot) // advc.102
+// advc: refactored <!-- custom: hoisted from multiline signature between `iSteps` and `pFromPlot` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvSelectionGroup::updateMissionTimer(int iSteps, CvPlot* pFromPlot) // advc.102
 {
 	CvGame const& kGame = GC.getGame();
 	if (headMissionQueueNode() == NULL || 
@@ -3872,9 +3944,7 @@ CvPlot& CvSelectionGroup::getPathEndTurnPlot() const
 }
 
 
-bool CvSelectionGroup::generatePath(CvPlot const& kFrom, CvPlot const& kTo,
-	MovementFlags eFlags, bool bReuse, int* piPathTurns, int iMaxPath,
-	bool bUseTempFinder) const // advc.128
+bool CvSelectionGroup::generatePath(CvPlot const& kFrom, CvPlot const& kTo, MovementFlags eFlags, bool bReuse, int* piPathTurns, int iMaxPath, bool bUseTempFinder) const // advc.128
 {
 	PROFILE_FUNC();
 	/*	K-Mod - if I can stop the UI from messing with this pathfinder,
@@ -3914,9 +3984,19 @@ bool CvSelectionGroup::generatePath(CvPlot const& kFrom, CvPlot const& kTo,
 
 void CvSelectionGroup::clearUnits()
 {
-	for (CLLNode<IDInfo>* pNode = headUnitNode(); pNode != NULL;
-		pNode = deleteUnitNode(pNode))
-	{} // advc
+	// <!-- custom: Full group teardown should not repeatedly use deleteUnitNode, setAutomateType, clearMissionQueue, or setActivityType, because those normal single-unit-removal helpers can inspect the head unit, plot, cargo, selection state, and mission callbacks while the unit list is being destroyed. Directly reset the small group-owned state here, then clear the list once. See KI#163. (ChatGPT-5.5 + GPT-5.5); (commented-out old code for reference). -->
+	// for (CLLNode<IDInfo>* pNode = headUnitNode(); pNode != NULL;
+	// 	pNode = deleteUnitNode(pNode))
+	// {} // advc
+	if (getOwner() != NO_PLAYER)
+	{
+		m->eAutomateType = NO_AUTOMATE;
+		m_missionQueue.clear();
+		m_iMissionTimer = 0;
+		m_eActivityType = ACTIVITY_AWAKE;
+	}
+	m_units.clear();
+	// <!-- custom: End -->
 }
 
 
@@ -3989,6 +4069,13 @@ void CvSelectionGroup::removeUnit(CvUnit* pUnit)
 
 CLLNode<IDInfo>* CvSelectionGroup::deleteUnitNode(CLLNode<IDInfo>* pNode)
 {
+	// <!-- custom: Keep normal single-unit removal behavior, but make this exported helper tolerate an unexpected null node instead of dereferencing it during rare group/unit teardown edge cases. See KI#163. (ChatGPT-5.5 + GPT-5.5) -->
+	if (pNode == NULL)
+	{
+		FAssert(pNode != NULL);
+		return NULL;
+	}
+
 	CLLNode<IDInfo>* pNextUnitNode;
 	if (getOwner() != NO_PLAYER)
 	{
@@ -4064,8 +4151,7 @@ void CvSelectionGroup::mergeIntoGroup(CvSelectionGroup* pSelectionGroup)
 /*  K-Mod. I've rewritten most of this function. The new version is faster,
 	gives a more even split, and does not create a dummy group.
 	(unless I've made a mistake.) */
-CvSelectionGroup* CvSelectionGroup::splitGroup(int iSplitSize,
-	CvUnit* pNewHeadUnit, CvSelectionGroup** ppOtherGroup)
+CvSelectionGroup* CvSelectionGroup::splitGroup(int iSplitSize, CvUnit* pNewHeadUnit, CvSelectionGroup** ppOtherGroup)
 {
 	FAssert(pNewHeadUnit == 0 || pNewHeadUnit->getGroup() == this);
 
@@ -4560,53 +4646,20 @@ void CvSelectionGroup::read(FDataStreamBase* pStream)
 
 	m_units.Read(pStream);
 	// <advc.004l>
-	if(uiFlag >= 2)
-		m->knownEnemies.Read(pStream); // </advc.004l>
+	m->knownEnemies.Read(pStream); // </advc.004l>
+
 	// <advc.011b>
-	if(uiFlag <= 0)
-	{
-		CLinkList<MissionDataLegacy> tmp;
-		tmp.Read(pStream);
-		for(CLLNode<MissionDataLegacy>* pNode = tmp.head();
-			pNode != NULL; pNode = tmp.next(pNode))
-		{
-			MissionDataLegacy tmpMission = pNode->m_data;
-			MissionData mission;
-			mission.bModified = false;
-			mission.eMissionType = tmpMission.eMissionType;
-			mission.iData1 = tmpMission.iData1;
-			mission.iData2 = tmpMission.iData2;
-			mission.eFlags = tmpMission.eFlags;
-			mission.iPushTurn = tmpMission.iPushTurn;
-			m_missionQueue.insertAtEnd(mission);
-		}
-	}
-	else // </advc.011b>
-		m_missionQueue.Read(pStream);
-	// <advc.pf>
-	if (uiFlag < 3)
-	{	// Replace removed movement flag with SAFE_TERRITORY
-		MovementFlags const MOVE_ROUTE_TO = static_cast<MovementFlags>(1 << 14);
-		for (CLLNode<MissionData>* pNode = headMissionQueueNode(); pNode != NULL;
-			pNode = nextMissionQueueNode(pNode))
-		{
-			MissionData& md = pNode->m_data;
-			if (md.eMissionType == MISSION_ROUTE_TO || (md.eFlags & MOVE_ROUTE_TO))
-			{
-				md.eFlags |= MOVE_SAFE_TERRITORY;
-				md.eFlags &= ~MOVE_ROUTE_TO;
-			}
-		}
-	} // </advc.pf>
+	// </advc.011b>
+	m_missionQueue.Read(pStream);
 }
 
 
 void CvSelectionGroup::write(FDataStreamBase* pStream)
 {
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
-	//uiFlag = 1; // advc.011b
-	//uiFlag = 2; // advc.004l
 	uiFlag = 3; // advc.pf (MOVE_ROUTE_TO removed)
+
 	pStream->Write(uiFlag);
 	REPRO_TEST_BEGIN_WRITE(CvString::format("SelGroup(%d,%d,%d)", getID(), getX(), getY()));
 	pStream->Write(m_iID);

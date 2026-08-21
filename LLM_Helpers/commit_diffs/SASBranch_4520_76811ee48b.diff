@@ -1,0 +1,1802 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4520
+# Commit: 76811ee48bc0c3c72306a92e79f16635245fcced
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2571cc5ec9912012bcf6672d264452a594d10931
+# Title: military overhaul (unfinished)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+27	27	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+144	18	Assets/XML/GlobalDefines_advc.xml
+140	160	Assets/XML/Units/CIV4UnitInfos.xml
+8	0	README.md
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree default unmodified.png
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/{advciv-mod-difficulties_summary-htm-A3.pdf => _outdated_advciv-sas-difficulties_summary-htm-A3.pdf}
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/{advciv-mod-difficulties_summary.ods => _outdated_advciv-sas-difficulties_summary.ods}
+283	24	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_military_unit_imports_listing_only.txt
+54	2	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+ delete mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree default unmodified.png
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+ rename _1_AdvCiv-SAS/Docs_And_Appendixes/{advciv-mod-difficulties_summary-htm-A3.pdf => _outdated_advciv-sas-difficulties_summary-htm-A3.pdf} (100%)
+ rename _1_AdvCiv-SAS/Docs_And_Appendixes/{advciv-mod-difficulties_summary.ods => _outdated_advciv-sas-difficulties_summary.ods} (100%)
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 1c2341be7..8dbfef0eb 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -78,15 +78,15 @@
+ 			<!-- advc.313: was -40 -->
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingDefenseUnits>6</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<!-- custom: to help discover the game, give a free explorer unit, was 0-->
+ 			<iStartingExploreUnits>1</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>1</iBarbarianDefenders>
++			<iBarbarianDefenders>3</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>25</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<!-- advc.251 (start) -->
+@@ -286,14 +286,14 @@
+ 			<!-- advc.313: was -40 -->
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingDefenseUnits>5</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>1</iBarbarianDefenders>
++			<iBarbarianDefenders>3</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>50</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<!-- advc.251 (start) -->
+@@ -459,14 +459,14 @@
+ 			<!-- advc.313: was -40 -->
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingDefenseUnits>4</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>1</iBarbarianDefenders>
++			<iBarbarianDefenders>3</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>75</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>110</iAIGrowthPercent>
+@@ -633,14 +633,14 @@
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+ 			<!-- custom: considering noble is intended to be a bit harder now and a bridge closer to prince, also increase the value here, was 0 -->
+-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingDefenseUnits>3</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>2</iBarbarianDefenders>
++			<iBarbarianDefenders>3</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>100</iAIGrowthPercent>
+@@ -815,19 +815,19 @@
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
+ 			<!-- advc.313: end -->
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingDefenseUnits>3</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
+ 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
+ 			was 0 -->
+-			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
+ 			warriors are now more likely to be defenders, was 0 -->
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>2</iBarbarianDefenders>
++			<iBarbarianDefenders>4</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<!-- advc.251: was 10 -->
+ 			<iAIWorkRateModifier>5</iAIWorkRateModifier>
+@@ -1004,19 +1004,19 @@
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
+ 			<!-- advc.313: end -->
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingDefenseUnits>3</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
+ 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
+ 			was 1 -->
+-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
+ 			warriors are now more likely to be defenders, was 0 -->
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>3</iBarbarianDefenders>
++			<iBarbarianDefenders>4</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<!-- advc.251: was 20 -->
+ 			<iAIWorkRateModifier>10</iAIWorkRateModifier>
+@@ -1205,20 +1205,20 @@
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
+ 			<!-- advc.313: end -->
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingDefenseUnits>3</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
+ 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
+ 			was 2 -->
+-			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<!-- advc.250e: was 1 -->
+ 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
+ 			warriors are now more likely to be defenders, was 0 -->
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>3</iBarbarianDefenders>
++			<iBarbarianDefenders>5</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<!-- advc.251: was 50 -->
+ 			<iAIWorkRateModifier>15</iAIWorkRateModifier>
+@@ -1420,7 +1420,7 @@
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
+ 			<!-- advc.313: end -->
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingDefenseUnits>3</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+@@ -1428,14 +1428,14 @@
+ 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
+ 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
+ 			was 2 -->
+-			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
+ 			<!-- advc.250e: was 1 -->
+ 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
+ 			warriors are now more likely to be defenders, was 0 -->
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<!-- advc.250e: was 4 -->
+-			<iBarbarianDefenders>3</iBarbarianDefenders>
++			<iBarbarianDefenders>5</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<!-- advc.251: was 75 -->
+ 			<iAIWorkRateModifier>20</iAIWorkRateModifier>
+@@ -1645,7 +1645,7 @@
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
+ 			<!-- advc.313: end -->
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+-			<iStartingDefenseUnits>0</iStartingDefenseUnits>
++			<iStartingDefenseUnits>3</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<!-- advc.250e: was 1 -->
+@@ -1654,10 +1654,10 @@
+ 			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
+ 			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
+ 			was 3 -->
+-			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
++			<iAIStartingDefenseUnits>6</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>4</iBarbarianDefenders>
++			<iBarbarianDefenders>5</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<!-- advc.251: was 100 -->
+ 			<iAIWorkRateModifier>25</iAIWorkRateModifier>
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 293eb8e08..c41f7ab0a 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -34,6 +34,7 @@
+ 		 Mod-mods should use a different SAVE_VERSION, ideally a completely
+ 		 different one, though this currently only matters for the
+ 		 HOF_DISPLAY_OTHER_MOD_REPLAYS option (see below). -->
++	<!-- custom: todo? leaving as is for now -->
+ 	<Define> <!-- redefine -->
+ 		<DefineName>SAVE_VERSION</DefineName>
+ 		<iDefineIntVal>14223</iDefineIntVal>
+@@ -140,9 +141,12 @@
+ 		 power ratio is multiplied in CvTeamAI::AI_declareWarTradeVal.
+ 		 Recommended: 300% to make the AI more reluctant to DoW a more powerful
+ 		 civ; 100 for original behavior. -->
++	<!-- custom: trying to increase this, not sure if helpful or not or taken
++	into account, but tring it i mean anyways, we don't want to be baited
++	into a war we can't win !, was 300 -->
+     <Define>
+         <DefineName>WAR_TRADEVAL_POWER_WEIGHT</DefineName>
+-        <iDefineIntVal>300</iDefineIntVal>
++        <iDefineIntVal>1000</iDefineIntVal>
+     </Define>
+ 
+ 	<!-- advc.101: When computing revolt probabilities, the foreign culture
+@@ -154,9 +158,18 @@
+ 		 values in XML. Recommended: 135, 35.
+ 		 Changing the factor will increase or decrease foreign culture strength
+ 		 over the entire game; the exponent affects especially the late game. -->
++	<!-- custom: we don't want revolt chance to be too high, especially early
++	when i think it is currently the most mismatched,
++	what i mean is i find it too high me, but if the reasoning is strength increasing,
++	thus making it too high early, then it's not a problem, as strength
++	values are much tighter now. Between units, except until things like tanks
++	maybe, but citizens wouldn't object to a tank, i think, so should be fine
++	i mean anyways, also game would most likely be decided early and before that,
++	but if not, then it would be realistic this way too i think,
++	was 135 -->
+ 	<Define>
+ 		<DefineName>FOREIGN_CULTURE_STRENGTH_EXPONENT</DefineName>
+-		<iDefineIntVal>135</iDefineIntVal>
++		<iDefineIntVal>100</iDefineIntVal>
+     </Define>
+ 	<!-- Moved this to Civ4HandicapInfos.xml in AdvCiv 1.0.
+ 		 35 is used there for Emperor difficulty. -->
+@@ -171,9 +184,12 @@
+ 		 religion in the city, i.e. a religion that differs from the city owner's
+ 		 state religion (no suppression if no state religion).
+ 		 Recommended: 33 (doubling is way too much I think) -->
++	<!-- custom: everything about religion i want to play a much bigger part,
++	increase it for my mod advciv sas or whatever name i choose i mean anyways,
++	thanks, was 33 -->
+ 	<Define> <!-- redefine -->
+ 		<DefineName>REVOLT_OFFENSE_STATE_RELIGION_MODIFIER</DefineName>
+-		<iDefineIntVal>33</iDefineIntVal>
++		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+ 	<!-- Applies when the city owner's state religion is present in the city,
+ 		 and applies half if the owner has no state religion. Was combined
+@@ -181,9 +197,13 @@
+ 		 that the modifiers canceled out when both applied. Now combined
+ 		 additively, and I'm reducing both so that they still cancel out.
+ 		 Was -50, recommended: -33 -->
++	<!-- custom: i don't understand all but i think this seems like
++	or/and means religion should be more important if i increase the
++	absolute value, or decrease if counting in numerical (with sign)
++	numbers, was -33 -->
+ 	<Define> <!-- redefine -->
+ 		<DefineName>REVOLT_DEFENSE_STATE_RELIGION_MODIFIER</DefineName>
+-		<iDefineIntVal>-33</iDefineIntVal>
++		<iDefineIntVal>-100</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- [advc.102]
+@@ -209,9 +229,13 @@
+ 		 are not shown to the player, even if the "show friendly moves" option
+ 		 is enabled. Exception: You still see foreign Missionaries and Executives
+ 		 move within your borders. Recommended: 0; 1 for original behavior. -->
++	<!-- custom: trying 1 as i think religion is more important now, maybe a bit
++	excessive but players may even want to target misssionaries which i may
++	rework too or maybe not not promised nor guaranteed i mean anyways,
++	i mean anyways, thanks, was 0 -->
+ 	<Define>
+ 		<DefineName>SHOW_FRIENDLY_MISSIONARY_MOVES</DefineName>
+-		<iDefineIntVal>0</iDefineIntVal>
++		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- [advc.102]
+@@ -269,16 +293,25 @@
+ 		 Especially for large maps, increasing the limit substantially may
+ 		 increase the fairness of the starting locations - at the expense of
+ 		 (proportionally) longer computing times. -->
++	<!-- custom: i want to trying increasing this and see what happens,
++	first city planted is very important, may help the AI, possibly the
++	human player too, also since now (some) ressources are hidden until
++	required tech and such i mean anyways, it may be lucky to spawn just
++	at the right spot i mean anyways, was 100-->
+ 	<Define>
+         <DefineName>SPI_TIME_LIMIT_PERCENT</DefineName>
+-        <iDefineIntVal>100</iDefineIntVal>
++        <iDefineIntVal>250</iDefineIntVal>
+     </Define>
+ 
+ 	<!-- advc.137: 12 in BtS. Recommended: 10 to match the
+ 		 higher default player counts in AdvCiv. -->
++	<!-- custom: trying increasing this slightly to have
++	AIs less crammed at each other or walled early possibly
++	i deally maybe i mean anyways about this, thanks,
++	was 10 -->
+ 	<Define> <!-- redefine -->
+ 		<DefineName>STARTING_DISTANCE_PERCENT</DefineName>
+-		<iDefineIntVal>10</iDefineIntVal>
++		<iDefineIntVal>13</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- [advc.108]
+@@ -287,6 +320,9 @@
+ 		 is toned down (toned down only a little bit in multiplayer).
+ 		 If the "Balanced" map option is set (not all maps have one), then
+ 		 normalization works as in BtS and this XML value is ignored. -->
++	<!-- custom: not changing this as it can remove ice and jungle it
++	seems see next point below and its explanation i mean anyways,
++	thanks -->
+ 	<Define>
+         <DefineName>NORMALIZE_STARTPLOTS_AGGRESSIVELY</DefineName>
+         <iDefineIntVal>0</iDefineIntVal>
+@@ -312,9 +348,13 @@
+ 		 This parameter does not affect surrounding plots (adjacent to the
+ 		 city radius). These plots are cleared with 1 chance in 3 (unless
+ 		 NSA is set). -->
++	<!-- custom: increasing this and seeing what happens, i want terrains
++	(and features) to be more important, also jungle may not necessarily
++	be a bit terrain in my mod, would need to check test more about this
++	i mean anyways, thanks,-->
+     <Define>
+         <DefineName>THRESH-BAD-FEAT-PER-CITY</DefineName>
+-        <iDefineIntVal>3</iDefineIntVal>
++        <iDefineIntVal>12</iDefineIntVal>
+     </Define>
+ 
+ 	<!-- [advc.108]
+@@ -325,17 +365,26 @@
+          chances, e.g. 94% when REMOVAL_CHANCE_BAD_TERRAIN is 75
+ 		 (recommended). Use 100 for BtS/ K-Mod behavior.
+ 		 No effect if NORMALIZE_STARTPLOTS_AGGRESSIVELY is set. -->
++	<!-- custom: i don't want terrain to be aggressively or even just
++	normalized like this, try to disable it and see, buff terrains
++	that are extra weak or give them some other boosts too maybe,
++	maybe this increases strategy or/and other or/and balance
++	or/and other etc i mean anyways, thanks, was 75-->
+     <Define>
+         <DefineName>REMOVAL_CHANCE_BAD_TERRAIN</DefineName>
+-        <iDefineIntVal>75</iDefineIntVal>
++        <iDefineIntVal>0</iDefineIntVal>
+     </Define>
+ 
+ 	<!-- [advc.108]
+ 		 See REMOVAL_CHANCE_BAD_TERRAIN; same deal for Peaks.
+ 		 Recommended: 75; use 100 for BtS/ K-Mod behavior. -->
++	<!-- custom: same for peaks, also i want them to be useful
++	and have few ideas how but not promised and is about this
++	at least i mean anyways i mean, anyways, i mean anyways,
++	thanks, 0 -->
+     <Define>
+         <DefineName>REMOVAL_CHANCE_PEAK</DefineName>
+-        <iDefineIntVal>75</iDefineIntVal>
++        <iDefineIntVal>0</iDefineIntVal>
+     </Define>
+ 
+ 	<!-- [advc.108]
+@@ -346,9 +395,15 @@
+ 		 metric see plotDistance in CvGameCoreUtils.cpp; 2 corresponds to the
+ 		 city cross. Set to 0 for BtS behavior - then, only the tiles
+ 		 visible by the initial units are revealed. -->
++	<!--custom: give a bit more sight, as terrain is so important,
++	give a chance for AIs and human players too (all players in
++	short about this i mean anyways actually i mean anyways) to choose
++	the one they value for their strategy, as for AIs simply more
++	chance to choose a better one maybe about this i mean anyways
++	at least, thanks, was 2-->
+ 	<Define>
+ 		<DefineName>START_SIGHT_RANGE</DefineName>
+-		<iDefineIntVal>2</iDefineIntVal>
++		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- [advc.143]
+@@ -360,9 +415,19 @@
+ 		 lost once several cities are lost.
+          Recommended: 65; use 0 or less for BtS behavior.
+ 		 -->
++	<!-- custom: a voluntary vassal, especially a weak one (which should often
++	be the case else they would not vassalize), could be considered as absorbed
++	by the culture of the bigger empire and become its citizens, some tribes
++	being absorbed maybe for example in some animes or other things or maybe
++	history too but i mean anyways. Even if somehow they were not satisfied
++	and wanted to move away from the empire, they would be too weak to do so,
++	and at this point they may just as well die, there is no alternative
++	at least about this i mean anyways, meaning they would not be able to
++	survive even if they separate from the empire as sad as it is, but is
++	as is maybe good or not i mean anyways, thanks, was 65 -->
+     <Define>
+         <DefineName>VASSAL_DENY_OWN_LOSSES_FACTOR</DefineName>
+-        <iDefineIntVal>65</iDefineIntVal>
++        <iDefineIntVal>0</iDefineIntVal>
+     </Define>
+ 
+ 	<!-- [advc.113]
+@@ -397,6 +462,9 @@
+ 		 on an Archipelago map.
+ 		 0 or less means unmodded resource placement.
+ 		 Recommended: 1 -->
++	<!-- custom: ressources being scarce is maybe what makes the game
++	strategic so leaving as is, i think, about this at least i mean
++	anywyas, thanks -->
+     <Define>
+         <DefineName>SUBLINEAR_BONUS_QUANTITIES</DefineName>
+         <iDefineIntVal>1</iDefineIntVal>
+@@ -411,9 +479,10 @@
+ 		 after razing.
+ 		 Either way, founding a city clears all terrain features in the
+ 		 city tile - at least temporarily. -->
++	<!-- custom: -->
+     <Define>
+         <DefineName>FLOODPLAIN_AFTER_RAZE</DefineName>
+-        <iDefineIntVal>0</iDefineIntVal>
++        <iDefineIntVal>1</iDefineIntVal>
+     </Define>
+ 
+ 	<!-- [advc.004f]
+@@ -423,9 +492,13 @@
+ 		 celebrations.
+ 		 Recommended: a high value in order to disable celebrations;
+ 		 original value from GlobalDefines.xml: 8 -->
++	<!-- custom: i think it is a cool and immersive experience for the
++	human players, mad add bit more strategy to the game or intensity
++	or simply just immersion and relax, so renabling that, if i understand
++	it correctly and about that i mean anyways, thanks, was 100 -->
+ 	<Define> <!-- redefine -->
+ 		<DefineName>WE_LOVE_THE_KING_POPULATION_MIN_POPULATION</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>5</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- [advc.004j]
+@@ -484,6 +557,14 @@
+ 		 Otherwise, the BtS computation is used, i.e. any combat unit
+ 		 suffices as protection. Recommended: 0 for now as there are some
+ 		 open issues with this rule (see manual). -->
++	<!-- custom: i don't know if i have to adjust strength defense calculation
++	now or change this now that all units have more strength, if it's about
++	relative strength with rivals or the "average" unit a civ can build, then
++	it would not need to be changed maybe(?), but if it's about total strength
++	absolute of a unit, then all units are stronger and a clubman (warrior)
++	maybe increase the sense of safeness a bit too much, leaving as is,
++	maybe todo relook at this later or maybe not, about this i mean
++	anyways at least or not i mean but anyways i mean anyways, thanks, -->
+ 	<Define>
+ 		<DefineName>DEMAND_BETTER_PROTECTION</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -509,13 +590,21 @@
+ 		 If set to 1, era transitions are recorded in replays.
+ 		 Set to 0 for BtS behavior (no era transitions in replays).
+ 		 Recommended: 0, rather use SHOW_FIRST_TO_DISCOVER_IN_REPLAY. -->
++	<!-- custom: i want era to be more important, so i would want them
++	to be shown in replay, if i understand what replay is which is in
++	this case at least i mean anyways after game ends the city planting
++	turns etc i mean anyways shown on the map, about this at least i
++	mean anyways, thanks, was 0 -->
+ 	<Define>
+ 		<DefineName>SHOW_ENTERED_ERA_IN_REPLAY</DefineName>
+-		<iDefineIntVal>0</iDefineIntVal>
++		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<!-- [advc.106]
+ 		 If set to 1 (recommended), the first discovery of each tech is recorded
+ 		 in replays. If set to 0, only Liberalism is recorded (BtS behavior). -->
++	<!-- custom: i want reply to show more useful/valuable data so why not,
++	also is maybe a good reminder/hint to me to add more first to discover
++	effects or/and tweak them i mean anyways, thanks,-->
+ 	<Define>
+ 		<DefineName>SHOW_FIRST_TO_DISCOVER_IN_REPLAY</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -544,7 +633,9 @@
+ 	despite potential diplomacy costs).
+ 	May be a bit more realistic too this way, as religious conflicts do not
+ 	end (i think) even in modern times, hopefully more interesting and
+-	enjoyable this way, was 4 -->
++	enjoyable this way, 
++	todo to change this if era number increases (or decreases too maybe?)
++	about this at least i mean anywyas, thanks, was 4 -->
+ 	<Define>
+ 		<DefineName>STOP_RELIGION_SPREAD_ANNOUNCE_ERA</DefineName>
+ 		<iDefineIntVal>6</iDefineIntVal>
+@@ -612,9 +703,27 @@
+ 		 at war in this context. (Otherwise, there would be an
+ 	     awkward incentive to stop short of elimination when
+ 		 capitulation isn't possible.) -->
++	<!-- custom: i found war influence on happiness to be a bit
++	too high in advciv, maybe this can be reduced a bit, i would
++	want to about this at least i mean anywyas, my other idea if
++	i may say is that maybe, or rather my first idea about this, i
++	mean, anyways, i mean anyways, is that citizens can maybe be
++	more rational about war and not as angry about it more
++	realistically, viewing it as an eventuality and simply trying
++	to survive or profit from it (for their advantage, not in evil
++	way or some may do but (i) focus on this and about i mean
++	anyways, but/or/also i mean anyways my other idea/consideration
++	is that maybe after some time citizens can "get over it", as
++	unkind it is to say, what i mean by that is that citizens may
++	see the war in a different light, especially some long time
++	after they are conquerred, and especially if the new ruler
++	provides good protection, perhaps even perk, but is about
++	this i mean, anywyas, at least, i mean anyways, (i) should
++	focus i mean anyways, maybe or not etc i mean anyways, as
++	is or not i mean anyways, thanks, , was 50) -->
+ 	<Define> <!-- redefine -->
+ 		<DefineName>AT_WAR_CULTURE_ANGER_MODIFIER</DefineName>
+-		<iDefineIntVal>50</iDefineIntVal>
++		<iDefineIntVal>25</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- advc.099: Actually a permillage, not a percentage.
+@@ -623,6 +732,9 @@
+ 		 I've slightly increased the value (to 425) to even out rounding errors.
+ 		 I've tried 50% (520), which is a nice even value and results in 100%
+ 		 culture anger at wartime, but that seemed a bit too punishing. -->
++	<!-- custom: leaving as is because religion is important, in my mod i
++	mean this mod advciv-sas if i stick with this name about this i mean
++	anyways, thanks, -->
+ 	<Define> <!-- redefine -->
+ 		<DefineName>CULTURE_PERCENT_ANGER</DefineName>
+ 		<iDefineIntVal>425</iDefineIntVal>
+@@ -710,9 +822,23 @@
+ 		 behavior, with B maximal when Barbarians first appear and then
+ 		 decreasing as the civs expand.
+ 		 Recommended: 54 -->
++	<!-- custom: i want to greatly reduce this. Players all start with a
++	few defenders, up to them to use them well, i want barbarians to be
++	stronger and have a stronger influence early on, more realistic this
++	way too i think, and they would have more impact before they fade.
++	May even push the idea further with terrorists, or maybe pirates as
++	some players/mod do from the little i saw about this i mean anyways
++	or read about this i mean anyways
++	Increasing it a bit too much may be tedious, but it's the goal (not
++	to be tedious i mean anywyas, but to put higher emphasis on military
++	and realism, i may buff the other players or all if they struggle
++	against barbarians, but i would not want to nerf barbarians though,
++	testing this to see but may be good as is or slightly tweak it later
++	maybe, not sure though, is about this at least i mean anyways, thanks,
++	was 54) -->
+     <Define>
+         <DefineName>BARB_PEAK_PERCENT</DefineName>
+-        <iDefineIntVal>54</iDefineIntVal>
++        <iDefineIntVal>5</iDefineIntVal>
+     </Define>
+ 	<!-- Used instead of the value above when the Raging Barbarians option
+ 		 is enabled. Recommended: Somewhat higher, say 7 points, than
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index e4f7193f0..2f36e5319 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -4,6 +4,47 @@
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+ <!-- Unit Infos -->
++<!-- custom: multiply iPower by:
++- 10 for standard military units for example (clubman (warrior)),
++i don't know if this takes into account promotions and other
++multipliers such as natural base stats, but maybe this helps the
++problem of suicidal war declarations in particular, idea i got from
++realism invictus's commit https://sourceforge.net/p/civ4mods/code/5464/
++(name/description) (without actually looking at their code, but i can take it from there,
++about this i
++mean anywyas, as is or not but i mean anyways, thanks, )
++for example
++10 strength x 10 multiplier = 100 iPower for the clubman
++- 7 for cover military units or (more) specialized defenders, for
++example for the archer, they will not directly attack cities, even
++if they may participate in the assault but a bit of a threat, for ex
++6 strength x 7 multiplier = 42 iPower
++- 5 for animals: not used currently but if some players were to control
++animals, these animals may ont be able to (be) use(d in) advanced
++strategy(ies) maybe, but their raw power, usually higher than of
++humans, should not be ignored for example for the lion
++15 strength x 5 = 75 iPower
++- 5 for support military too: for example the explorer has good enough
++stats to attack in some cases, but more often than not is not a threat
++against regular military at all, so for example would be
++6 strength x 5 = 30 iPower
++- 2 for support units (worker if i give them strength), for example
++an ancient worker
++3 strength x 2 = 6 iPower, not entirely useless (may delay city
++capture or very rarely fight animals, but mostly not a threat)
++- 1 (much less) for naval units, for example x1, indeed they
++can barely have any major influence on land warfare, and their
++strength may be misleading, for the calculation for example
++3 strength (early sailboat) x 1 = 1 iPower
++10 strength (early frigate) x 1 = 10 iPower
++
++As for iAsset, as this should not directly affect combat tactics
++or choices (i think), increase it just by strength count, so that
++it scales accurately, for example for the clubman:
++10 stregth = iAsset value of 10
++for example for the archer
++6 strength = iAsset value of 6
++-->
+ <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
+ 	<UnitInfos>
+ 		<UnitInfo>
+@@ -110,7 +151,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>2</iCombat>
++			<iCombat>15</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -162,8 +203,8 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>1</iPower>
++			<iAsset>15</iAsset>
++			<iPower>75</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -289,7 +330,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>3</iCombat>
++			<iCombat>20</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -333,8 +374,8 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>1</iPower>
++			<iAsset>20</iAsset>
++			<iPower>100</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -460,7 +501,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>2</iCombat>
++			<iCombat>14</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -504,8 +545,8 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>1</iPower>
++			<iAsset>14</iAsset>
++			<iPower>70</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -631,7 +672,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>1</iCombat>
++			<iCombat>12</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -684,8 +725,8 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>1</iPower>
++			<iAsset>12</iAsset>
++			<iPower>60</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -855,7 +896,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>4</iAsset>
++			<iAsset>25</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>4</iGroupSize>
+@@ -1052,7 +1093,7 @@
+ 			</ProductionTraits>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>60</iCost>
++			<iCost>35</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -1115,7 +1156,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>20</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>2</iGroupSize>
+@@ -1370,7 +1411,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>2</iGroupSize>
+@@ -1414,15 +1455,12 @@
+ 			<!-- advc.315a: Replaced with OnlyAttackAnimals -->
+ 			<bOnlyDefensive>0</bOnlyDefensive>
+ 			<!-- advc.315a -->
+-			<!-- custom: minor rework, allow the scout to attack all rivals and cities or defend them,
+-			but it should be disincentivized enough for human players due its low strength and not much
+-			bonuses especially in city attack-defense, but it is better than nothing and quite realistic
+-			that they would stand as last defenders, so adding it. The human player may also find some
+-			other uses, that should not be mostly about gaining a strong advantage at war, for these units,
+-			so maybe worth adding too.
+-			For AI players, tags were added to more strictly enforce that they are used as explore units
+-			only and nothing else ideally.
+-			-->
++			<!-- custom: minor rework, allow the scout to attack (or
++			defend against) all rivals units and cities, but it should
++			be disincentivized enough for players due its low strength
++			and not much bonuses especially in city	attack-defense,
++			still better than nothing in this case i mean anyways,
++			thanks,	-->
+ 			<bOnlyAttackAnimals>0</bOnlyAttackAnimals>
+ 			<!-- advc.315b -->
+ 			<bOnlyAttackBarbarians>0</bOnlyAttackBarbarians>
+@@ -1473,11 +1511,8 @@
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<!-- custom: similarly as in the explorer rework, adding some AI player tags to make
+-			extra sure scouts are not used/confused by the AI as attackers or even defenders.
+-			The human player may do as they wish (for example baiting/defending against animals or
+-			something), it should not be too valuable use of the scout, but maybe in some cases this
+-			could make a difference, so allowing it (see above the scout rework changes) -->
++			<!-- custom: making	extra sure scouts are not used/confused
++			by the AI as attackers or even defenders. -->
+ 			<NotUnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -1558,7 +1593,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>1</iCombat>
++			<iCombat>4</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -1575,22 +1610,13 @@
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<!-- advc.315c: Was 100; now BarbarianCombat instead. -->
+-			<!-- custom: scout rework. Make scouts especially good against animals
+-			(it is a sort of hunting after all), not so much against other humans
+-			even if they are barbarians, was 0 -->
+-			<!-- custom: i could have kept the animal bonus to 100 (so that 100 + 25 = 125
+-			against animals), but that would be a bit too strong (and perhaps stronger
+-			than needed especially considering the unit's cost. But if someday someone
+-			would want to create animal units for other rivals, then they could maybe
+-			decrease this to 75 (so that 100 + 25 = 125% against barbarian animals,
+-			and 100% against other animals. Seems a bit too complicated and unlikely to
+-			happen soon, so to simplify this i chose 75 instead of 100., was 0. -->
+-			<iAnimalCombat>75</iAnimalCombat>
+-			<!-- custom: was 100, scouts should not have good odds against anything other
+-			than a warrior, even a barbarian warrior should still be stronger than a scout -->
++			<!-- custom: scout rework. Make scouts especially good against
++			animals (it is a sort of hunting after all), not so much
++			against	other humans even if they are barbarians, was 0 -->
++			<iAnimalCombat>200</iAnimalCombat>
+ 			<iBarbarianCombat>25</iBarbarianCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<iHillsAttack>25</iHillsAttack>
++			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+@@ -1611,8 +1637,8 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>0</iPower>
++			<iAsset>15</iAsset>
++			<iPower>20</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>2</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -1630,22 +1656,17 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: similarly to what i did for the explorer unit, i think explore units
+-			should be good at exploring, navigating forest type terrains is a good way to do so.
+-			It is also a way to make the woodsman promotion play more of a key role in the game,
+-			as it is currently quite useless i think. Scouts being good at such "terrains" (forest
+-			-jungle, that civ4 code seems to name features) may be more realistic and immersive
+-			this way, was empty -->
++			<!-- custom: i think explore units should be good at exploring,
++			navigating forest type terrains is a good way to do so. -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+ 					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+-				<!-- custom: similarly as in the explorer rework, also give flaking 1 (only) to
+-				scouts, should be valuable and also realistic. Exploring should involve to some
+-				extent (i think) being good at retreating too. Since these units cannot become
+-				military strong units, it's most likely (i think) fine to give them such bonuses
+-				-->
++				<!-- custom: also give flaking 1 (only) to scouts, should be valuable
++				and also realistic. Exploring should involve to some extent (i think)
++				being good at retreating too. Explore units have a quite low strength
++				so this is more for defense in this case i mean anyways, thanks,-->
+ 				<FreePromotion>
+ 					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+@@ -1677,16 +1698,10 @@
+ 			<!-- advc.315a -->
+ 			<bOnlyAttackAnimals>0</bOnlyAttackAnimals>
+ 			<!-- advc.315b -->
+-			<!-- custom: unit reworked, can attack other players (more realistic), but should have
+-			little incentive to do so considering its now low strength. More likely to be useful and valuable
+-			for human players as a scouting unit. For AIs i added changes to make extra sure they use it strictly
+-			(as much as possible) as an explorer and not for warfare, was 1-->
++			<!-- custom: unit reworked -->
+ 			<bOnlyAttackBarbarians>0</bOnlyAttackBarbarians>
+ 			<!-- advc.315b: Not supposed to conquer Barbarian cities -->
+-			<!-- custom: can conquer cities but should have little incentive to do so due to its low strength,
+-			but if it were to actually conquer a city, especially barbarian city, it may be realistic and also
+-			making sense too maybe, as it could only do so against really low strength defenders after its rework,
+-			was 1 -->
++			<!-- custom: can conquer cities, was 1 -->
+ 			<bNoCapture>0</bNoCapture>
+ 			<bQuickCombat>0</bQuickCombat>
+ 			<bRivalTerritory>0</bRivalTerritory>
+@@ -1730,12 +1745,7 @@
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<!-- custom: unit reworked, can attack cities if the human player wishes to do so,
+-			but due to its low strength now it should be strongly disincentivized for human players.
+-			Opportunistically maybe against really weak defenders at best maybe. But it should be
+-			valuable as a scouting unit for the human player.
+-			For AI players, similarly as for archer-type units, adding some NotUnitAIs to make
+-			extra sure they are not used/confused by the AI as attackers or even defenders-->
++			<!-- custom: -->
+ 			<NotUnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -1792,7 +1802,6 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: unit reworked, was 40 -->
+ 			<iCost>30</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -1817,8 +1826,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: unit reworked, was 4 -->
+-			<iCombat>2</iCombat>
++			<iCombat>6</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -1834,34 +1842,19 @@
+ 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+-			<!-- custom: should not be weaker than the scout in that regard, even if there
+-			should be no animals left at this stage of the game -->
+-			<!-- custom: as in the scout rework, make explorers especially good against animals
+-			(it is a sort of hunting after all), not so much against other humans even if
+-			they are barbarians, was 0 -->
+-			<!-- custom: i could have kept the animal bonus to 100 (so that 100 + 25 = 125
+-			against animals), but that would be a bit too strong (and perhaps stronger
+-			than needed especially considering the unit's cost. But if someday someone
+-			would want to create animal units for other rivals, then they could maybe
+-			decrease this to 75 (so that 100 + 25 = 125% against barbarian animals,
+-			and 100% against other animals. Seems a bit too complicated and unlikely to
+-			happen soon, so to simplify this i chose 75 instead of 100., was 0. -->
+-			<iAnimalCombat>75</iAnimalCombat>
+-			<!-- custom tag: missing tag for some reason, i don't know if it breaks something to
+-			add it, would need to test to see, but ideally no reason it should be worse than the
+-			scout against barbarians, even if the boost is small -->
+-			<!-- custom: this is mostly for role playing if i may say or-and historical accuracy
+-			/realism, as there should be mostly no barbarians left when players start to have explorers
+-			available, but if there were, the explorer would not be stronger than regular military
+-			units to take the barbarians down, but they should be about strong enough to do so
+-			(still slightly weaker and limited to vs barbarian fights), but more likely to happen
+-			now if the player wishes so (mostly human players as this is currently more discouraged
+-			for AI players in this mod to improve their efficiency). It also makes sense that their
+-			tactics are slightly better against barbarians than those of the scouts, even if not by a
+-			lot so i increased it from 25 that i chose initially to 50 -->
+-			<iBarbarianCombat>50</iBarbarianCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<!-- custom: a bit weaker than the scout in some aspects
++			(animals, but better than the scout in others (barbarians),
++			may include a sort of simulation of realism of the
++			colonization that happened later in history too, as
++			western countries started to explore, if there are any
++			barbarians cities left i mean anyways, which may happen
++			more often now with the boosts i made to barbarians or
++			will make or not i mean anyways about this for barbarians
++			i mean anyways, thanks, ) -->
++			<iAnimalCombat>100</iAnimalCombat>
++			<iBarbarianCombat>100</iBarbarianCombat>
++			<iHillsAttack>25</iHillsAttack>
++			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+@@ -1883,8 +1876,8 @@
+ 			<!-- advc.315c: was 0 -->
+ 			<iCultureGarrison>3</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
+-			<iPower>2</iPower>
++			<iAsset>35</iAsset>
++			<iPower>30</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>2</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -1902,29 +1895,15 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- advc.315c: was PROMOTION_GUERILLA1 and PROMOTION_WOODSMAN1 -->
+-			<!-- custom: unlike what is said in advc.315c, i think explore units should be good
+-			at exploring, navigating forest type terrains is a good way to do so. It may be more
+-			realistic and immersive this way. The verbose should not be a problem too.
+-			The unit is reworked now so having this bonus should not hurt, it increases immersion
+-			too i think.
+-			was empty -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+ 					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+-				<!-- custom: since woodsman promotion does not help to conquer cities, it is probably
+-				fine (and realistic to give it to explorers, they are more in control of forest-jungle
+-				environments, but still not enough to threaten specialized military units) -->
+ 				<FreePromotion>
+ 					<PromotionType>PROMOTION_WOODSMAN2</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+-			<!-- custom: on top of that, giving them double flanking promotions, which should make them
+-			very valuable as explorer-scouting units, especially considering they have no road obstruction.
+-			Note: now that many AIs often get Compass as a free tech, perhaps it makes this tech more
+-			valuable too now -->
+ 				<FreePromotion>
+ 					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+@@ -1937,16 +1916,16 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<!-- custom: use a spy dedicated entry to remove much of the
+-		unclear or mistaken or not relevant to a mod information about
+-		espionage as a whole: we only want the relevant infos about
+-		the spy as a unit, also solves some display issues in the
++		<!-- custom: use a spy dedicated txt key entry to remove much
++		of the unclear or mistaken or not relevant to a mod information
++		about espionage as a whole: we only want the relevant infos
++		about the spy as a unit, also solves some display issues in the
+ 		sevopedia, while fixing potentially existing or future
+ 		inaccuracies so i think is very good, doing it for my mod
+ 		but implemented with this file so that it could be more
+ 		easily exported in other mods or base advciv if wished, but
+ 		is just a suggestion i mean anyways, else i am regardless
+-		using it i mean anyways, focsuing on me i mean anywyas,
++		using it i mean anyways, focsuing on me i mean anyways,
+ 		as is or not i mean anyways, thanks, -->
+ 		<!-- custom: for reference, old data was:
+ 		<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR</Civilopedia>
+@@ -2039,7 +2018,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -2102,7 +2081,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>15</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -2211,7 +2190,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -2274,7 +2253,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -2378,7 +2357,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -2441,7 +2420,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -2545,7 +2524,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -2608,7 +2587,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -2712,7 +2691,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -2775,7 +2754,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -2879,7 +2858,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -2942,7 +2921,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -3046,7 +3025,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3109,7 +3088,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -3213,7 +3192,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3276,7 +3255,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -3381,7 +3360,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3444,7 +3423,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -3548,7 +3527,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3611,7 +3590,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -3715,7 +3694,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3778,7 +3757,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -3882,7 +3861,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3945,7 +3924,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -4049,7 +4028,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -4112,7 +4091,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -4216,7 +4195,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -4279,7 +4258,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -4383,7 +4362,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -4446,7 +4425,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -4571,7 +4550,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>20</iCost>
++			<iCost>25</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -4634,8 +4613,8 @@
+ 			<iConscription>1</iConscription>
+ 			<iCultureGarrison>3</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>2</iPower>
++			<iAsset>10</iAsset>
++			<iPower>100</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -4707,8 +4686,9 @@
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+ 			<!-- advc.907b: Upgrade to MACEMAN disabled -->
+-			<!-- custom: unit is versatile now and maceman is sooner so enabled it 
+-			or/and other possible reasons about this at least i mean anyways -->
++			<!-- custom: unit is versatile now and maceman is sooner so enabled
++			it or/and other possible reasons about this at least i mean anyways
++			-->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_MACEMAN</UnitClassUpgradeType>
+
+diff --git a/README.md b/README.md
+index da2cca1f1..61a355655 100644
+--- a/README.md
++++ b/README.md
+@@ -17,6 +17,14 @@ If you just want to play and do not need all the project bigger details, i added
+ a quick guide of the main changes from Civ4 and base AdvCiv players:
+ [here](/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md)
+ 
++note: it is recommended to read this part even if you want to know the deeper
++changes. There are stuff and things/information i added only recently in it,
++which may not be available in the longer docs.
++
++I may also update it after releasing mods, maybe, but not guaranteed, if there
++are significant changes i would like to add or mention/talk about there. But
++i would move them to the bottom so you don't have to reread all ideally.
++
+ ## Project Goals and global view on gameplay changes
+ 
+ The more general gameplay type of changes consist of
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree default unmodified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree default unmodified.png
+deleted file mode 100644
+index 6b7830516..000000000
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree default unmodified.png and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+new file mode 100644
+index 000000000..0f97ad52f
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/Docs_And_Appendixes/advciv-mod-difficulties_summary-htm-A3.pdf b/_1_AdvCiv-SAS/Docs_And_Appendixes/_outdated_advciv-sas-difficulties_summary-htm-A3.pdf reason=binary/generated-file changedLines=0 bytes=386
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods b/_1_AdvCiv-SAS/Docs_And_Appendixes/_outdated_advciv-sas-difficulties_summary.ods
+similarity index 100%
+rename from _1_AdvCiv-SAS/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods
+rename to _1_AdvCiv-SAS/Docs_And_Appendixes/_outdated_advciv-sas-difficulties_summary.ods
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_military_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_military_unit_imports_listing_only.txt
+index 3ca1924a4..0bad06b51 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_military_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_military_unit_imports_listing_only.txt
+@@ -1,47 +1,306 @@
+-workers:
+-worker 1 : 
+-worker 2 : -
+-worker 3 : 
+-worker 4 : 
+-worker 5 : 
++eras:
++1 = starter / stone age(?)
++2 = bronze age
++3 = iron age
++4 = medieval
++5 = renaissance
++6 = industrial
++7 = modern/atomic
++8 = future
+ 
++
++________________________________________________________________
++animals
++lion -
++bear -
++panther
++tiger: tiger ffh2
++wolf -
++hawk ffh2
++hyena history rewritten?
++
++
++workers
++worker 1: 
++worker 2: -
++worker 3: 
++worker 4: 
++worker 5: 
++worker 6: labourer history rewritten
++
++work boats (if need take from c2c but i dont thnik is worth for gameplay, leaving for later or none etc)
++work boat 1:
++work boat 2: work boat history rewritten
++work boat 3: work boat ffh2
++work boat 4:
++work boat 5:
++work boat 6:
++
++
++settlers
++-
++settler 2: settler ffh2
++settler 3
++settler 4
++settler 5
++settler 6
++
++
++scout/explorer
++explore 1:
++explore 2:
++explore 3: scout c2c
++explore 4:
++explore 5:
++explore 6:
++explore 7:
++___________________________________________________________________________________________
+ camels:
+-camel archer for camel archer2 (medieval): c2c (if texture is different)
+-camel lacer 1: bactrian cataphract from c2c
+-camel lancer: -
+-camel "sword": camel knight from c2c i mean anyways about this at least i mean anyways
+-camel cuirassier: camel gunner from c2c
+-camel cavalry: meharist from c2c
++
++camel archers
++-
++-
++camel archer 3: -
++camel archer 4: late horse archer realism invictus
++-
++
++camel lancers
++-
++-
++camel lancer 3: bactrian cataphract c2c
++camel lancer 4: -
++
++
++camel sword:
++-
++-
++-
++camel sword 4: camel knight c2c
++-
++
++camel crossbow:
++
++
++
++camel gun:
++-
++-
++-
++-
++camel gun 5: (camel cuirassier) camel gunner from c2c
++camel gun 6: camel cavalry: meharist from c2c
++
++
+ 
+ elephants:
++-
++-
++war elephant 3: atlas elephant (hero used as a unit here i mean anyways) history rewritten
++war elephant 4: -
++-
++-
+ 
+ horse units:
+ 
++chariots
++-
++chariot 2: -
++-
++-
++-
++
+ horseman: horseman from history rewritten
+ 
+-more advanced chariot?
++horse archer
++-
++-
++
++horse crossbow:
++-
++-
++horse crossbow 3: horse crossbowman c2c
++horse crossbow 4: strezelcy history rewritten
++-
++-
++
++horse lancers:
++-
++-
++-
++horse lancer 3: light cavalry c2c
++horse lancer 4: heavy cavalry c2c
++-
++-
++
++
++horse swordsman
++-
++-
++-
++horse sword 4: -
++-
++-
++
++
++
++
++____________________________________________________________________________________________
++macemen
++maceman 1: -
++maceman 2: maceman c2c
++maceman 3:
++maceman 4: -
++
++
++
++axemen
++axeman 1: stone axeman c2c
++axeman 2: -
++axeman 3:
++axeman 4: heavy axeman c2c
++-
++-
++
++
+ 
+ lance units:
+-spearman 1: spearman from history rewritten?
+-spearman 2: pikeman (fanti dar mar) from realism invictus (or keep old pikeman of civ4 somewhere ideally?)
+-spearman 3 (medieval): heavy spearman from realism invictus
+-spearman 4: (renaissance) pikeman halberdier from realism invictus
+ 
++lance light units
++lance light 1: stone spearman c2c
++lance light 2: javelineer c2c
++lance light 3: skirmisher c2c
++lance light 4:
++-
++-
++
++
++
++lance medium units
++lance medium 1:
++lance medium 2: -
++lance medium 3: spearman c2c
++lance medium 4:
++-
++-
++
++
++lances heavy units
++-
++lance heavy 2  phalanx -
++lance heavy 3: spearman wlocznik realism invictus
++lance heavy 4  phalanx from ffh2
++-
++-
++
++
++short swords
++-
++short sword 2:
++
++
++medium sword
++-
++medium sword 2: -
++medium sword 3: guard c2c
++medium sword 4:
++-
++-
++
++
++longswords:
++-
++-
++longsword 3: eidolon ffh2
++longsword 4: heavy swordsman c2c
++-
++-
++
++
++
++
++champion ffh2
++
++
++
++_____________________________________________________________________________________________
++archers
++
++short bows
++archer 1: stone thrower c2c
++archer 2: -
++archer 3:
++archer 4:
++-
++-
++
++
++longbows
++-
++-
++longbow 3: -
++longbow 4:
++longbow 5?
++
++
++crossbows:
++-
++-
++crossbow 3:
++crossbow 4:
++crossbow 5?
++-
++-
++
++____________________________________________________________________________________________
+ assasin units:
+-spy of civ4 give it attack too? and early spy? Etc About this i mean anyways, at least, i mean anyways
++spy of civ4 give it attack too? and early spy?
+ courtesan: 
+ assassin (arab i think unit or generic)
+ thief
++burglar c2c
++
++
++
++
++___________________________________________________________________________________________
++religious units :
++
++early religion military
++paganism:
++hinduism:
++judaism:
++buddhism: monk
++daoism:
++christianism: crusader
++islam:
++
++
++
+ 
++neo religion military
++paganism:
++hinduism:
++judaism:
++buddhism: 
++daoism:
++christianism:
++islam:
+ 
+ 
+-carabinier? c2c
+ 
+-add lancer?
++religious missionairess
++paganism:
++hinduism:
++judaism:
++buddhism: 
++daoism:
++christianism:
++islam:
+ 
+-knight (lancer): civ4 bts?
+-knight swordsman
+ 
+-crusader: inquisition? (or theology?) + make it require a religion for production
++___________________________________________________________________________________________
++special units
+ 
+-make horse sword good against melee sword and axe
++persia: immortal (foot) history rewritten
++samratian or their western neighbour or other: bactrian c2c
++xiongnu or their neighbour: flurry ffh2
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index 2b4be1231..a59137b68 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -5,6 +5,8 @@ This page does not go to go deep into the technicalities, for that see the
+ starter guide on the key few differences between AdvCiv and AdvCiv-SAS, for
+ newcomer players used to AdvCiv, Civ4 BTS, or some similar mods.
+ 
++todo cleanup extensive comments and move them to a longer changes guide notes
++
+ ## Main Changes quick starter guide
+ 
+ - explore units can attack : but their strength should be quite low
+@@ -22,6 +24,30 @@ the jaguar warrior)
+ - terrain is very important, almost all units have terrain bonuses, and sometimes
+ rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless
+ i think it is relevant (quite strongly))
++- another element of attention is that military (at least early ones, now don't
++have much strength difference between them. For example, a clubman (warrior) would
++be 10 strength, and a swordsman only 15 strength, while an archer would be 6 strength
++but with extra or/and other bonuses. In exchange of these adjustments, upgrade costs
++are much cheaper todo, so you will not be able to build full warriors then upgrade
++them later while going full economy. Also, since units are so close in strength now,
++at least early ones, terrain multipliers and promotions multipliers play an especially
++big part. The power correction part has been entirely removed or rather negated, in
++fact slightly under 100 now. As a human even if odds are slightly below certainty, if
++odds are good enough, attack. In exchange also, city attack has been severly increased,
++now an AI will want to be about twice +/- as strong as city defenders else would not
++bother to attack, ideally. Hopefully and ideally, in theory, this means AIs should/would
++behave like a human player would or closer to it, hesitating less to attack and may be
++willing to risk if good enough odds or reward, but more guarded about attacking stronger
++targets otherwise, at least in theory. They should especially target more lone units
++outside of cities, but much less those in cities.)
++- global defines have been changed to have religion importance higher (in terms
++of culture strength (not exactly sure what this means but should be fine and as i
++intend i think i mean) for example, lower revolt chance, anger from war quite a
++bit reduced higher reluctance to agree to a war trade, etc. A bit more pragmatic
++or/and opportunistic, or possibly realistic conditions, war may not always be a
++fatality, at least in the long run, even though it's hell at first, but this is
++not a strong or much likeable opinion of me to have, i simply think it would
++make gameplay better/easier/more relaxing, and is also more realistic too this way
+ - some terrains are buffed, for example snow, desert, and water tiles are (very)
+ important now. Some terrain specific bonuses are added to some units or/and
+ Civlizations (for example todo), some buildings give bonus to desert and snow yields
+@@ -31,6 +57,21 @@ example), and another example is the building that replaces moai (nerfed but not
+ gives hammer on all coast and lake tiles (but not ocean) (should be a buff overall)
+ - More terrain bonuses from techs and buildings: for example fishing gives food
+ on all water tiles (even without boat)
++- Start map behaviour is affected, not so much terrain polishing (map script
++removing bad tiles such as jungle or snow or peak, they are now kept, but
++instead you have more starting vision to choose your spot, which should be
++realistic too because at 100 000 BCE (approximately) humans may have enough vision
++of their surroundings to know where to live or adjust to it maybe (even though
++first city settling is not as realistic, but is for convenience, and could maybe
++be imagined as a nomadic settlment in the region maybe, still convenient so allowing
++it)), also these "bad" terrains should be buffed a bit or quite a lot, so they
++would be more considered as alternative strategic options rather than bad tiles, among
++other possible changes
++- worker cost is reduced
++- missionaries, spies, corporation executives todo have their cost greatly reduced,
++be sure to build them soon enough, also the effects they give access to (if conversion
++succeeds for missionaries (for corproations todo maybe it would be 100%?(?))) are even
++stronger.
+ - no more small wonders! To simplify gameplay, great wonders, now named wonders,
+ have stronger and more significant effects now. As explained above with the example
+ of Moai Stautes transformed into a building, some nice effects have also been transferred
+@@ -122,8 +163,19 @@ trade with all players (trade less and it will/should(?) fade eventually))), als
+ fixes about "the forge has been destroyed" when it was sometimes not destroyed misleading
+ messaged tweaked to something not misleading (for example "The forge has caught fire"),
+ cavalry at rifling not military tradition todo may change, clearer sevopedia with new
+-menus such as types of ressources, victory conditions, things i did not know much about until
+-doing, i hope this helps.
++menus such as types of ressources, victory conditions, and tweaked existing ones to be
++clearer or/and easier to navigate hopefully, i hope this helps.
++- enabled floodplains after raze, hopefully they (previous city (owners) developped the
++land well enough that it can still be profitable, also for more relaxed and interesting
++gameplay, i would want the difficulty to be elsewhere, not in such tedious things)
++- voluntary vassals are permanent, think of their culture being absorbed by the empire,
++and them merging with the empire, becoming its citizens, so pay attention to that, and
++if you don't want it to happen to other rivals, plan your strategy based on that maybe
++- unlike in AdvCiv, we love the king chance is restored, i think it's a cool mechanic
++and also pleasant for the player, maybe realistic too, so if it can happen all good
++(feels good in civ3 for example if i may say about my small (or not so, about this
++at least indeed i mean, much but, but i mean anyways not promised i mean anyways
++) experience (about civ3 i mean anyways, thanks,))
+ 
+ - todo continue
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=9 omittedFiles=1 embeddedPatchBytes=70502

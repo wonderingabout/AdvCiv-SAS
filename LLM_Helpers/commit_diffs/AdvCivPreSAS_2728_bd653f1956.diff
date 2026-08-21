@@ -1,0 +1,162 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2728
+# Commit: bd653f19565ee1735bce96ed6f909655526d013f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 297e6c0bbd261bdedaccf33e8ebefb14041ec41c
+# Title: Fix several issues with interrupted city production
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	6	CvGameCoreDLL/CvCity.cpp
+4	3	CvGameCoreDLL/CvCity.h
+8	5	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 9f2b71af3..a56ebb8dc 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -7653,9 +7653,9 @@ void CvCity::updateCorporationYield(YieldTypes eIndex)
+ }
+ 
+ 
+-void CvCity::updateCorporation()
++void CvCity::updateCorporation(/* advc.064d: */ bool bVerifyProduction)
+ {
+-	updateCorporationBonus();
++	updateCorporationBonus(/* advc.06d: */ bVerifyProduction);
+ 	updateBuildingCommerce();
+ 
+ 	for (int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+@@ -7668,7 +7668,7 @@ void CvCity::updateCorporation()
+ }
+ 
+ 
+-void CvCity::updateCorporationBonus()  // advc: style changes
++void CvCity::updateCorporationBonus(/* advc.064d: */ bool bVerifyProduction)
+ {
+ 	EnumMap<BonusTypes,int> aiLastCorpProducedBonuses;
+ 	EnumMap<BonusTypes,bool> abHadBonuses;
+@@ -7731,7 +7731,9 @@ void CvCity::updateCorporationBonus()  // advc: style changes
+ 			else
+ 			{
+ 				processBonus(eLoopBonus, -1);
+-				verifyProduction(); // advc.064d
++				// <advc.064d>
++				if (bVerifyProduction)
++					verifyProduction(); // </advc.064d>
+ 			}
+ 		}
+ 	}
+@@ -8275,7 +8277,8 @@ int CvCity::getNumBonuses(BonusTypes eIndex) const
+ }
+ 
+ 
+-void CvCity::changeNumBonuses(BonusTypes eIndex, int iChange)
++void CvCity::changeNumBonuses(BonusTypes eIndex, int iChange,
++	bool bVerifyProduction) // advc.064d
+ {
+ 	if (iChange == 0)
+ 		return;
+@@ -8290,7 +8293,7 @@ void CvCity::changeNumBonuses(BonusTypes eIndex, int iChange)
+ 	}
+ 
+ 	if (isCorporationBonus(eIndex))
+-		updateCorporation();
++		updateCorporation(/* advc.06d: */ bVerifyProduction);
+ }
+ 
+ // advc.149:
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index b9d192b2c..b2a85edc9 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -826,10 +826,10 @@ public:
+ 	int getCorporationCommerceByCorporation(CommerceTypes eIndex, CorporationTypes eCorporation) const;				// Exposed to Python
+ 	int getCorporationYield(YieldTypes eIndex) const { return m_aiCorporationYield.get(eIndex); }					// Exposed to Python
+ 	int getCorporationYieldByCorporation(YieldTypes eIndex, CorporationTypes eCorporation) const;					// Exposed to Python
+-	void updateCorporation();
++	void updateCorporation(/* advc.064d: */ bool bVerifyProduction = true);
+ 	void updateCorporationCommerce(CommerceTypes eIndex);
+ 	void updateCorporationYield(YieldTypes eIndex);
+-	void updateCorporationBonus();
++	void updateCorporationBonus(/* advc.064d: */ bool bVerifyProduction = true);
+ 
+ 	int getCommerceRateModifier(CommerceTypes eIndex) const															// Exposed to Python
+ 	{
+@@ -947,7 +947,8 @@ public:
+ 	{
+ 		return (getNumBonuses(eIndex) > 0);
+ 	}
+-	void changeNumBonuses(BonusTypes eIndex, int iChange);
++	void changeNumBonuses(BonusTypes eIndex, int iChange,
++			bool bVerifyProduction = true); // advc.064d
+ 	int countUniqueBonuses() const; // advc.149
+ 	int getNumCorpProducedBonuses(BonusTypes eIndex) const
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 85c76da11..9658fe8f9 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3893,7 +3893,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 			if (isImproved())
+ 				GET_PLAYER(getOwner()).changeImprovementCount(getImprovementType(), 1);
+ 
+-			updatePlotGroupBonus(true);
++			updatePlotGroupBonus(true, /* advc.064d */ false);
+ 		}
+ 		FOR_EACH_UNIT_VAR_IN(pUnit, *this)
+ 		{
+@@ -5368,7 +5368,10 @@ void CvPlot::setPlotGroup(PlayerTypes ePlayer, CvPlotGroup* pNewValue,
+ 	if (pOldPlotGroup != NULL && pCity != NULL && pCity->getOwner() == ePlayer)
+ 	{
+ 		FOR_EACH_ENUM(Bonus)
+-			pCity->changeNumBonuses(eLoopBonus, -pOldPlotGroup->getNumBonuses(eLoopBonus));
++		{
++			pCity->changeNumBonuses(eLoopBonus, -pOldPlotGroup->getNumBonuses(eLoopBonus),
++					false); // advc.064d (handled by CvPlotGroup::recalculatePlots ... I hope)
++		}
+ 	}
+ 
+ 	if (pNewValue == NULL)
+@@ -5392,7 +5395,7 @@ void CvPlot::updatePlotGroup(/* advc.064d: */ bool bVerifyProduction)
+ 	for (PlayerIter<ALIVE> it; it.hasNext(); ++it)
+ 	{
+ 		CvPlayer& kPlayer = *it;
+-		updatePlotGroup(kPlayer.getID(), /* <advc.064d> */ false);
++		updatePlotGroup(kPlayer.getID(), /* <advc.064d> */ true, false);
+ 		/*  When recalculation of plot groups starts with updatePlotGroup, then
+ 			bVerifyProduction sometimes interrupts city production prematurely;
+ 			not sure why exactly. Will have to verify all cities instead. */
+@@ -5436,7 +5439,7 @@ void CvPlot::updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate,
+ 
+ 				pPlotGroup->removePlot(this, /* advc.064d: */ bVerifyProduction);
+ 				if (!bEmpty)
+-					pPlotGroup->recalculatePlots();
++					pPlotGroup->recalculatePlots(/* advc.064d: */ bVerifyProduction);
+ 			}
+ 		}
+ 		pPlotGroup = getPlotGroup(ePlayer);
+@@ -5454,7 +5457,7 @@ void CvPlot::updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate,
+ 		{
+ 			if (pPlotGroup == NULL)
+ 			{
+-				pAdjPlotGroup->addPlot(this);
++				pAdjPlotGroup->addPlot(this, /* advc.064d: */ bVerifyProduction);
+ 				pPlotGroup = pAdjPlotGroup;
+ 				FAssert(getPlotGroup(ePlayer) == pPlotGroup);
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5088

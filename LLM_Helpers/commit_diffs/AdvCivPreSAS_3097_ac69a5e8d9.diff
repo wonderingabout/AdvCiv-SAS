@@ -1,0 +1,88 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3097
+# Commit: ac69a5e8d939f56d507ae96deb8c63d03f9df46f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f28226d0dd6a779876d9737699f8d2334fe4ddbc
+# Title: Tweak impact of war success rating on AI nuke value
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	18	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 222829306..874bab39f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14950,27 +14950,19 @@ int CvPlayerAI::AI_nukeBaseDestructionWeight() const
+ 			iR += 12;
+ 	}
+ 	int const iWS = GET_TEAM(getTeam()).AI_getWarSuccessRating();
+-	/*	advc.650: War going badly is not a good reason for hitting civilian targets.
++	/*	<advc.650> War going badly is not a good reason for hitting civilian targets.
+ 		Let's say, only when it's going very, very badly (still questionable): */
+-	if (iWS < -88)
+-		iR -= iWS;
+-	// don't completely destroy them if we want to keep their land.
+-	int iWSThresh = 50;
+-	if (iWS > iWSThresh)
+-		iR -= iWS - iWSThresh;
+-	// <advc.650>
+-	// Also spare their stuff if the power ratio is very favorable
+-	else
++	if (iWS < -88 &&
++		GET_TEAM(getTeam()).AI_countEnemyWarSuccess() * 5
++		> GC.getWAR_SUCCESS_CITY_CAPTURING() * GET_TEAM(getTeam()).getNumCities())
++		// </advc.650>
+ 	{
+-		int iTargetPowRatio = 200;
+-		int iPowRatioPercent = (100 * GET_TEAM(getTeam()).getPower(true)) /
+-				std::max(1, GET_TEAM(getTeam()).getEnemyPower());
+-		if (iPowRatioPercent > iTargetPowRatio)
+-			iR -= iPowRatioPercent - iTargetPowRatio;
++		iR -= iWS;
+ 	}
+-	// Personality factor
++	// don't completely destroy them if we want to keep their land.
++	iR -= std::max(0, iWS - 50);
++	// advc.650: Personality factor
+ 	iR += GC.getInfo(getPersonalityType()).getRazeCityProb() / 3;
+-	// </advc.650>
+ 	return iR;
+ }
+ 
+@@ -14994,15 +14986,22 @@ int CvPlayerAI::AI_nukeExtraDestructionWeight(PlayerTypes eTarget,
+ 		iR += 12;
+ 	if (!bLimited)
+ 		iR += 16;
++	int const iMemoryNukedUs = AI_getMemoryCount(kTarget.getID(), MEMORY_NUKED_US);
+ 	// </advc.650>
+ 	int iMemoryVal = std::min(120,
+ 			2 * AI_getMemoryCount(kTarget.getID(), MEMORY_NUKED_FRIEND) +
+-			5 * AI_getMemoryCount(kTarget.getID(), MEMORY_NUKED_US));
++			5 * iMemoryNukedUs);
+ 	iMemoryVal /= 2; // advc.130j: Memory now counted at times-2 precision
+ 	// <advc.650> Avoid escalation
+ 	if (iMemoryVal <= 5 && iTheirNukes > 0)
+ 		iR -= (scaled(iTheirNukes).sqrt() * 8).uround(); // </advc.650>
+ 	iR += iMemoryVal;
++	// <advc.650> Let's see how bad the war gets before using nukes
++	if (iMemoryNukedUs <= 0 &&
++		GET_TEAM(getTeam()).AI_getWarPlan(kTarget.getTeam()) == WARPLAN_ATTACKED_RECENT)
++	{
++		iR = (iR * 2) / 3;
++	} // </advc.650>
+ 	return iR;
+ } // </advc>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2431

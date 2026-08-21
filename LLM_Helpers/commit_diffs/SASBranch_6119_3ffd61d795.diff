@@ -1,0 +1,687 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6119
+# Commit: 3ffd61d7959e56861c8a056237981310642bcee1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e67adf522de45321fad3d46ce137796f3ab83e48
+# Title: Improve unattended AI Auto Play, add explicit run outcomes to SASGameRecord (KI#203); finalize era-based offensive-production tuning (KI#197.10)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+11	10	Assets/Python/Contrib/AIAutoPlay.py
+9	1	Assets/XML/GlobalDefines_advciv_sas.xml
+8	0	CvGameCoreDLL/CvDLLButtonPopup.cpp
+14	0	CvGameCoreDLL/CvEnums.h
+17	9	CvGameCoreDLL/CvGame.cpp
+3	2	CvGameCoreDLL/CvGame.h
+16	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	0	CvGameCoreDLL/CvGameCoreUtils.h
+13	0	CvGameCoreDLL/CyEnumsInterface.cpp
+9	0	CvGameCoreDLL/CyGame.cpp
+2	0	CvGameCoreDLL/CyGame.h
+2	0	CvGameCoreDLL/CyGameInterface.cpp
+1	1	CvGameCoreDLL/FAssert.cpp
+2	2	CvGameCoreDLL/RiseFall.cpp
+65	8	CvGameCoreDLL/SASGameRecordLog.cpp
+4	1	CvGameCoreDLL/SASGameRecordLog.h
+26	5	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+3	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+109667	76778	_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/AIAutoPlay.py b/Assets/Python/Contrib/AIAutoPlay.py
+index e0f5c90fe..42913d6d1 100644
+--- a/Assets/Python/Contrib/AIAutoPlay.py
++++ b/Assets/Python/Contrib/AIAutoPlay.py
+@@ -8,7 +8,6 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ import CvScreenEnums
+@@ -119,9 +118,9 @@ class AIAutoPlay :
+ 	#		# About to turn off automation
+ 	#		pass
+ 
++	# <!-- custom: Victory ends AI Auto Play through the shared completion path so the DLL records the real cause and restores human control only once. See KI#203. (GPT-5.6-Sol) -->
+ 	def onVictory( self, argsList ) :
+-		self.checkPlayer()
+-		game.setAIAutoPlay(0)
++		self.checkPlayer(SASAutoPlayEndCause.SAS_AUTOPLAY_END_VICTORY)
+ 
+ 	def pickHumanHandler( self, iPlayerID, netUserData, popupReturn ) :
+ 
+@@ -165,8 +164,8 @@ class AIAutoPlay :
+ 
+ 		elif( self.bSaveAllDeaths ) :
+ 			if( game.getAIAutoPlay() == 0 and not gc.getActivePlayer().isAlive() and iPlayer > game.getActivePlayer() ) :
+-				self.checkPlayer()
+-				game.setAIAutoPlay(0)
++				# <!-- custom: Preserve active-player defeat as the cause when this fallback has to finish AI Auto Play. See KI#203. (GPT-5.6-Sol) -->
++				self.checkPlayer(SASAutoPlayEndCause.SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED)
+ 
+ 	def onEndPlayerTurn( self, argsList ) :
+ 		iGameTurn, iPlayer = argsList
+@@ -203,13 +202,15 @@ class AIAutoPlay :
+ 		if turnsLeft <= turnsLeftTarget and iPlayer == preceding:
+ 			# </advc.127>
+ 			# About to turn off automation
+-			self.checkPlayer() # advc.127: Un-commented this line.
++			self.checkPlayer(SASAutoPlayEndCause.SAS_AUTOPLAY_END_SCHEDULED) # advc.127: Un-commented this line.
+ 
+-	def checkPlayer( self ) :
++	# <!-- custom: Carry the explicit completion cause into the DLL so SASGameRecord can distinguish scheduled completion, user interruption, victory, and active-player defeat. See KI#203. (GPT-5.6-Sol) -->
++	def checkPlayer( self, iEndCause = SASAutoPlayEndCause.SAS_AUTOPLAY_END_OTHER ) :
+ 
+ 		pPlayer = gc.getActivePlayer()
+ 		# advc.127: Unit check added to avoid multiple popups. Note however: Normally, CvPlayer::verifyAlive automatically transfers human control to a different player when the active player is defeated. The popup here remains only as a fallback. Also added not-human check - should obviously only affect AI Auto Play. Don't know if and how that was working previously.
+ 		if not pPlayer.isAlive() and pPlayer.getNumUnits() <= 0 and not pPlayer.isHuman():
++			iEndCause = SASAutoPlayEndCause.SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED
+ 			popup = PyPopup.PyPopup(7052,contextType = EventContextTypes.EVENTCONTEXT_ALL)
+ 			popup.setHeaderString( localText.getText("TXT_KEY_AIAUTOPLAY_PICK_CIV", ()) )
+ 			popup.setBodyString( localText.getText("TXT_KEY_AIAUTOPLAY_CIV_DIED", ()) )
+@@ -239,7 +240,8 @@ class AIAutoPlay :
+ 
+ 		CvUtil.pyPrint('CDP: Setting autoplay to 0')
+ 		# advc.127 (comment): Re-enables humans
+-		game.setAIAutoPlay(0)
++		# <!-- custom: Use the AdvCiv-SAS Python API rather than the ambiguous one-argument reset so the end cause reaches CvGame and SASGameRecord. See KI#203. (GPT-5.6-Sol) -->
++		game.endAIAutoPlay(iEndCause)
+ 
+ 		if( not pPlayer.isHuman() ) :
+ 			CvUtil.pyPrint('Returning human player to control of %s'%(pPlayer.getCivilizationDescription(0)))
+@@ -266,8 +268,7 @@ class AIAutoPlay :
+ 			if game.getAIAutoPlay() > 0:
+ 				if self.refortify:
+ 					doRefortify(game.getActivePlayer())
+-				game.setAIAutoPlay(0)
+-				self.checkPlayer()
++				self.checkPlayer(SASAutoPlayEndCause.SAS_AUTOPLAY_END_USER_INTERRUPTED)
+ 			else:
+ 				# <advc> for BM1
+ 				if theKey == int(InputTypes.KB_B):
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 3db569058..5f474bea4 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1769,6 +1769,14 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: During AI Auto Play, omit no-decision informational dialogs: BUTTONPOPUP_TEXT notices and active-player handoff/password prompts. This deliberately does not accept or suppress gameplay choices such as diplomacy, events, civics, war, launch, production, or technology. 1 enables; 0 preserves every informational popup. See KI#203. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: if score is equal or higher than this, it means our city has a low food BFC. Used to decide as of now if farms should be more valuable in such cities. -->
+ 	<!-- custom: plains/tundra (1F): +1, snow/desert (0F): +2, grass (2F): 0 neutral, floodplains (3F): -1 (Claude code Opus 4.6) -->
+ 	<Define>
+@@ -2478,7 +2486,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_CLASSICAL_PERCENT</DefineName>
+-		<iDefineIntVal>10</iDefineIntVal>
++		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MEDIEVAL_PERCENT</DefineName>
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index cc6a94e37..2ff364c2c 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -14,6 +14,7 @@
+ #include "CvInfo_All.h"
+ #include "CvGameTextMgr.h"
+ #include "CvMessageControl.h"
++#include "SASGameRecordLog.h" // <!-- custom: Needed to record the rare informational popup omitted during unattended AI Auto Play. (GPT-5.6-Sol) -->
+ 
+ 
+ #define PASSWORD_DEFAULT (L"*****")
+@@ -795,6 +796,13 @@ bool CvDLLButtonPopup::launchButtonPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	ButtonPopupTypes const eType = info.getButtonPopupType();
+ 	// <advc.706>
+ 	CvGame& kGame = GC.getGame();
++	// <!-- custom: BUTTONPOPUP_TEXT has only an informational body and its OK handler performs no action. While AI Auto Play is active, optionally omit only this safe type so unattended runs continue; never auto-accept any popup that represents a gameplay or session decision. See KI#203. (GPT-5.6-Sol) -->
++	static const bool bSASAutoDismissAutoPlayInformationalPopups = (GC.getDefineINT("SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE") > 0);
++	if (bSASAutoDismissAutoPlayInformationalPopups && kGame.getAIAutoPlay() > 0 && eType == BUTTONPOPUP_TEXT)
++	{
++		if (gGameRecordLogLevel >= 2) logSASGameRecordAutoPlayPopupDismissed("BUTTONPOPUP_TEXT");
++		return false;
++	}
+ 	if (kGame.isOption(GAMEOPTION_RISE_FALL))
+ 	{
+ 		if(eType == BUTTONPOPUP_RF_CHOOSECIV)
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 9de4dd4df..7116d40cd 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1155,6 +1155,20 @@ enum TechAcquisitionCause
+ 	TECH_ACQUISITION_DEBUG
+ };
+ 
++// <!-- custom: Explicit source for ending AI Auto Play, shared between the DLL, Python controller, and SASGameRecord. This is runtime control/diagnostic metadata, not XML-indexed or savegame-serialized. See KI#203. (GPT-5.6-Sol) -->
++enum SASAutoPlayEndCause
++{
++	SAS_AUTOPLAY_END_UNSPECIFIED = -1,
++	SAS_AUTOPLAY_END_SCHEDULED,
++	SAS_AUTOPLAY_END_USER_INTERRUPTED,
++	SAS_AUTOPLAY_END_VICTORY,
++	SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED,
++	SAS_AUTOPLAY_END_DESYNC,
++	SAS_AUTOPLAY_END_ASSERTION,
++	SAS_AUTOPLAY_END_RISE_FALL,
++	SAS_AUTOPLAY_END_OTHER
++};
++
+ enum TradeableItems
+ {
+ 	NO_TRADE_ITEM = -1,
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 633b53c5e..41f6df76e 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4304,7 +4304,7 @@ void CvGame::reviveActivePlayer()
+ {
+ 	if (GET_PLAYER(getActivePlayer()).isAlive())
+ 		return;
+-	setAIAutoPlay(0, /* advc.127: */ false);
++	setAIAutoPlay(0, /* advc.127: */ false, SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED);
+ 	GC.getInitCore().setSlotStatus(getActivePlayer(), SS_TAKEN);
+ 	if (GC.getPythonCaller()->doReviveActivePlayer())
+ 		return;
+@@ -4690,13 +4690,14 @@ void CvGame::initScoreCalculation()
+ }
+ 
+ 
+-void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerStatus)
++void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerStatus, SASAutoPlayEndCause eEndCause)
+ {
+ 	int const iOldAIAutoPlay = std::max(0, m_iAIAutoPlay);
+ 	m_iAIAutoPlay = std::max(0, iNewValue);
+-	// <!-- custom: SASGameRecord logs autoplay start/end/user-status changes so benchmark/autoplay logs show the tested window directly, similar in spirit to replay markers but parse-friendly. Skip ordinary countdown ticks because they call setAIAutoPlay every turn and would spam AUTOPLAY_CHANGED rows. (GPT-5.5) -->
++	// <!-- custom: SASGameRecord logs autoplay start/end/user-status changes so benchmark/autoplay logs show the tested window directly, similar in spirit to replay markers but parse-friendly.
++	// Explicit completion causes distinguish scheduled completion from interruption, victory, player defeat, desync, assertions, and other resets. Skip ordinary countdown ticks because they call setAIAutoPlay every turn and would spam AUTOPLAY_CHANGED rows. See KI#203. (GPT-5.5 + GPT-5.6-Sol) -->
+ 	if (gGameRecordLogLevel >= 2 && (bChangePlayerStatus || iOldAIAutoPlay == 0 || m_iAIAutoPlay == 0))
+-		logSASGameRecordAutoPlayChanged(iOldAIAutoPlay, m_iAIAutoPlay, bChangePlayerStatus);
++		logSASGameRecordAutoPlayChanged(iOldAIAutoPlay, m_iAIAutoPlay, bChangePlayerStatus, eEndCause);
+ 	if (!bChangePlayerStatus)
+ 		return; // </advc.127>
+ 	// Erik <BM1>
+@@ -4727,9 +4728,9 @@ void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerSta
+ }
+ 
+ 
+-void CvGame::changeAIAutoPlay(int iChange, /* advc.127: */ bool changePlayerStatus)
++void CvGame::changeAIAutoPlay(int iChange, /* advc.127: */ bool changePlayerStatus, SASAutoPlayEndCause eEndCause)
+ {
+-	setAIAutoPlay(getAIAutoPlay() + iChange, /* advc.127: */ changePlayerStatus);
++	setAIAutoPlay(getAIAutoPlay() + iChange, /* advc.127: */ changePlayerStatus, eEndCause);
+ }
+ 
+ // <advc.opt>
+@@ -5420,11 +5421,18 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat)
+ 	int const iActiveNetId = (eOldActivePlayer != NO_PLAYER ?
+ 			GET_PLAYER(eOldActivePlayer).getNetID() : -1);
+ 	GC.getInitCore().setActivePlayer(eNewValue);
++	// <!-- custom: Active-player transfers during AI Auto Play can explain why automation ended or whose civilization resumed human control. Keep per-request and per-log-session counts in SASGameRecord rather than requiring reviewers to scan every setup/status row. See KI#203. (GPT-5.6-Sol) -->
++	if (gGameRecordLogLevel >= 2)
++		logSASGameRecordActivePlayerChanged(eOldActivePlayer, eNewValue);
+ 	if (eNewValue != NO_PLAYER && // K-Mod
+ 		GET_PLAYER(eNewValue).isHuman() &&
+ 		(isHotSeat() || isPbem() || bForceHotSeat))
+ 	{
+-		gDLL->getPassword(eNewValue);
++		// <!-- custom: Active-player defeat can transfer human control while AI Auto Play still has hundreds of turns remaining. The EXE's handoff/password call then displays an OK-only "it's your turn" prompt and pauses the run; skip only that no-decision prompt during automation. See KI#203. (GPT-5.6-Sol) -->
++		static const bool bSASAutoDismissAutoPlayInformationalPopups = (GC.getDefineINT("SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE") > 0);
++		if (!bSASAutoDismissAutoPlayInformationalPopups || getAIAutoPlay() <= 0)
++			gDLL->getPassword(eNewValue);
++		else if (gGameRecordLogLevel >= 2) logSASGameRecordAutoPlayPopupDismissed("PLAYER_HANDOFF_PASSWORD");
+ 		setHotPbemBetweenTurns(false);
+ 		gDLL->getInterfaceIFace()->dirtyTurnLog(eNewValue);
+ 		if (eOldActivePlayer != NO_PLAYER)
+@@ -6278,7 +6286,7 @@ void CvGame::doTurn()
+ 			the counter at the start of a round. Let onEndPlayerTurn in AIAutoPlay.py
+ 			handle it. (Because human control should resume right before the human
+ 			turn, which is not necessarily at the beginning of a round.) */
+-		changeAIAutoPlay(-1, false);
++		changeAIAutoPlay(-1, false, getAIAutoPlay() == 1 ? SAS_AUTOPLAY_END_SCHEDULED : SAS_AUTOPLAY_END_UNSPECIFIED);
+ 		if (getAIAutoPlay() > 0)
+ 			checkInSync(); // May set AutoPlay counter to 0
+ 		// </advc.127>
+@@ -8896,7 +8904,7 @@ bool CvGame::checkInSync()
+ 			if (iOtherSyncHash != iSyncHash)
+ 			{
+ 				FAssert(iOtherSyncHash == iSyncHash);
+-				setAIAutoPlay(0);
++				setAIAutoPlay(0, true, SAS_AUTOPLAY_END_DESYNC);
+ 				return false;
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 5237abfdc..6afb9ffdd 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -309,8 +309,9 @@ public:
+ 	int getAIAutoPlay() const { return m_iAIAutoPlay; } // Exposed to Python
+ 	// <advc.127>
+ 	DllExport void setAIAutoPlay(int iNewValue) { setAIAutoPlay(iNewValue, true); } // Exposed to Python
+-	void setAIAutoPlay(int iNewValue, bool bChangePlayerStatus); // </advc.127>
+-	void changeAIAutoPlay(int iChange, /* advc.127: */ bool bChangePlayerStatus = true);
++	// <!-- custom: Added eEndCause so callers can preserve why automation stopped instead of forcing SASGameRecord to infer it from an ambiguous counter reset. See KI#203. (GPT-5.6-Sol) -->
++	void setAIAutoPlay(int iNewValue, bool bChangePlayerStatus, SASAutoPlayEndCause eEndCause = SAS_AUTOPLAY_END_UNSPECIFIED); // </advc.127>
++	void changeAIAutoPlay(int iChange, /* advc.127: */ bool bChangePlayerStatus = true, SASAutoPlayEndCause eEndCause = SAS_AUTOPLAY_END_UNSPECIFIED);
+ 	// <advc.opt>
+ 	int getCivPlayersEverAlive() const;
+ 	void changeCivPlayersEverAlive(int iChange);
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index b00181e5c..85285007c 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -514,6 +514,22 @@ char const* getSASTechAcquisitionCause(TechAcquisitionCause eCause)
+ 	}
+ }
+ 
++char const* getSASAutoPlayEndCause(SASAutoPlayEndCause eCause)
++{
++	switch (eCause)
++	{
++	case SAS_AUTOPLAY_END_SCHEDULED: return "SCHEDULED";
++	case SAS_AUTOPLAY_END_USER_INTERRUPTED: return "USER_INTERRUPTED";
++	case SAS_AUTOPLAY_END_VICTORY: return "VICTORY";
++	case SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED: return "ACTIVE_PLAYER_DEFEATED";
++	case SAS_AUTOPLAY_END_DESYNC: return "DESYNC";
++	case SAS_AUTOPLAY_END_ASSERTION: return "ASSERTION";
++	case SAS_AUTOPLAY_END_RISE_FALL: return "RISE_FALL";
++	case SAS_AUTOPLAY_END_OTHER: return "OTHER";
++	default: return "-";
++	}
++}
++
+ // <!-- custom: Victory-stage state is a bitfield; share this helper because BBAI/game-record diagnostics and AI logic all need the same compact 0..4 level without repeating four AI_atVictoryStage-style checks. (GPT-5.5) -->
+ int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 8e302157f..57db70166 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -122,6 +122,7 @@ char const* getSASGameMode(GameMode eMode); // <!-- custom: Shared raw enum-toke
+ char const* getSASCalendarType(CalendarTypes eCalendar); // <!-- custom: Shared raw enum-token text for calendar context because CalendarTypes has no CvInfo type strings. (GPT-5.6-Sol) -->
+ char const* getSASWarDeclarationCause(WarDeclarationCause eCause); // <!-- custom: Shared stable labels for war-declaration origins so SASGameRecord and any later BBAI diagnostics do not duplicate the switch. (GPT-5.6-Sol) -->
+ char const* getSASTechAcquisitionCause(TechAcquisitionCause eCause); // <!-- custom: Shared stable labels for technology-acquisition origins so callers pass semantic context instead of GameRecord guessing from ambiguous flags. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
++char const* getSASAutoPlayEndCause(SASAutoPlayEndCause eCause); // <!-- custom: Shared stable labels for explicit AI Auto Play completion causes so later diagnostics can reuse the enum without depending on SASGameRecord. See KI#203. (GPT-5.6-Sol) -->
+ char const* getSASMemoryType(MemoryTypes eMemory); // <!-- custom: Shared raw enum-token text for diplomatic memories because static enum values have no CvInfo type strings. (GPT-5.6-Sol) -->
+ int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4); // <!-- custom: Shared victory-stage bitfield helper for compact AI victory diagnostics without repeating AI_atVictoryStage checks. (GPT-5.5) -->
+ int getSASCultureVictoryStageLevel(AIVictoryStage eVictoryStageHash); // <!-- custom: Named wrappers avoid repeating four enum constants at every logging/evaluation call site. (GPT-5.5) -->
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index b3443ef86..b3a2959b2 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -481,6 +481,19 @@ void CyEnumsPythonInterface()
+ 		.value("NUM_BUTTONPOPUP_TYPES", NUM_BUTTONPOPUP_TYPES)
+ 		;
+ 
++	// <!-- custom: Expose explicit AI Auto Play completion causes so the Python controller can distinguish scheduled completion, user interruption, victory, and player defeat in SASGameRecord. See KI#203. (GPT-5.6-Sol) -->
++	python::enum_<SASAutoPlayEndCause>("SASAutoPlayEndCause")
++		.value("SAS_AUTOPLAY_END_UNSPECIFIED", SAS_AUTOPLAY_END_UNSPECIFIED)
++		.value("SAS_AUTOPLAY_END_SCHEDULED", SAS_AUTOPLAY_END_SCHEDULED)
++		.value("SAS_AUTOPLAY_END_USER_INTERRUPTED", SAS_AUTOPLAY_END_USER_INTERRUPTED)
++		.value("SAS_AUTOPLAY_END_VICTORY", SAS_AUTOPLAY_END_VICTORY)
++		.value("SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED", SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED)
++		.value("SAS_AUTOPLAY_END_DESYNC", SAS_AUTOPLAY_END_DESYNC)
++		.value("SAS_AUTOPLAY_END_ASSERTION", SAS_AUTOPLAY_END_ASSERTION)
++		.value("SAS_AUTOPLAY_END_RISE_FALL", SAS_AUTOPLAY_END_RISE_FALL)
++		.value("SAS_AUTOPLAY_END_OTHER", SAS_AUTOPLAY_END_OTHER)
++		;
++
+ 	python::enum_<ClimateTypes>("ClimateTypes")
+ 		.value("NO_CLIMATE", NO_CLIMATE)
+ 		;
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index 4f50e6a16..813ce38db 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -498,6 +498,15 @@ void CyGame::setAIAutoPlay(int iNewValue)
+ 	m_kGame.setAIAutoPlay(iNewValue);
+ }
+ 
++// <!-- custom: Python's AI Auto Play controller needs a separate explicit-stop API because the legacy setAIAutoPlay(0) cannot report why automation ended. Validate the Python enum value before forwarding it to CvGame. See KI#203. (GPT-5.6-Sol) -->
++void CyGame::endAIAutoPlay(int iEndCause)
++{
++	SASAutoPlayEndCause eEndCause = (SASAutoPlayEndCause)iEndCause;
++	if (eEndCause < SAS_AUTOPLAY_END_SCHEDULED || eEndCause > SAS_AUTOPLAY_END_OTHER)
++		eEndCause = SAS_AUTOPLAY_END_OTHER;
++	m_kGame.setAIAutoPlay(0, true, eEndCause);
++}
++
+ // K-Mod, 11/dec/10, start
+ int CyGame::getGlobalWarmingIndex() const
+ {
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index 29f58a78f..8ae6ab224 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -138,6 +138,8 @@ public:
+ 
+ 	int getAIAutoPlay() const;
+ 	void setAIAutoPlay(int iNewValue);
++	// <!-- custom: Added for the Python AI Auto Play controller to report an explicit completion cause to the DLL/game record. See KI#203. (GPT-5.6-Sol) -->
++	void endAIAutoPlay(int iEndCause);
+ 
+ 	int getGlobalWarmingIndex() const;	// K-Mod
+ 	int getGlobalWarmingChances() const;	// K-Mod
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index b64522935..7c0eab58f 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -131,6 +131,8 @@ void CyGamePythonInterface()
+ 
+ 		.def("getAIAutoPlay", &CyGame::getAIAutoPlay)
+ 		.def("setAIAutoPlay", &CyGame::setAIAutoPlay)
++		// <!-- custom: Expose the AdvCiv-SAS cause-aware stop method used by AIAutoPlay.py; the legacy setter remains available for compatibility. See KI#203. (GPT-5.6-Sol) -->
++		.def("endAIAutoPlay", &CyGame::endAIAutoPlay)
+ 
+ 		.def("getGlobalWarmingIndex", &CyGame::getGlobalWarmingIndex)	// K-Mod
+ 		.def("getGlobalWarmingChances", &CyGame::getGlobalWarmingChances)	// K-Mod
+
+diff --git a/CvGameCoreDLL/FAssert.cpp b/CvGameCoreDLL/FAssert.cpp
+index 3f2982947..23602c60c 100644
+--- a/CvGameCoreDLL/FAssert.cpp
++++ b/CvGameCoreDLL/FAssert.cpp
+@@ -185,7 +185,7 @@ bool FAssertDlg(const char* szExpr, const char* szMsg, const char* szFile, unsig
+ 		return false;
+ 	// <advc.006l>
+ 	case ASSERT_DLG_STOP:
+-		GC.getGame().setAIAutoPlay(0);
++		GC.getGame().setAIAutoPlay(0, true, SAS_AUTOPLAY_END_ASSERTION);
+ 		return false; // </advc.006l>
+ 
+ 	case ASSERT_DLG_EXIT:
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 2c0daa5d1..9f3e4f159 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -375,7 +375,7 @@ void RiseFall::atTurnEnd(PlayerTypes civId) {
+ 		currentCh.setScoreAtEnd(currentCh.computeScore());
+ 		// Even if interludeLength is 0, parts of a round need to be skipped
+ 		interludeCountdown = interludeLength;
+-		g.setAIAutoPlay(0); // In case that the player has retired
++		g.setAIAutoPlay(0, true, SAS_AUTOPLAY_END_RISE_FALL); // In case that the player has retired
+ 		setPlayerControl(currentCh.getCiv(), false);
+ 		abandonPlans(currentCh.getCiv());
+ 		CvWString replayText = gDLL->getText("TXT_KEY_RF_INTERLUDE_STARTED");
+@@ -964,7 +964,7 @@ void RiseFall::prepareForExtendedGame() {
+ 		chapters[pos]->setScored(GC.getGame().getGameTurn() - 1);
+ 		if(g.getAIAutoPlay()) {
+ 			abandonPlans(chapters[pos]->getCiv());
+-			g.setAIAutoPlay(0);
++			g.setAIAutoPlay(0, true, SAS_AUTOPLAY_END_RISE_FALL);
+ 		}
+ 	}
+ 	else {
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index c82e990e0..e458b9523 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -519,8 +519,9 @@ static void logSASGameRecordGameState(const char* szRowType)
+ 
+ static void logSASGameRecordLogSettings()
+ {
+-	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH=%d SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT=%d SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL=%d SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE=%d SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=%d SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=%d",
+-			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), getSASGameRecordMapAsciiMaxWidth(), getSASGameRecordMapAsciiMaxHeight(), getSASGameRecordMapAsciiHorizontalCharsPerCell(),
++	// <!-- custom: Read the popup define directly because this settings row is emitted only once per log; unlike repeatedly queried map settings, caching it would add state without avoiding repeat work. (GPT-5.6-Sol) -->
++	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH=%d SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT=%d SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL=%d SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE=%d SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE=%d SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=%d SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=%d",
++			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled(), GC.getDefineINT("SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE"), getSASGameRecordMapAsciiMaxWidth(), getSASGameRecordMapAsciiMaxHeight(), getSASGameRecordMapAsciiHorizontalCharsPerCell(),
+ 			isSASGameRecordMapAsciiGeographyEnabled(), isSASGameRecordMapAsciiTerrainEnabled(), isSASGameRecordMapAsciiRiversEnabled(), isSASGameRecordMapAsciiBonusesEnabled(), isSASGameRecordMapAsciiFeaturesEnabled(), isSASGameRecordMapAsciiPoliticalEnabled(), isSASGameRecordPerformanceMetricsEnabled(), getSASGameRecordSystemContextLevel());
+ }
+ 
+@@ -570,6 +571,14 @@ static int g_aiSASGameRecordCitiesConquered[MAX_PLAYERS];
+ static int g_aiSASGameRecordCitiesLostByConquest[MAX_PLAYERS];
+ static int g_aiSASGameRecordCitiesTradedIn[MAX_PLAYERS];
+ static int g_aiSASGameRecordCitiesTradedOut[MAX_PLAYERS];
++// <!-- custom: Recorder-local autoplay state makes each start/end row self-contained and counts active-player transfers without adding savegame fields. AI Auto Play is stopped when a save is loaded, so resetting this state with each log session matches the actual automation boundary. See KI#203. (GPT-5.6-Sol) -->
++static int g_iSASGameRecordAutoPlayRequestId = 0;
++static int g_iSASGameRecordAutoPlayRequestedTurns = 0;
++static int g_iSASGameRecordAutoPlayStartTurn = -1;
++static int g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
++static PlayerTypes g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
++static int g_iSASGameRecordAutoPlayPlayerChanges = 0;
++static int g_iSASGameRecordTotalActivePlayerChanges = 0;
+ static int g_iSASGameRecordLastFullSnapshotTurn = -1;
+ static int g_iSASGameRecordFlowStartTurn = 0;
+ 
+@@ -1072,6 +1081,14 @@ static void resetSASGameRecordState()
+ 	g_aSASGameRecordPlotChanges.clear();
+ 	g_eSASGameRecordFullMapRevelationTeam = NO_TEAM;
+ 	g_iSASGameRecordFullMapRevealedBefore = 0;
++	// <!-- custom: AI Auto Play stops when a save is loaded, so clear its recorder-local request boundary and active-player transfer counters with the rest of the new log-session state. See KI#203. (GPT-5.6-Sol) -->
++	g_iSASGameRecordAutoPlayRequestId = 0;
++	g_iSASGameRecordAutoPlayRequestedTurns = 0;
++	g_iSASGameRecordAutoPlayStartTurn = -1;
++	g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
++	g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
++	g_iSASGameRecordAutoPlayPlayerChanges = 0;
++	g_iSASGameRecordTotalActivePlayerChanges = 0;
+ 	for (int iI = 0; iI < MAX_TEAMS; iI++)
+ 		g_aaSASGameRecordRevealedPlots[iI].clear();
+ }
+@@ -5911,22 +5928,62 @@ void logSASGameRecordPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived)
+ 	logSASGameRecordRunStatus(bRevived ? "playerRevived" : "playerAppeared");
+ }
+ 
+-void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus)
++void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus, SASAutoPlayEndCause eEndCause)
+ {
+ 	if (iOldValue == iNewValue)
+ 		return;
+ 	CvGame const& kGame = GC.getGame();
+-	const char* szAction = (iOldValue <= 0 && iNewValue > 0 ? "AUTOPLAY_STARTED" : (iOldValue > 0 && iNewValue <= 0 ? "AUTOPLAY_ENDED" : "AUTOPLAY_CHANGED"));
+-	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
+-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d",
+-			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus);
++	bool const bStarted = (iOldValue <= 0 && iNewValue > 0);
++	bool const bEnded = (iOldValue > 0 && iNewValue <= 0);
++	char const* szAction = (bStarted ? "AUTOPLAY_STARTED" : (bEnded ? "AUTOPLAY_ENDED" : "AUTOPLAY_CHANGED"));
++	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
++	if (bStarted)
++	{
++		g_iSASGameRecordAutoPlayRequestId++;
++		g_iSASGameRecordAutoPlayRequestedTurns = iNewValue;
++		g_iSASGameRecordAutoPlayStartTurn = kGame.getGameTurn();
++		g_iSASGameRecordAutoPlayStartElapsedTurn = kGame.getElapsedGameTurns();
++		g_eSASGameRecordAutoPlayStartPlayer = eActivePlayer;
++		g_iSASGameRecordAutoPlayPlayerChanges = 0;
++	}
++	if (bEnded && eEndCause == SAS_AUTOPLAY_END_UNSPECIFIED)
++		eEndCause = (kGame.getWinner() != NO_TEAM ? SAS_AUTOPLAY_END_VICTORY : (eActivePlayer != NO_PLAYER && !GET_PLAYER(eActivePlayer).isAlive() ? SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED : SAS_AUTOPLAY_END_OTHER));
++	int const iCompletedTurns = (!bEnded || g_iSASGameRecordAutoPlayRequestedTurns <= 0 ? 0 : (eEndCause == SAS_AUTOPLAY_END_SCHEDULED ? g_iSASGameRecordAutoPlayRequestedTurns : std::max(0, g_iSASGameRecordAutoPlayRequestedTurns - iOldValue)));
++	int const iElapsedGameTurns = (g_iSASGameRecordAutoPlayStartElapsedTurn < 0 ? 0 : std::max(0, kGame.getElapsedGameTurns() - g_iSASGameRecordAutoPlayStartElapsedTurn));
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d requestId=%d requestedTurns=%d completedTurns=%d elapsedGameTurns=%d startTurn=%d startElapsed=%d startPlayer=%d activePlayerChanges=%d totalActivePlayerChanges=%d endCause=%s",
++			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus, g_iSASGameRecordAutoPlayRequestId, g_iSASGameRecordAutoPlayRequestedTurns, iCompletedTurns, iElapsedGameTurns,
++			g_iSASGameRecordAutoPlayStartTurn, g_iSASGameRecordAutoPlayStartElapsedTurn, g_eSASGameRecordAutoPlayStartPlayer, g_iSASGameRecordAutoPlayPlayerChanges, g_iSASGameRecordTotalActivePlayerChanges,
++			getSASAutoPlayEndCause(eEndCause));
+ 	// <!-- custom: Manual or scheduled autoplay completion is also a useful record boundary even when the game and its wars continue. (GPT-5.6-Sol) -->
+-	if (gGameRecordLogLevel >= 2 && iOldValue > 0 && iNewValue <= 0)
++	if (gGameRecordLogLevel >= 2 && bEnded)
+ 	{
+ 		reconcileSASGameRecordWars();
+ 		logSASGameRecordOngoingWarSummaries("AUTOPLAY_ENDED");
+ 	}
+ 	logSASGameRecordRunStatus(szAction);
++	if (bEnded)
++	{
++		g_iSASGameRecordAutoPlayRequestedTurns = 0;
++		g_iSASGameRecordAutoPlayStartTurn = -1;
++		g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
++		g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
++		g_iSASGameRecordAutoPlayPlayerChanges = 0;
++	}
++}
++
++void logSASGameRecordActivePlayerChanged(PlayerTypes eOldPlayer, PlayerTypes eNewPlayer)
++{
++	g_iSASGameRecordTotalActivePlayerChanges++;
++	bool const bDuringAutoPlay = (GC.getGame().getAIAutoPlay() > 0 && g_iSASGameRecordAutoPlayRequestedTurns > 0);
++	if (bDuringAutoPlay) g_iSASGameRecordAutoPlayPlayerChanges++;
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=ACTIVE_PLAYER_CHANGED oldPlayer=%d newPlayer=%d autoplayActive=%d autoplayTurnsLeft=%d requestId=%d activePlayerChanges=%d totalActivePlayerChanges=%d",
++			GC.getGame().getGameTurn(), eOldPlayer, eNewPlayer, bDuringAutoPlay, GC.getGame().getAIAutoPlay(), bDuringAutoPlay ? g_iSASGameRecordAutoPlayRequestId : -1, bDuringAutoPlay ? g_iSASGameRecordAutoPlayPlayerChanges : 0, g_iSASGameRecordTotalActivePlayerChanges);
++}
++
++void logSASGameRecordAutoPlayPopupDismissed(char const* szPopupKind)
++{
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AUTOPLAY_INFORMATIONAL_POPUP_DISMISSED popupKind=%s autoplayTurnsLeft=%d requestId=%d",
++			GC.getGame().getGameTurn(), szPopupKind, GC.getGame().getAIAutoPlay(), g_iSASGameRecordAutoPlayRequestedTurns > 0 ? g_iSASGameRecordAutoPlayRequestId : -1);
+ }
+ 
+ void logSASGameRecordGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, CvCity const* pCity)
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.h b/CvGameCoreDLL/SASGameRecordLog.h
+index 9f046a45b..29bc4b15a 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.h
++++ b/CvGameCoreDLL/SASGameRecordLog.h
+@@ -75,7 +75,10 @@ void logSASGameRecordVictory(TeamTypes eWinner, VictoryTypes eVictory);
+ void logSASGameRecordRunStatus(char const* szReason);
+ void logSASGameRecordPlayerEliminated(PlayerTypes ePlayer);
+ void logSASGameRecordPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived);
+-void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus);
++// <!-- custom: Added eEndCause for explicit completion attribution; active-player changes update per-request and per-log-session control-transfer counts. Callers remain logging-gated. See KI#203. (GPT-5.6-Sol) -->
++void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus, SASAutoPlayEndCause eEndCause);
++void logSASGameRecordActivePlayerChanged(PlayerTypes eOldPlayer, PlayerTypes eNewPlayer);
++void logSASGameRecordAutoPlayPopupDismissed(char const* szPopupKind);
+ void logSASGameRecordGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, CvCity const* pCity);
+ void logSASGameRecordGreatPersonJoined(CvUnit const* pUnit, CvCity const* pCity, SpecialistTypes eSpecialist);
+ void logSASGameRecordGreatPersonConstructed(CvUnit const* pUnit, CvCity const* pCity, BuildingTypes eBuilding);
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 6af67e4a8..3aaaba883 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -261,6 +261,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [199 - (Fixed/Improved) Base AdvCiv/K-Mod generic UnitAI fallback could use dedicated land anti-air units as ordinary attackers or reserves](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#199---fixedimproved-base-advcivk-mod-generic-unitai-fallback-could-use-dedicated-land-anti-air-units-as-ordinary-attackers-or-reserves)\
+ [200 - (Improved) Inherited Base AdvCiv/K-Mod sacrifice selection could spend current units before SAS-defined obsolete expendables during risky AI stack attacks](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#200---improved-inherited-base-advcivk-mod-sacrifice-selection-could-spend-current-units-before-sas-defined-obsolete-expendables-during-risky-ai-stack-attacks)\
+ [201 - (Fixed/Improved) Base AdvCiv relative-strength tech-trade rubber-banding guaranteed weaker recipients discounts without bargaining risk](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#201---fixedimproved-base-advciv-relative-strength-tech-trade-rubber-banding-guaranteed-weaker-recipients-discounts-without-bargaining-risk)\
++[203 - (Improved) AI Auto Play could pause behind harmless informational popups, and its logs could not reliably explain why a run ended](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#203---improved-ai-auto-play-could-pause-behind-harmless-informational-popups-and-its-logs-could-not-reliably-explain-why-a-run-ended)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7625,7 +7626,7 @@ The additional `0 / 10 / 20 / 30 / 35 / 40 / 40` run preserved the promising lat
+ 
+ The freer start therefore did not leave the AIs defenseless. At T50 it had founded 3 more cities and built 3 more Workers while retaining only 4 fewer combat units. By T150 it had more population, production, research, buildings and combat units with lower combat loss; by T300 it still had 152 more current combat units despite the lower early floor. Its history became more destructive after T300, so the 20-start curve again had the stronger aggregate economy and army at T350, but Ethiopia nevertheless won Space on T389 as both the top-score and top-power civilization. This is strong evidence that early freedom can preserve rather than sacrifice later military strength, although the immediate divergence means that one history cannot prove it will always outperform 20/20.
+ 
+-For comparison, flat 20 had the strongest immediate T250 army and lowest combat loss in save file 463, then weakened during its later wars before Willem won Space on T445. Industrial 35 reached an Ethiopian Space victory on T435, while Industrial 40 reached the same victory type only on T460. Final victories remain highly history-dependent, but the current cross-save finalists are therefore `0 / 10 / 20 / 30 / 35 / 40 / 40` for greater early strategic freedom and `20 / 20 / 20 / 30 / 35 / 40 / 40` for a safer early military floor. Industrial 40 is no longer a leading candidate unless another save exposes a weakness at 35; flat 20 remains a useful control for whether the late ramp is genuinely needed.
++For comparison, flat 20 had the strongest immediate T250 army and lowest combat loss in save file 463, then weakened during its later wars before Willem won Space on T445. Industrial 35 reached an Ethiopian Space victory on T435, while Industrial 40 reached the same victory type only on T460. Final victories remain highly history-dependent, but the two finalists retained at this stage were therefore `0 / 10 / 20 / 30 / 35 / 40 / 40` for greater early strategic freedom and `20 / 20 / 20 / 30 / 35 / 40 / 40` for a safer early military floor. Industrial 40 is no longer a leading candidate unless another save exposes a weakness at 35; flat 20 remains a useful control for whether the late ramp is genuinely needed.
+ 
+ The civilization-specific building rework also remained active under every curve: Willem completed exactly 7 Netherlands Beurs in each of the four save-file 463 runs. The freer curve completed them on T229, T264, T310, T313, T334, T336 and T339; the other curves changed their timing but not the final count. In the flat-20 history, Willem launched on T433 and reached Space on T445, one turn before Ethiopia's later but faster spaceship would arrive. The Beurs likely supported his economy, but the record does not establish that they caused the victory.
+ 
+@@ -7650,20 +7651,24 @@ The Huge-map comparison was mixed in a useful way rather than showing one univer
+ 
+ The most informative difference was strategic. Cyrus of Persia won both histories, but used two different victory paths. With the freer curve, Cyrus progressed from Culture stage 1 on T250 to stage 2 on T300, stage 3 on T340 and stage 4 by T450. He deliberately used a 100% Culture slider on T350 and T460, and won Culture on T466 with his three cities at 49,546, 45,340 and 45,087 culture against the 45,000 requirement. With the 20-start curve, the same Cyrus considered Culture early but later abandoned it, reached Space stage 4, launched on T481 and won Space on T491. The freer history therefore produced a valid alternative victory 25 turns earlier; it was not accidental passive culture accumulation. This supports preserving early strategic flexibility rather than forcing every AI toward the same opening balance.
+ 
++Two later save-file 468 runs tested whether the Classical floor was needed at all, and separately whether the Renaissance/Industrial correction could also be softened. Both used `0 / 0 / 20` through the Medieval era and remained identical through T150. Compared with the earlier `0 / 10 / 20` history at that checkpoint, they had 30 more population, 145 more production, 102 more research, 18 more current combat units, 16 more Workers and 53 more completed buildings, while losing 1,422 less production in combat despite producing 6 fewer total units. Ordinary AI logic therefore supplied enough early military without the Classical floor, while the released production strengthened development.
++
++The `0 / 0 / 20 / 20 / 30 / 40 / 40` experiment remained very strong through T300, reaching 1,626 population, 4,696 research, 978 current combat units and 1,474 completed buildings. Its diverged wars then reduced it by 19 cities, 481 population and 275 current combat units by T350, and Cyrus eventually won only the T500 Time victory. This does not prove that the softer Renaissance/Industrial values caused the collapse, but it gives no positive reason to weaken the eras where KI#197.9 found the serious military shortfall. Conversely, `0 / 0 / 20 / 30 / 35 / 40 / 40` retained 904 current combat units and 1,368 completed buildings at T300, then reached a T435 Cultural victory. It changes only Classical 10 from the previous preferred policy while preserving the already successful later correction, so it is the stronger release default.
++
+ ### Current conclusion and preferred default
+ 
+-The current preferred curve is **`0 / 10 / 20 / 30 / 35 / 40 / 40`**. These values are minimum shares of empire base production currently committed to `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY`, not unit-count quotas or caps on ordinary military production. Personalities, war, danger, defense and composition logic can always choose more military production when needed.
++The current preferred curve is **`0 / 0 / 20 / 30 / 35 / 40 / 40`**. These values are minimum shares of empire base production currently committed to `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY`, not unit-count quotas or caps on ordinary military production. Personalities, war, danger, defense and composition logic can always choose more military production when needed.
+ 
+ - **Ancient 0:** apply no extra floor while Settlers, Workers, growth and foundational buildings have their longest compounding value; ordinary AI logic still produces military units.
+-- **Classical 10:** add only a light backstop while preserving different personalities and economic, expansion or military openings.
++- **Classical 0:** continue leaving production to ordinary AI logic while foundational growth and infrastructure still have a long time to compound; save file 468 retained more military strength alongside stronger development without this extra floor.
+ - **Medieval 20:** begin a meaningful minimum as empires consolidate, without yet imposing the late-game correction.
+ - **Renaissance 30:** deliberately increase pressure where the previously observed military underproduction becomes increasingly relevant.
+ - **Industrial 35:** apply a strong correction while avoiding the tested inefficiency of jumping directly to 40.
+ - **Modern/Future 40:** strongly correct the severe late military shortfall when mature empires have less time for new infrastructure to repay its cost and greater urgency to conquer, defend, deny rival victories or finish their own winning strategy.
+ 
+-This progression is intended to fix the empirically very low mid/late offensive production without sacrificing the early growth, economic scaling and strategic variety that can create a stronger late-game civilization. It is not claimed to be a mathematically universal optimum, but two different comparison saves now favor the freer curve overall, neither exposed an early military collapse, and both retained substantial later military strength. The `20 / 20 / 20 / 30 / 35 / 40 / 40` curve remains the tested conservative alternative if future evidence shows that a particular map or ruleset needs more early pressure.
++This progression is intended to fix the empirically very low mid/late offensive production without sacrificing the early growth, economic scaling and strategic variety that can create a stronger late-game civilization. It is not claimed to be a mathematically universal optimum, but the comparisons did not expose an early military collapse and retained substantial later military strength. The later save-file 468 tests further showed that even the light Classical floor was unnecessary, while providing no reason to soften the deliberate Renaissance/Industrial correction.
+ 
+-Every one of the 17 documented tuning autoplays was started at T0 and requested to run continuously through the T501/end-of-game boundary. Every run completed normally until an earlier victory or the Time limit, without a single crash, including repeated histories that diverged substantially and both 16-civilization Huge-map runs. This provides strong stability evidence for the era-indexed implementation and its diagnostics, separately from the gameplay-balance conclusion.
++Every one of the 19 documented tuning autoplays was started at T0 and requested to run continuously through the T501/end-of-game boundary. Every run completed normally until an earlier victory or the Time limit, without a single crash, including repeated histories that diverged substantially and all four 16-civilization Huge-map runs. This provides strong stability evidence for the era-indexed implementation and its diagnostics, separately from the gameplay-balance conclusion.
+ 
+ Investigated with the help of GPT-5.6-Sol thanks.
+ 
+@@ -7782,3 +7787,19 @@ This affects XML bonuses with `bArea=1`, currently Banana, Maize, Cattle, Deer,
+ The defect was introduced in Base AdvCiv commit `f25a2b91a` when the area cap and two-pass fallback were added together; this fix is therefore a correction of that algorithm's documented intent rather than a new resource-distribution policy.
+ 
+ Fixed with the help of GPT-5.6-Sol thanks.
++
++## 203 - (Improved) AI Auto Play could pause behind harmless informational popups, and its logs could not reliably explain why a run ended
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1wn3TmI3Hp8tUUQUubbVvPoo6cKRNO5Q1?usp=sharing).
++
++AI Auto Play is used heavily for AdvCiv-SAS balance and AI testing, but two control-layer gaps made unattended runs less reliable and their results more tedious to verify. First, no-decision informational dialogs could wait indefinitely for the user to press OK. These include ordinary `BUTTONPOPUP_TEXT` notices and the EXE's active-player handoff/password prompt. Second, all completion paths ultimately reset the same autoplay counter to zero, so an `AUTOPLAY_ENDED` record could not reliably distinguish scheduled completion from manual interruption, victory, active-player defeat, desynchronization, an assertion, Rise & Fall control flow or another reset. Reviewers therefore had to infer whether the requested benchmark actually finished, and full autoplay automation would still require a user to clear harmless notices.
++
++The first runtime test exposed the second popup path directly. At turn 304, the active player changed from player 0 to player 1 while autoplay still had 197 turns remaining, and the EXE displayed "Huayna Capac, it's your turn!" through `gDLL->getPassword`; this bypassed the generic `BUTTONPOPUP_TEXT` launcher gate. AdvCiv-SAS therefore now optionally omits both no-decision paths while AI Auto Play is active. `SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE` enables this by default. It deliberately does not auto-accept or suppress diplomacy, random events, civics, war, spaceship launch, city production, technology selection or any other popup that represents a gameplay or session decision.
++
++The shared `SASAutoPlayEndCause` enum and a cause-aware Python-to-DLL stop method now preserve why automation ended. SASGameRecord records a request ID, requested and completed turns, start/current turn context, explicit end cause, and active-player changes during both the current request and the log session. Ordinary countdown ticks remain omitted to avoid one row per turn. This makes the autoplay boundary directly machine-readable and is also a step toward safely running future unattended AI benchmarks without requiring a human to interpret counter resets or press no-effect OK buttons.
++
++The player-handoff follow-up compiled and the confirming full run completed without showing the prompt. Player 0 changed to player 1 on turn 392 while autoplay still had 109 turns remaining; `ACTIVE_PLAYER_CHANGED` recorded the exact transfer, and `AUTOPLAY_INFORMATIONAL_POPUP_DISMISSED` recorded `popupKind=PLAYER_HANDOFF_PASSWORD`. The final row reported `activePlayerChanges=1`, `totalActivePlayerChanges=1`, and `endCause=VICTORY`. Although 501 turns had been requested, it correctly reported 500 completed turns because a Time victory ended the run first.
++
++A separate short test then exercised three requests in one log session. Request 1 scheduled 21 turns and reported all 21 completed with `endCause=SCHEDULED`. Request 2 scheduled 31 turns, was manually stopped with 13 remaining, and correctly reported 18 completed with `endCause=USER_INTERRUPTED`. Request 3 scheduled 61 turns and reported all 61 completed with `endCause=SCHEDULED`. Their request IDs advanced from 1 to 3 and each row preserved its own starting turn/elapsed-turn context. For scheduled runs, `elapsedGameTurns` is one lower than `completedTurns` because a request starting on turn 0 processes turns 0 through 20 inclusively while the game-turn counter advances by 20; `completedTurns` retains the requested 21-turn workload. An ordinary `BUTTONPOPUP_TEXT` suppression has not yet occurred naturally in a confirming log, but its no-action handler and shared launcher gate make it the simpler of the two suppression paths.
++
++Improved with the help of GPT-5.6-Sol thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 4fc352e9e..0e20b7571 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -155,6 +155,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 6058+) **Shared DLL diagnostic metadata:** added `WarDeclarationCause` (as of now `WAR_DECLARATION_DIRECT`, `WAR_DECLARATION_GAME_SETUP`, `WAR_DECLARATION_ALWAYS_WAR`, `WAR_DECLARATION_PERMANENT_ALLIANCE`, `WAR_DECLARATION_DEFENSIVE_PACT`, `WAR_DECLARATION_VASSAL_ALIGNMENT`, `WAR_DECLARATION_DIPLOMACY`, `WAR_DECLARATION_VOTE`, and `WAR_DECLARATION_NUCLEAR_ATTACK`), `getSASWarDeclarationCause`, and `getSASMemoryType` for SASGameRecord war and diplomacy rows.
+ - (Requires AdvCiv-SAS 6101+) Similarly added `TechAcquisitionCause` (`TECH_ACQUISITION_UNKNOWN`, `TECH_ACQUISITION_RESEARCH`, `TECH_ACQUISITION_TRADE`, `TECH_ACQUISITION_FREE_CHOICE`, `TECH_ACQUISITION_GOODY`, `TECH_ACQUISITION_GREAT_PERSON`, `TECH_ACQUISITION_ESPIONAGE`, `TECH_ACQUISITION_RANDOM_EVENT`, `TECH_ACQUISITION_TECH_SHARE`, `TECH_ACQUISITION_TEAM_MERGE`, `TECH_ACQUISITION_INHERITANCE`, `TECH_ACQUISITION_ADVANCED_START`, `TECH_ACQUISITION_BARBARIAN_RESEARCH`, `TECH_ACQUISITION_GAME_SETUP`, and `TECH_ACQUISITION_DEBUG`) and `getSASTechAcquisitionCause` so technology-acquisition rows can identify how each technology was obtained. Logging only; no gameplay change.
+ - (Requires AdvCiv-SAS 6102+) Added `getSASGameType` and `getSASGameMode` for shared raw names of the existing `GameType` and `GameMode` enums. (Requires AdvCiv-SAS 6105+) Added shared `getSASCalendarType` for calendar context. Logging only; no gameplay change.
++- (Requires AdvCiv-SAS 6119+) Added `SASAutoPlayEndCause` (`SAS_AUTOPLAY_END_UNSPECIFIED`, `SAS_AUTOPLAY_END_SCHEDULED`, `SAS_AUTOPLAY_END_USER_INTERRUPTED`, `SAS_AUTOPLAY_END_VICTORY`, `SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED`, `SAS_AUTOPLAY_END_DESYNC`, `SAS_AUTOPLAY_END_ASSERTION`, `SAS_AUTOPLAY_END_RISE_FALL`, and `SAS_AUTOPLAY_END_OTHER`) and shared `getSASAutoPlayEndCause`, also exposed to Python so the AI Auto Play controller can report why a run stopped. Autoplay control/logging only; no AI or gameplay-decision change. See [KI#203](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#203---improved-ai-auto-play-could-pause-behind-harmless-informational-popups-and-its-logs-could-not-reliably-explain-why-a-run-ended).
+ - **Cache once per session precomputed** Sevopedia Traits' Charts and Sevopedia Improvements' Weights (Leaders) Chart on category open before any entry is clicked on. This uses a simplified version of the AI Personality Panel's caching approach. See [AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, CI now checks that the committed predump still matches leader XML/shared AIP display logic; if it fails, `aip_predump_values.py --write` can refresh the file outside Civ4. This checker notably caught 394 stale label entries, such as `Build Unit (52)` missing the updated `Build Unit % (52)` text and then helped generate an updated predump. The old manual in-game `PythonDbg.log` dump path remains a manual fallback or alternative way of refreshing the predump.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same).
+@@ -183,6 +184,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 6100+) It also records compact production and military interval flows plus exact civic, effective state-religion, and war-plan transitions. (Requires AdvCiv-SAS 6101+) Technology-acquisition rows also identify whether each technology came from research, trade, a free choice, a goody hut, a Great Person, espionage, a random event, technology sharing, a team merge, inheritance, Advanced Start, Barbarian research, game setup, debug tools, or an unknown Python/script source. (Requires AdvCiv-SAS 6102+) Each log also identifies whether the session is a new or loaded single-player, scenario, network, Hotseat, PBEM, Pitboss, or replay game, including its multiplayer turn options. (Requires AdvCiv-SAS 6103+) It also synthesizes one summary for every war between civilization teams, including declaration and peace context, elapsed turns, war-success changes, units destroyed and their total production cost, city-plot battle wins, and cities/population captured. Wars already active when a save is loaded are explicitly partial, while wars still active at victory or autoplay end remain marked ongoing rather than being misreported as peace. A full turn-474 test matched all 115 declarations to exactly 91 ordinary-peace summaries, 4 capitulations, 13 state-change/elimination summaries, and 7 wars still ongoing at victory.
+ - (Requires AdvCiv-SAS 6105+) Setup context also records the calendar, starting turn/year, and each player's actual assigned color with its primary RGB values, which helps connect the text record to maps and screenshots. When the game is won, one final row per civilization pairs its ordinary score with Civ4's normalized final score. (Requires AdvCiv-SAS 6104+) Full interval and victory snapshots also record UTC to milliseconds, total real milliseconds since the log session began, and milliseconds since the previous snapshot. This makes autoplay speed and late-game slowdown directly comparable without external timing or timestamp subtraction; real time includes pauses and user interaction. Anonymous process-memory, system memory-load percentage, available 32-bit address space, and exact foreground/minimized samples can be disabled separately without disabling timing or gameplay records. A separate privacy/detail level defaults to display context (resolution, fullscreen/windowed state, and graphics options), Windows versus Wine/Proton, and pointer width; it can be lowered to hide these or raised to add logical processor count and total RAM.
+ - (Requires AdvCiv-SAS 6106+) Barbarian activity is also preserved without forcing ordinary civilization economy/diplomacy rows onto the Barbarian player. Interval snapshots record Barbarian cities, animals, unit types/roles, and how many units are in Barbarian, unowned, or civilization-owned territory; concise city rows show their development and defenses. At level 3, exact positions, fog/goody-hut/cargo spawn causes, and Barbarian combat outcomes make pressure on nearby civilizations traceable. In a confirming full run, these rows captured 84 spawns, 182 combats, Barbarian city development, and eventual eradication, while adding only about 350-400 rows to an 18.5 MB record.
++- (Requires AdvCiv-SAS 6119+) **Autoplay can continue through harmless notices and explain exactly how it ended:** an active player's defeat could transfer human control during an ongoing autoplay and make the EXE pause behind an OK-only "it's your turn" prompt; ordinary informational text notices could also require an unnecessary click. An XML-tunable option now omits only these no-decision prompts during autoplay, without accepting or suppressing diplomacy, events, civics, war, launch, production, technology, or other gameplay choices. `SASGameRecord` also records each autoplay request's requested/completed turns, starting turn/player, explicit end cause, and active-player-change counts, while separate `ACTIVE_PLAYER_CHANGED` rows show exactly when and from/to whom each transfer occurred. In the full confirming run, player 0 changed to player 1 on turn 392 with 109 autoplay turns remaining; the handoff prompt was suppressed, and the final row reported one player change plus `endCause=VICTORY` and 500 completed turns from the 501-turn request because a Time victory ended the run first. A separate three-request test also correctly distinguished two scheduled completions from a manual interruption: the interrupted 31-turn request stopped after 18 completed turns with 13 remaining and reported `endCause=USER_INTERRUPTED`. See [KI#203](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#203---improved-ai-auto-play-could-pause-behind-harmless-informational-popups-and-its-logs-could-not-reliably-explain-why-a-run-ended).
+ - (Requires AdvCiv-SAS 6108+) **Level-3 text-map previews:** `SASGameRecord` includes separate geography, terrain, bonus, feature, and political pictures so humans and LLMs can immediately see landmass shapes, islands, ice barriers, narrow passages, resource distribution, environmental cover, and player positions instead of reconstructing them from coordinates. The terrain picture distinguishes Coast from Ocean and overlays ice: one character cannot show both ice and its underlying water terrain, but blocked naval access matters more strategically and the obscured Coast shape is normally inferable from adjacent Coast and land. Terrain-letter case also shows natural food at a glance: uppercase plots can feed the population point working them, so `G` distinguishes flat Grass from a `g` Grass hill and `D` distinguishes Flood Plains/Oasis Desert from bare `d` Desert. Geography shows broad land/water and plot shapes plus ice barriers without duplicating Coast terrain. The political picture intentionally remains ownership-only, because physical symbols would either hide owned water or appear inconsistently only outside borders. Normally stable geography, terrain, and bonuses appear once at setup/load, with exact later exceptions preserved by coordinate-bearing map/bonus-change rows. When different bonuses share one resampled cell, `+` exposes the collision while exact setup rows retain their identities and coordinates. The pictures are omniscient diagnostic maps rather than a civilization's contemporary knowledge; notably, the bonus picture includes resources that no civilization has the technology to reveal yet. The initial feature picture shows how jungle, forest, flood plains, oases, and ice affect settling, movement, health, and yields; feature and political pictures then repeat at each full interval and victory snapshot to show forest/jungle clearing and regrowth, late-game fallout, territorial expansion, conquest, and collapse across the run. Blank water and dotted featureless land keep feature and bonus pictures readable without overlaying geography. Each layer also reports its logical-cell total, exact drawing-character total, and per-symbol cell counts, so broad composition and change can be measured without manually counting the picture; horizontal visual repetition does not inflate these cell counts. Separate structured rows directly record player pollution, its sources, city health, global warming, and exact bonuses; the maps supply spatial context. Clean fixed-width rows preserve the generated map's proportions in horizontal, square, or vertical maps; legends map configurable symbols and runtime numeric IDs to terrain/feature/bonus types, while political symbols map to player IDs whose setup rows provide the civilization and displayed player name. XML defines control the picture bounds, monospace-width correction, and validated symbols. Each picture is enabled by default because the spatial context is useful to humans and LLMs, but can be disabled independently to reduce log size and clutter.
+ - (Requires AdvCiv-SAS 6109+) The initial text maps also include directional river edges, which show whether moving or attacking across each plot's southern or eastern boundary crosses a river instead of merely marking riverside plots. This makes fresh-water settling corridors, river commerce, defensive lines, attack approaches, and later Levee opportunities visible. Blank ocean, marked lakes, and dotted land keep rivers attached to recognizable landmasses without mistaking inland water near a coast for an ocean inlet. Exact source-edge totals accompany the picture; large resampled maps preserve whether either river-edge orientation occurs within each reduced cell, while compact coordinate rows retain every original edge. Rare later river edits are recorded individually too.
+ - (Requires AdvCiv-SAS 6022+) Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, `SASGameRecord` log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context and full `SASGameRecord` examples while staying compact enough to upload and share. See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log), and [README.md (DLL Logging)](/README.md#dll-logging).
+@@ -454,7 +456,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ #### Military - Land (AI)
+ 
+-- (Requires AdvCiv-SAS 6094+) **AI offensive production rises progressively by era, preserving early growth and strategic variety while correcting weak middle and late armies:** the old AdvCiv-SAS 5055 stable release could produce very large AI armies, while later releases generally favored economic efficiency but produced substantially fewer offensive units, especially late in the game. AdvCiv-SAS therefore measures the share of each empire's **base production currently committed to `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` units** and, when it is below an XML-tunable minimum (the `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY` defines), asks an eligible city to help fill the shortfall before opportunistic wonders and broader later building choices. This is a production-capacity floor rather than a fixed unit count, unit-production cap or military-upkeep target, so productive cities contribute proportionally more and personalities, wars, danger, defense and composition logic can always produce more units when needed. Worker, Settler, Explorer, panic, financial, culture and other earlier priorities still take precedence. The default Ancient-to-Future curve as of now is **`0 / 10 / 20 / 30 / 35 / 40 / 40`**: it leaves the Ancient era entirely to ordinary AI logic, adds only light Classical pressure, then deliberately strengthens from the Medieval era onward as foundational growth and infrastructure have less remaining time to compound and military urgency increases. Extensive same-save comparisons showed why a flat target was inferior: high early pressure could displace growth and buildings without retaining a larger later army, while insufficient late pressure preserved an economy that could not defend itself or convert its strength into victory. SASGameRecord and BBAI Logging in save files 463 and 468 both retained substantial later armies with the freer early curve; it won on T389 versus T435 and on T466 versus T491 respectively, with the Huge-map T466 result also allowing Cyrus to pursue a deliberate Cultural victory rather than the Space path followed by the same civilization under the more conservative curve. Industrial 35 also retained military strength more efficiently than 40 in save files 461 and 463. The seven era values remain independently tunable for different player preferences or rulesets. See [KI#197.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1979---improved-healthy-ai-empires-could-still-devote-too-little-productive-capacity-to-offensive-units-even-after-buildunitprob-and-spending-limit-fixes) and [KI#197.10](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#19710---improved--tuned-an-era-progressive-offensive-production-floor-preserves-early-ai-strategies-while-correcting-weak-middle-and-late-armies).
++- (Requires AdvCiv-SAS 6094+) **AI offensive production rises progressively by era, preserving early growth and strategic variety while correcting weak middle and late armies:** the old AdvCiv-SAS 5055 stable release could produce very large AI armies, while later releases generally favored economic efficiency but produced substantially fewer offensive units, especially late in the game. AdvCiv-SAS therefore measures the share of each empire's **base production currently committed to `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` units** and, when it is below an XML-tunable minimum (the `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY` defines), asks an eligible city to help fill the shortfall before opportunistic wonders and broader later building choices. This is a production-capacity floor rather than a fixed unit count, unit-production cap or military-upkeep target, so productive cities contribute proportionally more and personalities, wars, danger, defense and composition logic can always produce more units when needed. Worker, Settler, Explorer, panic, financial, culture and other earlier priorities still take precedence. The default Ancient-to-Future curve as of now is **`0 / 0 / 20 / 30 / 35 / 40 / 40`**: it leaves the Ancient and Classical eras entirely to ordinary AI logic, then deliberately strengthens from the Medieval era onward as foundational growth and infrastructure have less remaining time to compound and military urgency increases. Extensive same-save comparisons showed why a flat target was inferior: high early pressure could displace growth and buildings without retaining a larger later army, while insufficient late pressure preserved an economy that could not defend itself or convert its strength into victory. SASGameRecord and BBAI Logging in save files 463 and 468 both retained substantial later armies with the freer early curve; it won on T389 versus T435 and on T466 versus T491 respectively, with the Huge-map T466 result also allowing Cyrus to pursue a deliberate Cultural victory rather than the Space path followed by the same civilization under the more conservative curve. Industrial 35 also retained military strength more efficiently than 40 in save files 461 and 463. The seven era values remain independently tunable for different player preferences or rulesets. See [KI#197.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1979---improved-healthy-ai-empires-could-still-devote-too-little-productive-capacity-to-offensive-units-even-after-buildunitprob-and-spending-limit-fixes) and [KI#197.10](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#19710---improved--tuned-an-era-progressive-offensive-production-floor-preserves-early-ai-strategies-while-correcting-weak-middle-and-late-armies).
+ - (Requires AdvCiv-SAS 6097+) **Risky AI stack attacks can use obsolete units as expendables / cannon fodder before current units:** BBAI attack-order logging in save file 460 showed the SAS low-power selector could choose the first unit to attack to be obsolete unit, only for inherited Base AdvCiv/K-Mod sacrifice logic to replace it with a current unit first attacking instead; one sample had 189 obsolete-to-current replacements, including an obsolete Archer at 10% winning odds being replaced by a current (plus much stronger) Horse Archer. To fix this, when the current unit would already take a risky attack, the AI can instead spend a tactically suitable obsolete unit first as cannon fodder/expendable, potentially weakening the defender while preserving current stronger units for safer follow-up attacks. Very safe current attacks (90%+ as of now) remain untouched, and XML-tunable sacrifice-value, tactical-role and odds safeguards prevent blanket weakest-unit-first behavior. Confirming runs showed expendables often damaged defenders or withdrew; in one sequence, obsolete attackers improved a preserved Mechanized Infantry's odds from 36% to 99%, after which it won without damage. This also helps clear weak obsolete excess naturally instead of keeping it for unit support or often poor-value future upgrades. See [KI#200](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#200---improved-inherited-base-advcivk-mod-sacrifice-selection-could-spend-current-units-before-sas-defined-obsolete-expendables-during-risky-ai-stack-attacks).
+ - **Barracks**: lower `FLAVOR_MILITARY` (e.g., 10 → 6 for the generic barracks) so non-militaristic leaders don’t overbuild it; increase `iAIWeight` substantially (e.g., 0 → 70; 75 for Zulu barracks) so when built, it’s for solid ROI (earlier experienced troops). Rationale drawn partly from FFH2’s use of 40 as a baseline.
+ - **Stables**: similarly increase `iAIWeight` (e.g., 0 → 75) so they’re pursued when relevant.
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log b/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log reason=known-generated/noisy-history changedLines=186445 bytes=55149066
+
+[PATCH COVERAGE]
+patchFiles=20 embeddedFiles=18 omittedFiles=2 embeddedPatchBytes=70305

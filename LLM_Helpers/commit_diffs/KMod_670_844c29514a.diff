@@ -1,0 +1,590 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 670
+# Commit: 844c29514a11a7d85e4d290541766ef0babfe563
+# History segment: K-Mod history
+# Parent used for diff: 244557d457be93fd4a2761b9d27e11dfb474335f
+# Title: Implemented new controls for the city build queue: ctrl+click moves the item up the list, shift+click moves it down, alt+click toggles the * (ie. repeat). Ad...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	Assets/xml/GameInfo/CIV4Hints.xml
+8	0	Assets/xml/Text/K-Mod hints.xml
+16	2	CvGameCoreDLL/CvCity.cpp
+2	1	CvGameCoreDLL/CvCity.h
+14	14	CvGameCoreDLL/CvCityAI.cpp
+10	5	CvGameCoreDLL/CvDLLWidgetData.cpp
+6	3	CvGameCoreDLL/CvGame.cpp
+23	2	CvGameCoreDLL/CvGameInterface.cpp
+3	2	CvGameCoreDLL/CvMessageControl.cpp
+2	1	CvGameCoreDLL/CvMessageControl.h
+18	6	CvGameCoreDLL/CvMessageData.cpp
+13	4	CvGameCoreDLL/CvMessageData.h
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CyCity.cpp
+2	1	CvGameCoreDLL/CyMessageControl.cpp
+1	1	CvGameCoreDLL/CyMessageControl.h
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index 4eeb591dd..c274385dd 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -466,5 +466,8 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_KMOD_HINT_12</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_13</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index 450bac883..313698194 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -111,6 +111,14 @@
+ 	<Italian>When a stack of units is attacked, the unit will the best chance of winning will usually defend first - but rookie units will attempt to protect experienced veterans and medics.</Italian>
+ 	<Spanish>When a stack of units is attacked, the unit will the best chance of winning will usually defend first - but rookie units will attempt to protect experienced veterans and medics.</Spanish>
+ </TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_13</Tag>
++	<English>In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</English>
++	<French>In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</French>
++	<German>In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</German>
++	<Italian>In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</Italian>
++	<Spanish>In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</Spanish>
++</TEXT>
+ <!-- replacement text for the inaccurate barbarian tip (changed english only)-->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_12</Tag>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 042d35607..fe48092ce 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11982,7 +11982,7 @@ void CvCity::clearOrderQueue()
+ }
+ 
+ 
+-void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bForce)
++void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, int iPosition, bool bForce)
+ {
+ 	OrderData order;
+ 	bool bValid;
+@@ -12071,6 +12071,7 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
+ 	order.iData2 = iData2;
+ 	order.bSave = bSave;
+ 
++	/* original bts code
+ 	if (bAppend)
+ 	{
+ 		m_orderQueue.insertAtEnd(order);
+@@ -12084,7 +12085,19 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
+ 	if (!bAppend || (getOrderQueueLength() == 1))
+ 	{
+ 		startHeadOrder();
++	} */
++	// K-Mod
++	if (iPosition == 0 || getOrderQueueLength() == 0)
++	{
++		stopHeadOrder();
++		m_orderQueue.insertAtBeginning(order);
++		startHeadOrder();
+ 	}
++	else if (iPosition < 0 || iPosition >= getOrderQueueLength())
++		m_orderQueue.insertAtEnd(order);
++	else
++		m_orderQueue.insertBefore(order, m_orderQueue.nodeNum(iPosition));
++	// K-Mod end
+ 
+ 	// Why does this cause a crash???
+ 
+@@ -12161,7 +12174,8 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 
+ 	if (bFinish && pOrderNode->m_data.bSave)
+ 	{
+-		pushOrder(pOrderNode->m_data.eOrderType, pOrderNode->m_data.iData1, pOrderNode->m_data.iData2, true, false, true);
++		//pushOrder(pOrderNode->m_data.eOrderType, pOrderNode->m_data.iData1, pOrderNode->m_data.iData2, true, false, true);
++		pushOrder(pOrderNode->m_data.eOrderType, pOrderNode->m_data.iData1, pOrderNode->m_data.iData2, true, false, -1);
+ 	}
+ 
+ 	eTrainUnit = NO_UNIT;
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index c9212a8d5..cb4607592 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -929,7 +929,8 @@ public:
+ 	void updateTradeRoutes();
+ 
+ 	void clearOrderQueue();																														// Exposed to Python
+-	void pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bForce = false);		// Exposed to Python
++	//void pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bForce = false);		// Exposed to Python
++	void pushOrder(OrderTypes eOrder, int iData1, int iData2 = -1, bool bSave = false, bool bPop = false, int iPosition = 0, bool bForce = false); // K-Mod. (the old version is still exposed to Python)
+ 	void popOrder(int iNum, bool bFinish = false, bool bChoose = false);		// Exposed to Python
+ 	void startHeadOrder();
+ 	void stopHeadOrder();
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 1856af1e7..d12d52584 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -969,7 +969,7 @@ void CvCityAI::AI_chooseProduction()
+ 			if (kBestBuilding.getCommerceChange(COMMERCE_CULTURE) + kBestBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) > 0
+ 				&& (GC.getNumCultureLevelInfos() < 2 || getProductionTurnsLeft(eBestBuilding, 0) <= GC.getGame().getCultureThreshold((CultureLevelTypes)2)))
+ 			{
+-				pushOrder(ORDER_CONSTRUCT, eBestBuilding, -1, false, false, false);
++				pushOrder(ORDER_CONSTRUCT, eBestBuilding);
+ 				return;
+ 			}
+ 		}
+@@ -1616,7 +1616,7 @@ void CvCityAI::AI_chooseProduction()
+ 			int iOdds = 100 * (iProjectValue - iBestBuildingValue) / (iProjectValue + iBestBuildingValue + iBuildUnitProb);
+ 			if (GC.getGameINLINE().getSorenRandNum(100, "Build Project chance 1") < iOdds)
+ 			{
+-				pushOrder(ORDER_CREATE, eBestProject, -1, false, false, false);
++				pushOrder(ORDER_CREATE, eBestProject);
+ 				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose project 1. (project value: %d, building value: %d, odds: %d)", getName().GetCString(), iProjectValue, iBestBuildingValue, iOdds);
+ 				return;
+ 			}
+@@ -2639,7 +2639,7 @@ void CvCityAI::AI_chooseProduction()
+ 	if (iProjectValue > iBestBuildingValue)
+ 	{
+ 		FAssert(eBestProject != NO_PROJECT);
+-		pushOrder(ORDER_CREATE, eBestProject, -1, false, false, false);
++		pushOrder(ORDER_CREATE, eBestProject);
+ 		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose project 2. (project value: %d, building value: %d)", getName().GetCString(), iProjectValue, iBestBuildingValue);
+ 		return;
+ 	}
+@@ -2655,7 +2655,7 @@ void CvCityAI::AI_chooseProduction()
+ 		int iOdds = 100*(iProcessValue - iBestBuildingValue/2)/std::max(1, iBestBuildingValue/2);
+ 		if (iOdds > 0 && GC.getGameINLINE().getSorenRandNum(100, "AI choose process") < iOdds)
+ 		{
+-			pushOrder(ORDER_MAINTAIN, eBestProcess, -1, false, false, false);
++			pushOrder(ORDER_MAINTAIN, eBestProcess);
+ 			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose process by value", getName().GetCString());
+ 			return;
+ 		}
+@@ -2680,7 +2680,7 @@ void CvCityAI::AI_chooseProduction()
+ 	//if (AI_chooseProcess())
+ 	if (eBestProcess != NO_PROCESS)
+ 	{
+-		pushOrder(ORDER_MAINTAIN, eBestProcess, -1, false, false, false);
++		pushOrder(ORDER_MAINTAIN, eBestProcess);
+ 		if (gCityLogLevel >= 2) logBBAI("      City %S uses choose process by default", getName().GetCString());
+ 		return;
+ 	}
+@@ -8530,7 +8530,7 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, int iOdds)
+ 			< iOdds + 100 * getUnitProduction(eBestUnit) / std::max(1, getProductionNeeded(eBestUnit)))
+ 		// K-Mod end
+ 		{
+-			pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, false);
++			pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI);
+ 			return true;
+ 		}
+ 	}
+@@ -8542,7 +8542,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ {
+ 	if (eUnit != NO_UNIT)
+ 	{
+-		pushOrder(ORDER_TRAIN, eUnit, eUnitAI, false, false, false);
++		pushOrder(ORDER_TRAIN, eUnit, eUnitAI);
+ 		return true;
+ 	}
+ 	return false;	
+@@ -8797,7 +8797,7 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
+ 			getBuildingProduction(eBestBuilding) > 0 ||
+ 			GC.getGameINLINE().getSorenRandNum(100,"City AI choose building") < iOdds )
+ 		{
+-			pushOrder(ORDER_CONSTRUCT, eBestBuilding, -1, false, false, false);
++			pushOrder(ORDER_CONSTRUCT, eBestBuilding);
+ 			return true;
+ 		}
+ 	}
+@@ -8817,7 +8817,7 @@ bool CvCityAI::AI_chooseProject()
+ 
+ 	if (eBestProject != NO_PROJECT)
+ 	{
+-		pushOrder(ORDER_CREATE, eBestProject, -1, false, false, false);
++		pushOrder(ORDER_CREATE, eBestProject);
+ 		return true;
+ 	}
+ 
+@@ -8833,7 +8833,7 @@ bool CvCityAI::AI_chooseProcess(CommerceTypes eCommerceType)
+ 
+ 	if (eBestProcess != NO_PROCESS)
+ 	{
+-		pushOrder(ORDER_MAINTAIN, eBestProcess, -1, false, false, false);
++		pushOrder(ORDER_MAINTAIN, eBestProcess);
+ 		return true;
+ 	}
+ 
+@@ -10864,7 +10864,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 			if (kBestBuilding.getCommerceChange(COMMERCE_CULTURE) + kBestBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) > 0
+ 				&& (GC.getNumCultureLevelInfos() < 2 || getProductionTurnsLeft(eBestBuilding, 0) <= GC.getGame().getCultureThreshold((CultureLevelTypes)2)))
+ 			{
+-				pushOrder(ORDER_CONSTRUCT, eBestBuilding, -1, false, false, false);
++				pushOrder(ORDER_CONSTRUCT, eBestBuilding);
+ 				return;
+ 			}
+ 		}
+@@ -10960,13 +10960,13 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 							{
+ 								// This building helps the unit we want
+ 								// ...so do the building first.
+-								pushOrder(ORDER_CONSTRUCT, eBestBuilding, -1, false, false, false);
++								pushOrder(ORDER_CONSTRUCT, eBestBuilding);
+ 								return;
+ 							}
+ 						}
+ 					}
+ 					// otherwise, we're ready to build the unit
+-					pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, false);
++					pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI);
+ 					return;
+ 				}
+ 			}
+@@ -11027,7 +11027,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 		int iOdds = 100*(iProcessValue - iBestBuildingValue/2)/std::max(1, iBestBuildingValue/2);
+ 		if (iOdds > 0 && GC.getGameINLINE().getSorenRandNum(100, "AI choose process") < iOdds)
+ 		{
+-			pushOrder(ORDER_MAINTAIN, eBestProcess, -1, false, false, false);
++			pushOrder(ORDER_MAINTAIN, eBestProcess);
+ 			return;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 644fdff39..810c59b68 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1151,7 +1151,8 @@ void CvDLLWidgetData::doTrain(CvWidgetDataStruct &widgetDataStruct)
+ 
+ 	if (widgetDataStruct.m_iData2 != FFreeList::INVALID_INDEX)
+ 	{
+-		CvMessageControl::getInstance().sendPushOrder(widgetDataStruct.m_iData2, ORDER_TRAIN, eUnit, false, false, false);
++		//CvMessageControl::getInstance().sendPushOrder(widgetDataStruct.m_iData2, ORDER_TRAIN, eUnit, false, false, false);
++		CvMessageControl::getInstance().sendPushOrder(widgetDataStruct.m_iData2, ORDER_TRAIN, eUnit, false, true, 0);
+ 	}
+ 	else
+ 	{
+@@ -1170,7 +1171,8 @@ void CvDLLWidgetData::doConstruct(CvWidgetDataStruct &widgetDataStruct)
+ 
+ 	if (widgetDataStruct.m_iData2 != FFreeList::INVALID_INDEX)
+ 	{
+-		CvMessageControl::getInstance().sendPushOrder(widgetDataStruct.m_iData2, ORDER_CONSTRUCT, eBuilding, false, false, false);
++		//CvMessageControl::getInstance().sendPushOrder(widgetDataStruct.m_iData2, ORDER_CONSTRUCT, eBuilding, false, false, false);
++		CvMessageControl::getInstance().sendPushOrder(widgetDataStruct.m_iData2, ORDER_CONSTRUCT, eBuilding, false, true, 0);
+ 	}
+ 	else
+ 	{
+@@ -1192,7 +1194,8 @@ void CvDLLWidgetData::doCreate(CvWidgetDataStruct &widgetDataStruct)
+ {
+ 	if (widgetDataStruct.m_iData2 != FFreeList::INVALID_INDEX)
+ 	{
+-		CvMessageControl::getInstance().sendPushOrder(widgetDataStruct.m_iData2, ORDER_CREATE, widgetDataStruct.m_iData1, false, false, false);
++		//CvMessageControl::getInstance().sendPushOrder(widgetDataStruct.m_iData2, ORDER_CREATE, widgetDataStruct.m_iData1, false, false, false);
++		CvMessageControl::getInstance().sendPushOrder(widgetDataStruct.m_iData2, ORDER_CREATE, widgetDataStruct.m_iData1, false, true, 0);
+ 	}
+ 	else
+ 	{
+@@ -1207,7 +1210,8 @@ void CvDLLWidgetData::doMaintain(CvWidgetDataStruct &widgetDataStruct)
+ {
+ 	if (widgetDataStruct.m_iData2 != FFreeList::INVALID_INDEX)
+ 	{
+-		CvMessageControl::getInstance().sendPushOrder(widgetDataStruct.m_iData2, ORDER_MAINTAIN, widgetDataStruct.m_iData1, false, false, false);
++		//CvMessageControl::getInstance().sendPushOrder(widgetDataStruct.m_iData2, ORDER_MAINTAIN, widgetDataStruct.m_iData1, false, false, false);
++		CvMessageControl::getInstance().sendPushOrder(widgetDataStruct.m_iData2, ORDER_MAINTAIN, widgetDataStruct.m_iData1, false, true, 0);
+ 	}
+ 	else
+ 	{
+@@ -1465,7 +1469,8 @@ void CvDLLWidgetData::doSelected(CvWidgetDataStruct &widgetDataStruct)
+ 
+ 	if (pHeadSelectedCity != NULL)
+ 	{
+-		GC.getGameINLINE().selectedCitiesGameNetMessage(GAMEMESSAGE_POP_ORDER, widgetDataStruct.m_iData1);
++		//GC.getGameINLINE().selectedCitiesGameNetMessage(GAMEMESSAGE_POP_ORDER, widgetDataStruct.m_iData1);
++		GC.getGameINLINE().selectedCitiesGameNetMessage(GAMEMESSAGE_POP_ORDER, widgetDataStruct.m_iData1, -1, -1, false, GC.altKey(), GC.shiftKey(), GC.ctrlKey());
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 706a908c6..af3bcf860 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2376,15 +2376,18 @@ void CvGame::cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData, bool bAl
+ {
+ 	if (pCity->getProduction() > 0)
+ 	{
+-		CvMessageControl::getInstance().sendPushOrder(pCity->getID(), eOrder, iData, bAlt, bShift, !bShift);
++		//CvMessageControl::getInstance().sendPushOrder(pCity->getID(), eOrder, iData, bAlt, bShift, !bShift);
++		CvMessageControl::getInstance().sendPushOrder(pCity->getID(), eOrder, iData, bAlt, false, bShift ? -1 : 0);
+ 	}
+ 	else if ((eOrder == ORDER_TRAIN) && (pCity->getProductionUnit() == iData))
+ 	{
+-		CvMessageControl::getInstance().sendPushOrder(pCity->getID(), eOrder, iData, bAlt, !bCtrl, bCtrl);
++		//CvMessageControl::getInstance().sendPushOrder(pCity->getID(), eOrder, iData, bAlt, !bCtrl, bCtrl);
++		CvMessageControl::getInstance().sendPushOrder(pCity->getID(), eOrder, iData, bAlt, false, bCtrl ? 0 : -1);
+ 	}
+ 	else
+ 	{
+-		CvMessageControl::getInstance().sendPushOrder(pCity->getID(), eOrder, iData, bAlt, bShift, bCtrl);
++		//CvMessageControl::getInstance().sendPushOrder(pCity->getID(), eOrder, iData, bAlt, bShift, bCtrl);
++		CvMessageControl::getInstance().sendPushOrder(pCity->getID(), eOrder, iData, bAlt, !(bShift || bCtrl), bCtrl ? 0 : -1);
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index e33d17812..056248884 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1142,11 +1142,32 @@ void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3,
+ 					break;
+ 
+ 				case GAMEMESSAGE_POP_ORDER:
+-					//if (pSelectedCity->getOrderQueueLength() > 1)
+-					if (pSelectedCity->getOrderQueueLength() > 1 || pSelectedCity->isProductionAutomated()) // K-Mod. (automated cities will choose their production at the end of the turn)
++					/* original bts code
++					if (pSelectedCity->getOrderQueueLength() > 1)
+ 					{
+ 						CvMessageControl::getInstance().sendPopOrder(pSelectedCity->getID(), iData2);
++					} */
++					// K-Mod. Some additional controls
++					if (bAlt || (bShift != bCtrl))
++					{
++						// bCtrl moves the order up, bShift moves the order down.
++						// bAlt toggles bSave (ie. repeat)
++						int iNewPos = iData2 + (bShift ? 1 : 0) + (bCtrl ? -1 : 0);
++						if (pSelectedCity->getOrderQueueLength() > iNewPos && iNewPos >= 0)
++						{
++							OrderData order = pSelectedCity->getOrderData(iData2);
++							if (order.eOrderType != NO_ORDER && (bShift || bCtrl || order.eOrderType == ORDER_TRAIN))
++							{
++								order.bSave = order.bSave != (bAlt && order.eOrderType == ORDER_TRAIN);
++								CvMessageControl::getInstance().sendPopOrder(pSelectedCity->getID(), iData2);
++								CvMessageControl::getInstance().sendPushOrder(pSelectedCity->getID(), order.eOrderType, order.iData1, order.bSave, false, iNewPos);
++							}
++						}
+ 					}
++					// Allow us to cancel the final order for automated cities. (The governor can choose production at the end of the turn.)
++					else if (pSelectedCity->getOrderQueueLength() > 1 || pSelectedCity->isProductionAutomated())
++						CvMessageControl::getInstance().sendPopOrder(pSelectedCity->getID(), iData2);
++					// K-Mod end
+ 					break;
+ 
+ 				case GAMEMESSAGE_DO_TASK:
+
+diff --git a/CvGameCoreDLL/CvMessageControl.cpp b/CvGameCoreDLL/CvMessageControl.cpp
+index 531b77235..8a7dc571f 100644
+--- a/CvGameCoreDLL/CvMessageControl.cpp
++++ b/CvGameCoreDLL/CvMessageControl.cpp
+@@ -33,11 +33,12 @@ void CvMessageControl::sendTurnComplete()
+ 	}
+ }
+ 
+-void CvMessageControl::sendPushOrder(int iCityID, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl)
++//void CvMessageControl::sendPushOrder(int iCityID, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl)
++void CvMessageControl::sendPushOrder(int iCityID, OrderTypes eOrder, int iData, bool bSave, bool bPop, int iPosition)
+ {
+ 	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
+ 	{
+-		gDLL->sendMessageData(new CvNetPushOrder(GC.getGameINLINE().getActivePlayer(), iCityID, eOrder, iData, bAlt, bShift, bCtrl));
++		gDLL->sendMessageData(new CvNetPushOrder(GC.getGameINLINE().getActivePlayer(), iCityID, eOrder, iData, bSave, bPop, iPosition));
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvMessageControl.h b/CvGameCoreDLL/CvMessageControl.h
+index f437177f6..e0847721b 100644
+--- a/CvGameCoreDLL/CvMessageControl.h
++++ b/CvGameCoreDLL/CvMessageControl.h
+@@ -8,7 +8,8 @@ public:
+ 	void sendExtendedGame();
+ 	void sendAutoMoves();
+ 	void sendTurnComplete();
+-	void sendPushOrder(int iCityID, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl);
++	//void sendPushOrder(int iCityID, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl);
++	void sendPushOrder(int iCityID, OrderTypes eOrder, int iData, bool bSave, bool bPop, int iPosition); // K-Mod
+ 	void sendPopOrder(int iCity, int iNum);
+ 	DllExport void sendDoTask(int iCityID, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl);
+ 	void sendUpdateCivics(const std::vector<CivicTypes>& aeCivics);
+
+diff --git a/CvGameCoreDLL/CvMessageData.cpp b/CvGameCoreDLL/CvMessageData.cpp
+index ca0cace1f..5ddcc2f50 100644
+--- a/CvGameCoreDLL/CvMessageData.cpp
++++ b/CvGameCoreDLL/CvMessageData.cpp
+@@ -161,13 +161,14 @@ void CvNetTurnComplete::SetFromBuffer(FDataStreamBase* pStream)
+ 	pStream->Read((int*)&m_ePlayer);
+ }
+ 
++/* original bts code
+ CvNetPushOrder::CvNetPushOrder() : CvMessageData(GAMEMESSAGE_PUSH_ORDER), m_ePlayer(NO_PLAYER), m_iCityID(-1), m_eOrder(NO_ORDER), m_iData(-1), m_bAlt(false), m_bShift(false), m_bCtrl(false)
+ {
+ }
+ 
+ CvNetPushOrder::CvNetPushOrder(PlayerTypes ePlayer, int iCityID, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl) : CvMessageData(GAMEMESSAGE_PUSH_ORDER), m_ePlayer(ePlayer), m_iCityID(iCityID), m_eOrder(eOrder), m_iData(iData), m_bAlt(bAlt), m_bShift(bShift), m_bCtrl(bCtrl)
+ {
+-}
++} */ // disabled by K-mod
+ 
+ void CvNetPushOrder::Debug(char* szAddendum)
+ {
+@@ -181,7 +182,8 @@ void CvNetPushOrder::Execute()
+ 		CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(m_iCityID);
+ 		if (pCity != NULL)
+ 		{
+-			pCity->pushOrder(m_eOrder, m_iData, -1, m_bAlt, !(m_bShift || m_bCtrl), m_bShift);
++			//pCity->pushOrder(m_eOrder, m_iData, -1, m_bAlt, !(m_bShift || m_bCtrl), m_bShift);
++			pCity->pushOrder(m_eOrder, m_iData, -1, m_bSave, m_bPop, m_iPosition); // K-Mod
+ 			// K-Mod. We don't want automated cities to overrules our production choice.
+ 			if (pCity->isHuman())
+ 				pCity->AI_setChooseProductionDirty(false);
+@@ -201,9 +203,14 @@ void CvNetPushOrder::PutInBuffer(FDataStreamBase* pStream)
+ 	pStream->Write(m_iCityID);
+ 	pStream->Write(m_eOrder);
+ 	pStream->Write(m_iData);
+-	pStream->Write(m_bAlt);
++	/* pStream->Write(m_bAlt);
+ 	pStream->Write(m_bShift);
+-	pStream->Write(m_bCtrl);
++	pStream->Write(m_bCtrl); */
++	// K-Mod
++	pStream->Write(m_bSave);
++	pStream->Write(m_bPop);
++	pStream->Write(m_iPosition);
++	// K-Mod end
+ }
+ 
+ void CvNetPushOrder::SetFromBuffer(FDataStreamBase* pStream)
+@@ -212,9 +219,14 @@ void CvNetPushOrder::SetFromBuffer(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iCityID);
+ 	pStream->Read((int*)&m_eOrder);
+ 	pStream->Read(&m_iData);
+-	pStream->Read(&m_bAlt);
++	/* pStream->Read(&m_bAlt);
+ 	pStream->Read(&m_bShift);
+-	pStream->Read(&m_bCtrl);
++	pStream->Read(&m_bCtrl); */
++	// K-Mod
++	pStream->Read(&m_bSave);
++	pStream->Read(&m_bPop);
++	pStream->Read(&m_iPosition);
++	// K-Mod end
+ }
+ 
+ CvNetPopOrder::CvNetPopOrder() : CvMessageData(GAMEMESSAGE_POP_ORDER), m_ePlayer(NO_PLAYER), m_iCityID(-1), m_iNum(0)
+
+diff --git a/CvGameCoreDLL/CvMessageData.h b/CvGameCoreDLL/CvMessageData.h
+index 085b51841..756dc752d 100644
+--- a/CvGameCoreDLL/CvMessageData.h
++++ b/CvGameCoreDLL/CvMessageData.h
+@@ -60,8 +60,12 @@ private:
+ class CvNetPushOrder : public CvMessageData
+ {
+ public:
+-	CvNetPushOrder();
+-	CvNetPushOrder(PlayerTypes ePlayer, int iCityID, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl);
++	//CvNetPushOrder();
++	//CvNetPushOrder(PlayerTypes ePlayer, int iCityID, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl);
++	// K-Mod
++	CvNetPushOrder(PlayerTypes ePlayer = NO_PLAYER, int iCityID = -1, OrderTypes eOrder = NO_ORDER, int iData = -1, bool bSave = false, bool bPop = true, int iPosition = 0)
++		: CvMessageData(GAMEMESSAGE_PUSH_ORDER), m_ePlayer(ePlayer), m_iCityID(iCityID), m_eOrder(eOrder), m_iData(iData), m_bSave(bSave), m_bPop(bPop), m_iPosition(iPosition) { }
++	// K-Mod end
+ 	DllExport virtual void Debug(char* szAddendum);
+ 	DllExport virtual void Execute();
+ 	DllExport virtual void PutInBuffer(FDataStreamBase* pStream);
+@@ -71,9 +75,14 @@ private:
+ 	int m_iCityID;
+ 	OrderTypes m_eOrder;
+ 	int m_iData;
+-	bool m_bAlt;
++	/*bool m_bAlt;
+ 	bool m_bShift;
+-	bool m_bCtrl;
++	bool m_bCtrl;*/
++	// K-Mod
++	bool m_bSave;
++	bool m_bPop;
++	int m_iPosition;
++	// K-Mod end
+ };
+ 
+ class CvNetPopOrder : public CvMessageData
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index bdc3d9bc7..a49976e59 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5715,7 +5715,7 @@ bool CvUnitAI::AI_greatPersonMove()
+ 							FAssert(pCity);
+ 
+ 							if (pCity->getProductionBuilding() != eBestBuilding)
+-								pCity->pushOrder(ORDER_CONSTRUCT, eBestBuilding, -1, false, false, false);
++								pCity->pushOrder(ORDER_CONSTRUCT, eBestBuilding);
+ 
+ 							if (pCity->getProductionBuilding() == eBestBuilding && canHurry(plot()))
+ 							{
+@@ -13877,7 +13877,7 @@ bool CvUnitAI::AI_switchHurry()
+ 
+ 	if (eBestBuilding != NO_BUILDING)
+ 	{
+-		pCity->pushOrder(ORDER_CONSTRUCT, eBestBuilding, -1, false, false, false);
++		pCity->pushOrder(ORDER_CONSTRUCT, eBestBuilding);
+ 
+ 		if (pCity->getProductionBuilding() == eBestBuilding)
+ 		{
+
+diff --git a/CvGameCoreDLL/CyCity.cpp b/CvGameCoreDLL/CyCity.cpp
+index 6c8a21439..197502989 100644
+--- a/CvGameCoreDLL/CyCity.cpp
++++ b/CvGameCoreDLL/CyCity.cpp
+@@ -2118,7 +2118,7 @@ void CyCity::clearOrderQueue()
+ void CyCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bForce)
+ {
+ 	if (m_pCity)
+-		m_pCity->pushOrder(eOrder, iData1, iData2, bSave, bPop, bAppend, bForce);
++		m_pCity->pushOrder(eOrder, iData1, iData2, bSave, bPop, bAppend ? -1 : 0, bForce);
+ }
+ 
+ void CyCity::popOrder(int iNum, bool bFinish, bool bChoose)
+
+diff --git a/CvGameCoreDLL/CyMessageControl.cpp b/CvGameCoreDLL/CyMessageControl.cpp
+index d4fc181cc..754013870 100644
+--- a/CvGameCoreDLL/CyMessageControl.cpp
++++ b/CvGameCoreDLL/CyMessageControl.cpp
+@@ -6,7 +6,8 @@
+ 
+ void CyMessageControl::sendPushOrder(int iCityID, int eOrder, int iData, bool bAlt, bool bShift, bool bCtrl)
+ {
+-	CvMessageControl::getInstance().sendPushOrder(iCityID, (OrderTypes) eOrder, iData, bAlt, bShift, bCtrl);
++	//CvMessageControl::getInstance().sendPushOrder(iCityID, (OrderTypes) eOrder, iData, bAlt, bShift, bCtrl);
++	CvMessageControl::getInstance().sendPushOrder(iCityID, (OrderTypes) eOrder, iData, bAlt, !(bShift || bCtrl), bCtrl ? 0 : -1);
+ }
+ 
+ void CyMessageControl::sendDoTask(int iCity, int eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl)
+
+diff --git a/CvGameCoreDLL/CyMessageControl.h b/CvGameCoreDLL/CyMessageControl.h
+index 78a69f567..da72fcfdc 100644
+--- a/CvGameCoreDLL/CyMessageControl.h
++++ b/CvGameCoreDLL/CyMessageControl.h
+@@ -10,7 +10,7 @@ namespace python = boost::python;
+ class CyMessageControl
+ {
+ public:
+-	void sendPushOrder(int iCityID, int eOrder, int iData, bool bAlt, bool bShift, bool bCtrl);
++	void sendPushOrder(int iCityID, int eOrder, int iData, bool bAlt, bool bShift, bool bCtrl); // K-Mod note: the arguments here no longer match CvMessageControl::sendPushOrder.  Sorry about that.
+ 	void sendDoTask(int iCity, int eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl);
+ 	void sendTurnComplete();
+ 	void sendUpdateCivics(boost::python::list& iCivics);
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=16 omittedFiles=0 embeddedPatchBytes=25108

@@ -1,0 +1,81 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4216
+# Commit: 8d1257b0fb5613b4fc1ceca2906f2e53c40e503d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8e0cc95868f9963312f41a7e780caf1a826f730a
+# Title: Barbarians improve only worked plots
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	3	CvGameCoreDLL/CvCityAI.cpp
+3	0	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 5e48e653f..ed36d527c 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -11027,8 +11027,11 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 		{
+ 			int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+ 			int iExperienceValue = 100 * iExperience * 4;
+-			if (iProductionRank <= kOwner.getNumCities() / 2 + 1)
++			if (iProductionRank <= kOwner.getNumCities() / 2 + 1
++				|| isBarbarian()) // advc.300: Yield rank shouldn't matter for them
++			{
+ 				iExperienceValue += 100 * iExperience * 4;
++			}
+ 			iExperienceValue += (getMilitaryProductionModifier() * iExperience * 8);
+ 			iTotalValue += iExperienceValue;
+ 		}
+@@ -11416,9 +11419,11 @@ bool CvCityAI::AI_emphasizeIrrigatingPlot(CvPlot const& kPlot) const
+ 				bHasBonusImprovement = true;
+ 		}
+ 	}*/ // BtS
+-	if (kPlot.getNonObsoleteBonusType(getTeam(), true) != NO_BONUS)
++	if (kPlot.getNonObsoleteBonusType(getTeam(), true) != NO_BONUS
++		|| isBarbarian()) // advc.300
++	{
+ 		return false;
+-
++	}
+ 	/*	It looks unwieldly but the code has to be rigid to avoid "worker ADD"
+ 		where they keep connecting then disconnecting a crops resource or building
+ 		multiple farms to connect a single crop resource.
+@@ -11540,6 +11545,9 @@ void CvCityAI::AI_bestPlotBuild(CvPlot const& kPlot, int* piBestValue, BuildType
+ 	
+ 	BuildTypes eBestBuild = NO_BUILD;
+ 	int iBestValue = 0;
++
++	// advc.300: Improve only worked plots for their yield
++	if (!isBarbarian() || isWorkingPlot(kPlot))
+ 	{	// advc: Moved into subroutine
+ 		bool bEmphasizeIrrigation = AI_emphasizeIrrigatingPlot(kPlot);
+ 		FOR_EACH_ENUM(Improvement)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 0eb1fd340..745f40f45 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -17478,6 +17478,9 @@ bool CvUnitAI::AI_nextCityToImproveAirlift()
+ bool CvUnitAI::AI_irrigateTerritory()
+ {
+ 	PROFILE_FUNC();
++	// <advc.300>
++	if (isBarbarian())
++		return false; // </advc.300>
+ 	// Erik <OPT1> Cache the viable subset of builds so that we don't have to loop through all of them
+ 	std::vector<BuildTypes> irrigationCarryingBuilds;
+ 	FOR_EACH_ENUM(Build)
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2246

@@ -1,0 +1,121 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4079
+# Commit: 7330acba34a85d3f27822dc16c249942ec2d3d30
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0a7fe9ec5867a575a813ba0bc0b6305d037c71d0
+# Title: Revolt help shows garrison strength of current selection
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	0	Assets/XML/Text/CIV4GameText_advc.xml
+34	2	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index eea34e036..7cef38ced 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -390,6 +390,14 @@
+ 		<Italian>Citt� pu� rivoltarsi se &gt; %d1[ICON_STRENGTH] sono trasferite</Italian>
+ 		<Spanish>Ciudad puede rebelarse si &gt; %d1[ICON_STRENGTH] son retiradas</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GARRISON_STRENGTH_SELECTED</Tag>
++		<English>(Selected: %d1[ICON_STRENGTH])</English>
++		<French>%d1[ICON_STRENGTH] s&#233;lectionn&#233;es</French>
++		<German>%d1[ICON_STRENGTH] ausgew�hlt</German>
++		<Italian>%d1[ICON_STRENGTH] selezionate</Italian>
++		<Spanish>%d1[ICON_STRENGTH] seleccionadas</Spanish>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_INCREASED_BY_GRIEVANCE</Tag>
+ 		<English>Increased opposition due to</English>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d8b47cc8a..f05166193 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1666,6 +1666,13 @@ void CvGameTextMgr::setPlotListHelpPerOwner(CvWStringBuffer& szString,
+ 		iLineLimit--;
+ 	if(kPlot.isFreshWater())
+ 		iLineLimit--;
++	/*	<advc.101> (Can even take up 2 lines, but checking for that gets too complicated;
++		not checking MainInterface__RevoltHelp BUG option either.) */
++	if (kPlot.isCity() && kPlot.getTeam() == eActiveTeam &&
++		kPlot.getPlotCity()->revoltProbability() > 0)
++	{
++		iLineLimit--;
++	} // </advc.101>
+ 	for(int i = 0; i < MAX_PLAYERS; i++)
+ 	{
+ 		if(kPlot.calculateCulturePercent((PlayerTypes)i) > 0)
+@@ -5824,6 +5831,8 @@ void CvGameTextMgr::setRevoltHelp(CvWStringBuffer &szString, CvCity const& kCity
+ 			kCity.cultureGarrison(eCulturalOwner) : -1);
+ 	int const iCultureStr = (bActiveOwned ?
+ 			kCity.cultureStrength(eCulturalOwner) : -1);
++	int iExcessStrength = 0;
++	CvUnit const* pSelectedUnit = gDLL->UI().getHeadSelectedUnit();
+ 	if (rRevoltProb > 0)
+ 	{
+ 		/*  CvCity::revoltProbability rounds probabilities that are too small to
+@@ -5843,6 +5852,7 @@ void CvGameTextMgr::setRevoltHelp(CvWStringBuffer &szString, CvCity const& kCity
+ 			szString.append(gDLL->getText(
+ 					"TXT_KEY_GARRISON_STRENGTH_NEEDED_SHORT",
+ 					iGarrisonStrNeeded));
++			iExcessStrength = -iGarrisonStrNeeded;
+ 		}
+ 		int const iPriorRevolts = kCity.getNumRevolts();
+ 		if (kCity.canCultureFlip())
+@@ -5873,8 +5883,7 @@ void CvGameTextMgr::setRevoltHelp(CvWStringBuffer &szString, CvCity const& kCity
+ 		eCulturalOwner != kCity.getOwner() && iGarrisonStr >= iCultureStr)
+ 	{
+ 		// Show it only when a local unit is selected? Eh ...
+-		/*CvUnit* pSelectedUnit = gDLL->UI().getHeadSelectedUnit();
+-		if (pSelectedUnit != NULL && pSelectedUnit->at(kPlot))*/
++		//if (pSelectedUnit != NULL && pSelectedUnit->at(kPlot))
+ 		{
+ 			int iSafeToRemove = iGarrisonStr - iCultureStr;
+ 			if (iSafeToRemove < iGarrisonStr)
+@@ -5884,9 +5893,32 @@ void CvGameTextMgr::setRevoltHelp(CvWStringBuffer &szString, CvCity const& kCity
+ 				szString.append(gDLL->getText(
+ 						"TXT_KEY_GARRISON_STRENGTH_EXCESS_SHORT",
+ 						std::min(999, iSafeToRemove)));
++				iExcessStrength = iSafeToRemove;
+ 			}
+ 		}
+ 	}
++	if (iExcessStrength != 0 && pSelectedUnit != NULL)
++	{
++		int iSelected = 0;
++		int iSelectedStrength = 0;
++		FOR_EACH_UNIT_IN(pUnit, *gDLL->UI().getSelectionList())
++		{
++			int iStr = pUnit->garrisonStrength();
++			if (iStr != 0)
++			{
++				iSelectedStrength += iStr;
++				iSelected++;
++			}
++		}
++		if (iSelectedStrength != 0 && (iExcessStrength < 0 ||
++			pSelectedUnit->at(kCity.getPlot()))/* && iSelected > 1*/)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText(
++					"TXT_KEY_GARRISON_STRENGTH_SELECTED",
++					intdiv::uround(iSelectedStrength, 100)));
++		}
++	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3780

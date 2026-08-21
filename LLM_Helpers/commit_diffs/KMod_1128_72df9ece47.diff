@@ -1,0 +1,126 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1128
+# Commit: 72df9ece470340b13d86d1d8ae008b46ae1f69cc
+# History segment: K-Mod history
+# Parent used for diff: a849c957a73496c46ae5019d48a2ab9327a1ddc4
+# Title: Tweaked the display of vassal/master relationship information.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+36	26	CvGameCoreDLL/CvGameTextMgr.cpp
+1	0	CvGameCoreDLL/CvGameTextMgr.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 2d794e1c3..c773211ef 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -14056,33 +14056,9 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 
+ 	szBuffer.append(gDLL->getText("TXT_KEY_ATTITUDE_TOWARDS", GC.getAttitudeInfo(kPlayer.AI_getAttitude(eTargetPlayer)).getTextKeyWide(), GET_PLAYER(eTargetPlayer).getNameKey()));
+ 
+-	for (int iTeam = 0; iTeam < MAX_TEAMS; iTeam++)
+-	{
+-		CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeam);
+-		if (kLoopTeam.isAlive())
+-		{
+-			if (NO_PLAYER != eTargetPlayer)
+-			{
+-				CvTeam& kTargetTeam = GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam());
+-				if (kTargetTeam.isHasMet((TeamTypes)iTeam))
+-				{
+-					if (kTeam.isVassal((TeamTypes)iTeam))
+-					{
+-						szBuffer.append(NEWLINE);
+-						szBuffer.append(gDLL->getText("TXT_KEY_ATTITUDE_VASSAL_OF", kLoopTeam.getName().GetCString()));
+-
+-						setVassalRevoltHelp(szBuffer, (TeamTypes)iTeam, kTeam.getID());
+-					}
+-					else if (kLoopTeam.isVassal(kTeam.getID()))
+-					{
+-						szBuffer.append(NEWLINE);
+-						szBuffer.append(gDLL->getText("TXT_KEY_ATTITUDE_MASTER_OF", kLoopTeam.getName().GetCString()));
+-					}
+-				}
+-			}
+-		}
+-	}
++	// (K-Mod note: vassal information has been moved from here to a new function)
+ 
++	// Attitude breakdown
+ 	for (iPass = 0; iPass < 2; iPass++)
+ 	{
+ 		iAttitudeChange = kPlayer.AI_getCloseBordersAttitude(eTargetPlayer);
+@@ -14238,6 +14214,39 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ }
+ 
+ // K-Mod
++void CvGameTextMgr::getVassalInfoString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer)
++{
++	FAssert(ePlayer != NO_PLAYER);
++
++	const CvTeam& kTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam());
++	//CvTeam& kTargetTeam = GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam());
++
++	for (TeamTypes i = (TeamTypes)0; i < MAX_TEAMS; i=(TeamTypes)(i+1))
++	{
++		const CvTeam& kLoopTeam = GET_TEAM(i);
++		if (kLoopTeam.isAlive())
++		{
++			//if (kTargetTeam.isHasMet(i))
++
++			if (kTeam.isVassal(i))
++			{
++				szBuffer.append(NEWLINE);
++				szBuffer.append(CvWString::format(SETCOLR, TEXT_COLOR("COLOR_LIGHT_GREY")));
++				szBuffer.append(gDLL->getText("TXT_KEY_ATTITUDE_VASSAL_OF", kLoopTeam.getName().GetCString()));
++				setVassalRevoltHelp(szBuffer, i, kTeam.getID());
++				szBuffer.append(ENDCOLR);
++			}
++			else if (kLoopTeam.isVassal(kTeam.getID()))
++			{
++				szBuffer.append(NEWLINE);
++				szBuffer.append(CvWString::format(SETCOLR, TEXT_COLOR("COLOR_LIGHT_GREY")));
++				szBuffer.append(gDLL->getText("TXT_KEY_ATTITUDE_MASTER_OF", kLoopTeam.getName().GetCString()));
++				szBuffer.append(ENDCOLR);
++			}
++		}
++	}
++}
++
+ void CvGameTextMgr::getWarWearinessString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer) const
+ {
+ 	FAssert(ePlayer != NO_PLAYER);
+@@ -15141,6 +15150,7 @@ void CvGameTextMgr::parseLeaderHeadHelp(CvWStringBuffer &szBuffer, PlayerTypes e
+ 
+ 		if (kThisTeam.isHasMet(eOtherTeam)) // K-Mod. Allow the "other relations string" to display even if eOtherPlayer == eThisPlayer. It's useful info.
+ 		{
++			getVassalInfoString(szBuffer, eThisPlayer); // K-Mod
+ 			//getEspionageString(szBuffer, eThisPlayer, eOtherPlayer); // disabled by K-Mod. (The player should not be told exactly how many espionage points everyone has.)
+ 
+ 			if (eOtherPlayer != eThisPlayer)
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 205b3d655..fc11b6d83 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -188,6 +188,7 @@ public:
+ 
+ 	void getWarplanString(CvWStringBuffer& szString, WarPlanTypes eWarPlan);
+ 	DllExport void getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer);
++	void getVassalInfoString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer); // K-Mod
+ 	void getWarWearinessString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer) const; // K-Mod
+ 	DllExport void getEspionageString(CvWStringBuffer& szBuffer, PlayerTypes ePlayer, PlayerTypes eTargetPlayer);
+ 	DllExport void getTradeString(CvWStringBuffer& szBuffer, const TradeData& tradeData, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4259

@@ -1,0 +1,754 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4969
+# Commit: 6e40f0004c3cb06e1a97be5dd927d657aaa9032f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ca1e3bdee85b90881d3458a9dbae891c67590575
+# Title: disabled iAIHandicapIncrementTurns at all difficulties/handicap settings, tech quotes reordering and/or such anyways etc - iAIHandicapIncrementTurns: "<!-- c...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+32	32	Assets/XML/Audio/AudioDefines.xml
+2	2	Assets/XML/Buildings/CIV4BuildingInfos.xml
+67	21	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+4	2	Assets/XML/Technologies/CIV4TechInfos.xml
+60	18	Assets/XML/Text/CIV4GameText_Custom.xml
+0	18	Assets/XML/Text/CIV4GameText_advc.xml
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 3a18549d9..020f916c6 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8411,7 +8411,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_BIOENGINEERING</SoundID>
+-			<Filename>Sounds/Tech/Tech_Priesthood</Filename>
++			<Filename>Sounds/Tech/Tech_Combustion</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8425,7 +8425,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MONARCHY</SoundID>
+-			<Filename>Sounds/Tech/Tech_Monarchy</Filename>
++			<Filename>Sounds/Tech/Tech_Construction</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8453,14 +8453,14 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_FEUDALISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_Feudalism</Filename>
++			<Filename>Sounds/Tech/Tech_DivineRight</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_POSTAXIAL_RELIGION</SoundID>
+-			<Filename>Sounds/Tech/Tech_Theology</Filename>
++			<Filename>Sounds/Tech/Tech_Priesthood</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8474,7 +8474,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_CHIVALRY</SoundID>
+-			<Filename>Sounds/Tech/Tech_Guilds</Filename>
++			<Filename>Sounds/Tech/Tech_Feudalism</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8488,7 +8488,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_LATER_ABRAHAMISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_DivineRight</Filename>
++			<Filename>Sounds/Tech/Tech_Monarchy</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8502,7 +8502,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MILITARY_TRADITION</SoundID>
+-			<Filename>Sounds/Tech/Tech_MilitaryTradition</Filename>
++			<Filename>Sounds/Tech/Tech_MP_MetalCasting</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8726,7 +8726,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_COMBUSTION</SoundID>
+-			<Filename>Sounds/Tech/Tech_Combustion</Filename>
++			<Filename>Sounds/Tech/Tech_Plastics</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8747,7 +8747,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_ECONOMICS</SoundID>
+-			<Filename>Sounds/Tech/Tech_Plastics</Filename>
++			<Filename>Sounds/Tech/Tech_Guilds</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8803,7 +8803,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_SPACE_EXPLORATION</SoundID>
+-			<Filename>Sounds/Tech/Tech_Archery</Filename>
++			<Filename>Sounds/Tech/Tech_Laser</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8838,14 +8838,14 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_METALCAST</SoundID>
+-			<Filename>Sounds/Tech/Tech_MetalCasting</Filename>
++			<Filename>Sounds/Tech/Tech_Steel</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_CONSTRUCTION</SoundID>
+-			<Filename>Sounds/Tech/Tech_Construction</Filename>
++			<Filename>Sounds/Tech/Tech_Military_Science</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8901,14 +8901,14 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_STEAMPOWER</SoundID>
+-			<Filename>Sounds/Tech/Tech_SteamPower</Filename>
++			<Filename>Sounds/Tech/Tech_MilitaryTradition</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MARINE_TECHNOLOGY</SoundID>
+-			<Filename>Sounds/Tech/Tech_Steel</Filename>
++			<Filename>Sounds/Tech/Tech_SteamPower</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9006,14 +9006,14 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_TERRAFORMING</SoundID>
+-			<Filename>Sounds/Tech/Tech_Laser</Filename>
++			<Filename>Sounds/Tech/Tech_Theology</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MILITARY_SCIENCE</SoundID>
+-			<Filename>Sounds/Tech/Tech_Military_Science</Filename>
++			<Filename>Sounds/Tech/Tech_Archery</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9055,7 +9055,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_BIOENGINEERING</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Priesthood</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Combustion</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9069,7 +9069,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_MONARCHY</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Monarchy</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Construction</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9097,14 +9097,14 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_FEUDALISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Feudalism</Filename>
++			<Filename>Sounds/Tech/Tech_MP_DivineRight</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_POSTAXIAL_RELIGION</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Theology</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Priesthood</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9118,7 +9118,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_CHIVALRY</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Guilds</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Feudalism</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9132,7 +9132,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_LATER_ABRAHAMISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_DivineRight</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Monarchy</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9146,7 +9146,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_MILITARY_TRADITION</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_MilitaryTradition</Filename>
++			<Filename>Sounds/Tech/Tech_MetalCasting</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9356,7 +9356,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_COMBUSTION</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Combustion</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Plastics</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9377,7 +9377,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_ECONOMICS</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Plastics</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Guilds</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9447,7 +9447,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_SPACE_EXPLORATION</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Archery</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Laser</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9482,14 +9482,14 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_METALCAST</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_MetalCasting</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Steel</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_CONSTRUCTION</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Construction</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Military_Science</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9545,14 +9545,14 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_STEAMPOWER</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_SteamPower</Filename>
++			<Filename>Sounds/Tech/Tech_MP_MilitaryTradition</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_MARINE_TECHNOLOGY</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Steel</Filename>
++			<Filename>Sounds/Tech/Tech_MP_SteamPower</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9650,14 +9650,14 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_TERRAFORMING</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Laser</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Theology</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_MILITARY_SCIENCE</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Military_Science</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Archery</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 04ef08d15..59693c0fc 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -291,8 +291,8 @@
+ 			<iStateReligionHappiness>0</iStateReligionHappiness>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<!-- custom: barbarians now don't lose/waste a lot of time building uneeded buildings if they ever did, so they can be stronger, but i don't want them as a result to have an unfair advantage, so make them produce units slightly slower; this also includes/accounts for settlers and workers that barbarians don't have to produce or at 1 hammer and similar that take a lot of time as well and that i would want the other players (non-barbarians anyways etc) to have the time and space to build in this case at least i mean but anyways etc so accomodating for that while making barbarians otherwise stronger than in base advciv with a pure military focus if i may say or if i am not mistaken i mean but anyways etc anyways etc anyways etc ; also adjusted considering there are lone barbarians already so barbarian cities don't need to produce too much extra else cnanot be so easily be met especially by AI players if they create settlers or buildings or such in particular, not making barbarians too weak but significantly decreasing their early impact that is already additive to lone barbairans but anyways etc, was 0 -->
+-			<!-- custom: update, since last change, and all enhancements to AI efficiency we added now but anyways etc, AIs produce too much units, and much of them are early defenders or units like ancient macemen, archers, longbowmen, etc if any more but mostly these, that cripple their growth. Some barbarian pressure would be much needed to trim their defenses while offering more challenge as well, now that they have enough units, hopefully they can use them efficiently enough to guard their cities. Their economy should hopefully improve as well due to savings on military unit cost and/or such, plus faster tech pace indirectly too, and so stronger military later in the game as a result if i'm not mistaken but anyways etc, was -40 after our change to nerf barbarians as were too op, not reducing it too much as they still seem quite a bit too strong if i may say but anyways etc otherwise and i still want the game being about civlizations fighting each other not barbarians vs all but hopefully more balanced as such anyways etc -->
+-			<iMilitaryProductionModifier>-30</iMilitaryProductionModifier>
++			<!-- custom: update, since last change, and all enhancements to AI efficiency we added now but anyways etc, AIs produce too much units, and much of them are early defenders or units like ancient macemen, archers, longbowmen, etc if any more but mostly these, that cripple their growth. Some barbarian pressure would be much needed to trim their defenses while offering more challenge as well, now that they have enough units, hopefully they can use them efficiently enough to guard their cities. Their economy should hopefully improve as well due to savings on military unit cost and/or such, plus faster tech pace indirectly too, and so stronger military later in the game as a result if i'm not mistaken but anyways etc, was -40 after our change to nerf barbarians as were too op -->
++			<iMilitaryProductionModifier>-25</iMilitaryProductionModifier>
+ 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 152c95ff7..e56d44669 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -40,6 +40,51 @@ as for the value itself the cost reduction will be seemingly higher the more the
+ So in other words, if i am not mistaken, but anyways etc ( ...), this adjusts for highest difficulties where AIs have massive boosts and tones these down a bit to a softer formula or something or maybe rather a smoother slower game pace from AIs at higher(st) difficulties (but anyways etc ( ...)), at least i am guessing it does this, i could or not be mistaken but anyways etc, what we'll do for advciv-sas is try to make the game more gradual, but also AIs stronger without (it) being a grind but anyways etc, so we'll none ideally or close to none cost reduction, except from natural (if i may say but anyways etc...) or something adjustments as part of cities growing or such, but not sure we'll/'d handled it in such a way or how we'd do (i have an idea but will see how to adjust or reconsider as in recontemplate if i may say but anyways etc how i'd want AIs at higher difficulties relate to human players in terms of challenge (i want it higher) and no grind (i want less grind, competent AI, but ideally and if not possible too i mean but anyways etc, forgot my sentence but anyways etc, in short, but anyways etc or not short indeed but anyways etc..., make difficulties more gradual and AI competitive where it does not have a huge unfair advantage ideally hard or painful to overcome but is consistently stronger more efficient or feels like so without being too ahead in tech or such like wonders or such, will see how handled and if possible ideally or not or yes or etc but that is/would be the goal indeed but not sure or yes or not but in all cases anyways etc...
+ 
+ So for now not changing it, may be adjusted in the future ideally indeed or may not be will see or may, but in all cases anyways etc...
++
++update: it seems to be called in functions like CvPlayer::getProductionNeeded and CvPlayer::trainingModifierFromHandicap and CvTeam::getResearchCost and CvPlayer::getGrowthThreshold
++
++like this for example for the first function i quoted but anyways etc
++
++		int iAIModifier = //h.getAIPerEraModifier() * getCurrentEra()
++				kGame.AIHandicapAdjustment();
++		if(GC.getInfo(eProject).isWorldProject())
++			iAIModifier += h.getAIWorldCreatePercent();
++		else iAIModifier += h.getAICreatePercent();
++		iProductionNeeded *= iAIModifier;
++
++so this would explain why our AIs run away midgame with huge military despite the conservative and gradual handicap settings i tried to implement.
++
++Since this interferes with how i want to balance the game, directly via the handicap modifiers like iAITrainPercent or iAIConstructPercent or such and have a balanced and fair game where AI plays well at all difficulties and gradually harder not exponentially and having a close hard fought game not this shit xd if i'm not mistaken, disabling it if i understood it correctly anyways etc.
++
++I asked chatgpt 5 to be sure and to confirm it as some of it was unclear to me, and indeed i mean thanks to it i see very clearly i should set this to 0 at all difficulties as i want it if i want reliable handicap settings. (Then adjust as i want fields like iAITrainPercent or such anyways etc), but check if accurate anyways etc.
++
++Here is its explanation based on code samples i fed it too (and most of the above explanation as well but anyways etc):
++
++beginning of quote
++"
++- Yes—you’ve read it right. iAIHandicapIncrementTurns adds a linear, time-based discount for AIs that stacks every so many turns (scaled by game speed).
++- To disable it without recompiling, set iAIHandicapIncrementTurns to 0 in CIV4HandicapInfo.xml. Setting it to 100 does not disable it; it just makes the drip very slow.
++"
++end of quote
++
++it also said:
++beginning of quote
++"
++This is a (usually negative) percentage points value that gets added to the various AI Percent fields when costs are computed (train/construct/world variants, research, growth threshold, etc.). With a positive iAIHandicapIncrementTurns, the return value is negative and grows in magnitude over time ⇒ AI costs go down the longer the game runs.
++
++Rule of thumb on Normal speed (getSpeedPercent()==100):
++iAIHandicapIncrementTurns = 100 → about –1% per 100 turns
++
++50 → –2% per 100 turns
++33 → ≈ –3% per 100 turns
++25 → –4% per 100 turns
++20 → –5% per 100 turns
++
++So across 300–400 turns, those add up (e.g., 20 yields roughly –15% to –20% total extra discount by late game). That’s likely a contributor to the midgame AI runaway you’re seeing even with conservative base handicap percents.
++"
++end of quote
++
++And i didn't want to recompile so i asked it as such too if i may say but anyways etc, and it confirmed i mean that i can do 0 rather and no recompile but anyways etc
+ -->
+ <!-- custom: note: iResearchPercent and iAIResearchPercent are now in our mod but anyways etc used as of now to adjust AI building priorities for example as of now for espionage and espionage defense buildings in particular, in the DLL in as of now CvCityAI::AI_buildingValue, if you adjust these here, try to match the changes there, general idea is as of now that at highest difficulties where AI has a tech research advantage, it needs to protect itself against human in particular spy attempts, vs when having research penalties in lowest difficulties, it needs to engage in spying more (at least as for us building such buildings more or/and with a higher priority rather as of now at least but anyways etc) and not care as much about spying defense, see there for details, anyways etc -->
+ <!-- Handicap Infos -->
+@@ -137,9 +182,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there i mean anyways etc -->
+ 			<iAIResearchPercent>124</iAIResearchPercent>
+ 			<!-- was 6x 160 -->
+-			<iAITrainPercent>112</iAITrainPercent>
++			<iAITrainPercent>115</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+-			<iAIConstructPercent>112</iAIConstructPercent>
++			<iAIConstructPercent>115</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+ 			<iAICreatePercent>106</iAICreatePercent>
+ 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
+@@ -263,9 +308,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
+ 			<iAIResearchPercent>116</iAIResearchPercent>
+ 			<!-- was 6x 130 -->
+-			<iAITrainPercent>108</iAITrainPercent>
++			<iAITrainPercent>110</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+-			<iAIConstructPercent>108</iAIConstructPercent>
++			<iAIConstructPercent>110</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+ 			<iAICreatePercent>104</iAICreatePercent>
+ 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
+@@ -388,9 +433,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIGPThresholdPercent>105</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+ 			<iAIResearchPercent>108</iAIResearchPercent>
+-			<iAITrainPercent>104</iAITrainPercent>
++			<iAITrainPercent>105</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+-			<iAIConstructPercent>104</iAIConstructPercent>
++			<iAIConstructPercent>105</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+ 			<iAICreatePercent>102</iAICreatePercent>
+ 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
+@@ -649,9 +694,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+ 			<iAIResearchPercent>92</iAIResearchPercent>
+-			<iAITrainPercent>96</iAITrainPercent>
++			<iAITrainPercent>95</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+-			<iAIConstructPercent>96</iAIConstructPercent>
++			<iAIConstructPercent>95</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+ 			<iAICreatePercent>97</iAICreatePercent>
+ 			<iAIWorldCreatePercent>100</iAIWorldCreatePercent>
+@@ -662,7 +707,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIInflationPercent>95</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>94</iAIWarWearinessPercent>
+ 			<!-- advc.251: Renamed; was 1 per era. -->
+-			<iAIHandicapIncrementTurns>100</iAIHandicapIncrementTurns>
++			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+ 			<!-- advc.250c: was 110 -->
+ 			<iAIAdvancedStartPercent>125</iAIAdvancedStartPercent>
+ 			<!-- advc.148 -->
+@@ -786,11 +831,11 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
+ 			<iAIResearchPercent>84</iAIResearchPercent>
+ 			<!-- was 90 -->
+-			<iAITrainPercent>92</iAITrainPercent>
++			<iAITrainPercent>90</iAITrainPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<!-- was 90 -->
+-			<iAIConstructPercent>92</iAIConstructPercent>
++			<iAIConstructPercent>90</iAIConstructPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+ 			<iAICreatePercent>94</iAICreatePercent>
+@@ -804,7 +849,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIInflationPercent>90</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>88</iAIWarWearinessPercent>
+ 			<!-- advc.251: Renamed; was 2 per era. -->
+-			<iAIHandicapIncrementTurns>50</iAIHandicapIncrementTurns>
++			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+ 			<!-- advc.250c: was 120 -->
+ 			<iAIAdvancedStartPercent>145</iAIAdvancedStartPercent>
+ 			<!-- advc.148 -->
+@@ -922,11 +967,11 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- Higher tech costs for the AI -->
+ 			<iAIResearchPercent>76</iAIResearchPercent>
+ 			<!-- was 85 -->
+-			<iAITrainPercent>88</iAITrainPercent>
++			<iAITrainPercent>85</iAITrainPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<!-- was 85 -->
+-			<iAIConstructPercent>88</iAIConstructPercent>
++			<iAIConstructPercent>85</iAIConstructPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+ 			<iAICreatePercent>91</iAICreatePercent>
+@@ -940,7 +985,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIInflationPercent>85</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>82</iAIWarWearinessPercent>
+ 			<!-- advc.251: Renamed; was 3 per era. -->
+-			<iAIHandicapIncrementTurns>33</iAIHandicapIncrementTurns>
++			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+ 			<!-- advc.250c: was 135 -->
+ 			<iAIAdvancedStartPercent>175</iAIAdvancedStartPercent>
+ 			<!-- advc.148 -->
+@@ -1067,10 +1112,10 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- Higher tech costs for the AI -->
+ 			<iAIResearchPercent>68</iAIResearchPercent>
+ 			<!-- was 80 -->
+-			<iAITrainPercent>84</iAITrainPercent>
++			<iAITrainPercent>80</iAITrainPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+-			<iAIConstructPercent>84</iAIConstructPercent>
++			<iAIConstructPercent>80</iAIConstructPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+ 			<iAICreatePercent>88</iAICreatePercent>
+@@ -1084,7 +1129,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIInflationPercent>80</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>76</iAIWarWearinessPercent>
+ 			<!-- advc.251: Renamed; was 4 per era. -->
+-			<iAIHandicapIncrementTurns>25</iAIHandicapIncrementTurns>
++			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+ 			<!-- advc.250c: was 150 -->
+ 			<iAIAdvancedStartPercent>210</iAIAdvancedStartPercent>
+ 			<!-- advc.148 -->
+@@ -1215,12 +1260,12 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- Higher tech costs for the AI -->
+ 			<iAIResearchPercent>60</iAIResearchPercent>
+ 			<!-- was 60 -->
+-			<iAITrainPercent>80</iAITrainPercent>
++			<iAITrainPercent>75</iAITrainPercent>
+ 			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
+ 			<!-- was 100-->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<!-- was 60 -->
+-			<iAIConstructPercent>80</iAIConstructPercent>
++			<iAIConstructPercent>75</iAIConstructPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+ 			<!-- was 60 -->
+@@ -1236,8 +1281,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIUnitUpgradePercent>50</iAIUnitUpgradePercent>
+ 			<iAIInflationPercent>75</iAIInflationPercent>
+ 			<iAIWarWearinessPercent>70</iAIWarWearinessPercent>
++			<!-- custom: now disabled at all difficulties/handicap settings, as it is unreliable, game breaking, and uneeded, i can adjust iAITrainPercent or/and such other fields for a more even and fair game if needed or harder one as i see fit, and not exponentially harder one. Our AI is efficient with its hammer now so it always runs away at emperor autoplay at least, i suspect due to this or it could be one of the contributing factors, i don't like it anyway so disabled if i may say xd, as confirmed by chatgpt 5, check if accurate, anyways etc; as a side effect, AIs will produce less units, so they'll go bankrupt later or not at all maybe, so will probably help them a lot in the long term if i may say, i hate this kind of very uneeded and sneaky settings added instead of improving the AI rather, but anyways etc -->
+ 			<!-- advc.251: Renamed; was 5 per era. -->
+-			<iAIHandicapIncrementTurns>20</iAIHandicapIncrementTurns>
++			<iAIHandicapIncrementTurns>0</iAIHandicapIncrementTurns>
+ 			<!-- advc.250c: was 170 -->
+ 			<iAIAdvancedStartPercent>270</iAIAdvancedStartPercent>
+ 			<!-- advc.148 -->
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 23e992fab..de8624f3b 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -226,7 +226,8 @@
+ 			<!--custom: todo:<iCost>10000</iCost>-->
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<Era>ERA_FUTURE</Era>
++			<Era>ERA_ANCIENT</Era>
++			<!--custom: todo:<Era>ERA_FUTURE</Era>-->
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+@@ -4612,7 +4613,8 @@
+ 			<!--custom: todo:<iCost>10000</iCost>-->
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<Era>ERA_FUTURE</Era>
++			<Era>ERA_ANCIENT</Era>
++			<!--custom: todo:<Era>ERA_FUTURE</Era>-->
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index 3f3997ad3..b766aefd1 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -264,15 +264,16 @@
+ 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Tag>
+ 		<English>"If you speak the truth, have a foot in the stirrup." - Turkish proverb</English>
+ 	</TEXT>
+-	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION" -->
++	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION"; update: with the quote of tech_priesthood (now removed) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION_QUOTE</Tag>
+-		<English>"Two cities have been formed by two loves: the earthly by the love of self; the heavenly by the love of God." - St. Augustine</English>
++		<English>"The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers</English>
+ 	</TEXT>
+-	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM" -->
++	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM"; update: now using the quote of tech_monarchy anyways etc -->
++	<!-- Not originally by Herodotus -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Tag>
+-		<English>"I am the state." - ascribed to Louis XIV</English>
++		<English>"A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad</English>
+ 	</TEXT>
+ 	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted anyways etc -->
+ 	<TEXT>
+@@ -299,10 +300,11 @@
+ 		<Tag>TXT_KEY_TECH_NATURALISM_QUOTE</Tag>
+ 		<English>"I do not feel obliged to believe that the same God who has endowed us with sense, reason, and intellect has intended us to forgo their use." - Galileo Galilei</English>
+ 	</TEXT>
+-	<!-- custom: rename TECH_STEEL to TECH_MARINE_TECHNOLOGY anyways etc -->
++	<!-- custom: rename TECH_STEEL to TECH_MARINE_TECHNOLOGY anyways etc; update: with the quote of tech_steam_power -->
++	<!-- "anecdote" should make clear enough that it might be fictional -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_MARINE_TECHNOLOGY_QUOTE</Tag>
+-		<English>"Before that steam drill shall beat me down, I'll die with my hammer in my hand." - from "John Henry, the Steel-Driving Man"</English>
++		<English>"You would make a ship sail against the winds and currents by lighting a bon-fire under her deck? I have no time for such nonsense." - Napoleon, on Robert Fulton's Steamship (anecdote)</English>
+ 	</TEXT>
+ 	<!-- custom: replace TECH_PAPER with TECH_THEORY_OF_EVOLUTION, also use the base advciv +/- civ4's TECH_BIOLOGY's quote and audio if i am not mistaken anyways etc -->
+ 	<TEXT>
+@@ -319,10 +321,10 @@
+ 		<Tag>TXT_KEY_TECH_GAME_THEORY_QUOTE</Tag>
+ 		<English>"I fooled you, I fooled you, I got pig iron, I got pig iron, I got all pig iron." - Lonnie Donegan, "Rock Island Line"</English>
+ 	</TEXT>
+-	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such anyways etc, also use the base advciv +/- civ4's TECH_LASER's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
++	<!-- custom: replace laser in "TECH_LASER" and "MP_LASER" with "_TERRAFORMING" and such anyways etc, also use the base advciv +/- civ4's TECH_LASER's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc; update: with the quote of tech_theology (now removed) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_TERRAFORMING_QUOTE</Tag>
+-		<English>"Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws." - Douglas Adams</English>
++		<English>"Two cities have been formed by two loves: the earthly by the love of self; the heavenly by the love of God." - St. Augustine</English>
+ 	</TEXT>
+ 	<!-- custom: replace future_tech in "TECH_FUTURE" and "MP_FUTURE" with "_TRANSHUMANISM" and such anyways etc, also use the base advciv +/- civ4's future_tech's quote adjusted or not for advciv-sas but anyways etc and audio if i am not mistaken anyways etc -->
+ 	<TEXT>
+@@ -349,35 +351,75 @@
+ 		<Tag>TXT_KEY_TECH_ALIEN_LIFE_QUOTE</Tag>
+ 		<English>"Behind a veil, unseen yet present, I was the forceful soul that moved this mighty body." - Jean Racine</English>
+ 	</TEXT>
+-	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least but anyways etc ; also replace tech_plastics with tech_depopulation anyways etc -->
+-	<TEXT> <!-- redefine -->
++	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least but anyways etc; also replace tech_plastics with tech_depopulation anyways etc -->
++	<TEXT>
+ 		<Tag>TXT_KEY_TECH_DEPOPULATION_QUOTE</Tag>
+ 		<English>"Compound interest is the most powerful force in the universe." - ascribed to Albert Einstein</English>
+ 	</TEXT>
+-	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least but anyways etc -->
+-	<TEXT> <!-- redefine -->
++	<!-- custom: give tech_economics quote to the now removed tech_plastics, and vice-versa if i may say too in this case at least but anyways etc; update: with the quote of tech_guilds (now removed) -->
++	<TEXT>
+ 		<Tag>TXT_KEY_TECH_ECONOMICS_QUOTE</Tag>
+-		<English>"I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate</English>
++		<English>"People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_WATER_WHEEL_QUOTE</Tag>
+ 		<English>"Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha</English>
+ 	</TEXT>
+-	<!-- custom: replace "_GUILDS" with "_CHIVALRY" -->
++	<!-- custom: replace "_GUILDS" with "_CHIVALRY"; update: with the quote of tech_feudalism -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_CHIVALRY_QUOTE</Tag>
+-		<English>"People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith</English>
++		<English>"I will to my lord be true and faithful, and love all which he loves and shun all which he shuns." - Anglo Saxon Oath of Fealty</English>
+ 	</TEXT>
+-	<!-- custom: replace "_PRIESTHOOD" with "_BIOENGINEERING" -->
++	<!-- custom: replace "_PRIESTHOOD" with "_BIOENGINEERING"; update: with the quote of tech_combustion -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_BIOENGINEERING_QUOTE</Tag>
+-		<English>"The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers</English>
++		<English>"Everything in life is somewhere else, and you get there in a car." - E. B. White</English>
+ 	</TEXT>
+-	<!-- custom: replace "_ARCHERY" with "_SPACE_EXPLORATION" -->
++	<!-- custom: replace "_ARCHERY" with "_SPACE_EXPLORATION"; update: with the quote of tech_laser (now removed) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Tag>
++		<English>"Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws." - Douglas Adams</English>
++	</TEXT>
++	<!-- custom: now using the quote of tech_plastics (now removed) anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_COMBUSTION_QUOTE</Tag>
++		<English>"I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate</English>
++	</TEXT>
++	<!-- custom: now using the quote of tech_divine_right (now removed) anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_FEUDALISM_QUOTE</Tag>
++		<English>"I am the state." - ascribed to Louis XIV</English>
++	</TEXT>
++	<!-- custom: now using the quote of tech_construction anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_MONARCHY_QUOTE</Tag>
++		<English>"And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley</English>
++	</TEXT>
++	<!-- custom: now using the quote of tech_steel (now removed) anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_METAL_CASTING_QUOTE</Tag>
++		<English>"Before that steam drill shall beat me down, I'll die with my hammer in my hand." - from "John Henry, the Steel-Driving Man"</English>
++	</TEXT>
++	<!-- custom: now using the quote of tech_metal_casting anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_MILITARY_TRADITION_QUOTE</Tag>
++		<English>"And them that take the sword shall perish by the sword." - The Bible, Matthew</English>
++	</TEXT>
++	<!-- custom: now using the quote of tech_archery (now removed) anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_MILITARY_SCIENCE_QUOTE</Tag>
+ 		<English>"Do not throw the arrow which will return against you." - Kurdish Proverb</English>
+ 	</TEXT>
++	<!-- custom: now using the quote of tech_military_science anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_CONSTRUCTION_QUOTE</Tag>
++		<English>"I must study politics and war that my sons may have liberty to study mathematics and philosophy." - John Adams</English>
++	</TEXT>
++	<!-- custom: now using the quote of tech_military_tradition anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_STEAM_POWER_QUOTE</Tag>
++		<English>"Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win." - Sun-Tzu</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index bb4d12726..c880412c1 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3060,24 +3060,6 @@
+ 		<Italian>"Mettiti al lavoro di buona lena." - Esopo</Italian>
+ 		<Spanish>"Arrima el hombro a la rueda." - Esopo</Spanish>
+ 	</TEXT>
+-	<!-- Not originally by Herodotus -->
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_TECH_MONARCHY_QUOTE</Tag>
+-		<English>"A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad</English>
+-		<French>"Abondance de souverains nuit ! Il ne peut y en avoir qu'un, un seul Roi !" - H&#233;rodote</French>
+-		<German>"Zu viele Herrscher sind nicht gut. M&#246;ge ein Herrscher als K&#246;nig regieren!" - Homer, die Ilias</German>
+-		<Italian>"Non servono molti sovrani. Che il comando sia di un uomo solo, che sia proclamato un re." - Erodoto</Italian>
+-		<Spanish>"No es bueno el caudillaje de muchos; sea uno solo el caudillo, uno solo el rey." - Herodoto</Spanish>
+-	</TEXT>
+-	<!-- "anecdote" should make clear enough that it might be fictional -->
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_TECH_STEAM_POWER_QUOTE</Tag>
+-		<English>"You would make a ship sail against the winds and currents by lighting a bon-fire under her deck? I have no time for such nonsense." - Napoleon, on Robert Fulton's Steamship (anecdote)</English>
+-		<French>"Vous feriez avancer un navire contre vents et courants en allumant un brasier sous le pont ? Je n'ai pas de temps &#224; perdre avec de telles inepties." - Napol&#233;on parlant du bateau &#224; vapeur de Robert Fulton</French>
+-		<German>"Was veranlasst Sie zu der Annahme, dass ein Schiff gegen den Wind und gegen die Str&#246;mung segeln k&#246;nnte, wenn man nur ein Feuer unter Deck anz&#252;nde? Ich habe keine Zeit, mir so einen Unsinn anzuh&#246;ren." - Napoleon &#252;ber Robert Fultons Dampfschiff (Anekdote)</German>
+-		<Italian>"Quindi per far andare una nave controvento dovresti accendere un fuoco nella stiva? Non ho tempo per queste idiozie." - Napoleone a proposito della nave a vapore di Robert Fulton</Italian>
+-		<Spanish>"-&#191;Usted har&#237;a barcos que navegaran contra las corrientes y los vientos con solo encender una caldera bajo la cubierta? &#173;Disc&#250;lpeme, no tengo tiempo para escuchar tonter&#237;as." - Napole&#243;n, hablando del barco a vapor de Robert Fulton</Spanish>
+-	</TEXT>
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_TECH_NATIONALISM_QUOTE</Tag>
+ 		<English>"A man does not have himself killed for a half-pence a day or for a petty distinction. You must speak to the soul in order to electrify him." - ascribed to Napoleon Bonaparte</English>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 4f5c83f3f..aa8d512e6 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -217,6 +217,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - `Goodies` barbarians weak and strong: rebalanced barbarian goodies as well at higher difficulties, so we have more weak ones and less strong ones. I feel this is not where the difficulty/tediousness should be, plus barbarians are stronger in our mod anyway and will spawn more regardless, so no need to make it harder here and annoying/painful so early in the game, but anyways etc.
+ - `Goodies` experience: increase GOODY_EXPERIENCE at higher difficulties so it matches the other difficulty having more of them the harder they are, and no reason not to but anyways etc.
+ - Reduced some handicap settings to accomodate for recent AI improvements in our mod. In particular, as for `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`, they are now the same accross all difficulties/handicap settings. This is possible thanks to recent AI improvements in workers, building choices, scrapping issues, better unit choices, etc, see related changes for more info on those. Hopefully thanks to this the game should feel even or more even, with the AI playing competitively or more competitively ideally (else AI would start to be a bit too strong now if i'm not mistaken but anyways etc), anyways etc.
++- Disabled entirely `iAIHandicapIncrementTurns`, which would give per turn discounts to AI, making the game gradually harder as the game went on if i understood it correctly with chatgpt 5 too. This was especially aggressive at highest difficulties, and now that our AI is efficient with its hammer usage or more so at least but anyways etc, it would always run away being unbeatable even in emperor autoplay i assume/guess thanks to all the AI enhancements to hammer usage we made. I hope to provide a fair and challenging, winnable challenge not this mess, so disabled it entirely (set to 0 as of now as was in lower difficulties anyways etc). This means the handicap settings like unit hammer to produce reduction, or buildings, or research, etc if any more anyways etc, that were all affected by this, now are rather only influenced by the corresponding handicap xml fields rather (such as `iAITrainPercent` for unit hammer to produce for example anyways etc). I have adjusted these xml fields so game is hard but not in an exponential per turn, gradually impossible to overcome way and perhaps painful but anyways etc, but instead linear per handicap setting that are fair and hard as much as possible rather, to accomodate for this change too. We rely on our AI competency and efficiency improvements rather to provide the needed challenge i want in advciv-sas rather but anyways etc. I also believe it will help AI longterm, as by producing less untis since thye produce so much, they won't go bankrupt too soon if at all, which should help their economy long-term, especially to go from middle game to endgame, which would otherwise become way too warlike xd and lose the early tension of a close game now not possible to match for the human player due to AI just producing too much more units, hopefully more balanced, fun, and harder than base advciv in a fair way now instead, at least i tried to, but anwyays etc.
+ 
+ ### Specialists (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 26a152efd..528972ec6 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -147,6 +147,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ - **AI starting workers**: `iAIStartingWorkerUnits` **0** on all difficulties.
+ - **Goodies (huts)**: remove **worker/settler** pops; rebalance barbarian outcomes (fewer strong, more weak at high difficulties); increase **experience** rewards at higher difficulties.
+ - **Handicap normalization (starting units)**: Reduced/standardized several handicap fields so they’re **the same at all difficulties**: `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`. This reflects recent AI improvements (workers, building choices, scrapping rules, unit mix) and aims to keep games fair while the AI remains competitive. See [Handicap tables](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info).
++- **Difficulty scaling — `iAIHandicapIncrementTurns`**: **disabled (set to 0 on all difficulties)**. This removes the **per-turn** AI discount that made games progressively harder; with SAS’s improved hammer efficiency, that scaling led to runaway AIs at high levels. Now AI cost/research **modifiers** come **only** from the static **difficulty (handicap) XML fields** (e.g., `iAITrainPercent`, `iAIBuildingCostPercent`, `iAIResearchPercent`, …), which have been **retuned to be linear by difficulty (not per-turn)**—hard but fair. Practical effects: fewer excess units and lower bankruptcy risk, healthier mid→late-game economies, and challenge that relies on AI competency gains rather than exponential scaling.
+ 
+ ### Specialists (non-exhaustive)
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=47965

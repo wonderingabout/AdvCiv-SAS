@@ -1,0 +1,854 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5785
+# Commit: 6e6bca43e404ae93a3afbbf9c497d1a805d4de3f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7d2431155e7d4759a2f0a90300efed964c3d9130
+# Title: (Perf) Cache getDefineINT/getDefineSTRING calls with init-None pattern across main interface, advisors, tech chooser, end screen, and Sevopedia
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	13	.claude/settings.local.json
+3	4	AGENTS.md
+1	1	Assets/Python/BUG/BugEventManager.py
+6	1	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+3	4	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+6	1	Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+6	1	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+10	2	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+46	24	Assets/Python/CvAdvisorUtils.py
+1	1	Assets/Python/SASBattleHistory.py
+5	1	Assets/Python/Screens/CvDanQuayle.py
+10	3	Assets/Python/Screens/CvDomesticAdvisor.py
+10	3	Assets/Python/Screens/CvForeignAdvisor.py
+38	11	Assets/Python/Screens/CvMainInterface.py
+5	1	Assets/Python/Screens/CvTechChooser.py
+8	2	Assets/Python/Screens/CvWorldAdvisorScreen.py
+
+[PATCHES]
+
+diff --git a/.claude/settings.local.json b/.claude/settings.local.json
+index 5e5e243aa..938c3b00a 100644
+--- a/.claude/settings.local.json
++++ b/.claude/settings.local.json
+@@ -2,21 +2,26 @@
+   "permissions": {
+     "allow": [
+       "Grep(*)",
+-      "Bash(cat:*)",
+-      "Bash(grep:*)",
+-      "Bash(for:*)",
+-      "Bash(done)",
+-      "Bash(sort:*)",
+-      "Bash(xargs sed:*)",
+-      "Bash(python -m py_compile:*)",
++      "Bash(grep *)",
++      "Bash(grep)",
++      "Bash(ls *)",
++      "Bash(ls)",
++      "Bash(awk *)",
++      "Bash(for *)",
++      "Bash(sort *)",
++      "Bash(find *)",
++      "Bash(find)",
++      "Bash(xargs sed *)",
++      "Bash(python -m py_compile *)",
++      "Bash(dir *)",
++      "Bash(git diff *)",
++      "Bash(git log *)",
++      "Bash(git status *)",
++      "Bash(git show *)",
++      "Bash(git branch *)",
+       "Read(//c/Program Files \\(x86\\)/Steam/steamapps/common/Sid Meier's Civilization IV/**)",
+       "Read(//c/Users/PC/Documents/My Games/beyond the sword/**)",
+-      "Bash(find:*)",
+-      "WebFetch(domain:forums.civfanatics.com)",
+-      "Bash(dir:*)",
+-      "Bash(git diff:*)",
+-      "Bash(git log:*)",
+-      "Bash(git status:*)"
++      "WebFetch(domain:forums.civfanatics.com)"
+     ]
+   }
+ }
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 1337e3c05..87f653823 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -157,8 +157,9 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
+ - Try to make one liner code whenever possible, for example a line like `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)` is much easier to scan or grep through/compare throughout our codebase than a multi-line mostly needlessly stylized version of it. As such a refactor would be extensive, do it as we go rather than all in one-go. See also a LLM-helper to perform that refactor for py files in [collapse_multiline_brackets.py](/LLM_Helpers/collapse_multiline_brackets.py).
+ - Note that an exception to the former is for very long or uniform listings such as as of now in `self.SAS_CATEGORY_DEFS` or `getMusicList` (in SevoPediaMain.py): a multiline statement seems preferable and more readable for these. Adjust as you see fit.
+-- When doing performance optimizations, checking quotes only on one side is handy to spot all string lookups we could potentially cache. E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")`.
++- When doing performance optimizations, checking quotes (i.e. `"`) only on one side is handy to spot all string lookups we could potentially cache. E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")`. Or appending `.` or `)` or ` ` or `,`, or ` `, etc., to what we want to simplify. E.g., `GET_TEAM(getTeam()).` or `GET_TEAM(getTeam()))`, or `GET_TEAM(getTeam()) `, or `GET_TEAM(getTeam()),`, etc. Basically any charcter other than `;`, for example `GET_TEAM(getTeam());`, most likely indicates this is not a cached variable and so most likely an optimize candidate.
+ - When doing performance optimizations, using local variables only is enough and best if we don't use this variable elsewhere. E.g. `eYellow = gc.getInfoTypeForString("COLOR_YELLOW")` at init in SevoPediaMain.py.
++- In some rare cases, it is better not to cache rather than cache, because we will not read the define again, so caching is costlier and needless. For example, `start_year = gc.getDefineINT("START_YEAR")` when `start_year` is only used once to build a (sevopedia game speed) chart that we cache and then the variable is discarded. Mark these with a comment like `not cached: read once only`.
+ - Use specific asset names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.
+ - Avoid fluff like `================`, keep it nice and simple and clean.
+ - Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
+@@ -177,6 +178,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - For Civ4 Python UI labels that pass through font-tagged/markup renderers (`screen.setText`, `screen.setLabel`, `SASTextScale.labelText`, etc.), keep raw text in state and escape only the display string: `szDisplay = szRaw.replace(u"&", u"&amp;").replace(u"<", u"&lt;").replace(u">", u"&gt;")`. This preserves clicked or keyboard-typed raw characters for logic/search while rendering them safely. Raw `&`, `<`, and `>` are XML/markup-sensitive and would normally break XML, so they are rarely useful for ordinary XML text-key search; this rule is mainly for Python UI rendering of dynamic/user-entered text. In the Sevopedia search bar, raw `<`/`>` corrupted the label with `/font`-like fragments, and raw `&` could be invisible and make following characters unclear.
+ - In fragile Civ4 Python, wrap risky calls in try/except and trust UI state when engine state can drift.
+ - When adding guidance, include at least one simple code example so other agents can copy the pattern.
++- When caching defines or XML variables, we need to init to `None` and cache explictly later when the variable is used or somewhere at call time. This is because empirically aggressive initialization at init is fragile and can cause crashes. For helper files, we use the `global` and if `None` pattern. Since this new pattern is a recent addition, we are not changing them all right now but rather as we go or implement new stuff. See [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior).
+ - It seems definebool does not exist in python, so use boolean comparison on int rather; e.g., `IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)`. Does not apply to C++ though that has defineBOOL.
+ - Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
+ - Prefer `getInfoTypeOrFail("TAG")` (from `SASUtils`) over raw `gc.getInfoTypeForString("TAG")` whenever possible so bad XML tags fail loudly and early; this helped catch incorrect direction-string usage in Planet Generator map (e.g., incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` failing instead of `DirectionTypes.DIRECTION_NORTH*` enum constants; or incorrect `getInfoTypeOrFail("PLOT_PEAK")` instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map)).
+@@ -204,9 +206,6 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - When changing attack logic, account for special unit roles (bombard/collateral) and UWAI expectations.
+ - Prefer low-level entry points (e.g., `canScrap`, `canUpgrade`, `AI_chooseUnit` or equivalent) to avoid edge cases from higher-level callers; keep logic close to core decisions. Example: for attack order changes, hook `groupAttack`/`AI_getBestGroupAttacker` rather than odds-estimation helpers, so other functions or pieces of logic don't overlap with or override our code.
+ - When doing performance optimizations, such as caching to `CvTeamAI const& kTeam = GET_TEAM(getTeam());` redundant definitions in a function, reuse existing variable names unless not relevant for our needs. It is fine if some functions have `kTeam` while others have `kOurTeam` in the same file, what matters is same function is consistent when using the same variable. This avoids errors too. Same reasoning with `kPlayer` and `kOwner`, etc.
+-- When doing performance optimizations, a good trick that may help find many entries fairly cheaply is to append `.` or `)` or ` ` or `,`, etc., to what we want to simplify. For example `GET_TEAM(getTeam()).` or `GET_TEAM(getTeam()))`, or `GET_TEAM(getTeam()) `, or `GET_TEAM(getTeam()),`, etc. Basically any charcter other than `;`, for example `GET_TEAM(getTeam());`, most likely indicates this is not a cached variable and so most likely an optimize candidate.
+-- When doing performance optimizations, also optimize commented-out code for exhaustiveness.
+-- When doing performance optimizations, if there are returns and they don't use our cached variable, cache after them.
+ - Use `static const` for our defines whenever possible and relevant for computational efficiency (value is always the same, quick check it rather). Example `static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");`.
+ 
+ ### Docs
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index bba57feed..bd7601bcd 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -566,7 +566,7 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 		BugUtil.debug("%s %s captured as %s by %s",
+ 				gc.getPlayer(eOwner).getName(), gc.getUnitInfo(eUnitType).getDescription(),
+ 				pNewUnit.getName(), gc.getPlayer(pNewUnit.getOwner()).getName())
+-		# <!-- custom: Fix Military Advisor capture columns staying blank: BugEventManager shadows CvEventManager.onUnitCaptured, so CvEventManager.__init__ binds the unitCaptured event to this override on the live BUG manager. Record SAS battle-history capture data here rather than only in the parent handler. Credit: Claude Code Opus 4.7 investigation. (GPT-5.5) -->
++		# <!-- custom: Fix Military Advisor capture columns staying blank: BugEventManager shadows CvEventManager.onUnitCaptured, so CvEventManager.__init__ binds the unitCaptured event to this override on the live BUG manager. Record SAS battle-history capture data here rather than only in the parent handler. Credit: Claude code Opus 4.7 investigation. (GPT-5.5) -->
+ 		SASBattleHistory.recordUnitCaptured(eOwner, eUnitType, pNewUnit)
+ 	
+ 	def onCombatWithdrawal(self, argsList):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index be46ae27e..116fd5e59 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -137,6 +137,9 @@ class SevoPediaBuilding:
+ 		self.W_HISTORY = self.W_BUILDING_ANIMATION
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
++		# <!-- custom: cached vanilla define for cost display in stats panel. (Claude code Sonnet 4.6) -->
++		self.iBUILDING_PRODUCTION_PERCENT = None
++
+ 
+ 
+ 	def interfaceScreen(self, iBuilding):
+@@ -228,7 +231,9 @@ class SevoPediaBuilding:
+ 
+ 		# <!-- custom: 1: Cost -->
+ 		if buildingInfo.getProductionCost() > 0:
+-			buildingCost = (buildingInfo.getProductionCost() * gc.getDefineINT("BUILDING_PRODUCTION_PERCENT"))/100
++			if self.iBUILDING_PRODUCTION_PERCENT is None:
++				self.iBUILDING_PRODUCTION_PERCENT = gc.getDefineINT("BUILDING_PRODUCTION_PERCENT")
++			buildingCost = (buildingInfo.getProductionCost() * self.iBUILDING_PRODUCTION_PERCENT)/100
+ 			if self.top.iActivePlayer != -1:
+ 				buildingCost = gc.getPlayer(self.top.iActivePlayer).getBuildingProductionNeeded(self.iBuilding)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+index 173415e8b..590382054 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+@@ -323,7 +323,7 @@ class SevoPediaGameSpeedChart:
+ 			parsed_data[speed_type] = speed_dict
+ 
+ 		# Derived summary rows: NumTurnIncrements / TotalTurns; plus Calendar rows (Calendar_01 .. Calendar_NN).
+-		start_year = gc.getDefineINT("START_YEAR")
++		start_year = gc.getDefineINT("START_YEAR")  # not cached: read once only
+ 		max_increments = 0
+ 		total_turns_by_speed = {}
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+index ff288550c..21622a277 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+@@ -270,7 +270,7 @@ class SevoPediaHandicapChart:
+ 					goody_types.append(gt)
+ 		goody_groups = tuple(goody_groups_list)
+ 
+-		anchor_field = gc.getDefineSTRING("SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD")
++		anchor_field = gc.getDefineSTRING("SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD")  # not cached: read once only (table is cached via _cachedTable)
+ 		if not anchor_field:
+ 			raise ValueError("[FATAL] Missing SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD define.")
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 8a1c6d34a..2e8f9a000 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -1645,8 +1645,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		#gc.getInfoTypeForString("CIVILIZATION_MINOR")
+ 		r = []
+ 		for descr,i in civList:
+-			# <!-- custom: reveal minor nation, i want all information available in the sevopedia. May also be useful for other
+-			# mods. -->
++			# <!-- custom: reveal minor nation, i want all information available in the sevopedia. This information may be useful. -->
+ 			#info = gc.getCivilizationInfo(i)
+ 			#if not info.isPlayable():
+ 			#	iCapitalBuildingClass = gc.getDefineINT("CAPITAL_BUILDINGCLASS")
+@@ -1665,11 +1664,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.list = self.getLeaderList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, gc.getLeaderHeadInfo)
+ 
+-		# <!-- custom: prebuild the sevopedia leader cache only when=after we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think. After asking chatgpt, it advised me to do this here; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe -->
++		# <!-- custom: prebuild the sevopedia leader cache only after we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is needlessly expensive. After asking chatgpt, it advised me to do this here; note: place it after the list is computed so it doesn't appear to hang before user click on an item. Update: no longer relevant now that we render the first item right away (no blank item page anymore), but kept as such because works fine as such as well -->
+ 		if self.IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE and (not self.IS_SEVOPEDIALEADER_CACHE_PREBUILT):
+ 			# <!-- custom: when AI personality is disabled by define, skip cache precompute entirely to avoid needless work. (GPT-5.3-Codex) -->
+ 			SevoPediaLeader.LEADERS_INFO_CACHED = SevoPediaLeader.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
+-			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case), but still before any leader is selected  -->
++			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case), but still before any leader is selected -->
+ 			self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = True
+ 			print("Sevopedia Leader cache prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_SEVOPEDIALEADER_CACHE_PREBUILT=%s)." % str(self.IS_SEVOPEDIALEADER_CACHE_PREBUILT))
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+index 6cc4921d1..e9e0970fd 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+@@ -71,6 +71,9 @@ class SevoPediaProject:
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_PROJECT_PANE
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
++		# <!-- custom: cached vanilla define for cost display in stats panel. (Claude code Sonnet 4.6) -->
++		self.iPROJECT_PRODUCTION_PERCENT = None
++
+ 
+ 
+ 	def interfaceScreen(self, iProject):
+@@ -122,7 +125,9 @@ class SevoPediaProject:
+ 		if (projectInfo.getProductionCost() > 0):
+ 			# <!-- custom: simplify textual info for hammer yield to minimum, remove the "COST:" ugly part -->
+ 			if self.top.iActivePlayer == -1:
+-				szCost = (projectInfo.getProductionCost() * gc.getDefineINT("PROJECT_PRODUCTION_PERCENT")) / 100
++				if self.iPROJECT_PRODUCTION_PERCENT is None:
++					self.iPROJECT_PRODUCTION_PERCENT = gc.getDefineINT("PROJECT_PRODUCTION_PERCENT")
++				szCost = (projectInfo.getProductionCost() * self.iPROJECT_PRODUCTION_PERCENT) / 100
+ 			else:
+ 				szCost = gc.getActivePlayer().getProjectProductionNeeded(self.iProject)
+ 			szTextHammerYield = u"%c %d" % (gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), szCost)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 5411aa9b6..22dbc344e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -301,6 +301,9 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+ 		self.H_HISTORY = self.H_SPECIAL
+ 
++		# <!-- custom: cached terrain define for trade-route icon selection. (Claude code Sonnet 4.6) -->
++		self.iDEEP_WATER_TERRAIN = None
++
+ 
+ 
+ 	def interfaceScreen(self, iTech):
+@@ -811,10 +814,12 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 				bButtonFound = True
+ 
+ 		# Terrain trade routes (coastal/ocean trade)
++		if self.iDEEP_WATER_TERRAIN is None:
++			self.iDEEP_WATER_TERRAIN = gc.getDefineINT("DEEP_WATER_TERRAIN")
+ 		for iTerrain in range(gc.getNumTerrainInfos()):
+ 			if techInfo.isTerrainTrade(iTerrain):
+ 				szArtInfoType = "INTERFACE_TECH_WATERTRADE"
+-				if iTerrain == gc.getDefineINT("DEEP_WATER_TERRAIN"):
++				if iTerrain == self.iDEEP_WATER_TERRAIN:
+ 					szArtInfoType = "INTERFACE_TECH_DEEPWATERTRADE"
+ 				screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo(szArtInfoType).getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_TERRAIN_TRADE, self.iTech, iTerrain, False)
+ 				bButtonFound = True
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 2eec6e516..4df327b30 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -178,6 +178,10 @@ class SevoPediaUnit:
+ 		self.W_HISTORY = self.W_UNIT_ANIMATION
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
++		# <!-- custom: cached vanilla defines used in stats and prereqs drawing methods. (Claude code Sonnet 4.6) -->
++		self.iUNIT_PRODUCTION_PERCENT = None
++		self.iNUM_UNIT_AND_TECH_PREREQS = None
++
+ 
+ 
+ 	def interfaceScreen(self, iUnit):
+@@ -320,7 +324,9 @@ class SevoPediaUnit:
+ 			szRangeText = u"R    " + szRange
+ 			screen.appendListBoxStringNoUpdate(panelName, SASTextScale.titleText(szRangeText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 		if (gc.getUnitInfo(self.iUnit).getProductionCost() >= 0 and not gc.getUnitInfo(self.iUnit).isFound()):
+-			unitCost = (gc.getUnitInfo(self.iUnit).getProductionCost() * gc.getDefineINT("UNIT_PRODUCTION_PERCENT"))/100
++			if self.iUNIT_PRODUCTION_PERCENT is None:
++				self.iUNIT_PRODUCTION_PERCENT = gc.getDefineINT("UNIT_PRODUCTION_PERCENT")
++			unitCost = (gc.getUnitInfo(self.iUnit).getProductionCost() * self.iUNIT_PRODUCTION_PERCENT)/100
+ 			if self.top.iActivePlayer != -1:
+ 				unitCost = gc.getActivePlayer().getUnitProductionNeeded(self.iUnit)
+ 
+@@ -342,7 +348,9 @@ class SevoPediaUnit:
+ 		if iPrereq >= 0:
+ 			screen.attachImageButton(panelName, "", gc.getTechInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereq, 1, False)
+ 			isButtonFound = True
+-		for j in range(gc.getDefineINT("NUM_UNIT_AND_TECH_PREREQS")):
++		if self.iNUM_UNIT_AND_TECH_PREREQS is None:
++			self.iNUM_UNIT_AND_TECH_PREREQS = gc.getDefineINT("NUM_UNIT_AND_TECH_PREREQS")
++		for j in range(self.iNUM_UNIT_AND_TECH_PREREQS):
+ 			iPrereq = gc.getUnitInfo(self.iUnit).getPrereqAndTechs(j)
+ 			if iPrereq >= 0:
+ 				screen.attachImageButton(panelName, "", gc.getTechInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereq, -1, False)
+
+diff --git a/Assets/Python/CvAdvisorUtils.py b/Assets/Python/CvAdvisorUtils.py
+index fbb7bce65..8baac64c5 100644
+--- a/Assets/Python/CvAdvisorUtils.py
++++ b/Assets/Python/CvAdvisorUtils.py
+@@ -16,6 +16,28 @@ PyPlayer = PyHelpers.PyPlayer
+ g_iAdvisorNags = 0
+ g_listNoLiberateCities = []
+ 
++# <!-- custom: lazy define caches; avoids repeated getDefineINT calls across many feat-popup conditions. (Claude code Sonnet 4.6) -->
++_iStartYear = None
++def _startYear():
++	global _iStartYear
++	if _iStartYear is None:
++		_iStartYear = gc.getDefineINT("START_YEAR")
++	return _iStartYear
++
++_iNumBuildingAndTechPrereqs = None
++def _numBuildingAndTechPrereqs():
++	global _iNumBuildingAndTechPrereqs
++	if _iNumBuildingAndTechPrereqs is None:
++		_iNumBuildingAndTechPrereqs = gc.getDefineINT("NUM_BUILDING_AND_TECH_PREREQS")
++	return _iNumBuildingAndTechPrereqs
++
++_iNumCorporationPrereqBonuses = None
++def _numCorporationPrereqBonuses():
++	global _iNumCorporationPrereqBonuses
++	if _iNumCorporationPrereqBonuses is None:
++		_iNumCorporationPrereqBonuses = gc.getDefineINT("NUM_CORPORATION_PREREQ_BONUSES")
++	return _iNumCorporationPrereqBonuses
++
+ 
+ def resetAdvisorNags():
+ 	global g_iAdvisorNags
+@@ -69,7 +91,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_SHORT)
+@@ -87,7 +109,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARCHER_BOW_LONG)
+@@ -105,7 +127,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARCHER_CROSSBOW)
+@@ -123,7 +145,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_MELEE, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_MELEE)
+@@ -141,7 +163,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_RANGED, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MOUNTED_RANGED)
+@@ -159,7 +181,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM)
+@@ -177,7 +199,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK)
+@@ -195,7 +217,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_SIEGE, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_SIEGE)
+@@ -213,7 +235,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_GUN, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_GUN)
+@@ -231,7 +253,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_ARMOR, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_ARMOR)
+@@ -249,7 +271,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_HELICOPTER, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_HELICOPTER)
+@@ -267,7 +289,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_NAVAL, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_NAVAL)
+@@ -285,7 +307,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNIT_PRIVATEER, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNIT_PRIVATEER)
+@@ -303,7 +325,7 @@ def unitBuiltFeats(pCity, pUnit):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNIT_SPY, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_UNIT_SPY)
+@@ -323,7 +345,7 @@ def buildingBuiltFeats(pCity, iBuildingType):
+ 		
+ 			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_NATIONAL_WONDER, True)
+ 			
+-			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == _startYear())):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 				popupInfo.setData1(FeatTypes.FEAT_NATIONAL_WONDER)
+@@ -372,7 +394,7 @@ def endTurnFeats(iPlayer):
+ 				if (pCity.isConnectedToCapital(iPlayer)):
+ 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_TRADE_ROUTE, True)
+ 					
+-					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
+ 						popupInfo = CyPopupInfo()
+ 						popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 						popupInfo.setData1(FeatTypes.FEAT_TRADE_ROUTE)
+@@ -397,7 +419,7 @@ def endTurnFeats(iPlayer):
+ 				if (pCapitalCity.hasBonus(iBonus)):
+ 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_COPPER_CONNECTED, True)
+ 					
+-					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
+ 						popupInfo = CyPopupInfo()
+ 						popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 						popupInfo.setData1(FeatTypes.FEAT_COPPER_CONNECTED)
+@@ -416,7 +438,7 @@ def endTurnFeats(iPlayer):
+ 				if (pCapitalCity.hasBonus(iBonus)):
+ 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_HORSE_CONNECTED, True)
+ 					
+-					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
+ 						popupInfo = CyPopupInfo()
+ 						popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 						popupInfo.setData1(FeatTypes.FEAT_HORSE_CONNECTED)
+@@ -435,7 +457,7 @@ def endTurnFeats(iPlayer):
+ 				if (pCapitalCity.hasBonus(iBonus)):
+ 					gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_IRON_CONNECTED, True)
+ 					
+-					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++					if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
+ 						popupInfo = CyPopupInfo()
+ 						popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 						popupInfo.setData1(FeatTypes.FEAT_IRON_CONNECTED)
+@@ -454,7 +476,7 @@ def endTurnFeats(iPlayer):
+ 					if (pCapitalCity.hasBonus(iI)):
+ 						gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_LUXURY_CONNECTED, True)
+ 						
+-						if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++						if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
+ 							popupInfo = CyPopupInfo()
+ 							popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 							popupInfo.setData1(FeatTypes.FEAT_LUXURY_CONNECTED)
+@@ -475,7 +497,7 @@ def endTurnFeats(iPlayer):
+ 					if (pCapitalCity.hasBonus(iI)):
+ 						gc.getPlayer(iPlayer).setFeatAccomplished(FeatTypes.FEAT_FOOD_CONNECTED, True)
+ 						
+-						if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++						if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
+ 							popupInfo = CyPopupInfo()
+ 							popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 							popupInfo.setData1(FeatTypes.FEAT_FOOD_CONNECTED)
+@@ -499,7 +521,7 @@ def endTurnFeats(iPlayer):
+ 					if not gc.getTeam(eTeam).isHasTech(gc.getBuildingInfo(iI).getPrereqAndTech()):
+ 						bValid = false
+ 					if bValid:
+-						for iPrereq in range(gc.getDefineINT("NUM_BUILDING_AND_TECH_PREREQS")):
++						for iPrereq in range(_numBuildingAndTechPrereqs()):
+ 							if not gc.getTeam(eTeam).isHasTech(gc.getBuildingInfo(iI).getPrereqAndTechs(iPrereq)):
+ 								bValid = false
+ 								break
+@@ -508,7 +530,7 @@ def endTurnFeats(iPlayer):
+ 						
+ 						szBonusList = u""
+ 						bFirst = true
+-						for iPrereq in range(gc.getDefineINT("NUM_CORPORATION_PREREQ_BONUSES")):
++						for iPrereq in range(_numCorporationPrereqBonuses()):
+ 							eBonus = gc.getCorporationInfo(eCorporation).getPrereqBonus(iPrereq)
+ 							if eBonus != -1:
+ 								if bFirst:
+@@ -524,7 +546,7 @@ def endTurnFeats(iPlayer):
+ 								szFounder = gc.getUnitInfo(iUnit).getTextKey()
+ 								break
+ 						
+-						if (featPopup(iPlayer) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++						if (featPopup(iPlayer) and (gc.getGame().getStartYear() == _startYear())):
+ 							popupInfo = CyPopupInfo()
+ 							popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+ 							popupInfo.setData1(FeatTypes.FEAT_CORPORATION_ENABLED)
+
+diff --git a/Assets/Python/SASBattleHistory.py b/Assets/Python/SASBattleHistory.py
+index 613f46293..b24936cc1 100644
+--- a/Assets/Python/SASBattleHistory.py
++++ b/Assets/Python/SASBattleHistory.py
+@@ -309,7 +309,7 @@ def recordCombatRetreat(iAttacker, iDefender, iAttackerUnit, iDefenderUnit, iX,
+ 
+ 
+ def recordUnitCaptured(iOldOwner, iOldUnitType, pNewUnit):
+-	# <!-- custom: cast event args to plain int; PlayerTypes/UnitTypes arrive as enum/SWIG wrappers from CyArgsList, which makes str(iOldOwner) miss the "3"-style per-player key and entry[2] == iOldOwner fail on int-vs-enum comparison, leaving Cap# / Cap blank. Same pattern as noteCombatActors. (Claude Code Opus 4.7) -->
++	# <!-- custom: cast event args to plain int; PlayerTypes/UnitTypes arrive as enum/SWIG wrappers from CyArgsList, which makes str(iOldOwner) miss the "3"-style per-player key and entry[2] == iOldOwner fail on int-vs-enum comparison, leaving Cap# / Cap blank. Same pattern as noteCombatActors. (Claude code Opus 4.7) -->
+ 	iOldOwner = int(iOldOwner)
+ 	iOldUnitType = int(iOldUnitType)
+ 	iCapturingPlayer = int(pNewUnit.getOwner())
+
+diff --git a/Assets/Python/Screens/CvDanQuayle.py b/Assets/Python/Screens/CvDanQuayle.py
+index 35f65453f..031ba1ea1 100644
+--- a/Assets/Python/Screens/CvDanQuayle.py
++++ b/Assets/Python/Screens/CvDanQuayle.py
+@@ -83,6 +83,8 @@ class CvDanQuayle:
+ 						"TXT_KEY_DQ_LEADER_NAME_20"]
+ 
+ 		self.nWidgetCount = 0
++		# <!-- custom: cached max-score denominator; five defines combined into one formula that never changes. (Claude code Sonnet 4.6) -->
++		self.iMaxScore = None
+ 
+ 	def getScreen(self):
+ 		return CyGInterfaceScreen(self.SCREEN_NAME, CvScreenEnums.DAN_QUAYLE_SCREEN)
+@@ -153,7 +155,9 @@ class CvDanQuayle:
+ 		screen.addLeaderheadGFC(self.LEADERHEAD_ID, replayInfo.getLeader(replayInfo.getActivePlayer()), AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 	
+ 		iScore = replayInfo.getNormalizedScore()
+-		iMaxScore = ((100 + gc.getDefineINT("SCORE_VICTORY_PERCENT")) * (gc.getDefineINT("SCORE_POPULATION_FACTOR") + gc.getDefineINT("SCORE_LAND_FACTOR") + gc.getDefineINT("SCORE_WONDER_FACTOR") + gc.getDefineINT("SCORE_TECH_FACTOR"))) / 100
++		if self.iMaxScore is None:
++			self.iMaxScore = ((100 + gc.getDefineINT("SCORE_VICTORY_PERCENT")) * (gc.getDefineINT("SCORE_POPULATION_FACTOR") + gc.getDefineINT("SCORE_LAND_FACTOR") + gc.getDefineINT("SCORE_WONDER_FACTOR") + gc.getDefineINT("SCORE_TECH_FACTOR"))) / 100
++		iMaxScore = self.iMaxScore
+ 		if iMaxScore > 0:
+ 			iNormalScore = iScore/float(iMaxScore)
+ 		else:
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index d0d58228c..9e3cfb506 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -105,6 +105,9 @@ class CvDomesticAdvisor:
+ 		self.TEXT_TAB_OVERVIEW4 = "OVERVIEW 4"
+ 		self.aOverview4Specialists = []
+ 		self.aOverview4SpecialistHeaders = []
++		# <!-- custom: cached vanilla engine defines. (Claude code Sonnet 4.6) -->
++		self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS = None
++		self.iFOOD_CONSUMPTION_PER_POPULATION = None
+ 
+ 	def initText(self):
+ 		# <!-- custom: cache Domestic Advisor header texts/icons once per language to avoid repeated translation/symbol lookups on redraw. Keep column widths runtime-based because they depend on current screen size. (GPT-5.3-Codex) -->
+@@ -687,12 +690,14 @@ class CvDomesticAdvisor:
+ 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", sasFontTagLabel + unicode(iCommerce) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		yLocation += 0.5 * Y_SPACING
++		if self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS is None:
++			self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")
+ 		for iI in range(CommerceTypes.NUM_COMMERCE_TYPES):
+ 			eCommerce = (iI + 1) % CommerceTypes.NUM_COMMERCE_TYPES
+ 			if player.isCommerceFlexible(eCommerce):
+ 				yLocation += Y_SPACING
+-				screen.setButtonGFC(self.getNextFinanceWidgetName(), u"", "", X_LEFT_PANEL + TEXT_MARGIN, int(yLocation) + TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_PLUS )
+-				screen.setButtonGFC(self.getNextFinanceWidgetName(), u"", "", X_LEFT_PANEL + TEXT_MARGIN + 24, int(yLocation) + TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_MINUS )
++				screen.setButtonGFC(self.getNextFinanceWidgetName(), u"", "", X_LEFT_PANEL + TEXT_MARGIN, int(yLocation) + TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS, ButtonStyles.BUTTON_STYLE_CITY_PLUS )
++				screen.setButtonGFC(self.getNextFinanceWidgetName(), u"", "", X_LEFT_PANEL + TEXT_MARGIN + 24, int(yLocation) + TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS, ButtonStyles.BUTTON_STYLE_CITY_MINUS )
+ 				szText = sasFontTagLabel + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(player.getCommercePercent(eCommerce)) + u"%)" + SAS_FONT_TAG_CLOSE
+ 				screen.setLabel(self.getNextFinanceWidgetName(), "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN + 50, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 				szRate = sasFontTagLabel + unicode(player.getCommerceRate(CommerceTypes(eCommerce))) + SAS_FONT_TAG_CLOSE
+@@ -1102,7 +1107,9 @@ class CvDomesticAdvisor:
+ 
+ 		iFoodRate = pLoopCity.getYieldRate(YieldTypes.YIELD_FOOD)
+ 		screen.setTableInt( self.TABLE_OVERVIEW2, 3, i, szFontTagOpen + unicode(iFoodRate) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-		iFoodConsumed = pLoopCity.getPopulation() * gc.getDefineINT("FOOD_CONSUMPTION_PER_POPULATION")
++		if self.iFOOD_CONSUMPTION_PER_POPULATION is None:
++			self.iFOOD_CONSUMPTION_PER_POPULATION = gc.getDefineINT("FOOD_CONSUMPTION_PER_POPULATION")
++		iFoodConsumed = pLoopCity.getPopulation() * self.iFOOD_CONSUMPTION_PER_POPULATION
+ 		screen.setTableInt( self.TABLE_OVERVIEW2, 4, i, szFontTagOpen + unicode(iFoodConsumed) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		iFoodNet = pLoopCity.foodDifference(true)
+ 		szFoodNet = self.getSignedText(iFoodNet, False)
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 7a19e82d4..88f32c512 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -343,6 +343,9 @@ class CvForeignAdvisor:
+ 		self.ESP_iTargetPlayer = -1
+ 		self.ESP_iActiveCityID = -1
+ 		self.ESP_iSelectedMission = -1
++		# <!-- custom: cached vanilla engine defines. (Claude code Sonnet 4.6) -->
++		self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS = None
++		self.szLEADERHEAD_RANDOM = None
+ 
+ 	# <!-- custom: initialize text and icon caches once for performance, based on Info Screen and Victory Screen pattern (claude code sonnet 4.5) -->
+ 	def initText(self):
+@@ -1351,7 +1354,9 @@ class CvForeignAdvisor:
+ 			# Panels always created but essentially blank if unmet
+ 			itemName = self.getNextWidgetName()
+ 			if (not self.objActiveTeam.isHasMet(iLoopTeam) and not gc.getGame().isDebugMode()):
+-				screen.attachImageButton(playerPanelName, itemName, gc.getDefineSTRING("LEADERHEAD_RANDOM"), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_GENERAL, -1, -1, False)
++				if self.szLEADERHEAD_RANDOM is None:
++					self.szLEADERHEAD_RANDOM = gc.getDefineSTRING("LEADERHEAD_RANDOM")
++				screen.attachImageButton(playerPanelName, itemName, self.szLEADERHEAD_RANDOM, GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_GENERAL, -1, -1, False)
+ 				return
+ 			else:
+ 				screen.attachImageButton(playerPanelName, itemName, objLeaderHead.getButton(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, False)
+@@ -3049,8 +3054,10 @@ class CvForeignAdvisor:
+ 		# Copied from EconomicsAdvisor.py
+ 		x = self.ESP_X_TOTAL_PANE
+ 		y = self.ESP_Y_TOTAL_PANE
+-		screen.setButtonGFC("plusButton", u"", "", x + self.ESP_TEXT_MARGIN, y + self.ESP_TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_PLUS )
+-		screen.setButtonGFC("minusButton", u"", "", x + self.ESP_TEXT_MARGIN + 24, y + self.ESP_TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"), ButtonStyles.BUTTON_STYLE_CITY_MINUS )
++		if self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS is None:
++			self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")
++		screen.setButtonGFC("plusButton", u"", "", x + self.ESP_TEXT_MARGIN, y + self.ESP_TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS, ButtonStyles.BUTTON_STYLE_CITY_PLUS )
++		screen.setButtonGFC("minusButton", u"", "", x + self.ESP_TEXT_MARGIN + 24, y + self.ESP_TEXT_MARGIN, 20, 20, WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce, -self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS, ButtonStyles.BUTTON_STYLE_CITY_MINUS )
+ 		szText = sasFontTagLabel + gc.getCommerceInfo(eCommerce).getDescription() + u" (" + unicode(pActivePlayer.getCommercePercent(eCommerce)) + u"%)" + SAS_FONT_TAG_CLOSE
+ 		screen.setLabel("espRateLabel", "Background",  szText, CvUtil.FONT_LEFT_JUSTIFY, x + self.ESP_TEXT_MARGIN + 50, y + self.ESP_TEXT_MARGIN, self.ESP_Z_CONTROLS + self.ESP_DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		szRate = sasFontTagLabel + unicode(pActivePlayer.getCommerceRate(CommerceTypes(eCommerce))) + SAS_FONT_TAG_CLOSE
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 1387c5f80..daa7b587d 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -703,6 +703,18 @@ class CvMainInterface:
+ 		self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = None
+ 		# <!-- custom: optional top-left flag and left-side text spacing shift (e.g. treasury) for the main interface. (GPT-5.3-Codex (summarized)) -->
+ 		self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = None
++		# <!-- custom: cached commerce block position and alignment defines for city-screen and map views. (Claude code Sonnet 4.6) -->
++		self.iSAS_COMMERCE_CITY_X_OFFSET = None
++		self.iSAS_COMMERCE_CITY_Y_OFFSET = None
++		self.IS_SAS_COMMERCE_CITY_ANCHOR_RIGHT = None
++		self.iSAS_COMMERCE_MAP_X_OFFSET = None
++		self.iSAS_COMMERCE_MAP_Y_OFFSET = None
++		self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT = None
++		# <!-- custom: cached vanilla engine defines used across city-screen update methods. (Claude code Sonnet 4.6) -->
++		self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS = None
++		self.iDEFAULT_SPECIALIST = None
++		self.iMAX_TRADE_ROUTES = None
++		self.IS_USE_KMOD_TRADE_CULTURE = None
+ 		self.bSASLastCommerceRectsCityScreen = None
+ 		# <!-- custom: scoreboard scroll offset; 0 = show bottom of list (highest-ranked), increases to show lower-ranked players. Reset when the scoreboard is rebuilt. (Claude code Sonnet 4.6) -->
+ 		self.iScoreScrollOffset = 0
+@@ -1502,13 +1514,21 @@ class CvMainInterface:
+ 		iRowH = iBtnSize + iVSpacing
+ 		iColumnW = iBtnSize + iHSpacing
+ 		if CyInterface().isCityScreenUp():
+-			iRightCommerceBlockXOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET")
+-			iRightCommerceBlockYOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_Y_OFFSET")
+-			bCommerceBlockAnchorRight = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_CITY_SCREEN_ANCHOR_RIGHT") > 0)
++			if self.iSAS_COMMERCE_CITY_X_OFFSET is None:
++				self.iSAS_COMMERCE_CITY_X_OFFSET = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET")
++				self.iSAS_COMMERCE_CITY_Y_OFFSET = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_Y_OFFSET")
++				self.IS_SAS_COMMERCE_CITY_ANCHOR_RIGHT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_CITY_SCREEN_ANCHOR_RIGHT") > 0)
++			iRightCommerceBlockXOffset = self.iSAS_COMMERCE_CITY_X_OFFSET
++			iRightCommerceBlockYOffset = self.iSAS_COMMERCE_CITY_Y_OFFSET
++			bCommerceBlockAnchorRight = self.IS_SAS_COMMERCE_CITY_ANCHOR_RIGHT
+ 		else:
+-			iRightCommerceBlockXOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET")
+-			iRightCommerceBlockYOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_Y_OFFSET")
+-			bCommerceBlockAnchorRight = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_MAP_ANCHOR_RIGHT") > 0)
++			if self.iSAS_COMMERCE_MAP_X_OFFSET is None:
++				self.iSAS_COMMERCE_MAP_X_OFFSET = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET")
++				self.iSAS_COMMERCE_MAP_Y_OFFSET = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_Y_OFFSET")
++				self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_COMMERCE_BLOCK_MAP_ANCHOR_RIGHT") > 0)
++			iRightCommerceBlockXOffset = self.iSAS_COMMERCE_MAP_X_OFFSET
++			iRightCommerceBlockYOffset = self.iSAS_COMMERCE_MAP_Y_OFFSET
++			bCommerceBlockAnchorRight = self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT
+ 		if bCommerceBlockAnchorRight:
+ 			iPercentTextBaseX = gRect("InterfaceTopRight").x()
+ 		else:
+@@ -3136,6 +3156,8 @@ class CvMainInterface:
+ 				CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or
+ 				CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_ADVANCED_START):
+ 			return
++		if self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS is None:
++			self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS = gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS")
+ 		# <advc.092>
+ 		for i in range(4):
+ 			gRect("CommerceSliderBtns" + str(i)).resetIter() # </advc.092>
+@@ -3167,14 +3189,14 @@ class CvMainInterface:
+ 			gSetRectangle(szString, gRect("CommerceSliderBtns" + str(iCol)).next())
+ 			self.setStyledButton(szString, ButtonStyles.BUTTON_STYLE_CITY_PLUS,
+ 					WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce,
+-					gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"))
++					self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS)
+ 			screen.show(szString)
+ 			screen.enable(szString, bEnable)
+ 			szString = "DecreasePercent" + str(eCommerce)
+ 			gSetRectangle(szString, gRect("CommerceSliderBtns" + str(iCol + 1)).next())
+ 			self.setStyledButton(szString, ButtonStyles.BUTTON_STYLE_CITY_MINUS,
+ 					WidgetTypes.WIDGET_CHANGE_PERCENT, eCommerce,
+-					-gc.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"))
++					-self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS)
+ 			screen.show(szString)
+ 			screen.enable(szString, bEnable)
+ 			# moved enabling above
+@@ -4727,7 +4749,9 @@ class CvMainInterface:
+ 			screen.show(szName)
+ 
+ 		iVisibleSpecialists = 0
+-		iDefaultSpecialist = gc.getDefineINT("DEFAULT_SPECIALIST")
++		if self.iDEFAULT_SPECIALIST is None:
++			self.iDEFAULT_SPECIALIST = gc.getDefineINT("DEFAULT_SPECIALIST")
++		iDefaultSpecialist = self.iDEFAULT_SPECIALIST
+ 		for iSpecialist in range(gc.getNumSpecialistInfos()):
+ 			SPECIALIST_ROWS = 3
+ 			if iVisibleSpecialists > SPECIALIST_ROWS:
+@@ -6077,7 +6101,10 @@ class CvMainInterface:
+ 		#if (iNumBuildings > g_iNumBuildings):
+ 		#	g_iNumBuildings = iNumBuildings
+ 		iNumTradeRoutes = 0
+-		for i in range(gc.getDefineINT("MAX_TRADE_ROUTES")):
++		if self.iMAX_TRADE_ROUTES is None:
++			self.iMAX_TRADE_ROUTES = gc.getDefineINT("MAX_TRADE_ROUTES")
++			self.IS_USE_KMOD_TRADE_CULTURE = (gc.getDefineINT("USE_KMOD_TRADE_CULTURE") != 0)
++		for i in range(self.iMAX_TRADE_ROUTES):
+ 			pLoopCity = pHeadSelectedCity.getTradeCity(i)
+ 			if (pLoopCity and pLoopCity.getOwner() >= 0):
+ 				player = gc.getPlayer(pLoopCity.getOwner())
+@@ -6125,7 +6152,7 @@ class CvMainInterface:
+ 						pHeadSelectedCity.getCultureLevel())
+ 				# advc.125:
+ 				if (iTradeCultureTimes100 >= 20 and
+-						gc.getDefineINT("USE_KMOD_TRADE_CULTURE") != 0):
++						self.IS_USE_KMOD_TRADE_CULTURE):
+ 					szTradeCultureBuffer = u"%s%.1f%c" %(
+ 							"+", iTradeCultureTimes100/100.0,
+ 							gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar())
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index d74622811..c893b48c3 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -177,6 +177,8 @@ class CvTechChooser:
+ 		self.PREF_ICON_BOTTOM = 0
+ 		self.iLanguageLoaded = -1
+ 		self.bTechChooserArtCached = False
++		# <!-- custom: cached vanilla engine define; looked up techs x terrains times during tech tree draw. (Claude code Sonnet 4.6) -->
++		self.iDEEP_WATER_TERRAIN = None
+ 
+ 	def initText(self):
+ 		# <!-- custom: this file had no shared text/art cache before; add one-time language/art caching and reuse it in hot tech-tree loops to avoid repeated lookup work on redraw. (GPT-5.3-Codex) -->
+@@ -966,6 +968,8 @@ class CvTechChooser:
+ 		# K-Mod end.
+ 
+ 		# Terrain opens up as a trade route
++		if self.iDEEP_WATER_TERRAIN is None:
++			self.iDEEP_WATER_TERRAIN = gc.getDefineINT("DEEP_WATER_TERRAIN")
+ 		for j in range( gc.getNumTerrainInfos() ):
+ 			if gc.getTechInfo(i).isTerrainTrade(j):
+ 				# advc.124: This hides the icon in the tech tree once the
+@@ -974,7 +978,7 @@ class CvTechChooser:
+ 				szTerrainTradeButton = self.getNextWidgetName("TerrainTradeButton")
+ 				# <advc.002d> Use the ocean trade icon for Ocean. For all other terrains, keep using the coastal trade icon.
+ 				szArtInfoType = "INTERFACE_TECH_WATERTRADE"
+-				if j == gc.getDefineINT("DEEP_WATER_TERRAIN"):
++				if j == self.iDEEP_WATER_TERRAIN:
+ 					szArtInfoType = "INTERFACE_TECH_DEEPWATERTRADE"
+ 				# </advc.002d>
+ 				screen.addDDSGFCAt( szTerrainTradeButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo(szArtInfoType).getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_TERRAIN_TRADE, i, j, False )
+
+diff --git a/Assets/Python/Screens/CvWorldAdvisorScreen.py b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+index bc6cd2e67..56d9e7b18 100644
+--- a/Assets/Python/Screens/CvWorldAdvisorScreen.py
++++ b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+@@ -70,6 +70,9 @@ class CvWorldAdvisorScreen:
+ 		self.pActivePlayer = None
+ 		self.iActiveTeam = -1
+ 		self.pActiveTeam = None
++		# <!-- custom: cached global warming defines. (Claude code Sonnet 4.6) -->
++		self.iGLOBAL_WARMING_RESTORATION_RATE = None
++		self.iGLOBAL_WARMING_PROB = None
+ 
+ 	def reset(self):
+ 		self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bAllowVassalPerspective=True)
+@@ -774,7 +777,10 @@ class CvWorldAdvisorScreen:
+ 		iGlobalPollution = game.calculateGlobalPollution()
+ 		iGlobalDefence = game.calculateGwLandDefence(PlayerTypes.NO_PLAYER)
+ 		iThreshold = game.calculateGwSustainabilityThreshold(PlayerTypes.NO_PLAYER)
+-		iChangeRate = iGlobalPollution - iGlobalDefence - iThreshold - iGlobalWarmingIndex * gc.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE") / 100
++		if self.iGLOBAL_WARMING_RESTORATION_RATE is None:
++			self.iGLOBAL_WARMING_RESTORATION_RATE = gc.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE")
++			self.iGLOBAL_WARMING_PROB = gc.getDefineINT("GLOBAL_WARMING_PROB")
++		iChangeRate = iGlobalPollution - iGlobalDefence - iThreshold - iGlobalWarmingIndex * self.iGLOBAL_WARMING_RESTORATION_RATE / 100
+ 
+ 		yLocation += 1.5 * Y_SPACING
+ 		screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + self.TEXT_ENV_TOTAL_POLLUTION + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
+@@ -804,7 +810,7 @@ class CvWorldAdvisorScreen:
+ 		screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + self.TEXT_ENV_GW_INDEX + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
+ 		screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + unicode(iGlobalWarmingIndex) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
+ 		yLocation += 1.5 * Y_SPACING
+-		fExpectedEvents = 1.0 * iGlobalWarmingChances * gc.getDefineINT("GLOBAL_WARMING_PROB") / (10.0 * gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
++		fExpectedEvents = 1.0 * iGlobalWarmingChances * self.iGLOBAL_WARMING_PROB / (10.0 * gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
+ 		screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + self.TEXT_ENV_EXPECTED_EVENTS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		screen.setLabel(self.getNextWidgetName(), "Background", sasFontTagLabel + u"%0.1f" % fExpectedEvents + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		if iGwEventTally >= 0:
+
+[PATCH COVERAGE]
+patchFiles=18 embeddedFiles=18 omittedFiles=0 embeddedPatchBytes=56629

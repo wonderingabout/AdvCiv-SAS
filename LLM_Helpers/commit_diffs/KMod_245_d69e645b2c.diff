@@ -1,0 +1,179 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 245
+# Commit: d69e645b2c802f300e569bd4d83b7f924093a162
+# History segment: K-Mod history
+# Parent used for diff: b7dbc5f7a7fe163df94840f1d16dc553b10e3b0e
+# Title: Adjusted the diplomatic behaviour of AI players who are allied with human players. In particular, the AI will no longer refuse to talk to other teams.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	7	CvGameCoreDLL/CvGameCoreUtils.cpp
+18	0	CvGameCoreDLL/CvPlayer.cpp
+22	4	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 38c4f313a..1c95ec0ba 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -31,7 +31,7 @@
+ #define PATH_STRAIGHT_WEIGHT    (1)
+ 
+ // #define PATH_DAMAGE_WEIGHT      (500) // K-Mod (disabled because it isn't used)
+-#define PATH_COMBAT_WEIGHT      (200) // K-Mod. penalty for having to fight along the way.
++#define PATH_COMBAT_WEIGHT      (400) // K-Mod. penalty for having to fight along the way.
+ // Note: there will also be other combat penalties added, for example from defence weight and city weight.
+ 
+ CvPlot* plotCity(int iX, int iY, int iIndex)
+@@ -1552,14 +1552,11 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 		if (!(iFlags & MOVE_THROUGH_ENEMY)) // MOVE_ATTACK_STACK.
+ 		{
+ 			FAssert(pSelectionGroup->AI_isControlled());
+-			int iAttackPower = pSelectionGroup->AI_compareStacks(pToPlot, false, false, false);
+-			int iCrushPower = 3*GC.getBBAI_ATTACK_CITY_STACK_RATIO(); // power required to push through defences easilly.
++			int iAttackPower = std::max(1, pSelectionGroup->AI_compareStacks(pToPlot, false, false, false));
+ 
+-			FAssert(iCrushPower > GC.getBBAI_SKIP_BOMBARD_BASE_STACK_RATIO());
+-
+-			if (iAttackPower < iCrushPower)
++			if (iAttackPower < 400)
+ 			{
+-				iWorstCost += PATH_MOVEMENT_WEIGHT * (iCrushPower-iAttackPower)/std::max(1, iAttackPower);
++				iWorstCost += PATH_MOVEMENT_WEIGHT * GC.getMOVE_DENOMINATOR() * (400-iAttackPower)/std::min(150, iAttackPower);
+ 			}
+ 			// else, don't worry about it too much.
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index e78977fd3..108cc7684 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5065,9 +5065,15 @@ DenialTypes CvPlayer::getTradeDenial(PlayerTypes eWhoTo, TradeData item) const
+ {
+ 	CvCity* pCity;
+ 
++	// K-Mod note: I've changed it so that AI players on human teams can be contacted when not at war.
++	// So.. as a follow up on that change, I'm making the AI deny trades which affect the team, not just the player.
+ 	switch (item.m_eItemType)
+ 	{
+ 	case TRADE_TECHNOLOGIES:
++		// K-Mod
++		if (!isHuman() && GET_TEAM(getTeam()).isHuman())
++			return DENIAL_MYSTERY;
++		// K-Mod end
+ 		return GET_TEAM(getTeam()).AI_techTrade(((TechTypes)(item.m_iData)), GET_PLAYER(eWhoTo).getTeam());
+ 		break;
+ 
+@@ -5096,6 +5102,10 @@ DenialTypes CvPlayer::getTradeDenial(PlayerTypes eWhoTo, TradeData item) const
+ 		break;
+ 
+ 	case TRADE_VASSAL:
++		// K-Mod
++		if (!isHuman() && GET_TEAM(getTeam()).isHuman())
++			return DENIAL_MYSTERY;
++		// K-Mod end
+ 		return GET_TEAM(getTeam()).AI_vassalTrade(GET_PLAYER(eWhoTo).getTeam());
+ 		break;
+ 
+@@ -5124,10 +5134,18 @@ DenialTypes CvPlayer::getTradeDenial(PlayerTypes eWhoTo, TradeData item) const
+ 		break;
+ 
+ 	case TRADE_DEFENSIVE_PACT:
++		// K-Mod
++		if (!isHuman() && GET_TEAM(getTeam()).isHuman())
++			return DENIAL_MYSTERY;
++		// K-Mod end
+ 		return GET_TEAM(getTeam()).AI_defensivePactTrade(GET_PLAYER(eWhoTo).getTeam());
+ 		break;
+ 
+ 	case TRADE_PERMANENT_ALLIANCE:
++		// K-Mod
++		if (!isHuman() && GET_TEAM(getTeam()).isHuman())
++			return DENIAL_MYSTERY;
++		// K-Mod end
+ 		return GET_TEAM(getTeam()).AI_permanentAllianceTrade(GET_PLAYER(eWhoTo).getTeam());
+ 		break;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 782ab88f2..8ba6e5d8e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6781,13 +6781,18 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ 		return true;
+ 	}
+ 
++	/* original bts code
+ 	if (GET_TEAM(getTeam()).isHuman())
+ 	{
+ 		return false;
+-	}
++	} */ // disabled by K-Mod
+ 
+ 	if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
+ 	{
++		// K-Mod
++		if (GET_TEAM(getTeam()).isHuman())
++			return false;
++		// K-Mod end
+ 		int iRefuseDuration = (GC.getLeaderHeadInfo(getPersonalityType()).getRefuseToTalkWarThreshold() * ((GET_TEAM(getTeam()).AI_isChosenWar(GET_PLAYER(ePlayer).getTeam())) ? 2 : 1));
+ 		
+ 		int iOurSuccess = 1 + GET_TEAM(getTeam()).AI_getWarSuccess(GET_PLAYER(ePlayer).getTeam());
+@@ -9528,7 +9533,8 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer) co
+ 		return NO_DENIAL;
+ 	}
+ 
+-	if (GET_PLAYER(ePlayer).getTeam() == getTeam())
++	//if (GET_PLAYER(ePlayer).getTeam() == getTeam())
++	if (GET_PLAYER(ePlayer).getTeam() == getTeam() && GET_PLAYER(ePlayer).isHuman()) // K-Mod
+ 	{
+ 		return NO_DENIAL;
+ 	}
+@@ -9538,6 +9544,12 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer) co
+ 		return (GET_PLAYER(ePlayer).isHuman() ? DENIAL_JOKING : DENIAL_NO_GAIN);
+ 	}
+ 
++	// K-Mod (The above case should be tested for humans trying to give stuff to AI teammates
++	// - otherwise the human won't know if the AI can actually use the resource.)
++	if (GET_PLAYER(ePlayer).getTeam() == getTeam())
++		return NO_DENIAL;
++	// K-Mod end
++
+ 	if (isHuman())
+ 	{
+ 		return NO_DENIAL;
+@@ -14778,7 +14790,7 @@ void CvPlayerAI::AI_doDiplo()
+ 				{
+ 					if (iI != getID())
+ 					{
+-						if (GET_PLAYER((PlayerTypes)iI).getTeam() != getTeam())
++						//if (GET_PLAYER((PlayerTypes)iI).getTeam() != getTeam()) // disabled by K-Mod
+ 						{
+ 							for(pLoopDeal = GC.getGameINLINE().firstDeal(&iLoop); pLoopDeal != NULL; pLoopDeal = GC.getGameINLINE().nextDeal(&iLoop))
+ 							{
+@@ -14917,8 +14929,14 @@ void CvPlayerAI::AI_doDiplo()
+ 								{
+ 									if (getNumTradeableBonuses((BonusTypes)iJ) > 1)
+ 									{
++										/* original bts code
+ 										if ((GET_PLAYER((PlayerTypes)iI).AI_bonusTradeVal(((BonusTypes)iJ), getID(), 1) > 0)
+-											&& (GET_PLAYER((PlayerTypes)iI).AI_bonusVal((BonusTypes)iJ, 1) > AI_bonusVal((BonusTypes)iJ, -1)))
++											&& (GET_PLAYER((PlayerTypes)iI).AI_bonusVal((BonusTypes)iJ, 1) > AI_bonusVal((BonusTypes)iJ, -1))) */
++										// K-Mod
++										bool bHasBonus = GET_PLAYER((PlayerTypes)iI).getNumAvailableBonuses((BonusTypes)iJ) > 0;
++										if (GET_PLAYER((PlayerTypes)iI).AI_bonusTradeVal(((BonusTypes)iJ), getID(), 1) > 0
++											&& 2 * GET_PLAYER((PlayerTypes)iI).AI_bonusVal((BonusTypes)iJ, 1) > (bHasBonus? 2 : 3) * AI_bonusVal((BonusTypes)iJ, -1))
++										// K-mod end
+ 										{
+ 											setTradeItem(&item, TRADE_RESOURCES, iJ);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6298

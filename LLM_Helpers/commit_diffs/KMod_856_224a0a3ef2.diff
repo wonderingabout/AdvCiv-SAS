@@ -1,0 +1,46 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 856
+# Commit: 224a0a3ef2eab59ccbf2a52e4f2c6a0d97bc811d
+# History segment: K-Mod history
+# Parent used for diff: 563dbd61f37c62b238549f670ebdceb77a9b4537
+# Title: AI_assaultSeaReinforce will no longer declare war.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 6ffb5179b..872486871 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -17516,7 +17516,7 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
+ 	CvPlot* pBestAssaultPlot = NULL;
+ 	CvArea* pWaterArea = plot()->waterArea();
+ 	bool bCanMoveAllTerrain = getGroup()->canMoveAllTerrain();
+-	int iFlags = MOVE_AVOID_ENEMY_WEIGHT_3 | MOVE_DECLARE_WAR; // K-Mod
++	int iFlags = MOVE_AVOID_ENEMY_WEIGHT_3; // K-Mod. (no declare war)
+ 
+ 	// Loop over nearby plots for groups in enemy territory to reinforce
+ 	int iRange = 2*maxMoves();
+@@ -17674,7 +17674,7 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
+ 	}
+ 
+ 	if (pBestPlot && pBestAssaultPlot)
+-		return AI_transportGoTo(pBestPlot, pBestAssaultPlot, iFlags, MISSIONAI_ASSAULT);
++		return AI_transportGoTo(pBestPlot, pBestAssaultPlot, iFlags, MISSIONAI_REINFORCE);
+ 
+ 	// Reinforce our cities in need
+ 	for (CvCity* pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1113

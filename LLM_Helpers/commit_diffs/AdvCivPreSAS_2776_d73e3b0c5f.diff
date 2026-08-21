@@ -1,0 +1,84 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2776
+# Commit: d73e3b0c5f8f3f4b05230bd1a836066bc0d4f5b8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c0083b2b225c408e49e17f119c9e8b004195d64c
+# Title: A couple of minor BUG menu help text tweaks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/XML/Text/BUG Main Interface Options.xml
+10	10	Assets/XML/Text/BULL Misc Hovers Options.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 3322466e1..019949e5f 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -416,11 +416,11 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__MINIMAPWATERCOLOR_HOVER</Tag>
+-		<English>Opacity of civ colors on water tiles. This affects only the minimap on the main screen, not the one on the Military Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Same as the opacity on land tiles; like in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - More transparent than on land tiles; similar to the Military Advisor.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zero[COLOR_REVERT] - No civ colors on water tiles; like in Civ III.</English>
+-		<French>Opacity of civ colors on water tiles. This affects only the minimap on the main screen, not the one on the Military Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Same as the opacity on land tiles; like in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - More transparent than on land tiles; similar to the Military Advisor.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zero[COLOR_REVERT] - No civ colors on water tiles; like in Civ III.</French>
++		<English>Opacity of civ colors on water tiles. This affects only the minimap on the main screen, not the one on the Military Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Same as the opacity on land tiles; like in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - More transparent than on land tiles; similar to the Military Advisor.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zero[COLOR_REVERT] - No civ colors on water tiles; like in Civ 3.</English>
++		<French>Opacity of civ colors on water tiles. This affects only the minimap on the main screen, not the one on the Military Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Same as the opacity on land tiles; like in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - More transparent than on land tiles; similar to the Military Advisor.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zero[COLOR_REVERT] - No civ colors on water tiles; like in Civ 3.</French>
+ 		<German>Deckkraft von Zivilisations-Farben auf Wasserfeldern. Betrifft nur die Mini-Karte auf dem Hauptbildschirm, nicht die auf dem Milit�rberater-Bildschirm.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Gleiche Opazit�t wie auf Landfeldern; so wie in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Mittel[COLOR_REVERT] - H�here Transparenz als auf Landfeldern; �hnlich wie im Milit�rberater.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Null[COLOR_REVERT] - Keine Farben auf Wasserfeldern; wie in Civ III.</German>
+-		<Italian>Opacity of civ colors on water tiles. This affects only the minimap on the main screen, not the one on the Military Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Same as the opacity on land tiles; like in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - More transparent than on land tiles; similar to the Military Advisor.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zero[COLOR_REVERT] - No civ colors on water tiles; like in Civ III.</Italian>
+-		<Spanish>Opacity of civ colors on water tiles. This affects only the minimap on the main screen, not the one on the Military Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Same as the opacity on land tiles; like in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - More transparent than on land tiles; similar to the Military Advisor.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zero[COLOR_REVERT] - No civ colors on water tiles; like in Civ III.</Spanish>
++		<Italian>Opacity of civ colors on water tiles. This affects only the minimap on the main screen, not the one on the Military Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Same as the opacity on land tiles; like in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - More transparent than on land tiles; similar to the Military Advisor.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zero[COLOR_REVERT] - No civ colors on water tiles; like in Civ 3.</Italian>
++		<Spanish>Opacity of civ colors on water tiles. This affects only the minimap on the main screen, not the one on the Military Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Same as the opacity on land tiles; like in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - More transparent than on land tiles; similar to the Military Advisor.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zero[COLOR_REVERT] - No civ colors on water tiles; like in Civ 3.</Spanish>
+ 	</TEXT>
+ 	<!-- (It's not truly "maximal", i.e. 100%,
+ 		 but I don't want to commit to numbers here.) -->
+
+diff --git a/Assets/XML/Text/BULL Misc Hovers Options.xml b/Assets/XML/Text/BULL Misc Hovers Options.xml
+index 357d80465..97cc00fe9 100644
+--- a/Assets/XML/Text/BULL Misc Hovers Options.xml	
++++ b/Assets/XML/Text/BULL Misc Hovers Options.xml	
+@@ -108,11 +108,11 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__PARTIALBUILDSALWAYS_HOVER</Tag>
+-		<English>When checked, unfinished Worker builds are always shown in a tile's help text. Otherwise, they're only shown when the Ctrl key is held down. (Either way, Ctrl can be held down while issuing a build command in order to have the Worker suspend the build one turn before completion.)</English>
+-		<French>When checked, unfinished Worker builds are always shown in a tile's help text. Otherwise, they're only shown when the Ctrl key is held down. (Either way, Ctrl can be held down while issuing a build command in order to have the Worker suspend the build one turn before completion.)</French>
+-		<German>Zeigt im Hilfetext stets unvollst�ndige Arbeiten an. Ohne diese Option werden solche Arbeiten nur angezeigt, wenn Sie die Strg-Taste gedr�ckt halten. (In jedem Fall k�nnen Sie Arbeiter anweisen, einen Auftrag einen Zug vor der Fertigstellung zu unterbrechen, indem Sie bei Erteilung des Auftrags Strg gedr�ckt halten.)</German>
+-		<Italian>When checked, unfinished Worker builds are always shown in a tile's help text. Otherwise, they're only shown when the Ctrl key is held down. (Either way, Ctrl can be held down while issuing a build command in order to have the Worker suspend the build one turn before completion.)</Italian>
+-		<Spanish>When checked, unfinished Worker builds are always shown in a tile's help text. Otherwise, they're only shown when the Ctrl key is held down. (Either way, Ctrl can be held down while issuing a build command in order to have the Worker suspend the build one turn before completion.)</Spanish>
++		<English>When checked, unfinished Worker builds are always shown in a tile's help text. Otherwise, they're only shown when the [COLOR_HIGHLIGHT_TEXT]Ctrl[COLOR_REVERT] key is held down. (Either way, Ctrl can be held down while issuing a build command in order to have the Worker suspend the build one turn before completion.)</English>
++		<French>When checked, unfinished Worker builds are always shown in a tile's help text. Otherwise, they're only shown when the [COLOR_HIGHLIGHT_TEXT]Ctrl[COLOR_REVERT] key is held down. (Either way, Ctrl can be held down while issuing a build command in order to have the Worker suspend the build one turn before completion.)</French>
++		<German>Zeigt im Hilfetext stets unvollst�ndige Arbeiten an. Ohne diese Option werden solche Arbeiten nur angezeigt, wenn Sie die [COLOR_HIGHLIGHT_TEXT]Strg[COLOR_REVERT]-Taste gedr�ckt halten. (In jedem Fall k�nnen Sie Arbeiter anweisen, einen Auftrag einen Zug vor der Fertigstellung zu unterbrechen, indem Sie bei Erteilung des Auftrags Strg gedr�ckt halten.)</German>
++		<Italian>When checked, unfinished Worker builds are always shown in a tile's help text. Otherwise, they're only shown when the [COLOR_HIGHLIGHT_TEXT]Ctrl[COLOR_REVERT] key is held down. (Either way, Ctrl can be held down while issuing a build command in order to have the Worker suspend the build one turn before completion.)</Italian>
++		<Spanish>When checked, unfinished Worker builds are always shown in a tile's help text. Otherwise, they're only shown when the [COLOR_HIGHLIGHT_TEXT]Ctrl[COLOR_REVERT] key is held down. (Either way, Ctrl can be held down while issuing a build command in order to have the Worker suspend the build one turn before completion.)</Spanish>
+ 	</TEXT>
+ 
+ 	<!-- advc.099f -->
+@@ -126,11 +126,11 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__CULTUREINUNOWNEDTILES_HOVER</Tag>
+-		<English>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</English>
+-		<French>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</French>
+-		<German>Zeigt Kulturanteile im Hilfetext aller einsehbaren Felder an. Wenn diese Option nicht angekreuzt ist, werden Kulturanteile neutraler Felder nur bei gedr�ckter Umschalttaste angezeigt.</German>
+-		<Italian>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</Italian>
+-		<Spanish>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [Shift] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</Spanish>
++		<English>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [COLOR_HIGHLIGHT_TEXT]Shift[COLOR_REVERT] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</English>
++		<French>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [COLOR_HIGHLIGHT_TEXT]Shift[COLOR_REVERT] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</French>
++		<German>Zeigt Kulturanteile im Hilfetext aller einsehbaren Felder an. Wenn diese Option nicht angekreuzt ist, werden Kulturanteile neutraler Felder nur bei gedr�ckter [COLOR_HIGHLIGHT_TEXT]Umschalt[COLOR_REVERT]taste angezeigt.</German>
++		<Italian>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [COLOR_HIGHLIGHT_TEXT]Shift[COLOR_REVERT] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</Italian>
++		<Spanish>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [COLOR_HIGHLIGHT_TEXT]Shift[COLOR_REVERT] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</Spanish>
+ 	</TEXT>
+ 
+ <!-- Unit -->
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=11834

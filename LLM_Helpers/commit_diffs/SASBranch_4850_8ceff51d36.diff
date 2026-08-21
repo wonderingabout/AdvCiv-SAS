@@ -1,0 +1,892 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4850
+# Commit: 8ceff51d36aa687ee058587682b8ecb100135b30
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 741f6485f969d0dbb0770fa8517b384d2dfb567b
+# Title: replace now deleted "AMERICAN_NAVY_SEAL" with "USA_PATRIOT" (rifleman based) and other minor or not changes or not or other or and etc anyways etc anyways et...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Units/USA_Patriot/fusilier_american.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/amdlc_usa_infantry_03_diffuse.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/brownbesstexture.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman_fx.nif
+59	51	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+27	27	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+2	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+12	5	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+10	2	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+209	199	Assets/XML/Units/CIV4UnitInfos.xml
+11	26	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/USA_Patriot/fusilier_american.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/amdlc_usa_infantry_03_diffuse.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/brownbesstexture.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman_fx.nif
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/fusilier_american.dds b/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/fusilier_american.dds
+new file mode 100644
+index 000000000..cd0a8d5b9
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/fusilier_american.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/amdlc_usa_infantry_03_diffuse.dds b/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/amdlc_usa_infantry_03_diffuse.dds
+new file mode 100644
+index 000000000..a1130a14e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/amdlc_usa_infantry_03_diffuse.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/brownbesstexture.dds b/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/brownbesstexture.dds
+new file mode 100644
+index 000000000..9148e51fe
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/brownbesstexture.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman.nif b/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman.nif
+new file mode 100644
+index 000000000..953210375
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman_fx.nif b/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman_fx.nif
+new file mode 100644
+index 000000000..b374f9357
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman_fx.nif differ
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 282fb004d..5ac7f7d14 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -1018,87 +1018,95 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 
+ 		# <!-- custom: some of these 4 combinations of positive or negative memory affections or resentments below are unused and thus commented-out ((but functionnal although i did not retest so stilluntested since rewrite of sevopedia leadr to use xml leader info directly not old leaders_data.py but anyways etc) and can be implemented if wished (would need to change the xml values of leaders so that they are relevant though, as currently in default advciv xml and current advciv-sas xml too, no leader has a negative memory positive attitude value, or a postitive memory negative attitude value, but the system supprots it if it were to be changed in xml values this way, commented-out for efficiency and effectiveness, perhaps performance too a bit or/and other etc, anyways.))
+ 
+-		def get_ai_category_key_order_positive_memory_affections_or_resentments(is_affection):
+-			affection_resentment = get_affection_resentment(is_affection)
+-
++		def get_ai_category_key_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment):
+ 			ai_category_key_order_positive_memories = (
+-				"iAggregatedPositiveMemoryGiveHelp%s" % affection_resentment,
+-				"iAggregatedPositiveMemoryAcceptDemand%s" % affection_resentment,
+-				"iAggregatedPositiveMemoryAcceptedReligion%s" % affection_resentment,
+-				"iAggregatedPositiveMemoryAcceptedCivic%s" % affection_resentment,
+-				"iAggregatedPositiveMemoryAcceptedJoinWar%s" % affection_resentment,
+-				"iAggregatedPositiveMemoryAcceptedStopTrading%s" % affection_resentment,
+-				"iAggregatedPositiveMemoryVotedForUs%s" % affection_resentment,
+-				"iAggregatedPositiveMemoryEventGoodToUs%s" % affection_resentment,
+-				"iAggregatedPositiveMemoryLiberatedCities%s" % affection_resentment,
+-				"iAggregatedPositiveMemoryIndependence%s" % affection_resentment,
+-				"iAggregatedPositiveMemoryTradedTechToUs%s" % affection_resentment,
++				"iAggregated%sMemoryGiveHelp%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryAcceptDemand%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryAcceptedReligion%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryAcceptedCivic%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryAcceptedJoinWar%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryAcceptedStopTrading%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryVotedForUs%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryEventGoodToUs%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryLiberatedCities%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryIndependence%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryTradedTechToUs%s" % (positive_negative, affection_resentment),
+ 			)
+ 
+ 			return ai_category_key_order_positive_memories
+ 
+ 		# ❤️ Positive Memory Affections (0-100)
++		is_positive = True
+ 		is_affection = True
+-		ai_category_key_order_positive_memory_affections = get_ai_category_key_order_positive_memory_affections_or_resentments(is_affection)
++		positive_negative = get_positive_negative(is_positive)
++		affection_resentment = get_affection_resentment(is_affection)
++		ai_category_key_order_positive_memory_affections = get_ai_category_key_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment)
+ 		emoji_name_positive_memory_affections = "RedHeart"
+-		ai_category_header_positive_memory_affections = "Positive Memory Affections"
++		ai_category_header_positive_memory_affections = "%s Memory %ss" % (positive_negative, affection_resentment)
+ 		ai_category_positive_memory_affections = get_ai_category(emoji_name_positive_memory_affections, emoji_name_to_button_path_txt_keys, ai_category_header_positive_memory_affections, ai_category_key_order_positive_memory_affections, localText)
+ 
+ 
+ 		# 💔 Positive Memory Resentments (0-100)
++		# is_positive = True
+ 		# is_affection = False
+-		# ai_category_key_order_positive_memory_resentments = get_ai_category_key_order_positive_memory_affections_or_resentments(is_affection)
++		# positive_negative = get_positive_negative(is_positive)
++		# affection_resentment = get_affection_resentment(is_affection)
++		# ai_category_key_order_positive_memory_resentments = get_ai_category_key_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment)
+ 		# emoji_name_positive_memory_resentments = "BrokenHeart"
+-		# ai_category_header_positive_memory_resentments = "Positive Memory Resentments"
++		# ai_category_header_positive_memory_resentments = "%s Memory %ss" % (positive_negative, affection_resentment)
+ 		# ai_category_positive_memory_resentments = get_ai_category(emoji_name_positive_memory_resentments, emoji_name_to_button_path_txt_keys, ai_category_header_positive_memory_resentments, ai_category_key_order_positive_memory_resentments, localText)
+ 
+-		def get_ai_category_key_order_negative_memory_affections_or_resentments(is_affection):
+-			affection_resentment = get_affection_resentment(is_affection)
+-
++		def get_ai_category_key_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment):
+ 			ai_category_key_order_negative_memories = (
+-				"iAggregatedNegativeMemoryDeclaredWar%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryDeclaredWarOnFriend%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryHiredWarAlly%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryNukedUs%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryNukedFriend%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryRazedCity%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryRazedHolyCity%s" % affection_resentment,
+-				"iAggregatedNegativeMemorySpyCaught%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryRefusedHelp%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryRejectedDemand%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryDeniedReligion%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryDeniedCivic%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryDeniedJoinWar%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryDeniedStopTrading%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryStoppedTrading%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryHiredTradeEmbargo%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryMadeDemand%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryVotedAgainstUs%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryEventBadToUs%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryCancelledVassalAgreement%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryDeclaredWarRecent%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryReceivedTechFromAny%s" % affection_resentment,
++				"iAggregated%sMemoryDeclaredWar%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryDeclaredWarOnFriend%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryHiredWarAlly%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryNukedUs%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryNukedFriend%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryRazedCity%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryRazedHolyCity%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemorySpyCaught%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryRefusedHelp%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryRejectedDemand%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryDeniedReligion%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryDeniedCivic%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryDeniedJoinWar%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryDeniedStopTrading%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryStoppedTrading%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryHiredTradeEmbargo%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryMadeDemand%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryVotedAgainstUs%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryEventBadToUs%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryCancelledVassalAgreement%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryDeclaredWarRecent%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryReceivedTechFromAny%s" % (positive_negative, affection_resentment),
+ 				# <!-- custom: hiding this one as we don't have enough space in the table, not ideal but hopefully good enough at least in this case if not always or not or yes or other or etc but anyways etc -->
+-				# "iAggregatedNegativeMemoryStoppedTradingRecent%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryMadeDemandRecent%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryCancelledOpenBorders%s" % affection_resentment,
+-				"iAggregatedNegativeMemoryCancelledDefensivePact%s" % affection_resentment,
++				# "iAggregated%sMemoryStoppedTradingRecent%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryMadeDemandRecent%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryCancelledOpenBorders%s" % (positive_negative, affection_resentment),
++				"iAggregated%sMemoryCancelledDefensivePact%s" % (positive_negative, affection_resentment),
+ 			)
+ 
+ 			return ai_category_key_order_negative_memories
+ 
+ 		# 💀 Negative Memory Resentments (0-100)
++		is_positive = False
+ 		is_affection = False
+-		ai_category_key_order_negative_memory_resentments = get_ai_category_key_order_negative_memory_affections_or_resentments(is_affection)
++		positive_negative = get_positive_negative(is_positive)
++		affection_resentment = get_affection_resentment(is_affection)
++		ai_category_key_order_negative_memory_resentments = get_ai_category_key_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment)
+ 		emoji_name_negative_memory_resentments = "Skull"
+-		ai_category_header_negative_memory_resentments = "Negative Memory Resentments"
++		ai_category_header_negative_memory_resentments = "%s Memory %ss" % (positive_negative, affection_resentment)
+ 		ai_category_negative_memory_resentments = get_ai_category(emoji_name_negative_memory_resentments, emoji_name_to_button_path_txt_keys, ai_category_header_negative_memory_resentments, ai_category_key_order_negative_memory_resentments, localText)
+ 
+ 		# 🔥 Negative Memory Affections (0-100)
++		# is_positive = False
+ 		# is_affection = True
+-		# ai_category_key_order_negative_memory_affections = get_ai_category_key_order_negative_memory_affections_or_resentments(is_affection)
++		# positive_negative = get_positive_negative(is_positive)
++		# affection_resentment = get_affection_resentment(is_affection)
++		# ai_category_key_order_negative_memory_affections = get_ai_category_key_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment)
+ 		# emoji_name_negative_memory_affections = "Fire"
+-		# ai_category_header_negative_memory_affections = "Negative Memory Affections"
++		# ai_category_header_negative_memory_affections = "%s Memory %ss" % (positive_negative, affection_resentment)
+ 		# ai_category_negative_memory_affections = get_ai_category(emoji_name_negative_memory_affections, emoji_name_to_button_path_txt_keys, ai_category_header_negative_memory_affections, ai_category_key_order_negative_memory_affections, localText)
+ 
+ 		# 🧠 Core Personality
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 5d81e8ffe..670b4dae8 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -177,12 +177,11 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<!-- custom: east indiaman removed, so "NETHERLANDS_OOSTINDIEVAARDER" is replaced with "DUTCH_SWIFT_WORKER", art import from ri mod's  ART_DEF_UNIT_WORKER_ANCIENT_EUROPE_WEST (art of the Worker (Dutch) in ri mod anyways etc if i am not mistaken anyways etc) and based on this import art then adjusted or not for advciv-sas anyways etc taking base advciv's ART_DEF_UNIT_WORKER as a base anyways etc, kfm is base civ4 or/and advciv one if i am not mistaken anyways etc -->
++		<!-- custom: east indiaman removed, so "NETHERLANDS_OOSTINDIEVAARDER" is replaced with "DUTCH_SWIFT_WORKER", art import from ri mod's  ART_DEF_UNIT_WORKER_ANCIENT_EUROPE_WEST (art of the Worker (Dutch) in ri mod anyways etc if i am not mistaken anyways etc) and based on this import art then adjusted or not for advciv-sas anyways etc taking base advciv's ART_DEF_UNIT_WORKER as a base anyways etc, kfm is base civ4 or/and advciv one if i am not mistaken anyways etc ; also it seems netherlands/dutch people are really big as in tall in their height even though i don't like too much to admit but seems true https://en.wikipedia.org/wiki/Average_human_height_by_country, so following closer ri mod's original size of this unit, also reminds me of a famous dutch goalkeeper in a soccer game xd i played looooong ago but anyways etc... but is to be accurate maybe but in all cases anyways etc anyways etc anyways etc... if i am not mistaken too that this is how the scale work as bigger is better in this case i mean at least but anyways etc anyways etc anyways etc really as i don't know how it works-function in civ4 but i assume it does so, i could test some randomly high value at least soemday but leaving as is but or not as i prefer but anyways etc anyways etc anyways etc... -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_DUTCH_SWIFT_WORKER</Type>
+ 			<Button>Art/AdvCiv_SAS/Units/Dutch_Swift_Worker/worker_celt.dds</Button>
+-			<!-- advc.002j: was 0.44 -->
+-			<fScale>0.43</fScale>
++			<fScale>0.44</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -1032,6 +1031,31 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: art import based on ri mod's ART_DEF_UNIT_FUSILIER_AMERICA_EARLY (Line infantry (continental army) in ri mod at least as of now if i am not mistaken, and btw their naming is very very weird and inconsistent between unit name and asset name in ri mod, and their fpks are shit scattered even though is not the most for this unit where all nifs and such/related files anyways etc were nicely all in one fpk but often it's shit big big big shit scattered in many files despite the quality or and quantity of having many art assets but anyways etc, PakBuild helps in some cases if/as i have merged all ri mod's commonly used fpks (for example interface and such) in one windows folder much easier to browse but else is big big shit anyways etc, despite their art being really good though if i may say, but anyways etc), taking the base advciv's rifleman art def as a base anyways etc, kfm is base civ4 one if i am not mistaken anyways etc, also i take back what i said sadly it's even worse, the unit didn't have the missing brownbesstexture.dds in folder li_fus_early_america despite the nif expecting it in nifskope so had to use dragonchecker in the units america and luckily find it anyways etc very veyr bad packaging, please do all files per unit in one folder ideally so it is easily exportable to another mod or such for example if needed even if redundant is better to have portability i think but anyways etc, but thankfully fixed now no more purple gun btu the real one art anyways etc... and helped me add a tutorial abotu ti evne though ideally there would be no issue was easy enough to solve in this case thnaks to harder time with camel unit in the past when i didn't know how and c2c mod even thogh unrelated had dependencies in nifskope to outside paths if i am not mistaken and it was a huge mess but anyways etc hopefully this tutorial part also helps in modding ressources but anyways etc anyways etc anyways etc... -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_USA_PATRIOT</Type>
++			<Button>Art/AdvCiv_SAS/Units/USA_Patriot/fusilier_american.dds</Button>
++			<fScale>0.44</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman.nif</NIF>
++			<KFM>Art/Units/Unique/England/Redcoat/RedCoat.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/USA_Patriot/nif/rifleman_fx.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.05</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_GRENADIER</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Grenadier.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,6</Button>
+@@ -1152,30 +1176,6 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_AMERICAN_NAVY_SEAL</Type>
+-			<Button>,Art/Interface/Buttons/Units/Navy_Seal.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,7</Button>
+-			<fScale>0.44</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Unique/America/NavySEAL/NavySeal.nif</NIF>
+-			<KFM>Art/Units/Unique/America/NavySEAL/NavySeal.kfm</KFM>
+-			<SHADERNIF>Art/Units/Unique/America/NavySEAL/NavySeal_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.05</fRangedDeathTime>
+-			<bActAsRanged>1</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_PARATROOPER</Type>
+ 			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,4,11</Button>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 85e3e4af7..0d9da5e90 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -88,8 +88,8 @@
+ 			</Buildings>
+ 			<Units>
+ 				<Unit>
+-					<UnitClassType>UNITCLASS_MARINE</UnitClassType>
+-					<UnitType>UNIT_AMERICAN_NAVY_SEAL</UnitType>
++					<UnitClassType>UNITCLASS_RIFLEMAN</UnitClassType>
++					<UnitType>UNIT_USA_PATRIOT</UnitType>
+ 				</Unit>
+ 			</Units>
+ 			<FreeUnitClasses>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index cce903bf6..9c37ac891 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -347,6 +347,14 @@
+ 
+ 
+ 
++	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>
++		<English>Immortal</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: add new camel units anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_CAMEL_ARCHER</Tag>
+@@ -379,16 +387,15 @@
+ 
+ 
+ 	<TEXT>
+-		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER</Tag>
+-		<English>Swift Worker</English>
++		<Tag>TXT_KEY_UNIT_USA_PATRIOT</Tag>
++		<English>Patriot</English>
+ 	</TEXT>
+ 
+ 
+ 
+-	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>
+-		<English>Immortal</English>
++		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER</Tag>
++		<English>Swift Worker</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index bdb279c8b..3c6186b51 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -208,7 +208,15 @@
+ 	<!-- custom: based on https://en.wikipedia.org/wiki/Hussar anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_GERMAN_HUSSAR_PEDIA</Tag>
+-		<English>[TAB]A hussar was a member of a class of light cavalry, originally from the Kingdom of Hungary during the 15th and 16th centuries. The title and distinctive dress of these horsemen were subsequently widely adopted by light cavalry regiments in European armies during the late 17th and 18th centuries. By the 19th century, hussars were wearing jackets decorated with braid plus shako or busby fur hats and had developed a romanticized image of being dashing and adventurous.[PARAGRAPH:1]Historically, the term derives from the cavalry of late medieval Hungary, under Matthias Corvinus, with mainly Serb warriors.[PARAGRAPH:2]Initially the first units of Polish Hussars in the Kingdom of Poland were formed around 1500. The Polish heavy hussars of the Polish-Lithuanian Commonwealth were far more manoeuvrable than the heavily armoured lancers previously employed. The hussars proved vital to the Polish-Lithuanian victories at the Orsza (1514), the Obertyn (1531) and the Battle of Vienna (1683).[PARAGRAPH:2]Hussars throughout Europe followed a different line of development than the Polish hussars. During the early decades of the 17th century, hussars in Hungary ceased to wear metal body armour; and, by 1640, most were light cavalry. It was hussars of this "light" pattern, rather than the Polish heavy hussar, that were later copied across Europe. These light hussars were ideal for reconnaissance and raiding sources of fodder and provisions in advance of the army.[PARAGRAPH:1]In battle, they were used in such light cavalry roles as harassing enemy skirmishers, overrunning artillery positions, and pursuing fleeing troops. In many countries, the hussars and bosniaks actually retained their original Asiatic uniforms. In the late 17th and 18th centuries, many Hungarian hussars sought employment in other Central and Western European countries and became the core of similar light cavalry formations created there. Following their example, hussar regiments were introduced into at least twelve European armies by 1800.[PARAGRAPH:1]Bavaria raised its first hussar regiment in 1688 and a second one in about 1700. Prussia followed suit in 1721 when Frederick the Great used hussar units extensively during the War of the Austrian Succession.[PARAGRAPH:1]France established a number of hussar regiments from 1692 onward, recruiting originally from Hungary and Germany, then subsequently from German-speaking frontier regions within France itself. The first hussar regiment in the French army was the Hussars-Royaux (Royal Hussars), raised from Hungarian deserters in 1692.[PARAGRAPH:2]During and after R�k�czi's War of Independence, many Hungarians served in the Habsburg army. Located in garrisons far away from Hungary, some deserted from the Austrian army and joined that of Prussia. The value of the Hungarian hussars as light cavalry was recognised and, in 1721, two Hussaren Corps were organised in the Prussian Army.[PARAGRAPH:1]Frederick II (later called "The Great") recognised the value of hussars as light cavalry and encouraged their recruitment. In 1741, he established a further five regiments, largely from Polish deserters. Three more regiments were raised for Prussian service in 1744 and another in 1758. While the hussars were increasingly drawn from Prussian and other German cavalrymen, they continued to wear the traditional Hungarian uniform, richly decorated with braid and gold trim.[PARAGRAPH:1]Possibly due to a daring and impudent surprise raid on his capital, Berlin, by the hussars of Hungarian general Andr�s Hadik, Frederick also recognised the national characteristics of his Hungarian recruits and, in 1759, issued a royal order which warned the Prussian officers never to offend the self-esteem of his hussars with insults and abuse. At the same time, he exempted the hussars from the usual disciplinary measures of the Prussian Army, such as physical punishments including cudgeling.[PARAGRAPH:1]Frederick used his hussars for reconnaissance duties and for surprise attacks against the enemy's flanks and rear. A hussar regiment under the command of Colonel Sigismund Dabasi-Hal�sz helped win the Battle of Hohenfriedberg at Striegau on May 4, 1745, by attacking the Austrian combat formation on its flank and capturing all of its artillery.[PARAGRAPH:1]The effectiveness of the hussars in Frederick's army can be judged by the number of promotions and decorations awarded to their officers. Recipients included the Hungarian generals Pal Werner and Ferenc K?szeghy, who received the highest Prussian military order, the "Pour le M�rite"; General Tivadar Ruesh was awarded the title of baron; Mih�ly Sz�kely was promoted from the rank of captain to general after less than fifteen years of service.[PARAGRAPH:1]While Hungarian hussars served in the opposing armies of Frederick and Maria Theresa, there were no known instances of fratricidal clashes between them.[PARAGRAPH:1][PARAGRAPH:1]</English>
++		<English>[TAB]A hussar was a member of a class of light cavalry, originally from the Kingdom of Hungary during the 15th and 16th centuries. The title and distinctive dress of these horsemen were subsequently widely adopted by light cavalry regiments in European armies during the late 17th and 18th centuries. By the 19th century, hussars were wearing jackets decorated with braid plus shako or busby fur hats and had developed a romanticized image of being dashing and adventurous.[PARAGRAPH:1]Historically, the term derives from the cavalry of late medieval Hungary, under Matthias Corvinus, with mainly Serb warriors.[PARAGRAPH:2]Initially the first units of Polish Hussars in the Kingdom of Poland were formed around 1500. The Polish heavy hussars of the Polish-Lithuanian Commonwealth were far more manoeuvrable than the heavily armoured lancers previously employed. The hussars proved vital to the Polish-Lithuanian victories at the Orsza (1514), the Obertyn (1531) and the Battle of Vienna (1683).[PARAGRAPH:2]Hussars throughout Europe followed a different line of development than the Polish hussars. During the early decades of the 17th century, hussars in Hungary ceased to wear metal body armour; and, by 1640, most were light cavalry. It was hussars of this "light" pattern, rather than the Polish heavy hussar, that were later copied across Europe. These light hussars were ideal for reconnaissance and raiding sources of fodder and provisions in advance of the army.[PARAGRAPH:1]In battle, they were used in such light cavalry roles as harassing enemy skirmishers, overrunning artillery positions, and pursuing fleeing troops. In many countries, the hussars and bosniaks actually retained their original Asiatic uniforms. In the late 17th and 18th centuries, many Hungarian hussars sought employment in other Central and Western European countries and became the core of similar light cavalry formations created there. Following their example, hussar regiments were introduced into at least twelve European armies by 1800.[PARAGRAPH:1]Bavaria raised its first hussar regiment in 1688 and a second one in about 1700. Prussia followed suit in 1721 when Frederick the Great used hussar units extensively during the War of the Austrian Succession.[PARAGRAPH:1]France established a number of hussar regiments from 1692 onward, recruiting originally from Hungary and Germany, then subsequently from German-speaking frontier regions within France itself. The first hussar regiment in the French army was the Hussars-Royaux (Royal Hussars), raised from Hungarian deserters in 1692.[PARAGRAPH:2]During and after R�k�czi's War of Independence, many Hungarians served in the Habsburg army. Located in garrisons far away from Hungary, some deserted from the Austrian army and joined that of Prussia. The value of the Hungarian hussars as light cavalry was recognised and, in 1721, two Hussaren Corps were organised in the Prussian Army.[PARAGRAPH:1]Frederick II (later called "The Great") recognised the value of hussars as light cavalry and encouraged their recruitment. In 1741, he established a further five regiments, largely from Polish deserters. Three more regiments were raised for Prussian service in 1744 and another in 1758. While the hussars were increasingly drawn from Prussian and other German cavalrymen, they continued to wear the traditional Hungarian uniform, richly decorated with braid and gold trim.[PARAGRAPH:1]Possibly due to a daring and impudent surprise raid on his capital, Berlin, by the hussars of Hungarian general Andr�s Hadik, Frederick also recognised the national characteristics of his Hungarian recruits and, in 1759, issued a royal order which warned the Prussian officers never to offend the self-esteem of his hussars with insults and abuse. At the same time, he exempted the hussars from the usual disciplinary measures of the Prussian Army, such as physical punishments including cudgeling.[PARAGRAPH:1]Frederick used his hussars for reconnaissance duties and for surprise attacks against the enemy's flanks and rear. A hussar regiment under the command of Colonel Sigismund Dabasi-Hal�sz helped win the Battle of Hohenfriedberg at Striegau on May 4, 1745, by attacking the Austrian combat formation on its flank and capturing all of its artillery.[PARAGRAPH:1]The effectiveness of the hussars in Frederick's army can be judged by the number of promotions and decorations awarded to their officers. Recipients included the Hungarian generals Pal Werner and Ferenc K?szeghy, who received the highest Prussian military order, the "Pour le M�rite"; General Tivadar Ruesh was awarded the title of baron; Mih�ly Sz�kely was promoted from the rank of captain to general after less than fifteen years of service.[PARAGRAPH:1]While Hungarian hussars served in the opposing armies of Frederick and Maria Theresa, there were no known instances of fratricidal clashes between them.</English>
++	</TEXT>
++
++
++
++	<!-- custom: based on https://en.wikipedia.org/wiki/Patriot_(American_Revolution) anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_USA_PATRIOT_PEDIA</Tag>
++		<English>[TAB]Patriots (also known as Revolutionaries, Continentals, Rebels, or Whigs) were colonists in the Thirteen Colonies who opposed the Kingdom of Great Britain's control and governance during the colonial era and supported and helped launch the American Revolution that ultimately established American independence. Patriot politicians led colonial opposition to British policies regarding the American colonies, eventually building support for the adoption of the Declaration of Independence, which was adopted unanimously by the Second Continental Congress on July 4, 1776.[PARAGRAPH:1]After the American Revolutionary War began the year before, in 1775, many patriots assimilated into the Continental Army, which was commanded by George Washington and which ultimately secured victory against the British Army, leading the British to end their involvement in the war and acknowledge the sovereign independence of the colonies, reflected in the Treaty of Paris, which led to the establishment of the United States in 1783.[PARAGRAPH:1]The patriots were inspired by English and American republican ideology that was part of the Age of Enlightenment, and rejected monarchy and aristocracy and supported individual liberty and natural rights and legal rights. Prominent patriot political theorists, including Thomas Jefferson, John Adams, and Thomas Paine, spearheaded the American Enlightenment, which was in turn inspired by European thinkers such as Francis Bacon, John Locke, and Jean-Jacques Rousseau. Though slavery existed in all of the Thirteen Colonies prior to the American Revolution, the issue divided patriots, with some supporting its abolition while others espoused proslavery thought.[PARAGRAPH:1]The patriots included members of every social and ethnic group in the colonies, though support for the patriot cause was strongest in the New England Colonies and weakest in the Southern Colonies. The American Revolution divided the colonial population into three groups: patriots, who supported the end of British rule; loyalists, who supported Britain's continued control over the colonies; and those who remained neutral. African Americans who supported the patriots were known as Black Patriots, with their counterparts on the British side being referred to as Black Loyalists.[PARAGRAPH:2]The critics of British policy towards the Thirteen Colonies called themselves "Whigs" after 1768, identifying with members of the British Whig party who favored similar colonial policies. Samuel Johnson writes that, at the time, the word "patriot" had a negative connotation and was used as a negative epithet for "a factious disturber of the government".[PARAGRAPH:1]Prior to the American Revolution, colonists who supported British authority called themselves Tories or royalists, identifying with the political philosophy of traditionalist conservatism as it existed in Great Britain. During the American Revolution, these persons became known primarily as Loyalists. Afterward, some 15% of Loyalists emigrated north to the remaining British territories in the Canadas. There they called themselves the United Empire Loyalists. 85% of the Loyalists decided to stay in the new United States and were granted American citizenship.[PARAGRAPH:2]Prior to the formal beginning of the American Revolution, many patriots were active in groups including the Sons of Liberty. The most prominent patriot leaders are referred to today as the Founding Fathers, who are generally defined as the 56 men who, as delegates to the Second Continental Congress in Philadelphia, signed the Declaration of Independence.[PARAGRAPH:1]Patriots included a cross-section of the population of the Thirteen Colonies and came from varying backgrounds. Roughly 40 to 45 percent of the white population in the Thirteen Colonies supported the patriots' cause, between 15 and 20 percent supported the Loyalists, and the remainder were neutral or kept a low profile regarding their loyalties. The great majority of Loyalists remained in the Thirteen Colonies during the American Revolution; a minority, however, fled the nation for Canada, Great Britain, Florida, or the West Indies.[PARAGRAPH:2]Historians have explored the motivations that pulled men to one side or the other. Yale historian Leonard Woods Labaree used the published and unpublished writings and letters of leading men on each side, searching for how personality shaped their choice. He finds eight characteristics that differentiated the two groups. Loyalists were older, better established, and more likely to resist innovation than the patriots. Loyalists felt that the Crown was the legitimate government and resistance to it was morally wrong, while the patriots felt that morality was on their side because the British government had violated the constitutional rights of Englishmen. Men who were alienated by physical attacks on Royal officials took the Loyalist position, while those who were offended by British responses to actions such as the Boston Tea Party became patriots. Merchants in the port cities with long-standing financial attachments to Britain were likely to remain loyal, while few patriots were so deeply enmeshed in the system. Some Loyalists, according to Labaree, were "procrastinators" who believed that independence was bound to come some day but wanted to "postpone the moment", while the patriots wanted to "seize the moment". Loyalists were cautious and afraid of anarchy or tyranny that might come from mob rule; patriots made a systematic effort to take a stand against the British government. Finally, Labaree argues that Loyalists were pessimists who lacked the patriots' confidence that independence lay ahead.[PARAGRAPH:1]The patriots rejected taxes imposed by legislatures in which the taxpayer was not represented. "No taxation without representation" was their slogan, referring to the lack of representation in the British Parliament. The British countered that there was "virtual representation" in the sense that all members of Parliament represented the interests of all the citizens of the British Empire. Some patriots declared that they were loyal to the king, but they insisted that they should be free to run their own affairs. In fact, they had been running their own affairs since the period of "salutary neglect" before the French and Indian War. Some radical patriots tarred and feathered tax collectors and customs officers, making those positions dangerous; according to Benjamin Irvin, the practice was especially prevalent in Boston where many patriots lived.</English>
+ 	</TEXT>
+ 
+ 
+@@ -216,7 +224,7 @@
+ 	<!-- custom: based on removed the old "NETHERLANDS_OOSTINDIEVAARDER", the dutch civ-specific unit is now the "DUTCH_SWIFT_WORKER", the idea is an agricultural-like unit based on https://en.wikipedia.org/wiki/Netherlands#Agriculture_and_natural_resources, see xml code comment at unit info for details, anyways etc anyways etc anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_DUTCH_SWIFT_WORKER_PEDIA</Tag>
+-		<English>[TAB]The Dutch agricultural sector is highly mechanised, and has a strong focus on international exports. It employs about 4% of the Dutch labour force but produces large surpluses in the food-processing industry and accounts for 21% of the Dutch total export value. The Dutch rank first in the European Union and second worldwide in value of agricultural exports, behind only the United States, with agricultural exports earning �80.7 billion in 2014, up from �75.4 billion in 2012. In 2019 agricultural exports were worth �94.5 billion. In an effort to reduce agricultural pollution, the Dutch government is imposing strict limits on the productivity of the farming sector, triggering Dutch farmers' protests.[PARAGRAPH:1]One-third of the world's exports of chilis, tomatoes, and cucumbers go through the country. The Netherlands exports one-fifteenth of the world's apples. A significant portion of Dutch agricultural exports consists of fresh-cut plants, flowers, and flower bulbs, with the Netherlands exporting two-thirds of the world's total.</English>
++		<English>[TAB]The Dutch agricultural sector is highly mechanised, and has a strong focus on international exports. It employs about 4% of the Dutch labour force but produces large surpluses in the food-processing industry and accounts for 21% of the Dutch total export value. The Dutch rank first in the European Union and second worldwide in value of agricultural exports, behind only the United States, with agricultural exports earning 80.7 billion euros in 2014, up from 75.4 billion euros in 2012. In 2019 agricultural exports were worth 94.5 billion euros. In an effort to reduce agricultural pollution, the Dutch government is imposing strict limits on the productivity of the farming sector, triggering Dutch farmers' protests.[PARAGRAPH:1]One-third of the world's exports of chilis, tomatoes, and cucumbers go through the country. The Netherlands exports one-fifteenth of the world's apples. A significant portion of Dutch agricultural exports consists of fresh-cut plants, flowers, and flower bulbs, with the Netherlands exporting two-thirds of the world's total.</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 49d20f0c7..2796c71d4 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -1048,7 +1048,7 @@
+ 			</ProductionTraits>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>45</iCost>
++			<iCost>50</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -1298,7 +1298,7 @@
+ 			</ProductionTraits>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>45</iCost>
++			<iCost>50</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -1548,7 +1548,7 @@
+ 			</ProductionTraits>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>45</iCost>
++			<iCost>50</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -9960,6 +9960,212 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
++		<!-- custom: USA civ-specific unit replaced with the "USA_PATRIOT" mostly so they have a unit important/impactful earlier in the game while still historically accurate anyways etc, based on: https://en.wikipedia.org/wiki/Patriot_(American_Revolution) and the rifleman unit as a base anyways etc -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_RIFLEMAN, type: UNIT_USA_PATRIOT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_RIFLEMAN</Class>
++			<Type>UNIT_USA_PATRIOT</Type>
++			<UniqueNames/>
++			<Special>NONE</Special>
++			<Capture>NONE</Capture>
++			<Combat>UNITCOMBAT_GUN</Combat>
++			<Domain>DOMAIN_LAND</Domain>
++			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
++			<Invisible>NONE</Invisible>
++			<SeeInvisible>NONE</SeeInvisible>
++			<Description>TXT_KEY_UNIT_USA_PATRIOT</Description>
++			<Civilopedia>TXT_KEY_UNIT_USA_PATRIOT_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<bAnimal>0</bAnimal>
++			<bFood>0</bFood>
++			<bNoBadGoodies>0</bNoBadGoodies>
++			<bOnlyDefensive>0</bOnlyDefensive>
++			<bNoCapture>0</bNoCapture>
++			<bQuickCombat>0</bQuickCombat>
++			<bRivalTerritory>0</bRivalTerritory>
++			<bMilitaryHappiness>1</bMilitaryHappiness>
++			<bMilitarySupport>1</bMilitarySupport>
++			<bMilitaryProduction>1</bMilitaryProduction>
++			<bPillage>1</bPillage>
++			<bSpy>0</bSpy>
++			<bSabotage>0</bSabotage>
++			<bDestroy>0</bDestroy>
++			<bStealPlans>0</bStealPlans>
++			<bInvestigate>0</bInvestigate>
++			<bCounterSpy>0</bCounterSpy>
++			<bFound>0</bFound>
++			<bGoldenAge>0</bGoldenAge>
++			<bInvisible>0</bInvisible>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bNoDefensiveBonus>0</bNoDefensiveBonus>
++			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
++			<bCanMoveImpassable>0</bCanMoveImpassable>
++			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
++			<bFlatMovementCost>0</bFlatMovementCost>
++			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqBonuses>0</bPrereqBonuses>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bMechanized>0</bMechanized>
++			<bSuicide>0</bSuicide>
++			<bHiddenNationality>0</bHiddenNationality>
++			<bAlwaysHostile>0</bAlwaysHostile>
++			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_INFANTRY</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++			</UnitClassUpgrades>
++			<UnitClassTargets/>
++			<UnitCombatTargets/>
++			<UnitClassDefenders/>
++			<UnitCombatDefenders/>
++			<FlankingStrikes/>
++			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<!-- K-Mod -->
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<!-- K-Mod -->
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs/>
++			<Builds/>
++			<ReligionSpreads/>
++			<CorporationSpreads/>
++			<GreatPeoples/>
++			<Buildings/>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<PrereqBuilding>NONE</PrereqBuilding>
++			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_RIFLING with techTypes empty anyways etc -->
++			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<Flavors/>
++			<iAIWeight>0</iAIWeight>
++			<iCost>110</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iMoves>1</iMoves>
++			<bNoRevealMap>0</bNoRevealMap>
++			<iAirRange>0</iAirRange>
++			<iAirUnitCap>0</iAirUnitCap>
++			<iDropRange>0</iDropRange>
++			<iNukeRange>-1</iNukeRange>
++			<iWorkRate>0</iWorkRate>
++			<iBaseDiscover>0</iBaseDiscover>
++			<iDiscoverMultiplier>0</iDiscoverMultiplier>
++			<iBaseHurry>0</iBaseHurry>
++			<iHurryMultiplier>0</iHurryMultiplier>
++			<iBaseTrade>0</iBaseTrade>
++			<iTradeMultiplier>0</iTradeMultiplier>
++			<iGreatWorkCulture>0</iGreatWorkCulture>
++			<iEspionagePoints>0</iEspionagePoints>
++			<TerrainImpassables/>
++			<FeatureImpassables/>
++			<TerrainPassableTechs/>
++			<FeaturePassableTechs/>
++			<iCombat>14</iCombat>
++			<iCombatLimit>100</iCombatLimit>
++			<iAirCombat>0</iAirCombat>
++			<iAirCombatLimit>0</iAirCombatLimit>
++			<iXPValueAttack>4</iXPValueAttack>
++			<iXPValueDefense>2</iXPValueDefense>
++			<iFirstStrikes>0</iFirstStrikes>
++			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<iInterceptionProbability>0</iInterceptionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
++			<iWithdrawalProb>0</iWithdrawalProb>
++			<iCollateralDamage>0</iCollateralDamage>
++			<iCollateralDamageLimit>200</iCollateralDamageLimit>
++			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>0</iCityDefense>
++			<iAnimalCombat>0</iAnimalCombat>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<TerrainNatives/>
++			<FeatureNatives/>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
++			<UnitClassAttackMods/>
++			<UnitClassDefenseMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
++			<UnitCombatCollateralImmunes/>
++			<DomainMods/>
++			<BonusProductionModifiers/>
++			<iBombRate>0</iBombRate>
++			<iBombardRate>0</iBombardRate>
++			<SpecialCargo>NONE</SpecialCargo>
++			<DomainCargo>NONE</DomainCargo>
++			<iCargo>0</iCargo>
++			<iConscription>5</iConscription>
++			<iCultureGarrison>8</iCultureGarrison>
++			<iExtraCost>0</iExtraCost>
++			<iAsset>3</iAsset>
++			<iPower>14</iPower>
++			<UnitMeshGroups>
++				<iGroupSize>3</iGroupSize>
++				<fMaxSpeed>1.75</fMaxSpeed>
++				<fPadTime>1</fPadTime>
++				<iMeleeWaveSize>3</iMeleeWaveSize>
++				<iRangedWaveSize>0</iRangedWaveSize>
++				<UnitMeshGroup>
++					<iRequired>3</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_USA_PATRIOT</EarlyArtDefineTag>
++				</UnitMeshGroup>
++			</UnitMeshGroups>
++			<FormationType>FORMATION_TYPE_RANGED</FormationType>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- custom: according to the wikipedia description anyways etc, it seems or it says from what i understand/remake of it that unlike loyalists, patriots had the confidence and belief to actually rebell and that independence would come and acted as such, unlike loyalists that lacked such confidence, see wikipedia link at top of unit info of this unit 's code comment or somewhere around it or about this unit in xml or/and a related to this unit code comment or similar other place(s if any other or not but anyways etc) anywyas etc -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_DRILL1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
++			<LeaderPromotion>NONE</LeaderPromotion>
++			<iLeaderExperience>0</iLeaderExperience>
++		</UnitInfo>
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_GRENADIER, type: UNIT_GRENADIER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_GRENADIER</Class>
+ 			<Type>UNIT_GRENADIER</Type>
+@@ -11105,202 +11311,6 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_MARINE, type: UNIT_AMERICAN_NAVY_SEAL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_MARINE</Class>
+-			<Type>UNIT_AMERICAN_NAVY_SEAL</Type>
+-			<UniqueNames/>
+-			<Special>NONE</Special>
+-			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_GUN</Combat>
+-			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+-			<Invisible>NONE</Invisible>
+-			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_AMERICAN_NAVY_SEAL</Description>
+-			<Civilopedia>TXT_KEY_UNIT_AMERICAN_NAVY_SEAL_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_AMERICAN_NAVY_SEAL_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_MILITARY</Advisor>
+-			<bAnimal>0</bAnimal>
+-			<bFood>0</bFood>
+-			<bNoBadGoodies>0</bNoBadGoodies>
+-			<bOnlyDefensive>0</bOnlyDefensive>
+-			<bNoCapture>0</bNoCapture>
+-			<bQuickCombat>0</bQuickCombat>
+-			<bRivalTerritory>0</bRivalTerritory>
+-			<bMilitaryHappiness>1</bMilitaryHappiness>
+-			<bMilitarySupport>1</bMilitarySupport>
+-			<bMilitaryProduction>1</bMilitaryProduction>
+-			<bPillage>1</bPillage>
+-			<bSpy>0</bSpy>
+-			<bSabotage>0</bSabotage>
+-			<bDestroy>0</bDestroy>
+-			<bStealPlans>0</bStealPlans>
+-			<bInvestigate>0</bInvestigate>
+-			<bCounterSpy>0</bCounterSpy>
+-			<bFound>0</bFound>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+-			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+-			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+-			<bCanMoveImpassable>0</bCanMoveImpassable>
+-			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+-			<bFlatMovementCost>0</bFlatMovementCost>
+-			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqBonuses>0</bPrereqBonuses>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bMechanized>0</bMechanized>
+-			<bSuicide>0</bSuicide>
+-			<bHiddenNationality>0</bHiddenNationality>
+-			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades/>
+-			<UnitClassTargets/>
+-			<UnitCombatTargets/>
+-			<UnitClassDefenders/>
+-			<UnitCombatDefenders/>
+-			<FlankingStrikes/>
+-			<UnitAIs>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs/>
+-			<Builds/>
+-			<ReligionSpreads/>
+-			<CorporationSpreads/>
+-			<GreatPeoples/>
+-			<Buildings/>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_RIFLING</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
+-			<BonusType>NONE</BonusType>
+-			<PrereqBonuses/>
+-			<ProductionTraits/>
+-			<Flavors/>
+-			<iAIWeight>0</iAIWeight>
+-			<iCost>160</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>1</iMoves>
+-			<bNoRevealMap>0</bNoRevealMap>
+-			<iAirRange>0</iAirRange>
+-			<iAirUnitCap>0</iAirUnitCap>
+-			<iDropRange>0</iDropRange>
+-			<iNukeRange>-1</iNukeRange>
+-			<iWorkRate>0</iWorkRate>
+-			<iBaseDiscover>0</iBaseDiscover>
+-			<iDiscoverMultiplier>0</iDiscoverMultiplier>
+-			<iBaseHurry>0</iBaseHurry>
+-			<iHurryMultiplier>0</iHurryMultiplier>
+-			<iBaseTrade>0</iBaseTrade>
+-			<iTradeMultiplier>0</iTradeMultiplier>
+-			<iGreatWorkCulture>0</iGreatWorkCulture>
+-			<iEspionagePoints>0</iEspionagePoints>
+-			<TerrainImpassables/>
+-			<FeatureImpassables/>
+-			<TerrainPassableTechs/>
+-			<FeaturePassableTechs/>
+-			<iCombat>24</iCombat>
+-			<iCombatLimit>100</iCombatLimit>
+-			<iAirCombat>0</iAirCombat>
+-			<iAirCombatLimit>0</iAirCombatLimit>
+-			<iXPValueAttack>4</iXPValueAttack>
+-			<iXPValueDefense>2</iXPValueDefense>
+-			<iFirstStrikes>1</iFirstStrikes>
+-			<iChanceFirstStrikes>1</iChanceFirstStrikes>
+-			<iInterceptionProbability>0</iInterceptionProbability>
+-			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
+-			<iCollateralDamage>0</iCollateralDamage>
+-			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>0</iCityDefense>
+-			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
+-			<TerrainNatives/>
+-			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
+-			<UnitClassAttackMods>
+-				<UnitClassAttackMod>
+-					<UnitClassType>UNITCLASS_MACHINE_GUN</UnitClassType>
+-					<iUnitClassMod>50</iUnitClassMod>
+-				</UnitClassAttackMod>
+-				<UnitClassAttackMod>
+-					<UnitClassType>UNITCLASS_ARTILLERY</UnitClassType>
+-					<iUnitClassMod>50</iUnitClassMod>
+-				</UnitClassAttackMod>
+-			</UnitClassAttackMods>
+-			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
+-			<UnitCombatCollateralImmunes/>
+-			<DomainMods/>
+-			<BonusProductionModifiers/>
+-			<iBombRate>0</iBombRate>
+-			<iBombardRate>0</iBombardRate>
+-			<SpecialCargo>NONE</SpecialCargo>
+-			<DomainCargo>NONE</DomainCargo>
+-			<iCargo>0</iCargo>
+-			<iConscription>1</iConscription>
+-			<iCultureGarrison>12</iCultureGarrison>
+-			<iExtraCost>0</iExtraCost>
+-			<iAsset>4</iAsset>
+-			<iPower>28</iPower>
+-			<UnitMeshGroups>
+-				<iGroupSize>3</iGroupSize>
+-				<fMaxSpeed>1.75</fMaxSpeed>
+-				<fPadTime>1</fPadTime>
+-				<iMeleeWaveSize>3</iMeleeWaveSize>
+-				<iRangedWaveSize>0</iRangedWaveSize>
+-				<UnitMeshGroup>
+-					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_AMERICAN_NAVY_SEAL</EarlyArtDefineTag>
+-				</UnitMeshGroup>
+-			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_AMPHIBIOUS</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
+-			<LeaderPromotion>NONE</LeaderPromotion>
+-			<iLeaderExperience>0</iLeaderExperience>
+-		</UnitInfo>
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_PARATROOPER, type: UNIT_PARATROOPER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_PARATROOPER</Class>
+ 			<Type>UNIT_PARATROOPER</Type>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 92870436a..ad122b638 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -1,37 +1,20 @@
+ # Coding Help for AdvCiv / AdvCiv-SAS
+ 
+-This is a non-exhaustive page containing some ressources i found
+-helpful.
++This is a non-exhaustive page containing some ressources i found helpful.
+ 
+ ## Disclaimer and general information
+ 
+-I don't know a lot about XML, C++, or Python, and (only) got
+-familiar with these languages recently as i started developping
+-for Civ4 this AdvCiv-SAS mod.
++I don't know a lot about XML, C++, or Python, and (only) got familiar with these languages recently as i started developping for Civ4 this AdvCiv-SAS mod.
+ 
+ I did have previous knowledge though.
+ 
+-I cannot be assumed or expected to be available or responsible
+-to provide any coding help or feedback (i'd prefer to have my
+-peace of mind rather, even though i may occasionnaly or more
+-often, but not guaranteed and maybe not if i don't want or
+-do so or any other reason or not, but i might or might not, just
+-this is a fair warning/caution point about that, anyways),
+-however i hope these few ressources i have accumulated may help
+-those who wish to start their own mod.
+-
+-I can also not be held responsible for any damage resulting of
+-following these instructions, whether these are followed correctly
+-or incorrectly. I am only providing them as general information, and
+-while i hope it helps, you are responsible for checking it, verifying
+-it, and using it, and any consequence that may happen as a result.
+-Hopefully you'll find them helpful though, but in case not or
+-something happens, this is just to protect myself and talk to you
+-in all fairness.
+-
+-Else or additionally, you may find more help asking your question(s) directly on
+-[CivFanaticsCenter's Civ4 Forum](https://forums.civfanatics.com/categories/civilization-iv.143/)
+-rather maybe. Hopefully this data i provided is also helpful though.
++I cannot be assumed or expected to be available or responsible to provide any coding help or feedback (i'd prefer to have my peace of mind rather, even though i may occasionnaly or more often, but not guaranteed and maybe not if i don't want or do so or any other reason or not, but i might or might not, just this is a fair warning/caution point about that, anyways), however i hope these few ressources i have accumulated may help those who wish to start their own mod.
++
++I can also not be held responsible for any damage resulting of following these instructions, whether these are followed correctly or incorrectly. I am only providing them as general information, and while i hope it helps, you are responsible for checking it, verifying it, and using it, and any consequence that may happen as a result.
++
++Hopefully you'll find them helpful though, but in case not or something happens, this is just to protect myself and talk to you in all fairness.
++
++Else or additionally, you may find more help asking your question(s) directly on [CivFanaticsCenter's Civ4 Forum](https://forums.civfanatics.com/categories/civilization-iv.143/) rather maybe. Hopefully this data i provided is also helpful though.
+ 
+ ## A few useful tips
+ 
+@@ -454,6 +437,8 @@ Like this for example if it helps too, anyways etc... (not sayin this is a stand
+ 			<SHADERNIF>Art/AdvCiv_SAS/Units/Camel_Archer/nif/BerberCamelRiderFinalFinal_fx.nif</SHADERNIF>
+ ```
+ 
++note3: in some cases it's even harder than that as the nif expects some assets not in the other mod where you're importing it from's folder anyways etc, so with nifskope (see screenshots in drive link in this section of the readme anyways etc), for example for the usa_patriot of/in advciv-sas anyways etc, open the trees and such until you find one or many of the assets the nif requires, in this case it was just brownbesstexture.dds, that was not in ri mod's li_fus_early_america if i am not mistaken anyways etc where the remaining and what i expected to be all but anyways etc unit's art were. So to solve this, i did a search with dragon unpacker in the .fpk of civilization america where i took this unit from, and luckily for us anyways etc this brownbesstexture.dds was there, so i extracted, added it, verified path in nif is relative to current folder as was and not in some other folder parent or child anyways etc to ours, and since all was good by adding this .dds as well in Mods\AdvCiv-SAS\Assets\Art\AdvCiv_SAS\Units\USA_Patriot\nif\ then finally the gun was not purple again of missing art but was the real gun same as in ri mod yohoo!! If i may say but anyways etc. Since it was not luckily too hard to solve unlike harder times i had for example with c2c camel units with many missing assets or and with a path outside of the unit's folder if i remember correctly, i thought it was a good time to add this example to the tutorial since easier and such and i could solve it, while also remembering chatgpt/becomingthrough's instructions at the time for c2c even though i didn't succeed at it at the time now solved with the usa patriot that has a nice brown gun in the game (or white in nifskope as in empty if i am not mistaken in this case but anyways etc) i mean but anyways etc anyways etc anyways etc... hopefulyl helpful, see drive screenshots as well for examples of how i solved it in main steps hopefully helpful anyways etc
++
+ ## Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded" flag in sevopedia leader 's placeSpecial and in tech tree view (technology advisor) anyways etc
+ 
+ See screenshots of how this was implemented (not fully exhaustive but hopefully quite a bit exhaustive enough if i may say but anyways etc anyways etc anyways etc) in this [google drive folder](https://drive.google.com/drive/folders/176fGLxIWwOTRYAjafi2OGhe8VuVBZLMT?usp=sharing)
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=64513

@@ -1,0 +1,57 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3705
+# Commit: 44361cf5c032e3f7cda0abe120f8aa6715596696
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 816139c6c693eec1353cb4f5477dbffc6e78203d
+# Title: Fix minor BtS bug with Airliner Crash event
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	CvGameCoreDLL/CvPlayer.cpp
+6	0	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 0580d0d04..12e2425b2 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -15918,6 +15918,10 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
+ 	{
+ 			GET_TEAM(getTeam()).changeEspionagePointsAgainstTeam(
+ 					TEAMID(pTriggeredData->m_eOtherPlayer), kEvent.getEspionagePoints());
++			// <advc.001>
++			if (kEvent.getEspionagePoints() > 0)
++				GET_TEAM(getTeam()).changeEspionagePointsEver(kEvent.getEspionagePoints());
++			// </advc.001>
+ 	}
+ 
+ 	if (kEvent.getTechPercent() != 0)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0947aeec3..9d380cb9f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2710,6 +2710,12 @@ int CvPlayerAI::AI_calculateEspionageWeight() const
+ 		iWeight *= 100 + 2*getCommercePercent(COMMERCE_ESPIONAGE);
+ 		iWeight /= 110;
+ 	}
++	// <advc.test>
++	if (iWeight < 0)
++	{
++		iWeight = 0;
++		FErrorMsg("Negative espionage weight");
++	} // </advc.test>
+ 	return iWeight;
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1089

@@ -1,0 +1,309 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3148
+# Commit: 0ef530775ede834437895dc5c1a72ced19dc7efe
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2de68010133b60f3e8ced98d35834ab8a52bfd23
+# Title: Reduce culture rate of Creative trait
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
+4	1	Assets/XML/Civilizations/CIV4TraitInfos.xml
+29	0	Assets/XML/Text/CIV4GameText_advc.xml
+6	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+14	4	CvGameCoreDLL/CvCity.cpp
+8	0	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+41	0	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvInfo_Civilization.cpp
+20	2	CvGameCoreDLL/CvInfo_Civilization.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml b/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
+index 81bb8b04d..1ce75694f 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationsSchema.xml
+@@ -321,6 +321,8 @@
+ 	<ElementType name="iMaxGlobalBuildingProductionModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iMaxTeamBuildingProductionModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iMaxPlayerBuildingProductionModifier" content="textOnly" dt:type="int"/>
++	<!-- advc.908b -->
++	<ElementType name="iFreeCityCulture" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iExtraYieldThreshold" content="textOnly" dt:type="int"/>
+ 	<ElementType name="ExtraYieldThresholds" content="eltOnly">
+ 		<element type="iExtraYieldThreshold" minOccurs="0" maxOccurs="*"/>
+@@ -376,6 +378,8 @@
+ 		<element type="iMaxGlobalBuildingProductionModifier"/>
+ 		<element type="iMaxTeamBuildingProductionModifier"/>
+ 		<element type="iMaxPlayerBuildingProductionModifier"/>
++		<!-- advc.908b: NB - gets adjusted to game speed -->
++		<element type="iFreeCityCulture" minOccurs="0"/>
+ 		<element type="ExtraYieldThresholds"/>
+ 		<!-- advc.908a: Like ExtraYieldThresholds, but the extra yield
+ 			 is also granted if a the _natural_ tile yield plus one
+
+diff --git a/Assets/XML/Civilizations/CIV4TraitInfos.xml b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+index 829638196..edca730dd 100644
+--- a/Assets/XML/Civilizations/CIV4TraitInfos.xml
++++ b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+@@ -146,12 +146,15 @@
+ 			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
+ 			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
+ 			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
++			<!-- advc.908b -->
++			<iFreeCityCulture>10</iFreeCityCulture>
+ 			<ExtraYieldThresholds/>
+ 			<TradeYieldModifiers/>
+ 			<CommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>2</iCommerce>
++				<!-- advc.908b: was 2 -->
++				<iCommerce>1</iCommerce>
+ 			</CommerceChanges>
+ 			<CommerceModifiers/>
+ 			<FreePromotions/>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 14ab0ccfd..5bbc4a526 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3018,6 +3018,35 @@
+ 		<Spanish>[NEWLINE][SPACE][SPACE][ICON_BULLET]+1 %F1_yield en las casillas con un rendimiento natural de %d2%F3_yield o un rendimiento total de %d4%F5_yield</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.908b -->
++	<TEXT>
++		<Tag>TXT_KEY_TRAIT_FREE_CULTURE_LEVEL</Tag>
++		<English>[NEWLINE][SPACE][SPACE][ICON_BULLET]Cities start at %s1_Level [ICON_CULTURE]-Level</English>
++		<French>[NEWLINE][SPACE][SPACE][ICON_BULLET]Les villes commencent au niveau de la culture %s1_Level</French>
++		<German>[NEWLINE][SPACE][SPACE][ICON_BULLET]St�dte werden auf [ICON_CULTURE]-Stufe %s1_Level gegr�ndet</German>
++		<Italian>[NEWLINE][SPACE][SPACE][ICON_BULLET]Le citt� iniziano a livello di cultura %s1_Level</Italian>
++		<Spanish>[NEWLINE][SPACE][SPACE][ICON_BULLET]Las ciudades comienzan en el nivel de cultura %s1_Level</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_TRAIT_FREE_CITY_CULTURE</Tag>
++		<English>[NEWLINE][SPACE][SPACE][ICON_BULLET]Cities start with %d1 [ICON_CULTURE]</English>
++		<French>[NEWLINE][SPACE][SPACE][ICON_BULLET]Les villes commencent avec %d1 [ICON_CULTURE]</French>
++		<German>[NEWLINE][SPACE][SPACE][ICON_BULLET]St�dte erhalten bei Gr�ndung %d1 [ICON_CULTURE]</German>
++		<Italian>[NEWLINE][SPACE][SPACE][ICON_BULLET]Le citt� iniziano con %d1 [ICON_CULTURE]l</Italian>
++		<Spanish>[NEWLINE][SPACE][SPACE][ICON_BULLET]Las ciudades comienzan con %d1 [ICON_CULTURE]</Spanish>
++	</TEXT>
++	<!-- From CIV4GameTextInfos.xml. Add the word "rate" so that it's clearer,
++		 in the case of culture, how this differs from free culture that cities
++		 start with. -->
++	<TEXT>
++		<Tag>TXT_KEY_TRAIT_COMMERCE_CHANGES</Tag>
++		<English>[NEWLINE][SPACE][SPACE][ICON_BULLET]%D1%F2_commerce rate in cities</English>
++		<French>[NEWLINE][SPACE][SPACE][ICON_BULLET]%D1%F2_commerce/ville</French>
++		<German>[NEWLINE][SPACE][SPACE][ICON_BULLET]%D1%F2_commerce/Runde in St�dten</German>
++		<Italian>[NEWLINE][SPACE][SPACE][ICON_BULLET]%D1%F2_commerce/Citt&#224;</Italian>
++		<Spanish>[NEWLINE][SPACE][SPACE][ICON_BULLET]%D1 %F2_commerce/ciudad</Spanish>
++	</TEXT>
++
+ 	<!-- advc.012: Plot help text to be used along with TXT_KEY_PLOT_BONUS
+ 		 (Civ4GameTextInfos.xml). -->
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 6a300ab15..37317b85e 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -51,7 +51,12 @@ CitySiteEvaluator::CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRan
+ 				continue;
+ 
+ 			CvTraitInfo const& kLoopTrait = GC.getInfo(eLoopTrait);
+-			if (kLoopTrait.getCommerceChange(COMMERCE_CULTURE) > 0)
++			if (kLoopTrait.getCommerceChange(COMMERCE_CULTURE) > 0 ||
++				// <advc.908b>
++				(GC.getNumCultureLevelInfos() >= 2 &&
++				GC.getGame().freeCityCultureFromTrait(eLoopTrait) >=
++				GC.getGame().getCultureThreshold((CultureLevelTypes)2)))
++				// </advc.908b>
+ 			{
+ 				m_bEasyCulture = true;
+ 				if (pPersonality != NULL && pPersonality->getBasePeaceWeight() <= 5)
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 9c739c721..12f4ec087 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -165,6 +165,15 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
+ 	setName(kOwner.getNewCityName(), /* advc.106k: */ false, true);
+ 
+ 	setEverOwned(getOwner(), true);
++	// <advc.908b>
++	FOR_EACH_ENUM(Trait)
++	{
++		if (!kOwner.hasTrait(eLoopTrait))
++			continue;
++		int iFreeCityCulture = GC.getGame().freeCityCultureFromTrait(eLoopTrait);
++		if (iFreeCityCulture > 0)
++			setCulture(getOwner(), iFreeCityCulture, true, false);
++	} // </advc.908b>
+ 	/*  advc.ctr: To prevent updateCultureLevel from bumping units in
+ 		surrounding tiles after trading a city under occupation. Don't call
+ 		setOccupationTimer though -- don't need all those updates. */
+@@ -172,10 +181,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
+ 	updateCultureLevel(false);
+ 
+ 	CvPlot& kPlot = GC.getMap().getPlot(iX, iY);
+-	int const iFreeCityCulture = GC.getDefineINT("FREE_CITY_CULTURE"); // advc.opt
+-	if (kPlot.getCulture(getOwner()) < iFreeCityCulture)
+-		kPlot.setCulture(getOwner(), iFreeCityCulture, bBumpUnits, false);
+-
++	{
++		int const iFreeCityPlotCulture = GC.getDefineINT("FREE_CITY_CULTURE"); // advc.opt
++		if (kPlot.getCulture(getOwner()) < iFreeCityPlotCulture)
++			kPlot.setCulture(getOwner(), iFreeCityPlotCulture, bBumpUnits, false);
++	}
+ 	kPlot.setOwner(getOwner(), bBumpUnits, false);
+ 	kPlot.setPlotCity(this);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 0c645f0bb..99f5c5be7 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -10189,6 +10189,14 @@ int CvGame::getCultureThreshold(CultureLevelTypes eLevel) const
+ 	return iThreshold;
+ }
+ 
++// advc.908b:
++int CvGame::freeCityCultureFromTrait(TraitTypes eTrait) const
++{
++	return (GC.getInfo(eTrait).get(CvTraitInfo::FREE_CITY_CULTURE) *
++			gameSpeedMultiplier()).floor();
++}
++
++
+ void CvGame::doUpdateCacheOnTurn()
+ {
+ 	// reset shrine count
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 67c601094..303b3877b 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -776,8 +776,8 @@ public:
+ 	bool culturalVictoryValid() const;
+ 	int culturalVictoryNumCultureCities() const;
+ 	CultureLevelTypes culturalVictoryCultureLevel() const;
+-
+ 	int getCultureThreshold(CultureLevelTypes eLevel) const;
++	int freeCityCultureFromTrait(TraitTypes eTrait) const; // advc.908b
+ 
+ 	int getPlotExtraYield(int iX, int iY, YieldTypes eYield) const;   // exposed to Python (K-Mod)
+ 	void setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iCost);   // exposed to Python
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 975ef1bdf..7bf785673 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5902,6 +5902,47 @@ void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait
+ 					GC.getInfo(eCommerce).getChar(), "COMMERCE"));
+ 		}
+ 	}
++	// <advc.908b>
++	{
++		CvGame const& kGame = GC.getGame();
++		bool const bInGame = (kGame.getActivePlayer() != NO_PLAYER);
++		int const iFreeCityCulture = (bInGame ?
++				kGame.freeCityCultureFromTrait(eTrait) :
++				kTrait.get(CvTraitInfo::FREE_CITY_CULTURE));
++		if (iFreeCityCulture != 0)
++		{
++			CultureLevelTypes eFreeLevel = NO_CULTURELEVEL;
++			FOR_EACH_ENUM_REV(CultureLevel)
++			{
++				if (eLoopCultureLevel <= 1)
++					break;
++				int iThresh = (bInGame ? kGame.getCultureThreshold(eLoopCultureLevel) :
++						// (Game speed is treated as default before game launch)
++						GC.getInfo(eLoopCultureLevel).getSpeedThreshold(kGame.getGameSpeedType()));
++				if (iFreeCityCulture < iThresh)
++					continue;
++				/*	This only works because (and so long as) the thresholds
++					set in CultureLevel XML correspond to the VictoryDelay
++					modifier set in GameSpeed XML. (Clean solution would be a
++					separate XML tag for free culture level.) */
++				if (iFreeCityCulture == iThresh)
++					eFreeLevel = eLoopCultureLevel;
++				break;
++			}
++			if (eFreeLevel != NO_CULTURELEVEL)
++			{
++				szHelpString.append(
++						gDLL->getText("TXT_KEY_TRAIT_FREE_CULTURE_LEVEL",
++						GC.getInfo(eFreeLevel).getDescription()));
++			}
++			else
++			{
++				szHelpString.append(
++						gDLL->getText("TXT_KEY_TRAIT_FREE_CITY_CULTURE",
++						iFreeCityCulture));
++			}
++		}
++	} // </advc.908b>
+ 	{
+ 		CvWString szTempBuffer;
+ 		bool bFoundPromotion = false;
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.cpp b/CvGameCoreDLL/CvInfo_Civilization.cpp
+index 19ec7489a..5be5884cc 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.cpp
++++ b/CvGameCoreDLL/CvInfo_Civilization.cpp
+@@ -1224,7 +1224,7 @@ bool CvTraitInfo::isFreePromotionUnitCombat(int i) const // advc.003t: Return ty
+ 
+ bool CvTraitInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML)) // advc.tag
+ 		return false;
+ 	{
+ 		CvString szTextVal;
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.h b/CvGameCoreDLL/CvInfo_Civilization.h
+index c81dd546b..c4b5d5228 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.h
++++ b/CvGameCoreDLL/CvInfo_Civilization.h
+@@ -343,9 +343,27 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //  class : CvTraitInfo
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-class CvTraitInfo : public CvInfoBase
++class CvTraitInfo : /* <advc.tag> */ public CvXMLInfo
+ {
+-public: // advc: All the const functions are exposed to Python except those added by mods
++	typedef CvXMLInfo base_t;
++protected:
++	void addElements(ElementList& kElements) const
++	{
++		base_t::addElements(kElements);
++		kElements.addInt(FREE_CITY_CULTURE, "FreeCityCulture");
++	}
++public:
++	enum IntElementTypes
++	{
++		FREE_CITY_CULTURE = CvXMLInfo::NUM_INT_ELEMENT_TYPES, // advc.908b
++		NUM_INT_ELEMENT_TYPES
++	};
++	int get(IntElementTypes e) const
++	{
++		return base_t::get(static_cast<base_t::IntElementTypes>(e));
++	} // </advc.tag>
++
++	// advc: All the const functions are exposed to Python except those added by mods
+ 	CvTraitInfo();
+ 	~CvTraitInfo();
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=11634

@@ -1,0 +1,197 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2494
+# Commit: 76dcde583e63b649526475b65b1864038d9f8f7e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 947c9b5c98c1067e754d981e01cee40cea0dc96e
+# Title: Ensure unique player colors when a civ has multiple players
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+77	0	CvGameCoreDLL/CvGame.cpp
+1	0	CvGameCoreDLL/CvGame.h
+12	8	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	0	CvGameCoreDLL/CvGameCoreUtils.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index afc273b08..471f0f8c3 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -3831,7 +3831,8 @@
+ 			<ShortDescription>TXT_KEY_CIV_MINOR_SHORT_DESC</ShortDescription>
+ 			<Adjective>TXT_KEY_CIV_MINOR_ADJECTIVE</Adjective>
+ 			<Civilopedia>TXT_KEY_CIV_MINOR_PEDIA</Civilopedia>
+-			<DefaultPlayerColor>PLAYERCOLOR_WHITE</DefaultPlayerColor>
++			<!-- advc.002i: was WHITE (clashes with England) -->
++			<DefaultPlayerColor>PLAYERCOLOR_BLACK_AND_GREEN</DefaultPlayerColor>
+ 			<ArtDefineTag>ART_DEF_CIVILIZATION_MINOR</ArtDefineTag>
+ 			<ArtStyleType>ARTSTYLE_BARBARIAN</ArtStyleType>
+ 			<bPlayable>0</bPlayable>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 2019f0b00..c7f863565 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -774,6 +774,82 @@ void CvGame::initDiplomacy()
+ 	}
+ }
+ 
++/*	advc.002i: Assign unique player colors in games where multiple players
++	have the same civ type */
++void CvGame::setPlayerColors()
++{
++	std::vector<std::pair<PlayerTypes,int> > aeiReassign;
++	EnumMap<CivilizationTypes,int> aiPlayersPerCiv;
++	for (PlayerIter<ALIVE> it; it.hasNext(); ++it)
++	{
++		CivilizationTypes eCiv = it->getCivilizationType();
++		aiPlayersPerCiv.add(eCiv, 1);
++		int iPlayers = aiPlayersPerCiv.get(eCiv);
++		if (iPlayers > 1)
++			aeiReassign.push_back(std::make_pair(it->getID(), iPlayers));
++	}
++	for (size_t i = 0; i < aeiReassign.size(); i++)
++	{
++		PlayerTypes const eReassignPlayer = aeiReassign[i].first;
++		bool const bMatchSecondary = (aeiReassign[i].second == 2);
++		bool const bRandomize = (aeiReassign[i].second > 3);
++		CivilizationTypes eBestCiv = NO_CIVILIZATION;
++		float fSmallestDiff = FLT_MAX;
++		CivilizationTypes const eCiv = GET_PLAYER(eReassignPlayer).
++				getCivilizationType();
++		CvPlayerColorInfo const& kDefaultColor = GC.getInfo(
++				(PlayerColorTypes)GC.getInfo(eCiv).getDefaultPlayerColor());
++		/*	Look for a color similar to the secondary color of eCiv.
++			(If we try to match the primary color, it'll be difficult
++			to distinguish from the first player of eCiv.) */
++		NiColorA const& kTargetColor = GC.getInfo(kDefaultColor.
++				getColorTypeSecondary()).getColor();
++		/*	For the third player per civ, try matching a mix of primary
++			and secondary color. For subsequent players, pick a random color. */
++		NiColorA const* pTargetColor2 = (bMatchSecondary || bRandomize) ? NULL :
++				&GC.getInfo(kDefaultColor.getColorTypePrimary()).getColor();
++		FOR_EACH_ENUM2(Civilization, eLoopCiv)
++		{
++			if (aiPlayersPerCiv.get(eLoopCiv) > 0)
++				continue;
++			float fDiffValue = 0;
++			if (bRandomize)
++			{
++				/*	Since RGB values are stored as float, it's conceivable
++					that different colors could get chosen on different machines
++					in multiplayer. That should be OK, but I'd very much prefer for
++					everyone to use the same colors, so I'm not going to use
++					GC.getASyncRand. */
++				fDiffValue += getSorenRandNum(10000, "setPlayerColors");
++			}
++			else
++			{
++				// Candidate color: primary color of an unused civ
++				NiColorA const& kLoopColor = GC.getInfo(GC.getInfo(
++						(PlayerColorTypes)GC.getInfo(eLoopCiv).
++						getDefaultPlayerColor()).getColorTypePrimary()).getColor();
++				fDiffValue += ::colorDifference(kTargetColor, kLoopColor);
++				if (pTargetColor2 != NULL)
++					fDiffValue += ::colorDifference(*pTargetColor2, kLoopColor);
++			}
++			if (fDiffValue < fSmallestDiff)
++			{
++				fSmallestDiff = fDiffValue;
++				eBestCiv = eLoopCiv;
++			}
++		}
++		FAssert(eBestCiv != NO_CIVILIZATION || MAX_PLAYERS > GC.getNumCivilizationInfos());
++		if (eBestCiv != NO_CIVILIZATION)
++		{
++			GC.getInitCore().setColor(eReassignPlayer, (PlayerColorTypes)
++					GC.getInfo(eBestCiv).getDefaultPlayerColor());
++			aiPlayersPerCiv.add(eBestCiv, 1);
++		}
++		/*	(Else keep the colors assigned by the EXE. They're picked from the back
++			of Civ4PlayerColorInfos.xml. Not guaranteed to be unique.) */
++	}
++}
++
+ // advc.127:
+ void CvGame::initGameHandicap()
+ {
+@@ -819,6 +895,7 @@ void CvGame::initFreeState()
+ 	// advc.003g: Want to set this as soon as CvGame knows the GameType
+ 	m_bFPTestDone = !isNetworkMultiPlayer();
+ 	GC.getAgents().gameStart(false); // advc.agent
++	setPlayerColors(); // advc.002i
+ 	initGameHandicap(); // advc.127
+ 	// <advc.250b>
+ 	if(!isOption(GAMEOPTION_ADVANCED_START) ||
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index ad0bb050d..fe7a482ce 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -997,6 +997,7 @@ protected:
+ 	void initScenario();
+ 	void initFreeUnits_bulk();
+ 	// </advc.051>
++	void setPlayerColors(); // advc.002i
+ 	void initGameHandicap(); // advc.127
+ 	void initFreeState();
+ 	/* <advc.027> */ NormalizationTarget* /* </advc.027> */ assignStartingPlots();
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index ed7fdf738..57a5361bc 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -160,14 +160,18 @@ void applyColorToString(CvWString& s, char const* szColor, bool bLink)
+ 		s.Format(L"<link=literal>%s</link>", s.GetCString());
+ 	s.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR(szColor), s.GetCString());
+ }
+-/*  <advc> Tbd.: Take into account the locale - perhaps through
+-	boost::locale::conv - and/ or check for characters that can't be narrowed.
+-	So far, it's the same code that CvInitCore::refreshCustomMapOptions had
+-	been using. Many logBBAI calls also convert from wide to narrow strings
+-	(through the %S format specifier and _vsnprintf - not sure if that's safer). */
+-void narrowUnsafe(CvWString const& szWideString, CvString& szNarrowString)
+-{
+-	szNarrowString = CvString(szWideString);
++
++// advc.002i: Formula by T. Riemersma (CompuPhase.com) via Wikipedia ("Color difference")
++float colorDifference(NiColorA const& c1, NiColorA const& c2)
++{
++	float channelWeights[] = { 2, 4, 3 }; // R, G, B
++	if (c1.r + c2.r > 1)
++		std::swap(channelWeights[0], channelWeights[2]);
++	float fDiff = 0;
++	fDiff += SQR(c1.r - c2.r) * channelWeights[0];
++	fDiff += SQR(c1.g - c2.g) * channelWeights[1];
++	fDiff += SQR(c1.b - c2.b) * channelWeights[2];
++	return fDiff;
+ }
+ 
+ DirectionTypes cardinalDirectionToDirection(CardinalDirectionTypes eCard)
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 4c4b23776..bff9ab087 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -228,6 +228,8 @@ inline char intToChar(int x)
+ 	return static_cast<char>(std::min<char>(MAX_CHAR, x));
+ }
+ 
++float colorDifference(NiColorA const& c1, NiColorA const& c2); // advc.002i
++
+ // (advc.make: Distance functions moved into CvMap.h)
+ 
+ inline CardinalDirectionTypes getOppositeCardinalDirection(CardinalDirectionTypes eDir)	// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6944

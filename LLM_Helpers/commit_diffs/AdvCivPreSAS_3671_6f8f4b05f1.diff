@@ -1,0 +1,74 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3671
+# Commit: 6f8f4b05f15c028f5a29f29cf84ca8295607e5f8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6feb987b9c31f1110a434848d12ee115c5e1395f
+# Title: AI tech eval: count cities about to be founded
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	10	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b227d5924..436a567b3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4505,7 +4505,9 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	int const iHasMetCount = kTeam.getHasMetCivCount(true);
+ 	int const iCoastalCities = countNumCoastalCities();
+ 
+-	int const iCityCount = getNumCities();
++	int const iCityCount = getNumCities() +
++			// advc.131: Look ahead a little
++			std::min(1, std::min(AI_totalUnitAIs(UNITAI_SETTLE), AI_getNumCitySites()));
+ 	int const iCityTarget = GC.getInfo(GC.getMap().getWorldSize()).getTargetNumCities();
+ 	/*	advc.007c: The RNGs write to separate log files now, so the same log messages
+ 		can be used for both w/o creating confusion. Though I'm not sure if randomness
+@@ -4754,14 +4756,13 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	{
+ 		int iConnectedForeignCities = AI_countPotentialForeignTradeCities(
+ 				true, AI_getFlavorValue(FLAVOR_GOLD) == 0);
+-		// <advc.131>
+-		int iSites = std::min(AI_getNumCitySites(), iCityCount);
+-		int iSettler = std::min(AI_totalUnitAIs(UNITAI_SETTLE), iSites);
+-		// </advc.131>
+ 		int iAddedCommerce = 2*iCityCount*kTech.getTradeRoutes() +
+ 				4*range(iConnectedForeignCities-2*iCityCount, 0,
+-				iCityCount*kTech.getTradeRoutes())
+-				+ 2 * iSettler + (iSites - iSettler); // advc.131
++				iCityCount*kTech.getTradeRoutes()) +
++				// <advc.131>
++				std::max(0, std::min(AI_getNumCitySites(), getNumCities())
++				// Up to one site already covered by iCityCount
++				- std::min(AI_totalUnitAIs(UNITAI_SETTLE), 1)); // </advc.131>
+ 		iValue += iAddedCommerce * (bFinancialTrouble ? 6 : 4) *
+ 				AI_averageYieldMultiplier(YIELD_COMMERCE)/100;
+ 		//iValue += (2*iCityCount*kTech.getTradeRoutes() + 4*range(iConnectedForeignCities-2*getNumCities(), 0, iCityCount*kTech.getTradeRoutes())) * (bFinancialTrouble ? 6 : 4);
+@@ -4769,11 +4770,11 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	// K-Mod end
+ 
+ 
+-	if (kTech.getHealth() != 0)
+-		iValue += 24 * iCityCount * AI_getHealthWeight(kTech.getHealth(), 1) / 100;
++	if (kTech.getHealth() != 0)  // advc.131: Don't use iCityCount here
++		iValue += 24 * getNumCities() * AI_getHealthWeight(kTech.getHealth(), 1) / 100;
+ 	if (kTech.getHappiness() != 0)
+ 	{	// (this part of the evaluation was completely missing from the original bts code)
+-		iValue += 40 * iCityCount * AI_getHappinessWeight(kTech.getHappiness(), 1) / 100;
++		iValue += 40 * getNumCities() * AI_getHappinessWeight(kTech.getHappiness(), 1) / 100;
+ 	}
+ 
+ 	FOR_EACH_ENUM(Route)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2683

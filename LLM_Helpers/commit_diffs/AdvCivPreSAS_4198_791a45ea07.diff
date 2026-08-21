@@ -1,0 +1,309 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4198
+# Commit: 791a45ea07b51d153832d8b34474dd2ec88f1114
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b82fbd1e55bf222af67a9a4762fd06747e4a670a
+# Title: Make AI_isControlled nonvirtual (for speed)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvMap.cpp
+15	15	CvGameCoreDLL/CvSelectionGroup.cpp
+4	1	CvGameCoreDLL/CvSelectionGroup.h
+1	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+1	1	CvGameCoreDLL/CvSelectionGroupAI.h
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CvVirtualWrappers.cpp
+4	4	CvGameCoreDLL/GroupPathFinder.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index bfd4211b5..574dd78f8 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -747,7 +747,7 @@ CvSelectionGroup* CvMap::findSelectionGroup(int iX, int iY, PlayerTypes eOwner,
+ 
+ 		FOR_EACH_GROUP_VAR(pLoopSelectionGroup, kLoopPlayer)
+ 		{
+-			bool const bAIControl = pLoopSelectionGroup->AI_isControlled(); // advc.153
++			bool const bAIControl = pLoopSelectionGroup->isAIControlled(); // advc.153
+ 			if (bReadyToSelect && !pLoopSelectionGroup->readyToSelect(
+ 				!bAIControl)) // advc.153: was false
+ 			{
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 16ec4a4cf..d19ca6f7c 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -234,7 +234,7 @@ void CvSelectionGroup::doTurn()
+ 			((eActivityType == ACTIVITY_HEAL || eActivityType == ACTIVITY_SENTRY) &&
+ 			isHuman() && sentryAlert()); // </advc.004l>
+ 	if (eActivityType == ACTIVITY_HOLD ||
+-		(eActivityType == ACTIVITY_HEAL && (AI_isControlled() || !bHurt ||
++		(eActivityType == ACTIVITY_HEAL && (isAIControlled() || !bHurt ||
+ 		(bSentryAlert && pHeadUnit->canSentryHeal(plot())) // advc.004l
+ 		)) ||
+ 		(eActivityType == ACTIVITY_SENTRY && bSentryAlert))
+@@ -242,7 +242,7 @@ void CvSelectionGroup::doTurn()
+ 		setActivityType(ACTIVITY_AWAKE);
+ 	}
+ 
+-	if (AI_isControlled())
++	if (isAIControlled())
+ 	{
+ 		if (getActivityType() != ACTIVITY_MISSION ||
+ 			(!canFight() && GET_PLAYER(getOwner()).AI_isAnyPlotDanger(getPlot(), 2)))
+@@ -577,7 +577,7 @@ void CvSelectionGroup::pushMission(MissionTypes eMission, int iData1, int iData2
+ 		AI().AI_setMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
+ 
+ 	insertAtEndMissionQueue(mission, !bAppend ||
+-			AI_isControlled()); // K-Mod (AI commands should execute immediately)
++			isAIControlled()); // K-Mod (AI commands should execute immediately)
+ 
+ 	if (bManual)
+ 	{
+@@ -617,7 +617,7 @@ bool CvSelectionGroup::autoMission() // K-Mod changed this from void to bool.
+ 	//if (isHuman())
+ 	/*	K-Mod. (otherwise the automation will just reissue commands
+ 		immediately after they are cleared, resulting in an infinite loop.) */
+-	if (!AI_isControlled())
++	if (!isAIControlled())
+ 	{
+ 		FOR_EACH_UNIT_IN(pUnit, *this)
+ 		{
+@@ -901,7 +901,7 @@ void CvSelectionGroup::startMission()
+ 					headMissionQueueNode()->m_data.bModified)) // advc.111
+ 				{
+ 					bAction = true;
+-					if (!AI_isControlled())
++					if (!isAIControlled())
+ 						aiHasPillaged.push_back(pUnit->getID());
+ 					// AI groups might want to reconsider their action after pillaging
+ 					if (!isHuman() && canAllMove())
+@@ -987,7 +987,7 @@ void CvSelectionGroup::startMission()
+ 		/*	K-Mod. If the worker is already in danger when the command is issued,
+ 			use the MOVE_IGNORE_DANGER flag. */
+ 		case MISSION_BUILD:
+-			if (!AI_isControlled() &&
++			if (!isAIControlled() &&
+ 				headMissionQueueNode()->m_data.iPushTurn == GC.getGame().getGameTurn() &&
+ 				// cf. condition used in CvSelectionGroup::doTurn.
+ 				kOwner.AI_isAnyPlotDanger(*plot(), 2, true, false))
+@@ -1031,7 +1031,7 @@ void CvSelectionGroup::startMission()
+ 				case MISSIONAI_LOAD_SPECIAL:
+ 					goto exit_unit_loop; // don't auto-unload. Just do nothing.
+ 				default:
+-					FAssert(AI_isControlled());
++					FAssert(isAIControlled());
+ 					pUnit->unload(); // this checks canUnload internally
+ 					break;
+ 				}
+@@ -1378,7 +1378,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 						iLastGroupID = getID();
+ 					}
+ 				#endif
+-					if (AI_isControlled())
++					if (isAIControlled())
+ 						pushMission(MISSION_SKIP);
+ 				}
+ 				// </advc.pf>
+@@ -1696,7 +1696,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 			if (headMissionQueueNode() != NULL)
+ 				activateHeadMission();
+ 			// <advc.153>
+-			else if (!AI_isControlled() &&
++			else if (!isAIControlled() &&
+ 				(missionData.eMissionType == MISSION_BUILD ||
+ 				// Too annoying?
+ 				//missionData.eMissionType == MISSION_MOVE_TO ||
+@@ -2781,7 +2781,7 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 	CvSelectionGroup* pBehindGroupCannotMove = NULL; // advc.153
+ 	UnitAITypes eHeadAI = getHeadUnitAIType();
+ 	// <advc.153>
+-	bool const bAIControl = AI_isControlled();
++	bool const bAIControl = isAIControlled();
+ 	/*	True forces the join-pBehindGroup branch in the loop below to be taken.
+ 		Caveat: A player option for this will probably work in multiplayer, but
+ 		a BUG option won't unless a parameter is added to CvNetPushMission and
+@@ -2965,7 +2965,7 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, MovementFlags eFlags)
+ 	FAssert(getNumUnits() == 0 || atPlot(pPathPlot)); // K-Mod
+ 
+ 	// K-Mod.
+-	if (!AI_isControlled() && !bEndMove)
++	if (!isAIControlled() && !bEndMove)
+ 	{
+ 		/*	If the step we just took will make us change our path to something longer,
+ 			then cancel the move. This prevents units from wasting all their moves by
+@@ -2993,7 +2993,7 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, MovementFlags eFlags)
+ // Returns true if move was made...
+ bool CvSelectionGroup::groupRoadTo(int iX, int iY, MovementFlags eFlags)
+ {
+-	if (!AI_isControlled() || !at(iX, iY) || getLengthMissionQueue() == 1)
++	if (!isAIControlled() || !at(iX, iY) || getLengthMissionQueue() == 1)
+ 	{
+ 		BuildTypes eBestBuild = NO_BUILD;
+ 		//RouteTypes eBestRoute = // advc: unused
+@@ -3022,7 +3022,7 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFini
+ 	/*CvPlot* pPlot = plot();
+ 	ImprovementTypes eImprovement = (ImprovementTypes)GC.getInfo(eBuild).getImprovement();
+ 	if (eImprovement != NO_IMPROVEMENT) {
+-		if (AI_isControlled()) {
++		if (isAIControlled()) {
+ 			if (GET_PLAYER(getOwner()).isAutomationSafe(*pPlot)) {
+ 					BonusTypes eBonus = (BonusTypes)pPlot->getNonObsoleteBonusType(GET_PLAYER(getOwner()).getTeam());
+ 					if ((eBonus == NO_BONUS) || !GC.getInfo(eImprovement).isImprovementBonusTrade(eBonus)) {
+@@ -3411,7 +3411,7 @@ bool CvSelectionGroup::canDoMission(MissionTypes eMission, int iData1, int iData
+ 		case MISSION_HEAL:
+ 			if (pUnit->canHeal(pPlot) &&
+ 				// advc.004l: AI control check only for performance
+-				(AI_isControlled() || !pUnit->canSentryHeal(pPlot)))
++				(isAIControlled() || !pUnit->canSentryHeal(pPlot)))
+ 			{
+ 				return true;
+ 			}
+@@ -3876,7 +3876,7 @@ bool CvSelectionGroup::generatePath(CvPlot const& kFrom, CvPlot const& kTo,
+ 		I might be able to reduce OOS bugs.
+ 		advc.706 (note): Can trigger after defeat of active player in R&F game.
+ 		advc.128: MAX_MOVES: The AI may use this function to anticipate human moves. */
+-	FAssert(AI_isControlled() || (eFlags & MOVE_MAX_MOVES));
++	FAssert(isAIControlled() || (eFlags & MOVE_MAX_MOVES));
+ 	// <advc.128>
+ 	FAssert(!bUseTempFinder || !bReuse);
+ 	/*	Not getClearPathFinder -- want bTempFinder to work correctly even when called
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 44283c5f0..6dc44d205 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -284,6 +284,9 @@ public:
+ 	int getMissionData1(int iNode) const;																														// Exposed to Python
+ 	int getMissionData2(int iNode) const;																														// Exposed to Python
+ 	// <advc.003u>
++	/*	Was bool CvSelectionGroupAI::AI_isControlled. Makes at least as much sense
++		at the base class, and non-virtual will be faster (frequently called). */
++	bool isAIControlled() const { return (!isHuman() || isAutomated()); }
+ 	CvSelectionGroupAI& AI()
+ 	{	//return *static_cast<CvSelectionGroupAI*>(const_cast<CvSelectionGroup*>(this));
+ 		/*  The above won't work in an inline function b/c the compiler doesn't know
+@@ -298,7 +301,7 @@ public:
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+ 	// advc.003u: Keep one pure virtual function so that this class is abstract
+-	virtual bool AI_isControlled() /* advc: */ const = 0;
++	virtual bool AI_update() = 0;
+ 
+ protected:
+ 	// K-Mod! I'd rather this not be static, but I can't do that here.
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index ee59f22be..fae806e59 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -117,7 +117,7 @@ bool CvSelectionGroupAI::AI_update()
+ 
+ 	FAssert(getOwner() != NO_PLAYER);
+ 
+-	if (!AI_isControlled())
++	if (!isAIControlled())
+ 		return false;
+ 
+ 	if (getNumUnits() == 0)
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.h b/CvGameCoreDLL/CvSelectionGroupAI.h
+index 0b1e28d45..6b7668cc4 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.h
++++ b/CvGameCoreDLL/CvSelectionGroupAI.h
+@@ -51,7 +51,7 @@ public:
+ 	void AI_cancelGroupAttack() { m_bGroupAttack = false; } // K-Mod (made inline)
+ 	bool AI_isGroupAttack() const { return m_bGroupAttack; } // K-Mod (made inline)
+ 
+-	bool AI_isControlled() const { return (!isHuman() || isAutomated()); }
++	//bool AI_isControlled() const // advc.003u: Moved to base class as "isAIControlled"
+ 	bool AI_isDeclareWar(CvPlot const& kPlot) const;
+ 	/*	BETTER_BTS_AI_MOD, General AI, 08/19/09, jdog5000: START
+ 		(advc: Moved from CvSelectionGroup) */
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a8ca49340..870b2855c 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -757,10 +757,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 		- and for that I do not want to disrupt the standard pathfinder.
+ 		(because I'm paranoid about OOS bugs.) */
+ 	//GroupPathFinder altFinder;
+-	GroupPathFinder& pathFinder = (getGroup()->AI_isControlled() ?
++	GroupPathFinder& pathFinder = (getGroup()->isAIControlled() ?
+ 			CvSelectionGroup::pathFinder() :
+ 			CvSelectionGroup::getClearPathFinder()); // advc.opt
+-	if (getGroup()->AI_isControlled())
++	if (getGroup()->isAIControlled())
+ 	{
+ 		// standard settings. cf. CvUnit::generatePath
+ 		pathFinder.setGroup(*getGroup(), NO_MOVEMENT_FLAGS);
+
+diff --git a/CvGameCoreDLL/CvVirtualWrappers.cpp b/CvGameCoreDLL/CvVirtualWrappers.cpp
+index 17bb0c7fb..1e56ceb6e 100644
+--- a/CvGameCoreDLL/CvVirtualWrappers.cpp
++++ b/CvGameCoreDLL/CvVirtualWrappers.cpp
+@@ -395,7 +395,7 @@ bool CvSelectionGroup::AI_isGroupAttackExternal() { reportCall;
+ 	return AI().AI_isGroupAttack();
+ }
+ bool CvSelectionGroup::AI_isControlledExternal() { reportCall;
+-	return AI().AI_isControlled();
++	return isAIControlled(); // (moved to CvSelectionGroup)
+ }
+ bool CvSelectionGroup::AI_isDeclareWarExternal(CvPlot* pPlot) { reportCall;
+ 	if (pPlot == NULL)
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index a46d76591..7204f347d 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -68,7 +68,7 @@ bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const
+ 	/*	(advc.pf: Danger checks based on path data moved into a
+ 		separate function) */
+ 
+-	if (kGroup.AI_isControlled() || kPlot.isRevealed(kGroup.getHeadTeam()))
++	if (kGroup.isAIControlled() || kPlot.isRevealed(kGroup.getHeadTeam()))
+ 	{
+ 		if (eFlags & (MOVE_THROUGH_ENEMY /* K-Mod: */ | MOVE_ATTACK_STACK))
+ 		{
+@@ -130,7 +130,7 @@ bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const
+ 	MovementFlags eFlags, int iMoves, int iPathTurns)
+ {
+ 	if ((iPathTurns > 1 || iMoves == 0) &&
+-		kGroup.AI_isControlled() &&
++		kGroup.isAIControlled() &&
+ 		!(eFlags & MOVE_IGNORE_DANGER) &&
+ 		(!kGroup.canFight() || /* advc.031d: */ (eFlags & MOVE_AVOID_DANGER)) &&
+ 		!kGroup.alwaysInvisible() &&
+@@ -154,7 +154,7 @@ bool GroupStepMetric::isValidDest(CvPlot const& kPlot, CvSelectionGroup const& k
+ 	if (eDomain == DOMAIN_IMMOBILE)
+ 		return false;
+ 
+-	bool const bAIControl = kGroup.AI_isControlled();
++	bool const bAIControl = kGroup.isAIControlled();
+ 
+ 	if (bAIControl)
+ 	{	/*  BETTER_BTS_AI_MOD, Efficiency, 11/04/09, jdog5000: START
+@@ -393,7 +393,7 @@ int GroupStepMetric::cost(CvPlot const& kFrom, CvPlot const& kTo,
+ 		However, diagonal zig-zags will probably seem unnatural and weird to humans
+ 		who are just trying to move in a straight line.
+ 		So let the pathfinding for human groups prefer cardinal movement. */
+-	bool const bAIControl = kGroup.AI_isControlled();
++	bool const bAIControl = kGroup.isAIControlled();
+ 	/*	advc.pf: AI map visibility is generally unimportant and a relatively
+ 		high weight makes it harder to give routes the proper weight (see below). */
+ 	if (/*bAIControl*/ iExploreModifier < 3)
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=12538

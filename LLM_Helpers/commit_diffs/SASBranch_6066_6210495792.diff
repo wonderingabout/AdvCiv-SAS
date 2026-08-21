@@ -1,0 +1,403 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6066
+# Commit: 6210495792304d589225485f197d8d8954f5fde4
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c54b256ece7dc339eb5420ad484bf9903c6c4022
+# Title: Fix AdvCiv-SAS Settler regressions blocking worthwhile island expansion (KI#179, KI#194)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+2	2	Assets/XML/GlobalDefines_advciv_sas.xml
+141	18	CvGameCoreDLL/CvCityAI.cpp
+8	7	CvGameCoreDLL/CvUnitAI.cpp
+21	2	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 7f71f27f1..4a1d71225 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1258,7 +1258,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE</DefineName>
+ 		<iDefineIntVal>5</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Block exposed post-capital founding by an unescorted Settler group. This replaced the old reckless early-settling override after BBAI save-file 450 showed Nobamba founded without a defender and razed; follow-up logs showed guarded founding instead. See KI#179. (ChatGPT-5.5) -->
++	<!-- custom: Block dangerous exposed post-capital founding by an unescorted Settler group. This replaced the old reckless early-settling override after BBAI save-file 450 showed Nobamba founded without a defender and razed; follow-up logs showed guarded founding instead. Save-file 449 later showed that requiring an escort even with no plot danger left a Settler exposed on its valid site for more than 100 turns, so danger-free founding in place remains allowed. See KI#179. (ChatGPT-5.5 + GPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1431,7 +1431,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Dedicated overseas-transport diagnostics, separated from CITY and UNIT notably so island settlement/conquest opportunities, naval-target reachability, transport production, military cargo capacity, failed army loading, Settler/Worker cargo handling, pickup attempts, and launch decisions can be inspected together without broad logging. Level 3 notably also follows completed-island Worker pickup and dispatch. (GPT-5.6-Sol) -->
++	<!-- custom: Dedicated overseas-transport diagnostics, separated from CITY and UNIT notably so island settlement/conquest opportunities, naval-target reachability, transport production, military cargo capacity, failed army loading, Settler/Worker cargo handling, pickup attempts, and launch decisions can be inspected together without broad logging. Level 3 notably also compares exact empty-island and conquest candidates with BFC resources and follows completed-island Worker pickup and dispatch. (GPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 55f2215b5..fbad16303 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -109,13 +109,27 @@ static int SAS_getSettlerBuildMinFoundValue(CvPlayerAI const& kPlayer, bool bDan
+ 	return iMinFoundValue;
+ }
+ 
++// <!-- custom: Save file 449 showed an inland capital's concrete SAS Settler gate reporting no water sites while the surrounding city-production logic simultaneously recognized a nearby Fish/Whale/Crab island and already had two Settler transports. Reuse the production logic's relevant-water-area fallback so an existing transport lets inland cities consider sites on the main sea; otherwise an unrelated land site must appear before the valid overseas Settler can be built. (GPT-5.6-Sol) -->
++static CvArea const* SAS_getSettlerWaterArea(CvCityAI const& kCity)
++{
++	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
++	CvArea const* pWaterArea = kCity.waterArea(true);
++	if (pWaterArea != NULL && !GET_TEAM(kCity.getTeam()).AI_isWaterAreaRelevant(*pWaterArea)) pWaterArea = NULL;
++	if (pWaterArea == NULL)
++	{
++		pWaterArea = GC.getMap().findBiggestArea(true);
++		if (pWaterArea != NULL && kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_SETTLER_SEA) <= 0) pWaterArea = NULL;
++	}
++	return pWaterArea;
++}
++
+ static bool SAS_getSettlerBuildSiteStatus(CvCityAI const& kCity, int& iNumAreaCitySites, int& iAreaBestFoundValue, int& iNumWaterAreaCitySites, int& iWaterAreaBestFoundValue, int& iSettlerBuildMinFoundValue)
+ {
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+ 	iAreaBestFoundValue = -1;
+ 	iNumAreaCitySites = kPlayer.AI_getNumAreaCitySites(kCity.getArea(), iAreaBestFoundValue);
+ 	iWaterAreaBestFoundValue = 0;
+-	CvArea const* pWaterArea = kCity.waterArea(true);
++	CvArea const* pWaterArea = SAS_getSettlerWaterArea(kCity);
+ 	iNumWaterAreaCitySites = (pWaterArea == NULL ? 0 : kPlayer.AI_getNumAdjacentAreaCitySites(iWaterAreaBestFoundValue, *pWaterArea, &kCity.getArea()));
+ 	iSettlerBuildMinFoundValue = SAS_getSettlerBuildMinFoundValue(kPlayer, kCity.AI_isDanger());
+ 	return (iNumAreaCitySites > 0 && iAreaBestFoundValue > iSettlerBuildMinFoundValue) || (iNumWaterAreaCitySites > 0 && iWaterAreaBestFoundValue > iSettlerBuildMinFoundValue);
+@@ -176,6 +190,46 @@ static CvCity const* SAS_findNearbyOverseasConquestTarget(CvCityAI const& kCity,
+ }
+ 
+ 
++// <!-- custom: At Overseas-transport level 3, expose the resources behind a settlement found value or conquest target value. Aggregate visible BFC bonuses, whether the player already has each resource, and their current empire value so unusually low island scores such as Minoan's can be separated from transport or distance failures without recomputing this in normal games. (GPT-5.6-Sol) -->
++static void SAS_getOverseasBonusDiagnostics(CvPlot const& kCenterPlot, PlayerTypes ePlayer, CvWString& szBonuses, int& iRevealedPlots, int& iLandPlots, int& iWaterPlots, int& iBonusPlots, int& iMissingBonusTypes, int& iMissingBonusValue, int& iMissingBonusHealth, int& iMissingBonusHappiness)
++{
++	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
++	TeamTypes const eTeam = kPlayer.getTeam();
++	szBonuses.clear();
++	iRevealedPlots = 0;
++	iLandPlots = 0;
++	iWaterPlots = 0;
++	iBonusPlots = 0;
++	iMissingBonusTypes = 0;
++	iMissingBonusValue = 0;
++	iMissingBonusHealth = 0;
++	iMissingBonusHappiness = 0;
++	std::vector<bool> abMissingBonusCounted(GC.getNumBonusInfos(), false);
++	for (CityPlotIter it(kCenterPlot, false); it.hasNext(); ++it)
++	{
++		CvPlot const& kPlot = *it;
++		if (!kPlot.isRevealed(eTeam)) continue;
++		iRevealedPlots++;
++		if (kPlot.isWater()) iWaterPlots++;
++		else iLandPlots++;
++		BonusTypes const eBonus = kPlot.getBonusType(eTeam);
++		if (eBonus == NO_BONUS) continue;
++		iBonusPlots++;
++		CvBonusInfo const& kBonus = GC.getInfo(eBonus);
++		int const iAvailableBonuses = kPlayer.getNumAvailableBonuses(eBonus);
++		int const iBonusValue = kPlayer.AI_bonusVal(eBonus, 1, true);
++		if (!szBonuses.empty()) szBonuses += L",";
++		szBonuses += CvWString::format(L"%s(available=%d,value=%d,health=%d,happy=%d)", kBonus.getDescription(), iAvailableBonuses, iBonusValue, kBonus.getHealth(), kBonus.getHappiness());
++		if (iAvailableBonuses > 0 || abMissingBonusCounted[eBonus]) continue;
++		abMissingBonusCounted[eBonus] = true;
++		iMissingBonusTypes++;
++		iMissingBonusValue += iBonusValue;
++		iMissingBonusHealth += kBonus.getHealth();
++		iMissingBonusHappiness += kBonus.getHappiness();
++	}
++}
++
++
+ // <!-- custom: Diagnose when the player knows a worthwhile overseas settlement or conquest opportunity but may lack transport capacity. This connects city/site value, distance, military availability, fleet capacity, map type, war state, and production constraints before changing the land-heavy naval suppression that prevented an earlier 10-20-Galleon overbuild.
+ // Call only inside the Overseas-transport level-2 gate because evaluating foreign cities is diagnostic work. Reuse the normal target-city value and SAS long-term-benefit evaluation so logging does not invent a competing strategic heuristic. (GPT-5.6-Sol) -->
+ static void SAS_logOverseasTransportOpportunity(CvCityAI const& kCity, CvArea const* pWaterArea, int iNumWaterAreaCitySites, int iWaterAreaBestFoundValue, int iSettlerBuildMinFoundValue, int iWaterPercent, int iBuildUnitProb, int iUnitSpending, bool bFinancialTrouble, bool bDanger, bool bLandWar, bool bAssault)
+@@ -234,10 +288,29 @@ static void SAS_logOverseasTransportOpportunity(CvCityAI const& kCity, CvArea co
+ 				continue;
+ 			}
+ 			iKnownCoastalOtherAreaCandidates++;
+-			if (!kPlayer.AI_isSASCityLikelyToBenefitUsLongTerm(*pTargetCity))
++			bool const bLikelyToBenefitLongTerm = kPlayer.AI_isSASCityLikelyToBenefitUsLongTerm(*pTargetCity);
++			int const iTargetValue = kPlayer.AI_targetCityValue(*pTargetCity, false, true, NULL);
++			if (gOverseasTransportLogLevel >= 3)
++			{
++				CvWString szBonuses;
++				int iRevealedPlots = 0;
++				int iLandPlots = 0;
++				int iWaterPlots = 0;
++				int iBonusPlots = 0;
++				int iMissingBonusTypes = 0;
++				int iMissingBonusValue = 0;
++				int iMissingBonusHealth = 0;
++				int iMissingBonusHappiness = 0;
++				SAS_getOverseasBonusDiagnostics(pTargetCity->getPlot(), kCity.getOwner(), szBonuses, iRevealedPlots, iLandPlots, iWaterPlots, iBonusPlots, iMissingBonusTypes, iMissingBonusValue, iMissingBonusHealth, iMissingBonusHappiness);
++				CvCity const* pNearestOwnCity = GC.getMap().findCity(pTargetCity->getX(), pTargetCity->getY(), kCity.getOwner(), NO_TEAM, false, false, NO_TEAM, NO_DIRECTION, pTargetCity);
++				logBBAI("      OVERSEAS_CONQUEST_CANDIDATE turn=%d player=%d %S target=%S targetOwner=%d targetBarbarian=%d target=(%d,%d) targetArea=%d waterArea=%d pop=%d defenders=%d targetValue=%d likelyToBenefitLongTerm=%d nearestOwnCity=%S nearestOwnCityDistance=%d revealedBFC=%d landBFC=%d waterBFC=%d bonusPlots=%d missingBonusTypes=%d missingBonusValue=%d missingBonusHealth=%d missingBonusHappiness=%d bonuses=\"%S\"",
++					GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), pTargetCity->getName().GetCString(), pTargetCity->getOwner(), pTargetCity->isBarbarian(), pTargetCity->getX(), pTargetCity->getY(), pTargetCity->getArea().getID(), pSharedWaterArea->getID(),
++					pTargetCity->getPopulation(), pTargetCity->getPlot().plotCount(PUF_canDefend), iTargetValue, bLikelyToBenefitLongTerm, (pNearestOwnCity == NULL ? L"-" : pNearestOwnCity->getName().GetCString()), (pNearestOwnCity == NULL ? -1 : stepDistance(pNearestOwnCity->getX(), pNearestOwnCity->getY(), pTargetCity->getX(), pTargetCity->getY())),
++					iRevealedPlots, iLandPlots, iWaterPlots, iBonusPlots, iMissingBonusTypes, iMissingBonusValue, iMissingBonusHealth, iMissingBonusHappiness, (szBonuses.empty() ? L"-" : szBonuses.GetCString()));
++			}
++			if (!bLikelyToBenefitLongTerm)
+ 				continue;
+ 			iLongTermCandidates++;
+-			int const iTargetValue = kPlayer.AI_targetCityValue(*pTargetCity, false, true, NULL);
+ 			int const iStepDistance = stepDistance(kCity.getX(), kCity.getY(), pTargetCity->getX(), pTargetCity->getY());
+ 			int const iScore = 100 * iTargetValue - iStepDistance;
+ 			if (iScore <= iBestScore)
+@@ -249,6 +322,48 @@ static void SAS_logOverseasTransportOpportunity(CvCityAI const& kCity, CvArea co
+ 			iBestScore = iScore;
+ 		}
+ 	}
++	CvPlot const* pBestWaterSite = NULL;
++	int iBestWaterSiteValue = 0;
++	if (pWaterArea != NULL)
++	{
++		for (int i = 0; i < kPlayer.AI_getNumCitySites(); i++)
++		{
++			CvPlot const& kSite = kPlayer.AI_getCitySite(i);
++			if (kSite.isArea(kCity.getArea()) || !kSite.isAdjacentToArea(*pWaterArea)) continue;
++			int const iFoundValue = kSite.getFoundValue(kCity.getOwner());
++			if (gOverseasTransportLogLevel >= 3)
++			{
++				CvWString szBonuses;
++				int iRevealedPlots = 0;
++				int iLandPlots = 0;
++				int iWaterPlots = 0;
++				int iBonusPlots = 0;
++				int iMissingBonusTypes = 0;
++				int iMissingBonusValue = 0;
++				int iMissingBonusHealth = 0;
++				int iMissingBonusHappiness = 0;
++				SAS_getOverseasBonusDiagnostics(kSite, kCity.getOwner(), szBonuses, iRevealedPlots, iLandPlots, iWaterPlots, iBonusPlots, iMissingBonusTypes, iMissingBonusValue, iMissingBonusHealth, iMissingBonusHappiness);
++				CvCity const* pNearestOwnCity = GC.getMap().findCity(kSite.getX(), kSite.getY(), kCity.getOwner(), NO_TEAM, false, false, NO_TEAM, NO_DIRECTION);
++				logBBAI("      OVERSEAS_SETTLEMENT_CANDIDATE turn=%d player=%d %S site=(%d,%d) siteArea=%d waterArea=%d foundValue=%d settlerBuildMin=%d qualifies=%d nearestOwnCity=%S nearestOwnCityDistance=%d freshWater=%d river=%d revealedBFC=%d landBFC=%d waterBFC=%d bonusPlots=%d missingBonusTypes=%d missingBonusValue=%d missingBonusHealth=%d missingBonusHappiness=%d bonuses=\"%S\"",
++					GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kSite.getX(), kSite.getY(), kSite.getArea().getID(), pWaterArea->getID(), iFoundValue, iSettlerBuildMinFoundValue, (iFoundValue > iSettlerBuildMinFoundValue),
++					(pNearestOwnCity == NULL ? L"-" : pNearestOwnCity->getName().GetCString()), (pNearestOwnCity == NULL ? -1 : stepDistance(pNearestOwnCity->getX(), pNearestOwnCity->getY(), kSite.getX(), kSite.getY())), kSite.isFreshWater(), kSite.isRiver(),
++					iRevealedPlots, iLandPlots, iWaterPlots, iBonusPlots, iMissingBonusTypes, iMissingBonusValue, iMissingBonusHealth, iMissingBonusHappiness, (szBonuses.empty() ? L"-" : szBonuses.GetCString()));
++			}
++			if (iFoundValue > iBestWaterSiteValue)
++			{
++				pBestWaterSite = &kSite;
++				iBestWaterSiteValue = iFoundValue;
++			}
++		}
++	}
++	if (pBestWaterSite != NULL)
++	{
++		CvCity const* pNearestOwnCity = GC.getMap().findCity(pBestWaterSite->getX(), pBestWaterSite->getY(), kCity.getOwner(), NO_TEAM, false, false, NO_TEAM, NO_DIRECTION);
++		logBBAI("      OVERSEAS_SETTLEMENT_STATUS turn=%d player=%d %S capital=%S bestSite=(%d,%d) siteArea=%d waterArea=%d foundValue=%d settlerBuildMin=%d qualifies=%d nearestOwnCity=%S nearestOwnCityDistance=%d settlersTotal=%d settlersTraining=%d settlerTransportsWater=%d settlerTransportsTotal=%d settlerTransportsTraining=%d settlerCargoCapacity=%d financialTrouble=%d danger=%d landWar=%d assault=%d",
++			GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), pBestWaterSite->getX(), pBestWaterSite->getY(), pBestWaterSite->getArea().getID(), pWaterArea->getID(), iBestWaterSiteValue, iSettlerBuildMinFoundValue, (iBestWaterSiteValue > iSettlerBuildMinFoundValue),
++			(pNearestOwnCity == NULL ? L"-" : pNearestOwnCity->getName().GetCString()), (pNearestOwnCity == NULL ? -1 : stepDistance(pNearestOwnCity->getX(), pNearestOwnCity->getY(), pBestWaterSite->getX(), pBestWaterSite->getY())), kPlayer.AI_totalUnitAIs(UNITAI_SETTLE), kPlayer.AI_getNumTrainAIUnits(UNITAI_SETTLE),
++			kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_SETTLER_SEA), kPlayer.AI_totalUnitAIs(UNITAI_SETTLER_SEA), kPlayer.AI_getNumTrainAIUnits(UNITAI_SETTLER_SEA), kPlayer.AI_countCargoSpace(UNITAI_SETTLER_SEA), bFinancialTrouble, bDanger, bLandWar, bAssault);
++	}
+ 	if (iNumWaterAreaCitySites <= 0 && pBestTarget == NULL)
+ 		return;
+ 	CvCity const* pNearestOwnCity = (pBestTarget == NULL ? NULL : GC.getMap().findCity(pBestTarget->getX(), pBestTarget->getY(), kCity.getOwner(), NO_TEAM, false, false, NO_TEAM, NO_DIRECTION, pBestTarget));
+@@ -1167,19 +1282,19 @@ void CvCityAI::AI_chooseProduction()
+ 	int const iNumAreaCitySites = kPlayer.AI_getNumAreaCitySites(kArea, iAreaBestFoundValue);
+ 
+ 	int iWaterAreaBestFoundValue = 0;
+-	CvArea* pWaterSettlerArea = pWaterArea;
+-	if (pWaterSettlerArea == NULL)
+-	{
+-		pWaterSettlerArea = GC.getMap().findBiggestArea(true);
+-		if(pWaterSettlerArea != NULL && // advc.001: What if there is no water at all?
+-			kPlayer.AI_totalWaterAreaUnitAIs(*pWaterSettlerArea, UNITAI_SETTLER_SEA) == 0)
+-		{
+-			pWaterSettlerArea = NULL;
+-		}
+-	}
+-	int iNumWaterAreaCitySites = (pWaterSettlerArea == NULL) ? 0 :
+-			kPlayer.AI_getNumAdjacentAreaCitySites(iWaterAreaBestFoundValue,
+-			*pWaterSettlerArea, &kArea);
++	// <!-- custom: Replaced this inherited local fallback with the shared helper above so the concrete SAS Settler gate cannot disagree with city production about the same overseas site. (GPT-5.6-Sol) -->
++	// CvArea* pWaterSettlerArea = pWaterArea;
++	// if (pWaterSettlerArea == NULL)
++	// {
++	// 	pWaterSettlerArea = GC.getMap().findBiggestArea(true);
++	// 	if(pWaterSettlerArea != NULL && // advc.001: What if there is no water at all?
++	// 		kPlayer.AI_totalWaterAreaUnitAIs(*pWaterSettlerArea, UNITAI_SETTLER_SEA) == 0)
++	// 	{
++	// 		pWaterSettlerArea = NULL;
++	// 	}
++	// }
++	CvArea const* pWaterSettlerArea = SAS_getSettlerWaterArea(*this);
++	int iNumWaterAreaCitySites = (pWaterSettlerArea == NULL) ? 0 : kPlayer.AI_getNumAdjacentAreaCitySites(iWaterAreaBestFoundValue, *pWaterSettlerArea, &kArea);
+ 	int iNumSettlers = kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
+ 	if (bLogOverseasTransport && isCapital()) SAS_logOverseasTransportOpportunity(*this, pWaterSettlerArea, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, SAS_getSettlerBuildMinFoundValue(kPlayer, bDanger), iWaterPercent, iBuildUnitProb, iUnitSpending, bFinancialTrouble, bDanger, bLandWar, bAssault);
+ 
+@@ -1765,11 +1880,15 @@ void CvCityAI::AI_chooseProduction()
+ 						iOdds = 100;
+ 					else iOdds += (150 * iWaterAreaBestFoundValue) / iAreaBestFoundValue;
+ 					// </advc.017b>
++					if (bLogDetailedOverseasTransport) logBBAI("      SETTLER_SEA_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=EARLY result=TRY_CHOOSE_UNIT waterArea=%d waterSites=%d waterBest=%d areaBest=%d odds=%d existing=0",
++						GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iAreaBestFoundValue, iOdds);
+ 					if (AI_chooseUnit(UNITAI_SETTLER_SEA, iOdds))
+ 					{
+ 						if (gCityLogLevel >= 2 || bLogOverseasTransport) logBBAI("      City %S uses early settler sea", sCityName);
+ 						return;
+ 					}
++					if (bLogDetailedOverseasTransport) logBBAI("      SETTLER_SEA_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=EARLY result=REJECT_CHOOSE_UNIT waterArea=%d waterSites=%d waterBest=%d areaBest=%d odds=%d",
++						GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iAreaBestFoundValue, iOdds);
+ 				}
+ 			}
+ 		}
+@@ -2450,8 +2569,10 @@ void CvCityAI::AI_chooseProduction()
+ 				}
+ 
+ 				int const iSettlerSeaExisting = kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_SETTLER_SEA);
+-				if (bLogOverseasTransport && isCapital() && iSettlerSeaNeeded > 0) logBBAI("      SETTLER_SEA_TRANSPORT_DEMAND turn=%d player=%d %S city=%S waterArea=%d waterSites=%d waterBest=%d settlerBuildMin=%d existing=%d needed=%d shortfall=%d overseasColonies=%d workers=%d assault=%d financialTrouble=%d danger=%d",
+-					GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue, iSettlerSeaExisting, iSettlerSeaNeeded, std::max(0, iSettlerSeaNeeded - iSettlerSeaExisting), iTotalCities - (pCapital == NULL ? iTotalCities : pCapital->getArea().getCitiesPerPlayer(getOwner())), kPlayer.AI_totalUnitAIs(UNITAI_WORKER), bAssault, bFinancialTrouble, bDanger);
++				if (bLogOverseasTransport && isCapital() && iNumWaterAreaCitySites > 0) logBBAI("      SETTLER_SEA_TRANSPORT_DEMAND turn=%d player=%d %S city=%S result=%s waterArea=%d waterSites=%d waterBest=%d settlerBuildMin=%d settlers=%d existing=%d needed=%d shortfall=%d overseasColonies=%d workers=%d assault=%d financialTrouble=%d danger=%d",
++					GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (iSettlerSeaNeeded <= 0 ? "NO_DEMAND" : (iSettlerSeaExisting < iSettlerSeaNeeded ? "TRY_CHOOSE_UNIT" : "ENOUGH")), pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue,
++					kPlayer.AI_totalUnitAIs(UNITAI_SETTLE), iSettlerSeaExisting, iSettlerSeaNeeded, std::max(0, iSettlerSeaNeeded - iSettlerSeaExisting), iTotalCities - (pCapital == NULL ? iTotalCities : pCapital->getArea().getCitiesPerPlayer(getOwner())),
++					kPlayer.AI_totalUnitAIs(UNITAI_WORKER), bAssault, bFinancialTrouble, bDanger);
+ 				if (iSettlerSeaExisting < iSettlerSeaNeeded)
+ 				{
+ 					if (AI_chooseUnit(UNITAI_SETTLER_SEA))
+@@ -2459,6 +2580,8 @@ void CvCityAI::AI_chooseProduction()
+ 						if (gCityLogLevel >= 2 || bLogOverseasTransport) logBBAI("      City %S uses main settler sea", sCityName);
+ 						return;
+ 					}
++					if (bLogOverseasTransport) logBBAI("      SETTLER_SEA_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=MAIN result=REJECT_CHOOSE_UNIT waterArea=%d waterSites=%d waterBest=%d settlerBuildMin=%d settlers=%d existing=%d needed=%d",
++						GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue, kPlayer.AI_totalUnitAIs(UNITAI_SETTLE), iSettlerSeaExisting, iSettlerSeaNeeded);
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 20e36f1c7..9a9ae4b16 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -335,14 +335,15 @@ static bool SAS_tryAttachCityEscortToSettler(CvUnitAI& kSettler, int iAreaBestFo
+ 	return pSettlerGroup->canDefend();
+ }
+ 
+-// <!-- custom: Block direct found-in-place/follow paths too, because save-file 450 BBAI testing showed the dangerous Nobamba-style case could bypass ordinary movement by founding directly on the exposed site. See KI#179. (ChatGPT-5.5) -->
+-static bool SAS_shouldBlockExposedUnescortedSettler(CvUnitAI const& kSettler, CvPlot const& kTargetPlot)
++// <!-- custom: Block direct found-in-place/follow paths too, because save-file 450 BBAI testing showed the dangerous Nobamba-style case could bypass ordinary movement by founding directly on the exposed site.
++// However, save-file 449 BBAI testing later showed an unescorted Settler waiting more than 100 turns on its danger-free target plot before founding Agra. Once the Settler is already exposed on a valid site, refusing to found does not protect it; require an escort here only when the site has actual plot danger. See KI#179. (GPT-5.6-Sol) -->
++static bool SAS_shouldBlockDangerousUnescortedFounding(CvUnitAI const& kSettler, CvPlot const& kTargetPlot)
+ {
+ 	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+ 	CvSelectionGroup const* pGroup = kSettler.getGroup();
+ 	if (kOwner.getNumCities() <= 0 || pGroup == NULL || pGroup->canDefend() || kSettler.getInvisibleType() != NO_INVISIBLE)
+ 		return false;
+-	return kTargetPlot.getOwner() != kSettler.getOwner();
++	return kTargetPlot.getOwner() != kSettler.getOwner() && kOwner.AI_isAnyPlotDanger(kTargetPlot);
+ }
+ 
+ // <!-- custom: Avoid direct founding on a merely valid current plot when the current city-site list already contains a clearly better reachable site. Save-file 450 BBAI testing showed Zulu city 3 founding weak tundra-heavy Nobamba at (10,47): the original target area had become much poorer and smaller after a nearby Barbarian city spawned, and the found-value logger already reported a much better reachable site.
+@@ -4171,9 +4172,9 @@ void CvUnitAI::AI_settleMove()
+ 			if (at(kSite) && canFound(plot()))
+ 			{
+ 				static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
+-				if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockExposedUnescortedSettler(*this, getPlot()))
++				if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockDangerousUnescortedFounding(*this, getPlot()))
+ 				{
+-					if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "NO_ESCORT");
++					if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "DANGEROUS_NO_ESCORT");
+ 				}
+ 				else
+ 				{
+@@ -20217,9 +20218,9 @@ bool CvUnitAI::AI_foundFollow()
+ 		AI_getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND)
+ 	{
+ 		static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
+-		if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockExposedUnescortedSettler(*this, getPlot()))
++		if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockDangerousUnescortedFounding(*this, getPlot()))
+ 		{
+-			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "NO_ESCORT");
++			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "DANGEROUS_NO_ESCORT");
+ 			return false;
+ 		}
+ 		CvPlot const* pBetterFoundPlot = NULL;
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 5dda4f429..de1b3e85d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -240,6 +240,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [192 - (Fixed/Improved) Base AdvCiv/K-Mod island Worker logistics and AdvCiv-SAS production safety gap could strand Workers and other land civilians where they had no use](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#192---fixedimproved-base-advcivk-mod-island-worker-logistics-and-advciv-sas-production-safety-gap-could-strand-workers-and-other-land-civilians-where-they-had-no-use)\
+ [193 - (Fixed/Improved) Base AdvCiv/K-Mod generic army thresholds could make loaded assault ships wait instead of taking achievable overseas targets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#193---fixedimproved-base-advcivk-mod-generic-army-thresholds-could-make-loaded-assault-ships-wait-instead-of-taking-achievable-overseas-targets)\
+ [193.2 - (Fixed/Improved) Base AdvCiv/K-Mod assault-transport production could overlook nearby profitable islands when land armies were already large or another enemy city was reachable by land](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1932---fixedimproved-base-advcivk-mod-assault-transport-production-could-overlook-nearby-profitable-islands-when-land-armies-were-already-large-or-another-enemy-city-was-reachable-by-land)\
++[194 - (Fixed/Improved) AdvCiv-SAS inland-capital Settler production gate could ignore worthwhile islands that existing Settler transports could reach](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#194---fixedimproved-advciv-sas-inland-capital-settler-production-gate-could-ignore-worthwhile-islands-that-existing-settler-transports-could-reach)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -6602,7 +6603,7 @@ The risky path came from an earlier AdvCiv-SAS anti-parking / early-expansion ov
+ 
+ This has been fixed/improved by replacing that reckless early-settling path with guarded-Settler behavior:
+ 
+-- post-capital Settlers should not found or continue exposed expansion unless the group can defend or an existing guard-city mission covers the site;
++- post-capital Settlers should not continue toward dangerous exposed expansion unless the group can defend or an existing guard-city mission covers the site;
+ - a Settler parked in one of its own cities can reassign one healthy local defender as escort before evaluating exposed expansion;
+ - the donor city must keep at least the configured remaining healthy defenders after losing the escort;
+ - direct found-in-place and found-follow mission paths are guarded too, not only the normal city-site loop;
+@@ -6633,11 +6634,15 @@ Validation so far:
+ - donor cities below the configured remaining-defenders threshold did not give up escorts and instead kept the Settler waiting;
+ - the follow-up game-summary log showed Nobamba persisting with defenders through the checked run instead of immediately repeating the earlier empty-city Barbarian razing pattern.
+ 
++AdvCiv-SAS 6067 later refined only the direct founding restriction after KI#194's save-file 449 testing exposed the opposite failure. An Indian Settler reached the valid island site at `(44,10)` around turn 142 with no defender, but `SAS_shouldBlockExposedUnescortedSettler` treated every unowned plot as dangerous. It refused to found despite both current and target plot danger being 0, then remained exposed while moving or waiting for more than 100 turns and finally founded Agra only on turn 257. Once a Settler is already standing unescorted on a valid danger-free site, refusing to found does not protect it; it merely leaves the same unit exposed while forfeiting city growth, production, commerce and culture.
++
++The narrowed `SAS_shouldBlockDangerousUnescortedFounding` therefore blocks direct found-in-place and follow-found only when the unowned site has actual plot danger. Escort requirements for travelling toward exposed sites, waiting in a city, and founding a dangerous site remain unchanged. In the confirming save-file 449 run, the lone Settler reached `(44,10)` with `targetDanger=0` and founded Agra immediately on turn 144; all three unescorted danger-free foundations survived through the turn-326 end of the run, when India won by Space. Save file 450 then confirmed that dangerous expansion remained guarded: Nobamba was founded with 2 healthy defenders and survived 97 turns before an ordinary Arabian conquest, while another Zulu Settler founded kwaDukuza on a `targetDanger=12` plot with a defender. No unescorted city was founded in that run.
++
+ Remaining risk:
+ 
+ This intentionally makes some expansion more conservative. Some Settlers can still park for a long time when no valid reachable city site exists, especially under `SCRAP_NO_VALID_CITY_SITE` or similar no-found-action paths. That appears to be a separate city-site / stale-Settler issue rather than the exposed unescorted-founding issue tracked here; the new parking and city-unit logs should make that follow-up easier to diagnose.
+ 
+-Fixed/improved with the help of ChatGPT-5.5 and GPT-5.5 (on ChatGPT Codex) thanks.
++Fixed/improved with the help of ChatGPT-5.5, GPT-5.5 and GPT-5.6-Sol (on ChatGPT Codex) thanks.
+ 
+ ## 180 - (Fixed/Improved) AI Settlers could settle a merely valid current plot (e.g., after nearby Barbarian city spawn made remaining space smaller and poorer) even when a clearly better reachable city site existed
+ 
+@@ -7294,3 +7299,17 @@ Save file 449 independently tested the cure on another island-rich but land-heav
+ Chehalis changing from Mali in the older run to Aztec ownership in this confirming run was unrelated to the cure because it was reachable by land. Both runs valued the city as worthwhile. In the older history, Aztec remained committed to a costly Scandinavian war while Mali made peace and reached Chehalis first; in the confirming history, the Aztec war ended earlier and its freed army captured Chehalis before Mali. This is useful evidence that preserving available military tempo matters, but not evidence that the overseas-production rule selected Chehalis.
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
++
++## 194 - (Fixed/Improved) AdvCiv-SAS inland-capital Settler production gate could ignore worthwhile islands that existing Settler transports could reach
++
++The overseas-settlement diagnostics added after KI#193.2 exposed an AdvCiv-SAS regression introduced accidentally by KI#181's otherwise useful weak-site Settler-production floor. KI#181 added `SAS_getSettlerBuildSiteStatus` as the final guard before a concrete Settler order, but its water-site check copied only the producing city's directly relevant water area and omitted an inherited K-Mod/AdvCiv fallback used by the surrounding production logic. In save file 449, India knew a valuable nearby Fish/Whale/Crab island site at `(39,10)` and already had 2 Settler transports with 6 total cargo space. The inherited `CvCityAI::AI_chooseProduction` logic could see the island, but because Delhi was inland, the new AdvCiv-SAS gate received a null water area, repeatedly reported `hasBuildSite=0 waterSites=0` from turns 119-129, and rejected the Settler despite the reachable island opportunity.
++
++The mismatch meant India did not produce the Settler for that island. It eventually founded Varanasi on the same plot only on turn 171, after an unrelated land city site made the general Settler gate pass. Thus a useful existing transport network and a worthwhile island could remain unused merely because the capital itself was inland.
++
++The new shared `SAS_getSettlerWaterArea` keeps the normal directly relevant water area for a coastal city. When the producing city has none, it uses the map's largest water area only if the player already has a `UNITAI_SETTLER_SEA` transport there. Both the broad production logic and the final concrete Settler gate now use this same result. The existing-transport requirement prevents an inland capital from treating an inaccessible overseas site as immediately buildable, while allowing it to use shipping capacity it already possesses.
++
++The first confirming save-file 449 run logged the corrected decision on turn 119: `hasBuildSite=1 areaSites=0 waterSites=2 waterBest=2003`, against the configured early Settler floor of 2000. Delhi immediately selected the Settler and founded Varanasi at `(39,10)` on turn 128, 43 turns earlier than the diagnostic run and without waiting for an unrelated land site. A second run independently founded Varanasi on turn 117, then produced another Settler for the next qualifying island site.
++
++That second Settler exposed the separate KI#179 follow-up described there: it reached a danger-free valid site but the existing escort safeguard prevented it from founding. After narrowing only direct danger-free founding, the final run founded Agra immediately on turn 144 instead of turn 257. Save file 450 then confirmed that the original dangerous-expansion protection remained guarded. Together, the tests show that the AI can exploit worthwhile islands from an inland capital without restoring reckless dangerous founding.
++
++Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d54fa9a00..ce799618d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -352,6 +352,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Optional naval-heavy-map coastal settling bias:** Naval-heavy maps can now add a tunable first-city or later-city preference for coastal settling in naval-heavy maps. This should be more useful and strategically stronger in such maps, notably for coastal access, work boats, scouting/contact, trade, first galleys, Moai, or other water-focused strategies. However, following the [KI#173](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#173---fixedimproved-base-advciv-issue-live-first-settler-scoring-reused-hidden-map-generation-surroundings) and related AI settler/found scoring changes, BBAI logging showed even a value of `0` correctly selects the strong Cuzco coastal site in save file 420, while Japan no longer favors the old tundra-heavy candidates that motivated this new feature. So use only a fairly small naval settling bias positive value for additional strategic coastal preference. See [KI#146](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#146---fixedenhanced-base-advciv-issue-of-ai-undervaluing-coastal-settling-on-naval-heavy-maps).
+ - **Parking addressed (early game):** Reduced cases of Settlers idling in the capital despite safe/urgent expansion, by updating `CvUnitAI::AI_found` so AIs would found sooner when conditions allowed. In autoplay samples, Spain shifted from **1 city @T100** to **~2 by T60–70** and **~3 by T80–90** (Settler production varies somehow, but we move much sooner after we have it now). Update: however, (Requires AdvCiv-SAS 6027+) save file 450 BBAI testing showed that this old blind "go settle anyway" safety override solved one-city stagnation too bluntly: it could also allow exposed post-capital cities to be founded without escorts and then razed. Exposed post-capital Settlers now wait, retreat, or require an existing guard-city mission instead of leaving/founding alone. See [KI#68](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#68---tremendously-improved-ai-having-a-settler-parked-from-turn---45-to-turn-100-and-still-didnt-found-any-city-fixedaddressed-in-cvunitaiai_found) and [KI#179](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts).
+ - (Requires AdvCiv-SAS 6027+) **Settler city-escort reassignment:** to avoid merely restoring old Settler parking, an unescorted Settler parked in one of its own cities can reassign one healthy local defender as escort when the donor city keeps enough healthy defenders behind. With the default tunable value of as of now at least 2 remaining healthy defenders after giving one to the Settler, a city with 3 healthy defenders can reassign 1 escort and still keep 2, which is safe enough, so the Settler should not keep waiting; delaying expansion can lose contested city sites and early growth snowball. Save file 450 follow-up logs showed exposed Settlers waiting when no safe escort was available, then moving once guarded, while later Nobamba persisted with defenders instead of repeating the earlier empty-city Barbarian razing pattern. See [KI#179](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts).
++- (Requires AdvCiv-SAS 6067+) **Update: Exception to the above Settler-escort rule for danger-free founding:** this does not conflict with or weaken the preceding rule, which still requires protection when a Settler is travelling toward or founding an actually dangerous exposed site. The exception applies only after an unescorted Settler has already reached a valid site with actual plot danger 0; an unowned plot is not automatically dangerous. Save-file 449 BBAI logging showed why this distinction matters: a lone Indian Settler reached the safe island site at `(44,10)` around turn 142, but the first AdvCiv-SAS KI#179 rule treated every unowned site as dangerous. It remained exposed while waiting or moving for more than 100 turns and founded Agra only on turn 257. The Settler now founds immediately because waiting there does not protect it and only forfeits the new city's growth and yields. In the confirming run, Agra was founded on turn 144; save file 450 also confirmed the other side of the rule, as Nobamba was founded with 2 healthy defenders and another Zulu city on a `targetDanger=12` plot was guarded. See [KI#194](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#194---fixedimproved-advciv-sas-inland-capital-settler-production-gate-could-ignore-worthwhile-islands-that-existing-settler-transports-could-reach).
+ - (Requires AdvCiv-SAS 6028+) **Settler valid-tile trap avoided:** a Settler already standing on a foundable plot no longer immediately settles there when another reachable city site is clearly better. Save file 450 BBAI testing showed that after a `(7,45)` Barbarian city spawned, the planned Zulu city 3 space became much smaller and poorer; the AI Settler still founded weak tundra-heavy `(10,47)` anyway, despite a much better reachable `(10,41)` site with unowned Sheep plains and Hill Grass. It now travels to and tries to settle this stronger site instead. See [KI#180](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#180---fixedimproved-ai-settlers-could-settle-a-merely-valid-current-plot-eg-after-nearby-barbarian-city-spawn-made-remaining-space-smaller-and-poorer-even-when-a-clearly-better-reachable-city-site-existed).
+ - (Requires AdvCiv-SAS 6028+) **Settler no longer bounces back to a near weak site:** the first direct-found guard fixed the bad `(10,47)` founding, but revealed that the existing `AI_found` movement scoring could still pull the Settler back to the same near weak site because it was only one turn away, causing back-and-forth movement without settling for 10-20+ turns. Fix: the same raw-value check now also prevents a very near but much weaker city site from winning for travel-distance reasons. As a result, the confirming run shows Zulu city 3 is founded quickly at the `(10,41)` unowned Sheep plains and Hill Grass site; Zulu AI then conquers the strong nearby `(7,45)` Barbarian city, which has unowned Horse, unowned Deer, unowned Silver, and unowned Gems (that appear during the game), instead of settling a useless cramped tundra city near it; and by ~T131 becomes top 2 player with a strong empire instead of being among the weakest due to loss of early momentum and bad early cities. See [KI#180](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#180---fixedimproved-ai-settlers-could-settle-a-merely-valid-current-plot-eg-after-nearby-barbarian-city-spawn-made-remaining-space-smaller-and-poorer-even-when-a-clearly-better-reachable-city-site-existed).
+ - (Requires AdvCiv-SAS 6040+) **Post-capital Settlers can scout promising nearby fogged city sites and avoid stale cached targets:** some time after KI#178 improved uMgungundlovu's bonus valuation, save file 450 run changed and exposed a remaining information/movement issue: `(17,40)` could look slightly worse than `(18,40)` only because more of its BFC was unrevealed: BBAI showed `(18,40)` evaluated at total `3064` with 19 revealed / 1 unrevealed non-home BFC plots, while `(17,40)` was only total `2959` with 17 revealed / 3 unrevealed; however, the average evaluation per revealed plot was higher for `(17,40)` (2959 / 17 = 174.04 which is higher than 3064 / 19 = 161.25) so it would have been better to explore the remaining unrevealed nearby plots rather than founding the better explored current site immediately, like a human player would, which is now fixed: post-capital AI Settlers now optionally (as of now default enabled as likely stronger) explore such adjacent promising sites, then recalculate normally and choose the best after enough info is known (the old one remains the best if the new one turns out in fact not to have been better). The follow-up guard also matters: if the Settler reaches a plot that is now directly better than the cached selected target, it founds there instead of walking away to the stale target. In the confirming run, Shaka scouted `(17,40)`, then founded uMgungundlovu there at value `4099` instead of stale adjacent `(18,40)` at `3993`, gaining Crab/Rice/Camel and a better food profile (as in KI#178). This is similar in spirit to first-city scouting, but narrower: later Settlers usually know more of the map and should not become broad roaming scouts. See [KI#185](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#185---fixedimproved-base-advciv-issue-post-capital-ai-settlers-could-ignore-promising-fogged-nearby-city-site-alternatives-and-then-follow-stale-cached-targets-after-scouting).
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=43200

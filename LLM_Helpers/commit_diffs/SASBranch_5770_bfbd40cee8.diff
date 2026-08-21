@@ -1,0 +1,172 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5770
+# Commit: bfbd40cee85b6145f7275b5fb8dc28168f7a45cb
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5f8b6c5e45c30e21e42b11b63f11d1774f85bc25
+# Title: refactor cleanup and lazy init and cache sas defines to prevent and empirically fix python-like crashy behaviour on runtime XML SAS define change
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	AGENTS.md
+18	2	Assets/Python/SASBattleHistory.py
+37	19	Assets/Python/Screens/CvMilitaryAdvisor.py
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index f96aa1f4d..2aeed861b 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -152,6 +152,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - No approximations like `"%.1f"` or `%02d`; we want precision, no fluff. Use `%f` or `%d` instead. Example of exception: `%02d` as zero-padding for nicer ordering/alignment `(Calendar_01, Calendar_02, ...)`.
+ - Prefer `const` for locals whenever possible to make intent clear and prevent accidental mutation.
+ - Favor effectiveness and simplicity over complex heuristics; avoid overengineering.
++- Prefer derived variables or an explicit `if/else` over assigning a value and then mutating it. Example problem: avoid setting `iPlotCol = iBaseCol` and later doing `iPlotCol += 3`, or setting a default like `iPlotCol = 19` and then overriding it later with `iPlotCol = 22`. Example solution: use `iContextColCount = 3` and `iPlotCol = iBaseCol + iContextColCount`, or set `iPlotCol` once in each branch when a SAS define changes the number of desired columns/parameters. An `if/else` is also good when the branches explain distinct layout or logic cases.
+ - For AI or gameplay logic changes, include a slightly more verbose rationale (why it helps efficiency or outcomes), not just what changed.
+ - When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
+ - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
+
+diff --git a/Assets/Python/SASBattleHistory.py b/Assets/Python/SASBattleHistory.py
+index 865a05cb6..3f5a09f54 100644
+--- a/Assets/Python/SASBattleHistory.py
++++ b/Assets/Python/SASBattleHistory.py
+@@ -18,6 +18,8 @@ _OUTCOME_DATA_START = 18
+ _OUTCOME_RETREAT = 1
+ _PLOT_CONTEXT_DATA_START = 19
+ _PLOT_CONTEXT_HILL_PEAK_NONE = -1
++_TERRAIN_PEAK = None
++_TERRAIN_HILL = None
+ 
+ # <!-- custom: BugData persists this table in the save without DLL or save-format changes; old saves simply start with no rows and record battles from the first combat after loading. Store rows per player because advisor perspective can change. (GPT-5.5) -->
+ 
+@@ -28,6 +30,20 @@ def _getMaxEntries():
+ 	return _MAX_ENTRIES
+ 
+ 
++def _getPeakTerrain():
++	global _TERRAIN_PEAK
++	if _TERRAIN_PEAK is None:
++		_TERRAIN_PEAK = gc.getInfoTypeForString("TERRAIN_PEAK")
++	return _TERRAIN_PEAK
++
++
++def _getHillTerrain():
++	global _TERRAIN_HILL
++	if _TERRAIN_HILL is None:
++		_TERRAIN_HILL = gc.getInfoTypeForString("TERRAIN_HILL")
++	return _TERRAIN_HILL
++
++
+ def _getEntriesByPlayer():
+ 	table = BugData.getTable(_TABLE_ID)
+ 	if table.hasValue(_ENTRIES_KEY):
+@@ -88,9 +104,9 @@ def _getEntryWithPlotContext(entry, iX, iY):
+ 	pPlot = CyMap().plot(iX, iY)
+ 	iHillPeakTerrain = _PLOT_CONTEXT_HILL_PEAK_NONE
+ 	if pPlot.isPeak():
+-		iHillPeakTerrain = gc.getInfoTypeForString("TERRAIN_PEAK")
++		iHillPeakTerrain = _getPeakTerrain()
+ 	elif pPlot.isHills():
+-		iHillPeakTerrain = gc.getInfoTypeForString("TERRAIN_HILL")
++		iHillPeakTerrain = _getHillTerrain()
+ 	aEntry.extend([pPlot.getTerrainType(), pPlot.getFeatureType(), iHillPeakTerrain])
+ 	return tuple(aEntry)
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index ee6992025..dc40db8d4 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -107,25 +107,42 @@ class CvMilitaryAdvisor:
+ 		self.H_GREAT_GENERAL_BAR = 30
+ 		self.X_GREAT_GENERAL_BAR = 20
+ 
+-		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)). Note: done here rather than in init since it doesn't work in many ingame py file (tech chooser, main interface for those i tried), so use safer pattern reliably rather -->
+-		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS") > 0)
+-		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE")
+-		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT")
+-		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES")
+-		# <!-- custom: read this XML UI define once when the advisor object is built, matching our other advisor defines. Changing it while Civ4 is running can leave existing table widgets with the wrong column layout, so restart after toggling it. (GPT-5.5) -->
+-		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE") > 0)
+-		self.BATTLE_HILL_PEAK_COL_ID = -1
+-		self.BATTLE_TERRAIN_COL_ID = -1
+-		self.BATTLE_FEATURE_COL_ID = -1
+-		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
+-			self.BATTLE_HILL_PEAK_COL_ID = 19
+-			self.BATTLE_TERRAIN_COL_ID = 20
+-			self.BATTLE_FEATURE_COL_ID = 21
+-			self.BATTLE_PLOT_COL_ID = 22
+-			self.BATTLE_NUM_COLS = 23
+-		else:
+-			self.BATTLE_PLOT_COL_ID = 19
+-			self.BATTLE_NUM_COLS = 20
++		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS = None
++		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE = None
++		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT = None
++		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES = None
++		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = None
++		self.BATTLE_HILL_PEAK_COL_ID = None
++		self.BATTLE_TERRAIN_COL_ID = None
++		self.BATTLE_FEATURE_COL_ID = None
++		self.BATTLE_PLOT_COL_ID = None
++		self.BATTLE_NUM_COLS = None
++
++	def initDefines(self):
++		# <!-- custom: Military Advisor was the remaining advisor here that read SAS XML UI defines directly in the constructor. Changing defines while Civ4 was running could then produce crashy behaviour similar to hot-changing Python, unlike the Tech Chooser/Main Interface lazy/sentinel pattern used here. Cache once after screen setup starts; empirically, this helper pattern fixed that crashy behaviour so runtime XML changes simply have no effect until the required Civ4 restart. Check each cached define's sentinel instead of only the first one for cheap exhaustive safety. (GPT-5.5) -->
++		if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS is None:
++			self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS") > 0)
++		if self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE is None:
++			self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE")
++		if self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT is None:
++			self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT")
++		if self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES is None:
++			self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES")
++		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE is None:
++			self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE") > 0)
++		# <!-- custom: Battle column IDs depend on the plot-context define, so derive them beside the define cache; this keeps callers from needing to know whether initDefines has already expanded the table layout. (GPT-5.5) -->
++		if self.BATTLE_NUM_COLS is None:
++			self.BATTLE_HILL_PEAK_COL_ID = -1
++			self.BATTLE_TERRAIN_COL_ID = -1
++			self.BATTLE_FEATURE_COL_ID = -1
++			if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
++				self.BATTLE_HILL_PEAK_COL_ID = 19
++				self.BATTLE_TERRAIN_COL_ID = self.BATTLE_HILL_PEAK_COL_ID + 1
++				self.BATTLE_FEATURE_COL_ID = self.BATTLE_HILL_PEAK_COL_ID + 2
++				self.BATTLE_PLOT_COL_ID = self.BATTLE_HILL_PEAK_COL_ID + 3
++			else:
++				self.BATTLE_PLOT_COL_ID = 19
++			self.BATTLE_NUM_COLS = self.BATTLE_PLOT_COL_ID + 1
+ 
+ 
+ 	def initText(self):
+@@ -224,6 +241,7 @@ class CvMilitaryAdvisor:
+ 		screen.setRenderInterfaceOnly(True)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+ 
++		self.initDefines()
+ 		self.initText()
+ 		self.updateRuntimeLayout(screen)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d97bf92ef..756f7ea9b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -106,6 +106,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ ### Code/Performance optimizations
+ 
+ - **Launch guard for SAS defines (startup/load/Sevopedia):** Added a strict define-integrity check using one **int sentinel** and one **string sentinel**, validated at pre-game start, game start, save load, Sevopedia creation, and Sevopedia show. If a value is missing or mismatched, Python raises a **fatal error** with `actual` vs `expected` values and guidance to launch from a Windows shortcut. The game will be **unplayable if the config is incorrect**. Change in: [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py). See also [Quick Install Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop).
++- (Requires AdvCiv-SAS 5770+) **Lazy init and cache SAS defines** (e.g., in advisors) to `None` and then to their actual value once if cache is `None`. This prevents and **empricially fixes**  direct caching in init, that empirically causes **python-like crashy behaviour** (i.e. similar behaviour to when python code is changed during runtime) on XML SAS define change of a value (instead of no effect and requiring a restart for the change to take effect). See for example [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)'s `initDefines` method.
+ - **Fail-fast XML lookup hardening:** replaced `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values. Notably allowed to detect and fix incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` instead of correct `DirectionTypes.DIRECTION_NORTH` (in Planet Generator map), or incorrect `getInfoTypeOrFail("PLOT_PEAK")` failing instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map).
+ - (Requires AdvCiv-SAS 5515+) **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+ - (Requires AdvCiv-SAS 5516+) **Remove screen-dependent geometry computation** from `__init__` in advisors because this advisor object is created before a reliable screen context exists; doing layout in `interfaceScreen` **ensures correct values for the current resolution**. Keeping **only screen-independent edge constants** in `__init__` ensures **no redundant recomputation** is made again in `interfaceScreen`, and **catches loud screen-dependent errors** in `__init__`.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=12015

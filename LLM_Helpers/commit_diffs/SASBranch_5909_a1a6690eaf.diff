@@ -1,0 +1,265 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5909
+# Commit: a1a6690eafe47d83697d75bfd1c2d25037ab6ac5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3882dfe2611bd8b0cdb3adf3136676949e96b0fd
+# Title: Fix BUG configobj lookup and old exception syntax
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	1	Assets/Python/BUG/BugInit.py
+4	1	Assets/Python/BUG/BugPath.py
+9	6	Assets/Python/BUG/BugUtil.py
+10	3	Assets/Python/BUG/SvnUtil.py
+13	5	Assets/Python/BUG/configobj.py
+4	2	PrivateMaps/PerfectMongoose.py
+19	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugInit.py b/Assets/Python/BUG/BugInit.py
+index 1905b69f8..c00724d11 100644
+--- a/Assets/Python/BUG/BugInit.py
++++ b/Assets/Python/BUG/BugInit.py
+@@ -69,7 +69,10 @@ def loadMod(name):
+ 		try:
+ 			parser.parse(path)
+ 		# <advc.009b> Say which module failed
+-		except Exception, e:
++		# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
++		except Exception:
++			import sys
++			e = sys.exc_info()[1]
+ 			BugUtil.error("BugInit - failed to parse module %s", name)
+ 			timer.log(name)
+ 			raise e # </advc.009b>
+
+diff --git a/Assets/Python/BUG/BugPath.py b/Assets/Python/BUG/BugPath.py
+index 4a3b68c50..6e1f04182 100644
+--- a/Assets/Python/BUG/BugPath.py
++++ b/Assets/Python/BUG/BugPath.py
+@@ -449,7 +449,10 @@ def initRootFolder():
+ 		BugUtil.debug("BugPath - CvAltRoot module not present")
+ 	except AttributeError:
+ 		BugUtil.error("CvAltRoot.py module has no rootDir setting")
+-	except OSError, (errno, strerror):
++	# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
++	except OSError:
++		e = sys.exc_info()[1]
++		errno, strerror = e.args[:2]
+ 		BugUtil.trace("Error accessing directory from CvAltRoot.py: [%d] %s", errno, strerror)
+ 
+ 	# K-Mod. I'd like to set the user directory like this:
+
+diff --git a/Assets/Python/BUG/BugUtil.py b/Assets/Python/BUG/BugUtil.py
+index 536a23842..9ff5cf45c 100644
+--- a/Assets/Python/BUG/BugUtil.py
++++ b/Assets/Python/BUG/BugUtil.py
+@@ -589,8 +589,9 @@ def lookupModule(module, log=True):
+ 		debug("BugUtil - looking up %s", module)
+ 	try:
+ 		return __import__(module)
+-	except ImportError, e:
+-		#raise ConfigError("No such module '%s'", module)
++	# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
++	except ImportError:
++		e = sys.exc_info()[1]
+ 		# advc: Forward e (from MNAI)
+ 		raise ConfigError("Error while importing module '%s': %s", module, e)
+ 
+@@ -599,8 +600,9 @@ def lookupFunction(module, functionOrClass, log=True):
+ 		debug("BugUtil - looking up %s.%s", module, functionOrClass)
+ 	try:
+ 		return getattr(lookupModule(module, False), functionOrClass)
+-	except AttributeError, e:
+-		#raise ConfigError("Module '%s' must define function or class '%s'", module, functionOrClass)
++	# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
++	except AttributeError:
++		e = sys.exc_info()[1]
+ 		# advc: Forward e (from MNAI)
+ 		raise ConfigError("Error while looking up function or class '%s' in module '%s': %s", functionOrClass, module, e)
+ 
+@@ -608,8 +610,9 @@ def bindFunction(obj, functionOrAttribute):
+ 	debug("BugUtil - binding %s.%s to %s", obj.__class__, functionOrAttribute, obj)
+ 	try:
+ 		return getattr(obj, functionOrAttribute)
+-	except AttributeError, e:
+-		#raise ConfigError("Class '%s' must define function '%s'", obj.__class__, functionOrAttribute)
++	# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
++	except AttributeError:
++		e = sys.exc_info()[1]
+ 		# advc: Forward e (from MNAI)
+ 		raise ConfigError("Error while looking up function or attribute '%s' in object of type '%s': %s", functionOrAttribute, obj.__class__, e)
+
+diff --git a/Assets/Python/BUG/SvnUtil.py b/Assets/Python/BUG/SvnUtil.py
+index 2a3818747..80877e229 100644
+--- a/Assets/Python/BUG/SvnUtil.py
++++ b/Assets/Python/BUG/SvnUtil.py
+@@ -104,7 +104,8 @@ def getLocalRevision(path):
+ 			return rev
+ 		finally:
+ 			input.close()
+-	except IOError, e:
++	# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil for cases that still need the exception object, so this syntax cleanup is deemed safe. (GPT-5.5) -->
++	except IOError:
+ 		raise BugUtil.BugError("failed to read SVN entries file")
+ 
+ def getRemoteRevision(url, callback=None):
+@@ -134,7 +135,10 @@ class RemoteRevisionThread(threading.Thread):
+ 		try:
+ 			self._rev = _getRemoteRevision(self._url)
+ 			BugUtil.debug("RemoteRevisionThread.run - found revision %d", self._rev)
+-		except BugError, e:
++		# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe; also qualify BugError because this module imports BugUtil, not BugError directly. (GPT-5.5) -->
++		except BugUtil.BugError:
++			import sys
++			e = sys.exc_info()[1]
+ 			self._error = e
+ 			BugUtil.debug("RemoteRevisionThread.run - %s", self._error.message)
+ 		self._done = True
+@@ -185,7 +189,10 @@ def _getRemoteRevision(url):
+ 						return None
+ 			finally:
+ 				web.close()
+-		except IOError, e:
++		# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
++		except IOError:
++			import sys
++			e = sys.exc_info()[1]
+ 			raise BugUtil.BugError("failed to access SVN repository: %s" % str(e))
+ 		return None
+ 	finally:
+
+diff --git a/Assets/Python/BUG/configobj.py b/Assets/Python/BUG/configobj.py
+index 6ce68aed7..20985c5e9 100644
+--- a/Assets/Python/BUG/configobj.py
++++ b/Assets/Python/BUG/configobj.py
+@@ -112,7 +112,8 @@ except NameError:
+ try:
+     True, False
+ except NameError:
+-    True, False = 1, 0
++    # <!-- custom: Keep configobj's old True/False compatibility fallback, but run the assignment through exec so modern parsers do not flag invalid assignment targets. (GPT-5.5) -->
++    exec("True, False = 1, 0")
+ 
+ __version__ = '4.2.0'
+ 
+@@ -1685,11 +1686,15 @@ class ConfigObj(Section):
+         # Parse the configspec.
+         try:
+             configspec = ConfigObj(configspec, raise_errors=True, file_error=True, list_values=False)
+-        except ConfigObjError, e:
++        # <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
++        except ConfigObjError:
++            e = sys.exc_info()[1]
+             # FIXME: Should these errors have a reference
+             # to the already parsed ConfigObj ?
+             raise ConfigspecError('Parsing configspec failed: %s' % e)
+-        except IOError, e:
++        # <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
++        except IOError:
++            e = sys.exc_info()[1]
+             raise IOError('Reading configspec failed: %s' % e)
+         self._set_configspec_value(configspec, self)
+ 
+@@ -1785,7 +1790,8 @@ class ConfigObj(Section):
+         else:
+             start = self._a_to_u(' ' * NUM_INDENT_SPACES)
+         if not comment.startswith('#') and not comment.startswith(';'):
+-            start += _a_to_u('# ')
++            # <!-- custom: Ruff surfaced this real runtime bug after the earlier configobj parser error was fixed: the correct pattern is self._a_to_u(...), while the unqualified _a_to_u name was undefined. See KI#143. (GPT-5.5) -->
++            start += self._a_to_u('# ')
+         return (start + comment)
+ 
+     def _compute_indent_string(self, depth):
+@@ -2378,7 +2384,9 @@ class ConfigObj(Section):
+                 val = section[entry]
+             try:
+                 check = validator.check(spec_section[entry], val, missing=missing)
+-            except validator.baseErrorClass, e:
++            # <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
++            except validator.baseErrorClass:
++                e = sys.exc_info()[1]
+                 if not preserve_errors or isinstance(e, VdtMissingValue):
+                     out[entry] = False
+                 else:
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 845064d04..8a2a5fcff 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -4927,10 +4927,12 @@ class StartingPlotFinder:
+ 			# #add bonuses due to player difficulty settings
+ 			# self.addHandicapBonus()
+ 			#
+-		except Exception, e:
++		# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil and temporarily tested through Sevopedia import probes. (ChatGPT-5.5 + GPT-5.5) -->
++		except Exception:
++			e = sys.exc_info()[1]
+ 			# advc: Removed "due to a rarely occurring bug" - could be any error, and not necessarily that rare. Added info about the exception. That said, for debugging, it may be better not to catch (and re-raise) the exception here because this obscures the specific origin.
+ 			errorPopUp("PerfectWorld's starting plot finder has failed; this map likely has unfair starting locations. You may wish to quit this game and generate a new map." + "\n\nAn exception of type " + e.__class__.__name__ + " occurred. Arguments:\n" + str(e.args))
+-			raise Exception, e
++			raise
+ 
+ 	def setupOldWorldAreaList(self):
+ 		if mc.LandmassGenerator == 2:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index b466a4ff2..283043ed6 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -178,6 +178,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [140 - (Fixed) Base AdvCiv issue: Foreign Advisor Glance tab showed incorrect and inconsistent +0 attitude display in self cells](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#140---fixed-base-advciv-issue-foreign-advisor-glance-tab-showed-incorrect-and-inconsistent-0-attitude-display-in-self-cells)  
+ [141 - (Fixed) Sevopedia media player 3D audio previews became very quiet after entering a game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#141---fixed-sevopedia-media-player-3d-audio-previews-became-very-quiet-after-entering-a-game)  
+ [142 - (Fixed) Base AdvCiv issue: Military Advisor Map tab debug mode did not draw the full minimap section](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#142---fixed-base-advciv-issue-military-advisor-map-tab-debug-mode-did-not-draw-the-full-minimap-section)  
++[143 - (Fixed) BUG configobj comment writer used undefined `_a_to_u` instead of correct `self._a_to_u`; old BUG syntax had prevented Ruff from seeing the bug](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#143---fixed-bug-configobj-comment-writer-used-undefined-_a_to_u-instead-of-correct-self_a_to_u-old-bug-syntax-had-prevented-ruff-from-seeing-the-bug)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -5291,3 +5292,21 @@ Fix:
+ File changed:
+ 
+ - [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
++
++## 143 - (Fixed) BUG configobj comment writer used undefined `_a_to_u` instead of correct `self._a_to_u`; old BUG syntax had prevented Ruff from seeing the bug
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Bf5UFQRGomY2zIMehjmKAt6CLlp5cbQJ?usp=sharing).
++
++While cleaning old Python 2-style BUG syntax so modern Python 3 linters/parsers can inspect it while keeping Civ4 Python 2.4 compatibility, we replaced old comma-exception (`except Exception, e:`) binding with `except X:` plus `sys.exc_info()[1]` where the exception object was still needed. These old formatting/syntax patterns can prevent linters from analyzing later code and distract the lint output with parser noise instead of real runtime issues. In the same cleanup context, `configobj.py` also had a parser blocker at its very old `True, False = 1, 0` compatibility fallback. That fallback is kept, but the assignment is now run through `exec(...)` so modern parsers can continue through the file.
++
++After those parser blockers were removed, Ruff could inspect more of `configobj.py` and surfaced a real runtime bug in the comment-writing path: `_handle_comment` called `_a_to_u('# ')`, while the correct pattern is `self._a_to_u(...)` because `_a_to_u` is an instance method and nearby code consistently calls it that way. If that branch ran for a comment that did not already start with `#` or `;`, it would raise `NameError`.
++
++Fix:
++
++- Keep the old `True`/`False` compatibility fallback in parser-safe form.
++- Convert old comma-exception binding in touched BUG files in a Python 2.4-compatible way.
++- Change `_a_to_u('# ')` to `self._a_to_u('# ')`.
++
++File changed:
++
++- [Assets/Python/BUG/configobj.py](/Assets/Python/BUG/configobj.py)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 615a3c96e..c4475f6b8 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -117,6 +117,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+ - **Collapse multiline statements to single-line form** (e.g., `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)`): much **easier** to **scan**, **maintain**, and **grep**, especially **for LLMs**. Often done using scripts to batch process it, and done as we go rather than all at once since this is a recent change. Especially important in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) where ~2158 lines of code have been collapsed to ~879 lines, and ~187 lines of comments to ~83 lines. See also [LLM_Helpers (README.md)](/LLM_Helpers/README.md) and [PR#23](https://github.com/wonderingabout/AdvCiv-SAS/pull/23). Then done in other py files in a more manual or gradual way.
+ - **Python 2 bare-print cleanup:** converted simple active `print "..."` statements to Python 2.4/3-compatible single-string calls such as `print("msg %s" % value)`, using [`wrap_python2_prints_for_linting.py`](/LLM_Helpers/wrap_python2_prints_for_linting.py) plus manual comma-print cleanup. This keeps Civ4 Python 2.4 compatibility while reducing Ruff/Python 3 parser noise (e.g., on VS Code) so real issues are easier to see. Also used **local ruff checks** to find and cautiously address likely fixable py linter issues that wouldn't break code changes. See [Modding_Ressources/README.md: How to check with ruff installed locally a folder](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report).
++- (Requires AdvCiv-SAS 5910+) **Cleaned** several **old Python 2-style** BUG syntax patterns so modern Python 3 linters/parsers can inspect them while keeping Civ4 Python 2.4 compatibility. These **distracted** modern Python linters such as ruff and **prevented them from finding errors**. Removed these parser blockers, such as old comma-exception binding `except Exception, e:` (to the already existing `e = sys.exc_info()[1]` in [BugUtil.py](/Assets/Python/BUG/BugUtil.py) pattern) and the old compatibility fallback `True, False = 1, 0` (to an equivalent), which improves code quality. This allowed Ruff to surface and find a **real previously hidden bug** in BUG [configobj.py](/Assets/Python/BUG/configobj.py): `_handle_comment` used undefined `_a_to_u('# ')` instead of the correct `self._a_to_u('# ')`, which we then **fixed**. See also [KI#143](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#143---fixed-bug-configobj-comment-writer-used-undefined-_a_to_u-instead-of-correct-self_a_to_u-old-bug-syntax-had-prevented-ruff-from-seeing-the-bug).
+ - **Code cleanup and linting support:** started a **broad Python** cleanup, linting, and source sanitizing work to reduce formatting noise and make large legacy files easier to review. For especially **messy files** where automated scripts are **risky** (typically mapscripts), some files are now also repaired through **full-file LLM review** (e.g., by ChatGPT), then **checked manually** so indentation and code structure are cleaned up carefully.
+ - **Repo-wide blank-line cleanup (`.py` only):** reduced excessive **consecutive blank lines** to a **single blank line** in Python files with a `(\r?\n)(?:[ \t]*\r?\n){2,}` find to `$1$1` regexp on VS Code. This is a pure formatting no-op (Python ignores blank lines), but it makes large files denser, easier to scan, easier to grep, and more manageable for future review/LLM-assisted cleanup. Comments and code are untouched; only **vertical whitespace** is normalized.
+ - A later **horizontal whitespace** pass also **stripped spaces/tabs** from otherwise empty Python lines to reduce invisible diff/lint noise: done with the help of `^[\t ]+$` find regexp with replace all (to nothing) globally on VS Code.
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=17595

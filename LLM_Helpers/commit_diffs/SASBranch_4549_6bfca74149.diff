@@ -1,0 +1,184 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4549
+# Commit: 6bfca741491e40a6c2e25574cc187e20e9e08653
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7a7b7817019ef0226f30029a79e81e9794ef33fc
+# Title: add visual line to separate eras in military tree map view + other fixes/tweaks/updates to docs or future unit changes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+15	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+32	15	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index 43b5d64e7..8b1200306 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index 07fd9903d..1409e2425 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -454,3 +454,18 @@ some researches, the (armstrong) rifled cannon from realism invictus (that i had
+ myself somehow before researching but anyways i mean anyways, thanks,), and the armstrong
+ (heavy) cannon (using the base bts one for that as it fits quite well too i think i mean
+ anyways, thanks,) for the heavy artillery, may fit quite well.
++
++- history of ballons (https://en.wikipedia.org/wiki/History_of_ballooning) indicates it
++seems i mean anyways about this, that dirigibles ("airship" in civ4 bts/base advciv)
++(name given by wikipedia and that may make more sense according to my intuition and
++very little info i know on the topic at least for now and about this or as is but anyways
++that i may not necessarily need/want a lot more info about this specific topic about this
++but anyways or maybe a bit info and about this but anyways) (and also subsequent parts
++of this page about this i mean anyways, for example about military use i mean anyways,
++thanks, ) had little impact militarily. I may give them a bit of strength but not a lot.
++It seems to make sense intuitively but did not check in detail. I would not want too much
++units in late game, was thinking to upgrade this into helicopter but difference may be too
++big, or maybe not, if it is practical enough, at least about this i mean anyways, thanks,
++so what i would do i think is leave it here as an air explore unit, it may have some value
++in doing so/having such a role i mean anyways, while also being connected to the drone
++later i added too in robotic era i mean anywyas, thanks,
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index ac88844e3..0f45300be 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -54,7 +54,8 @@ worker 3: maybe a bit faster one but not sure is worth the hassle of upgrading t
+ -
+ worker 6: labourer history rewritten
+ -
+-worker 8: service droid c2c
++-
++worker 9: service droid c2c
+ 
+ 
+ 
+@@ -72,20 +73,20 @@ settlers
+ -
+ -
+ -
+-settler 5
++-
+ -
+ 
+ 
+ scout/explorer
+--
++scout 1: -
+ -
+ explore 3: scout c2c
+ -
+ explore 5: -
+ -
+-explore 7: scout droid c2c
++explore 7: maybe add one here too for consistency and realism (one every 2 eras, and explorer in atomic war a bit weird, maybe could have some more bonuses too for this explore unit 7 i mean anyways, thanks,)
+ -
+-
++explore 9: scout droid c2c
+ 
+ air explore
+ -
+@@ -93,10 +94,13 @@ air explore
+ -
+ -
+ air explore 5: hot air baloon c2c
+-air explore 6: -
+-air explore 7: drone helicopter c2c
++air explore 6: Dirigible _ -
++air explore 7: -
++-
++air explore 9: drone helicopter c2c
+ -
+ 
++
+ ___________________________________________________________________________________________
+ boats:
+ 
+@@ -104,15 +108,23 @@ transport boats:
+ transport 1: raft c2c
+ transport 2: galley
+ transport 3: galleon
+-transport 4: -
+-transport 5: -
+-transport 6: -
+-transport 7: -
+-
++transport 4:
++transport 5:
++transport 6:
++transport 7:
++transport 8:
++transport 9:
+ 
+ war boats
+ war boat 1: war canoe c2c
+ -
++war boat 3: -
++war boat 4:
++war boat 5:
++war boat 6:
++war boat 7:
++war boat 8:
++war boat 9:
+ 
+ 
+ ___________________________________________________________________________________________
+@@ -368,6 +380,7 @@ soft siege 5: culverin c2c
+ soft siege 6: rifled cannon (agyu) realism invictus
+ soft siege 7: atomic age artillery _ -
+ soft siege 8: ?
++soft siege 9: ?
+ 
+ 
+ heavy siege units
+@@ -378,7 +391,8 @@ heavy siege 4: medieval trebuchet _ mobile trebuchet realism invictus
+ heavy siege 5: great bombard c2c
+ heavy siege 6: armstrong heavy cannon: -
+ heave siege 7: howitzer realism invictus
+-heavy siege 8: ?
++soft siege 8: ?
++soft siege 9: ?
+ 
+ 
+ 
+@@ -394,7 +408,8 @@ gun offense units
+ gun offense 5: - (?)
+ gun offense 6:
+ gun offense 7:
+-gun offense 8: (laser gun? As they did in Empire Earth (1) ((which i liked a big lot i mean anywyas, thanks,) for example)) -> special infantry c2c
++gun offense 8:
++gun offense 9: (laser gun? As they did in Empire Earth (1) ((which i liked a big lot i mean anywyas, thanks,) for example)) -> special infantry c2c
+ 
+ 
+ gun defense units
+@@ -405,7 +420,8 @@ gun defense units
+ gun defense 5:
+ gun defense 6:
+ gun defense 7:
+-gun defense 8: super soldier c2c
++gun defense 8:
++gun defense 9: super soldier c2c
+ 
+ 
+ gun support units
+@@ -417,6 +433,7 @@ gun support units
+ gun defense 6: a sort of sniper but the one of c2c about this i mean anyways, anyways i mean anyways, thanks, was same as rifleman did not see aobut this i mean anyways, focus i mean anyways i mean i focus i mean anyways, thanks, so would need a replacement or alternative and is about this i mean i mean anyways, at least or not at least in that maybe none and aobut this i mean anyways or not but as is and i focus or not or yes etc i mean anyways, thanks, 
+ gun defense 7:
+ gun defense 8:
++gun defense 9:
+ 
+ ___________________________________________________________________________________________
+ religious units :
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5791

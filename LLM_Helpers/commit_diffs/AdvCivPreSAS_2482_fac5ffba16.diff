@@ -1,0 +1,67 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2482
+# Commit: fac5ffba16d869ba0cffc5099061425a0478ad12
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1c2b75a6f802771ac03cc2fd29885208cc20c103
+# Title: Use Ocean trade icon for the Astronomy ability
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	1	Assets/Python/Screens/CvTechChooser.py
+9	1	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index ba69aeb90..7a5a80edd 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -798,7 +798,12 @@ class CvTechChooser:
+ 				# the player has the tech. Confusing.
+ 				#and not (gc.getTeam(gc.getPlayer(self.iCivSelected).getTeam()).isTerrainTrade(j)):
+ 				szTerrainTradeButton = self.getNextWidgetName("TerrainTradeButton")
+-				screen.addDDSGFCAt( szTerrainTradeButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_WATERTRADE").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_TERRAIN_TRADE, i, j, False )
++				# <advc.002d> Use the ocean trade icon for Ocean. For all other terrains, keep using the coastal trade icon.
++				szArtInfoType = "INTERFACE_TECH_WATERTRADE"
++				if j == gc.getDefineINT("DEEP_WATER_TERRAIN"):
++					szArtInfoType = "INTERFACE_TECH_DEEPWATERTRADE"
++				# </advc.002d>
++				screen.addDDSGFCAt( szTerrainTradeButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo(szArtInfoType).getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_TERRAIN_TRADE, i, j, False )
+ 				fX += X_INCREMENT
+ 
+ 		j = gc.getNumTerrainInfos()
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index b402d22b0..3f1fea50a 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -626,9 +626,17 @@
+ 			<Type>INTERFACE_TECH_WATERMOVES</Type>
+ 			<Path>Art/Interface/Screens/TechTree/Moves_For_WaterUnit.dds</Path>
+ 		</InterfaceArtInfo>
++		<!-- advc.002d: The non-atlas path was Ocean_Trade. Note that
++			 INTERFACE_TECH_WATERTRADE is used for all terrain trade effects -
++			 except Ocean; see below.-->
+ 		<InterfaceArtInfo>
+ 			<Type>INTERFACE_TECH_WATERTRADE</Type>
+-			<Path>,Art/Interface/Screens/TechTree/Ocean_Trade.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,3</Path>
++			<Path>,Art/Interface/Screens/TechTree/Trade_On_Coast.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,3</Path>
++		</InterfaceArtInfo>
++		<!-- advc.002d: -->
++		<InterfaceArtInfo>
++			<Type>INTERFACE_TECH_DEEPWATERTRADE</Type>
++			<Path>,Art/Interface/Screens/TechTree/Ocean_Trade.dds,Art/Interface/Buttons/Mainmenu_Techscreen_Worldbuilder_Popups_Atlas.dds,1,3</Path>
+ 		</InterfaceArtInfo>
+ 		<InterfaceArtInfo>
+ 			<Type>INTERFACE_TECH_RIVERTRADE</Type>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2474

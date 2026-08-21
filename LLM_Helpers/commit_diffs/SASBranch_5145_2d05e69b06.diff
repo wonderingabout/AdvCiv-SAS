@@ -1,0 +1,160 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5145
+# Commit: 2d05e69b06a05027d19e8a3ebc294d0681a9ac70
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7364d7bbf0377c1c549ac094619ab3c6fbae0c8c
+# Title: (Possibly Enhanced) No longer apply era-based key strategic bonus trade extra valuation between members of the same master-vassal(s) locus (as it is in their...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+44	6	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b0d77ecf5..64416ad1b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12269,6 +12269,10 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 	// --- Tech-gated building synergy for this bonus (simple & fast) ---
+ 	static const bool bValueMoreMultiEffectBonuses = GC.getDefineBOOL("SAS_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES");
+ 
++	// <!-- custom: cache once for reuse as i got the idea based on claude sonnet 4.5's review of a related part of this function but anyways etc. -->
++    TeamTypes const eOurTeam = getTeam();
++	CvTeamAI const& kOurTeam = GET_TEAM(eOurTeam);
++
+ 	if (bValueMoreMultiEffectBonuses && rOurVal.isPositive())
+ 	{
+ 		scaled rBoost = 1; // multiply our per-city value by this at the end
+@@ -12319,12 +12323,12 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 
+ 			// Must have the building's enabling tech (if any)
+ 			TechTypes const eReq = (TechTypes)kB.getPrereqAndTech();
+-			if (eReq != NO_TECH && !GET_TEAM(getTeam()).isHasTech(eReq))
++			if (eReq != NO_TECH && !kOurTeam.isHasTech(eReq))
+ 				continue;
+ 
+ 			// If the building is obsolete for us, ignore its extra effects
+ 			TechTypes const eObs = (TechTypes)kB.getObsoleteTech();
+-			if (eObs != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObs))
++			if (eObs != NO_TECH && kOurTeam.isHasTech(eObs))
+ 				continue;
+ 
+ 			// How much extra this building adds for THIS bonus (health + happy)
+@@ -12394,10 +12398,44 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 		}
+ 	}
+ 
++	// <!-- custom: update: don't apply iAIObjective relative extra valuation between master and their vassals, as it's in their interest that each other is stronger and to trade these to each other preferentially if needed anyways etc, code added with the help of chatgpt 5.1 and then claude sonnet's 4.5 review thanks; check if accurate anyways etc. -->
++	// With the current AI_bonusTradeVal logic:
++	// 	- Key strategics (iron/copper/horse/camel) get an extra relative markup vs outsiders.
++	// 	- Inside the master–vassal cluster, that extra markup is suppressed:
++	// 		- So master ↔ vassal and sibling vassals can still trade those resources at the “normal” AI value.
++	// 		- Outsiders have to “pay properly” for them (or, at least, we’re less eager to sell).
++	// Net effect in theory:
++	// 	- You’re less likely to feed key resources to future enemies.
++	// 	- You don’t punish your own master/vassals with the same markup.
++	// 	- So clusters should be slightly more self-reinforcing, and outsiders get fewer free ponies / iron / copper.
++	// That’s all very sane.
++	// Step 1: cluster detection inside AI_bonusTradeVal
++    const TeamTypes eTheirTeam = kFromPlayer.getTeam();
++    const TeamTypes eAnchor = kOurTeam.isAVassal() ? kOurTeam.getMasterTeam() : eOurTeam;
++
++    bool bBonusTradeInMasterVassalCluster = false;
++
++    if (eTheirTeam == eAnchor)
++    {
++        bBonusTradeInMasterVassalCluster = true;
++    }
++    else
++    {
++        for (TeamAIIter<ALIVE, VASSAL_OF> it(eAnchor); it.hasNext(); ++it)
++        {
++            if (it->getID() == eTheirTeam)
++            {
++                bBonusTradeInMasterVassalCluster = true;
++                break;
++            }
++        }
++    }
++
+ 	// --- 2) Simple substitute multipliers for key strategics (edge rules) ---
+ 	static const bool bValueMoreIronCopperHorseCamelRelatively = GC.getDefineBOOL("SAS_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY");
+ 
+-	if (bValueMoreIronCopperHorseCamelRelatively)
++	// GATE THE ENTIRE BLOCK with your cluster check:
++	if (!bBonusTradeInMasterVassalCluster && bValueMoreIronCopperHorseCamelRelatively)
+ 	{
+ 		static const BonusTypes B_COPPER = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_1"));
+ 		static const BonusTypes B_IRON   = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_2"));
+@@ -12593,7 +12631,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 		as a compromise. */
+ 	int iRefuseThresh = std::max(0, GC.getInfo(kFromPlayer.getPersonalityType()).
+ 			getStrategicBonusRefuseAttitudeThreshold() - 1);
+-	for (PlayerAIIter<MAJOR_CIV,KNOWN_TO> itThird(getTeam());
++	for (PlayerAIIter<MAJOR_CIV,KNOWN_TO> itThird(eOurTeam);
+ 		itThird.hasNext(); ++itThird)
+ 	{
+ 		CvPlayerAI const& kThird = *itThird;
+@@ -12663,7 +12701,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 	if(!isHuman()) // Never pay more than it's worth to us
+ 		r.decreaseTo(rOurVal);
+ 	r *= per100(std::max(0, GC.getInfo(eBonus).getAITradeModifier() + 100));
+-	if(GET_TEAM(eFromPlayer).isVassal(getTeam()) &&
++	if(GET_TEAM(eFromPlayer).isVassal(eOurTeam) &&
+ 		!GET_TEAM(eFromPlayer).isCapitulated())
+ 	{
+ 		r *= fixp(0.67); // advc.037: 0.5 in BtS
+@@ -12673,7 +12711,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 		would lead to a rounding error when gold is paid for a resource b/c
+ 		2 gpt correspond to 1 tradeVal. */
+ 	// Let's actually apply this even once gold trading is available
+-	if (r >= 3 /*&& !GET_TEAM(getTeam()).isGoldTrading() &&
++	if (r >= 3 /*&& !kOurTeam.isGoldTrading() &&
+ 		!GET_TEAM(eFromPlayer).isGoldTrading()*/)
+ 	{
+ 		iR = r.roundToMultiple(4);
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 61dc8b137..df1cfe260 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -224,7 +224,7 @@ Note 2: master-vassal(s) changes are made with the aim that they in most cases w
+ - Seemingly tremendously improved multi-war threat management by adding sanity "emergency peace" pre-checks in `UWAI::Team::considerPeace` in `UWAIAgent.cpp`, so that AI makes peace if it fights too many wars or not that many but against a combined strong enough total enemy power ratio (vs ours as base anyways etc). This should make AI much stronger as it did in the sample testing where at turn 150 Hatshepsut AI who was strongest leader in the game at this stage could keep its lead until turn 200 thanks to our changes and make targeted campaigns in this sample i mean but anyways etc, instead of being badly dogpiled on and actually dying before turn 200 before our changes. Hopefully these are lax enough that plenty wars still happen, but the focus is on AI survivability and efficiency, not entertainment xd if i may say in this case i mean but anyways etc, see [65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc) for details anyways etc.
+ - Fixed and greatly enhanced issue of AI overvaluing low effect bonuses such as pig (gives only +1 health) that it would value at same price than some higher effect bonuses such as maize (+2 health effectively (+1, then +1 from granary we almost always have)), by adding a pre-check in `CvPlayerAI::AI_bonusTradeVal` so that as soon as our trading partner if i may say but anyways etc has the tech, then we assume said party also has granaries in all cities and thus would gain +2 health from maize, then price accordingly. Therefore bonuses are not valued too high too soon (until tech is unlocked, accounts for obsolte buildings too such as as of now the byzantine empire's civ-specific stable giving happiness from horse, that would be cancelled when said building is obsoleted if i'm not mistaken but anyways etc). Does not account wonders and cathedrals to simplify (not present in enough cities to matter), and slightly accounts for temples and monasteries to simplify as well if they were to have such bonus effects. As a result of these changes, AI should undersatnd much better the value for example of its maize or wheat or grapes (from grocer if i'm not mistaken anyways etc), and value it more in trade in gold per turn, while pig or cattle or such should be valued less, so it should no longer be possible to cheese it if i may say but anyways etc and trade suepr aggressively junk or low-value bonuses if i may say but anyways etc for high gpt or other bonuses as easily as was (was quite broken tbh but anyways etc) or such anyways etc. Hopefully leads to stronger AI trading, and fairer AI vs AI trade as well so they don't throw away their nice bonuses to lower value ones even to other AIs. Some bonuses like iron as a result would also be valued less now as they don't have happiness or health from buildings from example, but hopefully its value should still be high enough, and it's maybe fine as such as there are other paths than having iron maybe at least early (else the human player may trade it too easily or something maybe (i am not sure about this change change but maybe it will work out well in overall diplomacy and allow for more startegy rather than easy trade abuse/exploit anyways etc)). Note: coastal bonuses have a more moderate version of this as we assume many cities are not coastal so they would not gain the building related bonus's extra effect quite often. We count it as such even in water heavy maps (treated the same to simplify anyways etc), so fish would be worth more than pig (with as of now harbor but anyways etc) but less than maize or wheat for example anyways etc. See [66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early anyways etc) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd if i may say but anyways etc, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now if i may say but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc) for details anyways etc.
+ - Added AI logic in `CvPlayerAI::AI_bonusTradeVal`to value iAI Objective bonuses more and this valuing is higher the higher `iAIObjective` is anyways etc.
+-- Independently from this, added logic in `CvPlayerAI::AI_bonusTradeVal` to tell AI how to relatively value some key bonuses like as of now Copper, Iron, Horse, Camel, Elephants, depending on if buyer has one and not the other and at which era ingame. For example iron is very nice at medieval era (value x2) if buyer has horse or camel but no iron (in order to build knights), but at renaissance such a combination is not valuable as there are other units instead (musketmen for example that don't require any bonus, and cannons only requiring iron as of now but anyways etc). Similarly, elephants bonus is valuable at ancient and classical era, but not in medieval (war elephants fall behind so it would be at most only for building (value x0.5 i.e. half value now in trading with buyer anyways etc)). Or iron/copper are not so valuable at classical if we have camel or horse or elephants (vice versa more or less), but this changes at other eras. Also horse not being valuable at ancient and classical (to simplify (camels are not useful pre-classical but to simplify anyways etc)) if we have camel and vice versa for example, but not same at other eras. Hopefully leads to smarter AI trading although i didn't test it too much so far if at all hehe but at glance seems bit better in this case i mean but anyways etc.
++- Independently from this, added logic in `CvPlayerAI::AI_bonusTradeVal` to tell AI how to relatively value some key bonuses like as of now Copper, Iron, Horse, Camel, Elephants, depending on if buyer has one and not the other and at which era ingame. For example iron is very nice at medieval era (value x2) if buyer has horse or camel but no iron (in order to build knights), but at renaissance such a combination is not valuable as there are other units instead (musketmen for example that don't require any bonus, and cannons only requiring iron as of now but anyways etc). Similarly, elephants bonus is valuable at ancient and classical era, but not in medieval (war elephants fall behind so it would be at most only for building (value x0.5 i.e. half value now in trading with buyer anyways etc)). Or iron/copper are not so valuable at classical if we have camel or horse or elephants (vice versa more or less), but this changes at other eras. Also horse not being valuable at ancient and classical (to simplify (camels are not useful pre-classical but to simplify anyways etc)) if we have camel and vice versa for example, but not same at other eras. Hopefully leads to smarter AI trading although i didn't test it too much so far if at all hehe but at glance seems bit better in this case i mean but anyways etc. (Requires AdvCiv-SAS 5145+) Update: now does not apply anymore to trades between members of the same master-vassal(s) locus (as it is in their interest to be mutually stronger anyways etc.).
+ - (Requires AdvCiv-SAS 5135+) Implemented preferrential master<->vassal(s) tech trading (we are heavily more willing to tech trade with our master/vassal(s)), in `CvPlayerAI::AI_doDiplo`. This synergises the previous devalue techs we can get from our master/vassal(s) change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-ai)) and expands on it, not just techs that overlap with what our master/vassal(s) already know. In autoplay, this results for example in the master having 4 more techs and one less tech from turn 250 to turn 300 (vassal was mostly way ahead in tech) and the vassal having 2 more techs and 0 less techs, which is a massive improvement it seems, just from this change. Added a bugfix to `AI_contactRoll(CONTACT_TRADE_TECH` (was missing a second parameter according to chatgpt 5.1) which may have or not contributed to this skew in behaviour. See for details [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51). (Requires AdvCiv-SAS 5138+) Update: also added vassal<->vassal siblings extra tech trading chance similarly, which leads in autoplay (since Ewuare has 2 vassals at t250) to seemingly more or less identical results, which is fine as long as not clearly harmful, and this only boosts chance, not reduces trade which may be less predictable in terms of is this beneficial or harmful.
+ - (Requires AdvCiv-SAS 5140+) If not between members of the same master-vassal(s) locus, added an alternative military power based tech trade contact chance modifier in `CvPlayerAI::AI_doDiplo`, so that we have a higher chance to trade with militarily weaker players to us (safer, less likely to backstab us) and a lower chance for stronger players to us (more likely to become our ennemies or to bite us back in some way). In autoplay, seemingly results in much closer game, where the runaway Ewuare is now regularly and repeatedly caught up by other rivals and vice versa when these take the lead as well, until late in the game where game ends at turn 419 vs 288 before and was close until the last few or such dozen turns. See for details [KI#80](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental).
+ - (Requires AdvCiv-SAS 5139+) Whenever we want to contact players outside of our master-vassal(s) locus for a tech trade, first check if a member of does not already have the tech, and if so do not contact outsiders (in the hope we indirectly trade more with players within our locus rather). In autoplay, this helps Ewuare win sooner seemingly due to unlocking the military tech for dragoons one of his vassal had long ago but that he didn't have in other runs at turn 300; tech pace is otherwise more or less mostly the same. Change in `CvPlayerAI::AI_doDiplo`. See for details [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index d9653ce70..d6f6f89bc 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -214,7 +214,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Multi-war threat management — “emergency peace” pre-checks**: In `UWAI::Team::considerPeace` (`UWAIAgent.cpp`), add sanity checks to **seek peace** when either (a) the team is fighting **too many simultaneous wars** or (b) the enemies’ **combined power ratio** vs. us is high enough. Goal: **survivability and focus** (fewer dogpiles, more targeted campaigns) while keeping thresholds lax so plenty of wars still occur. In a sample run, Hatshepsut, strongest at ~turn 150, kept the lead to ~turn 200 with these checks (previously died before 200). See **[KI#65](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc)**.
+ - **Fair bonus trade pricing (building-effect aware).** In `CvPlayerAI::AI_bonusTradeVal`, add a quick pre-check that scales a bonus’s trade value by how many **citywide building effects it actually unlocks with current techs** (granary/market/grocer/harbor/temple/monastery, etc.). Wonders/cathedrals ignored; less pronounced for coastal-building effects, as we assume to simplify many cities aren’t coastal and thus wouldn’t benefit. **Practical result (examples):** Maize/Wheat/Grapes are priced noticeably higher than Pigs/Cows; Molluscs beat low-impact foods; Iron is valued slightly less than before when it has no building bonuses (should still be valuable for units). **Effect:** shuts down early GPT farming, makes AI↔AI swaps fairer, and strengthens AI openings/midgame. See **[KI#66](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc)**.
+ - **Bonus trade valuation uses `iAIObjective`:** In `CvPlayerAI::AI_bonusTradeVal`, the AI now factors each bonus’s `iAIObjective` weight directly into price—higher-priority strategic bonuses (per your weights) command more value in trades.
+-- **Era- & inventory-aware relative pricing for key strategic bonuses (Horse↔Camel, Camel↔Horse, ±Elephants):** Also in `CvPlayerAI::AI_bonusTradeVal`, trade values now adjust by what the buyer already has and by era. Examples: Medieval buyer with **Horse/Camel** but no **Iron** values Iron ≈ x2 (to unlock Knights); by Renaissance that premium fades (Muskets don’t need any bonus; Cannons only need Iron). **Elephants** are valued in Ancient/Classical, but discounted in Medieval (≈ x0.5, for buildings at most). **Copper/Iron** are discounted in Classical if the buyer already has Camel/Horse/Elephants; Horse and Camel are treated as partial substitutes early on.
++- **Era- & inventory-aware relative pricing for key strategic bonuses (Horse↔Camel, Camel↔Horse, ±Elephants):** Also in `CvPlayerAI::AI_bonusTradeVal`, trade values now adjust by what the buyer already has and by era. Examples: Medieval buyer with **Horse/Camel** but no **Iron** values Iron ≈ x2 (to unlock Knights); by Renaissance that premium fades (Muskets don’t need any bonus; Cannons only need Iron). **Elephants** are valued in Ancient/Classical, but discounted in Medieval (≈ x0.5, for buildings at most). **Copper/Iron** are discounted in Classical if the buyer already has Camel/Horse/Elephants; Horse and Camel are treated as partial substitutes early on. (Requires AdvCiv-SAS 5145+) **Update:** this adjustment no longer applies to trades *within* the same master–vassal(s) locus, since it is generally in their shared interest to strengthen each other.
+ - (Requires AdvCiv-SAS 5135+) **Preferential master–vassal tech trading:** Heavily increase willingness to trade techs with our **master/vassal(s)**; change in `CvPlayerAI::AI_doDiplo`. This synergises with the earlier “devalue techs your master/vassal already knows” change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-ai)) and extends it **to *all* techs**, not just techs that overlap with what our master/vassal(s) already know. In one autoplay sample this led to noticeably **less overlap** and better sharing (e.g. a master gaining ~4 more and 1 fewer tech, a vassal ~2 more and 0 fewer over T250–300 compared to before). Also fixed a missing second parameter in `AI_contactRoll(CONTACT_TRADE_TECH` (according to ChatGPT 5.1), which may have contributed to earlier skew. Details: [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51). - (Requires AdvCiv-SAS 5135+) Implemented preferrential master<->vassal(s) tech trading (we are heavily more willing to tech trade with our master/vassal(s)), in `CvPlayerAI::AI_doDiplo`. This synergises the previous devalue techs we can get from our master/vassal(s) change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-ai)) and expands on it, not just techs that overlap with what our master/vassal(s) already know. In autoplay, this results for example in the master having 4 more techs and one less tech from turn 250 to turn 300 (vassal was mostly way ahead in tech) and the vassal having 2 more techs and 0 less techs, which is a massive improvement it seems, just from this change. Added a bugfix to `AI_contactRoll(CONTACT_TRADE_TECH` (was missing a second parameter according to chatgpt 5.1) which may have or not contributed to this skew in behaviour. See for details [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51). (Requires AdvCiv-SAS 5138+) **Update:** Extend the same extra trade bias to **sibling vassal↔vassal** trades. In autoplay (Ewuare with two vassals at T250), this produced broadly similar outcomes to the master–vassal–only version, which is acceptable since the change only increases trade chances (doesn’t remove any) and is therefore less likely to be harmful.
+ - (Requires AdvCiv-SAS 5140+) **Military-power–aware tech trade targeting:** If a potential tech-trade is *not* between members of the same master–vassal(s) locus, `CvPlayerAI::AI_doDiplo` instead increases tech-trade contact chance toward **militarily weaker** players (safer, less likely to threaten us) and reduces it for **stronger** ones (less free value to future rivals). In one autoplay sample this seemingly produced a much closer game: the former runaway (Ewuare) was repeatedly caught up by rivals, and the game lasted to ~T419 instead of ~T288, with the lead changing hands several times. See [KI#80](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental).
+ - (Requires AdvCiv-SAS 5139+) **Master–vassal(s) locus first for tech trades:** Whenever the AI wants to contact other players for a tech trade in `CvPlayerAI::AI_doDiplo`, it now **first checks** whether the desired tech is already tradeable inside its own master–vassal locus (master, vassals, sibling vassals). If so, it **does not ask outside civilizations for that tech**, nudging trades to stay within the group instead. In one autoplay sample this *seemed* to help Ewuare win earlier by finally picking up the Dragoon-related military tech from a vassal, while the locus kept a similar overall tech pace to previous runs. See [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=27420

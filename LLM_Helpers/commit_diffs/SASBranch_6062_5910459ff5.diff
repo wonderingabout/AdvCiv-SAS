@@ -1,0 +1,624 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6062
+# Commit: 5910459ff53e661116bcd935a56c6d9f0abaaf57
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 08cb9d272ef47302e74c6dc795acdbde707e6ff0
+# Title: Add overseas-transport BBAI diagnostics (SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL) and fix no Barbarian island Worker regression
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+10	3	CvGameCoreDLL/BBAILog.cpp
+2	0	CvGameCoreDLL/BBAILog.h
+104	9	CvGameCoreDLL/CvCityAI.cpp
+3	2	CvGameCoreDLL/CvPlayerAI.cpp
+69	17	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/WarUtilityAspect.cpp
+2	2	README.md
+2	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 39d941c9f..baa98fb9c 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1431,6 +1431,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Dedicated overseas-transport diagnostics, separated from CITY and UNIT notably so island settlement/conquest opportunities, naval-target reachability, transport production, military cargo capacity, failed army loading, Settler/Worker cargo handling, pickup attempts, and launch decisions can be inspected together without broad logging. Level 3 notably also follows completed-island Worker pickup and dispatch. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Dedicated Great General diagnostics, separated from UNIT because Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, and target-unit choice are one strategic decision chain rather than ordinary unit movement. This notably helps investigate bad PROMOTION_LEADER attachments such as obsolete or low-value units receiving a Great General instead of settling as a Military Instructor. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_GREAT_GENERAL_LOG_LEVEL</DefineName>
+
+diff --git a/CvGameCoreDLL/BBAILog.cpp b/CvGameCoreDLL/BBAILog.cpp
+index 637d35d3a..29a83d801 100644
+--- a/CvGameCoreDLL/BBAILog.cpp
++++ b/CvGameCoreDLL/BBAILog.cpp
+@@ -22,7 +22,7 @@ static int getClampedSASBBAILogLevel(char const* szDefineName)
+ // <!-- custom: Cache each effective XML-backed BBAI diagnostic log setting on first use for cheap hot-path checks. Game-summary run reports are handled independently in SASGameSummaryLog.cpp. (GPT-5.5? + GPT-5.5) -->
+ bool isSASBBAILogEnabled()
+ {
+-	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAIWarLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIGreatGeneralLogLevel() > 0 || getSASBBAISettlerLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
++	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAIWarLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIOverseasTransportLogLevel() > 0 || getSASBBAIGreatGeneralLogLevel() > 0 || getSASBBAISettlerLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
+ 	return bEnabled;
+ }
+ 
+@@ -70,6 +70,13 @@ int getSASBBAIUnitLogLevel()
+ 	return iLevel;
+ }
+ 
++// <!-- custom: Separate overseas military-cargo and Settler-transport diagnostics from broad CITY and UNIT logging notably so naval opportunity, capacity, pickup, and launch decisions can be tested together. (GPT-5.6-Sol) -->
++int getSASBBAIOverseasTransportLogLevel()
++{
++	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL") : 0);
++	return iLevel;
++}
++
+ // <!-- custom: Separate Great General diagnostics from general UNIT logging because one decision spans Military Academy construction, Military Instructor joining, Warlord attachment, and the target-city/unit valuation that decides between them. (GPT-5.5) -->
+ int getSASBBAIGreatGeneralLogLevel()
+ {
+@@ -250,8 +257,8 @@ static void logSASBBAIGameState(const char* szRowType)
+ // <!-- custom: Record the effective BBAI diagnostic profile in each new/load file so test runs with different category levels are not compared as if they contained the same diagnostics. (GPT-5.5) -->
+ static void logSASBBAILogSettings()
+ {
+-	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_WAR_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
+-			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAIWarLogLevel(), getSASBBAICityLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIGreatGeneralLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
++	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_WAR_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=%d SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
++			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAIWarLogLevel(), getSASBBAICityLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIOverseasTransportLogLevel(), getSASBBAIGreatGeneralLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
+ }
+ 
+ // <!-- custom: Roll over before new-game initialization can emit map-generation or starting-position diagnostics. The complete metadata is logged later from CvEventReporter::gameStart, once the generated game state exists. (GPT-5.5) -->
+
+diff --git a/CvGameCoreDLL/BBAILog.h b/CvGameCoreDLL/BBAILog.h
+index bd438faec..de2685334 100644
+--- a/CvGameCoreDLL/BBAILog.h
++++ b/CvGameCoreDLL/BBAILog.h
+@@ -21,6 +21,7 @@ int getSASBBAIWarLogLevel();
+ int getSASBBAICityLogLevel();
+ int getSASBBAICitizenLogLevel();
+ int getSASBBAIUnitLogLevel();
++int getSASBBAIOverseasTransportLogLevel();
+ int getSASBBAIGreatGeneralLogLevel();
+ int getSASBBAISettlerLogLevel();
+ int getSASBBAIFoundLogLevel();
+@@ -43,6 +44,7 @@ void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded
+ #define gCityLogLevel getSASBBAICityLogLevel()
+ #define gCitizenLogLevel getSASBBAICitizenLogLevel() // <!-- custom: Separate citizen-assignment and plot-allocation diagnostics from general CITY logging. (GPT-5.5) -->
+ #define gUnitLogLevel getSASBBAIUnitLogLevel()
++#define gOverseasTransportLogLevel getSASBBAIOverseasTransportLogLevel() // <!-- custom: Separate overseas military-cargo and Settler-transport diagnostics from broad CITY and UNIT logging. (GPT-5.6-Sol) -->
+ #define gGreatGeneralLogLevel getSASBBAIGreatGeneralLogLevel() // <!-- custom: Separate Great General action, Military Instructor, and Warlord attachment diagnostics from general UNIT logging. (GPT-5.5) -->
+ #define gSettlerLogLevel getSASBBAISettlerLogLevel() // <!-- custom: Separate Settler diagnostics from general UNIT logging so each can be inspected independently. (GPT-5.5) -->
+ #define gFoundLogLevel getSASBBAIFoundLogLevel() // advc.031c
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 50e046855..dc095f562 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -137,6 +137,97 @@ static bool SAS_isSettlerProductionCandidate(UnitTypes eUnit, UnitAITypes eUnitA
+ }
+ 
+ 
++// <!-- custom: Diagnose when the player knows a worthwhile overseas settlement or conquest opportunity but may lack transport capacity. This connects city/site value, distance, military availability, fleet capacity, map type, war state, and production constraints before changing the land-heavy naval suppression that prevented an earlier 10-20-Galleon overbuild.
++// Call only inside the Overseas-transport level-2 gate because evaluating foreign cities is diagnostic work. Reuse the normal target-city value and SAS long-term-benefit evaluation so logging does not invent a competing strategic heuristic. (GPT-5.6-Sol) -->
++static void SAS_logOverseasTransportOpportunity(CvCityAI const& kCity, CvArea const* pWaterArea, int iNumWaterAreaCitySites, int iWaterAreaBestFoundValue, int iSettlerBuildMinFoundValue, int iWaterPercent, int iBuildUnitProb, int iUnitSpending, bool bFinancialTrouble, bool bDanger, bool bLandWar, bool bAssault)
++{
++	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
++	CvTeamAI const& kTeam = GET_TEAM(kCity.getTeam());
++	CvCity const* pBestTarget = NULL;
++	CvArea const* pBestTargetWaterArea = NULL;
++	int iKnownRevealedOtherAreaCities = 0;
++	int iNotDeducedCandidates = 0;
++	int iNoncoastalCandidates = 0;
++	int iNoSharedPortCandidates = 0;
++	int iKnownCoastalOtherAreaCandidates = 0;
++	int iLongTermCandidates = 0;
++	int iBestTargetValue = -1;
++	int iBestStepDistance = -1;
++	int iBestScore = MIN_INT;
++	// <!-- custom: Use ALIVE rather than CIV_ALIVE so the diagnostic includes Barbarian island cities; CIV_ALIVE deliberately excludes the Barbarian player. (GPT-5.6-Sol) -->
++	for (PlayerIter<ALIVE,NOT_SAME_TEAM_AS> itTarget(kCity.getTeam()); itTarget.hasNext(); ++itTarget)
++	{
++		if (!itTarget->isBarbarian() && !kTeam.AI_mayAttack(itTarget->getTeam()))
++			continue;
++		FOR_EACH_CITY(pTargetCity, *itTarget)
++		{
++			if (pTargetCity->isArea(kCity.getArea()) || !pTargetCity->isRevealed(kCity.getTeam()))
++				continue;
++			iKnownRevealedOtherAreaCities++;
++			// <!-- custom: A revealed Barbarian city is already known exactly; AI_deduceCitySite is intended to limit inference about rival cities hidden by fog and excluded every logged Barbarian island target. (GPT-5.6-Sol) -->
++			if (!pTargetCity->isBarbarian() && !kPlayer.AI_deduceCitySite(*pTargetCity))
++			{
++				iNotDeducedCandidates++;
++				continue;
++			}
++			CvArea const* pTargetWaterArea = pTargetCity->waterArea(true);
++			CvArea const* pTargetSecondWaterArea = pTargetCity->secondWaterArea();
++			if (pTargetWaterArea == NULL && pTargetSecondWaterArea == NULL)
++			{
++				iNoncoastalCandidates++;
++				continue;
++			}
++			CvArea const* pSharedWaterArea = NULL;
++			FOR_EACH_CITY(pOwnCity, kPlayer)
++			{
++				CvArea const* pOwnWaterArea = pOwnCity->waterArea(true);
++				CvArea const* pOwnSecondWaterArea = pOwnCity->secondWaterArea();
++				if (pTargetWaterArea != NULL && (pTargetWaterArea == pOwnWaterArea || pTargetWaterArea == pOwnSecondWaterArea))
++					pSharedWaterArea = pTargetWaterArea;
++				else if (pTargetSecondWaterArea != NULL && (pTargetSecondWaterArea == pOwnWaterArea || pTargetSecondWaterArea == pOwnSecondWaterArea))
++					pSharedWaterArea = pTargetSecondWaterArea;
++				if (pSharedWaterArea != NULL)
++					break;
++			}
++			if (pSharedWaterArea == NULL)
++			{
++				iNoSharedPortCandidates++;
++				continue;
++			}
++			iKnownCoastalOtherAreaCandidates++;
++			if (!kPlayer.AI_isSASCityLikelyToBenefitUsLongTerm(*pTargetCity))
++				continue;
++			iLongTermCandidates++;
++			int const iTargetValue = kPlayer.AI_targetCityValue(*pTargetCity, false, true, NULL);
++			int const iStepDistance = stepDistance(kCity.getX(), kCity.getY(), pTargetCity->getX(), pTargetCity->getY());
++			int const iScore = 100 * iTargetValue - iStepDistance;
++			if (iScore <= iBestScore)
++				continue;
++			pBestTarget = pTargetCity;
++			pBestTargetWaterArea = pSharedWaterArea;
++			iBestTargetValue = iTargetValue;
++			iBestStepDistance = iStepDistance;
++			iBestScore = iScore;
++		}
++	}
++	if (iNumWaterAreaCitySites <= 0 && pBestTarget == NULL)
++		return;
++	CvCity const* pNearestOwnCity = (pBestTarget == NULL ? NULL : GC.getMap().findCity(pBestTarget->getX(), pBestTarget->getY(), kCity.getOwner(), NO_TEAM, false, false, NO_TEAM, NO_DIRECTION, pBestTarget));
++	PlayerTypes const eTargetOwner = (pBestTarget == NULL ? NO_PLAYER : pBestTarget->getOwner());
++	TeamTypes const eTargetTeam = (pBestTarget == NULL ? NO_TEAM : pBestTarget->getTeam());
++	int const iTargetPowerPercent = (eTargetOwner == NO_PLAYER ? -1 : 100 * GET_PLAYER(eTargetOwner).getPower() / std::max(1, kPlayer.getPower()));
++	int const iTargetAttitude = (eTargetOwner == NO_PLAYER || pBestTarget->isBarbarian() ? -1 : kPlayer.AI_getAttitudeVal(eTargetOwner));
++	CvArea const* pRelevantTransportWaterArea = (pBestTargetWaterArea == NULL ? pWaterArea : pBestTargetWaterArea);
++	int const iWaterAssaultTransports = (pRelevantTransportWaterArea == NULL ? 0 : kPlayer.AI_totalWaterAreaUnitAIs(*pRelevantTransportWaterArea, UNITAI_ASSAULT_SEA));
++	int const iWaterSettlerTransports = (pRelevantTransportWaterArea == NULL ? 0 : kPlayer.AI_totalWaterAreaUnitAIs(*pRelevantTransportWaterArea, UNITAI_SETTLER_SEA));
++	CvGame const& kGame = GC.getGame();
++	logBBAI("      OVERSEAS_TRANSPORT_OPPORTUNITY turn=%d player=%d %S capital=%S capital=(%d,%d) landArea=%d waterArea=%d mapWaterPercent=%d landHeavyMap=%d navalHeavyMap=%d waterSites=%d waterBest=%d settlerBuildMin=%d knownRevealedOtherAreaCities=%d notDeducedCities=%d noncoastalCities=%d noSharedPortCities=%d knownCoastalOtherAreaCities=%d longTermCities=%d target=%S targetOwner=%d targetTeam=%d targetBarbarian=%d target=(%d,%d) targetArea=%d targetWaterArea=%d targetPop=%d targetDefenders=%d targetValue=%d targetStepDistance=%d targetNearestOwnCity=%S targetNearestOwnCityDistance=%d targetPowerPercent=%d targetAttitude=%d targetAtWar=%d targetWarPlan=%d assaultTransportsWater=%d assaultTransportsTotal=%d assaultCargoCapacity=%d assaultTransportsTraining=%d settlerTransportsWater=%d settlerTransportsTotal=%d settlerCargoCapacity=%d settlerTransportsTraining=%d areaAttackUnits=%d areaAttackCityUnits=%d totalMilitary=%d buildUnitProb=%d unitSpending=%d maxUnitSpending=%d enemyPowerPercent=%d wars=%d anyWarPlan=%d financialTrouble=%d danger=%d landWar=%d assault=%d",
++		GC.getGame().getGameTurn(), kCity.getOwner(), kPlayer.getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getArea().getID(), (pWaterArea == NULL ? -1 : pWaterArea->getID()), iWaterPercent, kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue, iKnownRevealedOtherAreaCities, iNotDeducedCandidates, iNoncoastalCandidates, iNoSharedPortCandidates, iKnownCoastalOtherAreaCandidates, iLongTermCandidates,
++		(pBestTarget == NULL ? L"-" : pBestTarget->getName().GetCString()), eTargetOwner, eTargetTeam, (pBestTarget == NULL ? 0 : pBestTarget->isBarbarian()), (pBestTarget == NULL ? -1 : pBestTarget->getX()), (pBestTarget == NULL ? -1 : pBestTarget->getY()), (pBestTarget == NULL ? -1 : pBestTarget->getArea().getID()), (pBestTargetWaterArea == NULL ? -1 : pBestTargetWaterArea->getID()), (pBestTarget == NULL ? -1 : pBestTarget->getPopulation()), (pBestTarget == NULL ? -1 : pBestTarget->getPlot().plotCount(PUF_canDefend)), iBestTargetValue, iBestStepDistance, (pNearestOwnCity == NULL ? L"-" : pNearestOwnCity->getName().GetCString()), (pNearestOwnCity == NULL || pBestTarget == NULL ? -1 : stepDistance(pNearestOwnCity->getX(), pNearestOwnCity->getY(), pBestTarget->getX(), pBestTarget->getY())), iTargetPowerPercent, iTargetAttitude, (eTargetTeam == NO_TEAM ? 0 : kTeam.isAtWar(eTargetTeam)), (eTargetTeam == NO_TEAM ? NO_WARPLAN : kTeam.AI_getWarPlan(eTargetTeam)),
++		iWaterAssaultTransports, kPlayer.AI_totalUnitAIs(UNITAI_ASSAULT_SEA), kPlayer.AI_countCargoSpace(UNITAI_ASSAULT_SEA), kPlayer.AI_getNumTrainAIUnits(UNITAI_ASSAULT_SEA), iWaterSettlerTransports, kPlayer.AI_totalUnitAIs(UNITAI_SETTLER_SEA), kPlayer.AI_countCargoSpace(UNITAI_SETTLER_SEA), kPlayer.AI_getNumTrainAIUnits(UNITAI_SETTLER_SEA), kPlayer.AI_totalAreaUnitAIs(kCity.getArea(), UNITAI_ATTACK), kPlayer.AI_totalAreaUnitAIs(kCity.getArea(), UNITAI_ATTACK_CITY), kPlayer.getNumMilitaryUnits(), iBuildUnitProb, iUnitSpending, kPlayer.AI_maxUnitCostPerMil(&kCity.getArea(), iBuildUnitProb), kTeam.AI_getEnemyPowerPercent(true), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), bFinancialTrouble, bDanger, bLandWar, bAssault);
++}
++
++
+ static void SAS_logSettlerBuildDecision(CvCityAI const& kCity, char const* szSource, char const* szResult, UnitTypes eUnit, UnitAITypes eUnitAI, int iOdds, int iValue)
+ {
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
+@@ -1049,6 +1140,7 @@ void CvCityAI::AI_chooseProduction()
+ 			kPlayer.AI_getNumAdjacentAreaCitySites(iWaterAreaBestFoundValue,
+ 			*pWaterSettlerArea, &kArea);
+ 	int iNumSettlers = kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
++	if (gOverseasTransportLogLevel >= 2 && isCapital()) SAS_logOverseasTransportOpportunity(*this, pWaterSettlerArea, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, SAS_getSettlerBuildMinFoundValue(kPlayer, bDanger), iWaterPercent, iBuildUnitProb, iUnitSpending, bFinancialTrouble, bDanger, bLandWar, bAssault);
+ 
+ 	bool bCapitalArea = false;
+ 	int iNumCapitalAreaCities = 0;
+@@ -1634,7 +1726,7 @@ void CvCityAI::AI_chooseProduction()
+ 					// </advc.017b>
+ 					if (AI_chooseUnit(UNITAI_SETTLER_SEA, iOdds))
+ 					{
+-						if (gCityLogLevel >= 2) logBBAI("      City %S uses early settler sea", sCityName);
++						if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses early settler sea", sCityName);
+ 						return;
+ 					}
+ 				}
+@@ -2316,11 +2408,14 @@ void CvCityAI::AI_chooseProduction()
+ 						iSettlerSeaNeeded = 0; // </advc.017b>
+ 				}
+ 
+-				if (kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_SETTLER_SEA) < iSettlerSeaNeeded)
++				int const iSettlerSeaExisting = kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_SETTLER_SEA);
++				if (gOverseasTransportLogLevel >= 2 && isCapital() && iSettlerSeaNeeded > 0) logBBAI("      SETTLER_SEA_TRANSPORT_DEMAND turn=%d player=%d %S city=%S waterArea=%d waterSites=%d waterBest=%d settlerBuildMin=%d existing=%d needed=%d shortfall=%d overseasColonies=%d workers=%d assault=%d financialTrouble=%d danger=%d",
++					GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue, iSettlerSeaExisting, iSettlerSeaNeeded, std::max(0, iSettlerSeaNeeded - iSettlerSeaExisting), iTotalCities - (pCapital == NULL ? iTotalCities : pCapital->getArea().getCitiesPerPlayer(getOwner())), kPlayer.AI_totalUnitAIs(UNITAI_WORKER), bAssault, bFinancialTrouble, bDanger);
++				if (iSettlerSeaExisting < iSettlerSeaNeeded)
+ 				{
+ 					if (AI_chooseUnit(UNITAI_SETTLER_SEA))
+ 					{
+-						if (gCityLogLevel >= 2) logBBAI("      City %S uses main settler sea", sCityName);
++						if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses main settler sea", sCityName);
+ 						return;
+ 					}
+ 				}
+@@ -2682,7 +2777,7 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 		if (bBuildAssault)
+ 		{
+-			if (gCityLogLevel >= 2) logBBAI("      City %S uses build assault", sCityName);
++			if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses build assault", sCityName);
+ 
+ 			UnitTypes eBestAssaultUnit = NO_UNIT;
+ 			if (pAssaultWaterArea != NULL)
+@@ -17039,7 +17134,6 @@ void CvCityAI::AI_barbChooseProduction()
+ 	const int iNumCities = kPlayer.getNumCities();
+ 	int const iExistingWorkers = kPlayer.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER);
+ 	int const iNeededWorkers = kPlayer.AI_neededWorkers(getArea());
+-
+ 	int iBuildUnitProb = AI_buildUnitProb();
+ 
+ 	if (!AI_isDefended(kPlot.plotCount(
+@@ -17145,7 +17239,7 @@ void CvCityAI::AI_barbChooseProduction()
+ 	{
+ 		if (AI_chooseUnit(UNITAI_ATTACK_CITY))
+ 		{
+-			if (gCityLogLevel >= 2) logBBAI("      City %S uses barb choose attack city for transports", sCityName);
++			if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses barb choose attack city for transports", sCityName);
+ 			return;
+ 		}
+ 	}
+@@ -17158,7 +17252,7 @@ void CvCityAI::AI_barbChooseProduction()
+ 			{
+ 				if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
+ 				{
+-					if (gCityLogLevel >= 2) logBBAI("      City %S uses barb choose transport", sCityName);
++					if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses barb choose transport", sCityName);
+ 					return;
+ 				}
+ 			}
+@@ -18394,8 +18488,9 @@ void CvCityAI::AI_updateWorkersHaveAndNeeded()
+ 	//iUnimprovedWorkedPlotCount += (std::min(iUnimprovedUnworkedPlotCount, iFutureWork)+1) / 2
+ 	// K-Mod end
+ 	// <advc.113> Replacing the line above
+-	// <!-- custom: The rounded reserve formula added Worker demand even when the city's landmass had no unimproved plot that a Worker could improve. This made one-tile Bactra build a Worker that remained idle; apply the reserve only when at least one real future task exists. See KI#192. (GPT-5.6-Sol) -->
+-	if (iUnimprovedUnworkedPlotCount > 0)
++	// <!-- custom: The rounded reserve formula added Worker demand even when a civilization city's landmass had no unimproved plot that a Worker could improve. This made one-tile Bactra build a Worker that remained idle; apply the reserve only when at least one real future task exists.
++	// Barbarian cities need the old reserve because their best-build cache remains empty until they have a Worker. Applying the civilization gate to them produced zero Barbarian Workers and left every tested Barbarian island unimproved, whereas the preceding run's Workers improved Goth, Scythian, Bactrian and other cities. See KI#192. (GPT-5.6-Sol) -->
++	if (kOwner.isBarbarian() || iUnimprovedUnworkedPlotCount > 0)
+ 	{
+ 		iUnimprovedWorkedPlotCount +=
+ 				(scaled(std::min(iUnimprovedUnworkedPlotCount, iFutureWork) + 1, 2) *
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 11fd8b08a..eb075b072 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -16143,8 +16143,9 @@ int CvPlayerAI::AI_neededWorkers(CvArea const& kArea) const
+ 		population growth and new techs, and try to err on the side of too
+ 		many Workers (b/c the AI is pretty bad at sharing them between cities). */
+ 	// <!-- custom: A Worker that had legitimately developed a secondary landmass remained there forever after completing every useful task because Base AdvCiv forced every revealed area above 3 tiles to retain one Worker.
+-	// Preserve that reserve in the primary area, but let a secondary area reach zero demand when its cities, bonuses, routes, and prospective city sites provide no work. Production and transport demand rise again if new work appears. See KI#192. (GPT-5.6-Sol) -->
+-	bool const bKeepAreaWorkerReserve = (AI_isPrimaryArea(kArea) || iCount > 0);
++	// Preserve that reserve in the primary area. Also preserve it for Barbarians, whose separate islands do not use a civilization's transport and reassignment system; otherwise their island cities remained unimproved after this change.
++	// A civilization's secondary area can still reach zero demand when its cities, bonuses, routes, and prospective city sites provide no work. Production and transport demand rise again if new work appears. See KI#192. (GPT-5.6-Sol) -->
++	bool const bKeepAreaWorkerReserve = (isBarbarian() || AI_isPrimaryArea(kArea) || iCount > 0);
+ 	iCount = (iCount * (100 + GC.getDefineINT(CvGlobals::WORKER_RESERVE_PERCENT))) / 100;
+ 	iCount += 1;
+ 	iCount /= 3;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index fdcdde3f6..4065e1239 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1199,7 +1199,7 @@ static void SAS_logLargeAttackCityStackAction(CvUnitAI const& kUnit, char const*
+ 		(pAreaTargetCity == NULL ? L"-" : pAreaTargetCity->getName().GetCString()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getY()), kUnit.getArea().getAreaAIType(kUnit.getTeam()), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kTeam.AI_isAnyChosenWar(), kTeam.AI_isSneakAttackReady(), iWarPlanTargets, eFirstWarPlanTarget, getSASWarPlanType(eFirstWarPlan));
+ }
+ 
+-// <!-- custom: A test had two large Carthaginian city-assault groups waiting in Hadrumetum during an overseas war plan while AI_load only removed one unit on two isolated turns. When the existing large-stack diagnostic sees an assault-loading failure, summarize each AI_findTransport filter and the fleet's cargo use so insufficient ships, reserved capacity, unsafe missions, and unreachable transports can be distinguished before changing behavior. This is diagnostic only and is called inside the UNIT level-2 large-stack gate. (GPT-5.6-Sol) -->
++// <!-- custom: A test had two large Carthaginian city-assault groups waiting in Hadrumetum during an overseas war plan while AI_load only removed one unit on two isolated turns. When the existing large-stack diagnostic sees an assault-loading failure, summarize each AI_findTransport filter and the fleet's cargo use so insufficient ships, reserved capacity, unsafe missions, and unreachable transports can be distinguished before changing behavior. This is diagnostic only and is called inside the Overseas-transport level-2 large-stack gate. (GPT-5.6-Sol) -->
+ static void SAS_logAssaultTransportFailure(CvUnitAI& kUnit, MovementFlags eFlags, int iMaxPath)
+ {
+ 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+@@ -5432,7 +5432,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 			// <!-- custom: The collision rule excluded the only Worker in an owned area, so a Worker that had finished developing a secondary island could never request transport home.
+ 			// Zero calculated demand now identifies that completed area. Let its lone Worker seek a Settler transport deterministically, while retaining the old probabilistic redistribution elsewhere. See KI#192. (GPT-5.6-Sol) -->
+ 			bool const bEvacuateCompletedArea = (iAreaCities > 0 && iNeededWorkersInArea <= 0 && iAreaWorkers > 0);
+-			int const iWorkerArea = (gWorkerLogLevel >= 3 && bEvacuateCompletedArea ? getArea().getID() : -1);
++			int const iWorkerArea = ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea ? getArea().getID() : -1);
+ 			rLoadProb = scaled(3 * iAreaWorkers - 2 * iAreaCities, 24);
+ 			if (pCity != NULL)
+ 			{
+@@ -5451,17 +5451,17 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 					UNITAI_WORKER, // Fill up boats which already have workers
+ 					-1, -1, -1, -1, MOVE_SAFE_TERRITORY))
+ 				{
+-					if (gWorkerLogLevel >= 3 && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_EXISTING_WORKER_TRANSPORT" : "REQUEST_EXISTING_WORKER_TRANSPORT");
++					if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_EXISTING_WORKER_TRANSPORT" : "REQUEST_EXISTING_WORKER_TRANSPORT");
+ 					return;
+ 				}
+ 				// Avoid filling a galley which has just a settler in it, reduce chances for other ships
+ 				if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI,
+ 					-1, 2, -1, -1, MOVE_SAFE_TERRITORY))
+ 				{
+-					if (gWorkerLogLevel >= 3 && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_AVAILABLE_TRANSPORT" : "REQUEST_AVAILABLE_TRANSPORT");
++					if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_AVAILABLE_TRANSPORT" : "REQUEST_AVAILABLE_TRANSPORT");
+ 					return;
+ 				} // BETTER_BTS_AI_MOD: END
+-				if (gWorkerLogLevel >= 3 && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=NO_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea);
++				if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=NO_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea);
+ 				rLoadProb = 0; // advc.113: OK to scrap
+ 			}
+ 		}
+@@ -6472,7 +6472,9 @@ void CvUnitAI::AI_attackCityMove()
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
+ 	CvTeamAI const& kTeam = GET_TEAM(getTeam());
+ 	bool const bAnyWarPlan = kTeam.AI_isAnyWarPlan();
+-	bool const bLogLargeAttackCityStack = (gUnitLogLevel >= 2 && SAS_isLargeAttackCityStackDiagnostic(*this));
++	bool const bLargeAttackCityStackDiagnostic = ((gUnitLogLevel >= 2 || gOverseasTransportLogLevel >= 2) && SAS_isLargeAttackCityStackDiagnostic(*this));
++	bool const bLogLargeAttackCityStack = (gUnitLogLevel >= 2 && bLargeAttackCityStackDiagnostic);
++	bool const bLogAssaultTransportFailure = (gOverseasTransportLogLevel >= 2 && bLargeAttackCityStackDiagnostic);
+ 	if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "entry");
+ 	//bool bLandWar = !isBarbarian() && ((eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) || (eAreaAIType == AREAAI_MASSING));
+ 	bool const bLandWar = (isBarbarian() ?
+@@ -6987,7 +6989,7 @@ void CvUnitAI::AI_attackCityMove()
+ 			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_load_assault", pTargetCity);
+ 			return;
+ 		}
+-		if (bLogLargeAttackCityStack) SAS_logAssaultTransportFailure(*this, eMoveFlags, 6);
++		if (bLogAssaultTransportFailure) SAS_logAssaultTransportFailure(*this, eMoveFlags, 6);
+ 	} // K-Mod end
+ 	{
+ 		int iMaxGroupPath = 2;
+@@ -11070,6 +11072,25 @@ void CvUnitAI::AI_assaultSeaMove()
+ 	//bLandWar = !bBarbarian && ((eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) || (eAreaAIType == AREAAI_MASSING));
+ 	bool bLandWar = !bBarbarian && kOwner.AI_isLandWar(getArea()); // K-Mod
+ 	bool const bInPort = GET_TEAM(getTeam()).isBase(getPlot()); // advc (was bCity)
++	// <!-- custom: Save file 450 showed a nearby profitable Barbarian island remaining untouched for almost 100 turns after an assault transport became available.
++	// Log the transport's load thresholds and pickup/launch decisions to distinguish insufficient cargo capacity from units failing to board or a loaded fleet rejecting every target.
++	// Distinguish raw local unit totals from units actually available on the transport plot and cargo already assigned to this transport. Keep all added state computation inside the Overseas-transport level-2 gate. (GPT-5.6-Sol) -->
++	bool const bLogAssaultSea = (gOverseasTransportLogLevel >= 2);
++	if (bLogAssaultSea)
++	{
++		CvPlot const* pMissionPlot = AI_getGroup()->AI_getMissionAIPlot();
++		CvArea const* pUnitWaterArea = getPlot().waterArea(true);
++		MissionAITypes eLoadAssault = MISSIONAI_LOAD_ASSAULT;
++		int const iIncomingCargo1 = kOwner.AI_unitTargetMissionAIs(*this, &eLoadAssault, 1, getGroup(), 1);
++		int const iIncomingCargo3 = kOwner.AI_unitTargetMissionAIs(*this, &eLoadAssault, 1, getGroup(), 3);
++		int const iIncomingCargo7 = kOwner.AI_unitTargetMissionAIs(*this, &eLoadAssault, 1, getGroup(), 7);
++		logBBAI("    ASSAULT_SEA_MOVE_STATE turn=%d player=%d %S unitId=%d unit=%S unitAge=%d groupId=%d groupUnits=%d transports=%d cargo=%d cargoSpace=%d empty=%d full=%d escorts=%d at=(%d,%d) city=%S landArea=%d waterArea=%d areaAI=%d inPort=%d landWar=%d noWarPlans=%d missionAI=%d missionTarget=(%d,%d) reinforcementThreshold=%d invasionThreshold=%d plotAttackCity=%d plotAttack=%d plotCounter=%d plotAvailableAttackCity=%d plotAvailableAttack=%d plotAvailableCounter=%d incomingCargo1=%d incomingCargo3=%d incomingCargo7=%d areaAttackCity=%d areaAttack=%d totalAssaultTransports=%d",
++			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(), GC.getGame().getGameTurn() - getGameTurnCreated(), getGroup()->getID(), getGroup()->getNumUnits(), getGroup()->countNumUnitAIType(UNITAI_ASSAULT_SEA), iCargo, getGroup()->getCargoSpace(), bEmpty, bFull, iEscorts,
++			getX(), getY(), (getPlot().getPlotCity() == NULL ? L"-" : getPlot().getPlotCity()->getName().GetCString()), getArea().getID(), (pUnitWaterArea == NULL ? -1 : pUnitWaterArea->getID()), eAreaAIType, bInPort, bLandWar, bNoWarPlans, AI_getGroup()->AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iTargetReinforcementSize, iTargetInvasionSize,
++			getPlot().plotCount(PUF_isUnitAIType, UNITAI_ATTACK_CITY, -1, getOwner()), getPlot().plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwner()), getPlot().plotCount(PUF_isUnitAIType, UNITAI_COUNTER, -1, getOwner()),
++			getPlot().plotCount(PUF_isAvailableUnitAITypeGroupie, UNITAI_ATTACK_CITY, -1, getOwner(), NO_TEAM, PUF_isFiniteRange), getPlot().plotCount(PUF_isAvailableUnitAITypeGroupie, UNITAI_ATTACK, -1, getOwner(), NO_TEAM, PUF_isFiniteRange), getPlot().plotCount(PUF_isAvailableUnitAITypeGroupie, UNITAI_COUNTER, -1, getOwner(), NO_TEAM, PUF_isFiniteRange), iIncomingCargo1, iIncomingCargo3, iIncomingCargo7,
++			kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK_CITY), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK), kOwner.AI_totalUnitAIs(UNITAI_ASSAULT_SEA));
++	}
+ 
+ 	// Plot danger case handled above
+ 
+@@ -11514,11 +11535,18 @@ void CvUnitAI::AI_assaultSeaMove()
+ 			}
+ 			FAssert(getGroup()->hasCargo());
+ 			if (AI_assaultSeaReinforce(true))
++			{
++				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=reinforce_without_war_plan cargo=%d threshold=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize);
+ 				return;
++			}
+ 
+ 			FAssert(getGroup()->hasCargo());
+ 			if (AI_assaultSeaTransport(true))
++			{
++				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=attack_barbarian_without_war_plan cargo=%d threshold=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize);
+ 				return;
++			}
++			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_reinforcement_or_barbarian_target cargo=%d threshold=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize);
+ 		}
+ 	}  // <advc.046>
+ 	bool bHasCargo = getGroup()->hasCargo(); // Moved up
+@@ -11527,9 +11555,9 @@ void CvUnitAI::AI_assaultSeaMove()
+ 		when no naval attack is planned (!bAttack). */
+ 	bool const bGoodCity = (getPlot().isCity() && getPlot().getTeam() == getTeam() &&
+ 			GET_TEAM(getTeam()).AI_isPrimaryArea(getPlot().getArea()));
+-	if((bGoodCity || !bHasCargo) && !bAttack &&
+-		AI_pickupStranded())
++	if ((bGoodCity || !bHasCargo) && !bAttack && AI_pickupStranded())
+ 	{
++		if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
+ 		return;
+ 	} // </advc.046>
+ 	if ((bFull || bReinforce) && !bAttack)
+@@ -11550,28 +11578,53 @@ void CvUnitAI::AI_assaultSeaMove()
+ 	{
+ 		bool bHasOneLoad = (getGroup()->getCargo() >= cargoSpace());
+ 		if (AI_pickup(UNITAI_ATTACK_CITY, !bHasCargo, bHasOneLoad ? 3 : 7))
++		{
++			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack_city cargo=%d cargoSpace=%d pathLimit=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(), bHasOneLoad ? 3 : 7);
+ 			return;
++		}
+ 		if (AI_pickup(UNITAI_ATTACK, !bHasCargo, bHasOneLoad ? 3 : 7))
++		{
++			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack cargo=%d cargoSpace=%d pathLimit=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(), bHasOneLoad ? 3 : 7);
+ 			return;
++		}
+ 		if (AI_pickup(UNITAI_COUNTER, !bHasCargo, bHasOneLoad ? 3 : 7))
++		{
++			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_counter cargo=%d cargoSpace=%d pathLimit=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(), bHasOneLoad ? 3 : 7);
+ 			return;
++		}
+ 		if (AI_pickup(UNITAI_ATTACK_CITY, !bHasCargo))
++		{
++			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack_city_unlimited_path cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
+ 			return;
++		}
+ 		if (!bHasCargo)
+ 		{
+ 			if(AI_pickupStranded(UNITAI_ATTACK_CITY))
++			{
++				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_attack_city cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
+ 				return;
++			}
+ 			if(AI_pickupStranded(UNITAI_ATTACK))
++			{
++				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_attack cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
+ 				return;
++			}
+ 			if(AI_pickupStranded(UNITAI_COUNTER))
++			{
++				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_counter cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
+ 				return;
++			}
+ 			if (getGroup()->countNumUnitAIType(AI_getUnitAIType()) == 1)
+ 			{
+ 				// Try picking up anything
+ 				if(AI_pickupStranded())
++				{
++					if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_any_stranded cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
+ 					return;
++				}
+ 			}
+ 		}
++		if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_pickup_found cargo=%d cargoSpace=%d attackCityArea=%d attackArea=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK_CITY), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK));
+ 	}
+ 
+ 	//if (bInPort && bLandWar && getGroup()->hasCargo())
+@@ -14325,7 +14378,7 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, MovementFlags eFlags, in
+ 			int const iWorkersExisting = kOwner.AI_totalAreaUnitAIs(kDestinationArea, UNITAI_WORKER);
+ 			if (iWorkersExisting >= iWorkersNeeded)
+ 			{
+-				if (gUnitLogLevel >= 2) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=REJECT_RELOAD transportId=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), pTransport->getID(), kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
++				if (gOverseasTransportLogLevel >= 2) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=REJECT_RELOAD transportId=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), pTransport->getID(), kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
+ 				continue;
+ 			}
+ 		}
+@@ -21281,7 +21334,7 @@ void CvUnitAI::AI_unloadSettlerCargoForDestination(CvArea const& kDestinationAre
+ 			}
+ 		}
+ 	}
+-	if (gUnitLogLevel >= 2 && iWorkersLeftAboardOrAtHome > 0) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=%s workers=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), bAtDestination ? "RETAIN_ABOARD" : "LEAVE_AT_HOME", iWorkersLeftAboardOrAtHome, kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
++	if (gOverseasTransportLogLevel >= 2 && iWorkersLeftAboardOrAtHome > 0) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=%s workers=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), bAtDestination ? "RETAIN_ABOARD" : "LEAVE_AT_HOME", iWorkersLeftAboardOrAtHome, kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
+ }
+ 
+ /*  advc: Renamed. This function is currently only used by UNITAI_SETTLER_SEA,
+@@ -23828,8 +23881,7 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+ 	// <!-- custom: AI_workerMove reaches this function only after every productive local Worker action has failed. Base AdvCiv considered a unit able to reach one of its owner's cities non-stranded, so a Worker on a completed owned island never advertised itself to the existing naval rescue system.
+ 	// Treat zero-demand Workers as stranded here, but preserve the earlier Settler-plus-city-site exception because that Worker can soon serve the new city. Empty Settler transports can then collect the Worker through AI_pickupStranded without interrupting an active settlement mission. See KI#192. (GPT-5.6-Sol) -->
+-	bool const bCompletedAreaWorker = (AI_getUnitAIType() == UNITAI_WORKER &&
+-		getArea().getCitiesPerPlayer(getOwner()) > 0 && kOwner.AI_neededWorkers(getArea()) <= 0);
++	bool const bCompletedAreaWorker = (AI_getUnitAIType() == UNITAI_WORKER && getArea().getCitiesPerPlayer(getOwner()) > 0 && kOwner.AI_neededWorkers(getArea()) <= 0);
+ 
+ 	// return false if the group is not stranded.
+ 	int iDummy=-1;
+@@ -23912,7 +23964,7 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
+ 
+ 		if (pMissionPlot != NULL)
+ 		{
+-			if (gWorkerLogLevel >= 3 && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=MOVE_TO_PICKUP_COAST target=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER), pMissionPlot->getX(), pMissionPlot->getY());
++			if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=MOVE_TO_PICKUP_COAST target=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER), pMissionPlot->getX(), pMissionPlot->getY());
+ 			pushGroupMoveTo(*pEndTurnPlot, eFlags, false, false,
+ 					MISSIONAI_STRANDED, pMissionPlot);
+ 			return true;
+@@ -23932,7 +23984,7 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
+ 				(slow) official function to actually issue the load command. */
+ 			if (AI_load(NO_UNITAI, NO_MISSIONAI, NO_UNITAI, -1, -1, -1, -1, eFlags, 1))
+ 			{
+-				if (gWorkerLogLevel >= 3 && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=BOARD_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
++				if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=BOARD_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
+ 				return true;
+ 			}
+ 			else // if that didn't do it, nothing will
+@@ -23941,7 +23993,7 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
+ 	}
+ 
+ 	// raise the 'stranded' flag, and wait to be rescued.
+-	if (gWorkerLogLevel >= 3 && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=WAIT_FOR_PICKUP", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
++	if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=WAIT_FOR_PICKUP", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
+ 	getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
+ 			false, false, MISSIONAI_STRANDED, plot());
+ 	return true;
+@@ -24227,7 +24279,7 @@ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
+ 		if(getGroup()->hasCargo())
+ 			return false;
+ 	} // </advc.046>
+-	if (gWorkerLogLevel >= 3 && pBestUnit->AI_getUnitAIType() == UNITAI_WORKER &&
++	if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && pBestUnit->AI_getUnitAIType() == UNITAI_WORKER &&
+ 		GET_PLAYER(pBestUnit->getOwner()).AI_neededWorkers(pBestUnit->getArea()) <= 0)
+ 	{
+ 		logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=TRANSPORT_DISPATCHED transportId=%d transport=(%d,%d) pickupEndTurn=(%d,%d)", GC.getGame().getGameTurn(), pBestUnit->getOwner(), GET_PLAYER(pBestUnit->getOwner()).getCivilizationDescription(0), pBestUnit->getID(), pBestUnit->getX(), pBestUnit->getY(), pBestUnit->getArea().getID(), GET_PLAYER(pBestUnit->getOwner()).AI_totalAreaUnitAIs(pBestUnit->getArea(), UNITAI_WORKER), getID(), getX(), getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY());
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 3a8a6f35c..13e93971a 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2923,7 +2923,7 @@ int Risk::preEvaluate()
+ 		const int iMaxTurns = (bNaval ? MAX_SEA_TURNS : MAX_LAND_TURNS);
+ 		if (iMinContact == INT_MAX || iMinContact > iMaxTurns || bNoLift)
+ 		{
+-			if (gWarLogLevel >= 3) logBBAI("WAR_TARGET_HARD_REJECT turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d preparationTurns=%d nearestContactTurns=%d maxContactTurns=%d canTrainCargo=%d unreachable=%d tooFar=%d noLift=%d",
++			if (gWarLogLevel >= 3 || (gOverseasTransportLogLevel >= 3 && bNaval) || (gOverseasTransportLogLevel >= 2 && bNoLift)) logBBAI("WAR_TARGET_HARD_REJECT turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d preparationTurns=%d nearestContactTurns=%d maxContactTurns=%d canTrainCargo=%d unreachable=%d tooFar=%d noLift=%d",
+ 					GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, m_kParams.getPreparationTime(), (iMinContact == INT_MAX ? -1 : iMinContact), iMaxTurns, iCanTrainCargo, (iMinContact == INT_MAX), (iMinContact != INT_MAX && iMinContact > iMaxTurns), bNoLift);
+ 			return -100000; // kill this (agent,target) war plan
+ 		}
+
+diff --git a/README.md b/README.md
+index a78a0de5e..b02ca5a00 100644
+--- a/README.md
++++ b/README.md
+@@ -910,7 +910,7 @@ AdvCiv-SAS has two complementary log families, that are as of now both tunable v
+ 
+ ### BBAI logging and head example
+ 
+-BBAI logs are detailed AI-decision diagnostics no longer need editing/recompiling the DLL. Also, several BBAI log categories were split into separate levels, making it easier to inspect only the relevant subsystem, such as workers, worker-sea / Work Boats, Settlers, war target choice, Great Generals, culture, evacuation, citizen allocation, or found-value scoring.
++BBAI logs are detailed AI-decision diagnostics no longer need editing/recompiling the DLL. Also, several BBAI log categories were split into separate levels, making it easier to inspect only the relevant subsystem, such as workers, worker-sea / Work Boats, Settlers, overseas transport logistics, war target choice, Great Generals, culture, evacuation, citizen allocation, or found-value scoring.
+ 
+ For example, following AdvCiv-SAS changes, BBAI head of a log looks like this:
+ 
+@@ -918,7 +918,7 @@ For example, following AdvCiv-SAS changes, BBAI head of a log looks like this:
+ BBAI_SAVE_LOADED utc=20260712T143627Z logFile=BBAI_20260712T143627Z_load1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
+ BBAI_GAME_SETTINGS mapScript=Pangaea map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
+ BBAI_GAME_RNG mapRandState=1043290197 syncRandState=3442762126
+-BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=3 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL=100
++BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=3 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL=100
+ ```
+ 
+ ### SAS game summary log
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index bea69cf52..23ecf78f7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -7235,6 +7235,8 @@ The first therapeutic run confirmed that our initial cure correctly made foundin
+ 
+ The follow-up cure also addresses Workers that were genuinely needed when delivered but later completed every useful task. Base AdvCiv forced every revealed landmass above 3 tiles to retain at least 1 Worker, so a completed secondary island never reached zero demand; owned cities also caused the stranded-unit logic to reject its Worker from naval rescue. The primary landmass still keeps this reserve, but a completed secondary landmass can now reach zero Worker demand. Only after ordinary Worker logic finds no productive local action, the Worker moves to a suitable coast, advertises itself for pickup and waits there. An available empty Settler transport can collect it without interrupting an active founding mission. The first transport assignment reserves that individual Worker so additional ships remain available for other duties or other completed-area Workers.
+ 
++The completed-secondary-landmass rule does not apply to Barbarians. Their separate islands do not use the normal civilization system that collects a finished Worker and reassigns it to another landmass. In addition, a Barbarian city's best-build cache can remain empty until it has a Worker; without the inherited local reserve, both the area and city calculations can report zero Worker demand, so `AI_barbChooseProduction` never produces the Worker needed to reveal and perform those local jobs. Barbarians therefore keep the inherited local Worker reserve in both calculations, while ordinary civilizations retain the completed-secondary-landmass behavior above. In the confirming `BBAI_20260720T193721Z_load1.log`, Barbarian cities completed 13 Workers across 11 cities, preserving their ability to develop their separate islands.
++
+ The confirming `BBAI_20260720T150846Z_load1.log` recorded 14 completed-area Worker boardings. Persia recovered all 5 Workers from its completed islands on turn 226, including 2 that boarded available transports directly and 3 collected through the stranded-unit pickup path. No two distinct transports targeted the same Worker during the same turn after the coordination guard. If no empty transport is available, the Worker waits rather than forcing the AI to build a ship or divert one carrying useful cargo solely for that rescue. Worker demand rises normally again if losses, new technology, expansion or other changes create useful work on the landmass.
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 64459f989..65b1179e1 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -158,6 +158,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-summary log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_SUMMARY_TURN_INTERVAL` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact mod context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context while staying compact enough to upload and share. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
++- (Requires AdvCiv-SAS 6062+) **Overseas-transport BBAI diagnostics:** added `SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL`, separated from CITY and UNIT so overseas settlement and conquest logistics can be inspected without enabling those broad logs. It notably connects known valuable island sites and cities with their distance and defenders, map type, transport production and cargo capacity, loaded units, units actually available to board, incoming cargo already assigned within 1/3/7 turns, pickup/loading failures, launch thresholds and decisions, naval reachability, and Settler/Worker cargo handling.
+ - (Requires AdvCiv-SAS 6034+) **BBAI War diagnostics:** added `SAS_BBAI_WAR_LOG_LEVEL`, separated from TEAM so UWAI war-target choice can be inspected without broad team/diplomacy logs. It notably records target utility, limited-vs-total war comparison, naval/preparation context, forced peace, attitude, closeness, city distance, power, selected target, target switches, direct-war adoption, war-plan lifecycle changes, and optional high-utility scenario/aspect breakdowns, which should help investigate problematic faraway wars before changing behavior.
+ - (Requires AdvCiv-SAS 6031+) **Great General BBAI diagnostics:** added `SAS_BBAI_GREAT_GENERAL_LOG_LEVEL`, separated from UNIT notably so Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, and target-unit choice can be inspected together without enabling broad unit logs. This notably helped isolate a bad France sample where `AI_join` rejected all cities for safety/path reasons, then the plot-danger branch attached a Great General to a low-value Longbowman.
+ - **Culture-victory BBAI diagnostics:** added a new dedicated `SAS_BBAI_CULTURE_LOG_LEVEL` notably for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs. It records for example culture-stage reasons, current/projected Legendary-city countdowns and rival ranking, competing victory progress, actual culture-slider decisions, per-city weights and production, and culture contributed by production processes and assigned specialists.
+@@ -360,6 +361,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Reliable Worker availability without early overproduction:** AI cities rebuild enough Workers for each land area before other production priorities can leave them short indefinitely, without producing more than the AI calculates it needs. Maintaining enough Workers throughout the game lets the AI improve food/production/commerce, connect resources and routes, repair pillaging, and develop new or underdeveloped cities sooner, especially after Worker losses or earlier underproduction. This normally aims for 1 Worker per city plus a capital-area reserve. As a refinement, a one-city empire needs at most 1 land Worker until its capital has ever reached a tunable population (5 by default), avoiding early double-Worker production and the resulting halted growth; normal demand resumes after the capital matures or another city is founded. Ordinary Worker choices, cases where a blocked Settler choice falls back to a Worker, general unit selection, and Worker scrapping now use the same centralized target. Four BBAI test runs then completed exactly 1 early Worker per empire, with the only later automatic second Worker beginning when its capital reached population 5.
+ - (Requires AdvCiv-SAS 6060+) **Workers are no longer delivered to landmasses that already have enough:** in save file 450, BBAI logging showed a Worker accompanying the Settler to the island where Thapsus was founded, then remaining idle there for 93 turns because none of its plots could be improved. Our first attempt at this fix correctly left an unnecessary Worker on the large landmass (i.e. home) instead of sending it to the small unimprovable island, but exposed a separate problem: general Worker logic kept loading the Worker back onto the island-bound Settler transport, so our early fix had to unload the same Worker back onto the large landmass 14 times. After our second version correctly stopped that loop, testing exposed a third failure: a separate Worker-ferry routine still kept sending extra Workers to islands that already had enough, eventually crowding 5 Workers onto Sardis's two-tile landmass and 2 onto Ergili's three-tile landmass, where most had no useful work. To fix this, Settler transports now leave Workers beyond the destination's exact shortage in their original city, unload only the required number at the destination, and keep any excess aboard for another destination. Workers cannot repeatedly reboard the same transport after being left behind, and later Worker ferries now stop once the destination landmass has enough. These checks use current need and current Worker count, so delivery becomes eligible again if losses leave the landmass short or new work requires workers again. In the confirming run, the AI correctly left a Worker on its origin landmass because the destination needed 1 but already had 3. See [KI#192](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#192---fixedimproved-base-advcivk-mod-island-worker-logistics-and-advciv-sas-production-safety-gap-could-strand-workers-and-other-land-civilians-where-they-had-no-use).
+ - (Requires AdvCiv-SAS 6061+) **Workers are brought home after finishing every useful task on a secondary landmass:** Base AdvCiv forced most landmasses to retain at least 1 Worker forever, even after a Worker had legitimately finished developing a small island and could contribute elsewhere. Secondary landmasses can now reach zero Worker demand when no useful task remains. Their finished Workers move to the coast and request pickup; one available Settler transport collects each Worker for reuse elsewhere, rather than several ships pursuing the same rescue. The primary landmass keeps its Worker reserve, and demand on a secondary landmass automatically returns if losses or new work require another Worker. In the confirming save file 450 run, Persia recovered all 5 Workers from its completed islands on the same turn, and 14 completed-area Worker boardings were recorded across the game. See [KI#192](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#192---fixedimproved-base-advcivk-mod-island-worker-logistics-and-advciv-sas-production-safety-gap-could-strand-workers-and-other-land-civilians-where-they-had-no-use).
++- (Requires AdvCiv-SAS 6062+) Note: the above zero-demand and pickup rule above does not apply to the Barbarian player, as Barbarian city improvement planning can report no local jobs until a Worker already exists, and Barbarians do not use the ordinary civilization system to transport and reassign finished Workers between separate landmasses; therefore each isolated Barbarian island keeps local Worker demand (else no Worker is built and Barbarian cities are not improved at all).
+ - **Yield-first build execution:** workers build the exact improvement selected through the full city/plot evaluation instead of letting the older `AI_betterPlotBuild` postprocessing replace a scored Chop, Mine, Farm, etc. with an unrelated Road. Roads/routes remain strongly de-prioritized early unless they are truly the best move, while important connectable bonuses are still connected. See [KI#31](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases).
+ - **Overhaul: `AI_bestCityBuild` (full routine):** "holy" improvements (never overwrite: **hamlet, village, town, workshop**) and "semi-holy" (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the "now" move would be inferior; prefer farms on low-food BFCs. See [KI#33](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild). Update: worker AI now also weighs the **longer-term value** of strong **non-bonus farms** for **low-food or hill-heavy cities**: they can **support food-consuming mines**, **faster growth**, **more aggressive early slaving**, or **specialist economies**; concrete dry-farm irrigation-chain fixes can replace the least harmful blocker first; and the logic is more **mindful of preserving useful irrigation paths** instead of blindly maximizing immediate cottage/workshop yield (**Reserve** likely irrigation/farm connector plots **from non-farm builds** to reduce AI worker farm/non-farm oscillation).
+ - **Worker lower-food replacement guard:** from a **tunable era onward** (default as of now: Medieval), AI workers no longer replace existing **no-bonus** improvements with lower-food alternatives. This targets **repeated food-threshold oscillation** such as **Farm → Cottage → Farm → Cottage** or **Mine → Windmill → Mine** after the city briefly looks food-safe. It still allows equal-food retools, food-restoration changes such as Cottage → Farm, and cleanup of City Ruins or obsolete/non-active improvements. In the tested BBAI log, the worst Mali farm/cottage loops reached Farm again and then skipped later Farm → Cottage attempts from about T128/T130 onward. This change is because before this era, cities are often small or health/happiness-capped (extra/excess food may not necessarily help or could be inefficient early) and early cottages still have time to mature, but later, cities are usually larger, health sources are generally multiple, and specialist yields are stronger than plot yields (so any food can be used and is generally strong/stronger), and cottages/growth improvements have less time to grow and pay back, so preserving food support is usually stronger.
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=10 omittedFiles=1 embeddedPatchBytes=68384

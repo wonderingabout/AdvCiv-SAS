@@ -1,0 +1,609 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6164
+# Commit: a0f1c9bc9b9542bb9f4e091358609d8381b75471
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 179e5e1f3e000cae44d24bf2be0ed8f7fc0d6ffa
+# Title: (Fixed Base AdvCiv bug) UWAI random team-member selection mixed 0-based random indexes with iterator positions, biasing the first member and excluding the la...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	.gitattributes
+2	0	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+5	1	CvGameCoreDLL/CvTeam.cpp
+25	4	LLM_Helpers/README.md
+73	28	LLM_Helpers/make_light_source_zip.py
+92	0	LLM_Helpers/sync_tracked_commit_diffs.py
+32	14	_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt
+19	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 LLM_Helpers/sync_tracked_commit_diffs.py
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index e905fd3bc..b222dcf67 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -48,6 +48,10 @@
+ # <!-- custom: Keep the AdvCiv/K-Mod archaeology progress tracked so future clones and LLM/AI helpers can resume the systematic history audit, but exclude it from player/download archives. (ChatGPT-5.6-Sol) -->
+ /_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt  export-ignore
+ 
++# <!-- custom: Keep the greppable historical commit-diff mirror in Git for clones/Codex/LLM archaeology, but never ship it in player archives. Historical *.diff payloads are generated reference data, so suppress ordinary Git textual diff/whitespace treatment for those files. (ChatGPT-5.6-Sol) -->
++/LLM_Helpers/commit_diffs/        export-ignore
++/LLM_Helpers/commit_diffs/*.diff -diff
++
+ # <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5 + GPT-5.5) -->
+ /.github/             export-ignore
+ /.gitattributes       export-ignore
+
+diff --git a/AGENTS.md b/AGENTS.md
+index bb84f9e5e..48da370f3 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -24,6 +24,8 @@ Workflows: we added GitHub YAML (and corresponding py) workflow checks in [`.git
+ 
+ Release preparation: when preparing a stable release or substantial release update, use the living [AdvCiv-SAS Release Preparation and Release Checklist](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Release_Process.md). It is intended for both the user and LLM/AI helpers; do not create/push tags or publish release pages unless the user explicitly asks.
+ 
++Historical code archaeology: for inherited regressions, suspicious behavior changes, or questions about when code changed, use the greppable tracked history mirror in [`LLM_Helpers/commit_diffs/`](/LLM_Helpers/commit_diffs/) before guessing. Start with `INDEX.txt` or `PATH_HISTORY_INDEX.txt`, then inspect the matching commit diff and the tracked anonymized Git logs for full commit messages. Current source/Git remains authoritative and the tracked mirror may lag HEAD until `python LLM_Helpers/sync_tracked_commit_diffs.py` is run. The light-source ZIP independently generates a fresh `_SNAPSHOT_CONTEXT/commit_diffs/` copy. The tracked mirror is intentionally excluded from its own historical patches so archive-refresh commits cannot recursively archive history-of-history. For the ongoing systematic inherited-bug sweep, also update [`advciv_kmod_archaeology_progress.txt`](/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt).
++
+ ## Information Fetching from other known helpful mods
+ 
+ If you don't know how to do something, generally mostly for UI stuff as we like to have and invent our own AI logic, generally (not a strict requirement but generally so), if you find yourself stuck or in doubt to double-check how other mods implement things, consider looking at what these mods do, as they usually have high-tech stuff that has oftentimes proven handy for the AdvCiv-SAS mod, in particular and mostly for UI:
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 83fbec38e..3664d81ab 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2543,9 +2543,13 @@ PlayerTypes CvTeam::getRandomMemberAlive(bool bHuman) const
+ 	int iValid = (bHuman ? PlayerIter<HUMAN,MEMBER_OF>::count(getID()) :
+ 			getAliveCount());
+ 	int iIndex = SyncRandNum(iValid);
++	// <!-- custom: Fix inherited AdvCiv practical 2945 bug: the random index is 0-based, while nextIndex() reports the next iterator position and also counts ineligible members. Compare against our own eligible-member index instead. See KI#207. (ChatGPT-5.6-Sol) -->
++	int iValidIndex = 0;
+ 	for (MemberIter itMember(getID()); itMember.hasNext(); ++itMember)
+ 	{
+-		if ((!bHuman || itMember->isHuman()) && itMember.nextIndex() >= iIndex)
++		if (bHuman && !itMember->isHuman())
++			continue;
++		if (iValidIndex++ == iIndex)
+ 			return itMember->getID();
+ 	}
+ 	FErrorMsg("Team not alive?");
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index 22f8e0207..43e6bd4cc 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -47,8 +47,9 @@ Always review diffs before committing generated source changes.
+ - [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)
+ - [AdvCiv manual text conversion helper](#advciv-manual-text-conversion-helper)
+   - [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy)
+-- [Source packaging helper](#source-packaging-helper)
++- [Source packaging and tracked-history helpers](#source-packaging-and-tracked-history-helpers)
+   - [`make_light_source_zip.py`](#make_light_source_zippy)
++  - [`sync_tracked_commit_diffs.py`](#sync_tracked_commit_diffspy)
+ - [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
+ - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
+ 
+@@ -924,7 +925,7 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
+ - When base AdvCiv updates `manual.odt`, refresh `manual.txt` in the same merge/release-preparation batch so the searchable copy does not lag behind the binary manual.
+ - Added with help of ChatGPT-5.6-Sol.
+ 
+-## Source packaging helper
++## Source packaging and tracked-history helpers
+ 
+ ### `make_light_source_zip.py`
+ 
+@@ -949,6 +950,7 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
+     - Cache migration/cleanup: existing SAS cache entries from the older message-heavy diff layout are upgraded in place to the title-only header instead of forcing Git to re-render them. The cache needs no `.gitignore` entry and is never included as a repository file. After a successful writable history build, superseded helper-owned cache-policy directories are pruned automatically; dry-runs never prune.
+     - Privacy: consistent with the existing anonymized K-Mod/AdvCiv/AdvCiv-SAS Git-log exports, generated commit-history context does not expose Git author/committer email addresses. Email-shaped strings are also redacted from index title previews and embedded historical patches, preventing old copied Git logs or other committed text from re-exposing addresses; repository source files themselves are not rewritten. Older cache entries are sanitized while being upgraded in place instead of forcing Git to re-render the whole history.
+     - Controls: `--commit-diff-count 0` disables current-HEAD commit-diff history, while a positive `N` limits output to the newest `N` commits reachable from current `HEAD` for an unusually small handoff; the default `-1` keeps the full reachable ancestry.
++    - Tracked mirror/self-recursion guard: the same history is also made available to normal clones and code agents under [`LLM_Helpers/commit_diffs/`](/LLM_Helpers/commit_diffs/). That tracked generated directory is deliberately excluded from every historical patch, from ordinary light-ZIP tree selection, and from the archive's raw staged/unstaged review diffs; `git_repository_state.txt` still reports its tracked status. The light ZIP regenerates its own fresh `_SNAPSHOT_CONTEXT/commit_diffs/` copy instead. This prevents archive-refresh commits from embedding copies of old archived diffs inside new archived diffs or dominating a handoff's working-tree patch.
+   - `pending_upstream/INDEX.txt`, `GIT_LOG.txt`, `PATH_HISTORY_INDEX.txt`, `UPSTREAM_REFS.txt`, plus `<sequence>_<short-sha>.diff`: separate fetched-but-unmerged base AdvCiv release history. During an active merge, exact `MERGE_HEAD` wins so the ZIP describes the commit actually being merged even if `upstream/*` moves afterward. Outside a merge, automatic discovery considers all locally fetched release-like refs (`upstream/X.Y[.Z]`, `upstream/vX.Y[.Z]`, `upstream/release-X.Y[.Z]`, or `upstream/release/X.Y[.Z]`), exports the deduplicated union of commits reachable from those refs but not from `HEAD`, and uses the highest detected version only as the presentation target. In the normal linear case, older releases add no duplicate commits; if release lines diverge, otherwise-missed commits remain visible. `UPSTREAM_REFS.txt` records what was detected/selected and lists topic or experimental refs only as awareness context rather than silently treating whichever branch was updated most recently as a release. If upstream naming changes or a special maintenance line matters, repeat `--upstream-ref REF` to select explicit revisions; outside a merge these override auto selection, while an active `MERGE_HEAD` remains authoritative. This folder is deliberately separate from `commit_diffs/` because pending upstream commits are review/merge context, not current-HEAD ancestry. Pending diffs use the same compact filtering/privacy policy but are not written into the canonical HEAD-history SHA cache because their archive metadata is range/target-specific and the pending set is normally small.
+   - `README.txt`: short explanation of the generated files for ZIP-only reviewers.
+   If Git metadata or one of the tracked lineage logs is unavailable, the generated context keeps working where possible and reports the missing classification/message source instead of making archive creation fail.
+@@ -964,7 +966,7 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
+ - Use one or more `--upstream-ref REF` options when upstream release naming changes or when a nonstandard maintenance line should intentionally be included in pending context; topic/experimental branches are otherwise only listed in `pending_upstream/UPSTREAM_REFS.txt`.
+ - Use `--dry-run` first to review file count, size, target archive path, and included repo-relative paths without writing the ZIP. Dry-run can reuse existing commit-diff cache entries but deliberately does not persist newly rendered cache entries.
+ - Created/refined with help of ChatGPT-5.5, ChatGPT-5.6-Sol, and Codex.
+-- Commit-diff cache performance: the first run that populates uncached history can take noticeably longer because each missing historical SHA has to be rendered once. Existing SAS SHA caches are reused when extending the default scope into older AdvCiv/K-Mod ancestry, so that first expanded run mainly renders the newly included older commits and upgrades the old SAS cache headers in place. Commit files are then reused by immutable SHA, so ordinary later runs normally render only genuinely new or rewritten commits; in the earlier 1,781-commit SAS-only test, the first population took roughly a couple of minutes while an unchanged all-cache-hit rerun completed in about 5 seconds overall. Exact timings depend on the machine/repository, and a cache-format/history-policy change can intentionally require one fresh population.
++- Commit-diff reuse/performance: the private SHA cache inside `.git` is checked first, then the tracked `LLM_Helpers/commit_diffs/` mirror is used as a read-only secondary cache, and Git renders a commit only when neither contains a valid entry for the current filtering policy. This keeps normal local reruns fast while also preventing a fresh clone from rerendering thousands of already-tracked historical patches merely because its private cache starts empty. Newly created/rewritten commits that have not reached the tracked mirror are still rendered once into the private cache. Exact timings depend on the machine/repository, and a cache-format/history-policy change can intentionally require fresh rendering for entries that no longer validate.
+ 
+ Tools like here WizTree helped find which folders/files are heavy to exclude.
+ 
+@@ -990,12 +992,31 @@ Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260819T150843.zip
+ Files:     1142 selected + 6174 generated snapshot-context files
+ Size:      375,313,820 bytes before ZIP container overhead
+ Mode:      ZIP_DEFLATED / compression level 6
+-History:   commit diffs: 6127 included (SASBranch:1784,AdvCivPreSAS:3094,KMod:1249), 6127 cache hit(s), 0 rendered, 0 not cached; versions=dag-from-one-log; cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_5b1c1ce41519; pending upstream: 34 commit(s) union from 1 selected ref(s); presentation=upstream/1.14; extra-vs-presentation=0
++History:   commit diffs: 6127 included (SASBranch:1784,AdvCivPreSAS:3094,KMod:1249), 6127 private-cache hit(s), 0 tracked-mirror hit(s), 0 rendered, 0 not cached; versions=dag-from-one-log; cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_5b1c1ce41519; pending upstream: 34 commit(s) union from 1 selected ref(s); presentation=upstream/1.14; extra-vs-presentation=0
+ Wrote:     7316 file(s)
+ ZIP size:  121,693,678 bytes
+ Duration:  14,031 ms total (6,131 ms snapshot context; 7,664 ms ZIP write)
+ ```
+ 
++
++### `sync_tracked_commit_diffs.py`
++
++- Synchronizes the greppable repository mirror under `LLM_Helpers/commit_diffs/` from the current committed Git ancestry.
++- Reuses `make_light_source_zip.py` directly rather than maintaining a second history parser/filter: segmentation, practical counts, privacy redaction, patch-size limits, `INDEX.txt`, `PATH_HISTORY_INDEX.txt`, and commit reuse policy therefore stay identical. The renderer checks the private `.git` SHA cache first and this tracked mirror second before asking Git to render a missing commit.
++- Removes stale generated commit files after rewritten/amended history while preserving the directory's explanatory `README.txt`.
++- `--dry-run` reports additions/updates/removals without writing either the tracked mirror or history cache.
++- The mirror is intentionally `export-ignore`; it exists for clones, IDE grep, Codex, and LLM archaeology rather than player archives.
++- The mirror can naturally lag by the commit that records a synchronization because a commit cannot contain a diff of its own future SHA. This is expected; current Git is authoritative, and the light-source ZIP always generates its own fresh history directly from the current HEAD.
++- Historical rendering excludes `LLM_Helpers/commit_diffs/**`, which is essential: otherwise refreshing the mirror would recursively make future commit diffs contain older diff files.
++
++From the repository root:
++
++```bash
++python LLM_Helpers/sync_tracked_commit_diffs.py
++python LLM_Helpers/sync_tracked_commit_diffs.py --dry-run
++```
++
++
+ ## Workflow rule for timeline tuning
+ 
+ - Always run one full 5% bird-view (`Normal` vs current target speed) before sharing a draft.
+
+diff --git a/LLM_Helpers/make_light_source_zip.py b/LLM_Helpers/make_light_source_zip.py
+index 159147712..d056b3413 100644
+--- a/LLM_Helpers/make_light_source_zip.py
++++ b/LLM_Helpers/make_light_source_zip.py
+@@ -72,6 +72,12 @@ DEFAULT_COMPRESSION_LEVEL = 6
+ DEFAULT_COMMIT_DIFF_COUNT = -1  # -1 = all commits reachable from current HEAD; 0 = disabled; N = newest N reachable commits
+ COMMIT_DIFF_CACHE_FORMAT_VERSION = 2
+ COMMIT_DIFF_CACHE_DIR_NAME = "advciv_sas_light_source_commit_diffs"
++# <!-- custom: The greppable tracked mirror is generated from this same history renderer.
++# Exclude it from rendered Git patches and ordinary light-ZIP file selection so history never recursively archives copies of itself. (ChatGPT-5.6-Sol) -->
++TRACKED_COMMIT_DIFF_DIR = "LLM_Helpers/commit_diffs"
++COMMIT_DIFF_EXCLUDED_PATHS = (
++    f"{TRACKED_COMMIT_DIFF_DIR}/**",
++)
+ COMMIT_DIFF_MAX_FILE_PATCH_BYTES = 2 * 1024 * 1024
+ COMMIT_DIFF_MAX_FILE_CHANGED_LINES = 10_000
+ COMMIT_DIFF_MAX_COMMIT_PATCH_BYTES = 16 * 1024 * 1024
+@@ -140,7 +146,7 @@ SKIP_DIR_NAMES = {".git", "__pycache__"}
+ 
+ # Skip whole folders that are included through a parent folder but do not help compact LLM/code-agent review.
+ # Civ4 cursor assets are visual/binary UI files and are usually noise for source/debugging tasks.
+-SKIP_REL_DIRS = {"assets/res/cursors"}
++SKIP_REL_DIRS = {"assets/res/cursors", TRACKED_COMMIT_DIFF_DIR.lower()}
+ 
+ # Skip generated/binary payloads that are too heavy or not useful for compact ChatGPT/code-agent source review.
+ # FPK art packs and DLL binaries should be shared separately only when specifically needed.
+@@ -679,6 +685,11 @@ def build_git_ignored_paths_tree(repo_root: Path) -> str:
+     lines.extend(render_path_tree(ignored_paths) if ignored_paths else ["(none)"])
+     return "\n".join(lines) + "\n"
+ 
++def commit_diff_pathspec_args() -> list[str]:
++    """Return Git pathspecs that keep generated tracked-history mirrors out of review/history diffs."""
++    return [".", *(f":(exclude,top){path}" for path in COMMIT_DIFF_EXCLUDED_PATHS)]
++
++
+ def build_git_diff(repo_root: Path, cached: bool) -> bytes:
+     """Return a raw review diff while ignoring line-ending/trailing-EOL-only noise."""
+     args = ["diff"]
+@@ -692,6 +703,7 @@ def build_git_diff(repo_root: Path, cached: bool) -> bytes:
+             "--ignore-space-at-eol",
+             "--ignore-cr-at-eol",
+             "--",
++            *commit_diff_pathspec_args(),
+         ]
+     )
+     raw, error = run_git(repo_root, *args)
+@@ -931,7 +943,7 @@ def migrate_cached_commit_diff(cache_path: Path, commit: dict[str, str], write_c
+ 
+ def commit_diff_cache_policy_key() -> str:
+     """Fingerprint cache-affecting patch policy constants so tuning caps/exclusions does not reuse stale renderings."""
+-    payload = repr((COMMIT_DIFF_CACHE_FORMAT_VERSION, COMMIT_DIFF_MAX_FILE_PATCH_BYTES, COMMIT_DIFF_MAX_FILE_CHANGED_LINES, COMMIT_DIFF_MAX_COMMIT_PATCH_BYTES, COMMIT_DIFF_ALWAYS_SUMMARIZE_PATH_PARTS, COMMIT_DIFF_ALWAYS_SUMMARIZE_SUFFIXES, COMMIT_DIFF_LARGE_NEW_FUNCTIONAL_SUFFIXES)).encode("utf-8")
++    payload = repr((COMMIT_DIFF_CACHE_FORMAT_VERSION, COMMIT_DIFF_MAX_FILE_PATCH_BYTES, COMMIT_DIFF_MAX_FILE_CHANGED_LINES, COMMIT_DIFF_MAX_COMMIT_PATCH_BYTES, COMMIT_DIFF_ALWAYS_SUMMARIZE_PATH_PARTS, COMMIT_DIFF_ALWAYS_SUMMARIZE_SUFFIXES, COMMIT_DIFF_LARGE_NEW_FUNCTIONAL_SUFFIXES, COMMIT_DIFF_EXCLUDED_PATHS)).encode("utf-8")
+     return hashlib.sha1(payload).hexdigest()[:12]
+ 
+ 
+@@ -946,6 +958,19 @@ def commit_diff_cache_dir(repo_root: Path) -> tuple[Path | None, str | None]:
+     return git_dir / COMMIT_DIFF_CACHE_DIR_NAME / f"v{COMMIT_DIFF_CACHE_FORMAT_VERSION}_{commit_diff_cache_policy_key()}", None
+ 
+ 
++def tracked_commit_diff_candidates(repo_root: Path) -> dict[str, list[Path]]:
++    """Index valid-looking tracked mirror files by short SHA so a fresh clone can reuse them as a read-only cache."""
++    tracked_dir = repo_root / TRACKED_COMMIT_DIFF_DIR
++    candidates: dict[str, list[Path]] = {}
++    if not tracked_dir.is_dir():
++        return candidates
++    for path in tracked_dir.glob("*.diff"):
++        match = re.search(r"_([0-9a-fA-F]{10})\.diff$", path.name)
++        if match:
++            candidates.setdefault(match.group(1).lower(), []).append(path)
++    return candidates
++
++
+ def prune_superseded_commit_diff_cache_dirs(cache_dir: Path) -> tuple[int, list[str]]:
+     """Remove obsolete helper-owned cache-policy directories after a successful writable build."""
+     removed = 0
+@@ -1084,10 +1109,10 @@ def render_commit_diff(repo_root: Path, commit: dict[str, str]) -> tuple[bytes,
+     # such as odt2txt for historical documents that the light-source archive does not need.
+     common_args = ["--numstat", "--summary", "--patch", "--no-ext-diff", "--no-textconv", "--no-color", "--ignore-space-at-eol", "--ignore-cr-at-eol"]
+     if parent is None:
+-        combined_raw, combined_error = run_git(repo_root, "show", "--format=", *common_args, full_hash, "--")
++        combined_raw, combined_error = run_git(repo_root, "show", "--format=", *common_args, full_hash, "--", *commit_diff_pathspec_args())
+         parent_label = "(root commit)"
+     else:
+-        combined_raw, combined_error = run_git(repo_root, "diff", *common_args, "--find-renames", parent, full_hash, "--")
++        combined_raw, combined_error = run_git(repo_root, "diff", *common_args, "--find-renames", parent, full_hash, "--", *commit_diff_pathspec_args())
+         parent_label = parent
+ 
+     summary_raw = None
+@@ -1489,6 +1514,7 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
+             cache_writable = False
+ 
+     generated: dict[str, bytes | Path] = {}
++    tracked_candidates = tracked_commit_diff_candidates(repo_root)
+     index_lines = [
+         "# Reachable commit diff index",
+         "# Generated automatically by LLM_Helpers/make_light_source_zip.py.",
+@@ -1500,6 +1526,7 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
+         f"# Recent AdvCiv-SAS messages not yet in the tracked SAS log: {GENERATED_INCREMENTAL_GIT_LOG_NAME}.",
+         "# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.",
+         "# Files are named <segment>_<practical-count>_<short-sha>.diff; coverage is full, partial, summary-only, or unknown.",
++        f"# Self-recursion guard: {TRACKED_COMMIT_DIFF_DIR}/ is excluded from these historical patches because it is only a generated tracked mirror of this same data.",
+         "# Columns: segment<TAB>practical-count<TAB>short-sha<TAB>coverage<TAB>title-preview",
+     ]
+     if segment_warnings:
+@@ -1507,7 +1534,7 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
+     index_lines.append("")
+ 
+     path_history: dict[str, list[tuple[str, str, str]]] = {}
+-    reused = rendered = in_memory = cache_migrations = 0
++    reused = mirror_reused = rendered = in_memory = cache_migrations = 0
+     segment_counts: dict[str, int] = {}
+     for commit in commits:
+         full_hash = commit["hash"]
+@@ -1523,25 +1550,39 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
+             cache_migrations += int(cache_migrated)
+             reused += 1
+         else:
+-            data, version, coverage = render_commit_diff(repo_root, commit)
+-            rendered += 1
+-            if cache_writable and cache_path is not None:
+-                temp_path = cache_path.with_suffix(".tmp")
+-                try:
+-                    temp_path.write_bytes(data)
+-                    temp_path.replace(cache_path)
+-                    value = cache_path
+-                except OSError:
++            # <!-- custom: A tracked mirror can seed a fresh clone with validated history immediately; keep the private cache for new/unsynced SHAs. (ChatGPT-5.6-Sol) -->
++            mirror_path = None
++            mirror_info = None
++            for candidate in tracked_candidates.get(full_hash[:10].lower(), []):
++                candidate_info = cached_commit_info(candidate, full_hash)
++                if candidate_info is not None:
++                    mirror_path = candidate
++                    mirror_info = candidate_info
++                    break
++            if mirror_path is not None and mirror_info is not None:
++                value = mirror_path
++                version, coverage = mirror_info
++                mirror_reused += 1
++            else:
++                data, version, coverage = render_commit_diff(repo_root, commit)
++                rendered += 1
++                if cache_writable and cache_path is not None:
++                    temp_path = cache_path.with_suffix(".tmp")
+                     try:
+-                        if temp_path.exists():
+-                            temp_path.unlink()
++                        temp_path.write_bytes(data)
++                        temp_path.replace(cache_path)
++                        value = cache_path
+                     except OSError:
+-                        pass
++                        try:
++                            if temp_path.exists():
++                                temp_path.unlink()
++                        except OSError:
++                            pass
++                        value = data
++                        in_memory += 1
++                else:
+                     value = data
+                     in_memory += 1
+-            else:
+-                value = data
+-                in_memory += 1
+         rel_name = f"{GENERATED_COMMIT_DIFF_DIR}/{segment_id}_{version}_{full_hash[:10]}.diff"
+         generated[rel_name] = value
+         safe_subject = compact_history_title(commit.get("subject", ""))
+@@ -1565,7 +1606,7 @@ def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_
+     segment_note = ",".join(f"{key}:{segment_counts[key]}" for key in ("SASBranch", "AdvCivPreSAS", "KMod", "Other") if key in segment_counts)
+     if segment_warnings:
+         segment_note += f"; segment warnings={len(segment_warnings)}"
+-    summary = f"commit diffs: {len(commits)} included ({segment_note}), {reused} cache hit(s), {rendered} rendered, {in_memory} not cached; versions={version_mode}; cache={cache_note}{migration_note}{prune_note}"
++    summary = f"commit diffs: {len(commits)} included ({segment_note}), {reused} private-cache hit(s), {mirror_reused} tracked-mirror hit(s), {rendered} rendered, {in_memory} not cached; versions={version_mode}; cache={cache_note}{migration_note}{prune_note}"
+     return generated, summary
+ 
+ 
+@@ -1590,11 +1631,12 @@ def build_snapshot_context_readme() -> str:
+         "  directories can be collapsed to one entry, so this adds useful local context without listing\n"
+         "  every generated/build file beneath them.\n\n"
+         "staged_changes_no_eol.diff\n"
+-        "  Raw staged diff (HEAD -> index), with end-of-line whitespace/CR-only noise ignored.\n"
+-        "  An empty file means there were no staged tracked changes.\n\n"
++        "  Raw staged diff (HEAD -> index), with end-of-line whitespace/CR-only noise ignored. The generated tracked\n"
++        f"  history mirror at {TRACKED_COMMIT_DIFF_DIR}/ is omitted here to avoid duplicating hundreds of MB of generated\n"
++        "  patch text; git_repository_state.txt still reports its tracked status. An empty file means no other staged changes.\n\n"
+         "unstaged_changes_no_eol.diff\n"
+-        "  Raw unstaged diff (index -> working tree), with end-of-line whitespace/CR-only noise ignored.\n"
+-        "  An empty file means there were no unstaged tracked changes.\n\n"
++        "  Raw unstaged diff (index -> working tree), with the same EOL-noise and tracked-history-mirror exclusions.\n"
++        "  An empty file means there were no other unstaged tracked changes.\n\n"
+         "git_log_since_tracked_advciv_sas_log.txt\n"
+         f"  Commit messages after the newest commit already recorded in {TRACKED_ADVCIV_SAS_GIT_LOG}\n"
+         "  through this snapshot's HEAD. The boundary commit is not duplicated. Unlike the tracked\n"
+@@ -1609,6 +1651,9 @@ def build_snapshot_context_readme() -> str:
+         "  keep a short title, change summary and useful patches, while full messages/metadata redirect to the tracked\n"
+         "  anonymized Git logs above (or the generated recent SAS gap). This avoids duplicating long commit messages.\n"
+         "  Known generated/log/binary or exceptionally huge historical payloads are summarized instead of embedded.\n"
++        f"  The repository also has a greppable tracked mirror at {TRACKED_COMMIT_DIFF_DIR}/ for clone/code-agent use. That\n"
++        "  mirror is excluded from these generated patches and from ordinary light-ZIP file selection, preventing recursive\n"
++        "  history-of-history growth while this fresh _SNAPSHOT_CONTEXT copy remains generated from current Git ancestry.\n"
+         "  Practical commit counts can repeat on divergent/merged history; the full Git SHA is always canonical.\n"
+         "\ncommit_diffs/PATH_HISTORY_INDEX.txt\n"
+         "  Compact reverse navigation from a historical repository path to the commits whose generated first-parent\n"
+@@ -1624,9 +1669,9 @@ def build_snapshot_context_readme() -> str:
+         "  archive creation should explicitly refresh upstream first (normal generation remains network-free).\n"
+         "\nHistory cache/privacy\n"
+         "  Generated history follows the existing anonymized Git-log email policy and also redacts email-shaped strings\n"
+-        "  embedded in historical patch text. The local cache lives inside Git metadata and is keyed by immutable full\n"
+-        "  SHA, so normal reruns only render newly created commits. Existing SAS cache entries from the older message-heavy\n"
+-        "  layout are upgraded in place instead of re-rendered. Amend/force-push/reset needs no arbitrary last-N refresh.\n"
++        "  embedded in historical patch text. Reuse checks the private immutable-SHA cache inside Git metadata first, then\n"
++        f"  the tracked {TRACKED_COMMIT_DIFF_DIR}/ mirror as a read-only secondary cache, so fresh clones do not rerender\n"
++        "  already-tracked history. Git renders only missing/new entries; amend/force-push/reset needs no arbitrary last-N refresh.\n"
+         "  Use --commit-diff-count 0 to disable, or a positive N to include only the newest N reachable commits.\n"
+     )
+
+diff --git a/LLM_Helpers/sync_tracked_commit_diffs.py b/LLM_Helpers/sync_tracked_commit_diffs.py
+new file mode 100644
+index 000000000..1f12f00fa
+--- /dev/null
++++ b/LLM_Helpers/sync_tracked_commit_diffs.py
+@@ -0,0 +1,92 @@
++# (c) 2026 wonderingabout & AI helpers
++from __future__ import annotations
++
++import argparse
++import filecmp
++import shutil
++from pathlib import Path
++
++import make_light_source_zip as light_source
++
++
++GENERATED_NAMES = {"INDEX.txt", "PATH_HISTORY_INDEX.txt"}
++
++
++def parse_args() -> argparse.Namespace:
++    parser = argparse.ArgumentParser(description="Synchronize the tracked greppable commit-diff mirror from current Git ancestry.")
++    parser.add_argument("--repo-root", default=None, help="AdvCiv-SAS repository root. Defaults to the same auto-detection as make_light_source_zip.py.")
++    parser.add_argument("--dry-run", action="store_true", help="Report additions/updates/removals without changing tracked mirror files or the Git-history cache.")
++    return parser.parse_args()
++
++
++def generated_value_matches_file(value: bytes | Path, path: Path) -> bool:
++    if not path.is_file():
++        return False
++    if isinstance(value, Path):
++        try:
++            return path.stat().st_size == value.stat().st_size and filecmp.cmp(path, value, shallow=False)
++        except OSError:
++            return False
++    try:
++        return path.read_bytes() == value
++    except OSError:
++        return False
++
++
++def write_generated_value(value: bytes | Path, path: Path) -> None:
++    path.parent.mkdir(parents=True, exist_ok=True)
++    if isinstance(value, Path):
++        shutil.copyfile(value, path)
++    else:
++        path.write_bytes(value)
++
++
++def main() -> int:
++    args = parse_args()
++    repo_root = light_source.find_repo_root(args.repo_root)
++    tracked_dir = repo_root / light_source.TRACKED_COMMIT_DIFF_DIR
++    generated, summary = light_source.build_commit_diff_history_context(repo_root, -1, write_cache=not args.dry_run)
++    prefix = light_source.GENERATED_COMMIT_DIFF_DIR.rstrip("/") + "/"
++
++    wanted: dict[Path, bytes | Path] = {}
++    for rel, value in generated.items():
++        if not rel.startswith(prefix):
++            continue
++        wanted[tracked_dir / rel[len(prefix):]] = value
++
++    existing_generated: set[Path] = set()
++    if tracked_dir.is_dir():
++        existing_generated.update(path for path in tracked_dir.glob("*.diff") if path.is_file())
++        existing_generated.update(tracked_dir / name for name in GENERATED_NAMES if (tracked_dir / name).is_file())
++    stale = sorted(existing_generated - set(wanted))
++
++    added = updated = unchanged = 0
++    for path, value in sorted(wanted.items(), key=lambda item: item[0].name.lower()):
++        if not path.exists():
++            added += 1
++        elif generated_value_matches_file(value, path):
++            unchanged += 1
++            continue
++        else:
++            updated += 1
++        if not args.dry_run:
++            write_generated_value(value, path)
++
++    if not args.dry_run:
++        for path in stale:
++            path.unlink()
++        tracked_dir.mkdir(parents=True, exist_ok=True)
++
++    print(f"Repo root: {repo_root}")
++    print(f"Tracked mirror: {light_source.TRACKED_COMMIT_DIFF_DIR}")
++    print(summary)
++    print(f"Sync: added={added}, updated={updated}, removed={len(stale)}, unchanged={unchanged}")
++    if args.dry_run:
++        print("Dry run: no tracked mirror files or history cache were changed.")
++    else:
++        print("Reminder: the mirror is generated from the current committed HEAD, so the commit that records this synchronization cannot contain its own diff.")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt b/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt
+index 49f31c7ca..cae8e9b75 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt
+@@ -6,14 +6,16 @@ Purpose
+ -------
+ Systematically review the historical AdvCiv and then K-Mod commit diffs for inherited bugs, regressions, suspicious behavior changes, and useful fixes that may still matter to AdvCiv-SAS.
+ 
+-Primary source
+---------------
+-The light-source ZIP's generated:
+-  _SNAPSHOT_CONTEXT/commit_diffs/INDEX.txt
+-  _SNAPSHOT_CONTEXT/commit_diffs/PATH_HISTORY_INDEX.txt
+-  _SNAPSHOT_CONTEXT/commit_diffs/<segment>_<practical-count>_<short-sha>.diff
++Primary sources
++---------------
++For an ordinary clone/Codex/IDE session, use the tracked greppable mirror:
++  LLM_Helpers/commit_diffs/INDEX.txt
++  LLM_Helpers/commit_diffs/PATH_HISTORY_INDEX.txt
++  LLM_Helpers/commit_diffs/<segment>_<practical-count>_<short-sha>.diff
++
++For a light-source handoff, `_SNAPSHOT_CONTEXT/commit_diffs/` is generated fresh from that snapshot's current Git ancestry with the same renderer/filtering policy. Current source and Git remain authoritative; the tracked mirror can lag HEAD until `python LLM_Helpers/sync_tracked_commit_diffs.py` is run.
+ 
+-The progress file itself is tracked so a future clone/LLM can resume the audit, but is export-ignored from player/release archives. The generated commit-diff archive does not need to be tracked in Git.
++Both this progress file and the tracked commit-diff mirror are kept in Git for future clone/LLM archaeology but export-ignored from player/release archives. The tracked mirror is excluded from its own generated historical patches to prevent recursive history-of-history growth.
+ 
+ History inventory at tracker creation
+ -------------------------------------
+@@ -32,15 +34,16 @@ Default sweep order
+ 
+ Counters
+ --------
+-Systematic historical commits reviewed: 0 / 4,343
++Systematic historical commits reviewed: 1,399 / 4,343
+ Targeted lineage traces completed: 3 (KI#205, KI#206, S002)
+-Confirmed defects tracked here: 3
+-  inherited/pre-SAS defects: 2
++Confirmed defects tracked here: 4
++  inherited/pre-SAS defects: 3
+   SAS-specific regressions: 1
+-Confirmed defects fixed: 3
++Confirmed defects fixed: 4
+ Resolved non-defect/currently-safe audit candidates: 2
+ Open current-tree suspects awaiting archaeology/semantic decision: 0
+ Confirmed defects newly found by the current XML-cost audit: 1 (KI#206)
++Confirmed previously-unfixed defects newly found by the systematic historical sweep: 1 (KI#207)
+ Prior reference defects already found before this tracker: 2 (the two independent KI#205 defects)
+ 
+ Confirmed findings / lineage references
+@@ -71,6 +74,18 @@ F003 - KI#206 AI random-event building-change percent normalization - FIXED
+   The K-Mod trace was done locally from the light-source ZIP commit-diff archive without Internet lookup.
+   Fixed in the current post-6162 audit commit (expected practical 6163).
+ 
++F004 - KI#207 UWAI random team-member selection index mismatch - FIXED
++  Classification: inherited Base AdvCiv bug
++  Discovery route: first previously-unfixed defect found by the systematic newest-to-oldest historical sweep.
++  Introduced in AdvCivPreSAS practical 2945, SHA f016996eb6:
++    "Let UWAI negotiate with a random team member"
++  CvTeam::getRandomMemberAlive generated a 0-based random eligible-member index but compared it with MemberIter::nextIndex(), whose current-element-visible value starts at 1 and whose sequence includes ineligible AI members during human-only selection.
++  For three all-AI members the old distribution was 2/3, 1/3, 0 rather than 1/3 each; for two members it was 100%, 0%. Mixed human/AI teams additionally compared a human-only random range against all-member iterator positions.
++  The fix keeps the same one synchronized RNG roll and counts eligible members explicitly with a zero-based index.
++  AdvCiv practical 3209 later modernized the RNG helper but preserved the faulty comparison. AgentIterator::nextIndex() already had the relevant semantics before practical 2945, so the defect exists from introduction rather than from a later iterator change.
++  The sweep had earlier re-encountered the real ExtraFreeOutsideUnits bug at practical 3956, but SAS had already fixed/documented it as KI#92; KI#207 is therefore the systematic sweep's first previously-unfixed surviving defect.
++  Fixed in the current archaeology-fix commit (expected practical 6165 after the tracked-mirror infrastructure commit).
++
+ Resolved audit candidates
+ -------------------------
+ S001 - CvUnit::gift / AI_processPeacetimeGrantValue game-speed semantics - NO FIX
+@@ -89,9 +104,12 @@ S002 - CvPlayerAI::AI_espionageVal mixed production-cost semantics - NO FIX
+ 
+ Systematic sweep progress
+ -------------------------
+-AdvCivPreSAS: NOT STARTED
+-  Next: practical 4343, SHA 9679091523
+-  Title: "Standalone bugfix for Tectonics' improperly disabled climate menu"
++AdvCivPreSAS: IN PROGRESS
++  Reviewed: practical 4343 -> 2945 inclusive (1,399 commits).
++  First real historical defect encountered in that range: practical 3956, already fixed independently by SAS as KI#92.
++  First previously-unfixed surviving defect found by the systematic sweep: practical 2945, now KI#207.
++  Next: practical 2944, SHA 24e04be52c
++  Title: "Tweak UWAI prediction about availability of coll. damage units"
+ 
+ KMod: WAITING FOR ADVCIV SWEEP
+   First planned: practical 1249, SHA d0a60f8b90
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 650148a6f..4b79393b3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -266,6 +266,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [204 - (Fixed/Improved) Base AdvCiv Great General birth, safety and reporting gaps could waste free Great Generals, including unsafe birth-city selection and an inverted Military Academy city-safety test](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#204---fixedimproved-base-advciv-great-general-birth-safety-and-reporting-gaps-could-waste-free-great-generals-including-unsafe-birth-city-selection-and-an-inverted-military-academy-city-safety-test)\
+ [205 - (Fixed/Improved) Major K-Mod World-Wonder focus refactor bug rejected the AI's best production cities, while an AdvCiv-SAS game-speed regression could almost disable cheap-Wonder catch-up on slow speeds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#205---fixedimproved-major-k-mod-world-wonder-focus-refactor-bug-rejected-the-ais-best-production-cities-while-an-advciv-sas-game-speed-regression-could-almost-disable-cheap-wonder-catch-up-on-slow-speeds)\
+ [206 - (Fixed K-Mod bug) AI random-event building-change valuation missed percent normalization, making building creation or destruction worth 100 times the intended production-cost component](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#206---fixed-k-mod-bug-ai-random-event-building-change-valuation-missed-percent-normalization-making-building-creation-or-destruction-worth-100-times-the-intended-production-cost-component)\
++[207 - (Fixed Base AdvCiv bug) UWAI random team-member selection mixed 0-based random indexes with iterator positions, biasing the first member and excluding the last](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#207---fixed-base-advciv-bug-uwai-random-team-member-selection-mixed-0-based-random-indexes-with-iterator-positions-biasing-the-first-member-and-excluding-the-last)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7874,3 +7875,21 @@ KI#206 is therefore classified as an inherited K-Mod/Base AdvCiv bug, not an SAS
+ ChatGPT-5.6-Sol found the defect while locally auditing current-tree XML/raw-cost semantics after KI#205, rather than during the later systematic historical sweep. The Base AdvCiv 1.14 source supplied alongside the SAS source confirmed that the bug is pre-SAS, and ChatGPT-5.6-Sol then traced the K-Mod lineage entirely from the light-source ZIP's generated `_SNAPSHOT_CONTEXT/commit_diffs` archive, without needing an Internet lookup. This is the same kind of local Git-history archaeology that proved useful for KI#205 and motivated keeping a resumable archaeology suite.
+ 
+ Fixed and lineage-traced with the help of ChatGPT-5.6-Sol thanks.
++
++## 207 - (Fixed Base AdvCiv bug) UWAI random team-member selection mixed 0-based random indexes with iterator positions, biasing the first member and excluding the last
++
++The systematic AdvCiv/K-Mod history archaeology found its first previously-unfixed surviving defect while reviewing AdvCivPreSAS newest to oldest. AdvCiv practical 2945 (`f016996eb6`, "Let UWAI negotiate with a random team member") introduced `CvTeam::getRandomMemberAlive`, allowing UWAI war-related diplomacy to choose a random living player from a team rather than always using the team leader. The intended change is useful for team games, but its selection logic mixed two incompatible index conventions.
++
++`SyncRandNum(iValid)` returns a zero-based random value in `[0, iValid)`. The old loop compared that value against `MemberIter::nextIndex()`, whose documented `ListIterator.nextIndex` semantics describe the position of the element that would be returned next. For the first currently yielded member, `nextIndex()` is therefore already 1 rather than 0. With three eligible AI members, random indexes 0 and 1 both selected the first member, index 2 selected the second, and the third member could never be selected. A two-member AI team degenerated to 100% selection of the first member and 0% of the second.
++
++The human-only branch had an additional mismatch. `iValid` counts only human team members, but the old comparison used `MemberIter::nextIndex()`, which advances across all living members. On a mixed human/AI team, the random value and iterator position therefore did not even refer to the same eligible-member sequence, making selection depend incorrectly on the placement of ineligible AI members.
++
++This matters in real UWAI diplomacy paths that still call `getRandomMemberAlive`, including selecting representatives for peace negotiations, attempts to find a new master/vassal agreement, human contacts, and attempts to amend tensions before war. Ordinary one-player-per-team games are unaffected because there is only one eligible member, which likely helped the defect survive unnoticed; team games and Permanent Alliance situations can use multiple members and therefore expose the bias.
++
++The fix preserves the synchronized RNG consumption and the original eligible count, but replaces the iterator-position comparison with an explicit zero-based counter that advances only for eligible members. The selected representative is therefore uniformly distributed across exactly the same set counted by `iValid`; no extra random calls are added.
++
++The lineage is unusually clear. Practical 2945 introduced the faulty comparison directly. Later AdvCiv practical 3209 changed the RNG helper from `getSRandNum` to `SyncRandNum` but left the index comparison intact, and the bug survived into Base AdvCiv and AdvCiv-SAS. The iterator's `nextIndex()` semantics predate practical 2945, so this is not a later iterator refactor breaking formerly correct code.
++
++This was the first **previously-unfixed** defect found by the systematic historical sweep itself. The sweep started at AdvCivPreSAS practical 4343 and reached practical 2945 after reviewing 1,399 historical commits. It did encounter a genuine historical defect earlier at practical 3956 (`da462d23f0`), the `ExtraFreeOutsideUnits` default bug, but AdvCiv-SAS had already independently fixed and documented that issue as KI#92. Other suspicious candidates were rejected after tracing their semantics rather than being counted as findings. KI#205 and KI#206 were targeted lineage traces/current-tree discoveries made before the systematic sweep and are therefore not counted as its first hit.
++
++Found through the systematic AdvCiv/K-Mod archaeology, fixed and documented with the help of ChatGPT-5.6-Sol thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 5b0e8f964..9cf44ca52 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -305,6 +305,7 @@ Note: Most, if not all, diplomacy AI changes apply both to **AI–AI** and **AI
+ 
+ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by improving cooperation between masters and vassals, rather than simply over-boosting one party. The aim is that, in many cases, they also benefit vassals (or at least do not clearly reduce their own chances of winning) while being in the master's interest, since a stronger vassal is more likely to be useful.
+ 
++- (Requires AdvCiv-SAS 6164+) **UWAI team-member diplomacy selection fix:** fixed an inherited Base AdvCiv off-by-one/index-space bug in `CvTeam::getRandomMemberAlive` that could make the first member of a multi-player team disproportionately likely to conduct UWAI war-related diplomacy and make the last eligible member impossible to select; mixed human/AI teams were additionally indexed against ineligible members. To fix this, selection now uses the same synchronized random roll but counts only eligible members with a zero-based index. Ordinary one-player teams are unchanged. See [KI#207](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#207---fixed-base-advciv-bug-uwai-random-team-member-selection-mixed-0-based-random-indexes-with-iterator-positions-biasing-the-first-member-and-excluding-the-last).
+ - **Multi-war threat management — "emergency peace" pre-checks**: In `UWAI::Team::considerPeace` (`UWAIAgent.cpp`), add sanity checks to **seek peace** when either (a) the team is fighting **too many simultaneous wars** or (b) the enemies’ **combined power ratio** vs. us is high enough. Goal: **survivability and focus** (fewer dogpiles, more targeted campaigns) while keeping thresholds lax so plenty of wars still occur. In a sample run, Hatshepsut, strongest at ~turn 150, kept the lead to ~turn 200 with these checks (previously died before 200). See **[KI#65](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp)**.
+ - (Requires AdvCiv-SAS 6053+) Update: Later BBAI testing showed that the original AdvCiv-SAS rule treated any 3 wars as an emergency and tried to make peace with every opponent, which was good against strong coalitions, but bad and needlessly cautious when their combined power was, for example, only 70% of the AI's power and it could safely fight them all. So instead of a blunt total max wars formula, the AI now tries to end a war only when the combined power of its enemies is dangerous (a tunable gradual increase as of now of 25% for every simultaneous war beyond 2 wars because the more enemies there are the harder and riskier it is: for example, 4 enemies with 120% combined power count as 180% power). When peace is needed, the AI first approaches the opponent whose war is least valuable to continue. In the confirming run, Sumer safely continued 3 to 4 wars when their combined power was weak and captured five cities, then ended one war when 126% combined enemy power became 189% adjusted danger. See [KI#65](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp).
+ - **Tribute/counter-propose consistency fix for pure Vassal/Surrender offers:** base AdvCiv/BtS diplomacy would **reject** direct **Tribute/Demand** ("Not bloody likely"), yet clicking **"What do you want in exchange?"** would **accept** for the same demand (with nothing extra). So players had to do an unnecessary extra click to get the same vassal result. Fixed by making `CvPlayerAI::AI_considerOffer` accept this exact pure one-item vassal/surrender demand directly, and by making [CvDiplomacy.py](/Assets/Python/CvDiplomacy.py) not remember this narrow accepted case as a tribute demand memory (because this is rather a UI consistency fix). See [KI#108](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#108---fixed-base-advciv-diplomacy-inconsistency-ai-can-refuse-tribute-for-pure-vassalsurrender-then-accept-the-same-deal-through-what-do-you-want-in-exchange-with-nothing-added).
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=9 omittedFiles=1 embeddedPatchBytes=49627

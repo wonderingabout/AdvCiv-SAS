@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3919
+# Commit: 307d0883c95b65c966224bc1f9f6a562f371d49a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1fb87b45e9a3055bb3a06c7f9a421a6fc45010c3
+# Title: Tweak reduction of resources placed on map per-player
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvMapGenerator.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 41db76db9..13bb66aca 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -1101,8 +1101,8 @@ int CvMapGenerator::calculateNumBonusesToAdd(BonusTypes eBonus)
+ 			per100(kBonus.getPercentPerPlayer());
+ 	/*	<advc.129> Same as in BtS for 8 players, a bit less for high player counts,
+ 		a bit more for small player counts. */
+-	rFromPlayers.exponentiate(fixp(0.8));
+-	rFromPlayers *= fixp(1.5); // </advc.129>
++	rFromPlayers.exponentiate(fixp(0.85));
++	rFromPlayers *= fixp(4/3.); // </advc.129>
+ 	int iMult = kBonus.getConstAppearance();
+ 	iMult +=
+ 			MapRandNum(kBonus.getRandAppearance1()) +
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=713

@@ -1,0 +1,1095 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5344
+# Commit: 7fa2d16180485baab50f6196b4d48eafbe7c9c24
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4a015ac5beceb9ecca4b38eccff5142a11940946
+# Title: replace concept road/railroad links with sevopedia build road/railroad links
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/Config/BUG Core.xml
+1	1	Assets/Python/BUG/BugOptionsScreen.py
+3	3	Assets/Python/BUG/BugOptionsTab.py
+1	1	Assets/Python/BUG/BugUpdateChecker.py
+1	1	Assets/Python/BUG/BugUtil.py
+2	2	Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+8	5	Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+12	18	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+1	1	Assets/Python/EntryPoints/CvScreensInterface.py
+1	1	Assets/Python/Screens/CvOptionsScreen.py
+2	2	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+0	12	Assets/XML/BasicInfos/CIV4BasicInfos.xml
+2	2	Assets/XML/GameInfo/CIV4Hints.xml
+0	42	Assets/XML/Text/ActualQuotesText_Custom.xml
+0	16	Assets/XML/Text/AdvCiv-SAS_Core.xml
+36	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+0	0	Assets/XML/Text/{BUG_AdvancedCombatOdds_CIV4GameText_advc.xml => BUG_AdvancedCombatOdds_advc.xml}
+0	0	Assets/XML/Text/{BUG_Advanced Combat Odds Options.xml => BUG_Advanced_Combat_Odds_Options.xml}
+1	1	Assets/XML/Text/{BUG_Advanced Scoreboard Options.xml => BUG_Advanced_Scoreboard_Options.xml}
+2	2	Assets/XML/Text/{BUG Advisors Options.xml => BUG_Advisors_Options.xml}
+0	0	Assets/XML/Text/{BUG_AutoSave Options.xml => BUG_AutoSave_Options.xml}
+0	0	Assets/XML/Text/{BUG_Autolog Options.xml => BUG_Autolog_Options.xml}
+0	0	Assets/XML/Text/{BUG_Better Espionage Options.xml => BUG_Better_Espionage_Options.xml}
+1	1	Assets/XML/Text/BUG_CIV4GameText.xml
+0	0	Assets/XML/Text/{BUG City Screen Options.xml => BUG_City_Screen_Options.xml}
+0	0	Assets/XML/Text/{BUG Core Options.xml => BUG_Core_Options.xml}
+0	0	Assets/XML/Text/{BUG_CIV4GameText_CustDomAdv.xml => BUG_CustDomAdv.xml}
+0	0	Assets/XML/Text/{BUG_CustDomAdv Options.xml => BUG_CustDomAdv_Options.xml}
+0	0	Assets/XML/Text/{BUG_EventSigns Options.xml => BUG_EventSigns_Options.xml}
+1	1	Assets/XML/Text/{BUG Main Interface Options.xml => BUG_Main_Interface_Options.xml}
+0	0	Assets/XML/Text/{BUG_MoreCiv4lerts Options.xml => BUG_MoreCiv4lerts_Options.xml}
+1	1	Assets/XML/Text/{BUG_Not Just Another Game Clock Options.xml => BUG_Not_Just_Another_Game_Clock_Options.xml}
+1	1	Assets/XML/Text/{BUG Options Screen.xml => BUG_Options_Screen.xml}
+0	0	Assets/XML/Text/{BUG_Plot List Enhancements Options.xml => BUG_Plot_List_Enhancements_Options.xml}
+0	0	Assets/XML/Text/{BUG_Reminder Options.xml => BUG_Reminder_Options.xml}
+0	0	Assets/XML/Text/{BUG_CIV4GameText_StrategyOverlay.xml => BUG_StrategyOverlay.xml}
+0	0	Assets/XML/Text/{BUG_Strategy Overlay Options.xml => BUG_Strategy_Overlay_Options.xml}
+0	0	Assets/XML/Text/{BUG_TechWindow Options.xml => BUG_TechWindow_Options.xml}
+0	0	Assets/XML/Text/{BUG_Unit Naming.xml => BUG_Unit_Naming.xml}
+0	0	Assets/XML/Text/{BUG_Unit Naming Options.xml => BUG_Unit_Naming_Options.xml}
+0	0	Assets/XML/Text/{BULL Actions Options.xml => BULL_Actions_Options.xml}
+1	1	Assets/XML/Text/{BULL City Bar Options.xml => BULL_City_Bar_Options.xml}
+5	5	Assets/XML/Text/{BULL Misc Hovers Options.xml => BULL_Misc_Hovers_Options.xml}
+1	1	Assets/XML/Text/CIV4GameText_advc_hints.xml
+1	1	Assets/XML/Text/{K-Mod hints.xml => K-Mod_hints.xml}
+16	16	Long_Comments/Long_Comments_XML.txt
+0	2	README.md
+3	3	_0_Common_Docs/BUG_Doc/BUG Changelog.txt
+3	3	_0_Common_Docs/K-Mod_Doc/K-Mod 1.46 changelog.txt
+2	2	_0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt
+1	1	_0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (2).JPG
+2	2	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt
+ delete mode 100644 Assets/XML/Text/ActualQuotesText_Custom.xml
+ rename Assets/XML/Text/{BUG_AdvancedCombatOdds_CIV4GameText_advc.xml => BUG_AdvancedCombatOdds_advc.xml} (100%)
+ rename Assets/XML/Text/{BUG_Advanced Combat Odds Options.xml => BUG_Advanced_Combat_Odds_Options.xml} (100%)
+ rename Assets/XML/Text/{BUG_Advanced Scoreboard Options.xml => BUG_Advanced_Scoreboard_Options.xml} (99%)
+ rename Assets/XML/Text/{BUG Advisors Options.xml => BUG_Advisors_Options.xml} (97%)
+ rename Assets/XML/Text/{BUG_AutoSave Options.xml => BUG_AutoSave_Options.xml} (100%)
+ rename Assets/XML/Text/{BUG_Autolog Options.xml => BUG_Autolog_Options.xml} (100%)
+ rename Assets/XML/Text/{BUG_Better Espionage Options.xml => BUG_Better_Espionage_Options.xml} (100%)
+ rename Assets/XML/Text/{BUG City Screen Options.xml => BUG_City_Screen_Options.xml} (100%)
+ rename Assets/XML/Text/{BUG Core Options.xml => BUG_Core_Options.xml} (100%)
+ rename Assets/XML/Text/{BUG_CIV4GameText_CustDomAdv.xml => BUG_CustDomAdv.xml} (100%)
+ rename Assets/XML/Text/{BUG_CustDomAdv Options.xml => BUG_CustDomAdv_Options.xml} (100%)
+ rename Assets/XML/Text/{BUG_EventSigns Options.xml => BUG_EventSigns_Options.xml} (100%)
+ rename Assets/XML/Text/{BUG Main Interface Options.xml => BUG_Main_Interface_Options.xml} (98%)
+ rename Assets/XML/Text/{BUG_MoreCiv4lerts Options.xml => BUG_MoreCiv4lerts_Options.xml} (100%)
+ rename Assets/XML/Text/{BUG_Not Just Another Game Clock Options.xml => BUG_Not_Just_Another_Game_Clock_Options.xml} (99%)
+ rename Assets/XML/Text/{BUG Options Screen.xml => BUG_Options_Screen.xml} (99%)
+ rename Assets/XML/Text/{BUG_Plot List Enhancements Options.xml => BUG_Plot_List_Enhancements_Options.xml} (100%)
+ rename Assets/XML/Text/{BUG_Reminder Options.xml => BUG_Reminder_Options.xml} (100%)
+ rename Assets/XML/Text/{BUG_CIV4GameText_StrategyOverlay.xml => BUG_StrategyOverlay.xml} (100%)
+ rename Assets/XML/Text/{BUG_Strategy Overlay Options.xml => BUG_Strategy_Overlay_Options.xml} (100%)
+ rename Assets/XML/Text/{BUG_TechWindow Options.xml => BUG_TechWindow_Options.xml} (100%)
+ rename Assets/XML/Text/{BUG_Unit Naming.xml => BUG_Unit_Naming.xml} (100%)
+ rename Assets/XML/Text/{BUG_Unit Naming Options.xml => BUG_Unit_Naming_Options.xml} (100%)
+ rename Assets/XML/Text/{BULL Actions Options.xml => BULL_Actions_Options.xml} (100%)
+ rename Assets/XML/Text/{BULL City Bar Options.xml => BULL_City_Bar_Options.xml} (98%)
+ rename Assets/XML/Text/{BULL Misc Hovers Options.xml => BULL_Misc_Hovers_Options.xml} (98%)
+ rename Assets/XML/Text/{K-Mod hints.xml => K-Mod_hints.xml} (98%)
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Core.xml b/Assets/Config/BUG Core.xml
+index 334c1e2fe..3cb7afc7e 100644
+--- a/Assets/Config/BUG Core.xml	
++++ b/Assets/Config/BUG Core.xml	
+@@ -22,7 +22,7 @@
+ 		<section id="General">
+ 			<option id="OptionsScreenOpened" key="Options Screen Opened" 
+ 					type="boolean" default="False"
+-					help="Set to True the first time the player opens the BUG Options screen"/>
++					help="Set to True the first time the player opens the BUG_Options_Screen"/>
+ 		</section>
+ 		<!-- k146: Defaults were 2 and 0 -->
+ 		<section id="Logging">
+@@ -81,7 +81,7 @@
+ 		</arg>
+ 	</init>
+ 
+-	<!-- BUG Options Screen UI control handlers -->
++	<!-- BUG_Options_Screen UI control handlers -->
+ 	<export module="BugOptionsScreen" function="handleBugExitButtonInput" to="CvOptionsScreenCallbackInterface"/>
+ 	<export module="BugOptionsScreen" function="handleBugHelpButtonInput" to="CvOptionsScreenCallbackInterface"/>
+ 	<export module="BugOptionsScreen" function="handleBugCheckboxClicked" to="CvOptionsScreenCallbackInterface"/>
+
+diff --git a/Assets/Python/BUG/BugOptionsScreen.py b/Assets/Python/BUG/BugOptionsScreen.py
+index d94463b52..6923c1077 100644
+--- a/Assets/Python/BUG/BugOptionsScreen.py
++++ b/Assets/Python/BUG/BugOptionsScreen.py
+@@ -1,6 +1,6 @@
+ ## BugOptionsScreen
+ ##
+-## Displays the BUG Options Screen and its tabs.
++## Displays the BUG_Options_Screen and its tabs.
+ ##
+ ## For input handlers see CvOptionsScreenCallbackInterface in Python/EntryPoints.
+ ##
+
+diff --git a/Assets/Python/BUG/BugOptionsTab.py b/Assets/Python/BUG/BugOptionsTab.py
+index 9832ba0c3..1af509377 100644
+--- a/Assets/Python/BUG/BugOptionsTab.py
++++ b/Assets/Python/BUG/BugOptionsTab.py
+@@ -1,6 +1,6 @@
+ ## BugOptionsTab
+ ##
+-## Base class for all tabs in the BUG Options Screen.
++## Base class for all tabs in the BUG_Options_Screen.
+ ##
+ ## Copyright (c) 2007 The BUG Mod.
+ ##
+@@ -21,7 +21,7 @@ g_options = BugOptions.getOptions()
+ 
+ class BugOptionsTab:
+ 	#
+-	# Provides an API for building a single tab on the BUG Options Screen by placing UI controls.
++	# Provides an API for building a single tab on the BUG_Options_Screen by placing UI controls.
+ 	#
+ 	
+ 	def __init__(self, name, title):
+@@ -107,7 +107,7 @@ class BugOptionsTab:
+ 		
+ 		# Exit button
+ 		title = BugUtil.getPlainText("TXT_KEY_PEDIA_SCREEN_EXIT", "Exit")
+-		hover = BugUtil.getPlainText("TXT_KEY_BUG_OPTBUTTON_EXIT_HOVER", "Exits the BUG Options screen.")
++		hover = BugUtil.getPlainText("TXT_KEY_BUG_OPTBUTTON_EXIT_HOVER", "Exits the BUG_Options_Screen.")
+ 		exitButton = self.name + "Exit"
+ 		self.addButton(screen, exitPanel, exitButton, "handleBugExitButtonInput", title, hover)
+
+diff --git a/Assets/Python/BUG/BugUpdateChecker.py b/Assets/Python/BUG/BugUpdateChecker.py
+index ac0e614fc..836d7b600 100644
+--- a/Assets/Python/BUG/BugUpdateChecker.py
++++ b/Assets/Python/BUG/BugUpdateChecker.py
+@@ -1,6 +1,6 @@
+ ## BugUpdateChecker
+ ##
+-## Uses SvnUtil and BUG Core options to check for BUG updates and releases.
++## Uses SvnUtil and BUG_Core_Options to check for BUG updates and releases.
+ ##
+ ## Copyright (c) 2008 The BUG Mod.
+ ##
+
+diff --git a/Assets/Python/BUG/BugUtil.py b/Assets/Python/BUG/BugUtil.py
+index 1512b6942..4532d85d6 100644
+--- a/Assets/Python/BUG/BugUtil.py
++++ b/Assets/Python/BUG/BugUtil.py
+@@ -298,7 +298,7 @@ def logToFile(message):
+ 	sys.stdout.write(message + "\n")
+ 
+ def readLoggingOptions(option=None, value=None):
+-	# Pulls the logging options from the BUG Core options and stores into local copies.
++	# Pulls the logging options from the BUG_Core_Options and stores into local copies.
+ 	# Done this way to avoid hitting the options in tight loops that use logging.
+ 	#
+ 	import BugCore
+
+diff --git a/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py b/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+index 250c5f8f5..408497679 100644
+--- a/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+@@ -1,6 +1,6 @@
+ ## BugCityScreenOptionsTab
+ ##
+-## Tab for the BUG City Screen Options.
++## Tab for the BUG_City_Screen_Options.
+ ##
+ ## Copyright (c) 2007-2008 The BUG Mod.
+ ##
+@@ -9,7 +9,7 @@
+ import BugOptionsTab
+ 
+ class BugCityScreenOptionsTab(BugOptionsTab.BugOptionsTab):
+-	"BUG City Screen Options Screen Tab"
++	"BUG_City_Screen_Options Screen Tab"
+ 	
+ 	def __init__(self, screen):
+ 		BugOptionsTab.BugOptionsTab.__init__(self, "CityScreen", "City Screen")
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+index 1ce321f1e..e9892e543 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+@@ -24,6 +24,8 @@ class SevoPediaBuild:
+ 	def __init__(self, main):
+ 		self.iBuild = -1
+ 		self.top = main
++		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD", gc)
++		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD", gc)
+ 
+ 		self.MEDIUM_MARGIN = 15
+ 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+@@ -132,13 +134,14 @@ class SevoPediaBuild:
+ 		iRoute = buildInfo.getRoute()
+ 		if iRoute > -1:
+ 			routeInfo = gc.getRouteInfo(iRoute)
+-			conceptIDToRoute = -1
++			iBuild = -1
+ 			if routeInfo.getType() == "ROUTE_ROAD":
+-				conceptIDToRoute = get_concept_id("CONCEPT_ROUTE_ROAD", gc)
++				iBuild = self.SAS_iBuildRoad
+ 			elif routeInfo.getType() == "ROUTE_RAILROAD":
+-				conceptIDToRoute = get_concept_id("CONCEPT_ROUTE_RAILROAD", gc)
+-			widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(conceptIDToRoute, WidgetTypes, CivilopediaPageTypes)
+-			screen.attachImageButton(panelName, "", routeInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, widgetID1, widgetID2, False)
++				iBuild = self.SAS_iBuildRailroad
++			if iBuild < 0:
++				raise Exception("SevoPediaBuild: missing Build for route %s" % routeInfo.getType())
++			screen.attachImageButton(panelName, "", routeInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild, False)
+ 			bFound = True
+ 
+ 		if not bFound:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index e16c22446..aae70223a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -33,8 +33,10 @@ class SevoPediaImprovement:
+ 	def __init__(self, main):
+ 		self.iImprovement = -1
+ 		self.top = main
+-		self.I_CONCEPT_IRRIGATION = gc.getInfoTypeForString("CONCEPT_IRRIGATION")
+-		self.I_TERRAIN_HILL = gc.getInfoTypeForString("TERRAIN_HILL")
++		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD", gc)
++		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD", gc)
++		self.I_CONCEPT_IRRIGATION = getInfoTypeOrFail("CONCEPT_IRRIGATION", gc)
++		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL", gc)
+ 
+ 		self.MEDIUM_MARGIN = 15
+ 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+@@ -319,26 +321,18 @@ class SevoPediaImprovement:
+ 				if iYieldChange != 0:
+ 					sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+ 			if len(sText):
+-				# <!-- similarly than for river yield changes, also handle route yield changes differently than in m-e mod, using the newly added in advciv-sas CONCEPT_ROUTE_ROAD and CONCEPT_ROUTE_RAILROAD (as these are as of now our only routeinfo xml entries) as sevopedia pages to redirect to as well -->
+-				#screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, gc.getRouteInfo(item).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, 6788, item)
+-				#screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-				# Determine which concept to link to based on the route type.
++				# <!-- custom: link route yield changes to the real Build entries (road/railroad) now that Builds are a category. This removes
++				# the old concept route hack and keeps behavior consistent with other Build links. Credit: Claude Opus 4.5 + GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) -->
+ 				routeInfo = gc.getRouteInfo(item)
+-				# <!-- custom: as of now with a conceptIDToRoute of -1 we would get with get_concept_widgetType_widgetID1_widgetID2 an id1 -1 and id2 -1 and widget general too so maybe fine for not crash, else i'd still want it to crash loudly rather than silently, as i said to gemini ai too who approved of it hehe as they (ais) usually do but i believe sitll provided some critical thinking or non-opposition one with my idea maybe but in all cases thanks for being my echo chamber xd gemini ai if i may say yo helped me lot if i may say here too and other ais as well thanks i mean too, but since this seems safe enough in handling fallback no redirect, maybe leave as is and do not write a hard crash if missing at load such as what we do as of now for the getters in sevopedia leader for example if i remember correctly and am not mistaken i mean (i think not but in case and to be safe who knows) -->
+-				# Initialize with invalid ID
+-				conceptIDToRoute = -1
+-				# Check if it's a Road or Railroad, or a general Route concept
++				iBuild = -1
+ 				if routeInfo.getType() == "ROUTE_ROAD":
+-					conceptIDToRoute = get_concept_id("CONCEPT_ROUTE_ROAD", gc)
++					iBuild = self.SAS_iBuildRoad
+ 				elif routeInfo.getType() == "ROUTE_RAILROAD":
+-					conceptIDToRoute = get_concept_id("CONCEPT_ROUTE_RAILROAD", gc)
+-				# Add more conditions here if you have other specific route types and concepts for them.
++					iBuild = self.SAS_iBuildRailroad
++				if iBuild < 0:
++					raise Exception("SevoPediaImprovement: missing Build for route %s" % routeInfo.getType())
+ 
+-				# Get widget parameters for the determined concept.
+-				widgetType, widgetID1, widgetID2 = get_concept_widgetType_widgetID1_widgetID2(conceptIDToRoute, WidgetTypes, CivilopediaPageTypes)
+-
+-				# Use the button from the RouteInfo itself
+-				screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, routeInfo.getButton(), 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
++				screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, routeInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_BUILD, iBuild)
+ 				screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				iY += (iButtonSize + 8)
+
+diff --git a/Assets/Python/EntryPoints/CvScreensInterface.py b/Assets/Python/EntryPoints/CvScreensInterface.py
+index f6367d026..64f22b46d 100644
+--- a/Assets/Python/EntryPoints/CvScreensInterface.py
++++ b/Assets/Python/EntryPoints/CvScreensInterface.py
+@@ -1047,7 +1047,7 @@ def updateCameraStartDistance(): # Called by DLL and by InputUtil.updateCameraSt
+ 	gc = CyGlobalContext()
+ 	if choice == 0:
+ 		gc.updateCameraStartDistance(False)
+-	# If these constants are changed, then they should also be changed in TXT_KEY_BUG_OPT_MAININTERFACE__DEFAULTCAMDISTANCE_HOVER (BUG Main Interface Options.xml).
++	# If these constants are changed, then they should also be changed in TXT_KEY_BUG_OPT_MAININTERFACE__DEFAULTCAMDISTANCE_HOVER (BUG_Main_Interface_Options.xml).
+ 	elif choice == 1:
+ 		newVal = 2200
+ 	elif choice == 2:
+
+diff --git a/Assets/Python/Screens/CvOptionsScreen.py b/Assets/Python/Screens/CvOptionsScreen.py
+index 4ec58d8e1..002bc8a05 100644
+--- a/Assets/Python/Screens/CvOptionsScreen.py
++++ b/Assets/Python/Screens/CvOptionsScreen.py
+@@ -387,7 +387,7 @@ class CvOptionsScreen:
+ 		tab.attachDropDown("LangHBox", szWidgetName, szDropdownDesc, aszDropdownElements, self.callbackIFace, szCallbackFunction, szWidgetName, iInitialSelection)
+ 		tab.setLayoutFlag(szWidgetName, "LAYOUT_LEFT")
+ 		
+-		# K-Mod: BUG options button. Unfortunately, the BUG options screen doesn't work from the main menu.
++		# K-Mod: BUG options button. Unfortunately, the BUG_Options_Screen doesn't work from the main menu.
+ 		if CyGame().isFinalInitialized():
+ 			tab.attachVSeparator("LangHBox", "LangHBoxSeparator")
+ 			tab.attachVBox("LangHBox", "KmodBox")
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index 6004a698a..573f46b30 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -1701,12 +1701,12 @@
+ 		</InterfaceArtInfo>
+ <!-- BUG - Wonders Tab - end -->			
+ 
+-<!-- BUG - Main Interface - BUG Options Screen - Start -->			
++<!-- BUG - Main Interface - BUG_Options_Screen - Start -->			
+ 		<InterfaceArtInfo>
+ 			<Type>BUG_OPTIONS_SCREEN_BUTTON</Type>
+ 			<Path>Art/BUG/options.dds</Path>
+ 		</InterfaceArtInfo>
+-<!-- BUG - Main Interface - BUG Options Screen - end -->			
++<!-- BUG - Main Interface - BUG_Options_Screen - end -->			
+ 
+ 		<InterfaceArtInfo>
+ 			<Type>QUESTION_MARK</Type>
+
+diff --git a/Assets/XML/BasicInfos/CIV4BasicInfos.xml b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+index c8f0bdfee..30024ac60 100644
+--- a/Assets/XML/BasicInfos/CIV4BasicInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+@@ -275,18 +275,6 @@ then modified to have "Mods Info" and "Outdated" instead of the old concept sevo
+ 			<Civilopedia>TXT_KEY_CONCEPT_RIVERS_PEDIA</Civilopedia>
+ 		</ConceptInfo>
+ 		<!-- custom: new entry -->
+-		<ConceptInfo>
+-			<Type>CONCEPT_ROUTE_ROAD</Type>
+-			<Description>TXT_KEY_CONCEPT_ROUTE_ROAD</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_ROUTE_ROAD_PEDIA</Civilopedia>
+-		</ConceptInfo>
+-		<!-- custom: new entry -->
+-		<ConceptInfo>
+-			<Type>CONCEPT_ROUTE_RAILROAD</Type>
+-			<Description>TXT_KEY_CONCEPT_ROUTE_RAILROAD</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_ROUTE_RAILROAD_PEDIA</Civilopedia>
+-		</ConceptInfo>
+-		<!-- custom: new entry -->
+ 		<ConceptInfo>
+ 			<Type>CONCEPT_SCORING_SYSTEM</Type>
+ 			<Description>TXT_KEY_CONCEPT_SCORING_SYSTEM</Description>
+
+diff --git a/Assets/XML/GameInfo/CIV4Hints.xml b/Assets/XML/GameInfo/CIV4Hints.xml
+index 574bf22e7..b66d9a4ad 100644
+--- a/Assets/XML/GameInfo/CIV4Hints.xml
++++ b/Assets/XML/GameInfo/CIV4Hints.xml
+@@ -431,7 +431,7 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_BUG_HINT_INTERFACE_4</Description>
+ 		</HintInfo>
+-<!-- K-Mod hints -->
++<!-- K-Mod_hints -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_BUG_HINT_INTERFACE_1</Description>
+ 		</HintInfo>
+@@ -485,7 +485,7 @@
+ 			<Description>TXT_KEY_KMOD_HINT_16</Description>
+ 		</HintInfo>
+ 		
+-		<!-- advc.008d: Copied K-Mod hints to increase their probability: -->
++		<!-- advc.008d: Copied K-Mod_hints to increase their probability: -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_BUG_HINT_INTERFACE_1</Description>
+ 		</HintInfo>
+
+diff --git a/Assets/XML/Text/ActualQuotesText_Custom.xml b/Assets/XML/Text/ActualQuotesText_Custom.xml
+deleted file mode 100644
+index cd68066c7..000000000
+--- a/Assets/XML/Text/ActualQuotesText_Custom.xml
++++ /dev/null
+@@ -1,42 +0,0 @@
+-<?xml version="1.0" encoding="ISO-8859-1"?>
+-<!-- 
+-AI, UI, or other modifications
+-Created as part of AdvCiv-SAS improvements
+-(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+--->
+-<!-- custom: adding some extra files after our asset renames such as the old "montezuma"->"moctezuma" missing after our changes so need to add them -->
+-<Civ4GameText xmlns="http://www.firaxis.com">
+-	<!-- custom: "_MONTEZUMA_" -> "_MOCTEZUMA_" so add now missing corresponding assets in this mod -->
+-	<TEXT>
+-		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MOCTEZUMA_1</Tag>
+-		<English>I am pleased to meet you, [CT_NAME]! Let us each slaughter fifty thousand slaves to celebrate this auspicious occasion.</English>
+-		<French>C'est un plaisir de faire votre connaissance, [CT_NAME] ! Sacrifions tous deux cinq mille esclaves pour c&#233;l&#233;brer cette rencontre de bon augure.</French>
+-		<German>Ich freue mich, Euch kennen zu lernen, [CT_NAME]! Lasst uns zur Feier dieses denkw&#252;rdigen Augenblicks je f&#252;nfzigtausend Sklaven opfern!</German>
+-		<Italian>Piacere di incontrarti, [CT_NAME]! Per festeggiare questo momento propizio, dovremmo massacrare cinquantamila schiavi ciascuno.</Italian>
+-		<Spanish>Me alegro mucho de conoceros, [CT_NAME]. Sacrifiquemos cada uno a cincuenta mil esclavos para celebrar esta propicia ocasi&#243;n.</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_MOCTEZUMA_1</Tag>
+-		<English>Talk to the ceremonial blade, [CT_NAME].</English>
+-		<French>Parlez plut&#244;t &#224; ma lame de c&#233;r&#233;monie, [CT_NAME].</French>
+-		<German>Ihr k&#246;nnt gern Bekanntschaft mit meiner Klinge machen, [CT_NAME]!</German>
+-		<Italian>Perch&#233; non ne discuti con la lama cerimoniale, [CT_NAME]?</Italian>
+-		<Spanish>Dec&#237;dselo al cuchillo ceremonial, [CT_NAME].</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MOCTEZUMA_1</Tag>
+-		<English>Tell me, [CT_NAME]: what has [CT_CIV_SHORT] done to anger the gods so that they give them you as leader?</English>
+-		<French>Dites-moi, [CT_NAME]... Qu'ont bien pu faire les [CT_CIV_SHORT] pour que les dieux soient irrit&#233;s au point de vous nommer &#224; leur t&#234;te ?</French>
+-		<German>Sagt mir, [CT_NAME]: Wie konnte [CT_CIV_SHORT] die G&#246;tter nur so erz&#252;rnen, dass sie ihm Euch als Staatsoberhaupt vorgesetzt haben?</German>
+-		<Italian>Dimmi, [CT_NAME], cosa ha fatto [CT_CIV_SHORT:2] perch&#233; gli dei si siano adirati a tal punto da fornire loro un leader come te?</Italian>
+-		<Spanish>Decidnos, [CT_NAME], &#191;qu&#233; ha hecho [CT_CIV_SHORT] para enojar a los dioses y que os convirtieran en su l&#237;der?</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED</Tag>
+-		<English>Your weakness is contemptible, [CT_NAME]! Give us what we want or perish!</English>
+-		<French>Votre faiblesse est m&#233;prisable, [CT_NAME] ! Donnez-nous ce que nous voulons ou ce sera la mort !</French>
+-		<German>Ihr seid uns&#228;glich j&#228;mmerlich und schwach, [CT_NAME]! Gebt uns, was wir verlangen, oder sterbt!</German>
+-		<Italian>La tua debolezza &#232; imbarazzante, [CT_NAME]! Dacci ci&#242; che vogliamo o morirai!</Italian>
+-		<Spanish>&#161;Vuestra debilidad es despreciable, [CT_NAME]! &#161;Dadnos lo que queremos o pereced!</Spanish>
+-	</TEXT>
+-</Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 0434deb48..e0fbf98a9 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -55,22 +55,6 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_CONCEPT_RIVERS_PEDIA</Tag>
+ 		<English>[H1]Rivers[\H1][PARAGRAPH:2]Rivers are exceptional terrain in that they are not "in" or "on" a tile, but they run between tiles. A river is considered adjacent to all tiles that it runs along, including all four tiles which touch a place where the river bends or empties into water. However, the two tiles which touch the source of a river and are behind it, with respect to the river's flow, are not riverside. Rivers supply fresh water to all adjacent tiles. A river adds +1 [ICON_COMMERCE] to all adjacent land tiles, unless they also contain an unimproved forest or jungle. Only riverside Cities may build [LINK=BUILDING_LEVEE]Levees[\LINK], which provide +1 [ICON_PRODUCTION] to every riverside tile within that City's radius.[NEWLINE][NEWLINE]Source: https://civilization.fandom.com/wiki/Terrain_(Civ4)#Rivers</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_ROUTE_ROAD</Tag>
+-		<English>Route (Road)</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_ROUTE_ROAD_PEDIA</Tag>
+-		<English>[H1]Route (Road)[\H1][PARAGRAPH:2]Roads and railroads allow units to move longer distances within a turn by reducing the movement costs of terrain.[PARAGRAPH:1]When a unit is within hostile cultural borders, roads and railroads have no effect unless the unit has the Commando promotion. When the civilization has an Open Borders agreement allowing their units right of passage, they may freely take advantage of roads and railroads.[PARAGRAPH:2]Roads can be built after discovering The Wheel. With roads, all spaces cost 1/2 [ICON_MOVES] Movement points (MP) to enter from other road tiles. After discovering [LINK=TECH_ENGINEERING]Engineering[\LINK], the cost goes down to 1/3 [ICON_MOVES] MP. In practice, this means that a unit with just one movement point can move three tiles using roads. Similarly, units with two movement points can move six tiles.[NEWLINE][NEWLINE]Source: https://civilization.fandom.com/wiki/Road_and_railroad_(Civ4)</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_ROUTE_RAILROAD</Tag>
+-		<English>Route (Railroad)</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_ROUTE_RAILROAD_PEDIA</Tag>
+-		<English>[H1]Route (Railroad)[\H1][PARAGRAPH:2]Roads and railroads allow units to move longer distances within a turn by reducing the movement costs of terrain.[PARAGRAPH:1]When a unit is within hostile cultural borders, roads and railroads have no effect unless the unit has the Commando promotion. When the civilization has an Open Borders agreement allowing their units right of passage, they may freely take advantage of roads and railroads.[PARAGRAPH:2]To build railroads, the civilization first needs to discover the Railroad technology and have an access to Coal or Oil. Railroads are similar to roads, but they reduce the number of [ICON_MOVES] Movement points needed to enter a tile from another railroad tile to 1/10 [ICON_MOVES] MP.[PARAGRAPH:1]Railroads also give a bonus of 1 [ICON_PRODUCTION] to tiles with a [LINK=IMPROVEMENT_MINE]Mine[\LINK], a [LINK=IMPROVEMENT_LUMBERMILL]Lumbermill[\LINK], or a [LINK=IMPROVEMENT_QUARRY]Quarry[\LINK].[NEWLINE][NEWLINE]Source: https://civilization.fandom.com/wiki/Road_and_railroad_(Civ4)</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_GLOBAL_WARMING</Tag>
+ 		<English>Global Warming</English>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index d2c784a81..a40a445a0 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -2797,4 +2797,40 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_RF_HANDICAP_SETTINGS</Tag>
+ 		<English>Game Handicap (AI discounts):[NEWLINE][TAB]%s1_GameHandicap[NEWLINE]Human Player Handicap: %s2_HumanPlayerHandicap[NEWLINE]Handicap for AI Players: %s3_AIPlayerHandicap</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: "_MONTEZUMA_" -> "_MOCTEZUMA_" so add now missing corresponding assets -->
++	<TEXT>
++		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MOCTEZUMA_1</Tag>
++		<English>I am pleased to meet you, [CT_NAME]! Let us each slaughter fifty thousand slaves to celebrate this auspicious occasion.</English>
++		<French>C'est un plaisir de faire votre connaissance, [CT_NAME] ! Sacrifions tous deux cinq mille esclaves pour c&#233;l&#233;brer cette rencontre de bon augure.</French>
++		<German>Ich freue mich, Euch kennen zu lernen, [CT_NAME]! Lasst uns zur Feier dieses denkw&#252;rdigen Augenblicks je f&#252;nfzigtausend Sklaven opfern!</German>
++		<Italian>Piacere di incontrarti, [CT_NAME]! Per festeggiare questo momento propizio, dovremmo massacrare cinquantamila schiavi ciascuno.</Italian>
++		<Spanish>Me alegro mucho de conoceros, [CT_NAME]. Sacrifiquemos cada uno a cincuenta mil esclavos para celebrar esta propicia ocasi&#243;n.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_MOCTEZUMA_1</Tag>
++		<English>Talk to the ceremonial blade, [CT_NAME].</English>
++		<French>Parlez plut&#244;t &#224; ma lame de c&#233;r&#233;monie, [CT_NAME].</French>
++		<German>Ihr k&#246;nnt gern Bekanntschaft mit meiner Klinge machen, [CT_NAME]!</German>
++		<Italian>Perch&#233; non ne discuti con la lama cerimoniale, [CT_NAME]?</Italian>
++		<Spanish>Dec&#237;dselo al cuchillo ceremonial, [CT_NAME].</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MOCTEZUMA_1</Tag>
++		<English>Tell me, [CT_NAME]: what has [CT_CIV_SHORT] done to anger the gods so that they give them you as leader?</English>
++		<French>Dites-moi, [CT_NAME]... Qu'ont bien pu faire les [CT_CIV_SHORT] pour que les dieux soient irrit&#233;s au point de vous nommer &#224; leur t&#234;te ?</French>
++		<German>Sagt mir, [CT_NAME]: Wie konnte [CT_CIV_SHORT] die G&#246;tter nur so erz&#252;rnen, dass sie ihm Euch als Staatsoberhaupt vorgesetzt haben?</German>
++		<Italian>Dimmi, [CT_NAME], cosa ha fatto [CT_CIV_SHORT:2] perch&#233; gli dei si siano adirati a tal punto da fornire loro un leader come te?</Italian>
++		<Spanish>Decidnos, [CT_NAME], &#191;qu&#233; ha hecho [CT_CIV_SHORT] para enojar a los dioses y que os convirtieran en su l&#237;der?</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MOCTEZUMA_1_CORRECTED</Tag>
++		<English>Your weakness is contemptible, [CT_NAME]! Give us what we want or perish!</English>
++		<French>Votre faiblesse est m&#233;prisable, [CT_NAME] ! Donnez-nous ce que nous voulons ou ce sera la mort !</French>
++		<German>Ihr seid uns&#228;glich j&#228;mmerlich und schwach, [CT_NAME]! Gebt uns, was wir verlangen, oder sterbt!</German>
++		<Italian>La tua debolezza &#232; imbarazzante, [CT_NAME]! Dacci ci&#242; che vogliamo o morirai!</Italian>
++		<Spanish>&#161;Vuestra debilidad es despreciable, [CT_NAME]! &#161;Dadnos lo que queremos o pereced!</Spanish>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/BUG_AdvancedCombatOdds_CIV4GameText_advc.xml b/Assets/XML/Text/BUG_AdvancedCombatOdds_advc.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_AdvancedCombatOdds_CIV4GameText_advc.xml
+rename to Assets/XML/Text/BUG_AdvancedCombatOdds_advc.xml
+
+diff --git a/Assets/XML/Text/BUG_Advanced Combat Odds Options.xml b/Assets/XML/Text/BUG_Advanced_Combat_Odds_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_Advanced Combat Odds Options.xml
+rename to Assets/XML/Text/BUG_Advanced_Combat_Odds_Options.xml
+
+diff --git a/Assets/XML/Text/BUG_Advanced Scoreboard Options.xml b/Assets/XML/Text/BUG_Advanced_Scoreboard_Options.xml
+similarity index 99%
+rename from Assets/XML/Text/BUG_Advanced Scoreboard Options.xml
+rename to Assets/XML/Text/BUG_Advanced_Scoreboard_Options.xml
+index f9093edcd..2eb7f10d6 100644
+--- a/Assets/XML/Text/BUG_Advanced Scoreboard Options.xml	
++++ b/Assets/XML/Text/BUG_Advanced_Scoreboard_Options.xml
+@@ -246,7 +246,7 @@
+ 		<Spanish>Activo</Spanish>
+ 	</TEXT-->
+ 	<!-- advc.004: Replacing the above and TXT_KEY_BUG_OPTLABEL_SCORES_GRID in
+-		 BUG Options Screen.xml -->
++		 BUG_Options_Screen.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__ALIGNICONS_TEXT</Tag>
+ 		<English>Enable Tabular Layout</English>
+
+diff --git a/Assets/XML/Text/BUG Advisors Options.xml b/Assets/XML/Text/BUG_Advisors_Options.xml
+similarity index 97%
+rename from Assets/XML/Text/BUG Advisors Options.xml
+rename to Assets/XML/Text/BUG_Advisors_Options.xml
+index f7c5d7090..b90068b61 100644
+--- a/Assets/XML/Text/BUG Advisors Options.xml	
++++ b/Assets/XML/Text/BUG_Advisors_Options.xml
+@@ -138,7 +138,7 @@
+ 		<Spanish>Guerras patrocinadas</Spanish>
+ 	</TEXT>
+ 	<!-- Translations based on TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT in
+-		 BUG Advisors Options.xml -->
++		 BUG_Advisors_Options.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAWARTRADES_HOVER</Tag>
+ 		<English>When checked, the Glance tab shows fist icons to indicate which leaders are currently willing to start a war at your request.</English>
+@@ -158,7 +158,7 @@
+ 		<Spanish>Ciudades</Spanish>
+ 	</TEXT>
+ 	<!-- Translations based on TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT in
+-		 BUG Advisors Options.xml -->
++		 BUG_Advisors_Options.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFACITYTRADES_HOVER</Tag>
+ 		<English>When checked, a tab "Cities" is added to the Foreign Advisor screen, showing which cities the other players are willing to trade.</English>
+
+diff --git a/Assets/XML/Text/BUG_AutoSave Options.xml b/Assets/XML/Text/BUG_AutoSave_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_AutoSave Options.xml
+rename to Assets/XML/Text/BUG_AutoSave_Options.xml
+
+diff --git a/Assets/XML/Text/BUG_Autolog Options.xml b/Assets/XML/Text/BUG_Autolog_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_Autolog Options.xml
+rename to Assets/XML/Text/BUG_Autolog_Options.xml
+
+diff --git a/Assets/XML/Text/BUG_Better Espionage Options.xml b/Assets/XML/Text/BUG_Better_Espionage_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_Better Espionage Options.xml
+rename to Assets/XML/Text/BUG_Better_Espionage_Options.xml
+
+diff --git a/Assets/XML/Text/BUG_CIV4GameText.xml b/Assets/XML/Text/BUG_CIV4GameText.xml
+index 717502290..eebb253cc 100644
+--- a/Assets/XML/Text/BUG_CIV4GameText.xml
++++ b/Assets/XML/Text/BUG_CIV4GameText.xml
+@@ -68,7 +68,7 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_HELP_MISSING_BODY</Tag>
+-		<English>Could not find the file "%s1" in the search paths. See the System tab on the BUG Options screen [ALT + CTRL + O] for details.</English>
++		<English>Could not find the file "%s1" in the search paths. See the System tab on the BUG_Options_Screen [ALT + CTRL + O] for details.</English>
+ 		<French>Impossible de trouver le fichier "%s1" dans les chemins recherch�s. Voir l'onglet System dans l'�cran d'options du BUG Mod [ALT + CTRL + O] pour les d�tails.</French>
+ 		<German>Die Datei "%s1" konnte innerhalb der erkannten Pfade nicht gefunden werden. Details finden Sie im Reiter "System" im Optionsbildschirm der BuG Mod (Tastenkombination [STRG + ALT + O]).</German>
+ 		<Italian>Impossibile trovare il file "%s1" nei percorsi di ricerca. Vedi la tabella 'System' nella Schermata di Opzioni del BUG Mod [ALT + CTRL + O] per maggiori dettagli.</Italian>
+
+diff --git a/Assets/XML/Text/BUG City Screen Options.xml b/Assets/XML/Text/BUG_City_Screen_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG City Screen Options.xml
+rename to Assets/XML/Text/BUG_City_Screen_Options.xml
+
+diff --git a/Assets/XML/Text/BUG Core Options.xml b/Assets/XML/Text/BUG_Core_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG Core Options.xml
+rename to Assets/XML/Text/BUG_Core_Options.xml
+
+diff --git a/Assets/XML/Text/BUG_CIV4GameText_CustDomAdv.xml b/Assets/XML/Text/BUG_CustDomAdv.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_CIV4GameText_CustDomAdv.xml
+rename to Assets/XML/Text/BUG_CustDomAdv.xml
+
+diff --git a/Assets/XML/Text/BUG_CustDomAdv Options.xml b/Assets/XML/Text/BUG_CustDomAdv_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_CustDomAdv Options.xml
+rename to Assets/XML/Text/BUG_CustDomAdv_Options.xml
+
+diff --git a/Assets/XML/Text/BUG_EventSigns Options.xml b/Assets/XML/Text/BUG_EventSigns_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_EventSigns Options.xml
+rename to Assets/XML/Text/BUG_EventSigns_Options.xml
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG_Main_Interface_Options.xml
+similarity index 98%
+rename from Assets/XML/Text/BUG Main Interface Options.xml
+rename to Assets/XML/Text/BUG_Main_Interface_Options.xml
+index b77c33bff..40aaf8807 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG_Main_Interface_Options.xml
+@@ -841,7 +841,7 @@
+ 		<Italian>Airport</Italian>
+ 		<Spanish>Airport</Spanish>
+ 	</TEXT>
+-	<!-- Italian and Spanish copied from 'BULL City Bar Options.xml' -->
++	<!-- Italian and Spanish copied from 'BULL_City_Bar_Options.xml' -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__AIRPORTICON_HOVER</Tag>
+ 		<English>When checked, the [ICON_AIRPORT] icon is shown above the billboard of cities that have an airport.</English>
+
+diff --git a/Assets/XML/Text/BUG_MoreCiv4lerts Options.xml b/Assets/XML/Text/BUG_MoreCiv4lerts_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_MoreCiv4lerts Options.xml
+rename to Assets/XML/Text/BUG_MoreCiv4lerts_Options.xml
+
+diff --git a/Assets/XML/Text/BUG_Not Just Another Game Clock Options.xml b/Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml
+similarity index 99%
+rename from Assets/XML/Text/BUG_Not Just Another Game Clock Options.xml
+rename to Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml
+index 61e79268e..7bde488f6 100644
+--- a/Assets/XML/Text/BUG_Not Just Another Game Clock Options.xml	
++++ b/Assets/XML/Text/BUG_Not_Just_Another_Game_Clock_Options.xml
+@@ -378,7 +378,7 @@
+ 		<Spanish>Reloj Alternativo</Spanish>
+ 	</TEXT-->
+ 	<!-- advc.067: Merging the above with TXT_KEY_BUG_OPTLABEL_NJAGC_ALTERNATE
+-		 in 'BUG Options Screen.xml' -->
++		 in 'BUG_Options_Screen.xml' -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_NJAGC__ALTERNATETEXT_TEXT</Tag>
+ 		<English>Alternate View</English>
+
+diff --git a/Assets/XML/Text/BUG Options Screen.xml b/Assets/XML/Text/BUG_Options_Screen.xml
+similarity index 99%
+rename from Assets/XML/Text/BUG Options Screen.xml
+rename to Assets/XML/Text/BUG_Options_Screen.xml
+index a64fe931e..c5f2121fb 100644
+--- a/Assets/XML/Text/BUG Options Screen.xml	
++++ b/Assets/XML/Text/BUG_Options_Screen.xml
+@@ -42,7 +42,7 @@
+ 		<Spanish>Abre la ayuda de BUG Mod. Tambi�n puedes pulsar [ALT + CTRL + F1] desde la pantalla principal.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.004: was "BUG Options screen" -->
++	<!-- advc.004: was "BUG_Options_Screen" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTBUTTON_EXIT_HOVER</Tag>
+ 		<English>Closes the BUG menu</English>
+
+diff --git a/Assets/XML/Text/BUG_Plot List Enhancements Options.xml b/Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_Plot List Enhancements Options.xml
+rename to Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml
+
+diff --git a/Assets/XML/Text/BUG_Reminder Options.xml b/Assets/XML/Text/BUG_Reminder_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_Reminder Options.xml
+rename to Assets/XML/Text/BUG_Reminder_Options.xml
+
+diff --git a/Assets/XML/Text/BUG_CIV4GameText_StrategyOverlay.xml b/Assets/XML/Text/BUG_StrategyOverlay.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_CIV4GameText_StrategyOverlay.xml
+rename to Assets/XML/Text/BUG_StrategyOverlay.xml
+
+diff --git a/Assets/XML/Text/BUG_Strategy Overlay Options.xml b/Assets/XML/Text/BUG_Strategy_Overlay_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_Strategy Overlay Options.xml
+rename to Assets/XML/Text/BUG_Strategy_Overlay_Options.xml
+
+diff --git a/Assets/XML/Text/BUG_TechWindow Options.xml b/Assets/XML/Text/BUG_TechWindow_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_TechWindow Options.xml
+rename to Assets/XML/Text/BUG_TechWindow_Options.xml
+
+diff --git a/Assets/XML/Text/BUG_Unit Naming.xml b/Assets/XML/Text/BUG_Unit_Naming.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_Unit Naming.xml
+rename to Assets/XML/Text/BUG_Unit_Naming.xml
+
+diff --git a/Assets/XML/Text/BUG_Unit Naming Options.xml b/Assets/XML/Text/BUG_Unit_Naming_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BUG_Unit Naming Options.xml
+rename to Assets/XML/Text/BUG_Unit_Naming_Options.xml
+
+diff --git a/Assets/XML/Text/BULL Actions Options.xml b/Assets/XML/Text/BULL_Actions_Options.xml
+similarity index 100%
+rename from Assets/XML/Text/BULL Actions Options.xml
+rename to Assets/XML/Text/BULL_Actions_Options.xml
+
+diff --git a/Assets/XML/Text/BULL City Bar Options.xml b/Assets/XML/Text/BULL_City_Bar_Options.xml
+similarity index 98%
+rename from Assets/XML/Text/BULL City Bar Options.xml
+rename to Assets/XML/Text/BULL_City_Bar_Options.xml
+index cc30f5da5..ab0e5b78c 100644
+--- a/Assets/XML/Text/BULL City Bar Options.xml	
++++ b/Assets/XML/Text/BULL_City_Bar_Options.xml
+@@ -7,7 +7,7 @@
+ -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+ 
+-	<!-- advc.002f: Replaced by text in BUG Main Interface Options.xml -->
++	<!-- advc.002f: Replaced by text in BUG_Main_Interface_Options.xml -->
+ 	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #99 -->
+ 
+ 	<!-- advc.186: Not making these optional -->
+
+diff --git a/Assets/XML/Text/BULL Misc Hovers Options.xml b/Assets/XML/Text/BULL_Misc_Hovers_Options.xml
+similarity index 98%
+rename from Assets/XML/Text/BULL Misc Hovers Options.xml
+rename to Assets/XML/Text/BULL_Misc_Hovers_Options.xml
+index 238904dba..f832d83c9 100644
+--- a/Assets/XML/Text/BULL Misc Hovers Options.xml	
++++ b/Assets/XML/Text/BULL_Misc_Hovers_Options.xml
+@@ -346,7 +346,7 @@
+ 		<Italian>Includi corrente</Italian>
+ 		<Spanish>Incluir Actual</Spanish>
+ 	</TEXT>
+-	<!-- advc.064: Moved from 'BUG City Screen Options.xml'; no change. I don't
++	<!-- advc.064: Moved from 'BUG_City_Screen_Options.xml'; no change. I don't
+ 		 think duplicate text can be avoided when two BUG options are supposed to
+ 		have the same _TEXT or _HOVER. -->
+ 	<TEXT>
+@@ -367,7 +367,7 @@
+ 		<Spanish>Incluye el [ICON_PRODUCTION] actual al calcular excedentes de sacrificio. Como usar sacrificio afecta a la producci�n, el resultado final puede ser diferente.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.064: Moved from 'BUG City Screen Options.xml'. Now says the exact
++	<!-- advc.064: Moved from 'BUG_City_Screen_Options.xml'. Now says the exact
+ 		 same thing as HURRYOVERFLOWINCLUDECURRENT above b/c it's the same
+ 		 functionality (even using the same C++ code now). -->
+ 	<TEXT>
+@@ -378,7 +378,7 @@
+ 		<Spanish>Incluye el [ICON_PRODUCTION] actual al calcular excedentes de sacrificio. Como usar sacrificio afecta a la producci�n, el resultado final puede ser diferente.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.064: Moved from 'BUG City Screen Options.xml'; German shortened.
++	<!-- advc.064: Moved from 'BUG_City_Screen_Options.xml'; German shortened.
+ 		 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__WHIPASSIST_TEXT</Tag>
+@@ -388,7 +388,7 @@
+ 		<Spanish>Barra de Producci�n</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.064: Moved from 'BUG City Screen Options.xml' and made some changes.
++	<!-- advc.064: Moved from 'BUG_City_Screen_Options.xml' and made some changes.
+ 		 advc.186: Also affects city bars now. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__WHIPASSIST_HOVER</Tag>
+@@ -399,7 +399,7 @@
+ 	</TEXT>
+ 	
+ 	<!-- advc.064: New option. Same label as TXT_KEY_BUG_OPT_MAININTERFACE__
+-		 PROGRESSBARSTICKMARKS_TEXT (BUG Main Interface Options.xml), but
++		 PROGRESSBARSTICKMARKS_TEXT (BUG_Main_Interface_Options.xml), but
+ 		 the IT, SP translations are no help here; too long. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__HURRYTICKMARKS_TEXT</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index cea38618a..ed1b2a8f0 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -844,7 +844,7 @@
+ 	 translations. K-Mod removed all but one of the BUG hints. Many of them are
+ 	 aimed at beginners, others are already covered by my own hints; so this is
+ 	 the only one that I want to include (in addition to the one in
+-	 'K-Mod hints.xml'). -->
++	 'K-Mod_hints.xml'). -->
+ <TEXT>
+ 	<Tag>TXT_KEY_BUG_HINT_INTERFACE_4</Tag>
+ 	<English>To cancel the missions of all your Workers, select one of them and click the [COLOR_HIGHLIGHT_TEXT]Cancel Mission[COLOR_REVERT] button while holding down the [ALT] key.</English>
+
+diff --git a/Assets/XML/Text/K-Mod hints.xml b/Assets/XML/Text/K-Mod_hints.xml
+similarity index 98%
+rename from Assets/XML/Text/K-Mod hints.xml
+rename to Assets/XML/Text/K-Mod_hints.xml
+index 46201a6dc..d06838d68 100644
+--- a/Assets/XML/Text/K-Mod hints.xml	
++++ b/Assets/XML/Text/K-Mod_hints.xml
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="ISO-8859-1"?>
+-<!-- K-Mod hints -->
++<!-- K-Mod_hints -->
+ 	<!-- Style guidelines (from CIV4GameText_Strategy.xml): -->
+ 	<!-- Technologies should be colored COLOR_TECH_TEXT (example: [COLOR_TECH_TEXT]Bronze Working[COLOR_REVERT]) -->
+ 	<!-- Unit should be colored COLOR_UNIT_TEXT (example: [COLOR_UNIT_TEXT]Archers[COLOR_REVERT]) -->
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 2d55e054c..03f9f201f 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -434,7 +434,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ <!-- custom: �??︝ emoji ('s choice/idea/suggestion) is from chatgpt's code
+     then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example, there are also several images to choose from in the website as well for example, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt as well), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt hehe (see authors as well similarly as for claude ai) for details, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe if i may say -->
+ 
+-===== .\Assets\XML\Text\BUG City Screen Options.xml =====
++===== .\Assets\XML\Text\BUG_City_Screen_Options.xml =====
+ ----- Comment #32 -----
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVER_TEXT</Tag>
+@@ -479,7 +479,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Spanish>Selecciona el n�mero de turnos a esperar antes de mostrar informaci�n de decaimiento.</Spanish>
+ 	</TEXT-->
+ 
+-===== .\Assets\XML\Text\BUG Main Interface Options.xml =====
++===== .\Assets\XML\Text\BUG_Main_Interface_Options.xml =====
+ ----- Comment #33 -----
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__OPTIONSKEY_TEXT</Tag>
+@@ -572,7 +572,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<German>Zeigt das [ICON_HEALTHY]-Symbol �ber den Namen von St�dten an, deren Bev�lkerung keine [ICON_UNHEALTHY]-Punkte generiert.</German>
+ 	</TEXT-->
+ 
+-===== .\Assets\XML\Text\BUG Options Screen.xml =====
++===== .\Assets\XML\Text\BUG_Options_Screen.xml =====
+ ----- Comment #36 -----
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_BUILDS</Tag>
+@@ -623,7 +623,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Spanish>Comercio:</Spanish>
+ 	</TEXT-->
+ 
+-===== .\Assets\XML\Text\BUG_Advanced Scoreboard Options.xml =====
++===== .\Assets\XML\Text\BUG_Advanced_Scoreboard_Options.xml =====
+ ----- Comment #37 -----
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__WHEOOH_TEXT</Tag>
+@@ -694,7 +694,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Spanish>Muestra un aviso cuando una ciudad sea pacificada, terminando con la ocupaci�n.</Spanish>
+ 	</TEXT-->
+ 
+-===== .\Assets\XML\Text\BUG_MoreCiv4lerts Options.xml =====
++===== .\Assets\XML\Text\BUG_MoreCiv4lerts_Options.xml =====
+ ----- Comment #40 -----
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__CITYFOUNDED_TEXT</Tag>
+@@ -791,7 +791,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Spanish>L�mite de territorio para una victoria por Dominaci�n.</Spanish>
+ 	</TEXT-->
+ 
+-===== .\Assets\XML\Text\BUG_Not Just Another Game Clock Options.xml =====
++===== .\Assets\XML\Text\BUG_Not_Just_Another_Game_Clock_Options.xml =====
+ ----- Comment #42 -----
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWCOMPLETEDPERCENT_TEXT</Tag>
+@@ -826,7 +826,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Spanish>Muestra el porcentaje de turnos completado si la condici�n de Victoria por Tiempo est� habilitada</Spanish>
+ 	</TEXT-->
+ 
+-===== .\Assets\XML\Text\BUG_Plot List Enhancements Options.xml =====
++===== .\Assets\XML\Text\BUG_Plot_List_Enhancements_Options.xml =====
+ ----- Comment #43 -----
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__DRAW_METHOD_LIST</Tag>
+@@ -971,7 +971,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Spanish>Especifica el espaciado vertical de los iconos de promoci�n en el texto flotante del panel de informaci�n de unidades (el valor por defecto es cero, valores positivos hacia arriba). Es necesario modificar este valor al usar temas que modifican la fuente. Por ejemplo, hay que usar 6 con BlueMarble.</Spanish>
+ 	</TEXT!-->
+ 
+-===== .\Assets\XML\Text\BULL Actions Options.xml =====
++===== .\Assets\XML\Text\BULL_Actions_Options.xml =====
+ ----- Comment #47 -----
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ACTIONS__ASKDECLAREWARUNITS_TEXT</Tag>
+@@ -1048,7 +1048,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Spanish>Si se activa, los Trabajadores a los que se les ordene construir una mejora que resulte en el talado de un bosque se detendr�n cuando les quede un turno para terminar. Si se realiza la orden de nuevo terminar�n la mejora.</Spanish>
+ 	</TEXT-->
+ 
+-===== .\Assets\XML\Text\BULL City Bar Options.xml =====
++===== .\Assets\XML\Text\BULL_City_Bar_Options.xml =====
+ ----- Comment #50 -----
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HEALTH_TEXT</Tag>
+@@ -1272,7 +1272,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Spanish>Si se activa, muestra el n�mero de turnos restantes para que en la ciudad nazca una gran personaje ([ICON_GREATPEOPLE]).</Spanish>
+ 	</TEXT-->
+ 
+-===== .\Assets\XML\Text\BULL Misc Hovers Options.xml =====
++===== .\Assets\XML\Text\BULL_Misc_Hovers_Options.xml =====
+ ----- Comment #57 -----
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADHIDDENATTITUDE_TEXT</Tag>
+@@ -2144,7 +2144,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Contar Todas[COLOR_REVERT][NEWLINE]Cuenta todas las casillas en el radio de la ciudad sin importar su propietario.</Spanish>
+ 	</TEXT-->
+ 
+-===== .\\Assets/XML/Text/BULL Actions Options.xml =====
++===== .\\Assets/XML/Text/BULL_Actions_Options.xml =====
+ ----- Comment #98 -----
+ 
+ 	<!-- advc.004l: Unlikely to be merged -->
+@@ -2163,7 +2163,7 @@ now fixed, at least game starts normally, be careful of too long (in line or cha
+ 		<Spanish>Si se activa, las unidades b�rbaras adyacentes a tu territorio no provocar�n una advertencia si no pueden entrar.</Spanish>
+ 	</TEXT-->
+ 
+-===== .\\Assets/XML/Text/BULL City Bar Options.xml =====
++===== .\\Assets/XML/Text/BULL_City_Bar_Options.xml =====
+ ----- Comment #99 -----
+ 
+ 	<!--TEXT>
+@@ -2728,7 +2728,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
+ </TEXT>
+ -->
+ 
+-===== .\\Assets/XML/Text/BUG_Plot List Enhancements Options.xml =====
++===== .\\Assets/XML/Text/BUG_Plot_List_Enhancements_Options.xml =====
+ ----- Comment #141 -----
+ 
+ 	<!-- advc.069: unused -->
+@@ -2749,7 +2749,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
+ 		<Spanish>Activa las mejoras a la lista de unidades y el resto de opciones de esta pesta�a.</Spanish>
+ 	</TEXT-->
+ 
+-===== .\\Assets/XML/Text/BUG_Strategy Overlay Options.xml =====
++===== .\\Assets/XML/Text/BUG_Strategy_Overlay_Options.xml =====
+ ----- Comment #142 -----
+ 
+ 	<!-- advc.004: Now unused -->
+@@ -2768,7 +2768,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
+ 		<Spanish>Muestra los puntos de ciudad planeada en el mapa normal.</Spanish>
+ 	</TEXT-->
+ 
+-===== .\\Assets/XML/Text/BUG_Strategy Overlay Options.xml =====
++===== .\\Assets/XML/Text/BUG_Strategy_Overlay_Options.xml =====
+ ----- Comment #143 -----
+ 
+ 	<!-- advc.004: unused -->
+@@ -2780,7 +2780,7 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
+ 		<Spanish>N�mero del icono a colocar en el centro de los bordes de las ciudades planeadas.</Spanish>
+ 	</TEXT-->
+ 
+-===== .\\Assets/XML/Text/BULL City Bar Options.xml =====
++===== .\\Assets/XML/Text/BULL_City_Bar_Options.xml =====
+ ----- Comment #144 -----
+ 
+ 	<!-- Handled by advc.101; non-optional. -->
+
+diff --git a/README.md b/README.md
+index 25dd45468..f09b20a40 100644
+--- a/README.md
++++ b/README.md
+@@ -308,8 +308,6 @@ Added new concepts, as of now:
+ - concept_fresh_water (with a link to it added in concept_irrigation (even though lost translation xd now (i removed it (i.e. now only has english translation for all languages))))
+ - concept_global_warming
+ - concept_rivers
+-- concept_route_road
+-- concept_route_railroad
+ - concept_scoring_system
+ 
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (1).JPG" alt="0.800_sevopedia_conceptinfos (1).JPG" width="250"></img>
+
+diff --git a/_0_Common_Docs/BUG_Doc/BUG Changelog.txt b/_0_Common_Docs/BUG_Doc/BUG Changelog.txt
+index 5b4b9fd6f..e9eaae58f 100644
+--- a/_0_Common_Docs/BUG_Doc/BUG Changelog.txt	
++++ b/_0_Common_Docs/BUG_Doc/BUG Changelog.txt	
+@@ -132,7 +132,7 @@ New Features:
+ 
+ - Main Interface
+ 	Can choose from three sizes for the build/action buttons
+-	Added a button to bring up the BUG Options Screen (top left)
++	Added a button to bring up the BUG_Options_Screen (top left)
+ - Espionage Advisor
+ 	New layout shows EPs spent against you and icons for passive missions
+ 	Can swap cities and missions lists to see cost in each city for a single mission
+@@ -558,7 +558,7 @@ Improvements:
+ - Raw Yields: Split up Trade Routes total into Domestic, Foreign, and Overseas (foreign only) Trade
+ - Sevopedia: Resource pages show all buildings they affect in the Buildings list--not just the buildings that supply the resource
+ - Great General Progress Bar: Replaced "General" with icon
+-- BUG options screen: Improved hover texts that include multiple options and redesigned General tab
++- BUG_Options_Screen: Improved hover texts that include multiple options and redesigned General tab
+ - Updated German and Italian translations
+ - Added CvAltRoot for use with Civ4's /AltRoot command-line feature
+ - F9 / Charts now includes a 3-in-1 feature that displays 3 user selected charts
+@@ -602,7 +602,7 @@ New Features:
+ - CvMainInterface.updateScreen() fires gameUpdate event (not fired by Civ4)
+ - Added <shortcut> tag to XML configuration to create keyboard shortcuts
+ - Added module attribute to <mod> element that is used as default for module attributes in all child elements
+-- Added horizontal and vertical sliders to BUG Options Screen (see BugOptionsTab)
++- Added horizontal and vertical sliders to BUG_Options_Screen (see BugOptionsTab)
+ 
+ Bug Fixes:
+
+diff --git a/_0_Common_Docs/K-Mod_Doc/K-Mod 1.46 changelog.txt b/_0_Common_Docs/K-Mod_Doc/K-Mod 1.46 changelog.txt
+index b85665370..62f38477e 100644
+--- a/_0_Common_Docs/K-Mod_Doc/K-Mod 1.46 changelog.txt	
++++ b/_0_Common_Docs/K-Mod_Doc/K-Mod 1.46 changelog.txt	
+@@ -527,7 +527,7 @@ Game
+ UI
+ 
+ + Implemented unit cycling suppression with the X key. ie. If you hold X while issuing an order, the unit will remain selected even when it has no moves left.
+-+ Added a new option to the BUG options screen: Simple [Shift] Unit Selection. With this option enabled, the selection with the shift key will behave in a more rigid and predictable way.
+++ Added a new option to the BUG_Options_Screen: Simple [Shift] Unit Selection. With this option enabled, the selection with the shift key will behave in a more rigid and predictable way.
+ + Fixed several bugs and inconsistencies in the default selection rules when using the shift key.
+ + Units deselected with shift key will now be ungrouped. (Previously, units would be added the the group when selected, but not removed from the group when deselected.)
+ + Previously when selecting units with either ctrl or alt, units with no remaining moves would be excluded from the selection. This has been changed so that if the player explicitly clicks on a unit with no moves (while holding ctrl or alt) then the selection will include all units regardless of their moves.
+@@ -878,7 +878,7 @@ Game
+ + When a peace deal is signed, units are now only bumped after the trade is completed. This fixes several problems, for example, if the peace deal involves a city gift, the new owner of the city will not have their units bumped out of that city.
+ + When a civ capitulates, the vassal's units will now be bumped out of the master's land. (Previously they were not bumped until the following turn.)
+ + When a plot's best-build is an improvement that connects the bonus, other builds which connect the bonus will no longer be marked as recommended.
+-+ Added a button for accessing the BUG Options screen in the in-game main menu, and in the non-BUG options screen (only when in-game).
+++ Added a button for accessing the BUG_Options_Screen in the in-game main menu, and in the non-BUG_Options_Screen (only when in-game).
+ + Added some loading-screen tips.
+ 
+ 
+@@ -1047,7 +1047,7 @@ v1.18 changelist
+ 
+ + The choose production popup screen will now be postponed if the city is in disorder.
+ + Fixed a problem which prevented the end-of-turn message from displaying when the player has all their units automated.
+-+ Rearranged the the layout of the BUG City Screen options tab so that it fits neatly on one page.
+++ Rearranged the the layout of the BUG_City_Screen_Options tab so that it fits neatly on one page.
+ + Happiness and healthiness bonuses from events are now included in mouse-over text for buildings. (The bonuses are included in the total. They do not have their own description.)
+ + Implemented "actual building effect" mouse-over hover options from BUG.
+ + Fixed an original BtS problem which prevented units from executing chained commands when standing near hostile units. (ie. issuing commands while holding shift did not work. It does now.)
+
+[PATCH OMITTED] file=a/_0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt b/_0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt reason=known-generated/noisy-history changedLines=4 bytes=1283
+
+[PATCH OMITTED] file=a/_0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt b/_0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt reason=known-generated/noisy-history changedLines=2 bytes=892
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index fad6142ec..48dab332c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -299,7 +299,7 @@ Note: New panels added or modified mostly not mentionned here for concision. See
+ - (Requires AdvCiv-SAS 5333+) Sevopedia — Techs: Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. Also **beautified** with a new **Enables** panel enriched with **more information** (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and a **new First to Discover** panel (Founds Religion, Receives a Great Person, Receives a Free Tech). See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+ - (Requires AdvCiv-SAS 5331+) Sevopedia — Specialists: new **Extra Slots** (showing slot, free slots, unlimited specialists) and **Extra Yields** panel showing detailed yield information per asset for each specialist.
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+-- Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
++- Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — e.g. `concept_rivers`, `concept_global_warming`, `concept_customization`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse. See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+ - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context. See [README: Sevopedia_reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
+ 
+ ### General changes
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG
+index 6efd4c15c..d73956cad 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG
+index 3e42c3765..072bcb040 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG
+index 025c0a07d..afa93e6f1 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.720_sevopedia_improvements (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (1).JPG
+index 039230b3d..a490cbbf6 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (2).JPG
+index 97bfd2d31..fd0f447fc 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.800_sevopedia_conceptinfos (2).JPG differ
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt reason=known-generated/noisy-history changedLines=4 bytes=3458
+
+[PATCH COVERAGE]
+patchFiles=58 embeddedFiles=55 omittedFiles=3 embeddedPatchBytes=57950

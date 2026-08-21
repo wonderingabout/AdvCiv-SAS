@@ -1,0 +1,64 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2659
+# Commit: d3d97c0530a96cd4c089c118841657b15b79d4fa
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b0a96bf951e28428edb67683e5476e53594ed056
+# Title: Move autosave to the start of the game turn in HotSeat
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 11e04c274..32ac37aae 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4901,8 +4901,10 @@ bool CvGame::canDoResolution(VoteSourceTypes eVoteSource, const VoteSelectionSub
+ 			if(kVote.isForceWar())
+ 			{
+ 				if(GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource) &&
+-						!kPlayer.canDoResolution(eVoteSource, kData))
++					!kPlayer.canDoResolution(eVoteSource, kData))
++				{
+ 					return false;
++				}
+ 			}
+ 			else // </kekm.25/advc>
+ 			if (!kPlayer.canDoResolution(eVoteSource, kData))
+@@ -6547,7 +6549,7 @@ void CvGame::doTurn()
+ 
+ 	stopProfilingDLL(true);
+ 	// <advc.044>
+-	if (isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
++	if (isMPOption(MPOPTION_SIMULTANEOUS_TURNS) || isHotSeat())
+ 		autoSave();
+ 	else
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 055b68907..31c19e3b7 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -8812,7 +8812,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 			}
+ 			// <advc.044>
+ 			if ((isHuman() || isHumanDisabled()) &&
+-				!kGame.isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
++				!kGame.isMPOption(MPOPTION_SIMULTANEOUS_TURNS) && !kGame.isHotSeat())
+ 			{
+ 				// <advc.700>
+ 				if(kGame.isOption(GAMEOPTION_RISE_FALL))
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1328

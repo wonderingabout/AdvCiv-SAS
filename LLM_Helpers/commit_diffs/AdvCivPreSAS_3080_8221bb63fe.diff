@@ -1,0 +1,209 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3080
+# Commit: 8221bb63fee155a3a9243aa87c89566dfd89c4af
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5d2cafbcfaf3943bfcabe0d6f3f82b09c10e6c75
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvPlot.cpp
+0	21	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeam.h
+6	3	CvGameCoreDLL/CvTeamAI.h
+4	3	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CyTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 872d126b1..2257245e7 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -774,11 +774,11 @@ void CvCity::updateSelectedCity(bool bTestProduction)
+ 	}
+ }
+ 
+-// <advc.103>
++// advc.103:
+ void CvCity::setInvestigate(bool b)
+ {
+ 	m_bInvestigate = b;
+-} // </advc.103>
++}
+ 
+ 
+ void CvCity::updateYield()
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 1b5f7cf75..21bb2f6da 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6088,6 +6088,7 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
+ 	// SDI
+ 	if (kProject.getNukeInterception() > 0)
+ 	{
++		//iValue += (GC.getInfo(eProject).getNukeInterception() / 10);
+ 		/*	we're going to cheat a little bit
+ 			by counting nukes that we probably shouldn't know about */
+ 		int iForeignNukes = 0;
+@@ -6113,7 +6114,6 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
+ 					2 + GC.getGame().getNukesExploded() / (2 + iTeamsMet));
+ 			iValue += kProject.getNukeInterception() * iEstimatedNukeAttacks * iTargetValue / 100;
+ 		}
+-		//iValue += (GC.getInfo(eProject).getNukeInterception() / 10);
+ 	}
+ 	// Manhattan project
+ 	if (kProject.isAllowsNukes() && !GC.getGame().isNoNukes())
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 346d08ceb..b65236fe9 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -737,7 +737,7 @@ void CvPlot::verifyUnitValidPlot()
+ 	} // K-Mod end
+ }
+ 
+-/*  K-Mod, 2/jan/11, karadoc
++/*  K-Mod, 2/jan/11, karadoc:
+ 	forceBumpUnits() forces all units off the plot, onto a nearby plot */
+ void CvPlot::forceBumpUnits()
+ {
+@@ -766,7 +766,7 @@ void CvPlot::forceBumpUnits()
+ 			it = apUnits.erase(it);
+ 		else ++it;
+ 	}
+-} // K-Mod end
++}
+ 
+ /*	K-Mod. Added bBomb argument.
+ 	bBomb signals that the explosion should damage units, buildings, and city population.
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index c43f17eb0..ce2a846a1 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2043,27 +2043,6 @@ int CvTeam::countNumAIUnitsByArea(CvArea const& kArea, UnitAITypes eUnitAI) cons
+ 	return iCount;
+ }
+ 
+-// BETTER_BTS_AI_MOD, War strategy AI, 05/19/10, jdog5000:
+-int CvTeam::countEnemyDangerByArea(CvArea const& kArea, TeamTypes eEnemyTeam) const
+-{
+-	PROFILE_FUNC();
+-
+-	int iCount = 0;
+-	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+-	{
+-		CvPlot const& kPlot = GC.getMap().getPlotByIndex(iI);
+-		if (kPlot.isArea(kArea))
+-		{
+-			if (kPlot.getTeam() == getID())
+-			{
+-				iCount += kPlot.plotCount(PUF_canDefendEnemy, getLeaderID(),
+-						false, NO_PLAYER, eEnemyTeam, PUF_isVisible, getLeaderID());
+-			}
+-		}
+-	}
+-	return iCount;
+-}
+-
+ /*	advc.112b: (Akin to CvGame::getCurrentEra;
+ 	in part duplicated in CvTeamAI::AI_getCurrEraFactor) */
+ EraTypes CvTeam::getCurrentEra() const
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index bae5491f1..b24812bd0 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -124,7 +124,7 @@ public:
+ 	int countTotalPopulationByArea(CvArea const& kArea) const;																// Exposed to Python
+ 	int countPowerByArea(CvArea const& kArea) const;																					// Exposed to Python
+ 	int countNumAIUnitsByArea(CvArea const& kArea, UnitAITypes eUnitAI) const;								// Exposed to Python
+-	int countEnemyDangerByArea(CvArea const& kArea, TeamTypes eEnemyTeam = NO_TEAM) const;																		// Exposed to Python
++	// (advc: countEnemyDangerByArea moved to CvTeamAI)
+ 	EraTypes getCurrentEra() const; // advc.112b
+ 	// K-Mod:
+ 	int getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain = NO_DOMAIN) const;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 93fcfe19f..6a0a9146c 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -238,9 +238,10 @@ public:
+ 	void AI_setEnemyPeacetimeGrantValue(TeamTypes eIndex, int iNewValue);
+ 	void AI_changeEnemyPeacetimeGrantValue(TeamTypes eIndex, int iChange);
+ 
+-	// <advc.003u> Moved from CvTeam b/c these functions count wars in preparation
+-	int AI_countEnemyPowerByArea(CvArea const& kArea) const;																			// Exposed to Python
++	// advc: countEnemy... functions moved from CvTeam
++	int AI_countEnemyPowerByArea(CvArea const& kArea) const;												// Exposed to Python
+ 	int AI_countEnemyCitiesByArea(CvArea const& kArea) const; // K-Mod
++	int AI_countEnemyDangerByArea(CvArea const& kArea, TeamTypes eEnemyTeam = NO_TEAM) const; // bbai		// Exposed to Python
+ 	int AI_countEnemyPopulationByArea(CvArea const& kArea) const; // bbai (advc: unused)
+ 	inline WarPlanTypes AI_getWarPlan(TeamTypes eIndex) const // advc.inl
+ 	{
+@@ -309,7 +310,6 @@ public:
+ 
+ protected:
+ 	TeamTypes m_eWorstEnemy;
+-	std::map<ReligionTypes,int> m_religionKnownSince; // advc.130n
+ 	/*  <advc.enum> (Tbd.: Should be CivTeamMap so that Barbarians are excluded;
+ 		the counters should be CivTeamMap<short>.) */
+ 	EnumMap<TeamTypes,int> m_aiWarPlanStateCounter;
+@@ -325,6 +325,9 @@ protected:
+ 	EnumMap<TeamTypes,int> m_aiEnemyPeacetimeGrantValue;
+ 	EnumMap<WarPlanTypes,int> m_aiWarPlanCounts; // advc.opt
+ 	EnumMap<TeamTypes,WarPlanTypes> m_aeWarPlan;
++	/*	Tbd.: Should be EnumMap<ReligionTypes,short> - or rather:
++		remove this whole ill-conceived (by me) mechanism. */
++	std::map<ReligionTypes,int> m_religionKnownSince; // advc.130n
+ 	// </advc.enum>
+ 	bool m_bAnyWarPlan; // advc.opt
+ 	bool m_bLonely; // advc.109
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 556feb193..e112cb1df 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -700,9 +700,10 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ 			(iOurFirepower + iStrengthFactor)) /
+ 			(iTheirFirepower + iStrengthFactor));
+ 	int iHitLimitThem = pDefender->maxHitPoints() - combatLimit();
+-	int iNeededRoundsUs = (std::max(0, pDefender->currHitPoints() - iHitLimitThem) +
+-			iDamageToThem - 1) / iDamageToThem;
+-	int iNeededRoundsThem = (std::max(0, currHitPoints()) + iDamageToUs - 1) / iDamageToUs;
++	int iNeededRoundsUs = intdiv::uceil(
++			std::max(0, pDefender->currHitPoints() - iHitLimitThem), iDamageToThem);
++	int iNeededRoundsThem = intdiv::uceil(
++			std::max(0, currHitPoints()), iDamageToUs);
+ 
+ 	if (getDomainType() != DOMAIN_AIR)
+ 	{
+
+diff --git a/CvGameCoreDLL/CyTeam.cpp b/CvGameCoreDLL/CyTeam.cpp
+index c011a3ef6..99448bba5 100644
+--- a/CvGameCoreDLL/CyTeam.cpp
++++ b/CvGameCoreDLL/CyTeam.cpp
+@@ -213,7 +213,7 @@ int CyTeam::countNumAIUnitsByArea(CyArea* pArea, int /*UnitAITypes*/ eUnitAI)
+ 
+ int CyTeam::countEnemyDangerByArea(CyArea* pArea)
+ {
+-	return m_pTeam ? m_pTeam->countEnemyDangerByArea(pArea->getArea()) : -1;
++	return m_pTeam ? m_pTeam->AI_countEnemyDangerByArea(pArea->getArea()) : -1;
+ }
+ 
+ int CyTeam::getResearchCost(int /*TechTypes*/ eTech)
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=6911

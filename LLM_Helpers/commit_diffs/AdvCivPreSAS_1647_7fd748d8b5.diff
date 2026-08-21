@@ -1,0 +1,84 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1647
+# Commit: 7fd748d8b5e9291d7db66a6b5dbb34c29810f320
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 871585f8e80f9d098f601dcc257a39a911a24df7
+# Title: Bugfix: Automated explorers weren't healing
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.h
+1	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+1	1	CvGameCoreDLL/CvSelectionGroupAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 9b1c75d1c..b9a2d37cb 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3751,8 +3751,8 @@ bool CvSelectionGroup::canDoMission(int iMission, int iData1, int iData2,
+ 			}
+ 		case MISSION_HEAL:
+ 			if (pLoopUnit->canHeal(pPlot)
+-					// advc.004l: isHuman check only for performance
+-					&& (!pLoopUnit->isHuman() || !pLoopUnit->canSentryHeal(pPlot)))
++					// advc.004l: AI control check only for performance
++					&& (AI_isControlled() || !pLoopUnit->canSentryHeal(pPlot)))
+ 				return true;
+ 			break;
+ 		// <advc.004l> Make the two heal missions mutually exclusive (for humans)
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 17099f2e0..f5c7ef27d 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -237,7 +237,7 @@ public:
+ 	virtual void AI_cancelGroupAttack() = 0;
+ 	virtual bool AI_isGroupAttack() const = 0; // K-Mod made const
+ 
+-	virtual bool AI_isControlled() = 0;
++	virtual bool AI_isControlled() /* advc.003: */ const = 0;
+ 	virtual bool AI_isDeclareWar(const CvPlot* pPlot = NULL) const = 0;
+ 	virtual CvPlot* AI_getMissionAIPlot() const = 0;
+ 	virtual bool AI_isForceSeparate() = 0;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index b54300971..1b80a2bdf 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -628,7 +628,7 @@ void CvSelectionGroupAI::AI_queueGroupAttack(int iX, int iY)
+ 	m_iGroupAttackY = iY;
+ }
+ 
+-bool CvSelectionGroupAI::AI_isControlled()
++bool CvSelectionGroupAI::AI_isControlled() const
+ {
+ 	return (!isHuman() || isAutomated());
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.h b/CvGameCoreDLL/CvSelectionGroupAI.h
+index ad417a08d..d0ebc536b 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.h
++++ b/CvGameCoreDLL/CvSelectionGroupAI.h
+@@ -50,7 +50,7 @@ public:
+ 	inline void AI_cancelGroupAttack() { m_bGroupAttack = false; } // K-Mod (made inline)
+ 	inline bool AI_isGroupAttack() const { return m_bGroupAttack; } // K-Mod (made inline)
+ 
+-	bool AI_isControlled();
++	bool AI_isControlled() const;
+ 	bool AI_isDeclareWar(const CvPlot* pPlot = NULL) const;
+ 
+ 	CvPlot* AI_getMissionAIPlot() const;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=2323

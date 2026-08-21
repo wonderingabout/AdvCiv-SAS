@@ -1,0 +1,72 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3865
+# Commit: 15585f3066549d33052dca35506253bbfeab56c0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fd51b29b66aaa8cc43efe8444cf2bad17630ce4f
+# Title: Let CvGlobals::get...Info functions accept int param
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	6	CvGameCoreDLL/CvEnumMacros.h
+2	2	CvGameCoreDLL/CvGlobals.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEnumMacros.h b/CvGameCoreDLL/CvEnumMacros.h
+index b61c749cc..cfc8176bb 100644
+--- a/CvGameCoreDLL/CvEnumMacros.h
++++ b/CvGameCoreDLL/CvEnumMacros.h
+@@ -258,10 +258,9 @@ DEFINE_INCREMENT_OPERATORS(Name##Types)
+ 	/*{*/ \
+ 	/*	return *m_pa##Name##Info[e##Name];*/ \
+ 	/*}*/ \
+-	/* Deprecated: */ \
+-	inline Cv##Name##Info& get##Name##Info(Name##Types e##Name) const \
++	inline Cv##Name##Info& get##Name##Info(int i##Name) const \
+ 	{ \
+-		return getInfo(e##Name); \
++		return getInfo(static_cast<Name##Types>(i##Name)); \
+ 	}
+ #define MAKE_INFO_ACCESSORS_INT(Name, Dummy) \
+ 	inline int getNum##Name##Infos() const \
+@@ -284,10 +283,9 @@ DEFINE_INCREMENT_OPERATORS(Name##Types)
+ 	/*{*/ \
+ 	/*	return *m_pa##Name##Info[e##Name];*/ \
+ 	/*}*/ \
+-	/* Deprecated: */ \
+-	inline Cv##Name##Info& get##Name##Info(Name##Types e##Name) const \
++	inline Cv##Name##Info& get##Name##Info(int i##Name) const \
+ 	{ \
+-		return getInfo(e##Name); \
++		return getInfo(static_cast<Name##Types>(i##Name)); \
+ 	}
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 1b826fa00..f9bbf7852 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -325,9 +325,9 @@ public:
+ 	{
+ 		return (int)m_paWorldInfo.size();
+ 	}
+-	CvWorldInfo& getWorldInfo(WorldSizeTypes eWorld) const // deprecated
++	CvWorldInfo& getWorldInfo(int iWorld) const
+ 	{
+-		return getInfo(eWorld);
++		return getInfo(static_cast<WorldSizeTypes>(iWorld));
+ 	}
+ #pragma endregion InfoAccessors
+ 	// </advc.enum>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1523

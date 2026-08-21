@@ -1,0 +1,58 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1218
+# Commit: 9892983332b1a61f5aab81b3ab9286eccf962b5d
+# History segment: K-Mod history
+# Parent used for diff: 6047432cf43a3f94b7ae5a235f137a8ad475cdf6
+# Title: The AI now ignore automation when taking over from human players.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvSelectionGroup.cpp
+2	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 35bf1e32c..3c3863b26 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -4227,6 +4227,7 @@ bool CvSelectionGroup::isAutomated() const
+ void CvSelectionGroup::setAutomateType(AutomateTypes eNewValue)
+ {
+ 	FAssert(getOwnerINLINE() != NO_PLAYER);
++	FAssert(isHuman() || eNewValue == NO_AUTOMATE); // The AI shouldn't use automation.
+ 
+ 	if (getAutomateType() != eNewValue)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ccc0dd25c..b7f000cf8 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -134,7 +134,7 @@ bool CvUnitAI::AI_update()
+ 		return false;
+ 	}
+ 
+-	if (getGroup()->isAutomated())
++	if (getGroup()->isAutomated() && isHuman()) // When the AI fills in for a human player, they should ignore automation
+ 	{
+ 		switch (getGroup()->getAutomateType())
+ 		{
+@@ -7402,6 +7402,7 @@ void CvUnitAI::AI_exploreSeaMove()
+ 				return;
+ 			}
+ 			scrap();
++			return;
+ 		}		
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1059

@@ -1,0 +1,125 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 511
+# Commit: 64e8d28c4890583a61d76025b363bede6d3a2be0
+# History segment: K-Mod history
+# Parent used for diff: 9cd0dc7e5ebd5811dfc08ca68b74296487d32ceb
+# Title: The AI will now reconsider its research options after bulbing. The AI will now consider its civic options when it starts a golden age. The strategy hash is n...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	0	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+8	0	CvGameCoreDLL/CvUnit.cpp
+6	6	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 229df83eb..92fe06c14 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -8948,6 +8948,12 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
+ 			if (isGoldenAge())
+ 			{
+ 				changeAnarchyTurns(-getAnarchyTurns());
++				// K-Mod. Allow the AI to reconsider their civics. (a golden age is a good time for reform!)
++				if (!isHuman() && getMaxAnarchyTurns() != 0 && getAnarchyModifier() + 100 > 0)
++				{
++					GET_PLAYER(getID()).AI_setCivicTimer(0); // silly, I know. But what else can I do?
++				}
++				// K-Mod end
+ 			}
+ 
+ 			updateYield();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 54abddef3..58c7d8611 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2727,6 +2727,8 @@ CvPlayerAI::CvFoundSettings::CvFoundSettings(const CvPlayerAI& kPlayer, bool bSt
+ // try to not make it too slow!
+ short CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet) const
+ {
++	PROFILE_FUNC();
++
+ 	CvCity* pNearestCity;
+ 	bool bHasGoodBonus;
+ 	int iOwnedTiles;
+@@ -14775,7 +14777,6 @@ void CvPlayerAI::AI_doResearch()
+ 	{
+ 		AI_chooseResearch();
+ 		//AI_forceUpdateStrategies(); //to account for current research.
+-		AI_updateStrategyHash(); // K-Mod
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index bc9805007..1b5651e98 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -6247,6 +6247,14 @@ bool CvUnit::discover()
+ 
+ 	GET_TEAM(getTeam()).changeResearchProgress(eDiscoveryTech, getDiscoverResearch(eDiscoveryTech), getOwnerINLINE());
+ 
++	// K-Mod. If the AI bulbs something, let them reconsider their current research.
++	CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
++	if (!kOwner.isHuman() && kOwner.getCurrentResearch() != eDiscoveryTech)
++	{
++		kOwner.clearResearchQueue();
++	}
++	// K-Mod end
++
+ 	if (plot()->isActiveVisible(false))
+ 	{
+ 		NotifyEntity(MISSION_DISCOVER);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 79e3cf30d..1188da315 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3788,7 +3788,7 @@ void CvUnitAI::AI_collateralMove()
+ 	// K-Mod end
+ 
+ 	//if (AI_protect(50))
+-	if (AI_defendTeritory(50, 0, 6)) // K-Mod
++	if (AI_defendTeritory(55, 0, 6)) // K-Mod
+ 	{
+ 		return;
+ 	}
+@@ -16078,21 +16078,21 @@ bool CvUnitAI::AI_defendTeritory(int iThreshold, int iFlags, int iMaxPathTurns,
+ 					int iOdds = AI_getWeightedOdds(pLoopPlot);
+ 					int iValue = iOdds;
+ 
+-					if (iOdds > 0 && iOdds < 100)
++					if (iOdds > 0 && iOdds < 100 && iThreshold > 0)
+ 					{
+ 						int iOurAttack = kOwner.AI_localAttackStrength(pLoopPlot, getTeam(), getDomainType(), 2, true, true, true);
+ 						int iEnemyDefence = kOwner.AI_localDefenceStrength(pLoopPlot, NO_TEAM, getDomainType(), 0);
+ 
+ 						if (iOurAttack > iEnemyDefence && iEnemyDefence > 0)
+ 						{
+-							int iBonus = 100 - iOdds;
++							/*int iBonus = 100 - iOdds;
+ 							iBonus -= iBonus * 4*iBonus / (4*iBonus + 100*(iOurAttack-iEnemyDefence)/iEnemyDefence);
+-							// That looks overly complex, doesn't it? I hope it works...
+-							// The goal is for odds+bonus to rise quickly to around 50% when we are stronger, and then grow slowly from there.
++
+ 							FAssert(iBonus >= 0);
+ 							FAssert(iBonus <= 100 - iOdds);
+ 
+-							iValue += iBonus;
++							iValue += iBonus;*/
++							iValue += 100 * (iOdds+10) * (iOurAttack-iEnemyDefence)/((iThreshold+100) * iEnemyDefence);
+ 						}
+ 					}
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3544

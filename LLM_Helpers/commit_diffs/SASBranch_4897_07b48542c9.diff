@@ -1,0 +1,249 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4897
+# Commit: 07b48542c9f1f7747970aa1f73d0a65555333f74
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 81f6d19bbb04b5ccbe06059f7223027712714832
+# Title: add base collateral damage info in sevopedia unit chart and refactor a bit anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+42	45	Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+4	1	README.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (2).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+index 24c2b2d80..96c9ddbeb 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+@@ -15,6 +15,7 @@ gc = CyGlobalContext()
+ localText = CyTranslator()
+ 
+ 
++
+ class SevoPediaUnitChart:
+ 	def __init__(self, main):
+ 		self.iGroup = -1
+@@ -27,7 +28,8 @@ class SevoPediaUnitChart:
+ 		self.MARGIN = 20
+ 		self.N_COLUMNS = 0
+ 		self.W_NAME = 270
+-		self.W_NUM = 100
++		# <!-- custom: with 128 or below, the collateral damage text is not fully displayed as of now anyways etc -->
++		self.W_NUM = 129
+ 		
+ 		self.W_TABLE = ((self.N_COLUMNS - 2 - 1) * self.W_NUM) + (2 * self.MARGIN)
+ 
+@@ -48,14 +50,14 @@ class SevoPediaUnitChart:
+ 		screen = self.top.getScreen()
+ 		table = self.top.getNextWidgetName()
+ 
+-		isAirCombatType = ( (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_BOMBER')) or (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_FIGHTER')) )
++		isAirCombatType = (self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_BOMBER') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR_FIGHTER'))
+ 
+ 		if not isAirCombatType:
+ 			self.N_COLUMNS = 8
+ 		else:
+ 			self.N_COLUMNS = 10
+ 		
+-		self.W_TABLE = ( self.W_NAME + ((self.N_COLUMNS - 1) * self.W_NUM) ) + (2 * self.MARGIN)
++		self.W_TABLE = (self.W_NAME + ((self.N_COLUMNS - 1) * self.W_NUM)) + (2 * self.MARGIN)
+ 
+ 		# <!-- custom: blue is more readable than standard i find, imported from base AdvCiv and modified with a similar kind of purpose -->
+ 		#screen.addTableControlGFC(table, self.N_COLUMNS, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, True, False, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+@@ -63,6 +65,7 @@ class SevoPediaUnitChart:
+ 		#screen.enableSort(table)
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_TABLE, self.Y_TABLE, self.W_TABLE, self.H_TABLE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, self.X_TABLE + self.MARGIN, self.Y_TABLE + self.MARGIN, self.W_TABLE - (self.MARGIN * 2), self.H_TABLE - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
++
+ 		table = self.top.getNextWidgetName()
+ 		tableX = self.X_TABLE + self.MARGIN
+ 		tableY = self.Y_TABLE + self.MARGIN + 5
+@@ -88,46 +91,36 @@ class SevoPediaUnitChart:
+ 		szBombard = u"%c" % CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR)
+ 		szCollateral = u"Collateral"
+ 
+-		szWithdraw = u"Withdraw"
+-		szAirEvasion = u"Air Evasion"
+-
+ 		szCost = u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()
+ 
+-		# <!-- custom: trick (to center the headers text too) taught to me by ChatGPT, quoting it:
+-		# "
+-		# screen.setTableColumnHeader(...) don't use FONT_*_JUSTIFY like the cell contents, but there's a workaround.
+-		# Unfortunately, the setTableColumnHeader(...) function in Civ4's Python API does not provide a direct way to align the text (like FONT_CENTER_JUSTIFY). But there is a common workaround:
+-		# 
+-		# Workaround: Pad the header label string manually
+-		# By adding spaces before and after the header text, you can visually center it.
+-		#  you want to center the header labels in the table (not just the unit entries). The headers set via
+-		# Example:
+-		# screen.setTableColumnHeader("UnitChart", 1, "   Unit   ", table_width - 100)
+-		# You can play with the spacing — more spaces = more centered-looking text depending on the column width.
+-		#
+-		# Optional enhancement: Use a monospaced font for table headers
+-		# If your font is monospaced (unlikely in Civ4 UI), the manual padding is more predictable. In Civ4, though, font kerning varies — so some trial and error is needed.
+-		# 
+-		# Advanced modding option (if you're feeling bold)
+-		# If you're okay with digging into the SDK or custom DLL builds (like AdvCiv or BUG), it’s technically possible to modify the table rendering to expose alignment options for headers. But this is definitely a bigger job — the manual padding is the easiest trick.
+-		# "
+-		# May also serve for future reference maybe, anyways, thanks a lot ChatGPT, and to those who advised me or told me
+-		# about how i could use it, in particular for civ4, or/and or things to thank for or not, anyways, -->
++		# <!-- custom: trick (to center the headers text too) taught to me by ChatGPT, quoting it: "screen.setTableColumnHeader(...) don't use FONT_*_JUSTIFY like the cell contents, but there's a workaround." + "Workaround: Pad the header label string manually" thanks for help chatgpt and advciv/hint if i may say that i adjusted too or not for advciv-sas but anyways etc anyways etc anyways etc... -->
++		szNameText = u"<font=2>    " + szName + u"</font>"
++		szStrengthtext = u"<font=2>             " + szStrength + u"</font>"
++		szMoveText = u"<font=2>             " + szMove + u"</font>"
++		szFirstStrikeText = u"<font=2>       " + szFirstStrike + u"</font>"
++		szBombardText = u"<font=2>            " + szBombard + u"</font>"
++		szCollateralText = u"<font=2>      " + szCollateral + u"</font>"
++		szCostText = u"<font=2>             " + szCost + u"</font>"
+ 
+ 		if isAirCombatType:
++			szAirEvasion = u"Air Evasion"
+ 			szAirIntercept = u"Air Intercept"
+ 			szAirRange = u"Air Range"
+ 			
+-			screen.setTableColumnHeader(table, 0, u"<font=2>    " + szName + u"    </font>", self.W_NAME)
+-			screen.setTableColumnHeader(table, 1, u"<font=2>         " + szStrength + u"       </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 2, u"<font=2>         " + szMove + u"       </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 4, u"<font=2>         " + szBombard + u"       </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 6, u"<font=2>  " + szAirEvasion + u" </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 7, u"<font=2>" + szAirIntercept + u"</font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 8, u"<font=2>    " + szAirRange + u"    </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 9, u"<font=2>         " + szCost + u"       </font>", self.W_NUM)
++			szAirEvasionText = u"<font=2>     " + szAirEvasion + u"</font>"
++			szAirInterceptText = u"<font=2>    " + szAirIntercept + u"</font>"
++			szAirRangeText = u"<font=2>      " + szAirRange + u"</font>"
++
++			screen.setTableColumnHeader(table, 0, szNameText, self.W_NAME)
++			screen.setTableColumnHeader(table, 1, szStrengthtext, self.W_NUM)
++			screen.setTableColumnHeader(table, 2, szMoveText, self.W_NUM)
++			screen.setTableColumnHeader(table, 3, szFirstStrikeText, self.W_NUM)
++			screen.setTableColumnHeader(table, 4, szBombardText, self.W_NUM)
++			screen.setTableColumnHeader(table, 5, szCollateralText, self.W_NUM)
++			screen.setTableColumnHeader(table, 6, szAirEvasionText, self.W_NUM)
++			screen.setTableColumnHeader(table, 7, szAirInterceptText, self.W_NUM)
++			screen.setTableColumnHeader(table, 8, szAirRangeText, self.W_NUM)
++			screen.setTableColumnHeader(table, 9, szCostText, self.W_NUM)
+ 
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				UnitInfo = gc.getUnitInfo(iUnit)
+@@ -146,14 +139,18 @@ class SevoPediaUnitChart:
+ 					self.placeTableCost(screen, table, 9, iRow, UnitInfo)
+ 
+ 		else:
+-			screen.setTableColumnHeader(table, 0, u"<font=2>    " + szName + u"    </font>", self.W_NAME)
+-			screen.setTableColumnHeader(table, 1, u"<font=2>         " + szStrength + u"       </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 2, u"<font=2>         " + szMove + u"       </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 3, u"<font=2>   " + szFirstStrike + u"   </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 4, u"<font=2>         " + szBombard + u"       </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 5, u"<font=2>  " + szCollateral + u"   </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 6, u"<font=2>  " + szWithdraw + u" </font>", self.W_NUM)
+-			screen.setTableColumnHeader(table, 7, u"<font=2>         " + szCost + u"       </font>", self.W_NUM)
++			szWithdraw = u"Withdraw"
++
++			szWithdrawText = u"<font=2>      " + szWithdraw + u"</font>"
++
++			screen.setTableColumnHeader(table, 0, szNameText, self.W_NAME)
++			screen.setTableColumnHeader(table, 1, szStrengthtext, self.W_NUM)
++			screen.setTableColumnHeader(table, 2, szMoveText, self.W_NUM)
++			screen.setTableColumnHeader(table, 3, szFirstStrikeText, self.W_NUM)
++			screen.setTableColumnHeader(table, 4, szBombardText, self.W_NUM)
++			screen.setTableColumnHeader(table, 5, szCollateralText, self.W_NUM)
++			screen.setTableColumnHeader(table, 6, szWithdrawText, self.W_NUM)
++			screen.setTableColumnHeader(table, 7, szCostText, self.W_NUM)
+ 
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				UnitInfo = gc.getUnitInfo(iUnit)
+@@ -224,7 +221,7 @@ class SevoPediaUnitChart:
+ 	def placeTableCollateral(self, screen, table, iCol, iRow, UnitInfo):
+ 		# Collateral
+ 			if UnitInfo.getCollateralDamage() > 0:
+-				szCollateralRate = u"%d%% (%d)" % (UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
++				szCollateralRate = u"%d%%-%d%% (%d)" % (UnitInfo.getCollateralDamage(), UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
+ 			else:
+ 				szCollateralRate = u""
+
+diff --git a/README.md b/README.md
+index 942433086..f08af4cf0 100644
+--- a/README.md
++++ b/README.md
+@@ -62,7 +62,7 @@ As always, ChatGPT (see [Authors](/README.md#authors) for details) is a key co-a
+ Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" alt="0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample.JPG" alt="0.630_sevopedia_units_chart_sample.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG" alt="0.630_sevopedia_units_chart_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG" alt="0.700_sevopedia_terrains_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample.JPG" alt="0.720_sevopedia_improvements_sample.JPG" width="250"></img>
+@@ -88,6 +88,7 @@ note 3: similarly you can set `IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD` to `True`
+ For example we added the new "This Technology cannot be traded" in AdvCiv-SAS as show below:
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example (1).JPG" alt="0.50_no_tech_trading_example (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG" alt="0.710_sevopedia_techs_sample.JPG" width="250"></img>
+ 
+ See also for details:
+ 
+@@ -155,6 +156,8 @@ One of the unexpected things that popped up while exploring unit naming in/for a
+ 
+ I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing), if you want to view them full size or/and more images, please ideally visit this google drive folder link rather.
+ 
++Note: as of now the units ai-generated images for unit buttons are likely to be implemented in advciv-sas as it is unlikely we would add these units in particular and existing unit buttons are otherwise not too bad (and we imported some from other mods as well rather if needed thanks i mean too to those mod or me for importing them xd if i may say too but anyways etc anyways etc anyways etc), but they are shown here for exhaustiveness anyways etc.
++
+ You can find below an example of preview for the lancer medium 2 (bronze age as of now if not always or not anyways) for example here anyways etc, the longbow 3 (iron age), and the sword light 4 (medieval era):
+ 
+ <img src="https://drive.google.com/thumbnail?id=1_CcxxS36yJmp779-oxuQD3QSWI0eBubC&sz=w1024" alt="lance_medium_2.png" width="150"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 7419106ad..498a50613 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -22,7 +22,8 @@ note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead
+ 
+ (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i used to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample.JPG" alt="0.630_sevopedia_units_chart_sample.JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG" alt="0.630_sevopedia_units_chart_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (2).JPG" alt="0.630_sevopedia_units_chart_sample (2).JPG" width="250"></img>
+ 
+ ## example 3: features category
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG
+new file mode 100644
+index 000000000..93d1da9ed
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (2).JPG
+new file mode 100644
+index 000000000..6749ec27e
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample.JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample.JPG
+deleted file mode 100644
+index 0380e7a05..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample.JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG
+index 26db2fd01..2ed3afe4e 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=15614

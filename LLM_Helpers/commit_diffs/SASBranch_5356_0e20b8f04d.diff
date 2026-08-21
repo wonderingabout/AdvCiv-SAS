@@ -1,0 +1,217 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5356
+# Commit: 0e20b8f04d1d7793166613b2f9dafb4af5730f4d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 42c83a5ce877c430be16f45667ab0e3b69545941
+# Title: add optional era buttons in Sevopedia Eras Chart
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	AGENTS.md
+52	7	Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+5	1	Assets/XML/GlobalDefines_advciv_sas.xml
+2	0	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+3	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 5a61b7d86..8974b375d 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -35,6 +35,10 @@ In particular but only, these are usually helpful:
+ - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log"
+ - "C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini"
+ 
++The root Program Files Civ4 folder is here: 
++
++- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\"
++
+ Also, legacy documentation (K-Mod, AdvCiv, etc.) may prove helpful, in particular but not only:
+ 
+ - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\manual.txt"
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+index b454a8564..c449dfab3 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+@@ -28,6 +28,8 @@ class SevoPediaEraChart:
+ 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT")
+ 		if self.TABLE_FILL_PERCENT <= 0:
+ 			raise ValueError("[FATAL] SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT must be >= 1.")
++		# <!-- custom: Toggle to show/hide era button row above the table. (Claude Opus 4.5) -->
++		self.SHOW_ERA_BUTTONS = (gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_SHOW_ERA_BUTTONS") > 0)
+ 
+ 	def interfaceScreen(self):
+ 		screen = self.top.getScreen()
+@@ -42,17 +44,11 @@ class SevoPediaEraChart:
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x, y, w, h, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", True, True, x + self.MARGIN, y + self.MARGIN, w - (self.MARGIN * 2), h - (self.MARGIN * 2), PanelStyles.PANEL_STYLE_BLUE50)
+ 
+-		table = self.top.getNextWidgetName()
+-		tableX = x + self.MARGIN
+-		tableY = y + self.MARGIN + 4
+-		tableW = w - (self.MARGIN * 2)
+-		tableH = h - (self.MARGIN * 2) - 4
+-
+ 		data = self._getTableData()
+ 		if not data:
+ 			screen.setLabel(self.top.getNextWidgetName(), "Background",
+ 					u"<font=3>" + localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()) + u": " + u"No data</font>",
+-					CvUtil.FONT_LEFT_JUSTIFY, tableX, tableY, 0, FontTypes.GAME_FONT,
++					CvUtil.FONT_LEFT_JUSTIFY, x + self.MARGIN, y + self.MARGIN + 4, 0, FontTypes.GAME_FONT,
+ 					WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			return
+ 
+@@ -62,6 +58,9 @@ class SevoPediaEraChart:
+ 		if nCols < 2:
+ 			return
+ 
++		# Calculate column widths
++		tableX = x + self.MARGIN
++		tableW = w - (self.MARGIN * 2)
+ 		totalW = (tableW * self.TABLE_FILL_PERCENT) / 100
+ 		if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
+ 			remainingW = max(0, totalW - self.W_ICON - self.W_FIELD)
+@@ -74,6 +73,38 @@ class SevoPediaEraChart:
+ 		else:
+ 			wNum = 0
+ 
++		# <!-- custom: Draw era button icons above the table; size matches column width. (Claude Opus 4.5) -->
++		buttonRowH = 0
++		if self.SHOW_ERA_BUTTONS:
++			buttonSize = wNum
++			buttonRowH = buttonSize + 8
++
++			# Position for button row: inside inner panel
++			buttonRowY = y + self.MARGIN + 8
++			# Calculate X offset for first era column
++			if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
++				buttonRowStartX = tableX + self.W_ICON + self.W_FIELD
++			else:
++				buttonRowStartX = tableX + self.W_FIELD
++
++			era_count = gc.getNumEraInfos()
++			for iEra in xrange(era_count):
++				if iEra >= value_cols:
++					break
++				info = gc.getEraInfo(iEra)
++				button = info.getButton()
++				if not button:
++					button = self._getEraFallbackButton(iEra)
++				if button:
++					btnX = buttonRowStartX + (iEra * wNum)
++					btnY = buttonRowY
++					screen.addDDSGFC(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
++
++		# Table starts below the button row (or at top if buttons disabled)
++		tableY = y + self.MARGIN + 4 + buttonRowH
++		tableH = h - (self.MARGIN * 2) - buttonRowH - 4
++
++		table = self.top.getNextWidgetName()
+ 		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+ 		screen.enableSort(table)
+ 
+@@ -376,3 +407,17 @@ class SevoPediaEraChart:
+ 					row[era_type] = ""
+ 			rows.append(row)
+ 		return rows
++
++	# <!-- custom: Fallback era button paths when EraInfo lacks a button. (Claude Opus 4.5) -->
++	def _getEraFallbackButton(self, iEra):
++		if iEra == 0:
++			return "Art/Movies/Era/Era01-Classical.dds"
++		elif iEra == 1:
++			return "Art/Movies/Era/Era01-Classical.dds"
++		elif iEra == 2:
++			return "Art/Movies/Era/Era02-Medeival.dds"
++		elif iEra == 3:
++			return "Art/Movies/Era/Era03-Renaissance.dds"
++		elif iEra == 4:
++			return "Art/Movies/Era/Era04-Industrial.dds"
++		return "Art/Movies/Era/Era05-Modern.dds"
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index b5449b889..ddf246197 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -174,12 +174,16 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT</DefineName>
+-		<iDefineIntVal>76</iDefineIntVal>
++		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_ERA_CHART_SHOW_ERA_BUTTONS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/README.md b/README.md
+index 2804ca1a5..94c8169d9 100644
+--- a/README.md
++++ b/README.md
+@@ -258,6 +258,8 @@ They are very handy to see all handicap or game settings info in one go, are sor
+ 
+ They notably feature additional fields that do not are not direct XML info fields, such as `Ratio to Standard*` (e.g. "3.640" for SAS24 World Size), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Recommended DLL*` (e.g. "48 Civs" for the SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), `Total Turns*` (e.g. "165" (turns) for the Game Speed Nitro). They are marked with an `*` at the end of their tail for clarity.
+ 
++Also, the Eras Chart page also features optional era buttons.
++
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index c023a05a4..af040a2ef 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -295,7 +295,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5292+) **Handicap Chart**: new category to see all handicap XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme** (e.g. war, gold, knowledge, etc.). See [Sevopedia reworks (Handicap Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category).
+ - (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game speed Turbo) and marked with `*` to distinguish them from regular XML info fields. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+ - (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+-- (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
++- (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras, and notably **optional era buttons**. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+ - (Requires AdvCiv-SAS 5340+) Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ - (Requires AdvCiv-SAS 5354+) Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index f2df342e3..8bebbac9b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -173,7 +173,10 @@ Extending on the Handicap Chart similarly, with the help of GPT-Codex-5.2.
+ 
+ Note 2: similarly to how the handicap chart does, in the game speed chart you also need to expose the DLL getters to python or you'll get an error message notifying you of such.
+ 
++More recently, added optional era buttons. Idea i got from watching how the c2c mod does ingame. Done with the help of GPT-5.2-Codex and Claude code Opus 4.5.
++
+ <img src="../Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG" alt="0.628_sevopedia_eras_chart (1).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG" alt="0.628_sevopedia_eras_chart (2).JPG" width="250"></img>
+ 
+ ## Sevopedia Pages individual reworks
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG
+index 75692256f..e8fabdc5e 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG
+index 35f6ad0d3..a3db73abd 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=12045

@@ -1,0 +1,1345 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1438
+# Commit: 517b49c46ac476afd0dcc59d9f61861eaf672dd1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8ac2004c13d7eeb452d40ea1730f4a4a5893be8f
+# Title: Demographics tab revised; option to hide GP bars at game start
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	1	Assets/Config/BUG Main Interface.xml
+5	4	Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+412	147	Assets/Python/Screens/CvInfoScreen.py
+32	8	Assets/Python/Screens/CvMainInterface.py
+20	3	Assets/xml/Text/BUG Main Interface Options.xml
+216	3	Assets/xml/Text/CIV4GameText_advc.xml
+3	0	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvGame.cpp
+21	5	CvGameCoreDLL/CvPlayer.cpp
+4	0	CvGameCoreDLL/CvPlayer.h
+5	0	CvGameCoreDLL/CyPlayer.cpp
+1	0	CvGameCoreDLL/CyPlayer.h
+2	0	CvGameCoreDLL/CyPlayerInterface1.cpp
+3	1	PrivateMaps/PerfectMongoose.py
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index e3394accd..510676077 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -101,7 +101,12 @@
+ 			<!-- Progress Bar Tick Marks -->
+ 			<option id="ProgressBarsTickMarks" key="Tick Marks" 
+ 					type="boolean" default="True" 
+-					get="isShowpBarTickMarks" dirtyBit="GameData"/>
++					get="isShowBarTickMarks" dirtyBit="GameData"/>
++			
++			<!-- advc.078: New option -->
++			<option id="OnceProgress" key="Once Progress" 
++					type="boolean" default="False" 
++					get="isShowOnlyOnceProgress" dirtyBit="GameData"/>
+ 
+ 			<!-- Field of View -->
+ 			<option id="FieldOfView" key="Field of View"
+
+diff --git a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+index f7c55d568..37f09d607 100644
+--- a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+@@ -23,9 +23,8 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		
+ 		self.createGreatPersonGeneralPanel(screen, left)
+ 		self.addSpacer(screen, left, "GeneralL1")
+-		# advc.004: Extra spacers; for now, there is enough space to align left, center and right in the middle
++		# advc.004: Extra spacer; for now, there is enough space to align left, center and right in the middle
+ 		self.addSpacer(screen, left, "GeneralL2")
+-		self.addSpacer(screen, left, "GeneralL3")
+ 		self.createTechSplashPanel(screen, left)
+ 		#self.createLeaderheadPanel(screen, left)
+ 
+@@ -44,12 +43,14 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 
+ 	def createGreatPersonGeneralPanel(self, screen, panel):
+ 		self.addLabel(screen, panel, "ProgressBars", "Progress Bars:")
++		# advc.004: Moved from Misc
++		self.addCheckbox(screen, panel, "MainInterface__ProgressBarsTickMarks")
+ 		self.addCheckboxTextDropdown(screen, panel, panel, "MainInterface__GPBar", "MainInterface__GPBar_Types")
+ 		#self.addCheckbox(screen, panel, "MainInterface__GPBar")
+ 		#self.addTextDropdown(screen, panel, panel, "MainInterface__GPBar_Types", True)
+ 		self.addCheckbox(screen, panel, "MainInterface__Combat_Counter")
+-		# advc.004: Moved from Misc
+-		self.addCheckbox(screen, panel, "MainInterface__ProgressBarsTickMarks")
++		# advc.078:
++		self.addCheckbox(screen, panel, "MainInterface__OnceProgress")
+ 	# advc.sha: Permanently disabled
+ 	#def createLeaderheadPanel(self, screen, panel):
+ 	#	self.addLabel(screen, panel, "Leaderheads", "Leaderheads:")
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index a99772958..b336ce033 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -37,6 +37,19 @@ class CvInfoScreen:
+ 
+ 	def __init__(self, screenId):
+ 	
++		# <advc.077> Settings for Demographics tab
++		# Shows the active player's value and rank in a single column
++		self.bRankInValueColumn = True
++		# Exports column: no room anymore
++		self.bShowExports = False
++		# Instead of showing a "?" when the best or worst rival's demographics are unknown, show the demographics of the best or worst rival whose demographics are visible.
++		self.bShowBestKnown = True
++		# If the above is False, setting this to True will show the name of the best and worst leader even if demographics are not visible (so long as the leader has been met).
++		self.bAlwaysShowBestWorstNameIfMet = False
++		if self.bShowBestKnown:
++			self.bAlwaysShowBestWorstNameIfMet = False
++		# </advc.077>
++
+ 		self.screenId = screenId
+ 		self.DEMO_SCREEN_NAME = "DemographicsScreen"
+ 		self.TOP_CITIES_SCREEN_NAME = "TopCitiesScreen"
+@@ -435,17 +448,23 @@ class CvInfoScreen:
+ 		self.TEXT_POPULATION = localText.getText("TXT_KEY_DEMO_SCREEN_POPULATION_TEXT", ())
+ 		self.TEXT_HAPPINESS = localText.getText("TXT_KEY_DEMO_SCREEN_HAPPINESS_TEXT", ())
+ 		self.TEXT_HEALTH = localText.getText("TXT_KEY_DEMO_SCREEN_HEALTH_TEXT", ())
+-		self.TEXT_IMP_EXP = localText.getText("TXT_KEY_DEMO_SCREEN_EXPORTS_TEXT", ()) + " - " + localText.getText("TXT_KEY_DEMO_SCREEN_IMPORTS_TEXT", ())
+-
+-		self.TEXT_ECONOMY_MEASURE = (u"  %c" % CyGame().getSymbolID(FontSymbols.BULLET_CHAR)) + localText.getText("TXT_KEY_DEMO_SCREEN_ECONOMY_MEASURE", ())
+-		self.TEXT_INDUSTRY_MEASURE = (u"  %c" % CyGame().getSymbolID(FontSymbols.BULLET_CHAR)) + localText.getText("TXT_KEY_DEMO_SCREEN_INDUSTRY_MEASURE", ())
+-		self.TEXT_AGRICULTURE_MEASURE = (u"  %c" % CyGame().getSymbolID(FontSymbols.BULLET_CHAR)) + localText.getText("TXT_KEY_DEMO_SCREEN_AGRICULTURE_MEASURE", ())
++		#self.TEXT_IMP_EXP = localText.getText("TXT_KEY_DEMO_SCREEN_EXPORTS_TEXT", ()) + " - " + localText.getText("TXT_KEY_DEMO_SCREEN_IMPORTS_TEXT", ())
++		# <advc.077> Replacing the above (or perhaps "Export Revenues" would be nicer?)
++		self.TEXT_EXP = localText.getText("TXT_KEY_CONCEPT_FOREIGN_TRADE", ())
++		# Put bullet in a variable, then disable it.
++		#szBullet = (u"  %c" % CyGame().getSymbolID(FontSymbols.BULLET_CHAR))
++		szBullet = ""
++		# </advc.077>
++		self.TEXT_ECONOMY_MEASURE = szBullet + localText.getText("TXT_KEY_DEMO_SCREEN_ECONOMY_MEASURE", ())
++		self.TEXT_INDUSTRY_MEASURE = szBullet + localText.getText("TXT_KEY_DEMO_SCREEN_INDUSTRY_MEASURE", ())
++		self.TEXT_AGRICULTURE_MEASURE = szBullet + localText.getText("TXT_KEY_DEMO_SCREEN_AGRICULTURE_MEASURE", ())
+ 		self.TEXT_MILITARY_MEASURE = ""
+-		self.TEXT_LAND_AREA_MEASURE = (u"  %c" % CyGame().getSymbolID(FontSymbols.BULLET_CHAR)) + localText.getText("TXT_KEY_DEMO_SCREEN_LAND_AREA_MEASURE", ())
++		self.TEXT_LAND_AREA_MEASURE = szBullet + localText.getText("TXT_KEY_DEMO_SCREEN_LAND_AREA_MEASURE", ())
+ 		self.TEXT_POPULATION_MEASURE = ""
+ 		self.TEXT_HAPPINESS_MEASURE = "%"
+-		self.TEXT_HEALTH_MEASURE = (u"  %c" % CyGame().getSymbolID(FontSymbols.BULLET_CHAR)) + localText.getText("TXT_KEY_DEMO_SCREEN_POPULATION_MEASURE", ())
+-		self.TEXT_IMP_EXP_MEASURE = (u"  %c" % CyGame().getSymbolID(FontSymbols.BULLET_CHAR)) + localText.getText("TXT_KEY_DEMO_SCREEN_ECONOMY_MEASURE", ())
++		self.TEXT_HEALTH_MEASURE = szBullet + localText.getText("TXT_KEY_DEMO_SCREEN_POPULATION_MEASURE", ())
++		# advc.077: was IMP_EXP
++		self.TEXT_EXP_MEASURE = szBullet + localText.getText("TXT_KEY_DEMO_SCREEN_ECONOMY_MEASURE", ())
+ 
+ 		self.TEXT_TIME_PLAYED = localText.getText("TXT_KEY_INFO_SCREEN_TIME_PLAYED", ())
+ 		self.TEXT_CITIES_CURRENT = localText.getText("TXT_KEY_CONCEPT_CITIES", ()) # K-Mod
+@@ -1363,42 +1382,113 @@ class CvInfoScreen:
+ 		iBad = pPlayer.calculateTotalCityUnhealthiness()
+ 		return (iGood * 100) / max(1, iGood + iBad)	 
+ 	
+-	def getRank(self, aiGroup):
++	# <advc.077> Optional param added
++	def getRank(self, aiGroup, iPlayer = -1):
++		if iPlayer < 0:
++			iPlayer = self.iActivePlayer # </advc.077>
+ 		aiGroup.sort()
+ 		aiGroup.reverse()		
+ 		iRank = 1
+ 		for (iLoopValue, iLoopPlayer) in aiGroup:
+-			if iLoopPlayer == self.iActivePlayer:
++			if iLoopPlayer == iPlayer:
+ 				return iRank
+ 			iRank += 1
+ 		return 0
+ 
+ 	def getBest(self, aiGroup):
+ 		bFirst = true
+-		iBest = 0
++		# <advc.077> Return player id in addition to value
++		iBestValue = 0
++		iBestPlayer = -1 # </advc.077>
+ 		for (iLoopValue, iLoopPlayer) in aiGroup:
+-			if iLoopPlayer != self.iActivePlayer:
+-				if bFirst or iLoopValue > iBest:
+-					iBest = iLoopValue
+-					bFirst = false
+-		return iBest
++			if iLoopPlayer == self.iActivePlayer:
++				continue
++			# <advc.077>
++			if self.bShowBestKnown and not self.pActivePlayer.canSeeDemographics(iLoopPlayer):
++				continue # </advc.077>
++			if bFirst or iLoopValue > iBestValue:
++				# <advc.077>
++				iBestValue = iLoopValue
++				iBestPlayer = iLoopPlayer # </advc.077>
++				bFirst = false
++		return (iBestValue, iBestPlayer) # advc.077
+ 
+ 	def getWorst(self, aiGroup):
+ 		bFirst = true
+-		iWorst = 0
++		# <advc.077> Return player id in addition to value
++		iWorstValue = 0
++		iWorstPlayer = -1 # </advc.077>
+ 		for (iLoopValue, iLoopPlayer) in aiGroup:
+-			if iLoopPlayer != self.iActivePlayer:
+-				if bFirst or iLoopValue < iWorst:
+-					iWorst = iLoopValue
+-					bFirst = false
+-		return iWorst
++			if iLoopPlayer == self.iActivePlayer:
++				continue
++			# <advc.077>
++			if self.bShowBestKnown and not self.pActivePlayer.canSeeDemographics(iLoopPlayer):
++				continue # </advc.077>
++			if bFirst or iLoopValue < iWorstValue:
++				# <advc.077>
++				iWorstValue = iLoopValue
++				iWorstPlayer = iLoopPlayer # </advc.077>
++				bFirst = false
++		return (iWorstValue, iWorstPlayer) # advc.077
++	
++	# <advc.077>
++	def getPlayerValueStr(self, valuePlayerPair, szMeasure = "", aiGroup = None):
++		iPlayer = valuePlayerPair[1]
++		szPlayerName = ""
++		bUnknown = True
++		if iPlayer > 0:
++			player = gc.getPlayer(iPlayer)
++			if self.pActiveTeam.isHasMet(player.getTeam()) or CyGame().isDebugMode():
++				bUnknown = False
++				szPlayerName = player.getName()
++		# Better just leave it empty
++		#if bUnknown:
++		#	szPlayerName = localText.getText("TXT_KEY_UNKNOWN", ())
++		if (bUnknown or not self.pActivePlayer.canSeeDemographics(iPlayer)) and not CyGame().isDebugMode():
++			if self.bAlwaysShowBestWorstNameIfMet:
++				return (szPlayerName,"?")
++			return ("","?")
++		if self.bShowBestKnown and not aiGroup is None:
++			# Make sure player name isn't too long (I use the same code in CvOptionsScreen)
++			iCharLimit = 18
++			if len(szPlayerName) > iCharLimit:
++				szPlayerName = szPlayerName[:iCharLimit-3] + '...'
++			szPlayerName += " (" + localText.getText("TXT_KEY_DEMO_SCREEN_RANK_TEXT", ()) + " " + str(self.getRank(aiGroup, iPlayer)) + ")"
++		return (szPlayerName, self.separateThousands(valuePlayerPair[0]) + szMeasure)
++	
++	def getPlayerStr(self, valuePlayerPair, aiGroup = None):
++		return self.getPlayerValueStr(valuePlayerPair, "", aiGroup)[0]
++		
++	def getValueStr(self, valuePlayerPair, szMeasure = ""):
++		return self.getPlayerValueStr(valuePlayerPair, szMeasure)[1]
++	# Based on function in CvGameCoreUtils. Not worth exporting those two lines.
++	def roundToMultiple(self, iValue, iMultiple):
++		r = int(iValue + 0.5 * iMultiple)
++		return r - (r % iMultiple)
++	
++	def separateThousands(self, iValue):
++		szSep = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR", ())
++		# The rest of the function is adopted from this StackOverflow answer by Nadia Alramli: https://stackoverflow.com/posts/1823189/revisions
++		s = '%d' % iValue
++		groups = []
++		while s and s[-1].isdigit():
++			groups.append(s[-3:])
++			s = s[:-3]
++		return s + szSep.join(reversed(groups))
++	
++	def getIcon(self, uFontSymbol):
++		return CyGame().getSymbolID(uFontSymbol)
++	# </advc.077>
+ 
+ 	def drawTextChart(self):
+ 
+ 		######## DATA ########
+-
+-		iNumActivePlayers = 0
+-
++		# <advc.077>
++		iActiveRivals = 0 # Was iNumActivePlayers. Count only rivals.
++		iKnownRivalDemogr = 0
++		if CyGame().isDebugMode(): # Best known and best are the same in Debug mode
++			self.bShowBestKnown = False
++		# </advc.077>
+ 		pPlayer = gc.getPlayer(self.iActivePlayer)
+ 
+ 		iEconomyGameAverage = 0
+@@ -1422,19 +1512,30 @@ class CvInfoScreen:
+ 		aiGroupHealth = []
+ 		aiGroupNetTrade = []
+ 		
++		# <advc.077>
++		iMilitaryCoeff = 1000
++		iLandCoeff = 1000
++		# </advc.077>
+ 		# Loop through all players to determine Rank and relative Strength
+ 		for iPlayerLoop in range(gc.getMAX_PLAYERS()):
+-			# advc.004: MinorCiv clause added (from the Dawn of Civilization mod)
++			# advc.077: Exclude MinorCivs (from the Dawn of Civilization mod)
+ 			if gc.getPlayer(iPlayerLoop).isAlive() and not gc.getPlayer(iPlayerLoop).isBarbarian() and not gc.getPlayer(iPlayerLoop).isMinorCiv():
+ 
+-				iNumActivePlayers += 1
+-
++				#iNumActivePlayers += 1 # advc.077: Replaced below
+ 				pCurrPlayer = gc.getPlayer(iPlayerLoop)
++				# <advc.077> Exclude civs that aren't rivals of the active player
++				if iPlayerLoop != self.iActivePlayer and gc.getTeam(pCurrPlayer.getTeam()).getMasterTeam() == self.pActiveTeam.getMasterTeam():
++					continue
++				# </advc.077>
+ 				
+ 				iValue = pCurrPlayer.calculateTotalCommerce()
+ 				if iPlayerLoop == self.iActivePlayer:
+ 					iEconomy = iValue
+-				else:
++				else: # <advc.077>
++					iActiveRivals += 1
++					if self.pActivePlayer.canSeeDemographics(iPlayerLoop):
++						iKnownRivalDemogr += 1
++					# </advc.077>
+ 					iEconomyGameAverage += iValue
+ 				aiGroupEconomy.append((iValue, iPlayerLoop))
+ 				
+@@ -1451,15 +1552,15 @@ class CvInfoScreen:
+ 				else:
+ 					iAgricultureGameAverage += iValue
+ 				aiGroupAgriculture.append((iValue, iPlayerLoop))
+-
+-				iValue = pCurrPlayer.getPower() * 1000
++				# advc.077: was *1000
++				iValue = pCurrPlayer.getPower() * iMilitaryCoeff
+ 				if iPlayerLoop == self.iActivePlayer:
+ 					iMilitary = iValue
+ 				else:
+ 					iMilitaryGameAverage += iValue
+ 				aiGroupMilitary.append((iValue, iPlayerLoop))
+-
+-				iValue = pCurrPlayer.getTotalLand() * 1000
++				# advc.077: was *1000
++				iValue = pCurrPlayer.getTotalLand() * iLandCoeff
+ 				if iPlayerLoop == self.iActivePlayer:
+ 					iLandArea = iValue
+ 				else:
+@@ -1486,8 +1587,8 @@ class CvInfoScreen:
+ 				else:
+ 					iHealthGameAverage += iValue
+ 				aiGroupHealth.append((iValue, iPlayerLoop))
+-					
+-				iValue = pCurrPlayer.calculateTotalExports(YieldTypes.YIELD_COMMERCE) - pCurrPlayer.calculateTotalImports(YieldTypes.YIELD_COMMERCE)
++				# advc.077: Don't subtract imports. Would be kind of nice to add pLoopPlayer.getGoldPerTurnByPlayer (summed up over all players), but would have to subtract gold payments too, and that wouldn't be consistent with counting only "export" trade routes.
++				iValue = pCurrPlayer.calculateTotalExports(YieldTypes.YIELD_COMMERCE)# - pCurrPlayer.calculateTotalImports(YieldTypes.YIELD_COMMERCE)
+ 				if iPlayerLoop == self.iActivePlayer:
+ 					iNetTrade = iValue
+ 				else:
+@@ -1504,36 +1605,67 @@ class CvInfoScreen:
+ 		iHealthRank = self.getRank(aiGroupHealth)
+ 		iNetTradeRank = self.getRank(aiGroupNetTrade)
+ 		
+-		iEconomyGameBest	= self.getBest(aiGroupEconomy)
+-		iIndustryGameBest	= self.getBest(aiGroupIndustry)
+-		iAgricultureGameBest	= self.getBest(aiGroupAgriculture)
+-		iMilitaryGameBest	= self.getBest(aiGroupMilitary)
+-		iLandAreaGameBest	= self.getBest(aiGroupLandArea)
+-		iPopulationGameBest	= self.getBest(aiGroupPopulation)
+-		iHappinessGameBest	= self.getBest(aiGroupHappiness)
+-		iHealthGameBest		= self.getBest(aiGroupHealth)
+-		iNetTradeGameBest	= self.getBest(aiGroupNetTrade)
+-
+-		iEconomyGameWorst	= self.getWorst(aiGroupEconomy)
+-		iIndustryGameWorst	= self.getWorst(aiGroupIndustry)
+-		iAgricultureGameWorst	= self.getWorst(aiGroupAgriculture)
+-		iMilitaryGameWorst	= self.getWorst(aiGroupMilitary)
+-		iLandAreaGameWorst	= self.getWorst(aiGroupLandArea)
+-		iPopulationGameWorst	= self.getWorst(aiGroupPopulation)
+-		iHappinessGameWorst	= self.getWorst(aiGroupHappiness)
+-		iHealthGameWorst	= self.getWorst(aiGroupHealth)
+-		iNetTradeGameWorst	= self.getWorst(aiGroupNetTrade)
+-
+-		iEconomyGameAverage = iEconomyGameAverage / max(1, iNumActivePlayers - 1)
+-		iIndustryGameAverage = iIndustryGameAverage / max(1, iNumActivePlayers - 1)
+-		iAgricultureGameAverage = iAgricultureGameAverage / max(1, iNumActivePlayers - 1)
+-		iMilitaryGameAverage = iMilitaryGameAverage / max(1, iNumActivePlayers - 1)
+-		iLandAreaGameAverage = iLandAreaGameAverage / max(1, iNumActivePlayers - 1)
+-		iPopulationGameAverage = iPopulationGameAverage / max(1, iNumActivePlayers - 1)
+-		iHappinessGameAverage = iHappinessGameAverage / max(1, iNumActivePlayers - 1)
+-		iHealthGameAverage = iHealthGameAverage / max(1, iNumActivePlayers - 1)
+-		iNetTradeGameAverage = iNetTradeGameAverage / max(1, iNumActivePlayers - 1)
+-
++		# <advc.077> Don't always show the rival columns
++		iColumns = 6
++		bShowBest = (not self.bShowBestKnown or iKnownRivalDemogr > 0)
++		if bShowBest:
++			# Removed 'i' prefix from variables b/c they're pairs now
++			economyGameBest	= self.getBest(aiGroupEconomy)
++			industryGameBest	= self.getBest(aiGroupIndustry)
++			agricultureGameBest	= self.getBest(aiGroupAgriculture)
++			militaryGameBest	= self.getBest(aiGroupMilitary)
++			landAreaGameBest	= self.getBest(aiGroupLandArea)
++			populationGameBest	= self.getBest(aiGroupPopulation)
++			happinessGameBest	= self.getBest(aiGroupHappiness)
++			healthGameBest		= self.getBest(aiGroupHealth)
++			netTradeGameBest	= self.getBest(aiGroupNetTrade)
++		#else: # Will show the column header in any case
++		#	iColumns -= 1
++		bShowWorst = ((not self.bShowBestKnown and iActiveRivals > 1) or iKnownRivalDemogr > 1)
++		if bShowWorst:
++			economyGameWorst	= self.getWorst(aiGroupEconomy)
++			industryGameWorst	= self.getWorst(aiGroupIndustry)
++			agricultureGameWorst	= self.getWorst(aiGroupAgriculture)
++			militaryGameWorst	= self.getWorst(aiGroupMilitary)
++			landAreaGameWorst	= self.getWorst(aiGroupLandArea)
++			populationGameWorst	= self.getWorst(aiGroupPopulation)
++			happinessGameWorst	= self.getWorst(aiGroupHappiness)
++			healthGameWorst	= self.getWorst(aiGroupHealth)
++			netTradeGameWorst	= self.getWorst(aiGroupNetTrade)
++		else:
++			iColumns -= 1
++		bShowAvg = (iActiveRivals > 3)
++		if bShowAvg:
++			# All occurrences of 'iNumActivePlayers - 1' replaced with iActiveRivals
++			iEconomyGameAverage = iEconomyGameAverage / max(1, iActiveRivals)
++			iIndustryGameAverage = iIndustryGameAverage / max(1, iActiveRivals)
++			iAgricultureGameAverage = iAgricultureGameAverage / max(1, iActiveRivals)
++			iMilitaryGameAverage = iMilitaryGameAverage / max(1, iActiveRivals)
++			iLandAreaGameAverage = iLandAreaGameAverage / max(1, iActiveRivals)
++			iPopulationGameAverage = iPopulationGameAverage / max(1, iActiveRivals)
++			iHappinessGameAverage = iHappinessGameAverage / max(1, iActiveRivals)
++			iHealthGameAverage = iHealthGameAverage / max(1, iActiveRivals)
++			iNetTradeGameAverage = iNetTradeGameAverage / max(1, iActiveRivals)
++			# Round the averages
++			iMultiple = 5
++			# (I don't know ...)
++			#if CyGame().isDebugMode():
++			#	iMultiple = 1
++			iEconomyGameAverage = self.roundToMultiple(iEconomyGameAverage, iMultiple)
++			iIndustryGameAverage = self.roundToMultiple(iIndustryGameAverage, iMultiple)
++			iAgricultureGameAverage = self.roundToMultiple(iAgricultureGameAverage, iMultiple)
++			iMilitaryGameAverage = self.roundToMultiple(iMilitaryGameAverage, iMultiple * iMilitaryCoeff)
++			iLandAreaGameAverage = self.roundToMultiple(iLandAreaGameAverage, iMultiple * iLandCoeff)
++			# CvCity::getRealPopulation uses a multiplier >=1000
++			iPopulationGameAverage = self.roundToMultiple(iPopulationGameAverage, iMultiple * 1000)
++			iHappinessGameAverage = self.roundToMultiple(iHappinessGameAverage, iMultiple)
++			iHealthGameAverage = self.roundToMultiple(iHealthGameAverage, iMultiple)
++			iNetTradeGameAverage = self.roundToMultiple(iNetTradeGameAverage, iMultiple)
++		else:
++			iColumns -= 1
++		if self.bRankInValueColumn:
++			iColumns -= 1
++		# </advc.077>
+ 
+ 		######## TEXT ########
+ 
+@@ -1541,91 +1673,224 @@ class CvInfoScreen:
+ 
+ 		# Create Table
+ 		szTable = self.getNextWidgetName()
+-		screen.addTableControlGFC(szTable, 6, self.X_CHART, self.Y_CHART, self.W_CHART, self.H_CHART, true, true, 32,32, TableStyles.TABLE_STYLE_STANDARD)
++		# advc.077: iColumns instead of 6
++		screen.addTableControlGFC(szTable, iColumns, self.X_CHART, self.Y_CHART, self.W_CHART, self.H_CHART, true, true, 32, 32, TableStyles.TABLE_STYLE_STANDARD)
+ 		#screen.setTableColumnHeader(szTable, 0, self.TEXT_DEMOGRAPHICS_SMALL, 224) # Total graph width is 430
+-		screen.setTableColumnHeader(szTable, 0, localText.getText("TXT_KEY_DEMO_SCREEN_TITLE", ()), 224) # K-Mod
+-		screen.setTableColumnHeader(szTable, 1, self.TEXT_VALUE, 155)
+-		screen.setTableColumnHeader(szTable, 2, self.TEXT_BEST, 155)
+-		screen.setTableColumnHeader(szTable, 3, self.TEXT_AVERAGE, 155)
+-		screen.setTableColumnHeader(szTable, 4, self.TEXT_WORST, 155)
+-		screen.setTableColumnHeader(szTable, 5, self.TEXT_RANK, 90)
+-
+-		for i in range(18 + 5): # 18 normal items + 5 lines for spacing
++		# <advc.077> Changes throughout the rest of this function
++		# Replacing literals
++		iNextCol = 0
++		iTitleCol = iNextCol # </advc.077>
++		# 20 added to column width
++		screen.setTableColumnHeader(szTable, iTitleCol, localText.getText("TXT_KEY_DEMO_SCREEN_TITLE", ()), 244) # K-Mod
++		iBestWorstExtraWidth = 0
++		iRankColumnWidth = 76 # was 90
++		# Move rank up
++		iRankCol = -1
++		if not self.bRankInValueColumn:
++			iNextCol += 1
++			iRankCol = iNextCol 
++			screen.setTableColumnHeader(szTable, iRankCol, self.TEXT_RANK, iRankColumnWidth)
++		else: # Use the space for the best/ worst columns then. These may occasionally need the extra space b/c of long leader names and two-digit rank numbers.
++			iBestWorstExtraWidth += iRankColumnWidth / 2
++		iNextCol += 1
++		iValueCol = iNextCol
++		
++		szValueHead = self.TEXT_VALUE
++		if self.bRankInValueColumn:
++			szValueHead += "/ " + self.TEXT_RANK
++		# Column width was 155
++		screen.setTableColumnHeader(szTable, iValueCol, szValueHead, 120)
++		iBestCol = -1
++		if True:#bShowBest: # Actually, show the header always. So that the player might guess that there is more info to come later in the game.
++			iNextCol += 1
++			iBestCol = iNextCol
++			# Column width was 155
++			screen.setTableColumnHeader(szTable, iBestCol, self.TEXT_BEST, 170 + iBestWorstExtraWidth)
++		iAvgCol = -1
++		if bShowAvg:
++			iNextCol += 1
++			iAvgCol = iNextCol
++			# Column width was 155
++			screen.setTableColumnHeader(szTable, iAvgCol, self.TEXT_AVERAGE, 154)
++		iWorstCol = -1
++		if bShowWorst:
++			iNextCol += 1
++			iWorstCol = iNextCol
++			# Column width was 155
++			screen.setTableColumnHeader(szTable, iWorstCol, self.TEXT_WORST, 170 + iBestWorstExtraWidth)
++		#iTargetRows = 18 + 5 # 18 normal items + 5 lines for spacing
++		# Replacing the above
++		iTargetRows = 8 * 3
++		if self.bShowExports:
++			iTargetRows += 3
++		for i in range(iTargetRows):
+ 			screen.appendTableRow(szTable)
+ 		iNumRows = screen.getTableNumRows(szTable)
+-		iRow = iNumRows - 1
+-		iCol = 0
+-		screen.setTableText(szTable, iCol, 0, self.TEXT_ECONOMY, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 1, self.TEXT_ECONOMY_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 3, self.TEXT_INDUSTRY, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 4, self.TEXT_INDUSTRY_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 6, self.TEXT_AGRICULTURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 7, self.TEXT_AGRICULTURE_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 9, self.TEXT_MILITARY, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 11, self.TEXT_LAND_AREA, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 12, self.TEXT_LAND_AREA_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 14, self.TEXT_POPULATION, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 16, self.TEXT_HAPPINESS, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 18, self.TEXT_HEALTH, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 19, self.TEXT_HEALTH_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 21, self.TEXT_IMP_EXP, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 22, self.TEXT_IMP_EXP_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-
+-		iCol = 1
+-		screen.setTableText(szTable, iCol, 0, str(iEconomy), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 3, str(iIndustry), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 6, str(iAgriculture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 9, str(iMilitary), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 11, str(iLandArea), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 14, str(iPopulation), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 16, str(iHappiness) + self.TEXT_HAPPINESS_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 18, str(iHealth), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 21, str(iNetTrade), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-
+-		iCol = 2
+-		screen.setTableText(szTable, iCol, 0, str(iEconomyGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 3, str(iIndustryGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 6, str(iAgricultureGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 9, str(iMilitaryGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 11, str(iLandAreaGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 14, str(iPopulationGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 16, str(iHappinessGameBest) + self.TEXT_HAPPINESS_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 18, str(iHealthGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 21, str(iNetTradeGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-
+-		iCol = 3
+-		screen.setTableText(szTable, iCol, 0, str(iEconomyGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 3, str(iIndustryGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 6, str(iAgricultureGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 9, str(iMilitaryGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 11, str(iLandAreaGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 14, str(iPopulationGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 16, str(iHappinessGameAverage) + self.TEXT_HAPPINESS_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 18, str(iHealthGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 21, str(iNetTradeGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-
+-		iCol = 4
+-		screen.setTableText(szTable, iCol, 0, str(iEconomyGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 3, str(iIndustryGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 6, str(iAgricultureGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 9, str(iMilitaryGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 11, str(iLandAreaGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 14, str(iPopulationGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 16, str(iHappinessGameWorst) + self.TEXT_HAPPINESS_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 18, str(iHealthGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 21, str(iNetTradeGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-
+-		iCol = 5
+-		screen.setTableText(szTable, iCol, 0, str(iEconomyRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 3, str(iIndustryRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 6, str(iAgricultureRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 9, str(iMilitaryRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 11, str(iLandAreaRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 14, str(iPopulationRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 16, str(iHappinessRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 18, str(iHealthRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.setTableText(szTable, iCol, 21, str(iNetTradeRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-
++		#iRow = iNumRows - 1 # unused
++		#iCol = 0 # Use the column ids from above instead
++		# New: Append icons, and use different text keys for economy, industry, agriculture.
++		szEconomyTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_ECONOMY_TEXT", ()) + (u" (%c+%c)" % (gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar(), gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar()))
++		szIndustryTitle =  localText.getText("TXT_KEY_DEMOGRAPHICS_INDUSTRY_TEXT", ()) + (u" (%c)" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar())
++		szAgricultureTitle = localText.getText("TXT_KEY_DEMOGRAPHICS_AGRICULTURE_TEXT", ()) + (u" (%c)" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar())
++		szMilitaryTitle =  self.TEXT_MILITARY + (u" (%c)" % self.getIcon(FontSymbols.STRENGTH_CHAR))
++		szHappinessTitle = self.TEXT_HAPPINESS + (u" (%c)" % self.getIcon(FontSymbols.HAPPY_CHAR))
++		szHealthTitle = self.TEXT_HEALTH + (u" (%c)" % self.getIcon(FontSymbols.HEALTHY_CHAR))
++		szExpTitle = self.TEXT_EXP + (u" (%c)" % self.getIcon(FontSymbols.TRADE_CHAR))
++		# Add measure after a colon (and commented out below)
++		szEconomyTitle += ": " + self.TEXT_ECONOMY_MEASURE
++		szIndustryTitle += ": " + self.TEXT_INDUSTRY_MEASURE
++		szAgricultureTitle += ": " + self.TEXT_AGRICULTURE_MEASURE
++		szLandAreaTitle = self.TEXT_LAND_AREA + ": " + self.TEXT_LAND_AREA_MEASURE
++		szHealthTitle += ": " + self.TEXT_HEALTH_MEASURE
++		szExpTitle += ": " + self.TEXT_EXP_MEASURE
++		# Row numbers after 12 changed; now evenly distributed.
++		screen.setTableText(szTable, iTitleCol, 0, szEconomyTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		#screen.setTableText(szTable, iTitleCol, 1, self.TEXT_ECONOMY_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.setTableText(szTable, iTitleCol, 3, szIndustryTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		#screen.setTableText(szTable, iTitleCol, 4, self.TEXT_INDUSTRY_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.setTableText(szTable, iTitleCol, 6, szAgricultureTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		#screen.setTableText(szTable, iTitleCol, 7, self.TEXT_AGRICULTURE_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.setTableText(szTable, iTitleCol, 9, szMilitaryTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# row was 11
++		screen.setTableText(szTable, iTitleCol, 12, szLandAreaTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		#screen.setTableText(szTable, iTitleCol, 12, self.TEXT_LAND_AREA_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# row was 14
++		screen.setTableText(szTable, iTitleCol, 15, self.TEXT_POPULATION, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# row was 16
++		screen.setTableText(szTable, iTitleCol, 18, szHappinessTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# row was 18
++		screen.setTableText(szTable, iTitleCol, 21, szHealthTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		#screen.setTableText(szTable, iTitleCol, 19, self.TEXT_HEALTH_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		if self.bShowExports:
++			# row was 21
++			screen.setTableText(szTable, iTitleCol, 24, szExpTitle, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			#screen.setTableText(szTable, iTitleCol, 22, self.TEXT_EXP_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		#iCol = 1
++		# Decimal separators added. In the best/worst columns, it's easiest to do this for all values, so do it for all values here too.
++		screen.setTableText(szTable, iValueCol, 0, self.separateThousands(iEconomy), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.setTableText(szTable, iValueCol, 3, self.separateThousands(iIndustry), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.setTableText(szTable, iValueCol, 6, self.separateThousands(iAgriculture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.setTableText(szTable, iValueCol, 9, self.separateThousands(iMilitary), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# row was 11
++		screen.setTableText(szTable, iValueCol, 12, self.separateThousands(iLandArea), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# row was 14
++		screen.setTableText(szTable, iValueCol, 15, self.separateThousands(iPopulation), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# row was 16
++		screen.setTableText(szTable, iValueCol, 18, self.separateThousands(iHappiness) + self.TEXT_HAPPINESS_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# row was 18
++		screen.setTableText(szTable, iValueCol, 21, self.separateThousands(iHealth), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		if self.bShowExports:
++			# row was 21
++			screen.setTableText(szTable, iValueCol, 24, self.separateThousands(iNetTrade), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		#iCol = 2
++		if bShowBest:
++			# Replaced str(i...GameBest) with getPlayerStr and getValueStr, and put them in separate rows.
++			screen.setTableText(szTable, iBestCol, 1, self.getPlayerStr(economyGameBest, aiGroupEconomy), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iBestCol, 0, self.getValueStr(economyGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iBestCol, 4, self.getPlayerStr(industryGameBest, aiGroupIndustry), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iBestCol, 3, self.getValueStr(industryGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iBestCol, 7,self. getPlayerStr(agricultureGameBest, aiGroupAgriculture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iBestCol, 6, self.getValueStr(agricultureGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iBestCol, 10, self.getPlayerStr(militaryGameBest, aiGroupMilitary), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iBestCol, 9, self.getValueStr(militaryGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 12
++			screen.setTableText(szTable, iBestCol, 13, self.getPlayerStr(landAreaGameBest, aiGroupLandArea), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 11
++			screen.setTableText(szTable, iBestCol, 12, self.getValueStr(landAreaGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 15
++			screen.setTableText(szTable, iBestCol, 16, self.getPlayerStr(populationGameBest, aiGroupPopulation), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 14
++			screen.setTableText(szTable, iBestCol, 15, self.getValueStr(populationGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 17
++			screen.setTableText(szTable, iBestCol, 19, self.getPlayerStr(happinessGameBest, aiGroupHappiness), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 16
++			screen.setTableText(szTable, iBestCol, 18, self.getValueStr(happinessGameBest, self.TEXT_HAPPINESS_MEASURE), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 19
++			screen.setTableText(szTable, iBestCol, 22, self.getPlayerStr(healthGameBest, aiGroupHealth), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 18
++			screen.setTableText(szTable, iBestCol, 21, self.getValueStr(healthGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			if self.bShowExports:
++				# row was 22
++				screen.setTableText(szTable, iBestCol, 25, self.getPlayerStr(netTradeGameBest, aiGroupNetTrade), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				screen.setTableText(szTable, iBestCol, 24, self.getValueStr(netTradeGameBest), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		#iCol = 3
++		if bShowAvg:
++			# Decimal separators added
++			screen.setTableText(szTable, iAvgCol, 0, self.separateThousands(iEconomyGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iAvgCol, 3, self.separateThousands(iIndustryGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iAvgCol, 6, self.separateThousands(iAgricultureGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iAvgCol, 9, self.separateThousands(iMilitaryGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 11
++			screen.setTableText(szTable, iAvgCol, 12, self.separateThousands(iLandAreaGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 14
++			screen.setTableText(szTable, iAvgCol, 15, self.separateThousands(iPopulationGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 16
++			screen.setTableText(szTable, iAvgCol, 18, self.separateThousands(iHappinessGameAverage) + self.TEXT_HAPPINESS_MEASURE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 18
++			screen.setTableText(szTable, iAvgCol, 21, self.separateThousands(iHealthGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			if self.bShowExports:
++				# row was 21
++				screen.setTableText(szTable, iAvgCol, 24, self.separateThousands(iNetTradeGameAverage), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		#iCol = 4
++		if bShowWorst:
++			# Replaced str(i...GameWorst) with getPlayerStr and getValueStr, and put them in a separate rows.
++			screen.setTableText(szTable, iWorstCol, 1, self.getPlayerStr(economyGameWorst, aiGroupEconomy), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iWorstCol, 0, self.getValueStr(economyGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iWorstCol, 4, self.getPlayerStr(industryGameWorst, aiGroupIndustry), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iWorstCol, 3, self.getValueStr(industryGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iWorstCol, 7, self.getPlayerStr(agricultureGameWorst, aiGroupAgriculture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iWorstCol, 6, self.getValueStr(agricultureGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iWorstCol, 10, self.getPlayerStr(militaryGameWorst, aiGroupMilitary), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, iWorstCol, 9, self.getValueStr(militaryGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 12
++			screen.setTableText(szTable, iWorstCol, 13, self.getPlayerStr(landAreaGameWorst, aiGroupLandArea), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 11
++			screen.setTableText(szTable, iWorstCol, 12, self.getValueStr(landAreaGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 15
++			screen.setTableText(szTable, iWorstCol, 16, self.getPlayerStr(populationGameWorst, aiGroupPopulation), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 14
++			screen.setTableText(szTable, iWorstCol, 15, self.getValueStr(populationGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 17
++			screen.setTableText(szTable, iWorstCol, 19, self.getPlayerStr(happinessGameWorst, aiGroupHappiness), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 16
++			screen.setTableText(szTable, iWorstCol, 18, self.getValueStr(happinessGameWorst, self.TEXT_HAPPINESS_MEASURE), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 19
++			screen.setTableText(szTable, iWorstCol, 22, self.getPlayerStr(healthGameWorst, aiGroupHealth), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# row was 18
++			screen.setTableText(szTable, iWorstCol, 21, self.getValueStr(healthGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			if self.bShowExports:
++				# row was 22
++				screen.setTableText(szTable, iWorstCol, 25, self.getPlayerStr(netTradeGameWorst, aiGroupNetTrade), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				# row was 21
++				screen.setTableText(szTable, iWorstCol, 24, self.getValueStr(netTradeGameWorst), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		#iCol = 5
++		# Put it in iValueCol if that option is set
++		iCol = iRankCol
++		iOffset = 0
++		if self.bRankInValueColumn:
++			iCol = iValueCol
++			iOffset = 1
++		screen.setTableText(szTable, iCol, 0 + iOffset, str(iEconomyRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.setTableText(szTable, iCol, 3 + iOffset, str(iIndustryRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.setTableText(szTable, iCol, 6 + iOffset, str(iAgricultureRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.setTableText(szTable, iCol, 9 + iOffset, str(iMilitaryRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# row was 11
++		screen.setTableText(szTable, iCol, 12 + iOffset, str(iLandAreaRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# row was 14
++		screen.setTableText(szTable, iCol, 15 + iOffset, str(iPopulationRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# row was 16
++		screen.setTableText(szTable, iCol, 18 + iOffset, str(iHappinessRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# row was 18
++		screen.setTableText(szTable, iCol, 21 + iOffset, str(iHealthRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		if self.bShowExports:
++			# row was 21
++			screen.setTableText(szTable, iCol, 24 + iOffset, str(iNetTradeRank), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# </advc.077>
+ 		return
+ 
+ #############################################################################################################
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index b87584508..986af94bd 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -3174,7 +3174,7 @@ class CvMainInterface:
+ # BUG - NJAGC - end
+ 		if (gc.getPlayer(ePlayer).isAnarchy()):
+ # BUG - Bars on single line for higher resolution screens - start
+-			if (xResolution >= 1440 and (MainOpt.isShowGGProgressBar() or MainOpt.isShowGPProgressBar())):
++			if (xResolution >= 1440 and (self.isShowGGProgressBar() or self.isShowGPProgressBar())):
+ 				xCoord = 268 + (xResolution - 1440) / 2 + 84 + 6 + 487 / 2
+ 			else:
+ 				xCoord = screen.centerX(512)
+@@ -3190,7 +3190,7 @@ class CvMainInterface:
+ 		elif (gc.getPlayer(ePlayer).getCurrentResearch() != -1):
+ 			szText = CyGameTextMgr().getResearchStr(ePlayer)
+ # BUG - Bars on single line for higher resolution screens - start
+-			if (xResolution >= 1440 and (MainOpt.isShowGGProgressBar() or MainOpt.isShowGPProgressBar())):
++			if (xResolution >= 1440 and (self.isShowGGProgressBar() or self.isShowGPProgressBar())):
+ 				szResearchBar = "ResearchBar-w"
+ 				xCoord = 268 + (xResolution - 1440) / 2 + 84 + 6 + 487 / 2
+ 			else:
+@@ -3214,7 +3214,7 @@ class CvMainInterface:
+ 			screen.show(szResearchBar)
+ # BUG - Progress Bar - Tick Marks - start
+ 			# advc.004x: researchRate condition added
+-			if MainOpt.isShowpBarTickMarks() and researchRate > 0:
++			if MainOpt.isShowBarTickMarks() and researchRate > 0:
+ 				if szResearchBar == "ResearchBar":
+ 					self.pBarResearchBar_n.drawTickMarks(screen, researchProgress + overflowResearch, researchCost, researchRate, researchRate, False)
+ 				else:
+@@ -3230,7 +3230,7 @@ class CvMainInterface:
+ 		
+ # BUG - Great Person Bar - start
+ 	def updateGreatPersonBar(self, screen):
+-		if (not CyInterface().isCityScreenUp() and MainOpt.isShowGPProgressBar()):
++		if (not CyInterface().isCityScreenUp() and self.isShowGPProgressBar()):
+ 			pGPCity, iGPTurns = GPUtil.getDisplayCity()
+ 			szText = GPUtil.getGreatPeopleText(pGPCity, iGPTurns, GP_BAR_WIDTH, MainOpt.isGPBarTypesNone(), MainOpt.isGPBarTypesOne(), True)
+ 			szText = u"<font=2>%s</font>" % (szText)
+@@ -3275,7 +3275,7 @@ class CvMainInterface:
+ 
+ # BUG - Great General Bar - start
+ 	def updateGreatGeneralBar(self, screen):
+-		if (not CyInterface().isCityScreenUp() and MainOpt.isShowGGProgressBar()):
++		if (not CyInterface().isCityScreenUp() and self.isShowGGProgressBar()):
+ 			pPlayer = gc.getActivePlayer()
+ 			iCombatExp = pPlayer.getCombatExperience()
+ 			iThresholdExp = pPlayer.greatPeopleThreshold(True)
+@@ -3302,6 +3302,30 @@ class CvMainInterface:
+ 			screen.setBarPercentage( szGreatGeneralBar, InfoBarTypes.INFOBAR_STORED, fProgress )
+ 			screen.show( szGreatGeneralBar )
+ # BUG - Great General Bar - end
++	# <advc.078> I've replaced all calls to MainOpt.isShowGGProgressBar and MainOpt.isShowGPProgressBar with these functions
++	def isShowGGProgressBar(self):
++		if not MainOpt.isShowGGProgressBar():
++			return False
++		if not MainOpt.isShowOnlyOnceProgress():
++			return True
++		iActivePlayer = gc.getGame().getActivePlayer()
++		if iActivePlayer < 0:
++			return False
++		activePlayer = gc.getPlayer(iActivePlayer)
++		return (activePlayer.getCombatExperience() > 0 or activePlayer.getGreatGeneralsCreated() > 0)
++		
++	def isShowGPProgressBar(self):
++		if not MainOpt.isShowGPProgressBar():
++			return False
++		if not MainOpt.isShowOnlyOnceProgress():
++			return True
++		iActivePlayer = gc.getGame().getActivePlayer()
++		if iActivePlayer < 0:
++			return False
++		activePlayer = gc.getPlayer(iActivePlayer)
++		# Don't want to check all cities here over and over. Let the DLL keep track of this (new function: isAnyGPPEver). The second condition is only for old savegames.
++		return (activePlayer.isAnyGPPEver() or activePlayer.getGreatPeopleCreated() > 0)
++	# </advc.078>
+ 					
+ 	def updateTimeText( self ):
+ 		
+@@ -3661,7 +3685,7 @@ class CvMainInterface:
+ 				screen.show( "PopulationBar" )
+ 
+ # BUG - Progress Bar - Tick Marks - start
+-				if MainOpt.isShowpBarTickMarks():
++				if MainOpt.isShowBarTickMarks():
+ 					self.pBarPopulationBar.drawTickMarks(screen, pHeadSelectedCity.getFood(), pHeadSelectedCity.growthThreshold(), iFoodDifference, iFoodDifference, False)
+ # BUG - Progress Bar - Tick Marks - end
+ 
+@@ -3764,7 +3788,7 @@ class CvMainInterface:
+ 					screen.show( "ProductionBar" )
+ 
+ # BUG - Progress Bar - Tick Marks - start
+-					if MainOpt.isShowpBarTickMarks():
++					if MainOpt.isShowBarTickMarks():
+ 						if (pHeadSelectedCity.isProductionProcess()):
+ 							iFirst = 0
+ 							iRate = 0
+@@ -5365,7 +5389,7 @@ class CvMainInterface:
+ 
+ # BUG - Bars on single line for higher resolution screens - start
+ 		if (xResolution >= 1440
+-		and (MainOpt.isShowGGProgressBar() or MainOpt.isShowGPProgressBar())):
++		and (self.isShowGGProgressBar() or self.isShowGPProgressBar())):
+ 			xCoord = 268 + (xResolution - 1440) / 2
+ 			xCoord += 6 + 84
+ 			screen.moveItem( szButtonID, 264 + ( ( xResolution - 1024 ) / 2 ) + ( 34 * ( iCount % 15 ) ), 0 + ( 34 * ( iCount / 15 ) ), -0.3 )
+
+diff --git a/Assets/xml/Text/BUG Main Interface Options.xml b/Assets/xml/Text/BUG Main Interface Options.xml
+index a40adaf2e..d2a9c2206 100644
+--- a/Assets/xml/Text/BUG Main Interface Options.xml	
++++ b/Assets/xml/Text/BUG Main Interface Options.xml	
+@@ -181,9 +181,9 @@
+ 		 "or, if a city is currently selected, the Great Person progress of that city," but I guess that's not important enough. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GPBAR_HOVER</Tag>
+-		<English>When checked, displays a progress bar at the top of the main interface that shows when the next Great Person will be born and in which city.</English>
++		<English>When checked, displays a progress bar at the top of the main interface that shows when the next Great Person (except Great General) will be born and in which city.</English>
+ 		<French>En activant, montre la barre de progr�s et la ville du prochain Personnage Illustre.</French>
+-		<German>Platziert am oberen Rand des Hauptbildschirms einen Fortschrittsbalken, der anzeigt, wann die n�chste gro�e Pers�nlichkeit erscheinen wird und in welcher Stadt.</German>
++		<German>Platziert am oberen Rand des Hauptbildschirms einen Fortschrittsbalken, der anzeigt, wann die n�chste gro�e Pers�nlichkeit (au�er Gener�le) erscheinen wird und in welcher Stadt.</German>
+ 		<Italian>Quando � selezionato, mostra il progresso e la citt� del prossimo Grande Personaggio.</Italian>
+ 		<Spanish>When checked, displays the progress and city of the next Great Person.</Spanish>
+ 	</TEXT>
+@@ -227,7 +227,6 @@
+ 		<Italian>Grande Generale</Italian>
+ 		<Spanish>Gran General</Spanish>
+ 	</TEXT>
+-	
+ 	<!-- advc.004: Minor changes -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__COMBAT_COUNTER_HOVER</Tag>
+@@ -238,6 +237,24 @@
+ 		<Spanish>Muestra una barra de progreso para el pr�ximo Gran General.</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.078: New option -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__ONCEPROGRESS_TEXT</Tag>
++		<English>Show Only Once Progress</English>
++		<French>Show Only Once Progress</French>
++		<German>Erst bei Fortschritt</German>
++		<Italian>Show Only Once Progress</Italian>
++		<Spanish>Show Only Once Progress</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__ONCEPROGRESS_HOVER</Tag>
++		<English>When checked, the [COLOR_HIGHLIGHT_TEXT]Great Person[COLOR_REVERT] and [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] bars (if enabled) only appear once there has been any progress toward the birth of a great person.</English>
++		<French>When checked, the [COLOR_HIGHLIGHT_TEXT]Great Person[COLOR_REVERT] and [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] bars (if enabled) only appear once there has been any progress toward the birth of a great person.</French>
++		<German>Die Fortschrittsbalken f�r [COLOR_HIGHLIGHT_TEXT]Gro�e Pers�nlichkeiten[COLOR_REVERT] and [COLOR_HIGHLIGHT_TEXT]Gro�e Gener�le[COLOR_REVERT] (falls �berhaupt aktiviert) erscheinen erst, wenn entsprechender Fortschritt besteht.</German>
++		<Italian>When checked, the [COLOR_HIGHLIGHT_TEXT]Great Person[COLOR_REVERT] and [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] bars (if enabled) only appear once there has been any progress toward the birth of a great person.</Italian>
++		<Spanish>When checked, the [COLOR_HIGHLIGHT_TEXT]Great Person[COLOR_REVERT] and [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] bars (if enabled) only appear once there has been any progress toward the birth of a great person.</Spanish>
++	</TEXT>
++
+ 	<!-- advc.120c: Under the new heading, "Max/Min Buttons" should be clear
+ 		 enough. (Put "max" first to match the "+/-" order.) -->
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 301289f91..3ab71bcf3 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -1281,14 +1281,14 @@
+ 		<Italian>PIL (oro+scienza)</Italian>
+ 		<Spanish>PNB (oro+ciencia)</Spanish>
+ 	</TEXT>
+-	<!-- Only shortened the German translation -->
++	<!-- Shortened German, Italian, Spanish -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_DEMO_SCREEN_AGRICULTURE_TEXT</Tag>
+ 		<English>Crop Yield (Food)</English>
+ 		<French>R&#233;colte (Nour.)</French>
+ 		<German>Nahrungsertrag</German>
+-		<Italian>Prod. raccolto (cibo)</Italian>
+-		<Spanish>Rend. cosechas (Alim.)</Spanish>
++		<Italian>Raccolto (cibo)</Italian>
++		<Spanish>Cosechas (Alim.)</Spanish>
+ 	</TEXT>
+ 	<!-- Warlords has shortened these (CIV4GameText_Warlords_Civ4Changed.xml). 
+ 		 I'm keeping the Warlords version except for the German translation
+@@ -1302,6 +1302,219 @@
+ 		<Spanish>Merc.fabric.(Prod)</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.077: The above is only used for the "Graphs" tab now. The
++		 following is for the "Demographics" tab, where icons can be used. -->
++	<TEXT>
++		<Tag>TXT_KEY_DEMOGRAPHICS_ECONOMY_TEXT</Tag>
++		<English>GNP</English>
++		<French>PNB</French>
++		<German>BSP</German>
++		<Italian>PIL</Italian>
++		<Spanish>PNB</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_DEMOGRAPHICS_AGRICULTURE_TEXT</Tag>
++		<English>Crop Yield</English>
++		<French>R&#233;colte</French>
++		<German>Ertr�ge</German>
++		<Italian>Raccolto</Italian>
++		<Spanish>Cosechas</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_DEMOGRAPHICS_INDUSTRY_TEXT</Tag>
++		<English>Mfg. Goods</English>
++		<French>Marchandises</French>
++		<German>Industrieg�ter</German>
++		<Italian>Beni</Italian>
++		<Spanish>Merc. fabric.</Spanish>
++	</TEXT>
++	<!-- From CIV4GameTextInfos.xml: measures for "Demographics".
++		 Capitalization removed b/c no longer shown on a separate line.
++		 As for the leading spaces: I'm keeping these to be consistent with
++		 any _MEASURE keys that I don't change. -->
++	<!-- Was "gold". Using modern currencies is fine I think; says what that
++		 "gold" would be worth today. -->
++	<TEXT>
++		<Tag>TXT_KEY_DEMO_SCREEN_ECONOMY_MEASURE</Tag>
++		<English> million $</English>
++		<French> millions en euro</French>
++		<German> Mio. Euro</German>
++		<Italian>milioni d'euro</Italian>
++		<Spanish> mill. de euro</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_DEMO_SCREEN_INDUSTRY_MEASURE</Tag>
++		<English> million tons</English>
++		<French> m�gatonnes</French>
++		<German> Mio. Tonnen</German>
++		<Italian>megaton</Italian>
++		<Spanish> megatones</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_DEMO_SCREEN_AGRICULTURE_MEASURE</Tag>
++		<English> million bushels</English>
++		<French> millions de boisseaux</French>
++		<German> Mio. Scheffel</German>
++		<Italian>milioni di stai</Italian>
++		<Spanish> mill. de fanegas</Spanish>
++	</TEXT>
++	<!-- Italian said "Popolazione" -->
++	<TEXT>
++		<Tag>TXT_KEY_DEMO_SCREEN_POPULATION_MEASURE</Tag>
++		<English> Years</English>
++		<French> Personnes</French>
++		<German> Jahre</German>
++		<Italian>Anni</Italian>
++		<Spanish> A&#241;os</Spanish>
++	</TEXT>
++	<!-- Use km^2 for all languages (was only French previously) -->
++	<TEXT>
++		<Tag>TXT_KEY_DEMO_SCREEN_LAND_AREA_MEASURE</Tag>
++		<English> km&#178;</English>
++		<French> Km&#178;</French>
++		<German> km&#178;</German>
++		<Italian>km&#178;</Italian>
++		<Spanish> km&#178;</Spanish>
++	</TEXT>
++	<!-- These two French names were too long for the best/ worst columns -->
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_ALEXANDER</Tag>
++		<English>Alexander</English>
++		<French>
++			<Text>Alexandre</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Alexander</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Alessandro</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Alejandro</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_TOKUGAWA</Tag>
++		<English>Tokugawa</English>
++		<French>
++			<Text>Tokugawa</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Tokugawa</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Tokugawa</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Tokugawa</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<!-- German spelling was long and unusual -->
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_GENGHIS_KHAN</Tag>
++		<English>Genghis Khan</English>
++		<French>
++			<Text>Gengis</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Dschingis Khan</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Genghis Khan</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Gengis Kan</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<!-- Spanish was too long -->
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_ISABELLA</Tag>
++		<English>
++			<Text>Isabella</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</English>
++		<French>
++			<Text>Isabelle</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Isabella</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Isabella</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Isabel</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<!-- From CIV4GameText_Misc1.xml. "ca." added b/c it's now
++		 an approximation. -->
++	<TEXT>
++		<Tag>TXT_KEY_DEMOGRAPHICS_SCREEN_RIVAL_AVERAGE</Tag>
++		<English>Rival Avg. (ca.)</English>
++		<French>Moy. rivaux (env.)</French>
++		<German>Gegn. Mittelw. (ca.)</German>
++		<Italian>Media rivali (ca.)</Italian>
++		<Spanish>Medio rival (aprox.)</Spanish>
++	</TEXT>
++	<!-- Just the German translations ("rival" was translated as a verb) -->
++	<TEXT>
++		<Tag>TXT_KEY_INFO_RIVAL_BEST</Tag>
++		<English>Rival Best</English>
++		<French>Meilleur rival</French>
++		<German>St�rkster Gegner</German>
++		<Italian>Migliore rivale</Italian>
++		<Spanish>Mejor rival</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_INFO_RIVAL_WORST</Tag>
++		<English>Rival Worst</English>
++		<French>Pire rival</French>
++		<German>Schw�chster Gegner</German>
++		<Italian>Peggiore rivale</Italian>
++		<Spanish>Peor rival</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_THOUSANDS_SEPARATOR</Tag>
++		<English>,</English>
++		<French>[SPACE]</French>
++		<German>.</German>
++		<Italian>.</Italian>
++		<Spanish>.</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.150a: Akin to TXT_KEY_MISC_PLAYER_CONVERT_RELIGION in
+ 		 (Vanilla) Civ4GameTextInfos. -->
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index abb7c12cf..2d534a2b3 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -6086,6 +6086,9 @@ int CvCity::getGreatPeopleProgress() const
+ 
+ void CvCity::changeGreatPeopleProgress(int iChange)
+ {
++	// <advc.078>
++	if(m_iGreatPeopleProgress <= 0 && iChange > 0)
++		GET_PLAYER(getOwnerINLINE()).reportFirstGPP(); // </advc.078>
+ 	m_iGreatPeopleProgress = (m_iGreatPeopleProgress + iChange);
+ 	FAssert(getGreatPeopleProgress() >= 0);
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 57213dcfd..49fc47263 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -429,7 +429,7 @@ void CvGame::regenerateMap()
+ 	else { // </advc.700>
+ 		autoSave(true); // advc.106l
+ 		// <advc.004j> Somehow doesn't work with Adv. Start; DoM screen doesn't appear.
+-		if(!isOption(GAMEOPTION_ADVANCED_START))
++		if(!isOption(GAMEOPTION_ADVANCED_START) || isOption(GAMEOPTION_SPAH))
+ 			showDawnOfMan();
+ 	} // </advc.004j>
+ 	if (NO_PLAYER != getActivePlayer())
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1b38c1b05..abfd0500d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -759,6 +759,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_bPbemNewTurn = false;
+ 	m_bExtendedGame = false;
+ 	m_bFoundedFirstCity = false;
++	m_bAnyGPPEver = false; // advc.078
+ 	m_bStrike = false;
+ 	m_bDisableHuman = false; // bbai
+ 	m_iChoosingFreeTechCount = 0; // K-Mod
+@@ -1547,8 +1548,7 @@ void CvPlayer::initFreeUnits()
+ 		iPoints /= 100;
+ 
+ 		if (!isHuman()
+-			&& !g.isOption(GAMEOPTION_SPAH) // advc.250b
+-			)
++			&& !g.isOption(GAMEOPTION_SPAH)) // advc.250b
+ 		{	/*  advc.250b, advc.001: Was this->getHandicapType(), i.e. Noble, which
+ 				means that this code block did nothing. */
+ 			iPoints *= GC.getHandicapInfo(g.getHandicapType()).getAIAdvancedStartPercent();
+@@ -1682,7 +1682,7 @@ void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, int iCount)
+ 					}
+ 				}
+ 
+-				// <advc.307> Machine Gun not useful enough against barbarians.
++				// <advc.307> Machine Gun not useful enough against Barbarians
+ 				if(eUnitAI == UNITAI_CITY_DEFENSE &&
+ 						GC.getUnitInfo(eLoopUnit).isOnlyDefensive())
+ 					bValid = false; // </advc.307>
+@@ -11269,10 +11269,10 @@ void CvPlayer::setCombatExperience(int iExperience)
+ 				}
+ 			}
+ 		}
+-	} // <advc.004>
++	} // <advc.078>
+ 	if(getID() == g.getActivePlayer() && getBugOptionBOOL("MainInterface__Combat_Counter", false))
+ 		gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+-	// </advc.004>
++	// </advc.078>
+ }
+ 
+ void CvPlayer::changeCombatExperience(int iChange)
+@@ -11978,6 +11978,17 @@ void CvPlayer::setFoundedFirstCity(bool bNewValue)
+ 	}
+ }
+ 
++// <advc.078>
++bool CvPlayer::isAnyGPPEver() const
++{
++	return m_bAnyGPPEver;
++}
++
++void CvPlayer::reportFirstGPP()
++{
++	m_bAnyGPPEver = true;
++} // </advc.078>
++
+ 
+ bool CvPlayer::isStrike() const																			
+ {
+@@ -18424,6 +18435,9 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_bPbemNewTurn);
+ 	pStream->Read(&m_bExtendedGame);
+ 	pStream->Read(&m_bFoundedFirstCity);
++	// <advc.078>
++	if(uiFlag >= 9)
++		pStream->Read(&m_bAnyGPPEver); // </advc.078>
+ 	pStream->Read(&m_bStrike);
+ 	// K-Mod
+ 	if (uiFlag >= 4)
+@@ -18831,6 +18845,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	uiFlag = 5; // advc.908a
+ 	uiFlag = 7; // advc.912c (6 used up for a test version)
+ 	uiFlag = 8; // advc.004x
++	uiFlag = 9; // advc.078
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iStartingX);
+@@ -18938,6 +18953,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_bPbemNewTurn && GC.getGameINLINE().isPbem());
+ 	pStream->Write(m_bExtendedGame);
+ 	pStream->Write(m_bFoundedFirstCity);
++	pStream->Write(m_bAnyGPPEver); // advc.078
+ 	pStream->Write(m_bStrike);
+ 	pStream->Write(m_iChoosingFreeTechCount); // K-Mod (bool for 2 <= uiFlag < 4. then int.)
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index d53dc9e40..7728d7dca 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -749,6 +749,9 @@ public:
+ 																																															
+ 	bool isFoundedFirstCity() const;																																	// Exposed to Python					
+ 	void setFoundedFirstCity(bool bNewValue);																										
++	// <advc.078>
++	bool isAnyGPPEver() const;		// (Exposed to Python)
++	void reportFirstGPP(); // </advc.078>
+ 																																															
+ 	DllExport bool isStrike() const;																																	// Exposed to Python					
+ 	void setStrike(bool bNewValue);		
+@@ -1342,6 +1345,7 @@ protected:
+ 	bool m_bPbemNewTurn;
+ 	bool m_bExtendedGame;
+ 	bool m_bFoundedFirstCity;
++	bool m_bAnyGPPEver; // advc.078
+ 	bool m_bStrike;
+ 	bool m_bHuman;
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 079dcc3ba..6aaceb822 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -1493,6 +1493,11 @@ bool CyPlayer::isFoundedFirstCity()
+ {
+ 	return m_pPlayer ? m_pPlayer->isFoundedFirstCity() : false;
+ }
++// <advc.078>
++bool CyPlayer::isAnyGPPEver()
++{
++	return m_pPlayer ? m_pPlayer->isAnyGPPEver() : false;
++} // </advc.078>
+ 
+ bool CyPlayer::isStrike()
+ {
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index c9ae464f4..a738d7620 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -356,6 +356,7 @@ public:
+ 	bool isEverAlive();
+ 	bool isExtendedGame();
+ 	bool isFoundedFirstCity();
++	bool isAnyGPPEver(); // advc.078
+ 	
+ 	bool isStrike();
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index 6fa0dc1bb..1aeb03d1d 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -343,6 +343,8 @@ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
+ 		.def("isEverAlive", &CyPlayer::isEverAlive, "bool ()")
+ 		.def("isExtendedGame", &CyPlayer::isExtendedGame, "bool ()")
+ 		.def("isFoundedFirstCity", &CyPlayer::isFoundedFirstCity, "bool ()")
++		// advc.078:
++		.def("isAnyGPPEver", &CyPlayer::isAnyGPPEver, "bool ()")
+ 
+ 		.def("isStrike", &CyPlayer::isStrike, "bool ()")
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 443508548..cbf07f519 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -5341,7 +5341,9 @@ class StartingArea:
+ 				sPlot = gameMap.plot(self.plotList[m].x,self.plotList[m].y)
+ 				if sPlot.isWater():
+ 					raise ValueError, "Start plot is water!"
+-				sPlot.setImprovementType(gc.getInfoTypeForString("NO_IMPROVEMENT"))
++				#sPlot.setImprovementType(gc.getInfoTypeForString("NO_IMPROVEMENT"))
++				# advc.001: NO_IMPROVEMENT is not an InfoType. (getInfoType will return -1 then, which is equal to ImprovementTypes.NO_IMPROVEMENT, so this is really a harmless error.)
++				sPlot.setImprovementType(ImprovementTypes.NO_IMPROVEMENT)
+ 				playerID = self.playerList[n]
+ 				player = gc.getPlayer(playerID)
+ 				sPlot.setStartingPlot(True)
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=67578

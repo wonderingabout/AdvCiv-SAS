@@ -1,0 +1,1144 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4906
+# Commit: fb6e6b5395238bdf3d675cbdde0619c6a9a4fcdf
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6c08e6269948690424d449dafafff559bdeb221f
+# Title: refactor and beautify sevopedia tech, add FeatureTerrainBooleans info in sevopedia bonus, and add similar or/and related but anyways etc info and clarify it...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+78	18	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+1	2	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+2	23	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+28	21	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+13	7	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+60	68	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+45	17	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+4	9	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+1	1	Assets/XML/Terrain/CIV4BonusInfos.xml
+9	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+0	5	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+27	1	Assets/XML/Text/RFC_DOC_Custom.xml
+2	2	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+10	7	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (2).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index fa95c617f..bc702862a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -36,8 +36,6 @@ class SevoPediaBonus:
+ 		self.iBonus = -1
+ 		self.top = main
+ 
+-		# <!-- custom: based on sevopediabuilding's code, see there for details and differences of implementation --> 
+-		
+ 		self.MEDIUM_MARGIN = 15
+ 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+ 
+@@ -71,35 +69,26 @@ class SevoPediaBonus:
+ 		# <!-- custom: see sevopediaunit's self.W_TOTAL_EFFECTIVE_UNIT_PANE for differences in implementation anyways etc -->
+ 		self.W_TOTAL_EFFECTIVE_BONUS_PANE = self.W_BONUS_PANE
+ 
+-		self.H_WISHED_OR_AND_IMAGINED_IMPROVEMENTS_HEIGHT = 110
+-		#self.H_EXTRA_ROOM_FOR_IMPROVEMENTS_HORIZONTAL_PANEL_VERTICAL_LABELS = 40
+-		self.H_EXTRA_ROOM_FOR_IMPROVEMENTS_HORIZONTAL_PANEL_VERTICAL_LABELS = 0
+-
+ 		self.X_IMPROVEMENTS = self.X_BONUS_PANE
+ 		self.Y_IMPROVEMENTS = self.Y_BONUS_PANE + self.H_BONUS_PANE + self.SMALL_MARGIN
+ 		self.W_IMPROVEMENTS = self.W_TOTAL_EFFECTIVE_BONUS_PANE
+-		self.H_IMPROVEMENTS = self.H_WISHED_OR_AND_IMAGINED_IMPROVEMENTS_HEIGHT + self.H_EXTRA_ROOM_FOR_IMPROVEMENTS_HORIZONTAL_PANEL_VERTICAL_LABELS
++		self.H_IMPROVEMENTS = 110
+ 
+ 		self.X_UNITS = self.X_BONUS_PANE
+ 		self.W_UNITS = self.top.R_PEDIA_PAGE - self.X_UNITS
+ 		self.Y_UNITS = self.Y_IMPROVEMENTS + self.H_IMPROVEMENTS + self.SMALL_MARGIN
+-		self.H_UNITS = self.H_WISHED_OR_AND_IMAGINED_IMPROVEMENTS_HEIGHT
++		self.H_UNITS = self.H_IMPROVEMENTS
+ 
+ 		# <!-- custom: put the buildings panel under the units panel so easier to refer to it directly, it will also be identical in dimensions (or very close) so we will not need to change much (coordinates or other things) this way -->
+ 		self.X_BUILDINGS_AND_PROJECTS = self.X_BONUS_PANE
+ 		self.Y_BUILDINGS_AND_PROJECTS = self.Y_UNITS + self.H_UNITS + self.SMALL_MARGIN
+ 		self.W_BUILDINGS_AND_PROJECTS = self.W_UNITS
+-		self.H_BUILDINGS_AND_PROJECTS = self.H_UNITS
++		self.H_BUILDINGS_AND_PROJECTS = self.H_IMPROVEMENTS
+ 
+ 		self.X_TERRAINS = self.X_BONUS_PANE
+ 		self.Y_TERRAINS = self.Y_BUILDINGS_AND_PROJECTS + self.H_BUILDINGS_AND_PROJECTS + self.SMALL_MARGIN
+ 		self.W_TERRAINS = self.W_IMPROVEMENTS
+-		self.H_TERRAINS = self.H_BUILDINGS_AND_PROJECTS
+-
+-		self.X_FEATURES = self.X_BONUS_PANE + self.W_TERRAINS + self.SMALL_MARGIN
+-		self.Y_FEATURES = self.Y_TERRAINS
+-		self.W_FEATURES = self.W_IMPROVEMENTS
+-		self.H_FEATURES = self.H_TERRAINS
++		self.H_TERRAINS = self.H_IMPROVEMENTS
+ 
+ 		self.X_SPECIAL = self.X_BONUS_PANE
+ 		self.Y_SPECIAL = self.Y_TERRAINS + self.H_TERRAINS + self.SMALL_MARGIN
+@@ -133,10 +122,20 @@ class SevoPediaBonus:
+ 		self.W_OBSOLETE_WITH = self.W_REVEALED_BY
+ 		self.H_OBSOLETE_WITH = self.H_IMPROVEMENTS
+ 
++		self.X_FEATURES = self.X_BONUS_ANIMATION
++		self.Y_FEATURES = self.Y_TERRAINS
++		self.W_FEATURES = (self.W_BONUS_ANIMATION / 2) - self.MEDIUM_MARGIN
++		self.H_FEATURES = self.H_IMPROVEMENTS
++
++		self.X_FEATURE_TERRAIN_BOOLEANS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
++		self.Y_FEATURE_TERRAIN_BOOLEANS = self.Y_FEATURES
++		self.W_FEATURE_TERRAIN_BOOLEANS = self.W_FEATURES
++		self.H_FEATURE_TERRAIN_BOOLEANS = self.H_IMPROVEMENTS
++
+ 		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+ 
+ 		self.X_HISTORY = self.X_BONUS_ANIMATION
+-		self.Y_HISTORY = self.Y_TERRAINS + self.H_TERRAINS + self.SMALL_MARGIN
++		self.Y_HISTORY = self.Y_FEATURES + self.H_FEATURES + self.SMALL_MARGIN
+ 		self.W_HISTORY = self.W_BONUS_ANIMATION
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+@@ -154,6 +153,7 @@ class SevoPediaBonus:
+ 		self.placeBuildingsAndProjects()
+ 		self.placeTerrains()
+ 		self.placeFeatures()
++		self.placeFeatureTerrainBooleans()
+ 		self.placeSpecial()
+ 		# <!-- custom: split the former/old placeRequires, into 2 functions/methods now instead, placeRevealedBy and placeTradeableSince (which is hopefully more accurate this way too), anyways etc -->
+ 		self.placeRevealedBy()
+@@ -386,7 +386,8 @@ class SevoPediaBonus:
+ 		wPanel = self.W_TERRAINS
+ 		hPanel = self.H_TERRAINS
+ 
+-		txtKeyPanel = "TXT_KEY_PEDIA_TERRAINS_MINUS_PLOT_TYPES"
++		# <!-- custom: see the corresponding asset's XML code comment for details -->
++		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BOOLEANS"
+ 
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+@@ -443,7 +444,8 @@ class SevoPediaBonus:
+ 		wPanel = self.W_FEATURES
+ 		hPanel = self.H_FEATURES
+ 
+-		txtKeyPanel = "TXT_KEY_MISC_FEATURES"
++		# <!-- custom: see the corresponding asset's XML code comment for details -->
++		txtKeyPanel = "TXT_KEY_PEDIA_FEATURE_BOOLEANS"
+ 
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+@@ -494,6 +496,64 @@ class SevoPediaBonus:
+ 
+ 
+ 
++	# <!-- custom: also show Bonuses available through FeatureTerrainBooleans, such as as of now bonus_gemstones being available in grassland forest, but not in TerrainBooleans (no grassland entry there if i may say but anyways etc), so show this info here as well ; code provided by chatgpt thanks to my prompt too and such etc but anyways etc -->
++	def placeFeatureTerrainBooleans(self):
++		xPanel = self.X_FEATURE_TERRAIN_BOOLEANS
++		yPanel = self.Y_FEATURE_TERRAIN_BOOLEANS
++		wPanel = self.W_FEATURE_TERRAIN_BOOLEANS
++		hPanel = self.H_FEATURE_TERRAIN_BOOLEANS
++
++		# <!-- custom: see the corresponding asset's XML code comment for details -->
++		txtKeyPanel = "TXT_KEY_PEDIA_FEATURE_TERRAIN_BOOLEANS"
++
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++
++		# Create panel with proper styling
++		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
++
++		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
++		# Additional left side padding for the button(s)
++		#screen.attachLabel(panelName, "", "  ")
++
++		rowListName = self.top.getNextWidgetName()
++
++		BUTTON_SIZE = 64 # Size of each button
++
++		# Create the MultiList control
++		# Constants for button display
++		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
++		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
++		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
++		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
++		# Per documentation, the numLists parameter (7th) is actually number of columns
++		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
++		# Using 1 for auto-calculation of buttons per row
++		buttonCalculate = 1
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++
++		isButtonFound = False
++		#iButtonIndex = 0
++
++		# <!-- custom: core logic provided by chatgpt thanks to my prompt and such adjustments or not or yes or etc too but anyways etc anyways etc anyways etc... -->
++		for iTerrain in xrange(gc.getNumTerrainInfos()):
++			if gc.getBonusInfo(self.iBonus).isFeatureTerrain(iTerrain):
++				# Column index (always 0 when numLists=1)
++				columnIndex = 0
++				screen.appendMultiListButton(rowListName, gc.getTerrainInfo(iTerrain).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, 1, False)
++
++				isButtonFound = True
++				#iButtonIndex += 1
++
++		if not isButtonFound:
++			txtKeyNoButtonFound = "TXT_KEY_BONUS_GENERIC_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = yPanel + (hPanel / 2)
++			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
+ 	def placeSpecial(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 3e43c74ac..267753928 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -1329,7 +1329,6 @@ class SevoPediaBuilding:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background -->
+ 		#screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		textName = self.top.getNextWidgetName()
+@@ -1339,7 +1338,7 @@ class SevoPediaBuilding:
+ 		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+ 		#	szText += gc.getBuildingInfo(self.iBuilding).getStrategy()
+ 		#	szText += u"\n\n"
+-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background -->
++		# <!-- custom: i also don't need the "History:" in TXT_KEY_CIVILOPEDIA_HISTORY, is redundant with background that is already about the building's background -->
+ 		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
+ 		szText += gc.getBuildingInfo(self.iBuilding).getCivilopedia()
+ 		# <!-- custom: but here we also restore/add padding -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index ee816a45e..a51a0bc3a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -117,35 +117,14 @@ class SevoPediaCivic:
+ 	def placeText(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background -->
+ 		# advc.004y: Label added for this panel
+ 		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
+-		# <!-- custom: also adding textName (same as in the placeHistory functions of other files, such as SevoPediaUnit.py, see those for details or more accurate or not information -->
++
+ 		textName = self.top.getNextWidgetName()
+ 		szText = u""
+ 		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
+-		#if len(gc.getCivicInfo(self.iCivic).getStrategy()) > 0:
+-		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+-		#	szText += gc.getCivicInfo(self.iCivic).getStrategy()
+-		#szText = gc.getCivicInfo(self.iCivic).getCivilopedia()
+-		# <advc.004y> Show strategy help; same as for units.
+-		#szText = u""
+-		#if len(gc.getCivicInfo(self.iCivic).getStrategy()) > 0:
+-		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+-		#	szText += gc.getCivicInfo(self.iCivic).getStrategy()
+-		#	# Balance changes need to have a separate key b/c strategy help gets shown in popups; needs to be concise.
+-		#	# I'm hardcoding the text key here out of laziness - and also b/c it shouldn't be referenced anywhere else.
+-		#	szKey = "TXT_KEY_CIVIC_"
+-		#	szKey += gc.getCivicInfo(self.iCivic).getDescription().upper()
+-		#	szKey += "_CHANGES_PEDIA"
+-		#	szChanges = localText.getText(str(szKey.replace(" ", "_")), ())
+-		#	if not szChanges.endswith("PEDIA"):
+-		#		szText += u"\n\t"
+-		#		szText += szChanges
+-		#szText += u"\n\n"
+-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background -->
+-		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
++		# <!-- custom: same reasoning as for/in SevopediaBuilding.py, i also don't need the redundant "History:" -->
+ 		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
+ 		# </advc.004y>
+ 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 9b71146ca..3f946b654 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -66,6 +66,9 @@ class SevoPediaFeature:
+ 		self.iFeature = -1
+ 		self.top = main
+ 
++		self.MEDIUM_MARGIN = 15
++		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
++
+ 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
+ 		self.W_INFO_PANE = 290
+@@ -82,43 +85,43 @@ class SevoPediaFeature:
+ 		self.W_INFO_TEXT = 220
+ 		self.H_INFO_TEXT = self.H_INFO_PANE - 20
+ 
+-		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + 10
++		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
+ 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
+ 		self.H_SPECIAL = self.H_INFO_PANE
+ 		self.Y_SPECIAL = self.Y_INFO_PANE
+ 
+ 		self.X_FEATURES = self.X_INFO_PANE
+-		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + 10
++		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
+ 		self.W_FEATURES = self.W_INFO_PANE
+ 		self.H_FEATURES = 110
+ 
+-		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + 10
++		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
+ 		self.Y_IMPROVEMENTS = self.Y_FEATURES
+ 		self.W_IMPROVEMENTS = self.top.R_PEDIA_PAGE - self.X_IMPROVEMENTS
+ 		self.H_IMPROVEMENTS = self.H_FEATURES
+ 
+-		self.X_RESOURCES = self.X_FEATURES
+-		self.Y_RESOURCES = self.Y_FEATURES + self.H_FEATURES + 10
+-		self.W_RESOURCES = self.top.R_PEDIA_PAGE - self.X_RESOURCES
+-		self.H_RESOURCES = self.H_FEATURES
++		self.X_BONUSES_ON_ANY_TERRAIN = self.X_FEATURES
++		self.Y_BONUSES_ON_ANY_TERRAIN = self.Y_FEATURES + self.H_FEATURES + self.SMALL_MARGIN
++		self.W_BONUSES_ON_ANY_TERRAIN = self.top.R_PEDIA_PAGE - self.X_BONUSES_ON_ANY_TERRAIN
++		self.H_BONUSES_ON_ANY_TERRAIN = self.H_FEATURES
+ 
+ 		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
+ 		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
+ 
+ 		# <!-- custom: new placeRelevantUnits and placeUnitsImpassable based on the new anyways etc sevopedia terrain implementation anyways etc -->
+-		self.X_RELEVANT_UNITS = self.X_RESOURCES
+-		self.Y_RELEVANT_UNITS = self.Y_RESOURCES + self.H_RESOURCES + 10
+-		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_RESOURCES
++		self.X_RELEVANT_UNITS = self.X_BONUSES_ON_ANY_TERRAIN
++		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ON_ANY_TERRAIN + self.H_BONUSES_ON_ANY_TERRAIN + self.SMALL_MARGIN
++		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_BONUSES_ON_ANY_TERRAIN
+ 		self.H_RELEVANT_UNITS = self.H_FEATURES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+ 
+ 		self.X_UNITS_IMPASSABLE = self.X_RELEVANT_UNITS
+-		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + 10
++		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + self.SMALL_MARGIN
+ 		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
+ 		self.H_UNITS_IMPASSABLE = self.H_FEATURES
+ 
+ 		self.X_HISTORY = self.X_UNITS_IMPASSABLE
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+-		self.Y_HISTORY = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + 10
++		self.Y_HISTORY = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+ 
+@@ -130,7 +133,7 @@ class SevoPediaFeature:
+ 		self.placeSpecial()
+ 		self.placeTerrain()
+ 		self.placeImprovements()
+-		self.placeResources()
++		self.placeBonusesOnAnyTerrain()
+ 		self.placeRelevantUnits()
+ 		self.placeUnitsImpassable()
+ 		self.placeHistory()
+@@ -176,30 +179,34 @@ class SevoPediaFeature:
+ 		info = gc.getFeatureInfo(self.iFeature)
+ 
+ 		screen.addPanel(panel, "", "", True, True, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+-		szText = info.getHelp()
+-		szText += CyGameTextMgr().getFeatureHelp(self.iFeature, True)
++		szSpecialText = info.getHelp()
++		szSpecialText += CyGameTextMgr().getFeatureHelp(self.iFeature, True)
+ 
+ 		for iBuild in xrange(gc.getNumBuildInfos()):
+ 			buildInfo = gc.getBuildInfo(iBuild)
+ 
+ 			# <!-- custom: since we already do the pre-checks at pre-load time, simply and directly fetch the first strictly positive (not taking into account negative values as they would be highly unusual and i wouldn't see their purpose at least in our mod, see the code at pre load for details) value -->
+ 			if buildInfo.isFeatureRemove(self.iFeature):
++				if szSpecialText.strip():
++					szSpecialText += u"\n"
+ 				bullet = localText.getText("[ICON_BULLET]", ())
+ 
+ 				# <!-- custom: check iProduction and iTime separately for cases such as feature fallout that have 0 iProduction but an iTime > 0 (so we need to handle being able to display only the iTime optionally without iProduction anyways etc) -->
+ 				removeTime = buildInfo.getFeatureTime(self.iFeature)
+ 				if removeTime > 0:
+-					szText += u"\n%sRemove iTime: %d" % (bullet, removeTime)
++					szSpecialText += u"%sRemove iTime: %d" % (bullet, removeTime)
++
++				szSpecialText += u"\n"
+ 
+ 				removeProduction = buildInfo.getFeatureProduction(self.iFeature)
+ 				if removeProduction > 0:
+-					szText += u"\n%s+%d%s on remove" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()))
++					szSpecialText += u"%s+%d%s on remove" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()))
+ 
+ 				# <!-- custom: all values should be the same, no need to continue the loop after we got first strictly positive iProduction or/and iTime based one anyways etc -->
+ 				break
+ 
+-		szText = szText.replace("\n\n", "\n").strip()
+-		screen.addMultilineText(text, szText, self.X_SPECIAL + 5, self.Y_SPECIAL + 10, self.W_SPECIAL - 10, self.H_SPECIAL - 15, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		szSpecialText = szSpecialText.replace("\n\n", "\n").strip()
++		screen.addMultilineText(text, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 10, self.W_SPECIAL - 10, self.H_SPECIAL - 15, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -234,11 +241,11 @@ class SevoPediaFeature:
+ 
+ 
+ 
+-	def placeResources(self):
++	def placeBonusesOnAnyTerrain(self):
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+ 
+-		screen.addPanel(panel, localText.getText("TXT_KEY_CONCEPT_RESOURCES", ()), "", False, True, self.X_RESOURCES, self.Y_RESOURCES, self.W_RESOURCES, self.H_RESOURCES, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_FEATURE_BONUSES_FEATURE_BOOLEANS", ()), "", False, True, self.X_BONUSES_ON_ANY_TERRAIN, self.Y_BONUSES_ON_ANY_TERRAIN, self.W_BONUSES_ON_ANY_TERRAIN, self.H_BONUSES_ON_ANY_TERRAIN, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panel, "", "  ")
+ 
+ 		for iResource in xrange(gc.getNumBonusInfos()):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 57e984a04..7211312a2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -25,6 +25,9 @@ class SevoPediaImprovement:
+ 		self.iImprovement = -1
+ 		self.top = main
+ 
++		self.MEDIUM_MARGIN = 15
++		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
++
+ 		self.X_UPPER_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_UPPER_PANE = self.top.Y_PEDIA_PAGE
+ 		self.W_UPPER_PANE = 210
+@@ -36,16 +39,17 @@ class SevoPediaImprovement:
+ 		self.Y_ICON = self.Y_UPPER_PANE + (self.H_UPPER_PANE - self.H_ICON) / 2
+ 		self.ICON_SIZE = 64
+ 
+-		self.X_IMPROVENEMT_ANIMATION = self.X_UPPER_PANE + self.W_UPPER_PANE + 10
++		self.X_IMPROVENEMT_ANIMATION = self.X_UPPER_PANE + self.W_UPPER_PANE + self.MEDIUM_MARGIN
+ 		self.W_IMPROVENEMT_ANIMATION = self.top.R_PEDIA_PAGE - self.X_IMPROVENEMT_ANIMATION
+ 		self.Y_IMPROVENEMT_ANIMATION = self.Y_UPPER_PANE + 7
+ 		self.H_IMPROVENEMT_ANIMATION = self.H_UPPER_PANE - 7
++
+ 		self.X_ROTATION_IMPROVENEMT_ANIMATION = -20
+ 		self.Z_ROTATION_IMPROVENEMT_ANIMATION = 30
+ 		self.SCALE_ANIMATION = 0.7
+ 
+ 		self.X_IMPROVEMENTS_PANE = self.X_UPPER_PANE
+-		self.Y_IMPROVEMENTS_PANE = self.Y_UPPER_PANE + self.H_UPPER_PANE + 10
++		self.Y_IMPROVEMENTS_PANE = self.Y_UPPER_PANE + self.H_UPPER_PANE + self.SMALL_MARGIN
+ 		self.W_IMPROVEMENTS_PANE = 340
+ 		self.H_IMPROVEMENTS_PANE = 180
+ 		# <advc.004y>
+@@ -53,17 +57,17 @@ class SevoPediaImprovement:
+ 			self.H_IMPROVEMENTS_PANE += 45
+ 		# </advc.004y>
+ 		self.X_REQUIRES = self.X_UPPER_PANE
+-		self.Y_REQUIRES = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + 10
++		self.Y_REQUIRES = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + self.SMALL_MARGIN
+ 		self.W_REQUIRES = self.W_IMPROVEMENTS_PANE
+ 		self.H_REQUIRES = 110
+ 
+ 		self.X_EFFECTS = self.X_UPPER_PANE
+-		self.Y_EFFECTS = self.Y_REQUIRES + self.H_REQUIRES + 10
++		self.Y_EFFECTS = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+ 		self.W_EFFECTS = self.W_IMPROVEMENTS_PANE
+ 		self.H_EFFECTS = self.top.B_PEDIA_PAGE - self.Y_EFFECTS
+ 
+-		self.X_BONUS_YIELDS_PANE = self.X_IMPROVEMENTS_PANE + self.W_IMPROVEMENTS_PANE + 10
+-		self.Y_BONUS_YIELDS_PANE = self.Y_UPPER_PANE + self.H_UPPER_PANE + 10
++		self.X_BONUS_YIELDS_PANE = self.X_IMPROVEMENTS_PANE + self.W_IMPROVEMENTS_PANE + self.MEDIUM_MARGIN
++		self.Y_BONUS_YIELDS_PANE = self.Y_UPPER_PANE + self.H_UPPER_PANE + self.SMALL_MARGIN
+ 		self.W_BONUS_YIELDS_PANE = self.top.R_PEDIA_PAGE - self.X_BONUS_YIELDS_PANE
+ 		self.H_BONUS_YIELDS_PANE = self.top.B_PEDIA_PAGE - self.Y_BONUS_YIELDS_PANE
+ 
+@@ -235,13 +239,15 @@ class SevoPediaImprovement:
+ 		szSpecialText = CyGameTextMgr().getImprovementHelp(self.iImprovement, True)
+ 
+ 		# Show iTime for building this improvement <!-- custom: (note: not related to feature remove's iTime, here it is about the improvement's iTime (i.e. time to build this improvement if i am not mistaken anyways etc))), code provided by chatgpt thanks to my prompt too and adjustments or not too too if i may say and thanks to it i.e. to chatgpt too too too if i may say but etc anyways etc -->
++		if szSpecialText.strip():
++			szSpecialText += u"\n"
+ 		bullet = localText.getText("[ICON_BULLET]", ())
+ 		for iBuild in xrange(gc.getNumBuildInfos()):
+ 			buildInfo = gc.getBuildInfo(iBuild)
+ 			if buildInfo.getImprovement() == self.iImprovement:
+ 				iTime = buildInfo.getTime()
+ 				if iTime > 0:
+-					szSpecialText += u"\n%sBuild Time: %d" % (bullet, iTime)
++					szSpecialText += u"%sBuild Time: %d" % (bullet, iTime)
+ 					# Improvement is unique per build, so we can stop here after first meaningful (iTime > 0) entry
+ 					break
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 67e1bd294..f907ae14f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -37,7 +37,10 @@ def getPrecomputedUntradeableTechsText():
+ 
+ 	untradeableTechs.sort()
+ 
+-	untradeableTechsText = ""
++	untradeableTechsText = u""
++
++	untradeableTechsText += localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ())
++
+ 	bullet = localText.getText("[ICON_BULLET]", ())
+ 	for tech in untradeableTechs:
+ 		untradeableTechsText += u"\n%s%s" % (bullet, tech)
+@@ -52,6 +55,9 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.iTech = -1
+ 		self.top = main
+ 
++		self.MEDIUM_MARGIN = 15
++		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
++
+ 		self.X_TECH_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_TECH_PANE = self.top.Y_PEDIA_PAGE
+ 		self.W_TECH_PANE = 340
+@@ -67,48 +73,43 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.X_COST = self.X_TECH_PANE + 110
+ 		self.Y_COST = self.Y_TECH_PANE + 47
+ 
+-		self.X_CIVS = self.X_TECH_PANE + self.W_TECH_PANE + 10
+-		self.Y_CIVS = self.Y_TECH_PANE
+-		self.W_CIVS = self.top.R_PEDIA_PAGE - self.X_CIVS
+-		self.H_CIVS = 110
+-
+-		# advc.004y (note): These dimensions are for the "background" panel, which includes more than just the tech quote.
+-		self.X_QUOTE_PANE = self.X_TECH_PANE
+-		self.Y_QUOTE_PANE = self.Y_TECH_PANE + self.H_TECH_PANE + 10
+-		self.W_QUOTE_PANE = self.top.R_PEDIA_PAGE - self.X_QUOTE_PANE
+-
+-		# <advc.004y>
+-		# Move some height settings up:
+-		self.H_PREREQ_PANE = 124
+-		self.H_BUILDING_PANE = self.H_PREREQ_PANE
+-		self.H_UNIT_PANE = self.H_PREREQ_PANE
+-		#self.H_SPECIAL_PANE = self.top.B_PEDIA_PAGE - self.Y_SPECIAL_PANE
+-		# Instead use any extra space for the QUOTE_PANE
+-		self.H_SPECIAL_PANE = self.H_BUILDING_PANE + self.H_UNIT_PANE + 10
+-		# was 110
+-		self.H_QUOTE_PANE = self.top.B_PEDIA_PAGE - self.H_SPECIAL_PANE - self.H_PREREQ_PANE - self.Y_QUOTE_PANE - 20
+-		# </advc.004y>
++		self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.X_TECH_PANE + self.W_TECH_PANE + self.MEDIUM_MARGIN
++		self.Y_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.Y_TECH_PANE
++		self.W_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = self.top.R_PEDIA_PAGE - self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
++		self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH = 110
+ 
+-		self.X_PREREQ_PANE = self.X_TECH_PANE
+-		self.Y_PREREQ_PANE = self.Y_QUOTE_PANE + self.H_QUOTE_PANE + 10
+-		self.W_PREREQ_PANE = self.top.W_PEDIA_PAGE / 2 - 5
++		# <!-- custom: removed old base advciv code that increased height of some panels to seemingly insert the quote, but the quote seems to be already in the placeHistory panel with plenty space already, so remove this logic and simplify code anyways etc, consistently with how it is done in other panels, at least we  don't have a reason to make these panels selectively higher so make standard height for all in sevopedia tech in advciv-sas at least if i may say but or not but or yes but but anyways etc ; so rename "_QUOTE_PANE" to "_HISTORY" and do some other adjustments anyways etc anyways etc anyways etc -->
++		self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS = (3 * self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH) + (3 * self.SMALL_MARGIN)
+ 
+-		self.X_LEADS_TO_PANE = self.X_PREREQ_PANE + self.W_PREREQ_PANE + 10
+-		self.Y_LEADS_TO_PANE = self.Y_PREREQ_PANE
+-		self.W_LEADS_TO_PANE = self.W_PREREQ_PANE
+-		self.H_LEADS_TO_PANE = self.H_PREREQ_PANE
++		self.X_HISTORY = self.X_TECH_PANE
++		self.Y_HISTORY = self.Y_TECH_PANE + self.H_TECH_PANE + self.SMALL_MARGIN
++		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
++		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY - self.H_TOTAL_BOTTOM_PANELS_HEIGHT_WITH_MARGINS
+ 
+-		self.X_SPECIAL_PANE = self.X_TECH_PANE
+-		self.W_SPECIAL_PANE = self.W_PREREQ_PANE
+-		self.Y_SPECIAL_PANE = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + 10
++		self.X_REQUIRES = self.X_TECH_PANE
++		self.Y_REQUIRES = self.Y_HISTORY + self.H_HISTORY + self.SMALL_MARGIN
++		self.W_REQUIRES = self.top.W_PEDIA_PAGE / 2 - 5
++		self.H_REQUIRES = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
+ 
+-		self.X_UNIT_PANE = self.X_LEADS_TO_PANE
+-		self.W_UNIT_PANE = self.W_LEADS_TO_PANE
+-		self.Y_UNIT_PANE = self.Y_SPECIAL_PANE
++		self.X_LEADS_TO = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
++		self.Y_LEADS_TO = self.Y_REQUIRES
++		self.W_LEADS_TO = self.W_REQUIRES
++		self.H_LEADS_TO = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
+ 
+-		self.X_BUILDING_PANE = self.X_UNIT_PANE
+-		self.W_BUILDING_PANE = self.W_UNIT_PANE
+-		self.Y_BUILDING_PANE = self.Y_UNIT_PANE + self.H_UNIT_PANE + 10
++		self.X_SPECIAL = self.X_TECH_PANE
++		self.W_SPECIAL = self.W_REQUIRES
++		self.Y_SPECIAL = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
++		self.H_SPECIAL = (2 * self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH) + self.SMALL_MARGIN
++
++		self.X_UNITS_ENABLED = self.X_LEADS_TO
++		self.W_UNITS_ENABLED = self.W_LEADS_TO
++		self.Y_UNITS_ENABLED = self.Y_SPECIAL
++		self.H_UNITS_ENABLED = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
++
++		self.X_BUILDINGS_ENABLED = self.X_LEADS_TO
++		self.W_BUILDINGS_ENABLED = self.W_LEADS_TO
++		self.Y_BUILDINGS_ENABLED = self.Y_UNITS_ENABLED + self.H_UNITS_ENABLED + 10
++		self.H_BUILDINGS_ENABLED = self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH
+ 
+ 
+ 
+@@ -116,13 +117,13 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.iTech = iTech
+ 
+ 		self.placeTechPane()
+-		self.placeCivilizations()
++		self.placeCivilizationsThatStartWithThisTech()
+ 		self.placePrereqs()
+ 		self.placeLeadsTo()
+ 		self.placeUnits()
+ 		self.placeBuildings()
+ 		self.placeSpecial()
+-		self.placeBackground()
++		self.placeHistory()
+ 
+ 
+ 
+@@ -155,7 +156,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 
+-	def placeCivilizations(self):
++	def placeCivilizationsThatStartWithThisTech(self):
+ 		# <advc.004y> Show the box only for starting techs
+ 		civs = []
+ 		for iCiv in range(gc.getNumCivilizationInfos()):
+@@ -168,7 +169,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		# </advc.004y>
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_CIV", ()), "", False, True, self.X_CIVS, self.Y_CIVS, self.W_CIVS, self.H_CIVS, PanelStyles.PANEL_STYLE_BLUE50 )
++		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CIVILIZATIONS_THAT_START_WITH_THIS_TECH", ()), "", False, True, self.X_CIVILIZATIONS_THAT_START_WITH_THIS_TECH, self.Y_CIVILIZATIONS_THAT_START_WITH_THIS_TECH, self.W_CIVILIZATIONS_THAT_START_WITH_THIS_TECH, self.H_CIVILIZATIONS_THAT_START_WITH_THIS_TECH, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		screen.attachLabel(panelName, "", "  ")
+ 		for iCiv in civs: # advc.004y: Use the list computed above
+ 			civ = gc.getCivilizationInfo(iCiv)
+@@ -181,7 +182,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		screen = self.top.getScreen()
+ 		szLeadsTo = localText.getText("TXT_KEY_PEDIA_LEADS_TO", ())
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, szLeadsTo, "", False, True, self.X_LEADS_TO_PANE, self.Y_LEADS_TO_PANE, self.W_LEADS_TO_PANE, self.H_LEADS_TO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName, szLeadsTo, "", False, True, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
+ 
+ 		for j in range(gc.getNumTechInfos()):
+@@ -200,7 +201,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		screen = self.top.getScreen()
+ 		szRequires = localText.getText("TXT_KEY_PEDIA_REQUIRES", ())
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, szRequires, "", False, True, self.X_PREREQ_PANE, self.Y_PREREQ_PANE, self.W_PREREQ_PANE, self.H_PREREQ_PANE, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName, szRequires, "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
+ 		bFirst = True
+ 		for j in range(gc.getNUM_AND_TECH_PREREQS()):
+@@ -244,7 +245,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 	def placeUnits(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_UNITS_ENABLED", ()), "", False, True, self.X_UNIT_PANE, self.Y_UNIT_PANE, self.W_UNIT_PANE, self.H_UNIT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_UNITS_ENABLED", ()), "", False, True, self.X_UNITS_ENABLED, self.Y_UNITS_ENABLED, self.W_UNITS_ENABLED, self.H_UNITS_ENABLED, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
+ 		iActivePlayer = gc.getGame().getActivePlayer() # advc.003l
+ 		for eLoopUnit in range(gc.getNumUnitInfos()):
+@@ -262,7 +263,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 	def placeBuildings(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_BUILDINGS_ENABLED", ()), "", False, True, self.X_BUILDING_PANE, self.Y_BUILDING_PANE, self.W_BUILDING_PANE, self.H_BUILDING_PANE, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_BUILDINGS_ENABLED", ()), "", False, True, self.X_BUILDINGS_ENABLED, self.Y_BUILDINGS_ENABLED, self.W_BUILDINGS_ENABLED, self.H_BUILDINGS_ENABLED, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
+ 		for eLoopBuilding in range(gc.getNumBuildingInfos()):
+ 			if (eLoopBuilding != -1):
+@@ -279,43 +280,34 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 	def placeSpecial(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL_PANE, self.Y_SPECIAL_PANE, self.W_SPECIAL_PANE, self.H_SPECIAL_PANE, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+ 		listName = self.top.getNextWidgetName()
+ 
+ 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, False, -1)[1:]
+ 
+-		# <!-- custom: add the list as string of all untradeable techs if any are untradeable anyways etc ; see also sevopedia main precomputing / cache building for untradeable techs text for details anyways etc -->
+-		if UNTRADEABLE_TECHS_TEXT:
+-			szSpecialText += u"\n\n%s%s" % (localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ()), UNTRADEABLE_TECHS_TEXT)
++		# <!-- custom: add the list as string of all untradeable techs if this tech is untradeable ; see also sevopedia main precomputing / cache building for untradeable techs text for details anyways etc -->
++		if (not gc.getTechInfo(self.iTech).isTrade()):
++			if szSpecialText.strip():
++				szSpecialText += u"\n\n"
++			szSpecialText += UNTRADEABLE_TECHS_TEXT
+ 
+-		# <!-- custom: seems to overfill a bit actually quite a bit xd after rechecking but anyways etc, reduce height, was self.H_SPECIAL_PANE-10 -->
+-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANE + 5, self.Y_SPECIAL_PANE + 30, self.W_SPECIAL_PANE - 35, self.H_SPECIAL_PANE - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# <!-- custom: seems to overfill a bit actually quite a bit xd after rechecking but anyways etc, reduce height, was self.H_SPECIAL-10 -->
++		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 35, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+-	def placeBackground(self): # advc.004y: renamed from "placeQuote"
++	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		# <!-- custom: same reasoning as for/in SevopediaUnit.py, i don't need the redundant background -->
+-		# advc.004y: Label added for this panel
+-		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_QUOTE_PANE, self.Y_QUOTE_PANE, self.W_QUOTE_PANE, self.H_QUOTE_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.addPanel(panelName, "", "", True, True, self.X_QUOTE_PANE, self.Y_QUOTE_PANE, self.W_QUOTE_PANE, self.H_QUOTE_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+-		# <advc.004y> Show strategy help too (like for civics)
++		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+ 		szText = u""
+-		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia ; and same reasoning as for/in SevopediaUnit.py, i don't need the redundant background line -->
+-		#if len(gc.getTechInfo(self.iTech).getStrategy()) > 0:
+-		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+-		#	szText += gc.getTechInfo(self.iTech).getStrategy()
+-		#	szText += u"\n\n"
+-		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
+-		# </advc.004y>
++		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
+ 		szText += gc.getTechInfo(self.iTech).getQuote()
+ 		szText += u"\n\n" + gc.getTechInfo(self.iTech).getCivilopedia()
+ 		szQuoteTextWidget = self.top.getNextWidgetName()
+-		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it ; as for padding adjust/modify it a bit too anyways etc, was self.X_QUOTE_PANE + 9, self.Y_QUOTE_PANE + 12 -->
+-		# <advc.004y> Now that the quote isn't on top anymore, we can keep it simple:
++		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it ; as for padding adjust/modify it a bit too anyways etc, was self.X_HISTORY + 9, self.Y_HISTORY + 12, also we removed _HISTORY to simplify and standardize code and display and as we don't need nor want the extra height in this case if i may say but anyways etc -->
+ 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(szQuoteTextWidget, szText, self.X_QUOTE_PANE + 9, self.Y_QUOTE_PANE + 12, self.W_QUOTE_PANE - (15 * 2), self.H_QUOTE_PANE - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(szQuoteTextWidget, szText, self.X_HISTORY + 9, self.Y_HISTORY + 12, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 487adeacf..3121b5504 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -19,6 +19,9 @@ class SevoPediaTerrain:
+ 		self.iTerrain = -1
+ 		self.top = main
+ 
++		self.MEDIUM_MARGIN = 15
++		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
++
+ 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
+ 		self.W_INFO_PANE = 290
+@@ -35,42 +38,47 @@ class SevoPediaTerrain:
+ 		self.W_INFO_TEXT = 220
+ 		self.H_INFO_TEXT = self.H_INFO_PANE - 20
+ 
+-		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + 10
++		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
+ 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
+ 		self.H_SPECIAL = self.H_INFO_PANE
+ 		self.Y_SPECIAL = self.Y_INFO_PANE
+ 
+ 		self.X_FEATURES = self.X_INFO_PANE
+-		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + 10
++		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
+ 		self.W_FEATURES = self.W_INFO_PANE
+ 		self.H_FEATURES = 110
+ 
+-		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + 10
++		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
+ 		self.Y_IMPROVEMENTS = self.Y_FEATURES
+ 		self.W_IMPROVEMENTS = self.top.R_PEDIA_PAGE - self.X_IMPROVEMENTS
+ 		self.H_IMPROVEMENTS = self.H_FEATURES
+ 
+-		self.X_RESOURCES = self.X_FEATURES
+-		self.Y_RESOURCES = self.Y_FEATURES + self.H_FEATURES + 10
+-		self.W_RESOURCES = self.top.R_PEDIA_PAGE - self.X_RESOURCES
+-		self.H_RESOURCES = self.H_FEATURES
++		self.X_BONUSES_WITH_NO_FEATURE = self.X_FEATURES
++		self.Y_BONUSES_WITH_NO_FEATURE = self.Y_FEATURES + self.H_FEATURES + self.SMALL_MARGIN
++		self.W_BONUSES_WITH_NO_FEATURE = self.top.R_PEDIA_PAGE - self.X_BONUSES_WITH_NO_FEATURE
++		self.H_BONUSES_WITH_NO_FEATURE = self.H_FEATURES
++
++		self.X_BONUSES_ONLY_WITH_FEATURE = self.X_FEATURES
++		self.Y_BONUSES_ONLY_WITH_FEATURE = self.Y_BONUSES_WITH_NO_FEATURE + self.H_BONUSES_WITH_NO_FEATURE + self.SMALL_MARGIN
++		self.W_BONUSES_ONLY_WITH_FEATURE = self.top.R_PEDIA_PAGE - self.X_BONUSES_ONLY_WITH_FEATURE
++		self.H_BONUSES_ONLY_WITH_FEATURE = self.H_FEATURES
+ 
+ 		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
+ 		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
+ 
+-		self.X_RELEVANT_UNITS = self.X_RESOURCES
+-		self.Y_RELEVANT_UNITS = self.Y_RESOURCES + self.H_RESOURCES + 10
+-		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_RESOURCES
++		self.X_RELEVANT_UNITS = self.X_FEATURES
++		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ONLY_WITH_FEATURE + self.H_BONUSES_ONLY_WITH_FEATURE + self.SMALL_MARGIN
++		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_BONUSES_ONLY_WITH_FEATURE
+ 		self.H_RELEVANT_UNITS = self.H_FEATURES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+ 
+-		self.X_UNITS_IMPASSABLE = self.X_RELEVANT_UNITS
+-		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + 10
++		self.X_UNITS_IMPASSABLE = self.X_FEATURES
++		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + self.SMALL_MARGIN
+ 		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
+ 		self.H_UNITS_IMPASSABLE = self.H_FEATURES
+ 
+-		self.X_HISTORY = self.X_UNITS_IMPASSABLE
++		self.X_HISTORY = self.X_FEATURES
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+-		self.Y_HISTORY = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + 10
++		self.Y_HISTORY = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+ 
+@@ -82,7 +90,8 @@ class SevoPediaTerrain:
+ 		self.placeSpecial()
+ 		self.placeFeatures()
+ 		self.placeImprovements()
+-		self.placeResources()
++		self.placeBonusesWithNoFeature()
++		self.placeBonusesOnlyWithFeature()
+ 		self.placeRelevantUnits()
+ 		self.placeUnitsImpassable()
+ 		self.placeHistory()
+@@ -190,11 +199,11 @@ class SevoPediaTerrain:
+ 
+ 
+ 
+-	def placeResources(self):
++	def placeBonusesWithNoFeature(self):
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+ 
+-		screen.addPanel(panel, localText.getText("TXT_KEY_CONCEPT_RESOURCES", ()), "", False, True, self.X_RESOURCES, self.Y_RESOURCES, self.W_RESOURCES, self.H_RESOURCES, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_TERRAIN_BONUSES_WITH_NO_FEATURE", ()), "", False, True, self.X_BONUSES_WITH_NO_FEATURE, self.Y_BONUSES_WITH_NO_FEATURE, self.W_BONUSES_WITH_NO_FEATURE, self.H_BONUSES_WITH_NO_FEATURE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panel, "", "  ")
+ 
+ 		# <!-- custom: minor refactor to test for the existence of terrain_hill 's id explicitly else raise an error not silently pass anyways etc as is also done in several other parts of the sevopedia reworked/refactored code if i may say but anyways etc anyways etc anyways etc -->
+@@ -211,6 +220,25 @@ class SevoPediaTerrain:
+ 
+ 
+ 
++	# <!-- custom: code provided by chatgpt thanks to my prompts too and adjustments too but anyways etc -->
++	def placeBonusesOnlyWithFeature(self):
++		screen = self.top.getScreen()
++		panel = self.top.getNextWidgetName()
++
++		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_TERRAIN_BONUSES_FEATURE_TERRAIN_BOOLEANS", ()), "", False, True, self.X_BONUSES_ONLY_WITH_FEATURE, self.Y_BONUSES_ONLY_WITH_FEATURE, self.W_BONUSES_ONLY_WITH_FEATURE, self.H_BONUSES_ONLY_WITH_FEATURE, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panel, "", "  ")
++
++		for iBonus in xrange(gc.getNumBonusInfos()):
++			BonusInfo = gc.getBonusInfo(iBonus)
++			if BonusInfo.isGraphicalOnly():
++				continue
++
++			if BonusInfo.isFeatureTerrain(self.iTerrain):
++				screen.attachImageButton(panel, "", BonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM,
++										WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
++
++
++
+ 	# <!-- custom: code provided by chatgpt thanks to my prompt too and adjusted or not for advciv-sas anyways etc -->
+ 	def placeRelevantUnits(self):
+ 		xPanel = self.X_RELEVANT_UNITS
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index a44addf2a..99fce5a04 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -742,9 +742,11 @@ class SevoPediaUnit:
+ 		unitInfo = gc.getUnitInfo(self.iUnit)
+ 
+ 		if not unitInfo.isMilitarySupport():
++			if szSpecialText.strip():
++				szSpecialText += u"\n"
+ 			bullet = localText.getText("[ICON_BULLET]", ())
+ 			noMilitarySupportCostText = localText.getText("TXT_KEY_UNIT_NO_MILITARY_SUPPORT_COST", ())
+-			szSpecialText += u"\n%s%s" % (bullet, noMilitarySupportCostText)
++			szSpecialText += u"%s%s" % (bullet, noMilitarySupportCostText)
+ 
+ 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+@@ -847,18 +849,11 @@ class SevoPediaUnit:
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		# <!-- custom: i don't need the "History:" in TXT_KEY_CIVILOPEDIA_HISTORY, is redundant with background
+-		# that is already about the unit's background -->
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+ 		textName = self.top.getNextWidgetName()
+ 		szText = u""
+ 		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
+-		#if len(gc.getUnitInfo(self.iUnit).getStrategy()) > 0:
+-		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+-		#	szText += gc.getUnitInfo(self.iUnit).getStrategy()
+-		#	szText += u"\n\n"
+-		# <!-- custom: i don't need the background: tag either, a box being there is explicit enough, clearer, prettier, and more efficient i think. -->
+-		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
++		# <!-- custom: same reasoning as for/in SevopediaBuilding.py, i also don't need the redundant "History:" -->
+ 		szText += gc.getUnitInfo(self.iUnit).getCivilopedia()
+ 		# <!-- custom: fix height too low, does not display properly the concept texts (for example any religious missionary unit) -->
+ 		#screen.addMultilineText(textName, szText, self.X_HISTORY + 15, self.Y_HISTORY + 40, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index 985ccc5a5..6d00c15e2 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -1442,7 +1442,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 					<bFeature>1</bFeature>
+ 				</FeatureBoolean>
+ 			</FeatureBooleans>
+-			<!-- custom: was TERRAIN_GRASS 1 -->
++			<!-- custom: added terrain_desert so it appears in sevopedia terrain's featureterrainbooleans corresponding panel, although functionally it should not be necessary as flood_plains feature appear only on desert terrain if i am not mistaken, so allowing bonus_gemstones in this example but anyways etc on flood_plains feature is the same as allowing flood_plains feature in desert terrain so should not be needed if i am not mistaken, but as i said i meean if i may say but anyways etc added so bonus_gemstones is displayed in sevopedia terrain's desert entry if i may say and if i am not mistaken but anyways etc, was TERRAIN_GRASS 1 -->
+ 			<FeatureTerrainBooleans>
+ 				<FeatureTerrainBoolean>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index a0989adee..0676e3f12 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -73,6 +73,15 @@
+ 		<English>Pr. List</English>
+ 	</TEXT>
+ 
++
++
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_CIVILIZATIONS_THAT_START_WITH_THIS_TECH</Tag>
++		<English>Civilizations that start with this technology</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: rename "Ivory" to "Elephants". Here the main reasons for this change: 
+ 	- 1) you need elephants to build war elephants, not ivory, even if you were to somehow find ivory somewhere, it would/could not magically turn into a war elephant, so using the animal instead.
+ 	- 2) ivory doesn't grow on the groud i think if i am not mistaken, but is derived from elephants, independent of whether they are alive or dead.
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index 2578fa54f..43cb456ca 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -133,11 +133,6 @@
+ 		<Tag>TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM</Tag>
+ 		<English>Improvements</English>
+ 	</TEXT>
+-	<!-- custom: add new entry: replace "Ressources" description with "Bonuses" to be consistent with our renaming in advciv-sas and such or not and such but anyways etc -->
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_BONUSES_CUSTOM</Tag>
+-		<English>Bonuses</English>
+-	</TEXT>
+ 	<!-- custom: hopefully clearer formula of specifying it is about the base improvement tile yield(s) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_BASE_TILE_YIELD_CHANGES</Tag>
+
+diff --git a/Assets/XML/Text/RFC_DOC_Custom.xml b/Assets/XML/Text/RFC_DOC_Custom.xml
+index 2e4c05041..48a07f93d 100644
+--- a/Assets/XML/Text/RFC_DOC_Custom.xml
++++ b/Assets/XML/Text/RFC_DOC_Custom.xml
+@@ -22,10 +22,36 @@ and modified or not for our needs in advciv-sas anyways etc -->
+ 
+ 
+ 	<!-- custom: add mention that this does not include plot types (if i am not mistaken (such as hills, peak, if i am not mistaken as well anyways etc)), renamed asset as such, anyways etc ; "some" as ocean is included since we show the ice cap (i.e. ice feature in base advciv +/- civ4 anyways etc) feature anyways etc -->
+-    <TEXT>
++	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_TERRAINS_MINUS_PLOT_TYPES</Tag>
+ 		<English>Terrains (Minus some Plot types)</English>
+ 	</TEXT>
++	<!-- custom: also add these txt keys including also FeatureTerrainBooleans info but anyways etc, in accordance with if i may say too but anyways etc the info in (translate to english with web browser page right click on page or such anyways etc) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#terrainbooleans and also chatgpt's explanation of it which used it spontaeously while doing a web search to answer my question of what this does, which would explain why the base advciv (+/- civ4? Didn't check but anyways etc) had the bonus_furs rdundantly in terrainbooleans and featureterrainbooleans redundantly, but with different meanings so not a redundant code if i may say unlike my use of the word redundant twice xd if i may say but as i felt if i may say whatever that means xd at least to me in this case but anyways etc, which would make sense as well as it would be in line with kujira's explanation too (translated and also explained by chatgpt i mean who can read japanese natively if i am not mistaken so it fetched the original language and explained it to me as well but anyways etc) so hopefully is accurate maybe if i'm not mistaken too but check to be sure anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_TERRAIN_BOOLEANS</Tag>
++		<English>Terrains (Minus some Plot types) with no Feature</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_FEATURE_BOOLEANS</Tag>
++		<English>Features on any terrain</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_FEATURE_TERRAIN_BOOLEANS</Tag>
++		<English>Terrains Only If With This Bonus's Featur.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_TERRAIN_BONUSES_WITH_NO_FEATURE</Tag>
++		<English>Bonuses in this terrain only if the terrain has no feature (see sevopedia bonus)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_TERRAIN_BONUSES_FEATURE_TERRAIN_BOOLEANS</Tag>
++		<English>Bonuses in this terrain only if the bonus's features are compatible with "terrains only if with this feature" (see sevopedia bonus)</English>
++	</TEXT>
++	<!-- custom: add new entry: replace "Ressources" description with "Bonuses" to be consistent with our renaming in advciv-sas and such or not and such but anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_FEATURE_BONUSES_FEATURE_BOOLEANS</Tag>
++		<English>Bonuses On Any Terrain (see also sevopedia bonus)</English>
++	</TEXT>
+
+diff --git a/README.md b/README.md
+index e6cbe3b0b..e52e595a4 100644
+--- a/README.md
++++ b/README.md
+@@ -71,7 +71,7 @@ Here is below a very small sample of the example screenshots of how the AI Perso
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (1).JPG" alt="0.670_sevopedia_civilizations_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG" alt="0.680_sevopedia_units_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG" alt="0.690_sevopedia_buildings_sample (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG" alt="0.710_sevopedia_techs_sample.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
+ 
+ For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
+ 
+@@ -88,7 +88,7 @@ note 3: similarly you can set `IS_LABELS_ARE_KEYS_OR_SUFFIXES_INSTEAD` to `True`
+ For example we added the new "This Technology cannot be traded" in AdvCiv-SAS as show below:
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example (1).JPG" alt="0.50_no_tech_trading_example (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG" alt="0.710_sevopedia_techs_sample.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
+ 
+ See also for details:
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index ba9569b31..a08134956 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -602,7 +602,7 @@ See screenshots of how this was implemented (not fully exhaustive but hopefully
+ Small sample below /example too but anyways etc:
+ 
+ ![0.50_no_tech_trading_example (1).JPG](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.50_no_tech_trading_example%20(1).JPG)
+-![0.710_sevopedia_techs_sample.JPG](/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG)
++![0.710_sevopedia_techs_sample (1).JPG](/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample%20(1).JPG)
+ 
+ This was done by adding a new `buildBTradeString` function if i am not mistaken in (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.cpp and (adjust to your mod path too anyways etc anyways etc anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvGameTextMgr.h
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 251247010..9e364a960 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -33,11 +33,13 @@ Then following the sevopedia terrains rework (see for details sevopedia [terrain
+ 
+ Also added the remove production and/or time (for example feature_fallout only has iTime and no iProduction as of now and if i am not mistaken but anyways etc anyways etc anyways etc) information as part of the jungle rework and then of a later optimziation that moves some logic to pre-load code (similarly to the precomputing as of now in sevopedia main's placeLeaders and placeTechs) (that as of now also gives production on remove, see [README_Quick_Get_Started_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details) for details) thanks to claude ai or/and chatgpt if i may say but anyways etc and my prompts and adjustments too but anyways etc anyways etc anyways etc.
+ 
+-Note 2: ice feature (named "ice cap" feature as of now in advciv-sas anyways etc) which is impassable in base advciv +/- civ4 and our mod except for some units that can go on impassable if i am not mistaken anyways etc 's display is handled differently than other features due to this property it has so a bit like terrain peak anyways etc, see sevopedia feature ice's page for bit of details or/and code comments and code too i mean anyways etc in as of now sevopedia feature's code if i am not mistaken as well hopefully helpful anyways etc.
++Also clarified the ressources (called bonuses ina advciv-sas as per the code naming if i may say too but anyways etc...) header from rfc doc mod to explicitly name "Bonuses On Any Terrain" for clarification (see [README_Sevopedia_Reworks.md#example-4-bonuses-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-4-bonuses-category) for details about featurebooleans).
++
++Note: ice feature (named "ice cap" feature as of now in advciv-sas anyways etc) which is impassable in base advciv +/- civ4 and our mod except for some units that can go on impassable if i am not mistaken anyways etc 's display is handled differently than other features due to this property it has so a bit like terrain peak anyways etc, see sevopedia feature ice's page for bit of details or/and code comments and code too i mean anyways etc in as of now sevopedia feature's code if i am not mistaken as well hopefully helpful anyways etc.
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG" alt="0.640_sevopedia_features_sample (2).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG" alt="0.640_sevopedia_features_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG" alt="0.640_sevopedia_features_sample (3).JPG" width="250"></img>
+ 
+ ## example 3.5: improvements category
+ 
+@@ -51,13 +53,13 @@ More recently, i also added the improvement's build time (`iTime` in XML (note:
+ <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG" alt="0.720_sevopedia_improvements_sample (2).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG" alt="0.720_sevopedia_improvements_sample (3).JPG" width="250"></img>
+ 
+-## example 4: ressources/bonuses category
++## example 4: bonuses category
+ 
+ Mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
+ 
+ after having written this first paragraph above in this same example 4, a more extensive rewrite/refactor was done based on [example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) and [example-8-building-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), (and) also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) (anyways etc), in particular changes include that we now have also added a placeObsoleteWith function now that tells us when a bonus/ressource is obsolete (i.e. at which tech anyways etc) anyways etc anyways etc anyways etc. Also, changes include as well showing horizontally improvements rather than vertically while still keeping the auto-cetering of the spacing between improvements ; although code is maybe a bit shaky and not too optimal or not or yes or other but anyways etc, it does seem to work-function well for a small number of improvements (didn't test for more how it would display) so i wanted to show it here as well as part of the changes but anyways etc.
+ 
+-More recently, also added thanks to bit of chatgpt's help too hehe even though mostly me but it helped too but anyways etc the terrain (as of now minus some plot types (see sevopedia terrain readme section information or/and quick start guide or/and code comments anyways etc)) and feature info, hopefully helpful or/and (more at least or maybe simply exhaustive or more but anyways etc...) exhaustive but anyways etc
++More recently, also added thanks to bit of chatgpt's help too hehe even though mostly me but it helped too but anyways etc the terrainbooleans, featurebooleans, and featureterrainbooleans info, see sevopedia feature screenshots or ingame for what these mean in their respective panel headers (for example featureterrainbooleans is if i'm not mistaken and as of now "Terrains only if with this bonus's features" or something similar to this abbreviated if needed for example or if updated since then and not shown in screenshot sample or also updated as well if i may say but anyways etc in this readme explantion but anyways etc...) section information or/and quick start guide or/and code comments anyways etc, hopefully helpful or/and (more at least or maybe simply exhaustive or more but anyways etc...) exhaustive but anyways etc
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG" alt="0.650_sevopedia_bonuses_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG" alt="0.650_sevopedia_bonuses_sample (2).JPG" width="250"></img>
+@@ -117,7 +119,7 @@ The reworked sevopedia terrain page now also shows the unit terrain modifiers (e
+ 
+ This code uses our latest as of now refactor that uses the multilist code as was done in sevopedia unit in advciv-sas/our mod but anyways etc first i mean and also then applied to sevopedia building. While doing so, i noticed or/and wanted or/and just did add such a display for units in terrains. Since the code is modular and was thoroughly debugged and adjusted, it was quite easy relatively to add in sevopedia units, but some new logic had to be added, and it also helped refine the sevopedia unit and sevopedia building implementations if ever slightly or not but anyways etc.
+ 
+-The output/result is as below for example.
++Also more recently added as well but anyways etc the featureterrainbooleans (see [README_Sevopedia_Reworks.md#example-4-bonuses-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-4-bonuses-category) for details) additionally to what was in rfc doc mod's code/logic, as a separate with clarified explicitly headers now in advciv-sas if may say but their code helped lot too especially at the time xd thanks really if i may say but anyways etc, hopefully helpful or not or yes or etc anyways etc
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG" alt="0.700_sevopedia_terrains_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG" alt="0.700_sevopedia_terrains_sample (2).JPG" width="250"></img>
+@@ -127,10 +129,11 @@ See also the [features category rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/READM
+ 
+ ## example 10: techs category
+ 
+-This is a more recent beautify that adds era information (currently does nothing in advciv-sas if i am not mistaken anyways etc, may always stay so or not, see quick start guide for info there if any anyways etc) and such other beautifications, imported from rfc doc mod and modified/beuatified/adjusted further or not for advciv-sas anyways etc.
++This is a more recent refactor and beautify that adds era information (currently does nothing in advciv-sas if i am not mistaken anyways etc, may always stay so or not, see quick start guide for info there if any anyways etc) and such other beautifications. The info pane (top left info of the tech, era, cost as of now anyways etc) in particular is imported from rfc doc mod and modified/beautified/adjusted further or not for advciv-sas anyways etc.
+ 
+ Before that, i had also added a list of untradeable techs following the anti tech whoreism changes in advciv-sas (see the [README_Quick_Get_Started_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details) for details as well anyways etc)
+ 
+ Note: the untradeable techs list as string/text is very efficiently precomputed only once at first tech list load and only if sevopedia tech is accessed (which is as of now always when sevoepdia is first opened as "Techs" is the first category as of now so opened by default) thanks to gemini ai's help and my prompt too and adjustments or not but anyways etc too but anyways etc ; see similar precomputing logic or/and its explanation at sevoepdia reworks's sevopedia leader readme section in [README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category) for details anyways etc
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG" alt="0.710_sevopedia_techs_sample.JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (2).JPG" alt="0.710_sevopedia_techs_sample (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+index 2d6744cc3..8d66c8cf1 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+index d4a7dc8f1..c08609ddb 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG
+index f74ffae2c..9fb1f5500 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG
+index f210a53c6..eb9a39dd3 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG
+index b628b5d02..876a95631 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG
+index 7acce88ec..229c8d0f8 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+index 2d6744cc3..a1a85b180 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+index d4a7dc8f1..36fde6aeb 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+index f74ffae2c..24a1ac431 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG
+new file mode 100644
+index 000000000..deb875ea6
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (2).JPG
+new file mode 100644
+index 000000000..40952cad0
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG
+deleted file mode 100644
+index 2ed3afe4e..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample.JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG
+index 38c7a8388..541ebafc6 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG
+index a533e1b21..164e61439 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG
+index d8b62663f..a1e297462 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=30 embeddedFiles=30 omittedFiles=0 embeddedPatchBytes=74348

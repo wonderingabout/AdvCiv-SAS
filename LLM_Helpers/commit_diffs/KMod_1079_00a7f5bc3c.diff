@@ -1,0 +1,290 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1079
+# Commit: 00a7f5bc3c25a4d40e4ae90fe4628128b4ade2c9
+# History segment: K-Mod history
+# Parent used for diff: fff715388f0586a035f8ca36d7467f09e71388d2
+# Title: Players can now tell their AI allies start war preparations.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+35	0	Assets/Python/CvDiplomacy.py
+86	0	Assets/xml/GameInfo/CIV4DiplomacyInfos.xml
+39	0	Assets/xml/Text/Civ4GameText_K-Mod.xml
+1	0	CvGameCoreDLL/CvEnums.h
+19	0	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CyEnumsInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvDiplomacy.py b/Assets/Python/CvDiplomacy.py
+index 325006467..d5db27143 100644
+--- a/Assets/Python/CvDiplomacy.py
++++ b/Assets/Python/CvDiplomacy.py
+@@ -255,6 +255,16 @@ class CvDiplomacy:
+ 			# K-Mod end
+ 				self.addUserComment("USER_DIPLOCOMMENT_TARGET", -1, -1)
+ 
++			# K-Mod. Allow masters to tell their vassals to prepare for war
++			if (gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).getAtWarCount(true) == 0 and
++			    (gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).isVassal(gc.getGame().getActiveTeam()) or
++			     gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam() == gc.getGame().getActiveTeam())):
++				if (gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).getAnyWarPlanCount(true) > 0):
++					self.addUserComment("USER_DIPLOCOMMENT_WARPLAN_CANCEL", -1, -1)
++				else:
++					self.addUserComment("USER_DIPLOCOMMENT_WARPLAN", -1, -1)
++			# K-Mod end
++
+ 			self.addUserComment("USER_DIPLOCOMMENT_NEVERMIND", -1, -1)
+ 			self.addUserComment("USER_DIPLOCOMMENT_EXIT", -1, -1)
+ 
+@@ -295,6 +305,18 @@ class CvDiplomacy:
+ 			self.addUserComment("USER_DIPLOCOMMENT_SOMETHING_ELSE", -1, -1)
+ 			self.addUserComment("USER_DIPLOCOMMENT_EXIT", -1, -1)
+ 
++		# K-Mod
++		elif (self.isComment(eComment, "AI_DIPLOCOMMENT_WARPLAN")):
++			for i in range(gc.getMAX_CIV_TEAMS()):
++				#if (gc.getTeam(i).isAlive() and i != gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam() and gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(i) and gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).isHasMet(i) and not gc.getTeam(i).isAtWar(gc.getGame().getActiveTeam()) and gc.getTeam(gc.getGame().getActiveTeam()).canEventuallyDeclareWar()):
++				if (gc.getTeam(i).isAlive() and gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(i) and gc.getTeam(gc.getPlayer(self.diploScreen.getWhoTradingWith()).getTeam()).isHasMet(i)
++					and not gc.getTeam(i).isAtWar(gc.getGame().getActiveTeam()) and gc.getTeam(gc.getGame().getActiveTeam()).canEventuallyDeclareWar(i)):
++						self.addUserComment("USER_DIPLOCOMMENT_WARPLAN_TARGET", i, WarPlanTypes.WARPLAN_PREPARING_TOTAL, gc.getTeam(i).getName())
++
++			self.addUserComment("USER_DIPLOCOMMENT_SOMETHING_ELSE", -1, -1)
++			self.addUserComment("USER_DIPLOCOMMENT_EXIT", -1, -1)
++		# K-Mod end
++
+ 		# The default...
+ 		else:
+ 
+@@ -714,6 +736,19 @@ class CvDiplomacy:
+ 			diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_TARGET_CITY, iData1, iData2)
+ 			self.setAIComment(self.getCommentID("AI_DIPLOCOMMENT_TARGET_CITY"))
+ 
++		# K-Mod
++		elif (self.isComment(eComment, "USER_DIPLOCOMMENT_WARPLAN")):
++			self.setAIComment(self.getCommentID("AI_DIPLOCOMMENT_WARPLAN"))
++
++		elif (self.isComment(eComment, "USER_DIPLOCOMMENT_WARPLAN_TARGET")):
++			diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_SET_WARPLAN, iData1, iData2)
++			self.setAIComment(self.getCommentID("AI_DIPLOCOMMENT_WARPLAN_ACKNOWLEDGE"))
++
++		elif (self.isComment(eComment, "USER_DIPLOCOMMENT_WARPLAN_CANCEL")):
++			diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_SET_WARPLAN, TeamTypes.NO_TEAM, WarPlanTypes.NO_WARPLAN)
++			self.setAIComment(self.getCommentID("AI_DIPLOCOMMENT_WARPLAN_CANCEL"))
++		# K-Mod end
++
+ 		else:
+ 			diploScreen.closeScreen()
+
+diff --git a/Assets/xml/GameInfo/CIV4DiplomacyInfos.xml b/Assets/xml/GameInfo/CIV4DiplomacyInfos.xml
+index fd32c7ff7..345a7977c 100644
+--- a/Assets/xml/GameInfo/CIV4DiplomacyInfos.xml
++++ b/Assets/xml/GameInfo/CIV4DiplomacyInfos.xml
+@@ -9840,5 +9840,91 @@
+ 				</Response>
+ 			</Responses>
+ 		</DiplomacyInfo>
++		<!-- K-Mod -->
++		<DiplomacyInfo>
++			<Type>USER_DIPLOCOMMENT_WARPLAN</Type>
++			<Responses>
++				<Response>
++					<Civilizations/>
++					<Leaders/>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>USER_DIPLO_WARPLAN_1</Text>
++					</DiplomacyText>
++				</Response>
++			</Responses>
++		</DiplomacyInfo>
++		<DiplomacyInfo>
++			<Type>USER_DIPLOCOMMENT_WARPLAN_TARGET</Type>
++			<Responses>
++				<Response>
++					<Civilizations/>
++					<Leaders/>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>USER_DIPLO_WARPLAN_TARGET_1</Text>
++					</DiplomacyText>
++				</Response>
++			</Responses>
++		</DiplomacyInfo>
++		<DiplomacyInfo>
++			<Type>USER_DIPLOCOMMENT_WARPLAN_CANCEL</Type>
++			<Responses>
++				<Response>
++					<Civilizations/>
++					<Leaders/>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>USER_DIPLO_WARPLAN_CANCEL_1</Text>
++					</DiplomacyText>
++				</Response>
++			</Responses>
++		</DiplomacyInfo>
++		<DiplomacyInfo>
++			<Type>AI_DIPLOCOMMENT_WARPLAN</Type>
++			<Responses>
++				<Response>
++					<Civilizations/>
++					<Leaders/>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_WARPLAN_1</Text>
++					</DiplomacyText>
++				</Response>
++			</Responses>
++		</DiplomacyInfo>
++		<DiplomacyInfo>
++			<Type>AI_DIPLOCOMMENT_WARPLAN_ACKNOWLEDGE</Type>
++			<Responses>
++				<Response>
++					<Civilizations/>
++					<Leaders/>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_TARGET_CITY_1</Text> <!-- "we'll do our best" -->
++					</DiplomacyText>
++				</Response>
++			</Responses>
++		</DiplomacyInfo>
++		<DiplomacyInfo>
++			<Type>AI_DIPLOCOMMENT_WARPLAN_CANCEL</Type>
++			<Responses>
++				<Response>
++					<Civilizations/>
++					<Leaders/>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_WARPLAN_CANCEL_1</Text>
++					</DiplomacyText>
++				</Response>
++			</Responses>
++		</DiplomacyInfo>
++		<!-- K-Mod end -->
+ 	</DiplomacyInfos>
+ </Civ4DiplomacyInfos>
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index afd770ab9..a67c4381a 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -572,4 +572,43 @@
+ 		<Spanish>El calentamiento del planeta puede levantar nivel del mar.</Spanish>
+ 	</TEXT>
+ 	[end of unused tags] -->
++
++	<!-- New diplomacy text -->
++	<TEXT>
++		<Tag>USER_DIPLO_WARPLAN_1</Tag>
++		<English>Join us in preparing for war...</English>
++		<French>Rejoignez-nous dans la pr�paration de la guerre...</French>
++		<German>Begleiten Sie uns bei der Vorbereitung f�r den Krieg...</German>
++		<Italian>Unitevi a noi nella preparazione per la guerra...</Italian>
++		<Spanish>�nase a nosotros en la preparaci�n para la guerra...</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>USER_DIPLO_WARPLAN_CANCEL_1</Tag>
++		<English>Your war preparations are no longer required.</English>
++		<French>Vos pr�paratifs de guerre ne sont plus n�cessaires.</French>
++		<German>Ihre Kriegsvorbereitungen sind nicht mehr erforderlich.</German>
++		<Italian>I vostri preparativi di guerra non sono pi� necessari.</Italian>
++		<Spanish>Ya no se requieren sus preparativos de guerra.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_WARPLAN_CANCEL_1</Tag>
++		<English>OK, we'll cancel our war preparations.</English>
++		<French>D'accord, nous allons annuler notre pr�paratifs de guerre.</French>
++		<German>Okay, wir k�ndigen unsere Kriegsvorbereitungen.</German>
++		<Italian>Ok, provvederemo ad annullare i nostri preparativi di guerra.</Italian>
++		<Spanish>Bueno, no cancelaremos nuestros preparativos para la guerra.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_WARPLAN_1</Tag>
++		<English>Against whom?</English>
++		<French>Contre qui?</French>
++		<German>Gegen wen?</German>
++		<Italian>Contro chi?</Italian>
++		<Spanish>Contra qui�n?</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>USER_DIPLO_WARPLAN_TARGET_1</Tag>
++		<English>%s1.</English>
++		<!-- same for all languages -->
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 6f46867dd..2f44b672c 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1901,6 +1901,7 @@ enum DiploEventTypes					// Exposed to Python
+ 	DIPLOEVENT_RESEARCH_TECH,
+ 	DIPLOEVENT_TARGET_CITY,
+ 	DIPLOEVENT_MADE_DEMAND_VASSAL,
++	DIPLOEVENT_SET_WARPLAN, // K-Mod
+ 
+ #ifdef _USRDLL
+ 	NUM_DIPLOEVENT_TYPES
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 00b690146..366e960d2 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4602,6 +4602,25 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 			GET_PLAYER(getID()).AI_setCityTargetTimer(GC.getDefineINT("PEACE_TREATY_LENGTH")); // K-Mod. (I'd make it a virtual function, but that causes problems.)
+ 		}
+ 		break;
++	// K-Mod
++	case DIPLOEVENT_SET_WARPLAN:
++	{
++		CvTeamAI& kOurTeam = GET_TEAM(getTeam());
++		FAssert(kOurTeam.getAtWarCount(true) == 0);
++		if (iData1 == NO_TEAM)
++		{
++			FAssert(iData2 == NO_WARPLAN);
++			for (TeamTypes i = (TeamTypes)0; i < MAX_CIV_TEAMS; i=(TeamTypes)(i+1))
++			{
++				if (!kOurTeam.isAtWar(i))
++					kOurTeam.AI_setWarPlan(i, NO_WARPLAN, false);
++			}
++		}
++		else
++			kOurTeam.AI_setWarPlan((TeamTypes)iData1, (WarPlanTypes)iData2, false);
++		break;
++	}
++	// K-Mod end
+ 
+ 	default:
+ 		FAssert(false);
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index e18cad63a..3fb934b51 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -1339,6 +1339,7 @@ void CyEnumsPythonInterface()
+ 		.value("DIPLOEVENT_RESEARCH_TECH", DIPLOEVENT_RESEARCH_TECH)
+ 		.value("DIPLOEVENT_TARGET_CITY", DIPLOEVENT_TARGET_CITY)
+ 		.value("DIPLOEVENT_MADE_DEMAND_VASSAL", DIPLOEVENT_MADE_DEMAND_VASSAL)
++		.value("DIPLOEVENT_SET_WARPLAN", DIPLOEVENT_SET_WARPLAN) // K-Mod
+ 		.value("NUM_DIPLOEVENT_TYPES", NUM_DIPLOEVENT_TYPES)
+ 		;
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=9624

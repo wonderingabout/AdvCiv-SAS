@@ -1,0 +1,948 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1915
+# Commit: fa0f0d29be9c78a33d58a13df40af76dd7379b93
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 30daf61b49dcecf01df73b0d1b5661357772a988
+# Title: bDebug=false by default for isVisible functions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvCity.cpp
+5	0	CvGameCoreDLL/CvCity.h
+1	1	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvGame.cpp
+4	3	CvGameCoreDLL/CvGameCoreUtils.cpp
+5	3	CvGameCoreDLL/CvGameInterface.cpp
+11	9	CvGameCoreDLL/CvPlayer.cpp
+16	16	CvGameCoreDLL/CvPlayerAI.cpp
+19	24	CvGameCoreDLL/CvPlot.cpp
+5	0	CvGameCoreDLL/CvPlot.h
+7	4	CvGameCoreDLL/CvSelectionGroup.cpp
+3	3	CvGameCoreDLL/CvSelectionGroupAI.cpp
+6	8	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+9	9	CvGameCoreDLL/CvUnit.cpp
+37	35	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c496223cb..5dd97f55b 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -207,7 +207,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
+ 
+ 	for (TeamIter<ALIVE> it; it.hasNext(); ++it)
+ 	{
+-		if (kPlot.isVisible(it->getID(), false))
++		if (kPlot.isVisible(it->getID()))
+ 			setRevealed(it->getID(), true);
+ 	}
+ 
+@@ -11436,7 +11436,7 @@ static int natGetDeterministicRandom(int iMin, int iMax, int iSeedX, int iSeedY)
+ void CvCity::getVisibleEffects(ZoomLevelTypes eCurZoom,
+ 	std::vector<const TCHAR*>& kEffectNames)
+ {
+-	if (isOccupation() && isVisible(getTeam(), false) == true)
++	if (isOccupation() && isVisible(getTeam()) == true)
+ 	{
+ 		if (eCurZoom  == ZOOM_DETAIL)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 55807c3cd..d158c53b7 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -203,6 +203,11 @@ public:
+ 	bool isBarbarian() const;																					// Exposed to Python
+ 	bool isHuman() const;																						// Exposed to Python
+ 	DllExport bool isVisible(TeamTypes eTeam, bool bDebug) const;												// Exposed to Python
++	// advc: Make bDebug=false the default
++	inline bool isVisible(TeamTypes eTeam) const
++	{
++		return isVisible(eTeam, false);
++	}
+ 
+ 	bool isCapital() const;																						// Exposed to Python
+ 	bool isPrereqBonusSea() const; // advc.041
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 84c8245f0..9eeb90fea 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2232,7 +2232,7 @@ void CvCityAI::AI_chooseProduction()
+ 				CvCity* pTargetCity = kArea.AI_getTargetCity(kPlayer.getID());
+ 				if(pTargetCity != NULL && sameArea(*pTargetCity) &&
+ 					pWaterArea != NULL && pWaterArea == pTargetCity->waterArea(true) &&
+-					(!pTargetCity->isVisible(kPlayer.getTeam(), false) ||
++					(!pTargetCity->isVisible(kPlayer.getTeam()) ||
+ 					pTargetCity->getDefenseModifier(true) > 10))
+ 				{
+ 					bAssaultAlongCoast = true;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 1e91b726e..697fbe30a 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6651,7 +6651,7 @@ void CvGame::doGlobalWarming()
+ 					CvCity* pCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), NO_PLAYER, NO_TEAM, false);
+ 					if (pCity != NULL)
+ 					{
+-						if (pPlot->isVisible(pCity->getTeam(), false))
++						if (pPlot->isVisible(pCity->getTeam()))
+ 						{
+ 							CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_GLOBAL_WARMING_NEAR_CITY", pCity->getNameKey());
+ 							gDLL->getInterfaceIFace()->addMessage(pCity->getOwner(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_SQUISH", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX(), pPlot->getY(), true, true);
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index bf767729f..202932ddc 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1945,14 +1945,14 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 
+ 		int iEnemyDefence = 0;
+ 
+-		if (kToPlot.isVisible(eTeam, false))
++		if (kToPlot.isVisible(eTeam))
+ 		{	/*  <advc.001> In the rare case that the AI plans war while animals
+ 				still roam the map, the DefenceStrength computation will crash
+ 				when it gets to the point where the UnitCombatType is accessed.
+ 				(Actually, not so exotic b/c advc.300 allows animals to survive
+ 				in continents w/o civ cities.) */
+ 			CvUnit* pUnit = kToPlot.getUnitByIndex(0);
+-			if(pUnit != NULL && !pUnit->isAnimal()) // </advc.001>
++			if (pUnit != NULL && !pUnit->isAnimal()) // </advc.001>
+ 			{
+ 				iEnemyDefence = GET_PLAYER(pSelectionGroup->getOwner()).
+ 						AI_localDefenceStrength(&kToPlot, NO_TEAM,
+@@ -1974,7 +1974,8 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 			// I just haven't done that yet, mostly because I'm worried about performance.
+ 			if (iAttackRatio < 400)
+ 			{
+-				iWorstCost += PATH_MOVEMENT_WEIGHT * GC.getMOVE_DENOMINATOR() * (400-iAttackRatio)/std::min(150, iAttackRatio);
++				iWorstCost += PATH_MOVEMENT_WEIGHT * GC.getMOVE_DENOMINATOR() * (400-iAttackRatio) /
++						std::min(150, iAttackRatio);
+ 			}
+ 			// else, don't worry about it too much.
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 822d42697..361a15065 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -244,7 +244,7 @@ void CvGame::updateColoredPlots()
+ 			for (int iDY = -iRange; iDY <= iRange; iDY++)
+ 			{
+ 				CvPlot* pTargetPlot = m.plotXY(pHeadSelectedUnit->getX(), pHeadSelectedUnit->getY(), iDX, iDY);
+-				if (pTargetPlot != NULL && pTargetPlot->isVisible(pHeadSelectedUnit->getTeam(), false))
++				if (pTargetPlot != NULL && pTargetPlot->isVisible(pHeadSelectedUnit->getTeam()))
+ 				{
+ 					if (m.plotDistance(pHeadSelectedUnit->getX(), pHeadSelectedUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) <= iRange)
+ 					{
+@@ -333,7 +333,7 @@ void CvGame::updateColoredPlots()
+ 				for (int iDY = -(iRange); iDY <= iRange; iDY++)
+ 				{
+ 					CvPlot* pLoopPlot = m.plotXY(pHeadSelectedUnit->getX(), pHeadSelectedUnit->getY(), iDX, iDY);
+-					if (pLoopPlot != NULL && pLoopPlot->isVisible(pHeadSelectedUnit->getTeam(), false) &&
++					if (pLoopPlot != NULL && pLoopPlot->isVisible(pHeadSelectedUnit->getTeam()) &&
+ 						pLoopPlot->isRevealedGoody(pHeadSelectedUnit->getTeam()))
+ 					{
+ 						if (site_path.GeneratePath(pLoopPlot))
+@@ -1038,8 +1038,10 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible, bool
+ 				pMissionPlot = pSelectedGroup->lastMissionPlot();
+ 			else pMissionPlot = NULL;
+ 			if (pMissionPlot == NULL ||
+-					!pMissionPlot->isVisible(pHeadSelectedUnit->getTeam(), false))
++				!pMissionPlot->isVisible(pHeadSelectedUnit->getTeam()))
++			{
+ 				pMissionPlot = pSelectedGroup->plot();
++			}
+ 		}
+ 		else pMissionPlot = pSelectedInterfaceList->plot();
+ 		if (pSelectedInterfaceList->canStartMission(GC.getActionInfo(iAction).
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index d72627a1d..4ef169b50 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14501,8 +14501,8 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 	{
+ 		if (pPlot)
+ 		{
+-			if (pPlot->isVisible(GC.getGame().getActiveTeam(), false)
+-					&& GC.getGame().getActiveTeam() == getTeam()) // advc.120i
++			if (pPlot->isVisible(GC.getGame().getActiveTeam()) &&
++				GC.getGame().getActiveTeam() == getTeam()) // advc.120i
+ 			{
+ 				EffectTypes eEffect = GC.getInfo(GC.getInfo(MISSION_BOMBARD).getEntityEvent()).getEffectType();
+ 				gDLL->getEngineIFace()->TriggerEffect(eEffect, pPlot->getPoint(), (float)(getASyncRand().get(360)));
+@@ -15998,7 +15998,7 @@ void CvPlayer::doWarnings()
+ 
+ 		CvPlot const& kPlot = GC.getMap().getPlotByIndex(iI);
+ 		if (kPlot.isAdjacentPlayer(getID()) && !kPlot.isCity() &&
+-			kPlot.isVisible(getTeam(), false))
++			kPlot.isVisible(getTeam()))
+ 		{
+ 			CvUnit const* pUnit = kPlot.getVisibleEnemyDefender(getID());
+ 			if (pUnit != NULL && !pUnit->isAnimal())
+@@ -20710,7 +20710,7 @@ bool CvPlayer::canSpyDestroyUnit(PlayerTypes eTarget, CvUnit const& kUnit) const
+ 	if (kUnit.getUnitInfo().getProductionCost() <= 0)
+ 		return false;
+ 
+-	if (!kUnit.plot()->isVisible(getTeam(), false))
++	if (!kUnit.plot()->isVisible(getTeam()))
+ 		return false;
+ 
+ 	return true;
+@@ -21697,7 +21697,7 @@ void CvPlayer::getTradeLayerColors(std::vector<NiColorA>& aColors, std::vector<C
+ 	typedef std::map< int, std::vector<int> > PlotGroupMap;
+ 	PlotGroupMap mapPlotGroups;
+ 	std::vector<int> aiNotConn; // advc.004z
+-	for(int iI = 0; iI < kMap.numPlots(); iI++)
++	for (int iI = 0; iI < kMap.numPlots(); iI++)
+ 	{
+ 		CvPlot const& kPlot = kMap.getPlotByIndex(iI);
+ 		PlayerTypes eOwner = kPlot.getOwner(); // advc.004z
+@@ -21711,16 +21711,18 @@ void CvPlayer::getTradeLayerColors(std::vector<NiColorA>& aColors, std::vector<C
+ 			(pPlotGroup->getLengthPlots() >= 5 ||
+ 			!kPlot.isWater() || eOwner != NO_PLAYER))))
+ 		{
+-			if(bShowCapitalConn && kPlot.isVisible(getTeam(), false) &&
+-					kPlot.isCity() && !kPlot.getPlotCity()->isConnectedToCapital())
++			if(bShowCapitalConn && kPlot.isVisible(getTeam()) &&
++				kPlot.isCity() && !kPlot.getPlotCity()->isConnectedToCapital())
++			{
+ 				aiNotConn.push_back(iI);
++			}
+ 			else // </advc.004z>
+ 				mapPlotGroups[pPlotGroup->getID()].push_back(iI);
+ 		}
+ 	} // <advc.004z> Use the player color for the plot group of the capital
+ 	CvPlotGroup* pCapitalGroup = (getCapitalCity() == NULL ? NULL :
+ 			getCapitalCity()->plot()->getPlotGroup(getID()));
+-	if(pCapitalGroup != NULL)
++	if (pCapitalGroup != NULL)
+ 	{
+ 		FAssert(pCapitalGroup->getLengthPlots() > 0);
+ 		int iCount = mapPlotGroups.count(pCapitalGroup->getID());
+@@ -21757,7 +21759,7 @@ void CvPlayer::getTradeLayerColors(std::vector<NiColorA>& aColors, std::vector<C
+ 		kRandom.getFloat();
+ 	}
+ 	NiColorA kColor(0, 0, 0, 0.75f);
+-	for(size_t i = 0; i < aiNotConn.size(); i++)
++	for (size_t i = 0; i < aiNotConn.size(); i++)
+ 		aColors[aiNotConn[i]] = kColor; // </advc.004z>
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a3ed8a421..05327a076 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2984,21 +2984,21 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot const& kPlot, int iRange, bool bTest
+ 						break;
+ 				}
+ 				// <advc.128>
+-				if(bFirst)
++				if (bFirst)
+ 				{
+ 					bFirst = false;
+-					if(!pLoopPlot->isVisible(getTeam(), false))
++					if (!pLoopPlot->isVisible(getTeam()))
+ 					{
+ 						if(isHuman() || !AI_cheatDangerVisibility(*pLoopPlot))
+ 							break;
+ 					}
+ 				} // </advc.128>
+ 				if (pLoopUnit->isEnemy(eTeam) &&
+-						// advc.315: was pLoopUnit->canAttack()
+-						AI_canBeAttackedBy(*pLoopUnit) &&
+-						!pLoopUnit->isInvisible(eTeam, false) &&
+-						pLoopUnit->canMoveOrAttackInto(kPlot,
+-						false, true)) // advc.001k
++					// advc.315: was pLoopUnit->canAttack()
++					AI_canBeAttackedBy(*pLoopUnit) &&
++					!pLoopUnit->isInvisible(eTeam, false) &&
++					pLoopUnit->canMoveOrAttackInto(kPlot,
++					false, true)) // advc.001k
+ 				{
+ 					if (!bTestMoves)
+ 						return true;
+@@ -3010,9 +3010,9 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot const& kPlot, int iRange, bool bTest
+ 									&kPlot, MOVE_MAX_MOVES | MOVE_IGNORE_DANGER,
+ 									false, NULL, 1, true));
+ 						} // Prevent sneak attacks by human Woodsmen and Guerilla
+-						if(pLoopUnit->isHuman() && pLoopPlot->isVisible(getTeam(), false) &&
+-								// Make sure we're not getting into trouble performance-wise
+-								getCurrentEra() <= 1 && iDistance <= 3)
++						if(pLoopUnit->isHuman() && pLoopPlot->isVisible(getTeam()) &&
++							// Make sure we're not getting into trouble performance-wise
++							getCurrentEra() <= 1 && iDistance <= 3)
+ 						{
+ 							return pLoopUnit->generatePath(
+ 									&kPlot, MOVE_MAX_MOVES | MOVE_IGNORE_DANGER,
+@@ -3127,7 +3127,7 @@ int CvPlayerAI::AI_getPlotDanger(CvPlot const& kPlot, int iRange, bool bTestMove
+ 				if(bFirst)
+ 				{
+ 					bFirst = false;
+-					if(!pLoopPlot->isVisible(getTeam(), false))
++					if(!pLoopPlot->isVisible(getTeam()))
+ 					{
+ 						if(isHuman() || !AI_cheatDangerVisibility(*pLoopPlot))
+ 							break;
+@@ -3234,7 +3234,7 @@ int CvPlayerAI::AI_getWaterDanger(CvPlot* pPlot, int iRange, bool bTestMoves) co
+ 			bool bFirst = true; // advc.128
+ 			CLLNode<IDInfo> const* pUnitNode = pLoopPlot->headUnitNode();
+ 			// <advc.128>
+-			if(pUnitNode != NULL && !pLoopPlot->isVisible(getTeam(), false))
++			if (pUnitNode != NULL && !pLoopPlot->isVisible(getTeam()))
+ 			{
+ 				if(isHuman() || !AI_cheatDangerVisibility(*pLoopPlot))
+ 					continue;
+@@ -13861,7 +13861,7 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
+ 		for (int iDY = -iRange; iDY <= iRange; iDY++)
+ 		{
+ 			CvPlot* pLoopPlot = plotXY(pDefencePlot->getX(), pDefencePlot->getY(), iDX, iDY);
+-			if (pLoopPlot == NULL || !pLoopPlot->isVisible(getTeam(), false))
++			if (pLoopPlot == NULL || !pLoopPlot->isVisible(getTeam()))
+ 				continue;
+ 
+ 			int iPlotTotal = 0;
+@@ -13941,7 +13941,7 @@ int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAtt
+ 		for (int iDY = -iRange; iDY <= iRange; iDY++)
+ 		{
+ 			CvPlot* pLoopPlot = plotXY(pTargetPlot->getX(), pTargetPlot->getY(), iDX, iDY);
+-			if (pLoopPlot == NULL || !pLoopPlot->isVisible(getTeam(), false))
++			if (pLoopPlot == NULL || !pLoopPlot->isVisible(getTeam()))
+ 				continue;
+ 
+ 			for (CLLNode<IDInfo> const* pUnitNode = pLoopPlot->headUnitNode(); pUnitNode != NULL;
+@@ -24865,7 +24865,7 @@ void CvPlayerAI::AI_doEnemyUnitData()
+ 	{
+ 		CvPlot const& kPlot = GC.getMap().getPlotByIndex(iI);
+ 		int iAdjacentAttackers = -1;
+-		if (!kPlot.isVisible(getTeam(), false))
++		if (!kPlot.isVisible(getTeam()))
+ 			continue; // advc
+ 
+ 		for (CLLNode<IDInfo> const* pUnitNode = kPlot.headUnitNode();
+@@ -25556,7 +25556,7 @@ bool CvPlayerAI::AI_isPlotThreatened(CvPlot* pPlot, int iRange, bool bTestMoves)
+ 				continue; // </advc.030>
+ 			// <advc.128>
+ 			CLLNode<IDInfo> const* pUnitNode = pLoopPlot->headUnitNode();
+-			if(pUnitNode != NULL && !pLoopPlot->isVisible(getTeam(), false))
++			if(pUnitNode != NULL && !pLoopPlot->isVisible(getTeam()))
+ 			{
+ 				if(isHuman() || !AI_cheatDangerVisibility(*pLoopPlot))
+ 					continue;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 91be1b477..cbe72eddd 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2850,7 +2850,7 @@ bool CvPlot::isCivUnitNearby(int iRadius) const
+ 
+ CvPlot const* CvPlot::nearestInvisiblePlot(bool bOnlyLand, int iMaxPlotDist, TeamTypes eObserver) const
+ {
+-	if (!isVisible(eObserver, false))
++	if (!isVisible(eObserver))
+ 		return this;
+ 	CvPlot* r = NULL;
+ 	CvMap const& m = GC.getMap();
+@@ -2867,7 +2867,7 @@ CvPlot const* CvPlot::nearestInvisiblePlot(bool bOnlyLand, int iMaxPlotDist, Tea
+ 					continue;
+ 				CvPlot* pPlot = m.plot(getX() + dx, getY() + dy);
+ 				if (pPlot == NULL) continue; CvPlot const& p = *pPlot;
+-				if (p.isVisible(eObserver, false) || (bOnlyLand && p.isWater()) ||
++				if (p.isVisible(eObserver) || (bOnlyLand && p.isWater()) ||
+ 					(p.isOwned() && p.getOwner() != BARBARIAN_PLAYER))
+ 				{
+ 					continue;
+@@ -2901,7 +2901,7 @@ bool CvPlot::isVisibleToCivTeam() const
+ 	{
+ 		if (GET_TEAM((TeamTypes)iI).isAlive())
+ 		{
+-			if (isVisible(((TeamTypes)iI), false))
++			if (isVisible(((TeamTypes)iI)))
+ 				return true;
+ 		}
+ 	}
+@@ -2928,7 +2928,7 @@ bool CvPlot::isVisibleToWatchingHuman() const  // advc: style changes
+ 		CvPlayer const& kHuman = GET_PLAYER((PlayerTypes)i);
+ 		if (!kHuman.isAlive() || !kHuman.isHuman())
+ 			continue;
+-		if (isVisible(kHuman.getTeam(), false))
++		if (isVisible(kHuman.getTeam()))
+ 			return true;
+ 	}
+ 	return false;
+@@ -2957,7 +2957,7 @@ bool CvPlot::isAdjacentNonvisible(TeamTypes eTeam) const
+ 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+ 		if (pAdjacentPlot != NULL)
+ 		{
+-			if (!pAdjacentPlot->isVisible(eTeam, false))
++			if (!pAdjacentPlot->isVisible(eTeam))
+ 				return true;
+ 		}
+ 	}
+@@ -4313,7 +4313,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 				CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iI);
+ 				if (kLoopTeam.isAlive())
+ 				{
+-					if (isVisible(kLoopTeam.getID(), false))
++					if (isVisible(kLoopTeam.getID()))
+ 					{
+ 						FirstContactData fcData(this); // advc.071
+ 						kLoopTeam.meet(getTeam(), true, /* advc.071: */ &fcData);
+@@ -4846,7 +4846,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue)
+ 	{
+ 		if (GET_TEAM((TeamTypes)iI).isAlive())
+ 		{
+-			if (isVisible((TeamTypes)iI, false))
++			if (isVisible((TeamTypes)iI))
+ 				setRevealedImprovementType((TeamTypes)iI, getImprovementType());
+ 		}
+ 	}
+@@ -4917,7 +4917,7 @@ void CvPlot::setRouteType(RouteTypes eNewValue, bool bUpdatePlotGroups)
+ 	{
+ 		if (GET_TEAM((TeamTypes)iI).isAlive())
+ 		{
+-			if (isVisible((TeamTypes)iI, false))
++			if (isVisible((TeamTypes)iI))
+ 				setRevealedRouteType((TeamTypes)iI, getRouteType());
+ 		}
+ 	}
+@@ -5820,7 +5820,7 @@ void CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes
+ 	if(iChange == 0)
+ 		return;
+ 
+-	bool bOldVisible = isVisible(eTeam, false);
++	bool const bOldVisible = isVisible(eTeam);
+ 
+ 	m_aiVisibilityCount.add(eTeam, iChange);
+ 	//FAssert(getVisibilityCount(eTeam) >= 0);
+@@ -5835,10 +5835,10 @@ void CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes
+ 	if (eSeeInvisible != NO_INVISIBLE)
+ 		changeInvisibleVisibilityCount(eTeam, eSeeInvisible, iChange);
+ 
+-	if (bOldVisible == isVisible(eTeam, false))
++	if (bOldVisible == isVisible(eTeam))
+ 		return;
+ 
+-	if (isVisible(eTeam, false))
++	if (isVisible(eTeam))
+ 	{
+ 		setRevealed(eTeam, true, false, NO_TEAM, bUpdatePlotGroups);
+ 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+@@ -5886,10 +5886,7 @@ void CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes
+ 		if (kLoopTeam.isAlive())
+ 		{
+ 			if (kLoopTeam.isStolenVisibility(eTeam))
+-			{
+-				changeStolenVisibilityCount(kLoopTeam.getID(),
+-						isVisible(eTeam, false) ? 1 : -1);
+-			}
++				changeStolenVisibilityCount(kLoopTeam.getID(), isVisible(eTeam) ? 1 : -1);
+ 		}
+ 	}
+ 
+@@ -5907,14 +5904,14 @@ void CvPlot::changeStolenVisibilityCount(TeamTypes eTeam, int iChange)
+ 	if(iChange == 0)
+ 		return;
+ 
+-	bool bOldVisible = isVisible(eTeam, false);
++	bool bOldVisible = isVisible(eTeam);
+ 
+ 	m_aiStolenVisibilityCount.add(eTeam, iChange);
+ 	FAssert(getStolenVisibilityCount(eTeam) >= 0);
+ 
+-	if (bOldVisible != isVisible(eTeam, false))
++	if (bOldVisible != isVisible(eTeam))
+ 	{
+-		if (isVisible(eTeam, false))
++		if (isVisible(eTeam))
+ 			setRevealed(eTeam, true, false, NO_TEAM, true);
+ 
+ 		CvCity* pCity = getPlotCity();
+@@ -5994,7 +5991,7 @@ void CvPlot::setRevealedOwner(TeamTypes eTeam, PlayerTypes eNewValue)
+ void CvPlot::updateRevealedOwner(TeamTypes eTeam)
+ {
+ 	bool bRevealed = false;
+-	if (isVisible(eTeam, false))
++	if (isVisible(eTeam))
+ 		bRevealed = true;
+ 	if (!bRevealed)
+ 	{
+@@ -6003,7 +6000,7 @@ void CvPlot::updateRevealedOwner(TeamTypes eTeam)
+ 			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), (DirectionTypes)iI);
+ 			if (pAdjacentPlot != NULL)
+ 			{
+-				if (pAdjacentPlot->isVisible(eTeam, false))
++				if (pAdjacentPlot->isVisible(eTeam))
+ 				{
+ 					bRevealed = true;
+ 					break;
+@@ -6945,13 +6942,11 @@ void CvPlot::doFeature()  // advc: some style changes
+ 				{
+ 					setFeatureType(eFeature);
+ 					CvCity* pCity = GC.getMap().findCity(getX(), getY(), getOwner(), NO_TEAM, false);
+-					if (pCity != NULL &&
+-						isVisible(GET_PLAYER(pCity->getOwner()).getTeam(), false)) // K-Mod
++					if (pCity != NULL && /* K-Mod: */ isVisible(TEAMID(pCity->getOwner())))
+ 					{
+ 						// Tell the owner of this city.
+ 						CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_FEATURE_GROWN_NEAR_CITY",
+ 								GC.getInfo(eFeature).getTextKeyWide(), pCity->getNameKey()));
+-						
+ 						gDLL->getInterfaceIFace()->addMessage(
+ 								/*getOwner()*/ pCity->getOwner(), // K-Mod (bugfix)
+ 								false, GC.getEVENT_MESSAGE_TIME(), szBuffer,
+@@ -8213,7 +8208,7 @@ int CvPlot::countHostileUnits(PlayerTypes ePlayer, bool bPlayer, bool bTeam,
+ 	bool bNeutral, bool bHostile) const
+ {
+ 	TeamTypes eTeam = TEAMID(ePlayer);
+-	if(!isVisible(eTeam, false))
++	if(!isVisible(eTeam))
+ 		return 0;
+ 	if((bPlayer && getOwner() == ePlayer) ||
+ 		(bTeam && getTeam() == eTeam) || (bNeutral && !isOwned()) ||
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index dd03b88d6..89a2ce429 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -200,6 +200,11 @@ public:
+ 	bool isRevealedBarbarian() const;																																	// Exposed to Python
+ 
+ 	bool isVisible(TeamTypes eTeam, bool bDebug) const;																			// Exposed to Python
++	// advc: Make bDebug=false the default
++	inline bool isVisible(TeamTypes eTeam) const
++	{
++		return isVisible(eTeam, false);
++	}
+ 	DllExport bool isActiveVisible(bool bDebug) const;																								// Exposed to Python
+ 	bool isVisibleToCivTeam() const;																																// Exposed to Python
+ 	// <advc.706>
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 0101d8369..f6748777b 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -331,7 +331,7 @@ bool CvSelectionGroup::showMoves(/* advc.102: */ CvPlot const& kFromPlot) const
+ 		bool bInSpectatorsBorders = ((eFromOwner != NO_PLAYER &&
+ 				eObs == TEAMID(eFromOwner)) || (eToOwner != NO_PLAYER &&
+ 				eObs == TEAMID(eToOwner)));
+-		bool bEnteringOrLeaving = (plot()->isVisible(eObs, false) != kFromPlot.isVisible(eObs, false));
++		bool bEnteringOrLeaving = (plot()->isVisible(eObs) != kFromPlot.isVisible(eObs));
+ 		bool bSeaPatrol = (getDomainType() == DOMAIN_SEA &&
+ 				AI().AI_getMissionAIType() == MISSIONAI_PATROL);
+ 		// Just to avoid cycling through the units
+@@ -744,9 +744,12 @@ void CvSelectionGroup::startMission()
+ 		{
+ 		case MISSION_MOVE_TO:
+ 			// K-Mod. Prevent human players from accidentally attacking units that they can't see.
+-			if (isHuman() && !GC.getMap().getPlot(headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2).isVisible(getTeam(), false))
++			if (isHuman() && !GC.getMap().getPlot(
++				headMissionQueueNode()->m_data.iData1,
++				headMissionQueueNode()->m_data.iData2).isVisible(getTeam()))
++			{
+ 				headMissionQueueNode()->m_data.iFlags |= MOVE_NO_ATTACK;
+-
++			}
+ 			// also, we should allow an amphibious landing even if we are out of moves.
+ 			if (!canAllMove())
+ 			{
+@@ -2228,7 +2231,7 @@ bool CvSelectionGroup::canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar
+ 	if(getNumUnits() <= 0)
+ 		return false;
+ 
+-	bool bVisible = bAssumeVisible || kPlot.isVisible(getHeadTeam(), false); // K-Mod
++	bool const bVisible = bAssumeVisible || kPlot.isVisible(getHeadTeam()); // K-Mod
+ 	for (CLLNode<IDInfo> const* pUnitNode = headUnitNode(); pUnitNode != NULL;
+ 		pUnitNode = nextUnitNode(pUnitNode))
+ 	{
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index b7fd394c8..894db3f04 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -526,9 +526,9 @@ int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAtta
+ 
+ 	// K-Mod. Note. This function currently does not support bPotentialEnemy == false.
+ 	//FAssert(bPotentialEnemy);
+-	int defenderSum = pPlot->isVisible(getHeadTeam(), false)
+-		? GET_PLAYER(eOwner).AI_localDefenceStrength(pPlot, NO_TEAM, eDomainType, 0)
+-		: GET_TEAM(getHeadTeam()).AI_getStrengthMemory(pPlot);
++	int defenderSum = pPlot->isVisible(getHeadTeam()) ?
++			GET_PLAYER(eOwner).AI_localDefenceStrength(pPlot, NO_TEAM, eDomainType, 0) :
++			GET_TEAM(getHeadTeam()).AI_getStrengthMemory(pPlot);
+ 	// K-Mod end
+ 	compareRatio /= std::max(1, defenderSum);
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 27ab5f392..2e5ae7561 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2637,10 +2637,8 @@ void CvTeam::setStolenVisibilityTimer(TeamTypes eIndex, int iNewValue)
+ 		for (int iI = 0; iI < kMap.numPlots(); iI++)
+ 		{
+ 			CvPlot& kPlot = kMap.getPlotByIndex(iI);
+-			if (kPlot.isVisible(eIndex, false))
+-			{
++			if (kPlot.isVisible(eIndex))
+ 				kPlot.changeStolenVisibilityCount(getID(), isStolenVisibility(eIndex) ? 1 : -1);
+-			}
+ 		}
+ 	}
+ }
+@@ -2836,33 +2834,33 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bNewDiplo,
+ 		if (pUnit1 != NULL && pUnit1->getTeam() == eIndex)
+ 		{
+ 			ePlayerMet = pUnit1->getOwner();
+-			if (pUnit1->plot()->isVisible(getID(), false))
++			if (pUnit1->plot()->isVisible(getID()))
+ 				pUnitMet = pUnit1;
+ 		}
+ 		if (pUnit2 != NULL && pUnit2->getTeam() == eIndex)
+ 		{
+ 			if (ePlayerMet == NO_PLAYER)
+ 				ePlayerMet = pUnit2->getOwner();
+-			if (pUnit2->plot()->isVisible(getID(), false))
++			if (pUnit2->plot()->isVisible(getID()))
+ 				pUnitMet = pUnit2;
+ 		}
+ 		if (pAt1 != NULL && pAt1->isOwned() && pAt1->getTeam() == eIndex)
+ 		{
+-			if (pAt1->isVisible(getID(), false))
++			if (pAt1->isVisible(getID()))
+ 				pAt = pAt1;
+ 			if (ePlayerMet == NO_PLAYER)
+ 				ePlayerMet = pAt1->getOwner();
+ 		}
+ 		if (pAt2 != NULL && pAt2->isOwned() && pAt2->getTeam() == eIndex)
+ 		{
+-			if (pAt2->isVisible(getID(), false))
++			if (pAt2->isVisible(getID()))
+ 				pAt = pAt2;
+ 			if (ePlayerMet == NO_PLAYER)
+ 				ePlayerMet = pAt2->getOwner();
+ 		}
+ 		if (ePlayerMet == NO_PLAYER)
+ 			ePlayerMet = GET_TEAM(eIndex).getLeaderID();
+-		if (pUnitMet != NULL && pUnitMet->plot()->isVisible(getID(), false))
++		if (pUnitMet != NULL && pUnitMet->plot()->isVisible(getID()))
+ 			pAt = pUnitMet->plot();
+ 		if (pAt == NULL) // We can't see any of their tiles or units, but they see ours.
+ 		{
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 2babbcc34..b9c5d4d60 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4873,7 +4873,7 @@ void CvTeamAI::AI_updateStrengthMemory()
+ 			continue;
+ 
+ 		CvPlot const& kPlot = GC.getMap().getPlotByIndex(i);
+-		if (kPlot.isVisible(getID(), false) && !kPlot.isVisibleEnemyUnit(getLeaderID()))
++		if (kPlot.isVisible(getID()) && !kPlot.isVisibleEnemyUnit(getLeaderID()))
+ 			m_aiStrengthMemory[i] = 0;
+ 		// reduce by 4%, rounding down. (arbitrary number)
+ 		else m_aiStrengthMemory[i] = 96 * m_aiStrengthMemory[i] / 100;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 86737f57b..ae821956e 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2512,8 +2512,8 @@ bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar, bo
+ 		{
+ 			if (bAttack || !canCoexistWithEnemyUnit(NO_TEAM))
+ 			{
+-				//if (!isHuman() || (kPlot.isVisible(getTeam(), false)))
+-				if (bAssumeVisible || kPlot.isVisible(getTeam(), false))
++				//if (!isHuman() || (kPlot.isVisible(getTeam())))
++				if (bAssumeVisible || kPlot.isVisible(getTeam())) // K-Mod
+ 				{
+ 					if (kPlot.isVisibleEnemyUnit(this) != bAttack)
+ 					{
+@@ -2560,8 +2560,8 @@ bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar, bo
+ 
+ 			if (!canCoexistWithEnemyUnit(NO_TEAM))
+ 			{
+-				//if (!isHuman() || kPlot.isVisible(getTeam(), false))
+-				if (bAssumeVisible || kPlot.isVisible(getTeam(), false)) // K-Mod
++				//if (!isHuman() || kPlot.isVisible(getTeam()))
++				if (bAssumeVisible || kPlot.isVisible(getTeam())) // K-Mod
+ 				{
+ 					if (kPlot.isEnemyCity(*this))
+ 						return false;
+@@ -4110,7 +4110,7 @@ bool CvUnit::canParadropAt(const CvPlot* pPlot, int iX, int iY) const
+ 
+ 	if (NULL == pTargetPlot || pTargetPlot == pPlot)
+ 		return false;
+-	if (!pTargetPlot->isVisible(getTeam(), false))
++	if (!pTargetPlot->isVisible(getTeam()))
+ 		return false;
+ 	if (!canMoveInto(*pTargetPlot, false, false, true))
+ 		return false;
+@@ -8773,7 +8773,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
+ 				{
+ 					if (!isInvisible((TeamTypes)iI, false))
+ 					{
+-						if (pNewPlot->isVisible((TeamTypes)iI, false))
++						if (pNewPlot->isVisible((TeamTypes)iI))
+ 						{	// advc.071:
+ 							FirstContactData fcData(pNewPlot, NULL, this);
+ 							GET_TEAM((TeamTypes)iI).meet(getTeam(), true,
+@@ -10897,7 +10897,7 @@ bool CvUnit::canAirStrike(const CvPlot* pPlot) const
+ 		return false;
+ 	if (pPlot == plot())
+ 		return false;
+-	if (!pPlot->isVisible(getTeam(), false))
++	if (!pPlot->isVisible(getTeam()))
+ 		return false;
+ 	if (plotDistance(getX(), getY(), pPlot->getX(), pPlot->getY()) > airRange())
+ 		return false;
+@@ -10969,11 +10969,11 @@ bool CvUnit::canRangeStrikeAt(const CvPlot* pPlot, int iX, int iY) const
+ 	if (pTargetPlot == NULL)
+ 		return false;
+ 
+-	if (!pPlot->isVisible(getTeam(), false))
++	if (!pPlot->isVisible(getTeam()))
+ 		return false;
+ 	/*  UNOFFICIAL_PATCH (Bugfix), 05/10/10, jdog5000: START
+ 		Need to check target plot too */
+-	if (!pTargetPlot->isVisible(getTeam(), false))
++	if (!pTargetPlot->isVisible(getTeam()))
+ 		return false;
+ 	// UNOFFICIAL_PATCH: END
+ 	if (plotDistance(pPlot->getX(), pPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > airRange())
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 20572ece8..90f695cf8 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1012,7 +1012,7 @@ int CvUnitAI::AI_currEffectiveStr(CvPlot const* pPlot, CvUnit const* pOther,
+ 	if (bCountCollateral && collateralDamage() > 0)
+ 	{
+ 		int iPossibleTargets = collateralDamageMaxUnits();
+-		if (bCheckCanAttack && pPlot != NULL && pPlot->isVisible(getTeam(), false))
++		if (bCheckCanAttack && pPlot != NULL && pPlot->isVisible(getTeam()))
+ 			iPossibleTargets = std::min(iPossibleTargets, pPlot->getNumVisibleEnemyDefenders(this) - 1);
+ 		// If !bCheckCanAttack, then lets not assume kPlot won't get more units on it.
+ 		// advc: But let's put some cap on the number of targets
+@@ -13373,7 +13373,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 				int iEnemyDefence = -1; // used later.
+ 				int iOffenceEnRoute = kOwner.AI_cityTargetStrengthByPath(
+ 						pLoopCity, getGroup(), iPathTurns);
+-				if (pLoopCity->isVisible(getTeam(), false))
++				if (pLoopCity->isVisible(getTeam()))
+ 				{
+ 					iEnemyDefence = kOwner.AI_localDefenceStrength(pLoopCity->plot(),
+ 							NO_TEAM, DOMAIN_LAND, true, iPathTurns > 1 ? 2 : 0);
+@@ -13432,7 +13432,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 				}
+ 				/*  boost value if we can see that the city is poorly defended,
+ 					or if our existing armies need help there */
+-				if (pLoopCity->isVisible(getTeam(), false) && iPathTurns < 6)
++				if (pLoopCity->isVisible(getTeam()) && iPathTurns < 6)
+ 				{
+ 					FAssert(iEnemyDefence != -1);
+ 					if (iOffenceEnRoute > iEnemyDefence/3 && iOffenceEnRoute < iEnemyDefence)
+@@ -13900,12 +13900,16 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, int iFlags, int iMin
+ 			if (!bAllowCities && pLoopPlot->isCity())
+ 				continue;
+ 			// <advc.128>
+-			if((std::abs(iDX) > iSearchRangeRand || std::abs(iDY) > iSearchRangeRand)
+-					&& !pLoopPlot->isVisible(getTeam(), false))
+-				continue; // </advc.128>
+-			if (bDeclareWar
+-				? !pLoopPlot->isVisiblePotentialEnemyUnit(getOwner()) && !(pLoopPlot->isCity() && AI_potentialEnemy(pLoopPlot->getPlotCity()->getTeam(), pLoopPlot))
+-				: !pLoopPlot->isVisibleEnemyUnit(this) && !pLoopPlot->isEnemyCity(*this))
++			if(std::max(std::abs(iDX), std::abs(iDY)) > iSearchRangeRand &&
++				!pLoopPlot->isVisible(getTeam()))
++			{
++				continue;
++			} // </advc.128>
++			if (bDeclareWar ?
++				(!pLoopPlot->isVisiblePotentialEnemyUnit(getOwner()) &&
++				!(pLoopPlot->isCity() &&
++				AI_potentialEnemy(pLoopPlot->getPlotCity()->getTeam(), pLoopPlot))) :
++				(!pLoopPlot->isVisibleEnemyUnit(this) && !pLoopPlot->isEnemyCity(*this)))
+ 			{
+ 				continue;
+ 			}
+@@ -14533,7 +14537,7 @@ bool CvUnitAI::AI_pirateBlockade()
+ 				continue;
+ 			CvPlot const* pp = plotXY(getX(), getY(), dx, dy);
+ 			if(pp == NULL) continue; CvPlot const& p = *pp;
+-			if(!p.isVisible(getTeam(), false) || (!p.isArea(getArea()) && !p.isCity()))
++			if(!p.isVisible(getTeam()) || (!p.isArea(getArea()) && !p.isCity()))
+ 				continue;
+ 			if(p.getNumUnits() > 20) // Make sure we're not spending too much time
+ 				continue;
+@@ -15181,7 +15185,9 @@ bool CvUnitAI::AI_found(int iFlags)
+ 						int iPathTurns;
+ 						if (generatePath(pCitySitePlot, iFlags, true, &iPathTurns))
+ 						{
+-							if (!pCitySitePlot->isVisible(getTeam(), false) || !pCitySitePlot->isVisibleEnemyUnit(this) || (iPathTurns > 1 && getGroup()->canDefend())) // K-Mod
++							if (!pCitySitePlot->isVisible(getTeam()) || // K-Mod
++								!pCitySitePlot->isVisibleEnemyUnit(this) ||
++								(iPathTurns > 1 && getGroup()->canDefend())) // K-Mod
+ 							{
+ 								int iValue = pCitySitePlot->getFoundValue(getOwner());
+ 								// <advc.052>
+@@ -15260,10 +15266,8 @@ static int estimateAndCacheCityDefence(CvPlayerAI& kPlayer, CvCityAI const* pCit
+ 	int iDefenceStrength = -1;
+ 	if (city_it == city_defence_cache.end())
+ 	{
+-		if (pCity->plot()->isVisible(kPlayer.getTeam(), false))
+-		{
++		if (pCity->plot()->isVisible(kPlayer.getTeam()))
+ 			iDefenceStrength = kPlayer.AI_localDefenceStrength(pCity->plot(), NO_TEAM);
+-		}
+ 		else
+ 		{
+ 			// If we don't have vision of the city, we should try to estimate its strength based the expected number of defenders.
+@@ -15380,7 +15384,7 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal)
+ 
+ 		CvCityAI const* pCity = kPlot.AI_getPlotCity();
+ 		// If the plot can't be seen, then just roughly estimate what the AI might think is there...
+-		int iEnemyDefenders = (kPlot.isVisible(getTeam(), false) || GET_TEAM(getTeam()).AI_getStrengthMemory(&kPlot))
++		int iEnemyDefenders = (kPlot.isVisible(getTeam()) || GET_TEAM(getTeam()).AI_getStrengthMemory(&kPlot))
+ 			? kPlot.getNumVisiblePotentialEnemyDefenders(this)
+ 			: (pCity ? pCity->AI_neededDefenders() : 0);
+ 
+@@ -15398,9 +15402,9 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal)
+ 				iDefenceStrength = estimateAndCacheCityDefence(kOwner, pCity, city_defence_cache);
+ 			else
+ 			{
+-				iDefenceStrength = (kPlot.isVisible(getTeam(), false) ?
+-					kOwner.AI_localDefenceStrength(&kPlot, NO_TEAM) :
+-					GET_TEAM(kOwner.getTeam()).AI_getStrengthMemory(&kPlot));
++				iDefenceStrength = (kPlot.isVisible(getTeam()) ?
++						kOwner.AI_localDefenceStrength(&kPlot, NO_TEAM) :
++						GET_TEAM(kOwner.getTeam()).AI_getStrengthMemory(&kPlot));
+ 			}
+ 			// Note: the amphibious attack modifier is already taken into account by AI_localAttackStrength,
+ 			// but I'm going to apply a similar penality again just to discourage the AI from attacking amphibiously when they don't need to.
+@@ -15469,7 +15473,7 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal)
+ 			iBaseValue += kOwner.AI_targetCityValue(pCity, false, false); // maybe false, true?
+ 
+ 			if (pCity->plot() == &kPlot)
+-				iValueMultiplier *= (kPlot.isVisible(getTeam(), false) ? 5 : 2); // apparently we can take the city amphibiously
++				iValueMultiplier *= (kPlot.isVisible(getTeam()) ? 5 : 2); // apparently we can take the city amphibiously
+ 			else
+ 			{
+ 				// prefer to join existing assaults. (maybe we should calculate the actual attack strength here and roll it into the strength comparison modifier below)
+@@ -15481,14 +15485,13 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal)
+ 				// However, keep in mind that if we often won't be able to see the city to gauge their defenses.
+ 
+ 
+-				if (iDefenceStrength > 0 || kPlot.isVisible(getTeam(), false)) // otherwise, assume we have no idea what's there.
++				if (iDefenceStrength > 0 || kPlot.isVisible(getTeam())) // otherwise, assume we have no idea what's there.
+ 				{
+-					if (kPlot.isVisible(getTeam(), false))
+-						iModifier = std::min(100, 125*iLandedAttackStrength / std::max(1, iDefenceStrength) - 25);
+-					else iModifier = std::min(50, 75*iLandedAttackStrength / std::max(1, iDefenceStrength) - 25);
++					if (kPlot.isVisible(getTeam()))
++						iModifier = std::min(100, 125 * iLandedAttackStrength / std::max(1, iDefenceStrength) - 25);
++					else iModifier = std::min(50, 75 * iLandedAttackStrength / std::max(1, iDefenceStrength) - 25);
+ 				}
+-
+-				iValueMultiplier = (100+iModifier)*iValueMultiplier / 100;
++				iValueMultiplier = (100 + iModifier) * iValueMultiplier / 100;
+ 			}
+ 		}
+ 
+@@ -15720,7 +15723,7 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
+ 										bCanCargoAllUnload = false;
+ 										break;
+ 									}
+-									else if (pLoopPlot->isCity() && !pLoopPlot->isVisible(getTeam(), false))
++									else if (pLoopPlot->isCity() && !pLoopPlot->isVisible(getTeam()))
+ 									{
+ 										// Artillery can't naval invade, so don't try
+ 										if (pAttacker->combatLimit() < 100)
+@@ -18974,8 +18977,7 @@ int CvUnitAI::AI_airOffenseBaseValue(CvPlot const& kPlot) // advc: param was CvP
+ 				int iTempValue = 0;
+ 				if (pLoopPlot->isWater())
+ 				{
+-					if (pLoopPlot->isVisible(getTeam(),false) &&
+-						!pLoopPlot->getArea().isLake())
++					if (pLoopPlot->isVisible(getTeam()) && !pLoopPlot->getArea().isLake())
+ 					{
+ 						// Defend ocean
+ 						iTempValue = 1;
+@@ -19747,7 +19749,7 @@ bool CvUnitAI::AI_exploreAirCities()
+ 		CvPlayer const& kLoopPlayer = *it;
+ 		FOR_EACH_CITY(pLoopCity, kLoopPlayer)
+ 		{
+-			if (pLoopCity->isVisible(getTeam(), false) ||
++			if (pLoopCity->isVisible(getTeam()) ||
+ 				!canReconAt(plot(), pLoopCity->getX(), pLoopCity->getY()))
+ 			{
+ 				continue; // advc
+@@ -19826,7 +19828,7 @@ bool CvUnitAI::AI_exploreAirRange(/* advc.029: */ bool bExcludeVisible)
+ 		{
+ 			CvPlot* pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
+ 			if (pLoopPlot == NULL || /* advc.029: */ (bExcludeVisible &&
+-				pLoopPlot->isVisible(getTeam(), false)) ||
++				pLoopPlot->isVisible(getTeam())) ||
+ 				!canReconAt(plot(), pLoopPlot->getX(), pLoopPlot->getY()))
+ 			{
+ 				continue; // advc
+@@ -19848,7 +19850,7 @@ bool CvUnitAI::AI_exploreAirRange(/* advc.029: */ bool bExcludeVisible)
+ 					CvPlot* pInnerLoopPlot = plotXY(pLoopPlot->getX(), pLoopPlot->getY(),
+ 							iDX2, iDY2);
+ 					if (pInnerLoopPlot != NULL &&
+-						!pInnerLoopPlot->isVisible(getTeam(), false))
++						!pInnerLoopPlot->isVisible(getTeam()))
+ 					{
+ 						iValue += AI_exploreAirPlotValue(pInnerLoopPlot);
+ 					}
+@@ -20363,7 +20365,7 @@ bool CvUnitAI::AI_reconSpy(int iRange)  // advc: loops flattened
+ 
+ 				if (!pAdjacentPlot->isRevealed(getTeam()))
+ 					iValue += 500;
+-				else if (!pAdjacentPlot->isVisible(getTeam(), false))
++				else if (!pAdjacentPlot->isVisible(getTeam()))
+ 					iValue += 200;
+ 			}
+ 			// K-Mod
+@@ -20977,7 +20979,7 @@ bool CvUnitAI::AI_moveToStagingCity()
+ 				{
+ 					iValue *= 1000;
+ 					iValue /= (5 + iPathTurns);
+-					if (pLoopCity->plot() != plot() && pLoopCity->isVisible(eTargetTeam, false))
++					if (pLoopCity->plot() != plot() && pLoopCity->isVisible(eTargetTeam))
+ 						iValue /= 2;
+ 
+ 					if (iValue > iBestValue)
+@@ -21337,7 +21339,7 @@ int CvUnitAI::AI_nukeValue(CvPlot* pCenterPlot, int iSearchRange, CvPlot*& pBest
+ 					}
+ 
+ 					// consider military units if the plot is visible. (todo: increase value of military units that we can chase down this turn, maybe.)
+-					if (bValid && pLoopPlot->isVisible(getTeam(), false))
++					if (bValid && pLoopPlot->isVisible(getTeam()))
+ 					{
+ 						for (CLLNode<IDInfo> const* pUnitNode = pLoopPlot->headUnitNode();
+ 							pUnitNode != NULL; pUnitNode = pLoopPlot->nextUnitNode(pUnitNode))
+@@ -21399,7 +21401,7 @@ int CvUnitAI::AI_nukeValue(CvPlot* pCenterPlot, int iSearchRange, CvPlot*& pBest
+ 							}
+ 
+ 							// if we don't have vision of the city, just assume that there are at least a couple of defenders, and count that into our evaluation.
+-							if (!pLoopPlot->isVisible(getTeam(), false))
++							if (!pLoopPlot->isVisible(getTeam()))
+ 							{
+ 								UnitTypes eBasicUnit = pLoopCity->getConscriptUnit();
+ 								int iBasicCost = std::max(10, eBasicUnit != NO_UNIT ? GC.getInfo(eBasicUnit).getProductionCost() : 0);
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=16 omittedFiles=0 embeddedPatchBytes=39548

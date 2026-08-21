@@ -1,0 +1,386 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3970
+# Commit: 5559fcb2f10d53270605e1201b99de3508cee714
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e376e2f78e2d33f5d397c476e9ed9bd2f8d58091
+# Title: Allow revolts during occupation even when at war
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	7	Assets/XML/Text/CIV4GameText_advc.xml
+68	22	CvGameCoreDLL/CvCity.cpp
+3	0	CvGameCoreDLL/CvCity.h
+3	2	CvGameCoreDLL/CvCityAI.cpp
+23	21	CvGameCoreDLL/CvDLLWidgetData.cpp
+4	1	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index b42c6a5c6..75f204436 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -272,21 +272,29 @@
+ 		<Spanish>(&#161;convertir&#225;!)</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_NO_REVOLT_IN_OCCUPATION</Tag>
+-		<English>%s1_Chance%% once occupation or war ends</English>
+-		<French>%s1_Chance%% quand l'occupation ou la guerre finira</French>
+-		<German>%s1_Chance%% wenn Besatzung oder Krieg endet</German>
+-		<Italian>%s1_Chance%% quando finisce l'occupazione o la guerra</Italian>
+-		<Spanish>%s1_Chance%% cuando termine la ocupaci�n o la guerra</Spanish>
++		<Tag>TXT_KEY_REVOLT_CHANCE_AFTER_WAR_OCCUPATION</Tag>
++		<English>%s1_Chance%% once occupation and war end</English>
++		<French>%s1_Chance%% quand l'occupation et la guerre finiront</French>
++		<German>%s1_Chance%% wenn Besatzung und Krieg enden</German>
++		<Italian>%s1_Chance%% quando finiscono l'occupazione e la guerra</Italian>
++		<Spanish>%s1_Chance%% cuando terminen la ocupaci�n y la guerra</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_NO_BARB_REVOLT_IN_OCCUPATION</Tag>
++		<Tag>TXT_KEY_REVOLT_CHANCE_AFTER_OCCUPATION</Tag>
+ 		<English>%s1_Chance%% once occupation ends</English>
+ 		<French>%s1_Chance%% quand l'occupation finira</French>
+ 		<German>%s1_Chance%% wenn Besatzung endet</German>
+ 		<Italian>%s1_Chance%% quando finisce l'occupazione</Italian>
+ 		<Spanish>%s1_Chance%% cuando termine la ocupaci�n</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_REVOLT_CHANCE_AFTER_WAR</Tag>
++		<English>%s1_Chance%% once war ends</English>
++		<French>%s1_Chance%% quand la guerre finira</French>
++		<German>%s1_Chance%% wenn der Krieg endet</German>
++		<Italian>%s1_Chance%% quando finisce la guerra</Italian>
++		<Spanish>%s1_Chance%% cuando termine la guerra</Spanish>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_REVOLT_PR_BREAKDOWN</Tag>
+ 		<English>=[TAB]((%d2 culture pressure[NEWLINE][TAB]- %d1 garrison strength)[NEWLINE][TAB]/ %d3) * %d4%% base chance</English>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 35234c22e..3f8636fde 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -655,7 +655,20 @@ void CvCity::doRevolt()
+ 	{
+ 		if (GET_PLAYER(eCulturalOwner).isOneCityChallenge())
+ 			kill(true);
+-		else getPlot().setOwner(eCulturalOwner, true, true); // will delete pCity
++		else
++		{	/*	<advc.023> Make sure that allowing cities to flip repeatedly
++				while at war can't be exploited for racking up WS.
++				Doesn't take care of shared war success, but that's hardly
++				worth exploiting. */
++			if (eCulturalOwner != BARBARIAN_PLAYER &&
++				GET_TEAM(eCulturalOwner).isAtWar(getTeam()))
++			{
++				GET_TEAM(getTeam()).AI_changeWarSuccess(TEAMID(eCulturalOwner),
++						-scaled::min(GC.getWAR_SUCCESS_CITY_CAPTURING(),
++						GET_TEAM(getTeam()).AI_getWarSuccess(TEAMID(eCulturalOwner))));
++			} // </advc.023>
++			getPlot().setOwner(eCulturalOwner, true, true); // will delete pCity
++		}
+ 		/*  advc (comment): setOwner doesn't actually delete this object; just
+ 			calls CvCity::kill. Messages also handled by setOwner (through
+ 			CvPlayer::acquireCity). */
+@@ -3974,6 +3987,7 @@ int CvCity::cultureDistance(int iDX, int iDY)
+ 
+ // advc.101: Replaced most of the code, but it's still the same structure as in BtS.
+ int CvCity::cultureStrength(PlayerTypes ePlayer,
++	bool bIgnoreWar, bool bIgnoreOccupation, // advc.023
+ 	std::vector<GrievanceTypes>* paGrievances) const // Out parameter for UI support
+ {
+ 	//int iStrength = 1 + getHighestPopulation() * 2; // BtS
+@@ -4007,8 +4021,8 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
+ 		rEraFactor++;
+ 	}
+ 	CvPlot const& kCityPlot = getPlot();
+-	bool bCanFlip = (canCultureFlip(ePlayer, false) &&
+-			ePlayer == kCityPlot.calculateCulturalOwner());
++	PlayerTypes const eCulturalOwner = kCityPlot.calculateCulturalOwner();
++	bool bCanFlip = (canCultureFlip(ePlayer, false) && ePlayer == eCulturalOwner);
+ 	scaled rStrengthFromInnerRadius;
+ 	CvPlayer const& kOwner = GET_PLAYER(getOwner());
+ 	// <advc.099c>
+@@ -4165,7 +4179,15 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
+ 	if(rGrievanceModifier < 0)
+ 		rGrievanceModifier /= 2;
+ 	rStrength *= (1 + scaled::max(-1, rGrievanceModifier));
+-
++	/*	<advc.023> Occupation state helps the garrison. Kind of a negative grievance,
++		but I think multiplying with grievances will be more intuitive. */
++	int iOccupationDiv = 1;
++	if (!bIgnoreOccupation && isOccupation())
++		iOccupationDiv *= 2;
++	if (!bIgnoreWar && isMartialLaw(eCulturalOwner))
++		iOccupationDiv *= 2;
++	rStrength /= iOccupationDiv;
++	// </advc.023>
+ 	return rStrength.round();
+ }
+ 
+@@ -4188,6 +4210,20 @@ int CvCity::cultureGarrison(PlayerTypes ePlayer) const
+ 	return intdiv::uround(iGarrison, 100);
+ }
+ 
++// advc.023:
++bool CvCity::isAnyCultureGarrison() const
++{
++	FOR_EACH_UNIT_IN(pUnit, getPlot())
++	{
++		if (pUnit->getTeam() == getTeam() &&
++			pUnit->garrisonStrength() > 0)
++		{
++			return true;
++		}
++	}
++	return false;
++}
++
+ // advc.099c:
+ PlayerTypes CvCity::calculateCulturalOwner() const
+ {
+@@ -7829,29 +7865,18 @@ scaled CvCity::revoltProbability(bool bIgnoreWar,
+ 	{
+ 		return 0;
+ 	}
+-	// <advc.023>
+-	scaled rOccupationFactor = 1;
+-	if (isOccupation() && !bIgnoreOccupation)
+-	{
+-		if(!bIgnoreWar && !isBarbarian() && !GET_TEAM(getTeam()).isMinorCiv() &&
+-			GET_PLAYER(eCulturalOwner).isAlive() &&
+-			GET_TEAM(getTeam()).isAtWar(TEAMID(eCulturalOwner)))
+-		{
+-			return 0;
+-		}
+-		rOccupationFactor = fixp(0.5);
+-	} // </advc.023>
+-	int iCityStrength = cultureStrength(eCulturalOwner);
++	int iCityStrength = cultureStrength(eCulturalOwner,
++			bIgnoreWar, bIgnoreOccupation); // advc.023
+ 	int iGarrison =
+ 			(bIgnoreGarrison ? 0 : // advc.023
+ 			cultureGarrison(eCulturalOwner));
+-	if(iCityStrength <= iGarrison)
++	if (iCityStrength <= iGarrison)
+ 		return 0;
+ 	/*  About the two revolt tests: I guess the first one checks if the city tries
+ 		to revolt, and the second if the garrison can stop the revolt.
+ 		Restored the BtS formula for the second test. */
+ 	scaled r = scaled::max(0, (1 - scaled(iGarrison, iCityStrength))) *
+-			getRevoltTestProbability() * rOccupationFactor;
++			getRevoltTestProbability();
+ 	// Don't use probabilities that are too small to be displayed
+ 	if (r.getPermille() < 1)
+ 		return 0;
+@@ -7888,16 +7913,27 @@ scaled CvCity::probabilityOccupationDecrement() const
+ 	return r;
+ }
+ 
+-// K-Mod: The following function defines whether or not the city is allowed to flip to the given player
+-bool CvCity::canCultureFlip(PlayerTypes eToPlayer, /* advc.101: */ bool bCheckPriorRevolts) const
++// K-Mod: Whether or not the city is allowed to flip to the given player
++bool CvCity::canCultureFlip(PlayerTypes eToPlayer,
++	bool bCheckPriorRevolts) const // advc.101
+ {
+ 	/*if (isBarbarian())
+ 		return true;*/ // advc.101: Commented out
+ 	// <advc.099c>
++	bool bPotentiallyOutsideCultureRange = true; // just to save time
+ 	if (eToPlayer == NO_PLAYER)
++	{
+ 		eToPlayer = getPlot().calculateCulturalOwner();
+-	else if (!getPlot().isWithinCultureRange(eToPlayer))
++		bPotentiallyOutsideCultureRange = false;
++	}
++	bool const bEasyFlip = (!isAnyCultureGarrison() && isOccupation() &&
++			isMartialLaw(eToPlayer)); // advc.023
++	if (bPotentiallyOutsideCultureRange &&
++		!bEasyFlip && // advc.023
++		!getPlot().isWithinCultureRange(eToPlayer))
++	{
+ 		return false;
++	}
+ 	if(eToPlayer == NO_PLAYER || eToPlayer == getOwner() ||
+ 		!GET_PLAYER(eToPlayer).isAlive() || eToPlayer == BARBARIAN_PLAYER ||
+ 		GET_TEAM(eToPlayer).isVassal(getTeam()))
+@@ -7910,10 +7946,20 @@ bool CvCity::canCultureFlip(PlayerTypes eToPlayer, /* advc.101: */ bool bCheckPr
+ 			getPreviousOwner() == NO_PLAYER ||
+ 			TEAMID(getPreviousOwner()) != TEAMID(eToPlayer)) && // advc
+ 			(!bCheckPriorRevolts || // advc.101
++			bEasyFlip || // advc.023
+ 			getNumRevolts(eToPlayer) >= GC.getDefineINT(CvGlobals::NUM_WARNING_REVOLTS)
+ 			- (isBarbarian() ? 1 : 0))); // advc.101
+ }
+ 
++/*	advc.023: Easier suppression - but also easier flipping -
++	to major-civ while at war. */
++bool CvCity::isMartialLaw(PlayerTypes eRevoltPlayer) const
++{
++	CvPlayer const& kRevoltPlayer = GET_PLAYER(eRevoltPlayer);
++	return (kRevoltPlayer.isAlive() && kRevoltPlayer.isMajorCiv() &&
++			GET_TEAM(getTeam()).isAtWar(kRevoltPlayer.getTeam()));
++}
++
+ 
+ int CvCity::calculateCulturePercent(PlayerTypes ePlayer) const
+ {
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 7b9743ea0..5041cd0c7 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -300,8 +300,10 @@ public:
+ 	static int cultureDistance(int iDX, int iDY); // advc: static												// Exposed to Python
+ 	enum GrievanceTypes { GRIEVANCE_HURRY, GRIEVANCE_CONSCRIPT, GRIEVANCE_RELIGION }; // advc.101
+ 	int cultureStrength(PlayerTypes ePlayer,																	// Exposed to Python
++			bool bIgnoreWar = false, bool bIgnoreOccupation = false, // advc.023
+ 			std::vector<GrievanceTypes>* paGrievances = NULL) const; // advc.101
+ 	int cultureGarrison(PlayerTypes ePlayer) const;																// Exposed to Python
++	bool isAnyCultureGarrison() const; // advc.023
+ 	PlayerTypes calculateCulturalOwner() const; // advc.099c
+ 
+ 	int getNumBuilding(BuildingTypes eBuilding) const;															// Exposed to Python
+@@ -888,6 +890,7 @@ public:
+ 	// K-Mod: (advc.ctr: exposed to Python)
+ 	bool canCultureFlip(PlayerTypes eToPlayer /* <advc.101> */ = NO_PLAYER,
+ 			bool bCheckPriorRevolts = true) const; // </advc.101>
++	bool isMartialLaw(PlayerTypes eRevoltPlayer) const; // advc.023
+ 	int calculateCulturePercent(PlayerTypes ePlayer) const;														// Exposed to Python
+ 	int calculateTeamCulturePercent(TeamTypes eTeam) const;														// Exposed to Python
+ 	void setCulture(PlayerTypes ePlayer, int iNewValue, bool bPlots, bool bUpdatePlotGroups);					// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 82563fe3f..0e83d5882 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6978,7 +6978,7 @@ int CvCityAI::AI_neededCultureDefenders() const
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	if (getPlot().calculateCulturePercent(kOwner.getID()) >= 50)
+ 		return 0; // To save time
+-	PlayerTypes eCulturalOwner = calculateCulturalOwner();
++	PlayerTypes const eCulturalOwner = calculateCulturalOwner();
+ 	if(eCulturalOwner == kOwner.getID() || revoltProbability(true, true) <= 0)
+ 		return 0;
+ 
+@@ -6989,7 +6989,8 @@ int CvCityAI::AI_neededCultureDefenders() const
+ 		rTargetProb = 0;
+ 	else if (getNumRevolts(eCulturalOwner) > 0)
+ 		rTargetProb /= 4;
+-	int const iCultureStr = cultureStrength(eCulturalOwner);
++	int const iCultureStr = cultureStrength(eCulturalOwner,
++			false, true); // advc.023
+ 	// Based on the formula in CvCity::revoltProbability
+ 	scaled rTargetGarrisonStr = iCultureStr - iCultureStr * rTargetProb /
+ 			scaled::max(per100(1), getRevoltTestProbability());
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 00a9129a0..0cac9094f 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -5032,32 +5032,31 @@ void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	std::vector<CvCity::GrievanceTypes> aeGrievances;
+ 	// <advc.023>
+ 	scaled const rDecrementProb = c.probabilityOccupationDecrement();
+-	scaled const rProbToDisplay = c.revoltProbability(true, false, true);
+-	int const iCultureStr = c.cultureStrength(eCulturalOwner, &aeGrievances);
++	scaled const rHypotheticalProb = c.revoltProbability(true, false, true);
++	int const iCultureStr = c.cultureStrength(eCulturalOwner, false, false,
++			&aeGrievances);
+ 	int const iGarrisonStr = c.cultureGarrison(eCulturalOwner);
+ 	scaled const rTrueProb = c.revoltProbability() * (1 - rDecrementProb);
+-	if (rProbToDisplay > 0)
++	if (rHypotheticalProb > 0)
+ 	{
+ 		swprintf(szTempBuffer, (rTrueProb == 0 ? L"%.0f" : L"%.1f"),
+ 				100 * rTrueProb.getFloat()); // </advc.023>
+ 		// </advc.101>
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_CHANCE_OF_REVOLT", szTempBuffer));
+-		// <advc.023> Probability after occupation
+-		if (rTrueProb != rProbToDisplay)
++		/*	<advc.023> Probability after occupation and war. (If only either ends,
++			a third probability may apply, but I don't to bother showing that.) */
++		if (rTrueProb != rHypotheticalProb)
+ 		{
+ 			szBuffer.append(NEWLINE);
+-			swprintf(szTempBuffer, L"%.1f", 100 * rProbToDisplay.getFloat());
+-			if(eCulturalOwner == BARBARIAN_PLAYER || !GET_PLAYER(eCulturalOwner).isAlive())
+-			{
+-				szBuffer.append(gDLL->getText(
+-						"TXT_KEY_NO_BARB_REVOLT_IN_OCCUPATION", szTempBuffer));
+-			}
+-			else
+-			{
+-				szBuffer.append(gDLL->getText(
+-						"TXT_KEY_NO_REVOLT_IN_OCCUPATION", szTempBuffer));
+-			}
++			swprintf(szTempBuffer, L"%.1f", 100 * rHypotheticalProb.getFloat());
++			CvWString szKey;
++			if (c.isMartialLaw(eCulturalOwner) && c.isOccupation())
++				szKey = "TXT_KEY_REVOLT_CHANCE_AFTER_WAR_OCCUPATION";
++			else if (c.isMartialLaw(eCulturalOwner))
++				szKey = "TXT_KEY_REVOLT_CHANCE_AFTER_WAR";
++			else szKey = "TXT_KEY_REVOLT_CHANCE_AFTER_OCCUPTAION";
++			szBuffer.append(gDLL->getText(szKey, szTempBuffer));
+ 		} // </advc.023>
+ 		// <advc.101>
+ 		szBuffer.append(NEWLINE);
+@@ -5069,11 +5068,14 @@ void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
+ 				iCultureStrength, iCultureStrength,
+ 				::round(100 * c.getRevoltTestProbability())));
+ 		// Also show c.getRevoltProtection()? */
+-		szBuffer.append(gDLL->getText("TXT_KEY_GARRISON_STRENGTH_NEEDED",
+-				iCultureStr - iGarrisonStr));
++		if (iCultureStr > iGarrisonStr)
++		{
++			szBuffer.append(gDLL->getText("TXT_KEY_GARRISON_STRENGTH_NEEDED",
++					iCultureStr - iGarrisonStr));
++		}
+ 	}
+-	if (!c.isOccupation() && rProbToDisplay <= 0 && eCulturalOwner != c.getOwner() &&
+-		iGarrisonStr >= iCultureStr)
++	if (!c.isOccupation() && rHypotheticalProb <= 0 &&
++		eCulturalOwner != c.getOwner() && iGarrisonStr >= iCultureStr)
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_GARRISON_STRENGTH_EXCESS",
+@@ -5100,7 +5102,7 @@ void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_PRIOR_REVOLTS",
+ 				c.getNumRevolts(eCulturalOwner)));
+-		if (rProbToDisplay > 0 && rTrueProb > 0 && c.canCultureFlip(eCulturalOwner))
++		if (rTrueProb > 0 && c.canCultureFlip(eCulturalOwner))
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_FLIP_WARNING"));
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index b6c2df9da..87119799e 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2863,7 +2863,10 @@ PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureR
+ 				iBestCulture = -1;
+ 			if (iCulture <= iBestCulture) // </advc.035>
+ 				continue;
+-			if (/* advc.099c: */ bIgnoreCultureRange ||
++			if (bIgnoreCultureRange || // advc.099c
++				// <advc.023>
++				(isCity() && getPlotCity()->isOccupation() &&
++				getPlotCity()->isMartialLaw(itPlayer->getID())) || // </advc.023>
+ 				isWithinCultureRange(ePlayer))
+ 			{
+ 				if (iCulture > iBestCulture ||
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=15307

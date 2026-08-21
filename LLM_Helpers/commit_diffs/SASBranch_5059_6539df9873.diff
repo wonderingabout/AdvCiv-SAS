@@ -1,0 +1,454 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5059
+# Commit: 6539df9873aacd8af4fbb25dfb7e782745deac4b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: efcf539c1dad1f40cb61a7752278c69c63cd2dbe
+# Title: increase siege threshold pre renaissance if we have no key strategic bonus (as of now iron, copper, horse, camel, elephants) - increase siege threshold pre r...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+7	2	Assets/XML/GlobalDefines_advciv_sas.xml
+44	24	CvGameCoreDLL/CvCity.cpp
+24	1	CvGameCoreDLL/CvCityAI.cpp
+23	0	CvGameCoreDLL/CvPlayer.cpp
+5	0	CvGameCoreDLL/CvPlayer.h
+19	19	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index cf55704c2..61f4e8a61 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -38,8 +38,6 @@
+ 
+ 
+ 
+-
+-
+ 	<!-- custom: beware: AIFoundValue::evaluate returns a short not an int, so value can only up to 32 000 to -32 000 before overflowing, what this means is try to not put too extreme value changes. Although i think we compute in int and only at the end cast to short so maybe safe although i don't know a lot about these, still keep it in mind when using extremely high values that risk going beyond said scope (more than +32 000 or less than -32 000 total site value more or less anyways etc); ideally function would be changed so it would return an int instead to grow much larger (and according to chatgpt 5 if i remember it correctly but anyways etc may be even faster with int actually possibly due to it being optiized for such but check if accurate and i could or not be mistaken and is just a hypothesis but may be right or not but anyways etc) but is how it is i mean, there should be plenty room hopefully as long as valuation and devaluation is not extreme (try to not increase more than few thousands max, as other parts fo the function also change the value anyways etc.) -->
+ 
+ 	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should but anyways etc) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
+@@ -453,6 +451,13 @@
+ 		<DefineName>SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: we need more siege units early if we don't have key strategic bonuses (as of now defined as no iron nor copper nor horse nor camel nor horse nor elephants anyways etc), so relax threshold in these cases but anyways etc. May be useful in other cases, and is reused several times at different code functions or scopes, so make it a helper rather but anyways etc -->
++	<!-- custom: note: it seems this only checks main capital network (as per getNumAvailableBonuses it seems and as chatgpt 5 confirms it as well but check if accurate but anyways etc), so use it with that intent in mind or if you don't mind xd but anyways etc, else the hasBonus or possibly other functions might be used instead but check to be sure but anyways etc -->
++	<!-- custom: example of calculation: if you set this value to for example x=200, and max sieges is calculated to be a=5, then the new threshold will be a=5 + ((a=5 * x=200) / 100) = 5 + (5 * 2) = 5 + 10 = 15 (i.e. +200% which is the same as value multiplied by 3 but anyways etc); note: 0 would nullify this effect as any a * 0 = 0 so value stays the same if i'm not mistaken but anyways etc -->
++	<Define>
++		<DefineName>SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
+ 	<!-- custom: general toggle for trebuchet-like units (any siege unit that has as of now >= 50% city attack modifier is guessed to be weak in other areas and so to be a trebuchet for us anyways etc). -->
+ 	<!-- custom: note: now shared with no production fallback code hence the different name prefix in this case i mean if i'm not mistaken but anyways etc -->
+ 	<Define>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 2702cf297..4600e2f11 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -573,9 +573,9 @@ void CvCity::doTurn()
+ 	// --- BEGIN: hard safety net for AI production ---
+ 	// <!-- custom: we now successfully always avoid the no production, and other cities don't fall back to our fall back if they have a valid production -->
+ 	// <!-- custom: note: chatgpt 5 recommends adding !isDisorder() / !isOccupation() to quote it xd but anyways etc, as for me i didn't add them for simplicity and as long as works and for reliability in case these cause other issues or not or yes or etc but anyways etc, but if you or me or such notice issues consider adding one or both of these in this case i mean but anyways etc -->
+-	static const bool bNoProductionForceFallbackUnitInstead = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD");
++	static const bool bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD");
+ 
+-	if (!isHuman() && bNoProductionForceFallbackUnitInstead)
++	if (!isHuman() && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD)
+ 	{
+ 		// <!-- custom: previous issue was: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns anyways etc), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise anyways etc; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 anyways etc -->
+ 		//const bool bNeedFallback = !isProduction();
+@@ -643,20 +643,18 @@ void CvCity::doTurn()
+ 			static const int iEraRenaissance = 3;
+ 			const bool bEraRenaissanceOrAfter = (iCurrentEra >= iEraRenaissance);
+ 
+-			static const bool bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnit = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_UNIT");
+-			static const bool bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnitAnyOtherUnitDefaultAIUnit = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT");
++			static const bool bSAS_InflateCivSpecificUnit = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_UNIT");
++			static const bool bSAS_InflateCivSpecificUnitAnyOtherUnitDefaultAIUnit = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_INFLATE_CIV_SPECIFIC_ANY_OTHER_DEFAULT_UNITAI_UNIT");
+ 
+-			static const bool bNoProductionForceFallbackUnitInsteadOffenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OFFENSE_DEFAULT_UNITAIS_ONLY");
+-			static const bool bNoProductionForceFallbackUnitInsteadDefenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_DEFENSE_DEFAULT_UNITAIS_ONLY");
++			static const bool bSAS_OffenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OFFENSE_DEFAULT_UNITAIS_ONLY");
++			static const bool bSAS_DefenseDefaultUnitAIsOnly = GC.getDefineBOOL("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_DEFENSE_DEFAULT_UNITAIS_ONLY");
+ 
+ 			// <!-- custom: untested but recommended to add by chatgpt 5 which i think is good too (if i were to use them xd but check if accurate too anyways etc) -->
+ 			// Defines priority sanity (optional but recommended)
+ 			// If someone sets both “offense only” and “defense only”, your if/else if currently makes offense win silently. Add a guard once near the defines:
+-			FAssertMsg(!(bNoProductionForceFallbackUnitInsteadOffenseDefaultUnitAIsOnly && bNoProductionForceFallbackUnitInsteadDefenseDefaultUnitAIsOnly),
++			FAssertMsg(!(bSAS_OffenseDefaultUnitAIsOnly && bSAS_DefenseDefaultUnitAIsOnly),
+ 						"Both OFFENSE_ONLY and DEFENSE_ONLY are set; OFFENSE_ONLY will take precedence.");
+ 
+-			static const int iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesAllNonTrebuchetsLikeThreshold = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD");
+-
+ 			static const bool bNoExcessTrebuchetsLike = GC.getDefineBOOL("SAS_NO_EXCESS_TREBUCHETS_LIKE");
+ 
+ 			// Situation read
+@@ -670,10 +668,36 @@ void CvCity::doTurn()
+ 			const bool bEnemyStrong = (iEnemyPowerPercent >= 120);
+ 			// <!-- custom: see/read but anyways etc code comment at CvCityAI::AI_chooseUnit corresponding code / variables' initialization for details if i may say but anyways etc -->
+ 
+-			static const int iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesTrebuchetsLikeThreshold = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD");
+-			int iCapTrebsPreRenaissance = iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesTrebuchetsLikeThreshold;
++			static const int iPRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD");
++			int iCapNonTrebuchetsLikeSiegesAll = iPRE_RENAISSANCE_SIEGES_ALL_NON_TREBUCHETS_LIKE_THRESHOLD;
++
++			static const int iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD");
++			int iCapTrebsPreRenaissance = iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD;
++
++			static const int iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT");
++
++			// <!-- custom: compute everything once cleanly before the loop to avoid multi counting inside the loop but anyways etc; and as chatgpt 5 confirms after asking it; check if accurate but anyways etc -->
++			if (!bEraRenaissanceOrAfter)
++			{
++				static const int iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER = GC.getDefineINT("SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER");
++
++				const bool bHaveAnyKeyEarlyStrategicBonuses = kOwner.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
+ 
+-			static const int iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesTrebuchetsLikeThresholdNoWarPlanPercent = GC.getDefineINT("SAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_PRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT");
++				// relax both caps when we have no metals/horses/etc.
++				if (!bHaveAnyKeyEarlyStrategicBonuses)
++				{
++					iCapNonTrebuchetsLikeSiegesAll += (iCapNonTrebuchetsLikeSiegesAll * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
++
++					iCapTrebsPreRenaissance += (iCapTrebsPreRenaissance * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
++				}
++
++				// <!-- custom: simplified version of the AI_ChooseUnit code if i'm not mistaken in my thinking but anyways etc -->
++				// regardless of bonuses, fewer trebs if there’s no war plan
++				if (!bWarPlan)
++				{
++					iCapTrebsPreRenaissance = (iCapTrebsPreRenaissance * iPRE_RENAISSANCE_SIEGES_ALL_TREBUCHETS_LIKE_THRESHOLD_NO_WAR_PLAN_PERCENT) / 100;
++				}
++			}
+ 
+ 			static const bool bNoExcessVeryCheapMilitaryUnits = GC.getDefineBOOL("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS");
+ 
+@@ -756,7 +780,7 @@ void CvCity::doTurn()
+ 						// <!-- custom: simplified non-trebuchets like (i.e. catapults only as of now anyways etc) gate -->
+ 						if (!bTrebuchetLike)
+ 						{
+-							if (iSiegesAllNonTrebuchetsLike >= iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesAllNonTrebuchetsLikeThreshold)
++							if (iSiegesAllNonTrebuchetsLike >= iCapNonTrebuchetsLikeSiegesAll)
+ 							{
+ 								continue;
+ 							}
+@@ -776,11 +800,7 @@ void CvCity::doTurn()
+ 								{
+ 									continue; // don’t add more narrow-purpose siege when not stronger
+ 								}
+-								// <!-- custom: simplified version of the AI_ChooseUnit code if i'm not mistaken in my thinking but anyways etc -->
+-								if (!bWarPlan)
+-								{
+-									iCapTrebsPreRenaissance = (iCapTrebsPreRenaissance * iNoProductionForceFallbackUnitInsteadPreRenaissanceSiegesTrebuchetsLikeThresholdNoWarPlanPercent) / 100;
+-								}
++								// <!-- custom: note: !bWarPlan cap change computed instead before the loop to avoid multi counting but anyways etc -->
+ 								// <!-- custom: even if not at war, if our enemy is already stronger, don't attempt to build trebuchets that will most likely be useless as enemy will get even stronger over time and we'll be more vulnerable with non versatile or not enough defender units anyways etc -->
+ 								if (bEnemyStrong)
+ 								{
+@@ -873,7 +893,7 @@ void CvCity::doTurn()
+ 
+ 				int iLoopScore = iLoopXMLCost;
+ 
+-				if (bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnit)
++				if (bSAS_InflateCivSpecificUnit)
+ 				{
+ 					// <!-- custom: inflate artificially the civ-specific unit assuming it is best (war chariot is as of now anyways etc 5 str for 30 hammer, vs 6 str for 50 hammaer for a horse archer! The horse archer is much more efficient, but we can't judge on str alone, as some units have some nice perks like withdraw chance, etc. Simplest way is to assume civ-specific unit is best choice if available, at least a much stronger one than cost would lead on, else fix our XML to make them strong enough to justify being picked by AI but anyways etc) -->
+ 					// prefer the civilization's unique unit (war chariot over horse archer, etc.)
+@@ -889,7 +909,7 @@ void CvCity::doTurn()
+ 						// <!-- custom: added a +1 tie breaker if both the best generic unit (e.g. if catapults were allowed so 50 hammer vs a civ-specific archer costing 25 hammer if there was any in our mod anyways etc), we'd now have 51 vs 50 hammer so we win with our civ-specific unit anyways etc -->
+ 						// treat it as ~100% "more valuable" than its raw cost so cheap UUs still win ties
+ 						// <!-- custom: counter civ-specific (e.g. maya holkan, etc) units are less likely to be useful for offense, so do not especially favour them anyways etc -->
+-						if (bNoProductionForceFallbackUnitInsteadInflateCivSpecificUnitAnyOtherUnitDefaultAIUnit || (eLoopDefaultUnitAI != UNITAI_COUNTER))
++						if (bSAS_InflateCivSpecificUnitAnyOtherUnitDefaultAIUnit || (eLoopDefaultUnitAI != UNITAI_COUNTER))
+ 						{
+ 							iLoopScore = (2 * iLoopScore) + 1;
+ 						}
+@@ -911,7 +931,7 @@ void CvCity::doTurn()
+ 						eBestFallbackOverallUnitUnitAI = eLoopDefaultUnitAI;
+ 					}
+ 
+-					if (bNoProductionForceFallbackUnitInsteadOffenseDefaultUnitAIsOnly)
++					if (bSAS_OffenseDefaultUnitAIsOnly)
+ 					{
+ 						if (bOffenseDefaultUnitAI)
+ 						{
+@@ -926,7 +946,7 @@ void CvCity::doTurn()
+ 							}
+ 						}
+ 					}
+-					else if (bNoProductionForceFallbackUnitInsteadDefenseDefaultUnitAIsOnly)
++					else if (bSAS_DefenseDefaultUnitAIsOnly)
+ 					{
+ 						if (bDefenseDefaultUnitAI)
+ 						{
+@@ -960,7 +980,7 @@ void CvCity::doTurn()
+ 			UnitTypes   ePick = NO_UNIT;
+ 			UnitAITypes ePickAI = NO_UNITAI;
+ 
+-			if (bNoProductionForceFallbackUnitInsteadOffenseDefaultUnitAIsOnly)
++			if (bSAS_OffenseDefaultUnitAIsOnly)
+ 			{
+ 				if (eBestFallbackOffenseUnit != NO_UNIT && eBestFallbackOffenseUnitUnitAI != NO_UNITAI)
+ 				{
+@@ -968,7 +988,7 @@ void CvCity::doTurn()
+ 					ePickAI = eBestFallbackOffenseUnitUnitAI;
+ 				}
+ 			}
+-			else if (bNoProductionForceFallbackUnitInsteadDefenseDefaultUnitAIsOnly)
++			else if (bSAS_DefenseDefaultUnitAIsOnly)
+ 			{
+ 				if (eBestFallbackDefenseUnit != NO_UNIT && eBestFallbackDefenseUnitUnitAI != NO_UNITAI)
+ 				{
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 34af90253..247459a96 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -11420,6 +11420,10 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 
+ 				static const bool bNoExcessTrebuchetsLike = GC.getDefineBOOL("SAS_NO_EXCESS_TREBUCHETS_LIKE");
+ 
++				static const int iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER = GC.getDefineINT("SAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER");
++
++				static const bool bNoExcessSiegesAll = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL");
++
+ 				// Trebuchet-like stricter rule
+ 				if (bTrebuchetLike && bNoExcessTrebuchetsLike)
+ 				{
+@@ -11445,6 +11449,17 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 						return false;
+ 					}
+ 
++					if (!bEraRenaissanceOrAfter)
++					{
++						// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities if i'm not mistaken but anyways etc, so save some computation if we can i mean but anyways etc; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean if i may say but anyways etc) but anyways etc -->
++						const bool bHaveAnyKeyEarlyStrategicBonuses = kPlayer.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
++
++						if (!bHaveAnyKeyEarlyStrategicBonuses)
++						{
++							iCapTrebs += (iCapTrebs * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
++						}
++					}
++
+ 					// <!-- custom: even if we are stronger or otherwise ok to produce trebuchets, another edge case may be that they are simply even less versatile than other siege units, so apply tighter rules (their only purpose is to bombard city defenses or suicide attacking a city, except for that we don't want too many of them in our unit composition as it may be crippling or detrimental due to lack of versatility anyways etc -->
+ 					static const int iTrebuchetsLikeMinExtraCap = GC.getDefineINT("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_TREBUCHETS_LIKE_MIN_EXTRA_CAP");
+ 
+@@ -11457,7 +11472,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 					}
+ 				}
+ 
+-				static const bool bNoExcessSiegesAll = GC.getDefineBOOL("SAS_CHOOSE_UNIT_NO_EXCESS_SIEGES_ALL");
++
+ 				
+ 				if (bNoExcessSiegesAll)
+ 				{
+@@ -11481,6 +11496,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 							iCapSiegesAll = 10; // <!-- custom: avoid adding too much but anyways etc --> narrow-purpose siege when not stronger
+ 						}
+ 
++						// <!-- custom: save some computation by computing this in this sub scope rather (in later eras we don't check this anymore as of now, plus we start to have many unit orders and cities if i'm not mistaken but anyways etc, so save some computation if we can i mean but anyways etc; ideally should refactor this a bit but hopefully maybe also not too bad as such i mean if i may say but anyways etc) but anyways etc -->
++						const bool bHaveAnyKeyEarlyStrategicBonuses = kPlayer.getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses();
++
++						if (!bHaveAnyKeyEarlyStrategicBonuses)
++						{
++							iCapSiegesAll += (iCapSiegesAll * iSAS_NO_EXCESS_SIEGES_PRE_RENAISSANCE_NO_KEY_EARLY_STRATEGIC_BONUS_MODIFIER) / 100;
++						}
++
+ 						// <!-- custom: pre renaissance, be wary to not overproduce siege, they are not useful at defense for AIs if i am not mistaken anyways etc -->
+ 						iTotalMainUnits = iMainAttackers;
+ 					}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index dca2d888c..781d252d1 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4277,6 +4277,29 @@ int CvPlayer::getNumAvailableBonuses(BonusTypes eBonus) const
+ }
+ 
+ 
++// <!-- custom: we need more siege units early if we don't have key strategic bonuses, so relax threshold in these cases but anyways etc. May be useful in other cases, and is reused several times at different code functions or scopes, so make it a helper rather but anyways etc -->
++// <!-- custom: note: it seems this only checks main capital network (as per getNumAvailableBonuses it seems and as chatgpt 5 confirms it as well but check if accurate but anyways etc), so use it with that intent in mind or if you don't mind xd but anyways etc, else the hasBonus or possibly other functions might be used instead but check to be sure but anyways etc -->
++// Your simple check will work, but it’s “capital-network only.” If you’re okay with that approximation, keep it. If you want one tiny robustness bump (still very cheap), use global OR city plot-group so a locally-connected city isn’t punished.
++bool CvPlayer::getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses() const
++{
++	static const BonusTypes B_IRON   = (BonusTypes)GC.getInfoTypeForString("BONUS_IRON");
++	static const BonusTypes B_COPPER = (BonusTypes)GC.getInfoTypeForString("BONUS_COPPER");
++	static const BonusTypes B_HORSE  = (BonusTypes)GC.getInfoTypeForString("BONUS_HORSE");
++	static const BonusTypes B_CAMEL  = (BonusTypes)GC.getInfoTypeForString("BONUS_CAMEL");
++	static const BonusTypes B_ELEPHANTS  = (BonusTypes)GC.getInfoTypeForString("BONUS_ELEPHANTS");
++
++	const bool bHaveIron   = (B_IRON   != NO_BONUS && getNumAvailableBonuses(B_IRON)   > 0);
++	const bool bHaveCopper = (B_COPPER != NO_BONUS && getNumAvailableBonuses(B_COPPER) > 0);
++	const bool bHaveHorse  = (B_HORSE  != NO_BONUS && getNumAvailableBonuses(B_HORSE)  > 0);
++	const bool bHaveCamel  = (B_CAMEL  != NO_BONUS && getNumAvailableBonuses(B_CAMEL)  > 0);
++	const bool bHaveElephants = (B_ELEPHANTS != NO_BONUS && getNumAvailableBonuses(B_ELEPHANTS) > 0);
++
++	const bool bHaveAnyKeyEarlyStrategicBonus = (bHaveIron || bHaveCopper || bHaveHorse || bHaveCamel || bHaveElephants);
++
++	return bHaveAnyKeyEarlyStrategicBonus;
++}
++
++
+ bool CvPlayer::hasBonus(BonusTypes eBonus) const
+ {
+ 	FOR_EACH_CITY(pLoopCity, *this)
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 5e6b1705f..94f8074e1 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -249,6 +249,11 @@ public:
+ 	DllExport DenialTypes getTradeDenial(PlayerTypes eWhoTo, TradeData item) const;									// Exposed to Python
+ 	bool canTradeNetworkWith(PlayerTypes ePlayer) const;															// Exposed to Python
+ 	int getNumAvailableBonuses(BonusTypes eBonus) const;															// Exposed to Python
++	// <!-- custom: we need more siege units early if we don't have key strategic bonuses, so relax threshold in these cases but anyways etc. May be useful in other cases, and is reused several times at different code functions or scopes, so make it a helper rather but anyways etc -->
++	// <!-- custom: note: it seems this only checks main capital network (as per getNumAvailableBonuses it seems and as chatgpt 5 confirms it as well but check if accurate but anyways etc), so use it with that intent in mind or if you don't mind xd but anyways etc, else the hasBonus or possibly other functions might be used instead but check to be sure but anyways etc -->
++	// Your simple check will work, but it’s “capital-network only.” If you’re okay with that approximation, keep it. If you want one tiny robustness bump (still very cheap), use global OR city plot-group so a locally-connected city isn’t punished.
++	bool getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses() const;
++
+ 	int getNumTradeableBonuses(BonusTypes eBonus) const																// Exposed to Python
+ 	{
+ 		return (getNumAvailableBonuses(eBonus) - getBonusImport(eBonus));
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 077707caf..df10b4a7a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12313,14 +12313,14 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 		static const BonusTypes B_CAMEL  = (BonusTypes)GC.getInfoTypeForString("BONUS_CAMEL");
+ 		static const BonusTypes B_ELEPHANTS  = (BonusTypes)GC.getInfoTypeForString("BONUS_ELEPHANTS");
+ 
+-		const bool haveIron   = (B_IRON   != NO_BONUS && getNumAvailableBonuses(B_IRON)   > 0);
+-		const bool haveCopper = (B_COPPER != NO_BONUS && getNumAvailableBonuses(B_COPPER) > 0);
+-		const bool haveHorse  = (B_HORSE  != NO_BONUS && getNumAvailableBonuses(B_HORSE)  > 0);
+-		const bool haveCamel  = (B_CAMEL  != NO_BONUS && getNumAvailableBonuses(B_CAMEL)  > 0);
+-		const bool haveElephants = (B_ELEPHANTS != NO_BONUS && getNumAvailableBonuses(B_ELEPHANTS) > 0);
++		const bool bHaveIron   = (B_IRON   != NO_BONUS && getNumAvailableBonuses(B_IRON)   > 0);
++		const bool bHaveCopper = (B_COPPER != NO_BONUS && getNumAvailableBonuses(B_COPPER) > 0);
++		const bool bHaveHorse  = (B_HORSE  != NO_BONUS && getNumAvailableBonuses(B_HORSE)  > 0);
++		const bool bHaveCamel  = (B_CAMEL  != NO_BONUS && getNumAvailableBonuses(B_CAMEL)  > 0);
++		const bool bHaveElephants = (B_ELEPHANTS != NO_BONUS && getNumAvailableBonuses(B_ELEPHANTS) > 0);
+ 
+-		const bool haveAnyMetal  = (haveIron || haveCopper);
+-		const bool haveAnyMount  = (haveHorse || haveCamel);
++		const bool bHaveAnyMetal  = (bHaveIron || bHaveCopper);
++		const bool bHaveAnyMount  = (bHaveHorse || bHaveCamel);
+ 
+ 		const int iCurrentEra = getCurrentEra();
+ 		// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
+@@ -12354,11 +12354,11 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 			static const int PREMED_NO_METAL_PCT                    = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_PREMED_NO_METAL_PCT");
+ 
+ 			if ((eBonus == B_HORSE || eBonus == B_CAMEL || eBonus == B_ELEPHANTS) &&
+-				!haveHorse && !haveCamel && !haveElephants)
++				!bHaveHorse && !bHaveCamel && !bHaveElephants)
+ 			{
+ 				pct = PREMED_NO_MOUNT_PCT; // “no mounts at all” → mounts 1.5x
+ 			}
+-			else if ((eBonus == B_IRON || eBonus == B_COPPER) && !haveAnyMetal)
++			else if ((eBonus == B_IRON || eBonus == B_COPPER) && !bHaveAnyMetal)
+ 			{
+ 				pct = PREMED_NO_METAL_PCT; // “no metals” → metals 1.5x
+ 			}
+@@ -12375,15 +12375,15 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 			static const int MED_NO_METAL_NO_MOUNT_COPPER_PCT       = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MED_NO_METAL_NO_MOUNT_COPPER_PCT");
+ 
+ 			// If we lack mounts
+-			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !haveHorse && !haveCamel)
++			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !bHaveHorse && !bHaveCamel)
+ 			{
+-				pct = haveAnyMetal ? MED_NO_MOUNT_WITH_METAL_PCT   // 2.0x (Knights attractive)
++				pct = bHaveAnyMetal ? MED_NO_MOUNT_WITH_METAL_PCT   // 2.0x (Knights attractive)
+ 								: MED_NO_MOUNT_NO_METAL_PCT;   // 0.75x (no metals ⇒ Knights blocked)
+ 			}
+ 			// If we lack metals
+-			else if (!haveAnyMetal && (eBonus == B_IRON || eBonus == B_COPPER))
++			else if (!bHaveAnyMetal && (eBonus == B_IRON || eBonus == B_COPPER))
+ 			{
+-				if (haveAnyMount) // mounts present ⇒ push Iron, discount Copper
++				if (bHaveAnyMount) // mounts present ⇒ push Iron, discount Copper
+ 				{
+ 					pct = (eBonus == B_IRON ? MED_NO_METAL_WITH_MOUNT_IRON_PCT
+ 											: MED_NO_METAL_WITH_MOUNT_COPPER_PCT);
+@@ -12421,15 +12421,15 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 			static const int REN_NO_IRON_NO_MOUNT_IRON_PCT = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_NO_MOUNT_IRON_PCT");
+ 
+ 			// If we lack mounts, modest push only when IRON present
+-			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !haveHorse && !haveCamel)
++			if ((eBonus == B_HORSE || eBonus == B_CAMEL) && !bHaveHorse && !bHaveCamel)
+ 			{
+-				pct = haveIron ? REN_NO_MOUNT_WITH_IRON_PCT
++				pct = bHaveIron ? REN_NO_MOUNT_WITH_IRON_PCT
+ 							: REN_NO_MOUNT_NO_IRON_PCT;
+ 			}
+ 			// If we lack IRON, still push Iron even without mounts (Cannons etc.)
+-			else if (!haveIron && eBonus == B_IRON)
++			else if (!bHaveIron && eBonus == B_IRON)
+ 			{
+-				pct = haveAnyMount ? REN_NO_IRON_WITH_MOUNT_IRON_PCT
++				pct = bHaveAnyMount ? REN_NO_IRON_WITH_MOUNT_IRON_PCT
+ 								: REN_NO_IRON_NO_MOUNT_IRON_PCT;
+ 			}
+ 
+@@ -12452,12 +12452,12 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 			static const int MOD_PLUS_HORSE_ANY_PCT                 = GC.getDefineINT("SAS_BONUS_TRADE_VAL_RELATIVE_BONUSES_MOD_PLUS_HORSE_PCT");
+ 
+ 			// Camel fades after Industrial
+-			if (eBonus == B_CAMEL && !haveCamel)
++			if (eBonus == B_CAMEL && !bHaveCamel)
+ 			{
+ 				pct = IND_PLUS_CAMEL_ANY_PCT;
+ 			}
+ 			// Horse: OK in Industrial (Cavalry), but fades by Modern+
+-			else if (eBonus == B_HORSE && !haveHorse)
++			else if (eBonus == B_HORSE && !bHaveHorse)
+ 			{
+ 				pct = (isModernPlus ? MOD_PLUS_HORSE_ANY_PCT : IND_HORSE_BASE_PCT);
+ 			}
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index abc2f0bbe..e5f7fedeb 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -221,7 +221,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - Possibly prevented and possibly fixed the weird and very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong, which was also very risky if our stack couldn't retreat in time (to defend cities or avoid ambush/attack or other purposes maybe anyways etc). I don't know if this change fixes it since the issue was solved without it (2+ autoplay turns were needed at least it seems not 1), but maybe the additional sanity check of not (going to? But anyways etc) attacking(attack) city if target is too strong, in `CvUnitAI::AI_attackCityMove`, helps a lot but (although would need to test to be sure but seems like a very nice sanity check if not redundant with some other checks maybe but anyways etc) anyways etc. See for details [63 - (Possibly prevented and possibly fixed) Weird / very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong. I don't know if this change fixes it since the issue was solved without it (2+ autoplay turns were needed at least it seems not 1), but maybe this change in CvUnitAI::AI_attackCityMove helps a lot but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but-anyways-etc).
+ - tweaked and enhanced old razing logic so we that we (i.e. AI (excluding the barbarian player itself, but as for cities applies more or less to all cities even non-barbarian ones if i'm not mistaken anyways et) players but anyways etc) now raze cities in the early (as of now first 120 turns adjusted to game speed anyways etc) game if they are not close enough to make it worth the early investment. This helps not spread our military forces (which was a major issue in base advciv when it happened, often with most troops being in the new captured faraway city while core ones would be less defended, hopefully much saner and stronger razing now if i'm not mistaken but anyways etc) and scrace economy ressources (city maintenance would be increased per city, pop is generally low in these cities plus the time to build improvements or/and culture or such there, plus the city maintenance in the city itself, etc) so that they stay focused. Indirectly, it may often lead to less fog busting so more barbarians, which is good since it's far from us so will weaken our rivals if i'm not mistaken but anyways etc. As a result of this, AI should be much stronger in the early game, and hopefully no longer split in two making it much easier to defeat (especially if most forces are in the new city). See [64 - (Greatly enhanced) AI not razing faraway cities at captures - now we raze them if we are in the early game and they are not close enough, thanks to changes and tweaks in CvPlayerAI::AI_conquerCity anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc) for details anyways etc.
+ - Fixed and enhanced the issue of AI overbuilding defenders in the early game. It now tries (at least in theory in `CvCityAI::AI_chooseUnit` anyways etc) to replace the unit to build with an offense of versatile leaning. Typically, this means less longbowmen and more spearmen, camel archers, axemen, etc. We avoid to produce excess siege (in particular trebuchets-like units anyways etc) since they are not versatile enough to be used at defense and offense especially by the AI but anyways etc. The focus and assumption is we'll do good enough early where power differences are still not that great and gains potentially important to make. We also as of now favour civ-specific units (e.g. an egyptian war chariot rather than a horse archer if i'm not mistaken anyways etc) most times. If no good unit candidate is found, we attempt to hijack the unitai of the defensive unit (e.g. a longbowman with attack or attack_city or counter instead of city_defense). Results are very impressive!! They don't seem to always apply or entirely apply, but it does seem like most rivals have significantly less longbowmen and a more varied composition, and sometimes the difference is massive. For example in a run, hatshepsut ai went from +/- 30+ longbowmen for +/- 6 cities at turn 130 to 32 war chariots (plus camel archers for some reason etc), while some ais had often few, sometimes many longbowmen for some reason. Still, overall the seemingly more versatile compositions for all AI players, hopefully helps them better transition into an offensive middle game strategy and not be stuck with useless excess defenders. This should help boxed in players in particular, but also any AI with excess unit, after quite minimal defense needs are met (offense units can defend then as well and are more versatile if i am not mistaken but anyways etc, the varied composition also indirectly helps counter picks to invade us (like building spearmen vs chariots, or axes vs swords, hopefully, but anyways etc)). See originally changes in [53.2 - (Fixed and enhanced) Joao AI building way too many defenders (36 longbowmen at turn 130!! Almost all with UNITAI_CITY_DEFENSE or similar) while being boxed in with only 3 cities, instead of making about half of these offense units or versatile ones to punish overextending thin neighbour, fixed by having an early phase "we have expectedly too few cities at this stage of the game, no need to overbuild anymore denders at this stage of the game, switch to offense or versatile UNITAI rather" and "our military composition has way too many defender UNITAIs, switch to offense or versatile UNITAIs", which seemingly fix the issue anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#532---fixed-and-enhanced-joao-ai-building-way-too-many-defenders-36-longbowmen-at-turn-130-almost-all-with-unitai_city_defense-or-similar-while-being-boxed-in-with-only-3-cities-instead-of-making-about-half-of-these-offense-units-or-versatile-ones-to-punish-overextending-thin-neighbour-fixed-by-having-an-early-phase-we-have-expectedly-too-few-cities-at-this-stage-of-the-game-no-need-to-overbuild-anymore-denders-at-this-stage-of-the-game-switch-to-offense-or-versatile-unitai-rather-and-our-military-composition-has-way-too-many-defender-unitais-switch-to-offense-or-versatile-unitais-which-seemingly-fix-the-issue-anyways-etc) and then a more refined and enhanced, as of now final version of these in [53.2.2 (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory anyways etc) in CvCityAI::AI_chooseUnit anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#5322-seemingly-greatly-enhanced-ai-overproducing-defenders-early-on-especially-longbowmen-but-not-only-replaced-with-an-early-produce-more-versatile-units-especially-civ-specific-ones-when-defended-enough-at-least-in-theory-anyways-etc-in-cvcityaiai_chooseunit-anyways-etc) anyways etc.
+-- Tremendously improved AI overbuilding trebuchets in particular but more generally siege units, especially when it is bad like being weaker (trebuchets are useless and very hammer inefficient if not strictly to attack city tiles, catapults or cannons or such are also not too versatile or/and used correctly by AI to defend for example). Used various conditions in `CvCityAI::AI_chooseUnit` to try to make siege units production as minimal as possible, up to none at all if needed, but if other conditions are met but anyways etc hopefully not too low (a bit low as of now but much better than before when it was too strong). As a result, AIs should have a more varied offensive stack composition, as well as being better at defense when weaker, as seems the case in autoplay test i ran at a glance but anyways etc. See for details [53.3 (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc). Update: since then, heavily relaxed renaissance+ siege thresholds in `CvCityAI::AI_chooseUnit` and in the fallback unit if no production code as well in `CvCity::doTurn`, as cannons as a viable alternative to a defender, especially if we have no bonus and no access to muskets yet, overbuilding pikemen against cuirassiers is useless, ineffective, and will bankrupt us sooner. Also allows for more varied stacks compositions and much better results ingame for some AIs it seems that had the issue of dying due to having too much pikemen and keeping to build them when cannons are available and much stronger, but check to be sure anyways etc.
++- Tremendously improved AI overbuilding trebuchets in particular but more generally siege units, especially when it is bad like being weaker (trebuchets are useless and very hammer inefficient if not strictly to attack city tiles, catapults or cannons or such are also not too versatile or/and used correctly by AI to defend for example). Used various conditions in `CvCityAI::AI_chooseUnit` to try to make siege units production as minimal as possible, up to none at all if needed, but if other conditions are met but anyways etc hopefully not too low (a bit low as of now but much better than before when it was too strong). As a result, AIs should have a more varied offensive stack composition, as well as being better at defense when weaker, as seems the case in autoplay test i ran at a glance but anyways etc. See for details [53.3 (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc). Update: since then, relaxed siege thresholds in `CvCityAI::AI_chooseUnit` and in the fallback unit if no production code as well in `CvCity::doTurn`: slightly relaxed them before renaissance, and relaxed them extra more if we have key strategic bonus (as of now iron, copper, horse, camel, elephants) as siege units may help us do a successful longbow rush or such if we fit the other offense conditions to produce them if i'm not mistaken but anyways etc, and heavily relaxed them at renaissance+ as cannons as a viable alternative to a defender, especially if we have no mounted bonus and no access to muskets yet, overbuilding pikemen against cuirassiers is useless, ineffective, and will bankrupt us sooner. More generally also allows more varied stacks compositions and much better results ingame for some AIs it seems that had the issue of dying due to having too much pikemen and keeping to build them when cannons and later siege units are available and much stronger / more effective, but check to be sure anyways etc.
+ - removed `UNITAI_CITY_COUNTER` from non-versatile enough units such as the UNIT_MACEMAN, as they are not versatile enough to be reliable city defenders while still being good offense units (too easy to punish with a stack of knight units that are good against them, even a crossbow stack could defeat defending macemen, so use them for offense rather and disable them from here as well as in similar places anyways etc). They may be good against pikemen, but pikemen don't often attack cities and are not that efficient for that, so prefer macemen to focus more on offense unitai roles if i am not mistaken but anyways etc, and same for other units if any have that issue as well anyways etc.
+ - removed `UNITAI_COUNTER` from mounted units that had it (UNIT_CHARIOT, UNIT_EGYPTIAN_WAR_CHARIOT, UNIT_CARTHAGE_NUMIDIAN_CAVALRY) as they are not strong enough defender units to warrant it (doesn't ""receive defense bonuses" (i.e. modifiers if i'm not mistaken but anyways etc), plus takes a longbowman slot inefficiently as well i mean if i may say but anyways etc), and are wasted as a non attacker (stays parked in cities sometimes for example for the egyptian war chariot if i remember it correctly anyways etc) if i'm not mistaken but anyways etc. For chariot class units in particular, it may have made sense when longbows were available much later, but now in our mod but anyways etc they are available at about same time in tech as axeman class units but anyways etc, and are a more versatile, cheap enough and overall stronger defender, so prefer it for that purpose rather and use chariots offensively if in window to do so else don't build them (rather than park them in cities if i am not mistaken but anyways etc).
+ - Tremendously improved AI overbuilding very cheap (as of now 20 or less hammer cost in unitinfo XML (indepent from any trainpercent modifier if i am not mistaken anyways etc)) combat units (ancient macemen only being an issue as of now anyways etc) in the early game, sometimes even at turn 100, which is inefficient, nonsensical since there are so many better options like swordsmen, chariots, longbowmen, anything else basically some of which not requiring any bonus if i'm not mistaken but anyways etc, and easy to overshoot if i may say but anyways etc, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units anyways etc, now limited, especially even more so after as of now turn 50 where they should be especially useless. Since they are easy to overbuild due to being so cheap, they may quickly make us bankrupt, and are not so effective per unit. As in our mod archers are as of now available very soon, fairly cheap, and more versatile and overall stronger, plus since they also help fill our defense needs/quotas sooner so we move to offense focus sooner, it seems very nice to be able to cut down on excess very cheap units, as of now only the ancient maceman (note: this trims down scouts as well since they have combat if i am not mistaken, but we don't seem to overproduce them so fine anyways etc, and even if we were to then would be handled by the same cap if i am not mistaken but anyways etc). As a result of these changes in `CvCityAI::AI_chooseUnit`, ingame, we seem to have much better compositions (e.g. 3 ancient macemen at turn 100-130 vs 11 before in AI players), and much more stronger units in comparison. Hopefully helps being economically efficient as well. AI should be stronger as a result of these changes hopefully if i am not mistaken but anyways etc. See for details [53.4 (Tremendously Improved) AI overbuilding very cheap combat units (ancient macemen only being an issue as of now anyways etc) in the early game, sometimes even at turn 100, which is inefficient and easy to overshoot if i may say but anyways etc, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units anyways etc, now limited, especially even more so after as of now turn 50 where they should be especially useless; much better military compositions and better growth as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc) anyways etc. Update: now the anti excess very cheap units is also included in `CvCity::doTurn` in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game but anyways etc) anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 7931ee006..8391263a0 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -209,7 +209,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **City attack oscillation — pre-check vs strong targets (possible mitigation)**: In `CvUnitAI::AI_attackCityMove`, add a sanity check to **skip marching to/attacking a city** when the **defending stack is too strong**. Goal: prevent the inefficient **advance → abort → backtrack** loop and reduce the risk of being caught without time to retreat. **Note:** in the test sample, this behavior also resolved without the change by running ~2+ autoplay turns in a row instead of 1 turn only from a slightly older save file rather; treat this as a **possible fix/sanity check** (not (at least not yet) broadly tested). See [KI#63](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but-anyways-etc).
+ - **Early-game razing — distance-aware captures**: Updated conquer/raze logic so that, for roughly the first **~120 turns** (scaled by game speed), the AI **razes captured cities** that aren’t **close enough** to justify early investment. This addresses the base AdvCiv pattern where forces overextend (most troops sit in a faraway capture while **core cities** thin out) and also preserves scarce early economy (city maintenance, low pop, time to build improvements/culture). Indirect effect: less fog-busting far from us → **more barbarians** there, which tends to pressure rivals. Net: a **stronger, more focused** early AI (fewer “split in two” empires). See [KI#64](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc).
+ - **Early defender overbuild → switch to versatile offense (AI)**: Heuristic in `CvCityAI::AI_chooseUnit` reduces **early-game overproduction of pure defenders** (especially Longbowmen) by swapping the build to a more **offensive/versatile** unit when defense is already sufficient — e.g., Spearmen, Axemen, Camel Archers, with a preference for civ-specific units like War Chariots when available. Also caps/avoids siege (esp. Trebuchets) when they’re inefficient defensively; production can drop **down to zero** if conditions warrant. If no good replacement exists, the AI can **reflag** the chosen defender to an **attack/attack_city/counter** `UnitAI` instead. In testing, this produced **fewer pure defenders** and **more varied stacks** (e.g., a run where Hatshepsut shifted from ~30 Longbowmen at T130 to ~32 War Chariots, plus Camel Archers). See [KI#53.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#532---fixed-and-enhanced-joao-ai-building-way-too-many-defenders-36-longbowmen-at-turn-130-almost-all-with-unitai_city_defense-or-similar-while-being-boxed-in-with-only-3-cities-instead-of-making-about-half-of-these-offense-units-or-versatile-ones-to-punish-overextending-thin-neighbour-fixed-by-having-an-early-phase-we-have-expectedly-too-few-cities-at-this-stage-of-the-game-no-need-to-overbuild-anymore-denders-at-this-stage-of-the-game-switch-to-offense-or-versatile-unitai-rather-and-our-military-composition-has-way-too-many-defender-unitais-switch-to-offense-or-versatile-unitais-which-seemingly-fix-the-issue-anyways-etc) and [KI#53.2.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#5322-seemingly-greatly-enhanced-ai-overproducing-defenders-early-on-especially-longbowmen-but-not-only-replaced-with-an-early-produce-more-versatile-units-especially-civ-specific-ones-when-defended-enough-at-least-in-theory-anyways-etc-in-cvcityaiai_chooseunit-anyways-etc).
+-- **Siege production — conditional minimization (trebuchets especially)**: In `CvCityAI::AI_chooseUnit`, added targeted checks to keep **siege output** as low as needed—**up to none at all** when conditions say they’re poor value (e.g., when the AI is **weaker** or not preparing **city assaults**). Rationale: **trebuchets** are very **hammer-inefficient** outside direct city attacks; **catapults/cannons** also aren’t versatile enough (and are often misused) for defense. Current tuning intentionally leans **low** versus before (but not permanently zero when other conditions are met). Result: **more varied offensive stacks** and **stronger defense** when behind. See [KI#53.3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc). **Update:** From the **Renaissance** onward, thresholds are **heavily relaxed** in `CvCityAI::AI_chooseUnit` and in `CvCity::doTurn`—when **Cannons** unlock they can serve as a practical **defensive pivot** (esp. if you lack bonuses/muskets), and the AI avoids **over-producing Pikemen** into **Cuirassiers**, leading to **more varied stacks** and improved survival. See [KI#53.3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc).
++- **Siege production — conditional minimization (trebuchets especially)**: In `CvCityAI::AI_chooseUnit`, added targeted checks to keep **siege output** as low as needed—**up to none at all** when conditions say they’re poor value (e.g., when the AI is **weaker** or not preparing **city assaults**). Rationale: **trebuchets** are very **hammer-inefficient** outside direct city attacks; **catapults/cannons** also aren’t versatile enough (and are often misused) for defense. Current tuning intentionally leans **low** versus before (but not permanently zero when other conditions are met). Result: **more varied offensive stacks** and **stronger defense** when behind. See [KI#53.3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc). **Update:** Thresholds have been **slightly relaxed pre-Renaissance**; **extra-relaxed when holding key strategic bonuses** (**Iron**, **Copper**, **Horse**, **Camel**, **Elephants**) to enable offense windows (e.g., longbow + siege); and **heavily relaxed from Renaissance onward** so **Cannons** can serve as a defensive pivot and the AI avoids over-producing Pikemen into Cuirassiers, and more generally since later sieges units are stronger and more effective, to also have a more varied and effective military composition.
+ - **City-counter role pruning (e.g. Macemen)**: Removed `UNITAI_CITY_COUNTER` from **non-versatile** units (e.g., `UNIT_MACEMAN`). For example for macemen, as city defenders they’re too easy to punish—knights counter them hard, and even crossbow stacks can beat defending macemen—so they’re better assigned to **offensive** `UnitAI` roles. While macemen beat pikemen, pikes seldom assault cities efficiently, so the city-counter slot isn’t warranted. The same adjustment applies to any other units with this mismatch.
+ - **Mounted “Counter” role pruning:** Removed `UNITAI_COUNTER` from the mounted units (`UNIT_CHARIOT`, `UNIT_EGYPTIAN_WAR_CHARIOT`, `UNIT_CARTHAGE_NUMIDIAN_CAVALRY`) that had it. Rationale: mounted units don’t "receive defense bonuses" (note: not related to bonuses/ressources) and can be countered by other units; assigning them to COUNTER can park them in cities (e.g. seemingly seen in autoplay with War Chariots) and occupies a slot **Longbowmen** are more fit to fill as they unlock early and are cheap and versatile defenders, so these mounted unit lines are better used for offense roles rather during its window—or skipped outside it.
+ - **Very cheap-combat spam cap (tiered & generalized):** The AI was **overbuilding very cheap combat units**—notably the **Ancient Maceman**—even ~T100. Because they’re so cheap, they pile up, are weak once Archers appear, and can drag the economy. We added conditions in `CvCityAI::AI_chooseUnit` to **limit** these builds, with a **stricter cap after ~T50** when they’re especially poor value. In AdvCiv-SAS, Archers arrive early, are cheap/versatile, and fill defense quotas sooner, letting cities pivot to offense. (Scouts get trimmed incidentally since they’re combat-tagged, though they weren’t the main issue.) **Result:** more varied, stronger stacks (e.g., ~3 Ancient Macemen @T100–130 vs ~11 before) and a **healthier economy**. See [KI#53.4](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc). **Update:** The cap is now **generalized beyond Ancient** using **tier-based (not era-based) thresholds** to avoid era bleed-through (e.g., Ancient Macemen don’t inherit looser Classical caps). This also aims to trim (at least in theory, data lacking to draw a conclusion on an experiment anyways etc) for example **Archers in Classical** and **Longbows/Triremes in Medieval** when they’re too cheap for their tier. In practice we see AI mixes improve (e.g., Japan AI shifting from ~75 Longbows @T200 to ~50–60 Longbows + 10–15 Camel Archers + 20–27 Samurai, run-dependent). Tunables live in `CvCityAI::AI_chooseUnit` and [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). **Update (fallback production):** Applied the same cap inside CvCity::doTurn’s **no-production fallback** so that the **new offense-only** alternative logic no longer spams **Ancient Macemen** (e.g., ~19 @T100).
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=8 omittedFiles=1 embeddedPatchBytes=57368

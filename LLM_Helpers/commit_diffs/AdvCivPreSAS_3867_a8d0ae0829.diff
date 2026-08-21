@@ -1,0 +1,52 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3867
+# Commit: a8d0ae0829c317eaa5e31012163b95ea5314f156
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ffbe05255f2ef132628617fe4a7bccd662883cc1
+# Title: Submarines on Sea Patrol can be attacked even if invisible
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	4	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index f6e0c9058..f9c170010 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7518,9 +7518,10 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
+ 	{
+ 		return false;
+ 	}
+-	/*  and if there is some visible team unit that could get attacked otherwise
+-		(better: check if our team has the best visible defender; tbd.): */
+-	if (bInvisible)
++	/*  ... and if there is some visible team unit that could get attacked otherwise
++		(better: check if our team has the best visible defender; tbd.) ... */
++	if (bInvisible &&
++		!isSeaPatrolling()) // ... or when we're sea patrolling.
+ 	{
+ 		bool bFound = false;
+ 		FOR_EACH_UNIT_IN(pUnit, getPlot())
+@@ -7843,7 +7844,8 @@ CvUnit* CvUnit::bestSeaPillageInterceptor(CvUnit* pPillager, int iMinOdds) const
+ 			if (pLoopUnit->isSeaPatrolling() &&
+ 				pLoopUnit->canSeaPatrol(pLoopUnit->plot()) && // <advc>
+ 				pLoopUnit->canReachBySeaPatrol(getPlot()) && // advc.004k
+-				!pLoopUnit->isInvisible(getTeam(), false) &&
++				// advc.028: Allow submarines to patrol. What could go wrong?
++				//!pLoopUnit->isInvisible(getTeam(), false) &&
+ 				isEnemy(pLoopUnit->getTeam()))
+ 			{
+ 				if (pBestUnit == NULL || pLoopUnit->isBetterDefenderThan(pBestUnit, this,
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1317

@@ -1,0 +1,79 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 312
+# Commit: 6c073eb450ad7cec45bb3c30cf7d39b5b71e9eb8
+# History segment: K-Mod history
+# Parent used for diff: 10df9757135d954e2ca9b48c33eefee5d75b67d1
+# Title: Corrected an off-by-one mistake in the setting of bUnitExempt - this was a significant problem! Tweaked the effect of "bExpansive" in AI_foundValue. Adjusted...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 28c8a7445..948f9a52b 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1054,9 +1054,9 @@ void CvCityAI::AI_chooseProduction()
+ 	// Check for military exemption for commerce cities and underdeveloped cities.
+ 	// Don't give exemptions to cities that don't have anything good to build anyway.
+ 	bool bUnitExempt = false;
+-	if (iBestBuildingValue >= 50)
++	if (iBestBuildingValue >= 40)
+ 	{
+-		if (iProductionRank > kPlayer.getNumCities()/2)
++		if (iProductionRank-1 > kPlayer.getNumCities()/2)
+ 		{
+ 			bool bBelowMedian = true;
+ 			for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+@@ -1068,7 +1068,7 @@ void CvCityAI::AI_chooseProduction()
+ 					bUnitExempt = true;
+ 					break;
+ 				}
+-				if (iRank < kPlayer.getNumCities()/2)
++				if (iRank-1 < kPlayer.getNumCities()/2)
+ 					bBelowMedian = false;
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 649cdd819..03a328548 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3686,7 +3686,7 @@ short CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet)
+ 				iValue -= std::min(5, iDistance - iTargetRange) * 400; // with that max distance, we could fit a city in the middle!
+ 			}
+ 			iValue *= 8 + 4*iNumCities;
+-			iValue /= 2 + 4*iNumCities + std::max(iTargetRange, iDistance);
++			iValue /= 2 + 4*iNumCities + std::max(5, iDistance); // 5, not iTargetRange, because 5 is better.
+ 
+ 			if (!pNearestCity->isCapital() && getCapitalCity() != NULL)
+ 			// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1c44a0fce..fc409cdce 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -15210,7 +15210,8 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 									}
+ 									// K-Mod adjust value based on defence
+ 									{
+-										int iMod = pLoopCity->getDefenseModifier(false)/2
++										int iMod =
++											pLoopCity->getDefenseModifier(false) / (bombardRate() > 0 ? 3 : 1)
+ 											+ (pLoopCity->plot()->isHills() ? GC.getHILLS_EXTRA_DEFENSE() : 0);
+ 										iValue *= std::max(100, 160 - iMod);
+ 										iValue /= 100;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2260

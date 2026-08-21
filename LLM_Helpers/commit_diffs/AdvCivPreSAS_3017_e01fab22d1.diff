@@ -1,0 +1,83 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3017
+# Commit: e01fab22d13122f1f341efd79b32ff5dfab3a49e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c33fe6f4ede1872a855a5d5adf1aa3c76a11f210
+# Title: Fix wrong offsets of smiley symbols in GameFont_75
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/CvUtil.py
+3	1	Assets/Python/Screens/CvMainInterface.py
+3	0	CvGameCoreDLL/CvEnums.h
+1	0	CvGameCoreDLL/CyEnumsInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvUtil.py b/Assets/Python/CvUtil.py
+index b6ec6f5f1..b32786e3f 100644
+--- a/Assets/Python/CvUtil.py
++++ b/Assets/Python/CvUtil.py
+@@ -433,7 +433,7 @@ def addIconToMap(infoChar, desc):
+ 	uc = infoChar()
+ 	if (uc>=0):
+ 		FontIconMap[desc] = u"%c" %(uc,)
+-# advc (note): Don't add to this list; it seems that BUG's FontUtil.py handles the values of the FontSymbols enum in the DLL (so long as they're exposed to Python).
++# advc (note): Don't add to this list; it seems that BUG's FontUtil.py handles the values of the FontSymbols enum in the DLL (so long as they're exposed to Python). Adding to the IconMap in CvTranslator.py also seems moot.
+ OtherFontIcons = { 'happy' : FontSymbols.HAPPY_CHAR,
+ 				'unhappy' : FontSymbols.UNHAPPY_CHAR,
+ 				'healthy' : FontSymbols.HEALTHY_CHAR,
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index c3bfc487e..8ddbc4c64 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -5533,7 +5533,9 @@ class CvMainInterface:
+ 			if ScoreOpt.isShowAttitude():
+ 				if not pPlayer.isHuman() and eActivePlayer != ePlayer:
+ 					iAtt = pPlayer.AI_getAttitude(eActivePlayer)
+-					cAtt =  unichr(ord(unichr(g.getSymbolID(FontSymbols.POWER_CHAR) + 4)) + iAtt)
++					#cAtt =  unichr(ord(unichr(g.getSymbolID(FontSymbols.POWER_CHAR) + 4)) + iAtt)
++					# advc.187: I've added the airport icon as a GameFont_75 symbol and that breaks the offset used above. No cells are left for further insertions, so, I guess, at this point, the offset from POWER_CHAR can't break again - but let's do it a bit more cleanly anyway by exposing the leftmost attitude char to Python.
++					cAtt =  unichr(ord(unichr(g.getSymbolID(FontSymbols.NO_ATTITUDE_CHAR) + 1)) + iAtt)
+ 					szBuffer += cAtt
+ 					if bAlignIcons:
+ 						scores.setAttitude(cAtt)
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 1eb925dfc..14603a0fc 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1695,6 +1695,9 @@ enum FontSymbols
+ 	CITIZEN_CHAR,
+ 	GREAT_GENERAL_CHAR,
+ 	AIRPORT_CHAR, // </advc.002f>
++	/*	advc.187: So that BUG doesn't need to access the attitude symbols
++		through offsets */
++	NO_ATTITUDE_CHAR,
+ #ifdef _USRDLL
+ 	MAX_NUM_SYMBOLS
+ #endif
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 234610dd0..151039036 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -714,6 +714,7 @@ void CyEnumsPythonInterface()
+ 		.value("GREAT_GENERAL_CHAR", GREAT_GENERAL_CHAR)
+ 		.value("AIRPORT_CHAR", AIRPORT_CHAR)
+ 		// </advc.002f>
++		.value("NO_ATTITUDE_CHAR", NO_ATTITUDE_CHAR) // advc.187
+ 		.value("MAX_NUM_SYMBOLS", MAX_NUM_SYMBOLS)
+ 		;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=2768

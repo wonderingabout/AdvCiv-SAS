@@ -1,0 +1,322 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4703
+# Commit: c59c8dc78a4a685b3512b921853f507d01e12773
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 29d54e506d007583f93615acdc0e7b77a92f7d9f
+# Title: add Personality AI aggregates, by ChatGPT and me who asked, docs in next commits o/and other additions or not, anyways
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+190	35	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chagpt agregates 2 .PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt agregates 1 use chatgpt to analyze data.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chagpt agregates 2 .PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt agregates 1 use chatgpt to analyze data.PNG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 89a79fcd4..5ec1e1f66 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -339,7 +339,6 @@ class SevoPediaLeader:
+ 
+ 		lineHeight = 22
+ 		categorySpacing = 10
+-		legendSpacing = 15
+ 
+ 		xName1 = self.X_AI_PERSONALITY + 15
+ 		xValue1 = xName1 + 260
+@@ -351,22 +350,175 @@ class SevoPediaLeader:
+ 		xScale2 = xValue2 + 60
+ 		y2 = self.Y_AI_PERSONALITY + 35
+ 
+-		def get_symbol_scale(val, min_val, max_val, inverse, symbol):
++		def get_symbol_scale(score):
++			if score < 20:
++				return "#"
++			elif score < 40:
++				return "##"
++			elif score < 60:
++				return "###"
++			elif score < 80:
++				return "####"
++			else:
++				return "#####"
++
++		def normalize(value, min_val, max_val, inverse=False):
+ 			if max_val == min_val:
+-				return symbol
+-			ratio = float(val - min_val) / float(max_val - min_val)
++				return 0
++			norm = float(value - min_val) / float(max_val - min_val)
+ 			if inverse:
+-				ratio = 1.0 - ratio
+-			if ratio < 0.2:
+-				return symbol
+-			elif ratio < 0.4:
+-				return symbol * 2
+-			elif ratio < 0.6:
+-				return symbol * 3
+-			elif ratio < 0.8:
+-				return symbol * 4
+-			else:
+-				return symbol * 5
++				norm = 1.0 - norm
++			return int(norm * 100)
++
++		# Define aggregates: (Label, [(getter, inverse)])
++		aggregates = [
++			("Aggressive", [
++				("getMaxWarRand", False),
++				("getBuildUnitProb", False),
++				("getBaseAttackOddsChange", False)
++			]),
++			("Sneaky", [
++				("getDemandRebukedSneakProb", False),
++				("getDogpileWarRand", False),
++				("getEspionageWeight", False)
++			]),
++			("Builder", [
++				("getWonderConstructRand", True),
++				("getBuildUnitProb", True),
++				("getMaxGoldTradePercent", False)
++			]),
++			("Diplomatic", [
++				("getBasePeaceWeight", False),
++				("getNoTechTradeThreshold", True),
++				("getOpenBordersRefuseAttitudeThreshold", True)
++			]),
++			("Opportunistic", [
++				("getDeclareWarTradeRand", False),
++				("getTechTradeKnownPercent", False),
++				("getWarmongerRespect", False)
++			]),
++			("Peaceful", [
++				("getMakePeaceRand", False),
++				("getBasePeaceWeight", False),
++				("getRefuseToTalkWarThreshold", True)
++			]),
++			("Stubborn", [
++				("getTechRefuseAttitudeThreshold", False),
++				("getCityRefuseAttitudeThreshold", False),
++				("getStopTradingRefuseAttitudeThreshold", False),
++				("getAdoptCivicRefuseAttitudeThreshold", False),
++				("getConvertReligionRefuseAttitudeThreshold", False)
++			]),
++			("Expansive", [
++				("getMaxWarMinAdjacentLandPercent", False),
++				("getLimitedWarPowerRatio", False),
++				("getBuildUnitProb", False)
++			]),
++			("Trader", [
++				("getTechTradeKnownPercent", False),
++				("getMaxGoldTradePercent", False),
++				("getMapRefuseAttitudeThreshold", True)
++			]),
++			("Dogpiler", [
++				("getDogpileWarRand", False),
++				("getDeclareWarTradeRand", False),
++				("getWarmongerRespect", False)
++			]),
++			("Isolationist", [
++				("getOpenBordersRefuseAttitudeThreshold", False),
++				("getDeclareWarRefuseAttitudeThreshold", False),
++				("getStopTradingRefuseAttitudeThreshold", False)
++			]),
++			("Religious Zealot", [
++				("getSameReligionAttitudeChangeLimit", False),
++				("getDifferentReligionAttitudeChangeLimit", False),
++				("getConvertReligionRefuseAttitudeThreshold", False)
++			]),
++			("Vassalizer", [
++				("getVassalRefuseAttitudeThreshold", False),
++				("getPowerWeightModifier", False),
++				("getRefuseToTalkWarThreshold", True)
++			]),
++			("Civic Enforcer", [
++				("getFavoriteCivicAttitudeChangeLimit", False),
++				("getAdoptCivicRefuseAttitudeThreshold", False),
++				("getNoTechTradeThreshold", False)
++			]),
++			("Tech Hoarder", [
++				("getNoTechTradeThreshold", False),
++				("getTechRefuseAttitudeThreshold", False),
++				("getTechTradeKnownPercent", True)
++			]),
++			("Cautious", [
++				("getLimitedWarRand", False),
++				("getLimitedWarPowerRatio", False),
++				("getMaxWarNearbyPowerRatio", True)
++			]),
++			("Reckless", [
++				("getBaseAttackOddsChange", False),
++				("getLimitedWarRand", True),
++				("getDeclareWarRefuseAttitudeThreshold", True)
++			]),
++			("Gold Hoarder", [
++				("getMaxGoldTradePercent", False),
++				("getMaxGoldPerTurnTradePercent", False),
++				("getCityRefuseAttitudeThreshold", False)
++			]),
++			("Culture Pusher", [
++				("getCultureVictoryWeight", False),
++				("getMaxWarMinAdjacentLandPercent", True),
++				("getSameReligionAttitudeChangeLimit", False)
++			]),
++			("Flexible", [
++				("getAdoptCivicRefuseAttitudeThreshold", True),
++				("getConvertReligionRefuseAttitudeThreshold", True),
++				("getFavoriteCivicAttitudeChangeLimit", True)
++			]),
++			("Grudgy", [
++				("getWorseRankDifferenceAttitudeChange", False),
++				("getCloseBordersAttitudeChange", False),
++				("getDifferentReligionAttitudeChangeLimit", False)
++			]),
++			("Collaborative", [
++				("getShareWarAttitudeChangeLimit", False),
++				("getSameReligionAttitudeChangeLimit", False),
++				("getFavoriteCivicAttitudeChangeLimit", False)
++			]),
++			("Stingy", [
++				("getHealthBonusRefuseAttitudeThreshold", False),
++				("getHappinessBonusRefuseAttitudeThreshold", False),
++				("getStrategicBonusRefuseAttitudeThreshold", False)
++			]),
++			("Globalist", [
++				("getTechTradeKnownPercent", False),
++				("getMaxWarDistantPowerRatio", False),
++				("getDeclareWarTradeRand", False)
++			]),
++			("Micro-manager", [
++				("getAttackOddsChangeRand", False),
++				("getMakePeaceRand", False),
++				("getRefuseToTalkWarThreshold", False)
++			])
++		]
++
++		def calculate_aggregate(leaderInfo, fields):
++			total = 0
++			count = 0
++			for funcName, inverse in fields:
++				try:
++					values = [getattr(gc.getLeaderHeadInfo(i), funcName)() for i in range(numLeaders)]
++					val = getattr(leaderInfo, funcName)()
++					total += normalize(val, min(values), max(values), inverse)
++					count += 1
++				except:
++					pass
++			if count == 0:
++				return 0
++			return total // count
++
++		# Same categories as before, with Aggregates inserted
++		left_categories = ["War Strategy", "Aggregates"]
++		right_categories = ["Diplomacy", "Attitude Modifiers", "Economic Preferences", "Trade Thresholds", "Victory Strategy"]
+ 
+ 		attr_types = {
+ 			"War Strategy": "threat",
+@@ -374,14 +526,13 @@ class SevoPediaLeader:
+ 			"Victory Strategy": "efficiency",
+ 			"Economic Preferences": "efficiency",
+ 			"Attitude Modifiers": "diplomacy",
+-			"Trade Thresholds": "diplomacy"
++			"Trade Thresholds": "diplomacy",
++			"Aggregates": "efficiency"
+ 		}
+ 
+ 		symbols = {
+-			#"threat": ">",
+-			#"threat": "o",
+-			"threat": "+",
+-			"efficiency": "#",
++			"threat": "#",
++			"efficiency": ">",
+ 			"diplomacy": "="
+ 		}
+ 
+@@ -391,9 +542,6 @@ class SevoPediaLeader:
+ 			"getRefuseToTalkWarThreshold", "getNoTechTradeThreshold"
+ 		]
+ 
+-		left_categories = ["War Strategy", "Diplomacy", "Victory Strategy"]
+-		right_categories = ["Economic Preferences", "Attitude Modifiers", "Trade Thresholds"]
+-
+ 		def render_categories(screen, categories, xName, xValue, xScale, yStart):
+ 			y = yStart
+ 			first = True
+@@ -408,17 +556,34 @@ class SevoPediaLeader:
+ 							   WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				y += lineHeight
+ 
++				if category == "Aggregates":
++					for label, fields in aggregates:
++						score = calculate_aggregate(leader, fields)
++						symbols_used = get_symbol_scale(score)
++						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
++									   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
++									   WidgetTypes.WIDGET_GENERAL, -1, -1)
++						screen.setText(self.top.getNextWidgetName(), "", u"<font=2b>%d</font>" % score,
++									   CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT,
++									   WidgetTypes.WIDGET_GENERAL, -1, -1)
++						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % symbols_used,
++									   CvUtil.FONT_LEFT_JUSTIFY, xScale, y, 0, FontTypes.SMALL_FONT,
++									   WidgetTypes.WIDGET_GENERAL, -1, -1)
++						y += lineHeight
++					continue
++
+ 				attrType = attr_types.get(category, "efficiency")
+ 				symbol = symbols.get(attrType, ">")
+ 
+-				for label, funcName in self.ai_attribute_categories[category]:
++				for label, funcName in self.ai_attribute_categories.get(category, []):
+ 					try:
+ 						values = [getattr(gc.getLeaderHeadInfo(i), funcName)() for i in range(numLeaders)]
+ 						value = getattr(leader, funcName)()
+ 						min_val = min(values)
+ 						max_val = max(values)
+ 						inverse = funcName in inverse_logic
+-						scale_text = get_symbol_scale(value, min_val, max_val, inverse, symbol)
++						score = normalize(value, min_val, max_val, inverse)
++						scale_text = get_symbol_scale(score)
+ 
+ 						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
+ 									   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+@@ -433,16 +598,6 @@ class SevoPediaLeader:
+ 					except:
+ 						pass
+ 
+-			# Add legend at bottom
+-			y += legendSpacing
+-			screen.setText(self.top.getNextWidgetName(), "", u"<font=2>――――――――――――――――――</font>",
+-						   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+-						   WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			y += lineHeight
+-			screen.setText(self.top.getNextWidgetName(), "", u"<font=2>Legend: Threat = #   Efficiency = >   Diplomacy = :</font>",
+-						   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+-						   WidgetTypes.WIDGET_GENERAL, -1, -1)
+-
+ 		render_categories(screen, left_categories, xName1, xValue1, xScale1, y1)
+ 		render_categories(screen, right_categories, xName2, xValue2, xScale2, y2)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chagpt agregates 2 .PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chagpt agregates 2 .PNG
+new file mode 100644
+index 000000000..6f7fdd018
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chagpt agregates 2 .PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt agregates 1 use chatgpt to analyze data.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt agregates 1 use chatgpt to analyze data.PNG
+new file mode 100644
+index 000000000..ad58ea803
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/chatgpt agregates 1 use chatgpt to analyze data.PNG differ
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=10528

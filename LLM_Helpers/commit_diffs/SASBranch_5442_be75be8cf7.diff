@@ -1,0 +1,1224 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5442
+# Commit: be75be8cf7d371efa338fa9d30d89f2649b41f03
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: accf8702ebf916e999fd07a56211e9aec98af9d7
+# Title: add getInfoTypeOrFail to more python files (GPT-5.3-Codex) - **Fail-fast XML lookup hardening:** replaced `getInfoTypeForString(...)` calls (terrain/features...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	4	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+1	0	Assets/Python/SASUtils.py
+36	71	PrivateMaps/BTG_Lagoon.py
+4	3	PrivateMaps/Donut.py
+6	5	PrivateMaps/Earth2.py
+28	27	PrivateMaps/Fantasy_Realm.py
+12	11	PrivateMaps/Great_Plains.py
+10	9	PrivateMaps/Highlands.py
+10	9	PrivateMaps/Hub.py
+5	4	PrivateMaps/Ice_Age.py
+11	10	PrivateMaps/Oasis.py
+30	29	PrivateMaps/PerfectMongoose.py
+16	15	PrivateMaps/Rainforest.py
+6	5	PrivateMaps/RandomScriptMap.py
+10	9	PrivateMaps/Ring.py
+3	2	PrivateMaps/Team_Battleground.py
+10	9	PrivateMaps/Tectonics.py
+10	9	PrivateMaps/Wheel.py
+1	1	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 1b3fea219..de051ed02 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -238,10 +238,6 @@ def SAS_isFeatureRemovable(iFeature):
+ 
+ 
+ 
+-# <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now should raise an error not silently pass; also useful to access any asset id safely such as hills or peak terrains 's id, or hills's button for example too; is also useful to detect and signal loudly errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass we wouldn't want at least me based on previous parts of this code comment and remember it correctly as i think i do but not 100% sure even if 99.99% as chatgpt said to me too btw xd. -->
+-
+-
+-
+ def get_concept_id(concept_type):
+ 	# <!-- custom: Find the concept ID, for example for concept_type "CONCEPT_CITIES" (LLM) -->
+ 	for i in range(gc.getNumConceptInfos()):
+
+diff --git a/Assets/Python/SASUtils.py b/Assets/Python/SASUtils.py
+index 57d5e6894..d64dde704 100644
+--- a/Assets/Python/SASUtils.py
++++ b/Assets/Python/SASUtils.py
+@@ -9,6 +9,7 @@ gc = CyGlobalContext()
+ 
+ 
+ # <!-- custom: shared strict XML lookup helper for maps/screens; raise loudly instead of silently accepting missing tags. (GPT-5.3-Codex) -->
++# <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now should raise an error not silently pass; also useful to access any asset id safely such as hills or peak terrains 's id, or hills's button for example too; is also useful to detect and signal loudly errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the placeUnits method there as of now instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass; done with the help of chatgpt thanks -->
+ def getInfoTypeOrFail(tag):
+ 	iType = gc.getInfoTypeForString(tag)
+ 	if iType == -1:
+
+diff --git a/PrivateMaps/BTG_Lagoon.py b/PrivateMaps/BTG_Lagoon.py
+index cda8eb451..e8312d11f 100644
+--- a/PrivateMaps/BTG_Lagoon.py
++++ b/PrivateMaps/BTG_Lagoon.py
+@@ -13,6 +13,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
++from SASUtils import getInfoTypeOrFail
+ from SAS_WorldSizes import *
+ 
+ import random #2.25
+@@ -20,7 +21,6 @@ import random #2.25
+ 
+ 
+ balancer = BonusBalancer()
+-isBTPon = False
+ 
+ def getDescription():#The BTS description, used in general game setup, not the MapPreview screen in game from BTS
+ 	return "Modified BTG_Lagoon map from the Beyond the Game mod (by Penny). Adapted for AdvCiv-SAS: upscaled, non-AdvCiv options removed, and SAS48/high player counts supported."
+@@ -149,24 +149,18 @@ def normalizeAddExtras():
+ 		balancer.normalizeAddExtras()
+ 		
+ 
+-	if isBTPon:
+-		if (CyMap().getCustomMapOption(8) == 1):
+-			listToBalance = ["BONUS_LEAD"]
+-			balancer.BTPnormalizeAddExtrasSpecific(listToBalance,5,2,100)				
+-		
+ 	#BTG
+ 	# Moving from 4 to 8 because there are lots of tundras etc.
+-	BTPForceResourceLand(100,True,CyGlobalContext().getInfoTypeForString("BONUS_OIL"),10,False,CyGlobalContext().getInfoTypeForString("TERRAIN_DESERT"))
+-	BTPForceResourceLand(100,False,CyGlobalContext().getInfoTypeForString("BONUS_ALUMINUM"),10,True,CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
++	BTPForceResourceLand(100,True,getInfoTypeOrFail("BONUS_OIL"),10,False,getInfoTypeOrFail("TERRAIN_DESERT"))
++	BTPForceResourceLand(100,False,getInfoTypeOrFail("BONUS_ALUMINUM"),10,True,getInfoTypeOrFail("TERRAIN_PLAINS"))
+ 		
+ 	if (CyMap().getCustomMapOption(1) >= 2):	
+-		BTPForceEnrichFood(100,True,CyGlobalContext().getInfoTypeForString("BONUS_BANANA"),5,3,False,CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))	
+-		BTPForceEnrichFood(100,True,CyGlobalContext().getInfoTypeForString("BONUS_PIG"),5,4,True,CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
+-		BTPForceEnrichFood(100,True,CyGlobalContext().getInfoTypeForString("BONUS_WHEAT"),7,5,True,CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))				
++		BTPForceEnrichFood(100,True,getInfoTypeOrFail("BONUS_BANANA"),5,3,False,getInfoTypeOrFail("TERRAIN_PLAINS"))	
++		BTPForceEnrichFood(100,True,getInfoTypeOrFail("BONUS_PIG"),5,4,True,getInfoTypeOrFail("TERRAIN_PLAINS"))
++		BTPForceEnrichFood(100,True,getInfoTypeOrFail("BONUS_WHEAT"),7,5,True,getInfoTypeOrFail("TERRAIN_PLAINS"))				
+ 						
+-	if isBTPon:
+-		if (CyMap().getCustomMapOption(3) >= 1):	
+-			doUUCenter()
++	if (CyMap().getCustomMapOption(3) >= 1):
++		doUUCenter()
+ 		
+ 	#End Map Specific		
+ 		
+@@ -177,39 +171,33 @@ def doUUCenter():
+ 	iExtraTile = 0
+ 	
+ 	#Center Unique
+-	if isBTPon and CyMap().getCustomMapOption(8) == 1:
+-		BTPresourceFromCenter(2,3+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_AMBER"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
+-		BTPresourceFromCenter(1,2+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_SULPHUR"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
+-	
+-	
+-	BTPresourceFromCenter(1,5+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_SALT"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
+-	BTPresourceFromCenter(1,5+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_TEA"),CyGlobalContext().getInfoTypeForString("TERRAIN_GRASS"))
+-	BTPresourceFromCenter(1,5+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_OLIVES"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
++	# <!-- custom: AdvCiv-SAS has no BONUS_SALT/BONUS_TEA/BONUS_OLIVES; use supported luxuries instead. (GPT-5.3-Codex) -->
++	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_SPICES"),getInfoTypeOrFail("TERRAIN_PLAINS"))
+ 
+ 
+ 			
+-	BTPresourceFromCenter(2,6+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_MARBLE"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
+-	BTPresourceFromCenter(2,6+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_STONE"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
++	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_MARBLE"),getInfoTypeOrFail("TERRAIN_PLAINS"))
++	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_STONE"),getInfoTypeOrFail("TERRAIN_PLAINS"))
+ 	
+-	BTPresourceFromCenter(2,7+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_WHALE"),CyGlobalContext().getInfoTypeForString("TERRAIN_COAST"))
++	BTPresourceFromCenter(2,7+iExtraTile,getInfoTypeOrFail("BONUS_WHALE"),getInfoTypeOrFail("TERRAIN_COAST"))
+ 
+-	BTPresourceFromCenter(1,5+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_SILVER"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))			
+-	BTPresourceFromCenter(1,5+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_GEMS"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))			
+-	BTPresourceFromCenter(1,5+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_GOLD"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))	
++	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_SILVER"),getInfoTypeOrFail("TERRAIN_PLAINS"))			
++	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_GEMSTONES"),getInfoTypeOrFail("TERRAIN_PLAINS"))			
++	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_GOLD"),getInfoTypeOrFail("TERRAIN_PLAINS"))	
+ 	
+ 	
+-	#2.23 Ivory every two players rather than 3
+-	BTPresourceFromCenter(2,6+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_IVORY"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))		
++	#2.23 Elephants every two players rather than 3
++	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_ELEPHANTS"),getInfoTypeOrFail("TERRAIN_PLAINS"))		
+ 
+-	BTPresourceFromCenter(2,8+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_WINE"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
+-	BTPresourceFromCenter(2,8+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_SILK"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
+-	BTPresourceFromCenter(2,8+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_SPICE"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
+-	BTPresourceFromCenter(2,8+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_SUGAR"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))
+-	BTPresourceFromCenter(2,8+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_DYE"),CyGlobalContext().getInfoTypeForString("TERRAIN_PLAINS"))		
+-	BTPresourceFromCenter(2,8+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_INCENSE"),CyGlobalContext().getInfoTypeForString("TERRAIN_DESERT"))
++	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_GRAPES"),getInfoTypeOrFail("TERRAIN_PLAINS"))
++	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_SILK"),getInfoTypeOrFail("TERRAIN_PLAINS"))
++	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_SPICES"),getInfoTypeOrFail("TERRAIN_PLAINS"))
++	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_SUGAR"),getInfoTypeOrFail("TERRAIN_PLAINS"))
++	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_DYE"),getInfoTypeOrFail("TERRAIN_PLAINS"))		
++	BTPresourceFromCenter(2,8+iExtraTile,getInfoTypeOrFail("BONUS_INCENSE"),getInfoTypeOrFail("TERRAIN_DESERT"))
+ 
+-	BTPresourceFromCenter(2,6+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_DEER"),CyGlobalContext().getInfoTypeForString("TERRAIN_TUNDRA"))				
+-	BTPresourceFromCenter(2,6+iExtraTile,CyGlobalContext().getInfoTypeForString("BONUS_FUR"),CyGlobalContext().getInfoTypeForString("TERRAIN_TUNDRA"))						
++	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_DEER"),getInfoTypeOrFail("TERRAIN_TUNDRA"))				
++	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_FUR"),getInfoTypeOrFail("TERRAIN_TUNDRA"))						
+ 
+ 
+ 
+@@ -220,12 +208,6 @@ def addBonusType(argsList):
+ 	gc = CyGlobalContext()
+ 	type_string = gc.getBonusInfo(iBonusType).getType()
+ 
+-	if isBTPon:
+-		if (CyMap().getCustomMapOption(8) == 1):#all excluded
+-			if (type_string in balancer.newResourcesBTP):
+-				return None
+-			
+-
+ 	if (CyMap().getCustomMapOption(1) >= 1):
+ 		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
+ 			return None # don't place any of this bonus randomly
+@@ -413,9 +395,9 @@ class DonutTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 		self.terrain.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+ 		self.iGrassBottom = self.terrain.getHeightFromPercent(12)
+ 
+-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
+-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
++		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
++		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
+ 
+ 	def getLatitudeAtPlot(self, iX, iY):
+ 		return None
+@@ -437,9 +419,9 @@ class DonutTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 		val = self.terrain.getHeight(iX, iY)
+ 		iProba = CyGlobalContext().getGame().getMapRandNum(100,"iProba")
+ 		if iProba <= 3:
+-			terrainVal = self.gc.getInfoTypeForString("TERRAIN_DESERT")
++			terrainVal = getInfoTypeOrFail("TERRAIN_DESERT")
+ 		elif iProba <= 30:
+-			terrainVal = self.gc.getInfoTypeForString("TERRAIN_PLAINS")				
++			terrainVal = getInfoTypeOrFail("TERRAIN_PLAINS")				
+ 		else:#then normal
+ 			if val >= self.iGrassBottom:
+ 				terrainVal = self.terrainGrass
+@@ -459,17 +441,14 @@ def addRivers():#Lagoon 2.26 -- Adding this because it's direct after Generate p
+ 			if (x == 0 or y == 0 or x == CyMap().getGridWidth()-1 or y == CyMap().getGridHeight()-1):
+ 				if not (CyMap().getCustomMapOption(5) == 1 or CyMap().getCustomMapOption(5) == 2):#it's not nice when there is cylindrical wrap
+ 					p = CyMap().plot(x,y)
+-					p.setTerrainType(CyGlobalContext().getInfoTypeForString("TERRAIN_TUNDRA"), True, True)
++					p.setTerrainType(getInfoTypeOrFail("TERRAIN_TUNDRA"), True, True)
+ 			if (x >= CyMap().getGridWidth()/2 -3 and x <= CyMap().getGridWidth()/2 +2 and y >= CyMap().getGridHeight()/2 -1 and y <= CyMap().getGridHeight()/2):
+ 				p = CyMap().plot(x,y)
+ 				iProba = CyGlobalContext().getGame().getMapRandNum(100,"iProba")							
+ 				if (iProba < 75):
+-					if isBTPon:				
+-						p.setTerrainType(CyGlobalContext().getInfoTypeForString("TERRAIN_LAVA"), True, True)			
+-					else:
+-						p.setPlotType(PlotTypes.PLOT_PEAK,True,True)			
++					p.setPlotType(PlotTypes.PLOT_PEAK,True,True)
+ 				else:
+-					p.setTerrainType(CyGlobalContext().getInfoTypeForString("TERRAIN_DESERT"), True, True)	
++					p.setTerrainType(getInfoTypeOrFail("TERRAIN_DESERT"), True, True)	
+ 					
+ 						
+ 	#Need to finish by doing normal rivers
+@@ -507,10 +486,6 @@ def beforeGeneration():
+ 	iW = CyMap().getGridWidth()
+ 	iH = CyMap().getGridHeight()
+ 	
+-	global isBTPon
+-	# <!-- custom: BTG-only runtime hooks are disabled in AdvCiv-SAS; keep gameplay options in this script self-contained. (GPT-5.3-Codex) -->
+-	isBTPon = False	
+-				
+ 	# Choose a Template to be used for this game.
+ 	iPlayers = gc.getGame().countCivPlayersEverAlive()
+ 	iTemplateRoll = 0#Because only 1 template for each
+@@ -666,13 +641,6 @@ def findStartingPlot(argsList):
+ 		
+ 	[playerID] = argsList
+ 	
+-	if isBTPon:#2.22
+-		iNumSpectators = CyGlobalContext().getGame().countCivPlayersEverSpectator()
+-		if iNumSpectators > 0:
+-			if playerID >= CyGlobalContext().getGame().countCivPlayersEverAlive():
+-			#Because always the last player that get -1,-1 for starting plot. Also, don't foget first player is [0], that's why there is an "equal"
+-				return -1
+-	
+ 	global plotSuccess
+ 	global plotValue
+ 
+@@ -716,10 +684,7 @@ def normalizeStartingPlotLocations():
+ 	dice = gc.getGame().getMapRand()	
+ 		
+ 	if (CyMap().getCustomMapOption(4) == 1):
+-		if isBTPon :
+-			BTPTopBottomTwoTeams(True)		
+-		else:
+-			BTPTopBottomTwoTeams(False)	
++		BTPTopBottomTwoTeams(False)
+ 	elif (CyMap().getCustomMapOption(4) == 2):
+ 		return
+ 	else:
+@@ -1043,7 +1008,7 @@ def BTPresourceFromCenter(minFromCenter,maxFromCenter,iResourceType,iTerrainType
+ 		for p in plotsboundariesSafe:
+ 			if (p.getBonusType(-1) == BonusTypes.NO_BONUS):
+ 				p.setTerrainType(iTerrainType,True,True)
+-				#p.setTerrainType(CyGlobalContext().getInfoTypeForString("TERRAIN_DESERT"),True,True)#for debug
++				#p.setTerrainType(getInfoTypeOrFail("TERRAIN_DESERT"),True,True)#for debug
+ 				p.setBonusType(iResourceType)
+ 				p.setFeatureType(-1, -1)
+ 				break
+
+diff --git a/PrivateMaps/Donut.py b/PrivateMaps/Donut.py
+index aa828f9ef..70d713885 100644
+--- a/PrivateMaps/Donut.py
++++ b/PrivateMaps/Donut.py
+@@ -20,6 +20,7 @@ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
+ from SAS_WorldSizes import *
++from SASUtils import getInfoTypeOrFail
+ 
+ balancer = BonusBalancer()
+ 
+@@ -246,9 +247,9 @@ class DonutTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 		self.terrain.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+ 		self.iGrassBottom = self.terrain.getHeightFromPercent(12)
+ 
+-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
+-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
++		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
++		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
+ 
+ 	def getLatitudeAtPlot(self, iX, iY):
+ 		return None
+
+diff --git a/PrivateMaps/Earth2.py b/PrivateMaps/Earth2.py
+index 3599d111c..f3b94c836 100644
+--- a/PrivateMaps/Earth2.py
++++ b/PrivateMaps/Earth2.py
+@@ -20,6 +20,7 @@ from CvMapGeneratorUtil import MultilayeredFractal
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from SAS_WorldSizes import *
++from SASUtils import getInfoTypeOrFail
+ 
+ 
+ 
+@@ -1246,11 +1247,11 @@ class Earth2TerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 
+ 		self.variation.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+ 
+-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+-		self.terrainIce = self.gc.getInfoTypeForString("TERRAIN_SNOW")
+-		self.terrainTundra = self.gc.getInfoTypeForString("TERRAIN_TUNDRA")
+-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
++		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
++		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++		self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
++		self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
++		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+ 
+ 	def getLatitudeAtPlot(self, iX, iY):
+ 		"""given a point (iX,iY) such that (0,0) is in the NW,
+
+diff --git a/PrivateMaps/Fantasy_Realm.py b/PrivateMaps/Fantasy_Realm.py
+index e498031bc..041e24bd6 100644
+--- a/PrivateMaps/Fantasy_Realm.py
++++ b/PrivateMaps/Fantasy_Realm.py
+@@ -20,6 +20,7 @@ from SAS_WorldSizes import *
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
++from SASUtils import getInfoTypeOrFail
+ 
+ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_FANTASY_REALM_DESCR"
+@@ -271,11 +272,11 @@ class FantasyTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 		self.iEighty = self.fantasy.getHeightFromPercent(80)
+ 		self.iNinety = self.fantasy.getHeightFromPercent(90)
+ 
+-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
+-		self.terrainIce = self.gc.getInfoTypeForString("TERRAIN_SNOW")
+-		self.terrainTundra = self.gc.getInfoTypeForString("TERRAIN_TUNDRA")
++		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
++		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
++		self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
++		self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
+ 
+ 	def generateTerrainAtPlot(self,iX,iY):
+ 		if (self.map.plot(iX, iY).isWater()):
+@@ -347,11 +348,11 @@ class FantasyFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
+ 
+ 	def __initFeatureTypes(self):
+-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
+-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
+-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
+-		self.featureFlood = self.gc.getInfoTypeForString("FEATURE_FLOOD_PLAINS")
+-		self.featureIce = self.gc.getInfoTypeForString("FEATURE_ICE")
++		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
++		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
++		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
++		self.featureFlood = getInfoTypeOrFail("FEATURE_FLOOD_PLAINS")
++		self.featureIce = getInfoTypeOrFail("FEATURE_ICE")
+ 
+ 	def addFeaturesAtPlot(self, iX, iY):
+ 		pPlot = self.map.sPlot(iX, iY)
+@@ -380,12 +381,12 @@ class FantasyFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 			pPlot.setFeatureType(self.featureIce, -1)
+ 
+ 	def addFloodAtPlot(self, pPlot, iX, iY):
+-		if pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_DESERT") or pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_SNOW"):
++		if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT") or pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW"):
+ 			pPlot.setFeatureType(self.featureFlood, -1)
+ 
+ 	def addOasisAtPlot(self, pPlot, iX, iY):
+ 		if not pPlot.isFreshWater():
+-			if pPlot.getTerrainType() != self.gc.getInfoTypeForString("TERRAIN_GRASS"):
++			if pPlot.getTerrainType() != getInfoTypeOrFail("TERRAIN_GRASS"):
+ 				if self.mapRand.get(30, "Add Feature PYTHON") == 23:
+ 					pPlot.setFeatureType(self.featureOasis, -1)
+ 	
+@@ -504,19 +505,19 @@ def addBonusType(argsList):
+ 			pPlot = map.plot(x,y)
+ 			if pPlot.isPeak() or pPlot.isWater(): continue # to next plot.
+ 			if pPlot.getBonusType(-1) != -1: continue # to next plot.
+-			if pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
++			if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
+ 			# Check plot type and features for eligibility.
+ 			if forceHills and not pPlot.isHills(): continue
+ 			if forceFlats and not pPlot.isFlatlands(): continue
+-			if forceFlood and not pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_FLOOD_PLAINS"): continue
+-			if forceJungle and not pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_JUNGLE"): continue
+-			if forceForest and not pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_FOREST"): continue
+-			if forceNoGrass and pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_GRASS"): continue
+-			if forceNoDesert and pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_DESERT"): continue
+-			if forceNoSnow and (pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_TUNDRA") or pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_SNOW")): continue
+-			if forceNoPlains and pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_PLAINS"): continue
+-			if forceNoJungle and pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_JUNGLE"): continue
+-			if forceNoForest and pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_FOREST"): continue
++			if forceFlood and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FLOOD_PLAINS"): continue
++			if forceJungle and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_JUNGLE"): continue
++			if forceForest and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"): continue
++			if forceNoGrass and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"): continue
++			if forceNoDesert and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"): continue
++			if forceNoSnow and (pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_TUNDRA") or pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW")): continue
++			if forceNoPlains and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_PLAINS"): continue
++			if forceNoJungle and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_JUNGLE"): continue
++			if forceNoForest and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"): continue
+ 			if forceNoFresh and pPlot.isFreshWater(): continue
+ 			#
+ 			# Finally we have run all the checks.
+@@ -562,21 +563,21 @@ def afterGeneration():
+ 			# Fractalized placement of crazy resources.
+ 			pPlot = map.plot(x,y)
+ 			if pPlot.getBonusType(-1) != -1: continue # A bonus already exists in this plot!
+-			if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_OASIS"): continue
++			if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue
+ 			crazyVal = crazies.getHeight(x,y)
+ 			for crazy_bonus in crazy_types:
+ 				type_string = gc.getBonusInfo(crazy_bonus).getType()
+ 				if type_string == crazy_food:
+-					 if (crazyVal >= crazyTwo and crazyVal < crazyThree) and (pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_TUNDRA") or pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_SNOW")):
++					 if (crazyVal >= crazyTwo and crazyVal < crazyThree) and (pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_TUNDRA") or pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW")):
+ 						map.plot(x,y).setBonusType(crazy_bonus)
+ 				if type_string == crazy_luxury:
+-					 if (crazyVal >= crazyFour and crazyVal < crazyFive) and pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_GRASS"):
++					 if (crazyVal >= crazyFour and crazyVal < crazyFive) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"):
+ 						map.plot(x,y).setBonusType(crazy_bonus)
+ 				if type_string == crazy_strategic:
+-					 if (crazyVal >= crazyThree and crazyVal < crazyFour) and pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_PLAINS"):
++					 if (crazyVal >= crazyThree and crazyVal < crazyFour) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_PLAINS"):
+ 						map.plot(x,y).setBonusType(crazy_bonus)
+ 				if type_string == crazy_late_game:
+-					 if (crazyVal >= crazyOne and crazyVal < crazyTwo) and pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_DESERT"):
++					 if (crazyVal >= crazyOne and crazyVal < crazyTwo) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"):
+ 						map.plot(x,y).setBonusType(crazy_bonus)
+ 	# Finito
+ 	return None
+
+diff --git a/PrivateMaps/Great_Plains.py b/PrivateMaps/Great_Plains.py
+index 2ccbe41aa..b839104f0 100644
+--- a/PrivateMaps/Great_Plains.py
++++ b/PrivateMaps/Great_Plains.py
+@@ -20,6 +20,7 @@ from SAS_WorldSizes import *
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
++from SASUtils import getInfoTypeOrFail
+ 
+ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_GREAT_PLAINS_DESCR"
+@@ -374,9 +375,9 @@ class GreatPlainsTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 
+ 		self.variation.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+ 
+-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
++		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
++		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+ 
+ 	def getLatitudeAtPlot(self, iX, iY):
+ 		lat = iX/float(self.iWidth) # 0.0 = west
+@@ -494,9 +495,9 @@ class GreatPlainsFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		self.iRockyForestLevel = self.forests.getHeightFromPercent(self.iRockyForestPercent)
+ 		
+ 	def __initFeatureTypes(self):
+-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
+-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
+-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
++		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
++		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
++		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
+ 
+ 	def getLatitudeAtPlot(self, iX, iY):
+ 		# 0.0 = bottom edge, 1.0 = top edge.
+@@ -673,7 +674,7 @@ def addBonusType(argsList):
+ 				for x in range(herdLeft, herdRight):
+ 					# Fractalized placement of herds
+ 					pPlot = map.plot(x,y)
+-					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_OASIS"): continue # No buffalo at the water hole, sorry!
++					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # No buffalo at the water hole, sorry!
+ 					herdVal = herds.getHeight(x,y)
+ 					if pPlot.getBonusType(-1) == -1 and ((herdVal >= iHerdsBottom1 and herdVal <= iHerdsTop1) or (herdVal >= iHerdsBottom2 and herdVal <= iHerdsTop2)):
+ 						map.plot(x,y).setBonusType(iBonusType)
+@@ -689,7 +690,7 @@ def addBonusType(argsList):
+ 				for x in range(herdLeft, herdRight):
+ 					# Fractalized placement of herds
+ 					pPlot = map.plot(x,y)
+-					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_OASIS"): continue # No buffalo at the water hole, sorry!
++					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # No buffalo at the water hole, sorry!
+ 					herdVal = herds.getHeight(x,y)
+ 					if pPlot.getBonusType(-1) == -1 and ((herdVal >= iHerdsBottom1 and herdVal <= iHerdsTop1) or (herdVal >= iHerdsBottom2 and herdVal <= iHerdsTop2)):
+ 						map.plot(x,y).setBonusType(iBonusType)
+@@ -734,12 +735,12 @@ def addBonusType(argsList):
+ 				# First check the plot for an existing bonus.
+ 				pPlot = map.plot(x,y)
+ 				if pPlot.getBonusType(-1) != -1: continue # to next plot.
+-				if pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
++				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
+ 				# Check plot type and features for eligibility.
+ 				if (pPlot.canHaveBonus(iBonusType, True) and unforced): pass
+ 				elif forceHills and pPlot.isHills(): pass
+ 				elif forceFlats and pPlot.isFlatlands(): pass
+-				elif (type_string in rockyDyes) and pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_DESERT") and pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_FOREST") and pPlot.isHills(): pass
++				elif (type_string in rockyDyes) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT") and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isHills(): pass
+ 				else: continue # to next plot.
+ 				# re-init regional plot membership tests for each pass.
+ 				plotInRockies = False
+@@ -795,7 +796,7 @@ def addBonusType(argsList):
+ 			for x in range(right):
+ 				for y in range(top):
+ 					pPlot = map.plot(x,y)
+-					if pPlot.getBonusType(-1) == -1 and pPlot.isFlatlands() and not pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_OASIS"):
++					if pPlot.getBonusType(-1) == -1 and pPlot.isFlatlands() and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
+ 						corn.append([x,y])
+ 			while corncount > 0:
+ 				if corn == []: break # No eligible plots left!
+
+diff --git a/PrivateMaps/Highlands.py b/PrivateMaps/Highlands.py
+index 89eb2cbc3..788ca6b96 100644
+--- a/PrivateMaps/Highlands.py
++++ b/PrivateMaps/Highlands.py
+@@ -22,6 +22,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
++from SASUtils import getInfoTypeOrFail
+ 
+ balancer = BonusBalancer()
+ shiftMultiplier = 0.0
+@@ -324,11 +325,11 @@ class HighlandsTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 
+ 		self.variation.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+ 
+-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
+-		self.terrainIce = self.gc.getInfoTypeForString("TERRAIN_SNOW")
+-		self.terrainTundra = self.gc.getInfoTypeForString("TERRAIN_TUNDRA")
++		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
++		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
++		self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
++		self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
+ 
+ 	def getLatitudeAtPlot(self, iX, iY):
+ 		lat = iY/float(self.iHeight) # 0.0 = south
+@@ -430,9 +431,9 @@ class HighlandsFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		self.iHotForestLevel = self.forests.getHeightFromPercent(self.iHotForestPercent)
+ 
+ 	def __initFeatureTypes(self):
+-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
+-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
+-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
++		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
++		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
++		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
+ 
+ 	def getLatitudeAtPlot(self, iX, iY):
+ 		lat = iY/float(self.iGridH) # 0.0 = south
+@@ -508,7 +509,7 @@ def assignStartingPlots():
+ 	print "Number of players:", iPlayers
+ 	print "==="
+ 
+-	terrainPlains = gc.getInfoTypeForString("TERRAIN_PLAINS")
++	terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+ 
+ 	# Obtain player numbers. (Account for possibility of Open slots!)
+ 	# <!-- custom: Use live DLL max players so this scales automatically (e.g. 18/48/64 civ DLLs) without hardcoded caps. (GPT-5.3-Codex) -->
+
+diff --git a/PrivateMaps/Hub.py b/PrivateMaps/Hub.py
+index 94536b728..0d7851ce7 100644
+--- a/PrivateMaps/Hub.py
++++ b/PrivateMaps/Hub.py
+@@ -21,6 +21,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
++from SASUtils import getInfoTypeOrFail
+ 
+ balancer = BonusBalancer()
+ bSuccessFlag = True
+@@ -953,11 +954,11 @@ class HubTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 		self.iIceBottom = self.center.getHeightFromPercent(self.iIceBottomPercent)
+ 		self.iTundraBottom = self.center.getHeightFromPercent(self.iTundraBottomPercent)
+ 
+-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+-		self.terrainIce = self.gc.getInfoTypeForString("TERRAIN_SNOW")
+-		self.terrainTundra = self.gc.getInfoTypeForString("TERRAIN_TUNDRA")
+-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
++		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
++		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++		self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
++		self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
++		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+ 
+ 	def generateTerrainAtPlot(self,iX,iY):
+ 		if (self.map.plot(iX, iY).isWater()):
+@@ -1053,10 +1054,10 @@ class HubFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
+ 
+ 	def __initFeatureTypes(self):
+-		self.featureIce = self.gc.getInfoTypeForString("FEATURE_ICE")
+-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
+-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
+-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
++		self.featureIce = getInfoTypeOrFail("FEATURE_ICE")
++		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
++		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
++		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
+ 	
+ 	def addFeaturesAtPlot(self, iX, iY):
+ 		"adds any appropriate features at the plot (iX, iY) where (0,0) is in the SW"
+
+diff --git a/PrivateMaps/Ice_Age.py b/PrivateMaps/Ice_Age.py
+index 7d836d162..48d11374f 100644
+--- a/PrivateMaps/Ice_Age.py
++++ b/PrivateMaps/Ice_Age.py
+@@ -19,6 +19,7 @@ from SAS_WorldSizes import *
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
++from SASUtils import getInfoTypeOrFail
+ 
+ # SIRIAN'S NOTES
+ #
+@@ -271,10 +272,10 @@ class IceAgeFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
+ 
+ 	def __initFeatureTypes(self):
+-		self.featureIce = self.gc.getInfoTypeForString("FEATURE_ICE")
+-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
+-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
+-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
++		self.featureIce = getInfoTypeOrFail("FEATURE_ICE")
++		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
++		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
++		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
+ 
+ 	def getLatitudeAtPlot(self, iX, iY):
+ 		"Ice Age specific function: returns a value in the range of 0.0 (temperate) to 0.6 (polar)"
+
+diff --git a/PrivateMaps/Oasis.py b/PrivateMaps/Oasis.py
+index be5ebb63a..49659d116 100644
+--- a/PrivateMaps/Oasis.py
++++ b/PrivateMaps/Oasis.py
+@@ -21,6 +21,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
++from SASUtils import getInfoTypeOrFail
+ 
+ balancer = BonusBalancer()
+ 
+@@ -432,9 +433,9 @@ class OasisTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 
+ 		self.variation.fracInit(self.iWidth, self.iHeight, self.grain_amount, self.mapRand, self.iFlags, self.fracXExp, self.fracYExp)
+ 
+-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
++		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
++		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+ 
+ 	def getLatitudeAtPlot(self, iX, iY):
+ 		lat = iY/float(self.iHeight) # 0.0 = south edge, 1.0 = north edge
+@@ -533,9 +534,9 @@ class OasisFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
+ 		
+ 	def __initFeatureTypes(self):
+-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
+-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
+-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
++		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
++		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
++		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
+ 
+ 	def getLatitudeAtPlot(self, iX, iY):
+ 		# 0.0 = bottom edge, 1.0 = top edge.
+@@ -555,7 +556,7 @@ class OasisFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 			# Jungles only in the deep south or in the Oasis!
+ 			if lat < 0.16:
+ 				self.addJunglesAtPlot(pPlot, iX, iY, lat)
+-			elif lat > 0.32 and lat < 0.65 and (pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_GRASS")):
++			elif lat > 0.32 and lat < 0.65 and (pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS")):
+ 				pPlot.setFeatureType(self.featureJungle, -1)
+ 
+ 		if (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE):
+@@ -563,7 +564,7 @@ class OasisFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 			if lat > 0.71 or lat < 0.3:
+ 				self.addForestsAtPlot(pPlot, iX, iY, lat)
+ 
+-		if pPlot.isFlatlands() and (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE) and (pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_DESERT")):
++		if pPlot.isFlatlands() and (pPlot.getFeatureType() == FeatureTypes.NO_FEATURE) and (pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT")):
+ 			# Add more Oases!
+ 			if (lat < 0.71 and lat > 0.3) and self.mapRand.get(9, "Add Extra Oases PYTHON") == 0:
+ 				pPlot.setFeatureType(self.featureOasis, -1)
+@@ -760,8 +761,8 @@ def addBonusType(argsList):
+ 				# Check plot type and features for eligibility.
+ 				if (pPlot.canHaveBonus(iBonusType, True) and unforced): pass
+ 				elif forceHills and pPlot.isHills(): pass
+-				elif forceForest and pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_FOREST"): pass
+-				elif forceGrass and pPlot.isFlatlands() and pPlot.getTerrainType() == gc.getInfoTypeForString("TERRAIN_GRASS") and pPlot.getFeatureType() == -1: pass
++				elif forceForest and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"): pass
++				elif forceGrass and pPlot.isFlatlands() and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS") and pPlot.getFeatureType() == -1: pass
+ 				else: continue # to next plot.
+ 				# re-init regional plot membership tests for each pass.
+ 				plotInNorth = False
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 6f278e55e..12b1fe34b 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -49,6 +49,7 @@ import math
+ import sys
+ import time
+ import os
++from SASUtils import getInfoTypeOrFail
+ 
+ 
+ ##############################################################################
+@@ -2993,7 +2994,7 @@ def ShuffleList(theList):
+ 
+ def GetInfoType(string):
+ 	cgc = CyGlobalContext()
+-	return cgc.getInfoTypeForString(string)
++	return getInfoTypeOrFail(string)
+ 
+ 
+ def GetDistance(x, y, dx, dy):
+@@ -4507,8 +4508,8 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
+ 		bonusInfo = gc.getBonusInfo(bonus.eBonus)
+ 		plotListLength = len(plotIndexList)
+ 		lastI = 0
+-		fFloodPlains = gc.getInfoTypeForString("FEATURE_FLOOD_PLAINS")
+-		fOasis       = gc.getInfoTypeForString("FEATURE_OASIS")
++		fFloodPlains = getInfoTypeOrFail("FEATURE_FLOOD_PLAINS")
++		fOasis       = getInfoTypeOrFail("FEATURE_OASIS")
+ 		for i in range(startAtIndex, startAtIndex + plotListLength):
+ 			index = 0
+ 			lastI = i
+@@ -4656,7 +4657,7 @@ class BonusPlacer: # advc (note): Disused; see addBonuses.
+ 		gc = CyGlobalContext()
+ 		bonusInfo = gc.getBonusInfo(eBonus)
+ 		#Here is the change from canHaveBonus. Forest does not block bonus
+-		featureForest  = gc.getInfoTypeForString("FEATURE_FOREST")
++		featureForest  = getInfoTypeOrFail("FEATURE_FOREST")
+ 		requiresForest = bonusInfo.isFeature(featureForest)
+ 		plotIsForest   = plot.getFeatureType() == featureForest
+ 		#To avoid silk and spices on snow/tundra
+@@ -5192,7 +5193,7 @@ class StartingPlotFinder:
+ 		bonusEnum = start.getBonusType(TeamTypes.NO_TEAM)
+ 		if bonusEnum != BonusTypes.NO_BONUS:
+ 			bonusInfo = gc.getBonusInfo(bonusEnum)
+-			if bonusInfo.getBonusClassType() == gc.getInfoTypeForString("BONUSCLASS_WONDER") or bonusInfo.getBonusClassType() == gc.getInfoTypeForString("BONUSCLASS_RUSH") or bonusInfo.getBonusClassType() == gc.getInfoTypeForString("BONUSCLASS_MODERN"):
++			if bonusInfo.getBonusClassType() == getInfoTypeOrFail("BONUSCLASS_WONDER") or bonusInfo.getBonusClassType() == getInfoTypeOrFail("BONUSCLASS_RUSH") or bonusInfo.getBonusClassType() == getInfoTypeOrFail("BONUSCLASS_MODERN"):
+ 				totalValue = int(float(totalValue) * mc.StrategicBonusCityValueBonus)
+ 			else:
+ 				totalValue = int(float(totalValue) * mc.OtherBonusCityValueBonus)
+@@ -5561,7 +5562,7 @@ class StartingPlotFinder:
+ 							continue
+ 						if not bp.PlotCanHaveBonus(plot, bonusEnum, False, True):
+ 							continue
+-					if bonusInfo.getBonusClassType() == gc.getInfoTypeForString("BONUSCLASS_WONDER") or bonusInfo.getBonusClassType() == gc.getInfoTypeForString("BONUSCLASS_RUSH") or bonusInfo.getBonusClassType() == gc.getInfoTypeForString("BONUSCLASS_MODERN"):
++					if bonusInfo.getBonusClassType() == getInfoTypeOrFail("BONUSCLASS_WONDER") or bonusInfo.getBonusClassType() == getInfoTypeOrFail("BONUSCLASS_RUSH") or bonusInfo.getBonusClassType() == getInfoTypeOrFail("BONUSCLASS_MODERN"):
+ 						if not allowBonusWonderClass:
+ 							continue
+ 						else:
+@@ -5691,39 +5692,39 @@ class StartingPlotFinder:
+ 				eHandicap = player.getHandicapType()
+ 				startPlot = player.getStartingPlot()
+ 				sPlot = StartPlot(startPlot.getX(),startPlot.getY(), 0)
+-				if eHandicap == gc.getInfoTypeForString("HANDICAP_SETTLER"):
++				if eHandicap == getInfoTypeOrFail("HANDICAP_SETTLER"):
+ 					if mc.SettlerBonus > 0:
+ 						print "Human player at Settler difficulty, adding %d resources" % mc.SettlerBonus
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.SettlerBonus, sPlot.isCoast())
+-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_CHIEFTAIN"):
++				elif eHandicap == getInfoTypeOrFail("HANDICAP_CHIEFTAIN"):
+ 					if mc.ChieftainBonus > 0:
+ 						print "Human player at Chieftain difficulty, adding %d resources" % mc.ChieftainBonus
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.ChieftainBonus, sPlot.isCoast())
+-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_WARLORD"):
++				elif eHandicap == getInfoTypeOrFail("HANDICAP_WARLORD"):
+ 					if mc.WarlordBonus > 0:
+ 						print "Human player at Warlord difficulty, adding %d resources" % mc.WarlordBonus
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.WarlordBonus, sPlot.isCoast())
+-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_NOBLE"):
++				elif eHandicap == getInfoTypeOrFail("HANDICAP_NOBLE"):
+ 					if mc.NobleBonus > 0:
+ 						print "Human player at Noble difficulty, adding %d resources" % mc.NobleBonus
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.NobleBonus, sPlot.isCoast())
+-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_PRINCE"):
++				elif eHandicap == getInfoTypeOrFail("HANDICAP_PRINCE"):
+ 					if mc.PrinceBonus > 0:
+ 						print "Human player at Prince difficulty, adding %d resources" % mc.PrinceBonus
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.PrinceBonus, sPlot.isCoast())
+-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_MONARCH"):
++				elif eHandicap == getInfoTypeOrFail("HANDICAP_MONARCH"):
+ 					if mc.MonarchBonus > 0:
+ 						print "Human player at Monarch difficulty, adding %d resources" % mc.MonarchBonus
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.MonarchBonus, sPlot.isCoast())
+-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_EMPEROR"):
++				elif eHandicap == getInfoTypeOrFail("HANDICAP_EMPEROR"):
+ 					if mc.EmperorBonus > 0:
+ 						print "Human player at Emperor difficulty, adding %d resources" % mc.EmperorBonus
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.EmperorBonus, sPlot.isCoast())
+-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_IMMORTAL"):
++				elif eHandicap == getInfoTypeOrFail("HANDICAP_IMMORTAL"):
+ 					if mc.ImmortalBonus > 0:
+ 						print "Human player at Immortal difficulty, adding %d resources" % mc.ImmortalBonus
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.ImmortalBonus, sPlot.isCoast())
+-				elif eHandicap == gc.getInfoTypeForString("HANDICAP_DEITY"):
++				elif eHandicap == getInfoTypeOrFail("HANDICAP_DEITY"):
+ 					if mc.DeityBonus > 0:
+ 						print "Human player at Deity Difficulty, adding %d resources" % mc.DeityBonus
+ 						self.boostCityPlotValue(startPlot.getX(), startPlot.getY(), mc.DeityBonus, sPlot.isCoast())
+@@ -5989,7 +5990,7 @@ class StartingArea:
+ 				sPlot = CyMap().plot(self.plotList[m].x, self.plotList[m].y)
+ 				if sPlot.isWater():
+ 					raise ValueError, "Start plot is water!"
+-				#sPlot.setImprovementType(gc.getInfoTypeForString("NO_IMPROVEMENT"))
++				#sPlot.setImprovementType(getInfoTypeOrFail("NO_IMPROVEMENT"))
+ 				# advc.001:
+ 				sPlot.setImprovementType(ImprovementTypes.NO_IMPROVEMENT)
+ 				playerID = self.playerList[n]
+@@ -6434,13 +6435,13 @@ def generateTerrainTypes():
+ 	else:
+ 		em = e3
+ 	gc = CyGlobalContext()
+-	iGrass  = gc.getInfoTypeForString("TERRAIN_GRASS")
+-	iPlains = gc.getInfoTypeForString("TERRAIN_PLAINS")
+-	iDesert = gc.getInfoTypeForString("TERRAIN_DESERT")
+-	iTundra = gc.getInfoTypeForString("TERRAIN_TUNDRA")
+-	iSnow   = gc.getInfoTypeForString("TERRAIN_SNOW")
+-	iCoast  = gc.getInfoTypeForString("TERRAIN_COAST")
+-	iOcean  = gc.getInfoTypeForString("TERRAIN_OCEAN")
++	iGrass  = getInfoTypeOrFail("TERRAIN_GRASS")
++	iPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++	iDesert = getInfoTypeOrFail("TERRAIN_DESERT")
++	iTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
++	iSnow   = getInfoTypeOrFail("TERRAIN_SNOW")
++	iCoast  = getInfoTypeOrFail("TERRAIN_COAST")
++	iOcean  = getInfoTypeOrFail("TERRAIN_OCEAN")
+ 	terrainTypes = [0] * em.length
+ 	for i in range(em.length):
+ 		if tm.tData[i] == mc.OCEAN:
+@@ -6804,10 +6805,10 @@ def addFeatures():
+ 		cm = c3
+ 	else:
+ 		cm = c2
+-	fForest      = gc.getInfoTypeForString("FEATURE_FOREST")
+-	fJungle      = gc.getInfoTypeForString("FEATURE_JUNGLE")
+-	fFloodPlains = gc.getInfoTypeForString("FEATURE_FLOOD_PLAINS")
+-	fOasis       = gc.getInfoTypeForString("FEATURE_OASIS")
++	fForest      = getInfoTypeOrFail("FEATURE_FOREST")
++	fJungle      = getInfoTypeOrFail("FEATURE_JUNGLE")
++	fFloodPlains = getInfoTypeOrFail("FEATURE_FLOOD_PLAINS")
++	fOasis       = getInfoTypeOrFail("FEATURE_OASIS")
+ 	FORESTLEAFY     = 0
+ 	FORESTEVERGREEN = 1
+ 	FORESTSNOWY     = 2
+@@ -6887,7 +6888,7 @@ def addFeatures():
+ 						if tm.tData[i] == mc.GRASS:
+ 							tm.tData[i] = mc.PLAINS
+ 							# Terrain has already been set at this point; need to overwrite that.
+-							plot.setTerrainType(gc.getInfoTypeForString("TERRAIN_PLAINS"), False, False)
++							plot.setTerrainType(getInfoTypeOrFail("TERRAIN_PLAINS"), False, False)
+ 					else: # </advc>
+ 						if setFeature(plot, fJungle, 0):
+ 							set = True
+@@ -6934,7 +6935,7 @@ def setFeature(plot, feature, variety):
+ def createIce():
+ 	gc = CyGlobalContext()
+ 	mmap = gc.getMap()
+-	featureIce = gc.getInfoTypeForString("FEATURE_ICE")
++	featureIce = getInfoTypeOrFail("FEATURE_ICE")
+ 	if mc.ClimateSystem == 0:
+ 		cm = c3
+ 		iceTemp = 0.25
+
+diff --git a/PrivateMaps/Rainforest.py b/PrivateMaps/Rainforest.py
+index 1b91b89c8..3da3423f8 100644
+--- a/PrivateMaps/Rainforest.py
++++ b/PrivateMaps/Rainforest.py
+@@ -20,6 +20,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from SAS_WorldSizes import *
++from SASUtils import getInfoTypeOrFail
+ 
+ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_RAINFOREST_DESCR"
+@@ -178,9 +179,9 @@ class RainforestTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 		self.iDesertEdge = self.desert.getHeightFromPercent(82)
+ 		self.iPlains = self.plains.getHeightFromPercent(95)
+ 
+-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
++		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
++		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+ 
+ 	def generateTerrainAtPlot(self,iX,iY):
+ 		if (self.map.plot(iX, iY).isWater()):
+@@ -239,10 +240,10 @@ class RainforestFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
+ 
+ 	def __initFeatureTypes(self):
+-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
+-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
+-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
+-		self.featureFlood = self.gc.getInfoTypeForString("FEATURE_FLOOD_PLAINS")
++		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
++		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
++		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
++		self.featureFlood = getInfoTypeOrFail("FEATURE_FLOOD_PLAINS")
+ 
+ 	def addFeaturesAtPlot(self, iX, iY):
+ 		pPlot = self.map.sPlot(iX, iY)
+@@ -263,23 +264,23 @@ class RainforestFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 				self.addJunglesAtPlot(pPlot, iX, iY)
+ 			
+ 	def addFloodAtPlot(self, pPlot, iX, iY):
+-		if pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_DESERT"):
++		if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"):
+ 			pPlot.setFeatureType(self.featureFlood, -1)
+ 
+ 	def addOasisAtPlot(self, pPlot, iX, iY):
+ 		if not pPlot.isFreshWater():
+-			if pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_DESERT"):
++			if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"):
+ 				if self.mapRand.get(25, "Add Feature PYTHON") == 23:
+ 					pPlot.setFeatureType(self.featureOasis, -1)
+ 	
+ 	def addJunglesAtPlot(self, pPlot, iX, iY):
+ 		# Warning: this version of JunglesAtPlot is using the forest fractal!
+-		if pPlot.getTerrainType() == self.gc.getInfoTypeForString("TERRAIN_GRASS"):
++		if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"):
+ 			if (self.forests.getHeight(iX, iY) <= self.iJungleLevel):
+ 				pPlot.setFeatureType(self.featureJungle, -1)
+ 
+ 	def addForestsAtPlot(self, pPlot, iX, iY):
+-		if pPlot.getTerrainType() != self.gc.getInfoTypeForString("TERRAIN_DESERT"):
++		if pPlot.getTerrainType() != getInfoTypeOrFail("TERRAIN_DESERT"):
+ 			if self.forests.getHeight(iX, iY) <= self.iForestLevel:
+ 				pPlot.setFeatureType(self.featureForest, -1)
+ 
+@@ -321,7 +322,7 @@ def assignStartingPlots():
+ 	print "Number of players:", iPlayers
+ 	print "==="
+ 
+-	terrainGrass = gc.getInfoTypeForString("TERRAIN_GRASS")
++	terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+ 
+ 	# Obtain player numbers. (Account for possibility of Open slots!)
+ 	player_list = []
+@@ -607,7 +608,7 @@ def addBonusType(argsList):
+ 				for x in range(iW):
+ 					# Fractalized placement
+ 					pPlot = map.plot(x,y)
+-					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() != gc.getInfoTypeForString("FEATURE_JUNGLE"): continue
++					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() != getInfoTypeOrFail("FEATURE_JUNGLE"): continue
+ 					if pPlot.getBonusType(-1) == -1:
+ 						foodVal = food.getHeight(x,y)
+ 						if (type_string in banana):
+@@ -655,10 +656,10 @@ def addBonusType(argsList):
+ 				# First check the plot for an existing bonus.
+ 				pPlot = map.plot(x,y)
+ 				if pPlot.getBonusType(-1) != -1: continue # to next plot.
+-				if pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
++				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
+ 				# Check plot type and features for eligibility.
+ 				if forceHills and pPlot.isHills(): pass
+-				elif (forceFlats and pPlot.isFlatlands()) and (pPlot.getFeatureType() == gc.getInfoTypeForString("FEATURE_FOREST")): pass
++				elif (forceFlats and pPlot.isFlatlands()) and (pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST")): pass
+ 				else: continue # to next plot.
+ 				# Finally we have run all the checks.
+ 				# 1. The plot has no bonus.
+
+diff --git a/PrivateMaps/RandomScriptMap.py b/PrivateMaps/RandomScriptMap.py
+index 549be256d..7e836de0b 100644
+--- a/PrivateMaps/RandomScriptMap.py
++++ b/PrivateMaps/RandomScriptMap.py
+@@ -30,6 +30,7 @@ from CvMapGeneratorUtil import MultilayeredFractal
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from SAS_WorldSizes import *
++from SASUtils import getInfoTypeOrFail
+ 
+ #-----------------------------------------------------------------------------
+ # User Editable Constants.
+@@ -2077,11 +2078,11 @@ class R_TerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 				self.mapRand, self.iFlags,
+ 				self.fracXExp, self.fracYExp)
+ 	
+-	self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+-	self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+-	self.terrainIce = self.gc.getInfoTypeForString("TERRAIN_SNOW")
+-	self.terrainTundra = self.gc.getInfoTypeForString("TERRAIN_TUNDRA")
+-	self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
++	self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
++	self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++	self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
++	self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
++	self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+ #    
+ #END class R_TettainGenerator
+ #
+
+diff --git a/PrivateMaps/Ring.py b/PrivateMaps/Ring.py
+index b99376411..3171dbaee 100644
+--- a/PrivateMaps/Ring.py
++++ b/PrivateMaps/Ring.py
+@@ -21,6 +21,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
++from SASUtils import getInfoTypeOrFail
+ 
+ balancer = BonusBalancer()
+ bSuccessFlag = True
+@@ -917,11 +918,11 @@ class RingTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 		self.iIceBottom = self.center.getHeightFromPercent(self.iIceBottomPercent)
+ 		self.iTundraBottom = self.center.getHeightFromPercent(self.iTundraBottomPercent)
+ 
+-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+-		self.terrainIce = self.gc.getInfoTypeForString("TERRAIN_SNOW")
+-		self.terrainTundra = self.gc.getInfoTypeForString("TERRAIN_TUNDRA")
+-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
++		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
++		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++		self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
++		self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
++		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+ 
+ 	def generateTerrainAtPlot(self,iX,iY):
+ 		if (self.map.plot(iX, iY).isWater()):
+@@ -1017,10 +1018,10 @@ class RingFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
+ 
+ 	def __initFeatureTypes(self):
+-		self.featureIce = self.gc.getInfoTypeForString("FEATURE_ICE")
+-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
+-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
+-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
++		self.featureIce = getInfoTypeOrFail("FEATURE_ICE")
++		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
++		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
++		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
+ 	
+ 	def addFeaturesAtPlot(self, iX, iY):
+ 		"adds any appropriate features at the plot (iX, iY) where (0,0) is in the SW"
+
+diff --git a/PrivateMaps/Team_Battleground.py b/PrivateMaps/Team_Battleground.py
+index a9d3cec97..a6388e97a 100644
+--- a/PrivateMaps/Team_Battleground.py
++++ b/PrivateMaps/Team_Battleground.py
+@@ -34,6 +34,7 @@ from math import sqrt
+ from math import cos
+ from math import sin
+ from math import radians
++from SASUtils import getInfoTypeOrFail
+ 
+ #import BugUtil
+ 
+@@ -147,9 +148,9 @@ def beforeGeneration():
+ 	team_index = 0
+ 	topVsBottomCheck = CyMap().getCustomMapOption(0)
+ 	if topVsBottomCheck == 1:
+-		equator = CyGlobalContext().getInfoTypeForString("TERRAIN_DESERT")
++		equator = getInfoTypeOrFail("TERRAIN_DESERT")
+ 	else:
+-		equator = CyGlobalContext().getInfoTypeForString("TERRAIN_GRASS")
++		equator = getInfoTypeOrFail("TERRAIN_GRASS")
+ 	for teamCheckLoop in range(CyGlobalContext().getMAX_CIV_TEAMS()):
+ 		if CyGlobalContext().getTeam(teamCheckLoop).isEverAlive():
+ 			team_num.append(team_index)
+
+diff --git a/PrivateMaps/Tectonics.py b/PrivateMaps/Tectonics.py
+index ba6807965..b8a92fe59 100644
+--- a/PrivateMaps/Tectonics.py
++++ b/PrivateMaps/Tectonics.py
+@@ -78,6 +78,7 @@ import CvMapGeneratorUtil
+ #import Popup as PyPopup
+ #from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
++from SASUtils import getInfoTypeOrFail
+ 
+ # advc.165:
+ def getNumPlotsPercent(argsList):
+@@ -934,14 +935,14 @@ class ClimateGenerator:
+ 		elif (self.climate == 3):                        # No ice
+ 			self.maxWindForce = self.mapWidth / 8
+ 		self.mapHeight = self.map.getGridHeight()
+-		self.terrainDesert = gc.getInfoTypeForString("TERRAIN_DESERT")
+-		self.terrainPlains = gc.getInfoTypeForString("TERRAIN_PLAINS")
+-		self.terrainIce = gc.getInfoTypeForString("TERRAIN_SNOW")
+-		self.terrainTundra = gc.getInfoTypeForString("TERRAIN_TUNDRA")
+-		self.terrainGrass = gc.getInfoTypeForString("TERRAIN_GRASS")
++		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
++		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++		self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
++		self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
++		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+ 		if (self.climate == 3):                        # No ice
+-			self.terrainIce = gc.getInfoTypeForString("TERRAIN_TUNDRA")
+-			self.terrainTundra = gc.getInfoTypeForString("TERRAIN_GRASS")
++			self.terrainIce = getInfoTypeOrFail("TERRAIN_TUNDRA")
++			self.terrainTundra = getInfoTypeOrFail("TERRAIN_GRASS")
+ 		self.terrain = [0] * (self.mapWidth*self.mapHeight)
+ 		self.moisture = [0] * (self.mapWidth*self.mapHeight)
+ 		self.dice = gc.getGame().getMapRand()
+@@ -1635,9 +1636,9 @@ class riversFromSea:
+ 		nextI = nextY*self.width + nextX
+ 		if (self.canFlowFrom(plot,self.map.plot(nextX,nextY)) == False):
+ 			return
+-		if (plot.getTerrainType() == CyGlobalContext().getInfoTypeForString("TERRAIN_SNOW") and self.dice.get(10,"Stop on ice") > 3):
++		if (plot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW") and self.dice.get(10,"Stop on ice") > 3):
+ 			return
+-		flatDesert = (plot.getPlotType() == PlotTypes.PLOT_LAND) and (plot.getTerrainType() == CyGlobalContext().getInfoTypeForString("TERRAIN_DESERT"))
++		flatDesert = (plot.getPlotType() == PlotTypes.PLOT_LAND) and (plot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"))
+ 		#Prevent Uturns in rivers
+ 		turnThreshold = 13
+ 		if flatDesert:
+
+diff --git a/PrivateMaps/Wheel.py b/PrivateMaps/Wheel.py
+index 1897fca7a..2275f09f5 100644
+--- a/PrivateMaps/Wheel.py
++++ b/PrivateMaps/Wheel.py
+@@ -22,6 +22,7 @@ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
+ from SAS_WorldSizes import *
++from SASUtils import getInfoTypeOrFail
+ 
+ balancer = BonusBalancer()
+ bSuccessFlag = True
+@@ -1114,11 +1115,11 @@ class WheelTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 		self.iIceBottom = self.center.getHeightFromPercent(self.iIceBottomPercent)
+ 		self.iTundraBottom = self.center.getHeightFromPercent(self.iTundraBottomPercent)
+ 
+-		self.terrainDesert = self.gc.getInfoTypeForString("TERRAIN_DESERT")
+-		self.terrainPlains = self.gc.getInfoTypeForString("TERRAIN_PLAINS")
+-		self.terrainIce = self.gc.getInfoTypeForString("TERRAIN_SNOW")
+-		self.terrainTundra = self.gc.getInfoTypeForString("TERRAIN_TUNDRA")
+-		self.terrainGrass = self.gc.getInfoTypeForString("TERRAIN_GRASS")
++		self.terrainDesert = getInfoTypeOrFail("TERRAIN_DESERT")
++		self.terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
++		self.terrainIce = getInfoTypeOrFail("TERRAIN_SNOW")
++		self.terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
++		self.terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+ 
+ 	def generateTerrainAtPlot(self,iX,iY):
+ 		if (self.map.plot(iX, iY).isWater()):
+@@ -1214,10 +1215,10 @@ class WheelFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		self.iForestLevel = self.forests.getHeightFromPercent(self.iForestPercent)
+ 
+ 	def __initFeatureTypes(self):
+-		self.featureIce = self.gc.getInfoTypeForString("FEATURE_ICE")
+-		self.featureJungle = self.gc.getInfoTypeForString("FEATURE_JUNGLE")
+-		self.featureForest = self.gc.getInfoTypeForString("FEATURE_FOREST")
+-		self.featureOasis = self.gc.getInfoTypeForString("FEATURE_OASIS")
++		self.featureIce = getInfoTypeOrFail("FEATURE_ICE")
++		self.featureJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
++		self.featureForest = getInfoTypeOrFail("FEATURE_FOREST")
++		self.featureOasis = getInfoTypeOrFail("FEATURE_OASIS")
+ 	
+ 	def addFeaturesAtPlot(self, iX, iY):
+ 		"adds any appropriate features at the plot (iX, iY) where (0,0) is in the SW"
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 8d96165fd..103a034c0 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -4184,4 +4184,4 @@ The key practical distinction is:
+ 
+ After applying this pattern in Boreal, Deer and other food bonuses now appear reliably on first Civ4 launch in tests.
+ 
+-See [commit/](https://github.com/wonderingabout/AdvCiv-SAS/commit/).
++See [commit/accf8702ebf916e999fd07a56211e9aec98af9d7](https://github.com/wonderingabout/AdvCiv-SAS/commit/accf8702ebf916e999fd07a56211e9aec98af9d7).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 203beba49..d73a956f3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -100,6 +100,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ ### Code/Performance optimizations
+ 
+ - (Requires AdvCiv-SAS 5429+) **Launch guard for SAS defines (startup/load/Sevopedia):** Added a strict define-integrity check using one **int sentinel** and one **string sentinel**, validated at pre-game start, game start, save load, Sevopedia creation, and Sevopedia show. If a value is missing or mismatched, Python raises a **fatal error** with `actual` vs `expected` values and guidance to launch from a Windows shortcut. The game will be **unplayable if the config is incorrect**. Change in: [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py). See also [Quick Install Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop).
++- (Requires AdvCiv-SAS 5442+) **Fail-fast XML lookup hardening:** replaced `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values.
+ - **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+ - **Found-value** evaluation now uses **`int`** end-to-end (CitySiteEvaluator, AIFoundValue, CvPlot cache, SPI, Python callback), **not `short`**. Why: **avoid overflow/underflow** and short wraparounds in site scoring; keep the logic the same while **improving reliability**. Expectation: more robust site values, fewer edge-case penalties/boosts from short overflow; no known negative gameplay change. Performance: `int` is typically at least as fast as short on modern CPUs; no slowdown expected. Tested: autoplay ran fine. See [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline).
+
+[PATCH COVERAGE]
+patchFiles=20 embeddedFiles=20 omittedFiles=0 embeddedPatchBytes=68522

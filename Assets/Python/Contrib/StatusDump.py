@@ -3,7 +3,8 @@
 import codecs
 import os
 import os.path
-import string
+# <!-- custom: remove or comment out seemingly unused imports -->
+#import string
 import BugCore
 import BugOptions
 import BugPath
@@ -12,7 +13,6 @@ import BugConfigTracker
 BugAutolog = BugCore.game.Autolog
 
 class statusdumpInstance:
-
 
 	def __init__(self):
 		self.MsgStore = []
@@ -74,8 +74,8 @@ class statusdumpInstance:
 
 		## determine type of message
 		zStyle = BugAutolog.getFormatStyle()
-		if (zStyle < 0
-		or zStyle > 3): zStyle=0
+		if (zStyle < 0 or zStyle > 3):
+			zStyle=0
 
 		if zStyle == 0: # no formatting so do nothing
 			zMsg = zMsg
@@ -85,8 +85,7 @@ class statusdumpInstance:
 				zMsg = "<b>%s</b>" % (zMsg)
 			if vUnderline:
 				zMsg = "<u>%s</u>" % (zMsg)
-			if (vColor != "Black"
-			and BugAutolog.isColorCoding()):
+			if (vColor != "Black" and BugAutolog.isColorCoding()):
 				zMsg = "<span style=\"color: %s\">%s</span>" % (vColor, zMsg)
 
 			zMsg = "%s<br>" % (zMsg)
@@ -96,8 +95,7 @@ class statusdumpInstance:
 				zMsg = "[b]%s[/b]" % (zMsg)
 			if vUnderline:
 				zMsg = "[u]%s[/u]" % (zMsg)
-			if (vColor != "Black"
-			and BugAutolog.isColorCoding()):
+			if (vColor != "Black" and BugAutolog.isColorCoding()):
 				if zStyle == 2:  # color coding with "
 					zMsg = "[color=\"%s\"]%s[/color]" % (vColor, zMsg)
 				else:  # color coding without "

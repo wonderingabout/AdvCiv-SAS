@@ -1,0 +1,467 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5701
+# Commit: de5c11cc2c7df1c0d3b58ee3b4e43a900a0f7e0f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: db46a59ae5873aa2f7a21b387e1fe2697b010b45
+# Title: minor refactor sevopedia
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBonus-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBuilding-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivilization-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCorporation-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-eventinfo.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-buildinfo.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaImprovement-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaLeader-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTech-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTrait-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaUnit-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner.txt
+1	1	Assets/Python/Contrib/Sevopedia/Debug/__SevopediaProject-gc-inner.txt
+1	3	Assets/Python/Contrib/Sevopedia/Debug/___SevoPedia-gc-common-gc.txt
+14	56	Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+16	0	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBonus-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBonus-gc-inner.txt
+index bba4d700f..523888b23 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBonus-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBonus-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopediabonus, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getBonusInfo(self.iBonus))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBuilding-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBuilding-gc-inner.txt
+index 870c1d47f..6ac62498d 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBuilding-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBuilding-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopediabuilding, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getBuildingInfo(self.iBuilding))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner.txt
+index b5e43edea..3a5275244 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopediacivic, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getCivicInfo(self.iCivic))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivilization-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivilization-gc-inner.txt
+index 3d8acd2aa..81c7137eb 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivilization-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivilization-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopediacivilization, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getCivilizationInfo(self.iCivilization))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCorporation-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCorporation-gc-inner.txt
+index 7c697c417..457455f90 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCorporation-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCorporation-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopediacorporation, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getCorporationInfo(self.iCorporation))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-eventinfo.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-eventinfo.txt
+index a21054ad0..cfec7f537 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-eventinfo.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-eventinfo.txt
+@@ -5,7 +5,7 @@ Created as part of AdvCiv-SAS improvements
+ in sevopediaeventtrigger, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ info = gc.getEventTriggerInfo(self.iTrigger)
+ printObjAttrs(gc.getEventInfo(info.getEvent(i)))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-inner.txt
+index 06544e1d6..92cd18287 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopediaeventtrigger, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getEventTriggerInfo(self.iTrigger))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-buildinfo.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-buildinfo.txt
+index 1e50443ea..199442085 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-buildinfo.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-buildinfo.txt
+@@ -5,7 +5,7 @@ Created as part of AdvCiv-SAS improvements
+ in sevopediafeature, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), with chatgpt 5.2's help, in interfaceScreen:
+ iBuild = gc.getInfoTypeForString("BUILD_ROAD")  # example
+ printObjAttrs(gc.getBuildInfo(iBuild))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-inner.txt
+index 311a29784..7456484f5 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopediafeature, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getFeatureInfo(self.iFeature))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaImprovement-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaImprovement-gc-inner.txt
+index 448d62a74..68beec0f6 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaImprovement-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaImprovement-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopediaimprovement, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getImprovementInfo(self.iImprovement))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaLeader-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaLeader-gc-inner.txt
+index 96f13c89e..883c6ec23 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaLeader-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaLeader-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopedialeader, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getLeaderHeadInfo(self.iLeader))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTech-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTech-gc-inner.txt
+index 278827ad5..df20cc784 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTech-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTech-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopediatech, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getTechInfo(self.iTech))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTrait-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTrait-gc-inner.txt
+index 4c7f662d8..0b5542d85 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTrait-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTrait-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopediatrait, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getTraitInfo(self.iTrait))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaUnit-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaUnit-gc-inner.txt
+index 4fa92cf23..d00610b5d 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaUnit-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaUnit-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopediaunit, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getUnitInfo(self.iUnit))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+ 
+ Note: we don't need to inspect the full gc for each file since it should be common, so i only inspected one here, but did instead the inner-debug-content rather, but it's just a guess and i don't know too much about these, check if accurate.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner.txt
+index bb4455ef2..3839172bc 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopediavote, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getVoteInfo(self.iVote))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner.txt
+index c71d20f74..68919d72c 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner.txt
+@@ -6,7 +6,7 @@ in sevopediavote, after having imported the sevopedia_debuggers (`from _sevopedi
+ iDbgSrc = self._getVoteSourceType()
+ if iDbgSrc > -1:
+ 	printObjAttrs(gc.getVoteSourceInfo(iDbgSrc))
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevopediaProject-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevopediaProject-gc-inner.txt
+index 6097c49b9..8ae175071 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/__SevopediaProject-gc-inner.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevopediaProject-gc-inner.txt
+@@ -4,7 +4,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ in sevopediaproject, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc.getProjectInfo(self.iProject)),
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/___SevoPedia-gc-common-gc.txt b/Assets/Python/Contrib/Sevopedia/Debug/___SevoPedia-gc-common-gc.txt
+index f320b211d..68e26ccd0 100644
+--- a/Assets/Python/Contrib/Sevopedia/Debug/___SevoPedia-gc-common-gc.txt
++++ b/Assets/Python/Contrib/Sevopedia/Debug/___SevoPedia-gc-common-gc.txt
+@@ -6,9 +6,7 @@ Fetched from sevopediabuilding but this is really the common gc that could have
+ 
+ In sevopediabuilding, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+ printObjAttrs(gc)
+-returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+-
+-Note:
++outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+index cbe391314..04fbbdae6 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+@@ -11,7 +11,6 @@ import SevoScreenEnums
+ import SASTextScale
+ 
+ from _sevopedia_helpers import *
+-from _sevopedia_debuggers import *
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+@@ -101,21 +100,6 @@ class SevoPediaEventTrigger:
+ 		if bTriggerChanged:
+ 			self.bHistoryExpanded = False
+ 		self.iTrigger = iTrigger
+-		if bTriggerChanged:
+-			info = self._getTriggerInfo()
+-			if not info:
+-				return
+-			print("\n\n[DEBUG] SevoPediaEventTrigger trigger dump: iTrigger=%d, Type=%s" % (self.iTrigger, info.getType()))
+-			printObjAttrs(info)
+-			for i in range(info.getNumEvents()):
+-				iEvent = info.getEvent(i)
+-				if iEvent < 0:
+-					continue
+-				eventInfo = gc.getEventInfo(iEvent)
+-				if not eventInfo:
+-					continue
+-				print("\n\n[DEBUG] SevoPediaEventTrigger event dump: iEvent=%d, Type=%s" % (iEvent, eventInfo.getType()))
+-				printObjAttrs(eventInfo)
+ 
+ 		self.placeName()
+ 		self.placeRequiresText()
+@@ -197,32 +181,6 @@ class SevoPediaEventTrigger:
+ 		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_SUMMARY + 14, self.Y_SUMMARY + 34, self.W_SUMMARY - 28, self.H_SUMMARY - 44, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+-	# <!-- custom: wrap an asset description in Civ4's <link=literal>...</link> markup so
+-	# addMultilineText renders it as a clickable link. When clicked, the engine calls
+-	# SevoPediaMain.link(szLink), which reverse-looks-up the text through SAS_linkMatchDefs
+-	# (techs, civics, buildings, units, promotions, specialists, features, improvements,
+-	# bonuses, routes, civs, leaders, traits, religions, corporations, concepts) via each
+-	# info's isMatchForLink(...) and pedia-jumps to the right page. No DLL change needed;
+-	# this simply joins onto the mechanism already used by Sevopedia Building/Unit/Trait
+-	# pages. (Claude code Opus 4.7) -->
+-	def _link(self, szText):
+-		if not szText:
+-			return szText
+-		return u"<link=literal>%s</link>" % szText
+-
+-
+-	def _joinInfoNames(self, listIds, infoGetter):
+-		listNames = []
+-		for iId in listIds:
+-			if iId >= 0:
+-				info = infoGetter(iId)
+-				if info:
+-					listNames.append(info.getDescription())
+-		if listNames:
+-			return u", ".join(listNames)
+-		return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
+-
+-
+ 	def placeRequiresText(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+@@ -325,7 +283,7 @@ class SevoPediaEventTrigger:
+ 		if iTech >= 0:
+ 			techInfo = gc.getTechInfo(iTech)
+ 			if techInfo:
+-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_TECH", ()) + u": " + self._link(techInfo.getDescription()))
++				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_TECH", ()) + u": " + make_pedia_link(techInfo.getDescription()))
+ 		elif eventInfo.getTechPercent() > 0:
+ 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_PERCENT", ()) + u": %d%%" % eventInfo.getTechPercent())
+ 		if eventInfo.getTechCostPercent() != 0:
+@@ -348,7 +306,7 @@ class SevoPediaEventTrigger:
+ 		if iFreeUnitClass >= 0 and eventInfo.getNumUnits() > 0:
+ 			unitClassInfo = gc.getUnitClassInfo(iFreeUnitClass)
+ 			if unitClassInfo:
+-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_UNITS", ()) + u": %dx %s" % (eventInfo.getNumUnits(), self._link(unitClassInfo.getDescription())))
++				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_UNITS", ()) + u": %dx %s" % (eventInfo.getNumUnits(), make_pedia_link(unitClassInfo.getDescription())))
+ 		iFreeBuildingClass = eventInfo.getBuildingClass()
+ 		if iFreeBuildingClass >= 0:
+ 			buildingClassInfo = gc.getBuildingClassInfo(iFreeBuildingClass)
+@@ -358,7 +316,7 @@ class SevoPediaEventTrigger:
+ 				# distinctly so destroyed buildings don't show up as "Free Building".
+ 				# (Claude code Opus 4.7) -->
+ 				iBuildingChange = eventInfo.getBuildingChange()
+-				szLinkedBC = self._link(buildingClassInfo.getDescription())
++				szLinkedBC = make_pedia_link(buildingClassInfo.getDescription())
+ 				if iBuildingChange > 0:
+ 					parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_BUILDING", ()) + u": " + szLinkedBC)
+ 				elif iBuildingChange < 0:
+@@ -369,26 +327,26 @@ class SevoPediaEventTrigger:
+ 		if iFreePromotion >= 0:
+ 			promoInfo = gc.getPromotionInfo(iFreePromotion)
+ 			if promoInfo:
+-				parts.append(self.STAR_CHAR + u" " + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_PROMOTION", ()) + u": " + self._link(promoInfo.getDescription()))
++				parts.append(self.STAR_CHAR + u" " + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_PROMOTION", ()) + u": " + make_pedia_link(promoInfo.getDescription()))
+ 
+ 		# Plot / terrain / feature changes.
+ 		iFeature = eventInfo.getFeature()
+ 		if iFeature >= 0:
+ 			featureInfo = gc.getFeatureInfo(iFeature)
+ 			if featureInfo and eventInfo.getFeatureChange() != 0:
+-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FEATURE_CHANGE", ()) + u": " + self._link(featureInfo.getDescription()))
++				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FEATURE_CHANGE", ()) + u": " + make_pedia_link(featureInfo.getDescription()))
+ 		iImprovement = eventInfo.getImprovement()
+ 		if iImprovement >= 0:
+ 			improvementInfo = gc.getImprovementInfo(iImprovement)
+ 			if improvementInfo and eventInfo.getImprovementChange() != 0:
+-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_IMPROVEMENT_CHANGE", ()) + u": " + self._link(improvementInfo.getDescription()))
++				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_IMPROVEMENT_CHANGE", ()) + u": " + make_pedia_link(improvementInfo.getDescription()))
+ 		iBonus = eventInfo.getBonus()
+ 		if iBonus >= 0:
+ 			bonusInfo = gc.getBonusInfo(iBonus)
+ 			if bonusInfo and eventInfo.getBonusRevealed():
+-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_REVEALED", ()) + u": " + self._link(bonusInfo.getDescription()))
++				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_REVEALED", ()) + u": " + make_pedia_link(bonusInfo.getDescription()))
+ 			if bonusInfo and eventInfo.getBonusChange() != 0:
+-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_CHANGE", ()) + u": %+d " % eventInfo.getBonusChange() + self._link(bonusInfo.getDescription()))
++				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_CHANGE", ()) + u": %+d " % eventInfo.getBonusChange() + make_pedia_link(bonusInfo.getDescription()))
+ 
+ 		# <!-- custom: <BonusGift> — gifts a bonus resource to the other player in the
+ 		# popup chain. Core effect for events like Brothers In Need (the "help with
+@@ -397,7 +355,7 @@ class SevoPediaEventTrigger:
+ 		if iBonusGift >= 0:
+ 			bonusGiftInfo = gc.getBonusInfo(iBonusGift)
+ 			if bonusGiftInfo:
+-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_GIFT", ()) + u": " + self._link(bonusGiftInfo.getDescription()))
++				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_GIFT", ()) + u": " + make_pedia_link(bonusGiftInfo.getDescription()))
+ 
+ 		# <!-- custom: <RouteType> + <iRouteChange> — add/remove a road/railroad on the
+ 		# target plot. (Claude code Opus 4.7) -->
+@@ -405,7 +363,7 @@ class SevoPediaEventTrigger:
+ 		if iRoute >= 0 and eventInfo.getRouteChange() != 0:
+ 			routeInfo = gc.getRouteInfo(iRoute)
+ 			if routeInfo:
+-				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ROUTE_CHANGE", ()) + u": %+d " % eventInfo.getRouteChange() + self._link(routeInfo.getDescription()))
++				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ROUTE_CHANGE", ()) + u": %+d " % eventInfo.getRouteChange() + make_pedia_link(routeInfo.getDescription()))
+ 
+ 		# <!-- custom: <OtherPlayerPopup> signals that the *other* player in the chain
+ 		# gets their own popup with response choices — the real consequences of this
+@@ -438,7 +396,7 @@ class SevoPediaEventTrigger:
+ 				if defaultBuilding:
+ 					szBCName = defaultBuilding.getDescription()
+ 
+-			szLinkedBCName = self._link(szBCName)
++			szLinkedBCName = make_pedia_link(szBCName)
+ 			iHappyBC = eventInfo.getBuildingHappyChange(iBC)
+ 			if iHappyBC != 0:
+ 				parts.append(szLinkedBCName + u": %+d %s" % (iHappyBC, self.HAPPY_CHAR))
+@@ -470,14 +428,14 @@ class SevoPediaEventTrigger:
+ 				unitClassInfo = gc.getUnitClassInfo(iUC)
+ 				promoInfo = gc.getPromotionInfo(iPromo)
+ 				if unitClassInfo and promoInfo:
+-					parts.append(self.STAR_CHAR + u" " + self._link(unitClassInfo.getDescription()) + u": " + self._link(promoInfo.getDescription()))
++					parts.append(self.STAR_CHAR + u" " + make_pedia_link(unitClassInfo.getDescription()) + u": " + make_pedia_link(promoInfo.getDescription()))
+ 		for iComb in range(gc.getNumUnitCombatInfos()):
+ 			iPromo = eventInfo.getUnitCombatPromotion(iComb)
+ 			if iPromo >= 0:
+ 				combatInfo = gc.getUnitCombatInfo(iComb)
+ 				promoInfo = gc.getPromotionInfo(iPromo)
+ 				if combatInfo and promoInfo:
+-					parts.append(self.STAR_CHAR + u" " + self._link(combatInfo.getDescription()) + u": " + self._link(promoInfo.getDescription()))
++					parts.append(self.STAR_CHAR + u" " + make_pedia_link(combatInfo.getDescription()) + u": " + make_pedia_link(promoInfo.getDescription()))
+ 
+ 		# <!-- custom: <FreeSpecialistCounts> — grants N free specialists of a given type
+ 		# in the target city (e.g. Noble Knights Done_3: +1 Great Priest). Probed per
+@@ -487,7 +445,7 @@ class SevoPediaEventTrigger:
+ 			if iCount != 0:
+ 				specInfo = gc.getSpecialistInfo(iSp)
+ 				if specInfo:
+-					parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_SPECIALIST", ()) + u": %dx %s" % (iCount, self._link(specInfo.getDescription())))
++					parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_SPECIALIST", ()) + u": %dx %s" % (iCount, make_pedia_link(specInfo.getDescription())))
+ 
+ 		# Other less-common scalar fields that can still carry the whole effect on their own.
+ 		if eventInfo.getHurryAnger() != 0:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index c6d3463a4..a8853c09a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -623,7 +623,7 @@ class SevoPediaLeader:
+ 			for iTrait in xrange(gc.getNumTraitInfos()):
+ 				if leader.hasTrait(iTrait):
+ 					traitDesc = gc.getTraitInfo(iTrait).getDescription()
+-					traitLink = u"<link=literal>%s</link>" % traitDesc
++					traitLink = make_pedia_link(traitDesc)
+ 					traitIcon = TraitUtil.getIcon(iTrait)
+ 					# <!-- custom: prefer replacing the linked trait label; if traits are plain text, replace the first matching trait name only. (GPT-5.2-Codex) -->
+ 					szReplaced = szSpecialText.replace(traitLink, traitIcon + u" " + traitLink)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index ca428101f..6ddb663c4 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -92,6 +92,22 @@ SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO = 0
+ 
+ 
+ 
++# <!-- custom: wrap an asset description in Civ4's <link=literal>...</link> markup so
++# addMultilineText renders it as a clickable link. When clicked, the engine calls
++# SevoPediaMain.link(szLink), which reverse-looks-up the text through SAS_linkMatchDefs
++# (techs, civics, buildings, units, promotions, specialists, features, improvements,
++# bonuses, religions, corporations, traits, concepts, etc.) via each info's
++# isMatchForLink(...) and pedia-jumps to the right page. No DLL change needed — this
++# piggybacks on the mechanism already used by Sevopedia Building/Unit/Trait/Leader pages
++# and by CvGameTextMgr for inline pedia links. Pass the exact localized description
++# string (whatever info.getDescription() returned) so the reverse lookup finds a match.
++# (Claude code Opus 4.7) -->
++def make_pedia_link(szText):
++	if not szText:
++		return szText
++	return u"<link=literal>%s</link>" % szText
++
++
+ def get_multilist_panel_width_for_buttons(iNumButtons, iButtonSize, iLeftEdgePadding, iRightEdgePadding, iInterButtonSpacing):
+ 	# <!-- custom: width formula for a horizontal multilist panel:
+ 	# width = (n * buttonSize) + leftEdgePadding + rightEdgePadding + ((n - 1) * interSpacing)
+
+[PATCH COVERAGE]
+patchFiles=21 embeddedFiles=21 omittedFiles=0 embeddedPatchBytes=26765

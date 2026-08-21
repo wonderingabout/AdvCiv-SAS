@@ -237,3 +237,4 @@ void CvArtFileMgr::swapCityBarPaths()
 		aapCityBarArtInfos[i][1]->setPath(sTmp);
 	}
 }
+

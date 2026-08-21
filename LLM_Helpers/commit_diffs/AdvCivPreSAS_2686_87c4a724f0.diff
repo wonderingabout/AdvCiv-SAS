@@ -1,0 +1,61 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2686
+# Commit: 87c4a724f08f14136c3d69bb4478eb8722659cd7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 82281e74742acee4fc2422ee40d43fa5f5b8fcfd
+# Title: Fix minor AdvCiv bug with noise in AI city evaluation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	12	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index b8e40089c..94a4325dd 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5241,22 +5241,21 @@ int CvPlot::getFoundValue(PlayerTypes eIndex, /* advc.052: */ bool bRandomize) c
+ 	}
+ 	//return m_aiFoundValue[eIndex];
+ 	// <advc.052>
+-	int r = m_aiFoundValue.get(eIndex);
++	int iResult = m_aiFoundValue.get(eIndex);
+ 	if(bRandomize && !GET_PLAYER(eIndex).isHuman() && GC.getGame().isScenario())
+ 	{	// Randomly change the value by +/- 1.5%
+-		double const plusMinus = 0.015;
+-		std::vector<int> hashInput;
++		scaled const rPlusMinus = per1000(15);
++		std::vector<int> aiHashInput;
+ 		/*  Base the random multiplier on a number that is unique
+ 			per game, but doesn't change throughout a game. */
+-		hashInput.push_back(GC.getGame().getSorenRand().
+-				getSeed());
+-		hashInput.push_back(getX());
+-		hashInput.push_back(getY());
+-		hashInput.push_back(eIndex);
+-		double randMult = 1 - plusMinus + 2 * plusMinus * ::hash(hashInput);
+-		r = ::round(r * randMult);
+-	}
+-	return r;
++		aiHashInput.push_back(GC.getGame().getInitialRandSeed().first);
++		aiHashInput.push_back(getX());
++		aiHashInput.push_back(getY());
++		aiHashInput.push_back(eIndex);
++		scaled rRandMult = 1 - rPlusMinus + 2 * rPlusMinus * scaled::hash(aiHashInput);
++		iResult = (iResult * rRandMult).round();
++	}
++	return iResult;
+ 	// </advc.052>
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1404

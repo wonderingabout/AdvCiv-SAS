@@ -1,0 +1,231 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2304
+# Commit: cbc97b79b3c2833d2ccf82c9e485374ef82715a9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 118bbf180953f9278e5e71d1dcea91f1dcca844b
+# Title: Tweak AI power values of military buildings
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+36	19	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	0	Assets/XML/Buildings/CIV4BuildingsSchema.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 81fe5ae4c..5d7ce4561 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -3,7 +3,6 @@
+ <!-- Sid Meier's Civilization 4 -->
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- Building Infos -->
+-<!-- advc.310: Renamed iGlobalTradeRoutes to iAreaTradeRoutes -->
+ 
+ <Civ4BuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
+ 	<BuildingInfos>
+@@ -1039,7 +1038,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>2</iAsset>
+-			<iPower>2</iPower>
++			<!-- advc.131c: was 2 -->
++			<iPower>5</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -1241,7 +1241,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>2</iAsset>
+-			<iPower>3</iPower>
++			<!-- advc.131c: was 3 -->
++			<iPower>6</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -3842,7 +3843,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>3</iAsset>
+-			<iPower>1</iPower>
++			<!-- advc.131c: was 1 -->
++			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges>
+ 				<iYield>1</iYield>
+@@ -4907,7 +4909,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>5</iAsset>
+-			<iPower>0</iPower>
++			<!-- advc.131c: was 0 -->
++			<iPower>15</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -5085,7 +5088,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>4</iAsset>
+-			<iPower>2</iPower>
++			<!-- advc.131c: was 2 -->
++			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -5276,7 +5280,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>5</iAsset>
+-			<iPower>2</iPower>
++			<!-- advc.131c: was 2 -->
++			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -5472,7 +5477,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>6</iAsset>
+-			<iPower>2</iPower>
++			<!-- advc.131c: was 2 -->
++			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -5663,7 +5669,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>6</iAsset>
+-			<iPower>2</iPower>
++			<!-- advc.131c: was 2 -->
++			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -6022,7 +6029,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>0</iAsset>
+-			<iPower>1</iPower>
++			<!-- advc.131c: was 1 -->
++			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -6534,7 +6542,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>6</iAsset>
+-			<iPower>2</iPower>
++			<!-- advc.131c: was 2 -->
++			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -13351,7 +13360,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>2</iAsset>
+-			<iPower>2</iPower>
++			<!-- advc.131c: was 2 -->
++			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges>
+@@ -13516,7 +13526,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>4</iAsset>
+-			<iPower>2</iPower>
++			<!-- advc.131c: was 2 -->
++			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges>
+ 				<iYield>0</iYield>
+@@ -20455,7 +20466,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>8</iAsset>
+-			<iPower>4</iPower>
++			<!-- advc.131c: was 4 -->
++			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -20992,7 +21004,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>8</iAsset>
+-			<iPower>4</iPower>
++			<!-- advc.131c: was 4 -->
++			<iPower>15</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -21178,7 +21191,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>8</iAsset>
+-			<iPower>8</iPower>
++			<!-- advc.131c: was 8 -->
++			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -25392,7 +25406,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>20</iAsset>
+-			<iPower>0</iPower>
++			<!-- advc.131c: was 0 -->
++			<iPower>30</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -26455,7 +26470,8 @@
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<!-- advc.310: Was 5; now a more potent building. -->
+ 			<iAsset>9</iAsset>
+-			<iPower>10</iPower>
++			<!-- advc.131c: was 10 -->
++			<iPower>5</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+@@ -27393,7 +27409,8 @@
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+ 			<iAsset>5</iAsset>
+-			<iPower>10</iPower>
++			<!-- advc.131c: was 10 -->
++			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges>
+ 				<iYield>0</iYield>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingsSchema.xml b/Assets/XML/Buildings/CIV4BuildingsSchema.xml
+index 9b4846452..382edcfc8 100644
+--- a/Assets/XML/Buildings/CIV4BuildingsSchema.xml
++++ b/Assets/XML/Buildings/CIV4BuildingsSchema.xml
+@@ -171,6 +171,8 @@
+ 	<ElementType name="iAllCityDefense" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iEspionageDefense" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAsset" content="textOnly" dt:type="int"/>
++	<!-- advc.131c (note): Now only used for buildings with defense, XP and
++		 war weariness abilities, not for production abilities. -->
+ 	<ElementType name="iPower" content="textOnly" dt:type="int"/>
+ 	<ElementType name="fVisibilityPriority" content="textOnly"/>
+ 	<ElementType name="FreePromotion" content="textOnly"/>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6965

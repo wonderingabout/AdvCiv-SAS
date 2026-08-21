@@ -11,7 +11,7 @@
 	 version="1.0" 
 	 date="09/02/2007" 
 	 url="http://forums.civfanatics.com/forumdisplay.php?f=268">
-	 
+
 	<options id="Scores" file="Advanced Scoreboard.ini">
 		<section id="Scoreboard">
 			<!-- Dead Civ Scoreboard -->
@@ -24,12 +24,12 @@
 			<option id="GreyDead" key="Grey Out Dead Civilizations" 
 					type="boolean" default="False" 
 					get="isGreyOutDeadCivs" set="setGreyOutDeadCivs" dirtyBit="Score"/>
-			
+
 			<!-- Minor Civs -->
 			<option id="ShowMinor" key="Show Minor Civilizations" 
 					type="boolean" default="False" 
 					get="isShowMinorCivs" set="setShowMinorCivs" dirtyBit="Score"/>
-			
+
 			<!-- New Columns -->
 			<option id="Delta" key="Delta" 
 					type="boolean" default="False" 
@@ -37,7 +37,7 @@
 			<option id="DeltaIncludeCurrent" key="Delta Includes Current Turn" 
 					type="boolean" default="False" 
 					get="isScoreDeltaIncludeCurrentTurn" set="setScoreDeltaIncludeCurrentTurn" dirtyBit="Score"/>
-			
+
 			<list   id="DisplayName" key="Display Name" 
 					type="int" default="0" listType="string" 
 					get="getDisplayName" set="setDisplayName" dirtyBit="Score">
@@ -50,7 +50,7 @@
 			<option id="UsePlayerName" key="Use Player Name" 
 					type="boolean" default="True" 
 					get="isUsePlayerName" set="setUsePlayerName" dirtyBit="Score"/>
-			
+
 			<option id="Attitude" key="Attitude Icons" 
 					type="boolean" default="False" 
 					get="isShowAttitude" set="setShowAttitude" dirtyBit="Score"/>
@@ -66,7 +66,7 @@
 			<option id="Cities" key="Number of Cities" 
 					type="boolean" default="False" 
 					get="isShowCountCities" set="setShowCountCities" dirtyBit="Score"/>
-			
+
 			<!-- Advanced Layout -->
 			<option id="AlignIcons" key="Align Icons" 
 					type="boolean" default="True" 
@@ -150,7 +150,7 @@
 				<choice id="4"/> <choice id="5"/> <choice id="6"/> <choice id="7"/>
 				<choice id="8"/> <choice id="9"/> <choice id="10"/>
 			</list>
-			
+
 			<!-- Power Ratio -->
 			<!-- advc.085: default was False -->
 			<option id="Power" key="Power" 
@@ -190,7 +190,7 @@
 					get="getLowPowerColor" set="setLowPowerColor" dirtyBit="Score"/>
 		</section>
 	</options>
-	
+
 	<init module="Scoreboard" function="init"/>
 	<event type="DealCanceled" module="Scoreboard" function="onDealCanceled"/>
 </mod>

@@ -1,0 +1,75 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4395
+# Commit: e5b22895b05dc8317dcdb132fe4b5a798b171a77
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1a3aea9ad01407dd290aa470b46202fe83e1bb3d
+# Title: Fix minor(?) K-Mod bugs in AI movement of GP
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d9505e49c..9521cfc6f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5063,6 +5063,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 	// 3) Attempt to carry out missions, starting with the highest value.
+ 
+ 	CvPlot* pBestPlot = NULL;
++	CvCity const* pBestCity = NULL; // advc.001 (from SAS)
+ 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+ 	BuildingTypes eBestBuilding = NO_BUILDING;
+ 	int iBestValue = 1;
+@@ -5093,6 +5094,9 @@ void CvUnitAI::AI_greatPersonMove()
+ 				{
+ 					iBestValue = iValue;
+ 					pBestPlot = &getPathEndTurnPlot();
++					// <advc.001> (from SAS)
++					pBestCity = pLoopCity;
++					iBestPathTurns = iPathTurns; // </advc.001>
+ 					eBestSpecialist = eLoopSpecialist;
+ 					eBestBuilding = NO_BUILDING;
+ 				}
+@@ -5114,6 +5118,9 @@ void CvUnitAI::AI_greatPersonMove()
+ 				{
+ 					iBestValue = iValue;
+ 					pBestPlot = &getPathEndTurnPlot();
++					// <advc.001> (from SAS)
++					pBestCity = pLoopCity;
++					iBestPathTurns = iPathTurns; // </advc.001>
+ 					eBestBuilding = eBuilding;
+ 					eBestSpecialist = NO_SPECIALIST;
+ 				}
+@@ -5158,6 +5165,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 				{
+ 					iBestValue = iValue;
+ 					pBestPlot = &getPathEndTurnPlot();
++					pBestCity = pLoopCity; // advc.001 (from SAS)
+ 					iBestPathTurns = iPathTurns;
+ 					eBestBuilding = eBuilding;
+ 					eBestSpecialist = NO_SPECIALIST;
+@@ -5413,7 +5421,9 @@ void CvUnitAI::AI_greatPersonMove()
+ 			}
+ 			if (eBestBuilding != NO_BUILDING)
+ 			{
+-				MissionAITypes eMissionAI = canConstruct(pBestPlot, eBestBuilding) ? MISSIONAI_CONSTRUCT : MISSIONAI_HURRY;
++				MissionAITypes eMissionAI = canConstruct(
++						pBestCity->plot(), // advc.001: was pBestPlot
++						eBestBuilding) ? MISSIONAI_CONSTRUCT : MISSIONAI_HURRY;
+ 				if (gUnitLogLevel > 2) logBBAI("    %S %s 'build' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == eMissionAI?"continues" :"chooses", GC.getInfo(eBestBuilding).getDescription(), getName(0).GetCString(), iSlowValue, iChoice);
+ 				if (at(*pBestPlot))
+ 				{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2179

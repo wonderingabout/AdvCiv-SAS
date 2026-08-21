@@ -1,0 +1,2153 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5887
+# Commit: b4f9056de49f2664001b325000c03f5b3f56cbad
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c8975926bbdf4e42a147a30d7605dd34e4302d30
+# Title: vertical whitespace cleanup to py files only using a regexp - with a `(\r?\n)(?:[ \t]*\r?\n){2,}` find to `$1$1` regexp on VS Code with the help of GPT-5.5-T...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	Assets/Python/BUG/AttitudeUtil.py
+0	1	Assets/Python/BUG/BugCore.py
+0	7	Assets/Python/BUG/BugEventManager.py
+0	13	Assets/Python/BUG/BugOptions.py
+0	2	Assets/Python/BUG/BugOptionsTab.py
+0	1	Assets/Python/BUG/BugPath.py
+0	3	Assets/Python/BUG/RawYields.py
+0	6	Assets/Python/BUG/Scoreboard.py
+0	1	Assets/Python/BUG/Tabs/BugPleOptionsTab.py
+0	1	Assets/Python/BUG/WidgetUtil.py
+0	1	Assets/Python/BUG/configobj.py
+0	6	Assets/Python/Contrib/AStarTools.py
+0	6	Assets/Python/Contrib/CvStrategyOverlay.py
+0	1	Assets/Python/Contrib/MonkeyTools.py
+0	3	Assets/Python/Contrib/RandomNameUtils.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+0	1	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+0	1	Assets/Python/Contrib/Tester.py
+0	2	Assets/Python/Contrib/UnitUpgradesGraph.py
+0	2	Assets/Python/CvCameraControls.py
+0	1	Assets/Python/CvDiplomacy.py
+0	1	Assets/Python/CvEventManager.py
+0	2	Assets/Python/CvMapGeneratorUtil.py
+0	22	Assets/Python/EntryPoints/CvRandomEventInterface.py
+0	1	Assets/Python/Screens/CvBUGMilitaryAdvisor.py
+0	2	Assets/Python/Screens/CvDanQuayle.py
+0	3	Assets/Python/Screens/CvDawnOfMan.py
+0	4	Assets/Python/Screens/CvForeignAdvisor.py
+0	1	Assets/Python/Screens/CvHallOfFameScreen.py
+0	1	Assets/Python/Screens/CvMainInterface.py
+0	1	Assets/Python/Screens/CvMilitaryAdvisor.py
+0	9	Assets/Python/Screens/CvOptionsScreen.py
+0	1	Assets/Python/Screens/CvPediaPromotion.py
+0	2	Assets/Python/Screens/CvPolicyAdvisorScreen.py
+0	16	Assets/Python/Screens/IconGrid_BUG.py
+0	4	Assets/Python/Screens/PLE.py
+0	1	Assets/Python/pyHelper/Popup.py
+0	13	LLM_Helpers/collapse_multiline_calls.py
+0	19	LLM_Helpers/collapse_multiline_calls2.py
+0	12	LLM_Helpers/fix_matrix_indent.py
+0	22	LLM_Helpers/wrap_python2_prints_for_linting.py
+0	9	PrivateMaps/BTG_Cross.py
+0	17	PrivateMaps/BTG_Grid.py
+0	18	PrivateMaps/BTG_Lagoon.py
+0	1	PrivateMaps/Custom_Continents.py
+0	2	PrivateMaps/Lakes.py
+0	1	PrivateMaps/Tilted_Axis.py
+0	3	PrivateMaps/Water.py
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/AttitudeUtil.py b/Assets/Python/BUG/AttitudeUtil.py
+index d59d570f2..07ca7cf08 100644
+--- a/Assets/Python/BUG/AttitudeUtil.py
++++ b/Assets/Python/BUG/AttitudeUtil.py
+@@ -337,7 +337,6 @@ class Attitude:
+ 			return szText
+ 		return ""
+ 
+-
+ ## Worst Enemy
+ ##
+ ## Each non-human team has a worst enemy team.
+
+diff --git a/Assets/Python/BUG/BugCore.py b/Assets/Python/BUG/BugCore.py
+index be4d39aae..5db1e715d 100644
+--- a/Assets/Python/BUG/BugCore.py
++++ b/Assets/Python/BUG/BugCore.py
+@@ -135,7 +135,6 @@ class Mod(object):
+ 					return lambda *ignored: False
+ 		raise AttributeError(id)
+ 
+-
+ 	def _createParameterizedAccessorPair(self, id, getter=None, setter=None, values=None):
+ 		id = BugOptions.qualify(self._id, id)
+ 		if getter:
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index c09acc1eb..fe01531f3 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -325,7 +325,6 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 		# a string which will be converted to such.
+ 		# If any keystrokes have existing handlers, new ones are ignored and a warning is displayed.
+ 
+-
+ 		if isinstance(keys, InputUtil.Keystroke):
+ 			keys = (keys,)
+ 		elif isinstance(keys, types.StringTypes):
+@@ -337,7 +336,6 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 				BugUtil.debug("BugEventManager - setting shortcut handler for %s", key)
+ 				self.shortcuts[key] = handler
+ 
+-
+ 	def fireEvent(self, eventType, *args):
+ 		# Fires the given event passing in all args as a list.
+ 		self._dispatchEvent(eventType, args)
+@@ -412,7 +410,6 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 		BugInit.init()
+ 		self._handleDefaultEvent(eventType, argsList)
+ 
+-
+ 	def resetActiveTurn(self, argsList=None):
+ 		self.iActiveTurn = -1
+ 		self.eActivePlayer = -1
+@@ -456,7 +453,6 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 			self.bEndTurnFired = True
+ 			self.fireEvent("endTurnReady", self.iActiveTurn)
+ 
+-
+ # Used Event Handlers
+ 
+ 	def onGameUpdate(self, argsList):
+@@ -531,7 +527,6 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 				# </advc.007b>
+ 		return 0
+ 
+-
+ # Sample Event Handlers
+ 
+ 	def onPreGameStart(self, argsList):
+@@ -558,7 +553,6 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 		# Called when the user changes their graphics resolution.
+ 		iResolution = argsList[0]
+ 
+-
+ 	def onUnitUpgraded(self, argsList):
+ 		# Called when a unit is upgraded.
+ 		pOldUnit, pNewUnit, iPrice = argsList
+@@ -591,7 +585,6 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 		pAttacker, pDefender, iDamage = argsList
+ 		BugUtil.debug("%s flanks %s for %d HP", pAttacker.getName(), pDefender.getName(), iDamage)
+ 
+-
+ 	def onPlayerRevolution(self, argsList):
+ 		ePlayer, iAnarchyTurns, leOldCivics, leNewCivics = argsList
+ 		civics = []
+
+diff --git a/Assets/Python/BUG/BugOptions.py b/Assets/Python/BUG/BugOptions.py
+index f48ee59f3..69682f9e6 100644
+--- a/Assets/Python/BUG/BugOptions.py
++++ b/Assets/Python/BUG/BugOptions.py
+@@ -164,7 +164,6 @@ class Options(object):
+ 			for file in self.files.itervalues():
+ 				file.write()
+ 
+-
+ 	def findOption(self, id):
+ 		# Returns the Option with the given ID or returns None of not found.
+ 		if (id in self.options):
+@@ -197,7 +196,6 @@ class Options(object):
+ 		for option in self.options.itervalues():
+ 			option.resetValue()
+ 
+-
+ 	def createFileGetter(self, file):
+ 		# Creates a getter for the given IniFile.
+ 		def get():
+@@ -232,7 +230,6 @@ def read():
+ def write():
+ 	g_options.write()
+ 
+-
+ class IniFile(object):
+ 	# Controls reading/writing an INI file and getting/setting Option values.
+ 
+@@ -323,7 +320,6 @@ class IniFile(object):
+ 		else:
+ 			BugUtil.warn("BugOptions - INI file '%s' was never read", self.name)
+ 
+-
+ 	def exists(self, section, key=None):
+ 		return self.config and section in self.config and (key is None or key in self.config[section])
+ 
+@@ -481,7 +477,6 @@ class AbstractOption(object):
+ 	def getDefaultResetterName(self):
+ 		return "reset" + self.getTrimmedID()
+ 
+-
+ #	def getType(self):
+ #		return NONE_TYPE
+ 
+@@ -506,7 +501,6 @@ class AbstractOption(object):
+ 	def __str__(self):
+ 		return "<%s %s [%s]>" % (self.id, self.getType(), str(self.getDefault()))
+ 
+-
+ 	def createAccessorPair(self, getter=None, setter=None):
+ 		# Creates a pair of plain accessors (getter and setter) for this Option.
+ 		#
+@@ -606,7 +600,6 @@ class AbstractOption(object):
+ 	def bindAccessor(self, name, function):
+ 		setattr(self.mod, name, function)
+ 
+-
+ 	def hasValue(self, *args):
+ 		return self.getRawValue() is not None
+ 
+@@ -730,14 +723,12 @@ class BaseOption(AbstractOption):
+ 		if dirty:
+ 			self.addDirty(dirty)
+ 
+-
+ 	def getType(self):
+ 		return self.type
+ 
+ 	def getDefault(self):
+ 		return self.default
+ 
+-
+ 	def getTitle(self):
+ 		if (not self.translated):
+ 			self.translate()
+@@ -787,7 +778,6 @@ class BaseOption(AbstractOption):
+ 		"Marks this option so that it will be translated again the next time it is accessed"
+ 		self.translated = False
+ 
+-
+ 	def onChanged(self, *args):
+ 		if not BugInit.g_initRunning:
+ 			self.doDirties(*args)
+@@ -901,7 +891,6 @@ class BaseListOption(BaseOption):
+ 	def __str__(self):
+ 		return "<%s %s [%s] list (%d %ss)>" % (self.id, self.type, str(self.default), len(self.values), self.listType)
+ 
+-
+ 	def getValues(self):
+ 		return self.values
+ 
+@@ -955,7 +944,6 @@ class BaseListOption(BaseOption):
+ 				# Munge values based on type or create different comparator functions
+ 				self.createComparer(name, values)
+ 
+-
+ 	def getFormat(self):
+ 		return self.format
+ 
+@@ -997,7 +985,6 @@ class BaseListOption(BaseOption):
+ 				self.displayValues = self.values
+ 		super(BaseListOption, self).translate()
+ 
+-
+ 	def isValid(self, value):
+ 		return value in self.values
+
+diff --git a/Assets/Python/BUG/BugOptionsTab.py b/Assets/Python/BUG/BugOptionsTab.py
+index 2315ea61b..f9456483f 100644
+--- a/Assets/Python/BUG/BugOptionsTab.py
++++ b/Assets/Python/BUG/BugOptionsTab.py
+@@ -355,7 +355,6 @@ class BugOptionsTab:
+ 		else:
+ 			self.addMissingOption(screen, controlPanel, name)
+ 
+-
+ 	def addCheckboxDropdown (self, screen, checkPanel, dropPanel, checkName, dropName, layout, elements, index, callback, spacer=False):
+ 		"Adds a dropdown with a checkbox for a label."
+ 		checkOption = self.getOption(checkName)
+@@ -431,7 +430,6 @@ class BugOptionsTab:
+ 			if (dropOption is None):
+ 				self.addMissingOption(screen, dropPanel, dropName)
+ 
+-
+ 	def addSlider (self, screen, labelPanel, controlPanel, name, spacer=False, vertical=False, expanding=True, fill=None, min=0, max=100):
+ 		option = self.getOption(name)
+ 		if (option is not None):
+
+diff --git a/Assets/Python/BUG/BugPath.py b/Assets/Python/BUG/BugPath.py
+index 5c300dfe2..4c5e51153 100644
+--- a/Assets/Python/BUG/BugPath.py
++++ b/Assets/Python/BUG/BugPath.py
+@@ -343,7 +343,6 @@ def initModName():
+ 		BugUtil.error("CvModName.py module has no modName setting")
+ 	_modNameInitDone = True
+ 
+-
+ ## Mod Directory
+ 
+ _isMod = False
+
+diff --git a/Assets/Python/BUG/RawYields.py b/Assets/Python/BUG/RawYields.py
+index c43a4f57e..9db169bfc 100644
+--- a/Assets/Python/BUG/RawYields.py
++++ b/Assets/Python/BUG/RawYields.py
+@@ -73,7 +73,6 @@ class Tracker:
+ 				self.values[eYield][eType] = 0
+ 		self.tileCounts = [0, 0, 0, 0]
+ 
+-
+ 	def getYield(self, eYield, eType):
+ 		return self.values[eYield][eType]
+ 
+@@ -82,7 +81,6 @@ class Tracker:
+ 		#
+ 		self.values[eYield][eType] += iValue
+ 
+-
+ 	def addBuilding(self, eYield, iValue):
+ 		self._addYield(eYield, BUILDINGS, iValue)
+ 
+@@ -160,7 +158,6 @@ class Tracker:
+ 			if len(self.sModifierDetail) > (iCharLimit + 1):
+ 				self.sModifierDetail = (self.sModifierDetail[:iCharLimit] + '.')
+ 
+-
+ 	def fillTable(self, screen, table, eYield, eTileType):
+ 		# Fills the given GFC table control with the chosen yield values.
+ 		#
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index b0eaa5422..636fc9ce2 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -193,7 +193,6 @@ class Scoreboard:
+ 	def size(self):
+ 		return len(self._playerScores)
+ 
+-
+ 	def setAlive(self):
+ 		self._set(ALIVE)
+ 
+@@ -287,7 +286,6 @@ class Scoreboard:
+ 	def setWorstEnemy(self):
+ 		self._set(WORST_ENEMY)
+ 
+-
+ 	def setWaiting(self):
+ 		self._set(WAITING)
+ 
+@@ -332,7 +330,6 @@ class Scoreboard:
+ 		self._anyHas[part] = True
+ 		self._currPlayerScore.set(part, value, widget)
+ 
+-
+ 	def assignRanks(self):
+ 		# Assigns a rank from 1 to N based on score.
+ 		# As the player scores are currently reversed, this is done in reverse order.
+@@ -389,7 +386,6 @@ class Scoreboard:
+ 					sName = "ScoreText%d-%d" %(iPlayer, iPart)
+ 					screen.show(sName)
+ 
+-
+ 	# Both cut from CvMainInterface.updateScoreStrings
+ 	@staticmethod
+ 	def isShowTeamScore(iTeam):
+@@ -417,8 +413,6 @@ class Scoreboard:
+ 		return ((ScoreOpt.isShowDeadCivs() and p.isEverAlive()) or p.isAlive())
+ 	# </advc.085>
+ 
+-
+-
+ 	def draw(self, screen, iScrollOffset=0, iMaxRows=None, bForceExpanded=False):
+ 		# Sorts and draws the scoreboard right-to-left, bottom-to-top.
+ 		#
+
+diff --git a/Assets/Python/BUG/Tabs/BugPleOptionsTab.py b/Assets/Python/BUG/Tabs/BugPleOptionsTab.py
+index 7534057e2..9af9c2e6b 100644
+--- a/Assets/Python/BUG/Tabs/BugPleOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugPleOptionsTab.py
+@@ -46,7 +46,6 @@ class BugPleOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addColorDropdown(screen, leftL, leftR, "PLE__Wounded_Color", True)
+ 		self.addCheckbox(screen, left, "PLE__Hide_Health_Fighting")
+ 
+-
+ 		#self.addSpacer(screen, left, "PLE_Tab") # advc.069: Not needed
+ 		#self.addSpacer(screen, left, "PLE__Spacing")
+ 		#self.addTextEdit(screen, left, left, "PLE__Horizontal_Spacing")
+
+diff --git a/Assets/Python/BUG/WidgetUtil.py b/Assets/Python/BUG/WidgetUtil.py
+index 581b78de1..65bb8deb8 100644
+--- a/Assets/Python/BUG/WidgetUtil.py
++++ b/Assets/Python/BUG/WidgetUtil.py
+@@ -104,7 +104,6 @@ def _setWidgetHelp(widget, type, func):
+ 		BugUtil.debug("WidgetUtil - registering %s hover help for WidgetTypes %d: %s", type, widget, func)
+ 		g_widgetHelp[widget] = func
+ 
+-
+ def getWidgetHelp(argsList):
+ 	# Returns the hover help text for <eWidgetType> if registered, otherwise returns an empty string.
+ 	#
+
+diff --git a/Assets/Python/BUG/configobj.py b/Assets/Python/BUG/configobj.py
+index 66ea2bf9b..b57ec69df 100644
+--- a/Assets/Python/BUG/configobj.py
++++ b/Assets/Python/BUG/configobj.py
+@@ -846,7 +846,6 @@ class Section(dict):
+         """
+         return float(self[key])
+ 
+-
+ class ConfigObj(Section):
+     """
+     An object to read, create, and write config files.
+
+diff --git a/Assets/Python/Contrib/AStarTools.py b/Assets/Python/Contrib/AStarTools.py
+index ef5107fb7..b8eb63a2b 100644
+--- a/Assets/Python/Contrib/AStarTools.py
++++ b/Assets/Python/Contrib/AStarTools.py
+@@ -335,7 +335,6 @@ class AStar:
+ 		self.iMovesLeft			= pUnit.movesLeft()
+ 		self.bIgnoreMovesLeft	= false
+ 
+-
+ 		# calculates some values for the heuristic
+ 		self.calculateHeuristicFactors()
+ 
+@@ -359,7 +358,6 @@ class AStar:
+ 
+ 		return iReturn
+ 
+-
+ #####################################################################
+ # Class : AStarMoveArea
+ #####################################################################
+@@ -531,8 +529,6 @@ class AStarMoveArea:
+ 		CyEngine().clearColoredPlots(self.PLE_HIGHLIGHT_PLOTS)
+ 		return 1
+ 
+-
+-
+ #####################################################################
+ # Class : AStarPlot
+ #####################################################################
+@@ -581,7 +577,6 @@ class AStarPlot:
+ 		else:
+ 			return false
+ 
+-
+ #####################################################################
+ # Class : AStarList
+ #####################################################################
+@@ -630,7 +625,6 @@ class AStarList:
+ 	def getPlotData(self, pAPlot):
+ 		return self.dList[pAPlot.getXY()]
+ 
+-
+ 	# adds the complete plot to the list
+ 	# pThisPlot, pParentPlot : CyPlot
+ 	# iGCosts, fHCosts : int, float
+
+diff --git a/Assets/Python/Contrib/CvStrategyOverlay.py b/Assets/Python/Contrib/CvStrategyOverlay.py
+index 96d0880bf..3f7d2d22a 100644
+--- a/Assets/Python/Contrib/CvStrategyOverlay.py
++++ b/Assets/Python/Contrib/CvStrategyOverlay.py
+@@ -388,7 +388,6 @@ class DotMapLayer(StrategyLayer):
+ 	def onSwitchHotSeatPlayer(self, ePlayer):
+ 		self.hide()
+ 
+-
+ 	def hasCities(self, ePlayer):
+ 		return ePlayer in self.cities
+ 
+@@ -416,7 +415,6 @@ class DotMapLayer(StrategyLayer):
+ 			for city in self.getCities(ePlayer).itervalues():
+ 				yield city
+ 
+-
+ 	def addCityAt(self, point, color, layer):
+ 		# Sends a message to add a city for the active player at the given point.
+ 		#
+@@ -445,7 +443,6 @@ class DotMapLayer(StrategyLayer):
+ 		if ePlayer == PlayerUtil.getActivePlayerID():
+ 			self.drawCity(city, self.CROSS_ALPHA, self.DOT_ALPHA)
+ 
+-
+ 	def removeCityAt(self, point):
+ 		# Sends a message to remove the active player's city at the given point.
+ 		#
+@@ -475,7 +472,6 @@ class DotMapLayer(StrategyLayer):
+ 		else:
+ 			BugUtil.warn("City doesn't exist")
+ 
+-
+ 	def highlightCity(self, point, color):
+ 		# Highlights the given city location by drawing it using the given color on the highlight layer.
+ 		# Unhighlights the currently highlighted city if there is one.
+@@ -514,7 +510,6 @@ class DotMapLayer(StrategyLayer):
+ 				self.drawCity(city, self.CROSS_ALPHA, self.DOT_ALPHA)
+ 			self.highlightedCity = None
+ 
+-
+ 	def redrawCities(self):
+ 		# Erases all city layers and draws all of the cities.
+ 		#
+@@ -622,7 +617,6 @@ class DotMapLayer(StrategyLayer):
+ 	def percentToAlpha(self, percent):
+ 		return min(100, max(0, percent)) / 100.0
+ 
+-
+ 	def readOptions(self):
+ 		self.CROSS_ALPHA = self.percentToAlpha(StratLayerOpt.getDotMapBrightness())
+ 		self.DOT_ALPHA = self.percentToAlpha(StratLayerOpt.getDotMapBrightness())
+
+diff --git a/Assets/Python/Contrib/MonkeyTools.py b/Assets/Python/Contrib/MonkeyTools.py
+index 3396e05f4..e126f594e 100644
+--- a/Assets/Python/Contrib/MonkeyTools.py
++++ b/Assets/Python/Contrib/MonkeyTools.py
+@@ -363,7 +363,6 @@ def getPlotHealFactor(pUnit):
+ 	FRIENDLY_HEAL_RATE			= 15
+ 	CITY_HEAL_RATE				= 20
+ 
+-
+ 	# set/reset some variables
+ 	pPlot = pUnit.plot()
+ 	iSameTileHealFactor 		= 0
+
+diff --git a/Assets/Python/Contrib/RandomNameUtils.py b/Assets/Python/Contrib/RandomNameUtils.py
+index c9fcd2252..7a5468c56 100644
+--- a/Assets/Python/Contrib/RandomNameUtils.py
++++ b/Assets/Python/Contrib/RandomNameUtils.py
+@@ -203,7 +203,6 @@ def getRandomCivilizationName(iCivilizationType):
+ 		middleName = generateCivilizationName(iCivilizationType)
+ 		unitName = firstName + " " + middleName + " " + lastName
+ 
+-
+ 	return unitName
+ 
+ def generateCivilizationName(iCivilizationType):
+@@ -236,7 +235,6 @@ def generateCivilizationName(iCivilizationType):
+ 
+ 	return strName
+ 
+-
+ # Returns a random unique name not found in the global mercenary pool
+ def getRandomName():
+ 
+@@ -252,6 +250,5 @@ def getRandomName():
+ 		middleName = middleNameList[random.get(len(middleNameList), "Random Name")]
+ 		unitName = firstName + " " + middleName + " " + lastName
+ 
+-
+ 	return unitName
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index c13d11847..00201b807 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -198,7 +198,6 @@ class SevoPediaBonus:
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_BONUS_TOTAL_BASE_AND_EXTRA_IMPROVEMENTS_YIELD_CHANGES", ()), "", True, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+-
+ 		# Create a row container for horizontal layout
+ 		rowPanelName = self.top.getNextWidgetName()
+ 		screen.attachPanel(panelName, rowPanelName, "", "", False, False, PanelStyles.PANEL_STYLE_EMPTY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 5452136cf..c72fb8ff3 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -2074,7 +2074,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def isShortcutInfo(self, info):
+ 		return info.getType().find("SHORTCUTS") != -1
+ 
+-
+ 	def placeItems(self, widget, info):
+ 		screen = self.getScreen()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index 255b1401f..5af9fd1fe 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -2060,7 +2060,6 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 
+ 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_CIVILIZATIONS", ()), civItems)
+ 
+-
+ 	# Sound scripts (2D) - keep grouping/labels identical to the original SevoPediaMain implementation.
+ 	# <!-- custom: use TXT_KEYs for section groupings (GPT-5.2-Codex) -->
+ 	_SCRIPT_2D_OPENING = "TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_SCRIPTS_OPENING_2D"
+
+diff --git a/Assets/Python/Contrib/Tester.py b/Assets/Python/Contrib/Tester.py
+index b94af97d6..153d2ba1a 100644
+--- a/Assets/Python/Contrib/Tester.py
++++ b/Assets/Python/Contrib/Tester.py
+@@ -33,7 +33,6 @@ class Tester :
+ 
+ 		self.customEM.removeEventHandler( "kbdEvent", self.onKbdEvent )
+ 
+-
+ 	def blankHandler( self, playerID, netUserData, popupReturn ) :
+ 		# Dummy handler to take the second event for popup
+ 		return
+
+diff --git a/Assets/Python/Contrib/UnitUpgradesGraph.py b/Assets/Python/Contrib/UnitUpgradesGraph.py
+index 6f0253b99..99d2a4efb 100644
+--- a/Assets/Python/Contrib/UnitUpgradesGraph.py
++++ b/Assets/Python/Contrib/UnitUpgradesGraph.py
+@@ -290,7 +290,6 @@ class UnitUpgradesGraph:
+ 					if (not mGraph.graph.has_key(u)):
+ 						node.upgradesFrom.remove(u)
+ 
+-
+ 			nextDummy = -1
+ 			#For any upgrade path that crosses more than one level, insert dummy nodes in between
+ 			for (unitA, nodeA) in mGraph.graph.items():
+@@ -317,7 +316,6 @@ class UnitUpgradesGraph:
+ 						nodeA.upgradesTo.add(unitB)
+ 						nodeB.upgradesFrom.add(nextDummy + 1)
+ 
+-
+ 			#Now we can build the matrix from the order data
+ 			#make sure the matrix is <depth> deep
+ 			while(len(mGraph.matrix) < mGraph.depth):
+
+diff --git a/Assets/Python/CvCameraControls.py b/Assets/Python/CvCameraControls.py
+index 24e9c508e..57cd2b9fc 100644
+--- a/Assets/Python/CvCameraControls.py
++++ b/Assets/Python/CvCameraControls.py
+@@ -361,8 +361,6 @@ class CvCameraControls:
+ #	def updateLookAt(self, fDeltaTime):
+ #		if not bCyCamera().GetCurrentPosition() == CyCamera().GetDestinationPosition():
+ 
+-
+-
+ ######################
+ # Update / Input Handlers
+ ######################
+
+diff --git a/Assets/Python/CvDiplomacy.py b/Assets/Python/CvDiplomacy.py
+index 5c0ea2538..259db9642 100644
+--- a/Assets/Python/CvDiplomacy.py
++++ b/Assets/Python/CvDiplomacy.py
+@@ -852,7 +852,6 @@ class CvDiplomacy:
+ 		# <!-- custom: End - strict detector for accepted pure vassal/surrender offers with no added terms. (GPT-5.3-Codex) -->
+ 		return True
+ 
+-
+ 	def getCommentID(self, strComment):
+ 		# int - ID for DiploCommentType
+ 		#
+
+diff --git a/Assets/Python/CvEventManager.py b/Assets/Python/CvEventManager.py
+index 952f6fa5d..8c8882086 100644
+--- a/Assets/Python/CvEventManager.py
++++ b/Assets/Python/CvEventManager.py
+@@ -940,7 +940,6 @@ class CvEventManager:
+ 
+ 		return 0
+ 
+-
+ #################### TRIGGERED EVENTS ##################	
+ 
+ 	def __eventEditCityNameBegin(self, city, bRename):
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index 2efee9dcc..11240e986 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -559,7 +559,6 @@ class HintedWorld(FractalWorld):
+ 					return False
+ 		return True
+ 
+-
+ 	def findValid(self, x, y, dist=-1):
+ 		if (dist == -1):
+ 			dist = max(self.w, self.h)
+@@ -1523,7 +1522,6 @@ class BonusBalancer:
+ 
+ 		return ((type_string in self.resourcesToBalance) or (type_string in self.resourcesToEliminate))
+ 
+-
+ 	def isBonusValid(self, eBonus, pPlot, bIgnoreUniqueRange, bIgnoreOneArea, bIgnoreAdjacent):
+ 		# Returns true if we can place a bonus here
+ 		#
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index d4e4f88ef..191c07f9a 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -113,7 +113,6 @@ def applyBlessedSea2(argsList):
+ 					iBuilding = i
+ 					break
+ 
+-
+ 	if (iBuilding == -1):
+ 		return
+ 
+@@ -128,7 +127,6 @@ def applyBlessedSea2(argsList):
+ 
+ 		(loopCity, iter) = player.nextCity(iter, false)
+ 
+-
+ def canApplyBlessedSea2(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+@@ -142,7 +140,6 @@ def canApplyBlessedSea2(argsList):
+ 					iBuilding = i
+ 					break
+ 
+-
+ 	if (iBuilding == -1):
+ 		return false
+ 
+@@ -476,7 +473,6 @@ def canApplyBardTale3(argsList):
+ 
+ 	return true
+ 
+-
+ def getHelpBardTale3(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+@@ -513,7 +509,6 @@ def canApplyLooters3(argsList):
+ 
+ 	return (iNumBuildings > 0)
+ 
+-
+ def applyLooters3(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+@@ -624,7 +619,6 @@ def canApplyHurricane1(argsList):
+ def canApplyHurricane2(argsList):			
+ 	return (not canApplyHurricane1(argsList))
+ 
+-
+ def applyHurricane1(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+@@ -652,7 +646,6 @@ def applyHurricane1(argsList):
+ 		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_BOMBARDED", InterfaceMessageTypes.MESSAGE_TYPE_INFO, gc.getBuildingInfo(iBuilding).getButton(), getInfoTypeOrFail("COLOR_RED"), city.getX(), city.getY(), true, true)
+ 		city.setNumRealBuilding(iBuilding, 0)
+ 
+-
+ ######## CYCLONE ###########
+ 
+ def canTriggerCycloneCity(argsList):
+@@ -704,7 +697,6 @@ def canApplyTsunami1(argsList):
+ def canApplyTsunami2(argsList):			
+ 	return (not canApplyTsunami1(argsList))
+ 
+-
+ def applyTsunami1(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+@@ -734,7 +726,6 @@ def applyTsunami2(argsList):
+ 			city.setNumRealBuilding(iBuilding, 0)
+ 			listBuildings.remove(iBuilding)
+ 
+-
+ def getHelpTsunami2(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+@@ -745,7 +736,6 @@ def getHelpTsunami2(argsList):
+ 
+ 	return szHelp
+ 
+-
+ ######## MONSOON ###########
+ 
+ def canTriggerMonsoonCity(argsList):
+@@ -1036,7 +1026,6 @@ def applyGreatDepression(argsList):
+ 				popupInfo.setText(szText)
+ 				popupInfo.addPopup(iPlayer)
+ 
+-
+ def getHelpGreatDepression(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+@@ -1135,7 +1124,6 @@ def canTriggerGoldRush(argsList):
+ 	if player.getCurrentEra() != iIndustrial:
+ 		return false
+ 
+-
+ 	return true
+ 
+ ######## INFLUENZA ###########
+@@ -1188,7 +1176,6 @@ def applyInfluenza2(argsList):
+ 		szBuffer = localText.getText("TXT_KEY_EVENT_INFLUENZA_HIT_CITY", (loopCity.getNameKey(), ))
+ 		CyInterface().addMessage(kTriggeredData.ePlayer, false, gc.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_PILLAGE", InterfaceMessageTypes.MESSAGE_TYPE_INFO, None, getInfoTypeOrFail("COLOR_RED"), loopCity.getX(), loopCity.getY(), true, true)
+ 
+-
+ def getHelpInfluenza2(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+@@ -1243,7 +1230,6 @@ def applySoloFlight(argsList):
+ 			if loopTeam.isHasMet(gc.getPlayer(kTriggeredData.ePlayer).getTeam()):
+ 				loopPlayer.AI_changeAttitudeExtra(kTriggeredData.ePlayer, 1)
+ 
+-
+ ######## ANTELOPE ###########
+ 
+ def canTriggerAntelope(argsList):
+@@ -1472,7 +1458,6 @@ def applyModernOlympics(argsList):
+ 			if loopTeam.isHasMet(gc.getPlayer(kTriggeredData.ePlayer).getTeam()):
+ 				loopPlayer.AI_changeAttitudeExtra(kTriggeredData.ePlayer, 1)
+ 
+-
+ ######## INTERSTATE ###########
+ 
+ def canTriggerInterstate(argsList):
+@@ -1536,7 +1521,6 @@ def canApplyEarthDay2(argsList):
+ 						return true
+ 	return false
+ 
+-
+ def applyEarthDay2(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+@@ -1626,7 +1610,6 @@ def applyFreedomConcert2(argsList):
+ 
+ 				(loopCity, iter) = player.nextCity(iter, false)
+ 
+-
+ 			if bestCity is not None:									
+ 				bestCity.setHasReligion(iReligion, true, true, true)
+ 
+@@ -2548,7 +2531,6 @@ def applyBestDefenseDone2(argsList):
+ 			if loopTeam.isHasMet(gc.getPlayer(kTriggeredData.ePlayer).getTeam()):
+ 				loopPlayer.AI_changeAttitudeExtra(kTriggeredData.ePlayer, 3)
+ 
+-
+ def canApplyBestDefenseDone3(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+@@ -2909,7 +2891,6 @@ def canApplyPartisans1(argsList):
+ 					return true
+ 	return false
+ 
+-
+ def applyPartisans1(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+@@ -3091,7 +3072,6 @@ def getGreedUnit(player, plot):
+ 
+ 	return iBestUnit
+ 
+-
+ def getHelpGreedDone1(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+@@ -3508,7 +3488,6 @@ def canTriggerCorporateExpansionDone(argsList):
+ 	if iNumCitiesRequired > gc.getGame().countCorporationLevels(kOrigTriggeredData.eCorporation):
+ 		return false
+ 
+-
+ 	kActualTriggeredDataObject = player.getEventTriggered(kTriggeredData.iId)
+ 	kActualTriggeredDataObject.eCorporation = kOrigTriggeredData.eCorporation
+ 	kActualTriggeredDataObject.eBuilding = kOrigTriggeredData.eBuilding
+@@ -3655,7 +3634,6 @@ def applyHostileTakeoverDone1(argsList):
+ 	if city is not None and not city.isNone():
+ 		city.setBuildingCommerceChange(gc.getBuildingInfo(kTriggeredData.eBuilding).getBuildingClassType(), CommerceTypes.COMMERCE_GOLD, 20)
+ 
+-
+ ######## Great Beast ########
+ 
+ def doGreatBeast3(argsList):
+
+diff --git a/Assets/Python/Screens/CvBUGMilitaryAdvisor.py b/Assets/Python/Screens/CvBUGMilitaryAdvisor.py
+index c6bcb9e02..0d7d94343 100644
+--- a/Assets/Python/Screens/CvBUGMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvBUGMilitaryAdvisor.py
+@@ -188,7 +188,6 @@ class CvMilitaryAdvisor:
+ 
+ 		self.szMaybeButton = ArtFileMgr.getInterfaceArtInfo("QUESTION_MARK").getPath()
+ 
+-
+ 	def getScreen(self):
+ 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
+
+diff --git a/Assets/Python/Screens/CvDanQuayle.py b/Assets/Python/Screens/CvDanQuayle.py
+index a9cf374b1..2ca33f597 100644
+--- a/Assets/Python/Screens/CvDanQuayle.py
++++ b/Assets/Python/Screens/CvDanQuayle.py
+@@ -203,14 +203,12 @@ class CvDanQuayle:
+ 
+ 			screen.appendListBoxString(self.LIST_ID, sasFontTagLabel + szText + SAS_FONT_TAG_CLOSE, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-
+ 	# returns a unique ID for a widget in this screen
+ 	def getNextWidgetName(self):
+ 		szName = self.WIDGET_ID + str(self.nWidgetCount)
+ 		self.nWidgetCount += 1
+ 		return szName
+ 
+-
+ 	# Will handle the input for this screen...
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Screens/CvDawnOfMan.py b/Assets/Python/Screens/CvDawnOfMan.py
+index 6c567da33..981497e75 100644
+--- a/Assets/Python/Screens/CvDawnOfMan.py
++++ b/Assets/Python/Screens/CvDawnOfMan.py
+@@ -48,7 +48,6 @@ class CvDawnOfMan:
+ 		self.H_LEADER_ICON = self.H_HEADER_PANEL - (15 * 2)
+ 		self.W_LEADER_ICON = int(self.H_LEADER_ICON / 1.272727)#110
+ 
+-
+ 		self.X_FANCY_ICON1 = self.X_HEADER_PANEL + 170
+ 		self.X_FANCY_ICON2 = self.X_HEADER_PANEL + (self.W_MAIN_PANEL - 120) # Was 430
+ 		self.Y_FANCY_ICON = (self.Y_HEADER_PANEL + self.iMarginSpace + 6) - 6
+@@ -77,7 +76,6 @@ class CvDawnOfMan:
+ 		self.X_EXIT = (self.W_SCREEN/2) - (self.W_EXIT/2) # Was 460
+ 		self.Y_EXIT = self.Y_MAIN_PANEL + 440
+ 
+-
+ 	def interfaceScreen(self):
+ 		'Use a popup to display the opening text'
+ 		if ( CyGame().isPitbossHost() ):
+@@ -277,7 +275,6 @@ class CvDawnOfMan:
+ 		self.H_LEADER_ICON = self.H_HEADER_PANEL - (15 * 2)
+ 		self.W_LEADER_ICON = int(self.H_LEADER_ICON / 1.272727)#110
+ 
+-
+ 		self.WH_FANCY_ICON = 64
+ 		self.X_FANCY_ICON1 = self.X_LEADER_ICON + self.W_LEADER_ICON + self.iMarginSpace
+ 		self.X_FANCY_ICON2 = self.X_LEADER_ICON + (self.W_HEADER_PANEL - (self.iMarginSpace * 2) - self.WH_FANCY_ICON) # Was 430
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 3ab9c503c..2790c4058 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -870,7 +870,6 @@ class CvForeignAdvisor:
+ 			iLeaderHeight = self.H_LEADER
+ 			iLeaderWidth = self.W_LEADER
+ 
+-
+ 		screen = self.getScreen()
+ 
+ 		#screen.addPanel(self.getNextWidgetName(), "", "", False, False, 0, 50, self.W_SCREEN, 667, PanelStyles.PANEL_STYLE_MAIN_WHITE)
+@@ -1074,7 +1073,6 @@ class CvForeignAdvisor:
+ 							szName = self.getNextLineName()
+ 							screen.addLineGFC(self.BACKGROUND_ID, szName, int(fXSelected), int(fYSelected), int(self.X_LEADER_CIRCLE_TOP), int(fLeaderTop + iLeaderHeight/2), self.COLOR_WHITE )
+ 
+-
+ 	def getNextWidgetName(self):
+ 		szName = self.WIDGET_ID + str(self.nWidgetCount * NUM_FOREIGN_SCREENS + self.iScreen)
+ 		self.nWidgetCount += 1
+@@ -1097,7 +1095,6 @@ class CvForeignAdvisor:
+ 			screen.removeLineGFC(self.BACKGROUND_ID, self.getNextLineName())
+ 		self.nLineCount = 0	
+ 
+-
+ 	def deleteAllWidgets(self):
+ 		screen = self.getScreen()
+ 		i = self.nWidgetCount - 1
+@@ -2053,7 +2050,6 @@ class CvForeignAdvisor:
+ 				currentRow += 1
+ 		self.resIconGrid.refresh()
+ 
+-
+ 	def scrollTradeTableUp(self):
+ 		if (self.iScreen == self.SCREEN_DICT["BONUS"]):
+ 			self.resIconGrid.scrollUp()
+
+diff --git a/Assets/Python/Screens/CvHallOfFameScreen.py b/Assets/Python/Screens/CvHallOfFameScreen.py
+index 61f848d43..afdf58946 100644
+--- a/Assets/Python/Screens/CvHallOfFameScreen.py
++++ b/Assets/Python/Screens/CvHallOfFameScreen.py
+@@ -82,7 +82,6 @@ class CvHallOfFameScreen:
+ 
+ 		self.bAllowReplay = False
+ 
+-
+ 	def getScreen(self):
+ 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 52eb4d9bd..171c70d55 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -3709,7 +3709,6 @@ class CvMainInterface:
+ 				break
+ # BUG - Bars on single line for higher resolution screens - end
+ 
+-
+ # BUG - city specialist - start
+ 	def updateCitizenButtons_hide(self):
+ 		screen = self.screen
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 558f99c29..5c54ee7c5 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -1984,7 +1984,6 @@ class CvMilitaryAdvisor:
+ 			screen.setBarPercentage(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_STORED, float(iExperience) / float(iGreatPeopleThreshold))
+ 			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", sasFontTagLabel + self.TEXT_COMBAT_EXPERIENCE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
+ 
+-
+ 	# returns a unique ID for a widget in this screen
+ 	def getNextWidgetName(self):
+ 		szName = self.WIDGET_ID + str(self.nWidgetCount)
+
+diff --git a/Assets/Python/Screens/CvOptionsScreen.py b/Assets/Python/Screens/CvOptionsScreen.py
+index 3263a1e1e..f92e6aff7 100644
+--- a/Assets/Python/Screens/CvOptionsScreen.py
++++ b/Assets/Python/Screens/CvOptionsScreen.py
+@@ -268,7 +268,6 @@ class CvOptionsScreen:
+ 		self.drawAudioOptionsTab()
+ 		self.drawOtherTab()
+ 
+-
+ 	def drawGameOptionsTab(self):
+ 
+ 		tab = self.pTabControl
+@@ -428,7 +427,6 @@ class CvOptionsScreen:
+ 		tab.setLayoutFlag("GraphicsPanelHBox", "LAYOUT_SIZE_HPREFERREDEXPANDING")
+ 		tab.setLayoutFlag("GraphicsPanelHBox", "LAYOUT_SIZE_VPREFERREDEXPANDING")
+ 
+-
+ 		####### RESOLUTION
+ 
+ 		tab.attachVBox("GraphicsPanelHBox", "ResVBox")
+@@ -445,7 +443,6 @@ class CvOptionsScreen:
+ 		tab.setLayoutFlag(hbox, "LAYOUT_SIZE_HEXPANDING")
+ 		tab.setLayoutFlag(hbox, "LAYOUT_SIZE_VEXPANDING")
+ 
+-
+ 		vbox = "ResPanelVBox"
+ 		tab.attachVBox(hbox, vbox)
+ 		tab.setLayoutFlag(vbox, "LAYOUT_SIZE_HEXPANDING")
+@@ -711,7 +708,6 @@ class CvOptionsScreen:
+ 		tab.setLayoutFlag("AudioPanelHBox", "LAYOUT_SIZE_HEXPANDING")
+ 		tab.setLayoutFlag("AudioPanelHBox", "LAYOUT_SIZE_VEXPANDING")
+ 
+-
+ 		######################### Create the 6 volume slider/checkboxes #########################
+ 
+ 		tab.attachVBox("AudioPanelVBox", "VolumeVBox")
+@@ -800,7 +796,6 @@ class CvOptionsScreen:
+ 			tab.attachCheckBox(vbox, szWidgetName, szOptionDesc, self.callbackIFace, szCallbackFunction, szWidgetName, bNoSoundTrue)
+ 			tab.setLayoutFlag(szWidgetName, "LAYOUT_HCENTER")
+ 
+-
+ 		tab.attachHSeparator("VolumePanelVBox", "SoundSeparator")
+ 
+ 		tab.attachHBox("VolumePanelVBox", "SoundPanelHBox")
+@@ -970,7 +965,6 @@ class CvOptionsScreen:
+ 		# advc.076: Moved into subroutine
+ 		self.attachExitButton(tab)
+ 
+-
+ 	def drawOtherTab(self):
+ 
+ 		tab = self.pTabControl
+@@ -985,7 +979,6 @@ class CvOptionsScreen:
+ 		tab.setLayoutFlag("OtherPanelHBox", "LAYOUT_SPACING_INNERFORM")
+ 		tab.setLayoutFlag("OtherPanelHBox", "LAYOUT_SIZE_HEXPANDING")
+ 
+-
+ 		########### CLOCK
+ 
+ 		tab.attachVBox("OtherPanelHBox", "ClockVBox")
+@@ -1038,7 +1031,6 @@ class CvOptionsScreen:
+ 		bAlarmOn = isAlarmOn()
+ 		tab.attachCheckBox("ClockPanelVBox", szWidgetName, szOptionDesc, self.callbackIFace, szCallbackFunction, szWidgetName, bAlarmOn)
+ 
+-
+ 		########### PROFILE
+ 
+ 		UserProfile.loadProfileFileNames()
+@@ -1104,7 +1096,6 @@ class CvOptionsScreen:
+ 		szWidgetName = "DeleteProfileButton"
+ 		tab.attachButton("ProfilePanelVBox", szWidgetName, szOptionDesc, self.callbackIFace, szCallbackFunction, szWidgetName)
+ 
+-
+ 		########## NETWORKING		
+ 		# advc.076: Remove the entire network panel
+ 		#tab.attachVBox("OtherPanelHBox", "NetVBox")
+
+diff --git a/Assets/Python/Screens/CvPediaPromotion.py b/Assets/Python/Screens/CvPediaPromotion.py
+index 1d0ca5dd6..6ce1c93bc 100644
+--- a/Assets/Python/Screens/CvPediaPromotion.py
++++ b/Assets/Python/Screens/CvPediaPromotion.py
+@@ -97,7 +97,6 @@ class CvPediaPromotion:
+ 
+ 		self.placeUnitGroups()
+ 
+-
+ 	# Place Leads To...
+ 	def placeLeadsTo(self):
+
+diff --git a/Assets/Python/Screens/CvPolicyAdvisorScreen.py b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+index b5901bc5e..c9a6b9006 100644
+--- a/Assets/Python/Screens/CvPolicyAdvisorScreen.py
++++ b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+@@ -613,7 +613,6 @@ class CvPolicyAdvisorScreen:
+ 
+ 		return 0
+ 
+-
+ 	def drawHelpText(self, iCivicOption):
+ 
+ 		activePlayer = gc.getPlayer(self.iActivePlayer)
+@@ -644,7 +643,6 @@ class CvPolicyAdvisorScreen:
+ 		szHelpAreaID = self.HELP_AREA_NAME + str(iCivicOption)		
+ 		screen.addMultilineText(szHelpAreaID, sasFontTagLabel + szHelpText + SAS_FONT_TAG_CLOSE, fX+5, fY, self.HEADINGS_WIDTH-7, self.HELP_BOTTOM - fY-2, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-
+ 	# Will draw the help text
+ 	def drawAllHelpText(self):
+ 		for i in range (gc.getNumCivicOptionInfos()):
+
+diff --git a/Assets/Python/Screens/IconGrid_BUG.py b/Assets/Python/Screens/IconGrid_BUG.py
+index 589080ca0..5cd5fdb30 100644
+--- a/Assets/Python/Screens/IconGrid_BUG.py
++++ b/Assets/Python/Screens/IconGrid_BUG.py
+@@ -72,8 +72,6 @@ class CellData:
+ 	def addStackedBar(self, fValue, sColor, sText, iFont):
+ 		self.stackedbar.append(StackedBarData(fValue, sColor, sText, iFont))
+ 
+-
+-
+ class RowData:
+ 
+ 	def __init__(self, sRowHeader, sMessage, iFont, iNumColumns):
+@@ -183,33 +181,26 @@ class IconGrid_BUG:
+ 			int(InputTypes.KB_END): self.scrollBottom,
+ 		}
+ 
+-
+ 	def setGroupBorder(self, iVal):
+ 		self.groupBorder = iVal
+ 
+-
+ 	def setGroupLabelOffset(self, sVal):
+ 		self.groupLabelOffset = sVal
+ 
+-
+ 	def setMinColumnSpace(self, iVal):
+ 		self.minColSpace = iVal
+ 
+-
+ 	def	setMinRowSpace(self, iVal):
+ 		self.minRowSpace = iVal
+ 
+-
+ 	def setSize(self, iWidth, iHeight):
+ 		self.width = iWidth
+ 		self.height = iHeight
+ 
+-
+ 	def setPosition(self, iX, iY):
+ 		self.xStart = iX
+ 		self.yStart = iY
+ 
+-
+ 	def getPrefferedWidth(self):
+ 		self.calculateLayout()
+ 
+@@ -232,8 +223,6 @@ class IconGrid_BUG:
+ 			prefferedWidth += self.rowBorderWidth * 2
+ 		return prefferedWidth
+ 
+-
+-
+ 	def getPrefferedHeight(self):
+ 		self.calculateLayout()
+ 		initHeight = self.totalRowHeight * self.numRows + self.minRowSpace * (self.numRows - 1)
+@@ -246,12 +235,10 @@ class IconGrid_BUG:
+ 		else:
+ 			return initHeight + self.headerHeight
+ 
+-
+ 	def setHeader(self, iCol, sLabel, iFont=3):
+ 		self.header[iCol] = sLabel
+ 		self.headerFont[iCol] = iFont
+ 
+-
+ 	def setTextColWidth(self, iCol, iWidth):
+ 		self.textColWidth[iCol] = iWidth
+ 
+@@ -261,7 +248,6 @@ class IconGrid_BUG:
+ 	def createColumnGroup(self, sLabel, iLength):
+ 		self.columnGroups.append(ColumnGroup(sLabel, iLength))
+ 
+-
+ 	def createGrid(self):
+ 		self.calculateLayout()
+ 		self.addControls()
+@@ -291,7 +277,6 @@ class IconGrid_BUG:
+ 		self.scrollPosition = 0
+ 		self.data = []
+ 
+-
+ 	def scrollUp(self):
+ 		self.scrollPosition = self.scrollPosition - 1
+ 		self.refresh()
+@@ -335,7 +320,6 @@ class IconGrid_BUG:
+ 
+ 		return 0
+ 
+-
+ 	def refresh(self):
+ 		# check if scrollPosition is valid and show/hide scroll buttons
+ 		if (self.scrollPosition <= 0):
+
+diff --git a/Assets/Python/Screens/PLE.py b/Assets/Python/Screens/PLE.py
+index 29262eadb..a05b19815 100644
+--- a/Assets/Python/Screens/PLE.py
++++ b/Assets/Python/Screens/PLE.py
+@@ -547,7 +547,6 @@ class PLE:
+ 		else:
+ 			return self.handleHoverPLEFilter(inputClass, "DOM", self.nPLEFilterModeDom)
+ 
+-
+ 	# PLE Ownership Filters
+ 	def onClickPLEFilterOwn(self, inputClass):
+ 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED ):
+@@ -1249,7 +1248,6 @@ class PLE:
+ 						self.lPLEUnitListTempNOK.remove(pLoopUnitNOK)
+ 						self.lPLEUnitListTempOK.append(pLoopUnitNOK)
+ 
+-
+ 	# function saves all units not matching actual filter criteria in a temp list by domain
+ 	def saveFilteredUnitsByDomain(self, pCompareUnit):
+ 		self.lPLEUnitListTempOK = []
+@@ -1701,7 +1699,6 @@ class PLE:
+ 		iPromo		= self.dUnitPromoList[idUnit][idPromo-1]
+ 		pUnit.promote(iPromo, -1)
+ 
+-
+ 	# displays all the possible upgrade buttons for a unit 
+ 	def displayUnitUpgrades(self, screen, pUnit, nRow, nCol):
+ 		lUpgrades 	= []
+@@ -2181,7 +2178,6 @@ class PLE:
+ 		if PleOpt.isShowMoveHighlighter():
+ 			self.ASMA.dehighlightMoveArea()
+ 
+-
+ 	################## set / get PLE values ##################
+ 	def setPLEUnitList(self, bValue):
+ 		self.bUpdatePLEUnitList = bValue
+
+diff --git a/Assets/Python/pyHelper/Popup.py b/Assets/Python/pyHelper/Popup.py
+index 2382c687b..10fd631b2 100644
+--- a/Assets/Python/pyHelper/Popup.py
++++ b/Assets/Python/pyHelper/Popup.py
+@@ -226,7 +226,6 @@ class PyPopup:
+ 		"completes a Table and Adds it to the popup - iX,iY are for the Tables Location"
+ 		self.popup.completeTableAndAttach( iGroup )
+ 
+-
+ ############ G R O U P      T A B L E S #########################		
+ 
+ 	def addTitleData(self, TitleList, SizeYTitle = 34):
+
+diff --git a/LLM_Helpers/collapse_multiline_calls.py b/LLM_Helpers/collapse_multiline_calls.py
+index b2290ced2..4b273b009 100644
+--- a/LLM_Helpers/collapse_multiline_calls.py
++++ b/LLM_Helpers/collapse_multiline_calls.py
+@@ -43,7 +43,6 @@ CALL_PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\.]*$")
+ ASSIGN_CALL_PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\.]*\s*=\s*[A-Za-z_][A-Za-z0-9_\.]*$")
+ RETURN_CALL_PREFIX_RE = re.compile(r"^return\s+[A-Za-z_][A-Za-z0-9_\.]*$")
+ 
+-
+ def decode_bytes(raw):
+     if raw.startswith(b"\xef\xbb\xbf"):
+         return "utf-8-sig", raw.decode("utf-8-sig")
+@@ -52,19 +51,15 @@ def decode_bytes(raw):
+     except UnicodeDecodeError:
+         return "latin-1", raw.decode("latin-1")
+ 
+-
+ def line_ending_from_bytes(raw):
+     return "\r\n" if b"\r\n" in raw else "\n"
+ 
+-
+ def leading_indent(s):
+     return s[:len(s) - len(s.lstrip(" \t"))]
+ 
+-
+ def strip_line_ending(s):
+     return s.rstrip("\r\n")
+ 
+-
+ def join_parts(parts):
+     body = ""
+     for part in parts:
+@@ -81,7 +76,6 @@ def join_parts(parts):
+             body += " " + right
+     return body
+ 
+-
+ def significant_tokens_from_text(text):
+     # Tokenize does not require Python 3 parsing. It is usually enough for
+     # Python 2.4-era code where ast.parse/py_compile would fail on old syntax.
+@@ -98,7 +92,6 @@ def significant_tokens_from_text(text):
+         result.append((tok.type, tok.string))
+     return result
+ 
+-
+ def first_opener(text):
+     in_str = None
+     triple = None
+@@ -133,7 +126,6 @@ def first_opener(text):
+         i += 1
+     return None, -1
+ 
+-
+ def looks_like_call_statement(joined_body):
+     stripped = joined_body.strip()
+     if not stripped:
+@@ -157,7 +149,6 @@ def looks_like_call_statement(joined_body):
+ 
+     return False
+ 
+-
+ def should_skip_group(lines, start, end, toks, joined_body, max_line_len):
+     if end <= start:
+         return "single_line"
+@@ -177,7 +168,6 @@ def should_skip_group(lines, start, end, toks, joined_body, max_line_len):
+         return "too_long"
+     return None
+ 
+-
+ def collect_logical_groups(text):
+     groups = []
+     cur = []
+@@ -194,7 +184,6 @@ def collect_logical_groups(text):
+             cur = []
+     return groups
+ 
+-
+ def transform_text(text, newline, max_line_len):
+     lines = text.splitlines(True)
+     groups = collect_logical_groups(text)
+@@ -244,7 +233,6 @@ def transform_text(text, newline, max_line_len):
+ 
+     return "".join(out), changed, removed_lines, skipped
+ 
+-
+ def main(argv):
+     parser = argparse.ArgumentParser(description="Collapse multiline call-like Python statements.")
+     parser.add_argument("path", help="Python source file to process")
+@@ -290,6 +278,5 @@ def main(argv):
+         print("dry_run_only=true")
+     return 0
+ 
+-
+ if __name__ == "__main__":
+     raise SystemExit(main(sys.argv[1:]))
+
+diff --git a/LLM_Helpers/collapse_multiline_calls2.py b/LLM_Helpers/collapse_multiline_calls2.py
+index 90434ba93..8d4fce2e7 100644
+--- a/LLM_Helpers/collapse_multiline_calls2.py
++++ b/LLM_Helpers/collapse_multiline_calls2.py
+@@ -53,7 +53,6 @@ ASSIGN_CALL_PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_\.]*\s*=\s*[A-Za-z_][A
+ RETURN_CALL_PREFIX_RE = re.compile(r"^return\s+[A-Za-z_][A-Za-z0-9_\.]*$")
+ DEF_HEADER_PREFIX_RE = re.compile(r"^def\s+[A-Za-z_][A-Za-z0-9_]*$")
+ 
+-
+ def decode_bytes(raw):
+     if raw.startswith(b"\xef\xbb\xbf"):
+         return "utf-8-sig", raw.decode("utf-8-sig")
+@@ -62,25 +61,20 @@ def decode_bytes(raw):
+     except UnicodeDecodeError:
+         return "latin-1", raw.decode("latin-1")
+ 
+-
+ def line_ending_from_bytes(raw):
+     return "\r\n" if b"\r\n" in raw else "\n"
+ 
+-
+ def leading_indent(s):
+     return s[:len(s) - len(s.lstrip(" \t"))]
+ 
+-
+ def strip_line_ending(s):
+     return s.rstrip("\r\n")
+ 
+-
+ def parse_name_set(value):
+     if not value:
+         return set()
+     return set(part.strip() for part in value.split(",") if part.strip())
+ 
+-
+ def join_parts(parts):
+     body = ""
+     for part in parts:
+@@ -97,7 +91,6 @@ def join_parts(parts):
+             body += " " + right
+     return body
+ 
+-
+ def significant_tokens_from_text(text):
+     # Tokenize does not require Python 3 parsing. It is usually enough for
+     # Python 2.4-era code where ast.parse/py_compile would fail on old syntax.
+@@ -114,7 +107,6 @@ def significant_tokens_from_text(text):
+         result.append((tok.type, tok.string))
+     return result
+ 
+-
+ def first_opener(text):
+     in_str = None
+     triple = None
+@@ -149,7 +141,6 @@ def first_opener(text):
+         i += 1
+     return None, -1
+ 
+-
+ def prefix_call_name(prefix):
+     # For assignment-call prefixes such as "x = Foo", use "Foo".
+     if "=" in prefix:
+@@ -158,14 +149,12 @@ def prefix_call_name(prefix):
+         prefix = prefix[len("return "):].strip()
+     return prefix
+ 
+-
+ def call_name_matches(call_name, allowed_names):
+     if not call_name or not allowed_names:
+         return False
+     final_part = call_name.rsplit(".", 1)[-1]
+     return call_name in allowed_names or final_part in allowed_names
+ 
+-
+ def is_def_header_statement(stripped):
+     opener, idx = first_opener(stripped)
+     if opener != "(" or idx < 1:
+@@ -173,7 +162,6 @@ def is_def_header_statement(stripped):
+     prefix = stripped[:idx].strip()
+     return DEF_HEADER_PREFIX_RE.match(prefix) is not None and stripped.rstrip().endswith(":")
+ 
+-
+ def starts_with_container_argument(stripped):
+     opener, idx = first_opener(stripped)
+     if opener != "(" or idx < 1:
+@@ -183,7 +171,6 @@ def starts_with_container_argument(stripped):
+         i += 1
+     return i < len(stripped) and stripped[i] in "[{"
+ 
+-
+ def classify_statement(joined_body, long_call_names):
+     stripped = joined_body.strip()
+     if not stripped:
+@@ -219,7 +206,6 @@ def classify_statement(joined_body, long_call_names):
+ 
+     return None
+ 
+-
+ def max_len_for_kind(kind, max_line_len, def_header_max_line_len, long_call_max_line_len):
+     if kind == "def_header":
+         return def_header_max_line_len
+@@ -227,7 +213,6 @@ def max_len_for_kind(kind, max_line_len, def_header_max_line_len, long_call_max_
+         return long_call_max_line_len
+     return max_line_len
+ 
+-
+ def should_skip_group(lines, start, end, toks, joined_body, max_line_len, def_header_max_line_len, long_call_names, long_call_max_line_len):
+     if end <= start:
+         return "single_line"
+@@ -258,7 +243,6 @@ def should_skip_group(lines, start, end, toks, joined_body, max_line_len, def_he
+ 
+     return None
+ 
+-
+ def collect_logical_groups(text):
+     groups = []
+     cur = []
+@@ -275,7 +259,6 @@ def collect_logical_groups(text):
+             cur = []
+     return groups
+ 
+-
+ def transform_text(text, newline, max_line_len, def_header_max_line_len, long_call_names, long_call_max_line_len):
+     lines = text.splitlines(True)
+     groups = collect_logical_groups(text)
+@@ -326,7 +309,6 @@ def transform_text(text, newline, max_line_len, def_header_max_line_len, long_ca
+ 
+     return "".join(out), changed, removed_lines, skipped
+ 
+-
+ def main(argv):
+     parser = argparse.ArgumentParser(description="Targeted second-pass multiline collapse helper.")
+     parser.add_argument("path", help="Python source file to process")
+@@ -384,6 +366,5 @@ def main(argv):
+         print("dry_run_only=true")
+     return 0
+ 
+-
+ if __name__ == "__main__":
+     raise SystemExit(main(sys.argv[1:]))
+
+diff --git a/LLM_Helpers/fix_matrix_indent.py b/LLM_Helpers/fix_matrix_indent.py
+index 73b706c7f..89237f96e 100644
+--- a/LLM_Helpers/fix_matrix_indent.py
++++ b/LLM_Helpers/fix_matrix_indent.py
+@@ -37,7 +37,6 @@ OPENERS = "([{"
+ CLOSERS = ")]}"
+ MATCH_OPEN = {")": "(", "]": "[", "}": "{"}
+ 
+-
+ def decode_bytes(raw):
+     if raw.startswith(b"\xef\xbb\xbf"):
+         return "utf-8-sig", raw.decode("utf-8-sig")
+@@ -46,15 +45,12 @@ def decode_bytes(raw):
+     except UnicodeDecodeError:
+         return "latin-1", raw.decode("latin-1")
+ 
+-
+ def leading_indent(line):
+     return line[:len(line) - len(line.lstrip(" \t"))]
+ 
+-
+ def has_mixed_indent(prefix):
+     return " " in prefix and "\t" in prefix
+ 
+-
+ def expanded_width(prefix, tabsize):
+     col = 0
+     for ch in prefix:
+@@ -64,7 +60,6 @@ def expanded_width(prefix, tabsize):
+             col += 1
+     return col
+ 
+-
+ def strip_trailing_ws_keep_eol(line):
+     eol = ""
+     body = line
+@@ -76,7 +71,6 @@ def strip_trailing_ws_keep_eol(line):
+         eol = "\n"
+     return body.rstrip(" \t") + eol
+ 
+-
+ def significant_tokens_from_text(text):
+     result = []
+     reader = io.BytesIO(text.encode("utf-8", errors="surrogatepass")).readline
+@@ -91,7 +85,6 @@ def significant_tokens_from_text(text):
+         result.append((tok.type, tok.string))
+     return result
+ 
+-
+ def find_assignment_opener(stripped):
+     lhs = []
+     i = 0
+@@ -116,7 +109,6 @@ def find_assignment_opener(stripped):
+         return i
+     return -1
+ 
+-
+ def update_bracket_state(segment, stack, state):
+     quote = state.get("quote")
+     triple = state.get("triple")
+@@ -168,7 +160,6 @@ def update_bracket_state(segment, stack, state):
+     state["quote"] = quote
+     state["triple"] = triple
+ 
+-
+ def find_matrix_assignment_blocks(lines):
+     blocks = []
+     i = 0
+@@ -201,7 +192,6 @@ def find_matrix_assignment_blocks(lines):
+ 
+     return blocks
+ 
+-
+ def transform_text(text, tabsize):
+     lines = text.splitlines(True)
+     blocks = find_matrix_assignment_blocks(lines)
+@@ -229,7 +219,6 @@ def transform_text(text, tabsize):
+ 
+     return "".join(out), changed_blocks, changed_lines, blocks
+ 
+-
+ def main(argv):
+     parser = argparse.ArgumentParser(description="Normalize mixed indent inside multiline matrix/data assignments.")
+     parser.add_argument("path", help="Python source file to process")
+@@ -285,6 +274,5 @@ def main(argv):
+         print("dry_run_only=true")
+     return 0
+ 
+-
+ if __name__ == "__main__":
+     raise SystemExit(main(sys.argv[1:]))
+
+diff --git a/LLM_Helpers/wrap_python2_prints_for_linting.py b/LLM_Helpers/wrap_python2_prints_for_linting.py
+index 723be1c31..3658e022e 100644
+--- a/LLM_Helpers/wrap_python2_prints_for_linting.py
++++ b/LLM_Helpers/wrap_python2_prints_for_linting.py
+@@ -57,7 +57,6 @@ from pathlib import Path
+ import sys
+ import tokenize
+ 
+-
+ TEXT_ENCODINGS = ("utf-8-sig", "utf-8", "cp1252", "latin-1")
+ DEFAULT_INCLUDES = ("*.py",)
+ SANDBOX_SAMPLE_PATHS = (
+@@ -69,7 +68,6 @@ SANDBOX_SAMPLE_PATHS = (
+     "/mnt/data/Planet_Generator_0_68.py",
+ )
+ 
+-
+ class FileResult(object):
+     def __init__(self, path, encoding, original, rewritten, changed_lines, skipped_reasons):
+         self.path = path
+@@ -87,7 +85,6 @@ class FileResult(object):
+     def skipped_lines(self):
+         return sum(self.skipped_reasons.values())
+ 
+-
+ def decode_bytes(data):
+     for encoding in TEXT_ENCODINGS:
+         try:
+@@ -99,7 +96,6 @@ def decode_bytes(data):
+         return text, encoding
+     return data.decode("latin-1"), "latin-1"
+ 
+-
+ def split_line_ending(line):
+     if line.endswith("\r\n"):
+         return line[:-2], "\r\n"
+@@ -109,7 +105,6 @@ def split_line_ending(line):
+         return line[:-1], "\r"
+     return line, ""
+ 
+-
+ def leading_print_statement(body):
+     stripped = body.lstrip(" \t")
+     indent = body[:len(body) - len(stripped)]
+@@ -125,7 +120,6 @@ def leading_print_statement(body):
+ 
+     return indent, after
+ 
+-
+ def find_comment_column(body):
+     try:
+         tokens = tokenize.generate_tokens(io.StringIO(body + "\n").readline)
+@@ -136,7 +130,6 @@ def find_comment_column(body):
+         return None
+     return None
+ 
+-
+ def expression_skip_reason(expr):
+     if not expr:
+         return None
+@@ -184,7 +177,6 @@ def expression_skip_reason(expr):
+ 
+     return None
+ 
+-
+ def rewrite_line(line):
+     body, eol = split_line_ending(line)
+     parsed = leading_print_statement(body)
+@@ -223,7 +215,6 @@ def rewrite_line(line):
+ 
+     return new_code + eol, True, None
+ 
+-
+ def rewrite_text(text):
+     rewritten_lines = []
+     changed_lines = 0
+@@ -240,14 +231,12 @@ def rewrite_text(text):
+     rewritten = "".join(rewritten_lines)
+     return rewritten, changed_lines, skipped_reasons
+ 
+-
+ def process_file(path):
+     data = path.read_bytes()
+     original, encoding = decode_bytes(data)
+     rewritten, changed_lines, skipped_reasons = rewrite_text(original)
+     return FileResult(path, encoding, original, rewritten, changed_lines, skipped_reasons)
+ 
+-
+ def unified_diff(result):
+     old_lines = result.original.splitlines(True)
+     new_lines = result.rewritten.splitlines(True)
+@@ -258,11 +247,9 @@ def unified_diff(result):
+         tofile=str(result.path) + " (wrapped prints)",
+     ))
+ 
+-
+ def write_text_preserving_encoding(path, text, encoding):
+     path.write_bytes(text.encode(encoding))
+ 
+-
+ def write_result(result, output, in_place):
+     if output is not None and in_place:
+         raise ValueError("--output and --in-place cannot be used together")
+@@ -271,7 +258,6 @@ def write_result(result, output, in_place):
+         return
+     write_text_preserving_encoding(target, result.rewritten, result.encoding)
+ 
+-
+ def result_summary_lines(results):
+     total_changed = sum(result.changed_lines for result in results)
+     total_skipped = sum(result.skipped_lines for result in results)
+@@ -294,12 +280,10 @@ def result_summary_lines(results):
+                     lines.append("  skipped %-24s %d" % (reason + ":", result.skipped_reasons[reason]))
+     return lines
+ 
+-
+ def print_summary(results):
+     for line in result_summary_lines(results):
+         print(line)
+ 
+-
+ def normalize_include_patterns(patterns):
+     if not patterns:
+         return list(DEFAULT_INCLUDES)
+@@ -311,7 +295,6 @@ def normalize_include_patterns(patterns):
+                 normalized.append(part)
+     return normalized or list(DEFAULT_INCLUDES)
+ 
+-
+ def iter_directory_files(directory, include_patterns, recursive):
+     seen = set()
+     for pattern in include_patterns:
+@@ -323,7 +306,6 @@ def iter_directory_files(directory, include_patterns, recursive):
+                     seen.add(resolved)
+                     yield path
+ 
+-
+ def expand_input_paths(raw_paths, include_patterns, recursive, sandbox_samples):
+     paths = []
+ 
+@@ -350,7 +332,6 @@ def expand_input_paths(raw_paths, include_patterns, recursive, sandbox_samples):
+             unique.append(path)
+     return unique
+ 
+-
+ def validate_paths(paths):
+     missing = [path for path in paths if not path.exists()]
+     directories = [path for path in paths if path.exists() and path.is_dir()]
+@@ -361,7 +342,6 @@ def validate_paths(paths):
+         errors.append("directory was not expanded: %s" % path)
+     return errors
+ 
+-
+ def parse_args(argv):
+     parser = argparse.ArgumentParser(description="Conservatively wrap easy Python 2 print statements as print(...) for Python 3 linters.")
+     parser.add_argument("paths", nargs="*", help="Python source files or directories to scan/rewrite.")
+@@ -375,7 +355,6 @@ def parse_args(argv):
+     parser.add_argument("--check", action="store_true", help="Exit with status 1 if any file would change.")
+     return parser.parse_args(argv)
+ 
+-
+ def main(argv):
+     args = parse_args(argv)
+     include_patterns = normalize_include_patterns(args.include)
+@@ -423,6 +402,5 @@ def main(argv):
+         return 1
+     return 0
+ 
+-
+ if __name__ == "__main__":
+     raise SystemExit(main(sys.argv[1:]))
+
+diff --git a/PrivateMaps/BTG_Cross.py b/PrivateMaps/BTG_Cross.py
+index 3bf06142f..b940bed86 100644
+--- a/PrivateMaps/BTG_Cross.py
++++ b/PrivateMaps/BTG_Cross.py
+@@ -283,7 +283,6 @@ def beforeGeneration():
+ 	else:
+ 		iNumSpectators = 0		
+ 
+-
+ 	# Number of regions
+ 	iRegionsBase = 5
+ 	if (CyMap().getCustomMapOption(3) == 0):
+@@ -307,7 +306,6 @@ def beforeGeneration():
+ 	# Keep legacy cross-region templates to preserve original map identity.
+ 	iNumRegions = iRegionsBase
+ 
+-
+ 	# Some regions may go unused. We need to track the ones that have been used.
+ 	regions_in_use = []
+ 	remaining_regions = []
+@@ -455,7 +453,6 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+                                            False
+                                            )
+ 
+-
+ 		#2.21z - the 'Open part'
+ 		if (CyMap().getCustomMapOption(1) == 0):
+ 
+@@ -589,7 +586,6 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 				regions_in_use.append(thisRegion)
+ 				#del remaining_regions[region_roll]
+ 
+-
+ 				# Region dimensions
+ 				[fWestLon, fEastLon, fSouthLat, fNorthLat] = region_coords[thisRegion]
+ 				iWestX = int(self.iW * fWestLon)
+@@ -670,7 +666,6 @@ def addFeatures():
+ 			# If a peak is along the coast, change to hills and recalc.
+ 			pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
+ 
+-
+ 	# Now add the features.
+ 	featuregen = FeatureGenerator()
+ 
+@@ -697,7 +692,6 @@ def addFeatures():
+ 			pPlot.setFeatureType(-1, -1)# -1 is nothing
+ 	#2.10 end
+ 
+-
+ 	return 0
+ 
+ def minStartingDistanceModifier():
+@@ -1234,7 +1228,6 @@ def normalizeAddExtras():
+ 							if (p.getBonusType(-1) == BonusTypes.NO_BONUS):
+ 								plotsboundaries.append(p)					
+ 
+-
+ 			if (CyMap().getCustomMapOption(4) == 1):
+ 				if not has_oil:
+ 
+@@ -1354,7 +1347,6 @@ def normalizeAddExtras():
+ 		'''p = map.plot(map.getGridWidth()/2+2,map.getGridHeight()/2-1)
+ 		p.setBonusType(gems)'''
+ 
+-
+ 	#2.15
+ 	iW = map.getGridWidth()
+ 	iH = map.getGridHeight()		
+@@ -1472,7 +1464,6 @@ def mirrorizeMap():
+                                 rPlot = map.plot(iWestX + dX, iSouthY + dY)
+         			pPlot.setFeatureType(rPlot.getFeatureType(), -1)
+ 
+-
+ 	map.recalculateAreas()
+ 
+ 	# mirrorize bonuses
+
+diff --git a/PrivateMaps/BTG_Grid.py b/PrivateMaps/BTG_Grid.py
+index 622cdeda8..3b7f9a09f 100644
+--- a/PrivateMaps/BTG_Grid.py
++++ b/PrivateMaps/BTG_Grid.py
+@@ -333,7 +333,6 @@ def beforeGeneration():
+ 	except:
+ 		isBTPon = False
+ 
+-
+ 	gc = CyGlobalContext()
+ 	map = CyMap()
+ 	dice = gc.getGame().getMapRand()
+@@ -661,7 +660,6 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+                                            False
+                                            )
+ 
+-
+ 		#2.21z - the 'Open part'
+ 		if (CyMap().getCustomMapOption(1) == 0):
+ 
+@@ -772,7 +770,6 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 						iWorldD = wholeworldYD*self.iW + wholeworldXD
+ 						self.wholeworldPlotTypes[iWorld] = self.wholeworldPlotTypes[iWorldD]
+ 
+-
+ 		# Generate spokes
+ 		map = CyMap()
+ 		spoke_width = map.getCustomMapOption(2)
+@@ -813,7 +810,6 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 					if spoke_width > 4:#2.21z
+ 						self.addLandPlot(i - 2)				
+ 
+-
+ 		return self.wholeworldPlotTypes
+ 
+ '''
+@@ -1224,7 +1220,6 @@ def assignStartingPlots():
+ 				else:
+ 					continue
+ 
+-
+ 			[wX, eX, sY, nY] = region_data[reg][0:4]
+ 			# Only consider the inner part of the region
+ 			iWidth = eX - wX + 1
+@@ -1389,7 +1384,6 @@ def normalizeAddExtras():
+ 							if (p.getBonusType(-1) == BonusTypes.NO_BONUS):
+ 								plotsboundaries.append(p)						
+ 
+-
+ 			if (CyMap().getCustomMapOption(4) == 1):
+ 				if not has_precious:
+ 
+@@ -1406,14 +1400,10 @@ def normalizeAddExtras():
+ 						p.setFeatureType(-1,-1)#2.34 -- Because Sometimes Oil is on floodplain
+ 						p.setBonusType(silver)		
+ 
+-
+-
+-
+ 	#2020 04 - After player's all stuff
+ 	iW = map.getGridWidth()
+ 	iH = map.getGridHeight()
+ 
+-
+ 	if (CyMap().getCustomMapOption(8) >= 1):
+ 		for iX in range(iW):
+ 			for iY in range(iH):
+@@ -1424,17 +1414,13 @@ def normalizeAddExtras():
+ 				#if pPlot.getTerrainType() == desert and pPlot.getBonusType(-1) == BonusTypes.NO_BONUS and pPlot.getFeatureType(-1) == FeatureTypes.NO_FEATURE:
+ 					pPlot.setTerrainType(grass, True, True)
+ 
+-
+ 	# BTG Resources option removed: keep default behavior (no BTG extra-resource injections).
+ 
+-
+ 	if (CyMap().getCustomMapOption(1) == 3):
+ 		mirrorizeMap() #2020 06 - BTP 2.15 - Restart feature
+ 
+ 	# BTG Resources option removed: no sulphur-on-capital mode.
+ 
+-
+-
+ 	CyMap().recalculateAreas()#2.21zz Mirror looks weird				
+ 
+ 	return None
+@@ -1552,7 +1538,6 @@ def mirrorizeMap():
+                                 rPlot = map.plot(iWestX + dX, iSouthY + dY)
+         			pPlot.setFeatureType(rPlot.getFeatureType(), -1)
+ 
+-
+ 	map.recalculateAreas()
+ 
+ 	# mirrorize bonuses
+@@ -1582,7 +1567,6 @@ def startHumansOnSameTile():
+ 	if (CyMap().getCustomMapOption(9) == 1):
+ 		return True
+ 
+-
+ def normalizeStartingPlotLocations():#2.21z
+ 
+ 	gc = CyGlobalContext()	
+@@ -1622,7 +1606,6 @@ def BTPTopBottomTwoTeams(isBTG):
+ 		#############################
+ 		#Spectator bit - not amazing if spectator is middle team
+ 
+-
+ 		listTeams = []
+ 		#2.23 Improve for spectators
+ 		for iI in range(gc.getMAX_CIV_TEAMS()):
+
+diff --git a/PrivateMaps/BTG_Lagoon.py b/PrivateMaps/BTG_Lagoon.py
+index f7537a710..c50ce55fb 100644
+--- a/PrivateMaps/BTG_Lagoon.py
++++ b/PrivateMaps/BTG_Lagoon.py
+@@ -156,7 +156,6 @@ def normalizeAddExtras():
+ 	if (CyMap().getCustomMapOption(1) >= 1):
+ 		balancer.normalizeAddExtras()
+ 
+-
+ 	#BTG
+ 	# Moving from 4 to 8 because there are lots of tundras etc.
+ 	BTPForceResourceLand(100,True,getInfoTypeOrFail("BONUS_OIL"),10,False,getInfoTypeOrFail("TERRAIN_DESERT"))
+@@ -181,7 +180,6 @@ def doUUCenter():
+ 	# <!-- custom: AdvCiv-SAS has no BONUS_SALT/BONUS_TEA/BONUS_OLIVES; use supported luxuries instead. (GPT-5.3-Codex) -->
+ 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_SPICES"),getInfoTypeOrFail("TERRAIN_PLAINS"))
+ 
+-
+ 	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_MARBLE"),getInfoTypeOrFail("TERRAIN_PLAINS"))
+ 	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_STONE"),getInfoTypeOrFail("TERRAIN_PLAINS"))
+ 
+@@ -191,7 +189,6 @@ def doUUCenter():
+ 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_GEMSTONES"),getInfoTypeOrFail("TERRAIN_PLAINS"))			
+ 	BTPresourceFromCenter(1,5+iExtraTile,getInfoTypeOrFail("BONUS_GOLD"),getInfoTypeOrFail("TERRAIN_PLAINS"))	
+ 
+-
+ 	#2.23 Elephants every two players rather than 3
+ 	BTPresourceFromCenter(2,6+iExtraTile,getInfoTypeOrFail("BONUS_ELEPHANTS"),getInfoTypeOrFail("TERRAIN_PLAINS"))		
+ 
+@@ -266,7 +263,6 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
+ 		iCenterX = int(self.iNumPlotsX / 2)
+ 		iCenterY = int(self.iNumPlotsY / 2)
+ 
+-
+ 		#Default Value work well with Grid Size 10, 10, which is the value of large map, which is 4
+ 		iShiftBias = 4
+ 		iShift = iShiftBias - (int(CyMap().getWorldSize()))
+@@ -316,7 +312,6 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
+ 					else:
+ 						self.plotTypes[i] = PlotTypes.PLOT_LAND
+ 
+-
+ 		for x in range(self.iNumPlotsX):
+ 			for y in range(self.iNumPlotsY):
+ 				i = y*self.iNumPlotsX + x	
+@@ -353,7 +348,6 @@ class DonutFractalWorld(CvMapGeneratorUtil.FractalWorld):
+ 							if (iProba < 95):
+ 								self.plotTypes[i] = PlotTypes.PLOT_HILLS					
+ 
+-
+ 		if shift_plot_types:
+ 			self.shiftPlotTypes()
+ 
+@@ -451,7 +445,6 @@ def addRivers():#Lagoon 2.26 -- Adding this because it's direct after Generate p
+ 				else:
+ 					p.setTerrainType(getInfoTypeOrFail("TERRAIN_DESERT"), True, True)	
+ 
+-
+ 	#Need to finish by doing normal rivers
+ 	CyPythonMgr().allowDefaultImpl()				
+ 
+@@ -475,7 +468,6 @@ def addFeatures():
+ 	featuregen.addFeatures()
+ 	return 0
+ 
+-
+ def beforeGeneration():
+ 	#copy /inspired by inland			
+ 	"Set up global variables for start point templates"
+@@ -628,11 +620,8 @@ def beforeGeneration():
+ 		shuffledPlayers.append(player_list[iChoosePlayer])
+ 		del player_list[iChoosePlayer]
+ 
+-
+-
+ 	return None		
+ 
+-
+ def findStartingPlot(argsList):
+ 	# Set up for maximum of 18 players! If more, use default implementation.
+ 	iPlayers = CyGlobalContext().getGame().countCivPlayersEverAlive()
+@@ -700,7 +689,6 @@ def startHumansOnSameTile():
+ def BTGSong():
+ 	return 0
+ 
+-
+ def BTPTopBottomTwoTeams(isBTG):							
+ 	gc = CyGlobalContext()	
+ 
+@@ -731,7 +719,6 @@ def BTPTopBottomTwoTeams(isBTG):
+ 		#############################
+ 		#Spectator bit - not amazing if spectator is middle team
+ 
+-
+ 		listTeams = []
+ 		#2.23 Improve for spectators
+ 		for iI in range(gc.getMAX_CIV_TEAMS()):	
+@@ -787,7 +774,6 @@ def BTPTopBottomTwoTeams(isBTG):
+ 					gc.getPlayer(iI).setStartingPlot(spotB,True)
+ 					gc.getPlayer(iRoll).setStartingPlot(spotA,True)				
+ 
+-
+ def BTPForceResourceLand(iProbaTreshold,bMainLandOnly,iResourceType,iDistance,bMakeHill,iForceTerrain):
+ 
+ 	gc = CyGlobalContext()
+@@ -886,14 +872,12 @@ def BTPForceResourceLand(iProbaTreshold,bMainLandOnly,iResourceType,iDistance,bM
+ 								has_resource = True
+ 								break				
+ 
+-
+ def BTPForceEnrichFood(iProbaTreshold,bMainLandOnly,iResourceType,iMaxDistance,iMinDistance,bMakeHill,iForceTerrain):		
+ 
+ 	gc = CyGlobalContext()
+ 	map = CyMap()
+ 	random.seed(gc.getGame().getMapRand().get(30000, "Shuffle Plots - PYTHON"))
+ 
+-
+ 	for i in range(gc.getMAX_CIV_PLAYERS()):
+ 
+ 		iProba = CyGlobalContext().getGame().getMapRandNum(100,"iProba")
+@@ -935,7 +919,6 @@ def BTPForceEnrichFood(iProbaTreshold,bMainLandOnly,iResourceType,iMaxDistance,i
+ 									else :
+ 										plotsboundariesSafe.append(p)#all the tiles are no bonus, this has priority								
+ 
+-
+ 				if len(plotsboundariesSafe) > 0:
+ 
+ 					random.shuffle(plotsboundariesSafe)	
+@@ -994,7 +977,6 @@ def BTPresourceFromCenter(minFromCenter,maxFromCenter,iResourceType,iTerrainType
+ 					else :
+ 						plotsboundariesSafe.append(p)#all the tiles are no bonus, this has priority
+ 
+-
+ 	if len(plotsboundariesSafe) > 0:
+ 
+ 		random.shuffle(plotsboundariesSafe)
+
+diff --git a/PrivateMaps/Custom_Continents.py b/PrivateMaps/Custom_Continents.py
+index 336b2e313..77fa91492 100644
+--- a/PrivateMaps/Custom_Continents.py
++++ b/PrivateMaps/Custom_Continents.py
+@@ -53,7 +53,6 @@ def getNumCustomMapOptionValues(argsList):
+ 		}
+ 	return option_values[iOption]
+ 
+-
+ def getCustomMapOptionDescAt(argsList):
+ 	[iOption, iSelection] = argsList
+ 	selection_names = {
+
+diff --git a/PrivateMaps/Lakes.py b/PrivateMaps/Lakes.py
+index aac65d5fe..5c7e92ef3 100644
+--- a/PrivateMaps/Lakes.py
++++ b/PrivateMaps/Lakes.py
+@@ -180,8 +180,6 @@ class LakesFractalWorld(CvMapGeneratorUtil.FractalWorld):
+ 		if shift_plot_types:
+ 			self.shiftPlotTypes()
+ 
+-
+-
+ 		return self.plotTypes
+ 
+ def generatePlotTypes():
+
+diff --git a/PrivateMaps/Tilted_Axis.py b/PrivateMaps/Tilted_Axis.py
+index 1d07d11e2..c0cf10036 100644
+--- a/PrivateMaps/Tilted_Axis.py
++++ b/PrivateMaps/Tilted_Axis.py
+@@ -43,7 +43,6 @@ def getCustomMapOptionName(argsList):
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 
+-
+ def getNumCustomMapOptionValues(argsList):
+ 	[iOption] = argsList
+ 	option_values = {
+
+diff --git a/PrivateMaps/Water.py b/PrivateMaps/Water.py
+index 4923ff600..32b6c45bc 100644
+--- a/PrivateMaps/Water.py
++++ b/PrivateMaps/Water.py
+@@ -111,12 +111,9 @@ class WaterFractalWorld(CvMapGeneratorUtil.FractalWorld):
+ 				if self.plotTypes[i] == PlotTypes.PLOT_OCEAN and self.isSurroundedByLand(x, y):
+ 					self.plotTypes[i] = PlotTypes.PLOT_LAND	
+ 
+-
+ 		if shift_plot_types:
+ 			self.shiftPlotTypes()
+ 
+-
+-
+ 		return self.plotTypes
+ 
+ 	def isSurroundedByLand(self, x, y):
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 4ab58aecd..433c59d4f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -117,7 +117,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+ - **Collapse multiline statements to single-line form** (e.g., `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, SAS_MAGIC_PEDIA_PYTHON_HISTORY_EXPAND)`): much **easier** to **scan**, **maintain**, and **grep**, especially **for LLMs**. Often done using scripts to batch process it, and done as we go rather than all at once since this is a recent change. Especially important in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) where ~2158 lines of code have been collapsed to ~879 lines, and ~187 lines of comments to ~83 lines. See also [LLM_Helpers (README.md)](/LLM_Helpers/README.md) and [PR#23](https://github.com/wonderingabout/AdvCiv-SAS/pull/23). Then done in other py files in a more manual or gradual way.
+ - (Requires AdvCiv-SAS 5865+) **Python 2 bare-print cleanup:** converted simple active `print "..."` statements to Python 2.4/3-compatible single-string calls such as `print("msg %s" % value)`, using [`wrap_python2_prints_for_linting.py`](/LLM_Helpers/wrap_python2_prints_for_linting.py) plus manual comma-print cleanup. This keeps Civ4 Python 2.4 compatibility while reducing Ruff/Python 3 parser noise (e.g., on VS Code) so real issues are easier to see. (Requires AdvCiv-SAS 5880+) Also used **local ruff checks** to find and cautiously address likely fixable py linter issues that wouldn't break code changes. See [Modding_Ressources/README.md: How to check with ruff installed locally a folder](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-check-with-ruff-installed-locally-a-folder-for-py-linter-errors-candidates-to-fix-with-text-report).
+-- **Repo-wide blank-line cleanup (`.py` only):** reduced excessive **consecutive blank lines** to a **single blank line** in Python files. This is a pure formatting no-op (Python ignores blank lines), but it makes large files denser, easier to scan, easier to grep, and more manageable for future review/LLM-assisted cleanup. Comments and code are untouched; only **vertical whitespace** is normalized.
++- **Repo-wide blank-line cleanup (`.py` only):** reduced excessive **consecutive blank lines** to a **single blank line** in Python files (Requires AdvCiv-SAS 5887+) with a `(\r?\n)(?:[ \t]*\r?\n){2,}` find to `$1$1` regexp on VS Code. This is a pure formatting no-op (Python ignores blank lines), but it makes large files denser, easier to scan, easier to grep, and more manageable for future review/LLM-assisted cleanup. Comments and code are untouched; only **vertical whitespace** is normalized.
+ - (Requires AdvCiv-SAS 5885+) A later **horizontal whitespace** pass also **stripped spaces/tabs** from otherwise empty Python lines to reduce invisible diff/lint noise: done with the help of `^[\t ]+$` find regexp with replace all (to nothing) globally on VS Code.
+ - Convert **single quote to double quote** (e.g. `'BONUS_IRON'` to `"BONUS_IRON"`), which allowed to **detect and fix incorrect fields** and later strengthen them with `getInfoTypeOrFail(...)`.
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+
+[PATCH COVERAGE]
+patchFiles=50 embeddedFiles=50 omittedFiles=0 embeddedPatchBytes=71141

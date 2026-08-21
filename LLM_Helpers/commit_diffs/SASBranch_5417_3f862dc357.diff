@@ -1,0 +1,325 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5417
+# Commit: 3f862dc357c0816be25d28d9f95eba8b551e8a41
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 61937cf0e283e5b034565d884b593983766b4f37
+# Title: Fix Lakes.py similarly
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/XML/GlobalDefines_advciv_sas.xml
+203	0	PrivateMaps/Lakes.py
+1	1	PrivateMaps/SAS_WorldSizes.py
+5	5	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 PrivateMaps/Lakes.py
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 6a945cd03..095f8bc81 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -289,12 +289,12 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: comma-separated map script names (optional .py/path tolerated) treated as land-heavy by DLL cache (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
+-		<DefineTextVal>Fractal,Hemispheres,Pangaea,PerfectMongoose,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Lakes,Oasis,Team_Battleground,Tilted_Axis,Arboria,Boreal,Donut,Earth2,Global_Highlands,Rainforest</DefineTextVal>
++		<DefineTextVal>Fractal,Hemispheres,Pangaea,PerfectMongoose,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Oasis,Team_Battleground,Tilted_Axis,Arboria,Boreal,Donut,Earth2,Global_Highlands,Rainforest</DefineTextVal>
+ 	</Define>
+ 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND</DefineName>
+-		<DefineTextVal>Great_Plains,Highlands,Fantasy_Realm,SAS_WorldSizes</DefineTextVal>
++		<DefineTextVal>Great_Plains,Highlands,Lakes,Fantasy_Realm,SAS_WorldSizes</DefineTextVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY</DefineName>
+
+diff --git a/PrivateMaps/Lakes.py b/PrivateMaps/Lakes.py
+new file mode 100644
+index 000000000..1f66f47a4
+--- /dev/null
++++ b/PrivateMaps/Lakes.py
+@@ -0,0 +1,203 @@
++#
++#	FILE:	 Lakes.py
++#	AUTHOR:  Andy Szybalski
++#	CONTRIB: Bob Thomas (Sirian)
++#	PURPOSE: Global map script - An oceanless planet.
++#-----------------------------------------------------------------------------
++#	Copyright (c) 2004, 2005 Firaxis Games, Inc. All rights reserved.
++#-----------------------------------------------------------------------------
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++
++from CvPythonExtensions import *
++import CvUtil
++import CvMapGeneratorUtil
++import sys
++from SAS_WorldSizes import *
++from CvMapGeneratorUtil import FractalWorld
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++from CvMapGeneratorUtil import BonusBalancer
++
++balancer = BonusBalancer()
++
++gc = CyGlobalContext()
++
++def getDescription():
++	return "TXT_KEY_MAP_SCRIPT_LAKES_DESCR"
++
++def isAdvancedMap():
++	"This map should show up in simple mode"
++	return 0
++
++def getNumCustomMapOptions():
++	return 2
++
++def getNumHiddenCustomMapOptions():
++	return 2
++
++def getCustomMapOptionName(argsList):
++	[iOption] = argsList
++	option_names = {
++		0:	"TXT_KEY_MAP_WORLD_WRAP",
++		1:  "TXT_KEY_CONCEPT_RESOURCES"
++		}
++	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
++	return translated_text
++
++def getNumCustomMapOptionValues(argsList):
++	[iOption] = argsList
++	option_values = {
++		0:	3,
++		1:	2
++		}
++	return option_values[iOption]
++	
++def getCustomMapOptionDescAt(argsList):
++	[iOption, iSelection] = argsList
++	selection_names = {
++		0:	{
++			0: "TXT_KEY_MAP_WRAP_FLAT",
++			1: "TXT_KEY_MAP_WRAP_CYLINDER",
++			2: "TXT_KEY_MAP_WRAP_TOROID"
++			},
++		1:	{
++			0: "TXT_KEY_WORLD_STANDARD",
++			1: "TXT_KEY_MAP_BALANCED"
++			}
++		}
++	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
++	return translated_text
++	
++def getCustomMapOptionDefault(argsList):
++	[iOption] = argsList
++	option_defaults = {
++		0:	1,
++		1:  0
++		}
++	return option_defaults[iOption]
++
++def isRandomCustomMapOption(argsList):
++	[iOption] = argsList
++	option_random = {
++		0:	false,
++		1:  false
++		}
++	return option_random[iOption]
++
++def getWrapX():
++	map = CyMap()
++	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
++	
++def getWrapY():
++	map = CyMap()
++	return (map.getCustomMapOption(0) == 2)
++
++def normalizeAddExtras():
++	if (CyMap().getCustomMapOption(1) == 1):
++		balancer.normalizeAddExtras()
++	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
++
++def addBonusType(argsList):
++	[iBonusType] = argsList
++	gc = CyGlobalContext()
++	type_string = gc.getBonusInfo(iBonusType).getType()
++
++	if (CyMap().getCustomMapOption(1) == 1):
++		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
++			return None # don't place any of this bonus randomly
++		
++	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
++
++def getGridSize(argsList):
++	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
++	# <!-- custom: Treat Lakes as almost-all-land for size calibration (many small inland water tiles but no ocean); use shared SAS-safe sizing so ARENA/SAS sizes don't raise KeyError. (GPT-5.3-Codex) -->
++
++	if (argsList[0] == -1): # (-1,) is passed to function on loads
++		return []
++	[eWorldSize] = argsList
++	return sas_get_compact_almost_all_land_grid_size(eWorldSize)
++
++def minStartingDistanceModifier():
++	return -15
++
++def findStartingArea(argsList):
++	"make sure all players are on the biggest area"
++	[playerID] = argsList
++	return gc.getMap().findBiggestArea(False).getID()
++
++# Subclass to customize sea level effects.
++class LakesFractalWorld(CvMapGeneratorUtil.FractalWorld):
++	def generatePlotTypes(self, water_percent=9, shift_plot_types=True, 
++	                      grain_amount=3):
++		# Check for changes to User Input variances.
++		self.checkForOverrideDefaultUserInputVariances()
++		
++		self.hillsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount, self.mapRand, 0, self.fracXExp, self.fracYExp)
++		self.peaksFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount+1, self.mapRand, 0, self.fracXExp, self.fracYExp)
++
++		water_percent += self.seaLevelChange
++		water_percent = min(water_percent, 14)
++		water_percent = max(water_percent, 7)
++
++		iWaterThreshold = self.continentsFrac.getHeightFromPercent(water_percent)
++		iHillsBottom1 = self.hillsFrac.getHeightFromPercent(max((self.hillGroupOneBase - self.hillGroupOneRange), 0))
++		iHillsTop1 = self.hillsFrac.getHeightFromPercent(min((self.hillGroupOneBase + self.hillGroupOneRange), 100))
++		iHillsBottom2 = self.hillsFrac.getHeightFromPercent(max((self.hillGroupTwoBase - self.hillGroupTwoRange), 0))
++		iHillsTop2 = self.hillsFrac.getHeightFromPercent(min((self.hillGroupTwoBase + self.hillGroupTwoRange), 100))
++		iPeakThreshold = self.peaksFrac.getHeightFromPercent(self.peakPercent)
++
++		for x in range(self.iNumPlotsX):
++			for y in range(self.iNumPlotsY):
++				i = y*self.iNumPlotsX + x
++				
++				# Adding a row of water (ice) at the poles, at Barry's request.
++				if y == 0 or y == self.iNumPlotsY - 1:
++					self.plotTypes[i] = PlotTypes.PLOT_OCEAN
++					continue
++					
++				# Continuing on with plot generation.
++				val = self.continentsFrac.getHeight(x,y)
++				if val <= iWaterThreshold:
++					self.plotTypes[i] = PlotTypes.PLOT_OCEAN
++				else:
++					hillVal = self.hillsFrac.getHeight(x,y)
++					if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
++						peakVal = self.peaksFrac.getHeight(x,y)
++						if (peakVal <= iPeakThreshold):
++							self.plotTypes[i] = PlotTypes.PLOT_PEAK
++						else:
++							self.plotTypes[i] = PlotTypes.PLOT_HILLS
++					else:
++						self.plotTypes[i] = PlotTypes.PLOT_LAND
++
++		if shift_plot_types:
++			self.shiftPlotTypes()
++		
++		
++
++		return self.plotTypes
++
++def generatePlotTypes():
++	"generate a very grainy world for lots of little lakes"
++	NiTextOut("Setting Plot Types (Python Lakes) ...")
++	global fractal_world
++	fractal_world = LakesFractalWorld()
++	fractal_world.initFractal(continent_grain = 3, rift_grain = -1, has_center_rift = False, invert_heights = True)
++	plot_types = fractal_world.generatePlotTypes(water_percent = 10)
++	return plot_types
++
++def generateTerrainTypes():
++	NiTextOut("Generating Terrain (Python Lakes) ...")
++	terraingen = TerrainGenerator()
++	terrainTypes = terraingen.generateTerrain()
++	return terrainTypes
++
++def addFeatures():
++	NiTextOut("Adding Features (Python Lakes) ...")
++	featuregen = FeatureGenerator()
++	featuregen.addFeatures()
++	return 0
+
+diff --git a/PrivateMaps/SAS_WorldSizes.py b/PrivateMaps/SAS_WorldSizes.py
+index ef4091afc..d1882664a 100644
+--- a/PrivateMaps/SAS_WorldSizes.py
++++ b/PrivateMaps/SAS_WorldSizes.py
+@@ -42,7 +42,7 @@ def sas_default_sizevalues():
+ 
+ 
+ 
+-# <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from Huge anchor (18x14) using Huge baseline of 18 max players (custom game can reach 18) to keep ratio and tiles-per-player closer to Huge. (GPT-5.3-Codex) -->
++# <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from Huge anchor (18x14) using Huge baseline of 18 max players (custom game can reach 18) to keep ratio and tiles-per-player closer to Huge. See also SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND (GPT-5.3-Codex) -->
+ def sas_compact_almost_all_land_grid_sizes():
+ 	return {
+ 		0:  (4, 3),    # ARENA
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index 4ad74a793..33c2e6259 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -414,26 +414,26 @@ Done with the help of GPT-5.2 Thinking thanks:
+ | `Continents`           | Several large continents separated by ocean; naval matters for contact, but landmasses are large.                                                 | Land                                     | Base Civ4, Warlords                  |
+ | `Custom_Continents`    | Continents-style with extra customization knobs; still “big continent” gameplay.                                                                  | Land                                     | Base Civ4, Warlords                  |
+ | `Fantasy_Realm`        | Approximative: “Fantasy/exotic” generation (more extreme/unusual geography than standard scripts); `<!-- custom: empirically looks landHeavy -->` | Other (script-specific exotic geometry); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, AdvCiv-SAS |
+-| `Great_Plains`         | Very land-dominant, open terrain focus (fewer big natural barriers).                                                                              | Land                                     | Base Civ4, Warlords, AdvCiv-SAS |
++| `Great_Plains`         | Very land-dominant, open terrain focus (fewer big natural barriers).                                                                              | Land                                     | Base Civ4, Warlords, AdvCiv-SAS      |
+ | `Highlands`            | Rugged, hill/mountain-heavy world with more chokepoints.                                                                                          | Land                                     | Base Civ4, Warlords, BTS, AdvCiv-SAS |
+ | `Hub`                  | Structured hub-and-spokes style connectivity (nonstandard geometry).                                                                              | Other (structured hub geometry)          | Base Civ4, Warlords                  |
+ | `Ice_Age`              | Cold-biome leaning world (more tundra/snow feel than default).                                                                                    | Land                                     | Base Civ4, AdvCiv-SAS                |
+-| `Inland_Sea`           | Central inland sea with surrounding land; coastal play is central but not an island world; `<!-- custom: empirically looks landHeavy -->`         | Other (central inland sea layout); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, AdvCiv-SAS                 |
++| `Inland_Sea`           | Central inland sea with surrounding land; coastal play is central but not an island world; `<!-- custom: empirically looks landHeavy -->`         | Other (central inland sea layout); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, AdvCiv-SAS |
+ | `Islands`              | Island-heavy map (often fewer/larger islands than Archipelago, depending on script).                                                              | Water                                    | Base Civ4, Warlords                  |
+-| `Lakes`                | Land-heavy with many internal lakes and inland coastlines.                                                                                        | Land                                     | Base Civ4, Warlords                  |
++| `Lakes`                | Land-heavy with many internal lakes and inland coastlines.                                                                                        | Land                                     | Base Civ4, Warlords, AdvCiv-SAS      |
+ | `Maze`                 | Labyrinth corridors and chokepoints (movement constrained by channels); `<!-- custom: empirically looks landHeavy -->` | Other (maze/chokepoint geometry); `<!-- custom: Land, see description -->` | Base Civ4, Warlords                  |
+ | `Medium_and_Small`     | Mix of medium landmasses plus smaller islands; more hybrid than pure continents.                                                                  | Other (hybrid land + islands)            | BTS                                  |
+ | `Mirror`               | Symmetrical/mirrored layout for fairness (often MP-friendly).                                                                                     | Other (symmetry-based layout)            | Base Civ4, Warlords                  |
+ | `Oasis`                | Desert-heavy with fertile pockets; expansion routes revolve around green clusters.                                                                | Land                                     | Base Civ4, Warlords                  |
+ | `Ring`                 | Ring-shaped primary land distribution (distinct wraparound feel).                                                                                 | Other (ring geometry)                    | Base Civ4, Warlords                  |
+ | `Shuffle`              | Randomly selects among multiple generator styles each game.                                                                                       | Random                                   | Base Civ4, Warlords                  |
+-| `Team_Battleground`    | Team-oriented, typically symmetric starts/front lines (purpose-built for teams); `<!-- custom: empirically looks landHeavy -->`                   | Other (team/symmetry layout); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, BTS             |
++| `Team_Battleground`    | Team-oriented, typically symmetric starts/front lines (purpose-built for teams); `<!-- custom: empirically looks landHeavy -->`                   | Other (team/symmetry layout); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, BTS    |
+ | `Tilted_Axis`          | Standard landmasses, but climate bands are “tilted” vs normal north-south.                                                                        | Land                                     | Base Civ4, Warlords                  |
+ | `Wheel`                | Wheel/spokes-style structure (highly nonstandard geometry).                                                                                       | Other (wheel/spokes geometry)            | Base Civ4, Warlords                  |
+ | `Arboria`              | Forest-heavy/“lush” world variant (terrain emphasis more than geometry).                                                                          | Land                                     | BTS                                  |
+ | `Big_and_Small`        | Mix of a few big landmasses plus many smaller islands; both land and naval matter.                                                                | Other (hybrid land + islands)            | BTS                                  |
+ | `Boreal`               | Cold/taiga-biome emphasis (forests/tundra feel).                                                                                                  | Land                                     | BTS                                  |
+-| `Donut`                | Donut-shaped land ring with central water (distinct navigation); `<!-- custom: empirically looks landHeavy -->`                                   | Other (donut/ring geometry); `<!-- custom: Land, see description -->`              | BTS                                  |
++| `Donut`                | Donut-shaped land ring with central water (distinct navigation); `<!-- custom: empirically looks landHeavy -->`                                   | Other (donut/ring geometry); `<!-- custom: Land, see description -->` | BTS                       |
+ | `Earth2`               | Approximative: Earth-like distribution feel (not necessarily a fixed real Earth map).                                                             | Land                                     | BTS                                  |
+ | `Global_Highlands`     | Highlands-like ruggedness applied broadly (more hills/peaks overall).                                                                             | Land                                     | BTS                                  |
+ | `Rainforest`           | Jungle-heavy/wet-biome emphasis (terrain/feature density changes).                                                                                | Land                                     | BTS                                  |
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 71ccdc408..6c8128cf0 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -343,8 +343,8 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ ### Maps
+ 
+ - (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
+-- (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea](/PrivateMaps/Inland_Sea.py).
+-- (Requires AdvCiv-SAS 5413+) **Reduced the grid size** of some maps that are **almost entirely composed of land** plots: [Highlands.py](/PrivateMaps/Highlands.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py). Players spacing was too wide: they now use the **smaller grid size** of [Great_Plains.py](/PrivateMaps/Great_Plains.py).
++- (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea](/PrivateMaps/Inland_Sea.py), [Lakes](/PrivateMaps/Lakes.py).
++- (Requires AdvCiv-SAS 5413+) **Reduced the grid size** of some maps that are **almost entirely composed of land** plots. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py).
+ - (Requires AdvCiv-SAS 5415+) Add new **SAS_Worldsizes map**: helper sandbox map: almost all land with mostly flat grass tiles.
+ 
+ ### Handicaps
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=20211

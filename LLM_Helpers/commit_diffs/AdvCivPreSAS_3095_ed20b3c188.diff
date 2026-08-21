@@ -1,0 +1,125 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3095
+# Commit: ed20b3c188a277a94951cb56e112b4b87af87a88
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0138e71d209d7392e7fbdf2049dfec1332bc2589
+# Title: Some more nuke AI tweaks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	6	CvGameCoreDLL/CvPlayerAI.cpp
+20	12	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index fc22e7b68..222829306 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14822,6 +14822,7 @@ int CvPlayerAI::AI_nukePlotValue(CvPlot const& kPlot,
+ 	/*  advc.045 (comment): The above is no longer true. Tbd.:
+ 		if (!pLoopCity->isAllBuildingsVisible(getTeam(), false))
+ 		... then use an estimate only. */
++	int iBuildingValue = 0;
+ 	FOR_EACH_ENUM(Building)
+ 	{
+ 		if (pCity->getNumRealBuilding(eLoopBuilding) > 0)
+@@ -14829,15 +14830,14 @@ int CvPlayerAI::AI_nukePlotValue(CvPlot const& kPlot,
+ 			CvBuildingInfo const& kBuilding = GC.getInfo(eLoopBuilding);
+ 			if (!kBuilding.isNukeImmune())
+ 			{
+-				iValue += (iCivilianTargetWeight *
+-						pCity->getNumRealBuilding(eLoopBuilding) *
+-						std::max(0, kBuilding.getProductionCost()) *
+-						// <advc.650>
+-						GC.getDefineINT(CvGlobals::NUKE_BUILDING_DESTRUCTION_PROB))
+-						/ 100; // </advc.650>
++				iBuildingValue += pCity->getNumRealBuilding(eLoopBuilding) *
++						std::max(0, kBuilding.getProductionCost());
+ 			}
+ 		}
+ 	}
++	iValue += (iCivilianTargetWeight * iBuildingValue *
++			// advc.650:
++			GC.getDefineINT(CvGlobals::NUKE_BUILDING_DESTRUCTION_PROB)) / 100;
+ 	/*	if we don't have vision of the city, just assume that there are
+ 		at least a couple of defenders, and count that into our evaluation. */
+ 	if (!kPlot.isVisible(getTeam()))
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2260ae3d3..1fc553fec 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -19762,6 +19762,9 @@ bool CvUnitAI::AI_nuke()
+ 
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam());
++	// To save time. Don't need to nuke Barbarians.
++	if (kTeam.getNumWars(false, true) <= 0)
++		return false;
+ 	// advc.650: Range limited nukes were previously handled by AI_nukeRange (deleted)
+ 	int const iRange = airRange();
+ 	bool const bRangeLimited = (iRange > 0);
+@@ -19814,13 +19817,19 @@ bool CvUnitAI::AI_nuke()
+ 				break;
+ 			}
+ 		}
+-	}
+-	if (bNeedDeterrent) // </advc.650>
++	} // </advc.650>
+ 	{
+-		iValueThresh *= std::max(1, iOurNukes + 2 * iOurCities);
+-		iValueThresh /= std::max(1, 2 * iOurNukes + (bDanger ? 2 : 1) * iOurCities);
++		int iDividend = std::max(1, iOurNukes + 2 * iOurCities);
++		int iDivisor = std::max(1, 2 * iOurNukes + (bDanger ? 2 : 1) * iOurCities);
++		if (bNeedDeterrent || iDivisor > iDividend) // advc.650
++		{
++			iValueThresh *= iDividend;
++			iValueThresh /= iDivisor;
++		}
+ 	}
+-	iValueThresh *= 150 + iWarRating;
++	/*	advc.650: max - Don't be too motivated by a hopeless war.
++		Getting nuked back and losing is worse than just losing. */
++	iValueThresh *= 150 + std::max(-50, iWarRating);
+ 	iValueThresh /= 150;
+ 	// advc.650: Need separate variables for threshold and argmax now
+ 	int iBestValue = 0;
+@@ -19905,6 +19914,12 @@ bool CvUnitAI::AI_nuke()
+ 				rEscalationMult.decreaseTo(1);
+ 				iValue = (iValue * rEscalationMult).uround();
+ 			}
++			// Hiroshima clause
++			else if (GC.getGame().getNukesExploded() == 0)
++			{
++				iValue *= 5;
++				iValue /= 3;
++			}
+ 			if (iValue > iBestValue)
+ 			{
+ 				int iLoopValueThresh = iValueThresh;
+@@ -19917,13 +19932,6 @@ bool CvUnitAI::AI_nuke()
+ 					iLoopValueThresh *= 2;
+ 					iLoopValueThresh /= 3;
+ 				}
+-				// Hiroshima clause
+-				if (GC.getGame().getNukesExploded() == 0 &&
+-					iTheirNukesAdjusted <= 0)
+-				{
+-					iLoopValueThresh *= 3;
+-					iLoopValueThresh /= 5;
+-				}
+ 				if (iValue > iLoopValueThresh) // </advc.650>
+ 				{
+ 					iBestValue = iValue;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3612

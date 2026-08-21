@@ -1,0 +1,403 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4809
+# Commit: 1d18a27b5cfbd0045aa87db8399b1fefae79d34a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 064af454fb5ec9519896ed80b0a8a71fcbadea0f
+# Title: handicap adjustments to iAIWorldTrainPercent, now the same (100) at all difficulties see xml code comments for details and or updated value, or and handicap...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	8	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+1	1	README.md
+0	99	_0_Common_Docs/AdvCiv Base Doc/handicap_data_to_md_base_advciv.md
+3	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+3	0	flatten_handicap_info_to_csv_and_md.py
+1	1	handicap_data_to_csv_advciv-sas.csv
+0	102	handicap_data_to_md_advciv-sas.md
+ delete mode 100644 _0_Common_Docs/AdvCiv Base Doc/handicap_data_to_md_base_advciv.md
+ delete mode 100644 handicap_data_to_md_advciv-sas.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index cd786cfe1..671f21872 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -148,7 +148,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIResearchPercent>95</iAIResearchPercent>
+ 			<!-- was 6x 160 -->
+ 			<iAITrainPercent>118</iAITrainPercent>
+-			<iAIWorldTrainPercent>106</iAIWorldTrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>106</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>106</iAIWorldConstructPercent>
+ 			<iAICreatePercent>106</iAICreatePercent>
+@@ -339,7 +339,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIResearchPercent>100</iAIResearchPercent>
+ 			<!-- was 6x 130 -->
+ 			<iAITrainPercent>112</iAITrainPercent>
+-			<iAIWorldTrainPercent>104</iAIWorldTrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>104</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>104</iAIWorldConstructPercent>
+ 			<iAICreatePercent>104</iAICreatePercent>
+@@ -498,7 +498,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.251 -->
+ 			<iAIResearchPercent>100</iAIResearchPercent>
+ 			<iAITrainPercent>106</iAITrainPercent>
+-			<iAIWorldTrainPercent>102</iAIWorldTrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>102</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>102</iAIWorldConstructPercent>
+ 			<iAICreatePercent>102</iAICreatePercent>
+@@ -827,7 +827,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.251 -->
+ 			<iAIResearchPercent>104</iAIResearchPercent>
+ 			<iAITrainPercent>94</iAITrainPercent>
+-			<iAIWorldTrainPercent>98</iAIWorldTrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>98</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>98</iAIWorldConstructPercent>
+ 			<iAICreatePercent>98</iAICreatePercent>
+@@ -996,7 +996,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- was 90 -->
+ 			<iAITrainPercent>88</iAITrainPercent>
+ 			<!-- was 100 -->
+-			<iAIWorldTrainPercent>96</iAIWorldTrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<!-- was 90 -->
+ 			<iAIConstructPercent>96</iAIConstructPercent>
+ 			<!-- was 100 -->
+@@ -1169,7 +1169,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- was 85 -->
+ 			<iAITrainPercent>82</iAITrainPercent>
+ 			<!-- was 100 -->
+-			<iAIWorldTrainPercent>94</iAIWorldTrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<!-- was 85 -->
+ 			<iAIConstructPercent>94</iAIConstructPercent>
+ 			<!-- was 100 -->
+@@ -1353,7 +1353,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- was 80 -->
+ 			<iAITrainPercent>76</iAITrainPercent>
+ 			<!-- was 100 -->
+-			<iAIWorldTrainPercent>92</iAIWorldTrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>92</iAIConstructPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldConstructPercent>92</iAIWorldConstructPercent>
+@@ -1537,8 +1537,9 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIResearchPercent>120</iAIResearchPercent>
+ 			<!-- was 60 -->
+ 			<iAITrainPercent>70</iAITrainPercent>
++			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt / becomingthrough and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc -->
+ 			<!-- was 100-->
+-			<iAIWorldTrainPercent>90</iAIWorldTrainPercent>
++			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<!-- was 60 -->
+ 			<iAIConstructPercent>90</iAIConstructPercent>
+ 			<!-- was 100 -->
+
+diff --git a/README.md b/README.md
+index 2667b2250..432224b05 100644
+--- a/README.md
++++ b/README.md
+@@ -99,7 +99,7 @@ So far there is:
+ 
+ Generated with the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) script, you can regenerate it if you mod/change the data, else just run the [.csv view to view it on GitHub website for example](/handicap_data_to_csv_advciv-sas.csv) and view the .csv output handicap data with github view (recommended, as display is nice anyways etc, and you can also for example anyways etc use github's search bar for example anyways etc) on the website or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc.
+ 
+-Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .md and .csv files with the script (see [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, also about info about the .md version of this handicap info/data but anyways etc, and also more importantly or not or yes or etc perhaps but anyways etc links to base advciv handicap info as of now to compare it with our advciv-sas mod's own handicap settings (base advciv handicap data tables are in in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc)) anyways etc:
++Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .csv file with the script (.md commented-out in script as we don't use it in/for advciv-sas anyways etc, see also and for more details [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, also about info about the .md version of this handicap info/data but anyways etc, and also more importantly or not or yes or etc perhaps but anyways etc links to base advciv handicap info as of now to compare it with our advciv-sas mod's own handicap settings (base advciv handicap data tables are in in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc)) anyways etc:
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_md_handicap_github_view_search_bar_example.PNG" width="250"></img>
+
+diff --git a/_0_Common_Docs/AdvCiv Base Doc/handicap_data_to_md_base_advciv.md b/_0_Common_Docs/AdvCiv Base Doc/handicap_data_to_md_base_advciv.md
+deleted file mode 100644
+index 861e4fe9f..000000000
+--- a/_0_Common_Docs/AdvCiv Base Doc/handicap_data_to_md_base_advciv.md	
++++ /dev/null
+@@ -1,99 +0,0 @@
+-| Field | Settler | Chieftain | Warlord | Noble | Prince | Monarch | Emperor | Immortal | Deity |
+-|------|------|------|------|------|------|------|------|------|------|
+-| iAIAdvancedStartPercent | 67 | 75 | 90 | 100 | 125 | 145 | 175 | 210 | 270 |
+-| iAIAnimalBonus | -25 | -25 | -25 | -25 | -25 | -25 | -25 | -25 | -25 |
+-| iAIAttitudeChangePercent | 30 | 30 | 30 | 30 | 40 | 50 | 60 | 70 | 90 |
+-| iAIBarbarianBonus | -25 | -25 | -25 | -25 | -25 | -25 | -25 | -25 | -25 |
+-| iAICivicUpkeepPercent | 100 | 100 | 100 | 100 | 95 | 90 | 85 | 80 | 75 |
+-| iAIConstructPercent | 120 | 115 | 105 | 100 | 95 | 95 | 90 | 80 | 75 |
+-| iAICreatePercent | 110 | 105 | 100 | 100 | 95 | 90 | 85 | 80 | 75 |
+-| iAIDeclareWarProb | 25 | 50 | 75 | 100 | 100 | 100 | 100 | 100 | 100 |
+-| iAIGPThresholdPercent | 125 | 120 | 110 | 100 | 100 | 95 | 90 | 85 | 80 |
+-| iAIGrowthPercent | 125 | 120 | 110 | 100 | 100 | 95 | 90 | 85 | 80 |
+-| iAIHandicapIncrementTurns | 0 | 0 | 0 | 0 | 100 | 50 | 33 | 25 | 20 |
+-| iAIInflationPercent | 100 | 90 | 80 | 80 | 80 | 80 | 80 | 80 | 80 |
+-| iAIResearchPercent | 90 | 100 | 100 | 100 | 103 | 110 | 115 | 120 | 124 |
+-| iAIStartingDefenseUnits | 0 | 0 | 0 | 0 | 0 | 1 | 2 | 2 | 3 |
+-| iAIStartingExploreUnits | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+-| iAIStartingUnitMultiplier | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iAIStartingWorkerUnits | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 |
+-| iAITrainPercent | 125 | 120 | 110 | 100 | 95 | 95 | 95 | 90 | 85 |
+-| iAIUnitCostPercent | 100 | 100 | 100 | 100 | 95 | 90 | 85 | 80 | 75 |
+-| iAIUnitSupplyPercent | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 |
+-| iAIUnitUpgradePercent | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 |
+-| iAIWarWearinessPercent | 100 | 90 | 80 | 80 | 80 | 75 | 70 | 60 | 50 |
+-| iAIWorkRateModifier | 0 | 0 | 0 | 0 | 5 | 10 | 15 | 20 | 25 |
+-| iAIWorldConstructPercent | 125 | 120 | 110 | 100 | 100 | 95 | 95 | 90 | 85 |
+-| iAIWorldCreatePercent | 125 | 120 | 110 | 100 | 100 | 95 | 95 | 90 | 85 |
+-| iAIWorldTrainPercent | 125 | 120 | 110 | 100 | 100 | 95 | 95 | 90 | 85 |
+-| iAdvancedStartPointsMod | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
+-| iAnimalAttackProb | 30 | 50 | 60 | 70 | 70 | 70 | 70 | 70 | 70 |
+-| iAnimalBonus | -60 | -45 | -30 | -25 | -20 | -15 | -10 | -5 | 0 |
+-| iAttitudeChange | 3 | 2 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iBarbarianBonus | -40 | -30 | -20 | -10 | -5 | -5 | -5 | -5 | 0 |
+-| iBarbarianCityAttackBonus |  |  |  |  | -20 | -20 | -20 | -15 | -10 |
+-| iBarbarianCityCreationProb | 4 | 5 | 5 | 6 | 6 | 7 | 7 | 8 | 8 |
+-| iBarbarianCityCreationTurnsElapsed | 60 | 55 | 50 | 45 | 40 | 35 | 30 | 25 | 25 |
+-| iBarbarianCreationTurnsElapsed | 48 | 44 | 40 | 36 | 32 | 28 | 24 | 20 | 16 |
+-| iBarbarianDefenders | 1 | 1 | 1 | 2 | 2 | 3 | 3 | 3 | 4 |
+-| iBaseGrowthThresholdPercent | 80 | 95 | 100 | 100 | 100 | 100 | 110 | 120 | 130 |
+-| iBuildTimePercent | 100 | 100 | 100 | 100 | 100 | 100 | 110 | 115 | 120 |
+-| iCivicUpkeepPercent | 60 | 70 | 80 | 90 | 95 | 100 | 100 | 100 | 100 |
+-| iColonyMaintenancePercent | 60 | 80 | 90 | 100 | 105 | 110 | 115 | 120 | 130 |
+-| iConstructPercent | 85 | 95 | 100 | 100 | 100 | 100 | 105 | 110 | 115 |
+-| iCorporationMaintenancePercent | 60 | 80 | 90 | 100 | 105 | 110 | 115 | 120 | 130 |
+-| iCreatePercent | 70 | 80 | 90 | 100 | 100 | 100 | 100 | 110 | 120 |
+-| iCultureLevelPercent | 100 | 100 | 100 | 100 | 100 | 106 | 112 | 118 | 129 |
+-| iDifficulty | 0 | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 85 |
+-| iDistanceMaintenancePercent | 50 | 60 | 70 | 80 | 85 | 90 | 95 | 100 | 100 |
+-| iForeignCultureStrength | 10 | 15 | 20 | 25 | 29 | 32 | 35 | 38 | 40 |
+-| iFreeUnits | 20 | 15 | 10 | 7 | 5 | 4 | 3 | 2 | 1 |
+-| iFreeWinsVsBarbs | 4 | 3 | 2 | 1 | 0 | 0 | 0 | 0 | 0 |
+-| iGPThresholdPercent | 80 | 95 | 100 | 100 | 100 | 100 | 110 | 120 | 130 |
+-| iGold | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iHappyBonus | 5 | 5 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
+-| iHealthBonus | 3 | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
+-| iInflationPercent | 60 | 70 | 80 | 90 | 95 | 100 | 100 | 100 | 100 |
+-| iMaxColonyMaintenance | 200 | 200 | 200 | 200 | 200 | 200 | 200 | 200 | 200 |
+-| iMaxNumCitiesMaintenance | 4000 | 4000 | 5000 | 5000 | 6000 | 6000 | 7000 | 7000 | 8000 |
+-| iNoTechTradeModifier | 100 | 85 | 75 | 64 | 56 | 48 | 40 | 32 | 24 |
+-| iNumCitiesMaintenancePercent | 45 | 55 | 65 | 75 | 80 | 85 | 90 | 95 | 100 |
+-| iResearchPercent | 72 | 85 | 90 | 95 | 108 | 115 | 130 | 140 | 150 |
+-| iSeaBarbarianBonus |  |  |  |  |  |  |  |  | -5 |
+-| iSeaBarbarianExtraMoves |  |  |  |  |  |  |  |  | 0 |
+-| iStartingDefenseUnits | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iStartingExploreUnits | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iStartingLocPercent | 10 | 20 | 35 | 49 | 55 | 65 | 75 | 85 | 95 |
+-| iStartingWorkerUnits | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iTechTradeKnownModifier | -100 | -50 | -25 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iTrainPercent | 80 | 95 | 100 | 100 | 100 | 100 | 110 | 120 | 130 |
+-| iUnitCostPercent | 36 | 44 | 52 | 60 | 68 | 76 | 84 | 92 | 100 |
+-| iUnownedTilesPerBarbarianCity | 160 | 150 | 140 | 130 | 120 | 110 | 100 | 90 | 80 |
+-| iUnownedTilesPerBarbarianUnit | 125 | 80 | 66 | 56 | 48 | 42 | 38 | 34 | 30 |
+-| iUnownedTilesPerGameAnimal | 85 | 70 | 62 | 52 | 50 | 44 | 40 | 36 | 32 |
+-| iUnownedWaterTilesPerBarbarianUnit | 750 | 600 | 550 | 500 | 450 | 400 | 350 | 300 | 250 |
+-| AIFreeTechs |  |  |  |  |  | AIFT_0 | AIFT_1 | AIFT_2 | AIFT_3 |
+-| FreeTechs | FT_0 | FT_1 | FT_2 |  |  |  |  |  |  |
+-| Goodies | G_0 | G_1 | G_2 | G_3 | G_4 | G_5 | G_6 | G_7 | G_8 |
+-
+-
+-## Legend
+-
+-| Key | Full Value |
+-|-----|-------------|
+-| AIFT_0 | TECH_ARCHERY, TECH_MATHEMATICS, TECH_MACHINERY, TECH_PRINTING_PRESS, TECH_STEAM_POWER, TECH_PLASTICS |
+-| AIFT_1 | TECH_HUNTING, TECH_ARCHERY, TECH_MATHEMATICS, TECH_MACHINERY, TECH_PRINTING_PRESS, TECH_STEAM_POWER, TECH_PLASTICS |
+-| AIFT_2 | TECH_HUNTING, TECH_ARCHERY, TECH_MATHEMATICS, TECH_MACHINERY, TECH_PRINTING_PRESS, TECH_STEAM_POWER, TECH_PLASTICS |
+-| AIFT_3 | TECH_THE_WHEEL, TECH_HUNTING, TECH_ARCHERY, TECH_MATHEMATICS, TECH_IRON_WORKING, TECH_MACHINERY, TECH_FEUDALISM, TECH_PRINTING_PRESS, TECH_GUNPOWDER, TECH_STEAM_POWER, TECH_STEEL, TECH_PLASTICS, TECH_REFRIGERATION |
+-| FT_0 | TECH_THE_WHEEL, TECH_AGRICULTURE, TECH_MINING, TECH_MATHEMATICS, TECH_ALPHABET, TECH_MACHINERY, TECH_FEUDALISM, TECH_PRINTING_PRESS, TECH_GUNPOWDER, TECH_STEAM_POWER, TECH_STEEL, TECH_PLASTICS, TECH_REFRIGERATION |
+-| FT_1 | TECH_THE_WHEEL, TECH_AGRICULTURE, TECH_MATHEMATICS, TECH_MACHINERY, TECH_PRINTING_PRESS, TECH_STEAM_POWER, TECH_PLASTICS |
+-| FT_2 | TECH_THE_WHEEL |
+-| G_0 | GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_MAP, GOODY_SETTLER, GOODY_WARRIOR, GOODY_WARRIOR, GOODY_SCOUT, GOODY_WORKER, GOODY_WORKER, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_TECH, GOODY_TECH |
+-| G_1 | GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_TECH, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_MAP, GOODY_SETTLER, GOODY_WARRIOR, GOODY_WARRIOR, GOODY_SCOUT, GOODY_WORKER, GOODY_WORKER, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK |
+-| G_2 | GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_TECH, GOODY_MAP, GOODY_MAP, GOODY_WARRIOR, GOODY_WARRIOR, GOODY_SCOUT, GOODY_WORKER, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG |
+-| G_3 | GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_TECH, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_TECH, GOODY_MAP, GOODY_MAP, GOODY_WARRIOR, GOODY_WARRIOR, GOODY_SCOUT, GOODY_EXPERIENCE, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG |
+-| G_4 | GOODY_HIGH_GOLD, GOODY_TECH, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_MAP, GOODY_MAP, GOODY_WARRIOR, GOODY_WARRIOR, GOODY_SCOUT, GOODY_EXPERIENCE, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG |
+-| G_5 | GOODY_HIGH_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_TECH, GOODY_MAP, GOODY_MAP, GOODY_WARRIOR, GOODY_WARRIOR, GOODY_SCOUT, GOODY_EXPERIENCE, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG |
+-| G_6 | GOODY_TECH, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_MAP, GOODY_MAP, GOODY_WARRIOR, GOODY_SCOUT, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG, GOODY_BARBARIANS_STRONG |
+-| G_7 | GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_TECH, GOODY_MAP, GOODY_MAP, GOODY_WARRIOR, GOODY_SCOUT, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG, GOODY_BARBARIANS_STRONG, GOODY_BARBARIANS_STRONG |
+-| G_8 | GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_TECH, GOODY_MAP, GOODY_WARRIOR, GOODY_SCOUT, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG, GOODY_BARBARIANS_STRONG, GOODY_BARBARIANS_STRONG, GOODY_BARBARIANS_STRONG |
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+index 881b4e20f..e583dbd11 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+@@ -222,7 +222,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
+ 
+ Additionally to the main README's handicap info to csv and md info in [README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-infodata), here are a few additional screenshots, also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc
+ 
+-also note: you need to generate the data (.csv and .md by running the script everytime you modify the xml, else if it's just for viewing no need to do that and you can view the files provided in the mod advciv-sas (or another mod using this script maybe too anyways etc) directly).
++also note: you need to generate the data (.csv and .md (you'd need to uncomment the .md generating block/aprt of the script to do that as we commented it out in/for  advciv-sas as we don't use it since the .csv is more than enough and better if i may say more performant for our needs in advciv-sas if i may say but anyways etc) by running the script everytime you modify the xml, else if it's just for viewing no need to do that and you can view the files provided in the mod advciv-sas (or another mod using this script maybe too anyways etc) directly).
+ 
+ Usage is similarly as (for) other scripts in this readme pythons scripts, for example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
+ 
+@@ -239,7 +239,7 @@ Example of usage:
+ As for output, see below for examples of .csv and .md outputs, the files we get are for example like this (screenshots may not be updated, view latest files provided in your mod path, or/and regnerate them again yourself with the script especially if you modify the xml of handicap info since then to show your changes in the .csv and .md files)
+ 
+ - [.csv view to view it on GitHub website for example](/handicap_data_to_csv_advciv-sas.csv) or with libreoffice for example or similar software if you prefer another viewer than GitHub website view or such anyways etc
+-- [.md view to view it on GitHub website for example](/handicap_data_to_md_advciv-sas.md)
++- [.md  view to view it on GitHub website for example](/handicap_data_to_md_advciv-sas.md) (note: you'd need to uncomment the .md generating part of the script if you want to use/have the .md version of the handicap data, see above for a bit or lot or other or etc or anyways etc details as well anyways etc)
+ 
+ note: you can remove the timestamp (i.e. the year and time and such info in filename anyways etc) too if not needed anymore or/and if needed or wnted by you or and other or and not or do or not anyways etc
+ 
+@@ -275,7 +275,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
+ ```
+ 
+ - [.csv (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_csv_base_advciv.csv)
+-- [.md (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_md_base_advciv.md)
++- [.md (base advciv)](/_0_Common_Docs/AdvCiv%20Base%20Doc/handicap_data_to_md_base_advciv.md) (note: you'd need to uncomment the .md generating part of the script if you want to use/have the .md version of the handicap data, see above for a bit or lot or other or etc or anyways etc details as well anyways etc)
+ 
+ # leaders_data_to_csv.py
+
+diff --git a/flatten_handicap_info_to_csv_and_md.py b/flatten_handicap_info_to_csv_and_md.py
+index d787e03f5..7ce48b922 100644
+--- a/flatten_handicap_info_to_csv_and_md.py
++++ b/flatten_handicap_info_to_csv_and_md.py
+@@ -284,6 +284,8 @@ with open(csv_filename, "w", newline="", encoding="utf-8") as f:
+ print("✔ Export complete with legend references.")
+ print(f"→ Output CSV saved as: {csv_filename}")
+ 
++# <!-- custom: commented-out md file as we don't use it in advciv-sas, uncomment if you want to use it anyways etc -->
++"""
+ # --- Step 8: Write Markdown table ---
+ md_filename = f"handicap_data_to_md_{timestamp}.md"
+ with open(md_filename, "w", encoding="utf-8") as md:
+@@ -307,3 +309,4 @@ with open(md_filename, "w", encoding="utf-8") as md:
+ 
+ print("✔ Markdown export complete.")
+ print(f"→ Output Markdown saved as: {md_filename}")
++"""
+
+diff --git a/handicap_data_to_csv_advciv-sas.csv b/handicap_data_to_csv_advciv-sas.csv
+index b661d5c5f..2c85f3ddd 100644
+--- a/handicap_data_to_csv_advciv-sas.csv
++++ b/handicap_data_to_csv_advciv-sas.csv
+@@ -24,7 +24,7 @@ iAIWarWearinessPercent,112,108,104,100,96,92,88,84,80
+ iAIWorkRateModifier,0,0,0,0,6,12,18,24,30
+ iAIWorldConstructPercent,106,104,102,100,98,96,94,92,90
+ iAIWorldCreatePercent,106,104,102,100,98,96,94,92,90
+-iAIWorldTrainPercent,106,104,102,100,98,96,94,92,90
++iAIWorldTrainPercent,100,100,100,100,100,100,100,100,100
+ iAdvancedStartPointsMod,100,100,100,100,100,100,100,100,100
+ iAnimalAttackProb,30,50,60,70,70,70,70,70,70
+ iAnimalBonus,-30,-25,-20,0,0,0,0,0,0
+
+diff --git a/handicap_data_to_md_advciv-sas.md b/handicap_data_to_md_advciv-sas.md
+deleted file mode 100644
+index f8d240131..000000000
+--- a/handicap_data_to_md_advciv-sas.md
++++ /dev/null
+@@ -1,102 +0,0 @@
+-| Field | Settler | Chieftain | Warlord | Noble | Prince | Monarch | Emperor | Immortal | Deity |
+-|------|------|------|------|------|------|------|------|------|------|
+-| iAIAdvancedStartPercent | 67 | 75 | 90 | 100 | 125 | 145 | 175 | 210 | 270 |
+-| iAIAnimalBonus | -30 | -15 | -20 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iAIAttitudeChangePercent | 30 | 30 | 30 | 30 | 40 | 50 | 60 | 70 | 90 |
+-| iAIBarbarianBonus | -30 | -15 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iAICivicUpkeepPercent | 100 | 100 | 100 | 100 | 95 | 90 | 85 | 80 | 75 |
+-| iAIConstructPercent | 106 | 104 | 102 | 100 | 98 | 96 | 94 | 92 | 90 |
+-| iAICreatePercent | 106 | 104 | 102 | 100 | 98 | 96 | 94 | 92 | 90 |
+-| iAIDeclareWarProb | 70 | 80 | 90 | 100 | 110 | 120 | 130 | 140 | 150 |
+-| iAIGPThresholdPercent | 125 | 120 | 110 | 100 | 100 | 95 | 90 | 85 | 80 |
+-| iAIGrowthPercent | 125 | 120 | 110 | 100 | 100 | 95 | 90 | 85 | 80 |
+-| iAIHandicapIncrementTurns | 0 | 0 | 0 | 0 | 100 | 50 | 33 | 25 | 20 |
+-| iAIInflationPercent | 100 | 90 | 80 | 80 | 80 | 80 | 80 | 80 | 80 |
+-| iAIResearchPercent | 95 | 100 | 100 | 100 | 104 | 108 | 112 | 116 | 120 |
+-| iAIStartingDefenseUnits | 1 | 1 | 1 | 2 | 2 | 3 | 3 | 4 | 4 |
+-| iAIStartingExploreUnits | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 |
+-| iAIStartingUnitMultiplier | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iAIStartingWorkerUnits | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 |
+-| iAITrainPercent | 118 | 112 | 106 | 100 | 94 | 88 | 82 | 76 | 70 |
+-| iAIUnitCostPercent | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
+-| iAIUnitSupplyPercent | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 |
+-| iAIUnitUpgradePercent | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 | 50 |
+-| iAIWarWearinessPercent | 112 | 108 | 104 | 100 | 96 | 92 | 88 | 84 | 80 |
+-| iAIWorkRateModifier | 0 | 0 | 0 | 0 | 6 | 12 | 18 | 24 | 30 |
+-| iAIWorldConstructPercent | 106 | 104 | 102 | 100 | 98 | 96 | 94 | 92 | 90 |
+-| iAIWorldCreatePercent | 106 | 104 | 102 | 100 | 98 | 96 | 94 | 92 | 90 |
+-| iAIWorldTrainPercent | 106 | 104 | 102 | 100 | 98 | 96 | 94 | 92 | 90 |
+-| iAdvancedStartPointsMod | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
+-| iAnimalAttackProb | 30 | 50 | 60 | 70 | 70 | 70 | 70 | 70 | 70 |
+-| iAnimalBonus | -30 | -25 | -20 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iAttitudeChange | 2 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iBarbarianBonus | -30 | -25 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iBarbarianCityAttackBonus |  |  |  |  | 0 | 0 | 0 | 0 | 0 |
+-| iBarbarianCityCreationProb | 5 | 10 | 15 | 20 | 25 | 30 | 35 | 40 | 45 |
+-| iBarbarianCityCreationTurnsElapsed | 46 | 44 | 42 | 40 | 38 | 36 | 34 | 32 | 30 |
+-| iBarbarianCreationTurnsElapsed | 40 | 38 | 36 | 34 | 32 | 30 | 28 | 26 | 24 |
+-| iBarbarianDefenders | 0 | 0 | 1 | 1 | 2 | 2 | 2 | 3 | 3 |
+-| iBaseGrowthThresholdPercent | 80 | 95 | 100 | 100 | 100 | 100 | 110 | 120 | 130 |
+-| iBuildTimePercent | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
+-| iCivicUpkeepPercent | 60 | 70 | 80 | 90 | 95 | 100 | 100 | 100 | 100 |
+-| iColonyMaintenancePercent | 60 | 80 | 90 | 100 | 105 | 110 | 115 | 120 | 130 |
+-| iConstructPercent | 85 | 95 | 100 | 100 | 100 | 100 | 105 | 110 | 115 |
+-| iCorporationMaintenancePercent | 60 | 80 | 90 | 100 | 105 | 110 | 115 | 120 | 130 |
+-| iCreatePercent | 70 | 80 | 90 | 100 | 100 | 100 | 100 | 110 | 120 |
+-| iCultureLevelPercent | 100 | 100 | 100 | 100 | 100 | 106 | 112 | 118 | 129 |
+-| iDifficulty | 0 | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 85 |
+-| iDistanceMaintenancePercent | 50 | 60 | 70 | 80 | 85 | 90 | 95 | 100 | 100 |
+-| iForeignCultureStrength | 10 | 15 | 20 | 25 | 29 | 32 | 35 | 38 | 40 |
+-| iFreeUnits | 20 | 15 | 10 | 7 | 5 | 4 | 3 | 2 | 1 |
+-| iFreeWinsVsBarbs | 3 | 2 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iGPThresholdPercent | 80 | 95 | 100 | 100 | 100 | 100 | 110 | 120 | 130 |
+-| iGold | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iHappyBonus | 5 | 5 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
+-| iHealthBonus | 3 | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
+-| iInflationPercent | 60 | 70 | 80 | 90 | 95 | 100 | 100 | 100 | 100 |
+-| iMaxColonyMaintenance | 200 | 200 | 200 | 200 | 200 | 200 | 200 | 200 | 200 |
+-| iMaxNumCitiesMaintenance | 4000 | 4000 | 5000 | 5000 | 6000 | 6000 | 7000 | 7000 | 8000 |
+-| iNoTechTradeModifier | 100 | 85 | 75 | 64 | 56 | 48 | 40 | 32 | 24 |
+-| iNumCitiesMaintenancePercent | 45 | 55 | 65 | 75 | 80 | 85 | 90 | 95 | 100 |
+-| iResearchPercent | 68 | 73 | 85 | 95 | 114 | 120 | 128 | 133 | 140 |
+-| iSeaBarbarianBonus |  |  |  |  |  |  |  |  | 0 |
+-| iSeaBarbarianExtraMoves |  |  |  |  |  |  |  |  | 0 |
+-| iStartingDefenseUnits | 3 | 3 | 2 | 2 | 1 | 1 | 1 | 1 | 1 |
+-| iStartingExploreUnits | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iStartingLocPercent | 11 | 22 | 33 | 44 | 55 | 66 | 77 | 88 | 99 |
+-| iStartingWorkerUnits | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iTechTradeKnownModifier | -100 | -50 | -25 | 0 | 0 | 0 | 0 | 0 | 0 |
+-| iTrainPercent | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
+-| iUnitCostPercent | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 | 100 |
+-| iUnownedTilesPerBarbarianCity | 130 | 125 | 120 | 115 | 110 | 105 | 100 | 95 | 90 |
+-| iUnownedTilesPerBarbarianUnit | 64 | 61 | 58 | 55 | 52 | 49 | 46 | 43 | 40 |
+-| iUnownedTilesPerGameAnimal | 54 | 51 | 48 | 45 | 42 | 39 | 36 | 33 | 30 |
+-| iUnownedWaterTilesPerBarbarianUnit | 475 | 450 | 425 | 400 | 375 | 350 | 325 | 300 | 275 |
+-| AIFreeTechs | AIFT_0 | AIFT_1 | AIFT_2 | AIFT_3 | AIFT_4 | AIFT_5 | AIFT_6 | AIFT_7 | AIFT_8 |
+-| FreeTechs | FT_0 |  |  |  |  |  |  |  |  |
+-| Goodies | G_0 | G_1 | G_2 | G_3 | G_4 | G_5 | G_6 | G_7 | G_8 |
+-
+-
+-## Legend
+-
+-| Key | Full Value |
+-|-----|-------------|
+-| AIFT_0 | TECH_POTTERY, TECH_BRONZE_WORKING, TECH_CURRENCY, TECH_COMPASS, TECH_CHEMISTRY, TECH_LASER |
+-| AIFT_1 | TECH_POTTERY, TECH_BRONZE_WORKING, TECH_CURRENCY, TECH_COMPASS, TECH_CHEMISTRY, TECH_LASER |
+-| AIFT_2 | TECH_POTTERY, TECH_BRONZE_WORKING, TECH_CURRENCY, TECH_COMPASS, TECH_CHEMISTRY, TECH_LASER |
+-| AIFT_3 | TECH_POTTERY, TECH_BRONZE_WORKING, TECH_CURRENCY, TECH_MONARCHY, TECH_COMPASS, TECH_CHEMISTRY, TECH_LASER |
+-| AIFT_4 | TECH_POTTERY, TECH_BRONZE_WORKING, TECH_CURRENCY, TECH_MONARCHY, TECH_COMPASS, TECH_CHEMISTRY, TECH_LASER |
+-| AIFT_5 | TECH_POTTERY, TECH_BRONZE_WORKING, TECH_CURRENCY, TECH_MONARCHY, TECH_COMPASS, TECH_DRAMA, TECH_CHEMISTRY, TECH_INDUSTRIALISM, TECH_LASER |
+-| AIFT_6 | TECH_FISHING, TECH_POTTERY, TECH_BRONZE_WORKING, TECH_CURRENCY, TECH_MONARCHY, TECH_COMPASS, TECH_DRAMA, TECH_CHEMISTRY, TECH_INDUSTRIALISM, TECH_LASER |
+-| AIFT_7 | TECH_FISHING, TECH_POTTERY, TECH_ANIMAL_HUSBANDRY, TECH_BRONZE_WORKING, TECH_CURRENCY, TECH_MONARCHY, TECH_COMPASS, TECH_DRAMA, TECH_CHEMISTRY, TECH_INDUSTRIALISM, TECH_LASER |
+-| AIFT_8 | TECH_FISHING, TECH_MYSTICISM, TECH_POTTERY, TECH_ANIMAL_HUSBANDRY, TECH_BRONZE_WORKING, TECH_CURRENCY, TECH_MONARCHY, TECH_COMPASS, TECH_DRAMA, TECH_OPTICS, TECH_CHEMISTRY, TECH_INDUSTRIALISM, TECH_BIOLOGY, TECH_LASER |
+-| FT_0 | TECH_THE_WHEEL, TECH_AGRICULTURE, TECH_HUNTING, TECH_MINING, TECH_POTTERY, TECH_ANIMAL_HUSBANDRY, TECH_BRONZE_WORKING, TECH_IRON_WORKING |
+-| G_0 | GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_MAP, GOODY_SETTLER, GOODY_WARRIOR, GOODY_WARRIOR, GOODY_SCOUT, GOODY_WORKER, GOODY_WORKER, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_TECH, GOODY_TECH |
+-| G_1 | GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_TECH, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_MAP, GOODY_SETTLER, GOODY_WARRIOR, GOODY_WARRIOR, GOODY_SCOUT, GOODY_WORKER, GOODY_WORKER, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK |
+-| G_2 | GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_TECH, GOODY_MAP, GOODY_MAP, GOODY_WARRIOR, GOODY_WARRIOR, GOODY_SCOUT, GOODY_WORKER, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG |
+-| G_3 | GOODY_HIGH_GOLD, GOODY_HIGH_GOLD, GOODY_TECH, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_TECH, GOODY_MAP, GOODY_MAP, GOODY_WARRIOR, GOODY_WARRIOR, GOODY_SCOUT, GOODY_EXPERIENCE, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG |
+-| G_4 | GOODY_HIGH_GOLD, GOODY_TECH, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_MAP, GOODY_MAP, GOODY_WARRIOR, GOODY_WARRIOR, GOODY_SCOUT, GOODY_EXPERIENCE, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG |
+-| G_5 | GOODY_HIGH_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_TECH, GOODY_MAP, GOODY_MAP, GOODY_WARRIOR, GOODY_WARRIOR, GOODY_SCOUT, GOODY_EXPERIENCE, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG |
+-| G_6 | GOODY_TECH, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_MAP, GOODY_MAP, GOODY_WARRIOR, GOODY_SCOUT, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG, GOODY_BARBARIANS_STRONG |
+-| G_7 | GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_TECH, GOODY_MAP, GOODY_MAP, GOODY_WARRIOR, GOODY_SCOUT, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG, GOODY_BARBARIANS_STRONG, GOODY_BARBARIANS_STRONG |
+-| G_8 | GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_LOW_GOLD, GOODY_TECH, GOODY_MAP, GOODY_WARRIOR, GOODY_SCOUT, GOODY_EXPERIENCE, GOODY_HEALING, GOODY_TECH, GOODY_TECH, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_WEAK, GOODY_BARBARIANS_STRONG, GOODY_BARBARIANS_STRONG, GOODY_BARBARIANS_STRONG, GOODY_BARBARIANS_STRONG |
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=32792

@@ -1,0 +1,318 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5677
+# Commit: efd952b607c5af02fa465eb8487f8c81e6b1874d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1b8089910d60b01feebd4a5c358526ee57c81ea2
+# Title: add expanded leaderhead panel
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+60	4	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+58	0	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+8	16	README.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+9	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.842_sevopedia_expanded_lh (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.842_sevopedia_expanded_lh (1).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 354cebb27..e301b0fc3 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -77,6 +77,7 @@ class SevoPediaLeader:
+ 	def __init__(self, main):
+ 		self.iLeader = -1
+ 		self.bHistoryExpanded = False
++		self.bContentExpanded = False
+ 		self.top = main
+ 		self.iSelectedAttitude = AttitudeTypes.ATTITUDE_PLEASED
+ 		self.ATTITUDE_SELECTED_EMOJI_SIZE = 24
+@@ -223,11 +224,17 @@ class SevoPediaLeader:
+ 	def interfaceScreen(self, iLeader):
+ 		if self.iLeader != iLeader:
+ 			self.bHistoryExpanded = False
++			self.bContentExpanded = False
+ 		self.iLeader = iLeader
+ 
++		if self.bContentExpanded:
++			self.placeLeaderHeadPane()
++			return
++
+ 		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or clearer or helpful or not or other etc anyways, -->
+ 		# <!-- custom: placeHistory must be last so its expanded overlay renders on top of all other panels (traits, AI personality). (Claude code Sonnet 4.6) -->
+-		self.placeLeaderHeadPane()
++		if not self.bHistoryExpanded:
++			self.placeLeaderHeadPane()
+ 		self.placeFavorites()
+ 		self.placeMusic()
+ 		self.placeAttitudes()
+@@ -249,10 +256,17 @@ class SevoPediaLeader:
+ 	# <!-- custom: wrap leader placement in a specific function for clarity or flexibility or not anyways, -->
+ 	def placeLeaderHeadPane(self):
+ 		screen = self.top.getScreen()
+-		leaderPanelWidget = self.top.getNextWidgetName()
+-		screen.addPanel(leaderPanelWidget, "", "", True, True, self.X_LEADERHEAD_PANE, self.Y_LEADERHEAD_PANE, self.W_LEADERHEAD_PANE, self.H_LEADERHEAD_PANE, PanelStyles.PANEL_STYLE_BLUE50)
++		(iLhX, iLhY, iLhW, iLhH), (iAttX, iAttY, iAttW, iAttH) = draw_expandable_leaderhead_panel(
++			screen, self.top,
++			self.X_LEADERHEAD_PANE, self.Y_LEADERHEAD_PANE, self.W_LEADERHEAD_PANE, self.H_LEADERHEAD_PANE,
++			self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD,
++			self.bContentExpanded,
++			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND
++		)
+ 		self.leaderWidget = self.top.getNextWidgetName()
+-		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, self.iSelectedAttitude, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, self.iSelectedAttitude, iLhX, iLhY, iLhW, iLhH, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		if self.bContentExpanded:
++			self._drawAttitudeRowAt(screen, iAttX, iAttY, iAttW, iAttH)
+ 
+ 
+ 
+@@ -397,6 +411,44 @@ class SevoPediaLeader:
+ 
+ 
+ 
++	def setContentExpanded(self, bExpanded):
++		self.bContentExpanded = bExpanded
++
++
++
++	def _drawAttitudeRowAt(self, screen, iX, iY, iW, iH):
++		# <!-- custom: draws attitude+action buttons in the expanded overlay right column. iW and iH are fixed by the helper (191x100), so no need for the dynamic fallback resizing that placeAttitudes uses for variable screen widths. (Claude code Sonnet 4.6) -->
++		iSpacing = 3
++		iPadding = 6
++		iButtonH = (iH - 20) / 2
++		iAttitudeY = iY + 11
++
++		iAttitudeCount = len(SAS_LEADER_ATTITUDE_PREVIEW_ORDER)
++		iAttitudeButtonW = (iW - 2 * iPadding - iSpacing * (iAttitudeCount - 1)) / iAttitudeCount
++		iAttitudeX = iX + (iW - (iAttitudeCount * iAttitudeButtonW + (iAttitudeCount - 1) * iSpacing)) / 2
++
++		for iAttitude in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
++			if IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE:
++				iEmojiSize = self.ATTITUDE_UNSELECTED_EMOJI_SIZE
++				if iAttitude == self.iSelectedAttitude:
++					iEmojiSize = self.ATTITUDE_SELECTED_EMOJI_SIZE
++				szLabel = u"<img=%s size=%d></img>" % (self.attitudeSelectedEmojiPathByAttitude[iAttitude], iEmojiSize)
++			else:
++				szLabel = SASTextScale.labelText(self.getAttitudeButtonLabel(iAttitude))
++			screen.setButtonGFC(self.top.getNextWidgetName(), szLabel, "", iAttitudeX, iAttitudeY, iAttitudeButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ATTITUDE, iAttitude, ButtonStyles.BUTTON_STYLE_STANDARD)
++			iAttitudeX += iAttitudeButtonW + iSpacing
++
++		iActionCount = len(SAS_LEADER_ACTION_PREVIEW_ORDER)
++		iActionButtonW = (iW - 2 * iPadding - iSpacing * (iActionCount - 1)) / iActionCount
++		iActionX = iX + (iW - (iActionCount * iActionButtonW + (iActionCount - 1) * iSpacing)) / 2
++		iActionY = iAttitudeY + iButtonH + 4
++
++		for iAction, szLabel in SAS_LEADER_ACTION_PREVIEW_ORDER:
++			screen.setButtonGFC(self.top.getNextWidgetName(), SASTextScale.labelText(szLabel), "", iActionX, iActionY, iActionButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ACTION, iAction, ButtonStyles.BUTTON_STYLE_STANDARD)
++			iActionX += iActionButtonW + iSpacing
++
++
++
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		# <!-- custom: use normalizeLabelText here because many leader Civilopedia entries already include embedded <font=...> tags; simple labelText then leaves text at legacy small size instead of applying SAS upscaling. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
+@@ -729,6 +781,10 @@ class SevoPediaLeader:
+ 		if iAttitude not in SAS_LEADER_ATTITUDE_PREVIEW_ORDER:
+ 			return 0
+ 		self.iSelectedAttitude = iAttitude
++		if self.bContentExpanded:
++			# <!-- custom: in expanded mode a full re-render is needed so the leaderhead and attitude row both redraw at expanded coords. (Claude code Sonnet 4.6) -->
++			self.top.pediaJump(self.top.iCategory, self.top.iItem, False, False)
++			return 1
+ 		# <!-- custom: force-refresh the leaderhead widget so attitude changes show immediately on click; mood-only updates can be visually ignored while another anim is still running. (GPT-5.3-Codex) -->
+ 		self.refreshLeaderheadWidget()
+ 		self.placeAttitudes()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 79f22f15a..78ef4d1c1 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -42,6 +42,11 @@ H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+ H_ADJUST_ANIMATION_NO_HEADER_EXPAND_BUTTON = 28
+ # <!-- custom: Y offset for the CLOSE button inside the expanded overlay header bar. Shared by both draw_expandable_text_panel and draw_expandable_content_panel_container. (Claude code Sonnet 4.6) -->
+ EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET = 4
++# <!-- custom: leaderhead expanded overlay: width = height * PCT / 100, keeping portrait proportions. Tune this value to taste.
++# Empirically, 80 shows most of the animation height (head to torso/clothes) and most of the width (background included). (Claude code Sonnet 4.6) -->
++EXPANDED_LEADERHEAD_WIDTH_PCT = 80
++# <!-- custom: Y offset of the EXPAND button inside the collapsed leaderhead pane (placed inside the panel, not above it). (Claude code Sonnet 4.6) -->
++LEADERHEAD_EXPAND_BUTTON_Y_OFFSET = -16
+ 
+ 
+ 
+@@ -505,6 +510,59 @@ def draw_expandable_content_panel_container(screen, top, panelTitle, panelX, pan
+ 
+ 
+ 
++def draw_expandable_leaderhead_panel(screen, top, panelX, panelY, panelW, panelH, leaderX, leaderY, leaderW, leaderH, bExpanded, iPythonWidgetData1):
++	# <!-- custom: expandable panel helper for the leaderhead. Like draw_expandable_content_panel_container but has no RELOAD button (leaderhead re-renders only on attitude/action button clicks, not on reload — use the attitude/action buttons in the right column instead) and reserves a right column for those buttons. Returns ((lhX, lhY, lhW, lhH), (attX, attY, attW, attH)). Collapsed returns the passed leader coords unchanged. (Claude code Sonnet 4.6) -->
++	iCloseButtonW = 85
++	iAttColW = 191
++	iExpandButtonW = 107
++	if bExpanded:
++		iOverlayX = top.X_PEDIA_PAGE
++		iOverlayY = top.Y_PEDIA_PAGE
++		iOverlayW = top.R_PEDIA_PAGE - top.X_PEDIA_PAGE
++		iOverlayH = top.B_PEDIA_PAGE - top.Y_PEDIA_PAGE
++		screen.addDDSGFC(
++			top.getNextWidgetName(),
++			ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(),
++			iOverlayX, iOverlayY, iOverlayW, iOverlayH,
++			WidgetTypes.WIDGET_GENERAL, -1, -1
++		)
++		screen.addPanel(top.getNextWidgetName(), u"(Content)", "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
++		screen.setButtonGFC(
++			top.getNextWidgetName(),
++			SASTextScale.labelText(u"CLOSE"),
++			"",
++			iOverlayX + iOverlayW - (iCloseButtonW + 10),
++			iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET,
++			iCloseButtonW, 26,
++			WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 0,
++			ButtonStyles.BUTTON_STYLE_STANDARD
++		)
++		# attitude/action column: right-aligned, same width as old RELOAD+CLOSE combined
++		iAttX = iOverlayX + iOverlayW - (iAttColW + 10)
++		iAttW = iAttColW
++		iAttY = iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET + 26 + 4
++		iAttH = 100
++		# leaderhead: full height, width capped by ratio to preserve portrait proportions
++		iLhX = iOverlayX + 10
++		iLhY = iOverlayY + 40
++		iLhH = iOverlayH - 50
++		iLhW = iLhH * EXPANDED_LEADERHEAD_WIDTH_PCT / 100
++		return (iLhX, iLhY, iLhW, iLhH), (iAttX, iAttY, iAttW, iAttH)
++	screen.addPanel(top.getNextWidgetName(), u"", "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
++	screen.setButtonGFC(
++		top.getNextWidgetName(),
++		SASTextScale.labelText(u"EXPAND"),
++		"",
++		panelX + panelW - (iExpandButtonW + 8),
++		panelY + LEADERHEAD_EXPAND_BUTTON_Y_OFFSET,
++		iExpandButtonW, 24,
++		WidgetTypes.WIDGET_PYTHON, iPythonWidgetData1, 1,
++		ButtonStyles.BUTTON_STYLE_STANDARD
++	)
++	return (leaderX, leaderY, leaderW, leaderH), (0, 0, 0, 0)
++
++
++
+ def get_concept_widgetType_widgetID1_widgetID2(conceptID, widgetTypes, civilopediaPageTypes):
+ 	if conceptID != -1:
+ 		# For concepts, use WIDGET_PEDIA_DESCRIPTION with proper page type and ID
+
+diff --git a/README.md b/README.md
+index 3154bdebc..22f5774c5 100644
+--- a/README.md
++++ b/README.md
+@@ -47,7 +47,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;&emsp;[Map view rework](/README.md#city-screen-rework)  
+ &emsp;[Scoreboard](/README.md#scoreboard)  
+ [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
+-&emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia-expanded-text-panels-expanded-content-non-text-eg-animation-panels)  
++&emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels, Expanded leaderhead Panel](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia-expanded-text-panels-expanded-content-non-text-eg-animation-panels-expanded-leaderhead-panel)  
+ &emsp;[Other new categories](/README.md#other-new-categories)  
+ &emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/README.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
+ &emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
+@@ -303,7 +303,7 @@ New features have been added: scroll up button, scroll down button, the do not r
+ 
+ Note: for more screenshots and documentation of the Sevopedia reworks in AdvCiv-SAS, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
+ 
+-### Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels
++### Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels, Expanded leaderhead panel
+ 
+ #### Items grouping
+ 
+@@ -369,25 +369,17 @@ We also added a new Sevopedia Music that allows to play ~1750 audio scripts in S
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.830_sevopedia_music (3).JPG" alt="0.830_sevopedia_music (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.830_sevopedia_music (4).JPG" alt="0.830_sevopedia_music (4).JPG" width="250"></img>
+ 
+-#### Expanded Text Panels
++#### Expanded Panels
+ 
+-We also added Sevopedia Expanded Text Panels, with EXPAND and CLOSE buttons.
++We also added Sevopedia Expanded Text Panels, with EXPAND and CLOSE buttons. See [Sevopedia Reworks (example 0.93: Expanded text panel (with EXPAND and CLOSE buttons))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
+ 
+-See [Sevopedia Reworks (example 0.93: Expanded text panel (with EXPAND and CLOSE buttons))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
++We similarly also added Expanded Content (Non-text; e.g., Animation) Panels. We also added a RELOAD button so e.g. the animation can be reloaded (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) without having to tediously exit and reopen expanded view. See [Sevopedia Reworks (example 0.94: Expanded content (non-text; e.g., animation) panel (with EXPAND, RELOAD, and CLOSE buttons))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-reload-and-close-buttons).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG" alt="0.840_sevopedia_expanded_text (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG" alt="0.840_sevopedia_expanded_text (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG" alt="0.840_sevopedia_expanded_text (3).JPG" width="250"></img>
+-
+-#### Expanded Content (Non-text; e.g., Animation) Panels
+-
+-We similarly also added Expanded Content (Non-text; e.g., Animation) Panels. We also added a RELOAD button so e.g. the animation can be reloaded (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) without having to tediously exit and reopen expanded view.
++Similarly also added expanded leaderhead panel. It does not have a RELOAD button since it is ineffective in changing leaderhead animation behaviour but instead has attitude and action buttons matching the ones in sevopedia leader. Also, animation occupies all page height but width is a percentage of height (e.g., 80 percent) so most of leaderhead is shown (if too high or too low less of the leaderhead animation is visible). See [Sevopedia Reworks (example 0.95: Expanded leaderhead panel))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
+ 
+-See [Sevopedia Reworks (example 0.94: Expanded content (non-text; e.g., animation) panel (with EXPAND, RELOAD, and CLOSE buttons))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-reload-and-close-buttons).
+-
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.841_sevopedia_expanded_content (1).JPG" alt="0.841_sevopedia_expanded_content (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG" alt="0.840_sevopedia_expanded_text (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.841_sevopedia_expanded_content (2).JPG" alt="0.841_sevopedia_expanded_content (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.841_sevopedia_expanded_content (3).JPG" alt="0.841_sevopedia_expanded_content (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0842" alt="0.841_sevopedia_expanded_content (3).JPG" width="250"></img>
+ 
+ ### Other new categories
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index ea13fad5a..c56fa1938 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -312,8 +312,9 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - New **Media Player** (**shared** between Sevopedia Movies and Music): supports **Replay**, **Eject (Exit)**, **Previous Track** and **Next track**, **Toggle Movies/Music**, **Fast Up** and **Fast Down** (change grouping), **Timer**, and a **Playlist** and a **TV panel** on the right side for **non-bik** files (e.g., for **nif**, **dds**), or **a more compact** queue form **for bik files**. This allows to view without having to exit the screen. Click on **Eject button** or **Right-click** to **stop the media playing**; press Escape or Enter key for main menu. See [Sevopedia reworks (Media Player)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-media-player).
+ - New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, (Requires AdvCiv-SAS 5511+) **Corporations**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support).
+ - New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. Note: there are **multiple sounds in an item** for each civilization sound item, so **replay many times the same item to hear all civilization sounds**. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia).
+-- (Requires AdvCiv-SAS 5673+) New **Expanded Text Panels** so History/Background **text** (e.g. of the Viking unit that is long and requires scrolling to be seen or of the Gret General Unit (that includes uniquenames that require scrolling to be scanned quickly)) easier to read, with **EXPAND** and **CLOSE** buttons. It occupies the whole item's page but **preserves the rest of the sevopedia page display** (footer, header, item bar and category bar) for easy browsing. Added as an optional helper shared accross all eligible categories (main code in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)). See [Sevopedia reworks (Expanded text panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
++- (Requires AdvCiv-SAS 5673+) New **Expanded Text Panels** so History/Background **text** (e.g. of the Viking unit that is long and requires scrolling to be seen or of the Great General Unit (that includes uniquenames that require scrolling to be scanned quickly)) easier to read, with **EXPAND** and **CLOSE** buttons. It occupies the whole item's page but **preserves the rest of the sevopedia page display** (footer, header, item bar and category bar) for easy browsing. Added as an optional helper shared accross all eligible categories (main code in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)). See [Sevopedia reworks (Expanded text panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
+ - (Requires AdvCiv-SAS 5674+) New **Expanded Content (Non-text; e.g. Animation) Panels** similarly so **animations** (e.g. of the Viking unit) can be viewed **maximized** (i.e. using all the item's page), with **EXPAND**, **RELOAD** (so e.g. the animation can be **reloaded** (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) **without having to exit and reopen expanded view**), and **CLOSE** buttons. Applied for eligible categories: Bonuses, Improvements, Units ("Un.List"), Buildings ("Buildings", "N.Wond.", "W.Wond"). See [Sevopedia reworks (Expanded Content (Non-text; e.g., Animation) Panels)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-and-close-buttons).
++- (Requires AdvCiv-SAS 5677+) New **Expanded leaderhead panel** similarly with **EXPAND** and **CLOSE** button, and **leaderhead animation** with **expanded height and scaling width** (percentage of height **to maximize display of the full leaderhead** (because a suboptimal width/height ratio causes animation to show less of the leaderhead)), and leaderhead **attitude and action buttons** synchronized with the ones in sevopedia leader. See [Sevopedia reworks (Expanded leaderhead panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
+ - Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ - Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 312e8e587..b25109650 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -28,6 +28,7 @@ Note 2: in below sample examples, click the images to view them full size.
+ &emsp;&emsp;[example 0.92: Music category (~1750 audio scripts playable in Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia)  
+ &emsp;&emsp;[example 0.93: Expanded text panel (with EXPAND and CLOSE buttons)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons)  
+ &emsp;&emsp;[example 0.94: Expanded content (non-text; e.g., animation) panel (with EXPAND, RELOAD, and CLOSE buttons)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-reload-and-close-buttons)  
++&emsp;&emsp;[example 0.95: Expanded leaderhead panel](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel)  
+ [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
+ &emsp;[example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes)  
+ &emsp;[example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes)  
+@@ -284,6 +285,14 @@ We also added a RELOAD button so e.g. the animation can be reloaded (e.g., to ch
+ <img src="../Images/sevopedia/0.841_sevopedia_expanded_content (2).JPG" alt="0.841_sevopedia_expanded_content (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.841_sevopedia_expanded_content (3).JPG" alt="0.841_sevopedia_expanded_content (3).JPG" width="250"></img>
+ 
++### example 0.95: Expanded leaderhead panel
++
++Similarly also added expanded leaderhead panel. It does not have a RELOAD button since it is ineffective in changing leaderhead animation behaviour but instead has attitude and action buttons matching the ones in sevopedia leader.
++
++Also, animation occupies all page height but width is a percentage of height (e.g., 80 percent) so most of leaderhead is shown (if too high or too low less of the leaderhead animation is visible).
++
++<img src="../Images/sevopedia/0.842_sevopedia_expanded_lh (1).JPG" alt="0.842_sevopedia_expanded_lh (1).JPG" width="250"></img>
++
+ ## Sevopedia Pages individual reworks
+ 
+ This section focuses on the higher level changes we did to Sevopedia, mostly about UI or such.
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.842_sevopedia_expanded_lh (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.842_sevopedia_expanded_lh (1).JPG
+new file mode 100644
+index 000000000..35ab1c0ec
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.842_sevopedia_expanded_lh (1).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=26014

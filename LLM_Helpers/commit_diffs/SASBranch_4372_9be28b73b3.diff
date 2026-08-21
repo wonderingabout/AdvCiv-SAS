@@ -1,0 +1,1972 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4372
+# Commit: 9be28b73b336b400f227503e2a1147b2873cf79b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 58d0dc879f956d04327d3a8708a27fb2d06790fb
+# Title: Merge pull request #4 from codingnewcode/ai_freetechs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+117	29	Assets/XML/AI_Variables_GlobalDefines.xml
+466	92	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+41	9	Assets/XML/Technologies/CIV4TechInfos.xml
+287	33	Assets/XML/Units/CIV4UnitInfos.xml
+15	0	CvGameCoreDLL/CvGame.cpp
+2	0	CvGameCoreDLL/Project/.gitignore
+3	3	CvGameCoreDLL/Project/Makefile.user
+-	-	advciv-mod-difficulties_summary-htm-A3.pdf
+-	-	advciv-mod-difficulties_summary.ods
+ create mode 100644 advciv-mod-difficulties_summary-htm-A3.pdf
+ create mode 100644 advciv-mod-difficulties_summary.ods
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index fb8bc31c6..b8233d32a 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -47,23 +47,33 @@
+ 	</Define>
+ 	<Define>
+ 		<!-- The satisfaction of seeing our (worst) enemies devastated. -->
++		<!-- custom: seeing worst enemy defeated should not matter as much as seeing
++		     ourselves grow maybe, decreasing this a bit so hopefully AI is a bit more
++			 effective, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_LOATHING</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>70</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- The prospect of a speedy military victory incites us to wage war.
+ 			 This covers Domination, Conquest and Diplomatic victory; Diplo
+ 			 victory also factors into ILL_WILL. -->
++		<!-- custom: slightly increase war propension if we are likely to win, but
++		     not increasing it a lot, as there is a risk too of going too soon to war
++			 (exposure to other rivals, risk if war fails, slower economy short term,
++			 was 100)-->
+ 		<DefineName>UWAI_WEIGHT_MILITARY_VICTORY</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>105</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Protect our partners because we want to continue trading with
+ 			 them, and don't want to become isolated. Assistance for more
+ 			 principled reasons is covered by FIDELITY, the "mutual struggle"
+ 			 diplo bonus by SUCKING_UP. -->
++		<!-- custom: as much as we like our partners, it is in our interest
++		     if rivals fight each other, we conquer back the cities they lost,
++			 liberate it for them to gain favour, or keep it as our expansion, was 100-->
+ 		<DefineName>UWAI_WEIGHT_PRESERVATION_OF_PARTNERS</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>80</iDefineIntVal>
+ 	</Define>
+   <!-- The next four - Reconquista, Rebuke, Fidelity and Hired Hand - are about
+ 	   upholding a reputation. Since Civ 4 doesn't have a reputation system,
+@@ -71,8 +81,12 @@
+ 	<Define>
+ 		<!-- By reconquering previously owned cities, we show that it's not
+ 			 worthwhile to conquer our cities; we'll get them back. -->
++		<!-- custom: city has our culture, so worth more and easier to benefit from
++		     than a rival's city. It may sometimes be wise to give up the city short
++			 term or even mid or long term maybe too sometimes so not increasing it a
++			 lot.,  was 100 -->
+ 		<DefineName>UWAI_WEIGHT_RECONQUISTA</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>110</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- We show we can take by force what was denied to us when we
+@@ -80,26 +94,40 @@
+ 			 they "refused to give us tribute". A rebuked demand can also lead
+ 			 to an immediate change in war planning, but that's handled by
+ 			 WarAndPeaceAI::Team::respondToRebuke, not in XML. -->
++		<!-- custom: tribute is not just for show, hopefully this maybe also
++		     improves immersion, however AI demands are sometimes ridiculous,
++			 so increase it only a bit. It does currently feel that they would
++			 never ever declare war even though they have reason to (according to
++			 what they think/value it seems i think maybe), was 100. -->
+ 		<DefineName>UWAI_WEIGHT_REBUKE</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>110</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- By declaring war on a civ that recently attacked one of our
+ 			 partners, we demonstrate that it's worthwhile to be our partner,
+ 			 and dangerous to attack our partners. -->
++		<!-- custom: may make the early game more interesting and also punish
++		     overexpanding/overwarmongering players that may have been a bit
++			 too careless about their defenses while doing so, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_FIDELITY</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>110</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- We continue a war because we've been paid for it. (Or maybe, rather,
+ 			 to prove that we're a reliable hireling.) -->
++		<!-- custom: just because we are paid for a war is no incentive to risk weakening
++		     our mainland, incentive should be more focused on potential gains (vs risk of loss), was 100 -->
+ 		<DefineName>UWAI_WEIGHT_HIRED_HAND</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- By conquering cities, we reduce culture pressure on our cities. -->
++		<!-- custom: some culture pressure is maybe better than a war, especially if
++		     mid late game, at this point rivals would just/more be neighbours (more
++			 realistic/immersive too this way i think maybe), so make AI more likely to
++			 tolerate it, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_BORDER_DISPUTES</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>90</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Fight a joint war for the "mutual struggle" diplo bonus. -->
+@@ -108,8 +136,9 @@
+ 	</Define>
+ 	<Define>
+ 		<!-- To weaken a civ that we perceive as a long-term military threat. -->
++		<!-- custom: may help AI attack sooner a rival that blocks its expansion?, was 100-->
+ 		<DefineName>UWAI_WEIGHT_PREEMPTIVE_WAR</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>125</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Stop civs that we don't like from winning the game, or even civs
+@@ -117,8 +146,12 @@
+ 			 winners can be civs close to a victory condition, but also civs
+ 			 that have gotten ahead in score or that we expect to get ahead
+ 			 through an ongoing war. -->
++		<!-- custom: more so that they are kept in check and punished sooner for
++		     running away with the game without taking necessary/some preparations,
++			 may also make the game more dynamic and less one-sided for more immersion
++			 possibly too, was 100-->
+ 		<DefineName>UWAI_WEIGHT_KING_MAKING</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>105</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Our military build-up, lost units and ravages of war. Adjusted
+@@ -132,8 +165,10 @@
+ 	<Define>
+ 		<!-- The risk of losing cities or vassals in the war, or even having to
+ 			 capitulate or being eliminated. -->
++		<!-- slightly increase this to prevent excessive war declarations (that may
++		     backfire for the AI maybe), was 100-->
+ 		<DefineName>UWAI_WEIGHT_RISK</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>105</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- The negative diplomatic consequences of war: angering the civ
+@@ -152,13 +187,18 @@
+ 		<!-- Distractions from fighting multiple wars are already covered by
+ 			 the military analysis, but not quite reliably, so this is an
+ 			 extra cost to discourage wars on multiple fronts. -->
++		<!-- custom: AI is unlikely to win 2+ wars at the same time, almost always
++		     likely to end bad for the AI, so may help the AI to further discourage
++			 it, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_DISTRACTION</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>300</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Anger from war weariness and bonds of faith. -->
+ 		<DefineName>UWAI_WEIGHT_PUBLIC_OPPOSITION</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<!-- custom: should matter less if war is short or/and conquered city has
++		     new ressources, was 100 -->
++		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- War leaves fewer units stationed in cities, which can lead to
+@@ -172,14 +212,21 @@
+ 		<!-- Applies only when we're paid to start a war and the sponsor isn't
+ 			 apparently in need of assistance (or not even at war). Why hire
+ 			 us then? Will have to pay extra to allay our suspicions. -->
++		<!-- custom: need to pay more to make us going to war for/with
++		     someone as it is more likely to bite us back (or we'd be manipulated
++		     in doing so), was 100 -->
+ 		<DefineName>UWAI_WEIGHT_ULTERIOR_MOTIVES</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>200</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Discourages early war against humans; not fair when the AI has a
+ 			 head start. -->
++		<!-- custom: give a bit more time for the human player to catch up, but
++		     not too much. Hopefully this also helps prevent suicidal war declarations
++			 that are done too soon and do not profit the player that declared war vs
++			 the rivals developing their economy in the early game instead, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_FAIR_PLAY</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>125</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- War as its own purpose. Before this aspect was added, there was too
+@@ -187,7 +234,12 @@
+ 			 Especially affects AI leaders with aggressive/ suicidal
+ 			 personalities. -->
+ 		<DefineName>UWAI_WEIGHT_BELLICOSITY</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<!-- custom: the human player (and other players too) can't just play it
++		     safe and focus only on economy for ultra late game win, this should be
++			 punished by players that are strong enough to profit from that immediate
++			 advantage, and the human or other players should instead have a more
++			 balanced approach and be aware of that, was 100 -->
++		<iDefineIntVal>120</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Is the tactical situation favorable, i.e. do we/ do they have
+@@ -196,8 +248,10 @@
+ 			 increased war utility. If still preparing war: Do we have suffi-
+ 			 cient units to start the war; is there still enough time to build
+ 			 them? -->
++		<!-- custom: hopefully helps the AI have a more dynamic or/and opportunistic
++		     response to local position, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_TACTICAL_SITUATION</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>140</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Pacifism for humanitarian reasons (roleplaying). This is different
+@@ -213,16 +267,22 @@
+ 	<Define>
+ 	<!-- We're wary of waging war when a dangerous third party appears likely
+ 		 to intervene against us. -->
++	<!-- custom: overexpansion would kill the player, so some caution if outnumbered
++	     may help a lot, possibly the player being outnumbered to make a comeback later
++		 too?, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_THIRD_PARTY_INTERVENTION</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>200</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 	<!-- To keep the game entertaining for human players, we're more inclined
+ 		 to start a war if none has been fought among civs known to us for a
+ 		 long time. Conversely, we're more inclined to make peace if many wars
+ 		 have been ongoing for a long time. -->
++	<!-- custom: focus should be more on actual gains and risks of losses, not on
++	     entertaining the human player especially if doing a foolish war declaration
++		 that would later be exploited by other players, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_DRAMATIC_ARC</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>10</iDefineIntVal>
+ 	</Define>
+ 
+ 	<Define>
+@@ -242,16 +302,22 @@
+ 			 the faith" though.) UWAI_PERSONALITY_PERCENT>100 makes the
+ 			 personalities more pronounced (not tested). Negative values invert
+ 			 the personalities (not tested and not recommended). -->
++		<!-- custom: have personalities be more pronounced (experimental), maybe
++		     it would make the game more entertaining, or games in general more
++			 varied, without affecting as much effectiveness of decisions as compared
++			 to dramatic_war?, was 100 -->
+ 		<DefineName>UWAI_PERSONALITY_PERCENT</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>120</iDefineIntVal>
+ 	</Define>
+ 	<!-- [/advc.104x] -->
+ 	<!-- [advc.104] Misc. UWAI parameters -->
+ 	<Define>
+ 		<!-- Added to the utility threshold for starting a war while already in
+ 			 a war. Recommended: 10 (or sth. between 0 and 25). -->
++		<!-- custom: testing 25, would this make AIs less willing/likely to fight multi wars,
++		     thus increasing AI efficiency?, was 10 -->
+ 		<DefineName>UWAI_MULTI_WAR_RELUCTANCE</DefineName>
+-		<iDefineIntVal>10</iDefineIntVal>
++		<iDefineIntVal>25</iDefineIntVal>
+ 	</Define>
+     <Define>
+ 		<!-- When computing per-civ power values (which play an important role
+@@ -265,8 +331,16 @@
+ 			 166%; one Spearman then corresponds to 3.15 Warriors. -->
+ 		<!-- advc.159: A fraction (3/4) of this value is also used for some
+ 			 tactical decisions outside the UWAI component. -->
++		<!-- custom: 2^1.59 is 3.010 strength corrected and 9.063 approximately
++		     so a spearman is closer to 3 (3.010 to be more exact (still approximate))
++			 warriors, so maybe this is a good enough odd to consider attacking with
++			 the 3 warriors now? May also help AI stacks not stare at each other too
++			 long and start city attacks sooner?
++			 Increased it to 160 to be safer (than 159) (so one warrior is 3.031 corrected
++			 strength and one spearman 9.063 strength and so one spearman would be as worth
++			 as 3.031 (too) warriors), was 166 -->
+         <DefineName>POWER_CORRECTION</DefineName>
+-		<iDefineIntVal>166</iDefineIntVal>
++		<iDefineIntVal>160</iDefineIntVal>
+     </Define>
+ 	<!-- [/advc.104] -->
+ 
+@@ -276,21 +350,24 @@
+ 	<!-- -->
+ 	<Define> <!-- redefine -->
+ 		<!-- War success value of capturing a city.  BBAI: 25, BtS 10
+-			 advc.130r: Reduce a little. Caveat: Should be careful about
+-			 changing this value, it's used as a baseline in many places. -->
++		advc.130r: Reduce a little. Caveat: Should be careful about
++		changing this value, it's used as a baseline in many places. -->
+ 		<DefineName>WAR_SUCCESS_CITY_CAPTURING</DefineName>
+ 		<iDefineIntVal>22</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Ratio of enemy power to team power for AI to consider running TURTLE (all out defense, no offensive forays) strategy.  
+ 		Equal power would be 100.  BBAI default: 250 -->
++		<!-- custom: try turtling sooner to avoid a too late to defend situation, was 250 -->
+ 		<DefineName>BBAI_TURTLE_ENEMY_POWER_RATIO</DefineName>
+-		<iDefineIntVal>250</iDefineIntVal>
++		<iDefineIntVal>160</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Minimum stack strength ratio at which AI will attack enemy city it is next to, higher means less suicide.  BTS default: 120, BBAI: 125, now: 123 -->
++		<!-- custom: many times AI troops are too long to start an attack and keep staring at each other, facilitate a bit more
++		the AI attack to start, was 123 -->
+ 		<DefineName>BBAI_ATTACK_CITY_STACK_RATIO</DefineName>
+-		<iDefineIntVal>123</iDefineIntVal>
++		<iDefineIntVal>122</iDefineIntVal>
+ 	</Define>
+ 	<!-- advc.003j: Obsoleted by K-Mod code (CvUnitAI::AI_bombardCity) -->
+ 	<!-- Minimum attack odds of best attacker for AI to skip bombarding a city
+@@ -304,18 +381,29 @@
+ 		This ratio is reduced by the AI's best attacker odds and how long it will take to bombard the city.
+ 		Lower means AI will more readily skip bombarding.  BBAI default: 300 -->
+ 		<!-- advc.114c: Was 260 in K-Mod, now 250. -->
++		<!-- custom: speed up a bit the early conquest, later in the game having a good pace/tempo and short war
++	    should also be valuable for the AI, would give less time to build more defenders while city is bombarded too
++		so maybe it balances itself out this way -->
+ 		<DefineName>BBAI_SKIP_BOMBARD_BASE_STACK_RATIO</DefineName>
+-		<iDefineIntVal>250</iDefineIntVal>
++		<iDefineIntVal>240</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Minimum stack strength ratio for AI to skip bombarding city and just attack, higher is more conservative.  BBAI default: 150 -->
+ 		<!-- advc.114c: Was 140 in K-Mod, now 137. -->
++		<!-- custom: similar as for skip_bombard_base_stack_ratio, to facilitate a bit more early attack, with in mind the
++		possible benefits of doing so too, was 137 -->
+ 		<DefineName>BBAI_SKIP_BOMBARD_MIN_STACK_RATIO</DefineName>
+-		<iDefineIntVal>137</iDefineIntVal>
++		<iDefineIntVal>135</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Minimum city site value that the AI will consider settling. default: 600. (K-Mod) -->
++		<!-- custom: at first i thought some cities are not good enough but AI still settles them and
++		cripples itself, hopefully this improves that while not hurting AI growth too much, but it didn't
++		seem to do too much especially if increased too much. A very low value (around 300 for example)
++		seemed to be mostly ignored too (except AI had more cities that were a bit too crammed.
++		Trying other values, it seems 550 somehow, i don't know why, but consistently provides better
++		city spots to the AI, would need more testing to make sure., was 600 -->
+ 		<DefineName>BBAI_MINIMUM_FOUND_VALUE</DefineName>
+-		<iDefineIntVal>600</iDefineIntVal>
++		<iDefineIntVal>550</iDefineIntVal>
+ 	</Define>
+ </Civ4Defines>
+\ No newline at end of file
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index ba0b26a4d..1c2341be7 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -30,7 +30,9 @@
+ 			<iGPThresholdPercent>80</iGPThresholdPercent>
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+ 			<!-- was 60 -->
+-			<iResearchPercent>72</iResearchPercent>
++			<!-- custom: this is lowest difficulty and AI still get free techs, so although the human player
++			also get techs, some of which specific to the human player, do not decrease too much the gap, was 72 -->
++			<iResearchPercent>68</iResearchPercent>
+ 			<iTrainPercent>80</iTrainPercent>
+ 			<!-- was 80 (let's steer beginners away a bit from just playing SimCity) -->
+ 			<iConstructPercent>85</iConstructPercent>
+@@ -78,7 +80,8 @@
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
+ 			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+-			<iStartingExploreUnits>0</iStartingExploreUnits>
++			<!-- custom: to help discover the game, give a free explorer unit, was 0-->
++			<iStartingExploreUnits>1</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+@@ -91,7 +94,8 @@
+ 			<iAIGrowthPercent>125</iAIGrowthPercent>
+ 			<iAIGPThresholdPercent>125</iAIGPThresholdPercent>
+ 			<!-- Lower tech costs for the AI -->
+-			<iAIResearchPercent>90</iAIResearchPercent>
++			<!-- custom: increase AI costs to make the game last longer maybe, was 90 -->
++			<iAIResearchPercent>95</iAIResearchPercent>
+ 			<!-- was 6x 160 -->
+ 			<iAITrainPercent>125</iAITrainPercent>
+ 			<iAIWorldTrainPercent>125</iAIWorldTrainPercent>
+@@ -134,6 +138,8 @@
+ 				<GoodyType>GOODY_TECH</GoodyType>
+ 				<GoodyType>GOODY_TECH</GoodyType>
+ 			</Goodies>
++			<!-- custom: for a new player or-and lowest difficulty, having most early worker improvements available and most early ressources
++			revealed at the start may help so i added the required techs that enable so here -->
+ 			<FreeTechs>
+ 				<FreeTech>
+ 					<TechType>TECH_THE_WHEEL</TechType>
+@@ -144,51 +150,74 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
++					<TechType>TECH_HUNTING</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++					<FreeTech>
+ 					<TechType>TECH_MINING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_MATHEMATICS</TechType>
++					<FreeTech>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_ALPHABET</TechType>
++					<FreeTech>
++					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_MACHINERY</TechType>
++					<FreeTech>
++					<TechType>TECH_BRONZE_WORKING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_FEUDALISM</TechType>
++					<FreeTech>
++					<TechType>TECH_IRON_WORKING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++			</FreeTechs>
++			<!-- custom: make this difficulty slightly harder than it was, should be quite easier than the higher one but not that much easier,
++			hopefully difficulty is more gradual with this now.
++			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
++			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
++			often giving AIs free techs to increase their efficiency.
++			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
++			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
++			<AIFreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_PRINTING_PRESS</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
++				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
++				, was IRON_WORKING-->
+ 				<FreeTech>
+-					<TechType>TECH_GUNPOWDER</TechType>
++					<TechType>TECH_BRONZE_WORKING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
++				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
++				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
++				was TECH_MATHEMATICS -->
+ 				<FreeTech>
+-					<TechType>TECH_STEAM_POWER</TechType>
++					<TechType>TECH_CURRENCY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
++				also may be more versatile than printing press, was PRINTING_PRESS-->
+ 				<FreeTech>
+-					<TechType>TECH_STEEL</TechType>
++					<TechType>TECH_COMPASS</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
+ 				<FreeTech>
+-					<TechType>TECH_PLASTICS</TechType>
++					<TechType>TECH_CHEMISTRY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
+ 				<FreeTech>
+-					<TechType>TECH_REFRIGERATION</TechType>
++					<TechType>TECH_LASER</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+-			</FreeTechs>
+-			<AIFreeTechs/>
++			</AIFreeTechs>
+ 			<!-- advc.250a -->
+ 			<iDifficulty>0</iDifficulty>
+ 		</HandicapInfo>
+@@ -213,7 +242,8 @@
+ 			<iGPThresholdPercent>95</iGPThresholdPercent>
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+ 			<!-- was 75 -->
+-			<iResearchPercent>85</iResearchPercent>
++			<!-- custom: reduce this as AI still have free techs at this difficulty, was 85 -->
++			<iResearchPercent>73</iResearchPercent>
+ 			<iTrainPercent>95</iTrainPercent>
+ 			<iConstructPercent>95</iConstructPercent>
+ 			<iCreatePercent>80</iCreatePercent>
+@@ -314,37 +344,53 @@
+ 				<GoodyType>GOODY_TECH</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+ 			</Goodies>
+-			<FreeTechs>
++			<!-- custom: the wheel and agriculture don't seem such critical techs to have, gives the human player a
++			bit more breathing room if the AI has less early techs too, so removed them. -->
++			<FreeTechs/>
++			<!-- custom: make this difficulty slightly harder than it was, should be quite easier than the higher one but not that much easier,
++			hopefully difficulty is more gradual with this now.
++			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
++			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
++			often giving AIs free techs to increase their efficiency.
++			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
++			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
++			<AIFreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
++				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
++				, was IRON_WORKING-->
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_BRONZE_WORKING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
++				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
++				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
++				was TECH_MATHEMATICS -->
+ 				<FreeTech>
+-					<TechType>TECH_MATHEMATICS</TechType>
++					<TechType>TECH_CURRENCY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
++				also may be more versatile than printing press, was PRINTING_PRESS-->
+ 				<FreeTech>
+-					<TechType>TECH_MACHINERY</TechType>
++					<TechType>TECH_COMPASS</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
+ 				<FreeTech>
+-					<TechType>TECH_PRINTING_PRESS</TechType>
++					<TechType>TECH_CHEMISTRY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
+ 				<FreeTech>
+-					<TechType>TECH_STEAM_POWER</TechType>
++					<TechType>TECH_LASER</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_PLASTICS</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-			</FreeTechs>
+-			<AIFreeTechs/>
++			</AIFreeTechs>
+ 			<!-- advc.250a -->
+ 			<iDifficulty>10</iDifficulty>
+ 		</HandicapInfo>
+@@ -370,7 +416,8 @@
+ 			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+-			<iResearchPercent>90</iResearchPercent>
++			<!-- bonus: reduce this a bit as AI still has a few free techs now, was 90 -->
++			<iResearchPercent>85</iResearchPercent>
+ 			<iTrainPercent>100</iTrainPercent>
+ 			<iConstructPercent>100</iConstructPercent>
+ 			<iCreatePercent>90</iCreatePercent>
+@@ -468,13 +515,53 @@
+ 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 			</Goodies>
+-			<FreeTechs>
++			<!-- custom: the wheel doesn't seem such a critical tech to have, gives the human player a bit more
++			breathing room if the AI has less early techs too, was TECH_THE_WHEEL -->
++			<FreeTechs/>
++			<!-- custom: make this difficulty slightly harder than it was, should be quite easier than the higher one but not that much easier,
++			hopefully difficulty is more gradual with this now.
++			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
++			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
++			often giving AIs free techs to increase their efficiency.
++			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
++			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
++			<AIFreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+-			</FreeTechs>
+-			<AIFreeTechs/>
++				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
++				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
++				, was IRON_WORKING-->
++				<FreeTech>
++					<TechType>TECH_BRONZE_WORKING</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
++				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
++				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
++				was TECH_MATHEMATICS -->
++				<FreeTech>
++					<TechType>TECH_CURRENCY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
++				also may be more versatile than printing press, was PRINTING_PRESS-->
++				<FreeTech>
++					<TechType>TECH_COMPASS</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
++				<FreeTech>
++					<TechType>TECH_CHEMISTRY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
++				<FreeTech>
++					<TechType>TECH_LASER</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++			</AIFreeTechs>
+ 			<!-- advc.250a -->
+ 			<iDifficulty>20</iDifficulty>
+ 		</HandicapInfo>
+@@ -545,6 +632,7 @@
+ 			<!-- advc.313: was -40 -->
+ 			<iAIAnimalBonus>-25</iAIAnimalBonus>
+ 			<iAIBarbarianBonus>-25</iAIBarbarianBonus>
++			<!-- custom: considering noble is intended to be a bit harder now and a bridge closer to prince, also increase the value here, was 0 -->
+ 			<iStartingDefenseUnits>0</iStartingDefenseUnits>
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+@@ -602,7 +690,57 @@
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 			</Goodies>
+ 			<FreeTechs/>
+-			<AIFreeTechs/>
++			<!-- custom: make noble slightly harder than it was, should be quite easier than prince but not that much easier, hopefully
++			difficulty is more gradual with this now.
++			Also, giving the AI techs increase their efficiency and how fast/smooth their economies develop, so even at lower difficulties
++			it may make sense/be helpful, the handicap research percentages can be adjusted accordingly to desired difficulty, while still
++			often giving AIs free techs to increase their efficiency.
++			Noble is now same challenge as prince but with much less research penalties (and a few other type of penalties less too), which
++			should be a big enough leap to still be relevant, leaving lower than noble difficulties be advantageous to the human player.-->
++			<AIFreeTechs>
++				<FreeTech>
++					<TechType>TECH_POTTERY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
++				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
++				, was IRON_WORKING-->
++				<FreeTech>
++					<TechType>TECH_BRONZE_WORKING</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
++				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
++				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
++				was TECH_MATHEMATICS -->
++				<FreeTech>
++					<TechType>TECH_CURRENCY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
++				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
++				was TECH_MACHINERY-->
++				<FreeTech>
++					<TechType>TECH_MONARCHY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
++				also may be more versatile than printing press, was PRINTING_PRESS-->
++				<FreeTech>
++					<TechType>TECH_COMPASS</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
++				<FreeTech>
++					<TechType>TECH_CHEMISTRY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
++				<FreeTech>
++					<TechType>TECH_LASER</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++			</AIFreeTechs>
+ 			<!-- advc.250a -->
+ 			<iDifficulty>30</iDifficulty>
+ 		</HandicapInfo>
+@@ -629,7 +767,8 @@
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+ 			<iCultureLevelPercent>100</iCultureLevelPercent>
+ 			<!-- was 110 -->
+-			<iResearchPercent>108</iResearchPercent>
++			<!-- custom: make the gap between human and AI tech costs closer to in higher difficulties, was 108-->
++			<iResearchPercent>114</iResearchPercent>
+ 			<iTrainPercent>100</iTrainPercent>
+ 			<iConstructPercent>100</iConstructPercent>
+ 			<iCreatePercent>100</iCreatePercent>
+@@ -680,9 +819,14 @@
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>0</iAIStartingDefenseUnits>
++			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
++			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
++			was 0 -->
++			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+-			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
++			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
++			warriors are now more likely to be defenders, was 0 -->
++			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>2</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<!-- advc.251: was 10 -->
+@@ -691,7 +835,8 @@
+ 			<!-- advc.251 -->
+ 			<iAIGPThresholdPercent>100</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+-			<iAIResearchPercent>103</iAIResearchPercent>
++			<!-- custom: try to make the game last longer by increasing AI costs a bit, was 103 -->
++			<iAIResearchPercent>108</iAIResearchPercent>
+ 			<iAITrainPercent>95</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>95</iAIConstructPercent>
+@@ -736,7 +881,52 @@
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 			</Goodies>
+ 			<FreeTechs/>
+-			<AIFreeTechs/>
++			<!-- custom: make prince slightly harder than it was, should be quite easier than monarch but not that much easier, hopefully
++			difficulty is more gradual with this now -->
++			<AIFreeTechs>
++				<FreeTech>
++					<TechType>TECH_POTTERY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
++				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
++				, was IRON_WORKING-->
++				<FreeTech>
++					<TechType>TECH_BRONZE_WORKING</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
++				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
++				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
++				was TECH_MATHEMATICS -->
++				<FreeTech>
++					<TechType>TECH_CURRENCY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
++				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
++				was TECH_MACHINERY-->
++				<FreeTech>
++					<TechType>TECH_MONARCHY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
++				also may be more versatile than printing press, was PRINTING_PRESS-->
++				<FreeTech>
++					<TechType>TECH_COMPASS</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
++				<FreeTech>
++					<TechType>TECH_CHEMISTRY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
++				<FreeTech>
++					<TechType>TECH_LASER</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++			</AIFreeTechs>
+ 			<!-- advc.250a -->
+ 			<iDifficulty>40</iDifficulty>
+ 		</HandicapInfo>
+@@ -763,7 +953,8 @@
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+ 			<iCultureLevelPercent>106</iCultureLevelPercent>
+ 			<!-- was 120 -->
+-			<iResearchPercent>115</iResearchPercent>
++            <!-- custom: even now that the AI gets free techs at each era, maybe this can be increased a bit to be closer to emperor difficulty, was 115-->
++			<iResearchPercent>120</iResearchPercent>
+ 			<!-- advc.251 (end) -->
+ 			<!-- advc.251 (start) -->
+ 			<iTrainPercent>100</iTrainPercent>
+@@ -817,9 +1008,14 @@
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>1</iAIStartingDefenseUnits>
++			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
++			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
++			was 1 -->
++			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+-			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
++			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
++			warriors are now more likely to be defenders, was 0 -->
++			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>3</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<!-- advc.251: was 20 -->
+@@ -827,7 +1023,8 @@
+ 			<iAIGrowthPercent>95</iAIGrowthPercent>
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
+-			<iAIResearchPercent>110</iAIResearchPercent>
++			<!-- custom: increase this slightly so the game is slightly longer paced, was 110-->
++			<iAIResearchPercent>112</iAIResearchPercent>
+ 			<!-- was 90 -->
+ 			<iAITrainPercent>95</iAITrainPercent>
+ 			<!-- was 100 -->
+@@ -878,28 +1075,63 @@
+ 			</Goodies>
+ 			<FreeTechs/>
+ 			<AIFreeTechs>
+-				<FreeTech>
++				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
++				If AI wants to turtle later in the game, archers may be more relevant then.
++				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
++				<!--<FreeTech>
+ 					<TechType>TECH_ARCHERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
++				</FreeTech>-->
++				<!-- custom: instead, give them a tech that helps them expand more early -->
++				<FreeTech>
++					<TechType>TECH_POTTERY</TechType>
++					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
++				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
++				, was IRON_WORKING-->
+ 				<FreeTech>
+-					<TechType>TECH_MATHEMATICS</TechType>
++					<TechType>TECH_BRONZE_WORKING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
++				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
++				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
++				was TECH_MATHEMATICS -->
+ 				<FreeTech>
+-					<TechType>TECH_MACHINERY</TechType>
++					<TechType>TECH_CURRENCY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
++				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
++				was TECH_MACHINERY-->
+ 				<FreeTech>
+-					<TechType>TECH_PRINTING_PRESS</TechType>
++					<TechType>TECH_MONARCHY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
++				also may be more versatile than printing press, was PRINTING_PRESS-->
+ 				<FreeTech>
+-					<TechType>TECH_STEAM_POWER</TechType>
++					<TechType>TECH_COMPASS</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_PLASTICS</TechType>
++					<TechType>TECH_DRAMA</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
++				<FreeTech>
++					<TechType>TECH_CHEMISTRY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
++				<FreeTech>
++					<TechType>TECH_INDUSTRIALISM</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
++				<FreeTech>
++					<TechType>TECH_LASER</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</AIFreeTechs>
+@@ -926,7 +1158,9 @@
+ 			<iBaseGrowthThresholdPercent>110</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>110</iGPThresholdPercent>
+ 			<iCultureLevelPercent>112</iCultureLevelPercent>
+-			<iResearchPercent>130</iResearchPercent>
++			<!-- custom: slightly reduce this to have a bit more gap vs immortal, especially considering AI has many new
++			free techs now, was 130 -->
++			<iResearchPercent>128</iResearchPercent>
+ 			<iTrainPercent>110</iTrainPercent>
+ 			<iConstructPercent>105</iConstructPercent>
+ 			<iCreatePercent>100</iCreatePercent>
+@@ -975,10 +1209,15 @@
+ 			<iStartingWorkerUnits>0</iStartingWorkerUnits>
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
++			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
++			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
++			was 2 -->
++			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<!-- advc.250e: was 1 -->
+-			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
++			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
++			warriors are now more likely to be defenders, was 0 -->
++			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>3</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<!-- advc.251: was 50 -->
+@@ -987,7 +1226,8 @@
+ 			<!-- advc.251 (start) -->
+ 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
+ 			<!-- Higher tech costs for the AI -->
+-			<iAIResearchPercent>115</iAIResearchPercent>
++			<!-- custom: increase this slightly so the game is slightly longer paced, was 115-->
++			<iAIResearchPercent>116</iAIResearchPercent>
+ 			<!-- was 85 -->
+ 			<iAITrainPercent>95</iAITrainPercent>
+ 			<!-- was 100 -->
+@@ -1039,32 +1279,73 @@
+ 			</Goodies>
+ 			<FreeTechs/>
+ 			<AIFreeTechs>
++				<!-- custom: removed TECH_HUNTING too, although it is a good tech, it is not urgent to get it, plus AIs start with a free scout
++				anyway, hopefully that delays the time when AIs start to get archers too, making them favour the more versatile warriors, or 
++				economy early. I don't know if scouts can exist without hunting, need to test if this does not break anything. -->
++				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs), if it
++				helps delaying the time when AI stockpiles units it should also be good for their economy (plus getting sea food bonuses sooner
++				maybe too)-->
+ 				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
++					<TechType>TECH_FISHING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+-				<FreeTech>
++				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
++				If AI wants to turtle later in the game, archers may be more relevant then.
++				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
++				<!--<FreeTech>
+ 					<TechType>TECH_ARCHERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
++				</FreeTech>-->
++				<!-- custom: instead, give them a tech that helps them expand more early -->
++				<FreeTech>
++					<TechType>TECH_POTTERY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
++				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
++				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
++				was TECH_MATHEMATICS -->
++				<!-- custom: give a bunch of smaller (bronze working) key or very optional techs rather than a few big ones.
++				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
++				, was IRON_WORKING-->
++				<FreeTech>
++					<TechType>TECH_BRONZE_WORKING</TechType>
++					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_MATHEMATICS</TechType>
++					<TechType>TECH_CURRENCY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
++				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
++				was TECH_MACHINERY-->
+ 				<FreeTech>
+-					<TechType>TECH_MACHINERY</TechType>
++					<TechType>TECH_MONARCHY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
++				also may be more versatile than printing press, was PRINTING_PRESS-->
+ 				<FreeTech>
+-					<TechType>TECH_PRINTING_PRESS</TechType>
++					<TechType>TECH_COMPASS</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_STEAM_POWER</TechType>
++					<TechType>TECH_DRAMA</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
+ 				<FreeTech>
+-					<TechType>TECH_PLASTICS</TechType>
++					<TechType>TECH_CHEMISTRY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
++				<FreeTech>
++					<TechType>TECH_INDUSTRIALISM</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
++				<FreeTech>
++					<TechType>TECH_LASER</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</AIFreeTechs>
+@@ -1092,7 +1373,8 @@
+ 			<iGPThresholdPercent>120</iGPThresholdPercent>
+ 			<iCultureLevelPercent>118</iCultureLevelPercent>
+ 			<!-- was 125 -->
+-			<iResearchPercent>140</iResearchPercent>
++			<!-- custom: now that the AI receives free techs at each era, maybe this does not need to be enforced as strongly, was 140 -->
++			<iResearchPercent>133</iResearchPercent>
+ 			<iTrainPercent>120</iTrainPercent>
+ 			<iConstructPercent>110</iConstructPercent>
+ 			<iCreatePercent>110</iCreatePercent>
+@@ -1143,10 +1425,15 @@
+ 			<iStartingExploreUnits>0</iStartingExploreUnits>
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<!-- advc.250e: was 3 -->
+-			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
++			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
++			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
++			was 2 -->
++			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
+ 			<!-- advc.250e: was 1 -->
+-			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
++			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
++			warriors are now more likely to be defenders, was 0 -->
++			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<!-- advc.250e: was 4 -->
+ 			<iBarbarianDefenders>3</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+@@ -1211,32 +1498,77 @@
+ 					<TechType>TECH_AGRICULTURE</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech-->
++				<!-- custom: removed TECH_HUNTING too, although it is a good tech, it is not urgent to get it, plus AIs start with a free scout
++				anyway, hopefully that delays the time when AIs start to get archers too, making them favour the more versatile warriors, or 
++				economy early. I don't know if scouts can exist without hunting, need to test if this does not break anything. -->
++				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs), if it
++				helps delaying the time when AI stockpiles units it should also be good for their economy (plus getting sea food bonuses sooner
++				maybe too)-->
+ 				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
++					<TechType>TECH_FISHING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+-				<FreeTech>
++				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
++				If AI wants to turtle later in the game, archers may be more relevant then.
++				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
++				<!--<FreeTech>
+ 					<TechType>TECH_ARCHERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
++				</FreeTech>-->
++				<!-- custom: instead, give them a tech that helps them expand more early -->
++				<FreeTech>
++					<TechType>TECH_POTTERY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: give a bunch of smaller (animal husbandry) key or very optional techs rather than a few big ones.
++				It may make the early game more gradual while still having the AI not waste as much time on less rewarding techs.
++				, was IRON_WORKING-->
++				<FreeTech>
++					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
++					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_MATHEMATICS</TechType>
++					<TechType>TECH_BRONZE_WORKING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
++				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
++				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
++				was TECH_MATHEMATICS -->
+ 				<FreeTech>
+-					<TechType>TECH_MACHINERY</TechType>
++					<TechType>TECH_CURRENCY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
++				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
++				was TECH_MACHINERY-->
+ 				<FreeTech>
+-					<TechType>TECH_PRINTING_PRESS</TechType>
++					<TechType>TECH_MONARCHY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
++				also may be more versatile than printing press, was PRINTING_PRESS-->
+ 				<FreeTech>
+-					<TechType>TECH_STEAM_POWER</TechType>
++					<TechType>TECH_COMPASS</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_PLASTICS</TechType>
++					<TechType>TECH_DRAMA</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
++				<FreeTech>
++					<TechType>TECH_CHEMISTRY</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
++				<FreeTech>
++					<TechType>TECH_INDUSTRIALISM</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
++				<FreeTech>
++					<TechType>TECH_LASER</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</AIFreeTechs>
+@@ -1263,7 +1595,8 @@
+ 			<iGPThresholdPercent>130</iGPThresholdPercent>
+ 			<iCultureLevelPercent>129</iCultureLevelPercent>
+ 			<!-- advc.251: was 130 -->
+-			<iResearchPercent>150</iResearchPercent>
++			<!-- custom: now that the AI receives free techs at each era, maybe this does not need to be enforced as strongly, was 145 -->
++			<iResearchPercent>140</iResearchPercent>
+ 			<iTrainPercent>130</iTrainPercent>
+ 			<iConstructPercent>115</iConstructPercent>
+ 			<iCreatePercent>120</iCreatePercent>
+@@ -1318,7 +1651,10 @@
+ 			<!-- advc.250e: was 1 -->
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<!-- advc.250e: was 4 -->
+-			<iAIStartingDefenseUnits>3</iAIStartingDefenseUnits>
++			<!-- custom: assuming warriors are enforced rather than archers, the number of units needs to be increased.
++			Also, increasing this number may also help the AI’s cities not be as often destroyed to early barbarian raids, which happens a bit too often
++			was 3 -->
++			<iAIStartingDefenseUnits>5</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>1</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>4</iBarbarianDefenders>
+@@ -1384,61 +1720,99 @@
+ 			</Goodies>
+ 			<FreeTechs/>
+ 			<AIFreeTechs>
+-				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
++				<!-- custom: the wheel doesn't seem such a critical tech to have, gives the human player a bit more
++				breathing room if the AI has less early techs too, was TECH_THE_WHEEL -->
+ 				<!-- advc.250e -->
+ 				<!--FreeTech>
+ 					<TechType>TECH_AGRICULTURE</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech-->
++				<!-- custom: removed TECH_HUNTING too, although it is a good tech, it is not urgent to get it, plus AIs start with a free scout
++				anyway, hopefully that delays the time when AIs start to get archers too, making them favour the more versatile warriors, or 
++				economy early. I don't know if scouts can exist without hunting, need to test if this does not break anything. -->
++				<!-- custom: also add fishing to help/speed up early AI growth (they would also not spend time thus on such techs), if it
++				helps delaying the time when AI stockpiles units it should also be good for their economy (plus getting sea food bonuses sooner
++				maybe too)-->
+ 				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
++					<TechType>TECH_FISHING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
++					<TechType>TECH_MYSTICISM</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: further discourage AIs to build archers early, they are not versatile enough.
++				If AI wants to turtle later in the game, archers may be more relevant then.
++				Else, upgraded versions of warriors would give more of a military advantage for the AI if it wants to attack instead.-->
++				<!--<FreeTech>
+ 					<TechType>TECH_ARCHERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
++				</FreeTech>-->
++				<!-- custom: instead, give them a tech that helps them expand more early -->
++				<FreeTech>
++					<TechType>TECH_POTTERY</TechType>
++					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: give a bunch of smaller (bronze working and animal husbandry) key or very optional techs rather than a few big ones.
++				It may make the early game more gradual while still having the human not waste as much time on less rewarding techs.
++				, was IRON_WORKING-->
+ 				<FreeTech>
+-					<TechType>TECH_MATHEMATICS</TechType>
++					<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_IRON_WORKING</TechType>
++					<TechType>TECH_BRONZE_WORKING</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<!-- custom: replace mathematics with currency, more likely to be useful for the weaker player(s)'s economy (trade of ressources,
++				extra trade routes, trade of gold and gold per turn, etc.), but also later than mathematics so gives the stronger 
++				player(s) more breathing room to catch up until then, while making sure the weaker player(s) does not carelessly neglect to get this tech.,
++				was TECH_MATHEMATICS -->
++				<FreeTech>
++					<TechType>TECH_CURRENCY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: monarchy should help the AI more early with new regime, wine happiness (and trade possibility maybe too?),
++				and possibility also to research feudalism sooner, machinery may not be so useful for the AI early even if it costs more,
++				was TECH_MACHINERY-->
+ 				<FreeTech>
+-					<TechType>TECH_MACHINERY</TechType>
++					<TechType>TECH_MONARCHY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: giving them sooner to the player so they don't lose turns to search it nor extra cost for it, 
++				also may be more versatile than printing press, was PRINTING_PRESS-->
+ 				<FreeTech>
+-					<TechType>TECH_FEUDALISM</TechType>
++					<TechType>TECH_COMPASS</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_PRINTING_PRESS</TechType>
++					<TechType>TECH_DRAMA</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: optics should be more versatile than gunpowder, was TECH_GUNPOWDER -->
+ 				<FreeTech>
+-					<TechType>TECH_GUNPOWDER</TechType>
++					<TechType>TECH_OPTICS</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: removed tech TECH_GUNPOWDER to give the human player more time/momentum to catch up maybe -->
++				<!-- custom: chemistry should be more useful to the player than steam power, and more early in the game, was TECH_STEAM_POWER -->
+ 				<FreeTech>
+-					<TechType>TECH_STEAM_POWER</TechType>
++					<TechType>TECH_CHEMISTRY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: industrialism should be more useful to the player than plastics, was TECH_PLASTICS -->
+ 				<FreeTech>
+-					<TechType>TECH_STEEL</TechType>
++					<TechType>TECH_INDUSTRIALISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: biology should be more useful to the player than refrigeration, was TECH_REFRIGERATION -->
+ 				<FreeTech>
+-					<TechType>TECH_PLASTICS</TechType>
++					<TechType>TECH_BIOLOGY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
++				<!-- custom: add laser to make AIs still quite competitive in the late game maybe -->
+ 				<FreeTech>
+-					<TechType>TECH_REFRIGERATION</TechType>
++					<TechType>TECH_LASER</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</AIFreeTechs>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 5cdab6487..d6566e195 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -675,7 +675,13 @@
+ 			<Strategy>TXT_KEY_TECH_FEUDALISM_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<!-- advc.131b -->
+-			<iAIWeight>-125</iAIWeight>
++			<!-- custom: not a problem if they search feudalism too soon or too often, it is a strong tech that helps both military and economy.
++			The history relevance is not a problem to me, much more military performance of choosing a more effective tech (than machinery would be before that
++			Trying to increase it further, ideally AIs would value feudalism more, which should help both economically and militarily. Should be much more useful
++			than engineering. I initially increased it to 0, now trying to increase it to 125. As AIs now get monarchy as a free tech, having feudalism soon after should be
++			a really attractive option, was -125
++			-->
++			<iAIWeight>125</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+ 			<!-- advc.910: was 700 -->
+ 			<iCost>820</iCost>
+@@ -2097,7 +2103,9 @@
+ 			<Help/>
+ 			<Strategy>TXT_KEY_TECH_POTTERY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+-			<iAIWeight>0</iAIWeight>
++			<!-- custom: if AI does not get pottery as a free tech, it is however still a quite important tech. Getting cottages or/and
++			starting to build a granary sooner should help the AI, although not as much (i think) as more military or expansion focused techs -->
++			<iAIWeight>20</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iCost>80</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -2243,7 +2251,9 @@
+ 			<Strategy>TXT_KEY_TECH_SAILING_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<!-- advc.131b -->
+-			<iAIWeight>-100</iAIWeight>
++			<!-- custom: if AIs want to get an early lighthouse or/and moai or/and galleys, it may not be so useless in some contexts
++			Rebalance the priorities of techs elsewhere (such as in free tech handicaps for example) , was -100 -->
++			<iAIWeight>-20</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.301 -->
+ 			<iBarbarianFreeTechModifier>-50</iBarbarianFreeTechModifier>
+@@ -2631,7 +2641,10 @@
+ 			<Help/>
+ 			<Strategy>TXT_KEY_TECH_CURRENCY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+-			<iAIWeight>0</iAIWeight>
++			<!-- custom: There is some value in getting currency soon in the game but not that high of a value that would require
++			decreasing the iAIWeight of concurrent techs, so slightly increasing the priority of currency while still giving some
++			variety of gameplay between AIs possibly ideally maybe, was 0. -->
++			<iAIWeight>20</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iCost>400</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -4500,7 +4513,16 @@
+ 			<Help/>
+ 			<Strategy>TXT_KEY_TECH_ARCHERY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+-			<iAIWeight>0</iAIWeight>
++			<!--custom: archery should be much less important to AIs now that they start with the more versatile warriors,
++			it should maybe be important if AI is getting behind in military power or/and adopting turtle strategy, else it may
++			be fine to wait until feudalism is discovered if the AI then wants longbowmen.
++			Axemen and similar units should be good enough defenders, adding swordsmen or/and chariots or spearmen should also help
++			balance out all this for more AI early versatility.
++			Archers are also quite bad at rushing another AI early, and wars do not seem to happen too soon so maybe wait until chariots
++			or/and spearmen or/and axemen are available before building rush units.
++			In short, if AI is weaker only then archers are relevant, else focus on versatility rather and warriors and their upgrades instead.
++			, was 0-->
++			<iAIWeight>-80</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iCost>60</iCost>
+@@ -4648,7 +4670,10 @@
+ 			<Help/>
+ 			<Strategy>TXT_KEY_TECH_ANIMAL_HUSBANDRY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+-			<iAIWeight>0</iAIWeight>
++			<!-- custom: if AIs value bronze working more now, so would be the counter to axemen (which is chariots).
++			Animal husbandry should also help revealing horse planting spots sooner to have better city locations, and getting pastures
++			sooner on relevant ressources to help growth and production, therefore i put a higher weight than for bronze working -->
++			<iAIWeight>50</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iCost>100</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -4730,7 +4755,9 @@
+ 			<Help/>
+ 			<Strategy>TXT_KEY_TECH_BRONZE_WORKING_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+-			<iAIWeight>0</iAIWeight>
++			<!-- custom: bronze working is extra important to get early on, to upgrade the warrior free defenders into axemen at higher difficulties, or to
++			know more optimal city spots (that include copper) sooner, among other possible reasons -->
++			<iAIWeight>30</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iCost>120</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -4884,7 +4911,8 @@
+ 			<Strategy>TXT_KEY_TECH_IRON_WORKING_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<!-- advc.131b -->
+-			<iAIWeight>-30</iAIWeight>
++			<!-- custom: if AIs badly want to get iron working, no reason to prevent that, was -30 -->
++			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.131b: was 200 -->
+ 			<iCost>210</iCost>
+@@ -5270,7 +5298,11 @@
+ 			<Help/>
+ 			<Strategy>TXT_KEY_TECH_ENGINEERING_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+-			<iAIWeight>0</iAIWeight>
++			<!-- custom: trying to reduce it, pikemen are cheap and longbowmen provide about as good defense bonuses, and since
++			they are more versatile it may help more. When rivals have enough knights, AI would then have enough techs or units to
++			to defend against that without requiring these defenders to be pikemen. This tech is not so bad, it's more so that
++			feudalism should be much better, helping economically too., was 0 -->
++			<iAIWeight>-100</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iCost>1000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 5e1d12ea6..ed4e632d5 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -4269,7 +4269,12 @@
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
++			<!-- custom: make them default to defenders, they could be attackers but less likely maybe this way?
++			Purpose is to make sure they are more likely to be upgraded into stronger units rather than die too soon
++			before that. Warriors are also a bit weak on total strength to be that effective to value sacrificing them,
++			their city defense bonus also makes it slightly more lean towards defending instead maybe
++			, was UNITAI_ATTACK -->
++			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+ 			<Description>TXT_KEY_UNIT_WARRIOR</Description>
+@@ -4326,17 +4331,21 @@
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
++				<!-- custom: warriors are valuable as city defenders too-->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-			</NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs/>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -4449,7 +4458,12 @@
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
++			<!-- custom: make them default to defenders, they could be attackers but less likely maybe this way?
++			Purpose is to make sure they are more likely to be upgraded into stronger units rather than die too soon
++			before that. Warriors are also a bit weak on total strength to be that effective to value sacrificing them,
++			their city defense bonus also makes it slightly more lean towards defending instead maybe
++			, was UNITAI_ATTACK -->
++			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+ 			<Description>TXT_KEY_UNIT_INCAN_QUECHUA</Description>
+@@ -4515,13 +4529,17 @@
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs>
++				<!-- custom: warriors are valuable as city defenders too-->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-			</NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs/>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -7396,7 +7414,9 @@
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
++			<!-- custom: pikemen are valuable as defenders, especially against knights and similar mounted units
++			, was _COUNTER-->
++			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+ 			<Description>TXT_KEY_UNIT_PIKEMAN</Description>
+@@ -7453,10 +7473,19 @@
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++			</UnitAIs>
++			<!-- custom: value pikemen more as city defenders, also the rock paper scissors logic when attacking a unit a group
++			makes it more likely that the pikeman would be wasted (or not used as optimally) while attacking a unit it is less good
++			against rather than defending (especially defending cities) against units it is very good against-->
++			<NotUnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -7465,8 +7494,25 @@
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs/>
++				<!-- custom: added a few other AI unit types to be extra safe they are strictly defenders (for more war performance, to avoid
++				suicides and war wastes in particular, at the cost of versatility)-->
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -7584,7 +7630,9 @@
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
++			<!-- custom: pikemen are valuable as defenders, especially against knights and similar mounted units
++			, was _COUNTER-->
++			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+ 			<Description>TXT_KEY_UNIT_HOLY_ROMAN_LANDSKNECHT</Description>
+@@ -7640,16 +7688,21 @@
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
++			<!-- custom: make pikemen more strictly defenders, to increase military effectiveness at the cost of versatility -->
+ 			<UnitAIs>
+-				<!-- K-Mod -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++			</UnitAIs>
++			<!-- custom: value pikemen more as city defenders, also the rock paper scissors logic when attacking a unit a group
++			makes it more likely that the pikeman would be wasted (or not used as optimally) while attacking a unit it is less good
++			against rather than defending (especially defending cities) against units it is very good against-->
++			<NotUnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -7658,8 +7711,25 @@
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs/>
++				<!-- custom: added a few other AI unit types to be extra safe they are strictly defenders (for more war performance, to avoid
++				suicides and war wastes in particular, at the cost of versatility)-->
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -10683,15 +10753,47 @@
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: if AI is strong enough to start an offensive on someone, it may not hurt to take a few defenders
++				as an extra to do so. If these defenders die then AI could build offensive units maybe now instead.
++				They may also help defend other cities by roaming -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<NotUnitAIs>
++				<!-- custom: archer is not strong enough to be valuable as an attacker, much more efficient/valuable
++				to keep it as a defeender only instead-->
++				<UnitAI>
++						<UnitAIType>UNITAI_ATTACK</UnitAIType>
++						<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<!-- custom: make extra sure these defender type units are not baited or suicide during enemy invasion
++				or other related situations -->
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -10862,15 +10964,47 @@
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: if AI is strong enough to start an offensive on someone, it may not hurt to take a few defenders
++				as an extra to do so. If these defenders die then AI could build offensive units maybe now instead.
++				They may also help defend other cities by roaming -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<NotUnitAIs>
++				<!-- custom: archer is not strong enough to be valuable as an attacker, much more efficient/valuable
++				to keep it as a defeender only instead-->
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<!-- custom: make extra sure these defender type units are not baited or suicide during enemy invasion
++				or other related situations -->
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -11042,15 +11176,47 @@
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: if AI is strong enough to start an offensive on someone, it may not hurt to take a few defenders
++				as an extra to do so. If these defenders die then AI could build offensive units maybe now instead.
++				They may also help defend other cities by roaming -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<NotUnitAIs>
++				<!-- custom: archer is not strong enough to be valuable as an attacker, much more efficient/valuable
++				to keep it as a defeender only instead-->
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<!-- custom: make extra sure these defender type units are not baited or suicide during enemy invasion
++				or other related situations -->
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -11222,15 +11388,47 @@
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: if AI is strong enough to start an offensive on someone, it may not hurt to take a few defenders
++				as an extra to do so. If these defenders die then AI could build offensive units maybe now instead.
++				They may also help defend other cities by roaming -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<NotUnitAIs>
++				<!-- custom: longbowmen are not strong enough to be valuable as an attacker, much more efficient/valuable
++				to keep them as a defeender only instead-->
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<!-- custom: make extra sure these defender type units are not baited or suicide during enemy invasion
++				or other related situations -->
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -15494,8 +15692,31 @@
+ 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -15675,12 +15896,31 @@
+ 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -15861,6 +16101,11 @@
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: tentative change to avoid trebuchets suicides/getting baited during enemy invasion -->
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs>
+ 				<UnitAI>
+@@ -15871,6 +16116,15 @@
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: tentative change to avoid trebuchets suicides/getting baited during enemy invasion -->
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 987054e67..fce49fb6a 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -886,8 +886,23 @@ void CvGame::initFreeCivState()
+ 	FOR_EACH_ENUM(Tech)
+ 	{
+ 		// <advc.126> Later-era free tech only for later-era starts.
++		/* custom: rever this logic and give free techs to AIs regardless of eras.
++		   as the game goes on they are more likely to be caught up by the human
++		   player. To keep things still challenging for the human player, giving
++		   free techs at all eras to all eligible players (in lower difficulties the
++		   human player would gain free techs instead).
++		   I think that a more conservative approach to the techs needed rather than
++		   disabling this entirely should help the AI a lot without hurting the human
++		   player too much. Key techs of a low tech cost (such as currency, or much
++		   less needed ones to not have AIs spend time on them (such as compass) may
++		   help the AI stay competitive.
++		   If it is too hard for the human players, there should be other areas to
++		   balance this, the purpose is to make the AI catch up with the game and
++		   not gradually losing, i would want the battle to be more decisive and intense
++		   with this change)
+ 		if (GC.getInfo(eLoopTech).getEra() > getStartEra())
+ 			continue; // </advc.126>
++		*/
+ 		for (TeamIter<ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+ 		{
+ 			CvTeam& kTeam = *itTeam;
+
+diff --git a/CvGameCoreDLL/Project/.gitignore b/CvGameCoreDLL/Project/.gitignore
+index 7e8b53107..a626f68d2 100644
+--- a/CvGameCoreDLL/Project/.gitignore
++++ b/CvGameCoreDLL/Project/.gitignore
+@@ -20,3 +20,5 @@ temp_files/
+ *.opensdf
+ Makefile.settings
+ Makefile.user
++Boost-1.32.0
++Python24
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/Project/Makefile.user b/CvGameCoreDLL/Project/Makefile.user
+index fa0d49b04..0687863a4 100644
+--- a/CvGameCoreDLL/Project/Makefile.user
++++ b/CvGameCoreDLL/Project/Makefile.user
+@@ -1,3 +1,3 @@
+-TOOLKIT=
+-PSDK=
+-CIV4_PATH=
++TOOLKIT=$(PROGRAMFILES)/Civ4SDK/Microsoft Visual C++ Toolkit 2003
++PSDK=$(PROGRAMFILES)/Civ4SDK\WindowsSDK
++CIV4_PATH=$(PROGRAMFILES)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword
+
+[PATCH OMITTED] file=a/advciv-mod-difficulties_summary-htm-A3.pdf b/advciv-mod-difficulties_summary-htm-A3.pdf reason=binary/generated-file changedLines=0 bytes=227
+
+diff --git a/advciv-mod-difficulties_summary.ods b/advciv-mod-difficulties_summary.ods
+new file mode 100644
+index 000000000..c984cd077
+Binary files /dev/null and b/advciv-mod-difficulties_summary.ods differ
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=8 omittedFiles=2 embeddedPatchBytes=88152

@@ -1,0 +1,456 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5018
+# Commit: 4e081236e169fc2c938107f77e29a41d3e8a2836
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bb2a9f7671bf06516ab909350ec333ddda1e4998
+# Title: buff and rework spearman units (base strength increased from 4 to 5 and other changes anyways etc), other related or not fixes and tweaks anyways etc - buff...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+45	133	Assets/XML/Units/CIV4UnitInfos.xml
+1	1	README.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index c69220a22..22917f51e 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -8271,17 +8271,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+-			<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc -->
+-			<UnitCombatDefenders>
+-				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
+-					<bUnitCombatDefender>1</bUnitCombatDefender>
+-				</UnitCombatDefender>
+-				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatDefenderType>
+-					<bUnitCombatDefender>1</bUnitCombatDefender>
+-				</UnitCombatDefender>
+-			</UnitCombatDefenders>
++			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<!-- custom: better suited for defensive role for AI players, but less efficient than longbowmen as of now to do so in most cases but anyways etc, so give them a more minor defensive role anyways etc -->
+ 			<UnitAIs>
+@@ -8351,7 +8341,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>4</iCombat>
++			<!-- custom: was 4 -->
++			<iCombat>5</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -8366,8 +8357,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>25</iCityDefense>
++			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
++			<!-- custom: was 0/0 anyways etc -->
+ 			<iHillsAttack>10</iHillsAttack>
+ 			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+@@ -8396,14 +8388,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: was UNITCOMBAT_MOUNTED_MELEE 100 and UNITCOMBAT_MOUNTED_RANGED 100 (was the equivalent of this in base advciv i mean anyways etc); i guess this is good against as of now generic war elephants in particular anyways etc, plus they are the counterpart of the axeman so nice too i'd say anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
++					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -8419,7 +8408,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+ 			<!-- custom: was 4 -->
+-			<iPower>6</iPower>
++			<iPower>5</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -8449,7 +8438,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<!-- custom: was UNITAI_COUNTER -->
++			<!-- custom: now more suited as a versatile/offense unit (but not raider as still too weak as in not specialized enough or strong for that, just not for raiding as it lacks bit strength but maybe fine and possibly fit for this purpose but check to be sure anyways etc), was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+@@ -8505,27 +8494,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+-			<UnitCombatDefenders>
+-				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
+-					<bUnitCombatDefender>1</bUnitCombatDefender>
+-				</UnitCombatDefender>
+-				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatDefenderType>
+-					<bUnitCombatDefender>1</bUnitCombatDefender>
+-				</UnitCombatDefender>
+-			</UnitCombatDefenders>
++			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: i want them to be versatile attackers/hit and runners rather that happen to have good defense, adjust unitais as such, also added in particular UNITAI_ATTACK_CITY due to archery units modifiers we as of now added for the impi (i.e. this unit) anyways etc -->
++			<!-- custom: now more suited at being a more versatile unit, but not raider as bit too weak for that and may mislead AI fighting into low odds if i am not mistaken, but maybe unitai_attack encourages it enough indirectly hopefully but anyways etc -->
+ 			<UnitAIs>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -8538,10 +8510,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -8592,7 +8560,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>4</iCombat>
++			<!-- custom: was 4 -->
++			<iCombat>5</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -8602,18 +8571,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<!-- custom: was 0 -->
+-			<iWithdrawalProb>10</iWithdrawalProb>
++			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<!-- custom: make it more of an attacker / hit and run unit, was 10/25 (advciv-sas generic spearman anyways etc) -->
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<!-- custom: was 10/25 (advciv-sas generic spearman anyways etc) -->
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<!-- custom: same as as of now the generic spearman anyways etc, was 0/0 -->
++			<iHillsAttack>10</iHillsAttack>
++			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks>
+@@ -8649,23 +8616,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: add archer combat modifiers, idea i got from chatgpt 5 xd watching one of its replies vaguely mentioning archers, was UNITCOMBAT_MOUNTED_MELEE 25 and UNITCOMBAT_MELEE 25 (advciv-sas spearman anyways etc) -->
++			<!-- custom: as of now same as the generic spearman to keep identity/role or such if i may say but anyways etc -->
+ 			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
++					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -8681,7 +8636,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+ 			<!-- custom: was 4 -->
+-			<iPower>6</iPower>
++			<iPower>5</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -8699,10 +8654,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: may fit better shaka's (or whichever leader they have if but anyways etc) aggressive tendency/profile, and this is a versatile promotion as well so can be used in city, at defense, in the field somewhere on random tiles, so may fit quite well, was PROMOTION_MOBILITY_COST -->
++			<!-- custom: was PROMOTION_MOBILITY_COST -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+-					<PromotionType>PROMOTION_COMBAT1</PromotionType>
++					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
+@@ -8768,16 +8723,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+-			<UnitCombatDefenders>
+-				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
+-					<bUnitCombatDefender>1</bUnitCombatDefender>
+-				</UnitCombatDefender>
+-				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatDefenderType>
+-					<bUnitCombatDefender>1</bUnitCombatDefender>
+-				</UnitCombatDefender>
+-			</UnitCombatDefenders>
++			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<!-- custom: is a strong defender as well, was reserve, counter, city_counter -->
+ 			<UnitAIs>
+@@ -8818,13 +8764,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+-			<!-- custom: was empty -->
+-			<PrereqBonuses>
+-				<BonusType>BONUS_COPPER</BonusType>
+-				<BonusType>BONUS_IRON</BonusType>
+-				<BonusType>NONE</BonusType>
+-				<BonusType>NONE</BonusType>
+-			</PrereqBonuses>
++			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+@@ -8852,14 +8792,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>4</iCombat>
++			<!-- custom: was 4 -->
++			<iCombat>5</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+-			<!-- custom: i want them to be a more versatile unit, was 0 -->
+-			<iFirstStrikes>1</iFirstStrikes>
++			<iFirstStrikes>0</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+@@ -8909,7 +8849,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -8926,7 +8866,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+ 			<!-- custom: was 4 -->
+-			<iPower>6</iPower>
++			<iPower>5</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -9017,22 +8957,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: can be very efficient at defense too, so give AI the option to use them as such as well (added UNITAI_RESERVE and UNITAI_CITY_DEFENSE anyways etc) -->
++			<!-- custom: they have a more offensive attack focus now, but are good at defense against most units and hammer efficient for that role as well vs longbows as of now in particular if i am not mistaken but anyways etc, so allow defense but not as default unitai though if i'm not mistaken but anyways etc, so keep some/most of these roles as well anyways etc -->
+ 			<UnitAIs>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+@@ -9043,6 +8975,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -9109,8 +9045,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<!-- custom: same as generic spearman in our mod anyways etc -->
++			<iHillsAttack>10</iHillsAttack>
++			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks>
+@@ -9146,16 +9083,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+-			<!-- custom: was UNITCLASS_CHARIOT 100 -->
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: since they have a spear, make them stronger overall against mounted melee anyways etc rather than just chariots anyways etc, also fits the theme in civ3 of it being a strong defensive unit, i don't know if accurate but since they have a spear and shield may not be too strange that they'd be so, but now in civ4 they also have nice combat offensive potential as well (except vs maybe archers or such but anyways etc); also make them more of a defensive unit so lower melee modifier here since they are as of now now based on the spearman anyways etc, was UNITCOMBAT_MELEE 50 -->
++			<!-- custom: same as the generic spearman anyways etc; since mounted units seldom/rarely but anyways etc defend cities, this is not op in combination with as of now city attack modifiers i think but anyways etc; note: give them an offensive melee effect anyways etc so alexander can use them as such (maybe pericles too who knows but anyways etc), but i added it as a combat modifier anyways etc rather than free promotion anyways etc else may stack with the pikeman effect at/after but anyways etc upgrade and be bit too op, so better as such, and hoplite is as of now strong enough already if i'm not mistaken anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -9189,13 +9125,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: was empty -->
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_CITY_GARRISON1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -9259,16 +9189,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+-			<UnitCombatDefenders>
+-				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
+-					<bUnitCombatDefender>1</bUnitCombatDefender>
+-				</UnitCombatDefender>
+-				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatDefenderType>
+-					<bUnitCombatDefender>1</bUnitCombatDefender>
+-				</UnitCombatDefender>
+-			</UnitCombatDefenders>
++			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<!-- custom: better suited as defenders with our changes anyways etc, but allow some offensive variety as well in case it helps if a city is somehow guarded by mounted units only or such anyways etc anyways etc -->
+ 			<UnitAIs>
+@@ -9490,16 +9411,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+-			<UnitCombatDefenders>
+-				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
+-					<bUnitCombatDefender>1</bUnitCombatDefender>
+-				</UnitCombatDefender>
+-				<UnitCombatDefender>
+-					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatDefenderType>
+-					<bUnitCombatDefender>1</bUnitCombatDefender>
+-				</UnitCombatDefender>
+-			</UnitCombatDefenders>
++			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<!-- custom: better suited as defenders with our changes anyways etc, but allow some offensive variety as well in case it helps if a city is somehow guarded by mounted units only or such anyways etc anyways etc ; this civ-specific unit could be used about either way although a bit better at defense so favour that for AIs as well anyways etc  -->
+ 			<UnitAIs>
+
+diff --git a/README.md b/README.md
+index d1727ff61..9535c527e 100644
+--- a/README.md
++++ b/README.md
+@@ -276,7 +276,7 @@ Still, in the game where i tried it, it was gradually faster as more and more pl
+ 
+ All in all, prefer using the default DLL unless you want to use 19+ max players, then after game is finished if you want to use 18 max players or less, consider reverting to old DLL for your next map anyways etc.
+ 
+-Note: if you already downloaded AdvCiv-4986 that didn't have that 48 civs DLL, you can download [the development version of AdvCiv-SAS](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#development-version) and use the 48 civ DLL that is there (in the /Assets/ folder, file named "CvGameCoreDLL_48_civs_dll.dll") (copy paste it in your mod folder where old DLL is as explained before, or better switch to using the development version as long as it's stable, as it has a few enhancements as said before vs latest stable).
++Note: if you already downloaded AdvCiv-4986 that didn't have that 48 civs DLL, you can download [the development version of AdvCiv-SAS](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#development-version) instead that comes with a DLL. You could theoretically go back to commit where i released the 48 civs DLL and download it there, but if you pick latest 48 civs DLL, it may not be compatible with old AdvCiv-SAS 4986 other files, so i'd suggest for no tediousness to stick to development version, or alternatively if you know how and don't mind the tediousness, download the oldest 48 civs DLL to use with AdvCiv-SAS-4986, but again much simpler and new enhancements if you move over to dev version until next release.
+ 
+ Note 2: it seems that savegames are not compatible when switching from 18 civ DLL to 48 civ DLL (or vice versa i assume anyways etc) though based on [some code comments in as of now CvEnums.h](/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map if i am not mistaken based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source, anyways etc).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 79c001e42..42e2deb07 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -388,6 +388,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - some units are buildable at different times/tech, also for historical accuracy, see tech tree i.e. tech advisor for details anyways etc
+ - rebalanced the warrior / ancient maceman in particular so it gives more base strength but less city combat, as well as now having animal combat modifier as well, and slightly higher cost.
+ - barracks in particular now require as of now tech_hunting. Hopefully this helps avoiding a military beeline by AIs or human players, or selectively boosts military leaders more with this extra chance in the early game (for those that start with as of now tech_hunting) anyways etc.
++- spearman units reworked and overall more powerful, including but not only a base strength now increased from 4 to 5 but not only. Also, civ-specific variants have even more varied profiles. See XML/Sevopedia for details anyways etc.
+ - explore units can attack: but their strength should be quite low
+ - military units are versatile: swordsmen can defend, archers can attack or/and fit more in an attacker as well anyways etc
+ - rebalanced also naval units and/or other units like animal units and perhaps other units or not or yes while doing so i mean anyways etc, see xml for details or/and sevopedia ingame also for updated values too i mean anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 1a37c0fd8..ed9a23b63 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -371,6 +371,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ - **Warrior / “Ancient Maceman”** rebalanced: higher base strength, lower city-combat, gains **vs Animals** bonus; cost slightly up.
+ - **Archer / Longbowman:** both available earlier with lower base strength and cost but with new stat mixes; **Archer** no longer upgrades to late units; **Longbow** upgrades to **Crossbow** (earlier availability).
+ - **Barracks** now require **Hunting**.
++- **Spearman line:** base Strength **4 → 5**; anti-mounted role strengthened; civ-specific variants further differentiated (see Sevopedia/XML).
+ - **Explorer-class** units can **attack**, but with low strength.
+ - Units more **versatile:** e.g., Swords defend better; Archers can attack more credibly.
+ - **Naval/animal** units broadly rebalanced; see Sevopedia/XML for details.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=24118

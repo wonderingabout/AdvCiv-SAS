@@ -1,0 +1,771 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1949
+# Commit: 1f0b08f5a12671b20c147a95f003a5e90e71c6fc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: eef170361121e049e03526d7e68742d4b467c4e0
+# Title: Remove global getAsyncRand function
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	6	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvDLLLogger.cpp
+1	1	CvGameCoreDLL/CvDLLLogger.h
+1	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	1	CvGameCoreDLL/CvGameInterface.cpp
+20	20	CvGameCoreDLL/CvGlobals.cpp
+31	34	CvGameCoreDLL/CvGlobals.h
+2	2	CvGameCoreDLL/CvPlayer.cpp
+35	19	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvUnit.cpp
+2	2	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+1	1	CvGameCoreDLL/CyGlobalContext.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 8d8b928d1..fb8a4bcd7 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2950,7 +2950,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 			continue; // advc
+ 
+ 		if (bAsync)
+-			aiUnitAIVal[iI] += getASyncRand().get(iMilitaryWeight, "AI Best UnitAI ASYNC");
++			aiUnitAIVal[iI] += GC.getASyncRand().get(iMilitaryWeight, "AI Best UnitAI ASYNC");
+ 		else aiUnitAIVal[iI] += GC.getGame().getSorenRandNum(iMilitaryWeight, "AI Best UnitAI");
+ 
+ 		if (aiUnitAIVal[iI] > iBestValue)
+@@ -3214,7 +3214,7 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
+ 
+ 		if (bAsync)
+ 		{
+-			iValue *= (getASyncRand().get(50, "AI Best Unit ASYNC") + 100);
++			iValue *= (GC.getASyncRand().get(50, "AI Best Unit ASYNC") + 100);
+ 			iValue /= 100;
+ 		}
+ 		else
+@@ -3470,7 +3470,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 				int iTempValue;
+ 				if (bAsync)
+ 				{
+-					iTempValue = getASyncRand().get(GC.getInfo(getPersonalityType()).
++					iTempValue = GC.getASyncRand().get(GC.getInfo(getPersonalityType()).
+ 							getWonderConstructRand(), "Wonder Construction Rand ASYNC");
+ 				}
+ 				else
+@@ -3486,7 +3486,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 
+ 		if (bAsync)
+ 		{
+-			iValue *= (getASyncRand().get(25, "AI Best Building ASYNC") + 100);
++			iValue *= (GC.getASyncRand().get(25, "AI Best Building ASYNC") + 100);
+ 			iValue /= 100;
+ 		}
+ 		else
+@@ -5731,8 +5731,8 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
+ 			  (kLoopProject.getEveryoneSpecialBuilding() != NO_SPECIALBUILDING) ||
+ 			  kLoopProject.isAllowsNukes())
+ 		{	// <advc.001n>
+-			if ((bAsync ? getASyncRand().get(100, "Project Everyone ASYNC") :
+-					// </advc.001n>
++			if ((bAsync ?
++					GC.getASyncRand().get(100, "Project Everyone ASYNC") : // </advc.001n>
+ 					GC.getGame().getSorenRandNum(100, "Project Everyone")) == 0)
+ 				iValue++;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvDLLLogger.cpp b/CvGameCoreDLL/CvDLLLogger.cpp
+index 7d0771f76..6f0e4682c 100644
+--- a/CvGameCoreDLL/CvDLLLogger.cpp
++++ b/CvGameCoreDLL/CvDLLLogger.cpp
+@@ -1,4 +1,4 @@
+-// advc.003t: New class; see CvDLLLogger.h.
++// advc: New class; see CvDLLLogger.h.
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvGame.h"
+
+diff --git a/CvGameCoreDLL/CvDLLLogger.h b/CvGameCoreDLL/CvDLLLogger.h
+index fc8b128c7..9385a6932 100644
+--- a/CvGameCoreDLL/CvDLLLogger.h
++++ b/CvGameCoreDLL/CvDLLLogger.h
+@@ -3,7 +3,7 @@
+ #ifndef CV_DLL_LOGGER_H
+ #define CV_DLL_LOGGER_H
+ 
+-/*  advc.003t: New class. Encapsulates calls to messageControlLog (CvDLLUtilityIFaceBase).
++/*  advc: New class. Encapsulates calls to messageControlLog (CvDLLUtilityIFaceBase).
+ 	The log is enabled through "MessageLog" in CivilizationIV.ini. "LoggingEnabled"
+ 	doesn't matter -- and this probably can't be changed b/c the DLL can't check if
+ 	LoggingEnabled is set. (CvGlobals::m_bLogging only says whether MessageLog is set.) */
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 841145994..ad1e1afa8 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -44,7 +44,7 @@ bool bernoulliSuccess(double pr, char const* pszLog, bool bAsync, int iData1, in
+ 	if(pszLog != NULL && strlen(pszLog) <= 0)
+ 		pszLog = "bs";
+ 	if(bAsync)
+-		return (getASyncRand().get(10000, pszLog) < iChancePerMyriad);
++		return (GC.getASyncRand().get(10000, pszLog) < iChancePerMyriad);
+ 	return GC.getGame().
+ 			getSorenRandNum(10000, pszLog, iData1, iData2) < iChancePerMyriad;
+ }
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 60fd71803..2d0d4ef00 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2354,7 +2354,8 @@ int CvGame::getNextSoundtrack(EraTypes eLastEra, int iLastSoundtrack) const
+ 	}
+ 	else
+ 	{
+-		return kCurrentEra.getSoundtracks(getASyncRand().get(kCurrentEra.getNumSoundtracks(), "Pick Song ASYNC"));
++		return kCurrentEra.getSoundtracks(
++				GC.getASyncRand().get(kCurrentEra.getNumSoundtracks(), "Pick Song ASYNC"));
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 54d5d3d84..cf79968be 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -32,7 +32,7 @@ m_bLoadGameFromFile(false),
+ m_pFMPMgr(NULL),
+ m_asyncRand(NULL),
+ m_pPythonCaller(NULL), // advc.003y
+-m_pLogger(NULL), // advc.003t
++m_pLogger(NULL), // advc
+ m_interface(NULL),
+ m_game(NULL),
+ m_agents(NULL), // advc.agent
+@@ -63,7 +63,7 @@ m_pXMLLoadUtility(NULL), // advc.003v
+ m_pDLL(NULL),
+ m_Profiler(NULL),
+ m_VarSystem(NULL),
+-m_aiGlobalDefinesCache(NULL), // advc.003t, advc.003c
++m_aiGlobalDefinesCache(NULL), // advc, advc.003c
+ m_bHoFScreenUp(false), // advc.106i
+ m_fCAMERA_MIN_YAW(0), m_fCAMERA_MAX_YAW(0), m_fCAMERA_FAR_CLIP_Z_HEIGHT(0),
+ m_fCAMERA_MAX_TRAVEL_DISTANCE(0), m_fCAMERA_START_DISTANCE(0),
+@@ -223,7 +223,7 @@ void CvGlobals::init() // allocate
+ 	m_loadedInitCore = new CvInitCore();
+ 	m_iniInitCore = new CvInitCore();
+ 	gDLL->initGlobals(); // some globals need to be allocated outside the dll
+-	m_pLogger = new CvDLLLogger(isLogging(), isRandLogging()); // advc.003t
++	m_pLogger = new CvDLLLogger(isLogging(), isRandLogging()); // advc
+ 	m_game = new CvGameAI();
+ 	m_map = new CvMap();
+ 
+@@ -261,7 +261,7 @@ void CvGlobals::uninit() // free
+ 	#ifdef USE_TSC_PROFILER
+ 	TSCProfiler::getInstance().writeFile();
+ 	#endif // </advc.003o>
+-	SAFE_DELETE_ARRAY(m_aiGlobalDefinesCache); // advc.003t
++	SAFE_DELETE_ARRAY(m_aiGlobalDefinesCache); // advc
+ 
+ 	SAFE_DELETE(m_game);
+ 	SAFE_DELETE(m_map);
+@@ -271,7 +271,7 @@ void CvGlobals::uninit() // free
+ 
+ 	SAFE_DELETE(m_asyncRand);
+ 	SAFE_DELETE(m_pPythonCaller); // advc.003y
+-	SAFE_DELETE(m_pLogger); // advc.003t
++	SAFE_DELETE(m_pLogger); // advc
+ 	SAFE_DELETE(m_initCore);
+ 	SAFE_DELETE(m_loadedInitCore);
+ 	SAFE_DELETE(m_iniInitCore);
+@@ -638,9 +638,9 @@ void CvGlobals::loadThroneRoomInfo()
+ 		bSuccess = m_pXMLLoadUtility->LoadThroneRoomInfo();
+ 	FAssertMsg(bSuccess, "Failed to load XML data for Throne Room");
+ } // </advc.003v>
+-// advc.003t:
++// <advc.opt>
+ #define MAKE_STRING(VAR) #VAR,
+-// <advc.003t>
++
+ void CvGlobals::cacheGlobalInts(char const* szChangedDefine, int iNewValue)
+ {
+ 	const char* const aszGlobalDefinesTagNames[] = {
+@@ -696,8 +696,8 @@ void CvGlobals::cacheGlobalInts(char const* szChangedDefine, int iNewValue)
+ 		// BETTER_BTS_AI_MOD: END
+ 		}
+ 		m_aiGlobalDefinesCache[i] = getDefineINT(aszGlobalDefinesTagNames[i], iDefault);
+-	} // </advc.003t>
+-}
++	}
++} // </advc.opt>
+ 
+ void CvGlobals::cacheGlobalFloats()
+ {
+@@ -722,10 +722,10 @@ void CvGlobals::cacheGlobalFloats()
+ 
+ void CvGlobals::cacheGlobals()
+ {
+-	// <advc.003t> Moved into subroutines to allow partial updates
++	// <advc.opt> Moved into subroutines to allow partial updates
+ 	cacheGlobalInts();
+ 	cacheGlobalFloats();
+-	// Strings: Mostly can't cache these here (too early) // </advc.003t>
++	// Strings: Mostly can't cache these here (too early) // </advc.opt>
+ 	// <advc.003y>
+ 	// New class to handle Python callback defines
+ 	m_pPythonCaller = new CvPythonCaller();
+@@ -782,34 +782,34 @@ const char * CvGlobals::getDefineSTRING(const char * szName) const
+ 	return szReturn;
+ }
+ 
+-void CvGlobals::setDefineINT(const char * szName, int iValue, /* advc.003t: */ bool bUpdateCache)
++void CvGlobals::setDefineINT(const char * szName, int iValue, /* advc.opt: */ bool bUpdateCache)
+ {
+ 	getDefinesVarSystem()->SetValue(szName, iValue);
+-	// <advc.003t>
++	// <advc.opt>
+ 	if(bUpdateCache)
+-		cacheGlobalInts(szName, iValue); // Pinpoint update </advc.003t>
++		cacheGlobalInts(szName, iValue); // Pinpoint update </advc.opt>
+ }
+ 
+-void CvGlobals::setDefineFLOAT(const char * szName, float fValue, /* advc.003t: */ bool bUpdateCache)
++void CvGlobals::setDefineFLOAT(const char * szName, float fValue, /* advc.opt: */ bool bUpdateCache)
+ {
+ 	getDefinesVarSystem()->SetValue(szName, fValue);
+-	// <advc.003t>
++	// <advc.opt>
+ 	if(bUpdateCache)
+-		cacheGlobalFloats(); // </advc.003t>
++		cacheGlobalFloats(); // </advc.opt>
+ }
+ 
+ void CvGlobals::setDefineSTRING(const char * szName, const char * szValue, /* advc.opt: */ bool bUpdateCache)
+ {
+ 	getDefinesVarSystem()->SetValue(szName, szValue);
+ 	//cacheGlobals();
+-	FAssertMsg(!bUpdateCache, "No strings to update"); // advc.003t
++	FAssertMsg(!bUpdateCache, "No strings to update"); // advc.opt
+ }
+ 
+ int CvGlobals::getMAX_CIV_PLAYERS()
+ {
+ 	return MAX_CIV_PLAYERS;
+ }
+-/*  <advc.003t> Optional parameters added. The return value is only an upper bound,
++/*  <advc.opt> Optional parameters added. The return value is only an upper bound,
+ 	even if an argument is given. */
+ int CvGlobals::getNUM_UNIT_PREREQ_OR_BONUSES(UnitTypes eUnit) const
+ {
+@@ -852,7 +852,7 @@ int CvGlobals::getNUM_ROUTE_PREREQ_OR_BONUSES(RouteTypes eRoute) const
+ 	return (eRoute == NO_ROUTE || getInfo(eRoute).isAnyPrereqOrBonus() ?
+ 			getDefineINT(NUM_ROUTE_PREREQ_OR_BONUSES) : 0);
+ }
+-// </advc.003t>
++// </advc.opt>
+ int CvGlobals::getNUM_CORPORATION_PREREQ_BONUSES() const
+ {
+ 	return getDefineINT(NUM_CORPORATION_PREREQ_BONUSES);
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 1f3661099..23a32f07b 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -13,7 +13,7 @@
+ class FProfiler;
+ class CvDLLUtilityIFaceBase;
+ class CvPythonCaller; // advc.003y
+-class CvDLLLogger; // advc.003t
++class CvDLLLogger;
+ class CvRandom;
+ class CvGame; // advc.003u
+ class CvGameAI;
+@@ -70,7 +70,7 @@ public:
+ 
+ 	// singleton accessor
+ 	DllExport __forceinline static CvGlobals& getInstance();
+-	__forceinline static CvGlobals const& getConstInstance(); // advc.003t
++	__forceinline static CvGlobals const& getConstInstance();
+ 
+ 	CvGlobals();
+ 
+@@ -84,9 +84,9 @@ public:
+ 	DllExport FMPIManager*& getFMPMgrPtr();
+ 	DllExport CvPortal& getPortal();
+ 	DllExport CvSetupData& getSetupData();
+-	DllExport CvInitCore& getInitCore()  // <advc.003t> const replacement
++	DllExport CvInitCore& getInitCore()  // <advc> const replacement
+ 	{ CvGlobals const& kThis = *this; return kThis.getInitCore(); }
+-	inline CvInitCore& getInitCore() const { return *m_initCore; } // </advc.003t>
++	inline CvInitCore& getInitCore() const { return *m_initCore; } // </advc>
+ 	DllExport CvInitCore& getLoadedInitCore();
+ 	DllExport CvInitCore& getIniInitCore();
+ 	DllExport CvMessageCodeTranslator& getMessageCodes();
+@@ -114,11 +114,12 @@ public:
+ 		return m_pPythonCaller;
+ 	} // </advc.003y>
+ 	DllExport inline CvRandom& getASyncRand() { return *m_asyncRand; } // advc.inl
++	CvRandom& getASyncRand() const { return *m_asyncRand; } // advc
+ 	DllExport CMessageQueue& getMessageQueue();
+ 	DllExport CMessageQueue& getHotMessageQueue();
+ 	DllExport CMessageControl& getMessageControl();
+ 	DllExport CvDropMgr& getDropMgr();
+-	/*  advc.003t: inlined and constified. The caller is certainly going to change
++	/*  advc: inlined and constified. The caller is certainly going to change
+ 		the returned FAStar objects, but CvGlobals doesn't own those objects, so
+ 		it shouldn't be our concern. */
+ 	DllExport FAStar& getPathFinder() { CvGlobals const& kThis = *this; return kThis.getPathFinder(); }
+@@ -141,19 +142,19 @@ public:
+ 	DllExport bool& getRandLogging() { return m_bRandLogging; }
+ 	DllExport bool& getSynchLogging() { return m_bSynchLogging; }
+ 	DllExport bool& overwriteLogs() { return m_bOverwriteLogs; }
+-	// <advc.003t> const inline versions of the above
++	// <advc> const inline versions of the above
+ 	// The first two are exposed to Python for dlph.27
+ 	inline bool isLogging() const { return m_bLogging; }
+ 	inline bool isRandLogging() const { return m_bRandLogging; }
+ 	inline bool isSynchLogging() const { return m_bSynchLogging; }
+ 	inline bool isOverwriteLogs() const { return m_bOverwriteLogs; }
+-	// <advc.003t>
++	// <advc>
+ 	inline CvDLLLogger& getLogger() const
+ 	{
+ 		return *m_pLogger;
+-	} // </advc.003t>
++	} // </advc>
+ 
+-	// advc.003t: Inlined and constified
++	// advc: Inlined and constified
+ 	DllExport int* getPlotDirectionX() { return m_aiPlotDirectionX; }
+ 	inline int const* getPlotDirectionX() const { return m_aiPlotDirectionX; }
+ 	DllExport int* getPlotDirectionY() { return m_aiPlotDirectionY; }
+@@ -205,7 +206,7 @@ public:
+ 		return (int)m_paGameTextXML.size();
+ 	}
+ 	DllExport inline int getActiveLandscapeID() { CvGlobals const& kThis = *this; return kThis.getActiveLandscapeID(); }
+-	inline int getActiveLandscapeID() const { return m_iActiveLandscapeID; } // advc.003t: const version
++	inline int getActiveLandscapeID() const { return m_iActiveLandscapeID; } // advc
+ 	DllExport void setActiveLandscapeID(int iLandscapeID);
+ 	// <advc.003x> So that CvMap doesn't have to use CvLandscapeInfo directly
+ 	int getLandscapePlotsPerCellX() const;
+@@ -340,7 +341,7 @@ public:
+ 	CvString& getFunctionTypes(FunctionTypes e);
+ 
+ 	inline int& getNumFlavorTypes() { return m_iNumFlavorTypes; }
+-	inline int const& getNumFlavorTypes() const { return m_iNumFlavorTypes; } // advc.003t: const version
++	inline int const& getNumFlavorTypes() const { return m_iNumFlavorTypes; } // advc
+ 	CvString*& getFlavorTypes();
+ 	CvString& getFlavorTypes(FlavorTypes e);
+ 
+@@ -365,7 +366,7 @@ public:
+ 	CvString& getDirectionTypes(AutomateTypes e);
+ 
+ 	DllExport int& getNumFootstepAudioTypes();
+-	int getNumFootstepAudioTypes() const { return m_iNumFootstepAudioTypes; } // advc.003t: const version
++	int getNumFootstepAudioTypes() const { return m_iNumFootstepAudioTypes; } // advc
+ 	CvString*& getFootstepAudioTypes();
+ 	CvString& getFootstepAudioTypes(int i);
+ 	int getFootstepAudioTypeByTag(CvString strTag);
+@@ -373,7 +374,7 @@ public:
+ 	CvString*& getFootstepAudioTags();
+ 	DllExport CvString& getFootstepAudioTags(int i);
+ 
+-	CvString const& getCurrentXMLFile() const; // advc.003t: 2x const
++	CvString const& getCurrentXMLFile() const; // advc: 2x const
+ 	void setCurrentXMLFile(const TCHAR* szFileName);
+ 	// <advc.003v>
+ 	void setXMLLoadUtility(CvXMLLoadUtility* pXML);
+@@ -392,23 +393,23 @@ public:
+ 	// ***** EXPOSED TO PYTHON *****
+ 	DllExport inline int getDefineINT(const char * szName) const
+ 	{
+-		return getDefineINT(szName, 0); // advc: Call the BBAI version
++		return getDefineINT(szName, 0); // advc.opt: Call the BBAI version
+ 	}
+ 	// BETTER_BTS_AI_MOD, Efficiency, Options, 02/21/10, jdog5000:
+ 	int getDefineINT(const char * szName, const int iDefault) const;
+-	// <advc.003t>
++	// <advc>
+ 	inline bool getDefineBOOL(const char * szName, const bool bDefault = false) const
+ 	{
+ 		return (getDefineINT(szName, (int)bDefault) > 0);
+-	} // </advc.003t>
++	} // </advc>
+ 	DllExport float getDefineFLOAT(const char * szName) const;
+ 	DllExport const char * getDefineSTRING(const char * szName) const;
+-	/*  advc.003t: Params for suppressing cache update added. False for string b/c
++	/*  advc.opt: Params for suppressing cache update added. False for string b/c
+ 		there are none that we could update. */
+ 	void setDefineINT(const char * szName, int iValue, bool bUpdateCache = true);
+ 	void setDefineFLOAT(const char * szName, float fValue, bool bUpdateCache = true);
+ 	void setDefineSTRING(const char * szName, const char * szValue, bool bUpdateCache = false);
+-	// <advc.003t>
++	// advc.opt:
+ #pragma region GlobalDefines
+ 	/*  Access cached integer GlobalDefines through enum values
+ 		(not exposed to Python - though that might be nice). */
+@@ -561,7 +562,6 @@ public:
+ 	inline int getCOMBAT_DIE_SIDES() const { return getDefineINT(COMBAT_DIE_SIDES); }
+ 	inline int getCOMBAT_DAMAGE() const { return getDefineINT(COMBAT_DAMAGE); }
+ 	// BETTER_BTS_AI_MOD: END
+-	// </advc.003t>
+ 	/*  <advc.opt> (TextVals can't be loaded by cacheGlobals. Hence also won't be
+ 		updated when a setDefine... function is called.) */
+ 	inline ImprovementTypes getRUINS_IMPROVEMENT() const
+@@ -584,7 +584,7 @@ public:
+ 	}
+ 	void setWATER_TERRAIN(bool bShallow, int iValue);
+ 	// </advc.opt>
+-	// <advc.003t> Parameters added  // The getNUM...PREREQ... functions are all exposed to Python
++	// <advc> Parameters added  // The getNUM...PREREQ... functions are all exposed to Python
+ 	int getNUM_UNIT_PREREQ_OR_BONUSES(UnitTypes eUnit = NO_UNIT) const;
+ 	// <advc.905b>
+ 	inline int getNUM_UNIT_SPEED_BONUSES(UnitTypes eUnit = NO_UNIT) const
+@@ -597,10 +597,10 @@ public:
+ 	int getNUM_AND_TECH_PREREQS(TechTypes = NO_TECH) const;
+ 	int getNUM_OR_TECH_PREREQS(TechTypes = NO_TECH) const;
+ 	int getNUM_ROUTE_PREREQ_OR_BONUSES(RouteTypes eRoute = NO_ROUTE) const;
+-	// </advc.003t>
+-	int getNUM_CORPORATION_PREREQ_BONUSES() const; // advc: A param like above doesn't help b/c all corps require resources
++	// </advc>
++	int getNUM_CORPORATION_PREREQ_BONUSES() const; // (advc: A param like above doesn't help b/c all corps require resources)
+ 	inline float getPOWER_CORRECTION() const { return m_fPOWER_CORRECTION; } // advc.104
+-	// <advc.003t> All inlined and constified
++	// advc: All inlined and constified
+ 	DllExport inline float getCAMERA_MIN_YAW() { CvGlobals const& kThis = *this; return kThis.getCAMERA_MIN_YAW(); }
+ 	inline float getCAMERA_MIN_YAW() const { return m_fCAMERA_MIN_YAW; }
+ 	DllExport inline float getCAMERA_MAX_YAW() { CvGlobals const& kThis = *this; return kThis.getCAMERA_MAX_YAW(); }
+@@ -653,7 +653,7 @@ public:
+ 	DllExport void setDLLIFace(CvDLLUtilityIFaceBase* pDll);
+ #ifdef _USRDLL
+ 	// inlined for perf reasons, do not use outside of dll
+-	inline CvDLLUtilityIFaceBase* getDLLIFace() const { return m_pDLL; } // advc.003t: const, inline keyword added
++	inline CvDLLUtilityIFaceBase* getDLLIFace() const { return m_pDLL; } // advc: const, inline keyword added
+ #endif
+ 	DllExport CvDLLUtilityIFaceBase* getDLLIFaceNonInl();
+ 	DllExport void setDLLProfiler(FProfiler* prof);
+@@ -779,7 +779,7 @@ protected:
+ 
+ 	CvRandom* m_asyncRand;
+ 	CvPythonCaller* m_pPythonCaller; // advc.003y
+-	CvDLLLogger* m_pLogger; // advc.003t
++	CvDLLLogger* m_pLogger;
+ 	CvGameAI* m_game;
+ 	CvAgents* m_agents; // advc.agents
+ 
+@@ -888,7 +888,7 @@ protected:
+ 
+ 	FVariableSystem* m_VarSystem;
+ 
+-	int* m_aiGlobalDefinesCache; // advc.003t
++	int* m_aiGlobalDefinesCache;
+ 	// <advc.opt>
+ 	int m_iRUINS_IMPROVEMENT;
+ 	int m_iDEFAULT_SPECIALIST;
+@@ -921,9 +921,9 @@ protected:
+ 
+ private:
+ 	void addToInfosVectors(void *infoVector); // advc: was public
+-	// <advc.003t>
++	// <advc.opt>
+ 	void cacheGlobalInts(char const* szChangedDefine = NULL, int iNewValue = 0);
+-	void cacheGlobalFloats(); // </advc.003t>
++	void cacheGlobalFloats(); // </advc.opt>
+ };
+ 
+ extern CvGlobals gGlobals;	// for debugging
+@@ -935,11 +935,11 @@ __forceinline CvGlobals& CvGlobals::getInstance()
+ {
+ 	return gGlobals;
+ }
+-// <advc.003t>
++// <advc>
+ __forceinline CvGlobals const& CvGlobals::getConstInstance()
+ {
+ 	return gGlobals;
+-} // </advc.003t>
++} // </advc>
+ 
+ /*  <advc.enum> These aren't member functions because they need to overload the
+ 	SET_ENUM_LENGTH_STATIC functions defined in CvEnums.h. I'd rather not make
+@@ -954,16 +954,13 @@ inline FlavorTypes getEnumLength(FlavorTypes) { return (FlavorTypes)gGlobals.get
+ //
+ // helpers
+ //
+-#define GC CvGlobals::getConstInstance() // advc.003t: was ...getInstance()
++#define GC CvGlobals::getConstInstance() // advc: was ...getInstance()
+ #ifndef _USRDLL
+ #define gDLL GC.getDLLIFaceNonInl()
+ #else
+ #define gDLL GC.getDLLIFace()
+ #endif
+ 
+-// advc.003t: Direct access to RNG (can't get it from the const GC)
+-inline CvRandom& getASyncRand() { return CvGlobals::getInstance().getASyncRand(); }
+-
+ #ifndef _USRDLL
+ #define NUM_DIRECTION_TYPES (GC.getNumDirections())
+ #define NUM_GAMEOPTION_TYPES (GC.getNumGameOptions())
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c98422735..562df5b5a 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -12024,7 +12024,7 @@ void CvPlayer::changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes
+ 
+ // K-Mod. I've changed this function from using pUnit to using pGroup.
+ // I've also rewritten most of the code, to give more natural ordering, and to be more robust and readable code.
+-void CvPlayer::updateGroupCycle(CvSelectionGroup const& kGroup) // advc: const reference param
++void CvPlayer::updateGroupCycle(CvSelectionGroup const& kGroup)  // advc: const reference param
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -14465,7 +14465,7 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 				GC.getGame().getActiveTeam() == getTeam()) // advc.120i
+ 			{
+ 				EffectTypes eEffect = GC.getInfo(GC.getInfo(MISSION_BOMBARD).getEntityEvent()).getEffectType();
+-				gDLL->getEngineIFace()->TriggerEffect(eEffect, pPlot->getPoint(), (float)(getASyncRand().get(360)));
++				gDLL->getEngineIFace()->TriggerEffect(eEffect, pPlot->getPoint(), (float)(GC.getASyncRand().get(360)));
+ 				gDLL->getInterfaceIFace()->playGeneralSound("AS3D_UN_CITY_EXPLOSION", pPlot->getPoint());
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 37ab01b6e..d6fa87131 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1404,7 +1404,7 @@ void CvPlayerAI::AI_doCentralizedProduction()
+ 									{
+ 										if (bAsync)
+ 										{
+-											iTempValue = getASyncRand().get(GC.getInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand ASYNC");
++											iTempValue = GC.getASyncRand().get(GC.getInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand ASYNC");
+ 										}
+ 										else
+ 										{
+@@ -1421,7 +1421,7 @@ void CvPlayerAI::AI_doCentralizedProduction()
+ 
+ 								if (bAsync)
+ 								{
+-									iValue *= (getASyncRand().get(25, "AI Best Building ASYNC") + 100);
++									iValue *= (GC.getASyncRand().get(25, "AI Best Building ASYNC") + 100);
+ 									iValue /= 100;
+ 								}
+ 								else
+@@ -3920,7 +3920,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 		random multiplier at the end of the function. */
+ 		int const iRandPlusMax = 26; //80
+ 		iRandomFactor = (bAsync ?
+-				getASyncRand().get(iRandPlusMax*iCityCount, "AI Research ASYNC") :
++				GC.getASyncRand().get(iRandPlusMax*iCityCount, "AI Research ASYNC") :
+ 				GC.getGame().getSorenRandNum(iRandPlusMax*iCityCount, "AI Research"));
+ 		iRandomMax = iRandPlusMax*iCityCount;
+ 		iValue += iRandomFactor;
+@@ -4714,7 +4714,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	{	// <k146>
+ 		const int iBaseRand = std::max(10, 110-30*iPathLength); // 80, 50, 20, 10
+ 		int iWonderRandom = (bAsync ?
+-				getASyncRand().get(iBaseRand, "AI Research Wonder Unit ASYNC") :
++				GC.getASyncRand().get(iBaseRand, "AI Research Wonder Unit ASYNC") :
+ 				GC.getGame().getSorenRandNum(iBaseRand, "AI Research Wonder Unit"));
+ 		int iFactor = 100 * std::min(iCityCount, iCityTarget) /
+ 				std::max(1, iCityTarget);
+@@ -4739,7 +4739,9 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	if (bEnablesWonder && getTotalPopulation() > 5)
+ 	{
+ 		const int iBaseRand = std::max(10, 110-30*iPathLength); // 80, 50, 20, 10 (was 300)
+-		int iWonderRandom = ((bAsync) ? getASyncRand().get(iBaseRand, "AI Research Wonder Building ASYNC") : GC.getGame().getSorenRandNum(iBaseRand, "AI Research Wonder Building"));
++		int iWonderRandom = (bAsync ?
++				GC.getASyncRand().get(iBaseRand, "AI Research Wonder Building ASYNC") :
++				GC.getGame().getSorenRandNum(iBaseRand, "AI Research Wonder Building"));
+ 		int iFactor = 10 + GC.getInfo(getPersonalityType()).getWonderConstructRand(); // note: highest value of iWonderConstructRand 50 in the default xml.
+ 		iFactor += AI_atVictoryStage(AI_VICTORY_CULTURE1) ? 15 : 0;
+ 		iFactor += AI_atVictoryStage(AI_VICTORY_CULTURE2) ? 10 : 0;
+@@ -4758,7 +4760,9 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	iValue += AI_techProjectValue(eTech, iPathLength, bEnablesProjectWonder);
+ 	if (bEnablesProjectWonder)
+ 	{
+-		int iWonderRandom = ((bAsync) ? getASyncRand().get(56, "AI Research Wonder Project ASYNC") : GC.getGame().getSorenRandNum(56, "AI Research Wonder Project"));
++		int iWonderRandom = (bAsync ?
++				GC.getASyncRand().get(56, "AI Research Wonder Project ASYNC") :
++				GC.getGame().getSorenRandNum(56, "AI Research Wonder Project"));
+ 		iValue += iWonderRandom;
+ 
+ 		iRandomMax += 56;
+@@ -4884,7 +4888,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 		{
+ 			/*if (GC.getInfo(eLoopCorporation).getTechPrereq() == eTech) {
+ 				if (!GC.getGame().isCorporationFounded(eLoopCorporation)) {
+-					iValue += 100 + ((bAsync) ? getASyncRand().get(2400, "AI Research Corporation ASYNC") : GC.getGame().getSorenRandNum(2400, "AI Research Corporation"));
++					iValue += 100 + (bAsync ? GC.getASyncRand().get(2400, "AI Research Corporation ASYNC") : GC.getGame().getSorenRandNum(2400, "AI Research Corporation"));
+ 				}
+ 			}*/ // BtS
+ 			// K-Mod
+@@ -4940,13 +4944,17 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 							iCorpValue *= 20 + AI_getFlavorValue(FLAVOR_GOLD);
+ 							iCorpValue /= 20;
+ 							iValue += iCorpValue/2;
+-							iValue += ((bAsync) ? getASyncRand().get(iCorpValue, "AI Research Corporation ASYNC") : GC.getGame().getSorenRandNum(iCorpValue, "AI Research Corporation"));
++							iValue += (bAsync ?
++									GC.getASyncRand().get(iCorpValue, "AI Research Corporation ASYNC") :
++									GC.getGame().getSorenRandNum(iCorpValue, "AI Research Corporation"));
+ 							iRandomMax += iCorpValue;
+ 						}
+ 						else
+ 						{
+ 							iValue += iCorpValue/3;
+-							iValue += ((bAsync) ? getASyncRand().get(4*iCorpValue/3, "AI Research Corporation ASYNC") : GC.getGame().getSorenRandNum(4*iCorpValue/3, "AI Research Corporation"));
++							iValue += (bAsync ?
++									GC.getASyncRand().get(4*iCorpValue/3, "AI Research Corporation ASYNC") :
++									GC.getGame().getSorenRandNum(4*iCorpValue/3, "AI Research Corporation"));
+ 							iRandomMax += 4*iCorpValue/3;
+ 						}
+ 					}
+@@ -5021,7 +5029,9 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 						if (iRaceModifier > 10 && AI_getFlavorValue(FLAVOR_RELIGION) > 0)
+ 							iReligionValue += iRoll * (iRaceModifier-10) / 300;
+ 
+-						iReligionValue += bAsync ? getASyncRand().get(iRoll, "AI Research Religion ASYNC") : GC.getGame().getSorenRandNum(iRoll, "AI Research Religion");
++						iReligionValue += (bAsync ?
++								GC.getASyncRand().get(iRoll, "AI Research Religion ASYNC") :
++								GC.getGame().getSorenRandNum(iRoll, "AI Research Religion"));
+ 						// Note: relation value will be scaled down by other factors in the next section.
+ 						iRandomMax += iRoll; // (Note: this doesn't include factors used later.)
+ 					}
+@@ -5105,12 +5115,14 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 				iRoll /= 200;
+ 				if (iRaceModifier > 20 && AI_getFlavorValue(FLAVOR_SCIENCE) + AI_getFlavorValue(FLAVOR_GROWTH) > 0)
+ 					iValue += iRoll * (iRaceModifier-10) / 400;
+-				iValue += bAsync ? getASyncRand().get(iRoll, "AI Research Great People ASYNC") : GC.getGame().getSorenRandNum(iRoll, "AI Research Great People");
++				iValue += (bAsync ?
++						GC.getASyncRand().get(iRoll, "AI Research Great People ASYNC") :
++						GC.getGame().getSorenRandNum(iRoll, "AI Research Great People"));
+ 				iRandomMax += iRoll;
+ 				// K-Mod end
+ 			}
+ 
+-			//iValue += (kTechInfo.getFirstFreeTechs() * (200 + ((bCapitalAlone) ? 400 : 0) + ((bAsync) ? getASyncRand().get(3200, "AI Research Free Tech ASYNC") : GC.getGame().getSorenRandNum(3200, "AI Research Free Tech"))));
++			//iValue += (kTechInfo.getFirstFreeTechs() * (200 + (bCapitalAlone ? 400 : 0) + (bAsync ? GC.getASyncRand().get(3200, "AI Research Free Tech ASYNC") : GC.getGame().getSorenRandNum(3200, "AI Research Free Tech"))));
+ 			// K-Mod. Very rough evaluation of free tech.
+ 			if (kTechInfo.getFirstFreeTechs() > 0)
+ 			{	// <k146>
+@@ -5144,7 +5156,9 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 				if (iRaceModifier > 20 && iRaceModifier < 100) // save the free tech if we have no competition!
+ 					iTempValue += iBase * (iRaceModifier-20) / 200;
+ 				//int iTempValue = (iRaceModifier >= 0 ? 196 : 98) + (bCapitalAlone ? 28 : 0); // some value regardless of race or random.
+-				iTempValue += bAsync ? getASyncRand().get(iBase, "AI Research Free Tech ASYNC") : GC.getGame().getSorenRandNum(iBase, "AI Research Free Tech");
++				iTempValue += (bAsync ?
++						GC.getASyncRand().get(iBase, "AI Research Free Tech ASYNC") :
++						GC.getGame().getSorenRandNum(iBase, "AI Research Free Tech"));
+ 				// </k146>
+ 				iValue += iTempValue * kTechInfo.getFirstFreeTechs();
+ 				iRandomMax += iBase * kTechInfo.getFirstFreeTechs();
+@@ -5197,7 +5211,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 		bool bCheapBooster = (iTurnsLeft >= 0 && // advc.004x
+ 				iTurnsLeft < (2 * iAdjustment) &&
+ 				eFromPlayer == NO_PLAYER && // advc.144
+-				(0 == (bAsync ? getASyncRand().get(5, "AI Choose Cheap Tech") :
++				(0 == (bAsync ? GC.getASyncRand().get(5, "AI Choose Cheap Tech") :
+ 				GC.getGame().getSorenRandNum(5, "AI Choose Cheap Tech"))));
+ 		/*  <advc.004x> Shouldn't normally be called during anarchy, but if it is,
+ 			assume a usual time to research. */
+@@ -5266,7 +5280,8 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	/*  K-Mod, 12/sep/10, Karadoc
+ 		Use a random _factor_ at the end. */
+ 	// advc: Renamed from iRandomFactor, which is already defined (though unused).
+-	int iFinalRandomFactor = (bAsync ? getASyncRand().get( // advc (comment): Should randomness be used at all when recommending tech (bAsync)?
++	int iFinalRandomFactor = (bAsync ?
++			GC.getASyncRand().get( // advc (comment): Should randomness be used at all when recommending tech (bAsync)?
+ 			200, "AI Research factor ASYNC") : // k146: was 100
+ 			GC.getGame().getSorenRandNum(
+ 			200, "AI Research factor")); // k146: was 100
+@@ -6365,7 +6380,7 @@ DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const
+ 	TeamTypes eWorstEnemy = GET_TEAM(getTeam()).AI_getWorstEnemy();
+ 	if (eWorstEnemy != NO_TEAM && eWorstEnemy != TEAMID(ePlayer) &&
+ 		GET_TEAM(ePlayer).isHasMet(eWorstEnemy) &&
+-		0 == getASyncRand().get(4 /* <advc.079> */ +
++		0 == GC.getASyncRand().get(4 /* <advc.079> */ +
+ 		(m_aeLastWarn[ePlayer] != eWorstEnemy ? -2 : 2)))
+ 	{
+ 		const_cast<CvPlayerAI*>(this)->m_aeLastWarn[ePlayer] = eWorstEnemy;
+@@ -6375,9 +6390,9 @@ DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const
+ 			return (DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_WORST_ENEMY_TRADING");
+ 		else return (DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_WORST_ENEMY");
+ 	}
+-	else if (getNumNukeUnits() > 0 && getASyncRand().get(4) == 0)
++	else if (getNumNukeUnits() > 0 && GC.getASyncRand().get(4) == 0)
+ 		return (DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_NUKES");
+-	else if (/* <advc.079> */ bBrag && /* </advc.079> */ getASyncRand().get(4) == 0)
++	else if (/* <advc.079> */ bBrag && /* </advc.079> */ GC.getASyncRand().get(4) == 0)
+ 		return (DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_UNIT_BRAG");
+ 	return eDefaultGreeting;
+ }
+@@ -6521,7 +6536,8 @@ bool CvPlayerAI::AI_demandRebukedWar(PlayerTypes ePlayer) const
+ 	FAssert(!(GET_TEAM(getTeam()).isHuman()));
+ 
+ 	// needs to be async because it only happens on the computer of the player who is in diplomacy...
+-	if (getASyncRand().get(100, "AI Demand Rebuked ASYNC") < GC.getInfo(getPersonalityType()).getDemandRebukedWarProb())
++	if (GC.getASyncRand().get(100, "AI Demand Rebuked ASYNC") <
++		GC.getInfo(getPersonalityType()).getDemandRebukedWarProb())
+ 	{
+ 		// <advc.104m>
+ 		if(getUWAI.isEnabled())
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 8aa102196..cb887d52d 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2763,11 +2763,11 @@ void CvUnit::move(CvPlot& kPlot, bool bShow, /* advc.163: */ bool bJump, bool bG
+ 		&& eFeature != NO_FEATURE) // spawn birds if trees present - JW
+ 	{
+ 		CvFeatureInfo const& kFeature = GC.getInfo(eFeature);
+-		if (getASyncRand().get(100) < kFeature.getEffectProbability())
++		if (GC.getASyncRand().get(100) < kFeature.getEffectProbability())
+ 		{
+ 			EffectTypes eEffect = (EffectTypes)GC.getInfoTypeForString(kFeature.getEffectType());
+ 			NiPoint3 pt = kPlot.getPoint();
+-			gDLL->getEngineIFace()->TriggerEffect(eEffect, pt, (float)getASyncRand().get(360));
++			gDLL->getEngineIFace()->TriggerEffect(eEffect, pt, (float)GC.getASyncRand().get(360));
+ 			gDLL->getInterfaceIFace()->playGeneralSound("AS3D_UN_BIRDS_SCATTER", pt);
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index b66d10725..0b8904034 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -9,9 +9,9 @@
+ #include "CvInfo_All.h"
+ #include "CvGameAI.h" // advc.104x
+ #include "FVariableSystem.h"
+-// <advc.003t> Overwrite the definition in CvGlobals.h b/c a const GC is no use here
++// <advc> Overwrite the definition in CvGlobals.h b/c a const GC is no use here
+ #undef GC
+-#define GC CvGlobals::getInstance() // </advc.003t>
++#define GC CvGlobals::getInstance() // </advc>
+ 
+ // Macro for Setting Global Art Defines
+ // advc.003j: unused
+
+diff --git a/CvGameCoreDLL/CyGlobalContext.cpp b/CvGameCoreDLL/CyGlobalContext.cpp
+index 077ca96b3..a36cd40bb 100644
+--- a/CvGameCoreDLL/CyGlobalContext.cpp
++++ b/CvGameCoreDLL/CyGlobalContext.cpp
+@@ -78,7 +78,7 @@ CyPlayer* CyGlobalContext::getCyActivePlayer()
+ 
+ CvRandom& CyGlobalContext::getCyASyncRand() const
+ {
+-	return getASyncRand();
++	return GC.getASyncRand();
+ }
+ 
+ CyTeam* CyGlobalContext::getCyTeam(int i)
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=33948

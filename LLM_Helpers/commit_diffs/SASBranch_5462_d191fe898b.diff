@@ -1,0 +1,3046 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5462
+# Commit: d191fe898b3ac9b2dd8830ff55a029294b404f3b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 94a336ef48c5167570291cc909e9eee8daa709f0
+# Title: add the Irish Empire with 2 leaders (Grace O'Malley, Micheal Collins) with the very nice help of GPT-5.3-Codex (and GPT-5.2 Thinking for planning) thanks a l...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/Seleukeion_Button.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.nif
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Shadow_Senate.dds
+-	-	Assets/Art/AdvCiv_SAS/Civilizations/Irish_Empire/FlagDECAL_Ireland.dds
+-	-	Assets/Art/AdvCiv_SAS/Civilizations/Irish_Empire/Ireland.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/Grace_OMalley.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/music/sonican-highlands-sun-celtic-irish-scottish-music-loop-340334.mp3
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.kfm
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.nif
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_action_01_negative.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_action_02_affirmative.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_greeting.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_01_friendly.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_02_pleased.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_03_cautious.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_04_annoyed.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_05_furious.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John_II_NONSHADER.nif
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Diff.DDS
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Env_Mask.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Norm.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Spec.DDS
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Diff.DDS
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Env_Mask.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Norm.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Spec.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_Env.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_Gold_Env.dds
+15	0	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/ReadMe.txt
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.nif
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg_background.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg_bg_parent_background.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_sky.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/collinsbutton.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/music/kaazoom-cara-relaxing-celtic-irish-music-447794.mp3
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh.kfm
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.kfm
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.nif
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd_BG_Parent_Background.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_ENV.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_action_01_negative.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_action_02_affirmative.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_greeting.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_01_friendly.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_02_pleased.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_03_cautious.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_04_annoyed.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_05_furious.kf
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_gold_ENV.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis.nif
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis_nonshader.nif
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/banner.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/eye_shadow.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/eyeshadow.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_env_mask.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nonshade2r.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nonshader.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nrml.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_spec.dds
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/medal_3.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/infantry_ww1_russia_modified.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/FrenchRifleTexture.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/redcoat_fx.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/rifle_japanese_256.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/rifleman_128.dds
+736	448	Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py
+11	0	Assets/XML/Art/CIV4ArtDefines_Building.xml
+12	6	Assets/XML/Art/CIV4ArtDefines_Civilization.xml
+19	1	Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml
+25	0	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+46	0	Assets/XML/Audio/Audio2DScripts.xml
+14	0	Assets/XML/Audio/AudioDefines.xml
+200	0	Assets/XML/Buildings/CIV4BuildingInfos.xml
+108	0	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+532	0	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+402	0	Assets/XML/GameInfo/CIV4DiplomacyInfos.xml
+42	2	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+283	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+216	0	Assets/XML/Units/CIV4UnitInfos.xml
+26	14	README.md
+13	10	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+4	4	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+5	2	_1_AdvCiv-SAS/Docs/README_References.md
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{chatgpt_5.2_red_x_new_art (1).PNG => chatgpt_5_2_red_x_new_art (1).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{chatgpt_5.2_red_x_new_art (2).PNG => chatgpt_5_2_red_x_new_art (2).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{chatgpt_5.2_red_x_new_art (3).PNG => chatgpt_5_2_red_x_new_art (3).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{chatgpt_5.2_red_x_new_art (4).PNG => chatgpt_5_2_red_x_new_art (4).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{chatgpt_5.2_red_x_new_art (5).PNG => chatgpt_5_2_red_x_new_art (5).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{chatgpt_5.2_red_x_new_art (6).PNG => chatgpt_5_2_red_x_new_art (6).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{codex_ gpt_5.2_handicaps_chart (1).PNG => gpt_5_2_codex_handicaps_chart (1).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{codex_ gpt_5.2_handicaps_chart (2).PNG => gpt_5_2_codex_handicaps_chart (2).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{codex_ gpt_5.2_handicaps_chart (3).PNG => gpt_5_2_codex_handicaps_chart (3).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{gpt_codex_summarizing (1).PNG => gpt_5_2_codex_summarizing (1).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{gpt_codex_summarizing (2).PNG => gpt_5_2_codex_summarizing (2).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{gpt_codex_summarizing (3).PNG => gpt_5_2_codex_summarizing (3).PNG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/Seleukeion_Button.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Shadow_Senate.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Civilizations/Irish_Empire/FlagDECAL_Ireland.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Civilizations/Irish_Empire/Ireland.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/Grace_OMalley.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/music/sonican-highlands-sun-celtic-irish-scottish-music-loop-340334.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.kfm
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_action_01_negative.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_action_02_affirmative.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_greeting.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_01_friendly.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_02_pleased.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_03_cautious.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_04_annoyed.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_05_furious.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John_II_NONSHADER.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Diff.DDS
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Env_Mask.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Norm.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Spec.DDS
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Diff.DDS
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Env_Mask.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Norm.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Spec.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_Env.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_Gold_Env.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/ReadMe.txt
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg_background.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg_bg_parent_background.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_sky.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/collinsbutton.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/music/kaazoom-cara-relaxing-celtic-irish-music-447794.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh.kfm
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.kfm
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd_BG_Parent_Background.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_ENV.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_action_01_negative.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_action_02_affirmative.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_greeting.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_01_friendly.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_02_pleased.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_03_cautious.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_04_annoyed.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_05_furious.kf
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_gold_ENV.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis_nonshader.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/banner.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/eye_shadow.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/eyeshadow.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_env_mask.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nonshade2r.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nonshader.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nrml.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_spec.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/medal_3.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/infantry_ww1_russia_modified.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/FrenchRifleTexture.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/redcoat_fx.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/rifle_japanese_256.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/rifleman_128.dds
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{chatgpt_5.2_red_x_new_art (1).PNG => chatgpt_5_2_red_x_new_art (1).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{chatgpt_5.2_red_x_new_art (2).PNG => chatgpt_5_2_red_x_new_art (2).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{chatgpt_5.2_red_x_new_art (3).PNG => chatgpt_5_2_red_x_new_art (3).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{chatgpt_5.2_red_x_new_art (4).PNG => chatgpt_5_2_red_x_new_art (4).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{chatgpt_5.2_red_x_new_art (5).PNG => chatgpt_5_2_red_x_new_art (5).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{chatgpt_5.2_red_x_new_art (6).PNG => chatgpt_5_2_red_x_new_art (6).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{codex_ gpt_5.2_handicaps_chart (1).PNG => gpt_5_2_codex_handicaps_chart (1).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{codex_ gpt_5.2_handicaps_chart (2).PNG => gpt_5_2_codex_handicaps_chart (2).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{codex_ gpt_5.2_handicaps_chart (3).PNG => gpt_5_2_codex_handicaps_chart (3).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{gpt_codex_summarizing (1).PNG => gpt_5_2_codex_summarizing (1).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{gpt_codex_summarizing (2).PNG => gpt_5_2_codex_summarizing (2).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{gpt_codex_summarizing (3).PNG => gpt_5_2_codex_summarizing (3).PNG} (100%)
+ create mode 100644 _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/Seleukeion_Button.dds b/Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/Seleukeion_Button.dds
+new file mode 100644
+index 000000000..c0f401a9c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/Seleukeion_Button.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.dds b/Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.dds
+new file mode 100644
+index 000000000..52ac241d7
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.nif b/Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.nif
+new file mode 100644
+index 000000000..5684eb5f4
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Shadow_Senate.dds b/Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Shadow_Senate.dds
+new file mode 100644
+index 000000000..b396ac4db
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Shadow_Senate.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Civilizations/Irish_Empire/FlagDECAL_Ireland.dds b/Assets/Art/AdvCiv_SAS/Civilizations/Irish_Empire/FlagDECAL_Ireland.dds
+new file mode 100644
+index 000000000..9cdf4e138
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Civilizations/Irish_Empire/FlagDECAL_Ireland.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Civilizations/Irish_Empire/Ireland.dds b/Assets/Art/AdvCiv_SAS/Civilizations/Irish_Empire/Ireland.dds
+new file mode 100644
+index 000000000..fb6222723
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Civilizations/Irish_Empire/Ireland.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/Grace_OMalley.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/Grace_OMalley.dds
+new file mode 100644
+index 000000000..d3cd2b160
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/Grace_OMalley.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/music/sonican-highlands-sun-celtic-irish-scottish-music-loop-340334.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/music/sonican-highlands-sun-celtic-irish-scottish-music-loop-340334.mp3
+new file mode 100644
+index 000000000..3dded2d37
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/music/sonican-highlands-sun-celtic-irish-scottish-music-loop-340334.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.kfm b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.kfm
+new file mode 100644
+index 000000000..64e5cedbc
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.kfm differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.nif b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.nif
+new file mode 100644
+index 000000000..7f453fbff
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_action_01_negative.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_action_01_negative.kf
+new file mode 100644
+index 000000000..39eb16950
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_action_01_negative.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_action_02_affirmative.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_action_02_affirmative.kf
+new file mode 100644
+index 000000000..4a778537d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_action_02_affirmative.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_greeting.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_greeting.kf
+new file mode 100644
+index 000000000..54c4fdd3b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_greeting.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_01_friendly.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_01_friendly.kf
+new file mode 100644
+index 000000000..069761020
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_01_friendly.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_02_pleased.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_02_pleased.kf
+new file mode 100644
+index 000000000..2110c1345
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_02_pleased.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_03_cautious.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_03_cautious.kf
+new file mode 100644
+index 000000000..4a4c410c0
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_03_cautious.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_04_annoyed.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_04_annoyed.kf
+new file mode 100644
+index 000000000..33f8013af
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_04_annoyed.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_05_furious.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_05_furious.kf
+new file mode 100644
+index 000000000..ee1c27f7e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II__john_parent_idle_05_furious.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John_II_NONSHADER.nif b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John_II_NONSHADER.nif
+new file mode 100644
+index 000000000..d05693e1c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John_II_NONSHADER.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Diff.DDS b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Diff.DDS
+new file mode 100644
+index 000000000..b28f53e69
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Diff.DDS differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Env_Mask.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Env_Mask.dds
+new file mode 100644
+index 000000000..1ab80ba37
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Env_Mask.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Norm.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Norm.dds
+new file mode 100644
+index 000000000..0bddd5fa1
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Norm.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Spec.DDS b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Spec.DDS
+new file mode 100644
+index 000000000..a6acf1455
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_01_Spec.DDS differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Diff.DDS b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Diff.DDS
+new file mode 100644
+index 000000000..18693cbe5
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Diff.DDS differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Env_Mask.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Env_Mask.dds
+new file mode 100644
+index 000000000..2ca90c23d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Env_Mask.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Norm.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Norm.dds
+new file mode 100644
+index 000000000..0039f58ec
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Norm.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Spec.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Spec.dds
+new file mode 100644
+index 000000000..3f24f95ee
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_02_Spec.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_Env.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_Env.dds
+new file mode 100644
+index 000000000..65c51d869
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_Env.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_Gold_Env.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_Gold_Env.dds
+new file mode 100644
+index 000000000..732278876
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/Pirate_Lady_Gold_Env.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/ReadMe.txt b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/ReadMe.txt
+new file mode 100644
+index 000000000..44fb57477
+--- /dev/null
++++ b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/ReadMe.txt
+@@ -0,0 +1,15 @@
++This leaderhead is a converted model from Atlantica Online (http://en.wikipedia.org/wiki/Atlantica_Online). Therefore, while slightly modifications of the models and artwork were made by me, I take no credit for both and all rights are with NDOORS Corporation.
++
++This leaderhead uses modified John II animations. It's completely modular. All files in the zip-file are already put into the necessary folders, unzipping it directly in the Mods folder of BtS should result into a working mod. It has a polycount of about 5500 triangles. There are a noshader and a shader version included.
++
++Edit: Thanks to Lemon Merchant there is now also a set of diplomatic text messages included in the download, which can be found in the Grace_OMalley_CIV4GameText.xml file. Since they can't be made modular, they are not activated in this modcomp, but can be added to any mod this modcomp is part of.
++
++Credits
++
++- The Coyote for his tutorial on Bone Weight Copying and for helping me with the shader stuff
++- NDOORS Corporation for creating the model
++- The background information about Grace O�Malley is copy&pasted from Wikipedia (http://en.wikipedia.org/wiki/Grace_O%27Malley)
++- Lemon Merchant for the diplomatic text messages
++
++
++saibotlieh
+\ No newline at end of file
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.dds
+new file mode 100644
+index 000000000..340bc12e1
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm
+new file mode 100644
+index 000000000..1c35a1733
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.nif b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.nif
+new file mode 100644
+index 000000000..54ec65f2f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg_background.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg_background.kf
+new file mode 100644
+index 000000000..78add339f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg_background.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg_bg_parent_background.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg_bg_parent_background.kf
+new file mode 100644
+index 000000000..91368a849
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg_bg_parent_background.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_sky.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_sky.dds
+new file mode 100644
+index 000000000..1c1ee09b5
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_sky.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/collinsbutton.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/collinsbutton.dds
+new file mode 100644
+index 000000000..d8209d491
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/collinsbutton.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/music/kaazoom-cara-relaxing-celtic-irish-music-447794.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/music/kaazoom-cara-relaxing-celtic-irish-music-447794.mp3
+new file mode 100644
+index 000000000..0c378946c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/music/kaazoom-cara-relaxing-celtic-irish-music-447794.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh.kfm b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh.kfm
+new file mode 100644
+index 000000000..67769b2bc
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh.kfm differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.dds
+new file mode 100644
+index 000000000..aff2724c7
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.kfm b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.kfm
+new file mode 100644
+index 000000000..306dbed29
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.kfm differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.nif b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.nif
+new file mode 100644
+index 000000000..8f6b1db57
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd_BG_Parent_Background.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd_BG_Parent_Background.kf
+new file mode 100644
+index 000000000..6fa0d6841
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd_BG_Parent_Background.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_ENV.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_ENV.dds
+new file mode 100644
+index 000000000..9ab1971c2
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_ENV.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_action_01_negative.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_action_01_negative.kf
+new file mode 100644
+index 000000000..2804d4698
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_action_01_negative.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_action_02_affirmative.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_action_02_affirmative.kf
+new file mode 100644
+index 000000000..da51285da
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_action_02_affirmative.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_greeting.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_greeting.kf
+new file mode 100644
+index 000000000..eb42a9ac0
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_greeting.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_01_friendly.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_01_friendly.kf
+new file mode 100644
+index 000000000..ff648a816
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_01_friendly.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_02_pleased.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_02_pleased.kf
+new file mode 100644
+index 000000000..ae06bcec8
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_02_pleased.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_03_cautious.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_03_cautious.kf
+new file mode 100644
+index 000000000..323cc3668
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_03_cautious.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_04_annoyed.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_04_annoyed.kf
+new file mode 100644
+index 000000000..90a21cd64
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_04_annoyed.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_05_furious.kf b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_05_furious.kf
+new file mode 100644
+index 000000000..c0f7d0d09
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh__gilgamesh_parent_idle_05_furious.kf differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_gold_ENV.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_gold_ENV.dds
+new file mode 100644
+index 000000000..417ec2c3c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_gold_ENV.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis.nif b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis.nif
+new file mode 100644
+index 000000000..01171e14a
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis_nonshader.nif b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis_nonshader.nif
+new file mode 100644
+index 000000000..9682a06b6
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis_nonshader.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/banner.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/banner.dds
+new file mode 100644
+index 000000000..a64db496e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/banner.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/eye_shadow.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/eye_shadow.dds
+new file mode 100644
+index 000000000..06dc9afdd
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/eye_shadow.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/eyeshadow.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/eyeshadow.dds
+new file mode 100644
+index 000000000..b3c99c6f1
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/eyeshadow.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_env_mask.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_env_mask.dds
+new file mode 100644
+index 000000000..c17d4b50d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_env_mask.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nonshade2r.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nonshade2r.dds
+new file mode 100644
+index 000000000..35f37b4c0
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nonshade2r.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nonshader.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nonshader.dds
+new file mode 100644
+index 000000000..e3318da89
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nonshader.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nrml.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nrml.dds
+new file mode 100644
+index 000000000..cdb5f8dee
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_nrml.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_spec.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_spec.dds
+new file mode 100644
+index 000000000..8bf5d49e7
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/halis_spec.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/medal_3.dds b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/medal_3.dds
+new file mode 100644
+index 000000000..82b6d4146
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/medal_3.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/infantry_ww1_russia_modified.dds b/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/infantry_ww1_russia_modified.dds
+new file mode 100644
+index 000000000..59aacaaad
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/infantry_ww1_russia_modified.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/FrenchRifleTexture.dds b/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/FrenchRifleTexture.dds
+new file mode 100644
+index 000000000..14a51fc06
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/FrenchRifleTexture.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/redcoat_fx.nif b/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/redcoat_fx.nif
+new file mode 100644
+index 000000000..3f526128b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/redcoat_fx.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/rifle_japanese_256.dds b/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/rifle_japanese_256.dds
+new file mode 100644
+index 000000000..f7763582e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/rifle_japanese_256.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/rifleman_128.dds b/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/rifleman_128.dds
+new file mode 100644
+index 000000000..c4a5b8e75
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/rifleman_128.dds differ
+
+[PATCH OMITTED] file=a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py reason=known-generated/noisy-history changedLines=1184 bytes=241722
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index d41e43951..6770a7dfe 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -422,6 +422,17 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Library.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,4</Button>
+ 		</BuildingArtInfo>
++		<!-- custom: art from the Civ Gold 5.2 mod thanks -->
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_IRELAND_SCRIPTORIUM</Type>
++			<LSystem>LSYSTEM_4x2</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>1.1</fScale>
++			<fInterfaceScale>0.8</fInterfaceScale>
++			<NIF>Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/nif/Senate.nif</NIF>
++			<KFM/>
++			<Button>Art/AdvCiv_SAS/Buildings/Ireland_Scriptorium/Seleukeion_Button.dds</Button>
++		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_ARABIAN_MADRASSA</Type>
+ 			<LSystem>LSYSTEM_2x2</LSystem>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Civilization.xml b/Assets/XML/Art/CIV4ArtDefines_Civilization.xml
+index e4718edb3..23f546953 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Civilization.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Civilization.xml
+@@ -109,6 +109,12 @@
+ 			<Path>Art/Interface/TeamColor/FlagDECAL_WheelOfLaw.dds</Path>
+ 			<bWhiteFlag>0</bWhiteFlag>
+ 		</CivilizationArtInfo>
++		<CivilizationArtInfo>
++			<Type>ART_DEF_CIVILIZATION_IRELAND</Type>
++			<Button>Art/AdvCiv_SAS/Civilizations/Irish_Empire/Ireland.dds</Button>
++			<Path>Art/AdvCiv_SAS/Civilizations/Irish_Empire/FlagDECAL_Ireland.dds</Path>
++			<bWhiteFlag>0</bWhiteFlag>
++		</CivilizationArtInfo>
+ 		<CivilizationArtInfo>
+ 			<Type>ART_DEF_CIVILIZATION_JAPAN</Type>
+ 			<Button>,Art/Interface/Buttons/Civilizations/Japan.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,3,6</Button>
+@@ -121,6 +127,12 @@
+ 			<Path>Art/Interface/TeamColor/FlagDECAL_Khmer.dds</Path>
+ 			<bWhiteFlag>0</bWhiteFlag>
+ 		</CivilizationArtInfo>
++		<CivilizationArtInfo>
++			<Type>ART_DEF_CIVILIZATION_KINGDOM_OF_BENIN</Type>
++			<Button>Art/AdvCiv_SAS/Civilizations/Kingdom_Of_Benin/Button_Nigerians.dds</Button>
++			<Path>Art/AdvCiv_SAS/Civilizations/Kingdom_Of_Benin/FlagDECAL_Nigerians.dds</Path>
++			<bWhiteFlag>0</bWhiteFlag>
++		</CivilizationArtInfo>
+ 		<CivilizationArtInfo>
+ 			<Type>ART_DEF_CIVILIZATION_KOREA</Type>
+ 			<Button>,Art/Interface/Buttons/Civilizations/Spain.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,4,1</Button>
+@@ -223,11 +235,5 @@
+ 			<Path>Art/Interface/TeamColor/FlagDECAL_Skull.dds</Path>
+ 			<bWhiteFlag>0</bWhiteFlag>
+ 		</CivilizationArtInfo>
+-		<CivilizationArtInfo>
+-			<Type>ART_DEF_CIVILIZATION_KINGDOM_OF_BENIN</Type>
+-			<Button>Art/AdvCiv_SAS/Civilizations/Kingdom_Of_Benin/Button_Nigerians.dds</Button>
+-			<Path>Art/AdvCiv_SAS/Civilizations/Kingdom_Of_Benin/FlagDECAL_Nigerians.dds</Path>
+-			<bWhiteFlag>0</bWhiteFlag>
+-		</CivilizationArtInfo>
+ 	</CivilizationArtInfos>
+ </Civ4ArtDefines>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml b/Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml
+index 4ac92788a..c9945af06 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml
+@@ -430,7 +430,7 @@
+ 			<NoShaderNIF>art/LeaderHeads/Zara Yaqob/Zara_Yaqob_NONSHADER.nif</NoShaderNIF>
+ 			<BackgroundKFM>art/LeaderHeads/Zara Yaqob/Zara Yaqob_BG.kfm</BackgroundKFM>
+ 		</LeaderheadArtInfo>
+-		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #4; Long_Comments_XML.txt #121; art import from HR mod from my memories of it i mean and from it being most likely as HR has the nigerian civilization with many related leaders as well -->
++		<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #4; Long_Comments_XML.txt #121; art import from HR mod's nigerian civilization thanks -->
+ 		<LeaderheadArtInfo>
+ 			<Type>ART_DEF_LEADER_EWUARE</Type>
+ 			<Button>Art/AdvCiv_SAS/LeaderHeads/Ewuare/Button_Ewuare.dds</Button>
+@@ -439,5 +439,23 @@
+ 			<NoShaderNIF>Art/AdvCiv_SAS/LeaderHeads/Ewuare/nif/shaka.nif</NoShaderNIF>
+ 			<BackgroundKFM>Art/AdvCiv_SAS/LeaderHeads/Ewuare/nif/Shaka_BG.kfm</BackgroundKFM>
+ 		</LeaderheadArtInfo>
++		<!-- custom: (GPT-5.3-Codex). Leadrhead from [LH] Grace O'Malley on CFC uploaded by SaibotLieh thanks -->
++		<LeaderheadArtInfo>
++			<Type>ART_DEF_LEADER_GRACE_OMALLEY</Type>
++			<Button>Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/Grace_OMalley.dds</Button>
++			<NIF>Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.nif</NIF>
++			<KFM>Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John II.kfm</KFM>
++			<NoShaderNIF>Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/John_II_NONSHADER.nif</NoShaderNIF>
++			<BackgroundKFM>Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/nif/mansa_musa_bg.kfm</BackgroundKFM>
++		</LeaderheadArtInfo>
++		<!-- custom: (GPT-5.3-Codex). leadrhead from Michael John Collins on CFC uploaded by C.Roland thanks -->
++		<LeaderheadArtInfo>
++			<Type>ART_DEF_LEADER_MICHAEL_COLLINS</Type>
++			<Button>Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/collinsbutton.dds</Button>
++			<NIF>Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis.nif</NIF>
++			<KFM>Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh.kfm</KFM>
++			<NoShaderNIF>Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Halis_nonshader.nif</NoShaderNIF>
++			<BackgroundKFM>Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/nif/Gilgamesh_Backgrnd.kfm</BackgroundKFM>
++		</LeaderheadArtInfo>
+ 	</LeaderheadArtInfos>
+ </Civ4ArtDefines>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index c30e68485..3013d293b 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -1309,6 +1309,31 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: art from the ri mod thanks; note: kfm seemingly from base civ4/bts so left as is here as well -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_IRELAND_FLYING_COLUMN</Type>
++			<Button>Art/AdvCiv_SAS/Units/Ireland_Flying_Column/infantry_ww1_russia_modified.dds</Button>
++			<fScale>0.44</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/redcoat_fx.nif</NIF>
++			<KFM>Art/Units/Rifleman/Rifleman.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/Ireland_Flying_Column/nif/redcoat_fx.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>0.9</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.05</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_INFANTRY</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Infantry.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,3</Button>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index f570933b0..b88429259 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -6112,6 +6112,52 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_DIPLO_GRACE_OMALLEY_EARLY</ScriptID>
++		<SoundID>DIPLO_GRACE_OMALLEY_EARLY</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>40</iMinVolume>
++		<iMaxVolume>40</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</ScriptID>
++		<SoundID>DIPLO_MICHAEL_COLLINS_EARLY</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>40</iMinVolume>
++		<iMaxVolume>40</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_DIPLO_AUGUSTUS_CAESAR_EARLY</ScriptID>
+ 		<SoundID>DIPLO_AUGUSTUS_CAESAR_EARLY</SoundID>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 754dc6ddb..4010b29f1 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -1969,6 +1969,20 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>DIPLO_GRACE_OMALLEY_EARLY</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Grace_O_Malley/music/sonican-highlands-sun-celtic-irish-scottish-music-loop-340334</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>DIPLO_MICHAEL_COLLINS_EARLY</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Michael_Collins/music/kaazoom-cara-relaxing-celtic-irish-music-447794</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_AUGUSTUS_CAESAR_EARLY</SoundID>
+ 			<Filename>Sounds/Diplomacy/Caesar_Early</Filename>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index d40d7a03e..1787729e3 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -9956,6 +9956,206 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_LIBRARY, type: BUILDING_IRELAND_SCRIPTORIUM -->
++			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
++			<Type>BUILDING_IRELAND_SCRIPTORIUM</Type>
++			<SpecialBuildingType>NONE</SpecialBuildingType>
++			<Description>TXT_KEY_BUILDING_IRELAND_SCRIPTORIUM</Description>
++			<Civilopedia>TXT_KEY_BUILDING_IRELAND_SCRIPTORIUM_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_SCIENCE</Advisor>
++			<ArtDefineTag>ART_DEF_BUILDING_IRELAND_SCRIPTORIUM</ArtDefineTag>
++			<MovieDefineTag>NONE</MovieDefineTag>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<bStateReligion>0</bStateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<FoundsCorporation>NONE</FoundsCorporation>
++			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
++			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
++			<VictoryPrereq>NONE</VictoryPrereq>
++			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
++			<MaxStartEra>NONE</MaxStartEra>
++			<ObsoleteTech>NONE</ObsoleteTech>
++			<PrereqTech>TECH_WRITING</PrereqTech>
++			<TechTypes/>
++			<Bonus>NONE</Bonus>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_CREATIVE</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
++			<NoBonus>NONE</NoBonus>
++			<PowerBonus>NONE</PowerBonus>
++			<FreeBonus>NONE</FreeBonus>
++			<iNumFreeBonuses>0</iNumFreeBonuses>
++			<FreeBuilding>NONE</FreeBuilding>
++			<FreePromotion>NONE</FreePromotion>
++			<CivicOption>NONE</CivicOption>
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
++			<iHurryAngerModifier>0</iHurryAngerModifier>
++			<bBorderObstacle>0</bBorderObstacle>
++			<bTeamShare>0</bTeamShare>
++			<bWater>0</bWater>
++			<bRiver>0</bRiver>
++			<bPower>0</bPower>
++			<bDirtyPower>0</bDirtyPower>
++			<bAreaCleanPower>0</bAreaCleanPower>
++			<DiploVoteType>NONE</DiploVoteType>
++			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
++			<bCapital>0</bCapital>
++			<bGovernmentCenter>0</bGovernmentCenter>
++			<bGoldenAge>0</bGoldenAge>
++			<bAllowsNukes>0</bAllowsNukes>
++			<bMapCentering>0</bMapCentering>
++			<bNoUnhappiness>0</bNoUnhappiness>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
++			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
++			<bNeverCapture>1</bNeverCapture>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bCenterInCity>0</bCenterInCity>
++			<iAIWeight>0</iAIWeight>
++			<iCost>80</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iConquestProb>0</iConquestProb>
++			<iCitiesPrereq>0</iCitiesPrereq>
++			<iTeamsPrereq>0</iTeamsPrereq>
++			<iLevelPrereq>0</iLevelPrereq>
++			<iMinLatitude>0</iMinLatitude>
++			<iMaxLatitude>90</iMaxLatitude>
++			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
++			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
++			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
++			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
++			<iAnarchyModifier>0</iAnarchyModifier>
++			<iGoldenAgeModifier>0</iGoldenAgeModifier>
++			<iGlobalHurryModifier>0</iGlobalHurryModifier>
++			<iExperience>0</iExperience>
++			<iGlobalExperience>0</iGlobalExperience>
++			<iFoodKept>0</iFoodKept>
++			<iAirlift>0</iAirlift>
++			<iAirModifier>0</iAirModifier>
++			<iAirUnitCapacity>0</iAirUnitCapacity>
++			<iNukeModifier>0</iNukeModifier>
++			<iNukeExplosionRand>0</iNukeExplosionRand>
++			<iFreeSpecialist>0</iFreeSpecialist>
++			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
++			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
++			<iMaintenanceModifier>0</iMaintenanceModifier>
++			<iWarWearinessModifier>0</iWarWearinessModifier>
++			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
++			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
++			<iHealRateChange>0</iHealRateChange>
++			<iHealth>0</iHealth>
++			<iAreaHealth>0</iAreaHealth>
++			<iGlobalHealth>0</iGlobalHealth>
++			<iHappiness>0</iHappiness>
++			<iAreaHappiness>0</iAreaHappiness>
++			<iGlobalHappiness>0</iGlobalHappiness>
++			<iStateReligionHappiness>0</iStateReligionHappiness>
++			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
++			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
++			<iSpaceProductionModifier>0</iSpaceProductionModifier>
++			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
++			<iTradeRoutes>0</iTradeRoutes>
++			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
++			<iTradeRouteModifier>0</iTradeRouteModifier>
++			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
++			<iGlobalPopulationChange>0</iGlobalPopulationChange>
++			<iFreeTechs>0</iFreeTechs>
++			<iDefense>0</iDefense>
++			<iBombardDefense>0</iBombardDefense>
++			<iAllCityDefense>0</iAllCityDefense>
++			<iEspionageDefense>0</iEspionageDefense>
++			<iAsset>3</iAsset>
++			<iPower>0</iPower>
++			<fVisibilityPriority>1.0</fVisibilityPriority>
++			<SeaPlotYieldChanges/>
++			<RiverPlotYieldChanges/>
++			<GlobalSeaPlotYieldChanges/>
++			<YieldChanges/>
++			<CommerceChanges/>
++			<ObsoleteSafeCommerceChanges>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>2</iCommerce>
++			</ObsoleteSafeCommerceChanges>
++			<CommerceChangeDoubleTimes>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>1000</iCommerce>
++			</CommerceChangeDoubleTimes>
++			<CommerceModifiers>
++				<iCommerce>0</iCommerce>
++				<iCommerce>25</iCommerce>
++			</CommerceModifiers>
++			<GlobalCommerceModifiers/>
++			<SpecialistExtraCommerces/>
++			<StateReligionCommerces/>
++			<CommerceHappinesses/>
++			<ReligionChanges/>
++			<SpecialistCounts>
++				<SpecialistCount>
++					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
++					<iSpecialistCount>2</iSpecialistCount>
++				</SpecialistCount>
++				<SpecialistCount>
++					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
++					<iSpecialistCount>1</iSpecialistCount>
++				</SpecialistCount>
++			</SpecialistCounts>
++			<FreeSpecialistCounts/>
++			<CommerceFlexibles/>
++			<CommerceChangeOriginalOwners/>
++			<ConstructSound>AS2D_BUILD_LIBRARY</ConstructSound>
++			<BonusHealthChanges/>
++			<BonusHappinessChanges/>
++			<BonusProductionModifiers/>
++			<UnitCombatFreeExperiences/>
++			<DomainFreeExperiences/>
++			<DomainProductionModifiers/>
++			<BuildingHappinessChanges/>
++			<PrereqBuildingClasses/>
++			<BuildingClassNeededs/>
++			<SpecialistYieldChanges/>
++			<BonusYieldModifiers/>
++			<ImprovementFreeSpecialists/>
++			<!-- custom: was science 10 culture 2 in base library -->
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<iFlavor>10</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>4</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_RELIGION</FlavorType>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++			</Flavors>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++		</BuildingInfo>
+ 		<BuildingInfo> <!-- custom: class: university, type: university -->
+ 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
+ 			<Type>BUILDING_UNIVERSITY</Type>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index af70f1afe..96f2f86c7 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1239,6 +1239,114 @@
+ 			<CivilizationSelectionSound>AS3D_MALI_SELECT</CivilizationSelectionSound>
+ 			<CivilizationActionSound>AS3D_MALI_ORDER</CivilizationActionSound>
+ 		</CivilizationInfo>
++		<!-- custom: add Ireland civilization (GPT-5.3-Codex) -->
++		<CivilizationInfo>
++			<Type>CIVILIZATION_IRELAND</Type>
++			<Description>TXT_KEY_CIV_IRELAND_DESC</Description>
++			<ShortDescription>TXT_KEY_CIV_IRELAND_SHORT_DESC</ShortDescription>
++			<Adjective>TXT_KEY_CIV_IRELAND_ADJECTIVE</Adjective>
++			<Civilopedia>TXT_KEY_CIV_IRELAND_PEDIA</Civilopedia>
++			<DefaultPlayerColor>PLAYERCOLOR_DARK_GREEN</DefaultPlayerColor>
++			<ArtDefineTag>ART_DEF_CIVILIZATION_IRELAND</ArtDefineTag>
++			<ArtStyleType>ARTSTYLE_EUROPEAN</ArtStyleType>
++			<UnitArtStyleType>UNIT_ARTSTYLE_EUROPEAN</UnitArtStyleType>
++			<bPlayable>1</bPlayable>
++			<bAIPlayable>1</bAIPlayable>
++			<!-- custom: Limerick and Tara intentionally omitted because they are already used by Scandinavia/Celts city lists. (GPT-5.3-Codex) -->
++			<Cities>
++				<City>TXT_KEY_CITY_NAME_DUBLIN_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_CORK_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_EMAIN_MACHA_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_GALWAY_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_SWORDS_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_WATERFORD_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_KILKENNY_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_BELFAST_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_DERRY_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_ARMAGH_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_CASHEL_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_CLONMACNOISE_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_KELLS_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_GLENDALOUGH_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_DOWNPATRICK_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_DROGHEDA_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_WEXFORD_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_SLIGO_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_ATHLONE_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_DUNDALK_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_ENNIS_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_TRALEE_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_KILLARNEY_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_CLONMEL_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_NAVAN_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_MULLINGAR_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_TULLAMORE_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_CARLOW_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_NEWRY_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_LETTERKENNY_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_DONEGAL_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_CASTLEBAR_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_BALLINA_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_BRAY_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_SKERRIES_IRELAND</City>
++				<City>TXT_KEY_CITY_NAME_YOUGHAL_IRELAND</City>
++			</Cities>
++			<Buildings>
++				<Building>
++					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
++					<BuildingType>BUILDING_IRELAND_SCRIPTORIUM</BuildingType>
++				</Building>
++			</Buildings>
++			<Units>
++				<Unit>
++					<UnitClassType>UNITCLASS_RIFLEMAN</UnitClassType>
++					<UnitType>UNIT_IRELAND_FLYING_COLUMN</UnitType>
++				</Unit>
++			</Units>
++			<FreeUnitClasses>
++				<FreeUnitClass>
++					<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
++					<iFreeUnits>1</iFreeUnits>
++				</FreeUnitClass>
++			</FreeUnitClasses>
++			<FreeBuildingClasses>
++				<FreeBuildingClass>
++					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
++					<bFreeBuildingClass>1</bFreeBuildingClass>
++				</FreeBuildingClass>
++			</FreeBuildingClasses>
++			<FreeTechs>
++				<FreeTech>
++					<TechType>TECH_FISHING</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<FreeTech>
++					<TechType>TECH_MYSTICISM</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++			</FreeTechs>
++			<DisableTechs/>
++			<InitialCivics>
++				<CivicType>CIVIC_DESPOTISM</CivicType>
++				<CivicType>CIVIC_BARBARISM</CivicType>
++				<CivicType>CIVIC_TRIBALISM</CivicType>
++				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
++				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
++			</InitialCivics>
++			<Leaders>
++				<Leader>
++					<LeaderName>LEADER_GRACE_OMALLEY</LeaderName>
++					<bLeaderAvailability>1</bLeaderAvailability>
++				</Leader>
++				<Leader>
++					<LeaderName>LEADER_MICHAEL_COLLINS</LeaderName>
++					<bLeaderAvailability>1</bLeaderAvailability>
++				</Leader>
++			</Leaders>
++			<DerivativeCiv>NONE</DerivativeCiv>
++			<CivilizationSelectionSound>AS3D_ENGLAND_SELECT</CivilizationSelectionSound>
++			<CivilizationActionSound>AS3D_ENGLAND_ORDER</CivilizationActionSound>
++		</CivilizationInfo>
+ 		<!-- custom: Long_Comments_XML.txt #344 -->
+ 		<CivilizationInfo>
+ 			<Type>CIVILIZATION_KINGDOM_OF_BENIN</Type>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 3b2038976..61351d5cc 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -4813,6 +4813,274 @@
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
++		<!-- custom: Ireland leader based on Ragnar with economy-raider behavior and low ideology pressure. (GPT-5.3-Codex) -->
++		<LeaderHeadInfo> <!-- custom: Grace O'Malley -->
++			<Type>LEADER_GRACE_OMALLEY</Type>
++			<Description>TXT_KEY_LEADER_GRACE_OMALLEY</Description>
++			<Civilopedia>TXT_KEY_LEADER_GRACE_OMALLEY_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_LEADER_GRACE_OMALLEY</ArtDefineTag>
++			<iWonderConstructRand>10</iWonderConstructRand>
++			<iBaseAttitude>0</iBaseAttitude>
++			<iBasePeaceWeight>0</iBasePeaceWeight>
++			<iWarmongerRespect>2</iWarmongerRespect>
++			<iEspionageWeight>100</iEspionageWeight>
++			<iRefuseToTalkWarThreshold>10</iRefuseToTalkWarThreshold>
++			<iNoTechTradeThreshold>5</iNoTechTradeThreshold>
++			<iTechTradeKnownPercent>30</iTechTradeKnownPercent>
++			<iMaxGoldTradePercent>5</iMaxGoldTradePercent>
++			<!-- BBAI Victory Strategy -->
++			<iCultureVictoryWeight>10</iCultureVictoryWeight>
++			<iSpaceVictoryWeight>0</iSpaceVictoryWeight>
++			<iConquestVictoryWeight>50</iConquestVictoryWeight>
++			<iDominationVictoryWeight>60</iDominationVictoryWeight>
++			<iDiplomacyVictoryWeight>30</iDiplomacyVictoryWeight>
++			<!-- BBAI Victory Strategy -->
++			<iMaxWarRand>90</iMaxWarRand>
++			<iMaxWarNearbyPowerRatio>125</iMaxWarNearbyPowerRatio>
++			<iMaxWarDistantPowerRatio>85</iMaxWarDistantPowerRatio>
++			<iMaxWarMinAdjacentLandPercent>0</iMaxWarMinAdjacentLandPercent>
++			<iLimitedWarRand>40</iLimitedWarRand>
++			<iLimitedWarPowerRatio>90</iLimitedWarPowerRatio>
++			<iDogpileWarRand>50</iDogpileWarRand>
++			<iMakePeaceRand>30</iMakePeaceRand>
++			<iDemandRebukedSneakProb>110</iDemandRebukedSneakProb>
++			<iDemandRebukedWarProb>45</iDemandRebukedWarProb>
++			<iRazeCityProb>10</iRazeCityProb>
++			<iBuildUnitProb>45</iBuildUnitProb>
++			<iBaseAttackOddsChange>4</iBaseAttackOddsChange>
++			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
++			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
++			<iCloseBordersAttitudeChange>-1</iCloseBordersAttitudeChange>
++			<iSameReligionAttitudeChangeLimit>2</iSameReligionAttitudeChangeLimit>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>0</iDifferentReligionAttitudeChangeLimit>
++			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
++			<iFavoriteCivicAttitudeChangeLimit>5</iFavoriteCivicAttitudeChangeLimit>
++			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_PLEASED</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
++			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
++			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_PLEASED</HappinessBonusRefuseAttitudeThreshold>
++			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
++			<MapRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</MapRefuseAttitudeThreshold>
++			<DeclareWarRefuseAttitudeThreshold>ATTITUDE_ANNOYED</DeclareWarRefuseAttitudeThreshold>
++			<DeclareWarThemRefuseAttitudeThreshold>ATTITUDE_ANNOYED</DeclareWarThemRefuseAttitudeThreshold>
++			<StopTradingRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingRefuseAttitudeThreshold>
++			<StopTradingThemRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingThemRefuseAttitudeThreshold>
++			<AdoptCivicRefuseAttitudeThreshold>ATTITUDE_PLEASED</AdoptCivicRefuseAttitudeThreshold>
++			<ConvertReligionRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</ConvertReligionRefuseAttitudeThreshold>
++			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_FURIOUS</OpenBordersRefuseAttitudeThreshold>
++			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
++			<iVassalPowerModifier>0</iVassalPowerModifier>
++			<FavoriteCivic>CIVIC_FREE_MARKET</FavoriteCivic>
++			<FavoriteReligion>NONE</FavoriteReligion>
++			<Traits>
++				<Trait>
++					<TraitType>TRAIT_FINANCIAL</TraitType>
++					<bTrait>1</bTrait>
++				</Trait>
++				<Trait>
++					<TraitType>TRAIT_AGGRESSIVE</TraitType>
++					<bTrait>1</bTrait>
++				</Trait>
++			</Traits>
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_GOLD</FlavorType>
++					<iFlavor>5</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++			</Flavors>
++			<ContactRands>
++				<ContactRand>
++					<ContactType>CONTACT_RELIGION_PRESSURE</ContactType>
++					<iContactRand>1000</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_CIVIC_PRESSURE</ContactType>
++					<iContactRand>1000</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_JOIN_WAR</ContactType>
++					<iContactRand>20</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_STOP_TRADING</ContactType>
++					<iContactRand>50</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_GIVE_HELP</ContactType>
++					<iContactRand>250</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_ASK_FOR_HELP</ContactType>
++					<iContactRand>500</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_DEMAND_TRIBUTE</ContactType>
++					<iContactRand>25</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_PEACE_TREATY</ContactType>
++					<iContactRand>12</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_TRADE_TECH</ContactType>
++					<iContactRand>2</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_TRADE_BONUS</ContactType>
++					<iContactRand>2</iContactRand>
++				</ContactRand>
++			</ContactRands>
++			<ContactDelays>
++				<ContactDelay>
++					<ContactType>CONTACT_PEACE_TREATY</ContactType>
++					<iContactDelay>10</iContactDelay>
++				</ContactDelay>
++			</ContactDelays>
++			<MemoryDecays>
++				<MemoryDecay>
++					<MemoryType>MEMORY_REJECTED_DEMAND</MemoryType>
++					<iMemoryRand>150</iMemoryRand>
++				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>120</iMemoryRand>
++				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
++					<iMemoryRand>120</iMemoryRand>
++				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
++					<iMemoryRand>100</iMemoryRand>
++				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_SPY_CAUGHT</MemoryType>
++					<iMemoryRand>80</iMemoryRand>
++				</MemoryDecay>
++			</MemoryDecays>
++			<MemoryAttitudePercents>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_REJECTED_DEMAND</MemoryType>
++					<iMemoryAttitudePercent>-200</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryAttitudePercent>-150</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
++					<iMemoryAttitudePercent>-200</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
++					<iMemoryAttitudePercent>-150</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_SPY_CAUGHT</MemoryType>
++					<iMemoryAttitudePercent>-150</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_DENIED_RELIGION</MemoryType>
++					<iMemoryAttitudePercent>0</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_DENIED_CIVIC</MemoryType>
++					<iMemoryAttitudePercent>0</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_TRADED_TECH_TO_US</MemoryType>
++					<iMemoryAttitudePercent>10</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++			</MemoryAttitudePercents>
++			<NoWarAttitudeProbs>
++				<NoWarAttitudeProb>
++					<AttitudeType>ATTITUDE_ANNOYED</AttitudeType>
++					<iNoWarProb>10</iNoWarProb>
++				</NoWarAttitudeProb>
++				<NoWarAttitudeProb>
++					<AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType>
++					<iNoWarProb>62</iNoWarProb>
++				</NoWarAttitudeProb>
++				<NoWarAttitudeProb>
++					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
++					<iNoWarProb>78</iNoWarProb>
++				</NoWarAttitudeProb>
++			</NoWarAttitudeProbs>
++			<UnitAIWeightModifiers>
++				<UnitAIWeightModifier>
++					<UnitAIType>UNITAI_ASSAULT_SEA</UnitAIType>
++					<iWeightModifier>25</iWeightModifier>
++				</UnitAIWeightModifier>
++				<UnitAIWeightModifier>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<iWeightModifier>25</iWeightModifier>
++				</UnitAIWeightModifier>
++			</UnitAIWeightModifiers>
++			<ImprovementWeightModifiers>
++				<ImprovementWeightModifier>
++					<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
++					<iWeightModifier>20</iWeightModifier>
++				</ImprovementWeightModifier>
++				<ImprovementWeightModifier>
++					<ImprovementType>IMPROVEMENT_LUMBERMILL</ImprovementType>
++					<iWeightModifier>20</iWeightModifier>
++				</ImprovementWeightModifier>
++			</ImprovementWeightModifiers>
++			<DiplomacyIntroMusicPeace>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_INDUSTRIAL</EraType>
++					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_MODERN</EraType>
++					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_FUTURE</EraType>
++					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++			</DiplomacyIntroMusicPeace>
++			<DiplomacyMusicPeace>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_ANCIENT</EraType>
++					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_CLASSICAL</EraType>
++					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_MEDIEVAL</EraType>
++					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_RENAISSANCE</EraType>
++					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_INDUSTRIAL</EraType>
++					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_MODERN</EraType>
++					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_FUTURE</EraType>
++					<DiploScriptId>AS2D_DIPLO_GRACE_OMALLEY_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++			</DiplomacyMusicPeace>
++			<DiplomacyIntroMusicWar/>
++			<DiplomacyMusicWar/>
++		</LeaderHeadInfo>
+ 		<LeaderHeadInfo> <!-- custom: Hammurabi -->
+ 			<Type>LEADER_HAMMURABI</Type>
+ 			<Description>TXT_KEY_LEADER_HAMMURABI</Description>
+@@ -7853,6 +8121,270 @@
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
++		<!-- custom: Ireland leader based on Frederick with disciplined intelligence-state behavior. (GPT-5.3-Codex) -->
++		<LeaderHeadInfo> <!-- custom: Michael Collins -->
++			<Type>LEADER_MICHAEL_COLLINS</Type>
++			<Description>TXT_KEY_LEADER_MICHAEL_COLLINS</Description>
++			<Civilopedia>TXT_KEY_LEADER_MICHAEL_COLLINS_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_LEADER_MICHAEL_COLLINS</ArtDefineTag>
++			<iWonderConstructRand>20</iWonderConstructRand>
++			<iBaseAttitude>0</iBaseAttitude>
++			<iBasePeaceWeight>6</iBasePeaceWeight>
++			<iWarmongerRespect>1</iWarmongerRespect>
++			<iEspionageWeight>140</iEspionageWeight>
++			<iRefuseToTalkWarThreshold>6</iRefuseToTalkWarThreshold>
++			<iNoTechTradeThreshold>10</iNoTechTradeThreshold>
++			<iTechTradeKnownPercent>30</iTechTradeKnownPercent>
++			<iMaxGoldTradePercent>10</iMaxGoldTradePercent>
++			<!-- BBAI Victory Strategy -->
++			<iCultureVictoryWeight>20</iCultureVictoryWeight>
++			<iSpaceVictoryWeight>20</iSpaceVictoryWeight>
++			<iConquestVictoryWeight>30</iConquestVictoryWeight>
++			<iDominationVictoryWeight>30</iDominationVictoryWeight>
++			<iDiplomacyVictoryWeight>50</iDiplomacyVictoryWeight>
++			<!-- BBAI Victory Strategy -->
++			<iMaxWarRand>150</iMaxWarRand>
++			<iMaxWarNearbyPowerRatio>90</iMaxWarNearbyPowerRatio>
++			<iMaxWarDistantPowerRatio>85</iMaxWarDistantPowerRatio>
++			<iMaxWarMinAdjacentLandPercent>3</iMaxWarMinAdjacentLandPercent>
++			<iLimitedWarRand>100</iLimitedWarRand>
++			<iLimitedWarPowerRatio>90</iLimitedWarPowerRatio>
++			<iDogpileWarRand>80</iDogpileWarRand>
++			<iMakePeaceRand>20</iMakePeaceRand>
++			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
++			<iDemandRebukedWarProb>15</iDemandRebukedWarProb>
++			<iRazeCityProb>0</iRazeCityProb>
++			<iBuildUnitProb>40</iBuildUnitProb>
++			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
++			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
++			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
++			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
++			<iSameReligionAttitudeChangeLimit>4</iSameReligionAttitudeChangeLimit>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-1</iDifferentReligionAttitudeChangeLimit>
++			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
++			<iFavoriteCivicAttitudeChangeLimit>4</iFavoriteCivicAttitudeChangeLimit>
++			<TechRefuseAttitudeThreshold>ATTITUDE_ANNOYED</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_PLEASED</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
++			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StrategicBonusRefuseAttitudeThreshold>
++			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
++			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</HealthBonusRefuseAttitudeThreshold>
++			<MapRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</MapRefuseAttitudeThreshold>
++			<DeclareWarRefuseAttitudeThreshold>ATTITUDE_PLEASED</DeclareWarRefuseAttitudeThreshold>
++			<DeclareWarThemRefuseAttitudeThreshold>ATTITUDE_PLEASED</DeclareWarThemRefuseAttitudeThreshold>
++			<StopTradingRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingRefuseAttitudeThreshold>
++			<StopTradingThemRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingThemRefuseAttitudeThreshold>
++			<AdoptCivicRefuseAttitudeThreshold>ATTITUDE_PLEASED</AdoptCivicRefuseAttitudeThreshold>
++			<ConvertReligionRefuseAttitudeThreshold>ATTITUDE_PLEASED</ConvertReligionRefuseAttitudeThreshold>
++			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_FURIOUS</OpenBordersRefuseAttitudeThreshold>
++			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
++			<iVassalPowerModifier>0</iVassalPowerModifier>
++			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
++			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<Traits>
++				<Trait>
++					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
++					<bTrait>1</bTrait>
++				</Trait>
++				<Trait>
++					<TraitType>TRAIT_ORGANIZED</TraitType>
++					<bTrait>1</bTrait>
++				</Trait>
++			</Traits>
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<iFlavor>5</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GOLD</FlavorType>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++			</Flavors>
++			<ContactRands>
++				<ContactRand>
++					<ContactType>CONTACT_RELIGION_PRESSURE</ContactType>
++					<iContactRand>500</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_CIVIC_PRESSURE</ContactType>
++					<iContactRand>100</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_JOIN_WAR</ContactType>
++					<iContactRand>10</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_STOP_TRADING</ContactType>
++					<iContactRand>50</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_GIVE_HELP</ContactType>
++					<iContactRand>100</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_ASK_FOR_HELP</ContactType>
++					<iContactRand>100</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_DEMAND_TRIBUTE</ContactType>
++					<iContactRand>500</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_PEACE_TREATY</ContactType>
++					<iContactRand>12</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_TRADE_TECH</ContactType>
++					<iContactRand>10</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_TRADE_BONUS</ContactType>
++					<iContactRand>5</iContactRand>
++				</ContactRand>
++			</ContactRands>
++			<ContactDelays>
++				<ContactDelay>
++					<ContactType>CONTACT_PEACE_TREATY</ContactType>
++					<iContactDelay>10</iContactDelay>
++				</ContactDelay>
++			</ContactDelays>
++			<MemoryDecays>
++				<MemoryDecay>
++					<MemoryType>MEMORY_SPY_CAUGHT</MemoryType>
++					<iMemoryRand>100</iMemoryRand>
++				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_DENIED_JOIN_WAR</MemoryType>
++					<iMemoryRand>150</iMemoryRand>
++				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_DECLARED_WAR_ON_FRIEND</MemoryType>
++					<iMemoryRand>200</iMemoryRand>
++				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>100</iMemoryRand>
++				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
++					<iMemoryRand>100</iMemoryRand>
++				</MemoryDecay>
++			</MemoryDecays>
++			<MemoryAttitudePercents>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_SPY_CAUGHT</MemoryType>
++					<iMemoryAttitudePercent>-200</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_DENIED_JOIN_WAR</MemoryType>
++					<iMemoryAttitudePercent>-150</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_DECLARED_WAR_ON_FRIEND</MemoryType>
++					<iMemoryAttitudePercent>-200</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryAttitudePercent>-150</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
++					<iMemoryAttitudePercent>-150</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_DENIED_RELIGION</MemoryType>
++					<iMemoryAttitudePercent>0</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_DENIED_CIVIC</MemoryType>
++					<iMemoryAttitudePercent>0</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_TRADED_TECH_TO_US</MemoryType>
++					<iMemoryAttitudePercent>10</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++			</MemoryAttitudePercents>
++			<NoWarAttitudeProbs>
++				<NoWarAttitudeProb>
++					<AttitudeType>ATTITUDE_ANNOYED</AttitudeType>
++					<iNoWarProb>22</iNoWarProb>
++				</NoWarAttitudeProb>
++				<NoWarAttitudeProb>
++					<AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType>
++					<iNoWarProb>62</iNoWarProb>
++				</NoWarAttitudeProb>
++				<NoWarAttitudeProb>
++					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
++					<iNoWarProb>90</iNoWarProb>
++				</NoWarAttitudeProb>
++			</NoWarAttitudeProbs>
++			<UnitAIWeightModifiers>
++				<UnitAIWeightModifier>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<iWeightModifier>50</iWeightModifier>
++				</UnitAIWeightModifier>
++			</UnitAIWeightModifiers>
++			<ImprovementWeightModifiers>
++				<ImprovementWeightModifier>
++					<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
++					<iWeightModifier>20</iWeightModifier>
++				</ImprovementWeightModifier>
++				<ImprovementWeightModifier>
++					<ImprovementType>IMPROVEMENT_LUMBERMILL</ImprovementType>
++					<iWeightModifier>20</iWeightModifier>
++				</ImprovementWeightModifier>
++			</ImprovementWeightModifiers>
++			<DiplomacyIntroMusicPeace>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_INDUSTRIAL</EraType>
++					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_MODERN</EraType>
++					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_FUTURE</EraType>
++					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++			</DiplomacyIntroMusicPeace>
++			<DiplomacyMusicPeace>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_ANCIENT</EraType>
++					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_CLASSICAL</EraType>
++					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_MEDIEVAL</EraType>
++					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_RENAISSANCE</EraType>
++					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_INDUSTRIAL</EraType>
++					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_MODERN</EraType>
++					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_FUTURE</EraType>
++					<DiploScriptId>AS2D_DIPLO_MICHAEL_COLLINS_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++			</DiplomacyMusicPeace>
++			<DiplomacyIntroMusicWar/>
++			<DiplomacyMusicWar/>
++		</LeaderHeadInfo>
+ 		<LeaderHeadInfo> <!-- custom: Moctezuma (2) -->
+ 			<Type>LEADER_MOCTEZUMA</Type>
+ 			<Description>TXT_KEY_LEADER_MOCTEZUMA</Description>
+
+diff --git a/Assets/XML/GameInfo/CIV4DiplomacyInfos.xml b/Assets/XML/GameInfo/CIV4DiplomacyInfos.xml
+index 553ec7e5e..0bf6ff177 100644
+--- a/Assets/XML/GameInfo/CIV4DiplomacyInfos.xml
++++ b/Assets/XML/GameInfo/CIV4DiplomacyInfos.xml
+@@ -903,6 +903,48 @@
+ 						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_GILGAMESH_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_EWUARE</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_EWUARE_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_GRACE_OMALLEY_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_MICHAEL_COLLINS_1</Text>
++					</DiplomacyText>
++				</Response>
+ 			</Responses>
+ 		</DiplomacyInfo>
+ 		<DiplomacyInfo>
+@@ -1662,6 +1704,48 @@
+ 						<Text>AI_DIPLO_REFUSE_TO_TALK_LEADER_GILGAMESH_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_EWUARE</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_REFUSE_TO_TALK_LEADER_EWUARE_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_REFUSE_TO_TALK_LEADER_GRACE_OMALLEY_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_REFUSE_TO_TALK_LEADER_MICHAEL_COLLINS_1</Text>
++					</DiplomacyText>
++				</Response>
+ 			</Responses>
+ 		</DiplomacyInfo>
+ 		<DiplomacyInfo>
+@@ -2440,6 +2524,48 @@
+ 						<Text>AI_DIPLO_NO_PEACE_LEADER_GILGAMESH_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_EWUARE</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_NO_PEACE_LEADER_EWUARE_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_NO_PEACE_LEADER_GRACE_OMALLEY_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_NO_PEACE_LEADER_MICHAEL_COLLINS_1</Text>
++					</DiplomacyText>
++				</Response>
+ 			</Responses>
+ 		</DiplomacyInfo>
+ 		<DiplomacyInfo>
+@@ -3891,6 +4017,60 @@
+ 						<Text>AI_DIPLO_GREETINGS_ATT_FR_LEADER_GILGAMESH_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_EWUARE</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes>
++						<Attitude><AttitudeType>ATTITUDE_FRIENDLY</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++						<Attitude><AttitudeType>ATTITUDE_PLEASED</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++						<Attitude><AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++					</Attitudes>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_GREETINGS_ATT_FR_LEADER_EWUARE_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes>
++						<Attitude><AttitudeType>ATTITUDE_FRIENDLY</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++						<Attitude><AttitudeType>ATTITUDE_PLEASED</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++						<Attitude><AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++					</Attitudes>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_GREETINGS_ATT_FR_LEADER_GRACE_OMALLEY_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes>
++						<Attitude><AttitudeType>ATTITUDE_FRIENDLY</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++						<Attitude><AttitudeType>ATTITUDE_PLEASED</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++						<Attitude><AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++					</Attitudes>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_GREETINGS_ATT_FR_LEADER_MICHAEL_COLLINS_1</Text>
++					</DiplomacyText>
++				</Response>
+ 				<Response>
+ 					<Civilizations/>
+ 					<Leaders/>
+@@ -5121,6 +5301,57 @@
+ 						<Text>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_GILGAMESH_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_EWUARE</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes>
++						<Attitude><AttitudeType>ATTITUDE_ANNOYED</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++						<Attitude><AttitudeType>ATTITUDE_FURIOUS</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++					</Attitudes>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_EWUARE_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes>
++						<Attitude><AttitudeType>ATTITUDE_ANNOYED</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++						<Attitude><AttitudeType>ATTITUDE_FURIOUS</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++					</Attitudes>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_GRACE_OMALLEY_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes>
++						<Attitude><AttitudeType>ATTITUDE_ANNOYED</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++						<Attitude><AttitudeType>ATTITUDE_FURIOUS</AttitudeType><bAttitudeType>1</bAttitudeType></Attitude>
++					</Attitudes>
++					<DiplomacyPowers/>
++					<DiplomacyText>
++						<Text>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MICHAEL_COLLINS_1</Text>
++					</DiplomacyText>
++				</Response>
+ 			</Responses>
+ 		</DiplomacyInfo>
+ 		<DiplomacyInfo>
+@@ -6880,6 +7111,63 @@
+ 						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_GILGAMESH_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_EWUARE</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers>
++						<DiplomacyPower>
++							<DiplomacyPowerType>DIPLOMACYPOWER_WEAKER</DiplomacyPowerType>
++							<bDiplomacyPowerType>1</bDiplomacyPowerType>
++						</DiplomacyPower>
++					</DiplomacyPowers>
++					<DiplomacyText>
++						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_EWUARE_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers>
++						<DiplomacyPower>
++							<DiplomacyPowerType>DIPLOMACYPOWER_WEAKER</DiplomacyPowerType>
++							<bDiplomacyPowerType>1</bDiplomacyPowerType>
++						</DiplomacyPower>
++					</DiplomacyPowers>
++					<DiplomacyText>
++						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_GRACE_OMALLEY_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers>
++						<DiplomacyPower>
++							<DiplomacyPowerType>DIPLOMACYPOWER_WEAKER</DiplomacyPowerType>
++							<bDiplomacyPowerType>1</bDiplomacyPowerType>
++						</DiplomacyPower>
++					</DiplomacyPowers>
++					<DiplomacyText>
++						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_MICHAEL_COLLINS_1</Text>
++					</DiplomacyText>
++				</Response>
+ 				<Response>
+ 					<Civilizations/>
+ 					<Leaders/>
+@@ -7826,6 +8114,63 @@
+ 						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_GILGAMESH_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_EWUARE</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers>
++						<DiplomacyPower>
++							<DiplomacyPowerType>DIPLOMACYPOWER_EQUAL</DiplomacyPowerType>
++							<bDiplomacyPowerType>1</bDiplomacyPowerType>
++						</DiplomacyPower>
++					</DiplomacyPowers>
++					<DiplomacyText>
++						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_EWUARE_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers>
++						<DiplomacyPower>
++							<DiplomacyPowerType>DIPLOMACYPOWER_EQUAL</DiplomacyPowerType>
++							<bDiplomacyPowerType>1</bDiplomacyPowerType>
++						</DiplomacyPower>
++					</DiplomacyPowers>
++					<DiplomacyText>
++						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_GRACE_OMALLEY_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers>
++						<DiplomacyPower>
++							<DiplomacyPowerType>DIPLOMACYPOWER_EQUAL</DiplomacyPowerType>
++							<bDiplomacyPowerType>1</bDiplomacyPowerType>
++						</DiplomacyPower>
++					</DiplomacyPowers>
++					<DiplomacyText>
++						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_MICHAEL_COLLINS_1</Text>
++					</DiplomacyText>
++				</Response>
+ 				<Response>
+ 					<Civilizations/>
+ 					<Leaders/>
+@@ -8753,6 +9098,63 @@
+ 						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_GILGAMESH_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_EWUARE</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers>
++						<DiplomacyPower>
++							<DiplomacyPowerType>DIPLOMACYPOWER_STRONGER</DiplomacyPowerType>
++							<bDiplomacyPowerType>1</bDiplomacyPowerType>
++						</DiplomacyPower>
++					</DiplomacyPowers>
++					<DiplomacyText>
++						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_EWUARE_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_GRACE_OMALLEY</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers>
++						<DiplomacyPower>
++							<DiplomacyPowerType>DIPLOMACYPOWER_STRONGER</DiplomacyPowerType>
++							<bDiplomacyPowerType>1</bDiplomacyPowerType>
++						</DiplomacyPower>
++					</DiplomacyPowers>
++					<DiplomacyText>
++						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_GRACE_OMALLEY_1</Text>
++					</DiplomacyText>
++				</Response>
++				<Response>
++					<Civilizations/>
++					<Leaders>
++						<Leader>
++							<LeaderType>LEADER_MICHAEL_COLLINS</LeaderType>
++							<bLeaderType>1</bLeaderType>
++						</Leader>
++					</Leaders>
++					<Attitudes/>
++					<DiplomacyPowers>
++						<DiplomacyPower>
++							<DiplomacyPowerType>DIPLOMACYPOWER_STRONGER</DiplomacyPowerType>
++							<bDiplomacyPowerType>1</bDiplomacyPowerType>
++						</DiplomacyPower>
++					</DiplomacyPowers>
++					<DiplomacyText>
++						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Text>
++					</DiplomacyText>
++				</Response>
+ 			</Responses>
+ 		</DiplomacyInfo>
+ 		<DiplomacyInfo>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 4c0f84884..f9fc99cec 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -1204,10 +1204,50 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe less distracting -->
++	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe less distracting; also format a bit: remove end empty paragraph that seems needless -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_ZULU_PEDIA</Tag>
+-		<English>[TAB]The Zulu came from a group of peoples known as the Nguni, a linguistic subgroup of the Bantu family of languages. The Nguni had been migrating south for almost a thousand years before reaching the region of the White Umfolozi River around 1700 AD. It was here that the Zulu decided to settle and make their home, according to tradition in 1709. The Zulu are named after Zulu kaNtombhela, who was the founder and chief of the tribe. [PARAGRAPH:2]The Zulu were never more than one unremarkable small tribe among many - until the coming of the great warrior Shaka Zulu, who was born sometime around 1787. While growing up, Shaka was exiled by his father and found refuge with Digiswayo, the chief of another neighboring tribe. When his father died around 1816, Digiswayo helped Shaka succeed to the Zulu throne. [PARAGRAPH:2]Once in power Shaka instituted something of a military revolution among the Zulus, replacing the traditional "assegai" (a javelin-like throwing spear) with a shorter stabbing spear called the "lklwa." He also equipped his warriors with a larger shield which covered most of the soldier's body. This change in Zulu weaponry reflected Shaka's innovations in warefare: while previous battles had tended to be somewhat ritualistic - with much chanting and spear-throwing at a distance - and thus did not have decisive results, Shaka taught the Zulu to kill. [PARAGRAPH:2]Under Shaka's command, the Zulu warriors would close to melee range with their opponents, where their shorter stabbing spears were more effective than the opposition's throwing weapons. Shaka also taught his warriors to fight in a new tactical formation known as the "buffalo horns. Under this formation the center of the Zulu line would engage the enemy to hold them in position, while the right and left "horns" would move forward and envelop the enemy. Outflanked on right and left and equipped with inferior weapons, few enemies could stand up to the Zulu assault; the Zulu were soon terrorizing the neighboring tribes. [PARAGRAPH:2]Within a decade, Shaka had accumulated an army of 50,000 warriors, defeated all of the surrounding tribes, and was master over most of the interior of what is now South Africa. Shaka set up a new capital for the Zulu at Bulaweyo, but his arrogance and cruelty caused dissatisfaction among his people. In 1828 Shaka was assassinated by his half-brothers Dingane and Mhlangana. Dingane then immediately killed Mhlangana and began a purge of the pro-Shaka chieftains under his control. [PARAGRAPH:2]It was into this picture of chaos and violence that the European settlers first began appearing onto the scene in the 1830s. The first European settlement in the Zululand region was the English colony of Port Natal (modern Durban). An English missionary went to live with the Zulu in 1837, and was tolerated by King Dingane. However, at the same time a group of Boer settlers known as the "Voortrekkers" (or pioneers) were moving north across the Orange River into the now-empty lands which had been vacated by tribes fleeing the Zulu. Dingane had given the Voortrekkers permission to settle in the area, but in 1838 - either as the result of a misunderstanding or because Dingane had planned it from the start - the Zulus attacked the newcomers. [PARAGRAPH:2]This proved to be a huge mistake. At the Battle of Blood River, the Zulus vastly outnumbered their opposition, having 10,000 warriors fighting 400 Boers. Despite the odds, however, the Boers slaughtered their opponents, their firearms giving them an overwhelming advantage against their spear-wielding opponents. The Zulus were forced to allow the white men to settle in their territory, which became known as the Republic of Utrecht. [PARAGRAPH:2]Following the battle, there was a generation of uneasy peace between the Zulus and the growing British and Boer presence in the region. However, after the discovery of diamond mines in South Africa in 1878, the British cast covetous eyes on the Zulu land, and they began to look for an excuse to attack and displace the natives. Following a minor border dispute in 1878, the British declared war and invaded Zululand on three fronts. [PARAGRAPH:2]The Zulu warriors fought bravely (and much to the Europeans' shock managed to slaughter a British force at Isandlwana), but the British rifles and Maxim guns made the ferocity of individual Zulu warriors irrelevant, and the outcome of the war was never in doubt. The Zulu were defeated and Zululand was incorporated into British South Africa. King Cetshwayo was taken to London to meet Queen Victoria as an honored prisoner. However, the rest of the nation did not fare so well, and the Zulus spent the next century under British and Afrikaner domination, forced to live under the racist apartheid laws of South Africa. [PARAGRAPH:2]Following the fall of apartheid in the 1990s, however, today Zulus enjoy full citizenship rights in South Africa. Zulu is the most widely spoken language in the country, and with over 11 million people, the Zulus are the largest ethnic group in South Africa. [PARAGRAPH:2] </English>
++		<English>[TAB]The Zulu came from a group of peoples known as the Nguni, a linguistic subgroup of the Bantu family of languages. The Nguni had been migrating south for almost a thousand years before reaching the region of the White Umfolozi River around 1700 AD. It was here that the Zulu decided to settle and make their home, according to tradition in 1709. The Zulu are named after Zulu kaNtombhela, who was the founder and chief of the tribe. [PARAGRAPH:2]The Zulu were never more than one unremarkable small tribe among many - until the coming of the great warrior Shaka Zulu, who was born sometime around 1787. While growing up, Shaka was exiled by his father and found refuge with Digiswayo, the chief of another neighboring tribe. When his father died around 1816, Digiswayo helped Shaka succeed to the Zulu throne. [PARAGRAPH:2]Once in power Shaka instituted something of a military revolution among the Zulus, replacing the traditional "assegai" (a javelin-like throwing spear) with a shorter stabbing spear called the "lklwa." He also equipped his warriors with a larger shield which covered most of the soldier's body. This change in Zulu weaponry reflected Shaka's innovations in warefare: while previous battles had tended to be somewhat ritualistic - with much chanting and spear-throwing at a distance - and thus did not have decisive results, Shaka taught the Zulu to kill. [PARAGRAPH:2]Under Shaka's command, the Zulu warriors would close to melee range with their opponents, where their shorter stabbing spears were more effective than the opposition's throwing weapons. Shaka also taught his warriors to fight in a new tactical formation known as the "buffalo horns. Under this formation the center of the Zulu line would engage the enemy to hold them in position, while the right and left "horns" would move forward and envelop the enemy. Outflanked on right and left and equipped with inferior weapons, few enemies could stand up to the Zulu assault; the Zulu were soon terrorizing the neighboring tribes. [PARAGRAPH:2]Within a decade, Shaka had accumulated an army of 50,000 warriors, defeated all of the surrounding tribes, and was master over most of the interior of what is now South Africa. Shaka set up a new capital for the Zulu at Bulaweyo, but his arrogance and cruelty caused dissatisfaction among his people. In 1828 Shaka was assassinated by his half-brothers Dingane and Mhlangana. Dingane then immediately killed Mhlangana and began a purge of the pro-Shaka chieftains under his control. [PARAGRAPH:2]It was into this picture of chaos and violence that the European settlers first began appearing onto the scene in the 1830s. The first European settlement in the Zululand region was the English colony of Port Natal (modern Durban). An English missionary went to live with the Zulu in 1837, and was tolerated by King Dingane. However, at the same time a group of Boer settlers known as the "Voortrekkers" (or pioneers) were moving north across the Orange River into the now-empty lands which had been vacated by tribes fleeing the Zulu. Dingane had given the Voortrekkers permission to settle in the area, but in 1838 - either as the result of a misunderstanding or because Dingane had planned it from the start - the Zulus attacked the newcomers. [PARAGRAPH:2]This proved to be a huge mistake. At the Battle of Blood River, the Zulus vastly outnumbered their opposition, having 10,000 warriors fighting 400 Boers. Despite the odds, however, the Boers slaughtered their opponents, their firearms giving them an overwhelming advantage against their spear-wielding opponents. The Zulus were forced to allow the white men to settle in their territory, which became known as the Republic of Utrecht. [PARAGRAPH:2]Following the battle, there was a generation of uneasy peace between the Zulus and the growing British and Boer presence in the region. However, after the discovery of diamond mines in South Africa in 1878, the British cast covetous eyes on the Zulu land, and they began to look for an excuse to attack and displace the natives. Following a minor border dispute in 1878, the British declared war and invaded Zululand on three fronts. [PARAGRAPH:2]The Zulu warriors fought bravely (and much to the Europeans' shock managed to slaughter a British force at Isandlwana), but the British rifles and Maxim guns made the ferocity of individual Zulu warriors irrelevant, and the outcome of the war was never in doubt. The Zulu were defeated and Zululand was incorporated into British South Africa. King Cetshwayo was taken to London to meet Queen Victoria as an honored prisoner. However, the rest of the nation did not fare so well, and the Zulus spent the next century under British and Afrikaner domination, forced to live under the racist apartheid laws of South Africa. [PARAGRAPH:2]Following the fall of apartheid in the 1990s, however, today Zulus enjoy full citizenship rights in South Africa. Zulu is the most widely spoken language in the country, and with over 11 million people, the Zulus are the largest ethnic group in South Africa.</English>
++	</TEXT>
++
++
++
++	<!-- custom: based on https://en.wikipedia.org/wiki/Republic_of_Ireland -->
++	<TEXT>
++		<Tag>TXT_KEY_CIV_IRELAND_PEDIA</Tag>
++		<English>[TAB]Ireland (Irish: Eire), also known as the Republic of Ireland (Poblacht na h�ireann), is a country in Northwestern Europe. It consists of 26 of the 32 counties of the island of Ireland, with a population of about 5.4 million. Its capital and largest city is Dublin, on the eastern side of the island, with a population of over 1.5 million. The sovereign state shares its only land border with Northern Ireland, which is part of the United Kingdom. It is otherwise surrounded by the Atlantic Ocean, with the Celtic Sea to the south, St George's Channel to the south-east and the Irish Sea to the east. It is a unitary, parliamentary republic. The legislature, the Oireachtas, consists of a lower house, D�il �ireann; an upper house, Seanad �ireann; and an elected president (Uachtar�n) who serves as the largely ceremonial head of state, but with some important powers and duties. The head of government is the Taoiseach (prime minister, lit. 'chief'), elected by the D�il and appointed by the president, who appoints other government ministers.[PARAGRAPH:1]The Irish Free State was created with Dominion status in 1922, following the Anglo-Irish Treaty. In 1937, a new constitution was adopted, in which the state was named "Ireland" and effectively became a republic, with an elected non-executive president. It was officially declared a republic in 1949, following The Republic of Ireland Act 1948. Ireland became a member of the United Nations in 1955. It joined the European Communities (EC), the predecessor of the European Union (EU), in 1973. The state had no formal relations with Northern Ireland for most of the 20th century, but the 1980s and 1990s saw the British and Irish governments working with Northern Irish parties to resolve the conflict that had become known as the Troubles. Since the signing of the Good Friday Agreement in 1998, the Irish government and Northern Irish government have co-operated on a number of policy areas under the North/South Ministerial Council created by the Agreement.[PARAGRAPH:1]Ireland is a developed country with a quality of life ranked sixth in the world by the 2024 Human Development Index Report adjusted for inequality. It also ranks highly in healthcare, economic freedom and freedom of the press. According to the Global Peace Index, Ireland was the second most peaceful country worldwide in 2024.[PARAGRAPH:1]It is a member of the EU and a founding member of the Council of Europe and the OECD. The Irish government has followed a policy of military neutrality through non-alignment since before World War II, and the country is consequently not a member of NATO, although it is a member of the Partnership for Peace and certain aspects of PESCO. Ireland's economy is advanced, with one of Europe's major financial hubs being centred on Dublin. It ranks among the top five wealthiest countries in the world in terms of both GDP and GNI per capita. After joining the EC, the country's government enacted a series of liberal economic policies that helped to boost economic growth between 1995 and 2007, a time now often referred to as the Celtic Tiger period. A recession and reversal in growth then followed during the Great Recession, which was exacerbated by the bursting of the Irish property bubble. The Great Recession lasted until 2014, and was followed by a new period of strong economic growth.[PARAGRAPH:2]The names Ireland and �ire both derive from Old Irish �riu, which in turn comes from Proto-Celtic ??weriy? meaning "fertile soil". The Classical Latin name for the island of Ireland, Ivernia, also comes from this same root, and it remains a popular, poetic synonym for Ireland to this day (usually respelled "Hibernia", under the influence of hibernum, the Latin word for "winter").[PARAGRAPH:1]The state created in 1922, comprising 26 of the 32 counties of Ireland, was "styled and known as the Irish Free State" (Saorst�t �ireann). The Constitution of Ireland, adopted in 1937, says that "the name of the State is �ire, or, in the English language, Ireland". Section 2 of the Republic of Ireland Act 1948 states, "It is hereby declared that the description of the State shall be the Republic of Ireland." The 1948 Act does not name the state "Republic of Ireland", because to have done so would have put it in conflict with the Constitution.[PARAGRAPH:1]The government of the United Kingdom used the name "Eire" (without the diacritic) and, from 1949, "Republic of Ireland", for the state. It was not until the 1998 Good Friday Agreement, when the state dropped its claim to Northern Ireland, that it began calling the state "Ireland".[PARAGRAPH:1]The state is also informally called "the Republic", "Southern Ireland" or "the South"; especially when distinguishing the state from the island or when discussing Northern Ireland ("the North"). Irish republicans reserve the name "Ireland" for the whole island and often refer to the state as "the Free State", "the 26 Counties", or "the South of Ireland". This is a "response to the partitionist view that Ireland stops at the border".</English>
++	</TEXT>
++
++
++
++	<!-- custom: based on https://en.wikipedia.org/wiki/Grace_O%27Malley -->
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_GRACE_OMALLEY_PEDIA</Tag>
++		<English>[H1]Grace O'Malley[\H1][NEWLINE][BOLD]Head of the � M�ille dynasty[\BOLD][NEWLINE][BOLD]Lived:[\BOLD] c. 1530 - c. 1603[NEWLINE][PARAGRAPH:2][BOLD]Background:[\BOLD][PARAGRAPH:1]Grace O'Malley (Irish: Gr�inne N� Mh�ille) was the head of the � M�ille dynasty in the west of Ireland, and the daughter of E�ghan Dubhdara � M�ille.[PARAGRAPH:1]Upon her father's death, she took over active leadership of the lordship by land and sea, despite having a brother, D�nal an Ph�opa � M�ille. Marriage to D�nal an Chogaidh (Donal "of the war") � Flaithbheartaigh brought her greater wealth and influence, reportedly owning as much as 1,000 head of cattle and horses. In 1593, when her sons Tibbot Bourke and Murchadh � Flaithbheartaigh (Murrough O'Flaherty) and her half-brother D�nal an Ph�opa ("Donal of the Pipes") were taken captive by the English governor of Connacht, Sir Richard Bingham, O'Malley sailed to England to petition for their release. She formally presented her request to Queen Elizabeth I at her court in Greenwich Palace.[PARAGRAPH:1]O'Malley is not mentioned in the Irish annals, so documentary evidence for her life comes mostly from English sources, especially the eighteen "Articles of Interrogatory", questions put to her in writing on behalf of Elizabeth I. She is mentioned in the English State Papers and in other documents of the kind.[PARAGRAPH:1]In Irish folklore she is commonly known as Gr�inne Mhaol (anglicised as Granuaile) and is a well-known historical figure in sixteenth-century Irish history. Her name was also rendered in contemporaneous English documents in various ways, including Gr�inne O'Maly, Graney O'Mally, Granny ni Maille, Grany O'Mally, Grayn Ny Mayle, Grane ne Male, Grainy O'Maly, and Granee O'Maillie, rarely as Grace O'Malley. In popular culture, she is often referred to as "The Pirate Queen".</English>
++	</TEXT>
++
++
++
++	<!-- custom: based on https://en.wikipedia.org/wiki/Michael_Collins_(Irish_leader) -->
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_MICHAEL_COLLINS_PEDIA</Tag>
++		<English>[H1]Michael Collins[\H1][NEWLINE][BOLD]Irish revolutionary, soldier and politician[\BOLD][NEWLINE][BOLD]Lived:[\BOLD] 16 January 1922 - 22 August 1922[NEWLINE][PARAGRAPH:2][BOLD]Background:[\BOLD][PARAGRAPH:1]Michael Collins (Irish: M�che�l � Coile�in) was an Irish revolutionary, soldier and politician who was a leading figure in the early-20th century struggle for Irish independence. During the War of Independence he was Director of Intelligence of the Irish Republican Army (IRA). He served in the government of the self-declared Irish Republic as the Minister for Home Affairs and later as the Minister for Finance. He was Chairman of the Provisional Government of the Irish Free State from January 1922 and commander-in-chief of the National Army from July until his death in an ambush in August 1922, during the Civil War.[PARAGRAPH:1]Collins was born in Woodfield, County Cork, the youngest of eight children. He moved to London in 1906 to become a clerk in the Post Office Savings Bank at Blythe House. He was a member of the London GAA, through which he became associated with the Irish Republican Brotherhood and the Gaelic League. He returned to Ireland in January 1916 and fought in the Easter Rising. He was taken prisoner and held in the Frongoch internment camp as a prisoner of war, but he was released in December 1916.[PARAGRAPH:1]Collins subsequently rose through the ranks of the Irish Volunteers and Sinn F�in. He was elected as MP for South Cork in December 1918. Sinn F�in's elected members (later known as TDs) formed an Irish parliament, the First D�il, in January 1919 and declared the independence of the Irish Republic. Collins was appointed Minister for Finance. In the ensuing War of Independence, he was Director of Organisation and Adjutant General for the Irish Volunteers, and Director of Intelligence of the IRA. He gained fame as a guerrilla warfare strategist, planning many successful attacks on British forces together with 'the Squad', such as the "Bloody Sunday" assassinations of key British intelligence agents in November 1920.[PARAGRAPH:1]After the July 1921 ceasefire, Collins was one of five plenipotentiaries sent by the D�il cabinet at the request of �amon de Valera, to negotiate peace terms in London. The resulting Anglo-Irish Treaty, signed in December 1921, would establish the Irish Free State but depended on an oath of allegiance to the Crown. De Valera and other republican leaders found this clause of the treaty most difficult to accept. Collins viewed the treaty as offering "the freedom to achieve freedom", and helped persuade a majority of the D�il to ratify the treaty. A provisional government was formed under his chairmanship in early 1922. During this time he secretly provided support for an IRA offensive in Northern Ireland. It was soon disrupted by the Irish Civil War, in which Collins was commander-in-chief of the National Army. He was shot and killed in an ambush by anti-Treaty forces in August 1922.</English>
++	</TEXT>
++
++
++
++	<!-- custom: based on https://en.wikipedia.org/wiki/Scriptorium -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_IRELAND_SCRIPTORIUM_PEDIA</Tag>
++		<English>[TAB]A scriptorium was a writing room in medieval European monasteries for the copying and illuminating of manuscripts by scribes.[PARAGRAPH:1]The term has perhaps been over-used - only some monasteries had special rooms set aside for scribes. Often they worked in the monastery library or in their own rooms. Most medieval images of scribing show single figures in well-appointed studies, although these are generally author portraits of well-known authors or translators. Increasingly, lay scribes and illuminators from outside the monastery also assisted the clerical scribes. By the later Middle Ages secular manuscript workshops were common, and many monasteries bought more books than they produced themselves.[PARAGRAPH:2]When monastic institutions arose in the early sixth century (the first European monastic writing dates from 517), they defined European literary culture and selectively preserved the literary history of the West. Monks copied Jerome's Latin Vulgate Bible and the commentaries and letters of early Church Fathers for missionary purposes as well as for use within the monastery.[PARAGRAPH:1]In the copying process, there was typically a division of labor among the monks who readied the parchment for copying by smoothing and chalking the surface, those who ruled the parchment and copied the text, and those who illuminated the text. Sometimes a single monk would engage in all of these stages to prepare a manuscript. The illuminators of manuscripts worked in collaboration with scribes in intricate varieties of interaction that preclude any simple understanding of monastic manuscript production.[PARAGRAPH:1]The products of the monasteries provided a valuable medium of exchange. Comparisons of characteristic regional, periodic as well as contextual styles of handwriting do reveal social and cultural connections among them, as new hands developed and were disseminated by travelling individuals, respectively what these individuals represented, and by the examples of manuscripts that passed from one cloister to another. Recent studies follow the approach, that scriptoria developed in relative isolation, to the extent that paleographers are sometimes able to identify the product of each writing centre and to date it accordingly.[PARAGRAPH:1]By the start of the 13th century, secular workshops developed, where professional scribes stood at writing-desks to work the orders of customers, and during the Late Middle Ages the praxis of writing was becoming not only confined to being generally a monastic or regal activity. However, the practical consequences of private workshops, and as well the invention of the printing press vis-a-vis monastic scriptoria is a complex theme.[PARAGRAPH:1]There is also evidence that women scribes, in religious or secular contexts, produced texts in the medieval period. Archaeologists identified lapis lazuli, a pigment used in the decoration of medieval illuminated manuscripts, embedded in the dental calculus of remains found in a religious women's community in Germany, which dated to the 11th-12th centuries. Chelles Abbey, established in France during the early medieval period, was also well known for its scriptorium, where nuns produced manuscripts and religious texts. There is also evidence of Jewish women working as scribes of Hebrew texts from the 13th to 16th centuries, though these women primarily worked out of their homes rather than religious institutions, as daughters and wives of scribes. Women were not only the producers of these texts, but could also be the consumers or commissioners of them. There were also women who worked as professional, secular scribes, including Clara H�tzlerin in 15th century Augsburg, who has at least nine surviving manuscripts signed by or attributed to her.</English>
++	</TEXT>
++
++
++
++	<!-- custom: based on https://en.wikipedia.org/wiki/Flying_column -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_IRELAND_FLYING_COLUMN_PEDIA</Tag>
++		<English>[TAB]A flying column is a small, independent, military land unit capable of rapid mobility and usually composed of all arms. It is often an ad hoc unit, formed during the course of operations.[PARAGRAPH:1]The term is usually, though not necessarily, applied to forces less than the strength of a brigade. As mobility is its primary purpose, a flying column is accompanied by the minimum of equipment. It generally uses suitable fast transport; historically, horses were used, with trucks and helicopters replacing them in modern times.[PARAGRAPH:2]Flying columns are mentioned by Sun Tzu in his Art of War in such a fashion that indicates it was not a new concept at the time of his writing. This dates to at least the middle 6th century BC, and possibly the late 8th century BC.[PARAGRAPH:1]The Roman army made good use of the flying columns in the early imperial era. One Roman commander, the proconsul Germanicus Caesar used flying columns to great effect in the early stages of the campaign against one of Rome's greatest enemies, Arminius. Scouts, raiders, and screening forces were used against the Germanic tribes responsible for destroying three Roman legions (the 17th, 18th, and 19th) in the Battle of the Teutoburg Forest.[PARAGRAPH:1]Boer kommandos in 17th-20th-century South Africa may be regarded as a form of flying column (unlike commandos in the more recent sense). The mobile columns employed against Boer forces, by British Empire forces in the South African War of 1899-1902, were usually of the strength of two battalions of infantry, a battery of artillery, and a squadron of cavalry, almost exactly half that of a Mixed brigade.[PARAGRAPH:1]Flying columns have also been used in guerrilla warfare, notably the mobile armed units of the Irish Republican Army during the Irish War of Independence 1919-1921.During this period, the most successful Irish flying columns in terms of casualties inflicted on the police and military were the west Connemara, the south Mayo and the west Mayo column under the command of Michael Kilroy.[PARAGRAPH:1]In 1919, Polish officer Stanis?aw Maczek created a flying company made of a battle-hardened infantry, using horses for mobility, and a lot of machine guns for fire power. They were part of the 4th Infantry Division (Poland).[PARAGRAPH:1]In the 1920s, Defence Scheme No. 1, the proposed Canadian response to an invasion by the United States, Lt. Col. James "Buster" Brown suggested "immediate dispatch of flying columns on the declaration of war" in order to counter-invade across the border and enact a scorched earth policy, forcing the US to divert military resources towards the defense of its northern cities.[PARAGRAPH:1]During and shortly after the Anglo-Iraqi War of 1941, British forces employed flying columns code-named Kingcol, Mercol and Gocol. Kingcol advanced into Iraq from Jordan and Palestine.</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 0623e200e..5d03e699c 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3261,6 +3261,289 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_FILTER_WORLD</Tag>
+ 		<English>Show World Wonders Only</English>
+ 	</TEXT>
++
++
++
++	<TEXT>
++		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_EWUARE_1</Tag>
++		<English>I am [OUR_NAME], Oba of Benin. You enter my court, [CT_NAME]. Speak with respect, and we may prosper.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_EWUARE_1</Tag>
++		<English>Your words offend the throne, [CT_NAME]. Return when you can speak with honor.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_NO_PEACE_LEADER_EWUARE_1</Tag>
++		<English>Peace is not yet yours, [CT_NAME]. The debt between us remains unpaid.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_EWUARE_1</Tag>
++		<English>Welcome, [CT_NAME]. Benin remembers those who keep their word.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_EWUARE_1</Tag>
++		<English>You stand before me, [CT_NAME], yet you bring only trouble.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_EWUARE_1</Tag>
++		<English>You are in no position to refuse, [CT_NAME]. Send tribute, and keep your people safe.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_EWUARE_1</Tag>
++		<English>Tribute buys stability, [CT_NAME]. Pay, and we will have no quarrel.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_EWUARE_1</Tag>
++		<English>Even the mighty benefit from order, [CT_NAME]. Honor my court with tribute, and we both avoid wasteful war.</English>
++	</TEXT>
++
++
++
++	<!-- custom: Ireland civilization and leaders. (GPT-5.3-Codex) -->
++	<TEXT>
++		<Tag>TXT_KEY_CIV_IRELAND_DESC</Tag>
++		<English>Irish Empire</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIV_IRELAND_SHORT_DESC</Tag>
++		<English>Ireland</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIV_IRELAND_ADJECTIVE</Tag>
++		<English>Irish</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_GRACE_OMALLEY</Tag>
++		<English>Grace O'Malley</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_MICHAEL_COLLINS</Tag>
++		<English>Michael Collins</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_IRELAND_SCRIPTORIUM</Tag>
++		<English>Scriptorium</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_IRELAND_FLYING_COLUMN</Tag>
++		<English>Flying Column</English>
++	</TEXT>
++
++
++
++	<!-- custom: Ireland city list text keys. (GPT-5.3-Codex) -->
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_DUBLIN_IRELAND</Tag>
++		<English>Dublin</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_CORK_IRELAND</Tag>
++		<English>Cork</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_EMAIN_MACHA_IRELAND</Tag>
++		<English>Emain Macha</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_GALWAY_IRELAND</Tag>
++		<English>Galway</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_SWORDS_IRELAND</Tag>
++		<English>Swords</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_WATERFORD_IRELAND</Tag>
++		<English>Waterford</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_KILKENNY_IRELAND</Tag>
++		<English>Kilkenny</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_BELFAST_IRELAND</Tag>
++		<English>Belfast</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_DERRY_IRELAND</Tag>
++		<English>Derry</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_ARMAGH_IRELAND</Tag>
++		<English>Armagh</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_CASHEL_IRELAND</Tag>
++		<English>Cashel</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_CLONMACNOISE_IRELAND</Tag>
++		<English>Clonmacnoise</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_KELLS_IRELAND</Tag>
++		<English>Kells</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_GLENDALOUGH_IRELAND</Tag>
++		<English>Glendalough</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_DOWNPATRICK_IRELAND</Tag>
++		<English>Downpatrick</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_DROGHEDA_IRELAND</Tag>
++		<English>Drogheda</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_WEXFORD_IRELAND</Tag>
++		<English>Wexford</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_SLIGO_IRELAND</Tag>
++		<English>Sligo</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_ATHLONE_IRELAND</Tag>
++		<English>Athlone</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_DUNDALK_IRELAND</Tag>
++		<English>Dundalk</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_ENNIS_IRELAND</Tag>
++		<English>Ennis</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_TRALEE_IRELAND</Tag>
++		<English>Tralee</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_KILLARNEY_IRELAND</Tag>
++		<English>Killarney</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_CLONMEL_IRELAND</Tag>
++		<English>Clonmel</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_NAVAN_IRELAND</Tag>
++		<English>Navan</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_MULLINGAR_IRELAND</Tag>
++		<English>Mullingar</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_TULLAMORE_IRELAND</Tag>
++		<English>Tullamore</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_CARLOW_IRELAND</Tag>
++		<English>Carlow</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_NEWRY_IRELAND</Tag>
++		<English>Newry</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_LETTERKENNY_IRELAND</Tag>
++		<English>Letterkenny</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_DONEGAL_IRELAND</Tag>
++		<English>Donegal</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_CASTLEBAR_IRELAND</Tag>
++		<English>Castlebar</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_BALLINA_IRELAND</Tag>
++		<English>Ballina</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_BRAY_IRELAND</Tag>
++		<English>Bray</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_SKERRIES_IRELAND</Tag>
++		<English>Skerries</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_NAME_YOUGHAL_IRELAND</Tag>
++		<English>Youghal</English>
++	</TEXT>
++
++
++
++	<!-- custom: Ireland and Ewuare diplomacy text hooks. (GPT-5.3-Codex) -->
++	<TEXT>
++		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_GRACE_OMALLEY_1</Tag>
++		<English>Ahoy, [CT_NAME]. I am [OUR_NAME]. Speak your business, and be quick about it.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_GRACE_OMALLEY_1</Tag>
++		<English>I have heard enough from you, [CT_NAME]. Leave.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_NO_PEACE_LEADER_GRACE_OMALLEY_1</Tag>
++		<English>No peace yet, [CT_NAME]. You have not earned it.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_GRACE_OMALLEY_1</Tag>
++		<English>Fair winds, [CT_NAME]. Your word has held.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_GRACE_OMALLEY_1</Tag>
++		<English>We have little to discuss, [CT_NAME]. Choose your next words carefully.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_GRACE_OMALLEY_1</Tag>
++		<English>You think me weak, [CT_NAME]? Then prove it. Pay, or face me.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_GRACE_OMALLEY_1</Tag>
++		<English>A fair tribute, [CT_NAME], and we avoid trouble.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_GRACE_OMALLEY_1</Tag>
++		<English>Pay for safe passage, [CT_NAME]. My ships are not charity.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MICHAEL_COLLINS_1</Tag>
++		<English>I am [OUR_NAME]. We will speak plainly, [CT_NAME]. State your purpose.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_MICHAEL_COLLINS_1</Tag>
++		<English>Not now, [CT_NAME]. I have nothing to say to you.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_NO_PEACE_LEADER_MICHAEL_COLLINS_1</Tag>
++		<English>Peace comes when you stop forcing my hand, [CT_NAME].</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_MICHAEL_COLLINS_1</Tag>
++		<English>Good to see you, [CT_NAME]. Keep it practical.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MICHAEL_COLLINS_1</Tag>
++		<English>Enough games, [CT_NAME]. You are making yourself a problem.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_MICHAEL_COLLINS_1</Tag>
++		<English>Do not mistake patience for weakness, [CT_NAME]. Give what I ask.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_MICHAEL_COLLINS_1</Tag>
++		<English>A contribution now, [CT_NAME], prevents trouble later.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Tag>
++		<English>Pay, [CT_NAME]. I would rather end this cleanly.</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_HELP_OBSOLETE_BUILDING_COMMERCE</Tag>
+ 		<English>[ICON_BULLET]%D1%F2 from Obsolete Buildings</English>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index a1375794e..6239282c1 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -12493,6 +12493,222 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
++		<UnitInfo> <!-- custom: class: UNITCLASS_RIFLEMAN, type: UNIT_IRELAND_FLYING_COLUMN -->
++			<Class>UNITCLASS_RIFLEMAN</Class>
++			<Type>UNIT_IRELAND_FLYING_COLUMN</Type>
++			<UniqueNames/>
++			<Special>NONE</Special>
++			<Capture>NONE</Capture>
++			<Combat>UNITCOMBAT_GUN</Combat>
++			<Domain>DOMAIN_LAND</Domain>
++			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
++			<Invisible>NONE</Invisible>
++			<SeeInvisible>NONE</SeeInvisible>
++			<Description>TXT_KEY_UNIT_IRELAND_FLYING_COLUMN</Description>
++			<Civilopedia>TXT_KEY_UNIT_IRELAND_FLYING_COLUMN_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<bAnimal>0</bAnimal>
++			<bFood>0</bFood>
++			<bNoBadGoodies>0</bNoBadGoodies>
++			<bOnlyDefensive>0</bOnlyDefensive>
++			<bNoCapture>0</bNoCapture>
++			<bQuickCombat>0</bQuickCombat>
++			<bRivalTerritory>0</bRivalTerritory>
++			<bMilitaryHappiness>1</bMilitaryHappiness>
++			<bMilitarySupport>1</bMilitarySupport>
++			<bMilitaryProduction>1</bMilitaryProduction>
++			<bPillage>1</bPillage>
++			<bSpy>0</bSpy>
++			<bSabotage>0</bSabotage>
++			<bDestroy>0</bDestroy>
++			<bStealPlans>0</bStealPlans>
++			<bInvestigate>0</bInvestigate>
++			<bCounterSpy>0</bCounterSpy>
++			<bFound>0</bFound>
++			<bGoldenAge>0</bGoldenAge>
++			<bInvisible>0</bInvisible>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bNoDefensiveBonus>0</bNoDefensiveBonus>
++			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
++			<bCanMoveImpassable>0</bCanMoveImpassable>
++			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
++			<bFlatMovementCost>0</bFlatMovementCost>
++			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqBonuses>0</bPrereqBonuses>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bMechanized>0</bMechanized>
++			<bSuicide>0</bSuicide>
++			<bHiddenNationality>0</bHiddenNationality>
++			<bAlwaysHostile>0</bAlwaysHostile>
++			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_INFANTRY</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++			</UnitClassUpgrades>
++			<UnitClassTargets/>
++			<UnitCombatTargets/>
++			<UnitClassDefenders/>
++			<UnitCombatDefenders/>
++			<FlankingStrikes/>
++			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs/>
++			<Builds/>
++			<ReligionSpreads/>
++			<CorporationSpreads/>
++			<GreatPeoples/>
++			<Buildings/>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<PrereqBuilding>NONE</PrereqBuilding>
++			<ObsoleteTech>TECH_FASCISM</ObsoleteTech>
++			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_FIREARMS</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<Flavors/>
++			<iAIWeight>0</iAIWeight>
++			<iCost>120</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iMoves>1</iMoves>
++			<bNoRevealMap>0</bNoRevealMap>
++			<iAirRange>0</iAirRange>
++			<iAirUnitCap>0</iAirUnitCap>
++			<iDropRange>0</iDropRange>
++			<iNukeRange>-1</iNukeRange>
++			<iWorkRate>0</iWorkRate>
++			<iBaseDiscover>0</iBaseDiscover>
++			<iDiscoverMultiplier>0</iDiscoverMultiplier>
++			<iBaseHurry>0</iBaseHurry>
++			<iHurryMultiplier>0</iHurryMultiplier>
++			<iBaseTrade>0</iBaseTrade>
++			<iTradeMultiplier>0</iTradeMultiplier>
++			<iGreatWorkCulture>0</iGreatWorkCulture>
++			<iEspionagePoints>0</iEspionagePoints>
++			<TerrainImpassables/>
++			<FeatureImpassables/>
++			<TerrainPassableTechs/>
++			<FeaturePassableTechs/>
++			<iCombat>15</iCombat>
++			<iCombatLimit>100</iCombatLimit>
++			<iAirCombat>0</iAirCombat>
++			<iAirCombatLimit>0</iAirCombatLimit>
++			<iXPValueAttack>4</iXPValueAttack>
++			<iXPValueDefense>2</iXPValueDefense>
++			<iFirstStrikes>0</iFirstStrikes>
++			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<iInterceptionProbability>0</iInterceptionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
++			<iWithdrawalProb>10</iWithdrawalProb>
++			<iCollateralDamage>0</iCollateralDamage>
++			<iCollateralDamageLimit>200</iCollateralDamageLimit>
++			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>0</iCityDefense>
++			<iAnimalCombat>0</iAnimalCombat>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<TerrainNatives/>
++			<FeatureNatives/>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>50</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
++			<UnitClassAttackMods/>
++			<UnitClassDefenseMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
++			<UnitCombatCollateralImmunes/>
++			<DomainMods/>
++			<BonusProductionModifiers/>
++			<iBombRate>0</iBombRate>
++			<iBombardRate>0</iBombardRate>
++			<SpecialCargo>NONE</SpecialCargo>
++			<DomainCargo>NONE</DomainCargo>
++			<iCargo>0</iCargo>
++			<iConscription>5</iConscription>
++			<iCultureGarrison>8</iCultureGarrison>
++			<iExtraCost>0</iExtraCost>
++			<iAsset>3</iAsset>
++			<iPower>16</iPower>
++			<UnitMeshGroups>
++				<iGroupSize>3</iGroupSize>
++				<fMaxSpeed>1.75</fMaxSpeed>
++				<fPadTime>1</fPadTime>
++				<iMeleeWaveSize>3</iMeleeWaveSize>
++				<iRangedWaveSize>0</iRangedWaveSize>
++				<UnitMeshGroup>
++					<iRequired>3</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_IRELAND_FLYING_COLUMN</EarlyArtDefineTag>
++				</UnitMeshGroup>
++			</UnitMeshGroups>
++			<FormationType>FORMATION_TYPE_RANGED</FormationType>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_LOGISTICS</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
++			<LeaderPromotion>NONE</LeaderPromotion>
++			<iLeaderExperience>0</iLeaderExperience>
++		</UnitInfo>
+ 		<!-- custom: USA civ-specific unit replaced with the "USA_PATRIOT" mostly so they have a unit important/impactful earlier in the game while still historically accurate, based on: https://en.wikipedia.org/wiki/Patriot_(American_Revolution) and the rifleman unit as a base -->
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_RIFLEMAN, type: UNIT_USA_PATRIOT -->
+ 			<Class>UNITCLASS_RIFLEMAN</Class>
+
+diff --git a/README.md b/README.md
+index 75c03b0ba..cd2a16b9e 100644
+--- a/README.md
++++ b/README.md
+@@ -10,14 +10,16 @@ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12
+ 
+ New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Spiky_Avenues`).
+ 
+-Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
++Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+ 
+ All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
+ 
+-Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok AI, have helped me a lot to do this, and i probably would not have completed (or extremely harder) without them and all i mean so thanks again and thanks a lot!
++Also most importantly AIs like GPT Codex, GPT Thinking, ChatGPT, Claude code, Gemini AI, Deepseek AI, Grok AI, have helped me a lot to do this, and i probably would not have completed (or extremely harder) without them and all i mean so thanks again and thanks a lot!
+ 
+ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ 
++<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
++
+ ## Menu
+ 
+ [Tech Tree](/README.md#tech-tree)  
+@@ -791,12 +793,12 @@ After some more time using it, what i like the most is how really accurate and a
+ 
+ After some more time using ChatGPT 5.2, i have been very imrpessed by ChatGPT 5.2's autonomy and plannfication abilities: this sentiment only grew stronger! Just based on a Sevopedia ingame screenshot showing it was too bold and thus hard to read at a glance, ChatGPT 5.2 took all measurements and provided me various prototypes and shapes, that are fully working after i converted them to .dds! Very impressive, useful and now implemented in our new Sevopedia tech (see [example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-techs-category-starting-and-untradeable-techs-charts-and-other-changes)) and thanks a lot!!
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (1).PNG" alt="chatgpt_5.2_red_x_new_art (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (2).PNG" alt="chatgpt_5.2_red_x_new_art (2).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (3).PNG" alt="chatgpt_5.2_red_x_new_art (3).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (4).PNG" alt="chatgpt_5.2_red_x_new_art (4).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (5).PNG" alt="chatgpt_5.2_red_x_new_art (5).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (6).PNG" alt="chatgpt_5.2_red_x_new_art (6).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (1).PNG" alt="chatgpt_5_2_red_x_new_art (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (2).PNG" alt="chatgpt_5_2_red_x_new_art (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (3).PNG" alt="chatgpt_5_2_red_x_new_art (3).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (4).PNG" alt="chatgpt_5_2_red_x_new_art (4).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (5).PNG" alt="chatgpt_5_2_red_x_new_art (5).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (6).PNG" alt="chatgpt_5_2_red_x_new_art (6).PNG" width="250"></img>
+ 
+ ### GPT-Codex (VS Code extension)
+ 
+@@ -806,17 +808,27 @@ Note: see also [AGENTS.md](/AGENTS.md).
+ 
+ Codex (e.g. GPT-5.2-Codex) very impressively helped me implement the new Handicap Chart Sevopedia category (see [Other new categories](/README.md#other-new-categories)).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (1).PNG" alt="codex_ gpt_5.2_handicaps_chart (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (2).PNG" alt="codex_ gpt_5.2_handicaps_chart (2).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (3).PNG" alt="codex_ gpt_5.2_handicaps_chart (3).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (1).PNG" alt="gpt_5_2_codex_handicaps_chart (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (2).PNG" alt="gpt_5_2_codex_handicaps_chart (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (3).PNG" alt="gpt_5_2_codex_handicaps_chart (3).PNG" width="250"></img>
+ 
+ #### Long_Comments extracting
+ 
+ GPT-5.2-Codex Inaugural change: AdvCiv-SAS 5242 - consolidated long XML comments, replaced them in-place with short custom markers, and documented the archive layout. I (Codex) also spotted an inconsistent file name, flagged it to wonderingabout, and we fixed it. Details: [commit/940d04ce76fddb1671b22608f66a41cfe6233ddb](https://github.com/wonderingabout/AdvCiv-SAS/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb), [PR #17](/pull/17), and the files in [Long_Comments/](/Long_Comments/).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (1).PNG" alt="gpt_codex_summarizing (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (2).PNG" alt="gpt_codex_summarizing (2).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (3).PNG" alt="gpt_codex_summarizing (3).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (1).PNG" alt="gpt_5_2_codex_summarizing (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (2).PNG" alt="gpt_5_2_codex_summarizing (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (3).PNG" alt="gpt_5_2_codex_summarizing (3).PNG" width="250"></img>
++
++#### 5.3
++
++I used GPT-5.3-Codex for a lot of tasks too and so far it brought me a lot of satisfaction!
++
++Notably, i used it to add the new Civilization ireland with new leaders, assets, etc. Plan done with the help of GPT-5.2-Thinking to save tokens and think more too xd thanks.
++
++I made a YouTube demo to show how it works and how impressive and useful Codex can be. It is very autonomous, follows instructions very well, and code just worked (i only had to fix one bug of not adding comments in an art file, else it just worked). The recording with OBS is a bit laggy for some reason but it works smoothly in VS Code! Thanks a lot GPT-5.3-Codex :)
++
++<a href="https://www.youtube.com/watch?v=ipSdRP7HcFs"><img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png" alt="gpt_5_3_codex_youtube_demo.png" width="640"></a>
+ 
+ ### Claude AI
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index 861d46ed6..e7573dd8c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -68,6 +68,7 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ | Holy Roman | Mysticism, Hunting | **Mysticism, Pottery** | Reads more like “Church + towns/guild/urban administration” than generic hunting, and unlocks their civ-specific building (Courthouse-based) sooner via the Pottery line. |
+ | Inca | Agriculture, Mysticism | **Pottery, Mining** | Andean mining/metallurgy (copper, arsenical bronze; large-scale gold/silver extraction) + state logistics makes Mining a great fit. Also supports Quechua @ **Iron Working** |
+ | India | Mysticism, Mining | **Mysticism, Mining** | Spiritual tradition + engineering; not an "amazing" pair. |
++| Ireland | / | **Fishing, Mysticism** | Maritime + monastic/cultural identity; balanced opener without Mining/Hunting spikes. |
+ | Japan | Fishing, The Wheel | **Fishing, Hunting** | Keeps maritime identity; **Jōmon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
+ | Khmer | Hunting, Mining | **Fishing, Hunting** | Tonlé Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
+ | Korea | Mining, Mysticism | **Fishing, Mining** | Keeps Mining (the more distinctive “Korea-coded” pillar: metals/engineering), and adds Fishing to reflect a peninsula/coastal civilization with strong maritime/trade exposure—without implying an early religion-race start. |
+@@ -93,8 +94,8 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ | Mining | 15 |
+ | Pottery | 15 |
+ | Hunting | 14 |
+-| Fishing | 13 |
+-| Mysticism | 13 |
++| Fishing | 14 |
++| Mysticism | 14 |
+ 
+ #### Starting pair counts (canonicalized; order-insensitive)
+ 
+@@ -109,12 +110,12 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ | Fishing + Mining    | 3     |
+ | Hunting + Mysticism | 3     |
+ | Hunting + Pottery   | 3     |
+-| Fishing + Mysticism | 2     |
++| Fishing + Mysticism | 3     |
+ 
+ **Sanity checks:**
+ 
+-- Pair counts sum to **35** civs.  
+-- Tech totals sum to **70** picks (5 techs × 14 each). ✅
++- Pair counts sum to **36** civs.  
++- Tech totals sum to **72** picks. ✅
+ 
+ ## Leaders' traits rework
+ 
+@@ -226,6 +227,7 @@ See below in the main table after changes as it includes the before values as we
+ | Ewuare | Imperialist, Spiritual | **Spiritual, Industrious** | Benin’s strong court/ritual religion. Benin’s strength = urban works (walls/ditches), craft guilds, and court art; expansion via hegemony/tribute more than settler-style growth. Industrious captures that better than Imperialist. |
+ | Frederick | Philosophical, Organized | **Philosophical, Creative** | Enlightenment/arts over bureaucracy. |
+ | Gandhi | Spiritual, Philosophical | **Keep** | Canonical fit. |
++| Grace O'Malley | Financial, Aggressive | **Keep** | Maritime raider profile and commerce fit; keep as-is. |
+ | Genghis Khan | Aggressive, Imperialist | **Keep** | Archetypal conqueror. |
+ | Gilgamesh | Protective, Creative | **Keep** | Walls/city defense + epic/civic culture. |
+ | Hammurabi | Organized, Aggressive | **Organized, Protective** | Lawgiver/city-builder; warfare largely pragmatic/defensive. |
+@@ -240,6 +242,7 @@ See below in the main table after changes as it includes the before values as we
+ | Lincoln | Philosophical, Charismatic | **Keep** | Moral/philosophical leadership + national unity. |
+ | Louis XIV | Industrious, Creative | **Keep** | Palace/works + arts and culture. |
+ | Mansa Musa | Spiritual, Financial | **Keep** | Pilgrimage/religion + trans-Saharan wealth. He was devout (Hajj, mosques), *and* a patron of learning (Timbuktu/Sankore). |
++| Michael Collins | Philosophical, Organized | **Keep** | Administrative/intelligence-state profile; keep as-is. |
+ | Mao Zedong | Expansive, Protective | **Aggressive, Protective** | Mass campaigns and external war (Civil War, Korea), purges, and militant mobilization read more "Aggressive" than "cheap administration." Protective still captures internal security/defense posture. `<!-- custom: i like this one very much as i think he was very brutal wasn't he xd, from very little i know about him -->` |
+ | Mehmed | Expansive, Organized | **Imperialist, Aggressive** | Siege monster and serial conqueror (Constantinople, Balkans, Anatolia); "The Conqueror" leans warlike more than "efficient administration." |
+ | Moctezuma | Aggressive, Spiritual | **Keep** | Militarism + ritual/faith. |
+@@ -269,17 +272,17 @@ See below in the main table after changes as it includes the before values as we
+ | Trait | Count |
+ | --- | ---: |
+ | Spiritual | 12 |
+-| Aggressive | 12 |
++| Aggressive | 13 |
+ | Imperialist | 12 |
+ | Charismatic | 11 |
+ | Industrious | 11 |
+-| Organized | 11 |
+-| Financial | 10 |
++| Organized | 12 |
++| Financial | 11 |
+ | Protective | 10 |
+-| Philosophical | 9 |
++| Philosophical | 10 |
+ | Creative | 8 |
+ 
+-Sanity: 53 leaders × 2 = 106 total assignments.
++Sanity: 55 leaders × 2 = 110 total assignments.
+ 
+ #### new pairs total count
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 10bc5ded0..bc909830f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -1,4 +1,4 @@
+-# Main Changes Guide
++﻿# Main Changes Guide
+ 
+ This guide highlights key differences between AdvCiv-SAS and AdvCiv 1.12. It’s intentionally practical and a bit verbose so newer players can follow the "what changed" and "why it matters." For technical details, see the main [README](/README.md) and the docs under [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
+ 
+@@ -510,12 +510,12 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ ### Civilizations
+ 
+-- New civs (e.g., **Kingdom of Benin**). See [World map with civs](/README.md#world-map-with-civs).
+-- **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **"pair"** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **4** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. See: [Assets Rebalancing table (starting-techs (civ list & rationale))](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#after-most-recent-as-of-now-rework), or the values and rankings only in the new **Sevopedia Techs' Starting Techs Charts**.
++- New civs: **Kingdom of Benin**; (Requires AdvCiv-SAS 5462+) **Ireland**. See also [World map with civs](/README.md#world-map-with-civs).
++- **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across civs (**~14 per tech**). A **"pair"** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **4** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. See: [Assets Rebalancing table (starting-techs (civ list & rationale))](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#after-most-recent-as-of-now-rework), or the values and rankings only in the new **Sevopedia Techs' Starting Techs Charts**.
+ 
+ ### Leaders
+ 
+-- New leaders: **Ewuare**.
++- New leaders: **Ewuare**; (Requires AdvCiv-SAS 5462+) **Grace O'Malley**, **Michael Collins**.
+ - Each leader now has **distinct leader music** (previous BTS/AdvCiv shared tracks split per leader). See [Copyright & disclaimer](/README.md#copyright-and-disclaimer). Note: switched **De Gaulle** from Louis' music in Base AdvCiv to Base Civ4's Napoleon's music, and added an AdvCiv-SAS specific new music for Napoleon so each leader has its own specific music, see [KI#98](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#98---fixed-base-advciv-issue-of-de-gaulle-using-louis-music-instead-of-the-music-common-to-de-gaulle-and-napoleon).
+ - **Trait overhaul:** Overhauled for historical fit + gameplay relevance. **Examples:**: Julius Caesar Organized + Imperialist → Aggressive + Imperialist *(military conqueror; offensive pressure)*; Hammurabi Organized + Aggressive → Organized + Protective *(lawgiver/administrator; defensive empire)*; Saladin Protective + Spiritual → Spiritual + Charismatic *(religious leader with battlefield charisma; warmonger in Civ IV terms)*; Isabella Spiritual + Expansive → Spiritual + Aggressive *(zealous, hard-edged campaigns)*; Charlemagne — Imperialistic + Protective → Aggressive + Organized *(although it is historically debatable, he emphasized conquest and administration; meshes with his more forceful Civ IV profile)*; Hatshepsut — Spiritual + Creative → Spiritual + Financial *(historical emphasis on trade/wealth; modest buff in practice)*. Full before/after with rationale in  [Assets Rebalancing table (Leader Traits)](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-traits-rework), or the values and rankings only in the new **Sevopedia Traits' Charts**. *Note: leader "flavors" unchanged.*
+ - (Requires AdvCiv-SAS 5461+) **fix** leaders **inconsistently not having 150** as the total of their **BBAI victory weights**: (iCultureVictoryWeight, iSpaceVictoryWeight, iConquestVictoryWeight, iDominationVictoryWeight, iDiplomacyVictoryWeight, 150): (`LEADER_BISMARCK`, 20, 25, 25, 30, 40, 140) -> 20, 25, 25, 35, 45, 150; (`LEADER_BRENNUS`, 0, 30, 30, 50, 30, 140) -> 0, 30, 35, 55, 30, 140; (`LEADER_LINCOLN`, 10, 35, 35, 15, 45, 140) -> 10, 40, 35, 15, 50, 150; (`LEADER_RAMESSES`, 25, 25, 35, 35, 20, 140) -> 35, 25, 35, 35, 20, 150.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_References.md b/_1_AdvCiv-SAS/Docs/README_References.md
+index ffdf18e40..692347f59 100644
+--- a/_1_AdvCiv-SAS/Docs/README_References.md
++++ b/_1_AdvCiv-SAS/Docs/README_References.md
+@@ -31,10 +31,12 @@ For mods we took from, i mention them in more detail, hopefully exhaustive but i
+ - `LEADER_ALEXANDER`: The Companions (Ancient Macedon Battle Music - Alexander the Great) (Composed by Tyler Cunningham) ([youtube link of it for example](https://www.youtube.com/watch?v=qw8OqQUkRB0)), seems safe to use according to a youtube comment by the author seemingly, thanks a lot
+ - `LEADER_BOUDICA`: Epic Celtic/Scottish  War Drums - The Highland Warriors © Copyright: Music composed by Paul Daniel (Pawl.D Beats) [youtube link of it for example](https://www.youtube.com/watch?v=kenexJF5sSc), seems safe too based on their website, it is up to me to notify them of such use according to website though (which i did), but should be mostly safe otherwise thankfully/hopefully, thanks
+ - `LEADER_CYRUS`: Persian Battle (Royalty Free Music) (Composed by Ivan Duch (check to be sure)) ([youtube link from Ivan Duch's channel (check to be sure)](https://www.youtube.com/watch?v=KibCABcsAy0)), seems safe as is royalty-free or so it seems (i.e. ) but check to be sure
+-- `LEADER_EWUARE`: African Tribal Music (BackgroundMusicForVideos) - Music by [Maksym Malko](https://pixabay.com/users/backgroundmusicforvideos-46459014/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=342635) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=342635), here if helps as well although is not the formal credit link in their website else tell me to remove it but if fine here it is i mean in [pixabay's website - link where it can be found too](https://pixabay.com/music/world-african-tribal-music-342635/)
++- `LEADER_EWUARE`: African Tribal Music (BackgroundMusicForVideos) - Music by [Maksym Malko](https://pixabay.com/users/backgroundmusicforvideos-46459014/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=342635) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=340334), here if helps as well although is not the formal credit link in their website else tell me to remove it but if fine here it is i mean in [pixabay's website - link where it can be found too](https://pixabay.com/music/world-african-tribal-music-342635/)
+ - `LEADER_GENGHIS_KHAN`: Original track [Tömörbaatar, the Iron Hero] by Kaiji [youtube link seemingly from creator too](https://www.youtube.com/watch?v=6mErFCHsi1g), seems royalty-free too and according to chatgpt's answer to my prompt about it, thanks
++- `LEADER_GRACE_OMALLEY`: Highlands Sun - Celtic Irish Scottish Music Loop - Music by [Dvir Silverstone](https://pixabay.com/users/sonican-38947841/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=340334) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=342635), here if helps as well although is not the formal credit link in their website else tell me to remove it but if fine here it is i mean in [pixabay's website - link where it can be found too](https://pixabay.com/music/ireland-highlands-sun-celtic-irish-scottish-music-loop-340334/)
+ - `LEADER_JULIUS_CAESAR`: Epic Roman Music – Battle March (~ Music by Derek Fiechter ~) [youtube link of it for example](https://www.youtube.com/watch?v=EW8fI6N6szs), should be safe as it seems to come from same author than what we reviewed as of now for LEADER_BOUDICA too, thanks,
+ - `LEADER_MEHMED`: Old Ottoman turkish Music - Şehnaz Longa - Composer Santuri Ethem Efendi *1855 (start at 0:03.000) [youtube link of it for example](https://www.youtube.com/watch?v=7MN4DN06xc8), seems copyright safe according to chatgpt as well (it said to be exhaustive or bit more"Composition: Definitely public domain (composer died over 140 years ago)." and then right after it reformatted to fit in this sentence"Recording: Likely non-commercial and personal uploads, with no rights enforcement to date. Unknown exact performer or recording date/release, so slight unknowns persist—but no red flags.")
++- `LEADER_MICHAEL_COLLINS`: Cara - Relaxing Celtic Irish Music - Music by [Paul Winter](https://pixabay.com/users/kaazoom-448850/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=447794) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=447794), here if helps as well although is not the formal credit link in their website else tell me to remove it but if fine here it is i mean in [pixabay's website - link where it can be found too](https://pixabay.com/music/ireland-cara-relaxing-celtic-irish-music-447794/)
+ - `LEADER_NAPOLEON`: info i have as of now is: Symphony No. 25 In G Minor K. 183 Mozart - Uploaded by Netfocus Universal on October 11, 2013 [downloaded from archive.org (as mp3 too) thanks to chatgpt's recommendation and link](https://archive.org/details/SymphonyNo.25InGMinorK.183?utm_source=chatgpt.com), seems safe to use as well as it comes frm archive.org as/according to what i understand from chatgpt's explanation as well on top of hwat i intutively already knew or guessed maybe rather, as for the recording, no clear mention of it either, but providing most if not all info about it to chatgpt, it seems to be safe, but not 100% sure but almost, check to be sure, better phrased or alternatively by chatgpt as such: "This recording (Netfocus Universal, 2013) was uploaded to archive.org’s Folksoundomy collection, a large open-access archive of volunteer-submitted audio. No explicit license is stated, but source context suggests it is non-commercial and likely safe for educational use.", i am not 100% sure but almost so should be maybe safe (but i may be mistaken check to be sure). Note: this music was recommended to me after asking chatgpt after/since i couldn't find any suitable or fitting music or had too many ideas xd, and we analyzed napoleon's psychology and life briefly and after many painstaking suggestions here it is, i really like it i mean, it's really a cool music :) This one seems copyright safe (but check to be sure) and sounds quite well if not very well but in all cases
+ - `LEADER_RAMESSES`: Ancient Egyptian Music – Pharaoh Ramses II, composer seems to be Derek Fiechter's Music (start at 00:02.425) [youtube link directly from Derek Fiechter's Music's channel](https://www.youtube.com/watch?v=vslsS-Uu5x4), should also be safe as reviewed before for LEADER_JULIUS_CAESAR's music at least as of now who seems to also come/be from/by the same artist Derek Fiechter i mean
+ - `LEADER_STALIN`: Music: Soviet March by Shane Ivers - [https://www.silvermansound.com](https://www.silvermansound.com), seems safe to use and under creative commons license by 4.0, personally i found it here thanks to chatgpt who gave me this link, thanks [silvermansound.com link provided by chatgpt directly to this music](https://www.silvermansound.com/free-music/soviet-march?utm_source=chatgpt.com)
+@@ -66,7 +68,7 @@ For mods we took from, i mention them in more detail, hopefully exhaustive but i
+ 
+ ## Note about the audio in main menu
+ 
+-Sound seems strangely louder at first game launch, but then accesing main menu again from a loaded save file or such ingame map state, then the sound in main menu is seemingly quieter so amking it a bit louder to accomodate that so it is not too low when acessing main menu again from ingame map view. Also, sounds seems blurrier (ironic since this is a lofi music as of now if i'm not msitaken but i still want it accurate xd, and assuming my perception of it being blurrier is also correct as well as this is not sure and maybe it sounds the same or the same enough regardless of xml volume then increasing system/computer volume per user action or not) the lower i put the music sound/volume, although it could be just my perception, or maybe not (?), i'd rather have a higher volume just in case. If you want to listen to the real audio, link is in the main readme.md 's copyright section at `SONG_OPENING_MENU`, or alternatively also accessible in our mod locally as well, as of now here in the [main menu music folder](/Assets/Art/AdvCiv_SAS/Main_Menu/music/).
++Sound seems strangely louder at first game launch, but then accesing main menu again from a loaded save file or such ingame map state, then the sound in main menu is seemingly quieter so amking it a bit louder to accomodate that so it is not too low when acessing main menu again from ingame map view. Also, sounds seems blurrier (ironic since this is a lofi music as of now if i'm not mistaken but i still want it accurate xd, and assuming my perception of it being blurrier is also correct as well as this is not sure and maybe it sounds the same or the same enough regardless of xml volume then increasing system/computer volume per user action or not) the lower i put the music sound/volume, although it could be just my perception, or maybe not (?), i'd rather have a higher volume just in case. If you want to listen to the real audio, link is in the main readme.md 's copyright section at `SONG_OPENING_MENU`, or alternatively also accessible in our mod locally as well, as of now here in the [main menu music folder](/Assets/Art/AdvCiv_SAS/Main_Menu/music/).
+ 
+ ## Credits
+ 
+@@ -78,6 +80,7 @@ too too, thanks,
+ - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
+ - Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too, thanks, thanks,
+ - Beyond the Game mod: notably version 2.43 from which i took maps like [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) which i adjusted for AdvCiv-SAS with GPT-5.3-Codex's help thanks a lot.
++- Civ Gold 5.2 mod, that has many leaderheads nifs! Notably i took Ireland flag's dds from there thanks :)
+ - Neoteric World (that i may call NW sometimes): i imported some content such as tech buttons (for example of the marine technology advciv-sas tech, based on their heavy water tech), and their fpk is incredibly nice!!! It's all All in one rather.. fpk file so very nice, cleanly and very easily found the .dds with dragon unpacker, and not nested at all so very easy to find, only downside of such a design is filenames are dependent on being clear which asset they relate to (for example i'd rather keep original file name of the mod heavywater.dds for reference and ease of use, but if i do so and i have many .dds in particular, it would be very messy to remember which filename belongs to which advciv-sas asset, so i find one level of nesting (i.e. one wrapping folder) fine (folder name has the advciv-sas asset name or closest or close to it, while filename is free for compatibility too in particular for nifs and such, but also for reference to know which file it is in other mods too if needed))
+ - Civ4 Reimagined, thanks to which i could confirm (at least it is now most likely to be so if i'm not mistaken) (with chatgpt 5's help as well but i wanted to double check if a mod used the following pattern for era xml lookups and comparisonsand it was the only one among all mods i had installed) that the pattern `GC.getTechInfo(eDiscoveryTech).getEra() >= (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE")` to do xml era lookups and comparisons seems safe or safe enough to use since other mods use it and it is cleaner than magic numbers i mean if i may say and as chatgpt 5 recommended as well but check to be sure.
+ - Realism Invictus (also know as RI): to be honest their FPKs are shit and so ridiculously fragmented in so many parts, but at least they provide an SVN version where i can grab the files easily without having to use fpks at all, so i'm not gonna complain.
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (1).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (1).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (1).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (1).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (2).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (2).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (2).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (2).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (3).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (3).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (3).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (3).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (4).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (4).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (4).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (4).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (5).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (5).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (5).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (5).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (6).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (6).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5.2_red_x_new_art (6).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/chatgpt_5_2_red_x_new_art (6).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (1).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (1).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (1).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (1).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (2).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (2).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (2).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (2).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (3).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (3).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/codex_ gpt_5.2_handicaps_chart (3).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_handicaps_chart (3).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (1).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (1).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (1).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (1).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (2).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (2).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (2).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (2).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (3).PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (3).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_codex_summarizing (3).PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_2_codex_summarizing (3).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png b/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png
+new file mode 100644
+index 000000000..04dbade7a
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/llm_agentic_tools/gpt_5_3_codex_youtube_demo.png differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+index 968460eb3..da7f2307f 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG
+index dca8cfad1..1eed8eed6 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG
+index 2d84ba8d6..8cb4d1761 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG
+index 4aafaf0b2..6469a22f6 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG
+index df6f594a2..42e8a9351 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (3).JPG
+index ac5e0b3ed..d9f549c62 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG
+index eee39f664..ae4d7fedc 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG
+index 0e4db44e6..86a0de40f 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG
+index 1a80d8596..3d3af0d3c 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=109 embeddedFiles=108 omittedFiles=1 embeddedPatchBytes=168930

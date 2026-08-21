@@ -1,0 +1,142 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2133
+# Commit: a3d27c12a1ad061c07db2e9d74ccdd65d06e3348
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 65bd344e5b6cccd531c2db864399aba8b4623ad7
+# Title: A few minor refactoring, comment changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayer.cpp
+12	11	CvGameCoreDLL/CvPlayerAI.cpp
+2	0	CvGameCoreDLL/CvPlot.cpp
+3	3	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+1	1	CvGameCoreDLL/KmodPathFinder.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 8cf666577..f033f7ee2 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -12646,7 +12646,7 @@ void CvPlayer::postProcessMessages()
+ 		{
+ 			/*  Show major events even if the Turn Log gets opened. As with
+ 				NewMessages, CvPlayer needs to keep track of the recent messages;
+-				use MajorMsgs for that. */
++				use aMajorMsgs for that. */
+ 			for(size_t i = 0; i < m_aMajorMsgs.size(); i++)
+ 				gDLL->UI().showMessage(*m_aMajorMsgs[i]);
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a88bd52d9..61ac2a10e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -665,25 +665,26 @@ void CvPlayerAI::AI_doPeace()  // advc: refactored
+ 		{
+ 			continue;
+ 		}
+-		TradeData item(TRADE_PEACE_TREATY);
+ 		// advc: Replacing two canTradeItem calls
+-		if(getTradeDenial(eTarget, item) != NO_DENIAL ||
+-			kTarget.getTradeDenial(getID(), item) != NO_DENIAL)
++		if(getTradeDenial(eTarget, TradeData(TRADE_PEACE_TREATY)) != NO_DENIAL ||
++			kTarget.getTradeDenial(getID(), TradeData(TRADE_PEACE_TREATY)) != NO_DENIAL)
+ 		{
+ 			continue;
+ 		}
+-		int iOurValue = GET_TEAM(getTeam()).AI_endWarVal(kTarget.getTeam());
+-		int iTheirValue = GET_TEAM(eTarget).AI_endWarVal(getTeam());
++		scaled rOurValue = GET_TEAM(getTeam()).AI_endWarVal(kTarget.getTeam());
++		scaled rTheirValue = GET_TEAM(eTarget).AI_endWarVal(getTeam());
+ 		// <advc.134a> Human discount
+ 		if(kTarget.isHuman())
+ 		{
+-			double const discountFactor = 1.2;
+-			if(iOurValue > 0)
+-				iOurValue = ::round(iOurValue * discountFactor);
+-			else iOurValue = ::round(iOurValue / discountFactor);
++			scaled const rDiscountFactor = fixp(1.2);
++			if(rOurValue > 0)
++				rOurValue = rOurValue * rDiscountFactor;
++			else rOurValue = rOurValue / rDiscountFactor;
+ 		} // </advc.134a>
+-		// advc.104h:
+-		abContacted[kTarget.getTeam()] = AI_negotiatePeace(eTarget, iTheirValue, iOurValue);
++		// <advc.104h>
++		abContacted[kTarget.getTeam()] = AI_negotiatePeace(
++				eTarget, rTheirValue.round(), rOurValue.round());
++		// </advc.104h>
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 10929e8b9..c56c15fdc 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -77,6 +77,7 @@ CvPlot::CvPlot() // advc: Merged with the deleted reset function
+ 	m_eRouteType = NO_ROUTE;
+ 	m_eRiverNSDirection = NO_CARDINALDIRECTION;
+ 	m_eRiverWEDirection = NO_CARDINALDIRECTION;
++
+ 	m_plotCity.reset();
+ 	m_workingCity.reset();
+ 	m_workingCityOverride.reset();
+@@ -4862,6 +4863,7 @@ void CvPlot::setRuinsName(CvWString const& szName)
+ 	SAFE_DELETE_ARRAY(m_szMostRecentCityName);
+ 	if (szName.empty())
+ 		return;
++	// Copying szName.c_str() into a C string takes some work
+ 	wchar* szBuffer = new wchar[szName.length() + 1]; // +1 for \0
+ 	wcsncpy(szBuffer, szName.c_str(), szName.length() + 1);
+ 	m_szMostRecentCityName = szBuffer;
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 81d7068b4..90f749e69 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -1214,8 +1214,7 @@ void CvXMLLoadUtility::SetGlobalClassInfo(std::vector<T*>& aInfos, const char* s
+ 	{
+ 		// if we successfully locate the szTagName node
+ 		if (gDLL->getXMLIFace()->LocateNode(m_pFXml, szTagName))
+-		{
+-			/*	<advc.rh> Comment by rheinig: "Major bug:
++		{	/*	<advc.rh> Comment by rheinig: "Major bug:
+ 				The following maps records as currently present in the info array,
+ 				beginning with the first, to elements in the XML, beginning with the
+ 				first, one by one, and does a (<T>).readPass2() on these pairs.
+@@ -1367,7 +1366,8 @@ void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
+ 			errorMessage(szMessage, XML_LOAD_ERROR);
+ 		}
+ 		else
+-		{	/*	<advc.rh> Comment by rheinig: "Because the Event tables contain
++		{
++			/*	<advc.rh> Comment by rheinig: "Because the Event tables contain
+ 				member arrays dimensioned to their own count, we need to delay pass 2
+ 				for the monolithic XML until after pass 1 has run for the modules.
+ 				Thus, the 'pass' parameter of SetGlobalClassInfo now indicates the
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index 7fe685522..17a32b799 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -66,7 +66,7 @@ KmodPathFinder::~KmodPathFinder()
+ 
+ bool KmodPathFinder::ValidateNodeMap()
+ {
+-	//PROFILE_FUNC(); // advc.003o
++	PROFILE_FUNC(); // advc.003o  // advc.test: Let's check again how often this gets called
+ 	if (!GC.getGame().isFinalInitialized())
+ 		return false;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=4698

@@ -1,0 +1,154 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5518
+# Commit: c283deeb1eb2782bff441312670564ea0a756b98
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 238d35129e6e03306fe0ce6a720ab0da31bcb661
+# Title: upscale hover text
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+17	1	Assets/Python/SASFontUtils.py
+3	1	Assets/Python/Screens/CvMainInterface.py
+8	3	Assets/XML/GlobalDefines_advciv_sas.xml
+13	0	CvGameCoreDLL/CvDLLWidgetData.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/SASFontUtils.py b/Assets/Python/SASFontUtils.py
+index b1942b7b7..ccc179e75 100644
+--- a/Assets/Python/SASFontUtils.py
++++ b/Assets/Python/SASFontUtils.py
+@@ -9,7 +9,8 @@ def _getFontSizeOrDefault(szDefineName, iDefault):
+ 		return _FONT_SIZE_CACHE[szDefineName]
+ 	iSize = gc.getDefineINT(szDefineName)
+ 	if iSize < 1 or iSize > 4:
+-		print("SASFontUtils: invalid or unavailable %s=%d; using default %d" % (szDefineName, iSize, iDefault))
++		if iDefault > 0:
++			print("SASFontUtils: invalid or unavailable %s=%d; using default %d" % (szDefineName, iSize, iDefault))
+ 		return iDefault
+ 	# Cache once valid to avoid repeated define lookups.
+ 	_FONT_SIZE_CACHE[szDefineName] = iSize
+@@ -32,6 +33,18 @@ def getSASUIFontTitle():
+ 	return _getFontSizeOrDefault("SAS_UI_FONT_TITLE", 4)
+ 
+ 
++def getSASUIFontHover():
++	# Returns 0 (disabled) or 1-4. 0 means no hover font scaling.
++	szName = "SAS_UI_FONT_HOVER"
++	if szName in _FONT_SIZE_CACHE:
++		return _FONT_SIZE_CACHE[szName]
++	iSize = gc.getDefineINT(szName)
++	if iSize < 0 or iSize > 4:
++		return 0
++	_FONT_SIZE_CACHE[szName] = iSize
++	return iSize
++
++
+ class _DynamicFontTag:
+ 	def __init__(self, szDefineName, iDefault, bBold):
+ 		self.szDefineName = szDefineName
+@@ -40,6 +53,8 @@ class _DynamicFontTag:
+ 
+ 	def _build(self):
+ 		iSize = _getFontSizeOrDefault(self.szDefineName, self.iDefault)
++		if iSize < 1:
++			return u""
+ 		if self.bBold:
+ 			return u"<font=%db>" % iSize
+ 		return u"<font=%d>" % iSize
+@@ -63,6 +78,7 @@ SAS_FONT_TAG_TINY = _DynamicFontTag("SAS_UI_FONT_TINY", 1, False)
+ SAS_FONT_TAG_BODY = _DynamicFontTag("SAS_UI_FONT_BODY", 2, False)
+ SAS_FONT_TAG_LABEL = _DynamicFontTag("SAS_UI_FONT_LABEL", 3, False)
+ SAS_FONT_TAG_TITLE = _DynamicFontTag("SAS_UI_FONT_TITLE", 4, False)
++SAS_FONT_TAG_HOVER = _DynamicFontTag("SAS_UI_FONT_HOVER", 0, False)
+ 
+ SAS_FONT_TAG_TINY_BOLD = _DynamicFontTag("SAS_UI_FONT_TINY", 1, True)
+ SAS_FONT_TAG_BODY_BOLD = _DynamicFontTag("SAS_UI_FONT_BODY", 2, True)
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 44b795a6a..790f39460 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -7614,7 +7614,9 @@ class CvMainInterface:
+ 		else:
+ 			szHelpText = CyInterface().getHelpString()
+ 			if (szHelpText.find("<font=") == -1):
+-				szHelpText = SAS_FONT_TAG_BODY + szHelpText + SAS_FONT_TAG_CLOSE
++				szTag = SAS_FONT_TAG_HOVER._build()
++				if szTag:
++					szHelpText = szTag + szHelpText + SAS_FONT_TAG_CLOSE
+ 			screen.setHelpTextString(szHelpText)
+ 		return 0
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index c9e6c9add..25c313902 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -324,23 +324,28 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited. Keep in [1..4]. (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_TINY</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
++		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: shared UI body font size for standard list/table/content text. Keep in [1..4]. (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_BODY</DefineName>
+-		<iDefineIntVal>2</iDefineIntVal>
++		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4]. (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_LABEL</DefineName>
+-		<iDefineIntVal>3</iDefineIntVal>
++		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: shared UI title font size for advisor/screen titles and primary action text. Keep in [1..4]. (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_TITLE</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
++	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default). Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). (Claude code Opus 4.6) -->
++	<Define>
++		<DefineName>SAS_UI_FONT_HOVER</DefineName>
++		<iDefineIntVal>4</iDefineIntVal>
++	</Define>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 4c1e31655..3e9322359 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -787,6 +787,19 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
+ 				widgetDataStruct.m_iData2, true, szBuffer);
+ 		break;
+ 	}
++	// <!-- custom: Optionally upscale hover help text via SAS_UI_FONT_HOVER define (Claude code Opus 4.6) -->
++	if (!szBuffer.isEmpty())
++	{
++		static int const iFontSize = GC.getDefineINT("SAS_UI_FONT_HOVER");
++		if (iFontSize >= 1 && iFontSize <= 4)
++		{
++			CvWString szWrapped;
++			szWrapped.Format(L"<font=%d>", iFontSize);
++			szWrapped.append(szBuffer.getCString());
++			szWrapped.append(L"</font>");
++			szBuffer.assign(szWrapped);
++		}
++	} // <!-- custom: (Claude code Opus 4.6) -->
+ 	if (getActivePlayer() == NO_PLAYER)
+ 		return;
+ 	static WidgetTypes aeExpandTypes[] =
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=5192

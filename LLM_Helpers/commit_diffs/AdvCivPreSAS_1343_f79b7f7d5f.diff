@@ -1,0 +1,482 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1343
+# Commit: f79b7f7d5f20bd18b1fd57dd31bab87d0bbfdf6c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 87132b36aec4044d6eb4f7e9eeeabe7cb7246d11
+# Title: Tried to reduce the flickering of the war trades alert
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	0	Assets/xml/Text/CIV4GameText_advc.xml
+27	14	CvGameCoreDLL/AdvCiv4lerts.cpp
+1	0	CvGameCoreDLL/AdvCiv4lerts.h
+1	1	CvGameCoreDLL/InvasionGraph.cpp
+66	30	CvGameCoreDLL/WarAndPeaceAI.cpp
+3	0	CvGameCoreDLL/WarAndPeaceAI.h
+38	2	CvGameCoreDLL/WarAndPeaceCache.cpp
+6	0	CvGameCoreDLL/WarAndPeaceCache.h
+7	3	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 6515c7b13..e75cc3124 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -2121,6 +2121,24 @@
+ 		<Italian>Visualizza un avviso ogni volta che un comandante AI diventa (o smette di essere) disposto a iniziare una guerra su sua richiesta.</Italian>
+ 		<Spanish>Muestra una alerta cada vez que un l�der de IA se convierte (o deja de estar) dispuesto a iniciar una guerra a petici�n suya.</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIV4LERTS_TRADE_WAR_MULTI</Tag>
++		<English>%s1_TeamName can be convinced to start a war against</English>
++		<French>%s1_TeamName pourrait �tre dispos� � commencer la guerre contre</French>
++		<German>%s1_TeamName w�re bereit zu einem Krieg gegen</German>
++		<Italian>%s1_TeamName potrebbe essere indotto � cominciare la guerra contro</Italian>
++		<Spanish>%s1_TeamName es dispuesto a comenzar la guerra</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIV4LERTS_NO_LONGER_TRADE_WAR_MULTI</Tag>
++		<English>%s1_TeamName can no longer be convinced of a war against</English>
++		<French>%s1_TeamName ne pourrait plus �tre dispos� � une guerre contre</French>
++		<German>%s1_TeamName ist nicht mehr bereit zu einen Krieg gegen</German>
++		<Italian>%s1_TeamName non potrebbe pi� essere indotto � una guerra contro</Italian>
++		<Spanish>%s1_TeamName ya no es dispuesto a una guerra contra</Spanish>
++	</TEXT>
++	<!-- advc.tmp: To be removed later; for now, I want the v0.92f DLL
++		 to remain compatible with the XML and Python files.-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV4LERTS_TRADE_WAR</Tag>
+ 		<English>%s1_TeamName can be convinced to start a war against %s2_TeamName.</English>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index 603f0f065..fcb9b7e49 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -95,6 +95,8 @@ void WarTradeAlert::check() {
+ 				warTeam.getID() != owner.getTeam() &&
+ 				!warTeam.isAtWar(owner.getTeam()) &&
+ 				owner.canContactAndTalk(warTeam.getLeaderID()));
++		std::vector<TeamTypes> willTradeMsgTeams;
++		std::vector<TeamTypes> noLongerTradeMsgTeams;
+ 		for(int j = 0; j < MAX_CIV_TEAMS; j++) {
+ 			CvTeam const& victim = GET_TEAM((TeamTypes)j);
+ 			bool newValue = (valid && victim.isAlive() && !victim.isAVassal() &&
+@@ -109,24 +111,35 @@ void WarTradeAlert::check() {
+ 			if(newValue == willWar[i][j])
+ 				continue;
+ 			willWar[i][j] = newValue;
+-			if(newValue) {
+-				msg(gDLL->getText("TXT_KEY_CIV4LERTS_TRADE_WAR",
+-						warTeam.getName().GetCString(),
+-						victim.getName().GetCString()),
+-						// advc.127b:
+-						NULL, warTeam.getCapitalX(), warTeam.getCapitalY());
+-			}
++			if(newValue)
++				willTradeMsgTeams.push_back(victim.getID());
+ 			/*  Obviously can't hire warTeam if it has already declared war
+ 				or if victim has been eliminated. */
+-			else if(victim.isAlive() && !warTeam.isAtWar(victim.getID())) {
+-				msg(gDLL->getText("TXT_KEY_CIV4LERTS_NO_LONGER_TRADE_WAR",
+-						warTeam.getName().GetCString(),
+-						victim.getName().GetCString()),
+-						// advc.127b:
+-						NULL, warTeam.getCapitalX(), warTeam.getCapitalY());
+-			}
++			else if(victim.isAlive() && !warTeam.isAtWar(victim.getID()))
++				noLongerTradeMsgTeams.push_back(victim.getID());
+ 		}
++		msg(warTeam.getID(), willTradeMsgTeams, true);
++		msg(warTeam.getID(), noLongerTradeMsgTeams, false);
++	}
++}
++
++void WarTradeAlert::msg(TeamTypes warTeamId, std::vector<TeamTypes> victims,
++		bool bTrade) {
++
++	if(victims.empty())
++		return;
++	CvTeam const& warTeam = GET_TEAM(warTeamId);
++	CvWString text = gDLL->getText((bTrade ? "TXT_KEY_CIV4LERTS_TRADE_WAR_MULTI" :
++			"TXT_KEY_CIV4LERTS_NO_LONGER_TRADE_WAR_MULTI"),
++			warTeam.getName().GetCString()) + L" ";
++	for(size_t i = 0; i < victims.size(); i++) {
++		text += GET_TEAM(victims[i]).getName();
++		if(i != victims.size() - 1)
++			text += L", ";
++		else text += L".";
+ 	}
++	AdvCiv4lert::msg(text, NULL,
++			warTeam.getCapitalX(), warTeam.getCapitalY()); // advc.127b
+ } // </advc.210a>
+ 
+ // <advc.210b>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.h b/CvGameCoreDLL/AdvCiv4lerts.h
+index 5a0205951..09ba25bc5 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.h
++++ b/CvGameCoreDLL/AdvCiv4lerts.h
+@@ -38,6 +38,7 @@ protected:
+ 	void check();
+ 	void reset();
+ private:
++	void msg(TeamTypes warTeamId, std::vector<TeamTypes> victims, bool bTrade);
+ 	bool willWar[MAX_CIV_TEAMS][MAX_CIV_TEAMS];
+ }; // </advc.210a>
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 52c6d98bb..386eb0fba 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -1980,7 +1980,7 @@ void InvasionGraph::breakCycle(vector<Node*> const& cyc) {
+ 	war allies, regardless of circumstances. This function is about gauging
+ 	rationally whether a war party ('agg') is willing to commit resources
+ 	against another ('def').
+-	This is to make sure that the AI can't be goaded into a joint war by a human civ,
++	This is to make sure that the AI can't be goaded into a joint war by a human,
+ 	and that joint wars are generally expensive enough. */
+ double InvasionGraph::willingness(PlayerTypes agg, PlayerTypes def) const {
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 63a09fab4..947b7295e 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -264,9 +264,19 @@ void WarAndPeaceAI::Team::doWar() {
+ 		closeReport();
+ 		return;
+ 	}
+-	if(reviewWarPlans())
++	WarAndPeaceCache& cache = leaderCache();
++	if(reviewWarPlans()) {
+ 		scheme();
+-	else report->log("No scheming b/c clearly busy with current wars");
++		for(int i = 0; i < MAX_CIV_TEAMS; i++) {
++			if(agent.AI_isSneakAttackPreparing((TeamTypes)i))
++				cache.setCanBeHiredAgainst((TeamTypes)i, true);
++		}
++	}
++	else {
++		report->log("No scheming b/c clearly busy with current wars");
++		for(int i = 0; i < MAX_CIV_TEAMS; i++)
++			cache.setCanBeHiredAgainst((TeamTypes)i, false);
++	}
+ 	closeReport();
+ }
+ 
+@@ -1066,9 +1076,8 @@ int WarAndPeaceAI::Team::tradeValJointWar(TeamTypes targetId,
+ 	int u = uJointWar(targetId, allyId);
+ 	if(u < 0)
+ 		return 0;
+-	/*  Same as in declareWarTrade. But could allow higher values in
+-		AI-AI trades ... */
+-	int const thresh = 35;
++	// NB: declareWarTrade applies an additional threshold
++	int const thresh = dwtUtilityThresh;
+ 	return ::round(utilityToTradeVal(std::min(u, thresh)));
+ }
+ 
+@@ -1094,7 +1103,7 @@ bool WarAndPeaceAI::Team::canSchemeAgainst(TeamTypes targetId,
+ 	/*  advc.130o: Shouldn't attack right after peace from demand; therefore
+ 		don't plan war during the peace treaty. */
+ 	if(agent.isForcePeace(targetId) && agent.AI_getMemoryCount(
+-				targetId, MEMORY_ACCEPT_DEMAND) > 0)
++			targetId, MEMORY_ACCEPT_DEMAND) > 0)
+ 		return false;
+ 	return target.isAlive() && !target.isMinorCiv() && agent.isHasMet(targetId) &&
+ 			!target.isAVassal() && target.getNumCities() > 0 && (assumeNoWarPlan ||
+@@ -1134,10 +1143,13 @@ void WarAndPeaceAI::Team::scheme() {
+ 	double totalDrive = 0;
+ 	CvLeaderHeadInfo& lh = GC.getLeaderHeadInfo(GET_PLAYER(agent.getLeaderID()).
+ 			getPersonalityType());
++	WarAndPeaceCache& cache = leaderCache();
+ 	for(size_t i = 0; i < getWPAI._properTeams.size(); i++) {
+ 		TeamTypes targetId = getWPAI._properTeams[i];
+-		if(!canSchemeAgainst(targetId))
++		if(!canSchemeAgainst(targetId)) {
++			cache.setCanBeHiredAgainst(targetId, false);
+ 			continue;
++		}
+ 		report->log("Scheming against %s", report->teamName(targetId));
+ 		bool shortWork = isPushover(targetId);
+ 		if(shortWork)
+@@ -1177,6 +1189,14 @@ void WarAndPeaceAI::Team::scheme() {
+ 		else report->log("%s %s war has %d utility", (total ? "total" : "limited"),
+ 				(((total && totalNaval) || (!total && limitedNaval)) ?
+ 				"naval" : ""), u);
++		bool const canHireOld = cache.canBeHiredAgainst(targetId);
++		cache.updateCanBeHiredAgainst(targetId, u, dwtUtilityThresh);
++		bool const canHireNew = cache.canBeHiredAgainst(targetId);
++		if(canHireOld != canHireNew) {
++			if(canHireNew)
++				report->log("Can now (possibly) be hired for war against target");
++			else report->log("Can no longer be hired for war against target");
++		}
+ 		if(u <= 0)
+ 			continue;
+ 		double drive = u;
+@@ -1246,31 +1266,35 @@ DenialTypes WarAndPeaceAI::Team::declareWarTrade(TeamTypes targetId,
+ 
+ 	if(!canReach(targetId))
+ 		return DENIAL_NO_GAIN;
+-	WarAndPeaceReport silentReport(true);
+-	PlayerTypes sponsorLeaderId = GET_TEAM(sponsorId).getLeaderID();
+-	WarEvalParameters params(agentId, targetId, silentReport, false,
+-			sponsorLeaderId);
+-	WarEvaluator eval(params, true);
+-	int u = eval.evaluate(WARPLAN_LIMITED);
+-	int utilityThresh = -32;
+-	if(u > utilityThresh) {
+-		if(GET_TEAM(sponsorId).isHuman()) {
+-			int humanTradeVal = -1;
+-			leaderWpai().canTradeAssets(::round(utilityToTradeVal(utilityThresh)),
+-					sponsorLeaderId, &humanTradeVal,
+-					// AI doesn't accept cities as payment for war
+-					true);
+-			// Don't return NO_DENIAL if human can't pay enough
+-			utilityThresh = std::max(utilityThresh,
+-					-::round(tradeValToUtility(humanTradeVal)));
++	/*  Check canBeHiredAgainst only in large games (to reduce the number of
++		war trade alerts seen by humans) */
++	if(!GET_TEAM(sponsorId).isHuman() || GET_TEAM(sponsorId).getHasMetCivCount() < 8 ||
++			leaderCache().canBeHiredAgainst(targetId)) {
++		int utilityThresh = dwtUtilityThresh + 2;
++		WarAndPeaceReport silentReport(true);
++		PlayerTypes sponsorLeaderId = GET_TEAM(sponsorId).getLeaderID();
++		WarEvalParameters params(agentId, targetId, silentReport, false,
++				sponsorLeaderId);
++		WarEvaluator eval(params, true);
++		int u = eval.evaluate(WARPLAN_LIMITED);
++		if(u > utilityThresh) {
++			if(GET_TEAM(sponsorId).isHuman()) {
++				int humanTradeVal = -1;
++				leaderWpai().canTradeAssets(::round(utilityToTradeVal(
++						utilityThresh)), sponsorLeaderId, &humanTradeVal,
++						true); // AI doesn't accept cities as payment for war
++				// Don't return NO_DENIAL if human can't pay enough
++				utilityThresh = std::max(utilityThresh,
++						-::round(tradeValToUtility(humanTradeVal)));
++			}
++			if(u > utilityThresh)
++				return NO_DENIAL;
+ 		}
+-		if(u > utilityThresh)
+-			return NO_DENIAL;
++		/* "Maybe we'll change our mind" when it's (very) close?
++			No, don't provide this info after all. */
++		/*if(u > utilityThresh - 5)
++			return DENIAL_RECENT_CANCEL;*/
+ 	}
+-	/* "Maybe we'll change our mind" when it's (very) close?
+-		No, don't provide this info after all. */
+-	/*if(u > utilityThresh - 5)
+-		return DENIAL_RECENT_CANCEL;*/
+ 	CvTeamAI const& agent = GET_TEAM(agentId);
+ 	// We don't know why utility is so small; can only guess
+ 	if(4 * agent.getPower(true) < 3 * GET_TEAM(targetId).getPower(true))
+@@ -1810,6 +1834,18 @@ void WarAndPeaceAI::Team::showWarPlanMsg(TeamTypes targetId, char const* txtKey)
+ 			GET_TEAM(agentId).getCapitalY()); // </advc.127b>
+ }
+ 
++WarAndPeaceCache& WarAndPeaceAI::Team::leaderCache() {
++
++	return GET_PLAYER(GET_TEAM(agentId).getLeaderID()).warAndPeaceAI().
++			getCache();
++}
++
++WarAndPeaceCache const& WarAndPeaceAI::Team::leaderCache() const{
++	// Duplicate code; see also WarAndPeaceCache::leaderCache
++	return GET_PLAYER(GET_TEAM(agentId).getLeaderID()).warAndPeaceAI().
++			getCache();
++}
++
+ double WarAndPeaceAI::Team::confidenceFromWarSuccess(TeamTypes targetId) const {
+ 
+ 	/*  Need to be careful not to overestimate
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.h b/CvGameCoreDLL/WarAndPeaceAI.h
+index 025e2f7f5..b08ce80ff 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.h
++++ b/CvGameCoreDLL/WarAndPeaceAI.h
+@@ -52,6 +52,7 @@ public:
+ 	/*  Modifier for human payments for peace, i.e what the AI asks a human to pay
+ 		(no modifier for brokering, i.e. 100%) */
+ 	static int const reparationsHumanPercent = 75;
++	static int const dwtUtilityThresh = -35;
+ 
+ private:
+ 	std::vector<PlayerTypes> _properCivs;
+@@ -187,6 +188,8 @@ public:
+ 		void showWarPrepStartedMsg(TeamTypes targetId);
+ 		void showWarPlanAbandonedMsg(TeamTypes targetId);
+ 		void showWarPlanMsg(TeamTypes targetId, char const* txtKey);
++		WarAndPeaceCache& leaderCache();
++		WarAndPeaceCache const& leaderCache() const;
+ 		TeamTypes diploVoteCounterCandidate(VoteSourceTypes voteSource) const;
+ 		/*  Not in WarAndPeaceAI::Civ b/c I want these to be private. They're
+ 			only auxiliary functions for their team-level counterparts, and should
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index a24917f6f..bb26b6a10 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -31,8 +31,9 @@ WarAndPeaceCache::WarAndPeaceCache() {
+ 	}
+ 	for(int i = 0; i < MAX_CIV_TEAMS; i++) {
+ 		lostTilesAtWar[i] = // advc.035
+-			pastWarScores[i] = sponsorshipsAgainst[i] =
+-			sponsorsAgainst[i] = warUtilityIgnDistraction[i] = -1;
++				pastWarScores[i] = sponsorshipsAgainst[i] =
++				sponsorsAgainst[i] = warUtilityIgnDistraction[i];
++		hireAgainst[i] = true;
+ 	} 
+ }
+ 
+@@ -90,6 +91,7 @@ void WarAndPeaceCache::clear(bool beforeUpdate) {
+ 			pastWarScores[i] = 0;
+ 			sponsorshipsAgainst[i] = 0;
+ 			sponsorsAgainst[i] = NO_PLAYER;
++			hireAgainst[i] = true;
+ 		}
+ 	}
+ }
+@@ -99,6 +101,7 @@ void WarAndPeaceCache::write(FDataStreamBase* stream) {
+ 
+ 	int savegameVersion = 1;
+ 	savegameVersion = 2; // advc.035
++	savegameVersion = 3; // hireAgainst added
+ 	/*  I hadn't thought of a version number in the initial release. Need
+ 		to fold it into ownerId now to avoid breaking compatibility. */
+ 	stream->Write(ownerId + 100 * savegameVersion);
+@@ -119,6 +122,7 @@ void WarAndPeaceCache::write(FDataStreamBase* stream) {
+ 	stream->Write(MAX_CIV_TEAMS, sponsorshipsAgainst);
+ 	stream->Write(MAX_CIV_TEAMS, sponsorsAgainst);
+ 	stream->Write(MAX_CIV_TEAMS, warUtilityIgnDistraction);
++	stream->Write(MAX_CIV_TEAMS, hireAgainst);
+ 	stream->Write(bHasAggressiveTrait);
+ 	stream->Write(bHasProtectiveTrait);
+ 	stream->Write(canScrub);
+@@ -174,6 +178,8 @@ void WarAndPeaceCache::read(FDataStreamBase* stream) {
+ 	stream->Read(MAX_CIV_TEAMS, sponsorshipsAgainst);
+ 	stream->Read(MAX_CIV_TEAMS, sponsorsAgainst);
+ 	stream->Read(MAX_CIV_TEAMS, warUtilityIgnDistraction);
++	if(savegameVersion >= 3)
++		stream->Read(MAX_CIV_TEAMS, hireAgainst);
+ 	stream->Read(&bHasAggressiveTrait);
+ 	stream->Read(&bHasProtectiveTrait);
+ 	stream->Read(&canScrub);
+@@ -579,6 +585,28 @@ int WarAndPeaceCache::warUtilityIgnoringDistraction(TeamTypes tId) const {
+ 	return leaderCache().warUtilityIgnDistraction[tId];
+ }
+ 
++bool WarAndPeaceCache::canBeHiredAgainst(TeamTypes tId) const {
++
++	if(tId == NO_TEAM || tId == BARBARIAN_TEAM)
++		return false;
++	return leaderCache().hireAgainst[tId];
++}
++
++void WarAndPeaceCache::setCanBeHiredAgainst(TeamTypes tId, bool b) {
++
++	leaderCache().hireAgainst[tId] = b;
++}
++
++void WarAndPeaceCache::updateCanBeHiredAgainst(TeamTypes tId, int u, int thresh) {
++
++	// Part of the update happens in WarAndPeaceAI::Team::doWar
++	double pr = -1;
++	if(!hireAgainst[tId])
++		pr = std::min(0.58, (u - 1.5 * thresh) / 100.0);
++	else pr = 1 - (thresh - u) / 100.0;
++	hireAgainst[tId] = ::bernoulliSuccess(pr, "advc.104 (can hire)");
++}
++
+ bool WarAndPeaceCache::canTrainDeepSeaCargo() const {
+ 
+ 	return trainDeepSeaCargo;
+@@ -597,6 +625,14 @@ WarAndPeaceCache const& WarAndPeaceCache::leaderCache() const {
+ 			getCache();
+ }
+ 
++WarAndPeaceCache& WarAndPeaceCache::leaderCache() {
++	// Same code as above; no elegant way to avoid this, I think.
++	if(ownerId == TEAMREF(ownerId).getLeaderID())
++		return *this;
++	else return GET_PLAYER(TEAMREF(ownerId).getLeaderID()).warAndPeaceAI().
++			getCache();
++}
++
+ int WarAndPeaceCache::numReachableCities(PlayerTypes civId) const {
+ 
+ 	if(civId == NO_PLAYER)
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.h b/CvGameCoreDLL/WarAndPeaceCache.h
+index 0e1abdebe..5016b12ea 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.h
++++ b/CvGameCoreDLL/WarAndPeaceCache.h
+@@ -82,6 +82,10 @@ public:
+ 	/*  Other classes should base the actual war utility computations on this
+ 		preliminary result */
+ 	int warUtilityIgnoringDistraction(TeamTypes tId) const;
++	// Not a _sufficient_ condition for agreeing to a joint war
++	bool canBeHiredAgainst(TeamTypes tId) const;
++	void setCanBeHiredAgainst(TeamTypes tId, bool b);
++	void updateCanBeHiredAgainst(TeamTypes tId, int u, int thresh);
+ 	bool canTrainDeepSeaCargo() const;
+ 	bool canTrainAnyCargo() const;
+ 
+@@ -145,6 +149,7 @@ private:
+ 	void updateTrainCargo();
+ 	// To supply team-on-team data
+ 	WarAndPeaceCache const& leaderCache() const;
++	WarAndPeaceCache& leaderCache();
+ 
+ 	PlayerTypes ownerId;
+ 	std::vector<City*> v;
+@@ -179,6 +184,7 @@ private:
+ 	 // Identity of the sponsor (PlayerTypes)
+ 	 int sponsorsAgainst[MAX_CIV_TEAMS];
+ 	 int warUtilityIgnDistraction[MAX_CIV_TEAMS];
++	 bool hireAgainst[MAX_CIV_TEAMS];
+ 	
+ public:
+ 	/* Information to be cached about a CvCity and scoring functions useful
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index f10ca3f5b..64daab130 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2792,15 +2792,19 @@ void Affection::evaluate() {
+ 		if(towardsThem >= ATTITUDE_FRIENDLY)
+ 			uMinus += 45;
+ 	}
++	bool const ignDistr = params.isIgnoreDistraction();
+ 	/*  The Catherine clause - doesn't make sense for her to consider sponsored
+ 		war on a friend if the cost is always prohibitive. */
+-	bool hiredAgainstFriend = towardsThem >= ATTITUDE_FRIENDLY &&
+-			params.getSponsor() != NO_PLAYER;
++	bool hiredAgainstFriend = (towardsThem >= ATTITUDE_FRIENDLY &&
++			(params.getSponsor() != NO_PLAYER ||
++			/*  The computations ignoring distraction are also used for decisions
++				on joint wars (see WarAndPeaceAI::Team::declareWarTrade) */
++			ignDistr));
+ 	if(hiredAgainstFriend)
+ 		uMinus = 50;
+ 	uMinus *= linkedWarFactor;
+ 	// When there's supposed to be uncertainty
+-	if((noWarPercent > 0 && noWarPercent < 100) || hiredAgainstFriend) {
++	if(!ignDistr && ((noWarPercent > 0 && noWarPercent < 100) || hiredAgainstFriend)) {
+ 		vector<long> hashInputs;
+ 		hashInputs.push_back(theyId);
+ 		hashInputs.push_back(towardsThem);
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=18155

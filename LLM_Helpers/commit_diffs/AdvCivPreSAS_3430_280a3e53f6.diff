@@ -1,0 +1,354 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3430
+# Commit: 280a3e53f6ca34c01975bb813476d0c81bf1f864
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c0c6535ec1bd06ef2f0f719601881d05523e006a
+# Title: A bit of misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/GameInfo/CIV4GoodyInfo.xml
+1	1	CvGameCoreDLL/AdvCiv4lerts.cpp
+1	1	CvGameCoreDLL/AgentIterator.h
+5	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+1	1	CvGameCoreDLL/CvAgents.cpp
+1	1	CvGameCoreDLL/CvAgents.h
+4	4	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+6	4	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+2	2	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvPlot.h
+2	2	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/InvasionGraph.h
+1	1	CvGameCoreDLL/RiseFall.h
+3	9	CvGameCoreDLL/ScaledNum.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4GoodyInfo.xml b/Assets/XML/GameInfo/CIV4GoodyInfo.xml
+index 675892a84..d9b5a4e74 100644
+--- a/Assets/XML/GameInfo/CIV4GoodyInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GoodyInfo.xml
+@@ -116,7 +116,7 @@
+ 				 promotion. The probability is multiplied by a factor based on
+ 				 the game turn. -->
+ 			<iBarbarianUnitProb>50</iBarbarianUnitProb>
+-			<!-- advc.314: Together with bBad=false, this indicates the number of
++			<!-- advc.314: Together with bBad=0, this indicates the number of
+ 				 units to be created, and a value above 0 creates a unit even if
+ 				 UnitClass is set to NONE. -->
+ 			<iMinBarbarians>1</iMinBarbarians>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index 647ab704d..9e65512b4 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -16,7 +16,7 @@ using std::set_difference;
+ AdvCiv4lert::AdvCiv4lert(PlayerTypes eOwner) : m_eOwner(eOwner)
+ {
+ 	m_bSilent = false;
+-	/*	Set this to true in a subclass constructor in order to test or debug a
++	/*	Set this to true in a derived constructor in order to test or debug a
+ 		particular alert through AI Auto Play */
+ 	m_bDebug = false;
+ }
+
+diff --git a/CvGameCoreDLL/AgentIterator.h b/CvGameCoreDLL/AgentIterator.h
+index 53f873fe9..f299cf8d5 100644
+--- a/CvGameCoreDLL/AgentIterator.h
++++ b/CvGameCoreDLL/AgentIterator.h
+@@ -3,7 +3,7 @@
+ #ifndef AGENT_ITERATOR_H
+ #define AGENT_ITERATOR_H
+ 
+-/*  advc.agent: New file. Iterators over sequences of CvTeam or CvPlayer objects.
++/*  advc.agent: New file. Iterators over sequences of CvTeam or CvPlayer instances.
+ 	The concrete iterator classes are defined at the end of the file.
+ 	Caveat: Can't use agent iterators before CvAgents::gameStart has been called -
+ 	which currently happens in CvGame::initDiplomacy and allGameDataRead. */
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 59a401d8b..496f147bc 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1219,7 +1219,11 @@ bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCi
+ 			iCities == 0))
+ 		{
+ 			bOtherInnerRing = adjacentOrSame(*p, *pOtherCity->plot());
+-			FAssert(!bInnerRing || !bOtherInnerRing || !pOtherCity->isArea(kArea));
++			FAssert(!bInnerRing || !bOtherInnerRing || !pOtherCity->isArea(kArea) ||
++					/*	In that case, stealing from the inner ring should
++						perhaps be considered. (But AdvCiv uses range 2 like BtS,
++						so I'm not going to address range 1.) */
++					GC.getDefineINT(CvGlobals::MIN_CITY_RANGE) < 2);
+ 			if (bForeignOwned && (bOtherInnerRing ||
+ 				// Don't try to overlap with team member or master
+ 				TEAMID(eOwner) == eTeam ||
+
+diff --git a/CvGameCoreDLL/CvAgents.cpp b/CvGameCoreDLL/CvAgents.cpp
+index 35f1474d7..76716f453 100644
+--- a/CvGameCoreDLL/CvAgents.cpp
++++ b/CvGameCoreDLL/CvAgents.cpp
+@@ -6,7 +6,7 @@
+ 
+ CvAgents::CvAgents(int iMaxPlayers, int iMaxTeams)
+ {
+-	// Tbd.: Instead create the CvPlayerAI and CvTeamAI objects here
++	// Tbd.: Instead create the CvPlayerAI and CvTeamAI instances here
+ 
+ 	m_playerSeqCache.resize(NUM_STATUS_CACHES);
+ 	m_teamSeqCache.resize(NUM_STATUS_CACHES);
+
+diff --git a/CvGameCoreDLL/CvAgents.h b/CvGameCoreDLL/CvAgents.h
+index f39b9aff8..31636d765 100644
+--- a/CvGameCoreDLL/CvAgents.h
++++ b/CvGameCoreDLL/CvAgents.h
+@@ -4,7 +4,7 @@
+ #define CV_AGENTS_H
+ 
+ /*  advc.agent: New class for access (via AgentIterator) to sequences of
+-	agent (CvTeam, CvPlayer) objects. Caches frequently needed sequences. */
++	agent (CvTeam, CvPlayer) instances. Caches frequently needed sequences. */
+ 
+ class CvPlayerAI;
+ class CvTeamAI;
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 66810c399..aa59af752 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -550,7 +550,7 @@ void CvCity::doTurn()
+ 
+ 	updateSurroundingHealthHappiness(); // advc.901
+ 
+-	if (isOccupation() || (angryPopulation() > 0) || (healthRate() < 0))
++	if (isOccupation() || angryPopulation() > 0 || healthRate() < 0)
+ 		setWeLoveTheKingDay(false);
+ 	else if (getPopulation() >= GC.getDefineINT("WE_LOVE_THE_KING_POPULATION_MIN_POPULATION") &&
+ 		SyncRandNum(GC.getDefineINT("WE_LOVE_THE_KING_RAND")) < getPopulation())
+@@ -4438,7 +4438,7 @@ void CvCity::setPopulation(int iNewValue)
+ {
+ 	int const iOldPopulation = getPopulation();
+ 	if (iOldPopulation == iNewValue)
+-		return; // advc
++		return;
+ 
+ 	m_iPopulation = iNewValue;
+ 	FAssert(getPopulation() >= 0);
+@@ -6376,7 +6376,7 @@ bool CvCity::isWeLoveTheKingDay() const
+ 
+ void CvCity::setWeLoveTheKingDay(bool bNewValue)
+ {
+-	if(isWeLoveTheKingDay() == bNewValue)
++	if (isWeLoveTheKingDay() == bNewValue)
+ 		return;
+ 
+ 	m_bWeLoveTheKingDay = bNewValue;
+@@ -6425,7 +6425,7 @@ void CvCity::setCitizensAutomated(bool bNewValue)
+ void CvCity::setProductionAutomated(bool bNewValue, bool bClear)
+ {
+ 	if (isProductionAutomated() == bNewValue)
+-		return; // advc
++		return;
+ 
+ 	m_bProductionAutomated = bNewValue;
+ 	if (isActiveOwned() && isCitySelected())
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index c5e81e1f7..11360a1aa 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -11218,7 +11218,7 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
+ 			if (rPowRatio > 1)
+ 			{
+ 				scaled rAdvantage = rPowRatio - 1;
+-				if(rAdvantage >= fixp(1.5))
++				if (rAdvantage >= fixp(1.5))
+ 				{
+ 					r /= 4;
+ 					bGreatlyReduced = true;
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 4658bf4a4..2fa30b1f4 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -4734,13 +4734,13 @@ void CvDLLWidgetData::parseMaintenanceHelp(CvWidgetDataStruct &widgetDataStruct,
+ {
+ 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
+ 	if (pHeadSelectedCity == NULL)
+-		return; // advc
++		return;
+ 
+ 	if (pHeadSelectedCity->isWeLoveTheKingDay())
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_WE_LOVE_KING_MAINT"));
+-		return; // advc
++		return;
+ 	}
+ 
+ 	int iInflationFactor = 100 + GET_PLAYER(pHeadSelectedCity->getOwner()).calculateInflationRate(); // K-Mod
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 51a4be650..61e097409 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -8947,13 +8947,15 @@ int CvGame::FPChecksum() const
+ 	/*if(getActivePlayer() == 0)
+ 		_controlfp(_PC_64, _MCW_PC);*/
+ 
+-	// Test 1: based on https://stackoverflow.com/questions/14749929/c-float-operations-have-different-results-on-i386-and-arm-but-why
++	// Test 1: based on stackoverflow.com/questions/14749929/c-float-operations-have-different-results-on-i386-and-arm-but-why
+ 	float x = 4.80000019f;
+ 	int result1 = (int)(38000 / x + 10000 / x);
+-	result1 -= 9995; // 4 or 5
+-	// Test 2: based on https://stackoverflow.com/questions/11832428/windows-intel-and-ios-arm-differences-in-floating-point-calculations
++	result1 -= 9995;
++	FAssert(result1 == 4 || result1 == 5);
++	// Test 2: based on stackoverflow.com/questions/11832428/windows-intel-and-ios-arm-differences-in-floating-point-calculations
+ 	x = (-5.241729736328125f * 94.37158203125f) - (-7.25933837890625f * 68.14253997802734f);
+-	int result2 = fmath::round(-10000.0 * x); // 5 or 6
++	int result2 = fmath::round(-10000.0 * x);
++	FAssert(result2 == 5 || result2 == 6);
+ 
+ 	/*if(getActivePlayer()==0)
+ 		_controlfp(_PC_24, _MCW_PC);*/
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 5e511e8ed..6f93ed540 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -17885,7 +17885,7 @@ bool CvPlayer::canHaveTradeRoutesWith(PlayerTypes ePlayer) const
+ 	if (!kOtherPlayer.isAlive())
+ 		return false;
+ 	// <advc.124>
+-	if(getID() != ePlayer && kOtherPlayer.isAnarchy())
++	if (getID() != ePlayer && kOtherPlayer.isAnarchy())
+ 		return false; // </advc.124>
+ 	if (getTeam() == kOtherPlayer.getTeam())
+ 		return true;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 6dfad635e..59a1b24fa 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2475,7 +2475,7 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CvCity** pp
+ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer,
+ 	CvUnit const* pAttacker, bool bTestEnemy, bool bTestPotentialEnemy,
+ 	/* advc.028: */ bool bTestVisible,
+-	bool bTestCanAttack, bool bAny) const // advc: new params (for CvPlot::hasDefender)
++	bool bTestCanAttack, bool bTestAny) const // advc: new params (for CvPlot::hasDefender)
+ {
+ 	// <advc> Ensure consistency of parameters
+ 	if (pAttacker != NULL)
+@@ -2500,7 +2500,7 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
+ 			pAttacker, bTestEnemy, bTestPotentialEnemy, /* advc.028: */ bTestVisible,
+ 			bTestCanAttack))
+ 		{
+-			if (bAny)
++			if (bTestAny)
+ 				return &kUnit; // </advc>
+ 			if (kUnit.isBetterDefenderThan(pBestUnit, pAttacker,
+ 				&iBestUnitRank, // UncutDragon
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 57ba75d88..c3e4e22b8 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -148,7 +148,7 @@ public:
+ 			PlayerTypes eAttackingPlayer, CvUnit const* pAttacker,
+ 			bool bTestEnemy, bool bTestPotentialEnemy,
+ 			bool bTestVisible, // advc.028
+-			bool bTestCanAttack, bool bAny = false) const; // </advc>
++			bool bTestCanAttack, bool bTestAny = false) const; // </advc>
+ 	// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000:
+ 	bool hasDefender(bool bTestCanAttack, PlayerTypes eOwner,
+ 			PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL,
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 9855aeb00..3378bdfab 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -11532,7 +11532,7 @@ bool CvUnit::LFBisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAtt
+ 	// Get our adjusted rankings based on combat odds
+ 	int iOurRanking = LFBgetDefenderRank(pAttacker);
+ 	int iTheirRanking = -1;
+-	if (pBestDefenderRank)
++	if (pBestDefenderRank != NULL)
+ 		iTheirRanking = *pBestDefenderRank;
+ 	if (iTheirRanking == -1)
+ 		iTheirRanking = pDefender->LFBgetDefenderRank(pAttacker);
+@@ -11545,7 +11545,7 @@ bool CvUnit::LFBisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAtt
+ 		else iTheirRanking--;
+ 	}
+ 	// Retain the basic rank (before value adjustment) for the best defender
+-	if (pBestDefenderRank)
++	if (pBestDefenderRank != NULL)
+ 	{
+ 		if (iOurRanking > iTheirRanking)
+ 			(*pBestDefenderRank) = iOurRanking;
+
+diff --git a/CvGameCoreDLL/InvasionGraph.h b/CvGameCoreDLL/InvasionGraph.h
+index 8240a6fae..469e1db74 100644
+--- a/CvGameCoreDLL/InvasionGraph.h
++++ b/CvGameCoreDLL/InvasionGraph.h
+@@ -39,7 +39,7 @@ public:
+ 		I.e. each player is assumed to focus its attacks on one opponent at a time.
+ 		"Targets" in this context are civ players assumed to be (soon/ in the
+ 		medium term) attacked by invading units. The "target team" during
+-		war evaluation is a different concept. In particular, 
++		war evaluation is a different concept.
+ 		It's important to distinguish the player represented by a Node (m_ePlayer)
+ 		from the player (agent) from whose perspective the graph is computed
+ 		(InvasionGraph::m_eAgent). Only one node in the graph represents the agent. */
+
+diff --git a/CvGameCoreDLL/RiseFall.h b/CvGameCoreDLL/RiseFall.h
+index 7f442896b..cd7a69eed 100644
+--- a/CvGameCoreDLL/RiseFall.h
++++ b/CvGameCoreDLL/RiseFall.h
+@@ -13,7 +13,7 @@ class CvWString;
+ /*	advc.700: Main class for the Rise & Fall mod component.
+ 	(The coding style of the R&F classes is inconsistent with the rest
+ 	of the codebase. The R&F code isn't really subject to change, so I'm
+-	not going to overhault it.) */
++	not going to overhaul it.) */
+ class RiseFall {
+ 
+ public:
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index f6697106e..42ddb20dd 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -19,15 +19,9 @@
+ 	in its log messages; see comment in randSuccess. */
+ 
+ // Defined in BaseTsd.h. Easy to get them mixed up with ScaledNum::INTMAX, INTMIN.
+-#ifdef MAXINT
+-	#undef MAXINT
+-#endif
+-#ifdef MININT
+-	#undef MININT
+-#endif
+-#ifdef MAXUINT
+-	#undef MAXUINT
+-#endif
++#undef MAXINT
++#undef MININT
++#undef MAXUINT
+ 
+ /*	Uncomment for some additional runtime assertions
+ 	checking conditions that are really the user's responsibility. */
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=12503

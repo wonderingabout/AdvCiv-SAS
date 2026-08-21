@@ -1,0 +1,711 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3199
+# Commit: 75dc960b61f6b62a2879d71b4291687970cd40e5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 68d839e9390eea64b4a8124102f89d2d3b415a14
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	Assets/Config/BUG Advisors.xml
+17	16	CvGameCoreDLL/CvGame.cpp
+0	1	CvGameCoreDLL/CvMap.h
+1	1	CvGameCoreDLL/CvPlayer.h
+15	16	CvGameCoreDLL/CvPlayerAI.cpp
+4	1	CvGameCoreDLL/CvPlayerAI.h
+5	5	CvGameCoreDLL/CvPlot.cpp
+5	3	CvGameCoreDLL/CvSelectionGroup.h
+13	8	CvGameCoreDLL/CvTeam.cpp
+38	50	CvGameCoreDLL/CvUnit.cpp
+23	34	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Advisors.xml b/Assets/Config/BUG Advisors.xml
+index ac6418fcc..45ed4e188 100644
+--- a/Assets/Config/BUG Advisors.xml	
++++ b/Assets/Config/BUG Advisors.xml	
+@@ -16,6 +16,7 @@
+ 	 
+ 	<options id="Advisors" file="BUG Advisors.ini">
+ 		<section id="Advisors">
++			<!-- (K-Mod has removed the BugFinanceAdvisor option) -->
+ 			<!-- Exotic Foreign Advisor (F4) by Requies, Dresden, EmperorFool -->
+ 			<!-- advc.004: Set the default to Numbers (was Smilies in K-Mod) -->
+ 			<option id="EFAGlanceTab" key="EFA Glance"
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index dc90468ad..1a6837ba8 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7613,8 +7613,8 @@ void CvGame::createBarbarianUnits()
+ 		/*  For performance -- countOwnedUnownedHabitableTiles isn't cached;
+ 			goes through the entire map for each land area, and archipelago-type maps
+ 			can have a lot of those. */
+-		int iTotal = a.getNumTiles() + iTiles;
+-		int iUnownedTotal = a.getNumUnownedTiles() + iUnowned;
++		int const iTotal = a.getNumTiles() + iTiles;
++		int const iUnownedTotal = a.getNumUnownedTiles() + iUnowned;
+ 		if (iUnownedTotal >= iTotal)
+ 			continue;
+ 
+@@ -7732,7 +7732,7 @@ void CvGame::createAnimals()
+ 			continue;
+ 
+ 		iNeededAnimals = (iNeededAnimals / 5) + 1;
+-		for (int iI = 0; iI < iNeededAnimals; iI++)
++		for (int i = 0; i < iNeededAnimals; i++)
+ 		{
+ 			CvPlot* pPlot = GC.getMap().syncRandPlot((RANDPLOT_NOT_VISIBLE_TO_CIV | RANDPLOT_PASSABLE
+ 					| RANDPLOT_WATERSOURCE), // advc.300: Also use no iTimeout (try all plots)
+@@ -7744,9 +7744,9 @@ void CvGame::createAnimals()
+ 			int iBestValue = 0;
+ 			// advc (comment): This loop picks an animal that is suitable for pPlot
+ 			CvCivilization const& kCiv = GET_PLAYER(BARBARIAN_PLAYER).getCivilization(); // advc.003w
+-			for (int i = 0; i < kCiv.getNumUnits(); i++)
++			for (int j = 0; j < kCiv.getNumUnits(); j++)
+ 			{
+-				UnitTypes eLoopUnit = kCiv.unitAt(i);
++				UnitTypes eLoopUnit = kCiv.unitAt(j);
+ 				CvUnitInfo const& kUnit = GC.getInfo(eLoopUnit);
+ 				if (!kUnit.getUnitAIType(UNITAI_ANIMAL))
+ 					continue;
+@@ -8060,21 +8060,22 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvArea const& kArea)
+ 	case UNITAI_ATTACK: bSea = false; break;
+ 	default: return NO_UNIT;
+ 	}
+-	UnitTypes r = NO_UNIT;
++	UnitTypes eR = NO_UNIT;
+ 	int iBestValue = 0;
+-	CvCivilization const& kCiv = GET_PLAYER(BARBARIAN_PLAYER).getCivilization(); // advc.003w
++	CvCivilization const& kCiv = GET_PLAYER(BARBARIAN_PLAYER).getCivilization();
+ 	for (int i = 0; i < kCiv.getNumUnits(); i++)
+ 	{
+-		UnitTypes eUnit = kCiv.unitAt(i);
++		UnitTypes const eUnit = kCiv.unitAt(i);
+ 		CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+-		DomainTypes eDomain = kUnit.getDomainType();
+-		if(kUnit.getCombat() <= 0 || eDomain == DOMAIN_AIR ||
++		DomainTypes const eDomain = kUnit.getDomainType();
++		if (kUnit.getCombat() <= 0 || eDomain == DOMAIN_AIR ||
+ 			kUnit.isMostlyDefensive() || // advc.315
+ 			(eDomain == DOMAIN_SEA) != bSea ||
+ 			!GET_PLAYER(BARBARIAN_PLAYER).canTrain(eUnit))
+ 		{
+ 			continue;
+-		}  // <advc.301>
++		}
++		// <advc.301>
+ 		BonusTypes const eAndBonus = kUnit.getPrereqAndBonus();
+ 		std::vector<TechTypes> aeAndBonusTechs(2, NO_TECH);
+ 		if (eAndBonus != NO_BONUS)
+@@ -8095,9 +8096,9 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvArea const& kArea)
+ 			if (!bValid || !kArea.hasAnyAreaPlayerBonus(eAndBonus))
+ 				continue;
+ 		}
+-		/*  No units from more than 1 era ago (obsoletion too difficult to test).
+-			hasTech already tested by canTrain, but era shouldn't be
+-			tested there b/c it's OK for Barbarian cities to train outdated units
++		/*	No units from more than 1 era ago (obsolescence too difficult to test).
++			hasTech already tested by canTrain, but era shouldn't be tested there
++			b/c it's OK for Barbarian cities to train outdated units
+ 			(they only will if they can't train anything better). */
+ 		TechTypes const eAndTech = kUnit.getPrereqAndTech();
+ 		int iUnitEra = 0;
+@@ -8144,11 +8145,11 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvArea const& kArea)
+ 			iValue += 200;
+ 		if (iValue > iBestValue)
+ 		{
+-			r = eUnit;
++			eR = eUnit;
+ 			iBestValue = iValue;
+ 		}
+ 	}
+-	return r;
++	return eR;
+ }
+ 
+ // (See documentation in XML)
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 9b9088401..07fb90ebd 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -280,7 +280,6 @@ public: // advc: made several functions const
+ 	void verifyUnitValidPlot();
+ 	void combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvPlotGroup* pPlotGroup2,
+ 			bool bVerifyProduction = true); // advc.064d
+-
+ 	CvPlot* syncRandPlot(RandPlotFlags eFlags = RANDPLOT_ANY,								// Exposed to Python
+ 			CvArea const* pArea = NULL, // advc: was iArea
+ 			int iMinCivUnitDistance = -1,
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 383636a14..11074a216 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1654,9 +1654,9 @@ protected:  // <advc.210>
+ 
+ 	CvEventMap m_mapEventsOccured;
+ 	CvEventMap m_mapEventCountdown;
++	// advc.enum (tbd.): These should be ListEnumMap ...
+ 	UnitCombatPromotionArray m_aFreeUnitCombatPromotions;
+ 	UnitClassPromotionArray m_aFreeUnitClassPromotions;
+-
+ 	std::vector<std::pair<int, PlayerVoteTypes> > m_aVote;
+ 	std::vector<std::pair<UnitClassTypes,int> > m_aUnitExtraCosts;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 784eb5068..81777a30f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12998,33 +12998,32 @@ DenialTypes CvPlayerAI::AI_civicTrade(CivicTypes eCivic, PlayerTypes ePlayer) co
+ {
+ 	if (isHuman())
+ 		return NO_DENIAL;
+-
+ 	if (GET_TEAM(getTeam()).isVassal(GET_PLAYER(ePlayer).getTeam()))
+ 		return NO_DENIAL;
+-
+ 	if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
+ 		return NO_DENIAL;
+-
+ 	if (TEAMID(ePlayer) == getTeam())
+ 		return NO_DENIAL;
+ 
+-	CivicOptionTypes eCivicOption = GC.getInfo(eCivic).getCivicOptionType(); // advc
+-	if (getCivicPercentAnger(getCivics(eCivicOption), true) > getCivicPercentAnger(eCivic))
+-		return DENIAL_ANGER_CIVIC;
+-
+-	CivicTypes eFavoriteCivic = GC.getInfo(getPersonalityType()).getFavoriteCivic();
+-	if (eFavoriteCivic != NO_CIVIC)
+ 	{
+-		if (isCivic(eFavoriteCivic) &&
+-			eCivicOption == GC.getInfo(eFavoriteCivic).getCivicOptionType())
++		CivicOptionTypes const eCivicOption = GC.getInfo(eCivic).getCivicOptionType();
++		if (getCivicPercentAnger(getCivics(eCivicOption), true) >
++			getCivicPercentAnger(eCivic))
++		{
++			return DENIAL_ANGER_CIVIC;
++		}
++		CivicTypes eFavoriteCivic = GC.getInfo(getPersonalityType()).getFavoriteCivic();
++		if (eFavoriteCivic != NO_CIVIC)
+ 		{
+-			return DENIAL_FAVORITE_CIVIC;
++			if (isCivic(eFavoriteCivic) &&
++				eCivicOption == GC.getInfo(eFavoriteCivic).getCivicOptionType())
++			{
++				return DENIAL_FAVORITE_CIVIC;
++			}
+ 		}
++		if (getCivilization().getInitialCivic(eCivicOption) == eCivic)
++			return DENIAL_JOKING;
+ 	}
+-
+-	if (getCivilization().getInitialCivic(eCivicOption) == eCivic)
+-		return DENIAL_JOKING;
+-
+ 	if (AI_getAttitude(ePlayer) <= GC.getInfo(getPersonalityType()).
+ 		getAdoptCivicRefuseAttitudeThreshold())
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 4fca2ec3f..253de3ed3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -119,6 +119,9 @@ public:
+ 	//struct CvFoundSettings { ... } // K-Mod
+ 	//short AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet) const; // K-Mod
+ 	//int AI_countDeadlockedBonuses(CvPlot const* pPlot) const;
++	// Obsoleted by K-Mod:
++	/*int AI_getOurPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves) const;
++	int AI_getEnemyPlotStrength(CvPlot* pPlot, int iRange, bool bDefensiveBonuses, bool bTestMoves) const;*/ // BtS
+ 
+ 	bool AI_isAreaAlone(CvArea const& kArea) const;
+ 	bool AI_isCapitalAreaAlone() const;
+@@ -571,7 +574,7 @@ public:
+ 	/*	Call locations of this function and similar functions at CvTeamAI, CvGameAI
+ 		aren't tagged with "advc.erai" comments. Note: Should not replace all uses of
+ 		era numbers in AI code with these functions. For example, a mod with only
+-		3 eras	won't necessarily have more techs per era than BtS. */
++		3 eras won't necessarily have more techs per era than BtS. */
+ 	scaled AI_getCurrEraFactor() const { return m_rCurrEraFactor; }
+ 	int AI_getCurrEra() const { return AI_getCurrEraFactor().uround(); }
+ 	// </advc.erai>
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 93b230d25..99c70e77d 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5054,19 +5054,19 @@ bool CvPlot::isHabitable(bool bIgnoreSea) const
+ {
+ 	if (getTerrainType() == NO_TERRAIN) // Can be called during map gen
+ 		return false;
+-	if(calculateNatureYield(YIELD_FOOD, NO_TEAM, false, true) <= 0)
++	if (calculateNatureYield(YIELD_FOOD, NO_TEAM, false, true) <= 0)
+ 		return false;
+-	if(!isWater() || isLake())
++	if (!isWater() || isLake())
+ 		return true;
+-	if(bIgnoreSea)
++	if (bIgnoreSea)
+ 		return false;
+ 	// Count shelf as habitable, but not arctic shelf or adj. only to one land corner.
+ 	int iAdjHabitableLand = 0;
+ 	FOR_EACH_ADJ_PLOT(*this)
+ 	{
+-		if(pAdj->isHabitable(true))
++		if (pAdj->isHabitable(true))
+ 			iAdjHabitableLand++;
+-		if(iAdjHabitableLand >= 2)
++		if (iAdjHabitableLand >= 2)
+ 			return true;
+ 	}
+ 	return false;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 432addfa8..36330a624 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -117,9 +117,11 @@ public:
+ 	DllExport bool canMoveOrAttackInto(CvPlot* pPlot, bool bDeclareWar = false)											// Exposed to Python
+ 	{
+ 		return canMoveOrAttackInto(*pPlot, bDeclareWar, false);
+-	} // K-Mod. (avoid breaking the DllExport)			advc: 2x const, CvPlot&
+-	bool canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar = false, bool bCheckMoves = false, bool bAssumeVisible = true) const;
+-	bool canMoveThrough(CvPlot const& kPlot, bool bDeclareWar = false, bool bAssumeVisible = true) const; // Exposed to Python, K-Mod added bDeclareWar and bAssumeVisible; advc: CvPlot const&
++	} // K-Mod. (Avoid breaking the DllExport; EXE calls the above for NumPad help.)
++	bool canMoveOrAttackInto(CvPlot const& kPlot, bool bDeclareWar = false,
++			bool bCheckMoves = false, bool bAssumeVisible = true) const;
++	bool canMoveThrough(CvPlot const& kPlot,																			// Exposed to Python
++			bool bDeclareWar = false, bool bAssumeVisible = true) const; // K-Mod
+ 	bool canFight() const;																																										// Exposed to Python
+ 	bool canDefend() const;																																										// Exposed to Python
+ 	bool canBombard(CvPlot const& kPlot) const;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 5b078a1da..7fe6c65e1 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4114,7 +4114,7 @@ bool CvTeam::isHasTech(TechTypes eIndex) const
+ 	return m_abHasTech.get(eIndex);
+ }
+ 
+-// <advc.039>
++// advc.039:
+ CvWString const CvTeam::tradeItemString(TradeableItems eItem, int iData, TeamTypes eFrom) const
+ {
+ 	CvTeam const& kFrom = GET_TEAM(eFrom);
+@@ -4177,7 +4177,7 @@ CvWString const CvTeam::tradeItemString(TradeableItems eItem, int iData, TeamTyp
+ 	}
+ 	}
+ 	return L"";
+-} // </advc.039>
++}
+ 
+ void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes eDiscoverPlayer,
+ 	bool bPartial)
+@@ -4367,7 +4367,8 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
+ 			CvPlayerAI& kMember = *it;
+ 			if (kMember.isResearchingTech(eTech))
+ 				kMember.popResearch(eTech);
+-			// notify the player they now have the tech, if they want to make immediate changes
++			/*	notify the player they now have the tech,
++				if they want to make immediate changes */
+ 			kMember.AI_nowHasTech(eTech);
+ 			kMember.invalidateYieldRankCache();
+ 		}
+@@ -4400,8 +4401,10 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
+ 				}
+ 				else
+ 				{
+-					szBuffer = gDLL->getText("TXT_KEY_MISC_FIRST_TECH_CHOOSE_FREE", kTech.getTextKeyWide());
+-					GET_PLAYER(ePlayer).chooseTech(kTech.getFirstFreeTechs(), szBuffer.GetCString());
++					szBuffer = gDLL->getText("TXT_KEY_MISC_FIRST_TECH_CHOOSE_FREE",
++							kTech.getTextKeyWide());
++					GET_PLAYER(ePlayer).chooseTech(kTech.getFirstFreeTechs(),
++							szBuffer.GetCString());
+ 				}
+ 				// advc.004: Announcement code moved into next block
+ 				// advc.106: Do it at the end instead
+@@ -4417,7 +4420,8 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
+ 			{
+ 				// Free GP only minor event
+ 				bool bMajor = (kTech.getFirstFreeTechs() > 0);
+-				for (PlayerIter<MAJOR_CIV,NOT_SAME_TEAM_AS> it(TEAMID(ePlayer)); it.hasNext(); ++it)
++				for (PlayerIter<MAJOR_CIV,NOT_SAME_TEAM_AS> it(TEAMID(ePlayer));
++					it.hasNext(); ++it)
+ 				{
+ 					CvPlayer const& kObs = *it;
+ 					if (isHasMet(kObs.getTeam()) || /* advc.127: */ kObs.isSpectator())
+@@ -4479,7 +4483,8 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
+ 				{
+ 					continue;
+ 				}
+-				CvCity const* pCity = kMap.findCity(kLoopPlot.getX(), kLoopPlot.getY(), NO_PLAYER,
++				CvCity const* pCity = kMap.findCity(
++						kLoopPlot.getX(), kLoopPlot.getY(), NO_PLAYER,
+ 						// advc.004r: Pass ID as eObserver (last param) instead of city owner
+ 						NO_TEAM, false, false, NO_TEAM, NO_DIRECTION, NULL, getID());
+ 				if (pCity == NULL)
+@@ -4546,7 +4551,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
+ 							if (GC.getInfo(eLoopCivic).getTechPrereq() == eTech)
+ 								eCivic = eLoopCivic;
+ 						}
+-					} // <advc.004x>
++					}  // <advc.004x>
+ 					if (eCivic != NO_CIVIC && kMember.canDoCivics(eCivic))
+ 					{
+ 						// BtS code moved into subroutine
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index bec714123..006a6081d 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -171,7 +171,7 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
+ 			the names are used in a long (space-race) game with 7 civs; therefore, skip every
+ 			iStep=2 then. Adjust this to the (current) number of civs. */
+ 		int iAlive = kGame.countCivPlayersAlive();
+-		if(iAlive <= 0)
++		if (iAlive <= 0)
+ 		{
+ 			FAssert(iAlive > 0);
+ 			iAlive = 7;
+@@ -187,15 +187,15 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
+ 		iOffset += std::min(24, 8 * std::max(0, kGame.getStartEra() - 1));
+ 		bool bNameSet = false;
+ 		// If we run out of names, search backward.
+-		if(iOffset >= iNumNames)
++		if (iOffset >= iNumNames)
+ 		{
+ 			/*  The first couple are still somewhat random, but then just
+ 				pick them chronologically. */
+-			for(int i = iNumNames - 1 - iRand; i >= 0; i--)
++			for (int i = iNumNames - 1 - iRand; i >= 0; i--)
+ 			{
+ 				CvWString szName = gDLL->getText(m_pUnitInfo->getUnitNames(i));
+ 				// Copied from below
+-				if(!kGame.isGreatPersonBorn(szName))
++				if (!kGame.isGreatPersonBorn(szName))
+ 				{
+ 					setName(szName);
+ 					bNameSet = true;
+@@ -204,7 +204,7 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
+ 				}
+ 			} // Otherwise, search forward.
+ 		}
+-		if(!bNameSet) // </advc.005b>
++		if (!bNameSet) // </advc.005b>
+ 		{ 
+ 			for (int i = 0; i < iNumNames; i++)
+ 			{
+@@ -227,79 +227,68 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
+ 	GET_TEAM(getTeam()).changeUnitClassCount(eUnitClass, 1);
+ 	kOwner.changeUnitClassCount(eUnitClass, 1);
+ 	kOwner.changeExtraUnitCost(m_pUnitInfo->getExtraCost());
+-
+ 	if (m_pUnitInfo->getNukeRange() != -1)
+ 		kOwner.changeNumNukeUnits(1);
+-
+ 	if (m_pUnitInfo->isMilitarySupport())
+ 		kOwner.changeNumMilitaryUnits(1);
+-
+ 	kOwner.changeAssets(m_pUnitInfo->getAssetValue());
+-	kOwner.changePower(m_pUnitInfo->getPowerValue()
+-			/ (getDomainType() == DOMAIN_SEA ? 2 : 1) // advc.104e
+-	);
+-
++	kOwner.changePower(m_pUnitInfo->getPowerValue() /
++			(getDomainType() == DOMAIN_SEA ? 2 : 1)); // advc.104e
+ 	// advc.104: To enable more differentiated tracking of power values
+ 	kOwner.uwai().getCache().reportUnitCreated(getUnitType());
++
+ 	if (m_pUnitInfo->isAnyFreePromotions()) // advc.003t
+ 	{
+-		for (int i = 0; i < GC.getNumPromotionInfos(); i++)
++		FOR_EACH_ENUM(Promotion)
+ 		{
+-			if (m_pUnitInfo->getFreePromotions(i))
+-				setHasPromotion((PromotionTypes)i, true);
++			if (m_pUnitInfo->getFreePromotions(eLoopPromotion))
++				setHasPromotion(eLoopPromotion, true);
+ 		}
+ 	}
+ 	FAssert(GC.getNumTraitInfos() > 0);
+-	for (int i = 0; i < GC.getNumTraitInfos(); i++)
++	FOR_EACH_ENUM2(Trait, eTrait)
+ 	{
+-		TraitTypes eTrait = (TraitTypes)i;
+ 		if (!kOwner.hasTrait(eTrait))
+ 			continue;
+-
+ 		CvTraitInfo const& kTrait = GC.getInfo(eTrait);
+ 		if (kTrait.isAnyFreePromotion()) // advc.003t
+ 		{
+-			for (int j = 0; j < GC.getNumPromotionInfos(); j++)
++			FOR_EACH_ENUM(Promotion)
+ 			{
+-				PromotionTypes ePromo = (PromotionTypes)j;
+-				if (kTrait.isFreePromotion(ePromo))
++				if (kTrait.isFreePromotion(eLoopPromotion))
+ 				{
+-					if (getUnitCombatType() != NO_UNITCOMBAT && kTrait.isFreePromotionUnitCombat(getUnitCombatType()))
+-						setHasPromotion(ePromo, true);
++					if (getUnitCombatType() != NO_UNITCOMBAT &&
++						kTrait.isFreePromotionUnitCombat(getUnitCombatType()))
++					{
++						setHasPromotion(eLoopPromotion, true);
++					}
+ 				}
+ 			}
+ 		}
+ 	}
+-
+ 	if (getUnitCombatType() != NO_UNITCOMBAT)
+ 	{
+-		for (int i = 0; i < GC.getNumPromotionInfos(); i++)
++		FOR_EACH_ENUM(Promotion)
+ 		{
+-			PromotionTypes ePromo = (PromotionTypes)i;
+-			if (kOwner.isFreePromotion(getUnitCombatType(), ePromo))
+-				setHasPromotion(ePromo, true);
++			if (kOwner.isFreePromotion(getUnitCombatType(), eLoopPromotion))
++				setHasPromotion(eLoopPromotion, true);
+ 		}
+ 	}
+ 
+ 	if (getUnitClassType() != NO_UNITCLASS)
+ 	{
+-		for (int i = 0; i < GC.getNumPromotionInfos(); i++)
++		FOR_EACH_ENUM(Promotion)
+ 		{
+-			PromotionTypes ePromo = (PromotionTypes)i;
+-			if (kOwner.isFreePromotion(getUnitClassType(), ePromo))
+-				setHasPromotion(ePromo, true);
++			if (kOwner.isFreePromotion(getUnitClassType(), eLoopPromotion))
++				setHasPromotion(eLoopPromotion, true);
+ 		}
+ 	}
+-
+-	if (getDomainType() == DOMAIN_LAND)
++	if (getDomainType() == DOMAIN_LAND && baseCombatStr() > 0)
+ 	{
+-		if (baseCombatStr() > 0)
++		if (kGame.getBestLandUnit() == NO_UNIT || baseCombatStr() >
++			kGame.getBestLandUnitCombat())
+ 		{
+-			if (kGame.getBestLandUnit() == NO_UNIT || baseCombatStr() >
+-				kGame.getBestLandUnitCombat())
+-			{
+-				kGame.setBestLandUnit(getUnitType());
+-			}
++			kGame.setBestLandUnit(getUnitType());
+ 		}
+ 	}
+ 
+@@ -790,8 +779,8 @@ void CvUnit::resolveAirCombat(CvUnit* pInterceptor, CvPlot* pPlot, CvAirMissionD
+ 	int iOurRoundDamage = 0;
+ 	int iTheirRoundDamage = 0;
+ 
+-	// Air v air is more like standard comabt
+-	// Round damage in this case will now depend on strength and interception probability
++	/*	Air v air is more like standard combat
++		Round damage in this case will now depend on strength and interception probability */
+ 	// <advc.opt>
+ 	static bool const bBBAI_AIR_COMBAT = GC.getDefineBOOL("BBAI_AIR_COMBAT");
+ 	static int const iINTERCEPTION_MAX_ROUNDS = GC.getDefineINT("INTERCEPTION_MAX_ROUNDS");
+@@ -1473,7 +1462,7 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted)
+ 		// <advc.130m>
+ 		int const iWS = GC.getDefineINT(CvGlobals::WAR_SUCCESS_DEFENDING);
+ 		GET_TEAM(pDefender->getTeam()).AI_changeWarSuccess(getTeam(), iWS);
+-		if(ePlotOwner != NO_PLAYER)
++		if (ePlotOwner != NO_PLAYER)
+ 		{
+ 			TeamTypes ePlotMaster = GET_PLAYER(ePlotOwner).getMasterTeam();
+ 			/*  Success vs. Barbarians isn't normally counted. Do count it if
+@@ -1481,24 +1470,24 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted)
+ 				Success within their borders against a shared war enemy is
+ 				already counted by changeWarSuccess, but count it again
+ 				for added weight. */
+-			if(ePlotMaster != GET_TEAM(pDefender->getTeam()).getMasterTeam() &&
++			if (ePlotMaster != GET_TEAM(pDefender->getTeam()).getMasterTeam() &&
+ 				// Plot owner not happy if his own Privateer killed
+ 				ePlotMaster != GET_TEAM(getTeam()).getMasterTeam() &&
+ 				(isBarbarian() || m_pUnitInfo->isHiddenNationality() ||
+ 				GET_TEAM(getTeam()).isAtWar(pPlot->getTeam())))
+ 			{
+ 				GET_TEAM(ePlotOwner).AI_reportSharedWarSuccess(
+-					iWS, pDefender->getTeam(), getTeam(), true);
++						iWS, pDefender->getTeam(), getTeam(), true);
+ 			}
+ 			// Same for the owner of the dead unit
+-			if(ePlotMaster != GET_TEAM(pDefender->getTeam()).getMasterTeam() &&
++			if (ePlotMaster != GET_TEAM(pDefender->getTeam()).getMasterTeam() &&
+ 				ePlotMaster != GET_TEAM(getTeam()).getMasterTeam() &&
+ 				(pDefender->isBarbarian() ||
+ 				pDefender->m_pUnitInfo->isHiddenNationality() ||
+ 				GET_TEAM(pDefender->getTeam()).isAtWar(pPlot->getTeam())))
+ 			{
+ 				GET_TEAM(ePlotOwner).AI_reportSharedWarSuccess(
+-					iWS, getTeam(), pDefender->getTeam(), true);
++						iWS, getTeam(), pDefender->getTeam(), true);
+ 			}
+ 		} // <advc.130m>
+ 
+@@ -7611,11 +7600,10 @@ int CvUnit::airMaxCombatStr(const CvUnit* pOther) const
+ 
+ 	if (getKamikazePercent() != 0)
+ 		iModifier += getKamikazePercent();
+-
++	/*  BETTER_BTS_AI_MOD, Bugfix, 8/16/08, DanF5771 & jdog5000:
++		(ExtraCombatPercent already counted above) */
+ 	/*if (getExtraCombatPercent() != 0)
+ 		iModifier += getExtraCombatPercent();*/ // BtS
+-	/*  BETTER_BTS_AI_MOD, Bugfix, 8/16/08, DanF5771 & jdog5000: commented out
+-		(ExtraCombatPercent already counted above) */
+ 	if (pOther != NULL)
+ 	{
+ 		if (pOther->getUnitCombatType() != NO_UNITCOMBAT)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 50676a5a5..89a925518 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -10935,36 +10935,27 @@ bool CvUnitAI::AI_pickupTargetSpy()
+ bool CvUnitAI::AI_chokeDefend()
+ {
+ 	FAssert(AI_isCityAIType());
+-
+ 	// XXX what about amphib invasions?
+ 
+ 	CvCityAI const* pCity = getPlot().AI_getPlotCity();
+-	if (pCity != NULL)
++	if (pCity != NULL && pCity->getOwner() == getOwner() &&
++		pCity->AI_neededDefenders() > 1 &&
++		pCity->AI_isDefended(pCity->getPlot().plotCount(
++		PUF_canDefendGroupHead, -1, -1, getOwner(), NO_TEAM, PUF_isNotCityAIType)))
+ 	{
+-		if (pCity->getOwner() == getOwner())
++		int const iDangerThresh = 4;
++		int iPlotDanger = GET_PLAYER(getOwner()).AI_getPlotDanger(getPlot(), 3, true,
++				iDangerThresh + 1); // advc.opt: Stop counting at thresh
++		if (iPlotDanger <= iDangerThresh)
+ 		{
+-			if (pCity->AI_neededDefenders() > 1)
++			if (AI_anyAttack(1, 65, NO_MOVEMENT_FLAGS,
++				//std::max(0, (iPlotDanger - 1))
++				iPlotDanger > 1 ? 2 : 0)) // K-Mod
+ 			{
+-				if (pCity->AI_isDefended(pCity->getPlot().plotCount(PUF_canDefendGroupHead,
+-					-1, -1, getOwner(), NO_TEAM, PUF_isNotCityAIType)))
+-				{
+-					int const iDangerThresh = 4;
+-					int iPlotDanger = GET_PLAYER(getOwner()).AI_getPlotDanger(getPlot(), 3, true,
+-							iDangerThresh + 1); // advc.opt: Stop counting at thresh
+-					if (iPlotDanger <= iDangerThresh)
+-					{
+-						if (AI_anyAttack(1, 65, NO_MOVEMENT_FLAGS,
+-							//std::max(0, (iPlotDanger - 1))
+-							iPlotDanger > 1 ? 2 : 0)) // K-Mod
+-						{
+-							return true;
+-						}
+-					}
+-				}
++				return true;
+ 			}
+ 		}
+ 	}
+-
+ 	return false;
+ }
+ 
+@@ -12419,7 +12410,7 @@ bool CvUnitAI::AI_patrol() // advc: refactored
+ {
+ 	PROFILE_FUNC();
+ 	// <advc.102> Only patrol near own territory
+-	if(!isBarbarian())
++	if (!isBarbarian())
+ 	{
+ 		bool bFound = false;
+ 		CvPlayer const& kOwner = GET_PLAYER(getOwner());
+@@ -12462,7 +12453,7 @@ bool CvUnitAI::AI_patrol() // advc: refactored
+ 			owned tiles have visibility anyway. In order to get to unowned tiles,
+ 			however, units may have to traverse owned tiles, so they need to be
+ 			allowed to patrol into owned tiles at least under some circumstances. */
+-		if(!isBarbarian() && kAdj.getOwner() == getOwner() &&
++		if (!isBarbarian() && kAdj.getOwner() == getOwner() &&
+ 			// Make sure not to hamper early exploration (perhaps not an issue)
+ 			kGame.getElapsedGameTurns() >= 25 &&
+ 			(kAdj.isUnit() || fixp(0.9).bernoulliSuccess(kGame.getSRand(),
+@@ -12474,8 +12465,8 @@ bool CvUnitAI::AI_patrol() // advc: refactored
+ 		int iValue = 1 + kGame.getSorenRandNum(10000, "AI Patrol");
+ 		// advc.309: Moved this if/else up
+ 		if (isBarbarian() &&
+-			/*  advc.306: Patrolling Barbarian ships should pretty much
+-				move about randomly, neither seeking nor avoiding owned tiles. */
++			/*  advc.306: (Patrolling Barbarian ships should pretty much
++				move about randomly, neither seeking nor avoiding owned tiles.) */
+ 			!getPlot().isWater())
+ 		{
+ 			if (!kAdj.isOwned())
+@@ -12492,14 +12483,14 @@ bool CvUnitAI::AI_patrol() // advc: refactored
+ 				iValue += 10000;*/
+ 		}
+ 		// <advc.309>
+-		if(isAnimal())
++		if (isAnimal())
+ 		{
+ 			// Same check as in CvGame::createAnimals
+-			if((kAdj.isFeature()) ?
++			if ((kAdj.isFeature()) ?
+ 				getUnitInfo().getFeatureNative(kAdj.getFeatureType()) :
+ 				getUnitInfo().getTerrainNative(kAdj.getTerrainType()))
+ 			{
+-				iValue += kGame.getSorenRandNum(10000, "advc.309");
++				iValue += kGame.getSorenRandNum(10000, "AI_patrol (advc.309)");
+ 			}
+ 			/*	Neither a native terrain nor at least adjacent to
+ 				a native feature: probably avoid */
+@@ -12543,7 +12534,7 @@ bool CvUnitAI::AI_patrol() // advc: refactored
+ 			FAssert(!atPlot(pBestPlot));
+ 		}
+ 	}
+-	if(pBestPlot == NULL)
++	if (pBestPlot == NULL)
+ 		return false;
+ 
+ 	pushGroupMoveTo(*pBestPlot, NO_MOVEMENT_FLAGS, false, false, MISSIONAI_PATROL);
+@@ -21555,9 +21546,8 @@ bool CvUnitAI::AI_poach()
+ 	if(GET_PLAYER(getOwner()).AI_isFocusWar(area())) // advc.105
+ 		return false;
+ 	FAssert(canAttack());
+-	//Look for a unit which is non-combat
+-	//and has a capture unit type
+-	for (SquareIter it(*this, 1, false); it.hasNext(); ++it)
++	//Look for a unit which is non-combat and has a capture unit type
++	for (SquareIter it(*this, 1, false); it.hasNext(); ++it) {
+ 		//if (iX != 0 && iY != 0) // advc.001: Looks like an error; probably '||' intended.
+ 		CvPlot* pLoopPlot = &(*it);
+ 		if (pLoopPlot->getTeam() != getTeam() && pLoopPlot->isVisible(getTeam(), false)) {
+@@ -21592,8 +21582,7 @@ bool CvUnitAI::AI_poach()
+ 			}
+ 		}
+ 	}
+-	if (pBestPoachPlot != NULL) {
+-		//No war roll.
++	if (pBestPoachPlot != NULL) { //No war roll.
+ 		if (!GET_TEAM(getTeam()).AI_performNoWarRolls(eBestPoachTeam)) {
+ 			GET_TEAM(getTeam()).declareWar(eBestPoachTeam, true, WARPLAN_LIMITED);
+ 			FAssert(!at(*pBestPoachPlot));
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=26722

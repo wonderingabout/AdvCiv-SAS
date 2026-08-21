@@ -1,0 +1,71 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2052
+# Commit: 096c07ccb17768b492a12c93fcf9d1b9ab88a5f9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0bd86b044adbf883791dcb0fb2a18b76dc751eba
+# Title: Fix minor bug(?) in K-Mod eval of (unused) specialist XP ability
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	18	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 2047f183f..112a2c2f5 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10290,24 +10290,24 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 			iGPPValue /= (1 + iEmphasisCount);
+ 
+ 			iTotalValue += iGPPValue;
+-
+-			// Evaluate military experience from specialists
+-			int iExperience = 0;
+-			if (new_job.second >= 0 && new_job.first)
+-				iExperience += GC.getInfo((SpecialistTypes)new_job.second).getExperience();
+-			if (old_job.second >= 0 && old_job.first)
+-			{	// advc.001: was +=
+-				iExperience -= GC.getInfo((SpecialistTypes)old_job.second).getExperience();
+-			}
+-			if (iExperience != 0)
+-			{
+-				int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+-				int iExperienceValue = 100 * iExperience * 4;
+-				if (iProductionRank <= kOwner.getNumCities() / 2 + 1)
+-					iExperienceValue += 100 * iExperience * 4;
+-				iExperienceValue += (getMilitaryProductionModifier() * iExperience * 8);
+-				iTotalValue += iExperienceValue;
+-			}
++		} /* advc.001: Moved the XP code out of the 'iGPPGained || iGPPLost' block.
++			 That (unused) ability shouldn't be assumed to imply a GPP rate. */
++		// Evaluate military experience from specialists
++		int iExperience = 0;
++		if (new_job.second >= 0 && new_job.first)
++			iExperience += GC.getInfo((SpecialistTypes)new_job.second).getExperience();
++		if (old_job.second >= 0 && old_job.first)
++		{	// advc.001: was +=
++			iExperience -= GC.getInfo((SpecialistTypes)old_job.second).getExperience();
++		}
++		if (iExperience != 0)
++		{
++			int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
++			int iExperienceValue = 100 * iExperience * 4;
++			if (iProductionRank <= kOwner.getNumCities() / 2 + 1)
++				iExperienceValue += 100 * iExperience * 4;
++			iExperienceValue += (getMilitaryProductionModifier() * iExperience * 8);
++			iTotalValue += iExperienceValue;
+ 		}
+ 		// Devalue generic citizens (for no specific reason). (cf. AI_specialistValue)
+ 		/* if (no gpp) {
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2066

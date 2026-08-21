@@ -1,0 +1,61 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3962
+# Commit: 0a4b1815c336bf226a5900928d43f8d1ba4686dd
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 114a4f91d4c2c73fd06eb1bfe41834ec0f4023e4
+# Title: Tweak AI rank hate
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index eeb9a32b8..876eaed30 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9134,7 +9134,7 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	//uiFlag = 21; // advc.enum
+ 	//uiFlag = 22; // advc.130n: Bugfix in fave-civic attitude calc
+ 	//uiFlag = 23; // advc.124b: Need a plot group update for compatibility
+-	uiFlag = 24; // advc.enum: Bugfix in bool-valued ArrayEnumMap
++	uiFlag = 24; // advc.enum: Bugfix in bool-valued ArrayEnumMap; advc.130c: tweak.
+ 	pStream->Write(uiFlag);
+ 	REPRO_TEST_BEGIN_WRITE("Game pt1");
+ 	pStream->Write(m_iElapsedGameTurns);
+@@ -9361,7 +9361,7 @@ void CvGame::onAllGameDataRead()
+ 		CvPlayerAI::AI_updateAttitudes();
+ 	} // </advc.130n>
+ 	// <advc.130r>
+-	else if (m_uiSaveFlag < 20)
++	else if (m_uiSaveFlag < 24)
+ 	{
+ 		for (TeamAIIter<MAJOR_CIV> itTeam; itTeam.hasNext(); ++itTeam)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 50413c0da..bb5c5afa5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8549,7 +8549,7 @@ int CvPlayerAI::AI_getRankDifferenceAttitude(PlayerTypes ePlayer) const
+ 					iMaxRankDifference;
+ 			rMultiplier.increaseTo(0);
+ 			// Don't hate them much when both struggling to keep up
+-			rMultiplier *= fixp(5/4.) - rOutrankBothRatio;
++			rMultiplier *= fixp(4/3.) - rOutrankBothRatio.sqrt();
+ 			// Smoothen based on score ratio
+ 			scaled const rPeakScoreRatio = fixp(1.22);
+ 			scaled rFarAheadThresh = fixp(1.7);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1531

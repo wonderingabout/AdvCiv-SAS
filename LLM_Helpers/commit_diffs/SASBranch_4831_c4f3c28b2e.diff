@@ -1,0 +1,445 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4831
+# Commit: c4f3c28b2e1d9665d4a2f0793fd6c74b22d31200
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1569533198de32c94a8114b9d8358abec5254c5f
+# Title: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA, add info about PakBuild especially useful when assets are scatetred in/among/across anyways etc many fp...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/indian sreni.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/nif/door.nif
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/nif/hindutemple_cm1.dds
+4	3	Assets/XML/Art/CIV4ArtDefines_Building.xml
+1	1	Assets/XML/Art/CIV4ArtDefines_Movie.xml
+3	3	Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+29	15	Assets/XML/Buildings/CIV4BuildingInfos.xml
+3	4	Assets/XML/Buildings/CIV4CityLSystem.xml
+9	3	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+8	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+0	24	Assets/XML/Text/CIV4GameText_advc_wonders.xml
+1	0	README.md
+1	1	Settings/CustomDomAdv/CustomDomAdv.txt
+1	1	Settings/CustomDomAdv/CustomDomAdv_ger.txt
+1	1	Settings/CustomDomAdv/CustomDomAdv_ita.txt
+1	1	Settings/CustomDomAdv/WS_CustomDomAdv.txt
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_md_legend_github_view.PNG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/indian sreni.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/nif/door.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/nif/hindutemple_cm1.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/indian sreni.dds b/Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/indian sreni.dds
+new file mode 100644
+index 000000000..20b8effcf
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/indian sreni.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/nif/door.nif b/Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/nif/door.nif
+new file mode 100644
+index 000000000..ccdab18d3
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/nif/door.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/nif/hindutemple_cm1.dds b/Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/nif/hindutemple_cm1.dds
+new file mode 100644
+index 000000000..7c9f9677b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Natya_Shastra/nif/hindutemple_cm1.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index 274276776..c079ebcdc 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -1263,15 +1263,16 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/ChichenItza.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,8</Button>
+ 		</BuildingArtInfo>
++		<!-- custom: nif import from RI mod's ART_DEF_BUILDING_INDIA_TEMPLE (vedic_temple) using PakBuild (see main readme.md 's "some useful tools" section or some similar name it may or not have for details and screenshot examples about it anyways etc) ; button import similarly from RI mod's ART_DEF_BUILDING_INDIAN_SRENI anyways etc -->
+ 		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_SISTINE_CHAPEL</Type>
++			<Type>ART_DEF_BUILDING_NATYA_SHASTRA</Type>
+ 			<LSystem>LSYSTEM_1x2</LSystem>
+ 			<bAnimated>0</bAnimated>
+ 			<fScale>1.1</fScale>
+ 			<fInterfaceScale>0.73</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/SistineChapel/SistineChapel.nif</NIF>
++			<NIF>Art/AdvCiv_SAS/Buildings/Natya_Shastra/nif/door.nif</NIF>
+ 			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/SistineChapel.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,6</Button>
++			<Button>Art/AdvCiv_SAS/Buildings/Natya_Shastra/indian sreni.dds</Button>
+ 		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_SPIRAL_MINARET</Type>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Movie.xml b/Assets/XML/Art/CIV4ArtDefines_Movie.xml
+index 5eed39d9d..27952f4cc 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Movie.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Movie.xml
+@@ -102,7 +102,7 @@ and then modified for AdvCiv-SAS
+ 			<Path>Art/Movies/Wonders/RockAndRoll.bik</Path>
+ 		</MovieArtInfo>
+ 		<MovieArtInfo>
+-			<Type>ART_DEF_MOVIE_SISTINE_CHAPEL</Type>
++			<Type>ART_DEF_MOVIE_NATYA_SHASTRA</Type>
+ 			<Path>Art/Movies/Wonders/SistineChapel.bik</Path>
+ 		</MovieArtInfo>
+ 		<MovieArtInfo>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingClassInfos.xml b/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+index f5ef38668..b9ad2f4db 100644
+--- a/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+@@ -1139,15 +1139,15 @@
+ 			<VictoryThresholds/>
+ 		</BuildingClassInfo>
+ 		<BuildingClassInfo>
+-			<Type>BUILDINGCLASS_SISTINE_CHAPEL</Type>
+-			<Description>TXT_KEY_BUILDING_SISTINE_CHAPEL</Description>
++			<Type>BUILDINGCLASS_NATYA_SHASTRA</Type>
++			<Description>TXT_KEY_BUILDING_NATYA_SHASTRA</Description>
+ 			<iMaxGlobalInstances>1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
+ 			<bNoLimit>0</bNoLimit>
+ 			<bMonument>0</bMonument>
+-			<DefaultBuilding>BUILDING_SISTINE_CHAPEL</DefaultBuilding>
++			<DefaultBuilding>BUILDING_NATYA_SHASTRA</DefaultBuilding>
+ 			<VictoryThresholds/>
+ 		</BuildingClassInfo>
+ 		<BuildingClassInfo>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 4fb31bff9..e9c6c6865 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -24951,16 +24951,17 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: sistine_chapel, type: sistine_chapel (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<BuildingClass>BUILDINGCLASS_SISTINE_CHAPEL</BuildingClass>
+-			<Type>BUILDING_SISTINE_CHAPEL</Type>
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_NATYA_SHASTRA, type: BUILDING_NATYA_SHASTRA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<BuildingClass>BUILDINGCLASS_NATYA_SHASTRA</BuildingClass>
++			<Type>BUILDING_NATYA_SHASTRA</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_SISTINE_CHAPEL</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_SISTINE_CHAPEL_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_SISTINE_CHAPEL_STRATEGY</Strategy>
++			<Description>TXT_KEY_BUILDING_NATYA_SHASTRA</Description>
++			<Civilopedia>TXT_KEY_BUILDING_NATYA_SHASTRA_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_CULTURE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_SISTINE_CHAPEL</ArtDefineTag>
+-			<MovieDefineTag>ART_DEF_MOVIE_SISTINE_CHAPEL</MovieDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_NATYA_SHASTRA</ArtDefineTag>
++			<!-- custom: todo to change ideally, or alternatively set to NONE maybe too if possible even though less ideal but anyways etc at least would function-work but anyways etc, for now uses the old sistine chapel's movie which functions-works too but anyways etc anyways etc anyways etc... -->
++			<MovieDefineTag>ART_DEF_MOVIE_NATYA_SHASTRA</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+ 			<StateReligion>NONE</StateReligion>
+@@ -24974,8 +24975,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_MUSIC -->
+-			<PrereqTech>TECH_THEOLOGY</PrereqTech>
++			<PrereqTech>TECH_MUSIC</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25013,7 +25013,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>600</iCost>
++			<!-- custom: cost reduced, was 600 -->
++			<iCost>425</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25090,21 +25091,29 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			</CommerceChangeDoubleTimes>
+ 			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
++			<!-- custom: was 0 / 0 / 2 -->
+ 			<SpecialistExtraCommerces>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>2</iCommerce>
++				<iCommerce>1</iCommerce>
+ 			</SpecialistExtraCommerces>
++			<!-- custom: was 0 / 0 / 3 -->
+ 			<StateReligionCommerces>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- K-Mod: was 5 -->
+-				<iCommerce>3</iCommerce>
++				<iCommerce>2</iCommerce>
+ 			</StateReligionCommerces>
+ 			<CommerceHappinesses/>
+ 			<ReligionChanges/>
+ 			<SpecialistCounts/>
+-			<FreeSpecialistCounts/>
++			<!-- custom: give a free artist, was empty -->
++			<FreeSpecialistCounts>
++				<FreeSpecialistCount>
++					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
++					<iFreeSpecialistCount>1</iFreeSpecialistCount>
++				</FreeSpecialistCount>
++			</FreeSpecialistCounts>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners>
+ 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
+@@ -25129,10 +25138,15 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
++			<!-- custom: add flavor religion and reduce/readjust culture value a bit, was flavor culture 10 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>9</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_RELIGION</FlavorType>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+
+diff --git a/Assets/XML/Buildings/CIV4CityLSystem.xml b/Assets/XML/Buildings/CIV4CityLSystem.xml
+index 1184375f9..e10720aef 100644
+--- a/Assets/XML/Buildings/CIV4CityLSystem.xml
++++ b/Assets/XML/Buildings/CIV4CityLSystem.xml
+@@ -721,10 +721,6 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 			<Attribute Class="Rotation">0,180</Attribute>
+ 			<Scale>2.3</Scale>
+ 		</ArtRef>
+-		<ArtRef Name="building:BUILDING_SISTINE_CHAPEL">
+-			<Attribute Class="Rotation">90,270</Attribute>
+-			<Scale>1.1</Scale>
+-		</ArtRef>
+ 		<ArtRef Name="building:BUILDING_BANK">
+ 			<Attribute Class="Rotation">90,180,270</Attribute>
+ 			<Attribute Class="Scalar">fCurvatureBias:68</Attribute>
+@@ -1265,6 +1261,9 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 			<Attribute Class="Rotation">90,270</Attribute>
+ 			<Scale>1.75</Scale>
+ 		</ArtRef>
++		<ArtRef Name="building:BUILDING_NATYA_SHASTRA">
++			<Scale>0.17</Scale>
++		</ArtRef>
+ 	</LNode>
+ 	<LNode Name="Leaf_3x3">
+ 		<Width>3</Width>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index d00bdb85b..3f621b698 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -251,6 +251,11 @@
+ 		<Tag>TXT_KEY_BUILDING_EGYPTIAN_OBELISK</Tag>
+ 		<English>Obelisk</English>
+ 	</TEXT>
++	<!-- custom: similarly rename NATIONAL_SECURITY that had nothing like a national wonder or anything related if am not mistaken maybe or not or yes but anyways etc to hopefully less confusing or not or yes or and other or and not anyways etc SECURITY_BUREAU anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_SECURITY_BUREAU</Tag>
++		<English>Security Bureau</English>
++	</TEXT>
+ 
+ 
+ 
+@@ -264,13 +269,14 @@
+ 		<Tag>TXT_KEY_BUILDING_THREE_GORGES_DAM</Tag>
+ 		<English>The Three Gorges Dam</English>
+ 	</TEXT>
+-	<!-- custom: similarly rename NATIONAL_SECURITY that had nothing like a national wonder or anything related if am not mistaken maybe or not or yes but anyways etc to hopefully less confusing or not or yes or and other or and not anyways etc SECURITY_BUREAU anyways etc -->
++	<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_THEOLOGY after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this case but anyways etc even though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe too but anyways etc anyways etc in this case anyways etc) and we need/want a music tech wonder anyways etc -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUILDING_SECURITY_BUREAU</Tag>
+-		<English>Security Bureau</English>
++		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA</Tag>
++		<English>Natya Shastra</English>
+ 	</TEXT>
+ 
+ 
++
+ 	<!-- custom: rename to more accurate naming from "Chinese_Leader" (wtf??? but anyways etc) to "Mao Zedong" as he is accurately named in several (most in fact parts of the code), hopefully clearer now or/and more sensical or/and consistent or maybe not or yes or and other or and not, (but) anyways etc... -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_LEADER_MAO_ZEDONG</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index e6b2a9823..5603fb9cb 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -293,6 +293,14 @@
+ 
+ 
+ 
++	<!-- custom: replace sistine_chapel with natya_shastra, import/based on similarly on i mean anyways etc https://en.wikipedia.org/wiki/Natya_Shastra and modified or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA_PEDIA</Tag>
++		<English>[TAB]The Natya Shastra (Sanskrit: _ _, Natyasastra) is a Sanskrit treatise on the performing arts. The text is attributed to sage Bharata, and its first complete compilation is dated to between 200 BCE and 200 CE, but estimates vary between 500 BCE and 500 CE.[PARAGRAPH:1]The text consists of 36 chapters with a cumulative total of 6,000 poetic verses describing performance arts. The subjects covered by the treatise include dramatic composition, structure of a play and the construction of a stage to host it, genres of acting, body movements, make up and costumes, role and goals of an art director, the musical scales, musical instruments and the integration of music with art performance.[PARAGRAPH:1]The Natya sastra is notable as an ancient encyclopedic treatise on the arts, one which has influenced dance, music and literary traditions in India. It is also notable for its aesthetic "Rasa" theory, which asserts that entertainment is a desired effect of performance arts but not the primary goal, and that the primary goal is to transport the individual in the audience into another parallel reality, full of wonder, where they experience the essence of their own consciousness, and reflect on spiritual and moral questions. The text further inspired secondary literature such as the 10th century commentary Abhinavabharati - an example of a classic Sanskrit bhasya ("reviews and commentaries") - written by Abhinavagupta. In April 2025, the Natya Shastra manuscript was added to UNESCO's Memory of the World Register.[PARAGRAPH:1]The title of the text is composed of two words, "Natya" and "Shastra". The root of the Sanskrit word Natya is Nata (_) which means "act, represent". The word Shastra (_) means "precept, rules, manual, compendium, book or treatise", and is generally used as a suffix in the Indian literature context, for knowledge in a defined area of practice.[PARAGRAPH:2]The Natyashastra is the oldest surviving ancient Indian work on performance arts. The roots of the text extend at least as far back as the Natas?tras, dated to around the mid 1st millennium BCE.[PARAGRAPH:1]The Natasutras are mentioned in the text of Panini, the sage who wrote the classic on Sanskrit grammar, and who is dated to about 500 BCE. This performance arts related Sutra text is mentioned in other late Vedic texts, as are two scholars names Shilalin (IAST: silalin) and Krishashva (Krsasva), credited to be pioneers in the studies of ancient drama, singing, dance and Sanskrit compositions for these arts. The Natyashastra refers to drama performers as shailalinas, likely because they were so known at the time the text was written, a name derived from the legacy of the vedic sage silalin credited with Natasutras. Richmond et al. estimate the Natasutras to have been composed around 600 BCE.[PARAGRAPH:1]According to Lewis Rowell, a professor of Music specializing on classical Indian music, the earliest Indian artistic thought included three arts, syllabic recital (vadya), melos (gita) and dance (nrtta), as well as two musical genre, Gandharva (formal, composed, ceremonial music) and Gana (informal, improvised, entertainment music). The Gandharva subgenre also implied celestial, divine associations, while the Gana was free form art and included singing. The Sanskrit musical tradition spread widely in the Indian subcontinent during the late 1st millennium BCE, and the ancient Tamil classics make it "abundantly clear that a cultivated musical tradition existed in South India as early as the last few pre-Christian centuries".[PARAGRAPH:1]The art schools of Shilalin and Krishashva, mentioned in both the Brahmanas and the Kalpasutras and Srautasutras, may have been associated with the performance of vedic rituals, which involved storytelling with embedded ethical values. The Vedanga texts such as verse 1.4.29 of Panini Sutras mention these as well. The roots of the Natyashastra thus likely trace to the more ancient vedic traditions of integrating ritual recitation, dialogue and song in a dramatic representation of spiritual themes. The Sanskrit verses in chapter 13.2 of Shatapatha Brahmana (~800-700 BCE), for example, are written in the form of a riddle play between two actors.[PARAGRAPH:1]"The Vedic sacrifice (yajna) is presented as a kind of drama, with its actors, its dialogues, its portion to be set to music, its interludes, and its climaxes." - Louis Renou, Vedic India[PARAGRAPH:2]The most studied version of the text, consisting of about 6000 poetic verses, is structured into 36 chapters. The tradition believes that the text originally had 12,000 verses. Somewhat different versions of the manuscripts exist, and these contain 37 or 38 chapters. Predominant number of its verses are in precise Anustubh meter (4x8, or exactly 32 syllables in every shloka), some verses are in Arya meter (a morae-based Sanskrit meter), and the text has some text that is in prose particularly in chapters 6, 7 and 28.[PARAGRAPH:1]The structure of the text harmoniously compiles aspects of the theatrical arts into separate chapters. The text opens with the mythical genesis and history of drama, mentions the role of different Hindu deities in various aspects of the arts, and the recommended puja (consecration ceremony) of a stage for performance arts. The text, states Natalia Lidova, then describes the theory of Tandava dance (Shiva), the theory of rasa, of bhava, expression, gestures, acting techniques, basic steps, standing postures.[PARAGRAPH:2]The contents of the Natyashastra, states Susan Schwartz, are "in part theatrical manual, part philosophy of aesthetics, part mythological history, part theology". It is the oldest surviving encyclopedic treatise on dramaturgy from India, with sections on the theory and practice of various performance arts. The text extends its reach into asking and understanding the goals of performance arts, the nature of the playwright, the artists and the spectators, their intimate relationship during the performance. Natya topics as envisioned in this text includes what in western performing arts would include drama, dance, theatre, poetry and music. The text integrates its aesthetics, axiology and description of arts with mythologies associated with Hindu Devas and Devis. Performance arts, states Natyashastra, are a form of Vedic ritual ceremony (yajna).[PARAGRAPH:1]The general approach of the text is treated entertainment as an effect, but not the primary goal of arts. The primary goal is to lift and transport the spectators, unto the expression of ultimate reality and transcendent values. The text allows, states Schwartz, the artists "enormous innovation" as they connect the playwright and the spectators, through their performance, to Rasa (the essence, juice).[PARAGRAPH:1]The "rasa theory" of Natyashastra, states Daniel Meyer-Dinkgr�fe, presumes that bliss is intrinsic and innate in man, it exists in oneself, that manifests non-materially through spiritual and personally subjective means. Performance arts aim to empower man to experience this rasa, or re-experience it. Actors aim to journey the spectator to this aesthetic experience within him. Rasa is prepared, states Natya Shastra, through a creative synthesis and expression of vibhava (determinants), anubhava (consequents) and vyabhicharibhava (transitory states). In the process of emotionally engaging the individual in the audience, the text outlines the use of eight sentiments - erotic, comic, pathetic, terrible, furious, odious, heroic and marvellous.[PARAGRAPH:2]The Natyashastra defines drama in verse 6.10 as that which aesthetically arouses joy in the spectator, through the medium of actor's art of communication, that helps connect and transport the individual into a super sensual inner state of being. The Natya connects through abhinaya, that is applying body-speech-mind and scene, wherein asserts Natyashastra, the actors use two practices of dharmi (performance), in four styles and four regional variations, accompanied by song and music in a playhouse carefully designed to achieve siddhi (success in production).[PARAGRAPH:2]The text discusses a variety of performance arts as well as the design of the stage. The text details three architectural styles for the playhouse:Vikrista (oblong) ; Caturasra (square) ; Tryasra (triangular)[PARAGRAPH:1]Drama did not require painted scenery, instead utilizing costumes and makeup. Well aware of the limitations of realism, descriptions of the setting were interwoven in rhythmic verse and prose. Further, detailed zonal rules outlined how to portray settings inside and outside a house, as well as settings near or far. For example, change in acts would convey travel to distant lands.[PARAGRAPH:2]The Natyashastra is, states Emmie te Nijenhuis, the oldest surviving text that systematically treats "the theory and instruments of Indian music". Music has been an integral part of performance arts in the Hindu tradition since its Vedic times, and the theories of music found in the Natyashastra are also found in many Puranas, such as the Markandeya Purana.</English>
++	</TEXT>
++
++
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_SECURITY_BUREAU_PEDIA</Tag>
+ 		<English>[TAB]As long as there has been espionage, there has been a need for counter-espionage. This is the realm of the Security Bureau. Bureaus like the American FBI or the British MI5 make sure that sensitive intelligence is protected from outside sources. While espionage is an ancient practice, most Security Bureaus are less than one hundred years old. MI5 has only been in existence since 1909, organized originally to fight against German spies before World War I. The FBI began its expansion in the 1930s thanks to J. Edgar Hoover, the Bureau's first director.</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_wonders.xml b/Assets/XML/Text/CIV4GameText_advc_wonders.xml
+index 4b3cd45e8..b0bce859b 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_wonders.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_wonders.xml
+@@ -606,30 +606,6 @@
+ 			<Plural>0:1</Plural>
+ 		</Spanish>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUILDING_SISTINE_CHAPEL</Tag>
+-		<English>Sistine Chapel</English>
+-		<French>
+-			<Text>Chapelle Sixtine</Text>
+-			<Gender>Female</Gender>
+-			<Plural>0</Plural>
+-		</French>
+-		<German>
+-			<Text>Sixtinische Kapelle</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</German>
+-		<Italian>
+-			<Text>Cappella Sistina</Text>
+-			<Gender>Female</Gender>
+-			<Plural>0</Plural>
+-		</Italian>
+-		<Spanish>
+-			<Text>Capilla Sixtina:Capillas Sixtinas</Text>
+-			<Gender>Female</Gender>
+-			<Plural>0:1</Plural>
+-		</Spanish>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_SPIRAL_MINARET</Tag>
+ 		<English>Spiral Minaret</English>
+
+diff --git a/README.md b/README.md
+index 6292e0609..32d808e38 100644
+--- a/README.md
++++ b/README.md
+@@ -299,6 +299,7 @@ it too though unless i'm mistaken)
+ - removebg (free version limit is 500 x 500 as of now it seems, but more than enough for our 64 x 64 buttons in dds, recommended by chatgpt becomingthrough even though i knew about it but anyways etc i didnt know it was ai based for example as chatgpt becomingthrough told me if not mistaken/inaccurate thanks a lot for the info :) if i may say, anyways etc)
+ - DXTBmp, useful for example (in my case at least or not or yes or and other or and not anyways etc) to modify [GameFont tga file(s) in the AdvCiv-SAS's Fonts folder](/Assets/Res/Fonts/), a good tutorial on CFC forum [is there](https://forums.civfanatics.com/threads/how-to-modify-gamefonts-tga-for-free.181119/) for example (that) i followed as well or tried to if it helps or not or and other or and not hopefully or not hopefully or hopefully anyways etc, example of how i used it in [this google drive folder link](https://drive.google.com/drive/folders/1zgu0hgOtBIjWfUpqTSKnw95ryVnagnbx?usp=sharing) (a bit if not lot or maybe bit but anwyays happily in the end or ont ro yes anyways etc succeeded in) successfully doing, so maybe these steps or/and screenshots can help as well, may not have followed all recommended or best practices, but it works quite well and i am satisfied with it, so maybe is good enough if not simply good maybe or not but anyways etc hopefully helpful or not or yes or and other or and not at least to me maybe or and other or maybe not others or and other or and not etc or yes or not or other or etc or and not or ye sor etc anyways etc anyways anyways etc... 
+ - Dragon UnPACKer to view inside .fpk files and do operations such as file search or/and such if there operations (i didn't check so i don't know too anyways etc), for example finding all "tao" (search) assests in a base civ4 .fpk [(Google Drive preview example here)](https://drive.google.com/drive/folders/1lFqJ0LLa03a0oDTrJO9ahYigY6yjesTj?usp=sharing) (thanks a lot too anyways etc!! :) gogo anyways etc, useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
++- PakBuild, very useful to unpack fpks where it is more convenient to manipulate files directly for modding anyways etc, especially for mods liek realism invictus ("for example anyways etc" anyways etc) anyways etc where there are many sub fpks and the assets are spread across several fpks sometimes, easier to extract all fpks in one folder and access files directly, see this [google drive folder example for details](https://drive.google.com/drive/folders/1cvNRH86cSrsaagsqlvoNRxjFAeHQfX0H?usp=sharing) (note: should not be necessary if your/the mod only has a few fpks but as you prefer, but if the mod has a few dozen fpks liek ri mod for exampel as said before anyways etc, it would save a lot of time if you often import their assets to unpack/merge them all in one folder the access directly with wiztree anyways etc) (note: i found to "just" / "only" anyways etc even though takes bit times but saves lot later and pain/heart-/brainache but anyways etc... hopefully helps but anyways etc, that indeed just the "structures" and "interface" fpks unpack(ed but anyways etc) are enough for my needs at least now no need to unpack all may or not later if need but anyways etc anyways etc anyways etc hopefully helps/is helpful but anyways etc...)
+ - NifSkope to read .nif files if need(ed) (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1StBDHqJ6LfOf8yxFuRxfkYUuKu6QgZz2?usp=drive_link)) helps too even though some people seem to say it's not too good if i am not mistaken but seems to do the trick i.e. or/and maybe rather be helpful for civ4 at least advciv-sas, for example anyways etc viewing the HR mod's baal(ism) (Generic found i assume for many other religions) religion .nif file which if i am not mistaken is the religion's movie file as said in description if i understand it bit or lot or both or nto or and other or and not anyways etc correctly or not or yes or and other or and not anyways etc)(anyways etc), or the civ4's tao/dao ism one anyways etc or also the HR mod's asatru (viking (/scandiavian?) one for example for comparison that is quite characteristic and helps understand how it works (image seems frozen but maybe is intended this way and works as is maybe (not guaranteed but anyways etc) or the very pretty :o but anyways etc pesdejet found, or the shamanism one that we finally choose for paganism anyways etc after consideration of all or most of these or and other ones or and not anyways etc anyways etc anyways etc
+ - Visual C++ 2010 Express (is free, just requires after trial a free registration if i am not mistaken todo): works great to compile the DLL i want/require it after some mod changes
+ - [Diffchecker website](https://www.diffchecker.com/), seems to work extremely well at spotting differences even in quite long texts and nice display and all, for example useful when for example trying to investiage why the git(hub) diff was different ([not visible in the github preview in website in this linked commit's diff (it seems but anyways etc anyways etc) for example('s url anyways etc)](https://github.com/wonderingabout/AdvCiv-SAS/commit/277746f4154a2424d763d9cc385d6a6bc8ef92bc?diff=split#diff-55db1d87967dd9a8a331adbb123e77ea20972a1b5ac44c8114c9f4d3ae24071eR39)) anyways etc, but can quickly see where and why with diffchecker (see [Google Drive preview examples here](https://drive.google.com/drive/folders/10vaaNidNwt2a2B-1EZa9SEGxYEOYhTxX?usp=sharing)) website where and why the difference(s) are, based on which (i.e. from this (info) anyways etc) i could assess i don't need to reupload the screenshot after i had automatically fixed with global (quite careful maybe(and in current doc only in vs code anyways etc)) replace the paganism religion description that is quite deep nested as in far in the text so not visible in our first screenshot anyway if i may say but anyways etc, is also a bit faster that doing a manual diff on vs code unless i don't know how, or maybe could have some other uses or and not anyways etc, thanks a lot, anyways etc, thanks, i like it very much, and still love vs code, as in continuously hehe at least as of now, as for future whatever happens or maybe not or yes but anyways etc anyways etc, in all cases anyways etc, for diffchecker website to go back to it more specifically anyways etc anyways etc, thanks,
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv.txt b/Settings/CustomDomAdv/CustomDomAdv.txt
+index 22e92efeb..b0177a4d6 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv.txt
+@@ -2148,7 +2148,7 @@ p872
+ I22
+ g650
+ tp873
+-a(S'BLDGCLASS_BUILDINGCLASS_SISTINE_CHAPEL'
++a(S'BLDGCLASS_BUILDINGCLASS_NATYA_SHASTRA'
+ p874
+ I22
+ g650
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ger.txt b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+index a58425016..dd676dae0 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ger.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+@@ -2148,7 +2148,7 @@ p872
+ I22
+ g650
+ tp873
+-a(S'BLDGCLASS_BUILDINGCLASS_SISTINE_CHAPEL'
++a(S'BLDGCLASS_BUILDINGCLASS_NATYA_SHASTRA'
+ p874
+ I22
+ g650
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ita.txt b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+index c2e4545b5..694b5fa9c 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ita.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+@@ -1927,7 +1927,7 @@ p786
+ I22
+ g573
+ tp787
+-a(S'BLDGCLASS_BUILDINGCLASS_SISTINE_CHAPEL'
++a(S'BLDGCLASS_BUILDINGCLASS_NATYA_SHASTRA'
+ p788
+ I22
+ g573
+
+diff --git a/Settings/CustomDomAdv/WS_CustomDomAdv.txt b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+index 9be4708e0..77de1910c 100644
+--- a/Settings/CustomDomAdv/WS_CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+@@ -2024,7 +2024,7 @@ p817
+ I22
+ g600
+ tp818
+-a(S'BLDGCLASS_BUILDINGCLASS_SISTINE_CHAPEL'
++a(S'BLDGCLASS_BUILDINGCLASS_NATYA_SHASTRA'
+ p819
+ I22
+ g600
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index c63df3bc4..923909d14 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -442,7 +442,7 @@ In this example the nif was in a .fpk, but i assume it would work similarly if f
+ 
+ Be careful to import all nif related files in the same folder in your mod (or in advciv-sas in this example anyways etc), i am not too technical nor knowledgeable about these but it seems to work/function well for this nif import, hopefully this is helpful too for those who want to try it or not or maybe is helpful or not or yes or etc or and other or and not but anyways etc anyways etc anyways etc...
+ 
+-Note: be careful, in some mods/cases anyways etc the assets such as nif may be scattered across several different fkps, like in ri mod smokehouse1 's nif, scattered accross RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so need to gather them all in one folder if not doing an FPK approach (we don't do FPKs in AdvCiv-SAS at least as of now, anyways etc, see screenshots in the drive link above for details/example anyways etc)
++Note: be careful, in some mods/cases anyways etc the assets such as nif may be scattered across several different fkps, like in ri mod smokehouse1 's nif, scattered accross RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so need to gather them all in one folder if not doing an FPK approach (we don't do FPKs in AdvCiv-SAS at least as of now, anyways etc, see screenshots in the drive link above for details/example anyways etc), in such cases, i would recommend rather to use PakBuild, see [/README.md#some-useful-tools-while-doing-this](/README.md#some-useful-tools-while-doing-this) explanation and drive link at PakBuild there for details
+ 
+ ## Files
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index f0ebcb44e..59d10bd7c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 79e39e54e..db02f9ff2 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 695fd2d8d..02c3c0f12 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 5aa05a7bb..525c9a984 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_md_legend_github_view.PNG b/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_md_legend_github_view.PNG
+index c72e2505a..9bea2cc8a 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_md_legend_github_view.PNG and b/_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_md_legend_github_view.PNG differ
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=22 omittedFiles=0 embeddedPatchBytes=36021

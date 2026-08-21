@@ -3,6 +3,8 @@
 #ifndef CIV4_GAMECORE_UTILS_H
 #define CIV4_GAMECORE_UTILS_H
 
+#include "AIStrategies.h" // <!-- custom: getSAS*VictoryStageLevel helpers use AIVictoryStage bitfields. (GPT-5.5) -->
+
 class CvPlot;
 class CvCity;
 class CvCityAI; // advc.003u
@@ -72,10 +74,10 @@ template<typename T> void removeDuplicates(std::vector<T>& v)
 void applyColorToString(CvWString& s, char const* szColor, bool bLink = false);
 
 float colorDifference(NiColorA const& c1, NiColorA const& c2); // advc.002i
+HandicapTypes handicapFromDifficulty(int iDifficulty); // <!-- custom: map iDifficulty scores back to XML handicap entries after adding non-BtS handicap levels. (ChatGPT-5.5) -->
 
 // <advc> Replacing (unused) tables in CvGlobals for single-step rotation
-inline DirectionTypes rotateDirClockw(DirectionTypes eDir,
-	int i45DegRotations = 1) // Mustn't be less than -NUM_DIRECTION_TYPES
+inline DirectionTypes rotateDirClockw(DirectionTypes eDir, int i45DegRotations = 1) // Mustn't be less than -NUM_DIRECTION_TYPES
 {
 	/*	Could also try
 		return static_cast<DirectionTypes>((eDir + i45DegRotations) & (NUM_DIRECTION_TYPES - 1));
@@ -85,15 +87,8 @@ inline DirectionTypes rotateDirClockw(DirectionTypes eDir,
 			% NUM_DIRECTION_TYPES);
 }
 
-inline DirectionTypes rotateDirCounterClockw(DirectionTypes eDir,
-	int i45DegRotations = 1)
-{
-	return rotateDirClockw(eDir, -i45DegRotations);
-} // </advc>
-inline CardinalDirectionTypes getOppositeCardinalDirection(CardinalDirectionTypes eDir)		// Exposed to Python
-{
-	return (CardinalDirectionTypes)((eDir + 2) % NUM_CARDINALDIRECTION_TYPES);
-}
+inline DirectionTypes rotateDirCounterClockw(DirectionTypes eDir, int i45DegRotations = 1) { return rotateDirClockw(eDir, -i45DegRotations); } // </advc>
+inline CardinalDirectionTypes getOppositeCardinalDirection(CardinalDirectionTypes eDir) { return (CardinalDirectionTypes)((eDir + 2) % NUM_CARDINALDIRECTION_TYPES); } // Exposed to Python
 DirectionTypes cardinalDirectionToDirection(CardinalDirectionTypes eCard);					// Exposed to Python
 DllExport inline bool isCardinalDirection(DirectionTypes eDirection)						// Exposed to Python
 {
@@ -114,12 +109,36 @@ DllExport DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot
 namespace hotkeyDescr
 {
 	CvWString keyStringFromKBCode(TCHAR const* szDescr);
-	CvWString hotKeyFromDescription(TCHAR const* szDescr,
-			bool bShift = false, bool bAlt = false, bool bCtrl = false);
+	CvWString hotKeyFromDescription(TCHAR const* szDescr, bool bShift = false, bool bAlt = false, bool bCtrl = false);
 }
 
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);												// Exposed to Python
 //isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam); // advc: Use CvTeamAI::AI_mayAttack instead
+char const* getSASDiploEventType(DiploEventTypes eDiploEvent); // <!-- custom: Shared raw enum-token text for DiploEventTypes because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
+char const* getSASTradeItemType(TradeableItems eItem); // <!-- custom: Shared raw enum-token text for TradeableItems because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
+char const* getSASWarPlanType(WarPlanTypes eWarPlan); // <!-- custom: Shared raw enum-token text for WarPlanTypes because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
+char const* getSASGameType(GameType eType); // <!-- custom: Shared raw enum-token text for game/session diagnostics because GameType has no CvInfo type strings. (GPT-5.6-Sol) -->
+char const* getSASGameMode(GameMode eMode); // <!-- custom: Shared raw enum-token text for game/session diagnostics because GameMode has no CvInfo type strings. (GPT-5.6-Sol) -->
+char const* getSASCalendarType(CalendarTypes eCalendar); // <!-- custom: Shared raw enum-token text for calendar context because CalendarTypes has no CvInfo type strings. (GPT-5.6-Sol) -->
+char const* getSASWarDeclarationCause(WarDeclarationCause eCause); // <!-- custom: Shared stable labels for war-declaration origins so SASGameRecord and any later BBAI diagnostics do not duplicate the switch. (GPT-5.6-Sol) -->
+char const* getSASTechAcquisitionCause(TechAcquisitionCause eCause); // <!-- custom: Shared stable labels for technology-acquisition origins so callers pass semantic context instead of GameRecord guessing from ambiguous flags. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+char const* getSASAutoPlayEndCause(SASAutoPlayEndCause eCause); // <!-- custom: Shared stable labels for explicit AI Auto Play completion causes so later diagnostics can reuse the enum without depending on SASGameRecord. See KI#203. (GPT-5.6-Sol) -->
+char const* getSASMemoryType(MemoryTypes eMemory); // <!-- custom: Shared raw enum-token text for diplomatic memories because static enum values have no CvInfo type strings. (GPT-5.6-Sol) -->
+int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4); // <!-- custom: Shared victory-stage bitfield helper for compact AI victory diagnostics without repeating AI_atVictoryStage checks. (GPT-5.5) -->
+int getSASCultureVictoryStageLevel(AIVictoryStage eVictoryStageHash); // <!-- custom: Named wrappers avoid repeating four enum constants at every logging/evaluation call site. (GPT-5.5) -->
+int getSASSpaceVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+int getSASConquestVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+int getSASDominationVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+int getSASDiplomacyVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+int getSASTeamMaxVictoryStage(TeamTypes eTeam); // <!-- custom: Shared team-level wrapper for victory-denial logs and rules that need the highest current victory stage among team members. (GPT-5.5) -->
+int getSASTeamSpaceVictoryStage(TeamTypes eTeam); // <!-- custom: Shared team-level Space victory-stage helper for victory-denial rules that need Space-specific progress instead of the highest route-agnostic stage. (GPT-5.5) -->
+int getSASTeamSpaceshipPartsBuilt(TeamTypes eTeam); // <!-- custom: Shared spaceship-parts count for Space victory-denial rules and logs; using one helper keeps UWAI and peace-refusal thresholds consistent. (GPT-5.5) -->
+int getSASSpaceshipPartsRequired();
+int getSASTeamSpaceshipPartsPercent(TeamTypes eTeam);
+int getSASVictoryDelayTurnsFromNormalGameSpeed(int iNormalTurns); // <!-- custom: Scale Normal-speed victory-countdown turn gates with the same VictoryDelayPercent used by CvGame::victoryDelay. (GPT-5.6 Thinking) -->
+int getSASTeamStage3SpaceLeaderPartGap(TeamTypes eTeam);
+bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam); // <!-- custom: Stage-3 plus high spaceship completion near the Space-progress leader is a pre-countdown Space threat; save-file 450 Arabia reached the final countdown too late, and save-file 452 showed a raw 10-parts threshold could still fire too late. (GPT-5.5) -->
+bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown = NULL, int* piMaxVictoryStage = NULL); // <!-- custom: Shared by UWAI peace decisions and CvDeal's final guard so blocked victory-denial treaties are rejected before negotiation instead of returning false success. (GPT-5.6-Sol) -->
 
 int estimateCollateralWeight(const CvPlot* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenseTeam = NO_TEAM); // K-Mod
 
@@ -130,17 +149,13 @@ DllExport void setTradeItem(TradeData* pItem, TradeableItems eItemType = TRADE_I
 /*	advc: Unused. Thought about moving these to CvGameTextMgr,
 	but that'll lead to more header inclusions. */
 //void setListHelp(wchar* szBuffer, const wchar* szStart, const wchar* szItem, const wchar* szSeparator, bool bFirst);
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-		wchar const* szSeparator, bool& bFirst); // advc: bool&
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-		wchar const* szSeparator, bool& bFirst); // advc: bool&
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst); // advc: bool&
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst); // advc: bool&
 /*	<advc> Add variants for items that can go into one list only when a value
 	matches the most recently added item. (This stuff should really be wrapped
 	into a class.) */
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-		wchar const* szSeparator, int& iLastListID, int iListID);
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-		wchar const* szSeparator, int& iLastListID, int iListID); // </advc>
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID);
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID); // </advc>
 
 // PlotUnitFunc's...  (advc: Parameters iData1, iData2 renamed)
 bool PUF_isGroupHead(CvUnit const* pUnit, int iDummy1 = -1, int iDummy2 = -1);

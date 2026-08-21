@@ -1,0 +1,240 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5478
+# Commit: 2078e7e8e9acc04ebf59a13dbfec0fa775a0723d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b33174f828f1f2397c62fd438049baa7b475acab
+# Title: Rename Foreign Advisor's Active Tab to Treaties Tab, beautify and enhance with icons - "Notably renamed the Active tab to **Treaties** tab (no longer shows r...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+56	5	Assets/Python/Screens/CvExoticForeignAdvisor.py
+5	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+3	0	README.md
+3	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index ba659c183..34b3d7c0c 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -217,7 +217,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 			"BONUS": "TXT_KEY_FOREIGN_ADVISOR_RESOURCES",
+ 			"TECH": "TXT_KEY_FOREIGN_ADVISOR_TECHS",
+ 			"RELATIONS": "TXT_KEY_FOREIGN_ADVISOR_RELATIONS",
+-			"ACTIVE_TRADE": "TXT_KEY_FOREIGN_ADVISOR_ACTIVE",
++			# <!-- custom: renamed Active tab label to Treaties to match the reduced scope (no bonus clutter). (GPT-5.3-Codex) -->
++			"ACTIVE_TRADE": "TXT_KEY_FOREIGN_ADVISOR_TREATIES",
+ 			"INFO": "TXT_KEY_FOREIGN_ADVISOR_INFO",
+ 			"GLANCE": "TXT_KEY_FOREIGN_ADVISOR_GLANCE",
+ 			"CITIES": "TXT_KEY_CONCEPT_CITIES", # advc.ctr
+@@ -232,6 +233,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 
+ 		self.iDefaultScreen = self.SCREEN_DICT["RELATIONS"]
+ 
++		# <!-- custom: shared size for treaty icons rendered inline in active-deals text. (GPT-5.3-Codex) -->
++		self.SAS_TREATY_ICON_SIZE = 24
++
+ 	# <!-- custom: initialize text and icon caches once for performance, based on Info Screen and Victory Screen pattern (claude code sonnet 4.5) -->
+ 	def initText(self):
+ 		# only execute this function once per language...
+@@ -258,7 +262,6 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		self.TEXT_CAN_RESEARCH = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CAN_RESEARCH", ())
+ 		self.TEXT_FOR_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2", ())
+ 		self.TEXT_NOT_FOR_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2", ())
+-		self.TEXT_CANT_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ())
+ 
+ 		# <!-- custom: city table headers (claude code sonnet 4.5) -->
+ 		self.TEXT_WILL_CEDE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_CEDE", ())
+@@ -277,6 +280,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		self.iTradeIcon = CyGame().getSymbolID(FontSymbols.TRADE_CHAR)
+ 		self.iCitizenIcon = CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)
+ 		self.iOccupationIcon = CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)
++		self.iMapIcon = CyGame().getSymbolID(FontSymbols.MAP_CHAR)
++		self.iGoldIcon = gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()
+ 
+ 		# <!-- custom: precompute formatted icon strings (claude code sonnet 4.5) -->
+ 		self.szReligionIconStr = u"%c" % self.iReligionIcon
+@@ -307,6 +312,13 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 			BugUtil.getPlainText("TXT_KEY_PEDIA_FAVORITES")
+ 		)
+ 
++		# <!-- custom: cache treaty icon paths once. (GPT-5.3-Codex) -->
++		self.SAS_TRADE_ICON_OPEN_BORDERS = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_OPENBORDERS").getPath()
++		self.SAS_TRADE_ICON_DEFENSIVE_PACT = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_DEFENSIVEPACT").getPath()
++		self.SAS_TRADE_ICON_PERMANENT_ALLIANCE = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_PERMALLIANCE").getPath()
++		self.SAS_TRADE_ICON_VASSAL = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath()
++		self.TEXT_CANT_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ())
++
+ 		# <!-- custom: calculate tab widths (claude code sonnet 4.5) -->
+ 		self.LABEL_WIDTH_LIST[:] = []
+ 		width_list = []
+@@ -476,6 +488,31 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 	def drawActive (self, bInitial):
+ 		screen = self.getScreen()
+ 
++		# <!-- custom: this tab targets active treaty-style items; some one-shot trade types can still surface in mixed/custom deals, so icon fallbacks below intentionally handle both ongoing and occasional non-ongoing items. (GPT-5.3-Codex) -->
++		def formatTreatyTrade(tradeData, iPlayerFrom, iPlayerTo):
++			szTrade = CyGameTextMgr().getTradeString(tradeData, iPlayerFrom, iPlayerTo)
++			if tradeData.ItemType == TradeableItems.TRADE_OPEN_BORDERS:
++				return u"<img=%s size=%d></img> %s" % (self.SAS_TRADE_ICON_OPEN_BORDERS, self.SAS_TREATY_ICON_SIZE, szTrade)
++			elif tradeData.ItemType == TradeableItems.TRADE_DEFENSIVE_PACT:
++				return u"<img=%s size=%d></img> %s" % (self.SAS_TRADE_ICON_DEFENSIVE_PACT, self.SAS_TREATY_ICON_SIZE, szTrade)
++			elif tradeData.ItemType == TradeableItems.TRADE_PERMANENT_ALLIANCE:
++				return u"<img=%s size=%d></img> %s" % (self.SAS_TRADE_ICON_PERMANENT_ALLIANCE, self.SAS_TREATY_ICON_SIZE, szTrade)
++			elif tradeData.ItemType == TradeableItems.TRADE_VASSAL or tradeData.ItemType == TradeableItems.TRADE_SURRENDER:
++				return u"<img=%s size=%d></img> %s" % (self.SAS_TRADE_ICON_VASSAL, self.SAS_TREATY_ICON_SIZE, szTrade)
++			elif tradeData.ItemType == TradeableItems.TRADE_TECHNOLOGIES:
++				return u"<img=%s size=%d></img> %s" % (gc.getTechInfo(tradeData.iData).getButton(), self.SAS_TREATY_ICON_SIZE, szTrade)
++			elif tradeData.ItemType == TradeableItems.TRADE_CIVIC:
++				return u"<img=%s size=%d></img> %s" % (gc.getCivicInfo(tradeData.iData).getButton(), self.SAS_TREATY_ICON_SIZE, szTrade)
++			elif tradeData.ItemType == TradeableItems.TRADE_RELIGION:
++				return u"<img=%s size=%d></img> %s" % (gc.getReligionInfo(tradeData.iData).getButton(), self.SAS_TREATY_ICON_SIZE, szTrade)
++			elif tradeData.ItemType == TradeableItems.TRADE_GOLD or tradeData.ItemType == TradeableItems.TRADE_GOLD_PER_TURN:
++				return u"%c %s" % (self.iGoldIcon, szTrade)
++			elif tradeData.ItemType == TradeableItems.TRADE_MAPS:
++				# <!-- custom: map trading is typically one-time (not an ongoing treaty), but keep icon fallback in case mixed/custom deal text surfaces here. (GPT-5.3-Codex) -->
++				return u"%c %s" % (self.iMapIcon, szTrade)
++			else:
++				return u"%c %s" % (self.iTradeIcon, szTrade)
++
+ 		# Get the Players
+ 		playerActive = gc.getPlayer(self.iActiveLeader)
+ 					
+@@ -543,12 +580,27 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 			screen.attachListBoxGFC(innerPanelName, dealPanelName, "", TableStyles.TABLE_STYLE_EMPTY)	
+ 			screen.enableSelect(dealPanelName, False)
+ 
+-			iRow = 0
++			# <!-- custom: keep one row per deal so each row remains clickable for cancel (WIDGET_DEAL_KILL); only merge items within that single deal row. (GPT-5.3-Codex) -->
+ 			for i in range(gc.getGame().getIndexAfterLastDeal()):
+ 				deal = gc.getGame().getDeal(i)
+ 
+ 				if (deal.getFirstPlayer() == iLoopPlayer and deal.getSecondPlayer() == self.iActiveLeader and not deal.isNone()) or (deal.getSecondPlayer() == iLoopPlayer and deal.getFirstPlayer() == self.iActiveLeader):
+-					szDealText = CyGameTextMgr().getDealString(deal, iLoopPlayer)
++					listDealEntries = []
++					for iTrade in range(deal.getLengthFirstTrades()):
++						tradeData = deal.getFirstTrade(iTrade)
++						if (tradeData and tradeData.ItemType != TradeableItems.TRADE_RESOURCES):
++							szTrade = formatTreatyTrade(tradeData, deal.getFirstPlayer(), deal.getSecondPlayer())
++							if (szTrade and szTrade not in listDealEntries):
++								listDealEntries.append(szTrade)
++					for iTrade in range(deal.getLengthSecondTrades()):
++						tradeData = deal.getSecondTrade(iTrade)
++						if (tradeData and tradeData.ItemType != TradeableItems.TRADE_RESOURCES):
++							szTrade = formatTreatyTrade(tradeData, deal.getSecondPlayer(), deal.getFirstPlayer())
++							if (szTrade and szTrade not in listDealEntries):
++								listDealEntries.append(szTrade)
++					if len(listDealEntries) == 0:
++						continue
++					szDealText = u", ".join(listDealEntries)
+ 					# <advc.072>
+ 					iShowTurnsMode = AdvisorOpt.getShowDealTurns()
+ 					bShowTurns = False
+@@ -570,7 +622,6 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 							if iTurns > 0:
+ 								szDealText += u" %s" % BugUtil.getText("INTERFACE_CITY_TURNS", (iTurns,))
+ 					screen.appendListBoxString(dealPanelName, szDealText, WidgetTypes.WIDGET_DEAL_KILL, deal.getID(), -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					iRow += 1
+ 
+ 	#	RJG Start
+ 	def drawRelations (self, bInitial):
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 861063445..847993a63 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -11,6 +11,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_FOREIGN_ADVISOR_RESOURCES</Tag>
+ 		<English>Bonuses</English>
+ 	</TEXT>
++	<!-- custom: tab rename in Exotic Foreign Advisor (Active -> Treaties). (GPT-5.3-Codex) -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_TREATIES</Tag>
++		<English>Treaties</English>
++	</TEXT>
+ 	<!-- custom: "intercept" -> "air intercept" inside the tag (text) only, not changing tag name itself unless really needed -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_INTERCEPT</Tag>
+
+diff --git a/README.md b/README.md
+index 0850ae174..12eb33733 100644
+--- a/README.md
++++ b/README.md
+@@ -184,12 +184,15 @@ For the technology advisor in particular, players can now tune as they prefer th
+ 
+ Also refactored to make the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed, or so it is easier to change an advisor's screen dimensions if desired later, plus doing some performance optimizations or such i found relevant.
+ 
++We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons.
++
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (1).JPG" alt="0.510_foreign_advisor (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG" alt="0.510_foreign_advisor (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG" alt="0.510_foreign_advisor (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG" alt="0.510_foreign_advisor (4).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG" alt="0.510_foreign_advisor (5).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG" alt="0.510_foreign_advisor (6).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (1).JPG" alt="0.516_info_screen (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 31dcb3deb..2ccf4bc5d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -81,6 +81,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 5439+) "Play Now" → "Simple Game" Clearer, matches code name, better contrasts with "Custom Game", and same as in C2C mod.
+ - "WFYABTA" → "We fear you are trading more than us." Same mechanic; the new text reflects that it’s about trading volume, not tech pace.
+ - Fixed misleading event text such as "The forge has been destroyed" used even when building actually survives (e.g. "The forge has caught fire" instead).
++- (Requires AdvCiv-SAS 5478+) Foreign Advisor's "Active" tab -> "Treaties" tab (no longer shows redundant bonuses).
+ - "All Units" → "No UnitCombat" in the Military Advisor: was inaccurate: this does not list all units (e.g. military units such as swordsmen), but only `<Combat>NONE</Combat>` units (e.g. Worker, Workboat, Missionary).
+ - Rename UnitCombats for concision or accuracy: "Recon Units" -> "Recon"; "Siege Weapons" -> "Siege"; "Helicopter Units" -> "Helicopters"; "Armored Units" -> "Armor"; "Naval Units" -> "Naval"; "Gunpowder Units" -> "Gun" (was inaccurate since gunpowder is no longer used in modern guns).
+ - Nuclear interception text clarifies that displayed chance is **adjusted** by nuke evasion; see the forum thread for context ([civfanatics](https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/)).
+@@ -312,7 +313,8 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-history-tab-in-the-info-screen-advisor).
+-- **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py).
++- **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5478+) Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**.
++- Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py).
+ - Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**). Also added other information (e.g., turn numbers in the Graph tab).
+ - Additionally, added in the **Info Screen** (F9 key) a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: new Advisors](/README.md#new-advisors-eg-history-tab-in-the-info-screen-advisor).
+ - Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)).
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG
+index a918883a0..a3f2ec092 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG
+index 256d5a8ba..a918883a0 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG
+index fd4477101..256d5a8ba 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG
+index c3e30158b..fd4477101 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG
+new file mode 100644
+index 000000000..c3e30158b
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=19399

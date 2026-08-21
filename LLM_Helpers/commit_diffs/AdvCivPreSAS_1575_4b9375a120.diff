@@ -1,0 +1,52 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1575
+# Commit: 4b9375a12074819fb4e57742472f3e3985fe0991
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fa1b76eae612f07a183e036854acd402faac2601
+# Title: Bulkier landmasses for PerfectMongoose script
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	3	PrivateMaps/PerfectMongoose.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 0c3720669..e756a65d6 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -467,8 +467,8 @@ class MapConstants:
+ 		##############################################################################
+ 		## PW3 Settings
+ 		##############################################################################
+-
+-		self.twistMinFreq = 0.02
++		# advc.021b: Was 0.02. Gets adjusted in ElevationMap3.GenerateElevationMap. Greater values (closer to twistMaxFreq) seem to result in larger landmasses; perhaps/ hopefully similar to the "grain" parameter of the Fractal algorithm?
++		self.twistMinFreq = 0.045
+ 		self.twistMaxFreq = 0.12
+ 		self.twistVar     = 0.042
+ 		self.mountainFreq = 0.078
+@@ -1596,7 +1596,11 @@ class ElevationMap3(FloatMap):
+ 
+ 
+ 	def GenerateElevationMap(self):
+-		twistMinFreq = 128.0 / self.width * mc.twistMinFreq #0.02  / 128
++		# <advc.021b> Increased in MapConstants.initialize for larger landmasses. But that makes it difficult to prevent a pangaea, so:
++		twistMinFreq = mc.twistMinFreq
++		if mc.AllowNewWorld:
++			twistMinFreq *= 0.6 # </advc.021b>
++		twistMinFreq = 128.0 / self.width * twistMinFreq
+ 		twistMaxFreq = 128.0 / self.width * mc.twistMaxFreq #0.12  / 128
+ 		twistVar     = 128.0 / self.width * mc.twistVar     #0.042 / 128
+ 		mountainFreq = 128.0 / self.width * mc.mountainFreq #0.05  / 128
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1430

@@ -1,0 +1,579 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 226
+# Commit: c390d49c6f5ba95a3ccee2c5aa5f2c4832f6983d
+# History segment: K-Mod history
+# Parent used for diff: 5518000339837d59371f589d3bab6a2a5f1e9fde
+# Title: Added some new xml python-callback-blockers (USE_AI_UNIT_UPDATE_CALLBACK, etc.) Corrected some bad settler AI in the original bts code for AI_follow. Disable...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+128	0	Assets/xml/PythonCallbackDefines.xml
+11	8	CvGameCoreDLL/CvCityAI.cpp
+14	0	CvGameCoreDLL/CvGlobals.cpp
+14	0	CvGameCoreDLL/CvGlobals.h
+1	0	CvGameCoreDLL/CvPlayer.cpp
+34	24	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+9	6	CvGameCoreDLL/CvTeamAI.cpp
+55	14	CvGameCoreDLL/CvUnitAI.cpp
+2	1	CvGameCoreDLL/CvUnitAI.h
+ create mode 100644 Assets/xml/PythonCallbackDefines.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/PythonCallbackDefines.xml b/Assets/xml/PythonCallbackDefines.xml
+new file mode 100644
+index 000000000..16463d334
+--- /dev/null
++++ b/Assets/xml/PythonCallbackDefines.xml
+@@ -0,0 +1,128 @@
++<?xml version="1.0"?>
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Global Defines -->
++<Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
++	<Define>
++		<DefineName>USE_CANNOT_FOUND_CITY_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_CAN_FOUND_CITIES_ON_WATER_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_IS_PLAYER_RESEARCH_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_CAN_RESEARCH_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_CANNOT_DO_CIVIC_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_CAN_DO_CIVIC_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_CANNOT_CONSTRUCT_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_CAN_CONSTRUCT_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_CAN_DECLARE_WAR_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_CANNOT_RESEARCH_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_GET_UNIT_COST_MOD_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_GET_BUILDING_COST_MOD_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_GET_CITY_FOUND_VALUE_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_CANNOT_HANDLE_ACTION_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_CAN_BUILD_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_CANNOT_TRAIN_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_CAN_TRAIN_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_UNIT_CANNOT_MOVE_INTO_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_CANNOT_SPREAD_RELIGION_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_FINISH_TEXT_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_ON_UNIT_SET_XY_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_ON_UNIT_SELECTED_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_ON_UPDATE_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_ON_UNIT_CREATED_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_ON_UNIT_LOST_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- K-Mod extras -->
++	<Define>
++		<DefineName>USE_AI_UNIT_UPDATE_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_AI_DO_DIPLO_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_AI_CHOOSE_PRODUCTION_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_AI_DO_WAR_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>USE_AI_CHOOSE_TECH_CALLBACK</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++</Civ4Defines>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 9a21571c3..f6ab6be25 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -834,15 +834,18 @@ void CvCityAI::AI_chooseProduction()
+ 	AI_setChooseProductionDirty(false);
+ 
+ 	// allow python to handle it
+-	CyCity* pyCity = new CyCity(this);
+-	CyArgsList argsList;
+-	argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
+-	long lResult=0;
+-	gDLL->getPythonIFace()->callFunction(PYGameModule, "AI_chooseProduction", argsList.makeFunctionArgs(), &lResult);
+-	delete pyCity;	// python fxn must not hold on to this pointer
+-	if (lResult == 1)
++	if (GC.getUSE_AI_CHOOSE_PRODUCTION_CALLBACK()) // K-Mod. block unused python callbacks
+ 	{
+-		return;
++		CyCity* pyCity = new CyCity(this);
++		CyArgsList argsList;
++		argsList.add(gDLL->getPythonIFace()->makePythonObject(pyCity));	// pass in city class
++		long lResult=0;
++		gDLL->getPythonIFace()->callFunction(PYGameModule, "AI_chooseProduction", argsList.makeFunctionArgs(), &lResult);
++		delete pyCity;	// python fxn must not hold on to this pointer
++		if (lResult == 1)
++		{
++			return;
++		}
+ 	}
+ 
+     if (isHuman() && isProductionAutomated())
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index e5c004da3..714108d00 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -212,6 +212,13 @@ m_iUSE_ON_UNIT_SELECTED_CALLBACK(0),
+ m_iUSE_ON_UPDATE_CALLBACK(0),
+ m_iUSE_ON_UNIT_CREATED_CALLBACK(0),
+ m_iUSE_ON_UNIT_LOST_CALLBACK(0),
++// K-Mod
++m_bUSE_AI_UNIT_UPDATE_CALLBACK(false),
++m_bUSE_AI_DO_DIPLO_CALLBACK(false),
++m_bUSE_AI_CHOOSE_PRODUCTION_CALLBACK(false),
++m_bUSE_AI_DO_WAR_CALLBACK(false),
++m_bUSE_AI_CHOOSE_TECH_CALLBACK(false),
++// K-Mod end
+ m_paHints(NULL),
+ m_paMainMenus(NULL)
+ /************************************************************************************************/
+@@ -2700,6 +2707,13 @@ void CvGlobals::cacheGlobals()
+ 	m_iUSE_ON_UPDATE_CALLBACK = getDefineINT("USE_ON_UPDATE_CALLBACK");
+ 	m_iUSE_ON_UNIT_CREATED_CALLBACK = getDefineINT("USE_ON_UNIT_CREATED_CALLBACK");
+ 	m_iUSE_ON_UNIT_LOST_CALLBACK = getDefineINT("USE_ON_UNIT_LOST_CALLBACK");
++	// K-Mod
++	m_bUSE_AI_UNIT_UPDATE_CALLBACK = getDefineINT("USE_AI_UNIT_UPDATE_CALLBACK") != 0;
++	m_bUSE_AI_DO_DIPLO_CALLBACK = getDefineINT("USE_AI_DO_DIPLO_CALLBACK") != 0;
++	m_bUSE_AI_CHOOSE_PRODUCTION_CALLBACK = getDefineINT("USE_AI_CHOOSE_PRODUCTION_CALLBACK") != 0;
++	m_bUSE_AI_DO_WAR_CALLBACK = getDefineINT("USE_AI_DO_WAR_CALLBACK") != 0;
++	m_bUSE_AI_CHOOSE_TECH_CALLBACK = getDefineINT("USE_AI_CHOOSE_TECH_CALLBACK") != 0;
++	// K-Mod end
+ 
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      02/21/10                                jdog5000      */
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index ee182fcba..51de5d015 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -791,6 +791,13 @@ public:
+ 	int getUSE_ON_UPDATE_CALLBACK();
+ 	int getUSE_ON_UNIT_CREATED_CALLBACK();
+ 	int getUSE_ON_UNIT_LOST_CALLBACK();
++	// K-Mod
++	inline bool getUSE_AI_UNIT_UPDATE_CALLBACK() { return m_bUSE_AI_UNIT_UPDATE_CALLBACK; }
++	inline bool getUSE_AI_DO_DIPLO_CALLBACK() { return m_bUSE_AI_DO_DIPLO_CALLBACK; }
++	inline bool getUSE_AI_CHOOSE_PRODUCTION_CALLBACK() { return m_bUSE_AI_CHOOSE_PRODUCTION_CALLBACK; }
++	inline bool getUSE_AI_DO_WAR_CALLBACK() { return m_bUSE_AI_DO_WAR_CALLBACK; }
++	inline bool getUSE_AI_CHOOSE_TECH_CALLBACK() { return m_bUSE_AI_CHOOSE_TECH_CALLBACK; }
++	// K-Mod end
+ 
+ 	DllExport int getMAX_CIV_PLAYERS();
+ 	DllExport int getMAX_PLAYERS();
+@@ -1210,6 +1217,13 @@ protected:
+ 	int m_iUSE_ON_UPDATE_CALLBACK;
+ 	int m_iUSE_ON_UNIT_CREATED_CALLBACK;
+ 	int m_iUSE_ON_UNIT_LOST_CALLBACK;
++	// K-Mod
++	bool m_bUSE_AI_UNIT_UPDATE_CALLBACK;
++	bool m_bUSE_AI_DO_DIPLO_CALLBACK;
++	bool m_bUSE_AI_CHOOSE_PRODUCTION_CALLBACK;
++	bool m_bUSE_AI_DO_WAR_CALLBACK;
++	bool m_bUSE_AI_CHOOSE_TECH_CALLBACK;
++	// K-Mod end
+ 
+ 	// DLL interface
+ 	CvDLLUtilityIFaceBase* m_pDLL;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 691506c22..da50b8007 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3873,6 +3873,7 @@ bool CvPlayer::hasBusyUnit() const
+ 		    if (pLoopSelectionGroup->getNumUnits() == 0)
+ 		    {
+ 		        pLoopSelectionGroup->kill();
++				FAssertMsg(false, "Karadoc told me this could never happen..."); // K-Mod. (just say'n)
+ 		        return false;
+ 		    }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6b2808eb6..caa3945f8 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6604,17 +6604,20 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 
+ void CvPlayerAI::AI_chooseFreeTech()
+ {
+-	TechTypes eBestTech;
++	TechTypes eBestTech = NO_TECH;
+ 
+ 	clearResearchQueue();
+ 
+-	CyArgsList argsList;
+-	long lResult;
+-	argsList.add(getID());
+-	argsList.add(true);
+-	lResult = -1;
+-	gDLL->getPythonIFace()->callFunction(PYGameModule, "AI_chooseTech", argsList.makeFunctionArgs(), &lResult);
+-	eBestTech = ((TechTypes)lResult);
++	if (GC.getUSE_AI_CHOOSE_TECH_CALLBACK()) // K-Mod. block unused python callbacks
++	{
++		CyArgsList argsList;
++		long lResult;
++		argsList.add(getID());
++		argsList.add(true);
++		lResult = -1;
++		gDLL->getPythonIFace()->callFunction(PYGameModule, "AI_chooseTech", argsList.makeFunctionArgs(), &lResult);
++		eBestTech = ((TechTypes)lResult);
++	}
+ 
+ 	if (eBestTech == NO_TECH)
+ 	{
+@@ -6630,14 +6633,14 @@ void CvPlayerAI::AI_chooseFreeTech()
+ 
+ void CvPlayerAI::AI_chooseResearch()
+ {
+-	TechTypes eBestTech;
+-	int iI;
++	//TechTypes eBestTech;
++	//int iI;
+ 
+ 	clearResearchQueue();
+ 
+ 	if (getCurrentResearch() == NO_TECH)
+ 	{
+-		for (iI = 0; iI < MAX_PLAYERS; iI++)
++		for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 			{
+@@ -6657,13 +6660,17 @@ void CvPlayerAI::AI_chooseResearch()
+ 
+ 	if (getCurrentResearch() == NO_TECH)
+ 	{
+-		CyArgsList argsList;
+-		long lResult;
+-		argsList.add(getID());
+-		argsList.add(false);
+-		lResult = -1;
+-		gDLL->getPythonIFace()->callFunction(PYGameModule, "AI_chooseTech", argsList.makeFunctionArgs(), &lResult);
+-		eBestTech = ((TechTypes)lResult);
++		TechTypes eBestTech = NO_TECH; // K-Mod
++		if (GC.getUSE_AI_CHOOSE_TECH_CALLBACK()) // K-Mod. block unused python callbacks
++		{
++			CyArgsList argsList;
++			long lResult;
++			argsList.add(getID());
++			argsList.add(false);
++			lResult = -1;
++			gDLL->getPythonIFace()->callFunction(PYGameModule, "AI_chooseTech", argsList.makeFunctionArgs(), &lResult);
++			eBestTech = ((TechTypes)lResult);
++		}
+ 
+ 		if (eBestTech == NO_TECH)
+ 		{
+@@ -14724,13 +14731,16 @@ void CvPlayerAI::AI_doDiplo()
+ 	FAssert(!isBarbarian());
+ 
+ 	// allow python to handle it
+-	CyArgsList argsList;
+-	argsList.add(getID());
+-	long lResult=0;
+-	gDLL->getPythonIFace()->callFunction(PYGameModule, "AI_doDiplo", argsList.makeFunctionArgs(), &lResult);
+-	if (lResult == 1)
++	if (GC.getUSE_AI_DO_DIPLO_CALLBACK()) // K-Mod. block unused python callbacks
+ 	{
+-		return;
++		CyArgsList argsList;
++		argsList.add(getID());
++		long lResult=0;
++		gDLL->getPythonIFace()->callFunction(PYGameModule, "AI_doDiplo", argsList.makeFunctionArgs(), &lResult);
++		if (lResult == 1)
++		{
++			return;
++		}
+ 	}
+ 	
+ 	iGoldValuePercent = AI_goldTradeValuePercent();
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index db4c61a4e..9301005f8 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -204,7 +204,8 @@ bool CvSelectionGroupAI::AI_update()
+ /*                                                                                              */
+ /* Unit AI                                                                                      */
+ /************************************************************************************************/
+-	if( !(isHuman()) && !(getHeadUnit()->isCargo()) && getActivityType() == ACTIVITY_SLEEP )
++	//if( !(isHuman()) && !(getHeadUnit()->isCargo()) && getActivityType() == ACTIVITY_SLEEP )
++	if (getActivityType() == ACTIVITY_SLEEP && !isHuman() && !getHeadUnit()->isCargo()) // K-Mod (just for efficiency)
+ 	{
+ 		setForceUpdate(true);
+ 	}
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index a8734f1a6..af0f41675 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4422,13 +4422,16 @@ void CvTeamAI::AI_doWar()
+ 	}
+ 
+ 	// allow python to handle it
+-	CyArgsList argsList;
+-	argsList.add(getID());
+-	long lResult=0;
+-	gDLL->getPythonIFace()->callFunction(PYGameModule, "AI_doWar", argsList.makeFunctionArgs(), &lResult);
+-	if (lResult == 1)
++	if (GC.getUSE_AI_DO_WAR_CALLBACK()) // K-Mod. block unused python callbacks
+ 	{
+-		return;
++		CyArgsList argsList;
++		argsList.add(getID());
++		long lResult=0;
++		gDLL->getPythonIFace()->callFunction(PYGameModule, "AI_doWar", argsList.makeFunctionArgs(), &lResult);
++		if (lResult == 1)
++		{
++			return;
++		}
+ 	}
+ 
+ 	int iEnemyPowerPercent = AI_getEnemyPowerPercent();
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index b37dfba29..a82dd8b07 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -89,15 +89,18 @@ bool CvUnitAI::AI_update()
+ 	FAssertMsg(isGroupHead(), "isGroupHead is expected to be true"); // XXX is this a good idea???
+ 
+ 	// allow python to handle it
+-	CyUnit* pyUnit = new CyUnit(this);
+-	CyArgsList argsList;
+-	argsList.add(gDLL->getPythonIFace()->makePythonObject(pyUnit));	// pass in unit class
+-	long lResult=0;
+-	gDLL->getPythonIFace()->callFunction(PYGameModule, "AI_unitUpdate", argsList.makeFunctionArgs(), &lResult);
+-	delete pyUnit;	// python fxn must not hold on to this pointer
+-	if (lResult == 1)
++	if (GC.getUSE_AI_UNIT_UPDATE_CALLBACK()) // K-Mod. block unused python callbacks
+ 	{
+-		return false;
++		CyUnit* pyUnit = new CyUnit(this);
++		CyArgsList argsList;
++		argsList.add(gDLL->getPythonIFace()->makePythonObject(pyUnit));	// pass in unit class
++		long lResult=0;
++		gDLL->getPythonIFace()->callFunction(PYGameModule, "AI_unitUpdate", argsList.makeFunctionArgs(), &lResult);
++		delete pyUnit;	// python fxn must not hold on to this pointer
++		if (lResult == 1)
++		{
++			return false;
++		}
+ 	}
+ 
+ 	if (getDomainType() == DOMAIN_LAND)
+@@ -470,6 +473,7 @@ bool CvUnitAI::AI_follow()
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 
++	/* original bts code
+ 	if (isFound())
+ 	{
+ 		if (area()->getBestFoundValue(getOwnerINLINE()) > 0)
+@@ -479,7 +483,12 @@ bool CvUnitAI::AI_follow()
+ 				return true;
+ 			}
+ 		}
+-	}
++	} */
++	// K-Mod. AI_foundRange is AI. It doesn't always found when we want to, and it has the potential to found when we don't!
++	// So I've replaced it.
++	if (AI_foundFollow())
++		return true;
++	// K-Mod end
+ 
+ 	return false;
+ }
+@@ -16676,6 +16685,7 @@ bool CvUnitAI::AI_found()
+ }
+ 
+ 
++/* original bts code - disabled by K-Mod
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_foundRange(int iRange, bool bFollow)
+ {
+@@ -16750,8 +16760,26 @@ bool CvUnitAI::AI_foundRange(int iRange, bool bFollow)
+ 	}
+ 
+ 	return false;
+-}
++} */
++
++// K-Mod: this function simply checks if we are standing at our target destination
++// and if we are, we issue the found command and return true.
++// I've disabled (badly flawed) AI_foundRange, which was previously used for 'follow' AI.
++bool CvUnitAI::AI_foundFollow()
++{
++	if (canFound(plot()) && getGroup()->AI_getMissionAIPlot() == plot() && getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND)
++	{
++		if( gUnitLogLevel >= 2 )
++		{
++			logBBAI("    Settler founding at plot %d, %d (follow)", getX_INLINE(), getY_INLINE());
++		}
++		getGroup()->pushMission(MISSION_FOUND);
++		return true;
++	}
+ 
++	return false;
++}
++// K-Mod end
+ 
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_assaultSeaTransport(bool bBarbarian)
+@@ -23142,11 +23170,11 @@ bool CvUnitAI::AI_airAttackDamagedSkip()
+ // Returns true if a mission was pushed or we should wait for another unit to bombard...
+ bool CvUnitAI::AI_followBombard()
+ {
+-	CLLNode<IDInfo>* pUnitNode;
++	/*CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+ 	CvPlot* pAdjacentPlot1;
+ 	CvPlot* pAdjacentPlot2;
+-	int iI, iJ;
++	int iI, iJ; */ // K-mod disabled
+ 
+ 	if (canBombard(plot()))
+ 	{
+@@ -23154,6 +23182,12 @@ bool CvUnitAI::AI_followBombard()
+ 		return true;
+ 	}
+ 
++	// K-Mod note: I've disabled the following code because it seems like a timewaster with very little benefit.
++	// The code checks if we are standing next to a city, and then checks if we have any other readyToMove group
++	// next to the same city which can bombard... if so, return true.
++	// I suppose the point of the code is to block our units from issuing a follow-attack order if we still have
++	// some bombarding to do. -- But in my opinion, such checks, if we want them, should be done by the attack code.
++	/* original bts code
+ 	if (getDomainType() == DOMAIN_LAND)
+ 	{
+ 		for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+@@ -23202,7 +23236,7 @@ bool CvUnitAI::AI_followBombard()
+ 				}
+ 			}
+ 		}
+-	}
++	} */
+ 
+ 	return false;
+ }
+@@ -24103,8 +24137,15 @@ bool CvUnitAI::AI_choke(int iRange, bool bDefensive)
+ 	{
+ 		if (atPlot(pBestPlot))
+ 		{
++			/* original BBAI code
+ 			if(canPillage(plot())) getGroup()->pushMission(MISSION_PILLAGE);
+-			getGroup()->pushMission(MISSION_SKIP);
++			getGroup()->pushMission(MISSION_SKIP); */
++			// K-Mod
++			if (canPillage(plot()))
++				getGroup()->pushMission(MISSION_PILLAGE);
++			else
++				getGroup()->pushMission(MISSION_SKIP);
++			// K-Mod end
+ 			return true;
+ 		}
+ 		else
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index e7bb03a60..1c4d056c6 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -196,7 +196,8 @@ protected:
+ 	bool AI_pillage(int iBonusValueThreshold = 0);
+ 	bool AI_pillageRange(int iRange, int iBonusValueThreshold = 0);
+ 	bool AI_found();
+-	bool AI_foundRange(int iRange, bool bFollow = false);
++	//bool AI_foundRange(int iRange, bool bFollow = false); // disabled by K-Mod
++	bool AI_foundFollow(); // K-Mod
+ 	bool AI_assaultSeaTransport(bool bBarbarian = false);
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      01/04/09                                jdog5000      */
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=18531

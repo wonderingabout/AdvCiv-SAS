@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2403
+# Commit: 0e4052c68db7905e37826ef1681a3426069b87f6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7832fe3c64b62e54b459962e5133c9116f59e2db
+# Title: Fix some oversights in AgentIterator
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	3	CvGameCoreDLL/AgentIterator.h
+5	2	CvGameCoreDLL/AgentPredicates.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AgentIterator.h b/CvGameCoreDLL/AgentIterator.h
+index dadb6c747..cffabe137 100644
+--- a/CvGameCoreDLL/AgentIterator.h
++++ b/CvGameCoreDLL/AgentIterator.h
+@@ -64,16 +64,19 @@ protected:
+ 		that don't match the predicates. */
+ 	static CvAgents::AgentSeqCache const eCACHE_SUPER = (
+ 			eRELATION == ANY_AGENT_RELATION ?
+-			CvAgents::MAJOR_ALIVE :
++			CvAgents::MAJOR_ALIVE : // Subseteq cache will handle non-majors
+ 			eRELATION == MEMBER_OF ?
+ 				(eSTATUS == EVER_ALIVE ? CvAgents::MEMBER : CvAgents::MEMBER_ALIVE) :
+ 			eRELATION == VASSAL_OF ?
+ 				(eSTATUS == ANY_AGENT_STATUS ? CvAgents::ALL :
+ 				(eSTATUS == EVER_ALIVE ? CvAgents::CIV_EVER_ALIVE : CvAgents::VASSAL_ALIVE)) :
+-			// These four can apply to minor civs
++			// These four can apply to non-major agents
+ 			(eRELATION == POTENTIAL_ENEMY_OF || eRELATION == KNOWN_TO ||
+ 			eRELATION == KNOWN_POTENTIAL_ENEMY_OF || eRELATION == ENEMY_OF) ?
+-				(eSTATUS >= MAJOR_CIV ? CvAgents::MAJOR_ALIVE : CvAgents::CIV_ALIVE) :
++				(eSTATUS >= MAJOR_CIV ? CvAgents::MAJOR_ALIVE :
++				(eSTATUS >= CIV_ALIVE ? CvAgents::CIV_ALIVE : CvAgents::ALL)) :
++			((eRELATION == NOT_A_RIVAL_OF || eRELATION == NOT_SAME_TEAM_AS) && eSTATUS < MAJOR_CIV) ?
++				(eSTATUS == CIV_ALIVE ? CvAgents::CIV_ALIVE : CvAgents::ALL) :
+ 			CvAgents::MAJOR_ALIVE);
+ };
+
+diff --git a/CvGameCoreDLL/AgentPredicates.h b/CvGameCoreDLL/AgentPredicates.h
+index 7c7d6786e..71cbe4e37 100644
+--- a/CvGameCoreDLL/AgentPredicates.h
++++ b/CvGameCoreDLL/AgentPredicates.h
+@@ -38,11 +38,14 @@ enum AgentRelationPredicate // Relative to some given second agent
+ 		relationships other than team membership being correct for dead players. */
+ 	VASSAL_OF,
+ 	NOT_A_RIVAL_OF, // Same team or some vassal/ master relation
+-	POTENTIAL_ENEMY_OF, // incl. current war enemies
++	POTENTIAL_ENEMY_OF, // Incl. current war enemies
+ 	//OPEN_BORDERS_WITH, // Or rather CAN_ENTER_BORDERS_OF?
+ 	// The rest include minor civs and Barbarians unless ruled out by AgentStatusPredicate
+-	KNOWN_TO, // Incl. the first agent's team (agents know themselves)
++	/*	Incl. the first agent's team (agents know themselves)
++		and non-major agents (unless eliminated through the status predicate) */
++	KNOWN_TO,
+ 	OTHER_KNOWN_TO, // Not incl. the first agent's team, but incl. its vassals
++	// Still incl. non-major agents
+ 	KNOWN_POTENTIAL_ENEMY_OF,
+ 	ENEMY_OF, // At war; war in preparation isn't enough.
+ };
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2421

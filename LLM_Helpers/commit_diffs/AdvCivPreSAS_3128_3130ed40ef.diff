@@ -1,0 +1,1866 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3128
+# Commit: 3130ed40ef11169b1562484ed116e2b82c71fd1b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 85a83e17c977c6d3a8de9018a5688fdc56aaa5a8
+# Title: Comments to mark K-Mod/BBAI/BUG changes in XML files
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+21	2	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+1	0	Assets/XML/BasicInfos/CIV4UnitAIInfos.xml
+62	13	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	1	Assets/XML/Events/CIV4EventInfos.xml
+9	24	Assets/XML/GameInfo/CIV4CivicInfos.xml
+2	1	Assets/XML/GameInfo/CIV4CommerceInfo.xml
+5	2	Assets/XML/GameInfo/CIV4EspionageMissionInfo.xml
+7	4	Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+1	0	Assets/XML/GameInfo/CIV4SpecialistInfos.xml
+2	0	Assets/XML/Technologies/CIV4TechInfos.xml
+3	0	Assets/XML/Technologies/CIV4TechnologiesSchema.xml
+2	0	Assets/XML/Terrain/CIV4FeatureInfos.xml
+13	2	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+3	2	Assets/XML/Terrain/CIV4TerrainSchema.xml
+1	0	Assets/XML/Units/CIV4BuildInfos.xml
+6	1	Assets/XML/Units/CIV4PromotionInfos.xml
+1	0	Assets/XML/Units/CIV4UnitClassInfos.xml
+47	2	Assets/XML/Units/CIV4UnitInfos.xml
+3	1	Assets/XML/Units/CIV4UnitSchema.xml
+2	1	CvGameCoreDLL/CvInfo_Civics.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index 3f1fea50a..673649498 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -1272,6 +1272,7 @@
+ 			<Type>SCROLL_DOWN_ARROW</Type>
+ 			<Path>Art/Interface/Buttons/down_arrow.dds</Path>
+ 		</InterfaceArtInfo>
++		<!-- BUG: start -->
+ 		<InterfaceArtInfo>
+ 			<Type>SCROLL_PAGE_UP_ARROW</Type>
+ 			<Path>Art/Interface/Buttons/page_up_arrow.dds</Path>
+@@ -1292,6 +1293,7 @@
+ 			<Type>WHITE_CIRCLE_20</Type>
+ 			<Path>Art/Interface/Buttons/white_circle_20.dds</Path>
+ 		</InterfaceArtInfo>
++		<!-- BUG: end -->
+ 		<InterfaceArtInfo>
+ 			<Type>WHITE_CIRCLE_40</Type>
+ 			<Path>Art/Interface/Buttons/white_circle_40.dds</Path>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index e1b628bad..69569ed54 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -604,6 +604,7 @@
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._BUILD_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -628,6 +629,7 @@
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._BUILD_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -748,6 +750,7 @@
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._BUILD_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -796,6 +799,7 @@
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._BUILD_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -868,6 +872,7 @@
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.05</fRangedDeathTime>
+ 			<bActAsRanged>1</bActAsRanged>
++			<!-- BBAI: was ..._BUILD_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -892,6 +897,7 @@
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.05</fRangedDeathTime>
+ 			<bActAsRanged>1</bActAsRanged>
++			<!-- BBAI: was ..._BUILD_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -916,6 +922,7 @@
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.05</fRangedDeathTime>
+ 			<bActAsRanged>1</bActAsRanged>
++			<!-- BBAI: was ..._BUILD_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -1237,6 +1244,7 @@
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>1</bActAsRanged>
++			<!-- BBAI: was ..._BUILD_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -1491,6 +1499,7 @@
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._BUILD_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -1563,7 +1572,8 @@
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
++			<!-- BBAI: was ..._UNIQUE_UNIT -->
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+ 				<AudioRunTypeEnd/>
+@@ -2108,6 +2118,7 @@
+ 			<fBankRate>.4</fBankRate>
+ 			<fExchangeAngle>25.0</fExchangeAngle>
+ 			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._BUILD_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop>LOOPSTEP_OCEAN2</AudioRunTypeLoop>
+@@ -2188,6 +2199,7 @@
+ 			<fBankRate>.3</fBankRate>
+ 			<fExchangeAngle>25.0</fExchangeAngle>
+ 			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._BUILD_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop>LOOPSTEP_OCEAN2</AudioRunTypeLoop>
+@@ -4848,7 +4860,8 @@
+ 			<fBattleDistance>0.4</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
++			<!-- BBAI: was ..._UNIQUE_UNIT -->
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+ 				<AudioRunTypeEnd/>
+@@ -5139,6 +5152,7 @@
+ 			<fAngleInterpRate>360.0</fAngleInterpRate>
+ 			<fExchangeAngle>-30.0</fExchangeAngle>
+ 			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._UNIQUE_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop>LOOPSTEP_WHEELS_2</AudioRunTypeLoop>
+@@ -5259,6 +5273,7 @@
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._UNIQUE_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -5283,6 +5298,7 @@
+ 			<fBattleDistance>0.4</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._UNIQUE_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -5404,6 +5420,7 @@
+ 			<fBattleDistance>0.4</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._UNIQUE_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -5548,6 +5565,7 @@
+ 			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._UNIQUE_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+@@ -5824,6 +5842,7 @@
+ 			<fBattleDistance>0.4</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._UNIQUE_UNIT -->
+ 			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+
+diff --git a/Assets/XML/BasicInfos/CIV4UnitAIInfos.xml b/Assets/XML/BasicInfos/CIV4UnitAIInfos.xml
+index 5ef6aa888..6e2b8911b 100644
+--- a/Assets/XML/BasicInfos/CIV4UnitAIInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4UnitAIInfos.xml
+@@ -90,6 +90,7 @@
+ 			<Type>UNITAI_ENGINEER</Type>
+ 			<Description>UNITAI_ENGINEER</Description>
+ 		</UnitAIInfo>
++		<!-- K-Mod: -->
+ 		<UnitAIInfo>
+ 			<Type>UNITAI_GREAT_SPY</Type>
+ 			<Description>UNITAI_GREAT_SPY</Description>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index af95a80ff..226584944 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -5885,6 +5885,7 @@
+ 			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
++			<!-- BBAI (was none) -->
+ 			<ConstructSound>AS2D_BUILD_PLANTCOAL</ConstructSound>
+ 			<BonusHealthChanges/>
+ 			<BonusHappinessChanges/>
+@@ -6490,6 +6491,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- K-Mod: was 200 -->
+ 			<iCost>250</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -6571,6 +6573,7 @@
+ 					<iSpecialistCount>2</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
++			<!-- K-Mod -->
+ 			<FreeSpecialistCounts>
+ 				<FreeSpecialistCount>
+ 					<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+@@ -7397,6 +7400,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
++			<!-- K-Mod: Instead of 1 health -->
+ 			<iUnhealthyPopulationModifier>-15</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+@@ -7404,7 +7408,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>200</iCost>
++			<!-- advc.200: K-Mod had increased this to 200 -->
++			<iCost>150</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -7438,6 +7443,7 @@
+ 			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+ 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+ 			<iHealRateChange>0</iHealRateChange>
++			<!-- K-Mod: Was 1. Replaced with negative UnhealthyPopulationModifier. -->
+ 			<iHealth>0</iHealth>
+ 			<iAreaHealth>0</iAreaHealth>
+ 			<iGlobalHealth>0</iGlobalHealth>
+@@ -7481,6 +7487,7 @@
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+ 			<ConstructSound>AS2D_BUILD_RECYCLING_CENTER</ConstructSound>
++			<!-- K-Mod: Removed +1 health from Oil -->
+ 			<BonusHealthChanges/>
+ 			<BonusHappinessChanges/>
+ 			<BonusProductionModifiers/>
+@@ -7635,6 +7642,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 4 -->
+ 				<iCommerce>2</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes/>
+@@ -8003,7 +8011,7 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<!-- advc.200: was 3 culture in K-Mod; reverted -->
++			<!-- advc.200: K-Mod had reduced this to 3 -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+@@ -9729,9 +9737,6 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<!-- advc.200 BEGIN Copy-pasted the entries for Colosseum and all
+-			unique replacements from BtS. Only kept the K-Mod change to Odeon
+-			(one less culture). -->
+ 		<BuildingInfo>
+ 			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
+ 			<Type>BUILDING_COLOSSEUM</Type>
+@@ -9794,6 +9799,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- advc: K-Mod had increased this to 100 -->
+ 			<iCost>80</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -9857,6 +9863,7 @@
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
++			<!-- advc.200: Had been +20% culture in K-Mod -->
+ 			<CommerceChanges/>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+@@ -9964,6 +9971,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- advc.200: K-Mod had increased this to 100 -->
+ 			<iCost>80</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -10031,6 +10039,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 3 -->
+ 				<iCommerce>2</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -10038,6 +10047,7 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>1000</iCommerce>
+ 			</CommerceChangeDoubleTimes>
++			<!-- advc.200: Had been +20% culture in K-Mod -->
+ 			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+@@ -10155,6 +10165,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- advc.200: Had been 100 in K-Mod -->
+ 			<iCost>80</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -10221,6 +10232,7 @@
+ 			<CommerceChanges/>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
++			<!-- advc.200: Had been +20% culture in K-Mod -->
+ 			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+@@ -10324,6 +10336,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- K-Mod had increased this to 100 -->
+ 			<iCost>80</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -10390,6 +10403,7 @@
+ 			<CommerceChanges/>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
++			<!-- Had been +20% culture in K-Mod -->
+ 			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+@@ -10431,7 +10445,6 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<!-- advc.200 END -->
+ 		<BuildingInfo>
+ 			<BuildingClass>BUILDINGCLASS_BROADCAST_TOWER</BuildingClass>
+ 			<Type>BUILDING_BROADCAST_TOWER</Type>
+@@ -11871,6 +11884,7 @@
+ 			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
++			<!-- BBAI: was _GROCER -->
+ 			<ConstructSound>AS2D_BUILD_SUPERMARKET</ConstructSound>
+ 			<BonusHealthChanges>
+ 				<BonusHealthChange>
+@@ -12897,6 +12911,7 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
++			<!-- K-Mod -->
+ 			<ProductionTraits>
+ 				<ProductionTrait>
+ 					<ProductionTraitType>TRAIT_AGGRESSIVE</ProductionTraitType>
+@@ -13003,6 +13018,7 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 4 -->
+ 				<iCommerce>2</iCommerce>
+ 			</CommerceChanges>
+ 			<ObsoleteSafeCommerceChanges/>
+@@ -13085,6 +13101,7 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
++			<!-- K-Mod -->
+ 			<ProductionTraits>
+ 				<ProductionTrait>
+ 					<ProductionTraitType>TRAIT_AGGRESSIVE</ProductionTraitType>
+@@ -13191,6 +13208,7 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 4 -->
+ 				<iCommerce>2</iCommerce>
+ 			</CommerceChanges>
+ 			<ObsoleteSafeCommerceChanges/>
+@@ -13790,6 +13808,7 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
++			<!-- K-Mod -->
+ 			<ProductionTraits>
+ 				<ProductionTrait>
+ 					<ProductionTraitType>TRAIT_PROTECTIVE</ProductionTraitType>
+@@ -14181,6 +14200,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- K-Mod: was 300 -->
+ 			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+@@ -14250,6 +14270,7 @@
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 50 -->
+ 				<iCommerce>40</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+@@ -14915,6 +14936,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- K-Mod: was 300 -->
+ 			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+@@ -14984,6 +15006,7 @@
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 50 -->
+ 				<iCommerce>40</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+@@ -15649,6 +15672,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- K-Mod: was 300 -->
+ 			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+@@ -15718,6 +15742,7 @@
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 50 -->
+ 				<iCommerce>40</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+@@ -16383,6 +16408,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- K-Mod: was 300 -->
+ 			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+@@ -16452,6 +16478,7 @@
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 50 -->
+ 				<iCommerce>40</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+@@ -17117,6 +17144,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- K-Mod: was 300 -->
+ 			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+@@ -17186,6 +17214,7 @@
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 50 -->
+ 				<iCommerce>40</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+@@ -17851,6 +17880,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- K-Mod: was 300 -->
+ 			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+@@ -17920,6 +17950,7 @@
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 50 -->
+ 				<iCommerce>40</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+@@ -18585,6 +18616,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- K-Mod: was 300 -->
+ 			<iCost>240</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+@@ -18654,6 +18686,7 @@
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 50 -->
+ 				<iCommerce>40</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+@@ -21379,6 +21412,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 6 -->
+ 				<iCommerce>5</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -21459,6 +21493,7 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_ANCIENT</MaxStartEra>
++			<!-- K-Mod: was Astronomy -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<PrereqTech>TECH_MYSTICISM</PrereqTech>
+ 			<TechTypes/>
+@@ -21746,6 +21781,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 8 -->
+ 				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -21941,6 +21977,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 6 -->
+ 				<iCommerce>5</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -22126,6 +22163,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 6 -->
+ 				<iCommerce>5</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -22316,6 +22354,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 6 -->
+ 				<iCommerce>5</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -22500,6 +22539,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 8 -->
+ 				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -22681,6 +22721,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 10 -->
+ 				<iCommerce>8</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -22866,6 +22907,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 8 -->
+ 				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -23059,6 +23101,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 8 -->
+ 				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -23242,6 +23285,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 6 -->
+ 				<iCommerce>5</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -23436,10 +23480,10 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>2</iCommerce>
+ 			</SpecialistExtraCommerces>
+-			<!-- Reduced by K-Mod; was 5 culture in BtS. -->
+ 			<StateReligionCommerces>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 5 -->
+ 				<iCommerce>3</iCommerce>
+ 			</StateReligionCommerces>
+ 			<CommerceHappinesses/>
+@@ -23610,6 +23654,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 8 -->
+ 				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -23791,6 +23836,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 10 -->
+ 				<iCommerce>8</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -23970,6 +24016,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 10 -->
+ 				<iCommerce>8</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -24158,11 +24205,7 @@
+ 			<CommerceChanges/>
+ 			<!-- advc.200: was 4 culture; reverted -->
+ 			<ObsoleteSafeCommerceChanges/>
+-			<CommerceChangeDoubleTimes>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>1000</iCommerce>
+-			</CommerceChangeDoubleTimes>
++			<CommerceChangeDoubleTimes/>
+ 			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+@@ -25742,6 +25785,7 @@
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+ 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
++			<!-- K-Mod: was 50 -->
+ 			<iGlobalSpaceProductionModifier>100</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+@@ -25943,6 +25987,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 3 -->
+ 				<iCommerce>2</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes/>
+@@ -26303,6 +26348,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 8 -->
+ 				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -26692,6 +26738,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 10 -->
+ 				<iCommerce>8</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -26879,6 +26926,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 10 -->
+ 				<iCommerce>8</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -27246,6 +27294,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 8 -->
+ 				<iCommerce>6</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+@@ -28615,7 +28664,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- K-Mod: was MASS_MEDIA -->
++			<!-- K-Mod: was MASS_MEDIA and CORPORATION -->
+ 			<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>NONE</PrereqTech>
+
+diff --git a/Assets/XML/Events/CIV4EventInfos.xml b/Assets/XML/Events/CIV4EventInfos.xml
+index ce476f958..310411b16 100644
+--- a/Assets/XML/Events/CIV4EventInfos.xml
++++ b/Assets/XML/Events/CIV4EventInfos.xml
+@@ -5,7 +5,8 @@
+ <!-- Copyright Firaxis Games 2006 -->
+ <!-- -->
+ <!-- Event Infos -->
+-<!-- DAS: Adding Callbacks to all events which change plot yields in order to add landmarks -->
++<!-- BUG (event signs): Adding Callbacks to all events which change plot yields
++	 in order to add landmarks -->
+ <Civ4EventInfos xmlns="x-schema:CIV4EventSchema.xml">
+ 	<EventInfos>
+ 		<EventInfo>
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index 40961f962..97c75cf34 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -38,7 +38,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -107,7 +106,6 @@
+ 			<iLuxuryModifier>25</iLuxuryModifier>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -172,7 +170,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>3</iLargestCityHappiness>
+@@ -241,7 +238,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -306,7 +302,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -385,7 +380,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -434,6 +428,7 @@
+ 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+ 			<iStateReligionGreatPeopleRateModifier>0</iStateReligionGreatPeopleRateModifier>
+ 			<iDistanceMaintenanceModifier>0</iDistanceMaintenanceModifier>
++			<!-- K-Mod: was 0 -->
+ 			<iNumCitiesMaintenanceModifier>-25</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+ 			<iExtraHealth>0</iExtraHealth>
+@@ -450,7 +445,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -515,7 +509,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -584,7 +577,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>3</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -659,7 +651,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -683,6 +674,7 @@
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 100 -->
+ 				<iCommerce>50</iCommerce>
+ 			</CommerceModifiers>
+ 			<CapitalCommerceModifiers/>
+@@ -737,7 +729,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -802,7 +793,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -873,7 +863,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -903,6 +892,7 @@
+ 			<BuildingHappinessChanges/>
+ 			<BuildingHealthChanges/>
+ 			<FeatureHappinessChanges/>
++			<!-- K-Mod -->
+ 			<ImprovementYieldChanges>
+ 				<ImprovementYieldChange>
+ 					<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
+@@ -963,7 +953,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1050,7 +1039,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1115,7 +1103,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1157,6 +1144,7 @@
+ 			<Button>,Art/Interface/Buttons/Civics/Mercantilism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,4,3</Button>
+ 			<TechPrereq>TECH_BANKING</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
++			<!-- K-Mod: was MEDIUM -->
+ 			<Upkeep>UPKEEP_LOW</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.132 -->
+@@ -1182,7 +1170,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1249,7 +1236,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1316,7 +1302,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1379,6 +1364,7 @@
+ 			<Button>,Art/Interface/Buttons/Civics/Environmentalism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,7,1</Button>
+ 			<TechPrereq>TECH_MEDICINE</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
++			<!-- K-Mod: was MEDIUM -->
+ 			<Upkeep>UPKEEP_HIGH</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.132 -->
+@@ -1389,7 +1375,9 @@
+ 			<iStateReligionGreatPeopleRateModifier>0</iStateReligionGreatPeopleRateModifier>
+ 			<iDistanceMaintenanceModifier>0</iDistanceMaintenanceModifier>
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
++			<!-- K-Mod: was 25 -->
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
++			<!-- K-Mod: was 6 -->
+ 			<iExtraHealth>0</iExtraHealth>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+@@ -1404,6 +1392,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
++			<!-- K-Mod -->
+ 			<iUnhealthyPopulationModifier>-30</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+@@ -1431,6 +1420,7 @@
+ 			<Hurrys/>
+ 			<SpecialBuildingNotRequireds/>
+ 			<SpecialistValids/>
++			<!-- K-Mod: was +2 health -->
+ 			<BuildingHappinessChanges>
+ 				<BuildingHappinessChange>
+ 					<BuildingType>BUILDINGCLASS_PUBLIC_TRANSPORTATION</BuildingType>
+@@ -1491,7 +1481,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1558,7 +1547,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1630,7 +1618,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1698,7 +1685,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1765,7 +1751,6 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+
+diff --git a/Assets/XML/GameInfo/CIV4CommerceInfo.xml b/Assets/XML/GameInfo/CIV4CommerceInfo.xml
+index 14cf5a21b..d9b57ef7e 100644
+--- a/Assets/XML/GameInfo/CIV4CommerceInfo.xml
++++ b/Assets/XML/GameInfo/CIV4CommerceInfo.xml
+@@ -12,6 +12,7 @@
+ 			<iInitialPercent>0</iInitialPercent>
+ 			<iInitialHappiness>0</iInitialHappiness>
+ 			<iAIWeightPercent>100</iAIWeightPercent>
++			<!-- K-Mod: was 0 -->
+ 			<bFlexiblePercent>1</bFlexiblePercent>
+ 			<Button>Art/Interface/Buttons/Process/ProcessWealth.dds</Button>
+ 		</CommerceInfo>
+@@ -35,7 +36,6 @@
+ 			<bFlexiblePercent>0</bFlexiblePercent>
+ 			<Button>Art/Interface/Buttons/Process/ProcessCulture.dds</Button>
+ 		</CommerceInfo>
+-		<!-- advc.120g: bFlexiblePercent was 1 -->
+ 		<CommerceInfo>
+ 			<Type>COMMERCE_ESPIONAGE</Type>
+ 			<!-- advc (note): That key actually exists -->
+@@ -43,6 +43,7 @@
+ 			<iInitialPercent>0</iInitialPercent>
+ 			<iInitialHappiness>0</iInitialHappiness>
+ 			<iAIWeightPercent>25</iAIWeightPercent>
++			<!-- advc.120g: was 1 -->
+ 			<bFlexiblePercent>0</bFlexiblePercent>
+ 			<Button>Art/Interface/Buttons/Process/ProcessCulture.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,16</Button>
+ 		</CommerceInfo>
+
+diff --git a/Assets/XML/GameInfo/CIV4EspionageMissionInfo.xml b/Assets/XML/GameInfo/CIV4EspionageMissionInfo.xml
+index 3c16792e5..c1ef77fd8 100644
+--- a/Assets/XML/GameInfo/CIV4EspionageMissionInfo.xml
++++ b/Assets/XML/GameInfo/CIV4EspionageMissionInfo.xml
+@@ -342,6 +342,7 @@
+ 		<EspionageMissionInfo>
+ 			<Type>ESPIONAGEMISSION_STEAL_TREASURY</Type>
+ 			<Description>TXT_KEY_ESPIONAGE_STEAL_TREASURY</Description>
++			<!-- K-Mod: was 300 -->
+ 			<iCost>400</iCost>
+ 			<bIsPassive>0</bIsPassive>
+ 			<bIsTwoPhases>0</bIsTwoPhases>
+@@ -361,6 +362,7 @@
+ 			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
+ 			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
+ 			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<!-- K-Mod: was 100 (formula works differently now) -->
+ 			<iStealTreasuryTypes>20</iStealTreasuryTypes>
+ 			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
+ 			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
+@@ -590,7 +592,7 @@
+ 			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
+ 			<iCityRevoltCounter>0</iCityRevoltCounter>
+ 			<iBuyTechCostFactor>0</iBuyTechCostFactor>
+-			<!-- advc.132: was 800 -->
++			<!-- advc.132: Was 800 in K-Mod (and, fwiw, 60000 in BtS) -->
+ 			<iSwitchCivicCostFactor>1000</iSwitchCivicCostFactor>
+ 			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
+ 			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
+@@ -629,7 +631,7 @@
+ 			<iCityRevoltCounter>0</iCityRevoltCounter>
+ 			<iBuyTechCostFactor>0</iBuyTechCostFactor>
+ 			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
+-			<!-- advc.132: was 800 -->
++			<!-- advc.132: Was 800 in K-Mod (and, fwiw, 60000 in BtS) -->
+ 			<iSwitchReligionCostFactor>1000</iSwitchReligionCostFactor>
+ 			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
+ 			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
+@@ -670,6 +672,7 @@
+ 			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
+ 			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
+ 			<iCounterespionageNumTurns>10</iCounterespionageNumTurns>
++			<!-- K-Mod: was 200 (works differently now) -->
+ 			<iCounterespionageMod>100</iCounterespionageMod>
+ 			<!-- advc.103 -->
+ 			<bReturnToCapital>1</bReturnToCapital>
+
+diff --git a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+index 4d41bd35e..86384e20f 100644
+--- a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
++++ b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+@@ -678,7 +678,8 @@
+ 	<ElementType name="iNumCitiesMaintenanceModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iCorporationMaintenanceModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iExtraHealth" content="textOnly" dt:type="int"/>
+-	<ElementType name="iExtraHappiness" content="textOnly" dt:type="int"/> <!-- K-Mod -->
++	<!-- K-Mod -->
++	<ElementType name="iExtraHappiness" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iFreeExperience" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iWorkerSpeedModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iImprovementUpgradeRateModifier" content="textOnly" dt:type="int"/>
+@@ -694,6 +695,7 @@
+ 	<ElementType name="iLuxuryModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="bMilitaryFoodProduction" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="iMaxConscript" content="textOnly" dt:type="int"/>
++	<!-- K-Mod -->
+ 	<ElementType name="iUnhealthyPopulationModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iExpInBorderModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="bBuildingOnlyHealthy" content="textOnly" dt:type="boolean"/>
+@@ -819,8 +821,8 @@
+ 		<element type="iNumCitiesMaintenanceModifier"/>
+ 		<element type="iCorporationMaintenanceModifier"/>
+ 		<element type="iExtraHealth"/>
+-		<!-- advc: Made optional; default is 0. -->
+-		<element type="iExtraHappiness"  minOccurs="0"/> <!-- K-Mod -->
++		<!-- K-Mod (advc: made optional) -->
++		<element type="iExtraHappiness"  minOccurs="0"/>
+ 		<element type="iFreeExperience"/>
+ 		<element type="iWorkerSpeedModifier"/>
+ 		<element type="iImprovementUpgradeRateModifier"/>
+@@ -836,7 +838,8 @@
+ 		<element type="iLuxuryModifier" minOccurs="0"/>
+ 		<element type="bMilitaryFoodProduction"/>
+ 		<element type="iMaxConscript"/>
+-		<element type="iUnhealthyPopulationModifier"/>
++		<!-- K-Mod (advc: made optional) -->
++		<element type="iUnhealthyPopulationModifier" minOccurs="0"/>
+ 		<element type="iExpInBorderModifier"/>
+ 		<element type="bBuildingOnlyHealthy"/>
+ 		<element type="iLargestCityHappiness"/>
+
+diff --git a/Assets/XML/GameInfo/CIV4SpecialistInfos.xml b/Assets/XML/GameInfo/CIV4SpecialistInfos.xml
+index 0a7aa915f..884aed635 100644
+--- a/Assets/XML/GameInfo/CIV4SpecialistInfos.xml
++++ b/Assets/XML/GameInfo/CIV4SpecialistInfos.xml
+@@ -184,6 +184,7 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- BUG: was ,.../Buttons/TechTree/Corporation.dds,.../Buttons/Beyond_the_Sword_Atlas.dds,5,14 -->
+ 			<Button>Art/Interface/MainScreen/CityScreen/spy.dds</Button>
+ 		</SpecialistInfo>
+ 		<SpecialistInfo>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index b03c01a1f..997caaa3b 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -3302,6 +3302,8 @@
+ 			<iGridX>13</iGridX>
+ 			<iGridY>9</iGridY>
+ 			<DomainExtraMoves/>
++			<!-- K-Mod 1.44
++				(K-Mod 1.45 uses CommerceModifiers for +10% research instead) -->
+ 			<SpecialistExtraCommerces>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>1</iCommerce>
+
+diff --git a/Assets/XML/Technologies/CIV4TechnologiesSchema.xml b/Assets/XML/Technologies/CIV4TechnologiesSchema.xml
+index b046fde75..c0bfb5059 100644
+--- a/Assets/XML/Technologies/CIV4TechnologiesSchema.xml
++++ b/Assets/XML/Technologies/CIV4TechnologiesSchema.xml
+@@ -54,10 +54,12 @@
+ 	<ElementType name="DomainExtraMoves" content="eltOnly">
+ 		<element type="DomainExtraMove" minOccurs="0" maxOccurs="*"/>
+ 	</ElementType>
++	<!-- K-Mod start -->
+ 	<ElementType name="iCommerce" content="textOnly" dt:type="int"/>
+ 	<ElementType name="SpecialistExtraCommerces" content="eltOnly">
+ 		<element type="iCommerce" minOccurs="0" maxOccurs="*"/>
+ 	</ElementType>
++	<!-- K-Mod end -->
+ 	<ElementType name="bFlexible" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="CommerceFlexible" content="eltOnly">
+ 		<element type="bFlexible" minOccurs="0" maxOccurs="*"/>
+@@ -144,6 +146,7 @@
+ 		<element type="iGridX"/>
+ 		<element type="iGridY"/>
+ 		<element type="DomainExtraMoves"/>
++		<!-- K-Mod -->
+ 		<element type="SpecialistExtraCommerces" minOccurs="0"/>
+ 		<element type="CommerceFlexible"/>
+ 		<element type="TerrainTrades"/>
+
+diff --git a/Assets/XML/Terrain/CIV4FeatureInfos.xml b/Assets/XML/Terrain/CIV4FeatureInfos.xml
+index e6eab30a2..cf91cec0d 100644
+--- a/Assets/XML/Terrain/CIV4FeatureInfos.xml
++++ b/Assets/XML/Terrain/CIV4FeatureInfos.xml
+@@ -492,6 +492,7 @@
+ 			<iDisappearance>0</iDisappearance>
+ 			<iGrowth>8</iGrowth>
+ 			<iTurnDamage>0</iTurnDamage>
++			<!-- K-Mod -->
+ 			<iWarmingDefense>10</iWarmingDefense>
+ 			<bNoCoast>0</bNoCoast>
+ 			<bNoRiver>0</bNoRiver>
+@@ -611,6 +612,7 @@
+ 			<iHealthPercent>-50</iHealthPercent>
+ 			<iDefense>0</iDefense>
+ 			<iAppearance>0</iAppearance>
++			<!-- K-Mod: was 500 -->
+ 			<iDisappearance>250</iDisappearance>
+ 			<iGrowth>0</iGrowth>
+ 			<iTurnDamage>0</iTurnDamage>
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index 3dbabf26c..197766b81 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -760,6 +760,7 @@
+ 			<YieldChanges>
+ 				<iYieldChange>0</iYieldChange>
+ 				<iYieldChange>1</iYieldChange>
++				<!-- K-Mod: was 0 -->
+ 				<iYieldChange>1</iYieldChange>
+ 			</YieldChanges>
+ 			<bActsAsCity>0</bActsAsCity>
+@@ -804,6 +805,7 @@
+ 					<TechYields>
+ 						<iYield>0</iYield>
+ 						<iYield>0</iYield>
++						<!-- K-Mod: was 2 -->
+ 						<iYield>1</iYield>
+ 					</TechYields>
+ 				</TechYieldChange>
+@@ -1355,6 +1357,7 @@
+ 			<Description>TXT_KEY_IMPROVEMENT_HAMLET</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_HAMLET_PEDIA</Civilopedia>
+ 			<ArtDefineTag>ART_DEF_IMPROVEMENT_HAMLET</ArtDefineTag>
++			<!-- K-Mod: same requirements as for Cottage -->
+ 			<PrereqNatureYields>
+ 				<iYield>1</iYield>
+ 				<iYield>0</iYield>
+@@ -1367,6 +1370,7 @@
+ 			</YieldChanges>
+ 			<bActsAsCity>0</bActsAsCity>
+ 			<bHillsMakesValid>0</bHillsMakesValid>
++			<!-- K-Mod: was 0 -->
+ 			<bFreshWaterMakesValid>1</bFreshWaterMakesValid>
+ 			<bRiverSideMakesValid>0</bRiverSideMakesValid>
+ 			<bNoFreshWater>0</bNoFreshWater>
+@@ -1390,6 +1394,7 @@
+ 			<iHappiness>0</iHappiness>
+ 			<iPillageGold>15</iPillageGold>
+ 			<bOutsideBorders>0</bOutsideBorders>
++			<!-- K-Mod -->
+ 			<TerrainMakesValids>
+ 				<TerrainMakesValid>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+@@ -1412,6 +1417,7 @@
+ 			<Description>TXT_KEY_IMPROVEMENT_VILLAGE</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_VILLAGE_PEDIA</Civilopedia>
+ 			<ArtDefineTag>ART_DEF_IMPROVEMENT_VILLAGE</ArtDefineTag>
++			<!-- K-Mod -->
+ 			<PrereqNatureYields>
+ 				<iYield>1</iYield>
+ 				<iYield>0</iYield>
+@@ -1424,6 +1430,7 @@
+ 			</YieldChanges>
+ 			<bActsAsCity>0</bActsAsCity>
+ 			<bHillsMakesValid>0</bHillsMakesValid>
++			<!-- K-Mod: was 0 -->
+ 			<bFreshWaterMakesValid>1</bFreshWaterMakesValid>
+ 			<bRiverSideMakesValid>0</bRiverSideMakesValid>
+ 			<bNoFreshWater>0</bNoFreshWater>
+@@ -1447,6 +1454,7 @@
+ 			<iHappiness>0</iHappiness>
+ 			<iPillageGold>20</iPillageGold>
+ 			<bOutsideBorders>0</bOutsideBorders>
++			<!-- K-Mod -->
+ 			<TerrainMakesValids>
+ 				<TerrainMakesValid>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+@@ -1478,6 +1486,7 @@
+ 			<Description>TXT_KEY_IMPROVEMENT_TOWN</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_TOWN_PEDIA</Civilopedia>
+ 			<ArtDefineTag>ART_DEF_IMPROVEMENT_TOWN</ArtDefineTag>
++			<!-- K-Mod -->
+ 			<PrereqNatureYields>
+ 				<iYield>1</iYield>
+ 				<iYield>0</iYield>
+@@ -1490,6 +1499,7 @@
+ 			</YieldChanges>
+ 			<bActsAsCity>0</bActsAsCity>
+ 			<bHillsMakesValid>0</bHillsMakesValid>
++			<!-- K-Mod: was 0 -->
+ 			<bFreshWaterMakesValid>1</bFreshWaterMakesValid>
+ 			<bRiverSideMakesValid>0</bRiverSideMakesValid>
+ 			<bNoFreshWater>0</bNoFreshWater>
+@@ -1513,6 +1523,7 @@
+ 			<iHappiness>0</iHappiness>
+ 			<iPillageGold>25</iPillageGold>
+ 			<bOutsideBorders>0</bOutsideBorders>
++			<!-- K-Mod -->
+ 			<TerrainMakesValids>
+ 				<TerrainMakesValid>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+@@ -1604,13 +1615,13 @@
+ 			<Description>TXT_KEY_IMPROVEMENT_FOREST_PRESERVE</Description>
+ 			<Civilopedia>TXT_KEY_IMPROVEMENT_FOREST_PRESERVE_PEDIA</Civilopedia>
+ 			<ArtDefineTag>ART_DEF_IMPROVEMENT_FOREST_PRESERVE</ArtDefineTag>
++			<!-- K-Mod -->
+ 			<YieldChanges>
+ 				<iYieldChange>0</iYieldChange>
+ 				<iYieldChange>0</iYieldChange>
+ 				<iYieldChange>1</iYieldChange>
+ 			</YieldChanges>
+-			<!-- advc.901: Removed RiverSideYieldChange (1 commerce).
+-                 YieldChanges above added by K-Mod.	-->
++			<!-- advc.901: Removed RiverSideYieldChange (1 commerce) -->
+ 			<bActsAsCity>0</bActsAsCity>
+ 			<bHillsMakesValid>0</bHillsMakesValid>
+ 			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
+
+diff --git a/Assets/XML/Terrain/CIV4TerrainSchema.xml b/Assets/XML/Terrain/CIV4TerrainSchema.xml
+index 9503d4d96..22287465b 100644
+--- a/Assets/XML/Terrain/CIV4TerrainSchema.xml
++++ b/Assets/XML/Terrain/CIV4TerrainSchema.xml
+@@ -119,7 +119,8 @@
+ 	<ElementType name="iDisappearance" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iGrowth" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iTurnDamage" content="textOnly" dt:type="int"/>
+-	<ElementType name="iWarmingDefense" content="textOnly" dt:type="int"/> <!-- GWMod new XML field M.A. -->
++	<!-- GWMod new XML field M.A. -->
++	<ElementType name="iWarmingDefense" content="textOnly" dt:type="int"/>
+ 	<ElementType name="bNoCoast" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="bNoRiver" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="bNoAdjacent" content="textOnly" dt:type="boolean"/>
+@@ -160,7 +161,7 @@
+ 		<element type="iDisappearance"/>
+ 		<element type="iGrowth"/>
+ 		<element type="iTurnDamage"/>
+-		<!-- advc: Now optional; set to 0 by default in the DLL. -->
++		<!-- GWMod (advc: now optional; 0 by default) -->
+ 		<element type="iWarmingDefense" minOccurs="0"/>
+ 		<element type="bNoCoast"/>
+ 		<element type="bNoRiver"/>
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index 0f0151f80..ac0604e41 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -212,6 +212,7 @@
+ 			<Type>BUILD_LUMBERMILL</Type>
+ 			<Description>TXT_KEY_BUILD_LUMBERMILL</Description>
+ 			<Help/>
++			<!-- K-Mod: was REPLACEABLE_PARTS -->
+ 			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<!-- advc.902: was 800 -->
+ 			<iTime>500</iTime>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index f8ba76fa7..fb2e9caa7 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -2535,6 +2535,7 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+ 			<iRevoltProtection>0</iRevoltProtection>
++			<!-- K-Mod: was 0 -->
+ 			<iCollateralDamageProtection>15</iCollateralDamageProtection>
+ 			<iPillageChange>0</iPillageChange>
+ 			<iUpgradeDiscount>0</iUpgradeDiscount>
+@@ -2623,6 +2624,7 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+ 			<iRevoltProtection>0</iRevoltProtection>
++			<!-- K-Mod: was 20 -->
+ 			<iCollateralDamageProtection>15</iCollateralDamageProtection>
+ 			<iPillageChange>0</iPillageChange>
+ 			<iUpgradeDiscount>0</iUpgradeDiscount>
+@@ -2715,6 +2717,7 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+ 			<iRevoltProtection>0</iRevoltProtection>
++			<!-- K-Mod: was 20 -->
+ 			<iCollateralDamageProtection>15</iCollateralDamageProtection>
+ 			<iPillageChange>0</iPillageChange>
+ 			<iUpgradeDiscount>0</iUpgradeDiscount>
+@@ -2807,6 +2810,7 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+ 			<iRevoltProtection>0</iRevoltProtection>
++			<!-- K-Mod: was 20 -->
+ 			<iCollateralDamageProtection>15</iCollateralDamageProtection>
+ 			<iPillageChange>0</iPillageChange>
+ 			<iUpgradeDiscount>0</iUpgradeDiscount>
+@@ -3746,6 +3750,7 @@
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
++			<!-- K-Mod: was 0 -->
+ 			<iRevoltProtection>50</iRevoltProtection>
+ 			<iCollateralDamageProtection>0</iCollateralDamageProtection>
+ 			<iPillageChange>0</iPillageChange>
+@@ -4544,7 +4549,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,15</Button>
+ 		</PromotionInfo>
+-<!-- K-Mod, special penalty promotion -->
++		<!-- K-Mod, special penalty promotion -->
+ 		<PromotionInfo>
+ 			<Type>PROMOTION_DISORGANIZED</Type>
+ 			<Description>TXT_KEY_PROMOTION_DISORGANIZED</Description>
+
+diff --git a/Assets/XML/Units/CIV4UnitClassInfos.xml b/Assets/XML/Units/CIV4UnitClassInfos.xml
+index d091d4439..141918621 100644
+--- a/Assets/XML/Units/CIV4UnitClassInfos.xml
++++ b/Assets/XML/Units/CIV4UnitClassInfos.xml
+@@ -584,6 +584,7 @@
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+ 			<Type>UNITCLASS_SHIP_OF_THE_LINE</Type>
++			<!-- BBAI: _UNIT_ was missing -->
+ 			<Description>TXT_KEY_UNIT_SHIP_OF_THE_LINE</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 1cde9beb7..89e3b08b4 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -3156,6 +3156,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_JUDAISM</ReligionType>
++					<!-- K-Mod: was 40 -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+@@ -3322,6 +3323,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_CHRISTIANITY</ReligionType>
++					<!-- K-Mod: was 40 -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+@@ -3488,6 +3490,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_ISLAM</ReligionType>
++					<!-- K-Mod: was 40 -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+@@ -3654,6 +3657,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_HINDUISM</ReligionType>
++					<!-- K-Mod: was 40 -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+@@ -3820,6 +3824,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_BUDDHISM</ReligionType>
++					<!-- K-Mod: was 40 -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+@@ -3986,6 +3991,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_CONFUCIANISM</ReligionType>
++					<!-- K-Mod: was 40 -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+@@ -4152,6 +4158,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_TAOISM</ReligionType>
++					<!-- K-Mod: was 40 -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+@@ -4695,6 +4702,7 @@
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
++			<!-- K-Mod: UNITAI_CITY_DEFENSE removed -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -5063,6 +5071,7 @@
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
++			<!-- K-Mod: UNITAI_CITY_DEFENSE removed -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -5403,6 +5412,7 @@
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
++			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+@@ -5604,6 +5614,7 @@
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
++			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+@@ -5802,6 +5813,7 @@
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
++			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+@@ -5995,6 +6007,7 @@
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
++			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+@@ -6184,6 +6197,7 @@
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
++			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+@@ -6245,6 +6259,7 @@
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- K-Mod -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -6390,6 +6405,7 @@
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
++			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+@@ -6451,6 +6467,7 @@
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- K-Mod -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -6595,6 +6612,7 @@
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
++			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+@@ -7626,6 +7644,7 @@
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
++				<!-- K-Mod -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -8581,10 +8600,12 @@
+ 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- K-Mod -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- K-Mod -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -8773,10 +8794,12 @@
+ 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- K-Mod -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- K-Mod -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -9035,6 +9058,7 @@
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
++			<!-- K-Mod: was 0 -->
+ 			<iCityAttack>10</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+@@ -9354,6 +9378,7 @@
+ 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- K-Mod -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -14345,6 +14370,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- K-Mod: was 60 -->
+ 			<iCost>70</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -14534,6 +14560,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- K-Mod: was 60 -->
+ 			<iCost>70</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -14564,6 +14591,7 @@
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
++			<!-- K-Mod: was 0 -->
+ 			<iFirstStrikes>1</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+@@ -15275,6 +15303,7 @@
+ 					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- K-Mod -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -15386,6 +15415,7 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- K-Mod -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+ 					<PromotionType>PROMOTION_AMPHIBIOUS</PromotionType>
+@@ -16079,6 +16109,7 @@
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>100</iCollateralDamage>
+ 			<iCollateralDamageLimit>60</iCollateralDamageLimit>
++			<!-- K-Mod: was 7 -->
+ 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+@@ -16203,6 +16234,7 @@
+ 					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- K-Mod -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -16454,6 +16486,7 @@
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>100</iCollateralDamage>
+ 			<iCollateralDamageLimit>70</iCollateralDamageLimit>
++			<!-- K-Mod: was 8 -->
+ 			<iCollateralDamageMaxUnits>7</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+@@ -16639,6 +16672,7 @@
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>100</iCollateralDamage>
+ 			<iCollateralDamageLimit>70</iCollateralDamageLimit>
++			<!-- K-Mod: was 8 -->
+ 			<iCollateralDamageMaxUnits>7</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+@@ -17053,6 +17087,7 @@
+ 			<iBombardRate>0</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>DOMAIN_LAND</DomainCargo>
++			<!-- K-Mod: was 2 -->
+ 			<iCargo>3</iCargo>
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+@@ -17657,7 +17692,7 @@
+ 			<iBombardRate>0</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>DOMAIN_LAND</DomainCargo>
+-			<!-- advc.905a: 3 in K-Mod, 2 in BtS -->
++			<!-- advc.905a: K-Mod had increased this to 3 -->
+ 			<iCargo>2</iCargo>
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+@@ -17838,6 +17873,7 @@
+ 			<iBombardRate>0</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>DOMAIN_LAND</DomainCargo>
++			<!-- K-Mod: was 3 -->
+ 			<iCargo>4</iCargo>
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+@@ -19025,6 +19061,7 @@
+ 			<iBombardRate>0</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>DOMAIN_LAND</DomainCargo>
++			<!-- K-Mod: was 4 -->
+ 			<iCargo>5</iCargo>
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+@@ -19582,6 +19619,7 @@
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>6</iAsset>
++			<!-- BBAI: was 14 -->
+ 			<iPower>42</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -19662,6 +19700,7 @@
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
++			<!-- BBAI: UNIT_ESCORT_SEA removed -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK_SEA</UnitAIType>
+@@ -19735,7 +19774,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- advc.200,advc.906: As in BtS, was 36 in K-Mod. -->
++			<!-- advc.200, advc.906: K-Mod had increased this to 36-->
+ 			<iCombat>30</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+@@ -21368,6 +21407,7 @@
+ 			<iMinAreaSize>-1</iMinAreaSize>
+ 			<iMoves>1</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
++			<!-- K-Mod: was 4 -->
+ 			<iAirRange>5</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+ 			<iDropRange>0</iDropRange>
+@@ -22170,6 +22210,7 @@
+ 			<iHurryMultiplier>0</iHurryMultiplier>
+ 			<iBaseTrade>0</iBaseTrade>
+ 			<iTradeMultiplier>0</iTradeMultiplier>
++			<!-- K-Mod: Was 4000; now counts per era. -->
+ 			<iGreatWorkCulture>800</iGreatWorkCulture>
+ 			<iEspionagePoints>0</iEspionagePoints>
+ 			<TerrainImpassables/>
+@@ -23190,6 +23231,7 @@
+ 			<Capture>NONE</Capture>
+ 			<Combat>NONE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
++			<!-- K-Mod: was UNITAI_GREAT_MERCHANT -->
+ 			<DefaultUnitAI>UNITAI_GREAT_SPY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+@@ -23213,6 +23255,7 @@
+ 			<bDestroy>0</bDestroy>
+ 			<bStealPlans>0</bStealPlans>
+ 			<bInvestigate>0</bInvestigate>
++			<!-- K-Mod: was 0 -->
+ 			<bCounterSpy>1</bCounterSpy>
+ 			<bFound>0</bFound>
+ 			<bGoldenAge>1</bGoldenAge>
+@@ -23238,6 +23281,7 @@
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
++				<!-- K-Mod: was UNITAI_GREAT_MERCHANT -->
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_GREAT_SPY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -23360,6 +23404,7 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- K-Mod -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+ 					<PromotionType>PROMOTION_COMMANDO</PromotionType>
+
+diff --git a/Assets/XML/Units/CIV4UnitSchema.xml b/Assets/XML/Units/CIV4UnitSchema.xml
+index 5dfbed5f4..092a0fa93 100644
+--- a/Assets/XML/Units/CIV4UnitSchema.xml
++++ b/Assets/XML/Units/CIV4UnitSchema.xml
+@@ -804,6 +804,7 @@
+ 	<ElementType name="PromotionPrereq" content="textOnly"/>
+ 	<ElementType name="PromotionPrereqOr1" content="textOnly"/>
+ 	<ElementType name="PromotionPrereqOr2" content="textOnly"/>
++	<!-- K-Mod -->
+ 	<ElementType name="PromotionPrereqOr3" content="textOnly"/>
+ 	<ElementType name="TechPrereq" content="textOnly"/>
+ 	<ElementType name="StateReligionPrereq" content="textOnly"/>
+@@ -867,11 +868,12 @@
+ 		<element type="PromotionPrereq"/>
+ 		<element type="PromotionPrereqOr1"/>
+ 		<element type="PromotionPrereqOr2"/>
++		<!-- K-Mod -->
+ 		<element type="PromotionPrereqOr3"/>
+ 		<element type="TechPrereq"/>
+ 		<element type="StateReligionPrereq"/>
+ 		<element type="bLeader"/>
+-		<!-- advc.164: -->
++		<!-- advc.164 -->
+ 		<element type="iBlitz"/>
+ 		<element type="bAmphib"/>
+ 		<element type="bRiver"/>
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.cpp b/CvGameCoreDLL/CvInfo_Civics.cpp
+index ce7efd07e..8c8b549ee 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.cpp
++++ b/CvGameCoreDLL/CvInfo_Civics.cpp
+@@ -434,7 +434,8 @@ bool CvCivicInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_bMilitaryFoodProduction, "bMilitaryFoodProduction");
+ 	pXML->GetChildXmlValByName(&m_iMaxConscript, "iMaxConscript");
+ 	//pXML->GetChildXmlValByName(&m_bNoUnhealthyPopulation, "bNoUnhealthyPopulation");
+-	pXML->GetChildXmlValByName(&m_iUnhealthyPopulationModifier, "iUnhealthyPopulationModifier"); // K-Mod
++	// K-Mod (advc - optional):
++	pXML->GetChildXmlValByName(&m_iUnhealthyPopulationModifier, "iUnhealthyPopulationModifier", 0); // K-Mod
+ 	pXML->GetChildXmlValByName(&m_bBuildingOnlyHealthy, "bBuildingOnlyHealthy");
+ 	pXML->GetChildXmlValByName(&m_iLargestCityHappiness, "iLargestCityHappiness");
+ 	pXML->GetChildXmlValByName(&m_iWarWearinessModifier, "iWarWearinessModifier");
+
+[PATCH COVERAGE]
+patchFiles=21 embeddedFiles=21 omittedFiles=0 embeddedPatchBytes=68010

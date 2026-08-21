@@ -1,0 +1,263 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1793
+# Commit: 8176775d114c07bf1472adae034056b59b117599
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 031365f32f6d71519e2fd09c6f6e963ecbef4bd3
+# Title: Integrate TSC profiler with AdvCiv; /Ob1 for debug builds.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	CvGameCoreDLL/FProfiler.h
+9	4	CvGameCoreDLL/Project/Makefile
+6	1	CvGameCoreDLL/Project/Makefile.project
+33	13	CvGameCoreDLL/TSCProfiler.cpp
+18	10	CvGameCoreDLL/TSCProfiler.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/FProfiler.h b/CvGameCoreDLL/FProfiler.h
+index 685b5e2aa..ad4010304 100644
+--- a/CvGameCoreDLL/FProfiler.h
++++ b/CvGameCoreDLL/FProfiler.h
+@@ -12,6 +12,11 @@
+ #include "CvDLLUtilityIFaceBase.h"
+ #include "CvGlobals.h"	// for gDLL
+ 
++// <advc.make> I don't think the internal profiler can work w/o the standard profiler
++#ifdef USE_INTERNAL_PROFILER
++#define FP_PROFILE_ENABLE
++#endif
++// </advc.make>
+ 
+ //NOTE: This struct must be identical ot the same struct in  FireEngine/FProfiler.h if the
+ //standard profiler is being used (USE_INTERNAL_PROFILER not defined)
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+index 527d0df8f..dddb0d70e 100644
+--- a/CvGameCoreDLL/Project/Makefile
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -20,8 +20,8 @@
+ #   difficult to associate error messages with a translation unit; but don't need
+ #   a slow version of every config.]
+ # YOURMOD2 and YOURLOGS (see under "Paths").
+-# PROJECT_Profile_CFLAGS added to Makefile.project. So that the internal profiler
+-# can be enabled from there.
++# PROJECT_Profile_CFLAGS and PROJECT_Debug_CFLAGS added to Makefile.project.
++# For selecting a profiler and for balancing speed vs. fidelity of debug builds.
+ # Removed unused /DCVGAMECOREDLL_EXPORTS from Debug_DEFINES
+ # devolution (Erik) has added the target 'Final_Release' with
+ #   whole-program optimization. [There is also a Firaxis define called
+@@ -109,6 +109,7 @@ CUSTOM_LDFLAGS =
+ 
+ PRECOMPILE_DEPENDENCIES =
+ PROJECT_CFLAGS =
++PROJECT_Debug_CFLAGS =
+ PROJECT_Profile_CFLAGS =
+ PROJECT_LDFLAGS =
+ SOURCE_DIR =
+@@ -138,6 +139,8 @@ SUBDIRPATH15 = ../
+ !ENDIF
+ !IF [ECHO PROJECT_Profile_CFLAGS = >> Makefile.project]
+ !ENDIF
++!IF [ECHO PROJECT_Debug_CFLAGS = >> Makefile.project]
++!ENDIF
+ !IF [ECHO PRECOMPILE_DEPENDENCIES = >> Makefile.project]
+ !ENDIF
+ !ENDIF
+@@ -185,7 +188,7 @@ FILE_DEPENDS = $(TEMP_TARGET_FILES)\depends
+ 
+ #### CFLAGS ####
+ GLOBAL_CFLAGS=/GR /Gy /W3 /EHsc /Gd /Gm- /Fd"$(Target_PDB)" $(CUSTOM_CFLAGS) $(PROJECT_CFLAGS)
+-Debug_CFLAGS=/MD /Z7 /Od /RTC1 $(Debug_DEFINES) $(GLOBAL_CFLAGS)
++Debug_CFLAGS=/MD /Z7 /Od /RTC1 $(Debug_DEFINES) $(GLOBAL_CFLAGS) $(PROJECT_Debug_CFLAGS)
+ # (Debug-opt: Using Debug_CFLAGS without /D_DEBUG /RTC1 might accomplish largely the same)
+ Debug_Opt_CFLAGS=/MD /O2 /Z7 /Oi /G7 /arch:SSE2 $(Release_DEFINES) $(GLOBAL_CFLAGS)
+ Release_CFLAGS=/MD /O2 /Oy /Oi /G7 /arch:SSE2 $(Release_DEFINES) $(GLOBAL_CFLAGS)
+@@ -236,7 +239,9 @@ LDFLAGS = $(Debug_LDFLAGS)
+ LIBS    = $(LIBS) msvcprt.lib
+ !ENDIF
+ !IF "$(TARGET)" == "Debug-opt"
+-CFLAGS  = $(Debug_Opt_CFLAGS) /DFASSERT_ENABLE
++CFLAGS  = $(Debug_Opt_CFLAGS)
++# Should remove this line when inspecting assembly
++CFLAGS = $(CFLAGS) /DFASSERT_ENABLE
+ LDFLAGS = $(Debug_LDFLAGS)
+ # Leaving out msvcprt might help with debugging memory (but I doubt it)
+ LIBS    = $(LIBS) msvcprt.lib
+
+diff --git a/CvGameCoreDLL/Project/Makefile.project b/CvGameCoreDLL/Project/Makefile.project
+index e2da28472..813ee62ef 100644
+--- a/CvGameCoreDLL/Project/Makefile.project
++++ b/CvGameCoreDLL/Project/Makefile.project
+@@ -1,5 +1,10 @@
+ SOURCE_DIR = ..
+ PROJECT_CFLAGS = /WX
+-PROJECT_Profile_CFLAGS = /DFP_PROFILE_ENABLE /DUSE_INTERNAL_PROFILER
++# Allow inline expansion of functions with an inline keyword even for debug builds
++PROJECT_Debug_CFLAGS = /Ob1
++# DLL-internal profiler: /DUSE_INTERNAL_PROFILER
++# Time Stamp Counter profiler: /DUSE_TSC_PROFILER
++# Standard Firaxis profiler (not sure if this can work w/o access to the EXE): /DFP_PROFILE_ENABLE
++PROJECT_Profile_CFLAGS = /DUSE_TSC_PROFILER
+ PROJECT_LDFLAGS = /DEF:CvGameCoreDLL.def
+ PRECOMPILE_DEPENDENCIES =
+
+diff --git a/CvGameCoreDLL/TSCProfiler.cpp b/CvGameCoreDLL/TSCProfiler.cpp
+index 21432dfc3..7ca45f984 100644
+--- a/CvGameCoreDLL/TSCProfiler.cpp
++++ b/CvGameCoreDLL/TSCProfiler.cpp
+@@ -1,6 +1,9 @@
+-
+ #include "CvGameCoreDLL.h"
+-#include "Profile.h"
++#include "TSCProfiler.h"
++
++// advc.003o: Adopted from "We the People"; see comment in header file.
++
++#include <sstream> // advc.003o: Will use this instead of fprintf
+ 
+ static __declspec(naked)unsigned __int64 __cdecl RDTSC(void)
+ {
+@@ -11,30 +14,35 @@ static __declspec(naked)unsigned __int64 __cdecl RDTSC(void)
+ 	}
+ }
+ 
+-Profiler::Profiler(const char* szName)
++TSCSample::TSCSample(const char* szName)
+ 	: m_szName(szName)
+ 	, m_iStartTime(RDTSC())
+ {
+ }
+ 
+-Profiler::~Profiler()
++TSCSample::~TSCSample()
+ {
+ 	unsigned __int64 iTime = RDTSC();
+ 	iTime -= m_iStartTime;
+-	GC.getProfiler().addSample(iTime, m_szName);
++	TSCProfiler::getInstance().addSample(iTime, m_szName);
+ }
+ 
+-void ProfilerManager::addSample(unsigned __int64 iTime, const char* szName)
++// <advc.003o>
++TSCProfiler& TSCProfiler::getInstance()
++{
++	static TSCProfiler singleton;
++	return singleton;
++} // </advc.003o>
++
++void TSCProfiler::addSample(unsigned __int64 iTime, const char* szName)
+ {
+ 	SampleStorageTypes::iterator pIterator;
+ 
+-	// TODO: make thread safe without slowing down single threaded performance
++	// TODO: make thread-safe without slowing down single threaded performance
+ 
+ 	pIterator = this->m_Samples.find(szName);
+ 	if (pIterator == m_Samples.end())
+-	{
+ 		m_Samples.insert(std::pair <std::string, storage>( szName, storage(1, iTime)));
+-	}
+ 	else
+ 	{
+ 		pIterator->second.first++;
+@@ -42,14 +50,26 @@ void ProfilerManager::addSample(unsigned __int64 iTime, const char* szName)
+ 	}
+ }
+ 
+-void ProfilerManager::writeFile() const
++void TSCProfiler::writeFile() const
+ {
+ 	if (m_Samples.empty())
+-	{
+ 		return;
++
++	// <advc.003o>
++	std::ostringstream out;
++	out << "Name\t\tAverage clocks\tNumber of calls\tTotal clocks\n";
++	for (SampleStorageTypes::const_iterator iterator = m_Samples.begin(); iterator != m_Samples.end(); ++iterator)
++	{
++		unsigned __int64 iCount = iterator->second.first;
++		unsigned __int64 iTime = iterator->second.second;
++		out << iterator->first.c_str() << "\t" << (iTime / iCount) << "\t\t"
++				<< iCount << "\t" << iTime << "\n";
+ 	}
++	out << std::endl;
++	gDLL->logMsg("TSCProfile.log", out.str().c_str(), false, false);
++	// </advc.003o>
+ 
+-	CvString filename = gDLL->getModName();
++	/*CvString filename = gDLL->getModName();
+ 	filename.append("Profile output.txt");
+ 
+ 	// Using C style file writing
+@@ -74,5 +94,5 @@ void ProfilerManager::writeFile() const
+ 			fprintf(f, "\n");
+ 		}
+ 		fclose(f);
+-	}
++	}*/
+ }
+
+diff --git a/CvGameCoreDLL/TSCProfiler.h b/CvGameCoreDLL/TSCProfiler.h
+index 5bdebe3ff..201546616 100644
+--- a/CvGameCoreDLL/TSCProfiler.h
++++ b/CvGameCoreDLL/TSCProfiler.h
+@@ -1,28 +1,36 @@
+-#ifndef PROFILE_H
+-#define PROFILE_H
++#ifndef TSC_PROFILER_H
++#define TSC_PROFILER_H
++#pragma once
+ 
+-#ifdef PROFILING_ENABLED
+-#define MOD_PROFILE( x ) Profiler profileSession( x );
++/*  advc.003o: Profiler based on Time Stamp Counter. From the "We the People" mod
++	for Civ 4 Colonization. Original code by Nightinggale (3 Nov 2019). */
++
++#ifdef USE_TSC_PROFILER
++#define TSC_PROFILE( x ) TSCSample sample( x );
+ #else
+-#define MOD_PROFILE( x )
++// advc.006c: void(0) in order to force semicolon
++#define TSC_PROFILE( x ) (void)0
+ #endif
+ 
+-class Profiler
++
++class TSCSample // advc: Renamed from "Profiler"
+ {
+ public:
+-	Profiler(const char* szName);
+-	~Profiler();
++	TSCSample(const char* szName);
++	~TSCSample();
+ 
+ private:
+ 	const char* m_szName;
+ 	unsigned __int64 m_iStartTime;
+ };
+ 
+-class ProfilerManager
++
++class TSCProfiler // advc: Renamed from "ProfilerManager"
+ {
+ public:
++	// advc.003o: Instead of an instance at CvGlobals
++	static TSCProfiler& getInstance();
+ 	void addSample(unsigned __int64 iTime, const char* szName);
+-
+ 	void writeFile() const;
+ 
+ private:
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=7591

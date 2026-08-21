@@ -1,0 +1,103 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2726
+# Commit: 7ef8ef1dc2c28167ebf25f1098e21d7f99c26037
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2db15bae82d823d5ae7dc39a91163740267a6b3b
+# Title: Fix issue with lingering goody hut indicators
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	2	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+9	8	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index eabe14a7b..3c1a6c3de 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -19201,6 +19201,13 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption,
+ 	}
+ }
+ 
++// advc.004z:
++bool CvPlayer::showGoodyOnResourceLayer() const
++{
++	return (isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) &&
++			BUGOption::isEnabled("MainInterface__TribalVillageIcons", true));
++}
++
+ // Used by Globeview resource layer
+ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption,
+ 	std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+@@ -19239,8 +19246,7 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption,
+ 		} // <advc.004z>
+ 		ImprovementTypes eImpr = NO_IMPROVEMENT;
+ 		if(!bOfInterest && eOption == SHOW_ALL_RESOURCES &&
+-			isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) &&
+-			BUGOption::isEnabled("MainInterface__TribalVillageIcons", true))
++			showGoodyOnResourceLayer())
+ 		{
+ 			eImpr = kPlot.getRevealedImprovementType(getTeam());
+ 			bOfInterest = (eImpr != NO_IMPROVEMENT && GC.getInfo(eImpr).
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 2289ba03e..4c56c9a72 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1396,6 +1396,7 @@ public:
+ 	DllExport const CvArtInfoUnit* getUnitArtInfo(UnitTypes eUnit, int iMeshGroup = 0) const;
+ 	DllExport bool hasSpaceshipArrived() const;
+ 	void announceGameNameChange(CvWString szOldName, CvWString szNewName); // advc.135c
++	bool showGoodyOnResourceLayer() const; // advc.004z
+ 	// <advc.003u>
+ 	__forceinline CvPlayerAI& AI()
+ 	{	//return *static_cast<CvPlayerAI*>(const_cast<CvPlayer*>(this));
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index fa7c81ce9..85c76da11 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4457,14 +4457,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue)
+ 		setLayoutDirty(true);
+ 
+ 	if (isImproved())
+-	{	// <advc.004z> Update resource indicators (if we must)
+-		if (bWasGoody && GC.getInfo(getImprovementType()).isGoody() &&
+-			GC.getGame().getCurrentLayer() == GLOBE_LAYER_RESOURCE &&
+-			!gDLL->UI().isDirty(GlobeInfo_DIRTY_BIT) &&
+-			isVisibleToWatchingHuman())
+-		{
+-			gDLL->UI().setDirty(GlobeInfo_DIRTY_BIT, true);
+-		} // </advc.004z>
++	{
+ 		CvEventReporter::getInstance().improvementBuilt(
+ 				getImprovementType(), getX(), getY());
+ 	}
+@@ -4473,6 +4466,14 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue)
+ 		CvEventReporter::getInstance().improvementDestroyed(
+ 				eOldImprovement, getOwner(), getX(), getY());
+ 	}
++	// <advc.004z> Update resource indicators (if we must)
++	if (bWasGoody && (!isImproved() || !GC.getInfo(getImprovementType()).isGoody()) &&
++		GC.getGame().getCurrentLayer() == GLOBE_LAYER_RESOURCE &&
++		isVisibleToWatchingHuman() &&
++		GET_PLAYER(GC.getGame().getActivePlayer()).showGoodyOnResourceLayer())
++	{
++		gDLL->UI().setDirty(GlobeInfo_DIRTY_BIT, true);
++	} // </advc.004z>
+ 	CvCity* pWorkingCity = getWorkingCity();
+ 	if (pWorkingCity != NULL)
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3157

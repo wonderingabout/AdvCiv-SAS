@@ -1,0 +1,1325 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4863
+# Commit: ac1596d613a3b20147ccf9c1840e0c1f708966a8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e9b665405044fce0facc2ea976c010bbcef89735
+# Title: finalized timeline at gamespeed_normal as of now from -50 000 (at turn 0) to 1870 (at turn 250), disabled hit bonuses, buff citizen, priest, and engineer spe...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Music/folkmusic.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds
+8	8	Assets/XML/Audio/Audio2DScripts.xml
+4	4	Assets/XML/Audio/AudioDefines.xml
+4	2	Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+83	75	Assets/XML/Buildings/CIV4BuildingInfos.xml
+8	8	Assets/XML/Events/CIV4EventTriggerInfos.xml
+1	1	Assets/XML/GameInfo/CIV4CivicInfos.xml
+55	28	Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+2	2	Assets/XML/GameInfo/CIV4ReligionInfo.xml
+6	3	Assets/XML/GameInfo/CIV4SpecialistInfos.xml
+27	23	Assets/XML/Technologies/CIV4TechInfos.xml
+5	0	Assets/XML/Terrain/CIV4BonusClassInfos.xml
+17	10	Assets/XML/Terrain/CIV4BonusInfos.xml
+11	1	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+10	0	Assets/XML/Text/CIV4GameText_Custom.xml
+0	8	Assets/XML/Text/CIV4GameText_advc.xml
+16	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+7	8	Assets/XML/Units/CIV4UnitInfos.xml
+9	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Music/folkmusic.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds b/Assets/Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds
+new file mode 100644
+index 000000000..a757620d4
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds b/Assets/Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds
+new file mode 100644
+index 000000000..f63dcf204
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Music/folkmusic.dds b/Assets/Art/AdvCiv_SAS/Techs/Music/folkmusic.dds
+new file mode 100644
+index 000000000..e226fb78e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Music/folkmusic.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds b/Assets/Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds
+new file mode 100644
+index 000000000..6b5587c37
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds differ
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index b3383995c..fd894d4bc 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -11863,8 +11863,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_THEOLOGY</ScriptID>
+-		<SoundID>SND_TECH_THEOLOGY</SoundID>
++		<ScriptID>AS2D_TECH_POSTAXIAL_RELIGION</ScriptID>
++		<SoundID>SND_TECH_POSTAXIAL_RELIGION</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -11955,8 +11955,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_DIVINE_RIGHT</ScriptID>
+-		<SoundID>SND_TECH_DIVINE_RIGHT</SoundID>
++		<ScriptID>AS2D_TECH_LATER_ABRAHAMISM</ScriptID>
++		<SoundID>SND_TECH_LATER_ABRAHAMISM</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -13979,8 +13979,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_THEOLOGY</ScriptID>
+-		<SoundID>SND_TECH_MP_THEOLOGY</SoundID>
++		<ScriptID>AS2D_TECH_MP_POSTAXIAL_RELIGION</ScriptID>
++		<SoundID>SND_TECH_MP_POSTAXIAL_RELIGION</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -14071,8 +14071,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_DIVINE_RIGHT</ScriptID>
+-		<SoundID>SND_TECH_MP_DIVINE_RIGHT</SoundID>
++		<ScriptID>AS2D_TECH_MP_LATER_ABRAHAMISM</ScriptID>
++		<SoundID>SND_TECH_MP_LATER_ABRAHAMISM</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 18d20825b..5c17f94a8 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8346,7 +8346,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_THEOLOGY</SoundID>
++			<SoundID>SND_TECH_POSTAXIAL_RELIGION</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Theology</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -8374,7 +8374,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_DIVINE_RIGHT</SoundID>
++			<SoundID>SND_TECH_LATER_ABRAHAMISM</SoundID>
+ 			<Filename>Sounds/Tech/Tech_DivineRight</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -8990,7 +8990,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_THEOLOGY</SoundID>
++			<SoundID>SND_TECH_MP_POSTAXIAL_RELIGION</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Theology</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -9018,7 +9018,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_DIVINE_RIGHT</SoundID>
++			<SoundID>SND_TECH_MP_LATER_ABRAHAMISM</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_DivineRight</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingClassInfos.xml b/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+index bc8c4ce06..a7c9b2be2 100644
+--- a/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+@@ -887,9 +887,11 @@
+ 		<BuildingClassInfo>
+ 			<Type>BUILDINGCLASS_GLOBE_THEATRE</Type>
+ 			<Description>TXT_KEY_BUILDING_GLOBE_THEATRE</Description>
+-			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
++			<!-- custom: was -1 -->
++			<iMaxGlobalInstances>1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+-			<iMaxPlayerInstances>1</iMaxPlayerInstances>
++			<!-- custom: was 1 -->
++			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+ 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
+ 			<bNoLimit>0</bNoLimit>
+ 			<bMonument>0</bMonument>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index d5165e2e0..d1bf25a4b 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -10357,7 +10357,7 @@
+ 			<FreeStartEra>ERA_MODERN</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
++			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -11163,7 +11163,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>50</iCost>
++			<!-- custom: was 50 -->
++			<iCost>60</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -11353,7 +11354,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>50</iCost>
++			<!-- custom: was 50 -->
++			<iCost>70</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -11547,7 +11549,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>50</iCost>
++			<!-- custom: was 50 -->
++			<iCost>60</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -11912,8 +11915,9 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- custom: was 80 -->
+ 			<!-- advc.200: K-Mod had increased this to 100 -->
+-			<iCost>80</iCost>
++			<iCost>90</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -12011,17 +12015,19 @@
+ 			<CommerceChangeOriginalOwners/>
+ 			<ConstructSound>AS2D_BUILD_COLOSSEUM</ConstructSound>
+ 			<BonusHealthChanges/>
+-			<BonusHappinessChanges>
+-				<BonusHappinessChange>
+-					<BonusType>BONUS_MUSIC</BonusType>
+-					<iHappinessChange>1</iHappinessChange>
+-				</BonusHappinessChange>
+-			</BonusHappinessChanges>
++			<!-- custom: was BONUS_MUSIC -->
++			<BonusHappinessChanges/>
+ 			<BonusProductionModifiers/>
+ 			<UnitCombatFreeExperiences/>
+ 			<DomainFreeExperiences/>
+ 			<DomainProductionModifiers/>
+-			<BuildingHappinessChanges/>
++			<!-- custom: see also code comment at building_broadway, was empty -->
++			<BuildingHappinessChanges>
++				<BuildingHappinessChange>
++					<BuildingType>BUILDINGCLASS_THEATRE</BuildingType>
++					<iHappinessChange>1</iHappinessChange>
++				</BuildingHappinessChange>
++			</BuildingHappinessChanges>
+ 			<PrereqBuildingClasses/>
+ 			<BuildingClassNeededs/>
+ 			<SpecialistYieldChanges/>
+@@ -12106,8 +12112,9 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- custom: was 80 -->
+ 			<!-- advc.200: Had been 100 in K-Mod -->
+-			<iCost>80</iCost>
++			<iCost>90</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -12277,8 +12284,9 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- custom: was 80 -->
+ 			<!-- K-Mod had increased this to 100 -->
+-			<iCost>80</iCost>
++			<iCost>90</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -12545,13 +12553,7 @@
+ 			<ReligionChanges/>
+ 			<!-- custom: was SPECIALIST_ARTIST 2 -->
+ 			<SpecialistCounts/>
+-			<!-- custom: rework broadcast_tower, (and also anyways etc) gives a free artist now anyways etc, also remove hit bonuses too else(where) in the xml anyways etc, was empty -->
+-			<FreeSpecialistCounts>
+-				<FreeSpecialistCount>
+-					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+-					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+-				</FreeSpecialistCount>
+-			</FreeSpecialistCounts>
++			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+ 			<ConstructSound>AS2D_BUILD_BROADCASTTOWER</ConstructSound>
+@@ -12572,7 +12574,7 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>7</iFlavor>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+@@ -19923,7 +19925,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+-			<PrereqTech>TECH_THEOLOGY</PrereqTech>
++			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -20678,7 +20680,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: add a PrereqTech for shrines so we can display them in tech tree as well, plus now shrines cannot be built without also having the religion's tech matching (for example during conquest or such, anyways etc), since shrines are not special buildings unlike temple, monastery, cathedral, maybe this is a fine even desirable way to handle it or not or yes or etc or and other or and not but anyways etc, was NONE -->
+-			<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
++			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -21249,7 +21251,8 @@
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+ 			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
++			<!-- custom: was 1 -->
++			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+ 			<bTeamShare>0</bTeamShare>
+@@ -21274,12 +21277,13 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 300 -->
+-			<iCost>280</iCost>
++			<iCost>500</iCost>
+ 			<iHurryCostModifier>50</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>0</iConquestProb>
++			<!-- custom: was 0 -->
++			<iConquestProb>100</iConquestProb>
+ 			<iCitiesPrereq>0</iCitiesPrereq>
+ 			<iTeamsPrereq>0</iTeamsPrereq>
+ 			<iLevelPrereq>0</iLevelPrereq>
+@@ -21338,10 +21342,11 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
++			<!-- custom: was 0 / 0 / 6 -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>6</iCommerce>
++				<iCommerce>8</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -21356,13 +21361,7 @@
+ 			<ReligionChanges/>
+ 			<!-- custom: was SPECIALIST_ARTIST 3 -->
+ 			<SpecialistCounts/>
+-			<!-- custom: was empty -->
+-			<FreeSpecialistCounts>
+-				<FreeSpecialistCount>
+-					<SpecialistType>SPECIALIST_GREAT_ARTIST</SpecialistType>
+-					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+-				</FreeSpecialistCount>
+-			</FreeSpecialistCounts>
++			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+ 			<ConstructSound/>
+@@ -21388,18 +21387,28 @@
+ 			</BuildingClassNeededs>
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+-			<ImprovementFreeSpecialists/>
++			<!-- custom: effect imported from kujira website (translate to english with web browser or and such anyways etc): https://gforestshade.github.io/kujira/post/civ4buildinginfos/#iglobalfreespecialist thanks to my idea of searchign it too but anyways etc anyways etc anyways etc ; seems to fit quite well the theme of the building's history i mean of burning down and such from little of it i googled online and some drawings of it showing quite a lot of forest around it from very quick glances anyways etc, hopefully both balanced, varied, and gradual not op effect but strong enough anyways etc, was empty -->
++			<ImprovementFreeSpecialists>
++				<ImprovementFreeSpecialist>
++					<ImprovementType>IMPROVEMENT_FOREST_PRESERVE</ImprovementType>
++					<iFreeSpecialistCount>1</iFreeSpecialistCount>
++				</ImprovementFreeSpecialist>
++			</ImprovementFreeSpecialists>
+ 			<!-- custom: military effect of no anger is too low for the building to be considered by military leaning eladers i think i mean, better not use it here so they can focus on building units or/and more relevant militarily i mean anyways etc buildings, was flavors growth 5, culture 4, military 2 -->
+ 			<!-- advc.020: Was 10 Growth, but also useful militarily and for
+ 				 culture. -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>4</iFlavor>
++					<iFlavor>5</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GOLD</FlavorType>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>7</iFlavor>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -24474,7 +24483,7 @@
+ 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
+ 			<!-- custom: hagia sophia reworked, never obsoletes now anyways etc, was TECH_STEAM_POWER -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_THEOLOGY</PrereqTech>
++			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25071,7 +25080,7 @@
+ 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+ 			<!-- custom: religion is still relevant in modern era for better or worse is what i'd want to say but i really don't know... i mean i don't have a positive view of religion in general but this is a code space so don't mind this i mean if i may say my bad or not as i wanted to say but anyways etc..., was TECH_COMPUTERS -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
++			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25433,7 +25442,6 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<!-- custom: notre dame reworked as a versatile / cultural building -->
+ 		<BuildingInfo> <!-- custom: class: notre_dame, type: notre_dame (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_NOTRE_DAME</BuildingClass>
+ 			<Type>BUILDING_NOTRE_DAME</Type>
+@@ -25458,7 +25466,7 @@
+ 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: was TECH_ENGINEERING -->
+-			<PrereqTech>TECH_THEOLOGY</PrereqTech>
++			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25582,13 +25590,7 @@
+ 			<CommerceHappinesses/>
+ 			<ReligionChanges/>
+ 			<SpecialistCounts/>
+-			<!-- custom: was empty -->
+-			<FreeSpecialistCounts>
+-				<FreeSpecialistCount>
+-					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+-					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+-				</FreeSpecialistCount>
+-			</FreeSpecialistCounts>
++			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners>
+ 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
+@@ -25621,7 +25623,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>5</iFlavor>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -26459,7 +26461,8 @@
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+-			<FreeBonus>BONUS_DRAMA</FreeBonus>
++			<!-- custom: was BONUS_DRAMA -->
++			<FreeBonus>NONE</FreeBonus>
+ 			<iNumFreeBonuses>-1</iNumFreeBonuses>
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+@@ -26489,7 +26492,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>700</iCost>
++			<!-- custom: was 800 -->
++			<iCost>600</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -26539,7 +26543,8 @@
+ 			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
++			<!-- custom: was 0 -->
++			<iGlobalPopulationChange>1</iGlobalPopulationChange>
+ 			<iFreeTechs>0</iFreeTechs>
+ 			<iDefense>0</iDefense>
+ 			<iBombardDefense>0</iBombardDefense>
+@@ -26566,13 +26571,7 @@
+ 			<CommerceHappinesses/>
+ 			<ReligionChanges/>
+ 			<SpecialistCounts/>
+-			<!-- custom: was empty -->
+-			<FreeSpecialistCounts>
+-				<FreeSpecialistCount>
+-					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+-					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+-				</FreeSpecialistCount>
+-			</FreeSpecialistCounts>
++			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners>
+ 				<bCommerceChangeOriginalOwner>0</bCommerceChangeOriginalOwner>
+@@ -26586,7 +26585,13 @@
+ 			<UnitCombatFreeExperiences/>
+ 			<DomainFreeExperiences/>
+ 			<DomainProductionModifiers/>
+-			<BuildingHappinessChanges/>
++			<!-- custom: effect imported from kujira website (translate to english using web browser or such anyways etc) https://gforestshade.github.io/kujira/post/civ4buildinginfos/#buildinghappinesschanges and thanks to my idea of searching it too i mean but anyways etc, and also i mean adjusted or not for advciv-sas but anyways etc, was empty -->
++			<BuildingHappinessChanges>
++				<BuildingHappinessChange>
++					<BuildingType>BUILDINGCLASS_THEATRE</BuildingType>
++					<iHappinessChange>1</iHappinessChange>
++				</BuildingHappinessChange>
++			</BuildingHappinessChanges>
+ 			<PrereqBuildingClasses/>
+ 			<BuildingClassNeededs/>
+ 			<SpecialistYieldChanges/>
+@@ -26597,12 +26602,12 @@
+ 				 culture victory. -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>7</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -26642,7 +26647,8 @@
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+-			<FreeBonus>BONUS_MUSIC</FreeBonus>
++			<!-- custom: was BONUS_MUSIC -->
++			<FreeBonus>NONE</FreeBonus>
+ 			<iNumFreeBonuses>-1</iNumFreeBonuses>
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+@@ -26736,13 +26742,15 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<ObsoleteSafeCommerceChanges/>
+-			<CommerceChangeDoubleTimes/>
+-			<CommerceModifiers>
++			<!-- custom: was empty -->
++			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>50</iCommerce>
+-			</CommerceModifiers>
++				<iCommerce>12</iCommerce>
++			</ObsoleteSafeCommerceChanges>
++			<CommerceChangeDoubleTimes/>
++			<!-- custom: was 0 / 0 / 50 -->
++			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
+ 			<!-- custom: was empty -->
+ 			<SpecialistExtraCommerces>
+@@ -26774,7 +26782,7 @@
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- custom: was flavors growth 4 culture 8 -->
++			<!-- custom: keep small growth flavor in case growth type of leaders have many specialists if i am not mistaken in this guess/assumption/hypothesis but anyways etc, was flavors growth 4 culture 8 -->
+ 			<!-- advc.020: was 10 Growth; cf. Broadway -->
+ 			<Flavors>
+ 				<Flavor>
+@@ -27886,7 +27894,7 @@
+ 			<!-- custom: was TECH_COMPUTERS -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: was TECH_THEORY_OF_EVOLUTION -->
+-			<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
++			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -29293,7 +29301,7 @@
+ 			<!-- advc.008a: was ERA_INDUSTRIAL -->
+ 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_DIVINE_RIGHT -->
++			<!-- custom: was TECH_LATER_ABRAHAMISM -->
+ 			<PrereqTech>TECH_FEUDALISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -30747,7 +30755,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
+ 			<ObsoleteTech>TECH_MASS_MEDIA</ObsoleteTech>
+-			<PrereqTech>TECH_THEOLOGY</PrereqTech>
++			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index 577eb294d..4579fd7d5 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -557,7 +557,7 @@
+ 				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
++				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -3550,7 +3550,7 @@
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_THEOLOGY</PrereqTech>
++				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+ 				<PrereqTech>TECH_LITERATURE</PrereqTech>
+ 				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+ 				<PrereqTech>TECH_MACHINERY</PrereqTech>
+@@ -7459,7 +7459,7 @@
+ 				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
++				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -7972,7 +7972,7 @@
+ 				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
++				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -9903,7 +9903,7 @@
+ 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+ 				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+ 				<PrereqTech>TECH_AESTHETICS</PrereqTech>
+-				<PrereqTech>TECH_THEOLOGY</PrereqTech>
++				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+@@ -13563,7 +13563,7 @@
+ 				<PrereqTech>TECH_MUSIC</PrereqTech>
+ 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+ 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+-				<PrereqTech>TECH_THEOLOGY</PrereqTech>
++				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs/>
+@@ -14342,7 +14342,7 @@
+ 				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
++				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -14432,7 +14432,7 @@
+ 				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
++				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index 87fdc5c03..e26787142 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -1608,7 +1608,7 @@
+ 			<Civilopedia>TXT_KEY_CIVIC_THEOCRACY_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_CIVIC_THEOCRACY_STRATEGY</Strategy>
+ 			<Button>,Art/Interface/Buttons/Civics/Theocracy.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,6,3</Button>
+-			<TechPrereq>TECH_THEOLOGY</TechPrereq>
++			<TechPrereq>TECH_POSTAXIAL_RELIGION</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<Upkeep>UPKEEP_MEDIUM</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+
+diff --git a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+index 71cfc7a7d..0d18e98a0 100644
+--- a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+@@ -288,29 +288,31 @@
+ 			<iVictoryDelayPercent>100</iVictoryDelayPercent>
+ 			<!-- advc.910: Changed all of the turn counts -->
+ 			<!-- custom:
+-			currently commented out as we start in -50 000 now in our new simplified tech tree rework anyways etc
+-			For from -100 000 to -50 000	;	Month increment: 12 * 10 000 years = 120 000 months		;	Turns: 5
+-
+ 
+ 			then resumes/starts here now anyways etc:
+-			For from -50 000  to -30 000	;	Month increment: 12 * 5 000  years = 60 000  months		;	Turns: 4
+-			For from -30 000  to -20 000	;	Month increment: 12 * 2 500  years = 30 000  months		;	Turns: 4
+-			For from -20 000  to -15 000	;	Month increment: 12 * 1 000  years = 12 000  months		;	Turns: 5
+-			For from -15 000  to -12 000	;	Month increment: 12 * 750    years = 9 000   months		;	Turns: 4
+-			For from -12 000  to -8 000		;	Month increment: 12 * 500    years = 6 000   months		;	Turns: 6
+-			For from  -8 000  to -5 000		;	Month increment: 12 * 250    years = 3 000   months		;	Turns: 12
+-			For from  -5 000  to -3 000		;	Month increment: 12 * 100    years = 1 200   months		;	Turns: 20
+-			For from  -3 000  to -2 100		;	Month increment: 12 * 75     years = 900     months		;	Turns: 12
+-			For from  -2 100  to -1 500		;	Month increment: 12 * 50     years = 600     months		;	Turns: 12
+-
++			For from -50 000  to  -30 000	;	Month increment: 12 * 5 000  years = 60 000  months		;	Turns: 4
++			For from -30 000  to  -20 000	;	Month increment: 12 * 2 500  years = 30 000  months		;	Turns: 4
++			For from -20 000  to  -15 000	;	Month increment: 12 * 1 000  years = 12 000  months		;	Turns: 5
++			For from -15 000  to  -12 000	;	Month increment: 12 * 750    years = 9 000   months		;	Turns: 4
++			For from -12 000  to  -7 500	;	Month increment: 12 * 500    years = 6 000   months		;	Turns: 9
++			For from  -7 500  to  -4 500	;	Month increment: 12 * 250    years = 3 000   months		;	Turns: 12
++			For from  -4 500  to  -3 000	;	Month increment: 12 * 125    years = 1 500   months		;	Turns: 12
++														- end of turn 50 -
++			For from  -3 000  to  -2 200	;	Month increment: 12 * 50     years = 600     months		;	Turns: 16
++			For from  -2 200  to  -1 480	;	Month increment: 12 * 40     years = 480     months		;	Turns: 18
++			For from  -1 480  to  -1 000	;	Month increment: 12 * 30     years = 360     months		;	Turns: 16
++														- end of turn 100 -
++			For from  -1 000  to  500		;	Month increment: 12 * 30     years = 360     months		;	Turns: 50
++														- end of turn 150 -
++			For from  500     to  1300		;	Month increment: 12 * 20     years = 240     months		;	Turns: 40
++			For from  1300    to  1400		;	Month increment: 12 * 10     years = 120     months		;	Turns: 10
++														- end of turn 200 -
++			For from  1400    to  1840		;	Month increment: 12 * 10     years = 120     months		;	Turns: 44
++			For from  1840    to  1870		;	Month increment: 12 * 5      years = 60      months		;	Turns: 6
++														- end of turn 250 -
++			note: as per base advciv code comment below, we end in an even (not odd if i may say no pun (at least didn't intend directly (nor indirectly if i may say but anwyays etc...) but anyways etc...) number, as of now 1870, then we bridge on base advciv timeline going forward which should be quite accurate if i may say maybe (but i didn't check anyways etc))
+ 			-->
+ 			<GameTurnInfos>
+-				<!-- custom: currently commented out as we start in -50 000 now in our new simplified tech tree rework anyways etc
+-				<GameTurnInfo>
+-					<iMonthIncrement>120000</iMonthIncrement>
+-					<iTurnsPerIncrement>5</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				-->
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>60000</iMonthIncrement>
+ 					<iTurnsPerIncrement>4</iTurnsPerIncrement>
+@@ -329,30 +331,55 @@
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>6000</iMonthIncrement>
+-					<iTurnsPerIncrement>6</iTurnsPerIncrement>
++					<iTurnsPerIncrement>9</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>3000</iMonthIncrement>
+ 					<iTurnsPerIncrement>12</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+-					<iMonthIncrement>1200</iMonthIncrement>
+-					<iTurnsPerIncrement>20</iTurnsPerIncrement>
+-				</GameTurnInfo>
+-				<GameTurnInfo>
+-					<iMonthIncrement>900</iMonthIncrement>
++					<iMonthIncrement>1500</iMonthIncrement>
+ 					<iTurnsPerIncrement>12</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>600</iMonthIncrement>
+-					<iTurnsPerIncrement>12</iTurnsPerIncrement>
++					<iTurnsPerIncrement>16</iTurnsPerIncrement>
++				</GameTurnInfo>
++				<GameTurnInfo>
++					<iMonthIncrement>480</iMonthIncrement>
++					<iTurnsPerIncrement>18</iTurnsPerIncrement>
++				</GameTurnInfo>
++				<GameTurnInfo>
++					<iMonthIncrement>360</iMonthIncrement>
++					<iTurnsPerIncrement>16</iTurnsPerIncrement>
++				</GameTurnInfo>
++				<GameTurnInfo>
++					<iMonthIncrement>360</iMonthIncrement>
++					<iTurnsPerIncrement>50</iTurnsPerIncrement>
++				</GameTurnInfo>
++				<GameTurnInfo>
++					<iMonthIncrement>240</iMonthIncrement>
++					<iTurnsPerIncrement>40</iTurnsPerIncrement>
++				</GameTurnInfo>
++				<GameTurnInfo>
++					<iMonthIncrement>120</iMonthIncrement>
++					<iTurnsPerIncrement>10</iTurnsPerIncrement>
++				</GameTurnInfo>
++				<GameTurnInfo>
++					<iMonthIncrement>120</iMonthIncrement>
++					<iTurnsPerIncrement>44</iTurnsPerIncrement>
+ 				</GameTurnInfo>
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>60</iMonthIncrement>
++					<iTurnsPerIncrement>6</iTurnsPerIncrement>
++				</GameTurnInfo>
++				<!-- custom: comment out this since we covered this time of history if i'm not mistaken anwyays etc, but keep to base advciv comment as is informative or/and useful if i may say anyways etc-->
++				<!--<GameTurnInfo>-->
++				<!--	<iMonthIncrement>60</iMonthIncrement>-->
+ 					<!-- Avoid an odd number here - otherwise all the year numbers
+ 						 in the next period (2 years per turn) will be odd. -->
+-					<iTurnsPerIncrement>26</iTurnsPerIncrement>
+-				</GameTurnInfo>
++				<!--	<iTurnsPerIncrement>26</iTurnsPerIncrement>-->
++				<!--</GameTurnInfo>-->
+ 				<GameTurnInfo>
+ 					<iMonthIncrement>24</iMonthIncrement>
+ 					<iTurnsPerIncrement>82</iTurnsPerIncrement>
+
+diff --git a/Assets/XML/GameInfo/CIV4ReligionInfo.xml b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+index d504dfe14..f98d2928c 100644
+--- a/Assets/XML/GameInfo/CIV4ReligionInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+@@ -184,7 +184,7 @@
+ 			<Description>TXT_KEY_RELIGION_CHRISTIANITY</Description>
+ 			<Adjective>TXT_KEY_RELIGION_CHRISTIANITY_ADJECTIVE</Adjective>
+ 			<Civilopedia>TXT_KEY_RELIGION_CHRISTIANITY_PEDIA</Civilopedia>
+-			<TechPrereq>TECH_THEOLOGY</TechPrereq>
++			<TechPrereq>TECH_POSTAXIAL_RELIGION</TechPrereq>
+ 			<FreeUnitClass>UNITCLASS_CHRISTIAN_MISSIONARY</FreeUnitClass>
+ 			<iFreeUnits>1</iFreeUnits>
+ 			<iSpreadFactor>100</iSpreadFactor>
+@@ -215,7 +215,7 @@
+ 			<Description>TXT_KEY_RELIGION_ISLAM</Description>
+ 			<Adjective>TXT_KEY_RELIGION_ISLAM_ADJECTIVE</Adjective>
+ 			<Civilopedia>TXT_KEY_RELIGION_ISLAM_PEDIA</Civilopedia>
+-			<TechPrereq>TECH_DIVINE_RIGHT</TechPrereq>
++			<TechPrereq>TECH_LATER_ABRAHAMISM</TechPrereq>
+ 			<FreeUnitClass>UNITCLASS_ISLAMIC_MISSIONARY</FreeUnitClass>
+ 			<iFreeUnits>1</iFreeUnits>
+ 			<iSpreadFactor>100</iSpreadFactor>
+
+diff --git a/Assets/XML/GameInfo/CIV4SpecialistInfos.xml b/Assets/XML/GameInfo/CIV4SpecialistInfos.xml
+index 260435fee..d6fc9e169 100644
+--- a/Assets/XML/GameInfo/CIV4SpecialistInfos.xml
++++ b/Assets/XML/GameInfo/CIV4SpecialistInfos.xml
+@@ -16,10 +16,11 @@
+ 			<bVisible>1</bVisible>
+ 			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+ 			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
++			<!-- custom: this is mostly to help the AI that may allocate a lot of them inefficiently, as well as buff the citizen that is still too weak even without that i mean anyways etc, also considering the 2 food cost of a specialist, this is probably balanced and still not better than working any tile, just more even as in i mean anyways etc less penalizing to choose the citizen specialist over any other or working a tile if i am not mistaken anyways etc, was 0 / 1 / 0 -->
+ 			<Yields>
+ 				<iYield>0</iYield>
+ 				<iYield>1</iYield>
+-				<iYield>0</iYield>
++				<iYield>1</iYield>
+ 			</Yields>
+ 			<Commerces/>
+ 			<iExperience>0</iExperience>
+@@ -46,10 +47,11 @@
+ 				<iYield>1</iYield>
+ 				<iYield>0</iYield>
+ 			</Yields>
++			<!-- custom: was 1 / 0 / 0 -->
+ 			<Commerces>
+ 				<iCommerce>1</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
++				<iCommerce>1</iCommerce>
+ 			</Commerces>
+ 			<iExperience>0</iExperience>
+ 			<Flavors/>
+@@ -145,9 +147,10 @@
+ 			<bVisible>1</bVisible>
+ 			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
+ 			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
++			<!-- custom: was 0 / 2 / 0 -->
+ 			<Yields>
+ 				<iYield>0</iYield>
+-				<iYield>2</iYield>
++				<iYield>3</iYield>
+ 				<iYield>0</iYield>
+ 			</Yields>
+ 			<Commerces/>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 44c8c6441..f8ca32eec 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -767,12 +767,12 @@
+ 			<SoundMP>AS2D_TECH_MP_FEUDALISM</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Feudalism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,10</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_THEOLOGY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_THEOLOGY</Type>
+-			<Description>TXT_KEY_TECH_THEOLOGY</Description>
+-			<Civilopedia>TXT_KEY_TECH_THEOLOGY_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_POSTAXIAL_RELIGION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_POSTAXIAL_RELIGION</Type>
++			<Description>TXT_KEY_TECH_POSTAXIAL_RELIGION</Description>
++			<Civilopedia>TXT_KEY_TECH_POSTAXIAL_RELIGION_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_THEOLOGY_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+@@ -834,10 +834,11 @@
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 			</AndPreReqs>
+-			<Quote>TXT_KEY_TECH_THEOLOGY_QUOTE</Quote>
+-			<Sound>AS2D_TECH_THEOLOGY</Sound>
+-			<SoundMP>AS2D_TECH_MP_THEOLOGY</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Theology.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,12</Button>
++			<Quote>TXT_KEY_TECH_POSTAXIAL_RELIGION_QUOTE</Quote>
++			<Sound>AS2D_TECH_POSTAXIAL_RELIGION</Sound>
++			<SoundMP>AS2D_TECH_MP_POSTAXIAL_RELIGION</SoundMP>
++			<!-- custom: button ai-generated by chatgpt thanks to my prompt and is amazingly good result hehe thnkas a lot chatgpt if i may say but anyways etc, as for me i gave it context of the tech, asked which scene i wanted, which it did extremely well if i may say but anyways etc, then added edges with paint.net if i may say since i liked the image so much if not exagerated of me or maybe i am underestimating my liking of it if i may say but anyways etc (to be fair i also tried to generate same image with edges but it failed to do so and image was worse not same maybe i didn't need or maybe didn't want but for exhaustiveness but no i wanted it else would not have said it but maybe i would have ideally not wanted to or i am conflicted that i want to say it but can't talking of me but anyways etc said it anyways etc as i wanted maybe or not or yes or etc or other but anyways etc anyways etc anyways etc...), (anyways etc...) so i added edges as i could myself which i think looks not too bad maybe even quite good i would say especially at 64px should be fine but anyways etc, hd iamge in the advciv-sas google drive mod folder of ai-generated images as long as google drive link is valid (link in readme.md anyways etc) -->
++			<Button>Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_MUSIC (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MUSIC</Type>
+@@ -913,7 +914,8 @@
+ 			<Quote>TXT_KEY_TECH_MUSIC_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_MUSIC</Sound>
+ 			<SoundMP>AS2D_TECH_MP_MUSIC</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Music.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,11</Button>
++			<!-- custom: replace button from a historically more accurate one and also as per our reworked tech tree as well but even without that i mean anyways etc so this is also a more historically neutral and less western-centric one if i may say if i am not mistaken but anyways etc anyways etc anyways etc..., ancient music did not use violins as these appeared so much later from very quick glances i did of it but anyways etc, button art import from c2c mod's TECH_FOLK_MUSIC anyways etc -->
++			<Button>Art/AdvCiv_SAS/Techs/Music/folkmusic.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_CIVIL_SERVICE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_CIVIL_SERVICE</Type>
+@@ -1082,12 +1084,12 @@
+ 			<SoundMP>AS2D_TECH_MP_GUILDS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Guilds.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,4</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_DIVINE_RIGHT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_DIVINE_RIGHT</Type>
+-			<Description>TXT_KEY_TECH_DIVINE_RIGHT</Description>
+-			<Civilopedia>TXT_KEY_TECH_DIVINE_RIGHT_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_LATER_ABRAHAMISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_LATER_ABRAHAMISM</Type>
++			<Description>TXT_KEY_TECH_LATER_ABRAHAMISM</Description>
++			<Civilopedia>TXT_KEY_TECH_LATER_ABRAHAMISM_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_DIVINE_RIGHT_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+@@ -1150,13 +1152,14 @@
+ 			</Flavors>
+ 			<OrPreReqs/>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_THEOLOGY</PrereqTech>
++				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+ 				<PrereqTech>TECH_MONARCHY</PrereqTech>
+ 			</AndPreReqs>
+-			<Quote>TXT_KEY_TECH_DIVINE_RIGHT_QUOTE</Quote>
+-			<Sound>AS2D_TECH_DIVINE_RIGHT</Sound>
+-			<SoundMP>AS2D_TECH_MP_DIVINE_RIGHT</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Divine Right.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,3</Button>
++			<Quote>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Quote>
++			<Sound>AS2D_TECH_LATER_ABRAHAMISM</Sound>
++			<SoundMP>AS2D_TECH_MP_LATER_ABRAHAMISM</SoundMP>
++			<!-- custom: art button import anyways etc from ffh2 mod's tech_fanaticism anyways etc -->
++			<Button>Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_NATIONALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_NATIONALISM</Type>
+@@ -1232,7 +1235,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
++				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+ 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+@@ -2274,7 +2277,8 @@
+ 			<Quote>TXT_KEY_TECH_AESTHETICS_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_AESTHETICS</Sound>
+ 			<SoundMP>SND_TECH_MP_AESTHETICS</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,16</Button>
++			<!-- custom: button import from c2c mod's TECH_CLASSICAL_LIFESTYLE, should be more historically at least quite accurate anyways etc even though still a bit greek-roman centric but hopefully representative enough of that time-era (and of its civ4 in advciv-sas i mean purpose in our mod which is to unlock some art of/in the classical era or around it that would need to start at such time to be completed around their historical date maybe too but anyways etc wonders and serve as a tech bridge to medieval era anyways etc) but anyways etc than the base civ4 or/and advciv one anyways etc anyways etc anyways etc, that should not (have?) happen(ed? But anyways etc) until much later in history around 1500s AD not around classical area or early medieval as is depicted in base civ4 tree if i am not mistaken but anyways etc, as for our reworked tech tree it is even earlier, in classical era if i am not mistaken anyways etc, so and overall new button hopefully more accurate and such and quite if not lot beautiful or not or yes or other but anyways etc anyways etc anyways etc -->
++			<Button>Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_SEAFARING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_SEAFARING</Type>
+@@ -2892,7 +2896,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_THEOLOGY</PrereqTech>
++				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+ 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusClassInfos.xml b/Assets/XML/Terrain/CIV4BonusClassInfos.xml
+index 4010f8b51..9352fc754 100644
+--- a/Assets/XML/Terrain/CIV4BonusClassInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusClassInfos.xml
+@@ -5,6 +5,7 @@
+ <!-- -->
+ <!-- Bonus Class -->
+ 
++<!-- custom: added class "disabled" for functionally removed bonuses (hit ressources), see among top comments at CIV4BonusInfos.xml for details anyways etc -->
+ <!-- advc.129: Added class "Precious" for Gold, Silver and Gems. -->
+ 
+ <Civ4BonusClassInfos xmlns="x-schema:CIV4TerrainSchema.xml">
+@@ -37,5 +38,9 @@
+ 			<Type>BONUSCLASS_PRECIOUS</Type>
+ 			<iUnique>1</iUnique>
+ 		</BonusClassInfo>
++		<BonusClassInfo>
++			<Type>BONUSCLASS_DISABLED</Type>
++			<iUnique>1</iUnique>
++		</BonusClassInfo>
+ 	</BonusClassInfos>
+ </Civ4BonusClassInfos>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index ae2491e70..bd485771b 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -8,6 +8,7 @@
+ <!-- custom: this also helped to adjust the values in this file, for example but not only for/to understand latitudes in civ4 specifically anyways etc: http://civ4.wikidot.com/xml:civ4bonusinfos , this also https://gforestshade.github.io/kujira/post/civ4bonusinfos/#terrainbooleans and also among others or not anyways etc https://forums.civfanatics.com/threads/bonusinfos-xml-question.494920/ helped a lot or/and will help maybe hopefully or not or yes or etc or other or and not anyways etc for feature terrains anyways etc
+ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assuming the real Earth world's equator that is referred in real earth world as the latitude 0 if i am not mistaken, instead not as the latitutde 0 in civ4, but centering it around the center of the inhabitable world in a civ4 map rather (that has walkable land even at north or south edge sometimes or close to it quite often if i am not mistaken), so when (i) (anyways etc) (am) looking for the center of the world in civ, latitude 0 to me is, for example in this real earth world map https://www.google.com/search?q=world+map+latittude&sca_esv=685d635ce644e565&rlz=1C1GCEA_enFR1111FR1111&udm=2&biw=2048&bih=1023&ei=nIwwaIyYNtCgkdUPp4KniA8&ved=0ahUKEwiM1tPs7LmNAxVQUKQEHSfBCfEQ4dUDCBE&uact=5&oq=world+map+latittude&gs_lp=EgNpbWciE3dvcmxkIG1hcCBsYXRpdHR1ZGVI1wxQpwJY7wtwAXgAkAEAmAEjoAGnAqoBAjEwuAEDyAEA-AEBmAIHoAK3AcICDRAAGIAEGLEDGEMYigXCAgYQABgHGB7CAggQABgHGAoYHsICChAAGIAEGEMYigXCAgUQABiABMICBBAAGB7CAgYQABgKGB6YAwCIBgGSBwE3oAepIrIHATa4B7UBwgcDMC43yAcK&sclient=img#vhid=87Afx8YTgs-pqM&vssid=mosaic , grossly around the southern part of mexico area or the southern parth of arabian peninsula or the southern part of india grossly for example anyways etc anyways etc anyways etc... so around latitude 10 North in the real world is what i consider latitude 0 in civ4 equivalent when adjusting min max latitude if i do anyways etc, then for max latitude since in our real earth world there are not much if at all inhabitable landmasses near the edges unlike in civ4, then i am using 10 north to 70 (+ 80 difference from 10N to 80S in my custom naming which i don't know if is accurate or and the scientific one or and scientific enough but maybe is hopefully accurate or/and understandable enough at least to me or and maybe others or not anyways etc) south grossly for real world to it being 0 to 90 north in civ4 equivalent, and then 10 north to 90 north (+80 difference same but between 10N and 90N anyways etc), i don't know if doing so is accurate or/and relevant, hopefully is, but anyways etc anyways etc anyways etc in all cases anyways etc anyways etc anyways etc
+ -->
++<!-- custom: due to the preexisting warning below anyways etc, disabling bonuses we don't need/want rather than removing them altogether, so they are available at latest tech, do not give any effect, and do not relate to any other asset, hopefully closest to removing them (functionally anyways etc) without removing them, the assets affected by this change are rebalanced with another effect instead or/and left as is if deemed fine to do so i mean anyways etc. As for why they are removed, it is tedious (at leats to me if i may say anyways etc) or i think it would be since i didn't play much if at all with them, i also don't find it very realistic that art bonuses would have a strong impact on politics and international trade, so disabled for efficiency and no tediousness at least less but anyways etc. -->
+ <!-- WARNING: It is not recommended that you remove Bonuses due to complications with the LSystem -->
+ 
+ <!-- advc.129: Changed bonus class of Gold, Silver and Gems from "General"
+@@ -1991,16 +1992,19 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 			<Type>BONUS_DRAMA</Type>
+ 			<Description>TXT_KEY_BONUS_DRAMA</Description>
+ 			<Civilopedia>TXT_KEY_BONUS_DRAMA_PEDIA</Civilopedia>
+-			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
++			<!-- custom: bonus functionally disabled, see top code comment for details, anyways etc -->
++			<BonusClassType>BONUSCLASS_DISABLED</BonusClassType>
+ 			<ArtDefineTag>ART_DEF_BONUS_DRAMA</ArtDefineTag>
+-			<TechReveal>NONE</TechReveal>
+-			<TechCityTrade>NONE</TechCityTrade>
+-			<TechObsolete>NONE</TechObsolete>
++			<!-- custom: was NONE NONE NONE -->
++			<TechReveal>TECH_FUTURE_TECH</TechReveal>
++			<TechCityTrade>TECH_FUTURE_TECH</TechCityTrade>
++			<TechObsolete>TECH_FUTURE_TECH</TechObsolete>
+ 			<YieldChanges/>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iAIObjective>0</iAIObjective>
+ 			<iHealth>0</iHealth>
+-			<iHappiness>1</iHappiness>
++			<!-- custom: was 1 -->
++			<iHappiness>0</iHappiness>
+ 			<iPlacementOrder>-1</iPlacementOrder>
+ 			<iConstAppearance>0</iConstAppearance>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+@@ -2031,16 +2035,19 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 			<Type>BONUS_MUSIC</Type>
+ 			<Description>TXT_KEY_BONUS_MUSIC</Description>
+ 			<Civilopedia>TXT_KEY_BONUS_MUSIC_PEDIA</Civilopedia>
+-			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
++			<!-- custom: bonus functionally disabled, see top code comment for details, anyways etc -->
++			<BonusClassType>BONUSCLASS_DISABLED</BonusClassType>
+ 			<ArtDefineTag>ART_DEF_BONUS_MUSIC</ArtDefineTag>
+-			<TechReveal>NONE</TechReveal>
+-			<TechCityTrade>NONE</TechCityTrade>
+-			<TechObsolete>NONE</TechObsolete>
++			<!-- custom: was NONE NONE NONE -->
++			<TechReveal>TECH_FUTURE_TECH</TechReveal>
++			<TechCityTrade>TECH_FUTURE_TECH</TechCityTrade>
++			<TechObsolete>TECH_FUTURE_TECH</TechObsolete>
+ 			<YieldChanges/>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iAIObjective>0</iAIObjective>
+ 			<iHealth>0</iHealth>
+-			<iHappiness>1</iHappiness>
++			<!-- custom: was 1 -->
++			<iHappiness>0</iHappiness>
+ 			<iPlacementOrder>-1</iPlacementOrder>
+ 			<iConstAppearance>0</iConstAppearance>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 686a9e256..69ca08717 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -269,7 +269,7 @@
+ 		<Tag>TXT_KEY_BUILDING_THREE_GORGES_DAM</Tag>
+ 		<English>The Three Gorges Dam</English>
+ 	</TEXT>
+-	<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_THEOLOGY after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this case but anyways etc even though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe too but anyways etc anyways etc in this case anyways etc) and we need/want a music tech wonder anyways etc -->
++	<!-- custom: replace and rework SISTINE_CHAPEL with NATYA_SHASTRA as there are too many christian world wonders (all at same tech too TECH_POSTAXIAL_RELIGION after reordering them for accuracy which is not ideal that they are now and too many i would say at same tech in this case but anyways etc even though is accurate as we want but too many at same tech spread it more and more civilizations too this way are included maybe too but anyways etc anyways etc in this case anyways etc) and we need/want a music tech wonder anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA</Tag>
+ 		<English>Natya Shastra</English>
+@@ -579,6 +579,16 @@
+ 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT</Tag>
+ 		<English>Mounted Combat</English>
+ 	</TEXT>
++	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION</Tag>
++		<English>Postaxial Religion</English>
++	</TEXT>
++	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM</Tag>
++		<English>Later Abrahamism</English>
++	</TEXT>
+ 	<!-- custom: rename _UTOPIA to _COMMUNISM anyways etc anyways etc anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_COMMUNISM</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index f2ce66522..29169d3a2 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -243,6 +243,16 @@
+ 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Tag>
+ 		<English>"If you speak the truth, have a foot in the stirrup." - Turkish proverb</English>
+ 	</TEXT>
++	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION_QUOTE</Tag>
++		<English>"Two cities have been formed by two loves: the earthly by the love of self; the heavenly by the love of God." - St. Augustine</English>
++	</TEXT>
++	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Tag>
++		<English>"I am the state." - ascribed to Louis XIV</English>
++	</TEXT>
+ 	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_COMMUNISM_QUOTE</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 6a988fc3b..6c0d65e3d 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3095,14 +3095,6 @@
+ 		<Italian>"Mettiti al lavoro di buona lena." - Esopo</Italian>
+ 		<Spanish>"Arrima el hombro a la rueda." - Esopo</Spanish>
+ 	</TEXT>
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_TECH_DIVINE_RIGHT_QUOTE</Tag>
+-		<English>"I am the state." - ascribed to Louis XIV</English>
+-		<French>"L'Etat, c'est moi." - Louis XIV</French>
+-		<German>"Der Staat bin ich." - Ludwig XIV. (zugeschrieben)</German>
+-		<Italian>"Lo stato sono io." - Luigi XIV</Italian>
+-		<Spanish>"El Estado soy yo." - Luis XIV</Spanish>
+-	</TEXT>
+ 	<!-- Not originally by Herodotus -->
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_TECH_MONARCHY_QUOTE</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 1241f8727..b6d457a8c 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -497,6 +497,22 @@
+ 
+ 
+ 
++	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION", as theology is a broader concept that is not limited, nor especially represented anyways etc by christianity alone, it happened in various parts of history and of the world as part of religion forming maybe i would say from little or not quite bit if not lot or maybe not but anyways etc knowledge or guess i have/make on the topic anyways etc, the specific period where christianity emerged from judaism seems to be following what is called the axial age, i find it to fit quite well from little or not but anyways etc research bit if not lot or not but anyways etc i have made on the topic, but in short mostly from pedia or reddit or and such or not but anyways etc or other website(s) or not or yes but anyways etc, what i learned or/and how i see it is that christianity emerged from judaism that is a classical or earlier religion, and from the clash with the roman empire that executed the killing of jesus, so the idea that this religion (christianity) anyways etc would follow and be a good representative of the postaxial age is something i would find to fit quite well, it was even adopted by the roman empire or/and what followed it, so i think christianity is a good representative of that anyways etc if i am not mistaken and from the guesses, and reading i made online or and such but anyways etc ; entry from https://en.wikipedia.org/wiki/History_of_religion#Axial_age and https://en.wikipedia.org/wiki/History_of_religion#Middle_Ages and https://en.wikipedia.org/wiki/History_of_religion#Modern_Ages and https://en.wikipedia.org/wiki/Christianity_and_violence and adjusted or not for advciv-sas anyways etc anyways etc anyways etc... -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION_PEDIA</Tag>
++		<English>[TAB]Some historians have labelled the period from 900 to 200 BCE as the "axial age", a term coined by German-Swiss philosopher Karl Jaspers (1883-1969). According to Jaspers, in this era of history "the spiritual foundations of humanity were laid simultaneously and independently... And these are the foundations upon which humanity still subsists today." Intellectual historian Peter Watson has summarized this period as the foundation time of many of humanity's most influential philosophical traditions, including monotheism in Persia and Canaan, Platonism in Greece, Buddhism and Jainism in India, and Confucianism and Taoism in China. These ideas would become institutionalized in time - note for example Ashoka's role in the spread of Buddhism, or the role of Neoplatonic philosophy in Christianity at its foundation.[PARAGRAPH:1]The historical roots of Jainism in India date back to the 9th century BCE with the rise of Parshvanatha and his non-violent philosophy.[PARAGRAPH:2]Christians have had diverse attitudes towards violence and nonviolence over time. Both currently and historically, there have been four attitudes towards violence and war and four resulting practices of them within Christianity: non-resistance, Christian pacifism, just war, and preventive war (Holy war, e.g., the Crusades). In the Roman Empire, the early church adopted a nonviolent stance when it came to war because the imitation of Jesus's sacrificial life was preferable to it. The concept of "Just War", the belief that limited uses of war were acceptable, originated in the writings of earlier non-Christian Roman and Greek thinkers such as Cicero and Plato. Later, this theory was adopted by Christian thinkers such as St Augustine, who like other Christians, borrowed much of the just war concept from Roman law and the works of Roman writers like Cicero. Even though "Just War" concept was widely accepted early on, warfare was not regarded as a virtuous activity and expressing concern for the salvation of those who killed enemies in battle, regardless of the cause for which they fought, was common. Concepts such as "Holy war", whereby fighting itself might be considered a penitential and spiritually meritorious act, did not emerge before the 11th century.[PARAGRAPH:2]World religions of the present day established themselves throughout Eurasia during the Middle Ages by:[PARAGRAPH:1] -Christianization of the Western world[PARAGRAPH:1] -Buddhist missions to East Asia[PARAGRAPH:1] -the decline of Buddhism in the Indian subcontinent[PARAGRAPH:1] -the spread of Islam throughout the Middle East, Central Asia, North Africa and parts of Europe and India[PARAGRAPH:1]During the Middle Ages, Muslims came into conflict with Zoroastrians during the Muslim conquest of Persia (633-654); Christians fought against Muslims during the Arab-Byzantine wars (7th to 11th centuries), the Crusades (1095 onward), the Reconquista (718-1492), the Ottoman wars in Europe (13th century onwards) and the Inquisition; Shamanism was in conflict with Buddhists, Taoists, Muslims and Christians during the Mongol invasions and conquests (1206-1337); and Muslims clashed with Hindus and Sikhs during the Muslim conquests in the Indian subcontinent (8th to 16th centuries).[PARAGRAPH:1]Many medieval religious movements continued to emphasize mysticism, such as the Cathars and related movements in the West, the Jews in Spain (see Zohar), the Bhakti movement in India and Sufism in Islam. Monotheism and related mysticisms reached definite forms in Christian Christology and in Islamic Tawhid. Hindu monotheist notions of Brahman likewise reached their classical form with the teaching of Adi Shankara (788-820).[PARAGRAPH:2]From the 15th century to the 19th century, European colonisation resulted in the spread of Christianity to Sub-Saharan Africa, and the Americas, Australia and the Philippines. The invention of the printing press in the 15th century played a major role in the rapid spread of the Protestant Reformation under leaders such as Martin Luther (1483-1546) and John Calvin (1509-1564). Wars of religion broke out, culminating in the Thirty Years' War which ravaged Central Europe between 1618 and 1648. The 18th century saw the beginning of secularisation in Europe, a trend which gained momentum after the French Revolution broke out in 1789. By the late 20th century, religion had declined in most of Europe.</English>
++	</TEXT>
++
++
++
++	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM", quite frankly if i may say anyways etc i am not too sure about this tech name anyways etc, but it seems most at least more if not most accurate anyways etc, divine right happened much sooner in history around tech_monarchy if not sooner from what i remember of my search, and a tech name like "islamic golden age" or "islamic era" may be confused with the "golden age" concept or the "era" concept ; also i mean anyways etc, some abrahamic religions appeared after islam, in the end they are all the same entity, so if i am not mistaken having islam the most famous of the later abrahamic religions anyways etc represent it is hopefully accurate enough anyways etc, quote is bit tedious to change so hopefully this one reflects it quite well while keeping same narrator anyways etc ; as for pedia entry not accurate anymore as the text is for divine right anyways etc, plus i'd suspect if i may say anyways etc civ4 devs or whoever writes these or whoever several or many people do not encessarily one if i may say in this case anyways etc may add significant(ly) annoying clutter and polish instead of just being historically accurate and honest or/and neutral even if brief or long too but anyways etc, entry from https://en.wikipedia.org/wiki/Abrahamic_religions#Islam or such other related in same wikipedia page info/paragraphs quoted more exhaustively or less or not, and adjusted or not for advciv-sas anyways etc anyways etc anyways etc... -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM_PEDIA</Tag>
++		<English>[TAB]The Abrahamic religions are a set of monotheistic religions that revere the Biblical figure Abraham, namely Judaism, Christianity, and Islam. The religions of this set share doctrinal, historical, and geographic overlap that contrasts them with Indian religions, Iranian religions, and East Asian religions. The term has been introduced in the 20th century and superseded the term Judeo-Christian tradition for the inclusion of Islam. However, the categorization has been criticized for oversimplification of different cultural and doctrinal nuances.[PARAGRAPH:2]Islam is based on the teachings of the Quran. Although it considers Muhammad to be the Seal of the prophets, Islam teaches that every prophet preached Islam, as the word Islam means submission, the main concept preached by all prophets. Although the Quran is the central religious text of Islam, which Muslims believe to be a revelation from God, other Islamic books considered to be revealed by God before the Quran, mentioned by name in the Quran are the Tawrat (Torah) revealed to the prophets and messengers amongst the Children of Israel (Bani Israil), the Zabur (Psalms) revealed to Dawud (David) and the Injil (the Gospel) revealed to Isa (Jesus). The Quran also mentions God having revealed the Scrolls of Abraham and the Scrolls of Moses.[PARAGRAPH:1]The relationship between Islamic and Hebrew scriptures and New Testament differs significantly from the relationship between the New Testament and the Hebrew Bible. Whereas the New Testament draws heavily on the Hebrew Bible and interprets its text in light of the foundations of the new religion, the Quran only alludes to various stories of Biblical writings, but remains independent of both, focusing on establishing a monotheistic message by utilizing the stories of the prophets in a religious decentralized environment.[PARAGRAPH:1]In the 7th century AD, Islam was founded by Muhammad in the Arabian Peninsula; it spread widely through the early Muslim conquests, shortly after his death. Islam understands its form of "Abrahamic monotheism" as preceding both Judaism and Christianity, and in contrast with Arabian Henotheism.[PARAGRAPH:2]While many sources limit the list of Abrahamic religions to only include Judaism, Christianity and Islam, some sources include other religions as well.[PARAGRAPH:1]Samaritanism diverged from Judaism in the 6th to 3rd centuries BCE; although sometimes considered a branch of Judaism, most consider it to be an independent Abrahamic religion.[PARAGRAPH:1]Some sources consider Mandaeism to be an Abrahamic religion - however, that classification is controversial, given Mandaeism does not accept Abraham as a prophet, despite revering as prophets several other figures from the Jewish scriptures - on the contrary, they believe that Abraham was originally a priest of their religion, but became an apostate from it.[PARAGRAPH:1]Druze is another religion which emerged from Islam in the 11th century, and hence is sometimes also considered an Abrahamic religion. Yarsanism is a Kurdish religion which combines elements of Shi'a Islam with pre-Islamic Kurdish beliefs; it has been classified as Abrahamic due to its monotheism, incorporation of Islamic doctrines, and reverence for Islamic figures, especially Ali ibn Abi Talib, the fourth caliph and first imam of Shia Islam.[PARAGRAPH:2]A number of sources include the Bah�'� Faith established in the 19th century, since it historically emerged in an Islamic milieu, and shares several beliefs with the Abrahamic faiths, including monotheism and recognising Jewish, Christian and Islamic figures as prophets. Some also include B�bism, another 19th century movement which was a precursor to the Bah�'� Faith.[PARAGRAPH:2]All Abrahamic religions accept the tradition that God revealed himself to the patriarch Abraham. All of them are monotheistic, and all of them conceive God to be a transcendent creator and the source of moral law. Their religious texts feature many of the same figures, histories, and places, although they often present them with different roles, perspectives, and meanings. Believers who agree on these similarities and the common Abrahamic origin tend to also be more positive towards other Abrahamic groups.[PARAGRAPH:1]In the three main Abrahamic religions (Judaism, Christianity and Islam), the individual, God, and the universe are highly separate from each other. The Abrahamic religions believe in a judging, paternal, fully external god to which the individual and nature are both subordinate. One seeks salvation or transcendence not by contemplating the natural world or via philosophical speculation, but by seeking reconciliation with God through acts of redemption and see divine revelation as outside of self, nature, and custom.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: rename _UTOPIA to _COMMUNISM, also pedia entry from: https://en.wikipedia.org/wiki/Communism similarly, anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_COMMUNISM_PEDIA</Tag>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index de6adb1ab..090219203 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -15380,7 +15380,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
++			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -16674,7 +16674,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 120 -->
+-			<iCost>145</iCost>
++			<iCost>140</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -16698,8 +16698,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 15 -->
+-			<iCombat>17</iCombat>
++			<iCombat>15</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -16745,7 +16744,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+ 			<!-- custom: was 15 -->
+-			<iPower>20</iPower>
++			<iPower>17</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -16875,7 +16874,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 120 -->
+-			<iCost>145</iCost>
++			<iCost>140</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -16900,7 +16899,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+ 			<!-- custom: was 15 -->
+-			<iCombat>17</iCombat>
++			<iCombat>15</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -16951,7 +16950,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+ 			<!-- custom: was 15 -->
+-			<iPower>20</iPower>
++			<iPower>18</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 541778d49..6fcdace48 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -63,7 +63,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### General changes (non-exhaustive, see global defines and other unrelated xml files for details)
+ 
+-- i intend this AdvCiv-SAS mod to be quite fast paced anyways etc but still long enough to hopefully enjoy it (view docs for details if any more docs or details exist), game starts at -50 000 BC but it increments very fast (5 000 per turn then gradually less, so after a few dozen turns approximately at normal speed you should already be at the bronze age) (view docs or ingame for latest updated info anyways etc), see also for more details [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md). Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages)
++- i intend this AdvCiv-SAS mod to be quite fast paced anyways etc but still long enough to hopefully enjoy it (view docs for details if any more docs or details exist), game starts at -50 000 BC but it increments very fast (5 000 per turn then gradually less, so after a few dozen turns approximately at normal speed you should already be at the bronze age) (view docs or ingame or or [CIV4GameSpeedInfo.xml](/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml) for latest updated info anyways etc), see also for more details [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md). Then the year number and gameplay pace does not slow as much (at least i tried to make it so, that each end game turn doesn't take ages). Note: as of now i only did it for `GAMESPEED_NORMAL`, the other other game speeds still use base advciv timeline (i.e. that starts at 4000 BC) as is tedious to do it for one plus would have to adjust for other game speeds, and when i played i played only at normal gamespeed (so would not involve me too much plus more(most? Anyways etc) importantly i may be mistaken in how i'd balance it, hopefully not too bad as it is or and quite good but anyways etc)
+ - in global defines or/and related xml files, also changed start map behaviour. There is now not so much terrain polishing (map script removing bad tiles such as jungle or snow or peak, they are now kept, but instead you have more starting vision to choose your spot, which should be realistic too because at 50 000 BCE (approximately) humans may have enough vision of their surroundings to know where to live or adjust to it maybe (even though first city settling is not as realistic, but is for convenience, and could maybe be imagined as a nomadic settlment in the region maybe, still convenient so allowing it))
+ - slavery iProductionPerPopulation increased (currently as of now set to 27, see xml for latest updated value as it was too weak and also (it was) (anyways etc) too advantageous in base advciv at least in my experience anyways etc at emperor/monarch to not slave at all, so making slavery more of a risk worthy strategy, considering its cost of immediate population loss and anger, detailed reasoning in `HURRY_POPULATION` of [/Assets/XML/GameInfo/CIV4HurryInfo.xml](/Assets/XML/GameInfo/CIV4HurryInfo.xml) for details anyways etc), the granary building is also nerfed or/and reworked a bit rather to compensate for this change if i may say, see Buildings changes for details anyways etc. This was first increased from 24 to 26, then increased again from 26 to 27 after the recent military changes that would favour mostly AIs due to many new unit upgrades and sooner ones now being available anyways etc, so there would need to be more strategic options to match and compete with these, 26 is probably not enough for that as 24 was way too low, so increased a bit more to 27 i mean anyways etc
+ - reduced PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT from 20 to 0, meaning each civ has an equal roll chance when leader selection is random (read/see GlobalDefines_advc.xml for extra details and conditions anyways etc), so a civ with say 3 leaders will not or not as often be more likely to be picked randomly vs civs with only one leader. This means for example rome or france (examples of civs with multiple/many leaders as of now anyways etc) will not get a higher overall chance of being randomly chosen than say mali or carthage (examples of civs with 1 leader as of now anyways etc) anyways etc.
+@@ -79,6 +79,12 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - there are some exceptions to this, for example iUnitCostPercent and iAIUnitCostPercent (maintenance in gold per turn for the units if i am not mistaken anyways etc) are now in advciv-sas the same for all players, this is to allow for a fairer gameplay and more reliable at all difficulties, difficulty is adjusted indirectly or and through other parameters/settings to make game more or less hard(er?) accross difficulties, but i wanted the unit maintenance (gold per turn) cost especially to be closer at all difficulties, now exactly the same, see xml or handicap data table (see above at head of this doc for link to the table of all difficulties). Note: when it comes to military hammer cost, it still varies accross difficulties for AI players, but should feel closer now while hopefully still a challenging challenge iff i may say repeatedly but anyways etc, similar reasoning for tech beaker/i.e. flat gold cost (i('d?) (anyways etc)) need to balance them though now if i want and if not already done after writing this anyways etc, please check docs xml or better or additionally maybe too anyways etc maybe also the handicap data .csv table (link at head of this doc anyways etc)
+ - disabled INCREASE_START_TURN, so for immortal and deity and advanced starts if i am not mistaken too anyways etc, now game starts at turn 0 for everyone and all handicap/difficulty settings anyways. This is because i would want handicap/difficulty settings to be reliable and reliably harder at each difficulty, plus we don't have free techs nor ai free techs anymore now in advciv-sas, and the handicap/difficulty increase is gradual at all difficulties, so i would like all other matetrs to be equal as well anyways etc, reduce handicap/difficulty chosen if too hard or/and i or (other or same anyways etc) players/modders may ahve to adjust handicap settings directly rather if they are really out of reach anyways etc, see GlobalDefines_advc.xml for details anyways etc. Handicap help texts (descriptions anyways etc) have also been rewritten in AdvCiv-SAS to accomodate this change as well as better reflect the new gradual settings and overall difficulty, as well as not commit to a specific number if i may say too in advciv-sas unlike in base advciv description if i am not mistaken but anyways etc anyways etc anyways etc hopefully helpful anyways etc but anyways etc anyways etc.
+ 
++### Specialists (non-exhaustive, see sevopedia or/and xml for details)
++
++- buff the citizen, as of now now gives 1 hammer and 1 gold (vs only 1 hammer before anyways etc), this is mostly to help the AI that may allocate a lot of them inefficiently, as well as buff the citizen that is still too weak even without that i mean anyways etc, also considering the 2 food cost of a specialist, this is probably balanced and still not better than working any tile, just more even as in i mean anyways etc less penalizing to choose the citizen specialist over any other or working a tile if i am not mistaken anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
++- also buff the priest that as of now also gives one extra culture (so total 1 hammer 2 gold 1 culture if i am not mistaken as of now anyways if i am not mistaken i mean anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
++- also buff the engineer that as of now also gives one extra hammer (so total 3 hammers as of now anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
++
+ ### Terrains / Features (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - some terrains are buffed, for example snow (see Bonus: deer changes), desert (see Bonus: camel changes), and water tiles (see Bonus: water bonus changes, and Buildings: water buildings changes) are stronger and play a more important role in the game now.
+@@ -89,6 +95,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - as part of renaming wine to grapes, additionally reworked grapes: now improved by IMPROVEMENT_FARM, not anymore by the old improvement_winery now removed. This matches historicality better if i may say and if it's a word anyways etc, as wine was consumed much before 4000 BC. Also, some wines are not made from grapes at all if i am not mistaken, and grapes can be eaten out of the wine usage. Also, the winery/happiness part of wine is transferred to the grocer building instead, now grapes gives happiness not health anymore. Similarly although not directly related, sugar now also gives happiness not health anymore through grocer. Hopefully buffes these mid game bonus effects while making these ressources more relevant as they were (a) bit (anyways etc) weak compared to say wheat or maize. See code comments for details or the ingame sevopedia entry of the grapes with also maybe or not or yes anyways etc latest updated info if anything changed since i wrote (am writing currently but anyways etc also wrote when viewing from later the new now maybe or not or yes anyways etc) but this should be the bulk of it and hopefully makes gameplay more accurate or/and interesting perhaps or/and enjoyable or not anyways etc.
+ - not tested if i may say but anyways etc, in theory AIs should value Iron bonus/ressource especially more, and horse more too, as an objective, using `<iAIObjective>10</iAIObjective>` (was 0), (ideally not restricting trade if uneeded extra in possession but not tested nor do i know too much about it anyways etc but hopefully maybe would work as intended maybe not guaranteed though anyways etc may or not anyways etc) if they don't have it, was 0
+ - replaced hit bonuses with some other bonuses instead. For example as of now only replaced hit movies, now removed, with camel (on desert tiles only)
++- disabled some bonuses that i didn't want to be part of advciv-sas anyways etc, as of now, this only applies to hit bonuses. Due to the preexisting warning `WARNING: It is not recommended that you remove Bonuses due to complications with the LSystem` in [CIV4BonusInfos.xml](/Assets/XML/Terrain/CIV4BonusInfos.xml), disabling bonuses we don't need/want rather than removing them altogether, so as of now they are available at latest tech, do not give any effect, and do not relate to any other asset, hopefully closest to removing them (functionally anyways etc) without removing them, the assets affected by this change are rebalanced with another effect instead or/and left as is if deemed fine to do so i mean anyways etc. As for why they are removed, it is tedious (at least to me if i may say anyways etc) or i think it would be since i didn't play much if at all with them, i also don't find it very realistic that art bonuses would have a strong impact on politics and international trade, so disabled for efficiency and no tediousness at least less but anyways etc.
+ - adjusted the repartition and spawn chance as well as yields of many bonuses, please view sevopedia bonus for latest info and [this commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/b841968682f022e2cefbe1722efb3520492659b8) for details. In general, to get the main idea of it, some ressources that were weak are now stronger (for example silver, deer, etc.), some are a bit weaker (for example gold, but it could barely be considered a nerf anyways etc), ressources/bonuses overall give less gpt to make game more gradual. Food land ressources spawn significantly less but after various testing increased it to values where they still spawn enough for game not to be boring or tedious, the idea is there will be more competition around them, as a result they also generally have a bit stronger bonuses, as well as reworked ones (for example sugar gives base hammer (productivity, horse gives base food but then improved gives only hammer, etc, see sevopedia bonus for details)), and deer in particular spawns much more as it is the only representative of snow or rather tundra ressources, its bonuses are among strongest which seems accurate as it is both a very healthy and rich food. As a result, tundra cities if they have deer near them should be a lot more viable, example that may not be accurate in the future of me writing this, but for example as of now these screenshots from the drive for example show how it looks (view around screenshot 5235 to 5249 of the google drive for other samples of that time of this rework now finalized as of me writing this anyways etc): view for example screenshots 5238 of [the google drive folder here](https://drive.google.com/file/d/1178did3ROEoIV_wbonpH91jZcdaNtzRg/view?usp=sharing) and 5241 of the drive as well here for example in this [the google drive folder](https://drive.google.com/file/d/15acCk947FpTMmDJdzg6sMXCXOjYwiUB0/view?usp=sharing) anyways etc.
+ - Also, water ressources spawn more, especially for the molluscs and fish bonuses as they are general ressources. Similarly, i have run a few tests to make sure (or at least try to (as best as i could or and wanted anyways etc hopefully accurate enough or not or yes or and other or and not anyways etc)) they don't spawn too much, so these are quite conservative tweaks but significant.
+ - whales have been buffed too, in particular as of now they spawn also on coast, please view for details sevopedia bonus or/and docs or/and other pages anyways etc
+@@ -184,7 +191,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - unit promotions are reworked or/and rebalanced: woodsman for example is buffed, some are rebalanced or nerfed, and other some promotions have also their requirements changed, for archers have access to city bombard promotion (units are reworked too,
+ see below), or "Logistics" (named "Commando" before) is now accessible after Combat 1 or City Raider I (todo rename to City Attack 1 anyways etc). Some are available sooner too, for example "Logistics" is available at "The Wheel", not "Military Science" anymore, since we understand roads we can use them, maybe, more strategic importance now too maybe hopefully.
+ - military units are reworked: for example the holy roman empire special unit, to better accomodate its history and stats, can be built starting from a different tech
+-- military units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values
++- military units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values
+ - some units have been removed: sometimes for gameplay reasons: for example the nuclear_submarine is not relevant enough and does not actually hold nuclear weapons, only is nuclear powered if i am not mistaken, but effect is not strong enough to justify the hassle so just remove them anyways etc ; or for example the caravel as it was not very sensical / nonsensical to me at least anyways etc that openly nation-specific and announced caravels could freely travel in outer borders even if borders are not open (and send annoying spies and such) without declaring war while doing so, so now this ability is now specific only to the privateer, among visible units at least (unlike the (normal) submarine for example if i am not mistaken anyways etc), and the privateer is now also buffed, see sevopedia for latest values and effects anyways etc, as for the caravel its transportation effect or faster mobility (if i am not mistaken about it being faster due to it being smaller if i am not mistaken about this as well anyways etc) is not worth the hassle of having 2 naval units (i.e. than the galleon anyways etc) at same era that do otherwise about the same thing anyways etc
+ - the stealth ability has been removed from some units where i felt/thought it didn't make sense if any more have this ability that i'd want to be removed, except for units such as submarines, spies, stealth bombers too as it would be tedious to add many new air units, and perhaps complicate needlessly the game, they fit fine as an upgrade to the bomber in civ4 terms i think for both efficient and progressive/gradual strategy maybe anyways etc, and maybe other units too if any other units anyways etc.
+ - for simplicity most unit upgrades are fairly straightforward and relaxed, for example all mounted units can upgrade to the next mounted tier without much restriction, for example chariots upgrade to horse_archers now not to knights anymore, war elephants upgrade to knights not to cuirassiers anymore, a horse archer can become a camel knight or a horse knight, and a camel archer can become a horse knight or a camel knight as well. I assume that the riders themselves can transition to another mount type so it would make sense to reinvest their skills in new mounts hence them being upgradeable if i am not mistaken anyways etc. In particular, longbows and crossbows, as well as macemen, now upgrade to musketmen not to riflemen anymore, which makes a lot of sense and is historically more accurate, as well as a lot more balanced as cuirassiers and such other gun units can't abuse these early ranged or melee units that would have no problem and be just as suited if not more anyways etc to have a gun as well, should help mostly AIs as they tend to build many longbowmen and macemen and such but perhaps also human players depending on strategy. Cuirassiers are a bit stronger (even though quite a bit more expensive too anyways etc) to compensate and rebalance them. Also note that as of now for similar reasons, cavalry units have been reworked, and now in particular anyways etc upgrade to tanks. There are also other unit upgrade and such related changes to other units as of now too anyways etc, see sevopedia ingame or/and tech tree view or/and xml for accurate/updated value(s) anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index fa87e98fa..43274f4ee 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index e96eb68a2..2c5196c62 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 09b24eb71..0fda8a4ef 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 151a8cebb..d8e5df322 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=26 embeddedFiles=26 omittedFiles=0 embeddedPatchBytes=93120

@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4553
+# Commit: 65e1f995b8c599277294b6d8c2b7eb3180bc66ec
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ee9f95b60c3d36e5830dd8dcb572f823558bc4ed
+# Title: minor update about this i mean anyways etc, thanks,
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index a9e065684..43e0d7d3e 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -68,6 +68,9 @@ the endgame)
+ has one unit (same for neo religions at later eras. See religion changes below for
+ details), for example Buddhism is required to build monks (melee fist fighters)
+ (yes such as shaolin but anyways..) and Christianism for Crusaders, etc.
++- on that note, some religious units are listed on the units tree of the sevopedia
++while some others not, check for detail the sevopedia (todo update this bullet
++point) page of the sevopedia? 
+ - military units are rebalanced: some op units (according to me) are nerfed
+ slightly (for example: todo), some weaker ones buffed quite a lot (for example
+ the jaguar warrior)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=868

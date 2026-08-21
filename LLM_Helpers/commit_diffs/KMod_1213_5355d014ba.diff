@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1213
+# Commit: 5355d014baf8fc3efd2f2472456e179e42e17314
+# History segment: K-Mod history
+# Parent used for diff: 51bafaceb9deeb5bc5345c565f15189ff0a764c1
+# Title: Increased cargo capacity of most boats.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	Assets/xml/Units/CIV4UnitInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/Units/CIV4UnitInfos.xml b/Assets/xml/Units/CIV4UnitInfos.xml
+index c381b9802..9cffdc9a1 100644
+--- a/Assets/xml/Units/CIV4UnitInfos.xml
++++ b/Assets/xml/Units/CIV4UnitInfos.xml
+@@ -17077,7 +17077,7 @@
+ 			<iBombardRate>0</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>DOMAIN_LAND</DomainCargo>
+-			<iCargo>2</iCargo>
++			<iCargo>3</iCargo>
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+@@ -17695,7 +17695,7 @@
+ 			<iBombardRate>0</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>DOMAIN_LAND</DomainCargo>
+-			<iCargo>2</iCargo>
++			<iCargo>3</iCargo>
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+@@ -17876,7 +17876,7 @@
+ 			<iBombardRate>0</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>DOMAIN_LAND</DomainCargo>
+-			<iCargo>3</iCargo>
++			<iCargo>4</iCargo>
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+@@ -18061,7 +18061,7 @@
+ 			<iBombardRate>0</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>DOMAIN_LAND</DomainCargo>
+-			<iCargo>4</iCargo>
++			<iCargo>5</iCargo>
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+@@ -19014,7 +19014,7 @@
+ 			<iBombardRate>0</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>DOMAIN_LAND</DomainCargo>
+-			<iCargo>4</iCargo>
++			<iCargo>5</iCargo>
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1685

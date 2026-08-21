@@ -1,0 +1,238 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4999
+# Commit: 70aceae7781eca89c4f867e3ea430c475507a532
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: daf6576b0af1befe918b02632ee4c71f71882b3c
+# Title: performance optimizations anyways etc - remove old m_uiSaveFlag code in CvGame.cpp except some independent parts if i'm not mistaken for performance optimiza...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+11	79	CvGameCoreDLL/CvGame.cpp
+4	3	CvGameCoreDLL/CvGameInterface.cpp
+4	4	CvGameCoreDLL/CvGameTextMgr.cpp
+3	2	CvGameCoreDLL/CvPlot.cpp
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 03ec23dd5..77751ac7b 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7675,6 +7675,9 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
+ 	UnitTypes eR = NO_UNIT;
+ 	int iBestValue = 0;
+ 	CvCivilization const& kCiv = GET_PLAYER(BARBARIAN_PLAYER).getCivilization();
++	// <!-- custom: hoist for performance optimization if i'm not mistaken anyways etc -->
++	static const UnitCombatTypes eMountedMelee = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE");
++	static const UnitCombatTypes eMountedRanged = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED");
+ 	for (int i = 0; i < kCiv.getNumUnits(); i++)
+ 	{
+ 		UnitTypes const eUnit = kCiv.unitAt(i);
+@@ -7748,8 +7751,6 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvPlot const& kPlot)
+ 			iUnitEra = -1;
+ 		// Mounted units only in open terrain
+ 		// <!-- custom: split mounted units into melee mounted units and ranged mounted units so that pikemen are not strong against cuiassiers or horse archers and such anyways etc -->
+-		static const UnitCombatTypes eMountedMelee = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_MELEE");
+-		static const UnitCombatTypes eMountedRanged = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED_RANGED");
+ 		bool const bMountedMelee = (kUnit.getUnitCombatType() == eMountedMelee);
+ 		bool const bMountedRanged = (kUnit.getUnitCombatType() == eMountedRanged);
+ 		if (bMountedMelee || bMountedRanged)
+@@ -9198,18 +9199,8 @@ void CvGame::onAllGameDataRead()
+ 		m_iCivTeamsEverAlive = countCivTeamsEverAlive();
+ 	// </advc.opt>
+ 	GC.getAgents().gameStart(true); // advc.agent
+-	// <advc.250a> Cf. CvInitCore::read
+-	if (m_uiSaveFlag <= 1)
+-	{
+-		if (getHandicapType() >= GC.getNumHandicapInfos())
+-		{
+-			setHandicapType(GET_PLAYER(getActivePlayer()).getHandicapType());
+-			initGameHandicap();
+-		}
+-	} // </advc.250a>
+-	// <advc.124b> River connection rules have changed
+-	if (m_uiSaveFlag <= 23)
+-		updatePlotGroups(); // </advc.124b>
++	// <!-- custom: removed old m_uiSaveFlag code if i'm not mistaken anyways etc -->
++
+ 	// <advc.003m>
+ 	for (TeamIter<> it; it.hasNext(); ++it)
+ 	{
+@@ -9231,75 +9222,16 @@ void CvGame::onAllGameDataRead()
+ 		}
+ 	} // </advc.opt>
+ 	m_bAllGameDataRead = true;
+-	// <advc.enum>
+-	if (m_uiSaveFlag < 21)
+-	{
+-		for (int i = 0; i < 7; i++)
+-		{
+-			CvCity const* pCity = getCity(m_pLegacyOrgSeatData[i]);
+-			if (pCity != NULL)
+-				m_aeHolyCity.set((ReligionTypes)i, pCity->plotNum());
+-		}
+-		for (int i = 7; i < 14; i++)
+-		{
+-			CvCity const* pCity = getCity(m_pLegacyOrgSeatData[i]);
+-			if (pCity != NULL)
+-				m_aeHeadquarters.set((CorporationTypes)(i - 7), pCity->plotNum());
+-		}
+-		SAFE_DELETE_ARRAY(m_pLegacyOrgSeatData);
+-	} // </advc.enum>
+-	// <advc.251> Maintenance changed in XML
+-	if (m_uiSaveFlag < 25)
+-	{
+-		for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+-			itPlayer->updateMaintenance();
+-	} // </advc.251>
+-	// <advc.130w>
+-	bool bAttitudeUpdated = false;
+-	if (m_uiSaveFlag < 26)
+-	{
+-		for (PlayerAIIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
+-			itPlayer->AI_updateExpansionistHate();
+-		bAttitudeUpdated = true;
+-	} // </advc.130w>
++
++	// <!-- custom: while removing old m_uiSaveFlag code if i'm not mistaken but anyways etc, keeping parts that are m_uiSaveFlag independent to preserve functionality as it is in case it is used i mean but check if accurate as i don't know too much about these anyways etc -->
+ 	// <advc.130n>, advc.148, advc.130r, advc.130x, advc.130c, advc.130w
+-	if (m_uiSaveFlag < 27 ||
+-		// <advc.127> Save created during AI Auto Play
+-		(m_iAIAutoPlay != 0 && !isNetworkMultiPlayer()))
++	// <advc.127> Save created during AI Auto Play
++	if (m_iAIAutoPlay != 0 && !isNetworkMultiPlayer())
+ 	{
+ 		m_iAIAutoPlay = 0; // </advc.127>
+-		if (!bAttitudeUpdated) // advc.130w
+-			CvPlayerAI::AI_updateAttitudes();
++		CvPlayerAI::AI_updateAttitudes();
+ 	} // </advc.130n>
+-	// <advc.500c>
+-	if (m_uiSaveFlag < 19)
+-	{
+-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+-		static const TechTypes eNationalism = (TechTypes)GC.getInfoTypeForString("TECH_NATIONALISM");
+-		if (eNationalism != NO_TECH)
+-		{
+-			for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+-			{
+-				if (GET_TEAM(itPlayer->getTeam()).isHasTech(eNationalism))
+-				{
+-					FOR_EACH_CITY_VAR(pCity, *itPlayer)
+-					{
+-						if (pCity->getMilitaryHappinessUnits() <= 0)
+-							pCity->AI_setAssignWorkDirty(true);
+-					}
+-				}
+-			}
+-		}
+-	} // </advc.500c>
+-	// <advc.172>
+-	if (m_uiSaveFlag < 8)
+-	{
+-		for (PlayerIter<ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+-		{
+-			FOR_EACH_CITY_VAR(pCity, *itPlayer)
+-				pCity->updateReligionCommerce();
+-		}
+-	} // </advc.172>
++
+ 	// <advc.134a>
+ 	for (PlayerIter<HUMAN> itActive; itActive.hasNext(); ++itActive)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index edd834081..820111801 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2243,14 +2243,15 @@ void CvGame::updateSeaPatrolColors(CvUnit const& kSelectedUnit)
+ 	gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_PATROLLED);
+ 	if (!kSelectedUnit.isSeaPatrolling())
+ 		return;
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++	static const ColorTypes eColorCityBlue = (ColorTypes)GC.getInfoTypeForString("COLOR_CITY_BLUE");
+ 	for (SquareIter itPlot(kSelectedUnit, GC.getMAX_SEA_PATROL_RANGE(), false);
+ 		itPlot.hasNext(); ++itPlot)
+ 	{
+ 		if (kSelectedUnit.canReachBySeaPatrol(*itPlot))
+ 		{
+-			gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(),
+-					GC.getInfo((ColorTypes)GC.getInfoTypeForString("COLOR_CITY_BLUE")).
+-					getColor(), AREA_BORDER_LAYER_PATROLLED);
++			gDLL->getEngineIFace()->fillAreaBorderPlot(itPlot->getX(), itPlot->getY(), GC.getInfo(eColorCityBlue).getColor(), AREA_BORDER_LAYER_PATROLLED);
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 2cab3a2fa..0f54969fa 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -18572,10 +18572,10 @@ void CvGameTextMgr::buildCityBillboardIconString( CvWStringBuffer& szBuffer, CvC
+ 		// BUG - Airport Icon - start
+ 		if (BUGOption::isEnabled("MainInterface__AirportIcon", true))
+ 		{
+-			BuildingClassTypes eAirportClass = (BuildingClassTypes)
+-					GC.getInfoTypeForString("BUILDINGCLASS_AIRPORT"
+-					// Mod-mods that don't have an airport should set bHideAssert:
+-					/*,true*/);
++			// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++			static const BuildingClassTypes eAirportClass = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_AIRPORT"
++			// Mod-mods that don't have an airport should set bHideAssert:
++			/*,true*/);
+ 			if (eAirportClass != NO_BUILDINGCLASS)
+ 			{
+ 				BuildingTypes eAirport = pCity->getCivilization().
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 9d02392c1..2f461fd5a 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -8199,6 +8199,9 @@ float CvPlot::getAqueductSourceWeight() const
+ {
+ 	PROFILE_FUNC(); // (advc: Fine - EXE seems to call this only a few times per turn)
+ 	// <advc.002p> Imperfect workaround for a missing same-area check in the EXE
++	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++	static BuildingClassTypes const eAqueduct = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_AQUEDUCT", true);
++
+ 	for (CityPlotIter itPlot(*this, false); itPlot.hasNext(); ++itPlot)
+ 	{	/*	Sources adjacent to a city are OK (and need to be skipped here
+ 			because an adjacent Peak could belong to a different area
+@@ -8207,8 +8210,6 @@ float CvPlot::getAqueductSourceWeight() const
+ 			continue;
+ 		if (itPlot->isCity() && !itPlot->isArea(getArea()))
+ 		{
+-			static BuildingClassTypes const eAqueduct = (BuildingClassTypes)
+-					GC.getInfoTypeForString("BUILDINGCLASS_AQUEDUCT", true);
+ 			if (eAqueduct != NO_BUILDINGCLASS &&
+ 				itPlot->getPlotCity()->getNumBuilding(eAqueduct) > 0)
+ 			{
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 296f3b38b..944228b16 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -210,7 +210,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - (Extremely better/stronger) AI now always evacuates all its as of now land units from a doomed city rather than a small part of them or/and sometimes (before the change AI was almost not evacuating at all doomed cities (2 swordsmen only would be evacuated for example in an 11 unit defending stack vs a 22+ attacking unit stack), see an example of this with details and screenshots or/and such but anyways etc in [62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity) anyways etc), fixed by always and 100% retreat regardless of land unit type, in `CvUnitAI::AI_evacuateCity`. As a side effect, it might drag games a bit longer (although i didn't test it to know for sure) and i didn't test it too much beyond this sample case where it makes a huge difference, but i think having a more competitive and not stupid but strategic in this case i mean but anyways etc ai is much better but anyways etc.
+ - Possibly prevented and possibly fixed the weird and very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong, which was also very risky if our stack couldn't retreat in time (to defend cities or avoid ambush/attack or other purposes maybe anyways etc). I don't know if this change fixes it since the issue was solved without it (2+ autoplay turns were needed at least it seems not 1), but maybe the additional sanity check of not (going to? But anyways etc) attacking(attack) city if target is too strong, in `CvUnitAI::AI_attackCityMove`, helps a lot but (although would need to test to be sure but seems like a very nice sanity check if not redundant with some other checks maybe but anyways etc) anyways etc. See for details [63 - (Possibly prevented and possibly fixed) Weird / very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong. I don't know if this change fixes it since the issue was solved without it (2+ autoplay turns were needed at least it seems not 1), but maybe this change in CvUnitAI::AI_attackCityMove helps a lot but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but-anyways-etc).
+ - tweaked and enhanced old razing logic so we that we (i.e. AI (excluding the barbarian player itself, but as for cities applies more or less to all cities even non-barbarian ones if i'm not mistaken anyways et) players but anyways etc) now raze cities in the early (as of now first 120 turns adjusted to game speed anyways etc) game if they are not close enough to make it worth the early investment. This helps not spread our military forces (which was a major issue in base advciv when it happened, often with most troops being in the new captured faraway city while core ones would be less defended, hopefully much saner and stronger razing now if i'm not mistaken but anyways etc) and scrace economy ressources (city maintenance would be increased per city, pop is generally low in these cities plus the time to build improvements or/and culture or such there, plus the city maintenance in the city itself, etc) so that they stay focused. Indirectly, it may often lead to less fog busting so more barbarians, which is good since it's far from us so will weaken our rivals if i'm not mistaken but anyways etc. As a result of this, AI should be much stronger in the early game, and hopefully no longer split in two making it much easier to defeat (especially if most forces are in the new city). See [64 - (Greatly enhanced) AI not razing faraway cities at captures - now we raze them if we are in the early game and they are not close enough, thanks to changes and tweaks in CvPlayerAI::AI_conquerCity anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc) for details anyways etc.
+-- Fixed and enhanced the issue of AI overbuilding units with defender UNITAIs when it has few cities for the current stage of the game (so no need to defend that hard, build attackers to expand rather to save on unit cost and leverage unit count advantage + make up for being boxed in or other causes for having low cities anyways etc) or simply already a majority of units with a defender UNITAI (for example joao ai had 36 longbowmen at turn 130, almost all with UNITAI_CITY_DEFENSE but only 3 cities, very very bad and inefficient, causing his downfall due to not devleopping enough and preparing for war instead by having a more versatile UNITAI composition anyways etc), results may have been much better if some of these units were attacker UNITAI units or versatile UNITAI units rather anyways etc. To address this, we now hijack the UnitAI of next units we produce onwards in `CvCityAI::AI_chooseUnit` after these criterion are met, i.e. for relevant AI players if i am not mistaken anyways etc, and make them offense or versatile UNITAIs based on luck and if unit is eligible (for example Joao AI had many longbowmen with UNITAI_COUNTER, still defending cities if i'm not mistaken but ready to be used as a roaming or offensive stack maybe if i'm not mistaken anyways etc; or justinian AI had 19 longbowmen, but many in a roaming stack with UNITAI_COUNTER, and both these AIs that had low cities or/and exess longbowmen now have a much better middle game, not collapsing to bigger rivals that were a bit thin, but instead making military gains due to better pre-middle game preparation). Note: active only in the early game as is when most expansion happens and cities are weakest, then later on we don't use this logic anymore to not alter gameplay too much or cause issues, plus cities are defended and handled well enough hopefully by then to not need our management and early correction if i'm not mistaken but anyways etc. See for details [53.2 - (Fixed and enhanced) Joao AI building way too many defenders (36 longbowmen at turn 130!! Almost all with UNITAI_CITY_DEFENSE or similar) while being boxed in with only 3 cities, instead of making about half of these offense units or versatile ones to punish overextending thin neighbour, fixed by having an early phase "we have expectedly too few cities at this stage of the game, no need to overbuild anymore denders at this stage of the game, switch to offense or versatile UNITAI rather" and "our military composition has way too many defender UNITAIs, switch to offense or versatile UNITAIs", which seemingly fix the issue anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#532---fixed-and-enhanced-joao-ai-building-way-too-many-defenders-36-longbowmen-at-turn-130-almost-all-with-unitai_city_defense-or-similar-while-being-boxed-in-with-only-3-cities-instead-of-making-about-half-of-these-offense-units-or-versatile-ones-to-punish-overextending-thin-neighbour-fixed-by-having-an-early-phase-we-have-expectedly-too-few-cities-at-this-stage-of-the-game-no-need-to-overbuild-anymore-denders-at-this-stage-of-the-game-switch-to-offense-or-versatile-unitai-rather-and-our-military-composition-has-way-too-many-defender-unitais-switch-to-offense-or-versatile-unitais-which-seemingly-fix-the-issue-anyways-etc) anyways etc.
++- Fixed and enhanced the issue of AI overbuilding units with defender UNITAIs when it has few cities for the current stage of the game (so no need to defend that hard, build attackers to expand rather to save on unit cost and leverage unit count advantage + make up for being boxed in or other causes for having low cities anyways etc) or simply already a majority of units with a defender UNITAI (for example joao ai had 36 longbowmen at turn 130, almost all with UNITAI_CITY_DEFENSE but only 3 cities, very very bad and inefficient, causing his downfall due to not devleopping enough and preparing for war instead by having a more versatile UNITAI composition anyways etc), results may have been much better if some of these units were attacker UNITAI units or versatile UNITAI units rather anyways etc. To address this, we now hijack the UnitAI of next units we produce onwards in `CvCityAI::AI_chooseUnit` if we are not in danger (`!bDanger` anyways etc) and these criterion are met, i.e. for relevant AI players if i am not mistaken anyways etc, and make them offense or versatile UNITAIs based on luck and if unit is eligible (for example Joao AI had many longbowmen with UNITAI_COUNTER, still defending cities if i'm not mistaken but ready to be used as a roaming or offensive stack maybe if i'm not mistaken anyways etc; or justinian AI had 19 longbowmen, but many in a roaming stack with UNITAI_COUNTER, and both these AIs that had low cities or/and exess longbowmen now have a much better middle game, not collapsing to bigger rivals that were a bit thin, but instead making military gains due to better pre-middle game preparation). Note: active only in the early game as is when most expansion happens and cities are weakest, then later on we don't use this logic anymore to not alter gameplay too much or cause issues, plus cities are defended and handled well enough hopefully by then to not need our management and early correction if i'm not mistaken but anyways etc. See for details [53.2 - (Fixed and enhanced) Joao AI building way too many defenders (36 longbowmen at turn 130!! Almost all with UNITAI_CITY_DEFENSE or similar) while being boxed in with only 3 cities, instead of making about half of these offense units or versatile ones to punish overextending thin neighbour, fixed by having an early phase "we have expectedly too few cities at this stage of the game, no need to overbuild anymore denders at this stage of the game, switch to offense or versatile UNITAI rather" and "our military composition has way too many defender UNITAIs, switch to offense or versatile UNITAIs", which seemingly fix the issue anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#532---fixed-and-enhanced-joao-ai-building-way-too-many-defenders-36-longbowmen-at-turn-130-almost-all-with-unitai_city_defense-or-similar-while-being-boxed-in-with-only-3-cities-instead-of-making-about-half-of-these-offense-units-or-versatile-ones-to-punish-overextending-thin-neighbour-fixed-by-having-an-early-phase-we-have-expectedly-too-few-cities-at-this-stage-of-the-game-no-need-to-overbuild-anymore-denders-at-this-stage-of-the-game-switch-to-offense-or-versatile-unitai-rather-and-our-military-composition-has-way-too-many-defender-unitais-switch-to-offense-or-versatile-unitais-which-seemingly-fix-the-issue-anyways-etc) anyways etc.
+ 
+ ### General changes (non-exhaustive, see global defines and other unrelated xml files for details)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=20968

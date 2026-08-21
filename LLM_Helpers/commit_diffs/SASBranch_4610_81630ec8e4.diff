@@ -1,0 +1,428 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4610
+# Commit: 81630ec8e4ab900f5d884ee1350b6decb780f984
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3cba4085d25d89d55e7692709f1daf93e9d14004
+# Title: remove the air bomber
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	30	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+0	23	Assets/XML/Audio/Audio2DScripts.xml
+0	7	Assets/XML/Audio/AudioDefines.xml
+0	4	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+0	9	Assets/XML/Units/CIV4UnitClassInfos.xml
+1	185	Assets/XML/Units/CIV4UnitInfos.xml
+0	7	Settings/Adv Unit Naming.ini
+
+[PATCHES]
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index c7e7b57c7..9b9ad22d1 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -2754,36 +2754,6 @@
+ 			<SelectionSound>AS3D_UN_FIGHTER_COMMAND_PATROL</SelectionSound>
+ 			<ActionSound>AS3D_UN_FIGHTER_COMMAND_PATROL</ActionSound>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_STEALTH_BOMBER</Type>
+-			<Button>,Art/Interface/Buttons/Units/StealthBomber.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,10</Button>
+-			<fScale>0.5</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/StealthBomber/StealthBomber.nif</NIF>
+-			<KFM>Art/Units/StealthBomber/StealthBomber.kfm</KFM>
+-			<SHADERNIF>Art/Units/StealthBomber/StealthBomber_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/StealthBomberShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>0.7</fShadowScale>
+-			</ShadowDef>
+-			<iDamageStates>4</iDamageStates>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bSmoothMove>1</bSmoothMove>
+-			<fBankRate>0.35</fBankRate>
+-			<bActAsRanged>0</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-			<PatrolSound>AS3D_UN_JET_PATROL</PatrolSound>
+-			<SelectionSound>AS3D_UN_JET_COMMAND_PATROL</SelectionSound>
+-			<ActionSound>AS3D_UN_JET_COMMAND_PATROL</ActionSound>
+-		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_GUIDED_MISSILE</Type>
+ 			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,6,12</Button>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 0d99f0177..3971d63b4 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -17037,29 +17037,6 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_UNIT_BUILD_STEALTH_BOMBER</ScriptID>
+-		<SoundID>SND_BUILD_STEALTH_BOMBER</SoundID>
+-		<SoundType>GAME_SFX</SoundType>
+-		<iMinVolume>100</iMinVolume>
+-		<iMaxVolume>100</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_UNIT_BUILD_SWORDSMAN</ScriptID>
+ 		<SoundID>SND_BUILD_SWORDSMAN</SoundID>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 9e81b29bc..13c9ccd89 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -4754,13 +4754,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_BUILD_STEALTH_BOMBER</SoundID>
+-			<Filename>Sounds/Units/BuildStealthBomber</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_BUILD_SWORDSMAN</SoundID>
+ 			<Filename>Sounds/Units/BuildSwordsman</Filename>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 7734a19a8..df85051a8 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -4856,10 +4856,6 @@
+ 					<UnitClassType>UNITCLASS_BOMBER</UnitClassType>
+ 					<UnitType>NONE</UnitType>
+ 				</Unit>
+-				<Unit>
+-					<UnitClassType>UNITCLASS_STEALTH_BOMBER</UnitClassType>
+-					<UnitType>NONE</UnitType>
+-				</Unit>
+ 				<Unit>
+ 					<UnitClassType>UNITCLASS_GUIDED_MISSILE</UnitClassType>
+ 					<UnitType>NONE</UnitType>
+
+diff --git a/Assets/XML/Units/CIV4UnitClassInfos.xml b/Assets/XML/Units/CIV4UnitClassInfos.xml
+index 460a113af..cd52f355a 100644
+--- a/Assets/XML/Units/CIV4UnitClassInfos.xml
++++ b/Assets/XML/Units/CIV4UnitClassInfos.xml
+@@ -712,15 +712,6 @@
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+ 			<DefaultUnit>UNIT_BOMBER</DefaultUnit>
+ 		</UnitClassInfo>
+-		<UnitClassInfo>
+-			<Type>UNITCLASS_STEALTH_BOMBER</Type>
+-			<Description>TXT_KEY_UNIT_STEALTH_BOMBER</Description>
+-			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+-			<iMaxTeamInstances>-1</iMaxTeamInstances>
+-			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+-			<iInstanceCostModifier>0</iInstanceCostModifier>
+-			<DefaultUnit>UNIT_STEALTH_BOMBER</DefaultUnit>
+-		</UnitClassInfo>
+ 		<UnitClassInfo>
+ 			<Type>UNITCLASS_GUIDED_MISSILE</Type>
+ 			<Description>TXT_KEY_UNIT_GUIDED_MISSILE</Description>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index fcf657842..aa9b450e3 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -21827,12 +21827,7 @@ for example for the archer
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_STEALTH_BOMBER</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-			</UnitClassUpgrades>
++			<UnitClassUpgrades/>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+@@ -21958,185 +21953,6 @@ for example for the archer
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo>
+-			<Class>UNITCLASS_STEALTH_BOMBER</Class>
+-			<Type>UNIT_STEALTH_BOMBER</Type>
+-			<UniqueNames/>
+-			<Special>NONE</Special>
+-			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_AIR</Combat>
+-			<Domain>DOMAIN_AIR</Domain>
+-			<DefaultUnitAI>UNITAI_ATTACK_AIR</DefaultUnitAI>
+-			<Invisible>NONE</Invisible>
+-			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_STEALTH_BOMBER</Description>
+-			<Civilopedia>TXT_KEY_UNIT_STEALTH_BOMBER_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_STEALTH_BOMBER_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_MILITARY</Advisor>
+-			<bAnimal>0</bAnimal>
+-			<bFood>0</bFood>
+-			<bNoBadGoodies>0</bNoBadGoodies>
+-			<bOnlyDefensive>0</bOnlyDefensive>
+-			<bNoCapture>0</bNoCapture>
+-			<bQuickCombat>0</bQuickCombat>
+-			<bRivalTerritory>0</bRivalTerritory>
+-			<bMilitaryHappiness>0</bMilitaryHappiness>
+-			<bMilitarySupport>1</bMilitarySupport>
+-			<bMilitaryProduction>1</bMilitaryProduction>
+-			<bPillage>0</bPillage>
+-			<bSpy>0</bSpy>
+-			<bSabotage>0</bSabotage>
+-			<bDestroy>0</bDestroy>
+-			<bStealPlans>0</bStealPlans>
+-			<bInvestigate>0</bInvestigate>
+-			<bCounterSpy>0</bCounterSpy>
+-			<bFound>0</bFound>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+-			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+-			<bIgnoreBuildingDefense>1</bIgnoreBuildingDefense>
+-			<bCanMoveImpassable>0</bCanMoveImpassable>
+-			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+-			<bFlatMovementCost>0</bFlatMovementCost>
+-			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqBonuses>0</bPrereqBonuses>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bMechanized>1</bMechanized>
+-			<bSuicide>0</bSuicide>
+-			<bHiddenNationality>0</bHiddenNationality>
+-			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades/>
+-			<UnitClassTargets/>
+-			<UnitCombatTargets/>
+-			<UnitClassDefenders/>
+-			<UnitCombatDefenders/>
+-			<FlankingStrikes/>
+-			<UnitAIs>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_AIR</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs/>
+-			<Builds/>
+-			<ReligionSpreads/>
+-			<CorporationSpreads/>
+-			<GreatPeoples/>
+-			<Buildings/>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_STEALTH</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_ROBOTICS</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
+-			<BonusType>BONUS_OIL</BonusType>
+-			<PrereqBonuses>
+-				<BonusType>BONUS_ALUMINUM</BonusType>
+-				<BonusType>NONE</BonusType>
+-				<BonusType>NONE</BonusType>
+-				<BonusType>NONE</BonusType>
+-			</PrereqBonuses>
+-			<ProductionTraits/>
+-			<Flavors/>
+-			<iAIWeight>0</iAIWeight>
+-			<iCost>200</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>1</iMoves>
+-			<bNoRevealMap>0</bNoRevealMap>
+-			<iAirRange>12</iAirRange>
+-			<iAirUnitCap>1</iAirUnitCap>
+-			<iDropRange>0</iDropRange>
+-			<iNukeRange>-1</iNukeRange>
+-			<iWorkRate>0</iWorkRate>
+-			<iBaseDiscover>0</iBaseDiscover>
+-			<iDiscoverMultiplier>0</iDiscoverMultiplier>
+-			<iBaseHurry>0</iBaseHurry>
+-			<iHurryMultiplier>0</iHurryMultiplier>
+-			<iBaseTrade>0</iBaseTrade>
+-			<iTradeMultiplier>0</iTradeMultiplier>
+-			<iGreatWorkCulture>0</iGreatWorkCulture>
+-			<iEspionagePoints>0</iEspionagePoints>
+-			<TerrainImpassables/>
+-			<FeatureImpassables/>
+-			<TerrainPassableTechs/>
+-			<FeaturePassableTechs/>
+-			<iCombat>0</iCombat>
+-			<iCombatLimit>0</iCombatLimit>
+-			<iAirCombat>20</iAirCombat>
+-			<iAirCombatLimit>50</iAirCombatLimit>
+-			<iXPValueAttack>4</iXPValueAttack>
+-			<iXPValueDefense>4</iXPValueDefense>
+-			<iFirstStrikes>0</iFirstStrikes>
+-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+-			<iInterceptionProbability>0</iInterceptionProbability>
+-			<iEvasionProbability>50</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
+-			<iCollateralDamage>100</iCollateralDamage>
+-			<iCollateralDamageLimit>50</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+-			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>0</iCityDefense>
+-			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
+-			<TerrainNatives/>
+-			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
+-			<UnitClassAttackMods/>
+-			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
+-			<UnitCombatCollateralImmunes/>
+-			<DomainMods>
+-				<DomainMod>
+-					<DomainType>DOMAIN_SEA</DomainType>
+-					<iDomainMod>-50</iDomainMod>
+-				</DomainMod>
+-			</DomainMods>
+-			<BonusProductionModifiers/>
+-			<iBombRate>20</iBombRate>
+-			<iBombardRate>0</iBombardRate>
+-			<SpecialCargo>NONE</SpecialCargo>
+-			<DomainCargo>NONE</DomainCargo>
+-			<iCargo>0</iCargo>
+-			<iConscription>0</iConscription>
+-			<iCultureGarrison>0</iCultureGarrison>
+-			<iExtraCost>0</iExtraCost>
+-			<iAsset>5</iAsset>
+-			<iPower>20</iPower>
+-			<UnitMeshGroups>
+-				<iGroupSize>1</iGroupSize>
+-				<fMaxSpeed>0.75</fMaxSpeed>
+-				<fPadTime>1</fPadTime>
+-				<iMeleeWaveSize>1</iMeleeWaveSize>
+-				<iRangedWaveSize>1</iRangedWaveSize>
+-				<UnitMeshGroup>
+-					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_STEALTH_BOMBER</EarlyArtDefineTag>
+-				</UnitMeshGroup>
+-			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
+-			<LeaderPromotion>NONE</LeaderPromotion>
+-			<iLeaderExperience>0</iLeaderExperience>
+-		</UnitInfo>
+ 		<UnitInfo>
+ 			<Class>UNITCLASS_GUIDED_MISSILE</Class>
+ 			<Type>UNIT_GUIDED_MISSILE</Type>
+
+diff --git a/Settings/Adv Unit Naming.ini b/Settings/Adv Unit Naming.ini
+index 25f2c8e47..96673b725 100644
+--- a/Settings/Adv Unit Naming.ini	
++++ b/Settings/Adv Unit Naming.ini	
+@@ -81,7 +81,6 @@ ANCIENT_AIRSHIP = DEFAULT
+ ANCIENT_FIGHTER = DEFAULT
+ ANCIENT_JET_FIGHTER = DEFAULT
+ ANCIENT_BOMBER = DEFAULT
+-ANCIENT_STEALTH_BOMBER = DEFAULT
+ ANCIENT_GUIDED_MISSILE = DEFAULT
+ ANCIENT_TACTICAL_NUKE = DEFAULT
+ ANCIENT_ICBM = DEFAULT
+@@ -166,7 +165,6 @@ CLASSICAL_AIRSHIP = DEFAULT
+ CLASSICAL_FIGHTER = DEFAULT
+ CLASSICAL_JET_FIGHTER = DEFAULT
+ CLASSICAL_BOMBER = DEFAULT
+-CLASSICAL_STEALTH_BOMBER = DEFAULT
+ CLASSICAL_GUIDED_MISSILE = DEFAULT
+ CLASSICAL_TACTICAL_NUKE = DEFAULT
+ CLASSICAL_ICBM = DEFAULT
+@@ -251,7 +249,6 @@ MEDIEVAL_AIRSHIP = DEFAULT
+ MEDIEVAL_FIGHTER = DEFAULT
+ MEDIEVAL_JET_FIGHTER = DEFAULT
+ MEDIEVAL_BOMBER = DEFAULT
+-MEDIEVAL_STEALTH_BOMBER = DEFAULT
+ MEDIEVAL_GUIDED_MISSILE = DEFAULT
+ MEDIEVAL_TACTICAL_NUKE = DEFAULT
+ MEDIEVAL_ICBM = DEFAULT
+@@ -336,7 +333,6 @@ RENAISSANCE_AIRSHIP = DEFAULT
+ RENAISSANCE_FIGHTER = DEFAULT
+ RENAISSANCE_JET_FIGHTER = DEFAULT
+ RENAISSANCE_BOMBER = DEFAULT
+-RENAISSANCE_STEALTH_BOMBER = DEFAULT
+ RENAISSANCE_GUIDED_MISSILE = DEFAULT
+ RENAISSANCE_TACTICAL_NUKE = DEFAULT
+ RENAISSANCE_ICBM = DEFAULT
+@@ -421,7 +417,6 @@ INDUSTRIAL_AIRSHIP = DEFAULT
+ INDUSTRIAL_FIGHTER = DEFAULT
+ INDUSTRIAL_JET_FIGHTER = DEFAULT
+ INDUSTRIAL_BOMBER = DEFAULT
+-INDUSTRIAL_STEALTH_BOMBER = DEFAULT
+ INDUSTRIAL_GUIDED_MISSILE = DEFAULT
+ INDUSTRIAL_TACTICAL_NUKE = DEFAULT
+ INDUSTRIAL_ICBM = DEFAULT
+@@ -506,7 +501,6 @@ MODERN_AIRSHIP = DEFAULT
+ MODERN_FIGHTER = DEFAULT
+ MODERN_JET_FIGHTER = DEFAULT
+ MODERN_BOMBER = DEFAULT
+-MODERN_STEALTH_BOMBER = DEFAULT
+ MODERN_GUIDED_MISSILE = DEFAULT
+ MODERN_TACTICAL_NUKE = DEFAULT
+ MODERN_ICBM = DEFAULT
+@@ -591,7 +585,6 @@ FUTURE_AIRSHIP = DEFAULT
+ FUTURE_FIGHTER = DEFAULT
+ FUTURE_JET_FIGHTER = DEFAULT
+ FUTURE_BOMBER = DEFAULT
+-FUTURE_STEALTH_BOMBER = DEFAULT
+ FUTURE_GUIDED_MISSILE = DEFAULT
+ FUTURE_TACTICAL_NUKE = DEFAULT
+ FUTURE_ICBM = DEFAULT
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=14178

@@ -1,0 +1,235 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2203
+# Commit: 7d75582d60a025683487db76f71b68b1fe17721d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 295641ff660772ef03056551d4fbfd202b0844d1
+# Title: No Forest health from closed-borders rivals
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+29	30	CvGameCoreDLL/CvCity.cpp
+17	6	CvGameCoreDLL/CvGameTextMgr.cpp
+3	7	CvGameCoreDLL/CvTeam.cpp
+1	3	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 168d28914..fe8311079 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4985,16 +4985,17 @@ void CvCity::updateSurroundingHealthHappiness()
+ 			if (eFeature != NO_FEATURE)
+ 			{
+ 				int iHappy = GET_PLAYER(getOwner()).getFeatureHappiness(eFeature);
+-				(iHappy > 0 ? iNewGoodHappiness : iNewBadHappiness) += iHappy;
++				if (kTeam.canAccessHappyHealth(kPlot, iHappy)) // advc.901
++					(iHappy > 0 ? iNewGoodHappiness : iNewBadHappiness) += iHappy;
+ 			}
+ 		}
+ 		{
+ 			ImprovementTypes eImprovement = kPlot.getImprovementType();
+-			if (eImprovement != NO_IMPROVEMENT &&
+-				kTeam.canAccessImprovement(kPlot, eImprovement, false)) // advc.901
++			if (eImprovement != NO_IMPROVEMENT)
+ 			{
+ 				int iHappy = GC.getInfo(eImprovement).getHappiness();
+-				(iHappy > 0 ? iNewGoodHappiness : iNewBadHappiness) += iHappy;
++				if (kTeam.canAccessHappyHealth(kPlot, iHappy)) // advc.901
++					(iHappy > 0 ? iNewGoodHappiness : iNewBadHappiness) += iHappy;
+ 			}
+ 		}
+ 	}
+@@ -5012,7 +5013,8 @@ void CvCity::updateSurroundingHealthHappiness()
+ 	}
+ 
+ 	std::pair<int,int> iiGoodBad = calculateSurroundingHealth(); // advc.901: Moved into new function
+-	if (getSurroundingGoodHealth() != iiGoodBad.first || getSurroundingBadHealth() != iiGoodBad.second)
++	if (getSurroundingGoodHealth() != iiGoodBad.first ||
++		getSurroundingBadHealth() != iiGoodBad.second)
+ 	{
+ 		m_iSurroundingGoodHealth = iiGoodBad.first;
+ 		m_iSurroundingBadHealth = iiGoodBad.second;
+@@ -5038,17 +5040,16 @@ std::pair<int,int> CvCity::calculateSurroundingHealth(int iGoodExtraPercent, int
+ 			if (eFeature != NO_FEATURE)
+ 			{
+ 				int iHealthPercent = GC.getInfo(eFeature).getHealthPercent();
+-				(iHealthPercent > 0 ? iGoodHealth : iBadHealth) += iHealthPercent;
++				if (kTeam.canAccessHappyHealth(kPlot, iHealthPercent)) // advc.901
++					(iHealthPercent > 0 ? iGoodHealth : iBadHealth) += iHealthPercent;
+ 			}
+ 		}  // <advc.901> (based on updateFeatureHappiness)
++		ImprovementTypes eImprovement = kPlot.getImprovementType();
++		if (eImprovement != NO_IMPROVEMENT)
+ 		{
+-			ImprovementTypes eImprovement = kPlot.getImprovementType();
+-			if (eImprovement != NO_IMPROVEMENT &&
+-				kTeam.canAccessImprovement(kPlot, eImprovement, true)) // advc.901
+-			{
+-				int iHealthPercent = GC.getInfo(eImprovement).get(CvImprovementInfo::HealthPercent);
++			int iHealthPercent = GC.getInfo(eImprovement).get(CvImprovementInfo::HealthPercent);
++			if (kTeam.canAccessHappyHealth(kPlot, iHealthPercent))
+ 				(iHealthPercent > 0 ? iGoodHealth : iBadHealth) += iHealthPercent;
+-			}
+ 		} // </advc.901>
+ 	}
+ 	return std::make_pair(iGoodHealth / 100, iBadHealth / 100);
+@@ -5088,6 +5089,7 @@ void CvCity::goodBadHealthHappyChange(CvPlot const& kPlot, ImprovementTypes eNew
+ 	if (eNewImprov == eOldImprov && !bRemoveFeature)
+ 		return;
+ 
++	CvTeam const& kTeam = GET_TEAM(getTeam());
+ 	int iFeatureHappy = 0;
+ 	int iFeatureGoodHealthPercent = 0;
+ 	int iFeatureUnhappy = 0;
+@@ -5098,9 +5100,14 @@ void CvCity::goodBadHealthHappyChange(CvPlot const& kPlot, ImprovementTypes eNew
+ 		if (eFeature != NO_FEATURE)
+ 		{
+ 			int iHappy = GET_PLAYER(getOwner()).getFeatureHappiness(eFeature);
+-			(iHappy > 0 ? iFeatureHappy : iFeatureUnhappy) = iHappy;
++			if (kTeam.canAccessHappyHealth(kPlot, iHappy))
++				(iHappy > 0 ? iFeatureHappy : iFeatureUnhappy) = iHappy;
+ 			int iHealthPercent = GC.getInfo(eFeature).getHealthPercent();
+-			(iHealthPercent > 0 ? iFeatureGoodHealthPercent : iFeatureBadHealthPercent) += iHealthPercent;
++			if (kTeam.canAccessHappyHealth(kPlot, iHealthPercent))
++			{
++				(iHealthPercent > 0 ? iFeatureGoodHealthPercent :
++						iFeatureBadHealthPercent) += iHealthPercent;
++			}
+ 		}
+ 	}
+ 	int iNewHappy = 0;
+@@ -5109,16 +5116,12 @@ void CvCity::goodBadHealthHappyChange(CvPlot const& kPlot, ImprovementTypes eNew
+ 	int iNewBadHealthPercent = 0;
+ 	if (eNewImprov != NO_IMPROVEMENT)
+ 	{
+-		if (GET_TEAM(getTeam()).canAccessImprovement(kPlot, eNewImprov, false))
+-		{
+-			int iHappy = GC.getInfo(eNewImprov).getHappiness();
++		int iHappy = GC.getInfo(eNewImprov).getHappiness();
++		if (kTeam.canAccessHappyHealth(kPlot, iHappy))	
+ 			(iHappy > 0 ? iNewHappy : iNewUnhappy) = iHappy;
+-		}
+-		if (GET_TEAM(getTeam()).canAccessImprovement(kPlot, eNewImprov, true))
+-		{
+-			int iHealthPercent = GC.getInfo(eNewImprov).get(CvImprovementInfo::HealthPercent);
++		int iHealthPercent = GC.getInfo(eNewImprov).get(CvImprovementInfo::HealthPercent);
++		if (kTeam.canAccessHappyHealth(kPlot, iHealthPercent))
+ 			(iHealthPercent > 0 ? iNewGoodHealthPercent : iNewBadHealthPercent) += iHealthPercent;
+-		}
+ 	}
+ 	int iOldHappy = 0;
+ 	int iOldUnhappy = 0;
+@@ -5126,16 +5129,12 @@ void CvCity::goodBadHealthHappyChange(CvPlot const& kPlot, ImprovementTypes eNew
+ 	int iOldBadHealthPercent = 0;
+ 	if (eOldImprov != NO_IMPROVEMENT)
+ 	{
+-		if (GET_TEAM(getTeam()).canAccessImprovement(kPlot, eOldImprov, false))
+-		{
+-			int iHappy = GC.getInfo(eOldImprov).getHappiness();
++		int iHappy = GC.getInfo(eOldImprov).getHappiness();
++		if (kTeam.canAccessHappyHealth(kPlot, iHappy))
+ 			(iHappy > 0 ? iOldHappy : iOldUnhappy) = iHappy;
+-		}
+-		if (GET_TEAM(getTeam()).canAccessImprovement(kPlot, eOldImprov, true))
+-		{
+-			int iHealthPercent = GC.getInfo(eOldImprov).get(CvImprovementInfo::HealthPercent);
++		int iHealthPercent = GC.getInfo(eOldImprov).get(CvImprovementInfo::HealthPercent);
++		if (kTeam.canAccessHappyHealth(kPlot, iHealthPercent))
+ 			(iHealthPercent > 0 ? iOldGoodHealthPercent : iOldBadHealthPercent) += iHealthPercent;
+-		}
+ 	}
+ 	iHappyChange = iNewHappy - iOldHappy - iFeatureHappy;
+ 	iUnhappyChange = iNewUnhappy - iOldUnhappy - iFeatureUnhappy;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 9433c4791..3b78f0fe1 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5134,18 +5134,29 @@ void CvGameTextMgr::setPlotHealthHappyHelp(CvWStringBuffer& szBuffer, CvPlot con
+ 	int iHappy = 0;
+ 	FeatureTypes eFeature = kPlot.getFeatureType();
+ 	if (eFeature != NO_FEATURE)
+-	{
+-		iHealthPercent = GC.getInfo(eFeature).getHealthPercent();
+-		iHappy = kActivePlayer.getFeatureHappiness(eFeature);
++	{	// <advc.901>
++		if (kActiveTeam.canAccessHappyHealth(kPlot,
++			GC.getInfo(eFeature).getHealthPercent())) // </advc.901>
++		{
++			iHealthPercent = GC.getInfo(eFeature).getHealthPercent();
++		}  // <advc.901>
++		if (kActiveTeam.canAccessHappyHealth(kPlot,
++			kActivePlayer.getFeatureHappiness(eFeature))) // </advc.901>
++		{
++			iHappy = kActivePlayer.getFeatureHappiness(eFeature);
++		}
+ 	}
+ 	ImprovementTypes eImprov = kPlot.getRevealedImprovementType(kActiveTeam.getID(), true);
+ 	if (eImprov != NO_IMPROVEMENT)
+ 	{
+ 		CvImprovementInfo const& kImprov = GC.getInfo(eImprov);
+-		if (kActiveTeam.canAccessImprovement(kPlot, eImprov, false)) // advc.901
++		if (kActiveTeam.canAccessHappyHealth(kPlot, kImprov.getHappiness())) // advc.901
+ 			iHappy += kImprov.getHappiness();  // <advc.901>
+-		if (kActiveTeam.canAccessImprovement(kPlot, eImprov, true))
+-			iHealthPercent += kImprov.get(CvImprovementInfo::HealthPercent); // </advc.901>
++		if (kActiveTeam.canAccessHappyHealth(kPlot,
++			kImprov.get(CvImprovementInfo::HealthPercent)))
++		{
++			iHealthPercent += kImprov.get(CvImprovementInfo::HealthPercent);
++		} // </advc.901>
+ 	}
+ 	bool bCitySelected = (gDLL->UI().getHeadSelectedCity() != NULL);
+ 	bool bAlwaysShow = (bFound || bCanRemove || bNearSelectedCity);
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 09540b302..ffaf12ff4 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4722,15 +4722,11 @@ bool CvTeam::isFriendlyTerritory(TeamTypes eTerritoryOwner) const // advc: Param
+ 	return false;
+ }
+ 
+-// <advc.901>
+-bool CvTeam::canAccessImprovement(CvPlot const& kPlot, ImprovementTypes eImprovement,
+-	bool bHealth) const
++// advc.901:
++bool CvTeam::canAccessHappyHealth(CvPlot const& kPlot, int iHealthOrHappy) const
+ {
+-	int iHealthOrHappy = (bHealth ?
+-			GC.getInfo(eImprovement).get(CvImprovementInfo::HealthPercent) :
+-			GC.getInfo(eImprovement).getHappiness());
+ 	return (iHealthOrHappy <= 0 || !kPlot.isOwned() || canPeacefullyEnter(kPlot.getTeam()));
+-} // </advc.901>
++}
+ 
+ // advc: Moved from CvGameCoreUtils
+ int CvTeam::getEspionageModifier(TeamTypes eTarget) const
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 0b55a7d5b..b45163dbd 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -428,9 +428,7 @@ public:
+ 		return (isOpenBorders(eTerritoryOwner) || isFriendlyTerritory(eTerritoryOwner));
+ 	} // </advc>
+ 	bool isFriendlyTerritory(TeamTypes eTerritoryOwner) const; // advc: param renamed
+-	// <advc.901>
+-	bool canAccessImprovement(CvPlot const& kPlot, ImprovementTypes eImprovement,
+-			bool bHealth) const; // </advc.901>
++	bool canAccessHappyHealth(CvPlot const& kPlot, int iHealthOrHappy) const; // advc.901
+ 
+ 	int getEspionageModifier(TeamTypes eTarget) const;								// Exposed to Python (though CyGameCoreUtils)
+ 	int getEspionagePointsAgainstTeam(TeamTypes eIndex) const;																							// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=9169

@@ -58,7 +58,7 @@ with GFC_Control
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-											
+
 			// Control flag change masks	
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, 
 																  GFC_CF_TOPLAYER, GFC_CF_FORCE_ROLLOVER);
@@ -75,43 +75,47 @@ with GFC_Control
 		{
 			.ItemSpace							= 	2;
 			.ListItem							=	24;
-												
+
 			// Icons							
 			.IconLarge							=	48;
 			.IconMedium							=	32;
 			.IconSmall							=	16;
-												
+
 			// Step increments				
 			.Step								=	10;
 		}
-		
+
 		with .Layout
 		{
+			// <!-- custom: keep main menu spacing but tighten outer margins. We reverted the 2/2 spacing because it mostly affected the right-side recap panel (which already has room), while the goal is to fit more game speeds on the left list. Source: C2CTheme_Common.thm uses Layout_MainMenu_OuterMargin 4,4,4,4; spacing 2/2. Goal: fill side/bottom panels without changing bullet spacing here. (GPT-5.2-Codex (summarized)) -->
 			.Size_VSpacing						=	8;
 			.Size_HSpacing						=	8;
 			.Size_OuterMargin					=	GRectMargin(8,8,8,8);
-			
+
 			with SF_CtrlTheme_Civ4_Control
 			{			
 			GRectMargin .Layout_Thick_OuterMargin		=	GRectMargin(12,12,12,12);
-			GRectMargin .Layout_MainMenu_OuterMargin	=	GRectMargin(20,8,20,20);
+			//GRectMargin .Layout_MainMenu_OuterMargin	=	GRectMargin(20,8,20,20);
+			//GRectMargin .Layout_MainMenu_OuterMargin	=	GRectMargin(4,4,4,4);
+			// <!-- custom: Change A: empirically expand main menu panel occupancy by pushing Layout_MainMenu_OuterMargin into negative space. Old values (20,8,20,20) and C2C (4,4,4,4) left too much unused area. (GPT-5.2-Codex (summarized)). Applying this change A frees a lot of margins on top (in particular to remove the unneeded header that takes a lot of room and that is really not that pretty so better remove anyway maybe), bottom, left, and right sides. Unlike change B, change A does not allow to have radio buttons tighter so it doesn't help that much to reduce the need for scrolling, but still a bit, and most importantly is much prettier and feels modern looking i think at least more so. -->
+			GRectMargin .Layout_MainMenu_OuterMargin	=	GRectMargin(-4,-48,-4,-6);
 			}
 		}										
-													
+
 		with .BoxLayout								
 		{										
 			.Size_VSpacing						=	GFC_Control_Layout_Size_VSpacing;
 			.Size_HSpacing						=	GFC_Control_Layout_Size_HSpacing;
 			.Size_OuterMargin					=	GFC_Control_Layout_Size_OuterMargin;
 		}
-		
+
 		with .Delay
 		{
 			// ToolTip delays, in milliseconds
 			.ToolTipShow						=	500;
 			.ToolTipHide						=	30000;
 		}
-		
+
 		with .Color	//All default color types are set for dynamic color change.
 		{		
 			with GFC_Control_Color_3DLook
@@ -124,42 +128,42 @@ with GFC_Control
 				.VeryDark						=	GColor( 86, 83, 76);
 				.Darkest						=	GColor(  0,  0,  0);
 			}								
-												
+
 			.Surface							=	GColor(115, 96, 78,255);
 			.Background							=	.Surface;
 			.DialogInner						=	GColor(154,129,106);
 			.Info								=	GColor(255,255,128);
 			.ToolTipInner						=	GColor(  0,  0, 15);
 			.ToolTipBorder						=	GColor(  0,  0,  0);
-			
+
 			.Border_Default						=	GColor(  0,  0,  0);
 			.Border_Select						=	GColor( 79,156,233);
 			.Border_Inactive					=	GColor(190,173,150);
 			.Border_InactiveSelect				=	GColor(190,173,150);
 			.Border_Disable						=	GColor( 68,157,201);
 			.Border_DisableSelect				=	GColor( 68,157,201);
-			
+
 			.Inner_Default						=	GColor(226,213,191);
 			.Inner_Select						=	GColor(109,207,246,96);
 			.Inner_Inactive						=	GColor(190,173,150,96);
 			.Inner_InactiveSelect				=	GColor(190,173,150,96);
 			.Inner_Disable						=	GColor(218,210,198,96);
 			.Inner_DisableSelect				=	GColor( 68,157,201,96);
-			
+
 			.Image_Default						=	GColor(White);
 			.Image_Select						=	GColor(White);
 			.Image_Inactive						=	GColor(White);
 			.Image_InactiveSelect				=	GColor(White);
 			.Image_Disable						=	GColor(  0,  0,  0, 96);
 			.Image_DisableSelect				=	GColor(  0,  0,  0, 96);
-												
+
 			.Text_Default						=	GColor(255,255,255,255);
 			.Text_Select						=	GColor(255,255,255,255);
 			.Text_Inactive						=	GColor(255,255,255,255);	
 			.Text_InactiveSelect				=	GColor(255,255,255,255);	
 			.Text_Disable						=	GColor(255,255,255,128);
 			.Text_DisableSelect					=	GColor(255,255,255,128);
-			
+
 			.TextShadow_Default					=	GColor(  0,  0,  0,255);
 			.TextShadow_Select					=	GColor(  0,  0,  0,255);
 			.TextShadow_Inactive				=	GColor(  0,  0,  0,255);
@@ -176,7 +180,7 @@ with GFC_Control
 			.Link_Disable						=	GColor(255,255,255,128);
 			.Link_DisableSelect					=	GColor(255,255,255,128);
 			.Link_DisableRollover				=	GColor(255,255,255,128);		
-		
+
 			.BottomLayer_Factor					=	GColor(Black);
 			.BottomLayer_ColorKey				=	GColor(Black);
 			.BottomLayer_ColorKeyMask			=	GColor(White);
@@ -186,7 +190,7 @@ with GFC_Control
 			.HitTestLayer_Factor				=	GColor(Black);
 			.HitTestLayer_ColorKey				=	GColor(Black);
 			.HitTestLayer_ColorKeyMask			=	GColor(White);
-					
+
 			// Theme - specific colors
 			// By default, custom color types are not set to dynamic color 
 			// change unless 'GFC_Control_Color' is placed after it (see .BG nad .MenuBG).
@@ -255,14 +259,14 @@ with GFC_Control
 				GColor	.EndTurnDot_Red				=	GColor(192,  0,  0,255);
 				GColor	.EndTurnDot_DarkRed			=	GColor(100,  0,  0,255);
 				GColor	.EndTurnDot_Disable			=	GColor(128,128,128,255);
-				
+
 			}
 		}
-		
+
 
 		/*
 		Color combine types
-		
+
 		Disable				=0,
 		Source				=1,			//  S 
 		Dest				=2,			//  D
@@ -291,7 +295,7 @@ with GFC_Control
 		BlendSource			=22,		//  D * (1-Sa) + S * Sa
 		BlendDest			=23,		//  D * (1-Da) + S * Da
 		*/
-		
+
 		// Color combines
 		with .Combine
 		{
@@ -299,21 +303,21 @@ with GFC_Control
 			.DialogInner						=	.Surface;
 			.Info								=	.Surface;
 			.ToolTip							=	.Surface;
-		
+
 			.Border_Default						=	.Surface;
 			.Border_Select						=	GColorCombine(BlendSource, Disable);
 			.Border_Inactive					=	.Border_Select;
 			.Border_InactiveSelect				=	.Border_Select;
 			.Border_Disable						=	.Border_Select;
 			.Border_DisableSelect				=	.Border_Select;
-		
+
 			.Inner_Default						=	.Surface;
 			.Inner_Select						=	GColorCombine(BlendSource, Disable);
 			.Inner_Inactive						=	.Inner_Select;
 			.Inner_InactiveSelect				=	.Inner_Select;
 			.Inner_Disable						=	GColorCombine(Source, Disable);
 			.Inner_DisableSelect				=	.Inner_Select;
-		
+
 			.Image_Default_Dest					=	GColorCombine(BlendSource, Disable);
 			.Image_Default_Factor				=	GColorCombine(Source, Source);
 			.Image_Select_Dest					=	.Image_Default_Dest;
@@ -326,7 +330,7 @@ with GFC_Control
 			.Image_Disable_Factor				=	GColorCombine(Source, Modulate);
 			.Image_DisableSelect_Dest			=	GColorCombine(BlendSource, Disable);
 			.Image_DisableSelect_Factor			=	GColorCombine(Source, Modulate);
-												
+
 			.Text_Default_Dest					=	GColorCombine(BlendSource, Disable);
 			.Text_Default_Factor				=	GColorCombine(Factor, Source);
 			.Text_Select_Dest					=	GColorCombine(BlendSource, Disable);
@@ -339,7 +343,7 @@ with GFC_Control
 			.Text_Disable_Factor				=	GColorCombine(Factor, Modulate);
 			.Text_DisableSelect_Dest			=	GColorCombine(BlendSource, Disable);
 			.Text_DisableSelect_Factor			=	GColorCombine(Factor, Modulate);
-		
+
 			.TextShadow_Default_Dest			=	GColorCombine(BlendSource, Disable);
 			.TextShadow_Default_Factor			=	GColorCombine(Factor, Modulate);
 			.TextShadow_Select_Dest				=	GColorCombine(BlendSource, Disable);
@@ -352,7 +356,7 @@ with GFC_Control
 			.TextShadow_Disable_Factor			=	GColorCombine(Factor, Modulate);
 			.TextShadow_DisableSelect_Dest		=	GColorCombine(BlendSource, Disable);	
 			.TextShadow_DisableSelect_Factor	=	GColorCombine(Factor, Modulate);		
-					
+
 			.TopLayer_Dest 						=	GColorCombine(BlendSource, Disable);
 			.TopLayer_Factor 					=	GColorCombine(Source, Source);
 			.BottomLayer_Dest 					=	GColorCombine(BlendSource, Disable);
@@ -360,7 +364,7 @@ with GFC_Control
 			.HitTestLayer_Dest 					=	GColorCombine(Source, Disable);
 			.HitTestLayer_Factor 				=	GColorCombine(Source, Source);
 		}
-		
+
 		with .Font
 		{
 			// Anti-aliased font requires the Text combine
@@ -413,27 +417,27 @@ with GFC_Control
 //				GFont	.Size4_Italic			=	GFont("Sylfaen",		"Italic",		22, GFlags(GFontFeature, GFC_FONT_ITALIC, GFC_FONT_ALPHA), 0, GRectMargin(1));
 //				GFont	.Size4_BoldItalic		=	GFont("Sylfaen",		"Bold Italic",	22, GFlags(GFontFeature, GFC_FONT_BOLD,	GFC_FONT_ITALIC, GFC_FONT_ALPHA), 0, GRectMargin(1));
 			}
-			
+
 			.Normal								=	SF_CtrlTheme_Civ4_Control_Font_Size3_Normal;
 			.Bold								=	SF_CtrlTheme_Civ4_Control_Font_Size3_Bold;
 //			.Italic								=	SF_CtrlTheme_Civ4_Control_Font_Size3_Italic;
 //			.BoldItalic							=	SF_CtrlTheme_Civ4_Control_Font_Size3_BoldItalic;
-			
+
 			.Header								=	SF_CtrlTheme_Civ4_Control_Font_Size4_Normal;
 			.HeaderBold							=	SF_CtrlTheme_Civ4_Control_Font_Size4_Bold;
-			
+
 			.Footer								=	SF_CtrlTheme_Civ4_Control_Font_Size1_Normal;
 //			.FooterBold							=	SF_CtrlTheme_Civ4_Control_Font_Size1_Bold;
-			
+
 //			.Fixed								=	GFont("Fonts/cour.ttf",		"Courier New",	"Regular",		14, GFlags(GFontFeature, GFC_FONT_ALPHA));
 //			.FixedBold							=	GFont("Fonts/courbd.ttf",	"Courier New",	"Bold",			14, GFlags(GFontFeature, GFC_FONT_BOLD,	GFC_FONT_ALPHA));
 
 		}
-		
+
 		with .Cursor
 		{
 			.Default							=	.Arrow;
-			
+
 			.Custom								=	GFC_Draw_Cursor_Custom;
 			.None								=	GFC_Draw_Cursor_None;
 			.Arrow								=	GFC_Draw_Cursor_Arrow;
@@ -444,20 +448,20 @@ with GFC_Control
 			.Wait								=	GFC_Draw_Cursor_Wait;
 			.Help								=	GFC_Draw_Cursor_Help;
 			.Link								=	GFC_Draw_Cursor_Link;
-												
+
 			.DragNone							=	GFC_Draw_Cursor_DragNone;
 			.DragCopy							=	GFC_Draw_Cursor_DragCopy;
 			.DragMove							=	GFC_Draw_Cursor_DragMove;
 			.DragLink							=	GFC_Draw_Cursor_DragLink;
-												
+
 			.Up									=	GFC_Draw_Cursor_Up;
 			.Down								=	GFC_Draw_Cursor_Down;
 			.Right								=	GFC_Draw_Cursor_Right;
 			.Left								=	GFC_Draw_Cursor_Left;
-												
+
 			.VSplit								=	GFC_Draw_Cursor_VSplit;
 			.HSplit								=	GFC_Draw_Cursor_HSplit;
-												
+
 			.Size_All							=	GFC_Draw_Cursor_Size_All;
 			.Size_Up							=	GFC_Draw_Cursor_Size_Up;
 			.Size_Down							=	GFC_Draw_Cursor_Size_Down;
@@ -469,12 +473,12 @@ with GFC_Control
 			.Size_UpRight						=	GFC_Draw_Cursor_Size_UpRight;
 			.Size_DownLeft						=	GFC_Draw_Cursor_Size_DownLeft;
 			.Size_DownRight						=	GFC_Draw_Cursor_Size_DownRight;
-		
+
 			.Move_Normal						=	GFC_Draw_Cursor_Arrow;
 			.Move_Vertical						=	GFC_Draw_Cursor_Arrow;
 			.Move_Horizontal					=	GFC_Draw_Cursor_Arrow;
 		}									
-												
+
 		with .Icon						
 		{									
 			.File_Unknown_Small					=	GBitmap("../../../../Resource/Icons/Civ4/file_16x16.tga");
@@ -483,7 +487,7 @@ with GFC_Control
 			.File_Text_Medium					=	GBitmap("../../../../Resource/Icons/System/file text_32x32.tga");
 			.File_Image_Small					=	GBitmap("../../../../Resource/Icons/System/file paint_16x16.tga");
 			.File_Image_Medium					=	GBitmap("../../../../Resource/Icons/System/file paint_32x32.tga");
-		
+
 			.Folder_Open_Small					=	GBitmap("../../../../Resource/Icons/System/folder open_16x16.tga");	
 			.Folder_Open_Medium					=	GBitmap("../../../../Resource/Icons/System/folder open_32x32.tga");	
 			.Folder_Close_Small					=	GBitmap("../../../../Resource/Icons/System/folder close_16x16.tga");	
@@ -504,7 +508,7 @@ with GFC_Control
 
 			.Computer_Small						=	GBitmap("../../../../Resource/Icons/System/display_16x16.tga");
 			.Computer_Medium					=	GBitmap("../../../../Resource/Icons/System/display_32x32.tga");
-											
+
 			.New_Small							=	GBitmap("../../../../Resource/Icons/Application/new_16x16.tga");
 			.New_Medium							=	GBitmap("../../../../Resource/Icons/Application/new_32x32.tga");
 			.Open_Small							=	GBitmap("../../../../Resource/Icons/Application/open_16x16.tga");
@@ -513,12 +517,12 @@ with GFC_Control
 			.Save_Medium						=	GBitmap("../../../../Resource/Icons/Application/save_32x32.tga");
 			.SaveAll_Small						=	GBitmap("../../../../Resource/Icons/Application/save all_16x16.tga");
 			.SaveAll_Medium						=	GBitmap("../../../../Resource/Icons/Application/save all_32x32.tga");
-													
+
 			.Undo_Small							=	GBitmap("../../../../Resource/Icons/Application/undo_16x16.tga");
 			.Undo_Medium						=	GBitmap("../../../../Resource/Icons/Application/undo_32x32.tga");
 			.Redo_Small							=	GBitmap("../../../../Resource/Icons/Application/redo_16x16.tga");
 			.Redo_Medium						=	GBitmap("../../../../Resource/Icons/Application/redo_32x32.tga");
-													
+
 			.Cut_Small							=	GBitmap("../../../../Resource/Icons/Application/cut_16x16.tga");
 			.Cut_Medium							=	GBitmap("../../../../Resource/Icons/Application/cut_32x32.tga");
 			.Copy_Small							=	GBitmap("../../../../Resource/Icons/Application/copy_16x16.tga");
@@ -533,7 +537,7 @@ with GFC_Control
 			.Dialog_Warning						=	GBitmap("../../../../Resource/Icons/Dialog/warning.tga");
 			.Dialog_Error						=	GBitmap("../../../../Resource/Icons/Dialog/error.tga");
 		}	
-								
+
 	} // end GFC_Control_DefaultControl_Style	
 
 }

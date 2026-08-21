@@ -1,0 +1,156 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5539
+# Commit: e089863a5370461b4bb225b0079542e301318cd3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 33771bb11b40dbbb0762a8acf43261c1c41348eb
+# Title: upscale specialists
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+24	6	Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+5	0	Long_Comments/Long_Comments_XML.txt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+index 8bfcb0294..06af78495 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+@@ -21,10 +21,14 @@ from CvPythonExtensions import *
+ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
++import re
++import SASTextScale
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
++SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)
++SAS_FONT_CLOSE_RE = re.compile(u"</font>", re.IGNORECASE)
+ 
+ 
+ 
+@@ -88,6 +92,14 @@ class SevoPediaSpecialist:
+ 		self.placeHistory()
+ 
+ 
++	def _bodyText(self, szText):
++		return SASTextScale.bodyText(szText)
++
++
++	def _labelText(self, szText):
++		return SASTextScale.labelText(szText)
++
++
+ 
+ 	def placeSpecialistPane(self):
+ 		screen = self.top.getScreen()
+@@ -107,6 +119,9 @@ class SevoPediaSpecialist:
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS_SPECIALISTS", ()), "", True, False, self.X_EFFECTS_PANEL, self.Y_EFFECTS_PANEL, self.W_EFFECTS_PANEL, self.H_TOP_PANEL, PanelStyles.PANEL_STYLE_BLUE50)
+ 		textName = self.top.getNextWidgetName()
+ 		szSpecialText = CyGameTextMgr().getSpecialistHelp(self.iSpecialist, True)
++		szSpecialText = SAS_FONT_OPEN_RE.sub(u"", szSpecialText)
++		szSpecialText = SAS_FONT_CLOSE_RE.sub(u"", szSpecialText)
++		szSpecialText = self._bodyText(szSpecialText)
+ 		# <!-- custom: reduce top padding now that the traits header is removed (GPT-5.2-Codex). Was Y + headerExtraHeight (i.e. + 10) -->
+ 		headerExtraHeight = 10
+ 		screen.addMultilineText(textName, szSpecialText, self.X_EFFECTS_PANEL + 5, self.Y_EFFECTS_PANEL - headerExtraHeight, self.W_EFFECTS_PANEL - 10, self.H_TOP_PANEL - headerExtraHeight, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -174,7 +189,7 @@ class SevoPediaSpecialist:
+ 					else:
+ 						textName = self.top.getNextWidgetName()
+ 						screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buildingInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1)
+-						screen.setLabelAt(textName, scrollName, u"<font=4>" + szText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++						screen.setLabelAt(textName, scrollName, self._labelText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 						iY += (iButtonSize + 8)
+ 
+ 		for key in sorted(specialSlots.keys()):
+@@ -186,7 +201,7 @@ class SevoPediaSpecialist:
+ 				widgetID1 = specialSlots[key][4]
+ 				widgetID2 = specialSlots[key][5]
+ 				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buttonPath, 0, iY, iButtonSize, iButtonSize, widgetType, widgetID1, widgetID2)
+-				screen.setLabelAt(textName, scrollName, u"<font=4>" + szText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setLabelAt(textName, scrollName, self._labelText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				iY += (iButtonSize + 8)
+ 
+ 		for iCivic in xrange(gc.getNumCivicInfos()):
+@@ -194,12 +209,12 @@ class SevoPediaSpecialist:
+ 			if civicInfo.isSpecialistValid(self.iSpecialist):
+ 				textName = self.top.getNextWidgetName()
+ 				screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, civicInfo.getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1)
+-				screen.setLabelAt(textName, scrollName, u"<font=4>Unlimited</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setLabelAt(textName, scrollName, self._labelText("Unlimited"), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				iY += (iButtonSize + 8)
+ 
+ 		if iY == 6:
+ 			textName = self.top.getNextWidgetName()
+-			screen.setLabelAt(textName, scrollName, u"<font=4>No extra slots gained</font>", CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setLabelAt(textName, scrollName, self._labelText("No extra slots gained"), CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 
+ 
+@@ -242,12 +257,12 @@ class SevoPediaSpecialist:
+ 		for buttonPath, widgetType, widgetID, szText in entries:
+ 			textName = self.top.getNextWidgetName()
+ 			screen.setImageButtonAt(self.top.getNextWidgetName(), scrollName, buttonPath, 0, iY, iButtonSize, iButtonSize, widgetType, widgetID, 1)
+-			screen.setLabelAt(textName, scrollName, u"<font=4>" + szText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setLabelAt(textName, scrollName, self._labelText(szText), CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			iY += (iButtonSize + 8)
+ 
+ 		if iY == 6:
+ 			textName = self.top.getNextWidgetName()
+-			screen.setLabelAt(textName, scrollName, u"<font=4>No extra yields gained</font>", CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setLabelAt(textName, scrollName, self._labelText("No extra yields gained"), CvUtil.FONT_LEFT_JUSTIFY, 0, iY, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 
+ 
+@@ -257,6 +272,9 @@ class SevoPediaSpecialist:
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+ 		textName = self.top.getNextWidgetName()
+ 		szText = gc.getSpecialistInfo(self.iSpecialist).getCivilopedia()
++		szText = SAS_FONT_OPEN_RE.sub(u"", szText)
++		szText = SAS_FONT_CLOSE_RE.sub(u"", szText)
++		szText = self._bodyText(szText)
+ 		# <!-- custom: also account for scrolling: top text needs to remain visible as an entire line. Note: somehow modifying H weirdly changes the Y optimal scroll point so adjust one at a time maybe. -->
+ 		panelTopPadding = 40
+ 		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + panelTopPadding, self.W_HISTORY - 7, self.H_HISTORY - panelTopPadding - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index dedb0cc54..ab20ec67f 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -341,7 +341,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_UI_FONT_TITLE</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default). Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). The original hover text used FontTypes.SMALL_FONT in the setHelpTextArea() call, which corresponds to <font=2> in the tag system. So the old/default hover size was effectively 2. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
++	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default); Long_Comments_XML.txt #376. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 470fead9b..bd55cdaee 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -4964,3 +4964,8 @@ humans would have little to gain from stacking them past a certain point fairly
+ ----- Comment #375 -----
+ 
+ , so as of now bonus_horse, bonus_camel, and bonus_elephants, see code there for details, and if you have a similar building having effects on units that require a bonus to be produce, consider hardcoding it there as well to tell the AI it's pointless (or at the opposite urgent if planning war or such maybe adjust as you see fit) to build this
++
++===== \Assets\XML\Buildings\GlobalDefines_advciv_sas.xml =====
++----- Comment #376 -----
++
++Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). The original hover text used FontTypes.SMALL_FONT in the setHelpTextArea() call, which corresponds to <font=2> in the tag system. So the old/default hover size was effectively 2
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=8962

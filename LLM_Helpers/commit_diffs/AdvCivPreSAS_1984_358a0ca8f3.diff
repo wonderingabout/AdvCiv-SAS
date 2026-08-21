@@ -1,0 +1,206 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1984
+# Commit: 358a0ca8f3e9bcd2d96614364736bf3bb138ec38
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8114d40fad1e2bd0cda7d6d1653b0724604a95dc
+# Title: Global Warming can't remove vegetation from Grassland
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/XML/GlobalDefinesAlt.xml
+3	2	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+29	24	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefinesAlt.xml b/Assets/XML/GlobalDefinesAlt.xml
+index 37f099162..50f4d81d2 100644
+--- a/Assets/XML/GlobalDefinesAlt.xml
++++ b/Assets/XML/GlobalDefinesAlt.xml
+@@ -61,6 +61,16 @@
+ 		<DefineName>WARM_FEATURE</DefineName>
+ 		<DefineTextVal>FEATURE_JUNGLE</DefineTextVal>
+ 	</Define>
++	<!-- advc.055: 1 prevents Global Warming from removing vegetation
++		 from dry terrain (Plains). 0 allows Global Warming to remove
++		 vegetation also from temperate terrain (Grassland).
++		 Recommended: 1 unless the GWFeatureProtection ability
++		 (Civ4ImprovementInfos.xml) is used. -->
++	<Define>
++		<DefineName>PROTECT_FEATURE_ON_NON_DRY_TERRAIN</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
+ 	<!-- The power health entries have not been changed
+ 	<Define>
+ 		<DefineName>POWER_HEALTH_CHANGE</DefineName>
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index 48f39cb77..3dbabf26c 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -1630,8 +1630,9 @@
+ 			<iTilesPerGoody>0</iTilesPerGoody>
+ 			<iGoodyRange>0</iGoodyRange>
+ 			<iFeatureGrowth>64</iFeatureGrowth>
+-			<!-- advc.055: -->
+-			<iGWFeatureProtection>100</iGWFeatureProtection>
++			<!-- (advc.055: Could set this to 100 to protect preserved Forests
++				 from Global Warming.) -->
++			<iGWFeatureProtection>0</iGWFeatureProtection>
+ 			<iUpgradeTime>0</iUpgradeTime>
+ 			<iAirBombDefense>20</iAirBombDefense>
+ 			<iDefenseModifier>0</iDefenseModifier>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index de2d75e84..59e5b5f0d 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6425,14 +6425,11 @@ void CvGame::doDeals()
+ void CvGame::doGlobalWarming()
+ {
+ 	PROFILE_FUNC();
+-	/*
+-	** Calculate change in GW index
+-	*/
+-	int iGlobalWarmingValue = calculateGlobalPollution();
+ 
++	// Calculate change in GW index
++	int iGlobalWarmingValue = calculateGlobalPollution();
+ 	int iGlobalWarmingDefense = calculateGwSustainabilityThreshold(); // Natural global defence
+ 	iGlobalWarmingDefense += calculateGwLandDefence(); // defence from features (forests & jungles)
+-
+ 	changeGlobalWarmingIndex(iGlobalWarmingValue - iGlobalWarmingDefense);
+ 
+ 	// check if GW has 'activated'.
+@@ -6484,6 +6481,8 @@ void CvGame::doGlobalWarming()
+ 	static FeatureTypes const eTemperateFeature = ((FeatureTypes)(GC.getDefineINT("TEMPERATE_FEATURE")));
+ 	static FeatureTypes const eWarmFeature = ((FeatureTypes)(GC.getDefineINT("WARM_FEATURE")));
+ 	static FeatureTypes const eFalloutFeature = ((FeatureTypes)(GC.getDefineINT("NUKE_FEATURE")));
++	// advc.055:
++	static bool const bPROTECT_FEATURE_ON_NON_DRY_TERRAIN = GC.getDefineBOOL("PROTECT_FEATURE_ON_NON_DRY_TERRAIN");
+ 
+ 	// Global Warming
+ 	for (int iI = 0; iI < iGlobalWarmingRolls; iI++)
+@@ -6494,69 +6493,75 @@ void CvGame::doGlobalWarming()
+ 		{
+ 			//CvPlot* pPlot = GC.getMap().syncRandPlot(RANDPLOT_LAND | RANDPLOT_NOT_CITY);
+ 			// Global warming is no longer completely random. getRandGWPlot will get a weighted random plot for us to strike
+-			CvPlot* pPlot = getRandGWPlot(3);
++			// advc.055: Arg was 3. The higher the value, the greater the preference for cold terrain.
++			CvPlot* pPlot = getRandGWPlot(2);
+ 			if (pPlot == NULL)
+ 				continue; // advc
+ 			// <advc.055>
++			FeatureTypes const eFeature = pPlot->getFeatureType();
++			TerrainTypes const eTerrain = pPlot->getTerrainType();
+ 			bool bProtectFeature = false;
+-			CvFeatureInfo const* pFeature = NULL;
+-			if (pPlot->isImproved() && pPlot->isFeature())
++			CvFeatureInfo const* pProtectedFeature = NULL;
++			if (pPlot->isImproved() && eFeature != NO_FEATURE)
+ 			{
+ 				if (::bernoulliSuccess(GC.getInfo(pPlot->getImprovementType()).
+ 					get(CvImprovementInfo::GWFeatureProtection) / 100.0))
+ 				{
+ 					bProtectFeature = true;
+-					pFeature = &GC.getInfo(pPlot->getFeatureType());
++					pProtectedFeature = &GC.getInfo(eFeature);
+ 				}
+ 			} // </advc.055>
+ 			bool bChanged = false;
+ 			// rewritten terrain changing code:
+ 			// 1) Melt frozen terrain
+-			if (pPlot->getFeatureType() == eColdFeature /* advc.055: */ && !bProtectFeature)
++			if (eFeature == eColdFeature /* advc.055: */ && !bProtectFeature)
+ 			{
+ 				pPlot->setFeatureType(NO_FEATURE);
+ 				bChanged = true;
+ 			}
+-			else if (pPlot->getTerrainType() == eFrozenTerrain &&
+-				(!bProtectFeature || pFeature->isTerrain(eColdTerrain))) // advc.055
++			else if (eTerrain == eFrozenTerrain &&
++				(!bProtectFeature || pProtectedFeature->isTerrain(eColdTerrain))) // advc.055
+ 			{
+ 				pPlot->setTerrainType(eColdTerrain);
+ 				bChanged = true;
+ 			}
+-			else if (pPlot->getTerrainType() == eColdTerrain &&
+-				(!bProtectFeature || pFeature->isTerrain(eTemperateTerrain))) // advc.055
++			else if (eTerrain == eColdTerrain &&
++				(!bProtectFeature || pProtectedFeature->isTerrain(eTemperateTerrain))) // advc.055
+ 			{
+ 				pPlot->setTerrainType(eTemperateTerrain);
+ 				bChanged = true;
+ 			}
+ 			// 2) Forest -> Jungle
+ 			// advc.055: Commented out
+-			/*else if (pPlot->getFeatureType() == eTemperateFeature) {
++			/*else if (eFeature == eTemperateFeature) {
+ 			pPlot->setFeatureType(eWarmFeature);
+ 			bChanged = true;
+ 			}*/
+ 			// 3) Remove other features
+-			else if (pPlot->isFeature() && pPlot->getFeatureType() != eFalloutFeature &&
+-				!bProtectFeature) // advc.055
++			else if (eFeature != NO_FEATURE && eFeature != eFalloutFeature &&
++				/* <advc.055> */ !bProtectFeature &&
++				(!bPROTECT_FEATURE_ON_NON_DRY_TERRAIN ||
++				(eFeature != eTemperateFeature && eFeature != eWarmFeature) ||
++				eTerrain == eDryTerrain)) // </advc.055>
+ 			{
+ 				pPlot->setFeatureType(NO_FEATURE);
+ 				bChanged = true;
+ 			}
+ 			// 4) Dry the terrain
+-			else if (pPlot->getTerrainType() == eTemperateTerrain &&
+-				(!bProtectFeature || pFeature->isTerrain(eDryTerrain))) // advc.055
++			else if (eTerrain == eTemperateTerrain &&
++				(!bProtectFeature || pProtectedFeature->isTerrain(eDryTerrain))) // advc.055
+ 			{
+ 				pPlot->setTerrainType(eDryTerrain);
+ 				bChanged = true;
+ 			}
+-			else if (pPlot->getTerrainType() == eDryTerrain &&
+-				(!bProtectFeature || pFeature->isTerrain(eBarrenTerrain))) // advc.055
++			else if (eTerrain == eDryTerrain &&
++				(!bProtectFeature || pProtectedFeature->isTerrain(eBarrenTerrain))) // advc.055
+ 			{
+ 				pPlot->setTerrainType(eBarrenTerrain);
+ 				bChanged = true;
+ 			}
+ 			/* 5) Sink coastal desert (disabled)
+-			else if (pPlot->getTerrainType() == eBarrenTerrain) {
++			else if (eTerrain == eBarrenTerrain) {
+ 				if (isOption(GAMEOPTION_RISING_SEAS)) {
+ 					if (pPlot->isCoastalLand()) {
+ 						if (!pPlot->isHills() && !pPlot->isPeak()) {
+@@ -6572,7 +6577,7 @@ void CvGame::doGlobalWarming()
+ 				{
+ 					pPlot->setImprovementType(NO_IMPROVEMENT);
+ 				}  // <advc.055>
+-				if (!pPlot->canHaveFeature(pPlot->getFeatureType(), true))
++				if (!pPlot->canHaveFeature(eFeature, true))
+ 				{
+ 					pPlot->setFeatureType(NO_FEATURE);
+ 					FAssert(!bProtectFeature);
+@@ -6622,7 +6627,7 @@ CvPlot* CvGame::getRandGWPlot(int iPool)
+ 		// I want to be able to select a water tile with ice on it; so I can't just exclude water completely...
+ 		//CvPlot* pTestPlot = GC.getMap().syncRandPlot(RANDPLOT_LAND | RANDPLOT_NOT_CITY);
+ 		/*  advc (comment): Should arguably just create a new flag RANDPLOT_GLOBAL_WARMING
+-			and let synRandPlot handle the randomized selection. */ 
++			and let syncRandPlot handle the randomized selection. */ 
+ 		CvPlot* pTestPlot = NULL;
+ 		/*  advc: Was < 100. If we want to be certain not to miss, then we should
+ 			check the whole map. But a 1% failure chance is fine with me. */
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7687

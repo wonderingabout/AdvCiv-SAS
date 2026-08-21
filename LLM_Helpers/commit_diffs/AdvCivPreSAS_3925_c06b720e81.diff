@@ -1,0 +1,98 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3925
+# Commit: c06b720e816f1c336b8b30d0dfa81682192ba907
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 66e4e3253d67433b3c749ab0648928ea48ae1217
+# Title: Amend refactor
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+29	27	CvGameCoreDLL/CvGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 4ac5298de..d8f335532 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -56,40 +56,42 @@ void CvGame::updateColoredPlots()
+ 
+ 	CvMap const& kMap = GC.getMap();
+ 	// BETTER_BTS_AI_MOD, Debug, 06/25/09, jdog5000: START
+-	if (isDebugMode() &&
+-		kUI.isShowYields() && !gDLL->GetWorldBuilderMode()) // advc.007
++	if (isDebugMode())
+ 	{
+-		// City circles for debugging
+-		for (PlayerAIIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
++		if (kUI.isShowYields() && !gDLL->GetWorldBuilderMode()) // advc.007
+ 		{
+-			for (int i = 0; i < itPlayer->AI_getNumCitySites(); i++)
++			// City circles for debugging
++			for (PlayerAIIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+ 			{
+-				CvPlot const& kSite = itPlayer->AI_getCitySite(i);
+-				kEngine.addColoredPlot(kSite.getX(), kSite.getY(),
+-						GC.getInfo(GC.getInfo(itPlayer->getPlayerColor()).
+-						getColorTypePrimary()).getColor(),
+-						PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
++				for (int i = 0; i < itPlayer->AI_getNumCitySites(); i++)
++				{
++					CvPlot const& kSite = itPlayer->AI_getCitySite(i);
++					kEngine.addColoredPlot(kSite.getX(), kSite.getY(),
++							GC.getInfo(GC.getInfo(itPlayer->getPlayerColor()).
++							getColorTypePrimary()).getColor(),
++							PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
++				}
+ 			}
+-		}
+-		// Plot improvement replacement circles for debugging
+-		FOR_EACH_ENUM(PlotNum)
+-		{
+-			CvPlot& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
+-			CvCityAI const* pWorkingCity = kPlot.AI_getWorkingCity();
+-			ImprovementTypes eImprovement = kPlot.getImprovementType();
+-			if (pWorkingCity != NULL && eImprovement != NO_IMPROVEMENT)
++			// Plot improvement replacement circles for debugging
++			FOR_EACH_ENUM(PlotNum)
+ 			{
+-				CityPlotTypes ePlot = pWorkingCity->getCityPlotIndex(kPlot);
+-				//int iBuildValue = pWorkingCity->AI_getBestBuildValue(ePlot);
+-				BuildTypes eBestBuild = pWorkingCity->AI_getBestBuild(ePlot);
+-				if (eBestBuild != NO_BUILD)
++				CvPlot& kPlot = kMap.getPlotByIndex(eLoopPlotNum);
++				CvCityAI const* pWorkingCity = kPlot.AI_getWorkingCity();
++				ImprovementTypes eImprovement = kPlot.getImprovementType();
++				if (pWorkingCity != NULL && eImprovement != NO_IMPROVEMENT)
+ 				{
+-					if (GC.getInfo(eBestBuild).getImprovement() != NO_IMPROVEMENT &&
+-						eImprovement != GC.getInfo(eBestBuild).getImprovement())
++					CityPlotTypes ePlot = pWorkingCity->getCityPlotIndex(kPlot);
++					//int iBuildValue = pWorkingCity->AI_getBestBuildValue(ePlot);
++					BuildTypes eBestBuild = pWorkingCity->AI_getBestBuild(ePlot);
++					if (eBestBuild != NO_BUILD)
+ 					{
+-						kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
+-								GC.getInfo(GC.getColorType("RED")).getColor(),
+-								PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
++						if (GC.getInfo(eBestBuild).getImprovement() != NO_IMPROVEMENT &&
++							eImprovement != GC.getInfo(eBestBuild).getImprovement())
++						{
++							kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
++									GC.getInfo(GC.getColorType("RED")).getColor(),
++									PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
++						}
+ 					}
+ 				}
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3256

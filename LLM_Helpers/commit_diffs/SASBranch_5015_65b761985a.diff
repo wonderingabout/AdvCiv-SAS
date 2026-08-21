@@ -1,0 +1,170 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5015
+# Commit: 65b761985a08851e9a398e1ee0910de8df069c60
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 735b01651faa243293648088665877c0108295c4
+# Title: minor fix rounding and minor or not refactor/polish but anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+35	5	Assets/XML/GlobalDefines_advciv_sas.xml
+44	15	CvGameCoreDLL/CitySiteEvaluator.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index b3550daaa..38dbaeb94 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -338,22 +338,52 @@
+ 	-->
+ 	<!-- custom: for example as of now 7 jungle tiles is -50 * 7 = -350, or 8 jungle tiles and 2 forest tiles is (8 * (-50)) + ((2 * 50)) = -400 + 100 = -300 if i am not mistaken anyways etc -->
+ 	<!-- custom: if <= this value at start phase, we apply unhealthiness value correction anyways etc -->
++	<!-- custom: details below kindly if i may say thanks i mean but anyways etc by chatgpt 5 and thanks to my prompts or/and such, check if accurate anyways etc, also i formatted it or/and edited it a bit thansk to me too maybe if i may say but anywyas etc -->
++	<!--
++	Bad-health scaling (plain explanation)
++
++	Terms
++	- THRESH: the cutoff where penalties begin (e.g. -300). If total bad-health (CHP) is
++	not as bad as this, there’s no penalty.
++	- RATE: how much (%) we cut per -100 CHP once past the threshold.
++	- CHP (“Cautious Health Percent”): quick net health score from nearby tiles:
++		* Jungle = -50 each, Forest = +50 each (see XML or sevopedia for updated values) (as of now they cancel 1:1).
++		* As of now, flood Plains are ignored here (their benefits outweigh the unhealth).
++
++	How it works
++	1) If CHP is above the threshold (e.g. -250 vs THRESH -300) → 0% cut.
++	2) If CHP reaches or goes past the threshold (e.g. -350 vs THRESH -300), we cut the candidate city site total value
++	proportional to how unhealthy it is:
++	- Penalty% = min(100, RATE × (|CHP| / 100))
++	- NewValue = OldValue × (100 − Penalty%) / 100
++	(All integer math to avoid division loss of precision; we cap at 100% so value never goes negative.)
++
++	Quick examples (THRESH = -300, RATE = 10)
++	- CHP = -299 → below threshold → 0% cut.
++	- CHP = -300 → 3×100 → 30% cut → keep 70% of value.
++	- CHP = -350 → ~3.5×100 → 35% cut → keep 65%.
++	- CHP = -600 → 6×100 → 60% cut → keep 40%.
++
++	Tuning
++	- START phase uses stricter THRESH / higher RATE to avoid slow, unhealthy capitals.
++	- LATER cities use a looser THRESH / lower RATE so good long-term sites aren’t over-penalized.
++	-->
+ 	<Define>
+-		<DefineName>SAS_EVALUATE_MIN_CAUTIOUS_HEALTH_PERCENT_START</DefineName>
++		<DefineName>SAS_EVALUATE_MIN_UNHEALTH_THRESH_START</DefineName>
+ 		<iDefineIntVal>-300</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<DefineName>SAS_EVALUATE_VALUE_LOSS_PERCENT_PER_BAD_UNHEALTHINESS_START</DefineName>
++		<DefineName>SAS_EVALUATE_VALUE_LOSS_UNHEALTH_RATE_START</DefineName>
+ 		<iDefineIntVal>10</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: example of calculation at start phase anyways etc: -->
+ 	<!-- custom: e.g. with a iValue of 500: (100 - ((-1) * (-3.5 * 10)) * 500 / 100 = (100 - 35) * 500 / 100 = 65 * 500 / 100 = 325 ; so value lost 35% value as intended if i am not mistaken, added to clarify calculation to chatgpt 5 or proof it to myself hehe but anyways etc -->
+ 	<Define>
+-		<DefineName>SAS_EVALUATE_MIN_CAUTIOUS_HEALTH_PERCENT_LATER</DefineName>
+-		<iDefineIntVal>-450</iDefineIntVal>
++		<DefineName>SAS_EVALUATE_MIN_UNHEALTH_THRESH_LATER</DefineName>
++		<iDefineIntVal>-400</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<DefineName>SAS_EVALUATE_VALUE_LOSS_PERCENT_PER_BAD_UNHEALTHINESS_LATER</DefineName>
++		<DefineName>SAS_EVALUATE_VALUE_LOSS_UNHEALTH_RATE_LATER</DefineName>
+ 		<iDefineIntVal>5</iDefineIntVal>
+ 	</Define>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 6915976b9..e36405565 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1412,32 +1412,61 @@ short AIFoundValue::evaluate()
+ 	// <!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather if i am not mistaken and if i may say but anyways etc ; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5 but anyways etc ; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine -->
+ 	// iValue = adjustToBadHealth(iValue, iHealth);
+ 	// // <advc.031>
++	// <!-- custom: our code instead but anyways etc -->
++	// Bad-health dampener (pure integer math; no floats)
+ 	if (bStartPhase)
+ 	{
+ 		// <!-- custom: for example as of now 7 jungle tiles is -50 * 7 = -350, or 8 jungle tiles and 2 forest tiles is (8 * (-50)) + ((2 * 50)) = -400 + 100 = -300 if i am not mistaken anyways etc -->
+-		static const int iMinCautiousHealthPercentStart = GC.getDefineINT("SAS_EVALUATE_MIN_CAUTIOUS_HEALTH_PERCENT_START");
++		static const int UNHEALTH_THRESH = GC.getDefineINT("SAS_EVALUATE_MIN_UNHEALTH_THRESH_START");
+ 
+-		if (iCautiousHealthPercent <= iMinCautiousHealthPercentStart)
++		// Apply only if city-area health is bad enough
++		// e.g. -350 <= -300 → apply
++		if (iCautiousHealthPercent <= UNHEALTH_THRESH)
+ 		{
+-			static const int iValueLossPercentPerBadUnhealthinessStart = GC.getDefineINT("SAS_EVALUATE_VALUE_LOSS_PERCENT_PER_BAD_UNHEALTHINESS_START");
+-			// <!-- custom: e.g -3.5 total health points / bad unhealthiness in city, to clarify to chatgpt 5 so may as well add here if helps and me too helps me maybe hehe maybe but anyways etc -->
+-			int const iBadUnhealthiness = (iCautiousHealthPercent / 100);
+-			// <!-- custom: note: addition not substraction, so that we reduce iValue the more unhealthy we are, not the opposite (-350 should reduce iValue, not increase it with a (- (- 350) etc.. which would be (+350) etc.. and not what we want as nicely noted by chatgpt 5 hehe thanks but anyways etc-->
+-			// <!-- custom: e.g. with a iValue of 500: (100 - ((-1) * (-3.5 * 10)) * 500 / 100 = (100 - 35) * 500 / 100 = 65 * 500 / 100 = 325 ; so value lost 35% value as intended if i am not mistaken, added to clarify calculation to chatgpt 5 or proof it to myself hehe but anyways etc -->
+-			int const iValueAdjustedForBadUnhealthiness = ((100 - std::min(100, ((-1) * iValueLossPercentPerBadUnhealthinessStart * iBadUnhealthiness))) * iValue) / 100;
+-			iValue = iValueAdjustedForBadUnhealthiness;
++			// RATE is "% penalty per -100 health-percent"
++			// Example: CHP=-350, RATE=10 → penalty = (10 * 350)/100 = 35 (%)
++			static const int UNHEALTH_RATE = GC.getDefineINT("SAS_EVALUATE_VALUE_LOSS_UNHEALTH_RATE_START");
++
++			// -(-350) = 350
++			const int unhealthAbs = -iCautiousHealthPercent;
++			// (10 * 350) / 100 = 3500 / 100 = 35  ← 35%
++			int penaltyPct = (UNHEALTH_RATE * unhealthAbs) / 100;
++			// clamp: never >100%
++			if (penaltyPct > 100) penaltyPct = 100;
++
++			// 100 - 35 = 65 (%)
++			const int mult = 100 - penaltyPct;
++			const int old  = iValue;
++			// iValue *= 65/100
++			// Result: 35% penalty → x65%
++			iValue = (iValue * mult) / 100;
++			IFLOG if (iValue != old)
++				logBBAI("Bad health %d%% (START) rate=%d -> -%d%% => x%d%% (%d→%d)",
++						iCautiousHealthPercent, UNHEALTH_RATE, penaltyPct, mult, old, iValue);
+ 		}
+ 	}
+ 	else
+ 	{
+-		static const int iMinCautiousHealthPercentLater = GC.getDefineINT("SAS_EVALUATE_MIN_CAUTIOUS_HEALTH_PERCENT_LATER");
++		// Later cities: same dampener, but usually milder settings
++		static const int UNHEALTH_THRESH = GC.getDefineINT("SAS_EVALUATE_MIN_UNHEALTH_THRESH_LATER"); // e.g. -450
+ 
+-		if (iCautiousHealthPercent <= iMinCautiousHealthPercentLater)
++		// Apply only if city-area health is bad enough (e.g. -460 <= -450 → apply)
++		if (iCautiousHealthPercent <= UNHEALTH_THRESH)
+ 		{
+-			int const iValueLossPercentPerBadUnhealthiness = GC.getDefineINT("SAS_EVALUATE_VALUE_LOSS_PERCENT_PER_BAD_UNHEALTHINESS_LATER");
+-			int const iBadUnhealthiness = (iCautiousHealthPercent / 100);
+-			int const iValueAdjustedForBadUnhealthiness = ((100 - std::min(100, ((-1) * iValueLossPercentPerBadUnhealthiness * iBadUnhealthiness))) * iValue) / 100;
+-			iValue = iValueAdjustedForBadUnhealthiness;
++			// RATE is "% penalty per -100 health-percent"
++			// Example: CHP=-450, RATE=5 → (5 * 450) / 100 = 2250 / 100 = 22 (% penalty, int trunc)
++			static const int UNHEALTH_RATE = GC.getDefineINT("SAS_EVALUATE_VALUE_LOSS_UNHEALTH_RATE_LATER");
++
++			const int unhealthAbs = -iCautiousHealthPercent;              // -(-450)=450
++			int penaltyPct = (UNHEALTH_RATE * unhealthAbs) / 100;   // e.g. 22
++			if (penaltyPct > 100) penaltyPct = 100;                       // cap at 100%
++
++			const int mult = 100 - penaltyPct;                            // e.g. 78%
++			const int old  = iValue;
++			iValue = (iValue * mult) / 100;                               // x78%
++			IFLOG if (iValue != old)
++				logBBAI("Bad health %d%% (LATER) rate=%d -> -%d%% => x%d%% (%d→%d)",
++						iCautiousHealthPercent, UNHEALTH_RATE, penaltyPct, mult, old, iValue);
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=9055

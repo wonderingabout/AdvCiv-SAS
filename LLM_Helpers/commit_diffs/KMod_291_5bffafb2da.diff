@@ -1,0 +1,301 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 291
+# Commit: 5bffafb2dae656e20c9300f40ef2dfd607b0300b
+# History segment: K-Mod history
+# Parent used for diff: 364d390f8e95e4e13bcc10e149b55ec1a3948dc6
+# Title: Added three new AI functions: AI_defensiveCollateral, AI_localDefenceStrength, AI_localAttackStrength. These functions are not currently used in the game; bu...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvEnums.h
+84	0	CvGameCoreDLL/CvPlayerAI.cpp
+7	10	CvGameCoreDLL/CvPlayerAI.h
+84	10	CvGameCoreDLL/CvUnitAI.cpp
+1	0	CvGameCoreDLL/CvUnitAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 1d59c3302..8a5377943 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1478,6 +1478,7 @@ enum MissionAITypes		// Exposed to Python
+ 	MISSIONAI_GOLDEN_AGE, // ie. waiting for more golden age units.
+ 	? MISSIONAI_LAND_ASSAULT,
+ 	? MISSIONAI_SEA_ASSAULT,
++	MISSIONAI_COUNTER_ATTACK,
+ 	*/
+ };
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 607edfe66..b871571d5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12037,6 +12037,90 @@ int CvPlayerAI::AI_plotTargetMissionAIs(CvPlot* pPlot, MissionAITypes* aeMission
+ 	return iCount;
+ }
+ 
++// K-Mod
++
++// Total defensive strength of units that can move iRange steps to reach pDefencePlot
++int CvPlayerAI::AI_localDefenceStrength(CvPlot* pDefencePlot, TeamTypes eDefenceTeam, DomainTypes eDomainType, int iRange) const
++{
++	int	iTotal = 0;
++
++	for (int iDX = -iRange; iDX <= iRange; iDX++)
++	{
++		for (int iDY = -iRange; iDY <= iRange; iDY++)
++		{
++			CvPlot* pLoopPlot = plotXY(pDefencePlot->getX_INLINE(), pDefencePlot->getY_INLINE(), iDX, iDY);
++			if (pLoopPlot == NULL || !pLoopPlot->isVisible(getTeam(), false))
++				continue;
++
++			CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode();
++
++			while (pUnitNode != NULL)
++			{
++				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
++
++				if (pLoopUnit->getTeam() == eDefenceTeam || (eDefenceTeam == NO_TEAM && isPotentialEnemy(getTeam(), pLoopUnit->getTeam())))
++				{
++					if (eDomainType == NO_DOMAIN || (pLoopUnit->getDomainType() == eDomainType))
++					{
++						iTotal += pLoopUnit->currEffectiveStr(pDefencePlot, NULL);
++					}
++				}
++			}
++		}
++	}
++
++	return iTotal;
++}
++
++// Total attack strength of units that can move iRange steps to reach pAttackPlot
++int CvPlayerAI::AI_localAttackStrength(CvPlot* pTargetPlot, TeamTypes eAttackTeam, DomainTypes eDomainType, int iRange) const
++{
++	const int iBaseCollateral = GC.getDefineINT("COLLATERAL_COMBAT_DAMAGE"); // Note: currently this number is "10"
++
++	int	iTotal = 0;
++
++	for (int iDX = -iRange; iDX <= iRange; iDX++)
++	{
++		for (int iDY = -iRange; iDY <= iRange; iDY++)
++		{
++			CvPlot* pLoopPlot = plotXY(pTargetPlot->getX_INLINE(), pTargetPlot->getY_INLINE(), iDX, iDY);
++			if (pLoopPlot == NULL || !pLoopPlot->isVisible(getTeam(), false))
++				continue;
++
++			CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode();
++
++			while (pUnitNode != NULL)
++			{
++				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
++
++				if (pLoopUnit->getTeam() == eAttackTeam	|| (eAttackTeam == NO_TEAM && atWar(getTeam(), pLoopUnit->getTeam())))
++				{
++					if (eDomainType == NO_DOMAIN || (pLoopUnit->getDomainType() == eDomainType))
++					{
++						iTotal += pLoopUnit->currEffectiveStr(pTargetPlot, pLoopUnit);
++
++						if (pLoopUnit->collateralDamage() > 0)
++						{
++							int iPossibleTargets = std::min(pTargetPlot->getNumVisibleEnemyDefenders(pLoopUnit) - 1, pLoopUnit->collateralDamageMaxUnits());
++
++							if (iPossibleTargets > 0)
++							{
++								// collateral damage is not trivial to calculate. This estimate is pretty rough.
++								iTotal += pLoopUnit->baseCombatStr() * iBaseCollateral * pLoopUnit->collateralDamage() * iPossibleTargets / 100;
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++
++	return iTotal;
++}
++// K-Mod end
++
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      04/03/10                                jdog5000      */
+ /*                                                                                              */
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index b437e0785..7d7b916d7 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -225,18 +225,15 @@ public:
+ 	int AI_enemyTargetMissionAIs(MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+ 	int AI_enemyTargetMissionAIs(MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+ 	int AI_wakePlotTargetMissionAIs(CvPlot* pPlot, MissionAITypes eMissionAI, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/19/10                                jdog5000      */
+-/*                                                                                              */
+-/* General AI                                                                                   */
+-/************************************************************************************************/
+-	//int AI_cityTargetUnitsByPath(CvCity* pCity, CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns) const;
+-	int AI_cityTargetStrengthByPath(CvCity* pCity, CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns) const; // K-Mod
++// K-Mod
++	int AI_localDefenceStrength(CvPlot* pDefencePlot, TeamTypes eDefenceTeam, DomainTypes eDomainType, int iRange) const;
++	int AI_localAttackStrength(CvPlot* pAttackPlot, TeamTypes eAttackTeam, DomainTypes eDomainType, int iRange) const;
++	int AI_cityTargetStrengthByPath(CvCity* pCity, CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns) const;
++// K-Mod end
++// BBAI
+ 	int AI_enemyTargetMissions(TeamTypes eTargetTeam, CvSelectionGroup* pSkipSelectionGroup = NULL) const;
+ 	int AI_unitTargetMissionAIs(CvUnit* pUnit, MissionAITypes* aeMissionAI, int iMissionAICount, CvSelectionGroup* pSkipSelectionGroup, int iMaxPathTurns) const;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/		
++// BBAI end
+ 
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      07/19/09                                jdog5000      */
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1cbf3c09f..ea57cdcaa 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -15869,23 +15869,22 @@ bool CvUnitAI::AI_leaveAttack(int iRange, int iOddsThreshold, int iStrengthThres
+ 	iBestValue = 0;
+ 	pBestPlot = NULL;
+ 
+-	
+ 	pCity = plot()->getPlotCity();
+ 
+ 	if ((pCity != NULL) && (pCity->getOwnerINLINE() == getOwnerINLINE()))
+ 	{
+ 		int iOurStrength = GET_PLAYER(getOwnerINLINE()).AI_getOurPlotStrength(plot(), 0, false, false);
+-    	int iEnemyStrength = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(), 2, false, false);
++		int iEnemyStrength = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(plot(), 2, false, false);
+ 		if (iEnemyStrength > 0)
+ 		{
+-    		if (((iOurStrength * 100) / iEnemyStrength) < iStrengthThreshold)
+-    		{
+-    			return false;    		    		
+-    		}
+-    		if (plot()->plotCount(PUF_canDefendGroupHead, -1, -1, getOwnerINLINE()) <= getGroup()->getNumUnits())
+-    		{
+-    			return false;    		
+-    		}
++			if (((iOurStrength * 100) / iEnemyStrength) < iStrengthThreshold)
++			{
++				return false;
++			}
++			if (plot()->plotCount(PUF_canDefendGroupHead, -1, -1, getOwnerINLINE()) <= getGroup()->getNumUnits())
++			{
++				return false;
++			}
+ 		}
+ 	}
+ 
+@@ -15943,8 +15942,83 @@ bool CvUnitAI::AI_leaveAttack(int iRange, int iOddsThreshold, int iStrengthThres
+ 	}
+ 
+ 	return false;
++}
++
++// K-Mod. Defend nearest city against invading attack stacks.
++bool CvUnitAI::AI_defensiveCollateral(int iThreshold, int iSearchRange)
++{
++	PROFILE_FUNC();
++	FAssert(collateralDamage() > 0);
++
++	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
++
++	CvPlot* pDefencePlot = plot()->isCity(false, getTeam()) ? plot() : NULL;
++
++	for (int iDX = -iSearchRange; iDX <= iSearchRange; iDX++)
++	{
++		for (int iDY = -iSearchRange; iDY <= iSearchRange; iDY++)
++		{
++			CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++
++			if (pLoopPlot && pLoopPlot->isCity(false, getTeam()) && kOwner.AI_getAnyPlotDanger(pLoopPlot))
++			{
++				pDefencePlot = pLoopPlot;
++				break;
++			}
++		}
++	}
++
++	if (pDefencePlot == NULL)
++		return false;
++
++	int iEnemyAttack = kOwner.AI_localAttackStrength(pDefencePlot, NO_TEAM, getDomainType(), iSearchRange);
++	int iOurDefence = kOwner.AI_localDefenceStrength(pDefencePlot, getTeam(), getDomainType(), 0);
++	bool bDanger = iEnemyAttack > iOurDefence;
+ 
++	CvPlot* pBestPlot = NULL;
++
++	for (int iDX = -iSearchRange; iDX <= iSearchRange; iDX++)
++	{
++		for (int iDY = -iSearchRange; iDY <= iSearchRange; iDY++)
++		{
++			CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++			if (pLoopPlot && AI_plotValid(pLoopPlot) && !atPlot(pLoopPlot))
++			{
++				int iEnemies = pLoopPlot->getNumVisibleEnemyDefenders(this);
++				int iPathTurns;
++				if (iEnemies > 0 && generatePath(pLoopPlot, 0, true, &iPathTurns) && iPathTurns <= 1)
++				{
++					bool bValid = false;
++					int iValue = getGroup()->AI_attackOdds(pLoopPlot, false);
++
++					if (iValue > 0 && iEnemies >= std::min(4, collateralDamageMaxUnits()))
++					{
++						int iOurAttack = kOwner.AI_localAttackStrength(pLoopPlot, getTeam(), getDomainType(), iSearchRange);
++						int iEnemyDefence = kOwner.AI_localDefenceStrength(pLoopPlot, NO_TEAM, getDomainType(), 0);
++
++						iValue += std::max(0, 100 * (iOurAttack - (bDanger ? 1 : 2) * iEnemyDefence) / std::max(1, iOurAttack));
++					}
++
++					if (iValue > iThreshold)
++					{
++						iThreshold = iValue;
++						pBestPlot = getPathEndTurnPlot();
++					}
++				}
++			}
++		} // dy
++	} // dx
++
++	if (pBestPlot != NULL)
++	{
++		FAssert(!atPlot(pBestPlot));
++		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
++		return true;
++	}
++
++	return false;
+ }
++// K-Moe end
+ 
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_blockade()
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index bf4c2e7b0..727791ee4 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -193,6 +193,7 @@ protected:
+ /************************************************************************************************/
+ 	bool AI_rangeAttack(int iRange);
+ 	bool AI_leaveAttack(int iRange, int iThreshold, int iStrengthThreshold);
++	bool AI_defensiveCollateral(int iThreshold, int iSearchRange); // K-Mod
+ 	bool AI_blockade();
+ 	bool AI_pirateBlockade();
+ 	bool AI_seaBombardRange(int iMaxRange);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=10664

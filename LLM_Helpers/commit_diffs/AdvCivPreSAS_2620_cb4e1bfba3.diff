@@ -1,0 +1,65 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2620
+# Commit: cb4e1bfba37e92bab460d12d1966268fe823dc57
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2fcd742faf7a1f69ed2dc9181bbcd437930d08a0
+# Title: AI: Invisible settler unit requires no escort
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	4	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d7e1cb5bf..19fcbf181 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -15104,7 +15104,8 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 	CvPlot* pBestFoundPlot = NULL;
+ 	int iBestFoundValue = 0;
+ 	bool const bRandomize = (!isHuman() && GC.getGame().isScenario()); // advc.052
+-	bool const bCanDefend = getGroup()->canDefend(); // advc.opt
++	bool const bSafe = (getGroup()->canDefend() ||
++			getInvisibleType() != NO_INVISIBLE); // advc.057b
+ 	for (int i = 0; i < GET_PLAYER(getOwner()).AI_getNumCitySites(); i++)
+ 	{
+ 		CvPlot& kCitySitePlot = *GET_PLAYER(getOwner()).AI_getCitySite(i);
+@@ -15116,7 +15117,7 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 				!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
+ 				kCitySitePlot, MISSIONAI_FOUND, getGroup()))
+ 			{
+-				if (bCanDefend ||
++				if (bSafe ||
+ 					GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(kCitySitePlot, MISSIONAI_GUARD_CITY))
+ 				{
+ 					int iPathTurns;
+@@ -15124,7 +15125,7 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 					{
+ 						if (!kCitySitePlot.isVisible(getTeam()) || // K-Mod
+ 							!kCitySitePlot.isVisibleEnemyUnit(this) ||
+-							(iPathTurns > 1 && getGroup()->canDefend())) // K-Mod
++							(iPathTurns > 1 && bSafe)) // K-Mod
+ 						{
+ 							int iValue = kCitySitePlot.getFoundValue(getOwner());
+ 							// <advc.052>
+@@ -15137,7 +15138,7 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 							} // </advc.052>
+ 							iValue *= 1000;
+ 							//iValue /= (iPathTurns + 1);
+-							iValue /= iPathTurns + (getGroup()->canDefend() ? 4 : 1); // K-Mod
++							iValue /= iPathTurns + (bSafe ? 4 : 1); // K-Mod
+ 							if (iValue > iBestFoundValue)
+ 							{
+ 								iBestFoundValue = iValue;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1799

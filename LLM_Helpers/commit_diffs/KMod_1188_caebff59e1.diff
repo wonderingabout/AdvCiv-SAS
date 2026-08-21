@@ -1,0 +1,84 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1188
+# Commit: caebff59e14ca8f9810473ed0b7b0988881206e9
+# History segment: K-Mod history
+# Parent used for diff: 7f7b91279162bddfa9943fd31befccb7b4db6237
+# Title: Adjusted pathfinding cost for exploring units.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	2	CvGameCoreDLL/CvGameCoreUtils.cpp
+3	1	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 68bb4ba16..3bd32faac 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1568,7 +1568,20 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 
+ 	TeamTypes eTeam = pSelectionGroup->getHeadTeam();
+ 
+-	//CvDLLFAStarIFaceBase* pAStar = gDLL->getFAStarIFace();
++
++	int iExploreModifier = 3; // (in thirds)
++	if (!pToPlot->isRevealed(eTeam, false))
++	{
++		if (pSelectionGroup->getAutomateType() == AUTOMATE_EXPLORE ||
++			(!pSelectionGroup->isHuman() && (pSelectionGroup->getHeadUnitAI() == UNITAI_EXPLORE || pSelectionGroup->getHeadUnitAI() == UNITAI_EXPLORE_SEA)))
++		{
++			iExploreModifier = 2; // lower cost to encourage exploring unrevealed areas
++		}
++		else if (!pFromPlot->isRevealed(eTeam, false))
++		{
++			iExploreModifier = 4; // higher cost to discourage pathfinding deep into the unknown
++		}
++	}
+ 
+ 	{
+ 		CLLNode<IDInfo>* pUnitNode = pSelectionGroup->headUnitNode();
+@@ -1586,6 +1599,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 			iWorstMaxMoves = std::min(iWorstMaxMoves, iMaxMoves);
+ 
+ 			int iCost = PATH_MOVEMENT_WEIGHT * (iMovesLeft == 0 ? iMaxMoves : iMoveCost);
++			iCost = iCost * iExploreModifier / 3;
+ 			if (iCost > iWorstCost)
+ 			{
+ 				iWorstCost = iCost;
+@@ -1662,7 +1676,6 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 
+ 	// end symmetry breaking.
+ 
+-	// lets try this without cheating, shall we?
+ 	if (!pToPlot->isRevealed(eTeam, false))
+ 		return iWorstCost;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 2c589d39b..d1942d2a8 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2798,10 +2798,12 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot) const
+ 	// K-Mod. Why let the AI cheat this?
+ 	if (!isRevealed(pUnit->getTeam(), false))
+ 	{
+-		if (!pFromPlot->isRevealed(pUnit->getTeam(), false))
++		/*if (!pFromPlot->isRevealed(pUnit->getTeam(), false))
+ 			return pUnit->maxMoves();
+ 		else
+ 			return GC.getMOVE_DENOMINATOR() + 1;
++		*/ // (further weight adjustments are now done in the pathfinder's moveCost function.)
++		return GC.getMOVE_DENOMINATOR();
+ 	}
+ 	// K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2312

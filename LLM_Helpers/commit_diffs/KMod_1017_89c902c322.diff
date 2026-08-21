@@ -1,0 +1,131 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1017
+# Commit: 89c902c322270c5b3a7789dc34a8bebc91855e8e
+# History segment: K-Mod history
+# Parent used for diff: 8e37b0ad1caaa4b7db1a8e8ec4ac55912be19d02
+# Title: Fixed a BtS pathfinding bug which caused inaccurate path turns.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+66	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+3	2	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index b8fcbebc4..8e2948b59 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -2047,6 +2047,7 @@ int pathAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer,
+ 
+ 		int iStartMoves = parent->m_iData1;
+ 		iTurns = parent->m_iData2;
++		/* original bts code
+ 		if (iStartMoves == 0)
+ 		{
+ 			iTurns++;
+@@ -2061,7 +2062,72 @@ int pathAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer,
+ 			iUnitMoves = std::max(iUnitMoves, 0);
+ 			
+ 			iMoves = std::min(iMoves, iUnitMoves);
++		} */
++		// K-Mod. The original code would give incorrect results for groups where one unit had more moves but also had higher move cost.
++		// (eg. the most obvious example is when a group with 1-move units and 2-move units is moving on a railroad. - In this situation,
++		//  the original code would consistently underestimate the remaining moves at every step.)
++		bool bNewTurn = iStartMoves == 0;
++
++		if (bNewTurn)
++		{
++			iTurns++;
++			iStartMoves = pSelectionGroup->maxMoves();
++		}
++
++		CLLNode<IDInfo>* pUnitNode = pSelectionGroup->headUnitNode();
++		int iMoveCost = pToPlot->movementCost(::getUnit(pUnitNode->m_data), pFromPlot);
++		bool bUniformCost = true;
++
++		for (pUnitNode = pSelectionGroup->nextUnitNode(pUnitNode); pUnitNode && (bNewTurn || bUniformCost) ; pUnitNode = pSelectionGroup->nextUnitNode(pUnitNode))
++		{
++			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++
++			int iLoopCost = pToPlot->movementCost(pLoopUnit, pFromPlot);
++			if (iLoopCost != iMoveCost)
++			{
++				bUniformCost = false;
++				iMoveCost = std::max(iMoveCost, iLoopCost);
++			}
++		}
++
++		if (bNewTurn || bUniformCost)
++		{
++			// the simple, normal case
++			iMoves = std::max(0, iStartMoves - iMoveCost);
++		}
++		else
++		{
++			PROFILE("pathAdd - non-uniform cost");
++			// Move costs are even for units in this group.
++			// To be sure of the true movement cost for the group, we need to calculate the movement cost for each unit for every step in this turn.
++			std::vector<const CvPlot*> plot_list; // will be traversed in reverse order
++			plot_list.push_back(pToPlot);
++			plot_list.push_back(pFromPlot);
++			FAStarNode* pStartNode = parent;
++			while (pStartNode->m_iData2 == iTurns && pStartNode->m_pParent)
++			{
++				pStartNode = pStartNode->m_pParent;
++				plot_list.push_back(GC.getMapINLINE().plotSorenINLINE(pStartNode->m_iX, pStartNode->m_iY));
++			}
++			iMoves = INT_MAX;
++			bool bMaxMoves = pStartNode->m_iData2 > 1 || iFlags & MOVE_MAX_MOVES;
++
++			for (CLLNode<IDInfo>* pUnitNode = pSelectionGroup->headUnitNode(); pUnitNode != NULL; pUnitNode = pSelectionGroup->nextUnitNode(pUnitNode))
++			{
++				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++
++				int iUnitMoves = bMaxMoves ? pLoopUnit->maxMoves() : pLoopUnit->movesLeft();
++				for (size_t i = plot_list.size()-1; i > 0; i--)
++				{
++					iUnitMoves -= plot_list[i]->movementCost(pLoopUnit, plot_list[i-1]);
++					FAssert(iUnitMoves > 0 || i == 1);
++				}
++
++				iUnitMoves = std::max(iUnitMoves, 0);
++				iMoves = std::min(iMoves, iUnitMoves);
++			}
+ 		}
++		// K-Mod end
+ 	}
+ 
+ 	FAssertMsg(iMoves >= 0, "iMoves is expected to be non-negative (invalid Index)");
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index c7dd89e92..db68775ed 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2155,12 +2155,13 @@ int CvSelectionGroup::baseMoves() const
+ // K-Mod
+ int CvSelectionGroup::maxMoves() const
+ {
+-	int iMoves = 0;
++	int iMoves = MAX_INT; // (was 0 - see comment below)
+ 
+ 	for (CLLNode<IDInfo>* pUnitNode = headUnitNode(); pUnitNode != NULL; pUnitNode = nextUnitNode(pUnitNode))
+ 	{
+ 		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-		iMoves = std::max(iMoves, pLoopUnit->maxMoves());
++		iMoves = std::min(iMoves, pLoopUnit->maxMoves());
++		// note: in the original code, this used std::max -- I'm pretty sure that was just a mistake. I don't know why they'd want to use that.
+ 	}
+ 	return iMoves;
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4099

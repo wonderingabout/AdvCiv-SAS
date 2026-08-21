@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4090
+# Commit: 9597346ec577c5def40ce8cbeaaaa56c8f8d1f6d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5f127a2575c9967fc6e93e342677d2fe0d20c0af
+# Title: Fix UI theme location warnings
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvArtFileMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvArtFileMgr.cpp b/CvGameCoreDLL/CvArtFileMgr.cpp
+index b5eef4004..60918f4c6 100644
+--- a/CvGameCoreDLL/CvArtFileMgr.cpp
++++ b/CvGameCoreDLL/CvArtFileMgr.cpp
+@@ -190,7 +190,7 @@ void CvArtFileMgr::testThemePath()
+ 	std::string sThmPathModName = sThmPath.substr(posMods + 5, posRes - 5);
+ 	// Temp. copy for lower case - the mod name isn't case-sensitive.
+ 	std::string sModNameLC = sModName;
+-	if (cstring::tolower(sThmPathModName) == sModNameLC)
++	if (cstring::tolower(sThmPathModName) == cstring::tolower(sModNameLC))
+ 		return;
+ 	CvString sMsg = "The DEFAULT_THEME_NAME path set in\n"
+ 			"Mods\\";
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=628

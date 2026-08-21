@@ -1,0 +1,554 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5647
+# Commit: d1fb5d675b06a78fb18730d5ac6ae9b0b74d4a11
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d01fbb4c760e949dff8cd14c67b7dd439868b9db
+# Title: rename history tab to timeline tab
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+79	79	Assets/Python/Screens/CvInfoScreen.py
+4	4	Assets/XML/GlobalDefines_advciv_sas.xml
+10	6	Assets/XML/Text/AdvCiv-SAS_main.xml
+6	6	README.md
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 93b788054..99865bea6 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -17,7 +17,7 @@ from SASUtils import getNewConceptID
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+-IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
++IS_SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE") > 0)
+ IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
+ 
+ 
+@@ -572,7 +572,7 @@ def chart_format_tech_list(value, return_list, none_text, abbrev_tech_names=None
+ 
+ 
+ def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
+-	if not IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE:
++	if not IS_SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE:
+ 		return ""
+ 
+ 	chart_log_button_w = 48
+@@ -582,7 +582,7 @@ def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
+ 	chart_log_button_footer_bottom_padding = 9
+ 
+ 	widget = top.getNextWidgetName()
+-	label = u"<font=2>" + localText.getText("TXT_KEY_CV_INFO_SCREEN_HISTORY_LOG_BUTTON", ()).upper() + u"</font>"
++	label = u"<font=2>" + localText.getText("TXT_KEY_SAS_INFO_TIMELINE_LOG_BUTTON", ()).upper() + u"</font>"
+ 	if xPos is None:
+ 		if hasattr(top, "X_EXIT"):
+ 			xPos = top.X_EXIT - chart_log_button_w - 90
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 34d2a02cf..fc3e22243 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -102,7 +102,7 @@ class CvInfoScreen:
+ 		self.PAGE_NAME_LIST = [
+ 			"TXT_KEY_INFO_GRAPH",
+ 			"TXT_KEY_GAME_SCORE",
+-			"TXT_KEY_INFO_HISTORY",
++			"TXT_KEY_SAS_INFO_TIMELINE",
+ 			"TXT_KEY_DEMO_SCREEN_TITLE",
+ 			"TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT",
+ 			"TXT_KEY_INFO_SCREEN_STATISTICS_TITLE",
+@@ -111,7 +111,7 @@ class CvInfoScreen:
+ 		self.PAGE_DRAW_LIST = [
+ 			self.drawGraphTab,
+ 			self.drawScoreTab,
+-			self.drawHistoryTab,
++			self.drawTimelineTab,
+ 			self.drawDemographicsTab,
+ 			self.drawTopCitiesTab,
+ 			self.drawStatsTab,
+@@ -132,7 +132,7 @@ class CvInfoScreen:
+ 		# <!-- custom: Score tab ID insertion; all later tab IDs shift by +1. (GPT-5.3-Codex) -->
+ 		self.iGraphID			= 0
+ 		self.iScoreID			= 1
+-		self.iHistoryID			= 2
++		self.iTimelineID		= 2
+ 		self.iDemographicsID	= 3
+ 		self.iTopCitiesID		= 4
+ 		self.iStatsID			= 5
+@@ -153,7 +153,7 @@ class CvInfoScreen:
+ 		self.H_GRAPH_DROPDOWN = 35
+ 		self.W_DEMO_DROPDOWN = 200
+ 		self.PANEL_HEIGHT = 55
+-		self.HISTORY_TABLE_VERTICAL_GAP = 28
++		self.TIMELINE_TABLE_VERTICAL_GAP = 28
+ 		self.W_LEFT_BUTTON = 20
+ 		self.H_LEFT_BUTTON = 20
+ 		self.X_LEGEND_MARGIN = 10
+@@ -250,7 +250,7 @@ class CvInfoScreen:
+ 		self.H_DEMOGRAPHICS_BUTTON_SIZE = 24
+ 		self.W_STATS_BUTTON_SIZE = 24
+ 		self.H_STATS_BUTTON_SIZE = 24
+-		self.Y_HISTORY_TABLE_LOG_BUTTON = 14
++		self.Y_TIMELINE_TABLE_LOG_BUTTON = 14
+ 
+ 		self.iActiveTab = -1
+ #		self.iActiveTab = self.iGraphID
+@@ -274,15 +274,15 @@ class CvInfoScreen:
+ 		for t in self.RANGE_SCORES:
+ 			self.scoreCache.append(None)
+ 
+-		# <!-- custom: History tab cache - precompiled regex patterns for performance (Claude Opus 4.5) -->
++		# <!-- custom: Timeline tab cache - precompiled regex patterns for performance (Claude Opus 4.5) -->
+ 		self.RE_COLOR_OPEN = re.compile(r"<color=.*?>")
+ 		self.RE_COLOR_CLOSE = re.compile(r"</color>")
+ 
+-		# <!-- custom: History tab aggressive cache - instance vars instead of dict for speed (Claude Opus 4.5) -->
+-		self.historyCacheEntries = None  # List of formatted display strings
+-		self.historyCacheActivePlayer = -1
+-		self.historyCacheBRevealAll = False
+-		self.historyCacheNumMessages = 0
++		# <!-- custom: Timeline tab aggressive cache - instance vars instead of dict for speed (Claude Opus 4.5) -->
++		self.timelineCacheEntries = None  # List of formatted display strings
++		self.timelineCacheActivePlayer = -1
++		self.timelineCacheBRevealAll = False
++		self.timelineCacheNumMessages = 0
+ 
+ 		self.GRAPH_H_LINE = "GraphHLine"
+ 		self.GRAPH_V_LINE = "GraphVLine"
+@@ -292,7 +292,7 @@ class CvInfoScreen:
+ 
+ 		self.graphLeftButtonID = ""
+ 		self.graphRightButtonID = ""
+-		self.szHistoryDbgLogPrettySummaryButton = ""
++		self.szTimelineDbgLogPrettySummaryButton = ""
+ 
+ 		# <!-- custom: all screen-dependent geometry (bounds + tab layouts) is computed in updateRuntimeLayout() from the active resolution, following the same runtime pattern as CvForeignAdvisor. (GPT-5.3-Codex) -->
+ 
+@@ -327,10 +327,10 @@ class CvInfoScreen:
+ 		self.TEXT_SHOW_ALL_PLAYERS =  localText.getText("TXT_KEY_SHOW_ALL_PLAYERS", ())
+ 		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), gc.getInfoTypeForString("COLOR_PLAYER_GRAY")).upper()
+ 		
+-		self.TEXT_ENTIRE_HISTORY = localText.getText("TXT_KEY_INFO_ENTIRE_HISTORY", ())
+-		self.TEXT_HISTORY_EMPTY = localText.getText("TXT_KEY_INFO_HISTORY_EMPTY", ())
+-		self.TEXT_HISTORY_UNKNOWN_CITY = localText.getText("TXT_KEY_INFO_HISTORY_UNKNOWN_CITY", ())
+-		self.TEXT_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON = localText.getText("TXT_KEY_CV_INFO_SCREEN_HISTORY_LOG_BUTTON", ())
++		self.TEXT_ENTIRE_TIMELINE = localText.getText("TXT_KEY_SAS_INFO_ENTIRE_TIMELINE", ())
++		self.TEXT_TIMELINE_EMPTY = localText.getText("TXT_KEY_SAS_INFO_TIMELINE_EMPTY", ())
++		self.TEXT_TIMELINE_UNKNOWN_CITY = localText.getText("TXT_KEY_SAS_INFO_TIMELINE_UNKNOWN_CITY", ())
++		self.TEXT_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON = localText.getText("TXT_KEY_SAS_INFO_TIMELINE_LOG_BUTTON", ())
+ 		
+ 		self.TEXT_SCORE = localText.getText("TXT_KEY_GAME_SCORE", ())
+ 		self.TEXT_POWER = localText.getText("TXT_KEY_POWER", ())
+@@ -533,9 +533,9 @@ class CvInfoScreen:
+ 		self.LABEL_ENV_EFFECTS = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_EFFECTS", ()).upper() + SAS_FONT_TAG_CLOSE
+ 
+ 		# <!-- custom: not strictly for text but use this to compute cheaply our sas defines once -->
+-		self.IS_SAS_CV_INFO_SCREEN_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
+-		# <!-- custom: cache toggle; when disabled, history entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
+-		self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE") > 0)
++		self.IS_SAS_CV_INFO_SCREEN_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE") > 0)
++		# <!-- custom: cache toggle; when disabled, timeline entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
++		self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE") > 0)
+ 		self.IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
+ 		self.SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD = gc.getDefineINT("SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD")
+ 
+@@ -607,16 +607,16 @@ class CvInfoScreen:
+ 		self.W_GRAPH = self.W_SCREEN - self.X_GRAPH - self.X_MARGIN
+ 		self.H_GRAPH = self.H_SCREEN - self.Y_GRAPH - 98
+ 
+-		# History tab layout - vertically centered between header and footer panels
++		# Timeline tab layout - vertically centered between header and footer panels
+ 		# Content area boundaries (between the two panels)
+ 		self.CONTENT_Y_TOP = self.PANEL_HEIGHT  # Header panel bottom
+ 		self.CONTENT_Y_BOTTOM = self.H_SCREEN - self.PANEL_HEIGHT  # Footer panel top
+ 
+ 		# Table positioning - truly centered
+-		self.X_HISTORY_TABLE = self.X_MARGIN
+-		self.Y_HISTORY_TABLE = self.CONTENT_Y_TOP + self.HISTORY_TABLE_VERTICAL_GAP
+-		self.W_HISTORY_TABLE = self.W_SCREEN - (2 * self.X_MARGIN)
+-		self.H_HISTORY_TABLE = (self.CONTENT_Y_BOTTOM - self.CONTENT_Y_TOP) - (2 * self.HISTORY_TABLE_VERTICAL_GAP)
++		self.X_TIMELINE_TABLE = self.X_MARGIN
++		self.Y_TIMELINE_TABLE = self.CONTENT_Y_TOP + self.TIMELINE_TABLE_VERTICAL_GAP
++		self.W_TIMELINE_TABLE = self.W_SCREEN - (2 * self.X_MARGIN)
++		self.H_TIMELINE_TABLE = (self.CONTENT_Y_BOTTOM - self.CONTENT_Y_TOP) - (2 * self.TIMELINE_TABLE_VERTICAL_GAP)
+ 
+ 		# <!-- custom: Environment tab runtime geometry derived from active screen bounds; keep only position/size calculations here. (GPT-5.3-Codex) -->
+ 		self.ENV_X_LEFT_PANEL = self.X_MARGIN
+@@ -629,14 +629,14 @@ class CvInfoScreen:
+ 		self.ENV_PANE_HEIGHT = self.CONTENT_Y_BOTTOM - self.ENV_Y_LOCATION - self.ENV_INNER_MARGIN
+ 
+ 		# LOG button - positioned in top header bar (0-55px height)
+-		# <!-- custom: scale History log button only for larger UI fonts; keep compact size at font <= 2. (GPT-5.3-Codex) -->
++		# <!-- custom: scale Timeline log button only for larger UI fonts; keep compact size at font <= 2. (GPT-5.3-Codex) -->
+ 		if getSASUIFontBody() > 2:
+-			self.W_HISTORY_TABLE_LOG_BUTTON = 60
+-			self.H_HISTORY_TABLE_LOG_BUTTON = 30
++			self.W_TIMELINE_TABLE_LOG_BUTTON = 60
++			self.H_TIMELINE_TABLE_LOG_BUTTON = 30
+ 		else:
+-			self.W_HISTORY_TABLE_LOG_BUTTON = 48
+-			self.H_HISTORY_TABLE_LOG_BUTTON = 28
+-		self.X_HISTORY_TABLE_LOG_BUTTON = self.W_SCREEN - self.W_HISTORY_TABLE_LOG_BUTTON - 50
++			self.W_TIMELINE_TABLE_LOG_BUTTON = 48
++			self.H_TIMELINE_TABLE_LOG_BUTTON = 28
++		self.X_TIMELINE_TABLE_LOG_BUTTON = self.W_SCREEN - self.W_TIMELINE_TABLE_LOG_BUTTON - 50
+ 
+ 		self.X_LEFT_BUTTON = self.X_GRAPH
+ 		self.Y_LEFT_BUTTON = self.Y_GRAPH + self.H_GRAPH
+@@ -941,10 +941,10 @@ class CvInfoScreen:
+ 		self.drawPermanentGraphWidgets()
+ 		self.drawGraphs()
+ 
+-	# HISTORY
++	# TIMELINE
+ 
+-	# <!-- custom: History cache - builds cached entries for faster tab loading (Claude Opus 4.5) -->
+-	def buildHistoryCache(self, bForceRebuild = False):
++	# <!-- custom: Timeline cache - builds cached entries for faster tab loading (Claude Opus 4.5) -->
++	def buildTimelineCache(self, bForceRebuild = False):
+ 		replayInfo = CyGame().getReplayInfo()
+ 		if replayInfo.isNone():
+ 			replayInfo = CyReplayInfo()
+@@ -952,25 +952,25 @@ class CvInfoScreen:
+ 
+ 		iNumMessages = replayInfo.getNumReplayMessages()
+ 
+-		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
++		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
+ 			# Check if cache is still valid
+ 			if (not bForceRebuild and
+-				self.historyCacheEntries is not None and
+-				self.historyCacheActivePlayer == self.iActivePlayer and
+-				self.historyCacheBRevealAll == self.bRevealAll and
+-				self.historyCacheNumMessages == iNumMessages):
++				self.timelineCacheEntries is not None and
++				self.timelineCacheActivePlayer == self.iActivePlayer and
++				self.timelineCacheBRevealAll == self.bRevealAll and
++				self.timelineCacheNumMessages == iNumMessages):
+ 				# Cache is valid, no rebuild needed
+-				return self.historyCacheEntries
++				return self.timelineCacheEntries
+ 
+ 		# Rebuild cache
+ 		entries = []
+ 
+ 		if iNumMessages <= 0:
+-			if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
+-				self.historyCacheEntries = entries
+-				self.historyCacheActivePlayer = self.iActivePlayer
+-				self.historyCacheBRevealAll = self.bRevealAll
+-				self.historyCacheNumMessages = iNumMessages
++			if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
++				self.timelineCacheEntries = entries
++				self.timelineCacheActivePlayer = self.iActivePlayer
++				self.timelineCacheBRevealAll = self.bRevealAll
++				self.timelineCacheNumMessages = iNumMessages
+ 			return entries
+ 
+ 		# Build unknown colors dict once
+@@ -1083,42 +1083,42 @@ class CvInfoScreen:
+ 					if not bCityOwnerMet or bPlotHidden:
+ 						szCityName = pCity.getName()
+ 						if szCityName:
+-							szText = szText.replace(szCityName, self.TEXT_HISTORY_UNKNOWN_CITY)
++							szText = szText.replace(szCityName, self.TEXT_TIMELINE_UNKNOWN_CITY)
+ 
+ 			szFormattedText = localText.changeTextColor(SAS_FONT_TAG_LABEL + szEventDate + u": " + szText + SAS_FONT_TAG_CLOSE, eColor)
+ 			entries.append(szFormattedText)
+ 
+-		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
++		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
+ 			# Store in instance vars (faster than dict)
+-			self.historyCacheEntries = entries
+-			self.historyCacheActivePlayer = self.iActivePlayer
+-			self.historyCacheBRevealAll = self.bRevealAll
+-			self.historyCacheNumMessages = iNumMessages
++			self.timelineCacheEntries = entries
++			self.timelineCacheActivePlayer = self.iActivePlayer
++			self.timelineCacheBRevealAll = self.bRevealAll
++			self.timelineCacheNumMessages = iNumMessages
+ 		return entries
+ 
+-	def drawHistoryTab(self):
++	def drawTimelineTab(self):
+ 		screen = self.getScreen()
+-		self.szHistoryList = self.getNextWidgetName()
+-		screen.addListBoxGFC(self.szHistoryList, "", self.X_HISTORY_TABLE, self.Y_HISTORY_TABLE, self.W_HISTORY_TABLE, self.H_HISTORY_TABLE, TableStyles.TABLE_STYLE_STANDARD)
+-		screen.enableSelect(self.szHistoryList, False)
++		self.szTimelineList = self.getNextWidgetName()
++		screen.addListBoxGFC(self.szTimelineList, "", self.X_TIMELINE_TABLE, self.Y_TIMELINE_TABLE, self.W_TIMELINE_TABLE, self.H_TIMELINE_TABLE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.enableSelect(self.szTimelineList, False)
+ 
+-		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE:
+-			self.szHistoryDbgLogPrettySummaryButton = self.getNextWidgetName()
+-			szLabel = SAS_FONT_TAG_LABEL + self.TEXT_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON.upper() + SAS_FONT_TAG_CLOSE
+-			screen.setButtonGFC(self.szHistoryDbgLogPrettySummaryButton, szLabel, "", self.X_HISTORY_TABLE_LOG_BUTTON, self.Y_HISTORY_TABLE_LOG_BUTTON, self.W_HISTORY_TABLE_LOG_BUTTON, self.H_HISTORY_TABLE_LOG_BUTTON, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE:
++			self.szTimelineDbgLogPrettySummaryButton = self.getNextWidgetName()
++			szLabel = SAS_FONT_TAG_LABEL + self.TEXT_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON.upper() + SAS_FONT_TAG_CLOSE
++			screen.setButtonGFC(self.szTimelineDbgLogPrettySummaryButton, szLabel, "", self.X_TIMELINE_TABLE_LOG_BUTTON, self.Y_TIMELINE_TABLE_LOG_BUTTON, self.W_TIMELINE_TABLE_LOG_BUTTON, self.H_TIMELINE_TABLE_LOG_BUTTON, WidgetTypes.WIDGET_GENERAL, 1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+ 
+ 		# Build or reuse cache
+-		aEntries = self.buildHistoryCache(not self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE)
++		aEntries = self.buildTimelineCache(not self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE)
+ 
+ 		if not aEntries:
+-			szText = SAS_FONT_TAG_LABEL + self.TEXT_HISTORY_EMPTY + SAS_FONT_TAG_CLOSE
+-			SASTextScale.appendListBoxStringLabel(screen, self.szHistoryList, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			szText = SAS_FONT_TAG_LABEL + self.TEXT_TIMELINE_EMPTY + SAS_FONT_TAG_CLOSE
++			SASTextScale.appendListBoxStringLabel(screen, self.szTimelineList, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			return
+ 
+ 		# Cache is already in display order (newest first) - use append which is O(1)
+ 		# Local reference to method avoids repeated attribute lookup
+ 		fnAppend = screen.appendListBoxString
+-		szWidget = self.szHistoryList
++		szWidget = self.szTimelineList
+ 		for szFormattedText in aEntries:
+ 			fnAppend(szWidget, szFormattedText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+@@ -1152,14 +1152,14 @@ class CvInfoScreen:
+ 			# <!-- custom: expand max-render table equally upward and downward to fit ~2 extra rows while keeping vertical centering. (GPT-5.3-Codex) -->
+ 			iMaxRenderVerticalExpandPx = 24
+ 			iTableX = self.SMALL_MARGIN
+-			iTableY = self.Y_HISTORY_TABLE - iMaxRenderVerticalExpandPx
++			iTableY = self.Y_TIMELINE_TABLE - iMaxRenderVerticalExpandPx
+ 			iTableW = self.W_SCREEN - (2 * self.SMALL_MARGIN)
+-			iTableH = self.H_HISTORY_TABLE + (2 * iMaxRenderVerticalExpandPx)
++			iTableH = self.H_TIMELINE_TABLE + (2 * iMaxRenderVerticalExpandPx)
+ 		else:
+-			iTableX = self.X_HISTORY_TABLE
+-			iTableY = self.Y_HISTORY_TABLE
+-			iTableW = self.W_HISTORY_TABLE
+-			iTableH = self.H_HISTORY_TABLE
++			iTableX = self.X_TIMELINE_TABLE
++			iTableY = self.Y_TIMELINE_TABLE
++			iTableW = self.W_TIMELINE_TABLE
++			iTableH = self.H_TIMELINE_TABLE
+ 
+ 		szTable = self.getNextWidgetName()
+ 		screen.addTableControlGFC(szTable, 26, iTableX, iTableY, iTableW, iTableH, True, True, self.W_STATS_BUTTON_SIZE, self.H_STATS_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+@@ -1539,11 +1539,11 @@ class CvInfoScreen:
+ 
+ 		if self.IS_SAS_SHOW_LEGEND_LINK and self.SCORETAB_LEGEND_NEW_CONCEPT_ID >= 0:
+ 			szLegendLinkName = self.getNextWidgetName()
+-			iLegendX = self.X_HISTORY_TABLE + self.W_HISTORY_TABLE - 6
+-			iLegendY = self.Y_HISTORY_TABLE + self.H_HISTORY_TABLE + 6
++			iLegendX = self.X_TIMELINE_TABLE + self.W_TIMELINE_TABLE - 6
++			iLegendY = self.Y_TIMELINE_TABLE + self.H_TIMELINE_TABLE + 6
+ 			if bUseMaxScoreTabSpace:
+ 				iLegendX = iTableX + iTableW - 6
+-				iLegendY = self.Y_HISTORY_TABLE_LOG_BUTTON + 3
++				iLegendY = self.Y_TIMELINE_TABLE_LOG_BUTTON + 3
+ 			screen.setText(
+ 				szLegendLinkName,
+ 				"Background",
+@@ -1559,14 +1559,14 @@ class CvInfoScreen:
+ 			)
+ 
+ 	def dbgLogPrettySummary(self):
+-		if self.IS_SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE:
+-			aEntries = self.historyCacheEntries
++		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
++			aEntries = self.timelineCacheEntries
+ 		else:
+-			aEntries = self.buildHistoryCache(True)
++			aEntries = self.buildTimelineCache(True)
+ 		if not aEntries:
+-			print("SAS_CV_INFO_SCREEN_HISTORY_PANEL_EMPTY")
++			print("SAS_CV_INFO_SCREEN_TIMELINE_PANEL_EMPTY")
+ 			return
+-		print("SAS_CV_INFO_SCREEN_HISTORY_PANEL_BEGIN")
++		print("SAS_CV_INFO_SCREEN_TIMELINE_PANEL_BEGIN")
+ 		# Strip font/color tags from cached display strings for clean log output
+ 		# Entries are newest-first, reverse for chronological log output
+ 		reFont = re.compile(r"</?font[^>]*>")
+@@ -1577,7 +1577,7 @@ class CvInfoScreen:
+ 			szClean = reColor.sub("", szClean)
+ 			aLines.append(u"- " + szClean)
+ 		print("\n".join(aLines))
+-		print("SAS_CV_INFO_SCREEN_HISTORY_PANEL_END")
++		print("SAS_CV_INFO_SCREEN_TIMELINE_PANEL_END")
+ 
+ 	def drawPermanentGraphWidgets(self):
+ 
+@@ -1689,7 +1689,7 @@ class CvInfoScreen:
+ 		start = CyGame().getStartTurn()
+ 		now = CyGame().getGameTurn()
+ 		nTurns = now - start - 1
+-		screen.addPullDownString(self.szTurnsDropdownWidget, self.TEXT_ENTIRE_HISTORY, 0, 0, False)
++		screen.addPullDownString(self.szTurnsDropdownWidget, self.TEXT_ENTIRE_TIMELINE, 0, 0, False)
+ 		self.dropDownTurns.append(nTurns)
+ 		iCounter = 1
+ 		last = 50
+@@ -4549,7 +4549,7 @@ class CvInfoScreen:
+ 
+ 			######## Screen 'Tabs' for Navigation ########
+ 
+-			if self.iActiveTab == self.iHistoryID and szWidgetName == self.szHistoryDbgLogPrettySummaryButton and code == NotifyCode.NOTIFY_CLICKED:
++			if self.iActiveTab == self.iTimelineID and szWidgetName == self.szTimelineDbgLogPrettySummaryButton and code == NotifyCode.NOTIFY_CLICKED:
+ 				self.dbgLogPrettySummary()
+ 				return 0
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 5d44fdc36..714b65979 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -434,14 +434,14 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- custom: show the History panel "Log" button; click to write the visible (spoiler-filtered) history lines to PythonDbg.log. -->
++	<!-- custom: show the Timeline panel "Log" button; click to write the visible (spoiler-filtered) timeline lines to PythonDbg.log. -->
+ 	<Define>
+-		<DefineName>SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE</DefineName>
++		<DefineName>SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: History tab cache: 0 = disable caching entirely (no cache state stored), 1 (recommended: faster performance) = reuse cached entries when valid. (GPT-5.2-Codex) -->
++	<!-- custom: Timeline tab cache: 0 = disable caching entirely (no cache state stored), 1 (recommended: faster performance) = reuse cached entries when valid. (GPT-5.2-Codex) -->
+ 	<Define>
+-		<DefineName>SAS_CV_INFO_SCREEN_HISTORY_CACHE_ENABLE</DefineName>
++		<DefineName>SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: widen the Info Screen Score tab laterally only when visible players reach this threshold. (GPT-5.3-Codex) -->
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 23c3b2648..2c572a5a3 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -1531,21 +1531,25 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 	<TEXT>
+-		<Tag>TXT_KEY_INFO_HISTORY</Tag>
+-		<English>History</English>
++		<Tag>TXT_KEY_SAS_INFO_TIMELINE</Tag>
++		<English>Timeline</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_INFO_HISTORY_EMPTY</Tag>
+-		<English>No history entries yet.</English>
++		<Tag>TXT_KEY_SAS_INFO_TIMELINE_EMPTY</Tag>
++		<English>No timeline entries yet.</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_CV_INFO_SCREEN_HISTORY_LOG_BUTTON</Tag>
++		<Tag>TXT_KEY_SAS_INFO_TIMELINE_LOG_BUTTON</Tag>
+ 		<English>Log</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_INFO_HISTORY_UNKNOWN_CITY</Tag>
++		<Tag>TXT_KEY_SAS_INFO_TIMELINE_UNKNOWN_CITY</Tag>
+ 		<English>an unknown city</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_INFO_ENTIRE_TIMELINE</Tag>
++		<English>Entire timeline</English>
++	</TEXT>
+
+diff --git a/README.md b/README.md
+index 257105702..335f2d909 100644
+--- a/README.md
++++ b/README.md
+@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
+ 
+ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
+ 
+-Among notable UI changes, advisor screens have been reworked or new ones were added (e.g. new Score tab and History Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
++Among notable UI changes, advisor screens have been reworked or new ones were added (e.g. new Score tab and Timeline Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
+ 
+ A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions.
+ 
+@@ -37,7 +37,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[Home page](/README.md#home-page)  
+ &emsp;[Simple Game rework](/README.md#simple-game-rework)  
+ [UI (Ingame)](/README.md#ui-ingame)  
+-&emsp;[Main Advisors reworks (e.g. Score Tab, History Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor)  
++&emsp;[Main Advisors reworks (e.g. Score Tab, Timeline Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-score-tab-timeline-tab-in-the-info-screen-advisor)  
+ &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
+ &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
+ &emsp;[Diplomacy Screen](/README.md#diplomacy-screen)  
+@@ -172,7 +172,7 @@ Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [B
+ 
+ ## UI (Ingame)
+ 
+-### Main Advisors reworks (e.g. Score Tab, History Tab in the Info Screen Advisor)
++### Main Advisors reworks (e.g. Score Tab, Timeline Tab in the Info Screen Advisor)
+ 
+ Also reworked, expanded and beautified most Advisors' UI so they scale to game resolution dynamically instead of hardcoded advisor screen dimensions. The code was also refactored to improve dynamic scaling, ensuring most UI elements automatically realign if dimensions are changed.
+ 
+@@ -182,9 +182,9 @@ See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Ma
+ 
+ #### New Advisors
+ 
+-##### History Tab (in the Info Screen Advisor)
++##### Timeline Tab (in the Info Screen Advisor)
+ 
+-We added in AdvCiv-SAS a new History Tab in the Info Screen:
++We added in AdvCiv-SAS a new Timeline Tab in the Info Screen:
+ 
+ - shows a spoiler-free (religion founded by an unknown city, city founded but unexplored, etc.) if not known (not in debug, not yet revealed, etc.) account (based on the replay screen's data (except you don't need to retire to see it now), notably keeping its colored text for each player, but filtered) of the key moments that happened each turn.
+ - unlike the Event Log (which was cumbersome to open and maximize as well btw), information is preserved on save reload.
+@@ -192,7 +192,7 @@ We added in AdvCiv-SAS a new History Tab in the Info Screen:
+ - added optional caching (default as of now enabled, recommended) so it is more efficient and less computationally costly. Performance cost of this new tab measured to be none (2.33 seconds for 110 late game turns vs 2.35 seconds: within margin of error)
+ - Done with the help of GPT-5.2-Codex, Claude code Sonnet 4.5, and Claude code Opus 4.5, thanks a lot!
+ 
+-Note: a hybrid DLL compute + Python caching version was tried in [history-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/history-tab-dll-implementation) but load times of the history tab were not much faster if at all so preferred the Python version for its simplicity. A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
++Note: a hybrid DLL compute + Python caching version was tried in [timeline-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/timeline-tab-dll-implementation) but load times of the Timeline Tab were not much faster if at all so preferred the Python version for its simplicity. A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (8).JPG" alt="0.516_info_screen (8).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 45429b656..e95214b97 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -332,7 +332,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ - (Requires AdvCiv-SAS 5517+) **Reorganized advisors**: **merged** the **espionage** screen into the **Foreign Advisor**, the **Economic Advisor's Finance Tab** into the **Domestic Advisor**, the **Economic Advisor's Environment Tab** into the **Info Screen**, the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now **tabs of these instead** (deleted the old now obsolete lone advisor .py files); **swap advisors**: **Victory screen** to F9 and **Info Screen** to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors; **split advisors**: the **Foreign Advisor** is now split into **Foreign Trade Advisor (F4)** (TREATIES, BONUSES, TECHS, CITIES), and **Foreign Diplomacy Advisor (F3)** (RELATIONS, GLANCE, INFO, ESPIONAGE) as it **was crowded** to reduce the need for **tab navigation** and for **clearer thematic differentiation**, using a shell (i.e. almost empty file for **linking only**) [CvForeignDiplomacyAdvisor.py](/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py) file for the 2nd advisor.
+ - (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text to match the advisors changes.
+-- (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor)
++- (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-timeline-tab-in-the-info-screen-advisor)
+ - **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, now using a **clearer constrast dark yellow theme** instead. Make the advisor be a tab as the **Overview** tab. Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
+ - (Requires AdvCiv-SAS 5528+) Minor **beautified** the [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py): increase **legend culture text width** so it is not cramped when upscaled. Note: although it is functional, the Custom Domestic Advisor is **not supported** in AdvCiv-SAS as of now, so it is lacking the Finance Tab.
+ - (Requires AdvCiv-SAS 5522+) **Beautified** the **Policy Advisor**: enlarge **top panels text** so **long civic names don't overflow**. **Remove multiline nationality** information which was **uninfomative** and **crowded vertically** in the **Religions tab** and the **Corporations tab**; use more precise and compact `Leader (ID)` and `HQ (ID)` **one-liner instead** (**ID** also handles **one leader name being used by several players**); **increase row spacing** (now **unified** (was crowded)). **Remove multiline wrapped bonuses** splitting logic in the **Corporations tab**: use one natural comma-separated line (bonuses row height reduced/standardized) since there is enough space after expanding the Policy Advisor and it is more readable. Also add **new rows** (**Bonuses Generated**, **Yields Generated**), and add **first column descriptions** for rows (as of now `Built By:`, `Consumes:`, `Generates:`, `Generates 2:`). Add a **Great Person icon** in `Built By:` row. Change in [CvPolicyAdvisorScreen.py](/Assets/Python/Screens/CvPolicyAdvisorScreen.py).
+@@ -342,7 +342,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set an **alternative lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor, and an **alternative top space space** for **advisor buttons** (in map view) because this alternative right space may cover these advisor buttons. **Boldened title** for consistency. (Requires AdvCiv-SAS 5520+) See also [KI#114](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked).
+ - **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+ - Did a similar rework of the **Info Screen** in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons (plus **change default ordering** from alphabetical to **from most to least Built/Current** (avoids tedious manual user ordering each time)), and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**). Also added other information (e.g., turn numbers in the Graph tab).
+-- Additionally, added in the **Info Screen** a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: History Tab](/README.md#history-tab-in-the-info-screen-advisor).
++- Additionally, added in the **Info Screen** a new **Timeline Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Timeline Tab](/README.md#timeline-tab-in-the-info-screen-advisor).
+ - Added in the **Info Screen** a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M. Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**. Note that unlike military ratios, PowT and PoT/C are shown even for the human player, since these vary every turn. If table has more than max rows, table expands and Legend link moves to top right. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Score Tab](/README.md#score-tab-in-the-info-screen-advisor).
+ - Beautified the **Victory Screen**: **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)). (Requires AdvCiv-SAS 5523+) **Always show** the **Resolutions** and **Members** tabs so now all tabs are shown **even if they are empty**, and add a **fallback table** showing **required wonders** (as of now Apostolic Palace or United Nations) to make these tabs active for exhaustiveness and clarity. Change in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py). See also [KI#115](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#115---fixed-likely-base-advciv-issue-victory-screen-vote-requirement-text-spacing-in-resolutions-tab).
+ - Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 931b266af..e11a72e50 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -138,7 +138,7 @@ Then added iFeatureproduction panel with the help of GPT-5.3-Codex thanks.
+ 
+ Also added a new "LOG" button to print to `PythonDbg.log` the tables output, and this is done to other charts too.
+ 
+-Note: it mirrors the log button we added in the Info screen's [new History tab](/README.md#new-advisors) we added in AdvCiv-SAS.
++Note: it mirrors the log button we added in the Info screen's [new Timeline Tab](/README.md#new-advisors) we added in AdvCiv-SAS.
+ 
+ #### example 0.5: Handicap Chart category
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=40660

@@ -1,0 +1,45 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3394
+# Commit: 0471de547bb033ee3c454f5b50dd472a357617a1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 93819e74a4b6a4c9f2849ff736da86a8bdab8418
+# Title: Clearer loading screen hint about reduced pollution and GW
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	Assets/XML/Text/K-Mod hints.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/K-Mod hints.xml b/Assets/XML/Text/K-Mod hints.xml
+index b7979cae2..2e1191b85 100644
+--- a/Assets/XML/Text/K-Mod hints.xml	
++++ b/Assets/XML/Text/K-Mod hints.xml	
+@@ -19,12 +19,13 @@
+ 	<Italian>Premi [ALT + CTRL + O] per accedere alla schermata di configurazione del BUG Mod.</Italian>
+ 	<Spanish>Presiona [ALT + CTRL + O] para abrir la pantalla de opciones de BUG.</Spanish>
+ </TEXT>
+-<!-- advc.008c: Just stylistic changes -->
++<!-- advc.008c: Had said that some buildings grant health while others
++	 reduce pollution. Didn't make clear why this distinction matters. -->
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_1</Tag>
+-	<English>(K-Mod) Aqueduct and Hospital increase a city's health, whereas Public Transportation and Recycling Center reduce its pollution.</English>
++	<English>(K-Mod) Public Transportation, Recycling Center and Environmentalism reduce pollution. Apart from avoiding unhealthiness in cities, this also slows down Global Warming.</English>
+ 	<French>(K-Mod) Aqueduct and Hospital increase a city's health, whereas Public Transportation and Recycling Center reduce its pollution.</French>
+-	<German>(K-Mod) Aqu�dukt und Krankenhaus erh�hen den Gesundheitswert einer Stadt, wohingegen �ffentliche Verkehrsmittel und Recyclinganlagen die Umweltverschmutzung lindern.</German>
++	<German>(K-Mod) �ffentliche Verkehrsmittel, Recyclinganlagen und die Staatsform Umweltschutz vermeiden Umweltverschmutzung und verringern so nicht nur Krankheitswerte von St�dten, sondern bremsen auch die Erderw�rmung.</German>
+ 	<Italian>(K-Mod) Un acquedotto o un ospedale aumentano la salute della citt�, ma il trasporto pubblico o il centro riciclaggio ne riducono l'inquinamento.</Italian>
+ 	<Spanish>(K-Mod) Un acueducto o un hospital aumentar� la salud de una ciudad, pero el transporte p�blico o un centro de reciclaje reduce su poluci�n.</Spanish>
+ </TEXT>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1903

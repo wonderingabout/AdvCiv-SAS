@@ -1,0 +1,94 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1652
+# Commit: 4618ee708da252bb80ef43151f1b6c07bb7571f1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 22e3de2096b84264109fddd7963632d2def71447
+# Title: Round gold in AI peace deals to a multiple of 5
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	11	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b876f9284..76dc74c78 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -738,6 +738,7 @@ bool CvPlayerAI::AI_upholdPeaceOffer(PlayerTypes eHuman,
+ 	therefore not a CvTeamAI function. */
+ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iOurBenefit) {
+ 
++	FAssert(!isHuman());
+ 	CvPlayerAI& kOther = GET_PLAYER(eOther);
+ 	TechTypes eBestReceiveTech = NO_TECH;
+ 	TechTypes eBestGiveTech = NO_TECH;
+@@ -761,8 +762,15 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
+ 	// <advc.134a> Handle low human benefit separately (after filling the lists)
+ 	if((!kOther.isHuman() && 5 * iTheirBenefit < 3 * iOurBenefit) ||
+ 			5 * iOurBenefit < (kOther.isHuman() ? 4 : 3) * iTheirBenefit)
+-		return false;
+-	// </advc.134a>
++		return false; // </advc.134a>
++	// <advc.039> Don't want to announce odd amounts of gold
++	if (GC.getDefineBOOL(CvGlobals::ANNOUNCE_REPARATIONS) && !kOther.isHuman())
++	{
++		if (iReceiveGold > 10)
++			AI_roundTradeVal(iReceiveGold);
++		if (iGiveGold > 10)
++			AI_roundTradeVal(iGiveGold);
++	} // </advc.039>
+ 	CLinkList<TradeData> weGive;
+ 	CLinkList<TradeData> theyGive;
+ 	TradeData item;
+@@ -829,7 +837,6 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
+ 	return true;
+ }
+ 
+-
+ // Auxiliary function to reduce the amount of duplicate or dual code
+ int CvPlayerAI::AI_negotiatePeace(PlayerTypes eRecipient, PlayerTypes eGiver,
+ 		int iDelta, int* iGold, TechTypes* eBestTech, CvCity const** pBestCity) {
+@@ -862,7 +869,7 @@ int CvPlayerAI::AI_negotiatePeace(PlayerTypes eRecipient, PlayerTypes eGiver,
+ 					(TechTypes)j, kGiver.getTeam(), true, true) - iDelta) +
+ 					GC.getGame().getSorenRandNum(::round(
+ 					std::pow((double)GET_TEAM(kRecipient.getTeam()).
+-					AI_getAtWarCounter(kGiver.getTeam()), 1.65)),"AI Peace Trading");
++					AI_getAtWarCounter(kGiver.getTeam()), 1.65)), "AI Peace Trading");
+ 			// BtS code:
+ 			//iValue = (1 + GC.getGame().getSorenRandNum(10000, "AI Peace Trading (Tech #1)"));
+ 			if(iValue > iBestValue) {
+@@ -881,13 +888,15 @@ int CvPlayerAI::AI_negotiatePeace(PlayerTypes eRecipient, PlayerTypes eGiver,
+ 	// to work out the gold's value gained by the receiver and the gold's value lost by the giver.
+ 	// Instead, we just pretend that the receiver gets 1 point per gold, and the giver loses nothing.
+ 	// (effectively a value of 2)
+-	int tradeGold = std::min(iDelta - r, kGiver.AI_maxGoldTrade(eRecipient,
+-			true)); // advc.134a
+-	if(tradeGold > 0) {
+-		setTradeItem(&item, TRADE_GOLD, tradeGold);
+-		if(kGiver.canTradeItem(eRecipient, item, true)) {
+-			*iGold = tradeGold;
+-			r += tradeGold;
++	{
++		int iTradeGold = std::min(iDelta - r, kGiver.AI_maxGoldTrade(eRecipient,
++				true)); // advc.134a
++		if(iTradeGold > 0) {
++			setTradeItem(&item, TRADE_GOLD, iTradeGold);
++			if(kGiver.canTradeItem(eRecipient, item, true)) {
++				*iGold = iTradeGold;
++				r += iTradeGold;
++			}
+ 		}
+ 	}
+ 	// advc.104h: Don't add a city to the trade if it's already almost square
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3128

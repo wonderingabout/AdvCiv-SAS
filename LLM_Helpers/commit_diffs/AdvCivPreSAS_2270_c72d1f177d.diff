@@ -1,0 +1,1094 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2270
+# Commit: c72d1f177d5afa28638fb81e9b4b6a939b309cf9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0e1eeda4b5b446112e39eb3c5d7b1cb8363294a6
+# Title: Some cleanup in PCH (precompiled header)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	CvGameCoreDLL/AdvCiv4lerts.cpp
+37	0	CvGameCoreDLL/BoostPythonPCH.h
+0	1	CvGameCoreDLL/CvCivilization.cpp
+0	1	CvGameCoreDLL/CvDLLPythonIFaceBase.h
+0	1	CvGameCoreDLL/CvGameAI.cpp
+15	197	CvGameCoreDLL/CvGameCoreDLL.h
+0	17	CvGameCoreDLL/CvGameCoreUtils.cpp
+0	1	CvGameCoreDLL/CvGameCoreUtils.h
+1	1	CvGameCoreDLL/CvInfo_City.h
+0	1	CvGameCoreDLL/CvInitCore.cpp
+63	0	CvGameCoreDLL/CvMemoryManager.h
+1	0	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.cpp
+0	1	CvGameCoreDLL/CvUnit.cpp
+1	4	CvGameCoreDLL/CvUnit.h
+0	1	CvGameCoreDLL/CvUnitAI.cpp
+0	1	CvGameCoreDLL/CvXMLLoadUtilityInit.cpp
+0	3	CvGameCoreDLL/CyCityInterface1.cpp
+4	3	CvGameCoreDLL/CyEnumsInterface.cpp
+0	1	CvGameCoreDLL/CyGameCoreUtils.cpp
+0	2	CvGameCoreDLL/CyMapGeneratorInterface.cpp
+0	2	CvGameCoreDLL/CyMapInterface.cpp
+0	2	CvGameCoreDLL/CyMessageControl.h
+0	3	CvGameCoreDLL/CyPlayerInterface1.cpp
+0	3	CvGameCoreDLL/CyPlayerInterface2.cpp
+0	2	CvGameCoreDLL/CyPlotInterface1.cpp
+1	1	CvGameCoreDLL/CyRandomInterface.cpp
+0	2	CvGameCoreDLL/CySelectionGroupInterface.cpp
+0	3	CvGameCoreDLL/CyUnitInterface1.cpp
+12	0	CvGameCoreDLL/FProfiler.h
+92	0	CvGameCoreDLL/GameBryo.h
+0	1	CvGameCoreDLL/InvasionGraph.cpp
+0	1	CvGameCoreDLL/MilitaryBranch.cpp
+4	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+0	1	CvGameCoreDLL/Shelf.cpp
+32	0	CvGameCoreDLL/Trigonometry.h
+1	1	CvGameCoreDLL/UWAIAgent.cpp
+0	1	CvGameCoreDLL/UWAICache.cpp
+0	1	CvGameCoreDLL/WarUtilityAspect.cpp
+ create mode 100644 CvGameCoreDLL/BoostPythonPCH.h
+ create mode 100644 CvGameCoreDLL/CvMemoryManager.h
+ create mode 100644 CvGameCoreDLL/GameBryo.h
+ create mode 100644 CvGameCoreDLL/Trigonometry.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index 9a3184c9f..a2b5f9bdc 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -2,7 +2,6 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "AdvCiv4lerts.h"
+-#include "CvInfo_Unit.h"
+ #include "CvInfo_Terrain.h"
+ #include "CoreAI.h"
+ #include "CvDeal.h"
+
+diff --git a/CvGameCoreDLL/BoostPythonPCH.h b/CvGameCoreDLL/BoostPythonPCH.h
+new file mode 100644
+index 000000000..57e1b14e5
+--- /dev/null
++++ b/CvGameCoreDLL/BoostPythonPCH.h
+@@ -0,0 +1,37 @@
++#pragma once
++
++#ifndef BOOST_PYTHON_PCH_H
++#define BOOST_PYTHON_PCH_H
++
++// advc: Moved out of CvGameCoreDLL.h for tidiness
++
++/*	<advc.make> (This prevents many error markers in the VS code editor, but not all.)
++	For VS users who don't bother to set up the Boost paths. */
++#ifdef _CODE_EDITOR
++namespace boost
++{
++	namespace python
++	{
++		class tuple;
++		template<typename x, typename y> class class_;
++		template<typename x> class return_value_policy;
++		class reference_existing_object;
++	}
++	class noncopyable {}; // advc.003e
++}
++class PyObject;
++#else // </advc.make>
++# include <boost/python/list.hpp>
++# include <boost/python/tuple.hpp>
++# include <boost/python/class.hpp>
++# include <boost/python/manage_new_object.hpp>
++# include <boost/python/return_value_policy.hpp>
++# include <boost/python/object.hpp>
++# include <boost/python/def.hpp>
++# include <boost/python/enum.hpp> // advc.make: Moved from CyEnumsInterface.cpp
++# include <boost/python/overloads.hpp> // advc.make: Moved from CyRandomInterface.cpp
++
++namespace python = boost::python;
++#endif // advc.make
++
++#endif
+
+diff --git a/CvGameCoreDLL/CvCivilization.cpp b/CvGameCoreDLL/CvCivilization.cpp
+index 58fc12882..66ed2c65c 100644
+--- a/CvGameCoreDLL/CvCivilization.cpp
++++ b/CvGameCoreDLL/CvCivilization.cpp
+@@ -3,7 +3,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvCivilization.h"
+ #include "CvInfo_Building.h"
+-#include "CvInfo_Unit.h"
+ 
+ 
+ CvCivilization::CvCivilization(CvCivilizationInfo const& kInfo) : m_kInfo(kInfo)
+
+diff --git a/CvGameCoreDLL/CvDLLPythonIFaceBase.h b/CvGameCoreDLL/CvDLLPythonIFaceBase.h
+index 2f0a28f45..a8f7956af 100644
+--- a/CvGameCoreDLL/CvDLLPythonIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLPythonIFaceBase.h
+@@ -10,7 +10,6 @@
+ //
+ 
+ 
+-#include <boost/python/object.hpp>
+ namespace python = boost::python;
+ 
+ class CvUnit;
+
+diff --git a/CvGameCoreDLL/CvGameAI.cpp b/CvGameCoreDLL/CvGameAI.cpp
+index 60e99392a..98a9f618b 100644
+--- a/CvGameCoreDLL/CvGameAI.cpp
++++ b/CvGameCoreDLL/CvGameAI.cpp
+@@ -5,7 +5,6 @@
+ #include "CoreAI.h"
+ #include "CvCityAI.h"
+ #include "UWAIAgent.h"
+-#include "CvInfo_Unit.h"
+ #include "CvInfo_GameOption.h"
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index b07bbd8c7..644977240 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -48,93 +48,6 @@
+ 
+ #define DllExport   __declspec( dllexport )
+ 
+-//
+-// GameBryo
+-//
+-class NiColor
+-{
+-public:
+-	float r, g, b;
+-};
+-class NiColorA
+-{
+-public:
+-	NiColorA(float fr, float fg, float fb, float fa) : r(fr), g(fg), b(fb), a(fa) {}
+-	NiColorA() {}
+-	float r, g, b, a;
+-};
+-class NiPoint2
+-{
+-public:
+-	NiPoint2() {}
+-	NiPoint2(float fx, float fy) : x(fx),y(fy) {}
+-
+-	float x, y;
+-};
+-class NiPoint3
+-{
+-public:
+-	NiPoint3() {}
+-	NiPoint3(float fx, float fy, float fz) : x(fx),y(fy),z(fz) {}
+-
+-	bool NiPoint3::operator== (const NiPoint3& pt) const
+-	{	return (x == pt.x && y == pt.y && z == pt.z);	}
+-
+-	inline NiPoint3 NiPoint3::operator+ (const NiPoint3& pt) const
+-	{	return NiPoint3(x+pt.x,y+pt.y,z+pt.z);	}
+-
+-	inline NiPoint3 NiPoint3::operator- (const NiPoint3& pt) const
+-	{	return NiPoint3(x-pt.x,y-pt.y,z-pt.z);	}
+-
+-	inline float NiPoint3::operator* (const NiPoint3& pt) const
+-	{	return x*pt.x+y*pt.y+z*pt.z;	}
+-
+-	inline NiPoint3 NiPoint3::operator* (float fScalar) const
+-	{	return NiPoint3(fScalar*x,fScalar*y,fScalar*z);	}
+-
+-	inline NiPoint3 NiPoint3::operator/ (float fScalar) const
+-	{
+-		float fInvScalar = 1.0f/fScalar;
+-		return NiPoint3(fInvScalar*x,fInvScalar*y,fInvScalar*z);
+-	}
+-
+-	inline NiPoint3 NiPoint3::operator- () const
+-	{	return NiPoint3(-x,-y,-z);	}
+-
+-	inline float Length() const
+-	{ return sqrt(x * x + y * y + z * z); }
+-
+-	inline float Unitize()
+-	{
+-		float length = Length();
+-		if(length != 0)
+-		{
+-			x /= length;
+-			y /= length;
+-			z /= length;
+-		}
+-		return length;
+-	}
+-
+-//	inline NiPoint3 operator* (float fScalar, const NiPoint3& pt)
+-//	{	return NiPoint3(fScalar*pt.x,fScalar*pt.y,fScalar*pt.z);	}
+-	float x, y, z;
+-};
+-
+-namespace NiAnimationKey
+-{
+-	enum KeyType
+-	{
+-		NOINTERP,
+-		LINKEY,
+-		BEZKEY,
+-		TCBKEY,
+-		EULERKEY,
+-		STEPKEY,
+-		NUMKEYTYPES
+-	};
+-};
+-
+ typedef unsigned char    byte;
+ typedef unsigned short   word;
+ typedef unsigned int     uint;
+@@ -155,16 +68,7 @@ typedef wchar_t          wchar;
+ #define MAX_UNSIGNED_INT                    (0xffffffff)
+ #define MIN_UNSIGNED_INT                    (0x00000000)
+ 
+-#define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
+-#define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
+-#define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=NULL; } }
+-
+-//#define SQR(x) ( (x) * (x) ) // advc: Also defined in CvGameCoreUtils.h
+-#define DEGTORAD(x) ( (float)( (x) * (M_PI / 180) ))
+-// advc: There's range (CvGameCoreUtils), which is similar enough.
+-//#define LIMIT_RANGE(low, value, high) value = (value < low ? low : (value > high ? high : value));
+-#define M_PI		3.14159265358979323846
+-#define fM_PI		3.141592654f		//!< Pi (float)
++// (advc.make: Some macros moved into new header Trigonometry.h)
+ 
+ __forceinline DWORD FtoDW( float f ) { return *(DWORD*)&f; }
+ __forceinline float DWtoF( dword n ) { return *(float*)&n; }
+@@ -174,98 +78,10 @@ __forceinline float MaxFloat() { return DWtoF(0x7f7fffff); }
+ #define CONCATVARNAME_IMPL(prefix, lineNum) prefix##lineNum
+ #define CONCATVARNAME(prefix, suffix) CONCATVARNAME_IMPL(prefix, suffix) // </advc.003s>
+ 
+-void startProfilingDLL(bool longLived);
+-void stopProfilingDLL(bool longLived);
+-
+-#ifdef USE_INTERNAL_PROFILER
+-struct ProfileSample;
+-void IFPBeginSample(ProfileSample* sample);
+-void IFPEndSample(ProfileSample* sample);
+-void dumpProfileStack(void);
+-void EnableDetailedTrace(bool enable);
+-#endif
+-
+-#ifdef _DEBUG
+-//#define MEMORY_TRACKING
+-#endif
+-
+-#ifdef MEMORY_TRACKING
+-class CMemoryTrack
+-{
+-#define	MAX_TRACKED_ALLOCS	1000
+-	void*	m_track[MAX_TRACKED_ALLOCS];
+-	int		m_highWater;
+-	const char* m_name;
+-	bool	m_valid;
+-#define MAX_TRACK_DEPTH		50
+-	static	CMemoryTrack*	trackStack[MAX_TRACK_DEPTH];
+-	static	m_trackStackDepth;
+-
+-public:
+-	CMemoryTrack(const char* name, bool valid);
+-
+-	~CMemoryTrack();
+-
+-	void NoteAlloc(void* ptr);
+-	void NoteDeAlloc(void* ptr);
+-
+-	static CMemoryTrack* GetCurrent(void);
+-};
+-
+-class CMemoryTrace
+-{
+-	int		m_start;
+-	const char* m_name;
+-
+-public:
+-	CMemoryTrace(const char* name);
+-
+-	~CMemoryTrace();
+-};
+-
+-void DumpMemUsage(const char* fn, int line);
+-
+-#define DUMP_MEMORY_USAGE()	DumpMemUsage(__FUNCTION__,__LINE__);
+-#define MEMORY_TRACK()	CMemoryTrack __memoryTrack(__FUNCTION__, true);
+-#define MEMORY_TRACK_EXEMPT()	CMemoryTrack __memoryTrackExemption(NULL, false);
+-#define MEMORY_TRACE_FUNCTION()	CMemoryTrace __memoryTrace(__FUNCTION__);
+-#else
+-#define DUMP_MEMORY_USAGE()
+-#define	MEMORY_TRACK()
+-#define MEMORY_TRACK_EXEMPT()
+-#define MEMORY_TRACE_FUNCTION()
+-#endif
+-
+-
+-//
+-// Boost Python
+-//
+-// <advc.make> (This prevents many error markers in the VS code editor, but not all.)
+-#ifdef _CODE_EDITOR
+-namespace boost
+-{
+-	namespace python
+-	{
+-		class tuple;
+-		template<typename x, typename y> class class_;
+-		template<typename x> class return_value_policy;
+-		class reference_existing_object;
+-	}
+-	class noncopyable {}; // advc.003e
+-}
+-class PyObject;
+-#else // </advc.make>
+-# include <boost/python/list.hpp>
+-# include <boost/python/tuple.hpp>
+-# include <boost/python/class.hpp>
+-# include <boost/python/manage_new_object.hpp>
+-# include <boost/python/return_value_policy.hpp>
+-# include <boost/python/object.hpp>
+-# include <boost/python/def.hpp>
+-
+-namespace python = boost::python;
+-#endif // advc.make
+-
++// <advc> Stuff moved into separate headers
++#include "GameBryo.h"
++#include "CvMemoryManager.h"
++#include "BoostPythonPCH.h" // </advc>
+ #include "FAssert.h"
+ #include "CvGameCoreDLLDefNew.h"
+ #include "FDataStreamBase.h"
+@@ -279,7 +95,7 @@ BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+ #include "CvDLLUtilityIFaceBase.h" // includes LinkedList.h
+ 
+ //jason tests
+-// advc.make: Removed most of these. (Don't know what the comment above means.)
++// advc.make: Removed most of these
+ #include "CvRandom.h"
+ #include "CvGameCoreUtils.h"
+ #include "ScaledNum.h"
+@@ -295,7 +111,9 @@ BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+ #include "CvInfo_Civilization.h"
+ #include "CvInfo_Organization.h"
+ #include "CvInfo_Symbol.h"
+-#include "CvInfo_RandomEvent.h" // </advc.003x>
++#include "CvInfo_RandomEvent.h"
++// For inlining in CvUnit.h. It's also big and needed rather frequently.
++#include "CvInfo_Unit.h" // </advc.003x>
+ /*  advc.make: These I had removed (not _that_ frequently included),
+ 	but decided to add them back. */
+ #include "CyGlobalContext.h" // Includes CvArtFileMgr.h
+@@ -311,16 +129,16 @@ BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+ #include "CyPlot.h"
+ #include "CyUnit.h"
+ 
+-// Undefine OutputDebugString in final release builds
+-#ifdef FINAL_RELEASE
+-/*	<advc.wine> Wrap a macro around OutputDebugString that prints to both the VS console
+-	(as before through WinBase.h) and to a regular console e.g. for Wine. */
+-	#define printToConsole(szMsg)
+-#else
++// Undefine OutputDebugString in release builds // advc.make: in non-debug builds
++#ifdef _DEBUG
++	/*	<advc.wine> Wrap a macro around OutputDebugString that prints to both the VS console
++		(as before through WinBase.h) and to a regular console e.g. for Wine. */
+ 	// Caveat: szMsg has to be 0-terminated -- no fixed-size char buffers!
+ 	#define printToConsole(szMsg) \
+ 		OutputDebugString(szMsg); \
+ 		printf("OutputDebugString: %s", szMsg);
++#else
++	#define printToConsole(szMsg)
+ #endif // </advc.wine>
+ 
+ #endif	// CvGameCoreDLL_h
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index befff27f3..85a3a06d0 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -228,23 +228,6 @@ DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot* pToPlot)
+ 			m.dyWrap(pToPlot->getY() - pFromPlot->getY()));
+ }
+ 
+-
+-float directionAngle (DirectionTypes eDirection)
+-{
+-	switch (eDirection)
+-	{
+-	case DIRECTION_NORTHEAST:	return fM_PI * 0.25f;
+-	case DIRECTION_EAST:			return fM_PI * 0.5f;
+-	case DIRECTION_SOUTHEAST:	return fM_PI * 0.75f;
+-	case DIRECTION_SOUTH:			return fM_PI * 1.0f;
+-	case DIRECTION_SOUTHWEST:	return fM_PI * 1.25f;
+-	case DIRECTION_WEST:			return fM_PI * 1.5f;
+-	case DIRECTION_NORTHWEST:	return fM_PI * 1.75f;
+-	default:
+-	case DIRECTION_NORTH:			return 0.0f;
+-	}
+-}
+-
+ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
+ {
+ 	return (eTeamA != NO_TEAM && eTeamB != NO_TEAM && GET_TEAM(eTeamA).isAtWar(eTeamB));
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 09fcf9caa..5720bde17 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -209,7 +209,6 @@ DirectionTypes cardinalDirectionToDirection(CardinalDirectionTypes eCard);				//
+ DllExport bool isCardinalDirection(DirectionTypes eDirection);															// Exposed to Python
+ DirectionTypes estimateDirection(int iDX, int iDY);																// Exposed to Python
+ DllExport DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot* pToPlot);
+-DllExport float directionAngle(DirectionTypes eDirection);
+ 
+ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);										// Exposed to Python
+ //isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam); // advc: Use CvTeamAI::AI_mayAttack instead
+
+diff --git a/CvGameCoreDLL/CvInfo_City.h b/CvGameCoreDLL/CvInfo_City.h
+index ae0693b9e..837d6f7dd 100644
+--- a/CvGameCoreDLL/CvInfo_City.h
++++ b/CvGameCoreDLL/CvInfo_City.h
+@@ -8,7 +8,7 @@
+ 	and building- and unit-related info classes (via include). */
+ 
+ #include "CvInfo_Building.h"
+-#include "CvInfo_Unit.h"
++//#include "CvInfo_Unit.h" // now in PCH
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //  class : CvProcessInfo
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 1f2790275..7600b8230 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -3,7 +3,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvInitCore.h"
+ #include "CvPlayer.h"
+-#include "CvInfo_Unit.h"
+ #include "CvInfo_GameOption.h"
+ #include "CvDLLUtilityIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvMemoryManager.h b/CvGameCoreDLL/CvMemoryManager.h
+new file mode 100644
+index 000000000..af594293f
+--- /dev/null
++++ b/CvGameCoreDLL/CvMemoryManager.h
+@@ -0,0 +1,63 @@
++#pragma once
++
++#ifndef CV_MEMORY_MANAGER_H
++#define CV_MEMORY_MANAGER_H
++
++// advc.003o: Cut from CvGameCoreDLL.h
++
++#define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
++#define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
++#define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=NULL; } }
++
++#ifdef _DEBUG
++//#define MEMORY_TRACKING
++#endif
++
++#ifdef MEMORY_TRACKING
++class CMemoryTrack
++{
++#define	MAX_TRACKED_ALLOCS	1000
++	void*	m_track[MAX_TRACKED_ALLOCS];
++	int		m_highWater;
++	const char* m_name;
++	bool	m_valid;
++#define MAX_TRACK_DEPTH		50
++	static	CMemoryTrack*	trackStack[MAX_TRACK_DEPTH];
++	static	m_trackStackDepth;
++
++public:
++	CMemoryTrack(const char* name, bool valid);
++
++	~CMemoryTrack();
++
++	void NoteAlloc(void* ptr);
++	void NoteDeAlloc(void* ptr);
++
++	static CMemoryTrack* GetCurrent(void);
++};
++
++class CMemoryTrace
++{
++	int		m_start;
++	const char* m_name;
++
++public:
++	CMemoryTrace(const char* name);
++
++	~CMemoryTrace();
++};
++
++void DumpMemUsage(const char* fn, int line);
++
++#define DUMP_MEMORY_USAGE()	DumpMemUsage(__FUNCTION__,__LINE__);
++#define MEMORY_TRACK()	CMemoryTrack __memoryTrack(__FUNCTION__, true);
++#define MEMORY_TRACK_EXEMPT()	CMemoryTrack __memoryTrackExemption(NULL, false);
++#define MEMORY_TRACE_FUNCTION()	CMemoryTrace __memoryTrace(__FUNCTION__);
++#else
++#define DUMP_MEMORY_USAGE()
++#define	MEMORY_TRACK()
++#define MEMORY_TRACK_EXEMPT()
++#define MEMORY_TRACE_FUNCTION()
++#endif
++
++#endif
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 8e20aa0a7..0ea38178e 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -13,6 +13,7 @@
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+ #include "CvInfo_Civics.h" // for calculateImprovementYieldChange with bOptimal=true
++#include "Trigonometry.h"
+ #include "CvDLLSymbolIFaceBase.h"
+ #include "CvDLLPlotBuilderIFaceBase.h"
+ #include "CvDLLFlagEntityIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 7a04fdd03..9c56f27a8 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -11,7 +11,7 @@
+ #include "BBAILog.h"
+ #include "CvInfo_Command.h"
+ #include "CvInfo_Terrain.h" // for getBestBuildRoute
+-#include "CvInfo_Unit.h" // for canAnyMoveAllTerrain
++//#include "CvInfo_Unit.h" // for canAnyMoveAllTerrain (now in PCH)
+ #include "CySelectionGroup.h"
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 88388aef1..63f650241 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -10,7 +10,6 @@
+ #include "RiseFall.h" // advc.705
+ #include "PlotRange.h"
+ #include "CvArea.h"
+-#include "CvInfo_Unit.h"
+ #include "CvInfo_Command.h"
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 87aa6daf5..d623518eb 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -6,9 +6,6 @@
+ #define CIV4_UNIT_H
+ 
+ #include "CvDLLEntity.h"
+-/*	advc.inl: So that I can inline the wrappers. I've also inlined many other functions.
+-	Only getX, getY and getOwner were inlined in K-Mod/BtS. */
+-#include "CvInfo_Unit.h"
+ 
+ #pragma warning( disable: 4251 ) // needs to have dll-interface to be used by clients of class
+ 
+@@ -21,7 +18,7 @@ class KmodPathFinder;
+ class CvUnitAI; // advc.003u
+ struct CombatDetails;
+ 
+-
++// (advc.inl: Inlined many getters. Only getX, getY and getOwner were inlined in K-Mod/BtS.)
+ class CvUnit : public CvDLLEntity
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index bdd52fde2..cdc05f34e 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -7,7 +7,6 @@
+ #include "CvCityAI.h"
+ #include "PlotRange.h"
+ #include "CvArea.h"
+-#include "CvInfo_Unit.h"
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+ #include "CvInfo_Building.h" // advc.003x: Only needed for the special buildings that GP can construct and AI_nukeValue
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilityInit.cpp b/CvGameCoreDLL/CvXMLLoadUtilityInit.cpp
+index fed9b7b1a..d94c8a8d4 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilityInit.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilityInit.cpp
+@@ -5,7 +5,6 @@
+ #include "CvXMLLoadUtility.h"
+ #include "CvGameTextMgr.h"
+ #include "CvInfo_Building.h"
+-#include "CvInfo_Unit.h"
+ #include "CvInfo_Terrain.h"
+
+diff --git a/CvGameCoreDLL/CyCityInterface1.cpp b/CvGameCoreDLL/CyCityInterface1.cpp
+index 71e6f229c..de9bf7f19 100644
+--- a/CvGameCoreDLL/CyCityInterface1.cpp
++++ b/CvGameCoreDLL/CyCityInterface1.cpp
+@@ -1,9 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyArea.h"
+ 
+-//# include <boost/python/manage_new_object.hpp>
+-//# include <boost/python/return_value_policy.hpp>
+-
+ //
+ // published python interface for CyCity
+ //
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 24256ba15..0e4e1564f 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -1,9 +1,10 @@
+ #include "CvGameCoreDLL.h"
+-#include"CvEnums.h"
++#include "CvEnums.h"
+ 
+-#include "CvGameCoreDLLUnDefNew.h"
++// advc.make: PCH now includes enum.hpp (before CvGameCoreDLLDefNew.h)
++/*#include "CvGameCoreDLLUnDefNew.h"
+ # include <boost/python/enum.hpp>
+-#include "CvGameCoreDLLDefNew.h"
++#include "CvGameCoreDLLDefNew.h"*/
+ 
+ //
+ // Python interface for free enums
+
+diff --git a/CvGameCoreDLL/CyGameCoreUtils.cpp b/CvGameCoreDLL/CyGameCoreUtils.cpp
+index 22d63e9c3..e4761a5fb 100644
+--- a/CvGameCoreDLL/CyGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CyGameCoreUtils.cpp
+@@ -8,7 +8,6 @@
+ #include "CvTeam.h" // (Would be nicer to expose getEspionageModifier through CyTeam)
+ #include "CvPlayer.h" // for getCity, getUnit
+ // For functions moved from CvGameCoreUtils to CvInfos
+-#include "CvInfo_Unit.h"
+ #include "CvInfo_Building.h"
+ #include "CvInfo_Terrain.h" // </advc>
+
+diff --git a/CvGameCoreDLL/CyMapGeneratorInterface.cpp b/CvGameCoreDLL/CyMapGeneratorInterface.cpp
+index 56992c557..9384b24fc 100644
+--- a/CvGameCoreDLL/CyMapGeneratorInterface.cpp
++++ b/CvGameCoreDLL/CyMapGeneratorInterface.cpp
+@@ -1,7 +1,5 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyMapGenerator.h"
+-//# include <boost/python/manage_new_object.hpp>
+-//# include <boost/python/return_value_policy.hpp>
+ 
+ //
+ // published python interface for CyMapGenerator
+
+diff --git a/CvGameCoreDLL/CyMapInterface.cpp b/CvGameCoreDLL/CyMapInterface.cpp
+index 0d371d67f..9b85cd7f3 100644
+--- a/CvGameCoreDLL/CyMapInterface.cpp
++++ b/CvGameCoreDLL/CyMapInterface.cpp
+@@ -2,8 +2,6 @@
+ #include "CyMap.h"
+ #include "CyArea.h"
+ #include "CySelectionGroup.h"
+-//# include <boost/python/manage_new_object.hpp>
+-//# include <boost/python/return_value_policy.hpp>
+ 
+ //
+ // published python interface for CyMap
+
+diff --git a/CvGameCoreDLL/CyMessageControl.h b/CvGameCoreDLL/CyMessageControl.h
+index eafe55e26..4367aa9ba 100644
+--- a/CvGameCoreDLL/CyMessageControl.h
++++ b/CvGameCoreDLL/CyMessageControl.h
+@@ -3,8 +3,6 @@
+ #ifndef _CYMESSAGECONTROL_H
+ #define _CYMESSAGECONTROL_H
+ 
+-#include <boost/python/list.hpp>
+-#include <boost/python/tuple.hpp>
+ namespace python = boost::python;
+ 
+ class CyMessageControl
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index 289d3b17b..4a76e5e03 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -2,9 +2,6 @@
+ #include "CyPlayer.h"
+ #include "CySelectionGroup.h"
+ #include "CyArea.h"
+-//# include <boost/python/manage_new_object.hpp>
+-//# include <boost/python/return_value_policy.hpp>
+-//# include <boost/python/scope.hpp>
+ 
+ //
+ // published python interface for CyPlayer
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface2.cpp b/CvGameCoreDLL/CyPlayerInterface2.cpp
+index fb452683c..de166a4b9 100644
+--- a/CvGameCoreDLL/CyPlayerInterface2.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface2.cpp
+@@ -2,9 +2,6 @@
+ #include "CyPlayer.h"
+ #include "CySelectionGroup.h"
+ #include "CyArea.h"
+-//# include <boost/python/manage_new_object.hpp>
+-//# include <boost/python/return_value_policy.hpp>
+-//# include <boost/python/scope.hpp>
+ 
+ //
+ // published python interface for CyPlayer
+
+diff --git a/CvGameCoreDLL/CyPlotInterface1.cpp b/CvGameCoreDLL/CyPlotInterface1.cpp
+index fd129321b..7babbd64d 100644
+--- a/CvGameCoreDLL/CyPlotInterface1.cpp
++++ b/CvGameCoreDLL/CyPlotInterface1.cpp
+@@ -1,8 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvPlot.h"
+ #include "CyArea.h"
+-//# include <boost/python/manage_new_object.hpp>
+-//# include <boost/python/return_value_policy.hpp>
+ 
+ //
+ // published python interface for CyPlot
+
+diff --git a/CvGameCoreDLL/CyRandomInterface.cpp b/CvGameCoreDLL/CyRandomInterface.cpp
+index 49d3f6cdd..8322f2f86 100644
+--- a/CvGameCoreDLL/CyRandomInterface.cpp
++++ b/CvGameCoreDLL/CyRandomInterface.cpp
+@@ -1,5 +1,5 @@
+ #include "CvGameCoreDLL.h"
+-# include <boost/python/overloads.hpp>
++
+ using namespace boost::python;
+ 
+ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(CvRandom_get_overloads, CvRandom::get, 2, 2)
+
+diff --git a/CvGameCoreDLL/CySelectionGroupInterface.cpp b/CvGameCoreDLL/CySelectionGroupInterface.cpp
+index 72533e46a..9b738723c 100644
+--- a/CvGameCoreDLL/CySelectionGroupInterface.cpp
++++ b/CvGameCoreDLL/CySelectionGroupInterface.cpp
+@@ -1,8 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CySelectionGroup.h"
+ #include "CyArea.h"
+-//# include <boost/python/manage_new_object.hpp>
+-//# include <boost/python/return_value_policy.hpp>
+ 
+ //
+ // published python interface for CySelectionGroup
+
+diff --git a/CvGameCoreDLL/CyUnitInterface1.cpp b/CvGameCoreDLL/CyUnitInterface1.cpp
+index c0e8b4562..7cbd17092 100644
+--- a/CvGameCoreDLL/CyUnitInterface1.cpp
++++ b/CvGameCoreDLL/CyUnitInterface1.cpp
+@@ -3,9 +3,6 @@
+ #include "CySelectionGroup.h"
+ #include "CyArtFileMgr.h"
+ 
+-//# include <boost/python/manage_new_object.hpp>
+-//# include <boost/python/return_value_policy.hpp>
+-
+ //
+ // published python interface for CyUnit
+ //
+
+diff --git a/CvGameCoreDLL/FProfiler.h b/CvGameCoreDLL/FProfiler.h
+index b1a70bbdb..66cd2127e 100644
+--- a/CvGameCoreDLL/FProfiler.h
++++ b/CvGameCoreDLL/FProfiler.h
+@@ -9,6 +9,18 @@
+ #ifndef	__PROFILE_H__
+ #define __PROFILE_H__
+ 
++// <advc.003o> Cut from CvGameCoreDLL.h
++void startProfilingDLL(bool longLived);
++void stopProfilingDLL(bool longLived);
++
++#ifdef USE_INTERNAL_PROFILER
++struct ProfileSample;
++void IFPBeginSample(ProfileSample* sample);
++void IFPEndSample(ProfileSample* sample);
++void dumpProfileStack(void);
++void EnableDetailedTrace(bool enable);
++#endif // </advc.003o>
++
+ 
+ #include "CvDLLUtilityIFaceBase.h"
+ #include "CvGlobals.h"	// for gDLL
+
+diff --git a/CvGameCoreDLL/GameBryo.h b/CvGameCoreDLL/GameBryo.h
+new file mode 100644
+index 000000000..85cc0cb32
+--- /dev/null
++++ b/CvGameCoreDLL/GameBryo.h
+@@ -0,0 +1,92 @@
++#pragma once
++
++#ifndef GAME_BRYO_H
++#define GAME_BRYO_H
++
++// advc: Moved out of CvGameCoreDLL.h for tidiness
++
++class NiColor
++{
++public:
++	float r, g, b;
++};
++class NiColorA
++{
++public:
++	NiColorA(float fr, float fg, float fb, float fa) : r(fr), g(fg), b(fb), a(fa) {}
++	NiColorA() {}
++	float r, g, b, a;
++};
++class NiPoint2
++{
++public:
++	NiPoint2() {}
++	NiPoint2(float fx, float fy) : x(fx),y(fy) {}
++
++	float x, y;
++};
++class NiPoint3
++{
++public:
++	NiPoint3() {}
++	NiPoint3(float fx, float fy, float fz) : x(fx),y(fy),z(fz) {}
++
++	bool NiPoint3::operator== (const NiPoint3& pt) const
++	{	return (x == pt.x && y == pt.y && z == pt.z);	}
++
++	inline NiPoint3 NiPoint3::operator+ (const NiPoint3& pt) const
++	{	return NiPoint3(x+pt.x,y+pt.y,z+pt.z);	}
++
++	inline NiPoint3 NiPoint3::operator- (const NiPoint3& pt) const
++	{	return NiPoint3(x-pt.x,y-pt.y,z-pt.z);	}
++
++	inline float NiPoint3::operator* (const NiPoint3& pt) const
++	{	return x*pt.x+y*pt.y+z*pt.z;	}
++
++	inline NiPoint3 NiPoint3::operator* (float fScalar) const
++	{	return NiPoint3(fScalar*x,fScalar*y,fScalar*z);	}
++
++	inline NiPoint3 NiPoint3::operator/ (float fScalar) const
++	{
++		float fInvScalar = 1.0f/fScalar;
++		return NiPoint3(fInvScalar*x,fInvScalar*y,fInvScalar*z);
++	}
++
++	inline NiPoint3 NiPoint3::operator- () const
++	{	return NiPoint3(-x,-y,-z);	}
++
++	inline float Length() const
++	{ return sqrt(x * x + y * y + z * z); }
++
++	inline float Unitize()
++	{
++		float length = Length();
++		if(length != 0)
++		{
++			x /= length;
++			y /= length;
++			z /= length;
++		}
++		return length;
++	}
++
++//	inline NiPoint3 operator* (float fScalar, const NiPoint3& pt)
++//	{	return NiPoint3(fScalar*pt.x,fScalar*pt.y,fScalar*pt.z);	}
++	float x, y, z;
++};
++
++namespace NiAnimationKey
++{
++	enum KeyType
++	{
++		NOINTERP,
++		LINKEY,
++		BEZKEY,
++		TCBKEY,
++		EULERKEY,
++		STEPKEY,
++		NUMKEYTYPES
++	};
++};
++
++#endif
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 26af8053a..ec5042d78 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -10,7 +10,6 @@
+ #include "CvCity.h"
+ #include "CvPlot.h"
+ #include "CvArea.h"
+-#include "CvInfo_Unit.h"
+ 
+ using std::ostringstream;
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index e31a005d4..bdbbe8bff 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -7,7 +7,6 @@
+ #include "CvPlayerAI.h"
+ #include "CvCity.h"
+ #include "CvCivilization.h"
+-#include "CvInfo_Unit.h"
+ 
+ using std::ostream;
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 6dcd7e0ab..ed0437e6d 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -198,6 +198,7 @@
+     <ClInclude Include="..\ArmamentForecast.h" />
+     <ClInclude Include="..\BBAILog.h" />
+     <ClInclude Include="..\BitUtil.h" />
++    <ClInclude Include="..\BoostPythonPCH.h" />
+     <ClInclude Include="..\CityPlotIterator.h" />
+     <ClInclude Include="..\CitySiteEvaluator.h" />
+     <ClInclude Include="..\CoreAI.h" />
+@@ -264,6 +265,7 @@
+     <ClInclude Include="..\CvInitCore.h" />
+     <ClInclude Include="..\CvMap.h" />
+     <ClInclude Include="..\CvMapGenerator.h" />
++    <ClInclude Include="..\CvMemoryManager.h" />
+     <ClInclude Include="..\CvMessageControl.h" />
+     <ClInclude Include="..\CvMessageData.h" />
+     <ClInclude Include="..\CvPlayer.h" />
+@@ -307,6 +309,7 @@
+     <ClInclude Include="..\CySelectionGroup.h" />
+     <ClInclude Include="..\CyTeam.h" />
+     <ClInclude Include="..\CyUnit.h" />
++    <ClInclude Include="..\GameBryo.h" />
+     <ClInclude Include="..\ReproTest.h" />
+     <ClInclude Include="..\EnumMap.h" />
+     <ClInclude Include="..\EnumMap2D.h" />
+@@ -328,6 +331,7 @@
+     <ClInclude Include="..\PlotRadiusIterator.h" />
+     <ClInclude Include="..\PlotRange.h" />
+     <ClInclude Include="..\ScaledNum.h" />
++    <ClInclude Include="..\Trigonometry.h" />
+     <ClInclude Include="..\TSCProfiler.h" />
+     <ClInclude Include="..\TypeChoice.h" />
+     <ClInclude Include="..\UWAISets.h" />
+
+diff --git a/CvGameCoreDLL/Shelf.cpp b/CvGameCoreDLL/Shelf.cpp
+index 1fe6e5000..2cbe1f5fc 100644
+--- a/CvGameCoreDLL/Shelf.cpp
++++ b/CvGameCoreDLL/Shelf.cpp
+@@ -2,7 +2,6 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "Shelf.h"
+-#include "CvInfo_Unit.h"
+ #include "CvGame.h"
+ #include "CvPlot.h"
+ #include "CvUnit.h"
+
+diff --git a/CvGameCoreDLL/Trigonometry.h b/CvGameCoreDLL/Trigonometry.h
+new file mode 100644
+index 000000000..1f2a7f5bf
+--- /dev/null
++++ b/CvGameCoreDLL/Trigonometry.h
+@@ -0,0 +1,32 @@
++#pragma once
++
++#ifndef TIGONOMETRY_H
++#define TIGONOMETRY_H
++
++// advc.make: Moved out of PCH
++
++//#define SQR(x) ( (x) * (x) ) // advc: Already defined in CvGameCoreUtils.h
++// advc: Unused; there's range (CvGameCoreUtils), which is similar enough.
++//#define LIMIT_RANGE(low, value, high) value = (value < low ? low : (value > high ? high : value));
++#define M_PI		3.14159265358979323846
++#define fM_PI		3.141592654f		//!< Pi (float)
++//#define DEGTORAD(x) ( (float)( (x) * (M_PI / 180) )) // advc: unused
++
++// Moved from CvGameCoreUtils. Only called externally.
++DllExport float directionAngle(DirectionTypes eDirection)
++{
++	switch (eDirection)
++	{
++	case DIRECTION_NORTHEAST:	return fM_PI * 0.25f;
++	case DIRECTION_EAST:			return fM_PI * 0.5f;
++	case DIRECTION_SOUTHEAST:	return fM_PI * 0.75f;
++	case DIRECTION_SOUTH:			return fM_PI * 1.0f;
++	case DIRECTION_SOUTHWEST:	return fM_PI * 1.25f;
++	case DIRECTION_WEST:			return fM_PI * 1.5f;
++	case DIRECTION_NORTHWEST:	return fM_PI * 1.75f;
++	default:
++	case DIRECTION_NORTH:			return 0.0f;
++	}
++}
++
++#endif
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index c53eb6e16..45d2ab3e0 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -7,7 +7,7 @@
+ #include "WarEvalParameters.h"
+ #include "CvInfo_GameOption.h"
+ #include "CvInfo_Building.h" // Just for vote-related info
+-#include "CvInfo_Unit.h" // for UWAI::Civ::militaryPower
++//#include "CvInfo_Unit.h" // for UWAI::Civ::militaryPower (now in PCH)
+ #include "CoreAI.h"
+ #include "CvCityAI.h"
+ #include "CvDiploParameters.h"
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 1d7906c70..23dc2ce9f 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -12,7 +12,6 @@
+ #include "CityPlotIterator.h"
+ #include "CvArea.h"
+ #include "CvInfo_Building.h"
+-#include "CvInfo_Unit.h"
+ #include "CvInfo_Terrain.h"
+ 
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 17ca749b2..03dc7faaf 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -15,7 +15,6 @@
+ #include "PlotRadiusIterator.h"
+ #include "CvArea.h"
+ #include "CvInfo_GameOption.h"
+-#include "CvInfo_Unit.h"
+ #include "CvInfo_Building.h" // Just for vote-related info
+
+[PATCH COVERAGE]
+patchFiles=39 embeddedFiles=39 omittedFiles=0 embeddedPatchBytes=30749

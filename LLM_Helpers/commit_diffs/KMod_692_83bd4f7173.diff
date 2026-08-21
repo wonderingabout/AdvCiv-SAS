@@ -1,0 +1,371 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 692
+# Commit: 83bd4f71736e95dfbc4357b3785579bde01cc069
+# History segment: K-Mod history
+# Parent used for diff: 2fde5f409fa20ed99131d0192446041a0c6357c2
+# Title: Fixed many bugs and style inconsistencies in CvInfoScreen.py (mostly problems caused by the BUG mod) Many some trivial changes to EconomicsAdvisor.py (delete...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+79	100	Assets/Python/Screens/CvInfoScreen.py
+3	8	Assets/Python/Screens/EconomicsAdvisor.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 8604de5f7..1b0a82a00 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -3,6 +3,8 @@
+ 
+ # Thanks to "Ulf 'ulfn' Norell" from Apolyton for his additions relating to the graph section of this screen
+ 
++# This file has been edited for K-Mod in various places. Some changes marked, some not. (deletions generally not marked)
++
+ from CvPythonExtensions import *
+ import CvScreenEnums
+ import CvUtil
+@@ -58,16 +60,31 @@ class CvInfoScreen:
+ 		self.BORDER_WIDTH = 4
+ 		self.W_HELP_AREA = 200
+ 
+-		self.X_EXIT = 994
+-		self.Y_EXIT = 730
+-
+-		self.X_GRAPH_TAB		= 30
+-		self.X_DEMOGRAPHICS_TAB	= 165
+-		self.X_TOP_CITIES_TAB	= 425
+-		self.X_STATS_TAB		= 700
+-		self.Y_TABS				= 730
+-		self.W_BUTTON			= 200
+-		self.H_BUTTON			= 30
++		# K-Mod
++		self.bTextInitialized = False
++
++		#self.X_EXIT = 994
++		self.X_EXIT = self.W_SCREEN - 30
++		#self.Y_EXIT = 730
++		self.Y_EXIT = self.H_SCREEN - 42
++
++		self.PAGE_NAME_LIST = [
++			"TXT_KEY_INFO_GRAPH",
++			"TXT_KEY_DEMO_SCREEN_TITLE",
++			"TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT",
++			"TXT_KEY_INFO_SCREEN_STATISTICS_TITLE",
++			]
++		self.PAGE_DRAW_LIST = [
++			self.drawGraphTab,
++			self.drawDemographicsTab,
++			self.drawTopCitiesTab,
++			self.drawStatsTab,
++			]
++
++		self.PAGE_LINK_WIDTH = [] # game text is not available at the time this function is called, so we can't calculate the widths yet.
++
++		self.Y_LINK = self.H_SCREEN - 42
++		# K-Mod end
+ 
+ 		self.graphEnd		= CyGame().getGameTurn() - 1
+ 		self.graphZoom		= self.graphEnd - CyGame().getStartTurn()
+@@ -365,7 +382,6 @@ class CvInfoScreen:
+ 		self.STATS_TOP_CHART_W_COL_1 = 76
+ 
+ 		self.iNumTopChartCols = 2
+-		#self.iNumTopChartRows = 4 # disabled by K-Mod (not used)
+ 
+ 		self.X_LEADER_NAME = self.X_STATS_TOP_CHART
+ 		self.Y_LEADER_NAME = self.Y_STATS_TOP_CHART - 40
+@@ -373,26 +389,27 @@ class CvInfoScreen:
+ 		self.reset()
+ 
+ 	def initText(self):
++		# K-Mod
++		# only execute this function once...
++		if self.bTextInitialized or not CyGame().isFinalInitialized():
++			return
++		self.bTextInitialized = True
++
++		# Calculate width for the links.
++		width_list = []
++		for i in self.PAGE_NAME_LIST:
++			width_list.append(CyInterface().determineWidth(localText.getText(i, ()).upper()) + 10)
++		total_width = sum(width_list) + CyInterface().determineWidth(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()) + 10;
++
++		for i in width_list:
++			self.PAGE_LINK_WIDTH.append((self.X_EXIT * i + total_width/2) / total_width)
++		# K-Mod end
+ 
+ 		###### TEXT ######
+ 		self.SCREEN_TITLE = u"<font=4b>" + localText.getText("TXT_KEY_INFO_SCREEN", ()).upper() + u"</font>"
+-		self.SCREEN_GRAPH_TITLE = u"<font=4b>" + localText.getText("TXT_KEY_INFO_GRAPH", ()).upper() + u"</font>"
+-		self.SCREEN_DEMOGRAPHICS_TITLE = u"<font=4b>" + localText.getText("TXT_KEY_DEMO_SCREEN_TITLE", ()).upper() + u"</font>"
+-		self.SCREEN_TOP_CITIES_TITLE = u"<font=4b>" + localText.getText("TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT", ()).upper() + u"</font>"
+-		self.SCREEN_STATS_TITLE = u"<font=4b>" + localText.getText("TXT_KEY_INFO_SCREEN_STATISTICS_TITLE", ()).upper() + u"</font>"
+ 
+ 		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + u"</font>"
+ 
+-		self.TEXT_GRAPH = u"<font=4>" + localText.getText("TXT_KEY_INFO_GRAPH", ()).upper() + u"</font>"
+-		self.TEXT_DEMOGRAPHICS = u"<font=4>" + localText.getText("TXT_KEY_DEMO_SCREEN_TITLE", ()).upper() + u"</font>"
+-		self.TEXT_DEMOGRAPHICS_SMALL = localText.getText("TXT_KEY_DEMO_SCREEN_TITLE", ())
+-		self.TEXT_TOP_CITIES = u"<font=4>" + localText.getText("TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT", ()).upper() + u"</font>"
+-		self.TEXT_STATS = u"<font=4>" + localText.getText("TXT_KEY_INFO_SCREEN_STATISTICS_TITLE", ()).upper() + u"</font>"
+-		self.TEXT_GRAPH_YELLOW = u"<font=4>" + localText.getColorText("TXT_KEY_INFO_GRAPH", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>"
+-		self.TEXT_DEMOGRAPHICS_YELLOW = u"<font=4>" + localText.getColorText("TXT_KEY_DEMO_SCREEN_TITLE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>"
+-		self.TEXT_TOP_CITIES_YELLOW = u"<font=4>" + localText.getColorText("TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>"
+-		self.TEXT_STATS_YELLOW = u"<font=4>" + localText.getColorText("TXT_KEY_INFO_SCREEN_STATISTICS_TITLE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>"
+-
+ 		self.TEXT_SHOW_ALL_PLAYERS =  localText.getText("TXT_KEY_SHOW_ALL_PLAYERS", ())
+ 		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), gc.getInfoTypeForString("COLOR_PLAYER_GRAY")).upper()
+ 		
+@@ -598,18 +615,13 @@ class CvInfoScreen:
+ 		self.iActiveTeam = self.pActivePlayer.getTeam()
+ 		self.pActiveTeam = gc.getTeam(self.iActiveTeam)
+ 
+-# BUG - 3.17 No Espionage - start
+-		# Always show graph if espionage is disabled
+-		self.iDemographicsMission = -1
+ 		self.iInvestigateCityMission = -1
+ 		# See if Espionage allows graph to be shown for each player
+-		if (GameUtil.isEspionage() and not CyGame().isDebugMode()):
++		if GameUtil.isEspionage():
+ 			for iMissionLoop in range(gc.getNumEspionageMissionInfos()):
+-				if (gc.getEspionageMissionInfo(iMissionLoop).isSeeDemographics()):
+-					self.iDemographicsMission = iMissionLoop
+ 				if (gc.getEspionageMissionInfo(iMissionLoop).isInvestigateCity()):
+ 					self.iInvestigateCityMission = iMissionLoop
+-# BUG - 3.17 No Espionage - end
++					break
+ 
+ 		self.determineKnownPlayers(iEndGame)
+ 
+@@ -639,39 +651,19 @@ class CvInfoScreen:
+ 		self.deleteAllWidgets(self.iNumPermanentWidgets)
+ 		self.iNumWondersPermanentWidgets = 0
+ 
+-		self.szGraphTabWidget = self.getNextWidgetName()
+-		self.szDemographicsTabWidget = self.getNextWidgetName()
+-		self.szTopCitiesTabWidget = self.getNextWidgetName()
+-		self.szStatsTabWidget = self.getNextWidgetName()
+-
+-		# Draw Tab buttons and tabs
+-		if (self.iActiveTab == self.iGraphID):
+-			screen.setText(self.szGraphTabWidget, "", self.TEXT_GRAPH_YELLOW, CvUtil.FONT_LEFT_JUSTIFY, self.X_GRAPH_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			screen.setText(self.szDemographicsTabWidget, "", self.TEXT_DEMOGRAPHICS, CvUtil.FONT_LEFT_JUSTIFY, self.X_DEMOGRAPHICS_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			screen.setText(self.szTopCitiesTabWidget, "", self.TEXT_TOP_CITIES, CvUtil.FONT_LEFT_JUSTIFY, self.X_TOP_CITIES_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			screen.setText(self.szStatsTabWidget, "", self.TEXT_STATS, CvUtil.FONT_LEFT_JUSTIFY, self.X_STATS_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			self.drawGraphTab()
+-
+-		elif (self.iActiveTab == self.iDemographicsID):
+-			screen.setText(self.szGraphTabWidget, "", self.TEXT_GRAPH, CvUtil.FONT_LEFT_JUSTIFY, self.X_GRAPH_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			screen.setText(self.szDemographicsTabWidget, "", self.TEXT_DEMOGRAPHICS_YELLOW, CvUtil.FONT_LEFT_JUSTIFY, self.X_DEMOGRAPHICS_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			screen.setText(self.szTopCitiesTabWidget, "", self.TEXT_TOP_CITIES, CvUtil.FONT_LEFT_JUSTIFY, self.X_TOP_CITIES_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			screen.setText(self.szStatsTabWidget, "", self.TEXT_STATS, CvUtil.FONT_LEFT_JUSTIFY, self.X_STATS_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			self.drawDemographicsTab()
+-
+-		elif(self.iActiveTab == self.iTopCitiesID):
+-			screen.setText(self.szGraphTabWidget, "", self.TEXT_GRAPH, CvUtil.FONT_LEFT_JUSTIFY, self.X_GRAPH_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			screen.setText(self.szDemographicsTabWidget, "", self.TEXT_DEMOGRAPHICS, CvUtil.FONT_LEFT_JUSTIFY, self.X_DEMOGRAPHICS_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			screen.setText(self.szTopCitiesTabWidget, "", self.TEXT_TOP_CITIES_YELLOW, CvUtil.FONT_LEFT_JUSTIFY, self.X_TOP_CITIES_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			screen.setText(self.szStatsTabWidget, "", self.TEXT_STATS, CvUtil.FONT_LEFT_JUSTIFY, self.X_STATS_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			self.drawTopCitiesTab()
+-
+-		elif(self.iActiveTab == self.iStatsID):
+-			screen.setText(self.szGraphTabWidget, "", self.TEXT_GRAPH, CvUtil.FONT_LEFT_JUSTIFY, self.X_GRAPH_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			screen.setText(self.szDemographicsTabWidget, "", self.TEXT_DEMOGRAPHICS, CvUtil.FONT_LEFT_JUSTIFY, self.X_DEMOGRAPHICS_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			screen.setText(self.szTopCitiesTabWidget, "", self.TEXT_TOP_CITIES, CvUtil.FONT_LEFT_JUSTIFY, self.X_TOP_CITIES_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			screen.setText(self.szStatsTabWidget, "", self.TEXT_STATS_YELLOW, CvUtil.FONT_LEFT_JUSTIFY, self.X_STATS_TAB, self.Y_TABS, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			self.drawStatsTab()
++		# Draw Tab buttons and tabs. (rewriten for K-Mod)
++		xLink = 0
++		for i in range (len(self.PAGE_NAME_LIST)):
++			szTextId = "InfoTabButton"+str(i)
++			if (self.iActiveTab != i):
++				screen.setText (szTextId, "", u"<font=4>" + localText.getText (self.PAGE_NAME_LIST[i], ()).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, i, -1)
++			else:
++				screen.setText (szTextId, "", u"<font=4>" + localText.getColorText (self.PAGE_NAME_LIST[i], (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			xLink += self.PAGE_LINK_WIDTH[i]
++
++		if (self.iActiveTab >= 0 and self.iActiveTab < len(self.PAGE_NAME_LIST)):
++			self.PAGE_DRAW_LIST[self.iActiveTab]()
++		#
+ 
+ #############################################################################################################
+ #################################################### GRAPH ##################################################
+@@ -1549,7 +1541,8 @@ class CvInfoScreen:
+ 		# Create Table
+ 		szTable = self.getNextWidgetName()
+ 		screen.addTableControlGFC(szTable, 6, self.X_CHART, self.Y_CHART, self.W_CHART, self.H_CHART, true, true, 32,32, TableStyles.TABLE_STYLE_STANDARD)
+-		screen.setTableColumnHeader(szTable, 0, self.TEXT_DEMOGRAPHICS_SMALL, 224) # Total graph width is 430
++		#screen.setTableColumnHeader(szTable, 0, self.TEXT_DEMOGRAPHICS_SMALL, 224) # Total graph width is 430
++		screen.setTableColumnHeader(szTable, 0, localText.getText("TXT_KEY_DEMO_SCREEN_TITLE", ()), 224) # K-Mod
+ 		screen.setTableColumnHeader(szTable, 1, self.TEXT_VALUE, 155)
+ 		screen.setTableColumnHeader(szTable, 2, self.TEXT_BEST, 155)
+ 		screen.setTableColumnHeader(szTable, 3, self.TEXT_AVERAGE, 155)
+@@ -2002,14 +1995,12 @@ class CvInfoScreen:
+ 
+ 	def drawWondersList(self):
+ 
+-		self.szWondersListBox = self.getNextWidgetName()
+-		self.szWondersTable = self.getNextWidgetName()
+-
+ 		screen = self.getScreen()
+ 
+ 		if (self.iNumWondersPermanentWidgets == 0):
+ 
+ 			# Wonders List ListBox
++			self.szWondersListBox = self.getNextWidgetName()
+ 			screen.addListBoxGFC(self.szWondersListBox, "",
+ 				self.X_WONDER_LIST, self.Y_WONDER_LIST, self.W_WONDER_LIST, self.H_WONDER_LIST, TableStyles.TABLE_STYLE_STANDARD )
+ 			screen.setStyle(self.szWondersListBox, "Table_StandardCiv_Style")
+@@ -2018,6 +2009,8 @@ class CvInfoScreen:
+ 
+ 			self.iNumWondersPermanentWidgets = self.nWidgetCount
+ 
++		self.szWondersTable = self.getNextWidgetName()
++
+ 		# Stats Panel
+ 		panelName = self.getNextWidgetName()
+ 		screen.addPanel( panelName, "", "", true, true,
+@@ -2367,6 +2360,7 @@ class CvInfoScreen:
+ 									self.aaWondersBeingBuilt_BUG.append([iProjectLoop,pPlayer.getCivilizationShortDescription(0), pCity, iPlayerLoop])
+ 
+ 								if (self.pActiveTeam.isHasMet(iPlayerTeam)
++								and self.iInvestigateCityMission != -1 # K-Mod, bugfix
+ 								and self.pActivePlayer.canDoEspionageMission(self.iInvestigateCityMission, pCity.getOwner(), pCity.plot(), -1)
+ 								and pCity.isRevealed(gc.getGame().getActiveTeam())):
+ 									self.aaWondersBeingBuilt_BUG.append([iProjectLoop,pPlayer.getCivilizationShortDescription(0), pCity, iPlayerLoop])
+@@ -2385,6 +2379,7 @@ class CvInfoScreen:
+ 										self.aaWondersBeingBuilt_BUG.append([iBuildingLoop,pPlayer.getCivilizationShortDescription(0), pCity, iPlayerLoop])
+ 
+ 									if (self.pActiveTeam.isHasMet(iPlayerTeam)
++									and self.iInvestigateCityMission != -1 # K-Mod, bugfix
+ 									and self.pActivePlayer.canDoEspionageMission(self.iInvestigateCityMission, pCity.getOwner(), pCity.plot(), -1)
+ 									and pCity.isRevealed(gc.getGame().getActiveTeam())):
+ 										self.aaWondersBeingBuilt_BUG.append([iBuildingLoop,pPlayer.getCivilizationShortDescription(0), pCity, iPlayerLoop])
+@@ -2407,6 +2402,7 @@ class CvInfoScreen:
+ 										self.aaWondersBeingBuilt_BUG.append([iBuildingLoop,pPlayer.getCivilizationShortDescription(0), pCity, iPlayerLoop])
+ 
+ 									if (self.pActiveTeam.isHasMet(iPlayerTeam)
++									and self.iInvestigateCityMission != -1 # K-Mod, bugfix
+ 									and self.pActivePlayer.canDoEspionageMission(self.iInvestigateCityMission, pCity.getOwner(), pCity.plot(), -1)
+ 									and pCity.isRevealed(gc.getGame().getActiveTeam())):
+ 										self.aaWondersBeingBuilt_BUG.append([iBuildingLoop,pPlayer.getCivilizationShortDescription(0), pCity, iPlayerLoop])
+@@ -3115,36 +3111,23 @@ class CvInfoScreen:
+ 
+ 			######## Screen 'Tabs' for Navigation ########
+ 
+-			if (szWidgetName == self.szGraphTabWidget):
+-				self.iActiveTab = self.iGraphID
+-				self.reset()
+-				self.redrawContents()
+-
+-			elif (szWidgetName == self.szDemographicsTabWidget):
+-				self.iActiveTab = self.iDemographicsID
+-				self.reset()
+-				self.redrawContents()
+-
+-			elif (szWidgetName == self.szTopCitiesTabWidget):
+-				self.iActiveTab = self.iTopCitiesID
+-				self.reset()
+-				self.redrawContents()
+-
+-			elif (szWidgetName == self.szStatsTabWidget):
+-				self.iActiveTab = self.iStatsID
+-				self.reset()
+-				self.redrawContents()
+-
+-				# Wonder type dropdown box
+-			elif (szShortWidgetName == self.BUGWorldWonderWidget
+-			or szShortWidgetName == self.BUGNatWonderWidget
+-			or szShortWidgetName == self.BUGProjectWidget):
+-
++			# (K-Mod version)
++			if (inputClass.getButtonType() == WidgetTypes.WIDGET_GENERAL):
++				iData1 = inputClass.getData1()
++				if (iData1 != self.iActiveTab and iData1 >= 0 and iData1 < len(self.PAGE_NAME_LIST) and szWidgetName == "InfoTabButton"+str(iData1)):
++					self.iActiveTab = iData1
++					self.reset()
++					self.redrawContents()
++
++			# Wonder type dropdown box
++			if self.iActiveTab == self.iTopCitiesID: # K-Mod
++				if (szShortWidgetName == self.BUGWorldWonderWidget
++				or szShortWidgetName == self.BUGNatWonderWidget
++				or szShortWidgetName == self.BUGProjectWidget):
+ 					self.handleInput_Wonders(inputClass)
+ 
+-
+ #BUG: Change Graphs - start
+-			if AdvisorOpt.isGraphs():
++			if AdvisorOpt.isGraphs() and self.iActiveTab == self.iGraphID:
+ 				for i in range(7):
+ 					if (szWidgetName == self.sGraphTextHeadingWidget[i]
+ 					or (szWidgetName == self.sGraphBGWidget[i] and code == NotifyCode.NOTIFY_CLICKED)):
+@@ -3260,10 +3243,6 @@ class CvInfoScreen:
+ 			iLoopPlayerTeam = pLoopPlayer.getTeam()
+ 			if (gc.getTeam(iLoopPlayerTeam).isEverAlive()):
+ 				if (self.pActiveTeam.isHasMet(iLoopPlayerTeam) or CyGame().isDebugMode() or iEndGame != 0):
+-					# if (self.iDemographicsMission == -1
+-					# or self.pActivePlayer.canDoEspionageMission(self.iDemographicsMission, iLoopPlayer, None, -1)
+-					# or iEndGame != 0
+-					# or iLoopPlayerTeam == self.iActiveTeam):
+ 					if self.pActivePlayer.canSeeDemographics(iLoopPlayer): # K-Mod
+ 						self.aiPlayersMet.append(iLoopPlayer)
+ 						self.iNumPlayersMet += 1
+
+diff --git a/Assets/Python/Screens/EconomicsAdvisor.py b/Assets/Python/Screens/EconomicsAdvisor.py
+index d0317c13a..a3774b212 100644
+--- a/Assets/Python/Screens/EconomicsAdvisor.py
++++ b/Assets/Python/Screens/EconomicsAdvisor.py
+@@ -103,6 +103,8 @@ class EconomicsAdvisor:
+ 
+ 	def drawContents(self):
+ 		screen = self.getScreen()
++		self.deleteAllWidgets()
++
+ 		# draw the current page
+ 		if (self.iPage >= 0 and self.iPage < len(self.PAGE_NAME_LIST)):
+ 			self.PAGE_DRAW_LIST[self.iPage]()
+@@ -110,7 +112,7 @@ class EconomicsAdvisor:
+ 		# Link to other economics advisor pages...
+ 		# ... Only display links once global warming has been activated (currently this feature is disabled; ie. we always show the screen)
+ 		if (true or CyGame().getGwEventTally() >= 0 or CyGame().isDebugMode()):
+-			xLink = self.DX_LINK / 2;
++			xLink = self.DX_LINK / 2
+ 
+ 			for i in range (len(self.PAGE_NAME_LIST)):
+ 				#szTextId = self.getNextWidgetName()
+@@ -127,8 +129,6 @@ class EconomicsAdvisor:
+ 		# Header...
+ 		screen.setLabel(self.WIDGET_HEADER, "Background", u"<font=4b>" + localText.getText("TXT_KEY_ECONOMICS_ADVISOR_FINANCE_TAB", ()).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+-		self.deleteAllWidgets()
+-
+ 		player = gc.getPlayer(self.iActiveLeader)
+ 
+ 		numCities = player.getNumCities()	
+@@ -470,14 +470,9 @@ class EconomicsAdvisor:
+ 
+ 	def drawEnvironment(self):
+ 		screen = self.getScreen()
+-	# TODO: move all display text into localizable text keys
+ 		# Header...
+ 		screen.setLabel(self.WIDGET_HEADER, "Background", u"<font=4b>" + localText.getText("TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB", ()).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+-		self.deleteAllWidgets()
+-
+-		screen = self.getScreen()
+-	
+ 		game = CyGame()
+ 		player = gc.getPlayer(self.iActiveLeader)
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=18279

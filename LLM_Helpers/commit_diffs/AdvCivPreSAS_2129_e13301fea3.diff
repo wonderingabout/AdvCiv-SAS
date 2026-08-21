@@ -1,0 +1,275 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2129
+# Commit: e13301fea35d6f25ecbf4d573559f4c32cd31e38
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a83e978e6c81f08bffc3ae0620efa8b714b456d7
+# Title: Some refactoring around FAStarNode
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+0	1	CvGameCoreDLL/CvGameInterface.cpp
+0	1	CvGameCoreDLL/CvPlayerAI.cpp
+0	1	CvGameCoreDLL/CvPlot.cpp
+0	1	CvGameCoreDLL/CvSelectionGroup.cpp
+4	2	CvGameCoreDLL/CvStructs.h
+0	1	CvGameCoreDLL/CvUnitAI.cpp
+15	35	CvGameCoreDLL/FAStarNode.h
+4	3	CvGameCoreDLL/KmodPathFinder.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index eb407eda4..d2f31d6f2 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -4,7 +4,6 @@
+ #include "CvUnitAI.h"
+ #include "CvSelectionGroupAI.h"
+ #include "CityPlotIterator.h"
+-#include "FAStarNode.h"
+ #include "BBAILog.h" // advc.007
+ #include "CvInfo_GameOption.h"
+ #include "CvInfo_Terrain.h"
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index b67742bed..90dfedcd6 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -11,7 +11,6 @@
+ #include "CvInfo_GameOption.h"
+ #include "RiseFall.h" // advc.700
+ #include "CvPopupInfo.h"
+-#include "FAStarNode.h"
+ #include "CvGameTextMgr.h"
+ #include "CvMessageControl.h"
+ #include "CvBugOptions.h"
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d36763aaa..a88bd52d9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -19,7 +19,6 @@
+ #include "CvInfo_Civics.h"
+ #include "BBAILog.h"
+ #include "CvPopupInfo.h"
+-#include "FAStarNode.h"
+ 
+ //#define GREATER_FOUND_RANGE			(5)
+ #define CIVIC_CHANGE_DELAY			(20) // was 25
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 7c0589f96..b9342f79f 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -13,7 +13,6 @@
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+ #include "CvInfo_Civics.h" // for calculateImprovementYieldChange with bOptimal=true
+-#include "FAStarNode.h" // BETTER_BTS_AI_MOD, General AI, 11/30/08, jdog5000
+ #include "CvDLLSymbolIFaceBase.h"
+ #include "CvDLLPlotBuilderIFaceBase.h"
+ #include "CvDLLFlagEntityIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 64943de06..c2ec01ae5 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -9,7 +9,6 @@
+ #include "CvCity.h"
+ #include "CvMap.h"
+ #include "BBAILog.h"
+-#include "FAStarNode.h"
+ #include "CvInfo_Command.h"
+ #include "CvInfo_Terrain.h" // for getBestBuildRoute
+ #include "CvInfo_Unit.h" // for canAnyMoveAllTerrain
+
+diff --git a/CvGameCoreDLL/CvStructs.h b/CvGameCoreDLL/CvStructs.h
+index accd79990..95d21bbf8 100644
+--- a/CvGameCoreDLL/CvStructs.h
++++ b/CvGameCoreDLL/CvStructs.h
+@@ -520,7 +520,8 @@ struct DllExport CvWBData
+ 	CvString m_strButton;
+ };
+ // <advc.071>
+-struct FirstContactData {
++struct FirstContactData
++{
+ 	FirstContactData(CvPlot const* pAt1, CvPlot const* pAt2 = NULL,
+ 			CvUnit const* pUnit1 = NULL, CvUnit const* pUnit2 = NULL);
+ 	FirstContactData() : u1(), u2(), x1(-1), x2(-1), y1(-1), y2(-1) {}
+@@ -528,7 +529,8 @@ struct FirstContactData {
+ 	int x1, y1, x2, y2;
+ }; // </advc.071>
+ // <advc.072>
+-struct DealItemData {
++struct DealItemData
++{
+ 	DealItemData() : eGivePlayer(NO_PLAYER), eReceivePlayer(NO_PLAYER),
+ 			eItemType(TRADE_ITEM_NONE), iData(-1), iDeal(-1) {}
+ 	DealItemData(PlayerTypes eGivePlayer, PlayerTypes eReceivePlayer,
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a84128c17..9817813e9 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -12,7 +12,6 @@
+ #include "CvInfo_GameOption.h"
+ #include "CvInfo_Building.h" // advc.003x: Only needed for the special buildings that GP can construct and AI_nukeValue
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+-#include "FAStarNode.h"
+ 
+ //#define FOUND_RANGE (7) // advc: unused
+
+diff --git a/CvGameCoreDLL/FAStarNode.h b/CvGameCoreDLL/FAStarNode.h
+index 463addd13..6744b1960 100644
+--- a/CvGameCoreDLL/FAStarNode.h
++++ b/CvGameCoreDLL/FAStarNode.h
+@@ -1,25 +1,13 @@
+ #pragma once
+-
+-//  $Header:
+-//------------------------------------------------------------------------------------------------
+-//
+ //  *****************   FIRAXIS GAME ENGINE   ********************
+-//
+ //  FILE:    FAStarNode.h
+-//
+ //  AUTHOR:  Casey O'Toole  --  8/21/2002
+-//
+ //  PURPOSE: A* Pathfinding - based off of A* Explorer from "AI Game Programming Wisdom"
+-//
+-//------------------------------------------------------------------------------------------------
+ //  Copyright (c) 2002 Firaxis Games, Inc. All rights reserved.
+-//------------------------------------------------------------------------------------------------
+-
+-#ifndef		FASTARNODE_H
+-#define		FASTARNODE_H
+-#pragma		once
++#ifndef FASTARNODE_H
++#define FASTARNODE_H
+ 
+-#define ASNL_ADDOPEN			0
++#define ASNL_ADDOPEN		0
+ #define ASNL_STARTOPEN		1
+ #define ASNL_DELETEOPEN		2
+ #define ASNL_ADDCLOSED		3
+@@ -28,7 +16,7 @@
+ #define ASNC_OPENADD_UP		1
+ #define ASNC_CLOSEDADD_UP	2
+ #define ASNC_PARENTADD_UP	3
+-#define ASNC_NEWADD				4
++#define ASNC_NEWADD			4
+ 
+ enum FAStarListType
+ {
+@@ -41,20 +29,15 @@ enum FAStarListType
+ };
+ 
+ 
+-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-//
+-//  CLASS:      FAStarNode
+-//
+-//  DESC:       Used by FAStar pathfinding class
+-//
+-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++// Used by FAStar pathfinding class
+ class FAStarNode
+ {
++	FAStarNode(); // advc: Private ctor added; see comment below.
+ public:
+-	FAStarNode()
++	/*	advc: Apparently, FAStarNode is only allocated through realloc currently;
++		no constructor call. So I'm commenting this out for clarity. */
++	/*FAStarNode()
+ 	{
+-		int i;
+-
+ 		m_iX = -1;
+ 		m_iY = -1;
+ 		m_iTotalCost = 0;
+@@ -73,7 +56,7 @@ public:
+ 		m_pPrev = NULL;
+ 		m_pStack = NULL;
+ 
+-		for (i = 0; i < 8; i++)
++		for (int i = 0; i < 8; i++)
+ 		{
+ 			m_apChildren[i] = NULL;
+ 		}
+@@ -81,8 +64,6 @@ public:
+ 
+ 	void clear()
+ 	{
+-		int i;
+-
+ 		m_iTotalCost = 0;
+ 		m_iKnownCost = 0;
+ 		m_iHeuristicCost = 0;
+@@ -99,15 +80,15 @@ public:
+ 		m_pPrev = NULL;
+ 		m_pStack = NULL;
+ 
+-		for (i = 0; i < 8; i++)
++		for (int i = 0; i < 8; i++)
+ 		{
+ 			m_apChildren[i] = NULL;
+ 		}
+-	}
++	}*/
+ 
+ 	int m_iX, m_iY;         // Coordinate position
+-	int m_iTotalCost;				// Fitness (f)
+-	int m_iKnownCost;				// Goal (g)
++	int m_iTotalCost;		// Fitness (f)
++	int m_iKnownCost;		// Goal (g)
+ 	int m_iHeuristicCost;   // Heuristic (h)
+ 	int m_iNumChildren;
+ 	int m_iData1;
+@@ -125,5 +106,4 @@ public:
+ 	FAStarNode* m_apChildren[8];
+ };
+ 
+-
+-#endif	//FASTARNODE_H
++#endif
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index cdf793cc1..7fe685522 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -46,10 +46,10 @@ bool KmodPathFinder::OpenList_sortPred::operator()(const FAStarNode* &left, cons
+ 
+ //
+ KmodPathFinder::KmodPathFinder() :
+-	end_node(0),
++	end_node(NULL),
+ 	map_width(0),
+ 	map_height(0),
+-	node_data(0)
++	node_data(NULL)
+ {
+ 	// Unfortunately, the pathfinder is constructed before the map width and height are determined.
+ 
+@@ -78,7 +78,8 @@ bool KmodPathFinder::ValidateNodeMap()
+ 		// <advc> According to cppcheck, the above is a "common realloc mistake".
+ 		FAStarNode* new_node_data = static_cast<FAStarNode*>(
+ 				realloc(node_data, sizeof(*node_data)*map_width*map_height));
+-		if(new_node_data == NULL) {
++		if (new_node_data == NULL)
++		{
+ 			free(node_data);
+ 			FAssertMsg(new_node_data != NULL, "Failed to re-allocate memory");
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=7265

@@ -1,0 +1,327 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2639
+# Commit: 4f4bfe6137fe1d9acc843bbead3a378328f066ec
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 85224c7e92004f824cea178c56afe1f57cea978d
+# Title: Some comment, whitespace changes, minor refactoring.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCity.cpp
+0	1	CvGameCoreDLL/CvGameInterface.cpp
+3	5	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlot.cpp
+8	9	CvGameCoreDLL/CvTeamAI.cpp
+1	2	CvGameCoreDLL/FAStarFunc.cpp
+1	1	CvGameCoreDLL/FAStarFunc.h
+1	1	CvGameCoreDLL/GroupPathFinder.cpp
+11	9	CvGameCoreDLL/KmodPathFinder.h
+2	0	CvGameCoreDLL/Project/Makefile.project
+1	1	CvGameCoreDLL/TeamPathFinder.cpp
+3	3	CvGameCoreDLL/TeamPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 7c451bc10..7b5a0f501 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -429,7 +429,7 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
+ }
+ 
+ 
+-void CvCity::doTurn()  // advc: style changes
++void CvCity::doTurn()
+ {
+ 	PROFILE("CvCity::doTurn()");
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 09625977b..b2ea140f0 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -54,7 +54,6 @@ void CvGame::updateColoredPlots()
+ 		pHeadSelectedUnit->updateFoundingBorder();
+ 	// </advc.004h>
+ 
+-	// advc: (also removed unnecessary NULL checks after m.plotByIndex calls)
+ 	CvMap const& kMap = GC.getMap();
+ 	int const iPlots = kMap.numPlots();
+ 	// BETTER_BTS_AI_MOD, Debug, 06/25/09, jdog5000: START
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 2a0c99e24..8298dee3b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9276,8 +9276,6 @@ void CvPlayer::setLastStateReligion(ReligionTypes eNewValue)
+ 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 		{
+ 			CvPlayer const& kObs = *it;
+-			if (!kObs.isAlive())
+-				continue; // advc
+ 			if (GET_TEAM(getTeam()).isHasMet(kObs.getTeam()) ||
+ 				 kObs.isSpectator()) // advc.127
+ 			{
+@@ -18745,13 +18743,13 @@ void CvPlayer::getGlobeLayerColors(GlobeLayerTypes eGlobeLayerType, int iOption,
+ 		getTradeLayerColors(aColors, aIndicators);
+ 		break;
+ 	case GLOBE_LAYER_UNIT:
+-		getUnitLayerColors((GlobeLayerUnitOptionTypes) iOption, aColors, aIndicators);
++		getUnitLayerColors((GlobeLayerUnitOptionTypes)iOption, aColors, aIndicators);
+ 		break;
+ 	case GLOBE_LAYER_RESOURCE:
+-		getResourceLayerColors((GlobeLayerResourceOptionTypes) iOption, aColors, aIndicators);
++		getResourceLayerColors((GlobeLayerResourceOptionTypes)iOption, aColors, aIndicators);
+ 		break;
+ 	case GLOBE_LAYER_RELIGION:
+-		getReligionLayerColors((ReligionTypes) iOption, aColors, aIndicators);
++		getReligionLayerColors((ReligionTypes)iOption, aColors, aIndicators);
+ 		break;
+ 	case GLOBE_LAYER_CULTURE:
+ 		getCultureLayerColors(aColors, aIndicators);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index f7c649918..4767900b3 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2745,7 +2745,7 @@ bool CvPlot::isVisibleToCivTeam() const
+ }
+ 
+ 
+-bool CvPlot::isVisibleToWatchingHuman() const  // advc: style changes
++bool CvPlot::isVisibleToWatchingHuman() const
+ {
+ 	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 5b580b3e8..f4098bf02 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -837,7 +837,7 @@ int CvTeamAI::AI_getMemoryCount(TeamTypes eTeam, MemoryTypes eMemory) const
+ }
+ 
+ 
+-int CvTeamAI::AI_chooseElection(const VoteSelectionData& kVoteSelectionData) const
++int CvTeamAI::AI_chooseElection(VoteSelectionData const& kVoteSelectionData) const
+ {
+ 	VoteSourceTypes eVoteSource = kVoteSelectionData.eVoteSource;
+ 
+@@ -846,10 +846,10 @@ int CvTeamAI::AI_chooseElection(const VoteSelectionData& kVoteSelectionData) con
+ 
+ 	int iBestVote = -1;
+ 	int iBestValue = 0;
+-
+-	for (int iI = 0; iI < (int)kVoteSelectionData.aVoteOptions.size(); ++iI)
++	for (int i = 0; i < (int)kVoteSelectionData.aVoteOptions.size(); i++)
+ 	{
+-		VoteTypes eVote = kVoteSelectionData.aVoteOptions[iI].eVote;
++		VoteSelectionSubData const& kVoteData = kVoteSelectionData.aVoteOptions[i];
++		VoteTypes const eVote = kVoteData.eVote;
+ 		FAssert(GC.getInfo(eVote).isVoteSourceType(eVoteSource));
+ 		FAssert(GC.getGame().isChooseElection(eVote));
+ 		bool bValid = true;
+@@ -859,11 +859,10 @@ int CvTeamAI::AI_chooseElection(const VoteSelectionData& kVoteSelectionData) con
+ 			for (MemberIter it(getID()); it.hasNext(); ++it)
+ 			{
+ 				PlayerVoteTypes ePlayerVote = // kekm.25: was eVote (name clash)
+-						it->AI_diploVote(kVoteSelectionData.aVoteOptions[iI], eVoteSource, true);
++						it->AI_diploVote(kVoteData, eVoteSource, true);
+ 				//if (eVote != PLAYER_VOTE_YES || eVote == GC.getGame().getVoteOutcome((VoteTypes)iI))
+-				/*  <kekm.25> Replacing the above.
+-					'AI can choose to repeal an already passed resolution
+-					if all team members agree' */
++				/*  <kekm.25> "AI can choose to repeal an already passed resolution
++					if all team members agree" */
+ 				bool bVoteYes = (ePlayerVote == PLAYER_VOTE_YES);
+ 				bool bAlreadyPassed = (GC.getGame().getVoteOutcome(eVote) == PLAYER_VOTE_YES);
+ 				if((bVoteYes && bAlreadyPassed) || (!bVoteYes && !bAlreadyPassed)) // </kekm.25>
+@@ -886,7 +885,7 @@ int CvTeamAI::AI_chooseElection(const VoteSelectionData& kVoteSelectionData) con
+ 			if (iValue > iBestValue)
+ 			{
+ 				iBestValue = iValue;
+-				iBestVote = iI;
++				iBestVote = i;
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/FAStarFunc.cpp b/CvGameCoreDLL/FAStarFunc.cpp
+index 7c0dcb6d0..ff90f1606 100644
+--- a/CvGameCoreDLL/FAStarFunc.cpp
++++ b/CvGameCoreDLL/FAStarFunc.cpp
+@@ -50,8 +50,7 @@ BOOL pathValid(FAStarNode* parent, FAStarNode* node, int data, void const* point
+ 	int iFlags = finder ? gDLL->getFAStarIFace()->GetInfo(finder) :
+ 			((CvPathSettings const*)pointer)->iFlags;*/
+ 	// K-Mod end
+-	/*	<advc.pf> KmodPathFinder doesn't call this function, so it
+-		doesn't have to be able to handle those arguments. */
++	// <advc.pf>
+ 	CvPlot const& kFrom = GC.getMap().getPlot(parent->m_iX, parent->m_iY);
+ 	CvPlot const& kTo = GC.getMap().getPlot(node->m_iX, node->m_iY);
+ 	CvSelectionGroup const& kGroup = *reinterpret_cast<CvSelectionGroup const*>(pointer);
+
+diff --git a/CvGameCoreDLL/FAStarFunc.h b/CvGameCoreDLL/FAStarFunc.h
+index 1007d613d..bdead64fa 100644
+--- a/CvGameCoreDLL/FAStarFunc.h
++++ b/CvGameCoreDLL/FAStarFunc.h
+@@ -7,7 +7,7 @@
+ 	Most of these functions get passed to CvDLLFAStarIFaceBase, so they have to
+ 	remain compatible with that interface. Also note that those functions get called
+ 	from the EXE despite not being exported. I've replaced return type int with
+-	BOOL (which is a typedef of int) where appropritate. Those functions that
++	BOOL (which is a typedef of int) where appropriate. Those functions that
+ 	KmodPathFinder used to call directly, I've turned into wrappers so that
+ 	GroupPathFinder can use a more intuitive interface. */
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index 925a75a24..82a76f90a 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -760,7 +760,7 @@ void GroupPathFinder::setGroup(CvSelectionGroup const& kGroup,
+ 
+ /*	advc: To make sure we don't end up with a dangling pointer.
+ 	Seems highly unlikely that such a pointer would clash with the group
+-	passed in the next SetSettings call, but better not to take that chance.
++	passed in the next setGroup call, but better not to take that chance.
+ 	(That said, I'm only going to call this function on
+ 	CvSelectionGroup::m_pPathFinder, so things may still not be perfectly safe.
+ 	The metric could store IDInfo about the group; that would prevent going
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index 88c22acea..d5f925508 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -12,7 +12,7 @@
+ 	state otherwise; all comments elsewhere are from AdvCiv unless they state otherwise. */
+ 
+ 
+-enum PathNodeState // Replacing FAStarListType; cf. PathNodeBase::isState.
++enum PathNodeState // Replacing FAStarListType; cf. PathNodeBase::m_iState.
+ {
+ 	PATHNODE_UNINITIALIZED, // default
+ 	PATHNODE_OPEN,
+@@ -156,7 +156,7 @@ public:
+ 	}
+ 	/*	Cost of the step from kFrom to kTo. Should return a positive value.
+ 		The step checker functions above ensure that the step is allowed;
+-		so there's no reason to return "infinity" (MAX_INT).
++		so there's no reason to return MAX_INT or some other "infinite" value.
+ 		kParentNode is the node associated with kFrom. (The cost function
+ 		of the group pathfinder needs this info.) */
+ 	int cost(CvPlot const& kFrom, CvPlot const& kTo, Node const& kParentNode) const
+@@ -307,7 +307,7 @@ protected:
+ 				return;
+ 			{
+ 			/*	advc: Could keep track of the smallest and highest dirty index
+-				(to be updated by the get function, using branchless ::min, ::max)
++				(to be updated by the get function, using branchless::min, max)
+ 				to save time here.
+ 				Or divide m_data into 4 or 8 columns with individual dirty bits.
+ 				There's a section "Beating memset" by Dan Higgins in the book
+@@ -338,7 +338,7 @@ public:
+ 		This constructor will only call the StepMetric default constructor. */
+ 	inline KmodPathFinder()
+ 	:	m_pStart(NULL), m_pDest(NULL),
+-		/*	[...] Ideally the pathfinder would be initialised with a given CvMap
++		/*	K-Mod: [...] Ideally the pathfinder would be initialised with a given CvMap
+ 			and then not refer to any global objects. [...] */
+ 		// advc: We can do that:
+ 		m_kMap(GC.getMap()), m_pEndNode(NULL), m_pNodeMap(NULL
+@@ -400,7 +400,7 @@ int KmodPathFinder<StepMetric,Node>::minimumStepCost(int iBaseMoves)
+ 			iBaseMoves * iAdmissibleScaledWeight));
+ }
+ 
+-// (Comments below are from K-Mod unless stated otherwise)
++// (Comments below are from K-Mod unless stating otherwise)
+ 
+ template<class StepMetric, class Node>
+ KmodPathFinder<StepMetric,Node>::~KmodPathFinder()
+@@ -426,7 +426,8 @@ bool KmodPathFinder<StepMetric,Node>::generatePath(
+ 		/*	advc.opt: In a test over a few turns on a Giant map with 36 civs,
+ 			the mean list size at the start of processNode was 80, and the
+ 			maximal list size 333. In a longer test on a Huge map with 18 civs,
+-			128 was faster than 32, 200 and 256 (power of 2 does seem to help). */
++			reserving memory for 128 nodes was faster than for either 32, 200 or 256
++			(power of 2 does seem to help). K-Mod didn't reserve any memory. */
+ 		m_openList.reserve(128);
+ 	}
+ 	if (&kStart != m_pStart)
+@@ -625,7 +626,7 @@ bool KmodPathFinder<StepMetric,Node>::processNode()
+ 				We have to break the news to them.
+ 				This would easier if we had STL instead of bog arrays.
+ 				[advc: Could use a vector, but since karadoc has already
+-				worked it out ...]*/
++				worked it out ...] */
+ 			for (int j = 0; j < kOldParent.m_iNumChildren; j++)
+ 			{
+ 				if (kOldParent.m_apChildren[j] == &kChild)
+@@ -697,9 +698,10 @@ void KmodPathFinder<StepMetric,Node>::forwardPropagate(Node& kHead, int iCostDel
+ 		kLoopChild.m_iTotalCost += iNewDelta;
+ 
+ 		FAssert(kLoopChild.m_iKnownCost > kHead.m_iKnownCost);
+-		/*	advc (tbd.?): iNewDelta is never 0 here in tests. Often it's -4.
++		/*	advc: iNewDelta is never 0 here in tests. Often it's -4.
+ 			Perhaps that makes sense as a result of symmetry breaking.
+-			No need then, though, to check and return bChange in updatePathData. */
++			Tests also suggest that this check (and the one in GroupPathFinder::
++			updatePathData) are pretty irrelevant for the overall performance. */
+ 		if (bChanged || iNewDelta != 0)
+ 			forwardPropagate(kLoopChild, iNewDelta);
+ 	}
+
+diff --git a/CvGameCoreDLL/Project/Makefile.project b/CvGameCoreDLL/Project/Makefile.project
+index c1a9af657..23fc37003 100644
+--- a/CvGameCoreDLL/Project/Makefile.project
++++ b/CvGameCoreDLL/Project/Makefile.project
+@@ -5,6 +5,8 @@ PROJECT_CFLAGS = /WX /W4
+ PROJECT_Debug_CFLAGS = /Ob1
+ # Should _not_ be set when inspecting disassembly as it will disable __forceinline
+ #PROJECT_DebugOpt_CFLAGS = /DFASSERT_ENABLE /Oy-
++# Can use global optimizations along with debug symbols; it's just slow to compile.
++#PROJECT_DebugOpt_CFLAGS = /GL
+ # DLL-internal profiler: /DUSE_INTERNAL_PROFILER
+ # Time Stamp Counter profiler: /DUSE_TSC_PROFILER
+ # External profiler, e.g. Very Sleepy: No profile flags needed; profile builds always use Z7.
+
+diff --git a/CvGameCoreDLL/TeamPathFinder.cpp b/CvGameCoreDLL/TeamPathFinder.cpp
+index 98034d5ce..ad4aa3272 100644
+--- a/CvGameCoreDLL/TeamPathFinder.cpp
++++ b/CvGameCoreDLL/TeamPathFinder.cpp
+@@ -99,7 +99,7 @@ bool TeamStepMetric<eMODE>::isValidDest(CvPlot const& kStart, CvPlot const& kDes
+ 	/*	The same-area checks below would miss out on canals connecting water areas.
+ 		Most maps have only one large water area anyway, and lakes can be easily
+ 		handled in client code by checking CvPlot::isCoastalLand(-1). Also, it's
+-		not going to take the pathfinde rlong to realize that a lake is a dead-end. */
++		not going to take the pathfinder long to realize that a lake is a dead-end. */
+ 	if (kStart.isWater())
+ 	{
+ 		if (kDest.isWater())
+
+diff --git a/CvGameCoreDLL/TeamPathFinder.h b/CvGameCoreDLL/TeamPathFinder.h
+index 7e4401cf7..fbd5d9c33 100644
+--- a/CvGameCoreDLL/TeamPathFinder.h
++++ b/CvGameCoreDLL/TeamPathFinder.h
+@@ -31,9 +31,9 @@ namespace TeamPath
+ 		LAND,
+ 		/*	... a sea unit that can move through all water terrain at a uniform cost
+ 			unless it is categorically impassable, can't move through land unless
+-			a friendly city or improvement acts as a canal, and may have a
+-			coastal land plot as its destination. No extra cost is counted for
+-			loading and unloading of cargo. */
++			a city or improvement acts as a canal, and may have a coastal land plot
++			as its destination. No extra cost is counted for loading and unloading
++			of cargo. */
+ 		ANY_WATER,
+ 		SHALLOW_WATER, // Like ANY_WATER but mustn't enter deep water
+ 		// (and all moves have to respect borders unless war is assumed)
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=13399

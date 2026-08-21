@@ -1,0 +1,359 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6072
+# Commit: 1a66d77923f4a8ab58fb8a6334f9aa401425178a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 659606e4e98683c47d36cc47d48031dcbe78f7a4
+# Title: Add BBAI diagnostics for crowded peaceful-city army decisions
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+101	0	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 3dd78d18b..4e2034d2f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1282,6 +1282,62 @@ static void SAS_logLargeAttackCityStackAction(CvUnitAI const& kUnit, char const*
+ 		(pAreaTargetCity == NULL ? L"-" : pAreaTargetCity->getName().GetCString()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getY()), kUnit.getArea().getAreaAIType(kUnit.getTeam()), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kTeam.AI_isAnyChosenWar(), kTeam.AI_isSneakAttackReady(), iWarPlanTargets, eFirstWarPlanTarget, getSASWarPlanType(eFirstWarPlan));
+ }
+ 
++// <!-- custom: Save-file 449 showed KI#188.3.2 shrinking a peaceful targetless city-assault group from 23 to 8 units while Ulundi still held 65-85% of Zulu's military across up to 40 groups and its only other city held 3 defenders.
++// At UNIT level 2, trace the next AI_attackMove decision of general-attack group heads in such a crowded city. Record whether city-defense demand, regrouping, upgrade travel, or another fallback keeps them there, along with the most underdefended alternative city and vassal status; this does not affect behavior. (GPT-5.6-Sol) -->
++static bool SAS_isCrowdedPeacefulCityAttackMoveDiagnostic(CvUnitAI const& kUnit)
++{
++	if (kUnit.getGroup() == NULL || kUnit.getGroup()->getHeadUnit() != &kUnit) return false;
++	CvCityAI const* pCity = kUnit.getPlot().AI_getPlotCity();
++	if (pCity == NULL || pCity->getOwner() != kUnit.getOwner()) return false;
++	CvTeamAI const& kTeam = GET_TEAM(kUnit.getTeam());
++	if (kTeam.getNumWars() > 0 || kTeam.AI_isAnyWarPlan()) return false;
++	int iCityMilitary = 0;
++	int iCityGroups = 0;
++	int iUpgradeUnits = 0;
++	int iUpgradeGroups = 0;
++	SAS_countPlotMilitaryConcentration(kUnit.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
++	int const iTotalMilitary = GET_PLAYER(kUnit.getOwner()).getNumMilitaryUnits();
++	return (iCityMilitary >= 20 && 100 * iCityMilitary / std::max(1, iTotalMilitary) >= 30);
++}
++
++static void SAS_logCrowdedPeacefulCityAttackMove(CvUnitAI const& kUnit, char const* szAction)
++{
++	CvCityAI const* pCity = kUnit.getPlot().AI_getPlotCity();
++	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
++	if (pCity == NULL || pGroup == NULL) return;
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	CvTeamAI const& kTeam = GET_TEAM(kUnit.getTeam());
++	int iCityMilitary = 0;
++	int iCityGroups = 0;
++	int iUpgradeUnits = 0;
++	int iUpgradeGroups = 0;
++	SAS_countPlotMilitaryConcentration(kUnit.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
++	CvCityAI const* pAlternativeCity = NULL;
++	int iAlternativeHave = -1;
++	int iAlternativeNeed = -1;
++	int iAlternativeShortage = MIN_INT;
++	FOR_EACH_CITYAI(pLoopCity, kOwner)
++	{
++		if (pLoopCity == pCity || (!kUnit.isArea(pLoopCity->getArea()) && (!kUnit.canMoveImpassable() || !kUnit.canEnterArea(pLoopCity->getArea())))) continue;
++		int const iHave = pLoopCity->getPlot().plotCount(PUF_canDefendGroupHead, -1, -1, kUnit.getOwner());
++		int const iNeed = pLoopCity->AI_neededDefenders(true, /*bConstCache*/ true);
++		int const iShortage = iNeed - iHave;
++		if (pAlternativeCity != NULL && iShortage <= iAlternativeShortage) continue;
++		pAlternativeCity = pLoopCity;
++		iAlternativeHave = iHave;
++		iAlternativeNeed = iNeed;
++		iAlternativeShortage = iShortage;
++	}
++	int const iCurrentDefenders = pCity->getPlot().plotCount(PUF_canDefendGroupHead, -1, -1, kUnit.getOwner());
++	int const iCurrentNeededDefenders = pCity->AI_neededDefenders(true, /*bConstCache*/ true);
++	logBBAI("    ATTACK_CROWDED_PEACEFUL_CITY_MOVE turn=%d player=%d %S action=%s unitId=%d unitType=%d unitAI=%d groupId=%d groupUnits=%d incomingJoiners=%d city=%S city=(%d,%d) capital=%d cityMilitary=%d totalMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d "
++		"currentDefenders=%d currentMinDefenders=%d currentNeededDefenders=%d currentExcessDefenders=%d currentThreat=%d currentDanger=%d currentSafe=%d alternativeCity=%S alternative=(%d,%d) alternativeDistance=%d alternativeDefenders=%d alternativeNeededDefenders=%d alternativeShortage=%d alternativeThreat=%d alternativeDanger=%d "
++		"missionAI=%d missionQueue=%d activity=%d movesLeft=%d areaAI=%d vassal=%d capitulated=%d masterTeam=%d wars=%d anyWarPlan=%d",
++		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), kUnit.getUnitType(), kUnit.AI_getUnitAIType(), pGroup->getID(), pGroup->getNumUnits(), kOwner.AI_unitTargetMissionAIs(kUnit, MISSIONAI_GROUP), pCity->getName().GetCString(), pCity->getX(), pCity->getY(), pCity->isCapital(),
++		iCityMilitary, kOwner.getNumMilitaryUnits(), 100 * iCityMilitary / std::max(1, kOwner.getNumMilitaryUnits()), iCityGroups, iUpgradeUnits, iUpgradeGroups, iCurrentDefenders, pCity->AI_minDefenders(), iCurrentNeededDefenders, iCurrentDefenders - iCurrentNeededDefenders, pCity->AI_cityThreat(), pCity->AI_isDanger(), pCity->AI_isSafe(),
++		(pAlternativeCity == NULL ? L"-" : pAlternativeCity->getName().GetCString()), (pAlternativeCity == NULL ? -1 : pAlternativeCity->getX()), (pAlternativeCity == NULL ? -1 : pAlternativeCity->getY()), (pAlternativeCity == NULL ? -1 : plotDistance(kUnit.plot(), pAlternativeCity->plot())), iAlternativeHave, iAlternativeNeed, (pAlternativeCity == NULL ? -1 : iAlternativeShortage), (pAlternativeCity == NULL ? -1 : pAlternativeCity->AI_cityThreat()), (pAlternativeCity == NULL ? -1 : pAlternativeCity->AI_isDanger()), pGroup->AI_getMissionAIType(), pGroup->getLengthMissionQueue(), pGroup->getActivityType(), kUnit.movesLeft(), kUnit.getArea().getAreaAIType(kUnit.getTeam()), kTeam.isAVassal(), kTeam.isCapitulated(), kTeam.getMasterTeam(), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan());
++}
++
+ // <!-- custom: A test had two large Carthaginian city-assault groups waiting in Hadrumetum during an overseas war plan while AI_load only removed one unit on two isolated turns. When the existing large-stack diagnostic sees an assault-loading failure, summarize each AI_findTransport filter and the fleet's cargo use so insufficient ships, reserved capacity, unsafe missions, and unreachable transports can be distinguished before changing behavior. This is diagnostic only and is called inside the Overseas-transport level-2 large-stack gate. (GPT-5.6-Sol) -->
+ static void SAS_logAssaultTransportFailure(CvUnitAI& kUnit, MovementFlags eFlags, int iMaxPath)
+ {
+@@ -5939,6 +5995,8 @@ void CvUnitAI::AI_attackMove()
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
+ 	bool const bDanger = (kOwner.AI_isAnyPlotDanger(getPlot(), 3));
+ 	bool const bLandWar = kOwner.AI_isLandWar(getArea()); // K-Mod
++	bool const bLogCrowdedPeacefulCityMove = (gUnitLogLevel >= 2 && SAS_isCrowdedPeacefulCityAttackMoveDiagnostic(*this));
++	if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "entry");
+ 
+ 	// K-Mod note. We'll split the group up later if we need to. (bbai group splitting code deleted.)
+ 	FAssert(getGroup()->countNumUnitAIType(UNITAI_ATTACK_CITY) == 0); // K-Mod. (I'm pretty sure this can't happen.)
+@@ -5967,6 +6025,7 @@ void CvUnitAI::AI_attackMove()
+ 		// Guard a city we're in if it needs it
+ 		if (AI_guardCity(true))
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_guard_current_city_if_needed");
+ 			return;
+ 		}
+ 		/* if (!getPlot().isOwned()) {
+@@ -5987,6 +6046,7 @@ void CvUnitAI::AI_attackMove()
+ 					AI_guardCityMinDefender(true) :
+ 					AI_guardCity(true, true, 3)) // </K-Mod>
+ 				{
++					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_guard_colony");
+ 					return;
+ 				}
+ 			}
+@@ -5994,6 +6054,7 @@ void CvUnitAI::AI_attackMove()
+ 
+ 		if (AI_heal(30, 1))
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_heal_30");
+ 			return;
+ 		}
+ 
+@@ -6010,16 +6071,19 @@ void CvUnitAI::AI_attackMove()
+ 		if (AI_omniGroup(UNITAI_SETTLE, 2, -1, false, NO_MOVEMENT_FLAGS,
+ 			3, false, false, false, false, false))
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_group_with_settler");
+ 			return;
+ 		} // K-Mod end
+ 
+ 		if (AI_guardCityAirlift())
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_guard_city_airlift");
+ 			return;
+ 		}
+ 
+ 		if (AI_guardCity(false, true, 1))
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_guard_city_within_1");
+ 			return;
+ 		}
+ 		// <!-- custom: A backstab could leave endangered cities short of defenders while general attackers continued an expedition abroad.
+@@ -6031,13 +6095,20 @@ void CvUnitAI::AI_attackMove()
+ 		if (!isBarbarian() && getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE && AI_defendTerritory(65, NO_MOVEMENT_FLAGS, 3, true))
+ 		{
+ 			if (bLogDefensePriority) logBBAI("    ATTACK_DEFENSE_PRIORITY_ACTION turn=%d player=%d %S action=counter_invader_whole_group unitAI=%d groupId=%d groupUnits=%d source=(%d,%d) areaAI=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), AI_getUnitAIType(), getGroup()->getID(), getGroup()->getNumUnits(), iDefenseSourceX, iDefenseSourceY, getArea().getAreaAIType(getTeam()));
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_counter_invader");
+ 			return;
+ 		}
+ 		if (!isBarbarian() && AI_guardCity(false, true, 3, NO_MOVEMENT_FLAGS, 0, /*bDangerOnly*/true, /*bFillShortfall*/true))
++		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_reinforce_endangered_city");
+ 			return;
++		}
+ 		if (gUnitLogLevel >= 2 && !bDanger && getGroup()->canDefend()) SAS_logAttackDefenseReinforcementCandidate(*this, kOwner, GET_TEAM(getTeam()));
+ 		if (!bDanger && SAS_createMissingBarbarianCityExpeditionLeader(*this))
++		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_create_barbarian_expedition_leader");
+ 			return;
++		}
+ 
+ 		//join any city attacks in progress
+ 		/*if (getPlot().isOwned() && getPlot().getOwner() != getOwner()) {
+@@ -6061,6 +6132,7 @@ void CvUnitAI::AI_attackMove()
+ 			{
+ 				if (AI_offensiveAirlift())
+ 				{
++					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_offensive_airlift");
+ 					return;
+ 				}
+ 			}
+@@ -6091,6 +6163,7 @@ void CvUnitAI::AI_attackMove()
+ 		// K-Mod (moved from below, and replacing the disabled stuff above)
+ 		if (AI_anyAttack(1, 70))
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_immediate_attack");
+ 			return;
+ 		}
+ 		// K-Mod end
+@@ -6099,6 +6172,7 @@ void CvUnitAI::AI_attackMove()
+ 		{
+ 			if (AI_guardCity(false, false))
+ 			{
++				if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_guard_current_city");
+ 				return;
+ 			}
+ 		}
+@@ -6139,6 +6213,7 @@ void CvUnitAI::AI_attackMove()
+ 
+ 				if (kOwner.AI_isAnyUnitTargetMissionAI(*this, MISSIONAI_GROUP))
+ 				{
++					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_wait_for_incoming_group");
+ 					getGroup()->pushMission(MISSION_SKIP);
+ 					return;
+ 				}
+@@ -6161,6 +6236,7 @@ void CvUnitAI::AI_attackMove()
+ 
+ 		if (AI_goody(3))
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_goody");
+ 			return;
+ 		}
+ 
+@@ -6221,6 +6297,7 @@ void CvUnitAI::AI_attackMove()
+ 		{
+ 			if (AI_heal())
+ 			{
++				if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_heal");
+ 				return;
+ 			}
+ 		}
+@@ -6250,6 +6327,7 @@ void CvUnitAI::AI_attackMove()
+ 				// strong merge strategy
+ 				if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, NO_MOVEMENT_FLAGS, 5, true, getGroup()->getNumUnits() < 2, bIgnoreFaster, false, false))
+ 				{
++					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_group_with_attack_city_strong");
+ 					return;
+ 				}
+ 			}
+@@ -6258,6 +6336,7 @@ void CvUnitAI::AI_attackMove()
+ 				// weak merge strategy
+ 				if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, 2, true, NO_MOVEMENT_FLAGS, 5, true, false, bIgnoreFaster, false, false))
+ 				{
++					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_group_with_attack_city_weak");
+ 					return;
+ 				}
+ 			}
+@@ -6267,6 +6346,7 @@ void CvUnitAI::AI_attackMove()
+ 			if (AI_omniGroup(UNITAI_ATTACK, 2, -1, false, NO_MOVEMENT_FLAGS,
+ 				4, true, true, true, true, false))
+ 			{
++				if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_group_with_attack");
+ 				return;
+ 			}
+ 
+@@ -6283,6 +6363,7 @@ void CvUnitAI::AI_attackMove()
+ 			if (AI_omniGroup(UNITAI_ATTACK, 1, 1, false, NO_MOVEMENT_FLAGS,
+ 				1, true, true, false, false, false))
+ 			{
++				if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_group_with_single_attack");
+ 				return;
+ 			}
+ 
+@@ -6292,7 +6373,10 @@ void CvUnitAI::AI_attackMove()
+ 				/*  advc.001t (Tbd.?): Maybe check CvSelectionGroupAI::AI_isDeclareWar
+ 					and pass MOVE_DECLARE_WAR if true */
+ 				if (AI_goToTargetCity(NO_MOVEMENT_FLAGS, 12))
++				{
++					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_move_to_target_city");
+ 					return;
++				}
+ 			}
+ 			// K-Mod end
+ 		}
+@@ -6316,6 +6400,7 @@ void CvUnitAI::AI_attackMove()
+ 
+ 		if (AI_guardCity(false, true, 3))
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_guard_city_within_3");
+ 			return;
+ 		}
+ 
+@@ -6335,11 +6420,13 @@ void CvUnitAI::AI_attackMove()
+ 					{
+ 						if (AI_exploreRange(3))
+ 						{
++							if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_explore_range");
+ 							return;
+ 						}
+ 
+ 						if (AI_explore())
+ 						{
++							if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_explore");
+ 							return;
+ 						}
+ 					}
+@@ -6350,11 +6437,13 @@ void CvUnitAI::AI_attackMove()
+ 		//if (AI_protect(35, NO_MOVEMENT_FLAGS, 5))
+ 		if (AI_defendTerritory(45, NO_MOVEMENT_FLAGS, 7)) // K-Mod
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_defend_territory");
+ 			return;
+ 		}
+ 
+ 		if (AI_offensiveAirlift())
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_late_offensive_airlift");
+ 			return;
+ 		}
+ 
+@@ -6364,6 +6453,7 @@ void CvUnitAI::AI_attackMove()
+ 			{
+ 				if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, 1, -1, -1, 1, MOVE_SAFE_TERRITORY, 4))
+ 				{
++					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_load_assault_transport");
+ 					return;
+ 				}
+ 
+@@ -6380,6 +6470,7 @@ void CvUnitAI::AI_attackMove()
+ 		// K-Mod
+ 		if (getGroup()->getNumUnits() >= 4 && getPlot().getTeam() == getTeam())
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_split_large_attack_group");
+ 			CvSelectionGroup* pRemainderGroup=NULL;
+ 			CvSelectionGroup* pSplitGroup = getGroup()->splitGroup(2, 0, &pRemainderGroup);
+ 			if (pSplitGroup != NULL)
+@@ -6397,17 +6488,22 @@ void CvUnitAI::AI_attackMove()
+ 
+ 		if (AI_defend())
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_defend");
+ 			return;
+ 		}
+ 
+ 		if (AI_travelToUpgradeCity())
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_upgrade_city");
+ 			return;
+ 		}
+ 
+ 		// K-Mod
+ 		if (AI_handleStranded())
++		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_handle_stranded");
+ 			return;
++		}
+ 		// K-Mod end
+ 
+ 		/* if (!bDanger && !isHuman() && getPlot().isCoastalLand() && kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_PICKUP) > 0) {
+@@ -6418,20 +6514,25 @@ void CvUnitAI::AI_attackMove()
+ 
+ 		if (AI_patrol())
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_patrol");
+ 			return;
+ 		}
+ 
+ 		if (AI_retreatToCity())
+ 		{
++			// <!-- custom: AI_retreatToCity also returns true when it simply waits in the current safe owned city, so keep that distinct in this diagnostic label. (GPT-5.6-Sol) -->
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_retreat_to_or_wait_in_city");
+ 			return;
+ 		}
+ 
+ 		if (AI_safety())
+ 		{
++			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_safety");
+ 			return;
+ 		}
+ 	}
+ 
++	if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "final_skip");
+ 	getGroup()->pushMission(MISSION_SKIP);
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=16869

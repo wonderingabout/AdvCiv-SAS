@@ -1,0 +1,46 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2156
+# Commit: 46821c264e49bb22017c4604e95392ea033b5406
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d0745fa95284bd80ecda581fe8bdf05260cf442e
+# Title: Minor tweak to game text for "unknown" trade denial
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	0	Assets/XML/Text/CIV4GameText_advc.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index edbebb4aa..f2b1cd270 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3409,6 +3409,17 @@
+ 		<Italian>pu� essere liberato come un favore a %s1_Ldr.</Italian>
+ 		<Spanish>puede ser liberado como un favor a %s1_Ldr.</Spanish>
+ 	</TEXT>
++	<!-- From CIV4GameTextInfos.xml. Was "we're not willing". I'm using this
++		 for cities that the AI doesn't accept. "want" is a little better for
++		 that and should be fine in other contexts too.-->
++	<TEXT>
++		<Tag>TXT_KEY_DENIAL_UNKNOWN</Tag>
++		<English>"Sorry... we don't want to trade this."</English>
++		<French>"Je regrette... nous ne souhaitons pas &#233;changer ceci."</French>
++		<German>"Wir haben leider kein Interesse, damit zu handeln."</German>
++		<Italian>"Ci spiace, ma non vogliamo commerciare."</Italian>
++		<Spanish>"Lo sentimos... No deseamos intercambiar esto."</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.004q: Based on TXT_KEY_ATTITUDE_TOWARDS in
+ 		 CIV4GameText_Misc1.xml -->
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1076

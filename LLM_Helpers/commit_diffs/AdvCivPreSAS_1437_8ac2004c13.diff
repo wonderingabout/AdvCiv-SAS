@@ -1,0 +1,262 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1437
+# Commit: 8ac2004c13d7eeb452d40ea1730f4a4a5893be8f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ad075a3f9802484b71f96643a8f3a2dd85233b90
+# Title: Amendment to the previous commit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	5	Assets/xml/GlobalDefines_advc.xml
+37	3	Assets/xml/Text/CIV4GameText_advc.xml
+14	21	CvGameCoreDLL/CvEventReporter.cpp
+2	3	CvGameCoreDLL/CvPlayer.cpp
+19	20	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 3b2920248..5640801ea 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -408,16 +408,22 @@
+ 	</Define>
+ 	
+ 	<!-- advc.106l: "Saving" messages are displayed for this many seconds
+-		 except for autosaves (that message is disabled through
+-		 Civ4GameTextInfo_advc.xml) and networked multiplayer saves.
++		 except for networked multiplayer saves.
+ 		 0 means that no saving messages are displayed. Use 10 for BtS behavior
+-		 (same as EVENT_MESSAGE_TIME). Recommended: 4.
+-		 The first parameter is for quicksaves, the second for regular saves.
+-		 -->
++		 (same as EVENT_MESSAGE_TIME).
++		 The first parameter is for autosaves, the second for quicksaves, the
++		 third for regular saves. -->
++	<!-- Recommended: 0 -->
++	<Define>
++		<DefineName>AUTO_SAVING_MESSAGE_TIME</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- Recommended: 4 -->
+ 	<Define>
+ 		<DefineName>QUICK_SAVING_MESSAGE_TIME</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
++	<!-- Recommended: 4 -->
+ 	<Define>
+ 		<DefineName>SAVING_MESSAGE_TIME</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 1ee7c2fea..301289f91 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -425,14 +425,48 @@
+ 		<Spanish>o</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.106l: Would prefer to prevent autosave messages through the DLL,
+-		 but I haven't found a way to do that.
+-		 The original definition is in CIV4GameText_Misc1.xml. -->
++	<!-- advc.106l: Can't control these messages through the DLL,
++		 so I'm disabling them here. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_AUTOSAVING</Tag>
+ 		<English></English><French></French><German></German>
+ 		<Italian></Italian><Spanish></Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_QUICK_SAVING</Tag>
++		<English></English><French></French><German></German>
++		<Italian></Italian><Spanish></Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAVING_GAME</Tag>
++		<English></English><French></French><German></German>
++		<Italian></Italian><Spanish></Spanish>
++	</TEXT>
++	<!-- Copied from CIV4GameText_Misc1.xml and appended a "2" to the name. -->
++	<TEXT>
++		<Tag>TXT_KEY_SAVING_GAME2</Tag>
++		<English>Saving Game...</English>
++		<French>Sauvegarde en cours...</French>
++		<German>Speichervorgang ...</German>
++		<Italian>Salvataggio in corso...</Italian>
++		<Spanish>Guardando la partida...</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_QUICK_SAVING2</Tag>
++		<English>Quick Saving...</English>
++		<French>Sauvegarde rapide en cours...</French>
++		<German>Schnellspeichern ...</German>
++		<Italian>Salvataggio rapido in corso...</Italian>
++		<Spanish>Guardado r&#225;pido...</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_AUTOSAVING2</Tag>
++		<English>Autosaving...</English>
++		<French>Sauvegarde automatique...</French>
++		<German>Automatisches Speichern ...</German>
++		<Italian>Salvataggio automatico...</Italian>
++		<Spanish>Guardado autom&#225;tico...</Spanish>
++	</TEXT>
+ 	
+ 	<!-- advc.106 -->
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index 4052a89c0..e62e8eeec 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -419,7 +419,8 @@ void CvEventReporter::vassalState(TeamTypes eMaster, TeamTypes eVassal, bool bVa
+ void CvEventReporter::preSave()
+ {
+ 	m_kPythonEventMgr.preSave();
+-	// <advc.106l>
++	/*  <advc.106l> The original "saving" messages are disabled through game text XML
++		b/c the EXE displays them for too long. Will show replacement messages here. */
+ 	bool bAutoSave = m_bPreAutoSave;
+ 	bool bQuickSave = m_bPreQuickSave;
+ 	m_bPreAutoSave = m_bPreQuickSave = false;
+@@ -429,36 +430,28 @@ void CvEventReporter::preSave()
+ 		let's just leave networked games alone. */
+ 	if(g.isNetworkMultiPlayer())
+ 		return;
+-	/*  Can't handle autosave here b/c it happens at turn start when
+-		messages created in between turns are about to be displayed.
+-		Calling clearEventMessages (as we're about to do) would delete these. */
+-	if(bAutoSave)
+-		return;
+-	PlayerTypes eActivePlayer = g.getActivePlayer();
+-	if(eActivePlayer == NO_PLAYER) {
+-		FAssert(eActivePlayer != NO_PLAYER);
+-		return;
+-	}
+-	/*  Abort the "saving" message that the EXE wants to display b/c it's
+-		displayed for too long */
+-	/*  No way to check if any other message is waiting to be displayed. But since
+-		saving is only possible during the active player's turn, any messages
+-		(e.g. from chopping a Forest) should be displayed immediately.
+-		So this should be fine: */
+-	gDLL->getInterfaceIFace()->clearEventMessages();
+ 	char const* szDefineName = "";
+ 	CvWString szMsgTag;
+-	if(bQuickSave) {
++	if(bAutoSave) {
++		szDefineName = "AUTO_SAVING_MESSAGE_TIME";
++		szMsgTag = L"TXT_KEY_AUTO_SAVING2";
++	}
++	else if(bQuickSave) {
+ 		szDefineName = "QUICK_SAVING_MESSAGE_TIME";
+-		szMsgTag = L"TXT_KEY_QUICK_SAVING";
++		szMsgTag = L"TXT_KEY_QUICK_SAVING2";
+ 	}
+ 	else {
+ 		szDefineName = "SAVING_MESSAGE_TIME";
+-		szMsgTag = L"TXT_KEY_SAVING_GAME";
++		szMsgTag = L"TXT_KEY_SAVING_GAME2";
+ 	}
+ 	int iLength = GC.getDefineINT(szDefineName);
+ 	if(iLength <= 0)
+ 		return;
++	PlayerTypes eActivePlayer = g.getActivePlayer();
++	if(eActivePlayer == NO_PLAYER) {
++		FAssert(eActivePlayer != NO_PLAYER);
++		return;
++	}
+ 	gDLL->getInterfaceIFace()->addHumanMessage(eActivePlayer, true,
+ 			iLength, gDLL->getText(szMsgTag), NULL, MESSAGE_TYPE_DISPLAY_ONLY);
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 4a8245aa4..1b38c1b05 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -24632,12 +24632,11 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 	// find maximum total culture
+ 	int iMaxTotalCulture = INT_MIN;
+ 	int iMinTotalCulture = INT_MAX;
+-	TeamTypes eActiveTeam = GC.getGameINLINE().getActiveTeam();
+ 	for (int iI = 0; iI < m.numPlotsINLINE(); iI++)
+ 	{
+ 		CvPlot const& kLoopPlot = *m.plotByIndexINLINE(iI);
+ 		// <advc.004z>
+-		if(!kLoopPlot.isVisible(eActiveTeam, true))
++		if(!kLoopPlot.isVisible(getTeam(), true))
+ 			continue; // </advc.004z>
+ 		int iTotalCulture = kLoopPlot.getTotalCulture(); // advc.003b: was countTotalCulture
+ 		if (iTotalCulture > iMaxTotalCulture)
+@@ -24668,7 +24667,7 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 		// K-Mod end
+ 		// <advc.004z>
+ 		plot_owners.push_back(std::make_pair(kLoopPlot.getCulture(eOwner), eOwner));
+-		bool bVisible = kLoopPlot.isVisible(eActiveTeam, true);
++		bool bVisible = kLoopPlot.isVisible(getTeam(), true);
+ 		if(bVisible)
+ 		{ // </advc.004z>
+ 			for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++) // dlph.21: was MAX_CIV_PLAYERS
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 36232b2cf..3cbaef7f0 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -7443,28 +7443,27 @@ void CvPlot::setRevealedOwner(TeamTypes eTeam, PlayerTypes eNewValue)
+ 	FAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+ 
+-	if (getRevealedOwner(eTeam, false) != eNewValue)
+-	{
+-		if (NULL == m_aiRevealedOwner)
+-		{
+-			m_aiRevealedOwner = new char[MAX_TEAMS];
+-			for (int iI = 0; iI < MAX_TEAMS; ++iI)
+-				m_aiRevealedOwner[iI] = -1;
+-		}
+-		m_aiRevealedOwner[eTeam] = eNewValue;
+-		// K-Mod
+-		if (eNewValue != NO_PLAYER)
+-			GET_TEAM(eTeam).makeHasSeen(TEAMID(eNewValue));
+-		// K-Mod end
++	if (getRevealedOwner(eTeam, false) == eNewValue)
++		return; // advc.003
+ 
+-		if (eTeam == GC.getGameINLINE().getActiveTeam())
++	if (NULL == m_aiRevealedOwner)
++	{
++		m_aiRevealedOwner = new char[MAX_TEAMS];
++		for (int iI = 0; iI < MAX_TEAMS; ++iI)
++			m_aiRevealedOwner[iI] = -1;
++	}
++	m_aiRevealedOwner[eTeam] = eNewValue;
++	// K-Mod
++	if (eNewValue != NO_PLAYER)
++		GET_TEAM(eTeam).makeHasSeen(TEAMID(eNewValue));
++	// K-Mod end
++	if (eTeam == GC.getGameINLINE().getActiveTeam())
++	{
++		updateMinimapColor();
++		if (GC.IsGraphicsInitialized())
+ 		{
+-			updateMinimapColor();
+-			if (GC.IsGraphicsInitialized())
+-			{
+-				gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
+-				gDLL->getEngineIFace()->SetDirty(CultureBorders_DIRTY_BIT, true);
+-			}
++			gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
++			gDLL->getEngineIFace()->SetDirty(CultureBorders_DIRTY_BIT, true);
+ 		}
+ 	}
+ 	FAssert(m_aiRevealedOwner == NULL || m_aiRevealedOwner[eTeam] == eNewValue);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=8655

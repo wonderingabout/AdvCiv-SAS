@@ -1,0 +1,825 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3108
+# Commit: 63d1e21db1d6f0c13cf1db6584518887bf45fae9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 144d943719234b9b177bc89d835f34009a93d086
+# Title: SparseEnumMap class, mainly for per-civ data at CvPlot
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGameCoreDLL.h
+3	3	CvGameCoreDLL/CvInfo_EnumMap.h
+50	77	CvGameCoreDLL/CvPlot.cpp
+8	8	CvGameCoreDLL/CvPlot.h
+359	2	CvGameCoreDLL/EnumMap.h
+74	0	CvGameCoreDLL/EnumMapTest.cpp
+15	0	CvGameCoreDLL/FDataStreamBase.h
+1	1	CvGameCoreDLL/ScaledNum.h
+1	0	CvGameCoreDLL/cpp.hint
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index a3d98d77a..62b16e711 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -113,7 +113,7 @@ BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+ #include "CvRandom.h"
+ #include "FProfiler.h"
+ #include "CvGameCoreUtils.h"
+-#include "ScaledNum.h"
++#include "ScaledNum.h" // Includes TypeChoice.h
+ #include "CvGlobals.h"
+ #include "EnumMap2D.h" // advc.enum: Includes EnumMap.h
+ #include "CvPythonCaller.h" // advc.003y
+
+diff --git a/CvGameCoreDLL/CvInfo_EnumMap.h b/CvGameCoreDLL/CvInfo_EnumMap.h
+index 44f010136..f916d2a76 100644
+--- a/CvGameCoreDLL/CvInfo_EnumMap.h
++++ b/CvGameCoreDLL/CvInfo_EnumMap.h
+@@ -18,9 +18,9 @@ class FDataStreamBase;
+ 	between them needs to be made at compile time. Would be nice to let the
+ 	program decide based on the data loaded from XML, but that would add a lot of
+ 	overhead for virtual function calls.
+-	Inspired by the We the People mod - which uses a more compact and complex
+-	datastructure for the list representation (and I don't think it has a
+-	drop-in replacement based on an array). */
++	ArrayEnumMap and ListEnumMap have counterparts EnumMap (from the
++	"We the People" mod) and SparseEnumMap, both defined in EnumMap.h, for data
++	that changes continuously. */
+ 
+ // Let's start, to motivate the iteration interface, with the for-each macro:
+ #define iANON_NON_DEFAULT_INDEX CONCATVARNAME(iAnonNonDefaultIndex_, __LINE__)
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index dc5fe8691..d74daf72e 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -7285,21 +7285,25 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+ 		m_aiFoundValue.Read(pStream, false);
+-	pStream->Read(&cCount);
+-	if (cCount > 0)
+-		m_aiPlayerCityRadiusCount.Read(pStream, false);
++	if (uiFlag < 10)
++		m_aiPlayerCityRadiusCount.ReadBtS<char,char>(pStream);
++	else m_aiPlayerCityRadiusCount.Read(pStream);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+ 		m_aiPlotGroup.Read(pStream);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+ 		m_aiVisibilityCount.Read(pStream, false);
+-	pStream->Read(&cCount);
+-	if (cCount > 0)
+-		m_aiStolenVisibilityCount.Read(pStream, false);
+-	pStream->Read(&cCount);
+-	if (cCount > 0)
+-		m_aiBlockadedCount.Read(pStream, false);
++	if (uiFlag < 10)
++	{
++		m_aiStolenVisibilityCount.ReadBtS<char,short>(pStream);
++		m_aiBlockadedCount.ReadBtS<char,short>(pStream);
++	}
++	else
++	{
++		m_aiStolenVisibilityCount.Read(pStream);
++		m_aiBlockadedCount.Read(pStream);
++	}
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+ 		m_aiRevealedOwner.Read(pStream, false);
+@@ -7309,13 +7313,21 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+ 		m_abRevealed.Read(pStream);
+-	pStream->Read(&cCount);
+-	if (cCount > 0)
+-		m_aeRevealedImprovementType.Read(pStream, false, uiFlag < 5);
+-	pStream->Read(&cCount);
+-	if (cCount > 0)
+-		m_aeRevealedRouteType.Read(pStream, false, uiFlag < 5);
+-
++	if (uiFlag < 5)
++	{
++		m_aeRevealedImprovementType.ReadBtS<char,short>(pStream);
++		m_aeRevealedRouteType.ReadBtS<char,short>(pStream);
++	}
++	else if (uiFlag < 10)
++	{
++		m_aeRevealedImprovementType.ReadBtS<char,char>(pStream);
++		m_aeRevealedRouteType.ReadBtS<char,char>(pStream);
++	}
++	else
++	{
++		m_aeRevealedImprovementType.Read(pStream);
++		m_aeRevealedRouteType.Read(pStream);
++	}
+ 	m_szScriptData = pStream->ReadString();
+ 
+ 	pStream->Read(&iCount);
+@@ -7337,20 +7349,22 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 	if(uiFlag >= 2)
+ 		pStream->Read(&m_iTotalCulture);
+ 	else if(m_aiCulture.isAllocated()) // just to save time
+-	{	//m_iTotalCulture = countTotalCulture();
+-		/*  countTotalCulture checks CvPlayer::isEverAlive, but CvPlayer objects
+-			aren't loaded yet. I'm pretty sure though that the isEverAlive check
+-			can't make a difference in this case. */
++	{
++		/*  CvPlayer objects aren't loaded yet. Players that have never been alive
++			should have 0 culture, so we don't really need to check isEverAlive. */
+ 		for(int i = 0; i < MAX_PLAYERS; i++)
+ 			m_iTotalCulture += m_aiCulture.get((PlayerTypes)i);
+ 	} // </advc.opt>
+-	pStream->Read(&cCount);
+-	if (cCount > 0)
+-		m_aaiCultureRangeCities.Read(pStream, false, true);
+-	pStream->Read(&cCount);
+-	if (cCount > 0)
+-		m_aaiInvisibleVisibilityCount.Read(pStream, false, true);
+-
++	if (uiFlag < 10)
++	{
++		m_aaiCultureRangeCities.ReadBtS<char,char>(pStream);
++		m_aaiInvisibleVisibilityCount.ReadBtS<char,char>(pStream);
++	}
++	else
++	{
++		m_aaiCultureRangeCities.Read(pStream);
++		m_aaiInvisibleVisibilityCount.Read(pStream);
++	}
+ 	m_units.Read(pStream);
+ }
+ 
+@@ -7367,7 +7381,8 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	//uiFlag = 6; // advc.opt: m_eTeam
+ 	//uiFlag = 7; // advc.opt: m_bImpassable
+ 	//uiFlag = 8; // advc.opt: m_bAnyIsthmus
+-	uiFlag = 9; // advc.912f
++	//uiFlag = 9; // advc.912f
++	uiFlag = 10; // advc.enum (sparse maps)
+ 	pStream->Write(uiFlag);
+ 	REPRO_TEST_BEGIN_WRITE(CvString::format("Plot pt1(%d,%d)", getX(), getY()).GetCString());
+ 	pStream->Write(m_iX);
+@@ -7437,13 +7452,7 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 		pStream->Write((char)m_aiFoundValue.getLength());
+ 		m_aiFoundValue.Write(pStream, false);
+ 	}
+-	if (!m_aiPlayerCityRadiusCount.hasContent())
+-		pStream->Write((char)0);
+-	else
+-	{
+-		pStream->Write((char)m_aiPlayerCityRadiusCount.getLength());
+-		m_aiPlayerCityRadiusCount.Write(pStream, false);
+-	}
++	m_aiPlayerCityRadiusCount.Write(pStream);
+ 	if (!m_aiPlotGroup.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+@@ -7458,20 +7467,8 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 		pStream->Write((char)m_aiVisibilityCount.getLength());
+ 		m_aiVisibilityCount.Write(pStream, false);
+ 	}
+-	if (!m_aiStolenVisibilityCount.hasContent())
+-		pStream->Write((char)0);
+-	else
+-	{
+-		pStream->Write((char)m_aiStolenVisibilityCount.getLength());
+-		m_aiStolenVisibilityCount.Write(pStream, false);
+-	}
+-	if (!m_aiBlockadedCount.hasContent())
+-		pStream->Write((char)0);
+-	else
+-	{
+-		pStream->Write((char)m_aiBlockadedCount.getLength());
+-		m_aiBlockadedCount.Write(pStream, false);
+-	}
++	m_aiStolenVisibilityCount.Write(pStream);
++	m_aiBlockadedCount.Write(pStream);
+ 	if (!m_aiRevealedOwner.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+@@ -7493,20 +7490,8 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 		pStream->Write((char)m_abRevealed.getLength());
+ 		m_abRevealed.Write(pStream);
+ 	}
+-	if (!m_aeRevealedImprovementType.hasContent())
+-		pStream->Write((char)0);
+-	else
+-	{
+-		pStream->Write((char)m_aeRevealedImprovementType.getLength());
+-		m_aeRevealedImprovementType.Write(pStream, false);
+-	}
+-	if (!m_aeRevealedRouteType.hasContent())
+-		pStream->Write((char)0);
+-	else
+-	{
+-		pStream->Write((char)m_aeRevealedRouteType.getLength());
+-		m_aeRevealedRouteType.Write(pStream, false);
+-	}
++	m_aeRevealedImprovementType.Write(pStream);
++	m_aeRevealedRouteType.Write(pStream);
+ 
+ 	pStream->WriteString(m_szScriptData);
+ 
+@@ -7525,20 +7510,8 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	pStream->WriteString(szTmp); // </advc.005c>
+ 	pStream->Write(m_iTotalCulture); // advc.opt
+ 
+-	if (!m_aaiCultureRangeCities.hasContent())
+-		pStream->Write((char)0);
+-	else
+-	{
+-		pStream->Write((char)m_aaiCultureRangeCities.Length());
+-		m_aaiCultureRangeCities.Write(pStream, false, true);
+-	}
+-	if (!m_aaiInvisibleVisibilityCount.hasContent())
+-		pStream->Write((char)0);
+-	else
+-	{
+-		pStream->Write((char)m_aaiInvisibleVisibilityCount.Length());
+-		m_aaiInvisibleVisibilityCount.Write(pStream, false, true);
+-	}
++	m_aaiCultureRangeCities.Write(pStream);
++	m_aaiInvisibleVisibilityCount.Write(pStream);
+ 
+ 	m_units.Write(pStream);
+ 	REPRO_TEST_END_WRITE();
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 923ee0035..cbf61a0e2 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -867,18 +867,18 @@ protected:
+ 	EnumMap<PlayerTypes,int> m_aiCulture;
+ 	EnumMapDefault<PlayerTypes,int,FFreeList::INVALID_INDEX> m_aiPlotGroup;
+ 	mutable EnumMap<PlayerTypes,short> m_aiFoundValue; // advc: mutable
+-	EnumMap<PlayerTypes,char> m_aiPlayerCityRadiusCount;
++	SparseEnumMap<PlayerTypes,char> m_aiPlayerCityRadiusCount;
+ 	EnumMap<TeamTypes,short> m_aiVisibilityCount;
+-	EnumMap<TeamTypes,short> m_aiStolenVisibilityCount;
+-	EnumMap<TeamTypes,short> m_aiBlockadedCount;
++	SparseEnumMap<TeamTypes,short> m_aiStolenVisibilityCount;
++	SparseEnumMap<TeamTypes,short> m_aiBlockadedCount;
+ 	EnumMap<TeamTypes,PlayerTypes> m_aiRevealedOwner;
+-	EnumMap<TeamTypes,ImprovementTypes> m_aeRevealedImprovementType;
+-	EnumMap<TeamTypes,RouteTypes> m_aeRevealedRouteType;
++	SparseEnumMap<TeamTypes,ImprovementTypes> m_aeRevealedImprovementType;
++	SparseEnumMap<TeamTypes,RouteTypes> m_aeRevealedRouteType;
+ 	EnumMap<TeamTypes,bool> m_abRevealed;
+ 	EnumMap<DirectionTypes,bool> m_abRiverCrossing;
+ 	EnumMap<BuildTypes,short> m_aiBuildProgress;
+-	EnumMap2D<PlayerTypes,CultureLevelTypes,char> m_aaiCultureRangeCities;
+-	EnumMap2D<TeamTypes,InvisibleTypes,short> m_aaiInvisibleVisibilityCount;
++	SparseEnumMap2D<PlayerTypes,CultureLevelTypes,char> m_aaiCultureRangeCities;
++	SparseEnumMap2D<TeamTypes,InvisibleTypes,short> m_aaiInvisibleVisibilityCount;
+ 	// </advc.enum>
+ 	CvFeature* m_pFeatureSymbol;
+ 	CvRoute* m_pRouteSymbol;
+@@ -914,7 +914,7 @@ protected:
+ };
+ 
+ // advc.opt: It's fine to change the size, but might want to double check if it can be avoided.
+-BOOST_STATIC_ASSERT(MAX_CIV_PLAYERS > 18 || sizeof(CvPlot) <= 216);
++BOOST_STATIC_ASSERT(MAX_CIV_PLAYERS > 18 || sizeof(CvPlot) <= 244);
+ 
+ /*	advc.enum: For functions that choose random plots.
+ 	Moved from CvDefines, turned into an enum, exposed to Python. */
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index a2610c3d7..1cca579b3 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -7,9 +7,11 @@
+ 	CvEnums.h and CvGlobals.h are used. CvEnums.h also defines enum increment operators.
+ 	Functions for bitwise operations moved into BitUtil.h (included in PCH);
+ 	WtP defines them directly in the PCH.
+-	advc.fract: Disabled the INLINE_NATIVE representation for "small" enum types
++	advc.fract: Disabled the INLINE_NATIVE representation for short enum types
+ 	in order to allow T=ScaledNum. (As suggested to me by Nightinggale.)
+-	advc.003t: I've implemented a similar class, ArrayEnumMap, for storing data
++	advc.enum: Added classes SparseEnumMap and SparseEnumMap2D to the end of this file.
++	They're dependent on the EnumMapGetDefault structs defined by the WtP enum map.
++	advc.003t: I've implemented a similar class, CvInfoEnumMap, for storing data
+ 	loaded from XML, see CvInfo_EnumMap.h. */
+ 
+ #pragma once
+@@ -1379,4 +1381,359 @@ class CivTeamMap : public SubEnumMap <TeamTypes, T, DEFAULT, CivTeamTypes, CivTe
+ 
+ typedef EnumMap<CivicOptionTypes,CivicTypes> CivicMap; // advc: Needed rather frequently
+ 
++
++/*	advc.enum: Base class for the list-based enum maps defined
++	at the end of this header; see comments there.
++	Akin to ListEnumMap in CvInfo_EnumMap, but that class doesn't have to deal
++	with continuous changes to its data. */
++/*	K - key; V - value; CK, CV compact representation of key and value;
++	vDEFAULT - value returned for keys not listed.
++	V needs to be an integral type (bool and long long not tested);
++	K can be any small-ish type, but a static cast from K to CK needs to be possible
++	(not a problem if CK=K). Both CK and CV need to have read and write functions
++	in FDataStreamBase.h. */
++template<typename K, typename V, typename CK = K, typename CV = V, V vDEFAULT = 0>
++class SortedPairList : private boost::noncopyable
++{
++	static CV const cDEFAULT = static_cast<CV>(vDEFAULT);
++	short m_iSize;
++	/*	Throwing this out might be worth a test. Lists with 0 non-defaults are
++		collapsed upon reloading a savegame anyway. Could replace it with a
++		capacity variable, allowing incrementSize to allocate spare memory. */
++	short m_iNonDefaults;
++	/*	While separate arrays for keys and values increase the size of this class,
++		overall, performance seemed a little bit better when I tried it that way.
++		The code was pretty messy though. (It's still not great ... Solving many
++		of the same problems as the WtP EnumMap, but the code there isn't easily
++		reusable and I don't want to copy-paste it; so I've cut some corners.) */
++	std::pair<CK,CV>* m_pairs;
++
++public:
++	SortedPairList()
++	{
++		reset();
++	}
++
++	~SortedPairList()
++	{
++		reset();
++	}
++
++	void reset()
++	{
++		SAFE_DELETE_ARRAY(m_pairs);
++		m_iSize = 0;
++		m_iNonDefaults = 0;
++	}
++
++	V get(K key) const
++	{
++		CK const cKey = compactKey(key);
++		for (short iPos = 0; iPos < m_iSize; iPos++)
++		{
++			CK const cLoop = m_pairs[iPos].first;
++			if (cLoop == cKey)
++				return static_cast<V>(m_pairs[iPos].second);
++			if (cLoop > cKey)
++				break;
++		}
++		return vDEFAULT;
++	}
++
++	void set(K key, V value)
++	{
++		change<false>(key, value);
++	}
++
++	void add(K key, V vDelta)
++	{
++		change<true>(key, vDelta);
++	}
++
++	bool isAnyNonDefault() const
++	{
++		return (m_iNonDefaults > 0);
++	}
++
++	template<typename ValueType>
++	bool nextNonDefault(int& iIter, std::pair<K,ValueType>& nextPair) const
++	{
++		// Allow caller to use a larger (integer) type for the map values
++		BOOST_STATIC_ASSERT(sizeof(ValueType) >= sizeof(CV) &&
++				(std::numeric_limits<ValueType>::is_signed ||
++				!std::numeric_limits<CV>::is_signed));
++		if (iIter >= m_iSize)
++		{	/*	We don't update the nextPair, so let's also leave
++				the iterator position unchanged. */
++			return false;
++		}
++		nextPair.first = static_cast<K>(m_pairs[iIter].first);
++		nextPair.second = static_cast<ValueType>(m_pairs[iIter].second);
++		iIter++;
++		return true;
++	}
++
++	void Read(FDataStreamBase* pStream)
++	{
++		pStream->Read(&m_iSize);
++		if (m_iSize == 0)
++			return;
++		FAssert(m_iSize > 0 && m_pairs == NULL);
++		m_pairs = new std::pair<CK,CV>[m_iSize];
++		for (short i = 0; i < m_iSize; i++)
++		{
++			pStream->Read(&m_pairs[i]);
++			if (m_pairs[i].second != cDEFAULT)
++				m_iNonDefaults++;
++		}
++	}
++
++	void Write(FDataStreamBase* pStream) const
++	{
++		pStream->Write(m_iSize);
++		for (short i = 0; i < m_iSize; i++)
++		{
++			pStream->Write(m_pairs[i]);
++		}
++	}
++
++protected:
++	/*	Derived classes set the compact types in convoluted ways
++		that I don't want to have to type repeatedly there */
++	typedef CK CompactKeyType;
++	static CK compactKey(K key)
++	{
++		return static_cast<CK>(key);
++	}
++	typedef CV CompactValueType;
++	static CV compactValue(V value)
++	{
++		return static_cast<CV>(value);
++	}
++
++private:
++	template<bool bADD>
++	void change(K key, V value)
++	{
++		CK const cKey = compactKey(key);
++		short iPos = 0;
++		for (; iPos < m_iSize; iPos++)
++		{
++			CK cLoop = m_pairs[iPos].first;
++			if (cLoop  == cKey)
++			{
++				CV& cOldVal = m_pairs[iPos].second;
++				CV const cNewVal = compactValue(value) + (bADD ? cOldVal : 0);
++				if (cNewVal != cDEFAULT)
++					m_iNonDefaults++;
++				if (cOldVal != cDEFAULT)
++				{
++					if ((--m_iNonDefaults) == 0 &&
++						/*	Otherwise not worth the risk of having to reallocate later.
++							Well, a test suggests that this check helps marginally
++							at best and that checking >=4 would hurt more than help. */
++						m_iSize >= 2)
++					{
++						reset();
++						return;
++					}
++				}
++				cOldVal = cNewVal;
++				return;
++			}
++			if (cLoop > cKey)
++				break;
++		}
++		CV const cNewVal = compactValue(value) + (bADD ? cDEFAULT : 0);
++		if (cNewVal == cDEFAULT)
++			return;
++		m_iNonDefaults++;
++		incrementSize(iPos);
++		m_pairs[iPos].first = cKey;
++		m_pairs[iPos].second = cNewVal;
++	}
++
++	void incrementSize(short iFreePos)
++	{
++		std::pair<CK,CV>* newPairs = new std::pair<CK,CV>[m_iSize + 1];
++		if (m_iSize == 0)
++		{
++			m_pairs = newPairs;
++			m_iSize++;
++			return;
++		}
++		size_t const iPairSz = sizeof(std::pair<CK,CV>);
++		if (iFreePos > 0)
++		{
++			memcpy(newPairs, m_pairs,
++					iFreePos * iPairSz);
++		}
++		if (iFreePos < m_iSize)
++		{
++			memcpy(newPairs + iFreePos + 1, m_pairs + iFreePos,
++					(m_iSize - iFreePos) * iPairSz);
++		}
++		delete[] m_pairs;
++		m_pairs = newPairs;
++		m_iSize++;
++	}
++};
++
++/*	There's boost::is_enum in boost/type_traits.hpp,
++	but I think this will be good enough for my purposes,
++	i.e. assuming that T is an integral type.
++	(Using my own meta-programming macros from TypeChoice.h.) */
++#define IS_ENUM_TYPE(T) \
++	sizeof(V) == 4 && \
++	!is_same_type<V,int>::value && \
++	!is_same_type<V,uint>::value
++
++#define COMPACT_VALUE_TYPE \
++	typename choose_type< \
++	IS_ENUM_TYPE(V), \
++	/* Use 2 byte for the compact representation. */ \
++	/* (Using just 1 byte if the enum is short enough would be better, */ \
++	/* but that's difficult to check here b/c the compiler evaluates */ \
++	/* both branches of choose_type, so we can't use MAX_LENGTH like below.) */ \
++	short, \
++	V>::type
++
++/*	"Sparse" but not usually empty (the WtP EnumMap is better for that - and is
++	also better for boolean value type). */
++template<typename E, typename V,
++	V vDEFAULT = static_cast<V>(IS_ENUM_TYPE(V) ? -1 : 0)>
++class SparseEnumMap : public SortedPairList<E, V,
++	// Infer from enum length whether to store the enum values as 1 byte or 2 byte
++	typename choose_type<
++			EnumMapGetDefault<E>::MAX_LENGTH == 1,
++			char, short>::type,
++	COMPACT_VALUE_TYPE,
++	vDEFAULT>
++{
++public:
++	SparseEnumMap()
++	{
++		FAssert(getEnumLength((E)0) <=
++				std::numeric_limits<CompactKeyType>::max());
++	}
++
++	template<typename SizeType, typename ValueType>
++	void ReadBtS(FDataStreamBase* pStream)
++	{
++		SizeType sz;
++		pStream->Read(&sz);
++		short iSize = static_cast<short>(sz);
++		if (iSize == 0) // Only size stored if unallocated
++			return;
++		for (short i = 0; i < iSize; i++)
++		{
++			ValueType vRead;
++			pStream->Read(&vRead);
++			V v = static_cast<V>(vRead);
++			if (v != vDEFAULT)
++				set(static_cast<E>(i), v);
++		}
++	}
++};
++
++#define COMPACT_ENUM_TYPE \
++		typename choose_type< \
++		EnumMapGetDefault<E1>::MAX_LENGTH == 1 && \
++		EnumMapGetDefault<E2>::MAX_LENGTH == 1, \
++		char, short>::type
++
++/*	Will need to call some hidden base-class functions
++	and the base class type is ... verbose. */
++#define SORTED_PAIR_LIST_BASE \
++		SortedPairList \
++		<std::pair<COMPACT_ENUM_TYPE,COMPACT_ENUM_TYPE>, V, \
++		std::pair<COMPACT_ENUM_TYPE,COMPACT_ENUM_TYPE>, COMPACT_VALUE_TYPE, vDEFAULT>
++
++template<typename E1, typename E2, typename V,
++	V vDEFAULT = static_cast<V>(IS_ENUM_TYPE(V) ? -1 : 0)>
++class SparseEnumMap2D : public SORTED_PAIR_LIST_BASE
++{
++public:
++	SparseEnumMap2D()
++	{
++		FAssert(std::max<int>(
++				getEnumLength((E1)0), getEnumLength((E2)0)) <=
++				std::numeric_limits<COMPACT_ENUM_TYPE>::max());
++	}
++
++	V get(E1 eFirst, E2 eSecond) const
++	{
++		return SORTED_PAIR_LIST_BASE::
++				get(std::make_pair(
++				static_cast<COMPACT_ENUM_TYPE>(eFirst),
++				static_cast<COMPACT_ENUM_TYPE>(eSecond)));
++	}
++
++	void set(E1 eFirst, E2 eSecond, V value)
++	{
++		SORTED_PAIR_LIST_BASE::
++				set(std::make_pair(
++				static_cast<COMPACT_ENUM_TYPE>(eFirst),
++				static_cast<COMPACT_ENUM_TYPE>(eSecond)), value);
++	}
++
++	void add(E1 eFirst, E2 eSecond, V vDelta)
++	{
++		SORTED_PAIR_LIST_BASE::
++				add(std::make_pair(
++				static_cast<COMPACT_ENUM_TYPE>(eFirst),
++				static_cast<COMPACT_ENUM_TYPE>(eSecond)), vDelta);
++	}
++
++	template<typename SizeType, typename ValueType>
++	void ReadBtS(FDataStreamBase* pStream)
++	{
++		BOOST_STATIC_ASSERT(sizeof(V) >= sizeof(ValueType));
++		FAssert(std::numeric_limits<ValueType>::is_signed ||
++				!std::numeric_limits<V>::is_signed);
++		SizeType sz;
++		pStream->Read(&sz);
++		short iSize = static_cast<short>(sz);
++		if (iSize == 0)
++			return;
++		for (short i = 0; i < iSize; i++)
++		{
++			/*	Up to here, it's the same as for the 1D map.
++				Not easy to let them use the same code w/o dynamic polymorphism. */
++			int iInnerSize;
++			pStream->Read(&iInnerSize);
++			for (int j = 0; j < iInnerSize; j++)
++			{
++				ValueType vRead;
++				pStream->Read(&vRead);
++				V v = static_cast<V>(vRead);
++				if (v != vDEFAULT)
++					set(static_cast<E1>(i), static_cast<E2>(j), v);
++			}
++		}
++	}
++};
++
++#undef IS_ENUM_TYPE
++#undef COMPACT_VALUE_TYPE
++#undef SORTED_PAIR_LIST_BASE
++#undef COMPACT_ENUM_TYPE
++
++#define iANON_NON_DEFAULT_ITER CONCATVARNAME(iAnonNonDefaultIter_L, __LINE__)
++/*	Similar to FOR_EACH_NON_DEFAULT_INFO_PAIR. Would sure be nice if the same
++	macro could be used for SortedPairList and CvInfoEnumMap, however,
++	merging the two macros w/ each other w/o loss of efficiency is tricky.
++	Well, so far, the macro here is unused anyway. */
++#define FOR_EACH_NON_DEFAULT_PAIR(kEnumMap, EnumPrefix, ValueType) \
++	int iANON_NON_DEFAULT_ITER = 0; \
++	for (std::pair<EnumPrefix##Types,ValueType> per##EnumPrefix##Val; \
++		kEnumMap.nextNonDefault(iANON_NON_DEFAULT_ITER, per##EnumPrefix##Val); )
++/*	Example:
++FOR_EACH_NON_DEFAULT_PAIR(kBuilding.getUnitCombatFreeXP(), UnitCombat, int)
++	expands to
++int iAnonNonDefaultIter_L3947 = 0;
++for (std::pair<UnitCombatTypes,int> perUnitCombatVal;
++	kBuilding.getUnitCombatFreeXP().nextNonDefault(
++		iAnonNonDefaultIter_L3947, perUnitCombatVal); )*/
++
+ #endif
+
+diff --git a/CvGameCoreDLL/EnumMapTest.cpp b/CvGameCoreDLL/EnumMapTest.cpp
+index bfbbbd4d9..eccd18f41 100644
+--- a/CvGameCoreDLL/EnumMapTest.cpp
++++ b/CvGameCoreDLL/EnumMapTest.cpp
+@@ -3,6 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ 
+ //#define _TEST_ENUM_MAP // advc: Uncomment to enable the tests
++//#define _TEST_SPARSE_ENUM_MAP // advc.enum
+ 
+ void TestEnumMap()
+ {
+@@ -66,4 +67,77 @@ void TestEnumMap()
+ 		FAssert(!test.hasContent());
+ 	}
+ 	#endif
++	#if defined(_TEST_SPARSE_ENUM_MAP)
++	{
++		int count = 0; // to prevent optimizer from discarding unused calls
++		SparseEnumMap<PlayerTypes,char> test;
++		test.set((PlayerTypes)3,3);
++		test.set((PlayerTypes)3,4);
++		char c = test.get((PlayerTypes)3);
++		FAssert(c == 4);
++		count += c;
++		test.add((PlayerTypes)3,2);
++		FAssert(test.get((PlayerTypes)3) == 6);
++		test.add((PlayerTypes)1,-1);
++		FAssert(test.get((PlayerTypes)1) == -1);
++		std::vector<PlayerTypes> testKeys;
++		std::vector<int> testVals;
++		FOR_EACH_NON_DEFAULT_PAIR(test, Player, int)
++		{
++			testKeys.push_back(perPlayerVal.first);
++			testVals.push_back(perPlayerVal.second);
++		}
++		FAssert(testKeys[0] == 1);
++		FAssert(testKeys[1] == 3);
++		FAssert(testVals[0] == -1);
++		FAssert(testVals[1] == 6);
++		test.add((PlayerTypes)3,-6);
++		test.set((PlayerTypes)1,0);
++		FAssert(!test.isAnyNonDefault());
++		test.add((PlayerTypes)3,-6);
++		FAssert(test.isAnyNonDefault());
++		test.reset();
++		FAssert(!test.isAnyNonDefault());
++		test.set((PlayerTypes)3,3);
++		test.set((PlayerTypes)7,7);
++		// insert in middle
++		test.set((PlayerTypes)5,5);
++		test.set((PlayerTypes)4,4);
++		test.set((PlayerTypes)6,6);
++		if (count == -362728) // not going to happen
++		{
++			FAssert(false);
++			exit(0);
++		}
++	}
++	{
++		SparseEnumMap<PlayerTypes,ImprovementTypes> test;
++		test.set((PlayerTypes)0,(ImprovementTypes)0);
++		FAssert(test.isAnyNonDefault());
++	}
++	{
++		SparseEnumMap2D<PlayerTypes,ImprovementTypes,char> test;
++		test.set((PlayerTypes)0,(ImprovementTypes)0, 0);
++		FAssert(!test.isAnyNonDefault());
++	}
++	{
++		SparseEnumMap2D<PlayerTypes,DomainTypes,short> test;
++		test.set((PlayerTypes)3,(DomainTypes)0,3);
++		test.set((PlayerTypes)3,(DomainTypes)1,4);
++		FAssert(test.get((PlayerTypes)3,(DomainTypes)1) == 4);
++		test.add((PlayerTypes)3,(DomainTypes)0, 2);
++		FAssert(test.get((PlayerTypes)3, (DomainTypes)0) == 5);
++		test.set((PlayerTypes)4,(DomainTypes)2,1);
++		test.add((PlayerTypes)3,(DomainTypes)0,-5);
++		test.set((PlayerTypes)4,(DomainTypes)2,0);
++		FAssert(test.isAnyNonDefault());
++		test.set((PlayerTypes)3,(DomainTypes)1,0);
++		FAssert(!test.isAnyNonDefault());
++		test.reset();
++		FAssert(!test.isAnyNonDefault());
++		test.set((PlayerTypes)3,(DomainTypes)0,3);
++		test.set((PlayerTypes)5,(DomainTypes)0,5);
++		test.set((PlayerTypes)4,(DomainTypes)0,4);
++	}
++	#endif
+ }
+
+diff --git a/CvGameCoreDLL/FDataStreamBase.h b/CvGameCoreDLL/FDataStreamBase.h
+index 649ae2835..1660c8c85 100644
+--- a/CvGameCoreDLL/FDataStreamBase.h
++++ b/CvGameCoreDLL/FDataStreamBase.h
+@@ -215,6 +215,21 @@ public:
+ 	{
+ 		WriteExternal(count, values);
+ 	} // <advc.repro>
++
++	// <advc.enum> for SparseEnumMap(2D)
++	template<class FirstType, class SecondType>
++	void Read(std::pair<FirstType,SecondType>* pPair)
++	{
++		Read(&pPair->first);
++		Read(&pPair->second);
++	}
++
++	template<class FirstType, class SecondType>
++	void Write(std::pair<FirstType,SecondType>& kPair)
++	{
++		Write(kPair.first);
++		Write(kPair.second);
++	} // </advc.enum>
+ };
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index a117dc8d8..382a96c58 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -5,8 +5,8 @@
+ 
+ // advc.fract: Header-only class template for fixed-point fractional numbers
+ 
+-#include "FixedPointPowTables.h" // Large lookup table, but ScaledNum.h gets precompiled.
+ #include "TypeChoice.h"
++#include "FixedPointPowTables.h" // Large lookup table, but ScaledNum.h gets precompiled.
+ /*	Other non-BtS dependencies: intdiv::round, fmath::round, intHash, all in CvGameCoreUtils.h.
+ 	(Tbd.: Move those functions here?)
+ 	For inclusion in PCH, one may have to define NOMINMAX before including windows.h;
+
+diff --git a/CvGameCoreDLL/cpp.hint b/CvGameCoreDLL/cpp.hint
+index 018d16b6f..83101f1cf 100644
+--- a/CvGameCoreDLL/cpp.hint
++++ b/CvGameCoreDLL/cpp.hint
+@@ -28,6 +28,7 @@
+ 
+ #define FOR_EACH_NON_DEFAULT_INFO_PAIR(kEnumMapSeq, EnumPrefix, ValueType)
+ #define FOR_EACH_NON_DEFAULT_ENUM(kEnumMapSeq, EnumPrefix)
++#define FOR_EACH_NON_DEFAULT_PAIR(kEnumMap, EnumPrefix, ValueType)
+ 
+ #define FOR_EACH_UNIT_IN(pUnit, kUnitListWrapper)
+ #define FOR_EACH_UNITAI_IN(pUnit, kUnitListWrapper)
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=25730

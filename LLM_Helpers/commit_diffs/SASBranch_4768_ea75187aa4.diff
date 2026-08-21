@@ -1,0 +1,323 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4768
+# Commit: ea75187aa49cfc5334737d432b9e5a3f829f3264
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f551d27b34b4e0b394744ff3f857076b1978653f
+# Title: rename _IVORY to _ELEPHANTS, same as what was done much earlier for xml asset txtkey only renaming in the past, now generalized as should have been, and mayb...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/EntryPoints/CvRandomEventInterface.py
+1	1	Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+3	3	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/Events/CIV4EventInfos.xml
+4	4	Assets/XML/Terrain/CIV4BonusInfos.xml
+1	1	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+1	1	Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+1	1	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+5	1	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+2	2	Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+2	2	Assets/XML/Units/CIV4UnitInfos.xml
+2	2	Settings/CustomDomAdv/CustomDomAdv.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ger.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ita.txt
+2	2	Settings/CustomDomAdv/WS_CustomDomAdv.txt
+
+[PATCHES]
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index 58d9dc7ba..f819bd72b 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -555,7 +555,7 @@ def canTriggerBrothersInNeed(argsList):
+ 	listResources.append(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_COPPER'))
+ 	listResources.append(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_IRON'))
+ 	listResources.append(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_HORSE'))
+-	listResources.append(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_IVORY'))
++	listResources.append(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_ELEPHANTS'))
+ 	listResources.append(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_OIL'))
+ 	listResources.append(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_URANIUM'))
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Bonus.xml b/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+index 1517d6ec5..c1b3d8192 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+@@ -142,7 +142,7 @@ and then modified or not for AdvCiv-SAS anyways etc
+ 			<FontButtonIndex>24</FontButtonIndex>
+ 		</BonusArtInfo>
+ 		<BonusArtInfo>
+-			<Type>ART_DEF_BONUS_IVORY</Type>
++			<Type>ART_DEF_BONUS_ELEPHANTS</Type>
+ 			<fScale>1.0</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<NIF>Art/Terrain/Resources/Elephant/Elephant.nif</NIF>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 238cd1825..4d9620111 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -12181,7 +12181,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 					<iHappinessChange>1</iHappinessChange>
+ 				</BonusHappinessChange>
+ 				<BonusHappinessChange>
+-					<BonusType>BONUS_IVORY</BonusType>
++					<BonusType>BONUS_ELEPHANTS</BonusType>
+ 					<iHappinessChange>1</iHappinessChange>
+ 				</BonusHappinessChange>
+ 				<BonusHappinessChange>
+@@ -12376,7 +12376,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 					<iHappinessChange>1</iHappinessChange>
+ 				</BonusHappinessChange>
+ 				<BonusHappinessChange>
+-					<BonusType>BONUS_IVORY</BonusType>
++					<BonusType>BONUS_ELEPHANTS</BonusType>
+ 					<iHappinessChange>1</iHappinessChange>
+ 				</BonusHappinessChange>
+ 				<BonusHappinessChange>
+@@ -28158,7 +28158,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<BonusHappinessChanges/>
+ 			<BonusProductionModifiers>
+ 				<BonusProductionModifier>
+-					<BonusType>BONUS_IVORY</BonusType>
++					<BonusType>BONUS_ELEPHANTS</BonusType>
+ 					<iProductonModifier>100</iProductonModifier>
+ 				</BonusProductionModifier>
+ 			</BonusProductionModifiers>
+
+diff --git a/Assets/XML/Events/CIV4EventInfos.xml b/Assets/XML/Events/CIV4EventInfos.xml
+index 0c631eb63..435dc490c 100644
+--- a/Assets/XML/Events/CIV4EventInfos.xml
++++ b/Assets/XML/Events/CIV4EventInfos.xml
+@@ -6182,7 +6182,7 @@
+ 			<RouteType>NONE</RouteType>
+ 			<iRouteChange>0</iRouteChange>
+ 			<BonusRevealed>NONE</BonusRevealed>
+-			<BonusGift>BONUS_IVORY</BonusGift>
++			<BonusGift>BONUS_ELEPHANTS</BonusGift>
+ 			<PlotExtraYields/>
+ 			<iConvertOwnCities>0</iConvertOwnCities>
+ 			<iConvertOtherCities>0</iConvertOtherCities>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index c70651a4b..03e5b3b00 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -1500,11 +1500,11 @@
+ 			<FeatureTerrainBooleans/>
+ 		</BonusInfo>
+ 		<BonusInfo>
+-			<Type>BONUS_IVORY</Type>
+-			<Description>TXT_KEY_BONUS_IVORY</Description>
+-			<Civilopedia>TXT_KEY_BONUS_IVORY_PEDIA</Civilopedia>
++			<Type>BONUS_ELEPHANTS</Type>
++			<Description>TXT_KEY_BONUS_ELEPHANTS</Description>
++			<Civilopedia>TXT_KEY_BONUS_ELEPHANTS_PEDIA</Civilopedia>
+ 			<BonusClassType>BONUSCLASS_GENERAL</BonusClassType>
+-			<ArtDefineTag>ART_DEF_BONUS_IVORY</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BONUS_ELEPHANTS</ArtDefineTag>
+ 			<TechReveal>NONE</TechReveal>
+ 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
+ 			<TechObsolete>TECH_INDUSTRIALISM</TechObsolete>
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index 3cedc4652..6d7ccad2e 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -1127,7 +1127,7 @@
+ 					</YieldChanges>
+ 				</BonusTypeStruct>
+ 				<BonusTypeStruct>
+-					<BonusType>BONUS_IVORY</BonusType>
++					<BonusType>BONUS_ELEPHANTS</BonusType>
+ 					<bBonusMakesValid>1</bBonusMakesValid>
+ 					<bBonusTrade>1</bBonusTrade>
+ 					<iDiscoverRand>0</iDiscoverRand>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+index c39a91aea..68adc4603 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+@@ -121,7 +121,7 @@
+ 
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR</Tag>
+-		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, please visit:[NEWLINE]- if online, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there (also appended/included as a text .md file in AdvCiv-SAS). If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this pull request compare: https://github.com/wonderingabout/AdvCiv-SAS/pull/13 . Be warned though it can be very lengthy, so read rather the quick start guide mentionned above preferably for the shorter and less exhaustive version if you'd prefer.[NEWLINE]- if offline: you can also view most (almost all) of the information above by navigating the docs in your AdvCiv-SAS folder (for example if you have the Steam version of the game,it would be here (else adapt to where your civ4 and advciv-sas install paths are): "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\"), and opening them with a text editor (i recommend Notepad++, but the default Windows Notepad.exe can also open .txt and .md files too just with less display features (but still all info unless i'm mistaken anyways)).[NEWLINE][NEWLINE][BOLD]Translations[\BOLD][NEWLINE]- For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. If your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry in Mods\AdvCiv-SAS\Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml[NEWLINE][NEWLINE][BOLD]Sevopedia[\BOLD][NEWLINE]- New feature in sevopedia leader: AI Personality Panels, that aim to represent each Leader's behavorial tendencies and preferences quite exhaustively, and their ranking of such tendencies vs what other leaders ((would) tend to do) anyways, as represented in their XML data, see for example [LINK=LEADER_GANDHI]Gandhi's leader page for example[\LINK]. Extensive documentation has been written as well to help you navigate these and understand how they work. Please read for more details the general introduction to such documents(ation(s?)) in Mods Info [LINK=CONCEPT_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO].4_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO[\LINK][NEWLINE]- Cleanup or adding more features in other Sevopedia categories, such as SevopediaReligion (add Leaders panel (based on History Rewritten's code (modified for AdvCiv-SAS)) and Buildings panel too (based on RFC DOC's code modified for AdvCiv-SAS too anyways etc)), or the SevopediaLeader in general (reordered the size and position of the other panels in SevopediaLeader with or not with other mods's code, or/and other Sevopedia Categories too).[NEWLINE]- Expanded Sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc[NEWLINE]- Reduced main categories width from approxiamtely 200px to 120px approximately, this quite greatly increases the space of the Sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.[NEWLINE]- Added a few or many or at least some wikipedia real entries or from some other source (see code comments or/and docs for the info if it is, but as a general rule unless specified otherwise most if not all but at least most pedia type of content comes from wikipedia and generally in english (version of it(i.e. of wikipedia)), thanks wikipedia, anyways etc, for example the [LINK=RELIGION_BUDDHISM]Buddhism[\LINK][NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/ [NEWLINE]- Renamed [LINK=TERRAIN_SNOW]"Ice" (Terrain) to "Ice Sheet"[\LINK], and [LINK=FEATURE_ICE]"Ice" (Feature) to "Ice Cap"[\LINK], hopefully clearer and more accurate, see their Sevopedia entries for details.[NEWLINE]- Renamed [LINK=BONUS_COW]"Cow" (Ressource) to "Cattle"[\LINK], and renamed [LINK=BONUS_IVORY]"Ivory" (Ressource) to "Elephants"[\LINK], hopefully clearer and more accurate (and immersive maybe), see the Sevopedia entry for details.[NEWLINE]- Renamed Religion "Taoism" to "Daoism" and all related entires (units, buildings, descriptions/history, etc), see the Sevopedia page for details or example(s) [LINK=RELIGION_DAOISM]"Daoism"[\LINK] or project/mod docs for more details[NEWLINE]- Renamed "Ressource" to "Bonus" for shorter Sevopedia category width, but also perhaps a good opportunity to match code name and game name maybe at least is how i would want to do it an AdvCiv-SAS if hopefully fine as in functionning well anyways etc.[NEWLINE]- Renamed "great wonders" to "world wonders", but functionally the exact same if i am not mistaken, i hope it is clearer, more intutiive, and in line with "world project", hinting more strongly at the fact that only one is possible in the entire world if i am not mistaken, anyways etc.[NEWLINE][NEWLINE][BOLD]Rules[\BOLD][NEWLINE]- All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details (too anyways etc(.)) anyways etc... .[NEWLINE]- Air explore units (for example the [LINK=UNIT_AIRSHIP]Dirigible[\LINK] (old airship)) can move through all terrains, including peaks and water tiles.[NEWLINE][NEWLINE][BOLD]Balance (non-exhaustive)[\BOLD][NEWLINE]- Shrines now require to also have the corresponding religion as a prequirement to build them (and not only just the holy city as before, which is still required now), this means for example that if you conquer a holy city that doesn't have a shrine, you can't build the shrine until/unless you have the matching religion if i am not mistaken (for example to build the [LINK=BUILDING_DAOIST_SHRINE]Daoist Shrine (Currently named "The Dai Miao" as of now (i.e. (as of?) me writing this (sevopedia) doc) anyways etc)[\LINK] you need to have the [LINK=RELIGION_DAOISM]"Daoism"[\LINK] religion too. This allows to display shrines in sevopedia and perhaps also makes more sense in terms of gameplay if it doesn't create issues hopefully, trying it to see anyways etc, see sevopedia entries or/and project/mod docs for details[NEWLINE]- Removed religion "confucianism", added [LINK=RELIGION_PAGANISM]religion "paganism"[\LINK], more popular and relevant for civ4 maybe as many leaders were religious if i am not mistaken but with no religion, see notes_about_religious_design.txt for details in the docs online on github or(/and(anyways etc)) offline in this project files too for details[NEWLINE]- Fixed and ajusted many religious inaccuracies of favourite religions, at least those i spotted with (being) certainty (certain enough) maybe anwyas etc (or not or/and other or/and not anways etc), for example frederick the great was agnostic not christian, brennus more leaning non religous than pagan (not inaccurate since paganism didn't exist but may fix other xml related fields or maybe not such as religion preference or not anwyays etc), and genghis khan, while tengrist something and not strictly daoist, expressed or/and showed(?) a strong respect(/liking?) for (a(/the?)) daoist leader, so his favourite religion can be assessed to be daoism, especially if he had to choose between civ4 only religions, here being none or daoism, he leans more strongly -much mroe if i am not mistake but anyways etc) towrds daoism), so a leader can have a favourite religion without it being their religion of themselves, see notes mentionned above for details, and this is all if i am not mistaken, but (i thnk)(and hope but anyways etc) if this is (and i was) accurate enouh (but anyways etc) hopefuly accurate enough and (much maybe(?) maybe or not or/and other or not anyways etc) accurate now hopefully maybe or not or/and other or/and not (but) anwyays etc[NEWLINE]- Barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will gradually fade. They should also spawn cities more often and be relevant longer in the game, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details ingame or/and the XML for example for the Steam version of the game (adjust to where your AdvCiv-SAS mod is if path is different or/and you don't use the Steam version of the game) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such.[NEWLINE][NEWLINE][BOLD]Fixes[\BOLD][NEWLINE]- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob were pleased(110) / pleased(115) instead of (seemingly how should be if i am not mistaken anyways etc) pleased(110) / friendly(115)[NEWLINE]- (Seemingly now) Fixed a bug in base AdvCiv/Civ4 where barbarians could build shwedagon paya or mausolleum of mausollos for example (maybe other wonders too, and national wonders too like moai and hermitage etc) as happened in auto play, sometimes even completing them, by using iBuildUnitProb 100 or a similar high value (was 0 in base AdvCiv code or/and civ4 code anyways etc but anyways etc), seems to be extremely effective, testing more to be sure. Note: I had(have? Anyways etc) tried other approaches like iWonderConstructRand -9999 on LEADER_BARBARIAN in leader head infos xml file, or FLAVOR_MILITARY 10 but did not work at all it seems. I also removed all old logic of buildingclass NONE that seemed to not have any effect on wonder building whether it was here (national wonders) or not (removed it for world wonders, but sitll exact same results it seems of wonders being built, sometimes completed even anyways etc), maybe such barbarian wonder building behaviour/tendency/possibility was just suppressed because barbarians did not grow fast enough to support as in encourage as in do wonder building (activites) anyways etc, but now that they grow fast enough at human and other player's pace, they can make wonders or attempt to, which "derails" from their original warmongering goal and intent in AdvCiv-SAS but anyways, so refraining them from doing it, anyways etc anyways etc...</English>
++		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, please visit:[NEWLINE]- if online, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there (also appended/included as a text .md file in AdvCiv-SAS). If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this pull request compare: https://github.com/wonderingabout/AdvCiv-SAS/pull/13 . Be warned though it can be very lengthy, so read rather the quick start guide mentionned above preferably for the shorter and less exhaustive version if you'd prefer.[NEWLINE]- if offline: you can also view most (almost all) of the information above by navigating the docs in your AdvCiv-SAS folder (for example if you have the Steam version of the game,it would be here (else adapt to where your civ4 and advciv-sas install paths are): "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\"), and opening them with a text editor (i recommend Notepad++, but the default Windows Notepad.exe can also open .txt and .md files too just with less display features (but still all info unless i'm mistaken anyways)).[NEWLINE][NEWLINE][BOLD]Translations[\BOLD][NEWLINE]- For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. If your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry in Mods\AdvCiv-SAS\Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml[NEWLINE][NEWLINE][BOLD]Sevopedia[\BOLD][NEWLINE]- New feature in sevopedia leader: AI Personality Panels, that aim to represent each Leader's behavorial tendencies and preferences quite exhaustively, and their ranking of such tendencies vs what other leaders ((would) tend to do) anyways, as represented in their XML data, see for example [LINK=LEADER_GANDHI]Gandhi's leader page for example[\LINK]. Extensive documentation has been written as well to help you navigate these and understand how they work. Please read for more details the general introduction to such documents(ation(s?)) in Mods Info [LINK=CONCEPT_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO].4_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO[\LINK][NEWLINE]- Cleanup or adding more features in other Sevopedia categories, such as SevopediaReligion (add Leaders panel (based on History Rewritten's code (modified for AdvCiv-SAS)) and Buildings panel too (based on RFC DOC's code modified for AdvCiv-SAS too anyways etc)), or the SevopediaLeader in general (reordered the size and position of the other panels in SevopediaLeader with or not with other mods's code, or/and other Sevopedia Categories too).[NEWLINE]- Expanded Sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc[NEWLINE]- Reduced main categories width from approxiamtely 200px to 120px approximately, this quite greatly increases the space of the Sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.[NEWLINE]- Added a few or many or at least some wikipedia real entries or from some other source (see code comments or/and docs for the info if it is, but as a general rule unless specified otherwise most if not all but at least most pedia type of content comes from wikipedia and generally in english (version of it(i.e. of wikipedia)), thanks wikipedia, anyways etc, for example the [LINK=RELIGION_BUDDHISM]Buddhism[\LINK][NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/ [NEWLINE]- Renamed [LINK=TERRAIN_SNOW]"Ice" (Terrain) to "Ice Sheet"[\LINK], and [LINK=FEATURE_ICE]"Ice" (Feature) to "Ice Cap"[\LINK], hopefully clearer and more accurate, see their Sevopedia entries for details.[NEWLINE]- Renamed [LINK=BONUS_COW]"Cow" (Ressource) to "Cattle"[\LINK], and renamed [LINK=BONUS_ELEPHANTS]"Ivory" (Ressource) to "Elephants"[\LINK], hopefully clearer and more accurate (and immersive maybe), see the Sevopedia entry for details.[NEWLINE]- Renamed Religion "Taoism" to "Daoism" and all related entires (units, buildings, descriptions/history, etc), see the Sevopedia page for details or example(s) [LINK=RELIGION_DAOISM]"Daoism"[\LINK] or project/mod docs for more details[NEWLINE]- Renamed "Ressource" to "Bonus" for shorter Sevopedia category width, but also perhaps a good opportunity to match code name and game name maybe at least is how i would want to do it an AdvCiv-SAS if hopefully fine as in functionning well anyways etc.[NEWLINE]- Renamed "great wonders" to "world wonders", but functionally the exact same if i am not mistaken, i hope it is clearer, more intutiive, and in line with "world project", hinting more strongly at the fact that only one is possible in the entire world if i am not mistaken, anyways etc.[NEWLINE][NEWLINE][BOLD]Rules[\BOLD][NEWLINE]- All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details (too anyways etc(.)) anyways etc... .[NEWLINE]- Air explore units (for example the [LINK=UNIT_AIRSHIP]Dirigible[\LINK] (old airship)) can move through all terrains, including peaks and water tiles.[NEWLINE][NEWLINE][BOLD]Balance (non-exhaustive)[\BOLD][NEWLINE]- Shrines now require to also have the corresponding religion as a prequirement to build them (and not only just the holy city as before, which is still required now), this means for example that if you conquer a holy city that doesn't have a shrine, you can't build the shrine until/unless you have the matching religion if i am not mistaken (for example to build the [LINK=BUILDING_DAOIST_SHRINE]Daoist Shrine (Currently named "The Dai Miao" as of now (i.e. (as of?) me writing this (sevopedia) doc) anyways etc)[\LINK] you need to have the [LINK=RELIGION_DAOISM]"Daoism"[\LINK] religion too. This allows to display shrines in sevopedia and perhaps also makes more sense in terms of gameplay if it doesn't create issues hopefully, trying it to see anyways etc, see sevopedia entries or/and project/mod docs for details[NEWLINE]- Removed religion "confucianism", added [LINK=RELIGION_PAGANISM]religion "paganism"[\LINK], more popular and relevant for civ4 maybe as many leaders were religious if i am not mistaken but with no religion, see notes_about_religious_design.txt for details in the docs online on github or(/and(anyways etc)) offline in this project files too for details[NEWLINE]- Fixed and ajusted many religious inaccuracies of favourite religions, at least those i spotted with (being) certainty (certain enough) maybe anwyas etc (or not or/and other or/and not anways etc), for example frederick the great was agnostic not christian, brennus more leaning non religous than pagan (not inaccurate since paganism didn't exist but may fix other xml related fields or maybe not such as religion preference or not anwyays etc), and genghis khan, while tengrist something and not strictly daoist, expressed or/and showed(?) a strong respect(/liking?) for (a(/the?)) daoist leader, so his favourite religion can be assessed to be daoism, especially if he had to choose between civ4 only religions, here being none or daoism, he leans more strongly -much mroe if i am not mistake but anyways etc) towrds daoism), so a leader can have a favourite religion without it being their religion of themselves, see notes mentionned above for details, and this is all if i am not mistaken, but (i thnk)(and hope but anyways etc) if this is (and i was) accurate enouh (but anyways etc) hopefuly accurate enough and (much maybe(?) maybe or not or/and other or not anyways etc) accurate now hopefully maybe or not or/and other or/and not (but) anwyays etc[NEWLINE]- Barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will gradually fade. They should also spawn cities more often and be relevant longer in the game, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details ingame or/and the XML for example for the Steam version of the game (adjust to where your AdvCiv-SAS mod is if path is different or/and you don't use the Steam version of the game) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such.[NEWLINE][NEWLINE][BOLD]Fixes[\BOLD][NEWLINE]- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob were pleased(110) / pleased(115) instead of (seemingly how should be if i am not mistaken anyways etc) pleased(110) / friendly(115)[NEWLINE]- (Seemingly now) Fixed a bug in base AdvCiv/Civ4 where barbarians could build shwedagon paya or mausolleum of mausollos for example (maybe other wonders too, and national wonders too like moai and hermitage etc) as happened in auto play, sometimes even completing them, by using iBuildUnitProb 100 or a similar high value (was 0 in base AdvCiv code or/and civ4 code anyways etc but anyways etc), seems to be extremely effective, testing more to be sure. Note: I had(have? Anyways etc) tried other approaches like iWonderConstructRand -9999 on LEADER_BARBARIAN in leader head infos xml file, or FLAVOR_MILITARY 10 but did not work at all it seems. I also removed all old logic of buildingclass NONE that seemed to not have any effect on wonder building whether it was here (national wonders) or not (removed it for world wonders, but sitll exact same results it seems of wonders being built, sometimes completed even anyways etc), maybe such barbarian wonder building behaviour/tendency/possibility was just suppressed because barbarians did not grow fast enough to support as in encourage as in do wonder building (activites) anyways etc, but now that they grow fast enough at human and other player's pace, they can make wonders or attempt to, which "derails" from their original warmongering goal and intent in AdvCiv-SAS but anyways, so refraining them from doing it, anyways etc anyways etc...</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index c44b44ba1..c48706a0e 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -115,7 +115,7 @@
+ 	prefer this version, anyways.
+ 	-->
+ 	<TEXT>
+-		<Tag>TXT_KEY_BONUS_IVORY</Tag>
++		<Tag>TXT_KEY_BONUS_ELEPHANTS</Tag>
+ 		<English>Elephants</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 955b60e50..b2608fbb4 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -18,11 +18,15 @@
+ 
+ 
+ 	<!-- custom: taken from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Bonuses.xml (for languages we chose or didn't choose see AdvCiv-SAS core doc for details), description not changed otherwise as it correctly at least matching our new name so no change needed maybe fine as is or not or yes or other and or not and other or etc or other anyways etc -->
++	<!-- custom: similarly done (in order?) for(/to?) renaming(rename?) _IVORY to _ELEPHANTS anyways etc anyways etc anyways etc... -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BONUS_GEMSTONES_PEDIA</Tag>
+ 		<English>[TAB]Gemstones, treasured throughout time for their beauty and value, have always been a sought-after commodity. Most gemstones, such as diamonds, are mined in various areas throughout the world, most notably Africa. Some of the most notable gem deposits, however, have been found in archeological digs. The ruins of ancient civilizations in the jungles of Central and South America have sometimes been found to hide large quantities of precious and semi-precious gems, as well as gold and other items of value. The discovery of such a site can lead to an increase in trade in the areas surrounding the dig, as both professional and amateur treasure hunters swarm to the region to seek their fortune.</English>
+ 	</TEXT>
+-
++	<TEXT>
++		<Tag>TXT_KEY_BONUS_ELEPHANTS_PEDIA</Tag>
++		<English>[TAB]Elephants are the largest living land mammals. At birth it is common for an elephant calf to weigh 225 pounds! In the wild, elephants exhibit complex social behavior and strong family bonds. Social hierarchy in calf-cow groups is based on size and age, with the largest and oldest at the top and the smallest and youngest last. Adolescent males determine their own ranking order through jousting contests using head and tusks. Elephants communicate with very low and long ranging subsonic tones. [PARAGRAPH:1]Elephant taming began in the Indus valley around 4000 years ago. The first military application of elephants dates from around 1100 BC and is mentioned in several Sanskrit hymns. From the east, war elephants migrated to the Persian Empire where they stood against Alexander the Great at the battle of Gaugamela. Though they did not play a significant role in the battle, Alexander saw their usefulness and began incorporating them into his army. Later the use spread throughout Europe and elephants were used in such famous campaigns as the Macedonian wars and by Hannibal during the Second Punic War.</English>
++	</TEXT>
+ 
+ 
+ 	<!-- custom: adding/using rather/instead a modified version of the animal concept txt key, for the sevopedia unit ('s) history panel('s text), removing the H1, and adding info about how animals can't/cannot anyways etc anyways etc anyways etc be built by any civ, including barbarians if i am not mistaken, and how our new placeExclusiveCivs "Civlizations:" "All" line is not incorrect, just animals are not restricted to any specific civ, but due to some other reasons, while there is no such restriction, no civ can build any animal unit though, so we represent the xml accurately while also explaining it hopefully well or not or yes or and other or and not or yes or and other or and not but anyways etc.
+
+diff --git a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+index e7113f57f..1732c1a6f 100644
+--- a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
++++ b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+@@ -813,8 +813,8 @@
+ 			</EncouragedCivs>
+ 		</TruBonusInfo>
+ 		<TruBonusInfo>
+-			<Type>TRU_IVORY</Type>
+-			<BonusType>BONUS_IVORY</BonusType>
++			<Type>TRU_ELEPHANTS</Type>
++			<BonusType>BONUS_ELEPHANTS</BonusType>
+ 			<DiscouragedRegions>
+ 				<DiscouragedRegion>
+ 					<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 393718efc..7113e739c 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -15477,7 +15477,7 @@ then adjust maybe anyways):
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>BONUS_IVORY</BonusType>
++			<BonusType>BONUS_ELEPHANTS</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+@@ -15667,7 +15667,7 @@ then adjust maybe anyways):
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>BONUS_IVORY</BonusType>
++			<BonusType>BONUS_ELEPHANTS</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv.txt b/Settings/CustomDomAdv/CustomDomAdv.txt
+index c007d3833..5344b4630 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv.txt
+@@ -2576,7 +2576,7 @@ p1027
+ I24
+ g969
+ tp1028
+-a(S'HAS_BONUS_IVORY'
++a(S'HAS_BONUS_ELEPHANTS'
+ p1029
+ I24
+ g969
+@@ -2733,7 +2733,7 @@ p1085
+ I60
+ g910
+ tp1086
+-a(S'BONUS_IVORY'
++a(S'BONUS_ELEPHANTS'
+ p1087
+ I60
+ g910
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ger.txt b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+index 63c6afe6f..8f38b751f 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ger.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+@@ -2576,7 +2576,7 @@ p1027
+ I24
+ g969
+ tp1028
+-a(S'HAS_BONUS_IVORY'
++a(S'HAS_BONUS_ELEPHANTS'
+ p1029
+ I24
+ g969
+@@ -2733,7 +2733,7 @@ p1085
+ I60
+ g910
+ tp1086
+-a(S'BONUS_IVORY'
++a(S'BONUS_ELEPHANTS'
+ p1087
+ I60
+ g910
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ita.txt b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+index 11e44d4cf..3ec527277 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ita.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+@@ -2320,7 +2320,7 @@ p930
+ I24
+ g872
+ tp931
+-a(S'HAS_BONUS_IVORY'
++a(S'HAS_BONUS_ELEPHANTS'
+ p932
+ I24
+ g872
+@@ -2484,7 +2484,7 @@ p989
+ I40
+ g816
+ tp990
+-a(S'BONUS_IVORY'
++a(S'BONUS_ELEPHANTS'
+ p991
+ I40
+ g816
+
+diff --git a/Settings/CustomDomAdv/WS_CustomDomAdv.txt b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+index 98372bac2..e7c336c4e 100644
+--- a/Settings/CustomDomAdv/WS_CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+@@ -2434,7 +2434,7 @@ p966
+ I24
+ g908
+ tp967
+-a(S'HAS_BONUS_IVORY'
++a(S'HAS_BONUS_ELEPHANTS'
+ p968
+ I24
+ g908
+@@ -2599,7 +2599,7 @@ p1026
+ I45
+ g849
+ tp1027
+-a(S'BONUS_IVORY'
++a(S'BONUS_ELEPHANTS'
+ p1028
+ I45
+ g849
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=39471

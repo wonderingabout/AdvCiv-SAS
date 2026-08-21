@@ -1,0 +1,288 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6124
+# Commit: 234f87f13c4d7c23411c83faa13186f4f5bc7823
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 574e50ba532286ada297fca3a49a9af375c1bcc5
+# Title: Make production overflow information more compact in SASGameRecord while preserving details
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+34	14	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCity.h
+1	1	CvGameCoreDLL/CvEventReporter.cpp
+19	10	CvGameCoreDLL/SASGameRecordLog.cpp
+4	4	CvGameCoreDLL/SASGameRecordLog.h
+98859	108485	_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 7fb08481a..849725faf 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10517,6 +10517,13 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
+ 	int iMaxedBuildingOrProject = NO_BUILDING; // advc.123f
+ 
+ 	OrderTypes eOrderType = pOrderNode->m_data.eOrderType;
++	// <!-- custom: Reuse handleOverflow's exact gameplay result on the corresponding level-3 production-completion row instead of emitting a second routine overflow row. These stay zero when there is no positive overflow. (ChatGPT-5.6-Sol) -->
++	int iRawModifiedOverflow = 0;
++	int iUnmodifiedOverflow = 0;
++	int iKeptOverflow = 0;
++	int iLostOverflowProduction = 0;
++	int iUnusedOverflowCapacity = 0;
++	int iOverflowGold = 0;
+ 	switch(eOrderType)
+ 	{
+ 	case ORDER_TRAIN:
+@@ -10525,8 +10532,7 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
+ 		/*	<advc.064b> Moved into new function, and moved up to ensure that the
+ 			next order isn't already being produced when calculating production
+ 			modifiers for the overflow cap. */
+-		handleOverflow(getUnitProduction(eTrainUnit) - getProductionNeeded(eTrainUnit),
+-				getProductionModifier(eTrainUnit), eOrderType); // </advc.064b>
++		handleOverflow(getUnitProduction(eTrainUnit) - getProductionNeeded(eTrainUnit), getProductionModifier(eTrainUnit), eOrderType, &iRawModifiedOverflow, &iUnmodifiedOverflow, &iKeptOverflow, &iLostOverflowProduction, &iUnusedOverflowCapacity, &iOverflowGold); // </advc.064b>
+ 		UnitAITypes eTrainAIUnit = (UnitAITypes)pOrderNode->m_data.iData2;
+ 		FAssert(eTrainUnit != NO_UNIT);
+ 		FAssert(eTrainAIUnit != NO_UNITAI);
+@@ -10548,8 +10554,8 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
+ 		CvUnit* pUnit = kOwner.initUnit(eTrainUnit, getX(), getY(), eTrainAIUnit);
+ 		pUnit->finishMoves();
+ 		addProductionExperience(pUnit);
+-		// <!-- custom: Record completion before air-capacity relocation because a produced air unit with no valid destination can be destroyed below before the ordinary unitBuilt event fires. (GPT-5.6-Sol) -->
+-		if (gGameRecordLogLevel >= 2) logSASGameRecordUnitCompleted(this, pUnit, false);
++		// <!-- custom: Record completion before air-capacity relocation. A produced air unit with no valid destination can be destroyed below before the ordinary unitBuilt event fires. (GPT-5.6-Sol) -->
++		if (gGameRecordLogLevel >= 2) logSASGameRecordUnitCompleted(this, pUnit, false, iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostOverflowProduction, iUnusedOverflowCapacity, iOverflowGold);
+ 		CvPlot* pRallyPlot = getRallyPlot(); // (advc.001b: moved up)
+ 		if (GC.getInfo(eTrainUnit).getDomainType() == DOMAIN_AIR &&
+ 			getPlot().countNumAirUnits(getTeam()) > getAirUnitCapacity(getTeam()))
+@@ -10595,9 +10601,7 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
+ 	{
+ 		eConstructBuilding = (BuildingTypes)pOrderNode->m_data.iData1;
+ 		// <advc.064b> Moved into new function (and moved up)
+-		handleOverflow(getBuildingProduction(eConstructBuilding) -
+-				getProductionNeeded(eConstructBuilding),
+-				getProductionModifier(eConstructBuilding), eOrderType);
++		handleOverflow(getBuildingProduction(eConstructBuilding) - getProductionNeeded(eConstructBuilding), getProductionModifier(eConstructBuilding), eOrderType, &iRawModifiedOverflow, &iUnmodifiedOverflow, &iKeptOverflow, &iLostOverflowProduction, &iUnusedOverflowCapacity, &iOverflowGold);
+ 		// </advc.064b>
+ 		BuildingClassTypes eBuildingClass = GC.getInfo(eConstructBuilding).getBuildingClassType();
+ 		kOwner.changeBuildingClassMaking(eBuildingClass, -1);
+@@ -10624,7 +10628,7 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
+ 			iMaxedBuildingOrProject = eConstructBuilding;
+ 		} // </advc.123f>
+ 		// <!-- custom: buildingBuilt also fires when a unit constructs a building without city production. Aggregate production completions here, where ORDER_CONSTRUCT proves that the city spent its production. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+-		if (gGameRecordLogLevel >= 2) logSASGameRecordBuildingCompletedByProduction(this, eConstructBuilding);
++		if (gGameRecordLogLevel >= 2) logSASGameRecordBuildingCompletedByProduction(this, eConstructBuilding, iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostOverflowProduction, iUnusedOverflowCapacity, iOverflowGold);
+ 		CvEventReporter::getInstance().buildingBuilt(this, eConstructBuilding);
+ 		if (gCityLogLevel >= 1) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ 			logBBAI("    City %S finishes production of building %S", getName().GetCString(), GC.getInfo(eConstructBuilding).getDescription());
+@@ -10634,9 +10638,7 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
+ 	{
+ 		eCreateProject = (ProjectTypes)pOrderNode->m_data.iData1;
+ 		// <advc.064b> Moved into new function (and moved up)
+-		handleOverflow(getProjectProduction(eCreateProject) -
+-				getProductionNeeded(eCreateProject),
+-				getProductionModifier(eCreateProject), eOrderType);
++		handleOverflow(getProjectProduction(eCreateProject) - getProductionNeeded(eCreateProject), getProductionModifier(eCreateProject), eOrderType, &iRawModifiedOverflow, &iUnmodifiedOverflow, &iKeptOverflow, &iLostOverflowProduction, &iUnusedOverflowCapacity, &iOverflowGold);
+ 		// </advc.064b>
+ 		GET_TEAM(getTeam()).changeProjectMaking(eCreateProject, -1);
+ 		doPopOrder(pOrderNode); // advc.064d
+@@ -10644,6 +10646,8 @@ void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, b
+ 			break;
+ 		/*	Event reported to Python before the project is built, so that we can
+ 			show the movie before awarding free techs, for example */
++		// <!-- custom: Record the project here rather than inside CvEventReporter. This keeps the exact overflow calculated above on the same PROJECT_BUILT row. (ChatGPT-5.6-Sol) -->
++		if (gGameRecordLogLevel >= 2) logSASGameRecordProjectBuilt(this, eCreateProject, iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostOverflowProduction, iUnusedOverflowCapacity, iOverflowGold);
+ 		CvEventReporter::getInstance().projectBuilt(this, eCreateProject);
+ 		GET_TEAM(getTeam()).changeProjectCount(eCreateProject, 1);
+ 		if (GC.getInfo(eCreateProject).isSpaceship())
+@@ -13801,8 +13805,14 @@ int CvCity::failGoldPercent(OrderTypes eOrder) const // Fail and overflow gold
+ }
+ 
+ 
+-void CvCity::handleOverflow(int iRawOverflow, int iProductionModifier, OrderTypes eOrderType)
++void CvCity::handleOverflow(int iRawOverflow, int iProductionModifier, OrderTypes eOrderType, int* piRawModifiedOverflow, int* piUnmodifiedOverflow, int* piKeptOverflow, int* piLostProduction, int* piUnusedOverflowCapacity, int* piOverflowGold)
+ {
++	if (piRawModifiedOverflow != NULL) *piRawModifiedOverflow = 0;
++	if (piUnmodifiedOverflow != NULL) *piUnmodifiedOverflow = 0;
++	if (piKeptOverflow != NULL) *piKeptOverflow = 0;
++	if (piLostProduction != NULL) *piLostProduction = 0;
++	if (piUnusedOverflowCapacity != NULL) *piUnusedOverflowCapacity = 0;
++	if (piOverflowGold != NULL) *piOverflowGold = 0;
+ 	if(iRawOverflow < 0) // Can happen through the "+" cheat (Debug mode)
+ 		return;
+ 	FAssert(getOverflowProduction() == 0);
+@@ -13813,8 +13823,18 @@ void CvCity::handleOverflow(int iRawOverflow, int iProductionModifier, OrderType
+ 	if(iOverflow <= 0)
+ 		return;
+ 	setOverflowProduction(iOverflow);
+-	// <!-- custom: Ordinary kept overflow can disappear between periodic city snapshots, so level 2 aggregates it into interval production-flow rows and level 3 also emits each exact action. Production loss or gold remains an exact level-2 action because it is strategically important. The internal signed difference means production lost when positive and unused overflow capacity when negative, so preserve both as separate nonnegative fields. (GPT-5.6-Sol) -->
+-	if (gGameRecordLogLevel >= 2 && (iOverflow > 0 || iLostProduction > 0 || iProductionGold > 0)) logSASGameRecordProductionOverflow(this, iRawOverflow, iOverflow + std::max(0, iLostProduction), iOverflow, std::max(0, iLostProduction), std::max(0, -iLostProduction), iProductionGold);
++	int const iPositiveLostProduction = std::max(0, iLostProduction);
++	int const iUnusedCapacity = std::max(0, -iLostProduction);
++	int const iUnmodifiedOverflow = iOverflow + iPositiveLostProduction;
++	if (piRawModifiedOverflow != NULL) *piRawModifiedOverflow = iRawOverflow;
++	if (piUnmodifiedOverflow != NULL) *piUnmodifiedOverflow = iUnmodifiedOverflow;
++	if (piKeptOverflow != NULL) *piKeptOverflow = iOverflow;
++	if (piLostProduction != NULL) *piLostProduction = iPositiveLostProduction;
++	if (piUnusedOverflowCapacity != NULL) *piUnusedOverflowCapacity = iUnusedCapacity;
++	if (piOverflowGold != NULL) *piOverflowGold = iProductionGold;
++	// <!-- custom: Preserve every civilization overflow in the interval production-flow aggregate. Level 3 carries the same exact values on the corresponding UNIT_COMPLETED/BUILDING_COMPLETED/PROJECT_BUILT row instead of a second routine action. Level 2 still keeps standalone exceptional overflow, and Barbarian overflow because Barbarians have no ordinary production-flow row.
++	// The internal signed difference means production lost when positive and unused overflow capacity when negative, so expose both as separate nonnegative fields. (ChatGPT-5.6-Sol) -->
++	if (gGameRecordLogLevel >= 2) logSASGameRecordProductionOverflow(this, iRawOverflow, iUnmodifiedOverflow, iOverflow, iPositiveLostProduction, iUnusedCapacity, iProductionGold);
+ 	if(iProductionGold > 0 || iLostProduction > 0)
+ 		payOverflowGold(iLostProduction, iProductionGold);
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 14cfba727..a813537ae 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1275,7 +1275,7 @@ protected:
+ 	// advc.123f:
+ 	void failProduction(int iOrderData, int iInvestedProduction, bool bProject = false);
+ 	// <advc.064b>
+-	void handleOverflow(int iRawOverflow, int iProductionModifier, OrderTypes eOrderType);
++	void handleOverflow(int iRawOverflow, int iProductionModifier, OrderTypes eOrderType, int* piRawModifiedOverflow = NULL, int* piUnmodifiedOverflow = NULL, int* piKeptOverflow = NULL, int* piLostProduction = NULL, int* piUnusedOverflowCapacity = NULL, int* piOverflowGold = NULL);
+ 	int failGoldPercent(OrderTypes eOrder) const; // also used by 123f
+ 	void payOverflowGold(int iLostProduction, int iGoldChange);
+ 	int getProductionTurnsLeft(int iProductionNeeded, int iProduction, int iProductionModifier, bool bFoodProduction, int iNum) const;
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index eb4c57f08..49f983822 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -426,7 +426,7 @@ void CvEventReporter::buildingBuilt(CvCity *pCity, BuildingTypes eBuilding)
+ 
+ void CvEventReporter::projectBuilt(CvCity *pCity, ProjectTypes eProject)
+ {
+-	if (gGameRecordLogLevel >= 2) logSASGameRecordProjectBuilt(pCity, eProject);
++	// <!-- custom: SASGameRecord logs production-built projects in CvCity::popOrder so PROJECT_BUILT can carry the exact overflow result; this reporter remains the unchanged Python event path. (ChatGPT-5.6-Sol) -->
+ 	m_kPythonEventMgr.reportProjectBuilt(pCity, eProject);
+ }
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index c89436254..44ae24dad 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -5534,7 +5534,7 @@ void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause)
+ 			pUnit->getX(), pUnit->getY(), pPlot == NULL ? -1 : pPlot->getArea().getID(), pUnit->isCargo(), pUnit->getTransportUnit() == NULL ? -1 : pUnit->getTransportUnit()->getID());
+ }
+ 
+-void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted)
++void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
+ {
+ 	if (pCity == NULL || pUnit == NULL)
+ 		return;
+@@ -5557,8 +5557,9 @@ void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, boo
+ 	}
+ 	if (gGameRecordLogLevel >= 3)
+ 	{
+-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_COMPLETED player=%d cityId=%d city=%S unitId=%d unit=%s unitAI=%s source=%s productionNeeded=%d",
+-			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), bConscripted ? "CONSCRIPT" : "PRODUCTION", iProductionNeeded);
++		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=UNIT_COMPLETED player=%d cityId=%d city=%S unitId=%d unit=%s unitAI=%s source=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
++			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), bConscripted ? "CONSCRIPT" : "PRODUCTION", iProductionNeeded,
++			iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
+ 	}
+ }
+ 
+@@ -5760,7 +5761,7 @@ void logSASGameRecordLastStateReligionChanged(PlayerTypes ePlayer, ReligionTypes
+ 		GC.getGame().getGameTurn(), ePlayer, getSASGameRecordReligionType(eOldReligion), getSASGameRecordReligionType(eNewReligion), getSASGameRecordReligionType(eOldEffectiveReligion), getSASGameRecordReligionType(kPlayer.getStateReligion()), kPlayer.getAnarchyTurns());
+ }
+ 
+-void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, BuildingTypes eBuilding)
++void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, BuildingTypes eBuilding, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
+ {
+ 	if (pCity == NULL || eBuilding == NO_BUILDING)
+ 		return;
+@@ -5770,8 +5771,11 @@ void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, Building
+ 	kFlow.iBuildingsCompleted++;
+ 	kFlow.iBuildingProductionNeeded += iProductionNeeded;
+ 	kFlow.aiBuildingTypes[eBuilding]++;
+-	if (gGameRecordLogLevel >= 3 && !GC.getInfo(eBuilding).isLimited())
+-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BUILDING_COMPLETED player=%d cityId=%d city=%S building=%s productionNeeded=%d", GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding), iProductionNeeded);
++	// <!-- custom: At level 3, also keep production-completed limited buildings here: WONDER_BUILT remains the rare strategic marker, while BUILDING_COMPLETED now owns the exact production/overflow result like units and projects. (ChatGPT-5.6-Sol) -->
++	if (gGameRecordLogLevel >= 3)
++		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BUILDING_COMPLETED player=%d cityId=%d city=%S building=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
++			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding), iProductionNeeded,
++			iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
+ }
+ 
+ void logSASGameRecordBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding)
+@@ -5781,7 +5785,7 @@ void logSASGameRecordBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding)
+ 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=WONDER_BUILT player=%d cityId=%d city=%S building=%s", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordBuildingType(eBuilding));
+ }
+ 
+-void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject)
++void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
+ {
+ 	if (pCity == NULL || eProject == NO_PROJECT)
+ 		return;
+@@ -5791,7 +5795,9 @@ void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject)
+ 	kFlow.iProjectsCompleted++;
+ 	kFlow.iProjectProductionNeeded += iProductionNeeded;
+ 	kFlow.aiProjectTypes[eProject]++;
+-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PROJECT_BUILT player=%d cityId=%d city=%S project=%s productionNeeded=%d", GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProjectType(eProject), iProductionNeeded);
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PROJECT_BUILT player=%d cityId=%d city=%S project=%s productionNeeded=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d",
++		GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProjectType(eProject), iProductionNeeded,
++		iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
+ }
+ 
+ void logSASGameRecordProductionOverflow(CvCity const* pCity, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedCapacity, int iGold)
+@@ -5806,8 +5812,11 @@ void logSASGameRecordProductionOverflow(CvCity const* pCity, int iRawModifiedOve
+ 	kFlow.iLostProduction += iLostProduction;
+ 	kFlow.iUnusedOverflowCapacity += iUnusedCapacity;
+ 	kFlow.iOverflowGold += iGold;
+-	if (gGameRecordLogLevel >= 3 || iLostProduction > 0 || iGold > 0)
+-		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_OVERFLOW player=%d cityId=%d city=%S productionKind=%s production=%s rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d gold=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordCityProductionKind(*pCity), getSASGameRecordCityProductionType(*pCity), iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedCapacity, iGold);
++	// <!-- custom: Level 3 already carries these exact values on the corresponding production-completion row, so avoid a duplicate action.
++	// At level 2, PROJECT_BUILT already owns its exact overflow. Otherwise keep strategically exceptional loss/gold and every Barbarian overflow because ordinary unit/building completion rows and Barbarian production-flow summaries are unavailable there. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
++	if (gGameRecordLogLevel == 2 && !pCity->isProductionProject() && (pCity->isBarbarian() || iLostProduction > 0 || iGold > 0))
++		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_OVERFLOW player=%d cityId=%d city=%S productionKind=%s production=%s rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d gold=%d",
++				GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordCityProductionKind(*pCity), getSASGameRecordCityProductionType(*pCity), iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedCapacity, iGold);
+ }
+ 
+ void logSASGameRecordProductionFailed(CvCity const* pCity, int iOrderData, bool bProject, int iInvestedProduction, int iGold)
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.h b/CvGameCoreDLL/SASGameRecordLog.h
+index 29bc4b15a..d942df772 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.h
++++ b/CvGameCoreDLL/SASGameRecordLog.h
+@@ -41,7 +41,7 @@ void logSASGameRecordEnvironmentTurn(int iPollution, int iSustainabilityThreshol
+ void updateSASGameRecordPlayerTurnState(PlayerTypes ePlayer);
+ // <!-- custom: Fog-spawn call sites pass the explicit Barbarian-unit source; ordinary city production continues through logSASGameRecordUnitCompleted. (GPT-5.6-Sol) -->
+ void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause);
+-void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted);
++void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted, int iRawModifiedOverflow = 0, int iUnmodifiedOverflow = 0, int iKeptOverflow = 0, int iLostProduction = 0, int iUnusedOverflowCapacity = 0, int iOverflowGold = 0);
+ // <!-- custom: Added eCause so the existing TECH_ACQUIRED action can name its explicit source. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+ void logSASGameRecordTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer, TechAcquisitionCause eCause);
+ void logSASGameRecordCityBuilt(CvCity const* pCity);
+@@ -59,10 +59,10 @@ void logSASGameRecordGoldenAgeTurnsChanged(PlayerTypes ePlayer, int iChange, int
+ void logSASGameRecordAnarchy(PlayerTypes ePlayer, bool bStart);
+ void logSASGameRecordCivicChanged(PlayerTypes ePlayer, CivicOptionTypes eCivicOption, CivicTypes eOldCivic, CivicTypes eNewCivic, ReligionTypes eOldEffectiveStateReligion, ReligionTypes eNewEffectiveStateReligion);
+ void logSASGameRecordLastStateReligionChanged(PlayerTypes ePlayer, ReligionTypes eOldReligion, ReligionTypes eNewReligion);
+-void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, BuildingTypes eBuilding);
++void logSASGameRecordBuildingCompletedByProduction(CvCity const* pCity, BuildingTypes eBuilding, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold);
+ void logSASGameRecordBuildingBuilt(CvCity const* pCity, BuildingTypes eBuilding);
+-void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject);
+-// <!-- custom: City snapshots already expose stored overflow. These action hooks preserve the transient completion result: newly kept overflow, production lost to the cap, overflow gold, and wonder/project fail gold. (GPT-5.6-Sol) -->
++void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold);
++// <!-- custom: City snapshots expose stored overflow and interval production-flow rows summarize it. Level-3 production-completion rows additionally preserve the exact overflow result of each completed unit/building/project; the standalone hook remains for aggregation plus lower-level exceptional/Barbarian rows. (ChatGPT-5.6-Sol) -->
+ void logSASGameRecordProductionOverflow(CvCity const* pCity, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedCapacity, int iGold);
+ void logSASGameRecordProductionFailed(CvCity const* pCity, int iOrderData, bool bProject, int iInvestedProduction, int iGold);
+ // <!-- custom: Added the victory type so SASGameRecord can distinguish an actual spaceship launch from ordinary project completion and record its countdown. (GPT-5.6-Sol) -->
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log b/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log reason=known-generated/noisy-history changedLines=207344 bytes=63066871
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=5 omittedFiles=2 embeddedPatchBytes=23439

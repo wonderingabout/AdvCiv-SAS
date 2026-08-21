@@ -1,0 +1,292 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3883
+# Commit: 09dfa610790db75e6ea9c50c8757b74b6154c8de
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f14c7f4b5212f0b50973111bc55ccc55b3db59f0
+# Title: Move Store-Replays-as-BtS XML option to BUG menu
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	Assets/Config/BUG Main Interface.xml
+3	1	Assets/Python/BUG/Tabs/BugSystemOptionsTab.py
+2	18	Assets/XML/GlobalDefines_advc.xml
+12	1	Assets/XML/Text/BUG Main Interface Options.xml
+63	29	CvGameCoreDLL/CvReplayInfo.cpp
+1	1	CvGameCoreDLL/CvReplayInfo.h
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index 4f155acee..72e4bc8cd 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -30,6 +30,10 @@
+ 					type="boolean" default="False"
+ 					get="isShowOptionsButton" set="setShowOptionsButton"/>
+ 
++			<!-- advc.106i -->
++			<option id="ModNameInReplays" key="Mod Name In Replays" 
++					type="boolean" default="True" />
++					
+ 			<!-- advc.106b -->
+ 			<option id="AutoOpenEventLog" key="Auto Open Event Log" 
+ 					type="boolean" default="False"
+
+diff --git a/Assets/Python/BUG/Tabs/BugSystemOptionsTab.py b/Assets/Python/BUG/Tabs/BugSystemOptionsTab.py
+index 5c128b07d..e0fedaa23 100644
+--- a/Assets/Python/BUG/Tabs/BugSystemOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugSystemOptionsTab.py
+@@ -21,10 +21,12 @@ class BugSystemOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		panel = self.createMainPanel(screen)
+ 		column = self.addOneColumnLayout(screen, panel)
+ 
+-		left, right = self.addTwoColumnLayout(screen, column, "Bottom", False)
++		# advc.106i: center column added
++		left, center, right = self.addThreeColumnLayout(screen, column, "Bottom")
+ 		# advc.004: Removed
+ 		#self.addCheckbox(screen, left, "MainInterface__OptionsKey")
+ 		self.addCheckbox(screen, left, "MainInterface__OptionsButton")
++		self.addCheckbox(screen, center, "MainInterface__ModNameInReplays") # advc.106i
+ 		screen.setLayoutFlag(right, "LAYOUT_RIGHT")
+ 		screen.setLayoutFlag(right, "LAYOUT_SIZE_HPREFERREDEXPANDING")
+ 		self.addLabel(screen, right, "Version",
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 34869d9f6..6204800e8 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -42,22 +42,6 @@
+ 		<iDefineIntVal>14223</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- advc.106i: If set to 1, replay files are written in such a way that
+-		 they appear like unmodded replays to BtS, meaning that AdvCiv replays
+-		 will show up on the Hall of Fame screen even when no mod is loaded.
+-		 If any player colors are added to CIV4ColorVals.xml beyond those in
+-		 BtS, then this option is automatically disabled (as if set to 0)
+-		 because BtS is unable to show replays that use unfamiliar color
+-		 values. AdvCiv does not add such colors, but derived mods might.
+-		 Additional map sizes, victory conditions, handicap or game speed
+-		 settings will also cause problems, and therefore cause this option to be
+-		 disabled.
+-		 Mod-mods may also want to change TXT_KEY_REPLAY_PREFIX_ADVC in
+-		 Civ4GameText_advc.xml. -->
+-	<Define>
+-		<DefineName>HOF_STORE_REPLAYS_AS_BTS</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
+-	</Define>
+ 	<!-- advc.106i: If set to 1, replays from unmodded BtS can be viewed
+ 		 through AdvCiv's Hall of Fame screen. If set to 0, unmodded replays
+ 		 are filtered out. -->
+@@ -83,8 +67,8 @@
+ 		 main screen, Military Advisor and Replay screen.
+ 		 Recommended: 512 as in BtS. A higher value (e.g. 1024) looks
+ 		 better on the (maximized) replay screen, but is incompatible
+-		 with HOF_STORE_REPLAYS_AS_BTS=1. Higher values also increase
+-		 the size of replay files.
++		 with the "Mod Name in Replays" option (System tab of the BUG menu).
++		 Higher values also increase the size of replay files.
+ 		 AdvCiv (since version 0.97) stores MINIMAP_RENDER_SIZE in
+ 		 replay files, so compatibility between within AdvCiv isn't
+ 		 an issue, but BtS can only read size 512. -->
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 69831c1ff..5e1139f3d 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -34,7 +34,6 @@
+ 		<Italian>Dottone Opzioni</Italian>
+ 		<Spanish>Bot�n Opciones</Spanish>
+ 	</TEXT>
+-	
+ 	<!-- advc.004, advc.002g: Some extra info added (incl. restart) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__OPTIONSBUTTON_HOVER</Tag>
+@@ -44,6 +43,18 @@
+ 		<Spanish>Permite mostrar el bot�n de opciones BUG en la pantalla.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.106i -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__MODNAMEINREPLAYS_TEXT</Tag>
++		<English>Mod Name in Replays</English>
++		<German>Mod-Name in Replays</German>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__MODNAMEINREPLAYS_HOVER</Tag>
++		<English>When checked, the name of the mod's folder (normally "AdvCiv") is written into your replay files, which excludes them from the Hall of Fame screen when BtS is run without mods. (As for showing replays created by BtS or other mods on the AdvCiv Hall of Fame screen, see the [COLOR_BUILDING_TEXT]HOF_...[COLOR_REVERT] variables in [COLOR_BUILDING_TEXT]GlobalDefines_advc.xml[COLOR_REVERT].)</English>
++		<German>Speichert den Ordner-Namen des Mods (standardm��ig "AdvCiv") in [COLOR_BUILDING_TEXT]Civ4BeyondSwordReplay[COLOR_REVERT]-Dateien (Wiederholungen). Dies verhindert, dass die BtS-Ruhmeshalle AdvCiv-Replays auff�hrt, wenn kein Mod geladen ist. (Was die Anzeige von BtS-Replays und Replays anderer Mods in der AdvCiv-Ruhmeshalle angeht, siehe die COLOR_BUILDING_TEXT]HOF_...[COLOR_REVERT]-Variablen in [COLOR_BUILDING_TEXT]GlobalDefines_advc.xml[COLOR_REVERT].)</German>
++	</TEXT>
++
+ 	<!-- advc.106b -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__AUTOOPENEVENTLOG_TEXT</Tag>
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 5d78025fc..23103c4f7 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -7,9 +7,9 @@
+ #include "CvReplayMessage.h"
+ #include "CvGameTextMgr.h"
+ #include "StartPointsAsHandicap.h" // advc.250b
++#include "CvBugOptions.h" // advc.106i
+ 
+ int CvReplayInfo::REPLAY_VERSION = 6; // advc.707, advc.106i: 4 in BtS
+-bool CvReplayInfo::STORE_REPLAYS_AS_BTS = false; // advc.106i
+ 
+ CvReplayInfo::CvReplayInfo() :
+ 	m_eActivePlayer(NO_PLAYER), // (advc: was 0)
+@@ -36,20 +36,7 @@ CvReplayInfo::CvReplayInfo() :
+ 	m->iFinalScore = -1; // advc.707
+ 	// <advc.106i>
+ 	m->iVersionRead = -1;
+-	m->bDisplayOtherMods = false;
+-	// See comment in GlobalDefines_advc.xml
+-	STORE_REPLAYS_AS_BTS = (GC.getDefineINT("HOF_STORE_REPLAYS_AS_BTS") > 0 &&
+-			(GC.getNumPlayerColorInfos() <= 44 ||
+-			/*  If no colors are added beyond those in BtS, then the new
+-				player colors are apparently all old colors; no problem then. */
+-			GC.getNumColorInfos() <= 127) &&
+-			/*  This replay object may well not use any of the added world sizes etc.,
+-				but I want the same replay format for all replays written by the mod. */
+-			GC.getNumWorldInfos() <= 6 && GC.getNumVictoryInfos() <= 7 &&
+-			GC.getNumHandicapInfos() <= 9 && GC.getNumGameSpeedInfos() <= 4);
+-	// </advc.106i>
+-	// advc.106m:
+-	FAssert(!STORE_REPLAYS_AS_BTS || GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE) == 512);
++	m->bDisplayOtherMods = false; // </advc.106i>
+ }
+ /*	advc.003k: Needs to have a copy-constructor b/c of its Python counterpart,
+ 	but I don't think it'll actually get called. Copying m_pcMinimapPixels
+@@ -71,7 +58,7 @@ CvReplayInfo::~CvReplayInfo()
+ 
+ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ {
+-	if (!STORE_REPLAYS_AS_BTS) // advc.106i (and moved up)
++	if (!isStoringReplaysAsBtS()) // advc.106i (and moved up)
+ 		m_szModName = GC.getModName().getFullPath();
+ 	CvGame const& kGame = GC.getGame();
+ 	CvMap const& kMap = GC.getMap();
+@@ -677,17 +664,11 @@ int CvReplayInfo::getMinimapSize() const
+ }
+ 
+ const char* CvReplayInfo::getModName() const
+-{	/*  <advc.106i> Pretend to the EXE that every replay is an AdvCiv replay.
+-		(Let CvReplayInfo::read decide which ones to show in HoF.) */
+-	if (STORE_REPLAYS_AS_BTS || GC.getDefineINT("HOF_DISPLAY_BTS_REPLAYS") > 0 ||
+-		GC.getDefineINT("HOF_DISPLAY_OTHER_MOD_REPLAYS") > 0 ||
+-		/*  It seems that some earlier version of AdvCiv has written an empty string
+-			as the mod name. (I don't remember if this was on purpose.) */
+-		m_szModName.empty())
+-	{
+-		return GC.getModName().getFullPath();
+-	} // </advc.106i>
+-	return m_szModName;
++{
++	//return m_szModName;s
++	/*	advc.106i: Pretend to the EXE that every replay is an AdvCiv replay.
++		Let CvReplayInfo::read decide which ones to show in HoF. */
++	return GC.getModName().getFullPath();
+ }
+ 
+ 
+@@ -898,7 +879,7 @@ void CvReplayInfo::write(FDataStreamBase& stream)
+ 	// <advc.106i> Fold AdvCiv's (hopefully) globally unique id into the replay version
+ 	stream.Write(GC.getDefineINT("SAVE_VERSION") * 100 + REPLAY_VERSION);
+ 	// <advc.106m> Fold minimap resolution into active player ID
+-	if (!STORE_REPLAYS_AS_BTS)
++	if (!isStoringReplaysAsBtS())
+ 	{
+ 		setMinimapSizeFromXML();
+ 		FAssert(m_iMinimapSize > 0);
+@@ -995,7 +976,8 @@ void CvReplayInfo::setDefaultMinimapSize()
+ {
+ 	m_iMinimapSize = 512; // As in BtS GlobalDefines
+ } // </advc.106m>
+-// advc.106i:
++
++// <advc.106i>
+ bool CvReplayInfo::checkBounds(int iValue, int iLower, int iUpper) const
+ {
+ 	/*  If CvReplayInfo::read encounters a replay from another mod, it won't be able
+@@ -1018,3 +1000,55 @@ bool CvReplayInfo::checkBounds(int iValue, int iLower, int iUpper) const
+ 	}
+ 	return true;
+ }
++
++bool CvReplayInfo::isStoringReplaysAsBtS() const
++{
++	if (BUGOption::isEnabled("MainInterface__ModNameInReplays", false,
++		false)) // BUG not being available is OK, we'll get another call later.
++	{
++		return false;
++	}
++	// <advc.106m>
++	if (GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE) != 512)
++	{
++		FErrorMsg("MINIMAP_RENDER_SIZE incompatible with BtS replay format;"
++				" Mod-Name-in-Replays option ignored");
++		return false;
++	} // </advc.106m>
++	/*	The option says to store as BtS, but we'll ignore that if running the replay
++		might crash BtS. AdvCiv won't have that problem, but a mod-mod might. */
++	if (getWorldSize() > 5)
++	{
++		FErrorMsg("World size incompatible with BtS replay format");
++		return false;
++	}
++	if (getGameSpeed() > 3)
++	{
++		FErrorMsg("Game speed incompatible with BtS replay format");
++		return false;
++	}
++	for (int iVictory = 7; iVictory < GC.getNumVictoryInfos(); iVictory++)
++	{
++		if (isVictoryCondition((VictoryTypes)iVictory))
++		{
++			FErrorMsg("Enabled victory incompatible with BtS replay format");
++			return false;
++		}
++	}
++	if (getDifficulty() > 8)
++	{
++		FErrorMsg("Difficulty level (handicap) incompatible with BtS replay format");
++		return false;
++	}
++	FOR_EACH_ENUM(Player)
++	{
++		if (GET_PLAYER(eLoopPlayer).isEverAlive() && getColor(eLoopPlayer) > 126)
++		{
++			FErrorMsg("Player (text) color incompatible with BtS replay format");
++			return false;
++		}
++	}
++	/*	(Not going to check getReplayMessageColor for every replay message;
++		there can be a lot of messages, seems a little excessive.) */
++	return true;		
++} // </advc.106i>
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.h b/CvGameCoreDLL/CvReplayInfo.h
+index c8dbcbe63..626f57426 100644
+--- a/CvGameCoreDLL/CvReplayInfo.h
++++ b/CvGameCoreDLL/CvReplayInfo.h
+@@ -88,7 +88,7 @@ protected:
+ 	void addSettingsMsg(); // advc.106h
+ 	// <advc.106i>
+ 	bool checkBounds(int iValue, int iLower, int iUpper) const;
+-	static bool STORE_REPLAYS_AS_BTS;
++	bool isStoringReplaysAsBtS() const;
+ 	// </advc.106i>
+ 	static int REPLAY_VERSION;
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=11154

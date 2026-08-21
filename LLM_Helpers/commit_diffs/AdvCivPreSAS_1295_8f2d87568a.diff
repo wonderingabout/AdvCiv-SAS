@@ -1,0 +1,241 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1295
+# Commit: 8f2d87568a3929733721ffc7044bce4dae9988a8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ba3c48ce79bd2f3b680c0db0a255ae445751743e
+# Title: When counting stolen tiles for border tensions, the AI ignores tiles in the outer rings of cities whose borders haven't expanded yet. [advc.147]
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	0	Assets/xml/Text/CIV4GameText_advc.xml
+11	7	CvGameCoreDLL/CvPlayerAI.cpp
+1	4	CvGameCoreDLL/InvasionGraph.cpp
+38	3	CvGameCoreDLL/WarAndPeaceCache.cpp
+6	4	CvGameCoreDLL/WarAndPeaceCache.h
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 7abaac187..1962d1772 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -964,6 +964,32 @@
+ 		</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.005: From CIV4GameText_Objects_BTS.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_CIV_SUMERIA_SHORT_DESC</Tag>
++		<English>Sumer</English>
++		<French>
++			<Text>Sum&#233;riens</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</French>
++		<German>
++			<Text>Sumer</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Sumer</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Sumeria</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++
+ 	<!-- advc.005b: From CIV4GameText_Warlords.xml.
+ 		 I'm removing the roman numerals. It's clear enough e.g. which
+ 		 Gustav Adoplh is meant, and if not, I don't mind the ambuigity.
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c2a4123cc..3bb74f099 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -9120,8 +9120,11 @@ int CvPlayerAI::AI_calculateStolenCityRadiusPlots(PlayerTypes ePlayer,
+ 			if(pp == NULL)
+ 				continue;
+ 			CvPlot const& p = *pp;
++			/*  Don't count tiles in the outer ring as stolen when borders
++				haven't expanded yet. */
++			if(::plotDistance(pp, c.plot()) > c.getCultureLevel())
++				continue;
+ 			if(p.getOwnerINLINE() == ePlayer
+-					// advc.147:
+ 					&& (!onlyNonWorkable || p.getCityRadiusCount() <= 1)) {
+ 				perCityCount++;
+ 				if(perCityCount >= upperBound)
+@@ -12381,11 +12384,11 @@ int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled,
+ 	int tradeVal = 0;
+ 	// More valuable if we have few resources for trade
+ 	int surplus = 0;
+-	for(int i = 0; i < GC.getNumBonusInfos(); i++)
+-		surplus += std::max(0, getNumTradeableBonuses((BonusTypes)i) - 1);
+-	if(bTrade) /* Want surplus to matter mostly for buildValue and
+-				  foundValue, and not so much for prices charged in trade. */
+-		surplus = std::max(2, surplus);
++	if(!bTrade) { /* Importing resources is not going to give us more resources
++					to trade with b/c we can't wheel and deal */
++		for(int i = 0; i < GC.getNumBonusInfos(); i++)
++			surplus += std::max(0, getNumTradeableBonuses((BonusTypes)i) - 1);
++	}
+ 	tradeVal = ::round(4 / std::sqrt((double)std::max(1, std::max(surplus,
+ 			2 * (iBonusCount + iChange))))); // </advc.036>
+ 	if ((iChange == 0) || ((iChange == 1) && (iBonusCount == 0)) || ((iChange == -1) && (iBonusCount == 1))
+@@ -12396,7 +12399,8 @@ int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled,
+ 		iValue += AI_baseBonusVal(eBonus,
+ 				bTrade); // advc.036
+ 		iValue += AI_corporationBonusVal(eBonus);
+-		iValue = std::max(iValue, tradeVal); // advc.036
++		if(!bTrade)
++			iValue = std::max(iValue, tradeVal); // advc.036
+ 		// K-Mod.
+ 		if (!bAssumeEnabled)
+ 		{
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 96c6401dd..eafd66dec 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -424,10 +424,7 @@ void InvasionGraph::Node::prepareForSimulation() {
+ 
+ 	PROFILE_FUNC();
+ 	cacheIndex = 0;
+-	cache.sortCitiesByAttackPriority();
+-	/*  Fixme: Sorting by attack priority can result in e.g. the first city
+-		in one area and the next in another, but an invading army tends to stay
+-		in one area until all cities there are conquered. */
++	//cache.sortCitiesByAttackPriority(); // Done in WarAndPeaceCache now
+ 	componentDone = false;
+ 	emergencyDefPow = 0;
+ 	distractionByConquest = 0;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index eeed7f87e..6b57b7acc 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -219,6 +219,7 @@ void WarAndPeaceCache::update() {
+ 	updateTrainCargo();
+ 	for(size_t i = 0; i < getWPAI.properCivs().size(); i++)
+ 		updateCities(getWPAI.properCivs()[i]);
++	sortCitiesByAttackPriority();
+ 	updateTotalAssetScore();
+ 	updateLatestTurnReachableBySea();
+ 	updateTargetMissionCounts();
+@@ -642,7 +643,36 @@ void WarAndPeaceCache::sortCitiesByTargetValue() {
+ 
+ void WarAndPeaceCache::sortCitiesByAttackPriority() {
+ 
+-	sort(v.begin(), v.end(), City::byAttackPriority);
++	//sort(v.begin(), v.end(), City::byAttackPriority);
++	PROFILE_FUNC();
++	/*  Selection sort b/c I want to factor in city areas. An invading army tends
++		to stay in one area until all cities there are conquered. */
++	for(size_t i = 0; i < v.size() - 1; i++) {
++		CvCity* cvc = NULL;
++		if(i > 0)
++			cvc = v[i - 1]->city();
++		/*  I don't think it's guaranteed here that the city still exists on the
++			map. */
++		CvArea* a = (cvc == NULL ? NULL : cvc->area());
++		double maxPriority = (v[i]->city() == NULL ? -1 : v[i]->attackPriority());
++		int maxIndex = i;
++		for(size_t j = i + 1; j < v.size(); j++) {
++			CvCity* cvc2 = v[j]->city();
++			CvArea* a2 = (cvc2 == NULL ? NULL : cvc2->area());
++			double priority2 = (cvc2 == NULL ? -1 : v[j]->attackPriority());
++			if(i > 0 && a != NULL && a != a2 && priority2 > 0)
++				priority2 /= 2;
++			if(priority2 > maxPriority) {
++				maxIndex = j;
++				maxPriority = priority2;
++			}
++		}
++		if(maxIndex != i) {
++			City* tmp = v[i];
++			v[i] = v[maxIndex];
++			v[maxIndex] = tmp;
++		}
++    }
+ }
+ 
+ int WarAndPeaceCache::size() const {
+@@ -1062,6 +1092,7 @@ void WarAndPeaceCache::reportCityOwnerChanged(CvCity* c, PlayerTypes oldOwnerId)
+ 	cityMap.insert(std::make_pair<int,City*>(toCache->id(), toCache));
+ 	if(toCache->canReach())
+ 		nReachableCities[c->getOwnerINLINE()]++;
++	sortCitiesByAttackPriority();
+ }
+ 
+ void WarAndPeaceCache::reportSponsoredWar(CLinkList<TradeData> const& sponsorship,
+@@ -1365,8 +1396,12 @@ bool WarAndPeaceCache::City::byAttackPriority(City* one, City* two) {
+ }
+ double WarAndPeaceCache::City::attackPriority() const {
+ 
+-	// targetValue is something like 10 to 100, distance 1 to 20 perhaps.
+-	return getTargetValue() - std::min(100, 5 * distance);
++	if(distance < 0)
++		return -1;
++	/*  targetValue is something like 10 to 100, distance 1 to 20 perhaps.
++		Add 1000 b/c negative values should be reserved for error conditions. */
++	return std::max(0.0, 1000 + getTargetValue() -
++			std::min(100.0, 1.5 * std::pow((double)distance, 1.7)));
+ }
+ 
+ int WarAndPeaceCache::City::byOwner(City* one, City* two) {
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.h b/CvGameCoreDLL/WarAndPeaceCache.h
+index f84ef95fe..0e1abdebe 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.h
++++ b/CvGameCoreDLL/WarAndPeaceCache.h
+@@ -47,10 +47,13 @@ public:
+ 	void read(FDataStreamBase* stream);
+ 	int numReachableCities(PlayerTypes civId) const ;
+ 	int size() const;
++		private: /* These shouldn't be used anymore. Always keep the cache
++					sorted by AttackPriority instead. */
+ 	void sortCitiesByOwnerAndDistance();
+ 	void sortCitiesByOwnerAndTargetValue();
+ 	void sortCitiesByDistance();
+ 	void sortCitiesByTargetValue();
++		public:
+ 	void sortCitiesByAttackPriority();
+ 	City* getCity(int index) const;
+ 	// Use CvCity::plotNum for the plotIndex of a given CvCity
+@@ -192,6 +195,9 @@ public:
+ 			currently reachable. */
+ 		int getDistance(bool forceCurrentVal = false) const;
+ 		int getTargetValue() const;
++		/* A mix of target value and distance. Target value alone would
++		   ignore opportunistic attacks. */
++		double attackPriority() const;
+ 		bool canReachByLand() const;
+ 		// Use canReachByLand instead for military analysis
+ 		bool canCurrentlyReachBySea() const;
+@@ -229,10 +235,6 @@ public:
+ 		void updateDistance(CvCity* targetCity);
+ 		void updateAssetScore();
+ 
+-		/* A mix of target value and distance. Target value alone would
+-		   ignore opportunistic attacks. */
+-		double attackPriority() const;
+-
+ 		int plotIndex, assetScore, distance, targetValue;
+ 		bool reachByLand;
+ 		bool reachBySea;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=7966

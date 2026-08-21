@@ -1,0 +1,253 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1324
+# Commit: ab7a5d6083a62ecba271522b9fb5bfe02a5bbda6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a948d3dbf4daf8bef303b45b146a070ae536a733
+# Title: Fixed problems with UN and AP resolutions not being recorded in the replay log. [advc.150b]
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+39	40	CvGameCoreDLL/CvGame.cpp
+11	3	CvGameCoreDLL/CvPlayerAI.cpp
+32	4	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 0c4cce2f9..de449ca1d 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -8857,6 +8857,8 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
+ 					if (GET_TEAM(kLoopPlayer.getTeam()).canChangeWarPeace(kPlayer.getTeam()))
+ 					{
+ 						GET_TEAM(kLoopPlayer.getTeam()).declareWar(kPlayer.getTeam(), false, WARPLAN_DOGPILE);
++						// advc.104i:
++						GET_TEAM(kPlayer.getTeam()).makeUnwillingToTalk(kLoopPlayer.getTeam());
+ 					}
+ 				}
+ 			}
+@@ -10709,48 +10711,44 @@ void CvGame::doVoteResults()
+ 
+ 				setVoteOutcome(*pVoteTriggered, bPassed ? PLAYER_VOTE_YES : PLAYER_VOTE_NO);
+ 			}
+-
++			bool bReplayDone = false; // advc.150b
+ 			for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 			{
+ 				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+-				if (kPlayer.isHuman())
++				// <advc.003>
++				if(!kPlayer.isHuman())
++					continue; // </advc.003>
++				bool bShow = kPlayer.isVotingMember(pVoteTriggered->eVoteSource);
++				if (bShow)
+ 				{
+-					bool bShow = kPlayer.isVotingMember(pVoteTriggered->eVoteSource);
+-
+-					if (bShow)
+-					{
+-						CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_TEXT);
+-						if (NULL != pInfo)
+-						{
+-							pInfo->setText(szBuffer);
+-							gDLL->getInterfaceIFace()->addPopup(pInfo, (PlayerTypes)iI);
+-						}
+-					} // <advc.127>
+-					if(!bShow)
+-						bShow = kPlayer.isSpectator(); // </advc.127>
+-					if (!bShow)
+-					{
+-						if (iI == pVoteTriggered->kVoteOption.ePlayer && GET_PLAYER(pVoteTriggered->kVoteOption.ePlayer).isVotingMember(pVoteTriggered->eVoteSource))
+-						{
+-							bShow = true;
+-						}
+-					}
+-
+-					if (!bShow)
++					CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_TEXT);
++					if (NULL != pInfo)
+ 					{
+-						if (iI == pVoteTriggered->kVoteOption.eOtherPlayer && GET_PLAYER(pVoteTriggered->kVoteOption.eOtherPlayer).isVotingMember(pVoteTriggered->eVoteSource))
+-						{
+-							bShow = true;
+-						}
++						pInfo->setText(szBuffer);
++						gDLL->getInterfaceIFace()->addPopup(pInfo, (PlayerTypes)iI);
+ 					}
+-
+-					if (bShow && bPassed)
+-					{
+-						CvWString szMessage = gDLL->getText("TXT_KEY_VOTE_RESULTS", GC.getVoteSourceInfo(eVoteSource).getTextKeyWide(), pVoteTriggered->kVoteOption.szText.GetCString());
+-						// <advc.127b>
+-						BuildingTypes vsBuilding = getVoteSourceBuilding(eVoteSource);
+-						std::pair<int,int> xy = getVoteSourceXY(eVoteSource);
+-						// </advc.127b>
++				} // <advc.127>
++				if(!bShow)
++					bShow = kPlayer.isSpectator(); // </advc.127>
++				// <advc.003>
++				if(!bShow && iI == pVoteTriggered->kVoteOption.ePlayer &&
++						GET_PLAYER(pVoteTriggered->kVoteOption.ePlayer).
++						isVotingMember(pVoteTriggered->eVoteSource))
++					bShow = true;
++				if(!bShow && iI == pVoteTriggered->kVoteOption.eOtherPlayer &&
++						GET_PLAYER(pVoteTriggered->kVoteOption.eOtherPlayer).
++						isVotingMember(pVoteTriggered->eVoteSource))
++					bShow = true; // </advc.003>
++				if (bPassed) // advc.150b: Don't req. bShow for replay msg
++				{
++					CvWString szMessage = gDLL->getText("TXT_KEY_VOTE_RESULTS",
++							GC.getVoteSourceInfo(eVoteSource).getTextKeyWide(),
++							pVoteTriggered->kVoteOption.szText.GetCString());
++					// <advc.127b>
++					BuildingTypes vsBuilding = getVoteSourceBuilding(eVoteSource);
++					std::pair<int,int> xy = getVoteSourceXY(eVoteSource);
++					// </advc.127b>
++					if(bShow) {// advc.150b
+ 						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szMessage, "AS2D_NEW_ERA", MESSAGE_TYPE_MINOR_EVENT,
+ 								// <advc.127b>
+ 								vsBuilding == NO_BUILDING ? NULL :
+@@ -10758,13 +10756,14 @@ void CvGame::doVoteResults()
+ 								// </advc.127b>
+ 								(ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
+ 								xy.first, xy.second); // advc.127b
+-						/*  <advc.150b> Throw out everything after parentheses
++					} // <advc.150b>
++					if(!bReplayDone) {
++						/*  Throw out everything after parentheses
+ 							(votes for and against). */
+ 						szMessage = szMessage.substr(0, szMessage.find(L")") + 1);
+ 						addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, NO_PLAYER, szMessage);
+-						// </advc.150b>
+-					}
+-
++						bReplayDone = true;
++					} // </advc.150b>
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index fd3fd8bca..e51976d0a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14432,7 +14432,11 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 			iLimitedUnits -= range(AI_totalUnitAIs(UNITAI_COLLATERAL) - iNoLimitCollateral / 2, 0, iLimitedUnits);
+ 			FAssert(iLimitedUnits >= 0);
+ 			int iAttackUnits = std::max(1, AI_totalUnitAIs(UNITAI_ATTACK) + AI_totalUnitAIs(UNITAI_ATTACK_CITY)); // floor value is just to avoid divide-by-zero
+-			FAssert(iAttackUnits >= iLimitedUnits || iLimitedUnits <= 3); // this is not strictly guarenteed, but I expect it to always be true under normal playing conditions.
++			/*  advc.006: +1 added and replaced iLimitedUnits with iAttackUnits
++				in the 2nd  clause b/c this assert kept failing for a capitulated
++				Renaissance civ w/o access to Horses (not sure if that's what's
++				causing the failed assertion). */
++			FAssert(iAttackUnits+1 >= iLimitedUnits || iAttackUnits <= 3); // this is not strictly guaranteed, but I expect it to always be true under normal playing conditions.
+ 
+ 			iValue *= std::max(1, iAttackUnits - iLimitedUnits);
+ 			iValue /= iAttackUnits;
+@@ -19640,8 +19644,12 @@ int CvPlayerAI::checkCancel(CvDeal const& d, PlayerTypes otherId, bool flip) {
+ 		return -1;
+ 	CLLNode<TradeData>* tdn = trades1->head();
+ 	if(tdn != NULL && CvDeal::isDual(tdn->m_data.m_eItemType, true)) {
+-		if(getTradeDenial(otherId, tdn->m_data) != NO_DENIAL &&
+-				::bernoulliSuccess(0.2, "advc.133"))
++		DenialTypes tden = getTradeDenial(otherId, tdn->m_data);
++		if(tden != NO_DENIAL &&
++				// <dlph.3> Cancel DP immediately when war no longer shared
++				(((tdn->m_data.m_eItemType == TRADE_DEFENSIVE_PACT &&
++				tden == DENIAL_JOKING)) || // </dlph.3>
++				::bernoulliSuccess(0.2, "advc.133")))
+ 			return 1;
+ 		else return -1;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index f7c7d2398..5480584b9 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1745,14 +1745,18 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 		{	// <dlph.3> Ally can already be at war with the aggressor
+ 			if(GET_TEAM((TeamTypes)iI).isAtWar(eTeam))
+ 				continue; // </dlph.3>
+-			if (GET_TEAM((TeamTypes)iI).isDefensivePact(eTeam))
+-			{
++			if (GET_TEAM((TeamTypes)iI).isDefensivePact(eTeam)) {
++				FAssert(!GET_TEAM(eTeam).isAVassal() &&
++						!GET_TEAM((TeamTypes)iI).isAVassal());
+ 				GET_TEAM((TeamTypes)iI).declareWar(getID(), bNewDiplo, WARPLAN_DOGPILE, false);
+ 				// <advc.104i>
+ 				defPactTriggered = true;
++				if(!isAVassal()) {
+ 				/*  Team iI declares war on us, and this makes our team
+-					unwilling to talk to iI. */
+-				makeUnwillingToTalk((TeamTypes)iI); // </advc.104i>
++					unwilling to talk to both iI and its ally eTeam. */
++					makeUnwillingToTalk(eTeam);
++					makeUnwillingToTalk((TeamTypes)iI);
++				} // </advc.104i>
+ 			}
+ 			else if( (GC.getBBAI_DEFENSIVE_PACT_BEHAVIOR() > 1) && GET_TEAM((TeamTypes)iI).isDefensivePact(getID()))
+ 			{
+@@ -1829,6 +1833,30 @@ void CvTeam::makePeaceBulk(TeamTypes eTeam, bool bBumpUnits, TeamTypes broker,
+ 	GET_TEAM(getID()).forgiveEnemy(eTeam, isCapitulated(), false);
+ 	GET_TEAM(eTeam).forgiveEnemy(getID(), GET_TEAM(eTeam).isCapitulated(), false);
+ 	// </advc.130y>
++	// <advc.130i>
++	if(getWPAI.isEnabled() && !isAVassal() && !GET_TEAM(eTeam).isAVassal()) {
++		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++			CvPlayerAI& civ = GET_PLAYER((PlayerTypes)i);
++			if(!civ.isAlive() || civ.getTeam() == getID() || civ.getTeam() == eTeam)
++				continue;
++			CvTeam const& t = GET_TEAM(civ.getTeam());
++			if(!t.isDefensivePact(eTeam) && !t.isDefensivePact(getID()))
++				continue;
++			FAssert(!t.isAVassal());
++			for(int j = 0; j < MAX_CIV_PLAYERS; j++) {
++				CvPlayerAI& member = GET_PLAYER((PlayerTypes)j);
++				if(!member.isAlive() || (member.getTeam() != eTeam &&
++						member.getTeam() != getID()))
++					continue;
++				int mem = civ.AI_getMemoryCount(member.getID(), MEMORY_STOPPED_TRADING_RECENT);
++				if(mem > 0) // Checked only for testing through the debugger
++					civ.AI_changeMemoryCount(member.getID(), MEMORY_STOPPED_TRADING_RECENT, -mem);
++				mem = member.AI_getMemoryCount(civ.getID(), MEMORY_STOPPED_TRADING_RECENT);
++				if(mem > 0)
++					member.AI_changeMemoryCount(civ.getID(), MEMORY_STOPPED_TRADING_RECENT, -mem);
++			}
++		}
++	} // </advc.130i>
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      05/21/10                                jdog5000      */
+ /*                                                                                              */
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 237083223..89ebbf46c 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -432,6 +432,7 @@ public:
+ 	int getCapitalY() const;
+ 	private: CvCity* getLeaderCapital() const; public:
+ 	// </advc.127b>
++	void makeUnwillingToTalk(TeamTypes otherId); // advc.104i
+ 	virtual void AI_init() = 0;
+ 	virtual void AI_reset(bool bConstructor) = 0;
+ 	virtual void AI_doTurnPre() = 0;
+@@ -553,7 +554,6 @@ protected:
+ 
+ 	void cancelDefensivePacts();
+ 	void allowDefensivePactsToBeCanceled(); // dlph.3
+-	void makeUnwillingToTalk(TeamTypes otherId); // advc.104i
+ 	// <advc.039>
+ 	CvWString const tradeItemString(TradeableItems itemType, int data,
+ 			TeamTypes fromId) const; // </advc.039>
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=9859

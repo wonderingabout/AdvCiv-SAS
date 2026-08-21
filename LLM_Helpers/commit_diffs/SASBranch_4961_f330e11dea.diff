@@ -1,0 +1,832 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4961
+# Commit: f330e11dea57b706ce07d49872656816fe2fa486
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 47d1e871a481e35200be4c7edecca81f9bc15f05
+# Title: tech reordering before renaming and such, and other changes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+23	12	Assets/XML/Buildings/CIV4BuildingInfos.xml
+4	2	Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+1	1	Assets/XML/GameInfo/CIV4SpecialistInfos.xml
+50	56	Assets/XML/Technologies/CIV4TechInfos.xml
+2	1	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+1	1	Assets/XML/Units/CIV4BuildInfos.xml
+6	3	Assets/XML/Units/CIV4PromotionInfos.xml
+22	20	Assets/XML/Units/CIV4UnitInfos.xml
+3	3	CvGameCoreDLL/CvCity.cpp
+3	3	README.md
+4	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index fa2b8c44d..9be7df1dc 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -7662,8 +7662,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: make it available sooner so it can be built sooner, also main reason too is it's more accurate this way if i am not mistaken from quite quick glance at wikipedia or and such, also a bit more like in civ3 if i remember it correctly but or not but or yes but but anyways etc ; also i find it interesting as a gameplay mechanic that coal plant has higher pollution but can be built sooner, changes the strategy around wonders and units in late game too anyways etc maybe too hopefully interesting if i may say or not or yes or other anyways etc anyways etc anyways etc but anyways etc this way but anyways etc, was TECH_ASSEMBLY_LINE -->
+-			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
++			<!-- custom: was TECH_ASSEMBLY_LINE -->
++			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -12844,7 +12844,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_GUILDS</PrereqTech>
++			<!-- custom: was TECH_GUILDS and tech types TECH_CURRENCY anyways etc -->
++			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CURRENCY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -24745,7 +24746,8 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
+-			<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
++			<!-- custom: was TECH_RIFLING -->
++			<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			<!-- custom: was TECH_CODE_OF_LAWS -->
+ 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+ 			<TechTypes/>
+@@ -27266,7 +27268,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: so it can be built sooner and seems quite accurate too, also tech assembly line is too strong and bloated while this other tech has more space to use anyways etc would be more balanced and make it/this tech stronger as well anyways etc, was TECH_ASSEMBLY_LINE -->
+-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
++			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -27778,10 +27780,15 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
+-			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+-			<!-- custom: was TECH_POLYTHEISM -->
+-			<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: was TECH_SCIENTIFIC_METHOD -->
++			<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++			<!-- custom: was TECH_POLYTHEISM and tech types empty anyways etc-->
++			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -27983,9 +27990,13 @@
+ 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+ 			<!-- custom: was TECH_COMPUTERS -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_THEORY_OF_EVOLUTION -->
+-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+-			<TechTypes/>
++			<PrereqTech>TECH_EDUCATION</PrereqTech>
++			<!-- custom: was empty anyways etc -->
++			<TechTypes>
++				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+
+diff --git a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+index 459c13eb6..ab1133321 100644
+--- a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+@@ -40,7 +40,8 @@
+ 			<Type>SPECIALBUILDING_CATHEDRAL</Type>
+ 			<Description>TXT_KEY_SPECIALBUILDING_CATHEDRAL</Description>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
++			<!-- custom: was TECH_PRIESTHOOD -->
++			<TechPrereq>TECH_MONOTHEISM</TechPrereq>
+ 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
+ 			<bValid>1</bValid>
+ 			<ProductionTraits/>
+@@ -54,7 +55,8 @@
+ 			<Description>TXT_KEY_SPECIALBUILDING_MONASTERY</Description>
+ 			<!-- custom: reworked monasteries, also for betetr or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well but anyways etc..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed but anyways etc) ; also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for betetr or worse (i am not a fan too but society (perhaps societies if i may say but anyways etc) function as such so there must be a reason or reasons i mean in this case anyways etc anyways etc anyways etc), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage if i may say anyways etc in terms of gameplay and modding as well at least for me maybe for others or not or yes or other but anyways etc, was TECH_SCIENTIFIC_METHOD -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
++			<!-- custom: was TECH_PRIESTHOOD -->
++			<TechPrereq>TECH_MONARCHY</TechPrereq>
+ 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
+ 			<bValid>1</bValid>
+ 			<!-- custom: makes it more interesting to think of them as being willing to meditate rather than going to a generic religious office maybe at least i'd want to represent it as such in advciv-sas anyways etc -->
+
+diff --git a/Assets/XML/GameInfo/CIV4SpecialistInfos.xml b/Assets/XML/GameInfo/CIV4SpecialistInfos.xml
+index d6fc9e169..9b69caca2 100644
+--- a/Assets/XML/GameInfo/CIV4SpecialistInfos.xml
++++ b/Assets/XML/GameInfo/CIV4SpecialistInfos.xml
+@@ -234,7 +234,7 @@
+ 			<Commerces>
+ 				<iCommerce>3</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>20</iCommerce>
++				<iCommerce>18</iCommerce>
+ 			</Commerces>
+ 			<iExperience>0</iExperience>
+ 			<Flavors/>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 035185ef9..be0056f9b 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -120,7 +120,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>7</iGridX>
+-			<iGridY>3</iGridY>
++			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -225,12 +225,12 @@
+ 			<iCost>60</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<Era>ERA_ANCIENT</Era>
++			<Era>ERA_FUTURE</Era>
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>0</iHealth>
++			<iHealth>1</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>8</iAsset>
+@@ -253,8 +253,8 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>3</iGridX>
+-			<iGridY>11</iGridY>
++			<iGridX>21</iGridX>
++			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -643,7 +643,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>8</iGridX>
+-			<iGridY>3</iGridY>
++			<iGridY>5</iGridY>
+ 			<DomainExtraMoves/>
+ 			<!-- advc.120g: Added the espionage row (no functional change) -->
+ 			<CommerceFlexible>
+@@ -689,23 +689,10 @@
+ 			<Strategy>TXT_KEY_TECH_FEUDALISM_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<!-- advc.131b -->
+-			<!-- custom: not a problem if they search feudalism too soon or too often, it is a strong tech that helps both military and economy.
+-			The history relevance is not a problem to me, much more military performance of choosing a more effective tech (than machinery would be before that
+-			Trying to increase it further, ideally AIs would value feudalism more, which should help both economically and militarily. Should be much more useful
+-			than engineering. I initially increased it to 0, now trying to increase it to 125. As AIs now get monarchy as a free tech, having feudalism soon after should be
+-			a really attractive option, was -125
+-			-->
+-			<iAIWeight>125</iAIWeight>
++			<!-- custom: a useful tech, not too op though, especially after our tech rework, make sure it is not penalized and value it a bit, else let ai decide anyways etc, was -125 -->
++			<iAIWeight>25</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+ 			<!-- advc.910: was 700 -->
+-			<!-- custom: feudalism is a key important tech with the unit reworks in AdvCiv-SAS now, also from what i checked, it
+-			seems it started a bit sooner than other techs, so maybe fine to reduce this a bit, so that most civs also access
+-			sooner this key tech. Maybe this helps avoiding snowballs of some players.
+-			I am not concerned so much about the year number, much more on the turn number. As long as progression is gradual
+-			enough in numbers of turns, maybe the increment of turns rather could be updated? What i want is to keep a gradual
+-			ratio increase between techs, not a brutal one, unless i have a strong reason to do so. Testing this to see, was 820.
+-			Considering the cost of monarchy is increased now, and that feudalism requires it, then feudalism's cost can be
+-			further reduced to keep historical accuracy maybe -->
+ 			<iCost>450</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -739,7 +726,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>9</iGridX>
+-			<iGridY>10</iGridY>
++			<iGridY>9</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -885,7 +872,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>5</iGridX>
+-			<iGridY>3</iGridY>
++			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -962,7 +949,8 @@
+ 			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
+ 			<bVassalTrading>0</bVassalTrading>
+ 			<bBridgeBuilding>0</bBridgeBuilding>
+-			<bIrrigation>1</bIrrigation>
++			<!-- custom: was 1 -->
++			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>8</iGridX>
+@@ -1026,8 +1014,7 @@
+ 			<iCost>1000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<!-- custom: was ERA_MEDIEVAL -->
+-			<Era>ERA_CLASSICAL</Era>
++			<Era>ERA_MEDIEVAL</Era>
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+@@ -1055,8 +1042,8 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>5</iGridX>
+-			<iGridY>14</iGridY>
++			<iGridX>9</iGridX>
++			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -2192,7 +2179,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>1</iGridX>
+-			<iGridY>5</iGridY>
++			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -2378,7 +2365,7 @@
+ 			<Quote>TXT_KEY_TECH_SEAFARING_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_SEAFARING</Sound>
+ 			<SoundMP>AS2D_TECH_MP_SEAFARING</SoundMP>
+-			<!-- custom: button import from c2c mod's TECH_BOAT_BUILDING in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos\Assets\C2C2.FPK ; old button was <Button>,Art/Interface/Buttons/TechTree/Sailing.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,7</Button> anyways etc -->
++			<!-- custom: button import from c2c mod's TECH_BOAT_BUILDING in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos\Assets\C2C2.FPK anyways etc -->
+ 			<Button>Art/AdvCiv_SAS/Techs/Seafaring/boatbuilding.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_WRITING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+@@ -2503,8 +2490,8 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>6</iGridX>
+-			<iGridY>5</iGridY>
++			<iGridX>5</iGridX>
++			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -2583,6 +2570,12 @@
+ 			<iGridX>11</iGridX>
+ 			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
++			<!-- custom: was missing (and i assume empty but anyways etc (is the effect from the old now removed TECH_SCIENTIFIC_METHOD but anyways etc)) -->
++			<SpecialistExtraCommerces>
++				<iCommerce>0</iCommerce>
++				<iCommerce>1</iCommerce>
++				<iCommerce>0</iCommerce>
++			</SpecialistExtraCommerces>
+ 			<!-- custom: was 0 / 0 / 0 / 1 -->
+ 			<!-- advc.120g -->
+ 			<CommerceFlexible/>
+@@ -2815,7 +2808,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>7</iGridX>
+-			<iGridY>7</iGridY>
++			<iGridY>9</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -3373,7 +3366,7 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL -->
+-			<Era>ERA_MEDIEVAL</Era>
++			<Era>ERA_CLASSICAL</Era>
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+@@ -3398,11 +3391,13 @@
+ 			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
+ 			<bVassalTrading>0</bVassalTrading>
+ 			<bBridgeBuilding>0</bBridgeBuilding>
+-			<bIrrigation>0</bIrrigation>
+-			<bIgnoreIrrigation>0</bIgnoreIrrigation>
++			<!-- custom: was 0 -->
++			<bIrrigation>1</bIrrigation>
++			<!-- custom: not sure if strictly accurate, but from very quick glance it seems signficant progress was made in irrigation technology around 0 AD/BC(? But anyways etc) anyways etc +/- 1000 years, so maybe this fits, as i really want this irrigation ignore thing to be available sooner, before game ends, and seems quite relevant to do so at this tech for example anyways etc, was 0 -->
++			<bIgnoreIrrigation>1</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>10</iGridX>
+-			<iGridY>5</iGridY>
++			<iGridX>8</iGridX>
++			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<!-- K-Mod 1.45 (reverted by advc.200): -->
+ 			<!--CommerceModifiers>
+@@ -3411,11 +3406,7 @@
+ 				<iCommerce>0</iCommerce>
+ 			</CommerceModifiers-->
+ 			<!-- K-Mod 1.44: -->
+-			<SpecialistExtraCommerces>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>1</iCommerce>
+-				<iCommerce>0</iCommerce>
+-			</SpecialistExtraCommerces>
++			<!-- custom: was SpecialistExtraCommerces 0 / 1 / 0, removed entirely as this seems to cause XML errors at init, effect (as of now scientist specialist +1 science if i'm not mistaken but anyways etc) moved to another tech anyways etc -->
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+@@ -4498,7 +4489,7 @@
+ 			<iCost>40</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<Era>ERA_ANCIENT</Era>
++			<Era>ERA_FUTURE</Era>
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+@@ -4527,7 +4518,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>1</iGridX>
+-			<iGridY>3</iGridY>
++			<iGridY>5</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4641,7 +4632,7 @@
+ 			<iCost>60</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<Era>ERA_ANCIENT</Era>
++			<Era>ERA_FUTURE</Era>
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+@@ -4739,7 +4730,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>2</iGridX>
+-			<iGridY>13</iGridY>
++			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4984,7 +4975,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>6</iGridX>
+-			<iGridY>14</iGridY>
++			<iGridY>5</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -5259,7 +5250,7 @@
+ 			<Quote>TXT_KEY_TECH_NAVIGATION_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_NAVIGATION</Sound>
+ 			<SoundMP>AS2D_TECH_MP_NAVIGATION</SoundMP>
+-			<!-- custom: button import from FFH2 mod's TECH_CARTOGRAPHY in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK ; old button was <Button>,Art/Interface/Buttons/TechTree/Compass.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,2</Button> anyways etc -->
++			<!-- custom: button import from FFH2 mod's TECH_CARTOGRAPHY in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK anyways etc -->
+ 			<Button>Art/AdvCiv_SAS/Techs/Navigation/cartography.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_CONSTRUCTION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+@@ -5304,7 +5295,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>4</iGridX>
+-			<iGridY>5</iGridY>
++			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -5464,11 +5455,10 @@
+ 			<bVassalTrading>0</bVassalTrading>
+ 			<bBridgeBuilding>0</bBridgeBuilding>
+ 			<bIrrigation>0</bIrrigation>
+-			<!-- custom: not sure if strictly accurate, but from very quick glance it seems signficant progress(es? But anyways etc) were made in irrigation technology around 0 AD/BC? anyways etc +/- 1000 years, so maybe tech_engineering fits, as i really want this irrigation ignore thing to be available sooner, before game ends, and seems quite relevant to do so at this tech for example anyways etc -->
+-			<bIgnoreIrrigation>1</bIgnoreIrrigation>
++			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>7</iGridX>
+-			<iGridY>5</iGridY>
++			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -5577,7 +5567,7 @@
+ 			<Quote>TXT_KEY_TECH_SAILING_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_SAILING</Sound>
+ 			<SoundMP>AS2D_TECH_MP_SAILING</SoundMP>
+-			<!-- custom: button import from HR mod's TECH_SEAFARING, old button was <Button>,Art/Interface/Buttons/TechTree/Optics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,6</Button> anyways etc -->
++			<!-- custom: button import from HR mod's TECH_SEAFARING anyways etc -->
+ 			<Button>Art/AdvCiv_SAS/Techs/Sailing/Sailing.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_GUNPOWDER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+@@ -6928,7 +6918,7 @@
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>2</iHealth>
++			<iHealth>1</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>64</iAsset>
+@@ -6964,7 +6954,11 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>4</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index 2165f79c8..334fbf659 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -615,10 +615,11 @@
+ 			<FeatureMakesValids/>
+ 			<ImprovementPillage/>
+ 			<ImprovementUpgrade/>
++			<!-- custom: was as of now first PrereqTech TECH_GUILDS anyways etc -->
+ 			<!-- custom: also add more hammer at fusion or similar tech, idea i got from rfc doc mod anyways etc -->
+ 			<TechYieldChanges>
+ 				<TechYieldChange>
+-					<PrereqTech>TECH_GUILDS</PrereqTech>
++					<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 					<TechYields>
+ 						<iYield>0</iYield>
+ 						<iYield>1</iYield>
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index 46bd35a0b..82b994c79 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -284,7 +284,7 @@
+ 			<Description>TXT_KEY_BUILD_WATERMILL</Description>
+ 			<Help/>
+ 			<!-- custom: seems historically more accurate or/and meshes or fits better anyways etc with our reworked tech tree sooner, was TECH_MACHINERY anyways etc -->
+-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++			<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
+ 			<iTime>400</iTime>
+ 			<iCost>0</iCost>
+ 			<bKill>0</bKill>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index c669b58c8..5e8712954 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -793,7 +793,8 @@
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+ 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE1</PromotionPrereqOr2>
+-			<TechPrereq>TECH_GUNPOWDER</TechPrereq>
++			<!-- custom: was TECH_GUNPOWDER -->
++			<TechPrereq>TECH_RIFLING</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+@@ -1067,7 +1068,8 @@
+ 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
+ 			<!-- advc.200: PROMOTION_FIRST_STRIKE1 in K-Mod; reverted -->
+ 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+-			<TechPrereq>NONE</TechPrereq>
++			<!-- custom: was NONE -->
++			<TechPrereq>TECH_ENGINEERING</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+@@ -1151,7 +1153,8 @@
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+ 			<PromotionPrereqOr1>PROMOTION_COMBAT2</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE2</PromotionPrereqOr2>
+-			<TechPrereq>NONE</TechPrereq>
++			<!-- custom: was NONE -->
++			<TechPrereq>TECH_ARTILLERY</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index bb04dd441..d49188c4b 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -7644,7 +7644,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
+-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -7846,7 +7846,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
+-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -8073,7 +8073,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
+-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -9250,7 +9250,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_ENGINEERING -->
+-			<PrereqTech>TECH_FEUDALISM</PrereqTech>
++			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -9485,9 +9485,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_ENGINEERING -->
+-			<PrereqTech>TECH_FEUDALISM</PrereqTech>
++			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -11333,7 +11333,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
++			<!-- custom: was TECH_GUNPOWDER -->
++			<PrereqTech>TECH_RIFLING</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+@@ -11520,7 +11521,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
++			<!-- custom: was TECH_GUNPOWDER -->
++			<PrereqTech>TECH_RIFLING</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+@@ -11738,7 +11740,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
++			<!-- custom: was TECH_GUNPOWDER -->
++			<PrereqTech>TECH_RIFLING</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+@@ -11955,7 +11958,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
++			<!-- custom: was TECH_GUNPOWDER -->
++			<PrereqTech>TECH_RIFLING</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+@@ -12189,7 +12193,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_RIFLING with techTypes empty anyways etc -->
+-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
++			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_RIFLING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -12397,7 +12401,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_RIFLING with techTypes empty anyways etc -->
+-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
++			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_RIFLING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -12620,7 +12624,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: rifleman units moved later in tech tree as per our reworked tech tree, seems more balanced this way giving early gun (+/- monted anyways etc) units, as well as indirectly old melee or non-gun (+/- mounted) units some time to still be relevant, perhaps more historically accurate too even though i didn't check in detail but checked bit for other units anyways etc, was TECH_RIFLING with techTypes empty anyways etc -->
+-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
++			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_RIFLING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -16642,8 +16646,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_GUILDS -->
+-			<PrereqTech>TECH_FEUDALISM</PrereqTech>
++			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -16863,8 +16866,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_GUILDS -->
+-			<PrereqTech>TECH_FEUDALISM</PrereqTech>
++			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -17110,7 +17112,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
++			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -17343,7 +17345,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
++			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -19905,7 +19907,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_ENGINEERING -->
+-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++			<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index d399105a7..841bacd11 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -560,13 +560,13 @@ void CvCity::doTurn()
+ 
+ 	doProduction(!bForceProduction);
+ 
+-	// <!-- custom: we have an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been soemthing else back then as it was at end game vs early game now in advciv-sas. In all cases, this is crippling, attempt to patch it with the help of chatgpt 5 but anyways etc, check if accurate anyways etc -->
++	// <!-- custom: we had an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been something else back then as it was at end game and affected the human player too (i.e. me at the time xd if i may say but anyways etc) (or maybe not something else? In this case i mean but anyways etc) vs early game now in advciv-sas. In all cases, this was crippling, now worked around reliably and successfully as below but anyways etc with the help of chatgpt 5 but anyways etc, check if accurate anyways etc -->
+ 	// --- BEGIN: hard safety net for AI production ---
+ 	// <!-- custom: we now successfully always avoid the no production, and other cities don't fall back to our fall back if they have a valid production -->
+ 	// <!-- custom: note: chatgpt 5 recommends adding !isDisorder() / !isOccupation() to quote it xd but anyways etc, as for me i didn't add them for simplicity and as long as works and for reliability in case these cause other issues or not or yes or etc but anyways etc, but if you or me or such notice issues consider adding one or both of these in this case i mean but anyways etc -->
+ 	if (!isHuman())
+ 	{
+-		// <!-- custom: but todo: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns anyways etc), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise anyways etc; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 anyways etc -->
++		// <!-- custom: previous issue was: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns anyways etc), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise anyways etc; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 anyways etc -->
+ 		//const bool bNeedFallback = !isProduction();
+ 		const bool bQueueEmpty  = (getOrderQueueLength() == 0);
+ 		const bool bHeadProcess = (!bQueueEmpty && isProductionProcess());
+@@ -609,7 +609,7 @@ void CvCity::doTurn()
+ 				{
+ 					continue; // ignore noncombat here
+ 				}
+-				// <!-- custom: ignore civilian units that happen to have strength, and more generally any unitai that is not among the most efficient ones (e.g. no naval units, no spy or anything else, etc), while we do a fallback, let it be a good one! Xd anways etc -->
++				// <!-- custom: ignore civilian units that happen to have strength, and more generally any unitai that is not among the most efficient ones (e.g. no naval units, no spy, no scout or anything else, etc), while we do a fallback, let it be a good one! Xd anways etc -->
+ 				const UnitAITypes eUnitAI = kU.getDefaultUnitAIType();
+ 				if (!(eUnitAI == UNITAI_CITY_DEFENSE ||
+ 					eUnitAI == UNITAI_COUNTER ||
+
+diff --git a/README.md b/README.md
+index 31dfd9bdf..1e4831f37 100644
+--- a/README.md
++++ b/README.md
+@@ -260,19 +260,19 @@ First to generate our main menu image/theme, i used as advised by chatgpt Creato
+ 
+ "Landscape 1920 x 1080 image for a civ4 based mod's wallpaper, showing some natural landscape with a hint of deer or/and camel, in a calm setting, and in line with civ4 artstyle"
+ 
+-<img src="https://drive.google.com/thumbnail?id=12SjSGKjotBJZvdQbp6G0NHqYObW-9mLX" alt="advciv-sas main menu 1024 x 1024 (Creator Nightcafe Studio).webp" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1xDlcEiaGf71MaEnl4PUUcISa6wdX82xN" alt="advciv-sas main menu 1024 x 1024 (Creator Nightcafe Studio).webp" width="150"></img>
+ 
+ Tip: make sure you download your ai-generated images at each step in case the tool modifies it as part of one of your actions/requests (such as expanding) or/and prompts and then the original image is lost, while the new one is not satisfying. Thankfully i had done so to show it to chatgpt (or maybe also just because i liked it? But in all cases or not or yes or etc anyways etc...), else would have lost the image :/ Phew if i may say but i thankfully escaped this if i may say but anyways etc...
+ 
+ Then it was 1024 x 1024 though, although otherwise amazing, so since i didn't want any other image but anyways etc, and trying a few just weren't as good nor near nowhere as good, i wanted to enhance and expand this image to 1920 x 1080 with new details (not stretched), so i found this feature in Creator Nightcafe Studio too i mean if i may say but anyways etc, but the result was not as satisfying although not too bad, it was overall much worse quality.
+ 
+-<img src="https://drive.google.com/thumbnail?id=184X9naRKgL4iGgbPEfF21Xrc_nbstx0T" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1PMaPYxcX7ai6xCc8e-hG-sydadjHpjvS" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp" width="150"></img>
+ 
+ I had resigned myself to maybe using it as again it was really not too bad, but i still asked chatgpt xd if i may say if there are tools to expand our images, and to do a web search on it too if i may say but anyways etc, and among the results, it advised me the very nice tool Pixelcut AI, as again if i may say but anyways etc i really wanted to use our if i may say/this image as i like/love it even maybe a loooooot, but i needed it at 16:9 so 1920 x 1080, and not stretched, and i found this one to be incredibly niiiiice!!! And it succeeded at first try as well!!!! (At least in a way i can be and am (very!!!) satified of if i may say but anyways etc...)
+ 
+ The output is amazing and it is now our main menu image :)
+ 
+-<img src="https://drive.google.com/thumbnail?id=1RgXQ5hpC-Xt1qvluYp77ImaX_hlva7zG" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp" width="150"></img>
+ 
+ Then i converted it to .dds with Paint.NET similarly than for other image files in our mod anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 3838235d4..9e284bb30 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -1509,9 +1509,9 @@ It only documents logic that exists in the code we just reviewed (no speculation
+ #### Common signals & helpers
+ 
+ - **War / pressure flags:** `bAtWar`, `bDanger`, `bWarPlan`, `iEnemyPowerPercent`  
+-- - Derived: `bEnemyStrong := (iEnemyPowerPercent >= 120)`, `bAtWarAndEnemyWeak := (bAtWar && iEnemyPowerPercent <= 80)`
++  Derived: `bEnemyStrong := (iEnemyPowerPercent >= 120)`, `bAtWarAndEnemyWeak := (bAtWar && iEnemyPowerPercent <= 80)`
+ - **Growth signal:** `iEffectiveFood = max(0, iFoodDifference) - max(0, -iHealthLevel);`  
+-- - `if (iHappinessSurplus <= 0) iEffectiveFood = 0`
++  `if (iHappinessSurplus <= 0) iEffectiveFood = 0`
+ - **Happiness / health:** `iHappinessSurplus`, `iHealthLevel` (reduced-volatility)
+ - **Trade reality:** `bForeignTrade` (this city currently has any foreign trade route)
+ - **Throughput / research:** `iBaseHammersPerTurn`, `iBeakersPerTurn`
+@@ -1655,7 +1655,8 @@ if (isWonder) {
+     if (PalaceMove) { late+big dual 1.5× test; maybe nudge; }
+     if (pressure) return 0;
+   }
+-}```
++}
++```
+ 
+ ### Results of known issue 48
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index d110cc808..f77273769 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -259,7 +259,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ ### Improvements and worker builds (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - some improvement (worker) or/and build 's techs prerequirements and/or such have been adjusted as well, for example build quarry is sooner, and remove forest and remove jungle are now at same time and sooner in tech tree anyways etc, see sevopedia ingame or/and tech tree view ingame or/and xml for details anyways etc
+-- the "can build farms without irrigation" ability is unlocked much sooner, as of now now at tech_engineering, see sevopedia or/and tech advisor (i.e. tech tree view anyways etc) for update value/tech if any i mean hopefully helpful anyways etc anyways etc
++- the "can build farms without irrigation" ability (`bIgnoreIrrigation` in XML if i'm not mistaken anyways etc) is unlocked much sooner, as of now now at tech_engineering, see sevopedia or/and tech advisor (i.e. tech tree view anyways etc) for update value/tech if any i mean hopefully helpful anyways etc anyways etc
+ - worker cost is reduced
+ - workboats now require a harbor to be built (reworked building in advciv-sas, as of now it is the first and cheapest water building a city can have anyways etc) (note: if one city has a harbor, it can build a workboat to work the tiles in another city even if this other city doesn't have a harbor, may seem obvious but i hadn't noticed/thought of it until i saw it in autoplay xd, hopefully helpful but anyways etc...), first it was to try to work around know issue 23 (see readme there for details anyways etc) of a barbarian workboat production stuck in a loop anyways and often failing to be produced or so it seems anyways etc, but now this is also anyways etc a nice way to balance op starts like many/high anyways etc land food yields plus one or several water food bonuses or/and yields as well that was op. Workboat cost has been reduced to match this change and harbor is a cheap building overall if i may say with a quite strong effect so hopefully stronger midgame but nerfs/reduces the op i mean way too op early high food start even if a bit. AI players have been told via iAIWeight in XML and flavor growth mostly as of now at least anyways etc to value this building and build it soon so they should not be stuck not building workboats in their coastal cities that need it ideally and if i am not mistaken too i mean hopefully more balanced and interesting if i may say this way but anyways etc anyways etc anyways etc ; see xml or and sevopedia for updated values anyways etc
+ - also allow improvement_workshop to be built on terrain_tundra tiles if i am not mistaken (`<TerrainMakesValids>` in XML if i am not mistaken anyways etc): this is to buff tundra tiles and no reason not to if i am not mistaken as well anyways etc, see sevopedia improvement for allowed terrains for the improvement_workshop as well as what `<TerrainMakesValids>` means in the header there as well if the info is there as well anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 1ffce1859..0be03e753 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 42fa89a2a..08990588f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index b7ea770e8..2bd931848 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index e2e17048e..c87c05c3c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=16 omittedFiles=1 embeddedPatchBytes=46517

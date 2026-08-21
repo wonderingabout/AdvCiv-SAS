@@ -1,0 +1,113 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4384
+# Commit: 6078dcd29cfc89fcf07201197eff43146d7bbfd3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 24dbe0256ce974067b99f4d545fa8ca23596c344
+# Title: A few comment changes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvCity.cpp
+6	2	CvGameCoreDLL/CvMap.h
+2	2	CvGameCoreDLL/SelfMod.cpp
+2	2	CvGameCoreDLL/TeamPathFinder.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 9440165f5..982dd82d8 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -6701,8 +6701,8 @@ void CvCity::updateCultureLevel(bool bUpdatePlotGroups)
+ 	setCultureLevel(eCultureLevel, bUpdatePlotGroups);
+ }
+ 
+-/*	advc: Cut from updateCultureLevel. Unlike getCulture(PlayerTypes), this function
+-	will always recalculate the culture level. */
++/*	advc: Cut from updateCultureLevel. Unlike getCultureLevel(PlayerTypes),
++	this function is guaranteed to recalculate the culture level. */
+ CultureLevelTypes CvCity::calculateCultureLevel(PlayerTypes ePlayer) const
+ {
+ 	int const iCultureTimes100 = getCultureTimes100(ePlayer);
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index d635c0a3f..5d644cc0d 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -61,14 +61,18 @@ public:
+ 	// 4 | 4 | 3 | 3 | 3 | 4 | 4
+ 	//
+ 	// Returns the distance between plots according to the pattern above...
++	/*	advc (note): The standard octile metric would use (sqrt(2)-1) as the
++		weight of the min, providing the exact length of the shortest (zigzag-y)
++		path along centers of adjacent squares. This here is a pretty close
++		approximation of that length. */
+ 	int plotDistance(int iX1, int iY1, int iX2, int iY2) const
+ 	{
+ 		int iDX = xDistance(iX1, iX2);
+ 		int iDY = yDistance(iY1, iY2);
+ 		//return std::max(iDX, iDY) + std::min(iDX, iDY) / 2;
+ 		/*	advc.opt: Non-branching replacement
+-			(abs in stdlib uses just xor and sub). Could also use the max and min
+-			functions in CvGameCoreUtils.h, but this here seems a little faster. */
++			(abs in stdlib uses just xor and sub). Could also use the max and min functions
++			in the branchless namespace, but this here seems a little faster. */
+ 		return (3 * (iDX + iDY) + abs(iDX - iDY)) / 4;
+ 	}
+
+diff --git a/CvGameCoreDLL/SelfMod.cpp b/CvGameCoreDLL/SelfMod.cpp
+index aa4e19c03..7324efc3b 100644
+--- a/CvGameCoreDLL/SelfMod.cpp
++++ b/CvGameCoreDLL/SelfMod.cpp
+@@ -61,7 +61,7 @@ protected:
+ 		that has been reverse-engineered to write this class. I don't think a
+ 		compatibility layer should make a difference. Large address awareness
+ 		has been tested both ways. It's unclear whether different builds exist
+-		apart from the incompatible Steam version. Localized editions perhaps. 
++		apart from the (default) Steam version. Localized editions perhaps. 
+ 		So this hasn't really been tested; it's a better-than-nothing effort to
+ 		align a starting address at which a certain sequence of code bytes is
+ 		expected with the address, if any, at which the sequence is actually found.
+@@ -72,7 +72,7 @@ protected:
+ 		byte* pNeedleBytes, int iNeedleBytes, uint uiExpectedStart,
+ 		/*	Shorter sequence to check for upfront, to save time.
+ 			If found at uiQuckTestStart, then an offset of 0 is returned
+-			w/o checking pNeeldeBytes. */
++			w/o checking pNeedleBytes. */
+ 		byte* pQuickTestBytes = NULL, int iQuickTestBytes = 0, uint uiQuickTestStart = 0,
+ 		/*	How big an offset we contemplate. Not going to search the
+ 			entire virtual memory*/
+
+diff --git a/CvGameCoreDLL/TeamPathFinder.cpp b/CvGameCoreDLL/TeamPathFinder.cpp
+index 68c760cf8..c6108ab94 100644
+--- a/CvGameCoreDLL/TeamPathFinder.cpp
++++ b/CvGameCoreDLL/TeamPathFinder.cpp
+@@ -53,7 +53,7 @@ bool TeamStepMetric<eMODE>::canStepThrough(CvPlot const& kPlot) const
+ 			{
+ 				//bCanal = (kPlot.isImproved() && m_pTeam->isBase(kPlot));
+ 				/*	^Just too needlessly slow. We check most of the conditions here
+-					anyway. As much as I don't like having redundant code ... */
++					anyway. As much as I dislike having redundant code ... */
+ 				bCanal = (kPlot.isCity() || (kPlot.isImproved() &&
+ 						GC.getInfo(kPlot.getImprovementType()).isActsAsCity()));
+ 			}
+@@ -162,7 +162,7 @@ int TeamStepMetric<eMODE>::cost(CvPlot const& kFrom, CvPlot const& kTo) const
+ 	return iCost;
+ }
+ 
+-// Eplicit instantiations ...
++// Explicit instantiations ...
+ #define DO_FOR_EACH_MODE(DO) \
+ 		DO(LAND) \
+ 		DO(ANY_WATER) \
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=4021

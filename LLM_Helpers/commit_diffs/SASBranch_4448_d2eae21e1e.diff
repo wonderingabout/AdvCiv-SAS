@@ -1,0 +1,1410 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4448
+# Commit: d2eae21e1ef676a01c36e1f79817e0b38b5362b3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9e636f4ebf8829e96ead5fd9ef58a559e277e46a
+# Title: add Kingdom of Benin (civilization) and Ogiso Igodo (leader) (unfinished), and other things, about this at least maybe i mean anyways: - imported, while doin...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+172	0	Assets/XML/Buildings/CIV4BuildingInfos.xml
+103	0	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+215	0	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+332	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+31	1	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+199	0	Assets/XML/Units/CIV4UnitInfos.xml
+13	6	README.md
+-	-	_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.png
+6	6	_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+-	-	_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png
+9	1	_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+12	0	_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_game_design_choices
+2	0	_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_some_assets_content
+36	7	_1_AdvCiv_SAS/Lists/Wonders_List
+6	6	_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv_SAS/Wonders/Venus of Laussel/Venus-de-Laussel-vue-generale-noir.jpg
+ create mode 100644 Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+ create mode 100644 _1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.png
+ create mode 100644 _1_AdvCiv_SAS/Wonders/Venus of Laussel/Venus-de-Laussel-vue-generale-noir.jpg
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index d72ba62da..bfa966b17 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -2886,6 +2886,178 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
++		<BuildingInfo>
++			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
++			<Type>BUILDING_PEOPLE_OF_BENIN_IMPLUVIUM</Type>
++			<SpecialBuildingType>NONE</SpecialBuildingType>
++			<Description>TXT_KEY_BUILDING_AQUEDUCT</Description>
++			<Civilopedia>TXT_KEY_BUILDING_AQUEDUCT_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_BUILDING_AQUEDUCT_STRATEGY</Strategy>
++			<Advisor>ADVISOR_GROWTH</Advisor>
++			<ArtDefineTag>ART_DEF_BUILDING_AQUEDUCT</ArtDefineTag>
++			<MovieDefineTag>NONE</MovieDefineTag>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<bStateReligion>0</bStateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<FoundsCorporation>NONE</FoundsCorporation>
++			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
++			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
++			<VictoryPrereq>NONE</VictoryPrereq>
++			<!-- advc.126: was ERA_RENAISSCANCE -->
++			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
++			<MaxStartEra>NONE</MaxStartEra>
++			<ObsoleteTech>NONE</ObsoleteTech>
++			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_MASONRY</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
++			<Bonus>NONE</Bonus>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<HappinessTraits/>
++			<NoBonus>NONE</NoBonus>
++			<PowerBonus>NONE</PowerBonus>
++			<FreeBonus>NONE</FreeBonus>
++			<iNumFreeBonuses>0</iNumFreeBonuses>
++			<FreeBuilding>NONE</FreeBuilding>
++			<FreePromotion>NONE</FreePromotion>
++			<CivicOption>NONE</CivicOption>
++			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
++			<iHurryAngerModifier>0</iHurryAngerModifier>
++			<bBorderObstacle>0</bBorderObstacle>
++			<bTeamShare>0</bTeamShare>
++			<bWater>0</bWater>
++			<bRiver>0</bRiver>
++			<bPower>0</bPower>
++			<bDirtyPower>0</bDirtyPower>
++			<bAreaCleanPower>0</bAreaCleanPower>
++			<DiploVoteType>NONE</DiploVoteType>
++			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
++			<bCapital>0</bCapital>
++			<bGovernmentCenter>0</bGovernmentCenter>
++			<bGoldenAge>0</bGoldenAge>
++			<bAllowsNukes>0</bAllowsNukes>
++			<bMapCentering>0</bMapCentering>
++			<bNoUnhappiness>0</bNoUnhappiness>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
++			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
++			<bNeverCapture>0</bNeverCapture>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bCenterInCity>1</bCenterInCity>
++			<iAIWeight>0</iAIWeight>
++			<!-- advc.911c: was 100 -->
++			<iCost>90</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iConquestProb>66</iConquestProb>
++			<iCitiesPrereq>0</iCitiesPrereq>
++			<iTeamsPrereq>0</iTeamsPrereq>
++			<iLevelPrereq>0</iLevelPrereq>
++			<iMinLatitude>0</iMinLatitude>
++			<iMaxLatitude>90</iMaxLatitude>
++			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
++			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
++			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
++			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
++			<iAnarchyModifier>0</iAnarchyModifier>
++			<iGoldenAgeModifier>0</iGoldenAgeModifier>
++			<iGlobalHurryModifier>0</iGlobalHurryModifier>
++			<iExperience>0</iExperience>
++			<iGlobalExperience>0</iGlobalExperience>
++			<iFoodKept>0</iFoodKept>
++			<iAirlift>0</iAirlift>
++			<iAirModifier>0</iAirModifier>
++			<iAirUnitCapacity>0</iAirUnitCapacity>
++			<iNukeModifier>0</iNukeModifier>
++			<iNukeExplosionRand>0</iNukeExplosionRand>
++			<iFreeSpecialist>0</iFreeSpecialist>
++			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
++			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
++			<iMaintenanceModifier>0</iMaintenanceModifier>
++			<iWarWearinessModifier>0</iWarWearinessModifier>
++			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
++			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
++			<iHealRateChange>0</iHealRateChange>
++			<iHealth>2</iHealth>
++			<iAreaHealth>0</iAreaHealth>
++			<iGlobalHealth>0</iGlobalHealth>
++			<iHappiness>0</iHappiness>
++			<iAreaHappiness>0</iAreaHappiness>
++			<iGlobalHappiness>0</iGlobalHappiness>
++			<iStateReligionHappiness>0</iStateReligionHappiness>
++			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
++			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
++			<iSpaceProductionModifier>0</iSpaceProductionModifier>
++			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
++			<iTradeRoutes>0</iTradeRoutes>
++			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
++			<iTradeRouteModifier>0</iTradeRouteModifier>
++			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
++			<iGlobalPopulationChange>0</iGlobalPopulationChange>
++			<iFreeTechs>0</iFreeTechs>
++			<iDefense>0</iDefense>
++			<iBombardDefense>0</iBombardDefense>
++			<iAllCityDefense>0</iAllCityDefense>
++			<iEspionageDefense>0</iEspionageDefense>
++			<iAsset>4</iAsset>
++			<iPower>0</iPower>
++			<fVisibilityPriority>10240000.0</fVisibilityPriority>
++			<!-- this building wants to be super-important so that it gets placed first -->
++			<SeaPlotYieldChanges/>
++			<RiverPlotYieldChanges/>
++			<GlobalSeaPlotYieldChanges/>
++			<YieldChanges/>
++			<CommerceChanges/>
++			<ObsoleteSafeCommerceChanges/>
++			<CommerceChangeDoubleTimes/>
++			<CommerceModifiers/>
++			<GlobalCommerceModifiers/>
++			<SpecialistExtraCommerces/>
++			<StateReligionCommerces/>
++			<CommerceHappinesses/>
++			<ReligionChanges/>
++			<SpecialistCounts/>
++			<FreeSpecialistCounts/>
++			<CommerceFlexibles/>
++			<CommerceChangeOriginalOwners/>
++			<ConstructSound>AS2D_BUILD_AQUEDUCT</ConstructSound>
++			<BonusHealthChanges/>
++			<BonusHappinessChanges/>
++			<BonusProductionModifiers/>
++			<UnitCombatFreeExperiences/>
++			<DomainFreeExperiences/>
++			<DomainProductionModifiers/>
++			<BuildingHappinessChanges/>
++			<PrereqBuildingClasses/>
++			<BuildingClassNeededs/>
++			<SpecialistYieldChanges/>
++			<BonusYieldModifiers/>
++			<ImprovementFreeSpecialists/>
++			<!-- advc.020: Was 10 Growth. I worry that this much flavor on
++			     every health building will make Growth leaders overrate health
++			     buildings. -->
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>8</iFlavor>
++				</Flavor>
++			</Flavors>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++		</BuildingInfo>
+ 		<BuildingInfo>
+ 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
+ 			<Type>BUILDING_OTTOMAN_HAMMAM</Type>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 014b5cc96..1927cfbac 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1246,6 +1246,109 @@
+ 			<CivilizationSelectionSound>AS3D_ETHIOPIA_SELECT</CivilizationSelectionSound>
+ 			<CivilizationActionSound>AS3D_ETHIOPIA_ORDER</CivilizationActionSound>
+ 		</CivilizationInfo>
++		<!-- custom: add Kingdom Of Benin
++		source for the map (files appended in docs):
++		https://www.nairaland.com/7653263/map-great-benin-kingdom-till
++		and https://smarthistory.org/benin-art-patrons/
++		I don't have the order of founding them so i will go approximately maybe
++		i mean anyways
++		APA city doesn't seem to be their city but seems about right i mean
++		anyways maybe in this case at least mayeb i mean anyways.
++		note:
++		for religion is a filler until i replace religion with paganism, commit would
++		be overloaded if i did all changes at same time about this case at least maybe
++		or not i mean anyways i mean anywyas, so put confucianism as a filler in this case
++		i mean anyways
++		same if i may say in this case maybe i mean anyways about techs, since i did not
++		implement the new techs in this case at least i mean anywyas, putting some filler
++		techs, among them Mysticism and Agriculture may fit quite well as it's a civ that
++		is good at growing i mean anyways based on my understanding and what i read of it
++		in the wiki (didn't read all but maybe enough hopefully about this case i mean
++		anyways, i mean anyways at least maybe i mean anyways)
++		-->
++		<CivilizationInfo>
++			<Type>CIVILIZATION_KINGDOM_OF_BENIN</Type>
++			<Description>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Description>
++			<ShortDescription>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</ShortDescription>
++			<Adjective>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Adjective>
++			<Civilopedia>TXT_KEY_CIV_ETHIOPIA_PEDIA</Civilopedia>
++			<DefaultPlayerColor>PLAYERCOLOR_MIDDLE_GREEN</DefaultPlayerColor>
++			<ArtDefineTag>ART_DEF_CIVILIZATION_ETHIOPIA</ArtDefineTag>
++			<ArtStyleType>ARTSTYLE_MIDDLE_EAST</ArtStyleType>
++			<UnitArtStyleType>UNIT_ARTSTYLE_MIDDLE_EAST</UnitArtStyleType>
++			<bPlayable>1</bPlayable>
++			<bAIPlayable>1</bAIPlayable>
++			<Cities>
++				<City>TXT_KEY_CITY_NAME_EDO</City>
++				<City>TXT_KEY_CITY_NAME_UGHOTON</City>
++				<City>TXT_KEY_CITY_ILE_UGBODU</City>
++				<City>TXT_KEY_CITY_ILE_MAHIN</City>
++				<City>TXT_KEY_CITY_ILE_UKUNZU</City>
++				<City>TXT_KEY_CITY_ILE_UROMI</City>
++				<City>TXT_KEY_CITY_ILE_ONDO</City>
++				<City>TXT_KEY_CITY_ILE_AKURE</City>
++				<City>TXT_KEY_CITY_ILE_UZEA</City>
++				<City>TXT_KEY_CITY_ILE_OWO</City>
++				<City>TXT_KEY_CITY_ILE_IKERE</City>
++				<City>TXT_KEY_CITY_ADO_EKITI</City>
++				<City>TXT_KEY_CITY_ADO_EKO</City>
++				<City>TXT_KEY_CITY_ADO_EKITI</City>
++				<City>TXT_KEY_CITY_ADO_IPOKIA</City>
++				<City>TXT_KEY_CITY_ADO_ITAKETE</City>
++				<City>TXT_KEY_CITY_ADO_APA</City>
++			</Cities>
++			<Buildings>
++				<Building>
++					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
++					<BuildingType>BUILDING_PEOPLE_OF_BENIN_IMPLUVIUM</BuildingType>
++				</Building>
++			</Buildings>
++			<Units>
++				<Unit>
++					<UnitClassType>UNITCLASS_CROSSBOWMAN</UnitClassType>
++					<UnitType>UNIT_PEOPLE_OF_BENIN_DISCIPLINED_CROSSBOWMAN</UnitType>
++				</Unit>
++			</Units>
++			<FreeUnitClasses>
++				<FreeUnitClass>
++					<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
++					<iFreeUnits>1</iFreeUnits>
++				</FreeUnitClass>
++			</FreeUnitClasses>
++			<FreeBuildingClasses>
++				<FreeBuildingClass>
++					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
++					<bFreeBuildingClass>1</bFreeBuildingClass>
++				</FreeBuildingClass>
++			</FreeBuildingClasses>
++			<FreeTechs>
++				<FreeTech>
++					<TechType>TECH_MYSTICISM</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<FreeTech>
++					<TechType>TECH_AGRICULTURE</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++			</FreeTechs>
++			<DisableTechs/>
++			<InitialCivics>
++				<CivicType>CIVIC_DESPOTISM</CivicType>
++				<CivicType>CIVIC_BARBARISM</CivicType>
++				<CivicType>CIVIC_TRIBALISM</CivicType>
++				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
++				<CivicType>CIVIC_PAGANISM</CivicType>
++			</InitialCivics>
++			<Leaders>
++				<Leader>
++					<LeaderName>LEADER_OGISO_IGODO</LeaderName>
++					<bLeaderAvailability>1</bLeaderAvailability>
++				</Leader>
++			</Leaders>
++			<DerivativeCiv>NONE</DerivativeCiv>
++			<CivilizationSelectionSound>AS3D_ETHIOPIA_SELECT</CivilizationSelectionSound>
++			<CivilizationActionSound>AS3D_ETHIOPIA_ORDER</CivilizationActionSound>
++		</CivilizationInfo>
+ 		<CivilizationInfo>
+ 			<Type>CIVILIZATION_FRANCE</Type>
+ 			<Description>TXT_KEY_CIV_FRANCE_DESC</Description>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 7ae5eed2e..416542ba8 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -12161,5 +12161,220 @@
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
++		<!--custom: basing Ogiso Igodo on Zara Yaqob and tweaking from there, seems the
++		profile that fits the best or quite best in this case at least i mean anyways
++		(growth type and financial, fairly peaceful, but also good at defense and a bit
++		military if need (mostly defense if i understood it correctly about this at least
++		in this case i mean also i mean anyways))
++		Will tweak later most things about this i mean at least i mean anyways, first
++		comitting and/or testing to see if it works
++		Will also change Zara Yaqob's assets later if there are i mean anyways (and
++		there are here at least i mean about this maybe in this case i mean anyways),
++		first testing about this i mean anyways, thanks, -->
++		<LeaderHeadInfo>
++			<Type>LEADER_OGISO_IGODO</Type>
++			<Description>TXT_KEY_LEADER_OGISO_IGODO</Description>
++			<Civilopedia>TXT_KEY_LEADER_OGISO_IGODO_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_LEADER_ZARA_YAQOB</ArtDefineTag>
++			<iWonderConstructRand>20</iWonderConstructRand>
++			<iBaseAttitude>2</iBaseAttitude>
++			<iBasePeaceWeight>6</iBasePeaceWeight>
++			<iWarmongerRespect>1</iWarmongerRespect>
++			<iEspionageWeight>100</iEspionageWeight>
++			<iRefuseToTalkWarThreshold>8</iRefuseToTalkWarThreshold>
++			<iNoTechTradeThreshold>10</iNoTechTradeThreshold>
++			<iTechTradeKnownPercent>30</iTechTradeKnownPercent>
++			<iMaxGoldTradePercent>10</iMaxGoldTradePercent>
++			<!-- BBAI Victory Strategy -->
++			<iCultureVictoryWeight>50</iCultureVictoryWeight>
++			<iSpaceVictoryWeight>35</iSpaceVictoryWeight>
++			<iConquestVictoryWeight>15</iConquestVictoryWeight>
++			<iDominationVictoryWeight>15</iDominationVictoryWeight>
++			<iDiplomacyVictoryWeight>35</iDiplomacyVictoryWeight>
++			<!-- BBAI Victory Strategy -->
++			<iMaxWarRand>200</iMaxWarRand>
++			<iMaxWarNearbyPowerRatio>100</iMaxWarNearbyPowerRatio>
++			<iMaxWarDistantPowerRatio>50</iMaxWarDistantPowerRatio>
++			<iMaxWarMinAdjacentLandPercent>2</iMaxWarMinAdjacentLandPercent>
++			<iLimitedWarRand>100</iLimitedWarRand>
++			<iLimitedWarPowerRatio>110</iLimitedWarPowerRatio>
++			<iDogpileWarRand>50</iDogpileWarRand>
++			<iMakePeaceRand>10</iMakePeaceRand>
++			<iDemandRebukedSneakProb>50</iDemandRebukedSneakProb>
++			<iDemandRebukedWarProb>10</iDemandRebukedWarProb>
++			<iRazeCityProb>5</iRazeCityProb>
++			<iBuildUnitProb>30</iBuildUnitProb>
++			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
++			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
++			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
++			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
++			<!-- advc.148: was 7 -->
++			<iSameReligionAttitudeChangeLimit>6</iSameReligionAttitudeChangeLimit>
++			<!-- advc.130n: was iDifferentReligionAttitudeChange -->
++			<iDifferentReligionAttitudeChangeLimit>-2</iDifferentReligionAttitudeChangeLimit>
++			<iShareWarAttitudeChangeLimit>3</iShareWarAttitudeChangeLimit>
++			<!-- advc.148: was 4 -->
++			<iFavoriteCivicAttitudeChangeLimit>3</iFavoriteCivicAttitudeChangeLimit>
++			<TechRefuseAttitudeThreshold>ATTITUDE_FURIOUS</TechRefuseAttitudeThreshold>
++			<!-- advc.ctr: start -->
++			<CityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</CityRefuseAttitudeThreshold>
++			<NativeCityRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</NativeCityRefuseAttitudeThreshold>
++			<!-- advc.ctr: end -->
++			<StrategicBonusRefuseAttitudeThreshold>ATTITUDE_ANNOYED</StrategicBonusRefuseAttitudeThreshold>
++			<HappinessBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HappinessBonusRefuseAttitudeThreshold>
++			<HealthBonusRefuseAttitudeThreshold>ATTITUDE_FURIOUS</HealthBonusRefuseAttitudeThreshold>
++			<MapRefuseAttitudeThreshold>ATTITUDE_ANNOYED</MapRefuseAttitudeThreshold>
++			<DeclareWarRefuseAttitudeThreshold>ATTITUDE_ANNOYED</DeclareWarRefuseAttitudeThreshold>
++			<DeclareWarThemRefuseAttitudeThreshold>ATTITUDE_PLEASED</DeclareWarThemRefuseAttitudeThreshold>
++			<StopTradingRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingRefuseAttitudeThreshold>
++			<StopTradingThemRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</StopTradingThemRefuseAttitudeThreshold>
++			<AdoptCivicRefuseAttitudeThreshold>ATTITUDE_ANNOYED</AdoptCivicRefuseAttitudeThreshold>
++			<ConvertReligionRefuseAttitudeThreshold>ATTITUDE_PLEASED</ConvertReligionRefuseAttitudeThreshold>
++			<OpenBordersRefuseAttitudeThreshold>ATTITUDE_ANNOYED</OpenBordersRefuseAttitudeThreshold>
++			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
++			<iVassalPowerModifier>0</iVassalPowerModifier>
++			<FavoriteCivic>CIVIC_THEOCRACY</FavoriteCivic>
++			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<Traits>
++				<Trait>
++					<TraitType>TRAIT_PROTECTIVE</TraitType>
++					<bTrait>1</bTrait>
++				</Trait>
++				<Trait>
++					<TraitType>TRAIT_FINANCIAL</TraitType>
++					<bTrait>1</bTrait>
++				</Trait>
++			</Traits>
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_RELIGION</FlavorType>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>5</iFlavor>
++				</Flavor>
++			</Flavors>
++			<ContactRands>
++				<ContactRand>
++					<ContactType>CONTACT_RELIGION_PRESSURE</ContactType>
++					<iContactRand>100</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_CIVIC_PRESSURE</ContactType>
++					<iContactRand>250</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_JOIN_WAR</ContactType>
++					<iContactRand>20</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_STOP_TRADING</ContactType>
++					<iContactRand>50</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_GIVE_HELP</ContactType>
++					<iContactRand>50</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_ASK_FOR_HELP</ContactType>
++					<iContactRand>50</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_DEMAND_TRIBUTE</ContactType>
++					<iContactRand>500</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<!-- advc.134a: was 20 -->
++					<ContactType>CONTACT_PEACE_TREATY</ContactType>
++					<iContactRand>15</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_TRADE_TECH</ContactType>
++					<iContactRand>1</iContactRand>
++				</ContactRand>
++				<ContactRand>
++					<ContactType>CONTACT_TRADE_BONUS</ContactType>
++					<iContactRand>1</iContactRand>
++				</ContactRand>
++			</ContactRands>
++			<ContactDelays>
++				<ContactDelay>
++					<!-- advc.134a: was 10 -->
++					<ContactType>CONTACT_PEACE_TREATY</ContactType>
++					<iContactDelay>15</iContactDelay>
++				</ContactDelay>
++			</ContactDelays>
++			<MemoryDecays/>
++			<MemoryAttitudePercents>
++				<!-- advc.001g: Was duplicated; one said 10, the other 5. -->
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_TRADED_TECH_TO_US</MemoryType>
++					<iMemoryAttitudePercent>8</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
++			</MemoryAttitudePercents>
++			<NoWarAttitudeProbs>
++				<NoWarAttitudeProb>
++					<AttitudeType>ATTITUDE_ANNOYED</AttitudeType>
++					<iNoWarProb>10</iNoWarProb>
++				</NoWarAttitudeProb>
++				<NoWarAttitudeProb>
++					<AttitudeType>ATTITUDE_CAUTIOUS</AttitudeType>
++					<iNoWarProb>50</iNoWarProb>
++				</NoWarAttitudeProb>
++				<NoWarAttitudeProb>
++					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
++					<iNoWarProb>90</iNoWarProb>
++				</NoWarAttitudeProb>
++			</NoWarAttitudeProbs>
++			<!-- advc.005a: Was City Defense 100. Use Reserve 25 when nothing
++				 else comes to mind. -->
++			<UnitAIWeightModifiers>
++				<UnitAIWeightModifier>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<iWeightModifier>25</iWeightModifier>
++				</UnitAIWeightModifier>
++			</UnitAIWeightModifiers>
++			<!-- advc.005a: Was none. Can't think of a second one. -->
++			<ImprovementWeightModifiers>
++				<ImprovementWeightModifier>
++					<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
++					<iWeightModifier>20</iWeightModifier>
++				</ImprovementWeightModifier>
++			</ImprovementWeightModifiers>
++			<DiplomacyIntroMusicPeace/>
++			<DiplomacyMusicPeace>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_ANCIENT</EraType>
++					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_CLASSICAL</EraType>
++					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_EARLY</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_MEDIEVAL</EraType>
++					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_MIDDLE</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_RENAISSANCE</EraType>
++					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_MIDDLE</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_INDUSTRIAL</EraType>
++					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_LATE</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_MODERN</EraType>
++					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_LATE</DiploScriptId>
++				</DiploMusicPeaceEra>
++				<DiploMusicPeaceEra>
++					<EraType>ERA_FUTURE</EraType>
++					<DiploScriptId>AS2D_DIPLO_ZARA_YAQOB_LATE</DiploScriptId>
++				</DiploMusicPeaceEra>
++			</DiplomacyMusicPeace>
++			<DiplomacyIntroMusicWar/>
++			<DiplomacyMusicWar/>
++		</LeaderHeadInfo>
+ 	</LeaderHeadInfos>
+ </Civ4LeaderHeadInfos>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+new file mode 100644
+index 000000000..e8b802e16
+--- /dev/null
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -0,0 +1,332 @@
++<?xml version="1.0" encoding="ISO-8859-1"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by XMLSPY 2004 Professional Ed. Release 2, Installed Multi + SMP for 3 users (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Game Text Objects -->
++<Civ4GameText xmlns="http://www.firaxis.com">
++	<!-- custom: rename "Ivory" to "Elephants", there are 2 main reasons
++	for why i suggest this change i mean anyways: 
++	- 1) you need elephants to build war elephants, not ivory, even if you
++	were to somehow find ivory somewhere, it would/could not magically turn
++	into a war elephant, so using the animal instead i mean anyways makes much
++	more sense i think -why no one thought ofor did this rather maybe? I mean
++	 anwyays
++	- 2) ivory doesn't grow on the groud, if i am not mistaken and understand
++	it correctly i mean anwyays, but is derived from elephants, whether they
++	are alive or dead (could be traded though but it's about terrain ressources
++	in this case i mean anyways). So it is more immersive, realistic, and making
++	sense to use "Elephants" instead of ivory i think i mean anyways. One could
++	also maybe imagine that elephants the animal itself makes people happy, like
++	for the zoo or something?
++	note: Since they are part of the animals that are countable in english rather
++	than uncountable (see discussion (actually link and my code comments i mean
++	anyways..) below about cattle if i am not mistaken) and seeing that civ4
++	doesn't seem to bother with singulars too much about animals at least i mean
++	anyways, (and i like it	better this way and/or also thinks itsmore fit to this
++	i mean anyways).
++	As for the elephants (and not the cattle below or similar type of animals i
++	mean anyways), based on the 2 bullet points before that note i mean anyways,
++	and using an approach similar than for the "ice" renaming to "ice land" i
++	mean anyways, but much more simple as i can directly fetch the wikipedia page
++	if it has the plural form, or a dictionnary alternatively i mean anyways,
++	here is the result, from https://en.wikipedia.org/wiki/Elephant,
++	leading to dictionnaires or translators, after some double checking sometimes
++	ideally too i mean anyways in other website in this case i mean anyways : -->
++	<TEXT>
++		<Tag>TXT_KEY_BONUS_IVORY</Tag>
++		<!-- custom: https://en.wiktionary.org/wiki/elephant -->
++		<English>Elephants</English>
++		<!-- custom: https://fr.wikipedia.org/wiki/%C3%89l%C3%A9phant
++		https://fr.wiktionary.org/wiki/%C3%A9l%C3%A9phants
++		-->
++		<French>
++			<Text>Éléphants</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<!-- custom: https://de.wikipedia.org/wiki/Elefanten
++		https://www.verbformen.com/declension/nouns/Elefant.htm#UeBearbeiten -->
++		<German>
++			<Text>Elefanten</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<!-- custom:
++		https://context.reverso.net/translation/english-italian/Elephants -->
++		<Italian>
++			<Text>Elefanti</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<!-- custom:
++		https://context.reverso.net/translation/english-spanish/Elephants -->
++		<Spanish>
++			<Text>Elefantes</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++
++	<!-- custom: similarly to what was done with the elephants, try to find a better
++	fitting word. Be careful, according to, for example:
++	https://forum.wordreference.com/threads/sheep-countable-uncountable.2057034/post-13154720 ,
++	some animals are (best fit as i mean?) countable (5 cats for example) while others
++	are best fit at singular (5 sheep for example)
++	There is less gains in changing what is already working (and maybe more accurate in this case)
++	i mean anyways. But specifically for cattle however rather than cows as it applies to all sexes
++	of the cows,
++	while still being specific and not generic if i'm not mistaken i mean anyways:
++	https://www.idausa.org/campaign/guardian/latest-news/difference-cows-cattle-meaning/#:~:text=The%20difference%20between%20cows%20and,strictly%20to%20mature%20female%20bovines.
++	https://context.reverso.net/translation/english-french/cows
++	Also the audio announcer says in https://civilization.fandom.com/wiki/Animal_Husbandry_(Civ4):
++	"Blessed shall be the fruit of thy cattle, the increase of thy kine, and the flocks of thy sheep."
++	– The Bible, Deuteronomy 28:4
++	So i think it's very immersive and nice to use cattle here too on top of being
++	more accurate it seems i mean anyways
++	-->
++	<TEXT>
++	<Tag>TXT_KEY_BONUS_COW</Tag>
++	<English>Cattle</English>
++	<!-- custom: keeping as is, but for reference:
++	https://context.reverso.net/translation/english-french/cattle
++	"bétail" (on same link i mean anyways) seems to be "livestock" and not "cattle"
++	so not the meaning i would want, same as for elephants, i would want to refer to
++	the (living) animal, not (its value as) the product i mean anyways.
++	-->
++	<French>
++		<Text>Bovins</Text>
++		<Gender>Male</Gender>
++		<Plural>1</Plural>
++	</French>
++	<!-- custom: https://context.reverso.net/translation/english-german/cattle
++	https://en.wiktionary.org/wiki/Vieh
++	https://en.wiktionary.org/wiki/Rind
++	Similar as for the french translation, vieh seems to be about livestock so
++	less accurate/relevant i think i mean anyways than Rind here, which the
++	translator suggested too due to its many examples if i may say i mean anyways,
++	which is also why i think it's so good if i may say i mean anyways.. -->
++	<German>
++		<Text>Rind</Text>
++		<Gender>Male</Gender>
++		<Plural>0</Plural>
++	</German>
++	<!-- custom: https://context.reverso.net/translation/english-italian/cattle
++	suggests "bestiame" but the existing civ4 bovino seems more accurate so
++	keeping it, so throw some caution at the examples it gives (do reverse
++	translate or search on google or some other engine/place i mean anyways,
++	but generally is very good, as it also suggest the gender too of the words
++	and their (what seems like theirs i mean anyways) synonyms i mean anyways) -->
++	<Italian>
++		<Text>Bovino</Text>
++		<Gender>Male</Gender>
++		<Plural>0</Plural>
++	</Italian>
++	<!-- custom: https://context.reverso.net/translation/english-spanish/cattle
++	the suggested reses (this is maybe a good maybe i mean anyways example of
++	reverse translation i mean anyways):
++	https://context.reverso.net/translation/spanish-english/reses)
++	i did not look in detail but it seems more linked to butchering/livestock(?),
++	but may be mistaken as i did not look in details i mean anyways, as bovinos
++	(from the first link in italian cattle's XML i mean anyways) suggested by
++	reverso.net among others should be good enough maybe in this, case i mean
++	anyways, and so does ganado too after a quick search i mean anyways:
++	https://www.collinsdictionary.com/dictionary/spanish-english/ganado
++	A good approach may be to just pick the ones with the most amount of
++	relevant examples after	checking them, to avoid to have to check if
++	singular or plural depending on the language i mean anyways, so would be
++	this for example maybe i mean anyways:
++	https://context.reverso.net/translation/english-spanish/cattle#bovinos -->
++	<Spanish>
++		<Text>Bovinos</Text>
++		<!-- custom: is masculine:
++		https://www.spanishdict.com/translate/bovidos#:~:text=bovinos,Masculine%20pluralofbovino(adjective) -->
++		<Gender>Male</Gender>
++		<Plural>1</Plural>
++	</Spanish>
++	</TEXT>
++	<!-- custom: add Civ Kingdom Of Benin with their leader Ogiso Igodo -->
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_OGISO_IGODO</Tag>
++		<English>Ogiso Igodo</English>
++		<French>
++			<Text>Ogiso Igodo</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Ogiso Igodo</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Ogiso Igodo</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Ogiso Igodo</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<!-- custom: https://en.wikipedia.org/wiki/Kingdom_of_Benin -->
++		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Tag>
++		<English>Kingdom Of Benin</English>
++		<French>
++			<Text>Royaume du Bénin</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Königreich Benin</Text>
++			<Gender>Neuter</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Regno del Benin</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Imperio Et&#237;ope</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</Tag>
++		<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki
++		i mean anyways if i understood it correctly i mean anyways) with modern
++		Benin, trying to keep the full name to make the distinction clearer, even
++		though some circumstances could call for shortening it if purely realistic
++		i mean anyways-->
++		<English>Kingdom Of Benin</English>
++		<French>
++			<Text>Royaume du Bénin</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Königreich Benin</Text>
++			<Gender>Neuter</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Regno del Benin</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Imperio Et&#237;ope</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<!-- custom: i found no clear mention of an adjective, going with
++	"people of Benin" mentionned here:
++	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Founding
++	(from a quite quick glance in this case at least i mean anyways)
++	Translated using Quillbot:
++	https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin
++	which i find works very well at least in this case i mean anyways (as
++	imperfect as it is at least maybe in this case maybe i mean anyways about
++	this i mean anyways at least i mean anyways) -->
++	<TEXT>
++		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_ADJECTIVE</Tag>
++		<English>
++			<Text>the people of Benin</Text>
++			<Gender>Male</Gender>
++			<Plural>1</Plural>
++		</English>
++		<French>
++			<Text>le peuple béninois</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>das Volk von Benin</Text>
++			<Gender>Neuter</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>il popolo del Benin</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>el pueblo de Benín</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<!-- custom: this mentions clearly and several times the impluvium as a
++	special	building the Kingdom Of Benin had:
++	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Architecture
++	Not sure about the gender, except French partly from google results
++	i mean anyways, keeping as Neuter in german and Male in other
++	languages for ease of use (of translating all this too i mean
++	anyways even though i like but focus on myself indeed i mean
++	anyways)
++	Also using People of Benin and not Kingdom of Benin to try to use
++	the adjective form (see below in this case at least i mean anyways)
++	i mean anyways even though is an expression should maybe be ok in
++	this case at least maybe about this case at least i mean anyways -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_PEOPLE_OF_BENIN_IMPLUVIUM</Tag>
++		<English>Impluvium</English>
++		<French>
++			<Text>Impluvium</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Impluvium</Text>
++			<Gender>Neuter</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Impluvium</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Impluvium</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<!-- custom: very disciplined nation, and using crossbowmen, see:
++	https://en.wikipedia.org/wiki/Kingdom_of_Benin#Military
++	About German at least, i found the gender to be masculine at least
++	if i'm not mistaken if i may say (quite proudly) i mean anyways,
++	not that i did check them all in this case or others if i may
++	say i mean anyways, not that it is ideal about this case, at least
++	maybe or not or yes, anyways is as is maybe or not or yes or not
++	maybe, i mean anyways -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_PEOPLE_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Tag>
++		<English>Disciplined Crossbowman</English>
++		<French>
++			<Text>Arbalétrier discipliné:Arbalétriers disciplinés</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</French>
++		<German>
++			<Text>Disziplinierter Armbrustschütze:Disziplinierte Armbrustschützen</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</German>
++		<Italian>
++			<Text>Balestriere Disciplionato:Ballesteros disciplinados</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Ballestero disciplinado:Balestrieri Disciplini</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
++	</TEXT>
++</Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index 0b456cb2d..f7dec9984 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -1395,5 +1395,35 @@
+ 		<Italian>[H1]Unit&#224; aeree[\H1][PARAGRAPH:2]Sono state utilizzate diffusamente per la prima volta nel corso della Prima Guerra Mondiale come veicoli da ricognizione privi di armi; nei cinquant'anni successivi sono diventate una delle componenti pi&#249; versatili e potenti degli eserciti moderni. In effetti, come hanno mostrato gli eventi pi&#249; recenti, un esercito con superiorit&#224; aerea &#232; in grado di indebolire le forze di terra nemiche prima ancora che una singola unit&#224; di fanteria o un mezzo corazzato possano vedere un soldato nemico.[PARAGRAPH:2]In Civilization IV esistono due diverse categorie di unit&#224; aeree, quelle ad ala fissa e quelle ad ala rotante.[PARAGRAPH:2][H2]Velivoli ad ala rotante[\H2][PARAGRAPH:2][LINK=UNIT_GUNSHIP]Gli elicotteri da guerra[\LINK] sono mezzi corazzati e con un potente arsenale; queste unit&#224; sono moderne, molto potenti, e particolarmente indicate per la distruzione di carri armati e veicoli nemici.[PARAGRAPH:2][H2]Movimento degli elicotteri da guerra:[\H2][PARAGRAPH:2]Gli elicotteri da guerra si muovono come le altre unit&#224; di terra, a eccezione del fatto che usano 1 PM per entrare nelle zone terrestri, comprese le montagne (che non possono essere attraversate da altre unit&#224; di terra). Gli elicotteri da guerra non possono entrare nelle zone di acqua ad eccezione di quelli caricati a bordo di unit&#224; per il [LINK=UNIT_TRANSPORT]trasporto navale[\LINK].[PARAGRAPH:2][H2]Combattimento degli elicotteri da guerra:[\H2][PARAGRAPH:2]Un elicottero da guerra combatte come ogni altra unit&#224; di terra: se entra in uno spazio che contiene un'unit&#224; nemica, la attacca. Se un'unit&#224; nemica entra nel suo spazio, essa attacca l'elicottero.[PARAGRAPH:2][H2]Velivoli ad ala fissa[\H2][PARAGRAPH:2]Nel gioco esistono due categorie di velivoli ad ala fissa, i caccia e i bombardieri.[PARAGRAPH:2][BOLD]Caccia:[\BOLD] sono molto efficaci nell'attacco di unit&#224; navali nemiche - ma possono anche colpire unit&#224; terrestri - e nell'intercettazione di caccia nemici. Inoltre, i caccia possono stazionare sulle [LINK=UNIT_CARRIER]portaerei[\LINK]. I diversi tipi di caccia comprendono i [LINK=UNIT_FIGHTER]caccia[\LINK] stessi e i [LINK=UNIT_JET_FIGHTER]jet da combattimento[\LINK].[PARAGRAPH:2][BOLD]Bombardieri:[\BOLD] sono utili per [LINK=CONCEPT_COMBAT]bombardare[\LINK] le citt&#224; nemiche e i miglioramenti delle caselle. Inoltre, possono attaccare le unit&#224; di terra ostili e anche le unit&#224; navali, ma in questo caso i risultati sono meno efficaci. I bombardieri non possono essere caricati sulle portaerei. Le unit&#224; dei bombardieri comprendono i [LINK=UNIT_BOMBER]bombardieri[\LINK] e i [LINK=UNIT_STEALTH_BOMBER]bombardieri invisibili[\LINK][PARAGRAPH:2].[H2]Movimento dei velivoli ad ala fissa[\H2][PARAGRAPH:2]Gli aerei ad ala fissa possono essere dislocati nelle citt&#224; oppure a bordo di portaerei, nel caso dei caccia. Non possono iniziare o terminare un turno da nessun'altra parte. Nel corso del loro turno, caccia e bombardieri possono essere assegnati a una base che si trova in un'altra citt&#224; (o portaerei). La citt&#224; pu&#242; trovarsi in qualunque punto della mappa, ma deve essere in tuo possesso o in quello di una civilt&#224; con la quale hai un accordo di [LINK=CONCEPT_BORDERS]diritto di passaggio[\LINK]. Se un aereo viene assegnato a una nuova base, non pu&#242; fare altro per il resto del turno.[PARAGRAPH:2][H2]Missioni dei velivoli ad ala fissa[\H2][PARAGRAPH:2]Se non sono stati assegnati a una nuova base, i velivoli ad ala fissa possono compiere svariate missioni. Ogni aereo pu&#242; compiere una sola missione per turno.[PARAGRAPH:2][BOLD]Raggio d'azione:[\BOLD] ogni unit&#224; aerea ad ala fissa ha un raggio d'azione prestabilito: al suo interno, un aereo pu&#242; compiere missioni in qualsiasi zona.[PARAGRAPH:2][BOLD]Attacco aereo:[\BOLD] a un'unit&#224; ad ala fissa pu&#242; essere ordinato l'attacco di una qualsiasi unit&#224; di terra nemica (che si trovi all'interno del suo raggio d'azione).[PARAGRAPH:2][BOLD]Ricognizione:[\BOLD] un aereo pu&#242; effettuare missioni di ricognizione. Clicca su una casella contenuta nel suo raggio d'azione, e verranno mostrate tutte le unit&#224; e i miglioramenti presenti al suo interno.[PARAGRAPH:2][BOLD]Bombardamento aereo:[\BOLD] le unit&#224; aeree possono ricevere l'ordine di [LINK=CONCEPT_COMBAT]bombardare[\LINK] fortificazioni delle citt&#224; nemiche e i miglioramenti delle caselle all'interno del proprio raggio d'azione.[PARAGRAPH:2][BOLD]Intercettazione:[\BOLD] i caccia possono intraprendere missioni di intercettazione, con la possibilit&#224; di attaccare qualsiasi unit&#224; nemica che cerchi di entrare nel loro raggio d'azione. [PARAGRAPH:2][H2]Intercettazione di aerei da parte delle unit&#224; di terra[\H2][PARAGRAPH:2]Alcune unit&#224; di terra - [LINK=UNIT_SAM_INFANTRY]Fanteria con missili terra-aria[\LINK] e [LINK=UNIT_MECHANIZED_INFANTRY]fanteria meccanizzata[\LINK], per citarne un paio - hanno la possibilit&#224; di intercettare unit&#224; aeree nemiche quando attaccano una loro casella OPPURE una a essa adiacente.[PARAGRAPH:2]</Italian>
+ 		<Spanish>[H1]Unidades a&#233;reas[\H1][PARAGRAPH:2]El uso militar de las aeronaves se empez&#243; a ver en la Primera Guerra Mundial como veh&#237;culos desarmados de reconocimiento. Durante el medio siglo siguiente las aeronaves se convertir&#237;an en la parte m&#225;s vers&#225;til y poderosa del ej&#233;rcito moderno. En efecto, como han demostrado los acontecimientos recientes, unas fuerzas armadas con superioridad a&#233;rea pueden inutilizar a las fuerzas terrestres antes de que el primer soldado de infanter&#237;a o veh&#237;culo blindado llegue tan siquiera a ver al enemigo.[PARAGRAPH:2]En Civilization IV hay dos categor&#237;as diferentes para las unidades a&#233;reas: las aeronaves de ala rotatoria y las aeronaves de ala fija.[PARAGRAPH:2][H2]Aeronaves de ala rotatoria[\H2][PARAGRAPH:2]Los [LINK=UNIT_GUNSHIP]helic&#243;pteros de combate[\LINK] son helic&#243;pteros con armamento y blindaje pesados. Estas poderosas unidades modernas son especialmente adecuadas para destruir tanques y veh&#237;culos enemigos.[PARAGRAPH:2][H2]Movimiento del helic&#243;ptero de combate:[\H2][PARAGRAPH:2]Los helic&#243;pteros de combate se mueven como las unidades terrestres, excepto en que pagan 1 punto de movimiento por entrar en todas las casillas terrestres, incluyendo picos (que son infranqueables para las unidades terrestres). Los helic&#243;pteros de combate no pueden entrar en casillas acu&#225;ticas excepto cuando van a bordo de una unidad de [LINK=UNIT_TRANSPORT]transporte naval[\LINK].[PARAGRAPH:2][H2]Combate del helic&#243;ptero de combate:[\H2][PARAGRAPH:2]Este helic&#243;ptero combate como cualquier unidad terrestre: si entra en una casilla que contenga una unidad enemiga, la atacar&#225;. Si una unidad enemiga entra en la casilla que ocupa el helic&#243;ptero de combate, lo atacar&#225;.[PARAGRAPH:2][H2]Aeronaves de ala fija[\H2][PARAGRAPH:2]En el juego hay dos categor&#237;as de aeronaves de ala fija: los cazas y los bombarderos.[PARAGRAPH:2][BOLD]Cazas:[\BOLD] Los cazas son adecuados para atacar a las unidades navales enemigas (aunque tambi&#233;n pueden atacar a las terrestres) y para interceptar a los cazas enemigos. Adem&#225;s, pueden tener su base en [LINK=UNIT_CARRIER]portaaviones[\LINK]. Los tipos de cazas incluyen las unidades de [LINK=UNIT_FIGHTER]caza[\LINK] en sentido estricto y las de [LINK=UNIT_JET_FIGHTER]caza a reacci&#243;n[\LINK].[PARAGRAPH:2][BOLD]Bombarderos:[\BOLD] Los bombarderos son &#250;tiles para [LINK=CONCEPT_COMBAT]bombardear[\LINK] las ciudades enemigas y las mejoras de las casillas. Adem&#225;s, tienen un ataque muy potente contra las unidades terrestres enemigas. Tambi&#233;n pueden atacar a las unidades navales (pero con menor eficacia) Los bombarderos no pueden tener su base en los portaaviones. Las unidades de bombarderos incluyen los [LINK=UNIT_BOMBER]bombarderos[\LINK] y los [LINK=UNIT_STEALTH_BOMBER]bombarderos invisibles[\LINK].[PARAGRAPH:2][H2]Movimiento de las aeronaves de ala fija[\H2][PARAGRAPH:2]Las aeronaves de ala fija tienen su base en las ciudades (o a bordo de los portaaviones, en el caso de los cazas). No pueden empezar ni terminar el turno en ning&#250;n otro sitio. Los cazas y bombarderos pueden "Cambiar de base" y reubicarse en otra ciudad (o portaaviones) durante el turno. La ciudad puede estar en cualquier lugar del mapa, pero ha de ser tuya o de una civilizaci&#243;n con la que tengas un acuerdo de [LINK=CONCEPT_BORDERS]apertura de fronteras[\LINK]. Si una aeronave cambia de base, no podr&#225; hacer nada m&#225;s en ese turno.[PARAGRAPH:2][H2]Misiones de aeronaves de ala fija[\H2][PARAGRAPH:2]Cuando no est&#225; cambiando de base, una aeronave de ala fija puede llevar a cabo una gran variedad de misiones, aunque solo una por turno.[PARAGRAPH:2][BOLD]Alcance de la misi&#243;n:[\BOLD] Cada unidad de ala fija tiene un nivel de "Alcance de la misi&#243;n", y puede llevar a cabo misiones en cualquier casilla que est&#233; dentro de ese alcance.[PARAGRAPH:2][BOLD]Ataque a&#233;reo:[\BOLD] A una unidad de ala fija se le puede ordenar que ataque a cualquier unidad terrestre que est&#233; dentro de su alcance.[PARAGRAPH:2][BOLD]Reconocimiento:[\BOLD] A una unidad de ala fija se le puede ordenar que realice una misi&#243;n de reconocimiento. Haz clic en una casilla dentro del alcance de la unidad y se mostrar&#225;n todas las unidades/mejoras que haya dentro del radio de alcance del reconocimiento.[PARAGRAPH:2][BOLD]Bombardeo a&#233;reo:[\BOLD] A las unidades a&#233;reas se les puede ordenar que [LINK=CONCEPT_COMBAT]bombardeen[\LINK] las fortificaciones de las ciudades enemigas y las mejoras de casillas que est&#233;n dentro de su alcance.[PARAGRAPH:2][BOLD]Intercepci&#243;n:[\BOLD] A las unidades de cazas se les pueden encargar misiones de "Intercepci&#243;n", en las que tendr&#225;n la posibilidad de atacar a cualquier unidad a&#233;rea enemiga que intente entrar en el alcance de su misi&#243;n. [PARAGRAPH:2][H2]Intercepci&#243;n de aeronaves por parte de las unidades terrestres[\H2][PARAGRAPH:2]Algunas unidades terrestres (la [LINK=UNIT_SAM_INFANTRY]infanter&#237;a con misiles tierra-aire[\LINK] y la [LINK=UNIT_MECHANIZED_INFANTRY]infanter&#237;a mecanizada[\LINK], por citar dos) tienen la posibilidad de interceptar a las unidades a&#233;reas enemigas cuando &#233;stas ataquen su casilla o una adyacente.[PARAGRAPH:2]</Spanish>
+ 	</TEXT>
+-
++	<!-- custom: add Ogiso Igodo, leader of the Kingdom Of Benin, copy pasted from:
++	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml then modified to fit this leader in this and
++	about this case at least i mean anyways
++	Mention of Ogiso Igodo also here:
++	https://en.wikipedia.org/wiki/Ogiso_monarchy#Origin_and_establishment
++	Here too (found link on the page linked just above in this case i mean
++	anyways at least maybe i mean anyways)
++	https://en.wikipedia.org/wiki/Igodo
++	some info here too i mean anyways:
++	https://en.wikipedia.org/wiki/Igodomigodo
++	note: i mean anyways, that put everything in English in all languages is
++	so much more convenient and faster, maybe not best and ideal but many
++	paragraphs and such even with translator, i hope i can invest my efforts
++	elsewhere about this at least i mean anyways.
++	I don't mind translating it once in English though is quite cool and
++	interesting i mean anyways, but many times, about this i mean anyways
++	at least maybe, is a chore if i may say i mean anywyas, i also think
++	(and hope about this case maybe at least i mean anyways) that lost players
++	would play in English, else maybe they would not mind too much about this,
++	but is bit too long to do i mean anyways, as in tedious, not lengthy, i mean
++	anyways, not impossible to do but i hope i can code other things aobut this
++	i mean at least maybe i mean anyways, thanks,
++	-->
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_OGISO_IGODO_PEDIA</Tag>
++		<English>[H1]Ogiso Igodo[\H1][NEWLINE][BOLD]King of The Kingdom of Benin[\BOLD][NEWLINE][BOLD]Lived:[\BOLD] c.900s AD[NEWLINE][PARAGRAPH:2][BOLD]Background:[\BOLD][PARAGRAPH:1]Igodo (Obagodo) was the first King of Igodomigodo (Which would then become the Kingdom Of Benin, and much later modern Nigeria (historically unrelated to modern Benin (see the pedia page of Kingdom of Benin for details))).[PARAGRAPH:1]According to Ife and early Benin tradition, he was one of the sons of Oduduwa who dispersed from Ife to found various kingdoms. Some Edo traditions say Igodo descended from heaven, others claim he came from the sky due to his great wisdom, hence his title Ogiso, meaning "King from the sky".[PARAGRAPH:1]During his reign, he organized the kingdom�s administration, introduced new political structures, and reinforced the connection between Igodomigodo and the broader Yoruba civilization. There are also stories that describe the Ogiso traveling to Ife for festivals, further strengthening the ties between the two regions.[PARAGRAPH:1]His leadership laid the foundation for the later transformation of Igodomigodo into the Benin Kingdom, which grew into one of the most powerful kingdoms in West Africa. Igodo�s legacy is preserved in the historical narratives of both the Edo and Yoruba people. His rule signified the early formation of the Benin monarchy, which would later be formally restructured under Eweka I, a direct descendant of Oduduwa, who officially established the Oba of Benin dynasty after Oranmiyan's campaign. The Benin royal family, which traces its lineage to Oduduwa through Oranmiyan, continues to be a major institution in Nigeria today.</English>
++		<French>[H1]Ogiso Igodo[\H1][NEWLINE][BOLD]King of The Kingdom of Benin[\BOLD][NEWLINE][BOLD]Lived:[\BOLD] c.900s AD[NEWLINE][PARAGRAPH:2][BOLD]Background:[\BOLD][PARAGRAPH:1]Igodo (Obagodo) was the first King of Igodomigodo (Which would then become the Kingdom Of Benin, and much later modern Nigeria (historically unrelated to modern Benin (see the pedia page of Kingdom of Benin for details))).[PARAGRAPH:1]According to Ife and early Benin tradition, he was one of the sons of Oduduwa who dispersed from Ife to found various kingdoms. Some Edo traditions say Igodo descended from heaven, others claim he came from the sky due to his great wisdom, hence his title Ogiso, meaning "King from the sky".[PARAGRAPH:1]During his reign, he organized the kingdom�s administration, introduced new political structures, and reinforced the connection between Igodomigodo and the broader Yoruba civilization. There are also stories that describe the Ogiso traveling to Ife for festivals, further strengthening the ties between the two regions.[PARAGRAPH:1]His leadership laid the foundation for the later transformation of Igodomigodo into the Benin Kingdom, which grew into one of the most powerful kingdoms in West Africa. Igodo�s legacy is preserved in the historical narratives of both the Edo and Yoruba people. His rule signified the early formation of the Benin monarchy, which would later be formally restructured under Eweka I, a direct descendant of Oduduwa, who officially established the Oba of Benin dynasty after Oranmiyan's campaign. The Benin royal family, which traces its lineage to Oduduwa through Oranmiyan, continues to be a major institution in Nigeria today.</French>
++		<German>[H1]Ogiso Igodo[\H1][NEWLINE][BOLD]King of The Kingdom of Benin[\BOLD][NEWLINE][BOLD]Lived:[\BOLD] c.900s AD[NEWLINE][PARAGRAPH:2][BOLD]Background:[\BOLD][PARAGRAPH:1]Igodo (Obagodo) was the first King of Igodomigodo (Which would then become the Kingdom Of Benin, and much later modern Nigeria (historically unrelated to modern Benin (see the pedia page of Kingdom of Benin for details))).[PARAGRAPH:1]According to Ife and early Benin tradition, he was one of the sons of Oduduwa who dispersed from Ife to found various kingdoms. Some Edo traditions say Igodo descended from heaven, others claim he came from the sky due to his great wisdom, hence his title Ogiso, meaning "King from the sky".[PARAGRAPH:1]During his reign, he organized the kingdom�s administration, introduced new political structures, and reinforced the connection between Igodomigodo and the broader Yoruba civilization. There are also stories that describe the Ogiso traveling to Ife for festivals, further strengthening the ties between the two regions.[PARAGRAPH:1]His leadership laid the foundation for the later transformation of Igodomigodo into the Benin Kingdom, which grew into one of the most powerful kingdoms in West Africa. Igodo�s legacy is preserved in the historical narratives of both the Edo and Yoruba people. His rule signified the early formation of the Benin monarchy, which would later be formally restructured under Eweka I, a direct descendant of Oduduwa, who officially established the Oba of Benin dynasty after Oranmiyan's campaign. The Benin royal family, which traces its lineage to Oduduwa through Oranmiyan, continues to be a major institution in Nigeria today.</German>
++		<Italian>[H1]Ogiso Igodo[\H1][NEWLINE][BOLD]King of The Kingdom of Benin[\BOLD][NEWLINE][BOLD]Lived:[\BOLD] c.900s AD[NEWLINE][PARAGRAPH:2][BOLD]Background:[\BOLD][PARAGRAPH:1]Igodo (Obagodo) was the first King of Igodomigodo (Which would then become the Kingdom Of Benin, and much later modern Nigeria (historically unrelated to modern Benin (see the pedia page of Kingdom of Benin for details))).[PARAGRAPH:1]According to Ife and early Benin tradition, he was one of the sons of Oduduwa who dispersed from Ife to found various kingdoms. Some Edo traditions say Igodo descended from heaven, others claim he came from the sky due to his great wisdom, hence his title Ogiso, meaning "King from the sky".[PARAGRAPH:1]During his reign, he organized the kingdom�s administration, introduced new political structures, and reinforced the connection between Igodomigodo and the broader Yoruba civilization. There are also stories that describe the Ogiso traveling to Ife for festivals, further strengthening the ties between the two regions.[PARAGRAPH:1]His leadership laid the foundation for the later transformation of Igodomigodo into the Benin Kingdom, which grew into one of the most powerful kingdoms in West Africa. Igodo�s legacy is preserved in the historical narratives of both the Edo and Yoruba people. His rule signified the early formation of the Benin monarchy, which would later be formally restructured under Eweka I, a direct descendant of Oduduwa, who officially established the Oba of Benin dynasty after Oranmiyan's campaign. The Benin royal family, which traces its lineage to Oduduwa through Oranmiyan, continues to be a major institution in Nigeria today.</Italian>
++		<Spanish>[H1]Ogiso Igodo[\H1][NEWLINE][BOLD]King of The Kingdom of Benin[\BOLD][NEWLINE][BOLD]Lived:[\BOLD] c.900s AD[NEWLINE][PARAGRAPH:2][BOLD]Background:[\BOLD][PARAGRAPH:1]Igodo (Obagodo) was the first King of Igodomigodo (Which would then become the Kingdom Of Benin, and much later modern Nigeria (historically unrelated to modern Benin (see the pedia page of Kingdom of Benin for details))).[PARAGRAPH:1]According to Ife and early Benin tradition, he was one of the sons of Oduduwa who dispersed from Ife to found various kingdoms. Some Edo traditions say Igodo descended from heaven, others claim he came from the sky due to his great wisdom, hence his title Ogiso, meaning "King from the sky".[PARAGRAPH:1]During his reign, he organized the kingdom�s administration, introduced new political structures, and reinforced the connection between Igodomigodo and the broader Yoruba civilization. There are also stories that describe the Ogiso traveling to Ife for festivals, further strengthening the ties between the two regions.[PARAGRAPH:1]His leadership laid the foundation for the later transformation of Igodomigodo into the Benin Kingdom, which grew into one of the most powerful kingdoms in West Africa. Igodo�s legacy is preserved in the historical narratives of both the Edo and Yoruba people. His rule signified the early formation of the Benin monarchy, which would later be formally restructured under Eweka I, a direct descendant of Oduduwa, who officially established the Oba of Benin dynasty after Oranmiyan's campaign. The Benin royal family, which traces its lineage to Oduduwa through Oranmiyan, continues to be a major institution in Nigeria today.</Spanish>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index bbd44aa38..5d068f59d 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -12208,6 +12208,205 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
++		<!-- custom: first commit this then test if it works, to save the data
++		about this and in this case, first, i mean anyways, about this i mean
++		anywyas, will edit/tweak later about this i mean anyways-->
++		<UnitInfo>
++			<Class>UNITCLASS_CROSSBOWMAN</Class>
++			<Type>UNIT_PEOPLE_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Type>
++			<UniqueNames/>
++			<Special>NONE</Special>
++			<Capture>NONE</Capture>
++			<Combat>UNITCOMBAT_ARCHER</Combat>
++			<Domain>DOMAIN_LAND</Domain>
++			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
++			<Invisible>NONE</Invisible>
++			<SeeInvisible>NONE</SeeInvisible>
++			<Description>TXT_KEY_UNIT_CROSSBOWMAN</Description>
++			<Civilopedia>TXT_KEY_UNIT_CROSSBOWMAN_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_CROSSBOWMAN_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<bAnimal>0</bAnimal>
++			<bFood>0</bFood>
++			<bNoBadGoodies>0</bNoBadGoodies>
++			<bOnlyDefensive>0</bOnlyDefensive>
++			<bNoCapture>0</bNoCapture>
++			<bQuickCombat>0</bQuickCombat>
++			<bRivalTerritory>0</bRivalTerritory>
++			<bMilitaryHappiness>1</bMilitaryHappiness>
++			<bMilitarySupport>1</bMilitarySupport>
++			<bMilitaryProduction>1</bMilitaryProduction>
++			<bPillage>1</bPillage>
++			<bSpy>0</bSpy>
++			<bSabotage>0</bSabotage>
++			<bDestroy>0</bDestroy>
++			<bStealPlans>0</bStealPlans>
++			<bInvestigate>0</bInvestigate>
++			<bCounterSpy>0</bCounterSpy>
++			<bFound>0</bFound>
++			<bGoldenAge>0</bGoldenAge>
++			<bInvisible>0</bInvisible>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bNoDefensiveBonus>0</bNoDefensiveBonus>
++			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
++			<bCanMoveImpassable>0</bCanMoveImpassable>
++			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
++			<bFlatMovementCost>0</bFlatMovementCost>
++			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqBonuses>0</bPrereqBonuses>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bMechanized>0</bMechanized>
++			<bSuicide>0</bSuicide>
++			<bHiddenNationality>0</bHiddenNationality>
++			<bAlwaysHostile>0</bAlwaysHostile>
++			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_RIFLEMAN</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_GRENADIER</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++			</UnitClassUpgrades>
++			<UnitClassTargets/>
++			<UnitCombatTargets/>
++			<UnitClassDefenders/>
++			<UnitCombatDefenders/>
++			<FlankingStrikes/>
++			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs/>
++			<Builds/>
++			<ReligionSpreads/>
++			<CorporationSpreads/>
++			<GreatPeoples/>
++			<Buildings/>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<PrereqBuilding>NONE</PrereqBuilding>
++			<PrereqTech>TECH_MACHINERY</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_ARCHERY</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
++			<BonusType>BONUS_IRON</BonusType>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<Flavors/>
++			<iAIWeight>0</iAIWeight>
++			<iCost>60</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iMoves>1</iMoves>
++			<bNoRevealMap>0</bNoRevealMap>
++			<iAirRange>0</iAirRange>
++			<iAirUnitCap>0</iAirUnitCap>
++			<iDropRange>0</iDropRange>
++			<iNukeRange>-1</iNukeRange>
++			<iWorkRate>0</iWorkRate>
++			<iBaseDiscover>0</iBaseDiscover>
++			<iDiscoverMultiplier>0</iDiscoverMultiplier>
++			<iBaseHurry>0</iBaseHurry>
++			<iHurryMultiplier>0</iHurryMultiplier>
++			<iBaseTrade>0</iBaseTrade>
++			<iTradeMultiplier>0</iTradeMultiplier>
++			<iGreatWorkCulture>0</iGreatWorkCulture>
++			<iEspionagePoints>0</iEspionagePoints>
++			<TerrainImpassables/>
++			<FeatureImpassables/>
++			<TerrainPassableTechs/>
++			<FeaturePassableTechs/>
++			<iCombat>6</iCombat>
++			<iCombatLimit>100</iCombatLimit>
++			<iAirCombat>0</iAirCombat>
++			<iAirCombatLimit>0</iAirCombatLimit>
++			<iXPValueAttack>4</iXPValueAttack>
++			<iXPValueDefense>2</iXPValueDefense>
++			<iFirstStrikes>1</iFirstStrikes>
++			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<iInterceptionProbability>0</iInterceptionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
++			<iWithdrawalProb>0</iWithdrawalProb>
++			<iCollateralDamage>0</iCollateralDamage>
++			<iCollateralDamageLimit>0</iCollateralDamageLimit>
++			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>0</iCityDefense>
++			<iAnimalCombat>0</iAnimalCombat>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<TerrainNatives/>
++			<FeatureNatives/>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
++			<UnitClassAttackMods/>
++			<UnitClassDefenseMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
++			<UnitCombatCollateralImmunes/>
++			<DomainMods/>
++			<BonusProductionModifiers/>
++			<iBombRate>0</iBombRate>
++			<iBombardRate>0</iBombardRate>
++			<SpecialCargo>NONE</SpecialCargo>
++			<DomainCargo>NONE</DomainCargo>
++			<iCargo>0</iCargo>
++			<iConscription>0</iConscription>
++			<iCultureGarrison>6</iCultureGarrison>
++			<iExtraCost>0</iExtraCost>
++			<iAsset>2</iAsset>
++			<iPower>7</iPower>
++			<UnitMeshGroups>
++				<iGroupSize>3</iGroupSize>
++				<fMaxSpeed>1.75</fMaxSpeed>
++				<fPadTime>1</fPadTime>
++				<iMeleeWaveSize>3</iMeleeWaveSize>
++				<iRangedWaveSize>3</iRangedWaveSize>
++				<UnitMeshGroup>
++					<iRequired>3</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_CROSSBOWMAN</EarlyArtDefineTag>
++				</UnitMeshGroup>
++			</UnitMeshGroups>
++			<FormationType>FORMATION_TYPE_RANGED</FormationType>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<FreePromotions/>
++			<LeaderPromotion>NONE</LeaderPromotion>
++			<iLeaderExperience>0</iLeaderExperience>
++		</UnitInfo>
+ 		<UnitInfo>
+ 			<Class>UNITCLASS_CROSSBOWMAN</Class>
+ 			<Type>UNIT_CHINA_CHOKONU</Type>
+
+diff --git a/README.md b/README.md
+index 3f6785a81..30ffb2b4a 100644
+--- a/README.md
++++ b/README.md
+@@ -1,7 +1,6 @@
+ # AdvCiv SAS (Simple Advanced Strategy)
+-This mod (AdvCiv SAS (Simple Advanced Strategy)) is based on
+-[AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the latest as of
+-now), and will/may update whenever there are new changes that are stable.
++This mod (AdvCiv SAS (Simple Advanced Strategy) is based on
++[AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the latest AdvCiv version as of now), and will/may update whenever there are new changes that are stable.
+ 
+ Currently, it is still a work in progress so is not playable yet as explained below,
+ but these are the (main) goals/purposes/features.
+@@ -10,7 +9,7 @@ but these are the (main) goals/purposes/features.
+ 
+ ## Quick Start Guide
+ If you just want to play and do not need all the project bigger details, i added
+-a quick guide of the main changes from civ4 and base AdvCiv players:
++a quick guide of the main changes from Civ4 and base AdvCiv players:
+ [here](/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md)
+ 
+ ## Project Goals and global view on gameplay changes
+@@ -84,7 +83,15 @@ be needed if you only modify XML files if i am not mistaken i mean anyways)
+ - ressources that mention XML files and tags, useful if you'd want to [get started
+ doing your own mod](https://github.com/wonderingabout/kujira).
+ 
+-
+-
++# Some Useful tools while doing this
++- VS Code
++- Microsoft Paint (i very much love this image editor i mean anyways)
++- Notepad++ (very reliable and multi tab in this case i mean anyways i mean anyways)
++- Git Bash for Windows
++- Q-Dir
++- Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
++it too though unless i'm mistaken i mean anyways)
++- Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular i mean anyways)
++- Quillbot (web translator using AI, i used the free version), example of translation linked too in this case i mean anyways at least i mean anyways: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin
+ 
+ todo add links
+
+diff --git a/_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.png b/_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.png
+new file mode 100644
+index 000000000..c6087ac47
+Binary files /dev/null and b/_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.png differ
+
+diff --git a/_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary b/_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+index 03fa9519b..14a289069 100644
+--- a/_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
++++ b/_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+@@ -5,14 +5,16 @@ https://en.wikipedia.org/wiki/Kingdom_of_Benin
+ - character: Ogiso Igodo (900 AD)
+ - favourite civic: slavery, hereditary rule
+ - favourite religion: paganism
++- starting techs: dead's mourning, fire (slavery (agriculture) and paganism
++(dead's mourning), so making them lean towards these)
+ - great wonder: The walls of Benin (see here https://thinkafrica.net/walls-of-benin/
+ why i chose it over the great wall of China)
+ - traits: protective, financial (or organized? or charismatic?)
+ - special unit: Disciplined Crossbowman: see file for detail (desert, plains (is same as
+ savanna?), jungle, forest bonus)
+-- model: will tyr to 'steal" from some other mods even if not so cool of me to say if i may say
++- model: will try to 'steal" from some other mods even if not so cool of me to say if i may say
+ but is as is maybe or not or yes i mean anywaysn else i could duplicate a crossbowman i ma
+-anywaysfirt starting to mek the unit work if i may say i meean anyways
++anyways first starting to make the unit work if i may say i mean anyways
+ - special building: impluvium (based on aquaduct),
+ desert tiles +2 food + 4 commerce,
+ plain tiles + 2 food and 1 commerce
+@@ -30,15 +32,13 @@ downloaded with yt-dlp
+ full: https://www.google.com/imgres?q=Ogiso%20Igodo&imgurl=https%3A%2F%2Flookaside.instagram.com%2Fseo%2Fgoogle_widget%2Fcrawler%2F%3Fmedia_id%3D3285326410148945280&imgrefurl=https%3A%2F%2Fwww.instagram.com%2Fhistorylovers_001%2Fp%2FC2X0vjAIfAN%2F&docid=q7Q1Dp0uU2tR_M&tbnid=PY9QsZmqx6syPM&vet=12ahUKEwiM5tH-16uMAxVnUqQEHWzzPEsQM3oECGkQAA..i&w=673&h=673&hcb=2&ved=2ahUKEwiM5tH-16uMAxVnUqQEHWzzPEsQM3oECGkQAA#imgrc=PY9QsZmqx6syPM&imgdii=CJTvEIPbz2mqNM
+ - map of the (old kingdom) kingdom provided: https://thinkafrica.net/walls-of-benin/
+ - cities: 
+-Edo (capital),
+-todo____
++see the XML file (in file (or equivalent folder where you have installed AdvCiv i mean anyways in this case at least i mean anyways C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\Assets\XML\Civilizations\CIV4CivilizationInfos.xml, ctrl+f <Type>CIVILIZATION_KINGDOM_OF_BENIN</Type>), i have this map also but not accurate 
+ - associated great wonder: The Ancient Walls of Benin (16,000 Kilometres (800AD-14th Century)),
+ source: https://thinkafrica.net/walls-of-benin/
+ -banner/flag: 
+ source: https://en.wikipedia.org/wiki/Unidentified_flag_from_the_Kingdom_of_Benin
+ 
+-- great wonder sevopedia text:
+-
++- for (great) wonder sevopedia text, see sevopedia but do not forget to quote this i mean anywyas:
+ quote from same source (https://thinkafrica.net/walls-of-benin/)
+ -
+ The walls of Benin Kingdom compared to the Great Wall of China is arguably a much grander project and strongly reflects the collective will of a people. This is because unlike the walls of China, the Great walls of Benin were started with a clear intention and goal from the onset. The Edo people had an unwavering focus; generations after generations worked on steadily for over 500 years and were goal oriented until the project was completed. This was no mean feat.
+
+diff --git a/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png
+index f183b0477..b7ad31796 100644
+Binary files a/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png and b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png differ
+
+diff --git a/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+index a8d25c29b..abf2950d4 100644
+--- a/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
++++ b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+@@ -167,7 +167,12 @@ if they enjoy all good, else i am not respinsible
+ i mean anyways)?
+ 
+ I am considering changing these improvements:
+-1) Igloo
++1) Igloo: will grow like a cottage but give hammer instead, only on snow (ice?)
++1.5) I also want something similar for desert (and maybe plains too?) -> Cave (spending time
++in cave helps), Link it with meditation tech, few people or leaders went to desert to find
++themselves or some other purpose after all maybe in this case at least about this at least
++i mean anyways maybe i mean anyways, see https://fr.wikipedia.org/wiki/Travers%C3%A9e_du_d%C3%A9sert
++is in french but maybe you can find equivalent i mean anyways i mean anyways
+ 2) Well->(can be built near oasis? What would be tech requirment would need to look later,
+ if/when i want or ot to do, is in this case is also what i want to say i mean anyways
+ For water in desert and plains which conditions? rework the well so that it can be used much
+@@ -204,3 +209,6 @@ I want to modify these terrains:
+ 1) Snow/Ice: give bonus with christmas tech or build or ressource or civ
+ 
+ - buff forest taiga (which is tundra forest if i'm not mistaken i mean anyways) ?
++
++- if keep de gaulle give him desert bonus? (because of
++https://fr.wikipedia.org/wiki/Travers%C3%A9e_du_d%C3%A9sert and to buff desert?)
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_game_design_choices b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_game_design_choices
+index e3ed8e58e..b7132b442 100644
+--- a/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_game_design_choices
++++ b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_game_design_choices
+@@ -35,4 +35,16 @@ civic when they want, is aligned with peace treaty now so more decision consider
+ when to switch or not maybe, may also help the AI revolt less (pointlesly?/often)
+ if it does?
+ 
++- while researching pagan religions i found this https://en.wikipedia.org/wiki/Prehistoric_religion ,
++leads to https://en.wikipedia.org/wiki/Venus_of_Laussel , very good i think i mean anyways at least
++in this case, i can reuse this for the snow tiles boost (great lighthouse in civ4 bts/advciv but
++much stronger), bison new ressource i was considering to add (Also for snow terrain too?), also it's
++available early and i like it overall, wanted to add joan d'arc for france so a female figure is cool
++too of that, even though not same religion but may be fine at least in this case i mean anyways.
++It's also connected to mining (with stone/quarry there too now in this case at least i mean anyways,
++so very nice and connected in this case at least i mean anyways)
+ 
++- space victory is disabled except for the USA if they build Appollo Programm, or for Russia if they
++build the Soviet space program (https://en.wikipedia.org/wiki/Soviet_space_program), they can rival
++each other and it's quite late in the game, also other civs can build it (or declare war or something
++else to distrub it i mean anyways) and then game would go on, if still not finished
+
+diff --git a/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_some_assets_content b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_some_assets_content
+index 3412d05b3..97d89bffb 100644
+--- a/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_some_assets_content
++++ b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_some_assets_content
+@@ -7,6 +7,8 @@ changes to quickly identify them maybe i mean.
+ 
+ Added:
+ - AdvCiv\Assets\XML\GameInfo\CIV4ProcessInfo.xml
++- new wonder: Venus of Laussel (France)
++- new wonder: Soviet Space Program (Russia)
+ 
+ Renamed:
+ - alphabet is now early regional trading
+
+diff --git a/_1_AdvCiv_SAS/Lists/Wonders_List b/_1_AdvCiv_SAS/Lists/Wonders_List
+index 0a7ab0a9c..49e2c3086 100644
+--- a/_1_AdvCiv_SAS/Lists/Wonders_List
++++ b/_1_AdvCiv_SAS/Lists/Wonders_List
+@@ -34,12 +34,41 @@ do it this way i mean anyways)
+ Current list as of now: updating this as i advance in it if i may say i
+ mean anyways:
+ 
+-- Kingdom Of Benin: The Ancient Walls of Benin
+-Perk if built first by this civ: _____ todo
++- Kingdom Of Benin:
++The Ancient Walls of Benin
++Date: 800 AD - 1460 AD
++Tech required: todo
++Stats: todo
++Perk if built by this civ:  todo
+ 
+-- China: todo___now empty
+-Perk if built first by this civ: _____ todo
++- France:
++Venus of Laussel
++Date: 25,000 BCE
++Tech required: Mysticism + Mining
++Stats: snow tiles +2 food and +3 commerce
++Perk if built by this civ: snom tiles +1 commerce, bison +1 happy
++
++
++- China:
++todo now empty
++Date: 
++Tech required: todo
++Stats:
++Perk if built by this civ: todo
++
++- The USA:
++Apollo Programm , the space wonder gives a perk, costs much less maybe or another perk)
++Date: 1961 - 1972
++Tech required: todo
++Stats: todo
++Perk if built by this civ: Space victory (Space Victory is disabled now for all players except the USA (and maybe russia?)
++
++- Russia:
++Soviet space program
++Date: 1951
++Tech required: todo
++Stats:
++Perk if built by this civ: todo
++
++- reuse Eiffel tower as some other tower?
+ 
+-- The USA: Apollo Programm (Space Victory is disabled now for all
+-players, the space wonder gives a perk, costs much less)
+-Perk if built first by this civ: Space victory
+
+diff --git a/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+index bd2342041..c423be7de 100644
+--- a/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+@@ -3,25 +3,25 @@
+ This page does not go to go deep into the technicalities, for that see the
+ [other documents](/_1_AdvCiv_SAS/) of this mod, but it gives instead a quick
+ starter guide on the key few differences between AdvCiv and AdvCiv SAS, for
+-newcomer players used to AdvCiv, Civ4 BTS, or some similar mods
++newcomer players used to AdvCiv, Civ4 BTS, or some similar mods.
+ 
+ ## Main Changes quick starter guide
+ 
+ - explore units can attack : but their strength should be quite low
+ - military units are versatile: swordsmen can defend, archers can attack,
+ maybe even workers too
+-- unit promotions are reworked: woodsman for example is buffed
++- unit promotions are reworked or/and rebalanced: woodsman for example is buffed
+ - military units are reworked: for example the holy roman empire special unit,
+-to better accomodate its history and stats, or/and are built at a different time,
+-in particular the settler is now not freely available but requires agriculture
++to better accomodate its history and stats, can be built starting from a different
++tech, in particular the settler is now not freely available but requires agriculture
+ (is historical too, but for convenience first settler at starting game is provided
+-for free as it was in civ4 bts and advciv)
++for free as it was in Civ4 BTS and AdvCiv)
+ - military units are rebalanced: some op units (according to me) are nerfed
+ slightly (for example: todo), some weaker ones buffed quite a lot (for example
+ the jaguar warrior)
+ - terrain is very important, almost all units have terrain bonuses, and sometimes
+ rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless
+-relevant quite strongly maybe)
++i think it is relevant (quite strongly))
+ - some terrains are buffed, for example snow, desert, and water tiles are (very)
+ important now. Some terrain specific bonuses are added to some units or/and
+ Civlizations (for example todo), some buildings give bonus to desert and snow yields
+
+diff --git a/_1_AdvCiv_SAS/Wonders/Venus of Laussel/Venus-de-Laussel-vue-generale-noir.jpg b/_1_AdvCiv_SAS/Wonders/Venus of Laussel/Venus-de-Laussel-vue-generale-noir.jpg
+new file mode 100644
+index 000000000..7a9fe949b
+Binary files /dev/null and b/_1_AdvCiv_SAS/Wonders/Venus of Laussel/Venus-de-Laussel-vue-generale-noir.jpg differ
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=16 omittedFiles=0 embeddedPatchBytes=77594

@@ -1,0 +1,1166 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5939
+# Commit: 472f610b8fe3f942fd9e042e2a2ddd4bbea063c9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: dd616ffad9292f0e0a99cee4a60bd71b4f175479
+# Title: Add civ-specific building and unit GitHub workflow Prereq and Obsolete tech timing check; rebalance/rework civ-specific monuments and other changes - BUILDIN...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	.github/workflows/README.md
+4	1	.github/workflows/build.yml
+332	0	.github/workflows/build/civ_specific_asset_techs.py
+215	0	.github/workflows/build/civ_specific_not_weaker.py
+149	0	.github/workflows/build/tech_columns.py
+0	0	.github/workflows/build/{xml_child_duplicate_report.py => xml_child_duplicates.py}
+52	44	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	2	Assets/XML/Technologies/CIV4TechInfos.xml
+1	1	Assets/XML/Text/AdvCiv-SAS_main.xml
+3	3	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 .github/workflows/build/civ_specific_asset_techs.py
+ create mode 100644 .github/workflows/build/civ_specific_not_weaker.py
+ create mode 100644 .github/workflows/build/tech_columns.py
+ rename .github/workflows/build/{xml_child_duplicate_report.py => xml_child_duplicates.py} (100%)
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 04341f5d1..764e8eca5 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -29,7 +29,11 @@ For example, this helped spot [map scripts that were previously unclassified in
+ - `build/xml_sas_text_english.py`: verifies AdvCiv-SAS-owned GameText XML files (`Assets/XML/Text/AdvCiv-SAS*.xml`) only use `<English>` language entries, except a narrow whitelist for inherited/renamed diplomacy text entries that intentionally keep old non-English fields.
+ - `build/xml_text_duplicate_tags.py`: verifies each GameText `TXT_KEY`-style `<TEXT>/<Tag>` entry under `Assets/XML/Text` is defined only once, with source line numbers for duplicate definitions. Inspired by the old AdvCiv-SAS blind [scan_xml_duplicates-3.3.py](/LLM_Helpers/scan_xml_duplicates-3.3.py) (see [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](/LLM_Helpers/README.md#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)). This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894) and fix XML text duplicate errors. See [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check).
+ - `build/xml_parent_duplicate_keys.py`: verifies parent-style XML objects are not defined twice with the same key, such as duplicate `*Info` `<Type>` values or duplicate audio `ScriptID` / `SoundID` entries. This intentionally does not check child/list duplicate semantics, which can be more context-dependent.
+-- `build/xml_child_duplicate_report.py`: checks suspicious duplicate child/list XML entries inside the same parent object, failing on high-confidence duplicates such as duplicate flavors, leader memory/contact keys, civilization city names, and unit/promotion lists; reports lower-confidence duplicates such as exact duplicate event trigger `Text + Era` entries without failing, prints source line numbers, and hides known allowed/noisy duplicates such as weighted goody huts and reused world-picker art paths unless run with `--show-ignored`. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) and fix XML text duplicate errors. See [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check).
++- `build/xml_child_duplicates.py`: checks suspicious duplicate child/list XML entries inside the same parent object, failing on high-confidence duplicates such as duplicate flavors, leader memory/contact keys, civilization city names, and unit/promotion lists; reports lower-confidence duplicates such as exact duplicate event trigger `Text + Era` entries without failing, prints source line numbers, and hides known allowed/noisy duplicates such as weighted goody huts and reused world-picker art paths unless run with `--show-ignored`. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) and fix XML text duplicate errors. See [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check).
++- `build/tech_columns.py`: verifies all techs in the same tech-tree column (`iGridX`) share the same core column values, currently `iCost` and `iAsset`; different `iGrid` column rows in the same column are allowed, but same-timing techs should normally have identical research cost and asset/trade valuation.
++- `build/civ_specific_asset_techs.py`: verifies civ-specific building and unit assets do not require a later starting tech-tree column (`iGridX`) or an earlier obsolete tech-tree column than the generic asset they replace; same-column parallel tech variation is allowed for flavor. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27463441180/job/81181382278) and fix corresponding errors; e.g., `iGridX=3 has multiple iAsset values: iAsset=8: TECH_THE_WHEEL(GridY=5), TECH_WRITING(GridY=7), TECH_MONARCHY(GridY=11), TECH_METAL_CASTING(GridY=19); iAsset=16: TECH_SAILING(GridY=1)`.
++- `build/civ_specific_asset_techs.py`: verifies civ-specific building and unit assets do not require a later starting tech-tree column (`iGridX`) or an earlier obsolete tech-tree column than the generic asset they replace; same-column parallel tech variation is allowed for flavor. For example, this helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27461191223/job/81175197986) and fix `BUILDING_AZTEC_SACRIFICIAL_ALTAR: building class BUILDINGCLASS_MONUMENT replacement uses later tech column than default BUILDING_MONUMENT: TECH_CALENDAR (GridX=2, GridY=11) after TECH_MYSTICISM (GridX=1, GridY=11)`, but `BUILDING_JAPAN_DOUJOU` (JAIL) requiring `TECH_MEDITATION` parallel (`iGridY=9`) to `TECH_CONSTITUTION` required by the generic `BUILDING_JAIL` is fine so it does not need a fix. Similarly for `BUILDING_EGYPTIAN_OBELISK: building class BUILDINGCLASS_MONUMENT replacement uses earlier ObsoleteTech column than default BUILDING_MONUMENT: TECH_BROADER_EDUCATION (GridX=10, GridY=11) before TECH_LIBERALISM (GridX=13, GridY=11)` being obsolete sooner and so weaker than the generic monument so fixed it (obsolete is now same `GridY` or later).
++- `build/civ_specific_not_weaker.py`: verifies civ-specific unit/building replacements are not weaker than their generic class defaults. Unit replacements fail if their `iCombat` or `iPower` is lower than the default unit for the same `UnitClass`; building replacements fail if their `iPower` is lower than the default building for the same `BuildingClass`.
+ - `build/define_tag_refs.py`: verifies any SAS `DefineTextVal` token that looks like a known Civ4 XML tag (e.g. bonuses, techs, building classes, units, promotions) references a real XML `<Type>` value; successful matches are printed by default, and `--quiet` suppresses them.
+ - `build/define_int_bounds.py`: verifies `GlobalDefines_advciv_sas.xml` integer values stay within `[-100000, 100000]`, except the launch-guard sentinel checked separately by `build/launch_guard.py`.
+ - `build/opening_music.py`: verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed script, and if shuffle is enabled, at least one valid non-`NONE` shuffle script.
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index 217b540e7..63ce9aeb5 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -24,7 +24,10 @@ jobs:
+       - run: python .github/workflows/build/xml_sas_text_english.py
+       - run: python .github/workflows/build/xml_text_duplicate_tags.py
+       - run: python .github/workflows/build/xml_parent_duplicate_keys.py
+-      - run: python .github/workflows/build/xml_child_duplicate_report.py
++      - run: python .github/workflows/build/xml_child_duplicates.py
++      - run: python .github/workflows/build/tech_columns.py
++      - run: python .github/workflows/build/civ_specific_asset_techs.py
++      - run: python .github/workflows/build/civ_specific_not_weaker.py
+       - run: python .github/workflows/build/define_tag_refs.py
+       - run: python .github/workflows/build/define_int_bounds.py
+       - run: python .github/workflows/build/opening_music.py
+
+diff --git a/.github/workflows/build/civ_specific_asset_techs.py b/.github/workflows/build/civ_specific_asset_techs.py
+new file mode 100644
+index 000000000..d059cfcb9
+--- /dev/null
++++ b/.github/workflows/build/civ_specific_asset_techs.py
+@@ -0,0 +1,332 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: civilization-specific assets should not be pushed to a later
++# starting tech column or an earlier obsolete tech column than the generic asset
++# they replace.
++#
++# <!-- custom: Same-column tech variation is allowed. For example, a unique
++# building or unit using a parallel tech at the same iGridX can be useful flavor.
++# Requiring a later iGridX prereq tech is likely to be clunky because the
++# replacement can arrive after the generic asset slot it is meant to replace.
++# Obsoleting earlier is likewise suspicious because the civ-specific asset can
++# disappear before the generic asset would. (ChatGPT-5.5) -->
++
++from pathlib import Path
++import argparse
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, local_name, child_text_by_local_name
++
++
++TECH_INFOS_REL_PATH = Path("Assets/XML/Technologies/CIV4TechInfos.xml")
++
++NONE_VALUES = {
++	"",
++	"NONE",
++	"NO_TECH",
++	"TECH_NONE",
++	"NO_BUILDING",
++	"NO_UNIT",
++}
++
++ASSET_GROUPS = (
++	{
++		"name": "building",
++		"asset_infos_path": Path("Assets/XML/Buildings/CIV4BuildingInfos.xml"),
++		"class_infos_path": Path("Assets/XML/Buildings/CIV4BuildingClassInfos.xml"),
++		"asset_info_tag": "BuildingInfo",
++		"class_info_tag": "BuildingClassInfo",
++		"asset_type_tag": "Type",
++		"asset_class_tag": "BuildingClass",
++		"default_asset_tag": "DefaultBuilding",
++	},
++	{
++		"name": "unit",
++		"asset_infos_path": Path("Assets/XML/Units/CIV4UnitInfos.xml"),
++		"class_infos_path": Path("Assets/XML/Units/CIV4UnitClassInfos.xml"),
++		"asset_info_tag": "UnitInfo",
++		"class_info_tag": "UnitClassInfo",
++		"asset_type_tag": "Type",
++		"asset_class_tag": "Class",
++		"default_asset_tag": "DefaultUnit",
++	},
++)
++
++# Keep empty by default. Add only narrow, documented exceptions if a later-prereq
++# or earlier-obsolete replacement is truly intentional.
++ALLOWED_CIV_SPECIFIC_ASSET_TECH_EXCEPTIONS: dict[str, str] = {
++}
++
++
++def normalize_none(value: str | None) -> str:
++	if value is None:
++		return "NONE"
++	value = value.strip()
++	if value in NONE_VALUES:
++		return "NONE"
++	return value
++
++
++def parse_xml(path: Path) -> ET.ElementTree:
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++	return ET.parse(path)
++
++
++def read_class_defaults(repo_root: Path, group: dict[str, object]) -> dict[str, str]:
++	path = repo_root / group["class_infos_path"]
++	tree = parse_xml(path)
++	default_by_class: dict[str, str] = {}
++
++	for node in tree.getroot().iter():
++		if local_name(node.tag) != group["class_info_tag"]:
++			continue
++
++		asset_class = child_text_by_local_name(node, "Type")
++		default_asset = normalize_none(child_text_by_local_name(node, group["default_asset_tag"]))
++		if asset_class is None:
++			continue
++		default_by_class[asset_class] = default_asset
++
++	return default_by_class
++
++
++def read_assets(repo_root: Path, group: dict[str, object]) -> dict[str, dict[str, str]]:
++	path = repo_root / group["asset_infos_path"]
++	tree = parse_xml(path)
++	assets: dict[str, dict[str, str]] = {}
++
++	for node in tree.getroot().iter():
++		if local_name(node.tag) != group["asset_info_tag"]:
++			continue
++
++		asset_type = child_text_by_local_name(node, group["asset_type_tag"])
++		if asset_type is None:
++			continue
++
++		asset_class = child_text_by_local_name(node, group["asset_class_tag"])
++		prereq_tech = normalize_none(child_text_by_local_name(node, "PrereqTech"))
++		obsolete_tech = normalize_none(child_text_by_local_name(node, "ObsoleteTech"))
++
++		assets[asset_type] = {
++			"class": asset_class or "NONE",
++			"prereq_tech": prereq_tech,
++			"obsolete_tech": obsolete_tech,
++		}
++
++	return assets
++
++
++def read_tech_grid_positions(repo_root: Path) -> dict[str, tuple[int, int]]:
++	path = repo_root / TECH_INFOS_REL_PATH
++	tree = parse_xml(path)
++	tech_grid_by_type: dict[str, tuple[int, int]] = {}
++
++	for node in tree.getroot().iter():
++		if local_name(node.tag) != "TechInfo":
++			continue
++
++		tech_type = child_text_by_local_name(node, "Type")
++		if tech_type is None:
++			continue
++
++		grid_x_text = child_text_by_local_name(node, "iGridX")
++		grid_y_text = child_text_by_local_name(node, "iGridY")
++		try:
++			grid_x = int(grid_x_text or "-1")
++			grid_y = int(grid_y_text or "-1")
++		except ValueError as exc:
++			raise RuntimeError(f"{TECH_INFOS_REL_PATH}: {tech_type} has invalid iGridX/iGridY: {grid_x_text!r}/{grid_y_text!r}") from exc
++
++		tech_grid_by_type[tech_type] = (grid_x, grid_y)
++
++	return tech_grid_by_type
++
++
++def tech_label(tech_type: str, tech_grid_by_type: dict[str, tuple[int, int]]) -> str:
++	if tech_type == "NONE":
++		return "NONE"
++	if tech_type not in tech_grid_by_type:
++		return f"{tech_type} (missing grid)"
++	grid_x, grid_y = tech_grid_by_type[tech_type]
++	return f"{tech_type} (GridX={grid_x}, GridY={grid_y})"
++
++
++def check_prereq_tech(
++	asset_type: str,
++	asset_class: str,
++	group_name: str,
++	default_asset: str,
++	replacement_tech: str,
++	default_tech: str,
++	tech_grid_by_type: dict[str, tuple[int, int]],
++) -> list[str]:
++	failures: list[str] = []
++
++	if replacement_tech == "NONE":
++		return failures
++
++	if default_tech == "NONE":
++		failures.append(
++			f"{asset_type}: {group_name} class {asset_class} replacement requires {tech_label(replacement_tech, tech_grid_by_type)}, "
++			f"but default {default_asset} has no PrereqTech"
++		)
++		return failures
++
++	if replacement_tech not in tech_grid_by_type:
++		failures.append(f"{asset_type}: replacement PrereqTech {replacement_tech} is missing from TechInfos")
++		return failures
++	if default_tech not in tech_grid_by_type:
++		failures.append(f"{asset_type}: default {default_asset} PrereqTech {default_tech} is missing from TechInfos")
++		return failures
++
++	replacement_grid_x, replacement_grid_y = tech_grid_by_type[replacement_tech]
++	default_grid_x, default_grid_y = tech_grid_by_type[default_tech]
++
++	if replacement_grid_x > default_grid_x:
++		failures.append(
++			f"{asset_type}: {group_name} class {asset_class} replacement uses later PrereqTech column than default {default_asset}: "
++			f"{replacement_tech} (GridX={replacement_grid_x}, GridY={replacement_grid_y}) after "
++			f"{default_tech} (GridX={default_grid_x}, GridY={default_grid_y})"
++		)
++
++	return failures
++
++
++def check_obsolete_tech(
++	asset_type: str,
++	asset_class: str,
++	group_name: str,
++	default_asset: str,
++	replacement_tech: str,
++	default_tech: str,
++	tech_grid_by_type: dict[str, tuple[int, int]],
++) -> list[str]:
++	failures: list[str] = []
++
++	if replacement_tech == "NONE":
++		return failures
++
++	if default_tech == "NONE":
++		failures.append(
++			f"{asset_type}: {group_name} class {asset_class} replacement obsoletes at {tech_label(replacement_tech, tech_grid_by_type)}, "
++			f"but default {default_asset} has no ObsoleteTech"
++		)
++		return failures
++
++	if replacement_tech not in tech_grid_by_type:
++		failures.append(f"{asset_type}: replacement ObsoleteTech {replacement_tech} is missing from TechInfos")
++		return failures
++	if default_tech not in tech_grid_by_type:
++		failures.append(f"{asset_type}: default {default_asset} ObsoleteTech {default_tech} is missing from TechInfos")
++		return failures
++
++	replacement_grid_x, replacement_grid_y = tech_grid_by_type[replacement_tech]
++	default_grid_x, default_grid_y = tech_grid_by_type[default_tech]
++
++	if replacement_grid_x < default_grid_x:
++		failures.append(
++			f"{asset_type}: {group_name} class {asset_class} replacement uses earlier ObsoleteTech column than default {default_asset}: "
++			f"{replacement_tech} (GridX={replacement_grid_x}, GridY={replacement_grid_y}) before "
++			f"{default_tech} (GridX={default_grid_x}, GridY={default_grid_y})"
++		)
++
++	return failures
++
++
++def check_asset_group(repo_root: Path, group: dict[str, object], tech_grid_by_type: dict[str, tuple[int, int]]) -> list[str]:
++	default_by_class = read_class_defaults(repo_root, group)
++	assets = read_assets(repo_root, group)
++	failures: list[str] = []
++	group_name = group["name"]
++
++	for asset_type in sorted(assets):
++		asset = assets[asset_type]
++		asset_class = asset["class"]
++		if asset_class == "NONE":
++			continue
++
++		default_asset = default_by_class.get(asset_class, "NONE")
++		if default_asset == "NONE":
++			continue
++		if asset_type == default_asset:
++			continue
++		if default_asset not in assets:
++			failures.append(f"{asset_type}: {group_name} class {asset_class} default asset {default_asset} is missing from asset infos")
++			continue
++
++		if asset_type in ALLOWED_CIV_SPECIFIC_ASSET_TECH_EXCEPTIONS:
++			continue
++
++		default = assets[default_asset]
++
++		failures.extend(
++			check_prereq_tech(
++				asset_type,
++				asset_class,
++				group_name,
++				default_asset,
++				asset["prereq_tech"],
++				default["prereq_tech"],
++				tech_grid_by_type,
++			)
++		)
++
++		failures.extend(
++			check_obsolete_tech(
++				asset_type,
++				asset_class,
++				group_name,
++				default_asset,
++				asset["obsolete_tech"],
++				default["obsolete_tech"],
++				tech_grid_by_type,
++			)
++		)
++
++	return failures
++
++
++def check_asset_techs(repo_root: Path) -> list[str]:
++	tech_grid_by_type = read_tech_grid_positions(repo_root)
++	failures: list[str] = []
++
++	for group in ASSET_GROUPS:
++		failures.extend(check_asset_group(repo_root, group, tech_grid_by_type))
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check civilization-specific building/unit asset techs are not later/earlier than their generic asset's tech columns.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	try:
++		failures = check_asset_techs(args.repo_root)
++	except RuntimeError as exc:
++		print("FAIL civ-specific asset tech timing")
++		print(f"  - {exc}")
++		return 1
++
++	if failures:
++		print("FAIL civ-specific asset tech timing")
++		for failure in failures:
++			print(f"  - {failure}")
++		print("  - Same-GridX parallel tech variation is allowed.")
++		print("  - PrereqTech fails only when a replacement starts later than its generic asset.")
++		print("  - ObsoleteTech fails only when a replacement obsoletes earlier than its generic asset.")
++		return 1
++
++	print("PASS civ-specific asset tech timing")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/civ_specific_not_weaker.py b/.github/workflows/build/civ_specific_not_weaker.py
+new file mode 100644
+index 000000000..0273f3a23
+--- /dev/null
++++ b/.github/workflows/build/civ_specific_not_weaker.py
+@@ -0,0 +1,215 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: civilization-specific unit and building replacements should not
++# be weaker than the generic asset they replace.
++#
++# <!-- custom: This is intentionally strict for AdvCiv-SAS. Unique units and
++# buildings may add flavor, timing, cost, or special rules, but they should not
++# quietly lose the core player-facing strength/power baseline of the generic
++# slot. Units are checked for both iCombat and iPower; buildings have no combat
++# strength, so iPower is the closest comparable XML baseline. (ChatGPT-5.5) -->
++
++from pathlib import Path
++import argparse
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, local_name, child_text_by_local_name
++
++
++NONE_VALUES = {
++	"",
++	"NONE",
++	"NO_UNIT",
++	"NO_BUILDING",
++}
++
++ASSET_GROUPS = (
++	{
++		"name": "unit",
++		"asset_infos_path": Path("Assets/XML/Units/CIV4UnitInfos.xml"),
++		"class_infos_path": Path("Assets/XML/Units/CIV4UnitClassInfos.xml"),
++		"asset_info_tag": "UnitInfo",
++		"class_info_tag": "UnitClassInfo",
++		"civ_overrides_parent_tag": "Units",
++		"civ_override_tag": "Unit",
++		"civ_class_tag": "UnitClassType",
++		"civ_asset_tag": "UnitType",
++		"default_asset_tag": "DefaultUnit",
++		"lower_value_tags": ("iCombat", "iPower"),
++	},
++	{
++		"name": "building",
++		"asset_infos_path": Path("Assets/XML/Buildings/CIV4BuildingInfos.xml"),
++		"class_infos_path": Path("Assets/XML/Buildings/CIV4BuildingClassInfos.xml"),
++		"asset_info_tag": "BuildingInfo",
++		"class_info_tag": "BuildingClassInfo",
++		"civ_overrides_parent_tag": "Buildings",
++		"civ_override_tag": "Building",
++		"civ_class_tag": "BuildingClassType",
++		"civ_asset_tag": "BuildingType",
++		"default_asset_tag": "DefaultBuilding",
++		"lower_value_tags": ("iPower",),
++	},
++)
++
++
++def normalize_none(value: str | None) -> str:
++	if value is None:
++		return "NONE"
++	value = value.strip()
++	if value in NONE_VALUES:
++		return "NONE"
++	return value
++
++
++def parse_xml(path: Path) -> ET.ElementTree:
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++	return ET.parse(path)
++
++
++def read_class_defaults(repo_root: Path, group: dict[str, object]) -> dict[str, str]:
++	path = repo_root / group["class_infos_path"]
++	tree = parse_xml(path)
++	default_by_class: dict[str, str] = {}
++
++	for node in tree.getroot().iter():
++		if local_name(node.tag) != group["class_info_tag"]:
++			continue
++
++		asset_class = child_text_by_local_name(node, "Type")
++		default_asset = normalize_none(child_text_by_local_name(node, group["default_asset_tag"]))
++		if asset_class is None:
++			continue
++		default_by_class[asset_class] = default_asset
++
++	return default_by_class
++
++
++def read_assets(repo_root: Path, group: dict[str, object]) -> dict[str, ET.Element]:
++	path = repo_root / group["asset_infos_path"]
++	tree = parse_xml(path)
++	asset_by_type: dict[str, ET.Element] = {}
++
++	for node in tree.getroot().iter():
++		if local_name(node.tag) != group["asset_info_tag"]:
++			continue
++
++		asset_type = child_text_by_local_name(node, "Type")
++		if asset_type is not None:
++			asset_by_type[asset_type] = node
++
++	return asset_by_type
++
++
++def iter_named_direct_children(node: ET.Element, child_name: str):
++	for child in list(node):
++		if local_name(child.tag) == child_name:
++			yield child
++
++
++def read_civ_overrides(repo_root: Path, group: dict[str, object]) -> list[tuple[str, str, str]]:
++	path = repo_root / "Assets/XML/Civilizations/CIV4CivilizationInfos.xml"
++	tree = parse_xml(path)
++	overrides: list[tuple[str, str, str]] = []
++
++	for civ in tree.getroot().iter():
++		if local_name(civ.tag) != "CivilizationInfo":
++			continue
++
++		civ_type = child_text_by_local_name(civ, "Type")
++		if civ_type is None:
++			continue
++
++		for parent in iter_named_direct_children(civ, group["civ_overrides_parent_tag"]):
++			for override in iter_named_direct_children(parent, group["civ_override_tag"]):
++				asset_class = child_text_by_local_name(override, group["civ_class_tag"])
++				asset_type = normalize_none(child_text_by_local_name(override, group["civ_asset_tag"]))
++				if asset_class is not None and asset_type != "NONE":
++					overrides.append((civ_type, asset_class, asset_type))
++
++	return overrides
++
++
++def read_int(node: ET.Element, tag: str) -> int:
++	value = child_text_by_local_name(node, tag)
++	if value is None or value == "":
++		return 0
++	try:
++		return int(value)
++	except ValueError as exc:
++		asset_type = child_text_by_local_name(node, "Type") or "<unknown>"
++		raise RuntimeError(f"{asset_type} has non-int {tag}: {value!r}") from exc
++
++
++def audit_group(repo_root: Path, group: dict[str, object]) -> tuple[list[str], int]:
++	failures: list[str] = []
++	checked = 0
++
++	default_by_class = read_class_defaults(repo_root, group)
++	asset_by_type = read_assets(repo_root, group)
++	overrides = read_civ_overrides(repo_root, group)
++
++	for civ_type, asset_class, asset_type in sorted(overrides):
++		default_asset = normalize_none(default_by_class.get(asset_class))
++		if default_asset == "NONE" or asset_type == default_asset:
++			continue
++
++		checked += 1
++		asset_info = asset_by_type.get(asset_type)
++		default_info = asset_by_type.get(default_asset)
++
++		if asset_info is None:
++			failures.append(f"{civ_type}: {asset_type} overrides {asset_class}, but {group['asset_info_tag']} is missing")
++			continue
++		if default_info is None:
++			failures.append(f"{civ_type}: default {group['name']} {default_asset} for {asset_class} is missing")
++			continue
++
++		for value_tag in group["lower_value_tags"]:
++			asset_value = read_int(asset_info, value_tag)
++			default_value = read_int(default_info, value_tag)
++			if asset_value < default_value:
++				failures.append(
++					f"{civ_type}: {asset_type} replaces {default_asset} in {asset_class} but {value_tag} is lower: {asset_value} < {default_value}"
++				)
++
++	return failures, checked
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Fail if civilization-specific units/buildings are weaker than the generic assets they replace.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	all_failures: list[str] = []
++	checked_by_group: dict[str, int] = {}
++
++	for group in ASSET_GROUPS:
++		failures, checked = audit_group(args.repo_root, group)
++		all_failures.extend(failures)
++		checked_by_group[group["name"]] = checked
++
++	if all_failures:
++		print("FAIL civ-specific not-weaker check")
++		print(f"Checked {checked_by_group['unit']} civ-specific unit replacements and {checked_by_group['building']} civ-specific building replacements.")
++		for failure in all_failures:
++			print(f"  - {failure}")
++		return 1
++
++	print(
++		"PASS civ-specific not-weaker check: "
++		f"checked {checked_by_group['unit']} unit replacements and {checked_by_group['building']} building replacements; "
++		"no strength/power downgrades found."
++	)
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/tech_columns.py b/.github/workflows/build/tech_columns.py
+new file mode 100644
+index 000000000..cae5f4222
+--- /dev/null
++++ b/.github/workflows/build/tech_columns.py
+@@ -0,0 +1,149 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: techs in the same tech-tree column should use the same core
++# column values.
++#
++# <!-- custom: This checks parallel tech timing by iGridX, not iGridY. iGridY is
++# only the vertical row/layout position; iGridX is the tech-tree column/progress
++# position. Different rows in the same column should normally share values such
++# as iCost and iAsset so that parallel same-timing techs do not get inconsistent
++# research cost, asset/trade valuation, or AI valuation pressure. (ChatGPT-5.5) -->
++
++from pathlib import Path
++import argparse
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, local_name, child_text_by_local_name
++
++
++TECH_INFOS_REL_PATH = Path("Assets/XML/Technologies/CIV4TechInfos.xml")
++COLUMN_VALUE_TAGS = (
++	"iCost",
++	"iAsset",
++)
++
++# Keep empty by default. Add only narrow, documented exceptions if a same-column
++# value mismatch is truly intentional.
++ALLOWED_TECH_COLUMN_VALUE_EXCEPTIONS: dict[str, str] = {
++}
++
++
++def parse_xml(path: Path) -> ET.ElementTree:
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++	return ET.parse(path)
++
++
++def read_techs(repo_root: Path) -> list[dict[str, int | str]]:
++	path = repo_root / TECH_INFOS_REL_PATH
++	tree = parse_xml(path)
++	techs: list[dict[str, int | str]] = []
++
++	for node in tree.getroot().iter():
++		if local_name(node.tag) != "TechInfo":
++			continue
++
++		tech_type = child_text_by_local_name(node, "Type")
++		if tech_type is None:
++			continue
++
++		grid_x_text = child_text_by_local_name(node, "iGridX")
++		grid_y_text = child_text_by_local_name(node, "iGridY")
++
++		try:
++			tech: dict[str, int | str] = {
++				"type": tech_type,
++				"grid_x": int(grid_x_text or "-1"),
++				"grid_y": int(grid_y_text or "-1"),
++			}
++
++			for tag in COLUMN_VALUE_TAGS:
++				tech[tag] = int(child_text_by_local_name(node, tag) or "0")
++		except ValueError as exc:
++			values = "/".join([grid_x_text or "", grid_y_text or ""] + [child_text_by_local_name(node, tag) or "" for tag in COLUMN_VALUE_TAGS])
++			raise RuntimeError(f"{TECH_INFOS_REL_PATH}: {tech_type} has invalid numeric column value(s): {values!r}") from exc
++
++		techs.append(tech)
++
++	return techs
++
++
++def format_tech_list(techs: list[dict[str, int | str]]) -> str:
++	return ", ".join(
++		f"{tech['type']}(GridY={tech['grid_y']})"
++		for tech in sorted(techs, key=lambda item: (int(item["grid_y"]), str(item["type"])))
++	)
++
++
++def check_column_field(
++	grid_x: int,
++	column_techs: list[dict[str, int | str]],
++	field_name: str,
++) -> list[str]:
++	failures: list[str] = []
++	by_value: dict[int, list[dict[str, int | str]]] = {}
++
++	for tech in column_techs:
++		by_value.setdefault(int(tech[field_name]), []).append(tech)
++
++	if len(by_value) <= 1:
++		return failures
++
++	parts = []
++	for value in sorted(by_value):
++		parts.append(f"{field_name}={value}: {format_tech_list(by_value[value])}")
++
++	failures.append(f"iGridX={grid_x} has multiple {field_name} values: " + "; ".join(parts))
++	return failures
++
++
++def check_tech_column_values(repo_root: Path) -> list[str]:
++	techs = read_techs(repo_root)
++	by_grid_x: dict[int, list[dict[str, int | str]]] = {}
++
++	for tech in techs:
++		tech_type = str(tech["type"])
++		if tech_type in ALLOWED_TECH_COLUMN_VALUE_EXCEPTIONS:
++			continue
++		by_grid_x.setdefault(int(tech["grid_x"]), []).append(tech)
++
++	failures: list[str] = []
++	for grid_x in sorted(by_grid_x):
++		column_techs = by_grid_x[grid_x]
++		for field_name in COLUMN_VALUE_TAGS:
++			failures.extend(check_column_field(grid_x, column_techs, field_name))
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that techs in the same iGridX column share the same core column values.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	try:
++		failures = check_tech_column_values(args.repo_root)
++	except RuntimeError as exc:
++		print("FAIL tech columns")
++		print(f"  - {exc}")
++		return 1
++
++	if failures:
++		print("FAIL tech columns")
++		for failure in failures:
++			print(f"  - {failure}")
++		print("  - Same iGridX means the techs are in the same tech-tree column; iGridY row differences are allowed, but core column values should normally match within that column.")
++		return 1
++
++	print("PASS tech columns")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/xml_child_duplicate_report.py b/.github/workflows/build/xml_child_duplicates.py
+similarity index 100%
+rename from .github/workflows/build/xml_child_duplicate_report.py
+rename to .github/workflows/build/xml_child_duplicates.py
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 4f659e4c7..15b777528 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -4717,8 +4717,8 @@
+ 			<iWarWearinessModifier>0</iWarWearinessModifier>
+ 			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+ 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+-			<!-- custom: was 10 -->
+-			<iHealRateChange>15</iHealRateChange>
++			<!-- custom: seems pretty much useless with such a low value and not valuable enough to consider for this effect so increase it; was 10 -->
++			<iHealRateChange>30</iHealRateChange>
+ 			<!-- custom: was 3 -->
+ 			<iHealth>1</iHealth>
+ 			<iAreaHealth>0</iAreaHealth>
+@@ -8711,7 +8711,8 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
++			<!-- custom: TECH_BROADER_EDUCATION would be thematically closer but weaker than generic monument so do not do it, as detected with the new Github Workflow. -->
++			<ObsoleteTech>TECH_LIBERALISM</ObsoleteTech>
+ 			<PrereqTech>TECH_MYSTICISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -8750,7 +8751,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>30</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -8787,7 +8788,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iAreaHealth>0</iAreaHealth>
+ 			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>2</iHappiness>
++			<iHappiness>0</iHappiness>
+ 			<iAreaHappiness>0</iAreaHappiness>
+ 			<iGlobalHappiness>0</iGlobalHappiness>
+ 			<iStateReligionHappiness>0</iStateReligionHappiness>
+@@ -8814,10 +8815,11 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
++			<!-- custom: was 1 in the generic monument -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>1</iCommerce>
++				<iCommerce>2</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -8830,10 +8832,11 @@
+ 			<StateReligionCommerces/>
+ 			<CommerceHappinesses/>
+ 			<ReligionChanges/>
++			<!-- custom: technically they are builders/industrious too, and this allows some variety thematically and in terms of strategy too -->
+ 			<SpecialistCounts>
+ 				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+-					<iSpecialistCount>2</iSpecialistCount>
++					<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
++					<iSpecialistCount>1</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+@@ -8861,12 +8864,12 @@
+ 					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_RELIGION</FlavorType>
++					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+ 					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -8897,7 +8900,8 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>TECH_BANKING</ObsoleteTech>
++			<!-- custom: TECH_BANKING may have been (i'm guessing, idk for sure) thematically closer but weaker than generic monument so do not do it, as detected with the new Github Workflow. -->
++			<ObsoleteTech>TECH_LIBERALISM</ObsoleteTech>
+ 			<PrereqTech>TECH_MYSTICISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -8936,7 +8940,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>35</iCost>
++			<iCost>30</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -8973,13 +8977,13 @@
+ 			<iHealth>0</iHealth>
+ 			<iAreaHealth>0</iAreaHealth>
+ 			<iGlobalHealth>0</iGlobalHealth>
+-			<!-- custom: alternative effect than unit exp, less tedious, maybe makes
++			<!-- custom: update: now removed: old advciv-sas rationale: alternative effect than unit exp, less tedious, maybe makes
+ 			more sense too, also removed the trait-dependent happiness effect for
+ 			same reason, applied it directly here, so civ is free to change traits
+ 			without affecting this building (don't bind trait-specific/dependent
+ 			effects on civ-specific buildings i think makes more sense this way)
+ 			-->
+-			<iHappiness>2</iHappiness>
++			<iHappiness>0</iHappiness>
+ 			<iAreaHappiness>0</iAreaHappiness>
+ 			<iGlobalHappiness>0</iGlobalHappiness>
+ 			<iStateReligionHappiness>0</iStateReligionHappiness>
+@@ -9017,17 +9021,19 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>1000</iCommerce>
+ 			</CommerceChangeDoubleTimes>
+-			<CommerceModifiers>
+-				<iCommerce>15</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-			</CommerceModifiers>
++			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+ 			<StateReligionCommerces/>
+ 			<CommerceHappinesses/>
+ 			<ReligionChanges/>
+-			<SpecialistCounts/>
++			<!-- custom: new thematic effect tied to gold but more balance than previous advciv-sas aggressive early, quite unbalanced and plain commerce modifiers; also justifies reducing the building's cost which was quite high so early -->
++			<SpecialistCounts>
++				<SpecialistCount>
++					<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
++					<iSpecialistCount>1</iSpecialistCount>
++				</SpecialistCount>
++			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+@@ -9053,7 +9059,11 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>3</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -9086,8 +9096,8 @@
+ 			<FreeStartEra>ERA_MODERN</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>TECH_LIBERALISM</ObsoleteTech>
+-			<!-- custom: with our tech rework sacrificial_altar is now based on tech_calendar as per/according to the wikipedia info, much more relevant as calendar is much sooner in tech tree, see docs or tech tree view in docs as well for details -->
+-			<PrereqTech>TECH_CALENDAR</PrereqTech>
++			<!-- custom: with our tech rework sacrificial_altar based on tech_calendar would be a nice thematic fit as per the wikipedia info, however it would make the building much weaker and missing critical early culture need or timing; or simply being needlessly weaker than generic building here so do not do it. -->
++			<PrereqTech>TECH_MYSTICISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -9126,7 +9136,8 @@
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<!-- custom: this should be very valuable for aztecs to build, make sure they build it, will also help their warmongering and such maybe too -->
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>45</iCost>
++			<!-- custom: was 30 in generic monument -->
++			<iCost>35</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -9163,6 +9174,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iAreaHealth>0</iAreaHealth>
+ 			<iGlobalHealth>0</iGlobalHealth>
++			<!-- custom: note: high free happiness so early in the game is very strong, probably balance breaking, and generally avoided unless it meshes well with the building's effect, so as of now adjusted other civ-specific monuments accordingly. -->
+ 			<iHappiness>1</iHappiness>
+ 			<iAreaHappiness>0</iAreaHappiness>
+ 			<iGlobalHappiness>0</iGlobalHappiness>
+@@ -9194,7 +9206,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>2</iCommerce>
++				<iCommerce>1</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -9231,16 +9243,20 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+ 					<iFlavor>2</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>1</iFlavor>
++				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+@@ -9271,9 +9287,9 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>ERA_MODERN</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>TECH_NATURALISM</ObsoleteTech>
+-			<!-- custom: until we do and if we do at all our full full tech tree rework, for now construction is too far, use polytheism instead for the ziggurat -->
+-			<PrereqTech>TECH_POLYTHEISM</PrereqTech>
++			<ObsoleteTech>TECH_LIBERALISM</ObsoleteTech>
++			<!-- custom: while thematically more accurate i'm guessing, tech_construction or tech_polytheism are too far (similar reasoning as as of now for the BUILDING_AZTEC_SACRIFICIAL_ALTAR) -->
++			<PrereqTech>TECH_MYSTICISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -9311,7 +9327,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>30</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -9348,7 +9364,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iAreaHealth>0</iAreaHealth>
+ 			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>1</iHappiness>
++			<iHappiness>0</iHappiness>
+ 			<iAreaHappiness>0</iAreaHappiness>
+ 			<iGlobalHappiness>0</iGlobalHappiness>
+ 			<iStateReligionHappiness>0</iStateReligionHappiness>
+@@ -9378,7 +9394,7 @@
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>2</iCommerce>
++				<iCommerce>1</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -9395,12 +9411,12 @@
+ 			<StateReligionCommerces/>
+ 			<CommerceHappinesses/>
+ 			<ReligionChanges/>
+-			<!-- custom: was 2 spy(ies), now with the rework is 2 priest(s) now -->
++			<!-- custom: was 2 spy(ies), now with the rework is 1 priest(s) now since the building is earlier -->
+ 			<!-- advc.911a: was 1 spy -->
+ 			<SpecialistCounts>
+ 				<SpecialistCount>
+ 					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+-					<iSpecialistCount>2</iSpecialistCount>
++					<iSpecialistCount>1</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+@@ -9428,15 +9444,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>3</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index d7dfcb0c4..071658959 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -5193,7 +5193,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>16</iAsset>
++			<iAsset>24</iAsset>
+ 			<iPower>4</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -5509,7 +5509,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>16</iAsset>
++			<iAsset>8</iAsset>
+ 			<!-- custom: previous: 0 -->
+ 			<iPower>2</iPower>
+ 			<bRepeat>0</bRepeat>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index d0d2999f1..a5dc344ee 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -786,7 +786,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_3D_AMBIENCE_NOTE</Tag>
+-		<English>Note: Ambience 3D can start late; e.g;, dog begins around 6-9 seconds, and horn beings at around 8-13 seconds (They seem not to start right away, e.g., after entering city screen).</English>
++		<English>Note: Ambience 3D can start late; e.g;, dog begins around 5-20 seconds, and horn beings at around 8-20 seconds (They seem not to start right away, e.g., after entering city screen).</English>
+ 	</TEXT>
+ 	<!-- custom: script headers for music category (Claude code Sonnet 4.5) -->
+ 	<TEXT>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 7925802dc..521ae2c16 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -5533,12 +5533,12 @@ Note: for the hint ones it's only in AdvCiv-SAS that we don't want them duplicat
+ 
+ ## 150 - (Fixed) Base AdvCiv issue (and some AdvCiv-SAS): Priority duplicate XML child/list entries found by new GitHub workflow check
+ 
+-After the text duplicate check was fixed, `build/xml_child_duplicate_report.py` [exposed](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) priority duplicate child/list entries. These are not parent XML keys like KI#148; they are repeated child values inside one parent object where duplication is very likely accidental and semantically harmful or useless.
++After the text duplicate check was fixed, `build/xml_child_duplicates.py` [exposed](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) priority duplicate child/list entries. These are not parent XML keys like KI#148; they are repeated child values inside one parent object where duplication is very likely accidental and semantically harmful or useless.
+ 
+ GitHub Actions output:
+ 
+ ```text
+-Run python .github/workflows/build/xml_child_duplicate_report.py
++Run python .github/workflows/build/xml_child_duplicates.py
+   
+ FAIL XML priority child duplicates
+ Priority duplicate child/list entries are treated as build errors.
+@@ -5557,7 +5557,7 @@ Fix notes:
+ - Removed the later duplicate `TXT_KEY_CITY_NAME_MARMARIS` from the Ottoman city list.
+ - Removed the duplicate `TECH_MONARCHY` `FLAVOR_CULTURE` child (AdvCiv-SAS-specific issue) old existing `FLAVOR_CULTURE` value `9`, keeping the `iFlavor` value `4`.
+ 
+-After these changes, `python .github/workflows/build/xml_child_duplicate_report.py` passed, and the full local `.github/workflows/build/*.py` check set passed too.
++After these changes, `python .github/workflows/build/xml_child_duplicates.py` passed, and the full local `.github/workflows/build/*.py` check set passed too.
+ 
+ ## 151 - (Fixed) Base AdvCiv issue: Suspicious malformed-looking XML angle tags found by new GitHub workflow check
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 3f1f61723..74509f21a 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -347,7 +347,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game speed Turbo) and marked with `*` to distinguish them from regular XML info fields. Also added **analysis rows** (e.g., `Summary 08 (40%)` with `T200=+1400 (120)`; `Increments Years 02` with `750, 500, 250`; `Increments Months 02` with `9000, 6000, 3000`). See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+ - **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+ - Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras, and notably **optional era buttons**. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+-- New **Media Player** (**shared** between Sevopedia Movies and Music): supports **Replay**, **Eject (Exit)**, **Previous Track** and **Next track**, **Toggle Movies/Music**, **Fast Up** and **Fast Down** (change grouping), **Timer**, and a **Playlist** and a **TV panel** on the right side for **non-bik** files (e.g., for **nif**, **dds**), or **a more compact** queue form **for bik files**. This allows to view without having to exit the screen. Click on **Eject button** or **Right-click** to **stop the media playing**; press Escape or Enter key for main menu. See [Sevopedia reworks (Media Player)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-media-player). See also [KI#141](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#141---fixed-sevopedia-media-player-3d-audio-previews-became-very-quiet-after-entering-a-game). Note: Civ selection/action sounds can include several variants. Replay to hear different samples. Note 2: some Improvement 3D sounds as of now can play no or the wrong sound. Try to click Play several times to hear the correct sound. Note 3: Ambience 3D can start late; e.g;, dog begins around 6-9 seconds, and horn beings at around 8-13 seconds (They seem not to start right away, e.g., after entering city screen).
++- New **Media Player** (**shared** between Sevopedia Movies and Music): supports **Replay**, **Eject (Exit)**, **Previous Track** and **Next track**, **Toggle Movies/Music**, **Fast Up** and **Fast Down** (change grouping), **Timer**, and a **Playlist** and a **TV panel** on the right side for **non-bik** files (e.g., for **nif**, **dds**), or **a more compact** queue form **for bik files**. This allows to view without having to exit the screen. Click on **Eject button** or **Right-click** to **stop the media playing**; press Escape or Enter key for main menu. See [Sevopedia reworks (Media Player)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-media-player). See also [KI#141](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#141---fixed-sevopedia-media-player-3d-audio-previews-became-very-quiet-after-entering-a-game). Note: Civ selection/action sounds can include several variants. Replay to hear different samples. Note 2: some Improvement 3D sounds as of now can play no or the wrong sound. Try to click Play several times to hear the correct sound. Note 3: Ambience 3D can start late; e.g;, dog begins around 5-20 seconds, and horn beings at around 8-20 seconds (They seem not to start right away, e.g., after entering city screen).
+ - New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, **Corporations** (if any; as of now in base AdvCiv there are none), and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support).
+ - New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. Note: there are **multiple sounds in an item** for each civilization sound item, so **replay many times the same item to hear all civilization sounds**. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia).
+ - New **Expanded Text Panels** so History/Background **text** (e.g. of the Viking unit that is long and requires scrolling to be seen or of the Great General Unit (that includes uniquenames that require scrolling to be scanned quickly)) easier to read, with **EXPAND** and **CLOSE** buttons. It occupies the whole item's page but **preserves the rest of the sevopedia page display** (footer, header, item bar and category bar) for easy browsing. This allows to **browse other category items** (e.g., other leaders from sevopedia leader's item bar) **without having to close and reopen expanded view** everytime item is changed (e.g. when clicking on another leader). Added as an optional helper shared across all eligible categories (main code in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)). Added optional **Playground** to experiment with **text color**, **background**, and **panel styles**, with `+` and `-` button to swap them and descriptions like `TEXT: PLAYER_LIGHT_BLUE_TEXT (147,188,252,255) (57/129)`,  `BG: MAINMENU_SLIDESHOW_LOAD (2/8)`, and `STYLE: PANEL_STYLE_MAIN_TAN (36/50)`: helps choosing or testing optimal art style without having to tediously manually testing them one by one. See [Sevopedia reworks (Expanded text panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=53472

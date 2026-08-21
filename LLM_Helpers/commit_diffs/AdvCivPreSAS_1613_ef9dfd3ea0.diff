@@ -1,0 +1,186 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1613
+# Commit: ef9dfd3ea0086bf12f580ffe38c041fa6703c7ac
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7d76cc24bdc0a27796905c450fd68cc7e1bc1733
+# Title: EuroWorld scenario and future gameplay changes updated
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	1	EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave
+7	1	EuroWorld scenario/java/wbo/WBOut.java
+2	2	EuroWorld scenario/readme.txt
+2	1	future gameplay changes/readme.txt
+-	-	future gameplay changes/sources(ODT).zip
+-	-	future gameplay changes/stat-changes.pdf
+-	-	future gameplay changes/tech tree.pdf
+
+[PATCHES]
+
+diff --git a/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave b/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave
+index e98129d8f..5c679f1f9 100644
+--- a/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave	
++++ b/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave	
+@@ -17658,6 +17658,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=45,y=59
++	BonusType=BONUS_COAL
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+@@ -18823,6 +18824,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=48,y=59
++	BonusType=BONUS_OIL
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+@@ -21170,6 +21172,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=54,y=60
++	BonusType=BONUS_COPPER
+ 	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=2
+@@ -27054,6 +27057,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=69,y=46
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=1
+ EndPlot
+@@ -27062,6 +27066,7 @@ BeginPlot
+ 	BonusType=BONUS_OIL
+ 	isNOfRiver
+ 	RiverWEDirection=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=1
+ EndPlot
+@@ -27837,6 +27842,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=71,y=45
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=2
+ EndPlot
+@@ -28157,7 +28163,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=72,y=32
+-	TerrainType=TERRAIN_DESERT
++	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+ BeginPlot
+
+diff --git a/EuroWorld scenario/java/wbo/WBOut.java b/EuroWorld scenario/java/wbo/WBOut.java
+index 5d03d3ba1..48293b53b 100644
+--- a/EuroWorld scenario/java/wbo/WBOut.java	
++++ b/EuroWorld scenario/java/wbo/WBOut.java	
+@@ -474,7 +474,6 @@ public class WBOut {
+ 				new Point(66,26),
+ 				new Point(67,26),
+ 				new Point(65,25),
+-				new Point(66,25),
+ 		}));
+ 		final Set<Point2D> plains = new HashSet<Point2D>(
+ 				Arrays.asList(new Point[] {
+@@ -753,6 +752,7 @@ public class WBOut {
+ 				new Point(62,26),
+ 				new Point(64,25),
+ 				new Point(64,24),
++				new Point(66,25),
+ 				// Hispania
+ 				new Point(37,41),
+ 				new Point(38,41),
+@@ -2843,7 +2843,10 @@ public class WBOut {
+ 				new Point(57,38),
+ 				new Point(61,38),
+ 				new Point(62,38),
++				new Point(63,40),
++				new Point(63,39),
+ 				// Iran
++				new Point(65,38),
+ 				new Point(64,36),
+ 				new Point(65,35),
+ 				new Point(68,31),
+@@ -3721,9 +3724,11 @@ public class WBOut {
+ 				// Norway, Sweden
+ 				new Bonus("FISH",43,53),
+ 				new Bonus("FISH",47,57),
++				new Bonus("OIL",42,52),
+ 				new Bonus("HORSE",44,54),
+ 				new Bonus("IRON",44,53),
+ 				new Bonus("MARBLE",48,51),
++				new Bonus("COPPER",48,53),
+ 				new Bonus("DEER",49,54),
+ 				new Bonus("FISH",37,58), // Iceland
+ 				new Bonus("COW",36,52), // Ireland
+@@ -3734,6 +3739,7 @@ public class WBOut {
+ 				new Bonus("STONE",38,50), // Moved from Hispania
+ 				new Bonus("SHEEP",39,50),
+ 				new Bonus("WHEAT",41,50),
++				new Bonus("COAL",39,52),
+ 				new Bonus("HORSE",40,52),
+ 				new Bonus("URANIUM",40,54),
+ 				new Bonus("FISH",42,50), // Dogger Bank (shifted away from Denmark)
+
+diff --git a/EuroWorld scenario/readme.txt b/EuroWorld scenario/readme.txt
+index 5184a9915..87c724358 100644
+--- a/EuroWorld scenario/readme.txt	
++++ b/EuroWorld scenario/readme.txt	
+@@ -13,7 +13,7 @@ Temporary measures:
+ To be done:
+ * America, Greenland, Southern Africa, Australia, Melanesia, Micronesia, Polynesia
+ * The three non-playable leaders: Shaka, Huayana Capac and Pacal
+-* Rules changes in AdvCiv that forbid Farms on Tundra and remove the health penalty from Jungle. To reduce implausible deforestation.
++* Rules changes in AdvCiv that forbid Farms on Tundra and remove the health penalty from Jungle. To reduce implausible deforestation. Also, some of the tiles representing spruces and firs should perhaps have no Forest feature at all as those woods have fairly limited uses.
+ * Addition of an Islet feature (like in Realism Invictus).
+ * Changes to the AI evaluation of techs that found a religion. Especially leaders with a Medieval favorite religion like Charlemagne should avoid founding one of the early religons. Could then perhaps use Justinian instead of Pericles.
+ * Overhaul of leader personalities. I might swap in Qin for Mao after increasing Qin's peace-weight (pitting him against his warlike neighbors) and Cyrus for Darius after making Cyrus a bit more warlike. The Chinese leader also needs to be more averse to long-distance wars (higher MaxWarMinAdjacentLandPercent).
+@@ -23,7 +23,7 @@ To be done:
+ (see AdvCiv/Assets/XML/Text/Civ4GameText_Earth18Civs.xml for an example)
+ 
+ Perhaps to be revised:
+-* Charlemagne usually expands into Poland and often even into East Scandinavia. It might be better to replace Ragnar's England with Bismarck's Germany (starting at Berlin), covering all the Germanic peoples except - possibly - the British, and to move the Celtic capital from Prague to Paris and replace Charlemagne with the more Anglo-French De Gaulle. These changes may make it too difficult for Rome to expand, and would require a different resource distribution in the northern half of Europe and possibly changes to the coastline as well.
++* Charlemagne usually expands into Poland and often even into East Scandinavia. It might be better to replace Ragnar's England with Bismarck's Germany (starting at Berlin), covering all the Germanic peoples except - possibly - the British, and to move the Celtic capital from Prague to Paris and replace Charlemagne with the more Anglo-French De Gaulle. These changes may make it too difficult for Rome to expand, and would require a different resource distribution in the northern half of Europe and possibly changes to the coastline as well. Perhaps, instead, merely move Ragnar's capital to Denmark (Roskilde) and Charlemagne's to Aachen or Bibracte.
+ * Enlarging only the Eastern Sahara (for the Nile valley), but not the Western Sahara, was a bad idea. Additional desert tiles in the Western Sahara would make it harder for Mali to expand into North Africa, and probably wouldn't have any adverse side-effects.
+ * Similarly, Northern Siberia is more vertically compressed than it needs to be.
+
+diff --git a/future gameplay changes/readme.txt b/future gameplay changes/readme.txt
+index ef77cca3c..924ae528a 100644
+--- a/future gameplay changes/readme.txt	
++++ b/future gameplay changes/readme.txt	
+@@ -9,7 +9,8 @@ Those specific changes should be accompanied by the following general rule chang
+ 
+ 1. Combat system overhaul:
+ * Greatly reduce the number of collateral damage targets, the collateral damage limit and the damage limit of siege units (see stat-changes.pdf). Exempt some units from damage limits; e.g. let air units destroy ships.
+-* Only four units, chosen at random, are available for defense in each stack; the best defender is chosen from that subset. After each attack, another random defender becomes available.
++* Only four units, chosen at random, are available for defense in each stack; the best defender is chosen from that subset. After each attack, another random defender becomes available. Prototype implementation:
++https://github.com/f1rpo/AdvCiv/compare/master...f1rpo:defender-randomization
+ * Limited capacity of cities and Forts: No defensive bonus while stack size exceeds capacity.
+ * Limited number of attacks per turn against a single tile.
+ * Limited number of combat rounds, so that combat can end in a draw (like air combat).
+
+[PATCH OMITTED] file=a/future gameplay changes/sources(ODT).zip b/future gameplay changes/sources(ODT).zip reason=binary/generated-file changedLines=0 bytes=240
+
+[PATCH OMITTED] file=a/future gameplay changes/stat-changes.pdf b/future gameplay changes/stat-changes.pdf reason=binary/generated-file changedLines=0 bytes=240
+
+[PATCH OMITTED] file=a/future gameplay changes/tech tree.pdf b/future gameplay changes/tech tree.pdf reason=binary/generated-file changedLines=0 bytes=228
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=4 omittedFiles=3 embeddedPatchBytes=7362

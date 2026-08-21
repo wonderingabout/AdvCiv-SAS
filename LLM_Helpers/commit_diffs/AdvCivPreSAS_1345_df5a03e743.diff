@@ -1,0 +1,1100 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1345
+# Commit: df5a03e743a64c58380ae91f2bdaf586c817f34f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e04adaf0a58e53f474e9c6ca4e8eaa6ce7eb19cf
+# Title: v0.92f: Changes to replays; "No Slavery" option
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+3	2	Assets/Python/Screens/CvVictoryScreen.py
+8	0	Assets/xml/GameInfo/CIV4GameOptionInfos.xml
+9	0	Assets/xml/GlobalDefines_advc.xml
+67	20	Assets/xml/Text/CIV4GameText_advc.xml
+2	2	CvGameCoreDLL/AdvCiv4lerts.cpp
+129	118	CvGameCoreDLL/CvCity.cpp
+4	0	CvGameCoreDLL/CvCity.h
+6	3	CvGameCoreDLL/CvCityAI.cpp
+1	0	CvGameCoreDLL/CvEnums.h
+6	2	CvGameCoreDLL/CvGame.cpp
+29	2	CvGameCoreDLL/CvGameTextMgr.cpp
+14	9	CvGameCoreDLL/CvInitCore.cpp
+28	2	CvGameCoreDLL/CvPlayer.cpp
+4	1	CvGameCoreDLL/CvPlayer.h
+93	0	CvGameCoreDLL/CvReplayInfo.cpp
+1	0	CvGameCoreDLL/CvReplayInfo.h
+1	0	CvGameCoreDLL/CyEnumsInterface.cpp
+-	-	manual_0.92d.odt
+-	-	manual_0.92e.odt => manual_0.92f.odt
+ delete mode 100644 manual_0.92d.odt
+ rename manual_0.92e.odt => manual_0.92f.odt (66%)
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index a3dacfc41..194b195ec 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -966,6 +966,8 @@ class CvVictoryScreen:
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_STARTING_ERA", (gc.getEraInfo(gc.getGame().getStartEra()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_GAME_SPEED", (gc.getGameSpeedInfo(gc.getGame().getGameSpeedType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		# advc.106i
++		screen.appendListBoxStringNoUpdate(szSettingsTable, BugPath.getModName() + " Mod", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		screen.updateListBox(szSettingsTable)
+ 
+@@ -1017,8 +1019,7 @@ class CvVictoryScreen:
+ 				szNumPoints = u"%s %d" % (localText.getText("TXT_KEY_ADVANCED_START_POINTS", ()), gc.getGame().getNumAdvancedStartPoints())
+ 			# <advc.250b>
+ 			else:
+-				# Could be done directly in Python, and probably
+-				# more easily, but I'm more comfortable in C++.
++				# Could be done directly in Python, but also need it for advc.106i
+ 				szNumPoints = gc.getGame().SPaHPointsForSettingsScreen()
+ 			# </advc.250b>
+ 			screen.appendListBoxStringNoUpdate(szOptionsTable, szNumPoints, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/xml/GameInfo/CIV4GameOptionInfos.xml b/Assets/xml/GameInfo/CIV4GameOptionInfos.xml
+index 01930d75b..781b19912 100644
+--- a/Assets/xml/GameInfo/CIV4GameOptionInfos.xml
++++ b/Assets/xml/GameInfo/CIV4GameOptionInfos.xml
+@@ -198,6 +198,14 @@
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
++		<!-- advc.912d -->
++		<GameOptionInfo>
++			<Type>GAMEOPTION_NO_SLAVERY</Type>
++			<Description>TXT_KEY_GAME_OPTION_NO_SLAVERY</Description>
++			<Help>TXT_KEY_GAME_OPTION_NO_SLAVERY_HELP</Help>
++			<bDefault>0</bDefault>
++			<bVisible>1</bVisible>
++		</GameOptionInfo>
+ 
+ 	</GameOptionInfos>
+ </Civ4GameOptionInfos>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 7042ce69c..71677c32d 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -385,6 +385,15 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	
++	<!-- advc.106h: 1 (recommended) means that the game settings are recorded
++		 in replay files (as the first replay message). 0 (BtS) behavior means
++		 that the game settings are partly stored in the replay file, but not
++		 in a human-readable form. -->
++	<Define>
++		<DefineName>SETTINGS_IN_REPLAYS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	
+ 	<!-- [advc.099]
+ 		 The default value for culture-based anger assumes Open Borders in
+ 		 AdvCiv. With closed borders, the anger is CLOSED_BORDERS_CULTURE_
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index e75cc3124..14e7df02a 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -414,6 +414,44 @@
+ 		<Spanish>%s1 revoca su acuerdo de protecci&#243;n con %s2.</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.106i: Delete if you want no prefix for replay file names. -->
++	<TEXT>
++		<Tag>TXT_KEY_REPLAY_PREFIX_ADVC</Tag>
++		<English>[AdvCiv]</English>
++		<French>[AdvCiv]</French>
++		<German>[AdvCiv]</German>
++		<Italian>[AdvCiv]</Italian>
++		<Spanish>[AdvCiv]</Spanish>
++	</TEXT>
++
++	<!-- advc.106h -->
++	<!-- Based on TXT_KEY_LEADER_CIV_DESCRIPTION in CIV4GameText_Misc1.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_NAME_LEADER_CIV</Tag>
++		<English>%s3_name (%s1_leader) of %s2_civ_short_name</English>
++		<French>%s3_name (%s1_leader) des %s2_civ_short_name</French>
++		<German>%s3_name (%s1_leader) von %s2_civ_short_name</German>
++		<Italian>%s3_name (%s1_leader) della civilt&#224; %s2:2_civ_short_name</Italian>
++		<Spanish>%s3_name (%s1_leader) de %s2_civ_short_name</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SIZE_MAP_WITH</Tag>
++		<English>%s1_sz %s2_map Map with</English>
++		<French>%s2_map carte (%s1_sz) avec</French>
++		<German>%s2_map Karte (%s1_sz) mit</German>
++		<Italian>%s2_map mappa (%s1_sz) con</Italian>
++		<Spanish>%s2_map mapa (%s1_sz) con</Spanish>
++	</TEXT>
++	<!-- Based on TXT_KEY_GAME_WON in CIV4GameText_Misc1.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_VICTORY_DISABLED</Tag>
++		<English>Victory Disabled</English>
++		<French>(victoire) d&#233;sactiv&#233;e</French>
++		<German>-Sieg deaktiviert</German>
++		<Italian>(vittoria) disattivata</Italian>
++		<Spanish>(victoria) desactivada</Spanish>
++	</TEXT>
++
+ 	<!-- advc.004b
+ 		 Help text for projected city costs (city maintenance, civic upkeep,
+ 		 unit cost, inflation) before founding a city. -->
+@@ -1046,6 +1084,33 @@
+ 		<Spanish>No aparecer&#225;n animales.</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.912d -->
++	<TEXT>
++		<Tag>TXT_KEY_GAME_OPTION_NO_SLAVERY</Tag>
++		<English>No Slavery</English>
++		<French>Pas de esclavage</French>
++		<German>Keine Sklaverei</German>
++		<Italian>No schiavismo</Italian>
++		<Spanish>Sin esclavitud</Spanish>
++	</TEXT>
++	<!-- Romance languages: based on deepl.com -->
++	<TEXT>
++		<Tag>TXT_KEY_GAME_OPTION_NO_SLAVERY_HELP</Tag>
++		<English>Human players cannot change their civics to Slavery. Only the Aztec Sacrificial Altar allows humans to sacrifice population.</English>
++		<French>Les acteurs humains ne peuvent pas changer leur doctrine en esclavage. Seul l'autel sacrificiel azt�que permet aux humains de sacrifier la population.</French>
++		<German>Menschliche Spieler k�nnen nicht die Sklaverei als Staatsform w�hlen. Nur der aztekischer Opferaltar erlaubt menschlichen Spielern das Opfern ihrer Bev�lkerung.</German>
++		<Italian>I giocatori umani non possono cambiare la loro forma di governo in schiavismo. Solo l'altare sacrificale azteco permette agli umani di sacrificare la popolazione.</Italian>
++		<Spanish>Los jugadores humanos no pueden cambiar sus principios a la esclavitud. S�lo el altar de sacrificios azteca permite a los humanos sacrificar a la poblaci�n.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_BLOCKED_BY_OPTION</Tag>
++		<English>[COLOR_WARNING_TEXT]Can't adopt[COLOR_REVERT] %s1_civic because of the option "%s2_opt"</English>
++		<French>[COLOR_WARNING_TEXT]Impossible d'adopter[COLOR_REVERT] l'%s1_civic � cause de l'option "%s2_opt"</French>
++		<German>Kann %s1_civic [COLOR_WARNING_TEXT]nicht einf�hren[COLOR_REVERT] wegen der Option "%s2_opt"</German>
++		<Italian>[COLOR_WARNING_TEXT]Non pu� adottare[COLOR_REVERT] la %s1_civic a causa dell'opzione "%s2_opt"</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]No se puede adoptar[COLOR_REVERT] la %s1_civic debido a la opci�n "%s2_opt"</Spanish>
++	</TEXT>
++
+ 	<!-- advc.310: Originally in Civ4GameTextInfos.xml
+ 		 "all cities" now restricted to the same continent.
+ 		 Keep the (now misleading) tag name "...TRADE_ROUTES_ALL_CITIES" in
+@@ -2122,7 +2187,7 @@
+ 		<Spanish>Muestra una alerta cada vez que un l�der de IA se convierte (o deja de estar) dispuesto a iniciar una guerra a petici�n suya.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_CIV4LERTS_TRADE_WAR_MULTI</Tag>
++		<Tag>TXT_KEY_CIV4LERTS_TRADE_WAR</Tag>
+ 		<English>%s1_TeamName can be convinced to start a war against</English>
+ 		<French>%s1_TeamName pourrait �tre dispos� � commencer la guerre contre</French>
+ 		<German>%s1_TeamName w�re bereit zu einem Krieg gegen</German>
+@@ -2130,31 +2195,13 @@
+ 		<Spanish>%s1_TeamName es dispuesto a comenzar la guerra</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_CIV4LERTS_NO_LONGER_TRADE_WAR_MULTI</Tag>
++		<Tag>TXT_KEY_CIV4LERTS_NO_LONGER_TRADE_WAR</Tag>
+ 		<English>%s1_TeamName can no longer be convinced of a war against</English>
+ 		<French>%s1_TeamName ne pourrait plus �tre dispos� � une guerre contre</French>
+ 		<German>%s1_TeamName ist nicht mehr bereit zu einen Krieg gegen</German>
+ 		<Italian>%s1_TeamName non potrebbe pi� essere indotto � una guerra contro</Italian>
+ 		<Spanish>%s1_TeamName ya no es dispuesto a una guerra contra</Spanish>
+ 	</TEXT>
+-	<!-- advc.tmp: To be removed later; for now, I want the v0.92f DLL
+-		 to remain compatible with the XML and Python files.-->
+-	<TEXT>
+-		<Tag>TXT_KEY_CIV4LERTS_TRADE_WAR</Tag>
+-		<English>%s1_TeamName can be convinced to start a war against %s2_TeamName.</English>
+-		<French>%s1_TeamName pourrait �tre dispos� � commencer la guerre contre %s2_TeamName.</French>
+-		<German>%s1_TeamName w�re bereit zu einem Krieg gegen %s2_TeamName.</German>
+-		<Italian>%s1_TeamName potrebbe essere indotto � cominciare la guerra contro %s2_TeamName.</Italian>
+-		<Spanish>%s1_TeamName es dispuesto a comenzar la guerra contra %s2_TeamName.</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_CIV4LERTS_NO_LONGER_TRADE_WAR</Tag>
+-		<English>%s1_TeamName can no longer be convinced of a war against %s2_TeamName.</English>
+-		<French>%s1_TeamName ne pourrait plus �tre dispos� � une guerre contre %s2_TeamName.</French>
+-		<German>%s1_TeamName ist nicht mehr bereit zu einen Krieg gegen %s2_TeamName.</German>
+-		<Italian>%s1_TeamName non potrebbe pi� essere indotto � una guerra contro %s2_TeamName.</Italian>
+-		<Spanish>%s1_TeamName ya no es dispuesto a una guerra contra %s2_TeamName.</Spanish>
+-	</TEXT>
+ 	
+ 	<!-- advc.210b -->
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index fcb9b7e49..3a16f0710 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -129,8 +129,8 @@ void WarTradeAlert::msg(TeamTypes warTeamId, std::vector<TeamTypes> victims,
+ 	if(victims.empty())
+ 		return;
+ 	CvTeam const& warTeam = GET_TEAM(warTeamId);
+-	CvWString text = gDLL->getText((bTrade ? "TXT_KEY_CIV4LERTS_TRADE_WAR_MULTI" :
+-			"TXT_KEY_CIV4LERTS_NO_LONGER_TRADE_WAR_MULTI"),
++	CvWString text = gDLL->getText((bTrade ? "TXT_KEY_CIV4LERTS_TRADE_WAR" :
++			"TXT_KEY_CIV4LERTS_NO_LONGER_TRADE_WAR"),
+ 			warTeam.getName().GetCString()) + L" ";
+ 	for(size_t i = 0; i < victims.size(); i++) {
+ 		text += GET_TEAM(victims[i]).getName();
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 3935a4c3e..34476efe6 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -534,7 +534,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+ 		m_abEspionageVisibility[iI] = false;
+-	} // <advc.004x>
++	}
++	m_iPopRushHurryCount = 0; // advc.912d
++	// <advc.004x>
+ 	mrWasUnit = false;
+ 	mrOrder = -1; // </advc.004x>
+ 	m_szName.clear();
+@@ -3502,53 +3504,40 @@ int CvCity::getExtraProductionDifference(int iExtra, int iModifier) const
+ 	return ((iExtra * getBaseYieldRateModifier(YIELD_PRODUCTION, iModifier)) / 100);
+ }
+ 
+-
++// advc.003: Removed some clutter
+ bool CvCity::canHurry(HurryTypes eHurry, bool bTestVisible) const
+ {
+-	if (!(GET_PLAYER(getOwnerINLINE()).canHurry(eHurry)))
+-	{
++	if(!GET_PLAYER(getOwnerINLINE()).canHurry(eHurry) &&
++			// <advc.912d>
++			(GC.getHurryInfo(eHurry).getProductionPerPopulation() <= 0 ||
++			!canPopRush())) // </advc.912d>
+ 		return false;
+-	}
+-
+-	if (isDisorder())
+-	{
++	if(isDisorder())
+ 		return false;
+-	}
+-
+-	if (getProduction() >= getProductionNeeded())
+-	{
++	if(getProduction() >= getProductionNeeded())
+ 		return false;
+-	}
+-
+ 	// K-Mod. moved this check outside of !bTestVisible.
+-	if (!isProductionUnit() && !isProductionBuilding())
+-	{
++	if(!isProductionUnit() && !isProductionBuilding())
+ 		return false;
+-	}
+-	if (!bTestVisible)
+-	{
++	if(!bTestVisible) {
+ 		/*if (!isProductionUnit() && !isProductionBuilding())
+ 		{
+ 			return false;
+ 		}*/
+-
+-		if (GET_PLAYER(getOwnerINLINE()).getGold() < hurryGold(eHurry))
+-		{
++		if(GET_PLAYER(getOwnerINLINE()).getGold() < hurryGold(eHurry))
+ 			return false;
+-		}
+-
+-		if (maxHurryPopulation() < hurryPopulation(eHurry))
+-		{
++		if(maxHurryPopulation() < hurryPopulation(eHurry))
+ 			return false;
+-		}
+ 	}
+-
+ 	return true;
+ }
+ 
+ bool CvCity::canHurryUnit(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew) const
+ {
+-	if (!(GET_PLAYER(getOwnerINLINE()).canHurry(eHurry)))
++	if (!GET_PLAYER(getOwnerINLINE()).canHurry(eHurry) &&
++			// <advc.912d>
++			(GC.getHurryInfo(eHurry).getProductionPerPopulation() <= 0 ||
++			!canPopRush())) // </advc.912d>
+ 	{
+ 		return false;
+ 	}
+@@ -3578,7 +3567,10 @@ bool CvCity::canHurryUnit(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew) c
+ 
+ bool CvCity::canHurryBuilding(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const
+ {
+-	if (!(GET_PLAYER(getOwnerINLINE()).canHurry(eHurry)))
++	if (!GET_PLAYER(getOwnerINLINE()).canHurry(eHurry) &&
++			// <advc.912d>
++			(GC.getHurryInfo(eHurry).getProductionPerPopulation() <= 0 ||
++			!canPopRush())) // </advc.912d>
+ 	{
+ 		return false;
+ 	}
+@@ -3666,6 +3658,17 @@ void CvCity::hurry(HurryTypes eHurry)
+ 	CvEventReporter::getInstance().cityHurry(this, eHurry);
+ }
+ 
++// <advc.912d>
++bool CvCity::canPopRush() const {
++
++	return (m_iPopRushHurryCount > 0 || GET_PLAYER(getOwnerINLINE()).canPopRush());
++}
++
++void CvCity::changePopRushCount(int iChange) {
++
++	m_iPopRushHurryCount += iChange;
++} // </advc.912d>
++
+ 
+ UnitTypes CvCity::getConscriptUnit() const
+ {
+@@ -4025,109 +4028,112 @@ void CvCity::processBonus(BonusTypes eBonus, int iChange)
+ 
+ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolete)
+ {
+-	UnitTypes eGreatPeopleUnit;
+ 	int iI, iJ;
+-
++	// <advc.003>
++	CvBuildingInfo const& b = GC.getBuildingInfo(eBuilding);
++	CvGame& g = GC.getGameINLINE(); // </advc.003>
+ 	if (!(GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding)) || bObsolete)
+ 	{
+ 		if (iChange > 0)
+ 		{
+-			CorporationTypes eCorporation = (CorporationTypes)GC.getBuildingInfo(eBuilding).getFoundsCorporation();
+-			if (NO_CORPORATION != eCorporation && !GC.getGameINLINE().isCorporationFounded(eCorporation))
++			CorporationTypes eCorporation = (CorporationTypes)b.getFoundsCorporation();
++			if (NO_CORPORATION != eCorporation && !g.isCorporationFounded(eCorporation))
+ 			{
+ 				setHeadquarters(eCorporation);
+ 			}
+ 		}
+ 
+-		if (GC.getBuildingInfo(eBuilding).getNoBonus() != NO_BONUS)
++		if (b.getNoBonus() != NO_BONUS)
+ 		{
+-			changeNoBonusCount(((BonusTypes)(GC.getBuildingInfo(eBuilding).getNoBonus())), iChange);
++			changeNoBonusCount(((BonusTypes)(b.getNoBonus())), iChange);
+ 		}
+ 
+-		if (GC.getBuildingInfo(eBuilding).getFreeBonus() != NO_BONUS)
++		if (b.getFreeBonus() != NO_BONUS)
+ 		{
+-			changeFreeBonus(((BonusTypes)(GC.getBuildingInfo(eBuilding).getFreeBonus())), (GC.getGameINLINE().getNumFreeBonuses(eBuilding) * iChange));
++			changeFreeBonus(((BonusTypes)(b.getFreeBonus())), (g.getNumFreeBonuses(eBuilding) * iChange));
+ 		}
+ 
+-		if (GC.getBuildingInfo(eBuilding).getFreePromotion() != NO_PROMOTION)
++		if (b.getFreePromotion() != NO_PROMOTION)
+ 		{
+-			changeFreePromotionCount(((PromotionTypes)(GC.getBuildingInfo(eBuilding).getFreePromotion())), iChange);
+-		}
+-
+-		changeEspionageDefenseModifier(GC.getBuildingInfo(eBuilding).getEspionageDefenseModifier() * iChange);
+-		changeGreatPeopleRateModifier(GC.getBuildingInfo(eBuilding).getGreatPeopleRateModifier() * iChange);
+-		changeFreeExperience(GC.getBuildingInfo(eBuilding).getFreeExperience() * iChange);
+-		changeMaxFoodKeptPercent(GC.getBuildingInfo(eBuilding).getFoodKept() * iChange);
+-		changeMaxAirlift(GC.getBuildingInfo(eBuilding).getAirlift() * iChange);
+-		changeAirModifier(GC.getBuildingInfo(eBuilding).getAirModifier() * iChange);
+-		changeAirUnitCapacity(GC.getBuildingInfo(eBuilding).getAirUnitCapacity() * iChange);
+-		changeNukeModifier(GC.getBuildingInfo(eBuilding).getNukeModifier() * iChange);
+-		changeFreeSpecialist(GC.getBuildingInfo(eBuilding).getFreeSpecialist() * iChange);
+-		changeMaintenanceModifier(GC.getBuildingInfo(eBuilding).getMaintenanceModifier() * iChange);
+-		changeWarWearinessModifier(GC.getBuildingInfo(eBuilding).getWarWearinessModifier() * iChange);
+-		changeHurryAngerModifier(GC.getBuildingInfo(eBuilding).getHurryAngerModifier() * iChange);
+-		changeHealRate(GC.getBuildingInfo(eBuilding).getHealRateChange() * iChange);
+-		if (GC.getBuildingInfo(eBuilding).getHealth() > 0)
++			changeFreePromotionCount(((PromotionTypes)(b.getFreePromotion())), iChange);
++		}// <advc.912d>
++		if(g.isOption(GAMEOPTION_NO_SLAVERY) && GET_PLAYER(getOwnerINLINE()).
++				isHuman() && b.getHurryAngerModifier() < 0)
++			changePopRushCount(iChange); // </advc.912d>
++		changeEspionageDefenseModifier(b.getEspionageDefenseModifier() * iChange);
++		changeGreatPeopleRateModifier(b.getGreatPeopleRateModifier() * iChange);
++		changeFreeExperience(b.getFreeExperience() * iChange);
++		changeMaxFoodKeptPercent(b.getFoodKept() * iChange);
++		changeMaxAirlift(b.getAirlift() * iChange);
++		changeAirModifier(b.getAirModifier() * iChange);
++		changeAirUnitCapacity(b.getAirUnitCapacity() * iChange);
++		changeNukeModifier(b.getNukeModifier() * iChange);
++		changeFreeSpecialist(b.getFreeSpecialist() * iChange);
++		changeMaintenanceModifier(b.getMaintenanceModifier() * iChange);
++		changeWarWearinessModifier(b.getWarWearinessModifier() * iChange);
++		changeHurryAngerModifier(b.getHurryAngerModifier() * iChange);
++		changeHealRate(b.getHealRateChange() * iChange);
++		if (b.getHealth() > 0)
+ 		{
+-			changeBuildingGoodHealth(GC.getBuildingInfo(eBuilding).getHealth() * iChange);
++			changeBuildingGoodHealth(b.getHealth() * iChange);
+ 		}
+ 		else
+ 		{
+-			changeBuildingBadHealth(GC.getBuildingInfo(eBuilding).getHealth() * iChange);
++			changeBuildingBadHealth(b.getHealth() * iChange);
+ 		}
+-		if (GC.getBuildingInfo(eBuilding).getHappiness() > 0)
++		if (b.getHappiness() > 0)
+ 		{
+-			changeBuildingGoodHappiness(GC.getBuildingInfo(eBuilding).getHappiness() * iChange);
++			changeBuildingGoodHappiness(b.getHappiness() * iChange);
+ 		}
+ 		else
+ 		{
+-			changeBuildingBadHappiness(GC.getBuildingInfo(eBuilding).getHappiness() * iChange);
++			changeBuildingBadHappiness(b.getHappiness() * iChange);
+ 		}
+-		if (GC.getBuildingInfo(eBuilding).getReligionType() != NO_RELIGION)
++		if (b.getReligionType() != NO_RELIGION)
+ 		{
+-			changeStateReligionHappiness(((ReligionTypes)(GC.getBuildingInfo(eBuilding).getReligionType())), (GC.getBuildingInfo(eBuilding).getStateReligionHappiness() * iChange));
++			changeStateReligionHappiness(((ReligionTypes)(b.getReligionType())), (b.getStateReligionHappiness() * iChange));
+ 		}
+-		changeMilitaryProductionModifier(GC.getBuildingInfo(eBuilding).getMilitaryProductionModifier() * iChange);
+-		changeSpaceProductionModifier(GC.getBuildingInfo(eBuilding).getSpaceProductionModifier() * iChange);
+-		changeExtraTradeRoutes(GC.getBuildingInfo(eBuilding).getTradeRoutes() * iChange);
+-		changeTradeRouteModifier(GC.getBuildingInfo(eBuilding).getTradeRouteModifier() * iChange);
+-		changeForeignTradeRouteModifier(GC.getBuildingInfo(eBuilding).getForeignTradeRouteModifier() * iChange);
+-		changePowerCount(((GC.getBuildingInfo(eBuilding).isPower()) ? iChange : 0), GC.getBuildingInfo(eBuilding).isDirtyPower());
+-		changeGovernmentCenterCount((GC.getBuildingInfo(eBuilding).isGovernmentCenter()) ? iChange : 0);
+-		changeNoUnhappinessCount((GC.getBuildingInfo(eBuilding).isNoUnhappiness()) ? iChange : 0);
+-		//changeNoUnhealthyPopulationCount((GC.getBuildingInfo(eBuilding).isNoUnhealthyPopulation()) ? iChange : 0);
+-		changeUnhealthyPopulationModifier(GC.getBuildingInfo(eBuilding).getUnhealthyPopulationModifier() * iChange); // K-Mod
+-		changeBuildingOnlyHealthyCount((GC.getBuildingInfo(eBuilding).isBuildingOnlyHealthy()) ? iChange : 0);
++		changeMilitaryProductionModifier(b.getMilitaryProductionModifier() * iChange);
++		changeSpaceProductionModifier(b.getSpaceProductionModifier() * iChange);
++		changeExtraTradeRoutes(b.getTradeRoutes() * iChange);
++		changeTradeRouteModifier(b.getTradeRouteModifier() * iChange);
++		changeForeignTradeRouteModifier(b.getForeignTradeRouteModifier() * iChange);
++		changePowerCount(((b.isPower()) ? iChange : 0), b.isDirtyPower());
++		changeGovernmentCenterCount((b.isGovernmentCenter()) ? iChange : 0);
++		changeNoUnhappinessCount((b.isNoUnhappiness()) ? iChange : 0);
++		//changeNoUnhealthyPopulationCount((b.isNoUnhealthyPopulation()) ? iChange : 0);
++		changeUnhealthyPopulationModifier(b.getUnhealthyPopulationModifier() * iChange); // K-Mod
++		changeBuildingOnlyHealthyCount((b.isBuildingOnlyHealthy()) ? iChange : 0);
+ 
+ 		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 		{
+-			changeSeaPlotYield(((YieldTypes)iI), (GC.getBuildingInfo(eBuilding).getSeaPlotYieldChange(iI) * iChange));
+-			changeRiverPlotYield(((YieldTypes)iI), (GC.getBuildingInfo(eBuilding).getRiverPlotYieldChange(iI) * iChange));
+-			changeBaseYieldRate(((YieldTypes)iI), ((GC.getBuildingInfo(eBuilding).getYieldChange(iI) + getBuildingYieldChange((BuildingClassTypes)GC.getBuildingInfo(eBuilding).getBuildingClassType(), (YieldTypes)iI))* iChange));
+-			changeYieldRateModifier(((YieldTypes)iI), (GC.getBuildingInfo(eBuilding).getYieldModifier(iI) * iChange));
+-			changePowerYieldRateModifier(((YieldTypes)iI), (GC.getBuildingInfo(eBuilding).getPowerYieldModifier(iI) * iChange));
++			changeSeaPlotYield(((YieldTypes)iI), (b.getSeaPlotYieldChange(iI) * iChange));
++			changeRiverPlotYield(((YieldTypes)iI), (b.getRiverPlotYieldChange(iI) * iChange));
++			changeBaseYieldRate(((YieldTypes)iI), ((b.getYieldChange(iI) + getBuildingYieldChange((BuildingClassTypes)b.getBuildingClassType(), (YieldTypes)iI))* iChange));
++			changeYieldRateModifier(((YieldTypes)iI), (b.getYieldModifier(iI) * iChange));
++			changePowerYieldRateModifier(((YieldTypes)iI), (b.getPowerYieldModifier(iI) * iChange));
+ 		}
+ 
+ 		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 		{
+-			changeCommerceRateModifier(((CommerceTypes)iI), (GC.getBuildingInfo(eBuilding).getCommerceModifier(iI) * iChange));
+-			changeCommerceHappinessPer(((CommerceTypes)iI), (GC.getBuildingInfo(eBuilding).getCommerceHappiness(iI) * iChange));
++			changeCommerceRateModifier(((CommerceTypes)iI), (b.getCommerceModifier(iI) * iChange));
++			changeCommerceHappinessPer(((CommerceTypes)iI), (b.getCommerceHappiness(iI) * iChange));
+ 		}
+ 
+ 		for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
+ 		{
+-			changeReligionInfluence(((ReligionTypes)iI), (GC.getBuildingInfo(eBuilding).getReligionChange(iI) * iChange));
++			changeReligionInfluence(((ReligionTypes)iI), (b.getReligionChange(iI) * iChange));
+ 		}
+ 
+ 		for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+ 		{
+-			changeMaxSpecialistCount(((SpecialistTypes)iI), GC.getBuildingInfo(eBuilding).getSpecialistCount(iI) * iChange);
+-			changeFreeSpecialistCount(((SpecialistTypes)iI), GC.getBuildingInfo(eBuilding).getFreeSpecialistCount(iI) * iChange);
++			changeMaxSpecialistCount(((SpecialistTypes)iI), b.getSpecialistCount(iI) * iChange);
++			changeFreeSpecialistCount(((SpecialistTypes)iI), b.getFreeSpecialistCount(iI) * iChange);
+ 		}
+ 
+ 		for (iI = 0; iI < GC.getNumImprovementInfos(); ++iI)
+ 		{
+-			changeImprovementFreeSpecialists((ImprovementTypes)iI, GC.getBuildingInfo(eBuilding).getImprovementFreeSpecialist(iI) * iChange);
++			changeImprovementFreeSpecialists((ImprovementTypes)iI, b.getImprovementFreeSpecialist(iI) * iChange);
+ 		}
+ 
+ 		FAssertMsg((0 < GC.getNumBonusInfos()) && "GC.getNumBonusInfos() is not greater than zero but an array is being allocated in CvPlotGroup::reset", "GC.getNumBonusInfos() is not greater than zero but an array is being allocated in CvPlotGroup::reset");
+@@ -4135,59 +4141,59 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolet
+ 		{
+ 			if (hasBonus((BonusTypes)iI))
+ 			{
+-				if (GC.getBuildingInfo(eBuilding).getBonusHealthChanges(iI) > 0)
++				if (b.getBonusHealthChanges(iI) > 0)
+ 				{
+-					changeBonusGoodHealth(GC.getBuildingInfo(eBuilding).getBonusHealthChanges(iI) * iChange);
++					changeBonusGoodHealth(b.getBonusHealthChanges(iI) * iChange);
+ 				}
+ 				else
+ 				{
+-					changeBonusBadHealth(GC.getBuildingInfo(eBuilding).getBonusHealthChanges(iI) * iChange);
++					changeBonusBadHealth(b.getBonusHealthChanges(iI) * iChange);
+ 				}
+-				if (GC.getBuildingInfo(eBuilding).getBonusHappinessChanges(iI) > 0)
++				if (b.getBonusHappinessChanges(iI) > 0)
+ 				{
+-					changeBonusGoodHappiness(GC.getBuildingInfo(eBuilding).getBonusHappinessChanges(iI) * iChange);
++					changeBonusGoodHappiness(b.getBonusHappinessChanges(iI) * iChange);
+ 				}
+ 				else
+ 				{
+-					changeBonusBadHappiness(GC.getBuildingInfo(eBuilding).getBonusHappinessChanges(iI) * iChange);
++					changeBonusBadHappiness(b.getBonusHappinessChanges(iI) * iChange);
+ 				}
+ 
+-				if (GC.getBuildingInfo(eBuilding).getPowerBonus() == iI)
++				if (b.getPowerBonus() == iI)
+ 				{
+-					changePowerCount(iChange, GC.getBuildingInfo(eBuilding).isDirtyPower());
++					changePowerCount(iChange, b.isDirtyPower());
+ 				}
+ 
+ 				for (iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+ 				{
+-					changeBonusYieldRateModifier(((YieldTypes)iJ), (GC.getBuildingInfo(eBuilding).getBonusYieldModifier(iI, iJ) * iChange));
++					changeBonusYieldRateModifier(((YieldTypes)iJ), (b.getBonusYieldModifier(iI, iJ) * iChange));
+ 				}
+ 			}
+ 		}
+ 
+ 		for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
+ 		{
+-			changeUnitCombatFreeExperience(((UnitCombatTypes)iI), GC.getBuildingInfo(eBuilding).getUnitCombatFreeExperience(iI) * iChange);
++			changeUnitCombatFreeExperience(((UnitCombatTypes)iI), b.getUnitCombatFreeExperience(iI) * iChange);
+ 		}
+ 
+ 		for (iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+ 		{
+-			changeDomainFreeExperience(((DomainTypes)iI), GC.getBuildingInfo(eBuilding).getDomainFreeExperience(iI) * iChange);
+-			changeDomainProductionModifier(((DomainTypes)iI), GC.getBuildingInfo(eBuilding).getDomainProductionModifier(iI) * iChange);
++			changeDomainFreeExperience(((DomainTypes)iI), b.getDomainFreeExperience(iI) * iChange);
++			changeDomainProductionModifier(((DomainTypes)iI), b.getDomainProductionModifier(iI) * iChange);
+ 		}
+ 
+ 		updateExtraBuildingHappiness();
+ 		updateExtraBuildingHealth();
+ 
+-		GET_PLAYER(getOwnerINLINE()).changeAssets(GC.getBuildingInfo(eBuilding).getAssetValue() * iChange);
++		GET_PLAYER(getOwnerINLINE()).changeAssets(b.getAssetValue() * iChange);
+ 
+-		area()->changePower(getOwnerINLINE(), (GC.getBuildingInfo(eBuilding).getPowerValue() * iChange));
+-		GET_PLAYER(getOwnerINLINE()).changePower(GC.getBuildingInfo(eBuilding).getPowerValue() * iChange);
++		area()->changePower(getOwnerINLINE(), (b.getPowerValue() * iChange));
++		GET_PLAYER(getOwnerINLINE()).changePower(b.getPowerValue() * iChange);
+ 
+ 		for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iI).getTeam() == getTeam())
+ 			{
+-				if (GC.getBuildingInfo(eBuilding).isTeamShare() || (iI == getOwnerINLINE()))
++				if (b.isTeamShare() || (iI == getOwnerINLINE()))
+ 				{
+ 					GET_PLAYER((PlayerTypes)iI).processBuilding(eBuilding, iChange, area());
+ 				}
+@@ -4196,30 +4202,30 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolet
+ 
+ 		GET_TEAM(getTeam()).processBuilding(eBuilding, iChange);
+ 
+-		GC.getGameINLINE().processBuilding(eBuilding, iChange);
++		g.processBuilding(eBuilding, iChange);
+ 	}
+ 
+ 	if (!bObsolete)
+ 	{
+-		changeBuildingDefense(GC.getBuildingInfo(eBuilding).getDefenseModifier() * iChange);
+-		changeBuildingBombardDefense(GC.getBuildingInfo(eBuilding).getBombardDefenseModifier() * iChange);
++		changeBuildingDefense(b.getDefenseModifier() * iChange);
++		changeBuildingBombardDefense(b.getBombardDefenseModifier() * iChange);
+ 
+-		changeBaseGreatPeopleRate(GC.getBuildingInfo(eBuilding).getGreatPeopleRateChange() * iChange);
++		changeBaseGreatPeopleRate(b.getGreatPeopleRateChange() * iChange);
+ 
+-		if (GC.getBuildingInfo(eBuilding).getGreatPeopleUnitClass() != NO_UNITCLASS)
++		if (b.getGreatPeopleUnitClass() != NO_UNITCLASS)
+ 		{
+-			eGreatPeopleUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(GC.getBuildingInfo(eBuilding).getGreatPeopleUnitClass())));
++			UnitTypes eGreatPeopleUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(b.getGreatPeopleUnitClass())));
+ 
+ 			if (eGreatPeopleUnit != NO_UNIT)
+ 			{
+-				changeGreatPeopleUnitRate(eGreatPeopleUnit, GC.getBuildingInfo(eBuilding).getGreatPeopleRateChange() * iChange);
++				changeGreatPeopleUnitRate(eGreatPeopleUnit, b.getGreatPeopleRateChange() * iChange);
+ 			}
+ 		}
+ 
+-		GET_TEAM(getTeam()).changeBuildingClassCount((BuildingClassTypes)GC.getBuildingInfo(eBuilding).getBuildingClassType(), iChange);
+-		GET_PLAYER(getOwnerINLINE()).changeBuildingClassCount((BuildingClassTypes)GC.getBuildingInfo(eBuilding).getBuildingClassType(), iChange);
++		GET_TEAM(getTeam()).changeBuildingClassCount((BuildingClassTypes)b.getBuildingClassType(), iChange);
++		GET_PLAYER(getOwnerINLINE()).changeBuildingClassCount((BuildingClassTypes)b.getBuildingClassType(), iChange);
+ 
+-		GET_PLAYER(getOwnerINLINE()).changeWondersScore(getWonderScore((BuildingClassTypes)(GC.getBuildingInfo(eBuilding).getBuildingClassType())) * iChange);
++		GET_PLAYER(getOwnerINLINE()).changeWondersScore(getWonderScore((BuildingClassTypes)(b.getBuildingClassType())) * iChange);
+ 	}
+ 
+ 	updateBuildingCommerce();
+@@ -14380,7 +14386,10 @@ void CvCity::read(FDataStreamBase* pStream)
+ 		int iChange;
+ 		pStream->Read(&iChange);
+ 		m_aBuildingHealthChange.push_back(std::make_pair((BuildingClassTypes)iBuildingClass, iChange));
+-	} // <advc.004x>
++	} // <advc.912d>
++	if(uiFlag >= 4)
++		pStream->Read(&m_iPopRushHurryCount); // </advc.912d>
++	// <advc.004x>
+ 	if(uiFlag >= 2) {
+ 		pStream->Read(&mrOrder);
+ 		pStream->Read(&mrWasUnit);
+@@ -14396,11 +14405,11 @@ void CvCity::read(FDataStreamBase* pStream)
+ void CvCity::write(FDataStreamBase* pStream)
+ {
+ 	int iI;
+-
+-	uint uiFlag=1;
+-	uiFlag++; // advc.004x
+-	uiFlag++; // advc.030b
+-	pStream->Write(uiFlag);		// flag for expansion
++	uint uiFlag = 1; // flag for expansion
++	uiFlag = 2; // advc.004x
++	uiFlag = 3; // advc.030b
++	uiFlag = 4; // advc.912d
++	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iID);
+ 	pStream->Write(m_iX);
+@@ -14614,7 +14623,9 @@ void CvCity::write(FDataStreamBase* pStream)
+ 	{
+ 		pStream->Write((*it).first);
+ 		pStream->Write((*it).second);
+-	} // <advc.004x>
++	}
++	pStream->Write(m_iPopRushHurryCount); // advc.912d
++	// <advc.004x>
+ 	pStream->Write(mrOrder);
+ 	pStream->Write(mrWasUnit); // </advc.004x>
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index e783f7610..48247a3e2 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -143,6 +143,10 @@ public:
+ 
+ 	bool canHurry(HurryTypes eHurry, bool bTestVisible = false) const;		// Exposed to Python
+ 	void hurry(HurryTypes eHurry);																						// Exposed to Python
++	// <advc.912d>
++	bool canPopRush() const;
++	protected: int m_iPopRushHurryCount; public:
++	void changePopRushCount(int iChange); // </advc.912d>
+ 
+ 	UnitTypes getConscriptUnit() const;																// Exposed to Python
+ 	CvUnit* initConscriptedUnit();
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 90cbb0e1f..f8e33372f 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3754,7 +3754,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/		
+ 
+-	bool bCanPopRush = kOwner.canPopRush();
++	bool bCanPopRush = /*kOwner.*/canPopRush(); // advc.912d
+ 	bool bWarPlan = kOwner.isFocusWar(area()); // advc.105
+ 			//GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0; // K-Mod
+ 
+@@ -10099,13 +10099,16 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemo
+ 				// K-Mod. Rescaled values and conditions.
+ 				//if (!bWorkerOptimization && isProduction() && kOwner.canPopRush() && getHurryAngerTimer() <= std::min(3,getPopulation()/2)+2*iHappinessLevel) // K-Mod
+ 				// k146: Replacing the above
+-				if (!bWorkerOptimization && isProduction() && kOwner.canPopRush() && iHappinessLevel >= 0)
++				if (!bWorkerOptimization && isProduction() &&
++						/*kOwner.*/canPopRush() && // advc.912d
++						iHappinessLevel >= 0)
+ 				{
+ 					//iSlaveryValue = 30 * 14 * std::max(0, aiYields[YIELD_FOOD] - ((iHealthLevel < 0) ? 1 : 0));
+ 					int iProductionPerPop = 0;
+ 					for (HurryTypes eHurry = (HurryTypes)0; eHurry < GC.getNumHurryInfos(); eHurry = (HurryTypes)(eHurry+1))
+ 					{
+-						if (kOwner.canHurry(eHurry))
++						if (kOwner.canHurry(eHurry)
++								|| canPopRush()) // advc.912d
+ 						{
+ 							//iProductionPerPop = std::max(iProductionPerPop, GC.getGameINLINE().getProductionPerPopulation(eHurry) * iBaseProductionModifier / 100);
+ 							iProductionPerPop = std::max(iProductionPerPop, GC.getGameINLINE().getProductionPerPopulation(eHurry)); // Don't use modifiers weights, because slavery usage is erratic.
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 2f57d3cad..af1b02c45 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -763,6 +763,7 @@ enum GameOptionTypes				// Exposed to Python
+ 	GAMEOPTION_NO_ESPIONAGE,
+ 	GAMEOPTION_NO_CITY_RAZING, // advc.250b: Moved down
+ 	GAMEOPTION_NO_ANIMALS, // advc.309
++	GAMEOPTION_NO_SLAVERY, // advc.912d
+ 
+ #ifdef _USRDLL
+ 	NUM_GAMEOPTION_TYPES
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index c7b2fb910..a81545df3 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6682,7 +6682,6 @@ bool CvGame::isAITurn() const {
+ 	aiTurn = b;
+ } // </advc.106b>
+ 
+-
+ void CvGame::doDeals()
+ {
+ 	CvDeal* pLoopDeal;
+@@ -9819,6 +9818,7 @@ void CvGame::write(FDataStreamBase* pStream)
+ 
+ void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
+ {
++	GET_PLAYER(ePlayer).setSavingReplay(false); // advc.106i
+ 	SAFE_DELETE(m_pReplayInfo);
+ 	m_pReplayInfo = new CvReplayInfo();
+ 	if (m_pReplayInfo)
+@@ -9833,8 +9833,12 @@ void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
+ }
+ 
+ void CvGame::saveReplay(PlayerTypes ePlayer)
+-{
++{	// advc.106i: Hack to prepend sth. to the replay file name
++	GET_PLAYER(ePlayer).setSavingReplay(true);
+ 	gDLL->getEngineIFace()->SaveReplay(ePlayer);
++	/*  advc.106i: Probably redundant b/c CvGame::writeReplay already sets it
++		to false */
++	GET_PLAYER(ePlayer).setSavingReplay(false);
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index c2a6c3339..e0a6604a8 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -6740,8 +6740,26 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
+ 	if (!bCivilopediaText)
+ 	{
+ 		if (!bPlayerContext || !(GET_PLAYER(GC.getGameINLINE().getActivePlayer()).canDoCivics(eCivic)))
+-		{
+-			if (!bPlayerContext || !(GET_TEAM(GC.getGameINLINE().getActiveTeam()).isHasTech((TechTypes)(GC.getCivicInfo(eCivic).getTechPrereq()))))
++		{	// <advc.912d>
++			bool bValid = true;
++			if(bPlayerContext && GC.getGameINLINE().isOption(GAMEOPTION_NO_SLAVERY) &&
++					GET_PLAYER(GC.getGameINLINE().getActivePlayer()).isHuman()) {
++				for(int i = 0; i < GC.getNumHurryInfos(); i++) {
++					if(GC.getCivicInfo(eCivic).isHurry(i) &&
++							GC.getHurryInfo((HurryTypes)i).
++							getProductionPerPopulation() > 0) {
++						bValid = false;
++						szHelpText.append(NEWLINE);
++						szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_BLOCKED_BY_OPTION",
++								GC.getCivicInfo(eCivic).getDescription(),
++								GC.getGameOptionInfo(GAMEOPTION_NO_SLAVERY).getDescription()));
++					}
++				}
++			} // </advc.912d>
++			if (!bPlayerContext ||
++					(bValid && // advc.912d: Don't show tech req if disabled by option
++					!GET_TEAM(GC.getGameINLINE().getActiveTeam()).isHasTech(
++					(TechTypes)(GC.getCivicInfo(eCivic).getTechPrereq()))))
+ 			{
+ 				if (GC.getCivicInfo(eCivic).getTechPrereq() != NO_TECH)
+ 				{
+@@ -9822,6 +9840,15 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_HURRY_ANGER_MOD", kBuilding.getHurryAngerModifier()));
++		// <advc.912d>
++		if(ePlayer != NO_PLAYER && g.isOption(GAMEOPTION_NO_SLAVERY) &&
++				kBuilding.getHurryAngerModifier() < 0 &&
++				GET_PLAYER(ePlayer).isHuman()) {
++			szBuffer.append(NEWLINE);
++			szTempBuffer.Format(L"%c", gDLL->getSymbolID(BULLET_CHAR), szTempBuffer);
++			szBuffer.append(szTempBuffer);
++			szBuffer.append(gDLL->getText("TXT_KEY_HURRY_POPULATION"));
++		} // </advc.912d>
+ 	}
+ 
+ 	if (kBuilding.getWarWearinessModifier() != 0)
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 00a54b5d5..adef2ad31 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -1957,16 +1957,20 @@ void CvInitCore::read(FDataStreamBase* pStream)
+ 		pStream->Read(m_iNumVictories, m_abVictories);
+ 	}
+ 
+-
+-	if (uiSaveFlag > 0)
+-	{
++	// <advc.912d>
++	if(uiSaveFlag <= 0)	{
++		pStream->Read(NUM_GAMEOPTION_TYPES - 2, m_abOptions);
++		m_abOptions[NUM_GAMEOPTION_TYPES - 2] = false;
++		m_abOptions[NUM_GAMEOPTION_TYPES - 1] = false;
++	}
++	else if(uiSaveFlag == 1) {
++		pStream->Read(NUM_GAMEOPTION_TYPES - 1, m_abOptions);
++		m_abOptions[NUM_GAMEOPTION_TYPES - 1] = false;
++	}	
++	else {
++		FAssert(uiSaveFlag == 2);
+ 		pStream->Read(NUM_GAMEOPTION_TYPES, m_abOptions);
+-	}
+-	else
+-	{
+-		pStream->Read(NUM_GAMEOPTION_TYPES-1, m_abOptions);
+-		m_abOptions[NUM_GAMEOPTION_TYPES-1] = false;
+-	}
++	} // </advc.912d>
+ 	pStream->Read(NUM_MPOPTION_TYPES, m_abMPOptions);
+ 
+ 	pStream->Read(&m_bStatReporting);
+@@ -2036,6 +2040,7 @@ void CvInitCore::read(FDataStreamBase* pStream)
+ void CvInitCore::write(FDataStreamBase* pStream)
+ {
+ 	uint uiSaveFlag=1;
++	uiSaveFlag=2; // advc.912d
+ 	pStream->Write(uiSaveFlag);		// flag for expansion, see SaveBits)
+ 
+ 	// GAME DATA
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 47ae66020..7a9d63f4c 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -758,6 +758,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_iChoosingFreeTechCount = 0; // K-Mod
+ 	iNewMessages = 0; // advc.106b
+ 	autoPlayJustEnded = false; // advc.127
++	bSavingReplay = false; // advc.106i
+ 	
+ 	m_eID = eID;
+ 	updateTeamType();
+@@ -3324,6 +3325,12 @@ static bool concealUnknownCivs() {
+ 			!gDLL->GetWorldBuilderMode();
+ }
+ 
++// <advc.106i>
++void CvPlayer::setSavingReplay(bool b) {
++
++	bSavingReplay = b;
++} // </advc.106i>
++
+ const wchar* CvPlayer::getName(uint uiForm) const
+ {
+ 	if (GC.getInitCore().getLeaderName(getID(), uiForm).empty() || (GC.getGameINLINE().isMPOption(MPOPTION_ANONYMOUS) && isAlive() && GC.getGameINLINE().getGameState() == GAMESTATE_ON))
+@@ -3340,7 +3347,19 @@ const wchar* CvPlayer::getName(uint uiForm) const
+ 		// K-Mod end
+ 	}
+ 	else
+-	{
++	{	// <advc.106i>
++		if(bSavingReplay) {
++			CvWString const tag = "TXT_KEY_REPLAY_PREFIX_ADVC";
++			CvWString prefix = gDLL->getText(tag);
++			// No prefix if the tag isn't present
++			if(tag.compare(prefix) == 0)
++				prefix = L"";
++			/*  Same hack as above. Don't call gDll->getModName b/c then I'd have
++				to deal with narrow/wide string conversion. */
++			static CvWString r; // Important to put the assignment on a separate line
++			r = prefix + GC.getInitCore().getLeaderName(getID(), uiForm);
++			return r;
++		} // </advc.106i>
+ 		return GC.getInitCore().getLeaderName(getID(), uiForm);
+ 	}
+ }
+@@ -8770,7 +8789,14 @@ bool CvPlayer::canDoCivics(CivicTypes eCivic) const
+ 			return false;
+ 		}
+ 	}
+-
++	// <advc.912d>
++	if(GC.getGameINLINE().isOption(GAMEOPTION_NO_SLAVERY) && isHuman()) {
++		for(int i = 0; i < GC.getNumHurryInfos(); i++) {
++			if(GC.getCivicInfo(eCivic).isHurry(i) &&
++					GC.getHurryInfo((HurryTypes)i).getProductionPerPopulation() > 0)
++				return false;
++		}
++	} // </advc.912d>
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 4e5f21440..25feb0766 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1431,7 +1431,10 @@ protected:
+ 	void postProcessBeginTurnEvents();
+ 	int getStartOfTurnMessageLimit() const;
+ 	// </advc.106b>
+-
++	// <advc.106i>
++	bool bSavingReplay;
++	public: void setSavingReplay(bool b); protected:
++	// </advc.106i>
+ 	CvTurnScoreMap m_mapScoreHistory;
+ 	CvTurnScoreMap m_mapEconomyHistory;
+ 	CvTurnScoreMap m_mapIndustryHistory;
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 9469b68fb..04364c837 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -155,6 +155,10 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 	}
+ 
+ 	m_listReplayMessages.clear();
++	// <advc.106h>
++	if(game.getGameState() == GAMESTATE_OVER &&
++			GC.getDefineINT("SETTINGS_IN_REPLAYS") > 0)
++		addSettingsMsg(); // </advc.106h>
+ 	for (uint i = 0; i < game.getNumReplayMessages(); i++)
+ 	{
+ 		std::map<PlayerTypes, int>::iterator it = mapPlayers.find(game.getReplayMessagePlayer(i));
+@@ -198,6 +202,95 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 		m_iFinalScore = getFinalPlayerScore(); // </advc.707>
+ }
+ 
++// <advc.106h>
++void CvReplayInfo::addSettingsMsg() {
++
++	CvGame& g = GC.getGame();
++	PlayerTypes plId = g.getActivePlayer();
++	if(plId == NO_PLAYER)
++		return;
++	bool bScenario = false;
++	// Strip away file ending of WB scenario
++	CvWString const wbEnding = L".CivBeyondSwordWBSave";
++	CvWString mn = getMapScriptName();
++	if(mn.length() > wbEnding.length() && mn.substr(mn.length() -
++			wbEnding.length(), wbEnding.length()).compare(wbEnding) == 0) {
++		mn = mn.substr(0, mn.length() - wbEnding.length());
++		bScenario = true;
++	}
++	CvPlayer const& pl = GET_PLAYER(plId);
++	/*  Can't use getTextKeyWide for sea level b/c of the recommendation text
++		added by advc.137 (same issue in CvVictoryScreen.py) */
++	int lvlChg = GC.getSeaLevelInfo(getSeaLevel()).getSeaLevelChange();
++	CvWString m = gDLL->getText("TXT_KEY_MISC_RELOAD", 1) + L". " +
++			gDLL->getText("TXT_KEY_MAIN_MENU_SETTINGS") + L":\n" +
++			gDLL->getText("TXT_KEY_NAME_LEADER_CIV",
++			GC.getLeaderHeadInfo(pl.getLeaderType()).getTextKeyWide(),
++			pl.getCivilizationShortDescriptionKey(), pl.getReplayName()) + L"\n" +
++			gDLL->getText("TXT_KEY_SETTINGS_DIFFICULTY",
++			GC.getHandicapInfo(getDifficulty()).getTextKeyWide()) + L"\n" +
++			(bScenario ? mn :
++			gDLL->getText("TXT_KEY_SIZE_MAP_WITH",
++			GC.getWorldInfo(getWorldSize()).getTextKeyWide(),
++			getMapScriptName().GetCString()) + L" " +
++			gDLL->getText("TXT_KEY_SETTINGS_SEA_LEVEL",
++			(lvlChg == 0 ? GC.getSeaLevelInfo(getSeaLevel()).getTextKeyWide() :
++			gDLL->getText((lvlChg < 0 ? "TXT_KEY_LOW" : "TXT_KEY_HIGH"))))) +
++			(getClimate() == 0 ? L"" : (L", " +
++			gDLL->getText("TXT_KEY_SETTINGS_CLIMATE",
++			GC.getClimateInfo(getClimate()).getTextKeyWide()))) + L"\n" +
++			gDLL->getText("TXT_KEY_SETTINGS_GAME_SPEED",
++			GC.getGameSpeedInfo(getGameSpeed()).getTextKeyWide()) +
++			(getEra() == 0 ? L"" : (L", " +
++			gDLL->getText("TXT_KEY_SETTINGS_STARTING_ERA",
++			GC.getEraInfo(getEra()).getTextKeyWide()))) + L"\n";
++	// <advc.250b>
++	if(g.isOption(GAMEOPTION_ADVANCED_START) && !g.isOption(GAMEOPTION_SPAH)) {
++		m += gDLL->getText("TXT_KEY_ADVANCED_START_POINTS") + L" "
++				+ CvWString::format(L"%d", g.getNumAdvancedStartPoints()) + L"\n";
++	} // </advc.250b>
++	int iDisabled = 0;
++	for(int i = 0; i < GC.getNumVictoryInfos(); i++) {
++		VictoryTypes vId = (VictoryTypes)i;
++		if(g.isVictoryValid(vId))
++			continue;
++		iDisabled++;
++		m += GC.getVictoryInfo(vId).getDescription();
++		m += L", ";
++	}
++	if(iDisabled > 0) {
++		m = m.substr(0, m.length() - 2) + L" "; // Drop the final comma
++		m += gDLL->getText("TXT_KEY_VICTORY_DISABLED") + L"\n";
++	} // <advc.250b>
++	if(g.isOption(GAMEOPTION_SPAH)) {
++		std::wstring* pointDistrib = g.startPointsAsHandicap().forSettingsScreen();
++		if(pointDistrib != NULL)
++			m += *pointDistrib;
++	} // </advc.250b>
++	int iOptions = 0;
++	for(int i = 0; i < GC.getNumGameOptionInfos(); i++) {
++		GameOptionTypes optId = (GameOptionTypes)i;
++		// advc.250b:
++		if(optId == GAMEOPTION_ADVANCED_START || optId == GAMEOPTION_SPAH ||
++				!g.isOption(optId) || // advc.104:
++				(optId == GAMEOPTION_AGGRESSIVE_AI && !g.useKModAI()))
++			continue;
++		iOptions++;
++		m += GC.getGameOptionInfo(optId).getDescription();
++		m += L", ";
++	}
++	if(iOptions > 0)
++		m = m.substr(0, m.length() - 2) + L"\n";
++	m += L"AdvCiv Mod"; // gDLL->getModName(false) doesn't yield a wstring
++	CvReplayMessage* settingsMsg = new CvReplayMessage(0,
++			REPLAY_MESSAGE_MAJOR_EVENT, plId);
++	settingsMsg->setText(m);
++	settingsMsg->setColor((ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"));
++	FAssert(m_listReplayMessages.empty());
++	m_listReplayMessages.push_back(settingsMsg);
++} // </advc.106h>
++
++
+ int CvReplayInfo::getNumPlayers() const
+ {
+ 	return (int)m_listPlayerScoreHistory.size();
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.h b/CvGameCoreDLL/CvReplayInfo.h
+index 28cfbaa21..4fb9faa7b 100644
+--- a/CvGameCoreDLL/CvReplayInfo.h
++++ b/CvGameCoreDLL/CvReplayInfo.h
+@@ -77,6 +77,7 @@ public:
+ protected:
+ 	bool isValidPlayer(int i) const;
+ 	bool isValidTurn(int i) const;
++	void addSettingsMsg(); // advc.106h
+ 
+ 	static int REPLAY_VERSION;
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 16d5f5fd6..20937af7b 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -551,6 +551,7 @@ void CyEnumsPythonInterface()
+ 		.value("GAMEOPTION_NO_ESPIONAGE", GAMEOPTION_NO_ESPIONAGE)
+ 		.value("GAMEOPTION_NO_CITY_RAZING", GAMEOPTION_NO_CITY_RAZING) // advc.250b
+ 		.value("GAMEOPTION_NO_ANIMALS", GAMEOPTION_NO_ANIMALS) // advc.309
++		.value("GAMEOPTION_NO_SLAVERY", GAMEOPTION_NO_SLAVERY) // advc.912d
+ 		.value("NUM_GAMEOPTION_TYPES", NUM_GAMEOPTION_TYPES)
+ 		;
+
+[PATCH OMITTED] file=a/manual_0.92d.odt b/manual_0.92d.odt reason=binary/generated-file changedLines=0 bytes=153
+
+[PATCH OMITTED] file=a/manual_0.92e.odt b/manual_0.92f.odt reason=binary/generated-file changedLines=0 bytes=221
+
+[PATCH COVERAGE]
+patchFiles=20 embeddedFiles=17 omittedFiles=3 embeddedPatchBytes=45990

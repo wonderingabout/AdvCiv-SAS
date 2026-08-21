@@ -1,0 +1,322 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2462
+# Commit: ed23feded925265dd987e7f3e6ba70ca5909285c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b25908c47cbf940931a5666fdbb6a8c3aaf27619
+# Title: Some minor refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+22	19	CvGameCoreDLL/CvCity.cpp
+2	2	CvGameCoreDLL/CvCity.h
+17	14	CvGameCoreDLL/CvPlayerAI.cpp
+5	5	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvPlot.h
+4	4	CvGameCoreDLL/CvPlotGroup.cpp
+0	1	CvGameCoreDLL/CyMap.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index b5e9cb4b9..117b3a3e9 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4845,7 +4845,8 @@ int CvCity::calculateCorporationMaintenanceTimes100(CorporationTypes eCorporatio
+ 	int iMaintenance = 0;
+ 	FOR_EACH_ENUM(Commerce)
+ 	{
+-		iMaintenance += 100 * GC.getInfo(eCorporation).getHeadquarterCommerce(eLoopCommerce);
++		iMaintenance += 100 * GC.getInfo(eCorporation).
++				getHeadquarterCommerce(eLoopCommerce);
+ 	}
+ 
+ 	int iNumBonuses = 0;
+@@ -4857,17 +4858,19 @@ int CvCity::calculateCorporationMaintenanceTimes100(CorporationTypes eCorporatio
+ 	}
+ 
+ 	int iBonusMaintenance = GC.getInfo(eCorporation).getMaintenance() * iNumBonuses;
+-	iBonusMaintenance *= GC.getInfo(GC.getMap().getWorldSize()).getCorporationMaintenancePercent();
++	iBonusMaintenance *= GC.getInfo(GC.getMap().getWorldSize()).
++			getCorporationMaintenancePercent();
+ 	iBonusMaintenance /= 100;
+ 	iMaintenance += iBonusMaintenance;
+ 
+-	iMaintenance *= (getPopulation() + 17);
++	iMaintenance *= getPopulation() + 17;
+ 	iMaintenance /= 18;
+ 
+ 	iMaintenance *= GC.getInfo(getHandicapType()).getCorporationMaintenancePercent();
+ 	iMaintenance /= 100;
+ 
+-	iMaintenance *= std::max(0, (GET_PLAYER(getOwner()).getCorporationMaintenanceModifier() + 100));
++	iMaintenance *= std::max(0, GET_PLAYER(getOwner()).
++			getCorporationMaintenanceModifier() + 100);
+ 	iMaintenance /= 100;
+ 
+ 	int iInflation = GET_PLAYER(getOwner()).calculateInflationRate() + 100;
+@@ -4913,20 +4916,20 @@ void CvCity::changeWarWearinessModifier(int iChange)
+ 
+ void CvCity::changeHurryAngerModifier(int iChange)
+ {
+-	if (iChange != 0)
++	if (iChange == 0)
++		return;
++
++	int iRatio = 0;
++	if (m_iHurryAngerTimer > 0)
+ 	{
+-		int iRatio = 0;
+-		if (m_iHurryAngerTimer > 0)
+-		{
+-			iRatio = (100 * (m_iHurryAngerTimer - 1)) /
++		iRatio = (100 * (m_iHurryAngerTimer - 1)) /
+ 				std::max(1, 100 + getHurryAngerModifier());
+-		}
+-		m_iHurryAngerModifier += iChange;
+-		if (m_iHurryAngerTimer > 0)
+-		{
+-			m_iHurryAngerTimer = (iRatio *
+-					std::max(1, 100 + getHurryAngerModifier())) / 100 + 1;
+-		}
++	}
++	m_iHurryAngerModifier += iChange;
++	if (m_iHurryAngerTimer > 0)
++	{
++		m_iHurryAngerTimer = (iRatio *
++				std::max(1, 100 + getHurryAngerModifier())) / 100 + 1;
+ 	}
+ }
+ 
+@@ -10593,10 +10596,10 @@ void CvCity::doProduction(bool bAllowNoProduction)
+ 	{
+ 		// K-Mod. End the culture process if our borders have expanded.
+ 		// (This function is called after "doResearch" etc.)
+-		const OrderData& order = headOrderQueueNode()->m_data;
+-		if (order.iData2 > 0 && GC.getInfo((ProcessTypes)order.iData1).
++		OrderData const& kOrder = headOrderQueueNode()->m_data;
++		if (kOrder.iData2 > 0 && GC.getInfo((ProcessTypes)kOrder.iData1).
+ 			getProductionToCommerceModifier(COMMERCE_CULTURE) > 0 &&
+-			getCultureLevel() > order.iData2)
++			getCultureLevel() > kOrder.iData2)
+ 		{
+ 			popOrder(0, false, ALL_CHOOSE);
+ 		}
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index f00ea78e3..4cb84e628 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -411,8 +411,8 @@ public:
+ 	/* <advc.104> Added an optional parameter to allow the computation of
+ 	   projected maintenance for cities yet to be conquered. */
+ 	int calculateDistanceMaintenanceTimes100(PlayerTypes eOwner = NO_PLAYER) const;								// Exposed to Python
+-	int calculateColonyMaintenanceTimes100(PlayerTypes eOwner = NO_PLAYER) const;
+-	int calculateNumCitiesMaintenanceTimes100(PlayerTypes eOwner = NO_PLAYER) const;							// Exposed to Python									// Exposed to Python
++	int calculateColonyMaintenanceTimes100(PlayerTypes eOwner = NO_PLAYER) const;								// Exposed to Python
++	int calculateNumCitiesMaintenanceTimes100(PlayerTypes eOwner = NO_PLAYER) const;							// Exposed to Python
+ 	// </advc.104>
+ 	// <advc.004b> A projection for cities yet to be founded
+ 	static int calculateDistanceMaintenanceTimes100(CvPlot const& kCityPlot,
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 71dc99881..579b79452 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1636,7 +1636,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity)  // advc: style changes, advc.0
+ 				// <advc.116> Count them all before deciding what to do
+ 			}
+ 		}
+-		int iVictTarget = kGame.culturalVictoryNumCultureCities();
++		int const iVictTarget = kGame.culturalVictoryNumCultureCities();
+ 		// Razing won't help if they have many high-culture cities
+ 		if(iHighCultureCount == iVictTarget || iHighCultureCount == iVictTarget + 1)
+ 		{
+@@ -1666,7 +1666,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity)  // advc: style changes, advc.0
+ 
+ 	if(!bRaze)
+ 	{
+-		int iCloseness = kCity.AI_playerCloseness(getID());
++		int const iCloseness = kCity.AI_playerCloseness(getID());
+ 		// Reasons to not raze
+ 		if(!bCultureVictory) // advc.116
+ 		{
+@@ -1706,11 +1706,11 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity)  // advc: style changes, advc.0
+ 		}
+ 		else
+ 		{
+-			bool bFinancialTrouble = AI_isFinancialTrouble();
+-			bool bBarbCity = (kCity.getPreviousOwner() == BARBARIAN_PLAYER &&
++			bool const bFinancialTrouble = AI_isFinancialTrouble();
++			bool const bBarbCity = (kCity.getPreviousOwner() == BARBARIAN_PLAYER &&
+ 					kCity.getOriginalOwner() == BARBARIAN_PLAYER);
+-			bool bPrevOwnerBarb = (kCity.getPreviousOwner() == BARBARIAN_PLAYER);
+-			bool bTotalWar = (kPreviousTeam.getNumCities() > 0 && // advc.116
++			bool const bPrevOwnerBarb = (kCity.getPreviousOwner() == BARBARIAN_PLAYER);
++			bool const bTotalWar = (kPreviousTeam.getNumCities() > 0 && // advc.116
+ 					// K-Mod
+ 					GET_TEAM(getTeam()).AI_getWarPlan(kPreviousTeam.getID()) == WARPLAN_TOTAL);
+ 
+@@ -1913,12 +1913,12 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity)  // advc: style changes, advc.0
+ 
+ 			}
+ 			// <advc.116>
+-			PlayerTypes eCulturalOwner = kCity.findHighestCulture();
++			PlayerTypes const eCulturalOwner = kCity.findHighestCulture();
+ 			if(eCulturalOwner != NO_PLAYER)
+ 			{
+-				CvPlayer& kCulturalOwner = GET_PLAYER(eCulturalOwner);
++				CvPlayer const& kCulturalOwner = GET_PLAYER(eCulturalOwner);
+ 				if(!kCulturalOwner.isBarbarian() &&
+-					!::atWar(getTeam(), kCulturalOwner.getTeam()))
++					!GET_TEAM(getTeam()).isAtWar(kCulturalOwner.getTeam()))
+ 				{
+ 					if(eCulturalOwner == getID())
+ 						iRazeValue -= 15;
+@@ -1934,7 +1934,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity)  // advc: style changes, advc.0
+ 			// Don't raze remote cities conquered in early game
+ 			int iTargetCities = GC.getInfo(GC.getMap().getWorldSize()).
+ 					getTargetNumCities();
+-			if(iTargetCities * 0.75 >= (double)getNumCities())
++			if(iTargetCities * fixp(0.75) >= getNumCities())
+ 				iRazeValue -= (iTargetCities - getNumCities()) * 5;
+ 			// </advc.116>
+ 
+@@ -1972,7 +1972,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity)  // advc: style changes, advc.0
+ 		// <advc.ctr>
+ 		if (iRazeValue < 20)
+ 		{
+-			PlayerTypes eLiberationPlayer = kCity.getLiberationPlayer(true);
++			PlayerTypes const eLiberationPlayer = kCity.getLiberationPlayer(true);
+ 			if (eLiberationPlayer != NO_PLAYER &&
+ 				canTradeItem(eLiberationPlayer, TradeData(TRADE_CITIES, kCity.getID())) &&
+ 				/*	Don't check trade denial b/c that includes conditions for refusal
+@@ -2014,10 +2014,13 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity)  // advc: style changes, advc.0
+ 		logBBAI("    Player %d (%S) decides to raze city %S!!!", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
+ 		kCity.doTask(TASK_RAZE);
+ 	}
+-	else CvEventReporter::getInstance().cityAcquiredAndKept(
++	else
++	{
++		CvEventReporter::getInstance().cityAcquiredAndKept(
+ 			//kGame.getActivePlayer(), &kCity);
+ 			getID(), &kCity); // UNOFFICIAL_PATCH, 06/14/09, Maniac & jdog5000
+-} // BETTER_BTS_AI_MOD: END
++	}
++}
+ 
+ // <advc.130q> About 7 or 8 is high (important city), below 1 is low
+ double CvPlayerAI::AI_razeMemoryScore(CvCity const& c) const
+@@ -2861,7 +2864,7 @@ int CvPlayerAI::AI_cityWonderVal(CvCity const& c) const
+ 	return r;
+ }
+ 
+-/*	For advc.104d (bConquest=false), advc.ctr (bConquest=true).
++/*	For advc.104d (bConquest=true), advc.ctr (bConquest=false).
+ 	Replacing parts of AI_cityTradeVal. Coexisting with similar code
+ 	in AI_targetCityValue (the similarities aren't that great).
+ 	Scale: gold per turn */
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index fdc199125..898b19a6a 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -21,7 +21,7 @@
+ 
+ #define STANDARD_MINIMAP_ALPHA		(0.75f) // advc.002a: was 0.6
+ bool CvPlot::m_bAllFog = false; // advc.706
+-int CvPlot::iMaxVisibilityRangeCache; // advc.003h
++int CvPlot::m_iMaxVisibilityRangeCache; // advc.003h
+ #define NO_BUILD_IN_PROGRESS (-2) // advc.011
+ 
+ 
+@@ -1639,20 +1639,20 @@ void CvPlot::updateSight(bool bIncrement, bool bUpdatePlotGroups)
+ 	}
+ }
+ 
+-// <advc.003h> Cut and pasted from CvPlot::updateSeeFromSight
++// advc.003h: Cut and pasted from CvPlot::updateSeeFromSight
+ void CvPlot::setMaxVisibilityRangeCache()
+ {
+ 	int iRange = GC.getDefineINT(CvGlobals::UNIT_VISIBILITY_RANGE) + 1;
+ 	for(int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); iPromotion++)
+ 		iRange += GC.getInfo((PromotionTypes)iPromotion).getVisibilityChange();
+ 	iRange = std::max(GC.getDefineINT(CvGlobals::RECON_VISIBILITY_RANGE) + 1, iRange);
+-	iMaxVisibilityRangeCache = iRange;
+-} // </advc.003h>
++	m_iMaxVisibilityRangeCache = iRange;
++}
+ 
+ 
+ void CvPlot::updateSeeFromSight(bool bIncrement, bool bUpdatePlotGroups)
+ {
+-	for (SquareIter it(*this, /* advc.003h: */ iMaxVisibilityRangeCache);
++	for (SquareIter it(*this, /* advc.003h: */ m_iMaxVisibilityRangeCache);
+ 		it.hasNext(); ++it)
+ 	{
+ 		it->updateSight(bIncrement, bUpdatePlotGroups);
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index e67315ba0..f1fc7a64e 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -822,7 +822,7 @@ protected:
+ 	std::vector<CvSymbol*> m_symbols;
+ 
+ 	static bool m_bAllFog; // advc.706
+-	static int iMaxVisibilityRangeCache; // advc.003h
++	static int m_iMaxVisibilityRangeCache; // advc.003h
+ 
+ 	void doFeature();
+ 	void doCulture();
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.cpp b/CvGameCoreDLL/CvPlotGroup.cpp
+index 42194f6cc..9d9b1a36f 100644
+--- a/CvGameCoreDLL/CvPlotGroup.cpp
++++ b/CvGameCoreDLL/CvPlotGroup.cpp
+@@ -179,21 +179,21 @@ void CvPlotGroup::changeNumBonuses(BonusTypes eBonus, int iChange)
+ 	}
+ }
+ 
+-// <advc.064d>
++// advc.064d:
+ void CvPlotGroup::verifyCityProduction()
+ {
+ 	PROFILE_FUNC(); // About 1 permille of the runtime
+ 	if (m_iRecalculating > 0)
+ 		return;
+-	CvMap const& m = GC.getMap();
++	CvMap const& kMap = GC.getMap();
+ 	for (CLLNode<XYCoords> const* pPlotNode = headPlotsNode(); pPlotNode != NULL;
+ 		pPlotNode = nextPlotsNode(pPlotNode))
+ 	{
+-		CvCity* pCity = m.getPlot(pPlotNode->m_data.iX, pPlotNode->m_data.iY).getPlotCity();
++		CvCity* pCity = kMap.getPlot(pPlotNode->m_data.iX, pPlotNode->m_data.iY).getPlotCity();
+ 		if (pCity != NULL && pCity->getOwner() == getOwner())
+ 			pCity->verifyProduction();
+ 	}
+-} // </advc.064d>
++}
+ 
+ 
+ void CvPlotGroup::insertAtEndPlots(XYCoords xy)
+
+diff --git a/CvGameCoreDLL/CyMap.cpp b/CvGameCoreDLL/CyMap.cpp
+index 4b5ade4f7..b3ccfa1fd 100644
+--- a/CvGameCoreDLL/CyMap.cpp
++++ b/CvGameCoreDLL/CyMap.cpp
+@@ -290,4 +290,3 @@ void CyMap::updateMinOriginalStartDist(CyArea* pArea)
+ {
+ 	m_kMap.updateMinOriginalStartDist(pArea->getArea());
+ }
+-
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=11462

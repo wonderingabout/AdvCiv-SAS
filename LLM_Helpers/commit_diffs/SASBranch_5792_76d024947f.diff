@@ -1,0 +1,775 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5792
+# Commit: 76d024947fa7e41ed459815916c64ade44694fa1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 53128310118808709cc2fdd234b3f88e66e74d66
+# Title: add remaining no-multiline scripts and update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+148	58	LLM_Helpers/README.md
+148	0	LLM_Helpers/comment_cleanup_pass_v2.py
+135	0	LLM_Helpers/singleline_pass.py
+198	0	LLM_Helpers/singleline_pass_comments.py
+ create mode 100644 LLM_Helpers/comment_cleanup_pass_v2.py
+ create mode 100644 LLM_Helpers/singleline_pass.py
+ create mode 100644 LLM_Helpers/singleline_pass_comments.py
+
+[PATCHES]
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index c28a1aced..2932f7774 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -1,71 +1,139 @@
+-﻿# External helper tools
+-
+-This folder contains external Python 3 helper scripts for tasks outside Civ4's embedded Python 2.4 runtime — balancing workflows, code refactoring, report generation, tuning experiments, etc.
+-
+-General note for LLM/code-agent helpers:
+-
+-- These scripts are external tools. They may use modern Python 3 even when the mod itself must still run in Civ4's old Python 2.4 runtime.
+-- Only worry about Python 2.4-safe **output** when the script rewrites a Python file that Civ4 will actually load, such as files under `Assets\Python`.
+-- Report outputs, tuning summaries, `.txt` review files, generated diagnostics, and other helper artifacts do **not** need to be Civ4-loadable. Make them clear for humans and LLMs.
+-- When a helper rewrites source code, preserve behavior first: do not silently delete comments, do not rewrite strings, and review the diff before committing.
+-- Paths created by ChatGPT in `/mnt/data/...` are sandbox paths, not repo paths. Codex/Claude/local agents should replace them with repo-relative paths such as `Assets\Python\Screens\CvMainInterface.py`.
+-
+-- `collapse_multiline_brackets.py`
+-  - Legacy/simple character-based collapser for multi-line bracketed expressions (`(...)`, `[...]`, `{...}`) in a single Python source file.
+-  - Use to make boilerplate Civ4 API calls and helper invocations greppable on one line.
+-  - Preserves line endings (CRLF or LF), string literals, and comments outside collapsed ranges.
+-  - Strips line comments and indentation **inside** collapsed ranges, so be careful on comment-heavy files.
+-  - **Run on ONE file at a time** and eyeball the diff before committing — a whole-directory sweep was tried once and reverted.
+-
+-- `singleline_pass3_comments_and_long.py` / future `collapse_multiline_python.py`
+-  - ChatGPT-generated safer basis for LLM-first multiline-to-single-line cleanup.
+-  - Intended goal: one logical API/layout operation per physical line, so grep and LLM context snippets show the whole operation.
+-  - Better than `collapse_multiline_brackets.py` for comment-heavy files because it moves inline comments above collapsed statements instead of deleting them.
+-  - Can also collapse clearly code-like commented-out multiline blocks.
+-  - The ChatGPT-generated pass scripts were made in a sandbox and may contain hardcoded `/mnt/data/...` paths. Before adding one to the repo, convert it to a normal CLI tool that accepts a target path and optional `--in-place`/review-copy mode.
+-  - For source-rewrite helpers, useful checks are: unchanged meaningful code-token sequence, preserved comment text, reviewed diff, and an in-game smoke test for UI files.
+-
+-- `compare_speed_summaries.py`
+-  - Reads the latest Sevopedia Game Speed chart dump from `PythonDbg.log`.
+-  - Compares `Normal` vs one selected speed across summary rows.
+-  - Also compares flattened increment sequences (Years and Months) index by index.
+-  - Can focus summaries to one index (`--summary`), while still printing increment comparison.
+-  - Automatically writes a timestamped `.txt` file.
+-  - Output filename is short and sortable: `<UTC-ISO>_<speed>[_sXX].txt` (e.g. `20260217T110501Z_slow_s06.txt`).
+-
+-- `autotune_speed_from_xml.py`
+-  - Computes Summary rows directly from `Assets/XML/GameInfo/CIV4GameSpeedInfo.xml` (no `PythonDbg.log` needed).
+-  - Can print XML-based `Normal` vs selected speed comparison.
+-  - Optional draft autoloop mode for `GAMESPEED_SLOW`: iterates candidate timeline tweaks and reports best-scoring result.
+-  - Writes timestamp-first output files in `LLM_Helpers\outputs` (`<UTC-ISO>_<speed>_<mode>.txt`).
+-
+-Examples (PowerShell from mod root):
++# External helper tools
++
++This folder contains external helper scripts, mostly Python 3, for tasks outside Civ4's embedded Python runtime. These scripts are meant for LLM-assisted workflows, balancing workflows, code review, refactoring support, report generation, and other tooling.
++
++Important distinction:
++
++- Helper scripts may use modern Python 3.
++- Output files do not automatically need to be Civ4 Python 2.4-compatible.
++- Only source-rewrite helpers that modify Python files loaded by Civ4 must preserve Python 2.4-compatible target code.
++- Text reports, tuning reports, XML summaries, and other external artifacts only need to be useful and accurate for their workflow.
++
++Always review diffs before committing generated source changes.
++
++## Source-rewrite helpers
++
++### `collapse_multiline_brackets.py`
++
++Legacy/reference helper.
++
++- Collapses multi-line bracketed expressions (`(...)`, `[...]`, `{...}`) in a single Python source file to one-liners.
++- Useful idea: make boilerplate Civ4 API calls and helper invocations greppable on one line.
++- Preserves line endings, string literals, and comments outside collapsed ranges.
++- Important caution: this script strips line comments and indentation inside collapsed ranges.
++- Because many AdvCiv-SAS UI files contain important inline/manual-layout comments, do not use this blindly on comment-heavy files.
++- Run on ONE file at a time and eyeball the diff before committing. A whole-directory sweep was tried once and reverted.
++
++Example:
+ 
+ ```powershell
+ python LLM_Helpers\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
+ ```
+ 
+-Safer LLM-first single-line cleanup, once the ChatGPT pass script is cleaned into a repo tool:
++### ChatGPT single-line cleanup scripts
++
++These were generated during a ChatGPT-5.5 Thinking cleanup of `CvMainInterface.py` to make the file easier for grep, VS Code review, and future LLM agents.
++
++The generated scripts were staged working scripts, not polished repo utilities:
++
++- `singleline_pass.py`
++  - First conservative pass.
++  - Collapsed uncommented multiline logical statements.
++  - Skipped statements containing comments.
++- `singleline_pass_comments.py`
++  - Second staged pass.
++  - Collapsed more multiline statements.
++  - Preserved comments by moving them above the collapsed statement instead of deleting them.
++- `singleline_pass3_comments_and_long.py`
++  - Third staged pass and best reference for the final single-line statement approach.
++  - Allowed more long-line/comment-aware collapses.
++  - Also handled some commented-out multiline code groups.
++  - This was run after earlier passes, on an already-modified file.
++- `comment_cleanup_pass_v2.py`
++  - Fourth staged/reference pass, focused on comments rather than statements.
++  - Condensed simple wrapped prose comments.
++  - Fixed minor comment typos and wording issues.
++  - Intentionally left structured notes, custom XML-style comments, and commented-out code mostly alone.
++  - This is separate from the single-line statement passes and should be reviewed as a comment-only cleanup.
++
++Important: `singleline_pass3_comments_and_long.py` should not be treated as guaranteed to include all behavior from pass 1 and pass 2 when run directly on a raw original file. It is the best reference implementation from the final single-line statement pass, not a clean all-in-one tool. Likewise, `comment_cleanup_pass_v2.py` is a later comment-cleanup reference pass, not part of the statement-collapsing logic.
++
++Future LLM/code agents should either:
++
++- reuse the staged scripts only in the same order and review each diff, or
++- preferably consolidate the useful logic into one or two clean repo-ready utilities, for example:
++
++```text
++collapse_multiline_python.py
++condense_python_comments.py
++```
+ 
+-```powershell
+-python LLM_Helpers\collapse_multiline_python.py Assets\Python\Screens\CvMainInterface.py --in-place --move-comments --collapse-commented-code
++A cleaned source-rewrite utility should support:
++
++- command-line input path instead of hardcoded sandbox paths;
++- optional `--in-place`;
++- optional `--output`;
++- optional `--move-comments`;
++- optional `--collapse-commented-code` for statement tools;
++- optional typo/comment-normalization rules for comment tools;
++- line-ending preservation;
++- string literal preservation;
++- comment preservation;
++- summary stats;
++- dry-run or diff output if practical.
++
++#### ChatGPT sandbox path note
++
++Some generated scripts may contain paths such as:
++
++```text
++/mnt/data/CvMainInterface.singleline2.py
++/mnt/data/CvMainInterface.singleline3.py
+ ```
+ 
+-After source-rewrite cleanup:
++Those were ChatGPT sandbox paths, not repo paths. Codex, Claude Code, local PowerShell, or other agents should replace them with actual repository paths such as:
+ 
+-```powershell
+-git diff -- Assets\Python\Screens\CvMainInterface.py
++```text
++Assets\Python\Screens\CvMainInterface.py
+ ```
+ 
+-Review checklist for source-rewrite helpers:
++or accept a path from the command line.
++
++#### Safety rule for source-rewrite helpers
+ 
+-- No comment text was silently deleted.
+-- Moved comments still describe the collapsed statement accurately.
+-- The tool reports unchanged meaningful code tokens when possible.
+-- Python 3 syntax checks are only sanity checks, not proof of Civ4 Python 2.4 compatibility.
+-- For UI files such as `CvMainInterface.py`, prefer a real in-game smoke test.
++For helpers that rewrite Python source files, especially files loaded by Civ4:
+ 
+-Speed summary comparison:
++- preserve meaningful code tokens;
++- preserve strings exactly;
++- preserve comments or move them deliberately;
++- never silently delete explanatory comments;
++- do not rely on Python 3 `ast.parse` as proof of Civ4 Python 2.4 compatibility;
++- review the git diff manually;
++- smoke-test in game when the file is UI/runtime-sensitive.
++
++The goal is not general Python formatting. The goal is to make large, LLM-maintained files easier to search, patch, and review.
++
++Good target style for LLM-facing UI files:
++
++```text
++one semantic UI operation = one searchable line
++manual layout decision = keep local and visible
++large table/list = one item per line when that is clearer
++commented-out code = preserve intent; do not auto-destroy it
++```
++
++## Game speed helper scripts
++
++### `compare_speed_summaries.py`
++
++- Reads the latest Sevopedia Game Speed chart dump from `PythonDbg.log`.
++- Compares `Normal` vs one selected speed across summary rows.
++- Also compares flattened increment sequences (Years and Months) index by index.
++- Can focus summaries to one index (`--summary`), while still printing increment comparison.
++- Automatically writes a timestamped `.txt` file.
++- Output filename is short and sortable: `<UTC-ISO>_<speed>[_sXX].txt` (e.g. `20260217T110501Z_slow_s06.txt`).
++
++Examples:
+ 
+ ```powershell
+ python LLM_Helpers\compare_speed_summaries.py --speed slow
+@@ -81,6 +149,15 @@ python LLM_Helpers\compare_speed_summaries.py --speed slow --summary 6
+ python LLM_Helpers\compare_speed_summaries.py --speed slow --output-dir LLM_Helpers\outputs
+ ```
+ 
++### `autotune_speed_from_xml.py`
++
++- Computes Summary rows directly from `Assets/XML/GameInfo/CIV4GameSpeedInfo.xml`.
++- Does not require `PythonDbg.log`.
++- Can print XML-based `Normal` vs selected speed comparison.
++- Optional draft autoloop mode for `GAMESPEED_SLOW`.
++- Iterates candidate timeline tweaks and reports the best-scoring result.
++- Writes timestamp-first output files in `LLM_Helpers\outputs` (`<UTC-ISO>_<speed>_<mode>.txt`).
++
+ XML-native comparison and draft autoloop:
+ 
+ ```powershell
+@@ -90,11 +167,24 @@ python LLM_Helpers\autotune_speed_from_xml.py --speed slow --summary-steps 100 -
+ python LLM_Helpers\autotune_speed_from_xml.py --speed slow --autoloop --iterations 8000 --seed 1
+ ```
+ 
+-Workflow rule for timeline tuning:
++## Workflow rule for timeline tuning
+ 
+ - Always run one full 5% bird-view (`Normal` vs current target speed) before sharing a draft.
+ - Do not rely only on focused slices (`--focus-start-pct/--focus-end-pct`) when evaluating a candidate.
+ - After each local tweak, re-check the full 5% table to catch late drift and endpoint issues early.
+ - After each accepted candidate edit, generate a fresh human-readable review file with:
+-  - `python LLM_Helpers\compare_speed_summaries.py --speed <speed>`
+-  - Use this `slow_*.txt`/`marathon_*.txt` style output as the primary review artifact for discussion.
++
++```powershell
++python LLM_Helpers\compare_speed_summaries.py --speed <speed>
++```
++
++Use this `slow_*.txt` / `marathon_*.txt` style output as the primary review artifact for discussion.
++
++## General notes for future LLM helpers
++
++- Prefer small, reviewable, single-purpose scripts.
++- Keep generated output in `LLM_Helpers\outputs` when possible.
++- Do not claim a helper is safe for broad directory sweeps unless it was tested that way.
++- Explain whether a script edits files, prints reports, or only suggests changes.
++- When editing source files, always preserve behavior first and readability second.
++- When output is only a report, optimize for clarity and usefulness rather than runtime compatibility.
+
+diff --git a/LLM_Helpers/comment_cleanup_pass_v2.py b/LLM_Helpers/comment_cleanup_pass_v2.py
+new file mode 100644
+index 000000000..386d3c40f
+--- /dev/null
++++ b/LLM_Helpers/comment_cleanup_pass_v2.py
+@@ -0,0 +1,148 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++from pathlib import Path
++import re, difflib, tokenize, io
++
++SRC = Path('/mnt/data/CvMainInterface.singleline3.py')
++DST = Path('/mnt/data/CvMainInterface.commentcleanup.py')
++DIFF = Path('/mnt/data/CvMainInterface.commentcleanup.diff')
++
++TYPO_REPLACEMENTS = [
++    ('throught', 'thought'),
++    ('swappend', 'swapped'),
++    ('uneeded', 'unneeded'),
++    ('everytime', 'every time'),
++    ('b/c', 'because'),
++    ('prob the column', 'probably the column'),
++    ('move up the Bonuses up', 'move the Bonuses up'),
++]
++CODEISH_RE = re.compile(r"^(?:if|elif|else|for|while|try|except|return|continue|break|global|import|from|def|class)\b|^[A-Za-z_][A-Za-z0-9_]*(?:\s*=|\s*\(|\.)")
++SENTENCE_END_RE = re.compile(r"(?:[.!?]|\.\.\.|[\)\]'\"])[\s]*$")
++
++def significant_tokens(text):
++    toks=[]
++    for tok in tokenize.generate_tokens(io.StringIO(text).readline):
++        if tok.type in (tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE, tokenize.INDENT, tokenize.DEDENT, tokenize.ENDMARKER):
++            continue
++        toks.append((tok.type, tok.string))
++    return toks
++
++def is_plain_comment_line(line):
++    stripped = line.lstrip(' \t')
++    return stripped.startswith('# ')
++
++def split_comment(line):
++    indent = line[:len(line) - len(line.lstrip(' \t'))]
++    content = line.lstrip(' \t')[2:]
++    return indent, content
++
++def fix_typos(line):
++    if not line.lstrip(' \t').startswith('#'):
++        return line,0
++    n=line; c=0
++    for old,new in TYPO_REPLACEMENTS:
++        if old in n:
++            n=n.replace(old,new); c+=1
++    return n,c
++
++def skip_content(content):
++    s=content.strip()
++    if not s:
++        return True
++    if '<!-- custom' in s or '-->' in s:
++        return True
++    if s.startswith(('BUG -','<','</','SF CHANGE','Ex:','Format:','Step ', 'TODO', 'NB:')):
++        return True
++    if re.match(r'^[0-9]+\)', s) or s.startswith(('-', '*')):
++        return True
++    if CODEISH_RE.match(s):
++        return True
++    if ' #' in s:
++        return True
++    return False
++
++def smart_join(parts):
++    out=''
++    prev=''
++    for part in parts:
++        part=part.strip()
++        if not out:
++            out=part; prev=part; continue
++        # Preserve wrapped-sentence behavior; insert a period only when previous line looks complete and the next is a new sentence.
++        if prev and not SENTENCE_END_RE.search(prev) and part[:1].isupper() and not prev.endswith(('and','or','the','a','an','to','of','in','for','with','that','than','as','is','are','be','adding')):
++            out += '. ' + part
++        else:
++            out += ' ' + part
++        prev=part
++    return out
++
++def maybe_flush_group(out, indent, group):
++    if not group:
++        return 0
++    # Do not collapse lowercase-start groups; they are often continuation after an intentionally separate line.
++    first=group[0].strip()
++    if len(group) > 1 and (first[:1].isupper() or first.startswith(('(', 'advc.'))) and len(indent + '# ' + smart_join(group)) <= 260:
++        out.append(indent + '# ' + smart_join(group))
++        return 1
++    else:
++        for c in group:
++            out.append(indent + '# ' + c)
++        return 0
++
++def transform(text):
++    src_lines=text.split('\n')
++    ends=text.endswith('\n')
++    if ends: src_lines=src_lines[:-1]
++    lines=[]; typos=0
++    for l in src_lines:
++        n,c=fix_typos(l); lines.append(n); typos+=c
++    out=[]; collapsed=0; i=0
++    while i < len(lines):
++        if not is_plain_comment_line(lines[i]):
++            out.append(lines[i]); i+=1; continue
++        # top copyright/license-ish header: leave structured
++        if i < 20:
++            out.append(lines[i]); i+=1; continue
++        indent, _ = split_comment(lines[i])
++        # collect same-indent plain comments only
++        j=i; contents=[]; raw=[]
++        while j < len(lines) and is_plain_comment_line(lines[j]) and split_comment(lines[j])[0] == indent:
++            _ind, cont=split_comment(lines[j]); contents.append(cont); raw.append(lines[j]); j+=1
++        # Process only short-ish runs; long prose/doc blocks are intentionally multiline.
++        if len(contents) < 2 or len(contents) > 6:
++            out.extend(raw); i=j; continue
++        group=[]
++        any_collapse=0
++        for cont in contents:
++            s=cont.strip()
++            if skip_content(cont):
++                any_collapse += maybe_flush_group(out, indent, group); group=[]
++                out.append(indent + '# ' + cont)
++                continue
++            group.append(cont)
++            # Flush at natural sentence boundary if group has at least 2 lines; avoids giant multi-sentence comments.
++            if SENTENCE_END_RE.search(s):
++                if len(group) == 1:
++                    # Single complete sentence/label; keep it separate so following lowercase continuation lines do not get merged into it.
++                    out.append(indent + '# ' + group[0]); group=[]
++                elif len(group) >= 2:
++                    any_collapse += maybe_flush_group(out, indent, group); group=[]
++        any_collapse += maybe_flush_group(out, indent, group)
++        collapsed += any_collapse
++        i=j
++    result='\n'.join(out)
++    if ends: result+='\n'
++    return result,typos,collapsed
++
++raw=SRC.read_bytes(); use_crlf=b'\r\n' in raw
++text=raw.decode('utf-8').replace('\r\n','\n').replace('\r','\n')
++new,typos,collapsed=transform(text)
++if significant_tokens(text)!=significant_tokens(new):
++    raise SystemExit('ERROR code tokens changed')
++DST.write_bytes((new.replace('\n','\r\n') if use_crlf else new).encode('utf-8'))
++DIFF.write_text(''.join(difflib.unified_diff(text.splitlines(True), new.splitlines(True), fromfile='CvMainInterface.singleline3.py', tofile='CvMainInterface.commentcleanup.py')), encoding='utf-8')
++print('typo replacements',typos)
++print('comment groups collapsed',collapsed)
+
+diff --git a/LLM_Helpers/singleline_pass.py b/LLM_Helpers/singleline_pass.py
+new file mode 100644
+index 000000000..4dd37d13b
+--- /dev/null
++++ b/LLM_Helpers/singleline_pass.py
+@@ -0,0 +1,135 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++"""Conservative multiline-to-single-line pass for CvMainInterface.py.
++
++Collapses balanced logical statements spanning multiple physical lines when:
++- no comments are inside the logical statement,
++- no multiline string token is inside,
++- no explicit backslash continuation is used,
++- the resulting physical line stays within MAX_LINE_LEN.
++
++This preserves token sequence except whitespace/newline positions for changed statements.
++"""
++from pathlib import Path
++import io
++import tokenize
++
++SRC = Path('/mnt/data/CvMainInterface.py')
++DST = Path('/mnt/data/CvMainInterface.singleline.py')
++MAX_LINE_LEN = 300
++
++raw = SRC.read_bytes()
++newline = b'\r\n' if b'\r\n' in raw else b'\n'
++text = raw.decode('utf-8', errors='replace')
++lines = text.splitlines(True)
++
++# Build logical statement groups from tokenize. We don't parse AST because this is old Civ4/Python 2 code.
++groups = []
++cur = []
++with SRC.open('rb') as f:
++    for tok in tokenize.tokenize(f.readline):
++        if tok.type in (tokenize.ENCODING, tokenize.ENDMARKER):
++            continue
++        if not cur and tok.type in (tokenize.NL, tokenize.COMMENT, tokenize.INDENT, tokenize.DEDENT):
++            continue
++        cur.append(tok)
++        if tok.type == tokenize.NEWLINE:
++            if cur:
++                groups.append((cur[0].start[0], cur[-1].end[0], cur[:]))
++            cur = []
++
++candidate_ranges = {}
++skipped = {
++    'single_line': 0,
++    'comment': 0,
++    'multiline_string': 0,
++    'backslash': 0,
++    'too_long': 0,
++}
++changed = 0
++removed_lines = 0
++
++def leading_indent(s):
++    return s[:len(s) - len(s.lstrip(' \t'))]
++
++for start, end, toks in groups:
++    if end <= start:
++        skipped['single_line'] += 1
++        continue
++    if any(t.type == tokenize.COMMENT for t in toks):
++        skipped['comment'] += 1
++        continue
++    if any(t.type == tokenize.STRING and t.start[0] != t.end[0] for t in toks):
++        skipped['multiline_string'] += 1
++        continue
++    # Explicit backslash continuations are more fragile; leave them untouched.
++    if any(lines[i - 1].rstrip('\r\n').rstrip().endswith('\\') for i in range(start, end)):
++        skipped['backslash'] += 1
++        continue
++
++    indent = leading_indent(lines[start - 1])
++    stripped_parts = [ln.strip() for ln in lines[start - 1:end]]
++    # Join physical lines into one logical line. Avoid adding spaces immediately after opening brackets
++    # or immediately before closing brackets, but otherwise keep a separator so tokens do not merge.
++    parts = [part for part in stripped_parts if part]
++    body = ''
++    for part in parts:
++        if not body:
++            body = part
++            continue
++        if body.rstrip().endswith(('(', '[', '{')) or part.lstrip().startswith((')', ']', '}')):
++            body += part
++        else:
++            body += ' ' + part
++    joined = indent + body
++    joined += '\r\n' if newline == b'\r\n' else '\n'
++    if len(joined.rstrip('\r\n')) > MAX_LINE_LEN:
++        skipped['too_long'] += 1
++        continue
++    candidate_ranges[start] = (end, joined)
++    changed += 1
++    removed_lines += end - start
++
++out = []
++i = 1
++n = len(lines)
++while i <= n:
++    if i in candidate_ranges:
++        end, joined = candidate_ranges[i]
++        out.append(joined)
++        i = end + 1
++    else:
++        out.append(lines[i - 1])
++        i += 1
++
++new_text = ''.join(out)
++DST.write_bytes(new_text.encode('utf-8'))
++
++# Token-sequence verification: ignore whitespace-only layout tokens and positions.
++def significant_tokens(path):
++    result = []
++    with path.open('rb') as f:
++        for tok in tokenize.tokenize(f.readline):
++            if tok.type in (tokenize.ENCODING, tokenize.ENDMARKER, tokenize.NL, tokenize.NEWLINE):
++                continue
++            # INDENT/DEDENT are semantic; keep them.
++            result.append((tok.type, tok.string))
++    return result
++
++orig_tokens = significant_tokens(SRC)
++new_tokens = significant_tokens(DST)
++verified = orig_tokens == new_tokens
++print('changed_logical_statements=%d' % changed)
++print('removed_physical_lines=%d' % removed_lines)
++print('max_line_len=%d' % MAX_LINE_LEN)
++print('skipped=%s' % skipped)
++print('token_sequence_verified=%s' % verified)
++if not verified:
++    for idx, (a, b) in enumerate(zip(orig_tokens, new_tokens)):
++        if a != b:
++            print('first_token_difference_at=%d orig=%r new=%r' % (idx, a, b))
++            break
++    raise SystemExit(1)
+
+diff --git a/LLM_Helpers/singleline_pass_comments.py b/LLM_Helpers/singleline_pass_comments.py
+new file mode 100644
+index 000000000..4e9ff101d
+--- /dev/null
++++ b/LLM_Helpers/singleline_pass_comments.py
+@@ -0,0 +1,198 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++"""Second conservative multiline-to-single-line pass for CvMainInterface.py.
++
++Collapses balanced logical statements spanning multiple physical lines even when
++comments appear inside the logical statement. Those comments are preserved by
++moving them directly above the collapsed statement at the statement indentation.
++
++Still skips:
++- multiline string tokens,
++- explicit backslash continuations,
++- statements that would exceed MAX_LINE_LEN.
++
++Verification compares significant code tokens before/after, and also checks
++that the ordered list of comment strings is unchanged.
++"""
++from pathlib import Path
++import tokenize
++
++SRC = Path('/mnt/data/CvMainInterface.singleline.py')
++DST = Path('/mnt/data/CvMainInterface.singleline2.py')
++MAX_LINE_LEN = 300
++
++raw = SRC.read_bytes()
++newline = b'\r\n' if b'\r\n' in raw else b'\n'
++NL = '\r\n' if newline == b'\r\n' else '\n'
++text = raw.decode('utf-8', errors='replace')
++lines = text.splitlines(True)
++
++# Build logical statement groups from tokenize. We don't parse AST because this is old Civ4/Python 2 code.
++groups = []
++cur = []
++with SRC.open('rb') as f:
++    for tok in tokenize.tokenize(f.readline):
++        if tok.type in (tokenize.ENCODING, tokenize.ENDMARKER):
++            continue
++        if not cur and tok.type in (tokenize.NL, tokenize.COMMENT, tokenize.INDENT, tokenize.DEDENT):
++            continue
++        cur.append(tok)
++        if tok.type == tokenize.NEWLINE:
++            if cur:
++                groups.append((cur[0].start[0], cur[-1].end[0], cur[:]))
++            cur = []
++
++candidate_ranges = {}
++skipped = {
++    'single_line': 0,
++    'no_comment': 0,
++    'multiline_string': 0,
++    'backslash': 0,
++    'too_long': 0,
++    'empty_after_comment_removal': 0,
++}
++changed = 0
++removed_lines = 0
++moved_comments = 0
++
++
++def leading_indent(s):
++    return s[:len(s) - len(s.lstrip(' \t'))]
++
++
++def strip_line_ending(s):
++    return s.rstrip('\r\n')
++
++
++def join_parts(parts):
++    body = ''
++    for part in parts:
++        if not body:
++            body = part
++            continue
++        # Avoid awkward spaces just inside brackets or before colon/comma-ish closers.
++        if body.rstrip().endswith(('(', '[', '{')) or part.lstrip().startswith((')', ']', '}', ':', ',')):
++            body += part
++        else:
++            body += ' ' + part
++    return body
++
++
++for start, end, toks in groups:
++    if end <= start:
++        skipped['single_line'] += 1
++        continue
++    comment_toks = [t for t in toks if t.type == tokenize.COMMENT]
++    if not comment_toks:
++        skipped['no_comment'] += 1
++        continue
++    if any(t.type == tokenize.STRING and t.start[0] != t.end[0] for t in toks):
++        skipped['multiline_string'] += 1
++        continue
++    # Explicit backslash continuations are more fragile; leave them untouched.
++    if any(lines[i - 1].rstrip('\r\n').rstrip().endswith('\\') for i in range(start, end)):
++        skipped['backslash'] += 1
++        continue
++
++    indent = leading_indent(lines[start - 1])
++
++    # Remove comment text from the physical lines belonging to this statement.
++    # For each line, a COMMENT token means everything from its start column onward
++    # is ignored by Python, so trimming there preserves the code tokens.
++    cut_cols_by_line = {}
++    for t in comment_toks:
++        line_no, col = t.start
++        cut_cols_by_line[line_no] = min(col, cut_cols_by_line.get(line_no, col))
++
++    code_parts = []
++    for line_no in range(start, end + 1):
++        raw_line = strip_line_ending(lines[line_no - 1])
++        if line_no in cut_cols_by_line:
++            raw_line = raw_line[:cut_cols_by_line[line_no]]
++        part = raw_line.strip()
++        if part:
++            code_parts.append(part)
++
++    if not code_parts:
++        skipped['empty_after_comment_removal'] += 1
++        continue
++
++    body = join_parts(code_parts)
++    joined_code = indent + body
++    comment_lines = [indent + t.string.strip() for t in comment_toks]
++    replacement_lines = comment_lines + [joined_code]
++    replacement = NL.join(replacement_lines) + NL
++
++    if len(joined_code) > MAX_LINE_LEN:
++        skipped['too_long'] += 1
++        continue
++
++    candidate_ranges[start] = (end, replacement)
++    changed += 1
++    removed_lines += (end - start + 1) - len(replacement_lines)
++    moved_comments += len(comment_toks)
++
++out = []
++i = 1
++n = len(lines)
++while i <= n:
++    if i in candidate_ranges:
++        end, replacement = candidate_ranges[i]
++        out.append(replacement)
++        i = end + 1
++    else:
++        out.append(lines[i - 1])
++        i += 1
++
++new_text = ''.join(out)
++DST.write_bytes(new_text.encode('utf-8'))
++
++# Token-sequence verification: ignore whitespace-only layout tokens and positions.
++def significant_code_tokens(path):
++    result = []
++    with path.open('rb') as f:
++        for tok in tokenize.tokenize(f.readline):
++            if tok.type in (tokenize.ENCODING, tokenize.ENDMARKER, tokenize.NL, tokenize.NEWLINE, tokenize.COMMENT):
++                continue
++            # INDENT/DEDENT are semantic; keep them.
++            result.append((tok.type, tok.string))
++    return result
++
++
++def comment_tokens(path):
++    result = []
++    with path.open('rb') as f:
++        for tok in tokenize.tokenize(f.readline):
++            if tok.type == tokenize.COMMENT:
++                result.append(tok.string)
++    return result
++
++orig_tokens = significant_code_tokens(SRC)
++new_tokens = significant_code_tokens(DST)
++code_verified = orig_tokens == new_tokens
++orig_comments = comment_tokens(SRC)
++new_comments = comment_tokens(DST)
++comments_verified = orig_comments == new_comments
++
++print('changed_logical_statements=%d' % changed)
++print('moved_comments=%d' % moved_comments)
++print('removed_physical_lines=%d' % removed_lines)
++print('max_line_len=%d' % MAX_LINE_LEN)
++print('skipped=%s' % skipped)
++print('code_token_sequence_verified=%s' % code_verified)
++print('comment_sequence_verified=%s' % comments_verified)
++if not code_verified:
++    for idx, (a, b) in enumerate(zip(orig_tokens, new_tokens)):
++        if a != b:
++            print('first_code_token_difference_at=%d orig=%r new=%r' % (idx, a, b))
++            break
++    raise SystemExit(1)
++if not comments_verified:
++    for idx, (a, b) in enumerate(zip(orig_comments, new_comments)):
++        if a != b:
++            print('first_comment_difference_at=%d orig=%r new=%r' % (idx, a, b))
++            break
++    raise SystemExit(1)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=31073

@@ -1,0 +1,190 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3151
+# Commit: 3831a79ea2d4955a8452d13f58d850a34fc2bf22
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8c5208c9bd651f8d471ccc00a5a50f5f564b9cd3
+# Title: XML switch for doubling culture upon obsoletion
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	1	Assets/XML/GameInfo/CIV4Hints.xml
+9	0	Assets/XML/GlobalDefines_advc.xml
+8	2	Assets/XML/Text/CIV4GameText_advc_hints.xml
+23	7	CvGameCoreDLL/CvCity.cpp
+13	5	CvGameCoreDLL/CvCityAI.cpp
+1	0	CvGameCoreDLL/CvGlobals.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4Hints.xml b/Assets/XML/GameInfo/CIV4Hints.xml
+index 7dd280d6c..13ad07ce7 100644
+--- a/Assets/XML/GameInfo/CIV4Hints.xml
++++ b/Assets/XML/GameInfo/CIV4Hints.xml
+@@ -658,7 +658,10 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_32</Description>
+ 		</HintInfo>
+-		<!-- Skip 33-34; shouldn't be as frequent. -->
++		<!-- Skip 33; shouldn't be as frequent. -->
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_34</Description>
++		</HintInfo>
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_35</Description>
+ 		</HintInfo>
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index d66d402d7..5c1b1a33d 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -601,6 +601,15 @@
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.098: If set to 1, then buildings with a positive
++		 CommerceChangeDoubleTimes value double their ObsoleteSafeCommerceChanges
++		 (immediately) upon becoming obsolete, not after a particular
++		 number of years. Set to 0 for BtS behavior. -->
++	<Define>
++		<DefineName>DOUBLE_OBSOLETE_BUILDING_COMMERCE</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
+ 	<!-- advc.300: The percentage of owned tiles per landmass at which
+ 		 Barbarian activity reaches its peak. AdvCiv computes the target
+ 		 number B of Barbarian units on a landmass (or shelf) as
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index a74eddb82..a791de474 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -808,11 +808,17 @@
+ 	<German>(AdvCiv) Ihre Forschungsrate wird um 10% reduziert, wenn eines Ihrer Team-Mitglieder an der gleichen Technologie forscht wie Sie. Wenn das Team eine bestimmte Technologie dringend ben�tigt, kann es sich trotzdem lohnen, gemeinsam an einer Technologie zu forschen.</German>
+ </TEXT>
+ 
+-<!-- advc.099f -->
+-<TEXT>
++<!-- advc.099f (always enabled as of AdvCiv v1.0) -->
++<!--TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_34</Tag>
+ 	<English>(AdvCiv) To see the culture percentages of unowned tiles, hold down [Shift] or enable "Always Show Tile Culture" on the "Map" tab of the BUG menu.</English>
+ 	<German>(AdvCiv) Die Kulturanteile auf neutralen Feldern lassen sich mit der Umschalttaste einblenden, oder �ber die Option "Kultur stets anzeigen" auf dem Reiter "Karte" im BUG-Men�.</German>
++</TEXT-->
++<!-- advc.098: Would prefer to change this obscure rule, but it doesn't look like I will for now. -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_34</Tag>
++	<English>The culture rate of a building doubles 1000 years after its construction. For medieval buildings, this doubling can still occur early enough to contribute to a culture victory.</English>
++	<German>Die Kulturrate von Geb�uden verdoppelt sich 1000 Jahre nach ihrer Fertigstellung. Bei mittelalterlichen Geb�uden kann das noch rechtzeitig sein, um zu einem Kultursieg beizutragen.</German>
+ </TEXT>
+ 
+ <!-- The right-click behavior is pretty obscure, and therefore perhaps worth
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 12f4ec087..6794aeb08 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -7236,24 +7236,40 @@ int CvCity::getBuildingCommerceByBuilding(CommerceTypes eCommerce, BuildingTypes
+ 		gives to religious buildings should not be doubled.) */
+ 
+ 	if (getNumBuilding(eBuilding) <= 0)
+-		return 0; // advc
++		return 0;
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+ 	if (kBuilding.isCommerceChangeOriginalOwner(eCommerce) &&
+ 		getBuildingOriginalOwner(eBuilding) != getOwner())
+ 	{
+-		return 0; // advc
++		return 0;
+ 	}
+ 
+-	int iTimeFactor = ((kBuilding.getCommerceChangeDoubleTime(eCommerce) != 0 &&
+-			getBuildingOriginalTime(eBuilding) != MIN_INT &&
+-			GC.getGame().getGameTurnYear() - getBuildingOriginalTime(eBuilding) >=
+-			kBuilding.getCommerceChangeDoubleTime(eCommerce)) ? 2 : 1);
++	int iTimeFactor = 1;
++	// <advc.098>
++	bool const bDelayedCommerceIncrease =
++			(kBuilding.getCommerceChangeDoubleTime(eCommerce) > 0); // </advc.098>
++	if (bDelayedCommerceIncrease &&
++		getBuildingOriginalTime(eBuilding) != MIN_INT &&
++		GC.getGame().getGameTurnYear() - getBuildingOriginalTime(eBuilding) >=
++		kBuilding.getCommerceChangeDoubleTime(eCommerce))
++	{
++		iTimeFactor = 2;
++	}
+ 	/*	there are just two components which get multiplied by the time factor:
+ 		1) the "safe" commerce and 2) the standard commerce;
+ 		the rest of the components are bonuses which should not be doubled. */
+ 
+ 	int iCommerceRate = kBuilding.getObsoleteSafeCommerceChange(eCommerce) *
+-			getNumBuilding(eBuilding) * iTimeFactor; // 1)
++			getNumBuilding(eBuilding);
++	// <advc.098>
++	if (bDelayedCommerceIncrease &&
++		GC.getDefineBOOL(CvGlobals::DOUBLE_OBSOLETE_BUILDING_COMMERCE))
++	{
++		if (GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding))
++			iCommerceRate *= 2;
++	}
++	else // </advc.098>
++		iCommerceRate *= iTimeFactor; // 1)
+ 
+ 	if (getNumActiveBuilding(eBuilding) > 0)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 363207124..4c2c80d6e 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -5122,14 +5122,22 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				iTempValue *= getTotalCommerceRateModifier(eLoopCommerce) +
+ 						kBuilding.getCommerceModifier(eLoopCommerce);
+ 				iTempValue /= 100;
+-				if (kBuilding.getCommerceChangeDoubleTime(eLoopCommerce) > 0)
++				int const iCommerceChangeDoubleTime = kBuilding.
++						getCommerceChangeDoubleTime(eLoopCommerce);
++				if (iCommerceChangeDoubleTime > 0)
+ 				{
+-					if (kBuilding.getCommerceChange(eLoopCommerce) > 0 ||
+-						kBuilding.getObsoleteSafeCommerceChange(eLoopCommerce) > 0)
++					if (kBuilding.getCommerceChange(eLoopCommerce) > 0)
+ 					{	//iTempValue += (1000 / kBuilding.getCommerceChangeDoubleTime(eLoopCommerce));
+ 						// K-Mod (still very rough...):
+-						iTempValue += iTempValue * 250 /
+-								kBuilding.getCommerceChangeDoubleTime(eLoopCommerce);
++						iTempValue += (iTempValue * 250) / iCommerceChangeDoubleTime;
++					}
++					if (kBuilding.getObsoleteSafeCommerceChange(eLoopCommerce) > 0)
++					{
++						iTempValue += (iTempValue * 250) /
++								// <advc.098>
++								(GC.getDefineBOOL(CvGlobals::DOUBLE_OBSOLETE_BUILDING_COMMERCE) ?
++								1000 : // </advc.098>
++								iCommerceChangeDoubleTime);
+ 					}
+ 				}
+ 				if (eLoopCommerce == COMMERCE_CULTURE)
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 18b10a9ce..53c1cbd92 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -456,6 +456,7 @@ public:
+ 		DO(CITY_TRADE_CULTURE_THRESH) \
+ 		DO(NATIVE_CITY_CULTURE_THRESH) /* </advc.ctr> */ \
+ 		DO(TREAT_REVEALED_BUILDINGS_AS_VISIBLE) /* advc.045 */ \
++		DO(DOUBLE_OBSOLETE_BUILDING_COMMERCE) /* advc.098 */ \
+ 		/* <advc.opt> */ \
+ 		DO(DIPLOMACY_VALUE_REMAINDER) \
+ 		DO(PEACE_TREATY_LENGTH) \
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=7006

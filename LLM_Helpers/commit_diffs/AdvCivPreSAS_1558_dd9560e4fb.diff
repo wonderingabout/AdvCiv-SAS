@@ -1,0 +1,44 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1558
+# Commit: dd9560e4fb0e6c7fe9fb7d537074fdd98a30003c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9e7d7297dd4030eb4fc64ffd3739e7f5420a1462
+# Title: Hurry production formula uses MinCityYield from XML
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index bed314a1b..4017f8b08 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5027,7 +5027,7 @@ int CvCity::hurryProduction(HurryTypes eHurry) const
+ 	int iProductionDifference = getCurrentProductionDifference(bPopRush, true, false,
+ 			bPopRush, true);
+ 	if(bPopRush)
+-		iProductionDifference++; // Yield rate will be at least 1
++		iProductionDifference += GC.getYieldInfo(YIELD_PRODUCTION).getMinCity();
+ 	int iProductionNeeded = std::max(0, getProductionNeeded() - getProduction() -
+ 			iProductionDifference);
+ 	// </advc.064b>
+@@ -8272,7 +8272,7 @@ void CvCity::setOriginalOwner(PlayerTypes eNewValue)
+ 
+ TeamTypes CvCity::getTeam() const
+ {
+-	return GET_PLAYER(getOwnerINLINE()).getTeam();
++	return TEAMID(getOwnerINLINE());
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=820

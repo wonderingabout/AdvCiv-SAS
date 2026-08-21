@@ -1,0 +1,280 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 707
+# Commit: 4a99e904a708cb4af76da0a93314bcbc9fc0be3a
+# History segment: K-Mod history
+# Parent used for diff: 59ce058d07d15e2bc38083ba8278d93cc16c5634
+# Title: Changed the free-tech bugfix from the Unofficial Patch so that it still works when there are multiple free techs during the same turn. Renamed the variables...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	CvGameCoreDLL/CvDLLButtonPopup.cpp
+2	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+19	77	CvGameCoreDLL/CvPlayer.cpp
+5	21	CvGameCoreDLL/CvPlayer.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index f4a6865b8..fc7d33859 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -90,6 +90,8 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 	int iExamineCityID;
+ 	int iI;
+ 
++	FAssert(GC.getGameINLINE().getActivePlayer() != NO_PLAYER); // K-Mod
++
+ 	switch (info.getButtonPopupType())
+ 	{
+ 	case BUTTONPOPUP_TEXT:
+@@ -764,6 +766,8 @@ void CvDLLButtonPopup::OnFocus(CvPopup* pPopup, CvPopupInfo &info)
+ 		return;
+ 	}
+ 
++	FAssert(GC.getGameINLINE().getActivePlayer() != NO_PLAYER); // K-Mod
++
+ 	switch (info.getButtonPopupType())
+ 	{
+ 	case BUTTONPOPUP_CHOOSETECH:
+@@ -774,6 +778,10 @@ void CvDLLButtonPopup::OnFocus(CvPopup* pPopup, CvPopupInfo &info)
+ 				gDLL->getInterfaceIFace()->popupSetAsCancelled(pPopup);
+ 			}
+ 		}
++		// K-Mod
++		else if (!GET_PLAYER(GC.getGameINLINE().getActivePlayer()).isChoosingFreeTech())
++			gDLL->getInterfaceIFace()->popupSetAsCancelled(pPopup);
++		// K-Mod end
+ 		break;
+ 
+ 	case BUTTONPOPUP_CHANGERELIGION:
+@@ -867,6 +875,8 @@ void CvDLLButtonPopup::OnFocus(CvPopup* pPopup, CvPopupInfo &info)
+ // returns false if popup is not launched
+ bool CvDLLButtonPopup::launchButtonPopup(CvPopup* pPopup, CvPopupInfo &info)
+ {
++	FAssert(GC.getGameINLINE().getActivePlayer() != NO_PLAYER); // K-Mod
++
+ 	bool bLaunched = false;
+ 
+ 	switch (info.getButtonPopupType())
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 81ea2446d..efdf11320 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1274,11 +1274,12 @@ void CvDLLWidgetData::doResearch(CvWidgetDataStruct &widgetDataStruct)
+ 		if (!kPlayer.isChoosingFreeTech())
+ 		{
+ 			gDLL->getInterfaceIFace()->addHumanMessage(GC.getGameINLINE().getActivePlayer(), true, GC.getEVENT_MESSAGE_TIME(), gDLL->getText("TXT_KEY_CHEATERS_NEVER_PROSPER"), NULL, MESSAGE_TYPE_MAJOR_EVENT);
++			FAssertMsg(false, "doResearch called for free tech when !isChoosingFreeTech()");
+ 			return;
+ 		}
+ 		else
+ 		{
+-			kPlayer.setChoosingFreeTech(false);
++			kPlayer.changeChoosingFreeTechCount(-1);
+ 		}
+ 	}
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c4f94f3c9..f5284a217 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -101,26 +101,8 @@ CvPlayer::CvPlayer()
+ 	m_ppaaiSpecialistExtraYield = NULL;
+ 	m_ppaaiImprovementYieldChange = NULL;
+ 
+-/************************************************************************************************/
+-/* AI_AUTO_PLAY_MOD                        09/01/07                                MRGENIE      */
+-/*                                                                                              */
+-/*                                                                                              */
+-/************************************************************************************************/
+-	m_bDisableHuman = false;
+-/************************************************************************************************/
+-/* AI_AUTO_PLAY_MOD                        END                                                  */
+-/************************************************************************************************/
+-
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-	// Free Tech Popup Fix
+-	m_bChoosingFreeTech = false;
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
++	m_bDisableHuman = false; // bbai
++	m_iChoosingFreeTechCount = 0; // K-Mod
+ 
+ 	reset(NO_PLAYER, true);
+ }
+@@ -786,29 +768,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_bExtendedGame = false;
+ 	m_bFoundedFirstCity = false;
+ 	m_bStrike = false;
+-
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-	// Free Tech Popup Fix
+-	m_bChoosingFreeTech = false;
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
+-
+-
+-/************************************************************************************************/
+-/* AI_AUTO_PLAY_MOD                        09/01/07                            MRGENIE          */
+-/*                                                                                              */
+-/*                                                                                              */
+-/************************************************************************************************/
+-	m_bDisableHuman = false;
+-/************************************************************************************************/
+-/* AI_AUTO_PLAY_MOD                        END                                                  */
+-/************************************************************************************************/
+-
++	m_bDisableHuman = false; // bbai
++	m_iChoosingFreeTechCount = 0; // K-Mod
+ 
+ 	m_eID = eID;
+ 	updateTeamType();
+@@ -3899,40 +3860,13 @@ bool CvPlayer::hasBusyUnit() const
+ 
+ 	return false;
+ }
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-// Free Tech Popup Fix
+-bool CvPlayer::isChoosingFreeTech() const
+-{
+-	return m_bChoosingFreeTech;
+-}
+-
+-void CvPlayer::setChoosingFreeTech(bool bValue)
+-{
+-	m_bChoosingFreeTech = bValue;
+-}
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
+ 
+ void CvPlayer::chooseTech(int iDiscover, CvWString szText, bool bFront)
+ {
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-	// Free Tech Popup Fix
++	// K-mod
+ 	if (iDiscover > 0)
+-	{
+-		setChoosingFreeTech(true);
+-	}
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
++		changeChoosingFreeTechCount(1); // note: if iDiscover is > 1, this function will be called again with iDiscover-=1
++	// K-Mod end
+ 
+ 	CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CHOOSETECH);
+ 	if (NULL != pInfo)
+@@ -17313,8 +17247,16 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_bExtendedGame);
+ 	pStream->Read(&m_bFoundedFirstCity);
+ 	pStream->Read(&m_bStrike);
+-	if (uiFlag >= 2)
+-		pStream->Read(&m_bChoosingFreeTech); // K-Mod
++	// K-Mod
++	if (uiFlag >= 4)
++		pStream->Read(&m_iChoosingFreeTechCount);
++	else if (uiFlag >= 2)
++	{
++		bool bFreeTech = false;
++		pStream->Read(&bFreeTech);
++		m_iChoosingFreeTechCount = bFreeTech ? 1 : 0;
++	}
++	// K-Mod end
+ 
+ 	pStream->Read((int*)&m_eID);
+ 	pStream->Read((int*)&m_ePersonalityType);
+@@ -17673,7 +17615,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ {
+ 	int iI;
+ 
+-	uint uiFlag = 3;
++	uint uiFlag = 4;
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iStartingX);
+@@ -17780,7 +17722,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_bExtendedGame);
+ 	pStream->Write(m_bFoundedFirstCity);
+ 	pStream->Write(m_bStrike);
+-	pStream->Write(m_bChoosingFreeTech); // K-Mod (uiFlag >= 2)
++	pStream->Write(m_iChoosingFreeTechCount); // K-Mod (bool for 2 <= uiFlag < 4. then int.)
+ 
+ 	pStream->Write(m_eID);
+ 	pStream->Write(m_ePersonalityType);
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 1d41e80c7..203444d89 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -160,17 +160,10 @@ public:
+ 	DllExport bool hasAutoUnit() const;
+ 	DllExport bool hasBusyUnit() const;
+ 
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-	// Free Tech Popup Fix
+-	bool isChoosingFreeTech() const;
+-	void setChoosingFreeTech(bool bValue);
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
++	// K-Mod
++	bool isChoosingFreeTech() const { return m_iChoosingFreeTechCount > 0; }
++	void changeChoosingFreeTechCount(int iChange) { m_iChoosingFreeTechCount += iChange; }
++	// K-Mod end
+ 
+ 	DllExport void chooseTech(int iDiscover = 0, CvWString szText = "", bool bFront = false);				// Exposed to Python
+ 
+@@ -1248,16 +1241,7 @@ protected:
+ /* AI_AUTO_PLAY_MOD                        END                                                  */
+ /************************************************************************************************/
+ 
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                             EmperorFool      */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-	// Free Tech Popup Fix
+-	bool m_bChoosingFreeTech;
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
++	int m_iChoosingFreeTechCount; // K-Mod (based on the 'Unofficial Patch'
+ 
+ 	PlayerTypes m_eID;
+ 	LeaderHeadTypes m_ePersonalityType;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=12454

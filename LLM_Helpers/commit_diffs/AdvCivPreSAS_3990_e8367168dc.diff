@@ -1,0 +1,311 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3990
+# Commit: e8367168dc6a7cee3b890c77c42f8de9c10a274a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1b2bdf7428fb92f7b4bff66a57dfa3542bc1ed53
+# Title: Optional reminder about assigning espionage weights
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	Assets/Config/Civ4lerts.xml
+1	0	Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py
+27	0	Assets/XML/Text/CIV4GameText_advc.xml
+12	0	Assets/XML/Text/Civ4lerts Options.xml
+45	0	CvGameCoreDLL/CvPlayer.cpp
+2	0	CvGameCoreDLL/CvPlayer.h
+34	17	CvGameCoreDLL/CvTeam.cpp
+2	2	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/Assets/Config/Civ4lerts.xml b/Assets/Config/Civ4lerts.xml
+index 0b9778393..254d10d1f 100644
+--- a/Assets/Config/Civ4lerts.xml
++++ b/Assets/Config/Civ4lerts.xml
+@@ -147,6 +147,10 @@
+ 				<choice id="Both"/>
+ 			</list>
+ 
++			<!-- advc.120l -->
++			<option id="EspionageReminder" key="Espionage Reminder" 
++					type="boolean" default="False"/>
++
+ 		</section>
+ 	</options>
+
+diff --git a/Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py b/Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py
+index 6cfa8e5f6..06c6cda0f 100644
+--- a/Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugAlertsOptionsTab.py
+@@ -96,3 +96,4 @@ class BugAlertsOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addTextDropdown(screen, lRight, lRight, "Civ4lerts__OnFirstContact")
+ 		# (Leave the 'right' column empty)
+ 		# </advc.071>
++		self.addCheckbox(screen, lRight, "Civ4lerts__EspionageReminder") # advc.120l
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 2a63f870d..8ff5191c5 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -4837,6 +4837,33 @@
+ 		<Spanish>Hemos encontrado la civilizaci&#243;n %s1:2_CivAdj</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.120l -->
++	<!--TEXT>
++		<Tag>TXT_KEY_ESPIONAGE_REMINDER_POSITIVE</Tag>
++		<English>Now generating %d1/%d2 [ICON_ESPIONAGE] per Turn against %s3_TeamName</English>
++		<French>[ICON_ESPIONAGE] contre %s3_TeamName maintenant %d1/%d2 par tour</French>
++		<German>[ICON_ESPIONAGE] gegen %s3_TeamName nun %d1/%d2 pro Runde</German>
++		<Italian>[ICON_ESPIONAGE] contro %s3_TeamName addesso %d1/%d2 per turno</Italian>
++		<Spanish>[ICON_ESPIONAGE] contra %s3_TeamName ahora %d1/%d2 por turno</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_ESPIONAGE_REMINDER_ZERO</Tag>
++		<English>No [ICON_ESPIONAGE] is generated against %s1_LeaderName</English>
++		<French>Aucun point [ICON_ESPIONAGE] n'est g�n�r� contre %s1_TeamName</French>
++		<German>Es werden keine [ICON_ESPIONAGE]-Punkte gegen %s1_TeamName aufgewendet</German>
++		<Italian>Non vengono generati punti [ICON_ESPIONAGE] contro %s1_TeamName</Italian>
++		<Spanish>No se generan puntos [ICON_ESPIONAGE] contra %s1_TeamName</Spanish>
++	</TEXT-->
++	<!-- Better: -->
++	<TEXT>
++		<Tag>TXT_KEY_ESPIONAGE_REMINDER_DIVIDED_EVENLY</Tag>
++		<English>Our [ICON_ESPIONAGE] is being divided evenly between[SPACE]</English>
++		<French>Nos points [ICON_ESPIONAGE] sont r�partis �quitablement entre[SPACE]</French>
++		<German>Unsere [ICON_ESPIONAGE]-Punkte werden gleichm��ig verteilt zwischen[SPACE]</German>
++		<Italian>I nostri punti [ICON_ESPIONAGE] vengono divisi equamente tra[SPACE]</Italian>
++		<Spanish>Nuestros puntos [ICON_ESPIONAGE] se dividen en partes iguales entre[SPACE]</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.103: The other help texts for active missions are in
+ 		 CIV4GameText_BTS_FourthRoundTranslation.xml. Romance translations
+ 		 based on TXT_KEY_ZOOM_CITY_HELP in CIV4GameText_Misc1.xml. -->
+
+diff --git a/Assets/XML/Text/Civ4lerts Options.xml b/Assets/XML/Text/Civ4lerts Options.xml
+index 18be9347a..24c8d0f35 100644
+--- a/Assets/XML/Text/Civ4lerts Options.xml	
++++ b/Assets/XML/Text/Civ4lerts Options.xml	
+@@ -369,4 +369,16 @@
+ 		<German>Bei der ersten Begegnung mit einem Gegner:[NEWLINE][COLOR_HIGHLIGHT_TEXT]Meldung[COLOR_REVERT] - Nachricht auf dem Hauptbildschirm, die auch anzeigt, wo die Begegnung stattgefunden hat.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Kontakt[COLOR_REVERT] - Der Gegner kontaktiert Sie und stellt sich vor (wie in BtS).[NEWLINE][COLOR_HIGHLIGHT_TEXT]Beides[COLOR_REVERT] - Anzeige auf dem Hauptbildschirm und Kontaktaufnahme.</German>
+ 	</TEXT>
+ 
++	<!-- advc.120l -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__ESPIONAGEREMINDER_TEXT</Tag>
++		<English>Espionage Reminder</English>
++		<German>Spionage-Hinweis</German>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__ESPIONAGEREMINDER_HOVER</Tag>
++		<English>If checked, so long as all [ICON_ESPIONAGE] weights are 0 and at least one rival has been met previously, a message is shown on first contact that says how many [ICON_ESPIONAGE] points per turn will be assigned to the newly met rival. Intended as a reminder to set positive [ICON_ESPIONAGE] weights at some point of the early game.</English>
++		<German>Zeigt bei Erst-Begegnung in einer Nachricht an, wie viele [ICON_ESPIONAGE]-Punkte dem Gegner pro Runde zugewiesen werden. Diese Nachricht wird erst ab dem zweiten getroffenen Gegner angezeigt, und nur falls alle [ICON_ESPIONAGE]-Gewichte auf 0 stehen. Als Erinnerung, sinnvolle [ICON_ESPIONAGE]-Gewichte einzustellen.</German>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6251d56f9..11c5892c5 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -11435,6 +11435,51 @@ void CvPlayer::doChangeCivicsPopup(CivicTypes eCivic)
+ 	}
+ }
+ 
++// advc.120l:
++void CvPlayer::addEspionageReminderMsg(TeamTypes eTarget, CvPlot const* pAt) const
++{
++	// Only show reminder when all weights are 0
++	for (TeamIter<CIV_ALIVE,OTHER_KNOWN_TO> itRival(getTeam());
++		itRival.hasNext(); ++itRival)
++	{
++		if (getEspionageSpendingWeightAgainstTeam(itRival->getID()) != 0)
++			return;
++	}
++	CvWString szMsg;
++	/*int const iSpending = getEspionageSpending(eTarget);
++	if (iSpending == 0)
++	{
++		szMsg = gDLL->getText("TXT_KEY_ESPIONAGE_REMINDER_ZERO",
++				GET_TEAM(eTarget).getName().c_str());
++	}
++	else
++	{
++		szMsg = gDLL->getText("TXT_KEY_ESPIONAGE_REMINDER_POSITIVE",
++				iSpending, getCommerceRate(COMMERCE_ESPIONAGE),
++				GET_TEAM(eTarget).getName().c_str());
++	}*/
++	// Nicer (ignoring the new eTarget):
++	std::vector<std::pair<int,TeamTypes> > aieTargets;
++	for (TeamIter<CIV_ALIVE,OTHER_KNOWN_TO> itRival(getTeam());
++		itRival.hasNext(); ++itRival)
++	{
++		int iPts = getEspionageSpending(itRival->getID());
++		if (iPts > 0)
++			aieTargets.push_back(std::make_pair(iPts, itRival->getID()));
++	}
++	std::sort(aieTargets.rbegin(), aieTargets.rend());
++	bool bFirst = true;
++	for (size_t i = 0; i < aieTargets.size(); i++)
++	{
++		setListHelp(szMsg,
++				gDLL->getText("TXT_KEY_ESPIONAGE_REMINDER_DIVIDED_EVENLY").c_str(),
++				GET_TEAM(aieTargets[i].second).getName().c_str(), L", ", bFirst);
++	}
++	gDLL->UI().addMessage(getID(), false, -1, szMsg, NULL,
++			MESSAGE_TYPE_INFO, NULL, GC.getColorType("WHITE"),
++			pAt == NULL ? -1 : pAt->getX(), pAt == NULL ? -1 : pAt->getY());
++}
++
+ // advc.004s: Rewritten, in part with code from doTurn and CvGame::updateScore.
+ void CvPlayer::updateHistory(PlayerHistoryTypes eHistory, int iTurn)
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 76b15c383..aaf0fb6ef 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1329,6 +1329,8 @@ public:
+ 	DllExport void showSpaceShip();
+ 	DllExport void clearSpaceShipPopups();
+ 	void doChangeCivicsPopup(CivicTypes eCivic); // advc.004x
++	// advc.120l:
++	void addEspionageReminderMsg(TeamTypes eTarget, CvPlot const* pAt) const;
+ 	// <advc.004s> Replacing implementation based on stdext::hash_map
+ 	int getHistory(PlayerHistoryTypes eHistory, int iTurn) const
+ 	{
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 1aeb7e709..d1fb034b5 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1608,8 +1608,24 @@ void CvTeam::meet(TeamTypes eTeam, bool bNewDiplo,
+ 	if (isHasMet(eTeam))
+ 		return;
+ 	CvTeam& kTeam = GET_TEAM(eTeam);
+-	makeHasMet(eTeam, bNewDiplo, pData);
+-	kTeam.makeHasMet(getID(), bNewDiplo, pData);
++	CvPlot const* pAt = makeHasMet(eTeam, bNewDiplo, pData);
++	CvPlot const* pOtherAt = kTeam.makeHasMet(getID(), bNewDiplo, pData);
++	// <advc.071> (Not in makeHasMet b/c all the has-met data needs to be set first)
++	if (pData != NULL &&
++		BUGOption::isEnabled("Civ4lerts__EspionageReminder") &&
++		!GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
++	{
++		if (TeamIter<CIV_ALIVE,OTHER_KNOWN_TO>::count(getID()) > 1)
++		{
++			for (MemberIter itMember(getID()); itMember.hasNext(); ++itMember)
++				itMember->addEspionageReminderMsg(eTeam, pAt);
++		}
++		if (TeamIter<CIV_ALIVE,OTHER_KNOWN_TO>::count(eTeam) > 1)
++		{
++			for (MemberIter itMember(eTeam); itMember.hasNext(); ++itMember)
++				itMember->addEspionageReminderMsg(getID(), pOtherAt);
++		}
++	} // </advc.071>
+ 
+ 	if (gTeamLogLevel >= 2 && GC.getGame().isFinalInitialized() && eTeam != getID() && isAlive() && GET_TEAM(eTeam).isAlive()) logBBAI("    Team %d (%S) meets team %d (%S)", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTeam, GET_PLAYER(GET_TEAM(eTeam).getLeaderID()).getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 02/20/10, jdog5000
+ 	// <advc.001> Moved from makeHasMet in order to get the attitude update right
+@@ -2847,12 +2863,12 @@ void CvTeam::changeExtraMoves(DomainTypes eIndex, int iChange)
+ 	FAssert(getExtraMoves(eIndex) >= 0);
+ }
+ 
+-
+-void CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
++// advc.071: Now returns the location of the meeting, if any.
++CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
+ 	FirstContactData* pData) // advc.071
+ {
+-	if(isHasMet(eOther))
+-		return;
++	if (isHasMet(eOther))
++		return NULL;
+ 
+ 	makeHasSeen(eOther); // K-Mod
+ 	//m_abHasMet.set(eOther, true);
+@@ -2880,7 +2896,7 @@ void CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
+ 	CvEventReporter::getInstance().firstContact(getID(), eOther);
+ 	// <advc.071> ^Moved EventReporter call up // advc.001n:
+ 	if(eOther == getID() || isBarbarian() || GET_TEAM(eOther).isBarbarian())
+-		return; // </advc.071>
++		return NULL; // </advc.071>
+ 
+ 	// K-Mod: Initialize attitude cache for players on our team towards player's on their team.
+ 	// advc.001: Too early for that. Moved to caller (CvTeam::meet).
+@@ -2889,7 +2905,7 @@ void CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
+ 		gDLL->UI().setDirty(Score_DIRTY_BIT, true);
+ 	// <advc.071>
+ 	bool bShowMessage = (isHuman() && pData != NULL);
+-	if(bShowMessage || bNewDiplo)
++	if (bShowMessage || bNewDiplo)
+ 	{
+ 		int iOnFirstContact = 1;
+ 		// If met during the placement of free starting units, show only a diplo popup.
+@@ -2919,15 +2935,13 @@ void CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
+ 		}
+ 	}
+ 	// <advc.071>
+-	if (!bShowMessage)
+-		return;
+-	FirstContactData fcData = *pData;
+-	CvPlot const* pAt1 = GC.getMap().plot(fcData.x1, fcData.y1);
+-	CvPlot const* pAt2 = GC.getMap().plot(fcData.x2, fcData.y2);
+-	CvUnit const* pUnit1 = ::getUnit(fcData.u1);
+-	CvUnit const* pUnit2 = ::getUnit(fcData.u2);
++	FirstContactData const& kData = *pData;
++	CvPlot* pAt1 = GC.getMap().plot(kData.x1, kData.y1);
++	CvPlot* pAt2 = GC.getMap().plot(kData.x2, kData.y2);
++	CvUnit const* pUnit1 = ::getUnit(kData.u1);
++	CvUnit const* pUnit2 = ::getUnit(kData.u2);
+ 	CvUnit const* pUnitMet = NULL;
+-	CvPlot const* pAt = NULL;
++	CvPlot* pAt = NULL;
+ 	PlayerTypes ePlayerMet = NO_PLAYER;
+ 	if (pUnit1 != NULL && pUnit1->getTeam() == eOther)
+ 	{
+@@ -2977,6 +2991,8 @@ void CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
+ 			pAt = pUnit2->plot();
+ 		}
+ 	}
++	if (!bShowMessage)
++		return pAt;
+ 	CvWString szMsg = gDLL->getText("TXT_KEY_MISC_TEAM_MET",
+ 			GET_PLAYER(ePlayerMet).getCivilizationAdjectiveKey());
+ 	ColorTypes ePlayerColor = GET_PLAYER(ePlayerMet).getPlayerTextColor();
+@@ -2988,7 +3004,8 @@ void CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
+ 				MESSAGE_TYPE_MINOR_EVENT, icon, ePlayerColor,
+ 				pAt == NULL ? -1 : pAt->getX(), pAt == NULL ? -1 : pAt->getY(),
+ 				pAt != NULL, pAt != NULL);
+-	} // </advc.071>
++	}
++	return pAt; // </advc.071>
+ }
+ 
+ // <advc.134a>
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 106aae577..56cea10eb 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -292,8 +292,8 @@ public:
+ 		return (m_aiHasMetTurn.get(eOther) >= 0); // advc.091
+ 	}
+ 	int getHasMetTurn(TeamTypes eOther) { return m_aiHasMetTurn.get(eOther); } // advc.091  (exposed to Python)
+-	void makeHasMet(TeamTypes eOther, bool bNewDiplo,
+-			FirstContactData* pData = NULL); // advc.071
++	// advc.071: Return value, 2nd param added.
++	CvPlot* makeHasMet(TeamTypes eOther, bool bNewDiplo, FirstContactData* pData = NULL);
+ 	bool isHasSeen(TeamTypes eOther) const { return m_abHasSeen.get(eOther); }; // K-Mod
+ 	void makeHasSeen(TeamTypes eOther) { m_abHasSeen.set(eOther, true); }; // K-Mod
+ 	// <advc.134a>
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=12367

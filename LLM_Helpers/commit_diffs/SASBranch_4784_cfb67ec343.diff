@@ -1,0 +1,641 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4784
+# Commit: cfb67ec34321c1c0e2b9edbaf01d7bf321b482b2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5ebda9e22533e9b91a5a2ff4729e7cb38bbcdea6
+# Title: add placeFreeWith thanks to Claude AI's big help and my (awesome) (too) (but anyways etc...) prompts but anyways etc... for example from my prompt example of...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+201	49	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+10	2	Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+16	16	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+6	6	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/{0.680_sevopedia_unit_sample (2).JPG => 0.680_sevopedia_unit_sample.JPG}
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (14).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (6).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (7).JPG
+ rename _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/{0.680_sevopedia_unit_sample (2).JPG => 0.680_sevopedia_unit_sample.JPG} (100%)
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (14).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (6).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (7).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 8c164be71..2ff1f3cfe 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -15,7 +15,8 @@
+ # - placeObsoleteWith in a similar manner than (for?) placeExclusiveCivs to show the button of the tech that obsoletes this currently selected building anyways etc anyways etc anyways etc...
+ # - (and) placeReplace (but anyways etc anyways etc anyways etc...): based on the one in sevopediaunit that was based on another mod's code (see in sevopediaunit's code for details anyways etc anyways etc anyways etc...) and adjusted or not or yes or other etc anyways etc for and while adding it to sevopediabuilding, improvements (or not.. or yes, or other anyways etc) of which that have served to enhance the one in sevopediaunit back so all good maybe or not all good or all good or other or and not but anywyas etc... anyways etc anyways etc anyways etc..
+ # - placeRequiredFor,
+-# - placeFree
++# - placeFreePBBS,
++# - placeFreeWith,
+ # - enhanced or beautified or tweaked or and other or and not some if not most or maybe even or not or maybe or and anyways etc all functions/methods of this py file, anyways etc.
+ #  thanks a lot Claude AI! (and the other mod too ("!" too or ! too or maye rather !"" or "!" or rather ! or "!" too but anyways etc anyways etc anyways thanks too in short maybe anyways etc anywas etc anyways etc...) Anyways etc anyways etc anyways etc... -->
+ # -->
+@@ -87,24 +88,30 @@ class SevoPediaBuilding:
+ 		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
+ 		self.H_REQUIRES = 110
+ 
++		self.W_OBSOLETE_WITH = 84
++
+ 		self.X_REQUIRED_FOR = self.X_BUILDING_PANE
+ 		self.Y_REQUIRED_FOR = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+-		self.W_REQUIRED_FOR = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
++		self.W_REQUIRED_FOR = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_OBSOLETE_WITH - self.MEDIUM_MARGIN
+ 		self.H_REQUIRED_FOR = self.H_REQUIRES
+ 
+-		self.W_OBSOLETE_WITH = 84
++		self.X_OBSOLETE_WITH = self.X_REQUIRED_FOR + self.W_REQUIRED_FOR + self.MEDIUM_MARGIN
++		self.Y_OBSOLETE_WITH = self.Y_REQUIRED_FOR
++		self.H_OBSOLETE_WITH = self.H_REQUIRED_FOR
++
++		self.W_FREE_WITH = 84
+ 
+-		self.X_FREE = self.X_BUILDING_PANE
+-		self.Y_FREE = self.Y_REQUIRED_FOR + self.H_REQUIRED_FOR + self.SMALL_MARGIN
+-		self.W_FREE = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_OBSOLETE_WITH - self.MEDIUM_MARGIN
+-		self.H_FREE = self.H_REQUIRES
++		self.X_FREE_PBBS = self.X_BUILDING_PANE
++		self.Y_FREE_PBBS = self.Y_REQUIRED_FOR + self.H_REQUIRED_FOR + self.SMALL_MARGIN
++		self.W_FREE_PBBS = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_FREE_WITH - self.MEDIUM_MARGIN
++		self.H_FREE_PBBS = self.H_REQUIRES
+ 
+-		self.X_OBSOLETE_WITH = self.X_FREE + self.W_FREE + self.MEDIUM_MARGIN
+-		self.Y_OBSOLETE_WITH = self.Y_FREE
+-		self.H_OBSOLETE_WITH = self.H_REQUIRES
++		self.X_FREE_WITH = self.X_FREE_PBBS + self.W_FREE_PBBS + self.MEDIUM_MARGIN
++		self.Y_FREE_WITH = self.Y_FREE_PBBS
++		self.H_FREE_WITH = self.H_REQUIRES
+ 
+ 		self.X_SPECIAL = self.X_BUILDING_PANE
+-		self.Y_SPECIAL = self.Y_FREE + self.H_FREE + self.SMALL_MARGIN
++		self.Y_SPECIAL = self.Y_FREE_PBBS + self.H_FREE_PBBS + self.SMALL_MARGIN
+ 		self.W_SPECIAL = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+@@ -113,7 +120,7 @@ class SevoPediaBuilding:
+ 		self.X_BUILDING_ANIMATION = self.X_BUILDING_PANE + self.W_TOTAL_EFFECTIVE_BUILDING_PANE + self.MEDIUM_MARGIN
+ 		self.Y_BUILDING_ANIMATION = self.Y_BUILDING_PANE + self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+ 		self.W_BUILDING_ANIMATION = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
+-		self.H_BUILDING_ANIMATION = self.H_BUILDING_PANE + self.SMALL_MARGIN + self.H_REQUIRES + self.SMALL_MARGIN + self.H_FREE - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
++		self.H_BUILDING_ANIMATION = self.H_BUILDING_PANE + self.SMALL_MARGIN + self.H_REQUIRES + self.SMALL_MARGIN + self.H_FREE_PBBS - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+ 		
+ 		self.X_ROTATION_BUILDING_ANIMATION = -20
+ 		self.Z_ROTATION_BUILDING_ANIMATION = 30
+@@ -145,8 +152,9 @@ class SevoPediaBuilding:
+ 		self.placeStats()
+ 		self.placeRequires()
+ 		self.placeRequiredFor()
+-		self.placeFree()
+ 		self.placeObsoleteWith()
++		self.placeFreePBBS()
++		self.placeFreeWith()
+ 		self.placeSpecial()
+ 		self.placeBuildingAnimation()
+ 		self.placeReplace()
+@@ -495,7 +503,7 @@ class SevoPediaBuilding:
+ 									WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 					"""
+ 				else:
+-					# <!-- custom: else our placeStats "custom: 7.1" already handles the display of the great people icon and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFree, placeRequiredFor, placeExclusiveCivs as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
++					# <!-- custom: else our placeStats "custom: 7.1" already handles the display of the great people icon and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFreePBBS, placeRequiredFor, placeExclusiveCivs as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
+ 					"""
+ 					# Just add text if no icon
+ 					textWidget = self.top.getNextWidgetName()
+@@ -726,7 +734,7 @@ class SevoPediaBuilding:
+ 					#screen.attachLabel(panelName, "", " x" + str(iNumRequired))
+ 
+ 		# <!-- custom: display each relevant button's nums or/and txts if any, else if no button is found to display at all, display instead the no button found txtkey in all the panel.
+-		# Note: easy copy paste x, y, w, h, coordinates from panel creation is faster and perhaps more reliable too if you want (optionally) or/and need it or/and choose it or not but anyways etc anyways etc anyways etc... And i say this specifically after having written this (comment(ed)-out) advice and making the mistake here for example as well as in some other places despite having applied it correctly in some (other other but anyways etc anyways etc anyways etc...) places (for example _free coordinates instead of _requires here but anyways etc anyways etc anyways etc...) anyways etc so now fixing it (!) if i may say but anyways etc anyways etc anyways etc..., (and)(but anyways etc anyways etc anyways etc...) so now applying this advice to me as well after noticing the numsOrTxts of the corresponding buttons are at wrong spot so hopefully helpful to me(!) (too but anyways etc anyways etc anyways etc...) if i may say but anyways etc anyways etc anyways etc... 
++		# Note: easy copy paste x, y, w, h, coordinates from panel creation is faster and perhaps more reliable too if you want (optionally) or/and need it or/and choose it or not but anyways etc anyways etc anyways etc... And i say this specifically after having written this (comment(ed)-out) advice and making the mistake here for example as well as in some other places despite having applied it correctly in some (other other but anyways etc anyways etc anyways etc...) places (for example _FREE_PBBS coordinates instead of _requires here but anyways etc anyways etc anyways etc...) anyways etc so now fixing it (!) if i may say but anyways etc anyways etc anyways etc..., (and)(but anyways etc anyways etc anyways etc...) so now applying this advice to me as well after noticing the numsOrTxts of the corresponding buttons are at wrong spot so hopefully helpful to me(!) (too but anyways etc anyways etc anyways etc...) if i may say but anyways etc anyways etc anyways etc... 
+ 		# -->
+ 		isButtonFound = (nCountOccurencesFound > 0)
+ 		txtKeyNoButtonFound = "TXT_KEY_PEDIA_REQUIRES_NO_BUTTON_FOUND"
+@@ -780,12 +788,50 @@ class SevoPediaBuilding:
+ 
+ 
+ 
+-	def placeFree(self):
++	def placeObsoleteWith(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		
++		# Create panel with proper styling
++		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_OBSOLETE", ()), "", False, True, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, PanelStyles.PANEL_STYLE_BLUE50)
++		# <!-- custom: additionnal left side padding for the button(s) -->
++		screen.attachLabel(panelName, "", "  ")
++		
++		# Get the building info
++		buildingInfo = gc.getBuildingInfo(self.iBuilding)
++		
++		# Check if the building has an obsolete tech directly <!-- custom: (i assume is about the obsoletetech info in (adjust to your mod path) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4BuildingInfos.xml) -->
++		iObsoleteTech = buildingInfo.getObsoleteTech()
++	
++		# If no direct obsolete tech, check if it's a special building type<!-- cus
++		# <!-- custom: (e.g. the jewish monastery appears as never obsolete from the direct obsolete tech check due to <ObsoleteTech>NONE</ObsoleteTech>, but it does get obsolete at scientific method though in <ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech> at (adjust with your mod path if different) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml (now this file is/has been imported in AdvCiv-SAS as well in case we need to change it and to have all info we want and control it if i may say anyways etc anyways etc anyways etc...)) -->
++		if iObsoleteTech == -1:
++			iSpecialBuildingType = buildingInfo.getSpecialBuildingType()
++			if iSpecialBuildingType != -1:
++				# Get the special building info
++				specialBuildingInfo = gc.getSpecialBuildingInfo(iSpecialBuildingType)
++				# Check if the special building has an obsolete tech
++				iObsoleteTech = specialBuildingInfo.getObsoleteTech()
++
++		# <!-- custom: after having checked both directly for an obsolete tech, or indirectly through special buiding, now display button if any:
++		if iObsoleteTech != -1:
++			screen.attachImageButton(panelName, "", gc.getTechInfo(iObsoleteTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iObsoleteTech, -1, False)
++
++		else:
++			# <!-- custom: prettier display -->
++			# If there's no obsolete tech, display "Never" or "None"
++			#screen.attachLabel(panelName, "", CyTranslator().getText("TXT_KEY_PEDIA_NEVER_OBSOLETE", ()))
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OBSOLETE_NO_BUTTON_FOUND"
++			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH)
++
++
++
++	def placeFreePBBS(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		
+ 		# Create panel with proper styling
+-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_ITEMS", ()), "", False, True, self.X_FREE, self.Y_FREE, self.W_FREE, self.H_FREE, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_PBBS", ()), "", False, True, self.X_FREE_PBBS, self.Y_FREE_PBBS, self.W_FREE_PBBS, self.H_FREE_PBBS, PanelStyles.PANEL_STYLE_BLUE50)
+ 		# Additional left side padding for the button(s)
+ 		screen.attachLabel(panelName, "", "  ")
+ 		
+@@ -804,7 +850,7 @@ class SevoPediaBuilding:
+ 			nCountOccurencesFound += 1
+ 			numFreeTxt = "All Un.C"
+ 			xSubstractedAdjustment = int(1.04 * buttonSize)
+-			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE_PBBS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 			# <!-- custom: (but) attach button right now -->
+ 			screen.attachImageButton(panelName, "", gc.getPromotionInfo(iFreePromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iFreePromotion, -1, False)
+@@ -815,7 +861,7 @@ class SevoPediaBuilding:
+ 			nCountOccurencesFound += 1
+ 			numFreeTxt = "All Cs"
+ 			xSubstractedAdjustment = int(0.87 * buttonSize)
+-			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE_PBBS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 			# Get the default building of this class for the current civilization
+ 			if self.top.iActivePlayer != -1:
+@@ -865,7 +911,7 @@ class SevoPediaBuilding:
+ 			else:
+ 				raise ValueError("[FATAL] Unexpected iNumFreeBonuses=%d value out of bounds iNumFreeBonuses == -1 or iNumFreeBonuses >=1, please verify the code and iNumFreeBonuses are behaving as intended and adjust this sevopedia code or/and your mod code based on this as you want/prefer anyways etc. Note: for info str(FreeBonus) (for display in this error message anyways etc)=%s anyways etc." % (iNumFreeBonuses, str(iFreeBonus)))
+ 			
+-			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++			xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE_PBBS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 			# <!-- custom: (but) attach button right now -->
+ 			screen.attachImageButton(panelName, "", gc.getBonusInfo(iFreeBonus).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iFreeBonus, -1, False)
+@@ -878,14 +924,14 @@ class SevoPediaBuilding:
+ 				iSpecialistCount = buildingInfo.getFreeSpecialistCount(iSpecialist)
+ 				numFreeTxt = u"%s" % (iSpecialistCount)
+ 				xSubstractedAdjustment = int(xSubstractedAdjustmentNums * buttonSize)
+-				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++				xNumsOrTextsFound.append((self.getXOccurenceFound(self.X_FREE_PBBS, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 				# <!-- custom: (but) attach button right now -->
+ 				screen.attachImageButton(panelName, "", gc.getSpecialistInfo(iSpecialist).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, -1, False)
+ 
+ 		isButtonFound = (nCountOccurencesFound > 0)
+-		txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_ITEMS_NO_BUTTON_FOUND"
+-		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_FREE, self.Y_FREE, self.W_FREE, self.H_FREE)
++		txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND"
++		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_FREE_PBBS, self.Y_FREE_PBBS, self.W_FREE_PBBS, self.H_FREE_PBBS)
+ 
+ 
+ 
+@@ -905,7 +951,7 @@ class SevoPediaBuilding:
+ 
+ 		"""
+ 		"""
+-		#<!-- custom: example of how to directly import a button path to write the button in sevopedia anyways etc... From Claude AI as well and works for the great prophet button successfully displayed in the sevopedia's placeFree panel for example anyways etc anyways etc anyways etc
++		#<!-- custom: example of how to directly import a button path to write the button in sevopedia anyways etc... From Claude AI as well and works for the great prophet button successfully displayed in the sevopedia's placeFreePBBS panel for example anyways etc anyways etc anyways etc
+ 		#powerButton = "Art/Interface/Buttons/Buildings/Power.dds"  # You might need to adjust this path
+ 		powerButton = ",Art/Interface/Buttons/Units/GreatProphet.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,1"
+ 		# etc...
+@@ -921,41 +967,147 @@ class SevoPediaBuilding:
+ 
+ 
+ 
+-	def placeObsoleteWith(self):
++	"""
++	<!-- custom: logic is as follows for the below placeFreeWith function/method anyways etc as prompted to Claude AI to me but anyways etc anyways etc anyways etc...:
++	example: barbarian specific granary is free with barbarian palace (barbarians only), so:
++
++	if currently selected building is:
++		* barbarian granary: we show in free with that the barbarian granary is free with the barbarian palace button
++		* generic granary: we show in free with that the generic granary is free with "None" if a barbarian specific palace exists, else if no barbarian palace exists then we show in free with that the generic granary is free with the barbarian palace
++		* other civ-specific granary (for example incan terrace): we show in free with that the terrace is free with "None", as the incans cannot have the barbarian palace, so they can never have the free granary, but if the incans could have a palace that has a free granary in it, then display this palace instead, else "None"
++	
++	-
++
++	Which Claude AI rephrased as such if helps too anyways etc:
++	Now the logic correctly handles your examples:
++	For your barbarian granary → barbarian palace example:
++
++		1. Barbarian Granary page: Shows barbarian palace (because barbarian granary is unique and barbarian palace provides it for free)
++		2. Generic Granary page: Shows "None" (because the granary class has unique versions like barbarian granary, so only generic providers would be shown, but barbarian palace is unique)
++		3. Incan Terrace page: Shows "None" (because terrace is unique to Incans, and barbarian palace is unique to barbarians, so Incans can't use barbarian palace)
++
++	The key logic changes:
++
++	hasUniqueVersions: Checks if the current building class has any civ-specific versions
++	For unique buildings: Only shows providers that the same civ can actually use
++	For generic buildings: If unique versions of this building exist, only shows generic providers; otherwise shows all providers
++	New helper functions: getBuildingCiv() and buildingClassHasUniqueVersions() to support the logic
++
++	This should now match your intended behavior exactly!
++
++	-
++
++	It seems to work as intended so adding this since is quite/very technical, in case is helpful too, anyways etc anyways etc anyways etc...
++	-->
++	"""
++
++
++	
++	def isBuildingUnique(self, iBuildingIndex):
++		"""Helper function to determine if a building is civ-specific (unique)"""
++		buildingInfo = gc.getBuildingInfo(iBuildingIndex)
++		buildingClassInfo = gc.getBuildingClassInfo(buildingInfo.getBuildingClassType())
++		
++		# A building is unique if it's not the default building for its class
++		defaultBuildingForClass = buildingClassInfo.getDefaultBuildingIndex()
++		return iBuildingIndex != defaultBuildingForClass
++
++
++
++	def getBuildingCiv(self, iBuildingIndex):
++		"""Helper function to get which civ a unique building belongs to"""
++		buildingInfo = gc.getBuildingInfo(iBuildingIndex)
++		buildingClassType = buildingInfo.getBuildingClassType()
++		
++		# Check all civs to see which one has this building as their unique version
++		for iCiv in range(gc.getNumCivilizationInfos()):
++			civInfo = gc.getCivilizationInfo(iCiv)
++			civBuildingForClass = civInfo.getCivilizationBuildings(buildingClassType)
++			if civBuildingForClass == iBuildingIndex:
++				return iCiv
++		return -1  # Should not happen for unique buildings
++
++
++
++	def buildingClassHasUniqueVersions(self, buildingClassType):
++		"""Helper function to check if a building class has any unique versions"""
++		buildingClassInfo = gc.getBuildingClassInfo(buildingClassType)
++		defaultBuilding = buildingClassInfo.getDefaultBuildingIndex()
++		
++		# Check if any civ has a different building for this class
++		for iCiv in range(gc.getNumCivilizationInfos()):
++			civInfo = gc.getCivilizationInfo(iCiv)
++			civBuildingForClass = civInfo.getCivilizationBuildings(buildingClassType)
++			if civBuildingForClass != defaultBuilding:
++				return True
++		return False
++
++
++
++	def placeFreeWith(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		
+ 		# Create panel with proper styling
+-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_OBSOLETE", ()), "", False, True, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, PanelStyles.PANEL_STYLE_BLUE50)
+-		# <!-- custom: additionnal left side padding for the button(s) -->
++		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_WITH", ()), "", False, True, self.X_FREE_WITH, self.Y_FREE_WITH, self.W_FREE_WITH, self.H_FREE_WITH, PanelStyles.PANEL_STYLE_BLUE50)
++		# <!-- custom: additional left side padding for the button(s) -->
+ 		screen.attachLabel(panelName, "", "  ")
+ 		
+-		# Get the building info
+-		buildingInfo = gc.getBuildingInfo(self.iBuilding)
++		# Get the current building info
++		currentBuildingInfo = gc.getBuildingInfo(self.iBuilding)
++		currentBuildingClass = currentBuildingInfo.getBuildingClassType()
+ 		
+-		# Check if the building has an obsolete tech directly <!-- custom: (i assume is about the obsoletetech info in (adjust to your mod path) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4BuildingInfos.xml) -->
+-		iObsoleteTech = buildingInfo.getObsoleteTech()
++		# <!-- custom: handle no building found message -->
++		isButtonFound = False
+ 		
+-		# If no direct obsolete tech, check if it's a special building type<!-- cus
+-		# <!-- custom: (e.g. the jewish monastery appears as never obsolete from the direct obsolete tech check due to <ObsoleteTech>NONE</ObsoleteTech>, but it does get obsolete at scientific method though in <ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech> at (adjust with your mod path if different) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml (now this file is/has been imported in AdvCiv-SAS as well in case we need to change it and to have all info we want and control it if i may say anyways etc anyways etc anyways etc...)) -->
+-		if iObsoleteTech == -1:
+-			iSpecialBuildingType = buildingInfo.getSpecialBuildingType()
+-			if iSpecialBuildingType != -1:
+-				# Get the special building info
+-				specialBuildingInfo = gc.getSpecialBuildingInfo(iSpecialBuildingType)
+-				# Check if the special building has an obsolete tech
+-				iObsoleteTech = specialBuildingInfo.getObsoleteTech()
++		# Check if current building is civ-specific (unique)
++		currentIsUnique = self.isBuildingUnique(self.iBuilding)
++		if currentIsUnique:
++			currentCiv = self.getBuildingCiv(self.iBuilding)
++		else:
++			currentCiv = -1
+ 		
+-		# <!-- custom: after having checked both directly for an obsolete tech, or indirectly through special buiding, now display button if any:
+-		if iObsoleteTech != -1:
+-			screen.attachImageButton(panelName, "", gc.getTechInfo(iObsoleteTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iObsoleteTech, -1, False)
++		# Check if there are any unique versions of the current building
++		hasUniqueVersions = self.buildingClassHasUniqueVersions(currentBuildingClass)
+ 
+-		else:
+-			# <!-- custom: prettier display -->
+-			# If there's no obsolete tech, display "Never" or "None"
+-			#screen.attachLabel(panelName, "", CyTranslator().getText("TXT_KEY_PEDIA_NEVER_OBSOLETE", ()))
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OBSOLETE_NO_BUTTON_FOUND"
+-			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH)
++		# Check all buildings to see which ones provide this building for free
++		for iBuildingLoop in range(gc.getNumBuildingInfos()):
++			buildingInfo = gc.getBuildingInfo(iBuildingLoop)
++			
++			# Check if this building provides our current building for free
++			freeBuildingClass = buildingInfo.getFreeBuildingClass()
++			if freeBuildingClass == currentBuildingClass:
++				providerIsUnique = self.isBuildingUnique(iBuildingLoop)
++				if providerIsUnique:
++					providerCiv = self.getBuildingCiv(iBuildingLoop)
++				else:
++					providerCiv = -1
++				
++				# Determine if we should show this provider based on the logic:
++				shouldShow = False
++				
++				if currentIsUnique:
++					# Current building is unique - only show providers that this civ can actually use
++					if not providerIsUnique or providerCiv == currentCiv:
++						shouldShow = True
++				else:
++					# Current building is generic
++					if hasUniqueVersions:
++						# Generic building has unique versions - only show generic providers
++						if not providerIsUnique:
++							shouldShow = True
++					else:
++						# No unique versions exist - show all providers
++						shouldShow = True
++				
++				if shouldShow:
++					isButtonFound = True
++					screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuildingLoop).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingLoop, -1, False)
++
++		if not isButtonFound:
++			# <!-- custom: prettier display when no buildings provide this one for free -->
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_WITH_NO_BUTTON_FOUND"
++			self.displayPanelSTxtKeyNoButton(screen, txtKeyNoButtonFound, self.X_FREE_WITH, self.Y_FREE_WITH, self.W_FREE_WITH, self.H_FREE_WITH)
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+index 8c6f085e3..44f9cdf4b 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+@@ -45,15 +45,23 @@ hopefully more readable or exportable if need/want be now -->
+ 		<English>Replaces</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_FREE_ITEMS</Tag>
++		<Tag>TXT_KEY_PEDIA_FREE_PBBS</Tag>
+ 		<English>Free Promotion, Building, Bonus, Specialists</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_FREE_WITH</Tag>
++		<English>Free W/</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_FREE_WITH_NO_BUTTON_FOUND</Tag>
++		<English>None</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS</Tag>
+ 		<English>Free Promotions</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_FREE_ITEMS_NO_BUTTON_FOUND</Tag>
++		<Tag>TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND</Tag>
+ 		<English>None</English>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/README.md b/README.md
+index f31330b31..996f1456d 100644
+--- a/README.md
++++ b/README.md
+@@ -41,18 +41,7 @@ These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They
+ 
+ For more Mods Info AdvCiv-SAS Core changes screenshot preview/samples (if any), see also the [full sevopedia Mods Info samples google drive folder link](https://drive.google.com/drive/folders/1XGOQSTlPljw29yc0lWjarkKgrtFzRJTI?usp=sharing)
+ 
+-### Python Scripts
+-
+-Mostly for modders, but i with the help of chatgpt greatly added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
+-
+-Please read this [README_python_scripts.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md) for details.
+-
+-So far there is:
+-- [generate_leaders_data.py and leaders_data data py module ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)
+-- [global XML duplication scanner ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
+-- [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
+-
+-#### AI Personality Panel in SevopediaLeader and other sevopedia reworks 
++### Sevopedia reworks (AI Personality Panel and other sevopedia reworks)
+ 
+ About the AI Personality panel new AdvCiv-SAS feature, i have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefulyl or not etc anyways read here in the [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md)
+ 
+@@ -68,14 +57,25 @@ Here is below a very small sample of the example screenshots of how the AI Perso
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonus_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilization_sample (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (14).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG" width="250"></img>
+ 
+ For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
+ 
+-#### csv: Leaders_data flat to csv conversion and its view on github for example
++### Python Scripts
++
++Mostly for modders, but i with the help of chatgpt greatly added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
++
++Please read this [README_python_scripts.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md) for details.
++
++So far there is:
++- [generate_leaders_data.py and leaders_data data py module ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)
++- [global XML duplication scanner ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
++- [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
++
++#### csv github view for the flatten_leaders_data_to_csv conversion script
+ 
+-There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
++More specificially about the [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py) anyways etc, there is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+index 821921d06..6cf412d8d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+@@ -35,7 +35,7 @@ note: to understand/find the meaning of abbreviations used in the ai panel, the
+         ("T.W Likely", "iMaxWarRand", ""),
+ ```
+ 
+-A line like this means that in the "War Strategy" category, the 1st item/ai attribute displayed is shortened (name) as "T.W Likely", (i meant Total War Likely but since space is scarce is abbreviated it anyways), and if you want to know what it refers to, ctrl+f the corresponding code name ai attribute, like "iMaxWarRand" here in this example, and go on the 2 sources mentionned [above](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) (kujira's and modiki's websites (for example)), then you'll find more info about what they do that should be quite if not very reliable anyways.
++A line like this means that in the "War Strategy" category, the 1st item/ai attribute displayed is shortened (name) as "T.W Likely", (i meant Total War Likely but since space is scarce is abbreviated it anyways), and if you want to know what it refers to, ctrl+f the corresponding code name ai attribute, like "iMaxWarRand" here in this example, and go on the 2 sources mentionned [in README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks) (kujira's and modiki's websites (for example)), then you'll find more info about what they do that should be quite if not very reliable anyways.
+ 
+ Be careful because AIs such as ChatGPT tend to invent what they don't know, so even though they often have a very good "borad" understanding of a topic, when delving in the (obscure or not anwyays etc) specifics, they may err, especially if you lead them astray with your (or mine in my case anyways etc) imprecision or lack of knowledge or understanding, so i would suggest to refer to these websites rather for technical info, even though they may be wrong sometimes and myself too, and ChatGPT is still great i think hehe, but this is a caveat i kindly if i may say give hehe anyways.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 2754ff3be..c44d1ef3c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -60,7 +60,7 @@ PY:[WARNING] Attribute 'iShareWarAttitudeDivisor' has an identical *raw* value (
+ PY:[WARNING] Attribute 'iShareWarAttitudeDivisor' has an identical *normalized* value (0) across all 53 leaders
+ ```
+ 
+-Some of these such as iLoveOfPeace are not used in AdvCiv; i disabled (commented-out) from display (in SevoPediaLeader.py) such unused ai attributes to not clutter the display, see [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) for (more) details, and more specifically in the full AI Personality Panel Feature this [README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored).
++Some of these such as iLoveOfPeace are not used in AdvCiv; i disabled (commented-out) from display (in SevoPediaLeader.py) such unused ai attributes to not clutter the display, see [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks) for (more) details, and more specifically in the full AI Personality Panel Feature this [README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored).
+ 
+ Leaving as is otherwise (except from hiding most or/and commenting out unused ones such as iLovePeace (in AdvCiv) anyways) for now if not always or not anyways etc.
+ 
+@@ -403,7 +403,7 @@ As this is debug-only, and to not cause further issues, only mentionning it for
+ 
+ A few screenshots of the current issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1lXQ8pyE0A6TJGqlnf4In3V7QuJ0lBhIR?usp=sharing)
+ 
+-## 12 - (now fixed) Special building atlas inconsistently using (uses/was using rather anyways etc) the hindu specific anyways etc monastery button instead of a generic button like the (abstract? Anyways etc / generic) generic temple and generic cathedral were
++## 12 - (now fixed) Special/generic building monastery's button inconsistently using (uses/was using rather anyways etc) the hindu specific anyways etc monastery button instead of a generic button like the (abstract? Anyways etc / generic) generic temple and generic cathedral were
+ 
+ Hopefully clearer and more consistent now or not or yes or etc or and other or and not or yes or etc anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+index d7d5fc050..246914020 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+@@ -18,7 +18,7 @@ You can safely delete such log files or/and folders if you wish so (especially i
+ 
+ ### Description
+ 
+-This parses all XML fields for all leaders (load LEADER_DEFAULTS if missing), including LEADER_DEFAULTS and LEADER_BARBARIAN for exhaustiveness (which are for information later exlcuded from the display and calculation in AI Personality feature, see [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) for details), and generates an output leaders_data.py file with a timestamp (this file acts as a data module of all leder's information).
++This parses all XML fields for all leaders (load LEADER_DEFAULTS if missing), including LEADER_DEFAULTS and LEADER_BARBARIAN for exhaustiveness (which are for information later exlcuded from the display and calculation in AI Personality feature, see [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks) for details), and generates an output leaders_data.py file with a timestamp (this file acts as a data module of all leder's information).
+ 
+ While generating it, it also checks for missing fields in the xml, or int to string or string to int or other types conversions (maybe not encessarily all, but gives a general idea and safety check anyways)
+ 
+@@ -235,7 +235,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
+ <img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_1.PNG" width="250"></img>
+ <img src="../Images_In_General/scripts/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
+ 
+-See also some general info about it (such as the GitHub view of it that is quite nice i think but anyways etc) here in the [main README.md's specific flatten leaders_data to .csv section](/README.md#csv-leaders_data-flat-to-csv-conversion-and-its-view-on-github-for-example) for details
++See also some general info about it (such as the GitHub view of it that is quite nice i think but anyways etc) here in the [README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script](/README.md#csv-github-view-for-the-flatten_leaders_data_to_csv-conversion-script) for details
+ 
+ For convenience and exhaustiveness, such display/view on the Github website is also provided here, but please/you can anyways etc (also) (anyways etc) visit the ((AdvCiv-SAS) Project's) main README.md's csv section linked above for details.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 6a9d3722c..475b564c7 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -26,7 +26,7 @@ A copy of the screenshots (may not be latest version of it) of how it looks inga
+ <img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+ 
+-For more screenshot samples of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) link (for details (too anyways etc)).
++For more screenshot samples of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks) link (for details (too anyways etc)).
+ 
+ ## Full exhaustive very long and exhaustive changes
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 2970b4445..cad14b7be 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -1,6 +1,6 @@
+ # README_Sevopedia_Reworks.md
+ 
+-Below/here is a/the more detailed examples(/sample(s?)?) of the [/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks).
++Below/here is a/the more detailed examples(/sample(s?)?) of the [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks).
+ 
+ ## example 1: more AI Personality examples (in leaders category)
+ 
+@@ -64,16 +64,16 @@ Finally and most importantly, as something similar as said in the paragraph just
+ 
+ After having written these, combat information was added (which units is this unit strong against or weak against, in which plot types, city or not, terrains, features, etc if any more/other or not etc if not but or anyways etc anyways etc anyways etc..., free promotions, etc) largely with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details), as well as other changes or not or yes or and other or and not anyways etc, see readme or code comments or code itself for details hopefully exhaustive and clear easy enough to read maybe ideally but in all caes or not or yes or and other or and not anyways etc.
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG" width="250"></img>
+ 
+ For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
+ 
+ ## example 8: building category
+ 
+-Based on the sevopedia unit previous rework, and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) refactored, beautified, and enhanced sevopedia building as well, with a few new additions in particular such as placeFree, RequiredFor, a more exhaustive Requires as well, placeStats reworked (in particular great person buttons (icons) show now, commerce double times as well( for exampel that every 1000 year one building may give double culturee output (flat only if i am not mistaken i.e. +2 only if i am not mistaken anyways etc)), and % modifier as well (for example +25% culture, +25% espionage rate if i am not mistaken anyways etc, as well as using a grid for beautification anyways etc)), anew ObsoleteWith, see similarly code or other docs if they exist, maybe code comments too can help for details in [SevopediaBuilding.py](/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py) for details.
++Based on the sevopedia unit previous rework, and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) refactored, beautified, and enhanced sevopedia building as well, with a few new additions in particular such as placeFreePBBS, placeFreeWith, placeRequiredFor, a more exhaustive placeRequires as well, placeStats reworked (in particular great person buttons (icons) show now, commerce double times as well( for exampel that every 1000 year one building may give double culturee output (flat only if i am not mistaken i.e. +2 only if i am not mistaken anyways etc)), and % modifier as well (for example +25% culture, +25% espionage rate if i am not mistaken anyways etc, as well as using a grid for beautification anyways etc)), anew ObsoleteWith, see similarly code or other docs if they exist, maybe code comments too can help for details in [SevopediaBuilding.py](/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py) for details.
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (6).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (7).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (14).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG" width="250"></img>
+ 
+ For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample (2).JPG
+rename to _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG
+new file mode 100644
+index 000000000..802a13b82
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (14).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (14).JPG
+deleted file mode 100644
+index a4a8ff54f..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (14).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG
+new file mode 100644
+index 000000000..40977aa6e
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG
+new file mode 100644
+index 000000000..c5db0ad44
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (6).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (6).JPG
+deleted file mode 100644
+index f6913be2b..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (6).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (7).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (7).JPG
+deleted file mode 100644
+index 2bb3d4edf..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (7).JPG and /dev/null differ
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=52056

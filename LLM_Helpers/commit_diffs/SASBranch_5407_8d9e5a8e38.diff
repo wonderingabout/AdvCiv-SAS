@@ -1,0 +1,227 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5407
+# Commit: 8d9e5a8e389f484c6749be7f93658bc9fb134adb
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f9604bf6814591870746a113699728a0374238a4
+# Title: Fix aDebugMap.py similarly, make aDebugMap.py land heavy, update 48 civs DLL - Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**:...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+-	-	Assets/CvGameCoreDLL_48_civs_DLL.dll
+1	0	CvGameCoreDLL/CvGame.cpp
+70	0	PrivateMaps/aDebugMap.py
+3	3	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+10	4	_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+-	-	_1_AdvCiv-SAS/Images/misc_0.x/0.960_windows_shortcut_example.PNG
+ create mode 100644 PrivateMaps/aDebugMap.py
+ create mode 100644 _1_AdvCiv-SAS/Images/misc_0.x/0.960_windows_shortcut_example.PNG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_48_civs_DLL.dll b/Assets/CvGameCoreDLL_48_civs_DLL.dll reason=binary/generated-file changedLines=0 bytes=224
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index c8da408bd..8aac996b4 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -287,6 +287,7 @@ void CvGame::recomputeMapnameHeaviness()
+ 		(szName == L"PerfectMongoose") ||
+ 		(szName == L"Tectonics") ||
+ 		(szName == L"Terra") || // <!-- custom: empirically and based on map descriptions looks landHeavy -->
++		(szName == L"aDebugMap") || // <!-- custom: empirically and based on code comments looks landHeavy -->
+ 		(szName == L"Balanced") ||
+ 		(szName == L"Continents") ||
+ 		(szName == L"Custom_Continents") ||
+
+diff --git a/PrivateMaps/aDebugMap.py b/PrivateMaps/aDebugMap.py
+new file mode 100644
+index 000000000..a4c9f9798
+--- /dev/null
++++ b/PrivateMaps/aDebugMap.py
+@@ -0,0 +1,70 @@
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS: Modified to support additional world sizes (ARENA, SAS24, SAS32, SAS40, SAS48) (Claude code Opus 4.5) -->
++
++from CvPythonExtensions import *
++import CvUtil
++import CvMapGeneratorUtil
++from CvMapGeneratorUtil import FractalWorld
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++import sys
++
++def getDescription():
++	"Description shown in the main menu"
++	return "Smallest possible map used for debugging"
++
++def isAdvancedMap():
++	"This map should show up in simple mode, but only in debug builds"
++	return not CyGlobalContext().isDebugBuild()
++
++def getGridSize(argsList):
++	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
++	# <!-- custom: AdvCiv-SAS: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices for compatibility (Claude code Opus 4.5) -->
++	grid_sizes = {
++		0:  (5, 5),   # ARENA
++		1:  (5, 5),   # DUEL
++		2:  (5, 5),   # TINY
++		3:  (5, 5),   # SMALL
++		4:  (5, 5),   # STANDARD
++		5:  (5, 5),   # LARGE
++		6:  (5, 5),   # HUGE
++		7:  (5, 5),   # SAS24
++		8:  (5, 5),   # SAS32
++		9:  (5, 5),   # SAS40
++		10: (5, 5),   # SAS48
++	}
++
++	if (argsList[0] == -1): # (-1,) is passed to function on loads
++		return []
++	[eWorldSize] = argsList
++	# <!-- custom: AdvCiv-SAS: Convert enum to int for lookup, with fallback for unknown sizes (Claude code Opus 4.5) -->
++	iWorldSize = int(eWorldSize)
++	if iWorldSize in grid_sizes:
++		return grid_sizes[iWorldSize]
++	else:
++		return (5, 5)  # Fallback for any unknown world size
++
++def getWrapX(): return False
++def getWrapY(): return False
++
++def generatePlotTypes():
++	NiTextOut("Setting Plot Types (Python Continents) ...")
++	fractal_world = FractalWorld()
++	fractal_world.initFractal()
++	return fractal_world.generatePlotTypes()
++
++def generateTerrainTypes():
++	NiTextOut("Generating Terrain (Python Continents) ...")
++	terraingen = TerrainGenerator()
++	terrainTypes = terraingen.generateTerrain()
++	return terrainTypes
++
++def addFeatures():
++	NiTextOut("Adding Features (Python Continents) ...")
++	featuregen = FeatureGenerator()
++	featuregen.addFeatures()
++	return 0
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index f8fb65589..107491dec 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -38,7 +38,7 @@ Instead of:
+ &emsp;[Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#sources-about-xml-ai-attributes-and-their-meaning)  
+ [A few useful other links](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#a-few-useful-other-links)  
+ [In case UnitAIs info from link above is deleted someday, here is a copy here in case](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#in-case-unitais-info-from-link-above-is-deleted-someday-here-is-a-copy-here-in-case)  
+-[Find and select map type in the DLL](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#find-and-select-map-type-in-the-dll)  
++[Maps](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps)  
+ [Where to find Python errors or debug](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#where-to-find-python-errors-or-debug-so-no-need-to-copy-them-either-if-you-need-to-ask-chatgpt-or-such-or-a-forum)  
+ [How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-enable-dmp-files-so-for-some-crashes-that-dont-immediately-exit-you-get-a-splash-screen-whatever-it-is-called-and-can-dmp-and-see-turn-at-crash)  
+ [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod)  
+@@ -382,7 +382,7 @@ Great people AIs:
+ For unit AIs that are correct in the OP, I didn't write anything.
+ ```
+ 
+-## Find and select map type in the DLL
++## Maps
+ 
+ ### Locations
+ 
+@@ -407,7 +407,7 @@ Done with the help of GPT-5.2 Thinking thanks:
+ | `PerfectMongoose`      | Approximative: Third-party “planet” style generator; typically aims for more natural-looking geography (still mostly standard land/sea gameplay). | Land                                     | AdvCiv-SAS                           |
+ | `Tectonics`            | Plate-tectonics style continents with strong mountain chains and structured geography.                                                            | Land                                     | BTS, AdvCiv-SAS                      |
+ | `Terra`                | Old World starts with a separate “New World” to discover/colonize later; `<!-- custom: empirically and based on map descriptions looks landHeavy -->` | Other (old world/new world colonization); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, BTS, AdvCiv-SAS |
+-| `aDebugMap`            | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial).                                               | Other (debug/test map)                   | Base Civ4                            |
++| `aDebugMap`            | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial); `// <!-- custom: empirically and based on code comments looks landHeavy -->` | Other (debug/test map); `<!-- custom: Land, see description -->` | Base Civ4, AdvCiv-SAS                |
+ | `Archipelago`          | Many small islands; heavy naval emphasis early.                                                                                                   | Water                                    | Base Civ4, Warlords                  |
+ | `Balanced`             | Land/sea like standard scripts but biased toward fairer starts.                                                                                   | Land                                     | Base Civ4, Warlords                  |
+ | `Continents`           | Several large continents separated by ocean; naval matters for contact, but landmasses are large.                                                 | Land                                     | Base Civ4, Warlords                  |
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index bab0e103f..2a572268b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -1374,7 +1374,7 @@ Update: see also related known issue as of nowwith extra very nice improvement(s
+ 
+ Note: see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender--do-not-prioritize-water-military-units-if-city-is-landlocked-i-assume-it-means-stuck-in-a-lake-or-something-if-i-am-not-mistaken-but](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender--do-not-prioritize-water-military-units-if-city-is-landlocked-i-assume-it-means-stuck-in-a-lake-or-something-if-i-am-not-mistaken-but)
+ 
+-See also modding ressource for info: [Modding_Ressources/README.md#find-and-select-map-type-in-the-dll](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#find-and-select-map-type-in-the-dll)
++See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
+ 
+ This is a major change as well.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index f4e5c86de..3ba55f296 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -342,7 +342,8 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ ### Maps
+ 
+-- (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py).
++- (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
++- (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py).
+ 
+ ### Handicaps
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+index 7f3110d71..ea2ef3c1d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+@@ -1,6 +1,6 @@
+ # Install Civilization 4 Beyond the Sword and the AdvCiv-SAS mod
+ 
+-To install and play this mod AdvCiv-SAS, you can follow the steps in this document/readme.
++To install and play this mod AdvCiv-SAS, you can follow the steps in this document.
+ 
+ ## Menu
+ 
+@@ -75,7 +75,15 @@ Finally, add a shortcut to your desktop which link is, for example for Steam:
+ 
+ For convenience i have also provided a steam shortcut of this same link just above (since this is the version i have i.e. the steam one of the game), ready to use, (AdvCiv-SAS - Steam shortcut.lnk: see [Windows_shortcuts](/_1_AdvCiv-SAS/Windows_shortcuts/)). You can just move it to the desktop for your convenience.
+ 
+-Note: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Realism Invictus, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are/should be totally indepedent in theory if i'm not mistaken, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
++Note: Make sure you run AdvCiv-SAS from the windows shortcut and not another way.
++
++<img src="../Images/misc_0.x/0.960_windows_shortcut_example.PNG" alt="0.960_windows_shortcut_example.PNG" width="250"></img>
++
++If you don't see the same main menu wallpaper as below when opening AdvCiv-SAS, then maybe other things could be missing as well, which could lead to unexpected errors or missing features. So it is recommended to run AdvCiv-SAS from a windows shortcut.
++
++<img src="../Images/main_menu/0.300_main_menu_home (1).JPG" alt="0.300_main_menu_home (1).JPG" width="250"></img>
++
++Note 2: you can do this same process (download and install a Civ 4 mod(s), then place a shortcut of it to desktop or wherever you want/prefer) for any number of mods you want, just extract it in same Mods folder but with a different folder name, for example you could play Cavemen2Cosmos, Middle-earth mod, even AdvCiv alongside AdvCiv-SAS as long they are in different folders, they are/should be totally indepedent in theory if i'm not mistaken, the settings or files of one will/should not override or affect the other mods, thanks to the very awesome design of Civ 4, thanks!
+ 
+ ## Version number
+ 
+@@ -132,5 +140,3 @@ If you want to try/play other mods than AdvCiv-SAS or browse them (but you may a
+ 
+ - CivFanatics Center (also known as CFC) 's forums -> Civ 4 forum -> Modpacks forum (is a forum of a forum called a forum(?)): [civfanatics website's civ4 modpacks forum](https://forums.civfanatics.com/forums/civ4-modpacks.171/) or the [civfanatics website's civ4 modpacks downloads section](https://forums.civfanatics.com/resources/categories/civ4-modpacks.2/)
+ - ModDB (but does not have as much mods i think, AdvCiv (base mod) is not listed for example (which is the most interesting of the AdvCiv mods i think, except my awesome (xd) mod maybe as interesting maybe as AdvCiv)): [ModDB website (Civilization 4 Mods)](https://www.moddb.com/games/civilization-iv/mods).
+-
+-But i say it just for exhaustiveness, even though i am (quite) friendly i think, i prefer to stay alone and relax and do my own things, so i might get stressed if you contact me.. Still, if this project would help you reader or even those who don't read, i may be quite happy of it, especially as i contribute(d) to it.
+
+diff --git a/_1_AdvCiv-SAS/Images/misc_0.x/0.960_windows_shortcut_example.PNG b/_1_AdvCiv-SAS/Images/misc_0.x/0.960_windows_shortcut_example.PNG
+new file mode 100644
+index 000000000..9175c3089
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/misc_0.x/0.960_windows_shortcut_example.PNG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=7 omittedFiles=2 embeddedPatchBytes=13975

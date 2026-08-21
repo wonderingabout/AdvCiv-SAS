@@ -1,0 +1,223 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4648
+# Commit: 123e9fa97bf2909d7d447405ca650387118aabf9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: baa641079ba9775b75ba9d1dafa18c27fb1b2cdb
+# Title: fix mistaken understanding about Ice Feature necessarily on water, rename "Ice" (Terrain) to "Ice sheet" and rename "Ice" (Feature) to "Ice Cap", and other c...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	0	Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+85	5	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+8	14	Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/civ4 screenshots (made ingame with print screen key) path.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/in case of crash exit the program manually then restart after fix.png
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using chatgpt to have information about civ4 example part 1.PNG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using chatgpt to have information about civ4 example part 2.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/civ4 screenshots (made ingame with print screen key) path.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/in case of crash exit the program manually then restart after fix.png
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using chatgpt to have information about civ4 example part 1.PNG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using chatgpt to have information about civ4 example part 2.PNG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_Objects_Custom.xml b/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+index dc1046447..ac67963cd 100644
+--- a/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+@@ -86,4 +86,15 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
+ 		</Spanish>
+ 	</TEXT>
+ 
++	<!-- custom: disambiguate Ice Terrain vs Ice Feature, hopefully clearer with
++	these 2 separate terms (see RFC for details): -->
++	<TEXT>
++		<Tag>TXT_KEY_TERRAIN_ICE</Tag>
++		<English>Ice Sheet</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FEATURE_ICE</Tag>
++		<English>Ice Cap</English>
++	</TEXT>
++
+ </Civ4GameText>
+\ No newline at end of file
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 0992b5684..261525d5f 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -92,13 +92,93 @@ AdvCiv or/and other mods, at least it's cleanly separated -->
+ 
+ 
+ 
++	<!-- custom: 
++	If we define only the <English>My translation example</Example> tag without
++	putting the other language tags, then (according to ChatGPT), the other languages will
++	see the English version, no need to copy paste the same version many times, thanks ChatGPT
++	etc too maybe anyways.
++	Detailed explanations of ChatGPT below (i modified the formatting of it a bit but same content (i may have added Upper cases instead or Change a bit some sentences to connect them, should be mostly the same)).
++
++	1) For new content we add (for example if we were to add a new sniper unit (great memory ChatGPT thanks a lot, anyways, )):
++:
++	Quote:
++	"
++	What happens if you only define an XML entry in English?
++
++	If you only define one language (like English) in your XML (e.g., CIV4GameText.xml), and leave out translations for other languages, then:
++	Yes � other languages will see the English version.
++
++	Why?
++	Because Civ4's text system falls back to English if:
++	- A translation is missing for the current language.
++	- The player's selected language is not found in the XML at all.
++
++	So for example:
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_SNIPER</Tag>
++		<English>Sniper</English>
++	</TEXT>
++
++	If the player has their game language set to French, Spanish, or anything else � they'll still see "Sniper" in English, because:
++	- The game didn�t find <French>, <German>, etc., for that tag.
++	- So it shows <English> as a fallback.
++
++	Exceptions / Notes:
++	- If the <English> field is missing entirely, the game will show the tag name (like TXT_KEY_UNIT_SNIPER) instead.
++	- If you include a <French> tag but leave it empty, it may show nothing or just whitespace � so it's better to leave other languages out entirely unless you have a proper translation.
++	"
++
++
++	2) For content already existing in the game (for example FEATURE_ICE):
++	Quoting ChatGPT again, thanks ChatGPT and etc thanks all too or not too etc, anyways:
++
++	Quote:
++	"
++	This gets into how overrides work in Civ4's XML system. Here's the breakdown:
++	You override an existing in-game text key (e.g. TXT_KEY_FEATURE_ICE) in your mod's XML:
++
++	<TEXT>
++		<Tag>TXT_KEY_FEATURE_ICE</Tag>
++		<English>Frozen Hell</English>
++	</TEXT>
++
++	But you do not include <French>, <German>, etc.
++
++	What happens in-game?
++	Civ4 will completely override the original text entry, even in non-English languages.
++
++	So:
++	- English players will see: "Frozen Hell"
++	- French players will not see the original Firaxis French translation � they�ll see "Frozen Hell" too.
++	- Other languages will also see your new English text, not the base game's translation.
++	"
++
++	Important Note:
++	Once you override a <Tag> in your mod, the original translations are no longer used, even if you only replace <English>.
++	That means:
++	- You're responsible for translations if you want to preserve them.
++	- If not, it's totally fine � Civ4 will fall back to your <English> string in all languages.
++
++	Pro Tip:
++	If you're just changing English and want to keep the original translations, you can rename the tag, like:
++
++	<Tag>TXT_KEY_FEATURE_ICE_ALT</Tag>
++
++	Then use TXT_KEY_FEATURE_ICE_ALT wherever you want (e.g. in your modified CIV4FeatureInfos.xml). That way:
++	- The original TXT_KEY_FEATURE_ICE stays untouched.
++	- You can localize or not as you like.
++
++	Summary:
++	What You Do										What Players See
++	Only override <English> of a base tag			All languages will see your English string
++	Don't touch a tag								Players see base game translations
++	Rename the tag									Original untouched; you're free to localize your version
++	"
++	
++	-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR</Tag>
+-		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there[NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/</English>
+-		<French></French>
+-		<German></German>
+-		<Italian></Italian>
+-		<Spanish></Spanish>
++		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there[NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/ [NEWLINE]- Renamed [LINK=TERRAIN_SNOW]"Ice" (Terrain) to "Ice Sheet"[\LINK], and [LINK=FEATURE_ICE]"Ice" (Feature) to "Ice Cap"[\LINK], hopefully clearer and more accurate, see their Sevopedia entries for details.[NEWLINE]- Renamed [LINK=BONUS_COW]"Cow" (Ressource) to "Cattle"[\LINK], hopefully clearer and more accurate (and immersive maybe), see the Sevopedia entry for details.[NEWLINE][NEWLINE][BOLD]Translations[\BOLD][NEWLINE]- For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. Even if your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry in Mods\AdvCiv-SAS\Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml b/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
+index 367c12a7f..2f3701295 100644
+--- a/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
+@@ -33,18 +33,15 @@ and modified for our needs if needed.
+ 		<Italian>[TAB]Grasslands are areas where the vegetation is dominated by grasses (Poaceae) and other herbaceous (non-woody) plants (forbs). However, sedge (Cyperaceae) and rush (Juncaceae) families can also be found. Grasslands occur naturally on all continents except Antarctica. In temperate latitudes, such as northwest Europe and the Great Plains and California in North America, native grasslands are dominated by perennial bunch grass species, whereas in warmer climates annual species form a greater component of the vegetation.</Italian>
+ 		<Spanish>[TAB]Grasslands are areas where the vegetation is dominated by grasses (Poaceae) and other herbaceous (non-woody) plants (forbs). However, sedge (Cyperaceae) and rush (Juncaceae) families can also be found. Grasslands occur naturally on all continents except Antarctica. In temperate latitudes, such as northwest Europe and the Great Plains and California in North America, native grasslands are dominated by perennial bunch grass species, whereas in warmer climates annual species form a greater component of the vegetation.</Spanish>
+ 	</TEXT>
+-    <!-- custom: they (RFC DOC's sevopedia entry of terrain_ice )replicated the ice water
+-    entry it seems, however now we are in the page of TERRAIN_SNOW (Ice (Land)), adding
+-    another description instead
+-    Taken from: https://en.wikipedia.org/wiki/Snow
++    <!-- custom: they (RFC DOC's sevopedia entry of Terrain_Ice) duplicated the ice water
++    entry it seems, however now we are in the page of TERRAIN_SNOW (Ice (Terrain)).
++	More info on TXT KEYs if that helps: https://gforestshade.github.io/kujira/post/keyichiran/
++	Adding another description instead
++    Taken from: https://en.wikipedia.org/wiki/Ice_sheet
+     -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TERRAIN_ICE_PEDIA</Tag>
+-		<English>[TAB]Note: This refers to the Ice (Land) Tile. If you wanted to see the water tile version, please visit the [LINK=FEATURE_ICE]Ice (Water)[\LINK] page of the Sevopedia rather.[PARAGRAPH:2][TAB]Snow consists of individual ice crystals that grow while suspended in the atmosphere—usually within clouds—and then fall, accumulating on the ground where they undergo further changes. It consists of frozen crystalline water throughout its life cycle, starting when, under suitable conditions, the ice crystals form in the atmosphere, increase to millimeter size, precipitate and accumulate on surfaces, then metamorphose in place, and ultimately melt, slide, or sublimate away.[PARAGRAPH:1]Snow affects such human activities as transportation: creating the need for keeping roadways, wings, and windows clear; agriculture: providing water to crops and safeguarding livestock; sports such as skiing, snowboarding, and snowmachine travel; and warfare. Snow affects ecosystems, as well, by providing an insulating layer during winter under which plants and animals are able to survive the cold.</English>
+-		<French>[TAB]Note: This refers to the Ice (Land) Tile. If you wanted to see the water tile version, please visit the [LINK=FEATURE_ICE]Ice (Water)[\LINK] page of the Sevopedia rather.[PARAGRAPH:2][TAB]Snow consists of individual ice crystals that grow while suspended in the atmosphere—usually within clouds—and then fall, accumulating on the ground where they undergo further changes. It consists of frozen crystalline water throughout its life cycle, starting when, under suitable conditions, the ice crystals form in the atmosphere, increase to millimeter size, precipitate and accumulate on surfaces, then metamorphose in place, and ultimately melt, slide, or sublimate away.[PARAGRAPH:1]Snow affects such human activities as transportation: creating the need for keeping roadways, wings, and windows clear; agriculture: providing water to crops and safeguarding livestock; sports such as skiing, snowboarding, and snowmachine travel; and warfare. Snow affects ecosystems, as well, by providing an insulating layer during winter under which plants and animals are able to survive the cold.</French>
+-		<German>[TAB]Note: This refers to the Ice (Land) Tile. If you wanted to see the water tile version, please visit the [LINK=FEATURE_ICE]Ice (Water)[\LINK] page of the Sevopedia rather.[PARAGRAPH:2][TAB]Snow consists of individual ice crystals that grow while suspended in the atmosphere—usually within clouds—and then fall, accumulating on the ground where they undergo further changes. It consists of frozen crystalline water throughout its life cycle, starting when, under suitable conditions, the ice crystals form in the atmosphere, increase to millimeter size, precipitate and accumulate on surfaces, then metamorphose in place, and ultimately melt, slide, or sublimate away.[PARAGRAPH:1]Snow affects such human activities as transportation: creating the need for keeping roadways, wings, and windows clear; agriculture: providing water to crops and safeguarding livestock; sports such as skiing, snowboarding, and snowmachine travel; and warfare. Snow affects ecosystems, as well, by providing an insulating layer during winter under which plants and animals are able to survive the cold.</German>
+-		<Italian>[TAB]Note: This refers to the Ice (Land) Tile. If you wanted to see the water tile version, please visit the [LINK=FEATURE_ICE]Ice (Water)[\LINK] page of the Sevopedia rather.[PARAGRAPH:2][TAB]Snow consists of individual ice crystals that grow while suspended in the atmosphere—usually within clouds—and then fall, accumulating on the ground where they undergo further changes. It consists of frozen crystalline water throughout its life cycle, starting when, under suitable conditions, the ice crystals form in the atmosphere, increase to millimeter size, precipitate and accumulate on surfaces, then metamorphose in place, and ultimately melt, slide, or sublimate away.[PARAGRAPH:1]Snow affects such human activities as transportation: creating the need for keeping roadways, wings, and windows clear; agriculture: providing water to crops and safeguarding livestock; sports such as skiing, snowboarding, and snowmachine travel; and warfare. Snow affects ecosystems, as well, by providing an insulating layer during winter under which plants and animals are able to survive the cold.</Italian>
+-		<Spanish>[TAB]Note: This refers to the Ice (Land) Tile. If you wanted to see the water tile version, please visit the [LINK=FEATURE_ICE]Ice (Water)[\LINK] page of the Sevopedia rather.[PARAGRAPH:2][TAB]Snow consists of individual ice crystals that grow while suspended in the atmosphere—usually within clouds—and then fall, accumulating on the ground where they undergo further changes. It consists of frozen crystalline water throughout its life cycle, starting when, under suitable conditions, the ice crystals form in the atmosphere, increase to millimeter size, precipitate and accumulate on surfaces, then metamorphose in place, and ultimately melt, slide, or sublimate away.[PARAGRAPH:1]Snow affects such human activities as transportation: creating the need for keeping roadways, wings, and windows clear; agriculture: providing water to crops and safeguarding livestock; sports such as skiing, snowboarding, and snowmachine travel; and warfare. Snow affects ecosystems, as well, by providing an insulating layer during winter under which plants and animals are able to survive the cold.</Spanish>
++		<English>[TAB]Note: This refers to the Ice Sheet (Terrain). If you wanted to see the [LINK=FEATURE_ICE]Ice Cap (Feature)[\LINK], please visit that page of the Sevopedia rather.[PARAGRAPH:2][TAB]In glaciology, an ice sheet, also known as a continental glacier, is a mass of glacial ice that covers surrounding terrain and is greater than 50,000 km2 (19,000 sq mi). The only current ice sheets are the Antarctic ice sheet and the Greenland ice sheet. Ice sheets are bigger than ice shelves or alpine glaciers. Masses of ice covering less than 50,000 km2 are termed an ice cap. An ice cap will typically feed a series of glaciers around its periphery.[PARAGRAPH:1]In previous geologic time spans (glacial periods) there were other ice sheets. During the Last Glacial Period at Last Glacial Maximum, the Laurentide Ice Sheet covered much of North America. In the same period, the Weichselian ice sheet covered Northern Europe and the Patagonian Ice Sheet covered southern South America.</English>
+ 	</TEXT>
+     <TEXT>
+ 		<Tag>TXT_KEY_TERRAIN_OCEAN_PEDIA</Tag>
+@@ -98,13 +95,10 @@ and modified for our needs if needed.
+ 		<Italian>[TAB]A forest, also referred to as a wood or the woods and less often as a "wold" (or "weald"), "holt", or "frith" (or "firth"), is an area with a high density of trees. There are many definitions for forest, based on the various criteria. These plant communities cover approximately 9.4% of the Earth's surface (or 30% of total land area), though they once covered much more (about 50% of total land area), in many different regions and function as habitats for organisms, hydrologic flow modulators, and soil conservers, constituting one of the most important aspects of the Earth's biosphere. Although a forest is classified primarily by trees a forest ecosystem is defined intrinsically with additional species such as fungi.</Italian>
+ 		<Spanish>[TAB]A forest, also referred to as a wood or the woods and less often as a "wold" (or "weald"), "holt", or "frith" (or "firth"), is an area with a high density of trees. There are many definitions for forest, based on the various criteria. These plant communities cover approximately 9.4% of the Earth's surface (or 30% of total land area), though they once covered much more (about 50% of total land area), in many different regions and function as habitats for organisms, hydrologic flow modulators, and soil conservers, constituting one of the most important aspects of the Earth's biosphere. Although a forest is classified primarily by trees a forest ecosystem is defined intrinsically with additional species such as fungi.</Spanish>
+ 	</TEXT>
++	<!-- custom: taken from: https://en.wikipedia.org/wiki/Ice_cap, see TXT_KEY_TERRAIN_ICE_PEDIA -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_FEATURE_ICE_PEDIA</Tag>
+-		<English>[TAB]Note: This refers to the Ice (Water) Tile. If you wanted to see the land tile version, please visit the [LINK=TERRAIN_SNOW]Ice (Land)[\LINK] page of the Sevopedia rather.[PARAGRAPH:2]Ice is water frozen into the solid state. Usually ice is the phase known as ice Ih, which is the most abundant of the varying solid phases on the Earth's surface. It can appear transparent or opaque bluish-white color, depending on the presence of impurities or air inclusions. The addition of other materials such as soil may further alter the appearance.</English>
+-		<French>[TAB]Note: This refers to the Ice (Water) Tile. If you wanted to see the land tile version, please visit the [LINK=TERRAIN_SNOW]Ice (Land)[\LINK] page of the Sevopedia rather.[PARAGRAPH:2]Ice is water frozen into the solid state. Usually ice is the phase known as ice Ih, which is the most abundant of the varying solid phases on the Earth's surface. It can appear transparent or opaque bluish-white color, depending on the presence of impurities or air inclusions. The addition of other materials such as soil may further alter the appearance.</French>
+-		<German>[TAB]Note: This refers to the Ice (Water) Tile. If you wanted to see the land tile version, please visit the [LINK=TERRAIN_SNOW]Ice (Land)[\LINK] page of the Sevopedia rather.[PARAGRAPH:2]Ice is water frozen into the solid state. Usually ice is the phase known as ice Ih, which is the most abundant of the varying solid phases on the Earth's surface. It can appear transparent or opaque bluish-white color, depending on the presence of impurities or air inclusions. The addition of other materials such as soil may further alter the appearance.</German>
+-		<Italian>[TAB]Note: This refers to the Ice (Water) Tile. If you wanted to see the land tile version, please visit the [LINK=TERRAIN_SNOW]Ice (Land)[\LINK] page of the Sevopedia rather.[PARAGRAPH:2]Ice is water frozen into the solid state. Usually ice is the phase known as ice Ih, which is the most abundant of the varying solid phases on the Earth's surface. It can appear transparent or opaque bluish-white color, depending on the presence of impurities or air inclusions. The addition of other materials such as soil may further alter the appearance.</Italian>
+-		<Spanish>[TAB]Note: This refers to the Ice (Water) Tile. If you wanted to see the land tile version, please visit the [LINK=TERRAIN_SNOW]Ice (Land)[\LINK] page of the Sevopedia rather.[PARAGRAPH:2]Ice is water frozen into the solid state. Usually ice is the phase known as ice Ih, which is the most abundant of the varying solid phases on the Earth's surface. It can appear transparent or opaque bluish-white color, depending on the presence of impurities or air inclusions. The addition of other materials such as soil may further alter the appearance.</Spanish>
++		<English>[TAB]Note: This refers to the Ice Cap (Feature) Tile. If you wanted to see the [LINK=TERRAIN_SNOW]Ice Sheet (Terrain)[\LINK] tile, please visit that page of the Sevopedia rather.[PARAGRAPH:2]In glaciology, an ice cap is a mass of ice that covers less than 50,000 km2 (19,000 sq mi) of land area (usually covering a highland area). Larger ice masses covering more than 50,000 km2 (19,000 sq mi) are termed ice sheets.[PARAGRAPH:1]Ice caps are not constrained by topographical features (i.e., they will lie over the top of mountains). By contrast, ice masses of similar size that are constrained by topographical features are known as ice fields. The dome of an ice cap is usually centred on the highest point of a massif. Ice flows away from this high point (the ice divide) towards the ice cap's periphery. [PARAGRAPH:1]Ice caps significantly affect the geomorphology of the area they occupy. Plastic moulding, gouging and other glacial erosional features become present upon the glacier's retreat. Many lakes, such as the Great Lakes in North America, as well as numerous valleys have been formed by glacial action over hundreds of thousands of years. The Antarctic and Greenland contain 99% of the ice volume on earth, about 33 million cubic kilometres (7.9 million cubic miles) of total ice mass.</English>
+ 	</TEXT>
+     <TEXT>
+ 		<Tag>TXT_KEY_FEATURE_JUNGLE_PEDIA</Tag>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/civ4 screenshots (made ingame with print screen key) path.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/civ4 screenshots (made ingame with print screen key) path.PNG
+new file mode 100644
+index 000000000..edde9da04
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/civ4 screenshots (made ingame with print screen key) path.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/in case of crash exit the program manually then restart after fix.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/in case of crash exit the program manually then restart after fix.png
+new file mode 100644
+index 000000000..a9625cdbe
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/in case of crash exit the program manually then restart after fix.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using chatgpt to have information about civ4 example part 1.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using chatgpt to have information about civ4 example part 1.PNG
+new file mode 100644
+index 000000000..c97c89d47
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using chatgpt to have information about civ4 example part 1.PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using chatgpt to have information about civ4 example part 2.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using chatgpt to have information about civ4 example part 2.PNG
+new file mode 100644
+index 000000000..7ae10424d
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using chatgpt to have information about civ4 example part 2.PNG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=24748

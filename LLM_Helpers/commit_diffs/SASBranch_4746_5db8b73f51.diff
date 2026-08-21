@@ -1,0 +1,377 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4746
+# Commit: 5db8b73f51279037cb4ff20344c46c135276adcb
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f02bf0b2fad9b8ef27ad74734a408020940a795b
+# Title: reorder sevopedia unit panels, beautify, and make coordinates relative (most if not all anyways etc) removed also the wide screen code that was quite spaghet...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+64	73	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+5	5	Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml
+35	6	Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+0	21	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 04944857f..c7e633505 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -478,7 +478,7 @@ class SevoPediaLeader:
+ 		if (iLeaderKey not in EXCLUDED_LEADERS_FROM_LEADERS_DATA):
+ 			self.placeAIPersonalityPanel(iLeaderKey)
+ 		else:
+-			CvUtil.pyPrint("[DEBUG] Excluded leader iLeaderKey=%s from leaders_data (EXCLUDED_LEADERS_FROM_LEADERS_DATA=%s) is skipped, leave the place where AI Personality panel was supposed to be entirely empty so we don't get a missing key in leaders_data Error, while signifying enough the excluded leader currently selected doesn't have a leader_data and AI Personality Panel at all/is not part of it." % (iLeaderKey, str(EXCLUDED_LEADERS_FROM_LEADERS_DATA)))
++			CvUtil.pyPrint("[DEBUG] Leader iLeaderKey=%s in EXCLUDED_LEADERS_FROM_LEADERS_DATA=%s is skipped, leave the place where AI Personality panel was supposed to be entirely empty so we don't get a missing key in leaders_data Error, while signifying clearly enough hopefully that the excluded leader currently selected doesn't have a leader_data and AI Personality Panel at all/is not part of it." % (iLeaderKey, str(EXCLUDED_LEADERS_FROM_LEADERS_DATA)))
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 2a6e37a37..6b95cde66 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -23,18 +23,22 @@ class SevoPediaUnit:
+ 	def __init__(self, main):
+ 		self.iUnit = -1
+ 		self.top = main
+-		# <advc.004y>
+-		bWideScreen = self.top.bWideScreen
+-		X_RESOLUTION = screen = self.top.getScreen().getXResolution()
+-		# </advc.004y>
++
++		self.MEDIUM_MARGIN = 15
++		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
++
+ 		self.X_UNIT_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_UNIT_PANE = self.top.Y_PEDIA_PAGE
+-		self.W_UNIT_PANE = 325
+-		# <advc.004y>
+-		if bWideScreen:
+-			self.W_UNIT_PANE = (self.W_UNIT_PANE * X_RESOLUTION) // 1024
+-		self.H_UNIT_PANE = 175 # advc.002b: was 145
+-		# </advc.004y>
++		# <!-- custom: no margins to merge edges with promo pane for nicer display maybe i mean anyways etc -->
++		self.W_UNIT_PANE = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE) / 4
++		self.H_UNIT_PANE = 200
++
++		# <!-- custom: no margins to merge edges with unit pane for nicer display maybe i mean anyways etc -->
++		# <!-- custom: merge effect by partially joining their borders, i accidentally found or/and maybe got the idea and looks very nice, just is slightly not centered maybe fixable or not but and in all cases anyways etc anyways etc -->
++		self.X_PROMO_PANE = self.X_UNIT_PANE + self.W_UNIT_PANE - 5
++		self.Y_PROMO_PANE = self.Y_UNIT_PANE
++		self.W_PROMO_PANE = self.W_UNIT_PANE + 5
++		self.H_PROMO_PANE = self.H_UNIT_PANE
+ 
+ 		# advc.004y: Move the button and icon size settings up
+ 		self.ICON_SIZE = 64
+@@ -58,57 +62,34 @@ class SevoPediaUnit:
+ 		self.W_STATS_PANE = 250
+ 		self.H_STATS_PANE = 200
+ 
+-		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_UNIT_PANE + 10
+-		self.W_UNIT_ANIMATION = self.top.R_PEDIA_PAGE - self.X_UNIT_ANIMATION
+-		self.Y_UNIT_ANIMATION = self.Y_UNIT_PANE + 7
+-		self.H_UNIT_ANIMATION = self.H_UNIT_PANE - 7
+-		self.X_ROTATION_UNIT_ANIMATION = -20
+-		self.Z_ROTATION_UNIT_ANIMATION = 30
+-		self.SCALE_ANIMATION = 1.0
+-
+ 		self.X_PREREQ_PANE = self.X_UNIT_PANE
+-		self.Y_PREREQ_PANE = self.Y_UNIT_PANE + self.H_UNIT_PANE + 10
+-		self.W_PREREQ_PANE = 280
+-		# <advc.004y> Same split between PREREQ_PANE and UPGRADES_TO_PANE as between UNIT_PANE and UNIT_ANIMATION
+-		if bWideScreen:
+-			self.W_PREREQ_PANE = self.W_UNIT_PANE
+-		# </advc.004y>
++		self.Y_PREREQ_PANE = self.Y_UNIT_PANE + self.H_UNIT_PANE + self.SMALL_MARGIN
++		self.W_PREREQ_PANE = self.W_UNIT_PANE * 2
+ 		self.H_PREREQ_PANE = 110
+ 
+-		self.X_UPGRADES_TO_PANE = self.X_PREREQ_PANE + self.W_PREREQ_PANE + 10
+-		self.Y_UPGRADES_TO_PANE = self.Y_PREREQ_PANE
+-		self.W_UPGRADES_TO_PANE = self.top.R_PEDIA_PAGE - self.X_UPGRADES_TO_PANE
++		self.X_UPGRADES_TO_PANE = self.X_UNIT_PANE
++		self.Y_UPGRADES_TO_PANE = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + self.SMALL_MARGIN
++		self.W_UPGRADES_TO_PANE = self.W_PREREQ_PANE
+ 		self.H_UPGRADES_TO_PANE = self.H_PREREQ_PANE
+ 
+ 		self.X_SPECIAL_PANE = self.X_UNIT_PANE
+-		self.Y_SPECIAL_PANE = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + 10
+-		self.W_SPECIAL_PANE = 280
+-		# <advc.004y>
+-		if bWideScreen:
+-			self.W_SPECIAL_PANE = self.W_UNIT_PANE
+-		# </advc.004y>
+-		self.H_SPECIAL_PANE = 175
+-
+-		self.X_PROMO_PANE = self.X_SPECIAL_PANE + self.W_SPECIAL_PANE + 10
+-		self.Y_PROMO_PANE = self.Y_SPECIAL_PANE
+-		self.W_PROMO_PANE = self.W_UPGRADES_TO_PANE
+-		self.H_PROMO_PANE = self.H_SPECIAL_PANE
+-
+-		self.X_HISTORY_PANE = self.X_UNIT_PANE
+-		self.Y_HISTORY_PANE = self.Y_SPECIAL_PANE + self.H_SPECIAL_PANE + 10
+-		self.W_HISTORY_PANE = self.top.R_PEDIA_PAGE - self.X_HISTORY_PANE
+-		#self.H_HISTORY_PANE = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE
+-		# <advc.004y> If there's space left, I want to use it for the SPECIAL_PANE.
+-		self.H_HISTORY_PANE = 190
+-		iSpaceLeft = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE - self.H_HISTORY_PANE
+-		if iSpaceLeft < 0:
+-			self.H_HISTORY_PANE += iSpaceLeft
+-		else:
+-			self.H_SPECIAL_PANE += iSpaceLeft
+-			# Need to update these as well (not nice)
+-			self.H_PROMO_PANE += iSpaceLeft
+-			self.Y_HISTORY_PANE += iSpaceLeft
+-		# </advc.004y>
++		self.Y_SPECIAL_PANE = self.Y_UPGRADES_TO_PANE + self.H_UPGRADES_TO_PANE + self.SMALL_MARGIN
++		self.W_SPECIAL_PANE = self.W_PREREQ_PANE
++		self.H_SPECIAL_PANE = self.top.B_PEDIA_PAGE - self.Y_SPECIAL_PANE
++
++		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_SPECIAL_PANE + self.MEDIUM_MARGIN
++		self.Y_UNIT_ANIMATION = self.Y_UNIT_PANE + 7
++		self.W_UNIT_ANIMATION = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE) / 2
++		self.H_UNIT_ANIMATION = 400
++
++		self.X_ROTATION_UNIT_ANIMATION = -20
++		self.Z_ROTATION_UNIT_ANIMATION = 30
++		self.SCALE_ANIMATION = 1.0
++
++		self.X_HISTORY_PANE = self.X_UNIT_ANIMATION
++		self.Y_HISTORY_PANE = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.MEDIUM_MARGIN
++		self.W_HISTORY_PANE = self.W_UNIT_ANIMATION
++		self.H_HISTORY_PANE = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE
+ 
+ 
+ 
+@@ -140,48 +121,56 @@ class SevoPediaUnit:
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		iCombatType = gc.getUnitInfo(self.iUnit).getUnitCombatType()
++
+ 		if (iCombatType != -1):
+ 			screen.setImageButton(self.top.getNextWidgetName(), gc.getUnitCombatInfo(iCombatType).getButton(), self.X_STATS_PANE, self.Y_STATS_PANE - 35, 32, 32, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iCombatType, 0)
+ 			screen.setText(self.top.getNextWidgetName(), "", u"<font=3>" + gc.getUnitCombatInfo(iCombatType).getDescription() + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_STATS_PANE + 37, self.Y_STATS_PANE - 30, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iCombatType, 0)
++
+ 		screen.addListBoxGFC(panelName, "", self.X_STATS_PANE, self.Y_STATS_PANE, self.W_STATS_PANE, self.H_STATS_PANE, TableStyles.TABLE_STYLE_EMPTY)
+ 		screen.enableSelect(panelName, False)
++
+ 		if (gc.getUnitInfo(self.iUnit).getAirCombat() > 0 and gc.getUnitInfo(self.iUnit).getCombat() == 0):
+ 			iStrength = gc.getUnitInfo(self.iUnit).getAirCombat()
+ 		else:
+ 			iStrength = gc.getUnitInfo(self.iUnit).getCombat()
+ 		if iStrength > 0: # advc.004y: Don't show 0 strength for nukes
+ 			szName = self.top.getNextWidgetName()
+-			szStrength = localText.getText("TXT_KEY_PEDIA_STRENGTH", (iStrength,))
+-			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szStrength.upper() + u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR) + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			szStrength = localText.getText("TXT_KEY_PEDIA_STRENGTH_CUSTOM", (iStrength,))
++			szStrengthText = u"%c  " % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR) + szStrength
++			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szStrengthText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 		eDomain = gc.getUnitInfo(self.iUnit).getDomainType()
+-		# <advc.004y>
+-		if eDomain == DomainTypes.DOMAIN_IMMOBILE: # Show "immobile" instead of 1 move
+-			szName = self.top.getNextWidgetName()
+-			szImmobile = localText.getText("TXT_KEY_PEDIA_IMMOBILE", ())
+-			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szImmobile.upper(), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+-		# Don't show 1 move for air units
+-		elif eDomain != DomainTypes.DOMAIN_AIR: # </advc.004y>
++		# <!-- custom: don't show movement for domain immobile units (missiles and such for example, not air fighters and such if i am not mistaken anyways etc) --> 
++		if eDomain != DomainTypes.DOMAIN_IMMOBILE:
++			# <!-- custom: show all stats that we want/have as they are, including 1 move air or
++			# 4 move helicopter, (hoepfully helpful ,) (but) (if or not)(anyways etc) anyways etc -->
++			## Don't show 1 move for air units
++			#elif eDomain != DomainTypes.DOMAIN_AIR: # </advc.004y>
+ 			szName = self.top.getNextWidgetName()
+-			szMovement = localText.getText("TXT_KEY_PEDIA_MOVEMENT", (gc.getUnitInfo(self.iUnit).getMoves(),))
+-			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szMovement.upper() + u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR) + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			szMovement = localText.getText("TXT_KEY_PEDIA_MOVEMENT_CUSTOM", (gc.getUnitInfo(self.iUnit).getMoves(),))
++			szMovementText = u"%c  " % CyGame().getSymbolID(FontSymbols.MOVES_CHAR) + szMovement
++			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szMovementText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 		# advc.004y: Moved range above production cost. Condition for ICBM added.
+ 		if gc.getUnitInfo(self.iUnit).getAirRange() > 0 or gc.getUnitInfo(self.iUnit).getNukeRange() >= 0:
+ 			szName = self.top.getNextWidgetName()
+ 			iRange = gc.getUnitInfo(self.iUnit).getAirRange()
+ 			if iRange > 0: # advc.004y
+-				szRange = localText.getText("TXT_KEY_PEDIA_RANGE", (iRange,))
++				szRange = localText.getText("TXT_KEY_PEDIA_RANGE_CUSTOM", (iRange,))
+ 			# <advc.004y> Unlimited range
+ 			else:
+-				szRange = localText.getText("TXT_KEY_PEDIA_RANGE_UNLIMITED", ())
++				szRange = localText.getText("TXT_KEY_PEDIA_RANGE_UNLIMITED_CUSTOM", ())
+ 			# </advc.004y>
+-			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szRange.upper() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			szRangeText = u"R    " + szRange
++			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szRangeText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 		if (gc.getUnitInfo(self.iUnit).getProductionCost() >= 0 and not gc.getUnitInfo(self.iUnit).isFound()):
+ 			szName = self.top.getNextWidgetName()
+ 			if self.top.iActivePlayer == -1:
+-				szCost = localText.getText("TXT_KEY_PEDIA_COST", ((gc.getUnitInfo(self.iUnit).getProductionCost() * gc.getDefineINT("UNIT_PRODUCTION_PERCENT"))/100,))
++				szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", ((gc.getUnitInfo(self.iUnit).getProductionCost() * gc.getDefineINT("UNIT_PRODUCTION_PERCENT"))/100,))
+ 			else:
+-				szCost = localText.getText("TXT_KEY_PEDIA_COST", (gc.getActivePlayer().getUnitProductionNeeded(self.iUnit),))
+-			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szCost.upper() + u"%c" % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar() + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++				szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", (gc.getActivePlayer().getUnitProductionNeeded(self.iUnit),))
++			szCostText = u"%c  " % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar() + szCost
++			screen.appendListBoxStringNoUpdate(panelName, u"<font=4>" + szCostText + u"</font>", WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 		screen.updateListBox(panelName)
+ 
+ 
+@@ -303,7 +292,9 @@ class SevoPediaUnit:
+ 	def placePromotions(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_PROMOTION", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
++		# <!-- custom: no "header" for smoother display with how the unit pane is done (and promo pane is next to it now anyways etc) -->
++		# screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_PROMOTION", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName, localText.getText("", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		rowListName = self.top.getNextWidgetName()
+ 		screen.addMultiListControlGFC(rowListName, "", self.X_PROMO_PANE+15, self.Y_PROMO_PANE+40, self.W_PROMO_PANE-20, self.H_PROMO_PANE-40, 1, self.PROMOTION_ICON_SIZE, self.PROMOTION_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 		for k in range(gc.getNumPromotionInfos()):
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml b/Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml
+index 97a5ac58b..8682c8726 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml
+@@ -10,12 +10,13 @@
+ 		old barbarian button code:
+ 			<Button>,Art/interface/LeaderHeads/Btn_LH_Mongol_Genghis.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,6,12</Button>
+ 		new button imported from Realism invictus mod's .fpk and specifically and only this button
+-		extracted (not whole files) with dragon unpacker, at file:
++		extracted (not all the files only this one we need anyways etc) with dragon unpacker, at file:
+ 		C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Interface0.FPK
+-		with some adjustments or not for AdvCiv-SAS -->
++		with some adjustments or not for AdvCiv-SAS
++		-->
+ 		<LeaderheadArtInfo>
+ 			<Type>ART_DEF_LEADER_BARBARIAN</Type>
+-			<Button>Art/interface/Buttons/LeaderHeads/TRTeambut_button.dds</Button>
++			<Button>Art/interface/Buttons/LeaderHeads/TRTeambut_Button.dds</Button>
+ 			<NIF>art/LeaderHeads/Sid/sid.nif</NIF>
+ 			<KFM>art/LeaderHeads/Sid/sid.kfm</KFM>
+ 			<NoShaderNIF>art/LeaderHeads/Sid/sid_noshader.nif</NoShaderNIF>
+@@ -452,7 +453,6 @@
+ 		-->
+ 
+ 		<!-- custom: example from realism invictus used as reference:
+-
+ 		<LeaderheadArtInfo>
+ 			<Type>ART_DEF_LEADER_CHIANG_KAI_SHEK</Type>
+ 			<Button>Art/interface/Buttons/LeaderHeads/chiang_button.dds</Button>
+@@ -461,10 +461,10 @@
+ 			<NoShaderNIF>art/LeaderHeads/Mansa_Musa/mansa_musa_noshader.nif</NoShaderNIF>
+ 			<BackgroundKFM>art/LeaderHeads/Mansa_Musa/Mansa_Musa_BG.kfm</BackgroundKFM>
+ 		</LeaderheadArtInfo>
+-
+ 		-->
+ 
+ 
++
+ 		<!-- custom: add Ogiso Igodo's Art (Picture) did/done as advised to me by ChatGPT with
+ 		some adjustments or not for AdvCiv-SAS -->
+ 		<LeaderheadArtInfo>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+index f498dee39..2ccc822b4 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+@@ -33,15 +33,9 @@
+ 		<Tag>TXT_KEY_WIDGET_HELP</Tag>
+ 		<English>Sevopedia</English>
+ 	</TEXT>
+-    <!-- custom: Replace "Torna a civilopedia" (with "top")
+-	to match what is done in the other translations (or so it seems)
+-	and using "sevopedia" rather than "civilopedia" -->
+     <TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SCREEN_TOP</Tag>
+ 		<English>Top</English>
+-		<French>Haut</French>
+-		<German>Nach oben</German>
+-		<Spanish>Inicio</Spanish>
+ 	</TEXT>
+     <!-- custom: moved from:
+     C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv\Assets\XML\Text\CIV4GameText_advc.xml
+@@ -58,6 +52,41 @@
+ 		<English>SEVOPEDIA</English>
+ 	</TEXT>
+ 
++	<!-- custom: all below in this group modified to remove the	extra
++	redundant/uneeded for example "STRENGTH: " in "STRENGTH: 5" now
++	displaying (only) as "5" much clearer and cleaner i think this way,
++	making a separate tag in case the original one is relevant somewhere
++	else, anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_COST_CUSTOM</Tag>
++		<English>%d1_Num</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_STRENGTH_CUSTOM</Tag>
++		<English>%d1_Num</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_MOVEMENT_CUSTOM</Tag>
++		<English>%d1_Num</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_RANGE_CUSTOM</Tag>
++		<English>%d1_Num</English>
++	</TEXT>
++	<!-- advc.004y: Based on TXT_KEY_PEDIA_RANGE
++	(CIV4GameTextInfos.xml) and TXT_KEY_CIVIC_UNLIMTED
++	(CIV4GameTextInfos.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_RANGE_UNLIMITED_CUSTOM</Tag>
++		<English>unlimited</English>
++	</TEXT>
++	<!-- custom: removed TXT_KEY_PEDIA_IMMOBILE, we don't seem to use it anywhere
++	in advciv (nor even civ4 actually), and since we don't use it anymore in
++	sevopedia unit now (hide the field rather entirely anyways etc, may as well
++	remove it now, anyways etc) -->
++
++
++
+ 	<!-- custom: rename "We fear you are becoming too advanced." (WFYABTA)
+ 	to "We fear you are trading more than us" (WFYATMTU), the former is
+ 	misleading as a player can receive it even if lagging behind in techs
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index 742934d60..8c4affaf6 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -325,25 +325,4 @@
+ 			<Plural>1</Plural>
+ 		</Spanish>
+ 	</TEXT>
+-	<!-- advc.004y: Based on TXT_KEY_DOMAIN_IMMOBILE
+-		(CIV4GameTextInfos_Objects.xml) -->
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_IMMOBILE</Tag>
+-		<English>immobile</English>
+-		<French>unit&#233; statique</French>
+-		<German>unbeweglich</German>
+-		<Italian>unit� fisse</Italian>
+-		<Spanish>inm&#243;vil</Spanish>
+-	</TEXT>
+-	<!-- advc.004y: Based on TXT_KEY_PEDIA_RANGE
+-		(CIV4GameTextInfos.xml) and TXT_KEY_CIVIC_UNLIMTED
+-		(CIV4GameTextInfos.xml) -->
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_RANGE_UNLIMITED</Tag>
+-		<English>Range: unlimited</English>
+-		<French>Port&#233;e : sans limite</French>
+-		<German>Reichweite: unbegrenzt</German>
+-		<Italian>Raggio d'azione: illimitato</Italian>
+-		<Spanish>Alcance: sin l&#237;mite</Spanish>
+-	</TEXT>
+ </Civ4GameText>
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=18705

@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3670
+# Commit: 6feb987b9c31f1110a434848d12ee115c5e1395f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0985318a27654798a52e6a9c2d6e38df97aeddb4
+# Title: Slightly reduce AI target for very early floating defenders
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	3	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6cf7ee13c..b227d5924 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -26253,9 +26253,17 @@ int CvPlayerAI::AI_getTotalFloatingDefendersNeeded(CvArea const& kArea, // advc:
+ 				rEnemyCityFactor) / 3;
+ 	}
+ 	{
+-		int const iEra = std::max(0, getCurrentEra() - kGame.getStartEra() / 2);
+-		// advc.107: Was ...?3:2 in numerator, 3 in denominator.
+-		rDefenders.mulDiv(iEra + (kGame.getMaxCityElimination() > 0 ? 5 : 4), 6);
++		scaled rEra(getCurrentEra() - kGame.getStartEra(), 2);
++		rEra.increaseTo(0);
++		// advc.107: Was ...?3:2
++		rDefenders *= rEra + (kGame.getMaxCityElimination() > 0 ? 5 : 4);
++		rDefenders /= 6; // advc.107: was 3
++		// <advc.107> Avoid delaying 2nd city too much
++		if (getCurrentEra() == kGame.getStartEra() &&
++			rEra == 0 && getNumCities() <= 1 && AI_getNumCitySites() > 0)
++		{
++			rDefenders *= fixp(0.83);
++		} // </advc.107>
+ 	}
+ 	// K-Mod end
+ 	if (eAreaAI == AREAAI_DEFENSIVE)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1022

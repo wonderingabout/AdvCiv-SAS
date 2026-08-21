@@ -1,0 +1,381 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5387
+# Commit: 159bb04ccc65b70c249cfbe1c254df6cf34664a2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 75ff2b87ed12321cb832c01aff78e40a184e99aa
+# Title: Add Play and Eject buttons to Sevopedia Media Player
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Emojis/Eject_Button/23cf_64px.dds
+33	1	Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+19	1	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+12	0	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+5	0	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+4	4	README.md
+3	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+14	10	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/Eject_Button/23cf_64px.dds
+ create mode 100644 _1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/Eject_Button/23cf_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Eject_Button/23cf_64px.dds
+new file mode 100644
+index 000000000..0531b05cf
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/Eject_Button/23cf_64px.dds differ
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+index 1dbedee52..4910a892a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+@@ -8,6 +8,7 @@ from CvPythonExtensions import *
+ import CvUtil
+ 
+ gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+ 
+@@ -18,10 +19,15 @@ class SevoPediaMediaPlayer:
+ 		self.screenId = screenId
+ 		self.screenEnum = screenEnum
+ 		self.exitId = exitId
++		self.replayId = clickPrefix + "Replay"
+ 		self.clickPrefix = clickPrefix
+ 		self.isOpen = False
+ 		self.soundId = None
+ 		self.is3DSound = False
++		self.exitButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_EJECT_BUTTON").getPath()
++		self.replayButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
++		self.replayCallback = None
++		self.screen = None
+ 
+ 
+ 
+@@ -39,6 +45,7 @@ class SevoPediaMediaPlayer:
+ 			pass
+ 
+ 		self.isOpen = True
++		self.screen = screen
+ 
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+ 		screen.setRenderInterfaceOnly(True)
+@@ -65,7 +72,7 @@ class SevoPediaMediaPlayer:
+ 
+ 
+ 	def placeExitButton(self, screen, iScreenW, iScreenH):
+-		screen.setButtonGFC(self.exitId, localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", iScreenW / 2 - 50, iScreenH - 42, 100, 30, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++		screen.setImageButton(self.exitId, self.exitButtonPath, iScreenW / 2 - 32, iScreenH - 74, 64, 64, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		# <!-- custom: (ChatGPT-5.2 Thinking) -->
+ 		try:
+@@ -79,6 +86,21 @@ class SevoPediaMediaPlayer:
+ 
+ 
+ 
++	# <!-- custom: useful to replay files with variants such as _ORDER or _SELECT civilization sounds that play a different variant on replay (e.g. "Yes", "Agreed", "Right Away" (imaginary examples)), or for convenience so we don't exit the screen to replay. Added with the very nice help of GPT-5.2-Codex thanks. -->
++	def placeReplayButton(self, screen, iScreenW, iScreenH):
++		iSize = 64
++		iGap = 8
++		iExitX = iScreenW / 2 - iSize / 2
++		iReplayX = iExitX - iGap - iSize
++		screen.setImageButton(self.replayId, self.replayButtonPath, iReplayX, iScreenH - 74, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
++
++
++
++	def setReplayCallback(self, replayCallback):
++		self.replayCallback = replayCallback
++
++
++
+ 	def playSound(self, szSoundScript, iSoundId, bForce3D):
+ 		self.soundId = None
+ 		self.is3DSound = False
+@@ -139,6 +161,12 @@ class SevoPediaMediaPlayer:
+ 		screen = CyGInterfaceScreen(self.screenId, self.screenEnum)
+ 		screen.hideScreen()
+ 		self.isOpen = False
++		self.screen = None
++
++
++
++	def getScreen(self):
++		return self.screen
+ 
+ 
+ 
+@@ -169,6 +197,10 @@ class SevoPediaMediaPlayer:
+ 
+ 		if iNotify == NotifyCode.NOTIFY_CLICKED:
+ 			szName = inputClass.getFunctionName()
++			if szName == self.replayId:
++				if self.replayCallback is not None:
++					self.replayCallback()
++				return True
+ 			# Exit button, or click anywhere on the overlay (image/title/background or movie/nif/dds/title/background) to close.
+ 			if szName == self.exitId or szName.startswith(self.clickPrefix):
+ 				closeCallback()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+index 449b0176f..a96def5bc 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -28,8 +28,10 @@ class SevoPediaMovie:
+ 		self.iMovie = -1
+ 		self.MOVIE_PLAYER_SCREEN = "SevoPediaMoviePlayer"
+ 		self.MOVIE_PLAYER_EXIT_ID = "SAS_MoviePlayerExit"
++		# <!-- custom: bik files don't handle well: For BIK, playMovie() doesn’t behave like the other media widgets, so using a “soft eject + re‑open overlay” is safer. (GPT-5.2-Codex) -->
+ 		self.SAS_savedNoMovies = None
+ 		self.mediaPlayer = SevoPediaMediaPlayer(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES, self.MOVIE_PLAYER_EXIT_ID, "MoviePlayer")
++		self.SAS_lastMoviePayload = None
+ 
+ 		self.X_HEADER = self.top.X_PEDIA_PAGE
+ 		self.Y_HEADER = self.top.Y_PEDIA_PAGE
+@@ -128,8 +130,10 @@ class SevoPediaMovie:
+ 
+ 	def showMoviePlayer(self, iMovieType, iMovieId, moviePayload):
+ 		szMovieFile, szMovieKind, szSoundScript = moviePayload
++		self.SAS_lastMoviePayload = (iMovieType, iMovieId, szMovieFile, szMovieKind, szSoundScript)
+ 
+-		self.SAS_savedNoMovies = CyUserProfile().getGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES)
++		if self.SAS_savedNoMovies is None:
++			self.SAS_savedNoMovies = CyUserProfile().getGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES)
+ 		CyUserProfile().setGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES, False)
+ 
+ 		szTitleText = self.getMovieTitle(iMovieType, iMovieId)
+@@ -151,6 +155,8 @@ class SevoPediaMovie:
+ 			self.mediaPlayer.playSound(szSoundScript, -1, False)
+ 
+ 		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
++		self.mediaPlayer.placeReplayButton(screen, iScreenW, iScreenH)
++		self.mediaPlayer.setReplayCallback(self.replayMovie)
+ 
+ 
+ 
+@@ -160,6 +166,7 @@ class SevoPediaMovie:
+ 
+ 		if self.SAS_savedNoMovies is not None:
+ 			CyUserProfile().setGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES, self.SAS_savedNoMovies)
++			self.SAS_savedNoMovies = None
+ 
+ 		# <!-- custom: try to stop the specific 2D sound via Destroy2DSound(handle); if that fails, fall back to
+ 		# CyInterface().stop2DSound() as a global 2D stop for stubborn handles. Credit: CIV4BUG API docs.
+@@ -179,6 +186,17 @@ class SevoPediaMovie:
+ 		return self.mediaPlayer.handleInput(inputClass, self.closeMoviePlayer, True)
+ 
+ 
++	def replayMovie(self):
++		if self.SAS_lastMoviePayload is None:
++			return
++
++		iMovieType, iMovieId, szMovieFile, szMovieKind, szSoundScript = self.SAS_lastMoviePayload
++
++		self.mediaPlayer.stopSound()
++		self.mediaPlayer.closeScreen()
++		self.showMoviePlayer(iMovieType, iMovieId, (szMovieFile, szMovieKind, szSoundScript))
++
++
+ 
+ 	def getMovieInfo(self, iMovieType, iMovieId):
+ 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_VICTORY:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index d32b8ea2f..25f463240 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -26,6 +26,7 @@ class SevoPediaMusic:
+ 		self.MUSIC_PLAYER_SCREEN = "SevoPediaMusicPlayer"
+ 		self.MUSIC_PLAYER_EXIT_ID = "SAS_MusicPlayerExit"
+ 		self.mediaPlayer = SevoPediaMediaPlayer(self.MUSIC_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MUSIC, self.MUSIC_PLAYER_EXIT_ID, "MusicPlayer")
++		self.SAS_lastMusicSound = None
+ 
+ 		# Offset for the extra width of Music items list vs base width
+ 		I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
+@@ -237,6 +238,9 @@ class SevoPediaMusic:
+ 			self.mediaPlayer.playSound(szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
+ 
+ 		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
++		self.mediaPlayer.placeReplayButton(screen, iScreenW, iScreenH)
++		self.mediaPlayer.setReplayCallback(self.replayMusic)
++		self.SAS_lastMusicSound = (szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
+ 
+ 
+ 
+@@ -259,6 +263,14 @@ class SevoPediaMusic:
+ 		return self.mediaPlayer.handleInput(inputClass, self.closeMusicPlayer, False)
+ 
+ 
++	def replayMusic(self):
++		if self.SAS_lastMusicSound is None:
++			return
++		szSoundScript, iSoundId, bForce3D = self.SAS_lastMusicSound
++		self.mediaPlayer.stopSound()
++		self.mediaPlayer.playSound(szSoundScript, iSoundId, bForce3D)
++
++
+ 
+ 	def getMusicInfo(self, iPacked):
+ 		return self.top.getMusicInfo(iPacked)
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index 2814ed731..dd684e6fe 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -1849,5 +1849,10 @@ Created as part of AdvCiv-SAS improvements
+ 			<Type>SAS_EMOJI_PLAY_BUTTON</Type>
+ 			<Path>Art/AdvCiv_SAS/Emojis/Play_Button/25b6_64px.dds</Path>
+ 		</InterfaceArtInfo>
++		<!-- ⏏️ emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_EJECT_BUTTON</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Eject_Button/23cf_64px.dds</Path>
++		</InterfaceArtInfo>
+ 	</InterfaceArtInfos>
+ </Civ4ArtDefines>
+
+diff --git a/README.md b/README.md
+index 149ef1b1e..efaac5eb8 100644
+--- a/README.md
++++ b/README.md
+@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
+ 
+ The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
+ 
+-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Playing (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework. New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g. `ObsoleteTech` for units).
++Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework. New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g. `ObsoleteTech` for units).
+ 
+ Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+ 
+@@ -277,13 +277,13 @@ See [example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Rework
+ 
+ Based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS, we provide a new Sevopedia Movies category with movies (bik, nif, dds) playing and additional audio support for non-bik files such as religions (nif + separate sound asset).
+ 
+-Multiple categories are supported, as of now Victories, Wonders, Projects, Religions, and Eras. The movie starts in a new screen that can be exited anytime. A clickable emoji-based Play Button has been provided.
++Common logic to Sevopedia Movies and Sevopedia Music is in [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py) with the very nice help of GPT-5.2-Codex thanks a lot! Features include but not only a play button for replay, and an eject button for exit (useful for `_ORDER` or `_SELECT` Civilizations sounds for example as they replay variants for the same item).
+ 
+-Common logic is in [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py) with the very nice help of GPT-5.2-Codex thanks a lot!
++Multiple categories are supported, as of now Victories, Wonders, Projects, Religions, and Eras. The movie starts in a new screen that can be exited anytime. A clickable emoji-based Play Button has been provided.
+ 
+ We also added a new Sevopedia Music that allows to play ~1750 audio scripts in Sevopedia (as of now 963 AS2D and 786 AS3D audio scripts)! Search bar support allows for an easy find of the wanted tracks. And a play Button is provided. Among assets, notably but not only, each Tech's, Leader's, Civlization's, Era's music can be listened to.
+ 
+-See [Sevopedia Reworks (Movies category (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-movies-category-with-audio-support) and [Sevopedia Reworks (Music category (~1750 audio scripts playable ingame))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-music-category-1750-audio-scripts-playable-ingame)
++See [Sevopedia Reworks (Movies category (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-movies-category-with-audio-support) and [Sevopedia Reworks (Music category (~1750 audio scripts playable ingame))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-ingame).
+ 
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (1).JPG" alt="0.810_sevopedia_movies (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 4d9e5d027..cc1ccd22b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -299,8 +299,9 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game speed Turbo) and marked with `*` to distinguish them from regular XML info fields. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+ - (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+ - (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras, and notably **optional era buttons**. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+-- (Requires AdvCiv-SAS 5357+) New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. Movies are played on a **new screen**. Click on "OK" or Right-click to **stop the media playing**; press Escape or Enter key for main menu. See [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py) and [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-movies-category-with-audio-support).
+-- (Requires AdvCiv-SAS 5359+) New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. Note: there are **multiple sounds in an item** for each civilization sound item, so **replay many times the same item to hear all civilization sounds**. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-music-category-1750-audio-scripts-playable-in-sevopedia).
++- (Requires AdvCiv-SAS 5387+) New **Media Player** (**shared** between Sevopedia Movies and Music): supports **Replay** (button) without having to exit the screen. Click on **Eject button** or **Right-click** to **stop the media playing**; press Escape or Enter key for main menu. See [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py).
++- (Requires AdvCiv-SAS 5357+) New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support).
++- (Requires AdvCiv-SAS 5359+) New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. Note: there are **multiple sounds in an item** for each civilization sound item, so **replay many times the same item to hear all civilization sounds**. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia).
+ - (Requires AdvCiv-SAS 5340+) Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ - (Requires AdvCiv-SAS 5354+) Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 6ee117588..22b138878 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -23,8 +23,8 @@ Note 2: in below sample examples, click the images to view them full size.
+ &emsp;&emsp;[example 0.6: Game Speed Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category)  
+ &emsp;&emsp;[example 0.7: World Sizes Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category)  
+ &emsp;&emsp;[example 0.8: Eras Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category)  
+-&emsp;&emsp;[example 0.90: Movies category (with audio support)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-movies-category-with-audio-support)  
+-&emsp;&emsp;[example 0.91: Music category (~1750 audio scripts playable in Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-music-category-1750-audio-scripts-playable-in-sevopedia)  
++&emsp;&emsp;[example 0.91: Movies category (with audio support)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support)  
++&emsp;&emsp;[example 0.92: Music category (~1750 audio scripts playable in Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia)  
+ [Sevopedia Pages individual reworks](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#some-lower-level-changes-or-new-features)  
+ &emsp;[example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes)  
+ &emsp;[example 1.5: traits category (Traits Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes)  
+@@ -180,15 +180,21 @@ More recently, added optional era buttons. Idea i got from watching how the c2c
+ <img src="../Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG" alt="0.628_sevopedia_eras_chart (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.628_sevopedia_eras_chart (2).JPG" alt="0.628_sevopedia_eras_chart (2).JPG" width="250"></img>
+ 
+-### example 0.90: Movies category (with audio support)
++### example 0.90: Media Player
+ 
+-Added a Movies category in Sevopedia that lists movies (as of now Victories, Wonders, Projects, Religions, Eras) from bik, nif, dds, with audio support and play on item/entry click. The implementation also uses `WIDGET_PYTHON`.
++Added a common screen for Media Playing (as of now shared for Movies and Music).
+ 
+-A new screen is opened with audio from main menu being silent, an as of now "OK" button to exit it midway if wished, and audio from main menu resuming while the media's audio ends. History navigation is preserved because it is a new screen.
++Implementation based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS with the very nice help of GPT-5.2-Codex and Claude code Opus 4.5, and Claude code Sonnet 4.5 a bit for some UI, thanks a lot!
+ 
+-Emoji-based Play button is added to Sevopedia Building, Project, Religions, and Eras Chart.
++The Sevopedia Media player screen is opened with audio from main menu being silent, an as of now Eject button to exit it midway if wished, and audio from main menu resuming while the media's audio ends. History navigation is preserved because it is a new screen.
+ 
+-Implementation based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS with the very nice help of GPT-5.2-Codex and Claude code Opus 4.5, and Claude code Sonnet 4.5 a bit for some UI, thanks a lot!
++A play button allows to replay track without exiting the screen (useful for `_ORDER` or `_SELECT` Civilizations sounds for example as they replay variants for the same item).
++
++### example 0.91: Movies category (with audio support)
++
++Added a Movies category in Sevopedia that lists movies (as of now Victories, Wonders, Projects, Religions, Eras) from bik, nif, dds, with audio support and play on item/entry click. The implementation also uses `WIDGET_PYTHON`.
++
++Emoji-based Play button is added to Sevopedia Building, Project, Religions, and Eras Chart.
+ 
+ Note: Common logic to Sevopedia Movies and Music is in [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py) with the very nice help of GPT-5.2-Codex thanks a lot!
+ 
+@@ -196,7 +202,7 @@ Note: Common logic to Sevopedia Movies and Music is in [SevoPediaMediaPlayer.py]
+ <img src="../Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.810_sevopedia_movies (3).JPG" alt="0.810_sevopedia_movies (3).JPG" width="250"></img>
+ 
+-### example 0.91: Music category (~1750 audio scripts playable in Sevopedia)
++### example 0.92: Music category (~1750 audio scripts playable in Sevopedia)
+ 
+ Expanding on the Movies category, we added a new Sevopedia Music category, that allows as of now to play 963 AS2D and 786 AS3D audio scripts! So in total as of now 1749 audio files that can be listened to ingame in Sevopedia!
+ 
+@@ -216,8 +222,6 @@ Later on, added civilizations parsing as well similarly with buttons. Note: the
+ 
+ Done with the very big and nice help of GPT-5.2-Codex, Claude code Opus 4.5, Claude code Sonnet 4.5, ChatGPT-5.2 Thinking, Gemini 2.5 pro (in VS Code).
+ 
+-As of now, click on "OK" or Right-click to stop the media playing; press Escape or Enter key for main menu
+-
+ The implementation still needs some minor polish, but it is as of now entirely functional. Polish includes:
+ 
+ - Add a custom dds or nif (like leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG
+index 812283fdb..2bb725ac4 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG
+index 717258d2f..91b508d1d 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG
+index c1281c658..b30c3671d 100644
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG and b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG
+index a3707f2be..8c22aa2a5 100644
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG and b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG
+new file mode 100644
+index 000000000..c434220e8
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=27453

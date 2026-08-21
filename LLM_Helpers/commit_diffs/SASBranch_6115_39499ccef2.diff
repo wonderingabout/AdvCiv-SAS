@@ -1,0 +1,201 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6115
+# Commit: 39499ccef2aae5b36268e75dd3dd09c3a3fb2515
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d2c310774e5e93787c6609b01c9fb60880d6311c
+# Title: (Fixed/Improved) Disable Base AdvCiv relative-strength tech-trade rubber-banding that guaranteed weaker recipients discounts without bargaining risk (KI#201)...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+8	0	Assets/XML/GlobalDefines_advciv_sas.xml
+52	42	CvGameCoreDLL/CvTeamAI.cpp
+17	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 40e56ebe2..854677eb1 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -2960,6 +2960,14 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: AdvCiv change 550a lowers the trade value of technology received by a weaker civilization according to relative technology score and military power. This is rubber-banding rather than merely strategy because relative standing directly changes the fair price for both AI sides, regardless of technology urgency, alternative sellers or the stronger seller's interest. 0 restores BTS strength-independent valuation for this factor, 100 applies the full AdvCiv catch-up effect, and intermediate values soften it. This does not control the separate SAS tech-trade adjustments below. AdvCiv-SAS disables this by default instead of guaranteeing the weaker side that advantage. See KI#201. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: Encourage master/vassal preferential contact as this should be mutually beneficial; Long_Comments_XML.txt #174 -->
+ 	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+ 	<Define>
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index b1603f0ab..f6bfff0aa 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2006,48 +2006,58 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
+ 	// <advc.550a>
+ 	if(!bIgnoreDiscount &&  // No discounts for vassals:
+ 		!isVassal(eFromTeam) && !GET_TEAM(eFromTeam).isVassal(getID()))
+-	{	/*  If they're more advanced/powerful, they shouldn't mind giving us
+-			a tech, so we lower our tech value, assuming/hoping that we'll be
+-			able to get it cheap.
+-			Handle this here instead of CvPlayer::AI_tradeAcceptabilityThreshold
+-			b/c tech is shared rather than given away. Giving away e.g. gold is bad
+-			even if we don't think the other side is a threat. */
+-		scaled rPowRatio(getPower(true),
+-				std::max(1, GET_TEAM(eFromTeam).getPower(true)));
+-		/*  Don't use CvTeam::getBestKnownTechScorePercent b/c that's based on
+-			the teams that the callee has met. This team shouldn't have that info
+-			about eTeam. */
+-		scaled rTechRatio(GET_PLAYER(getLeaderID()).getTechScore(),
+-				/*	(Scores are computed per player, but the tech score is actually
+-					the same for all members of a team.) */
+-				std::max(1, GET_PLAYER(GET_TEAM(eFromTeam).getLeaderID()).getTechScore()));
+-		CvGame const& kGame = GC.getGame();
+-		scaled rGameProgress(kGame.getGameTurn() - kGame.getStartTurn(),
+-				std::max(1, kGame.getEstimateEndTurn() - kGame.getStartTurn()));
+-		// Too big a discount too early this way? Let's try this:
+-		if (rGameProgress.isPositive())
+-			rGameProgress = 1 / (1 + 1 / rGameProgress);
+-		rGameProgress.clamp(0, fixp(0.5));
+-		rPowRatio.clamp(1 - rGameProgress, 1 + rGameProgress);
+-		rTechRatio.clamp(1 - rGameProgress, 1 + rGameProgress);
+-		// Powerful civs shouldn't grant large discounts to advanced civs
+-		if(rTechRatio < 1 && rPowRatio > 1)
+-		{
+-			rPowRatio *= SQR(rTechRatio);
+-			rPowRatio.increaseTo(1);
+-		}
+-		else if(rTechRatio > 1 && rPowRatio < 1)
+-		{
+-			rPowRatio *= SQR(rTechRatio);
+-			rPowRatio.decreaseTo(1);
+-		}
+-		scaled rDiscountModifier = (rPowRatio + 2 * rTechRatio) / 3;
+-		/*  Not sure about this guard: Should weak civs charge more for their techs?
+-			In tech-vs-tech trades, the modifier would then take effect twice,
+-			resulting in one side demanding up to twice as much as the other;
+-			too much I think. */
+-		if(rDiscountModifier < 1)
+-			rValue *= rDiscountModifier;
++	{
++		// <!-- custom: AdvCiv change 550a makes a weaker recipient value a stronger civilization's technology less, imposing the same discounted idea of a fair price on both AI sides rather than risking an ordinary bargaining refusal.
++		// Scale that relative-strength catch-up effect from 0 (BTS behavior for this factor) to 100 (full AdvCiv behavior); keep the independent SAS military-technology valuation below active at 0. See KI#201. (GPT-5.6-Sol) -->
++		static const int iSAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT = range(GC.getDefineINT("SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT"), 0, 100);
++		if (iSAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT > 0)
++		{
++			/*  If they're more advanced/powerful, they shouldn't mind giving us
++				a tech, so we lower our tech value, assuming/hoping that we'll be
++				able to get it cheap.
++				Handle this here instead of CvPlayer::AI_tradeAcceptabilityThreshold
++				b/c tech is shared rather than given away. Giving away e.g. gold is bad
++				even if we don't think the other side is a threat. */
++			scaled rPowRatio(getPower(true),
++					std::max(1, GET_TEAM(eFromTeam).getPower(true)));
++			/*  Don't use CvTeam::getBestKnownTechScorePercent b/c that's based on
++				the teams that the callee has met. This team shouldn't have that info
++				about eTeam. */
++			scaled rTechRatio(GET_PLAYER(getLeaderID()).getTechScore(),
++					/*	(Scores are computed per player, but the tech score is actually
++						the same for all members of a team.) */
++					std::max(1, GET_PLAYER(GET_TEAM(eFromTeam).getLeaderID()).getTechScore()));
++			CvGame const& kGame = GC.getGame();
++			scaled rGameProgress(kGame.getGameTurn() - kGame.getStartTurn(),
++					std::max(1, kGame.getEstimateEndTurn() - kGame.getStartTurn()));
++			// Too big a discount too early this way? Let's try this:
++			if (rGameProgress.isPositive())
++				rGameProgress = 1 / (1 + 1 / rGameProgress);
++			rGameProgress.clamp(0, fixp(0.5));
++			rPowRatio.clamp(1 - rGameProgress, 1 + rGameProgress);
++			rTechRatio.clamp(1 - rGameProgress, 1 + rGameProgress);
++			// Powerful civs shouldn't grant large discounts to advanced civs
++			if(rTechRatio < 1 && rPowRatio > 1)
++			{
++				rPowRatio *= SQR(rTechRatio);
++				rPowRatio.increaseTo(1);
++			}
++			else if(rTechRatio > 1 && rPowRatio < 1)
++			{
++				rPowRatio *= SQR(rTechRatio);
++				rPowRatio.decreaseTo(1);
++			}
++			scaled rDiscountModifier = (rPowRatio + 2 * rTechRatio) / 3;
++			/*  Not sure about this guard: Should weak civs charge more for their techs?
++				In tech-vs-tech trades, the modifier would then take effect twice,
++				resulting in one side demanding up to twice as much as the other;
++				too much I think. */
++			if(rDiscountModifier < 1)
++			{
++				rDiscountModifier = 1 + (rDiscountModifier - 1) * per100(iSAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT);
++				rValue *= rDiscountModifier;
++			}
++		}
+ 
+ 		// <!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
+ 		// SAS techTradePowerDanger: bias trade valuation toward key military techs when we're clearly outgunned
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index ad87e6000..0aa60883e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -259,6 +259,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [198.2 - (Fixed/Improved) Base AdvCiv AI non-combat food-production allocation could stall small growing cities instead of using mature or stagnant food/production pumps (observed with Workers)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1982---fixedimproved-base-advciv-ai-non-combat-food-production-allocation-could-stall-small-growing-cities-instead-of-using-mature-or-stagnant-foodproduction-pumps-observed-with-workers)\
+ [199 - (Fixed/Improved) Base AdvCiv/K-Mod generic UnitAI fallback could use dedicated land anti-air units as ordinary attackers or reserves](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#199---fixedimproved-base-advcivk-mod-generic-unitai-fallback-could-use-dedicated-land-anti-air-units-as-ordinary-attackers-or-reserves)\
+ [200 - (Improved) Inherited Base AdvCiv/K-Mod sacrifice selection could spend current units before SAS-defined obsolete expendables during risky AI stack attacks](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#200---improved-inherited-base-advcivk-mod-sacrifice-selection-could-spend-current-units-before-sas-defined-obsolete-expendables-during-risky-ai-stack-attacks)\
++[201 - (Fixed/Improved) Base AdvCiv relative-strength tech-trade rubber-banding guaranteed weaker recipients discounts without bargaining risk](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#201---fixedimproved-base-advciv-relative-strength-tech-trade-rubber-banding-guaranteed-weaker-recipients-discounts-without-bargaining-risk)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7653,3 +7654,19 @@ The bypass threshold was subsequently raised from the directly exercised 50% bou
+ The detailed level-3 `WAR_ATTACK_ORDER` candidate and exact battle-ID diagnostics are retained for now so future tuning can distinguish ordinary sacrifice selection from obsolete-expenditure overrides and directly join selected units to combat outcomes.
+ 
+ Improved with the help of GPT-5.6 Thinking thanks.
++
++## 201 - (Fixed/Improved) Base AdvCiv relative-strength tech-trade rubber-banding guaranteed weaker recipients discounts without bargaining risk
++
++[The same CivFanatics player report](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16979072) that prompted the preceding [map-generation compatibility commit `89d3fba`](https://github.com/wonderingabout/AdvCiv-SAS/commit/89d3fba5507db9f011d812120335c49cd9e5cbf9), and [another one of the same user](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16979573) also identified AdvCiv change 550a's relative-strength adjustment to technology trade values. Base BTS makes technology trade value independent of how well the recipient is doing. AdvCiv instead makes a weaker recipient value technology from a stronger civilization less, using a weighted average in which relative technology score counts twice as much as relative military power.
++
++The adjustment grows with game progress. Its strongest possible discount is about 20% one quarter of the way through the estimated game, 33% halfway through and 50% at the estimated end turn. These are caps requiring a sufficiently large relative-strength difference, not the result of every trade. However, a late-game technology-for-technology exchange can consequently require the stronger side to offer up to roughly twice the ordinary nominal value. Large empire size is not measured directly, but a technologically leading large empire will often also have greater total military power and therefore receive the strongest form of the adjustment.
++
++The central design problem is that this is not ordinary bargaining. `CvPlayerAI::AI_considerOffer` evaluates what each side receives through that recipient's `AI_dealVal`, which in turn calls the recipient team's `AI_techTradeVal`. Both AI sides therefore adopt the weaker recipient's discounted valuation as the fair price. The weaker AI does not risk making a stingy offer that the stronger AI may reject, nor decide whether the technology is urgent enough to justify paying the ordinary price or whether another seller is likely to appear. Against a human, the player can reject the artificial price, leaving the weaker AI without the technology; an ordinary rejected trade offer also does not itself create the diplomatic consequence that refusing a demand or plea can create. The rule is therefore a guaranteed AI-to-AI catch-up transfer rather than a model of strategically choosing when to bargain hard.
++
++This is rubber-banding rather than merely a strategy change because the transaction's price is changed directly from the civilizations' relative technology score and military power: falling behind automatically makes incoming technology cheaper, being ahead removes that advantage, and the maximum intervention grows as the game progresses. It applies without first establishing that the technology is urgent, that competing sellers exist or that accepting less is in the stronger seller's interest. A strategy change would instead make the weaker AI search more actively, compare sellers, preserve resources when waiting is safe or pay the ordinary price when immediate acquisition has the better expected outcome, while leaving the other side independently free to accept or reject the proposed deal.
++
++AdvCiv-SAS now controls this factor through `SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT`. The default `0` restores BTS strength-independent valuation for this factor; `100` restores the full AdvCiv adjustment, and intermediate values such as `30` or `50` proportionally soften it. When set to `0`, the power-ratio, technology-ratio and game-progress calculations are skipped. The setting does not disable independent AdvCiv-SAS technology-trade logic, including common-technology discounts, master-vassal-locus valuation or extra valuation of urgent military technologies. AdvCiv's existing exclusion for direct master-vassal relationships also remains unchanged when the effect is enabled.
++
++The DLL compiled and an in-game smoke test ran successfully with the new default. Broader BBAI technology-trade diagnostics are deliberately postponed until after release: useful logging should connect contact selection, denials, candidate packages, individual valuation modifiers, counterproposals and the final accepted or rejected deal, rather than flooding the log with every speculative `AI_techTradeVal` call.
++
++Fixed/improved based on the linked player report and with the help of GPT-5.6-Sol thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 41bff0093..e14d8ecca 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -310,6 +310,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Era- & inventory-aware relative pricing for key strategic bonuses (Horse<->Camel, Camel<->Horse, ±Elephants):** Also in `CvPlayerAI::AI_bonusTradeVal`, trade values now adjust by what the buyer already has and by era. Examples: Medieval buyer with **Horse/Camel** but no **Iron** values Iron ≈ x2 (to unlock Knights); by Renaissance that premium fades (Muskets don’t need any bonus; Cannons only need Iron). **Elephants** are valued in Ancient/Classical, but discounted in Medieval (≈ x0.5, for buildings at most). **Copper/Iron** are discounted in Classical if the buyer already has Camel/Horse/Elephants; Horse and Camel are treated as partial substitutes early on. **Update:** this adjustment no longer applies to trades *within* the same master–vassal(s) locus, since it is generally in their shared interest to strengthen each other.
+ - **Do not buy dominated or equivalent strategic bonuses (era and bonus-aware):** strategic bonus buying now uses explicit exclusion rules, so AI skips dominated/equivalent offers instead of considering them as valid buys. Examples: in Classical, Copper is not needed if we have Iron; in Classical metals and mounted lines can substitute each other so redundant buys are skipped; Horse and Camel are treated as equivalent in Classical/Medieval/Renaissance; in Industrial (before Modern), Horse has the edge (no Camel Dragoon), so Camel is skipped if Horse is already available, etc. Change in `CvPlayerAI::AI_bonusTrade`. See [KI#109](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#109---tremendously-improved-ai-bonus-trading-ai-very-inefficiently-buying-dominated-or-equivalent-strategic-bonuses-era-and-bonus-aware-exclusions).
+ - **Aggressive tech trade discounts for widely known techs:** AIs now sell technologies known by ≥1 of their rivals at **heavy discounts** (e.g. 25% of the original cost/value), recognizing that it is better to secure **some gold** immediately via a cheap sale than to hold out and risk getting **0 gold** if a rival sells it first; implemented in `CvPlayerAI::AI_dealVal`. To compensate for this higher trading efficiency, **AI research costs** (`iAIResearchPercent`) have been adjusted (reduced/increased at higher/lower handicaps). See [KI#83](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#83---tremendously-improved-ais-not-trading-techs-more-aggressively-and-cheaply-when-rivals-discover-them-too-and-there-is-a-risk-they-will-beat-us-to-the-sale-leaving-us-with-nothing-rather-than-little-gold-or-such-which-would-have-been-much-better).
++- (Requires AdvCiv-SAS 6115+) **Disable AdvCiv relative-strength tech-trade discount rubber-banding (tunable):** AdvCiv change 550a makes a weaker recipient value a stronger civilization's technology less, with technology score weighted twice as strongly as military power and a maximum late-game discount of 50%. Because both AI sides use that discounted value, it guarantees the weaker civilization a better price rather than making it decide whether waiting is preferable to paying the ordinary price. This is rubber-banding rather than merely a strategy change because relative standing directly changes the transaction's price and the intervention grows with game progress, regardless of technology urgency, competing sellers or whether accepting less benefits the stronger seller. `SAS_AI_TECH_TRADE_RELATIVE_STRENGTH_EFFECT_PERCENT` is therefore now `0` by default (restores BTS behavior for this factor: no rubber-banding). Note: it can be set to `100` to fully restore AdvCiv behavior, or intermediate values like `30` or `50` to soften the effect. Other AdvCiv-SAS technology-trade adjustments remain independent. See [KI#201](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#201---fixedimproved-base-advciv-relative-strength-tech-trade-rubber-banding-guaranteed-weaker-recipients-discounts-without-bargaining-risk).
+ - **Preferential master–vassal tech trading:** Heavily increase willingness to trade techs with our **master/vassal(s)**; change in `CvPlayerAI::AI_doDiplo`. This synergises with the earlier "devalue techs your master/vassal already knows" change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#technologies-ai)) and extends it **to *all* techs**, not just techs that overlap with what our master/vassal(s) already know. In one autoplay sample this *seemed* to **reduce tech overlap** and **improve sharing** between vassals (who had many more techs) and their master (who now picks up more of them). Also updated `AI_contactRoll(CONTACT_TRADE_TECH` to pass an explicit probability multiplier (rather than relying on the default of 1), making tech-trade frequency more dynamic and tunable instead of solely personality-driven. See [KI#78](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#78---improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--add-a-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-to-have-a-more-dynamic-tech-trading-not-only-based-on-personality-according-to-chatgpt-51-and-then-corrected-by-claude-sonnet-45s-review-check-if-accurate). **Update:** Extend the same extra trade bias to **sibling vassal<->vassal** trades.
+ - **Military-power–aware tech trade targeting:** If a potential tech-trade is *not* between members of the same master–vassal(s) locus, `CvPlayerAI::AI_doDiplo` instead increases tech-trade contact chance toward **militarily weaker** players (safer, less likely to threaten us) and reduces it for **stronger** ones (less free value to future rivals). In one autoplay sample this seemingly produced a much closer game: the former runaway (Ewuare) was repeatedly caught up by rivals, and the game lasted to ~T419 instead of ~T288, with the lead changing hands several times. See [KI#80](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental).
+ - **Master–vassal(s) locus first for tech trades:** Whenever the AI wants to contact other players for a tech trade in `CvPlayerAI::AI_doDiplo`, it now **first checks** whether the desired tech is already tradeable inside its own master–vassal locus (master, vassals, sibling vassals). If so, it **does not ask outside civilizations for that tech**, nudging trades to stay within the group instead. In one autoplay sample this *seemed* to help Ewuare win earlier by finally picking up the Dragoon-related military tech from a vassal, while the locus kept a similar overall tech pace to previous runs. See [KI#79](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=21077

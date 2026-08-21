@@ -1,0 +1,255 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5560
+# Commit: fdfab488eb49598075653bc1ee0975d68b51952e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 09993883db5c6503a333c09761c8eb54d263f1cd
+# Title: minor rename files to shorter name so it doesn't block git clone preemptively
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AGENTS.md
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+4	4	README.md
+0	0	_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/{civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt => civ4bug_pythonAPI_AllClasses_html.txt}
+3	3	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+2	2	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+4	4	_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.5131_foreign_advisor_glance_willing_vassal_show.jpg => 0.5131_foreign_advisor_glance_willing_vassal.jpg}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.5150_technology_advisor_customizable_width (1).JPG => 0.5150_technology_advisor_custom_w (1).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.5150_technology_advisor_customizable_width (2).JPG => 0.5150_technology_advisor_custom_w (2).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.5150_technology_advisor_customizable_width (3).JPG => 0.5150_technology_advisor_custom_w (3).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.5150_technology_advisor_customizable_width (4).JPG => 0.5150_technology_advisor_custom_w (4).JPG}
+-	-	_1_AdvCiv-SAS/Images/llm_agentic_tools/{claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG => claude_code_opus_4_6_5_3_calibration.PNG}
+-	-	_1_AdvCiv-SAS/Images/misc_0.x/{0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg => 0.221_main_world_map_for_civs_terrain_feature.jpg}
+-	-	_1_AdvCiv-SAS/Images/sevopedia/{0.6252_sevopedia_handicaps_chart_DLL_getters.JPG => 0.6252_sevopedia_handicaps_chart_getters.JPG}
+-	-	_1_AdvCiv-SAS/Images/sevopedia/{0.691_sevopedia_buildings_hoverable_clickable_great_person.JPG => 0.691_sevopedia_buildings_hover_click_GP.JPG}
+-	-	_1_AdvCiv-SAS/Windows_shortcuts/{___Civilizations folder (for leader info or-and other) - Steam Shortcut.lnk => ___Civilizations folder - Steam Shortcut.lnk}
+-	-	_1_AdvCiv-SAS/Windows_shortcuts/handicap_info_to_csv_base_advciv.csv - Steam Shortcut.lnk
+0	0	_1_AdvCiv-SAS/git_logs/{git_log_anonymized_email_003_AdvCiv-SAS-previous.txt => git_log_anonymized_email_003_AdvCiv-SAS.txt}
+ rename _0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/{civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt => civ4bug_pythonAPI_AllClasses_html.txt} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.5131_foreign_advisor_glance_willing_vassal_show.jpg => 0.5131_foreign_advisor_glance_willing_vassal.jpg} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.5150_technology_advisor_customizable_width (1).JPG => 0.5150_technology_advisor_custom_w (1).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.5150_technology_advisor_customizable_width (2).JPG => 0.5150_technology_advisor_custom_w (2).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.5150_technology_advisor_customizable_width (3).JPG => 0.5150_technology_advisor_custom_w (3).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/advisors/{0.5150_technology_advisor_customizable_width (4).JPG => 0.5150_technology_advisor_custom_w (4).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/llm_agentic_tools/{claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG => claude_code_opus_4_6_5_3_calibration.PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/misc_0.x/{0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg => 0.221_main_world_map_for_civs_terrain_feature.jpg} (100%)
+ rename _1_AdvCiv-SAS/Images/sevopedia/{0.6252_sevopedia_handicaps_chart_DLL_getters.JPG => 0.6252_sevopedia_handicaps_chart_getters.JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/sevopedia/{0.691_sevopedia_buildings_hoverable_clickable_great_person.JPG => 0.691_sevopedia_buildings_hover_click_GP.JPG} (100%)
+ rename _1_AdvCiv-SAS/Windows_shortcuts/{___Civilizations folder (for leader info or-and other) - Steam Shortcut.lnk => ___Civilizations folder - Steam Shortcut.lnk} (100%)
+ delete mode 100644 _1_AdvCiv-SAS/Windows_shortcuts/handicap_info_to_csv_base_advciv.csv - Steam Shortcut.lnk
+ rename _1_AdvCiv-SAS/git_logs/{git_log_anonymized_email_003_AdvCiv-SAS-previous.txt => git_log_anonymized_email_003_AdvCiv-SAS.txt} (100%)
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 0bcf667cd..9c609046f 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -74,7 +74,7 @@ When a Python getter seems missing or unclear (e.g., the culture breakdown error
+ 
+ Alternatively, the Civ4 BUG documentation is also provided as .txt, may be helpful, consider reading it for double check or grep needs if in doubt or such. It helped us find the `Destroy2DSound` python function for example, doc is helpful as reference (but lengthy):
+ 
+-- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt"
++- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_pythonAPI_AllClasses_html.txt"
+ 
+ ## Information Fetching online
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+index 4a895c4df..dcf608d9b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+@@ -1,6 +1,6 @@
+ # Sid Meier's Civilization 4
+ # Copyright Firaxis Games 2005
+-
++#
+ #
+ # Sevopedia 2.3
+ #   sevotastic.blogspot.com
+
+diff --git a/README.md b/README.md
+index 74f432dfe..a07fc42d7 100644
+--- a/README.md
++++ b/README.md
+@@ -235,7 +235,7 @@ See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Ma
+ 
+ We added with the help of gemini 3 pro and claude sonnet 4.5 and my help too thanks, icons in the foreign advisor's glance tab, that show if a rival is willing to become our rival (as of now star icon) and if they are our vassal (as of now strength icon), which is very useful to avoid tediously checking these everytime in diplomacy or risking to have missed them in messages or such. Also added a tooltip (on hover). See [KI#84](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.5131_foreign_advisor_glance_willing_vassal_show.jpg" alt="0.5131_foreign_advisor_glance_willing_vassal_show.jpg" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.5131_foreign_advisor_glance_willing_vassal.jpg" alt="0.5131_foreign_advisor_glance_willing_vassal.jpg" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.5132_willing_vassal_trade.jpg" alt="0.5132_willing_vassal_trade.jpg" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.5133_foreign_advisor_glance_vassal_show.jpg" alt="0.5133_foreign_advisor_glance_vassal_show.jpg" width="250"></img>
+ 
+@@ -412,7 +412,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.740_sevopedia_civics (1).JPG" alt="0.740_sevopedia_civics (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects (1).JPG" alt="0.750_sevopedia_projects (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.760_sevopedia_specialists (1).JPG" alt="0.760_sevopedia_specialists (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.770_sevopedia_specialists (2).JPG" alt="0.770_sevopedia_specialists (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.770_sevopedia_corporations (2).JPG" alt="0.770_sevopedia_corporations (2).JPG" width="250"></img>
+ 
+ #### Notes about the Sevopedia Leader's AI Personality Panel and Sevopedia Traits' Tables
+ 
+@@ -546,7 +546,7 @@ The civs you can expect in this mod come from these parts of the world (circled
+ 
+ Among other maps or information i found online, i mostly also used the map below as well in order to determine which civs should get which terrain/feature modifiers in advciv-sas:
+ 
+-![0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg](/_1_AdvCiv-SAS/Images/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg)
++![0.221_main_world_map_for_civs_terrain_feature.jpg](/_1_AdvCiv-SAS/Images/misc_0.x/0.221_main_world_map_for_civs_terrain_feature.jpg)
+ 
+ Note: sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe and eastern asia due to them being only forestic with no obvious terrain in the world maps i saw, but they is cold, so symbolize it as having if relevant enough a bit of tundra in civ4 terms (see for example this [Köppen climate classification map on wikipedia](https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification))
+ 
+@@ -936,7 +936,7 @@ After having used other LLMs mostly via web chat (i.e. using the web browser), m
+ 
+ Done with the help of Claude code Opus 4.6 whic was god-like precise. See [/LLM_Helpers/](/LLM_Helpers/).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG" alt="claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_5_3_calibration.PNG" alt="claude_code_opus_4_6_5_3_calibration.PNG" width="250"></img>
+ 
+ ##### Other tasks: e.g. performance optimizations
+
+diff --git a/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt b/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_pythonAPI_AllClasses_html.txt
+similarity index 100%
+rename from _0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt
+rename to _0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_pythonAPI_AllClasses_html.txt
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index 3cd7198c0..3e9932e4f 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -331,7 +331,7 @@ Please read these docs (highly recommended) if you want to know more about AI at
+ 
+ - many links in the main README.md first for example maybe indeed in the [main README.md 's page link](/README.md)
+ - todo: tutorial on how to compile the DLL or files for Advciv (but should not be needed if you only modify XML files)
+-- [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now) right panel version of leaders panel, telling [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code comments for details. I have also made a copy of it (this website's content that is very elpful if i or and maybe others or not or other or etc anwyas etc use it or not) here in advciv-sas or the current mod you're using showing this/these doc(s), in the file [civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt), may help us also for global search (with vs code for example is what i use thanks to the person(s) who taught me about it) or other uses or such.
++- [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now) right panel version of leaders panel, telling [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code comments for details. I have also made a copy of it (this website's content that is very elpful if i or and maybe others or not or other or etc anwyas etc use it or not) here in advciv-sas or the current mod you're using showing this/these doc(s), in the file [civ4bug_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_pythonAPI_AllClasses_html.txt), may help us also for global search (with vs code for example is what i use thanks to the person(s) who taught me about it) or other uses or such.
+ - inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe, here it is: `printObjAttrs` in [_sevopedia_debuggers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py) and [Sevopedia/Debug/](/Assets/Python/Contrib/Sevopedia/Debug/) which helped me adjust Claude AI's (see [Authors for details (Claude AI's section) in the main README.md](/README.md#claude-web-chat)) code of the new placeTerrainFeatureCity or similarly named Sevopedia unit function/method, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our inspect of the unitinfo as linked just above in same bulelt point indeed with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o, thanks a lot Claude AI and thanks to me too or and other or and not, hopefully helpful
+ - todo add links if i have/want(/do) more to add
+ 
+@@ -475,7 +475,7 @@ AttributeError: 'CvImprovementInfo' object has no attribute 'isTerrainMakesValid
+ ERR: Python function pediaJumpToImprovement failed, module CvScreensInterface
+ ```
+ 
+-Which would help you solve them, in my case by doing a global search, finding the correct makesvalid method or such (much easier with the [civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt) file we added in advciv-sas mod doc files (that i found on the internet i mean i didn't write it myself but it helps a lot, see below how to use vs code global search for example for details)
++Which would help you solve them, in my case by doing a global search, finding the correct makesvalid method or such (much easier with the [civ4bug_pythonAPI_AllClasses_html.txt](/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/civ4bug_pythonAPI_AllClasses_html.txt) file we added in advciv-sas mod doc files (that i found on the internet i mean i didn't write it myself but it helps a lot, see below how to use vs code global search for example for details)
+ 
+ ## How to enable .dmp files so for some crashes that don't immediately exit you get a "splash screen" (whatever it is called) and can dmp and see turn at crash
+ 
+@@ -498,7 +498,7 @@ I call it "global search" but i don't know how it is exactly called, it's the fe
+ result is for example this (you can right click -> "copy" too so no need to rewrite them)
+ 
+ ```txt
+-C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_pythonAPI_AllClasses_html.txt
+   4173,13: BOOL isBonusMakesValid ()
+   4232,16: BOOL getFeatureMakesValid (INT i)
+   4274,16: BOOL getTerrainMakesValid (INT i)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 7dd1bf30f..526a7eb6d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -154,7 +154,7 @@ Note 2 : in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs anymore.
+ 
+ <img src="../Images/sevopedia/0.625_sevopedia_handicaps_chart (1).JPG" alt="0.625_sevopedia_handicaps_chart (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.625_sevopedia_handicaps_chart (2).JPG" alt="0.625_sevopedia_handicaps_chart (2).JPG" width="250"></img>
+-<img src="../Images/sevopedia/0.6252_sevopedia_handicaps_chart_DLL_getters.JPG" alt="0.6252_sevopedia_handicaps_chart_DLL_getters.JPG" width="250"></img>
++<img src="../Images/sevopedia/0.6252_sevopedia_handicaps_chart_getters.JPG" alt="0.6252_sevopedia_handicaps_chart_getters.JPG" width="250"></img>
+ 
+ ### example 0.6: Game Speed Chart category
+ 
+@@ -448,7 +448,7 @@ In particular, added hoverable great person image links in as of now `placeStats
+ <img src="../Images/sevopedia/0.690_sevopedia_buildings (1).JPG" alt="0.690_sevopedia_buildings (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.690_sevopedia_buildings (2).JPG" alt="0.690_sevopedia_buildings (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.690_sevopedia_buildings (3).JPG" alt="0.690_sevopedia_buildings (3).JPG" width="250"></img>
+-<img src="../Images/sevopedia/0.691_sevopedia_buildings_hoverable_clickable_great_person.JPG" alt="0.691_sevopedia_buildings_hoverable_clickable_great_person.JPG" width="250"></img>
++<img src="../Images/sevopedia/0.691_sevopedia_buildings_hover_click_GP.JPG" alt="0.691_sevopedia_buildings_hover_click_GP.JPG" width="250"></img>
+ 
+ ### example 9: terrains category
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md b/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+index b9b7d193e..8194f8d86 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
++++ b/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+@@ -81,9 +81,9 @@ Players can tune the tech tree's width as they prefer, as of now to 0, 1, 2, or
+ 
+ Visual comparison of how each looks below.
+ 
+-<img src="../Images/advisors/0.5150_technology_advisor_customizable_width (1).JPG" alt="0.5150_technology_advisor_customizable_width (1).JPG" width="250"></img>
+-<img src="../Images/advisors/0.5150_technology_advisor_customizable_width (2).JPG" alt="0.5150_technology_advisor_customizable_width (2).JPG" width="250"></img>
+-<img src="../Images/advisors/0.5150_technology_advisor_customizable_width (3).JPG" alt="0.5150_technology_advisor_customizable_width (3).JPG" width="250"></img>
+-<img src="../Images/advisors/0.5150_technology_advisor_customizable_width (4).JPG" alt="0.5150_technology_advisor_customizable_width (4).JPG" width="250"></img>
++<img src="../Images/advisors/0.5150_technology_advisor_custom_w (1).JPG" alt="0.5150_technology_advisor_custom_w (1).JPG" width="250"></img>
++<img src="../Images/advisors/0.5150_technology_advisor_custom_w (2).JPG" alt="0.5150_technology_advisor_custom_w (2).JPG" width="250"></img>
++<img src="../Images/advisors/0.5150_technology_advisor_custom_w (3).JPG" alt="0.5150_technology_advisor_custom_w (3).JPG" width="250"></img>
++<img src="../Images/advisors/0.5150_technology_advisor_custom_w (4).JPG" alt="0.5150_technology_advisor_custom_w (4).JPG" width="250"></img>
+ 
+ See also [KI#85](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well).
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5131_foreign_advisor_glance_willing_vassal_show.jpg b/_1_AdvCiv-SAS/Images/advisors/0.5131_foreign_advisor_glance_willing_vassal.jpg
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.5131_foreign_advisor_glance_willing_vassal_show.jpg
+rename to _1_AdvCiv-SAS/Images/advisors/0.5131_foreign_advisor_glance_willing_vassal.jpg
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_customizable_width (1).JPG b/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_customizable_width (1).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_customizable_width (2).JPG b/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_customizable_width (2).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_customizable_width (3).JPG b/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (3).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_customizable_width (3).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (3).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_customizable_width (4).JPG b/_1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (4).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_customizable_width (4).JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.5150_technology_advisor_custom_w (4).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG b/_1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_5_3_calibration.PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_gpt_codex_5_3_speed_calibration.PNG
+rename to _1_AdvCiv-SAS/Images/llm_agentic_tools/claude_code_opus_4_6_5_3_calibration.PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg b/_1_AdvCiv-SAS/Images/misc_0.x/0.221_main_world_map_for_civs_terrain_feature.jpg
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg
+rename to _1_AdvCiv-SAS/Images/misc_0.x/0.221_main_world_map_for_civs_terrain_feature.jpg
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.6252_sevopedia_handicaps_chart_DLL_getters.JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.6252_sevopedia_handicaps_chart_getters.JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/sevopedia/0.6252_sevopedia_handicaps_chart_DLL_getters.JPG
+rename to _1_AdvCiv-SAS/Images/sevopedia/0.6252_sevopedia_handicaps_chart_getters.JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.691_sevopedia_buildings_hoverable_clickable_great_person.JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.691_sevopedia_buildings_hover_click_GP.JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/sevopedia/0.691_sevopedia_buildings_hoverable_clickable_great_person.JPG
+rename to _1_AdvCiv-SAS/Images/sevopedia/0.691_sevopedia_buildings_hover_click_GP.JPG
+
+diff --git a/_1_AdvCiv-SAS/Windows_shortcuts/___Civilizations folder (for leader info or-and other) - Steam Shortcut.lnk b/_1_AdvCiv-SAS/Windows_shortcuts/___Civilizations folder - Steam Shortcut.lnk
+similarity index 100%
+rename from _1_AdvCiv-SAS/Windows_shortcuts/___Civilizations folder (for leader info or-and other) - Steam Shortcut.lnk
+rename to _1_AdvCiv-SAS/Windows_shortcuts/___Civilizations folder - Steam Shortcut.lnk
+
+diff --git a/_1_AdvCiv-SAS/Windows_shortcuts/handicap_info_to_csv_base_advciv.csv - Steam Shortcut.lnk b/_1_AdvCiv-SAS/Windows_shortcuts/handicap_info_to_csv_base_advciv.csv - Steam Shortcut.lnk
+deleted file mode 100644
+index 10600791b..000000000
+Binary files a/_1_AdvCiv-SAS/Windows_shortcuts/handicap_info_to_csv_base_advciv.csv - Steam Shortcut.lnk and /dev/null differ
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt reason=known-generated/noisy-history changedLines=0 bytes=344
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=18 omittedFiles=1 embeddedPatchBytes=20697

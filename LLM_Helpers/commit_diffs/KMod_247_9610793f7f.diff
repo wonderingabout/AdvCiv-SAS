@@ -1,0 +1,87 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 247
+# Commit: 9610793f7f71314dd5ce5f222c61cbe7ae949cbf
+# History segment: K-Mod history
+# Parent used for diff: f77d3262666ddecaa0f70253d6c2b7c54af6db83
+# Title: Made some minor changes to how the pathfinding is used when units execute their move order. This may make it slightly faster... but if I've misunderstood how...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+5	3	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 1c95ec0ba..6bc340d24 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1549,7 +1549,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 	{
+ 		iWorstCost += PATH_COMBAT_WEIGHT;
+ 
+-		if (!(iFlags & MOVE_THROUGH_ENEMY)) // MOVE_ATTACK_STACK.
++		if (iFlags & MOVE_ATTACK_STACK)
+ 		{
+ 			FAssert(pSelectionGroup->AI_isControlled());
+ 			int iAttackPower = std::max(1, pSelectionGroup->AI_compareStacks(pToPlot, false, false, false));
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 6eb8cb9f9..3b8f5424a 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3508,7 +3508,8 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 	//if (iFlags & MOVE_THROUGH_ENEMY)
+ 	if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK)) // K-Mod
+ 	{
+-		if (generatePath(plot(), pDestPlot, iFlags))
++		//if (generatePath(plot(), pDestPlot, iFlags))
++		if (generatePath(plot(), pDestPlot, iFlags, true)) // K-Mod
+ 		{
+ 			pDestPlot = getPathFirstPlot();
+ 		}
+@@ -3527,7 +3528,7 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 		if ((getDomainType() == DOMAIN_AIR) || (stepDistance(getX(), getY(), pDestPlot->getX_INLINE(), pDestPlot->getY_INLINE()) == 1))
+ 		{
+ 			//if ((iFlags & MOVE_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (iFlags & MOVE_THROUGH_ENEMY) || (generatePath(plot(), pDestPlot, iFlags) && (getPathFirstPlot() == pDestPlot)))
+-			if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK | MOVE_DIRECT_ATTACK) || getDomainType() == DOMAIN_AIR || (generatePath(plot(), pDestPlot, iFlags) && getPathFirstPlot() == pDestPlot)) // K-Mod
++			if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK | MOVE_DIRECT_ATTACK) || getDomainType() == DOMAIN_AIR || (generatePath(plot(), pDestPlot, iFlags, true) && getPathFirstPlot() == pDestPlot)) // K-Mod
+ 			{
+ 				int iAttackOdds;
+ 				CvUnit* pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, true, iAttackOdds);
+@@ -3716,7 +3717,8 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, int iFlags)
+ 	}
+ 	else
+ 	{
+-		if (!generatePath(plot(), pDestPlot, iFlags))
++		//if (!generatePath(plot(), pDestPlot, iFlags))
++		if (!generatePath(plot(), pDestPlot, iFlags, true)) // K-Mod
+ 		{
+ 			return false;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index cbb1e67b9..8e20d4284 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2427,7 +2427,7 @@ void CvUnitAI::AI_attackMove()
+ 			if (getGroup()->getNumUnits() > 1)
+ 			{
+ 				//if (AI_targetCity())
+-				if (AI_goToTargetCity(MOVE_AVOID_ENEMY_WEIGHT_2 | MOVE_ATTACK_STACK, 12))
++				if (AI_goToTargetCity(MOVE_AVOID_ENEMY_WEIGHT_2, 12))
+ 				{
+ 					return;
+ 				}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2916

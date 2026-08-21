@@ -1,0 +1,108 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4890
+# Commit: d16c95379ecd63f25fd3c9d6737cebc5558b68df
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1cc70ae3bea84bac1cb3544f0430460da3548418
+# Title: tweak/fix/optimize settling/founding/planting cities on non bonus/ressource tiles logic/code anyways etc anyways etc anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+13	10	CvGameCoreDLL/CitySiteEvaluator.cpp
+13	12	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 3d5273e69..38be1dfbf 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -706,6 +706,7 @@ short AIFoundValue::evaluate()
+ 		{
+ 			// <!-- custom: defensive bonus of the hill and low food planting/settling the city here but anyways etc should be good as a general rule, except for hill grassland where prioritizing food rather and having a high yield for only 1 food cost the tile may be a better or/and more rewarding strategy instead. So do not give a valorization in that case if i may say but anyways etc, this will be handled by the general grass logic, however also do not valorize hill in that case as part of not incentivizing to plant/settle/found but anyways etc cities on hill grassland anyways etc -->
+ 			// custom: note: valorizing hill settling too much may have some issues if i am not mistaken such as having cities not carry irrigation if i am not mistaken (i don't know too much aobut these) for AIs, but generally more often than not the defense bonus as well as taking one of the low food yield tiles should be a good start to plant the city, so valorize it very much for non-bonus tiles as well (even though a bit less or/and differently in value than for bonus tiles but anyways etc), penalizing hill grassland should ideally especially help in the early game as the yield of hill grassland are very good as of now at least and if i am not mistaken, so better not settle on it, anyways etc -->
++			// custom: note 2: as of now flood plains or and other potentially/hypothetically quite high or high food feature cannot exist on hill, so no need to spend computation on them, but ideally in a mod mod if you'd want to account for such, you'd add them (i.e. the flood plains feature for example if it could fit in a hill for example but anyways etc) here to the hill bonus exclusion (as it is a high food tile, better not plant/settle/found city on it and waste it if i may say but anyways etc) then penalize for example the flood plains feature below separately from the terrain "cascade" (as chatgpt calls it but anwyays etc thanks anyways etc) in its own feature cascade rather (if i amy say too if i may say but anyways etc...) so that the feature valorization change (penalty or increase of valorization but anyways etc) also applies to all terrains, not only just to desert, anyways etc. In short, flood plains on hills don't exist if i am not mistaken in base advciv +/- civ nor in advciv-sas, but it is easier and computationally to handle it as such, update your code as you see fit if your mod mod or such supports this so that flood plains on hills are also accurately penalized to discourage AI planting/settling/founding cities there as hills grassland currently is, if you want i mean, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc. -->
+ 			if (p.isHills() && p.getTerrainType() != eGrass)
+ 				iValue += 50;
+ 
+@@ -715,19 +716,21 @@ short AIFoundValue::evaluate()
+ 			// custom: note3: also statistically these may happen more often so place them before in case it helps computationally skip the other checks if i may say but anyways etc anyways etc anyways etc -->
+ 			if (p.getTerrainType() == ePlains)
+ 				iValue += 25;
+-			else if (p.getTerrainType() == eDesert)
+-				iValue += 45;
++			// <!-- custom: discourage settling on high food tiles such as grassland and flood plains, higher penalties the higher the food bonus is anyways etc -->
++			else if (p.getTerrainType() == eGrass)
++				iValue -= 25;
++			else if (p.getTerrainType() == eDesert) {
++				// <!-- custom: may not cover the case of for example mod mods having flood plains on other terrains than desert, but it is computationally more efficient to do so i.e. to check i mean but anyways etc in this case but anyways etc the flood plains feature only in its relevant/comaptible in XML terrain(s), which in advciv-sas and as of now only are desert. I don't know how many times we run this instruction, but if it's quite a lot, even saving one instruction may be nice if i may say, remember to modify this if you modify in your mod mod or such the flood plains compatible terrains or/and such but anyways etc -->
++				if (p.getFeatureType() == eFloodPlains)
++					iValue -= 50;
++				else
++					iValue += 45;
++			}
++			// <!-- custom: as of now tundra yields are lower than plains, so although food yields are seemingly the same if i am not mistaken but anyways etc, prioritize it a bit more than plains if everything else is equal and if i am not mistaken too but anyways etc -->
+ 			else if (p.getTerrainType() == eTundra)
+-				iValue += 25;
++				iValue += 30;
+ 			else if (p.getTerrainType() == eSnow)
+ 				iValue += 45;
+-
+-			// <!-- custom: discourage settling on high food tiles such as grassland and flood plains, higher penalties the higher the food bonus is anyways etc -->
+-			if (p.getTerrainType() == eGrass)
+-				iValue -= 25;
+-			// <!-- custom: i don't think there can be flood plains on grass so maybe fine to use an else if for computation if helps even a bit but anyways etc -->
+-			else if (p.getFeatureType() == eFloodPlains)
+-				iValue -= 50;
+ 		}
+ 
+ 		if (!bHome) // (Home plot was handled upfront)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index b30a1f199..9ed1bdf9d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -757,18 +757,19 @@ Logic as of now summarized as such by chatgpt (i just renamed its "bonus" word t
+ 
+ note: values may be updated, please view code at [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or/and updated value, hopefully this general logic helps and/or is not too not updated anymore but anyways etc
+ 
+-| Tile Type      | Value no Hill | Hill Value | Value if Hill | Notes                                   |
+-| -------------- | ------------- | ---------- | ------------- | --------------------------------------- |
+-| Grassland      | −25           | 0          | −25           | Correctly discouraged                   |
+-| Plains         | +25           | +50        | **+75**       | Solid early-game spot                   |
+-| Desert         | +45           | +50        | **+95**       | Great overwrite option                  |
+-| Snow           | +45           | +50        | **+95**       | Same                                    |
+-| Tundra         | +25           | +50        | **+75**       | Better than flat tundra                 |
+-| Floodplains    | −50           | —          | 0(*)          | Hill Floodplains not existent as of now |
+-
+-(*) Since as of now if i am not mistaken hill floodplain does not exist unless i'm mistaken, no need to explicitly handle it, may be computationally cheaper to do so as well in this case at least but anyways etc.
+-
+-This means for example that settling/planting/founding city but anyways etc on a hills desert tile is strongly encouraged, hill with plains quite very if i may say but anyways etc strongly encouraged too, flatland (no hill, no peak) desert still quite significantly too if i may say but slightly less than the hill modifier itself so that if everything else is being the same (as of now we don't have other terrains that would go on a hill plot type if i am not mistaken but anyways etc, but maybe the distinction helps somehow, but anyways etc) so that hill is still slightly preferred in that case (again i don't think as of now we have such terrain where it would apply, but theoretically maybe with some terrain changes, since logic doesn't harm, keep it as is anyways etc).
++| Terrain Type | Base Value   | Flood Plains | Hill Value | Total if Hill      | Notes                                                                    |
++| ------------ | ------------ | ------------ | ---------- | ------------------ | ------------------------------------------------------------------------ |
++| **Grass**    | −25          | N/A          | **0**      | −25                | High food so penalize/discourage; explicitly excluded from hill value    |
++| **Plains**   | +25          | N/A          | +50        | **+75**            | Low food but not too low yields so valorize moderately, valorize if hill |
++| **Desert**   | +45 or 0(**) | −50(*)       | +50        | **+95** or −50(**) | Flat desert highly valued; floodplains *cancel* valorization change      |
++| **Snow**     | +45          | N/A          | +50        | **+95**            | Also encouraged overwrite; very low food so valuable, even more if hill  |
++| **Tundra**   | +30          | N/A          | +50        | **+75**            | Low food but also quite low yields so valorize, valorize more if hill    |
++
++(*1) note from a cpp code comment anyways etc: "may not cover the case of for example mod mods having flood plains on other terrains than desert, but it is computationally more efficient to do so i.e. to check i mean but anyways etc in this case but anyways etc the flood plains feature only in its relevant/comaptible in XML terrain(s), which in advciv-sas and as of now only are desert. I don't know how many times we run this instruction, but if it's quite a lot, even saving one instruction may be nice if i may say, remember to modify this if you modify in your mod mod or such the flood plains compatible terrains or/and such but anyways etc"
++
++(**) note 2 from a cpp code comment anyways etc: "as of now flood plains or and other potentially/hypothetically quite high or high food feature cannot exist on hill, so no need to spend computation on them, but ideally in a mod mod if you'd want to account for such, you'd add them (i.e. the flood plains feature for example if it could fit in a hill for example but anyways etc) here to the hill bonus exclusion (as it is a high food tile, better not plant/settle/found city on it and waste it if i may say but anyways etc) then penalize for example the flood plains feature below separately from the terrain "cascade" (as chatgpt calls it but anwyays etc thanks anyways etc) in its own feature cascade rather (if i amy say too if i may say but anyways etc...) so that the feature valorization change (penalty or increase of valorization but anyways etc) also applies to all terrains, not only just to desert, anyways etc. In short, flood plains on hills don't exist if i am not mistaken in base advciv +/- civ nor in advciv-sas, but it is easier and computationally to handle it as such, update your code as you see fit if your mod mod or such supports this so that flood plains on hills are also accurately penalized to discourage AI planting/settling/founding cities there as hills grassland currently is, if you want i mean, hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc."
++
++This table means that for example settling/planting/founding city but anyways etc on a hills desert tile is strongly encouraged, hill with plains quite very if i may say but anyways etc strongly encouraged too, flatland (no hill, no peak) desert still quite significantly too if i may say but slightly less than the hill modifier itself so that if everything else is being the same (as of now we don't have other terrains that would go on a hill plot type if i am not mistaken but anyways etc, but maybe the distinction helps somehow, but anyways etc) so that hill is still slightly preferred in that case (again i don't think as of now we have such terrain where it would apply, but theoretically maybe with some terrain changes, since logic doesn't harm, keep it as is anyways etc).
+ 
+ As for discouraging, hill is irrelevant if the tile is grassland (as hill grassland for 1 food cost has nice yields i think, capitalize on that rather and do not settle there ideally if i am not mistaken should be better in most cases for the AI, at least give a discouragement against that if i may say but anyways etc anyways etc anyways etc), and high food terrains should be avoided to settle/found/plant a city on (not totally discouraged, but should be significant and hopefully help AI not doing so and better choose city spots as it helps a lot throughout the game but anyways etc)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=12446

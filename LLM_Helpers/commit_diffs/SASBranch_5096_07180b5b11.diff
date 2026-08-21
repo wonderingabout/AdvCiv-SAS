@@ -1,0 +1,139 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5096
+# Commit: 07180b5b113a686b4f66f8c5b4da84a981f4703c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4500c8c3274ee41a71dd791e963bf566409e16f4
+# Title: bugfix incorrect define name after our advciv-sas performance optimization + also strengthen and make define functions more detailed anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+51	5	CvGameCoreDLL/CvGlobals.cpp
+9	9	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 06173d511..957432149 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -846,7 +846,28 @@ int CvGlobals::getDefineINT(char const* szName,
+ 	bool bSuccess =
+ 	#endif // </advc.003c>
+ 	getDefinesVarSystem()->GetValue(szName, iReturn);
+-	FAssert(bSuccess); // advc.003c
++	// <!-- custom: this assert fired at map load when starting a new game, but the info in the assert is not helpful by itself in assert message to me i mean, add more info as chatgpt 5 advised/suggested, check if accurate anyways etc -->
++	// FAssert(bSuccess); // advc.003c
++	#ifdef _DEBUG
++	if (!bSuccess)
++	{
++        char buf[256];
++        _snprintf(buf, sizeof(buf),
++                  "Missing INT define '%s' — using default=%d%s",
++                  szName, iDefault,
++                  getCurrentXMLFile() ? (CvString(" | XML=") + getCurrentXMLFile()).c_str() : "");
++        FAssertMsg(false, buf);
++		// <!-- custom: now with the info we can spot it i mean but anyways etc -->
++		// Assert Failed
++		// File:  ..\.\CvGlobals.cpp
++		// Line:  858
++		// Func:  CvGlobals::getDefineINT
++		// Expression:  false
++		// Message:  Missing INT define 'INITIAL_MILITARY_UNITS_POPULATION_PERCENT' â€” using default=0 | XML=xml\Events/CIV4EventTriggerInfos.xml
++		//
++		// <!-- custom: now fixed by renaming it to INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT (was a typo/bug i introduced while refactoring, still detailed assert is very helpful in identifying which and fixing the issue if possible i mean to me but in this case i mean but anyways etc) -->
++	}
++	#endif
+ 	return iReturn;
+ }
+ 
+@@ -859,9 +880,22 @@ float CvGlobals::getDefineFLOAT(char const* szName) const
+ 	bool bSuccess =
+ 	#endif // </advc.003c>
+ 	getDefinesVarSystem()->GetValue(szName, fReturn);
+-	/*  advc.003c: The EXE queries CAMERA_MIN_DISTANCE during startup, which
+-		fails but doesn't cause any problems. */
+-	FAssert(bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
++	// <!-- custom: since the more detailed assert in CvGlobals::getDefineINT was very helpful, also adding these provided by chatgpt 5 (untested though), check if accurate anyways etc -->
++	#ifdef _DEBUG
++	const bool bAssertCondition = (bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
++	if (!bAssertCondition)
++	{
++		// /*  advc.003c: The EXE queries CAMERA_MIN_DISTANCE during startup, which
++		// 	fails but doesn't cause any problems. */
++		// FAssert(bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
++        char buf[256];
++        _snprintf(buf, sizeof(buf),
++                  "Missing FLOAT define '%s' — using default=%g%s",
++                  szName, fReturn,
++                  getCurrentXMLFile() ? (CvString(" | XML=") + getCurrentXMLFile()).c_str() : "");
++        FAssertMsg(bAssertCondition, buf);
++	}
++	#endif
+ 	return fReturn;
+ }
+ 
+@@ -873,7 +907,19 @@ char const* CvGlobals::getDefineSTRING(char const* szName) const
+ 	bool bSuccess =
+ 	#endif// </advc.003c>
+ 	getDefinesVarSystem()->GetValue(szName, szReturn);
+-	FAssert(bSuccess); // advc.003c
++	// <!-- custom: since the more detailed assert in CvGlobals::getDefineINT was very helpful, also adding these provided by chatgpt 5 (untested though), check if accurate anyways etc -->
++	// FAssert(bSuccess); // advc.003c
++	#ifdef _DEBUG
++	if (!bSuccess)
++	{
++        char buf[256];
++        _snprintf(buf, sizeof(buf),
++                  "Missing STRING define '%s'%s",
++                  szName,
++                  getCurrentXMLFile() ? (CvString(" | XML=") + getCurrentXMLFile()).c_str() : "");
++        FAssertMsg(bSuccess, buf);
++	}
++	#endif
+ 	return szReturn;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 7693a9913..7f0f86819 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -111,19 +111,19 @@ bool CvPlayer::initOtherData()
+ 	changePersonalityType(); // advc.003q: Use BBAI subroutine
+ 
+ 	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+-    static const int iINITIAL_BASE_FREE_UNITS                   = GC.getDefineINT("INITIAL_BASE_FREE_UNITS");
+-    static const int iINITIAL_BASE_FREE_MILITARY_UNITS          = GC.getDefineINT("INITIAL_BASE_FREE_MILITARY_UNITS");
+-    static const int iINITIAL_FREE_UNITS_POPULATION_PERCENT     = GC.getDefineINT("INITIAL_FREE_UNITS_POPULATION_PERCENT");
+-    static const int iINITIAL_MILITARY_UNITS_POPULATION_PERCENT = GC.getDefineINT("INITIAL_MILITARY_UNITS_POPULATION_PERCENT");
+-    static const int iINITIAL_GOLD_PER_UNIT                     = GC.getDefineINT("INITIAL_GOLD_PER_UNIT");
+-    static const int iINITIAL_TRADE_ROUTES                      = GC.getDefineINT("INITIAL_TRADE_ROUTES");
+-    static const int iINITIAL_STATE_RELIGION_HAPPINESS          = GC.getDefineINT("INITIAL_STATE_RELIGION_HAPPINESS");
+-    static const int iINITIAL_NON_STATE_RELIGION_HAPPINESS      = GC.getDefineINT("INITIAL_NON_STATE_RELIGION_HAPPINESS");
++    static const int iINITIAL_BASE_FREE_UNITS                        = GC.getDefineINT("INITIAL_BASE_FREE_UNITS");
++    static const int iINITIAL_BASE_FREE_MILITARY_UNITS               = GC.getDefineINT("INITIAL_BASE_FREE_MILITARY_UNITS");
++    static const int iINITIAL_FREE_UNITS_POPULATION_PERCENT          = GC.getDefineINT("INITIAL_FREE_UNITS_POPULATION_PERCENT");
++    static const int iINITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT = GC.getDefineINT("INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT");
++    static const int iINITIAL_GOLD_PER_UNIT                          = GC.getDefineINT("INITIAL_GOLD_PER_UNIT");
++    static const int iINITIAL_TRADE_ROUTES                           = GC.getDefineINT("INITIAL_TRADE_ROUTES");
++    static const int iINITIAL_STATE_RELIGION_HAPPINESS               = GC.getDefineINT("INITIAL_STATE_RELIGION_HAPPINESS");
++    static const int iINITIAL_NON_STATE_RELIGION_HAPPINESS           = GC.getDefineINT("INITIAL_NON_STATE_RELIGION_HAPPINESS");
+ 
+ 	changeBaseFreeUnits(iINITIAL_BASE_FREE_UNITS);
+ 	changeBaseFreeMilitaryUnits(iINITIAL_BASE_FREE_MILITARY_UNITS);
+ 	changeFreeUnitsPopulationPercent(iINITIAL_FREE_UNITS_POPULATION_PERCENT);
+-	changeFreeMilitaryUnitsPopulationPercent(iINITIAL_MILITARY_UNITS_POPULATION_PERCENT);
++	changeFreeMilitaryUnitsPopulationPercent(iINITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT);
+ 	changeGoldPerUnit(
+ 			/*	kekm.14: (advc: had been implemented in getGoldPerUnit,
+ 				getGoldPerMilitaryUnit; the latter seems entirely unnecessary.) */
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6626

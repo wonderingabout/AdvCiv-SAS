@@ -1,0 +1,196 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5875
+# Commit: 172f280d90e1b5741b8eee20bffe1dcc0254c6a8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b3232132c072dfbade7cd5584e31747b43357cfd
+# Title: fix ruff E701 - pass 7
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	PrivateMaps/Boreal.py
+22	11	PrivateMaps/Fantasy_Realm.py
+8	4	PrivateMaps/Great_Plains.py
+4	2	PrivateMaps/Oasis.py
+6	3	PrivateMaps/Rainforest.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index 1c1c94592..2916f21c3 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -657,8 +657,10 @@ def addBonusType(argsList):
+ 					pPlot = map.plot(x,y)
+ 					if pPlot.isWater() or pPlot.isPeak():
+ 						continue
+-					if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"): continue
+-					if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW"): continue
++					if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"):
++						continue
++					if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW"):
++						continue
+ 					if pPlot.getBonusType(-1) == -1:
+ 						foodVal = food.getHeight(x,y)
+ 						if (type_string in deer):
+
+diff --git a/PrivateMaps/Fantasy_Realm.py b/PrivateMaps/Fantasy_Realm.py
+index d72304f3c..a220d2ce2 100644
+--- a/PrivateMaps/Fantasy_Realm.py
++++ b/PrivateMaps/Fantasy_Realm.py
+@@ -524,21 +524,31 @@ def addBonusType(argsList):
+ 				continue # to next plot.
+ 			if pPlot.getBonusType(-1) != -1:
+ 				continue # to next plot.
+-			if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
++			if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
++				continue # Soren wants no bonuses in oasis plots. So mote it be.
+ 			# Check plot type and features for eligibility.
+ 			if forceHills and not pPlot.isHills():
+ 				continue
+ 			if forceFlats and not pPlot.isFlatlands():
+ 				continue
+-			if forceFlood and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FLOOD_PLAINS"): continue
+-			if forceJungle and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_JUNGLE"): continue
+-			if forceForest and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"): continue
+-			if forceNoGrass and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"): continue
+-			if forceNoDesert and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"): continue
+-			if forceNoSnow and (pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_TUNDRA") or pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW")): continue
+-			if forceNoPlains and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_PLAINS"): continue
+-			if forceNoJungle and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_JUNGLE"): continue
+-			if forceNoForest and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"): continue
++			if forceFlood and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FLOOD_PLAINS"):
++				continue
++			if forceJungle and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_JUNGLE"):
++				continue
++			if forceForest and not pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"):
++				continue
++			if forceNoGrass and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS"):
++				continue
++			if forceNoDesert and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT"):
++				continue
++			if forceNoSnow and (pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_TUNDRA") or pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW")):
++				continue
++			if forceNoPlains and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_PLAINS"):
++				continue
++			if forceNoJungle and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_JUNGLE"):
++				continue
++			if forceNoForest and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"):
++				continue
+ 			if forceNoFresh and pPlot.isFreshWater():
+ 				continue
+ 			#
+@@ -587,7 +597,8 @@ def afterGeneration():
+ 			pPlot = map.plot(x,y)
+ 			if pPlot.getBonusType(-1) != -1:
+ 				continue # A bonus already exists in this plot!
+-			if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue
++			if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
++				continue
+ 			crazyVal = crazies.getHeight(x,y)
+ 			for crazy_bonus in crazy_types:
+ 				type_string = gc.getBonusInfo(crazy_bonus).getType()
+
+diff --git a/PrivateMaps/Great_Plains.py b/PrivateMaps/Great_Plains.py
+index 4b1c8904d..4cb0a491e 100644
+--- a/PrivateMaps/Great_Plains.py
++++ b/PrivateMaps/Great_Plains.py
+@@ -698,7 +698,8 @@ def addBonusType(argsList):
+ 				for x in range(herdLeft, herdRight):
+ 					# Fractalized placement of herds
+ 					pPlot = map.plot(x,y)
+-					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # No buffalo at the water hole, sorry!
++					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
++						continue # No buffalo at the water hole, sorry!
+ 					herdVal = herds.getHeight(x,y)
+ 					if pPlot.getBonusType(-1) == -1 and ((herdVal >= iHerdsBottom1 and herdVal <= iHerdsTop1) or (herdVal >= iHerdsBottom2 and herdVal <= iHerdsTop2)):
+ 						map.plot(x,y).setBonusType(iBonusType)
+@@ -714,7 +715,8 @@ def addBonusType(argsList):
+ 				for x in range(herdLeft, herdRight):
+ 					# Fractalized placement of herds
+ 					pPlot = map.plot(x,y)
+-					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # No buffalo at the water hole, sorry!
++					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
++						continue # No buffalo at the water hole, sorry!
+ 					herdVal = herds.getHeight(x,y)
+ 					if pPlot.getBonusType(-1) == -1 and ((herdVal >= iHerdsBottom1 and herdVal <= iHerdsTop1) or (herdVal >= iHerdsBottom2 and herdVal <= iHerdsTop2)):
+ 						map.plot(x,y).setBonusType(iBonusType)
+@@ -760,7 +762,8 @@ def addBonusType(argsList):
+ 				pPlot = map.plot(x,y)
+ 				if pPlot.getBonusType(-1) != -1:
+ 					continue # to next plot.
+-				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
++				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
++					continue # Soren wants no bonuses in oasis plots. So mote it be.
+ 				# Check plot type and features for eligibility.
+ 				if (pPlot.canHaveBonus(iBonusType, True) and unforced):
+ 					pass
+@@ -768,7 +771,8 @@ def addBonusType(argsList):
+ 					pass
+ 				elif forceFlats and pPlot.isFlatlands():
+ 					pass
+-				elif (type_string in rockyDyes) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT") and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isHills(): pass
++				elif (type_string in rockyDyes) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT") and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isHills():
++					pass
+ 				else: continue # to next plot.
+ 				# re-init regional plot membership tests for each pass.
+ 				plotInRockies = False
+
+diff --git a/PrivateMaps/Oasis.py b/PrivateMaps/Oasis.py
+index 9c9b2ca4a..f0418b3f7 100644
+--- a/PrivateMaps/Oasis.py
++++ b/PrivateMaps/Oasis.py
+@@ -779,8 +779,10 @@ def addBonusType(argsList):
+ 					pass
+ 				elif forceHills and pPlot.isHills():
+ 					pass
+-				elif forceForest and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"): pass
+-				elif forceGrass and pPlot.isFlatlands() and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS") and pPlot.getFeatureType() == -1: pass
++				elif forceForest and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST"):
++					pass
++				elif forceGrass and pPlot.isFlatlands() and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS") and pPlot.getFeatureType() == -1:
++					pass
+ 				else: continue # to next plot.
+ 				# re-init regional plot membership tests for each pass.
+ 				plotInNorth = False
+
+diff --git a/PrivateMaps/Rainforest.py b/PrivateMaps/Rainforest.py
+index 31e7621d0..29c5a453b 100644
+--- a/PrivateMaps/Rainforest.py
++++ b/PrivateMaps/Rainforest.py
+@@ -615,7 +615,8 @@ def addBonusType(argsList):
+ 				for x in range(iW):
+ 					# Fractalized placement
+ 					pPlot = map.plot(x,y)
+-					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() != getInfoTypeOrFail("FEATURE_JUNGLE"): continue
++					if pPlot.isWater() or pPlot.isPeak() or pPlot.getFeatureType() != getInfoTypeOrFail("FEATURE_JUNGLE"):
++						continue
+ 					if pPlot.getBonusType(-1) == -1:
+ 						foodVal = food.getHeight(x,y)
+ 						if (type_string in banana):
+@@ -664,11 +665,13 @@ def addBonusType(argsList):
+ 				pPlot = map.plot(x,y)
+ 				if pPlot.getBonusType(-1) != -1:
+ 					continue # to next plot.
+-				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"): continue # Soren wants no bonuses in oasis plots. So mote it be.
++				if pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_OASIS"):
++					continue # Soren wants no bonuses in oasis plots. So mote it be.
+ 				# Check plot type and features for eligibility.
+ 				if forceHills and pPlot.isHills():
+ 					pass
+-				elif (forceFlats and pPlot.isFlatlands()) and (pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST")): pass
++				elif (forceFlats and pPlot.isFlatlands()) and (pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST")):
++					pass
+ 				else: continue # to next plot.
+ 				# Finally we have run all the checks.
+ 				# 1. The plot has no bonus.
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=9210

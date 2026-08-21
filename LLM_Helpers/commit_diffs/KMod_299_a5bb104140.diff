@@ -1,0 +1,665 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 299
+# Commit: a5bb104140167544373739be7b189f14d3b682b0
+# History segment: K-Mod history
+# Parent used for diff: 46741163e3dd46346ad8fed56d7dfe98c5a753d7
+# Title: The AI is now capable of arranging tech trades that involve multiple techs - both AI-to-AI, and AI-to-human. Tech trade deals offered to human players can no...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	0	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+157	81	CvGameCoreDLL/CvPlayerAI.cpp
+39	0	CvGameCoreDLL/LinkedList.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 816b34b66..17707b63a 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -22624,6 +22624,26 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& o
+ 	}
+ }
+ 
++// K-Mod. Find each item from the offer list in the inventory list - mark it as m_bOffering == true.
++// (This is usually done somewhere in the game engine, or when the offer list is being generated or something.)
++void CvPlayer::markTradeOffers(CLinkList<TradeData>& ourInventory, const CLinkList<TradeData>& ourOffer) const
++{
++	for (CLLNode<TradeData>* pOfferNode = ourOffer.head(); pOfferNode != NULL; pOfferNode = ourOffer.next(pOfferNode))
++	{
++		for (CLLNode<TradeData>* pInvNode = ourInventory.head(); pInvNode != NULL; pInvNode = ourInventory.next(pInvNode))
++		{
++			if (pInvNode->m_data.m_eItemType == pOfferNode->m_data.m_eItemType &&
++				pInvNode->m_data.m_iData == pOfferNode->m_data.m_iData)
++			{
++				pInvNode->m_data.m_bOffering = pOfferNode->m_data.m_bOffering = true;
++				break;
++			}
++		}
++		FAssertMsg(pInvNode, "failed to find offered item in inventory");
++	}
++}
++// K-Mod end
++
+ int CvPlayer::getIntroMusicScriptId(PlayerTypes eForPlayer) const
+ {
+ 	CvPlayer& kForPlayer = GET_PLAYER(eForPlayer);
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index f64c2e49b..1f76668e9 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1048,6 +1048,7 @@ public:
+ 	DllExport bool getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eItem, CvWString& szString, CvString& szIcon) const;
+ 	DllExport bool getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer, bool bShowingCurrent, const TradeData& zTradeData, CvWString& szString, CvString& szIcon) const;
+ 	DllExport void updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& ourInventory, const CLinkList<TradeData>& ourOffer, const CLinkList<TradeData>& theirOffer) const;
++	void markTradeOffers(CLinkList<TradeData>& ourInventory, const CLinkList<TradeData>& ourOffer) const; // K-Mod
+ 	DllExport int getIntroMusicScriptId(PlayerTypes eForPlayer) const;
+ 	DllExport int getMusicScriptId(PlayerTypes eForPlayer) const;
+ 	DllExport void getGlobeLayerColors(GlobeLayerTypes eGlobeLayerType, int iOption, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index e6f03eef3..81e47b113 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8553,8 +8553,8 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 	CvCity* pCity;
+ 	bool bTheirGoldDeal;
+ 	bool bOurGoldDeal;
+-	int iHumanDealWeight;
+-	int iAIDealWeight;
++	//int iHumanDealWeight;
++	//int iAIDealWeight;
+ 	int iGoldData;
+ 	int iGoldWeight;
+ 	int iWeight;
+@@ -8581,8 +8581,14 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 	pGoldPerTurnNode = NULL;
+ 	pGoldNode = NULL;
+ 
++	/* original bts code
+ 	iHumanDealWeight = AI_dealVal(ePlayer, pTheirList);
+-	iAIDealWeight = GET_PLAYER(ePlayer).AI_dealVal(getID(), pOurList);
++	iAIDealWeight = GET_PLAYER(ePlayer).AI_dealVal(getID(), pOurList); */
++	// K-Mod note: the original code had the human and AI weights the wrong way around.
++	// I found this confusing, so I've corrected it throughout this function.
++	// (Under normal usage of this fuction, the AI player counters the human proposal - so "they" are human, not us.)
++	int iValueForUs = AI_dealVal(ePlayer, pTheirList);
++	int iValueForThem = GET_PLAYER(ePlayer).AI_dealVal(getID(), pOurList);
+ 
+ 	int iGoldValuePercent = AI_goldTradeValuePercent();
+ 
+@@ -8632,7 +8638,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 				//pTheirCounter->insertAtEnd(item);
+ 				// unfortunately, there is some weirdness in the game engine which causes it to flip its wig
+ 				// if trade items are added to both sides of a peace deal... so we have to do it like this:
+-				if (iAIDealWeight > iHumanDealWeight)
++				if (iValueForThem > iValueForUs)
+ 					pTheirCounter->insertAtEnd(item);
+ 				else
+ 					pOurCounter->insertAtEnd(item);
+@@ -8646,7 +8652,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 	}
+ 	// K-Mod end
+ 
+-	if (iAIDealWeight > iHumanDealWeight)
++	if (iValueForThem > iValueForUs)
+ 	{
+ 		if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
+ 		{
+@@ -8654,7 +8660,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 			iBestWeight = 0;
+ 			pBestNode = NULL;
+ 
+-			for (pNode = pTheirInventory->head(); pNode && iAIDealWeight > iHumanDealWeight; pNode = pTheirInventory->next(pNode))
++			for (pNode = pTheirInventory->head(); pNode && iValueForThem > iValueForUs; pNode = pTheirInventory->next(pNode))
+ 			{
+ 				if (!pNode->m_data.m_bOffering && !pNode->m_data.m_bHidden)
+ 				{
+@@ -8689,12 +8695,12 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 
+ 			if (pBestNode != NULL)
+ 			{
+-				iHumanDealWeight += iBestWeight;
++				iValueForUs += iBestWeight;
+ 				pTheirCounter->insertAtEnd(pBestNode->m_data);
+ 			}
+ 		}
+ 
+-		for (pNode = pTheirInventory->head(); pNode && iAIDealWeight > iHumanDealWeight; pNode = pTheirInventory->next(pNode))
++		for (pNode = pTheirInventory->head(); pNode && iValueForThem > iValueForUs; pNode = pTheirInventory->next(pNode))
+ 		{
+ 			if (!pNode->m_data.m_bOffering && !pNode->m_data.m_bHidden)
+ 			{
+@@ -8721,7 +8727,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 			}
+ 		}
+ 
+-		int iGoldWeight = iAIDealWeight - iHumanDealWeight;
++		int iGoldWeight = iValueForThem - iValueForUs;
+ 
+ 		if (iGoldWeight > 0)
+ 		{
+@@ -8747,7 +8753,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 				if (GET_PLAYER(ePlayer).AI_maxGoldTrade(getID()) >= iGoldData)
+ 				{
+ 					pGoldNode->m_data.m_iData = iGoldData;
+-					iHumanDealWeight += (iGoldData * iGoldValuePercent) / 100;
++					iValueForUs += (iGoldData * iGoldValuePercent) / 100;
+ 					pTheirCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+@@ -8766,7 +8772,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 			}
+ 		}
+ 		
+-		for (pNode = pTheirInventory->head(); pNode && iAIDealWeight > iHumanDealWeight; pNode = pTheirInventory->next(pNode))
++		for (pNode = pTheirInventory->head(); pNode && iValueForThem > iValueForUs; pNode = pTheirInventory->next(pNode))
+ 		{
+ 			if (!pNode->m_data.m_bOffering && !pNode->m_data.m_bHidden)
+ 			{
+@@ -8798,14 +8804,14 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 
+ 					if (iWeight > 0)
+ 					{
+-						iHumanDealWeight += iWeight;
++						iValueForUs += iWeight;
+ 						pTheirCounter->insertAtEnd(pNode->m_data);
+ 					}
+ 				}
+ 			}
+ 		}
+ 
+-		for (pNode = pTheirInventory->head(); pNode && iAIDealWeight > iHumanDealWeight; pNode = pTheirInventory->next(pNode))
++		for (pNode = pTheirInventory->head(); pNode && iValueForThem > iValueForUs; pNode = pTheirInventory->next(pNode))
+ 		{
+ 			if (!pNode->m_data.m_bOffering && !pNode->m_data.m_bHidden)
+ 			{
+@@ -8819,7 +8825,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 
+ 						if (iWeight > 0)
+ 						{
+-							iHumanDealWeight += iWeight;
++							iValueForUs += iWeight;
+ 							pTheirCounter->insertAtEnd(pNode->m_data);
+ 						}
+ 					}
+@@ -8827,7 +8833,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 			}
+ 		}
+ 
+-		iGoldWeight = iAIDealWeight - iHumanDealWeight;
++		iGoldWeight = iValueForThem - iValueForUs;
+ 
+ 		if (iGoldWeight > 0)
+ 		{
+@@ -8846,20 +8852,20 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 				if (iGoldData > 0)
+ 				{
+ 					pGoldNode->m_data.m_iData = iGoldData;
+-					iHumanDealWeight += (iGoldData * iGoldValuePercent) / 100;
++					iValueForUs += (iGoldData * iGoldValuePercent) / 100;
+ 					pTheirCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+ 			}
+ 		}
+ 
+-		if (iAIDealWeight > iHumanDealWeight)
++		if (iValueForThem > iValueForUs)
+ 		{
+ 			if (pGoldPerTurnNode)
+ 			{
+ 				iGoldData = 0;
+ 
+-				while (AI_goldPerTurnTradeVal(iGoldData) < (iAIDealWeight - iHumanDealWeight))
++				while (AI_goldPerTurnTradeVal(iGoldData) < (iValueForThem - iValueForUs))
+ 				{
+ 					iGoldData++;
+ 				}
+@@ -8869,14 +8875,14 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 				if (iGoldData > 0)
+ 				{
+ 					pGoldPerTurnNode->m_data.m_iData = iGoldData;
+-					iHumanDealWeight += AI_goldPerTurnTradeVal(pGoldPerTurnNode->m_data.m_iData);
++					iValueForUs += AI_goldPerTurnTradeVal(pGoldPerTurnNode->m_data.m_iData);
+ 					pTheirCounter->insertAtEnd(pGoldPerTurnNode->m_data);
+ 					pGoldPerTurnNode = NULL;
+ 				}
+ 			}
+ 		}
+ 
+-		for (pNode = pTheirInventory->head(); pNode && iAIDealWeight > iHumanDealWeight; pNode = pTheirInventory->next(pNode))
++		for (pNode = pTheirInventory->head(); pNode && iValueForThem > iValueForUs; pNode = pTheirInventory->next(pNode))
+ 		{
+ 			if (!pNode->m_data.m_bOffering && !pNode->m_data.m_bHidden)
+ 			{
+@@ -8899,7 +8905,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 
+ 						if (iWeight > 0)
+ 						{
+-							iHumanDealWeight += iWeight;
++							iValueForUs += iWeight;
+ 							pTheirCounter->insertAtEnd(pNode->m_data);
+ 						}
+ 					}
+@@ -8907,7 +8913,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 			}
+ 		}
+ 	}
+-	else if (iHumanDealWeight > iAIDealWeight)
++	else if (iValueForUs > iValueForThem)
+ 	{
+ 		if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
+ 		{
+@@ -8921,7 +8927,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 					{
+ 						if (getTradeDenial(ePlayer, pNode->m_data) == NO_DENIAL)
+ 						{
+-							iAIDealWeight += GET_TEAM(GET_PLAYER(ePlayer).getTeam()).AI_surrenderTradeVal(getTeam());
++							iValueForThem += GET_TEAM(GET_PLAYER(ePlayer).getTeam()).AI_surrenderTradeVal(getTeam());
+ 							pOurCounter->insertAtEnd(pNode->m_data);
+ 							bSurrender = true;
+ 						}
+@@ -8949,7 +8955,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 			iBestWeight = 0;
+ 			pBestNode = NULL;
+ 
+-			for (pNode = pOurInventory->head(); pNode && iHumanDealWeight > iAIDealWeight; pNode = pOurInventory->next(pNode))
++			for (pNode = pOurInventory->head(); pNode && iValueForUs > iValueForThem; pNode = pOurInventory->next(pNode))
+ 			{
+ 				if (!pNode->m_data.m_bOffering && !pNode->m_data.m_bHidden)
+ 				{
+@@ -8971,7 +8977,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 
+ 									if (iValue > iBestValue)
+ 									{
+-										if (iHumanDealWeight >= (iAIDealWeight + iWeight))
++										if (iValueForUs >= (iValueForThem + iWeight))
+ 										{
+ 											iBestValue = iValue;
+ 											iBestWeight = iWeight;
+@@ -8987,12 +8993,12 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 
+ 			if (pBestNode != NULL)
+ 			{
+-				iAIDealWeight += iBestWeight;
++				iValueForThem += iBestWeight;
+ 				pOurCounter->insertAtEnd(pBestNode->m_data);
+ 			}
+ 		}
+ 
+-		for (pNode = pOurInventory->head(); pNode && iHumanDealWeight > iAIDealWeight; pNode = pOurInventory->next(pNode))
++		for (pNode = pOurInventory->head(); pNode && iValueForUs > iValueForThem; pNode = pOurInventory->next(pNode))
+ 		{
+ 			if (!pNode->m_data.m_bOffering && !pNode->m_data.m_bHidden)
+ 			{
+@@ -9019,7 +9025,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 			}
+ 		}
+ 
+-		iGoldWeight = iHumanDealWeight - iAIDealWeight;
++		iGoldWeight = iValueForUs - iValueForThem;
+ 
+ 		if (iGoldWeight > 0)
+ 		{
+@@ -9031,7 +9037,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 				if (AI_maxGoldTrade(ePlayer) >= iGoldData)
+ 				{
+ 					pGoldNode->m_data.m_iData = iGoldData;
+-					iAIDealWeight += ((iGoldData * iGoldValuePercent) / 100);
++					iValueForThem += ((iGoldData * iGoldValuePercent) / 100);
+ 					pOurCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+@@ -9050,7 +9056,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 			}
+ 		}
+ 
+-		for (pNode = pOurInventory->head(); pNode && iHumanDealWeight > iAIDealWeight; pNode = pOurInventory->next(pNode))
++		for (pNode = pOurInventory->head(); pNode && iValueForUs > iValueForThem; pNode = pOurInventory->next(pNode))
+ 		{
+ 			if (!pNode->m_data.m_bOffering && !pNode->m_data.m_bHidden)
+ 			{
+@@ -9079,9 +9085,9 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 
+ 					if (iWeight > 0)
+ 					{
+-						if (iHumanDealWeight >= (iAIDealWeight + iWeight))
++						if (iValueForUs >= (iValueForThem + iWeight))
+ 						{
+-							iAIDealWeight += iWeight;
++							iValueForThem += iWeight;
+ 							pOurCounter->insertAtEnd(pNode->m_data);
+ 						}
+ 					}
+@@ -9089,7 +9095,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 			}
+ 		}
+ 
+-		for (pNode = pOurInventory->head(); pNode && iHumanDealWeight > iAIDealWeight; pNode = pOurInventory->next(pNode))
++		for (pNode = pOurInventory->head(); pNode && iValueForUs > iValueForThem; pNode = pOurInventory->next(pNode))
+ 		{
+ 			if (!pNode->m_data.m_bOffering && !pNode->m_data.m_bHidden)
+ 			{
+@@ -9103,9 +9109,9 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 
+ 						if (iWeight > 0)
+ 						{
+-							if (iHumanDealWeight >= (iAIDealWeight + iWeight))
++							if (iValueForUs >= (iValueForThem + iWeight))
+ 							{
+-								iAIDealWeight += iWeight;
++								iValueForThem += iWeight;
+ 								pOurCounter->insertAtEnd(pNode->m_data);
+ 							}
+ 						}
+@@ -9114,7 +9120,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 			}
+ 		}
+ 
+-		iGoldWeight = iHumanDealWeight - iAIDealWeight;
++		iGoldWeight = iValueForUs - iValueForThem;
+ 		if (iGoldWeight > 0)
+ 		{
+ 			if (pGoldNode)
+@@ -9127,20 +9133,20 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 				if (iGoldData > 0)
+ 				{
+ 					pGoldNode->m_data.m_iData = iGoldData;
+-					iAIDealWeight += (iGoldData * AI_goldTradeValuePercent()) / 100;
++					iValueForThem += (iGoldData * AI_goldTradeValuePercent()) / 100;
+ 					pOurCounter->insertAtEnd(pGoldNode->m_data);
+ 					pGoldNode = NULL;
+ 				}
+ 			}
+ 		}
+ 
+-		if (iHumanDealWeight > iAIDealWeight)
++		if (iValueForUs > iValueForThem)
+ 		{
+ 			if (pGoldPerTurnNode)
+ 			{
+ 				iGoldData = 0;
+ 
+-				while (GET_PLAYER(ePlayer).AI_goldPerTurnTradeVal(iGoldData + 1) <= (iHumanDealWeight - iAIDealWeight))
++				while (GET_PLAYER(ePlayer).AI_goldPerTurnTradeVal(iGoldData + 1) <= (iValueForUs - iValueForThem))
+ 				{
+ 					iGoldData++;
+ 				}
+@@ -9150,7 +9156,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 				if (iGoldData > 0)
+ 				{
+ 					pGoldPerTurnNode->m_data.m_iData = iGoldData;
+-					iAIDealWeight += GET_PLAYER(ePlayer).AI_goldPerTurnTradeVal(pGoldPerTurnNode->m_data.m_iData);
++					iValueForThem += GET_PLAYER(ePlayer).AI_goldPerTurnTradeVal(pGoldPerTurnNode->m_data.m_iData);
+ 					pOurCounter->insertAtEnd(pGoldPerTurnNode->m_data);
+ 					pGoldPerTurnNode = NULL;
+ 				}
+@@ -9160,7 +9166,39 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 
+ 	SAFE_DELETE_ARRAY(pabBonusDeal);
+ 
+-	return ((iAIDealWeight <= iHumanDealWeight) && ((pOurList->getLength() > 0) || (pOurCounter->getLength() > 0) || (pTheirCounter->getLength() > 0)));
++	/* original bts code
++	return ((iValueForThem <= iValueForUs) && ((pOurList->getLength() > 0) || (pOurCounter->getLength() > 0) || (pTheirCounter->getLength() > 0))); */
++
++	// K-Mod. This function now needs to handle AI - AI deals, and human auto-counters to AI suggested deals.
++	if (pOurList->getLength() == 0 && pOurCounter->getLength() == 0 && pTheirCounter->getLength() == 0)
++		return false;
++
++	bool bDeal = false;
++	
++	if (GET_PLAYER(ePlayer).isHuman())
++	{
++		// AI counting a human proposal
++		// no not compromise the AI's value, and don't even consider the human's value.
++		bDeal = iValueForUs >= iValueForThem;
++		FAssert(!isHuman());
++	}
++	else
++	{
++		if (isHuman())
++		{
++			// human civ auto-negotiating an AI proposal before it is put to the player for confirmation
++			// let the AI show a little bit of leniency
++			// don't bother putting it to the player if it is really bad value
++			bDeal = 4*iValueForUs > iValueForThem && 6*iValueForThem > 5*iValueForUs;
++		}
++		else
++		{
++			// negotiations between two AIs.
++			bDeal = 3*iValueForUs > 2*iValueForThem && 3*iValueForThem > 2*iValueForUs;
++		}
++	}
++	return bDeal;
++	// K-Mod end
+ }
+ 
+ 
+@@ -15020,8 +15058,8 @@ void CvPlayerAI::AI_doDiplo()
+ 	int iReceiveGold;
+ 	int iGiveGold;
+ 	int iGold;
+-	int iGoldData;
+-	int iGoldWeight;
++	//int iGoldData;
++	//int iGoldWeight;
+ 	int iGoldValuePercent;
+ 	int iCount;
+ 	int iPossibleCount;
+@@ -16080,8 +16118,13 @@ void CvPlayerAI::AI_doDiplo()
+ 											int iTechPerc = GET_TEAM(getTeam()).getBestKnownTechScorePercent();
+ 											if( iTechPerc < 90 )
+ 											{
++												/* BBAI
+ 												iRand *= std::max(1, iTechPerc - 60);
+-												iRand /= 30;
++												iRand /= 30; */
++												// K-Mod. not so extreme.
++												iRand *= 10 + iTechPerc;
++												iRand /= 100;
++												// K-Mod end
+ 											}
+ 
+ 											if( AI_isDoVictoryStrategy(AI_VICTORY_SPACE1) )
+@@ -16145,6 +16188,7 @@ void CvPlayerAI::AI_doDiplo()
+ 														iTheirValue = 0;
+ 													}
+ 
++													/* original bts code
+ 													iReceiveGold = 0;
+ 													iGiveGold = 0;
+ 
+@@ -16191,52 +16235,84 @@ void CvPlayerAI::AI_doDiplo()
+ 													if (!(GET_PLAYER((PlayerTypes)iI).isHuman()) || (iOurValue >= iTheirValue))
+ 													{
+ 														if ((iOurValue > ((iTheirValue * 2) / 3)) && (iTheirValue > ((iOurValue * 2) / 3)))
+-														{
+-															ourList.clear();
+-															theirList.clear();
++														{ */ // K-Mod.. (see what happens next)
+ 
+-															if (eBestGiveTech != NO_TECH)
+-															{
+-																setTradeItem(&item, TRADE_TECHNOLOGIES, eBestGiveTech);
+-																ourList.insertAtEnd(item);
+-															}
++													ourList.clear();
++													theirList.clear();
+ 
+-															setTradeItem(&item, TRADE_TECHNOLOGIES, eBestReceiveTech);
+-															theirList.insertAtEnd(item);
++													if (eBestGiveTech != NO_TECH)
++													{
++														setTradeItem(&item, TRADE_TECHNOLOGIES, eBestGiveTech);
++														ourList.insertAtEnd(item);
++													}
+ 
+-															if (iGiveGold != 0)
+-															{
+-																setTradeItem(&item, TRADE_GOLD, iGiveGold);
+-																ourList.insertAtEnd(item);
+-															}
++													setTradeItem(&item, TRADE_TECHNOLOGIES, eBestReceiveTech);
++													theirList.insertAtEnd(item);
+ 
+-															if (iReceiveGold != 0)
+-															{
+-																setTradeItem(&item, TRADE_GOLD, iReceiveGold);
+-																theirList.insertAtEnd(item);
+-															}
++													/* original bts code
++													if (iGiveGold != 0)
++													{
++														setTradeItem(&item, TRADE_GOLD, iGiveGold);
++														ourList.insertAtEnd(item);
++													}
+ 
+-															if (GET_PLAYER((PlayerTypes)iI).isHuman())
+-															{
+-																if (!(abContacted[GET_PLAYER((PlayerTypes)iI).getTeam()]))
+-																{
+-																	AI_changeContactTimer(((PlayerTypes)iI), CONTACT_TRADE_TECH, GC.getLeaderHeadInfo(getPersonalityType()).getContactDelay(CONTACT_TRADE_TECH));
+-																	pDiplo = new CvDiploParameters(getID());
+-																	FAssertMsg(pDiplo != NULL, "pDiplo must be valid");
+-																	pDiplo->setDiploComment((DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_OFFER_DEAL"));
+-																	pDiplo->setAIContact(true);
+-																	pDiplo->setOurOfferList(theirList);
+-																	pDiplo->setTheirOfferList(ourList);
+-																	gDLL->beginDiplomacy(pDiplo, (PlayerTypes)iI);
+-																	abContacted[GET_PLAYER((PlayerTypes)iI).getTeam()] = true;
+-																}
+-															}
+-															else
++													if (iReceiveGold != 0)
++													{
++														setTradeItem(&item, TRADE_GOLD, iReceiveGold);
++														theirList.insertAtEnd(item);
++													} */
++													// K-Mod
++													bool bDeal = GET_PLAYER((PlayerTypes)iI).isHuman()
++														? 6*iOurValue > 5*iTheirValue && 3*iTheirValue > 2*iOurValue
++														: 3*iOurValue > 2*iTheirValue && 3*iTheirValue > 2*iOurValue;
++													if (!bDeal)
++													{
++														PROFILE("AI_doDiplo self-counter-propose");
++														// let the other team counter-propose (even if the other team is a human player)
++														// unfortunately, the API is pretty clumsy for setting up this counter proposal.
++														// please just bear with me.
++														// (Note: this would be faster if we just built the lists directly, but by using the existing API, we are kind of future-proofing)
++														CLinkList<TradeData> ourInventory, theirInventory, ourCounter, theirCounter;
++														buildTradeTable((PlayerTypes)iI, ourInventory); // all tradeable items
++														markTradeOffers(ourInventory, ourList); // K-Mod funciton - set m_bOffering on each item offered
++														updateTradeList((PlayerTypes)iI, ourInventory, ourList, theirList); // hide what should be excluded
++														GET_PLAYER((PlayerTypes)iI).buildTradeTable(getID(), theirInventory); // same for the other player
++														GET_PLAYER((PlayerTypes)iI).markTradeOffers(theirInventory, theirList);
++														GET_PLAYER((PlayerTypes)iI).updateTradeList(getID(), theirInventory, theirList, ourList);
++
++
++														if (GET_PLAYER((PlayerTypes)iI).AI_counterPropose(getID(), &ourList, &theirList, &ourInventory, &theirInventory, &ourCounter, &theirCounter))
++														{
++															ourList.concatenate(ourCounter);
++															theirList.concatenate(theirCounter);
++															bDeal = true;
++															if (gTeamLogLevel >= 2) logBBAI("    %S makes a deal with %S using AI_counterPropose", getName(0), GET_PLAYER((PlayerTypes)iI).getName(0));
++														}
++													}
++													if (bDeal)
++													{
++													// K-Mod end
++														if (GET_PLAYER((PlayerTypes)iI).isHuman())
++														{
++															if (!(abContacted[GET_PLAYER((PlayerTypes)iI).getTeam()]))
+ 															{
+-																GC.getGameINLINE().implementDeal(getID(), ((PlayerTypes)iI), &ourList, &theirList);
++																AI_changeContactTimer(((PlayerTypes)iI), CONTACT_TRADE_TECH, GC.getLeaderHeadInfo(getPersonalityType()).getContactDelay(CONTACT_TRADE_TECH));
++																pDiplo = new CvDiploParameters(getID());
++																FAssertMsg(pDiplo != NULL, "pDiplo must be valid");
++																pDiplo->setDiploComment((DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_OFFER_DEAL"));
++																pDiplo->setAIContact(true);
++																pDiplo->setOurOfferList(theirList);
++																pDiplo->setTheirOfferList(ourList);
++																gDLL->beginDiplomacy(pDiplo, (PlayerTypes)iI);
++																abContacted[GET_PLAYER((PlayerTypes)iI).getTeam()] = true;
+ 															}
+ 														}
++														else
++														{
++															GC.getGameINLINE().implementDeal(getID(), ((PlayerTypes)iI), &ourList, &theirList);
++														}
+ 													}
++													//}
+ 												}
+ 											}
+ 										}
+
+diff --git a/CvGameCoreDLL/LinkedList.h b/CvGameCoreDLL/LinkedList.h
+index 6c98fbda8..41743b432 100644
+--- a/CvGameCoreDLL/LinkedList.h
++++ b/CvGameCoreDLL/LinkedList.h
+@@ -46,6 +46,8 @@ public:
+ 	virtual ~CLinkList();
+ 
+ 	void clear();
++	void swap(CLinkList<tVARTYPE>& list); // K-Mod
++	void concatenate(CLinkList<tVARTYPE>& list); // K-Mod
+ 
+ 	void insertAtBeginning(const tVARTYPE& val);
+ 	void insertAtEnd(const tVARTYPE& val);
+@@ -127,6 +129,43 @@ inline void CLinkList<tVARTYPE>::clear()
+ 	m_pTail = NULL;
+ }
+ 
++// K-Mod. (I wish they had just used the STL...)
++// swap the contents of two lists
++template <class tVARTYPE>
++inline void CLinkList<tVARTYPE>::swap(CLinkList<tVARTYPE>& list)
++{
++	std::swap(m_pHead, list.m_pHead);
++	std::swap(m_pTail, list.m_pTail);
++	std::swap(m_iLength, list.m_iLength);
++}
++
++// move the contents from the argument list onto the end of this list
++template <class tVARTYPE>
++inline void CLinkList<tVARTYPE>::concatenate(CLinkList<tVARTYPE>& list)
++{
++	if (list.m_pHead == NULL)
++		return;
++
++	if (m_pTail)
++	{
++		m_pTail->m_pNext = list.m_pHead;
++		list.m_pHead->m_pPrev = m_pTail;
++	}
++	else
++	{
++		assert(m_pHead == NULL && m_iLength == 0);
++		m_pHead = list.m_pHead;
++	}
++	assert(list.m_pTail != NULL);
++	m_pTail = list.m_pTail;
++	m_iLength += list.m_iLength;
++
++	list.m_iLength = 0;
++	list.m_pHead = 0;
++	list.m_pTail = 0;
++}
++
++// K-Mod end
+ 
+ //inserts at the tail of the list
+ template <class tVARTYPE>
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=25389

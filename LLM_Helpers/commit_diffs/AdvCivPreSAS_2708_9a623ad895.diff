@@ -1,0 +1,1763 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2708
+# Commit: 9a623ad895c73c2ce0fe4d5f5cf668ab04848307
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5ea5df7d528893278a62921ea036c04dd3157075
+# Title: Let SPI handle team games, plus other changes to starting sites
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	Assets/Python/pyWB/CvWBDesc.py
+494	338	CvGameCoreDLL/CvGame.cpp
+13	5	CvGameCoreDLL/CvGame.h
+1	0	CvGameCoreDLL/CvMap.h
+34	18	CvGameCoreDLL/CvPlayer.cpp
+6	2	CvGameCoreDLL/CvPlayer.h
+16	1	CvGameCoreDLL/CyPlayer.cpp
+1	0	CvGameCoreDLL/CyPlayer.h
+1	0	CvGameCoreDLL/CyPlayerInterface1.cpp
+297	32	CvGameCoreDLL/StartingPositionIteration.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/pyWB/CvWBDesc.py b/Assets/Python/pyWB/CvWBDesc.py
+index 03c871d7c..6ce7d137a 100644
+--- a/Assets/Python/pyWB/CvWBDesc.py
++++ b/Assets/Python/pyWB/CvWBDesc.py
+@@ -1620,8 +1620,9 @@ class CvWBDesc:
+ 				continue # </advc.056>
+ 			# Random Start Location
+ 			if (pPlayer.getLeaderType() != -1 and pWBPlayer.bRandomStartLocation != "false"):
+-				pPlayer.setStartingPlot(pPlayer.findStartingPlot(true), True)
+-
++				#pPlayer.setStartingPlot(pPlayer.findStartingPlot(True), True)
++				# advc.027: Let the DLL find a starting plot later; but make sure that the DLL won't simply assign one of the plots marked with "StartingPlot".
++				pPlayer.forceRandomWBStart()
+ 			else:
+ 
+ 				# Player's starting plot
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index c10e3c326..4985b7641 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1070,392 +1070,564 @@ void CvGame::applyOptionEffects(bool bEnableAll)
+ NormalizationTarget* CvGame::assignStartingPlots()
+ {
+ 	PROFILE_FUNC();
+-
+-	// (original bts code deleted) // advc
+ 	CvMap const& kMap = GC.getMap();
+-	// K-Mod. Same functionality, but much faster and easier to read.
+-	//
+-	// First, make a list of all the pre-marked starting plots on the map.
+-	std::vector<CvPlot*> apStartingPlots;
+-	for (int i = 0; i < kMap.numPlots(); i++)
+-	{	// advc.opt: Shouldn't be necessary; the loop body is very fast.
+-		//gDLL->callUpdater(); // allow window updates during launch
+-		CvPlot* pLoopPlot = kMap.plotByIndex(i);
+-		if (pLoopPlot->isStartingPlot())
+-			apStartingPlots.push_back(pLoopPlot);
+-	}
+-	// Now, randomly assign a starting plot to each player.
+-	for (PlayerIter<CIV_ALIVE> it; it.hasNext() &&
+-		apStartingPlots.size() > 0; ++it)
+-	{
+-		if (it->getStartingPlot() != NULL)
+-			continue; // Already got one
+-		// advc.027b: was getSorenRandNum
+-		int iRandOffset = getMapRandNum(apStartingPlots.size(), "Starting Plot");
+-		it->setStartingPlot(apStartingPlots[iRandOffset], true);
+-		// remove this plot from the list.
+-		apStartingPlots[iRandOffset] = apStartingPlots[apStartingPlots.size() - 1];
+-		apStartingPlots.pop_back();
++	bool const bScenario = GC.getInitCore().getWBMapScript();
++	/*	(advc: BtS code for handling scenarios deleted)
++		K-Mod. Same functionality, but much faster and easier to read. */
++	{
++		/*	First, make a list of all the pre-marked starting plots on the map.
++			advc (note): Normally, only scenarios can have such marked plots. */
++		std::vector<CvPlot*> apStartingPlots;
++		for (int i = 0; i < kMap.numPlots(); i++)
++		{	// advc.opt: Shouldn't be necessary; the loop body is very fast.
++			//gDLL->callUpdater(); // allow window updates during launch
++			CvPlot* pLoopPlot = kMap.plotByIndex(i);
++			if (pLoopPlot->isStartingPlot())
++				apStartingPlots.push_back(pLoopPlot);
++		}
++		// Now, randomly assign a starting plot to each player.
++		for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext() &&
++			apStartingPlots.size() > 0; ++itPlayer)
++		{
++			if (itPlayer->getStartingPlot() != NULL || // Already got one
++				/*	advc.027: Don't assign one of the marked plots when the
++					scenario has set the RandomStartLocation flag for the player */
++				itPlayer->isRandomWBStart())
++			{
++				continue;
++			}
++			// advc.027b: was getSorenRandNum
++			int iRandOffset = getMapRandNum(apStartingPlots.size(), "Starting Plot");
++			itPlayer->setStartingPlot(apStartingPlots[iRandOffset]/*, true*/); // advc.opt
++			// remove this plot from the list.
++			apStartingPlots[iRandOffset] = apStartingPlots[apStartingPlots.size() - 1];
++			apStartingPlots.pop_back();
++		}
+ 	} // K-Mod end
++
+ 	if (GC.getPythonCaller()->callMapFunction("assignStartingPlots"))
+ 		return /* <advc.027> */ NULL;
+ 
+-	NormalizationTarget* pNormalizationTarget = NULL; // </advc.027>
+-
+-	std::vector<PlayerTypes> aePlayerOrder; // advc: was <int>
+-	std::vector<bool> abNewPlotFound(MAX_CIV_PLAYERS, false); // advc.108b
+-	if (isTeamGame())
+-	{	/*  advc (comment): This assignment is just a starting point for
+-			normalizeStartingPlotLocations */
+-		for (int iPass = 0; iPass < 2 * MAX_PLAYERS; ++iPass)
++	NormalizationTarget* pNormalizationTarget = NULL;
++	/*	If the map script allows it, StartingPositionIteration will
++		set starting sites that the code below may then reassign among the civs. */
++	StartingPositionIteration spi;
++	pNormalizationTarget = spi.createNormalizationTarget();
++	// Apply SPI team assignment (no effect if SPI hasn't actually been executed)
++	std::vector<CvPlot*> apStartsPerPlayer(MAX_CIV_PLAYERS);
++	for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
++	{
++		for (MemberIter itMember(itTeam->getID()); itMember.hasNext(); ++itMember)
+ 		{
+-			bool bStartFound = false;
+-			// advc.027b: was getSorenRandNum
+-			int iRandOffset = getMapRandNum(countCivTeamsAlive(), "Team Starting Plot");
+-			gDLL->callUpdater(); // advc (seems like a better place than the one I commented out above)
+-			for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
++			apStartsPerPlayer[itMember->getID()] = spi.getTeamSite(
++					itTeam->getID(), itMember.nextIndex() - 1);
++		}
++	}
++	bool const bTeamGame = isTeamGame();
++	bool bTeamAssignmentDone = bTeamGame;
++	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
++	{
++		if (apStartsPerPlayer[itPlayer->getID()] != NULL)
++			itPlayer->setStartingPlot(apStartsPerPlayer[itPlayer->getID()]);
++		else
++		{
++			bTeamAssignmentDone = false;
++			// SPI should do all the work or none
++			FAssert(itPlayer.nextIndex() == 1 && pNormalizationTarget == NULL);
++			break;
++		}
++	}
++	// Reassignment of starting sites makes debugging harder
++	if (pNormalizationTarget != NULL && spi.isDebug())
++		return pNormalizationTarget; // </advc.027>
++	if (bTeamGame)
++	{
++		if (!bTeamAssignmentDone) // advc.027
++		{
++			EnumMap<PlayerTypes,bool> abPlayerDone; // advc
++			// BtS team assignment
++			for (int iPass = 0; iPass < 2 * MAX_PLAYERS; iPass++)
+ 			{
+-				TeamTypes eLoopTeam = (TeamTypes)((iI + iRandOffset) % MAX_CIV_TEAMS);
+-				if (!GET_TEAM(eLoopTeam).isAlive())
+-					continue;
+-
+-				for (MemberIter itMember(eLoopTeam); itMember.hasNext(); ++itMember)
+-				{	// <advc.108b>
+-					if (abNewPlotFound[itMember->getID()])
+-						continue; // </advc.108b>
+-					if (itMember->getStartingPlot() == NULL)
+-						itMember->setStartingPlot(itMember->findStartingPlot(), true);
+-					if(itMember->getStartingPlot() != NULL)
++				bool bStartFound = false;
++				// advc.027b: was getSorenRandNum
++				int const iRandOffset = getMapRandNum(countCivTeamsAlive(),
++						"Team Starting Plot");
++				gDLL->callUpdater(); // advc
++				for (int i = 0; i < MAX_CIV_TEAMS; i++)
++				{
++					TeamTypes eLoopTeam = (TeamTypes)((i + iRandOffset) % MAX_CIV_TEAMS);
++					if (!GET_TEAM(eLoopTeam).isAlive())
++						continue;
++					for (MemberIter itMember(eLoopTeam); itMember.hasNext(); ++itMember)
+ 					{
+-						aePlayerOrder.push_back(itMember->getID());
+-						bStartFound = true;
+-						abNewPlotFound[itMember->getID()] = true; // advc.108b
+-						break;
++						if (abPlayerDone.get(itMember->getID()))
++							continue;
++						if (itMember->getStartingPlot() == NULL)
++						{
++							itMember->setStartingPlot(itMember->findStartingPlot()/*, true*/); // advc.opt
++							abPlayerDone.set(itMember->getID(), true);
++						}
++						if (itMember->getStartingPlot() != NULL)
++						{
++							bStartFound = true;
++							break;
++						}
+ 					}
+ 				}
++				if (!bStartFound)
++					break;
++			}
++			#ifdef FASSERT_ENABLE
++			for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
++			{
++				FAssert(it->getStartingPlot() != NULL);
++			}
++			#endif
++		}
++		bool bRearrange = !bTeamAssignmentDone;
++		/*	<advc.027> Run the BtS rerrangement code on top of SPI
++			(though not across areas) when the continents are relatively large.
++			(On archipelagic maps, I think the BtS code would do more harm than good
++			b/c it doesn't take into account shallow-water connections.) */
++		if (!bRearrange)
++		{
++			std::set<int> startingAreas;
++			PlayerIter<CIV_ALIVE> itPlayer;
++			for (; itPlayer.hasNext(); ++itPlayer)
++				startingAreas.insert(itPlayer->getStartingPlot()->getArea().getID());
++			if (2 * itPlayer.nextIndex() >= 7 * (int)startingAreas.size())
++				bRearrange = true;
++		} // </advc.027>
++		if (bRearrange)
++		{
++			/*	advc: assignStartingPlots shouldn't get called for scenarios with
++				fixed civs and leaders. (As far as I can tell, a scenario can only
++				have fixed civs and leaders for all players, or for none.) */
++			FAssert(!bScenario || GC.getInitCore().getWBMapNoPlayers());
++			// advc.108b: Moved from normalizeStartingPlots
++			if (!GC.getPythonCaller()->callMapFunction("normalizeStartingPlotLocations"))
++			{
++				rearrangeTeamStarts(
++						// advc.027:
++						bTeamAssignmentDone, bTeamAssignmentDone ? per100(15) : 0);
++			}
++		}
++	}
++	else // If map script [advc.027: and SPI] haven't set a plot
++	{
++		for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
++		{
++			if (itPlayer->getStartingPlot() == NULL)
++			{
++				gDLL->callUpdater();
++				itPlayer->setStartingPlot(itPlayer->findStartingPlot()/*, true*/); // advc.opt
++			}
++			if (itPlayer->getStartingPlot() == NULL)
++			{
++				FErrorMsg("No starting plot found");
++				continue;
+ 			}
+-			if (!bStartFound)
+-				break;
+ 		}
++	}
++	/*	advc.108b: Code moved into subroutine.
++		advc.027 (note): Would be better to do this _after_ normalization.
++		But that would require a NormalizationTarget member function for
++		updating the start values. */
++	applyStartingLocHandicaps(pNormalizationTarget);
++	return (bScenario ? NULL : pNormalizationTarget); // advc.027
++}
+ 
+-		//check all players have starting plots
+-		#ifdef FASSERT_ENABLE // advc
+-		for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
++/*	advc.108b: Based on code cut from assignStartingPlots.
++	Easier to implement this in a comparator.
++	For sorting players in descending order of their team start values
++	and, within a team, in descending order of the player start values. */
++namespace
++{
++	class StartingSiteComparator
++	{
++	public:
++		StartingSiteComparator(NormalizationTarget const* pStartValues)
++		:	m_pStartValues(pStartValues)
++		{}
++		bool operator()(PlayerTypes ePlayer1, PlayerTypes ePlayer2) const
++		{
++			TeamTypes const eTeam1 = TEAMID(ePlayer1);
++			TeamTypes const eTeam2 = TEAMID(ePlayer2);
++			if (eTeam1 == eTeam2)
++			{
++				scaled rValue1 = playerStartValue(ePlayer1);
++				scaled rValue2 = playerStartValue(ePlayer2);
++				if (rValue1 == rValue2)
++					return (ePlayer1 < ePlayer2);
++				return (rValue1 > rValue2);
++			}
++			scaled rValue1 = teamStartValue(eTeam1);
++			scaled rValue2 = teamStartValue(eTeam2);
++			if (rValue1 == rValue2)
++				return (eTeam1 < eTeam2);
++			return (rValue1 > rValue2);
++		}
++	private:
++		NormalizationTarget const* m_pStartValues;
++		scaled playerStartValue(PlayerTypes ePlayer) const
+ 		{
+-			FAssert(it->getStartingPlot() != NULL &&
+-					abNewPlotFound[it->getID()]); // advc.108b
++			CvPlot const* pStartPlot = GET_PLAYER(ePlayer).getStartingPlot();
++			scaled r = -1;
++			if (pStartPlot == NULL)
++				return r;
++			if (m_pStartValues == NULL)
++			{
++				/*	pStartPlot->getFoundValue(ePlayer) would be faster,
++					but CvPlot::setFoundValue may not have been called
++					(and then it returns 0). */
++				scaled r = GET_PLAYER(ePlayer).AI_foundValue(
++						pStartPlot->getX(), pStartPlot->getY(), -1,
++						false, true); // advc.027: bNormalize instead of bStartingLoc
++				FAssertMsg(r.isPositive(), "Starting site likely unplayable");
++				return r;
++			}
++			return m_pStartValues->getStartValue(*pStartPlot); // advc.027
++		}
++		scaled teamStartValue(TeamTypes eTeam) const
++		{
++			scaled r;
++			for (MemberIter itMember(eTeam); itMember.hasNext(); ++itMember)
++			{
++				r += playerStartValue(itMember->getID());
++			}
++			return r;
+ 		}
+-		#endif
+-	} /* advc.108b: Replace all this. Don't want handicaps to be ignored in
+-		 multiplayer, and the BtS random assignment of human starts doesn't
+-		 actually work - favors player 0 when humans are in slots 0, 1 ... */
++	};
++}
++
++// advc.108b: Cut from assignStartingPlots
++void CvGame::applyStartingLocHandicaps(
++	NormalizationTarget const* pStartValues) // advc.027
++{
++	/*	Replace all this. Don't want to ignore StartingLocPercent
++		in multiplayer games, and the BtS random assignment of human starts
++		didn't really work - had favored player 0 when humans are in slots 0, 1 ... */
+ 	/*else if (isGameMultiPlayer()) {
+ 		int iRandOffset = getMapRandNum(PlayerIter<CIV_ALIVE>::count(), "Player Starting Plot");
+ 		// ... (deleted on 14 June 2020)
+ 	}
+ 	else
+-	{	// advc (Comment): The minus 1 prevents humans from getting the worst plot
++	{	// advc (comment): The minus 1 prevents humans from getting the worst plot
+ 		int const iUpperBound = PlayerIter<CIV_ALIVE>::count() - 1;
+ 		// ...
+ 	}
+-	//Now iterate over the player starts in the original order and re-place them.
+-	//std::vector<PlayerTypes>::iterator itPlayerOrder;
++	//std::vector<PlayerTypes>::iterator itPlayerOrder; //iterate over the player starts in the original order and re-place them.
+ 	for (itPlayerOrder = aePlayerOrder.begin(); itPlayerOrder != aePlayerOrder.end(); ++itPlayerOrder)
+ 		GET_PLAYER(*itPlayerOrder).setStartingPlot(GET_PLAYER(*playerOrderIter).findStartingPlot(), true);*/
+-	// <advc.108b>
+-	else // i.e. if not a team game
+-	{	/*	<advc.027> If the map script allows it, StartingPositionIteration will
+-			set starting sites that the code below may then reassign among the civs. */
+-		StartingPositionIteration spi;
+-		pNormalizationTarget = spi.createNormalizationTarget();
+-		// Reassigning the starting sites makes debugging harder
+-		if (pNormalizationTarget != NULL && spi.isDebug())
+-			return pNormalizationTarget; // </advc.027>
+-		/*	Apply StartingLocationPercent from handicap.
+-			Note: Would be better to do this _after_ normalization. */
+-		int const iCivsAlive = PlayerIter<CIV_ALIVE>::count();
+-		FAssert(aePlayerOrder.empty());
+-		aePlayerOrder.resize(iCivsAlive, NO_PLAYER); // advc (replacing a loop)
+-		for (int iPass = 0; iPass < 2; iPass++)
+-		{
+-			bool bHuman = (iPass == 0);
+-			int iLoopCivs = PlayerIter<HUMAN>::count();
+-			if (!bHuman)
+-				iLoopCivs = iCivsAlive - iLoopCivs;
+-			int iRandOffset = getMapRandNum(iLoopCivs, "advc.108b");
+-			int iSkipped = 0;
+-			for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+-			{
+-				if(itPlayer->isHuman() == bHuman)
+-				{
+-					if(iSkipped < iRandOffset)
+-					{
+-						iSkipped++;
+-						continue;
+-					}
+-					/*  This sets iRandOffset to the id of a random human civ
+-						in the first pass, and a random AI civ in the second. */
+-					iRandOffset = itPlayer->getID();
+-					break;
+-				}
+-			}
+-			for(int i = 0; i < MAX_CIV_PLAYERS; i++)
+-			{
+-				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)
+-						((i + iRandOffset) % MAX_CIV_PLAYERS));
+-				if(!kPlayer.isAlive() || kPlayer.isHuman() != bHuman)
+-					continue;
+-				FAssert(!abNewPlotFound[kPlayer.getID()]);
+-				gDLL->callUpdater();
+-				// If map script [advc.027: or StartingPositionIteration] haven't set a plot ...
+-				if(kPlayer.getStartingPlot() == NULL)
+-					kPlayer.setStartingPlot(kPlayer.findStartingPlot(), true);
+-				if(kPlayer.getStartingPlot() == NULL)
+-				{
+-					FErrorMsg("No starting plot found");
+-					continue;
+-				}
+-				int iPos = ::range((iCivsAlive *
+-						GC.getInfo(kPlayer.getHandicapType()).
+-						getStartingLocationPercent()) / 100, 0, iCivsAlive - 1);
+-				if (aePlayerOrder[iPos] != NO_PLAYER) // Pos already taken
+-				{
+-					for(int j = 1; j < std::max(iPos + 1, iCivsAlive - iPos); j++)
+-					{
+-						// Alternate between better and worse positions
+-						if(iPos + j < iCivsAlive && aePlayerOrder[iPos + j] == NO_PLAYER)
+-						{
+-							iPos += j;
+-							break;
+-						}
+-						if(iPos - j >= 0 && aePlayerOrder[iPos - j] == NO_PLAYER)
+-						{
+-							iPos -= j;
+-							break;
+-						}
+-					}
+-					FAssert(aePlayerOrder[iPos] == NO_PLAYER);
+-				}
+-				aePlayerOrder[iPos] = kPlayer.getID();
+-				abNewPlotFound[kPlayer.getID()] = true;
+-			}
++
++	/*	The basic approach, as in K-Mod, is to sort the players by handicap,
++		starting with the least handicapped player, and to sort the starting sites
++		by value, starting with the best site. In the end, the sorted sites are
++		assigned to the sorted players. */
++	std::vector<PlayerTypes> aePlayersByHandicap; // ("PlayerOrder" in K-Mod)
++	/*	First, order the teams according to handicap, then the members of each team.
++		This way, the same algorithm works for team games and non-team games.
++		(BtS had not taken StartingLoc handicaps into account in team games.) */
++	std::vector<CvTeam*> apTeamsByHandicap;
++	std::vector<std::pair<CvTeam*,int> > aStartingLocPercentPerTeam;
++	for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
++	{
++		int iStartingLocPercent = 0;
++		MemberIter itMember(itTeam->getID());
++		for (; itMember.hasNext(); ++itMember)
++		{
++			iStartingLocPercent += GC.getInfo(itMember->getHandicapType()).
++					getStartingLocationPercent();
+ 		}
++		aStartingLocPercentPerTeam.push_back(std::make_pair(
++				&*itTeam, ROUND_DIVIDE(iStartingLocPercent, itMember.nextIndex())));
+ 	}
+-	std::vector<std::pair<scaled,PlotNumTypes> > startPlots;
+-	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
++	sortByStartingLocHandicap(aStartingLocPercentPerTeam, apTeamsByHandicap);
++	for (size_t i = 0; i < apTeamsByHandicap.size(); i++)
+ 	{
+-		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)i);
+-		if(!kPlayer.isAlive())
+-			continue;
+-		CvPlot* p = kPlayer.getStartingPlot();
+-		if(p == NULL)
++		std::vector<CvPlayer*> apMembersByHandicap;
++		std::vector<std::pair<CvPlayer*,int> > aStartingLocPercentPerMember;
++		for (MemberIter itMember(apTeamsByHandicap[i]->getID());
++			itMember.hasNext(); ++itMember)
+ 		{
+-			FAssertMsg(p != NULL, "Player has no starting plot");
+-			kPlayer.setStartingPlot(kPlayer.findStartingPlot(), true);
++			aStartingLocPercentPerMember.push_back(std::make_pair(
++					&*itMember, GC.getInfo(itMember->getHandicapType()).
++					getStartingLocationPercent()));
+ 		}
+-		if(p == NULL)
+-			continue;
+-		/*	<advc.027> If we've computed start values, then rely on those for
+-			ordering the startPlots. */
+-		scaled rValue;
+-		if (pNormalizationTarget != NULL)
+-			rValue = pNormalizationTarget->getStartValue(*p);
+-		else // </advc.027>
+-		{
+-			/*  p->getFoundValue(civ.getID()) would be faster, but
+-				CvPlot::setFoundValue may not have been called
+-				(and then it returns 0) */
+-			rValue = kPlayer.AI_foundValue(p->getX(), p->getY(), -1, true);
+-			FAssertMsg(rValue > 0, "Bad starting position");
+-		}
+-		// minus rValue for descending order
+-		startPlots.push_back(std::make_pair(-rValue, kMap.plotNum(*p)));
+-	}
+-	FAssert(startPlots.size() == aePlayerOrder.size());
+-	std::sort(startPlots.begin(), startPlots.end());
+-	// <advc.027> Try to avoid giving human players a high-volatility start
+-	if (pNormalizationTarget != NULL && aePlayerOrder.size() > 5u)
+-	{
+-		for (size_t i = 0; i < aePlayerOrder.size(); i++)
+-		{
+-			if (aePlayerOrder[i] == NO_PLAYER || !GET_PLAYER(aePlayerOrder[i]).isHuman())
++		sortByStartingLocHandicap(aStartingLocPercentPerMember, apMembersByHandicap);
++		for (size_t j = 0; j < apMembersByHandicap.size(); j++)
++		{
++			aePlayersByHandicap.push_back(apMembersByHandicap[j]->getID());
++		}
++	}
++
++	std::vector<PlayerTypes> aePlayersByStartValue;
++	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
++		aePlayersByStartValue.push_back(itPlayer->getID());
++	if (aePlayersByStartValue.size() != aePlayersByHandicap.size())
++	{
++		FAssert(aePlayersByStartValue.size() == aePlayersByHandicap.size());
++		return;
++	}
++	{
++		StartingSiteComparator comp(/* advc.027: */ pStartValues);
++		std::sort(aePlayersByStartValue.begin(), aePlayersByStartValue.end(), comp);
++	}
++	std::vector<CvPlot*> apStartingSitesByValue;
++	apStartingSitesByValue.reserve(aePlayersByStartValue.size());
++	for (size_t i = 0; i < aePlayersByStartValue.size(); i++)
++	{
++		apStartingSitesByValue.push_back(GET_PLAYER(aePlayersByStartValue[i]).
++				getStartingPlot());
++	}
++
++	// <advc.027> Try to avoid giving human players high-volatility starts
++	if (pStartValues != NULL && aePlayersByHandicap.size() > 5u &&
++		!isTeamGame())
++	{
++		for (size_t i = 0; i < aePlayersByHandicap.size(); i++)
++		{
++			PlayerTypes const ePlayer = aePlayersByHandicap[i];
++			if (ePlayer == NO_PLAYER || !GET_PLAYER(ePlayer).isHuman())
+ 				continue;
+-			CvPlot const* pStart = kMap.plotByIndex(startPlots[i].second);
++			CvPlot const* pStart = GET_PLAYER(ePlayer).getStartingPlot();
+ 			if (pStart == NULL)
+ 				continue;
+-			scaled rVolatility = pNormalizationTarget->getVolatilityValue(*pStart);
++			scaled rVolatility = pStartValues->getVolatilityValue(*pStart);
+ 			if (rVolatility < fixp(0.2))
+ 				continue;
+ 			/*	Don't want to undercut the handicap bias too much. Hence look for
+-				a less volatile start only one up and one down in the player order. */
++				a less volatile start only one up and one down in aePlayersByHandicap. */
+ 			std::vector<std::pair<int,PlayerTypes> > aieSwapPlayers;
+ 			if (i > 0)
+-				aieSwapPlayers.push_back(std::make_pair((int)(i - 1), aePlayerOrder[i - 1]));
+-			if (i < aePlayerOrder.size() - 1)
+-				aieSwapPlayers.push_back(std::make_pair((int)(i + 1), aePlayerOrder[i + 1]));
++			{
++				aieSwapPlayers.push_back(std::make_pair((int)
++						(i - 1), aePlayersByHandicap[i - 1]));
++			}
++			if (i < aePlayersByHandicap.size() - 1)
++			{
++				aieSwapPlayers.push_back(std::make_pair((int)
++						(i + 1), aePlayersByHandicap[i + 1]));
++			}
+ 			int iBestSwapIndex = -1;
+ 			// Tiny improvements in volatility aren't worth swapping for
+ 			scaled rBestSwapVal = fixp(0.1);
+ 			for (size_t j = 0; j < aieSwapPlayers.size(); j++)
+ 			{
+ 				PlayerTypes const eSwapPlayer = aieSwapPlayers[j].second;
+-				int const iSwapPlayerOrderIndex = aieSwapPlayers[j].first;
+ 				if (eSwapPlayer == NO_PLAYER || GET_PLAYER(eSwapPlayer).isHuman())
+ 					continue;
+-				CvPlot const* pSwapStart = kMap.plotByIndex(
+-						startPlots[iSwapPlayerOrderIndex].second);
++				int const iSwapPlayerIndex = aieSwapPlayers[j].first;		
++				CvPlot const* pSwapStart = apStartingSitesByValue[iSwapPlayerIndex];
+ 				if (pSwapStart == NULL)
+ 					continue;
+-				scaled rSwapVolatility = pNormalizationTarget->
+-						getVolatilityValue(*pSwapStart);
++				scaled rSwapVolatility = pStartValues->getVolatilityValue(*pSwapStart);
+ 				scaled rSwapVal = rVolatility - rSwapVolatility;
+ 				if (rSwapVal > rBestSwapVal)
+ 				{
+ 					rBestSwapVal = rSwapVal;
+-					iBestSwapIndex = iSwapPlayerOrderIndex;
++					iBestSwapIndex = iSwapPlayerIndex;
+ 				}
+ 			}
+ 			if (iBestSwapIndex >= 0)
+ 			{
+-				std::swap(aePlayerOrder[i], aePlayerOrder[iBestSwapIndex]);
++				std::swap(aePlayersByHandicap[i], aePlayersByHandicap[iBestSwapIndex]);
+ 				if (iBestSwapIndex == i + 1)
+ 					i++; // Skip next iteration to make sure not to swap again
+ 			}
+ 		}
+ 	} // </advc.027>
+-	for (size_t i = 0; i < aePlayerOrder.size(); i++)
++	for (size_t i = 0; i < aePlayersByHandicap.size(); i++)
+ 	{
+-		if (aePlayerOrder[i] == NO_PLAYER)
++		if (aePlayersByHandicap[i] == NO_PLAYER ||
++			apStartingSitesByValue[i] == NULL)
+ 		{
+-			FAssert(aePlayerOrder[i] != NO_PLAYER);
++			FErrorMsg("Failed to apply StartingLoc handicap");
+ 			continue;
+ 		}
+-		GET_PLAYER(aePlayerOrder[i]).setStartingPlot(
+-				kMap.plotByIndex(startPlots[i].second), true);
+-	} // </advc.108b>
+-	return pNormalizationTarget; // advc.027
++		GET_PLAYER(aePlayersByHandicap[i]).setStartingPlot(apStartingSitesByValue[i]);
++	}
+ }
+ 
+-// Swaps starting locations until we have reached the optimal closeness between teams
+-// (caveat: this isn't quite "optimal" because we could get stuck in local minima, but it's pretty good)
+-void CvGame::normalizeStartingPlotLocations()
+-{	// <advc.opt> This function is only for team games
+-	if(!isTeamGame())
+-		return; // </advc.opt>
+-	CvPlot* apNewStartPlots[MAX_CIV_PLAYERS];
+-	int* aaiDistances[MAX_CIV_PLAYERS];
+-	int aiStartingLocs[MAX_CIV_PLAYERS];
+-	int iI, iJ;
+-
+-	// Precalculate distances between all starting positions:
+-	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++/*	advc.108b: Based on BtS code cut from assignStartingPlots.
++	The Agent type can be either CvPlayer or CvTeam. The agents have to be
++	alive and non-Barbarian. kResult should be empty before the call. */
++template<class Agent>
++CvGame::sortByStartingLocHandicap(
++	std::vector<std::pair<Agent*,int> > const& kStartingLocPercentPerAgent,
++	std::vector<Agent*>& kResult)
++{
++	int const iAgents = kStartingLocPercentPerAgent.size();
++	int iHumanAgents = 0;
++	for (int i = 0; i < iAgents; i++)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		if (kStartingLocPercentPerAgent[i].first->isHuman())
++			iHumanAgents++;
++	}
++	int const iAIAgents = iAgents - iHumanAgents;
++	FAssert(kResult.empty());
++	kResult.resize(iAgents, NULL);
++	for (int iPass = 0; iPass < 2; iPass++)
++	{
++		bool bHuman = (iPass == 0);
++		int iLoopAgents = (bHuman ? iHumanAgents : iAIAgents);
++		int iRandOffset = getMapRandNum(iLoopAgents, "sortByStartingLocHandicap");
++		int iSkipped = 0;
++		for (int i = 0; i < iAgents; i++)
+ 		{
+-			gDLL->callUpdater();	// allow window to update during launch
+-			aaiDistances[iI] = new int[iI];
+-			for (iJ = 0; iJ < iI; iJ++)
++			if (kStartingLocPercentPerAgent[i].first->isHuman() == bHuman)
+ 			{
+-				aaiDistances[iI][iJ] = 0;
++				if (iSkipped < iRandOffset)
++				{
++					iSkipped++;
++					continue;
++				}
++				/*  This sets iRandOffset to the index of a random human agent
++					in the first pass, and a random AI agent in the second. */
++				iRandOffset = i;
++				break;
+ 			}
+-			CvPlot *pPlotI = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
+-			if (pPlotI != NULL)
++		}
++		for (int i = 0; i < iAgents; i++)
++		{
++			std::pair<Agent*,int> piLoopPair = kStartingLocPercentPerAgent[i];
++			Agent& kAgent = *piLoopPair.first;
++			if (kAgent.isHuman() != bHuman)
++				continue;
++			int iPos = ::range((iAgents * piLoopPair.second) / 100, 0, iAgents - 1);
++			if (kResult[iPos] != NULL) // If pos already taken
+ 			{
+-				for (iJ = 0; iJ < iI; iJ++)
++				for (int j = 1; j < std::max(iPos + 1, iAgents - iPos); j++)
+ 				{
+-					if (GET_PLAYER((PlayerTypes)iJ).isAlive())
++					// Alternate between better and worse positions
++					if (iPos + j < iAgents && kResult[iPos + j] == NULL)
+ 					{
+-						CvPlot *pPlotJ = GET_PLAYER((PlayerTypes)iJ).getStartingPlot();
+-						if (pPlotJ != NULL)
+-						{
+-							int iDist = GC.getMap().calculatePathDistance(pPlotI, pPlotJ);
+-							if (iDist == -1)
+-							{
+-								// 5x penalty for not being on the same area, or having no passable route
+-								iDist = 5*plotDistance(pPlotI->getX(), pPlotI->getY(), pPlotJ->getX(), pPlotJ->getY());
+-							}
+-							aaiDistances[iI][iJ] = iDist;
+-						}
++						iPos += j;
++						break;
++					}
++					if (iPos - j >= 0 && kResult[iPos - j] == NULL)
++					{
++						iPos -= j;
++						break;
+ 					}
+ 				}
++				FAssert(kResult[iPos] == NULL);
+ 			}
++			kResult[iPos] = &kAgent;
+ 		}
+-		else
+-		{
+-			aaiDistances[iI] = NULL;
+-		}
+-	}
+-
+-	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+-	{
+-		aiStartingLocs[iI] = iI; // each player starting in own location
+ 	}
++}
+ 
+-	int iBestScore = getTeamClosenessScore(aaiDistances, aiStartingLocs);
+-	bool bFoundSwap = true;
+-	while (bFoundSwap)
++/*	Swaps starting locations until we have reached the
++	optimal closeness between teams. (caveat: this isn't quite "optimal"
++	because we could get stuck in local minima, but it's pretty good.)
++	advc: Renamed from "normalizeStartingPlotLocations". No longer part of the
++	normalization step. Refactored, but the code structure is still as in BtS. */
++void CvGame::rearrangeTeamStarts(/* advc.027: */ bool bOnlyWithinArea, scaled rInertia)
++{	// <advc.opt> This function is only for team games
++	if(!isTeamGame())
++		return; // </advc.opt>
++	CvMap const& kMap = GC.getMap();
++	// Precompute distances between all starting sites
++	EnumMap2D<PlayerTypes,PlayerTypes,int> aaiDistances;
++	for (PlayerIter<CIV_ALIVE> itFirstPlayer; itFirstPlayer.hasNext(); ++itFirstPlayer)
+ 	{
+-		bFoundSwap = false;
+-		for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++		gDLL->callUpdater(); // allow window to update during launch
++		CvPlot* pFirstStart = itFirstPlayer->getStartingPlot();
++		if (pFirstStart == NULL)
++			continue;
++		PlayerTypes const eFirst = itFirstPlayer->getID();
++		for (PlayerIter<CIV_ALIVE> itSecondPlayer; itSecondPlayer.hasNext();
++			++itSecondPlayer)
+ 		{
+-			if (GET_PLAYER((PlayerTypes)iI).isAlive())
++			CvPlot* pSecondStart = itSecondPlayer->getStartingPlot();
++			if (pSecondStart == NULL)
++				continue;
++			PlayerTypes const eSecond = itSecondPlayer->getID();
++			if (eSecond < eFirst)
++				continue;
++			int iDist = kMap.calculatePathDistance(pFirstStart, pSecondStart);
++			if (iDist == -1)
+ 			{
+-				for (iJ = 0; iJ < iI; iJ++)
+-				{
+-					if (GET_PLAYER((PlayerTypes)iJ).isAlive())
+-					{
+-						int iTemp = aiStartingLocs[iI];
+-						aiStartingLocs[iI] = aiStartingLocs[iJ];
+-						aiStartingLocs[iJ] = iTemp;
+-						int iScore = getTeamClosenessScore(aaiDistances, aiStartingLocs);
+-						if (iScore < iBestScore)
+-						{
+-							iBestScore = iScore;
+-							bFoundSwap = true;
+-						}
+-						else
+-						{
+-							// Swap them back:
+-							iTemp = aiStartingLocs[iI];
+-							aiStartingLocs[iI] = aiStartingLocs[iJ];
+-							aiStartingLocs[iJ] = iTemp;
+-						}
+-					}
+-				}
++				iDist = kMap.plotDistance(pFirstStart, pSecondStart);
++				/*	advc.027: The BtS penalty below is (presumably) mainly intended
++					as an incentive for putting sites of the same team in the same area.
++					But it also provides a strong incentive for minimizing distances
++					between team sites in different areas when it's not possible
++					to put them all in one area. (Especially) don't want this
++					side-effect when swaps between areas aren't allowed. */
++				if (!bOnlyWithinArea)
++					iDist *= 5;
+ 			}
++			aaiDistances.set(eFirst, eSecond, iDist);
++			aaiDistances.set(eSecond, eFirst, iDist);
+ 		}
+ 	}
+ 
+-	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+-	{
+-		apNewStartPlots[iI] = NULL;
+-	}
++	std::vector<PlayerTypes> aeStartingLocs(MAX_CIV_PLAYERS);
++	// each player starting in own location
++	std11::iota(aeStartingLocs.begin(), aeStartingLocs.end(), (PlayerTypes)0);
+ 
+-	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	int iBestScore = getTeamClosenessScore(aaiDistances, aeStartingLocs);
++	bool bFoundSwap = true;
++	/*	<advc.027> I worry that going through the players in turn order
++		can lead to biases toward or against the (human) team of player 0.
++		(PlayerIter unfortunately only knows how to use SRand; I want MapRand here.) */
++	int aiPlayersShuffled[MAX_CIV_PLAYERS];
++	::shuffleArray(aiPlayersShuffled, MAX_CIV_PLAYERS, getMapRand()); // </advc.027>
++	while (bFoundSwap)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		bFoundSwap = false;
++		for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 		{
+-			if (aiStartingLocs[iI] != iI)
++			CvPlayer& kFirst = GET_PLAYER((PlayerTypes)aiPlayersShuffled[i]); // advc.027
++			if (!kFirst.isAlive())
++				continue;
++			for (int j = 0; j < /* advc.027: */ i; j++)
+ 			{
+-				apNewStartPlots[iI] = GET_PLAYER((PlayerTypes)aiStartingLocs[iI]).getStartingPlot();
++				CvPlayer& kSecond = GET_PLAYER((PlayerTypes)aiPlayersShuffled[j]); // advc.027
++				if (!kSecond.isAlive())
++					continue;
++				// <advc.027>
++				if (bOnlyWithinArea &&
++					// (The rest of this function also tolerates NULL starts)
++					kFirst.getStartingPlot() != NULL && kSecond.getStartingPlot() != NULL &&
++					!kFirst.getStartingPlot()->sameArea(*kSecond.getStartingPlot()))
++				{
++					continue;
++				} // </advc.027>
++				std::swap(aeStartingLocs[kFirst.getID()],
++						aeStartingLocs[kSecond.getID()]);
++				int iScore = getTeamClosenessScore(aaiDistances, aeStartingLocs);
++				if (iScore * (1 + rInertia) < iBestScore) // advc.027: inertia
++				{
++					iBestScore = iScore;
++					bFoundSwap = true;
++				}
++				else
++				{	// undo
++					std::swap(aeStartingLocs[kSecond.getID()],
++							aeStartingLocs[kFirst.getID()]);
++				}
+ 			}
+ 		}
+ 	}
+ 
+-	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	std::vector<CvPlot*> apNewStartPlots(MAX_CIV_PLAYERS, NULL);
++	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		PlayerTypes const ePlayer = itPlayer->getID();
++		if (aeStartingLocs[ePlayer] != ePlayer)
+ 		{
+-			if (apNewStartPlots[iI] != NULL)
+-			{
+-				GET_PLAYER((PlayerTypes)iI).setStartingPlot(apNewStartPlots[iI], false);
+-			}
++			apNewStartPlots[ePlayer] = GET_PLAYER(aeStartingLocs[ePlayer]).
++					getStartingPlot();
+ 		}
+ 	}
+-
+-	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+ 	{
+-		SAFE_DELETE_ARRAY(aaiDistances[iI]);
++		PlayerTypes const ePlayer = itPlayer->getID();
++		if (apNewStartPlots[ePlayer] != NULL)
++			GET_PLAYER(ePlayer).setStartingPlot(apNewStartPlots[ePlayer]);
+ 	}
+ }
+ 
+@@ -2431,11 +2603,7 @@ void CvGame::normalizeStartingPlots(NormalizationTarget const* pTarget)
+ 
+ 	CvPythonCaller const& py = *GC.getPythonCaller(); // advc.003y
+ 
+-	if (!GC.getInitCore().getWBMapScript() || GC.getInitCore().getWBMapNoPlayers())
+-	{
+-		if (!py.callMapFunction("normalizeStartingPlotLocations"))
+-			normalizeStartingPlotLocations();
+-	}
++	// advc.108b: Team starts now reassigned already in assignStartingPlots
+ 
+ 	if (GC.getInitCore().getWBMapScript())
+ 		return;
+@@ -2661,59 +2829,47 @@ bool CvGame::isWeakStartingFoodBonus(CvPlot const& kPlot, PlayerTypes eStartPlay
+ 	returns the sum of those n scores. The lower the result, the better "clumped"
+ 	the players' starting locations are.
+ 	Note: for the purposes of this function, player i will be assumed to start
+-	in the location of player aiStartingLocs[i] */
+-int CvGame::getTeamClosenessScore(int** aaiDistances, int* aiStartingLocs)
++	in the location of player kStartingLocs[i] */
++int CvGame::getTeamClosenessScore(  // advc: params used to be arrays
++	EnumMap2D<PlayerTypes,PlayerTypes,int> const& kDistances,
++	std::vector<PlayerTypes> const& kStartingLocs)
+ {
+ 	int iScore = 0;
+-
+-	for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++)
++	for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+ 	{
+-		if (GET_TEAM((TeamTypes)iTeam).isAlive())
++		int iTeamTotalDist = 0;
++		int iNumEdges = 0;
++		for (MemberIter itFirstMember(itTeam->getID()); itFirstMember.hasNext();
++			++itFirstMember)
+ 		{
+-			int iTeamTotalDist = 0;
+-			int iNumEdges = 0;
+-			for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
+-			{
+-				if (GET_PLAYER((PlayerTypes)iPlayer).isAlive())
+-				{
+-					if (GET_PLAYER((PlayerTypes)iPlayer).getTeam() == (TeamTypes)iTeam)
+-					{
+-						for (int iOtherPlayer = 0; iOtherPlayer < iPlayer; iOtherPlayer++)
+-						{
+-							if (GET_PLAYER((PlayerTypes)iOtherPlayer).getTeam() == (TeamTypes)iTeam)
+-							{
+-								// Add the edge between these two players that are on the same team
+-								iNumEdges++;
+-								int iPlayerStart = aiStartingLocs[iPlayer];
+-								int iOtherPlayerStart = aiStartingLocs[iOtherPlayer];
+-
+-								if (iPlayerStart < iOtherPlayerStart) // Make sure that iPlayerStart > iOtherPlayerStart
+-								{
+-									int iTemp = iPlayerStart;
+-									iPlayerStart = iOtherPlayerStart;
+-									iOtherPlayerStart = iTemp;
+-								}
+-								else if (iPlayerStart == iOtherPlayerStart)
+-								{
+-									FErrorMsg("Two players are (hypothetically) assigned to the same starting location!");
+-								}
+-								iTeamTotalDist += aaiDistances[iPlayerStart][iOtherPlayerStart];
+-							}
+-						}
+-					}
+-				}
+-			}
+-
+-			int iTeamScore;
+-			if (iNumEdges == 0)
+-				iTeamScore = 0;
+-			else
++			for (MemberIter itSecondMember(itTeam->getID()); itSecondMember.hasNext();
++				++itSecondMember)
+ 			{
+-				// the avg distance between team edges is the team score
+-				iTeamScore = iTeamTotalDist/iNumEdges;
+-			}
+-			iScore += iTeamScore;
++				PlayerTypes const eFirst = itFirstMember->getID();
++				PlayerTypes const eSecond = itSecondMember->getID();
++				if (eFirst <= eSecond)
++					continue;
++				// Add the edge between these two players that are on the same team
++				iNumEdges++;
++				PlayerTypes eFirstStart = kStartingLocs.at(eFirst);
++				PlayerTypes eSecondStart = kStartingLocs.at(eSecond);
++				if (eFirstStart < eSecondStart) // Ensure eFirstStart > eSecondStart
++					std::swap(eFirstStart, eSecondStart);
++				else FAssertMsg(eFirstStart != eSecondStart,
++						"Two players are (hypothetically) assigned to the same starting location!");
++				FAssertMsg(kDistances.get(eFirstStart, eSecondStart) > 0, "Distance not computed?"); // advc
++				iTeamTotalDist += kDistances.get(eFirstStart, eSecondStart);
++			}
++		}
++		int iTeamScore;
++		if (iNumEdges == 0)
++			iTeamScore = 0;
++		else
++		{
++			// The avg distance between team edges is the team score
++			iTeamScore = ROUND_DIVIDE(iTeamTotalDist, iNumEdges);
+ 		}
++		iScore += iTeamScore;
+ 	}
+ 	return iScore;
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index b89aeb115..c32ab2b55 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -1055,7 +1055,18 @@ protected:
+ 
+ 	void processVote(const VoteTriggeredData& kData, int iChange);
+ 
+-	void normalizeStartingPlotLocations();
++	//void normalizeStartingPlotLocations();
++	// <advc.108b>
++	void rearrangeTeamStarts(
++			bool bOnlyWithinArea = false, scaled rInertia = 0); // advc.027
++	void applyStartingLocHandicaps(/* advc.027: */ NormalizationTarget const* pStartValues);
++	template<class Agent>
++	sortByStartingLocHandicap(
++			std::vector<std::pair<Agent*,int> > const& kStartingLocPercentPerAgent,
++			std::vector<Agent*>& kResult); // </advc.108b>
++	int getTeamClosenessScore( // <advc>
++			EnumMap2D<PlayerTypes,PlayerTypes,int> const& kDistances,
++			std::vector<PlayerTypes> const& kStartingLocs); // </advc>
+ 	void normalizeAddRiver();
+ 	void normalizeRemovePeaks();
+ 	void normalizeAddLakes();
+@@ -1077,11 +1088,8 @@ protected:
+ 			BonusTypes eBonus, bool bSecondPass = false);
+ 	bool isPowerfulStartingBonus(CvPlot const& kPlot, PlayerTypes eStartPlayer) const;
+ 	bool isWeakStartingFoodBonus(CvPlot const& kPlot, PlayerTypes eStartPlayer) const;
+-	// </advc.108>
+-
+-	int getTeamClosenessScore(int** aaiDistances, int* aiStartingLocs);
++	// </advc.108>  <advc>
+ 	void doUpdateCacheOnTurn();
+-	// <advc>
+ 	CvUnit* getPlotUnits(CvPlot const* pPlot, std::vector<CvUnit*>* pPlotUnits,
+ 			int iIndex = -1) const; // </advc>
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index a2aa7e4cc..3f33edcc1 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -373,6 +373,7 @@ public: // advc: made several functions const
+ 
+ 	int getLandPlots() const { return m_iLandPlots; } // advc.inl										// Exposed to Python
+ 	void changeLandPlots(int iChange);
++	int getWaterPlots() const { return numPlots() - getLandPlots(); } // advc
+ 
+ 	int getOwnedPlots() const { return m_iOwnedPlots; }														// Exposed to Python
+ 	void changeOwnedPlots(int iChange);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index d40e41251..fd9cc4d9b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -419,6 +419,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_bAutoPlayJustEnded = false; // advc.127
+ 	m_bSavingReplay = false; // advc.106i
+ 	m_bScoreboardExpanded = false; // advc.085
++	m_bRandomWBStart = false; // advc.027
+ 
+ 	m_eID = eID;
+ 	updateTeamType();
+@@ -880,9 +881,12 @@ void CvPlayer::initFreeUnits()
+ 			getStartingUnitMultiplier(); // </advc>
+ 	// <advc.027> Goody huts no longer block starting sites
+ 	CvPlot* pStartingPlot = getStartingPlot();
+-	if (pStartingPlot != NULL && !kGame.isScenario() && pStartingPlot->isGoody())
+-		pStartingPlot->setImprovementType(NO_IMPROVEMENT);
+-	else FAssert(pStartingPlot != NULL); // (can this happen?)
++	if (pStartingPlot != NULL && !kGame.isScenario())
++	{
++		if (pStartingPlot->isGoody())
++			pStartingPlot->setImprovementType(NO_IMPROVEMENT);
++	}
++	else FAssertMsg(pStartingPlot != NULL, "Player in scenario has no starting plot");
+ 	// </advc.027>
+ 	if (kGame.isOption(GAMEOPTION_ADVANCED_START) &&
+ 		(!isHuman() || !kGame.isOption(GAMEOPTION_SPAH))) // advc.250b
+@@ -1247,8 +1251,9 @@ std::vector<std::pair<int,int> > CvPlayer::findStartingAreas(  // advc: style ch
+ }
+ 
+ 
+-CvPlot* CvPlayer::findStartingPlot(bool bRandomize,
+-	bool* pbPlotFoundByMapScript, bool* pbAreaFoundByMapScript) // advc.027
++CvPlot* CvPlayer::findStartingPlot(
++	// advc.027: (bRandomize param replaced with m_bRandomWBStart)
++	bool* pbPlotFoundByMapScript, bool* pbAreaFoundByMapScript)
+ {
+ 	PROFILE_FUNC();
+ 	// <advc.027>
+@@ -1274,7 +1279,7 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize,
+ 	{
+ 		//iBestArea = getStartingPlot()->getArea().getID(); // kekm.35:
+ 		areasByValue.push_back(std::make_pair(getStartingPlot()->getArea().getID(), 1));
+-		setStartingPlot(NULL, true);
++		setStartingPlot(NULL/*, true*/); // advc.opt
+ 		bNew = true;
+ 	}
+ 
+@@ -1331,13 +1336,16 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize,
+ 						continue;
+ 				} // </kekm.35>
+ 				//the distance factor is now done inside foundValue
+-				int iValue = pLoopPlot->getFoundValue(getID());
+-				if (bRandomize && iValue > 0)
+-				{	/*  advc (comment): That's a high random portion (high found values tend
+-						to range between 3000 and 5000), but I'm not sure which map scripts
+-						(if any) use bRandomize=true, so I'm not changing this. */
+-					iValue += GC.getGame().getSorenRandNum(10000, "Randomize Starting Location");
+-				}
++				int iValue = pLoopPlot->getFoundValue(getID(),
++						/*	advc.027: Replacing the randomization below, which is crude
++							and too much. Also, findStartingPlot no longer has a
++							bRandomize param. It had only been used by the WB scenario
++							parser for the RandomStartLocation flag. The parser now uses
++							CyPlayer::forceRandomWBStart. Note: Among the BtS scenarios,
++							only "Europe" uses RandomStartLocation=true. */
++						m_bRandomWBStart);
++				/*if (bRandomize && iValue > 0)
++					iValue += GC.getGame().getSorenRandNum(10000, "Randomize Starting Location");*/
+ 				if (iValue > iBestValue)
+ 				{
+ 					iBestValue = iValue;
+@@ -13785,13 +13793,16 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 
+ 	uint uiFlag=0;
+ 	pStream->Read(&uiFlag);
+-	// <advc.027> (No longer stored as x,y)
+-	{
++	// <advc.027>
++	{	// (No longer stored as x,y)
+ 		int iStartingX, iStartingY;
+ 		pStream->Read(&iStartingX);
+ 		pStream->Read(&iStartingY);
+ 		m_pStartingPlot = GC.getMap().plot(iStartingX, iStartingY);
+-	} // </advc.027>
++	}
++	if (uiFlag >= 14)
++		pStream->Read(&m_bRandomWBStart);
++	// </advc.027>
+ 	pStream->Read(&m_iTotalPopulation);
+ 	pStream->Read(&m_iTotalLand);
+ 	pStream->Read(&m_iTotalLandScored);
+@@ -14257,7 +14268,8 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	//uiFlag = 10; // advc.064b
+ 	//uiFlag = 11; // advc.001x
+ 	//uiFlag = 12; // advc.091
+-	uiFlag = 13; // advc.004s
++	//uiFlag = 13; // advc.004s
++	uiFlag = 14; // advc.027 (m_bRandomWBStart)
+ 	pStream->Write(uiFlag);
+ 
+ 	// <advc.027>
+@@ -14268,7 +14280,11 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 		iStartingY = m_pStartingPlot->getY();
+ 	}
+ 	pStream->Write(iStartingX);
+-	pStream->Write(iStartingY); // </advc.027>
++	pStream->Write(iStartingY);
++	/*	Should only be needed at game start, but let's save it anyway.
++		Might actually be needed for map regeneration. */
++	pStream->Write(&m_bRandomWBStart);
++	// </advc.027>
+ 	pStream->Write(m_iTotalPopulation);
+ 	pStream->Write(m_iTotalLand);
+ 	pStream->Write(m_iTotalLandScored);
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 9416d6aea..c733719ee 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -78,7 +78,7 @@ public:
+ 			bool* pbFoundByMapScript = NULL) const; // advc.027
+ 	// advc.027: New auxiliary function (public only for Debug mode info)
+ 	int coastRiverStartingAreaScore(CvArea const& a) const;
+-	CvPlot* findStartingPlot(bool bRandomize = false,																// Exposed to Python
++	CvPlot* findStartingPlot(																						// Exposed to Python
+ 			bool* pbPlotFoundByMapScript = NULL, bool* pbAreaFoundByMapScript = NULL); // advc.027
+ 
+ 	CvPlotGroup* initPlotGroup(CvPlot* pPlot);
+@@ -414,7 +414,10 @@ public:
+ 	// advc.027: Inline (called frequently by StartingPositionIteration)
+ 	inline CvPlot* getStartingPlot() const { return m_pStartingPlot; }												// Exposed to Python
+ 	// advc: No update by default. Non-Python calls should never have to use that param.
+-	void setStartingPlot(CvPlot* pNewValue, bool bUpdateStartDist = false);													// Exposed to Python
++	void setStartingPlot(CvPlot* pNewValue, bool bUpdateStartDist = false);											// Exposed to Python
++	// <advc.027>
++	void setRandomWBStart(bool b) { m_bRandomWBStart = b; } // (exposed to Python as forceRandomWBStart)
++	bool isRandomWBStart() const { return m_bRandomWBStart; } // </advc.027>
+ 
+ 	int getTotalPopulation() const { return m_iTotalPopulation; }													// Exposed to Python
+ 	int getAveragePopulation() const;																				// Exposed to Python
+@@ -1532,6 +1535,7 @@ protected:  // <advc.210>
+ 	// AI_AUTO_PLAY_MOD: END
+ 	bool m_bSavingReplay; // advc.106i
+ 	bool m_bScoreboardExpanded; // advc.085
++	bool m_bRandomWBStart; // advc.027
+ 
+ 	LeaderHeadTypes m_ePersonalityType;
+ 	EraTypes m_eCurrentEra;
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 5daeb8693..898e92cd9 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -56,7 +56,15 @@ bool CyPlayer::startingPlotWithinRange(CyPlot *pPlot, int /*PlayerTypes*/ ePlaye
+ 
+ CyPlot* CyPlayer::findStartingPlot(bool bRandomize)
+ {
+-	return m_pPlayer ? new CyPlot(m_pPlayer->findStartingPlot(bRandomize)) : NULL;
++	if (m_pPlayer == NULL)
++		return NULL;
++	//return new CyPlot(m_pPlayer->findStartingPlot(true));
++	// <advc.027> bRandomize param no longer exists
++	/*	This is intended for the WB scenario parser, but will also work
++		if a map script uses the bRandomize param. */
++	if (bRandomize)
++		m_pPlayer->setRandomWBStart(true);
++	return new CyPlot(m_pPlayer->findStartingPlot()); // </advc.027>
+ }
+ 
+ CyCity* CyPlayer::initCity(int x, int y)
+@@ -786,6 +794,13 @@ void CyPlayer::setStartingPlot(CyPlot* pPlot, bool bUpdateStartDist)
+ 
+ 	m_pPlayer->setStartingPlot(NULL != pPlot ? pPlot->getPlot() : NULL, bUpdateStartDist);
+ }
++// advc.027:
++void CyPlayer::forceRandomWBStart()
++{
++	if (m_pPlayer == NULL)
++		return;
++	m_pPlayer->setRandomWBStart(true);
++}
+ 
+ int CyPlayer::getTotalPopulation()
+ {
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index 0186fab75..ad0731d9f 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -200,6 +200,7 @@ public:
+ 
+ 	CyPlot* getStartingPlot();
+ 	void setStartingPlot(CyPlot* pPlot, bool bUpdateStartDist);
++	void forceRandomWBStart(); // advc.027
+ 	int getTotalPopulation();
+ 	int getAveragePopulation();
+ 	int getRealPopulation();
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index e4ee6abe9..793634c99 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -184,6 +184,7 @@ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
+ 
+ 		.def("getStartingPlot", &CyPlayer::getStartingPlot, python::return_value_policy<python::manage_new_object>(), "CyPlot* ()")
+ 		.def("setStartingPlot", &CyPlayer::setStartingPlot, "void (CyPlot*, bool) - sets the player's starting plot")
++		.def("forceRandomWBStart", &CyPlayer::forceRandomWBStart, "void forceRandomWBStart()") // advc.027
+ 		.def("getTotalPopulation", &CyPlayer::getTotalPopulation, "int ()")
+ 		.def("getAveragePopulation", &CyPlayer::getAveragePopulation, "int ()")
+ 		.def("getRealPopulation", &CyPlayer::getRealPopulation, "long int ()")
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index 1c693d36b..5e89975b1 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -3,6 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "StartingPositionIteration.h"
+ #include "CvPlayerAI.h"
++#include "CvTeamAI.h"
+ #include "CvGamePlay.h"
+ #include "CitySiteEvaluator.h"
+ #include "CvMap.h"
+@@ -58,16 +59,32 @@ StartingPositionIteration::StartingPositionIteration() :
+ 		if (!it->isHuman())
+ 			apCivPlayers.push_back(&*it);
+ 	}
+-	FAssert(!GC.getGame().isTeamGame());
+-	// In non-team games, Pangaea shouldn't need custom code for starting sites.
+-	bool const bIgnoreScript = GC.getInitCore().isPangaea();
++	/*	For large team games (a matter of player count and average team size),
++		I think the BtS algorithm will work better (i.e. less bad). */
++	if (GC.getGame().isTeamGame() &&
++		SQR((int)apCivPlayers.size()) > 36 * TeamIter<CIV_ALIVE>::count())
+ 	{
++		return;
++	}
++	/*	Pangaea overrides assignStartingPlots, but has relevant custom behavior
++		only for team games (inland starts are prohibited then). */
++	bool const bIgnoreScript = (GC.getInitCore().isPangaea() && !GC.getGame().isTeamGame());
++	{
++		bool bAllStartsFixed = m_bScenario;
+ 		size_t i = 0;
+ 		for (; i < apCivPlayers.size(); i++)
+ 		{
+ 			CvPlayer& kPlayer = *apCivPlayers[i];
+ 			if (kPlayer.getStartingPlot() != NULL)
+ 			{
++				if (m_bScenario)
++				{
++					/*	Respect the per-plot StartingPlot flags in scenarios.
++						But there can be fewer such plots than players. We'll
++						deal with any players that don't have a starting site yet. */
++					m_abFixedStart.set(kPlayer.getID(), true);
++					continue;
++				}
+ 				/*	Meaning that, if a map script sets all starting sites in
+ 					assignStartingPlots but still allows the default implementation,
+ 					then starting position iteration is allowed but can't change
+@@ -75,10 +92,11 @@ StartingPositionIteration::StartingPositionIteration() :
+ 				m_bRestrictedAreas = true;
+ 				continue;
+ 			}
++			else bAllStartsFixed = false;
+ 			gDLL->callUpdater();
+ 			bool bSiteFoundByScript=false;
+ 			bool bRestrictedAreas=false;
+-			CvPlot* pSite = kPlayer.findStartingPlot(false,
++			CvPlot* pSite = kPlayer.findStartingPlot(
+ 					&bSiteFoundByScript, &bRestrictedAreas);
+ 			if (pSite == NULL || (bSiteFoundByScript && !bIgnoreScript))
+ 				break;
+@@ -88,6 +106,20 @@ StartingPositionIteration::StartingPositionIteration() :
+ 				but then findStartingPlot will return the same site over and over. */
+ 			kPlayer.setStartingPlot(pSite);
+ 		}
++		if (bAllStartsFixed)
++			return;
++		/*	<advc.test> For getting an evaluation of a particular starting position
++			(for particular RNG seeds set in CivilizationIV.ini). */
++		/*int aiiForcedInitialPosition[][2] =
++		{
++			{22, 36}, {19, 13}, {29, 12}, {29, 23},
++			{19, 29}, {32, 39}, {51, 11}, {55, 19},
++		};
++		for (int j = 0; j < ARRAY_LENGTH(aiiForcedInitialPosition); j++)
++		{
++			GET_PLAYER((PlayerTypes)j).setStartingPlot(&kMap.getPlot(
++					aiiForcedInitialPosition[j][0], aiiForcedInitialPosition[j][1]), false);
++		}*/ // </advc.test>
+ 		if (i != apCivPlayers.size()) // Revert any changes and bail
+ 		{
+ 			for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+@@ -169,6 +201,19 @@ StartingPositionIteration::StartingPositionIteration() :
+ 	m_pPotentialSites = &potentialSiteGen;
+ 
+ 	doIterations(potentialSiteGen); // May modify the potential sites
++
++	m_sitesPerTeam.resize(MAX_CIV_TEAMS);
++	if (GC.getGame().isTeamGame())
++		assignSitesToTeams();
++	else
++	{
++		for (size_t i = 0; i < apCivPlayers.size(); i++)
++		{
++			m_sitesPerTeam[apCivPlayers[i]->getTeam()].push_back(
++					apCivPlayers[i]->getID());
++		}
++	}
++
+ 	delete pPathDists;
+ 	m_pPathDists = NULL;
+ }
+@@ -1034,11 +1079,13 @@ void StartingPositionIteration::computeStartValues(
+ 		if (pos != m_pYieldsPerArea->end())
+ 			rAreaYields = pos->second;
+ 		int iSameAreaRivals = 0;
+-		for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> itRival(itPlayer->getTeam());
+-			itRival.hasNext(); ++itRival)
++		for (PlayerIter<CIV_ALIVE> itRival; itRival.hasNext(); ++itRival)
+ 		{
+-			if (kStartPlot.sameArea(*itRival->getStartingPlot()))
++			if (&*itRival != &*itPlayer &&
++				kStartPlot.sameArea(*itRival->getStartingPlot()))
++			{
+ 				iSameAreaRivals++;
++			}
+ 		}
+ 		rAreaYields /= 1 + iSameAreaRivals;
+ 		areaYieldsPerPlayer.set(itPlayer->getID(), rAreaYields);
+@@ -1141,9 +1188,10 @@ void StartingPositionIteration::computeStartValues(
+ 		int iWarTargets = 0;
+ 		int iSameAreaTradeTargets = 0;
+ 		int iDifferentAreaTradeTargets = 0;
+-		for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> itRival(itPlayer->getTeam());
+-			itRival.hasNext(); ++itRival)
++		for (PlayerIter<CIV_ALIVE> itRival; itRival.hasNext(); ++itRival)
+ 		{
++			if (&*itRival == &*itPlayer)
++				continue;
+ 			CvPlot const& kRivalStartPlot = *itRival->getStartingPlot();
+ 			short const iDist = m_pPathDists->d(kStartPlot, kRivalStartPlot);
+ 			if (kStartPlot.sameArea(kRivalStartPlot))
+@@ -1292,7 +1340,10 @@ void StartingPositionIteration::computeStartValues(
+ 
+ /*	Returns a "typical" distance factor and stores per-player (i.e. per starting site)
+ 	distances in the out parameter. Distance factors account for the path distances
+-	between the current starting sites. They're on the scale of DistanceTable::d. */
++	between the current starting sites. They're on the scale of DistanceTable::d.
++	"Rivals" refers to any pair of different civ players here, even if they're
++	on the same team. (Sites will probably get swapped around later, so same-team
++	relationships aren't reliable at this point.) */
+ scaled StartingPositionIteration::computeRivalDistFactors(
+ 	EnumMap<PlayerTypes,scaled>& kResult, bool bSameArea) const
+ {
+@@ -1301,9 +1352,10 @@ scaled StartingPositionIteration::computeRivalDistFactors(
+ 	{
+ 		vector<short> aiRivalDists;
+ 		CvPlot const& kStartPlot = *itPlayer->getStartingPlot();
+-		for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> itRival(itPlayer->getTeam());
+-			itRival.hasNext(); ++itRival)
++		for (PlayerIter<CIV_ALIVE> itRival; itRival.hasNext(); ++itRival)
+ 		{
++			if (&*itPlayer == &*itRival)
++				continue;
+ 			if (!bSameArea || kStartPlot.sameArea(*itRival->getStartingPlot()))
+ 			{
+ 				aiRivalDists.push_back(m_pPathDists->d(
+@@ -1466,21 +1518,23 @@ void StartingPositionIteration::currAltSites(PlayerTypes eCurrSitePlayer,
+ 		return;
+ 	CvPlot const& kCurrSite = *GET_PLAYER(eCurrSitePlayer).getStartingPlot();
+ 	short iCurrClosestPathDist = MAX_SHORT;
+-	for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(TEAMID(eCurrSitePlayer));
+-		it.hasNext(); ++it)
++	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 	{
+-		iCurrClosestPathDist = std::min(iCurrClosestPathDist,
+-				m_pPathDists->d(kCurrSite, *it->getStartingPlot()));
++		if (it->getID() != eCurrSitePlayer)
++		{
++			iCurrClosestPathDist = std::min(iCurrClosestPathDist,
++					m_pPathDists->d(kCurrSite, *it->getStartingPlot()));
++		}
+ 	}
+ 	vector<pair<short,PlotNumTypes> > altSitesByDist;
+ 	CvMap const& kMap = GC.getMap();
+ 	std::vector<CvPlot const*> apRivalSites;
+ 	if (eTakenSite != NO_PLOT_NUM)
+ 		apRivalSites.push_back(&kMap.getPlotByIndex(eTakenSite));
+-	for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> itRival(TEAMID(eCurrSitePlayer));
+-		itRival.hasNext(); ++itRival)
++	for (PlayerIter<CIV_ALIVE> itRival; itRival.hasNext(); ++itRival)
+ 	{
+-		apRivalSites.push_back(itRival->getStartingPlot());
++		if (itRival->getID() != eCurrSitePlayer)
++			apRivalSites.push_back(itRival->getStartingPlot());
+ 	}
+ 	for (VoronoiCell::const_iterator itSite = pCell->begin(); itSite != pCell->end();
+ 		++itSite)
+@@ -1537,9 +1591,10 @@ void StartingPositionIteration::currAltSites(PlayerTypes eCurrSitePlayer,
+ 		AreaSiteMap otherAreaSites;
+ 		/*	Going through rival Voronoi cells ensures that the sites aren't
+ 			remote sites in the strict sense nor sites in our pCell. */
+-		for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> itRival(TEAMID(eCurrSitePlayer));
+-			itRival.hasNext(); ++itRival)
++		for (PlayerIter<CIV_ALIVE> itRival; itRival.hasNext(); ++itRival)
+ 		{
++			if (itRival->getID() == eCurrSitePlayer)
++				continue;
+ 			VoronoiCell const* pRivalCell = m_pPotentialSites->getCell(itRival->getID());
+ 			if (pRivalCell == NULL)
+ 				continue;
+@@ -1586,10 +1641,10 @@ void StartingPositionIteration::currAltSites(PlayerTypes eCurrSitePlayer,
+ 					continue;
+ 				CvPlot const& kSite = kMap.getPlotByIndex(*itSite);
+ 				vector<short> aDists;
+-				for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(TEAMID(eCurrSitePlayer));
+-					it.hasNext(); ++it)
++				for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 				{
+-					aDists.push_back(m_pPathDists->d(*it->getStartingPlot(), kSite));
++					if (it->getID() != eCurrSitePlayer)
++						aDists.push_back(m_pPathDists->d(*it->getStartingPlot(), kSite));
+ 				}
+ 				scaled rDistFactor = weightedDistance(aDists);
+ 				if (rDistFactor > rBestDist)
+@@ -1727,7 +1782,7 @@ void StartingPositionIteration::logStep(Step const& kStep,
+ void StartingPositionIteration::doIterations(PotentialSites& kPotentialSites)
+ {
+ 	evaluateCurrPosition(m_currSolutionAttribs, true);
+-	m_bNormalizationTargetReady = !m_bScenario;
++	m_bNormalizationTargetReady = true;
+ 
+ 	if (m_currSolutionAttribs.m_eWorstOutlier == NO_PLAYER)
+ 		return;
+@@ -1737,17 +1792,23 @@ void StartingPositionIteration::doIterations(PotentialSites& kPotentialSites)
+ 	/*	Iterate until we return due to getting stuck in a (local) optimum
+ 		or until we run out of time */
+ 	int iStepsConsidered = 0;
+-	/*	The effort is pretty much proportional to tiles times civs,
++	/*	On watery maps, SPI may have to consider a higher number of
++		long-distance moves, but a higher land ratio seems to result
++		in greater computational effort overall. */
++	int const iPlots = (5 * kMap.getLandPlots() + 2 * kMap.getWaterPlots()) / 3;
++	/*	The effort is pretty much proportional to plots times civs,
+ 		but everything takes longer on large maps, so players ought to
+ 		have more patience. Hence the exponent. */
+ 	int iMaxSteps = (1000000 /
+-			scaled(kMap.numPlots() * PlayerIter<CIV_ALIVE>::count()).
+-			pow(fixp(2/3.))).round();
++			scaled(iPlots * PlayerIter<CIV_ALIVE>::count()).
++			pow(fixp(0.61))).round();
+ 	while (iStepsConsidered < iMaxSteps)
+ 	{
+ 		vector<pair<scaled,PlayerTypes> > currSitesByOutlierVal;
+ 		for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 		{
++			if (m_abFixedStart.get(it->getID()))
++				continue;
+ 			// Focus on negative outliers while the avg. error is high
+ 			scaled rNegativeOutlierExtraWeight = fixp(1.15) * 
+ 					(m_currSolutionAttribs.m_rAvgError - fixp(0.1));
+@@ -1764,11 +1825,13 @@ void StartingPositionIteration::doIterations(PotentialSites& kPotentialSites)
+ 					that is already overcrowded. Or better to do this more explicitly?
+ 					Can't easily check for crowdedness here though ... */
+ 				/*int iAreaPlayers = 1;
+-				for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> itRival(it->getTeam());
+-					itRival.hasNext(); ++itRival)
++				for (PlayerIter<CIV_ALIVE> itRival; itRival.hasNext(); ++itRival)
+ 				{
+-					if (itRival->getStartingPlot()->sameArea(*it->getStartingPlot()))
++					if (&*itRival != &*it &&
++						itRival->getStartingPlot()->sameArea(*it->getStartingPlot()))
++					{
+ 						iAreaPlayers++;
++					}
+ 				}
+ 				rOutlierVal += rOutlierVal * (m_currSolutionAttribs.m_rAvgError - fixp(0.1)) *
+ 						scaled(iAreaPlayers).sqrt();*/
+@@ -1803,7 +1866,8 @@ void StartingPositionIteration::doIterations(PotentialSites& kPotentialSites)
+ 				vector<pair<short,PlayerTypes> > otherCurrSitesByDist;
+ 				for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+ 				{
+-					if (itPlayer->getID() != eCurrSitePlayer)
++					if (itPlayer->getID() != eCurrSitePlayer &&
++						!m_abFixedStart.get(itPlayer->getID()))
+ 					{
+ 						short d = std::min<short>(
+ 								m_pPathDists->d(*itPlayer->getStartingPlot(), kAltSite),
+@@ -1880,6 +1944,207 @@ void StartingPositionIteration::doIterations(PotentialSites& kPotentialSites)
+ }
+ 
+ 
++void StartingPositionIteration::assignSitesToTeams()
++{
++	vector<std::pair<int,TeamTypes> > aieTeamsBySize;
++	for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
++		aieTeamsBySize.push_back(make_pair(itTeam->getNumMembers(), itTeam->getID()));
++	if (aieTeamsBySize.empty())
++	{
++		FAssert(false);
++		return;
++	}
++	/*	Start with the large teams; small teams will be at a disadvantage in any case,
++		and that's probably what the player who sets up the game intends.
++		Stable sort just so that ties aren't broken arbitrarily; not important though
++		b/c CvGame will swap the team starts around later. */
++	std::stable_sort(aieTeamsBySize.rbegin(), aieTeamsBySize.rend());
++	std::set<PlayerTypes> aeAvailableSites; // Identify sites by players
++	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
++		aeAvailableSites.insert(itPlayer->getID());
++	#ifdef SPI_LOG
++		std::ostringstream out;
++	#endif
++	int iLoopTeamIndex = 0;
++	while (!aeAvailableSites.empty())
++	{
++		TeamTypes eCurrTeam = aieTeamsBySize[iLoopTeamIndex].second;
++		typedef std::set<PlayerTypes>::iterator AvailSitesIter;
++		AvailSitesIter itCurrSite = aeAvailableSites.end();
++		int iMaxSiteVal = MIN_INT;
++		for (AvailSitesIter itSite = aeAvailableSites.begin();
++			itSite != aeAvailableSites.end(); ++itSite)
++		{
++			int iVal = teamValue(*itSite, eCurrTeam);
++			if (iVal > iMaxSiteVal || (iVal == iMaxSiteVal &&
++				(itCurrSite == aeAvailableSites.end() ||
++				/*	One last tiebreaker that I haven't been able to fit into teamValue:
++					assign bad starting sites first */
++				m_currSolutionAttribs.m_startValues.get(*itSite) <
++				m_currSolutionAttribs.m_startValues.get(*itCurrSite))))
++			{
++				iMaxSiteVal = iVal;
++				itCurrSite = itSite;
++			}
++		}
++		#ifdef SPI_LOG
++			out << "Assigning site (" << GET_PLAYER(*itCurrSite).getStartingPlot()->getX()
++					<< "," << GET_PLAYER(*itCurrSite).getStartingPlot()->getY()
++					<< ") to team " << (int)eCurrTeam << "\n";
++		#endif
++		m_sitesPerTeam[eCurrTeam].push_back(*itCurrSite);
++		aeAvailableSites.erase(itCurrSite);
++		// Round robin placing two members of one team at a time
++		int const iLoopTeamSites = m_sitesPerTeam[eCurrTeam].size();
++		if (GET_TEAM(eCurrTeam).getNumMembers() <= iLoopTeamSites ||
++			iLoopTeamSites % 2 == 0)
++		{
++			iLoopTeamIndex++;
++			iLoopTeamIndex %= aieTeamsBySize.size();
++		}
++	}
++	#ifdef SPI_LOG
++		gDLL->logMsg("StartingPos.log", out.str().c_str(), false, false);
++	#endif
++}
++
++/*	Both agents are placeholders that will get swapped around later.
++	The only relevant data about them are m_sitesPerTeam. */
++int StartingPositionIteration::teamValue(PlayerTypes eSitePlayer, TeamTypes eForTeam) const
++{
++	CvPlot const& kSite = *GET_PLAYER(eSitePlayer).getStartingPlot();
++	int const iAreaSites = kSite.getArea().getNumStartingPlots();
++	EnumMap<TeamTypes,int> aiAreaSitesPerTeam;
++	int iTeamsInArea = 0;
++	vector<scaled> arFriendlyCloseness;
++	vector<scaled> arRivalCloseness;
++	int iAreaTakenSites = 0;
++	for (size_t i = 0; i < m_sitesPerTeam.size(); i++)
++	{
++		TeamTypes eLoopTeam = (TeamTypes)i;
++		for (size_t j = 0; j < m_sitesPerTeam[i].size(); j++)
++		{
++			if (!GET_PLAYER(m_sitesPerTeam[i][j]).getStartingPlot()->
++				isArea(kSite.getArea()))
++			{
++				continue;
++			}
++			if (aiAreaSitesPerTeam.get(eLoopTeam) == 0)
++				iTeamsInArea++;
++			aiAreaSitesPerTeam.add(eLoopTeam, 1);
++			iAreaTakenSites++;
++			bool const bFriendly = (eLoopTeam == eForTeam);
++			if (!bFriendly &&
++				/*	Ignore closeness to sites of rivals that have already
++					placed all there members */
++				m_sitesPerTeam[i].size() == GET_TEAM(eLoopTeam).getNumMembers())
++			{
++				continue;
++			}
++			int const iOtherAreaSites = m_sitesPerTeam[eLoopTeam].size();
++			for (int k = 0; k < iOtherAreaSites; k++)
++			{
++				CvPlot const& kOtherSite = *GET_PLAYER(
++						m_sitesPerTeam[eLoopTeam][k]).getStartingPlot();
++				FAssert(&kOtherSite != &kSite)
++				short iCloseness = m_pPathDists->getLongDist() -
++						m_pPathDists->d(kSite, kOtherSite);
++				if (iCloseness > 0)
++				{
++					(bFriendly ? arFriendlyCloseness : arRivalCloseness).
++							push_back(iCloseness);
++				}
++			}
++		}
++	}
++	int iVicinityFactor = 0;
++	if (!arFriendlyCloseness.empty())
++	{
++		iVicinityFactor = ((stats::min(arFriendlyCloseness) +
++				stats::mean(arFriendlyCloseness)) / 2).round();
++	}
++	/*	When placing the first site of a team in an area,
++		try to keep a distance from rival sites in case that
++		those rivals will add more members to the area.
++		When there are no rival sites either, try to maximize
++		the distance from the unassigned sites, if any.*/
++	else
++	{
++		vector<scaled> arUnassignedCloseness;
++		vector<scaled> const* parCloseness = NULL;
++		if (arRivalCloseness.empty())
++		{
++			for (PlayerIter<CIV_ALIVE> itOther; itOther.hasNext(); ++itOther)
++			{
++				if (itOther->getID() != eSitePlayer)
++				{
++					short iCloseness = m_pPathDists->getLongDist() -
++							m_pPathDists->d(kSite, *itOther->getStartingPlot());
++					if (iCloseness > 0)
++						arUnassignedCloseness.push_back(iCloseness);
++				}
++			}
++			if (!arUnassignedCloseness.empty())
++				parCloseness = &arUnassignedCloseness;
++		}
++		else parCloseness = &arRivalCloseness;
++		if (parCloseness != NULL)
++		{
++			iVicinityFactor = -((stats::min(*parCloseness) +
++					stats::mean(*parCloseness)) / 2).round();
++		}
++	}
++	int const iRemainingAreaSites = iAreaSites - iAreaTakenSites;
++	// Top priority: Area with the highest number of remaining sites;
++	int const iRemainingSiteWeight = 100000;
++	int iValue = iRemainingSiteWeight * iRemainingAreaSites;
++	// Stick close to sites already assigned to teammates
++	iValue += iVicinityFactor;
++	/*	Total area sites as tiebreaker; especially when a team has
++		no assigned sites yet (0 vicinity factor everywhere). */
++	iValue += iAreaSites;
++	/*	When taking the final site in the area, try to avoid letting
++		some team outnumber another. */
++	if (iRemainingAreaSites == 1 && iAreaTakenSites > 0)
++	{
++		// Pretend that eForTeam is already placed in the area
++		iAreaTakenSites++;
++		if (aiAreaSitesPerTeam.get(eForTeam) <= 0)
++			iTeamsInArea++;
++		scaled rMeanAreaSitesPerTeam(iAreaTakenSites, iTeamsInArea);
++		scaled rSquareError;
++		for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
++		{
++			int iLoopSites = aiAreaSitesPerTeam.get(itTeam->getID());
++			if (itTeam->getID() == eForTeam)
++				iLoopSites++;
++			if (iLoopSites <= 0)
++				continue;
++			rSquareError += SQR((iLoopSites - rMeanAreaSitesPerTeam).abs());
++		}
++		// Greater impact than vicinity
++		iValue -= 3 * (rSquareError / iTeamsInArea).getPermille();
++	}
++	/*	If there's at least one friendly area site (and more than one remains
++		to be assigned), treat the area as if it had one additional free site.
++		To avoid scattering teams too much across multiple areas. */
++	else if (aiAreaSitesPerTeam.get(eForTeam) > 0)
++		iValue += iRemainingSiteWeight;
++	return iValue;
++}
++
++
++CvPlot* StartingPositionIteration::getTeamSite(TeamTypes eTeam, int iMember) const
++{
++	FAssert(eTeam >= 0 && iMember >= 0);
++	if (eTeam >= (int)m_sitesPerTeam.size())
++		return NULL;
++	if (iMember >= (int)m_sitesPerTeam[eTeam].size())
++		return NULL;
++	return GET_PLAYER(m_sitesPerTeam[eTeam][iMember]).getStartingPlot();
++}
++
++
+ NormalizationTarget::NormalizationTarget(CitySiteEvaluator& kEval,
+ 	StartingPositionIteration::SolutionAttributes const& kSolution)
+ {
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=67412

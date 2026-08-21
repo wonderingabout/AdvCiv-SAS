@@ -1,0 +1,43 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4427
+# Commit: 5e327f5e9e748e1f34b5246e5b50c557af76bf02
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 98ca487f3684d6f4f2b05fc843e9d00998e552a6
+# Title: add medieval music 1
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus
+4	0	_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt
+ create mode 100644 _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus
+new file mode 100644
+index 000000000..c9c4d5ad4
+Binary files /dev/null and b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus differ
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt
+index cb0ebcaa2..ff54e3d93 100644
+--- a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt	
++++ b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt	
+@@ -24,4 +24,8 @@ Bronze Age 4 -
+ 
+ Iron Age
+ 
++Medieval Era
++
++Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].
++
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=914

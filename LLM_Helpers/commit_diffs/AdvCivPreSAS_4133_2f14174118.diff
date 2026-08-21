@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4133
+# Commit: 2f14174118899095e1f4b3c64638e4da907c73b8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d2e7052590b0a1779756a35154a99295a19e4f57
+# Title: Fix BUG options not being saved when running mod for 1st time
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	Assets/Python/BUG/configobj.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/configobj.py b/Assets/Python/BUG/configobj.py
+index bb53d0bf3..720b356e5 100644
+--- a/Assets/Python/BUG/configobj.py
++++ b/Assets/Python/BUG/configobj.py
+@@ -2015,6 +2015,9 @@ class ConfigObj(Section):
+             output = BOM_UTF8 + output
+         if outfile is not None:
+             outfile.write(output)
++            # <advc.001> Need to remember filename
++            if self.filename is None:
++                self.filename = outfile.name # </advc.001>
+         else:
+             h = open(self.filename, 'w')
+             h.write(output)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=577

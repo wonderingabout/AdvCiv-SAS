@@ -1,0 +1,150 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2135
+# Commit: ecd0fc4fbf47240f594e989f92d0aebe64554bdb
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f6e90e41ee43b06af58ebb2f7e2e3785bdf4bd42
+# Title: Reorder data members of classes with exported ctor
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	17	CvGameCoreDLL/CvReplayInfo.h
+14	17	CvGameCoreDLL/CvSelectionGroup.h
+1	1	CvGameCoreDLL/CvXMLLoadUtility.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.h b/CvGameCoreDLL/CvReplayInfo.h
+index 4b9df877b..d451b22db 100644
+--- a/CvGameCoreDLL/CvReplayInfo.h
++++ b/CvGameCoreDLL/CvReplayInfo.h
+@@ -117,7 +117,21 @@ protected:
+ 	int m_iStartYear;
+ 	CvWString m_szFinalDate;
+ 	CalendarTypes m_eCalendar;
+-
++	//int m_iNormalizedScore;
++	// <advc.003k> Additional data members
++	class Data
++	{
++		int iNormalizedScore; // (moved into Data to make room for Data* m)
++		int iFinalScore; // advc.707
++		// <advc.106i>
++		int iVersionRead;
++		bool bDisplayOtherMods;
++		CvString szPurportedModName;
++		// </advc.106i>
++		friend CvReplayInfo;
++	};
++	Data* m;
++	// </advc.003k>
+ 	struct TurnData
+ 	{
+ 		int m_iScore;
+@@ -143,21 +157,7 @@ protected:
+ 	byte const* m_pcMinimapPixels; // advc.106n: const
+ 
+ 	CvString m_szModName;
+-
+-	// <advc.003k> Additional data members
+-	class Data
+-	{
+-		int iNormalizedScore; // (moved into Data to make room for Data* m)
+-		int iFinalScore; // advc.707
+-		// <advc.106i>
+-		int iVersionRead;
+-		bool bDisplayOtherMods;
+-		CvString szPurportedModName;
+-		// </advc.106i>
+-		friend CvReplayInfo;
+-	};
+-	Data* m;
+ };
+-BOOST_STATIC_ASSERT(sizeof(CvReplayInfo) == 336);
+-// </advc.003k>
++BOOST_STATIC_ASSERT(sizeof(CvReplayInfo) == 336); // advc.003k
++
+ #endif
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 1029bbc22..33b3538f3 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -257,22 +257,29 @@ protected:
+ 	// The game also crashes if I add int[30] to CvSelectionGroupAI.
+ 
+ 	// ... I see that BBAI ignored the warning. They added some stuff below.
++	// (advc: That was the BBAI StrandedCache, removed by K-Mod.)
+ 	// Removing the BBAI bools from below does not change the size 80. Neither does removing the BBAI virtual functions.
+ 	// but adding another int increases the size to 84. Which is a shame, because I really want to add one more int...
+ 	// Although a single int doesn't cause a startup crash, I'd rather not risk instability.
+-
+-	// <advc.003k> Pointer to additional data members
+-	class Data;
+-	CvSelectionGroup::Data* m; // dial m for members
+-	// </advc.003k>
++	/*	advc.003k: I have a workaround for this. See nested class 'Data' below.
++		(Not right here b/c it's safer to keep the members in their original order.) */
+ 
+ 	int m_iID;
+ 	int m_iMissionTimer;
+-
+ 	bool m_bForceUpdate;
+-
+ 	PlayerTypes m_eOwner;
+ 	ActivityTypes m_eActivityType;
++	//AutomateTypes m_eAutomateType;
++	// <advc.003k> Pointer to additional data members.
++	class Data
++	{
++		AutomateTypes eAutomateType;
++		CLinkList<IDInfo> knownEnemies; // advc.004l
++		bool bInitiallyVisible; // advc.102
++		friend CvSelectionGroup;
++	};
++	Data* m; // dial m for members
++	// </advc.003k>
+ 
+ 	CLinkList<IDInfo> m_units;
+ 	CLinkList<MissionData> m_missionQueue;
+@@ -289,16 +296,6 @@ protected:
+ 	// </advc.075>
+ 	bool sentryAlert(/* advc.004l: */ bool bUpdateKnownEnemies = false);
+ 
+-	// <advc.003k>
+-	class Data
+-	{
+-		CLinkList<IDInfo> knownEnemies; // advc.004l
+-		bool bInitiallyVisible; // advc.102
+-		// Moved here in order to bring sizeof down to 80
+-		AutomateTypes eAutomateType;
+-		friend CvSelectionGroup;
+-	}; // </advc.003k>
+-
+ public:
+ 	static KmodPathFinder path_finder; // K-Mod! I'd rather this not be static, but I can't do that here.
+ private: // advc.003u: (See comments in the private section of CvPlayer.h)
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.h b/CvGameCoreDLL/CvXMLLoadUtility.h
+index 16bc693ab..017a8e79e 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.h
++++ b/CvGameCoreDLL/CvXMLLoadUtility.h
+@@ -181,7 +181,7 @@ private:
+ 	};
+ 	//int m_iCurProgressStep; // Unused, remove it to make room.
+ 	//ProgressCB m_pCBFxn;// Also unused, but have no other use for that memory, so:
+-	void* m_pDummy; // (not sure if decreasing the class size would be a problem)
++	void* m_pDummy;
+ 	Data* m; // additional members
+ 	// Still called, still has no effect:  // </advc.003k>
+ 	void UpdateProgressCB(const char* szMessage=NULL);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4006

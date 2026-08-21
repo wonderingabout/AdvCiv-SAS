@@ -1,0 +1,336 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4618
+# Commit: d67de511653838fc0912d18d99986a68e49447ab
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bd637af5c2549907a256d30901103383e16a91e2
+# Title: add air_fighter unit combat type
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+25	0	Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+49	21	Assets/XML/Units/CIV4PromotionInfos.xml
+3	3	Assets/XML/Units/CIV4UnitInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml b/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+index bca63a3ea..270003523 100644
+--- a/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+@@ -77,5 +77,10 @@ or/and modify existing ones, for example, archery units would become:
+ 			<Description>TXT_KEY_UNITCOMBAT_AIR_BOMBER</Description>
+ 			<Button>,Art/Interface/Buttons/Promotions/Naval_Units.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,6,15</Button>
+ 		</UnitCombatInfo>
++		<UnitCombatInfo>
++			<Type>UNITCOMBAT_AIR_FIGHTER</Type>
++			<Description>TXT_KEY_UNITCOMBAT_AIR_FIGHTER</Description>
++			<Button>,Art/Interface/Buttons/Promotions/Naval_Units.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,6,15</Button>
++		</UnitCombatInfo>
+ 	</UnitCombatInfos>
+ </Civ4UnitCombatInfos>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Objects_Custom.xml b/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+index 16b859551..dc1046447 100644
+--- a/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+@@ -61,4 +61,29 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
+ 		</Spanish>
+ 	</TEXT>
+ 
++    <TEXT>
++		<Tag>TXT_KEY_UNITCOMBAT_AIR_FIGHTER</Tag>
++		<English>Air (Fighter)</English>
++		<French>
++			<Text>Air (Fighter)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Air (Fighter)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Air (Fighter)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Air (Fighter)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+\ No newline at end of file
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 299dd1422..ec4a495e6 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -10,6 +10,10 @@ full order to take from for quick editing or/and copy/paste:
+ 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -109,12 +113,16 @@ full order to take from for quick editing or/and copy/paste:
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
+-			<!-- custom: alphabetical/sevopedia order, add siege units -->
++			<!-- custom: alphabetical/sevopedia order -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -217,12 +225,15 @@ full order to take from for quick editing or/and copy/paste:
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
+-			<!-- custom: alphabetical/sevopedia order, add siege units -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -325,12 +336,15 @@ full order to take from for quick editing or/and copy/paste:
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
+-			<!-- custom: alphabetical/sevopedia order, add siege units -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -436,7 +450,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<!-- custom: alphabetical/sevopedia order, add siege units -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -544,17 +558,13 @@ full order to take from for quick editing or/and copy/paste:
+ 			<!-- custom: alphabetical/sevopedia order, add siege units -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -3221,7 +3231,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -3240,6 +3250,10 @@ full order to take from for quick editing or/and copy/paste:
+ 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 			</UnitCombats>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+@@ -3306,7 +3320,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -3325,6 +3339,10 @@ full order to take from for quick editing or/and copy/paste:
+ 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 			</UnitCombats>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+@@ -4323,7 +4341,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -4640,6 +4658,10 @@ full order to take from for quick editing or/and copy/paste:
+ 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 			</UnitCombats>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+@@ -4708,6 +4730,10 @@ full order to take from for quick editing or/and copy/paste:
+ 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 			</UnitCombats>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+@@ -4782,6 +4808,10 @@ full order to take from for quick editing or/and copy/paste:
+ 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -4848,12 +4878,9 @@ full order to take from for quick editing or/and copy/paste:
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
+-			<!-- custom: disallow further interception to gun units, unlikely
+-			they would do something, create a specific unit type if need for
+-			anti air rather -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+@@ -4924,7 +4951,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			anti air rather -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+@@ -4989,12 +5016,9 @@ full order to take from for quick editing or/and copy/paste:
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
+-			<!-- custom: disallow further interception to gun units, unlikely
+-			they would do something, create a specific unit type if need for
+-			anti air rather -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+@@ -5066,6 +5090,10 @@ full order to take from for quick editing or/and copy/paste:
+ 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 			</UnitCombats>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index cd66dc4cc..3879ed5e3 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -20848,7 +20848,7 @@ for example for the archer
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_AIR_BOMBER</Combat>
++			<Combat>UNITCOMBAT_AIR_FIGHTER</Combat>
+ 			<Domain>DOMAIN_AIR</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK_AIR</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -21019,7 +21019,7 @@ for example for the archer
+ 			<UniqueNames/>
+ 			<Special>SPECIALUNIT_FIGHTER</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_AIR_BOMBER</Combat>
++			<Combat>UNITCOMBAT_AIR_FIGHTER</Combat>
+ 			<Domain>DOMAIN_AIR</Domain>
+ 			<DefaultUnitAI>UNITAI_DEFENSE_AIR</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -21194,7 +21194,7 @@ for example for the archer
+ 			<UniqueNames/>
+ 			<Special>SPECIALUNIT_FIGHTER</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_AIR_BOMBER</Combat>
++			<Combat>UNITCOMBAT_AIR_FIGHTER</Combat>
+ 			<Domain>DOMAIN_AIR</Domain>
+ 			<DefaultUnitAI>UNITAI_DEFENSE_AIR</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=11587

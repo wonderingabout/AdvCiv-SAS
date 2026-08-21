@@ -1,0 +1,53 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1091
+# Commit: bd3c060827f40f00e5f60507531899c747f7441e
+# History segment: K-Mod history
+# Parent used for diff: 7d83b27ee5451658f80e6b62a2cba80b2467e556
+# Title: Reduced visual clutter on the zoomed-out world culture map.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	3	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 366e960d2..4edb8b42a 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -23187,15 +23187,21 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 
+ 		// how many people own this plot?
+ 		std::vector < std::pair<int,int> > plot_owners;
+-		int iNumNonzeroOwners = 0;
++		//int iNumNonzeroOwners = 0;
++		// K-Mod
++		int iTotalCulture = pLoopPlot->countTotalCulture();
++		if (iTotalCulture == 0)
++			continue;
++		// K-Mod end
+ 		for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iPlayer).isAlive())
+ 			{
+ 				int iCurCultureAmount = pLoopPlot->getCulture((PlayerTypes)iPlayer);
+-				if (iCurCultureAmount != 0)
++				//if (iCurCultureAmount != 0)
++				if (iCurCultureAmount * 100 / iTotalCulture >= 20) // K-Mod (to reduce visual spam from small amounts of culture)
+ 				{
+-					iNumNonzeroOwners ++;
++					//iNumNonzeroOwners ++;
+ 					plot_owners.push_back(std::pair<int,int>(iCurCultureAmount, iPlayer));
+ 				}
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1093

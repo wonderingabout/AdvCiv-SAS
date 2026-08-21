@@ -1,0 +1,301 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 696
+# Commit: f5c0ae2cc4a2b5bcef12535ac071e3dbf24a45e0
+# History segment: K-Mod history
+# Parent used for diff: 3bc1d69bf84e6222c7f4b56d13fba808a49b63a0
+# Title: Fixed a couple of bit of code where there was confusion about what PLAYEROPTION_SAFE_AUTOMATION means. The rule is now enforced so that automated workers wil...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCityAI.cpp
+17	29	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+60	65	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 3017a0f62..6249b19ed 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6633,7 +6633,7 @@ int CvCityAI::AI_clearFeatureValue(int iIndex)
+ 			iHealthValue /= 2;
+ 		} */
+ 		// K-Mod -
+-		iHealthValue += (iHealth < 0 ? 100 : 200/(3+iHealth)) + 100 * pPlot->getPlayerCityRadiusCount(getOwnerINLINE());
++		iHealthValue += (iHealth < 0 ? 100 : 400/(4+iHealth)) + 100 * pPlot->getPlayerCityRadiusCount(getOwnerINLINE());
+ 		iHealthValue *= kFeatureInfo.getHealthPercent();
+ 		iHealthValue /= 100;
+ 		// note: health is not any more valuable when we aren't working it.
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 2a8ef3cf1..6376ee72b 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1396,6 +1396,7 @@ void CvSelectionGroup::startMission()
+ 						break;
+ 
+ 					case MISSION_BUILD:
++						pUnitNode = 0; // K-Mod. Nothing to do, so end the loop.
+ 						break;
+ 
+ 					case MISSION_LEAD:
+@@ -1486,7 +1487,6 @@ void CvSelectionGroup::startMission()
+ 		}
+ 	}
+ }
+-
+ // K-Mod. CvSelectionGroup::continueMission used to be a recursive function.
+ // I've moved the bulk of the function into a new function, and turned continueMission into just a simple loop to remove the recursion.
+ void CvSelectionGroup::continueMission()
+@@ -3678,7 +3678,8 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild)
+ 
+ 	pPlot = plot();
+ 
+-    ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild).getImprovement();
++    /* original bts code
++	ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild).getImprovement();
+ 	if (eImprovement != NO_IMPROVEMENT)
+ 	{
+ 		if (AI_isControlled())
+@@ -3688,40 +3689,27 @@ bool CvSelectionGroup::groupBuild(BuildTypes eBuild)
+ 				if ((pPlot->getImprovementType() != NO_IMPROVEMENT) && (pPlot->getImprovementType() != (ImprovementTypes)(GC.getDefineINT("RUINS_IMPROVEMENT"))))
+ 				{
+ 					BonusTypes eBonus = (BonusTypes)pPlot->getNonObsoleteBonusType(GET_PLAYER(getOwnerINLINE()).getTeam());
+-				    /* original bts code
+ 					if ((eBonus == NO_BONUS) || !GC.getImprovementInfo(eImprovement).isImprovementBonusTrade(eBonus))
+-				    {
+-                         if (GC.getImprovementInfo(eImprovement).getImprovementPillage() != NO_IMPROVEMENT)
+-                        {
+-                            return false;
+-                        }
+-				    } */
+-					// K-Mod
+-					if (eBonus == NO_BONUS ||
+-						GET_PLAYER(getOwnerINLINE()).doesImprovementConnectBonus(pPlot->getImprovementType(), eBonus) ||
+-						!GET_PLAYER(getOwnerINLINE()).doesImprovementConnectBonus(eImprovement, eBonus))
+ 					{
+-						// (I don't understand the point of checking "getImprovementPillage() != NO_IMPROVEMENT")
+-						return false;
++						if (GC.getImprovementInfo(eImprovement).getImprovementPillage() != NO_IMPROVEMENT)
++						{
++							return false;
++						}
+ 					}
+-					// K-Mod end.
+-
+ 				}
+ 			}
+-//
+-//			if (AI_getMissionAIType() == MISSION_BUILD)
+-//			{
+-//                CvCity* pWorkingCity = pPlot->getWorkingCity();
+-//                if ((pWorkingCity != NULL) && (AI_getMissionAIPlot() == pPlot))
+-//                {
+-//                    if (pWorkingCity->AI_getBestBuild(pWorkingCity->getCityPlotIndex(pPlot)) != eBuild)
+-//                    {
+-//                        return false;
+-//                    }
+-//                }
+-//			}
+ 		}
++	} */
++	// K-Mod. Leave old improvements should mean _all_ improvements, not 'unless it will connect a resource'.
++	// Note. The only time this bit of code might matter is if the automated unit has orders queued. Ideally, the AI should never issue orders which violate the leave old improvements rule.
++	if (isAutomated() && GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION) &&
++		GC.getBuildInfo(eBuild).getImprovement() != NO_IMPROVEMENT && pPlot->getImprovementType() != NO_IMPROVEMENT &&
++		pPlot->getImprovementType() != GC.getDefineINT("RUINS_IMPROVEMENT"))
++	{
++		FAssertMsg(false, "AI has issued an order which violates PLAYEROPTION_SAFE_AUTOMATION"); 
++		return false;
+ 	}
++	// K-Mod end
+ 
+ 	pUnitNode = headUnitNode();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index c47b4849d..8afd9bed4 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3132,7 +3132,7 @@ void CvUnit::automate(AutomateTypes eAutomate)
+ 
+ 	getGroup()->setAutomateType(eAutomate);
+ 	// K-Mod. I'd like for the unit to automate immediately after the command is given, just so that the UI seems responsive. But doing so is potentially problematic.
+-	if (GET_PLAYER(getOwnerINLINE()).isTurnActive() && getGroup()->readyToMove())
++	if (isGroupHead() && GET_PLAYER(getOwnerINLINE()).isTurnActive() && getGroup()->readyToMove())
+ 	{
+ 		// unfortunately, CvSelectionGroup::AI_update can kill the unit, and CvUnit::automate currently isn't allowed to kill the unit.
+ 		// CvUnit::AI_update should be ok; but using it here makes me a bit uncomfortable because it doesn't include all the checks and conditions of the group update.
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 26c23d570..65ec79c8e 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -924,76 +924,72 @@ bool CvUnitAI::AI_bestCityBuild(CvCity* pCity, CvPlot** ppBestPlot, BuildTypes*
+ 			CvPlot* pLoopPlot = plotCity(pCity->getX_INLINE(), pCity->getY_INLINE(), iI);
+ 
+ 			//if (pLoopPlot != NULL)
+-			if (pLoopPlot != NULL && pLoopPlot->getWorkingCity() == pCity) // K-Mod
++			if (pLoopPlot && pLoopPlot != pIgnorePlot && pLoopPlot->getWorkingCity() == pCity && AI_plotValid(pLoopPlot)) // K-Mod
+ 			{
+-				if (AI_plotValid(pLoopPlot))
++				if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT ||
++					!GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION) ||
++					pLoopPlot->getImprovementType() == GC.getDefineINT("RUINS_IMPROVEMENT"))
+ 				{
+-					if (pLoopPlot != pIgnorePlot)
++					int iValue = pCity->AI_getBestBuildValue(iI);
++
++					if (iValue > iBestValue)
+ 					{
+-						if ((pLoopPlot->getImprovementType() == NO_IMPROVEMENT) || !(GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION) && !(pLoopPlot->getImprovementType() == (GC.getDefineINT("RUINS_IMPROVEMENT")))))
+-						{
+-							int iValue = pCity->AI_getBestBuildValue(iI);
++						BuildTypes eBuild = pCity->AI_getBestBuild(iI);
++						FAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
+ 
+-							if (iValue > iBestValue)
++						//if (eBuild != NO_BUILD)
++						if (eBuild != NO_BUILD && canBuild(pLoopPlot, eBuild)) // K-Mod
++						{
++							if (0 == iPass)
+ 							{
+-								BuildTypes eBuild = pCity->AI_getBestBuild(iI);
+-								FAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
+-
+-								//if (eBuild != NO_BUILD)
+-								if (eBuild != NO_BUILD && canBuild(pLoopPlot, eBuild)) // K-Mod
++								iBestValue = iValue;
++								pBestPlot = pLoopPlot;
++								eBestBuild = eBuild;
++							}
++							else //if (canBuild(pLoopPlot, eBuild))
++							{
++								if (!(pLoopPlot->isVisibleEnemyUnit(this)))
+ 								{
+-									if (0 == iPass)
+-									{
+-										iBestValue = iValue;
+-										pBestPlot = pLoopPlot;
+-										eBestBuild = eBuild;
+-									}
+-									else //if (canBuild(pLoopPlot, eBuild))
++									/* original bts code
++									int iPathTurns;
++									if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+ 									{
+-										if (!(pLoopPlot->isVisibleEnemyUnit(this)))
++										// XXX take advantage of range (warning... this could lead to some units doing nothing...)
++										int iMaxWorkers = 1;
++										if (getPathLastNode()->m_iData1 == 0)
+ 										{
+-											/* original bts code
+-											int iPathTurns;
+-											if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+-											{
+-												// XXX take advantage of range (warning... this could lead to some units doing nothing...)
+-												int iMaxWorkers = 1;
+-												if (getPathLastNode()->m_iData1 == 0)
+-												{
+-													iPathTurns++;
+-												}
+-												else if (iPathTurns <= 1)
+-												{
+-													iMaxWorkers = AI_calculatePlotWorkersNeeded(pLoopPlot, eBuild);
+-												}
+-												if (pUnit != NULL)
+-												{
+-													if (pUnit->plot()->isCity() && iPathTurns == 1 && getPathLastNode()->m_iData1 > 0)
+-													{
+-														iMaxWorkers += 10;
+-													}
+-												} */
+-											// K-Mod. basically the same thing, but using pathFinder.
+-											if (pathFinder.GeneratePath(pLoopPlot))
++											iPathTurns++;
++										}
++										else if (iPathTurns <= 1)
++										{
++											iMaxWorkers = AI_calculatePlotWorkersNeeded(pLoopPlot, eBuild);
++										}
++										if (pUnit != NULL)
++										{
++											if (pUnit->plot()->isCity() && iPathTurns == 1 && getPathLastNode()->m_iData1 > 0)
+ 											{
+-												FAStarNode* pEndNode = pathFinder.GetEndNode();
+-												int iPathTurns = pEndNode->m_iData2 + (pEndNode->m_iData1 == 0 ? 1 : 0);
+-												int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(pLoopPlot, eBuild);
+-												if (pUnit && pUnit->plot()->isCity() && iPathTurns == 1)
+-													iMaxWorkers += 10;
+-											// K-Mod end
+-												if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) < iMaxWorkers)
+-												{
+-													//XXX this could be improved greatly by
+-													//looking at the real build time and other factors
+-													//when deciding whether to stack.
+-													iValue /= iPathTurns;
+-
+-													iBestValue = iValue;
+-													pBestPlot = pLoopPlot;
+-													eBestBuild = eBuild;
+-												}
++												iMaxWorkers += 10;
+ 											}
++										} */
++									// K-Mod. basically the same thing, but using pathFinder.
++									if (pathFinder.GeneratePath(pLoopPlot))
++									{
++										FAStarNode* pEndNode = pathFinder.GetEndNode();
++										int iPathTurns = pEndNode->m_iData2 + (pEndNode->m_iData1 == 0 ? 1 : 0);
++										int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(pLoopPlot, eBuild);
++										if (pUnit && pUnit->plot()->isCity() && iPathTurns == 1)
++											iMaxWorkers += 10;
++									// K-Mod end
++										if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) < iMaxWorkers)
++										{
++											//XXX this could be improved greatly by
++											//looking at the real build time and other factors
++											//when deciding whether to stack.
++											iValue /= iPathTurns;
++
++											iBestValue = iValue;
++											pBestPlot = pLoopPlot;
++											eBestBuild = eBuild;
+ 										}
+ 									}
+ 								}
+@@ -19733,7 +19729,7 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 						BuildTypes eBestTempBuild = NO_BUILD; */
+ 
+ 						// K-Mod. Simplier, and better.
+-						bool bDoImprove = false;
++						bool bDoImprove = true;
+ 						ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+ 						CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
+ 						BuildTypes eBestTempBuild = NO_BUILD;
+@@ -19747,11 +19743,10 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 								bDoImprove = true;
+ 								eBestTempBuild = eBuild;
+ 							}
++							else
++								bDoImprove = false;
+ 						}
+-						else if (!kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
+-						{
+-							bDoImprove = !kOwner.isOption(PLAYEROPTION_SAFE_AUTOMATION) || eImprovement == NO_IMPROVEMENT || eImprovement == GC.getDefineINT("RUINS_IMPROVEMENT");
+-						}
++						bDoImprove = bDoImprove && (!kOwner.isOption(PLAYEROPTION_SAFE_AUTOMATION) || eImprovement == NO_IMPROVEMENT || eImprovement == GC.getDefineINT("RUINS_IMPROVEMENT"));
+ 						// K-Mod end
+ 
+ 						//if (bDoImprove)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=11988

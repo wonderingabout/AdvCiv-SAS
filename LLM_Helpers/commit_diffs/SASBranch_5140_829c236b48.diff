@@ -1,0 +1,244 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5140
+# Commit: 829c236b48b5afc5bc7f3735f88c9c98f48324ee
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: df56f22fc5dbe5a50fc2c5a7eb41976adb3ce7f2
+# Title: (Tremendously Improved) If not between members of the same master-vassal(s) locus, added an alternative military power based tech trade contact chance modifi...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+23	3	Assets/XML/GlobalDefines_advciv_sas.xml
+44	6	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+15	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 6c4104a6a..e0cf7ee69 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1,5 +1,4 @@
+ <?xml version="1.0"?>
+-
+ <!-- custom: adding our own AdvCiv-SAS knobs/tunables anyways etc so that players or me xd but anyways etc can tweak/modify them without having to recompile each time which is tedious anyways etc; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know i mean but anyways etc) or/and check in code of relevant function(s) anyways etc -->
+ <!-- custom: note: using the prefix is a bit cringe xd if i may say but anyways etc but at same time cool and does some publicity if i may say but anyways etc, but most importantly it gives us freedom while being compact but anyways etc to name freely our tunables without risking overriding existing ones and having to check them, as recommended by chatgpt 5 (i had considered it at first then thought meh xd if i may say but anyways etc but now think it makes sense in this case i mean but anyways etc), check if accurate, anyways etc -->
+ <!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such if i may say but anyways etc) but check to be sure if in doubt anyways etc -->
+@@ -1062,11 +1061,32 @@
+ 
+ 
+ 
+-	<!-- SAS vassalMasterTechTrade: Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
++	<!-- custom: adjust tech trade contact frequency / willingness of contact depending on how strong/dangerous our rival is. -->
++	<!-- custom: note: this is not applied between members of a master-vassal(s) locus, as master<->vassal(s) are not in direct and immediate competition but more like trying to come through and not die right away short term so it is not so relevant for them anyways etc. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
++	<Define>
++		<DefineName>SAS_AI_DO_DIPLO_POWER_TECH_TRADE_OPTIMIZE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- They are stronger -> reduce contact a bit (don't be too eager to send them more tech) -->
++	<Define>
++		<DefineName>SAS_AI_DO_DIPLO_POWER_STRONGER_TECH_TRADE_PERCENT</DefineName>
++		<iDefineIntVal>75</iDefineIntVal>
++	</Define>
++	<!-- custom: they are weaker than us, safer to profit from/with them anyways etc. -->
++	<Define>
++		<DefineName>SAS_AI_DO_DIPLO_POWER_WEAKER_TECH_TRADE_PERCENT</DefineName>
++		<iDefineIntVal>125</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: do not contact players outside our master-vassal(s) locus for a tech trade if any member of our locus have this tech (in the hopes we get it from them rather). -->
++	<!-- Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
+ 	<!-- This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source.” So it’s conservative: it can only reduce external tech trades, never block internal ones. -->
+ 	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+ 	<Define>
+-		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_PREFER_MASTER_VASSAL_CLUSTER_OPTIMIZE</DefineName>
++		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index fec48b8b6..db3a20e6f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -22157,11 +22157,12 @@ void CvPlayerAI::AI_doDiplo()
+ 
+ 					// <!-- custom: we have an issue of AI quite often researching techs its vassal already owns, which is very inefficient. Ideally they'd research different techs, as well as even more ideally trade techs each other don't own preferentially to each other, and vice versa for its vassal. -->
+ 					// <!-- custom: After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech anyways etc.), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issues as of now 77 and 78 for details anyways etc. -->
+-					// SAS vassalMasterTechTrade
++					// SAS vassalMasterMoreTechTrade
+ 					static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE");
+ 					const TeamTypes eOurTeam = getTeam();
+ 					const TeamTypes eTheirTeam = kPlayer.getTeam();
+ 					const TeamTypes eMasterTeam = kOurTeam.getMasterTeam();
++					bool bVassalsOrMaster = false;
+ 
+ 					if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE)
+ 					{
+@@ -22182,12 +22183,14 @@ void CvPlayerAI::AI_doDiplo()
+ 						// (1) When we are the master and ePlayer is our vassal → your MASTER_TO_VASSAL_CONTACT_PERCENT multiplies our chance to contact that vassal with a tech-trade proposal.
+ 						if (GET_TEAM(eTheirTeam).isVassal(eOurTeam))
+ 						{
++							bVassalsOrMaster = true;
+ 							static const int iSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT");
+ 							rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT, 100);
+ 						}
+ 						// (2) When we are the vassal and ePlayer is our master → your VASSAL_TO_MASTER_CONTACT_PERCENT multiplies our chance to contact that master with a tech-trade proposal.
+ 						else if (kOurTeam.isVassal(eTheirTeam))
+ 						{
++							bVassalsOrMaster = true;
+ 							static const int iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT");
+ 							rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT, 100);
+ 						}
+@@ -22200,12 +22203,46 @@ void CvPlayerAI::AI_doDiplo()
+ 						{
+ 							if (eMasterTeam != NO_TEAM && GET_TEAM(eTheirTeam).isVassal(eMasterTeam) && eTheirTeam != eOurTeam) // safety; shouldn't ever be equal here
+ 							{
++								bVassalsOrMaster = true;
+ 								static const int iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT");
+ 								rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT, 100);
+ 							}
+ 						}
+ 					}
+-					// End - SAS vassalMasterTechTrade
++					// End - SAS vassalMasterMoreTechTrade
++
++					// SAS techTradePowerBias: be more cautious about feeding much stronger civs
++					static const bool bSAS_AI_DO_DIPLO_POWER_TECH_TRADE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_POWER_TECH_TRADE_OPTIMIZE");
++					// <!-- custom: note: this is not applied between members of a master-vassal(s) locus, as master<->vassal(s) are not in direct and immediate competition but more like trying to come through and not die right away short term so it is not so relevant for them anyways etc. -->
++					if (!bVassalsOrMaster && bSAS_AI_DO_DIPLO_POWER_TECH_TRADE_OPTIMIZE)
++					{
++						const int iOurPower   = kOurTeam.getPower(true);
++						const int iTheirPower = GET_TEAM(eTheirTeam).getPower(true);
++
++						// If either side has 0 power (just founded / crippled), skip the bias
++						if (iOurPower > 0 && iTheirPower > 0)
++						{
++							static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
++							const bool bTheyAreStronger = (100 * iTheirPower > iSAS_ENEMY_STRONG_POWER_THRESHOLD * iOurPower);
++
++							static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
++							const bool bTheyAreWeaker = (100 * iTheirPower < iSAS_ENEMY_WEAK_POWER_THRESHOLD * iOurPower);
++
++							if (bTheyAreStronger)
++							{
++								// They are stronger -> reduce contact a bit (don't be too eager to send them more tech)
++								static const int iSAS_AI_DO_DIPLO_POWER_STRONGER_TECH_TRADE_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_POWER_STRONGER_TECH_TRADE_PERCENT");
++								rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_POWER_STRONGER_TECH_TRADE_PERCENT, 100);
++							}
++							else if (bTheyAreWeaker)
++							{
++								// <!-- custom: they are weaker than us, safer to profit from/with them anyways etc. -->
++								static const int iSAS_AI_DO_DIPLO_POWER_WEAKER_TECH_TRADE_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_POWER_WEAKER_TECH_TRADE_PERCENT");
++								rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_POWER_WEAKER_TECH_TRADE_PERCENT, 100);
++							}
++						}
++					}
++					// End - SAS techTradePowerBias
+ 
+ 					// <!-- custom: according to chatgpt 5.1, the missing 2nd parameter is a bug specifically here for this contact roll so adding it, check if accurate anyways etc. -->
+ 					// So:
+@@ -22277,7 +22314,8 @@ void CvPlayerAI::AI_doDiplo()
+ 							}
+ 						}
+ 
+-						// <!-- SAS vassalMasterTechTrade: Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
++						// <!-- custom: do not contact players outside our master-vassal(s) locus for a tech trade if any member of our locus have this tech (in the hopes we get it from them rather). -->
++						// <!-- SAS vassalMasterFirstTechTrade: Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
+ 						// Conceptually:
+ 						// 	- For each potential trade partner ePlayer, the AI already:
+ 						// 	- Rolls for contact (AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult)),
+@@ -22288,8 +22326,8 @@ void CvPlayerAI::AI_doDiplo()
+ 						// 	- And if any of our locus partners (master or vassals / sibling vassals) has that same eBestReceiveTech and is willing to trade it,
+ 						// 	- Then we drop eBestReceiveTech for this outsider and let the normal logic later pick up a trade with the locus partner instead (helped by the contact multipliers we already added).
+ 						// This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source.” So it’s conservative: it can only reduce external tech trades, never block internal ones.
+-						static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_PREFER_MASTER_VASSAL_CLUSTER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_PREFER_MASTER_VASSAL_CLUSTER_OPTIMIZE");
+-						if (bSAS_AI_DO_DIPLO_TECH_TRADE_PREFER_MASTER_VASSAL_CLUSTER_OPTIMIZE && eBestReceiveTech != NO_TECH)
++						static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE");
++						if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE && eBestReceiveTech != NO_TECH)
+ 						{
+ 							// Only re-route when ePlayer is truly "outside" our locus:
+ 							//  - not our team,
+@@ -22375,7 +22413,7 @@ void CvPlayerAI::AI_doDiplo()
+ 								}
+ 							}
+ 						}
+-						// End - SAS vassalMasterTechTrade: prefer locus over outsiders
++						// End - SAS vassalMasterFirstTechTrade: prefer locus over outsiders
+ 
+ 						if (eBestReceiveTech != NO_TECH)
+ 						{
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 9042432c1..7e8118d50 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -224,6 +224,7 @@ Note 2: master-vassal(s) changes are made with the aim that they in most cases w
+ - Added AI logic in `CvPlayerAI::AI_bonusTradeVal`to value iAI Objective bonuses more and this valuing is higher the higher `iAIObjective` is anyways etc.
+ - Independently from this, added logic in `CvPlayerAI::AI_bonusTradeVal` to tell AI how to relatively value some key bonuses like as of now Copper, Iron, Horse, Camel, Elephants, depending on if buyer has one and not the other and at which era ingame. For example iron is very nice at medieval era (value x2) if buyer has horse or camel but no iron (in order to build knights), but at renaissance such a combination is not valuable as there are other units instead (musketmen for example that don't require any bonus, and cannons only requiring iron as of now but anyways etc). Similarly, elephants bonus is valuable at ancient and classical era, but not in medieval (war elephants fall behind so it would be at most only for building (value x0.5 i.e. half value now in trading with buyer anyways etc)). Or iron/copper are not so valuable at classical if we have camel or horse or elephants (vice versa more or less), but this changes at other eras. Also horse not being valuable at ancient and classical (to simplify (camels are not useful pre-classical but to simplify anyways etc)) if we have camel and vice versa for example, but not same at other eras. Hopefully leads to smarter AI trading although i didn't test it too much so far if at all hehe but at glance seems bit better in this case i mean but anyways etc.
+ - (Requires AdvCiv-SAS 5135+) Implemented preferrential master<->vassal(s) tech trading (we are heavily more willing to tech trade with our master/vassal(s)), in `CvPlayerAI::AI_doDiplo`. This synergises the previous devalue techs we can get from our master/vassal(s) change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-ai)) and expands on it, not just techs that overlap with what our master/vassal(s) already know. In autoplay, this results for example in the master having 4 more techs and one less tech from turn 250 to turn 300 (vassal was mostly way ahead in tech) and the vassal having 2 more techs and 0 less techs, which is a massive improvement it seems, just from this change. Added a bugfix to `AI_contactRoll(CONTACT_TRADE_TECH` (was missing a second parameter according to chatgpt 5.1) which may have or not contributed to this skew in behaviour. See for details [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51). (Requires AdvCiv-SAS 5138+) Update: also added vassal<->vassal siblings extra tech trading chance similarly, which leads in autoplay (since Ewuare has 2 vassals at t250) to seemingly more or less identical results, which is fine as long as not clearly harmful, and this only boosts chance, not reduces trade which may be less predictable in terms of is this beneficial or harmful.
++- (Requires AdvCiv-SAS 5140+) If not between members of the same master-vassal(s) locus, added an alternative military power based tech trade contact chance modifier in `CvPlayerAI::AI_doDiplo`, so that we have a higher chance to trade with militarily weaker players to us (safer, less likely to backstab us) and a lower chance for stronger players to us (more likely to become our ennemies or to bite us back in some way). In autoplay, seemingly results in much closer game, where the runaway Ewuare is now regularly and repeatedly caught up by other rivals and vice versa when these take the lead as well, until late in the game where game ends at turn 419 vs 288 before and was close until the last few or such dozen turns. See for details [KI#80](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improve-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental).
+ - (Requires AdvCiv-SAS 5139+) Whenever we want to contact players outside of our master-vassal(s) locus for a tech trade, first check if a member of does not already have the tech, and if so do not contact outsiders (in the hope we indirectly trade more with players within our locus rather). In autoplay, this helps Ewuare win sooner seemingly due to unlocking the military tech for dragoons one of his vassal had long ago but that he didn't have in other runs at turn 300; tech pace is otherwise more or less mostly the same. Change in `CvPlayerAI::AI_doDiplo`. See for details [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
+ 
+ #### Military (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index cde6e3736..02bccff80 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -113,6 +113,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [77 - (Improved) Devalue researching techs our master or vassal(s) already knows as this is very inefficient anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc)  
+ [78 - (Tremendously Improved) Trade techs preferentially with our vassal(s) or master (synergises with the no-overlap previous master<->vassal(s) tweak) + bugfix missing second parameter now AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult) according to chatgpt 5.1](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51)  
+ [79 - (Improved) Before contacting other players for tech trades, first check if we don't already have the tech in our master-vassal(s) locus, and if so don't contact the other players](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players)  
++[80 - (Tremendously Improve) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improve-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -3021,3 +3022,17 @@ Similarly, a stronger vassal is also more likely to be more useful to its master
+ >	- Rational Logic: By sharing tech, the Master isn't being "nice"; they are upgrading their own buffer state. A Vassal with Riflemen (via trade) can actually defend the Master's borders, whereas a Vassal stuck with Longbows is just dead weight. It turns the Vassal into a functional asset.
+ 
+ So all in all it does seem like a suitable change in most cases to bet on i mean if i may say but anyways etc.
++
++## 80 - (Tremendously Improve) AI contacting for tech trades players that are stronger even though this is more likely to be detrimental
++
++See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1XY87DcUJtJJIHqit_6qwNl09eWnqosso?usp=sharing) anyways etc.
++
++AI seemingly had no restriction on who it preferentially initiated contact with. However a stronger rival is more likely to be an enemy later, while a weaker one is more likely to be harmless and someone we can (more safely at least but anyways etc.) rely on or/and use for our advantage but anyways etc.
++
++Added military power stronger/weaker to us modifiers to tech trade contact chance in `CvPlayerAI::AI_doDiplo`.
++
++Note: does not apply if between members of a master-vassal(s) locus.
++
++The effect seems extremely positive and helpful to AI strength, although this is just one autoplay before/after sample and there could be noise, but what seemed to happen is that unlike before the change where Ewuare quickly took a lead and became unstoppable and snowballed to win easily at turn 288, after this change it seems now that anytime a player would take a military or score lead, somehow this score started to shrink and others caught up. It also seemed that weaker rivals were closer at a glance, at least early on but anyways etc. Ewuare eventually won but only at turn 419, and even at turn 300s the game was more or less even between a few rivals/blocs and very close.
++
++So this seems to help a lot, although it could just be noise, but it is not a harmless change so implementing it as such anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 786c93645..caca05796 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -214,6 +214,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Bonus trade valuation uses `iAIObjective`:** In `CvPlayerAI::AI_bonusTradeVal`, the AI now factors each bonus’s `iAIObjective` weight directly into price—higher-priority strategic bonuses (per your weights) command more value in trades.
+ - **Era- & inventory-aware relative pricing for key strategic bonuses (Horse↔Camel, Camel↔Horse, ±Elephants):** Also in `CvPlayerAI::AI_bonusTradeVal`, trade values now adjust by what the buyer already has and by era. Examples: Medieval buyer with **Horse/Camel** but no **Iron** values Iron ≈ x2 (to unlock Knights); by Renaissance that premium fades (Muskets don’t need any bonus; Cannons only need Iron). **Elephants** are valued in Ancient/Classical, but discounted in Medieval (≈ x0.5, for buildings at most). **Copper/Iron** are discounted in Classical if the buyer already has Camel/Horse/Elephants; Horse and Camel are treated as partial substitutes early on.
+ - (Requires AdvCiv-SAS 5135+) **Preferential master–vassal tech trading:** Heavily increase willingness to trade techs with our **master/vassal(s)**; change in `CvPlayerAI::AI_doDiplo`. This synergises with the earlier “devalue techs your master/vassal already knows” change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-ai)) and extends it **to *all* techs**, not just techs that overlap with what our master/vassal(s) already know. In one autoplay sample this led to noticeably **less overlap** and better sharing (e.g. a master gaining ~4 more and 1 fewer tech, a vassal ~2 more and 0 fewer over T250–300 compared to before). Also fixed a missing second parameter in `AI_contactRoll(CONTACT_TRADE_TECH` (according to ChatGPT 5.1), which may have contributed to earlier skew. Details: [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51). - (Requires AdvCiv-SAS 5135+) Implemented preferrential master<->vassal(s) tech trading (we are heavily more willing to tech trade with our master/vassal(s)), in `CvPlayerAI::AI_doDiplo`. This synergises the previous devalue techs we can get from our master/vassal(s) change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-ai)) and expands on it, not just techs that overlap with what our master/vassal(s) already know. In autoplay, this results for example in the master having 4 more techs and one less tech from turn 250 to turn 300 (vassal was mostly way ahead in tech) and the vassal having 2 more techs and 0 less techs, which is a massive improvement it seems, just from this change. Added a bugfix to `AI_contactRoll(CONTACT_TRADE_TECH` (was missing a second parameter according to chatgpt 5.1) which may have or not contributed to this skew in behaviour. See for details [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51). (Requires AdvCiv-SAS 5138+) **Update:** Extend the same extra trade bias to **sibling vassal↔vassal** trades. In autoplay (Ewuare with two vassals at T250), this produced broadly similar outcomes to the master–vassal–only version, which is acceptable since the change only increases trade chances (doesn’t remove any) and is therefore less likely to be harmful.
++- (Requires AdvCiv-SAS 5140+) **Military-power–aware tech trade targeting:** If a potential tech-trade is *not* between members of the same master–vassal(s) locus, `CvPlayerAI::AI_doDiplo` instead increases tech-trade contact chance toward **militarily weaker** players (safer, less likely to threaten us) and reduces it for **stronger** ones (less free value to future rivals). In one autoplay sample this seemingly produced a much closer game: the former runaway (Ewuare) was repeatedly caught up by rivals, and the game lasted to ~T419 instead of ~T288, with the lead changing hands several times. See [KI#80](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improve-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental).
+ - (Requires AdvCiv-SAS 5139+) **Master–vassal(s) locus first for tech trades:** When evaluating tech trades in `CvPlayerAI::AI_doDiplo`, the AI now **first checks** whether a desired tech is already tradeable inside its own master–vassal locus (master, vassals, sibling vassals). If so, it **does not ask outside civilizations for that tech**, nudging trades to stay within the group instead. In one autoplay sample this *seemed* to help Ewuare win earlier by finally picking up the Dragoon-related military tech from a vassal, while the locus kept a similar overall tech pace to previous runs. See [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
+ 
+ #### Military (AI)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=27669

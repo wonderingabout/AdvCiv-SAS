@@ -1,0 +1,64 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 187
+# Commit: 234737e930252c2320cc8a2c2235a954660156f3
+# History segment: K-Mod history
+# Parent used for diff: 4d383303ce837b1005956d2399a1a2ca71c4e4fb
+# Title: Tweaked UnitCostPerMil. Updated the changelog. This is version 1.01.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+13	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 101e9af69..db69f86ac 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11111,7 +11111,7 @@ int CvPlayerAI::AI_unitCostPerMil() const
+ 	int iFunds = iTotalRaw * AI_averageCommerceMultiplier(COMMERCE_GOLD) / 100;
+ 	iFunds += getGoldPerTurn() - calculateInflatedCosts();
+ 	iFunds += getCommerceRate(COMMERCE_GOLD) - iTotalRaw * AI_averageCommerceMultiplier(COMMERCE_GOLD) * getCommercePercent(COMMERCE_GOLD) / 10000;
+-	return std::max(0, calculateUnitCost()-getNumCities()) * 1000 / std::max(1, iFunds); // # cities is there to offset early-game distortion.
++	return std::max(0, calculateUnitCost()-getNumCities()/2) * 1000 / std::max(1, iFunds); // # cities is there to offset early-game distortion.
+ }
+ // K-Mod end
+
+diff --git a/changelog.txt b/changelog.txt
+index 82f2c90a2..08bdfd008 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,8 +1,20 @@
+-This is K-Mod version 1.00b.
++This is K-Mod version 1.01.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+ 
++v1.01 changelist
++
+++ "Lost production" for units is now assigned to another unit of the same type (previously, it was converted into gold). With this change, it is possible to build more than one unit per turn. (Note: this does not affect normal production overflow. It only affects the production beyond the overflow limit.)
+++ Made some minor changes to the auto-build city governor. (I think auto-build works pretty well now.)
+++ Espionage AI value is now reduced if the player has spent less than a quarter of their total points (this means that if you aren't spending your espionage points, the city governor should stop automatically assigning spy specialists.)
+++ Rewrote the decision code for bombarding / skipping bombard for city attack.
+++ Rewrote parts of the raze city decision code - the AI will now be less likely to keep useless ice cities, and more likely to keep conquered land on other continents.
+++ Fixed a couple of minor BtS bugs in worker recommendations.
+++ Made a lot of backend changes which will speed up some parts of the game, but also make the game more resistant to OOS bugs.
++
++--
++
+ v1.00 changelist
+ 
+ NOTE: This patch changes the save file format. K-Mod saves from previous versions will not work with this version.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2414

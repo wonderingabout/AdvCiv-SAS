@@ -1,0 +1,330 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5769
+# Commit: 5f8b6c5e45c30e21e42b11b63f11d1774f85bc25
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6b70f34f6e263556f15e33380d0c7f2fb9503c78
+# Title: add hill or peak, terrain, and feature optional columns in battles tab
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AGENTS.md
+28	0	Assets/Python/SASBattleHistory.py
+74	9	Assets/Python/Screens/CvMilitaryAdvisor.py
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+13	1	Assets/XML/Text/AdvCiv-SAS_main.xml
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 50c1150ab..f96aa1f4d 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -164,7 +164,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
+ - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
+ - Note: codex's shell/tool output likely sometimes displays mojibake for characters that look correct in VS Code or git diff (e.g., smart quotes shown as `â€œ` / `â€`) hence the user/LLM mismatch. Do not "fix" encoding based only on the terminal/tool rendering; rely on VS Code (user feedback) or git diff if they show the file cleanly.
+-- Note: sometimes our files have a mix of CRLF/LF in them causing next commit to have a massive git diff (e.g., 240 insertions(+), 240 deletions(-) when there is in fact no change) when VS Code or maybe the LLM tries to next modify it, and this is a problem because it pollutes diff and makes it hard to read. Empirically, it happened to [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) or [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and we could resolve it by adding a newline at end of file, saving, then deleting it (not undoing, so we preserve the change) or some other minor modifications (this is likely why VS Code shows no diff lines changed but the file is still not removed from changed files), then git staging this file only, committing it so the massive noisy diff normalizes, and then reapplying our proper file (note that you need to reapply it in same expected format, usually CRLF not LF, else you'd have every line to be a diff (git would assume we changed it all from CRLF to LF)). This is likely caused by codex's apply patching tool (git bash shows `warning: in the working copy of 'AGENTS.md', LF will be replaced by CRLF the next time Git touches it` after codex's one line modification). On your end, don't mind it and let the user handle it, as it is cheaper in tokens and more reliable, but inform the user if you notice it. Use `git diff --ignore-space-at-eol --stat` and `git diff --ignore-space-at-eol -- <file>` to continue your work and review the semantic changes, then let the user handle EOL cleanup afterwards unless explicitly asked.
++- Note: sometimes our files have a mix of CRLF/LF in them causing next commit to have a massive git diff (e.g., 240 insertions(+), 240 deletions(-) when there is in fact no change) when VS Code or maybe the LLM tries to next modify it, and this is a problem because it pollutes diff and makes it hard to read. Empirically, it happened to [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) or [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and we could resolve it by adding a newline at end of file, saving, then deleting it (not undoing, so we preserve the change) or some other minor modifications (this is likely why VS Code shows no diff lines changed but the file is still not removed from changed files), then git staging this file only, committing it so the massive noisy diff normalizes (or we may commit the noisy diff with our actual change in one commit anyway if not critical for no tedium), and then reapplying our proper file (note that you need to reapply it in same expected format, usually CRLF not LF, else you'd have every line to be a diff (git would assume we changed it all from CRLF to LF)). This is likely caused by codex's apply patching tool (git bash shows `warning: in the working copy of 'AGENTS.md', LF will be replaced by CRLF the next time Git touches it` after codex's one line modification). On your end, don't mind it and let the user handle it, as it is cheaper in tokens and more reliable, but inform the user if you notice it. Use `git diff --ignore-space-at-eol --stat` and `git diff --ignore-space-at-eol -- <file>` to continue your work and review the semantic changes, then let the user handle EOL cleanup afterwards unless explicitly asked.
+ 
+ ### Python (Civ4)
+
+diff --git a/Assets/Python/SASBattleHistory.py b/Assets/Python/SASBattleHistory.py
+index 67ff41b59..865a05cb6 100644
+--- a/Assets/Python/SASBattleHistory.py
++++ b/Assets/Python/SASBattleHistory.py
+@@ -16,6 +16,8 @@ _CAPTURE_DATA_START = 13
+ _END_STRENGTH_DATA_START = 16
+ _OUTCOME_DATA_START = 18
+ _OUTCOME_RETREAT = 1
++_PLOT_CONTEXT_DATA_START = 19
++_PLOT_CONTEXT_HILL_PEAK_NONE = -1
+ 
+ # <!-- custom: BugData persists this table in the save without DLL or save-format changes; old saves simply start with no rows and record battles from the first combat after loading. Store rows per player because advisor perspective can change. (GPT-5.5) -->
+ 
+@@ -78,6 +80,21 @@ def _appendEntry(entriesByPlayer, iPlayer, entry, iMaxEntries):
+ 	entriesByPlayer[szPlayer] = entries
+ 
+ 
++def _getEntryWithPlotContext(entry, iX, iY):
++	# <!-- custom: snapshot terrain/feature/peak-or-hill at battle time instead of looking up the plot while drawing the advisor; forests, fallout, or terrain can change later, but the Battles tab should show the historical combat context. (GPT-5.5) -->
++	aEntry = list(entry)
++	while len(aEntry) < _PLOT_CONTEXT_DATA_START:
++		aEntry.append(0)
++	pPlot = CyMap().plot(iX, iY)
++	iHillPeakTerrain = _PLOT_CONTEXT_HILL_PEAK_NONE
++	if pPlot.isPeak():
++		iHillPeakTerrain = gc.getInfoTypeForString("TERRAIN_PEAK")
++	elif pPlot.isHills():
++		iHillPeakTerrain = gc.getInfoTypeForString("TERRAIN_HILL")
++	aEntry.extend([pPlot.getTerrainType(), pPlot.getFeatureType(), iHillPeakTerrain])
++	return tuple(aEntry)
++
++
+ def _getEntryWithCapture(entry, iCapturingPlayer, iCapturedUnitType):
+ 	# <!-- custom: capture info is stored after the combat-log strength block; pad rare/no-strength rows so older tuple parsing keeps its fixed offsets. (GPT-5.5) -->
+ 	aEntry = list(entry)
+@@ -164,6 +181,7 @@ def recordCombatResult(pWinner, pLoser):
+ 				entry += (0,)
+ 			entry += (iAttackerEndStr, iDefenderEndStr)
+ 	_PENDING_COMBAT_ACTORS = None
++	entry = _getEntryWithPlotContext(entry, pWinner.getX(), pWinner.getY())
+ 	entriesByPlayer = _getEntriesByPlayer()
+ 	_appendEntry(entriesByPlayer, iWinner, entry, iMaxEntries)
+ 	if iLoser != iWinner:
+@@ -198,6 +216,7 @@ def recordCombatRetreat(iAttacker, iDefender, iAttackerUnit, iDefenderUnit, iX,
+ 	while len(entry) < _OUTCOME_DATA_START:
+ 		entry += (0,)
+ 	entry += (_OUTCOME_RETREAT,)
++	entry = _getEntryWithPlotContext(entry, int(iX), int(iY))
+ 	_PENDING_COMBAT_ACTORS = None
+ 	entriesByPlayer = _getEntriesByPlayer()
+ 	_appendEntry(entriesByPlayer, iAttacker, entry, iMaxEntries)
+@@ -234,3 +253,12 @@ def getEntriesForPlayer(iPlayer):
+ 
+ def isRetreatEntry(entry):
+ 	return (len(entry) > _OUTCOME_DATA_START and entry[_OUTCOME_DATA_START] == _OUTCOME_RETREAT)
++
++
++def getPlotContext(entry):
++	if len(entry) < _PLOT_CONTEXT_DATA_START + 2:
++		return (-1, -1, -1)
++	iHillPeakTerrain = -1
++	if len(entry) >= _PLOT_CONTEXT_DATA_START + 3:
++		iHillPeakTerrain = entry[_PLOT_CONTEXT_DATA_START + 2]
++	return (entry[_PLOT_CONTEXT_DATA_START], entry[_PLOT_CONTEXT_DATA_START + 1], iHillPeakTerrain)
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index d8aca6022..ee6992025 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -51,7 +51,6 @@ class CvMilitaryAdvisor:
+ 		self.DEBUG_DROPDOWN_ID = "MilitaryAdvisorBattleDropdownWidget"
+ 		self.BATTLE_TABLE_ID = "MilitaryAdvisorBattleTable"
+ 		self.BATTLE_LOG_BUTTON_ID = "MilitaryAdvisorBattleLogButton"
+-		self.BATTLE_PLOT_COL_ID = 19
+ 		self.PAGE_UNITS = 0
+ 		self.PAGE_BATTLES = 1
+ 		self.iActivePage = self.PAGE_UNITS
+@@ -113,6 +112,20 @@ class CvMilitaryAdvisor:
+ 		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE")
+ 		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT")
+ 		self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES")
++		# <!-- custom: read this XML UI define once when the advisor object is built, matching our other advisor defines. Changing it while Civ4 is running can leave existing table widgets with the wrong column layout, so restart after toggling it. (GPT-5.5) -->
++		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE") > 0)
++		self.BATTLE_HILL_PEAK_COL_ID = -1
++		self.BATTLE_TERRAIN_COL_ID = -1
++		self.BATTLE_FEATURE_COL_ID = -1
++		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
++			self.BATTLE_HILL_PEAK_COL_ID = 19
++			self.BATTLE_TERRAIN_COL_ID = 20
++			self.BATTLE_FEATURE_COL_ID = 21
++			self.BATTLE_PLOT_COL_ID = 22
++			self.BATTLE_NUM_COLS = 23
++		else:
++			self.BATTLE_PLOT_COL_ID = 19
++			self.BATTLE_NUM_COLS = 20
+ 
+ 
+ 	def initText(self):
+@@ -144,10 +157,15 @@ class CvMilitaryAdvisor:
+ 		self.TEXT_BATTLE_THEIR_UNIT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_THEIR_UNIT", ())
+ 		self.TEXT_BATTLE_CAPTURE_COUNT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_CAPTURE_COUNT", ())
+ 		self.TEXT_BATTLE_PID = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PID", ())
++		self.TEXT_BATTLE_HILL_PEAK = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_HILL_PEAK", ())
++		self.TEXT_BATTLE_TERRAIN = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TERRAIN", ())
++		self.TEXT_BATTLE_FEATURE = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_FEATURE", ())
+ 		self.TEXT_BATTLE_PLOT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PLOT", ())
+ 		self.ART_MAINMENU_SLIDESHOW_LOAD = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
+ 		self.ART_BUTTON_HILITE_SQUARE = ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath()
+ 		self.ART_CITY_SELECTION_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
++		self.iBattleTerrainPeak = getInfoTypeOrFail("TERRAIN_PEAK")
++		self.iBattleTerrainHill = getInfoTypeOrFail("TERRAIN_HILL")
+ 		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
+ 		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
+ 		self.COLOR_GREEN = gc.getInfoTypeForString("COLOR_GREEN")
+@@ -361,12 +379,12 @@ class CvMilitaryAdvisor:
+ 			iOurRole = -1
+ 			if bRoleKnown:
+ 				iOurRole = 1
+-			return (iTurn, szResult, iColor, iOurRole, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iX, iY) + self.getBattleCapturePerspective(entry)
++			return (iTurn, szResult, iColor, iOurRole, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iX, iY) + self.getBattleCapturePerspective(entry) + SASBattleHistory.getPlotContext(entry)
+ 		if iDefender == self.iActivePlayer:
+ 			iOurRole = -1
+ 			if bRoleKnown:
+ 				iOurRole = 0
+-			return (iTurn, szResult, iColor, iOurRole, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iX, iY) + self.getBattleCapturePerspective(entry)
++			return (iTurn, szResult, iColor, iOurRole, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iX, iY) + self.getBattleCapturePerspective(entry) + SASBattleHistory.getPlotContext(entry)
+ 		return None
+ 
+ 	def getBattleCapturePerspective(self, entry):
+@@ -399,6 +417,34 @@ class CvMilitaryAdvisor:
+ 			return ""
+ 		return gc.getUnitInfo(iCapturedUnit).getButton()
+ 
++	def setBattleTerrainFeatureCell(self, screen, iRow, iCol, iInfo, bTerrain):
++		if bTerrain:
++			if iInfo >= 0 and iInfo < gc.getNumTerrainInfos():
++				SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, "", gc.getTerrainInfo(iInfo).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iInfo, -1, CvUtil.FONT_CENTER_JUSTIFY)
++				return
++		else:
++			if iInfo >= 0 and iInfo < gc.getNumFeatureInfos():
++				SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, "", gc.getFeatureInfo(iInfo).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iInfo, -1, CvUtil.FONT_CENTER_JUSTIFY)
++				return
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, iCol, iRow, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++	def setBattleHillPeakCell(self, screen, iRow, iHillPeakTerrain):
++		# <!-- custom: show only peak/hill here: flat/water have no separate pedia redirects and are already visible through terrain, while peak/hill are separate combat-relevant map properties with Sevopedia entries/icons. (GPT-5.5) -->
++		if iHillPeakTerrain == self.iBattleTerrainPeak or iHillPeakTerrain == self.iBattleTerrainHill:
++			SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, iRow, "", gc.getTerrainInfo(iHillPeakTerrain).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHillPeakTerrain, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			return
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, iRow, "", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++	def getBattleTerrainTypeText(self, iTerrain):
++		if iTerrain >= 0 and iTerrain < gc.getNumTerrainInfos():
++			return gc.getTerrainInfo(iTerrain).getType()
++		return ""
++
++	def getBattleFeatureTypeText(self, iFeature):
++		if iFeature >= 0 and iFeature < gc.getNumFeatureInfos():
++			return gc.getFeatureInfo(iFeature).getType()
++		return ""
++
+ 	def getBattleCurrentStrengthText(self, iCurrentStrength, iMaxStrength):
+ 		szText = self.getBattleStoredStrengthText(iCurrentStrength)
+ 		if not szText or iMaxStrength <= 0:
+@@ -438,7 +484,7 @@ class CvMilitaryAdvisor:
+ 		iTableW = iW - 2 * self.MAP_MARGIN
+ 		iTableH = iH - 2 * self.MAP_MARGIN
+ 		self.BATTLE_ROW_PLOTS = {}
+-		screen.addTableControlGFC(self.BATTLE_TABLE_ID, 20, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addTableControlGFC(self.BATTLE_TABLE_ID, self.BATTLE_NUM_COLS, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+ 		screen.enableSort(self.BATTLE_TABLE_ID)
+ 		screen.setStyle(self.BATTLE_TABLE_ID, "Table_StandardCiv_Style")
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 0, self.TEXT_BATTLE_TURN, 55)
+@@ -450,8 +496,15 @@ class CvMilitaryAdvisor:
+ 		iPIDColW = 38
+ 		iCaptureCountColW = iPIDColW
+ 		iCaptureUnitColW = 35
++		iTerrainColW = 0
++		iFeatureColW = 0
++		iHillPeakColW = 0
++		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
++			iTerrainColW = 35
++			iFeatureColW = 35
++			iHillPeakColW = 35
+ 		iStrengthColW = 78
+-		iUnitColW = max(105, (iTableW - 55 - 105 - 80 - iRoleColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - 35 - 35 - iPIDColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iCaptureCountColW - iCaptureUnitColW - iPlotColW) / 2)
++		iUnitColW = max(105, (iTableW - 55 - 105 - 80 - iRoleColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - 35 - 35 - iPIDColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iCaptureCountColW - iCaptureUnitColW - iHillPeakColW - iTerrainColW - iFeatureColW - iPlotColW) / 2)
+ 		# <!-- custom: show battles from the inspected player's perspective: our unit is always on the left and their unit follows immediately, so each row reads as a direct matchup. Our repeated civ/leader/PID are omitted because the dropdown/log PerspectivePlayer already identifies us. (GPT-5.5) -->
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 3, self.TEXT_BATTLE_ROLE, iRoleColW)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 4, self.STRENGTH_CHAR + u"b", iBaseColW)
+@@ -470,6 +523,10 @@ class CvMilitaryAdvisor:
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 17, self.TEXT_BATTLE_CAPTURE_COUNT, iCaptureCountColW)
+ 		# <!-- custom: show captured unit type as a compact pedia icon rather than text. The stored row supports one captured unit type; if a future mod allows one combat to create multiple captured types, expand this column/model then. (GPT-5.5) -->
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 18, "", iCaptureUnitColW)
++		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
++			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_HILL_PEAK_COL_ID, self.TEXT_BATTLE_HILL_PEAK, iHillPeakColW)
++			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_TERRAIN_COL_ID, self.TEXT_BATTLE_TERRAIN, iTerrainColW)
++			SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_FEATURE_COL_ID, self.TEXT_BATTLE_FEATURE, iFeatureColW)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, self.TEXT_BATTLE_PLOT, iPlotColW)
+ 		screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+ 		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
+@@ -484,7 +541,7 @@ class CvMilitaryAdvisor:
+ 		tColumns = self.getBattlePerspectiveColumns(entry)
+ 		if tColumns is None:
+ 			return
+-		iTurn, szResult, iColor, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit = tColumns
++		iTurn, szResult, iColor, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit, iTerrain, iFeature, iHillPeakTerrain = tColumns
+ 		iRow = screen.appendTableRow(self.BATTLE_TABLE_ID)
+ 		self.BATTLE_ROW_PLOTS[iRow] = (iX, iY)
+ 		kTheirPlayer = gc.getPlayer(iTheirPlayer)
+@@ -512,6 +569,10 @@ class CvMilitaryAdvisor:
+ 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 16, iRow, str(iTheirPlayer), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 17, iRow, self.getBattleCaptureCountText(iCapturedCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 18, iRow, "", self.getBattleCaptureUnitButton(iCapturedCount, iCapturedUnit), eCapturedUnitWidget, iCapturedUnit, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE:
++			self.setBattleHillPeakCell(screen, iRow, iHillPeakTerrain)
++			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_TERRAIN_COL_ID, iTerrain, True)
++			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_FEATURE_COL_ID, iFeature, False)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 	def dbgLogBattleHistory(self):
+@@ -522,13 +583,14 @@ class CvMilitaryAdvisor:
+ 		print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_BEGIN")
+ 		self.dbgLogBattleHistoryPerspectivePlayer()
+ 		self.dbgLogBattleHistoryPlayers(aEntries)
+-		print("Turn | Year | Result | Role | OurStrB | OurStrS | OurStrE | OurStrM | OurUnit | TheirUnit | TheirStrB | TheirStrS | TheirStrE | TheirStrM | TheirPID | Cap# | CapUnit | X | Y")
++		# <!-- custom: keep stored hill/peak, terrain, and feature context in copied logs even when the optional UI columns are hidden; logs are allowed to be more complete than the visible table when data already exists. (GPT-5.5) -->
++		print("Turn | Year | Result | Role | OurStrB | OurStrS | OurStrE | OurStrM | OurUnit | TheirUnit | TheirStrB | TheirStrS | TheirStrE | TheirStrM | TheirPID | Cap# | CapUnit | HillPeak | Terrain | Feature | X | Y")
+ 		for entry in aEntries:
+ 			tColumns = self.getBattlePerspectiveColumns(entry)
+ 			if tColumns is None:
+ 				continue
+-			iTurn, szResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit = tColumns
+-			print("%d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d | %d | %s | %d | %d" % (
++			iTurn, szResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit, iTerrain, iFeature, iHillPeakTerrain = tColumns
++			print("%d | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %d | %d | %s | %s | %s | %s | %d | %d" % (
+ 				iTurn,
+ 				self.getTurnDate(iTurn),
+ 				szResult,
+@@ -546,6 +608,9 @@ class CvMilitaryAdvisor:
+ 				iTheirPlayer,
+ 				iCapturedCount,
+ 				self.getBattleCaptureUnitText(iCapturedCount, iCapturedUnit),
++				self.getBattleTerrainTypeText(iHillPeakTerrain),
++				self.getBattleTerrainTypeText(iTerrain),
++				self.getBattleFeatureTypeText(iFeature),
+ 				iX,
+ 				iY,
+ 			))
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 2d4d57847..766691421 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -221,6 +221,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CV_MILITARY_ADVISOR_BATTLE_HISTORY_MAX_ENTRIES</DefineName>
+ 		<iDefineIntVal>-1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: show compact hill-or-peak/terrain/feature context columns in the Military Advisor Battles tab. Battle history always stores this snapshot so changing the define after a Civ4 restart can display already-recorded rows. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index c3bbf38bd..a0d89b820 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -92,9 +92,21 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PID</Tag>
+ 		<English>PID</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_HILL_PEAK</Tag>
++		<English>H</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TERRAIN</Tag>
++		<English>T</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_FEATURE</Tag>
++		<English>F</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_PLOT</Tag>
+-		<English>Plot</English>
++		<English>P</English>
+ 	</TEXT>
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=22983

@@ -1,0 +1,133 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5380
+# Commit: 02bdeb35bb33f1bd1238ed80d58427611d89e6d6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2a4e1ecc12aef576c0f4bb21b7e79d7ea63b2b56
+# Title: show script name or sound id in sevopedia music parsed items
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	5	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (4).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (6).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index 6b1084351..498d3d5e5 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -1181,6 +1181,14 @@ def _SAS_addSection(listEntries, szHeader, items):
+ 		listEntries.append(x)
+ 
+ 
++def _SAS_appendSoundLabel(szLabel, szSoundScript, iSoundId):
++	if szSoundScript:
++		return szLabel + " - " + szSoundScript
++	if iSoundId != -1:
++		return szLabel + " - Sound ID %d" % iSoundId
++	return szLabel
++
++
+ def SAS_getMoviesListGroupedByType(bSortLists, packMovieKey, unpackMovieKey, iTypeVictory, iTypeWonder, iTypeProject, iTypeReligion, iTypeEra):
+ 	# Return the Movies left-list entries with section headers (Victory/Wonder/Project/Religion/Era).
+ 	# Implementation detail: we build a single flat base list first, then split into sections.
+@@ -1325,7 +1333,8 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 		if not szSound or szSound == "NONE":
+ 			continue
+ 		iEra = info.getEra()
+-		techBase.append((info.getDescription(), packMusicKey(iTypeTech, iTech), iEra))
++		szLabel = _SAS_appendSoundLabel(info.getDescription(), szSound, -1)
++		techBase.append((szLabel, packMusicKey(iTypeTech, iTech), iEra))
+ 
+ 	if bSortLists:
+ 		techBase.sort()
+@@ -1433,6 +1442,7 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 				if szEraName:
+ 					szLabel += " (" + szEraName + ")"
+ 				if (not bLeaderIntroPeaceFirstOnly) or (not bAddedIntroPeace):
++					szLabel = _SAS_appendSoundLabel(szLabel, "", iPeaceIntroId)
+ 					iTrackId = len(musicLeaderTracks)
+ 					musicLeaderTracks.append((iLeader, iEra, "Peace Intro", iPeaceIntroId, szLabel))
+ 					leaderIntroPeaceItems.append((szLabel, packMusicKey(iTypeLeader, iTrackId)))
+@@ -1443,6 +1453,7 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 				if szEraName:
+ 					szLabel += " (" + szEraName + ")"
+ 				if (not bLeaderPeaceFirstOnly) or (not bAddedPeace):
++					szLabel = _SAS_appendSoundLabel(szLabel, "", iPeaceId)
+ 					iTrackId = len(musicLeaderTracks)
+ 					musicLeaderTracks.append((iLeader, iEra, "Peace", iPeaceId, szLabel))
+ 					leaderPeaceItems.append((szLabel, packMusicKey(iTypeLeader, iTrackId)))
+@@ -1477,6 +1488,7 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 				szLabel = szLeaderName
+ 				if szEraName:
+ 					szLabel += " (" + szEraName + ")"
++				szLabel = _SAS_appendSoundLabel(szLabel, "", iWarIntroId)
+ 				iTrackId = len(musicLeaderTracks)
+ 				musicLeaderTracks.append((iLeader, iEra, "War Intro", iWarIntroId, szLabel))
+ 				leaderIntroWarItems.append((szLabel, packMusicKey(iTypeLeader, iTrackId)))
+@@ -1490,6 +1502,7 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 				szLabel = szLeaderName
+ 				if szEraName:
+ 					szLabel += " (" + szEraName + ")"
++				szLabel = _SAS_appendSoundLabel(szLabel, "", iWarId)
+ 				iTrackId = len(musicLeaderTracks)
+ 				musicLeaderTracks.append((iLeader, iEra, "War", iWarId, szLabel))
+ 				leaderWarItems.append((szLabel, packMusicKey(iTypeLeader, iTrackId)))
+@@ -1527,8 +1540,9 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 				except:
+ 					szScript = selVal
+ 			iTrackId = len(musicCivTracks)
+-			musicCivTracks.append((iCiv, iSoundId, szScript, szCivName + " (" + szSelectLabel + ")", True))
+-			civItems.append((szCivName + " (" + szSelectLabel + ")", packMusicKey(iTypeCiv, iTrackId)))
++			szLabel = _SAS_appendSoundLabel(szCivName + " (" + szSelectLabel + ")", szScript, iSoundId)
++			musicCivTracks.append((iCiv, iSoundId, szScript, szLabel, True))
++			civItems.append((szLabel, packMusicKey(iTypeCiv, iTrackId)))
+ 
+ 		actVal = civInfo.getActionSoundScriptId()
+ 		if actVal != -1 and actVal != "" and actVal != "NONE":
+@@ -1548,8 +1562,9 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 				except:
+ 					szScript = actVal
+ 			iTrackId = len(musicCivTracks)
+-			musicCivTracks.append((iCiv, iSoundId, szScript, szCivName + " (" + szOrderLabel + ")", True))
+-			civItems.append((szCivName + " (" + szOrderLabel + ")", packMusicKey(iTypeCiv, iTrackId)))
++			szLabel = _SAS_appendSoundLabel(szCivName + " (" + szOrderLabel + ")", szScript, iSoundId)
++			musicCivTracks.append((iCiv, iSoundId, szScript, szLabel, True))
++			civItems.append((szLabel, packMusicKey(iTypeCiv, iTrackId)))
+ 
+ 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_CIVILIZATIONS", ()), civItems)
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (1).JPG
+index fc60dd067..4bce3ef74 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (2).JPG
+index 18664fef7..d62ec12af 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (3).JPG
+index 28d149746..bc3bd8ca5 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (4).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (4).JPG
+index e11baae9e..c690ed197 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (4).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (6).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (6).JPG
+index b8c24469d..b9b5c15f2 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (6).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (6).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=6286

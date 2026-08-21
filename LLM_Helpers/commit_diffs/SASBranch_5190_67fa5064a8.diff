@@ -1,0 +1,192 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5190
+# Commit: 67fa5064a87eea57965b9d68c9588dda546d6cc9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 80c5610110fe091b7eb17f63dd0059f6dedd2b6d
+# Title: beautify and expand the technology advisor show more information, use more of the game window, and other possibilities but anyways etc.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+45	16	Assets/Python/Screens/CvTechChooser.py
+4	1	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.515_technology_advisor.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.515_technology_advisor.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index caa998086..798ec3ef0 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -33,8 +33,12 @@ import BugUtil  # noqa: E402
+ PREF_ICON_SIZE = 24
+ #PREF_ICON_TOP = 168
+ # <advc.004a>
+-PREF_ICON_BOTTOM = 738
+-PREF_ICON_LEFT = 40 # was a bit farther left (10)
++# <!-- custom: move the tech bulbing indicators down now that we have increased the tech advisor screen's height as found gemini pro 3 found nicely thanks but anyways etc. -->
++# PREF_ICON_BOTTOM = 738
++PREF_ICON_BOTTOM = 926
++# <!-- custom: move it more to the left anyways etc. -->
++# PREF_ICON_LEFT = 40 # was a bit farther left (10)
++PREF_ICON_LEFT = 10
+ # </advc.004a>
+ FLAVORS = [
+ 	TechPrefs.FLAVOR_PRODUCTION,
+@@ -226,14 +230,36 @@ class CvTechChooser:
+ 
+ # BUG - Tech Screen Resolution - start
+ 		#BugOpt.isWideTechScreen() and # advc.004: No longer optional
+-		if screen.getXResolution() > 1024:
+-			xPanelWidth = screen.getXResolution() - 60
+-		else:
+-			xPanelWidth = 1024
+-		yPanelHeight = 768
++		# <!-- custom: simplify but also rework this as well anyways etc. -->
++		# if screen.getXResolution() > 1024:
++		# 	xPanelWidth = screen.getXResolution() - 60 - 500
++		# else:
++		# 	xPanelWidth = 1024
++		# yPanelHeight = 768
++		# <!-- custom: preserve key display (commerce sliders, scoreboard if we do as well, or/and other things or not but anyways etc.) and otherwise maximize game window usage anyways etc. -->
++		
++		# <!-- custom: since in this file unlike in the foreign advisor or similar files, the screen x y w and h (i.e. self.X_SCREEN and co anyways etc.) are initialized in interfaceScreen and not in init, we can use the real game windows's resolution so it fully dynamic. I tried making it so in the foreign advisor and such other files but it lead to issues and all, so left as is there with hard coded values of as of now 1920x1080 minutes gaps we want to leave unused by the panel, however in this file as of now CvTechChooser we can use the available screen variable to make it fully dynamic seemingly (check if accurate as i don't know too much about these but it seems ot be as such empirically and it is also as gemini 3 pro advised while debugging the related errors in particular but anyways etc.). -->
++
++		wLeftSpace = 0
++		self.X_SCREEN = wLeftSpace
++		# <!-- custom: wide enough to preserve the right panel that has key foreign advisor info (scoreboard, map etc.), and less conservatively care about the left side so this size won't be centered but closer to the left as of now at least but anyways etc. -->
++		wRightSpaceForTechPartOfTheScoreBoard = 206
++		self.W_SCREEN = screen.getXResolution() - wRightSpaceForTechPartOfTheScoreBoard - wLeftSpace
++
++		hTopSpaceForCommerceSliders = 118
++		self.Y_SCREEN = hTopSpaceForCommerceSliders
++		hBottomSpace = 0
++		# <!-- custom: if we start 100px from the top to see top info, then we can deduce the remaining height we can all allocate so panel fits precisely right at bottom (e.g. if resolution Y is 1080 then 1080 - 100 = 980). -->
++		self.H_SCREEN = screen.getYResolution() - hTopSpaceForCommerceSliders - hBottomSpace
++
++		xPanelWidth = self.W_SCREEN
++		yPanelHeight = self.H_SCREEN
+ 
+ 		screen.showWindowBackground( False )
+-		screen.setDimensions((screen.getXResolution() - xPanelWidth) / 2, screen.centerY(0), xPanelWidth, yPanelHeight)
++	
++		# <!-- custom: no longer center it and adjust dimensions similarly to how we did for the military advisor and other related reworks anyways etc. -->
++		# screen.setDimensions((screen.getXResolution() - xPanelWidth) / 2, screen.centerY(0), xPanelWidth, yPanelHeight)
++		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, xPanelWidth, yPanelHeight)
+ # BUG - Tech Screen Resolution - end
+ 
+ 		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, xPanelWidth, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+@@ -248,14 +274,17 @@ class CvTechChooser:
+ 		szText = szText + u"</font>"
+ 		screen.setLabel( "TechTitleHeader", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, xPanelWidth / 2, 8, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+-		# Make the scrollable area for the city list...
+-		# advc.004a: What cities? Anyway, no scrollable area needed.
+-		if False and BugOpt.isShowGPTechPrefs():
+-			iX = 80
+-			iW = xPanelWidth - 80
+-		else:
+-			iX = 0
+-			iW = xPanelWidth
++		# <!-- custom: simplify code since this was disabled anyway anyways etc. -->
++		# # Make the scrollable area for the city list...
++		# # advc.004a: What cities? Anyway, no scrollable area needed.
++		# if False and BugOpt.isShowGPTechPrefs():
++		# 	iX = 80
++		# 	iW = xPanelWidth - 80
++		# else:
++		# 	iX = 0
++		# 	iW = xPanelWidth
++		iX = 0
++		iW = xPanelWidth
+ 
+ 		self.TabPanels = ["TechList", "TechTrade"]
+
+diff --git a/README.md b/README.md
+index 3cee13474..8304531d6 100644
+--- a/README.md
++++ b/README.md
+@@ -124,7 +124,9 @@ This is the original, extensive and verbose version of the main change from base
+ 
+ ### Main Advisors reworks
+ 
+-Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.). Also made the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed.
++Also reworked, expanded and beautified some of the other Advisors' UI, as it for example was annoying to always scroll to see more players (e.g. 12+), while still preserving key relevant information for said advisors display (e.g. for the foreign advisor screen: scoreboard, map, commerce sliders and values, etc.). Also helps not having to open/exit said advisor such as in the technology advisor, where the rival's research and rank position is as of now visible, allowing to better plan tech path without tedium or less of it but anyways etc.
++
++Also made the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed, or/and so it is easier to change an advisor's screen dimensions if desired later but anyways etc.
+ 
+ Some examples below:
+ 
+@@ -135,6 +137,7 @@ Some examples below:
+ <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG" alt="0.512_foreign_advisor_techs.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5130_foreign_advisor_glance.JPG" alt="0.5130_foreign_advisor_glance.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.515_technology_advisor.JPG" alt="0.515_technology_advisor.JPG" width="250"></img>
+ 
+ See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 4c206af68..354ff1807 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -108,7 +108,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are oftentimes outdated or/and tedious to maintain anyways etc.
+ - add the "Cannot be traded" and the "Can be researched multiple times" information tooltips in the tech advisor as well anyways etc. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ - (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5162+ to 5169+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
++- (Requires AdvCiv-SAS 5162+ to 5190+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and of the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - (Requires AdvCiv-SAS 5180+ to 5184+) Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - (Requires AdvCiv-SAS 5187+) Make the **BUG's Tech Bulbing Indicators** in the Tech Advisor visible since turn 0 (no longer since turn 1 or higher) to highlight this feature's existence (AdvCiv disbled it due to issues with very large maps, revert the change there if needed). Change in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See also [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index a32229926..617b6209e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -105,7 +105,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
+ - Added "Cannot be traded" and "Can be researched multiple times" tooltips to the Tech Advisor screen. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ - (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5162+ to 5169+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
++- (Requires AdvCiv-SAS 5162+ to 5190+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and of the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - (Requires AdvCiv-SAS 5180+ to 5184+) Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - (Requires AdvCiv-SAS 5187+) Make the **BUG's Tech Bulbing Indicators** in the Tech Advisor visible since turn 0 (no longer since turn 1 or higher) to highlight this feature's existence (AdvCiv disbled it due to issues with very large maps, revert the change there if needed). Change in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See also [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.515_technology_advisor.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.515_technology_advisor.JPG
+new file mode 100644
+index 000000000..2a0927505
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.515_technology_advisor.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index dcc08e38c..10646bcee 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 5b6481abd..3ae359bd6 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 3747266b9..028f26d3e 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 35a10da82..353460c75 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=19408

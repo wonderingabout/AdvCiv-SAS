@@ -1,0 +1,223 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 309
+# Commit: 62e4ad0b6761414b175e921623b182ed44f2dd40
+# History segment: K-Mod history
+# Parent used for diff: 4f4cc57d48c413fa1a37360e79b002f17ec08e27
+# Title: Fixed a problem which caused the AI to place its early cities closer together than intended. "bAmbitious" civs are now less conserned about the geographical...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	12	CvGameCoreDLL/CvPlayerAI.cpp
+29	26	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9045b2ee2..f3f824b86 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3668,22 +3668,28 @@ short CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet)
+ 			else if (iDistance < 4)
+ 			{
+ 				iValue -= (4 - iDistance) * 2000;
+-			} */
+-			// K-Mod. (close cities and penalised in other ways)
+-			int iTargetRange = (kSet.bExpansive ? 6 : 5);
+-			if (iDistance > iTargetRange)
+-			{
+-				iValue -= std::min(5, iDistance - iTargetRange) * 400; // with that max distance, we could fit a city in the middle!
+ 			}
+-			// K-Mod end
+ 			iValue *= (8 + iNumCities * 4);
+ 			iValue /= (2 + (iNumCities * 4) + iDistance);
++
+ 			if (pNearestCity->isCapital())
+ 			{
+ 				iValue *= 150;
+ 				iValue /= 100;
+ 			}
+-			else if (getCapitalCity() != NULL)
++			else if (getCapitalCity() != NULL) */
++			// K-Mod.
++			// Close cities are penalised in other ways
++			int iTargetRange = (kSet.bExpansive ? 6 : 5);
++			if (iDistance > iTargetRange)
++			{
++				iValue -= std::min(5, iDistance - iTargetRange) * 400; // with that max distance, we could fit a city in the middle!
++			}
++			iValue *= 8 + 4*iNumCities;
++			iValue /= 2 + 4*iNumCities + std::max(iTargetRange, iDistance);
++
++			if (!pNearestCity->isCapital() && getCapitalCity() != NULL)
++			// K-Mod end
+ 			{
+ 				//Provide up to a 50% boost to value (80% for adv.start)
+ 				//for city sites which are relatively close to the core
+@@ -3707,8 +3713,14 @@ short CvPlayerAI::AI_foundValueBulk(int iX, int iY, const CvFoundSettings& kSet)
+ 				int iDistanceToCapital = plotDistance(iCapitalX, iCapitalY, iX, iY);
+ 				
+ 				FAssert(iMaxDistanceFromCapital > 0);
++				/* original bts code
+ 				iValue *= 100 + (((bAdvancedStart ? 80 : 50) * std::max(0, (iMaxDistanceFromCapital - iDistance))) / iMaxDistanceFromCapital);
+-				iValue /= 100;
++				iValue /= 100; */
++				// K-Mod. just a touch of flavour
++				int iShapeWeight = bAdvancedStart ? 80 : (kSet.bAmbitious ? 30 : 50);
++				iValue *= 100 + iShapeWeight * std::max(0, (iMaxDistanceFromCapital - iDistance)) / iMaxDistanceFromCapital;
++				iValue /= 100 + iShapeWeight;
++				// K-Mod end
+ 			}
+ 		}
+ 	}
+@@ -3895,9 +3907,6 @@ int CvPlayerAI::AI_targetCityValue(CvCity* pCity, bool bRandomize, bool bIgnoreA
+ /*                                                                                              */
+ /* War strategy AI                                                                              */
+ /************************************************************************************************/
+-	// Prefer lower defense
+-	iValue += std::max( 0, (100 - pCity->getDefenseModifier(false))/30 );
+-	
+ 	if (pCity->getDefenseDamage() > 0)
+ 	{
+ 		iValue += ((pCity->getDefenseDamage() / 30) + 1);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a6ac1b5f9..f65609e6b 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1337,8 +1337,7 @@ void CvUnitAI::AI_settleMove()
+ 					return;					
+ 				}
+ 			}
+-			// K-Mod. If we are already heading to this site, then keep going!
+-			// This change fixes a bug which prevented settlers from targetting the same site two turns in a row!
++			// K-Mod. If we are already heading to this site, then keep going.
+ 			else
+ 			{
+ 				CvPlot* pMissionPlot = getGroup()->AI_getMissionAIPlot();
+@@ -1430,26 +1429,19 @@ void CvUnitAI::AI_settleMove()
+ 		}
+ 	}
+ 	
++	/* original bts code
+ 	if ((iAreaBestFoundValue > 0) && plot()->isBestAdjacentFound(getOwnerINLINE()))
+ 	{
+ 		if (canFound(plot()))
+ 		{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+ 			if( gUnitLogLevel >= 2 )
+ 			{
+ 				logBBAI("    Settler founding in place due to best adjacent found");
+ 			}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 			getGroup()->pushMission(MISSION_FOUND);
+ 			return;
+ 		}
+-	}
++	} */ // disabled by K-Mod. We go to a lot of trouble to pick good city sites. Don't let this mess it up for us!
+ 
+ 	/* original bts code
+ 	if (!GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_PEACE) && !GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) && !getGroup()->canDefend())
+@@ -1462,16 +1454,7 @@ void CvUnitAI::AI_settleMove()
+ 
+ 	if (plot()->isCity() && (plot()->getOwnerINLINE() == getOwnerINLINE()))
+ 	{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/20/09                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI, Efficiency                                                                          */
+-/************************************************************************************************/
+-		//if ((GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot()) > 0) 
+-		if ((GET_PLAYER(getOwnerINLINE()).AI_getAnyPlotDanger(plot())) 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++		if (GET_PLAYER(getOwnerINLINE()).AI_getAnyPlotDanger(plot())
+ 			&& (GC.getGameINLINE().getMaxCityElimination() > 0))
+ 		{
+ 			if (getGroup()->getNumUnits() < 3)
+@@ -15224,11 +15207,30 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 									{
+ 										iValue = GET_PLAYER(getOwnerINLINE()).AI_targetCityValue(pLoopCity, true, true);
+ 									}
++									// K-Mod adjust value based on defence
++									{
++										int iMod = pLoopCity->getDefenseModifier(false)/2
++											+ (pLoopCity->plot()->isHills() ? GC.getHILLS_EXTRA_DEFENSE() : 0);
++										iValue *= std::max(100, 160 - iMod);
++										iValue /= 100;
++									}
++									// K-Mod end
+ 
+-									if( pLoopCity == pTargetCity )
++									if (pLoopCity == pTargetCity)
+ 									{
+ 										iValue *= 2;
+ 									}
++									// K-Mod. prefer cities which are close to the main target.
++									else if (pTargetCity != NULL)
++									{
++										int iStepsFromTarget = stepDistance(
++											pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE(),
++											pTargetCity->getX_INLINE(), pTargetCity->getY_INLINE());
++
++										iValue *= 124 - 2*std::min(12, iStepsFromTarget);
++										iValue /= 100;
++									}
++									// K-Mod end
+ 									
+ 									if ((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
+ 									{
+@@ -15236,7 +15238,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 										iValue /= 50;
+ 									}
+ 
+-									// K-Mod
++									// K-Mod. boost value if we can see that the city is poorly defended.
+ 									if (pLoopCity->isVisible(getTeam(), false) && iPathTurns < 6)
+ 									{
+ 										FAssert(iEnemyDefence != -1);
+@@ -15263,7 +15265,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 									{
+ 										int iHash = AI_getBirthmark() + GC.getMapINLINE().plotNumINLINE(pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE());
+ 										iHash *= 2654435761; // golden ratio of 2^32;
+-										iValue *= 85 + iHash % 31;
++										iValue *= 80 + iHash % 41;
+ 										iValue /= 100;
+ 									}
+ 									// K-Mod
+@@ -15272,7 +15274,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 									//iPathTurns += std::min(12, getGroup()->getBombardTurns(pLoopCity)/4);
+ 									iPathTurns += std::min(6, getGroup()->getBombardTurns(pLoopCity)/3); // K-Mod. That's 18 turns!
+ 
+-									iValue /= (4 + iPathTurns*iPathTurns);
++									iValue /= 8 + iPathTurns*iPathTurns; // was 4+
+ 
+ 									if (iValue > iBestValue)
+ 									{
+@@ -17024,7 +17026,8 @@ bool CvUnitAI::AI_found()
+ 							{
+ 								iValue = pCitySitePlot->getFoundValue(getOwnerINLINE());
+ 								iValue *= 1000;
+-								iValue /= (iPathTurns + 1);
++								//iValue /= (iPathTurns + 1);
++								iValue /= iPathTurns + (getGroup()->canDefend() ? 5 : 1); // K-Mod
+ 								if (iValue > iBestFoundValue)
+ 								{
+ 									iBestFoundValue = iValue;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=8939

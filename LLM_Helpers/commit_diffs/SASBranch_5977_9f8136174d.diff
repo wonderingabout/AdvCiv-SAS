@@ -1,0 +1,249 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5977
+# Commit: 9f8136174d039c00a0d1b230de4739beba5f6322
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f3137a536bb1901690ebae83fca1b8bb1102f771
+# Title: Replace Settler/Found AI hardcoded very bad plot count with a dynamic yield-based threshold count e.g., `4 * food + 2 * production + commerce` (e.g., 1 food...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+10	40	CvGameCoreDLL/CitySiteEvaluator.cpp
+52	0	CvGameCoreDLL/CvPlot.cpp
+1	0	CvGameCoreDLL/CvPlot.h
+2	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 924504e82..ec9b91c66 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -736,6 +736,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
++	<!-- custom: A usable non-home BFC plot without a visible bonus is very bad when its best natural or XML-valid improved yield remains below this `4 * food + 2 * production + commerce` score; impassable plots always count. A score of 4 keeps a basic one-food Tundra plot, while barren plots remain below the threshold and productive hills exceed it. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_EVALUATE_MIN_ACCEPTABLE_NOT_HOME_PLOT_POTENTIAL_YIELD_SCORE</DefineName>
++		<iDefineIntVal>4</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Long_Comments_XML.txt #207 -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_START</DefineName>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 3b9b25a26..fd08a5a25 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -398,16 +398,11 @@ int AIFoundValue::evaluate()
+ 	// <!-- custom: unused; commented out (kept for potential future use). Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+ 	// int iTileCountWaterNoBonus = 0;
+ 	int iTileCountNoPeakLand = 0;
+-	int iTileCountPeak = 0;
+-	// <!-- custom: these are also bad as they don't yield anything so same as peak, we should definitely count them to help choose better/optimal or at least ebtter / more optimal sites -->
+-	int iTileCountIceCap = 0;
+-	// <!-- custom: excluding flood plains, oasis, and as of now hill desert as even that yields something unlike "naked" desert that is really bad and should strongly be ignored without overdoing it if site is otherwise good. Since these tiles are so bad and worse than coast that yields things and food, ignore them extra more. Attempts to address known issue as of now 26.2 of AI not going for a nearby site better in all regards with less desert and more hill grassland -->
+-	int iTileCountVeryBadDesertNoBonus = 0;
+-	// <!-- custom: again worse than tundra as has no food and no meaningful improvement; if it's a hill we can still mine or windmill it if i'm not mistaken, but i don't think we can improve snow tiles (although didn't check in detail), and even if we could/can, the food penalty on these tiles is really high. We could count 0 food tiles that are not hills, but maybe do as such for clarity or such although is less flexible but maybe fine as such. We need to count these tiles and deter founding there if there are too much and no other conditions are met -->
+-	int iTileCountVeryBadSnowNoBonus = 0;
++	int iTileCountVeryBad = 0;
+ 
+ 	static const int iMaxToleratedVeryBadTilesStart = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START");
+ 	static const int iMaxToleratedVeryBadTilesLater = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER");
++	static const int iMinAcceptableVeryBadPlotPotentialYieldScore = GC.getDefineINT("SAS_EVALUATE_MIN_ACCEPTABLE_NOT_HOME_PLOT_POTENTIAL_YIELD_SCORE");
+ 
+ 	static const int iBaseValueVeryBadTileStart = GC.getDefineINT("SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_START");
+ 	static const int iBaseValueVeryBadTileLater = GC.getDefineINT("SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_LATER");
+@@ -425,8 +420,6 @@ int AIFoundValue::evaluate()
+ 	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
+ 	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
+ 	static const FeatureTypes eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
+-	static const FeatureTypes eFeatureIce = (FeatureTypes)GC.getInfoTypeForString("FEATURE_ICE");
+-
+ 	bFirstColony = isPrioritizeAsFirstColony();
+ 	IFLOG if(bFirstColony) logBBAI("First colony");
+ 	// Scope for countBadTiles return parameters
+@@ -574,43 +567,22 @@ int AIFoundValue::evaluate()
+ 			{
+ 				const BonusTypes eBonusPlot = getBonus(*pLoopPlot);
+ 
+-				TerrainTypes const eTerrainPlot = pLoopPlot->getTerrainType();
+-				FeatureTypes const eFeaturePlot = pLoopPlot->getFeatureType();
+-
+ 				// <!-- custom: optimization as recommended by chatgpt 5 thanks -->
+-				const bool pLoopPlotIsHills = pLoopPlot->isHills();
+ 				const bool pLoopPlotIsPeak  = pLoopPlot->isPeak();
+ 				bool const bCanAssumeWaterBonusImprovement = pLoopPlot->SAS_canAssumeWaterBonusImprovement(eBonusPlot, ePlayer, kPlot);
+ 				iLowFoodLocationScore += pLoopPlot->SAS_getLowFoodEnvironmentScore(eBonusPlot, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement);
+-				if (eFeaturePlot == eFeatureIce)
+-					++iTileCountIceCap;
++				int iBestPotentialYieldScore = 0;
++				if (pLoopPlot->SAS_isVeryBadCityRadiusPlot(eBonusPlot, ePlayer, iAssumedSeaPlotFoodChange, iMinAcceptableVeryBadPlotPotentialYieldScore, iBestPotentialYieldScore))
++				{
++					++iTileCountVeryBad;
++					IFLOG logBBAI("Very bad BFC plot (%d,%d): %s, potential yield score %d below %d", pLoopPlot->getX(), pLoopPlot->getY(), (pLoopPlot->isImpassable() ? "impassable" : "weak despite improvements"), iBestPotentialYieldScore, iMinAcceptableVeryBadPlotPotentialYieldScore);
++				}
+ 
+ 				if (!pLoopPlot->isWater())
+ 				{
+ 					if (!pLoopPlotIsPeak)
+ 					{
+ 						++iTileCountNoPeakLand;
+-
+-						// <!-- custom: do not count camel desert tiles, and do not count to simplify for example stone or any bonus tiles; although camel is more worthwhile, we simply want to get a general estimate of how many very bad tiles we have here, so simplify as such should be accurate enough for our needs -->
+-						if (eBonusPlot == NO_BONUS)
+-						{
+-							if (eTerrainPlot == eTerrainDesert)
+-							{
+-								if ((eFeaturePlot != eFeatureFloodPlains) && (eFeaturePlot != eFeatureOasis) && !pLoopPlotIsHills)
+-								{
+-									++iTileCountVeryBadDesertNoBonus;
+-								}
+-							}
+-							else if ((eTerrainPlot == eTerrainSnow) && !pLoopPlotIsHills)
+-							{
+-								++iTileCountVeryBadSnowNoBonus;
+-							}
+-						}
+-
+-					}
+-					else
+-					{
+-						++iTileCountPeak;
+ 					}
+ 				}
+ 				else
+@@ -1223,10 +1195,8 @@ int AIFoundValue::evaluate()
+ 		}
+ 	}
+ 
+-	// <!-- custom: regardless of start phase, some tiles are very bad (can't be improved at all, worse that coast or such that give food and gold at least), but don't overdo it for non-capital i.e. starting sites, as we could easily maybe throw off the computation of the overall site and reject an otherwise nice one, so take it into account but more midly in that case, especially considering we already added compute in our mod to compute these i think in this function-->
+-	// <!-- custom: peak in non home plot devalue local plot, is as of now not workable, not walkable for most units, and has no yield, so better avoid if possible but not too strongly may skew iValue too much for an otherwise good site -->
+-	// <!-- custom: update: also count very bad desert and very bad snow, the more we the worse, but giving a small leeway if site is otherwise great to not dismiss it or devalue it needlessl,y as we don't need all tiles to be good especially early at low pop, but if enough are bad, start to take it into accoutn and icnrementally for all very bad tiles so -->
+-	const int iTotalVeryBadTiles = iTileCountPeak + iTileCountIceCap + iTileCountVeryBadDesertNoBonus + iTileCountVeryBadSnowNoBonus;
++	// <!-- custom: Penalize impassable or persistently low-yield BFC slots after a small allowance. Dynamic XML-property/yield scoring replaces the old Peak/Ice/flat Desert/flat Snow name list, so terrain and improvement changes automatically affect this classification. Visible bonuses on usable plots stay exempt because their specialized value is evaluated separately. See KI#26.2. (GPT-5.5) -->
++	const int iTotalVeryBadTiles = iTileCountVeryBad;
+ 
+ 	if (bStartPhase)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 25718dfe9..bf84ed14f 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5388,6 +5388,58 @@ int CvPlot::SAS_getLowFoodEnvironmentScore(BonusTypes eVisibleBonus, int iSeaPlo
+ }
+ 
+ 
++// <!-- custom: Classify permanently weak BFC slots from XML properties and yields instead of terrain names. Impassable plots always count; visible bonuses on usable plots do not, because their specialized value is handled elsewhere. For other plots, compare 4 * food + 2 * production + commerce using natural yield and long-term XML-valid improvement potential. Stop once an improvement reaches the minimum because only the below-threshold classification and exact failing score are needed. (GPT-5.5 + ChatGPT-5.5 review) -->
++bool CvPlot::SAS_isVeryBadCityRadiusPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer, int iSeaPlotFoodChange, int iMinPotentialYieldScore, int& iBestPotentialYieldScore) const
++{
++	FAssert(ePlayer != NO_PLAYER);
++	FAssert(iMinPotentialYieldScore >= 0);
++	iBestPotentialYieldScore = 0;
++	if (ePlayer == NO_PLAYER)
++		return false;
++	if (isImpassable())
++		return true;
++	if (eVisibleBonus != NO_BONUS)
++		return false;
++
++	TeamTypes const eTeam = TEAMID(ePlayer);
++	int const aiYieldWeight[NUM_YIELD_TYPES] = {4, 2, 1};
++	FOR_EACH_ENUM(Yield)
++	{
++		int iYield = calculateNatureYield(eLoopYield, NO_TEAM);
++		if (isWater() && eLoopYield == YIELD_FOOD)
++			iYield += iSeaPlotFoodChange;
++		iBestPotentialYieldScore += aiYieldWeight[eLoopYield] * iYield;
++	}
++	if (iBestPotentialYieldScore >= iMinPotentialYieldScore)
++		return false;
++
++	FOR_EACH_ENUM(Build)
++	{
++		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
++		ImprovementTypes const eImprovement = kBuild.getImprovement();
++		if (eImprovement == NO_IMPROVEMENT ||
++			!canHaveImprovement(eImprovement, eTeam, true, eLoopBuild, false))
++		{
++			continue;
++		}
++		bool const bRemoveFeature = (isFeature() && kBuild.isFeatureRemove(getFeatureType()));
++		int iPotentialYieldScore = 0;
++		FOR_EACH_ENUM(Yield)
++		{
++			int iYield = calculateNatureYield(eLoopYield, NO_TEAM, bRemoveFeature) +
++					calculateImprovementYieldChange(eImprovement, eLoopYield, ePlayer);
++			if (isWater() && eLoopYield == YIELD_FOOD)
++				iYield += iSeaPlotFoodChange;
++			iPotentialYieldScore += aiYieldWeight[eLoopYield] * iYield;
++		}
++		iBestPotentialYieldScore = std::max(iBestPotentialYieldScore, iPotentialYieldScore);
++		if (iBestPotentialYieldScore >= iMinPotentialYieldScore)
++			return false;
++	}
++	return true;
++}
++
++
+ int CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(PlayerTypes ePlayer)
+ {
+ 	// <!-- custom: Assertions diagnose invalid player/building data in assert builds; the matching sentinel guards remain active in Release and avoid invalid lookups by contributing no assumed food. (GPT-5.5 + ChatGPT-5.5 review) -->
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index d2d8554b2..4726c1743 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -422,6 +422,7 @@ public:
+ 	int SAS_getBonusImprovementFoodChange(BonusTypes eBonus) const;
+ 	bool SAS_canAssumeWaterBonusImprovement(BonusTypes eVisibleBonus, PlayerTypes ePlayer, CvPlot const& kCandidateCityPlot) const;
+ 	int SAS_getLowFoodEnvironmentScore(BonusTypes eVisibleBonus, int iSeaPlotFoodChange, bool bCanAssumeWaterBonusImprovement) const;
++	bool SAS_isVeryBadCityRadiusPlot(BonusTypes eVisibleBonus, PlayerTypes ePlayer, int iSeaPlotFoodChange, int iMinPotentialYieldScore, int& iBestPotentialYieldScore) const;
+ 	static int SAS_getWaterFoodBuildingSeaPlotFoodChange(PlayerTypes ePlayer);
+ 	int calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer) const; // Exposed to Python
+ 	int calculateYield(YieldTypes eIndex, bool bDisplay = false) const;								// Exposed to Python
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 96a204755..330d5b4aa 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -1056,6 +1056,8 @@ Result ingame is very good as shown in screenshots, we now choose the correct be
+ 
+ Update: upon further review, the site it chose was actually best as per our criteria xd, as ai values the extra west grassland even if it has to incurr a few very bad tiles that were not so penalized before if at all due to a bug xd. Also, to fix/enhance this i had actually used a bug to count very bad tiles with a bonus as bad, so it avoided the desert stone, but didn't mind going towards the desert no bonus xd unless we penalized it otherwise which we didn't or maybe did not sure. Still, after fixing the bug, ai prefer its starting location to settle on xddd, unless we penalize extremely heavily the very bad tiles (like -300 base value at start phase which is way too high and likely to cause issues in other sitesin our new global definesso better not), and i finally figured why: i think it simply values the non-home flatland and hill grass tiles west rather than the coast ones that we count as neutral as of now). It makes it so that the west grass tiles are about equal to the southeast ones we wanted to move towards, and all other things being equal, the start site that has desert stone in its bfc is valued much more than the south east site i wanted to move towards that ditched as in ignored the stone to go for a few more hill grassland tiles. I think my site is slightly better though, but difference is small, and this is because i don't value stone at all xd. I think it's a healthy habit for ais to value bonuses as a general rule though, and now making it aware of a few extra more bad tiles with fixed bugs and knobs/tunables, so left as such. Also, skewing too much the values will make us forsake very good sites just to optimize this local one. A better way should be to hierarchize bonuses (iron super important, stone soso especially considering we barely build any wonders, but i think it's better to keep this good habit for ai and should help much more in general sites, so ai should be stronger thanks to our changes although it started from a bug and went back to locally same site, hehe).
+ 
++Update 2: the very-bad classification no longer hardcodes Peak, Ice Cap, flat Desert, and flat Snow names. Impassable plots always count; other non-home plots without a visible bonus count only when their best natural or XML-valid improved yield remains below a tunable threshold. This preserves the original intent while making terrain and improvement changes automatically affect the result. Visible bonuses on usable plots remain exempt because their specialized value is evaluated separately.
++
+ ## 27 - (now fixed) Some promotions are missing in Sevopedia unit's placePromotions
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1hRe5rR9DPBH6XzwllwTLSnh9kbIQwkEG?usp=sharing)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index cbf9d2b22..e88543cbf 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -265,7 +265,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ - Avoid settling on bonuses (especially food/metal/high-production/commerce) unless the immediate overall site value clearly justifies it. See [KI#25](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#25---seemingly-fixed-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-or-also-commerce-bonuses-to-a-lesser-extent).
+ - (Requires AdvCiv-SAS 5929+) **Unowned bonus extra valuation in city-site valuation:** for example, if we already own Wheat, a site with 1 Maize is **much better for the whole empire** than a city site with 2 more Wheat, which would have **more yields locally for this city** (e.g., ~+3-4 extra food per plot), **but much less long-term empire growth** (e.g., +1 Health +1 Health with Granary for all cities) (which is perhaps better even for this local city). Or, stone, happiness, or other bonuses could provide other advantages, for example **trading, military, accelerating buildables, etc**. Trade imports do not count as owned because they are not permanent. Applied once per bonus type and only after the first city. See [KI#147](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#147---fixedenhanced-base-advciv-issue-of-ai-settlers-not-adding-extra-valuation-to-unowned-bonuses-in-city-site-scoring).
+-- **Settler site eval - devalue BFCs with many very bad tiles:** If a candidate city’s BFC contains enough **Peak**, **Ice Cap**, **non-hill Desert (without a bonus)**, or **non-hill Snow (i.e. Ice Sheet) (without a bonus)** tiles, the site is **significantly devalued** (not auto-rejected). See [KI#26.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#262---enhanced-ai-settlers-not-devaluing-very-bad-non-home-tiles-peak-ice-cap-non-hill-desert-without-a-bonus-non-hill-snow-without-a-bonus-if-we-have-enough-of-them-in-bfc).
++- **Settler site eval - devalue BFCs with many very bad tiles:** Candidate sites are **significantly devalued** (not auto-rejected) when (Requires AdvCiv-SAS 5977+) enough non-home BFC plots are impassable or remain very low-yield after their best XML-valid improvement: the threshold as of now is dynamic `4 * food + 2 * production + commerce` (e.g., 1 food is not very bad, 1 hammer and 2 commerce is very bad, peak is very bad) (visible bonuses on usable plots are not counted because bonuses are likely to be always valuable). See [KI#26.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#262---enhanced-ai-settlers-not-devaluing-very-bad-non-home-tiles-peak-ice-cap-non-hill-desert-without-a-bonus-non-hill-snow-without-a-bonus-if-we-have-enough-of-them-in-bfc).
+ - **Respect water bonuses:** if a coast bonus would be in BFC but the site is non-coastal, apply a stronger penalty so we don’t "count" unusable sea resources. Penalty moved from **-165 → -400** (K-Mod used ~-800).
+ - **Low-food environments**: (Requires AdvCiv-SAS 5976+) evaluate food scarcity from each non-home BFC plot's natural food and food added by bonus-specific improvements (e.g., tundra is low food, peak is very low food, but if there are bonuses that give food in the site it reduces the net food-scarcity score (e.g., high tundra high fish/deer may be better than grass/plain hybrid no food from bonuses so do not discard it)). When an inland site has too much net food scarcity, **prefer coastal sites** so the city can grow instead of remaining at very low population. See [KI#32](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-the-corinth-screenshot).
+ - **Environment heuristics (non-bonus tiles):** favor sites with lots of grassland/flood plains; penalize plains/desert BFCs. For the tile you settle on, prefer hill-plains/tundra/desert; avoid settling on hill-grass/flood plains unless doing so unlocks a clearly superior multi-bonus BFC. See [KI#26](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#26---seemingly-fixed-for-the-plot-of-the-settled-city-only-in-general-the-ai-should-aim-to-settle-on-a-hill-and-avoid-settling-on-flatland-grassland-or-flood-plains-where-possible-or-during-the-first-city---city-1-when-there-is-no-good-site-yet-to-take).
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=19686

@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3901
+# Commit: 07ea5c82099a0e65938bd0b72a2bd2e4ae1a3d86
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 725a9b042f161e36577ab233ac33f1f934a392bf
+# Title: A few tweaks to hover text of player options screen
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	7	Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml b/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
+index 8e4942d96..827a103dd 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
+@@ -332,9 +332,9 @@
+ 	<!-- Info about keyboard shortcuts added -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLAYER_OPTION_NO_UNIT_CYCLING_HELP</Tag>
+-		<English>No automatic cycling between units, i.e. units remain selected after receiving an order; use [W] or [ENTER] to jump to the next unit that needs orders. K-Mod: Holding down [X] suppresses automatic unit cycling (if it is enabled).</English>
++		<English>No automatic cycling between units, i.e. units remain selected after receiving an order. K-Mod: Holding down [X] suppresses automatic unit cycling (if it is enabled).</English>
+ 		<French>Pas de cycle automatique entre les unit&#233;s.</French>
+-		<German>Kein automatischer Einheitendurchlauf, d.h. Einheiten, die einen Befehl erhalten haben, bleiben ausgew�hlt; durch Dr�cken von [W] oder [EINGABE] k�nnen Sie zur n�chsten Einheit springen, die Befehle ben�tigt. K-Mod: Der automatische Durchlauf (falls aktiviert) l�sst sich durch Halten von [X] unterbinden.</German>
++		<German>Kein automatischer Einheitendurchlauf, d.h. Einheiten, die einen Befehl erhalten haben, bleiben ausgew�hlt. K-Mod: Der automatische Durchlauf (falls aktiviert) l�sst sich durch Halten von [X] unterbinden.</German>
+ 		<Italian>Disattiva lo scorrimento automatico tra le unit&#224;</Italian>
+ 		<Spanish>Las unidades no se alternan autom&#225;ticamente.</Spanish>
+ 	</TEXT>
+@@ -401,9 +401,9 @@
+ 	<!-- advc.102 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLAYER_OPTION_SHOW_FRIENDLY_MOVES_HELP</Tag>
+-		<English>Movement animations are shown for non-hostile foreign units that enter or leave a visible tile. Recommended only in combination with [COLOR_HIGHLIGHT_TEXT]Quick Moves[COLOR_REVERT] on the "Graphics" tab. To save time, AdvCiv never shows the moves of Workers, Missionaries and Executives within their owner's borders.</English>
++		<English>Movement animations are shown for non-hostile foreign units that enter or leave a visible tile. Recommended only in combination with [COLOR_HIGHLIGHT_TEXT]Quick Moves[COLOR_REVERT] on the "Graphics" tab. To save time, AdvCiv never shows the moves of Workers, Missionaries and Executives within their owner's borders. Moreover, a stack size threshold can be set on the Map tab of the BUG menu.</English>
+ 		<French>Voir les d&#233;placements des unit&#233;s alli&#233;es entre deux tours.</French>
+-		<German>Zeigt Bewegungsanimationen an, wenn eine nicht-feindliche Einheit ein einsehbares Feld betritt oder es verl�sst. Nur in Kombination mit [COLOR_HIGHLIGHT_TEXT]Schnelle Bewegungen[COLOR_REVERT] (siehe unter "Grafik") empfohlen. Um Zeit zu sparen, zeigt AdvCiv keine Bewegungen von Bautrupps, Missionaren und Vorst�nden auf dem Gebiet ihres Besitzers an.</German>
++		<German>Zeigt Bewegungsanimationen an, wenn eine nicht-feindliche Einheit ein einsehbares Feld betritt oder es verl�sst. Nur in Kombination mit [COLOR_HIGHLIGHT_TEXT]Schnelle Bewegungen[COLOR_REVERT] (siehe unter "Grafik") empfohlen. Um Zeit zu sparen, zeigt AdvCiv keine Bewegungen von Bautrupps, Missionaren und Vorst�nden auf dem Gebiet ihres Besitzers an. Ferner k�nnen �ber das BUG-Men� Bewegungen einzelner Einheiten oder kleiner Gruppen ausgenommen werden (Reiter "Karte").</German>
+ 		<Italian>Mostra i movimenti delle unit&#224; amichevoli tra un turno e l'altro</Italian>
+ 		<Spanish>Muestra los movimientos de las unidades amistosas entre turno y turno.</Spanish>
+ 	</TEXT>
+@@ -542,9 +542,9 @@
+ 		 be in windowed mode. Instead provide some other info.-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GRAPHICOPTION_FULLSCREEN_HELP</Tag>
+-		<English>Will only take effect after a restart. Note: For windowed mode, custom dimensions can be set in CivilizationIV.ini.</English>
++		<English>Will only take effect after a restart. Note: For windowed mode, custom dimensions can be set in [COLOR_BUILDING_TEXT]CivilizationIV.ini[COLOR_REVERT].</English>
+ 		<French>D&#233;sactivez cette option pour que le jeu s'affiche dans une fen&#234;tre.</French>
+-		<German>Erst nach einem Neustart wirksam. Hinweis: Ohne Vollbild lassen sich in CivilizationIV.ini beliebige Fenstergr��en einstellen.</German>
++		<German>Erst nach einem Neustart wirksam. Hinweis: Ohne Vollbild lassen sich in [COLOR_BUILDING_TEXT]CivilizationIV.ini[COLOR_REVERT] beliebige Fenstergr��en einstellen.</German>
+ 		<Italian>Se non selezionata, il gioco verr&#224; avviato in una finestra.</Italian>
+ 		<Spanish>El juego se ejecutar&#225; en una ventana cuando no se indique lo contrario.</Spanish>
+ 	</TEXT>
+@@ -781,7 +781,7 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO_HELP</Tag>
+-		<English>On the main map, the production bar of each city shows the number of remaining production turns, and the food bar the number of turns until growth. (For the icons highlighting the cities with the highest research, gold and production rate, use the [COLOR_HIGHLIGHT_TEXT]Top Cities[COLOR_REVERT] option on the "Map" tab of the BUG menu.)</English>
++		<English>On the main map, the production bar of each city shows the number of remaining production turns, and the food bar the number of turns until growth. (For the icons highlighting the cities with the highest research, gold and production rate, use the [COLOR_HIGHLIGHT_TEXT]Top Cities[COLOR_REVERT] option on the Map tab of the BUG menu.)</English>
+ 		<French>Voir les informations d&#233;taill&#233;es de la barre des villes.</French>
+ 		<German>Auf der Hauptkarte wird in den Produktionsbalken ihrer St�dte jeweils die Anzahl der Z�ge bis zur Fertigstellung angezeigt, und auf den Nahrungsbalken die Anzahl der Z�ge bis zum Bev�lkerungszuwachs. (Die Markierungen f�r St�dte mit der h�chsten Forschungsrate, Goldrate und Produktionsrate lassen sich �ber die Option [COLOR_HIGHLIGHT_TEXT]Beste St�dte[COLOR_REVERT] unter dem Reiter "Karte" im BUG-Men� aktivieren.)</German>
+ 		<Italian>Mostra informazioni extra nella barra della citt&#224;</Italian>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=6188

@@ -1,0 +1,1222 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1413
+# Commit: 1c3d0e00941e564da4511638ed23ac5a3ab24f1a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ef40cbb8b47a2b11e4b213076d0f1cad62ad13b1
+# Title: More options moved from XML to BUG menu; minor changes to resource placement
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+27	5	Assets/Config/BUG Main Interface.xml
+15	4	Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+10	7	Assets/Python/Screens/CvMainInterface.py
+0	45	Assets/xml/GlobalDefines_advc.xml
+15	0	Assets/xml/Terrain/CIV4BonusInfos.xml
+111	18	Assets/xml/Text/BUG Main Interface Options.xml
+14	2	Assets/xml/Text/BUG Options Screen.xml
+21	0	Assets/xml/Text/CIV4GameText_advc.xml
+2	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+0	3	CvGameCoreDLL/CvGlobals.cpp
+0	3	CvGameCoreDLL/CvGlobals.h
+1	1	CvGameCoreDLL/CvPlayer.cpp
+86	169	CvGameCoreDLL/CvPlayerAI.cpp
+22	14	CvGameCoreDLL/CvPlot.cpp
+2	1	CvGameCoreDLL/CvPlot.h
+5	5	CvGameCoreDLL/CvUnit.cpp
+-	-	manual_0.94f.odt
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index 03898d627..f238ce528 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -87,11 +87,6 @@
+ 				<change module="CvCustomizableDomesticAdvisor" function="forcePositionCalc"/>
+ 			</option>
+ 			
+-			<!-- advc.004m -->
+-			<option id="StartWithResourceIcons" key="Start With Resource Icons" 
+-					type="boolean" default="True" 
+-					get="isStartWithResourceIcons"/>
+-			
+ 			<!-- City Cycle Arrows by SimCutie -->
+ 			<option id="CityArrows" key="City Cycle Arrows" 
+ 					type="boolean" default="True" 
+@@ -159,6 +154,33 @@
+ 			<!-- Simple selection, by karadoc -->
+ 			<option id="SimpleSelection" key="Simple Selection"
+ 					type="boolean" default="False"/>
++			
++			<!-- advc.004z -->
++			<option id="ScoresInGlobeView" key="Scores in Globe View" 
++					type="boolean" default="True" 
++					get="isScoresInGlobeView" dirtyBit="GlobeInfo,Score"/>
++			<!-- advc.004z -->
++			<option id="ResourceIconOptions" key="Resource Icon Options" 
++					type="boolean" default="False" 
++					get="isResourceIconOptions" dirtyBit="GlobeInfo,Score"/>
++			<!-- advc.004z -->
++			<option id="TribalVillageIcons" key="Tribal Village Icons" 
++					type="boolean" default="True" dirtyBit="GlobeLayer"/>
++			<!-- advc.004m -->
++			<option id="StartWithResourceIcons" key="Start With Resource Icons" 
++					type="boolean" default="True" 
++					get="isStartWithResourceIcons"/>
++			<!-- advc.004h -->
++			<option id="FoundingYields" key="Founding Yields" 
++					type="boolean" default="False"/>
++			<!-- advc.004h: The DLL relies on this order of the choices -->
++			<list   id="FoundingBorder" key="Founding Border" 
++					type="int" default="2" listType="string" 
++					values="None|Adjacent|City Cross" dirtyBit="ColoredPlots">
++				<choice id="None"/>
++				<choice id="Adjacent"/>
++				<choice id="CityCross"/>
++			</list>
+ 		</section>
+ 	</options>
+
+diff --git a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+index f92a1e314..0e08880aa 100644
+--- a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+@@ -20,8 +20,21 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		column = self.addOneColumnLayout(screen, panel)
+ 		
+ 		left, center, right = self.addThreeColumnLayout(screen, column, "Top", True)
+-		
+-		self.addLabel(screen, left, "StrategyOverlay", "Strategy Layer:")
++		# advc.004:
++		self.addLabel(screen, left, "Layers", "Layers:")
++		# <advc.004z>
++		self.addCheckbox(screen, left, "MainInterface__ScoresInGlobeView")
++		self.addCheckbox(screen, left, "MainInterface__ResourceIconOptions")
++		self.addCheckbox(screen, left, "MainInterface__TribalVillageIcons")
++		# </advc.004z>
++		# advc.004m:
++		self.addCheckbox(screen, left, "MainInterface__StartWithResourceIcons")
++		# <advc.004h>
++		self.addCheckbox(screen, left, "MainInterface__FoundingYields")
++		self.addTextDropdown(screen, left, left, "MainInterface__FoundingBorder")
++		# </advc.004h>
++		self.addSpacer(screen, left, "Left1") # advc.004
++		self.addLabel(screen, left, "StrategyOverlay", "Dot Map Overlay:")
+ 		self.addCheckbox(screen, left, "StrategyOverlay__Enabled")
+ 		# advc.004: Disabled; Ctrl+X should suffice.
+ 		#self.addCheckbox(screen, left, "StrategyOverlay__ShowDotMap")
+@@ -49,8 +62,6 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, right, "MainInterface__FieldOfView")
+ 		self.addCheckbox(screen, right, "MainInterface__FieldOfView_Remember", True)
+ 		self.addCheckbox(screen, right, "EventSigns__Enabled")
+-		# advc.004m:
+-		self.addCheckbox(screen, right, "MainInterface__StartWithResourceIcons")
+ 		
+ 		#self.addCheckbox(screen, right, "Actions__IgnoreHarmlessBarbarians")
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index a967287fd..ecc27dbb6 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1304,7 +1304,7 @@ class CvMainInterface:
+ 			CyInterface().setDirty(InterfaceDirtyBits.GlobeInfo_DIRTY_BIT, False)
+ 			self.updateGlobeviewButtons()
+ 			# <advc.004z>
+-			if gc.getDefineINT("SHOW_SCORE_IN_GLOBE_VIEW") > 0:
++			if MainOpt.isScoresInGlobeView():
+ 				# Show/hide scoreboard depending on whether the layer has options
+ 				self.updateScoreStrings() # </advc.004z>
+ 
+@@ -4987,10 +4987,10 @@ class CvMainInterface:
+ 			kGLM = CyGlobeLayerManager()
+ 			iCurrentLayerID = kGLM.getCurrentLayerID()
+ 			# Copy-pasted from updateGlobeviewButtons
+-			bGlobeViewOptions = (iCurrentLayerID != -1 and kGLM.getLayer(iCurrentLayerID).getNumOptions() != 0 and (gc.getDefineINT("SHOW_RESOURCE_LAYER_OPTIONS") > 0 or kGLM.getLayer(iCurrentLayerID).getName() != "RESOURCES") and (gc.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") > 0 or kGLM.getLayer(iCurrentLayerID).getName() != "UNITS"))
++			bGlobeViewOptions = (iCurrentLayerID != -1 and kGLM.getLayer(iCurrentLayerID).getNumOptions() != 0 and (MainOpt.isResourceIconOptions() or kGLM.getLayer(iCurrentLayerID).getName() != "RESOURCES") and (gc.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") > 0 or kGLM.getLayer(iCurrentLayerID).getName() != "UNITS"))
+ 			# </advc.004z>
+ 			# advc.004z: Globe view options clause added
+-			if CyInterface().isScoresVisible() and not CyInterface().isCityScreenUp() and (not CyEngine().isGlobeviewUp() or (not bGlobeViewOptions and gc.getDefineINT("SHOW_SCORE_IN_GLOBE_VIEW") > 0)):
++			if CyInterface().isScoresVisible() and not CyInterface().isCityScreenUp() and (not CyEngine().isGlobeviewUp() or (not bGlobeViewOptions and MainOpt.isScoresInGlobeView())):
+ 
+ # BUG - Align Icons - start
+ 				bAlignIcons = ScoreOpt.isAlignIcons()
+@@ -5420,8 +5420,11 @@ class CvMainInterface:
+ 		#iNumLayers = kGLM.getNumLayers() # advc.003: unused
+ 		if kEngine.isGlobeviewUp() and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL:
+ 			# set up panel
+-			# advc.004z: Clauses for RESOURCES and UNITS added. Would rather set NumOptions to 0, but GlobeLayerManager is not part of the SDK, apparently.
+-			if iCurrentLayerID != -1 and kGLM.getLayer(iCurrentLayerID).getNumOptions() != 0 and (gc.getDefineINT("SHOW_RESOURCE_LAYER_OPTIONS") > 0 or kGLM.getLayer(iCurrentLayerID).getName() != "RESOURCES") and (gc.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") > 0 or kGLM.getLayer(iCurrentLayerID).getName() != "UNITS"):
++			# <advc.004z>
++			bUnitLayer = (kGLM.getLayer(iCurrentLayerID).getName() == "UNITS")
++			# Clauses for RESOURCES and UNITS added. Would rather set NumOptions to 0, but GlobeLayerManager is not part of the SDK, apparently.
++			if iCurrentLayerID != -1 and kGLM.getLayer(iCurrentLayerID).getNumOptions() != 0 and (MainOpt.isResourceIconOptions() or kGLM.getLayer(iCurrentLayerID).getName() != "RESOURCES") and (gc.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") > 0 or not bUnitLayer):
++				# </advc.004z>
+ 				bHasOptions = True		
+ 			else:
+ 				bHasOptions = False
+@@ -5446,12 +5449,12 @@ class CvMainInterface:
+ 				for iTmp in range(iNumOptions):
+ 					iOption = iTmp # iNumOptions - iTmp - 1
+ 					# <advc.004z> Skip dummy option (see CvEnums.h)
+-					if iOption == 2:
++					if bUnitLayer and iOption == 2:
+ 						continue # </advc.004z>
+ 					szName = "GlobeLayerOption" + str(iOption)
+ 					szCaption = kLayer.getOptionName(iOption)
+ 					# advc.004z: Highlight "All Units" option when the default (2) is selected. This is the case when none of the options has been clicked yet.
+-					if iOption == iCurOption or (iCurOption == 2 and iOption == 0):
++					if iOption == iCurOption or (bUnitLayer and iCurOption == 2 and iOption == 0):
+ 						szBuffer = "  <color=0,255,0>%s</color>  " % (szCaption)
+ 					else:
+ 						szBuffer = "  %s  " % (szCaption)
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index ee6786e6a..18278cc0b 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -873,25 +873,6 @@
+ 	</Define>
+ 	
+ 	<!-- [advc.004z] -->
+-	<!-- If set to 1, the scoreboard remains visible in Globe view when a layer
+-		 is selected that has no options to display. E.g. the BUG Strategy
+-		 layer has options for drawing lines etc., so there is no room for the
+-		 scoreboard, whereas e.g. the Culture layer has no such options.
+-		 0 (BtS behavior) means that the scoreboard is never shown in
+-		 Globe View. -->
+-	<Define>
+-		<DefineName>SHOW_SCORE_IN_GLOBE_VIEW</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
+-	</Define>
+-	<!-- If set to 0, no options are shown for the Resource layer; all types of
+-		 resources are indicated on the map. If set to 1 (BtS behavior),
+-		 options for displaying only happiness, health or strategic resources
+-		 are shown when in Globe view (meaning also that there is no room for
+-		 the scoreboard). -->
+-	<Define>
+-		<DefineName>SHOW_RESOURCE_LAYER_OPTIONS</DefineName>
+-		<iDefineIntVal>0</iDefineIntVal>
+-	</Define>
+ 	<!-- If set to 0, no options are shown for the Unit layer; all units are
+ 		 indicated on the map. If set to 1 (BtS behavior), options
+ 		 for displaying e.g. only domestic or hostile units are shown
+@@ -916,14 +897,6 @@
+ 		<DefineName>CONNECTION_TO_CAPITAL_ON_TRADE_LAYER</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- If set to 1, and unit action recommendations are disabled, the
+-		 Resource layer highlights Tribal Villages in addition to resources
+-		 when showing "All Resources". If set to 0 (BtS behavior), the Resource
+-		 layer never highlights Tribal Villages. -->
+-	<Define>
+-		<DefineName>SHOW_GOODY_HUTS_ON_RESOURCE_LAYER</DefineName>
+-		<iDefineIntVal>1</iDefineIntVal>
+-	</Define>
+ 
+ 	<!-- advc.210a: If set to 1 and if the War Trades alert is enabled, a
+ 		 message is shown when a civ can no longer be convinced to start a war
+@@ -937,24 +910,6 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	
+-	<!-- advc.004h: This setting controls the borders shown around a selected
+-		 Settler. Recommended: 0; BtS behavior: 1.
+-		 0: The full city radius ("big fat cross") is highlighted.
+-		 1: Only the inner ring of the city radius is highlighted.
+-		 2: No tiles are highlighted. -->
+-	<Define>
+-		<DefineName>FOUNDING_BORDER_MODE</DefineName>
+-		<iDefineIntVal>0</iDefineIntVal>
+-	</Define>
+-	
+-	<!-- advc.004h: If set to 1 (BtS) behavior, yield icons are shown whenever
+-		 a Settler is selected. If set to 0 (recommended), yield icons are only
+-		 shown if "Yield Display" is enabled above the mini-map. -->
+-	<Define>
+-		<DefineName>FOUNDING_SHOW_YIELDS</DefineName>
+-		<iDefineIntVal>0</iDefineIntVal>
+-	</Define>
+-	
+ 	<!-- advc.120f: When a spy switches the civics or religion of a target civ,
+ 		 third parties that know the target are notified of the spy mission
+ 		 (without revealing the spy owner).
+
+diff --git a/Assets/xml/Terrain/CIV4BonusInfos.xml b/Assets/xml/Terrain/CIV4BonusInfos.xml
+index 8454f7d1f..cd95fc952 100644
+--- a/Assets/xml/Terrain/CIV4BonusInfos.xml
++++ b/Assets/xml/Terrain/CIV4BonusInfos.xml
+@@ -632,11 +632,16 @@
+ 					<bFeature>1</bFeature>
+ 				</FeatureBoolean>
+ 			</FeatureBooleans>
++			<!-- advc.021a: Plains Jungle added -->
+ 			<FeatureTerrainBooleans>
+ 				<FeatureTerrainBoolean>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+ 					<bFeatureTerrain>1</bFeatureTerrain>
+ 				</FeatureTerrainBoolean>
++				<FeatureTerrainBoolean>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<bFeatureTerrain>1</bFeatureTerrain>
++				</FeatureTerrainBoolean>
+ 			</FeatureTerrainBooleans>
+ 		</BonusInfo>
+ 		<BonusInfo>
+@@ -1510,11 +1515,16 @@
+ 					<bFeature>1</bFeature>
+ 				</FeatureBoolean>
+ 			</FeatureBooleans>
++			<!-- advc.021a: Plains Jungle added -->
+ 			<FeatureTerrainBooleans>
+ 				<FeatureTerrainBoolean>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+ 					<bFeatureTerrain>1</bFeatureTerrain>
+ 				</FeatureTerrainBoolean>
++				<FeatureTerrainBoolean>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<bFeatureTerrain>1</bFeatureTerrain>
++				</FeatureTerrainBoolean>
+ 			</FeatureTerrainBooleans>
+ 		</BonusInfo>
+ 		<BonusInfo>
+@@ -1749,11 +1759,16 @@
+ 					<bFeature>1</bFeature>
+ 				</FeatureBoolean>
+ 			</FeatureBooleans>
++			<!-- advc.021a: Plains Jungle added -->
+ 			<FeatureTerrainBooleans>
+ 				<FeatureTerrainBoolean>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+ 					<bFeatureTerrain>1</bFeatureTerrain>
+ 				</FeatureTerrainBoolean>
++				<FeatureTerrainBoolean>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<bFeatureTerrain>1</bFeatureTerrain>
++				</FeatureTerrainBoolean>
+ 			</FeatureTerrainBooleans>
+ 		</BonusInfo>
+ 		<BonusInfo>
+
+diff --git a/Assets/xml/Text/BUG Main Interface Options.xml b/Assets/xml/Text/BUG Main Interface Options.xml
+index bbda5f620..9da48d154 100644
+--- a/Assets/xml/Text/BUG Main Interface Options.xml	
++++ b/Assets/xml/Text/BUG Main Interface Options.xml	
+@@ -241,24 +241,6 @@
+ 		<Spanish>Muestra un segundo par de botones +/- buttons que permiten fijar la producci�n a 100% y 0% respectivamente.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.004m -->
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STARTWITHRESOURCEICONS_TEXT</Tag>
+-		<English>Start with Resource Icons</English>
+-		<French>Symboles de ressources au d�but du jeu</French>
+-		<German>Ressourcensymbole bei Spielstart</German>
+-		<Italian>Mostra risorse all'inizio del gioco</Italian>
+-		<Spanish>Muestra recursos al inicio del juego</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STARTWITHRESOURCEICONS_HOVER</Tag>
+-		<English>When checked, the Resource Display (indicator "bubbles") is enabled at the start of every new game. Otherwise, the Resource Display is disabled at game start.</English>
+-		<French>Active l'affichage des ressources au d�but du jeu.</French>
+-		<German>Aktiviert die Ressourcenanzeige zu Spielbeginn.</German>
+-		<Italian>Abilita la segnalazione delle risorse all'inizio del gioco.</Italian>
+-		<Spanish>Activa las marcas de recursos al inicio del juego.</Spanish>
+-	</TEXT>
+-	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__CITYARROWS_TEXT</Tag>
+ 		<English>City Cycle Arrows</English>
+@@ -541,4 +523,115 @@
+ 		<Italian>When checked, selecting units with the [Shift] key will only ever add a single unit at a time.</Italian>
+ 		<Spanish>Activada, seleccionando unidades con la tecla [May�s] s�lo a�adir una unidad cada vez.</Spanish>
+ 	</TEXT>
++	
++	<!-- advc.004z -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SCORESINGLOBEVIEW_TEXT</Tag>
++		<English>Scores in Globe View</English>
++		<French>Scores in Globe View</French>
++		<German>Punteanzeige in Globalansicht</German>
++		<Italian>Scores in Globe View</Italian>
++		<Spanish>Scores in Globe View</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SCORESINGLOBEVIEW_HOVER</Tag>
++		<English>When checked, the scoreboard remains visible in Globe View so long as no layer options need to be displayed. (E.g. the Strategy layer has options for drawing lines, leaving no room for the scoreboard.) If not checked, the scoreboard is never visible in Globe View (like in BtS).</English>
++		<French>When checked, the scoreboard remains visible in Globe View so long as no layer options need to be displayed. (E.g. the Strategy layer has options for drawing lines, leaving no room for the scoreboard.) If not checked, the scoreboard is never visible in Globe View (like in BtS).</French>
++		<German>Zeigt in der Globalansicht die Punktest�nde der Spieler an, sofern der Platz nicht f�r Optionen ben�tigt wird. (Die Strategieansicht z.B. hat Optionen zum Einzeichnen von Linien.)</German>
++		<Italian>When checked, the scoreboard remains visible in Globe View so long as no layer options need to be displayed. (E.g. the Strategy layer has options for drawing lines, leaving no room for the scoreboard.) If not checked, the scoreboard is never visible in Globe View (like in BtS).</Italian>
++		<Spanish>When checked, the scoreboard remains visible in Globe View so long as no layer options need to be displayed. (E.g. the Strategy layer has options for drawing lines, leaving no room for the scoreboard.) If not checked, the scoreboard is never visible in Globe View (like in BtS).</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__RESOURCEICONOPTIONS_TEXT</Tag>
++		<English>Resource Filters</English>
++		<French>Resource Filters</French>
++		<German>Ressourcenfilter</German>
++		<Italian>Resource Filters</Italian>
++		<Spanish>Resource Filters</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__RESOURCEICONOPTIONS_HOVER</Tag>
++		<English>Shows filter options "Food", "Luxuries" and "General" when the Resource Display is enabled in Globe View. When unchecked, the Resource Display always highlights all resources and no options are shown, leaving space for the scoreboard.</English>
++		<French>Shows filter options "Food", "Luxuries" and "General" when the Resource Display is enabled in Globe View. When unchecked, the Resource Display always highlights all resources and no options are shown, leaving space for the scoreboard.</French>
++		<German>Zeigt Filter-Optionen "Nahrung", "Luxusg�ter" und "Allgemein" an, wenn die Ressourcenanzeige und die Globalansicht aktiviert sind. Ansonsten werden die Ressourcen stets ungefiltert angezeigt, und an Stelle der Filter-Optionen ist Platz f�r die Punkteanzeige.</German>
++		<Italian>Shows filter options "Food", "Luxuries" and "General" when the Resource Display is enabled in Globe View. When unchecked, the Resource Display always highlights all resources and no options are shown, leaving space for the scoreboard.</Italian>
++		<Spanish>Shows filter options "Food", "Luxuries" and "General" when the Resource Display is enabled in Globe View. When unchecked, the Resource Display always highlights all resources and no options are shown, leaving space for the scoreboard.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TRIBALVILLAGEICONS_TEXT</Tag>
++		<English>Tribal Village Icons</English>
++		<French>Tribal Village Icons</French>
++		<German>Stammesd�rfer markieren</German>
++		<Italian>Tribal Village Icons</Italian>
++		<Spanish>Tribal Village Icons</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TRIBALVILLAGEICONS_HOVER</Tag>
++		<English>When checked, the Resource Display highlights Tribal Villages in addition to resources. However, Tribal Villages are never highlighted by the Resource Display if [COLOR_HIGHLIGHT_TEXT]Unit Action Recommendations[COLOR_REVERT] (Ctrl + O) are enabled. (Because that setting also highlights Tribal Villages.)</English>
++		<French>When checked, the Resource Display highlights Tribal Villages in addition to resources. However, Tribal Villages are never highlighted by the Resource Display if [COLOR_HIGHLIGHT_TEXT]Unit Action Recommendations[COLOR_REVERT] (Ctrl + O) are enabled. (Because that setting also highlights Tribal Villages.)</French>
++		<German>Markiert zus�tzlich zu Ressourcen auch Stammesd�rfer, wenn die Ressourcenanzeige aktiv ist. Ausnahme: Die Ressourcenanzeige markiert keine Stammesd�rfer, wenn [COLOR_HIGHLIGHT_TEXT]Einheitenempfehlungen[COLOR_REVERT] (Strg + O) eingeschaltet ist, da diese Option ebenfalls Stammesd�rfer hervorhebt.</German>
++		<Italian>When checked, the Resource Display highlights Tribal Villages in addition to resources. However, Tribal Villages are never highlighted by the Resource Display if [COLOR_HIGHLIGHT_TEXT]Unit Action Recommendations[COLOR_REVERT] (Ctrl + O) are enabled. (Because that setting also highlights Tribal Villages.)</Italian>
++		<Spanish>When checked, the Resource Display highlights Tribal Villages in addition to resources. However, Tribal Villages are never highlighted by the Resource Display if [COLOR_HIGHLIGHT_TEXT]Unit Action Recommendations[COLOR_REVERT] (Ctrl + O) are enabled. (Because that setting also highlights Tribal Villages.)</Spanish>
++	</TEXT>
++	
++	<!-- advc.004h -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__FOUNDINGYIELDS_TEXT</Tag>
++		<English>Founding Yields</English>
++		<French>Founding Yields</French>
++		<German>Siedler-Ertragsanzeige</German>
++		<Italian>Founding Yields</Italian>
++		<Spanish>Founding Yields</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__FOUNDINGYIELDS_HOVER</Tag>
++		<English>When checked, yield icons are shown on the map whenever a Settler unit is selected (like in BtS). Otherwise, yield icons are only shown when the Yield Display (above the mini map) is enabled.[NEWLINE]This option should not be toggled while a Settler unit is selected.</English>
++		<French>When checked, yield icons are shown on the map whenever a Settler unit is selected (like in BtS). Otherwise, yield icons are only shown when the Yield Display (above the mini map) is enabled.[NEWLINE]This option should not be toggled while a Settler unit is selected.</French>
++		<German>Zeigt (wie in BtS) Gel�ndeertr�ge auf der Hauptkarte an, wenn eine Siedlereinheit ausgew�hlt ist. Wenn diese Option nicht angekreuzt ist, werden Gel�ndeertr�ge nur dann angezeigt, wenn die Ertragsanzeige (oberhalb der �bersichtskarte) aktiviert wurde.[NEWLINE]Beim �ndern dieser Option sollte kein Siedler ausgew�hlt sein.</German>
++		<Italian>When checked, yield icons are shown on the map whenever a Settler unit is selected (like in BtS). Otherwise, yield icons are only shown when the Yield Display (above the mini map) is enabled.[NEWLINE]This option should not be toggled while a Settler unit is selected.</Italian>
++		<Spanish>When checked, yield icons are shown on the map whenever a Settler unit is selected (like in BtS). Otherwise, yield icons are only shown when the Yield Display (above the mini map) is enabled.[NEWLINE]This option should not be toggled while a Settler unit is selected.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__FOUNDINGBORDER_TEXT</Tag>
++		<English>Founding Border</English>
++		<French>Founding Border</French>
++		<German>Siedler-Grenzanzeige</German>
++		<Italian>Founding Border</Italian>
++		<Spanish>Founding Border</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__FOUNDINGBORDER_HOVER</Tag>
++		<English>Whether to show borders around a selected Settler unit and, if yes, whether to show them only around [COLOR_HIGHLIGHT_TEXT]adjacent[COLOR_REVERT] tiles (inner ring, as in BtS) or around the full city radius ("big fat" [COLOR_HIGHLIGHT_TEXT]city cross[COLOR_REVERT]).</English>
++		<French>Whether to show borders around a selected Settler unit and, if yes, whether to show them only around [COLOR_HIGHLIGHT_TEXT]adjacent[COLOR_REVERT] tiles (inner ring, as in BtS) or around the full city radius ("big fat" [COLOR_HIGHLIGHT_TEXT]city cross[COLOR_REVERT]).</French>
++		<German>Ob um eine ausgew�hlte Siedlereinheit Stadtgrenzen eingeblendet werden sollen und, wenn ja, ob die Grenzen (wie in BtS) nur benachbarte Felder ([COLOR_HIGHLIGHT_TEXT]innerer Ring[COLOR_REVERT]) einschlie�en sollen oder den gesamten Stadtradius ([COLOR_HIGHLIGHT_TEXT]Stadtkreuz[COLOR_REVERT]).</German>
++		<Italian>Whether to show borders around a selected Settler unit and, if yes, whether to show them only around [COLOR_HIGHLIGHT_TEXT]adjacent[COLOR_REVERT] tiles (inner ring, as in BtS) or around the full city radius ("big fat" [COLOR_HIGHLIGHT_TEXT]city cross[COLOR_REVERT]).</Italian>
++		<Spanish>Whether to show borders around a selected Settler unit and, if yes, whether to show them only around [COLOR_HIGHLIGHT_TEXT]adjacent[COLOR_REVERT] tiles (inner ring, as in BtS) or around the full city radius ("big fat" [COLOR_HIGHLIGHT_TEXT]city cross[COLOR_REVERT]).</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__FOUNDINGBORDER_LIST</Tag>
++		<English>None|Adjacent|City Cross</English>
++		<French>None|Adjacent|City Cross</French>
++		<German>Keine|Innerer Ring|Stadtkreuz</German>
++		<Italian>None|Adjacent|City Cross</Italian>
++		<Spanish>None|Adjacent|City Cross</Spanish>
++	</TEXT>
++	
++	<!-- advc.004m -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STARTWITHRESOURCEICONS_TEXT</Tag>
++		<English>Start with Resource Display</English>
++		<French>Symboles de ressources au d�but du jeu</French>
++		<German>Ressourcenanzeige bei Spielstart</German>
++		<Italian>Mostra risorse all'inizio del gioco</Italian>
++		<Spanish>Muestra recursos al inicio del juego</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STARTWITHRESOURCEICONS_HOVER</Tag>
++		<English>When checked, the Resource Display is enabled at the start of every new game. Otherwise, the Resource Display is disabled at game start.</English>
++		<French>Active l'affichage des ressources au d�but du jeu.</French>
++		<German>Aktiviert die Ressourcenanzeige zu Spielbeginn.</German>
++		<Italian>Abilita la segnalazione delle risorse all'inizio del gioco.</Italian>
++		<Spanish>Activa las marcas de recursos al inicio del juego.</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/BUG Options Screen.xml b/Assets/xml/Text/BUG Options Screen.xml
+index 11914195f..63afa6d24 100644
+--- a/Assets/xml/Text/BUG Options Screen.xml	
++++ b/Assets/xml/Text/BUG Options Screen.xml	
+@@ -192,6 +192,18 @@
+ 		<Italian>Mappa</Italian>
+ 		<Spanish>Mapa</Spanish>
+ 	</TEXT>
++	<!-- advc.004: New heading. The labels of the layer buttons say "display,"
++		 e.g. "Resource Display", but that's a confusing heading (the
++		 screen/monitor is also a "display"). "Views" is also too general. -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPTLABEL_LAYERS</Tag>
++		<English>Layers:</English>
++		<French>Layers:</French>
++		<German>Ansichten:</German>
++		<Italian>Layers:</Italian>
++		<Spanish>Layers:</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.004: The Strategy layer (Globe view) is really a separate thing -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_STRATEGYOVERLAY</Tag>
+@@ -335,12 +347,12 @@
+ 	</TEXT>
+ 	
+ 	<!-- City Screen Tab -->
+-	
++	<!-- advc.004: German shortened -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTTAB_CITYSCREEN</Tag>
+ 		<English>City Screen</English>
+ 		<French>City Screen</French>
+-		<German>Stadt-Bildschirm</German>
++		<German>Stadt</German>
+ 		<Italian>Citt&#224;</Italian>
+ 		<Spanish>Pantalla de Ciudad</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 3c6764cd8..54f414ad6 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -1179,6 +1179,27 @@
+ 		<Italian>Abilita/disabilita la 'Finestra dei punteggi'</Italian>
+ 		<Spanish>Activar visor de puntuaciones</Spanish>
+ 	</TEXT>
++	<!-- From CIV4GameText_Misc1.xml. Tooltip of the Globe View button.
++		 Said that Globe View "Brings up detailed information about your game's
++		 world." -->
++	<TEXT>
++		<Tag>TXT_KEY_GLOBEVIEW_TOGGLE</Tag>
++		<English>Zooms out to show the Globe (or back in)</English>
++		<French>Informations d&#233;taill&#233;es sur le monde du jeu.</French>
++		<German>Herauszoomen in die Globalansicht (oder wieder heranzoomen)</German>
++		<Italian>Informazioni dettagliate sul mondo della partita.</Italian>
++		<Spanish>Hace que aparezca informaci&#243;n detallada sobre el mundo de la partida.</Spanish>
++	</TEXT>
++	<!-- From CIV4GameText_Help.xml; shortened to fit in one line even with the
++		 larger font (advc.002b) -->
++	<TEXT>
++		<Tag>TXT_KEY_ACTION_YIELDS_HELP</Tag>
++		<English>Toggle Food/Production/Commerce icons</English>
++		<French>Alterner entre l'affichage des ic&#244;nes Nourriture / Production / Commerce</French>
++		<German>Nahrungs-/Produktions-/Wirtschaftssymbole ein-/ausblenden</German>
++		<Italian>Attiva/disattiva la visibilit&#224; delle icone Cibo/Produzione/Commercio.</Italian>
++		<Spanish>Activa la visibilidad de iconos de alimentos / producci&#243;n / comercio</Spanish>
++	</TEXT>
+ 	
+ 	<!-- advc.004z: Originally in CIV4GameText_Misc1.xml. Romanic translations
+ 		 based on TXT_KEY_GLOBELAYER_UNITS_ENEMYMILITARY. -->
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index b95db5e42..b7cef473d 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3065,7 +3065,8 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 					{
+ 						if (kImprov.getImprovementBonusDiscoverRand(iI) > 0
+ 								// advc.rom3:
+-								&& kMissionPlot.canHaveBonus(eRandBonus))
++								&& kMissionPlot.canHaveBonus(eRandBonus, false,
++								true)) // advc.129
+ 						{
+ 							szFirstBuffer.Format(L"%s%s", NEWLINE,
+ 									gDLL->getText("TXT_KEY_ACTION_CHANCE_DISCOVER").c_str());
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 56171c54d..6a5b931a2 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -170,7 +170,6 @@ m_iENABLE_005F(0), // advc.005f
+ m_iPER_PLAYER_MESSAGE_CONTROL_LOG(0), // advc.007
+ m_iUWAI_MULTI_WAR_RELUCTANCE(0), // advc.104
+ m_iCITY_TRADE_CULTURE_THRESH(0), // advc.122
+-m_iFOUNDING_SHOW_YIELDS(0), // advc.004h
+ m_iMINIMAP_WATER_MODE(0), // advc.002a
+ m_iDELAY_UNTIL_BUILD_DECAY(0), // advc.011
+ m_iBASE_RESEARCH_RATE(0), // advc.910
+@@ -2706,8 +2705,6 @@ void CvGlobals::cacheGlobals()
+ 	m_iUWAI_MULTI_WAR_RELUCTANCE = getDefineINT("UWAI_MULTI_WAR_RELUCTANCE");
+ 	// advc.122:
+ 	m_iCITY_TRADE_CULTURE_THRESH = GC.getDefineINT("CITY_TRADE_CULTURE_THRESH");
+-	// advc.004h:
+-	m_iFOUNDING_SHOW_YIELDS = GC.getDefineINT("FOUNDING_SHOW_YIELDS");
+ 	// advc.002a:
+ 	m_iMINIMAP_WATER_MODE = GC.getDefineINT("MINIMAP_WATER_MODE");
+ 	// advc.011:
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index fec0b6c41..457618e89 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -720,8 +720,6 @@ public:
+ 	inline int getUWAI_MULTI_WAR_RELUCTANCE() { return m_iUWAI_MULTI_WAR_RELUCTANCE; }
+ 	// advc.122:
+ 	inline int getCITY_TRADE_CULTURE_THRESH() { return m_iCITY_TRADE_CULTURE_THRESH; }
+-	// advc.004h:
+-	inline int getFOUNDING_SHOW_YIELDS() { return m_iFOUNDING_SHOW_YIELDS; }
+ 	// advc.002a:
+ 	inline int getMINIMAP_WATER_MODE() { return m_iMINIMAP_WATER_MODE; }
+ 	// advc.011:
+@@ -1193,7 +1191,6 @@ protected:
+ 	int m_iPER_PLAYER_MESSAGE_CONTROL_LOG; // advc.007
+ 	int m_iUWAI_MULTI_WAR_RELUCTANCE; // advc.104
+ 	int m_iCITY_TRADE_CULTURE_THRESH; // advc.122
+-	int m_iFOUNDING_SHOW_YIELDS; // advc.004h
+ 	int m_iMINIMAP_WATER_MODE; // advc.002a
+ 	int m_iDELAY_UNTIL_BUILD_DECAY; // advc.011
+ 	int m_iBASE_RESEARCH_RATE; // advc.910
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index f0b1bf093..e1c3f5efc 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -24490,7 +24490,7 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption, std
+ 		ImprovementTypes impr = NO_IMPROVEMENT; 
+ 		if(!bOfInterest && eOption == SHOW_ALL_RESOURCES &&
+ 				isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) &&
+-				GC.getDefineINT("SHOW_GOODY_HUTS_ON_RESOURCE_LAYER") > 0) {
++				getBugOptionBOOL("MainInterface__TribalVillageIcons", true)) {
+ 			impr = pLoopPlot->getRevealedImprovementType(getTeam(), false);
+ 			bOfInterest = (impr != NO_IMPROVEMENT && GC.getImprovementInfo(impr).
+ 					isGoody());
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 4612195e2..d191c2efc 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12841,10 +12841,9 @@ int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled,
+ 	}
+ 	iTradeVal = ::round(4 / std::sqrt((double)std::max(1, std::max(iSurplus,
+ 			2 * (iBonusCount + iChange))))); // </advc.036>
+-	if (iChange == 0 || (iChange == 1 && iBonusCount == 0) || (iChange == -1 && iBonusCount == 1)
++	if(iChange == 0 || (iChange == 1 && iBonusCount == 0) || (iChange == -1 && iBonusCount == 1)
+ 			// advc.036: Cover all strange cases here
+-			|| iChange + iBonusCount < 1)
+-	{
++			|| iChange + iBonusCount < 1) {
+ 		//This is assuming the none-to-one or one-to-none case.
+ 		iValue += AI_baseBonusVal(eBonus,
+ 				bTrade); // advc.036
+@@ -12853,8 +12852,7 @@ int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled,
+ 		if(!bTrade)
+ 			iValue = std::max(iValue, iTradeVal); // advc.036
+ 		// K-Mod.
+-		if (!bAssumeEnabled)
+-		{
++		if(!bAssumeEnabled) {
+ 			// Decrease the value if there is some tech reason for not having the bonus..
+ 			const CvTeam& kTeam = GET_TEAM(getTeam());
+ 			//if (!kTeam.isBonusRevealed(eBonus))
+@@ -12866,8 +12864,7 @@ int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled,
+ 		}
+ 		// K-Mod end
+ 	}
+-	else
+-	{
++	else {
+ 		iValue += AI_corporationBonusVal(eBonus,
+ 				true); // advc.036
+ 		//This is basically the marginal value of an additional instance of a bonus.
+@@ -12882,8 +12879,8 @@ int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled,
+ //Value sans corporation
+ // (K-Mod note: very vague units. roughly 4x gold / turn / city.)
+ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+-		bool bTrade) const // advc.036
+-{
++		bool bTrade) const { // advc.036
++
+ 	// advc.003: Reduced indentation throughout this function
+ 	//recalculate if not defined
+ 	if(!bTrade && // advc.036
+@@ -12990,34 +12987,26 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 	// find the first coastal city
+ 	CvCity* pCoastalCity = NULL;
+ 	CvCity* pUnconnectedCoastalCity = NULL;
+-	if (iCoastalCityCount > 0)
+-	{
++	if(iCoastalCityCount > 0) {
+ 		int iLoop;
+-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+-		{
++		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL;
++				pLoopCity = nextCity(&iLoop)) {
+ 			if(!pLoopCity->isCoastal())
+ 				continue;
+-			if (pLoopCity->isConnectedToCapital(getID()))
+-			{
++			if(pLoopCity->isConnectedToCapital(getID())) {
+ 				pCoastalCity = pLoopCity;
+ 				break;
+ 			}
+ 			else if (pUnconnectedCoastalCity == NULL)
+-			{
+ 				pUnconnectedCoastalCity = pLoopCity;
+-			}
+ 		}
+ 	}
+-	if (pCoastalCity == NULL && pUnconnectedCoastalCity != NULL)
+-	{
++	if(pCoastalCity == NULL && pUnconnectedCoastalCity != NULL)
+ 		pCoastalCity = pUnconnectedCoastalCity;
+-	}
+-
+-
+-	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+-	{
+-		UnitTypes eLoopUnit = ((UnitTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(iI)));
+ 
++	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++) {
++		UnitTypes eLoopUnit = (UnitTypes)GC.getCivilizationInfo(
++				getCivilizationType()).getCivilizationUnits(iI);
+ 		if(eLoopUnit == NO_UNIT)
+ 			continue;
+ 		CvUnitInfo& kLoopUnit = GC.getUnitInfo(eLoopUnit);
+@@ -13034,22 +13023,15 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 				::round(12 * std::pow((double)kLoopUnit.getPowerValue(), 0.5)));
+ 				// </advc.031>
+ 		int iUnitValue = 0;
+-		if (kLoopUnit.getPrereqAndBonus() == eBonus)
+-		{
++		if(kLoopUnit.getPrereqAndBonus() == eBonus)
+ 			iUnitValue = iBaseValue;
+-		}
+-		else
+-		{
++		else {
+ 			int iOrBonuses = 0;
+ 			int iOrBonusesWeHave = 0; // excluding eBonus itself. (disabled for now. See comments below.)
+ 			bool bOrBonus = false; // is eBonus one of the OrBonuses for this unit.
+-
+-			for (int iJ = 0; iJ < GC.getNUM_UNIT_PREREQ_OR_BONUSES(); iJ++)
+-			{
++			for(int iJ = 0; iJ < GC.getNUM_UNIT_PREREQ_OR_BONUSES(); iJ++) {
+ 				BonusTypes ePrereqBonus = (BonusTypes)kLoopUnit.getPrereqOrBonuses(iJ);
+-
+-				if (ePrereqBonus != NO_BONUS)
+-				{
++				if(ePrereqBonus != NO_BONUS) {
+ 					iOrBonuses++;
+ 					// advc.036: Uncommented. Should be fine now.
+ 					iOrBonusesWeHave += (ePrereqBonus != eBonus &&
+@@ -13061,22 +13043,19 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 					bOrBonus = bOrBonus || ePrereqBonus == eBonus;
+ 				}
+ 			}
+-			if (bOrBonus)
+-			{
++			if(bOrBonus) {
+ 				// 1: 1, 2: 2/3, 3: 1/2, ...
+ 				iUnitValue = iBaseValue * 2 / (1+iOrBonuses+2*iOrBonusesWeHave);
+ 			}
+ 		}
+ 		bool bCanTrain = false;
+-		if (iUnitValue > 0)
+-		{
++		if(iUnitValue > 0) {
+ 			// devalue the unit if we wouldn't be able to build it anyway
+-			if (canTrain(eLoopUnit))
+-			{
++			if(canTrain(eLoopUnit)) {
+ 				bCanTrain = true;
+ 				/*  is it a water unit and no coastal cities or our coastal city
+ 					cannot build because it's obsolete */
+-				if ((kLoopUnit.getDomainType() == DOMAIN_SEA &&
++				if((kLoopUnit.getDomainType() == DOMAIN_SEA &&
+ 						(pCoastalCity == NULL ||
+ 						pCoastalCity->allUpgradesAvailable(eLoopUnit,
+ 						0, eBonus) // advc.001u
+@@ -13089,8 +13068,7 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 						!= NO_UNIT))
+ 					iUnitValue = 0; // its worthless
+ 			}
+-			else
+-			{
++			else {
+ 				// there is some other reason why we can't build it. (maybe the unit is maxed out, or maybe we don't have the techs)
+ 				iUnitValue /= 2;
+ 				/*  <advc.036> Evaluation for trade should be short-term; if we
+@@ -13107,21 +13085,17 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 				} // </advc.036>
+ 			}
+ 		}
+-		if (iUnitValue > 0)
+-		{
++		if(iUnitValue > 0) {
+ 			// devalue units for which we already have a better replacement.
+ 			UnitAITypes eDefaultAI = (UnitAITypes)kLoopUnit.getDefaultUnitAIType();
+ 			int iNewTypeValue = AI_unitValue(eLoopUnit, eDefaultAI, 0);
+ 			int iBestTypeValue = AI_bestAreaUnitAIValue(eDefaultAI, 0);
+-			if (iBestTypeValue > 0)
+-			{
++			if(iBestTypeValue > 0) {
+ 				int iNewValue = AI_unitValue(eLoopUnit, eDefaultAI, 0);
+ 				iUnitValue = iUnitValue * std::max(0, std::min(100, 120*iNewValue / iBestTypeValue - 20)) / 100;
+ 			}
+-
+ 			// devalue units which are related to our current era. (but not if it is still our best unit!)
+-			if (kLoopUnit.getPrereqAndTech() != NO_TECH)
+-			{
++			if(kLoopUnit.getPrereqAndTech() != NO_TECH) {
+ 				int iDiff = GC.getTechInfo((TechTypes)(kLoopUnit.getPrereqAndTech())).getEra() - getCurrentEra();
+ 				if (iDiff > 0
+ 					//|| !bCanTrain || iNewTypeValue < iBestTypeValue) {
+@@ -13138,45 +13112,35 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 				}
+ 			}
+ 			dValue += iUnitValue;
+-		}
+-		// K-Mod end
++		} // K-Mod end
+ 	}
+ 
+-	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+-	{
+-		BuildingTypes eLoopBuilding = ((BuildingTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iI)));
+-
++	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++) {
++		BuildingTypes eLoopBuilding = (BuildingTypes)GC.getCivilizationInfo(
++				getCivilizationType()).getCivilizationBuildings(iI);
+ 		if(eLoopBuilding == NO_BUILDING)
+ 			continue;
+ 		CvBuildingInfo& kLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
+-
+ 		int iTempValue = 0;
+ 
+-		if (kLoopBuilding.getPrereqAndBonus() == eBonus)
+-		{
++		if(kLoopBuilding.getPrereqAndBonus() == eBonus)
+ 			iTempValue += 25; // advc.036: was 30
+-		}
+ 
+-		for (int iJ = 0; iJ < GC.getNUM_BUILDING_PREREQ_OR_BONUSES(); iJ++)
+-		{
++		for(int iJ = 0; iJ < GC.getNUM_BUILDING_PREREQ_OR_BONUSES(); iJ++) {
+ 			if (kLoopBuilding.getPrereqOrBonuses(iJ) == eBonus)
+-			{
+ 				iTempValue += 15; // advc.036: was 20
+-			}
+ 		}
+ 
+ 		iTempValue += kLoopBuilding.getBonusProductionModifier(eBonus) / 10;
+ 
+-		if (kLoopBuilding.getPowerBonus() == eBonus)
+-		{
++		if(kLoopBuilding.getPowerBonus() == eBonus)
+ 			iTempValue += 40; // advc.036: was 60
+-		}
+ 
+-		for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+-		{	// <advc.003> Easier to debug this way
+-			int const bym = kLoopBuilding.getBonusYieldModifier(eBonus, iJ);
+-			if(bym > 0) { // </advc.003>
+-				iTempValue += kLoopBuilding.getBonusYieldModifier(eBonus, iJ) /
++		for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++) {
++			// <advc.003> Easier to debug this way
++			int iYieldMod = kLoopBuilding.getBonusYieldModifier(eBonus, iJ);
++			if(iYieldMod > 0) { // </advc.003>
++				iTempValue += iYieldMod /
+ 						/*  <advc.036> 25 for Ironworks is normally too much;
+ 							need to take into account that we can build it in
+ 							only one city. Then again, if we have very few cities,
+@@ -13187,154 +13151,110 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 						2);
+ 			}
+ 			if (kLoopBuilding.getPowerBonus() == eBonus)
+-			{
+ 				iTempValue += kLoopBuilding.getPowerYieldModifier(iJ);
+-			}
+ 		}
+-		if(iTempValue > 0) // advc.003b
+-		{
++		if(iTempValue > 0) { // advc.003b
+ 			// determine whether we have the tech for this building
+ 			bool bHasTechForBuilding = true;
+-			if (!(kTeam.isHasTech((TechTypes)(kLoopBuilding.getPrereqAndTech()))))
+-			{
++			if(!kTeam.isHasTech((TechTypes)kLoopBuilding.getPrereqAndTech()))
+ 				bHasTechForBuilding = false;
+-			}
+-			for (int iPrereqIndex = 0; bHasTechForBuilding && iPrereqIndex < GC.getNUM_BUILDING_AND_TECH_PREREQS(); iPrereqIndex++)
+-			{
+-				if (kLoopBuilding.getPrereqAndTechs(iPrereqIndex) != NO_TECH)
+-				{
+-					if (!(kTeam.isHasTech((TechTypes)(kLoopBuilding.getPrereqAndTechs(iPrereqIndex)))))
+-					{
++			for(int iPrereqIndex = 0; bHasTechForBuilding && iPrereqIndex <
++					GC.getNUM_BUILDING_AND_TECH_PREREQS(); iPrereqIndex++) {
++				if (kLoopBuilding.getPrereqAndTechs(iPrereqIndex) != NO_TECH) {
++					if (!kTeam.isHasTech((TechTypes)kLoopBuilding.getPrereqAndTechs(
++							iPrereqIndex)))
+ 						bHasTechForBuilding = false;
+-					}
+ 				}
+ 			}
+ 
+-			bool bStateReligion = (((ReligionTypes) kLoopBuilding.getStateReligion()) != NO_RELIGION);
+-
++			bool bStateReligion = (NO_RELIGION != (ReligionTypes)kLoopBuilding.getStateReligion());
+ 			//check if function call is cached
+-			bool bCanConstruct = canConstruct(eLoopBuilding, false, /*bTestVisible*/ true, /*bIgnoreCost*/ true);
+-
+-			// bCanNeverBuild when true is accurate, it may be false in some cases where we will never be able to build 
++			bool bCanConstruct = canConstruct(eLoopBuilding, false,
++					/*bTestVisible*/ true, /*bIgnoreCost*/ true);
++			/*  bCanNeverBuild when true is accurate, it may be false in some cases
++				where we will never be able to build */
+ 			bool bCanNeverBuild = (bHasTechForBuilding && !bCanConstruct && !bStateReligion);
+-
+ 			// if we can never build this, it is worthless
+-			if (bCanNeverBuild)
+-			{
++			if(bCanNeverBuild)
+ 				iTempValue = 0;
+-			}
+ 			// double value if we can build it right now
+-			else if (bCanConstruct)
+-			{
+-				if(!bTrade) // advc.036
+-					iTempValue *= 2;
+-				/*  advc.036: Even if we can start building right now, the
+-					bonus can be taken away again during construction. */
+-				else iTempValue = ::round(iTempValue * 1.5);
+-			} // <advc.036> Don't trade for the bonus until we need it
++			else if(bCanConstruct)
++				iTempValue *= 2;
++			// <advc.036> Don't trade for the bonus until we need it
+ 			if(bTrade && !bCanConstruct)
+ 				iTempValue = 0; // </advc.036>
+ 			// if non-limited water building, weight by coastal cities
+-			if (kLoopBuilding.isWater() && !isLimitedWonderClass((BuildingClassTypes)(kLoopBuilding.getBuildingClassType())))
+-			{
++			if(kLoopBuilding.isWater() && !isLimitedWonderClass(
++					(BuildingClassTypes)kLoopBuilding.getBuildingClassType())) {
+ 				iTempValue *= iCoastalCityCount;
+ 				iTempValue /= std::max(1, iCityCount/2);
+ 			}
+-
+-			if (kLoopBuilding.getPrereqAndTech() != NO_TECH)
+-			{
+-				int iDiff = abs(GC.getTechInfo((TechTypes)(kLoopBuilding.getPrereqAndTech())).getEra() - getCurrentEra());
+-
+-				if (iDiff == 0)
+-				{
++			if(kLoopBuilding.getPrereqAndTech() != NO_TECH) {
++				int iDiff = abs(GC.getTechInfo((TechTypes)
++						kLoopBuilding.getPrereqAndTech()).getEra() - getCurrentEra());
++				if(iDiff == 0) {
+ 					iTempValue *= 3;
+ 					iTempValue /= 2;
+ 				}
+-				else
+-				{
+-					iTempValue /= iDiff;
+-					// <advc.036>
+-					if(bTrade)
+-						iTempValue = 0; // </advc.036>
+-				}
++				else iTempValue /= iDiff;
+ 			}
+ 			dValue += iTempValue;
+ 		}
+ 	}
+ 
+-	for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
+-	{
++	for(int iI = 0; iI < GC.getNumProjectInfos(); iI++) {
+ 		ProjectTypes eProject = (ProjectTypes) iI;
+ 		CvProjectInfo& kLoopProject = GC.getProjectInfo(eProject);
+ 		int iTempValue = 0;
+-
+ 		iTempValue += kLoopProject.getBonusProductionModifier(eBonus) / 10;
+ 
+ 		if(iTempValue <= 0)
+ 			continue;
+-		bool bMaxedOut = (GC.getGameINLINE().isProjectMaxedOut(eProject) || kTeam.isProjectMaxedOut(eProject));
+ 
+-		if (bMaxedOut)
+-		{
+-			// project worthless
++		bool bMaxedOut = (GC.getGameINLINE().isProjectMaxedOut(eProject) ||
++				kTeam.isProjectMaxedOut(eProject));
++		if(bMaxedOut)
+ 			iTempValue = 0;
+-		}
+-		else if (canCreate(eProject))
+-		{
++		else if(canCreate(eProject))
+ 			iTempValue *= 2;
+-		}
+-
+-		if (kLoopProject.getTechPrereq() != NO_TECH)
+-		{
+-			int iDiff = abs(GC.getTechInfo((TechTypes)(kLoopProject.getTechPrereq())).getEra() - getCurrentEra());
+ 
+-			if (iDiff == 0)
+-			{
++		if(kLoopProject.getTechPrereq() != NO_TECH) {
++			int iDiff = abs(GC.getTechInfo((TechTypes)
++					kLoopProject.getTechPrereq()).getEra() - getCurrentEra());
++			if(iDiff == 0) {
+ 				iTempValue *= 3;
+ 				iTempValue /= 2;
+ 			}
+-			else
+-			{
++			else {
+ 				iTempValue /= iDiff;
+ 				// <advc.036>
+ 				if(bTrade)
+ 					iTempValue = 0; // <advc.036>
+ 			}
+ 		}
+-
+ 		dValue += iTempValue;
+ 	}
+ 
+ 	RouteTypes eBestRoute = getBestRoute();
+-	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+-	{
+-		RouteTypes eRoute = (RouteTypes)(GC.getBuildInfo((BuildTypes)iI).getRoute());
++	for(int iI = 0; iI < GC.getNumBuildInfos(); iI++) {
++		RouteTypes eRoute = (RouteTypes)GC.getBuildInfo((BuildTypes)iI).getRoute();
+ 		if(eRoute == NO_ROUTE)
+ 			continue;
+ 		int iTempValue = 0;
+-		if (GC.getRouteInfo(eRoute).getPrereqBonus() == eBonus)
+-		{
++		if(GC.getRouteInfo(eRoute).getPrereqBonus() == eBonus)
+ 			iTempValue += 80;
+-		}
+-		for (int iJ = 0; iJ < GC.getNUM_ROUTE_PREREQ_OR_BONUSES(); iJ++)
+-		{
+-			if (GC.getRouteInfo(eRoute).getPrereqOrBonus(iJ) == eBonus)
+-			{
++		for(int iJ = 0; iJ < GC.getNUM_ROUTE_PREREQ_OR_BONUSES(); iJ++) {
++			if(GC.getRouteInfo(eRoute).getPrereqOrBonus(iJ) == eBonus)
+ 				iTempValue += 40;
+-			}
+ 		}
+-		if ((eBestRoute != NO_ROUTE) &&
++		if (eBestRoute != NO_ROUTE &&
+ 				/*  advc.003b: Was GC.getRouteInfo(getBestRoute()), which iterates
+ 					through all builds. */
+-				(GC.getRouteInfo(eBestRoute).
+-				getValue() <= GC.getRouteInfo(eRoute).getValue()))
+-		{
++				GC.getRouteInfo(eBestRoute).
++				getValue() <= GC.getRouteInfo(eRoute).getValue())
+ 			dValue += iTempValue;
+-		}
+-		else
+-		{
+-			dValue += iTempValue / 2;
+-		} // <advc.036> The usual tech checks
++		else dValue += iTempValue / 2;
++		// <advc.036> The usual tech checks
+ 		TechTypes tech = (TechTypes)GC.getBuildInfo((BuildTypes)iI).getTechPrereq();
+ 		if(tech != NO_TECH && !GET_TEAM(getTeam()).isHasTech(tech)) {
+ 			iTempValue /= 2;
+@@ -13347,13 +13267,10 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 		} // </advc.036>
+ 	}
+ 
+-	//	int iCorporationValue = AI_corporationBonusVal(eBonus);
+-	//	iValue += iCorporationValue;
+-	//
+-	//	if (iCorporationValue <= 0 && getNumAvailableBonuses(eBonus) > 0)
+-	//	{
+-	//		iValue /= 3;
+-	//	}
++	/*int iCorporationValue = AI_corporationBonusVal(eBonus);
++	iValue += iCorporationValue;
++	if (iCorporationValue <= 0 && getNumAvailableBonuses(eBonus) > 0)
++		iValue /= 3;*/
+ 
+ 	dValue /= 10;
+ 	// <advc.036>
+@@ -13694,7 +13611,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 				} // <advc.003b>
+ 				if(bStrategic)
+ 					break; // </advc.003b>
+-			} // XXX marble and stone??? // advc (comment): Handled above, no?
++			} // XXX marble and stone???
+ 		}
+ 		AttitudeTypes eAttitude = AI_getAttitude(ePlayer);
+ 		if (bStrategic)
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 409405b3d..840296c0b 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -478,7 +478,8 @@ if (GC.getImprovementInfo(getImprovementType()).getImprovementBonusDiscoverRand(
+ 					if(iOdds > 0)
+ 					{	// <advc.rom3>
+ 						//Afforess: check for valid terrains for this bonus before discovering it
+-						if(!canHaveBonus((BonusTypes)iI))
++						if(!canHaveBonus((BonusTypes)iI), false,
++								true) // advc.129
+ 							continue; // </advc.rom3>
+ 						iOdds *= GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent();
+ 						iOdds /= 100;
+@@ -2146,7 +2147,8 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bUpdatePlotGroups)
+ }
+ 
+ 
+-bool CvPlot::canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude) const
++bool CvPlot::canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude,
++		bool bIgnoreFeature) const // advc.129
+ {
+ 	FAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
+ 
+@@ -2164,22 +2166,28 @@ bool CvPlot::canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude) const
+ 	{
+ 		return false;
+ 	}
+-
++	CvBonusInfo const& kBonus = GC.getBonusInfo(eBonus);
++	// <advc.129>
++	if(bIgnoreFeature) {
++		if(!kBonus.isFeatureTerrain(getTerrainType()) &&
++				!kBonus.isTerrain(getTerrainType()))
++			return false;
++	}
++	else // </advc.129>
+ 	if (getFeatureType() != NO_FEATURE)
+ 	{
+-		if (!GC.getBonusInfo(eBonus).isFeature(getFeatureType()))
++		if (!kBonus.isFeature(getFeatureType()))
+ 		{
+ 			return false;
+ 		}
+-
+-		if (!GC.getBonusInfo(eBonus).isFeatureTerrain(getTerrainType()))
++		if (!kBonus.isFeatureTerrain(getTerrainType()))
+ 		{
+ 			return false;
+ 		}
+ 	}
+ 	else
+ 	{
+-		if (!GC.getBonusInfo(eBonus).isTerrain(getTerrainType()))
++		if (!kBonus.isTerrain(getTerrainType()))
+ 		{
+ 			return false;
+ 		}
+@@ -2187,20 +2195,20 @@ bool CvPlot::canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude) const
+ 
+ 	if (isHills())
+ 	{
+-		if (!GC.getBonusInfo(eBonus).isHills())
++		if (!kBonus.isHills())
+ 		{
+ 			return false;
+ 		}
+ 	}
+ 	else if (isFlatlands())
+ 	{
+-		if (!GC.getBonusInfo(eBonus).isFlatlands())
++		if (!kBonus.isFlatlands())
+ 		{
+ 			return false;
+ 		}
+ 	}
+ 
+-	if (GC.getBonusInfo(eBonus).isNoRiverSide())
++	if (kBonus.isNoRiverSide())
+ 	{
+ 		if (isRiverSide())
+ 		{
+@@ -2208,9 +2216,9 @@ bool CvPlot::canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude) const
+ 		}
+ 	}
+ 
+-	if (GC.getBonusInfo(eBonus).getMinAreaSize() != -1)
++	if (kBonus.getMinAreaSize() != -1)
+ 	{
+-		if (area()->getNumTiles() < GC.getBonusInfo(eBonus).getMinAreaSize())
++		if (area()->getNumTiles() < kBonus.getMinAreaSize())
+ 		{
+ 			return false;
+ 		}
+@@ -2218,12 +2226,12 @@ bool CvPlot::canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude) const
+ 
+ 	if (!bIgnoreLatitude)
+ 	{
+-		if (getLatitude() > GC.getBonusInfo(eBonus).getMaxLatitude())
++		if (getLatitude() > kBonus.getMaxLatitude())
+ 		{
+ 			return false;
+ 		}
+ 
+-		if (getLatitude() < GC.getBonusInfo(eBonus).getMinLatitude())
++		if (getLatitude() < kBonus.getMinLatitude())
+ 		{
+ 			return false;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 90a26bdd4..f3096f83d 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -123,7 +123,8 @@ public:
+ 	void updateSight(bool bIncrement, bool bUpdatePlotGroups);
+ 	void updateSeeFromSight(bool bIncrement, bool bUpdatePlotGroups);
+ 
+-	bool canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude = false) const;																						// Exposed to Python
++	bool canHaveBonus(BonusTypes eBonus, bool bIgnoreLatitude = false,																						// Exposed to Python
++			bool bIgnoreFeature = false) const; // advc.129
+ 	bool canHaveImprovement(ImprovementTypes eImprovement,														// Exposed to Python
+ 			TeamTypes eTeam = NO_TEAM, bool bPotential = false,
+ 			BuildTypes eBuild = NO_BUILD, bool bAnyBuild = true) const; // dlph.9
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 7735073f8..23eabf6ef 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2077,12 +2077,12 @@ bool CvUnit::isActionRecommended(int iAction)
+ // <advc.004h>
+ void CvUnit::updateFoundingBorder() const {
+ 
+-	int iMode = GC.getDefineINT("FOUNDING_BORDER_MODE");
+-	if(GC.getFOUNDING_SHOW_YIELDS() && iMode == 1) // BtS behavior
+-		return;
++	int iMode = getBugOptionINT("MainInterface__FoundingBorder", 2);
++	if(getBugOptionBOOL("MainInterface__FoundingYields", false) && iMode == 1)
++		return; // BtS behavior
+ 	gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_FOUNDING_BORDER);
+ 	gDLL->getInterfaceIFace()->setDirty(ColoredPlots_DIRTY_BIT, true);
+-	if(iMode >= 2 || !canFound())
++	if(iMode <= 0 || !canFound())
+ 		return;
+ 	CvSelectionGroup* gr = getGroup();
+ 	for(CLLNode<IDInfo>* node = gr->headUnitNode(); node != NULL; node = gr->nextUnitNode(node)) {
+@@ -8445,7 +8445,7 @@ bool CvUnit::isSpy() const
+ // <advc.004h>
+ bool CvUnit::isFound() const {
+ 
+-	if(GC.getFOUNDING_SHOW_YIELDS())
++	if(getBugOptionBOOL("MainInterface__FoundingYields", false))
+ 		return canFound();
+ 	return false;
+ }
+
+[PATCH OMITTED] file=a/manual_0.94f.odt b/manual_0.94f.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=16 omittedFiles=1 embeddedPatchBytes=52416

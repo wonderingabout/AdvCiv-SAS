@@ -1,0 +1,325 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2011
+# Commit: 14eea9dfa06a48e4e9f9fca2caf74912f440c9f6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 56af3a8dfa7f97c1fa229e1b9499a91428db0ed1
+# Title: A few misc. style changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+59	69	CvGameCoreDLL/CvGame.cpp
+3	4	CvGameCoreDLL/CvGame.h
+1	1	CvGameCoreDLL/CvInfo_Civilization.cpp
+2	9	CvGameCoreDLL/CvInitCore.cpp
+2	7	CvGameCoreDLL/CyGame.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 026006254..9ea7aba25 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4246,10 +4246,9 @@ int CvGame::getWonderScore(BuildingClassTypes eWonderClass) const
+ 	return 0;
+ }
+ 
+-
++// initialize score calculation
+ void CvGame::initScoreCalculation()
+ {
+-	// initialize score calculation
+ 	int iMaxFood = 0;
+ 	CvMap const& kMap = GC.getMap();
+ 	for (int i = 0; i < kMap.numPlots(); i++)
+@@ -4258,23 +4257,25 @@ void CvGame::initScoreCalculation()
+ 		if (!kPlot.isWater() || kPlot.isAdjacentToLand())
+ 			iMaxFood += kPlot.calculateBestNatureYield(YIELD_FOOD, NO_TEAM);
+ 	}
+-	m_iMaxPopulation = getPopulationScore(iMaxFood / std::max(1, GC.getFOOD_CONSUMPTION_PER_POPULATION()));
++	m_iMaxPopulation = getPopulationScore(iMaxFood / std::max(1,
++			GC.getFOOD_CONSUMPTION_PER_POPULATION()));
+ 	m_iMaxLand = getLandPlotsScore(GC.getMap().getLandPlots());
+ 	m_iMaxTech = 0;
+-	for (int i = 0; i < GC.getNumTechInfos(); i++)
++	FOR_EACH_ENUM(Tech)
+ 	{
+-		m_iMaxTech += getTechScore((TechTypes)i);
++		m_iMaxTech += getTechScore(eLoopTech);
+ 	}
+ 	m_iMaxWonders = 0;
+-	for (int i = 0; i < GC.getNumBuildingClassInfos(); i++)
++	FOR_EACH_ENUM(BuildingClass)
+ 	{
+-		m_iMaxWonders += getWonderScore((BuildingClassTypes)i);
++		m_iMaxWonders += getWonderScore(eLoopBuildingClass);
+ 	}
+ 
+-	if (NO_ERA != getStartEra())
++	if (getStartEra() != NO_ERA)
+ 	{
+ 		int iNumSettlers = GC.getInfo(getStartEra()).getStartingUnitMultiplier();
+-		m_iInitPopulation = getPopulationScore(iNumSettlers * (GC.getInfo(getStartEra()).getFreePopulation() + 1));
++		m_iInitPopulation = getPopulationScore(iNumSettlers *
++				(GC.getInfo(getStartEra()).getFreePopulation() + 1));
+ 		m_iInitLand = getLandPlotsScore(iNumSettlers *  NUM_CITY_PLOTS);
+ 	}
+ 	else
+@@ -4284,22 +4285,22 @@ void CvGame::initScoreCalculation()
+ 	}
+ 
+ 	m_iInitTech = 0;
+-	for (int i = 0; i < GC.getNumTechInfos(); i++)
++	FOR_EACH_ENUM(Tech)
+ 	{
+-		if (GC.getInfo((TechTypes)i).getEra() < getStartEra())
+-		{
+-			m_iInitTech += getTechScore((TechTypes)i);
+-		}
++		if (GC.getInfo(eLoopTech).getEra() < getStartEra())
++			m_iInitTech += getTechScore(eLoopTech);
+ 		else
+ 		{
+-			// count all possible free techs as initial to lower the score from immediate retirement
+-			for (int iCiv = 0; iCiv < GC.getNumCivilizationInfos(); iCiv++)
++			/*	count all possible free techs as initial to lower the score
++				from immediate retirement */
++			FOR_EACH_ENUM(Civilization)
+ 			{
+-				if (GC.getInfo((CivilizationTypes)iCiv).isPlayable())
++				if (GC.getInfo(eLoopCivilization).isPlayable())
+ 				{
+-					if (GC.getInfo((CivilizationTypes)iCiv).isCivilizationFreeTechs(i))
++					if (GC.getInfo(eLoopCivilization).isCivilizationFreeTechs(
++						eLoopCivilization))
+ 					{
+-						m_iInitTech += getTechScore((TechTypes)i);
++						m_iInitTech += getTechScore(eLoopTech);
+ 						break;
+ 					}
+ 				}
+@@ -4327,15 +4328,15 @@ void CvGame::setAIAutoPlay(int iNewValue, /* <advc.127> */ bool bChangePlayerSta
+ 	/*  AI_AUTO_PLAY_MOD, 07/09/08, jdog5000: START
+ 		(Multiplayer compatibility idea from Jeckel) */
+ 	// <advc.127> To make sure I'm not breaking anything in singleplayer
+-	if(!isGameMultiPlayer())
++	if (!isGameMultiPlayer())
+ 	{
+ 		GET_PLAYER(getActivePlayer()).setHumanDisabled((getAIAutoPlay() != 0));
+ 		return;
+ 	} // </advc.127>
+-	for(int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+ 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
+-		if(kLoopPlayer.isHuman() || kLoopPlayer.isHumanDisabled())
++		if (kLoopPlayer.isHuman() || kLoopPlayer.isHumanDisabled())
+ 		{	/*  advc.127: Was GET_PLAYER(getActivePlayer()).
+ 				Tagging advc.001 because that was probably a bug. */
+ 			kLoopPlayer.setHumanDisabled((getAIAutoPlay() != 0));
+@@ -7729,9 +7730,7 @@ void CvGame::updateMoves()
+ {
+ 	int aiShuffle[MAX_PLAYERS];
+ 	if (isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
+-	{
+ 		shuffleArray(aiShuffle, MAX_PLAYERS, getSorenRand());
+-	}
+ 	else
+ 	{
+ 		for (int iI = 0; iI < MAX_PLAYERS; iI++)
+@@ -7744,60 +7743,51 @@ void CvGame::updateMoves()
+ 	// </advc.001y>
+ 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+-		CvPlayerAI& player = GET_PLAYER((PlayerTypes)(aiShuffle[iI]));
++		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)aiShuffle[iI]);
++		if (!kPlayer.isAlive() || !kPlayer.isTurnActive())
++			continue; // advc
+ 
+-		if (player.isAlive())
++		if (!kPlayer.isAutoMoves())
+ 		{
+-			if (player.isTurnActive())
++			kPlayer.AI_unitUpdate();
++			if (!kPlayer.isHuman() && !kPlayer.hasBusyUnit())
+ 			{
+-				if (!player.isAutoMoves())
++				/*  advc.001y: Safety measure against infinite loop
++					(Complementing Vanilla Civ 4 code in CvSelectionGroupAI::AI_update.
++					The attempt counter there won't work when CvUnitAI::AI_update
++					joins a different selection group.) */
++				if (m_iUnitUpdateAttempts > iMaxUnitUpdateAttempts ||
++					!kPlayer.hasReadyUnit(true))
+ 				{
+-					player.AI_unitUpdate();
+-
+-					if (!player.isHuman())
+-					{
+-						if (!player.hasBusyUnit())
+-						{
+-							/*  advc.001y: Safety measure against infinite loop
+-								(Complementing Vanilla Civ 4 code in CvSelectionGroupAI::AI_update.
+-								The attempt counter there won't work when CvUnitAI::AI_update
+-								joins a different selection group.) */
+-							if (m_iUnitUpdateAttempts > iMaxUnitUpdateAttempts ||
+-									!player.hasReadyUnit(true))
+-								player.setAutoMoves(true);
+-							else m_iUnitUpdateAttempts++; // advc.001y
+-						}
+-					}
++					kPlayer.setAutoMoves(true);
+ 				}
+-
+-				if (player.isAutoMoves())
++				else m_iUnitUpdateAttempts++; // advc.001y
++			}
++		}
++		if (kPlayer.isAutoMoves())
++		{
++			FOR_EACH_GROUP_VAR(pGroup, kPlayer)
++				pGroup->autoMission();
++			/*	K-Mod. Here's where we do the AI for automated units.
++				Note, we can't do AI_update and autoMission in the same loop, because
++				either one might delete the group - and thus cause the other to crash. */
++			if (kPlayer.isHuman())
++			{
++				FOR_EACH_GROUPAI_VAR(pGroup, kPlayer)
+ 				{
+-					FOR_EACH_GROUP_VAR(pGroup, player)
+-						pGroup->autoMission();
+-					// K-Mod. Here's where we do the AI for automated units.
+-					// Note, we can't do AI_update and autoMission in the same loop, because either one might delete the group - and thus cause the other to crash.
+-					if (player.isHuman())
++					if (pGroup->AI_update())
+ 					{
+-						FOR_EACH_GROUPAI_VAR(pGroup, player)
+-						{
+-							if (pGroup->AI_update())
+-							{
+-								FAssert(player.hasBusyUnit());
+-								break;
+-							}
+-						}
+-						// Refresh the group cycle for human players.
+-						// Non-human players can wait for their units to wake up, or regain moves - group cycle isn't very important for them anyway.
+-						player.refreshGroupCycleList();
+-					}
+-					// K-Mod end
+-
+-					if (!player.hasBusyUnit())
+-					{
+-						player.setAutoMoves(false);
++						FAssert(kPlayer.hasBusyUnit());
++						break;
+ 					}
+ 				}
+-			}
++				/*	Refresh the group cycle for human players.
++					Non-human players can wait for their units to wake up, or regain moves -
++					group cycle isn't very important for them anyway. */
++				kPlayer.refreshGroupCycleList();
++			} // K-Mod end
++			if (!kPlayer.hasBusyUnit())
++				kPlayer.setAutoMoves(false);
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 88eea026a..b7a199c15 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -328,13 +328,12 @@ public:
+ 	{
+ 		return m_iAIAutoPlay; // advc.inl
+ 	}
+-	DllExport void setAIAutoPlay(int iNewValue) {										// Exposed to Python
+-		// <advc.127>
++	DllExport void setAIAutoPlay(int iNewValue)										// Exposed to Python
++	{	// <advc.127>
+ 		setAIAutoPlay(iNewValue, true);
+ 	}
+ 	void setAIAutoPlay(int iNewValue, bool bChangePlayerStatus); // </advc.127>
+-	void changeAIAutoPlay(int iChange,
+-			bool bChangePlayerStatus = true); // advc.127
++	void changeAIAutoPlay(int iChange, /* advc.127: */ bool bChangePlayerStatus = true);
+ 	// <advc.opt>
+ 	int getCivPlayersEverAlive() const;
+ 	void changeCivPlayersEverAlive(int iChange);
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.cpp b/CvGameCoreDLL/CvInfo_Civilization.cpp
+index 90cc1c0db..1c1aa4920 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.cpp
++++ b/CvGameCoreDLL/CvInfo_Civilization.cpp
+@@ -5,7 +5,7 @@
+ #include "CvDLLXMLIFaceBase.h"
+ 
+ 
+-CvCivilizationInfo::CvCivilizationInfo():
++CvCivilizationInfo::CvCivilizationInfo() :
+ m_iDefaultPlayerColor(NO_PLAYERCOLOR),
+ m_iArtStyleType(NO_ARTSTYLE),
+ m_iUnitArtStyleType(NO_UNIT_ARTSTYLE),
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 4715e6735..e01c1de81 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -140,17 +140,10 @@ void CvInitCore::setDefaults()
+ bool CvInitCore::getHuman(PlayerTypes eID) const
+ {
+ 	if (getSlotStatus(eID) == SS_TAKEN)
+-	{
+ 		return true;
+-	}
+ 	else if (getSlotStatus(eID) == SS_OPEN)
+-	{
+-		return ( gDLL->isGameActive() || getHotseat() || getPitboss() || getPbem());
+-	}
+-	else
+-	{
+-		return false;
+-	}
++		return (gDLL->isGameActive() || getHotseat() || getPitboss() || getPbem());
++	return false;
+ }
+ 
+ int CvInitCore::getNumHumans() const
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index 411bfd884..f04ca92d6 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -548,9 +548,7 @@ void CyGame::setAIAutoPlay(int iNewValue)
+ 		m_pGame->setAIAutoPlay(iNewValue);
+ }
+ 
+-/*
+-** K-Mod, 11/dec/10, karadoc
+-*/
++// K-Mod, 11/dec/10, start
+ int CyGame::getGlobalWarmingIndex() const
+ {
+ 	return (NULL != m_pGame ? m_pGame->getGlobalWarmingIndex() : 0);
+@@ -585,10 +583,7 @@ int CyGame::calculateGwSeverityRating() const
+ {
+ 	return (NULL != m_pGame ? m_pGame->calculateGwSeverityRating() : 0);
+ }
+-/*
+-** K-Mod end
+-*/
+-
++// K-Mod end
+ 
+ bool CyGame::isScoreDirty() const
+ {
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=9869

@@ -28,13 +28,13 @@ For information regarding GFC Commercial License Agreements go to:
 
 with GFC_Control_Panel
 {
-	
+
 	GFC_Control_DefaultPanel_Style
 	{
 		GFC_Control_Renderer_Control			=	GFC_CtrlTheme_Bitmap_Control_Panel_Renderer_Control;
-												
+
 		.Child_Border							=	GFC_CtrlTheme_Bitmap_Control_Panel_Child_Border;
-												
+
 		.StyleId_Border							=	GPropertyId(GFC_Control_StandardBorder_Style);
 
 		with GFC_Control_Flag
@@ -50,7 +50,7 @@ with GFC_Control_Panel
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-											
+
 			// Control flag change masks	
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -69,12 +69,12 @@ with GFC_Control_Panel
 			// Panel flag change masks	
 			//.PanelMask_InvalidateControl		=	GFlags(GPanelCtrl);
 		}
-		
+
 		with .Size
 		{
 			.Default							=	GSize(0,0);
 		}											
-														
+
 		with .Color										
 		{											
 			.Inner								=	GFC_Control_Color_Surface;
@@ -85,7 +85,7 @@ with GFC_Control_Panel
 		}								
 
 		// ******* Initialize all the Bitmap theme Panel properties to avoid inheritance problems
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin
 		{
 			.Inner_Default						=	0;
@@ -100,7 +100,7 @@ with GFC_Control_Panel
 
 
 	// ** Normal panel style
-	
+
 	GFC_Control_StandardPanel_Style
 	{			
 		// Panel inner skins
@@ -117,7 +117,7 @@ with GFC_Control_Panel
 			}
 		}
 		*/
-		
+
 		map GFC_CtrlTheme_Bitmap_Control_Panel		=	GFC_Control_DefaultPanel_Style;
 		map GFC_Control								=	GFC_Control_DefaultPanel_Style;
 	}
@@ -129,7 +129,7 @@ with GFC_Control_Panel
 	{
 		.StyleId_Border			=	GPropertyId(GFC_Control_InBorder_Style);
 		.Flag_NoInnerFill		=	0;
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -169,7 +169,7 @@ with GFC_Control_Panel
 	{
 		.StyleId_Border			=	GPropertyId(GFC_Control_FlatBorder_Style);
 		.Flag_NoInnerFill		=	0;
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -189,8 +189,8 @@ with GFC_Control_Panel
 		map GFC_CtrlTheme_Bitmap_Control_Panel		=	GFC_Control_DefaultPanel_Style;
 		map GFC_Control								=	GFC_Control_DefaultPanel_Style;
 	}
-	
-	
+
+
 	// ** Solid style
 
 	style SF_CtrlTheme_Civ4_Panel_SolidBorder_Style
@@ -248,7 +248,7 @@ with GFC_Control_Panel
 	{
 		.StyleId_Border			=	GPropertyId(SF_CtrlTheme_Civ4_Panel_ExternalBorder_Style);
 		.Flag_NoInnerFill		=	0;
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -277,14 +277,14 @@ with GFC_Control_Panel
 	}
 
 	// Bottom command, map, info, and upper bar panel styles for in game and map editor.
-	
+
 	/*
 	// Information panel
 	GFC_Control_LeftPanel_Style
 	{
 		.Flag_NoInnerFill		=	0;
 		.Flag_NoBorder			=	GFlags(GPanelCtrl, GFC_CF_PANEL_NOBORDER);
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -339,7 +339,7 @@ with GFC_Control_Panel
 	{
 		.Flag_NoInnerFill		=	0;
 		.Flag_NoBorder			=	GFlags(GPanelCtrl, GFC_CF_PANEL_NOBORDER);
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -396,14 +396,14 @@ with GFC_Control_Panel
 		map GFC_CtrlTheme_Bitmap_Control_Panel		=	GFC_Control_DefaultPanel_Style;
 		map GFC_Control								=	GFC_Control_DefaultPanel_Style;
 		}*/
-	
+
 	/*
 	// Command panel
 	GFC_Control_CenterPanel_Style
 		{
 			.Flag_NoInnerFill		=	0;
 			.Flag_NoBorder			=	GFlags(GPanelCtrl, GFC_CF_PANEL_NOBORDER);
-			
+
 			with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 			{
 				.Default
@@ -440,7 +440,7 @@ with GFC_Control_Panel
 				.Winoff					=	.Default;
 				.WinoffDisable			=	.Winoff;
 			}
-	
+
 			map GFC_CtrlTheme_Bitmap_Control_Panel		=	GFC_Control_DefaultPanel_Style;
 			map GFC_Control								=	GFC_Control_DefaultPanel_Style;
 		}*/
@@ -451,7 +451,7 @@ with GFC_Control_Panel
 	{
 		.Flag_NoInnerFill		=	0;
 		.Flag_NoBorder			=	GFlags(GPanelCtrl, GFC_CF_PANEL_NOBORDER);
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Panel_Skin_Inner
 		{
 			.Default
@@ -493,7 +493,7 @@ with GFC_Control_Panel
 	{
 		.StyleId_Border			=	GPropertyId(GFC_Control_StandardBorder_Style);
 		.Size_Default			=	GSize(0,28);
-		
+
 		with GFC_Control_StatusBarLayout_Size
 		{
 			.Spacing			=	4;

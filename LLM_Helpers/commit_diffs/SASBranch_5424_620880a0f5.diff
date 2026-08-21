@@ -1,0 +1,333 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5424
+# Commit: 620880a0f5efc124d3fb002a5152dd788aa16767
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9d01f7598c38a2bfdaf6ee505854290dbd937193
+# Title: Fix Tilted_Axis.py; move it to navalheavy maps
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/XML/GlobalDefines_advciv_sas.xml
+4	2	PrivateMaps/Team_Battleground.py
+225	0	PrivateMaps/Tilted_Axis.py
+1	1	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 PrivateMaps/Tilted_Axis.py
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index baa77f7fe..6413245e3 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -289,7 +289,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: comma-separated map script names (optional .py/path tolerated) treated as land-heavy by DLL cache (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
+-		<DefineTextVal>Fractal,Hemispheres,Pangaea,PerfectMongoose,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Ring,Tilted_Axis,Arboria,Boreal,Donut,Earth2,Global_Highlands,Rainforest</DefineTextVal>
++		<DefineTextVal>Fractal,Hemispheres,Pangaea,PerfectMongoose,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Ring,Arboria,Boreal,Donut,Earth2,Global_Highlands,Rainforest</DefineTextVal>
+ 	</Define>
+ 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
+ 	<Define>
+@@ -298,7 +298,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY</DefineName>
+-		<DefineTextVal>Archipelago,Islands</DefineTextVal>
++		<DefineTextVal>Archipelago,Islands,Tilted_Axis</DefineTextVal>
+ 	</Define>
+
+diff --git a/PrivateMaps/Team_Battleground.py b/PrivateMaps/Team_Battleground.py
+index 1541bfd4b..a9d3cec97 100644
+--- a/PrivateMaps/Team_Battleground.py
++++ b/PrivateMaps/Team_Battleground.py
+@@ -7,7 +7,6 @@
+ #	Copyright (c) 2005 Firaxis Games, Inc. All rights reserved.
+ #-----------------------------------------------------------------------------
+ #
+-#
+ # Ruff - Desert Bridge & Round Start
+ #  Additional options added by Ruff_Hi from
+ #        - Civilization Fanatics (http://forums.civfanatics.com/member.php?u=64034)
+@@ -16,7 +15,10 @@
+ #    - Left v Right with a desert land bridge
+ #    - round with starting locations uniformly spread around the circle
+ #    - donut - same as round but with water at the center
+-
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+
+diff --git a/PrivateMaps/Tilted_Axis.py b/PrivateMaps/Tilted_Axis.py
+new file mode 100644
+index 000000000..9d41f7066
+--- /dev/null
++++ b/PrivateMaps/Tilted_Axis.py
+@@ -0,0 +1,225 @@
++#
++#	FILE:	 Tilted_Axis.py
++#	AUTHOR:  Bob Thomas (Sirian)
++#	PURPOSE: Global map script - Simulates a world with its rotational axis 
++#	         tipped over on to its side. This is also a square map.
++#-----------------------------------------------------------------------------
++#	Copyright (c) 2005 Firaxis Games, Inc. All rights reserved.
++#-----------------------------------------------------------------------------
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++
++from CvPythonExtensions import *
++import CvUtil
++import CvMapGeneratorUtil
++from CvMapGeneratorUtil import FractalWorld
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++from CvMapGeneratorUtil import BonusBalancer
++from SAS_WorldSizes import *
++
++balancer = BonusBalancer()
++
++def getDescription():
++	return "TXT_KEY_MAP_SCRIPT_TILTED_AXIS_DESCR"
++
++def getNumCustomMapOptions():
++	return 2
++
++def getNumHiddenCustomMapOptions():
++	return 1
++
++def getCustomMapOptionName(argsList):
++	[iOption] = argsList
++	option_names = {
++		0:	"TXT_KEY_MAP_SCRIPT_LANDMASS_SIZE",
++		1:  "TXT_KEY_CONCEPT_RESOURCES"
++		}
++	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
++	return translated_text
++
++	
++def getNumCustomMapOptionValues(argsList):
++	[iOption] = argsList
++	option_values = {
++		0:	5,
++		1:	2
++		}
++	return option_values[iOption]
++	
++def getCustomMapOptionDescAt(argsList):
++	[iOption, iSelection] = argsList
++	selection_names = {
++		0:	{
++			0: "TXT_KEY_MAP_SCRIPT_MASSIVE_CONTINENTS",
++			1: "TXT_KEY_MAP_SCRIPT_NORMAL_CONTINENTS",
++			2: "TXT_KEY_MAP_SCRIPT_SMALL_CONTINENTS",
++			3: "TXT_KEY_MAP_SCRIPT_ISLANDS",
++			4: "TXT_KEY_MAP_SCRIPT_TINY_ISLANDS"
++			},
++		1:	{
++			0: "TXT_KEY_WORLD_STANDARD",
++			1: "TXT_KEY_MAP_BALANCED"
++			}
++		}
++	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
++	return translated_text
++	
++def getCustomMapOptionDefault(argsList):
++	[iOption] = argsList
++	option_defaults = {
++		0:	-1,
++		1:  0
++		}
++	return option_defaults[iOption]
++
++def isRandomCustomMapOption(argsList):
++	[iOption] = argsList
++	option_random = {
++		0:	true,
++		1:  false
++		}
++	return option_random[iOption]
++
++def normalizeAddExtras():
++	if (CyMap().getCustomMapOption(1) == 1):
++		balancer.normalizeAddExtras()
++	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
++
++def addBonusType(argsList):
++	[iBonusType] = argsList
++	gc = CyGlobalContext()
++	type_string = gc.getBonusInfo(iBonusType).getType()
++
++	if (CyMap().getCustomMapOption(1) == 1):
++		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
++			return None # don't place any of this bonus randomly
++		
++	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
++
++
++def getGridSize(argsList):
++	"Override Grid Size function to make the maps square."
++	grid_sizes = {
++		0:  (7,7),    # ARENA
++		1:  (8,8),    # DUEL
++		2:  (10,10),  # TINY
++		3:  (13,13),  # SMALL
++		4:  (16,16),  # STANDARD
++		5:  (20,20),  # LARGE
++		6:  (25,25)   # HUGE
++	}
++
++	if (argsList[0] == -1): # (-1,) is passed to function on loads
++		return []
++	[eWorldSize] = argsList
++	# <!-- custom: Tilted Axis keeps its visual identity better when SAS sizes reuse the Huge square profile instead of further scaling. (GPT-5.3-Codex) -->
++	return sas_lookup_world_size(
++		eWorldSize,
++		grid_sizes
++	)
++
++def getWrapX():
++	return False
++def getWrapY():
++	return True
++    
++# subclass FractalWorld to enable square exponents for use with Tilted Axis.
++class TiltedAxisFractalWorld(CvMapGeneratorUtil.FractalWorld):
++	def initFractal(self, continent_grain = 2, rift_grain = 2, has_center_rift = True):
++		"For no rifts, use rift_grain = -1"
++		iFlags = CyFractal.FracVals.FRAC_WRAP_Y + CyFractal.FracVals.FRAC_POLAR
++		worldsizes = {
++			0: (6,6), # ARENA
++			1: (6,6), # DUEL
++			2: (6,6), # TINY
++			3: (6,6), # SMALL
++			4: (7,7), # STANDARD
++			5: (7,7), # LARGE
++			6: (7,7)  # HUGE
++			}
++		(fracXExp, fracYExp) = sas_lookup_world_size(
++			self.map.getWorldSize(),
++			worldsizes
++		)
++
++		if rift_grain >= 0:
++			self.riftsFrac = CyFractal()
++			self.riftsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, rift_grain, self.mapRand, iFlags, fracXExp, fracYExp)
++			if has_center_rift:
++				iFlags = iFlags | CyFractal.FracVals.FRAC_CENTER_RIFT
++			self.continentsFrac.fracInitRifts(self.iNumPlotsX, self.iNumPlotsY, continent_grain, self.mapRand, iFlags, self.riftsFrac, fracXExp, fracYExp)
++		else:
++			self.continentsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, continent_grain, self.mapRand, iFlags, fracXExp, fracYExp)
++
++def generatePlotTypes():
++	gc = CyGlobalContext()
++	map = CyMap()
++	dice = gc.getGame().getMapRand()
++	fractal_world = TiltedAxisFractalWorld()
++	
++	# Get user input.
++	userInputLandmass = map.getCustomMapOption(0)
++	
++	if userInputLandmass == 4:
++		NiTextOut("Setting Plot Types (Python Tilted Axis, Tiny Islands) ...")
++		fractal_world.initFractal(continent_grain = 5, rift_grain = -1, has_center_rift = False)
++		return fractal_world.generatePlotTypes(grain_amount = 4)
++
++	elif userInputLandmass == 3:
++		NiTextOut("Setting Plot Types (Python Tilted Axis, Islands) ...")
++		fractal_world.initFractal(continent_grain = 4, rift_grain = -1, has_center_rift = False)
++		return fractal_world.generatePlotTypes(grain_amount = 4)
++
++	elif userInputLandmass == 2:
++		NiTextOut("Setting Plot Types (Python Tilted Axis, Small Continents) ...")
++		fractal_world.initFractal(continent_grain = 3, rift_grain = 3, has_center_rift = False)
++		return fractal_world.generatePlotTypes(grain_amount = 4)
++		
++	elif userInputLandmass == 0:
++		NiTextOut("Setting Plot Types (Python Tilted Axis, Massive Continents) ...")
++		fractal_world.initFractal(continent_grain = 1, rift_grain = 2, has_center_rift = False)
++		return fractal_world.generatePlotTypes(grain_amount = 4)
++	
++	else: # standard lands
++		NiTextOut("Setting Plot Types (Python Tilted Axis, Normal Continents) ...")
++		fractal_world.initFractal(continent_grain = 2, rift_grain = 2, has_center_rift = True)
++		return fractal_world.generatePlotTypes(grain_amount = 4)
++	
++# subclass TerrainGenerator to make the climate "latitudes" run west to east
++class TiltedAxisTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
++	def getLatitudeAtPlot(self, iX, iY):
++		# Latitudes run vertically for a world with a tilted axis.
++		lat = abs((self.iWidth / 2) - iX)/float(self.iWidth/2) # 0.0 = equator, 1.0 = pole
++
++		# Adjust latitude using self.variation fractal, to mix things up:
++		lat += (128 - self.variation.getHeight(iX, iY))/(255.0 * 5.0)
++
++		# Limit to the range [0, 1]:
++		if lat < 0:
++			lat = 0.0
++		if lat > 1:
++			lat = 1.0
++
++		return lat
++
++def generateTerrainTypes():
++	NiTextOut("Generating Terrain (Python Tilted Axis) ...")
++	terraingen = TiltedAxisTerrainGenerator()
++	terrainTypes = terraingen.generateTerrain()
++	return terrainTypes
++
++# subclass FeatureGenerator to make the climate "latitudes" run west to east
++class TiltedAxisFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
++	def getLatitudeAtPlot(self, iX, iY):
++		"returns a value in the range of 0.0 (tropical) to 1.0 (polar)"
++		return abs((self.iGridW/2) - iX)/float(self.iGridW/2) # 0.0 = equator, 1.0 = pole
++
++def addFeatures():
++	NiTextOut("Adding Features (Python Tilted Axis) ...")
++	featuregen = TiltedAxisFeatureGenerator()
++	featuregen.addFeatures()
++	return 0
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index a3054d815..356a4fb2a 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -428,7 +428,7 @@ Done with the help of GPT-5.2 Thinking thanks:
+ | `Ring`                 | Ring-shaped primary land distribution (distinct wraparound feel); `<!-- custom: empirically looks landHeavy -->`                                  | Other (ring geometry); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, AdvCiv-SAS      |
+ | `Shuffle`              | Randomly selects among multiple generator styles each game.                                                                                       | Random                                   | Base Civ4, Warlords                  |
+ | `Team_Battleground`    | Team-oriented, typically symmetric starts/front lines (purpose-built for teams); `<!-- custom: empirically looks landHeavy -->`                   | Other (team/symmetry layout); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, BTS, AdvCiv-SAS |
+-| `Tilted_Axis`          | Standard landmasses, but climate bands are “tilted” vs normal north-south.                                                                        | Land                                     | Base Civ4, Warlords                  |
++| `Tilted_Axis`          | Standard landmasses, but climate bands are “tilted” vs normal north-south; `<!-- custom: empirically looks landHeavy -->`                         | Land; `<!-- custom: empirically looks Water -->` | Base Civ4, Warlords, AdvCiv-SAS                  |
+ | `Wheel`                | Wheel/spokes-style structure (highly nonstandard geometry).                                                                                       | Other (wheel/spokes geometry)            | Base Civ4, Warlords                  |
+ | `Arboria`              | Forest-heavy/“lush” world variant (terrain emphasis more than geometry).                                                                          | Land                                     | BTS                                  |
+ | `Big_and_Small`        | Mix of a few big landmasses plus many smaller islands; both land and naval matter.                                                                | Other (hybrid land + islands)            | BTS                                  |
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 21ebfa8e1..425e2d40b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -343,7 +343,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ ### Maps
+ 
+ - (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
+-- (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py), [Oasis.py](/PrivateMaps/Oasis.py), [Ring.py](/PrivateMaps/Ring.py), [Team_Battleground.py](/PrivateMaps/Team_Battleground.py).
++- (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py), [Oasis.py](/PrivateMaps/Oasis.py), [Ring.py](/PrivateMaps/Ring.py), [Team_Battleground.py](/PrivateMaps/Team_Battleground.py), [Tilted_Axis.py](/PrivateMaps/Tilted_Axis.py).
+ - (Requires AdvCiv-SAS 5413+) **Reduced the grid size** of some maps that are **almost entirely composed of land** plots. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py).
+ - (Requires AdvCiv-SAS 5415+) Add new **SAS_Worldsizes map**: helper sandbox map: almost all land with mostly flat grass tiles.
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=15060

@@ -1,0 +1,86 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5565
+# Commit: fdeb58c16503861b35f7b8270760978b75b144d5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 10fa767ad4587093b39490c4219b6a46d7454cce
+# Title: externalize font from aip values and upscale aip
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	4	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+4	2	Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+3	3	Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 6f9e9035a..17815f7e6 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -21,6 +21,7 @@ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
+ import SASTextScale
++from SASFontUtils import SAS_FONT_TAG_LABEL_BOLD
+ from _sevopedia_helpers import *
+ # <!-- custom: import to display chars before Traits -->
+ import TraitUtil
+@@ -437,9 +438,9 @@ class SevoPediaLeader:
+ 
+ 
+ 	def fillAITableRow(self, screen, label, value, scale, xLabel, xValue, xScale, y):
+-		labelText = u"<font=2>%s</font>" % label
+-		valueText = u"<font=2b>%d</font>" % value
+-		scaleText = u"<font=2>%s</font>" % scale
++		labelText = SASTextScale.labelText(label)
++		valueText = SASTextScale.applyFontTag(u"%d" % value, SAS_FONT_TAG_LABEL_BOLD)
++		scaleText = SASTextScale.labelText(scale)
+ 
+ 		screen.setText(self.top.getNextWidgetName(), "", labelText, CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		screen.setText(self.top.getNextWidgetName(), "", valueText, CvUtil.FONT_LEFT_JUSTIFY, xValue, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+@@ -459,7 +460,7 @@ class SevoPediaLeader:
+ 			# AI Category Header Line
+ 			if ai_category_header_line is not None:
+ 				xOffsetButton = xLabel + ai_category_x_offset
+-				screen.setText(self.top.getNextWidgetName(), "", ai_category_header_line, CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setText(self.top.getNextWidgetName(), "", SASTextScale.applyFontTag(ai_category_header_line, SAS_FONT_TAG_LABEL_BOLD), CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				y += self.H_AI_LINE_HEIGHT
+ 
+ 			# <!-- custom: AI Category items in their predefined order -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+index 33aaccdcc..9551b85f1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+@@ -1096,14 +1096,16 @@ def _compute_leader_cache_internal():
+ 			button_size = 16
+ 			# <!-- custom: No caching needed here since this precomputes to a file (not called repeatedly during gameplay). (GPT-5.2-Codex (summarized)) -->
+ 			line_button_txt = u"<img=%s size=%s></img>" % (ArtFileMgr.getInterfaceArtInfo(icon_button_art_key).getPath(), str(button_size))
+-			ai_category_header_line_with_button = u"%s <font=3b>%s</font>" % (line_button_txt, ai_category_header)
++			# <!-- custom: keep cache/data layer font-agnostic; apply font tags at UI render layer in SevoPediaLeader.py. (GPT-5.3-Codex) -->
++			ai_category_header_line_with_button = u"%s %s" % (line_button_txt, ai_category_header)
+ 
+ 			# <!-- custom: add x offset (negative) so we can push button a bit left and reduce whitespace -->
+ 			ai_category_x_offset_with_button = -7
+ 
+ 			return (ai_category_header_line_with_button, ai_category_x_offset_with_button)
+ 		else:
+-			ai_category_header_line_without_button = u"<font=3b>%s</font>" % ai_category_header
++			# <!-- custom: keep cache/data layer font-agnostic; apply font tags at UI render layer in SevoPediaLeader.py. (GPT-5.3-Codex) -->
++			ai_category_header_line_without_button = ai_category_header
+ 			ai_category_x_offset_without_button = 0
+ 
+ 			return (ai_category_header_line_without_button, ai_category_x_offset_without_button)
+
+[PATCH OMITTED] file=a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py reason=known-generated/noisy-history changedLines=6 bytes=14003
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=3626

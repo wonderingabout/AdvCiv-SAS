@@ -1,0 +1,2796 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6081
+# Commit: 38afe787cdc0a80320fab5a2fae96d71854a751c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b06853446ea41b0cfbab3d433593bddbba9715c2
+# Title: Rework the technology tree: replace TECH_POSTAXIAL_RELIGION, TECH_LATER_ABRAHAMISM, and TECH_ECOLOGY with TECH_DRAMA, TECH_SACRED_ARCHITECTURE, and TECH_AUTO...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	.github/workflows/README.md
+2	0	.github/workflows/build.yml
+109	0	.github/workflows/build/tech_audio.py
+116	0	.github/workflows/build/xml_civ4_text_characters.py
+-	-	Assets/Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Automobiles/nostalgia_atlas_7_3.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Sacred_Architecture/holyavenger.dds
+1	1	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+12	12	Assets/XML/Audio/Audio2DScripts.xml
+24	24	Assets/XML/Audio/AudioDefines.xml
+51	34	Assets/XML/Buildings/CIV4BuildingInfos.xml
+0	1	Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+11	13	Assets/XML/Events/CIV4EventTriggerInfos.xml
+4	2	Assets/XML/GameInfo/CIV4CivicInfos.xml
+2	2	Assets/XML/GameInfo/CIV4ProcessInfo.xml
+4	3	Assets/XML/GameInfo/CIV4ReligionInfo.xml
+184	193	Assets/XML/Technologies/CIV4TechInfos.xml
+1	1	Assets/XML/Text/AdvCiv-SAS_Core.xml
+7	15	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+31	27	Assets/XML/Text/AdvCiv-SAS_main.xml
+0	10	Assets/XML/Text/CIV4GameText_advc.xml
+12	12	Assets/XML/Units/CIV4BuildInfos.xml
+2	1	Assets/XML/Units/CIV4PromotionInfos.xml
+23	31	Assets/XML/Units/CIV4UnitInfos.xml
+3	3	Long_Comments/Long_Comments_XML.txt
+9	9	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+7	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+2	0	_1_AdvCiv-SAS/Docs/README_References.md
+ create mode 100644 .github/workflows/build/tech_audio.py
+ create mode 100644 .github/workflows/build/xml_civ4_text_characters.py
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Automobiles/nostalgia_atlas_7_3.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Techs/Sacred_Architecture/holyavenger.dds
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 18ada1323..3fcda435b 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -74,6 +74,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
+ - [`build/xml_comments.py`](#buildxml_commentspy)
+ - [`build/xml_suspicious_angle_tags.py`](#buildxml_suspicious_angle_tagspy)
+ - [`build/xml_suspicious_text_chars.py`](#buildxml_suspicious_text_charspy)
++- [`build/xml_civ4_text_characters.py`](#buildxml_civ4_text_characterspy)
+ - [`build/xml_sas_text_english.py`](#buildxml_sas_text_englishpy)
+ - [`build/xml_text_duplicate_tags.py`](#buildxml_text_duplicate_tagspy)
+ - [`build/xml_parent_duplicate_keys.py`](#buildxml_parent_duplicate_keyspy)
+@@ -86,6 +87,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
+ - [`build/civ_specific_not_weaker.py`](#buildciv_specific_not_weakerpy)
+ - [`build/define_tag_refs.py`](#builddefine_tag_refspy)
+ - [`build/raw_getinfotype.py`](#buildraw_getinfotypepy)
++- [`build/tech_audio.py`](#buildtech_audiopy)
+ - [`build/opening_music.py`](#buildopening_musicpy)
+ - [`build/bbai_log.py`](#buildbbai_logpy)
+ - [`build/sas_game_summary_log.py`](#buildsas_game_summary_logpy)
+@@ -160,6 +162,10 @@ Verifies raw XML files under `Assets/XML` do not contain suspicious malformed-lo
+ 
+ Verifies XML text does not contain high-confidence corrupted characters such as `?` inside a word-like token, Unicode replacement characters in active/non-ignored text, common mojibake fragments, or raw control characters; inherited non-English replacement-character noise is hidden by default and can be listed with `--show-ignored`. This intentionally does not enforce broader typography policy such as em dashes, curly quotes, or accented letters. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) and fix the corresponding errors. See [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check).
+ 
++### `build/xml_civ4_text_characters.py`
++
++Verifies active GameText values do not contain Unicode typography that Civ4 renders as visible artifacts, including em/en dashes, curly quotes, ellipsis characters, and non-breaking spaces. It also catches repeated question marks that indicate lost characters. XML comments are ignored, while readable accented letters remain allowed.
++
+ ### `build/xml_sas_text_english.py`
+ 
+ Verifies AdvCiv-SAS-owned GameText XML files (`Assets/XML/Text/AdvCiv-SAS*.xml`) only use `<English>` language entries, except a narrow whitelist for inherited/renamed diplomacy text entries that intentionally keep old non-English fields.
+@@ -212,6 +218,10 @@ Verifies any SAS `DefineTextVal` token that looks like a known Civ4 XML tag (e.g
+ 
+ Verifies runtime Python files do not add raw `getInfoTypeForString(...)` or `CvUtil.findInfoTypeNum(...)` lookups outside strict helper implementations and narrow legacy/dynamic exceptions. Use `getInfoTypeOrFail(...)` or `findInfoTypeNumOrFail(...)` for literal/static XML tag lookups so missing or renamed tags fail loudly. Python comments and string literals are ignored, so code-generation strings such as those in `savemap.py` are not flagged by this check. This allowed to [find](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27464773794/job/81185039717) this alternative lookup and that it needed an or fail handling too: now fixed.
+ 
++### `build/tech_audio.py`
++
++Verifies every technology's normal and multiplayer audio reference resolves through the mod-local `Audio2DScripts.xml` and `AudioDefines.xml` tables to a non-empty filename, and that each technology keeps a distinct spoken recording. Mod-local resolution matters because missing entries in these replacement audio tables are not inherited from base Civ4; this check would catch the missing Drama entries, malformed Communism multiplayer script ID, and wrong-layer Aesthetics multiplayer reference found during the technology rework.
++
+ ### `build/opening_music.py`
+ 
+ Verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed script, and if shuffle is enabled, at least one valid non-`NONE` shuffle script.
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index 3b61a20bd..bd3fda45f 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -26,6 +26,7 @@ jobs:
+       - run: python .github/workflows/build/xml_comments.py
+       - run: python .github/workflows/build/xml_suspicious_angle_tags.py
+       - run: python .github/workflows/build/xml_suspicious_text_chars.py
++      - run: python .github/workflows/build/xml_civ4_text_characters.py
+       - run: python .github/workflows/build/xml_sas_text_english.py
+       - run: python .github/workflows/build/xml_text_duplicate_tags.py
+       - run: python .github/workflows/build/xml_parent_duplicate_keys.py
+@@ -38,6 +39,7 @@ jobs:
+       - run: python .github/workflows/build/civ_specific_not_weaker.py
+       - run: python .github/workflows/build/define_tag_refs.py
+       - run: python .github/workflows/build/raw_getinfotype.py
++      - run: python .github/workflows/build/tech_audio.py
+       - run: python .github/workflows/build/opening_music.py
+       - run: python .github/workflows/build/bbai_log.py
+       - run: python .github/workflows/build/sas_game_summary_log.py
+
+diff --git a/.github/workflows/build/tech_audio.py b/.github/workflows/build/tech_audio.py
+new file mode 100644
+index 000000000..79fe12037
+--- /dev/null
++++ b/.github/workflows/build/tech_audio.py
+@@ -0,0 +1,109 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: Civ4 does not inherit missing technology audio entries from the base game's replaced mod-local audio tables. Resolve every normal and multiplayer technology sound through Audio2DScripts.xml and AudioDefines.xml so missing, malformed, or wrong-layer references fail in CI instead of becoming silent in-game. Also keep each technology's spoken recording distinct. (GPT-5.6-Sol) -->
++
++from pathlib import Path
++import argparse
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, local_name, child_text_by_local_name
++
++
++TECH_INFOS_REL_PATH = Path("Assets/XML/Technologies/CIV4TechInfos.xml")
++AUDIO_SCRIPTS_REL_PATH = Path("Assets/XML/Audio/Audio2DScripts.xml")
++AUDIO_DEFINES_REL_PATH = Path("Assets/XML/Audio/AudioDefines.xml")
++
++
++def parse_xml(repo_root: Path, relative_path: Path) -> ET.ElementTree:
++	path = repo_root / relative_path
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++	return ET.parse(path)
++
++
++def read_keyed_values(repo_root: Path, relative_path: Path, parent_name: str, key_name: str, value_name: str) -> dict[str, str]:
++	values: dict[str, str] = {}
++	for node in parse_xml(repo_root, relative_path).getroot().iter():
++		if local_name(node.tag) != parent_name:
++			continue
++		key = child_text_by_local_name(node, key_name)
++		value = child_text_by_local_name(node, value_name)
++		if key:
++			values[key] = value or ""
++	return values
++
++
++def check_tech_audio(repo_root: Path) -> tuple[list[str], int]:
++	failures: list[str] = []
++	scripts = read_keyed_values(repo_root, AUDIO_SCRIPTS_REL_PATH, "Script2DSound", "ScriptID", "SoundID")
++	definitions = read_keyed_values(repo_root, AUDIO_DEFINES_REL_PATH, "SoundData", "SoundID", "Filename")
++	resolved_files: dict[str, dict[str, list[str]]] = {"Sound": {}, "SoundMP": {}}
++	tech_count = 0
++
++	for node in parse_xml(repo_root, TECH_INFOS_REL_PATH).getroot().iter():
++		if local_name(node.tag) != "TechInfo":
++			continue
++		tech_count += 1
++		tech_type = child_text_by_local_name(node, "Type") or f"TechInfo #{tech_count}"
++		for field_name in ("Sound", "SoundMP"):
++			script_id = child_text_by_local_name(node, field_name)
++			if not script_id:
++				failures.append(f"{tech_type}/{field_name}: missing Audio2DScripts ScriptID")
++				continue
++			sound_id = scripts.get(script_id)
++			if sound_id is None:
++				failures.append(f"{tech_type}/{field_name}: ScriptID {script_id} is not defined in {AUDIO_SCRIPTS_REL_PATH}")
++				continue
++			if not sound_id:
++				failures.append(f"{tech_type}/{field_name}: ScriptID {script_id} has an empty SoundID")
++				continue
++			filename = definitions.get(sound_id)
++			if filename is None:
++				failures.append(f"{tech_type}/{field_name}: {script_id} references SoundID {sound_id}, which is not defined in {AUDIO_DEFINES_REL_PATH}")
++				continue
++			if not filename:
++				failures.append(f"{tech_type}/{field_name}: SoundID {sound_id} has an empty Filename")
++				continue
++			resolved_files[field_name].setdefault(filename.casefold(), []).append(tech_type)
++
++	for field_name, by_filename in resolved_files.items():
++		for filename, tech_types in sorted(by_filename.items()):
++			if len(tech_types) > 1:
++				failures.append(f"{field_name}: spoken recording {filename} is reused by {', '.join(sorted(tech_types))}")
++
++	if tech_count == 0:
++		failures.append(f"{TECH_INFOS_REL_PATH}: no TechInfo entries found")
++
++	return failures, tech_count
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that every technology has distinct, mod-local normal and multiplayer audio mappings.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	try:
++		failures, tech_count = check_tech_audio(args.repo_root)
++	except (RuntimeError, ET.ParseError) as exc:
++		print("FAIL technology audio mappings")
++		print(f"  - {exc}")
++		return 1
++
++	if failures:
++		print("FAIL technology audio mappings")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print(f"PASS technology audio mappings ({tech_count} technologies, {tech_count * 2} resolved fields)")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/xml_civ4_text_characters.py b/.github/workflows/build/xml_civ4_text_characters.py
+new file mode 100644
+index 000000000..988ea881e
+--- /dev/null
++++ b/.github/workflows/build/xml_civ4_text_characters.py
+@@ -0,0 +1,116 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: characters that Civ4 GameText renders as visible artifacts.
++
++from pathlib import Path
++import argparse
++import re
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root
++
++
++TEXT_ROOT = Path("Assets/XML/Text")
++ENCODINGS_TO_TRY = (
++	"utf-8-sig",
++	"cp1252",
++	"latin1",
++)
++
++# <!-- custom: Civ4 renders these Unicode typography characters as artifacts in GameText. Keep readable accented letters valid and use simple ASCII punctuation instead. (GPT-5.6-Sol) -->
++UNSUPPORTED_CHARACTERS = {
++	"\u00a0": "non-breaking space",
++	"\u2010": "Unicode hyphen",
++	"\u2011": "non-breaking hyphen",
++	"\u2012": "figure dash",
++	"\u2013": "en dash",
++	"\u2014": "em dash",
++	"\u2018": "left curly single quote",
++	"\u2019": "right curly single quote",
++	"\u201a": "single low quote",
++	"\u201c": "left curly double quote",
++	"\u201d": "right curly double quote",
++	"\u201e": "double low quote",
++	"\u2026": "ellipsis character",
++}
++REPEATED_QUESTION_MARK_PATTERN = re.compile(r"\?{2,}")
++COMMENT_PATTERN = re.compile(r"<!--.*?-->", re.DOTALL)
++
++
++def decode_xml_bytes(data: bytes) -> str:
++	for encoding in ENCODINGS_TO_TRY:
++		try:
++			return data.decode(encoding)
++		except UnicodeDecodeError:
++			pass
++	return data.decode("latin1", errors="replace")
++
++
++def blank_comments(text: str) -> str:
++	return COMMENT_PATTERN.sub(lambda match: "".join("\n" if char == "\n" else " " for char in match.group(0)), text)
++
++
++def line_number(text: str, index: int) -> int:
++	return text.count("\n", 0, index) + 1
++
++
++def excerpt(text: str, index: int, radius: int = 90) -> str:
++	line_start = text.rfind("\n", 0, index) + 1
++	line_end = text.find("\n", index)
++	if line_end < 0:
++		line_end = len(text)
++	start = max(line_start, index - radius)
++	end = min(line_end, index + radius + 1)
++	return (("..." if start > line_start else "") + text[start:end] + ("..." if end < line_end else "")).strip()
++
++
++def check_file(relative_path: Path, text: str) -> list[str]:
++	failures: list[str] = []
++	active_text = blank_comments(text)
++
++	for index, char in enumerate(active_text):
++		reason = UNSUPPORTED_CHARACTERS.get(char)
++		if reason is not None:
++			failures.append(f"{relative_path}: line {line_number(text, index)}: unsupported Civ4 GameText character U+{ord(char):04X} ({reason}): {excerpt(text, index)}")
++
++	for match in REPEATED_QUESTION_MARK_PATTERN.finditer(active_text):
++		index = match.start()
++		failures.append(f"{relative_path}: line {line_number(text, index)}: repeated question marks, likely lost characters: {excerpt(text, index)}")
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check active XML GameText for characters that Civ4 renders as artifacts.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	root = args.repo_root / TEXT_ROOT
++	if not root.exists():
++		print(f"FAIL Civ4 GameText characters\n  - {TEXT_ROOT}: missing directory")
++		return 1
++
++	failures: list[str] = []
++	for path in sorted(root.rglob("*.xml")):
++		if path.name.endswith("Schema.xml"):
++			continue
++		relative_path = path.relative_to(args.repo_root)
++		failures.extend(check_file(relative_path, decode_xml_bytes(path.read_bytes())))
++
++	if failures:
++		print("FAIL Civ4 GameText characters")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS Civ4 GameText characters")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds b/Assets/Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds
+deleted file mode 100644
+index a757620d4..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Automobiles/nostalgia_atlas_7_3.dds b/Assets/Art/AdvCiv_SAS/Techs/Automobiles/nostalgia_atlas_7_3.dds
+new file mode 100644
+index 000000000..c111277d6
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Automobiles/nostalgia_atlas_7_3.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds b/Assets/Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds
+deleted file mode 100644
+index f63dcf204..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds b/Assets/Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds
+deleted file mode 100644
+index 6b5587c37..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Sacred_Architecture/holyavenger.dds b/Assets/Art/AdvCiv_SAS/Techs/Sacred_Architecture/holyavenger.dds
+new file mode 100644
+index 000000000..85653370b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Techs/Sacred_Architecture/holyavenger.dds differ
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index 5af9fd1fe..87cced1ea 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -811,7 +811,7 @@ def SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs):
+ 				iEra = iSpecialEra
+ 
+ 	# Also consider PrereqReligion tech prereq (religion founding tech).
+-	# Example: Islamic Temple may have no building tech prereq, but RELIGION_ISLAM is founded by TECH_LATER_ABRAHAMISM (Medieval Era), so the building effectively cannot exist before that era (except via conquest/trade of a religion-enabled city).
++	# Example: a Christian Temple may have no building tech prereq, but RELIGION_CHRISTIANITY is founded by TECH_MONOTHEISM, so the building effectively cannot exist before that technology (except via conquest/trade of a religion-enabled city).
+ 	iPrereqReligion = info.getPrereqReligion()
+ 	if iPrereqReligion >= 0:
+ 		iReligionTech = gc.getReligionInfo(iPrereqReligion).getTechPrereq()
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index c9fa5c3f3..1e92938ab 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -12369,8 +12369,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_POSTAXIAL_RELIGION</ScriptID>
+-		<SoundID>SND_TECH_POSTAXIAL_RELIGION</SoundID>
++		<ScriptID>AS2D_TECH_DRAMA</ScriptID>
++		<SoundID>SND_TECH_DRAMA</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -12461,8 +12461,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_LATER_ABRAHAMISM</ScriptID>
+-		<SoundID>SND_TECH_LATER_ABRAHAMISM</SoundID>
++		<ScriptID>AS2D_TECH_SACRED_ARCHITECTURE</ScriptID>
++		<SoundID>SND_TECH_SACRED_ARCHITECTURE</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -12691,8 +12691,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_ECOLOGY</ScriptID>
+-		<SoundID>SND_TECH_ECOLOGY</SoundID>
++		<ScriptID>AS2D_TECH_AUTOMOBILES</ScriptID>
++		<SoundID>SND_TECH_AUTOMOBILES</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -14485,8 +14485,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_POSTAXIAL_RELIGION</ScriptID>
+-		<SoundID>SND_TECH_MP_POSTAXIAL_RELIGION</SoundID>
++		<ScriptID>AS2D_TECH_MP_DRAMA</ScriptID>
++		<SoundID>SND_TECH_MP_DRAMA</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -14577,8 +14577,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_LATER_ABRAHAMISM</ScriptID>
+-		<SoundID>SND_TECH_MP_LATER_ABRAHAMISM</SoundID>
++		<ScriptID>AS2D_TECH_MP_SACRED_ARCHITECTURE</ScriptID>
++		<SoundID>SND_TECH_MP_SACRED_ARCHITECTURE</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -14807,8 +14807,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_ECOLOGY</ScriptID>
+-		<SoundID>SND_TECH_MP_ECOLOGY</SoundID>
++		<ScriptID>AS2D_TECH_MP_AUTOMOBILES</ScriptID>
++		<SoundID>SND_TECH_MP_AUTOMOBILES</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index f86a5a1a7..afee0cc29 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8397,7 +8397,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MYSTICISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_Music</Filename>
++			<Filename>Sounds/Tech/Tech_Priesthood</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8432,7 +8432,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MONARCHY</SoundID>
+-			<Filename>Sounds/Tech/Tech_Construction</Filename>
++			<Filename>Sounds/Tech/Tech_Monarchy</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8466,15 +8466,15 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_POSTAXIAL_RELIGION</SoundID>
+-			<Filename>Sounds/Tech/Tech_Priesthood</Filename>
++			<SoundID>SND_TECH_DRAMA</SoundID>
++			<Filename>Sounds/Tech/Tech_Drama</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_ROMANTICISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_Drama</Filename>
++			<Filename>Sounds/Tech/Tech_Music</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8494,8 +8494,8 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_LATER_ABRAHAMISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_Monarchy</Filename>
++			<SoundID>SND_TECH_SACRED_ARCHITECTURE</SoundID>
++			<Filename>Sounds/Tech/Tech_Construction</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8564,8 +8564,8 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_ECOLOGY</SoundID>
+-			<Filename>Sounds/Tech/Tech_Ecology</Filename>
++			<SoundID>SND_TECH_AUTOMOBILES</SoundID>
++			<Filename>Sounds/Tech/Tech_Combustion</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8705,7 +8705,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_BIOLOGY</SoundID>
+-			<Filename>Sounds/Tech/Tech_FiberOptics</Filename>
++			<Filename>Sounds/Tech/Tech_Refrigeration</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8733,7 +8733,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_COMBUSTION</SoundID>
+-			<Filename>Sounds/Tech/Tech_Combustion</Filename>
++			<Filename>Sounds/Tech/Tech_FiberOptics</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -8964,7 +8964,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_ENVIRONMENTALISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_Refrigeration</Filename>
++			<Filename>Sounds/Tech/Tech_Ecology</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9041,7 +9041,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_MYSTICISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Music</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Priesthood</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9076,7 +9076,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_MONARCHY</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Construction</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Monarchy</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9110,15 +9110,15 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_POSTAXIAL_RELIGION</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Priesthood</Filename>
++			<SoundID>SND_TECH_MP_DRAMA</SoundID>
++			<Filename>Sounds/Tech/Tech_MP_Drama</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_ROMANTICISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Drama</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Music</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9138,8 +9138,8 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_LATER_ABRAHAMISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Monarchy</Filename>
++			<SoundID>SND_TECH_MP_SACRED_ARCHITECTURE</SoundID>
++			<Filename>Sounds/Tech/Tech_MP_Construction</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9208,8 +9208,8 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_ECOLOGY</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Ecology</Filename>
++			<SoundID>SND_TECH_MP_AUTOMOBILES</SoundID>
++			<Filename>Sounds/Tech/Tech_MP_Combustion</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9363,7 +9363,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_COMBUSTION</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Combustion</Filename>
++			<Filename>Sounds/Tech/Tech_MP_FiberOptics</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9412,7 +9412,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_BIOLOGY</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_FiberOptics</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Refrigeration</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+@@ -9608,7 +9608,7 @@
+ 		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_TECH_MP_ENVIRONMENTALISM</SoundID>
+-			<Filename>Sounds/Tech/Tech_MP_Refrigeration</Filename>
++			<Filename>Sounds/Tech/Tech_MP_Ecology</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index e51ff9976..ac16bb7b7 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -5001,7 +5001,8 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: see also TXT_KEY_BUILDING_RECYCLING_CENTER_PEDIA for details or related info -->
+-			<PrereqTech>TECH_ECOLOGY</PrereqTech>
++			<!-- custom: Ecology was removed; Composites retains the Recycling Center as the material-processing branch. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_COMPOSITES</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -10790,7 +10791,7 @@
+ 			<FreeStartEra>ERA_MODERN</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
++			<PrereqTech>TECH_SACRED_ARCHITECTURE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -11571,8 +11572,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was (now removed) TECH_DRAMA -->
+-			<PrereqTech>TECH_AESTHETICS</PrereqTech>
++			<!-- custom: Restore Theatre to the earlier Drama step so its happiness and culture support arrive with the culture slider, while Aesthetics retains the Culture process. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_DRAMA</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -18042,7 +18043,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: see code comment at the pagan_shrine, was NONE -->
+-			<PrereqTech>TECH_MONOTHEISM</PrereqTech>
++			<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -20326,7 +20327,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: see code comment at the pagan_shrine, was NONE -->
+-			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
++			<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -21087,7 +21088,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: see code comment at the pagan_shrine, was NONE -->
+-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
++			<PrereqTech>TECH_NAVIGATION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -21647,7 +21648,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
++			<!-- custom: Move Globe Theatre to the later Aesthetics cultural-wonder package, where its theatre identity and national culture role fit directly. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -21687,7 +21689,8 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 300 -->
+-			<iCost>475</iCost>
++			<!-- custom: Match other constructible world wonders in Aesthetics' tech-tree column. (GPT-5.6-Sol) -->
++			<iCost>400</iCost>
+ 			<iHurryCostModifier>50</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -22019,8 +22022,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: TECH_NATURALISM (if we rework it indeed as such) seems more accurate or and is very bare and makes sense more in terms of gameplay in our reworked tech tree, plsu can be built a bit sooner and is nice to have a cultural building at this tech +/- era, also boosting culture path and wonders by building them sooner indirectly; was TECH_NATIONALISM -->
+-			<PrereqTech>TECH_NATURALISM</PrereqTech>
++			<!-- custom: Move Hermitage from Naturalism to the later Aesthetics cultural-wonder package, where its artistic identity and strong culture modifier fit directly. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -22060,7 +22063,8 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 300 -->
+-			<iCost>500</iCost>
++			<!-- custom: Match other constructible world wonders in Aesthetics' tech-tree column. (GPT-5.6-Sol) -->
++			<iCost>400</iCost>
+ 			<iHurryCostModifier>50</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -22623,8 +22627,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 500 -->
+-			<iCost>625</iCost>
++			<!-- custom: was 500; use the column-16 world-wonder cost after Fascism moves one column earlier. (GPT-5.6-Sol) -->
++			<iCost>600</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -24144,8 +24148,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 250 -->
+-			<iCost>175</iCost>
++			<!-- custom: was 250; use the column-2 world-wonder cost after Metal Casting moves one column earlier. (GPT-5.6-Sol) -->
++			<iCost>150</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -24216,7 +24220,8 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- advc.201: K-Mod had reduced this to 5 -->
+-				<iCommerce>6</iCommerce>
++				<!-- custom: was 6; use 4 culture for this early wonder column so border pressure, an early cultural lead, and Great Artist generation do not compound too strongly. (GPT-5.6-Sol) -->
++				<iCommerce>4</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -24548,7 +24553,8 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 400 -->
+-			<iCost>225</iCost>
++			<!-- custom: Match other constructible world wonders after Code of Laws moved one tech-tree column earlier. (GPT-5.6-Sol) -->
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -24908,7 +24914,8 @@
+ 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
+ 			<!-- custom: hagia sophia reworked, never obsoletes now, was TECH_STEAM_POWER -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
++			<!-- custom: Sacred Architecture collects major religious monuments before leading into the later Aesthetics cultural-wonder package. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_SACRED_ARCHITECTURE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -24949,6 +24956,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 500 -->
++			<!-- custom: Match other constructible world wonders after Sacred Architecture moved one tech-tree column earlier. (GPT-5.6-Sol) -->
+ 			<iCost>350</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+@@ -25019,7 +25027,8 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- advc.201: K-Mod had reduced this to 6 -->
+-				<iCommerce>6</iCommerce>
++				<!-- custom: Increase to 8 after moving Hagia Sophia into the later Sacred Architecture wonder column. (GPT-5.6-Sol) -->
++				<iCommerce>8</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -25307,8 +25316,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was (now removed) TECH_DRAMA -->
+-			<PrereqTech>TECH_AESTHETICS</PrereqTech>
++			<!-- custom: Move Natya Shastra with Drama: its performing-arts identity fits the tech directly and gives this early cultural branch a distinctive commitment reward. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_DRAMA</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25347,7 +25356,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: Match other constructible world wonders in the same tech-tree column. (GPT-5.6-Sol) -->
+-			<iCost>275</iCost>
++			<iCost>225</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25512,7 +25521,7 @@
+ 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+ 			<!-- custom: religion is still relevant in modern era historically so this better reflects that, was TECH_COMPUTERS -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
++			<PrereqTech>TECH_SACRED_ARCHITECTURE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25551,7 +25560,8 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 550 -->
+-			<iCost>400</iCost>
++			<!-- custom: Match other constructible world wonders after Sacred Architecture moved one tech-tree column earlier. (GPT-5.6-Sol) -->
++			<iCost>350</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25737,7 +25747,8 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 400 -->
+-			<iCost>450</iCost>
++			<!-- custom: Return to 400 to match other constructible world wonders after Broader Education moved one tech-tree column earlier. (GPT-5.6-Sol) -->
++			<iCost>400</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25900,7 +25911,8 @@
+ 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: was TECH_ENGINEERING -->
+-			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
++			<!-- custom: Sacred Architecture collects major religious monuments before leading into the later Aesthetics cultural-wonder package. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_SACRED_ARCHITECTURE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25940,6 +25952,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 550 -->
++			<!-- custom: Match other constructible world wonders after Sacred Architecture moved one tech-tree column earlier. (GPT-5.6-Sol) -->
+ 			<iCost>350</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+@@ -26011,7 +26024,8 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- advc.201: K-Mod had reduced this to 8 -->
+-				<iCommerce>6</iCommerce>
++				<!-- custom: Restore 8 after moving Notre Dame into the later Sacred Architecture wonder column. (GPT-5.6-Sol) -->
++				<iCommerce>8</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -26107,7 +26121,8 @@
+ 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: was TECH_NATIONALISM -->
+-			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
++			<!-- custom: Move Taj Mahal from Sacred Architecture to the later Aesthetics cultural-wonder package. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -28348,7 +28363,7 @@
+ 			<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 			<!-- custom: was empty -->
+ 			<TechTypes>
+-				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
++				<PrereqTech>TECH_SACRED_ARCHITECTURE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -28390,7 +28405,8 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 550 -->
+-			<iCost>450</iCost>
++			<!-- custom: Match other constructible world wonders after Broader Education moved one tech-tree column earlier. (GPT-5.6-Sol) -->
++			<iCost>400</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -28992,8 +29008,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 450; now matches other constructible world wonders in its tech-tree column. (GPT-5.6-Sol) -->
+-			<iCost>200</iCost>
++			<!-- custom: was 450; match other constructible world wonders after Currency moved one tech-tree column later. (GPT-5.6-Sol) -->
++			<iCost>225</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -29958,7 +29974,8 @@
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: note: Executives now require tech(s) to be built (see there for details) If you change a corporation builing's required tech(s), make sure you also apply this change in the executive's unit info's required tech(s) as well or adjust as you see fit, was NONE. -->
+ 			<!-- custom: was TECH_MEDICINE -->
+-			<PrereqTech>TECH_ECOLOGY</PrereqTech>
++			<!-- custom: Move Cereal Mills from removed Ecology's late replacement to TECH_THEORY_OF_EVOLUTION. Its Biology path fits the food corporation and gives the scientific branch an economic payoff without crowding TECH_ENVIRONMENTALISM; TECH_CORPORATION remains additionally required. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+
+diff --git a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+index a58a878c6..af2f7756c 100644
+--- a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+@@ -37,7 +37,6 @@
+ 			</ProductionTraits>
+ 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,7</Button>
+ 		</SpecialBuildingInfo>
+-		<!-- custom: cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree. Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or wants to pursue a cultural path sooner among other reasons if any, to also match the multiple pagan holy sites (/shrines, in a general term way not civ4 building specific term way specifically) throughout history -->
+ 		<SpecialBuildingInfo>
+ 			<Type>SPECIALBUILDING_CATHEDRAL</Type>
+ 			<Description>TXT_KEY_SPECIALBUILDING_CATHEDRAL</Description>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index 56626e367..1f43fb7b7 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -192,7 +192,7 @@
+ 				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
++				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -288,10 +288,10 @@
+ 				<PrereqTech>TECH_HUNTING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+-			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute instead, TECH_ECOLOGY in this case -->
++			<!-- custom: TECH_STEEL was replaced with TECH_MARINE_TECHNOLOGY; use TECH_ENVIRONMENTALISM as the later substitute after Ecology's removal. (GPT-5.6-Sol) -->
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
+-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
++				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>1</bRecurring>
+@@ -558,7 +558,7 @@
+ 				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+-				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
++				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -3552,7 +3552,6 @@
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+ 				<PrereqTech>TECH_LITERATURE</PrereqTech>
+ 				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+ 				<PrereqTech>TECH_MACHINERY</PrereqTech>
+@@ -7462,7 +7461,7 @@
+ 				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+-				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
++				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -7975,7 +7974,7 @@
+ 				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+-				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
++				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -8757,7 +8756,7 @@
+ 			</Events>
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+-			<!-- custom: was (now removed) TECH_DRAMA -->
++			<!-- custom: Keep this arts-related event at the later Aesthetics step rather than moving it with the restored Drama identity. (GPT-5.6-Sol) -->
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_AESTHETICS</PrereqTech>
+ 			</OrPreReqs>
+@@ -9906,7 +9905,6 @@
+ 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+ 				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+ 				<PrereqTech>TECH_AESTHETICS</PrereqTech>
+-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+@@ -10603,7 +10601,7 @@
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_ECOLOGY</PrereqTech>
++				<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs/>
+@@ -13564,7 +13562,7 @@
+ 				<PrereqTech>TECH_ROMANTICISM</PrereqTech>
+ 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+ 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
++				<PrereqTech>TECH_AESTHETICS</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs/>
+@@ -14343,7 +14341,7 @@
+ 				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+-				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
++				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -14433,7 +14431,7 @@
+ 				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
+-				<ObsoleteTech>TECH_POSTAXIAL_RELIGION</ObsoleteTech>
++				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index 32d1c0830..20c0204a1 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -1614,7 +1614,8 @@
+ 			<Civilopedia>TXT_KEY_CIVIC_ORGANIZED_RELIGION_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Button>,Art/Interface/Buttons/Civics/Organized_Religion.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,2,2</Button>
+-			<TechPrereq>TECH_MONOTHEISM</TechPrereq>
++			<!-- custom: Move Organized Religion to Polytheism so its monastery-free missionaries can shape the early religion races instead of arriving after most founding and spread. Polytheism has no other civic, fits early organized state cults, and is a more specialized commitment than Calendar's broader policy path; the civic's high upkeep further keeps this early timing a deliberate choice. (GPT-5.6-Sol) -->
++			<TechPrereq>TECH_POLYTHEISM</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<Upkeep>UPKEEP_HIGH</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+@@ -1763,7 +1764,8 @@
+ 			<Civilopedia>TXT_KEY_CIVIC_THEOCRACY_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Button>,Art/Interface/Buttons/Civics/Theocracy.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,6,3</Button>
+-			<TechPrereq>TECH_POSTAXIAL_RELIGION</TechPrereq>
++			<!-- custom: Keep Theocracy at Monotheism as the later restrictive/military religious choice, distinct from the earlier missionary-focused Organized Religion civic. (GPT-5.6-Sol) -->
++			<TechPrereq>TECH_MONOTHEISM</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<Upkeep>UPKEEP_MEDIUM</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+
+diff --git a/Assets/XML/GameInfo/CIV4ProcessInfo.xml b/Assets/XML/GameInfo/CIV4ProcessInfo.xml
+index d7fc4fe0d..8c5e49de1 100644
+--- a/Assets/XML/GameInfo/CIV4ProcessInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ProcessInfo.xml
+@@ -35,8 +35,8 @@
+ 			<Type>PROCESS_CULTURE</Type>
+ 			<Description>TXT_KEY_PROCESS_CULTURE</Description>
+ 			<Strategy>TXT_KEY_PROCESS_CULTURE_STRATEGY</Strategy>
+-			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #22 -->
+-			<TechPrereq>TECH_AESTHETICS</TechPrereq>
++			<!-- custom: Move the production-to-Culture process to the earlier Drama tech with the culture slider, leaving the later Aesthetics tech as a concentrated cultural-wonder payoff. (GPT-5.6-Sol) -->
++			<TechPrereq>TECH_DRAMA</TechPrereq>
+ 			<ProductionToCommerceModifiers>
+ 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+ 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+
+diff --git a/Assets/XML/GameInfo/CIV4ReligionInfo.xml b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+index 52993aeec..9075a2fc8 100644
+--- a/Assets/XML/GameInfo/CIV4ReligionInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+@@ -77,7 +77,8 @@
+ 			<Description>TXT_KEY_RELIGION_JUDAISM</Description>
+ 			<Adjective>TXT_KEY_RELIGION_JUDAISM_ADJECTIVE</Adjective>
+ 			<Civilopedia>TXT_KEY_RELIGION_JUDAISM_PEDIA</Civilopedia>
+-			<TechPrereq>TECH_MONOTHEISM</TechPrereq>
++			<!-- custom: Distribute religions across distinct research paths and make more of them early enough to shape diplomacy and spread: Judaism at Code of Laws, Christianity at Monotheism, and Islam at Navigation. (GPT-5.6-Sol) -->
++			<TechPrereq>TECH_CODE_OF_LAWS</TechPrereq>
+ 			<FreeUnitClass>UNITCLASS_JEWISH_MISSIONARY</FreeUnitClass>
+ 			<iFreeUnits>0</iFreeUnits>
+ 			<iSpreadFactor>100</iSpreadFactor>
+@@ -171,7 +172,7 @@
+ 			<Description>TXT_KEY_RELIGION_CHRISTIANITY</Description>
+ 			<Adjective>TXT_KEY_RELIGION_CHRISTIANITY_ADJECTIVE</Adjective>
+ 			<Civilopedia>TXT_KEY_RELIGION_CHRISTIANITY_PEDIA</Civilopedia>
+-			<TechPrereq>TECH_POSTAXIAL_RELIGION</TechPrereq>
++			<TechPrereq>TECH_MONOTHEISM</TechPrereq>
+ 			<FreeUnitClass>UNITCLASS_CHRISTIAN_MISSIONARY</FreeUnitClass>
+ 			<iFreeUnits>1</iFreeUnits>
+ 			<iSpreadFactor>100</iSpreadFactor>
+@@ -202,7 +203,7 @@
+ 			<Description>TXT_KEY_RELIGION_ISLAM</Description>
+ 			<Adjective>TXT_KEY_RELIGION_ISLAM_ADJECTIVE</Adjective>
+ 			<Civilopedia>TXT_KEY_RELIGION_ISLAM_PEDIA</Civilopedia>
+-			<TechPrereq>TECH_LATER_ABRAHAMISM</TechPrereq>
++			<TechPrereq>TECH_NAVIGATION</TechPrereq>
+ 			<FreeUnitClass>UNITCLASS_ISLAMIC_MISSIONARY</FreeUnitClass>
+ 			<iFreeUnits>1</iFreeUnits>
+ 			<iSpreadFactor>100</iSpreadFactor>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 081691eab..af95826d5 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -210,9 +210,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_MYSTICISM</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_MINING</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: Polytheism is a specialized religious commitment from Mysticism and does not need the unrelated Mining branch. Its focused path contrasts with Calendar's broader policy unlocks. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_POLYTHEISM_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_POLYTHEISM</Sound>
+ 			<SoundMP>AS2D_TECH_MP_POLYTHEISM</SoundMP>
+@@ -298,7 +297,7 @@
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>300</iCost>
++			<iCost>425</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_ANCIENT -->
+@@ -310,7 +309,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>16</iAsset>
++			<iAsset>24</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -330,7 +329,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>6</iGridX>
++			<iGridX>7</iGridX>
+ 			<iGridY>13</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -350,11 +349,12 @@
+ 					<iFlavor>8</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
++			<!-- custom: Monotheism combines the organized state reached through Monarchy with the explicitly religious Polytheism branch. This keeps Monarchy itself secular while preserving a deliberate religious commitment before Christianity and Theocracy. (GPT-5.6-Sol) -->
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
++				<PrereqTech>TECH_MONARCHY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
++				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_MONOTHEISM_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_MONOTHEISM</Sound>
+@@ -370,11 +370,10 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>100</iCost>
++			<iCost>225</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<!-- custom: was ERA_CLASSICAL -->
+-			<Era>ERA_ANCIENT</Era>
++			<Era>ERA_CLASSICAL</Era>
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+@@ -382,7 +381,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>8</iAsset>
++			<iAsset>16</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -402,8 +401,8 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>3</iGridX>
+-			<iGridY>11</iGridY>
++			<iGridX>5</iGridX>
++			<iGridY>13</iGridY>
+ 			<DomainExtraMoves/>
+ 			<!-- custom: was empty -->
+ 			<CommerceFlexible>
+@@ -441,12 +440,11 @@
+ 					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
++			<!-- custom: Place Monarchy after the legal state represented by Code of Laws without imposing a religious prerequisite on this secular government technology. (GPT-5.6-Sol) -->
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_CALENDAR</PrereqTech>
++				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+-			</AndPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_MONARCHY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_MONARCHY</Sound>
+ 			<SoundMP>AS2D_TECH_MP_MONARCHY</SoundMP>
+@@ -526,9 +524,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: Literature develops directly from Writing and does not require an unrelated religious tradition. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_LITERATURE_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_LITERATURE</Sound>
+ 			<SoundMP>AS2D_TECH_MP_LITERATURE</SoundMP>
+@@ -543,7 +540,7 @@
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>225</iCost>
++			<iCost>150</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_CLASSICAL</Era>
+@@ -575,7 +572,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>5</iGridX>
++			<iGridX>4</iGridX>
+ 			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -601,10 +598,11 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_MONARCHY</PrereqTech>
++				<PrereqTech>TECH_CALENDAR</PrereqTech>
+ 			</OrPreReqs>
++			<!-- custom: Calendar and Writing provide the record-keeping and shared civic time needed for codified administration, without making either Monarchy or specialized Literature a prerequisite for law. (GPT-5.6-Sol) -->
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_LITERATURE</PrereqTech>
++				<PrereqTech>TECH_WRITING</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_CODE_OF_LAWS_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_CODE_OF_LAWS</Sound>
+@@ -683,6 +681,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_LITERATURE</PrereqTech>
+ 			</OrPreReqs>
++			<!-- custom: Restore Construction as Paper's cross-branch beeline gate. Code of Laws is already a strong central prerequisite, while Construction keeps the builder branch relevant and avoids concentrating this part of the tree on the same legal path. (GPT-5.6-Sol) -->
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+ 			</AndPreReqs>
+@@ -766,16 +765,16 @@
+ 			<SoundMP>AS2D_TECH_MP_FEUDALISM</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Feudalism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,10</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_POSTAXIAL_RELIGION -->
+-			<Type>TECH_POSTAXIAL_RELIGION</Type>
+-			<Description>TXT_KEY_TECH_POSTAXIAL_RELIGION</Description>
+-			<Civilopedia>TXT_KEY_TECH_POSTAXIAL_RELIGION_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: replace the former TECH_POSTAXIAL_RELIGION with Drama now that this save-breaking technology-tree revision no longer needs the compatibility type. (GPT-5.6-Sol) -->
++			<Type>TECH_DRAMA</Type>
++			<Description>TXT_KEY_TECH_DRAMA</Description>
++			<Civilopedia>TXT_KEY_TECH_DRAMA_PEDIA</Civilopedia>
+ 			<Help/>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_RELIGION</Advisor>
++			<Advisor>ADVISOR_CULTURE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>600</iCost>
++			<iCost>225</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_MEDIEVAL -->
+@@ -787,7 +786,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>24</iAsset>
++			<iAsset>16</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -807,16 +806,22 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>8</iGridX>
++			<iGridX>5</iGridX>
+ 			<iGridY>15</iGridY>
+ 			<DomainExtraMoves/>
+-			<CommerceFlexible/>
++			<!-- custom: Make the culture slider available at the earlier Drama step, where trading commerce for happiness, border pressure, or a cultural victory is a timely strategic choice; the later Aesthetics tech retains the production-to-Culture process. (GPT-5.6-Sol) -->
++			<CommerceFlexible>
++				<bFlexible>0</bFlexible>
++				<bFlexible>0</bFlexible>
++				<bFlexible>1</bFlexible>
++				<bFlexible>0</bFlexible>
++			</CommerceFlexible>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_RELIGION</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -824,20 +829,21 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>10</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_AESTHETICS</PrereqTech>
++				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-			</AndPreReqs>
+-			<Quote>TXT_KEY_TECH_POSTAXIAL_RELIGION_QUOTE</Quote>
+-			<Sound>AS2D_TECH_POSTAXIAL_RELIGION</Sound>
+-			<SoundMP>AS2D_TECH_MP_POSTAXIAL_RELIGION</SoundMP>
+-			<!-- custom: button ai-generated by chatgpt thanks to my prompt and is amazingly good result hehe thanks a lot chatgpt. -->
+-			<Button>Art/AdvCiv_SAS/Techs/Postaxial_Religion/postaxial_religion.dds</Button>
++			<AndPreReqs/>
++			<Quote>TXT_KEY_TECH_DRAMA_QUOTE</Quote>
++			<Sound>AS2D_TECH_DRAMA</Sound>
++			<SoundMP>AS2D_TECH_MP_DRAMA</SoundMP>
++			<Button>,Art/Interface/Buttons/TechTree/Drama.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,3</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_ROMANTICISM -->
+ 			<Type>TECH_ROMANTICISM</Type>
+@@ -1070,17 +1076,17 @@
+ 			<!-- custom: button import from m-e mod -->
+ 			<Button>Art/AdvCiv_SAS/Techs/Chivalry/Smithing.dds</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_LATER_ABRAHAMISM -->
+-			<Type>TECH_LATER_ABRAHAMISM</Type>
+-			<Description>TXT_KEY_TECH_LATER_ABRAHAMISM</Description>
+-			<Civilopedia>TXT_KEY_TECH_LATER_ABRAHAMISM_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: replace the former TECH_LATER_ABRAHAMISM with Sacred Architecture now that this save-breaking technology-tree revision no longer needs the compatibility type. (GPT-5.6-Sol) -->
++			<Type>TECH_SACRED_ARCHITECTURE</Type>
++			<Description>TXT_KEY_TECH_SACRED_ARCHITECTURE</Description>
++			<Civilopedia>TXT_KEY_TECH_SACRED_ARCHITECTURE_PEDIA</Civilopedia>
+ 			<Help/>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_RELIGION</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.174: was 1200 -->
+-			<iCost>800</iCost>
++			<iCost>600</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -1111,8 +1117,8 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>9</iGridX>
+-			<iGridY>11</iGridY>
++			<iGridX>8</iGridX>
++			<iGridY>15</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -1136,17 +1142,17 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
++				<PrereqTech>TECH_DRAMA</PrereqTech>
+ 			</OrPreReqs>
++			<!-- custom: Sacred Architecture combines Drama's developed cultural tradition with Monotheism's religious organization, creating a meaningful non-redundant convergence one column after Monotheism. (GPT-5.6-Sol) -->
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+ 			</AndPreReqs>
+-			<Quote>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Quote>
+-			<Sound>AS2D_TECH_LATER_ABRAHAMISM</Sound>
+-			<SoundMP>AS2D_TECH_MP_LATER_ABRAHAMISM</SoundMP>
+-			<!-- custom: art button import from ffh2 mod's tech_fanaticism -->
+-			<Button>Art/AdvCiv_SAS/Techs/Later_Abrahamism/fanaticism.dds</Button>
++			<Quote>TXT_KEY_TECH_SACRED_ARCHITECTURE_QUOTE</Quote>
++			<Sound>AS2D_TECH_SACRED_ARCHITECTURE</Sound>
++			<SoundMP>AS2D_TECH_MP_SACRED_ARCHITECTURE</SoundMP>
++			<!-- custom: art button import from mana mod's divine wrath spell, thanks. -->
++			<Button>Art/AdvCiv_SAS/Techs/Sacred_Architecture/holyavenger.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_NATIONALISM -->
+ 			<Type>TECH_NATIONALISM</Type>
+@@ -1379,9 +1385,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_AESTHETICS</PrereqTech>
+-			</AndPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_CONSTITUTION_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_CONSTITUTION</Sound>
+ 			<SoundMP>AS2D_TECH_MP_CONSTITUTION</SoundMP>
+@@ -1519,7 +1523,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
++				<PrereqTech>TECH_BANKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+@@ -1571,7 +1575,8 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>15</iGridX>
+-			<iGridY>19</iGridY>
++			<!-- custom: was row 19; move Corporation into Ecology's former row as Economics' branch toward Game Theory. (GPT-5.6-Sol) -->
++			<iGridY>15</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -1609,11 +1614,11 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2500</iCost>
++			<!-- custom: move Fascism one column earlier and match that column's cost, era, and asset value; Automobiles takes its former timing and armored-unit unlocks. (GPT-5.6-Sol) -->
++			<iCost>2400</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<!-- custom: was ERA_INDUSTRIAL -->
+-			<Era>ERA_MODERN</Era>
++			<Era>ERA_INDUSTRIAL</Era>
+ 			<!-- custom: see code comment at TECH_GAME_THEORY for details, was UNITCLASS_GREAT_GENERAL -->
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+@@ -1622,7 +1627,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>48</iAsset>
++			<iAsset>40</iAsset>
+ 			<!-- custom: was 0 -->
+ 			<iPower>12</iPower>
+ 			<bRepeat>0</bRepeat>
+@@ -1645,7 +1650,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>17</iGridX>
++			<iGridX>16</iGridX>
+ 			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -1674,13 +1679,11 @@
+ 					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
++			<!-- custom: Nationalism now branches independently into Fascism or Communism; the removed Communism and Combustion requirements unnecessarily restricted the Fascism path. (GPT-5.6-Sol) -->
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
+-				<PrereqTech>TECH_COMMUNISM</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_COMBUSTION</PrereqTech>
+-			</AndPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_FASCISM_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_FASCISM</Sound>
+ 			<SoundMP>AS2D_TECH_MP_FASCISM</SoundMP>
+@@ -1753,15 +1756,16 @@
+ 					<iFlavor>1</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
++			<!-- custom: Economics leads directly to Communism on the political/economic row, while Nationalism makes Communism the political alternative to Fascism; the removed Ecology detour was unrelated. (GPT-5.6-Sol) -->
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_LIBERALISM</PrereqTech>
++				<PrereqTech>TECH_ECONOMICS</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_ECOLOGY</PrereqTech>
++				<PrereqTech>TECH_NATIONALISM</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_COMMUNISM_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_COMMUNISM</Sound>
+-			<SoundMP>AS2D_TECH_MPTECH_COMMUNISM</SoundMP>
++			<SoundMP>AS2D_TECH_MP_COMMUNISM</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Communism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,2</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_MASS_MEDIA -->
+@@ -1840,21 +1844,20 @@
+ 			<SoundMP>AS2D_TECH_MP_MASS_MEDIA</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/MassMedia.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,5</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_ECOLOGY -->
+-			<Type>TECH_ECOLOGY</Type>
+-			<Description>TXT_KEY_TECH_ECOLOGY</Description>
+-			<Civilopedia>TXT_KEY_TECH_ECOLOGY_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: replace TECH_ECOLOGY with TECH_AUTOMOBILES to separate Fascism's infantry from its armored-unit unlocks. (GPT-5.6-Sol) -->
++			<Type>TECH_AUTOMOBILES</Type>
++			<Description>TXT_KEY_TECH_AUTOMOBILES</Description>
++			<Civilopedia>TXT_KEY_TECH_AUTOMOBILES_PEDIA</Civilopedia>
+ 			<Help/>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_GROWTH</Advisor>
++			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2250</iCost>
++			<iCost>2500</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<!-- custom: ERA_MODERN -->
+-			<Era>ERA_INDUSTRIAL</Era>
++			<Era>ERA_MODERN</Era>
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+@@ -1862,10 +1865,10 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>40</iAsset>
+-			<iPower>0</iPower>
++			<iAsset>48</iAsset>
++			<iPower>12</iPower>
+ 			<bRepeat>0</bRepeat>
+-			<bTrade>1</bTrade>
++			<bTrade>0</bTrade>
+ 			<bDisable>0</bDisable>
+ 			<bGoodyTech>0</bGoodyTech>
+ 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
+@@ -1882,36 +1885,34 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>15</iGridX>
+-			<iGridY>15</iGridY>
++			<iGridX>17</iGridX>
++			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: provisional split from Fascism's existing military/production identity; review technology flavors after stabilizing the revised tree. (GPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>5</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>1</iFlavor>
++					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_BIOLOGY</PrereqTech>
++				<PrereqTech>TECH_FASCISM</PrereqTech>
+ 			</OrPreReqs>
++			<!-- custom: Automobiles additionally requires Combustion so armored vehicles remain gated by the relevant engine technology. (GPT-5.6-Sol) -->
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_ECONOMICS</PrereqTech>
++				<PrereqTech>TECH_COMBUSTION</PrereqTech>
+ 			</AndPreReqs>
+-			<Quote>TXT_KEY_TECH_ECOLOGY_QUOTE</Quote>
+-			<Sound>AS2D_TECH_ECOLOGY</Sound>
+-			<SoundMP>AS2D_TECH_MP_ECOLOGY</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Ecology.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,3</Button>
++			<Quote>TXT_KEY_TECH_AUTOMOBILES_QUOTE</Quote>
++			<Sound>AS2D_TECH_AUTOMOBILES</Sound>
++			<SoundMP>AS2D_TECH_MP_AUTOMOBILES</SoundMP>
++			<Button>Art/AdvCiv_SAS/Techs/Automobiles/nostalgia_atlas_7_3.dds</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_FISHING -->
+ 			<Type>TECH_FISHING</Type>
+@@ -2026,7 +2027,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>3</iGridX>
+-			<iGridY>5</iGridY>
++			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -2054,12 +2055,12 @@
+ 					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
++			<!-- custom: Let either settled construction through Masonry or animal-drawn transport through Animal Husbandry lead to The Wheel; Pottery is not inherently required. Moving the node to their shared upper row keeps both arrows clear. (GPT-5.6-Sol) -->
+ 			<OrPreReqs>
++				<PrereqTech>TECH_MASONRY</PrereqTech>
+ 				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_POTTERY</PrereqTech>
+-			</AndPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_THE_WHEEL_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_THE_WHEEL</Sound>
+ 			<SoundMP>AS2D_TECH_MP_THE_WHEEL</SoundMP>
+@@ -2223,10 +2224,10 @@
+ 			<Advisor>ADVISOR_CULTURE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>425</iCost>
++			<iCost>800</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<Era>ERA_CLASSICAL</Era>
++			<Era>ERA_MEDIEVAL</Era>
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+@@ -2254,16 +2255,10 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>7</iGridX>
++			<iGridX>9</iGridX>
+ 			<iGridY>15</iGridY>
+ 			<DomainExtraMoves/>
+-			<!-- custom: more focused culture line, plus this tech has too little effects i mean, as nicely suggested as a general suggestion by chatgpt 5.1 which i then noticed specifically for this tech and commerceflexible effect we could put it here i mean but thanks a lot for help really i mean if i may say thanks, was empty -->
+-			<CommerceFlexible>
+-				<bFlexible>0</bFlexible>
+-				<bFlexible>0</bFlexible>
+-				<bFlexible>1</bFlexible>
+-				<bFlexible>0</bFlexible>
+-			</CommerceFlexible>
++			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<!-- custom: increase culture flavor, was 8 -->
+@@ -2282,16 +2277,14 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
++				<PrereqTech>TECH_SACRED_ARCHITECTURE</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+-			</AndPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_AESTHETICS_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_AESTHETICS</Sound>
+-			<SoundMP>SND_TECH_MP_AESTHETICS</SoundMP>
+-			<!-- custom: button import from c2c mod's TECH_CLASSICAL_LIFESTYLE, should be more historically at least quite accurate even though still a bit greek-roman centric but hopefully representative enough of that time-era -->
+-			<Button>Art/AdvCiv_SAS/Techs/Aesthetics/classicallifestyle.dds</Button>
++			<SoundMP>AS2D_TECH_MP_AESTHETICS</SoundMP>
++			<!-- custom: Restore the original Civ4/AdvCiv Aesthetics button now that the tech again represents Aesthetics rather than the earlier classical-culture step. (GPT-5.6-Sol) -->
++			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,16</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_SEAFARING -->
+ 			<Type>TECH_SEAFARING</Type>
+@@ -2573,7 +2566,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>12</iGridX>
+-			<iGridY>17</iGridY>
++			<iGridY>13</iGridY>
+ 			<DomainExtraMoves/>
+ 			<!-- custom: was missing (and i assume empty(is the effect from the old TECH_SCIENTIFIC_METHOD (now removed))) -->
+ 			<SpecialistExtraCommerces>
+@@ -2605,11 +2598,12 @@
+ 					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
++			<!-- custom: Let Medicine lead directly into Naturalism, with Aesthetics as the additional cultural/philosophical foundation; this also gives Aesthetics a later continuation. (GPT-5.6-Sol) -->
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_MEDICINE</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
++				<PrereqTech>TECH_AESTHETICS</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_NATURALISM_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_NATURALISM</Sound>
+@@ -2714,11 +2708,10 @@
+ 			<iAIWeight>20</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- custom: trying to make tech pace more gradual or accurate, was 400 -->
+-			<iCost>150</iCost>
++			<iCost>225</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<!-- custom: was ERA_CLASSICAL -->
+-			<Era>ERA_ANCIENT</Era>
++			<Era>ERA_CLASSICAL</Era>
+ 			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+@@ -2746,8 +2739,8 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>4</iGridX>
+-			<iGridY>19</iGridY>
++			<iGridX>5</iGridX>
++			<iGridY>17</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -2767,10 +2760,11 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
++				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+ 			</OrPreReqs>
++			<!-- custom: Currency combines Code of Laws' enforceable shared rules and record-keeping with Bronze Working's practical coinage metallurgy. Requiring Bronze Working also makes the lower tech-advisor arrow represent the actual rule rather than merely crossing that node. (GPT-5.6-Sol) -->
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_MONARCHY</PrereqTech>
++				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_CURRENCY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_CURRENCY</Sound>
+@@ -2916,8 +2910,9 @@
+ 					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
++			<!-- custom: Ecology was removed; Biology now leads directly into Theory of Evolution. (GPT-5.6-Sol) -->
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_ECOLOGY</PrereqTech>
++				<PrereqTech>TECH_BIOLOGY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Quote>
+@@ -2936,7 +2931,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 700 -->
+-			<iCost>1300</iCost>
++			<iCost>1050</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -2967,8 +2962,9 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>11</iGridX>
+-			<iGridY>19</iGridY>
++			<iGridX>10</iGridX>
++			<!-- custom: was row 17; place Banking directly between Broader Education and Democracy now that they form one branch. (GPT-5.6-Sol) -->
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -2984,10 +2980,11 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_CURRENCY</PrereqTech>
++				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 			</OrPreReqs>
++			<!-- custom: Banking still requires both Broader Education and Currency, but using the nearby Broader Education branch for its technology-advisor arrow avoids the long Currency arrow. (GPT-5.6-Sol) -->
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
++				<PrereqTech>TECH_CURRENCY</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_BANKING_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_BANKING</Sound>
+@@ -3003,7 +3000,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1050</iCost>
++			<iCost>800</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3015,7 +3012,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>32</iAsset>
++			<iAsset>24</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -3035,7 +3032,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>10</iGridX>
++			<iGridX>9</iGridX>
+ 			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -3056,7 +3053,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
++				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_PAPER</PrereqTech>
+@@ -3184,7 +3181,8 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>14</iGridX>
+-			<iGridY>19</iGridY>
++			<!-- custom: was row 19; place Economics directly after Liberalism on the political/economic row. (GPT-5.6-Sol) -->
++			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -3208,11 +3206,10 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_BANKING</PrereqTech>
+-			</OrPreReqs>
+-			<AndPreReqs>
+ 				<PrereqTech>TECH_LIBERALISM</PrereqTech>
+-			</AndPreReqs>
++			</OrPreReqs>
++			<!-- custom: Liberalism already requires Banking, so another Banking requirement here would be redundant. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_ECONOMICS_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_ECONOMICS</Sound>
+ 			<SoundMP>AS2D_TECH_MP_ECONOMICS</SoundMP>
+@@ -3614,7 +3611,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>800</iCost>
++			<iCost>1050</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL -->
+@@ -3626,7 +3623,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+-			<iAsset>24</iAsset>
++			<iAsset>32</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+ 			<bTrade>1</bTrade>
+@@ -3646,8 +3643,8 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>9</iGridX>
+-			<iGridY>17</iGridY>
++			<iGridX>10</iGridX>
++			<iGridY>13</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -3672,11 +3669,9 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
++				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+-			</AndPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_MEDICINE_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_MEDICINE</Sound>
+ 			<SoundMP>AS2D_TECH_MP_MEDICINE</SoundMP>
+@@ -3888,12 +3883,11 @@
+ 					<iFlavor>8</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
++			<!-- custom: Keep Radio as Fission's direct technical precursor while removing Artillery as an unnecessary military restriction; Fission remains parallel to Industrialism. (GPT-5.6-Sol) -->
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_RADIO</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_ARTILLERY</PrereqTech>
+-			</AndPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_FISSION_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_FISSION</Sound>
+ 			<SoundMP>AS2D_TECH_MP_FISSION</SoundMP>
+@@ -4041,9 +4035,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_FLIGHT</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_FASCISM</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: Fascism was an unrelated restriction that delayed Gunships despite their important strategic role as the counter to Tanks; Flight alone provides the relevant progression. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_ADVANCED_FLIGHT_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_ADVANCED_FLIGHT</Sound>
+ 			<SoundMP>AS2D_TECH_MP_ADVANCED_FLIGHT</SoundMP>
+@@ -4106,9 +4099,8 @@
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_SATELLITES</PrereqTech>
+-				<PrereqTech>TECH_FISSION</PrereqTech>
+ 				<PrereqTech>TECH_COMPUTERS</PrereqTech>
+-				<PrereqTech>TECH_LIBERALISM</PrereqTech>
++				<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_DEPOPULATION_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_DEPOPULATION</Sound>
+@@ -4178,9 +4170,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: Environmentalism no longer gates this material/industrial branch. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_COMPOSITES_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_COMPOSITES</Sound>
+ 			<SoundMP>AS2D_TECH_MP_COMPOSITES</SoundMP>
+@@ -4903,7 +4894,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>4</iGridX>
+-			<iGridY>17</iGridY>
++			<iGridY>19</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -4999,9 +4990,12 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
++				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs/>
++			<!-- custom: Requiring The Wheel in addition to Animal Husbandry prevents Mounted Combat from being available too soon alongside the newly unlocked Chariots. (GPT-5.6-Sol) -->
++			<AndPreReqs>
++				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
++			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_MOUNTED_COMBAT</Sound>
+ 			<SoundMP>AS2D_TECH_MP_MOUNTED_COMBAT</SoundMP>
+@@ -5052,7 +5046,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>6</iGridX>
+-			<iGridY>17</iGridY>
++			<iGridY>19</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -5096,7 +5090,8 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.306: was 450 -->
+-			<iCost>100</iCost>
++			<!-- custom: move one column earlier and match its cost so jungle removal is not delayed relative to the revised early tree. (GPT-5.6-Sol) -->
++			<iCost>65</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_CLASSICAL -->
+@@ -5129,7 +5124,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>3</iGridX>
++			<iGridX>2</iGridX>
+ 			<iGridY>19</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -5161,9 +5156,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_MINING</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_MASONRY</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: Metal Casting develops directly from Mining; requiring Masonry needlessly blocked the independent metal/jungle-clearing branch, and moving one column earlier keeps jungle removal timely in the revised early tree. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_METAL_CASTING_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_METALCAST</Sound>
+ 			<SoundMP>AS2D_TECH_MP_METALCAST</SoundMP>
+@@ -5323,9 +5317,8 @@
+ 				<PrereqTech>TECH_SAILING</PrereqTech>
+ 				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_MASONRY</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: Sailing or The Wheel already represents a practical transport/construction route; requiring Masonry again made the alternative paths converge unnecessarily. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_CONSTRUCTION_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_CONSTRUCTION</Sound>
+ 			<SoundMP>AS2D_TECH_MP_CONSTRUCTION</SoundMP>
+@@ -5474,8 +5467,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+ 			</OrPreReqs>
++			<!-- custom: Remove Iron Working so Engineering's Catapults and Crossbows can form a real alternative to the melee branch; keep The Wheel because Mathematics can be reached through Sailing and does not guarantee it. (GPT-5.6-Sol) -->
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_ENGINEERING_QUOTE</Quote>
+@@ -5709,10 +5702,9 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+ 			</OrPreReqs>
+-			<!-- custom: got the idea while i was asking chatgpt 5, to prevent a beeline that would be bit op or suboptimal depending on tech path maybe, here i mean. Hopefully more balanced as such, and is also thematically relevant i think. Trying not to restrict strategic options (in particular this also preserves the tech_theory_of_evolution gambit i mean as well)  too much here for variety or such i mean as well-->
++			<!-- custom: Theory of Evolution and Corporation sufficiently gate Game Theory; Communism was an overloaded and unnecessary additional requirement. (GPT-5.6-Sol) -->
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+-				<PrereqTech>TECH_COMMUNISM</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_GAME_THEORY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_GAME_THEORY</Sound>
+@@ -5783,9 +5775,9 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+ 			</OrPreReqs>
++			<!-- custom: Chemistry and Physics already gate this military/scientific branch sufficiently; requiring the thematically unrelated Democracy reduced strategic versatility. (GPT-5.6-Sol) -->
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_PHYSICS</PrereqTech>
+-				<PrereqTech>TECH_DEMOCRACY</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_MILITARY_SCIENCE_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_MILITARY_SCIENCE</Sound>
+@@ -6084,9 +6076,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_ECONOMICS</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: Economics was an unrelated beeline gate that unnecessarily restricted the production branch. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_ASSEMBLY_LINE_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_ASSEMBLINE</Sound>
+ 			<SoundMP>AS2D_TECH_MP_ASSEMBLINE</SoundMP>
+@@ -6314,9 +6305,9 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_FASCISM</PrereqTech>
++				<PrereqTech>TECH_AUTOMOBILES</PrereqTech>
+ 			</OrPreReqs>
+-			<!-- custom: the TECH_THEORY_OF_EVOLUTION requirement allows to not beeline too fast from past military or such techs, plus not nonsensical e.g. hitler into eugenics which leans into choosing best genes via evolution or such maybe if one were to find a tentative explanation i just got xd but that i think works quite well or is maybe as well quite relevant -->
++			<!-- custom: Retain Theory of Evolution as Industrialism's additional beeline gate until the tree has a more plausible replacement. (GPT-5.6-Sol) -->
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_ARTILLERY</PrereqTech>
+ 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+@@ -6403,7 +6394,8 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>2800</iCost>
++			<!-- custom: move Environmentalism one column later and match that column's cost. (GPT-5.6-Sol) -->
++			<iCost>3000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+@@ -6434,7 +6426,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>19</iGridX>
++			<iGridX>20</iGridX>
+ 			<iGridY>11</iGridY>
+ 			<!-- custom: was DOMAIN_SEA 1 -->
+ 			<DomainExtraMoves/>
+@@ -6450,9 +6442,8 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+-			</AndPreReqs>
++			<!-- custom: require Mass Media alone so Environmentalism competes with Industrialism instead of depending on it. (GPT-5.6-Sol) -->
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_ENVIRONMENTALISM_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_ENVIRONMENTALISM</Sound>
+ 			<SoundMP>AS2D_TECH_MP_ENVIRONMENTALISM</SoundMP>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 462ac8a02..1e281f4e7 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -169,7 +169,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND_PEDIA</Tag>
+-		<English>[H1]Military Advisor Battles Legend[\H1][PARAGRAPH:2]Battle rows are shown from the inspected player's perspective: "Our" columns always describe the inspected player's unit, "Their" columns describe the opponent. The dropdown selects whose perspective is shown.[PARAGRAPH:2][H2]Columns[\H2][NEWLINE][ICON_BULLET]Turn / Year: when the battle happened.[NEWLINE][ICON_BULLET]Result (emoji): three distinct emojis, one for each outcome — won, lost, or retreat (combat ended without a death).[NEWLINE][ICON_BULLET]Est%: simple strength-share estimate from starting effective strengths: our strength divided by both units' combined strength. It is not exact Civ4 combat odds because first strikes, withdrawal, damage rounds, etc. are not modeled here.[NEWLINE][ICON_BULLET]Role (emoji): emoji shown when the inspected player initiated the attack; blank when defending or when role is unknown.[NEWLINE][ICON_BULLET]Strength icon b: base XML strength of the unit (no modifiers).[NEWLINE][ICON_BULLET]Strength icon s: starting effective strength at combat begin (with all modifiers applied).[NEWLINE][ICON_BULLET]Strength icon e: ending effective strength after combat damage was applied.[NEWLINE][ICON_BULLET]Strength icon m: maximum effective strength (full health, with modifiers).[NEWLINE][ICON_BULLET]XP: unit experience before combat; yellow XP marks a Great-General-led unit.[NEWLINE][ICON_BULLET]Our Unit / Their Unit: the units that fought; click to open Sevopedia entry. Unit name shown in yellow when that unit was led by a Great General.[NEWLINE][ICON_BULLET]Civ / Leader icons (Their side only): opponent civ and leader; click to open Sevopedia entry.[NEWLINE][ICON_BULLET]PID: opponent player ID.[NEWLINE][ICON_BULLET]Cap#: colored capture count from inspected-player perspective. Green = we captured this many of their units; red = they captured this many of ours; blank = no capture.[NEWLINE][ICON_BULLET]Cap (icon): captured unit type when applicable; click to open Sevopedia entry.[NEWLINE][ICON_BULLET]Hill/Peak / Terrain / Feature (optional, gated by SAS define): plot context where the combat occurred; click to open Sevopedia entry.[NEWLINE][ICON_BULLET]Plot (icon): click to close the advisor and center the camera on the battle plot. Three distinct icons cover open-field battle, defended city (still standing for original owner), and city fell during this battle.[PARAGRAPH:2][H2]Strength Color Coding[\H2][NEWLINE][ICON_BULLET]Effective strength columns are color-coded relative to the unit's max effective strength: white at full, green above 66%, yellow above 33%, red at 33% or below.[PARAGRAPH:2][H2]Sorting and Logging[\H2][NEWLINE][ICON_BULLET]Click any column header to sort numerically/alphabetically.[NEWLINE][ICON_BULLET]The LOG button (when enabled via SAS define) writes the visible battle history to PythonDbg.log for external inspection.[PARAGRAPH:2][H2]Blank Values[\H2][NEWLINE][ICON_BULLET]Blank cells can mean the value is zero or not applicable (for example, the lost unit died, no worker was captured), or that the row was not recorded fully for some reason (early version of this feature, bug to fix, etc.).</English>
++		<English>[H1]Military Advisor Battles Legend[\H1][PARAGRAPH:2]Battle rows are shown from the inspected player's perspective: "Our" columns always describe the inspected player's unit, "Their" columns describe the opponent. The dropdown selects whose perspective is shown.[PARAGRAPH:2][H2]Columns[\H2][NEWLINE][ICON_BULLET]Turn / Year: when the battle happened.[NEWLINE][ICON_BULLET]Result (emoji): three distinct emojis, one for each outcome: won, lost, or retreat (combat ended without a death).[NEWLINE][ICON_BULLET]Est%: simple strength-share estimate from starting effective strengths: our strength divided by both units' combined strength. It is not exact Civ4 combat odds because first strikes, withdrawal, damage rounds, etc. are not modeled here.[NEWLINE][ICON_BULLET]Role (emoji): emoji shown when the inspected player initiated the attack; blank when defending or when role is unknown.[NEWLINE][ICON_BULLET]Strength icon b: base XML strength of the unit (no modifiers).[NEWLINE][ICON_BULLET]Strength icon s: starting effective strength at combat begin (with all modifiers applied).[NEWLINE][ICON_BULLET]Strength icon e: ending effective strength after combat damage was applied.[NEWLINE][ICON_BULLET]Strength icon m: maximum effective strength (full health, with modifiers).[NEWLINE][ICON_BULLET]XP: unit experience before combat; yellow XP marks a Great-General-led unit.[NEWLINE][ICON_BULLET]Our Unit / Their Unit: the units that fought; click to open Sevopedia entry. Unit name shown in yellow when that unit was led by a Great General.[NEWLINE][ICON_BULLET]Civ / Leader icons (Their side only): opponent civ and leader; click to open Sevopedia entry.[NEWLINE][ICON_BULLET]PID: opponent player ID.[NEWLINE][ICON_BULLET]Cap#: colored capture count from inspected-player perspective. Green = we captured this many of their units; red = they captured this many of ours; blank = no capture.[NEWLINE][ICON_BULLET]Cap (icon): captured unit type when applicable; click to open Sevopedia entry.[NEWLINE][ICON_BULLET]Hill/Peak / Terrain / Feature (optional, gated by SAS define): plot context where the combat occurred; click to open Sevopedia entry.[NEWLINE][ICON_BULLET]Plot (icon): click to close the advisor and center the camera on the battle plot. Three distinct icons cover open-field battle, defended city (still standing for original owner), and city fell during this battle.[PARAGRAPH:2][H2]Strength Color Coding[\H2][NEWLINE][ICON_BULLET]Effective strength columns are color-coded relative to the unit's max effective strength: white at full, green above 66%, yellow above 33%, red at 33% or below.[PARAGRAPH:2][H2]Sorting and Logging[\H2][NEWLINE][ICON_BULLET]Click any column header to sort numerically/alphabetically.[NEWLINE][ICON_BULLET]The LOG button (when enabled via SAS define) writes the visible battle history to PythonDbg.log for external inspection.[PARAGRAPH:2][H2]Blank Values[\H2][NEWLINE][ICON_BULLET]Blank cells can mean the value is zero or not applicable (for example, the lost unit died, no worker was captured), or that the row was not recorded fully for some reason (early version of this feature, bug to fix, etc.).</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 1442633a0..0f9653e53 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -680,18 +680,18 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #71 -->
++	<!-- custom: based on: https://en.wikipedia.org/wiki/Sacral_architecture?utm_source=chatgpt.com -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION_PEDIA</Tag>
+-		<English>[TAB]Some historians have labelled the period from 900 to 200 BCE as the "axial age", a term coined by German-Swiss philosopher Karl Jaspers (1883-1969). According to Jaspers, in this era of history "the spiritual foundations of humanity were laid simultaneously and independently... And these are the foundations upon which humanity still subsists today." Intellectual historian Peter Watson has summarized this period as the foundation time of many of humanity's most influential philosophical traditions, including monotheism in Persia and Canaan, Platonism in Greece, Buddhism and Jainism in India, and Confucianism and Taoism in China. These ideas would become institutionalized in time - note for example Ashoka's role in the spread of Buddhism, or the role of Neoplatonic philosophy in Christianity at its foundation.[PARAGRAPH:1]The historical roots of Jainism in India date back to the 9th century BCE with the rise of Parshvanatha and his non-violent philosophy.[PARAGRAPH:2]Christians have had diverse attitudes towards violence and nonviolence over time. Both currently and historically, there have been four attitudes towards violence and war and four resulting practices of them within Christianity: non-resistance, Christian pacifism, just war, and preventive war (Holy war, e.g., the Crusades). In the Roman Empire, the early church adopted a nonviolent stance when it came to war because the imitation of Jesus's sacrificial life was preferable to it. The concept of "Just War", the belief that limited uses of war were acceptable, originated in the writings of earlier non-Christian Roman and Greek thinkers such as Cicero and Plato. Later, this theory was adopted by Christian thinkers such as St Augustine, who like other Christians, borrowed much of the just war concept from Roman law and the works of Roman writers like Cicero. Even though "Just War" concept was widely accepted early on, warfare was not regarded as a virtuous activity and expressing concern for the salvation of those who killed enemies in battle, regardless of the cause for which they fought, was common. Concepts such as "Holy war", whereby fighting itself might be considered a penitential and spiritually meritorious act, did not emerge before the 11th century.[PARAGRAPH:2]World religions of the present day established themselves throughout Eurasia during the Middle Ages by:[PARAGRAPH:1]- Christianization of the Western world[PARAGRAPH:1]- Buddhist missions to East Asia[PARAGRAPH:1]- the decline of Buddhism in the Indian subcontinent[PARAGRAPH:1]- the spread of Islam throughout the Middle East, Central Asia, North Africa and parts of Europe and India[PARAGRAPH:1]During the Middle Ages, Muslims came into conflict with Zoroastrians during the Muslim conquest of Persia (633-654); Christians fought against Muslims during the Arab-Byzantine wars (7th to 11th centuries), the Crusades (1095 onward), the Reconquista (718-1492), the Ottoman wars in Europe (13th century onwards) and the Inquisition; Shamanism was in conflict with Buddhists, Taoists, Muslims and Christians during the Mongol invasions and conquests (1206-1337); and Muslims clashed with Hindus and Sikhs during the Muslim conquests in the Indian subcontinent (8th to 16th centuries).[PARAGRAPH:1]Many medieval religious movements continued to emphasize mysticism, such as the Cathars and related movements in the West, the Jews in Spain (see Zohar), the Bhakti movement in India and Sufism in Islam. Monotheism and related mysticisms reached definite forms in Christian Christology and in Islamic Tawhid. Hindu monotheist notions of Brahman likewise reached their classical form with the teaching of Adi Shankara (788-820).[PARAGRAPH:2]From the 15th century to the 19th century, European colonisation resulted in the spread of Christianity to Sub-Saharan Africa, and the Americas, Australia and the Philippines. The invention of the printing press in the 15th century played a major role in the rapid spread of the Protestant Reformation under leaders such as Martin Luther (1483-1546) and John Calvin (1509-1564). Wars of religion broke out, culminating in the Thirty Years' War which ravaged Central Europe between 1618 and 1648. The 18th century saw the beginning of secularisation in Europe, a trend which gained momentum after the French Revolution broke out in 1789. By the late 20th century, religion had declined in most of Europe.</English>
++		<Tag>TXT_KEY_TECH_SACRED_ARCHITECTURE_PEDIA</Tag>
++		<English>[TAB]Sacral architecture (also known as sacred architecture or religious architecture) is a religious architectural practice concerned with the design and construction of places of worship or sacred or intentional space, such as churches, mosques, stupas, synagogues, and temples. Many cultures devoted considerable resources to their sacred architecture and places of worship. Religious and sacred spaces are amongst the most impressive and permanent monolithic buildings created by humanity. Conversely, sacred architecture as a locale for meta-intimacy may also be non-monolithic, ephemeral and intensely private, personal and non-public.[PARAGRAPH:1]Sacred, religious and holy structures often evolved over centuries and were the largest buildings in the world, prior to the modern skyscraper. While the various styles employed in sacred architecture sometimes reflected trends in other structures, these styles also remained unique from the contemporary architecture used in other structures. With the rise of Christianity and Islam, religious buildings increasingly became centres of worship, prayer and meditation.[PARAGRAPH:1]The Western scholarly discipline of the history of architecture itself closely follows the history of religious architecture from ancient times until the Baroque period, at least. Sacred geometry, iconography, and the use of sophisticated semiotics such as signs, symbols and religious motifs are endemic to sacred architecture.</English>
+ 	</TEXT>
+ 
+ 
+ 
+-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #72 -->
++	<!-- custom: based on: https://en.wikipedia.org/wiki/Car -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM_PEDIA</Tag>
+-		<English>[TAB]The Abrahamic religions are a set of monotheistic religions that revere the Biblical figure Abraham, namely Judaism, Christianity, and Islam. The religions of this set share doctrinal, historical, and geographic overlap that contrasts them with Indian religions, Iranian religions, and East Asian religions. The term has been introduced in the 20th century and superseded the term Judeo-Christian tradition for the inclusion of Islam. However, the categorization has been criticized for oversimplification of different cultural and doctrinal nuances.[PARAGRAPH:2]Islam is based on the teachings of the Quran. Although it considers Muhammad to be the Seal of the prophets, Islam teaches that every prophet preached Islam, as the word Islam means submission, the main concept preached by all prophets. Although the Quran is the central religious text of Islam, which Muslims believe to be a revelation from God, other Islamic books considered to be revealed by God before the Quran, mentioned by name in the Quran are the Tawrat (Torah) revealed to the prophets and messengers amongst the Children of Israel (Bani Israil), the Zabur (Psalms) revealed to Dawud (David) and the Injil (the Gospel) revealed to Isa (Jesus). The Quran also mentions God having revealed the Scrolls of Abraham and the Scrolls of Moses.[PARAGRAPH:1]The relationship between Islamic and Hebrew scriptures and New Testament differs significantly from the relationship between the New Testament and the Hebrew Bible. Whereas the New Testament draws heavily on the Hebrew Bible and interprets its text in light of the foundations of the new religion, the Quran only alludes to various stories of Biblical writings, but remains independent of both, focusing on establishing a monotheistic message by utilizing the stories of the prophets in a religious decentralized environment.[PARAGRAPH:1]In the 7th century AD, Islam was founded by Muhammad in the Arabian Peninsula; it spread widely through the early Muslim conquests, shortly after his death. Islam understands its form of "Abrahamic monotheism" as preceding both Judaism and Christianity, and in contrast with Arabian Henotheism.[PARAGRAPH:2]While many sources limit the list of Abrahamic religions to only include Judaism, Christianity and Islam, some sources include other religions as well.[PARAGRAPH:1]Samaritanism diverged from Judaism in the 6th to 3rd centuries BCE; although sometimes considered a branch of Judaism, most consider it to be an independent Abrahamic religion.[PARAGRAPH:1]Some sources consider Mandaeism to be an Abrahamic religion - however, that classification is controversial, given Mandaeism does not accept Abraham as a prophet, despite revering as prophets several other figures from the Jewish scriptures - on the contrary, they believe that Abraham was originally a priest of their religion, but became an apostate from it.[PARAGRAPH:1]Druze is another religion which emerged from Islam in the 11th century, and hence is sometimes also considered an Abrahamic religion. Yarsanism is a Kurdish religion which combines elements of Shi'a Islam with pre-Islamic Kurdish beliefs; it has been classified as Abrahamic due to its monotheism, incorporation of Islamic doctrines, and reverence for Islamic figures, especially Ali ibn Abi Talib, the fourth caliph and first imam of Shia Islam.[PARAGRAPH:2]A number of sources include the Bah�'� Faith established in the 19th century, since it historically emerged in an Islamic milieu, and shares several beliefs with the Abrahamic faiths, including monotheism and recognising Jewish, Christian and Islamic figures as prophets. Some also include B�bism, another 19th century movement which was a precursor to the Bah�'� Faith.[PARAGRAPH:2]All Abrahamic religions accept the tradition that God revealed himself to the patriarch Abraham. All of them are monotheistic, and all of them conceive God to be a transcendent creator and the source of moral law. Their religious texts feature many of the same figures, histories, and places, although they often present them with different roles, perspectives, and meanings. Believers who agree on these similarities and the common Abrahamic origin tend to also be more positive towards other Abrahamic groups.[PARAGRAPH:1]In the three main Abrahamic religions (Judaism, Christianity and Islam), the individual, God, and the universe are highly separate from each other. The Abrahamic religions believe in a judging, paternal, fully external god to which the individual and nature are both subordinate. One seeks salvation or transcendence not by contemplating the natural world or via philosophical speculation, but by seeking reconciliation with God through acts of redemption and see divine revelation as outside of self, nature, and custom.</English>
++		<Tag>TXT_KEY_TECH_AUTOMOBILES_PEDIA</Tag>
++		<English>[TAB]A car, or an automobile, is a motor vehicle with wheels. Most definitions of cars state that they run primarily on roads, seat 1-8 people, have four wheels, and mainly transport people rather than cargo. There are over 1.6 billion cars in use worldwide as of 2025.[PARAGRAPH:1]The French inventor Nicolas-Joseph Cugnot built the first steam-powered road vehicle in 1769, while the Swiss inventor Fran�ois Isaac de Rivaz designed and constructed the first internal combustion-powered automobile in 1808. The modern car, a practical, marketable automobile for everyday use, was invented in 1886, when the German inventor Carl Benz patented his Benz Patent-Motorwagen. Commercial cars became widely available during the 20th century. The 1901 Oldsmobile Curved Dash and the 1908 Ford Model T, both American cars, are widely considered the first mass-produced and mass-affordable cars, respectively. Cars were rapidly adopted in the US, where they replaced horse-drawn carriages. In Europe and other parts of the world, demand for automobiles did not increase until after World War II. In the 21st century, car usage is still increasing rapidly, especially in China, India, and other newly industrialised countries.[PARAGRAPH:1]Cars have controls for driving, parking, passenger comfort, and a variety of lamps. Over the decades, additional features and controls have been added to vehicles, making them progressively more complex. These include rear-reversing cameras, air conditioning, navigation systems, and in-car entertainment. Most cars in use in the early 2020s are propelled by an internal combustion engine, fueled by the combustion of fossil fuels. Electric cars, which were invented early in the history of the car, became commercially available in the 2000s and widespread in the 2020s. The transition from fossil-fuel-powered cars to electric cars is a central feature of most climate change mitigation scenarios.[PARAGRAPH:1]There are costs and benefits to car use. The costs to the individual include acquiring the vehicle, interest payments (if the car is financed), repairs and maintenance, fuel, depreciation, driving time, parking fees, taxes, and insurance. The costs to society include resources used to produce cars and fuel, maintaining roads, land-use, road congestion, air pollution, noise pollution, public health, and disposing of the vehicle at the end of its life. Traffic collisions are the largest cause of injury-related deaths worldwide. Personal benefits include on-demand transportation, mobility, independence, and convenience. Societal benefits include economic benefits, such as job and wealth creation from the automotive industry, transportation provision, and societal wellbeing from leisure and travel opportunities. People's ability to move flexibly from place to place has far-reaching implications for society.[PARAGRAPH:2]The English word car is believed to originate from Latin carrus/carrum "wheeled vehicle" or (via Old North French) Middle English carre "two-wheeled cart", both of which in turn derive from Gaulish karros "chariot". It originally referred to any wheeled horse-drawn vehicle, such as a cart, carriage, or wagon. The word also occurs in other Celtic languages.[PARAGRAPH:1]"Motor car", attested from 1895, is the usual formal term in British English. "Autocar", a variant likewise attested from 1895 and literally meaning "self-propelled car", is now considered archaic. "Horseless carriage" is attested from 1895.[PARAGRAPH:1]"Automobile", a classical compound derived from Ancient Greek autos "self" and Latin mobilis "movable", entered English from French and was first adopted by the Automobile Club of Great Britain in 1897. It fell out of favour in Britain and is now used chiefly in North America, where the abbreviated form "auto" commonly appears as an adjective in compound formations like "auto industry" and "auto mechanic".</English>
+ 	</TEXT>
+ 
+ 
+@@ -704,14 +704,6 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #73 -->
+-	<TEXT>
+-		<Tag>TXT_KEY_TECH_ECOLOGY_PEDIA</Tag>
+-		<English>[TAB]Ecology has a complex origin. Ancient Greek philosophers such as Hippocrates and Aristotle recorded observations on natural history. However, they saw species as unchanging, while varieties were seen as aberrations. Modern ecology sees varieties as the real phenomena, leading to adaptation by natural selection. Ecological concepts such as a balance and regulation in nature can be traced to Herodotus (died c. 425 BC), who described mutualism in his observation of "natural dentistry". Basking Nile crocodiles, he noted, opened their mouths to give sandpipers safe access to pluck leeches out, giving nutrition to the sandpiper and oral hygiene for the crocodile. Aristotle and his student Theophrastus observed plant and animal migrations, biogeography, physiology, and their behavior, giving an early analogue to the concept of an ecological niche.[PARAGRAPH:1]Ecological concepts such as food chains, population regulation, and productivity were developed in the 1700s, through the works of microscopist Antonie van Leeuwenhoek (1632 - 1723) and botanist Richard Bradley (1688? - 1732). Biogeographer Alexander von Humboldt (1769 - 1859) recognized ecological gradients, where species are replaced or altered in form along environmental gradients. Humboldt drew inspiration from Isaac Newton, as he developed a form of "terrestrial physics". Natural historians, such as Humboldt, James Hutton, and Jean-Baptiste Lamarck laid the foundations of ecology. The term "ecology" (German: Oekologie, �kologie) was coined by Ernst Haeckel in his book Generelle Morphologie der Organismen (1866). Haeckel was a zoologist, artist, writer, and later in life a professor of comparative anatomy.[PARAGRAPH:1]Linnaeus founded an early branch of ecology that he called the economy of nature. He influenced Charles Darwin, who adopted Linnaeus' phrase in The Origin of Species. Linnaeus was the first to frame the balance of nature as a testable hypothesis.[PARAGRAPH:2]Modern ecology first attracted substantial scientific attention toward the end of the 19th century. Ellen Swallow Richards adopted the term "oekology" in the U.S. as early as 1892. In the early 20th century, ecology transitioned from description to a more analytical form of scientific natural history. Frederic Clements published the first American ecology book, Research Methods in Ecology in 1905, presenting the idea of plant communities as a superorganism. This launched a debate between ecological holism and individualism that lasted until the 1970s.[PARAGRAPH:1]In 1942, Raymond Lindeman wrote a landmark paper on the trophic dynamics of ecology. Trophic dynamics became the foundation for much work on energy and material flow through ecosystems. Robert MacArthur advanced mathematical theory, predictions, and tests in ecology in the 1950s.[PARAGRAPH:1]Ecology surged in popular and scientific interest during the 1960 - 1970s environmental movement. In 1962, marine biologist and ecologist Rachel Carson's book Silent Spring helped to mobilize the environmental movement by alerting the public to toxic pesticides, such as DDT (C14H9Cl5), bioaccumulating in the environment. Since then, ecologists have worked to bridge their understanding of the degradation of the planet's ecosystems with environmental politics, law, restoration, and natural resources management.</English>
+-	</TEXT>
+-
+-
+-
+ 	<!-- custom: surprisingly on a more positive note this time, i didn't know recycling centers existed on a quite global or country scale much before the modern/post industrial era, updating i mean replacing the entry with a wikipedia based one from https://en.wikipedia.org/wiki/Recycling#History; the base civ4 +/- advciv one is as usual garbage without a pun, hopefully more scientifically grounded, less moralistic, more informative and exhaustive -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_RECYCLING_CENTER_PEDIA</Tag>
+@@ -1242,7 +1234,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: based on https://en.wikipedia.org/wiki/Republic_of_Ireland -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_IRELAND_PEDIA</Tag>
+-		<English>[TAB]Ireland (Irish: Eire), also known as the Republic of Ireland (Poblacht na h�ireann), is a country in Northwestern Europe. It consists of 26 of the 32 counties of the island of Ireland, with a population of about 5.4 million. Its capital and largest city is Dublin, on the eastern side of the island, with a population of over 1.5 million. The sovereign state shares its only land border with Northern Ireland, which is part of the United Kingdom. It is otherwise surrounded by the Atlantic Ocean, with the Celtic Sea to the south, St George's Channel to the south-east and the Irish Sea to the east. It is a unitary, parliamentary republic. The legislature, the Oireachtas, consists of a lower house, D�il �ireann; an upper house, Seanad �ireann; and an elected president (Uachtar�n) who serves as the largely ceremonial head of state, but with some important powers and duties. The head of government is the Taoiseach (prime minister, lit. 'chief'), elected by the D�il and appointed by the president, who appoints other government ministers.[PARAGRAPH:1]The Irish Free State was created with Dominion status in 1922, following the Anglo-Irish Treaty. In 1937, a new constitution was adopted, in which the state was named "Ireland" and effectively became a republic, with an elected non-executive president. It was officially declared a republic in 1949, following The Republic of Ireland Act 1948. Ireland became a member of the United Nations in 1955. It joined the European Communities (EC), the predecessor of the European Union (EU), in 1973. The state had no formal relations with Northern Ireland for most of the 20th century, but the 1980s and 1990s saw the British and Irish governments working with Northern Irish parties to resolve the conflict that had become known as the Troubles. Since the signing of the Good Friday Agreement in 1998, the Irish government and Northern Irish government have co-operated on a number of policy areas under the North/South Ministerial Council created by the Agreement.[PARAGRAPH:1]Ireland is a developed country with a quality of life ranked sixth in the world by the 2024 Human Development Index Report adjusted for inequality. It also ranks highly in healthcare, economic freedom and freedom of the press. According to the Global Peace Index, Ireland was the second most peaceful country worldwide in 2024.[PARAGRAPH:1]It is a member of the EU and a founding member of the Council of Europe and the OECD. The Irish government has followed a policy of military neutrality through non-alignment since before World War II, and the country is consequently not a member of NATO, although it is a member of the Partnership for Peace and certain aspects of PESCO. Ireland's economy is advanced, with one of Europe's major financial hubs being centred on Dublin. It ranks among the top five wealthiest countries in the world in terms of both GDP and GNI per capita. After joining the EC, the country's government enacted a series of liberal economic policies that helped to boost economic growth between 1995 and 2007, a time now often referred to as the Celtic Tiger period. A recession and reversal in growth then followed during the Great Recession, which was exacerbated by the bursting of the Irish property bubble. The Great Recession lasted until 2014, and was followed by a new period of strong economic growth.[PARAGRAPH:2]The names Ireland and �ire both derive from Old Irish �riu, which in turn comes from Proto-Celtic ??weriy? meaning "fertile soil". The Classical Latin name for the island of Ireland, Ivernia, also comes from this same root, and it remains a popular, poetic synonym for Ireland to this day (usually respelled "Hibernia", under the influence of hibernum, the Latin word for "winter").[PARAGRAPH:1]The state created in 1922, comprising 26 of the 32 counties of Ireland, was "styled and known as the Irish Free State" (Saorst�t �ireann). The Constitution of Ireland, adopted in 1937, says that "the name of the State is �ire, or, in the English language, Ireland". Section 2 of the Republic of Ireland Act 1948 states, "It is hereby declared that the description of the State shall be the Republic of Ireland." The 1948 Act does not name the state "Republic of Ireland", because to have done so would have put it in conflict with the Constitution.[PARAGRAPH:1]The government of the United Kingdom used the name "Eire" (without the diacritic) and, from 1949, "Republic of Ireland", for the state. It was not until the 1998 Good Friday Agreement, when the state dropped its claim to Northern Ireland, that it began calling the state "Ireland".[PARAGRAPH:1]The state is also informally called "the Republic", "Southern Ireland" or "the South"; especially when distinguishing the state from the island or when discussing Northern Ireland ("the North"). Irish republicans reserve the name "Ireland" for the whole island and often refer to the state as "the Free State", "the 26 Counties", or "the South of Ireland". This is a "response to the partitionist view that Ireland stops at the border".</English>
++		<English>[TAB]Ireland (Irish: Eire), also known as the Republic of Ireland (Poblacht na h�ireann), is a country in Northwestern Europe. It consists of 26 of the 32 counties of the island of Ireland, with a population of about 5.4 million. Its capital and largest city is Dublin, on the eastern side of the island, with a population of over 1.5 million. The sovereign state shares its only land border with Northern Ireland, which is part of the United Kingdom. It is otherwise surrounded by the Atlantic Ocean, with the Celtic Sea to the south, St George's Channel to the south-east and the Irish Sea to the east. It is a unitary, parliamentary republic. The legislature, the Oireachtas, consists of a lower house, D�il �ireann; an upper house, Seanad �ireann; and an elected president (Uachtar�n) who serves as the largely ceremonial head of state, but with some important powers and duties. The head of government is the Taoiseach (prime minister, lit. 'chief'), elected by the D�il and appointed by the president, who appoints other government ministers.[PARAGRAPH:1]The Irish Free State was created with Dominion status in 1922, following the Anglo-Irish Treaty. In 1937, a new constitution was adopted, in which the state was named "Ireland" and effectively became a republic, with an elected non-executive president. It was officially declared a republic in 1949, following The Republic of Ireland Act 1948. Ireland became a member of the United Nations in 1955. It joined the European Communities (EC), the predecessor of the European Union (EU), in 1973. The state had no formal relations with Northern Ireland for most of the 20th century, but the 1980s and 1990s saw the British and Irish governments working with Northern Irish parties to resolve the conflict that had become known as the Troubles. Since the signing of the Good Friday Agreement in 1998, the Irish government and Northern Irish government have co-operated on a number of policy areas under the North/South Ministerial Council created by the Agreement.[PARAGRAPH:1]Ireland is a developed country with a quality of life ranked sixth in the world by the 2024 Human Development Index Report adjusted for inequality. It also ranks highly in healthcare, economic freedom and freedom of the press. According to the Global Peace Index, Ireland was the second most peaceful country worldwide in 2024.[PARAGRAPH:1]It is a member of the EU and a founding member of the Council of Europe and the OECD. The Irish government has followed a policy of military neutrality through non-alignment since before World War II, and the country is consequently not a member of NATO, although it is a member of the Partnership for Peace and certain aspects of PESCO. Ireland's economy is advanced, with one of Europe's major financial hubs being centred on Dublin. It ranks among the top five wealthiest countries in the world in terms of both GDP and GNI per capita. After joining the EC, the country's government enacted a series of liberal economic policies that helped to boost economic growth between 1995 and 2007, a time now often referred to as the Celtic Tiger period. A recession and reversal in growth then followed during the Great Recession, which was exacerbated by the bursting of the Irish property bubble. The Great Recession lasted until 2014, and was followed by a new period of strong economic growth.[PARAGRAPH:2]The names Ireland and �ire both derive from Old Irish �riu, which in turn comes from Proto-Celtic *Iweriyu meaning "fertile soil". The Classical Latin name for the island of Ireland, Ivernia, also comes from this same root, and it remains a popular, poetic synonym for Ireland to this day (usually respelled "Hibernia", under the influence of hibernum, the Latin word for "winter").[PARAGRAPH:1]The state created in 1922, comprising 26 of the 32 counties of Ireland, was "styled and known as the Irish Free State" (Saorst�t �ireann). The Constitution of Ireland, adopted in 1937, says that "the name of the State is �ire, or, in the English language, Ireland". Section 2 of the Republic of Ireland Act 1948 states, "It is hereby declared that the description of the State shall be the Republic of Ireland." The 1948 Act does not name the state "Republic of Ireland", because to have done so would have put it in conflict with the Constitution.[PARAGRAPH:1]The government of the United Kingdom used the name "Eire" (without the diacritic) and, from 1949, "Republic of Ireland", for the state. It was not until the 1998 Good Friday Agreement, when the state dropped its claim to Northern Ireland, that it began calling the state "Ireland".[PARAGRAPH:1]The state is also informally called "the Republic", "Southern Ireland" or "the South"; especially when distinguishing the state from the island or when discussing Northern Ireland ("the North"). Irish republicans reserve the name "Ireland" for the whole island and often refer to the state as "the Free State", "the 26 Counties", or "the South of Ireland". This is a "response to the partitionist view that Ireland stops at the border".</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 81f67ca5f..ee83805e7 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3126,15 +3126,15 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT</Tag>
+ 		<English>Mounted Combat</English>
+ 	</TEXT>
+-	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION" -->
++	<!-- custom: replace Later Abrahamism with Sacred Architecture after renaming its internal tech type. (GPT-5.6-Sol) -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION</Tag>
+-		<English>Postaxial Religion</English>
++		<Tag>TXT_KEY_TECH_SACRED_ARCHITECTURE</Tag>
++		<English>Sacred Architecture</English>
+ 	</TEXT>
+-	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM" -->
++	<!-- custom: replace TECH_ECOLOGY with TECH_AUTOMOBILES to separate Fascism's infantry from its armored-unit unlocks. (GPT-5.6-Sol) -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM</Tag>
+-		<English>Later Abrahamism</English>
++		<Tag>TXT_KEY_TECH_AUTOMOBILES</Tag>
++		<English>Automobiles</English>
+ 	</TEXT>
+ 	<!-- custom: rename _UTOPIA to _COMMUNISM -->
+ 	<TEXT>
+@@ -3269,16 +3269,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_QUOTE</Tag>
+ 		<English>"If you speak the truth, have a foot in the stirrup." - Turkish proverb</English>
+ 	</TEXT>
+-	<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION"; update: with the quote of tech_priesthood (now removed) -->
++	<!-- custom: Sacred Architecture uses the former Construction quote about monumental works. (GPT-5.6-Sol) -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_TECH_POSTAXIAL_RELIGION_QUOTE</Tag>
+-		<English>"The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers</English>
+-	</TEXT>
+-	<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM"; update: now using the quote of tech_monarchy -->
+-	<!-- Not originally by Herodotus -->
+-	<TEXT>
+-		<Tag>TXT_KEY_TECH_LATER_ABRAHAMISM_QUOTE</Tag>
+-		<English>"A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad</English>
++		<Tag>TXT_KEY_TECH_SACRED_ARCHITECTURE_QUOTE</Tag>
++		<English>"And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley</English>
+ 	</TEXT>
+ 	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted -->
+ 	<TEXT>
+@@ -3316,10 +3310,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_TECH_THEORY_OF_EVOLUTION_QUOTE</Tag>
+ 		<English>"It is not the strongest of the species that survive, but the one most responsive to change." - Charles Darwin (paraphrase)</English>
+ 	</TEXT>
+-	<!-- custom: use the base advciv +/- civ4's TECH_FIBER_OPTICS's quote -->
++	<!-- custom: Biology uses the former Refrigeration quote about food. (GPT-5.6-Sol) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_BIOLOGY_QUOTE</Tag>
+-		<English>"There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov</English>
++		<English>"Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin</English>
+ 	</TEXT>
+ 	<!-- custom: replace _REPLACE_PARTS and _REPLACEABLE_PARTS with _GAME_THEORY, also use the base advciv +/- civ4's TECH_RAILROAD's quote and audio -->
+ 	<TEXT>
+@@ -3341,7 +3335,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_TECH_QUANTUM_MECHANICS_QUOTE</Tag>
+ 		<English>"The whole is more than the sum of its parts." - Aristotle</English>
+ 	</TEXT>
+-	<!-- custom: quote remap v9: TECH_AI now uses the former TECH_FUSION quote (Arthur C. Clarke). (GPT-5.3-Codex) -->
++	<!-- custom: AI retains the former Fusion quote about advanced technology. (GPT-5.6-Sol) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_AI_QUOTE</Tag>
+ 		<English>"Any sufficiently advanced technology is indistinguishable from magic." - Arthur C. Clarke</English>
+@@ -3411,9 +3405,14 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION_QUOTE</Tag>
+ 		<English>"Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws." - Douglas Adams</English>
+ 	</TEXT>
+-	<!-- custom: quote remap v9: TECH_COMBUSTION now uses the former TECH_BIOENGINEERING quote. (GPT-5.3-Codex) -->
++	<!-- custom: Combustion uses the broader former Fiber Optics quote, freeing the car quote for Automobiles while keeping AI's stronger Clarke quote. (GPT-5.6-Sol) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_COMBUSTION_QUOTE</Tag>
++		<English>"There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov</English>
++	</TEXT>
++	<!-- custom: Automobiles uses the former Combustion quote. (GPT-5.6-Sol) -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_AUTOMOBILES_QUOTE</Tag>
+ 		<English>"Everything in life is somewhere else, and you get there in a car." - E. B. White</English>
+ 	</TEXT>
+ 	<!-- custom: now using the quote of tech_divine_right (now removed) -->
+@@ -3421,10 +3420,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_TECH_FEUDALISM_QUOTE</Tag>
+ 		<English>"I am the state." - ascribed to Louis XIV</English>
+ 	</TEXT>
+-	<!-- custom: now using the quote of tech_construction -->
++	<!-- custom: return the former Monarchy quote to Monarchy. The attribution is corrected from Herodotus to Homer, The Iliad. (GPT-5.6-Sol) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_MONARCHY_QUOTE</Tag>
+-		<English>"And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley</English>
++		<English>"A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad</English>
+ 	</TEXT>
+ 	<!-- custom: now using the quote of tech_steel (now removed) -->
+ 	<TEXT>
+@@ -3461,25 +3460,30 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_TECH_BROADER_EDUCATION_QUOTE</Tag>
+ 		<English>"There is no wealth like knowledge, no poverty like ignorance." - Ali ibn Abi-Talib</English>
+ 	</TEXT>
+-	<!-- custom: quote remap v9: TECH_ROMANTICISM now uses the former TECH_PAPER/DRAMA quote (Shakespeare stage line). (GPT-5.3-Codex) -->
++	<!-- custom: Romanticism uses the former Music quote, leaving Drama's stage quote distinct. (GPT-5.6-Sol) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_ROMANTICISM_QUOTE</Tag>
+-		<English>"All the world's a stage, And all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts." - William Shakespeare</English>
++		<English>"If music be the food of love, play on." - William Shakespeare</English>
+ 	</TEXT>
+-	<!-- custom: quote remap v9: override base key so TECH_MYSTICISM uses the former TECH_ROMANTICISM quote. (GPT-5.3-Codex) -->
++	<!-- custom: Mysticism uses the former Priesthood/Postaxial Religion blessing. (GPT-5.6-Sol) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_MYSTICISM_QUOTE</Tag>
+-		<English>"If music be the food of love, play on." - William Shakespeare</English>
++		<English>"The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers</English>
+ 	</TEXT>
+ 	<!-- custom: quote remap v9.2: TECH_PAPER now uses the former TECH_AI quote (Jefferson), swapped with LITERATURE. (GPT-5.3-Codex) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_PAPER_QUOTE</Tag>
+ 		<English>"I cannot live without books" - Thomas Jefferson</English>
+ 	</TEXT>
+-	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM. -->
++	<!-- custom: Environmentalism uses the former Ecology quote. (GPT-5.6-Sol) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM_QUOTE</Tag>
+-		<English>"Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin</English>
++		<English>"We do not inherit the earth from our ancestors, we borrow it from our children." - Unknown</English>
++	</TEXT>
++	<!-- custom: return the former Computers quote to Computers. (GPT-5.6-Sol) -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_COMPUTERS_QUOTE</Tag>
++		<English>"Never trust a computer you can't throw out a window." - Steve Wozniak</English>
+ 	</TEXT>
+ 	<!-- custom: quote remap v9: TECH_PROFESSIONAL_ARMY now uses the former TECH_STEAM_POWER quote. (GPT-5.3-Codex) -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 150a6838e..5f91fc9f1 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -2857,16 +2857,6 @@
+ 		<Italian>"Un uomo non rischia la vita per pochi soldi o per promozioni insignificanti. Per infervorarlo, bisogna parlare alla sua anima." - Napoleone Bonaparte</Italian>
+ 		<Spanish>"Un hombre no est&#225; dispuesto a morir por medio penique al d&#237;a ni por un qu&#237;tame all&#225; esas penas. Debes hablarle al alma para conmoverlo." - Napole&#243;n Bonaparte</Spanish>
+ 	</TEXT>
+-	<!-- Earliest known source appears to be Wendell Berry. "Native American
+-		 song" smells like a romanticization. -->
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_TECH_ECOLOGY_QUOTE</Tag>
+-		<English>"We do not inherit the earth from our ancestors, we borrow it from our children" - unknown</English>
+-		<French>"Nous n'h&#233;ritons pas de la Terre de nos anc&#234;tres, nous l'empruntons &#224; nos enfants." - Inconnu</French>
+-		<German>"Wir haben die Erde nicht von unseren Vorfahren geerbt, sondern von unseren Kindern geliehen." - Unbekannt</German>
+-		<Italian>"Non ereditiamo la terra dai nostri antenati, la prendiamo in prestito per i nostri figli." - Anonimo</Italian>
+-		<Spanish>"La Tierra no es una herencia de nuestros padres, sino un pr&#233;stamo de nuestros hijos." - An&#243;nimo</Spanish>
+-	</TEXT>
+ 	<!-- It might be a Native American proverb but has been attributed
+ 		 to various cultures. -->
+ 	<TEXT> <!-- redefine -->
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index c5586ee2f..214cedf83 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -79,7 +79,7 @@
+ 				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<iTime>600</iTime>
+ 					<iProduction>0</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -163,7 +163,7 @@
+ 				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<iTime>600</iTime>
+ 					<iProduction>0</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -208,7 +208,7 @@
+ 				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<iTime>600</iTime>
+ 					<iProduction>0</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -275,7 +275,7 @@
+ 				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<iTime>600</iTime>
+ 					<iProduction>0</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -321,7 +321,7 @@
+ 				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<iTime>600</iTime>
+ 					<iProduction>0</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -366,7 +366,7 @@
+ 				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<iTime>600</iTime>
+ 					<iProduction>0</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -411,7 +411,7 @@
+ 				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<iTime>600</iTime>
+ 					<iProduction>0</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -455,7 +455,7 @@
+ 				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<iTime>600</iTime>
+ 					<iProduction>0</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -484,7 +484,7 @@
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<iTime>600</iTime>
+ 					<iProduction>0</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -528,7 +528,7 @@
+ 				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<iTime>600</iTime>
+ 					<iProduction>0</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -593,7 +593,7 @@
+ 				<!-- kekm.9 -->
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<iTime>600</iTime>
+ 					<iProduction>0</iProduction>
+ 					<bRemove>1</bRemove>
+@@ -623,7 +623,7 @@
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FALLOUT</FeatureType>
+-					<PrereqTech>TECH_ECOLOGY</PrereqTech>
++					<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
+ 					<iTime>600</iTime>
+ 					<iProduction>0</iProduction>
+ 					<bRemove>1</bRemove>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index f7cce1118..ea71aaeda 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1184,7 +1184,8 @@
+ 			<PromotionPrereqOr1>PROMOTION_COMBAT2</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>PROMOTION_FIRST_STRIKE2</PromotionPrereqOr2>
+ 			<!-- custom: Unlock Counter-Tank with Fascism alongside tanks, so the counter cannot appear before its intended target. (GPT-5.6-Sol) -->
+-			<TechPrereq>TECH_FASCISM</TechPrereq>
++			<!-- custom: move Counter Tank from Fascism to Automobiles alongside the Tank. (GPT-5.6-Sol) -->
++			<TechPrereq>TECH_AUTOMOBILES</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 7ebaaf109..212e934a1 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -3151,7 +3151,8 @@
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: Executives now require tech(s) to be built, matching their corresponding corporation's required tech(s); Long_Comments_XML.txt #374, was PrereqTech NONE and TechTypes empty -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_ECOLOGY</PrereqTech>
++			<!-- custom: Match Cereal Mills' move to TECH_THEORY_OF_EVOLUTION; TECH_CORPORATION remains additionally required. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -13246,11 +13247,11 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was tech_industrialism and tech_types tech_FIREARMS -->
++			<!-- custom: TECH_INDUSTRIALISM now guarantees TECH_AUTOMOBILES -> TECH_FASCISM, so the explicit Fascism requirement became redundant. (GPT-5.6-Sol) -->
+ 			<ObsoleteTech>TECH_TRANSHUMANISM</ObsoleteTech>
+ 			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_FASCISM</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -15212,7 +15213,12 @@
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
+ 			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: The Wheel can now be reached through Masonry or Animal Husbandry. Horse reveal and its Pasture normally enforce Animal Husbandry already, but making it an explicit Chariot requirement keeps this early mounted-unit gate visible and robust against unusual bonus access through the Masonry path. (GPT-5.6-Sol) -->
++			<TechTypes>
++				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>BONUS_HORSE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -15434,7 +15440,12 @@
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
+ 			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: Match the generic Chariot's TECH_ANIMAL_HUSBANDRY gate. (GPT-5.6-Sol) -->
++			<TechTypes>
++				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>BONUS_HORSE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -15682,11 +15693,7 @@
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
+ 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_HUNTING</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<TechTypes/>
+ 			<BonusType>BONUS_HORSE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -15889,11 +15896,7 @@
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
+ 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_HUNTING</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<TechTypes/>
+ 			<BonusType>BONUS_HORSE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -16130,11 +16133,7 @@
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
+ 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_HUNTING</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<TechTypes/>
+ 			<BonusType>BONUS_CAMEL</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -16342,11 +16341,7 @@
+ 			<!-- custom: was TECH_CONSTRUCTION and TECH_MOUNTED_COMBAT -->
+ 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
+ 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<TechTypes/>
+ 			<BonusType>BONUS_ELEPHANTS</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -16570,11 +16565,7 @@
+ 			<!-- custom: was TECH_CONSTRUCTION and TECH_MOUNTED_COMBAT -->
+ 			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
+ 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<TechTypes/>
+ 			<BonusType>BONUS_ELEPHANTS</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -19265,7 +19256,8 @@
+ 			<PrereqBuilding>BUILDING_FACTORY</PrereqBuilding>
+ 			<!-- custom: was TECH_ASSEMBLY_LINE -->
+ 			<ObsoleteTech>TECH_COMPOSITES</ObsoleteTech>
+-			<PrereqTech>TECH_FASCISM</PrereqTech>
++			<!-- custom: move the Tank from Fascism to Automobiles, separating armored warfare from Fascism's Infantry and Machine Gun unlocks. (GPT-5.6-Sol) -->
++			<PrereqTech>TECH_AUTOMOBILES</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 494629152..8fd070e35 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -1495,13 +1495,13 @@ Rename the tag									Original untouched; you're free to localize your version
+ <!-- custom: BUILDING_GERMAN_LONGHOUSE (russian empire's civ-specific), replaces the now removed BUILDING_GERMAN_ASSEMBLY_PLANT, see docs or and other or and not for details; as for the pedia entry, similarly imported from/based on https://en.wikipedia.org/wiki/History_of_Germany#Prehistory and https://en.wikipedia.org/wiki/Linear_Pottery_culture#Economy or other wikis or and not (for example the introduction/generic wiki part of these or and other or and not) and https://en.wikipedia.org/wiki/Neolithic_long_house or and other or and not and modified or not for advciv-sas, as for transliteration and similarly for transliteration in other advciv-sas entries, may be accurate or not even though i attempted to, best to visit wiki or and original sources if mentioned for original content or and maybe google or try to find origin from a few sample of texts -->
+ 
+ ----- Comment #71 -----
+-<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION", as theology is a broader concept that is not limited, nor especially represented by christianity alone, it happened in various parts of history and of the world as part of religion forming maybe i would say from little or not quite bit if not lot or maybe notknowledge or guess i have/make on the topic, the specific period where christianity emerged from judaism seems to be following what is called the axial age, i find it to fit quite well from little or notresearch bit if not lot or noti have made on the topic, but in short mostly from pedia or reddit or and such or notor other website(s) or not or yes, what i learned or how i see it is that christianity emerged from judaism that is a classical or earlier religion, and from the clash with the roman empire that executed the killing of jesus, so the idea that this religion (christianity) would follow and be a good representative of the postaxial age is something i would find to fit quite well, it was even adopted by the roman empire or what followed it, so i think christianity is a good representative of that and from the guesses, and reading i made online or and such; entry from https://en.wikipedia.org/wiki/History_of_religion#Axial_age and https://en.wikipedia.org/wiki/History_of_religion#Middle_Ages and https://en.wikipedia.org/wiki/History_of_religion#Modern_Ages and https://en.wikipedia.org/wiki/Christianity_and_violence and adjusted or not for advciv-sas -->
++<!-- custom: rename "THEOLOGY" to "POSTAXIAL_RELIGION", as theology is a broader concept that is not limited, nor especially represented by christianity alone, it happened in various parts of history and of the world as part of religion forming maybe i would say from little or not quite bit if not lot or maybe notknowledge or guess i have/make on the topic, the specific period where christianity emerged from judaism seems to be following what is called the axial age, i find it to fit quite well from little or notresearch bit if not lot or noti have made on the topic, but in short mostly from pedia or reddit or and such or notor other website(s) or not or yes, what i learned or how i see it is that christianity emerged from judaism that is a classical or earlier religion, and from the clash with the roman empire that executed the killing of jesus, so the idea that this religion (christianity) would follow and be a good representative of the postaxial age is something i would find to fit quite well, it was even adopted by the roman empire or what followed it, so i think christianity is a good representative of that and from the guesses, and reading i made online or and such; entry from https://en.wikipedia.org/wiki/History_of_religion#Axial_age and https://en.wikipedia.org/wiki/History_of_religion#Middle_Ages and https://en.wikipedia.org/wiki/History_of_religion#Modern_Ages and https://en.wikipedia.org/wiki/Christianity_and_violence and adjusted or not for advciv-sas; update: now TECH_POSTAXIAL_RELIGION is removed.  -->
+ 
+ ----- Comment #72 -----
+-<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM", quite frankly i am not too sure about this tech name, but it seems most at least more if not most accurate, divine right happened much sooner in history around tech_monarchy if not sooner from what i remember of my search, and a tech name like "islamic golden age" or "islamic era" may be confused with the "golden age" concept or the "era" concept; also, some abrahamic religions appeared after islam, in the end they are all the same entity, so having islam the most famous of the later abrahamic religions represent it is hopefully accurate enough, quote is bit tedious to change so hopefully this one reflects it quite well while keeping same narrator; as for pedia entry not accurate anymore as the text is for divine right, plus i'd suspect civ4 devs or whoever writes these or whoever several or many people do not encessarily one if i may say in this case may add significant(ly) annoying clutter and polish instead of just being historically accurate and honest or neutral even if brief or long too, entry from https://en.wikipedia.org/wiki/Abrahamic_religions#Islam or such other related in same wikipedia page info/paragraphs quoted more exhaustively or less or not, and adjusted or not for advciv-sas -->
++<!-- custom: rename "DIVINE_RIGHT" to "LATER_ABRAHAMISM", quite frankly i am not too sure about this tech name, but it seems most at least more if not most accurate, divine right happened much sooner in history around tech_monarchy if not sooner from what i remember of my search, and a tech name like "islamic golden age" or "islamic era" may be confused with the "golden age" concept or the "era" concept; also, some abrahamic religions appeared after islam, in the end they are all the same entity, so having islam the most famous of the later abrahamic religions represent it is hopefully accurate enough, quote is bit tedious to change so hopefully this one reflects it quite well while keeping same narrator; as for pedia entry not accurate anymore as the text is for divine right, plus i'd suspect civ4 devs or whoever writes these or whoever several or many people do not encessarily one if i may say in this case may add significant(ly) annoying clutter and polish instead of just being historically accurate and honest or neutral even if brief or long too, entry from https://en.wikipedia.org/wiki/Abrahamic_religions#Islam or such other related in same wikipedia page info/paragraphs quoted more exhaustively or less or not, and adjusted or not for advciv-sas; update: now TECH_LATER_ABRAHAMISM is removed. -->
+ 
+ ----- Comment #73 -----
+-<!-- custom: replace sentimental and inaccurate TECH_ECOLOGY civ4 +/- base advciv's description with a historically and scientifically grounded one from wikipedia (i can be sentimental too and i like and learned from wikipedia i mean, i just find this wikipedia one so much more accurate and informative about not only the origins of the branch/science, but also how it relates to previous discoveries/perspectives, darwin's view from my quick glance if not mistaken in my quick read or understanding that the dominant competitors need to put in check their domination else they may struggle if they kill/consume/destroy all food sources is particularly interesting and more interesting than the sentimental and mistaken one of fight the evil pollution by the evil corporations or such one even though there is maybe ground for this, history shows it was accounted for much much sooner, most likely even in antiquity and before people were aware and conscious to preserve nature and protect it although i didn't check,which is why in particular i hate the dominant intuitive social view of ecology which i was also led to believe, instead of viewing it as a scientific field or causality of human existence where we need to coexist with nature rather than fight some evil entity admonizing ourselves if it's a word in english; based on https://en.wikipedia.org/wiki/Ecology#History -->
++<!-- custom: replace sentimental and inaccurate TECH_ECOLOGY civ4 +/- base advciv's description with a historically and scientifically grounded one from wikipedia (i can be sentimental too and i like and learned from wikipedia i mean, i just find this wikipedia one so much more accurate and informative about not only the origins of the branch/science, but also how it relates to previous discoveries/perspectives, darwin's view from my quick glance if not mistaken in my quick read or understanding that the dominant competitors need to put in check their domination else they may struggle if they kill/consume/destroy all food sources is particularly interesting and more interesting than the sentimental and mistaken one of fight the evil pollution by the evil corporations or such one even though there is maybe ground for this, history shows it was accounted for much much sooner, most likely even in antiquity and before people were aware and conscious to preserve nature and protect it although i didn't check,which is why in particular i hate the dominant intuitive social view of ecology which i was also led to believe, instead of viewing it as a scientific field or causality of human existence where we need to coexist with nature rather than fight some evil entity admonizing ourselves if it's a word in english; based on https://en.wikipedia.org/wiki/Ecology#History; update: now TECH_ECOLOGY is removed -->
+ 
+ ===== \Assets\XML\Text\AdvCiv-SAS_Main.xml =====
+ ----- Comment #74 -----
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index fbb87ff5e..e0c02e7ea 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -124,8 +124,8 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ | "People can have the Model T in any color - so long as it's black." - Henry Ford | Assembly Line | Keep |
+ | "Astronomy compels the soul to look upwards and leads us from this world to another." - Plato | Astronomy | Keep |
+ | "Banking establishments are more dangerous than standing armies." - Thomas Jefferson | Banking | Keep |
+-| "Everything in life is somewhere else, and you get there in a car." - E. B. White | Combustion | Keep |
+-| "There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov | Fiber Optics | Biology |
++| "Everything in life is somewhere else, and you get there in a car." - E. B. White | Combustion | Automobiles |
++| "There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov | Fiber Optics | Combustion |
+ | "There is no wealth like knowledge, no poverty like ignorance." - Ali ibn Abi-Talib | Education | Broader Education |
+ | "It is entirely seemly for a young man killed in battle to lie mangled by the bronze spear. In his death all things appear fair." - Homer | Bronze Working | Keep |
+ | "For everything there is a season and a time for every purpose under heaven." - Ecclesiastes | Calendar | Keep |
+@@ -143,12 +143,12 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ | "Everything is worth what its purchaser will pay for it." - Publius Syrus | Currency | Keep |
+ | "It has been said that democracy is the worst form of government except all the others that have been tried." - Winston Churchill | Democracy | Keep |
+ | "Compound interest is the most powerful force in the universe." - ascribed to Albert Einstein | Economics | Construction |
+-| "All the world's a stage, And all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts. " - William Shakespeare | Drama | Romanticism |
+-| "We do not inherit the earth from our ancestors, we borrow it from our children" - unknown | Ecology | Keep |
++| "All the world's a stage, And all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts. " - William Shakespeare | Drama | Keep |
++| "We do not inherit the earth from our ancestors, we borrow it from our children" - unknown | Ecology | Environmentalism |
+ | "People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith | Guilds | Economics |
+ | "We will make electricity so cheap that only the rich will burn candles." - Thomas Edison | Electricity | Keep |
+ | "A designer knows he has achieved perfection not when there is nothing left to add, but when there is nothing left to take away." - Antoine de Saint-Exupry | Engineering | Keep |
+-| "Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin | Refrigeration | Environmentalism |
++| "Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin | Refrigeration | Biology |
+ | "The great masses of the people... will more easily fall victims to a big lie than to a small one." - Adolf Hitler | Fascism | Mass Media |
+ | "I am the state." - ascribed to Louis XIV | Divine Right | Feudalism |
+ | "Political power grows out of the barrel of a gun." - Mao Zedong | Rifling | Firearms |
+@@ -162,7 +162,7 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ | "If you chase two rabbits, you will lose them both." - proverb | Hunting | Keep |
+ | "There is one rule for the industrialist and that is: Make the best quality of goods possible at the lowest cost possible, paying the highest wages possible." - Henry Ford | Industrialism | Keep |
+ | "You should hammer your iron when it is glowing hot." - Publius Syrus | Iron Working | Keep |
+-| "A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad | Monarchy | Later Abrahamism |
++| "A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad | Monarchy | Keep |
+ | "Any society that would give up a little liberty to gain a little security will deserve neither and lose both." - Benjamin Franklin | Liberalism | Keep |
+ | "Some books are to be tasted, others to be swallowed, and some few to be chewed and digested." - Sir Francis Bacon | Literature | Keep |
+ | "A god from the machine" - Menander | Machinery | Keep |
+@@ -176,7 +176,7 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ | "Do not throw the arrow which will return against you." - Kurdish Proverb | Archery | Water Wheel |
+ | "And them that take the sword shall perish by the sword." - The Bible, Matthew | Metal Casting | Military Tradition |
+ | "The man who moves a mountain begins by carrying away small stones." - Confucius | Mining | Keep |
+-| "And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley | Construction | Monarchy |
++| "And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley | Construction | Sacred Architecture |
+ | "I am the Lord thy God. Thou shalt have no other gods before Me." - The Bible, Exodus | Monotheism | Keep |
+ | "If you speak the truth, have a foot in the stirrup." - Turkish proverb | Horseback Riding | Mounted Combat |
+ | "Nature herself has imprinted on the minds of all the idea of God." - Cicero | Mysticism | Bioengineering |
+@@ -186,14 +186,14 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ | "I have gained this by philosophy: that I do without being commanded what others do only from fear of the law." - ascribed to Aristotle | Philosophy | Keep |
+ | "To every action there is always opposed an equal reaction." - Isaac Newton | Physics | Keep |
+ | "Not at all similar are the race of the immortal gods and the race of men who walk upon the earth." - Homer | Polytheism | Keep |
+-| "The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers | Priesthood | Postaxial Religion |
+ | "Hath not the potter power over the clay, to make one vessel unto honor, and another unto dishonor?" - The Bible, Romans | Pottery | Keep |
++| "The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers | Priesthood | Mysticism |
+ | "What gunpowder did for war, the printing press has done for the mind." - Wendell Phillips | Printing Press | Keep |
+ | "The whole is more than the sum of its parts." - Aristotle | Replaceable Parts | Quantum Mechanics |
+ | "Then one fine mornin' she puts on a New York station. You know her life was saved by Rock 'n' Roll." - The Velvet Underground, "Rock And Roll" | Radio | Keep |
+ | "The real problem is not whether machines think, but whether men do." - B.F. Skinner | Robotics | Robot Rights |
+ | "The Earth is the cradle of the mind, but one cannot eternally live in a cradle." - Konstantin E. Tsiolkovsky | Rocketry | Keep |
+-| "If music be the food of love, play on." - William Shakespeare | Music | Mysticism |
++| "If music be the food of love, play on." - William Shakespeare | Music | Romanticism |
+ | "You can't direct the wind, but you can adjust your sails." - Unknown | Sailing | Keep |
+ | "Beep...beep...beep...beep..." - Sputnik I | Satellites | Keep |
+ | "One doesn't discover new lands without losing sight of the shore." - Andre Gide | Optics | Seafaring |
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 3d4c9ec8e..a06b5578b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -124,6 +124,8 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **C++ inline-return cleanup:** collapsed simple inline DLL header functions whose bodies were exactly one `return` statement to one physical line, making trivial getters/wrappers easier to grep and compare. Done with the help of [`collapse_cpp_inline_returns.py`](/LLM_Helpers/README.md#collapse_cpp_inline_returnspy), a conservative mechanical helper that skips constructors/destructors, multi-statement bodies, body comments, multiline signatures, and overlong results. For example, `int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python`, instead of its old four-line equivalent.
+ - **Build cleanup - disabled unneeded DLL test code in normal builds:** compile-gated disabled reproducibility-test code (`ReproTest.cpp`) so normal DLL builds no longer compile it unless explicitly enabled for debugging. This keeps dormant test/debug code out of normal builds, may slightly reduce DLL/build size, and does **not** change gameplay. Found with the help of the new [`find_cpp_dead_code_candidates.py`](/LLM_Helpers/find_cpp_dead_code_candidates.py) LLM/manual-review helper.
+ - **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `WorldSizeTypes` enum/XML alignment, `CvGameCoreDLL/Project/temp_files/` staying effectively empty (only its tracked placeholder file), not being ignored by `.gitignore`, and being allowed only as an archive-excluded development marker through `.gitattributes` (helps catch stale fast-compile temp files. We check this because we suspect fast compiles can be unreliable, and also helps catch forgetting to replace the committed DLL after compiling; see [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-but-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwith-but-exact-same-source-files-if-i-am-not-mistaken-but) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe-but)), and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
++- (Requires AdvCiv-SAS 6081+) **Civ4 GameText character check:** added a GitHub workflow check for Unicode typography that creates visible artifacts in Civ4 text, such as the em dash (`U+2014`) formerly used in the Automobiles Civilopedia instead of a simple hyphen or other ASCII punctuation. It also catches repeated question marks that indicate lost characters, while allowing readable accented letters and ignoring XML comments.
++- (Requires AdvCiv-SAS 6081+) **Technology audio check:** added a GitHub workflow check that resolves every technology's normal and multiplayer audio through the mod-local audio tables and ensures each technology keeps a distinct spoken recording. This catches missing local definitions that otherwise produce quote text without audio, as happened with Drama, as well as wrong-layer script/sound references.
+ - **AIP predump refresh bot:** added [`aip-predump-refresh.yml`](/.github/workflows/aip-predump-refresh.yml), a tested GitHub Actions bot workflow for the Sevopedia Leader AI Personality predump cache. The existing checker still fails when the committed predump is stale, but the refresh workflow can now run `aip_predump_values.py --write` outside Civ4 and open/update a bot PR containing only `SevoPediaLeaderCachePredumped.py` when real generated AIP data or display-label drift is detected. It runs automatically after pushes to known AIP predump dependency files. Tested in [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) with no-op, XML comment-only, numeric Leader XML, and Python label/display drift cases, so harmless comments do not refresh the cache while real generated predump changes do.
+ - Other examples: This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)), and [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)). The checks also run locally with Python 3; see [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
+ - **Python Ruff GitHub workflow:** added [`python-ruff.yml`](/.github/workflows/python-ruff.yml), which prints a full Ruff report and fails on a practical critical gate for syntax/parse errors and Pyflakes bug checks. This helped spot shadowed duplicate callbacks in base Civ4 `Oasis.py` (see [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-workflow)) and a Base AdvCiv bug of dormant undefined `Point` (instead of using `PointLayout`) helper in `RectLayout.py` (see [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-dormant-rectlayout-upperleft-helper-returned-undefined-point-found-by-python-ruff)).
+@@ -615,6 +617,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+ - **AI worker speed**: `iAIWorkRateModifier` **0** on all handicaps.
+ - **AI starting workers**: `iAIStartingWorkerUnits` **0** on all handicaps.
+ - **Goodies (huts)**: remove **worker/settler** pops; rebalance barbarian outcomes (fewer strong, more weak at high handicaps); increase **experience** rewards at higher handicaps.
++- (Requires AdvCiv-SAS 6079+) **Animals per handicap**: less animals in highest handicaps (there seemed to be too many) but more and gradually so in lowest handicaps.
+ - **Explicit and tighter barbarian handicap fields:** added **explicit values** for previously missing barbarian-related handicap fields (`iSeaBarbarianBonus`, `iBarbarianCityAttackBonus`, `iSeaBarbarianExtraMoves`) and tightened their low-difficulty curves. This avoids hidden XML/default behavior and reduces broad low-difficulty freebies across most of the ladder; for example, barbarian city attack modifiers no longer implicitly stay at `-25` through Noble, sea barbarian combat modifiers no longer implicitly stay at `-10`, and sea barbarian extra movement penalties no longer implicitly apply through Deity. The new curves concentrate strong protection on Rookie/Settler/Chieftain, then reach neutral values earlier.
+ - **Lower and more gradual barbarian/animal handicap protection:** retuned several **barbarian** and **animal** handicap modifiers so only the lowest difficulties protect players as of now. For example, `iAnimalBonus`, `iAIAnimalBonus`, `iBarbarianBonus`, and `iAIBarbarianBonus` now follow a clean `-30`/`-20`/`-10`/`0` curve for Rookie/Settler/Chieftain/Warlord and then stay neutral at higher handicaps. In base AdvCiv, several of these protections lasted much farther up the ladder: `iAnimalBonus` still gave `-25` at Noble and remained non-neutral through Immortal, while `iAIAnimalBonus` and `iAIBarbarianBonus` stayed at `-25` all the way from Settler through Deity. This keeps the lowest difficulties forgiving, gradually less so, while removing broad barbarian/animal freebies from most difficulties.
+ - **More difficulty-sensitive barbarian city creation:** reworked `iBarbarianCityCreationProb` from base AdvCiv’s very flat curve into a wider Rookie-to-Deity+ scaling curve. Base AdvCiv only rises from `4` on Settler to `8` on Deity, while AdvCiv-SAS now scales from `0` on Rookie to `40` on Deity+.
+@@ -689,12 +692,13 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+ 
+ - **Civics rebalance (selective):** `CIVIC_REPRESENTATION` adjusted (unlocks earlier in AdvCiv-SAS; effects tweaked to fit timing; **Upkeep: Medium → High** to counter-balance its per-specialist scaling and thematically reflect the heavier apparatus needed to sustain such systems); `CIVIC_SLAVERY` buffed (**Upkeep: Medium → Low**); `CIVIC_CASTE_SYSTEM` nerfed (**Upkeep: Medium → High**) to curb early snowball; `CIVIC_VASSALAGE` buffed (**Upkeep: High → Medium**); and other changes. See Sevopedia/XML.
+ - **Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact and historical accuracy; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. Some religion civics are buffed/reworked to be refocused on religious play and to stay relevant longer; notably, `CIVIC_THEOCRACY` now uses `iCivicPercentAnger` = 200 (vs 400 on former civic_emancipation) (value info added to Sevopedia and Policy Advisor); economy civics are also more specialized/distinct, e.g. the old Environmentalism civic is replaced with `CIVIC_TRADE_BLOC` (earlier regional union/league-style trade civic); `CIVIC_PROTECTIONISM` is now about having **less trade**, not **no trade** (not isolationism); and `CIVIC_STATE_PROPERTY` now redistributes wealth via yield shifts (e.g. −20% hammers in the capital, +10% in all cities → effectively -20 + 10 = −10% in the capital, vs +10% in all other cities); plus other reworks such as for `CIVIC_NATIONHOOD`. Net effect: more viable paths, fewer must-picks.
+-- **Civic unlocks moved in the tech tree:** Some civics are available earlier/later than in base AdvCiv or in a strategically more distinct or versatile paths: notably, **Slavery** moves from overpowered, strong military Tech Bronze Working to **Masonry**, keeping the effect early without placing it at the beginning, or **Pacifism** moves later to **Medicine** which is more distinct that the religious path (plus its Great Person scaling is too strong for the early religious/culture branch). This improves pacing and balance/strategy variety while reducing the "everything funnels through Bronze Working" effect. See Tech Tree/Sevopedia/XML for current placements.
++- **Civic unlocks moved in the tech tree:** Some civics are available earlier/later than in base AdvCiv or in strategically more distinct or versatile paths: notably, **Slavery** moves from overpowered, strong military Tech Bronze Working to **Masonry**, keeping the effect early without placing it at the beginning; **Organized Religion** moves to **Polytheism** so monastery-free missionaries can affect early religious spread; and **Pacifism** moves later to **Medicine**, which is more distinct than the religious path (plus its Great Person scaling is too strong for the early religious/culture branch). This improves pacing and balance/strategy variety while reducing the "everything funnels through Bronze Working" effect. See Tech Tree/Sevopedia/XML for current placements.
+ - **Civics order aligned to tech pace:** Reordered civics in XML so the **Policy Advisor** displays them in rough unlock order (UI only; no rules change). Examples: **Universal Suffrage** before **Police State**; **Caste System** before **Vassalage**; **Pacifism** before **Theocracy**.
+ 
+ ## Technologies
+ 
+ - **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Overall tech count stays similar to base (some low-value techs removed, with the **Future era expanded**). **Quotes/announcer lines** were reassigned to better fit the new placements (including Future era) and for accuracy. See [Assets rebalancing: Tech quotes](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#tech-quote-swaps-rework).
++- **More distinct branches:** **Polytheism** branches toward **Drama** and **Code of Laws -> Monarchy -> Monotheism**; Drama + Monotheism then converge at **Sacred Architecture -> Aesthetics**. **Constitution + Paper -> Broader Education** separately branches into **Medicine -> Naturalism** and the **Currency + Broader Education -> Banking -> Democracy** institutional/economic line.
+ - Gameplay timings shift: **culture**, **slavery**, **plantations**, etc., often **earlier**.
+ - **Selective tech-trade bans for snowball techs:** Some high-impact techs are now flagged **"Cannot be traded"** (`bTrade = 0`) to curb extreme tech-brokering/"tech whoreism" chains (e.g. turning one breakthrough into a long series of trades), which AIs are especially vulnerable to and for balance. The goal is to tone down decisive, snowbally trades while still allowing normal tech trading (unless you enable the **No Tech Trading** game option, which disables it entirely). Info added in UI: see [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game) and [UI (Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-sevopedia) sections.
+ - **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading option is on). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
+@@ -720,6 +724,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+ ## Religions
+ 
+ - **Religions roster:** added **Paganism**; removed **Confucianism** (chosen partly because it has fewer adherents in our framing). Rationale: a lineup that feels simpler and (to us) more historically fitting. We **keep Judaism** as the in-game representative of early **monotheism**, and we continue to prefer a **small set (~7) of religions** for clarity and efficiency.
++- **Religion founding is distributed across more varied paths:** religions are available early enough to shape spread, diplomacy, and conflict rather than being concentrated in one later religious branch; notably, Judaism is founded at **Code of Laws**, Christianity at **Monotheism**, and Islam at **Navigation**.
+ - **Missionaries:** significantly **cheaper**.
+ - **Monasteries:** simplified — now **espionage** buildings with a **low Great Person rate**; **no longer obsolete**; **no longer give science** (keeps science buildings cleaner and the theming clearer)..
+ - **Shrines:** now require **(1) the religion present in the city** and **(2) the religion’s tech** (previously shrine TechPrereq was `NONE`). This makes shrines show up properly in the **Religion** Sevopedia building list and in the **tech tree**, and prevents "conquer (or any way to acquire) holy city ⇒ build shrine immediately" without the religion/tech. See [KI#12](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#12---shrines-now-require-their-religion), [KI#13](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#13---shrines-now-appear-in-tech-tree), and [README_Sevopedia_Reworks.md#example-5-religion-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-5-religion-category).
+@@ -792,6 +797,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+ 
+ - New **optional XML field**: `ObsoleteTech` **for units**: if set, this unit **can no longer be produced once we have discovered this tech** (e.g. Ancient Maceman (`UNIT_WARRIOR`) obsolete at `TECH_BRONZE_WORKING`). This XML field is **optional**: if **not set** (`<ObsoleteTech>NONE</ObsoleteTech>`, e.g. for the `UNIT_SETTLER`) or missing entirely (better **inter-mod portability**), a **fallback default of `NONE`** is provided anyway, so the unit is never obsolete, meaning no tech discovery will stop allowing to produce it (base AdvCiv/Civ4 behaviour). This new XML field allows to **avoid unit clutter in later eras** (no more **aberrant obsolete units in later eras** (e.g. Ancient Maceman produced in Medieval Era; Pikemen in Industrial Era)) being **produced** or shown in the **Production Chooser Bar**. **AI** becomes **naturally stronger** as a result of these changes. Additionally, this also helps set **clean scrapping rules** to computationally cheaply detect and remove old units for the AI's military composition, or **further enhancements**. **Sevopedia** Blurbs with links fully implemented in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). See [README: ObsoleteTech for units](/README.md#obsoletetech-for-units). See also [KI#93](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-aberrant-unit-choice-or-scrapping).
+ - **Build timing** tweaks for some units for historical pacing; see the Technology Advisor.
++- (Requires AdvCiv-SAS 6081+) Some units have additional explicit technology requirements when an alternate path would otherwise make their displayed unlock too permissive. For example, **Chariots require both The Wheel and Animal Husbandry**, so the Masonry path to The Wheel is not sufficient without first developing animal domestication.
+ - Detailed civ-specific unit documentation now lives in [Assets rebalancing: Civ-specific units rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civ-specific-units-rework), covering civilian and military civ-specific units with before/after/rationale rows for the current rework pass. For updated in-game data, see also Sevopedia Unit.
+ 
+ ## Civilian Units
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_References.md b/_1_AdvCiv-SAS/Docs/README_References.md
+index e5ba82ab0..56bb4a570 100644
+--- a/_1_AdvCiv-SAS/Docs/README_References.md
++++ b/_1_AdvCiv-SAS/Docs/README_References.md
+@@ -78,6 +78,8 @@ Sound seems strangely louder at first game launch, but then accesing main menu a
+ - Cavemen2Cosmos (also know as C2C): i took a bit of content from there, such as the advciv-sas's tech_seafaring (based on c2c mod's tech_boat building's) button (i.e. image of the tech ingame); also their fpks and asset naming are very clean as far as i can tell from what i looked at (only a few fpks not tons like other mods, and easy to find files from asset names, even filenames are generally clean and direct, thanks a lot), it was also inspiring, for example i was hesitating to rename "_WARRIOR" to "_ANCIENT_MACEMAN" as tedious but would be much cleaner doing so, thanks a lot!
+ - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
+ too too, thanks,
++- Master of mana, for assets like the Sacred Architecture tech's button (SPELLRESEARCH_ANGELS3 (Divine Wrath Spell)), thanks,
++- Destiny, for assets like the Automobiles tech's button (TECH_AUTOMOBILE), thanks,
+ - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
+ - Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too, thanks, thanks,
+ - Beyond the Game mod: notably version 2.43 from which i took maps like [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) which i adjusted for AdvCiv-SAS with GPT-5.3-Codex's help thanks a lot.
+
+[PATCH COVERAGE]
+patchFiles=30 embeddedFiles=30 omittedFiles=0 embeddedPatchBytes=185694

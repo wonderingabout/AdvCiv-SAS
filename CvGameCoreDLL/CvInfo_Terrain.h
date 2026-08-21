@@ -120,21 +120,12 @@ public: /*  All the const functions are exposed to Python except for those deali
 	const TCHAR* getEffectType() const;
 	int getEffectProbability() const;
 
-	int getYieldChange(int i) const
-	{
-		FAssertBounds(0, NUM_YIELD_TYPES, i);
-		return m_piYieldChange[i]; // advc: Don't branch to check for NULL
-	}
-	int getRiverYieldChange(int i) const
-	{
-		FAssertBounds(0, NUM_YIELD_TYPES, i);
-		return m_piRiverYieldChange[i]; // advc: see above
-	}
-	int getHillsYieldChange(int i) const
-	{
-		FAssertBounds(0, NUM_YIELD_TYPES, i);
-		return m_piHillsYieldChange[i]; // advc: see above
-	}
+	// advc: Don't branch to check for NULL
+	int getYieldChange(int i) const { FAssertBounds(0, NUM_YIELD_TYPES, i); return m_piYieldChange[i]; }
+	// advc: see above
+	int getRiverYieldChange(int i) const { FAssertBounds(0, NUM_YIELD_TYPES, i); return m_piRiverYieldChange[i]; }
+	// advc: see above
+	int getHillsYieldChange(int i) const { FAssertBounds(0, NUM_YIELD_TYPES, i); return m_piHillsYieldChange[i]; }
 	int get3DAudioScriptFootstepIndex(int i) const;
 
 	bool isTerrain(int i) const;
@@ -328,10 +319,7 @@ public:
 		AirBombDefense = base_t::NUM_INT_ELEMENT_TYPES, // advc.255
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	}
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); }
 	// </advc.tag>
 public: // All the const functions are exposed to Python except those added by mods
 	CvRouteInfo();
@@ -350,11 +338,7 @@ public: // All the const functions are exposed to Python except those added by m
 	int getTechMovementChange(int i) const;
 	// <advc.003t>
 	int getNumPrereqOrBonuses() const { return m_aePrereqOrBonuses.size(); }
-	BonusTypes getPrereqOrBonus(int i) const
-	{
-		FAssertBounds(0, getNumPrereqOrBonuses(), i);
-		return m_aePrereqOrBonuses[i];
-	}
+	BonusTypes getPrereqOrBonus(int i) const { FAssertBounds(0, getNumPrereqOrBonuses(), i); return m_aePrereqOrBonuses[i]; }
 	int py_getPrereqOrBonus(int i) const;
 	// </advc.003t>
 	bool read(CvXMLLoadUtility* pXML);
@@ -396,10 +380,7 @@ public:
 		GWFeatureProtection, // advc.055
 		NUM_INT_ELEMENT_TYPES
 	};
-	int get(IntElementTypes e) const
-	{
-		return base_t::get(static_cast<base_t::IntElementTypes>(e));
-	}
+	int get(IntElementTypes e) const { return base_t::get(static_cast<base_t::IntElementTypes>(e)); }
 	// </advc.tag>
 	/*  All the const functions are exposed to Python except those dealing with sound,
 		Advanced Start and those added by mods */
@@ -450,10 +431,7 @@ public:
 	int getHillsYieldChange(int i) const;
 	int const* getHillsYieldChangeArray() const { return m_piHillsYieldChange; }
 	int getIrrigatedYieldChange(int i) const;
-	int const* getIrrigatedYieldChangeArray() const // For Moose - CvWidgetData XXX
-	{
-		return m_piIrrigatedChange;
-	}
+	int const* getIrrigatedYieldChangeArray() const { return m_piIrrigatedChange; } // For Moose - CvWidgetData XXX
 
 	bool getTerrainMakesValid(int i) const;
 	bool isAnyTerrainMakesValid() const { return (m_pbTerrainMakesValid != NULL); } // advc.003t

@@ -1,0 +1,248 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 567
+# Commit: f2bd79933188e315017d0bfe971717519499ac18
+# History segment: K-Mod history
+# Parent used for diff: 22026aa66a09e83a5513506e9cb99dbf143c5131
+# Title: Changed the way units are activated inside CvUnit::automate. (The previous implementation caused the game to crash if the unit was immediately consumed.) Fix...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Config/Advanced Combat Odds.xml
+6	6	Assets/Config/BULL Actions.xml
+18	18	Assets/Config/BULL City Bar.xml
+3	1	Assets/Config/BULL Misc Hovers.xml
+0	1	Assets/Python/BUG/BugDll.py
+1	1	Assets/Python/BUG/Tabs/BugACOOptionsTab.py
+2	2	Assets/xml/Text/Advanced Combat Odds Options.xml
+8	3	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/Advanced Combat Odds.xml b/Assets/Config/Advanced Combat Odds.xml
+index 4dda92e83..cc26ad834 100644
+--- a/Assets/Config/Advanced Combat Odds.xml	
++++ b/Assets/Config/Advanced Combat Odds.xml	
+@@ -51,7 +51,7 @@
+ 			<list   id="ShowAttackerHealthBars" key="Show Attacker Health Bars" 
+ 					type="int" default="3" listType="string" 
+ 					values="ACO__ShowBasicInfo"/>
+-			<list   id="ShowDedenderHealthBars" key="Show Dedender Health Bars" 
++			<list   id="ShowDefenderHealthBars" key="Show Dedender Health Bars" 
+ 					type="int" default="2" listType="string" 
+ 					values="ACO__ShowBasicInfo"/>
+
+diff --git a/Assets/Config/BULL Actions.xml b/Assets/Config/BULL Actions.xml
+index 641dce8e2..99c4e320a 100644
+--- a/Assets/Config/BULL Actions.xml	
++++ b/Assets/Config/BULL Actions.xml	
+@@ -17,25 +17,25 @@
+ 		<section id="Units">
+ 			<!-- Ask Declare War -->
+ 			<option id="AskDeclareWarUnits" key="Ask Declare War Units" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 			
+ 			<!-- Sentry Healing by Unofficial Patch -->
+ 			<option id="SentryHealing" key="Sentry Healing" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 			<option id="SentryHealingOnlyNeutral" key="Sentry Healing Only Neutral" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 			
+ 			<!-- Ignore Harmless Barbarians (with Great Wall) -->
+ 			<option id="IgnoreHarmlessBarbarians" key="Ignore Harmless Barbarians" 
+-					type="boolean" default="True" dll="2"/>
++					type="boolean" default="False" dll="2"/>
+ 		</section>
+ 		
+ 		<section id="Workers">
+ 			<!-- PreChop by EmperorFool -->
+ 			<option id="PreChopForests" key="Pre Chop Forests" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 			<option id="PreChopImprovements" key="Pre Chop Improvements" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 		</section>
+ 	</options>
+ </mod>
+
+diff --git a/Assets/Config/BULL City Bar.xml b/Assets/Config/BULL City Bar.xml
+index 5eb2851a5..11c09ea79 100644
+--- a/Assets/Config/BULL City Bar.xml	
++++ b/Assets/Config/BULL City Bar.xml	
+@@ -16,54 +16,54 @@
+ 	<options id="CityBar" file="BUG City Bar.ini">
+ 		<section id="Bar">
+ 			<option id="AirportIcons" key="Airport Icons" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 					
+ 			<option id="StarvationTurns" key="Starvation Turns" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 		</section>
+ 		
+ 		<section id="Hover">
+ 			<option id="Health" key="Health" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 			<option id="Happiness" key="Happiness" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 					
+ 			<option id="HurryAnger" key="Hurry Anger" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 			<option id="DraftAnger" key="Draft Anger" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 					
+ 			<option id="FoodAssist" key="Food Assist" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 			<option id="BaseValues" key="Base Values" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 			<option id="BaseProduction" key="Base Production" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 			<option id="BuildingActualEffects" key="Building Actual Effects" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 					
+ 			<option id="HurryAssist" key="Hurry Assist" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 			<option id="HurryAssistIncludeCurrent" key="Hurry Assist Include Current" 
+ 					type="boolean" default="False"/>
+ 					
+ 			<option id="TradeDetail" key="Trade Detail" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 			<option id="Commerce" key="Commerce" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 					
+ 			<option id="BuildingIcons" key="BuildingIcons" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 					
+ 			<option id="CultureTurns" key="Culture Turns" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 			<option id="GreatPersonTurns" key="Great Person Turns" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 					
+ 			<option id="Specialists" key="Specialists" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 			<option id="RevoltChance" key="Revolt Chance" 
+-					type="boolean" default="True"/>
++					type="boolean" default="False"/>
+ 					
+ 			<option id="HideInstructions" key="Hide Instructions" 
+ 					type="boolean" default="True"/>
+
+diff --git a/Assets/Config/BULL Misc Hovers.xml b/Assets/Config/BULL Misc Hovers.xml
+index 04a92c146..eeba38739 100644
+--- a/Assets/Config/BULL Misc Hovers.xml	
++++ b/Assets/Config/BULL Misc Hovers.xml	
+@@ -39,9 +39,11 @@
+ 					type="boolean" default="False" dll="3"/>
+ 		</section>
+ 		
+-		<section id="Building">
++		<section id="Net Effects">
+ 			<option id="BuildingActualEffects" key="Building Actual Effects" 
+ 					type="boolean" default="False"/>
++			<option id="SpecialistActualEffects" key="Specialist Actual Effects" 
++					type="boolean" default="False"/> <!-- K-Mod added (this was unused, but missing) -->
+ 		</section>
+ 		
+ 		<section id="Tech">
+
+diff --git a/Assets/Python/BUG/BugDll.py b/Assets/Python/BUG/BugDll.py
+index 40b1808ae..ecbbc34bc 100644
+--- a/Assets/Python/BUG/BugDll.py
++++ b/Assets/Python/BUG/BugDll.py
+@@ -177,7 +177,6 @@ def getOptionSTRING(argsList):
+ 	return castOptionValue(str, *argsList)
+ 
+ def castOptionValue(func, id, default):
+-	BugUtil.debug("getOption %s, answer is %d (%d)", id, BugOptions.getOption(id).getValue(), default)
+ 	try:
+ 		return func(BugOptions.getOption(id).getValue())
+ 	except:
+
+diff --git a/Assets/Python/BUG/Tabs/BugACOOptionsTab.py b/Assets/Python/BUG/Tabs/BugACOOptionsTab.py
+index 1fc9f0f86..0ce0d3768 100644
+--- a/Assets/Python/BUG/Tabs/BugACOOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugACOOptionsTab.py
+@@ -51,7 +51,7 @@ class BugACOOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addSpacer(screen, rightR, "ACO_Tab2.2")
+ 		self.addTextDropdown(screen, rightL, rightR, "ACO__ShowAverageHealth")
+ 		self.addTextDropdown(screen, rightL, rightR, "ACO__ShowAttackerHealthBars")
+-		self.addTextDropdown(screen, rightL, rightR, "ACO__ShowDedenderHealthBars")
++		self.addTextDropdown(screen, rightL, rightR, "ACO__ShowDefenderHealthBars")
+ 		
+ 		self.addSpacer(screen, rightL, "ACO_Tab3.1")
+ 		self.addSpacer(screen, rightR, "ACO_Tab3.2")
+
+diff --git a/Assets/xml/Text/Advanced Combat Odds Options.xml b/Assets/xml/Text/Advanced Combat Odds Options.xml
+index 9976a8cc1..2c55890a4 100644
+--- a/Assets/xml/Text/Advanced Combat Odds Options.xml	
++++ b/Assets/xml/Text/Advanced Combat Odds Options.xml	
+@@ -243,7 +243,7 @@
+ 		<Spanish>Selecciona cu�ndo mostrar las barras de probabilidad de cada posible nivel final de salud del atacante.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWDEDENDERHEALTHBARS_TEXT</Tag>
++		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWDEFENDERHEALTHBARS_TEXT</Tag>
+ 		<English>Defender Health Bars</English>
+ 		<French>Defender Health Bars</French>
+ 		<German>Gesundheitsbalken des Verteidigers</German>
+@@ -251,7 +251,7 @@
+ 		<Spanish>Barras de Salud del Defensor</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWDEDENDERHEALTHBARS_HOVER</Tag>
++		<Tag>TXT_KEY_BUG_OPT_ACO__SHOWDEFENDERHEALTHBARS_HOVER</Tag>
+ 		<English>Select when to show the probability bars of each possible ending health for the defender.</English>
+ 		<French>Select when to show the probability bars of each possible ending health for the defender.</French>
+ 		<German>Bestimmt, wann die Wahrscheinlichkeitsbalken f�r die jeweils erwartete Gesundheit des Verteidigers nach dem Kampf angezeigt werden</German>
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index d65a3e473..24da3a5c9 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3153,9 +3153,14 @@ void CvUnit::automate(AutomateTypes eAutomate)
+ 	}
+ 
+ 	getGroup()->setAutomateType(eAutomate);
+-	// K-Mod
+-	FAssert(GET_PLAYER(getOwnerINLINE()).isTurnActive());
+-	getGroup()->AI_update();
++	// K-Mod. I'd like for the unit to automate immediately after the command is given, just so that the UI seems responsive. But doing so is potentially problematic.
++	if (GET_PLAYER(getOwnerINLINE()).isTurnActive() && getGroup()->readyToMove())
++	{
++		// unfortunately, CvSelectionGroup::AI_update can kill the unit, and CvUnit::automate currently isn't allowed to kill the unit.
++		// CvUnit::AI_update should be ok; but using it here makes me a bit uncomfortable because it doesn't include all the checks and conditions of the group update.
++		// ...too bad.
++		AI_update();
++	}
+ 	// K-Mod end
+ }
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=9027

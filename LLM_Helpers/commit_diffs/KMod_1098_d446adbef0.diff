@@ -1,0 +1,78 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1098
+# Commit: d446adbef0ea6e9a65e18bc1ed2ba85523128aa0
+# History segment: K-Mod history
+# Parent used for diff: fbbfa501f508878e41cf87c455467ede0e592ddf
+# Title: Adjusted how AttackSea and transports are built in AI_chooseProduction
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	9	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index a8f28da2d..05c136833 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2020,18 +2020,20 @@ void CvCityAI::AI_chooseProduction()
+ 				kPlayer.AI_bestCityUnitAIValue(UNITAI_ATTACK_SEA, this, &eBestAttackSeaUnit);
+ 				if (eBestAttackSeaUnit != NO_UNIT)
+ 				{
+-					int iDivisor = 2;
+-					if (GC.getUnitInfo(eBestAttackSeaUnit).getBombardRate() == 0)
+-					{
+-						iDivisor = 5;
+-					}
+-
++					// (tweaked for K-Mod)
+ 					int iAttackSea = kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_ATTACK_SEA);
+ 					iAttackSea += kPlayer.AI_totalAreaUnitAIs(pAssaultWaterArea, UNITAI_ATTACK_SEA);
+ 
+-					if ((iAttackSea < ((1 + 2 * iTransports) / iDivisor)))
++					int iDesiredAttackSea = 1 + 4*iTransports / (GC.getUnitInfo(eBestAttackSeaUnit).getBombardRate() == 0 ? 10 : 3);
++						
++					if (iAttackSea < iDesiredAttackSea)
+ 					{
+-						if (AI_chooseUnit(UNITAI_ATTACK_SEA, (iUnitSpending < iMaxUnitSpending) ? 50 : 20))
++						int iOdds = 20 + 50 * (iDesiredAttackSea - iAttackSea)/iDesiredAttackSea;
++						if (iUnitSpending > iMaxUnitSpending)
++							iOdds /= 3;
++						// Note: there is a hard limit condition on iUnitSpending earlier in the code.
++
++						if (GC.getGameINLINE().getSorenRandNum(100, "Build AttackSea") < iOdds && AI_chooseUnit(eBestAttackSeaUnit, UNITAI_ATTACK_SEA))
+ 						{
+ 							AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 12);
+ 							return;
+@@ -2041,7 +2043,11 @@ void CvCityAI::AI_chooseProduction()
+ 				
+ 				if (iUnitsToTransport > iTransportCapacity)
+ 				{
+-					if ((iUnitSpending < iMaxUnitSpending) || (iUnitsToTransport > 2*iTransportCapacity))
++					//if ((iUnitSpending < iMaxUnitSpending) || (iUnitsToTransport > 2*iTransportCapacity))
++					// K-Mod
++					if (iUnitSpending < iMaxUnitSpending ||
++						GC.getGameINLINE().getSorenRandNum(100, "Build Transport") < 100 * (iUnitsToTransport - iTransportCapacity) / std::max(1, iTransportCapacity))
++					// K-Mod end
+ 					{
+ 						if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
+ 						{
+@@ -2896,6 +2902,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 
+ 				if (bWarPossible)
+ 				{
++					// K-Mod note: this is bogus. TODO: change it so that it scales properly with map size.
+ 					aiUnitAIVal[UNITAI_ATTACK_SEA] += std::min((pWaterArea->getNumTiles() / 150), ((((iCoastalCities * 2) + (iMilitaryWeight / 9)) / ((bAssault) ? 4 : 6)) + ((bPrimaryArea) ? 1 : 0)));
+ 					aiUnitAIVal[UNITAI_RESERVE_SEA] += std::min((pWaterArea->getNumTiles() / 200), ((((iCoastalCities * 2) + (iMilitaryWeight / 7)) / 5) + ((bPrimaryArea) ? 1 : 0)));
+ 					aiUnitAIVal[UNITAI_ESCORT_SEA] += (kOwner.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_ASSAULT_SEA) + (kOwner.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_CARRIER_SEA) * 2));
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2830

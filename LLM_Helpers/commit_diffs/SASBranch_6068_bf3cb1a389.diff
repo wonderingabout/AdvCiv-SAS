@@ -1,0 +1,206 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6068
+# Commit: bf3cb1a389bf667ec2407b435546717c2d079ae2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 875b071bcb9382b415edd23e44458f0526264f82
+# Title: Add BBAI diagnostics for aggregate AI army concentration and crowded upgrade-city routing
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+88	5	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 8037f4e73..6ba360f18 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1152,16 +1152,57 @@ static void SAS_logAttackCityBarbOpportunity(CvUnitAI& kUnit, CvCity const* pTar
+ 		(pBestPathableBarbCity == NULL ? L"-" : pBestPathableBarbCity->getName().GetCString()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getX()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getY()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getPopulation()), iBestPathableDefenders, iBestPathableValue, iBestPathableTargetValue, iBestPathablePathTurns, iBestPathableStepDistance, kUnit.getArea().getAreaAIType(kUnit.getTeam()), GET_TEAM(kUnit.getTeam()).getNumWars(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan(), kOwner.AI_isFinancialTrouble());
+ }
+ 
++static void SAS_countPlotMilitaryConcentration(CvPlot const& kPlot, PlayerTypes eOwner, int& iMilitaryUnits, int& iGroups, int& iUpgradeUnits, int& iUpgradeGroups)
++{
++	iMilitaryUnits = 0;
++	iGroups = 0;
++	iUpgradeUnits = 0;
++	iUpgradeGroups = 0;
++	std::vector<int> aiGroupIds;
++	for (CLLNode<IDInfo> const* pUnitNode = kPlot.headUnitNode(); pUnitNode != NULL; pUnitNode = kPlot.nextUnitNode(pUnitNode))
++	{
++		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
++		if (pLoopUnit == NULL || pLoopUnit->getOwner() != eOwner || !pLoopUnit->getUnitInfo().isMilitarySupport()) continue;
++		iMilitaryUnits++;
++		CvSelectionGroup const* pGroup = pLoopUnit->getGroup();
++		if (pGroup == NULL) continue;
++		bool bGroupAlreadyCounted = false;
++		for (size_t i = 0; i < aiGroupIds.size(); i++)
++		{
++			if (aiGroupIds[i] == pGroup->getID())
++			{
++				bGroupAlreadyCounted = true;
++				break;
++			}
++		}
++		if (!bGroupAlreadyCounted)
++		{
++			aiGroupIds.push_back(pGroup->getID());
++			iGroups++;
++			if (pGroup->AI().AI_getMissionAIType() == MISSIONAI_UPGRADE) iUpgradeGroups++;
++		}
++		if (pGroup->AI().AI_getMissionAIType() == MISSIONAI_UPGRADE) iUpgradeUnits++;
++	}
++}
++
+ // <!-- custom: SASGameSummary showed peaceful UNITAI_ATTACK_CITY groups containing most of an AI's military even when ATTACK_CITY_PARKING had no row, which means the group either never entered AI_attackCityMove or returned before its explicit wait/final-skip branches.
+-// Trace only groups with at least 16 units and 20% of the owner's military at UNIT level 2; these diagnostic-only thresholds keep the log narrow and do not affect AI behavior.
+-// Record persistent activity/mission state, incoming joiners, and selected early-return actions so the next run can identify the unlogged route before a grouping cure. (GPT-5.6-Sol) -->
++// Trace a single group with at least 16 units and 20% of the owner's military, or a group of at least 6 contributing to a peaceful owned-city concentration of at least 20 units and 30%. The second diagnostic case catches many medium groups gathering in one city without making any individual group look exceptional.
++// Record persistent activity/mission state, incoming joiners, upgrade missions, and selected early-return actions so the next run can identify the unlogged route before a grouping cure. These thresholds affect logging only. (GPT-5.6-Sol) -->
+ static bool SAS_isLargeAttackCityStackDiagnostic(CvUnitAI const& kUnit)
+ {
+ 	if (kUnit.AI_getUnitAIType() != UNITAI_ATTACK_CITY || kUnit.getGroup() == NULL)
+ 		return false;
+ 	int const iGroupUnits = kUnit.getGroup()->getNumUnits();
+ 	int const iTotalMilitary = GET_PLAYER(kUnit.getOwner()).getNumMilitaryUnits();
+-	return (iGroupUnits >= 16 && 100 * iGroupUnits / std::max(1, iTotalMilitary) >= 20);
++	if (iGroupUnits >= 16 && 100 * iGroupUnits / std::max(1, iTotalMilitary) >= 20) return true;
++	CvCity const* pCity = kUnit.getPlot().getPlotCity();
++	if (iGroupUnits < 6 || pCity == NULL || pCity->getOwner() != kUnit.getOwner() || GET_TEAM(kUnit.getTeam()).getNumWars() > 0) return false;
++	int iCityMilitary = 0;
++	int iCityGroups = 0;
++	int iUpgradeUnits = 0;
++	int iUpgradeGroups = 0;
++	SAS_countPlotMilitaryConcentration(kUnit.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
++	return (iCityMilitary >= 20 && 100 * iCityMilitary / std::max(1, iTotalMilitary) >= 30);
+ }
+ 
+ static void SAS_logLargeAttackCityStackAction(CvUnitAI const& kUnit, char const* szAction, CvCity const* pTargetCity = NULL)
+@@ -1193,8 +1234,14 @@ static void SAS_logLargeAttackCityStackAction(CvUnitAI const& kUnit, char const*
+ 	}
+ 	int const iTotalMilitary = kOwner.getNumMilitaryUnits();
+ 	int const iIncomingJoiners = kOwner.AI_unitTargetMissionAIs(kUnit, MISSIONAI_GROUP);
+-	logBBAI("    ATTACK_CITY_LARGE_STACK_ACTION turn=%d player=%d %S action=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d wounded=%d at=(%d,%d) city=%S activity=%d mission=%s missionAI=%d missionPlot=(%d,%d) missionUnitOwner=%d missionUnitId=%d missionQueue=%d incomingJoiners=%d movesLeft=%d target=%S target=(%d,%d) areaTarget=%S areaTarget=(%d,%d) areaAI=%d wars=%d anyWarPlan=%d chosenWar=%d sneakAttackReady=%d warPlanTargets=%d firstWarPlanTarget=%d firstWarPlan=%s",
+-		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), pGroup->getID(), pGroup->getNumUnits(), iTotalMilitary, 100 * pGroup->getNumUnits() / std::max(1, iTotalMilitary), iWounded,
++	int iCityMilitary = 0;
++	int iCityGroups = 0;
++	int iUpgradeUnits = 0;
++	int iUpgradeGroups = 0;
++	SAS_countPlotMilitaryConcentration(kUnit.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
++	logBBAI("    ATTACK_CITY_LARGE_STACK_ACTION turn=%d player=%d %S action=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d cityMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d wounded=%d at=(%d,%d) city=%S activity=%d mission=%s missionAI=%d missionPlot=(%d,%d) missionUnitOwner=%d missionUnitId=%d missionQueue=%d incomingJoiners=%d movesLeft=%d target=%S target=(%d,%d) areaTarget=%S areaTarget=(%d,%d) areaAI=%d wars=%d anyWarPlan=%d chosenWar=%d sneakAttackReady=%d warPlanTargets=%d firstWarPlanTarget=%d firstWarPlan=%s",
++		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), pGroup->getID(), pGroup->getNumUnits(), iTotalMilitary, 100 * pGroup->getNumUnits() / std::max(1, iTotalMilitary),
++		iCityMilitary, 100 * iCityMilitary / std::max(1, iTotalMilitary), iCityGroups, iUpgradeUnits, iUpgradeGroups, iWounded,
+ 		kUnit.getX(), kUnit.getY(), (kUnit.getPlot().getPlotCity() == NULL ? L"-" : kUnit.getPlot().getPlotCity()->getName().GetCString()), pGroup->getActivityType(), SAS_getMissionTypeName(pGroup->getMissionType(0)), pGroup->AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pMissionUnit == NULL ? -1 : pMissionUnit->getOwner()), (pMissionUnit == NULL ? -1 : pMissionUnit->getID()), pGroup->getLengthMissionQueue(),
+ 		iIncomingJoiners, kUnit.movesLeft(), (pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()),
+ 		(pAreaTargetCity == NULL ? L"-" : pAreaTargetCity->getName().GetCString()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getY()), kUnit.getArea().getAreaAIType(kUnit.getTeam()), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kTeam.AI_isAnyChosenWar(), kTeam.AI_isSneakAttackReady(), iWarPlanTargets, eFirstWarPlanTarget, getSASWarPlanType(eFirstWarPlan));
+@@ -23617,6 +23664,34 @@ bool CvUnitAI::AI_routeTerritory(bool bImprovementOnly)
+ }
+ 
+ 
++// <!-- custom: Save file 450 showed a peaceful AI keeping 75-78 military units in one non-capital city before its capital fell immediately when war began. Most upgrades also occurred in that city.
++// At UNIT level 2, trace upgrade travel and waiting when the destination already contains at least 20 military units and 30% of the owner's army. This reveals whether inherited upgrade-city routing creates or prolongs an aggregate concentration across many individually modest groups; it does not affect behavior. (GPT-5.6-Sol) -->
++static bool SAS_isCrowdedUpgradeCityDiagnostic(CvUnitAI const& kUnit, CvCity const& kUpgradeCity)
++{
++	if (kUnit.getGroup() == NULL || kUnit.getGroup()->getHeadUnit() != &kUnit) return false;
++	int iCityMilitary = 0;
++	int iCityGroups = 0;
++	int iUpgradeUnits = 0;
++	int iUpgradeGroups = 0;
++	SAS_countPlotMilitaryConcentration(kUpgradeCity.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
++	int const iTotalMilitary = GET_PLAYER(kUnit.getOwner()).getNumMilitaryUnits();
++	return (iCityMilitary >= 20 && 100 * iCityMilitary / std::max(1, iTotalMilitary) >= 30);
++}
++
++static void SAS_logCrowdedUpgradeCityAction(CvUnitAI const& kUnit, CvCity const& kUpgradeCity, char const* szAction, int iPathTurns = -1)
++{
++	int iCityMilitary = 0;
++	int iCityGroups = 0;
++	int iUpgradeUnits = 0;
++	int iUpgradeGroups = 0;
++	SAS_countPlotMilitaryConcentration(kUpgradeCity.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	CvTeamAI const& kTeam = GET_TEAM(kUnit.getTeam());
++	logBBAI("    UPGRADE_CITY_CONCENTRATION turn=%d player=%d %S action=%s unitId=%d unitAI=%d groupId=%d groupUnits=%d from=(%d,%d) upgradeCity=%S upgradeCity=(%d,%d) pathTurns=%d cityMilitary=%d totalMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d cityDefenders=%d capital=%d wars=%d anyWarPlan=%d areaAI=%d",
++		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), kUnit.AI_getUnitAIType(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), kUnit.getX(), kUnit.getY(), kUpgradeCity.getName().GetCString(), kUpgradeCity.getX(), kUpgradeCity.getY(), iPathTurns,
++		iCityMilitary, kOwner.getNumMilitaryUnits(), 100 * iCityMilitary / std::max(1, kOwner.getNumMilitaryUnits()), iCityGroups, iUpgradeUnits, iUpgradeGroups, kUpgradeCity.getPlot().getNumDefenders(kUnit.getOwner()), kUpgradeCity.isCapital(), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kUnit.getArea().getAreaAIType(kUnit.getTeam()));
++}
++
+ bool CvUnitAI::AI_travelToUpgradeCity()
+ {
+ 	PROFILE_FUNC();
+@@ -23625,6 +23700,7 @@ bool CvUnitAI::AI_travelToUpgradeCity()
+ 	CvCity* pUpgradeCity = getUpgradeCity(/*bSearch*/ true);
+ 	if (pUpgradeCity == NULL)
+ 		return false; // advc
++	bool const bLogCrowdedUpgradeCity = (gUnitLogLevel >= 2 && SAS_isCrowdedUpgradeCityDiagnostic(*this, *pUpgradeCity));
+ 
+ 	// cache some stuff
+ 	bool bSeaUnit = (getDomainType() == DOMAIN_SEA);
+@@ -23638,12 +23714,14 @@ bool CvUnitAI::AI_travelToUpgradeCity()
+ 		{
+ 			return false;
+ 		}
++		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "wait_in_upgrade_city", 0);
+ 		getGroup()->pushMission(MISSION_SKIP);
+ 		return true;
+ 	}
+ 
+ 	if (DOMAIN_AIR == getDomainType())
+ 	{
++		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "move_air_unit");
+ 		pushGroupMoveTo(pUpgradeCity->getPlot());
+ 		return true;
+ 	}
+@@ -23665,6 +23743,7 @@ bool CvUnitAI::AI_travelToUpgradeCity()
+ 	if (pUpgradeCityEndTurnPlot != NULL && pClosestCity != NULL &&
+ 		(pClosestCity == pUpgradeCity || iUpgradeCityPathTurns < 4))
+ 	{
++		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "move_near_upgrade_city", iUpgradeCityPathTurns);
+ 		pushGroupMoveTo(*pUpgradeCityEndTurnPlot);
+ 		return true;
+ 	}
+@@ -23678,12 +23757,14 @@ bool CvUnitAI::AI_travelToUpgradeCity()
+ 			// can we do the airlift this turn?
+ 			if (canAirliftAt(pClosestCity->plot(), pUpgradeCity->getX(), pUpgradeCity->getY()))
+ 			{
++				if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "airlift_to_upgrade_city", iUpgradeCityPathTurns);
+ 				getGroup()->pushMission(MISSION_AIRLIFT, pUpgradeCity->getX(), pUpgradeCity->getY());
+ 				return true;
+ 			}
+ 			// wait to do it next turn
+ 			else
+ 			{
++				if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "wait_for_airlift", iUpgradeCityPathTurns);
+ 				getGroup()->pushMission(MISSION_SKIP);
+ 				return true;
+ 			}
+@@ -23697,6 +23778,7 @@ bool CvUnitAI::AI_travelToUpgradeCity()
+ 		if (bCanPathToClosestCity &&
+ 			(!bCanPathToUpgradeCity || iClosestCityPathTurns < iUpgradeCityPathTurns))
+ 		{
++			if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "move_to_airlift_city", iUpgradeCityPathTurns);
+ 			pushGroupMoveTo(getPathEndTurnPlot(), NO_MOVEMENT_FLAGS, false, false,
+ 					MISSIONAI_UPGRADE);
+ 			return true;
+@@ -23706,6 +23788,7 @@ bool CvUnitAI::AI_travelToUpgradeCity()
+ 	// did not have better airlift choice, go ahead and path to the upgrade city
+ 	if (pUpgradeCityEndTurnPlot != NULL)
+ 	{
++		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, "move_to_upgrade_city", iUpgradeCityPathTurns);
+ 		pushGroupMoveTo(*pUpgradeCityEndTurnPlot, NO_MOVEMENT_FLAGS, false, false,
+ 				MISSIONAI_UPGRADE);
+ 		return true;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=13292

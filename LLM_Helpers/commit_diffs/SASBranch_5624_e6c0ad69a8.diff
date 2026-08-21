@@ -1,0 +1,236 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5624
+# Commit: e6c0ad69a80920f610e2d74d3b6b2ff9b7e72199
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b8f2aab775468493f4a8608587bffc2f856a18d7
+# Title: Auto-scale CITYBILLBOARD_SCALE by SAS_UI_FONT_BODY via Python apply hook
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	Assets/Python/BUG/BugEventManager.py
+112	0	Assets/Python/SASBillboardScale.py
+17	0	Assets/XML/GlobalDefines_advciv_sas.xml
+7	7	Assets/XML/Misc/CIV4DetailManager.xml
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 Assets/Python/SASBillboardScale.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index 290f6357c..871ba99d3 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -105,6 +105,7 @@ import BugUtil
+ import InputUtil
+ import types
+ import SASDefineGuard
++import SASBillboardScale
+ # <advc.007b>
+ import CvUtil
+ import CvScreensInterface
+@@ -661,6 +662,10 @@ def configure(logging=None, noLogEvents=None):
+ 	g_eventManager.addEventHandler("gameUpdate", g_eventManager.onGameUpdate)
+ 	# --
+ 
++	# custom: scale city billboard based on SAS font body level (Claude code Opus 4.6)
++	SASBillboardScale.apply()
++	# --
++
+ def hookupPreGameStartEvent():
+ 	BugUtil.extend(preGameStart, "CvAppInterface", "preGameStart")
+
+diff --git a/Assets/Python/SASBillboardScale.py b/Assets/Python/SASBillboardScale.py
+new file mode 100644
+index 000000000..3f75c3bd2
+--- /dev/null
++++ b/Assets/Python/SASBillboardScale.py
+@@ -0,0 +1,112 @@
++# <!-- custom: AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md). (Claude code Opus 4.6) -->
++#
++# <!-- custom: Purpose:
++# Scales CITYBILLBOARD_SCALE values in CIV4DetailManager.xml based on the
++# active SAS_UI_FONT_BODY level. The multiplier percent for each font level
++# (1..4) is read from SAS_BILLBOARD_SCALE_PERCENT_FONT_<N> defines. The XML
++# file is rewritten on game load so the engine picks up the new values on the
++# fly (the engine re-reads DetailManager without restart). (Claude code Opus 4.6) -->
++
++
++import os
++import re
++
++from CvPythonExtensions import CyGlobalContext
++
++import BugPath
++import BugUtil
++from SASFontUtils import getSASUIFontBody
++
++
++gc = CyGlobalContext()
++
++
++# Base AdvCiv CITYBILLBOARD_SCALE values (font-body 2 / 100%).
++# Each tuple is (camera_distance, scale_value).
++_BASE_BILLBOARD_KEYS = [
++	(500,   1.72),
++	(2500,  1.18),
++	(3800,  1.06),
++	(6000,  0.81),
++	(8500,  0.75),
++	(11500, 0.70),
++	(13500, 0.67),
++]
++
++_DETAIL_MANAGER_REL_PATH = os.path.join("Assets", "XML", "Misc", "CIV4DetailManager.xml")
++
++
++def _getMultiplierPercent(iFontBody):
++	"""Read SAS_BILLBOARD_SCALE_PERCENT_FONT_<N> for the given font level."""
++	if iFontBody < 1 or iFontBody > 4:
++		return 100
++	szDefine = "SAS_BILLBOARD_SCALE_PERCENT_FONT_%d" % iFontBody
++	iPercent = gc.getDefineINT(szDefine)
++	if iPercent < 10 or iPercent > 500:
++		BugUtil.warn("SASBillboardScale: %s=%d out of range [10..500], using 100", szDefine, iPercent)
++		return 100
++	return iPercent
++
++
++def _buildScaledKeys(iPercent):
++	"""Return list of formatted <Key> lines with scaled values."""
++	fMult = iPercent / 100.0
++	lines = []
++	for (iDist, fBase) in _BASE_BILLBOARD_KEYS:
++		fScaled = fBase * fMult
++		lines.append("\t\t<Key>%d,    %.2f</Key>" % (iDist, fScaled))
++	return lines
++
++
++def _rewriteDetailManagerXML(szPath, scaledKeyLines):
++	"""Replace the CITYBILLBOARD_SCALE Key entries in the XML file."""
++	try:
++		f = open(szPath, "r")
++		content = f.read()
++		f.close()
++	except IOError:
++		BugUtil.error("SASBillboardScale: cannot read %s", szPath)
++		return False
++
++	# Match the CITYBILLBOARD_SCALE fader block and replace its Key lines.
++	pattern = r"(<Name>CITYBILLBOARD_SCALE</Name>\s*\n)((?:\s*<Key>[^<]*</Key>\s*\n)+)"
++	replacement = r"\1" + "\n".join(scaledKeyLines) + "\n"
++
++	newContent, count = re.subn(pattern, replacement, content)
++	if count == 0:
++		BugUtil.error("SASBillboardScale: CITYBILLBOARD_SCALE block not found in %s", szPath)
++		return False
++
++	try:
++		f = open(szPath, "w")
++		f.write(newContent)
++		f.close()
++	except IOError:
++		BugUtil.error("SASBillboardScale: cannot write %s", szPath)
++		return False
++
++	return True
++
++
++def apply():
++	"""Read font body level, compute billboard scale, rewrite XML."""
++	iFontBody = getSASUIFontBody()
++	iPercent = _getMultiplierPercent(iFontBody)
++
++	szModDir = BugPath.getModDir()
++	if not szModDir:
++		BugUtil.error("SASBillboardScale: mod dir not found")
++		return
++
++	szPath = os.path.join(szModDir, _DETAIL_MANAGER_REL_PATH)
++	if not os.path.isfile(szPath):
++		BugUtil.error("SASBillboardScale: file not found: %s", szPath)
++		return
++
++	scaledKeyLines = _buildScaledKeys(iPercent)
++
++	if _rewriteDetailManagerXML(szPath, scaledKeyLines):
++		BugUtil.info("SASBillboardScale: applied %d%% scale (font body %d) to %s",
++			iPercent, iFontBody, szPath)
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index af886fa17..9bb749712 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -93,6 +93,23 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
++	<!-- custom: city billboard scale multiplier percent per SAS_UI_FONT_BODY level (1..4). 100 = no change from base AdvCiv values. Applied on game load by SASBillboardScale.py to CIV4DetailManager.xml. (Claude code Opus 4.6) -->
++	<Define>
++		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_1</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_2</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_3</DefineName>
++		<iDefineIntVal>130</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_4</DefineName>
++		<iDefineIntVal>160</iDefineIntVal>
++	</Define>
+
+diff --git a/Assets/XML/Misc/CIV4DetailManager.xml b/Assets/XML/Misc/CIV4DetailManager.xml
+index 9aaa56ccd..4c5ff0611 100644
+--- a/Assets/XML/Misc/CIV4DetailManager.xml
++++ b/Assets/XML/Misc/CIV4DetailManager.xml
+@@ -67,13 +67,13 @@
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_SCALE</Name>
+-		<Key>500,    1.72</Key>
+-		<Key>2500,   1.18</Key>
+-		<Key>3800,   1.06</Key>
+-		<Key>6000,   0.81</Key>
+-		<Key>8500,   0.75</Key>
+-		<Key>11500,  0.70</Key>
+-		<Key>13500,  0.67</Key>
++		<Key>500,    2.75</Key>
++		<Key>2500,    1.89</Key>
++		<Key>3800,    1.70</Key>
++		<Key>6000,    1.30</Key>
++		<Key>8500,    1.20</Key>
++		<Key>11500,    1.12</Key>
++		<Key>13500,    1.07</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_HEIGHT</Name>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index b964bac6d..4bfab33b7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -283,7 +283,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ ### UI (Common)
+ 
+-- (Requires AdvCiv-SAS 5513+) **Optionally** support **upscaling font size (i.e. font size)** regardless of game resolution. This affects **main interface** (city screen, map view, `city_billboard`/`CITYBILLBOARD`), **advisors**, **sevopedia**, and other places where font size could be changed. Made some **UI adjustments when needed to accomodate the larger text** (e.g., smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills) (**tunable per font size**)). Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower). See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
++- (Requires AdvCiv-SAS 5513+) **Optionally** support **upscaling font size (i.e. font size)** regardless of game resolution. This affects **main interface** (city screen, map view, `city_billboard`/`CITYBILLBOARD`), **advisors**, **sevopedia**, and other places where font size could be changed. Made some **UI adjustments when needed to accomodate the larger text** (e.g., smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills), **overwrite city `billboard` xml** in [CIV4DetailManager.xml](/Assets/XML/Misc/CIV4DetailManager.xml) **at runtime** via [SASBillboardScale.py](/Assets/Python/SASBillboardScale.py) (**tunable per font size**)). Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower). See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
+ - Added **Emojis** without having to tediously implement them as characters. See [Emojis](/README.md#emojis) and [CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml).
+ - Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md (Untradeable techs (bTrade) display)](/README.md#untradeable-techs-btrade-display-information) for details.
+ - removed the **Strategy Text** in Choose Production and Choose Research ("Sid’s tips") popups, as well as in the Civic Revolution popup ("Would you like to start a revolution?"), and in Sevopedia; these blurbs were often outdated or tedious to maintain.
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=9066

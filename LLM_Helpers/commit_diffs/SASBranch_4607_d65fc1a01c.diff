@@ -1,0 +1,113 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4607
+# Commit: d65fc1a01c55e0d0c468b572901f243d0d9f2939
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8a034541950303052dc7937788246686796a2744
+# Title: some balance changes and docs fixes/additions or/and other minor changes or not
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/Civilizations/CIV4TraitInfos.xml
+5	2	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 83fd523d0..e3b8b2fb8 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -7008,7 +7008,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>30</iCost>
++			<iCost>40</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -7368,7 +7368,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>30</iCost>
++			<iCost>35</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -7449,7 +7449,7 @@
+ 				<iCommerce>1000</iCommerce>
+ 			</CommerceChangeDoubleTimes>
+ 			<CommerceModifiers>
+-				<iCommerce>10</iCommerce>
++				<iCommerce>15</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 			</CommerceModifiers>
+
+diff --git a/Assets/XML/Civilizations/CIV4TraitInfos.xml b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+index 60cb510d2..084c71bc6 100644
+--- a/Assets/XML/Civilizations/CIV4TraitInfos.xml
++++ b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+@@ -257,7 +257,7 @@
+ 			<iUpkeepModifier>0</iUpkeepModifier>
+ 			<iLevelExperienceModifier>0</iLevelExperienceModifier>
+ 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+-			<iGreatGeneralRateModifier>50</iGreatGeneralRateModifier>
++			<iGreatGeneralRateModifier>25</iGreatGeneralRateModifier>
+ 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+ 			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
+ 			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
+
+diff --git a/README.md b/README.md
+index 53e3a6587..c84570664 100644
+--- a/README.md
++++ b/README.md
+@@ -147,7 +147,9 @@ todo add quote
+ - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
+ be needed if you only modify XML files if i am not mistaken i mean anyways)
+ - ressources that mention XML files and tags, useful if you'd want to [get started
+-doing your own mod](https://github.com/wonderingabout/kujira).
++doing your own mod](https://github.com/wonderingabout/kujira), or alternatively/to
++complement for example [modiki's website too](https://modiki.civfanatics.com/index.php/Civ4TraitInfos)
++maybe (even though i mostly use kujira's website, maybe this one helps too).
+ 
+ # Some Useful tools while doing this
+ - VS Code
+@@ -158,9 +160,10 @@ that i bombarded with updates and installs still works amazing so i recommend it
+ - Git Bash for Windows
+ - Q-Dir
+ - WizTree (very useful (and reliable and effective) to find the files i want when i want)
++- Visual C++ 2010 Express (is free, just requires after trial a free registration if i am not mistaken todo): works great to compile the DLL i want/require it after some mod changes
+ - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
+ it too though unless i'm mistaken i mean anyways)
+ - Google's scientific calculator (https://www.google.com/search?q=calculator) (for the x^y function in particular i mean anyways)
+-- Quillbot (web translator using AI, i used the free version), example of translation linked too in this case i mean anyways at least i mean anyways: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin
++- Quillbot (web translator using AI, i used the free version), example of translation linked too in this case i mean anyways at least i mean anyways: https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin (did not use this example in my mod as i put almost everything i added or modified in English only for (my) convenience and ease of modding even though not ideal hopefully fine (should not use that place/line to say that ideally too but hopefully maybe fine too..)) and alternatively dictionaries if i want more technical translations or wiki pages or some other places/pages or not maybe
+ 
+ todo add links
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+index 3af025428..aa9cd0447 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+@@ -222,4 +222,4 @@ I want to modify these terrains:
+ - if keep de gaulle give him desert bonus? (because of
+ https://fr.wikipedia.org/wiki/Travers%C3%A9e_du_d%C3%A9sert and to buff desert?)
+ 
+-- source of all china's dynasties and years, very interesting: https://www.reddit.com/r/dataisbeautiful/comments/5p1sd4/chinese_dynasties_4000_years_of_history_oc/ ; one of the top comments in this (reddit) link explains how one of the dynasty (Qin) gave its name to current "China" despite it being short-lived, if curious about more details can read there.
+\ No newline at end of file
++- source of all china's dynasties and years, very interesting: https://www.reddit.com/r/dataisbeautiful/comments/5p1sd4/chinese_dynasties_4000_years_of_history_oc/ ; one of the top comments in this (reddit) link explains how one of the dynasty (Qin) gave its name to current "China" despite it being short-lived, if curious about more details can read there. After further read in this page though, it seems that the idea originated sooner or/and by their predecessors, but i don't know much more (or rather i don't know the details and their specifics or understand them in detail, so linking this rather or/and in addition, hopefully helpful or/and interesting (to) read)
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5862

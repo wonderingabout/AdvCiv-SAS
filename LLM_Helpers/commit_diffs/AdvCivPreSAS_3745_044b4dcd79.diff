@@ -1,0 +1,80 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3745
+# Commit: 044b4dcd79bbec277f5fb53782d4fff14f291973
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f7c1cb840bdce7dbc91c1020a218b9b53bb3367c
+# Title: Fix AI attitude update at end of AI Auto Play
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	20	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1a583a53f..ee973aa35 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2458,39 +2458,31 @@ CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward,
+ 	return pGroup;
+ }
+ 
+-// AI_AUTO_PLAY_MOD, 07/09/08, jdog5000:
++/*	AI_AUTO_PLAY_MOD, 07/09/08, jdog5000:
++	(advc.127: Not much left of jdog's code) */
+ void CvPlayer::setHumanDisabled(bool bNewVal)
+ {
+-	// <advc.127>
+ 	if (bNewVal == m_bDisableHuman)
+ 		return;
++	m_bDisableHuman = bNewVal;
+ 	m_bAutoPlayJustEnded = true;
+-	CvGame& kGame = GC.getGame();
+-	CvWString szReplayText;
+-	if (bNewVal && !m_bDisableHuman)
++	updateHuman();
++	AI().AI_setHuman(!bNewVal);
++	if (isActive())
+ 	{
+-		AI().AI_setHuman(false);
+-		if (isActive()) // (Not sure if this test is needed)
++		CvWString szReplayText;
++		if (bNewVal)
+ 		{	// advc.004h:
+ 			gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_FOUNDING_BORDER);
+ 			gDLL->UI().clearQueuedPopups();
+ 			szReplayText = gDLL->getText("TXT_KEY_AUTO_PLAY_STARTED");
+ 		}
++		else szReplayText = gDLL->getText("TXT_KEY_AUTO_PLAY_ENDED");
++		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
++				getID(), szReplayText, GC.getColorType("HIGHLIGHT_TEXT"));
+ 	}
+-	else if (!bNewVal && m_bDisableHuman)
+-	{
+-		AI().AI_setHuman(true);
++	if (!bNewVal)
+ 		m_iNewMessages = 0; // Don't open Event Log when coming out of Auto Play
+-		if (isActive())
+-			szReplayText = gDLL->getText("TXT_KEY_AUTO_PLAY_ENDED");
+-	}
+-	if (!szReplayText.empty())
+-	{
+-		kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szReplayText,
+-				-1, -1, GC.getColorType("HIGHLIGHT_TEXT"));
+-	} // </advc.127>
+-	m_bDisableHuman = bNewVal;
+-	updateHuman();
+ }
+ 
+ // <advc.127>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1776

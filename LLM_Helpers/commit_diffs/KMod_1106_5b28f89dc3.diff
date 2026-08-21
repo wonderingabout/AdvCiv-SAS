@@ -1,0 +1,502 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1106
+# Commit: 5b28f89dc3d5fd4c86faa91e1d505664c92404f8
+# History segment: K-Mod history
+# Parent used for diff: d9c2359ff542ad31596dd4bad2b51bcff17164e7
+# Title: Restructured pathfinder usage to not use getPathLastNode.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGame.cpp
+0	2	CvGameCoreDLL/CvGameCoreDLL.h
+11	80	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.h
+9	3	CvGameCoreDLL/CvUnit.cpp
+4	2	CvGameCoreDLL/CvUnit.h
+18	20	CvGameCoreDLL/CvUnitAI.cpp
+22	0	CvGameCoreDLL/KmodPathFinder.cpp
+3	0	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 650be5c90..20fadfc9a 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -274,7 +274,7 @@ void CvGame::setInitialItems()
+ 	PROFILE_FUNC();
+ 
+ 	// K-Mod: Adjust the game handicap level to be the average of all the human player's handicap.
+-	// (Note: in the original bts rules, it would always set to Nobel if the human's had different handicaps)
++	// (Note: in the original bts rules, it would always set to Nobel if the humans had different handicaps)
+ 	if (isGameMultiPlayer())
+ 	{
+ 		int iHumanPlayers = 0;
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 301535014..f9f4dc9fe 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -13,8 +13,6 @@
+ //
+ #pragma warning( disable: 4530 )	// C++ exception handler used, but unwind semantics are not enabled
+ 
+-#define KMOD_PATH_FINDER // K-Mod!
+-
+ #define WIN32_LEAN_AND_MEAN
+ #include <windows.h>
+ #include <MMSystem.h>
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index f09c10f39..395bac488 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3418,10 +3418,10 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, int iFlags)
+ 	{
+ 		//If the step we just took will make us change our path to something longer, then cancel the move.
+ 		// This prevents units from wasting all their moves by trying to walk around enemy units.
+-		FAssert(final_path.GetEndNode());
+-		std::pair<int, int> old_moves = std::make_pair(final_path.GetEndNode()->m_iData2, -final_path.GetEndNode()->m_iData1);
++		FAssert(final_path.IsPathComplete());
++		std::pair<int, int> old_moves = std::make_pair(final_path.GetPathTurns(), -final_path.GetFinalMoves());
+ 		if (!final_path.GeneratePath(pDestPlot)
+-			|| std::make_pair(final_path.GetEndNode()->m_iData2, -final_path.GetEndNode()->m_iData1) > old_moves)
++			|| std::make_pair(final_path.GetPathTurns(), -final_path.GetFinalMoves()) > old_moves)
+ 		{
+ 			clearMissionQueue();
+ 		}
+@@ -4261,71 +4261,23 @@ void CvSelectionGroup::setAutomateType(AutomateTypes eNewValue)
+ 	}
+ }
+ 
+-
+-FAStarNode* CvSelectionGroup::getPathLastNode() const
++// Disabled by K-Mod. (This function is deprecated.)
++/* FAStarNode* CvSelectionGroup::getPathLastNode() const
+ {
+-#ifdef KMOD_PATH_FINDER
+-	return path_finder.GetEndNode();
+-#else
+-	return gDLL->getFAStarIFace()->GetLastNode(&GC.getPathFinder());
+-#endif
+-}
++	//return path_finder.GetEndNode();
++	//return gDLL->getFAStarIFace()->GetLastNode(&GC.getPathFinder());
++} */
+ 
+ 
+ CvPlot* CvSelectionGroup::getPathFirstPlot() const
+ {
+-	FAStarNode* pNode;
+-
+-	pNode = getPathLastNode();
+-
+-	if (pNode->m_pParent == NULL)
+-	{
+-		return GC.getMapINLINE().plotSorenINLINE(pNode->m_iX, pNode->m_iY);
+-	}
+-
+-	while (pNode != NULL)
+-	{
+-		if (pNode->m_pParent->m_pParent == NULL)
+-		{
+-			return GC.getMapINLINE().plotSorenINLINE(pNode->m_iX, pNode->m_iY);
+-		}
+-
+-		pNode = pNode->m_pParent;
+-	}
+-
+-	FAssert(false);
+-
+-	return NULL;
++	return path_finder.GetPathFirstPlot();
+ }
+ 
+ 
+ CvPlot* CvSelectionGroup::getPathEndTurnPlot() const
+ {
+-	FAStarNode* pNode;
+-
+-	pNode = getPathLastNode();
+-
+-	if (NULL != pNode)
+-	{
+-		if ((pNode->m_pParent == NULL) || (pNode->m_iData2 == 1))
+-		{
+-			return GC.getMapINLINE().plotSorenINLINE(pNode->m_iX, pNode->m_iY);
+-		}
+-
+-		while (pNode->m_pParent != NULL)
+-		{
+-			if (pNode->m_pParent->m_iData2 == 1)
+-			{
+-				return GC.getMapINLINE().plotSorenINLINE(pNode->m_pParent->m_iX, pNode->m_pParent->m_iY);
+-			}
+-
+-			pNode = pNode->m_pParent;
+-		}
+-	}
+-
+-	FAssert(false);
+-
+-	return NULL;
++	return path_finder.GetPathEndTurnPlot();
+ }
+ 
+ 
+@@ -4341,7 +4293,6 @@ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToP
+ 	if (pFromPlot == NULL || pToPlot == NULL)
+ 		return false;
+ 
+-#ifdef KMOD_PATH_FINDER
+ 	/*if (!bReuse)
+ 		path_finder.Reset();*/
+ 	path_finder.SetSettings(this, iFlags, iMaxPath);
+@@ -4357,16 +4308,6 @@ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToP
+ 		}
+ 	}
+ 	*/
+-#else
+-	gDLL->getFAStarIFace()->SetData(&GC.getPathFinder(), this);
+-
+-	static CvSelelectionGroup* lastPathGeneratedFor = 0;
+-	if (lastPathGeneratedFor && lastPathGeneratedFor != this)
+-		resetPath();
+-	lastPathGeneratedFor = this;
+-
+-	bool bSuccess = gDLL->getFAStarIFace()->GeneratePath(&GC.getPathFinder(), pFromPlot->getX_INLINE(), pFromPlot->getY_INLINE(), pToPlot->getX_INLINE(), pToPlot->getY_INLINE(), false, iFlags, bReuse);
+-#endif
+ 
+ 	if (piPathTurns != NULL)
+ 	{
+@@ -4374,17 +4315,7 @@ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToP
+ 
+ 		if (bSuccess)
+ 		{
+-			FAStarNode* pNode = getPathLastNode();
+-
+-			if (pNode != NULL)
+-			{
+-				*piPathTurns = pNode->m_iData2;
+-#ifdef KMOD_PATH_FINDER
+-				FAssert(iMaxPath <= 0 || iMaxPath >= pNode->m_iData2);
+-#else
+-				bSuccess = iMaxPath <= 0 || iMaxPath >= pNode->m_iData2;
+-#endif
+-			}
++			*piPathTurns = path_finder.GetPathTurns();
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index c08818af4..136d66c17 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -168,7 +168,7 @@ public:
+ 	bool isAutomated() const; // Exposed to Python
+ 	void setAutomateType(AutomateTypes eNewValue);																											// Exposed to Python
+ 
+-	FAStarNode* getPathLastNode() const;
++	// FAStarNode* getPathLastNode() const; // disabled by K-Mod. Use path_finder methods instead.
+ 	CvPlot* getPathFirstPlot() const;																																		// Exposed to Python
+ 	CvPlot* getPathEndTurnPlot() const;																																	// Exposed to Python
+ 	bool generatePath(const CvPlot* pFromPlot, const CvPlot* pToPlot, int iFlags = 0, bool bReuse = false, int* piPathTurns = NULL, int iMaxPath = -1) const; // Exposed to Python (K-mod added iMaxPath)
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 9dcc047f8..6ba36ff60 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2259,11 +2259,11 @@ void CvUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
+ 	getGroup()->doDelayedDeath();
+ }
+ 
+-
+-FAStarNode* CvUnit::getPathLastNode() const
++// Disabled by K-Mod. (This function is deprecated.)
++/* FAStarNode* CvUnit::getPathLastNode() const
+ {
+ 	return getGroup()->getPathLastNode();
+-}
++} */
+ 
+ 
+ CvPlot* CvUnit::getPathEndTurnPlot() const
+@@ -2277,6 +2277,12 @@ bool CvUnit::generatePath(const CvPlot* pToPlot, int iFlags, bool bReuse, int* p
+ 	return getGroup()->generatePath(plot(), pToPlot, iFlags, bReuse, piPathTurns, iMaxPath);
+ }
+ 
++// K-Mod. Return the standard pathfinder, for extracting path information.
++KmodPathFinder& CvUnit::getPathFinder() const
++{
++	return CvSelectionGroup::path_finder;
++}
++// K-Mod end
+ 
+ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) const
+ {
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index cefdf495a..0f3fba545 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -15,8 +15,9 @@ class CvPlot;
+ class CvArea;
+ class CvUnitInfo;
+ class CvSelectionGroup;
+-class FAStarNode;
++//class FAStarNode;
+ class CvArtInfoUnit;
++class KmodPathFinder;
+ 
+ struct DllExport CombatDetails					// Exposed to Python
+ {
+@@ -96,9 +97,10 @@ public:
+ 	bool canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible = false, bool bTestBusy = true);	// Exposed to Python
+ 	void doCommand(CommandTypes eCommand, int iData1, int iData2);																// Exposed to Python
+ 
+-	FAStarNode* getPathLastNode() const;
++	//FAStarNode* getPathLastNode() const; // disabled by K-Mod
+ 	CvPlot* getPathEndTurnPlot() const;																																						// Exposed to Python
+ 	bool generatePath(const CvPlot* pToPlot, int iFlags = 0, bool bReuse = false, int* piPathTurns = NULL, int iMaxPath = -1) const; // Exposed to Python (K-Mod added iMaxPath)
++	KmodPathFinder& getPathFinder() const; // K-Mod
+ 
+ 	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;						// Exposed to Python
+ 	bool canEnterArea(TeamTypes eTeam, const CvArea* pArea, bool bIgnoreRightOfPassage = false) const;						// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index c04d9ef8c..c8c79527c 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -988,8 +988,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCity* pCity, CvPlot** ppBestPlot, BuildTypes*
+ 									// K-Mod. basically the same thing, but using pathFinder.
+ 									if (pathFinder.GeneratePath(pLoopPlot))
+ 									{
+-										FAStarNode* pEndNode = pathFinder.GetEndNode();
+-										int iPathTurns = pEndNode->m_iData2 + (pEndNode->m_iData1 == 0 ? 1 : 0);
++										int iPathTurns = pathFinder.GetPathTurns() + (pathFinder.GetFinalMoves() == 0 ? 1 : 0);
+ 										int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(pLoopPlot, eBuild);
+ 										if (pUnit && pUnit->plot()->isCity() && iPathTurns == 1)
+ 											iMaxWorkers += 10;
+@@ -1043,8 +1042,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCity* pCity, CvPlot** ppBestPlot, BuildTypes*
+ 				// K-Mod. basically the same thing, but using pathFinder.
+ 				if (pathFinder.GeneratePath(pBestPlot))
+ 				{
+-					FAStarNode* pEndNode = pathFinder.GetEndNode();
+-					int iPathTurns = pEndNode->m_iData2 + (pEndNode->m_iData1 == 0 ? 1 : 0);
++					int iPathTurns = pathFinder.GetPathTurns() + (pathFinder.GetFinalMoves() == 0 ? 1 : 0);
+ 					int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(pBestPlot, eBestBuild);
+ 					if (pUnit && pUnit->plot()->isCity() && iPathTurns == 1)
+ 						iMaxWorkers += 10;
+@@ -1278,7 +1276,7 @@ bool CvUnitAI::AI_considerDOW(CvPlot* pPlot)
+ 			{
+ 				if (gUnitLogLevel > 0) logBBAI("    %S declares war on %S with AI_considerDOW (%S - %S).", kOurTeam.getName().GetCString(), GET_TEAM(ePlotTeam).getName().GetCString(), getName(0).GetCString(), GC.getUnitAIInfo(AI_getUnitAIType()).getDescription());
+ 				kOurTeam.declareWar(ePlotTeam, true, NO_WARPLAN);
+-				CvSelectionGroupAI::path_finder.Reset();
++				getPathFinder().Reset();
+ 				return true;
+ 			}
+ 		}
+@@ -1304,7 +1302,7 @@ bool CvUnitAI::AI_considerPathDOW(CvPlot* pPlot, int iFlags)
+ 	}
+ 
+ 	bool bDOW = false;
+-	FAStarNode* pNode = getPathLastNode();
++	FAStarNode* pNode = getPathFinder().GetEndNode(); // TODO: rewrite so that GetEndNode isn't used.
+ 	while (!bDOW && pNode)
+ 	{
+ 		// we need to check DOW even for moves several turns away - otherwise the actual move mission may fail to find a path.
+@@ -11090,7 +11088,7 @@ bool CvUnitAI::AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI, UnitAITyp
+ 													{
+ 														iPathTurns++;
+ 													}*/
+-													iPathTurns = temp_finder.GetEndNode()->m_iData2 + (temp_finder.GetEndNode()->m_iData1 == 0 ? 1 : 0); // K-Mod
++													iPathTurns = temp_finder.GetPathTurns() + (temp_finder.GetFinalMoves() == 0 ? 1 : 0); // K-Mod
+ 
+ 													if( iPathTurns <= iMaxTransportPath )
+ 													{
+@@ -15377,7 +15375,7 @@ bool CvUnitAI::AI_pillageAroundCity(CvCity* pTargetCity, int iBonusValueThreshol
+                             {
+                                 if (generatePath(pLoopPlot, iFlags, true, &iPathTurns, iMaxPathTurns))
+                                 {
+-                                    if (getPathLastNode()->m_iData1 == 0)
++									if (getPathFinder().GetFinalMoves() == 0)
+                                     {
+                                         iPathTurns++;
+                                     }
+@@ -16121,7 +16119,7 @@ bool CvUnitAI::AI_blockade()
+ 										if (iPathTurns == 1)
+ 										{
+ 											//Prefer to have movement remaining to Bombard + Plunder
+-											iValue *= 1 + std::min(2, getPathLastNode()->m_iData1);
++											iValue *= 1 + std::min(2, getPathFinder().GetFinalMoves());
+ 										}
+ 
+ 										// if not at war with this plot owner, then devalue plot if we already inside this owner's borders
+@@ -16329,7 +16327,7 @@ bool CvUnitAI::AI_pirateBlockade()
+ 							
+ 							iValue /= 16 + iBlockadedCount;
+ 							
+-							bool bMove = ((getPathLastNode()->m_iData2 == 1) && getPathLastNode()->m_iData1 > 0);
++							bool bMove = getPathFinder().GetPathTurns() == 1 && getPathFinder().GetFinalMoves() > 0;
+ 							if (atPlot(pLoopPlot))
+ 							{
+ 								iValue *= 3;
+@@ -16348,7 +16346,7 @@ bool CvUnitAI::AI_pirateBlockade()
+ 							}
+ 							else if (bIsInDanger && (iPathTurns <= 2) && (0 == iPopulationValue))
+ 							{
+-								if (getPathLastNode()->m_iData1 == 0)
++								if (getPathFinder().GetFinalMoves() == 0)
+ 								{
+ 									if (!pLoopPlot->isAdjacentOwned())
+ 									{
+@@ -16494,7 +16492,7 @@ bool CvUnitAI::AI_seaBombardRange(int iMaxRange)
+ 								if (iPathTurns == 1)
+ 								{
+ 									//Prefer to have movement remaining to Bombard + Plunder
+-									iValue *= 1 + std::min(2, getPathLastNode()->m_iData1);
++									iValue *= 1 + std::min(2, getPathFinder().GetFinalMoves());
+ 								}
+ 
+ 								if (iValue > iBestValue)
+@@ -16582,7 +16580,7 @@ bool CvUnitAI::AI_seaBombardRange(int iMaxRange)
+ 										if (iPathTurns == 1)
+ 										{
+ 											//Prefer to have movement remaining to Bombard + Plunder
+-											iValue *= 1 + std::min(2, getPathLastNode()->m_iData1);
++											iValue *= 1 + std::min(2, getPathFinder().GetFinalMoves());
+ 										}
+ 
+ 										if (iValue > iBestValue)
+@@ -16832,7 +16830,7 @@ bool CvUnitAI::AI_pillageRange(int iRange, int iBonusValueThreshold, int iFlags)
+                                     {
+                                         if (generatePath(pLoopPlot, iFlags, true, &iPathTurns, iRange))
+                                         {
+-                                            if (getPathLastNode()->m_iData1 == 0)
++											if (getPathFinder().GetFinalMoves() == 0)
+                                             {
+                                                 iPathTurns++;
+                                             }
+@@ -18940,7 +18938,7 @@ bool CvUnitAI::AI_improveCity(CvCity* pCity)
+ 		else
+ 		{
+ 			eMission = MISSION_MOVE_TO;
+-			if (NULL != pBestPlot && generatePath(pBestPlot) && (getPathLastNode()->m_iData2 == 1) && (getPathLastNode()->m_iData1 == 0))
++			if (pBestPlot && generatePath(pBestPlot) && getPathFinder().GetPathTurns() == 1 && getPathFinder().GetFinalMoves() == 0)
+ 			{
+ 				if (pBestPlot->getRouteType() != NO_ROUTE)
+ 				{
+@@ -19043,7 +19041,7 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity* pIgnoreCity)
+ 					iValue *= 3;
+ 					iValue /= 2;
+ 				}
+-				else if (getPathLastNode()->m_iData1 == 0)
++				else if (getPathFinder().GetFinalMoves() == 0)
+ 				{
+ 					iPathTurns++;
+ 				}
+@@ -19086,7 +19084,7 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity* pIgnoreCity)
+ 		MissionTypes eMission = MISSION_MOVE_TO;
+ 
+ 		int iPathTurns;
+-		if (generatePath(pBestPlot, 0, true, &iPathTurns) && (getPathLastNode()->m_iData2 == 1) && (getPathLastNode()->m_iData1 == 0))
++		if (generatePath(pBestPlot, 0, true, &iPathTurns) && getPathFinder().GetPathTurns() == 1 && getPathFinder().GetFinalMoves() == 0)
+ 		{
+ 			if (pBestPlot->getRouteType() != NO_ROUTE)
+ 			{
+@@ -19727,7 +19725,7 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 								{
+ 									//allow teaming.
+ 									iMaxWorkers = AI_calculatePlotWorkersNeeded(pLoopPlot, eBestTempBuild);
+-									if (getPathLastNode()->m_iData1 == 0)
++									if (getPathFinder().GetFinalMoves() == 0)
+ 									{
+ 										iMaxWorkers = std::min((iMaxWorkers + 1) / 2, 1 + kOwner.AI_baseBonusVal(eNonObsoleteBonus) / 20);
+ 									}
+@@ -22800,7 +22798,7 @@ bool CvUnitAI::AI_infiltrate()
+ 						{
+ 							FAssert(iPathTurns > 0);
+ 							
+-							if (getPathLastNode()->m_iData1 == 0)
++							if (getPathFinder().GetFinalMoves() == 0)
+ 							{
+ 								iPathTurns++;
+ 							}
+@@ -24905,7 +24903,7 @@ bool CvUnitAI::AI_solveBlockageProblem(CvPlot* pDestPlot, bool bDeclareWar)
+ 						CvPlot* pBestPlot = pStepPlot;
+ 						//To prevent puppeteering attempt to barge through
+ 						//if quite close
+-						if (getPathLastNode()->m_iData2 > 3)
++						if (getPathFinder().GetPathTurns() > 3)
+ 						{
+ 							pBestPlot = getPathEndTurnPlot();
+ 						}
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index 6a95c64b0..825724fc2 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -136,6 +136,12 @@ int KmodPathFinder::GetPathTurns() const
+ 	return end_node ? end_node->m_iData2 : 0;
+ }
+ 
++int KmodPathFinder::GetFinalMoves() const
++{
++	FAssert(end_node);
++	return end_node ? end_node->m_iData1 : 0;
++}
++
+ CvPlot* KmodPathFinder::GetPathFirstPlot() const
+ {
+ 	FAssert(end_node);
+@@ -155,6 +161,22 @@ CvPlot* KmodPathFinder::GetPathFirstPlot() const
+ 	return GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY);
+ }
+ 
++CvPlot* KmodPathFinder::GetPathEndTurnPlot() const
++{
++	FAssert(end_node);
++
++	FAStarNode* node = end_node.get();
++
++	FAssert(!node || node->m_iData2 == 1 || node->m_pParent);
++
++	while (node && node->m_iData2 > 1)
++	{
++		node = node->m_pParent;
++	}
++	FAssert(node);
++	return node ? GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY) : NULL;
++}
++
+ void KmodPathFinder::SetSettings(const CvPathSettings& new_settings)
+ {
+ 	// some flags are not relevant to pathfinder. We should try to strip those out to avoid unnecessary resets.
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index e2d50a6b4..7270526d4 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -25,8 +25,11 @@ public:
+ 	bool GeneratePath(int x1, int y1, int x2, int y2);
+ 	bool GeneratePath(const CvPlot* pToPlot); // just a wrapper for convenience
+ 	FAStarNode* GetEndNode() const { FAssert(end_node); return end_node.get(); } // Note: the returned pointer becomes invalid if the pathfinder is destroyed.
++	bool IsPathComplete() const { return end_node; }
+ 	int GetPathTurns() const;
++	int GetFinalMoves() const;
+ 	CvPlot* GetPathFirstPlot() const;
++	CvPlot* GetPathEndTurnPlot() const;
+ 	void SetSettings(const CvPathSettings& new_settings);
+ 	void SetSettings(const CvSelectionGroup* pGroup, int iFlags = 0, int iMaxPath = -1, int iHW=-1) { SetSettings(CvPathSettings(pGroup, iFlags, iMaxPath, iHW)); }
+ 	void Reset();
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=18431

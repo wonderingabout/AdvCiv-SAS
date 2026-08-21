@@ -1,0 +1,849 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3511
+# Commit: 94cc927d78481bb9799c9c5bac6303c445a79339
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: efe76e5917516f0c8a7e96b2601d66d318459426
+# Title: Announce vassal DoW/ peace along with masters'
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+174	98	Assets/XML/Text/CIV4GameText_advc.xml
+266	177	CvGameCoreDLL/CvTeam.cpp
+11	0	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 904f12a9d..038d14f56 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -17,56 +17,194 @@
+ 		 hired DoW. Original BtS text bits pertaining to DoW are located in
+ 		 CIV4GameTextInfos.xml. -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_MISC_HIRED_WAR_ON_YOU</Tag>
+-		<English>%s1_PlyrName has declared war on you! (At the request of %s2_PlyrName.)</English>
+-		<French>%s1_PlyrName vous a d&#233;clar&#233; la guerre ! (Sur requ&#233;te de %s2_PlyrName.)</French>
+-		<German>%s1_PlyrName hat Euch den Krieg erkl&#228;rt! (Auf Ersuchen von %s2_PlyrName.)</German>
+-		<Italian>%s1_PlyrName ti ha dichiarato guerra! (Su richiesta di %s2_PlyrName.)</Italian>
+-		<Spanish>%s1_PlyrName os han declarado la guerra. (A petici&#243;n de %s2_PlyrName.)</Spanish>
++		<Tag>TXT_KEY_MISC_SPONSORED_WAR</Tag>
++		<English>(At the request of %s1_PlyrName.)</English>
++		<French>(Sur requ&#233;te de %s1_PlyrName.)</French>
++		<German>(Auf Ersuchen von %s1_PlyrName.)</German>
++		<Italian>(Su richiesta di %s1_PlyrName.)</Italian>
++		<Spanish>(A petici&#243;n de %s1_PlyrName.)</Spanish>
++	</TEXT>
++	<!-- advc.106o -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_DOW_BY_MULTIPLE</Tag>
++		<English>%s1_TeamNames have declared war on %s2_TeamNames!</English>
++		<French>%s1_TeamNames ont d&#233;clar&#233; la guerre &#224; %s2_TeamNames !</French>
++		<German>%s1_TeamNames haben %s2_TeamNames den Krieg erkl&#228;rt!</German>
++		<Italian>%s1_TeamNames hanno dichiarati guerra a %s2_TeamNames!</Italian>
++		<Spanish>%s1_TeamNames le han declarado la guerra a %s1_TeamNames.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_DOW_ON_MULTIPLE</Tag>
++		<English>%s1_TeamName has declared war on %s2_TeamNames!</English>
++		<French>%s1_TeamName a d&#233;clar&#233; la guerre &#224; %s2_TeamNames !</French>
++		<German>%s1_TeamName hat %s2_TeamNames den Krieg erkl&#228;rt!</German>
++		<Italian>%s1_TeamName ha dichiarati guerra a %s2_TeamNames!</Italian>
++		<Spanish>%s1_TeamName le ha declarado la guerra a %s1_TeamNames.</Spanish>
++	</TEXT>
++	<!-- As in BtS, use present tense for replays. (And, as in BtS, don't bother
++		 with that for peace deals. -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_DOW_BY_MULTIPLE_REPLAY</Tag>
++		<English>%s1_TeamNames declare war on %s2_TeamNames!</English>
++		<French>%s1_TeamNames d&#233;clarent la guerre &#224; %s2_TeamNames !</French>
++		<German>%s1_TeamNames erkl&#228;ren %s2_TeamNames den Krieg!</German>
++		<Italian>%s1_TeamNames dichiarano guerra a %s2_TeamNames!</Italian>
++		<Spanish>%s1_TeamNames le declaran la guerra a %s1_TeamNames.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_PEACE_BY_MULTIPLE</Tag>
++		<English>%s1_TeamNames have made peace with %s2_TeamNames</English>
++		<French>%s1_TeamNames ont fait la paix avec %s2_TeamNames</French>
++		<German>%s1_TeamNames haben Frieden mit %s2_TeamNames geschlossen</German>
++		<Italian>%s1_TeamNames hanno fatto pace con %s2_TeamNames</Italian>
++		<Spanish>%s1_TeamNames han firmado la paz con %s2_TeamNames</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_PEACE_WITH_MULTIPLE</Tag>
++		<English>%s1_TeamName has made peace with %s2_TeamNames</English>
++		<French>%s1_TeamName a fait la paix avec %s2_TeamNames</French>
++		<German>%s1_TeamName hat Frieden mit %s2_TeamNames geschlossen</German>
++		<Italian>%s1_TeamName ha fatto pace con %s2_TeamNames</Italian>
++		<Spanish>%s1_TeamName ha firmado la paz con %s2_TeamNames</Spanish>
++	</TEXT>
++	<!-- advc.039: From CIV4GameText_Misc1.xml.
++		 Just removing the exlamation point. -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_YOU_MADE_PEACE_WITH</Tag>
++		<English>You have made peace with %s1_TeamName</English>
++		<French>Vous avez fait la paix avec %s1_TeamName</French>
++		<German>Ihr habt Frieden mit Team %s1_TeamName geschlossen</German>
++		<Italian>Hai fatto pace con %s1_TeamName</Italian>
++		<Spanish>Hab&#233;is firmado la paz con %s1_TeamName</Spanish>
++	</TEXT>
++	<!-- There's already TXT_KEY_SYSTEM_YOU, but that's
++		 not capitalized. -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_YOU</Tag>
++		<English>You</English>
++		<French>
++			<Text>Vous</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Ihr:Euch</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Tu</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>T&#250;:Vosotros</Text>
++			<Gender>Male</Gender>
++			<Plural>0:1</Plural>
++		</Spanish>
+ 	</TEXT>
++	<!-- Amazingly, this didn't exist yet. -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_MISC_SOMEONE_HIRED_WAR</Tag>
+-		<English>%s1_PlyrName declares war on %s2_PlyrName! (At the request of %s3_PlyrName.)</English>
+-		<French>%s1_PlyrName d&#233;clare la guerre &#224; %s2_PlyrName !  (Sur requ&#233;te de %s3_PlyrName.)</French>
+-		<German>%s1_PlyrName erkl&#228;rt %s2_PlyrName den Krieg! (Auf Ersuchen von %s3_PlyrName.)</German>
+-		<Italian>%s1_PlyrName dichiara guerra a %s2_PlyrName! (Su richiesta di %s3_PlyrName.)</Italian>
+-		<Spanish>%s1_PlyrName le declara la guerra a %s2_PlyrName. (A petici&#243;n de %s3_PlyrName.)</Spanish>
++		<Tag>TXT_KEY_MISC_AND</Tag>
++		<English>and</English>
++		<French>et</French>
++		<German>und</German>
++		<Italian>e</Italian>
++		<Spanish>y</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.106g: Based on TXT_KEY_MISC_SOMEONE_DECLARES_WAR
+-		 (CIV4GameTextInfos.xml) and TXT_KEY_GAME_OPTION_NO_EVENTS
++	<!-- advc.106g: Based on TXT_KEY_GAME_OPTION_NO_EVENTS
+ 		 (CIV4GameText_BTS.xml) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_WAR_VIA_EVENT</Tag>
+-		<English>%s1_PlyrName declares war on %s2_PlyrName! (In response to a random event.)</English>
+-		<French>%s1_PlyrName d&#233;clare la guerre &#224; %s2_PlyrName !  (En r�ponse � un �v�nement al�atoire.)</French>
+-		<German>%s1_PlyrName erkl&#228;rt %s2_PlyrName den Krieg! (Als Reaktion auf ein Zufallsereignis.)</German>
+-		<Italian>%s1_PlyrName dichiara guerra a %s2_PlyrName! (In risposta a un evento casuale.)</Italian>
+-		<Spanish>%s1_PlyrName le declara la guerra a %s2_PlyrName. (En respuesta a un suceso al azar.)</Spanish>
++		<English>(In response to a random event.)</English>
++		<French>(En r�ponse � un �v�nement al�atoire.)</French>
++		<German>(Als Reaktion auf ein Zufallsereignis.)</German>
++		<Italian>(In risposta a un evento casuale.)</Italian>
++		<Spanish>(En respuesta a un suceso al azar.)</Spanish>
+ 	</TEXT>
+-	
+-	<!-- advc.106g: Based on TXT_KEY_MISC_SOMEONE_MADE_PEACE
+-		 (CIV4GameTextInfos.xml) and TXT_KEY_GAME_OPTION_NO_EVENTS
++	<!-- advc.106g: Based on TXT_KEY_GAME_OPTION_NO_EVENTS
+ 		 (CIV4GameText_BTS.xml) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_PEACE_VIA_EVENT</Tag>
+-		<English>%s1_PlyrName has made peace with %s2_PlyrName! (Through a random event.)</English>
+-		<French>%s1_PlyrName a fait la paix avec %s2_PlyrName !  (En r�ponse � un �v�nement al�atoire.)</French>
+-		<German>%s1_PlyrName hat mit %s2_PlyrName Frieden geschlossen! (Durch ein Zufallsereignis.)</German>
+-		<Italian>%s1_PlyrName ha siglato la pace con %s2_PlyrName! (In risposta a un evento casuale.)</Italian>
+-		<Spanish>%s1_PlyrName ha firmado la paz con %s2_PlyrName. (En respuesta a un suceso al azar.)</Spanish>
++		<English>(Through a random event.)</English>
++		<French>(En r�ponse � un �v�nement al�atoire.)</French>
++		<German>(Durch ein Zufallsereignis.)</German>
++		<Italian>(In risposta a un evento casuale.)</Italian>
++		<Spanish>(En respuesta a un suceso al azar.)</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.100b: Replay message for brokered peace. Based on
+-		 TXT_KEY_MISC_SOMEONE_MADE_PEACE from CIV4GameTextInfos.xml.
+-		 I'm reusing the "on request" translations from above. -->
++	<!-- advc.100b: Replay message for brokered peace. I'm reusing the
++		"on request" translations from above. -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_MISC_SOMEONE_BROKERED_PEACE</Tag>
+-		<English>%s1_PlyrName has made peace with %s2_PlyrName! (Brokered by %s3_PlyrName.)</English>
+-		<French>%s1_PlyrName a fait la paix avec %s2_PlyrName ! (Sur requ&#233;te de %s3_PlyrName.)</French>
+-		<German>%s1_PlyrName hat mit %s2_PlyrName Frieden geschlossen! (Auf Ersuchen von %s3_PlyrName.)</German>
+-		<Italian>%s1_PlyrName ha siglato la pace con %s2_PlyrName! (Su richiesta di %s3_PlyrName.)</Italian>
+-		<Spanish>%s1_PlyrName ha firmado la paz con %s2_PlyrName. (A petici&#243;n de %s3_PlyrName.)</Spanish>
++		<Tag>TXT_KEY_MISC_BROKERED_PEACE</Tag>
++		<English>(Brokered by %s1_PlyrName.)</English>
++		<French>(Sur requ&#233;te de %s1_PlyrName.)</French>
++		<German>(Auf Ersuchen von %s1_PlyrName.)</German>
++		<Italian>(Su richiesta di %s1_PlyrName.)</Italian>
++		<Spanish>(A petici&#243;n de %s1_PlyrName.)</Spanish>
++	</TEXT>
++
++		<!-- advc.039: Based on TXT_KEY_MISC_SOMEONE_MADE_PEACE in
++		 CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_IN_EXCHANGE_FOR</Tag>
++		<English>in exchange for</English>
++		<French>en �change de:</French>
++		<German>im Austausch f�r</German>
++		<Italian>in cambio di:</Italian>
++		<Spanish>a cambio de</Spanish>
++	</TEXT>
++	<!-- Spanish based on AI_DIPLO_CIVIC_PRESSURE_1 in CIV4DiplomacyText.xml;
++		 hope for the best. -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_ADOPTING_CIVIC</Tag>
++		<English>adopting [COLOR_HIGHLIGHT_TEXT]%s1_CivicName[COLOR_REVERT]</English>
++		<French>l'adoption de: [COLOR_HIGHLIGHT_TEXT]%s1_CivicName[COLOR_REVERT]</French>
++		<German>einen Staatsformwechsel ([COLOR_HIGHLIGHT_TEXT]%s1_CivicName[COLOR_REVERT])</German>
++		<Italian>un cambio della forma di governo ([COLOR_HIGHLIGHT_TEXT]%s1_CivicName[COLOR_REVERT])</Italian>
++		<Spanish>adoptar [NUM1:el:la:los:las] [COLOR_HIGHLIGHT_TEXT]%s1_CivicName[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_CONVERTING_RELIGION</Tag>
++		<English>converting to [COLOR_HIGHLIGHT_TEXT]%s1_ReligionName[COLOR_REVERT]</English>
++		<French>la conversion au [COLOR_HIGHLIGHT_TEXT]%s1_ReligionName[COLOR_REVERT]</French>
++		<German>den �bertritt zum [COLOR_HIGHLIGHT_TEXT]%s1_ReligionName[COLOR_REVERT]</German>
++		<Italian>a conversione al [COLOR_HIGHLIGHT_TEXT]%s1_ReligionName[COLOR_REVERT]</Italian>
++		<Spanish>convertirse al [COLOR_HIGHLIGHT_TEXT]%s1_ReligionName[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_EMBARGO_AGAINST</Tag>
++		<English>an embargo against %s1_TeamName</English>
++		<French>un embargo contre %s1_TeamName</French>
++		<German>ein Embargo gegen %s1_TeamName</German>
++		<Italian>un embargo contro %s1_TeamName</Italian>
++		<Spanish>un embargo contra %s1_TeamName</Spanish>
++	</TEXT>
++	<!-- Based on TXT_KEY_CIVIC_SCREEN_UPKEEP in CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_GPT</Tag>
++		<English>%d1[ICON_GOLD] per turn</English>
++		<French>%d1[ICON_GOLD] par tour</French>
++		<German>%d1[ICON_GOLD] pro Runde</German>
++		<Italian>%d1[ICON_GOLD] per turno</Italian>
++		<Spanish>%d1 [ICON_GOLD] por turno</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_CASH</Tag>
++		<English>%d1[ICON_GOLD]</English>
++		<French>%d1[ICON_GOLD]</French>
++		<German>%d1[ICON_GOLD]</German>
++		<Italian>%d1[ICON_GOLD]</Italian>
++		<Spanish>%d1 [ICON_GOLD]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_MAPS_CIV</Tag>
++		<English>%s1's maps</English>
++		<French>les cartes de %s1</French>
++		<German>%s1s Weltkarte</German>
++		<Italian>le mappe di %s1</Italian>
++		<Spanish>los mapas de %s1</Spanish>
+ 	</TEXT>
+ 
+ 	<!-- advc.101: Additional text for Nationality and tile help. Similar
+@@ -4630,68 +4768,6 @@
+ 		</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.039: Based on TXT_KEY_MISC_SOMEONE_MADE_PEACE in
+-		 CIV4GameTextInfos.xml -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_PEACE_IN_EXCHANGE</Tag>
+-		<English>[COLOR_HIGHLIGHT_TEXT]%s1_TeamName has made peace with %s2_TeamName[COLOR_REVERT] in exchange for</English>
+-		<French>[COLOR_HIGHLIGHT_TEXT]%s1_TeamName a fait la paix avec %s2_TeamName[COLOR_REVERT] en �change de:</French>
+-		<German>[COLOR_HIGHLIGHT_TEXT]%s1_TeamName hat mit %s2_TeamName[COLOR_REVERT] Frieden geschlossen im Austausch f�r</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]%s1_TeamName ha siglato la pace con %s2_TeamName[COLOR_REVERT] in cambio di:</Italian>
+-		<Spanish>[COLOR_HIGHLIGHT_TEXT]%s1_TeamName ha firmado la paz con %s2_TeamName[COLOR_REVERT] a cambio de</Spanish>
+-	</TEXT>
+-	<!-- Spanish based on AI_DIPLO_CIVIC_PRESSURE_1 in CIV4DiplomacyText.xml;
+-		 hope for the best. -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_ADOPTING_CIVIC</Tag>
+-		<English>adopting [COLOR_HIGHLIGHT_TEXT]%s1_CivicName[COLOR_REVERT]</English>
+-		<French>l'adoption de: [COLOR_HIGHLIGHT_TEXT]%s1_CivicName[COLOR_REVERT]</French>
+-		<German>einen Staatsformwechsel ([COLOR_HIGHLIGHT_TEXT]%s1_CivicName[COLOR_REVERT])</German>
+-		<Italian>un cambio della forma di governo ([COLOR_HIGHLIGHT_TEXT]%s1_CivicName[COLOR_REVERT])</Italian>
+-		<Spanish>adoptar [NUM1:el:la:los:las] [COLOR_HIGHLIGHT_TEXT]%s1_CivicName[COLOR_REVERT]</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_CONVERTING_RELIGION</Tag>
+-		<English>converting to [COLOR_HIGHLIGHT_TEXT]%s1_ReligionName[COLOR_REVERT]</English>
+-		<French>la conversion au [COLOR_HIGHLIGHT_TEXT]%s1_ReligionName[COLOR_REVERT]</French>
+-		<German>den �bertritt zum [COLOR_HIGHLIGHT_TEXT]%s1_ReligionName[COLOR_REVERT]</German>
+-		<Italian>a conversione al [COLOR_HIGHLIGHT_TEXT]%s1_ReligionName[COLOR_REVERT]</Italian>
+-		<Spanish>convertirse al [COLOR_HIGHLIGHT_TEXT]%s1_ReligionName[COLOR_REVERT]</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_EMBARGO_AGAINST</Tag>
+-		<English>an embargo against %s1_TeamName</English>
+-		<French>un embargo contre %s1_TeamName</French>
+-		<German>ein Embargo gegen %s1_TeamName</German>
+-		<Italian>un embargo contro %s1_TeamName</Italian>
+-		<Spanish>un embargo contra %s1_TeamName</Spanish>
+-	</TEXT>
+-	<!-- Based on TXT_KEY_CIVIC_SCREEN_UPKEEP in CIV4GameTextInfos.xml -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_GPT</Tag>
+-		<English>%d1[ICON_GOLD] per turn</English>
+-		<French>%d1[ICON_GOLD] par tour</French>
+-		<German>%d1[ICON_GOLD] pro Runde</German>
+-		<Italian>%d1[ICON_GOLD] per turno</Italian>
+-		<Spanish>%d1 [ICON_GOLD] por turno</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_CASH</Tag>
+-		<English>%d1[ICON_GOLD]</English>
+-		<French>%d1[ICON_GOLD]</French>
+-		<German>%d1[ICON_GOLD]</German>
+-		<Italian>%d1[ICON_GOLD]</Italian>
+-		<Spanish>%d1 [ICON_GOLD]</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_MAPS_CIV</Tag>
+-		<English>%s1's maps</English>
+-		<French>les cartes de %s1</French>
+-		<German>%s1s Weltkarte</German>
+-		<Italian>le mappe di %s1</Italian>
+-		<Spanish>los mapas de %s1</Spanish>
+-	</TEXT>
+-
+ 	<!-- advc.002k: Based on TXT_KEY_TIME_AD in CIV4GameTextInfos.xml.
+ 		 Could also use AD for the other languages, but this setting is going
+ 		 to be the default, and I only want to change English by default. -->
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 4bf61bdfc..7b957184f 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1106,7 +1106,7 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 		kMembers[i]->updateTradeRoutes();
+ 
+ 	if (GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode() &&
+-		!isBarbarian() && !kTarget.isBarbarian() && !isMinorCiv() && !kTarget.isMinorCiv()) // advc: Moved these checks up
++		isMajorCiv() && kTarget.isMajorCiv()) // Moved these checks up
+ 	{
+ 		if (bNewDiplo && !isHuman())
+ 		{
+@@ -1122,95 +1122,11 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 				}
+ 			}
+ 		}
+-		CvWString szBuffer;
+-		// <advc.100>
+-		CvWString szSponsorName;
+-		wchar const* cpSponsorName = L"";
+-		if (eSponsor != NO_PLAYER)
+-		{
+-			// Need to make a copy b/c getName returns a pointer into a local string object
+-			szSponsorName = GET_PLAYER(eSponsor).getName();
+-			cpSponsorName = szSponsorName.GetCString();
+-		} // </advc.100>
+-		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+-		{
+-			CvPlayer const& kObs = *it;
+-			// <advc.002l>
+-			LPCTSTR szSoundYou = (bPrimaryDoW ? "AS2D_DECLAREWAR" : NULL);
+-			LPCTSTR szSoundThey = (bPrimaryDoW ? "AS2D_THEIRDECLAREWAR" : NULL);
+-			// </advc.002l>
+-			if (kObs.getTeam() == getID())
+-			{
+-				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_DECLARED_WAR_ON",
+-						kTarget.getName().GetCString());
+-				gDLL->UI().addMessage(kObs.getID(), true, -1, szBuffer,
+-						szSoundYou, // advc.002l
+-						MESSAGE_TYPE_MAJOR_EVENT, NULL, GC.getColorType("WARNING_TEXT"),
+-						// advc.127b:
+-						kTarget.getCapitalX(kObs.getTeam()), kTarget.getCapitalY(kObs.getTeam()));
+-			}
+-			else if(kObs.getTeam() == eTarget)
+-			{	// <advc.100> Inform the target of the DoW about the sponsor
+-				if(eSponsor != NO_PLAYER)
+-					szBuffer = gDLL->getText("TXT_KEY_MISC_HIRED_WAR_ON_YOU",
+-							getName().GetCString(), cpSponsorName);
+-				else // </advc.100>
+-					szBuffer = gDLL->getText("TXT_KEY_MISC_DECLARED_WAR_ON_YOU", getName().GetCString());
+-				gDLL->UI().addMessage(kObs.getID(), true, -1, szBuffer,
+-						szSoundYou, // advc.002l
+-						MESSAGE_TYPE_MAJOR_EVENT, NULL, GC.getColorType("WARNING_TEXT"),
+-						// advc.127b:
+-						getCapitalX(kObs.getTeam()), getCapitalY(kObs.getTeam()));
+-			}
+-			else if((isHasMet(kObs.getTeam()) && kTarget.isHasMet(kObs.getTeam())) ||
+-				kObs.isSpectator()) // advc.127
+-			{	// <advc.100> Inform third parties about sponsor
+-				if(eSponsor != NO_PLAYER && eSponsor != kObs.getID() &&
+-					(GET_TEAM(eSponsor).isHasMet(kObs.getTeam()) ||
+-					kObs.isSpectator())) // advc.127
+-				{
+-					szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_HIRED_WAR",
+-							getName().GetCString(), kTarget.getName().GetCString(), cpSponsorName);
+-				}
+-				else // </advc.100>
+-				{
+-					szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_DECLARED_WAR",
+-							getName().GetCString(), kTarget.getName().GetCString());
+-				}
+-				gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
+-						szSoundThey, // advc.002l
+-						// <advc.106b>
+-						(isAVassal() || kTarget.isAVassal() ?
+-						MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY : // </advc.106b>
+-						MESSAGE_TYPE_MAJOR_EVENT), NULL, GC.getColorType("WARNING_TEXT"),
+-						// advc.127b:
+-						getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
+-			}
+-		}
+-		// <advc.100> Put info about hired wars in the replay log
+-		if (eSponsor != NO_PLAYER)
+-		{
+-			szSponsorName = GET_PLAYER(eSponsor).getReplayName();
+-			cpSponsorName = szSponsorName.GetCString();
+-			szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_HIRED_WAR",
+-					getReplayName().GetCString(),
+-					kTarget.getReplayName().GetCString(), cpSponsorName);
+-		}
+-		else // </advc.100>
+-		{	// <advc.106g>
+-			if (bRandomEvent)
+-			{
+-				szBuffer = gDLL->getText("TXT_KEY_MISC_WAR_VIA_EVENT",
+-						getReplayName().GetCString(), kTarget.getReplayName().GetCString());
+-			}
+-			else // </advc.106g>
+-			{
+-				szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_DECLARES_WAR",
+-						getReplayName().GetCString(), kTarget.getReplayName().GetCString());
+-			}
++		// advc.106o: Vassals now mentioned along with the master
++		if (!isAVassal() && !kTarget.isAVassal())
++		{	// advc: Moved into new function
++			announceWar(eTarget, bPrimaryDoW, eSponsor, bRandomEvent);
+ 		}
+-		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
+-				-1, -1, GC.getColorType("WARNING_TEXT"));
+ 	}
+ 	// kekm.26 (advc): EventReporter call moved down
+ 	triggerDefensivePacts(eTarget, bNewDiplo, bPrimaryDoW); // advc: Moved into subroutine
+@@ -1363,121 +1279,294 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
+ 		kMembers[i]->updateTradeRoutes();
+ 	// advc: AI code moved down a bit and then into a new function
+ 	AI().AI_postMakePeace(eTarget);
++	// advc.106o: Vassals now mentioned along with their master
++	if (!isAVassal() && !kTarget.isAVassal())
++	{	// advc: Moved into new function
++		announcePeace(eTarget, eBroker, pReparations, bRandomEvent);
++	}
++	CvEventReporter::getInstance().changeWar(false, getID(), eTarget);
++	for (TeamIter<MAJOR_CIV> it; it.hasNext(); ++it)
++	{
++		CvTeam& kVassal = *it;
++		if (kVassal.isVassal(eTarget))
++			kVassal.makePeace(getID(), bBumpUnits);
++		else if (kVassal.isVassal(getID()))
++			kVassal.makePeace(eTarget, bBumpUnits);
++	}
++}
+ 
++// advc: Cut from declareWar
++void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
++	PlayerTypes eSponsor, bool bRandomEvent)
++{
++	CvWString szBuffer;
++	// <advc.100>
++	CvWString szSponsorName;
++	wchar const* cpSponsorName = L"";
++	if (eSponsor != NO_PLAYER)
++	{
++		// Need to make a copy b/c getName returns a pointer into a local string object
++		szSponsorName = GET_PLAYER(eSponsor).getName();
++		cpSponsorName = szSponsorName.GetCString();
++	} // </advc.100>
++	// advc.106o:
++	bool const bMultiple = (TeamIter<MAJOR_CIV,VASSAL_OF>::count(getID()) > 0);
++	CvTeam const& kTarget = GET_TEAM(eTarget);
+ 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 	{
+ 		CvPlayer const& kObs = *it;
+-		// <advc.002l>
+-		LPCTSTR szSoundYou = "AS2D_MAKEPEACE";
+-		LPCTSTR szSoundThey = "AS2D_THEIRMAKEPEACE";
+-		if (isAVassal() || kTarget.isAVassal())
+-			szSoundYou = szSoundThey = NULL; // </advc.002l>
+-		bool bWarTeam = false; // advc.039
++		if ((!isHasMet(kObs.getTeam()) || !kTarget.isHasMet(kObs.getTeam())) &&
++			!kObs.isSpectator()) // advc.127
++		{
++			continue;
++		}
++		LPCTSTR szSound = NULL;
++		// <advc.106o>
++		CvWString szAggressors, szTargets;
++		GET_TEAM(kObs.getTeam()).setWarPeacePartyStrings(getID(), eTarget,
++				szAggressors, szTargets);
++		bool bForce = true;
++		// (These branches exist only to get the grammar right)
++		if (bMultiple)
++		{
++			szBuffer = gDLL->getText("TXT_KEY_MISC_DOW_BY_MULTIPLE",
++					szAggressors.c_str(), szTargets.c_str());
++		}
++		else if (kObs.getTeam() == getID())
++		{
++			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_DECLARED_WAR_ON",
++					szTargets.c_str());
++		}
++		else
++		{
++			szBuffer = gDLL->getText("TXT_KEY_MISC_DOW_ON_MULTIPLE",
++					szAggressors.c_str(), szTargets.c_str());
++		} // </advc.106o>
+ 		if (kObs.getTeam() == getID())
++			szSound = "AS2D_DECLAREWAR";
++		else if (kObs.getTeam() == eTarget)
++			szSound = "AS2D_DECLAREWAR";
++		else
++		{
++			szSound = "AS2D_THEIRDECLAREWAR";
++			bForce = false;
++		}
++		// <advc.100> Inform target, third parties about sponsor.
++		if (eSponsor != NO_PLAYER && 
++			eSponsor != kObs.getID() &&
++			(GET_TEAM(eSponsor).isHasMet(kObs.getTeam()) ||
++			kObs.isSpectator())) // advc.127
+ 		{
+-			CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_YOU_MADE_PEACE_WITH",
+-					kTarget.getName().GetCString()));
+-			gDLL->UI().addMessage(kObs.getID(), true, -1, szBuffer,
+-					szSoundYou, // advc.002l
+-					MESSAGE_TYPE_MAJOR_EVENT, NULL, GC.getColorType("HIGHLIGHT_TEXT"),
++			szBuffer.append(L" ");
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_SPONSORED_WAR",
++					cpSponsorName));
++		} // </advc.100>
++		gDLL->UI().addMessage(kObs.getID(), bForce, -1, szBuffer,
++					(bPrimaryDoW ? szSound : NULL), // advc.002l
++					MESSAGE_TYPE_MAJOR_EVENT, NULL, GC.getColorType("WARNING_TEXT"),
+ 					// advc.127b:
+-					kTarget.getCapitalX(kObs.getTeam(), true), kTarget.getCapitalY(kObs.getTeam(), true));
+-			bWarTeam = true; // advc.039
++					getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
++	}
++	// <advc.106o>
++	CvWString szAggressors, szTargets;
++	GET_TEAM(GC.getGame().getActiveTeam()).setWarPeacePartyStrings(
++			getID(), eTarget, szAggressors, szTargets, true);
++	if (bMultiple)
++	{
++		szBuffer = gDLL->getText("TXT_KEY_MISC_DOW_BY_MULTIPLE_REPLAY",
++				szAggressors.c_str(), szTargets.c_str());
++	}
++	else // </advc.106o>
++	{
++		szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_DECLARES_WAR",
++				getReplayName().c_str(), szTargets.c_str());
++	}
++	// <advc.100> Put info about hired wars in the replay log
++	if (eSponsor != NO_PLAYER)
++	{
++		szSponsorName = GET_PLAYER(eSponsor).getReplayName();
++		cpSponsorName = szSponsorName.c_str();
++		szBuffer.append(L" ");
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_SPONSORED_WAR",
++				cpSponsorName));
++	} // </advc.100>  <advc.106g>
++	else if (bRandomEvent)
++	{
++		szBuffer.append(L" ");
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_WAR_VIA_EVENT"));
++	} // </advc.106g>
++	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
++			-1, -1, GC.getColorType("WARNING_TEXT"));
++}
++
++// advc: Cut from makePeace
++void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
++	CLinkList<TradeData> const* pReparations, bool bRandomEvent)
++{
++	CvWString szBuffer;
++	CvTeam const& kTarget = GET_TEAM(eTarget);
++	// advc.106o:
++	bool const bMultiple = (TeamIter<MAJOR_CIV,VASSAL_OF>::count(getID()) > 0);
++	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
++	{
++		CvPlayer const& kObs = *it;
++		if ((!isHasMet(kObs.getTeam()) || !kTarget.isHasMet(kObs.getTeam())) &&
++			!kObs.isSpectator()) // advc.127
++		{
++			continue;
++		}
++		// <advc.106o>
++		CvWString szPeacemakers, szTargets;
++		GET_TEAM(kObs.getTeam()).setWarPeacePartyStrings(
++				getID(), eTarget, szPeacemakers, szTargets);
++		// (These branches exist only to get the grammar right)
++		if (bMultiple)
++		{
++			szBuffer = gDLL->getText("TXT_KEY_MISC_PEACE_BY_MULTIPLE",
++					szPeacemakers.c_str(), szTargets.c_str());
++		}
++		else if (kObs.getTeam() == getID())
++		{
++			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_MADE_PEACE_WITH",
++					szTargets.c_str());
++		}
++		else
++		{
++			szBuffer = gDLL->getText("TXT_KEY_MISC_PEACE_WITH_MULTIPLE",
++					szPeacemakers.c_str(), szTargets.c_str());
++		} // </advc.106o>
++		LPCTSTR szSound = NULL;
++		ColorTypes eColor = GC.getColorType("HIGHLIGHT_TEXT");
++		bool bForce = false;
++		bool bDebugCoords = true; // advc.127b
++		if (kObs.getTeam() == getID())
++		{
++			szSound = "AS2D_MAKEPEACE";
++			bForce = true;
++			
+ 		}
+ 		else if (kObs.getTeam() == eTarget)
+ 		{
+-			CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_YOU_MADE_PEACE_WITH",
+-					getName().GetCString()));
+-			gDLL->UI().addMessage(kObs.getID(), true, -1, szBuffer,
+-					szSoundYou, // advc.002l
+-					MESSAGE_TYPE_MAJOR_EVENT, NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+-					// advc.127b:
+-					getCapitalX(kObs.getTeam()), getCapitalY(kObs.getTeam()));
++			szSound = "AS2D_MAKEPEACE";
++			bForce = true;
++			bDebugCoords = false; // advc.127b
+ 			/*  <advc.039> Show message about reparations also to non-leading
+ 				members of a (human) team (in addition to YOU_MADE_PEACE) */
+-			bWarTeam = true;
+ 		}
+-		//else
+-		if ((!bWarTeam || (pReparations != NULL && kObs.getID() != getLeaderID() &&
+-			kObs.getID() != kTarget.getLeaderID())) &&  // </advc.039>
+-			((isHasMet(kObs.getTeam()) && kTarget.isHasMet(kObs.getTeam())) ||
+-			kObs.isSpectator())) // advc.127
+-		{
+-			// <advc.039>
+-			CvWString szBuffer;
+-			bool bAnyReparations = false;
+-			if (pReparations != NULL)
++		else szSound = "AS2D_THEIRMAKEPEACE";
++		// <advc.039>
++		if (pReparations != NULL && kObs.getID() != getLeaderID() &&
++			kObs.getID() != kTarget.getLeaderID()) 
++		{
++			szBuffer.Format(SETCOLR L"%s" ENDCOLR,
++					TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szBuffer.c_str());
++			eColor = NO_COLOR; // Don't color the whole message
++			szBuffer.append(L" ");
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_IN_EXCHANGE_FOR"));
++			szBuffer.append(L" ");
++			std::vector<CvWString> aszTradeItems;
++			FOR_EACH_TRADE_ITEM(*pReparations)
+ 			{
+-				szBuffer = gDLL->getText("TXT_KEY_MISC_PEACE_IN_EXCHANGE",
+-						getName().GetCString(), kTarget.getName().GetCString()) + L" ";
+-				std::vector<CvWString> aszTradeItems;
+-				FOR_EACH_TRADE_ITEM(*pReparations)
+-				{
+-					CvWString const szItem(tradeItemString(
+-							pItem->m_eItemType, pItem->m_iData, eTarget));
+-					if (szItem.length() > 0)
+-						aszTradeItems.push_back(szItem);
+-				}
+-				// The loop above has only filtered out items w/o string representation
+-				for (size_t i = 0; i < aszTradeItems.size(); i++)
+-				{
+-					bAnyReparations = true;
+-					szBuffer += aszTradeItems[i];
+-					int iRemaining = ((int)aszTradeItems.size()) - i - 1;
+-					if (iRemaining > 0)
+-					{
+-						if(iRemaining == 1)
+-							szBuffer += L" " + gDLL->getText("TXT_KEY_AND") + L" ";
+-						else szBuffer += L", ";
+-					}
+-					else szBuffer += L".";
+-				} // Can handle it, but I don't think it should happen:
+-				FAssert(bAnyReparations);
++				CvWString const szItem(tradeItemString(
++						pItem->m_eItemType, pItem->m_iData, eTarget));
++				if (szItem.length() > 0)
++					aszTradeItems.push_back(szItem);
+ 			}
+-			if(!bAnyReparations) // </advc.039>
++			// The loop above has only filtered out items w/o string representation
++			FAssert(!aszTradeItems.empty()); // Can handle it, but shouldn't happen.
++			for (size_t i = 0; i < aszTradeItems.size(); i++)
+ 			{
+-				szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_MADE_PEACE",
+-						getName().GetCString(), kTarget.getName().GetCString());
++				szBuffer += aszTradeItems[i];
++				int iRemaining = ((int)aszTradeItems.size()) - i - 1;
++				if (iRemaining > 0)
++				{
++					if(iRemaining == 1)
++						szBuffer += L" " + gDLL->getText("TXT_KEY_AND") + L" ";
++					else szBuffer += L", ";
++				}
+ 			}
+-			gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
+-					szSoundThey, // advc.002l
+-					// <advc.106b>
+-					(isAVassal() || kTarget.isAVassal() ?
+-					MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY : // </advc.106b>
+-					MESSAGE_TYPE_MAJOR_EVENT), NULL,
+-					(bAnyReparations ? NO_COLOR : // advc.039
+-					GC.getColorType("HIGHLIGHT_TEXT")),
+-					// advc.127b:
+-					getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
+ 		}
++		szBuffer.append(L"."); // (Moved out of XML text)  </advc.039>
++		gDLL->UI().addMessage(kObs.getID(), bForce, -1, szBuffer,
++				szSound, // advc.002l
++				MESSAGE_TYPE_MAJOR_EVENT, NULL, eColor,
++				// <advc.127b>
++				getCapitalX(kObs.getTeam(), bDebugCoords),
++				getCapitalY(kObs.getTeam(), bDebugCoords)); // </advc.127b>
+ 	}
+-	CvWString szBuffer;
+-	// <advc.100b>
+-	if (eBroker != NO_TEAM && eBroker != eTarget && eBroker != getID())
++	// <advc.106o>
++	CvWString szPeacemakers, szTargets;
++	GET_TEAM(GC.getGame().getActiveTeam()).setWarPeacePartyStrings(
++			getID(), eTarget, szPeacemakers, szTargets, true);
++	if (bMultiple)
+ 	{
+-		szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_BROKERED_PEACE",
+-				getReplayName().GetCString(),
+-				kTarget.getReplayName().GetCString(),
+-				GET_TEAM(eBroker).getReplayName().GetCString());
++		szBuffer = gDLL->getText("TXT_KEY_MISC_PEACE_BY_MULTIPLE",
++				szPeacemakers.c_str(), szTargets.c_str());
+ 	}
+-	else // </advc.100b>
++	else
+ 	{
+-		szBuffer = gDLL->getText(/* advc.106g: */ bRandomEvent ? "TXT_KEY_MISC_PEACE_VIA_EVENT" :
+-			"TXT_KEY_MISC_SOMEONE_MADE_PEACE", getReplayName().GetCString(),
+-			kTarget.getReplayName().GetCString());
+-	}
++		szBuffer = gDLL->getText("TXT_KEY_MISC_PEACE_WITH_MULTIPLE",
++				szPeacemakers.c_str(), szTargets.c_str());
++	} // </advc.106o>  <advc.100b>
++	if (eBroker != NO_TEAM && eBroker != eTarget && eBroker != getID())
++	{	
++		szBuffer.append(L" ");
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_BROKERED_PEACE",
++				GET_TEAM(eBroker).getReplayName().c_str()));
++	} // </advc.100b>  <advc.106g>
++	else if (bRandomEvent)
++	{
++		szBuffer.append(L" ");
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_PEACE_VIA_EVENT"));
++	} // </advc.106g>
+ 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
+ 			-1, -1, GC.getColorType("HIGHLIGHT_TEXT"));
++}
+ 
+-	CvEventReporter::getInstance().changeWar(false, getID(), eTarget);
++/*	advc.106o: To be called on the observer, i.e. the recipient of a message about a
++	change in war peace status between eAgent and eTarget, initiated by eAgent. */
++void CvTeam::setWarPeacePartyStrings(TeamTypes eAgent, TeamTypes eTarget,
++	CvWString& szAgents, CvWString& szTargets, bool bReplay)
++{
++	setWarPeacePartyStrings(eAgent, szAgents, bReplay, true);
++	setWarPeacePartyStrings(eTarget, szTargets, bReplay, false);
++}
+ 
+-	for (TeamIter<MAJOR_CIV> it; it.hasNext(); ++it)
++// advc.106o: Helper for the above
++void CvTeam::setWarPeacePartyStrings(TeamTypes eTeam, CvWString& szTeams, bool bReplay,
++	bool bCapitalize) // just for the pronoun "you"
++{
++	FAssert(szTeams.empty());
++	FAssert(!GET_TEAM(eTeam).isAVassal());
++	CvTeam const& kTeam = GET_TEAM(eTeam);
++	int iTeams = TeamIter<MAJOR_CIV,NOT_A_RIVAL_OF>::count(eTeam);
++	bool bFirst = true;
++	if (!bReplay && getMasterTeam() == kTeam.getMasterTeam())
+ 	{
+-		CvTeam& kVassal = *it;
+-		if (kVassal.isVassal(eTarget))
+-			kVassal.makePeace(getID(), bBumpUnits);
+-		else if (kVassal.isVassal(getID()))
+-			kVassal.makePeace(eTarget, bBumpUnits);
++		iTeams--;
++		setListHelp(szTeams, gDLL->getText(bCapitalize ?
++				"TXT_KEY_MISC_YOU" : "TXT_KEY_SYSTEM_YOU"),
++				L"", L", ", bFirst);
++	}
++	CvWString szAnd(L" ");
++	szAnd.append(gDLL->getText("TXT_KEY_MISC_AND"));
++	szAnd.append(L" ");
++	if (bReplay || getID() != eTeam)
++	{
++		iTeams--;
++		setListHelp(szTeams, L"",
++				(bReplay ? kTeam.getReplayName() : kTeam.getName()).c_str(),
++				iTeams <= 0 ? szAnd : L", ", bFirst);
++	}
++	for (TeamIter<MAJOR_CIV,VASSAL_OF> itVassal(eTeam); itVassal.hasNext(); ++itVassal)
++	{
++		if (bReplay || itVassal->getID() != getID())
++		{
++			iTeams--;
++			setListHelp(szTeams, L"",
++					(bReplay ? itVassal->getReplayName() : itVassal->getName()).c_str(),
++					iTeams <= 0 ? szAnd : L", ", bFirst);
++		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 49d4025fe..4ca3d31f7 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -687,6 +687,17 @@ protected:
+ 	void announceTechToPlayers(TechTypes eIndex,
+ 			PlayerTypes eDiscoverPlayer, // advc.156
+ 			bool bPartial = false);
++	// <advc>
++	void announceWar(TeamTypes eTarget, bool bPrimaryDoW,
++			PlayerTypes eSponsor = NO_PLAYER, bool bRandomEvent = false);
++	void announcePeace(TeamTypes eTarget, TeamTypes eBroker = NO_TEAM,
++			CLinkList<TradeData> const* pReparations = NULL, bool bRandomEvent = false);
++	// </advc>  <advc.106o>
++	void setWarPeacePartyStrings(TeamTypes eAgent, TeamTypes eTarget,
++			CvWString& szAgents, CvWString& szTargets, bool bReplay = false);
++	void setWarPeacePartyStrings(TeamTypes eTeam, CvWString& szTeams, bool bReplay,
++			bool bCapitalize);
++	// </advc.106o>
+ 
+ private: // advc.003u: (See comments in the private section of CvPlayer.h)
+ 	/*virtual void AI_initExternal();
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=34350

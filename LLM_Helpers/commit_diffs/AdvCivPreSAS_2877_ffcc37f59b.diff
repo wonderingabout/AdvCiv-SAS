@@ -1,0 +1,48 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2877
+# Commit: ffcc37f59b0cb85f683f6d027a3aea78edf93ef4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 02ee8e1d0abf886967623dd84481d84547ba3131
+# Title: Small amendment to Actual Quotes commit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	Assets/XML/Text/ActualQuotesText.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/ActualQuotesText.xml b/Assets/XML/Text/ActualQuotesText.xml
+index 535e96d0a..efbab874d 100644
+--- a/Assets/XML/Text/ActualQuotesText.xml
++++ b/Assets/XML/Text/ActualQuotesText.xml
+@@ -38,15 +38,16 @@
+ 		<Spanish>&#161;El poderoso [OUR_EMPIRE] ya ha soportado bastante vuestras traiciones y enga&#241;os! &#161;Lo vais a pagar! (&#161;[OUR_NAME] os declara la guerra!)</Spanish>
+ 	</TEXT>
+ 	<!-- advc.005h: Kind of based on #6 ("numberless minions").
+-		 And I've kept the FIS translations from #6. -->
+-	<TEXT>
++		 And I've kept the FIS translations from #6.
++		 ... On second thought, let's not add this. -->
++	<!--TEXT>
+ 		<Tag>AI_DIPLO_DECLARE_WAR_11</Tag>
+ 		<English>Boo! My innumerable hosts are marching toward [CT_CIV_SHORT]. ([OUR_NAME] declares war!)</English>
+ 		<French>Bient&#244;t, mes innombrables guerriers vous extermineront jusqu'au dernier ! ([OUR_NAME] vous d&#233;clare la guerre !)</French>
+ 		<German>Buh! Meine zahllosen Heere sind auf dem Weg nach [CT_CIV_SHORT]. ([OUR_NAME] erkl&#228;rt Euch den Krieg!)</German>
+ 		<Italian>I miei innumerevoli seguaci vi stermineranno rapidamente! ([OUR_NAME] dichiara guerra!)</Italian>
+ 		<Spanish>&#161;Pronto mis incontables seguidores os destruir&#225;n a todos! (&#161;[OUR_NAME] os declara la guerra!)</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_FRANKLIN_ROOSEVELT_1</Tag>
+ 		<English>Greetings! I am [OUR_NAME] of the [OUR_EMPIRE]. Be sincere; be brief; be seated. I hope our peoples can live together in peace.</English>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1555

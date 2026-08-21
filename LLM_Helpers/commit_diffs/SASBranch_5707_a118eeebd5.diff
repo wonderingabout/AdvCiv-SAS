@@ -1,0 +1,252 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5707
+# Commit: a118eeebd5d931a7b7fb7a8aa1bd76e3b2e8ecac
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f8d1cda84bbfed1b78c69b69682ef483f6356a51
+# Title: beautify CvHallOfFameScreen.py with new Leader, Civilization, Player Color, and Traits columns with icons or colors or chars (based on Info Screen's Score ta...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+83	4	Assets/Python/Screens/CvHallOfFameScreen.py
+5	4	Assets/Python/Screens/CvInfoScreen.py
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.984_hall_of_fame_screen.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvHallOfFameScreen.py b/Assets/Python/Screens/CvHallOfFameScreen.py
+index 6a13f706f..eda12b0b6 100644
+--- a/Assets/Python/Screens/CvHallOfFameScreen.py
++++ b/Assets/Python/Screens/CvHallOfFameScreen.py
+@@ -17,6 +17,7 @@ import CvReplayScreen
+ import CvScreensInterface
+ from SASFontUtils import *
+ import SASTextScale
++import TraitUtil
+ import re
+ 
+ # globals
+@@ -72,6 +73,8 @@ class CvHallOfFameScreen:
+ 		self.TABLE_W = 1018
+ 		self.TABLE_H = 545
+ 		self.TOP_BOTTOM_PANEL_H = 55
++		self.HOF_ICON_SIZE = 24
++		self.HOF_COLOR_MARKER = u"|||||"
+ 								
+ 		self.nWidgetCount = 0
+ 		self.infoList = [] # K-Mod
+@@ -141,6 +144,9 @@ class CvHallOfFameScreen:
+ 		self.iSortBy = SORT_BY_NORMALIZED_SCORE
+ 
+ 		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
++		# <!-- custom: initialize TraitUtil here because doing it in __init__ broke Civ startup;
++		# by the time Hall of Fame opens, the game/font symbols are ready and trait icons render correctly. (GPT-5.5) -->
++		TraitUtil.init()
+ 
+ 		self.hallOfFame = CyHallOfFameInfo()
+ 		self.hallOfFame.loadReplays()
+@@ -270,6 +276,43 @@ class CvHallOfFameScreen:
+ 			and (self.iVictoryFilter == -1 or self.iVictoryFilter == replayInfo.getVictoryType()) 
+ 			and ((self.iMultiplayerFilter == 1) == replayInfo.isMultiplayer()))
+ 
++	def getReplayCivType(self, replayInfo):
++		# <!-- custom: Hall of Fame identity columns mirror the Info Screen Score tab:
++		# leader icon, civ icon, player color marker, leader/civ name, then trait icons.
++		# CyReplayInfo stores leader id and player color directly, so those survive custom
++		# leader names. It does not store civilization id, only civ name strings; match them
++		# back to XML for the civ icon, and let custom civ names return -1 for no unreliable icon. (GPT-5.5) -->
++		szShort = replayInfo.getShortCivDescription()
++		szFull = replayInfo.getCivDescription()
++		szAdjective = replayInfo.getCivAdjective()
++		for iCiv in range(gc.getNumCivilizationInfos()):
++			civInfo = gc.getCivilizationInfo(iCiv)
++			if (szShort == civInfo.getShortDescription(0) or
++				szFull == civInfo.getDescription() or
++				szAdjective == civInfo.getAdjective(0)):
++				return iCiv
++		return -1
++
++	def getReplayColorMarker(self, replayInfo):
++		iColor = replayInfo.getColor(replayInfo.getActivePlayer())
++		if iColor >= 0:
++			return localText.changeTextColor(self.HOF_COLOR_MARKER, iColor)
++		return self.HOF_COLOR_MARKER
++
++	def getLeaderTraitIcons(self, iLeader):
++		szTrait1 = u""
++		szTrait2 = u""
++		if iLeader >= 0 and iLeader < gc.getNumLeaderHeadInfos():
++			leaderInfo = gc.getLeaderHeadInfo(iLeader)
++			for iTrait in range(gc.getNumTraitInfos()):
++				if leaderInfo.hasTrait(iTrait):
++					if szTrait1 == u"":
++						szTrait1 = TraitUtil.getIcon(iTrait)
++					elif szTrait2 == u"":
++						szTrait2 = TraitUtil.getIcon(iTrait)
++						break
++		return szTrait1, szTrait2
++
+ 
+ 	def drawContents(self):
+ 				
+@@ -282,7 +325,7 @@ class CvHallOfFameScreen:
+ 		screen.deleteWidget(self.TABLE_ID)
+ 		# K-Mod end
+ 		
+-		screen.addTableControlGFC(self.TABLE_ID, 10, self.TABLE_X, self.TABLE_Y, self.TABLE_W, self.TABLE_H, True, True, 16, 16, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addTableControlGFC(self.TABLE_ID, 15, self.TABLE_X, self.TABLE_Y, self.TABLE_W, self.TABLE_H, True, True, self.HOF_ICON_SIZE, self.HOF_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 		screen.enableSelect(self.TABLE_ID, False)
+ 		screen.enableSort(self.TABLE_ID)
+ 		# <advc.106i> Don't show replay button column when game has just ended;
+@@ -290,6 +333,9 @@ class CvHallOfFameScreen:
+ 		bAllowReplay = (gc.getGame().getGameState() != GameStateTypes.GAMESTATE_OVER)
+ 		iColumn = 0 # Replacing hardcoded column numbers
+ 		iReplayButtonColumnW = 20
++		iIconColumnW = 34
++		iColorColumnW = 45
++		iTraitColumnW = 44
+ 		# <!-- custom: with fullscreen Hall of Fame we have more lateral room, so expand narrow columns when needed (e.g., Finished/Speed) and let Leader absorb the remaining width. (GPT-5.3-Codex) -->
+ 		iNormalizedScoreW = 140
+ 		iDateW = 115
+@@ -301,7 +347,7 @@ class CvHallOfFameScreen:
+ 		iSpeedW = 250
+ 		iNonLeaderTotalW = (iNormalizedScoreW + iDateW + iGameScoreW + iVictoryW +
+ 				iDifficultyW + iWorldSizeW + iEraW + iSpeedW)
+-		iLeaderColumnW = self.TABLE_W - iNonLeaderTotalW - 12
++		iLeaderColumnW = self.TABLE_W - iNonLeaderTotalW - (2 * iIconColumnW) - iColorColumnW - (2 * iTraitColumnW) - 12
+ 		if bAllowReplay:
+ 			iLeaderColumnW -= iReplayButtonColumnW
+ 		if iLeaderColumnW < 202:
+@@ -309,8 +355,18 @@ class CvHallOfFameScreen:
+ 		if bAllowReplay:
+ 			SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, "", iReplayButtonColumnW)
+ 			iColumn += 1 # </advc.106i>
++		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, "", iIconColumnW)
++		iColumn += 1
++		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, "", iIconColumnW)
++		iColumn += 1
++		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, u"Col", iColorColumnW)
++		iColumn += 1
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_PITBOSS_LEADER", ()), iLeaderColumnW)
+ 		iColumn += 1
++		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, u"T1", iTraitColumnW)
++		iColumn += 1
++		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, u"T2", iTraitColumnW)
++		iColumn += 1
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_NORMALIZED_SCORE", ()), iNormalizedScoreW)
+ 		iColumn += 1
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.TABLE_ID, iColumn, localText.getText("TXT_KEY_HALL_OF_FAME_SORT_BY_DATE", ()), iDateW)
+@@ -335,7 +391,7 @@ class CvHallOfFameScreen:
+ 			if self.isDisplayed(replayInfo):
+ 				iNumGames += 1
+ 
+-		self.infoList = [(-1,"",-1,"",-1,"","","","","",0)] * iNumGames
++		self.infoList = [(-1,"",-1,"",-1,"","","","","",0,-1,-1,"","","")] * iNumGames
+ 		iItem = 0
+ 		for i in range(self.hallOfFame.getNumGames()):
+ 			replayInfo = self.hallOfFame.getReplayInfo(i)
+@@ -388,6 +444,10 @@ class CvHallOfFameScreen:
+ 				# </advc.106i>
+ 				szFinalDate = CyGameTextMgr().getDateStr(replayInfo.getFinalTurn(), false,
+ 						replayInfo.getCalendar(), replayInfo.getStartYear(), replayInfo.getGameSpeed())
++				iReplayLeader = replayInfo.getLeader(replayInfo.getActivePlayer())
++				iReplayCiv = self.getReplayCivType(replayInfo)
++				szReplayColor = self.getReplayColorMarker(replayInfo)
++				szTrait1, szTrait2 = self.getLeaderTraitIcons(iReplayLeader)
+ 				self.infoList[iItem] = (iValue,
+ 						localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (replayInfo.getLeaderName(), replayInfo.getShortCivDescription())),
+ 						replayInfo.getNormalizedScore(),
+@@ -402,7 +462,12 @@ class CvHallOfFameScreen:
+ # gc.getSeaLevelInfo(replayInfo.getSeaLevel()).getDescription(),
+ 						szStartEra,
+ 						szSpeed, # </advc.106i>
+-						i)
++						i,
++						iReplayLeader,
++						iReplayCiv,
++						szReplayColor,
++						szTrait1,
++						szTrait2)
+ 				iItem += 1
+ 		self.infoList.sort()
+ 
+@@ -424,8 +489,22 @@ class CvHallOfFameScreen:
+ 				screen.attachControlToTableCell(szButtonName, self.TABLE_ID, i, iColumn)
+ 				iColumn += 1
+ 			# </advc.106i>
++			iReplayLeader = self.infoList[i][11]
++			if iReplayLeader >= 0 and iReplayLeader < gc.getNumLeaderHeadInfos():
++				SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, "", gc.getLeaderHeadInfo(iReplayLeader).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iReplayLeader, 1, CvUtil.FONT_CENTER_JUSTIFY)
++			iColumn += 1
++			iReplayCiv = self.infoList[i][12]
++			if iReplayCiv >= 0 and iReplayCiv < gc.getNumCivilizationInfos():
++				SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, "", gc.getCivilizationInfo(iReplayCiv).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iReplayCiv, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			iColumn += 1
++			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][13], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			iColumn += 1
+ 			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][1], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			iColumn += 1
++			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][14], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			iColumn += 1
++			SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, self.infoList[i][15], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++			iColumn += 1
+ 			if self.infoList[i][2] >= 0:
+ 				SASTextScale.setTableIntLabel(screen, self.TABLE_ID, iColumn, i, u"%d" % self.infoList[i][2], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 			iColumn += 1
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index d4890a3e0..a20e4451a 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -1326,9 +1326,10 @@ class CvInfoScreen:
+ 			screen.appendTableRow(szTable)
+ 			iRow = screen.getTableNumRows(szTable) - 1
+ 
+-			# Leader/Civ icons: click opens diplomacy/contact context.
+-			SASTextScale.setTableTextLabel(screen, szTable, iColLeader, iRow, u"", gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
+-			SASTextScale.setTableTextLabel(screen, szTable, iColCiv, iRow, u"", gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			# <!-- custom: Score tab is a reference matrix, so leader/civ identity cells open Sevopedia
++			# instead of diplomacy; contact actions are already covered by the scoreboard and Foreign Advisor. (GPT-5.5) -->
++			SASTextScale.setTableTextLabel(screen, szTable, iColLeader, iRow, u"", gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), 1, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColCiv, iRow, u"", gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, pPlayer.getCivilizationType(), -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			szColor = self.SCORETAB_COLOR_MARKER
+ 			ePlayerColor = pPlayer.getPlayerColor()
+ 			if ePlayerColor > -1:
+@@ -1341,7 +1342,7 @@ class CvInfoScreen:
+ 			szName = pPlayer.getName()
+ 			if not bMet:
+ 				szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
+-			SASTextScale.setTableTextLabel(screen, szTable, iColName, iRow, szName, "", WidgetTypes.WIDGET_CONTACT_CIV, ePlayer, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			SASTextScale.setTableTextLabel(screen, szTable, iColName, iRow, szName, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), 1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			# <!-- custom: Score tab trait columns (T1/T2): trait icon chars for compact readability next to leader identity data. (GPT-5.3-Codex) -->
+ 			iTrait1 = -1
+ 			iTrait2 = -1
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 5dfa60acc..678e5a462 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -338,7 +338,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ ### UI (In-game)
+ 
+-- (Requires AdvCiv-SAS 5531+) **Beautified** and **expanded**, and add **support for text upscaling** for miscallenous **screens**: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**, add **icons** for buildings and units, add icon **chars for traits**; [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered)  is moderately **expanded** to **avoid scrolling**, vertically center screen (was slightly excentered); [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py) is **maximized to full screen** with enlarged columns; [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) is **maximized to full screen**; [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen) is **maximized to full screen** and has a **greatly expanded leader NIF** and **maximized vertically score table** to **avoid scrolling**. See [README.md (Miscallenous screens)](/README.md#miscallenous-screens)
++- (Requires AdvCiv-SAS 5531+) **Beautified** and **expanded**, and add **support for text upscaling** for miscallenous **screens**: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**, add **icons** for buildings and units, add icon **chars for traits**; [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered)  is moderately **expanded** to **avoid scrolling**, vertically center screen (was slightly excentered); [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py) is **maximized to full screen** with enlarged columns, and **new Leader, Civilization, Player Color, and Traits columns** with **icons** or **colors** or **chars** (based on Info Screen's Score tab: note that Civilization icon is approximative and will not work if Civilization name is not the base civ mod name (e.g. "The United States" -> "My American Custom Name Empire") (would add too much complexity in DLL for a working UI feature outside this edge case); note 2: trait info is indicative only (if traits in XML were different when the save file was made (e.g., expansive trait removed, leader trait allocation changed), this information will be lost)); [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) is **maximized to full screen**; [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen) is **maximized to full screen** and has a **greatly expanded leader NIF** and **maximized vertically score table** to **avoid scrolling**. See [README.md (Miscallenous screens)](/README.md#miscallenous-screens)
+ - (Requires AdvCiv-SAS 5517+) **Reorganized advisors**: **merged** the **espionage** screen into the **Foreign Advisor**, the **Economic Advisor's Finance Tab** into the **Domestic Advisor**, the **Economic Advisor's Environment Tab** into the **Info Screen**, the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now **tabs of these instead** (deleted the old now obsolete lone advisor .py files); **swap advisors**: **Victory screen** to F9 and **Info Screen** to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors; **split advisors**: the **Foreign Advisor** is now split into **Foreign Trade Advisor (F4)** (TREATIES, BONUSES, TECHS, CITIES), and **Foreign Diplomacy Advisor (F3)** (RELATIONS, GLANCE, INFO, ESPIONAGE) as it **was crowded** to reduce the need for **tab navigation** and for **clearer thematic differentiation**, using a shell (i.e. almost empty file for **linking only**) [CvForeignDiplomacyAdvisor.py](/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py) file for the 2nd advisor.
+ - (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text to match the advisors changes.
+ - (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-timeline-tab-in-the-info-screen-advisor)
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.984_hall_of_fame_screen.JPG b/_1_AdvCiv-SAS/Images/ui_other/0.984_hall_of_fame_screen.JPG
+index cad9e28c0..04e1e5ce9 100644
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.984_hall_of_fame_screen.JPG and b/_1_AdvCiv-SAS/Images/ui_other/0.984_hall_of_fame_screen.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=17325

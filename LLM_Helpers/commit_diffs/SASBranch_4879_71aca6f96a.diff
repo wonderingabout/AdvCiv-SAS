@@ -1,0 +1,684 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4879
+# Commit: 71aca6f96af18165e55cb62e10789ecce3b9573d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 632293eb54bf832cf683c84e973186b3c837fe6e
+# Title: add copyright information/doc anyways etc, add leader_ewuare 's music anyways etc (see copyright section for details anyways etc), update docs, add a few art...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/Music/Djole.mp3
+-	-	Assets/Art/AdvCiv_SAS/Units/Frigate/frigate.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Ship_Of_The_Line/sotl.dds
+4	2	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+92	0	Assets/XML/Audio/Audio2DScripts.xml
+28	0	Assets/XML/Audio/AudioDefines.xml
+2	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+10	10	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+2	2	Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+1	1	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+0	5	Copyright_notice.md
+0	7	Disclaimer_notice.md
+36	2	README.md
+35	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart_sample.JPG
+0	19	_1_AdvCiv-SAS/Music/Civs/Civs music credits.txt
+0	73	_1_AdvCiv-SAS/Music/Eras/Eras music listing-credits.txt
+0	2	_1_AdvCiv-SAS/Music/Game/Game music credits.txt
+0	7	_1_AdvCiv-SAS/Music/README.md
+0	21	_1_AdvCiv-SAS/Music/Sounds/Sounds_listing credits.txt
+ create mode 100644 Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/Music/Djole.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Frigate/frigate.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Ship_Of_The_Line/sotl.dds
+ delete mode 100644 Copyright_notice.md
+ delete mode 100644 Disclaimer_notice.md
+ delete mode 100644 _1_AdvCiv-SAS/Music/Civs/Civs music credits.txt
+ delete mode 100644 _1_AdvCiv-SAS/Music/Eras/Eras music listing-credits.txt
+ delete mode 100644 _1_AdvCiv-SAS/Music/Game/Game music credits.txt
+ delete mode 100644 _1_AdvCiv-SAS/Music/README.md
+ delete mode 100644 _1_AdvCiv-SAS/Music/Sounds/Sounds_listing credits.txt
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/Music/Djole.mp3 b/Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/Music/Djole.mp3
+new file mode 100644
+index 000000000..9ee037aa3
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/LeaderHeads/Ewuare/Music/Djole.mp3 differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Frigate/frigate.dds b/Assets/Art/AdvCiv_SAS/Units/Frigate/frigate.dds
+new file mode 100644
+index 000000000..c22429ee4
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Frigate/frigate.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Ship_Of_The_Line/sotl.dds b/Assets/Art/AdvCiv_SAS/Units/Ship_Of_The_Line/sotl.dds
+new file mode 100644
+index 000000000..dae71be3b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Ship_Of_The_Line/sotl.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 657aacb0f..6054fe85f 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -2455,9 +2455,10 @@
+ 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
+ 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
+ 		</UnitArtInfo>
++		<!-- custom: button art import from ri mod anyways etc -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_FRIGATE</Type>
+-			<Button>,Art/Interface/Buttons/Units/Frigate.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,9</Button>
++			<Button>Art/AdvCiv_SAS/Units/Frigate/frigate.dds</Button>
+ 			<!-- advc.002j: was 0.24 -->
+ 			<fScale>0.25</fScale>
+ 			<fInterfaceScale>0.5</fInterfaceScale>
+@@ -2495,9 +2496,10 @@
+ 			<SelectionSound>AS3D_UN_OCEAN_END1</SelectionSound>
+ 			<ActionSound>AS3D_UN_OCEAN_END1</ActionSound>
+ 		</UnitArtInfo>
++		<!-- custom: button art import from ri mod anyways etc -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_SHIP_OF_THE_LINE</Type>
+-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,12</Button>
++			<Button>Art/AdvCiv_SAS/Units/Ship_Of_The_Line/sotl.dds</Button>
+ 			<fScale>0.22</fScale>
+ 			<fInterfaceScale>0.5</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index b9f600521..cd6080e06 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -5721,6 +5721,98 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_DIPLO_EWUARE_EARLY</ScriptID>
++		<SoundID>DIPLO_EWUARE_EARLY</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>75</iMinVolume>
++		<iMaxVolume>75</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_DIPLO_EWUARE_MIDDLE</ScriptID>
++		<SoundID>DIPLO_EWUARE_MIDDLE</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>75</iMinVolume>
++		<iMaxVolume>75</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_DIPLO_EWUARE_LATE_INTRO</ScriptID>
++		<SoundID>DIPLO_EWUARE_LATE_INTRO</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>75</iMinVolume>
++		<iMaxVolume>75</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>0</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
++	<Script2DSound>
++		<ScriptID>AS2D_DIPLO_EWUARE_LATE_LP</ScriptID>
++		<SoundID>DIPLO_EWUARE_LATE_LP</SoundID>
++		<SoundType>GAME_MUSIC</SoundType>
++		<iMinVolume>75</iMinVolume>
++		<iMaxVolume>75</iMaxVolume>
++		<iPitchChangeDown>0</iPitchChangeDown>
++		<iPitchChangeUp>0</iPitchChangeUp>
++		<iMinLeftPan>-1</iMinLeftPan>
++		<iMaxLeftPan>-1</iMaxLeftPan>
++		<iMinRightPan>-1</iMinRightPan>
++		<iMaxRightPan>-1</iMaxRightPan>
++		<bLooping>1</bLooping>
++		<iMinTimeDelay>0</iMinTimeDelay>
++		<iMaxTimeDelay>0</iMaxTimeDelay>
++		<bTaperForSoundtracks>0</bTaperForSoundtracks>
++		<iLengthOfSound>0</iLengthOfSound>
++		<fMinDryLevel>1.0</fMinDryLevel>
++		<fMaxDryLevel>1.0</fMaxDryLevel>
++		<fMinWetLevel>0.0</fMinWetLevel>
++		<fMaxWetLevel>0.0</fMaxWetLevel>
++		<iNotPlayPercent>0</iNotPlayPercent>
++	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_DIPLO_CAESAR_EARLY</ScriptID>
+ 		<SoundID>DIPLO_CAESAR_EARLY</SoundID>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 149b0ea22..a93597448 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -1856,6 +1856,34 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
++		<SoundData>
++			<SoundID>DIPLO_EWUARE_EARLY</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>DIPLO_EWUARE_MIDDLE</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>DIPLO_EWUARE_LATE_INTRO</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>DIPLO_EWUARE_LATE_LP</SoundID>
++			<Filename>Art/AdvCiv_SAS/LeaderHeads/Ewuare/music/Djole</Filename>
++			<LoadType>STREAMED</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
+ 		<SoundData>
+ 			<SoundID>DIPLO_CAESAR_EARLY</SoundID>
+ 			<Filename>Sounds/Diplomacy/Caesar_Early</Filename>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index d0b6c1131..2cb397589 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -6843,10 +6843,11 @@
+ 			<BonusHappinessChanges/>
+ 			<BonusProductionModifiers/>
+ 			<UnitCombatFreeExperiences/>
++			<!-- custom: was 4 -->
+ 			<DomainFreeExperiences>
+ 				<DomainFreeExperience>
+ 					<DomainType>DOMAIN_SEA</DomainType>
+-					<iExperience>4</iExperience>
++					<iExperience>3</iExperience>
+ 				</DomainFreeExperience>
+ 			</DomainFreeExperiences>
+ 			<DomainProductionModifiers>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index a3ddd4bc2..21f21bf37 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -3876,45 +3876,45 @@
+ 			<DiplomacyIntroMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_LATE_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_LATE_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_INTRO</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_LATE_INTRO</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyIntroMusicPeace>
+ 			<DiplomacyMusicPeace>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_ANCIENT</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_CLASSICAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_EARLY</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_EARLY</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MEDIEVAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_RENAISSANCE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_MIDDLE</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_MIDDLE</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_INDUSTRIAL</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_LATE_LP</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_MODERN</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_LATE_LP</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 				<DiploMusicPeaceEra>
+ 					<EraType>ERA_FUTURE</EraType>
+-					<DiploScriptId>AS2D_DIPLO_CYRUS_LATE_LP</DiploScriptId>
++					<DiploScriptId>AS2D_DIPLO_EWUARE_LATE_LP</DiploScriptId>
+ 				</DiploMusicPeaceEra>
+ 			</DiplomacyMusicPeace>
+ 			<DiplomacyIntroMusicWar/>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+index a3a1bead4..d2334ed9c 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+@@ -166,7 +166,7 @@ hopefully more readable or exportable if need/want be now -->
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE</Tag>
+-		<English>Cannot move (outside cultural borders): units with TerrainImpassables or TerrainPassableTechs in their XML</English>
++		<English>Cannot move (outside of cultural borders): units with TerrainImpassables or TerrainPassableTechs in their XML</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK</Tag>
+@@ -174,7 +174,7 @@ hopefully more readable or exportable if need/want be now -->
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE</Tag>
+-		<English>Cannot move (outside cultural borders): units with FeatureImpassables or FeaturePassableTechs in their XML</English>
++		<English>Cannot move (outside of cultural borders): units with FeatureImpassables or FeaturePassableTechs in their XML</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE_ICE</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 41db4edf5..9704a3851 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -483,7 +483,7 @@
+ 
+ 
+ 
+-	<!-- custom: rename "_BESERKER" to "_VIKING" ; pedia entry based on https://rideandseek.com/who-were-the-norsemen/ (i found this entry very informative so although i am not 100% sure it is all correct it overlapped about a lot of things i read or noticed that may not be so known such as the vikings/norsemen discovering america way before christopher columbus allegedly as i assume was the case if i am not mistaken anyways etc ; and also the vikings title being a profession not an ethnicity/race/people but the word "norsemen" or "norse" i was familiar with finally made sense or more(so?) than it was anyways etc, the word danes too, and it mentions vinland saga :o:o:o if i am not mistaken too but anyways etc...) anyways etc and adjusted or/and formatted +/- corrected formatting if any or not or yes or etc but anyways etc for advciv-sas or not anyways etc -->
++	<!-- custom: rename "_BESERKER" to "_VIKING" ; pedia entry based on https://rideandseek.com/who-were-the-norsemen/ (i found this entry very informative so although i am not 100% sure it is all correct it overlapped about a lot of things i read or noticed that may not be so known such as the vikings/norsemen discovering america way before christopher columbus allegedly as i assume was the case if i am not mistaken anyways etc ; and also the vikings title being a profession not an ethnicity/race/people but the word "norsemen" or "norse" i was familiar with finally made sense or more(so?) than it was anyways etc, the word danes too but anyways etc...) anyways etc and adjusted or/and formatted +/- corrected formatting if any or not or yes or etc but anyways etc for advciv-sas or not anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_SCANDINAVIA_VIKING_PEDIA</Tag>
+ 		<English>[TAB]Who were the Norsemen?[PARAGRAPH:1]While all Vikings were considered Norsemen, not all Norsemen were Vikings[PARAGRAPH:1]This simple question requires a slightly complex explanation.[PARAGRAPH:1]A simple answer can be summed up in this way: The term 'Norsemen' indicates people who came from the Scandinavian countries, (modern-day Norway, Sweden, and Denmark). However, the Old Norse word 'Viking' is not so much a name of a people, but a verb, meaning to pirate, (to plunder, steal, rob via sea routes).[PARAGRAPH:1]While all Vikings were considered Norsemen, not all Norsemen were Vikings. However, the Vikings were a significant and influential subset of the Norsemen, who left a lasting impact on history through their exploration, trade, and conquests.[PARAGRAPH:1]The Norsemen were a North Germanic ethnolinguistic group of the Early Middle Ages, during which time they spoke the Old Norse language. During the late eighth century, many Scandinavians embarked on a large-scale expansion in all directions, giving rise to what is known as the 'Viking Age'. Norsemen set sail, (to go Viking).[PARAGRAPH:1]The word 'Viking' comes from the Scandinavian term 'vikingr' meaning 'pirate'. Contrary to a popular belief, the Norsemen did not constitute one unified nation back at that time. They were initially organised in small earldoms, each ruled by a local earl, (or jarl). The term 'Viking' does not, therefore, denote a population, or a particular race of people for that matter, but rather a profession; seafaring pirates.[PARAGRAPH:2]5 Things you might not know about the Norsemen[PARAGRAPH:1]1 - Skeletons from famous Viking burial sites in Scotland were actually local people who could have taken on Viking identities and were buried as Vikings. In a scientific paper published in Nature, (2020) scientists analysed more than 400 genomes from Viking burial sites. After DNA sequencing of more than 400 Viking skeletons, from archaeological sites scattered across Europe and Greenland, they found evidence for a major influx of Danish ancestry into England; a Swedish influx into the Baltic; and a Norwegian influx into Ireland, Iceland, and Greenland.[PARAGRAPH:1]2- Many Norsemen actually had brown hair, not blonde hair.[PARAGRAPH:1]3 - Norsemen identity was not limited to people with Scandinavian genetic ancestry. The study shows the genetic history of Scandinavia was influenced by foreign genes from Asia and Southern Europe before the Viking Age.[PARAGRAPH:1]4- Who is the most famous Norseman? The name most associated with the Viking attacks and raids on the British Isles is that of Ragnar Lothbrok, (sometimes also written as 'Lodbrok'), who has gone down in history as a fearless leader and unstoppable warrior.[PARAGRAPH:1]5- The genetic legacy of the Viking Age lives on today, with 6% of people in the UK population predicted to have Viking DNA in their genes, compared to 10% in Sweden.[PARAGRAPH:2]'To go a Viking'[PARAGRAPH:1]To go a Viking meant that a Norseman would set sail on a body of water, (from open seas and oceans, to rivers and even lakes) in search of new, fertile lands to farm and subsequently permanently settle on, as well as trade with the neighbouring civilisations and cultures, ensuring social, political and economic links overseas.[PARAGRAPH:1]The term 'Norse' generally refers to Norsemen, from the north of Scandinavia. They were full-time traders and accomplished seafarers. Norsemen settled in the islands north and northwest of Britain, Ireland, and western Britain, whereas the Danish 'Vikings', principally invaded and occupied eastern Britain. These Danes were not actually farmers but were part-time warriors, led by people of noble birth. They had a reputation for being more violent and ruthless than the Norsemen, (or Northmen) from the far north.[PARAGRAPH:1]The majority of Norsemen were farmers, craftsmen, and traders who did not engage in seafaring raids. They were more interested in peaceful trade with other nations.[PARAGRAPH:1]Modern descendants of Norsemen are the Icelanders, Faroe Islanders, Norwegians, and Swedes, who are now generally referred to as 'Scandinavians' rather than Norsemen.[PARAGRAPH:2]The Vikings[PARAGRAPH:1]The Viking Age generally refers to the period from A.D. 800, a few years after the earliest recorded raid, until the 1050s, a few years before the Norman Conquest of England in 1066. The Vikings changed the political and genetic course of Europe and beyond. Cnut the Great became the King of England. Leif Eriksson is believed to have been the first European to reach North America, 500 years before Christopher Columbus.[PARAGRAPH:1]However, the British conception of the 'Vikings' origins was inaccurate. Those who plundered much of Britain actually sailed from the land which is known as Denmark today. The border between the northern Norse regions and the more southerly Germanic tribes, the Danevirke, is located around the current border between Denmark and Germany.[PARAGRAPH:1]Most of the earliest Viking settlers in Ireland were Norsemen, but circa 850 AD, a large Danish contingent arrived. In 875 AD, Danes and Norsemen were competing for control of Scotland. Antagonism between Danes and Norsemen reached a peak in the mid-tenth century, as they battled over control of York.[PARAGRAPH:2]Norse mythology[PARAGRAPH:1]Norse mythology consists of tales of various deities, beings, and heroes derived from numerous sources, (from both before and after the pagan period). The source texts mention numerous gods such as the thunder-god Thor, the raven-flanked god Odin, the goddess Freyja, and numerous other deities. The cosmos in Norse mythology consists of Nine Worlds that flank a central sacred tree, Yggdrasil.[PARAGRAPH:1]The afterlife is a complex matter in Norse mythology. The dead may go to the murky realm of 'Hel', a realm ruled over by a female being of the same name, or they may be ferried away by valkyries to Odin's martial hall 'Valhalla', or they may be chosen by the goddess Freyja, to dwell in her field 'F�lkvangr' forevermore. The goddess R�n may claim those that die at sea.[PARAGRAPH:2]Source: https://rideandseek.com/who-were-the-norsemen/</English>
+
+diff --git a/Copyright_notice.md b/Copyright_notice.md
+deleted file mode 100644
+index a6a13f3f8..000000000
+--- a/Copyright_notice.md
++++ /dev/null
+@@ -1,5 +0,0 @@
+-todo
+-
+-music links
+-
+-and note that i hope you enjoy the game though and is to protect myself also and that i don't necessarily find it too sensical (opposite of nonsensical, if that makes sense...anyways...)
+
+diff --git a/Disclaimer_notice.md b/Disclaimer_notice.md
+deleted file mode 100644
+index 83f064af1..000000000
+--- a/Disclaimer_notice.md
++++ /dev/null
+@@ -1,7 +0,0 @@
+-todo
+-
+-(note: todo add disclaimer i don't condone jihad and may not be held responsible as such)
+-
+-(note: disclaimer i don't condone zionism add disclaimer note, and will not be held responsible as such, add disclaimer page todo maybe too and copyright notice page bout music or other assets images or/and others links etc)
+-
+-note also about any other non mentionned thing mentionned general disclaimer too etc that it's for entertainment purposes or/and some other generic type of sentence
+
+diff --git a/README.md b/README.md
+index a47fe26f9..91447dd4c 100644
+--- a/README.md
++++ b/README.md
+@@ -61,7 +61,7 @@ As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for detail
+ 
+ Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" alt="0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" alt="0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart_sample.JPG" alt="0.63_sevopedia_unit_chart_sample.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG" alt="0.700_sevopedia_terrains_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
+@@ -246,6 +246,39 @@ Non-exhaustive, see docs for details, which includes but not only [README_Known_
+ - non-English translations: too tedious to translate them all, plus i'm fine with English being the only language in the game, hopefully fine or not too bad this way but anyways etc...
+ - CustomDomAdv, which according to the txt inside it seems to relate to "only settings for the mod components Advanced Unit Naming and Customizable Domestic Advisor (both disabled by default through the BUG menu)" (see [/Settings/About%20this%20folder.txt](/Settings/About%20this%20folder.txt)). Since i don't use it, and is similarly like the translations a bit if not lot tedious or/and complicated anyways etc to maintain furthermore anyways etc, then i am anyways etc not supporting it in AdvCiv-SAS, see also [/Settings/About%20this%20folder%20(AdvCiv-SAS).txt](/Settings/About%20this%20folder%20(AdvCiv-SAS).txt) for details if any more are in this file anyways etc. See this [google drive folder link](https://drive.google.com/drive/folders/1cINn930Hma2cEN6g_v2obiAQh9pMlnrQ?usp=sharing) for example of what this does according to chatgpt if i am not mistaken anyways etc.
+ 
++## Copyright and Disclaimer
++
++The bit annoying/painful section, but in short this is a fan project that i hope is enjoyable, however to cover myself xd and to be exhaustive too, here is a (more but anyways etc) proper copyright section/warning written by chatgpt thanks to my prompt / at my request too anyways etc that i adjusted or not for formatting or/and small corrections or modifications for my needs/wants but anyways etc:
++
++>This mod for Sid Meier’s Civilization IV: Beyond the Sword is a fan-made, non-commercial project created for entertainment and educational purposes only.
++>All original content, code, and designs created specifically for this mod are released as part of the mod under applicable open or fair-use terms, unless otherwise noted.
++>
++>Civilization IV, its assets, source code, and all related trademarks are the property of Firaxis Games and 2K Games. This mod is not affiliated with, endorsed by, or supported by Firaxis or 2K.
++>
++>This mod may include assets (e.g., music, images, or code) created by third parties. These are provided in good faith and for non-commercial, educational, or artistic purposes within the spirit of modding culture.
++>
++>We make no guarantees about functionality, compatibility, or fitness for any particular purpose. The authors of this mod are not liable for any damage, data loss, or issues arising from its use.
++>
++>This mod may contain or build upon assets that are either:
++>
++>Licensed under open/modding-friendly terms (GPL, Creative Commons, permissive mod licenses, etc.)
++>
++>Included under fair use or community modding conventions
++>
++>Used without explicit license only for non-commercial artistic demonstration (see below)
++>
++>If you are the creator or rights holder of any included material and would like attribution, correction, or removal, please contact us.
++>
++>Included External Assets (possibly copyrighted):
++>
++>- Djolé (Steve Millington) – traditional West African rhythm, arranged by Millington. Included as part of cultural music flavor. ([youtube link of it for example](https://www.youtube.com/watch?v=EumDztneigo&list=OLAK5uy_mUHAcnmo80mOVT-qh0Iil2TX_z-_qqe_E&index=4))
++>
++>Used for educational and entertainment purposes only.
++
++Note: to know where media files (such as music or videos) might have come from or not, please visit modding_ressources in this git sections, not directly mentioning how due to copyright reasons, but providing examples of how i could have done so or may have not done so, after asking chatgpt this seems safer to state as so while trying to provide general information that may be helpful or not or yes but anyways etc, and i adjusted it bit too based on its feedback suggestion, hopefully helpful or not or yes or etc but anyways etc.
++
++For mods we took from, i mention them in more detail, hopefully exhaustive but i may have forgotten one or 2 or more or not if i didn't notice but anyways etc, in [README.md#credits](/README.md#credits)
++
+ ## Credits
+ 
+ - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my exchanges/experiences during these times
+@@ -282,6 +315,7 @@ it too though unless i'm mistaken)
+ - WizTree (very useful (and reliable and effective) to find the files i want when i want, for example (to) find all the "taois" entries(i.e. files)in the entire full civ4 folder (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1JW3IBenpJxP4ZIVrTb99huR0-Js9HPrt?usp=sharing)), very useful, thanks a lot!!! Anyways etc)
+ - CopyAsPath that i may also call for example "copy as path" or and other name or and not anyways etc, a small menu extension i made myself hehe but only from copying intructions and importing an existing .reg file from another palce (from [www.winhelponline.com](www.winhelponline.com) to be exhaustive and/or accurate hehe or not hehe or yes hehe or not or and other or and not anyways etc anyways etc anyways etc), in short i only compiled existing files and instructions hehe, anyways etc, read there for details also, and is also in, anyways etc, in [copy_as_path_context_menu (github repo link)](https://github.com/wonderingabout/copy_as_path_context_menu)
+ - VS Code (so useful for so many things and so very nice, very rarely (does) bug or something but mostly very great anyways etc, especially for the global search feature, very useful, (except partly) when it does not desynchronize folders before git commits, for example but not only but anyways etc anyways etc also to do a global search about advciv id changes, see [Modding_Ressources/README.md#advciv-id-changes-manualtxt-results](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results) for details or maybe rather example and (my) explanation of it but anyways etc
++- Visual C++ 2010 Express, to compile the DLL i want/require it after some mod changes i made in .cpp or such files but anyways etc, todo write a tutorial (may or not do so not guaranteed ideally yes but may or not but anyways etc) but anyways etc (is free, just requires after trial a free registration if i am not mistaken todo)
+ - Git Bash for Windows
+ - GitHub Website
+ - GitHub gist works even better that what is in the following brackets (otherwise as a secondary alternative maybe pastes.io, so great and soooo much better than pastebin on all leevls at least those that matter to me if not more anyways gogogo!!!)
+@@ -294,10 +328,10 @@ it too though unless i'm mistaken)
+ - Dragon UnPACKer to view inside .fpk files and do operations such as file search or/and such if there operations (i didn't check so i don't know too anyways etc), for example finding all "tao" (search) assests in a base civ4 .fpk [(Google Drive preview example here)](https://drive.google.com/drive/folders/1lFqJ0LLa03a0oDTrJO9ahYigY6yjesTj?usp=sharing) (thanks a lot too anyways etc!! :) gogo anyways etc, useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
+ - PakBuild, very useful to unpack fpks where it is more convenient to manipulate files directly for modding anyways etc, especially for mods like realism invictus ("for example anyways etc" anyways etc) anyways etc where there are many sub fpks and the assets are spread across several fpks sometimes, easier to extract all fpks in one folder and access files directly, see this [google drive folder example for details](https://drive.google.com/drive/folders/1cvNRH86cSrsaagsqlvoNRxjFAeHQfX0H?usp=sharing) (note: should not be necessary if your/the mod only has a few fpks but as you prefer, but if the mod has a few dozen fpks like ri mod for example as said before anyways etc, it would save a lot of time if you often import their assets to unpack/merge them all in one folder the access directly with wiztree anyways etc) (note: i found to "just" / "only" anyways etc even though takes bit times but saves lot later and pain/heart-/brainache but anyways etc... hopefully helps but anyways etc, that indeed just the "structures" and "interface" fpks unpack(ed but anyways etc) are enough for my needs at least now no need to unpack all may or not later if need but anyways etc anyways etc anyways etc hopefully helps/is helpful but anyways etc..., note 2: be careful if unpacking all fpks in same folder may create erros/issues/missing files, see link above in this paragraph/bullet point i mean for details anyways etc anyways etc)
+ - NifSkope to read .nif files if need(ed) (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1StBDHqJ6LfOf8yxFuRxfkYUuKu6QgZz2?usp=drive_link)) helps too even though some people seem to say it's not too good if i am not mistaken but seems to do the trick i.e. or/and maybe rather be helpful for civ4 at least advciv-sas, for example anyways etc viewing the HR mod's baal(ism) (Generic found i assume for many other religions) religion .nif file which if i am not mistaken is the religion's movie file as said in description if i understand it bit or lot or both or not or and other or and not anyways etc correctly or not or yes or and other or and not anyways etc)(anyways etc), or the civ4's tao/dao ism one anyways etc or also the HR mod's asatru (viking (/scandiavian?) one for example for comparison that is quite characteristic and helps understand how it works (image seems frozen but maybe is intended this way and works as is maybe (not guaranteed but anyways etc) or the very pretty :o but anyways etc pesdejet found, or the shamanism one that we finally choose for paganism anyways etc after consideration of all or most of these or and other ones or and not anyways etc anyways etc anyways etc
+-- Visual C++ 2010 Express (is free, just requires after trial a free registration if i am not mistaken todo): works great to compile the DLL i want/require it after some mod changes
+ - [Diffchecker website](https://www.diffchecker.com/), seems to work extremely well at spotting differences even in quite long texts and nice display and all, for example useful when for example trying to investiage why the git(hub) diff was different ([not visible in the github preview in website in this linked commit's diff (it seems but anyways etc anyways etc) for example('s url anyways etc)](https://github.com/wonderingabout/AdvCiv-SAS/commit/277746f4154a2424d763d9cc385d6a6bc8ef92bc?diff=split#diff-55db1d87967dd9a8a331adbb123e77ea20972a1b5ac44c8114c9f4d3ae24071eR39)) anyways etc, but can quickly see where and why with diffchecker (see [Google Drive preview examples here](https://drive.google.com/drive/folders/10vaaNidNwt2a2B-1EZa9SEGxYEOYhTxX?usp=sharing)) website where and why the difference(s) are, based on which (i.e. from this (info) anyways etc) i could assess i don't need to reupload the screenshot after i had automatically fixed with global (quite careful maybe(and in current doc only in vs code anyways etc)) replace the paganism religion description that is quite deep nested as in far in the text so not visible in our first screenshot anyway if i may say but anyways etc, is also a bit faster that doing a manual diff on vs code unless i don't know how, or maybe could have some other uses or and not anyways etc, thanks a lot, anyways etc, thanks, i like it very much, and still love vs code, as in continuously hehe at least as of now, as for future whatever happens or maybe not or yes but anyways etc anyways etc, in all cases anyways etc, for diffchecker website to go back to it more specifically anyways etc anyways etc, thanks,
+ - Wikipedia, a lot of very amazing, informative, quite if not lot and very accurate and neutral but just a bit and enough opiniated, and very exhaustive and all, thanks a big big lot! For making wikipedia and all and letting me and others or not but at least for me use it, good if helps others or maybe not or yes or both or not or and other or maybe yes or not or other anyways speaking about me etc thanks anyways anyways etc, thanks,
+ - Quillbot (a quite accurate and convenient to use i think but anyways web translator using AI, i used the free version), for example: [translation of "the people of benin" with Quillbot](https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin) (did not use this example in AdvCiv-SAS, is just to illustrate, hopefully helpful, anyways)
++- yt-dlp (see copyright section in the main README.md at [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer) and see also the modding_ressources general yt-dlp information for details anyways etc at [Modding_Ressources/README.md#download-media-assets-for-example-on-youtube](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube))
+ 
+ ## Starting your mod
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index b16df201d..412eb90e4 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -2,7 +2,7 @@
+ 
+ This is a non-exhaustive page containing some ressources i found helpful.
+ 
+-## Disclaimer and general information
++## Modding disclaimer and general information
+ 
+ I don't know a lot about XML, C++, or Python, and (only) got familiar with these languages recently as i started developping for Civ4 this AdvCiv-SAS mod.
+ 
+@@ -26,6 +26,40 @@ To get the id from the url, what i did and that works as of now anyways etc is t
+ 
+ Was not easy to find how at least to me anyways etc so i am glad i found how anyways etc and so i mean anyways etc i hope these instructions help i mean at least as of now, anyways etc anyways etc anyways etc.
+ 
++### Download media assets for example on youtube
++
++Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions, hopefulyl helpful but i have to cover myself xd too i mean if i may say but anyways etc.
++
++Moving forward, i found this very nice reddit post if i may say but anyways etc on [how to download youtube videos](https://www.reddit.com/r/youtubedl/wiki/howdoidownloadpartsofavideo/) with yt-dlp, i also found this very nice reddit post too i mean very helpful but anyways etc on [how to download any media file from youtube to mp3 using yt-dlp](https://www.reddit.com/r/youtubedl/comments/130i9og/ytdlp_how_to_automatically_convert_all_audio/)
++
++In case the information of this second link disappears soemday, here is a copy of it anyways etc:
++
++>What I actually ended up doing was adding this to the configuration file:
++>
++>--audio-format mp3 --embed-thumbnail --add-metadata
++
++Thanks for help if i may say but anyways etc thanks anyways etc...
++
++Here is now if i may say but anyways etc (I like this theatrical performance of an announcer i am performing xd and very excited to do so in my mind but anyways etc...) an example of how to download one, for an audio asset for example here anyways etc ! (, but anyways etc) As if i'm not mistaken civ4 expects .mp3 files of a music without copyright claim on it, or "royalty free music" as it seems they call it anyways etc (note: to be honest i think it's kinda shit (the music i mean but anyways etc) but it is helpful and maybe not too bad, but thanks for that anyways etc), for/to download(ing/ but anyways etc...) the entire media file as mp3 in this case if i'm not mistaken anyways etc.
++
++But while writing this, it now played this veyr nice or cool/relaxing soft if as they say if i may say too in this case but anyways etc or not or etc but anyways etc, from [this youtube playlist](https://www.youtube.com/watch?v=MM2-z8inpY8&list=PLfP6i5T0-DkLlj5LDluZcpP9n6YlATpSG&index=3) for example but anyways etc ; also adding what i know of yt-dlp or not or yes but anyways etc such as using `-x`
++
++(note: personally i also removed the thumbnail as it makes file needlessly heavier, plus may cause bugs or not (untested but maybe or maybe not), also i prefer it more abstract i think? Not sure but is as it is, enable thumbnail if you want but anyways etc)
++
++```bash
++yt-dlp -x https://www.youtube.com/watch?v=MM2-z8inpY8 --audio-format mp3 --add-metadata
++```
++
++Please note that it is also possible to set a start time and end time, like i mean you don't have to have the whole file but say from 00:30 to 00:55 section/part of the media file if you want, see the first reddit link in this readme.md section (but anyways etc...) for details if i'm not mistaken and still available, but anyways etc...
++
++### add media assets
++
++Disclaimer/note: for copyright disclaimer and such, please read this first [/README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer). Note also it is up to you to download or/and use copyright-safe or not assets in your mod or other places, at least it is your responsibility to do so, these are only provided as general instructions, hopefulyl helpful but i have to cover myself xd too i mean if i may say but anyways etc.
++
++To add music to a leader in advciv-sas for example (i assume would be the same or very similar in an advciv or civ4 based mod too if i am not mistaken and if i may say too but anyways etc anyways etc anyways etc), do a vs code global search for example of "ewuare_" (new leader we added in advciv-sas for the kingdom of benin anyways etc) and see in audio xml files (and also a bit in leaderhead too if you track where the corresponding assets such as for example "DIPLO_EWUARE_EARLY" lead to in the leader head info xml file too but anyways etc for an example of how we added his music anyways etc.
++
++Note: be very careful!(!!! but anyways etc anyways etc anyways etc) Need to remove the `.mp3` in filename else file is unreadable anyways etc!!!
++
+ ### write git commit message gradually as you do changes before committing them, and keep notes of ideas anyways etc
+ 
+ I have noticed while developing this advciv-sas mod at some point it is is so helpful to write bit by bit and gradually the commit message rather than do all changes then try to guess/remember which. Not necessarily listing all changes, but the main ones or most relevant or important ones in importance i mean (redundant to say important importance but anyways etc) as bullet points or such as you prefer anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG
+index 53f08bcb9..1f447a69e 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG
+index 3cb134857..4a7cf9375 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart_sample.JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart_sample.JPG
+index 8641a8fdc..0380e7a05 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart_sample.JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Music/Civs/Civs music credits.txt b/_1_AdvCiv-SAS/Music/Civs/Civs music credits.txt
+deleted file mode 100644
+index b129bd9f5..000000000
+--- a/_1_AdvCiv-SAS/Music/Civs/Civs music credits.txt	
++++ /dev/null
+@@ -1,19 +0,0 @@
+-leader themes in:
+-https://www.youtube.com/watch?v=sBauAJZUaEI&list=PL83AA8F8892604860
+-
+-1 - Kingdom Of Benin Diplomacy Theme:
+-_African Voices [YtrouhSprzA] cut at 2:30
+-
+-2 - Hebrew / Jewish Civilization:
+-(or about below link anyways etc find more or alternative hre for example? Anyways etc: https://www.youtube.com/watch?v=Cf6KM7UY8Zw&list=PLeOi6stLREIgXKZVd4kBQbTBtJbkDhpS3)
+-Lukas Termena – MOSES (Flute Session 🔴 Live at The Resonant Path)? (https://www.youtube.com/watch?v=yLR3wQVTrm0)
+-Psalm 103 - Ancient Hebrew - Sarah Liberman - God of Miracles Album - Barchi Nafshi - Official Video? But this is a song and i thought more like background music rather only and quite soft of light one maybe whatever that means or not or yes or not or and other or and not anyways etc anyways etc anyways etc https://www.youtube.com/watch?v=oW7kQyQbOhI&list=PLeOi6stLREIgXKZVd4kBQbTBtJbkDhpS3&index=3
+-more like this maybe? https://www.youtube.com/watch?v=Qa2tJIDPd4Y&list=PLRtESGx5wwJqg8-SEAogpC4ctn2uUl3qS Anyways etc anyways etc anyways etc
+-Kinder Yoren Medley - The Soul of the Jewish Violin - Jewish Music example https://www.youtube.com/watch?v=Qa2tJIDPd4Y
+-Shma Israel - The Soul of the Jewish Violin - Jewish Music https://www.youtube.com/watch?v=YBGRIbD4TrE&list=PLRtESGx5wwJqg8-SEAogpC4ctn2uUl3qS&index=2
+-but there is only violin, i want somethign else (too) anyways etc anyways etc anyways etc... to be continued maybe or not or yes or and other or and not anyways etc...
+-Mashi'ach - The Soul Of The Chassidic Violin - Jewish Music so cooooool hehe i so like it, but to be continued if be put or not in our mod or not anwyays etc to be continued or not https://www.youtube.com/watch?v=X9MeHytX3g4&list=PLRtESGx5wwJqg8-SEAogpC4ctn2uUl3qS&index=23
+-so sweeeeeeeeeeeeeeeet https://www.youtube.com/watch?v=x35QAD3jweQ&list=PLRtESGx5wwJqg8-SEAogpC4ctn2uUl3qS&index=34 but anyways etc anyways etc anyways etc and relaaaaaaaaaaxing, to be continued or not or yes anyways etc... (but a bit striding sound if it is a word, a bit too piercing maybe reduce sound a bit if we impelemnt this but otherwise cool but tno sure ornt or eys or and other or and not anways etc)
+- - China
+-
+- - The USA
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Music/Eras/Eras music listing-credits.txt b/_1_AdvCiv-SAS/Music/Eras/Eras music listing-credits.txt
+deleted file mode 100644
+index d79870918..000000000
+--- a/_1_AdvCiv-SAS/Music/Eras/Eras music listing-credits.txt	
++++ /dev/null
+@@ -1,73 +0,0 @@
+-Downloaded thanks to yt-dlp
+-
+-Prehistoric Age
+-
+-Prehistoric Age 1 - Ancient Music – Cavemen [j5xo5yGX3UY] 
+-
+-
+-
+-Stone Age 
+-
+-1 - Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg]
+-2 - Stone Age 2 - African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa [YtrouhSprzA] from 2:30 to 7:44
+-2 - Stone Age 3 - African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa [YtrouhSprzA] from 7:43 to 10:22 (fade a few seconds sooner)  
+-3 - Stone Age 4 (Ampiorum!!) - African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa [YtrouhSprzA] from 27:59 to 29:23 (fade a few seconds sooner)
+-4 - Stone Age 5 - African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa [YtrouhSprzA] from 32:40 to 35:56 (fade a few seconds sooner)
+-
+-
+-
+-Bronze Age
+-
+-Bronze Age 1 - PHARAOH ｜ Deep Ancient Egyptian Music ｜ Middle Eastern Background Music ｜ Beautiful Duduk & Darbuka [1rSStqL267c] (cut around 7:02 few seconds sooner with fade time)
+-(but need to cut it a bit shorten it)
+-Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs] (cut from 0:14 to the end)
+-Bronze Age 3 - African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa [YtrouhSprzA] from 21:02 to 24:15 (fade time a few seconds sooner), but apparently this is the original album or link or source or one of the sources or closer to the (real?) source or and other anyways etc?, so i can link to this rather, and files are already split which is very nice too anyways etc, with file names too which is nice too but anyways etc anyways etc anyways etc...;:
+-
+-
+-
+-Iron Age
+-
+-Many ancient arab musics from here (this playlist): https://www.youtube.com/watch?v=GnoG-MveIRI&list=PLy_Q-5e78AnwwFIjwYiDNdPS4BXsBSCkq, the ones i chose among the few or not few i saw/heard bit or lot were etc anyways:
+-Iron Age 1 - Ancient Arabic Music - Arabian Merchants https://www.youtube.com/watch?v=GnoG-MveIRI
+-
+-
+-
+-Medieval Era
+-
+-Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].
+-Medieval Era 2 - Alf Leila We Leila Live https://www.youtube.com/watch?v=fSlaxm4X1mg (but perhaps cut it somehwere around half with fade time or a bit later or sooner but mayeb around a (quite a if not bit lot more etc anyways or not anyways etc) bit after half etc)
+-
+-
+-
+-Renaissance Era
+-
+-Some classical music? But i would want from all eras, and not
+-necessarily the too famous ones, also not necessary to change all
+-musics maybe will see (but remove those i dislike maybe to allow
+-myself to be a bit nasty anyways)
+-
+-
+-
+-Atomic Era
+-
+-Some arabian modern/old music like (in): https://www.youtube.com/watch?v=p8geoEgdrr0&list=PLBC6VaSdMX2C38djUQHHwwcLogKmdJ0P0
+-Atomic Era 1 - Abdel Halim Hafez - Ala Hesb Wedad | عبد الحليم حافظ - على حسب وداد قلبى https://www.youtube.com/watch?v=p8geoEgdrr0
+-
+-
+-
+-Modern Era
+-
+-Modern Era 1 - 드래곤볼GT OP DAN DAN MV (DRAGON BALL GT/ドラゴンボール GT) - 원작스토리 순서 https://www.youtube.com/watch?v=uC8sc0cQa9M (maybe cut a bit after end or maybe ratehr before end etc anyways etc)
+-
+-
+-
+-Robotic Era
+-
+-I want some dystopian/depressive/sad(not necessarily depressive type) music here, but not only,
+-some may be copyrighted, hopefully they (authors) would not mind ideally, anyways,
+-Robotic Era 1 - A Girl's Melancholy | Speed Grapher OST https://www.youtube.com/watch?v=iGgnq1Lv2BY
+-Robotic Era 2 - Bitter Victory | Speed Grapher OST https://www.youtube.com/watch?v=pVaC3AinQY0
+-Robotic Era 3 - Sorrow | Speed Grapher OST https://www.youtube.com/watch?v=gpQA0HFAldg
+-Robotic Era 4 - Fyze - Alone https://www.youtube.com/watch?v=OPJPmuf1twU
+-Robotic Era 5 - some music(s) from this: Castlevania: Symphony of the Night Lofi Beats to Relax and Slay Vampires To https://www.youtube.com/watch?v=99eWlqTxecY (perhaps until 13:46 or half of it or/and split in 2 halfs? Etc, or cut crystal teardrops a bit sooner with fade time? Etc, or perhaps all of it in halfs maybe etc, or all of it in one go? Etc)
+-Robotic Era 6 - Best Nier Replicant / Automata Chill - Lo-Fi mix? https://www.youtube.com/watch?v=ISU-HaEHUX8 (part or all but most likely only a bit of it? Suits robotic theme and music sonority or/and such is calm relaxing and deep as i would want anyways(, but perhaps a bit too broad or common? But is different enough anyways(so maybe (only?) a few of these? Or many?)), perhaps the first 2 until 7:28 approx maybe etc)
+
+diff --git a/_1_AdvCiv-SAS/Music/Game/Game music credits.txt b/_1_AdvCiv-SAS/Music/Game/Game music credits.txt
+deleted file mode 100644
+index 89555856b..000000000
+--- a/_1_AdvCiv-SAS/Music/Game/Game music credits.txt	
++++ /dev/null
+@@ -1,2 +0,0 @@
+-Main Menu:
+-African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa from 15:50 to 21:02
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Music/README.md b/_1_AdvCiv-SAS/Music/README.md
+deleted file mode 100644
+index 5d0809336..000000000
+--- a/_1_AdvCiv-SAS/Music/README.md
++++ /dev/null
+@@ -1,7 +0,0 @@
+-# Music
+-
+-todo add [copyright notice and write it etc](/Copyright_notice.md)
+-
+-todo write this page content/info etc
+-
+-You can find music files in [the AdvCiv-SAS Music Google Drive](https://drive.google.com/drive/folders/1GKiTgKYBTOqFE1EGNF78IvApIXG5sHlF?usp=sharing)
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Music/Sounds/Sounds_listing credits.txt b/_1_AdvCiv-SAS/Music/Sounds/Sounds_listing credits.txt
+deleted file mode 100644
+index 3ebc0e31c..000000000
+--- a/_1_AdvCiv-SAS/Music/Sounds/Sounds_listing credits.txt	
++++ /dev/null
+@@ -1,21 +0,0 @@
+-promotions up:
+-- medic/march: harp https://www.youtube.com/watch?v=-wpL091Z7K0
+-- naval: ship bell https://www.youtube.com/watch?v=nBlOblwqce4 or ship bell 2 https://www.youtube.com/watch?v=vvMK6ThY1Ss (cut at last sound until end) or/and fog horn https://www.youtube.com/shorts/vkh6kLnMGsA
+-- siege promo up: boom/explosion soft sound https://www.youtube.com/watch?v=UUU8w5cV0xQ
+-- mounted horse a bit loud https://www.youtube.com/watch?v=8H299dMuZ8M or/and gallop https://www.youtube.com/shorts/gd6XuhYbv1g or whispering https://www.youtube.com/watch?v=69L9NMP47CU
+-- archer sound effect https://www.youtube.com/watch?v=fWGdG_NL0cU
+-- air sound effect https://www.youtube.com/shorts/NDqoTQcP0I8
+-- helicopter https://www.youtube.com/watch?v=QlGzLhnwJX4
+--sword: https://www.youtube.com/watch?v=E8Ced6hW45k
+-- crossbow (but neeed edit it to remove first hit sound): https://www.youtube.com/watch?v=cP6OKIUtzVE
+-- spear: https://www.youtube.com/watch?v=meRwEzTTneI
+-- axe: https://www.youtube.com/watch?v=AGYu1za41hk
+-- mace: https://www.youtube.com/watch?v=Ea_oSCknnoA
+-- camel: https://www.youtube.com/shorts/fh41rEfVfDA
+-- elephant: https://www.youtube.com/watch?v=Y1Y47Rz9r40
+-- gun (single shot maybe or multi): https://www.youtube.com/watch?v=L44qI6vPJaw
+-- gun bomber https://www.youtube.com/watch?v=cyIMrDRki4c
+-- gun sniper https://www.youtube.com/shorts/ff-rtjpmNBU
+-- explorer: default or some other sound?
+-
+-- allahu akbar sound effect (Allahu Akbar (Used as Meme Sound) - Sound Effect for Editing): https://www.youtube.com/watch?v=DsbuNRIZ0GY or/and Allahu Akbar With Explosion Sound Effect https://www.youtube.com/watch?v=CwONPfI1JIc
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=22 omittedFiles=0 embeddedPatchBytes=53304

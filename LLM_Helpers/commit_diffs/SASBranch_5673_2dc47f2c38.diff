@@ -1,0 +1,1033 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5673
+# Commit: 2dc47f2c381d34e334753b690ddd269358b749ef
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b0e2758dc4c1756fb0ef779a010af4934a58cdd2
+# Title: generalize Sevopedia Expanded Text panels; refactor missing in previous commit:
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+22	10	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+22	8	Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+22	17	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+21	13	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+21	8	Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+20	3	Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+22	8	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+22	7	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+24	7	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+5	5	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+20	3	Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+20	3	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+25	8	Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+22	12	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+22	8	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+21	6	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+2	4	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+15	3	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index c7a4dcd60..1b888d0b6 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -36,6 +36,7 @@ class SevoPediaBonus:
+ 
+ 	def __init__(self, main):
+ 		self.iBonus = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+ 		self.MEDIUM_MARGIN = 15
+@@ -134,8 +135,6 @@ class SevoPediaBonus:
+ 		self.W_FEATURE_TERRAIN_BOOLEANS = self.W_FEATURES
+ 		self.H_FEATURE_TERRAIN_BOOLEANS = self.H_IMPROVEMENTS
+ 
+-		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+-
+ 		self.X_HISTORY = self.X_BONUS_ANIMATION
+ 		self.Y_HISTORY = self.Y_FEATURES + self.H_FEATURES + self.SMALL_MARGIN
+ 		self.W_HISTORY = self.W_BONUS_ANIMATION
+@@ -144,6 +143,8 @@ class SevoPediaBonus:
+ 
+ 
+ 	def interfaceScreen(self, iBonus):
++		if self.iBonus != iBonus:
++			self.bHistoryExpanded = False
+ 		self.iBonus = iBonus
+ 
+ 		# <!-- custom: Move the panel position, so that it starts from a lower point in the screen.
+@@ -627,16 +628,27 @@ class SevoPediaBonus:
+ 
+ 
+ 
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.attachLabel(panelName, "", "  ")
+-		textName = self.top.getNextWidgetName()
+-		# <!-- custom: reduce padding to match how it was changed in the other categories -->
+-		# <!-- custom: i also don't think we need casting (30), so keeping it as the more simple 30 after testing (no casting), seems to run fine so leaving as is, not that it was an error i think per say but i don't know, but weird so "fixed" it even though it was not an "error" i think, just redudant maybe. -->
+-		#screen.addMultilineText( textName, gc.getBonusInfo(self.iBonus).getCivilopedia(), self.X_HISTORY + 15, self.Y_HISTORY + 40, self.W_HISTORY - (30), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(textName, SASTextScale.labelText(gc.getBonusInfo(self.iBonus).getCivilopedia()), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		szText = gc.getBonusInfo(self.iBonus).getCivilopedia()
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
++			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+index 716e26c55..f522f8f5c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+@@ -26,6 +26,7 @@ class SevoPediaBuild:
+ 
+ 	def __init__(self, main):
+ 		self.iBuild = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD")
+ 		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD")
+@@ -101,6 +102,8 @@ class SevoPediaBuild:
+ 
+ 
+ 	def interfaceScreen(self, iBuild):
++		if self.iBuild != iBuild:
++			self.bHistoryExpanded = False
+ 		self.iBuild = iBuild
+ 
+ 		self.placeBuildPane()
+@@ -345,16 +348,27 @@ class SevoPediaBuild:
+ 		screen.addMultilineText(listName, SASTextScale.labelText(szSpecialText), self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+-	def placeHistory(self):
+-		screen = self.top.getScreen()
+-		panel = self.top.getNextWidgetName()
+-		text = self.top.getNextWidgetName()
+-		info = gc.getBuildInfo(self.iBuild)
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
+ 
+-		screen.addPanel(panel, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+-		szHistory = info.getCivilopedia()
+-		screen.addMultilineText(text, SASTextScale.labelText(szHistory), self.X_HISTORY + 10, self.Y_HISTORY + 30, self.W_HISTORY - 20, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++	def placeHistory(self):
++		screen = self.top.getScreen()
++		szText = gc.getBuildInfo(self.iBuild).getCivilopedia()
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
++			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
++		)
+ 
+ 
+ 	def handleInput(self, inputClass):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 6c3345127..563afd14c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -38,6 +38,7 @@ class SevoPediaBuilding:
+ 
+ 	def __init__(self, main):
+ 		self.iBuilding = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+ 		self.MEDIUM_MARGIN = 15
+@@ -140,8 +141,6 @@ class SevoPediaBuilding:
+ 		self.Y_CIVILIZATIONS = self.Y_REPLACE
+ 		self.H_CIVILIZATIONS = self.H_REPLACE
+ 
+-		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+-
+ 		self.X_HISTORY = self.X_BUILDING_ANIMATION
+ 		self.Y_HISTORY = self.Y_CIVILIZATIONS + self.H_CIVILIZATIONS + self.SMALL_MARGIN
+ 		self.W_HISTORY = self.W_BUILDING_ANIMATION
+@@ -150,6 +149,8 @@ class SevoPediaBuilding:
+ 
+ 
+ 	def interfaceScreen(self, iBuilding):
++		if self.iBuilding != iBuilding:
++			self.bHistoryExpanded = False
+ 		self.iBuilding = iBuilding
+ 
+ 		self.placeBuildingPane()
+@@ -1136,23 +1137,27 @@ class SevoPediaBuilding:
+ 
+ 
+ 
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		#screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
+-		screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
+-		textName = self.top.getNextWidgetName()
+-		szText = u""
+-		# <!-- custom: too much hassle/"nightmare" to maintain the strategy texts in history panel (which i agree with), + also often inaccurate, especially if someone were to make a mod, just ignoring them without importing the XML assets as well is much more efficient, more reliable, and perhaps clearer in the sevopedia too maybe. -->
+-		# if len(gc.getBuildingInfo(self.iBuilding).getStrategy()) > 0:
+-		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+-		#	szText += gc.getBuildingInfo(self.iBuilding).getStrategy()
+-		#	szText += u"\n\n"
+-		# <!-- custom: i also don't need the "History:" in TXT_KEY_CIVILOPEDIA_HISTORY, is redundant with background that is already about the building's background -->
+-		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
+-		szText += gc.getBuildingInfo(self.iBuilding).getCivilopedia()
+-		# <!-- custom: but here we also restore/add padding -->
+-		screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		szText = gc.getBuildingInfo(self.iBuilding).getCivilopedia()
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
++			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index d5c643081..6335cc6b8 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -33,6 +33,7 @@ class SevoPediaCivic:
+ 
+ 	def __init__(self, main):
+ 		self.iCivic = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+ 		self.MEDIUM_MARGIN = 15
+@@ -89,6 +90,8 @@ class SevoPediaCivic:
+ 
+ 
+ 	def interfaceScreen(self, iCivic):
++		if self.iCivic != iCivic:
++			self.bHistoryExpanded = False
+ 		self.iCivic = iCivic
+ 
+ 		self.placeFavorites()
+@@ -196,21 +199,26 @@ class SevoPediaCivic:
+ 
+ 
+ 
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		# advc.004y: Label added for this panel
+-		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+-
+-		textName = self.top.getNextWidgetName()
+-		szText = u""
+-		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
+-		# <!-- custom: same reasoning as for/in SevopediaBuilding.py, i also don't need the redundant "History:" -->
+-		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
+-		# </advc.004y>
+-		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_HISTORY + 7, self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		szText = gc.getCivicInfo(self.iCivic).getCivilopedia()
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			u"",
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+index 2e8312c82..c07bdf3f7 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+@@ -33,6 +33,7 @@ class SevoPediaCivilization:
+ 
+ 	def __init__(self, main):
+ 		self.iCivilization = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+ 		self.MEDIUM_MARGIN = 15
+@@ -94,6 +95,8 @@ class SevoPediaCivilization:
+ 
+ 
+ 	def interfaceScreen(self, iCivilization):
++		if self.iCivilization != iCivilization:
++			self.bHistoryExpanded = False
+ 		self.iCivilization = iCivilization
+ 
+ 		self.placeCivilizationPane()
+@@ -205,16 +208,26 @@ class SevoPediaCivilization:
+ 
+ 
+ 
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+-		# <!-- custom: also adding textName (see SevoPediaCivic.py for details) -->
+-		textName = self.top.getNextWidgetName()
+-		szText = SASTextScale.labelText(gc.getCivilizationInfo(self.iCivilization).getCivilopedia())
+-		# <!-- custom: similar fix as in placeHistory of SevoPediCivic.py, choosing a more advanced function that also allows padding, and adding padding, about all these elements, see SevoPediaCivic.py for potentially additional information -->
+-		# screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25 + 29, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		szText = gc.getCivilizationInfo(self.iCivilization).getCivilopedia()
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			u"",
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+index a08d3ebf2..e4f854296 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+@@ -32,6 +32,7 @@ class SevoPediaCorporation:
+ 
+ 	def __init__(self, main):
+ 		self.iCorporation = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+ 		self.MEDIUM_MARGIN = 15
+@@ -92,6 +93,8 @@ class SevoPediaCorporation:
+ 
+ 
+ 	def interfaceScreen(self, iCorporation):
++		if self.iCorporation != iCorporation:
++			self.bHistoryExpanded = False
+ 		self.iCorporation = iCorporation
+ 
+ 		self.placeCorporationPane()
+@@ -247,12 +250,26 @@ class SevoPediaCorporation:
+ 
+ 
+ 
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+ 		szText = gc.getCorporationInfo(self.iCorporation).getCivilopedia()
+-		screen.attachMultilineText(panelName, "Text", SASTextScale.labelText(szText), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			u"",
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index d14c937a8..30c3be557 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -68,6 +68,7 @@ def do_pre_load_xml_features_info_required_data_validation():
+ class SevoPediaFeature:
+ 	def __init__(self, main):
+ 		self.iFeature = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+ 		self.MEDIUM_MARGIN = 15
+@@ -155,6 +156,8 @@ class SevoPediaFeature:
+ 
+ 
+ 	def interfaceScreen(self, iFeature):
++		if self.iFeature != iFeature:
++			self.bHistoryExpanded = False
+ 		self.iFeature = iFeature
+ 
+ 		self.placeInfo()
+@@ -583,16 +586,27 @@ class SevoPediaFeature:
+ 
+ 
+ 
+-	def placeHistory(self):
+-		screen = self.top.getScreen()
+-		panel = self.top.getNextWidgetName()
+-		text = self.top.getNextWidgetName()
+-		info = gc.getFeatureInfo(self.iFeature)
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
+ 
+-		screen.addPanel(panel, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
+ 
+-		szHistory = info.getCivilopedia()
+-		screen.addMultilineText(text, SASTextScale.labelText(szHistory), self.X_HISTORY + 10, self.Y_HISTORY + 30, self.W_HISTORY - 20, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++	def placeHistory(self):
++		screen = self.top.getScreen()
++		szText = gc.getFeatureInfo(self.iFeature).getCivilopedia()
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
++			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 444ca0cb2..f61485f3a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -78,6 +78,7 @@ class SevoPediaImprovement:
+ 
+ 	def __init__(self, main):
+ 		self.iImprovement = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD")
+ 		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD")
+@@ -180,8 +181,6 @@ class SevoPediaImprovement:
+ 		self.Z_ROTATION_IMPROVEMENT_ANIMATION = 30
+ 		self.SCALE_ANIMATION = 0.7
+ 
+-		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+-
+ 		# <!-- custom: Leader icon sizes now use centralized INCHART_* constants from _sevopedia_helpers.
+ 		# IMPROVEMENT_LEADER_ICON_SIZE, IMPROVEMENT_LEADER_BUTTON_SPACING, IMPROVEMENT_LEADER_ROW_H replaced by
+ 		# INCHART_ICON_SIZE, INCHART_ICON_SPACING, INCHART_ROW_HEIGHT -->
+@@ -189,6 +188,8 @@ class SevoPediaImprovement:
+ 
+ 
+ 	def interfaceScreen(self, iImprovement):
++		if self.iImprovement != iImprovement:
++			self.bHistoryExpanded = False
+ 		self.iImprovement = iImprovement
+ 
+ 		self.placeImprovementPane()
+@@ -566,14 +567,28 @@ class SevoPediaImprovement:
+ 
+ 
+ 
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
+ 	# <!-- custom: addition based on our existing mod's code in some other class, as for pedia entries, imported from m-e mod (see main readme for mod abbreviation details in as of now credits section) (but i also found them later in c2c mod and they are seemingly the same but the file is sadly/unfortunately way too bloated so going for the m-e mod one(s if talking about the assets themselves in thinking/saying so)) -->
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.attachLabel(panelName, "", "  ")
+-		textName = self.top.getNextWidgetName()
+-		screen.addMultilineText(textName, SASTextScale.labelText(gc.getImprovementInfo(self.iImprovement).getCivilopedia()), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		szText = gc.getImprovementInfo(self.iImprovement).getCivilopedia()
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
++			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index bbbee0f44..354cebb27 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -76,6 +76,7 @@ class SevoPediaLeader:
+ 
+ 	def __init__(self, main):
+ 		self.iLeader = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 		self.iSelectedAttitude = AttitudeTypes.ATTITUDE_PLEASED
+ 		self.ATTITUDE_SELECTED_EMOJI_SIZE = 24
+@@ -220,14 +221,16 @@ class SevoPediaLeader:
+ 
+ 
+ 	def interfaceScreen(self, iLeader):
++		if self.iLeader != iLeader:
++			self.bHistoryExpanded = False
+ 		self.iLeader = iLeader
+ 
+ 		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or clearer or helpful or not or other etc anyways, -->
++		# <!-- custom: placeHistory must be last so its expanded overlay renders on top of all other panels (traits, AI personality). (Claude code Sonnet 4.6) -->
+ 		self.placeLeaderHeadPane()
+ 		self.placeFavorites()
+ 		self.placeMusic()
+ 		self.placeAttitudes()
+-		self.placeHistory()
+ 		self.placeCiv()
+ 		self.placeTraits()
+ 		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND")
+@@ -239,6 +242,7 @@ class SevoPediaLeader:
+ 		else:
+ 			if IS_DEBUG_LEADER and IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
+ 				print("[DEBUG] Leader index iLeader=%d in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s is skipped, leave the place where AI Personality panel was supposed to be entirely empty so we don't get a missing key in leaders_info_cached Error, while signifying clearly enough hopefully that the excluded leader currently selected doesn't have an item in leaders_info_cached and AI Personality Panel at all/is not part of it." % (iLeader, str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS)))
++		self.placeHistory()
+ 
+ 
+ 
+@@ -388,14 +392,27 @@ class SevoPediaLeader:
+ 
+ 
+ 
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+-		historyTextName = self.top.getNextWidgetName()
+-		CivilopediaText = gc.getLeaderHeadInfo(self.iLeader).getCivilopedia()
+-		# <!-- custom: use normalizeLabelText here because many leader Civilopedia entries already include embedded <font=...> tags; simple labelText then leaves text at legacy small size instead of applying SAS upscaling. (GPT-5.3-Codex); also trim the bottom a bit to remove last incompletely rendered line for beautification -->
+-		screen.addMultilineText(historyTextName, SASTextScale.normalizeLabelText(CivilopediaText), self.X_HISTORY + 7, self.Y_HISTORY + 6, self.W_HISTORY - 5, self.H_HISTORY - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# <!-- custom: use normalizeLabelText here because many leader Civilopedia entries already include embedded <font=...> tags; simple labelText then leaves text at legacy small size instead of applying SAS upscaling. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
++		szText = SASTextScale.normalizeLabelText(gc.getLeaderHeadInfo(self.iLeader).getCivilopedia())
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			u"",
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 088d30f2e..6ea85f80e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -2223,12 +2223,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 					return 1
+ 			# <!-- custom: toggle expanded Background/History overlay for any pedia category via WIDGET_PYTHON routing. All categories share one ID since only one category is active at a time. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
+ 			if iData1 == self.SAS_PEDIA_PYTHON_HISTORY_EXPAND:
+-				if self.iCategory == SevoScreenEnums.PEDIA_UNITS and self.iItem != -1:
+-					pediaScreen = self.mapScreenFunctions.get(SevoScreenEnums.PEDIA_UNITS, None)
+-					if pediaScreen:
++				if self.iItem != -1:
++					pediaScreen = self.mapScreenFunctions.get(self.iCategory, None)
++					if pediaScreen and hasattr(pediaScreen, "setHistoryExpanded"):
+ 						pediaScreen.setHistoryExpanded(iData2 == 1)
+-					self.pediaJump(SevoScreenEnums.PEDIA_UNITS, self.iItem, False, False)
+-					return 1
++						self.pediaJump(self.iCategory, self.iItem, False, False)
++						return 1
+ 			# <!-- custom: route Sevopedia leader attitude preview buttons here as a fallback because some WIDGET_PYTHON clicks may not reach SevoPediaLeader.handleInput depending on pythonFile routing. (GPT-5.3-Codex) -->
+ 			# <!-- custom: this is code from AdvCiv-SAS-NIF-Gallery mod as part of adding sevopedia leader attitude and action buttons: while trying to minimally adding this feature in AdvCiv-SAS mod as well, i tried to remove these iData1 attitude and action checks but then attitude and action buttons become ineffective (i.e. clicking produces no animation action or attitude), so kept here as well in AdvCiv-SAS here as well. -->
+ 			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ATTITUDE:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+index 7296e50e1..2bba8e71d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+@@ -33,6 +33,7 @@ class SevoPediaProject:
+ 	
+ 	def __init__(self, main):
+ 		self.iProject = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+ 		self.W_REQUIRES = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+@@ -74,6 +75,8 @@ class SevoPediaProject:
+ 
+ 
+ 	def interfaceScreen(self, iProject):
++		if self.iProject != iProject:
++			self.bHistoryExpanded = False
+ 		self.iProject = iProject
+ 
+ 		self.placeProjectPane()
+@@ -175,12 +178,26 @@ class SevoPediaProject:
+ 
+ 
+ 
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
+ 	def placeText(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
+ 		szText = gc.getProjectInfo(self.iProject).getCivilopedia()
+-		screen.attachMultilineText(panelName, "Text", SASTextScale.labelText(szText), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			u"",
++			self.X_TEXT,
++			self.Y_TEXT,
++			self.W_TEXT,
++			self.H_TEXT,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 10aa15af1..04e1aec35 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -33,6 +33,7 @@ class SevoPediaReligion:
+ 
+ 	def __init__(self, main):
+ 		self.iReligion = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+ 		# <!-- custom: based on sevopediabuilding's code, see there for details and differences of implementation --> 
+@@ -102,6 +103,8 @@ class SevoPediaReligion:
+ 
+ 
+ 	def interfaceScreen(self, iReligion):
++		if self.iReligion != iReligion:
++			self.bHistoryExpanded = False
+ 		self.iReligion = iReligion
+ 
+ 		self.placeFavorites()
+@@ -262,12 +265,26 @@ class SevoPediaReligion:
+ 
+ 
+ 
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+ 		szText = gc.getReligionInfo(self.iReligion).getCivilopedia()
+-		screen.attachMultilineText(panelName, "Text", SASTextScale.labelText(szText), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			u"",
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+index 30cd42700..e6825dc79 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+@@ -23,6 +23,8 @@ import ScreenInput
+ import SevoScreenEnums
+ import SASTextScale
+ 
++from _sevopedia_helpers import *
++
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+@@ -33,6 +35,7 @@ class SevoPediaSpecialist:
+ 
+ 	def __init__(self, main):
+ 		self.iSpecialist = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+ 		self.MEDIUM_MARGIN = 15
+@@ -80,6 +83,8 @@ class SevoPediaSpecialist:
+ 
+ 
+ 	def interfaceScreen(self, iSpecialist):
++		if self.iSpecialist != iSpecialist:
++			self.bHistoryExpanded = False
+ 		self.iSpecialist = iSpecialist
+ 
+ 		self.placeSpecialistPane()
+@@ -255,16 +260,28 @@ class SevoPediaSpecialist:
+ 
+ 
+ 
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+-		textName = self.top.getNextWidgetName()
+-		szText = gc.getSpecialistInfo(self.iSpecialist).getCivilopedia()
+-		szText = SASTextScale.normalizeLabelText(szText)
+-		# <!-- custom: also account for scrolling: top text needs to remain visible as an entire line. Note: somehow modifying H weirdly changes the Y optimal scroll point so adjust one at a time maybe. -->
+-		panelTopPadding = 40
+-		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + panelTopPadding, self.W_HISTORY - 7, self.H_HISTORY - panelTopPadding - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# <!-- custom: pre-normalize so the helper's labelText call is a no-op (specialist civilopedia entries need normalizeLabelText like leaders). -->
++		szText = SASTextScale.normalizeLabelText(gc.getSpecialistInfo(self.iSpecialist).getCivilopedia())
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
++			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 1bd5a1199..d7d9b4659 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -185,6 +185,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 	def __init__(self, main):
+ 		self.iTech = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+ 		self.MEDIUM_MARGIN = 15
+@@ -305,12 +306,11 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+ 		self.H_HISTORY = self.H_SPECIAL
+ 
+-		# <!-- custom: for multiline text vertical adjustment after panel header -->
+-		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+-
+ 
+ 
+ 	def interfaceScreen(self, iTech):
++		if self.iTech != iTech:
++			self.bHistoryExpanded = False
+ 		self.iTech = iTech
+ 
+ 		self.placeTechPane()
+@@ -1145,18 +1145,28 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+-		szText = u""
+-		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
+-		szText += gc.getTechInfo(self.iTech).getQuote()
++		szText = gc.getTechInfo(self.iTech).getQuote()
+ 		szText += u"\n\n" + gc.getTechInfo(self.iTech).getCivilopedia()
+-		szQuoteTextWidget = self.top.getNextWidgetName()
+-		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it; as for padding adjust/modify it a bit too, was self.X_HISTORY + 9, self.Y_HISTORY + 12, also we removed _HISTORY to simplify and standardize code and display and as we don't need nor want the extra height in this case -->
+-		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(szQuoteTextWidget, SASTextScale.labelText(szText), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 5, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
++			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index de78819a1..2c8a25eca 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -23,6 +23,7 @@ class SevoPediaTerrain:
+ 	def __init__(self, main):
+ 		self.iTerrain = -1
+ 		self.top = main
++		self.bHistoryExpanded = False
+ 
+ 		self.MEDIUM_MARGIN = 15
+ 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+@@ -106,6 +107,8 @@ class SevoPediaTerrain:
+ 
+ 
+ 	def interfaceScreen(self, iTerrain):
++		if self.iTerrain != iTerrain:
++			self.bHistoryExpanded = False
+ 		self.iTerrain = iTerrain
+ 
+ 		self.placeInfo()
+@@ -622,16 +625,27 @@ class SevoPediaTerrain:
+ 
+ 
+ 
+-	def placeHistory(self):
+-		screen = self.top.getScreen()
+-		panel = self.top.getNextWidgetName()
+-		text = self.top.getNextWidgetName()
+-		info = gc.getTerrainInfo(self.iTerrain)
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
+ 
+-		screen.addPanel(panel, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
+ 
+-		szHistory = info.getCivilopedia()
+-		screen.addMultilineText(text, SASTextScale.labelText(szHistory), self.X_HISTORY + 10, self.Y_HISTORY + 30, self.W_HISTORY - 20, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++	def placeHistory(self):
++		screen = self.top.getScreen()
++		szText = gc.getTerrainInfo(self.iTerrain).getCivilopedia()
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
++			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index 8a4296f20..e74800ffb 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -134,6 +134,7 @@ class SevoPediaTrait:
+ 
+ 	def __init__(self, main):
+ 		self.iTrait = -1
++		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+ 		# <!-- custom: Enhanced layout - Leaders on right, Statistics center, Effects bottom-left, History bottom-right.
+@@ -227,6 +228,8 @@ class SevoPediaTrait:
+ 	# <!-- custom: Updated to receive trait ID directly via WIDGET_PYTHON approach (no longer concept-based). (Claude code Opus 4.5) -->
+ 	def interfaceScreen(self, iTrait):
+ 		self.iLeader = -1
++		if self.iTrait != iTrait:
++			self.bHistoryExpanded = False
+ 		self.iTrait = iTrait
+ 
+ 		self.placeLeaders()
+@@ -426,16 +429,28 @@ class SevoPediaTrait:
+ 
+ 
+ 
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++
+ 	# <!-- custom: History panel showing civilopedia text for the trait, similar to SevoPediaImprovement. (Claude code Opus 4.5) -->
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+-
+-		textName = self.top.getNextWidgetName()
+ 		szText = gc.getTraitInfo(self.iTrait).getCivilopedia()
+-		szText = SASTextScale.labelText(szText)
+-		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 30, self.W_HISTORY - 5, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
++			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
++		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 619cd2bc1..be09fc8c9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -181,8 +181,6 @@ class SevoPediaUnit:
+ 		self.H_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.H_UNDER_ANIMATION_PANELS
+ 		self.citiesButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_CITIES_LANDSCAPE").getPath()
+ 
+-		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+-
+ 		# Row 5 right half: History panel - aligned with Special panel
+ 		self.X_HISTORY = self.X_UNIT_ANIMATION
+ 		self.Y_HISTORY = self.Y_SPECIAL  # Same Y as Special panel for alignment
+@@ -245,7 +243,7 @@ class SevoPediaUnit:
+ 					szText += u"\n"
+ 				szText += SAS_FONT_TAG_LABEL + szLine + SAS_FONT_TAG_CLOSE
+ 			szText += u"\n\n"
+-		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py (refer to this file for details), removing (hiding) the entry entirely from the sevopedia. -->
++		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY in SevoPediaBuilding.py, removing (hiding) the entry entirely from sevopedia. -->
+ 		# <!-- custom: same reasoning as for/in SevopediaBuilding.py, i also don't need the redundant "History:" -->
+ 		# <!-- custom: normalize/upscale concept text in Sevopedia Unit history panel ("Background") to match concept page readability. (GPT-5.3-Codex) -->
+ 		szText += SASTextScale.normalizeLabelText(unitInfo.getCivilopedia())
+@@ -993,7 +991,7 @@ class SevoPediaUnit:
+ 			szText,
+ 			self.bHistoryExpanded,
+ 			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
+-			self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
++			H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
+ 		)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 21f9916d4..1334c0088 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -36,6 +36,8 @@ HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING = 10
+ HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING = 4
+ # <!-- custom: shared standard height for Sevopedia single-row non-multilist panels. (GPT-5.3-Codex) -->
+ NON_MULTILIST_PANEL_STANDARD_HEIGHT = 110
++# <!-- custom: shared Y offset for history/background text panels that sit below an animation but have no panel header. Used by Bonus, Improvement, Building, Tech, Unit and the expandable text panel helper. (Claude code Sonnet 4.6); the panel is lifted up when there is no header so text needs to follow. -->
++H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+ 
+ 
+ 
+@@ -348,8 +350,13 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW,
+ 			-1,
+ 			-1
+ 		)
++		# <!-- custom: when the caller passed no title, use "(Background)" so the expanded overlay always has a header bar for the CLOSE button to sit on. (Claude code Sonnet 4.6) -->
++		if panelTitle:
++			expandedTitle = panelTitle
++		else:
++			expandedTitle = u"(" + localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()) + u")"
+ 		panelName = top.getNextWidgetName()
+-		screen.addPanel(panelName, panelTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
++		screen.addPanel(panelName, expandedTitle, "", True, True, iOverlayX, iOverlayY, iOverlayW, iOverlayH, PanelStyles.PANEL_STYLE_MAIN)
+ 		screen.setButtonGFC(
+ 			top.getNextWidgetName(),
+ 			SASTextScale.labelText(u"CLOSE"),
+@@ -379,12 +386,16 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW,
+ 
+ 	panelName = top.getNextWidgetName()
+ 	screen.addPanel(panelName, panelTitle, "", True, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
++	# <!-- custom: when the panel has no title, Civ4 renders no header bar so the button at panelY+6 would overlap the content. Place it just above the panel instead. (Claude code Sonnet 4.6) -->
++	iExpandButtonY = panelY + 6
++	if not panelTitle:
++		iExpandButtonY -= H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER
+ 	screen.setButtonGFC(
+ 		top.getNextWidgetName(),
+ 		SASTextScale.labelText(u"EXPAND"),
+ 		"",
+ 		panelX + panelW - (iExpandButtonW + 8),
+-		panelY + 6,
++		iExpandButtonY,
+ 		iExpandButtonW,
+ 		24,
+ 		WidgetTypes.WIDGET_PYTHON,
+@@ -392,13 +403,14 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW,
+ 		1,
+ 		ButtonStyles.BUTTON_STYLE_STANDARD
+ 	)
++	# <!-- custom: note: in some panels replace old code's screen.attachMultilineText with screen.addMultilineText to allow padding for text -->
+ 	screen.addMultilineText(
+ 		top.getNextWidgetName(),
+ 		SASTextScale.labelText(szText),
+ 		panelX + 7,
+ 		panelY + 10 + iCollapsedTextYOffset,
+ 		panelW - 5,
+-		panelH - (15 * 2) - 25,
++		panelH - (10 + iCollapsedTextYOffset) - 25,
+ 		WidgetTypes.WIDGET_GENERAL,
+ 		-1,
+ 		-1,
+
+[PATCH COVERAGE]
+patchFiles=18 embeddedFiles=18 omittedFiles=0 embeddedPatchBytes=42296

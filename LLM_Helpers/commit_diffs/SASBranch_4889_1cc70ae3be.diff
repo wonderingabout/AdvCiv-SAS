@@ -1,0 +1,253 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4889
+# Commit: 1cc70ae3bea84bac1cb3544f0430460da3548418
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9fcf571e9ab16b6ea0839ee8e651f236fcdc4115
+# Title: seemingly now reliably fix barbarians building world wonders with a DLL patch in CvCityAI.cpp with chatgpt and my and etc's help too etc anyways etc thanks a...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+4	30	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+2	7	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+1	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+10	0	CvGameCoreDLL/CvCityAI.cpp
+1	1	README.md
+28	16	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 5819a555e..a0edf2d35 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -4194,19 +4194,12 @@
+ 					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
+ 					<BuildingType>BUILDING_BARBARIAN_CASTLE</BuildingType>
+ 				</Building>
+-				<!-- custom: probably doesn't work-function anyways etc as has been tested not to, but in case it maybe does, adding the great_wall to explicitly prevent barbarians from building it, which they seem to often do for some reason anyways etc especially more now with the recent changes to military produciton modifier to balance barbarians for some reason anyways etc -->
++				<!-- custom: lines such as 
+ 				<Building>
+ 					<BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType>
+ 					<BuildingType>NONE</BuildingType>
+ 				</Building>
+-				<Building>
+-					<BuildingClassType>BUILDINGCLASS_GREAT_LIGHTHOUSE</BuildingClassType>
+-					<BuildingType>NONE</BuildingType>
+-				</Building>
+-				<Building>
+-					<BuildingClassType>BUILDINGCLASS_STATUE_OF_ZEUS</BuildingClassType>
+-					<BuildingType>NONE</BuildingType>
+-				</Building>
++				don't do anything in preventing barbarians to build wonders, removing them they still build wonders as well (as i tested many times and the result seems to be indeed that it seems to be so if i may say but anyways etc), so removing them entirely for wonders since they don't help at all, this is prevented by a patch in the DLL in CvCityAI.cpp we added in advciv-sas with chatgpt's help too and my help too and its help too too and my help too too etc anyways etc anyways etc anyways etc -->
+ 				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this wayso they can focus more on producing units anyways etc
+ 				Same for forge, provide military only small (relatively anyways etc) production bonus instead
+ 				Test to not put the stable too for efficiency and maybe bit accuracy/realism maybe or not or yes or and other or and not but in all cases anyways etc -->
+@@ -4222,22 +4215,6 @@
+ 					<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
+ 					<BuildingType>NONE</BuildingType>
+ 				</Building>
+-				<!-- custom: fix bug(/(careless as in unaware of or and other or and not? but anyways etc, anyways etc) oversight? Anyways etc) (seemingly from AdvCiv or/and base Civ4 or/and other mods or not anyways etc) where Barbarians could build schwedagon pawa as happened in an autoplay, anyways etc
+-				
+-				update: this doesn't fix it so removed, and it was already there, plus they tried to build mausolleum of mausollos todo (ideally i mean anyways) fix make barbarians not build any wonder at all (but maybe not too bad as is but certainly not ideal maybe... But anyways etc anyways etc anyways etc anyways etc...)
+-				-->
+-				<!-- custom: 
+-				old code lines such as:
+-					<Building>
+-						<BuildingClassType>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClassType>
+-						<BuildingType>NONE</BuildingType>
+-					</Building>
+-				seem to have no effect at all on preventing barbarians from building wonders, as they built (still (but)(anyways etc) anyways etc shwedagon paya and mausoleum of mausollos, perhaps this was just hidden as they were not prosperous enough, but now that they can compete for wonders too with other players, they (barbarians) try(were trying anyways etc) to build wonders sometimes even completed them before other players), so as the code is useless or not entirely effective, removed it, and now trying this very negative as in in value as in in number anyways etc anyways etc anyways etc iWonderConstructRand which seems to do the trick, and no more spaghetti code (but i lovbe spaghetti (to eat) but anyways etc...(maybe code too or not too but in all cases anyways etc...)) so we don't have to remove it and clean our code
+-
+-				I have tried using <iWonderConstructRand>-9999</iWonderConstructRand> (for <Type>LEADER_BARBARIAN</Type>) or some very negative in value as in in number anyways etc but doesn't work
+-
+-				then i tried <iBuildUnitProb>100</iBuildUnitProb> and seems to work extremely well and be effective, no wonder at all now in barbarians, no normal building though like the lighthouse anymore even though the barabarian version of it is so much cheaper and such to build anyways etc, may tone it down a bit, or/and test more to be sure, but this seems fixed now, anyways etc
+-				-->
+ 				<!-- custom: (Normal Buildings)-->
+ 				<Building>
+ 					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
+@@ -4364,10 +4341,7 @@
+ 
+ 
+ 
+-			<!-- custom: barbarians are now stronger, all the military units are now allowed unlike in base AdvCiv anyways etc:
+-			pikeman, rifleman, grenadier, infantry, marine, etc (think of them as bandits, mercenaries,
+-			pirates, terrorists, or such, anyways etc)
+-			-->
++			<!-- custom: barbarians are now stronger, all the military units are now allowed unlike in base AdvCiv anyways etc: pikeman, rifleman, grenadier, infantry, marine, etc (think of them as bandits, mercenaries, pirates, terrorists, or such, anyways etc) if they can last long enough in this case until then but anyways etc -->
+ 			<!-- advc.303: Not sure where comments are allowed in this file;
+ 			demonstrably not everywhere. Added NONE entries to the Barbarians
+ 			starting at Monument (still called "Obelisk" internally) until
+@@ -4482,7 +4456,7 @@
+ 				</Unit>
+ 			</Units>
+ 			<FreeUnitClasses/>
+-			<!-- custom: barbarians now start with free buildings (given as a civ specific 1 (hammer) cost building equivalent of it instead (else free building applies only to the first barbarian city and not all barbarian cities)), and techs too anyways (even though they should get them free as they start (i assume from other civs or by some mechanics((?))(), still making extra sure they always start with them (i.e. with these techs anyways etc))), hopefully stronger this way without interfering too much in religions at least not directly, and compensates at least partly their later start in cities hopefully anyways etc
++			<!-- custom: barbarians now start with free buildings (given as a civ specific lower hammer cost building equivalent of it instead (else free building applies only to the first barbarian city and not all barbarian cities)), and techs too anyways (even though they should get them free as they start (i assume from other civs or by some mechanics((?))(), still making extra sure they always start with them (i.e. with these techs anyways etc))), hopefully stronger this way without interfering too much in religions at least not directly, and compensates at least partly their later start in cities hopefully anyways etc
+ 			I tried giving them a free worker but it seems ignored by the DLL/game (whichever accurate version of this explanation it is or/and other is not or yes or and other or and not anyways etc, ), but military units seem to work, only for the first barbarian civ, so instead not giving any specific military units, and making a few core units like the worker much cheaper for barbarians as they start later and have penalties and such of smaller and sparse cities, anyways etc, hopefully more interesting (gameplay) this way i mean anyways or not or yes or and other or and not, anyways etc.
+ 			Putting the free (barbarian) buildings also here in FreeBuildingClasses also ensures the first barbarian city always get them without needing to build it themsleves or risk skipping it.
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 227582022..9c046bee1 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -12,7 +12,6 @@
+ 			<Description>TXT_KEY_LEADER_BARBARIAN</Description>
+ 			<Civilopedia>TXT_KEY_LEADER_BARBARIAN_PEDIA</Civilopedia>
+ 			<ArtDefineTag>ART_DEF_LEADER_BARBARIAN</ArtDefineTag>
+-			<!-- custom: trying to fix barbarians building wonders (great and national wonders alike) but still this iWonderConstructRand -9999 doesnt make a difference so reverting it back to 0, see the "custom:" code comment at <BuildingClassType>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClassType> for <Type>CIVILIZATION_BARBARIAN</Type> in (adjust if non-Steam path or/and to where your advciv-sas folder is anyways etc): C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml for details -->
+ 			<iWonderConstructRand>0</iWonderConstructRand>
+ 			<iBaseAttitude>0</iBaseAttitude>
+ 			<iBasePeaceWeight>0</iBasePeaceWeight>
+@@ -45,12 +44,8 @@
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+ 			<!-- custom: make barbarians more likely to destroy cities rather than conquer them, after all they are barbarians, so the human player or other players should tightly defend to prevent that, reinvading is a bit too convenient, as barbarians should be more likely i think and ideally to pillage and destroy everything, not so much conquer all, and if they are too strong, it should be balanced elsewhere not here (which currently tones down their war/raze tendency which i think is not ideal, hopefully more idela this way now and balancing their strength in an other place if need if they are too strong and thus raze too often cities, not here, i wouldn't want gameplay to be too forgiving but accurate, however i want it lenient in its balance whatever that means, that i want it fair and fun, but hard enough and not toned down, and accurate, maybe clear enough this way whatever that means or not or yes or and other or and not anyways etc), was 10 -->
+ 			<iRazeCityProb>60</iRazeCityProb>
+-			<!-- custom: 
+-			- Update about this buildunitprob 100: it seems extremely effective no wonder at all in one autoplay ; and update 2 seems to always work perfectly in a few autoplays of 100-200 turns each anyways etc so maybe is good and safe to say it almost if not always works extremely well in preventing barbarians building wonders now anyways etc, and old spaghetti code was indeed useless for that i mean at least rather or not rather but thanks for doing it still if i assume it is old still thanks from the future self who (me i.e. anyways etc) read your code carefully crafted in the past thanks a lot, hopefully is even more polished and beautiful now, anyways etc ; , much less normal buildings too in barbarians but still the core palace we want, no lighthouse ever though even in naval cities, may tweak it bit but seems extremely promising, testing more to be sure, anyways etc
+-			- This can probably be safely be reduced fine if it errs a bit by that i mean builing more buildings, eventually after completing them, most very fast, barbarian leader should turn back to war mode, is maybe also good to make sure barbarian leader doesn't skip the 1 hammer "free" buildings it has "right" to whatever that means, anyways etc. I would also want them to get their barbarian lighthouse and barbarian workboats too for example (and maybe workers too) if a (maybe) too high (or not or yes or not or yes or and other or and not anyways etc) (would) prevent that anyways etc, so reducing it a bit to see and test if i may say anyways etc ;
+-			- Update 2 anyways etc: when lowering militaryproductionmodifier to -50 to nerf barbarians and balance them anyways etc, and maybe also related to other changes if not this one, they build buildings and also in particular they build more wonders again, even increasing ibuildunitprob to 100 again, so i don't know how effective it is, it seemed to help a lot, but maybe i changed some settings since then that influenced that but anyways etc, so putting it a bit higher but not 100 so they can build more buildings or such if needed anyways etc
+-			-->
+-			<iBuildUnitProb>100</iBuildUnitProb>
++			<!-- custom: The barbarians issue/bug of them building wonders and completing them before other players now that they are economically strong enough in this case but anyways etc is now fixed by a patch in the DLL in CvCityAI.cpp in advciv-sas, so no need to increase this too high, it also didn't always solve the issue even at 100, but increase it significantly in this case still at least if i may say but anyways etc, after all the barbarians 's main role, at least in advciv-sas if i may say but anyways etc, is to mostly build units and attack other players, not buildings or not too much, but allow them in some cases, in particular as of now the low hammer cost barbarian buildings that help them catch up with othe rplayers due to their later start but anyways etc, so not increasing this too high that they would never or much less considering building these, and so they keep focusing on units but not too much, anyways etc, but still mostly focus on units anyways etc, was 50 -->
++			<iBuildUnitProb>70</iBuildUnitProb>
+ 			<!-- custom: i want barbarians to be more cautious and calculating, they are not stupid and shouldn't be, but a bit adventurous too though maybe whatever that means or not or and other or and not anyways etc -->
+ 			<!-- advc.114d: was 0 -->
+ 			<iBaseAttackOddsChange>1</iBaseAttackOddsChange>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 434f0bcfe..3d5273e69 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -377,7 +377,7 @@ short AIFoundValue::evaluate()
+ 	int iLandTiles = 0; // advc.031
+ 	// <advc.040>
+ 
+-	// <!-- custom: attempt to support desert, grass, and flood plains conditional bonus settling/founding city logic anyways etc -->
++	// <!-- custom: attempt to support terrains and feature(s) conditional settling/founding city logic anyways etc -->
+ 	TerrainTypes const eDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
+ 	TerrainTypes const eSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
+ 	TerrainTypes const ePlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index a6c47f556..47d1b9d24 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9506,6 +9506,16 @@ bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThresho
+ 	eBestBuilding = AI_bestBuildingThreshold(iFocusFlags, iMaxTurns, iMinThreshold);
+ 	if (eBestBuilding != NO_BUILDING)
+ 	{
++		// <!-- custom: try to prevent barbarians from building world wonders, their purpose is to fight not to compete for wonders no matter how well they are developped, at least in advciv-sas, increasing iBuildUnitProb to 100 and using NONE in civilizations info xml file seem to be no good or not always reliable/consistent as they still build world wonders in some cases and quite often, so patching the DLL rather hopefully helps reliably solve this, with chatgpt's help and my prompts and adjustments or not or yes or etc or and such or not or yes or etc too but anyways etc anyways etc anyways etc -->
++		// Check if Barbarian is trying to build a world wonder and skip it
++		const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
++		if (kOwner.isBarbarian())
++		{
++			CvBuildingInfo const& kBuilding = GC.getInfo(eBestBuilding);
++			if (kBuilding.isWorldWonder())
++				return false;
++		}
++
+ 		/*if (iOdds < 0 ||
+ 			getBuildingProduction(eBestBuilding) > 0 ||
+ 			SyncRandNum(100) < iOdds)*/ // BBAI
+
+diff --git a/README.md b/README.md
+index d585ac959..390d2d1a5 100644
+--- a/README.md
++++ b/README.md
+@@ -235,7 +235,7 @@ See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_App
+ Non-exhaustive list of fixes, see docs for details or/and additional info anyways etc, which includes but not only [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) and/or [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) anyways etc anyways etc anyways etc
+ 
+ - Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob erroneously duplicated if i am not mistaken, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
+-- Seemingly fixed now, bug where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders) for details
++- Fixed now, bug where barbarians would build and often complete wonders, in particular now fixed for world wonders: now that barbarians are economically competitive and strong enough to support/be able to do it vs other civs, they would beat the other players to wonders in some cases. To solve that, while other approaches such as iBuildUnitProb, WonderConstructRand, BuildingClass NONE, were all ineffective or not entirely effective or/and reliable, i added a patch in the DLL in CvCityAI.cpp with chatgpt's help too and my thoughts and prompts and/or adjustments too but anyways etc but also its help too too if i may say and my help too too too and its help too too too etc xd but anyways etc, hopefully solved now, test to be sure, but anyways etc. See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc) for details
+ - Fixed a seemingly AdvCiv/Civ 4 bug of Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc), by replacing, in sevopediaunit py file, in placeRequires function/method (of this file anyways etc), `WidgetTypes.WIDGET_HELP_RELIGION` with `WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION`(,) as is done already by base advciv and successfully in sevopedia building, anyways etc anyways etc anyways etc, see [4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc) anyways etc
+ - Fixed missing "This Technology cannot be traded" information in sevopedia tech "Special Abilities" (placeSpecial in py code if i am not mistaken anyways etc) and in tech/technology advsior anyways etc too anyways etc anyways etc anyways etc, see also [README.md#other-advciv-sas-changes-examples](/README.md#other-advciv-sas-changes-examples) for details anyways etc and [Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for a lot more details too but anyways etc anyways etc anyways etc hopefully helpful or not or yes or other or etc or yes or other or etc or not or yes or etc but anyways etc
+ - Fixed (technically not strictly a fix as data was not used, but now fixed as in the data is also displayed here like the rest fo the leader info anyways etc read after brackets for details if i may say but anyways etc anyways etc anyways etc...) missing BBAI getters expose them to sevopedia leader info in gc too for display anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc) on how this was implemented (google drive with screenshots link there too anyways etc hopefully helpful or not or yes or and other or and not but anyways etc anyways etc anyways etc)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index c60af8d5d..b30a1f199 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -140,11 +140,9 @@ Results are very good, if you have good eyes or are very patient or/and know whe
+ 
+ A few screenshots of the issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1WNHP4fQQ1Dbm4JnXx9YDedCnLzrOO8ey?usp=sharing)
+ 
+-## 3 - (now fixed) Barbarians (cities) building wonders
++## 3 - (now fixed with a DLL patch) Barbarians (cities) building wonders, in particular now fixed i.e. disabled for world wonders anyways etc
+ 
+-UPDATE: seemingly now fixed using builUnitProb 100 or a similar value, testing more to be sure but seems extremely effective in stopping all (great and wonder) building tendency entirely in barbarian, ened to test more to be sure (in case) i am not mistaken anyways etc, may tone it dow a bit so they can build the barabarian lighthouse they seemingly never do now, but anyways etc
+-
+-In AdvCiv base code after implementing the barbarians boost to make them more economically viable and/or strong but anyways etc anyways etc anyways etc... Barbarians are still trying to build wonders sometimes, the base AdvCiv code does not prevent that, or/and at least not always maybe or not or yes indeed but anyways etc anyways etc ; and even complete them sometimes actually, for example(s anyways etc anyways etc):
++In base advCiv code, after implementing the barbarians boost to make them more economically viable and/or strong but anyways etc anyways etc anyways etc... Barbarians are still trying to build wonders sometimes, the base AdvCiv code does not prevent that, or/and at least not always maybe or not or yes indeed but anyways etc anyways etc ; and even complete them sometimes actually, for example(s anyways etc anyways etc):
+ 
+ A few screenshots of the issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1p5O09XzbbrM5x2hxFD6RGvBpuU8RzPAd?usp=sharing)
+ 
+@@ -152,9 +150,22 @@ There may be(/have been, but anyways etc) other cases like these, and i don't kn
+ 
+ So/And anyways etc i removed all such old logic of buildingclass NONE in (adjust if non-steam game or other mod path you have to where your advciv-sas or/and other mod you're using or not etc anyways etc is anyways etc) `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml`.
+ 
+-For now trying the FLAVOR_MILITARY 10 approach (inspired or rather taken (as i already had the idea but anyways thanks still or not thanks or thanks still or and other or and not anyways etc) from genghis khan's code), not sure it will make a difference but this (value not the leader, i don't know enough about genghis khan to say if he aligns or not, i could maybe express a tentative opinion if i knew more but abstaining from that as i don't know lot or enough about him even though may be cool or/and interesting maybe i mean to know but anyways etc anyways etc)align with their profile of being (more of a at least ideally i.e. in theory if not more ideal too or not but(/) anyways etc anyways etc...) anyways warmongerer anyways etc.
++I had tried tweaking/changing WonderConstructRand but seemingly no change at all.
++
++I had also tried using BuilUnitProb 100  or similar in leader barbarian XML, but although it seemed to have helped in most cases, in some cases barbarians would still build world wonders.
++
++Lines such as:
++
++```xml
++				<Building>
++					<BuildingClassType>BUILDINGCLASS_GREAT_WALL</BuildingClassType>
++					<BuildingType>NONE</BuildingType>
++				</Building>
++```
+ 
+-Currently testing a builUnitProb 100 or similar in leader barbarian that seems very very effective, but testing more if i test to be sure, may be fixed now for real or maybe not, hopefully, but maybe or maybe not, but anyways etc anyways etc anyways etc
++Were totally ineffective, so i have removed them as well for as of now for wonders i mean if i may say but anyways etc.
++
++Thanks to chatgpt's help, and following recent as of now DLL changes such as in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive), it seems to finally be fixed by patching the DLL directly instead in [/CvGameCoreDLL/CvCityAI.cpp](/CvGameCoreDLL/CvCityAI.cpp), as of now only for world wonders (no need to forbid national wonders too strongly as of now at least if not always or not or yes or etc but anyways etc)
+ 
+ ## 4 - (now fixed) Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc)
+ 
+@@ -742,19 +753,20 @@ I only tested it a bit (a few autoplay glances at turn 100), but the results see
+ 
+ Similarly to [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent) and [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent), also add logic in the DLL for non-bonus/ressource tiles, with chatgpt's help and my prompts and thoughts too but anyways etc anyways etc anyways etc, to help the AI better choose tiles to settle/plant/found city on, prioritizing low-food tiles rather as a general rule (especially hill due to the defense bonus that it has additionally but anyways etc), with some exceptions (such as hill grassland as of now but anyways etc)
+ 
+-Logic as of now summarized as such by chatgpt (i just renamed its "bonus" word to "value")
++Logic as of now summarized as such by chatgpt (i just renamed its "bonus" word to "value" and edited a quite a bit its table but anyways etc)
+ 
+ note: values may be updated, please view code at [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or/and updated value, hopefully this general logic helps and/or is not too not updated anymore but anyways etc
+ 
+-| Tile Type      | Terrain Value | Hill Value | Total if Hill | Notes                    |
+-| -------------- | ------------- | ---------- | ------------- | ------------------------ |
+-| Grassland      | −25           | 0          | −25           | Correctly discouraged    |
+-| Grassland Hill | −25           | 0          | −25           | Excluded from hill bonus |
+-| Plains         | +25           | +50        | **+75**       | Solid early-game spot    |
+-| Desert         | +45           | +50        | **+95**       | Great overwrite option   |
+-| Snow           | +45           | +50        | **+95**       | Same                     |
+-| Tundra         | +25           | +50        | **+75**       | Better than flat tundra  |
+-| Floodplains    | −50           | —          | −50           | Correctly discouraged    |
++| Tile Type      | Value no Hill | Hill Value | Value if Hill | Notes                                   |
++| -------------- | ------------- | ---------- | ------------- | --------------------------------------- |
++| Grassland      | −25           | 0          | −25           | Correctly discouraged                   |
++| Plains         | +25           | +50        | **+75**       | Solid early-game spot                   |
++| Desert         | +45           | +50        | **+95**       | Great overwrite option                  |
++| Snow           | +45           | +50        | **+95**       | Same                                    |
++| Tundra         | +25           | +50        | **+75**       | Better than flat tundra                 |
++| Floodplains    | −50           | —          | 0(*)          | Hill Floodplains not existent as of now |
++
++(*) Since as of now if i am not mistaken hill floodplain does not exist unless i'm mistaken, no need to explicitly handle it, may be computationally cheaper to do so as well in this case at least but anyways etc.
+ 
+ This means for example that settling/planting/founding city but anyways etc on a hills desert tile is strongly encouraged, hill with plains quite very if i may say but anyways etc strongly encouraged too, flatland (no hill, no peak) desert still quite significantly too if i may say but slightly less than the hill modifier itself so that if everything else is being the same (as of now we don't have other terrains that would go on a hill plot type if i am not mistaken but anyways etc, but maybe the distinction helps somehow, but anyways etc) so that hill is still slightly preferred in that case (again i don't think as of now we have such terrain where it would apply, but theoretically maybe with some terrain changes, since logic doesn't harm, keep it as is anyways etc).
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=31850

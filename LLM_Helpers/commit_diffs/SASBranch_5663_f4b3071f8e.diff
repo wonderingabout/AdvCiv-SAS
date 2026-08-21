@@ -1,0 +1,82 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5663
+# Commit: f4b3071f8ef9e6b540385c89cf1ccfa2f1821147
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a344736ecea0aa4095e93a2f74aff8a7b1ee288b
+# Title: upscale LOG button in sevopedia chart categories and in timeline tab - increase sevopedia music item bar width to support upscaled text and lengthiest rows l...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	2	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+4	4	Assets/Python/Screens/CvInfoScreen.py
+2	2	Assets/XML/GlobalDefines_advciv_sas.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 0c43076cd..05baa58ea 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -575,8 +575,13 @@ def chart_add_csv_log_button(screen, top, x, y, w, xPos=None, yPos=None):
+ 	if not IS_SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE:
+ 		return ""
+ 
+-	chart_log_button_w = 48
+-	chart_log_button_h = 28
++	# <!-- custom: mirror Timeline LOG sizing: keep compact default, slightly enlarge only when label font is upscaled (4) so "LOG" remains readable. (GPT-5.3-Codex) -->
++	if getSASUIFontLabel() > 3:
++		chart_log_button_w = 66
++		chart_log_button_h = 32
++	else:
++		chart_log_button_w = 48
++		chart_log_button_h = 28
+ 	chart_log_button_margin_x = 10
+ 	chart_log_button_margin_y = 8
+ 	chart_log_button_footer_bottom_padding = 9
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 547497e2a..b9084e395 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -630,10 +630,10 @@ class CvInfoScreen:
+ 		self.ENV_PANE_HEIGHT = self.CONTENT_Y_BOTTOM - self.ENV_Y_LOCATION - self.ENV_INNER_MARGIN
+ 
+ 		# LOG button - positioned in top header bar (0-55px height)
+-		# <!-- custom: scale Timeline log button only for larger UI fonts; keep compact size at font <= 2. (GPT-5.3-Codex) -->
+-		if getSASUIFontBody() > 2:
+-			self.W_TIMELINE_TABLE_LOG_BUTTON = 60
+-			self.H_TIMELINE_TABLE_LOG_BUTTON = 30
++		# <!-- custom: slightly enlarge Timeline LOG button only when label font is upscaled (4), so text fits without wasting space at default sizes. (GPT-5.3-Codex) -->
++		if getSASUIFontLabel() > 3:
++			self.W_TIMELINE_TABLE_LOG_BUTTON = 66
++			self.H_TIMELINE_TABLE_LOG_BUTTON = 32
+ 		else:
+ 			self.W_TIMELINE_TABLE_LOG_BUTTON = 48
+ 			self.H_TIMELINE_TABLE_LOG_BUTTON = 28
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 714b65979..599717b05 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -380,10 +380,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: set the Sevopedia music item list width in the contents view. (GPT-5.2-Codex) -->
++	<!-- custom: set the Sevopedia music item list width in the contents view. (GPT-5.2-Codex). Update: increase to support upscaled text in a simple way (not much to display so we can be aggressive; the longest AMB_FINAL_FRONTIER row now barely fits so this is in fact conservative) (was 800) -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH</DefineName>
+-		<iDefineIntVal>800</iDefineIntVal>
++		<iDefineIntVal>1000</iDefineIntVal>
+ 	</Define>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2907

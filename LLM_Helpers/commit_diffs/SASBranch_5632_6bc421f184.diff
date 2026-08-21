@@ -1,0 +1,177 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5632
+# Commit: 6bc421f1841269e56f8ee0f009401753c0cc8495
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b2c5c93edd1504e38dd16109bbd476bb5788380a
+# Title: do not reduce sevopedia leader item bar width when text is upscaled if resolution is high
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	6	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+4	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+30	25	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index acaaf7623..6e4892596 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -108,16 +108,21 @@ class SevoPediaLeader:
+ 			iLeaderItemsWidthFont2 = self.top.SAS_W_ITEMS_BASE
+ 		iLabelFont = getSASUIFontLabel()
+ 		if iLabelFont <= 1:
+-			iLeaderItemsWidthCurrent = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1")
++			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1")
+ 		elif iLabelFont == 2:
+-			iLeaderItemsWidthCurrent = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
++			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
+ 		elif iLabelFont == 3:
+-			iLeaderItemsWidthCurrent = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3")
++			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3")
+ 		else:
+-			iLeaderItemsWidthCurrent = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4")
+-		if iLeaderItemsWidthCurrent <= 0:
++			iLeaderItemsWidthCurrentForGain = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_4")
++		if iLeaderItemsWidthCurrentForGain <= 0:
++			iLeaderItemsWidthCurrentForGain = self.top.SAS_W_ITEMS_BASE
++		# <!-- custom: keep AIP panel expansion tied to upscaled font widths, but when item-list reduction is disabled on wide screens, keep page-left anchored at base item width so the rest of the page absorbs the squeeze. (GPT-5.3-Codex) -->
++		iLeaderItemsWidthCurrent = iLeaderItemsWidthCurrentForGain
++		iNoReduceMinWidth = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH")
++		if (iNoReduceMinWidth > 0) and (self.top.getScreen().getXResolution() >= iNoReduceMinWidth):
+ 			iLeaderItemsWidthCurrent = self.top.SAS_W_ITEMS_BASE
+-		iLeaderItemsWidthGain = iLeaderItemsWidthFont2 - iLeaderItemsWidthCurrent
++		iLeaderItemsWidthGain = iLeaderItemsWidthFont2 - iLeaderItemsWidthCurrentForGain
+ 		if iLeaderItemsWidthGain < 0:
+ 			iLeaderItemsWidthGain = 0
+ 		iAIPPanelGain = iLeaderItemsWidthGain / self.N_AI_TABLE_NUM
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 28e8edfdb..8d24268ee 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -372,6 +372,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
+ 		self.SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
++		self.SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH")
+ 		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1")
+ 		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
+ 		self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_3")
+@@ -2261,6 +2262,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.W_PEDIA_PAGE = self.R_PEDIA_PAGE - self.X_PEDIA_PAGE
+ 
+ 	def SAS_getLeaderItemsWidthByCurrentUIFont(self):
++		if self.getScreen().getXResolution() >= self.SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH:
++			return self.SAS_W_ITEMS_BASE
++
+ 		iLabelFont = getSASUIFontLabel()
+ 		if iLabelFont <= 1:
+ 			iWidth = self.SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 0901f9895..e0319c64c 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -116,6 +116,11 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: disable the Sevopedia Leader custom item-list width when screen width is above this threshold (strictly >). Set to <=0 to keep custom width always enabled. (GPT-5.3-Codex). This is because at higher resolutions we have enough width to accomodate an enlarged AI Personality Panel, so we don't need to reduce width of the item bar anymore. Note: AI Personality panel is still expanded when text is upscaled (so it is not cramped) regardless of this item bar setting -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_NO_REDUCE_MIN_WIDTH</DefineName>
++		<iDefineIntVal>2560</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Sevopedia Leader item-list width by SAS_UI_FONT_LABEL (1..4). For upscaled fonts we reclaim width from the leader item list and use it to enlarge/rebalance Leader AI panel columns. <=0 falls back to default item width. (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_1</DefineName>
+@@ -136,6 +141,31 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: Tech Chooser (i.e. Technology Advisor) low-res scoreboard swap threshold (in pixels).
++	<= 0: hard disable; > 0: if current screen width is below this threshold, Tech Chooser uses the alternate low-res scoreboard margin below to gain tree width (more columns). A very high value like 9999 effectively always applies on current displays.
++	Example: a value of 2560 means the right space alternate value applies for widths below 2560*1440 (i.e. 1440p) (e.g., for 1920*1080 (i.e. 1080p)).
++	(GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH</DefineName>
++		<iDefineIntVal>2560</iDefineIntVal>
++	</Define>
++	<!-- custom: Tech Chooser alternate right-side reserved space for scoreboard when low-res swap is active.
++	Lower value => wider tech tree and more chance to fit one extra column at low resolution.
++	Higher value => preserves more scoreboard/map area.
++	This is mainly useful on lower resolutions where reclaiming some scoreboard space can make one more tech-tree column visible.
++	Use 0 for maximum squeeze during low-res mode. (GPT-5.3-Codex); for example at 1080p a value of 206 allows to show exactly one more technology advisor column -->
++	<Define>
++		<DefineName>SAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES</DefineName>
++		<iDefineIntVal>206</iDefineIntVal>
++	</Define>
++	# <!-- custom: optional low-res top-space replacement paired with the low-res width swap; useful to keep map-view advisor buttons accessible when Tech Chooser is widened. (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES</DefineName>
++		<iDefineIntVal>52</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: show/hide score-related legend links (Info Screen Score tab and Sevopedia Leader AI legend). (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_SHOW_LEGEND_LINK</DefineName>
+@@ -361,31 +391,6 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: Tech Chooser (i.e. Technology Advisor) low-res scoreboard swap threshold (in pixels).
+-	<= 0: hard disable; > 0: if current screen width is below this threshold, Tech Chooser uses the alternate low-res scoreboard margin below to gain tree width (more columns). A very high value like 9999 effectively always applies on current displays.
+-	Example: a value of 2560 means the right space alternate value applies for widths below 2560*1440 (i.e. 1440p) (e.g., for 1920*1080 (i.e. 1080p)).
+-	(GPT-5.3-Codex) -->
+-	<Define>
+-		<DefineName>SAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH</DefineName>
+-		<iDefineIntVal>2560</iDefineIntVal>
+-	</Define>
+-	<!-- custom: Tech Chooser alternate right-side reserved space for scoreboard when low-res swap is active.
+-	Lower value => wider tech tree and more chance to fit one extra column at low resolution.
+-	Higher value => preserves more scoreboard/map area.
+-	This is mainly useful on lower resolutions where reclaiming some scoreboard space can make one more tech-tree column visible.
+-	Use 0 for maximum squeeze during low-res mode. (GPT-5.3-Codex); for example at 1080p a value of 206 allows to show exactly one more technology advisor column -->
+-	<Define>
+-		<DefineName>SAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES</DefineName>
+-		<iDefineIntVal>206</iDefineIntVal>
+-	</Define>
+-	# <!-- custom: optional low-res top-space replacement paired with the low-res width swap; useful to keep map-view advisor buttons accessible when Tech Chooser is widened. (GPT-5.3-Codex) -->
+-	<Define>
+-		<DefineName>SAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES</DefineName>
+-		<iDefineIntVal>52</iDefineIntVal>
+-	</Define>
+-
+-
+-
+ 	<!-- custom: show the History panel "Log" button; click to write the visible (spoiler-filtered) history lines to PythonDbg.log. -->
+ 	<Define>
+ 		<DefineName>SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE</DefineName>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d5fc22849..827e89182 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -313,7 +313,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Civilizations: Add **cities panel**. Add optional **grouping by Art style** (e.g. European, Asian).
+-- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons, and optional **grouping by civilization (with an icon)**. See also [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py). Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between Traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry**: change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). (Requires AdvCiv-SAS 5502+) Add **Attitude** (furious, annoyed, cautious, pleased, friendly) and **Action buttons** (noanim/idle, greeting, agree, disagree). On click, the animation changes its behaviour to that of the buttons clicked. See also: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5512+) Make **item bar shorter** with a **per font size tunable width** to accommodate the **AI Personality panel wider columns when text is upscaled**.
++- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons, and optional **grouping by civilization (with an icon)**. See also [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py). Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between Traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry**: change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). (Requires AdvCiv-SAS 5502+) Add **Attitude** (furious, annoyed, cautious, pleased, friendly) and **Action buttons** (noanim/idle, greeting, agree, disagree). On click, the animation changes its behaviour to that of the buttons clicked. See also: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5512+) Make **item bar shorter** with a **per font size tunable width** to accommodate the **AI Personality panel wider columns when text is upscaled**. Note: this applied **only for lower resolutions**, because higher resolutions have enough width to accomodate an enlarged AI Personality Panel when text is upscaled, so there is no need to reduce item bar width in Sevopedia Leader to accomodate it.
+ - Sevopedia — Concepts (`ConceptInfos`) (placed under the "Outdated" *Sevopedia category*): added reference entries — e.g. `concept_rivers`, `concept_global_warming`, `concept_customization`. **"Outdated" is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse. See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+ - Sevopedia — Mods Infos (`NewConceptInfos`): Added **Mods Infos** (e.g., K-Mod, AdvCiv, AdvCiv-SAS). Added **Legend items** showing the legend (e.g., for the Info Screen's new Score Tab; for the Sevopedia Leader's AI Personality Panel, (Requires AdvCiv-SAS 5509+) Sevopedia Categories, abbreviation meaning (e.g., for numTxt `+50/-75` or `InC`; for the AI Personality Panel `T.W Likely -> getMaxWarRand` or `Build Unit % -> getBuildUnitProb`)), with `(Inverted)` information. See also: [README.md (Legends)](/README.md#legends).
+ - (Requires AdvCiv-SAS 5510+) Sevopedia — Corporations: **reworked** and **beautified** the page layout, with **new Competes With, Bonuses Consumed, Bonuses Generated, and Movie** panels. Exposed `getBonusProduced` to Python in [CvInfo_Organization.h](/CvGameCoreDLL/CvInfo_Organization.h), [CvInfo_Organization.cpp](/CvGameCoreDLL/CvInfo_Organization.cpp), and [CyInfoInterface3.cpp](/CvGameCoreDLL/CyInfoInterface3.cpp) so the new generated-bonus panel is cleanly supported. See [Sevopedia reworks (Corporations)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-corporations-category).
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=14071

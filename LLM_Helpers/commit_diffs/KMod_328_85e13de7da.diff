@@ -1,0 +1,1362 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 328
+# Commit: 85e13de7daf9542b337e66962c02aa2d49335a74
+# History segment: K-Mod history
+# Parent used for diff: 387c9e14c7e5bc59dcfc36c5266147b0cd7a6556
+# Title: Added new and improved Italian game-text translations, provided by Axios.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+37	37	Assets/xml/Text/Advanced Combat Odds Options.xml
+4	4	Assets/xml/Text/Advanced Scoreboard Options.xml
+2	2	Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml
+11	11	Assets/xml/Text/BUG Advisors Options.xml
+14	14	Assets/xml/Text/BUG City Screen Options.xml
+7	7	Assets/xml/Text/BUG Main Interface Options.xml
+5	5	Assets/xml/Text/BUG Options Screen.xml
+2	2	Assets/xml/Text/Better Espionage Options.xml
+5	5	Assets/xml/Text/CIV4GameText_Events_BTS.xml
+17	17	Assets/xml/Text/Civ4GameText_K-Mod.xml
+2	2	Assets/xml/Text/Civ4lerts Options.xml
+7	7	Assets/xml/Text/Civ4lerts_CIV4GameText.xml
+12	12	Assets/xml/Text/CustDomAdv_CIV4GameText.xml
+1	1	Assets/xml/Text/EventSigns Options.xml
+7	7	Assets/xml/Text/K-Mod hints.xml
+4	4	Assets/xml/Text/MoreCiv4lerts Options.xml
+1	1	Assets/xml/Text/MoreCiv4lerts_CIV4GameText.xml
+1	1	Assets/xml/Text/Sevopedia_CIV4GameText.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/Advanced Combat Odds Options.xml b/Assets/xml/Text/Advanced Combat Odds Options.xml
+index 362f197ec..9976a8cc1 100644
+--- a/Assets/xml/Text/Advanced Combat Odds Options.xml	
++++ b/Assets/xml/Text/Advanced Combat Odds Options.xml	
+@@ -19,7 +19,7 @@
+ 		<English>When checked, PieceOfMind's ACO shows more detailed combat odds information when you hover over a unit to attack.</English>
+ 		<French>When checked, PieceOfMind's ACO shows more detailed combat odds information when you hover over a unit to attack.</French>
+ 		<German>Zeigt detailliertere Informationen zur Berechnung der Siegchancen an, wenn der Mauszeiger f�r einen Angriff �ber eine feindliche Einheit bewegt wird (verwendet PieceOfMind's "Advanced Combat Odds (ACO)"-Mod)</German>
+-		<Italian>When checked, PieceOfMind's ACO shows more detailed combat odds information when you hover over a unit to attack.</Italian>
++		<Italian>Quando selezionato, PieceOfMind's ACO mostra probabilit� di combattimento pi� avanzate quando passi il mouse sopra un'unit� da attaccare.</Italian>
+ 		<Spanish>Cuando est� activada, PCA de PieceOfMind muestra informaci�n m�s detallada de probabilidades de combate cuando pasas el mouse sobre una unidad a atacar.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -44,7 +44,7 @@
+ 		<English>Force Original Odds</English>
+ 		<French>Force Original Odds</French>
+ 		<German>Originale Berechnung</German>
+-		<Italian>Force Original Odds</Italian>
++		<Italian>Forza probabilit� originali</Italian>
+ 		<Spanish>Forzar Probabilidades Originales</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -52,7 +52,7 @@
+ 		<English>When checked, shows the original odds in addition to ACO's.</English>
+ 		<French>When checked, shows the original odds in addition to ACO's.</French>
+ 		<German>Zeigt zus�tzlich zur ACO-Ansicht die originale Siegchancen-Berechnung</German>
+-		<Italian>When checked, shows the original odds in addition to ACO's.</Italian>
++		<Italian>Quando selezionato, mostra le probabilit� originali oltre quelle dell'ACO.</Italian>
+ 		<Spanish>Cuando est� habilitada muestra las probabilidades originales, en adici�n a las de PCA.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -60,7 +60,7 @@
+ 		<English>Ignore Free Wins</English>
+ 		<French>Ignore Free Wins</French>
+ 		<German>Sichere Siege ignorieren</German>
+-		<Italian>Ignore Free Wins</Italian>
++		<Italian>Ignora vittorie gratuite</Italian>
+ 		<Spanish>Ignorar Victorias Gratuitas</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -68,7 +68,7 @@
+ 		<English>When checked, ignores any free wins versus barbarians you have left due to the difficulty level.</English>
+ 		<French>When checked, ignores any free wins versus barbarians you have left due to the difficulty level.</French>
+ 		<German>Ignoriert alle verbleibenden sicheren Einheiten-Siege �ber Barbaren, die auf Grund des Schwierigkeitsgrades gew�hrt werden</German>
+-		<Italian>When checked, ignores any free wins versus barbarians you have left due to the difficulty level.</Italian>
++		<Italian>Quando selezionato, ignora ogni vittoria gratuita contro i barbari in base al livello di difficolt� selezionato.</Italian>
+ 		<Spanish>Cuando est� habilitada, ignora cualquier victoria gratuita contra b�rbaros debida al nivel de dificultad.</Spanish>
+ 	</TEXT>
+ 	
+@@ -77,7 +77,7 @@
+ 		<English>Swap Views</English>
+ 		<French>Swap Views</French>
+ 		<German>Ansicht wechseln</German>
+-		<Italian>Swap Views</Italian>
++		<Italian>Cambia modalit� di visione</Italian>
+ 		<Spanish>Intercambiar Vistas</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -85,7 +85,7 @@
+ 		<English>When checked, swaps the normal and alternate views.</English>
+ 		<French>When checked, swaps the normal and alternate views.</French>
+ 		<German>Wechselt zwischen normaler und alternativer Ansicht</German>
+-		<Italian>When checked, swaps the normal and alternate views.</Italian>
++		<Italian>Quando selezionato, cambia tra visualizzazione normale o alternativa.</Italian>
+ 		<Spanish>Cuando est� habilitada intercambia la vista normal y la alternativa.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -93,7 +93,7 @@
+ 		<English>Merge Short Bars</English>
+ 		<French>Merge Short Bars</French>
+ 		<German>Kurze Balken zusammenfassen</German>
+-		<Italian>Merge Short Bars</Italian>
++		<Italian>Riunisci barre corte</Italian>
+ 		<Spanish>Combinar Barras Cortas</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -101,7 +101,7 @@
+ 		<English>When checked, merges the bars of probabilities that are less than half of one percent.</English>
+ 		<French>When checked, merges the bars of probabilities that are less than half of one percent.</French>
+ 		<German>Fasst Wahrscheinlichkeitsbalken zusammen, die weniger als ein halbes Prozent anzeigen</German>
+-		<Italian>When checked, merges the bars of probabilities that are less than half of one percent.</Italian>
++		<Italian>Quando selezionato, riunisce le barre delle probabilit� che sono meno della met� dell'uno percento.</Italian>
+ 		<Spanish>Cuando est� habilitada, combina las barras de probabilidades que son menores que la mitad de uno por ciento.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -109,7 +109,7 @@
+ 		<English>Modifier Labels</English>
+ 		<French>Modifier Labels</French>
+ 		<German>Modifikatoren kennzeichnen</German>
+-		<Italian>Modifier Labels</Italian>
++		<Italian>Modifica etichette</Italian>
+ 		<Spanish>Etiquetas de Modificadores</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -117,7 +117,7 @@
+ 		<English>When checked, displays "attacker" and "defender" labels before each non-empty set of modifiers.</English>
+ 		<French>When checked, displays "attacker" and "defender" labels before each non-empty set of modifiers.</French>
+ 		<German>Kennzeichnet, falls vorhanden, die jeweilige Gruppe der kampfrelevanten Modifikatoren der Einheiten mit "Angreifer" und "Verteidiger"</German>
+-		<Italian>When checked, displays "attacker" and "defender" labels before each non-empty set of modifiers.</Italian>
++		<Italian>Quando selezionato, mostra le etichette "attaccante" e "difensore" prima di ogni set di modificatori non vuoto.</Italian>
+ 		<Spanish>Cuando est� habilitado, muestra las etiquetas "atacante" y "defensor" antes de cada set de modificadores que no est� vac�o.</Spanish>
+ 	</TEXT>
+ 	
+@@ -126,7 +126,7 @@
+ 		<English>Basic Info</English>
+ 		<French>Basic Info</French>
+ 		<German>Basis-Info</German>
+-		<Italian>Basic Info</Italian>
++		<Italian>Informazioni base</Italian>
+ 		<Spanish>Informaci�n B�sica</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -134,7 +134,7 @@
+ 		<English>Select when to show the basic odds information.</English>
+ 		<French>Select when to show the basic odds information.</French>
+ 		<German>Bestimmt, wann die grundlegenden Informationen zur Berechnung der Siegchancen angezeigt werden</German>
+-		<Italian>Select when to show the basic odds information.</Italian>
++		<Italian>Seleziona quando mostrare le informazioni base di combattimento.</Italian>
+ 		<Spanish>Selecciona cu�ndo mostrar la informaci�n de probabilidades b�sicas.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -142,7 +142,7 @@
+ 		<English>Never|Normal|Alternate|Always</English>
+ 		<French>Never|Normal|Alternate|Always</French>
+ 		<German>Nie|Normal|Alternativ|Immer</German>
+-		<Italian>Never|Normal|Alternate|Always</Italian>
++		<Italian>Mai|Normale|Alterna|Sempre</Italian>
+ 		<Spanish>Nunca|Normal|Alternativa|Siempre</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -150,7 +150,7 @@
+ 		<English>Attacker Info</English>
+ 		<French>Attacker Info</French>
+ 		<German>Angeifer-Info</German>
+-		<Italian>Attacker Info</Italian>
++		<Italian>Info Attaccante</Italian>
+ 		<Spanish>Informaci�n del Atacante</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -158,7 +158,7 @@
+ 		<English>Select when to show the attacking unit's information.</English>
+ 		<French>Select when to show the attacking unit's information.</French>
+ 		<German>Bestimmt, wann die Informationen �ber die angereifende Einheit angezeigt werden</German>
+-		<Italian>Select when to show the attacking unit's information.</Italian>
++		<Italian>Seleziona quando mostrare le informazioni dell'attacante.</Italian>
+ 		<Spanish>Selecciona cu�ndo mostrar la informaci�n de la unidad atacante.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -166,7 +166,7 @@
+ 		<English>Defender Info</English>
+ 		<French>Defender Info</French>
+ 		<German>Verteidiger-Info</German>
+-		<Italian>Defender Info</Italian>
++		<Italian>Info Difensore</Italian>
+ 		<Spanish>Informaci�n del Defensor</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -174,7 +174,7 @@
+ 		<English>Select when to show the defending unit's information.</English>
+ 		<French>Select when to show the defending unit's information.</French>
+ 		<German>Bestimmt, wann die Informationen �ber die verteidigende Einheit angezeigt werden</German>
+-		<Italian>Select when to show the defending unit's information.</Italian>
++		<Italian>Seleziona quando mostrare le informazioni del difensore.</Italian>
+ 		<Spanish>Selecciona cu�ndo mostrar la informaci�n de la unidad defensora.</Spanish>
+ 	</TEXT>
+ 	
+@@ -183,7 +183,7 @@
+ 		<English>Survival Odds</English>
+ 		<French>Survival Odds</French>
+ 		<German>�berlebenschance</German>
+-		<Italian>Survival Odds</Italian>
++		<Italian>Probabilit� di sopravvivenza</Italian>
+ 		<Spanish>Probabilidades de Supervivencia</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -191,7 +191,7 @@
+ 		<English>Select when to show the odds that each unit will survive.</English>
+ 		<French>Select when to show the odds that each unit will survive.</French>
+ 		<German>Bestimmt, wann die �berlebenschancen f�r jede Einheit angezeigt werden</German>
+-		<Italian>Select when to show the odds that each unit will survive.</Italian>
++		<Italian>Seleziona per mostrare le probabilit� di sopravvivenza di ogni unit�.</Italian>
+ 		<Spanish>Selecciona cu�ndo mostrar las probabilidades de supervivencia de cada unidad.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -199,7 +199,7 @@
+ 		<English>Unharmed Odds</English>
+ 		<French>Unharmed Odds</French>
+ 		<German>Chance auf Unversehrtheit</German>
+-		<Italian>Unharmed Odds</Italian>
++		<Italian>Probabilit� di restare illeso</Italian>
+ 		<Spanish>Probabilidades de Salir Ileso</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -207,7 +207,7 @@
+ 		<English>Select when to show the odds that each unit will survive without taking any damage.</English>
+ 		<French>Select when to show the odds that each unit will survive without taking any damage.</French>
+ 		<German>Bestimmt, wann die Chancen angezeigt werden, dass jede Einheit den Kampf ohne Schaden �berleben wird</German>
+-		<Italian>Select when to show the odds that each unit will survive without taking any damage.</Italian>
++		<Italian>Seleziona per mostrare le probabilit� di sopravvivere senza alcun danno.</Italian>
+ 		<Spanish>Selecciona cu�ndo mostrar las probabilidades para cada unidad de sobrevivir sin sufrir da�os.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -215,7 +215,7 @@
+ 		<English>Average Health</English>
+ 		<French>Average Health</French>
+ 		<German>Erwartete Gesundheit</German>
+-		<Italian>Average Health</Italian>
++		<Italian>Media salute</Italian>
+ 		<Spanish>Promedio de Salud</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -223,7 +223,7 @@
+ 		<English>Select when to show the average (expected) health each unit will have after the battle.</English>
+ 		<French>Select when to show the average (expected) health each unit will have after the battle.</French>
+ 		<German>Bestimmt, wann die durchschnittliche (erwartete) Gesundheit jeder Einheit nach dem Kampf angezeigt wird</German>
+-		<Italian>Select when to show the average (expected) health each unit will have after the battle.</Italian>
++		<Italian>Seleziona per mostrare la media (probabile) di salute che ogni unit� avr� dopo la battaglia.</Italian>
+ 		<Spanish>Selecciona cu�ndo mostrar el promedio (esperado) de salud que tendr� cada unidad despu�s de la batalla.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -231,7 +231,7 @@
+ 		<English>Attacker Health Bars</English>
+ 		<French>Attacker Health Bars</French>
+ 		<German>Gesundheitsbalken des Angreifers</German>
+-		<Italian>Attacker Health Bars</Italian>
++		<Italian>Barre salute Attaccante</Italian>
+ 		<Spanish>Barras de Salud del Atacante</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -239,7 +239,7 @@
+ 		<English>Select when to show the probability bars of each possible ending health for the attacker.</English>
+ 		<French>Select when to show the probability bars of each possible ending health for the attacker.</French>
+ 		<German>Bestimmt, wann die Wahrscheinlichkeitsbalken f�r die jeweils erwartete Gesundheit des Angreifers nach dem Kampf angezeigt werden</German>
+-		<Italian>Select when to show the probability bars of each possible ending health for the attacker.</Italian>
++		<Italian>Seleziona per mostrare le probabili barre salute per ogni possibilie salute dell'Attacante.</Italian>
+ 		<Spanish>Selecciona cu�ndo mostrar las barras de probabilidad de cada posible nivel final de salud del atacante.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -247,7 +247,7 @@
+ 		<English>Defender Health Bars</English>
+ 		<French>Defender Health Bars</French>
+ 		<German>Gesundheitsbalken des Verteidigers</German>
+-		<Italian>Defender Health Bars</Italian>
++		<Italian>Barre salute Difensore</Italian>
+ 		<Spanish>Barras de Salud del Defensor</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -255,7 +255,7 @@
+ 		<English>Select when to show the probability bars of each possible ending health for the defender.</English>
+ 		<French>Select when to show the probability bars of each possible ending health for the defender.</French>
+ 		<German>Bestimmt, wann die Wahrscheinlichkeitsbalken f�r die jeweils erwartete Gesundheit des Verteidigers nach dem Kampf angezeigt werden</German>
+-		<Italian>Select when to show the probability bars of each possible ending health for the defender.</Italian>
++		<Italian>Seleziona per mostrare le probabili barre salute per ogni possibilie salute del Difensore.</Italian>
+ 		<Spanish>Selecciona cu�ndo mostrar las barras de probabilidad de cada posible nivel final de salud del defensor.</Spanish>
+ 	</TEXT>
+ 	
+@@ -264,7 +264,7 @@
+ 		<English>Unrounded XP</English>
+ 		<French>Unrounded XP</French>
+ 		<German>Ungerundete EP</German>
+-		<Italian>Unrounded XP</Italian>
++		<Italian>XP non arrotondata</Italian>
+ 		<Spanish>XP sin Redondear</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -272,7 +272,7 @@
+ 		<English>Select when to show the unrounded XP values in addition to the actual rounded values the units will gain.</English>
+ 		<French>Select when to show the unrounded XP values in addition to the actual rounded values the units will gain.</French>
+ 		<German>Bestimmt, wann die ungerundeten Erfahrungspunkte zus�tzlich zu den tats�chlichen (gerundeten) Erfahrungspunkten, die die Einheiten erhalten werden, angezeigt werden</German>
+-		<Italian>Select when to show the unrounded XP values in addition to the actual rounded values the units will gain.</Italian>
++		<Italian>Seleziona per mostrare i valori XP in aggiunta agli attuali valori arrotondati che l'unit� guadagner�.</Italian>
+ 		<Spanish>Selecciona cu�ndo mostrar los valores no redondeados de XP adem�s de los redondeados que las unidades ganar�n.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -288,7 +288,7 @@
+ 		<English>Select when to show the R values on either side of the actual value that will produce +/- 1 XP.</English>
+ 		<French>Select when to show the R values on either side of the actual value that will produce +/- 1 XP.</French>
+ 		<German>Bestimmt, wann die R-Werte, die +/- 1 EP ausmachen k�nnen, auf beiden Seiten des tats�chlichen Wertes angezeigt werden</German>
+-		<Italian>Select when to show the R values on either side of the actual value that will produce +/- 1 XP.</Italian>
++		<Italian>Seleziona per mostrare i valori R di entrambi i lati dell'attuale valore che produrr� +/- 1 XP.</Italian>
+ 		<Spanish>Selecciona cu�ndo mostrar los valores R en cada lado del valor actual que producir� +/- 1 XP.</Spanish>
+ 	</TEXT>
+ 	
+@@ -297,7 +297,7 @@
+ 		<English>Defense Modifiers</English>
+ 		<French>Defense Modifiers</French>
+ 		<German>Verteidigungsmodifikatoren</German>
+-		<Italian>Defense Modifiers</Italian>
++		<Italian>Modificatori Difensore</Italian>
+ 		<Spanish>Modificadores Defensivos</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -305,7 +305,7 @@
+ 		<English>Select when to show the defense modifiers.</English>
+ 		<French>Select when to show the defense modifiers.</French>
+ 		<German>Bestimmt, wann die Verteidigungsmodifikatoren angezeigt werden</German>
+-		<Italian>Select when to show the defense modifiers.</Italian>
++		<Italian>Seleziona per mostrare i modificatori del Difensore.</Italian>
+ 		<Spanish>Selecciona cu�ndo mostrar los modificadores defensivos.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -313,7 +313,7 @@
+ 		<English>Total Defense Modifier</English>
+ 		<French>Total Defense Modifier</French>
+ 		<German>Absoluter Verteidigungsmodifikator</German>
+-		<Italian>Total Defense Modifier</Italian>
++		<Italian>Modificatore difensivo globale</Italian>
+ 		<Spanish>Modificador Defensivo Total</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -321,7 +321,7 @@
+ 		<English>Select when to show the total defense modifiers (includes attacker's non-combat modifiers that apply to the defender).</English>
+ 		<French>Select when to show the total defense modifiers (includes attacker's non-combat modifiers that apply to the defender).</French>
+ 		<German>Bestimmt, wann der absolute Verteidigungsmodifikator angezeigt wird (beinhaltet die nicht kampfrelevanten Modifikatoren des Angreifers, die auf den Verteidiger angewendet werden)</German>
+-		<Italian>Select when to show the total defense modifiers (includes attacker's non-combat modifiers that apply to the defender).</Italian>
++		<Italian>Seleziona per mostrare il modificatore difensivo globale(include i modificatori di non combattimento dell'attacante che si applicano al difensore).</Italian>
+ 		<Spanish>Selecciona cu�ndo mostrar los modificadores defensivos totales (incluyendo los no-de-combate del atacante que se aplican al defensor).</Spanish>
+ 	</TEXT>
+ 	
+@@ -330,7 +330,7 @@
+ 		<English>[SHIFT] Instructions</English>
+ 		<French>[SHIFT] Instructions</French>
+ 		<German>[UMSCHALT]-Hinweis</German>
+-		<Italian>[SHIFT] Instructions</Italian>
++		<Italian>[SHIFT] Instruzioni</Italian>
+ 		<Spanish>[MAY�S] Instructiones</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -338,7 +338,7 @@
+ 		<English>Select when to show the instructions for pressing [SHIFT] to see the alternate view.</English>
+ 		<French>Select when to show the instructions for pressing [SHIFT] to see the alternate view.</French>
+ 		<German>Bestimmt, wann der Hinweis zum Dr�cken der [UMSCHALT]-Taste f�r den Wechsel zur alternativen Ansicht angezeigt wird</German>
+-		<Italian>Select when to show the instructions for pressing [SHIFT] to see the alternate view.</Italian>
++		<Italian>Seleziona per mostrare le istruzioni per premere [SHIFT] per vedere la visuale alternativa.</Italian>
+ 		<Spanish>Selecciona cu�ndo mostrar las instrucciones para presionar [MAY�S] para mostrar la vista alternativa.</Spanish>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/Advanced Scoreboard Options.xml b/Assets/xml/Text/Advanced Scoreboard Options.xml
+index 5d8cd1640..a76d8ea15 100644
+--- a/Assets/xml/Text/Advanced Scoreboard Options.xml	
++++ b/Assets/xml/Text/Advanced Scoreboard Options.xml	
+@@ -115,7 +115,7 @@
+ 		<English>Determines how civilizations are labeled on the scoreboard.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Leader[COLOR_REVERT] - Name of the leader or player (Victoria or EmperorFool).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Civilization[COLOR_REVERT] - Name of the civilization (England).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Description[COLOR_REVERT] - Descriptive name of the civilization (English Empire).</English>
+ 		<French>Determine comment les civilisations sont affich�es sur le panneau des scores.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Leader[COLOR_REVERT] - Name of the leader or player (Victoria or EmperorFool).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Civilization[COLOR_REVERT] - Name of the civilization (England).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Description[COLOR_REVERT] - Descriptive name of the civilization (English Empire).</French>
+ 		<German>Bestimmt den Namen, mit dem Zivilisationen in der Punkteanzeige angezeigt werden:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Oberhaupt[COLOR_REVERT] - Name des Oberhaupts oder Spielers (Victoria oder EmperorFool)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Zivilisation (Ziv)[COLOR_REVERT] - Name der Zivilisation (England)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ziv-Beschreibung[COLOR_REVERT] - Beschreibender Name der Zivilisation (Reich der Engl�nder)</German>
+-		<Italian>Determina come le Civilt� vengono identificate nel Pannello del Punteggio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Leader[COLOR_REVERT] - Name of the leader or player (Victoria or EmperorFool).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Civilization[COLOR_REVERT] - Name of the civilization (England).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Description[COLOR_REVERT] - Descriptive name of the civilization (English Empire).</Italian>
++		<Italian>Determina come le Civilt� vengono identificate nel Pannello del Punteggio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Leader[COLOR_REVERT] - Nome del Leader o giocatore (Victoria o EmperorFool).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Civilization[COLOR_REVERT] - Nome della civilit� (Inghilterra).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Descrizione[COLOR_REVERT] - Nome descrittivo della civilt� (Impero Britannico).</Italian>
+ 		<Spanish>Determines how civilizations are labeled on the scoreboard.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Leader[COLOR_REVERT] - Name of the leader or player (Victoria or EmperorFool).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Civilization[COLOR_REVERT] - Name of the civilization (England).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Description[COLOR_REVERT] - Descriptive name of the civilization (English Empire).</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -123,7 +123,7 @@
+ 		<English>Leader|Civilization|Civ Description|Leader / Civ|Leader / Civ Desc</English>
+ 		<French>Leader|Civilization|Civ Description|Leader / Civ|Leader / Civ Desc</French>
+ 		<German>Oberhaupt|Zivilisation|Ziv-Beschreibung|Oberhaupt / Zivilisation|Oberhaupt / Ziv-Beschreibung</German>
+-		<Italian>Leader|Civilt�|Short Civ|Leader + Civ|Leader + Short Civ</Italian>
++		<Italian>Leader|Civilt�|Civ Corta|Leader + Civ|Leader + Civ Corta</Italian>
+ 		<Spanish>Leader|Civilization|Civ Description|Leader / Civ|Leader / Civ Desc</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -283,7 +283,7 @@
+ 		<English>This determines the order in which the score columns appear.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - You are at war or have a peace treaty with the civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - The civ's score.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - The change in the civ's score since previous turn.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - The civ's rank based on their score.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - The number of cities the civ owns.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - The civ has at least one vassal.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - The civ's player ID number.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - The civ's/leader's/player's name.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - You have not yet met the civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - You have a positive espionage point ratio against the civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - The tech the civ is researching (vassals, teammates and espionage).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - The number of research turns left.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - The civ is connected to your trade network.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - You have an open borders agreement with the civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - You have a defensive pact with the civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - The civ's state religion.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - The civ's attitude toward you.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - You are the civ's worst enemy.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - This civ is waiting for you to finish your turn in multiplayer.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Civ's network stats (ping).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - The network player is out-of-sync.[NEWLINE][NEWLINE]You can place a number (positive or negative) between column codes to override the default spacing.</English>
+ 		<French>Ceci d�termine l'ordre dans lequel les colonnes apparaissent.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Vous �tes en guerre contre cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score de la civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - The change in the civ's score since previous turn.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - The civ's rank based on their score.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - The number of cities the civ owns.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - The civ has at least one vassal.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - The civ's player ID number.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Nom de la civilisation et/ou du dirigeant.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Vous n'avez pas encore rencontr� cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Votre pro rata d'espionnage avec cette civilisation est bon.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - La technologie que la civilisation recherche (vassaux, �quipe et espionnage).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Le nombre de tours qui restent � la recherche.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - Cette civilisation est connect�e � votre r�seau de commerce.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - Vous avez une accord de fronti�res ouvertes avec cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - Vous avez un pacte d�fensif avec cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - La religion nationale de cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - L'attitude de cette civilisation envers vous.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - You are the civ's worst enemy.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Vous attendez que cette civilisation finisse son tour.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Statistique de R�seau (ping).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Le joueur est out-of-sync.[NEWLINE][NEWLINE]You can place a number (positive or negative) between column codes to override the default spacing.</French>
+ 		<German>Bestimmt die Reihenfolge, in der die Spalten der Punkteanzeige angeordnet werden:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Kriegszustand oder Friedensvertrag mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Wertung einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Ver�nderung der Wertung einer Zivilisation seit der letzten Runde[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rang einer Zivilisation basierend auf ihrer Wertung[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Anzahl der St�dte, �ber die eine Zivilisation verf�gt[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Eine Zivilisation hat mindestens einen Vasallen[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Spieler-ID-Nummer einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Name einer Zivilisation/eines Oberhaupts/eines Spielers[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Zivilisation noch nicht kontaktiert[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Gutes Spionagepunktverh�ltnis gegen�ber einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Derzeitiges Forschungsprojekt einer Zivilisation (bei Vasallen, Verb�ndeten und durch Spionage erlangt)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Anzahl verbleibender Runden bis zur Erforschung[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - Handelsverbindungen mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - "Offene Grenzen" mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - "Verteidigungsb�ndis" mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Staatsreligion einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Einstellung einer Zivilisation gegen�ber der eigenen[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - Erzfeind der eigenen Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Warten auf den Zug einer Zivilisation (im Multiplayer)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Netzwerkstatistik einer Zivilisation (Ping)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Verbundener Spieler ist "out-of-sync"[NEWLINE][NEWLINE]Zwischen den Codes f�r die Spalten k�nnen (positive oder negative) Zahlen gesetzt werden, die den eingestellten Standardabstand au�er Kraft setzen</German>
+-		<Italian>Determina l'ordine in base al quale vengono visualizzate le colonne del Pannello del Punteggio:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - sei in guerra o hai un trattato di pace con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - il Punteggio della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - la variazione nel punteggio rispetto al turno precedente;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - La posizione della Civilt� in base al punteggio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - The number of cities the civ owns.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - mostra l'icona di una stella argentata se la Civilt� ha dei Vassalli;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - il numero di identificazione della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - il Nome della Civilt�/del Leader della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - non hai ancora incontrato questa Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - hai un Rapporto di Spionaggio positivo verso la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - la Tecnologia che la Civilt� sta ricercando (nota per Vassalli e Alleati o mediante Spionaggio);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - il numero di Turni di Ricerca rimasti alla Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - la Civilt� � connessa alla tua rete commerciale;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - hai un accordo di Libero Scambio con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - hai un Patto Difensivo con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - la Religione di Stato della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - l'atteggiamento della Civilt� verso di te;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - siete il Peggior Nemico della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - sei in attesa che questa Civilt� finisca il suo turno;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - le statistiche di connessione del giocatore della Civilt� (ping);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - il giocatore di questa Civilt� � "out-of-sync".[NEWLINE][NEWLINE]Un numero definisce la spaziatura (in pixel) che deve seguire la colonna precedente (se visualizzata), prevalendo sulla spaziatura di default; un numero negativo comporta il ravvicinamento (ed al limite anche la sovrapposizione) fra le due colonne.[NEWLINE]Gli spazi vengono ignorati, per cui possono essere utilizzati per semplificare la lettura della stringa di codici.</Italian>
++		<Italian>Determina l'ordine in base al quale vengono visualizzate le colonne del Pannello del Punteggio:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - sei in guerra o hai un trattato di pace con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - il Punteggio della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - la variazione nel punteggio rispetto al turno precedente;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - La posizione della Civilt� in base al punteggio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Il munero delle citt� della Civilt�.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - mostra l'icona di una stella argentata se la Civilt� ha dei Vassalli;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - il numero di identificazione della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - il Nome della Civilt�/del Leader della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - non hai ancora incontrato questa Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - hai un Rapporto di Spionaggio positivo verso la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - la Tecnologia che la Civilt� sta ricercando (nota per Vassalli e Alleati o mediante Spionaggio);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - il numero di Turni di Ricerca rimasti alla Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - la Civilt� � connessa alla tua rete commerciale;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - hai un accordo di Libero Scambio con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - hai un Patto Difensivo con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - la Religione di Stato della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - l'atteggiamento della Civilt� verso di te;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - siete il Peggior Nemico della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - sei in attesa che questa Civilt� finisca il suo turno;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - le statistiche di connessione del giocatore della Civilt� (ping);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - il giocatore di questa Civilt� � "out-of-sync".[NEWLINE][NEWLINE]Un numero definisce la spaziatura (in pixel) che deve seguire la colonna precedente (se visualizzata), prevalendo sulla spaziatura di default; un numero negativo comporta il ravvicinamento (ed al limite anche la sovrapposizione) fra le due colonne.[NEWLINE]Gli spazi vengono ignorati, per cui possono essere utilizzati per semplificare la lettura della stringa di codici.</Italian>
+ 		<Spanish>This determines the order in which the score columns appear.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - You are at war or have a peace treaty with the civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - The civ's score.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - The change in the civ's score since previous turn.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - The civ's rank based on their score.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - The number of cities the civ owns.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - The civ has at least one vassal.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - The civ's player ID number.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - The civ's/leader's/player's name.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - You have not yet met the civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - You have a positive espionage point ratio against the civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - The tech the civ is researching (vassals, teammates and espionage).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - The number of research turns left.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - The civ is connected to your trade network.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - You have an open borders agreement with the civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - You have a defensive pact with the civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - The civ's state religion.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - The civ's attitude toward you.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - You are the civ's worst enemy.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - This civ is waiting for you to finish your turn in multiplayer.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Civ's network stats (ping).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - The network player is out-of-sync.[NEWLINE][NEWLINE]You can place a number (positive or negative) between column codes to override the default spacing.</Spanish>[NEWLINE]	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__GROUPVASSALS_TEXT</Tag>
+@@ -362,7 +362,7 @@
+ 		<English>When checked, shows the ratio of your power rating to those of civilizations against whom you have accumulated enough espionage points.</English>
+ 		<French>En activant, montre le pro rata de votre pouvoir compar� � ceux des civilisation pour lesquelles vous avez accumul� assez de points d'espionnage.</French>
+ 		<German>Zeigt die Machtverteilung zwischen der eigenen und den anderen Zivilisationen als Verh�ltniswert an, falls genug Spionagepunkte investiert wurden</German>
+-		<Italian>Quando � selezionato, mostra il rapporto fra la tua Potenza e quella della Civilt� verso cui hai acumulato abbastanza Punti Spionaggio.</Italian>
++		<Italian>Quando � selezionato, mostra il rapporto fra la tua Potenza e quella della Civilt� verso cui hai accumulato abbastanza Punti Spionaggio.</Italian>
+ 		<Spanish>When checked, shows the ratio of your power rating to those of civilizations against whom you have accumulated enough espionage points.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml b/Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml
+index d530a52f3..1b57516e7 100644
+--- a/Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml
++++ b/Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml
+@@ -18,7 +18,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Barbarian free wins left:[SPACE][COLOR_REVERT]</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Nombre de victoire garantie contre les barbares:[SPACE][COLOR_REVERT]</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]�brige sichere Siege gegen Barbaren:[SPACE][COLOR_REVERT]</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Vittorie barbariche garantite rimaste:[SPACE][COLOR_REVERT]</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Vittorie conto i barbari garantite rimaste:[SPACE][COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]N�mero de victorias garantizadas contra los b�rbaros:[SPACE][COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -90,7 +90,7 @@
+ 		<English>[NEWLINE]Unharmed:[SPACE]</English>
+ 		<French>[NEWLINE]Indemne:[SPACE]</French>
+ 		<German>[NEWLINE]Unversehrt:[SPACE]</German>
+-		<Italian>[NEWLINE]Disarmato:[SPACE]</Italian>
++		<Italian>[NEWLINE]Illeso:[SPACE]</Italian>
+ 		<Spanish>[NEWLINE]Ileso:[SPACE]</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/BUG Advisors Options.xml b/Assets/xml/Text/BUG Advisors Options.xml
+index e2b55ea57..4dd114040 100644
+--- a/Assets/xml/Text/BUG Advisors Options.xml	
++++ b/Assets/xml/Text/BUG Advisors Options.xml	
+@@ -57,7 +57,7 @@
+ 		<English>Numbers|Smilies|Both</English>
+ 		<French>Numbers|Smileys|Both</French>
+ 		<German>Zahlen|Smilies|Beides</German>
+-		<Italian>Numbers|Icone|Both</Italian>
++		<Italian>Numeri|Icone|Entrambi</Italian>
+ 		<Spanish>Numbers|Smilies|Both</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -65,7 +65,7 @@
+ 		<English>Select how to display AI attitudes on the GLANCE tab: numbers, smilies, or both.</English>
+ 		<French>S�lectionnez le mode d'afficher des attitudes d'AI sur l'onglet GLANCE: nombres, des smileys, ou les deux.</French>
+ 		<German>Bestimmt, wie im Kurz�berblick die Einstellung anderer Zivilisationen gegen�ber der eigenen dargestellt werden</German>
+-		<Italian>Selezionare la modalit� di visualizzazione atteggiamenti AI sulla scheda GLANCE: i numeri, faccine, o entrambi.</Italian>
++		<Italian>Selezionare la modalit� di visualizzazione atteggiamenti AI sulla scheda OCCHIATA: i numeri, icone, o entrambi.</Italian>
+ 		<Spanish>Select how to display AI attitudes on the GLANCE tab: numbers, smilies, or both.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -159,7 +159,7 @@
+ 		<English>Show Era</English>
+ 		<French>Show Era</French>
+ 		<German>Epoche anzeigen</German>
+-		<Italian>Show Era</Italian>
++		<Italian>Mostra Era</Italian>
+ 		<Spanish>Show Era</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -167,7 +167,7 @@
+ 		<English>When selected, shows the technology's associated era.</English>
+ 		<French>When selected, shows the technology's associated era.</French>
+ 		<German>Zeigt jeweils die Epoche an, zu der eine Technologie geh�rt</German>
+-		<Italian>When selected, shows the technology's associated era.</Italian>
++		<Italian>Quando selezionato, Mostra l'era associata alla tecnologia.</Italian>
+ 		<Spanish>When selected, shows the technology's associated era.</Spanish>
+ 	</TEXT>
+ 
+@@ -194,7 +194,7 @@
+ 		<English>Show Religions</English>
+ 		<French>Show Religions</French>
+ 		<German>Anzeige</German>
+-		<Italian>Show Religions</Italian>
++		<Italian>Mostra Religioni</Italian>
+ 		<Spanish>Show Religions</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -202,7 +202,7 @@
+ 		<English>All|Founded|Player's</English>
+ 		<French>All|Founded|Player's</French>
+ 		<German>Alle|Gegr�ndete|Eigene</German>
+-		<Italian>All|Founded|Player's</Italian>
++		<Italian>Tutte|Fondate|del Giocatore</Italian>
+ 		<Spanish>All|Founded|Player's</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -210,7 +210,7 @@
+ 		<English>Select which religions should be shown in the top area of the Religion Advisor.</English>
+ 		<French>Select which religions should be shown in the top area of the Religion Advisor.</French>
+ 		<German>Bestimmt, welche Religionen in der oberen H�lfte des  Religionsberaters angezeigt werden sollen</German>
+-		<Italian>Select which religions should be shown in the top area of the Religion Advisor.</Italian>
++		<Italian>Seleziona quali religioni devono essere mostrate nell'area superiore del Consigliere Religioso.</Italian>
+ 		<Spanish>Select which religions should be shown in the top area of the Religion Advisor.</Spanish>
+ 	</TEXT>
+ 
+@@ -304,7 +304,7 @@
+ 		<English>Use Player Color</English>
+ 		<French>Use Player Color</French>
+ 		<German>Spielerfarben</German>
+-		<Italian>Use Player Color</Italian>
++		<Italian>Usa Colore del Giocatore</Italian>
+ 		<Spanish>Use Player Color</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -312,7 +312,7 @@
+ 		<English>When checked, displays wonders on the BUG version of the Wonders tab using the owning player's color.</English>
+ 		<French>When checked, displays wonders on the BUG version of the Wonders tab using the owning player's color.</French>
+ 		<German>F�rbt die Wundernamen auf der von BUG ver�nderten Wunder-Seite in der Farbe des jeweiligen Spielers ein</German>
+-		<Italian>When checked, displays wonders on the BUG version of the Wonders tab using the owning player's color.</Italian>
++		<Italian>Quando selezionato, mostra le meraviglie nella versione BUG della tabella meraviglie usando il colore del giocatore che le possiede.</Italian>
+ 		<Spanish>When checked, displays wonders on the BUG version of the Wonders tab using the owning player's color.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -336,7 +336,7 @@
+ 		<English>Non-Zero Stats Only</English>
+ 		<French>Non-Zero Stats Only</French>
+ 		<German>Non-Zero Stats Only</German>
+-		<Italian>Non-Zero Stats Only</Italian>
++		<Italian>Solo statistiche maggiori di zero</Italian>
+ 		<Spanish>Non-Zero Stats Only</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -344,7 +344,7 @@
+ 		<English>When checked, only non-zero entries are displayed in the Stats tab.</English>
+ 		<French>When checked, only non-zero entries are displayed in the Stats tab.</French>
+ 		<German>When checked, only non-zero entries are displayed in the Stats tab.</German>
+-		<Italian>When checked, only non-zero entries are displayed in the Stats tab.</Italian>
++		<Italian>Quando � selezionato, solo le statistiche maggiori di zero sono mostrate nella tabella Statistiche.</Italian>
+ 		<Spanish>When checked, only non-zero entries are displayed in the Stats tab.</Spanish>
+ 	</TEXT>
+ <!-- Sevopedia -->
+
+diff --git a/Assets/xml/Text/BUG City Screen Options.xml b/Assets/xml/Text/BUG City Screen Options.xml
+index ee2bb53a1..1f6541dd8 100644
+--- a/Assets/xml/Text/BUG City Screen Options.xml	
++++ b/Assets/xml/Text/BUG City Screen Options.xml	
+@@ -51,7 +51,7 @@
+ 		<English>Count Tiles</English>
+ 		<French>Count Tiles</French>
+ 		<German>Ertragsberechnung</German>
+-		<Italian>Count Tiles</Italian>
++		<Italian>Conta caselle</Italian>
+ 		<Spanish>Count Tiles</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -59,7 +59,7 @@
+ 		<English>Select which tiles to count in Raw Yields when Civ is started.</English>
+ 		<French>Select which tiles to count in Raw Yields when Civ is started.</French>
+ 		<German>Bestimmt, welche Gel�ndefelder in die Berechnung der Rohertr�ge einflie�en sollen, wenn das Spiel gestartet wird</German>
+-		<Italian>Select which tiles to count in Raw Yields when Civ is started.</Italian>
++		<Italian>Seleziona quali caselle contare nei Prodotti Grazzi quando Civ � avviato.</Italian>
+ 		<Spanish>Select which tiles to count in Raw Yields when Civ is started.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -67,7 +67,7 @@
+ 		<English>Worked|City|Owned</English>
+ 		<French>Worked|City|Owned</French>
+ 		<German>Bearbeitet|Stadt|Besitz</German>
+-		<Italian>Worked|City|Owned</Italian>
++		<Italian>Lavorate|Citt�|Possedute</Italian>
+ 		<Spanish>Worked|City|Owned</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -83,7 +83,7 @@
+ 		<English>When checked, displays the food difference generated per turn (plus or minus) and the number of turns until starvation when the food supply is shrinking.</English>
+ 		<French>When checked, displays the food difference generated per turn (plus or minus) and the number of turns until starvation when the food supply is shrinking.</French>
+ 		<German>Zeigt die (positive oder negative) Abweichung der erwirtschafteten Nahrungsertr�ge pro Runde an und au�erdem die Anzahl der Runden, bis eine Hungersnot ausbricht und der Nahrungsvorrat zu schrumpfen beginnt</German>
+-		<Italian>Quando � selezionato, visualizza la differenza del cibo generato ogni turno (positiva o negativa); quando le risorse alimentari sono in riduzione, visualizza anche il numero di turni fino alla carestia.</Italian>
++		<Italian>Quando � selezionato, visualizza la differenza del cibo generato ogni turno (positiva o negativa); quando le risorse alimentari sono in riduzione, visualizza anche il numero di turni prima della carestia.</Italian>
+ 		<Spanish>When checked, displays the food difference generated per turn (plus or minus) and the number of turns until starvation when the food supply is shrinking.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -187,7 +187,7 @@
+ 		<English>Only Present Religions</English>
+ 		<French>Only Present Religions</French>
+ 		<German>Nur vorhandene Religionen</German>
+-		<Italian>Only Present Religions</Italian>
++		<Italian>Solo Religioni Presenti</Italian>
+ 		<Spanish>Only Present Religions</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -195,7 +195,7 @@
+ 		<English>When checked, displays only the religions that are present in the city and allows for more than seven religions.</English>
+ 		<French>When checked, displays only the religions that are present in the city and allows for more than seven religions.</French>
+ 		<German>Zeigt nur die in einer Stadt vorhandenen Religionen an und erlaubt die Darstellung von mehr als sieben Religionen</German>
+-		<Italian>When checked, displays only the religions that are present in the city and allows for more than seven religions.</Italian>
++		<Italian>Quando � selezionato, mostra solo le religioni presenti nella citt� e consente di visualizzare oltre sette religioni.</Italian>
+ 		<Spanish>When checked, displays only the religions that are present in the city and allows for more than seven religions.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -203,7 +203,7 @@
+ 		<English>Only Present Corporations</English>
+ 		<French>Only Present Corporations</French>
+ 		<German>Nur vorhandene Kapitalgesellschaften</German>
+-		<Italian>Only Present Corporations</Italian>
++		<Italian>Solo Corporazioni Presenti</Italian>
+ 		<Spanish>Only Present Corporations</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -211,7 +211,7 @@
+ 		<English>When checked, displays only the corporations that are present in the city and allows for more than seven corporations.</English>
+ 		<French>When checked, displays only the corporations that are present in the city and allows for more than seven corporations.</French>
+ 		<German>Zeigt nur die in einer Stadt vorhandenen Kapitalgesellschaften an und erlaubt die Darstellung von mehr als sieben Kapitalgesellschaften</German>
+-		<Italian>When checked, displays only the corporations that are present in the city and allows for more than seven corporations.</Italian>
++		<Italian>Quando � selezionato, mostra solo le religioni presenti nella citt� e consente di visualizzare oltre sette corporazioni.</Italian>
+ 		<Spanish>When checked, displays only the corporations that are present in the city and allows for more than seven corporations.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -244,7 +244,7 @@
+ 		<English>Color Started Items</English>
+ 		<French>Color Started Items</French>
+ 		<German>Baufortschritt einf�rben</German>
+-		<Italian>Color Started Items</Italian>
++		<Italian>Colora Elementi Iniziati</Italian>
+ 		<Spanish>Color Started Items</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -252,7 +252,7 @@
+ 		<English>When checked, displays the remaining turns in cyan for items that have been started.</English>
+ 		<French>When checked, displays the remaining turns in cyan for items that have been started.</French>
+ 		<German>F�rbt die bis zur Fertigstellung eines Projekts verbleibenden Runden Blau ein</German>
+-		<Italian>When checked, displays the remaining turns in cyan for items that have been started.</Italian>
++		<Italian>Quando � selezionato, Mostra in cyan i turni rimanenti per gli elementi gi� iniziati.</Italian>
+ 		<Spanish>When checked, displays the remaining turns in cyan for items that have been started.</Spanish>
+ 	</TEXT>
+ 	
+@@ -358,7 +358,7 @@
+ 		<English>Train Civilian Units Forever</English>
+ 		<French>Train Civilian Units Forever</French>
+ 		<German>Unendliche Einheitenproduktion (zivil)</German>
+-		<Italian>Train Civilian Units Forever</Italian>
++		<Italian>Addestra Unit� Civili per Sempre</Italian>
+ 		<Spanish>Train Civilian Units Forever</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -366,7 +366,7 @@
+ 		<English>When checked, selecting a civilian unit in the Choose Production popup sets the city to train that unit repeatedly.</English>
+ 		<French>When checked, selecting a civilian unit in the Choose Production popup sets the city to train that unit repeatedly.</French>
+ 		<German>L�sst eine Stadt wiederholt eine zivile Einheit produzieren, die im Stadt-Baumen� ausgew�hlt wurde</German>
+-		<Italian>When checked, selecting a civilian unit in the Choose Production popup sets the city to train that unit repeatedly.</Italian>
++		<Italian>Quando � selezionato, selezionando un'unit� civile nel popup Scegli Produzione ordina alla citt� di produrre quell'unit� ripetutamente.</Italian>
+ 		<Spanish>When checked, selecting a civilian unit in the Choose Production popup sets the city to train that unit repeatedly.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -374,7 +374,7 @@
+ 		<English>Train Military Units Forever</English>
+ 		<French>Train Military Units Forever</French>
+ 		<German>Unendliche Einheitenproduktion (milit�risch)</German>
+-		<Italian>Train Military Units Forever</Italian>
++		<Italian>Addestra Unit� Militari per Sempre</Italian>
+ 		<Spanish>Train Military Units Forever</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -382,7 +382,7 @@
+ 		<English>When checked, selecting a military unit in the Choose Production popup sets the city to train that unit repeatedly.</English>
+ 		<French>When checked, selecting a military unit in the Choose Production popup sets the city to train that unit repeatedly.</French>
+ 		<German>L�sst eine Stadt wiederholt eine milit�rische Einheit produzieren, die im Stadt-Baumen� ausgew�hlt wurde</German>
+-		<Italian>When checked, selecting a military unit in the Choose Production popup sets the city to train that unit repeatedly.</Italian>
++		<Italian>Quando � selezionato, selezionando un'unit� miltare nel popup Scegli Produzione ordina alla citt� di produrre quell'unit� ripetutamente.</Italian>
+ 		<Spanish>When checked, selecting a military unit in the Choose Production popup sets the city to train that unit repeatedly.</Spanish>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/BUG Main Interface Options.xml b/Assets/xml/Text/BUG Main Interface Options.xml
+index e05f6aa68..9ae69bf07 100644
+--- a/Assets/xml/Text/BUG Main Interface Options.xml	
++++ b/Assets/xml/Text/BUG Main Interface Options.xml	
+@@ -27,7 +27,7 @@
+ 		<English>Options Button</English>
+ 		<French>Options Button</French>
+ 		<German>Optionsschaltfl�che</German>
+-		<Italian>Options Button</Italian>
++		<Italian>Dottone Opzioni</Italian>
+ 		<Spanish>Options Button</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -35,7 +35,7 @@
+ 		<English>When checked, shows the BUG Option Screen button.</English>
+ 		<French>When checked, shows the BUG Option Screen button.</French>
+ 		<German>Zeigt die Schaltfl�che zum Aufruf des Optionensbildschirms der BUG Mod an</German>
+-		<Italian>When checked, shows the BUG Option Screen button.</Italian>
++		<Italian>Quando � selezionato, mostra il bottone della schermata opzioni del BUG.</Italian>
+ 		<Spanish>When checked, shows the BUG Option Screen button.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -246,7 +246,7 @@
+ 		<English>Build/Action Icon Size</English>
+ 		<French>Build/Action Icon Size</French>
+ 		<German>Gr��e der Bau-/Befehlssymbole</German>
+-		<Italian>Build/Action Icon Size</Italian>
++		<Italian>Dimensione Icona Costruisci/Azione</Italian>
+ 		<Spanish>Build/Action Icon Size</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -254,7 +254,7 @@
+ 		<English>Determines the size of the build and action buttons in the bottom center of the screen.</English>
+ 		<French>Determines the size of the build and action buttons in the bottom center of the screen.</French>
+ 		<German>Bestimmt die Gr��e der Bau- und Befehlssymbole im Men� am unteren Bildschirmrand</German>
+-		<Italian>Determines the size of the build and action buttons in the bottom center of the screen.</Italian>
++		<Italian>Determina la dimensione delle icone per i tasti di costruzione e azione nella parte bassa e centrale dello schermo.</Italian>
+ 		<Spanish>Determines the size of the build and action buttons in the bottom center of the screen.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -262,7 +262,7 @@
+ 		<English>Small|Medium|Large</English>
+ 		<French>Small|Medium|Large</French>
+ 		<German>Klein|Mittel|Gro�</German>
+-		<Italian>Small|Medium|Large</Italian>
++		<Italian>Piccola|Media|Larga</Italian>
+ 		<Spanish>Small|Medium|Large</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -270,7 +270,7 @@
+ 		<English>Rapid Unit Cycling</English>
+ 		<French>Rapid Unit Cycling</French>
+ 		<German>Rapid Unit Cycling</German>
+-		<Italian>Rapid Unit Cycling</Italian>
++		<Italian>Cicla rapidamente tra le unit�</Italian>
+ 		<Spanish>Rapid Unit Cycling</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -278,7 +278,7 @@
+ 		<English>When checked, automatic unit selection happens instantly rather than with a delay.</English>
+ 		<French>When checked, automatic unit selection happens instantly rather than with a delay.</French>
+ 		<German>When checked, automatic unit selection happens instantly rather than with a delay.</German>
+-		<Italian>When checked, automatic unit selection happens instantly rather than with a delay.</Italian>
++		<Italian>Quando � selezionato, la selezione automatica tra le unit� � istantanea anzich� con ritardo.</Italian>
+ 		<Spanish>When checked, automatic unit selection happens instantly rather than with a delay.</Spanish>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/BUG Options Screen.xml b/Assets/xml/Text/BUG Options Screen.xml
+index 46c5b82df..e7d711d92 100644
+--- a/Assets/xml/Text/BUG Options Screen.xml	
++++ b/Assets/xml/Text/BUG Options Screen.xml	
+@@ -48,8 +48,8 @@
+ 		<English>Shows the BUG Option Screen.</English>
+ 		<French>Shows the BUG Option Screen.</French>
+ 		<German>Ruft den Optionsbildschirm der BUG Mod auf</German>
+-		<Italian>Shows the BUG Option Screen.</Italian>
+-		<Spanish>Shows the BUG Option Screen.</Spanish>
++		<Italian>Mostra le opzioni del BUG Mod.</Italian>
++		<Spanish>Shows BUG Option Screen.</Spanish>
+ 	</TEXT>
+ 
+ <!-- Tabs and Labels -->
+@@ -160,7 +160,7 @@
+ 		<English>Tile Hover:</English>
+ 		<French>Tile Hover:</French>
+ 		<German>Gel�ndefeld-Tooltip:</German>
+-		<Italian>Tile Hover:</Italian>
++		<Italian>Casella Selezionata:</Italian>
+ 		<Spanish>Tile Hover:</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -318,7 +318,7 @@
+ 		<English>Production Queue:</English>
+ 		<French>Production Queue:</French>
+ 		<German>Produktionskette:</German>
+-		<Italian>Production Queue:</Italian>
++		<Italian>Coda di Produzione:</Italian>
+ 		<Spanish>Production Queue:</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -614,7 +614,7 @@
+ 		<English>Subversion (SVN):</English>
+ 		<French>Subversion (SVN):</French>
+ 		<German>Subversion (SVN):</German>
+-		<Italian>Subversion (SVN):</Italian>
++		<Italian>Sottoversione (SVN):</Italian>
+ 		<Spanish>Subversion (SVN):</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/Better Espionage Options.xml b/Assets/xml/Text/Better Espionage Options.xml
+index bb7a0dd07..3aae6e944 100644
+--- a/Assets/xml/Text/Better Espionage Options.xml	
++++ b/Assets/xml/Text/Better Espionage Options.xml	
+@@ -27,7 +27,7 @@
+ 		<English>Show Calculated Information</English>
+ 		<French>Show Calculated Information</French>
+ 		<German>Errechnete Informationen</German>
+-		<Italian>Show Calculated Information</Italian>
++		<Italian>Mostra Informazioni Calcolate</Italian>
+ 		<Spanish>Show Calculated Information</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -35,7 +35,7 @@
+ 		<English>When checked, shows calculated espionage information.</English>
+ 		<French>When checked, shows calculated espionage information.</French>
+ 		<German>Zeigt errechnete Spionage-Informationen an</German>
+-		<Italian>When checked, shows calculated espionage information.</Italian>
++		<Italian>Quando selezionato, mostra le informazioni di spionaggio calcolate.</Italian>
+ 		<Spanish>When checked, shows calculated espionage information.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/CIV4GameText_Events_BTS.xml b/Assets/xml/Text/CIV4GameText_Events_BTS.xml
+index 744a24b77..bbb381fc4 100644
+--- a/Assets/xml/Text/CIV4GameText_Events_BTS.xml
++++ b/Assets/xml/Text/CIV4GameText_Events_BTS.xml
+@@ -3769,8 +3769,8 @@
+ 		<Tag>TXT_KEY_EVENT_THE_VANDALS_HELP_1</Tag>
+ 		<English>[ICON_BULLET]A dangerous number of barbarian [COLOR_UNIT_TEXT]Swordsman[COLOR_REVERT] units have spawned near our border.</English>
+ 		<French>[ICON_BULLET]Un nombre important de [COLOR_UNIT_TEXT]Spadassins[COLOR_REVERT] barbares est apparu de notre fronti&#232;re.</French>
+-		<German>[ICON_BULLET]Eine gef&#228;hrliche Anzahl von barbarischen [COLOR_UNIT_TEXT]]Schwertk&#228;mpfern[COLOR_REVERT] ist an unserer Grenze aufgetaucht.</German>
+-		<Italian>[ICON_BULLET]Ai nostri confini c'&#232; un pericoloso numero di [COLOR_UNIT_TEXT]]Spadaccini[COLOR_REVERT] barbari.</Italian>
++		<German>[ICON_BULLET]Eine gef&#228;hrliche Anzahl von barbarischen [COLOR_UNIT_TEXT]Schwertk&#228;mpfern[COLOR_REVERT] ist an unserer Grenze aufgetaucht.</German>
++		<Italian>[ICON_BULLET]Ai nostri confini c'&#232; un pericoloso numero di [COLOR_UNIT_TEXT]Spadaccini[COLOR_REVERT] barbari.</Italian>
+ 		<Spanish>[ICON_BULLET]Un peligroso n&#250;mero de unidades b&#225;rbaras de [COLOR_UNIT_TEXT]Soldados con espada[COLOR_REVERT] ha aparecido cerca de nuestra frontera.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -3786,7 +3786,7 @@
+ 		<English>[ICON_BULLET]A dangerous number of barbarian [COLOR_UNIT_TEXT]Axeman[COLOR_REVERT] units have spawned near our border.</English>
+ 		<French>[ICON_BULLET]Un nombre important de [COLOR_UNIT_TEXT]Soldats avec Hache[COLOR_REVERT] barbares est apparu de notre fronti&#232;re.</French>
+ 		<German>[ICON_BULLET]Eine gef&#228;hrliche Anzahl von barbarischen [COLOR_UNIT_TEXT]Axtk&#228;mpfern[COLOR_REVERT] ist an unserer Grenze aufgetaucht.</German>
+-		<Italian>[ICON_BULLET]Ai nostri confini c'&#232; un pericoloso numero di [COLOR_UNIT_TEXT]]Guerrieri con ascia[COLOR_REVERT] barbari.</Italian>
++		<Italian>[ICON_BULLET]Ai nostri confini c'&#232; un pericoloso numero di [COLOR_UNIT_TEXT]Guerrieri con ascia[COLOR_REVERT] barbari.</Italian>
+ 		<Spanish>[ICON_BULLET]Un peligroso n&#250;mero de unidades b&#225;rbaras de [COLOR_UNIT_TEXT]Soldados con hacha[COLOR_REVERT] ha aparecido cerca de nuestra frontera.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -3802,7 +3802,7 @@
+ 		<English>[ICON_BULLET]A dangerous number of barbarian [COLOR_UNIT_TEXT]Spearman[COLOR_REVERT] units have spawned near our border.</English>
+ 		<French>[ICON_BULLET]Un nombre important de [COLOR_UNIT_TEXT]Lanciers[COLOR_REVERT] barbares est apparu de notre fronti&#232;re.</French>
+ 		<German>[ICON_BULLET]Eine gef&#228;hrliche Anzahl von barbarischen [COLOR_UNIT_TEXT]Speerk&#228;mpfern[COLOR_REVERT] ist an unserer Grenze aufgetaucht.</German>
+-		<Italian>[ICON_BULLET]Ai nostri confini c'&#232; un pericoloso numero di [COLOR_UNIT_TEXT]]Lancieri[COLOR_REVERT] barbari.</Italian>
++		<Italian>[ICON_BULLET]Ai nostri confini c'&#232; un pericoloso numero di [COLOR_UNIT_TEXT]Lancieri[COLOR_REVERT] barbari.</Italian>
+ 		<Spanish>[ICON_BULLET]Un peligroso n&#250;mero de unidades b&#225;rbaras de [COLOR_UNIT_TEXT]Lanceros[COLOR_REVERT] ha aparecido cerca de nuestra frontera.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -3818,7 +3818,7 @@
+ 		<English>[ICON_BULLET]A dangerous number of barbarian [COLOR_UNIT_TEXT]Archer[COLOR_REVERT] units have spawned near our border.</English>
+ 		<French>[ICON_BULLET]Un nombre important d'[COLOR_UNIT_TEXT]Archers[COLOR_REVERT] barbares est apparu de notre fronti&#232;re.</French>
+ 		<German>[ICON_BULLET]Eine gef&#228;hrliche Anzahl von barbarischen [COLOR_UNIT_TEXT]Bogensch&#252;tzen[COLOR_REVERT] ist an unserer Grenze aufgetaucht.</German>
+-		<Italian>[ICON_BULLET]Ai nostri confini c'&#232; un pericoloso numero di [COLOR_UNIT_TEXT]]Arcieri[COLOR_REVERT] barbari.</Italian>
++		<Italian>[ICON_BULLET]Ai nostri confini c'&#232; un pericoloso numero di [COLOR_UNIT_TEXT]Arcieri[COLOR_REVERT] barbari.</Italian>
+ 		<Spanish>[ICON_BULLET]Un peligroso n&#250;mero de unidades b&#225;rbaras de [COLOR_UNIT_TEXT]Arqueros[COLOR_REVERT] ha aparecido cerca de nuestra frontera.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index 754d4f84c..d64632954 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -70,7 +70,7 @@
+ 			<Plural>0</Plural>
+ 		</German>
+ 		<Italian>
+-			<Text>Legion:Legioni</Text>
++			<Text>Legione:Legioni</Text>
+ 			<Gender>Female</Gender>
+ 			<Plural>0:1</Plural>
+ 		</Italian>
+@@ -85,7 +85,7 @@
+ 		<English>Economics Advisor</English>
+ 		<French>Conseiller &#233;conomie</French>
+ 		<German>Wirtschaftsberater</German>
+-		<Italian>economia consulente</Italian>
++		<Italian>Consigliere Economico</Italian>
+ 		<Spanish>Consejero de Econom�a</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -93,7 +93,7 @@
+ 		<English>Environment</English>
+ 		<French>Environnement</French>
+ 		<German>Umwelt</German>
+-		<Italian>Ambiente</Italian>
++		<Italian>Ecologico</Italian>
+ 		<Spanish>Entorno</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -109,7 +109,7 @@
+ 		<English>Total accumulated pollution above the sustainability threshold.</English>
+ 		<French>Total accumulated pollution above the sustainability threshold.</French>
+ 		<German>Total accumulated pollution above the sustainability threshold.</German>
+-		<Italian>Total accumulated pollution above the sustainability threshold.</Italian>
++		<Italian>Inquinamento accumulato totale prima di oltrepassare il limite di sostenibilit�.</Italian>
+ 		<Spanish>Total accumulated pollution above the sustainability threshold.</Spanish>		
+ 	</TEXT>
+ 	<TEXT>
+@@ -117,7 +117,7 @@
+ 		<English>[ICON_UNHAPPY] due to global warming.</English>
+ 		<French>[ICON_UNHAPPY] due to global warming.</French>
+ 		<German>[ICON_UNHAPPY] due to global warming.</German>
+-		<Italian>[ICON_UNHAPPY] due to global warming.</Italian>
++		<Italian>[ICON_UNHAPPY] a causa del riscaldamento globale.</Italian>
+ 		<Spanish>[ICON_UNHAPPY] due to global warming.</Spanish>		
+ 	</TEXT>
+ 	<TEXT>
+@@ -125,7 +125,7 @@
+ 		<English>The maximum rate of pollution that can be safely absorbed by the environment.</English>
+ 		<French>The maximum rate of pollution that can be safely absorbed by the environment.</French>
+ 		<German>The maximum rate of pollution that can be safely absorbed by the environment.</German>
+-		<Italian>The maximum rate of pollution that can be safely absorbed by the environment.</Italian>
++		<Italian>Il massimo livello di inquinamento che pu� essere assorbito dall'ambiente senza problemi.</Italian>
+ 		<Spanish>The maximum rate of pollution that can be safely absorbed by the environment.</Spanish>		
+ 	</TEXT>
+ 	<TEXT>
+@@ -133,7 +133,7 @@
+ 		<English>Our pollution rate relative to the global average.</English>
+ 		<French>Our pollution rate relative to the global average.</French>
+ 		<German>Our pollution rate relative to the global average.</German>
+-		<Italian>Our pollution rate relative to the global average.</Italian>
++		<Italian>Il nostro livello di inquinamento relativo alla media globale.</Italian>
+ 		<Spanish>Our pollution rate relative to the global average.</Spanish>		
+ 	</TEXT>	
+ 
+@@ -142,7 +142,7 @@
+ 		<English>Effective pollution reductions:</English>
+ 		<French>Effective pollution reductions:</French>
+ 		<German>Effective pollution reductions:</German>
+-		<Italian>Effective pollution reductions:</Italian>
++		<Italian>Riduzioni effettive inquinamento:</Italian>
+ 		<Spanish>Effective pollution reductions:</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -158,7 +158,7 @@
+ 		<English>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] from Population</English>
+ 		<French>[ICON_BULLET]%d1_Num par [ICON_UNHEALTHY] (population)</French>
+ 		<German>[ICON_BULLET]%d1_Num pro [ICON_UNHEALTHY] durch Bev&#246;lkerung</German>
+-		<Italian>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] dal popolazione</Italian>
++		<Italian>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] dalla popolazione</Italian>
+ 		<Spanish>[ICON_BULLET]%d1_Num por [ICON_UNHEALTHY] desde poblaci&#243;n</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -166,7 +166,7 @@
+ 		<English>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] from Buildings</English>
+ 		<French>[ICON_BULLET]%d1_Num par [ICON_UNHEALTHY] (b&#226;timents)</French>
+ 		<German>[ICON_BULLET]%d1_Num pro [ICON_UNHEALTHY] durch Geb&#228;ude</German>
+-		<Italian>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] dal gli edifici</Italian>
++		<Italian>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] dagli edifici</Italian>
+ 		<Spanish>[ICON_BULLET]%d1_Num por [ICON_UNHEALTHY] desde edificios</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -174,7 +174,7 @@
+ 		<English>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] from Bonuses</English>
+ 		<French>[ICON_BULLET]%d1_Num par [ICON_UNHEALTHY] (bonus)</French>
+ 		<German>[ICON_BULLET]%d1_Num pro [ICON_UNHEALTHY] durch Boni</German>
+-		<Italian>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] dal i bonus</Italian>
++		<Italian>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] dai bonus</Italian>
+ 		<Spanish>[ICON_BULLET]%d1_Num por [ICON_UNHEALTHY] desde bonificaciones</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -182,7 +182,7 @@
+ 		<English>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] from Power</English>
+ 		<French>[ICON_BULLET]%d1_Num par [ICON_UNHEALTHY] (&#233;lectricit&#233;)</French>
+ 		<German>[ICON_BULLET]%d1_Num pro [ICON_UNHEALTHY] durch Energie</German>
+-		<Italian>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] dal l'energia</Italian>
++		<Italian>[ICON_BULLET]%d1_Num per [ICON_UNHEALTHY] dall'energia</Italian>
+ 		<Spanish>[ICON_BULLET]%d1_Num por [ICON_UNHEALTHY] desde energ&#237;a</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -217,7 +217,7 @@
+ 		<English>Worldwide pollution has reached the sustainability threshold.</English>
+ 		<French>Worldwide pollution has reached the sustainability threshold.</French>
+ 		<German>Worldwide pollution has reached the sustainability threshold.</German>
+-		<Italian>Worldwide pollution has reached the sustainability threshold.</Italian>
++		<Italian>L'inquinamento mondiale ha raggiunto il limite di sostenibilit�.</Italian>
+ 		<Spanish>Worldwide pollution has reached the sustainability threshold.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -225,7 +225,7 @@
+ 		<English>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. See the Economics Advisor for further information.</English>
+ 		<French>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. See the Economics Advisor for further information.</French>
+ 		<German>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. See the Economics Advisor for further information.</German>
+-		<Italian>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. See the Economics Advisor for further information.</Italian>
++		<Italian>I nostri scenziati hanno teorizzato che se l'inquinamento mondiale continua a crescere, dovremmo fronteggiare cambiamenti climatici irreversibili. Consulta il Consigliere Finanziario per maggiori informazioni.</Italian>
+ 		<Spanish>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. See the Economics Advisor for further information.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -243,7 +243,7 @@
+ 		<English>Volcanic ash has improved the soil fertility.</English>
+ 		<French>Les cendres volcaniques am&#233;lior&#233; la fertilit&#233; du sol.</French>
+ 		<German>Vulkanische Asche verbessert die Bodenfruchtbarkeit.</German>
+-		<Italian>Ceneri vulcaniche migliorato la fertilit� del suolo.</Italian>
++		<Italian>Le ceneri vulcaniche hanno migliorato la fertilit� del suolo.</Italian>
+ 		<Spanish>La ceniza volc�nica mejorar la fertilidad del suelo.</Spanish>
+ 	</TEXT>	
+ 	<!-- replacement volcano text (unfinished)-->
+@@ -286,7 +286,7 @@
+ 		<English>Rising Seas</English>
+ 		<French>Mers Er Hausse</French>
+ 		<German>Steigende Meere</German>
+-		<Italian>Mari Aumentanti</Italian>
++		<Italian>Innalzamento del livello del mare </Italian>
+ 		<Spanish>Mares De Levantamiento</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -294,7 +294,7 @@
+ 		<English>Global warming can raise sea level.</English>
+ 		<French>Le rechauffement global peut soulever le niveau de la mer.</French>
+ 		<German>Die globale Erwarmung kann Meeresspiegel anheben.</German>
+-		<Italian>Il riscaldamento globale puo sollevare il livello del mare.</Italian>
++		<Italian>Il riscaldamento globale pu� innalzare il livello del mare.</Italian>
+ 		<Spanish>El calentamiento del planeta puede levantar nivel del mar.</Spanish>
+ 	</TEXT>
+ 	[end of unused tags] -->
+
+diff --git a/Assets/xml/Text/Civ4lerts Options.xml b/Assets/xml/Text/Civ4lerts Options.xml
+index bd3def26b..de03eee13 100644
+--- a/Assets/xml/Text/Civ4lerts Options.xml	
++++ b/Assets/xml/Text/Civ4lerts Options.xml	
+@@ -208,7 +208,7 @@
+ 		<English>When checked, displays an alert when a civilization changes their willingness to negotiate.</English>
+ 		<French>When checked, displays an alert when a civilization changes their willingness to negotiate.</French>
+ 		<German>L�sst eine Warnung erscheinen, wenn sich die Gespr�chsbereitschaft einer Zivilisation �ndert</German>
+-		<Italian>When checked, displays an alert when a civilization changes their willingness to negotiate.</Italian>
++		<Italian>Quando � selezionato, mostra un avviso quando una civilt� cambia la sua disponibilit� a negoziare.</Italian>
+ 		<Spanish>When checked, displays an alert when a civilization changes their willingness to negotiate.</Spanish>
+ 	</TEXT>
+ 
+@@ -225,7 +225,7 @@
+ 		<English>When checked, displays an alert when a civilization's worst enemy changes.</English>
+ 		<French>When checked, displays an alert when a civilization's worst enemy changes.</French>
+ 		<German>L�sst eine Warnung erscheinen, wenn der Erzfeind einer Zivilisation wechselt</German>
+-		<Italian>When checked, displays an alert when a civilization's worst enemy changes.</Italian>
++		<Italian>Quando � selezioanto, mostra un avviso quando una civilt� cambia  la designazione del suo peggior nemico.</Italian>
+ 		<Spanish>When checked, displays an alert when a civilization's worst enemy changes.</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/Civ4lerts_CIV4GameText.xml b/Assets/xml/Text/Civ4lerts_CIV4GameText.xml
+index 330dfb007..59d7c5adc 100644
+--- a/Assets/xml/Text/Civ4lerts_CIV4GameText.xml
++++ b/Assets/xml/Text/Civ4lerts_CIV4GameText.xml
+@@ -44,7 +44,7 @@
+ 		<English>[COLOR_NEGATIVE_TEXT]You are the worst enemy of %s1.[COLOR_REVERT]</English>
+ 		<French>[COLOR_NEGATIVE_TEXT]You are the worst enemy of %s1.[COLOR_REVERT]</French>
+ 		<German>[COLOR_NEGATIVE_TEXT]Ihr seid der Erzfeind von %s1.[COLOR_REVERT]</German>
+-		<Italian>[COLOR_NEGATIVE_TEXT]You are the worst enemy of %s1.[COLOR_REVERT]</Italian>
++		<Italian>[COLOR_NEGATIVE_TEXT]Sei il peggior nemico di %s1.[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_NEGATIVE_TEXT]You are the worst enemy of %s1.[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -52,7 +52,7 @@
+ 		<English>[COLOR_YIELD_FOOD]%s2 is the worst enemy of %s1.[COLOR_REVERT]</English>
+ 		<French>[COLOR_YIELD_FOOD]%s2 is the worst enemy of %s1.[COLOR_REVERT]</French>
+ 		<German>[COLOR_YIELD_FOOD]%s2 ist der Erzfeind von %s1.[COLOR_REVERT]</German>
+-		<Italian>[COLOR_YIELD_FOOD]%s2 is the worst enemy of %s1.[COLOR_REVERT]</Italian>
++		<Italian>[COLOR_YIELD_FOOD]%s2 � il peggior nemico di %s1.[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_YIELD_FOOD]%s2 is the worst enemy of %s1.[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	
+@@ -61,7 +61,7 @@
+ 		<English>[COLOR_YIELD_FOOD]%s2 is the new worst enemy of %s1 (was you).[COLOR_REVERT]</English>
+ 		<French>[COLOR_YIELD_FOOD]%s2 is the new worst enemy of %s1 (was you).[COLOR_REVERT]</French>
+ 		<German>[COLOR_YIELD_FOOD]%s2 ist der neue Erzfeind von %s1 (statt Euch).[COLOR_REVERT]</German>
+-		<Italian>[COLOR_YIELD_FOOD]%s2 is the new worst enemy of %s1 (was you).[COLOR_REVERT]</Italian>
++		<Italian>[COLOR_YIELD_FOOD]%s2 � il nuovo peggior nemico di %s1 (eri tu).[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_YIELD_FOOD]%s2 is the new worst enemy of %s1 (was you).[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -69,7 +69,7 @@
+ 		<English>[COLOR_NEGATIVE_TEXT]You are the new worst enemy of %s1 (was %s2).[COLOR_REVERT]</English>
+ 		<French>[COLOR_NEGATIVE_TEXT]You are the new worst enemy of %s1 (was %s2).[COLOR_REVERT]</French>
+ 		<German>[COLOR_NEGATIVE_TEXT]Ihr seid der neue Erzfeind von %s1 (statt %s2).[COLOR_REVERT]</German>
+-		<Italian>[COLOR_NEGATIVE_TEXT]You are the new worst enemy of %s1 (was %s2).[COLOR_REVERT]</Italian>
++		<Italian>[COLOR_NEGATIVE_TEXT]Sei il nuovo peggior nemico di %s1 (era %s2).[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_NEGATIVE_TEXT]You are the new worst enemy of %s1 (was %s2).[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -77,7 +77,7 @@
+ 		<English>[COLOR_YIELD_FOOD]%s2 is the new worst enemy of %s1 (was %s3).[COLOR_REVERT]</English>
+ 		<French>[COLOR_YIELD_FOOD]%s2 is the new worst enemy of %s1 (was %s3).[COLOR_REVERT]</French>
+ 		<German>[COLOR_YIELD_FOOD]%s2 ist der neue Erzfeind von %s1 (statt %s3).[COLOR_REVERT]</German>
+-		<Italian>[COLOR_YIELD_FOOD]%s2 is the new worst enemy of %s1 (was %s3).[COLOR_REVERT]</Italian>
++		<Italian>[COLOR_YIELD_FOOD]%s2 � il nuovo peggior nemico di %s1 (era %s3).[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_YIELD_FOOD]%s2 is the new worst enemy of %s1 (was %s3).[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	
+@@ -86,7 +86,7 @@
+ 		<English>[COLOR_POSITIVE_TEXT]%s2 is no longer the worst enemy of %s1.[COLOR_REVERT]</English>
+ 		<French>[COLOR_POSITIVE_TEXT]%s2 is no longer the worst enemy of %s1.[COLOR_REVERT]</French>
+ 		<German>[COLOR_POSITIVE_TEXT]%s2 ist nicht mehr der Erzfeind von %s1.[COLOR_REVERT]</German>
+-		<Italian>[COLOR_POSITIVE_TEXT]%s2 is no longer the worst enemy of %s1.[COLOR_REVERT]</Italian>
++		<Italian>[COLOR_POSITIVE_TEXT]%s2 non � pi� il peggior nemico di %s1.[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_POSITIVE_TEXT]%s2 is no longer the worst enemy of %s1.[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -94,7 +94,7 @@
+ 		<English>[COLOR_POSITIVE_TEXT]You are no longer the worst enemy of %s1.[COLOR_REVERT]</English>
+ 		<French>[COLOR_POSITIVE_TEXT]You are no longer the worst enemy of %s1.[COLOR_REVERT]</French>
+ 		<German>[COLOR_POSITIVE_TEXT]Ihr seid nicht mehr der Erzfeind von %s1.[COLOR_REVERT]</German>
+-		<Italian>[COLOR_POSITIVE_TEXT]You are no longer the worst enemy of %s1.[COLOR_REVERT]</Italian>
++		<Italian>[COLOR_POSITIVE_TEXT]Non sei pi� il peggior nemico di %s1.[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_POSITIVE_TEXT]You are no longer the worst enemy of %s1.[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/CustDomAdv_CIV4GameText.xml b/Assets/xml/Text/CustDomAdv_CIV4GameText.xml
+index a57d8a736..25ea58433 100644
+--- a/Assets/xml/Text/CustDomAdv_CIV4GameText.xml
++++ b/Assets/xml/Text/CustDomAdv_CIV4GameText.xml
+@@ -25,7 +25,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Switch Page[COLOR_REVERT][NEWLINE]Select any page in the list to switch to it</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Switch Page[COLOR_REVERT][NEWLINE]Select any page in the list to switch to it</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Seite w�hlen[COLOR_REVERT][NEWLINE]Direkt zur gew�hlten Seite der Liste</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Switch Page[COLOR_REVERT][NEWLINE]Select any page in the list to switch to it</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia Pagina[COLOR_REVERT][NEWLINE]Seleziona qualsiasi pagina nella lista con cui cambiarla</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Switch Page[COLOR_REVERT][NEWLINE]Select any page in the list to switch to it</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -33,7 +33,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Previous Page[COLOR_REVERT][NEWLINE]Switch to the previous page in the list</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Previous Page[COLOR_REVERT][NEWLINE]Switch to the previous page in the list</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Vorherige Seite[COLOR_REVERT][NEWLINE]Zur vorherigen Seite der Liste</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Previous Page[COLOR_REVERT][NEWLINE]Switch to the previous page in the list</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Pagina precedenta[COLOR_REVERT][NEWLINE]Cambia con la pagina precedente della lista</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Previous Page[COLOR_REVERT][NEWLINE]Switch to the previous page in the list</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -41,7 +41,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Next Page[COLOR_REVERT][NEWLINE]Switch to the next page in the list</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Next Page[COLOR_REVERT][NEWLINE]Switch to the next page in the list</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]N�chste Seite[COLOR_REVERT][NEWLINE]Zur n�chsten Seite der Liste</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Next Page[COLOR_REVERT][NEWLINE]Switch to the next page in the list</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Pagina successiva[COLOR_REVERT][NEWLINE]Cambia con la pagina successiva della lista</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Next Page[COLOR_REVERT][NEWLINE]Switch to the next page in the list</Spanish>
+ 	</TEXT>
+ 	
+@@ -50,7 +50,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Enter Edit Mode[COLOR_REVERT][NEWLINE]Show the editing controls to be able to add/remove/reorder pages and columns or change whether or not the specialist buttons are displayed</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Enter Edit Mode[COLOR_REVERT][NEWLINE]Show the editing controls to be able to add/remove/reorder pages and columns or change whether or not the specialist buttons are displayed</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Bearbeitungsmodus[COLOR_REVERT][NEWLINE]Ruft die Bearbeitungswerkzeuge zum Hinzuf�gen/Entfernen/Organisieren von Seiten und Spalten und zum An-/Abschalten der Spezialistenschaltfl�che auf</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Enter Edit Mode[COLOR_REVERT][NEWLINE]Show the editing controls to be able to add/remove/reorder pages and columns or change whether or not the specialist buttons are displayed</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Entra in modalit� Modifica[COLOR_REVERT][NEWLINE]Mostra i controlli per aggiungere/rimuovere/riordinare le pagine e le colonne o cambiare quali pulsanti o no degli specialisti devono essere mostrati</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Enter Edit Mode[COLOR_REVERT][NEWLINE]Show the editing controls to be able to add/remove/reorder pages and columns or change whether or not the specialist buttons are displayed</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -58,7 +58,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Exit Edit Mode[COLOR_REVERT][NEWLINE]Hide the editing controls to be able to see the list of cities. Don't forget to save your changes before exiting the game</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Exit Edit Mode[COLOR_REVERT][NEWLINE]Hide the editing controls to be able to see the list of cities. Don't forget to save your changes before exiting the game</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Bearbeitungsmodus beenden[COLOR_REVERT][NEWLINE]Versteckt die Bearbeitungswerkzeuge und ruft wieder die Stadtliste auf (Ver�nderungen sollten vor Beenden des Spiels gespeichert werden)</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Exit Edit Mode[COLOR_REVERT][NEWLINE]Hide the editing controls to be able to see the list of cities. Don't forget to save your changes before exiting the game</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Esci dalla modalit� Modifica[COLOR_REVERT][NEWLINE]Nascondi i controlli di modifica per vedere la lista delle citt�. Non dimenticare di salvare i tuoi cambiamanti prima di uscire dalla partita</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Exit Edit Mode[COLOR_REVERT][NEWLINE]Hide the editing controls to be able to see the list of cities. Don't forget to save your changes before exiting the game</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -66,7 +66,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Save[COLOR_REVERT][NEWLINE]Save any changes you have made to disk (CustDomAdv.txt)</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Save[COLOR_REVERT][NEWLINE]Save any changes you have made to disk (CustDomAdv.txt)</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Speichern[COLOR_REVERT][NEWLINE]Speichert die Einstellungen in der Datei CustDomAdv.txt</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Save[COLOR_REVERT][NEWLINE]Save any changes you have made to disk (CustDomAdv.txt)</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Salva[COLOR_REVERT][NEWLINE]Salva ogni modifica fatta sul disco (CustDomAdv.txt)</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Save[COLOR_REVERT][NEWLINE]Save any changes you have made to disk (CustDomAdv.txt)</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -74,7 +74,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Reload[COLOR_REVERT][NEWLINE]Load the pages from disk to revert any chanes you have made</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Reload[COLOR_REVERT][NEWLINE]Load the pages from disk to revert any chanes you have made</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Neu laden[COLOR_REVERT][NEWLINE]L�dt die gespeicherten Einstellungen und macht die vorgenommenen Ver�nderungen r�ckg�ngig</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Reload[COLOR_REVERT][NEWLINE]Load the pages from disk to revert any chanes you have made</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Ricarica[COLOR_REVERT][NEWLINE]Carica le pagine dal disco per annullare ogni modifica fatta</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Reload[COLOR_REVERT][NEWLINE]Load the pages from disk to revert any chanes you have made</Spanish>
+ 	</TEXT>
+ 	
+@@ -83,7 +83,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Rename Page[COLOR_REVERT][NEWLINE]Enter a new name for the current page</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Rename Page[COLOR_REVERT][NEWLINE]Enter a new name for the current page</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Seite umbenennen[COLOR_REVERT][NEWLINE]Eingabe eines neuen Namens f�r die aktuell gew�hlte Seite</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Rename Page[COLOR_REVERT][NEWLINE]Enter a new name for the current page</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Rinomina Pagina[COLOR_REVERT][NEWLINE]Immetti un nuovo nome per la pagina corrente</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Rename Page[COLOR_REVERT][NEWLINE]Enter a new name for the current page</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -91,7 +91,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Add Page[COLOR_REVERT][NEWLINE]Insert a new page in the list after the current page</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Add Page[COLOR_REVERT][NEWLINE]Insert a new page in the list after the current page</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Seite hinzuf�gen[COLOR_REVERT][NEWLINE]F�gt der Liste nach der aktuell gew�hlten Seite eine neue Seite hinzu</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Add Page[COLOR_REVERT][NEWLINE]Insert a new page in the list after the current page</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Aggiungi Pagina[COLOR_REVERT][NEWLINE]Inserisci una nuova pagina nella lista dopo la corrente</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Add Page[COLOR_REVERT][NEWLINE]Insert a new page in the list after the current page</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -99,7 +99,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Remove Page[COLOR_REVERT][NEWLINE]Remove the current page from the list</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Remove Page[COLOR_REVERT][NEWLINE]Remove the current page from the list</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Seite entfernen[COLOR_REVERT][NEWLINE]Entfernt die aktuell gew�hlte Seite aus der Liste</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Remove Page[COLOR_REVERT][NEWLINE]Remove the current page from the list</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Rimuovi Pagina[COLOR_REVERT][NEWLINE]Reimuovi la pagina corrente dalla lista</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Remove Page[COLOR_REVERT][NEWLINE]Remove the current page from the list</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -107,7 +107,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Move Page Up[COLOR_REVERT][NEWLINE]Move the current page up in the list</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Move Page Up[COLOR_REVERT][NEWLINE]Move the current page up in the list</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Seite nach oben verschieben[COLOR_REVERT][NEWLINE]Verschiebt die aktuell gew�hlte Seite in der Liste nach oben</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Move Page Up[COLOR_REVERT][NEWLINE]Move the current page up in the list</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Sposta Pagina in alto[COLOR_REVERT][NEWLINE]Sposta la pagina corrente in alto nella lista</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Move Page Up[COLOR_REVERT][NEWLINE]Move the current page up in the list</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -115,7 +115,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Move Page Down[COLOR_REVERT][NEWLINE]Move the current page down in the list</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Move Page Down[COLOR_REVERT][NEWLINE]Move the current page down in the list</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Seite nach unten verschieben[COLOR_REVERT][NEWLINE]Verschiebt die aktuell gew�hlte Seite in der Liste nach unten</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Move Page Down[COLOR_REVERT][NEWLINE]Move the current page down in the list</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Sposta Pagina in basso[COLOR_REVERT][NEWLINE]Sposta la pagina corrente in basso nella lista</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Move Page Down[COLOR_REVERT][NEWLINE]Move the current page down in the list</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/EventSigns Options.xml b/Assets/xml/Text/EventSigns Options.xml
+index 1221b9842..bb6fb1462 100644
+--- a/Assets/xml/Text/EventSigns Options.xml	
++++ b/Assets/xml/Text/EventSigns Options.xml	
+@@ -19,7 +19,7 @@
+ 		<English>When checked, places signs on plots whose yields have changed because of random events.</English>
+ 		<French>When checked, places signs on plots whose yields have changed because of random events.</French>
+ 		<German>Markiert Gel�ndefelder, deren Ertr�ge sich durch zuf�llige Ereignisse ver�ndert haben, auf der Karte mit einem Hinweis</German>
+-		<Italian>Quando � selezionato, le caselle che hanno avuto la propria resa produttiva modificata da un evento casuale vengono marcate sulla mappa con una indicazionedom di tale modifica.</Italian>
++		<Italian>Quando � selezionato, le caselle che hanno avuto la propria resa produttiva modificata da un evento casuale vengono marcate sulla mappa con una indicazione di tale modifica.</Italian>
+ 		<Spanish>When checked, places signs on plots whose yields have changed because of random events.</Spanish>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index c1684ed08..bc2182720 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -20,7 +20,7 @@
+ 	<English>An aqueduct or a hospital will increase a city's health, but public transport or a recycling center will reduce its pollution...</English>
+ 	<French>An aqueduct or a hospital will increase a city's health, but public transport or a recycling center will reduce its pollution...</French>
+ 	<German>An aqueduct or a hospital will increase a city's health, but public transport or a recycling center will reduce its pollution...</German>
+-	<Italian>An aqueduct or a hospital will increase a city's health, but public transport or a recycling center will reduce its pollution...</Italian>
++	<Italian>Un acquedotto o un ospedale aumentano la salute della citt�, ma il trasporto pubblico o il centro riciclaggio ne riducono l'inquinamento...</Italian>
+ 	<Spanish>An aqueduct or a hospital will increase a city's health, but public transport or a recycling center will reduce its pollution...</Spanish>
+ </TEXT>
+ <TEXT>
+@@ -28,7 +28,7 @@
+ 	<English>The cultural influence of each city extends beyond its border. If you are being culturally pressured by another civilization, consider getting more culture in all nearby cities; not just the cities being pressed.</English>
+ 	<French>The cultural influence of each city extends beyond its border. If you are being culturally pressured by another civilization, consider getting more culture in all nearby cities; not just the cities being pressed.</French>
+ 	<German>The cultural influence of each city extends beyond its border. If you are being culturally pressured by another civilization, consider getting more culture in all nearby cities; not just the cities being pressed.</German>
+-	<Italian>The cultural influence of each city extends beyond its border. If you are being culturally pressured by another civilization, consider getting more culture in all nearby cities; not just the cities being pressed.</Italian>
++	<Italian>L'influenza culturale di ogni citt� si estende oltre i suoi bordi. Se sei pressato culturalmente da un'altra civilt� prendi in considerazione di aumentare l'output culturale delle citt� vicine e non solo di quella pressata.</Italian>
+ 	<Spanish>The cultural influence of each city extends beyond its border. If you are being culturally pressured by another civilization, consider getting more culture in all nearby cities; not just the cities being pressed.</Spanish>
+ </TEXT>
+ <TEXT>
+@@ -36,7 +36,7 @@
+ 	<English>Forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to reduce the effects of global warming.</English>
+ 	<French>Forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to reduce the effects of global warming.</French>
+ 	<German>Forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to reduce the effects of global warming.</German>
+-	<Italian>Forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to reduce the effects of global warming.</Italian>
++	<Italian>Foreste e giungle aiutano a contrastare l'inquinamento causato dalla tua civilit�. Se non hai necessit� di abbatterle, considera di mantenerle per ridurre gli effetti del riscaldamento globale.</Italian>
+ 	<Spanish>Forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to reduce the effects of global warming.</Spanish>
+ </TEXT>
+ <TEXT>
+@@ -44,7 +44,7 @@
+ 	<English>If a rival civilization becomes fixated on world domination - beware! They may decide to attack you even if they appear friendly.</English>
+ 	<French>If a rival civilization becomes fixated on world domination - beware! They may decide to attack you even if they appear friendly.</French>
+ 	<German>If a rival civilization becomes fixated on world domination - beware! They may decide to attack you even if they appear friendly.</German>
+-	<Italian>If a rival civilization becomes fixated on world domination - beware! They may decide to attack you even if they appear friendly.</Italian>
++	<Italian>Se una civilt� rivale punta a dominare il mondo - attenzione! Potrebbe decidere di attacacrti anche se appare amichevole.</Italian>
+ 	<Spanish>If a rival civilization becomes fixated on world domination - beware! They may decide to attack you even if they appear friendly.</Spanish>
+ </TEXT>
+ <TEXT>
+@@ -52,7 +52,7 @@
+ 	<English>Factories and Assembly Lines create extra pollution with coal and oil. If aren't using your fossil fuels, consider removing access to them so that your people will be healthier.</English>
+ 	<French>Factories and Assembly Lines create extra pollution with coal and oil. If aren't using your fossil fuels, consider removing access to them so that your people will be healthier.</French>
+ 	<German>Factories and Assembly Lines create extra pollution with coal and oil. If aren't using your fossil fuels, consider removing access to them so that your people will be healthier.</German>
+-	<Italian>Factories and Assembly Lines create extra pollution with coal and oil. If aren't using your fossil fuels, consider removing access to them so that your people will be healthier.</Italian>
++	<Italian>Fabbriche e Linee di produzione causano ulteriore inquinamento con carbone e petrolio. Se non usi combustibili fossili, considera di rimuoverne l'accesso per aumentare la salute di cittadini.</Italian>
+ 	<Spanish>Factories and Assembly Lines create extra pollution with coal and oil. If aren't using your fossil fuels, consider removing access to them so that your people will be healthier.</Spanish>
+ </TEXT>
+ <TEXT>
+@@ -60,7 +60,7 @@
+ 	<English>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</English>
+ 	<French>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</French>
+ 	<German>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</German>
+-	<Italian>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</Italian>
++	<Italian>Le unit� con la promozione "Leadership" (Grande Generale richiesto) riducono maggiormente le probabilit� di rivolta di una citt�.</Italian>
+ 	<Spanish>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</Spanish>
+ </TEXT>
+ <TEXT>
+@@ -68,7 +68,7 @@
+ 	<English>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. More experience points are given to bigger groups.</English>
+ 	<French>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. More experience points are given to bigger groups.</French>
+ 	<German>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. More experience points are given to bigger groups.</German>
+-	<Italian>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. More experience points are given to bigger groups.</Italian>
++	<Italian>Quando un Grande Generale decide di unirsi ad un unit� come Grande Condottiero, distribuisce in immediato aumento di esperienza con tutte le unit� sulla stessa casella. Maggiore lo stack, maggiore l'esperienza.</Italian>
+ 	<Spanish>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. More experience points are given to bigger groups.</Spanish>
+ </TEXT>
+ <!-- replacement text for the inaccurate barbarian tip (changed english only)-->
+
+diff --git a/Assets/xml/Text/MoreCiv4lerts Options.xml b/Assets/xml/Text/MoreCiv4lerts Options.xml
+index 6da8bdac2..899a635e7 100644
+--- a/Assets/xml/Text/MoreCiv4lerts Options.xml	
++++ b/Assets/xml/Text/MoreCiv4lerts Options.xml	
+@@ -98,7 +98,7 @@
+ 		<English>Vassal</English>
+ 		<French>Vassal</French>
+ 		<German>Vasall</German>
+-		<Italian>Vassallaggio</Italian>
++		<Italian>Vassallo</Italian>
+ 		<Spanish>Vassal</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -165,7 +165,7 @@
+ 		<English>Resources</English>
+ 		<French>Resources</French>
+ 		<German>Ressourcen</German>
+-		<Italian>Resources</Italian>
++		<Italian>Risorse</Italian>
+ 		<Spanish>Resources</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -181,7 +181,7 @@
+ 		<English>Maps</English>
+ 		<French>Cartes</French>
+ 		<German>Karten</German>
+-		<Italian>Cartas</Italian>
++		<Italian>Mappa</Italian>
+ 		<Spanish>Cartas</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -189,7 +189,7 @@
+ 		<English>When checked, displays an alert when a civilization is willing to trade their map.</English>
+ 		<French>When checked, displays an alert when a civilization is willing to trade their map.</French>
+ 		<German>L�sst eine Warnung erscheinen, wenn eine Zivilisation ihre Karte handeln m�chte</German>
+-		<Italian>Quando � selezionato, viene visualizzato un avviso quando una Civilt� � disponibile a commerciare Cartas.</Italian>
++		<Italian>Quando � selezionato, viene visualizzato un avviso quando una Civilt� � disponibile a commerciare la Mappa.</Italian>
+ 		<Spanish>When checked, displays an alert when a civilization is willing to trade their map.</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/MoreCiv4lerts_CIV4GameText.xml b/Assets/xml/Text/MoreCiv4lerts_CIV4GameText.xml
+index ff1dccfd8..4ccdd911a 100644
+--- a/Assets/xml/Text/MoreCiv4lerts_CIV4GameText.xml
++++ b/Assets/xml/Text/MoreCiv4lerts_CIV4GameText.xml
+@@ -121,7 +121,7 @@
+ 		<English>[COLOR_TECH_TEXT]Will Trade Map: %s1[COLOR_REVERT]</English>
+ 		<French>[COLOR_TECH_TEXT]Will Trade Map : %s1[COLOR_REVERT]</French>
+ 		<German>[COLOR_TECH_TEXT]Wird Karten handeln: %s1[COLOR_REVERT]</German>
+-		<Italian>[COLOR_TECH_TEXT]Will Trade Map: %s1[COLOR_REVERT]</Italian>
++		<Italian>[COLOR_TECH_TEXT]Commercer� la mappa: %s1[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_TECH_TEXT]Will Trade Map: %s1[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/Sevopedia_CIV4GameText.xml b/Assets/xml/Text/Sevopedia_CIV4GameText.xml
+index 9fb183e23..86f4decd4 100644
+--- a/Assets/xml/Text/Sevopedia_CIV4GameText.xml
++++ b/Assets/xml/Text/Sevopedia_CIV4GameText.xml
+@@ -17,7 +17,7 @@
+ 		<English>Index</English>
+ 		<French>Index</French>
+ 		<German>Index</German>
+-		<Italian>[SPACE][SPACE][SPACE][SPACE][SPACE]Indice</Italian>
++		<Italian>Indice</Italian>
+ 		<Spanish>Indice</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+[PATCH COVERAGE]
+patchFiles=18 embeddedFiles=18 omittedFiles=0 embeddedPatchBytes=101930

@@ -1,0 +1,88 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5996
+# Commit: bb4027056998a985b99bc9b7d842d8005be59c47
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 09a2a9333d64c1255923fc529ef2cfd2233597ea
+# Title: Refine AdvCiv-SAS AI starvation guard to allow partial food recovery
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+6	6	CvGameCoreDLL/CvCityAI.cpp
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ef8c85305..88c7f118e 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -13951,8 +13951,8 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
+ 			// <!-- custom: seemingly a bug found by claude ai; i am not sure this is really a bug, indeed ingame cities are starving without allocating improved sheep or such high tiles (see as of now known issue 34 in docs with screenshots there in the google drive) -->
+ 			// OLD: Only avoid starvation if we're not already starving
+ 			// if (iFoodPerTurn >= 0 && iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
+-			// NEW: Always check if job change improves/worsens food situation
+-			if (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
++			// <!-- custom: Our earlier AdvCiv-SAS change above improved Base AdvCiv by blocking job swaps that worsen an existing food deficit, but became overstrict by also blocking any improvement that did not eliminate the entire deficit immediately. Map-428 BBAI logging showed Bursa keep 4-5 Artists while starving by 5-7 food because working its available 4-food plot would still leave a smaller deficit, despite the full city-aware comparison strongly preferring that plot. Continue blocking food reductions while starving, but allow equal-food swaps and partial recovery. (GPT-5.5) -->
++			if (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0 && iNextFood < iCurrentFood)
+ 			{
+ 				bTakeNewJob = false;
+ 			}
+@@ -14029,7 +14029,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
+ 					if (!bStrictYieldUpgrade && !bModestFoodTrade && !bLargeFoodCommerceGain && !bLargeRawGainWithoutFoodLoss)
+ 						continue;
+ 
+-					if (iFoodPerTurn + kUnworkedPlot.getYield(YIELD_FOOD) - kWorkedPlot.getYield(YIELD_FOOD) + iStarvingAllowance < 0)
++					if (iFoodPerTurn + iFoodDelta + iStarvingAllowance < 0 && iFoodDelta < 0)
+ 						continue;
+ 					if (std::find(new_jobs.begin(), new_jobs.end(), workedFallback->second) != new_jobs.end())
+ 						continue;
+@@ -14090,7 +14090,7 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
+ 					bool const bSpecialistToPlot = !unworkedFallback->second.first;
+ 
+ 					int const iNextFood = (bSpecialistToSpecialist ? kOwner.specialistYield((SpecialistTypes)unworkedFallback->second.second, YIELD_FOOD) : getCityIndexPlot((CityPlotTypes)unworkedFallback->second.second)->getYield(YIELD_FOOD));
+-					if (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0)
++					if (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0 && iNextFood < iCurrentFood)
+ 						continue;
+ 					if (bSpecialistToPlot && getSpecialistPopulation() <= iTotalFreeSpecialists)
+ 						continue;
+@@ -14159,11 +14159,11 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
+ 						{
+ 							int const iCurrentFood = (workedAudit->second.first ? GET_PLAYER(getOwner()).specialistYield((SpecialistTypes)workedAudit->second.second, YIELD_FOOD) : getCityIndexPlot((CityPlotTypes)workedAudit->second.second)->getYield(YIELD_FOOD));
+ 							int const iNextFood = (unworkedAudit->second.first ? GET_PLAYER(getOwner()).specialistYield((SpecialistTypes)unworkedAudit->second.second, YIELD_FOOD) : getCityIndexPlot((CityPlotTypes)unworkedAudit->second.second)->getYield(YIELD_FOOD));
+-							bool const bWouldStarve = (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0);
++							bool const bWouldWorsenStarvation = (iFoodPerTurn + iNextFood - iCurrentFood + iStarvingAllowance < 0 && iNextFood < iCurrentFood);
+ 							bool const bWouldRemoveFreeSpecialist = (workedAudit->second.first && !unworkedAudit->second.first && getSpecialistPopulation() <= iTotalFreeSpecialists);
+ 							bool const bWouldBreakForcedSpecialist = ((bForcedSpecAvailable || (workedAudit->second.first && getForceSpecialistCount((SpecialistTypes)workedAudit->second.second) > 0)) && unworkedAudit->second.first && getForceSpecialistCount((SpecialistTypes)unworkedAudit->second.second) == 0);
+ 							bool const bWouldUndoJuggleJob = (std::find(new_jobs.begin(), new_jobs.end(), workedAudit->second) != new_jobs.end());
+-							if (!bWouldStarve && !bWouldRemoveFreeSpecialist && !bWouldBreakForcedSpecialist && !bWouldUndoJuggleJob)
++							if (!bWouldWorsenStarvation && !bWouldRemoveFreeSpecialist && !bWouldBreakForcedSpecialist && !bWouldUndoJuggleJob)
+ 							{
+ 								iContextValue = AI_jobChangeValue(unworkedAudit->second, workedAudit->second, false, false, iGrowthValue);
+ 								if (iContextValue > 0)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index f487ba7da..88468e4d5 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -191,6 +191,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ #### City Plots (AI)
+ 
+ - Fix K-Mod some allocation pathologies: e.g. starving/stagnant cities no longer choose **+1 hammer** over **+4 food** unworked plots; also fix the "food is production" valuation so settlers/workers don’t undervalue food. See [KI#34](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production).
++- (Requires AdvCiv-SAS 5996+) Update - **Refine the AdvCiv-SAS starvation guard to permit partial recovery:** Base AdvCiv blocked a job swap from creating starvation but, once a city was already starving, could allow a swap that worsened its food deficit. An earlier AdvCiv-SAS correction prevented those worsening swaps, but was too strict in the other direction: it rejected every reassignment that left any deficit, even when switching one population member to a higher-food plot substantially reduced starvation. The AI now blocks only food-reducing swaps while a deficit remains; equal-food improvements and partial food recovery can proceed when the full city-aware comparison approves them, while forced and free specialists remain protected. Map-428 BBAI logging had shown Bursa retain 4-5 Artists while starving by 5-7 food because its available 4-food plot could not eliminate the whole deficit in one reassignment. Across directionally comparable but diverging runs through turn 369, positive Artist-to-plot opportunities while starving fell from 144 to 84, positive opportunities with at least 4 Artists fell from 50 to 9, and the largest missed value fell from about 197,000 to 61,000; the severe Bursa and Rome cases disappeared.
+ - If happiness room is **high**, push growth harder: favor food tiles more, deemphasize hammers (unless **food is currently production**). See [KI#40](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#40---seemingly-fixed--addressed-tremendousmajor-plot-allocation-improvement-2-if-we-are-high-in-happiness-favour-food-tiles-much-more-and-hammer-tiles-much-less-if-happiness-is-really-high-favour-growth-dynamically-and-plot-allocation-of-these-the-more-we-can-afford-it-even-if-production-is-slightly-reduced-short-term-as-a-result-it-auto-corrects-at-high-happiness-with-seemingly-much-stronger-ai-and-developped-cities-as-a-result-excluded-if-food-is-production-eg-worker-settler-etc-if-i-am-not-mistaken-but).
+ - (Requires AdvCiv-SAS 5927+) Update: now mitigated/halted by **high food loss from unhealthiness**, where it is inefficient to grow more (e.g., York size 25 with 25 health 36 unhealth (-11 food) and 39 happy 27 unhappy, +3 food per turn still, should not grow more and work specialists or other yields than food rather to increase efficiency).
+ - (Requires AdvCiv-SAS 5989+) **Recheck and reassign citizens to safe, clearly better unworked plots:** K-Mod could keep a weaker worked (i.e. assigned to one population in city) plot because its quick initial estimate overlooked another plot that its full city-aware comparison considered better. If ordinary citizen allocation finds no change, the **AI now rechecks plots that improve at least one yield without reducing any**, **trade some production for a large food/commerce gain**, or otherwise **offer a substantial overall gain without losing food**. It switches **only when** the full city-aware valuation confirms the change is **beneficial**, never when the swap would cause starvation, and does not immediately reverse a plot assigned earlier in the same update. The newly added `SAS_BBAI_CITIZEN_LOG_LEVEL` BBAI logging test showed this corrected cases such as Karakorum working **2 food / 0 hammers / 1 commerce** instead of the strictly better **2 food / 1 hammer / 1 commerce** plot, made 624 approved swaps through turn 359 at normal game speed, and reduced remaining plot-to-plot contextual misses from 4,187 to 3,229 (about 23%); specialist-related swaps remain a separate target. (Requires AdvCiv-SAS 5990+) Note: for convenience, human cities use the same fallback by default (tunable) through `SAS_CONVENIENCE_HUMAN_CITIZEN_PLOT_FALLBACK_ENABLE`, but only while citizen automation is enabled; manual citizen assignments remain untouched.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=9438

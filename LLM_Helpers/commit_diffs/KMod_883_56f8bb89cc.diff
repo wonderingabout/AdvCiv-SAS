@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 883
+# Commit: 56f8bb89cc00ae5d07dd753b668ba048262d6c85
+# History segment: K-Mod history
+# Parent used for diff: 04bf601f97534921dc5573335027c7e0d9c6a467
+# Title: CvCityAI::AI_assignWorkingPlots no longer removes all specialists.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index a0d1d2582..e4618769e 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -278,7 +278,7 @@ void CvCityAI::AI_assignWorkingPlots()
+ 		}
+ 
+ 		//if (!isHuman() || isCitizensAutomated() || (getSpecialistCount((SpecialistTypes)iI) < iForcedSpecialistCount))
+-		if (bIsSpecialistForced && !isHuman() || isCitizensAutomated() || getSpecialistCount((SpecialistTypes)iI) < iForcedSpecialistCount) // K-Mod
++		if (bIsSpecialistForced && (!isHuman() || isCitizensAutomated()) && getSpecialistCount((SpecialistTypes)iI) < iForcedSpecialistCount) // K-Mod
+ 		{
+ 			setSpecialistCount(((SpecialistTypes)iI), iForcedSpecialistCount);
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=721

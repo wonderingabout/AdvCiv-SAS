@@ -1,0 +1,279 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 571
+# Commit: 0ec026f803861bfea34a9076ec13943f7d24269d
+# History segment: K-Mod history
+# Parent used for diff: 3a1d8a8215baac722dd73a4b35d62b95ddaab56f
+# Title: Added a new function: CvUnitAI::AI_guardCoast. The AI will now use its naval units to guard the coastal plots adjacent to its cities. (as opposed to leaving...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvEnums.h
+1	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+4	16	CvGameCoreDLL/CvSelectionGroup.cpp
+103	6	CvGameCoreDLL/CvUnitAI.cpp
+1	0	CvGameCoreDLL/CvUnitAI.h
+1	1	CvGameCoreDLL/CyEnumsInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 2cb6c2ed9..1bbc574b7 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1458,7 +1458,8 @@ enum MissionAITypes		// Exposed to Python
+ 	MISSIONAI_LOAD_SPECIAL,
+ 	MISSIONAI_GUARD_CITY,
+ 	MISSIONAI_GUARD_BONUS,
+-	MISSIONAI_GUARD_TRADE_NET,
++	//MISSIONAI_GUARD_TRADE_NET,
++	MISSIONAI_GUARD_COAST, // K-Mod
+ 	MISSIONAI_GUARD_SPY,
+ 	MISSIONAI_ATTACK_SPY,
+ 	MISSIONAI_RECON_SPY, // K-Mod
+@@ -1488,7 +1489,6 @@ enum MissionAITypes		// Exposed to Python
+ 	MISSIONAI_UPGRADE,
+ 	MISSIONAI_STRANDED,
+ 	// MISSIONAI_GOLDEN_AGE, // ie. waiting for more golden age units.
+-	// note: MISSIONAI_GUARD_TRADE_NET is currently not being used:
+ 	// K-Mod end
+ };
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 5b7c657f6..df67ca95d 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -2605,6 +2605,7 @@ void getMissionAIString(CvWString& szString, MissionAITypes eMissionAI)
+ 	case MISSIONAI_PICKUP: szString = L"MISSIONAI_PICKUP"; break;
+ // K-Mod
+ #define mission_string(x) case x: szString = L#x; break;
++	mission_string(MISSIONAI_GUARD_COAST)
+ 	mission_string(MISSIONAI_SPREAD_CORPORATION)
+ 	mission_string(MISSIONAI_RECON_SPY)
+ 	mission_string(MISSIONAI_JOIN)
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 910af2a24..a60364ed7 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -179,25 +179,13 @@ void CvSelectionGroup::doTurn()
+ 		// wake unit if skipped last turn 
+ 		//		or healing and automated or no longer hurt (automated healing is one turn at a time)
+ 		//		or on sentry and there is danger
+-		if ((eActivityType == ACTIVITY_HOLD) ||
+-			((eActivityType == ACTIVITY_HEAL) && (AI_isControlled() || !bHurt)) ||
+-			((eActivityType == ACTIVITY_SENTRY) && (sentryAlert())))
++		if (eActivityType == ACTIVITY_HOLD ||
++			(eActivityType == ACTIVITY_HEAL && (AI_isControlled() || !bHurt)) ||
++			((eActivityType == ACTIVITY_INTERCEPT || eActivityType == ACTIVITY_PATROL) && AI_isControlled()) || // K-Mod
++			(eActivityType == ACTIVITY_SENTRY && sentryAlert()))
+ 		{
+ 			setActivityType(ACTIVITY_AWAKE);
+ 		}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/21/08                                jdog5000      */
+-/*                                                                                              */
+-/* Air AI                                                                                       */
+-/************************************************************************************************/
+-		// with improvements to launching air patrols, now can wake every turn
+-		if ( (eActivityType == ACTIVITY_INTERCEPT) && !isHuman() )
+-		{
+-			setActivityType(ACTIVITY_AWAKE);
+-		}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/	
+ 
+ 		if (AI_isControlled())
+ 		{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 4cf47e645..44b906f99 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -6799,9 +6799,10 @@ void CvUnitAI::AI_attackSeaMove()
+ 
+ 	// K-Mod
+ 	if (AI_guardBonus(10))
+-	{
+ 		return;
+-	}
++
++	if (AI_getBirthmark()%2 == 0 && AI_guardCoast()) // I want some attackSea units to just patrol the area.
++		return;
+ 	// K-Mod end
+ 
+ 	if (AI_patrol())
+@@ -6993,9 +6994,10 @@ void CvUnitAI::AI_reserveSeaMove()
+ 
+ 	// K-Mod
+ 	if (AI_guardBonus(10))
+-	{
+ 		return;
+-	}
++
++	if (AI_guardCoast())
++		return;
+ 	// K-Mod end
+ 
+ 	if (AI_patrol())
+@@ -7234,10 +7236,15 @@ void CvUnitAI::AI_escortSeaMove()
+ 
+ 	// Pull back to primary area if it's not too far so primary area cities know you exist
+ 	// and don't build more, unnecessary escorts
++	/* original code
+ 	if (AI_retreatToCity(true,false,6))
+ 	{
+ 		return;
+-	}
++	} */
++	// K-Mod. We don't want to actually end our turn inside the city...
++	if (AI_guardCoast(true))
++		return;
++	// K-Mod end
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -11682,6 +11689,95 @@ bool CvUnitAI::AI_guardCityAirlift()
+ 	return false;
+ }
+ 
++// K-Mod.
++// This function will use our naval unit to block the coast outside our cities.
++bool CvUnitAI::AI_guardCoast(bool bPrimaryOnly, int iFlags, int iMaxPath)
++{
++	PROFILE_FUNC();
++
++	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
++
++	CvPlot* pBestCityPlot = 0;
++	CvPlot* pEndTurnPlot = 0;
++	int iBestValue = 0;
++
++	int iLoop;
++	for (CvCity* pLoopCity = kOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kOwner.nextCity(&iLoop))
++	{
++		if (!pLoopCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()) || (bPrimaryOnly && !kOwner.AI_isPrimaryArea(pLoopCity->area())))
++			continue;
++
++		int iCoastPlots = 0;
++
++		for (DirectionTypes i = (DirectionTypes)0; i < NUM_DIRECTION_TYPES; i=(DirectionTypes)(i+1))
++		{
++			CvPlot* pAdjacentPlot = plotDirection(pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE(), i);
++
++			if (!pAdjacentPlot || !pAdjacentPlot->isWater() || pAdjacentPlot->getTeam() != getTeam())
++				continue; // strange way to do it... just so that it matches the second loop.
++
++			iCoastPlots++;
++		}
++
++		int iBaseValue = iCoastPlots > 0
++			? 1000 * pLoopCity->AI_neededDefenders() / (iCoastPlots + 2) // arbitrary units
++			: 0;
++
++		if (iBaseValue <= iBestValue)
++			continue;
++
++		iBestValue *= 3;
++		iBestValue /= 3 + kOwner.AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_GUARD_COAST, getGroup(), 1);
++
++		if (iBaseValue <= iBestValue)
++			continue;
++
++		for (DirectionTypes i = (DirectionTypes)0; i < NUM_DIRECTION_TYPES; i=(DirectionTypes)(i+1))
++		{
++			CvPlot* pAdjacentPlot = plotDirection(pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE(), i);
++
++			if (!pAdjacentPlot || !pAdjacentPlot->isWater() || pAdjacentPlot->getTeam() != getTeam())
++				continue;
++
++			int iValue = iBaseValue;
++
++			iValue /= pAdjacentPlot->getBonusType(getTeam()) == NO_BONUS ? 2 : 1;
++			iValue *= 3;
++			iValue /= std::max(3, (atPlot(pAdjacentPlot) ? 1-getGroup()->getNumUnits() : 1)+pAdjacentPlot->plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_COAST, -1, getOwnerINLINE()));
++
++			int iPathTurns;
++			if (iValue > iBestValue && generatePath(pAdjacentPlot, iFlags, true, &iPathTurns, iMaxPath))
++			{
++				iValue *= 4;
++				iValue /= 4 + iPathTurns;
++
++				if (iValue > iBestValue)
++				{
++					iBestValue = iValue;
++					pBestCityPlot = pLoopCity->plot();
++					pEndTurnPlot = getPathEndTurnPlot();
++				}
++			}
++		}
++	}
++
++	if (pEndTurnPlot)
++	{
++		if (atPlot(pEndTurnPlot))
++		{
++			getGroup()->pushMission(canSeaPatrol(pEndTurnPlot) ? MISSION_SEAPATROL : MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_COAST, pBestCityPlot);
++		}
++		else
++		{
++			getGroup()->pushMission(MISSION_MOVE_TO, pEndTurnPlot->getX_INLINE(), pEndTurnPlot->getY_INLINE(), iFlags, false, false, MISSIONAI_GUARD_COAST, pBestCityPlot);
++		}
++		return true;
++	}
++
++	return false;
++}
++// K-Mod end
++
+ 
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_guardBonus(int iMinValue)
+@@ -11760,7 +11856,8 @@ bool CvUnitAI::AI_guardBonus(int iMinValue)
+ 	{
+ 		if (atPlot(pBestGuardPlot))
+ 		{
+-			getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_BONUS, pBestGuardPlot);
++			//getGroup()->pushMission(MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_BONUS, pBestGuardPlot);
++			getGroup()->pushMission(canSeaPatrol(pBestGuardPlot) ? MISSION_SEAPATROL : MISSION_SKIP, -1, -1, 0, false, false, MISSIONAI_GUARD_BONUS, pBestGuardPlot); // K-Mod
+ 			return true;
+ 		}
+ 		else
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index d6a434ff6..cf99fdf65 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -136,6 +136,7 @@ protected:
+ 	bool AI_guardCityMinDefender(bool bSearch = true);
+ 	bool AI_guardCity(bool bLeave = false, bool bSearch = false, int iMaxPath = MAX_INT, int iFlags = 0);
+ 	bool AI_guardCityAirlift();
++	bool AI_guardCoast(bool bPrimaryOnly = false, int iFlags = 0, int iMaxPath = -1); // K-Mod
+ 	bool AI_guardBonus(int iMinValue = 0);
+ 	int AI_getPlotDefendersNeeded(CvPlot* pPlot, int iExtra);
+ 	bool AI_guardFort(bool bSearch = true);
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index bb09591da..e18cad63a 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -1062,7 +1062,7 @@ void CyEnumsPythonInterface()
+ 		.value("MISSIONAI_LOAD_SPECIAL", MISSIONAI_LOAD_SPECIAL)
+ 		.value("MISSIONAI_GUARD_CITY", MISSIONAI_GUARD_CITY)
+ 		.value("MISSIONAI_GUARD_BONUS", MISSIONAI_GUARD_BONUS)
+-		.value("MISSIONAI_GUARD_TRADE_NET", MISSIONAI_GUARD_TRADE_NET)
++		.value("MISSIONAI_GUARD_COAST", MISSIONAI_GUARD_COAST)
+ 		.value("MISSIONAI_GUARD_SPY", MISSIONAI_GUARD_SPY)
+ 		.value("MISSIONAI_ATTACK_SPY", MISSIONAI_ATTACK_SPY)
+ 		.value("MISSIONAI_SPREAD", MISSIONAI_SPREAD)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=9416

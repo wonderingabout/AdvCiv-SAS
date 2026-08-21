@@ -1,0 +1,100 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5628
+# Commit: 79b078dff690d784af2eac2ff04722f16b453933
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3f7bf6f5f8a6225a6079bd5c53c9f285e66903c8
+# Title: increase base billboard from 100 to 120 percent, increase base hover text size from 2 to 3
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	Assets/XML/GlobalDefines_advciv_sas.xml
+7	7	Assets/XML/Misc/CIV4DetailManager.xml
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 9bb749712..6b4cb10fb 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -88,23 +88,23 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_UI_FONT_TITLE</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default); Long_Comments_XML.txt #106. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
++	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default); Long_Comments_XML.txt #106. (Claude code Opus 4.6). As of now changed from 2 to 3 so text is more readable. Base Civ4 Font size: 2. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: city billboard scale multiplier percent per SAS_UI_FONT_BODY level (1..4). 100 = no change from base AdvCiv values. Applied on game load by SASBillboardScale.py to CIV4DetailManager.xml. (Claude code Opus 4.6) -->
++	<!-- custom: city billboard scale multiplier percent per SAS_UI_FONT_BODY level (1..4). 100 = no change from base AdvCiv values. Applied on game load by SASBillboardScale.py to CIV4DetailManager.xml. Note: as of now increased from 100 to 120 at font 2 so it is more readable. (Claude code Opus 4.6) -->
+ 	<Define>
+ 		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_1</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_2</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>120</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_3</DefineName>
+-		<iDefineIntVal>130</iDefineIntVal>
++		<iDefineIntVal>140</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_BILLBOARD_SCALE_PERCENT_FONT_4</DefineName>
+
+diff --git a/Assets/XML/Misc/CIV4DetailManager.xml b/Assets/XML/Misc/CIV4DetailManager.xml
+index 4c5ff0611..e215f7d60 100644
+--- a/Assets/XML/Misc/CIV4DetailManager.xml
++++ b/Assets/XML/Misc/CIV4DetailManager.xml
+@@ -67,13 +67,13 @@
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_SCALE</Name>
+-		<Key>500,    2.75</Key>
+-		<Key>2500,    1.89</Key>
+-		<Key>3800,    1.70</Key>
+-		<Key>6000,    1.30</Key>
+-		<Key>8500,    1.20</Key>
+-		<Key>11500,    1.12</Key>
+-		<Key>13500,    1.07</Key>
++		<Key>500,    1.98</Key>
++		<Key>2500,    1.36</Key>
++		<Key>3800,    1.22</Key>
++		<Key>6000,    0.93</Key>
++		<Key>8500,    0.86</Key>
++		<Key>11500,    0.81</Key>
++		<Key>13500,    0.77</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_HEIGHT</Name>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 13bf30334..a8437cc08 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -283,7 +283,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ ### UI (Common)
+ 
+-- (Requires AdvCiv-SAS 5513+) **Optionally** support **upscaling font size (i.e. font size)** regardless of game resolution. This affects **main interface** (city screen, map view, `city_billboard`/`CITYBILLBOARD`), **advisors**, **sevopedia**, and other places where font size could be changed. Made some **UI adjustments when needed to accomodate the larger text** (e.g., smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills), **overwrite city `billboard` xml** in [CIV4DetailManager.xml](/Assets/XML/Misc/CIV4DetailManager.xml) **at runtime** via [SASBillboardScale.py](/Assets/Python/SASBillboardScale.py) (**tunable per font size**), increase **GP bar size** and reduce **tech bar size** in **main interface (common)**). Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower). See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
++- (Requires AdvCiv-SAS 5513+) **Optionally** support **upscaling font size (i.e. font size)** regardless of game resolution. This affects **main interface** (city screen, map view, `city_billboard`/`CITYBILLBOARD`), **advisors**, **sevopedia**, and other places where font size could be changed. Made some **UI adjustments when needed to accomodate the larger text** (e.g., smaller sevopedia leaders item row (else AI Personality Panel's upscaled text overfills), **overwrite city `billboard` xml** in [CIV4DetailManager.xml](/Assets/XML/Misc/CIV4DetailManager.xml) **at runtime** via [SASBillboardScale.py](/Assets/Python/SASBillboardScale.py) (**tunable per font size**) (note: **increased font2 billboard from 100 to 120** percent so it is more readable), increase **GP bar size** and reduce **tech bar size** in **main interface (common)**). Upscaling text can be **useful for high resolution displays** (where text appears very small), but may **also improve readability at smaller resolutions** (like 1920*1080 or lower). See [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) and related places for the change.
++- (Requires AdvCiv-SAS 5527+) **Increase hover text** base size from **2 to 3** so it is **more readable**.
+ - Added **Emojis** without having to tediously implement them as characters. See [Emojis](/README.md#emojis) and [CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml).
+ - Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md (Untradeable techs (bTrade) display)](/README.md#untradeable-techs-btrade-display-information) for details.
+ - removed the **Strategy Text** in Choose Production and Choose Research ("Sid’s tips") popups, as well as in the Civic Revolution popup ("Would you like to start a revolution?"), and in Sevopedia; these blurbs were often outdated or tedious to maintain.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6243

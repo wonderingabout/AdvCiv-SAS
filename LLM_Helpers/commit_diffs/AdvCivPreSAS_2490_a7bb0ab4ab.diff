@@ -1,0 +1,114 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2490
+# Commit: a7bb0ab4ab066d25c97fc7484b124df287623a08
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 30940e164fa12c7593a4bc323a320eebeb121cd0
+# Title: No war-horns for triggered defensive pact
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	14	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index a4695dc44..8ccb47f79 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1159,17 +1159,16 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 		{
+ 			CvPlayer const& kObs = *it;
+-			// <advc.106b>
+-			LPCTSTR szSoundYou = "AS2D_DECLAREWAR";
+-			LPCTSTR szSoundThey = "AS2D_THEIRDECLAREWAR";
+-			if ((isAVassal() && !isHuman()) || (kTarget.isAVassal() && !kTarget.isHuman()))
+-				szSoundYou = szSoundThey = NULL; // </advc.106b>
++			// <advc.002l>
++			LPCTSTR szSoundYou = (bPrimaryDoW ? "AS2D_DECLAREWAR" : NULL);
++			LPCTSTR szSoundThey = (bPrimaryDoW ? "AS2D_THEIRDECLAREWAR" : NULL);
++			// </advc.002l>
+ 			if (kObs.getTeam() == getID())
+ 			{
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_DECLARED_WAR_ON",
+ 						kTarget.getName().GetCString());
+ 				gDLL->UI().addMessage(kObs.getID(), true, -1, szBuffer,
+-						szSoundYou, // advc.106b
++						szSoundYou, // advc.002l
+ 						MESSAGE_TYPE_MAJOR_EVENT, NULL, GC.getColorType("WARNING_TEXT"),
+ 						// advc.127b:
+ 						kTarget.getCapitalX(kObs.getTeam()), kTarget.getCapitalY(kObs.getTeam()));
+@@ -1182,7 +1181,7 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 				else // </advc.100>
+ 					szBuffer = gDLL->getText("TXT_KEY_MISC_DECLARED_WAR_ON_YOU", getName().GetCString());
+ 				gDLL->UI().addMessage(kObs.getID(), true, -1, szBuffer,
+-						szSoundYou, // advc.106b
++						szSoundYou, // advc.002l
+ 						MESSAGE_TYPE_MAJOR_EVENT, NULL, GC.getColorType("WARNING_TEXT"),
+ 						// advc.127b:
+ 						getCapitalX(kObs.getTeam()), getCapitalY(kObs.getTeam()));
+@@ -1203,8 +1202,9 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 							getName().GetCString(), kTarget.getName().GetCString());
+ 				}
+ 				gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
++						szSoundThey, // advc.002l
+ 						// <advc.106b>
+-						szSoundThey, (isAVassal() || kTarget.isAVassal() ?
++						(isAVassal() || kTarget.isAVassal() ?
+ 						MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY : // </advc.106b>
+ 						MESSAGE_TYPE_MAJOR_EVENT), NULL, GC.getColorType("WARNING_TEXT"),
+ 						// advc.127b:
+@@ -1380,18 +1380,18 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
+ 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 	{
+ 		CvPlayer const& kObs = *it;
+-		// <advc.106b>
++		// <advc.002l>
+ 		LPCTSTR szSoundYou = "AS2D_MAKEPEACE";
+ 		LPCTSTR szSoundThey = "AS2D_THEIRMAKEPEACE";
+-		if(isAVassal() && !isHuman() || (kTarget.isAVassal() && !kTarget.isHuman()))
+-			szSoundYou = szSoundThey = NULL; // </advc.106b>
++		if (isAVassal() || kTarget.isAVassal())
++			szSoundYou = szSoundThey = NULL; // </advc.002l>
+ 		bool bWarTeam = false; // advc.039
+ 		if (kObs.getTeam() == getID())
+ 		{
+ 			CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_YOU_MADE_PEACE_WITH",
+ 					kTarget.getName().GetCString()));
+ 			gDLL->UI().addMessage(kObs.getID(), true, -1, szBuffer,
+-					szSoundYou, // advc.106b
++					szSoundYou, // advc.002l
+ 					MESSAGE_TYPE_MAJOR_EVENT, NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+ 					// advc.127b:
+ 					kTarget.getCapitalX(kObs.getTeam(), true), kTarget.getCapitalY(kObs.getTeam(), true));
+@@ -1402,7 +1402,7 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
+ 			CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_YOU_MADE_PEACE_WITH",
+ 					getName().GetCString()));
+ 			gDLL->UI().addMessage(kObs.getID(), true, -1, szBuffer,
+-					szSoundYou, // advc.106b
++					szSoundYou, // advc.002l
+ 					MESSAGE_TYPE_MAJOR_EVENT, NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+ 					// advc.127b:
+ 					getCapitalX(kObs.getTeam()), getCapitalY(kObs.getTeam()));
+@@ -1454,8 +1454,9 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
+ 						getName().GetCString(), kTarget.getName().GetCString());
+ 			}
+ 			gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
++					szSoundThey, // advc.002l
+ 					// <advc.106b>
+-					szSoundThey, (isAVassal() || kTarget.isAVassal() ?
++					(isAVassal() || kTarget.isAVassal() ?
+ 					MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY : // </advc.106b>
+ 					MESSAGE_TYPE_MAJOR_EVENT), NULL,
+ 					(bAnyReparations ? NO_COLOR : // advc.039
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4349

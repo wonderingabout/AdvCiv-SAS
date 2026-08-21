@@ -1,0 +1,129 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 79
+# Commit: 5eb2b95a3199b4589055cffe6a441c211a9b39bc
+# History segment: K-Mod history
+# Parent used for diff: 586fba05220f6583b6bff3fc0149763e0f91a795
+# Title: Changed techunit value to be reduced if other prereqs are missing. (so that, for example, the unit value of assembly line is not higher then rifling if you d...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	3	CvGameCoreDLL/CvCityAI.cpp
+15	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b67673f3d..149845aa3 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -948,6 +948,15 @@ void CvCityAI::AI_chooseProduction()
+ 		if (bBelowMedian)
+ 			bUnitExempt = true;
+ 	}
++	if (bUnitExempt)
++	{
++		// Don't give exemptions to cities that don't have anything good to do anyway.
++		BuildingTypes eBestBuilding = AI_bestBuildingThreshold(); // go go value cache!
++		if (eBestBuilding == NO_BUILDING || AI_buildingValueThreshold(eBestBuilding) < 50)
++		{
++			bUnitExempt = false;
++		}
++	}
+ 	// K-Mod end
+ 
+ 
+@@ -2720,7 +2729,7 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	if (plot()->plotCheck(PUF_isUnitAIType, UNITAI_CITY_COUNTER, -1, getOwnerINLINE()) == NULL)
++	if (!bUnitExempt && plot()->plotCheck(PUF_isUnitAIType, UNITAI_CITY_COUNTER, -1, getOwnerINLINE()) == NULL)
+ 	{
+ 		if (AI_chooseUnit(UNITAI_CITY_COUNTER))
+ 		{
+@@ -2945,7 +2954,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 			if (bLandWar || bAssault || !bFinancialTrouble || (GET_PLAYER(getOwnerINLINE()).calculateUnitCost() == 0))
+ 			{
+ 				aiUnitAIVal[UNITAI_ATTACK] += ((iMilitaryWeight / ((bLandWar || bAssault) ? 9 : 16)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0));
+-				aiUnitAIVal[UNITAI_ATTACK_CITY] += ((iMilitaryWeight / ((bLandWar || bAssault) ? 7 : 15)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0));
++				aiUnitAIVal[UNITAI_ATTACK_CITY] += ((iMilitaryWeight / ((bLandWar || bAssault) ? 6 : 15)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0)); // K-Mod, used to be (bLandWar || bAssault) ? 7
+ 				aiUnitAIVal[UNITAI_COLLATERAL] += ((iMilitaryWeight / ((bDefense) ? 8 : 14)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0));
+ 				aiUnitAIVal[UNITAI_PILLAGE] += ((iMilitaryWeight / ((bLandWar || bAssault) ? 10 : 19)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0));
+ 				aiUnitAIVal[UNITAI_RESERVE] += ((iMilitaryWeight / ((bLandWar) ? 12 : 17)) + ((bPrimaryArea && !bAreaAlone) ? 1 : 0));
+@@ -2989,7 +2998,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	aiUnitAIVal[UNITAI_SETTLE] *= ((bDanger) ? 8 : 20);
+ 	aiUnitAIVal[UNITAI_WORKER] *= ((bDanger) ? 2 : 7);
+ 	aiUnitAIVal[UNITAI_ATTACK] *= 3;
+-	aiUnitAIVal[UNITAI_ATTACK_CITY] *= 4;
++	aiUnitAIVal[UNITAI_ATTACK_CITY] *= 5; // K-Mod, up from *4
+ 	aiUnitAIVal[UNITAI_COLLATERAL] *= 5;
+ 	aiUnitAIVal[UNITAI_PILLAGE] *= 3;
+ 	aiUnitAIVal[UNITAI_RESERVE] *= 3;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 4d21e0d4b..97592dda3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5091,6 +5091,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 			if (getTechFreeUnit(eTech) != NO_UNIT)
+ 			{
+ 				int iGreatPeopleRandom = ((bAsync) ? GC.getASyncRand().get(3200, "AI Research Great People ASYNC") : GC.getGameINLINE().getSorenRandNum(3200, "AI Research Great People"));
++				iRandomMax += 3200; // K-Mod
+ 				iValue += iGreatPeopleRandom;
+ 				
+ 				iRandomMax += 3200;
+@@ -5107,6 +5108,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 			//iValue += (GC.getTechInfo(eTech).getFirstFreeTechs() * (200 + ((bCapitalAlone) ? 400 : 0) + ((bAsync) ? GC.getASyncRand().get(3200, "AI Research Free Tech ASYNC") : GC.getGameINLINE().getSorenRandNum(3200, "AI Research Free Tech"))));
+ 			// K-Mod, 22/jan/11, karadoc: more ad-hoc adjustments... this stuff sucks so much.
+ 			iValue += (GC.getTechInfo(eTech).getFirstFreeTechs() * (500 + ((bCapitalAlone) ? 400 : 0) + ((bAsync) ? GC.getASyncRand().get(6000, "AI Research Free Tech ASYNC") : GC.getGameINLINE().getSorenRandNum(6000, "AI Research Free Tech"))));
++			iRandomMax += 6000; // K-Mod
+ 		}
+ 	}
+ 
+@@ -5469,7 +5471,9 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+                     iUnitValue += 600;
+                 }
+ 
+-				if (kLoopUnit.getPrereqAndTech() == eTech)
++				//if (kLoopUnit.getPrereqAndTech() == eTech)
++				// K-Mod.
++				if (kLoopUnit.getPrereqAndTech() == eTech || GET_TEAM(getTeam()).isHasTech((TechTypes)kLoopUnit.getPrereqAndTech()))
+ 				{
+ 					iMilitaryValue = 0;
+ 
+@@ -5872,6 +5876,7 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 						// K-Mod
+ 						if (AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS))
+ 						{
++							iMilitaryValue += 2 * GC.getGameINLINE().AI_combatValue(eLoopUnit);
+ 							iMilitaryValue *= 3;
+ 							iMilitaryValue /= 2;
+ 						}
+@@ -5892,7 +5897,15 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 							}
+ 						}
+ 					}
+-
++					// K-Mod, decrease the value if we are missing other prereqs.
++					for (int iI = 0; iI < GC.getNUM_UNIT_AND_TECH_PREREQS(); iI++)
++					{
++						if (!GET_TEAM(getTeam()).isHasTech((TechTypes)kLoopUnit.getPrereqAndTechs(iI)))
++						{
++							iValue /= 2;
++						}
++					}
++					// K-Mod end
+ 					iValue += iUnitValue;
+ 				}
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5010

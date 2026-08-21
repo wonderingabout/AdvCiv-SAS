@@ -1,0 +1,86 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2366
+# Commit: f429f6e13054084feaa84c996cc891e55abc6243
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 68ebb86656a7f84772b499520e517039341940ce
+# Title: Fix AdvCiv bug: unique range of resources ignored
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	27	CvGameCoreDLL/CvMapGenerator.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index ee77a5296..bdd37ffaa 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -66,39 +66,30 @@ bool CvMapGenerator::canPlaceBonusAt(BonusTypes eBonus, int iX, int iY,  // refa
+ 			return false;
+ 	}
+ 
+-	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
+-
+-	if (p.isWater())
++	int const iBonusClassRange = GC.getInfo(kBonus.getBonusClassType()).
++			getUniqueRange();
++	int const iBonusRange = kBonus.getUniqueRange();
++	for (PlotCircleIter it(p, std::max(iBonusClassRange, iBonusRange));
++		it.hasNext(); ++it)
+ 	{
+-		if (((kMap.getNumBonusesOnLand(eBonus) * 100) /
+-			(kMap.getNumBonuses(eBonus) + 1)) <
+-			kBonus.getMinLandPercent())
++		CvPlot const& kLoopPlot = *it;
++		if (!kLoopPlot.isArea(kArea))
++			continue;
++		BonusTypes eOtherBonus = kLoopPlot.getBonusType();
++		if (eOtherBonus == NO_BONUS)
++			continue;
++		int iDist = it.currPlotDist();
++		// Make sure there are none of the same bonus nearby:
++		if (eBonus == eOtherBonus && iDist <= iBonusRange)
++			return false;
++		// Make sure there are no bonuses of the same class nearby:
++		if (GC.getInfo(eOtherBonus).getBonusClassType() ==
++			kBonus.getBonusClassType() && iDist <= iBonusClassRange)
+ 		{
+ 			return false;
+ 		}
+ 	}
+ 
+-	int const iRange = pClassInfo.getUniqueRange();
+-	for (int iDX = -iRange; iDX <= iRange; iDX++)
+-	for (int iDY = -iRange; iDY <= iRange; iDY++)
+-	{
+-		CvPlot* pLoopPlot = plotXY(iX, iY, iDX, iDY);
+-		if(pLoopPlot == NULL || !pLoopPlot->isArea(kArea))
+-			continue;
+-		if (plotDistance(iX, iY, pLoopPlot->getX(), pLoopPlot->getY()) <= iRange)
+-		{
+-			BonusTypes eOtherBonus = pLoopPlot->getBonusType();
+-			if(eOtherBonus == NO_BONUS)
+-				continue;
+-			// Make sure there are none of the same bonus nearby:
+-			if(eBonus == eOtherBonus)
+-				return false;
+-			// Make sure there are no bonuses of the same class nearby:
+-			if(GC.getInfo(eOtherBonus).getBonusClassType() ==
+-					pInfo.getBonusClassType())
+-				return false;
+-		}
+-	}
+ 	// <advc.129> Prevent more than one adjacent copy regardless of range.
+ 	int iFound = 0;
+ 	FOR_EACH_ENUM(Direction)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2164

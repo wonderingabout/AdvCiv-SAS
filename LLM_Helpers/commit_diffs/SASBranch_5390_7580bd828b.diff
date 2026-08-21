@@ -1,0 +1,227 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5390
+# Commit: 7580bd828bc0bfff5d02d927a7b3767fa08cc9d7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e5b99b5c4beafc64b0522569a96b2522ba098544
+# Title: add movies/music flip button in sevopedia media player
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Emojis/Musical_Notes/1f3b6_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/Emojis/Television/1f4fa_64px.dds
+28	0	Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+22	0	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+20	0	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+10	0	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/Musical_Notes/1f3b6_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/Television/1f4fa_64px.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/Musical_Notes/1f3b6_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Musical_Notes/1f3b6_64px.dds
+new file mode 100644
+index 000000000..d2bd4055a
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/Musical_Notes/1f3b6_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/Television/1f4fa_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Television/1f4fa_64px.dds
+new file mode 100644
+index 000000000..df82f3083
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/Television/1f4fa_64px.dds differ
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+index 52ce1ddd4..795194737 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+@@ -22,6 +22,7 @@ class SevoPediaMediaPlayer:
+ 		self.replayId = clickPrefix + "Replay"
+ 		self.prevId = clickPrefix + "Prev"
+ 		self.nextId = clickPrefix + "Next"
++		self.flipId = clickPrefix + "Flip"
+ 		self.queuePanelId = clickPrefix + "QueuePanel"
+ 		self.queueListId = clickPrefix + "QueueList"
+ 		self.clickPrefix = clickPrefix
+@@ -35,6 +36,8 @@ class SevoPediaMediaPlayer:
+ 		self.replayCallback = None
+ 		self.prevCallback = None
+ 		self.nextCallback = None
++		self.flipButtonPath = None
++		self.flipCallback = None
+ 		self.screen = None
+ 
+ 
+@@ -113,6 +116,17 @@ class SevoPediaMediaPlayer:
+ 
+ 
+ 
++	def placeFlipButton(self, screen, iScreenW, iScreenH):
++		if not self.flipButtonPath:
++			return
++		iSize, iGap, iExitX, iBaseY = self._getTransportLayout(iScreenW, iScreenH)
++		iReplayX = iExitX - iGap - iSize
++		iPrevX = iReplayX - iGap - iSize
++		iFlipX = iPrevX - iGap - iSize
++		screen.setImageButton(self.flipId, self.flipButtonPath, iFlipX, iBaseY, iSize, iSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
++
++
++
+ 	def _getTransportLayout(self, iScreenW, iScreenH):
+ 		iSize = 64
+ 		iGap = 8
+@@ -191,6 +205,16 @@ class SevoPediaMediaPlayer:
+ 
+ 
+ 
++	def setFlipButton(self, szArtInfoType):
++		self.flipButtonPath = ArtFileMgr.getInterfaceArtInfo(szArtInfoType).getPath()
++
++
++
++	def setFlipCallback(self, flipCallback):
++		self.flipCallback = flipCallback
++
++
++
+ 	def playSound(self, szSoundScript, iSoundId, bForce3D):
+ 		self.soundId = None
+ 		self.is3DSound = False
+@@ -299,6 +323,10 @@ class SevoPediaMediaPlayer:
+ 				if self.nextCallback is not None:
+ 					self.nextCallback()
+ 				return True
++			if szName == self.flipId:
++				if self.flipCallback is not None:
++					self.flipCallback()
++				return True
+ 			# Exit button, or click anywhere on the overlay (image/title/background or movie/nif/dds/title/background) to close.
+ 			if szName == self.exitId or szName.startswith(self.clickPrefix):
+ 				closeCallback()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+index 9f6d5b7f5..69b7870f4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -159,10 +159,13 @@ class SevoPediaMovie:
+ 
+ 		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
+ 		self.mediaPlayer.placeReplayButton(screen, iScreenW, iScreenH)
++		self.mediaPlayer.setFlipButton("SAS_EMOJI_MUSICAL_NOTES")
++		self.mediaPlayer.placeFlipButton(screen, iScreenW, iScreenH)
+ 		self.mediaPlayer.setReplayCallback(self.replayMovie)
+ 		self.mediaPlayer.placePrevNextButtons(screen, iScreenW, iScreenH)
+ 		self.mediaPlayer.setPrevCallback(self.playPrevMovie)
+ 		self.mediaPlayer.setNextCallback(self.playNextMovie)
++		self.mediaPlayer.setFlipCallback(self.switchToMusic)
+ 
+ 		self.SAS_setupPlayableMovies(iMovieType, iMovieId)
+ 		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMovieLabels, self.SAS_playableMovieIndex)
+@@ -268,6 +271,25 @@ class SevoPediaMovie:
+ 
+ 
+ 
++	def SAS_getFirstPlayableMovie(self):
++		playable, labels = self.SAS_buildPlayableMoviesAndLabels()
++		if not playable:
++			return -1
++		return playable[0]
++
++
++
++	def switchToMusic(self):
++		iFirstMusic = self.top.pediaMusic.SAS_getFirstPlayableMusic()
++		if iFirstMusic == -1:
++			return
++		self.mediaPlayer.stopSound()
++		self.mediaPlayer.closeScreen()
++		self.top.pediaJump(SevoScreenEnums.PEDIA_MUSIC, iFirstMusic, True, False)
++		self.top.pediaMusic.playMusic(iFirstMusic)
++
++
++
+ 	def getMovieInfo(self, iMovieType, iMovieId):
+ 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_VICTORY:
+ 			return gc.getVictoryInfo(iMovieId)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index 9dea32667..b69fc1294 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -242,10 +242,13 @@ class SevoPediaMusic:
+ 
+ 		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
+ 		self.mediaPlayer.placeReplayButton(screen, iScreenW, iScreenH)
++		self.mediaPlayer.setFlipButton("SAS_EMOJI_TELEVISION")
++		self.mediaPlayer.placeFlipButton(screen, iScreenW, iScreenH)
+ 		self.mediaPlayer.placePrevNextButtons(screen, iScreenW, iScreenH)
+ 		self.mediaPlayer.setReplayCallback(self.replayMusic)
+ 		self.mediaPlayer.setPrevCallback(self.playPrevMusic)
+ 		self.mediaPlayer.setNextCallback(self.playNextMusic)
++		self.mediaPlayer.setFlipCallback(self.switchToMovies)
+ 		self.SAS_lastMusicSound = (szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
+ 		self.SAS_setupPlayableMusic(iMusic)
+ 		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex)
+@@ -334,6 +337,23 @@ class SevoPediaMusic:
+ 		self.showMusicPlayer(iPacked)
+ 
+ 
++	def SAS_getFirstPlayableMusic(self):
++		playable, labels = self.SAS_buildPlayableMusicAndLabels()
++		if not playable:
++			return -1
++		return playable[0]
++
++
++	def switchToMovies(self):
++		iFirstMovie = self.top.pediaMovies.SAS_getFirstPlayableMovie()
++		if iFirstMovie == -1:
++			return
++		self.mediaPlayer.stopSound()
++		self.mediaPlayer.closeScreen()
++		self.top.pediaJump(SevoScreenEnums.PEDIA_MOVIES, iFirstMovie, True, False)
++		self.top.pediaMovies.playMovie(iFirstMovie)
++
++
+ 
+ 	def getMusicInfo(self, iPacked):
+ 		return self.top.getMusicInfo(iPacked)
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index a6d7f9220..d1a92cb12 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -1864,5 +1864,15 @@ Created as part of AdvCiv-SAS improvements
+ 			<Type>SAS_EMOJI_NEXT_TRACK_BUTTON</Type>
+ 			<Path>Art/AdvCiv_SAS/Emojis/Next_Track_Button/23ed_64px.dds</Path>
+ 		</InterfaceArtInfo>
++		<!-- 🎶 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_MUSICAL_NOTES</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Musical_Notes/1f3b6_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 📺 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_TELEVISION</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Television/1f4fa_64px.dds</Path>
++		</InterfaceArtInfo>
+ 	</InterfaceArtInfos>
+ </Civ4ArtDefines>
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG
+index d2cf34c22..602510f9d 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG
+index 68b7dcc81..c90d7cd19 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=7715

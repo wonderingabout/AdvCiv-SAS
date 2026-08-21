@@ -1,0 +1,308 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6030
+# Commit: 26b0d5967d691fc5d59a350856ffc7597b47c290
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 570fe0922fa2991e5873b7fa3d9bb580e0980759
+# Title: Improve AI Worker danger handling and add BBAI and SASGameSummary information - Treat current plot danger as real for Workers even inside owned culture, whil...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+75	0	CvGameCoreDLL/CvEventReporter.cpp
+5	0	CvGameCoreDLL/CvPlot.cpp
+20	10	CvGameCoreDLL/CvUnitAI.cpp
+12	0	CvGameCoreDLL/SASGameSummaryLog.cpp
+1	0	CvGameCoreDLL/SASGameSummaryLog.h
+4	2	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+63	63	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index 3cf130375..5a7aedde1 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -2,6 +2,16 @@
+ #include "CvEventReporter.h"
+ #include "CvGame.h"
+ #include "CvPlayer.h"
++#include "CvCity.h" // <!-- custom: Needed to log nearest/working city context for Worker deaths. (GPT-5.5) -->
++#include "CvPlot.h" // <!-- custom: Needed to log plot context for Worker deaths. (GPT-5.5) -->
++#include "CvUnit.h" // <!-- custom: Needed to log killed Worker and killer unit context. (GPT-5.5) -->
++#include "CvUnitAI.h" // <!-- custom: Needed to inspect killed Worker AI group state. (GPT-5.5) -->
++#include "CvPlayerAI.h" // <!-- custom: Needed to log killed Worker's current plot danger. (GPT-5.5) -->
++#include "CvMap.h" // <!-- custom: Needed for nearest-city distance in Worker-death diagnostics. (GPT-5.5) -->
++#include "PlotRadiusIterator.h" // <!-- custom: Needed to count visible enemies around Worker-death plots. (GPT-5.5) -->
++#include "CvInfo_Terrain.h" // <!-- custom: Needed for terrain/feature/bonus/improvement/route names in Worker-death diagnostics. (GPT-5.5) -->
++#include "CvSelectionGroupAI.h" // <!-- custom: Needed to log Worker-death mission AI context in BBAI Worker diagnostics. (GPT-5.5) -->
++#include "CvGameCoreUtils.h" // <!-- custom: Needed for BBAI Worker-death unit-AI and mission-AI strings. (GPT-5.5) -->
+ #include "CvDLLPythonIFaceBase.h" // advc
+ #include "BBAILog.h" // <!-- custom: Needed to complete the BBAI identity header. (GPT-5.5 + ChatGPT-5.5) -->
+ #include "SASGameSummaryLog.h" // <!-- custom: Structured run-summary action rows are separate from BBAI diagnostics. (GPT-5.5) -->
+@@ -24,6 +34,70 @@ void CvEventReporter::resetStatistics()
+ // advc.106l: Explicit constructor added, so I can initialize my booleans.
+ CvEventReporter::CvEventReporter() : m_bPreAutoSave(false), m_bPreQuickSave(false) {}
+ 
++static bool isSASBBAIWorkerDeathUnit(CvUnit const& kUnit)
++{
++	return kUnit.isWorker() || kUnit.AI_getUnitAIType() == UNITAI_WORKER || kUnit.AI_getUnitAIType() == UNITAI_WORKER_SEA;
++}
++
++static CvCity const* getSASBBAINearestOwnedCity(CvPlot const& kPlot, PlayerTypes ePlayer, int& iDistance)
++{
++	iDistance = -1;
++	if (ePlayer == NO_PLAYER)
++		return NULL;
++	CvCity const* pBestCity = NULL;
++	int iLoop = 0;
++	for (CvCity const* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
++	{
++		const int iLoopDistance = plotDistance(kPlot.getX(), kPlot.getY(), pLoopCity->getX(), pLoopCity->getY());
++		if (iDistance < 0 || iLoopDistance < iDistance)
++		{
++			iDistance = iLoopDistance;
++			pBestCity = pLoopCity;
++		}
++	}
++	return pBestCity;
++}
++
++static void countSASBBAIVisibleEnemiesNearWorkerDeath(CvPlot const& kPlot, PlayerTypes ePlayer, int& iVisibleEnemies, int& iVisibleCombatEnemies)
++{
++	iVisibleEnemies = 0;
++	iVisibleCombatEnemies = 0;
++	if (ePlayer == NO_PLAYER)
++		return;
++	for (SquareIter it(kPlot, 2); it.hasNext(); ++it)
++	{
++		iVisibleEnemies += it->plotCount(PUF_isEnemy, ePlayer, false, NO_PLAYER, NO_TEAM, PUF_isVisible, ePlayer);
++		iVisibleCombatEnemies += it->plotCount(PUF_canDefendEnemy, ePlayer, false, NO_PLAYER, NO_TEAM, PUF_isVisible, ePlayer);
++	}
++}
++
++static void logSASBBAIWorkerDeathContext(CvUnit const* pWinner, CvUnit const* pLoser)
++{
++	if (pWinner == NULL || pLoser == NULL || !isSASBBAIWorkerDeathUnit(*pLoser))
++		return;
++	CvPlot const& kPlot = pLoser->getPlot();
++	PlayerTypes const eLoser = pLoser->getOwner();
++	CvSelectionGroupAI const* pGroup = pLoser->AI().AI_getGroup();
++	CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
++	CvWString szLoserAI; getUnitAIString(szLoserAI, pLoser->AI_getUnitAIType());
++	CvWString szWinnerAI; getUnitAIString(szWinnerAI, pWinner->AI_getUnitAIType());
++	CvWString szMissionAI; getMissionAIString(szMissionAI, pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType());
++	int iVisibleEnemies = 0;
++	int iVisibleCombatEnemies = 0;
++	countSASBBAIVisibleEnemiesNearWorkerDeath(kPlot, eLoser, iVisibleEnemies, iVisibleCombatEnemies);
++	int iNearestOwnedCityDistance = -1;
++	CvCity const* pNearestOwnedCity = getSASBBAINearestOwnedCity(kPlot, eLoser, iNearestOwnedCityDistance);
++	CvCity const* pWorkingCity = kPlot.getWorkingCity();
++	const int iOwnerUnits = kPlot.plotCount(PUF_isPlayer, eLoser);
++	const int iOwnerDefenders = kPlot.plotCount(PUF_canDefend, -1, -1, eLoser);
++	const int iOwnerWorkers = kPlot.plotCount(PUF_isUnitAIType, UNITAI_WORKER, -1, eLoser) + kPlot.plotCount(PUF_isUnitAIType, UNITAI_WORKER_SEA, -1, eLoser);
++	// <!-- custom: Worker death counts dropped from 40 to 17 by t200 in the save-file-450 test after the current-danger fixes, but the remaining deaths still need classification. Log only Worker/Work Boat deaths in BBAI Worker diagnostics with enough context to distinguish unavoidable war-front losses from bad movement or missing retreat. No gameplay behavior change. (GPT-5.5) -->
++	logBBAI("    WORKER_DEATH_CONTEXT turn=%d loser=%d %S loserUnitId=%d loserUnit=%S loserAI=%S winner=%d winnerUnitId=%d winnerUnit=%S winnerAI=%S plot=(%d,%d) owner=%d cityPlot=%d currentDanger=%d missionAI=%S missionTarget=(%d,%d) missionQueue=%d activity=%d movesSpent=%d movesLeft=%d visibleEnemiesR2=%d visibleCombatEnemiesR2=%d ownerUnitsOnPlot=%d ownerDefendersOnPlot=%d ownerWorkersOnPlot=%d nearestOwnedCity=%S nearestOwnedCityId=%d nearestOwnedCityDistance=%d workingCity=%S workingCityId=%d terrain=%S feature=%S bonus=%S improvement=%S route=%S",
++			GC.getGame().getGameTurn(), eLoser, GET_PLAYER(eLoser).getCivilizationDescription(0), pLoser->getID(), GC.getInfo(pLoser->getUnitType()).getDescription(), szLoserAI.GetCString(), pWinner->getOwner(), pWinner->getID(), GC.getInfo(pWinner->getUnitType()).getDescription(), szWinnerAI.GetCString(), kPlot.getX(), kPlot.getY(), kPlot.getOwner(), kPlot.isCity(), GET_PLAYER(eLoser).AI_getPlotDanger(kPlot), szMissionAI.GetCString(),
++			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pGroup == NULL ? -1 : pGroup->getLengthMissionQueue()), (pGroup == NULL ? NO_ACTIVITY : pGroup->getActivityType()), pLoser->getMoves(), pLoser->movesLeft(), iVisibleEnemies, iVisibleCombatEnemies, iOwnerUnits, iOwnerDefenders, iOwnerWorkers, (pNearestOwnedCity == NULL ? L"-" : pNearestOwnedCity->getName().GetCString()), (pNearestOwnedCity == NULL ? -1 : pNearestOwnedCity->getID()), iNearestOwnedCityDistance, (pWorkingCity == NULL ? L"-" : pWorkingCity->getName().GetCString()), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()),
++			GC.getInfo(kPlot.getTerrainType()).getDescription(), (kPlot.getFeatureType() == NO_FEATURE ? L"-" : GC.getInfo(kPlot.getFeatureType()).getDescription()), (kPlot.getBonusType(pLoser->getTeam()) == NO_BONUS ? L"-" : GC.getInfo(kPlot.getBonusType(pLoser->getTeam())).getDescription()), (kPlot.getImprovementType() == NO_IMPROVEMENT ? L"-" : GC.getInfo(kPlot.getImprovementType()).getDescription()), (kPlot.getRouteType() == NO_ROUTE ? L"-" : GC.getInfo(kPlot.getRouteType()).getDescription()));
++}
++
+ // advc.003y: Just pass the call along
+ void CvEventReporter::initPythonCallbackGuards()
+ {
+@@ -130,6 +204,7 @@ void CvEventReporter::firstContact(TeamTypes eTeamID1, TeamTypes eTeamID2)
+ void CvEventReporter::combatResult(CvUnit* pWinner, CvUnit* pLoser)
+ {
+ 	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCombatResult(pWinner, pLoser);
++	if (gWorkerLogLevel >= 2) logSASBBAIWorkerDeathContext(pWinner, pLoser);
+ 	m_kPythonEventMgr.reportCombatResult(pWinner, pLoser);
+ }
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 000447ee3..eadf019d9 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -19,6 +19,7 @@
+ #include "CvDLLFlagEntityIFaceBase.h"
+ // <!-- custom: CvPlot::changeBuildProgress now logs completed worker improvement overwrites for oscillation diagnostics, so include BBAILog.h; this fixed the compile error from adding logBBAI here. Credit: ChatGPT 5.5. (GPT-5.5 review) -->
+ #include "BBAILog.h"
++#include "SASGameSummaryLog.h" // <!-- custom: CvPlot::setBonusType logs in-game bonus appearances/disappearances in SASGameSummary for autoplay review context. (GPT-5.5) -->
+ 
+ /*	advc.make: I've added safeIntCast calls in a few places that looked at least
+ 	slightly hazardous. Beyond that, explicit casts would only add clutter.
+@@ -4702,6 +4703,7 @@ void CvPlot::setBonusType(BonusTypes eNewValue)
+ {
+ 	if(getBonusType() == eNewValue)
+ 		return;
++	const BonusTypes eOldBonus = getBonusType();
+ 
+ 	if (getBonusType() != NO_BONUS)
+ 	{
+@@ -4727,6 +4729,9 @@ void CvPlot::setBonusType(BonusTypes eNewValue)
+ 	updateYield();
+ 	setLayoutDirty(true);
+ 	gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
++	// <!-- custom: Some bonuses can appear or disappear after game start, e.g. save-file-450 follow-up testing showed Shaka gaining Gems. Log only after elapsed turns start so initial map bonus placement does not flood the game-summary file. (GPT-5.5) -->
++	if (gGameSummaryLogLevel >= 2 && GC.getGame().getElapsedGameTurns() > 0)
++		logSASGameSummaryBonusChanged(this, eOldBonus, eNewValue);
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 114c1d3bc..2e82e032a 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -4557,9 +4557,8 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+          - Result: workers often abandoned tasks too early, leaving some cities
+            (especially jungle ones) unimproved for a long time.
+ 
+-       New code:
+-         - Inside our cultural borders: skip threat check entirely.
+-           (If an enemy is already on our tile, the game captures us before this runs.)
++       Current code:
++         - Inside our cultural borders: ignore broad threat-radius noise, but still react when the worker's current plot is already dangerous.
+          - Outside borders: use smaller radius = 1 (only adjacent tiles count as dangerous).
+            → This greatly reduces “false positives" from slow or harmless enemy units
+              far away but still inside the old radius 2 bubble.
+@@ -4570,16 +4569,27 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+            in genuinely dangerous situations outside borders.
+     */
+ 
+-		bool bThreatened = false;
+-
+-		if (plot()->getOwner() != getOwner())
+-		{
+-			// Only check threat outside borders
+-			bThreatened = kOwner.AI_isPlotThreatened(plot(), 1); // adjacent counts
+-		}
++		const int iCurrentDanger = kOwner.AI_getPlotDanger(getPlot());
++		// <!-- custom: Save-file-450 worker diagnostics showed 40 Worker deaths by the comparable t200/t201 run.
++		// 1) Treat current plot danger as real danger even inside owned culture, while still ignoring broad inside-border threat-radius noise. This was necessary but did not improve behavior by itself: threatened Workers entered the danger branch, but the branch still redirected through city-improvement logic first.
++		// 2) Handle current plot danger before city-improvement redirection; otherwise a Zulu Worker at (14,45) with currentDanger=1 selected the same plot to keep building and died to a Barbarian Archer. This made that Worker retreat on turn 59 instead, removed the old t60 (14,45) death, and worker deaths fell from 40 to 17 in the next comparable t200 run. The remaining issue was retreat sometimes ending on a still-dangerous plot. (GPT-5.5) -->
++		const bool bCurrentPlotDanger = (iCurrentDanger > 0);
++		bool bThreatened = bCurrentPlotDanger;
++		if (!bThreatened && plot()->getOwner() != getOwner())
++			bThreatened = kOwner.AI_isPlotThreatened(plot(), 1); // adjacent counts outside borders
+ 
+ 		if (bThreatened)
+ 		{
++			if (bCurrentPlotDanger)
++			{
++				if (AI_retreatToCity()) return;
++				// <!-- custom: Retesting AI_safety before AI_retreatToCity regressed the save-file-450 worker-death test from 17 to 31 deaths by t200. In the original Zulu case, AI_safety chose action=wait on (14,45) with targetDanger=1 on turns 59-61, then the Worker died there. Keep city retreat first for now; if retreat ends on a dangerous plot, that needs a narrower follow-up than calling generic AI_safety first. (GPT-5.5) -->
++				if (AI_safety()) return;
++				if (gWorkerLogLevel >= 2) logBBAI("    WORKER_DANGER_NO_ESCAPE turn=%d player=%d %S workerId=%d worker=(%d,%d) currentDanger=%d threatened=%d action=skip-no-build", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iCurrentDanger, kOwner.AI_isPlotThreatened(plot(), 1));
++				getGroup()->pushMission(MISSION_SKIP);
++				return;
++			}
++
+ 			bool bNearTarget = false;
+ 
+ 			CvPlot* pTarget = AI_getGroup()->AI_getMissionAIPlot();
+
+diff --git a/CvGameCoreDLL/SASGameSummaryLog.cpp b/CvGameCoreDLL/SASGameSummaryLog.cpp
+index 0b0a16106..e35fc6dd0 100644
+--- a/CvGameCoreDLL/SASGameSummaryLog.cpp
++++ b/CvGameCoreDLL/SASGameSummaryLog.cpp
+@@ -550,6 +550,18 @@ static const char* getSASGameSummaryRouteType(RouteTypes eRoute)
+ 	return (eRoute == NO_ROUTE ? "-" : GC.getInfo(eRoute).getType());
+ }
+ 
++void logSASGameSummaryBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus)
++{
++	if (pPlot == NULL || eOldBonus == eNewBonus)
++		return;
++	const char* szAction = (eOldBonus == NO_BONUS ? "appeared" : (eNewBonus == NO_BONUS ? "disappeared" : "changed"));
++	CvCity const* pWorkingCity = pPlot->getWorkingCity();
++	CvCity const* pPlotCity = pPlot->getPlotCity();
++	// <!-- custom: Reproducible T129 crash dumps after adding this row failed in msvcr71!_output/_vsnprintf with an invalid read at 0x000003fc. The original argument for area=%d was pPlot->getArea(), but CvPlot::getArea returns CvArea&, not an integer; passing that object reference through varargs corrupted the following formatter reads. Logging the area ID explicitly fixed the crash in the next test run. (GPT-5.5) -->
++	logSASGameSummary("GAME_SUMMARY_BONUS_CHANGE turn=%d elapsed=%d action=%s x=%d y=%d area=%d owner=%d oldBonus=%s newBonus=%s terrain=%s feature=%s improvement=%s route=%s water=%d hills=%d peak=%d riverSide=%d cityRadius=%d workingCity=%S workingCityId=%d plotCity=%S plotCityId=%d",
++			GC.getGame().getGameTurn(), GC.getGame().getElapsedGameTurns(), szAction, pPlot->getX(), pPlot->getY(), pPlot->getArea().getID(), pPlot->getOwner(), getSASGameSummaryBonusType(eOldBonus), getSASGameSummaryBonusType(eNewBonus), getSASGameSummaryTerrainType(pPlot->getTerrainType()), getSASGameSummaryFeatureType(pPlot->getFeatureType()), getSASGameSummaryImprovementType(pPlot->getImprovementType()), getSASGameSummaryRouteType(pPlot->getRouteType()), pPlot->isWater(), pPlot->isHills(), pPlot->isPeak(), pPlot->isRiverSide(), pPlot->isCityRadius(), (pWorkingCity == NULL ? L"-" : pWorkingCity->getName().GetCString()), (pWorkingCity == NULL ? -1 : pWorkingCity->getID()), (pPlotCity == NULL ? L"-" : pPlotCity->getName().GetCString()), (pPlotCity == NULL ? -1 : pPlotCity->getID()));
++}
++
+ static const char* getSASGameSummaryCommerceType(CommerceTypes eCommerce)
+ {
+ 	return (eCommerce == NO_COMMERCE ? "-" : GC.getInfo(eCommerce).getType());
+
+diff --git a/CvGameCoreDLL/SASGameSummaryLog.h b/CvGameCoreDLL/SASGameSummaryLog.h
+index 5a9c90e82..fccd0aee8 100644
+--- a/CvGameCoreDLL/SASGameSummaryLog.h
++++ b/CvGameCoreDLL/SASGameSummaryLog.h
+@@ -38,6 +38,7 @@ void logSASGameSummaryGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit c
+ void logSASGameSummaryUnitScrapped(CvUnit const* pUnit);
+ void logSASGameSummaryUnitUpgraded(CvUnit const* pOldUnit, CvUnit const* pNewUnit, int iCost);
+ void logSASGameSummaryCombatResult(CvUnit const* pWinner, CvUnit const* pLoser);
++void logSASGameSummaryBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus);
+ 
+ #define gGameSummaryLogLevel getSASGameSummaryLogLevel() // <!-- custom: Structured game-state/action summary for autoplay comparison and external review, independent from the classic BBAI master switch. (ChatGPT-5.5 + GPT-5.5) -->
+ #define gGameSummaryTurnInterval getSASGameSummaryTurnInterval() // <!-- custom: Periodic game-summary snapshot interval in game turns. (ChatGPT-5.5) -->
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 3ca7e7877..24767c2b5 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -73,7 +73,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or always build first logic depending on building type or such; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-or-always-build-first-logic-depending-on-building-type-or-such-and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused)\
+ [48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy)\
+ [49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#49---enhancedaddressed-ai-having-4-defenders-in-capital-city-but-only-1-defender-in-city-b-that-gets-captured-or-razed-by-barbarians-then-now-almost-always-if-not-always-new-cities-go-be-founded-with-2-defenders)\
+-[50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean)\
++[50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change)\
+ [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure)\
+ [52 - (Beyond Tremendously improved) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#52---beyond-tremendously-improved-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such)\
+ [53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or of more importantly building galleons and privateers in droves and excess, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers)\
+@@ -1422,7 +1422,7 @@ So, chatgpt 5, which was released just yesterday evening more or less didn't che
+ 
+ And the result is extremely nice, beyond a tremendous improvement. See existing screenshots between 1943 and 1958 for details. Persia AI's city C is quickly and very fast improved at turn +/- 100 (97-105 in screenshots, which looks very good and nice), and the dream is thanks to our previous improvements (no pun) in bestcitybuild, AI workers specifically chop +/- improve only grass tiles so we can populate them later with our preferred build too, not plain tiles weirdly with a cottage or such like in base advciv +/- civ4 or such other mods. So all in all this is extremely nice, and i am thankful to all who helped me like chatgpt 5, those mentioned here or not, base advciv, kmod, etc firaxis for making this framework, and i am glad it is enhanced so much. I may have to reduce handicap settings now as AI would be unbeatable now with handicap that is too high, as its AI workers are now very very efficient i think, minus etxra tweaks we'd need like late game adjust for state property or whatever chatgpt 5 mentioned too, that we do partly indirectly but check bestcitybuild function in cvunitai or future known issues after this one if any. This is extremely satisfying, although i hope to improve it further based on autoplay and what i see, but i hope AI and AI workers can be a satisfying challenge now, after all economy and working tiles is key, maybe humans could automate reliably at lower levels if lazy or want to learn and get a really good result if the code applies here as well, but in all cases.
+ 
+-Update: see also related known issue as of nowwith extra very nice improvement(s) to wake from retreat logic causing parking in rare cases: [50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean)
++Update: see also related known issue as of nowwith extra very nice improvement(s) to wake from retreat logic causing parking in rare cases: [50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change)
+ 
+ ## 42 - (Enhanced/Addressed) Tune AI's preferred based UNITAI based on war status (offense mode, defense mode, combined power ratios of ennemies, etc if any other), general sanity checks and efficiency, city size, map type (land heavy vs water heavy vs other if any for example), general suicide or such tendencies, etc
+ 
+@@ -1967,6 +1967,8 @@ The one worker per tile is very nice, and we seem to get our ideal improvements.
+ 
+ This was started from a save file that had the issue, i assume that with this new change now in the DLL, the issue won't happen hopefully and this susa citywould have been improved already much much sooner. This was quite rare as i hadn't noticed it from quick autoplay glances, but great and a very nice enhancement i believe. Thanks to this, i believe AI is also significantly stronger and more efficient with its workers, and thanks again chatgpt 5 for help as well although i participated as well in the thinking effort and providing code and such as you did.
+ 
++Later update: save-file-450 BBAI worker-death diagnostics showed another side of this same Worker safety problem: Workers could still continue a build on a currently dangerous plot inside owned culture. Broad inside-border threat checks were too noisy and could recreate excessive retreat / parking issues, but checking current plot danger directly fixed the concrete bad case. In comparable t200 testing, Worker deaths fell from 40 to 17 after Workers treated current plot danger as real even inside owned culture.
++
+ ## 51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure)
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1trFS19b14RsYA6kHc8RT6zFyc36KqILw?usp=sharing)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 1bbf8f678..7d1a5a4f8 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -153,7 +153,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+ - **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis (also good to give us a different point of view/review if needed).
+ - **Timestamped BBAI log files:** Optionally log each new game and loaded save to a **new UTC-timestamped file** (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins notably with the new/load time, currently active BBAI log levels, turn/year, map and game settings (including `landheavy` and `navalheavy` actual game information), player counts, and RNG states, avoiding mixed logs and the need to restart Civ4 between repeated save-file tests. See also [README.md (BBAI logging and head example)](/README.md#bbai-logging-and-head-example).
+-- (Requires AdvCiv-SAS 6022+) **SAS game-summary log:** added a separate `SASGameSummary_*.log` for compact autoplay and AI-strength review. It records high-level run context such as economy, expansion, city and battle history, worked plots, diplomacy, unit composition, and game state, complementing BBAI logs by summarizing what happened before or alongside detailed AI-decision traces. Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-summary log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_SUMMARY_TURN_INTERVAL` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. See also [README.md (DLL Logging)](/README.md#dll-logging).
++- (Requires AdvCiv-SAS 6022+) **SAS game-summary log:** added a separate `SASGameSummary_*.log` for compact autoplay and AI-strength review. It records high-level run context such as economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by summarizing what happened before or alongside detailed AI-decision traces. Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-summary log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_SUMMARY_TURN_INTERVAL` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
+ - **Culture-victory BBAI diagnostics:** added a new dedicated `SAS_BBAI_CULTURE_LOG_LEVEL` notably for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs. It records for example culture-stage reasons, current/projected Legendary-city countdowns and rival ranking, competing victory progress, actual culture-slider decisions, per-city weights and production, and culture contributed by production processes and assigned specialists.
+@@ -348,7 +348,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Compare the best useful work across all cities:** workers now compare each city's strongest reachable job by its complete Food/Production/Commerce/resource/terrain evaluation, with only a modest travel cost, instead of favoring cities mainly by population or staying near weaker local work. Cities that lack enough completed or already-assigned improvements for their population receive proportionally more help; counting assigned workers discourages crowding one city, while reserving one worker per plot prevents several workers from targeting the same tile. In BBAI testing in save file 442, this redirected workers from low-value unused Tundra Workshops toward valuable Grass/Plains Hill Mines in underdeveloped cities. See also [KI#39](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it) and [KI#41](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-im-not-mistaken-but-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but).
+ - **Worker mobility / overimprovement refinement:** workers still rotate away from sufficiently improved small cities, but medium and large cities are less likely to leave useful BFC plots unimproved. Workers also avoid ordinary replacement churn (e.g. **Mine ↔ Windmill**, **Cottage ↔ Farm**) while valid unimproved BFC work remains, except for bonus fixes and irrigation-chain Farms. The small-city rotation shortcut does not make a worker leave when it is already standing on this same city's useful BFC plot and that plot is the city's best current job.
+ - **Finish valuable followup builds after feature removal:** a worker can complete standalone Forest/Jungle/Fallout removal (including receiving Forest chop production sooner, separated from e.g. a 2 in 1 mine that would deliver hammer on feature remove later plus would be less flexible), then continue directly into the worthwhile Mine, Farm, Cottage, resource improvement, etc. selected for that plot. This prevents workers from chopping or clearing a strong tile, walking away, and paying another trip later (which is especially inefficient if this costs movement/delay again); weak ordinary follow-ups are still reconsidered instead of being forced. Queued follow-ups now wait for the worker's next turn when removal consumes all movement rather than being silently discarded. See also [KI#176](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#176---fixed-base-advcivk-mod-mission-queue-bug-exposed-by-advciv-sas-worker-follow-up-improvements-stale-ai-worker-build-target-could-execute-on-the-wrong-plot).
+-- **Retreat logic:** fix excessive retreat → "parking in city" edge cases with a wake-from-retreat and saner thresholds. See [KI#50](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean).
++- **Retreat logic:** fix excessive retreat → "parking in city" edge cases with a wake-from-retreat and saner thresholds. See [KI#50](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change). (Requires AdvCiv-SAS 6030+) Update: while this was meant initially to help reduce excessive Worker parking or inactivity, this may have also caused excessive or avoidable Worker deaths, so danger now handling also treats current plot danger as real even inside owned culture, while still ignoring broad inside-border threat-radius noise that caused too much retreating; in save-file-450 BBAI testing, this prevented a Worker from continuing a build on a currently dangerous plot and reduced comparable t200 Worker deaths from 40 to 17.
+ - **Worker irrigation-chain hunting:** updated SAS AI worker logic so it now **starts from actual dry-farm / low-food BFC targets** and **hunts short owned irrigation-chain steps**, including first links **outside the city BFC**. This fixed Chaco Canyon and Harappan-style cases where a nearby (2-3 plots away from BFC) water source existed but BFC-only worker logic missed the first link. Workers now retain only the strongest available connector toward each target instead of treating several alternative routes to the same Farm as separate urgent jobs, leaving other workers free to pursue valuable improvements elsewhere.
+ 
+ ##### Other Civilian Units (AI)
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt reason=known-generated/noisy-history changedLines=126 bytes=167673
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=7 omittedFiles=2 embeddedPatchBytes=38408

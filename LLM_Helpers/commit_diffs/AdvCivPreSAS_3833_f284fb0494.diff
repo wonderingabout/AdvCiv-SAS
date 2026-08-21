@@ -1,0 +1,48 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3833
+# Commit: f284fb04945e5c39a5c1d8ffe53b337b65a1dbcd
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 58ecf9b8d0b4c957c44d9255c32488948f0ebd05
+# Title: Fix extra techs after True Starts map re-gen
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	2	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 9f5653425..10c8b9df3 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -344,8 +344,17 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
+ 		autosave in CvGame::update if I hadn't added a re-gen check there. */
+ 	setTurnSlice(0);
+ 	CvEventReporter::getInstance().resetStatistics();
+-
+-	m_iMapRegens++; // advc.tsl
++	// <advc.tsl>
++	m_iMapRegens++;
++	if (isOption(GAMEOPTION_TRUE_STARTS))
++	{	// Civ may have changed; don't accumulate starting techs.
++		FOR_EACH_ENUM(Team)
++		{
++			FOR_EACH_ENUM(Tech)
++				GET_TEAM(eLoopTeam).setHasTech(eLoopTech, false, NO_PLAYER, false, false);
++		}
++	} // </advc.tsl>
++	m_eInitialActivePlayer = NO_PLAYER; // advc.106h
+ 	setInitialItems();
+ 	// <advc.tsl>
+ 	if (bAutomated)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=815

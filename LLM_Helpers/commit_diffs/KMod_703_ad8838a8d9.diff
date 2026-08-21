@@ -1,0 +1,88 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 703
+# Commit: ad8838a8d9d0680ac07274accf307b52a6baef00
+# History segment: K-Mod history
+# Parent used for diff: 4125e2e5475e9ab5a9f9cf24dd6c8a275c53c85c
+# Title: Removed the weight cap in AI_commerceWeight (there was a cap of 110 on the base weight, for no apparent reason.) Reduced the AI weight of science from 125 to...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/GameInfo/CIV4CommerceInfo.xml
+8	5	CvGameCoreDLL/CvCityAI.cpp
+0	3	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4CommerceInfo.xml b/Assets/xml/GameInfo/CIV4CommerceInfo.xml
+index 41d81030d..b3d50f1d2 100644
+--- a/Assets/xml/GameInfo/CIV4CommerceInfo.xml
++++ b/Assets/xml/GameInfo/CIV4CommerceInfo.xml
+@@ -20,7 +20,7 @@
+ 			<Description>TXT_KEY_COMMERCE_RESEARCH</Description>
+ 			<iInitialPercent>100</iInitialPercent>
+ 			<iInitialHappiness>0</iInitialHappiness>
+-			<iAIWeightPercent>125</iAIWeightPercent>
++			<iAIWeightPercent>105</iAIWeightPercent> <!-- was 125 -->
+ 			<bFlexiblePercent>1</bFlexiblePercent>
+ 			<Button>Art/Interface/Buttons/Process/ProcessResearch.dds</Button>
+ 		</CommerceInfo>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6249b19ed..1c06e47a9 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -5916,9 +5916,9 @@ int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType
+ 			iTempValue *= 2;
+ 		}
+ 
+-		// K-Mod. Calculate the number of commerce produced.
++		// K-Mod. Calculate the quantity of commerce produced.
+ 		iTempValue *= getYieldRate(YIELD_PRODUCTION);
+-		//iTempValue /= 100; // keep this 100 for now.
++		//iTempValue /= 100; // keep this factor of 100 for now.
+ 		// Culture is local, the other commerce types are non-local.
+ 		// We don't want the non-local commerceWeights in this function, because maintaining a process is just a short-term arrangement.
+ 		iTempValue *= kOwner.AI_commerceWeight(i, i == COMMERCE_CULTURE ? this : 0);
+@@ -5927,11 +5927,14 @@ int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType
+ 
+ 		/* iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange(i);
+ 		iTempValue /= 60; */
+-		// K-Mod. Check this shit.
++		// K-Mod. Amplify the value of commerce processes with low average multipliers, so that we can run higher percentages in commerce types with high average multipliers.
+ 		if (kOwner.isCommerceFlexible(i) && kOwner.getCommercePercent(i) > 0)
+ 		{
+-			iTempValue *= 100 + kOwner.getCommercePercent(i) * (iAdjustFactor - 100) / 100;
+-			iTempValue /= std::max(100, 100 + kOwner.getCommercePercent(i) * (kOwner.AI_averageCommerceMultiplier(i) - 100) / 100);
++			/* iTempValue *= 100 + kOwner.getCommercePercent(i) * (iAdjustFactor - 100) / 100;
++			iTempValue /= std::max(100, 100 + kOwner.getCommercePercent(i) * (kOwner.AI_averageCommerceMultiplier(i) - 100) / 100); */
++			// (that wasn't a strong enough effect)
++			iTempValue *= iAdjustFactor * std::max(100, 200 - 2*kOwner.getCommercePercent(i)) / 100;
++			iTempValue /= std::max(100, kOwner.AI_averageCommerceMultiplier(i) + iAdjustFactor * std::max(0, 100 - kOwner.getCommercePercent(i)) / 100);
+ 		}
+ 		// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 84fe75053..2d5b09055 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2292,9 +2292,6 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, const CvCity* pCity)
+ 
+ 	iWeight = GC.getCommerceInfo(eCommerce).getAIWeightPercent();
+ 
+-	//sorry but the merchant descrimination must stop.
+-	iWeight = std::min(110, iWeight);
+-	
+ 	//XXX Add something for 100%/0% type situations
+ 	switch (eCommerce)
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3202

@@ -1,0 +1,3628 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1368
+# Commit: c153864ce201d61d2d810da835dcba17fe4a8ace
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: aa0ea958c4ae489786cca97cec5f6e3b5615c2de
+# Title: Mostly non-functional changes some from RoM and C2C
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+29	3	Assets/Python/Contrib/Civ4lerts.py
+10	10	Assets/Python/Contrib/MoreCiv4lerts.py
+29	0	Assets/xml/GameInfo/CIV4WorldInfo.xml
+2	2	Assets/xml/GlobalDefines_advc.xml
+14	2	Assets/xml/Terrain/CIV4FeatureInfos.xml
+4	0	Assets/xml/Terrain/CIV4TerrainSchema.xml
+4	4	Assets/xml/Text/Advanced Scoreboard Options.xml
+1	1	Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml
+1	1	Assets/xml/Text/Autolog Options.xml
+1	1	Assets/xml/Text/BUFFY Options.xml
+1	1	Assets/xml/Text/BUG Advisors Options.xml
+2	2	Assets/xml/Text/BUG City Screen Options.xml
+2	2	Assets/xml/Text/BUG Main Interface Options.xml
+5	5	Assets/xml/Text/BUG Options Screen.xml
+6	6	Assets/xml/Text/BUG_CIV4GameText.xml
+1	1	Assets/xml/Text/BULL City Bar Options.xml
+1	1	Assets/xml/Text/BULL Misc Hovers Options.xml
+6	6	Assets/xml/Text/CIV4GameText_advc.xml
+7	7	Assets/xml/Text/CIV4PlotListEnhancementsInfo.xml
+2	2	Assets/xml/Text/Civ4GameText_K-Mod.xml
+4	4	Assets/xml/Text/Civ4lerts Options.xml
+2	2	Assets/xml/Text/Colors_CIV4GameText.xml
+1	1	Assets/xml/Text/CustDomAdv Options.xml
+1	1	Assets/xml/Text/MapFinder Options.xml
+1	1	Assets/xml/Text/MapFinder_CIV4GameText.xml
+3	3	Assets/xml/Text/Not Just Another Game Clock Options.xml
+4	4	Assets/xml/Text/Plot List Enhancements Options.xml
+1	1	Assets/xml/Text/Shortcuts_CIV4GameText.xml
+3	3	Assets/xml/Text/Strategy Overlay Options.xml
+2	2	Assets/xml/Text/StrategyOverlay_CIV4GameText.xml
+1	1	Assets/xml/Text/Unit Naming Options.xml
+9	3	Assets/xml/Units/CIV4UnitInfos.xml
+0	66	CvGameCoreDLL/CvArea.cpp
+24	20	CvGameCoreDLL/CvArea.h
+2	2	CvGameCoreDLL/CvCity.cpp
+0	2	CvGameCoreDLL/CvCity.h
+23	1	CvGameCoreDLL/CvCityAI.cpp
+53	19	CvGameCoreDLL/CvGame.cpp
+13	9	CvGameCoreDLL/CvGame.h
+3	3	CvGameCoreDLL/CvGameCoreUtils.cpp
+5	3	CvGameCoreDLL/CvGameCoreUtils.h
+12	12	CvGameCoreDLL/CvGameTextMgr.cpp
+8	0	CvGameCoreDLL/CvInfos.cpp
+2	0	CvGameCoreDLL/CvInfos.h
+1	0	CvGameCoreDLL/CvMap.h
+97	127	CvGameCoreDLL/CvPlayer.cpp
+4	1	CvGameCoreDLL/CvPlayer.h
+111	81	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.h
+8	5	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvPlot.h
+2	1	CvGameCoreDLL/CvTeam.h
+3	4	CvGameCoreDLL/CvTeamAI.cpp
+14	49	CvGameCoreDLL/CvUnitAI.cpp
+139	12	CvGameCoreDLL/InvasionGraph.cpp
+4	0	CvGameCoreDLL/InvasionGraph.h
+3	3	CvGameCoreDLL/RFChapter.cpp
+2	2	CvGameCoreDLL/RFChapterScore.cpp
+8	8	CvGameCoreDLL/RiseFall.cpp
+3	2	CvGameCoreDLL/WarAndPeaceAI.cpp
+2	1	CvGameCoreDLL/WarAndPeaceAI.h
+24	16	CvGameCoreDLL/WarAndPeaceCache.cpp
+20	12	CvGameCoreDLL/WarAndPeaceCache.h
+2	2	CvGameCoreDLL/WarAndPeaceReport.cpp
+37	22	CvGameCoreDLL/WarUtilityAspect.cpp
+-	-	manual_0.93b.odt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index 51e562afc..aec6841bc 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -120,6 +120,11 @@ class Civ4lerts:
+ 		RefusesToTalk(eventManager)
+ 		WorstEnemy(eventManager)
+ 
++# <advc.127>
++def isSilent():
++	return not gc.getPlayer(gc.getGame().getActivePlayer()).isHuman()
++# </advc.127>
++
+ 
+ ## Displaying Alert Messages
+ 
+@@ -152,10 +157,10 @@ def addMessage(iPlayer, szString, szIcon, iFlashX=-1, iFlashY=-1, bOffArrow=Fals
+ 	
+ 	Culture:  Zoom to City, Ignore
+ 	"""
+-	# <advc.706>
+-	# advc.127: No alerts during or right after Auto Play
++	# <advc.127> No alerts during or right after Auto Play
++	# advc.706:
+ 	if gc.getGame().isRFBlockPopups() or gc.getPlayer(iPlayer).isHumanDisabled() or gc.getPlayer(iPlayer).isAutoPlayJustEnded():
+-		return # </advc.706>
++		return # </advc.127>
+ 	# advc.106c: Reduced time from LONG to normal
+ 	# advc.106: Set bForce to False
+ 	eventMessageTimeLong = gc.getDefineINT("EVENT_MESSAGE_TIME")
+@@ -217,12 +222,14 @@ class AbstractCityAlertManager(AbstractStatefulAlert):
+ 		alert.init()
+ 	
+ 	def onCityAcquiredAndKept(self, argsList):
++		if isSilent(): return # advc.127
+ 		iPlayer, city = argsList
+ 		if (iPlayer == gc.getGame().getActivePlayer()):
+ 			self._resetCity(city)
+ 	
+ 	def onCityLost(self, argsList):
+ 		'City Lost'
++		if isSilent(): return # advc.127
+ 		city = argsList[0]
+ 		iPlayer = gc.getGame().getActivePlayer()
+ 		if (iPlayer == city.getOwner()):
+@@ -266,6 +273,7 @@ class BeginActivePlayerTurnCityAlertManager(AbstractCityAlertManager):
+ 	
+ 	def onBeginActivePlayerTurn(self, argsList):
+ 		"Loops over active player's cities, telling each to perform its check."
++		if isSilent(): return # advc.127
+ 		self.checkAllActivePlayerCities()
+ 
+ class EndTurnReadyCityAlertManager(AbstractCityAlertManager):
+@@ -279,6 +287,7 @@ class EndTurnReadyCityAlertManager(AbstractCityAlertManager):
+ 	
+ 	def onEndTurnReady(self, argsList):
+ 		"Loops over active player's cities, telling each to perform its check."
++		if isSilent(): return # advc.127
+ 		self.checkAllActivePlayerCities()
+ 
+ 
+@@ -649,18 +658,22 @@ class AbstractCanHurry(AbstractCityTestAlert):
+ 		self.keHurryType = gc.getInfoTypeForString(szHurryType)
+ 
+ 	def onCityBuildingUnit(self, argsList):
++		if isSilent(): return # advc.127
+ 		city, iUnit = argsList
+ 		self._onItemStarted(city)
+ 
+ 	def onCityBuildingBuilding(self, argsList):
++		if isSilent(): return # advc.127
+ 		city, iBuilding = argsList
+ 		self._onItemStarted(city)
+ 
+ 	def onCityBuildingProject(self, argsList):
++		if isSilent(): return # advc.127
+ 		city, iProject = argsList
+ 		self._onItemStarted(city)
+ 
+ 	def onCityBuildingProcess(self, argsList):
++		if isSilent(): return # advc.127
+ 		city, iProcess = argsList
+ 		self._onItemStarted(city)
+ 
+@@ -749,6 +762,7 @@ class GoldTrade(AbstractStatefulAlert):
+ 		eventManager.addEventHandler("BeginActivePlayerTurn", self.onBeginActivePlayerTurn)
+ 
+ 	def onBeginActivePlayerTurn(self, argsList):
++		if isSilent(): return # advc.127
+ 		if (not Civ4lertsOpt.isShowGoldTradeAlert()):
+ 			return
+ 		playerID = PlayerUtil.getActivePlayerID()
+@@ -795,6 +809,7 @@ class GoldPerTurnTrade(AbstractStatefulAlert):
+ 		eventManager.addEventHandler("BeginActivePlayerTurn", self.onBeginActivePlayerTurn)
+ 
+ 	def onBeginActivePlayerTurn(self, argsList):
++		if isSilent(): return # advc.127
+ 		if (not Civ4lertsOpt.isShowGoldPerTurnTradeAlert()):
+ 			return
+ 		playerID = PlayerUtil.getActivePlayerID()
+@@ -853,21 +868,26 @@ class RefusesToTalk(AbstractStatefulAlert):
+ ##
+ 
+ 	def onBeginActivePlayerTurn(self, argsList):
++		if isSilent(): return # advc.127
+ 		self.check()
+ 
+ 	def onChangeWar(self, argsList):
++		if isSilent(): return # advc.127
+ 		bIsWar, eTeam, eRivalTeam = argsList
+ 		self.checkIfIsAnyOrHasMetAllTeams(eTeam, eRivalTeam)
+ 		
+ 	def onCityRazed(self, argsList):
++		if isSilent(): return # advc.127
+ 		city, ePlayer = argsList
+ 		self.checkIfIsAnyOrHasMetAllTeams(PlayerUtil.getPlayerTeamID(city.getOwner()), PlayerUtil.getPlayerTeamID(ePlayer))
+ 		
+ 	def onDealCanceled(self, argsList):
++		if isSilent(): return # advc.127
+ 		eOfferPlayer, eTargetPlayer, pTrade = argsList
+ 		self.checkIfIsAnyOrHasMetAllTeams(PlayerUtil.getPlayerTeamID(eOfferPlayer), PlayerUtil.getPlayerTeamID(eTargetPlayer))
+ 		
+ 	def onEmbargoAccepted(self, argsList):
++		if isSilent(): return # advc.127
+ 		eOfferPlayer, eTargetPlayer, pTrade = argsList
+ 		self.checkIfIsAnyOrHasMetAllTeams(PlayerUtil.getPlayerTeamID(eOfferPlayer), PlayerUtil.getPlayerTeamID(eTargetPlayer))
+ 	
+@@ -939,25 +959,31 @@ class WorstEnemy(AbstractStatefulAlert):
+ 		#eventManager.addEventHandler("playerChangeStateReligion", self.onPlayerChangeStateReligion)
+ 
+ 	def onBeginActivePlayerTurn(self, argsList):
++		if isSilent(): return # advc.127
+ 		self.check()
+ 
+ 	def onFirstContact(self, argsList):
++		if isSilent(): return # advc.127
+ 		eTeam, eRivalTeam = argsList
+ 		self.checkIfIsAnyOrHasMetAllTeams(eTeam, eRivalTeam)
+ 
+ 	def onChangeWar(self, argsList):
++		if isSilent(): return # advc.127
+ 		bIsWar, eTeam, eRivalTeam = argsList
+ 		self.checkIfIsAnyOrHasMetAllTeams(eTeam, eRivalTeam)
+ 		
+ 	def onCityRazed(self, argsList):
++		if isSilent(): return # advc.127
+ 		city, ePlayer = argsList
+ 		self.checkIfIsAnyOrHasMetAllTeams(PlayerUtil.getPlayerTeamID(city.getOwner()), PlayerUtil.getPlayerTeamID(ePlayer))
+ 	
+ 	def onVassalState(self, argsList):
++		if isSilent(): return # advc.127
+ 		eMaster, eVassal, bVassal = argsList
+ 		self.checkIfIsAnyOrHasMetAllTeams(eMaster, eVassal)
+ 		
+ 	def onPlayerChangeStateReligion(self, argsList):
++		if isSilent(): return # advc.127
+ 		ePlayer, eNewReligion, eOldReligion = argsList
+ 		self.checkIfIsAnyOrHasMetAllTeams(PlayerUtil.getPlayerTeamID(ePlayer))
+
+diff --git a/Assets/Python/Contrib/MoreCiv4lerts.py b/Assets/Python/Contrib/MoreCiv4lerts.py
+index 6910a9de8..14a65a037 100644
+--- a/Assets/Python/Contrib/MoreCiv4lerts.py
++++ b/Assets/Python/Contrib/MoreCiv4lerts.py
+@@ -168,18 +168,18 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 	def onBeginActivePlayerTurn(self, argsList):
+ 		"Called when the active player can start making their moves."
+ 		#iGameTurn = argsList[0] # advc.003: Unused
+-		# <advc.706>
++		# <advc.127>
+ 		if not gc.getPlayer(self.iOwner).isHuman():
+-			return # </advc.706>
++			return # </advc.127>
+ 		iPlayer = gc.getGame().getActivePlayer()
+ 		if iPlayer == self.iOwner: # advc.135b
+ 			self.CheckForAlerts(iPlayer, PyPlayer(iPlayer).getTeam(), True)
+ 
+ 	def OnCityAcquired(self, argsList):
+ 		owner, playerType, city, bConquest, bTrade = argsList
+-		# <advc.706>
++		# <advc.127>
+ 		if not gc.getPlayer(self.iOwner).isHuman():
+-			return # </advc.706>
++			return # </advc.127>
+ 		iPlayer = city.getOwner()
+ 		if (not self.getCheckForDomVictory()): return
+ 		if (iPlayer == self.iOwner): # advc.135b
+@@ -187,9 +187,9 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 
+ 	def OnCityBuilt(self, argsList):
+ 		city = argsList[0]
+-		# <advc.706>
++		# <advc.127>
+ 		if not gc.getPlayer(self.iOwner).isHuman():
+-			return # </advc.706>
++			return # </advc.127>
+ 		iPlayer = city.getOwner()
+ 		# advc.135b: All uses replaced with self.iOwner
+ 		#iActivePlayer = gc.getGame().getActivePlayer()
+@@ -219,17 +219,17 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 	def OnCityRazed(self, argsList):
+ 		city, iPlayer = argsList
+ 		if (not self.getCheckForDomVictory()): return
+-		# <advc.706>
++		# <advc.127>
+ 		if not gc.getPlayer(self.iOwner).isHuman():
+-			return # </advc.706>
++			return # </advc.127>
+ 		if (iPlayer == self.iOwner): # advc.135b
+ 			self.CheckForAlerts(iPlayer, PyPlayer(iPlayer).getTeam(), False)
+ 
+ 	def OnCityLost(self, argsList):
+ 		city = argsList[0]
+-		# <advc.706>
++		# <advc.127>
+ 		if not gc.getPlayer(self.iOwner).isHuman():
+-			return # </advc.706>
++			return # </advc.127>
+ 		iPlayer = city.getOwner()
+ 		if (not self.getCheckForDomVictory()): return
+ 		if (iPlayer == self.iOwner): # advc.135b
+
+diff --git a/Assets/xml/GameInfo/CIV4WorldInfo.xml b/Assets/xml/GameInfo/CIV4WorldInfo.xml
+index 229ff5578..86a647c0b 100644
+--- a/Assets/xml/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/xml/GameInfo/CIV4WorldInfo.xml
+@@ -197,5 +197,34 @@
+ 			<!-- advc.250c: was 120 -->
+ 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+ 		</WorldInfo>
++		<!-- advc.test: From vincentz's 34-civs micro mod. For testing
++			 MAX_CIV_PLAYERS > 18. I haven't made any adjustments except
++			 increase iDefaultPlayers to the highest number that I think
++			 this map size can accomodate at Low sea level. -->
++		<!--WorldInfo>
++			<Type>WORLDSIZE_GIANT</Type>
++			<Description>Giant</Description>
++			<Help>No help text available</Help>
++			<iDefaultPlayers>36</iDefaultPlayers>
++			<iUnitNameModifier>0</iUnitNameModifier>
++			<iTargetNumCities>6</iTargetNumCities>
++			<iNumFreeBuildingBonuses>7</iNumFreeBuildingBonuses>
++			<iBuildingClassPrereqModifier>100</iBuildingClassPrereqModifier>
++			<iMaxConscriptModifier>75</iMaxConscriptModifier>
++			<iWarWearinessModifier>-50</iWarWearinessModifier>
++			<iGridWidth>40</iGridWidth>
++			<iGridHeight>25</iGridHeight>
++			<iTerrainGrainChange>2</iTerrainGrainChange>
++			<iFeatureGrainChange>2</iFeatureGrainChange>
++			<iResearchPercent>150</iResearchPercent>
++			<iTradeProfitPercent>30</iTradeProfitPercent>
++			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
++			<iNumCitiesMaintenancePercent>20</iNumCitiesMaintenancePercent>
++			<iColonyMaintenancePercent>30</iColonyMaintenancePercent>
++			<iCorporationMaintenancePercent>50</iCorporationMaintenancePercent>
++			<iNumCitiesAnarchyPercent>6</iNumCitiesAnarchyPercent>
++			<iAdvancedStartPointsMod>120</iAdvancedStartPointsMod>
++		</WorldInfo-->
++		
+ 	</WorldInfos>
+ </Civ4WorldInfo>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 0dd1363e0..600542b83 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -590,10 +590,10 @@
+ 
+ 	<!-- [advc.250c]
+ 	     Originally in GlobalDefines.xml; set to 25 there. Essentially the
+-		 number of start points charged per 10 culture. Recommended: 10. -->
++		 number of start points charged per 10 culture. Recommended: 15. -->
+ 	<Define>
+ 		<DefineName>ADVANCED_START_CULTURE_COST</DefineName>
+-		<iDefineIntVal>10</iDefineIntVal>
++		<iDefineIntVal>15</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- [advc.250c] The number of start points charged for routes
+
+diff --git a/Assets/xml/Terrain/CIV4FeatureInfos.xml b/Assets/xml/Terrain/CIV4FeatureInfos.xml
+index e6c9f55f3..3c1a1d018 100644
+--- a/Assets/xml/Terrain/CIV4FeatureInfos.xml
++++ b/Assets/xml/Terrain/CIV4FeatureInfos.xml
+@@ -12,6 +12,8 @@
+ 			<iSeeThrough>0</iSeeThrough>
+ 			<iHealthPercent>0</iHealthPercent>
+ 			<iDefense>0</iDefense>
++			<!-- advc.012 -->
++			<iRivalDefense>0</iRivalDefense>
+ 			<iAppearance>0</iAppearance>
+ 			<iDisappearance>0</iDisappearance>
+ 			<iGrowth>0</iGrowth>
+@@ -131,7 +133,9 @@
+ 			<iSeeThrough>1</iSeeThrough>
+ 			<iHealthPercent>-25</iHealthPercent>
+ 			<!-- advc.012: was 50 -->
+-			<iDefense>25</iDefense>
++			<iDefense>0</iDefense>
++			<!-- advc.012 -->
++			<iRivalDefense>25</iRivalDefense>
+ 			<iAppearance>0</iAppearance>
+ 			<iDisappearance>0</iDisappearance>
+ 			<iGrowth>16</iGrowth>
+@@ -253,6 +257,8 @@
+ 			<iSeeThrough>1</iSeeThrough>
+ 			<iHealthPercent>0</iHealthPercent>
+ 			<iDefense>0</iDefense>
++			<!-- advc.012 -->
++			<iRivalDefense>0</iRivalDefense>
+ 			<iAppearance>500</iAppearance>
+ 			<iDisappearance>0</iDisappearance>
+ 			<iGrowth>0</iGrowth>
+@@ -373,6 +379,8 @@
+ 			<iSeeThrough>0</iSeeThrough>
+ 			<iHealthPercent>-40</iHealthPercent>
+ 			<iDefense>0</iDefense>
++			<!-- advc.012 -->
++			<iRivalDefense>0</iRivalDefense>
+ 			<iAppearance>10000</iAppearance>
+ 			<iDisappearance>0</iDisappearance>
+ 			<iGrowth>0</iGrowth>
+@@ -488,7 +496,9 @@
+ 			<iSeeThrough>1</iSeeThrough>
+ 			<iHealthPercent>50</iHealthPercent>
+ 			<!-- advc.012: was 50 -->
+-			<iDefense>25</iDefense>
++			<iDefense>0</iDefense>
++			<!-- advc.012 -->
++			<iRivalDefense>25</iRivalDefense>
+ 			<iAppearance>0</iAppearance>
+ 			<iDisappearance>0</iDisappearance>
+ 			<iGrowth>8</iGrowth>
+@@ -613,6 +623,8 @@
+ 			<iSeeThrough>0</iSeeThrough>
+ 			<iHealthPercent>-50</iHealthPercent>
+ 			<iDefense>0</iDefense>
++			<!-- advc.012 -->
++			<iRivalDefense>0</iRivalDefense>
+ 			<iAppearance>0</iAppearance>
+ 			<iDisappearance>250</iDisappearance>
+ 			<iGrowth>0</iGrowth>
+
+diff --git a/Assets/xml/Terrain/CIV4TerrainSchema.xml b/Assets/xml/Terrain/CIV4TerrainSchema.xml
+index 1630bfce4..a8edcbb58 100644
+--- a/Assets/xml/Terrain/CIV4TerrainSchema.xml
++++ b/Assets/xml/Terrain/CIV4TerrainSchema.xml
+@@ -30,6 +30,8 @@
+ 	<ElementType name="iSeeThrough" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iBuildModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iDefense" content="textOnly" dt:type="int"/>
++	<!-- advc.012 -->
++	<ElementType name="iRivalDefense" content="textOnly" dt:type="int"/>
+ 	<ElementType name="Button" content="textOnly"/>
+ 	<ElementType name="FootstepAudioType" content="textOnly"/>
+ 	<ElementType name="FootstepAudioScript" content="textOnly"/>
+@@ -152,6 +154,8 @@
+ 		<element type="iSeeThrough"/>
+ 		<element type="iHealthPercent"/>
+ 		<element type="iDefense"/>
++		<!-- advc.012 -->
++		<element type="iRivalDefense"/>
+ 		<element type="iAppearance"/>
+ 		<element type="iDisappearance"/>
+ 		<element type="iGrowth"/>
+
+diff --git a/Assets/xml/Text/Advanced Scoreboard Options.xml b/Assets/xml/Text/Advanced Scoreboard Options.xml
+index d9492ea2b..f4b6ded83 100644
+--- a/Assets/xml/Text/Advanced Scoreboard Options.xml	
++++ b/Assets/xml/Text/Advanced Scoreboard Options.xml	
+@@ -105,7 +105,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__DISPLAYNAME_TEXT</Tag>
+ 		<English>Display Name</English>
+-		<French>Nom Affich�</French>
++		<French>Nom Affich&#233;</French>
+ 		<German>Anzeigename</German>
+ 		<Italian>Identifica con nome</Italian>
+ 		<Spanish>Nombre a Mostrar</Spanish>
+@@ -195,7 +195,7 @@
+ 		<English>Number of Cities</English>
+ 		<French>Number of Cities</French>
+ 		<German>Anzahl der St�dte</German>
+-		<Italian>Numero di Citt�</Italian>
++		<Italian>Numero di Citt&#224;</Italian>
+ 		<Spanish>N�mero de Ciudades</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -209,7 +209,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__ALIGNICONS_TEXT</Tag>
+ 		<English>Enabled</English>
+-		<French>Activ�</French>
++		<French>Activ&#233;</French>
+ 		<German>Aktivieren</German>
+ 		<Italian>Attivato</Italian>
+ 		<Spanish>Activo</Spanish>
+@@ -227,7 +227,7 @@
+ 		<English>Maximum Civilizations</English>
+ 		<French>Maximum Civilizations</French>
+ 		<German>Anzahl Zivilisationen</German>
+-		<Italian>Massimo di Civilt�</Italian>
++		<Italian>Massimo di Civilt&#224;</Italian>
+ 		<Spanish>M�ximo de Civilizaciones</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml b/Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml
+index 419ccdb43..e2e631f47 100644
+--- a/Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml
++++ b/Assets/xml/Text/AdvancedCombatOdds_CIV4GameText.xml
+@@ -136,7 +136,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_ACO_HitsAt</Tag>
+ 		<English>hits at</English>
+-		<French>frappe �</French>
++		<French>frappe &#224;</French>
+ 		<German>trifft</German>
+ 		<Italian>colpisce a</Italian>
+ 		<Spanish>golpea a</Spanish>
+
+diff --git a/Assets/xml/Text/Autolog Options.xml b/Assets/xml/Text/Autolog Options.xml
+index 4ac7cb959..dcae6154b 100644
+--- a/Assets/xml/Text/Autolog Options.xml	
++++ b/Assets/xml/Text/Autolog Options.xml	
+@@ -307,7 +307,7 @@
+ 		<English>City Ownership</English>
+ 		<French>Contr�le</French>
+ 		<German>Besitzwechsel</German>
+-		<Italian>Possesso Citt�</Italian>
++		<Italian>Possesso Citt&#224;</Italian>
+ 		<Spanish>Propiedad de Ciudades</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/BUFFY Options.xml b/Assets/xml/Text/BUFFY Options.xml
+index 3bc01e981..d17fb6507 100644
+--- a/Assets/xml/Text/BUFFY Options.xml	
++++ b/Assets/xml/Text/BUFFY Options.xml	
+@@ -10,7 +10,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_BUFFY__ENABLED_TEXT</Tag>
+ 		<English>Enabled</English>
+-		<French>Activ�</French>
++		<French>Activ&#233;</French>
+ 		<German>Aktivieren</German>
+ 		<Italian>Attivato</Italian>
+ 		<Spanish>Activado</Spanish>
+
+diff --git a/Assets/xml/Text/BUG Advisors Options.xml b/Assets/xml/Text/BUG Advisors Options.xml
+index 7e2feccd4..19c62070f 100644
+--- a/Assets/xml/Text/BUG Advisors Options.xml	
++++ b/Assets/xml/Text/BUG Advisors Options.xml	
+@@ -352,7 +352,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__SEVOPEDIA_TEXT</Tag>
+ 		<English>Enabled</English>
+-		<French>Activ�</French>
++		<French>Activ&#233;</French>
+ 		<German>Aktivieren</German>
+ 		<Italian>Attivata</Italian>
+ 		<Spanish>Activado</Spanish>
+
+diff --git a/Assets/xml/Text/BUG City Screen Options.xml b/Assets/xml/Text/BUG City Screen Options.xml
+index 218b71ca4..d788fed6b 100644
+--- a/Assets/xml/Text/BUG City Screen Options.xml	
++++ b/Assets/xml/Text/BUG City Screen Options.xml	
+@@ -277,7 +277,7 @@
+ 		<English>Unit Warning</English>
+ 		<French>Unit Warning</French>
+ 		<German>Einheiten-Warnung</German>
+-		<Italian>Avviso per le Unit�</Italian>
++		<Italian>Avviso per le Unit&#224;</Italian>
+ 		<Spanish>Aviso Unidades</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -325,7 +325,7 @@
+ 		<English>Unit Warning</English>
+ 		<French>Unit Warning</French>
+ 		<German>Einheiten-Warnung</German>
+-		<Italian>Avviso per le Unit�</Italian>
++		<Italian>Avviso per le Unit&#224;</Italian>
+ 		<Spanish>Decaimiento Unidades</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/BUG Main Interface Options.xml b/Assets/xml/Text/BUG Main Interface Options.xml
+index c9581e29b..8812c92d0 100644
+--- a/Assets/xml/Text/BUG Main Interface Options.xml	
++++ b/Assets/xml/Text/BUG Main Interface Options.xml	
+@@ -326,7 +326,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__BUILDICONSIZE_LIST</Tag>
+ 		<English>Small|Medium|Large</English>
+ 		<French>Small|Medium|Large</French>
+-		<German>Klein|Mittel|Gro�</German>
++		<German>Klein|Mittel|Gro&#223;</German>
+ 		<Italian>Piccola|Media|Larga</Italian>
+ 		<Spanish>Peque�o|Mediano|Grande</Spanish>
+ 	</TEXT>
+@@ -335,7 +335,7 @@
+ 		<English>Rapid Unit Cycling</English>
+ 		<French>Rapid Unit Cycling</French>
+ 		<German>Schneller Einheitenwechsel</German>
+-		<Italian>Cicla rapidamente tra le unit�</Italian>
++		<Italian>Cicla rapidamente tra le unit&#224;</Italian>
+ 		<Spanish>Circulaci�n de unidades r�pida</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/BUG Options Screen.xml b/Assets/xml/Text/BUG Options Screen.xml
+index 45347538d..e8898f966 100644
+--- a/Assets/xml/Text/BUG Options Screen.xml	
++++ b/Assets/xml/Text/BUG Options Screen.xml	
+@@ -123,7 +123,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_INIFILENOTFOUND</Tag>
+ 		<English>Cannot Find INI File</English>
+-		<French>Fichier INI Non Trouv�</French>
++		<French>Fichier INI Non Trouv&#233;</French>
+ 		<German>INI-Datei nicht gefunden</German>
+ 		<Italian>Il file 'BUG Mod.ini' non � stato trovato</Italian>
+ 		<Spanish>No se pudo encontrar fichero INI</Spanish>
+@@ -286,7 +286,7 @@
+ 		<English>City Screen</English>
+ 		<French>City Screen</French>
+ 		<German>Stadt-Bildschirm</German>
+-		<Italian>Citt�</Italian>
++		<Italian>Citt&#224;</Italian>
+ 		<Spanish>Pantalla de Ciudad</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -439,7 +439,7 @@
+ 		<English>Plot List</English>
+ 		<French>Plot List</French>
+ 		<German>Einheitenliste</German>
+-		<Italian>Icone Unit�</Italian>
++		<Italian>Icone Unit&#224;</Italian>
+ 		<Spanish>Lista</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -482,7 +482,7 @@
+ 		<English>Odds</English>
+ 		<French>Odds</French>
+ 		<German>Siegchancen</German>
+-		<Italian>Probabilit�</Italian>
++		<Italian>Probabilit&#224;</Italian>
+ 		<Spanish>Probabilidades</Spanish>
+ 	</TEXT>
+ 	
+@@ -595,7 +595,7 @@
+ 		<English>Unit Naming</English>
+ 		<French>Noms des Unit�s</French>
+ 		<German>Einheitennamen</German>
+-		<Italian>Nomi Unit�</Italian>
++		<Italian>Nomi Unit&#224;</Italian>
+ 		<Spanish>Nombres Unidad</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/BUG_CIV4GameText.xml b/Assets/xml/Text/BUG_CIV4GameText.xml
+index 8cad7d7bb..19b490aca 100644
+--- a/Assets/xml/Text/BUG_CIV4GameText.xml
++++ b/Assets/xml/Text/BUG_CIV4GameText.xml
+@@ -63,7 +63,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_HELP_MISSING_TITLE</Tag>
+ 		<English>Help File Not Found</English>
+-		<French>Fichier d'Aide Non Trouv�</French>
++		<French>Fichier d'Aide Non Trouv&#233;</French>
+ 		<German>Hilfe-Datei nicht gefunden</German>
+ 		<Italian>Guida del BUG Mod non trovata</Italian>
+ 		<Spanish>Fichero de ayuda no encontrado</Spanish>
+@@ -100,7 +100,7 @@
+ 		<English>Cities</English>
+ 		<French>Cities</French>
+ 		<German>St�dte</German>
+-		<Italian>Citt�</Italian>
++		<Italian>Citt&#224;</Italian>
+ 		<Spanish>Ciudades</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -459,7 +459,7 @@
+ 		<English>Unit Type</English>
+ 		<French>Unit Type</French>
+ 		<German>Einheitentyp</German>
+-		<Italian>Tipo Unit�</Italian>
++		<Italian>Tipo Unit&#224;</Italian>
+ 		<Spanish>Tipo de Unidad</Spanish>
+ 	</TEXT>
+ 	
+@@ -882,7 +882,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MILITARY_THREAT_INDEX_ELEVATED</Tag>
+ 		<English>Elevated</English>
+-		<French>Elev�</French>
++		<French>Elev&#233;</French>
+ 		<German>Angespannt</German>
+ 		<Italian>Rischio Notevole</Italian>
+ 		<Spanish>Elevado</Spanish>
+@@ -934,7 +934,7 @@
+ 		<English>Our Units</English>
+ 		<French>Our Units</French>
+ 		<German>Eigene Einheiten</German>
+-		<Italian>Nostre Unit�</Italian>
++		<Italian>Nostre Unit&#224;</Italian>
+ 		<Spanish>Nuestras Unidades</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -1112,7 +1112,7 @@
+ 		<English>City</English>
+ 		<French>City</French>
+ 		<German>Stadt</German>
+-		<Italian>Citt�</Italian>
++		<Italian>Citt&#224;</Italian>
+ 		<Spanish>Ciudad</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/BULL City Bar Options.xml b/Assets/xml/Text/BULL City Bar Options.xml
+index e449d2104..8f8c8cc04 100644
+--- a/Assets/xml/Text/BULL City Bar Options.xml	
++++ b/Assets/xml/Text/BULL City Bar Options.xml	
+@@ -61,7 +61,7 @@
+ 		<English>Happiness</English>
+ 		<French>Happiness</French>
+ 		<German>Zufriedenheit</German>
+-		<Italian>Felicit�</Italian>
++		<Italian>Felicit&#224;</Italian>
+ 		<Spanish>Felicidad</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/BULL Misc Hovers Options.xml b/Assets/xml/Text/BULL Misc Hovers Options.xml
+index 72c6889ee..6b57232c9 100644
+--- a/Assets/xml/Text/BULL Misc Hovers Options.xml	
++++ b/Assets/xml/Text/BULL Misc Hovers Options.xml	
+@@ -341,7 +341,7 @@
+ 		<English>Happiness</English>
+ 		<French>Happiness</French>
+ 		<German>Zufriedenheit</German>
+-		<Italian>Felicit�</Italian>
++		<Italian>Felicit&#224;</Italian>
+ 		<Spanish>Felicidad</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 2f850a84b..79135d4f1 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -1027,7 +1027,7 @@
+ 		<English>[ICON_BULLET]%D1_Change%% from Difficulty Level</English>
+ 		<French>[ICON_BULLET]%D1_Change%% (niveau de difficult�)</French>
+ 		<German>[ICON_BULLET]%D1_Change%% durch Schwierigkeitsgrad</German>
+-		<Italian>[ICON_BULLET]%D1_Change%% per il livello di difficolt�</Italian>
++		<Italian>[ICON_BULLET]%D1_Change%% per il livello di difficolt&#224;</Italian>
+ 		<Spanish>[ICON_BULLET]%D1_Change%% por nivel de dificultad</Spanish>
+ 	</TEXT>
+ 
+@@ -1970,7 +1970,7 @@
+ 	<!-- advc.012: Plot help text to be used along with TXT_KEY_PLOT_BONUS
+ 		 (Civ4GameTextInfos.xml). -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_FEATUREDEF</Tag>
++		<Tag>TXT_KEY_FEATURE_RIVALDEF</Tag>
+ 		<English>%D1_Mod%% for tile owner</English>
+ 		<French>%D1_Mod%% pour le proprio</French>
+ 		<German>%D1_Mod%% f�r Besitzer</German>
+@@ -1978,7 +1978,7 @@
+ 		<Spanish>%D1_Mod%% si posee la casilla</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_TILEDEF</Tag>
++		<Tag>TXT_KEY_TILE_RIVALDEF</Tag>
+ 		<English>Defense Bonus: </English>
+ 		<French>Bonus de d&#233;fense :</French>
+ 		<German>Defensivbonus: </German>
+@@ -2320,7 +2320,7 @@
+ 		<English>%s1_CityName has a positive revolt chance (%s2_Chance%%).</English>
+ 		<French>%s1_CityName a une probabilit� positive de se r�volter (%s2_Chance%%).</French>
+ 		<German>In %s1_CityName besteht die Gefahr einer Revolte (%s2_Chance%%).</German>
+-		<Italian>%s1_CityName ha una probabilit� positiva di rivoltarsi (%s2_Chance%%).</Italian>
++		<Italian>%s1_CityName ha una probabilit� positiva di rivoltarsi (%s2_Chance%%).</Italian>
+ 		<Spanish>%s1_CityName hay una probabilidad positiva de rebelarse (%s2_Chance%%).</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -2328,7 +2328,7 @@
+ 		<English>The revolt chance in %s1_CityName is now 0.</English>
+ 		<French>La probabilit� d'une r�volte en %s1_CityName alors est 0.</French>
+ 		<German>In %s1_CityName droht nun keine Revolte mehr.</German>
+-		<Italian>La probabilit� di rivolta a %s1_CityName ora � 0.</Italian>
++		<Italian>La probabilit� di rivolta a %s1_CityName ora � 0.</Italian>
+ 		<Spanish>La probabilidad de revuelta en %s1_CityName ahora es 0.</Spanish>
+ 	</TEXT>
+ 	<!-- Just like TXT_KEY_CIV4LERTS_ON_CITY_PACIFIED in
+@@ -2385,7 +2385,7 @@
+ 		<English>Chance to decrease timer: %d1%%</English>
+ 		<French>Chance de r�duir le compteur: %d1%%</French>
+ 		<German>Chance den Timer zu verringern: %d1%%</German>
+-		<Italian>Probabilit� di ridurre il timer: %d1%%</Italian>
++		<Italian>Probabilit� di ridurre il timer: %d1%%</Italian>
+ 		<Spanish>Probabilidad de disminuir el timer: %d1%%</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/CIV4PlotListEnhancementsInfo.xml b/Assets/xml/Text/CIV4PlotListEnhancementsInfo.xml
+index 6df816579..e6ca5b34d 100644
+--- a/Assets/xml/Text/CIV4PlotListEnhancementsInfo.xml
++++ b/Assets/xml/Text/CIV4PlotListEnhancementsInfo.xml
+@@ -70,7 +70,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Reset Filters[COLOR_REVERT][NEWLINE]Show all units</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Reset Filters[COLOR_REVERT][NEWLINE]Show all units</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Filter zur�cksetzen[COLOR_REVERT][NEWLINE]Anzeige aller Einheiten</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Annulla tutti i filtri[COLOR_REVERT][NEWLINE]Mostra tutte le Unit�</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Annulla tutti i filtri[COLOR_REVERT][NEWLINE]Mostra tutte le Unit&#224;</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Limpiar filtros[COLOR_REVERT][NEWLINE]Mostrar todas las unidades</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -78,7 +78,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Reset Filters[COLOR_REVERT][NEWLINE]Show all units</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Reset Filters[COLOR_REVERT][NEWLINE]Show all units</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Filter zur�cksetzen[COLOR_REVERT][NEWLINE]Anzeige aller Einheiten</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Annulla tutti i filtri[COLOR_REVERT][NEWLINE]Mostra tutte le Unit�</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Annulla tutti i filtri[COLOR_REVERT][NEWLINE]Mostra tutte le Unit&#224;</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Limpiar filtros[COLOR_REVERT][NEWLINE]Mostrar todas las unidades</Spanish>
+ 	</TEXT>
+ 	
+@@ -394,7 +394,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Toggle Nationality Filter[COLOR_REVERT][NEWLINE]Hide domestic units</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Toggle Nationality Filter[COLOR_REVERT][NEWLINE]Ne pas afficher les unit�s que vous poss�dez</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Filter "Nationalit�t" aktivieren[COLOR_REVERT][NEWLINE]Eigene Einheiten ausblenden</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sulla nazionalit�[COLOR_REVERT][NEWLINE]Non mostrare le proprie Unit�</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sulla nazionalit�[COLOR_REVERT][NEWLINE]Non mostrare le proprie Unit&#224;</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar Filtro Nacionalidad[COLOR_REVERT][NEWLINE]Ocultar unidades dom�sticas</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -402,7 +402,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Toggle Nationality Filter[COLOR_REVERT][NEWLINE]Show domestic units</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Toggle Nationality Filter[COLOR_REVERT][NEWLINE]Show domestic units</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Filter "Nationalit�t" deaktivieren[COLOR_REVERT][NEWLINE]Eigene Einheiten einblenden</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sulla nazionalit�[COLOR_REVERT][NEWLINE]Mostra le proprie Unit�</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sulla nazionalit�[COLOR_REVERT][NEWLINE]Mostra le proprie Unit&#224;</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar Filtro Nacionalidad[COLOR_REVERT][NEWLINE]Mostrar unidades dom�sticas</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -410,7 +410,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Toggle Nationality Filter[COLOR_REVERT][NEWLINE]Show only domestic units</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Toggle Nationality Filter[COLOR_REVERT][NEWLINE]Show only domestic units</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Filter "Nationalit�t" aktivieren[COLOR_REVERT][NEWLINE]Nur eigene Einheiten anzeigen</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sulla nazionalit�[COLOR_REVERT][NEWLINE]Mostra solo le proprie Unit�</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Cambia il filtro sulla nazionalit�[COLOR_REVERT][NEWLINE]Mostra solo le proprie Unit&#224;</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar Filtro Nacionalidad[COLOR_REVERT][NEWLINE]Mostrar solamente unidades dom�sticas</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -462,7 +462,7 @@
+ 		<English>[COLOR_HIGHLIGHT_TEXT]Switch to Standard Mode[COLOR_REVERT][NEWLINE]View normal unit icons and issue orders</English>
+ 		<French>[COLOR_HIGHLIGHT_TEXT]Switch to Standard Mode[COLOR_REVERT][NEWLINE]View normal unit icons and issue orders</French>
+ 		<German>[COLOR_HIGHLIGHT_TEXT]Standardansicht aktivieren[COLOR_REVERT][NEWLINE]Anzeige der normalen Einheitensymbole und Aktionsschaltfl�chen</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Passa alla Modalit� Standard[COLOR_REVERT][NEWLINE]Visualizza tutte le icone di Unit�</Italian>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Passa alla Modalit� Standard[COLOR_REVERT][NEWLINE]Visualizza tutte le icone di Unit&#224;</Italian>
+ 		<Spanish>[COLOR_HIGHLIGHT_TEXT]Cambiar a Modo Est�ndar[COLOR_REVERT][NEWLINE]Mostrar iconos normales de unidades y dar �rdenes</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -476,7 +476,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLE_GRP_UNITTYPE</Tag>
+ 		<English>Group units by unit type</English>
+-		<French>S�lectionner les unit�s par types d'unit�</French>
++		<French>S�lectionner les unit�s par types d'unit&#233;</French>
+ 		<German>Einheiten nach Typen zusammenfassen</German>
+ 		<Italian>Raggruppa le Unit� per tipo</Italian>
+ 		<Spanish>Agrupar por tipo</Spanish>
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index 7559d9ab4..3d0d458ac 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -279,7 +279,7 @@
+ 		<English>Sustainability Threshold</English>
+ 		<French>Sustainability Threshold</French>
+ 		<German>Nachhaltigkeitsgrenzwert</German>
+-		<Italian>Il limite di sostenibilit�</Italian>
++		<Italian>Il limite di sostenibilit&#224;</Italian>
+ 		<Spanish>L�mite de sostenibilidad</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -400,7 +400,7 @@
+ 		<English>Global warming severity rating</English>
+ 		<French>�valuation globale s�v�rit� du r�chauffement</French>
+ 		<German>Schweregrad der Erderw�rmung</German>
+-		<Italian>Riscaldamento globale livello di gravit�</Italian>
++		<Italian>Riscaldamento globale livello di gravit&#224;</Italian>
+ 		<Spanish>Grado de gravedad del calentamiento global</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/Civ4lerts Options.xml b/Assets/xml/Text/Civ4lerts Options.xml
+index db3bd1868..27b3e4f54 100644
+--- a/Assets/xml/Text/Civ4lerts Options.xml	
++++ b/Assets/xml/Text/Civ4lerts Options.xml	
+@@ -80,7 +80,7 @@
+ 		<English>Happiness</English>
+ 		<French>Bonheur</French>
+ 		<German>Zufriedenheit</German>
+-		<Italian>Felicit�</Italian>
++		<Italian>Felicit&#224;</Italian>
+ 		<Spanish>Felicidad</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -111,7 +111,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYHEALTHINESS_TEXT</Tag>
+ 		<English>Healthiness</English>
+-		<French>Sant�</French>
++		<French>Sant&#233;</French>
+ 		<German>Gesundheit</German>
+ 		<Italian>Salute</Italian>
+ 		<Spanish>Salud</Spanish>
+@@ -252,7 +252,7 @@
+ 		<English>Threshold</English>
+ 		<French>Seuil</French>
+ 		<German>Schwelle</German>
+-		<Italian>Quantit�</Italian>
++		<Italian>Quantit&#224;</Italian>
+ 		<Spanish>Cantidad</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -285,7 +285,7 @@
+ 		<English>Threshold</English>
+ 		<French>Seuil</French>
+ 		<German>Schwelle</German>
+-		<Italian>Quantit�</Italian>
++		<Italian>Quantit&#224;</Italian>
+ 		<Spanish>Cantidad</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/Colors_CIV4GameText.xml b/Assets/xml/Text/Colors_CIV4GameText.xml
+index 4e3735a16..3876e2548 100644
+--- a/Assets/xml/Text/Colors_CIV4GameText.xml
++++ b/Assets/xml/Text/Colors_CIV4GameText.xml
+@@ -57,7 +57,7 @@
+ 		<Tag>TXT_KEY_COLOR_WHITE</Tag>
+ 		<English>White</English>
+ 		<French>Blanc</French>
+-		<German>Wei�</German>
++		<German>Wei&#223;</German>
+ 		<Italian>Bianco</Italian>
+ 		<Spanish>Blanco</Spanish>
+ 	</TEXT>
+@@ -80,7 +80,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_COLOR_DARK_GREY</Tag>
+ 		<English>Dark Grey</English>
+-		<French>Gris Fonc�</French>
++		<French>Gris Fonc&#233;</French>
+ 		<German>Dunkelgrau</German>
+ 		<Italian>Grigio Scuro</Italian>
+ 		<Spanish>Gris Oscuro</Spanish>
+
+diff --git a/Assets/xml/Text/CustDomAdv Options.xml b/Assets/xml/Text/CustDomAdv Options.xml
+index b114413c2..ff207a229 100644
+--- a/Assets/xml/Text/CustDomAdv Options.xml	
++++ b/Assets/xml/Text/CustDomAdv Options.xml	
+@@ -34,7 +34,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_CUSTDOMADV__SPACETOP_LIST</Tag>
+ 		<English>None|Small|Medium|Large</English>
+ 		<French>None|Small|Medium|Large</French>
+-		<German>Keiner|Schmal|Mittel|Gro�</German>
++		<German>Keiner|Schmal|Mittel|Gro&#223;</German>
+ 		<Italian>Nessuno|Piccolo|Medio|Ampio</Italian>
+ 		<Spanish>Ninguno|Peque�o|Mediano|Grande</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/MapFinder Options.xml b/Assets/xml/Text/MapFinder Options.xml
+index 5e224ba88..41889d180 100644
+--- a/Assets/xml/Text/MapFinder Options.xml	
++++ b/Assets/xml/Text/MapFinder Options.xml	
+@@ -9,7 +9,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAPFINDER__ENABLED_TEXT</Tag>
+ 		<English>Enabled</English>
+-		<French>Activ�</French>
++		<French>Activ&#233;</French>
+ 		<German>Aktivieren</German>
+ 		<Italian>Attivato</Italian>
+ 		<Spanish>Activado</Spanish>
+
+diff --git a/Assets/xml/Text/MapFinder_CIV4GameText.xml b/Assets/xml/Text/MapFinder_CIV4GameText.xml
+index 0407dc22b..3a974e355 100644
+--- a/Assets/xml/Text/MapFinder_CIV4GameText.xml
++++ b/Assets/xml/Text/MapFinder_CIV4GameText.xml
+@@ -136,7 +136,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MAPFINDER_STOPPED</Tag>
+ 		<English>MapFinder stopped</English>
+-		<French>MapFinder arr�t�</French>
++		<French>MapFinder arr�t&#233;</French>
+ 		<German>MapFinder wurde beendet</German>
+ 		<Italian>MapFinder arrestato</Italian>
+ 		<Spanish>MapFinder se ha detenido</Spanish>
+
+diff --git a/Assets/xml/Text/Not Just Another Game Clock Options.xml b/Assets/xml/Text/Not Just Another Game Clock Options.xml
+index 99d61e90a..789e1b489 100644
+--- a/Assets/xml/Text/Not Just Another Game Clock Options.xml	
++++ b/Assets/xml/Text/Not Just Another Game Clock Options.xml	
+@@ -57,7 +57,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_NJAGC__COLOR_ERA_ANCIENT_TEXT</Tag>
+ 		<English>Ancient Era</English>
+-		<French>Antiquit�</French>
++		<French>Antiquit&#233;</French>
+ 		<German>Antike</German>
+ 		<Italian>Era Antica</Italian>
+ 		<Spanish>Edad Antig�a</Spanish>
+@@ -217,7 +217,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWCOMPLETEDPERCENT_TEXT</Tag>
+ 		<English>Completed Percentage</English>
+-		<French>Pourcentage Compl�t�</French>
++		<French>Pourcentage Compl�t&#233;</French>
+ 		<German>Verstrichene Runden (in Prozent)</German>
+ 		<Italian>Percentuale completata</Italian>
+ 		<Spanish>Porcentaje Completado</Spanish>
+@@ -329,7 +329,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWALTCOMPLETEDPERCENT_TEXT</Tag>
+ 		<English>Completed Percentage</English>
+-		<French>Pourcentage Compl�t�</French>
++		<French>Pourcentage Compl�t&#233;</French>
+ 		<German>Verstrichene Runden (in Prozent)</German>
+ 		<Italian>Percentuale completata</Italian>
+ 		<Spanish>Porcentaje completado</Spanish>
+
+diff --git a/Assets/xml/Text/Plot List Enhancements Options.xml b/Assets/xml/Text/Plot List Enhancements Options.xml
+index 12bb84ef9..d16d0548d 100644
+--- a/Assets/xml/Text/Plot List Enhancements Options.xml	
++++ b/Assets/xml/Text/Plot List Enhancements Options.xml	
+@@ -283,7 +283,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__WOUNDED_INDICATOR_TEXT</Tag>
+ 		<English>Wounded Dot</English>
+-		<French>Point Endommag�</French>
++		<French>Point Endommag&#233;</French>
+ 		<German>Verwundung</German>
+ 		<Italian>Disco di stato</Italian>
+ 		<Spanish>Indicador Salud</Spanish>
+@@ -347,9 +347,9 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__MISSION_INFO_TEXT</Tag>
+ 		<English>Mission Tag</English>
+-		<French>Actions d'Unit�</French>
++		<French>Actions d'Unit&#233;</French>
+ 		<German>Einheitenaktion</German>
+-		<Italian>Azioni delle Unit�</Italian>
++		<Italian>Azioni delle Unit&#224;</Italian>
+ 		<Spanish>Indicador Acci�n</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -395,7 +395,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_TEXT</Tag>
+ 		<English>Enabled</English>
+-		<French>Activ�</French>
++		<French>Activ&#233;</French>
+ 		<German>Aktivieren</German>
+ 		<Italian>Attivato</Italian>
+ 		<Spanish>Activado</Spanish>
+
+diff --git a/Assets/xml/Text/Shortcuts_CIV4GameText.xml b/Assets/xml/Text/Shortcuts_CIV4GameText.xml
+index 736966188..46ff15c6f 100644
+--- a/Assets/xml/Text/Shortcuts_CIV4GameText.xml
++++ b/Assets/xml/Text/Shortcuts_CIV4GameText.xml
+@@ -27,7 +27,7 @@
+ 		<English>Units</English>
+ 		<French>Unit�s</French>
+ 		<German>Einheiten</German>
+-		<Italian>Unit�</Italian>
++		<Italian>Unit&#224;</Italian>
+ 		<Spanish>Unidades</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/Strategy Overlay Options.xml b/Assets/xml/Text/Strategy Overlay Options.xml
+index 97a4839e8..387fa1a72 100644
+--- a/Assets/xml/Text/Strategy Overlay Options.xml	
++++ b/Assets/xml/Text/Strategy Overlay Options.xml	
+@@ -9,7 +9,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__ENABLED_TEXT</Tag>
+ 		<English>Enabled</English>
+-		<French>Activ�</French>
++		<French>Activ&#233;</French>
+ 		<German>Aktivieren</German>
+ 		<Italian>Attivata</Italian>
+ 		<Spanish>Activar</Spanish>
+@@ -43,7 +43,7 @@
+ 		<English>Draw City Dots</English>
+ 		<French>Draw City Dots</French>
+ 		<German>St�dte markieren</German>
+-		<Italian>Disegna le icone per le Citt�</Italian>
++		<Italian>Disegna le icone per le Citt&#224;</Italian>
+ 		<Spanish>Dibujar Centro</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -59,7 +59,7 @@
+ 		<English>City Dot Icon</English>
+ 		<French>City Dot Icon</French>
+ 		<German>St�dtesymbol</German>
+-		<Italian>Icona delle Citt�</Italian>
++		<Italian>Icona delle Citt&#224;</Italian>
+ 		<Spanish>Icono Ciudad</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/StrategyOverlay_CIV4GameText.xml b/Assets/xml/Text/StrategyOverlay_CIV4GameText.xml
+index 51ffb8230..09112746d 100644
+--- a/Assets/xml/Text/StrategyOverlay_CIV4GameText.xml
++++ b/Assets/xml/Text/StrategyOverlay_CIV4GameText.xml
+@@ -23,7 +23,7 @@
+ 		<English>Place City</English>
+ 		<French>Place City</French>
+ 		<German>Stadt platzieren</German>
+-		<Italian>Posiziona citt�</Italian>
++		<Italian>Posiziona citt&#224;</Italian>
+ 		<Spanish>Colocar Ciudad</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -31,7 +31,7 @@
+ 		<English>Remove City</English>
+ 		<French>Remove City</French>
+ 		<German>Stadt entfernen</German>
+-		<Italian>Rimuovi Citt�</Italian>
++		<Italian>Rimuovi Citt&#224;</Italian>
+ 		<Spanish>Eliminar Ciudad</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+
+diff --git a/Assets/xml/Text/Unit Naming Options.xml b/Assets/xml/Text/Unit Naming Options.xml
+index 1d05754d5..c55182981 100644
+--- a/Assets/xml/Text/Unit Naming Options.xml	
++++ b/Assets/xml/Text/Unit Naming Options.xml	
+@@ -9,7 +9,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_UNITNAMING__ENABLED_TEXT</Tag>
+ 		<English>Enabled</English>
+-		<French>Activ�</French>
++		<French>Activ&#233;</French>
+ 		<German>Aktivieren</German>
+ 		<Italian>Attivato</Italian>
+ 		<Spanish>Activar</Spanish>
+
+diff --git a/Assets/xml/Units/CIV4UnitInfos.xml b/Assets/xml/Units/CIV4UnitInfos.xml
+index c32e18907..53670091b 100644
+--- a/Assets/xml/Units/CIV4UnitInfos.xml
++++ b/Assets/xml/Units/CIV4UnitInfos.xml
+@@ -5160,7 +5160,8 @@
+ 			<iCultureGarrison>5</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+-			<iPower>6</iPower>
++			<!-- advc.104e: was 6 -->
++			<iPower>5</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -9796,7 +9797,7 @@
+ 			<iExtraCost>0</iExtraCost>
+ 			<!-- advc.131: was 3 -->
+ 			<iAsset>4</iAsset>
+-			<!-- advc.131: was 20 -->
++			<!-- advc.104e: was 20 -->
+ 			<iPower>22</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+@@ -18568,12 +18569,17 @@
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- advc.905b -->
++			<!-- advc.905b: Destroyer added (same as Frigate), Transport kept
++				 from BtS (same as Galleon) -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_DESTROYER</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_TRANSPORT</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+
+diff --git a/CvGameCoreDLL/CvArea.cpp b/CvGameCoreDLL/CvArea.cpp
+index ae68a8c6b..6e041e1ae 100644
+--- a/CvGameCoreDLL/CvArea.cpp
++++ b/CvGameCoreDLL/CvArea.cpp
+@@ -208,12 +208,6 @@ void CvArea::reset(int iID, bool bWater, bool bConstructorCall)
+ }
+ 
+ 
+-int CvArea::getID() const						
+-{
+-	return m_iID;
+-}
+-
+-
+ void CvArea::setID(int iID)														
+ {
+ 	m_iID = iID;
+@@ -356,18 +350,6 @@ int CvArea::countHasCorporation(CorporationTypes eCorporation, PlayerTypes eOwne
+ }
+ 
+ 
+-int CvArea::getNumTiles() const
+-{
+-	return m_iNumTiles;
+-}
+-
+-
+-bool CvArea::isLake() const
+-{
+-	return m_bLake; // <advc.030> Replacing the line below
+-	//return (isWater() && (getNumTiles() <= GC.getLAKE_MAX_AREA_SIZE()));
+-}
+-
+ void CvArea::updateLake(bool checkRepr) {
+ 
+ 	PROFILE("CvArea::updateLake");
+@@ -447,18 +429,6 @@ void CvArea::changeNumTiles(int iChange)
+ }
+ 
+ 
+-int CvArea::getNumOwnedTiles() const
+-{
+-	return m_iNumOwnedTiles;
+-}
+-
+-
+-int CvArea::getNumUnownedTiles() const
+-{
+-	return (getNumTiles() - getNumOwnedTiles());
+-}
+-
+-
+ void CvArea::changeNumOwnedTiles(int iChange)									
+ {
+ 	m_iNumOwnedTiles = (m_iNumOwnedTiles + iChange);
+@@ -526,12 +496,6 @@ void CvArea::barbCityCreated() { nBarbCitiesEver++; }
+ // </advc.300>
+ 
+ 
+-int CvArea::getNumRiverEdges() const												
+-{
+-	return m_iNumRiverEdges;
+-}
+-
+-
+ void CvArea::changeNumRiverEdges(int iChange)									
+ {
+ 	m_iNumRiverEdges = (m_iNumRiverEdges + iChange);
+@@ -539,30 +503,12 @@ void CvArea::changeNumRiverEdges(int iChange)
+ }
+ 
+ 
+-int CvArea::getNumUnits() const					
+-{
+-	return m_iNumUnits;
+-}
+-
+-
+-int CvArea::getNumCities() const					
+-{
+-	return m_iNumCities;
+-}
+-
+-
+ int CvArea::getTotalPopulation() const					
+ {
+ 	return m_iTotalPopulation;
+ }
+ 
+ 
+-int CvArea::getNumStartingPlots() const
+-{
+-	return m_iNumStartingPlots;
+-}
+-
+-
+ void CvArea::changeNumStartingPlots(int iChange)
+ {
+ 	m_iNumStartingPlots = m_iNumStartingPlots + iChange;
+@@ -570,12 +516,6 @@ void CvArea::changeNumStartingPlots(int iChange)
+ }
+ 
+ 
+-bool CvArea::isWater() const							
+-{
+-	return m_bWater;
+-}
+-
+-
+ int CvArea::getUnitsPerPlayer(PlayerTypes eIndex) const												
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be >= 0");
+@@ -802,12 +742,6 @@ int CvArea::getNumRevealedTiles(TeamTypes eIndex) const
+ }
+ 
+ 
+-int CvArea::getNumUnrevealedTiles(TeamTypes eIndex) const
+-{
+-	return (getNumTiles() - getNumRevealedTiles(eIndex));
+-}
+-
+-
+ void CvArea::changeNumRevealedTiles(TeamTypes eIndex, int iChange)
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be >= 0");
+
+diff --git a/CvGameCoreDLL/CvArea.h b/CvGameCoreDLL/CvArea.h
+index 476d66477..9d8472e3c 100644
+--- a/CvGameCoreDLL/CvArea.h
++++ b/CvGameCoreDLL/CvArea.h
+@@ -27,13 +27,10 @@ public:
+ 	int countCoastalLand() const;																							// Exposed to Python
+ 	int countNumUniqueBonusTypes() const;																			// Exposed to Python
+ 	int countHasReligion(ReligionTypes eReligion, PlayerTypes eOwner = NO_PLAYER) const;		// Exposed to Python
+-	int countHasCorporation(CorporationTypes eCorporation, PlayerTypes eOwner = NO_PLAYER) const;		// Exposed to Python
++	int countHasCorporation(CorporationTypes eCorporation, PlayerTypes eOwner = NO_PLAYER) const;		// Exposed to Python																					// Exposed to Python
+ 	
+-	int getID() const;																							// Exposed to Python
+ 	void setID(int iID);
+-
+-	int getNumTiles() const;																									// Exposed to Python
+-	bool isLake() const;																											// Exposed to Python
++																										// Exposed to Python
+ 	// <advc.030>
+ 	void updateLake(bool checkRepr = true);
+ 	void setRepresentativeArea(int areaId);
+@@ -42,9 +39,6 @@ public:
+ 	bool canBeEntered(CvArea const& from, CvUnit const* u = NULL) const;
+ 	// </advc.030>
+ 	void changeNumTiles(int iChange);
+-
+-	int getNumOwnedTiles() const;																							// Exposed to Python
+-	int getNumUnownedTiles() const;																						// Exposed to Python
+ 	void changeNumOwnedTiles(int iChange);
+ 
+ 	// <advc.300>
+@@ -57,21 +51,13 @@ public:
+ 	int numBarbCitiesEver() const;
+ 	void barbCityCreated();
+ 	// </advc.300>
+-
+-	int getNumRiverEdges() const;																							// Exposed to Python
+-	void changeNumRiverEdges(int iChange);
+-
+-	int getNumCities() const;																									// Exposed to Python
+-
+-	int getNumUnits() const;																									// Exposed to Python
++																						// Exposed to Python
++	void changeNumRiverEdges(int iChange);																								// Exposed to Python
+ 
+ 	int getTotalPopulation() const;																						// Exposed to Python
+ 
+-	int getNumStartingPlots() const;																					// Exposed to Python
+ 	void changeNumStartingPlots(int iChange);
+ 
+-	bool isWater() const;																											// Exposed to Python
+-
+ 	int getUnitsPerPlayer(PlayerTypes eIndex) const;													// Exposed to Python
+ 	void changeUnitsPerPlayer(PlayerTypes eIndex, int iChange);
+ 
+@@ -107,7 +93,6 @@ public:
+ 	void setBestFoundValue(PlayerTypes eIndex, int iNewValue);
+ 
+ 	int getNumRevealedTiles(TeamTypes eIndex) const;													// Exposed to Python
+-	int getNumUnrevealedTiles(TeamTypes eIndex) const;												// Exposed to Python
+ 	void changeNumRevealedTiles(TeamTypes eIndex, int iChange);
+ 
+ 	int getCleanPowerCount(TeamTypes eIndex) const;
+@@ -187,7 +172,26 @@ public:
+ 	// for serialization
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+-
++	// <advc.003f> Inlined. All exposed to Python.
++	inline int  CvArea::getID() const { return m_iID; }
++	inline int  CvArea::getNumTiles() const { return m_iNumTiles; }
++	inline bool CvArea::isLake() const { 
++			return m_bLake; // <advc.030> Replacing the line below
++			//return (isWater() && (getNumTiles() <= GC.getLAKE_MAX_AREA_SIZE()));
++	}
++	inline int  CvArea::getNumOwnedTiles() const { return m_iNumOwnedTiles; }
++	inline int  CvArea::getNumUnownedTiles() const {
++		return getNumTiles() - getNumOwnedTiles();
++	}
++	inline int  CvArea :: getNumRiverEdges() const { return m_iNumRiverEdges; }
++	inline int  CvArea :: getNumUnits() const { return m_iNumUnits; }
++	inline int  CvArea :: getNumCities() const { return m_iNumCities; }
++	inline int  CvArea :: getNumStartingPlots() const { return m_iNumStartingPlots; }
++	inline bool CvArea :: isWater() const { return m_bWater; }
++	inline int  CvArea :: getNumUnrevealedTiles(TeamTypes eIndex) const {
++		return getNumTiles() - getNumRevealedTiles(eIndex);
++	}
++	// </advc.003f>
+ };
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index ca2ff86bd..26aae3503 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5269,7 +5269,7 @@ int CvCity::cultureStrength(PlayerTypes ePlayer) const
+ 	//iStrength += (getHighestPopulation() * 2);
+ 	// <advc.101> Replacing the above
+ 	double pop = getPopulation();
+-	CvGame& g = GC.getGameINLINE();
++	CvGame const& g = GC.getGameINLINE();
+ 	/*  Would make more sense to use owner's era (if ePlayer is dead) b/c the
+ 		insurgents would mostly use the owner's military tech. But don't want
+ 		human owner to have to pay attention to his/her tech era. */
+@@ -5279,7 +5279,7 @@ int CvCity::cultureStrength(PlayerTypes ePlayer) const
+ 	double eraFactor = 1 + std::pow((double)era, 1.3);
+ 	// To put a cap on the initial revolt chance in large cities:
+ 	pop = std::min(pop, 1.5 * eraFactor);
+-	int time = g.getGameTurn() - getGameTurnAcquired();
++	int time = g.gameTurn() - getGameTurnAcquired();
+ 	double div = 0.75 * GC.getGameSpeedInfo(g.getGameSpeedType()).
+ 			getGoldenAgePercent();
+ 	double timeRatio = std::min(1.0, time / div);
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index dcb00f33d..36cac916a 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1137,8 +1137,6 @@ public:
+ 	virtual int AI_getWorkersHave() = 0;
+ 	virtual int AI_getWorkersNeeded() = 0;
+ 	virtual void AI_changeWorkersHave(int iChange) = 0;
+-	// advc.003: To get rid of a K-Mod cast
+-	virtual void AI_ClearConstructionValueCache()=0;
+ 	virtual bool isAwfulSite(PlayerTypes futureOwnerId) const=0; // advc.122
+ 
+ 	bool hasShrine(ReligionTypes eReligion) const;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ad382f219..e24ccabc3 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1644,6 +1644,17 @@ void CvCityAI::AI_chooseProduction()
+ 			}
+ 		}
+ 	}
++	// <advc.rom1> Koshling: increased priority for economic builds
++	if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION | BUILDINGFOCUS_GOLD |
++			BUILDINGFOCUS_RESEARCH |
++			// advc: Let's omit these
++			//BUILDINGFOCUS_MAINTENANCE | BUILDINGFOCUS_HAPPY | BUILDINGFOCUS_HEALTHY |
++			// wonders in if they appear best
++			BUILDINGFOCUS_WONDEROK, 20, 0, 50))
++	{
++		if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose Economy Flags (Koshling)", getName().GetCString());
++		return;
++	} // </advc.rom1>
+ 
+ 	// don't build frivolous things if this is an important city unless we at war
+     if (!bImportantCity || bLandWar || bAssault)
+@@ -5569,7 +5580,18 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 			if (iFocusFlags & BUILDINGFOCUS_RESEARCH)
+ 			{
+-				int iTempValue = ((kBuilding.getCommerceModifier(COMMERCE_RESEARCH) * getBaseCommerceRate(COMMERCE_RESEARCH)) / 40);
++				int iTempValue = ((kBuilding.getCommerceModifier(COMMERCE_RESEARCH) *
++						getBaseCommerceRate(COMMERCE_RESEARCH)) / 40);
++				// <advc.rom1> (koshling; comments by him)
++				if(iTempValue > 0)
++				{
++					iTempValue += 3; //	Discounted futures
++					iTempValue += (2 * iTempValue * (1 +
++							getBaseCommerceRate(COMMERCE_RESEARCH))) /
++							// Proportion of whole
++							(1 + GET_PLAYER(getOwnerINLINE()).
++							getCommerceRate(COMMERCE_RESEARCH));
++				} // </advc.rom1>
+ 
+ 				if (iTempValue != 0)
+ 				{
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 0b52a5423..d701984b7 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -3960,7 +3960,7 @@ bool CvGame::isTeamGame() const
+ }
+ 
+ 
+-bool CvGame::isModem()
++bool CvGame::isModem() const // advc.003: const
+ {
+ 	return gDLL->IsModem();
+ }
+@@ -3983,7 +3983,7 @@ void CvGame::reviveActivePlayer()
+ {
+ 	if (!(GET_PLAYER(getActivePlayer()).isAlive()))
+ 	{
+-		setAIAutoPlay(0, false); // advc.127: false flag added
++		setAIAutoPlayBulk(0, false); // advc.127: false flag added
+ 
+ 		GC.getInitCore().setSlotStatus(getActivePlayer(), SS_TAKEN);
+ 		
+@@ -4011,7 +4011,10 @@ int CvGame::getNumHumanPlayers()
+ int CvGame::getGameTurn()
+ {
+ 	return GC.getInitCore().getGameTurn();
+-}
++} // <advc.003> const replacement
++int CvGame::gameTurn() const {
++	return GC.getInitCore().getGameTurn();
++} // </advc.003>
+ 
+ 
+ void CvGame::setGameTurn(int iNewValue)
+@@ -4037,16 +4040,17 @@ void CvGame::incrementGameTurn()
+ }
+ 
+ 
+-int CvGame::getTurnYear(int iGameTurn)
++int CvGame::getTurnYear(int iGameTurn) const // advc.003: const
+ {
+ 	// moved the body of this method to Game Core Utils so we have access for other games than the current one (replay screen in HOF)
+ 	return getTurnYearForGame(iGameTurn, getStartYear(), getCalendar(), getGameSpeedType());
+ }
+ 
+ 
+-int CvGame::getGameTurnYear()
++int CvGame::getGameTurnYear() const // advc.003: const
+ {
+-	return getTurnYear(getGameTurn());
++	//return getTurnYear(getGameTurn()); // To work aorund non-const getGameTurn
++	return getTurnYear(gameTurn());
+ }
+ 
+ 
+@@ -4595,10 +4599,12 @@ int CvGame::getAIAutoPlay() const // advc.003: made const
+ 	return m_iAIAutoPlay;
+ }
+ 
+-
+-void CvGame::setAIAutoPlay(int iNewValue
+-		, bool changePlayerStatus) // advc.127
+-{
++void CvGame::setAIAutoPlay(int iNewValue) {
++	// <advc.127>
++	setAIAutoPlayBulk(iNewValue);
++}
++void CvGame::setAIAutoPlayBulk(int iNewValue, bool changePlayerStatus)
++{	// advc.127
+ 	m_iAIAutoPlay = std::max(0, iNewValue);
+ 	// <advc.127>
+ 	if(!changePlayerStatus)
+@@ -4631,8 +4637,8 @@ void CvGame::setAIAutoPlay(int iNewValue
+ void CvGame::changeAIAutoPlay(int iChange
+ 		, bool changePlayerStatus) // advc.127
+ {
+-	setAIAutoPlay(getAIAutoPlay() + iChange
+-		, changePlayerStatus); // advc.127
++	setAIAutoPlayBulk(getAIAutoPlay() + iChange,
++			changePlayerStatus); // advc.127
+ }
+ 
+ /*
+@@ -10646,14 +10652,42 @@ VoteTriggeredData* CvGame::addVoteTriggered(VoteSourceTypes eVoteSource, const V
+ 			if (kPlayer.isVotingMember(eVoteSource))
+ 			{
+ 				if (kPlayer.isHuman())
+-				{
+-					CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_DIPLOVOTE);
+-					if (NULL != pInfo)
++				{	// <dlph.25>
++					bool bForced = false;
++					if (isTeamVote(kOptionData.eVote))
+ 					{
+-						pInfo->setData1(pData->getID());
+-						gDLL->getInterfaceIFace()->addPopup(pInfo, (PlayerTypes)iI);
++						for (int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
++						{
++							if(!GET_TEAM((TeamTypes)iJ).isAlive())
++								continue;
++							if (isTeamVoteEligible((TeamTypes)iJ, eVoteSource))
++							{
++								if (GET_TEAM(kPlayer.getTeam()).isVassal((TeamTypes)iJ)
++										// advc:
++										&& GET_TEAM(kPlayer.getTeam()).isCapitulated())
++								{
++									if (!isTeamVoteEligible(kPlayer.getTeam(), eVoteSource))
++									{
++										castVote((PlayerTypes)iI, pData->getID(),
++												GET_PLAYER((PlayerTypes)iI).
++												AI_diploVote(kOptionData, eVoteSource, false));
++										bForced = true;
++										break;
++									}
++								}
++							}
++						}
+ 					}
+-				}
++					if (!bForced) // </dlph.25>
++ 					{
++						CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_DIPLOVOTE);
++						if (NULL != pInfo)
++						{
++							pInfo->setData1(pData->getID());
++							gDLL->getInterfaceIFace()->addPopup(pInfo, (PlayerTypes)iI);
++						}
++ 					}
++ 				}
+ 				else
+ 				{
+ 					castVote(((PlayerTypes)iI), pData->getID(), GET_PLAYER((PlayerTypes)iI).AI_diploVote(kOptionData, eVoteSource, false));
+@@ -11219,7 +11253,7 @@ double CvGame::goodyHutEffectFactor(
+ 	// (or rather: the inverse of the gradient)
+ 	double gradient = std::pow(peakTurn - startTurn, exponent) / (peakMult - 1);
+ 	gradient = ::dRange(gradient, 1.0, 500.0);
+-	double t = GC.getInitCore().getGameTurn(); // (CvGame::getGameTurn isn't const)
++	double t = gameTurn();
+ 	/*  Function through (startTurn, 1) and (peakTurn, peakMult)
+ 		[^that's assuming speedAdjust=false] */
+ 	double r = speedMultFinal * std::min(peakMult,
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 2375cbe38..1b3fbf726 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -21,6 +21,7 @@ class CvReplayInfo;
+ typedef std::vector<const CvReplayMessage*> ReplayMessageList;
+ 
+ class CvGame
++		: private boost::noncopyable // advc.003e
+ {
+ 
+ public:
+@@ -171,19 +172,21 @@ public:
+ 	DllExport bool isGameMultiPlayer() const;																			// Exposed to Python
+ 	DllExport bool isTeamGame() const;																						// Exposed to Python
+ 
+-	bool isModem();
++	bool isModem() const; // advc.003: const
+ 	void setModem(bool bModem);
+ 
+ 	DllExport void reviveActivePlayer();																		// Exposed to Python
+-
+-	DllExport int getNumHumanPlayers();																			// Exposed to Python
+-
++	// <advc.003> Making these const leads to a crash (or at least getGameTurn)
++	DllExport int getNumHumanPlayers();													// Exposed to Python
+ 	DllExport int getGameTurn();																						// Exposed to Python
++	int gameTurn() const; // Replacement for getGameTurn
++	// </advc.003>
+ 	DllExport void setGameTurn(int iNewValue);															// Exposed to Python
+ 	void incrementGameTurn();
+-	int getTurnYear(int iGameTurn);																// Exposed to Python
+-	int getGameTurnYear();																				// Exposed to Python
+-
++	// <advc.003> const
++	int getTurnYear(int iGameTurn) const;																// Exposed to Python
++	int getGameTurnYear() const;																				// Exposed to Python
++	// </advc.003>
+ 	int getElapsedGameTurns() const;																		// Exposed to Python
+ 	void incrementElapsedGameTurns();
+ 
+@@ -271,8 +274,9 @@ public:
+ 	DllExport void initScoreCalculation();
+ 
+ 	int getAIAutoPlay() const; // advc.003: made const																// Exposed to Python
+-	DllExport void setAIAutoPlay(int iNewValue																// Exposed to Python
+-			, bool changePlayerStatus = true); // advc.127
++	DllExport void setAIAutoPlay(int iNewValue);										// Exposed to Python
++	// advc.127:
++	void setAIAutoPlayBulk(int iNewValue, bool changePlayerStatus = true);
+ 	void changeAIAutoPlay(int iChange
+ 			, bool changePlayerStatus = true); // advc.127
+ /*
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index f9b27bdb9..a9522e6e9 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -36,7 +36,7 @@
+ // Note: there will also be other combat penalties added, for example from defence weight and city weight.
+ 
+ 
+-// <advc.003>
++// <advc.003g>
+ using std::vector;
+ 
+ int roundToMultiple(double d, int modulus) {
+@@ -117,8 +117,8 @@ double percentileRank(vector<double>& distribution, double score,
+ 	}
+ 	else if(n == 0) return 1;
+ 	return nLEq / (double)n;
+-}
+-
++} // </advc.003g>
++// <advc.003>
+ float hash(vector<long> const& x, PlayerTypes civId) {
+ 
+ 	int const prime = 31;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 3a1fc060a..445cc0fa9 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -40,7 +40,7 @@ class CvInfoBase;
+ #undef max
+ #undef min
+ 
+-// <advc.003> floating point utility
++// <advc.003g> floating point utility
+ inline int round(double d) { return (int)((d >= 0 ? 0.5 : -0.5) + d); }
+ int roundToMultiple(double d, int modulus);
+ bool bernoulliSuccess(double pr, char const* pszLog = ""); // 0 <= pr <= 1
+@@ -56,6 +56,8 @@ double percentileRank(std::vector<double>& distribution, double score,
+ 		   if yes, the percentile rank is going to be positive.
+ 		   either way, the value of 'score' shouldn't be added to
+ 		   the distribution by the caller. */
++// </advc.003g>
++// <advc.003>
+ /*  Hash based on the components of x. Plot index of capital factored in for
+ 	increased range if civId given.
+ 	Result between 0 and 1. Returns float b/c CvRandom uses float (not double). */
+@@ -112,14 +114,14 @@ inline float range(float fNum, float fLow, float fHigh)
+ 	}
+ }
+ 
+-/*  <advc.003> Don't want to work with float in places where memory usage isn't a
++/*  <advc.003g> Don't want to work with float in places where memory usage isn't a
+ 	concern. */
+ inline double dRange(double d, double low, double high) {
+ 
+ 	if(d < low) return low;
+ 	if(d > high) return high;
+ 	return d;
+-} // </advc.003>
++} // </advc.003g>
+ 
+ inline int coordDistance(int iFrom, int iTo, int iRange, bool bWrap)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 28c6d3d50..707d25243 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5003,20 +5003,20 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 		TeamTypes defender = (eRevealOwner != NO_PLAYER ?
+ 				GET_PLAYER(eRevealOwner).getTeam() :
+ 				NO_TEAM);
+-		int defWithFeatures = pPlot->defenseModifier(defender, true, NO_TEAM, true);
+-		int defWithoutFeatures = pPlot->defenseModifier(defender, true,
++		int iDefWithFeatures = pPlot->defenseModifier(defender, true, NO_TEAM, true);
++		int iDefWithoutFeatures = pPlot->defenseModifier(defender, true,
+ 				pPlot->getTeam(), true);
+-		int delta = defWithFeatures - defWithoutFeatures;
+-		if(defWithoutFeatures != 0 || defWithFeatures != 0) {
+-			if(defWithoutFeatures != 0) {
+-				szString.append(gDLL->getText("TXT_KEY_PLOT_BONUS", defWithoutFeatures));
+-				if(delta != 0)
++		int iDelta = iDefWithFeatures - iDefWithoutFeatures;
++		if(iDefWithoutFeatures != 0 || iDefWithFeatures != 0) {
++			if(iDefWithoutFeatures != 0) {
++				szString.append(gDLL->getText("TXT_KEY_PLOT_BONUS", iDefWithoutFeatures));
++				if(iDelta != 0)
+ 					szString.append(L", ");
+ 			}
+-			if(delta != 0) {
+-				if(defWithoutFeatures == 0)
+-					szString.append(gDLL->getText("TXT_KEY_TILEDEF"));
+-				szString.append(gDLL->getText("TXT_KEY_FEATUREDEF", delta));
++			if(iDelta != 0) {
++				if(iDefWithoutFeatures == 0)
++					szString.append(gDLL->getText("TXT_KEY_TILE_RIVALDEF"));
++				szString.append(gDLL->getText("TXT_KEY_FEATURE_RIVALDEF", iDelta));
+ 			}
+ 			szString.append(NEWLINE);
+ 		} // </advc.012>
+@@ -19089,7 +19089,7 @@ void CvGameTextMgr::appendNegativeModifiers(CvWStringBuffer& szString,
+ 				getTextKeyWide()));
+ 	}
+ 
+-	if (!(pDefender->noDefensiveBonus()))
++	if (!pDefender->noDefensiveBonus())
+ 	{
+ 		// <advc.012> Show feature defense unless in a hostile tile
+ 		if(pAttacker == NULL)
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index 3e5b9222f..41e5cd377 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -12980,6 +12980,7 @@ m_iAppearanceProbability(0),
+ m_iDisappearanceProbability(0),
+ m_iGrowthProbability(0),
+ m_iDefenseModifier(0),
++m_iRivalDefenseModifier(0), // advc.012
+ m_iAdvancedStartRemoveCost(0),
+ m_iTurnDamage(0),
+ m_iWarmingDefense(0), //GWMod new xml field M.A.
+@@ -13055,6 +13056,11 @@ int CvFeatureInfo::getDefenseModifier() const
+ {
+ 	return m_iDefenseModifier; 
+ }
++// <advc.012>
++int CvFeatureInfo::getRivalDefenseModifier() const			
++{
++	return m_iRivalDefenseModifier; 
++} // </advc.012>
+ 
+ int CvFeatureInfo::getAdvancedStartRemoveCost() const			
+ {
+@@ -13267,6 +13273,8 @@ bool CvFeatureInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iSeeThroughChange, "iSeeThrough");
+ 	pXML->GetChildXmlValByName(&m_iHealthPercent, "iHealthPercent");
+ 	pXML->GetChildXmlValByName(&m_iDefenseModifier, "iDefense");
++	// advc.012:
++	pXML->GetChildXmlValByName(&m_iRivalDefenseModifier, "iRivalDefense");
+ 	pXML->GetChildXmlValByName(&m_iAdvancedStartRemoveCost, "iAdvancedStartRemoveCost");
+ 	pXML->GetChildXmlValByName(&m_iTurnDamage, "iTurnDamage");
+ 	pXML->GetChildXmlValByName(&m_iWarmingDefense, "iWarmingDefense"); //GWMod new xml field M.A.
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index 7a9ef094e..e01930fd0 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -3167,6 +3167,7 @@ public:
+ 	int getDisappearanceProbability() const;	// Exposed to Python
+ 	int getGrowthProbability() const;					// Exposed to Python
+ 	int getDefenseModifier() const;						// Exposed to Python
++	int getRivalDefenseModifier() const; // advc.012
+ 	int getAdvancedStartRemoveCost() const;						// Exposed to Python
+ 	int getTurnDamage() const;						// Exposed to Python
+ 	int getWarmingDefense() const; //GWmod	
+@@ -3220,6 +3221,7 @@ protected:
+ 	int m_iDisappearanceProbability;
+ 	int m_iGrowthProbability;
+ 	int m_iDefenseModifier;
++	int m_iRivalDefenseModifier; // advc.012
+ 	int m_iAdvancedStartRemoveCost;
+ 	int m_iTurnDamage;
+ 	int m_iWarmingDefense; //GWMod new xml field M.A.
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 3c9dff95a..fac6ea12e 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -70,6 +70,7 @@ struct CvMapInitData
+ //
+ class CvSelectionGroup;
+ class CvMap
++		: private boost::noncopyable // advc.003e
+ {
+ 
+ 	friend class CyMap;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index d9fe6cecf..236fde9fb 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2637,8 +2637,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 				bGift = ((eHighestCulturePlayer != NO_PLAYER) 
+ 						&& (eHighestCulturePlayer != getID()) 
+ 						&& ((getTeam() == GET_PLAYER(eHighestCulturePlayer).getTeam()) 
+-							|| GET_TEAM(getTeam()).isOpenBorders(GET_PLAYER(eHighestCulturePlayer).getTeam()) 
+-							|| GET_TEAM(GET_PLAYER(eHighestCulturePlayer).getTeam()).isVassal(getTeam())));
++						|| GET_TEAM(getTeam()).isOpenBorders(GET_PLAYER(eHighestCulturePlayer).getTeam()) 
++						|| GET_TEAM(GET_PLAYER(eHighestCulturePlayer).getTeam()).isVassal(getTeam())));
+ 
+ 				if (bRaze || bGift)
+ 				{
+@@ -3314,7 +3314,9 @@ void CvPlayer::setSavingReplay(bool b) {
+ 
+ const wchar* CvPlayer::getName(uint uiForm) const
+ {
+-	if (GC.getInitCore().getLeaderName(getID(), uiForm).empty() || (GC.getGameINLINE().isMPOption(MPOPTION_ANONYMOUS) && isAlive() && GC.getGameINLINE().getGameState() == GAMESTATE_ON))
++	if (GC.getInitCore().getLeaderName(getID(), uiForm).empty() ||
++			(GC.getGameINLINE().isMPOption(MPOPTION_ANONYMOUS) && isAlive() &&
++			GC.getGameINLINE().getGameState() == GAMESTATE_ON))
+ 	{
+ 		//return GC.getLeaderHeadInfo(getLeaderType()).getDescription(uiForm);
+ 		// K-Mod. Conceal the leader name of unmet players.
+@@ -6011,11 +6013,11 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
+ 	int iI;
+ 	CvGoodyInfo const& goody = GC.getGoodyInfo(eGoody); // advc.003
+ 	// <advc.314>
+-	CvGame& g = GC.getGameINLINE();
++	CvGame const& g = GC.getGameINLINE();
+ 	int const trainHalved = (GC.getGameSpeedInfo(g.getGameSpeedType()).
+ 			getTrainPercent() + 100) / 2;
+-	bool veryEarlyGame = (100 * g.getGameTurn() < 20 * trainHalved);
+-	bool veryVeryEarlyGame = (100 * g.getGameTurn() < 10 * trainHalved);
++	bool veryEarlyGame = (100 * g.gameTurn() < 20 * trainHalved);
++	bool veryVeryEarlyGame = (100 * g.gameTurn() < 10 * trainHalved);
+ 	if (goody.getExperience() > 0)
+ 	{
+ 		if ((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) ||
+@@ -9826,74 +9828,60 @@ bool CvPlayer::isAnarchy() const
+ 	return (getAnarchyTurns() > 0);
+ }
+ 
+-
++// advc.003: Refactored
+ void CvPlayer::changeAnarchyTurns(int iChange)
+ {
+-	bool bOldAnarchy;
+-
+-	if (iChange != 0)
+-	{
+-		bOldAnarchy = isAnarchy();
+-
+-		m_iAnarchyTurns = (m_iAnarchyTurns + iChange);
+-		FAssert(getAnarchyTurns() >= 0);
++	if(iChange == 0)
++		return;
++	CvGame& g = GC.getGameINLINE();
++	if(getID() == g.getActivePlayer())
++		gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+ 
+-		if (bOldAnarchy != isAnarchy())
+-		{
+-			updateCommerce();
+-			updateMaintenance();
+-			updateTradeRoutes();
+-			updateCorporation();
++	bool bOldAnarchy = isAnarchy();
++	m_iAnarchyTurns = (m_iAnarchyTurns + iChange);
++	FAssert(getAnarchyTurns() >= 0);
+ 
+-			AI_makeAssignWorkDirty();
++	if(bOldAnarchy == isAnarchy())
++		return;
+ 
+-			if (isAnarchy())
+-			{
+-				gDLL->getInterfaceIFace()->addHumanMessage(getID(), true, GC.getEVENT_MESSAGE_TIME(), gDLL->getText("TXT_KEY_MISC_REVOLUTION_HAS_BEGUN").GetCString(), "AS2D_REVOLTSTART",
+-						MESSAGE_TYPE_MINOR_EVENT, // advc.106b: was MAJOR
+-						NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"),
+-						getCapitalX(), getCapitalY()); // advc.127b
+-			}
+-			else
+-			{
+-				gDLL->getInterfaceIFace()->addHumanMessage(getID(), false, GC.getEVENT_MESSAGE_TIME(), gDLL->getText("TXT_KEY_MISC_REVOLUTION_OVER").GetCString(), "AS2D_REVOLTEND", MESSAGE_TYPE_MINOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString(
+-						"COLOR_WHITE"), // advc.004g: Was COLOR_WARNING_TEXT
+-						getCapitalX(), getCapitalY()); // advc.127b
+-				// K-Mod. trigger production/research popups that have been suppressed.
+-				if (isHuman())
+-				{
+-					if (isResearch() && getCurrentResearch() == NO_TECH)
+-					{
+-						chooseTech();
+-					}
++	if(getID() == g.getActivePlayer())
++		gDLL->getInterfaceIFace()->setDirty(MiscButtons_DIRTY_BIT, true);
++	if(getTeam() == g.getActiveTeam())
++		gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+ 	
+-					int iLoop;
+-					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+-					{
+-						if (pLoopCity->AI_isChooseProductionDirty() && !pLoopCity->isProduction() && !pLoopCity->isDisorder() && !pLoopCity->isProductionAutomated())
+-						{
+-							pLoopCity->chooseProduction();
+-						}
+-					}
+-				}
+-				// K-Mod end
+-			}
++	updateCommerce();
++	updateMaintenance();
++	updateTradeRoutes();
++	updateCorporation();
+ 
+-			if (getID() == GC.getGameINLINE().getActivePlayer())
+-			{
+-				gDLL->getInterfaceIFace()->setDirty(MiscButtons_DIRTY_BIT, true);
+-			}
++	AI_makeAssignWorkDirty();
+ 
+-			if (getTeam() == GC.getGameINLINE().getActiveTeam())
++	if (isAnarchy())
++	{
++		gDLL->getInterfaceIFace()->addHumanMessage(getID(), true, GC.getEVENT_MESSAGE_TIME(), gDLL->getText("TXT_KEY_MISC_REVOLUTION_HAS_BEGUN").GetCString(), "AS2D_REVOLTSTART",
++				MESSAGE_TYPE_MINOR_EVENT, // advc.106b: was MAJOR
++				NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"),
++				getCapitalX(), getCapitalY()); // advc.127b
++	}
++	else
++	{
++		gDLL->getInterfaceIFace()->addHumanMessage(getID(), false, GC.getEVENT_MESSAGE_TIME(), gDLL->getText("TXT_KEY_MISC_REVOLUTION_OVER").GetCString(), "AS2D_REVOLTEND", MESSAGE_TYPE_MINOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString(
++				"COLOR_WHITE"), // advc.004g: Was COLOR_WARNING_TEXT
++				getCapitalX(), getCapitalY()); // advc.127b
++		// K-Mod. trigger production/research popups that have been suppressed.
++		if(isHuman())
++		{
++			if(isResearch() && getCurrentResearch() == NO_TECH)
++				chooseTech();
++			int iLoop=-1;
++			for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 			{
+-				gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
++				if (pLoopCity->AI_isChooseProductionDirty() &&
++						!pLoopCity->isProduction() && !pLoopCity->isDisorder() &&
++						!pLoopCity->isProductionAutomated())
++					pLoopCity->chooseProduction();
+ 			}
+-		}
+-
+-		if (getID() == GC.getGameINLINE().getActivePlayer())
+-		{
+-			gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+-		}
++		} // K-Mod end
+ 	}
+ }
+ 
+@@ -14057,6 +14045,9 @@ void CvPlayer::setCivics(CivicOptionTypes eIndex, CivicTypes eNewValue)
+ 							szBuffer += L" " + gDLL->getText("TXT_KEY_MISC_AND_ABOLISH_CIVIC",
+ 									GC.getCivicInfo(eOldCivic).getTextKeyWide());
+ 						} // </advc.151>
++						// <advc.106>
++						bool bRenounce = (!GC.getCivicInfo(getCivics(eIndex)).isStateReligion() &&
++								GC.getCivicInfo(eOldCivic).isStateReligion()); // </advc.106>
+ 						for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 						{
+ 							if (GET_PLAYER((PlayerTypes)iI).isAlive())
+@@ -14064,16 +14055,14 @@ void CvPlayer::setCivics(CivicOptionTypes eIndex, CivicTypes eNewValue)
+ 								if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
+ 								{
+ 									gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CIVIC_ADOPT",
++											bRenounce ? MESSAGE_TYPE_MAJOR_EVENT : // advc.106
+ 											MESSAGE_TYPE_MINOR_EVENT, // advc.106b
+ 											// advc.127b:
+ 											NULL, NO_COLOR, getCapitalX(), getCapitalY());
+ 								}
+ 							}
+ 						}
+-						// <advc.106> Only record civics change if renounced state religion implied
+-						if(!GC.getCivicInfo(getCivics(eIndex)).isStateReligion() &&
+-								GC.getCivicInfo(eOldCivic).isStateReligion()) {
+-									// </advc.106>
++						if(bRenounce) { // advc.106
+ 							szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_ADOPTED_CIVIC", getNameKey(), GC.getCivicInfo(getCivics(eIndex)).getTextKeyWide());
+ 							// <advc.106>
+ 							if(bWasStateReligion && getLastStateReligion() != NO_RELIGION) {
+@@ -15249,34 +15238,27 @@ void CvPlayer::setSmtpHost(const char* szHost)
+ // Protected Functions...
+ 
+ void CvPlayer::doGold()
+-{
+-	bool bStrike;
+-	int iGoldChange;
+-	int iDisbandUnit;
+-	int iI;
+-
++{	// advc.003: Declarations moved
+ 	CyArgsList argsList;
+ 	argsList.add(getID());
+ 	long lResult=0;
+ 	gDLL->getPythonIFace()->callFunction(PYGameModule, "doGold", argsList.makeFunctionArgs(), &lResult);
+-	if (lResult == 1)
+-	{
++	if(lResult == 1)
+ 		return;
+-	}
+ 
+-	iGoldChange = calculateGoldRate();
++	// <advc.300> Let CvGame::killBarb handle overcrowding
++	if(isBarbarian())
++		return; // </advc.300>
++
++	int iGoldChange = calculateGoldRate();
+ 	
+ 	//FAssert(isHuman() || isBarbarian() || ((getGold() + iGoldChange) >= 0) || isAnarchy());
+-	// <advc.133> I don't think anarchy should lead to negative gold
+-	if(getGold() + iGoldChange < 0 && !isHuman() && !isBarbarian()) {
+-		FAssert(getGold() + iGoldChange >= 0);
+-		/* Can't rule out that an AI civ goes broke. Should uncancelable deals
+-			be force-canceled then? No change so far ... (AI goes into strike) */
+-	} // </advc.133>
++	/*  advc.131: Disabled b/c all of these can be OK (except isBarbarian, which is
++		now handled upfront) */
+ 
+ 	changeGold(iGoldChange);
+ 
+-	bStrike = false;
++	bool bStrike = false;
+ 
+ 	if (getGold() < 0)
+ 	{
+@@ -15295,9 +15277,10 @@ void CvPlayer::doGold()
+ 
+ 		if (getStrikeTurns() > 1)
+ 		{
+-			iDisbandUnit = (getStrikeTurns() / 2); // XXX mod?
+-
+-			for (iI = 0; iI < iDisbandUnit; iI++)
++			int iDisbandUnit = (getStrikeTurns() / 2); // XXX mod?
++			// advc.131: Can happen, but hints at a problem with AI gold trading.
++			FAssert(isHuman())
++			for (int iI = 0; iI < iDisbandUnit; iI++)
+ 			{
+ 				disbandUnit(true);
+ 
+@@ -17588,48 +17571,35 @@ int CvPlayer::getAdvancedStartPopCost(bool bAdd, CvCity* pCity) const
+ /////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ int CvPlayer::getAdvancedStartCultureCost(bool bAdd, CvCity* pCity) const
+-{
+-	if (0 == getNumCities())
+-	{
++{	// <advc.003>
++	if(getNumCities() == 0)
+ 		return -1;
+-	}
+-
+ 	int iCost = GC.getDefineINT("ADVANCED_START_CULTURE_COST");
+-	if (iCost < 0)
+-	{
++	if(iCost < 0)
+ 		return -1;
+-	}
+-
+-	if (NULL != pCity)
+-	{
+-		if (pCity->getOwnerINLINE() != getID())
+-		{
+-			return -1;
+-		}
+-
+-		// Need to have enough culture to remove it
+-		if (!bAdd)
+-		{
+-			if (pCity->getCultureLevel() <= 0)
+-			{
+-				return -1;
+-			}
+-		}
++	if(pCity == NULL)
++		return adjustAdvStartPtsToSpeed(iCost); // advc.250c
++	if(pCity->getOwnerINLINE() != getID())
++		return -1; // </advc.003>
+ 
+-		int iCulture;
+-		if (bAdd)
+-		{
+-			iCulture = CvCity::getCultureThreshold((CultureLevelTypes)(pCity->getCultureLevel() + 1)) - pCity->getCulture(getID());
+-		}
+-		else
+-		{
+-			iCulture = pCity->getCulture(getID()) - CvCity::getCultureThreshold((CultureLevelTypes)(pCity->getCultureLevel() - 1));
+-		}
++	// Need to have enough culture to remove it
++	if(!bAdd && pCity->getCultureLevel() <= 0)
++		return -1;
+ 
+-		iCost *= iCulture;
+-		iCost /= std::max(1, GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getHurryPercent());
++	int iCulture=-1;
++	if (bAdd)
++	{
++		iCulture = CvCity::getCultureThreshold((CultureLevelTypes)
++				(pCity->getCultureLevel() + 1)) - pCity->getCulture(getID());
+ 	}
+-
++	else
++	{
++		iCulture = pCity->getCulture(getID()) - CvCity::getCultureThreshold((CultureLevelTypes)
++				(pCity->getCultureLevel() - 1));
++	}
++	iCost *= iCulture;
++	iCost /= std::max(1, GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).
++			getHurryPercent());
+ 	return adjustAdvStartPtsToSpeed(iCost); // advc.250c
+ }
+ 
+@@ -20062,7 +20032,7 @@ EventTriggeredData* CvPlayer::initTriggeredData(EventTriggerTypes eEventTrigger,
+ 		if (NO_PLAYER == eOtherPlayer)
+ 		{
+ 			for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+-			{	// advc.001: (from the RFC:DoC mod)
++			{	// advc.001: (from Leoreth's RFC:DoC mod)
+ 				if (!GET_PLAYER((PlayerTypes)i).isMinorCiv() && 
+ 						GET_PLAYER((PlayerTypes)i).canTrigger(eEventTrigger, getID(), eReligion))
+ 				{
+@@ -24837,8 +24807,8 @@ void CvPlayer::checkAlert(int alertId, bool silent)  {
+ // <advc.104> Inspired by CvTeamAI::AI_estimateTotalYieldRate
+ double CvPlayer::estimateYieldRate(YieldTypes yield, int nSamples) const {
+ 
+-	CvGame& g = GC.getGameINLINE();
+-	int turnNumber = g.getGameTurn();
++	CvGame const& g = GC.getGameINLINE();
++	int turnNumber = g.gameTurn();
+ 	int turnsPlayed = turnNumber - g.getStartTurn();
+ 	nSamples = std::min(nSamples, turnsPlayed - 1);
+ 	std::vector<double> samples; // ::median works with double
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 8f699dece..fb89d57d6 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -29,6 +29,7 @@ typedef std::vector< std::pair<UnitClassTypes, PromotionTypes> > UnitClassPromot
+ typedef std::vector< std::pair<CivilizationTypes, LeaderHeadTypes> > CivLeaderArray;
+ 
+ class CvPlayer
++		: private boost::noncopyable // advc.003e
+ {
+ public:
+ 	CvPlayer();
+@@ -1155,7 +1156,9 @@ public:
+ 	virtual int AI_getPlotDanger(CvPlot* pPlot, int iRange = -1, bool bTestMoves = true
+ 		/*  advc.104: These pure virtual AI_... functions are pointless b/c
+ 			GET_PLAYER yields a CvPlayerAI reference anyway, but see karadoc's
+-			warning above. */
++			warning above. Also: Shouldn't add params to virtual functions b/c
++			the EXE might call them. However, most AI functions are never
++			called by the EXE. */
+ 		, bool bCheckBorder = true, int* lowHealth = NULL, int hpLimit = 60, int limitCount = -1, PlayerTypes enemyId = NO_PLAYER
+ 		) const = 0;
+ 	virtual bool AI_isFinancialTrouble() const = 0;																											// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index fb108169e..57d8c9572 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1587,11 +1587,11 @@ void CvPlayerAI::AI_makeAssignWorkDirty()
+ 
+ 
+ void CvPlayerAI::AI_assignWorkingPlots()
+-{
+-	CvCity* pLoopCity;
+-	int iLoop;
+-
+-	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++{	// <advc.rom2>
++	if(isAnarchy())
++		return; // </advc.rom2>
++	int iLoop=-1;
++	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
+ 		pLoopCity->AI_assignWorkingPlots();
+ 	}
+@@ -2255,11 +2255,9 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity)
+ 	}
+ 
+ 	if( bRaze )
+-	{
++	{	// K-Mod moved the log message up - otherwise it will crash due to pCity being deleted!
+ 		logBBAI("    Player %d (%S) decides to to raze city %S!!!", getID(), getCivilizationDescription(0), pCity->getName().GetCString() );
+ 		pCity->doTask(TASK_RAZE);
+-		//logBBAI("    Player %d (%S) decides to to raze city %S!!!", getID(), getCivilizationDescription(0), pCity->getName().GetCString() );
+-		// K-Mod moved the log message up - otherwise it will crash due to pCity being deleted!
+ 	}
+ 	else
+ 	{
+@@ -4888,7 +4886,7 @@ int CvPlayerAI::AI_targetCityValue(CvCity* pCity, bool bRandomize, bool bIgnoreA
+ 	}
+ 
+ 	// <advc.104d> Replacing the BBAI code below (essentially with K-Mod code)
+-	iValue += cityWonderVal(pCity);
++	iValue += cityWonderVal(*pCity);
+ 	/*iValue += 4*pCity->getNumActiveWorldWonders();
+ 
+ 	for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
+@@ -5025,10 +5023,8 @@ int CvPlayerAI::AI_targetCityValue(CvCity* pCity, bool bRandomize, bool bIgnoreA
+ 	i.e. AI_warSpoilsValue is obsolete. Also, AI_warSpoilsVal is a team-level
+ 	function, but I need this to be a civ-level function so that the
+ 	city owner's state religion can be factored in. */
+-int CvPlayerAI::cityWonderVal(CvCity* cp) const {
++int CvPlayerAI::cityWonderVal(CvCity const& c) const {
+ 
+-	if(cp == NULL) return 0;
+-	CvCity const& c = *cp;
+ 	CvGame& g = GC.getGameINLINE();
+ 	int r = 0;
+ 	for(int i = 0; i < GC.getNumReligionInfos(); i++) {
+@@ -10776,7 +10772,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 					if(bLosingBig &&
+ 						/*  advc.104n: The BtS code can have us randomly vote
+ 							against our own proposal. */
+-						::hash(g.getGameTurn(), getID()) < prPeace)
++						::hash(g.gameTurn(), getID()) < prPeace)
+ 						//(GC.getGame().getSorenRandNum(iPeaceRand, "AI Force Peace to avoid loss") || bPropose) )
+ 					{
+ 						// Non-warmongers want peace to escape loss
+@@ -12073,7 +12069,7 @@ bool CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 		CLLNode<TradeData>* pBestCityNode = NULL;
+ 		// Evaluate everything they're willing to trade.
+ 		std::vector<std::pair<TradeData*, int> > item_value_list; // (item*, value)
+-		CvGame& g = GC.getGameINLINE();
++		CvGame const& g = GC.getGameINLINE();
+ 		for(CLLNode<TradeData>* pNode = pInventory->head(); pNode != NULL;
+ 				pNode = pInventory->next(pNode)) {
+ 			TradeData data = pNode->m_data;
+@@ -12113,7 +12109,7 @@ bool CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 						/*  I think randomness in this function could lead to
+ 							OOS problems */
+ 						std::vector<long> hashInputs;
+-						hashInputs.push_back(g.getGameTurn());
++						hashInputs.push_back(g.gameTurn());
+ 						hashInputs.push_back(eBonus);
+ 						if(::hash(hashInputs, getID()) > iItemValue / 100.0)
+ 							continue;
+@@ -13740,33 +13736,42 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ // Ideally the value of receiving the city and the cost of giving the city away would be
+ // separate things; but that's currently not how trades are made.
+ int CvPlayerAI::AI_cityTradeVal(CvCity* pCity) const
+-{
+-	FAssert(pCity->getOwnerINLINE() != getID());
++{	// <advc.003>
++	CvCity const& kCity = *pCity;
++	CvGame const& g = GC.getGameINLINE();
++	PlayerTypes const eOwner = kCity.getOwnerINLINE();
++	// </advc.003>
++	FAssert(eOwner != getID());
+ 
+ 	int iValue = 300;
+ 
+-	//iValue += (pCity->getPopulation() * 50);
+-	iValue += pCity->getPopulation()*20 + pCity->getHighestPopulation()*30; // K-Mod
++	//iValue += (kCity.getPopulation() * 50);
++	int iPopValue = // advc.003
++			kCity.getPopulation() * 20 + kCity.getHighestPopulation() * 30; // K-Mod
++	iValue += iPopValue;
+ 
+-	iValue += (pCity->getCultureLevel() * 200);
+-	iValue += (200 * pCity->getCultureLevel() * pCity->getCulture(getID())) /
+-			std::max(1, pCity->getCulture(pCity->getOwnerINLINE())
++	iValue += 200 * kCity.getCultureLevel();
++	iValue += (200 * kCity.getCultureLevel() * kCity.getCulture(getID())) /
++			std::max(1, kCity.getCulture(eOwner)
+ 			/*  advc.001: I think karadoc's intention was to add at most
+ 				200 * CultureLevel, namely when the city owner has 0 culture,
+ 				but without the addition below, the increment would actually be
+ 				200 * CultureLevel * this player's city culture, i.e. millions. */
+-			+ pCity->getCulture(getID()));
++			+ kCity.getCulture(getID()));
+ 
+-	//iValue += (((((pCity->getPopulation() * 50) + GC.getGameINLINE().getElapsedGameTurns() + 100) * 4) * pCity->plot()->calculateCulturePercent(pCity->getOwnerINLINE())) / 100);
++	//iValue += (((((kCity.getPopulation() * 50) + g.getElapsedGameTurns() + 100) * 4) * kCity.plot()->calculateCulturePercent(eOwner)) / 100);
+ 	// K-Mod
+-	int iCityTurns = GC.getGameINLINE().getGameTurn() - (pCity->getGameTurnFounded() + pCity->getGameTurnAcquired())/2;
+-	iCityTurns = iCityTurns * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent() / 100;
+-	iValue += ((pCity->getPopulation()*20 + pCity->getHighestPopulation()*30 + iCityTurns*3/2 + 80) * 4 * (pCity->plot()->calculateCulturePercent(pCity->getOwnerINLINE())+10)) / 110;
++	int iCityTurns = g.gameTurn() - (kCity.getGameTurnFounded() +
++			kCity.getGameTurnAcquired()) / 2;
++	iCityTurns = iCityTurns * GC.getGameSpeedInfo(g.getGameSpeedType()).
++			getVictoryDelayPercent() / 100;
++	iValue += ((iPopValue + iCityTurns * 3 / 2 + 80) * 4 * (kCity.plot()->
++			calculateCulturePercent(eOwner) + 10)) / 110;
+ 	// K-Mod end
+ 
+ 	for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 	{
+-		CvPlot* pLoopPlot = plotCity(pCity->getX_INLINE(), pCity->getY_INLINE(), iI);
++		CvPlot* pLoopPlot = plotCity(kCity.getX_INLINE(), kCity.getY_INLINE(), iI);
+ 
+ 		if (pLoopPlot != NULL)
+ 		{
+@@ -13780,16 +13785,17 @@ int CvPlayerAI::AI_cityTradeVal(CvCity* pCity) const
+ 
+ 			if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
+ 				iBonusValue += AI_bonusVal(pLoopPlot->getBonusType(getTeam()), 1, true);
+-			if (pLoopPlot->getBonusType(pCity->getTeam()) != NO_BONUS)
+-				iBonusValue += GET_PLAYER(pCity->getOwnerINLINE()).AI_bonusVal(pLoopPlot->getBonusType(pCity->getTeam()), -1, true);
+-
+-			iBonusValue *= plotDistance(pLoopPlot, pCity->plot()) <= 1 ? 5 : 4;
++			if (pLoopPlot->getBonusType(TEAMID(eOwner)) != NO_BONUS) {
++				iBonusValue += GET_PLAYER(eOwner).AI_bonusVal(
++						pLoopPlot->getBonusType(TEAMID(eOwner)), -1, true);
++			}
++			iBonusValue *= plotDistance(pLoopPlot, kCity.plot()) <= 1 ? 5 : 4;
+ 			iValue += iBonusValue;
+ 			// K-Mod end
+ 		}
+ 	}
+ 
+-	if (!(pCity->isEverOwned(getID())))
++	if (!kCity.isEverOwned(getID()))
+ 	{
+ 		iValue *= 3;
+ 		iValue /= 2;
+@@ -13797,9 +13803,9 @@ int CvPlayerAI::AI_cityTradeVal(CvCity* pCity) const
+ 
+ 	/*  advc.104d: Moved the K-Mod code here into a new function
+ 		cityWonderVal (with some tweaks). */
+-	iValue += cityWonderVal(pCity) * 10;
++	iValue += cityWonderVal(kCity) * 10;
+ 	// <advc.139>
+-	if(pCity->isEvacuating())
++	if(kCity.isEvacuating())
+ 		iValue = ::round(0.33 * iValue); // </advc.139>
+ 	return GET_TEAM(getTeam()).roundTradeVal(iValue); // advc.104k
+ }
+@@ -13840,22 +13846,29 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCity* pCity, PlayerTypes ePlayer) const {
+ 			return DENIAL_TOO_MUCH;
+ 		return NO_DENIAL;
+ 	}*/
+-	// <advc.122> work in progress (advc.tmp)
+-	if(pCity->isCapital()) // Tbd.: Other major cities, DENIAL_VICTORY
+-		return DENIAL_NEVER;
+-	/*  TOO_MUCH would be nicer than NEVER if on the same team, but these cities
+-		are hidden by CvPlayer::buildTradeTable anyway. */
++	// <advc.122> work in progress
+ 	CvPlot const& kCityPlot = *pCity->plot();
+ 	if(kCityPlot.getCulture(getID()) > kCityPlot.getCulture(ePlayer))
++		return DENIAL_NEVER; // Tbd.: This condition is too coarse
++// <advc.tmp>
++if(kPlayer.getTeam() == getTeam()||bLib) return NO_DENIAL;
++return DENIAL_NEVER;
++// </advc.tmp>
++	/*  TOO_MUCH would be nicer than NEVER if on the same team, but these cities
++		are hidden by CvPlayer::buildTradeTable anyway. */
++	if(pCity->isCapital())
+ 		return DENIAL_NEVER;
++	/*  Tbd.: Other major cities, DENIAL_VICTORY, vassal-related clauses,
++		DENIAL_RECENT_CANCEL if recently acquired. */
+ 	AttitudeTypes towardThem = AI_getAttitude(ePlayer, false);
+-	if(towardThem < ATTITUDE_ANNOYED)
++	if(towardThem < ATTITUDE_ANNOYED) // Liberation threshold
+ 		return DENIAL_ATTITUDE;
+-return DENIAL_NEVER; // advc.tmp
+-	// Will make those thresholds personality-based eventually
++	// Tbd.: Make these thresholds personality-based
+ 	if(!bLib && towardThem < ATTITUDE_PLEASED)
+ 		return DENIAL_ATTITUDE;
+-	if(!bLib && pCity->plot()->calculateCulturePercent(getID()) > 10 &&
++	if(!bLib && pCity->plot()->calculateCulturePercent(getID()) >
++			// Tbd.: Mention this use of the threshold in a comment in GlobalDefines
++			GC.getDefineINT("CITY_TRADE_CULTURE_THRESH") &&
+ 			towardThem < ATTITUDE_FRIENDLY)
+ 		return DENIAL_ATTITUDE;
+ 	return NO_DENIAL;
+@@ -13943,7 +13956,8 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
+ 	}
+ 
+ 	for(pLoopDeal = GC.getGameINLINE().firstDeal(&iLoop); pLoopDeal != NULL; pLoopDeal = GC.getGameINLINE().nextDeal(&iLoop))
+-	{
++	{	/*  advc.001q: Should be pLoopDeal->isCancelable(ePlayer), but the param
++			doesn't really have an effect, and I'm disabling this check anyway. */
+ 		//if (pLoopDeal->isCancelable(getID()) && !(pLoopDeal->isPeaceDeal()))
+ 		// <advc.130f>
+ 		if(pLoopDeal->isPeaceDeal() ||
+@@ -15784,9 +15798,9 @@ int CvPlayerAI::AI_maxUnitCostPerMil(CvArea* pArea, int iBuildProb) const
+ 			if(isFocusWar()) // advc.105
+ 			//if (GET_TEAM(getTeam()).getAnyWarPlanCount(true))
+ 				iMaxUnitSpending += 55;
+-			else
++			else if(!bTotalWar) // advc.105: isFocusWar doesn't guarantee this
+ 			{
+-				FAssert(!bTotalWar);
++				//FAssert(!bTotalWar);
+ 				iMaxUnitSpending += AI_isDoStrategy(AI_STRATEGY_DAGGER) ? 20 + iBuildProb*2/3 : 0;
+ 			}
+ 		}
+@@ -16863,14 +16877,12 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 
+ 	int iCities = getNumCities();
+ 
+-	FAssertMsg(eCivic < GC.getNumCivicInfos(), "eCivic is expected to be within maximum bounds (invalid Index)");
+-	FAssertMsg(eCivic >= 0, "eCivic is expected to be non-negative (invalid Index)");
+-
+ 	// Circumvents crash bug in simultaneous turns MP games
+-	if( eCivic == NO_CIVIC )
+-	{
++	if(eCivic == NO_CIVIC) // advc.006: Moved above the assertions
+ 		return 1;
+-	}
++
++	FAssertMsg(eCivic < GC.getNumCivicInfos(), "eCivic is expected to be within maximum bounds (invalid Index)");
++	FAssertMsg(eCivic >= 0, "eCivic is expected to be non-negative (invalid Index)");
+ 
+ 	if( isBarbarian() )
+ 	{
+@@ -19972,28 +19984,30 @@ void CvPlayerAI::AI_doCivics()
+ 		{
+ 			int iBestValue=-1;
+ 			CivicTypes eNewCivic = AI_bestCivic((CivicOptionTypes)iI, &iBestValue);
+-
++			/*  advc.001r: Same thing as under karadoc's "temporary switch" comment
++				in the loop below */
++			CivicTypes eOtherCivic = aeBestCivic[iI];
++			// <advc.003>
++			if(eOtherCivic == eNewCivic)
++				continue; // </advc.003>
++			aeBestCivic[iI] = eNewCivic; // advc.001r
+ 			int iTestAnarchy = getCivicAnarchyLength(&aeBestCivic[0]);
++			aeBestCivic[iI] = eOtherCivic; // advc.001r
+ 			/*  using ~30 percent as a rough estimate of revolution cost, and
+ 				a low threshold regardless of anarchy just for a bit of inertia.
+ 				reduced threshold if we are already going to have a revolution. */
+-			// <advc.003>
+ 			int iThreshold = 5;
+-			if(iTestAnarchy > iAnarchyLength)
+-				iThreshold += (!bFirstPass || bWantSwitch ? 20 : 30); // </advc.003>
+-			/*  <advc.132b> If vassal, increase threshold unless switching is
+-				(permanently) free. */
+-			if(getAnarchyModifier() > -100 && getMaxAnarchyTurns() != 0) {
++			if(iTestAnarchy > iAnarchyLength) {
++				iThreshold = (!bFirstPass || bWantSwitch ? 20 : 30);
++				// <advc.132b>
+ 				TeamTypes masterTeamId = getMasterTeam();
+ 				if(getTeam() != masterTeamId && GET_TEAM(masterTeamId).isHuman())
+ 					iThreshold += 15;
+-			} // </advc.132b>
+-			//if (100*iBestValue > (100+iThreshold)*aiCurrentValue[iI])
+-			// <advc.131> Replacement:
+-			double pr = std::pow((100.0 * iBestValue) /
+-					((100.0 + iThreshold) * aiCurrentValue[iI]) - 1.0, 0.7);
+-			if(((!bFirstPass || bWantSwitch || bWantSwitch) && pr > 0.01) ||
+-					::bernoulliSuccess(pr, "advc.131")) // </advc.131>
++				// </advc.132b>
++			}
++			if (100*iBestValue > (100+
++					(iBestValue >= 0 ? 1 : -1) * // advc.131
++					iThreshold)*aiCurrentValue[iI])
+ 			{
+ 				FAssert(aeBestCivic[iI] != NO_CIVIC);
+ 				if (gPlayerLogLevel > 0) logBBAI("    %S decides to switch to %S (value: %d vs %d%S)", getCivilizationDescription(0), GC.getCivicInfo(eNewCivic).getDescription(0), iBestValue, aiCurrentValue[iI], bFirstPass?"" :", on recheck");
+@@ -20004,7 +20018,9 @@ void CvPlayerAI::AI_doCivics()
+ 			}
+ 			else
+ 			{
+-				if (100*iBestValue > 120*aiCurrentValue[iI])
++				if (100 * iBestValue >
++						(iBestValue >= 0 ? 120 : 80) // advc.131
++						* aiCurrentValue[iI])
+ 					bWantSwitch = true;
+ 			}
+ 		}
+@@ -20026,12 +20042,14 @@ void CvPlayerAI::AI_doCivics()
+ 				if (kCivic.getTechPrereq() == eResearch && !canDoCivics((CivicTypes)iI))
+ 				{
+ 					CivicTypes eOtherCivic = aeBestCivic[kCivic.getCivicOptionType()];
+-					aeBestCivic[kCivic.getCivicOptionType()] = (CivicTypes)iI; // temporary switch just to test the anarchy length
++					// temporary switch just to test the anarchy length
++					aeBestCivic[kCivic.getCivicOptionType()] = (CivicTypes)iI;
+ 					if (getCivicAnarchyLength(&aeBestCivic[0]) <= iAnarchyLength)
+ 					{
+ 						// if the anarchy length would be the same, consider waiting for the new civic..
+ 						int iValue = AI_civicValue((CivicTypes)iI);
+-						if (100 * iValue > (102+2*iResearchTurns) * aiCurrentValue[kCivic.getCivicOptionType()])
++						if (100 * iValue > (102+2*iResearchTurns) * aiCurrentValue[kCivic.getCivicOptionType()]
++								&& iValue > 0) // advc.131: Better to be safe
+ 						{
+ 							if (gPlayerLogLevel > 0)
+ 								logBBAI("    %S delays revolution to wait for %S (value: %d vs %d)", getCivilizationDescription(0), kCivic.getDescription(0), iValue, aiCurrentValue[kCivic.getCivicOptionType()]);
+@@ -20043,6 +20061,11 @@ void CvPlayerAI::AI_doCivics()
+ 				}
+ 			}
+ 		}
++		// <advc.131>
++		if(isAnarchy() || iAnarchyLength > 1) {
++			if(getGold() < (iAnarchyLength - 1) * -getGoldPerTurn())
++				return;
++		} // </advc.131>
+ 	}
+ 	//
+ 
+@@ -20084,6 +20107,13 @@ void CvPlayerAI::AI_doReligion()
+ 
+ 	FAssertMsg(AI_getReligionTimer() == 0, "AI Religion timer is expected to be 0");
+ 
++	// <advc.131>
++	int const iAnarchyLength = getReligionAnarchyLength();
++	if(isAnarchy() || iAnarchyLength > 1) {
++		if(getGold() < (iAnarchyLength - 1) * -getGoldPerTurn())
++			return;
++	} // </advc.131>
++
+ 	eBestReligion = AI_bestReligion();
+ 
+ 	if (eBestReligion == NO_RELIGION)
+@@ -20093,7 +20123,7 @@ void CvPlayerAI::AI_doReligion()
+ 	if (canConvert(eBestReligion))
+ 	{	// <advc.131>
+ 		double pr = 1;
+-		if(getReligionAnarchyLength() > 0 && eBestReligion != NO_RELIGION &&
++		if(iAnarchyLength > 0 && eBestReligion != NO_RELIGION &&
+ 				getStateReligion() != NO_RELIGION)
+ 			pr = 1 - AI_religionValue(getStateReligion()) /
+ 					(double)AI_religionValue(eBestReligion);
+@@ -20555,7 +20585,7 @@ void CvPlayerAI::AI_doDiplo()
+ 								}
+ 							}
+ 
+-							if (iCount >= (iPossibleCount / 2))
++							if (iCount >= iPossibleCount / 2)
+ 							{
+ 								setTradeItem(&item, TRADE_CITIES, pLoopCity->getID());
+ 
+@@ -26546,9 +26576,12 @@ bool CvPlayerAI::AI_advancedStartPlaceCity(CvPlot* pPlot)
+ 			return false;
+ 		}
+ 	}
+-	
+-	if (pCity->getCultureLevel() <= 1)
+-	{
++	int iCultureCost = getAdvancedStartCultureCost(true, pCity); // advc.250c
++	if (pCity->getCultureLevel() <= 1 &&
++		// <advc.250c>
++			(pCity->getCommerceRate(COMMERCE_CULTURE) <= 0 ||
++			(iCultureCost >= 0 && getAdvancedStartPoints() > iCultureCost * 100)))
++	{	// </advc.250c>
+ 		doAdvancedStartAction(ADVANCEDSTARTACTION_CULTURE, pPlot->getX(), pPlot->getY(), -1, true);
+ 	}
+ 	
+@@ -28641,10 +28674,7 @@ void CvPlayerAI::AI_ClearConstructionValueCache()
+ 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
+ 		// Have I meantioned that the way the "AI" classes are used in this code is an abomination and an insult to OO programming?
+-		//static_cast<CvCityAI*>(pLoopCity)->AI_ClearConstructionValueCache();
+-		/*  advc.003: Declared it as a CvCity member. (Lots of these - most likely
+-			harmless - casts in CvGameTextMgr; I'm leaving those alone.) */
+-		pLoopCity->AI_ClearConstructionValueCache();
++		static_cast<CvCityAI*>(pLoopCity)->AI_ClearConstructionValueCache();
+ 	}
+ }
+ // K-Mod end
+@@ -28790,12 +28820,12 @@ bool CvPlayerAI::isDefenseFocusOnBarbarians(int areaId) const {
+ 
+ 	CvArea* ap = GC.getMapINLINE().getArea(areaId);
+ 	if(ap == NULL) return false; CvArea const& a = *ap;
+-	CvGame& g = GC.getGameINLINE();
++	CvGame const& g = GC.getGameINLINE();
+ 	return a.getAreaAIType(getTeam()) != AREAAI_DEFENSIVE &&
+ 			getNumCities() > 1 &&
+ 			!AI_isDoStrategy(AI_STRATEGY_ALERT1) && !isFocusWar() &&
+ 			!GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS) &&
+-			g.getGameTurn() >= g.getBarbarianStartTurn() &&
++			g.gameTurn() >= g.getBarbarianStartTurn() &&
+ 			g.getCurrentEra() < g.getStartEra() + 2;
+ } // </advc.300>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 71ddc8314..2b0452f80 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -126,7 +126,7 @@ public:
+ 
+ 	int AI_targetCityValue(CvCity* pCity, bool bRandomize, bool bIgnoreAttackers = false) const;
+ 	CvCity* AI_findTargetCity(CvArea* pArea) const;
+-	int cityWonderVal(CvCity* c) const; // advc.104d
++	int cityWonderVal(CvCity const& c) const; // advc.104d
+ 
+ 	bool AI_isCommercePlot(CvPlot* pPlot) const;
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index d24e3d8a1..acadb33bb 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2860,11 +2860,14 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
+ 
+ 	FAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
+ 	iModifier = GC.getTerrainInfo(getTerrainType()).getDefenseModifier();
+-	// <advc.012>
+-	if(getFeatureType() != NO_FEATURE && (eAttacker == NO_TEAM 
+-				|| getTeam() != eAttacker))
+-		iModifier += GC.getFeatureInfo(getFeatureType()).getDefenseModifier();
+-	// </advc.012>
++	FeatureTypes eFeature = getFeatureType();
++	if(eFeature != NO_FEATURE) {
++		iModifier += GC.getFeatureInfo(eFeature).getDefenseModifier();
++		// <advc.012>
++		if(eAttacker == NO_TEAM  || getTeam() != eAttacker)
++			iModifier += GC.getFeatureInfo(eFeature).getRivalDefenseModifier();
++		// </advc.012>
++	}
+ 	if (isHills())
+ 	{
+ 		iModifier += GC.getHILLS_EXTRA_DEFENSE();
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 9aaf50ed7..04adbae65 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -136,7 +136,7 @@ public:
+ 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;																					// Exposed to Python				
+ 
+ 	int defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
+-		/*  advc.012: NO_TEAM means feature defense applies; moved bHelp to the
++		/*  advc.012: NO_TEAM means rival defense applies; moved bHelp to the
+ 			end b/c that parameter is rarely set */
+ 		TeamTypes eAttacker = NO_TEAM, bool bHelp = false
+ 		) const;									// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index a9bcf08ce..ce2ad3b59 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -10,6 +10,7 @@
+ class CvArea;
+ 
+ class CvTeam
++		: private boost::noncopyable // advc.003e
+ {
+ 
+ public:
+@@ -466,7 +467,7 @@ public:
+ 	virtual bool AI_isSneakAttackPreparing(TeamTypes eIndex) const = 0;
+ 	virtual bool AI_isSneakAttackReady(TeamTypes eIndex) const = 0;
+ 	virtual void AI_setWarPlan(TeamTypes eIndex, WarPlanTypes eNewValue, bool bWar = true) = 0;
+-	// advc.003 (caveat): Adding virtual functions to this class seems to break sth.
++	// advc.003 (caveat): Mustn't add virtual functions to this class
+ 
+ protected:
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index a8f71f48a..ae1e719fc 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2249,8 +2249,8 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eTeam,
+ 			that eTeam has met (unless this team has also met them). */
+ 		float techRatio = GET_PLAYER(getLeaderID()).getTechScore() /
+ 				((float)GET_PLAYER(GET_TEAM(eTeam).getLeaderID()).getTechScore() + 1);
+-		CvGame& g = GC.getGameINLINE();
+-		float gameProgressFactor = (g.getGameTurn() - g.getStartTurn()) /
++		CvGame const& g = GC.getGameINLINE();
++		float gameProgressFactor = (g.gameTurn() - g.getStartTurn()) /
+ 				((float)g.getEstimateEndTurn() - g.getStartTurn());
+ 		gameProgressFactor = ::range(gameProgressFactor, 0.0f, 0.5f);
+ 		powerRatio = ::range(powerRatio, 1 - gameProgressFactor, 1 + gameProgressFactor);
+@@ -5374,8 +5374,7 @@ int CvTeamAI::AI_plotDefense(CvPlot const& p, bool bIgnoreBuilding) const {
+ 	if(p.getOwnerINLINE() != NO_PLAYER && GET_TEAM(getID()).isAtWar(p.getTeam()))
+ 		attacker = p.getTeam();
+ 	return p.defenseModifier(getID(), bIgnoreBuilding, attacker);
+-}
+-// </advc.012>
++} // </advc.012>
+ 
+ // <advc.130y>
+ void CvTeamAI::forgiveEnemy(TeamTypes enemyId, bool capitulated, bool freed) {
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2a754a172..f720cc2ce 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1103,10 +1103,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCity* pCity, CvPlot** ppBestPlot, BuildTypes*
+ 
+ bool CvUnitAI::AI_isCityAIType() const
+ {
+-	return ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
+-		      (AI_getUnitAIType() == UNITAI_CITY_COUNTER) ||
+-					(AI_getUnitAIType() == UNITAI_CITY_SPECIAL) ||
+-						(AI_getUnitAIType() == UNITAI_RESERVE));
++	return (AI_getUnitAIType() == UNITAI_CITY_DEFENSE ||
++		AI_getUnitAIType() == UNITAI_CITY_COUNTER ||
++		AI_getUnitAIType() == UNITAI_CITY_SPECIAL ||
++		AI_getUnitAIType() == UNITAI_RESERVE ||
++		//advc.rom (Afforess): count units on guard mission as city defenders
++		getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY);
+ }
+ 
+ 
+@@ -8762,7 +8764,11 @@ void CvUnitAI::AI_settlerSeaMove()
+ 		}
+ 	}
+ 	
+-	if( cargoSpace() - 2 < getCargo() + iWorkerCount )
++	//if( cargoSpace() - 2 < getCargo() + iWorkerCount )
++	// advc.rom: (Koshling); relevant excerpt of his comment:
++	/*	old condition here was broken for transports with a max capacity of 1 [...],
++		and (after reading the old code) I think more generally anyway. [...] */
++	if( iWorkerCount > 0 && cargoSpace() > 1 && cargoSpace() - getCargo() < 2 )
+ 	{
+ 		// If full of workers and not going anywhere, dump them if a settler is available
+ 		if( (iSettlerCount == 0) && (plot()->plotCount(PUF_isAvailableUnitAITypeGroupie, UNITAI_SETTLE, -1, getOwnerINLINE(), NO_TEAM, PUF_isFiniteRange) > 0) )
+@@ -17504,53 +17510,13 @@ bool CvUnitAI::AI_pillageRange(int iRange, int iBonusValueThreshold, int iFlags)
+ bool CvUnitAI::AI_found(int iFlags)
+ {
+ 	PROFILE_FUNC();
+-//
++//	advc.003: Most of the original code deleted
+ //	CvPlot* pLoopPlot;
+-//	CvPlot* pBestPlot;
+-//	CvPlot* pBestFoundPlot;
+-//	int iPathTurns;
+-//	int iValue;
+-//	int iBestValue;
+-//	int iI;
+-//
+-//	iBestValue = 0;
+-//	pBestPlot = NULL;
+-//	pBestFoundPlot = NULL;
+-//
++//	...
+ //	for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ //	{
+ //		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+-//
+-//		if (AI_plotValid(pLoopPlot) && (pLoopPlot != plot() || GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(pLoopPlot, 1) <= pLoopPlot->plotCount(PUF_canDefend, -1, -1, getOwnerINLINE())))
+-//		{
+-//			if (canFound(pLoopPlot))
+-//			{
+-//				iValue = pLoopPlot->getFoundValue(getOwnerINLINE());
+-//
+-//				if (iValue > 0)
+-//				{
+-//					if (!(pLoopPlot->isVisibleEnemyUnit(this)))
+-//					{
+-//						if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_FOUND, getGroup(), 3) == 0)
+-//						{
+-//							if (generatePath(pLoopPlot, MOVE_SAFE_TERRITORY, true, &iPathTurns))
+-//							{
+-//								iValue *= 1000;
+-//
+-//								iValue /= (iPathTurns + 1);
+-//
+-//								if (iValue > iBestValue)
+-//								{
+-//									iBestValue = iValue;
+-//									pBestPlot = getPathEndTurnPlot();
+-//									pBestFoundPlot = pLoopPlot;
+-//								}
+-//							}
+-//						}
+-//					}
+-//				}
+-//			}
+-//		}
++//		...
+ //	}
+ 
+ 	int iPathTurns;
+@@ -19601,7 +19567,6 @@ bool CvUnitAI::AI_improveCity(CvCity* pCity)
+ 
+ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity* pIgnoreCity)
+ {
+-	
+ 	int iX, iY;
+ 	
+ 	int iBestValue = 0;
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 038fc8540..967bd1e05 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -266,6 +266,15 @@ void InvasionGraph::Node::findAndLinkTarget() {
+ 	}
+ 	if(canHaveTarget) {
+ 		targetId = findTarget();
++// <advc.tmp>
++#ifdef D_DEBUG
++PlayerTypes verif=findTarget_oldImpl();
++if(verif != targetId) {
++	FAssert(verif==targetId);
++	findTarget_oldImpl();
++	findTarget();
++}
++#endif // </advc.tmp>
+ 		if(targetId == NO_PLAYER) {
+ 			if(warOpponents.empty())
+ 				report.log("%s has no war opponents.", report.leaderName(id));
+@@ -299,7 +308,8 @@ void InvasionGraph::Node::findAndLinkTarget() {
+ 	else primaryTarget->targetedBy.insert(id);
+ }
+ 
+-PlayerTypes InvasionGraph::Node::findTarget(TeamTypes include) const {
++// <advc.tmp> Remove once confident that the new function does the exact same thing
++PlayerTypes InvasionGraph::Node::findTarget_oldImpl(TeamTypes include) const {
+ 
+ 	/*  Find the city with the highest targetValue and check which potential
+ 		target has reachable cities left. (City::canReach says which ones are
+@@ -338,7 +348,8 @@ PlayerTypes InvasionGraph::Node::findTarget(TeamTypes include) const {
+ 		return NO_PLAYER;
+ 	// Against whom does this Node have the most missions?
+ 	PlayerTypes mostMissions = NO_PLAYER;
+-	int maxCount = -1;
++	// Tbd. possibly: Use a fraction of cache.numNonNavy as the threshold
++	int maxCount = 3;
+ 	for(set<PlayerTypes>::const_iterator it = warOpponents.begin();
+ 				it != warOpponents.end(); it++) {
+ 		PlayerTypes oppId = *it;
+@@ -350,16 +361,121 @@ PlayerTypes InvasionGraph::Node::findTarget(TeamTypes include) const {
+ 			mostMissions = oppId;
+ 		}
+ 	}
+-	//  If there are very few missions, fall back on likeliestTarget.
+-	if(maxCount < 4) { /* Tbd. possibly: Use a fraction of cache.numNonNavy as
+-					      the threshold. */
+-		report.log("Too few missions to determine target of %s",
+-				report.leaderName(id));
++	if(mostMissions == NO_PLAYER) { // Fall back on likeliestTarget
++		/*report.log("Too few missions to determine target of %s",
++				report.leaderName(id));*/
+ 		return likeliestTarget;
+ 	}
+-	report.log("Target of %s determined based on unit missions.",
+-			report.leaderName(id));
++	/*report.log("Target of %s determined based on unit missions.",
++			report.leaderName(id));*/
+ 	return mostMissions;
++} // </advc.tmp>
++
++PlayerTypes InvasionGraph::Node::findTarget(TeamTypes include) const {
++
++	PlayerTypes likeliestTarget = NO_PLAYER;
++	/*  W/e the current target is according to unit missions, assume it
++		will change once war is declared. */
++	bool bSearchedLikeliest = false;
++	if(outer.allWarPartiesKnown || include != NO_TEAM) {
++		bSearchedLikeliest = true;
++		/*  Find the city with the highest targetValue and check which potential
++			target has reachable cities left. (City::canReach says which ones are
++			reachable in the actual game state; doesn't take into account
++			Node::hasLost.) */
++		for(int i = 0; i < cache.size(); i++) {
++			WarAndPeaceCache::City* city = cache.getCity(i);
++			if(city == NULL)
++				continue;
++			if(!city->canReach() || city->isOwnCity())
++				break; // Because of sorting, rest is also going to be invalid.
++			if(!isValidTarget(*city, include))
++				continue;
++			// First hit is best target b/c cache is sorted
++			if(likeliestTarget == NO_PLAYER) {
++				PlayerTypes owner = city->cityOwner();
++				if(!TEAMREF(id).isAtWar(TEAMID(owner)))
++					return owner;
++				/*  Otherwise, check unit missions, but may still fall back
++					on likeliestTarget. */
++				likeliestTarget = owner;
++				break;
++			}
++		}
++		if(likeliestTarget == NO_PLAYER)
++			return NO_PLAYER;
++	}
++	// Against whom does this Node have the most missions?
++	PlayerTypes mostMissions = NO_PLAYER;
++	// Tbd. possibly: Use a fraction of cache.numNonNavy as the threshold
++	int maxCount = 3;
++	for(set<PlayerTypes>::const_iterator it = warOpponents.begin();
++				it != warOpponents.end(); it++) {
++		PlayerTypes oppId = *it;
++		int n = cache.targetMissionCount(oppId);
++		if(n <= maxCount)
++			continue;
++		// Same conditions as in isValidTarget
++		if(outer.nodeMap[oppId] == NULL ||
++				outer.nodeMap[oppId]->isEliminated() ||
++				outer.nodeMap[oppId]->hasCapitulated())
++			continue;
++		// Still need to ensure that oppId has a valid city
++		bool bValidFound = false;
++		/*  In large games, looking up oppId's cities is faster than a pass through
++			our whole cache. */
++		int foo=-1;
++		for(CvCity* cvCity = GET_PLAYER(oppId).firstCity(&foo); cvCity != NULL;
++				cvCity = GET_PLAYER(oppId).nextCity(&foo)) {
++			WarAndPeaceCache::City* c = cache.lookupCity(*cvCity);
++			if(c != NULL && c->canReach() && !outer.nodeMap[oppId]->
++					hasLost(c->id())) {
++				bValidFound = true;
++				break;
++			}
++		}
++		if(!bValidFound)
++			continue;
++		maxCount = n;
++		mostMissions = oppId;
++	}
++	if(mostMissions != NO_PLAYER) {
++		report.log("Target of %s determined based on unit missions.",
++				report.leaderName(id));
++		return mostMissions;
++	}
++	report.log("Too few missions to determine target of %s",
++			report.leaderName(id));
++	// Fall back on likeliestTarget.
++	if(likeliestTarget != NO_PLAYER)
++		return likeliestTarget;
++	if(bSearchedLikeliest)
++		return NO_PLAYER;
++	// Haven't looked for the likeliest target yet (b/c that's expensive); do so now.
++	for(int i = 0; i < cache.size(); i++) {
++		WarAndPeaceCache::City* city = cache.getCity(i);
++		if(city == NULL)
++			continue;
++		if(!city->canReach() || city->isOwnCity())
++			break;
++		if(isValidTarget(*city, include))
++			return city->cityOwner();
++	}
++	return NO_PLAYER;
++}
++
++bool InvasionGraph::Node::isValidTarget(WarAndPeaceCache::City const& c,
++		TeamTypes include) const {
++
++	PlayerTypes const owner = c.cityOwner();
++	return !(owner == NO_PLAYER || (!isWarOpponent[owner] &&
++			(include == NO_TEAM || GET_PLAYER(owner).getMasterTeam() !=
++			GET_TEAM(include).getMasterTeam())) ||
++			outer.nodeMap[owner] == NULL ||
++			outer.nodeMap[owner]->hasLost(c.id()) ||
++			// Important for phase II:
++			outer.nodeMap[owner]->isEliminated() ||
++			outer.nodeMap[owner]->hasCapitulated());
+ }
+ 
+ WarAndPeaceReport& InvasionGraph::getReport() {
+@@ -488,7 +604,17 @@ void InvasionGraph::Node::predictArmament(int duration, bool noUpgrading) {
+ 		if(!outer.isPeaceScenario && !outer.allWarPartiesKnown &&
+ 				!TEAMREF(weId).isAtWar(targetId)) {
+ 			report.setMute(true);
+-			tC = targetCity(findTarget(targetId));
++			PlayerTypes actualTarget = findTarget(targetId);
++// <advc.tmp>
++#ifdef D_DEBUG
++PlayerTypes verif=findTarget_oldImpl(targetId);
++if(verif != actualTarget) {
++	FAssert(verif==actualTarget);
++	findTarget_oldImpl(targetId);
++	findTarget(targetId);
++}
++#endif // </advc.tmp>
++			tC = targetCity(actualTarget);
+ 			report.setMute(false);
+ 		}
+ 	}
+@@ -1546,14 +1672,15 @@ WarAndPeaceCache::City const* InvasionGraph::Node::targetCity(
+ 		WarAndPeaceCache::City* r = cache.getCity(i);
+ 		if(r == NULL)
+ 			continue;
++		if(!r->canReach() || r->isOwnCity())
++			break; // Because of sorting, rest is also going to be invalid.
+ 		PlayerTypes const cityOwner = r->cityOwner();
+ 		if((cityOwner == owner ||
+ 				(owner == NO_PLAYER && cityOwner == primaryTarget->getId())) &&
+ 				/* Target may also have conquered the city; however,
+ 				   cities being won and lost within one military analysis
+ 				   gets too complicated. */
+-				(primaryTarget == NULL || !primaryTarget->hasLost(r->id())) &&
+-				r->canReach())
++				(primaryTarget == NULL || !primaryTarget->hasLost(r->id())))
+ 			return r;
+ 	}
+ 	return NULL;
+
+diff --git a/CvGameCoreDLL/InvasionGraph.h b/CvGameCoreDLL/InvasionGraph.h
+index 68fd40eb0..abd7f0225 100644
+--- a/CvGameCoreDLL/InvasionGraph.h
++++ b/CvGameCoreDLL/InvasionGraph.h
+@@ -119,6 +119,10 @@ friend class Node;
+ 		/* param: In addition to warOpponents. Also includes the vassals
+ 		  of that team. */
+ 		PlayerTypes findTarget(TeamTypes include = NO_TEAM) const;
++// advc.tmp: Remove once confident that the new function does the exact same thing
++PlayerTypes findTarget_oldImpl(TeamTypes include = NO_TEAM) const;
++		bool isValidTarget(WarAndPeaceCache::City const& c,
++				TeamTypes include = NO_TEAM) const;
+ 		static std::vector<UnitAITypes> garrisonTypes();
+ 
+ 		InvasionGraph& outer;
+
+diff --git a/CvGameCoreDLL/RFChapter.cpp b/CvGameCoreDLL/RFChapter.cpp
+index cac23a70f..82578bd1f 100644
+--- a/CvGameCoreDLL/RFChapter.cpp
++++ b/CvGameCoreDLL/RFChapter.cpp
+@@ -102,11 +102,11 @@ void RFChapter::setCiv(PlayerTypes playerId) {
+ 
+ void RFChapter::start() {
+ 
+-	CvGame& g = GC.getGame();
+-	FAssert(startTurn == g.getGameTurn());
++	CvGame const& g = GC.getGame();
++	FAssert(startTurn == g.gameTurn());
+ 	/*  This shouldn't do anything currently. (I.e. chapters start exactly as
+ 		planned, but could change in a future version.) */
+-	startTurn = g.getGameTurn();
++	startTurn = g.gameTurn();
+ 	breakdown.atChapterStart(*this);
+ }
+
+diff --git a/CvGameCoreDLL/RFChapterScore.cpp b/CvGameCoreDLL/RFChapterScore.cpp
+index e6bffd330..c5cd4c908 100644
+--- a/CvGameCoreDLL/RFChapterScore.cpp
++++ b/CvGameCoreDLL/RFChapterScore.cpp
+@@ -92,7 +92,7 @@ std::pair<int,int> RFChapterScore::computeRank(bool storeCivScores,
+ 	}
+ 	double ourRank = 1;
+ 	int ourRivals = 0;
+-	CvGame& g = GC.getGame();
++	CvGame const& g = GC.getGame();
+ 	CvPlayerAI const& we = GET_PLAYER(chapter->getCiv());
+ 	bool weVassal = GET_TEAM(we.getTeam()).isAVassal();
+ 	int ourVictStage = g.getRiseFall().victoryStage(we.getID());
+@@ -129,7 +129,7 @@ std::pair<int,int> RFChapterScore::computeRank(bool storeCivScores,
+ 	}
+ 	/*  Assume that the player starts in the middle, even if the AI starts with
+ 		more free tech. */
+-	if(g.getGameTurn() <= g.getStartTurn() && we.isAlive())
++	if(g.gameTurn() <= g.getStartTurn() && we.isAlive())
+ 		ourRank = 1 + ourRivals / 2.0;
+ 	ourRank += 0.01; // Just to be explicit about rounding up
+ 	return std::make_pair<int,int>(::round(ourRank), ourRivals);
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index a2f86b1d1..d55f02399 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -252,7 +252,7 @@ void RiseFall::retire() {
+ 		return;
+ 	CvGame& g = GC.getGame();
+ 	if(chapters[pos]->getRetireTurn() < 0) // Don't store multiple timestamps
+-		chapters[pos]->setRetireTurn(g.getGameTurn());
++		chapters[pos]->setRetireTurn(g.gameTurn());
+ 	g.setAIAutoPlay(t);
+ 	/*  Don't do this. CvPlayer not yet loaded. No need either - plans already
+ 		abandoned at start of retirement. */
+@@ -307,7 +307,7 @@ void RiseFall::atTurnEnd(PlayerTypes civId) {
+ 	CvGame& g = GC.getGame();
+ 	if(g.getGameState() == GAMESTATE_EXTENDED)
+ 		return;
+-	int gameTurn = g.getGameTurn();
++	int gameTurn = g.gameTurn();
+ 	/*  Conduct scoring exactly as scheduled at the end of a turn of the
+ 		civ being scored; show the score popup at the start of the next
+ 		active player turn. */
+@@ -355,7 +355,7 @@ void RiseFall::atTurnEnd(PlayerTypes civId) {
+ 
+ void RiseFall::atGameTurnStart() {
+ 
+-	CvGame& g = GC.getGame();
++	CvGame const& g = GC.getGame();
+ 	int currentChPos = getCurrentChapter();
+ 	if(currentChPos < 0 || interludeCountdown > 0) {
+ 		interludeCountdown--;
+@@ -364,7 +364,7 @@ void RiseFall::atGameTurnStart() {
+ 		//centerCamera(g.getActivePlayer());
+ 		return;
+ 	}
+-	int gameTurn = g.getGameTurn();
++	int gameTurn = g.gameTurn();
+ 	RFChapter& currentCh = *chapters[currentChPos];
+ 	if(currentCh.getStartTurn() >= gameTurn) {
+ 		FAssert(currentCh.getStartTurn() == gameTurn);
+@@ -378,8 +378,8 @@ void RiseFall::atActiveTurnStart() {
+ 	int pos = getCurrentChapter();
+ 	if(pos < 0)
+ 		return; // Happens on turn 0 b/c not yet initialized
+-	CvGame& g = GC.getGame();
+-	int gameTurn = g.getGameTurn();
++	CvGame const& g = GC.getGame();
++	int gameTurn = g.gameTurn();
+ 	PlayerTypes activeId = g.getActivePlayer();
+ 	if(activeId == NO_PLAYER)
+ 		return;
+@@ -946,9 +946,9 @@ void RiseFall::handleDefeatPopup(int buttonClicked) {
+ 		FAssert(false);
+ 		pos = -1;
+ 	}
+-	CvGame& g = GC.getGame();
++	CvGame const& g = GC.getGame();
+ 	// -1: Current turn already passed
+-	interludeCountdown = chapters[pos + 1]->getStartTurn() - g.getGameTurn() - 1;
++	interludeCountdown = chapters[pos + 1]->getStartTurn() - g.gameTurn() - 1;
+ 	FAssert(interludeCountdown >= 0);
+ 	CvPlayer& h = GET_PLAYER(g.getActivePlayer());
+ 	h.setIsHuman(false);
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index e6cd72489..b0ed41232 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -1902,6 +1902,7 @@ DenialTypes WarAndPeaceAI::Team::acceptVassal(TeamTypes vassalId) const {
+ 
+ bool WarAndPeaceAI::Team::isLandTarget(TeamTypes theyId) const {
+ 
++	PROFILE_FUNC();
+ 	bool hasCoastalCity = false;
+ 	bool canReachAnyByLand = false;
+ 	int distLimit = getWPAI.maxLandDist();
+@@ -2592,12 +2593,12 @@ double WarAndPeaceAI::Civ::humanBuildUnitProb() const {
+ 	future. Could e.g. check if 'weId' is able to see the demographics of 'civId'. */
+ double WarAndPeaceAI::Civ::estimateBuildUpRate(PlayerTypes civId, int period) const {
+ 
+-	CvGame& g = GC.getGameINLINE();
++	CvGame const& g = GC.getGameINLINE();
+ 	period *= GC.getGameSpeedInfo(g.getGameSpeedType()).getTrainPercent();
+ 	period /= 100;
+ 	if(g.getElapsedGameTurns() < period + 1)
+ 		return 0;
+-	int turnNumber = g.getGameTurn();
++	int turnNumber = g.gameTurn();
+ 	CvPlayerAI& civ = GET_PLAYER(civId);
+ 	int pastPow = std::max(1, civ.getPowerHistory(turnNumber - 1 - period));
+ 	double delta = civ.getPowerHistory(turnNumber - 1) - pastPow;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.h b/CvGameCoreDLL/WarAndPeaceAI.h
+index 40259fb4c..7a80f9280 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.h
++++ b/CvGameCoreDLL/WarAndPeaceAI.h
+@@ -19,7 +19,8 @@
+ 
+ #define getWPAI GC.getGame().warAndPeaceAI()
+ 
+-class WarAndPeaceAI {
++class WarAndPeaceAI 
++		: private boost::noncopyable { // advc.003e
+ 
+ public:
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index e3849e1e9..df98fccf9 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -270,13 +270,18 @@ void WarAndPeaceCache::updateTotalAssetScore() {
+ 
+ 	// For Palace; it's counted as a national wonder below, but it's worth another 5.
+ 	totalAssets = 5;
+-	for(int i = 0; i < size(); i++) {
++	for(int i = size() - 1; i >= 0; i--) {
+ 		City const& c = *getCity(i);
++		if(!c.isOwnCity())
++			break; // Sorted so that owner's cities are at the end
+ 		CvCity* cp = c.city();
+ 		if(cp != NULL && cp->getOwnerINLINE() == ownerId)
+ 			/*  National wonders aren't included in the per-city asset score b/c
+ 				they shouldn't count for rival cities. */
+ 			totalAssets += c.getAssetScore() + cp->getNumNationalWonders() * 4;
++		/*  Cached cities have just been updated, so ownership info can't be
++			out of date. */
++		else FAssert(false);
+ 	}
+ }
+ 
+@@ -673,14 +678,6 @@ int WarAndPeaceCache::numReachableCities(PlayerTypes civId) const {
+ 	return nReachableCities[civId];
+ }
+ 
+-WarAndPeaceCache::City* WarAndPeaceCache::getCity(int index) const {
+-
+-	// Verify that the city still exists
+-	if(v[index] == NULL || v[index]->city() == NULL)
+-		return NULL;
+-	return v[index];
+-}
+-
+ WarAndPeaceCache::City* WarAndPeaceCache::lookupCity(int plotIndex) const {
+ 
+ 	std::map<int,City*>::const_iterator pos = cityMap.find(plotIndex);
+@@ -697,26 +694,31 @@ WarAndPeaceCache::City* WarAndPeaceCache::lookupCity(CvCity const& cvCity) const
+ 
+ void WarAndPeaceCache::sortCitiesByOwnerAndDistance() {
+ 
++	FAssertMsg(false, "function no longer used");
+ 	sort(v.begin(), v.end(), City::byOwnerAndDistance);
+ }
+ 
+ void WarAndPeaceCache::sortCitiesByOwnerAndTargetValue() {
+ 
++	FAssertMsg(false, "function no longer used");
+ 	sort(v.begin(), v.end(), City::byOwnerAndTargetValue);
+ }
+ 
+ void WarAndPeaceCache::sortCitiesByDistance() {
+ 
++	FAssertMsg(false, "function no longer used");
+ 	sort(v.begin(), v.end(), City::byDistance);
+ }
+ 
+ void WarAndPeaceCache::sortCitiesByTargetValue() {
+ 
++	FAssertMsg(false, "function no longer used");
+ 	sort(v.begin(), v.end(), City::byTargetValue);
+ }
+ 
+ void WarAndPeaceCache::sortCitiesByAttackPriority() {
+ 
++	PROFILE_FUNC();
+ 	//sort(v.begin(), v.end(), City::byAttackPriority);
+ 	/*  Selection sort b/c I want to factor in city areas. An invading army tends
+ 		to stay in one area until all cities there are conquered. */
+@@ -724,8 +726,6 @@ void WarAndPeaceCache::sortCitiesByAttackPriority() {
+ 		CvCity* cvc = NULL;
+ 		if(i > 0)
+ 			cvc = v[i - 1]->city();
+-		/*  I don't think it's guaranteed here that the city still exists on the
+-			map. */
+ 		CvArea* a = (cvc == NULL ? NULL : cvc->area());
+ 		double maxPriority = (v[i]->city() == NULL ? -1 : v[i]->attackPriority());
+ 		int maxIndex = i;
+@@ -1309,7 +1309,6 @@ int WarAndPeaceCache::City::getAssetScore() const {
+ 
+ bool WarAndPeaceCache::City::canReach() const {
+ 
+-	PROFILE_FUNC();
+ 	CvCity* const cp = city();
+ 	if(cp == NULL ||
+ 			// A bit slow:
+@@ -1472,6 +1471,8 @@ double WarAndPeaceCache::City::attackPriority() const {
+ 
+ 	if(distance < 0)
+ 		return -1;
++	if(isOwnCity())
++		return -2; // updateTotalAssetScore relies on own cities having minimal priority
+ 	/*  targetValue is something like 10 to 100, distance 1 to 20 perhaps.
+ 		Add 1000 b/c negative values should be reserved for error conditions. */
+ 	return std::max(0.0, 1000 + getTargetValue() -
+@@ -1496,6 +1497,12 @@ PlayerTypes WarAndPeaceCache::City::cityOwner() const {
+ 	return city()->getOwner();
+ }
+ 
++bool WarAndPeaceCache::City::isOwnCity() const {
++
++	// Check distance==0 first b/c that's faster
++	return (distance == 0 && cityOwner() == cacheOwnerId);
++}
++
+ void WarAndPeaceCache::City::updateDistance(CvCity* targetCity) {
+ 
+ 	PROFILE_FUNC();
+@@ -1739,7 +1746,9 @@ void WarAndPeaceCache::City::fatCross(vector<CvPlot*>& r) {
+ void WarAndPeaceCache::City::updateAssetScore() {
+ 
+ 	PROFILE_FUNC();
+-	if(city() == NULL) return;
++	if(city() == NULL)
++		return;
++	CvCity const& c = *city();
+ 	/*  Scale: cityWonderVal relies on K-Mod functions that supposedly express
+ 		utility as gold per turn. That said, active wonders are only valued as
+ 		4 gpt, which seems too low (even for wonders we can't pick and that could
+@@ -1749,9 +1758,8 @@ void WarAndPeaceCache::City::updateAssetScore() {
+ 		maintenance.*/
+ 	CvPlayerAI& cacheOwner = GET_PLAYER(cacheOwnerId);
+ 	CvTeam& t = TEAMREF(cacheOwnerId);
+-	double r = cacheOwner.cityWonderVal(city());
++	double r = cacheOwner.cityWonderVal(c);
+ 	r += 1.4 * cacheOwner.getTradeRoutes();
+-	CvCity const& c = *city();
+ 	PlayerTypes cityOwnerId = c.getOwnerINLINE();
+ 	/*  If we already own the city, then the score says how much we don't want
+ 		to lose it. Lost buildings hurt. Since most buildings don't survive
+@@ -1779,7 +1787,7 @@ void WarAndPeaceCache::City::updateAssetScore() {
+ 		if(pp == NULL)
+ 			continue;
+ 		CvPlot const& p = *pp;
+-		// If no working city, we should be able to get the tile by popping borders
++		// If no working city, we should be able to get the tile by popping borders.
+ 		if(p.getWorkingCity() != city() && p.getWorkingCity() != NULL && i != 0)
+ 			continue;
+ 		// Fall back on city tile for cultureModifier if p unrevealed
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.h b/CvGameCoreDLL/WarAndPeaceCache.h
+index 5f9ed5aa9..16588eac6 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.h
++++ b/CvGameCoreDLL/WarAndPeaceCache.h
+@@ -55,7 +55,12 @@ public:
+ 	void sortCitiesByTargetValue();
+ 		public:
+ 	void sortCitiesByAttackPriority();
+-	City* getCity(int index) const;
++	inline City* getCity(int index) const {
++		// Verify that the city still exists
++		if(v[index] == NULL || v[index]->city() == NULL)
++			return NULL;
++		return v[index];
++	};
+ 	// Use CvCity::plotNum for the plotIndex of a given CvCity
+ 	City* lookupCity(int plotIndex) const;
+ 	City* lookupCity(CvCity const& cvCity) const;
+@@ -195,6 +200,7 @@ public:
+ 		City(PlayerTypes cacheOwnerId, CvCity* c);
+ 		City(PlayerTypes cacheOwnerId); // for reading from savegame
+ 		PlayerTypes cityOwner() const;
++		bool isOwnCity() const;
+ 		int getAssetScore() const;
+ 		bool canReach() const;
+ 		/*  -1 if unreachable
+@@ -225,16 +231,17 @@ public:
+ 	    static bool measureDistance(PlayerTypes civId, DomainTypes dom,
+ 				CvPlot* start, CvPlot* dest, int* r);
+ 		static double estimateMovementSpeed(PlayerTypes civId, DomainTypes dom, int dist);
+-		/* For sorting cities. The ordering of owners is arbitrary, just
+-		   ensures that each civ's cities are ordered consecutively.
+-		   For cities of the same owner: true if 'one' is closer to us than 'two'
+-		   in terms of getDistance. */
+-		static bool byOwnerAndDistance(City* one, City* two);
+-		static bool byDistance(City* one, City* two);
+-	   // Unreachable cities are treated as having targetValue minus infinity.
+-		static bool byOwnerAndTargetValue(City* one, City* two);
+-		static bool byTargetValue(City* one, City* two);
+-		static bool byAttackPriority(City* one, City* two);
++		/* For sorting cities. None of these are currently used, and I'm not
++			sure if they handle -1 distance/attackPriority/targetValue correctly. */
++		 /*	The ordering of owners is arbitrary, just ensures that each civ's cities
++			are ordered consecutively. For cities of the same owner: true if 'one'
++			is closer to us than 'two' in terms of getDistance. */
++		 static bool byOwnerAndDistance(City* one, City* two);
++		 static bool byDistance(City* one, City* two);
++	    // Unreachable cities are treated as having targetValue -1
++		 static bool byOwnerAndTargetValue(City* one, City* two);
++		 static bool byTargetValue(City* one, City* two);
++		 static bool byAttackPriority(City* one, City* two);
+ 
+ 	private:
+ 		/* Auxiliary function for sorting. -1 means one < two, +1 two < one and 0
+@@ -243,10 +250,11 @@ public:
+ 		void updateDistance(CvCity* targetCity);
+ 		void updateAssetScore();
+ 
+-		int plotIndex, assetScore, distance, targetValue;
++		int distance, targetValue, assetScore;
+ 		bool reachByLand;
+ 		bool reachBySea;
+ 		bool canDeduce;
++		int plotIndex;
+ 		PlayerTypes cacheOwnerId;
+ 	};
+ };
+
+diff --git a/CvGameCoreDLL/WarAndPeaceReport.cpp b/CvGameCoreDLL/WarAndPeaceReport.cpp
+index 46ff0c4a3..29fa85c23 100644
+--- a/CvGameCoreDLL/WarAndPeaceReport.cpp
++++ b/CvGameCoreDLL/WarAndPeaceReport.cpp
+@@ -42,11 +42,11 @@ void WarAndPeaceReport::writeToFile() {
+ 
+ 	if(muted > 0)
+ 		return;
+-	CvGame& g = GC.getGameINLINE();
++	CvGame const& g = GC.getGameINLINE();
+ 	ostringstream logFileName;
+ 	//if(g.isNetworkMultiPlayer()) // For OOS debugging on a single PC
+ 		//logFileName << (int)g.getActivePlayer() << "_";
+-	logFileName << "uwai" << g.getGameTurn() << ".log";
++	logFileName << "uwai" << g.gameTurn() << ".log";
+ 	gDLL->logMsg(logFileName.str().c_str(), report, false, false);
+ 	report.clear();
+ }
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 4f1f2642a..4ef3df933 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -146,13 +146,19 @@ int WarUtilityAspect::utility() const {
+ double WarUtilityAspect::lostAssetScore(PlayerTypes to, double* returnTotal,
+ 		TeamTypes ignoreGains) {
+ 
++	PROFILE_FUNC();
+ 	double r = 0;
+ 	double total = 0;
+-	for(int i = 0; i < theyAI->getCache().size(); i++) {
+-		City* cp = theyAI->getCache().getCity(i);
+-		if(cp == NULL) continue; City const& c = *cp;
+-		if(!agent.AI_deduceCitySite(c.city()))
++	/*for(int i = 0; i < theyAI->getCache().size(); i++) {
++		City* cp = theyAI->getCache().getCity(i);*/
++	/*  In large games, looking up their cities is faster than a pass through their
++		whole cache. */
++	int foo=-1;
++	for(CvCity* cvCity = they->firstCity(&foo); cvCity != NULL; cvCity = they->nextCity(&foo)) {
++		if(!agent.AI_deduceCitySite(cvCity))
+ 			continue;
++		City* cp = theyAI->getCache().lookupCity(*cvCity);
++		if(cp == NULL) continue; City const& c = *cp;
+ 		/*  Their cached value accounts for GP, but we're not supposed to see those.
+ 			(Their cache contains some other info we shouldn't see, but nothing
+ 			crucial.) */
+@@ -166,7 +172,7 @@ double WarUtilityAspect::lostAssetScore(PlayerTypes to, double* returnTotal,
+ 		}
+ 		else if(m->conqueredCities(theyId).count(c.id()) > 0 &&
+ 				(to == NO_PLAYER || m->lostCities(to).count(c.id()) > 0) &&
+-				c.city()->getTeam() != ignoreGains) {
++				cvCity->getTeam() != ignoreGains) {
+ 			/*  Their cache doesn't account for GP settled in cities of a third
+ 				party (unless espionage visibility), so we don't subtract
+ 				NumGreatPeople.
+@@ -178,7 +184,7 @@ double WarUtilityAspect::lostAssetScore(PlayerTypes to, double* returnTotal,
+ 				(oldOwner, newOwner) seems excessive. */
+ 			r -= c.getAssetScore();
+ 		}
+-		else if(c.city()->isCapital())
++		else if(cvCity->isCapital())
+ 			sc += 8;
+ 		// National wonders other than Palace are invisible to us
+ 		total += sc;
+@@ -196,11 +202,12 @@ double WarUtilityAspect::lostAssetScore(PlayerTypes to, double* returnTotal,
+ 
+ double WarUtilityAspect::lossesFromBlockade(PlayerTypes victimId, PlayerTypes to) {
+ 
++	PROFILE_FUNC();
+ 	// Blockades can be painful for maritime empires
+ 	CvPlayerAI const& victim = GET_PLAYER(victimId);
+ 	double enemyNavy = 0;
+ 	for(size_t i = 0; i < properCivs.size(); i++) {
+-		PlayerTypes enemyId =  properCivs[i];
++		PlayerTypes enemyId = properCivs[i];
+ 		if(!m->isWar(victimId, enemyId) || (to != NO_PLAYER && to != enemyId))
+ 			continue;
+ 		MilitaryBranch const* fleet = victim.warAndPeaceAI().getCache().
+@@ -563,6 +570,7 @@ int GreedForAssets::xmlId() const { return 0; }
+ 
+ void GreedForAssets::evaluate() {
+ 
++	PROFILE_FUNC();
+ 	double conqScore = conqAssetScore(false);
+ 	if(conqScore < 0.01)
+ 		return;
+@@ -781,6 +789,7 @@ double GreedForAssets::teamSizeMultiplier() {
+ 
+ void GreedForAssets::initCitiesPerArea() {
+ 
++	PROFILE_FUNC();
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 		citiesPerArea[i] = new map<int,int>();
+ 	for(int i = 0; i < ourCache->size(); i++) {
+@@ -964,6 +973,7 @@ Loathing::Loathing(WarEvalParameters& params)
+ 
+ void Loathing::evaluate() {
+ 
++	PROFILE_FUNC();
+ 	/*  Only count this if at war with them? No, that could lead to us joining 
+ 		a war despite not contributing anything to their losses.
+ 		Can't tell who causes their losses. */
+@@ -998,8 +1008,9 @@ void Loathing::evaluate() {
+ 	log("Divisor from number of rivals (%d): %d",
+ 			nNonVassalCivs, rivalDivisor);
+ 	// Utility proportional to veng and lr would be too extreme
+-	double fromLosses = 5 * std::sqrt(veng * abs(lr));
+-	if(lr < 0) fromLosses *= -1;
++	double fromLosses = 4 * std::sqrt(veng * abs(lr));
++	if(lr < 0)
++		fromLosses *= -1;
+ 	// We like to bring in war allies against our nemesis
+ 	int nJointDoW = 0;
+ 	for(size_t i = 0; i < properCivs.size(); i++) {
+@@ -1088,6 +1099,7 @@ MilitaryVictory::MilitaryVictory(WarEvalParameters& params)
+ 
+ void MilitaryVictory::evaluate() {
+ 
++	PROFILE_FUNC();
+ 	// Vassals shouldn't strive for victory; not until breaking free.
+ 	if(agent.isAVassal())
+ 		return;
+@@ -1390,17 +1402,14 @@ double MilitaryVictory::progressRatingDiplomacy() {
+ 		popGained += pop;
+ 	}
+ 	if(m->getCapitulationsAccepted(agentId).count(TEAMID(theyId)) > 0) {
+-		double newVassalVotes = 0;
+-		for(int i = 0; i < ourCache->size(); i++) {
+-			City* cp = ourCache->getCity(i); if(cp == NULL) continue;
+-			if(m->lostCities(theyId).count(cp->id()) > 0)
+-				continue;
+-			CvCity const& c = *cp->city();
+-			if(c.getOwnerINLINE() != theyId &&
+-					m->conqueredCities(theyId).count(cp->id()) <= 0)
++		double newVassalVotes = 0; int foo=-1;
++		// Faster than a full pass through ourCache
++		for(CvCity* cvCity = they->firstCity(&foo); cvCity != NULL; cvCity = they->nextCity(&foo)) {
++			City* c = ourCache->lookupCity(*cvCity);
++			if(c == NULL || m->lostCities(theyId).count(c->id()) > 0)
+ 				continue;
+-			double pop = c.getPopulation();
+-			if(!isUN && !c.isHasReligion(apRel))
++			double pop = cvCity->getPopulation();
++			if(!isUN && !cvCity->isHasReligion(apRel))
+ 				pop *= 0.5;
+ 			newVassalVotes += pop;
+ 		}
+@@ -1459,6 +1468,7 @@ Assistance::Assistance(WarEvalParameters& params)
+ 
+ void Assistance::evaluate() {
+ 
++	PROFILE_FUNC();
+ 	/*  Could use CvPlayerAI::AI_stopTradingTradeVal, but that also accounts for
+ 		angering the civ we stop trading with, and it's a bit too crude.
+ 		I'm adopting a bit of code in partnerUtilFromTrade. */
+@@ -1619,6 +1629,7 @@ Fidelity::Fidelity(WarEvalParameters& params)
+ 
+ void Fidelity::evaluate() {
+ 
++	PROFILE_FUNC();
+ 	/*  Don't care about our success here at all. If we declared war, we've proved
+ 		that we don't tolerate attacks on our (declared) friends. */
+ 	if(m->getWarsDeclaredBy(weId).count(theyId) <= 0)
+@@ -1776,6 +1787,7 @@ BorderDisputes::BorderDisputes(WarEvalParameters& params)
+ 
+ void BorderDisputes::evaluate() {
+ 
++	PROFILE_FUNC();
+ 	int diplo = -1 * we->AI_getCloseBordersAttitude(theyId);
+ 	if(diplo <= 0)
+ 		return;
+@@ -2014,6 +2026,7 @@ KingMaking::KingMaking(WarEvalParameters& params)
+ 
+ int KingMaking::preEvaluate() {
+ 
++	PROFILE_FUNC();
+ 	if(gameEra <= GC.getGameINLINE().getStartEra())
+ 		return 0;
+ 	/*  Three classes of civs; all in the best non-empty category are likely
+@@ -2178,6 +2191,7 @@ void KingMaking::evaluate() {
+ 
+ double KingMaking::theirRelativeLoss() {
+ 
++	PROFILE_FUNC();
+ 	if(!m->isPartOfAnalysis(theyId)) // To save time
+ 		return 0;
+ 	bool humanTarget = false;
+@@ -2452,6 +2466,7 @@ int Risk::preEvaluate() {
+ 
+ void Risk::evaluate() {
+ 
++	PROFILE_FUNC();
+ 	double lostAssets = 0;
+ 	for(iSetIt it = m->lostCities(weId).begin(); it != m->lostCities(weId).end(); it++) {
+ 		/*  It doesn't matter here whom the city is lost to, but looking at
+@@ -2519,6 +2534,7 @@ int IllWill::preEvaluate() {
+ 
+ void IllWill::evaluate() {
+ 
++	PROFILE_FUNC();
+ 	uMinus = 0; // Have the subroutines use this instead of u to avoid rounding
+ 	// We can't trade with our war enemies
+ 	evalLostPartner();
+@@ -3347,9 +3363,8 @@ void TacticalSituation::evaluate() {
+ 
+ void TacticalSituation::evalEngagement() {
+ 
+-	/*  Probably the most computationally expensive part of war evaluation.
+-		Still pretty sure that's it's not a performance bottleneck by any means.
+-		Can't move this to WarAndPeaceCache (to compute it only once at the start
++	PROFILE_FUNC();
++	/*  Can't move this to WarAndPeaceCache (to compute it only once at the start
+ 		of a turn) b/c it needs to be up-to-date during the turns of other civs,
+ 		in particular the humans that could propose peace at any point of their
+ 		turns.
+
+[PATCH OMITTED] file=a/manual_0.93b.odt b/manual_0.93b.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=66 embeddedFiles=65 omittedFiles=1 embeddedPatchBytes=134696

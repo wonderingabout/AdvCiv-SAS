@@ -1,0 +1,515 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6092
+# Commit: c30e4e1ef0d37675aba12d668ca8b514e079ce26
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 63eef1e11158ca8a0b69d415f927fab70c5a7bb9
+# Title: (Improved) Under-strength AI military production could still react too weakly for low-BuildUnitProb personalities because the relative-power catch-up was onl...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+29	4	CvGameCoreDLL/CvCityAI.cpp
+29	0	CvGameCoreDLL/CvUnit.cpp
+132	2	CvGameCoreDLL/SASGameRecordLog.cpp
+5	0	CvGameCoreDLL/SASGameRecordLog.h
+1	1	README.md
+16	1	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 92cdb023e..3b657d43c 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -43,7 +43,7 @@ In particular but not only, these are usually helpful:
+ - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log"
+ - "C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini"
+ - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log" or timestamped (e.g., `BBAI_20260608T065231Z.log`) (after enabling BBAI logging with AdvCiv-SAS XML defines). BBAI logs can be very long; for broad raw-log diagnosis, let the user feed the log to an external LLM/AI such as ChatGPT for agentic-token-free analysis first (also good to give us a different point of view/review if needed), then verify the resulting hypothesis locally while still using the log as evidence.
+-- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\SASGameRecord.log" or timestamped (e.g., `SASGameRecord_20260710T064839Z_load1.log`) (after enabling the AdvCiv-SAS game-record XML defines). This is separate from BBAI logging: use it for compact autoplay / AI-benchmark context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, unit composition, and high-level game state; use BBAI for detailed AI-decision diagnostics. It can also be useful alongside BBAI logs to give an LLM the broader "what happened" context before drilling into decision traces. It is an all-player diagnostic record and can contain spoilers; do not treat it as a spoiler-free player-advice log.
++- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\SASGameRecord.log" or timestamped (e.g., `SASGameRecord_20260710T064839Z_load1.log`) (after enabling the AdvCiv-SAS game-record XML defines). This is separate from BBAI logging: use it for compact autoplay / AI-benchmark context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, unit composition, city-defense/bombard history, tactical air use, and high-level game state; use BBAI for detailed AI-decision diagnostics. It can also be useful alongside BBAI logs to give an LLM the broader "what happened" context before drilling into decision traces. It is an all-player diagnostic record and can contain spoilers; do not treat it as a spoiler-free player-advice log.
+ 
+ The root Program Files Civ4 folder is here:
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 762cbaa3f..63c07569b 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -2179,6 +2179,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_MAX_BOOST_PERCENT</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Additional absolute BuildUnitProb response to the same capped power-per-city deficit when current unit spending is still within the normal max + 15 allowance used by military-production gates. This complements the multiplicative catch-up for peaceful personalities whose low base BuildUnitProb would otherwise react weakly: 50 means a 30% capped deficit can add +15 BuildUnitProb points. Spending is only an affordability brake, not a target to fill, and 0 disables this extra absolute response. See KI#197.8. (GPT-5.6 Thinking) -->
++	<Define>
++		<DefineName>SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_AFFORDABLE_ABSOLUTE_WEIGHT_PERCENT</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
+ 	<!-- custom: How strongly normal AI build-unit probability reduces the early "short-circuit 1" base building chance while the normal +15 military-spending allowance still permits more units. 100 means BuildUnitProb 80 reduces this gate's base odds by 80%; the inherited production-progress preference inside AI_chooseBuilding remains unchanged, and 0 restores the Base AdvCiv/K-Mod short-circuit 1 odds. See KI#197.7. (GPT-5.6 Thinking) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_1_BUILD_UNIT_PROB_WEIGHT_PERCENT</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index c35516bf4..db5e9aaed 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -16945,9 +16945,17 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
+ 	int iHighestRivalPowForLog = -1;
+ 	int iOurPowerPerCityX100ForLog = -1;
+ 	int iRelevantRivalAvgPowerPerCityX100ForLog = -1;
++	int iPowerPerCityDeficitPercentForLog = 0;
+ 	int iUnderstrengthBoostPercentForLog = 0;
+ 	int iPreUnderstrengthProbForLog = -1;
++	int iPostMultiplicativeUnderstrengthProbForLog = -1;
+ 	int iPostUnderstrengthProbForLog = -1;
++	int iAffordableAbsoluteWeightPercentForLog = 0;
++	int iAffordableUnderstrengthBoostPointsForLog = 0;
++	int iAffordableUnderstrengthUnitSpendingForLog = -1;
++	int iAffordableUnderstrengthMaxUnitSpendingForLog = -1;
++	int iAffordableUnderstrengthSpendingGapForLog = -1;
++	int iAffordableUnderstrengthSpendingAllowedForLog = 0;
+ 	int iPowerThrottleForLog = 0; // <!-- custom: Diagnostic code: 0 = none, 1 = gradual, 2 = quartered. (ChatGPT-5.6-Sol) -->
+ 
+ 	scaled r = per100(GC.getInfo(getPersonalityType()).getBuildUnitProb());
+@@ -17053,12 +17061,28 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
+ 			// Post-fix full runs from save file 458 (two runs) and save file 457 (one independent run) activated the catch-up in about 46-47% of logged BuildUnitProb evaluations, averaging about +7 to +9 actual points when active, with no simultaneous high-power throttle. See KI#197. (ChatGPT-5.6-Sol) -->
+ 			static const bool bUnderstrengthOptimize = GC.getDefineBOOL("SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_OPTIMIZE");
+ 			static const int iMaxUnderstrengthBoostPercent = std::max(0, GC.getDefineINT("SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_POWER_PER_CITY_MAX_BOOST_PERCENT"));
++			static const int iAffordableAbsoluteWeightPercent = std::max(0, GC.getDefineINT("SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_AFFORDABLE_ABSOLUTE_WEIGHT_PERCENT"));
++			iAffordableAbsoluteWeightPercentForLog = iAffordableAbsoluteWeightPercent;
+ 			iPreUnderstrengthProbForLog = r.getPercent();
+ 			if (bUnderstrengthOptimize && !bGreatlyReduced && rPowRatio <= 1 && !kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS) && kOurTeam.AI_isWarPossible() && iRelevantRivalAvgPowerPerCityX100ForLog > iOurPowerPerCityX100ForLog)
+ 			{
+-				int const iPowerPerCityDeficitPercent = 100 - (100 * iOurPowerPerCityX100ForLog) / iRelevantRivalAvgPowerPerCityX100ForLog;
+-				iUnderstrengthBoostPercentForLog = std::min(iMaxUnderstrengthBoostPercent, std::max(0, iPowerPerCityDeficitPercent));
++				iPowerPerCityDeficitPercentForLog = std::max(0, 100 - (100 * iOurPowerPerCityX100ForLog) / iRelevantRivalAvgPowerPerCityX100ForLog);
++				iUnderstrengthBoostPercentForLog = std::min(iMaxUnderstrengthBoostPercent, iPowerPerCityDeficitPercentForLog);
+ 				r *= 1 + per100(iUnderstrengthBoostPercentForLog);
++				iPostMultiplicativeUnderstrengthProbForLog = r.getPercent();
++				// <!-- custom: A multiplicative catch-up remains weak for peaceful personalities with a low base BuildUnitProb. If the AI can still afford more military under the same normal max + 15 allowance used by production gates, convert part of the existing capped power-per-city deficit into absolute BuildUnitProb points. Spending is only a brake here, not a target to fill; this avoids encouraging units solely because support is temporarily cheap. See KI#197.8. (GPT-5.6 Thinking) -->
++				if (!bDraft && iAffordableAbsoluteWeightPercent > 0 && r.getPercent() < 100)
++				{
++					iAffordableUnderstrengthUnitSpendingForLog = kOwner.AI_unitCostPerMil();
++					iAffordableUnderstrengthMaxUnitSpendingForLog = kOwner.AI_maxUnitCostPerMil(area(), r.getPercent());
++					iAffordableUnderstrengthSpendingGapForLog = iAffordableUnderstrengthMaxUnitSpendingForLog + 15 - iAffordableUnderstrengthUnitSpendingForLog;
++					iAffordableUnderstrengthSpendingAllowedForLog = (iAffordableUnderstrengthSpendingGapForLog >= 0);
++					if (iAffordableUnderstrengthSpendingAllowedForLog)
++					{
++						iAffordableUnderstrengthBoostPointsForLog = (iUnderstrengthBoostPercentForLog * iAffordableAbsoluteWeightPercent) / 100;
++						r += per100(iAffordableUnderstrengthBoostPointsForLog);
++					}
++				}
+ 			}
+ 			iPostUnderstrengthProbForLog = r.getPercent();
+ 		}
+@@ -17074,10 +17098,11 @@ int CvCityAI::AI_buildUnitProb(bool bDraft)
+ 	int const iFinalBuildUnitProb = r.getPercent();
+ 	if (gMilitaryProductionLogLevel >= 3 && !isHuman() && !isBarbarian() && !bDraft)
+ 	{
+-		logBBAI("MILITARY_PRODUCTION_BUILD_PROB turn=%d player=%d %S city=%S cityId=%d personalityBuildProb=%d xpWeight=%d finalBuildProb=%d militaryProdModifier=%d financialTrouble=%d economyFocus=%d oneCityCapital=%d getBetterUnits=%d cities=%d teamPower=%d highestRelevantRivalPower=%d ourPowerPerCityX100=%d relevantRivalAvgPowerPerCityX100=%d understrengthBoostPercent=%d preUnderstrengthProb=%d postUnderstrengthProb=%d powerThrottle=%d greatlyReduced=%d conquest1=%d military3=%d military4=%d",
++		logBBAI("MILITARY_PRODUCTION_BUILD_PROB turn=%d player=%d %S city=%S cityId=%d personalityBuildProb=%d xpWeight=%d finalBuildProb=%d militaryProdModifier=%d financialTrouble=%d economyFocus=%d oneCityCapital=%d getBetterUnits=%d cities=%d teamPower=%d highestRelevantRivalPower=%d ourPowerPerCityX100=%d relevantRivalAvgPowerPerCityX100=%d powerPerCityDeficitPercent=%d understrengthBoostPercent=%d preUnderstrengthProb=%d postMultiplicativeUnderstrengthProb=%d postUnderstrengthProb=%d affordableAbsoluteWeightPercent=%d affordableBoostPoints=%d affordableUnitSpending=%d affordableMaxUnitSpending=%d affordableSpendingGap=%d affordableSpendingAllowed=%d powerThrottle=%d greatlyReduced=%d conquest1=%d military3=%d military4=%d",
+ 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+ 			GC.getInfo(getPersonalityType()).getBuildUnitProb(), iXPWeight, iFinalBuildUnitProb, getMilitaryProductionModifier(), kOwner.AI_isFinancialTrouble(), kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS),
+-			kOwner.getNumCities() <= 1 && isCapital(), kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS), kOwner.getNumCities(), kTeam.getPower(false), iHighestRivalPowForLog, iOurPowerPerCityX100ForLog, iRelevantRivalAvgPowerPerCityX100ForLog, iUnderstrengthBoostPercentForLog, iPreUnderstrengthProbForLog, iPostUnderstrengthProbForLog, iPowerThrottleForLog, bGreatlyReduced,
++			kOwner.getNumCities() <= 1 && isCapital(), kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS), kOwner.getNumCities(), kTeam.getPower(false), iHighestRivalPowForLog, iOurPowerPerCityX100ForLog, iRelevantRivalAvgPowerPerCityX100ForLog, iPowerPerCityDeficitPercentForLog, iUnderstrengthBoostPercentForLog, iPreUnderstrengthProbForLog, iPostMultiplicativeUnderstrengthProbForLog, iPostUnderstrengthProbForLog,
++			iAffordableAbsoluteWeightPercentForLog, iAffordableUnderstrengthBoostPointsForLog, iAffordableUnderstrengthUnitSpendingForLog, iAffordableUnderstrengthMaxUnitSpendingForLog, iAffordableUnderstrengthSpendingGapForLog, iAffordableUnderstrengthSpendingAllowedForLog, iPowerThrottleForLog, bGreatlyReduced,
+ 			kOwner.AI_atVictoryStage(AI_VICTORY_CONQUEST1), kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY3), kOwner.AI_atVictoryStage(AI_VICTORY_MILITARY4));
+ 	}
+ 	return iFinalBuildUnitProb;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 75f3fc762..40f2cb6a7 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -968,6 +968,8 @@ void CvUnit::updateAirCombat(bool bQuick)
+ 		kAirMission.setUnit(BATTLE_UNIT_DEFENDER, pInterceptor);
+ 
+ 		resolveAirCombat(pInterceptor, pPlot, kAirMission);
++		// <!-- custom: Detailed GameRecord interception rows prevent interrupted air missions from being mistaken for unused aircraft; record only the resolved interception combat, without guessing which higher-level air mission was interrupted. (GPT-5.6) -->
++		if (gGameRecordLogLevel >= 3) logSASGameRecordAirInterception(this, pInterceptor, pPlot, kAirMission.getDamage(BATTLE_UNIT_ATTACKER), kAirMission.getDamage(BATTLE_UNIT_DEFENDER));
+ 
+ 		if (!bVisible)
+ 			bFinish = true;
+@@ -4963,9 +4965,18 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
+ 	CvCity* pCity = kTarget.getPlotCity();
+ 	if (pCity != NULL)
+ 	{
++		// <!-- custom: GameRecord level 3 records actual air city bombardment with before/after defense state; consecutive equivalent actions are synthesized by SASGameRecordLog. Keep the before-state work gated so disabled/lower-level logging has no extra city-defense computation. (GPT-5.6 Thinking) -->
++		int iGameRecordDefenseModifierBefore = -1;
++		int iGameRecordDefenseDamageBefore = -1;
++		if (gGameRecordLogLevel >= 3)
++		{
++			iGameRecordDefenseModifierBefore = pCity->getDefenseModifier(false);
++			iGameRecordDefenseDamageBefore = pCity->getDefenseDamage();
++		}
+ 		//pCity->changeDefenseModifier(-airBombCurrRate());
+ 		// advc.004c:
+ 		pCity->changeDefenseModifier(-std::max(0, airBombDefenseDamage(*pCity)));	
++		if (gGameRecordLogLevel >= 3) logSASGameRecordCityBombard(this, pCity, "AIR", airBombCurrRate(), true, iGameRecordDefenseModifierBefore, iGameRecordDefenseDamageBefore);
+ 		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_DEFENSES_REDUCED_TO",
+ 				pCity->getNameKey(), pCity->getDefenseModifier(false), getNameKey());
+ 		gDLL->UI().addMessage(pCity->getOwner(), true, // advc.004g: was false
+@@ -4985,6 +4996,9 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
+ 		if (bValidOwner && eStructure != NO_STRUCTURE)
+ 		{
+ 			bool const bRoute = (eStructure == STRUCTURE_ROUTE);
++			// <!-- custom: Existing level-2 AIR_BOMBING plot changes describe the map mutation; level 3 additionally identifies the acting aircraft, intended structure and success/failure so air-use quality can be reconstructed. (GPT-5.6) -->
++			char const* szGameRecordTargetKind = (bRoute ? "ROUTE" : "IMPROVEMENT");
++			char const* szGameRecordTarget = (bRoute ? GC.getInfo(kTarget.getRouteType()).getType() : GC.getInfo(kTarget.getImprovementType()).getType());
+ 			wchar const* szStructure = (bRoute ?
+ 					GC.getInfo(kTarget.getRouteType()).getTextKeyWide() :
+ 					GC.getInfo(kTarget.getImprovementType()).getTextKeyWide());
+@@ -5026,9 +5040,11 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
+ 							getImprovementPillage());
+ 				}
+ 				if (bLogPlotChange) recordSASGameRecordPlotChange(kTarget, kOldPlotState, "airBombing", "AIR_BOMBING", true);
++				if (gGameRecordLogLevel >= 3) logSASGameRecordAirBombPlot(this, &kTarget, szGameRecordTargetKind, szGameRecordTarget, true);
+ 			}
+ 			else
+ 			{
++				if (gGameRecordLogLevel >= 3) logSASGameRecordAirBombPlot(this, &kTarget, szGameRecordTargetKind, szGameRecordTarget, false);
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_FAIL_DESTROY_IMP",
+ 						getNameKey(), szStructure);
+ 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
+@@ -5040,6 +5056,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
+ 			or when plot owner in FoW was out of date */
+ 		else
+ 		{
++			if (gGameRecordLogLevel >= 3) logSASGameRecordAirBombPlot(this, &kTarget, "NONE", "-", false);
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_AIR_BOMB_FAIL_IMP_GONE", getNameKey());
+ 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
+ 					"AS2D_BOMB_FAILS", MESSAGE_TYPE_INFO, getButton(),
+@@ -5156,8 +5173,17 @@ bool CvUnit::bombard()
+ 	}
+ 
+ 	bool bFirstBombardment = !pBombardCity->isBombarded(); // advc.004g
++	// <!-- custom: Record actual siege/naval bombardment at GameRecord level 3, including the exact city-defense reduction; consecutive equivalent actions are synthesized by SASGameRecordLog, and before-state computation stays gated to detailed logging. (GPT-5.6 Thinking) -->
++	int iGameRecordDefenseModifierBefore = -1;
++	int iGameRecordDefenseDamageBefore = -1;
++	if (gGameRecordLogLevel >= 3)
++	{
++		iGameRecordDefenseModifierBefore = pBombardCity->getDefenseModifier(false);
++		iGameRecordDefenseDamageBefore = pBombardCity->getDefenseDamage();
++	}
+ 	// advc: Moved into subroutine
+ 	pBombardCity->changeDefenseModifier(-std::max(0, damageToBombardTarget(getPlot())));
++	if (gGameRecordLogLevel >= 3) logSASGameRecordCityBombard(this, pBombardCity, getDomainType() == DOMAIN_SEA ? "NAVAL" : "SIEGE", bombardRate(), ignoreBuildingDefense(), iGameRecordDefenseModifierBefore, iGameRecordDefenseDamageBefore);
+ 	setMadeAttack(true);
+ 	changeMoves(GC.getMOVE_DENOMINATOR());
+ 
+@@ -11744,6 +11770,8 @@ bool CvUnit::airStrike(CvPlot& kPlot, /* <advc.004c> */ bool* pbIntercepted)
+ 	changeMoves(GC.getMOVE_DENOMINATOR());
+ 
+ 	int iDamage = airCombatDamage(pDefender);
++	// <!-- custom: Unit inventories show that aircraft exist; this level-3 action proves that an air strike was actually executed and records its primary-target damage. Log before setDamage because a combat-limit-100 unit could otherwise invalidate the defender pointer. (GPT-5.6) -->
++	const int iGameRecordDefenderDamageBefore = (gGameRecordLogLevel >= 3 ? pDefender->getDamage() : -1);
+ 	int iUnitDamage = std::max(pDefender->getDamage(),
+ 			std::min(pDefender->getDamage() + iDamage, airCombatLimit()));
+ 
+@@ -11766,6 +11794,7 @@ bool CvUnit::airStrike(CvPlot& kPlot, /* <advc.004c> */ bool* pbIntercepted)
+ 			kPlot.getX(), kPlot.getY());
+ 
+ 	collateralCombat(&kPlot, pDefender);
++	if (gGameRecordLogLevel >= 3) logSASGameRecordAirStrike(this, pDefender, iGameRecordDefenderDamageBefore, iUnitDamage);
+ 	pDefender->setDamage(iUnitDamage, getOwner());
+ 
+ 	return true;
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index 6c7d67354..c46416c18 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -82,6 +82,8 @@ static CvString createSASGameRecordLogTimestamp()
+ static CvString g_szSASGameRecordLogTimestamp;
+ static int g_iSASGameRecordLogSequence = 0;
+ static CvString g_szSASGameRecordLogContext;
++static void flushSASGameRecordPendingCityBombard();
++static bool g_bSASGameRecordFlushingCityBombard = false;
+ 
+ static CvString getSASGameRecordLogTimestamp()
+ {
+@@ -147,6 +149,9 @@ void logSASGameRecord(TCHAR* format, ... )
+ 	static const bool bEnabled = isSASGameRecordLogEnabled();
+ 	if (!bEnabled)
+ 		return;
++	// <!-- custom: CITY_BOMBARD is buffered only across consecutive equivalent actions. Flush it before the next ordinary GameRecord row so repeated siege clicks become one synthetic line without losing same-turn ordering relative to battles or other actions. (GPT-5.6 Thinking) -->
++	if (!g_bSASGameRecordFlushingCityBombard)
++		flushSASGameRecordPendingCityBombard();
+ 
+ 	va_list args;
+ 	va_start(args, format);
+@@ -313,6 +318,33 @@ struct SASGameRecordPlotChangeGroup
+ };
+ 
+ static int g_iSASGameRecordPendingPlotTurn = -1;
++
++struct SASGameRecordCityBombardPending
++{
++	bool bValid;
++	int iTurn;
++	CvString szMode;
++	PlayerTypes ePlayer;
++	PlayerTypes eTargetPlayer;
++	int iCityId;
++	CvWString szCity;
++	int iX;
++	int iY;
++	int iActions;
++	int iBombardRateTotal;
++	int iIgnoreBuildingDefenseActions;
++	int iDefenseModifierBefore;
++	int iDefenseModifierAfter;
++	int iTotalDefense;
++	int iDefenseDamageBefore;
++	int iDefenseDamageAfter;
++	int iDefenseDamageMax;
++	std::vector<std::pair<CvString,int> > aUnitTypes;
++	std::vector<std::pair<CvString,int> > aUnitAIs;
++	SASGameRecordCityBombardPending() : bValid(false), iTurn(-1), ePlayer(NO_PLAYER), eTargetPlayer(NO_PLAYER), iCityId(-1), iX(-1), iY(-1), iActions(0), iBombardRateTotal(0), iIgnoreBuildingDefenseActions(0), iDefenseModifierBefore(-1), iDefenseModifierAfter(-1), iTotalDefense(-1), iDefenseDamageBefore(-1), iDefenseDamageAfter(-1), iDefenseDamageMax(-1) {}
++};
++
++static SASGameRecordCityBombardPending g_kSASGameRecordPendingCityBombard;
+ static std::vector<SASGameRecordPlotChangeGroup> g_aSASGameRecordPlotChanges;
+ static std::vector<std::pair<int,int> > g_aaSASGameRecordRevealedPlots[MAX_TEAMS];
+ static TeamTypes g_eSASGameRecordFullMapRevelationTeam = NO_TEAM;
+@@ -520,6 +552,7 @@ static void resetSASGameRecordState()
+ 	g_kSASGameRecordGlobalPrevious.bValid = false;
+ 	g_iSASGameRecordLastFullSnapshotTurn = -1;
+ 	g_iSASGameRecordPendingPlotTurn = -1;
++	g_kSASGameRecordPendingCityBombard = SASGameRecordCityBombardPending();
+ 	g_aSASGameRecordPlotChanges.clear();
+ 	g_eSASGameRecordFullMapRevelationTeam = NO_TEAM;
+ 	g_iSASGameRecordFullMapRevealedBefore = 0;
+@@ -757,6 +790,7 @@ void endSASGameRecordFullMapRevelation(TeamTypes eTeam, TechTypes eTech)
+ 
+ void flushSASGameRecordTurnChanges(int iGameTurn)
+ {
++	flushSASGameRecordPendingCityBombard();
+ 	if (g_iSASGameRecordPendingPlotTurn < 0)
+ 		return;
+ 	FAssert(iGameTurn == g_iSASGameRecordPendingPlotTurn);
+@@ -934,6 +968,39 @@ static void appendSASGameRecordTypeCount(CvString& szList, const char* szType, i
+ 	szList += szItem;
+ }
+ 
++static void addSASGameRecordCityBombardTypeCount(std::vector<std::pair<CvString,int> >& aCounts, char const* szType)
++{
++	for (size_t iI = 0; iI < aCounts.size(); iI++)
++	{
++		if (aCounts[iI].first == szType)
++		{
++			aCounts[iI].second++;
++			return;
++		}
++	}
++	aCounts.push_back(std::make_pair(CvString(szType), 1));
++}
++
++static void flushSASGameRecordPendingCityBombard()
++{
++	if (!g_kSASGameRecordPendingCityBombard.bValid)
++		return;
++	CvString szUnitTypes;
++	CvString szUnitAIs;
++	for (size_t iI = 0; iI < g_kSASGameRecordPendingCityBombard.aUnitTypes.size(); iI++)
++		appendSASGameRecordTypeCount(szUnitTypes, g_kSASGameRecordPendingCityBombard.aUnitTypes[iI].first.GetCString(), g_kSASGameRecordPendingCityBombard.aUnitTypes[iI].second);
++	for (size_t iI = 0; iI < g_kSASGameRecordPendingCityBombard.aUnitAIs.size(); iI++)
++		appendSASGameRecordTypeCount(szUnitAIs, g_kSASGameRecordPendingCityBombard.aUnitAIs[iI].first.GetCString(), g_kSASGameRecordPendingCityBombard.aUnitAIs[iI].second);
++	if (szUnitTypes.empty()) szUnitTypes = "-";
++	if (szUnitAIs.empty()) szUnitAIs = "-";
++	g_bSASGameRecordFlushingCityBombard = true;
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_BOMBARD mode=%s player=%d targetPlayer=%d cityId=%d city=%S x=%d y=%d actions=%d unitTypes=%s unitAI=%s bombardRateTotal=%d ignoreBuildingDefenseActions=%d defenseModifierBefore=%d defenseModifierAfter=%d defenseReduction=%d totalDefense=%d defenseDamageBefore=%d defenseDamageAfter=%d defenseDamageMax=%d",
++			g_kSASGameRecordPendingCityBombard.iTurn, g_kSASGameRecordPendingCityBombard.szMode.GetCString(), g_kSASGameRecordPendingCityBombard.ePlayer, g_kSASGameRecordPendingCityBombard.eTargetPlayer, g_kSASGameRecordPendingCityBombard.iCityId, g_kSASGameRecordPendingCityBombard.szCity.GetCString(), g_kSASGameRecordPendingCityBombard.iX, g_kSASGameRecordPendingCityBombard.iY, g_kSASGameRecordPendingCityBombard.iActions, szUnitTypes.GetCString(), szUnitAIs.GetCString(),
++			g_kSASGameRecordPendingCityBombard.iBombardRateTotal, g_kSASGameRecordPendingCityBombard.iIgnoreBuildingDefenseActions, g_kSASGameRecordPendingCityBombard.iDefenseModifierBefore, g_kSASGameRecordPendingCityBombard.iDefenseModifierAfter, std::max(0, g_kSASGameRecordPendingCityBombard.iDefenseModifierBefore - g_kSASGameRecordPendingCityBombard.iDefenseModifierAfter), g_kSASGameRecordPendingCityBombard.iTotalDefense, g_kSASGameRecordPendingCityBombard.iDefenseDamageBefore, g_kSASGameRecordPendingCityBombard.iDefenseDamageAfter, g_kSASGameRecordPendingCityBombard.iDefenseDamageMax);
++	g_bSASGameRecordFlushingCityBombard = false;
++	g_kSASGameRecordPendingCityBombard = SASGameRecordCityBombardPending();
++}
++
+ static CvString getSASGameRecordOrDash(CvString const& szList)
+ {
+ 	return szList.empty() ? CvString("-") : szList;
+@@ -3583,8 +3650,9 @@ static void logSASGameRecordCityDetail(CvCity const& kCity, int iGameTurn)
+ 	collectSASGameRecordPlotUnitCounts(kCity.getPlot(), kCity.getOwner(), kCityUnits);
+ 	// <!-- custom: City-level espionage output and modifiers make Jail/Intelligence Agency-style effects measurable without adding another row; the defense modifier is kept separate from the city's espionage-commerce modifier. (ChatGPT-5.6-Sol) -->
+ 	// <!-- custom: Air-unit occupancy/capacity on the existing city row makes poor basing or saturated airbases visible without adding a separate late-game row. Cargo aircraft are intentionally excluded by CvPlot::countNumAirUnits, matching actual base-capacity use. (GPT-5.6) -->
+-	logSASGameRecord("GAME_RECORD_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d espionageRate=%d espionageRateModifier=%d espionageDefenseModifier=%d airUnits=%d airCapacity=%d airSpaceAvailable=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d productionConversionX100=%s specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
+-			iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kCity.getCommerceRate(COMMERCE_ESPIONAGE), kCity.getTotalCommerceRateModifier(COMMERCE_ESPIONAGE), kCity.getEspionageDefenseModifier(), kCity.getPlot().countNumAirUnits(kCity.getTeam()), kCity.getAirUnitCapacity(kCity.getTeam()), kCity.getPlot().airUnitSpaceAvailable(kCity.getTeam()),
++	// <!-- custom: City defense snapshots expose both the current post-bombard defense modifier and its undamaged ceiling. DefenseDamage/MAX_CITY_DEFENSE_DAMAGE preserves the underlying bombardment state, while bombarded shows whether the city has already been hit this turn. This lets broad game records be paired with the level-3 tactical bombardment actions below. (GPT-5.6) -->
++	logSASGameRecord("GAME_RECORD_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d espionageRate=%d espionageRateModifier=%d espionageDefenseModifier=%d defenseModifier=%d totalDefense=%d defenseDamage=%d defenseDamageMax=%d bombarded=%d airUnits=%d airCapacity=%d airSpaceAvailable=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d productionConversionX100=%s specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
++			iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kCity.getCommerceRate(COMMERCE_ESPIONAGE), kCity.getTotalCommerceRateModifier(COMMERCE_ESPIONAGE), kCity.getEspionageDefenseModifier(), kCity.getDefenseModifier(false), kCity.getTotalDefense(false), kCity.getDefenseDamage(), GC.getMAX_CITY_DEFENSE_DAMAGE(), kCity.isBombarded(), kCity.getPlot().countNumAirUnits(kCity.getTeam()), kCity.getAirUnitCapacity(kCity.getTeam()), kCity.getPlot().airUnitSpaceAvailable(kCity.getTeam()),
+ 			kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCityUnits.iUnits, kCityUnits.iMilitaryUnits, kCityUnits.iCivilianUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iSettlers, kCityUnits.iWorkers, kCityUnits.iAttackers,
+ 			kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), kCity.getTradeRoutes(), iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE),
+ 			getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity), kCity.getProductionTurnsLeft(), kCity.getProduction(), kCity.getProductionNeeded(), kCity.getOverflowProduction(), kCity.getFeatureProduction(), getSASGameRecordCityProductionConversion(kCity).GetCString(), getSASGameRecordCitySpecialists(kCity, false).GetCString(), getSASGameRecordCitySpecialists(kCity, true).GetCString(),
+@@ -4516,6 +4584,68 @@ void logSASGameRecordUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType,
+ 			GC.getGame().getGameTurn(), eOldOwner, pNewUnit->getOwner(), getSASGameRecordUnitType(eOldUnitType), pNewUnit->getID(), getSASGameRecordUnitType(pNewUnit->getUnitType()), getSASGameRecordUnitAIType(pNewUnit->AI_getUnitAIType()), pNewUnit->getX(), pNewUnit->getY());
+ }
+ 
++void logSASGameRecordCityBombard(CvUnit const* pUnit, CvCity const* pCity, char const* szMode, int iBombardRate, bool bIgnoreBuildingDefense, int iDefenseModifierBefore, int iDefenseDamageBefore)
++{
++	if (pUnit == NULL || pCity == NULL)
++		return;
++	prepareSASGameRecordTurnChanges();
++	const int iGameTurn = GC.getGame().getGameTurn();
++	const int iDefenseModifierAfter = pCity->getDefenseModifier(false);
++	const int iDefenseDamageAfter = pCity->getDefenseDamage();
++	// <!-- custom: Consecutive bombard actions against the same city are synthetic history, not five nearly identical rows for five Trebuchets. Keep sequences separate when attacker/mode/city changes or defense continuity breaks, and the generic writer flushes a pending sequence before the next unrelated GameRecord row so battle-vs-bombard order remains observable. (GPT-5.6 Thinking) -->
++	const bool bContinueSequence = (g_kSASGameRecordPendingCityBombard.bValid && g_kSASGameRecordPendingCityBombard.iTurn == iGameTurn && g_kSASGameRecordPendingCityBombard.szMode == szMode && g_kSASGameRecordPendingCityBombard.ePlayer == pUnit->getOwner() && g_kSASGameRecordPendingCityBombard.eTargetPlayer == pCity->getOwner() && g_kSASGameRecordPendingCityBombard.iCityId == pCity->getID() && g_kSASGameRecordPendingCityBombard.iDefenseModifierAfter == iDefenseModifierBefore && g_kSASGameRecordPendingCityBombard.iDefenseDamageAfter == iDefenseDamageBefore);
++	if (!bContinueSequence)
++	{
++		flushSASGameRecordPendingCityBombard();
++		g_kSASGameRecordPendingCityBombard.bValid = true;
++		g_kSASGameRecordPendingCityBombard.iTurn = iGameTurn;
++		g_kSASGameRecordPendingCityBombard.szMode = szMode;
++		g_kSASGameRecordPendingCityBombard.ePlayer = pUnit->getOwner();
++		g_kSASGameRecordPendingCityBombard.eTargetPlayer = pCity->getOwner();
++		g_kSASGameRecordPendingCityBombard.iCityId = pCity->getID();
++		g_kSASGameRecordPendingCityBombard.szCity = getSASGameRecordQuotedCityName(pCity);
++		g_kSASGameRecordPendingCityBombard.iX = pCity->getX();
++		g_kSASGameRecordPendingCityBombard.iY = pCity->getY();
++		g_kSASGameRecordPendingCityBombard.iDefenseModifierBefore = iDefenseModifierBefore;
++		g_kSASGameRecordPendingCityBombard.iDefenseDamageBefore = iDefenseDamageBefore;
++	}
++	g_kSASGameRecordPendingCityBombard.iActions++;
++	g_kSASGameRecordPendingCityBombard.iBombardRateTotal += iBombardRate;
++	if (bIgnoreBuildingDefense) g_kSASGameRecordPendingCityBombard.iIgnoreBuildingDefenseActions++;
++	g_kSASGameRecordPendingCityBombard.iDefenseModifierAfter = iDefenseModifierAfter;
++	g_kSASGameRecordPendingCityBombard.iTotalDefense = pCity->getTotalDefense(false);
++	g_kSASGameRecordPendingCityBombard.iDefenseDamageAfter = iDefenseDamageAfter;
++	g_kSASGameRecordPendingCityBombard.iDefenseDamageMax = GC.getMAX_CITY_DEFENSE_DAMAGE();
++	addSASGameRecordCityBombardTypeCount(g_kSASGameRecordPendingCityBombard.aUnitTypes, getSASGameRecordUnitType(pUnit->getUnitType()));
++	addSASGameRecordCityBombardTypeCount(g_kSASGameRecordPendingCityBombard.aUnitAIs, getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()));
++}
++
++void logSASGameRecordAirStrike(CvUnit const* pUnit, CvUnit const* pDefender, int iDefenderDamageBefore, int iDefenderDamageAfter)
++{
++	if (pUnit == NULL || pDefender == NULL)
++		return;
++	CvPlot const* pTargetPlot = pDefender->plot();
++	CvCity const* pCity = (pTargetPlot == NULL ? NULL : pTargetPlot->getPlotCity());
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AIR_STRIKE player=%d unitId=%d unit=%s unitAI=%s fromX=%d fromY=%d targetPlayer=%d targetUnitId=%d targetUnit=%s targetUnitAI=%s x=%d y=%d cityPlot=%d cityId=%d city=%S attackerAirBaseStr=%d defenderBaseStr=%d defenderDamageBefore=%d defenderDamageAfter=%d damageDealt=%d airCombatLimit=%d",
++			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pDefender->getOwner(), pDefender->getID(), getSASGameRecordUnitType(pDefender->getUnitType()), getSASGameRecordUnitAIType(pDefender->AI_getUnitAIType()), pTargetPlot == NULL ? -1 : pTargetPlot->getX(), pTargetPlot == NULL ? -1 : pTargetPlot->getY(), pCity != NULL, pCity == NULL ? -1 : pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->airBaseCombatStr(), pDefender->baseCombatStr(), iDefenderDamageBefore, iDefenderDamageAfter, std::max(0, iDefenderDamageAfter - iDefenderDamageBefore), pUnit->airCombatLimit());
++}
++
++void logSASGameRecordAirInterception(CvUnit const* pAttacker, CvUnit const* pInterceptor, CvPlot const* pTargetPlot, int iAttackerDamageTaken, int iInterceptorDamageTaken)
++{
++	if (pAttacker == NULL || pInterceptor == NULL || pTargetPlot == NULL)
++		return;
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AIR_INTERCEPTION attackerPlayer=%d attackerUnitId=%d attackerUnit=%s attackerUnitAI=%s interceptorPlayer=%d interceptorUnitId=%d interceptorUnit=%s interceptorUnitAI=%s x=%d y=%d attackerDamageTaken=%d interceptorDamageTaken=%d attackerDead=%d interceptorDead=%d attackerIsAir=%d",
++			GC.getGame().getGameTurn(), pAttacker->getOwner(), pAttacker->getID(), getSASGameRecordUnitType(pAttacker->getUnitType()), getSASGameRecordUnitAIType(pAttacker->AI_getUnitAIType()), pInterceptor->getOwner(), pInterceptor->getID(), getSASGameRecordUnitType(pInterceptor->getUnitType()), getSASGameRecordUnitAIType(pInterceptor->AI_getUnitAIType()), pTargetPlot->getX(), pTargetPlot->getY(), iAttackerDamageTaken, iInterceptorDamageTaken, pAttacker->isDead(), pInterceptor->isDead(), pAttacker->getDomainType() == DOMAIN_AIR);
++}
++
++void logSASGameRecordAirBombPlot(CvUnit const* pUnit, CvPlot const* pTargetPlot, char const* szTargetKind, char const* szTarget, bool bSuccess)
++{
++	if (pUnit == NULL || pTargetPlot == NULL)
++		return;
++	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AIR_BOMB_PLOT player=%d unitId=%d unit=%s unitAI=%s fromX=%d fromY=%d targetOwner=%d x=%d y=%d targetKind=%s target=%s success=%d",
++			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pTargetPlot->getOwner(), pTargetPlot->getX(), pTargetPlot->getY(), szTargetKind, szTarget, bSuccess);
++}
++
+ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
+ {
+ 	if (pWinner == NULL || pLoser == NULL)
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.h b/CvGameCoreDLL/SASGameRecordLog.h
+index 67027c2eb..286b39703 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.h
++++ b/CvGameCoreDLL/SASGameRecordLog.h
+@@ -82,6 +82,11 @@ void logSASGameRecordGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit co
+ void logSASGameRecordUnitScrapped(CvUnit const* pUnit);
+ void logSASGameRecordUnitUpgraded(CvUnit const* pOldUnit, CvUnit const* pNewUnit, int iCost);
+ void logSASGameRecordUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit const* pNewUnit);
++// <!-- custom: Level-3 tactical rows complement periodic city defense and unit-composition snapshots: synthesize consecutive siege/naval/air city bombardment into compact sequences while recording actual air strikes, interception combat, and air bombing of plot structures, so external analysis can distinguish merely owning those units from using them effectively. (GPT-5.6 Thinking) -->
++void logSASGameRecordCityBombard(CvUnit const* pUnit, CvCity const* pCity, char const* szMode, int iBombardRate, bool bIgnoreBuildingDefense, int iDefenseModifierBefore, int iDefenseDamageBefore);
++void logSASGameRecordAirStrike(CvUnit const* pUnit, CvUnit const* pDefender, int iDefenderDamageBefore, int iDefenderDamageAfter);
++void logSASGameRecordAirInterception(CvUnit const* pAttacker, CvUnit const* pInterceptor, CvPlot const* pTargetPlot, int iAttackerDamageTaken, int iInterceptorDamageTaken);
++void logSASGameRecordAirBombPlot(CvUnit const* pUnit, CvPlot const* pTargetPlot, char const* szTargetKind, char const* szTarget, bool bSuccess);
+ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser);
+ void logSASGameRecordBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus);
+
+diff --git a/README.md b/README.md
+index da5bcb95d..aff3a1563 100644
+--- a/README.md
++++ b/README.md
+@@ -923,7 +923,7 @@ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1
+ 
+ ### SAS game record log
+ 
+-`SASGameRecord_*.log` is a separate compact game record for autoplay and AI-strength review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture and per-city air-base capacity, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
++`SASGameRecord_*.log` is a separate compact game record for autoplay and AI-strength review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
+ 
+ Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 13280ac46..b7507767c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -253,6 +253,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [197.5 - (Fixed/Improved) Base AdvCiv/K-Mod generic city-hunting-stack production ignored military unit-spending limits and could keep growing peaceful offensive stacks far above budget](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1975---fixedimproved-base-advcivk-mod-generic-city-hunting-stack-production-ignored-military-unit-spending-limits-and-could-keep-growing-peaceful-offensive-stacks-far-above-budget)\
+ [197.6 - (Fixed/Improved) Base AdvCiv/K-Mod naval-trade sea-explorer fallback could ignore docked/queued ships and keep producing explorers after the relevant water area was fully revealed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1976---fixedimproved-base-advcivk-mod-naval-trade-sea-explorer-fallback-could-ignore-dockedqueued-ships-and-keep-producing-explorers-after-the-relevant-water-area-was-fully-revealed)\
+ [197.7 - (Fixed/Improved) Base AdvCiv/K-Mod early building short-circuit (`CvCityAI::AI_chooseProduction`'s short-circuit 1) ignored BuildUnitProb and could start fresh infrastructure despite maximum military-production pressure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1977---fixedimproved-base-advcivk-mod-early-building-short-circuit-cvcityaiai_chooseproductions-short-circuit-1-ignored-buildunitprob-and-could-start-fresh-infrastructure-despite-maximum-military-production-pressure)\
++[197.8 - (Improved) Under-strength military production could still react too weakly for low-BuildUnitProb personalities because the relative-power catch-up was only multiplicative even when more units were affordable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1978---improved-under-strength-military-production-could-still-react-too-weakly-for-low-buildunitprob-personalities-because-the-relative-power-catch-up-was-only-multiplicative-even-when-more-units-were-affordable)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7512,10 +7513,24 @@ The continued KI#197 military-production investigation exposed another inherited
+ 
+ Save file 454 made this visible once the BBAI military-production trace also recorded building production already invested. In the pre-fix run, short-circuit 1 chose a building in 10 of 70 evaluations with `BuildUnitProb=100`, and 6 of those choices started from 0 production. Birka alone started a fresh Jewish Temple on turn 146, Forge on turn 250, Jail on turn 255, Jewish Monastery on turn 259, another Jewish Temple on turn 264 and Factory on turn 276. The turn-255 example was especially clear: Scandinavia had 9 cities, 52 military units, substantial military-spending headroom and a +45% relative-understrength catch-up; Birka's `BuildUnitProb` had reached 100, yet the inherited 4% short-circuit 1 roll still started a new Jail at 0/99 production.
+ 
+-AdvCiv-SAS now lets the already-computed military pressure reduce only short-circuit 1's base building odds while the normal `max+15` military-spending allowance still permits another unit. `SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_1_BUILD_UNIT_PROB_WEIGHT_PERCENT`, 100 by default, controls the strength: with the default value, `BuildUnitProb=80` reduces the gate's base building odds by 80%, and `BuildUnitProb=100` reduces them to 0. The inherited production-progress preference inside `AI_chooseBuilding` is deliberately unchanged, so an important building already underway can still win on continuity. The spending threshold is only a permission gate for applying military pressure, not a target army size: being below it does not by itself force the AI to build units, and once unit spending is already above `max+15`, the inherited short-circuit 1 odds are left unchanged. Setting the define to 0 restores the Base AdvCiv/K-Mod short-circuit 1 odds.
++To fix this, the AI now lets the already-computed military pressure reduce only short-circuit 1's base building odds while the normal `max+15` military-spending allowance still permits another unit. `SAS_AI_CHOOSE_PRODUCTION_SHORT_CIRCUIT_1_BUILD_UNIT_PROB_WEIGHT_PERCENT`, 100 by default, controls the strength: with the default value, `BuildUnitProb=80` reduces the gate's base building odds by 80%, and `BuildUnitProb=100` reduces them to 0. The inherited production-progress preference inside `AI_chooseBuilding` is deliberately unchanged, so an important building already underway can still win on continuity. The spending threshold is only a permission gate for applying military pressure, not a target army size: being below it does not by itself force the AI to build units, and once unit spending is already above `max+15`, the inherited short-circuit 1 odds are left unchanged. Setting the define to 0 restores the Base AdvCiv/K-Mod short-circuit 1 odds.
+ 
+ The confirming save-file 454 rerun logged 4,963 short-circuit 1 evaluations. There were 213 evaluations with `BuildUnitProb=100`; 211 still had military-spending room, and 209 of those rejected the building. The only two successful `BuildUnitProb=100` choices were continuity cases: Nidaros continued a Levee already at 81/162 production (50%) and later an Airport already at 79/225 production (about 35%). No fresh building won short-circuit 1 at `BuildUnitProb=100` while spending room remained. A direct turn-160 example showed the intended production flow: Nidaros was in a land/total war with `BuildUnitProb=100`, 95 unit spending against a 299 maximum and a fresh Granary valued highly enough for 23% inherited short-circuit 1 odds; the new rule reduced those base odds to 0, and after the later normal gates the city selected a Crossbowman instead.
+ 
+ The rerun diverged strategically from the pre-fix game history, so later total army sizes are not treated as a controlled A/B measurement of this one change. The local production traces do directly confirm the intended effect: fresh infrastructure no longer randomly overrides maximum military-production pressure at this early gate, while already-invested buildings retain their inherited completion advantage and later building opportunities remain available.
+ 
+ Fixed/improved with the help of GPT-5.6 Thinking thanks.
++
++## 197.8 - (Improved) Under-strength military production could still react too weakly for low-BuildUnitProb personalities because the relative-power catch-up was only multiplicative even when more units were affordable
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/14XBMZx6zu154YemD5_lrwLZRmYDZXmVW?usp=sharing).
++
++The KI#197 power-per-city catch-up originally multiplied the AI's existing `BuildUnitProb`. This correctly increased military pressure when an empire was weak for its city count, but peaceful personalities with a low base probability could still remain too timid: a large relative-power deficit multiplied into a small base value still produced only a moderate final probability.
++
++To improve this without turning military spending into a quota, the AI now adds a second, absolute response from the same capped power-per-city deficit only while the normal `max+15` military-spending allowance still permits more units. The extra response is controlled by `SAS_AI_BUILD_UNIT_PROB_UNDERSTRENGTH_AFFORDABLE_ABSOLUTE_WEIGHT_PERCENT`; spending is only an affordability brake, not a target to fill. Financial/economy suppression, `AI_STRATEGY_GET_BETTER_UNITS`, impossible-war cases, the existing high-power throttle, and drafting behavior retain their existing gates.
++
++Save file 459 provided a clear low-personality example on turn 200: Mali had 6 cities and only 20 combat units, with power per city about 34% below the relevant-rival average. Its personality/XP BuildUnitProb of 29 rose to 39 through the existing multiplicative catch-up, then to 56 through the new +17 affordable absolute response because unit spending was 0 and the local recommended maximum was 82. Across the complete save-file 459 BBAI run, the new absolute response added points in 2,669 of 5,838 logged BuildUnitProb evaluations (about 46%), averaging about +10 points when active and reaching the intended +25-point maximum at a capped 50% deficit. Of evaluations where the under-strength path reached the affordability check, 439 were denied by the spending brake, confirming that the extra response does not remain active once the army becomes expensive enough.
++
++The change improves military catch-up but intentionally does not attempt to make the recommended unit-spending maximum itself a target or guarantee a particular army size. Save file 459 still showed some mid/late-game armies and especially offensive-unit counts below the desired AdvCiv-SAS pressure, so broader healthy-empire military buildup and unit-composition issues remain separate follow-up work rather than being hidden inside this catch-up rule.
++
++Improved with the help of GPT-5.6 Thinking thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 82cc1e0a6..79fda68ad 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -161,7 +161,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+ - **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis (also good to give us a different point of view/review if needed).
+ - **Timestamped BBAI log files:** Optionally log each new game and loaded save to a **new UTC-timestamped file** (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins notably with the new/load time, currently active BBAI log levels, turn/year, map and game settings (including `landheavy` and `navalheavy` actual game information), player counts, and RNG states, avoiding mixed logs and the need to restart Civ4 between repeated save-file tests. See also [README.md (BBAI logging and head example)](/README.md#bbai-logging-and-head-example).
+-- (Requires AdvCiv-SAS 6022+) **SAS game-record log:** added a separate `SASGameRecord_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by recording what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly. (Requires AdvCiv-SAS 6057+) It also notably records compact per-turn exploration, map changes and environmental status, explicit spaceship launches and project-victory progress, and a full final snapshot when the game is won. (Requires AdvCiv-SAS 6058+) It notably also records war-declaration causes and sponsors, diplomacy memories, progress for all enabled victories, project-victory resets and failures, and compact full-map revelation. (Requires AdvCiv-SAS 6077+) It notably also further records active mod and DLL-slot identity, research and production overflow, production conversion and lost-production gold, city buildings and pollution, trade unlocks, and compact territory development including routes, improvements, irrigation, and improved/unimproved bonus types, and also names player-wide health/happiness modifier sources and records AI victory-stage strategies and the target's victory context when war is declared. (Requires AdvCiv-SAS 6091+) It also records `UnitCombat` shares alongside raw army-composition counts, compact air/missile/nuclear posture including carrier and missile cargo, and per-city air-unit occupancy/capacity.
++- (Requires AdvCiv-SAS 6022+) **SAS game-record log:** added a separate `SASGameRecord_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by recording what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly. (Requires AdvCiv-SAS 6057+) It also notably records compact per-turn exploration, map changes and environmental status, explicit spaceship launches and project-victory progress, and a full final snapshot when the game is won. (Requires AdvCiv-SAS 6058+) It notably also records war-declaration causes and sponsors, diplomacy memories, progress for all enabled victories, project-victory resets and failures, and compact full-map revelation. (Requires AdvCiv-SAS 6077+) It notably also further records active mod and DLL-slot identity, research and production overflow, production conversion and lost-production gold, city buildings and pollution, trade unlocks, and compact territory development including routes, improvements, irrigation, and improved/unimproved bonus types, and also names player-wide health/happiness modifier sources and records AI victory-stage strategies and the target's victory context when war is declared. (Requires AdvCiv-SAS 6091+) It also records `UnitCombat` shares alongside raw army-composition counts, compact air/missile/nuclear posture including carrier and missile cargo, and per-city air-unit occupancy/capacity. (Requires AdvCiv-SAS 6092+) It also records current/undamaged city-defense state and bombard damage on city snapshots, synthetic consecutive city-bombard sequences with actual before/after defense reduction and unit counts, plus individual air strikes, interceptions, and plot-air-bomb attempts so military-unit ownership can be compared with actual tactical use.
+ - Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-record log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_RECORD_TURN_INTERVAL` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context while staying compact enough to upload and share. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
+@@ -401,6 +401,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - (Requires AdvCiv-SAS 6089+) **Generic peaceful city-hunting-stack production now respects military-spending limits:** BBAI military-production logging exposed another Base AdvCiv/K-Mod spending bypass in `CvCityAI::AI_chooseProduction`: the generic "city hunting stack" heuristic can request `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` before the later generic military-spending gate, so it could keep growing an offensive stack even when the AI was already far over budget and not at war. In the pre-fix save-file 456 run, 9 of 53 actual `start city attack stack` choices occurred at or above `max+15`; only one was during a land war, leaving 8 peaceful over-budget stack starts. The clearest example was Roosevelt on turn 100: America had 3 cities, no land war and no immediate danger, unit spending 200 against a normal maximum of 76 (`max+15=91`), yet this branch still ordered another `UNITAI_ATTACK_CITY` Axeman. To fix this, generic city-hunting-stack production now requires the normal `max+15` spending headroom while at peace, while land-war behavior remains unrestricted; the separate bounded target-specific Barbarian-city attacker logic remains unchanged. In the final save-file 456 validation, 391 peaceful over-budget evaluations were blocked while 188 over-budget land-war evaluations remained eligible, and none of 44 actual generic stack starts were peaceful and over budget. Save file 457 independently blocked 351 peaceful over-budget evaluations while preserving 20 over-budget land-war evaluations; none of its 45 actual generic stack starts exceeded `max+15`. See [KI#197.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1975---fixedimproved-base-advcivk-mod-generic-city-hunting-stack-production-ignored-military-unit-spending-limits-and-could-keep-growing-peaceful-offensive-stacks-far-above-budget).
+ - (Requires AdvCiv-SAS 6090+) **Naval-trade sea-explorer fallback now counts docked/queued ships and stops once the relevant water area is fully revealed:** BBAI military-production logging exposed an inherited Base AdvCiv/K-Mod edge case in the special naval-trade explorer branch. Its `<3` safety cap counted only units physically in the water area and it never required any unrevealed water, so it could ignore a substantial docked/queued navy and still build late `UNITAI_EXPLORE_SEA` ships after exploration was complete. In the pre-fix save-file 456 run, 25 of 32 actual choices occurred with zero unrevealed water and 22 of 32 occurred despite at least three actual sea-domain ships including docked/queued units; one turn-258 example had Germany build a 200-hammer Attack Submarine while the main ocean was fully revealed and three naval units were already docked. To fix this, the branch now counts actual sea-domain ships associated with the water area, including docked and queued ships, and requires at least one unrevealed water tile while preserving the inherited three-ship cap and 25% roll. In the confirming save-file 456 rerun, only 44 of 437 evaluations remained eligible and 8 actual choices were made; every one had unrevealed water and fewer than three corrected sea units, while three successful choices still had `seaExplorerTarget=0`, confirming that the distinct trade-exploration fallback remains active where useful. See [KI#197.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1976---fixedimproved-base-advcivk-mod-naval-trade-sea-explorer-fallback-could-ignore-dockedqueued-ships-and-keep-producing-explorers-after-the-relevant-water-area-was-fully-revealed).
+ - (Requires AdvCiv-SAS 6091+) **The AI's early important-building short-circuit now respects military-production pressure while another unit still fits its spending budget:** continued save-file 454 diagnostics exposed that `CvCityAI::AI_chooseProduction`'s short-circuit 1 could still start a fresh building from 0 production even when `BuildUnitProb` had reached 100 and the AI had substantial military-spending headroom. In the pre-fix run, short-circuit 1 chose a building in 10 of 70 evaluations with `BuildUnitProb=100`; 6 of those buildings had 0 production invested, including Birka starting a Forge, Jail, Jewish Monastery, Jewish Temple and Factory while maximum military pressure was already being requested. To fix this, the AI now reduces only this early gate's base building odds in proportion to `BuildUnitProb` while the normal `max+15` military-spending allowance still permits more units. The inherited production-progress bonus inside `AI_chooseBuilding` remains unchanged, so an already-started important building can still be completed, and being below the spending allowance does not itself force military production. In the confirming save-file 454 rerun, 211 short-circuit 1 evaluations had `BuildUnitProb=100` with spending room; 209 rejected the building, while the only 2 successful choices were already 50% and 35% complete. A turn-160 Nidaros example reduced a fresh Granary from 23% base odds to 0 and subsequently selected a Crossbowman through the normal military path. See [KI#197.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1977---fixedimproved-base-advcivk-mod-early-building-short-circuit-cvcityaiai_chooseproductions-short-circuit-1-ignored-buildunitprob-and-could-start-fresh-infrastructure-despite-maximum-military-production-pressure).
++- (Requires AdvCiv-SAS 6092+) **Under-strength AIs with affordable military headroom now react more strongly even when their personality has a low base BuildUnitProb:** KI#197's power-per-city catch-up was multiplicative, so a peaceful leader could remain relatively timid because even a large military deficit multiplied into a small base probability. To fix this, the AI now converts part of the same capped power-per-city deficit into additional absolute BuildUnitProb points only while the normal `max+15` spending allowance still permits more units; spending remains a brake rather than a target to fill, and existing financial/economy, `GET_BETTER_UNITS`, war-possibility, high-power, and drafting gates remain intact. In save file 459, Mali on turn 200 was about 34% behind relevant rivals in power per city: its personality/XP value of 29 rose to 39 through the existing multiplier and then to 56 through the new +17 affordable response while spending remained 0 against a local maximum of 82. Across that run the absolute response activated in 2,669 of 5,838 logged BuildUnitProb evaluations (about 46%), averaged about +10 points when active, and was blocked 439 times by the affordability brake after reaching that check. This improves catch-up without pretending that `AI_maxUnitCostPerMil` is a literal desired army size; broader mid/late healthy-empire buildup remains separate follow-up work. See [KI#197.8](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1978---improved-under-strength-military-production-could-still-react-too-weakly-for-low-buildunitprob-personalities-because-the-relative-power-catch-up-was-only-multiplicative-even-when-more-units-were-affordable).
+ - Rebalance perceived **iPower**: downweight some naval units; adjust certain land units (e.g., warrior, animals) to reduce **fake power** that triggers bad wars. See [Long_Comments/Long_Comments_XML.txt](/Long_Comments/Long_Comments_XML.txt) (search for `UnitAI notes (Units XML)`).
+ - XML **DefaultUnitAI / UnitAIs / NotUnitAIs**: align roles with efficiency (e.g., swordsmen primarily offensive even if versatile; longbows defensive unless explicitly set otherwise).
+ - Promotions logic in `CvUnitAI::AI_promotionValue`: add **hard rules** so AIs pick context-appropriate promotions (e.g., City Garrison for `UNITAI_CITY_DEFENSE`, City Raider for `UNITAI_ATTACK_CITY`; avoid Woodsman/Medic on front-line attackers unless context justifies). Rules apply per **UnitAI** (not just by unit type); with exceptions like recon. See **[KI#47](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more)**.
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=9 omittedFiles=1 embeddedPatchBytes=66327

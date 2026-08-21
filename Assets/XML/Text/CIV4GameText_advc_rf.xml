@@ -186,11 +186,6 @@
 		<German>%s3  %d1_Pts[TAB]insgesamt; negative Summe reduziert auf[NEWLINE]%s4  %d2_Pts[TAB](dreimal die Quadratwurzel)</German>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_RF_RISE_BREAKDOWN</Tag>
-		<English>%s14%d1_Pts[TAB]from sum of scored chapters [NEWLINE]%s15%d2_Pts[TAB]from finished but unscored chapters[NEWLINE]%s16+%d3_Pts[TAB]from victory, compensating for %d4 missed chapters[NEWLINE]%s17 -%d5_Pts[TAB]from initial rank (%d6. of %d7)[NEWLINE]%s18+%d8_Pts[TAB]for %d9%% time unspent in current chapter[NEWLINE]%s19+%d10_Pts[TAB](+%d11%%) from %s12_Hnd difficulty[NEWLINE]   -----------------------------------------------------------[NEWLINE]%s20  %d13_Pts[TAB]in total</English>
-		<German>%s14%d1_Pts[TAB]für gewertete Abschnitte [NEWLINE]%s15%d2_Pts[TAB]für beendete, noch ungewertete Abschnitte[NEWLINE]%s16+%d3_Pts[TAB]für Sieg, Ersatz für %d4 verpasste Abschnitte[NEWLINE]%s17 -%d5_Pts[TAB]für Ausgangsrang (%d6. von %d7)[NEWLINE]%s18+%d8_Pts[TAB]für %d9%% übrige Zeit im aktuellen Abschnitt[NEWLINE]%s19+%d10_Pts[TAB](+%d11%%) für Schwierigkeitsstufe %s12_Hnd[NEWLINE]   -----------------------------------------------------------[NEWLINE]%s20  %d13_Pts[TAB]insgesamt</German>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_RF_NORMALIZED</Tag>
 		<English>%s2%d1_Pts[TAB]normalized</English>
 		<German>%s2%d1_Pts[TAB]normalisiert</German>
@@ -252,7 +247,7 @@
 		<English>[COLOR_WARNING_TEXT]The R&#038;F option prevents gifts to %s1_Leader.[COLOR_REVERT]</English>
 		<German>[COLOR_WARNING_TEXT]%s1_Leader kann keine Geschenke von Ihnen annehmen.[COLOR_REVERT]</German>
 	</TEXT>
-	
+
 	<!-- advc.706: The Retire action needs slightly different text. Could be
 		 done more nicely by showing help text dynamically depending on game
 		 settings (but I'm not going to). -->
@@ -383,6 +378,7 @@
 		<English>No. %d1</English>
 		<German>Nr. %d1</German>
 	</TEXT>
+	<!-- custom: Fixed malformed XML angle marker found by workflow; see KI#151. (GPT-5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_YOU_AT_WAR</Tag>
 		<English>You're at war with %s1_Civ!</English>
@@ -400,12 +396,4 @@
 		<English>Start of intermediate period</English>
 		<German>Beginn der Zwischenzeit</German>
 	</TEXT>
-
-	<!-- advc.708 -->
-	<TEXT>
-		<Tag>TXT_KEY_RF_HANDICAP_SETTINGS</Tag>
-		<English>Game Difficulty (AI discounts):[NEWLINE][TAB]%s1_GameHandicap[NEWLINE]Human Player Difficulty: %s2_HumanPlayerHandicap[NEWLINE]Difficulty for AI Players: %s3_AIPlayerHandicap</English>
-		<German>Schwierigkeitsstufe:[NEWLINE][TAB]KI-Boni, Barbaren: %s1_GameHandicap[NEWLINE][TAB]Kosten für Spieler: %s2_HumanPlayerHandicap[NEWLINE][TAB]Kosten für KI-Gegner: %s3_AIPlayerHandicap</German>
-	</TEXT>
-
 </Civ4GameText>

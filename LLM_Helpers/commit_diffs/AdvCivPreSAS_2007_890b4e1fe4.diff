@@ -1,0 +1,214 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2007
+# Commit: 890b4e1fe41187fe836db2cbdfc0f0517472f22b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ca9bcfb831e2d1fd363bcc2f5af3ae43d264fa83
+# Title: Better hack for updating flags (Change Player component)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+34	29	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlayer.h
+19	0	CvGameCoreDLL/CvPlot.cpp
+1	0	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index a880992d4..f506950b4 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1073,20 +1073,19 @@ void CvPlayer::changeCiv(CivilizationTypes eNewCiv)  // advc: style changes
+ 	if (isAlive()) // if the player is alive and showing on scoreboard, etc
+ 	{
+ 		// change colors, graphics, flags, units
+-		kInitCore.setFlagDecal(getID(), GC.getInfo(eNewCiv).getFlagTexture());
+ 		kInitCore.setArtStyle(getID(), (ArtStyleTypes)GC.getInfo(eNewCiv).getArtStyleType());
+-
++		// advc.127c: The new setFlagDecal function can handle the flag update
++		setFlagDecal(GC.getInfo(eNewCiv).getFlagTexture(), true);
++		/*kInitCore.setFlagDecal(getID(), GC.getInfo(eNewCiv).getFlagTexture());
+ 		// Force update of units flags
+-		EraTypes eEra = getCurrentEra();
+ 		bool bAuto = m_bDisableHuman;
+ 		m_bDisableHuman = true;
+-		// advc.127c: bGraphicsOnly=true params added
+-		setCurrentEra((EraTypes)0, true);
+-		setCurrentEra((EraTypes)(GC.getNumEraInfos() - 1), true);
+-		setCurrentEra(eEra, true);
+-
++		EraTypes eEra = getCurrentEra();
++		setCurrentEra((EraTypes)(eEra + (eEra == 0 ? 1 : -1)));
++		setCurrentEra(eEra);
+ 		m_bDisableHuman = bAuto;
+ 		kInterface.makeInterfaceDirty();
++		kInterface.setDirty(Flag_DIRTY_BIT, true);*/
+ 
+ 		// dirty all of this player's cities...
+ 		FOR_EACH_CITY_VAR(pLoopCity, *this)
+@@ -1096,23 +1095,9 @@ void CvPlayer::changeCiv(CivilizationTypes eNewCiv)  // advc: style changes
+ 		FOR_EACH_UNIT_VAR(pLoopUnit, *this)
+ 		{
+ 			pLoopUnit->reloadEntity();
+-			/*CvPlot& kLoopPlot = pLoopUnit->getPlot();
+-			CvFlagEntity* pFlag = kLoopPlot.getFlagSymbol();
+-			if (pFlag != NULL) {
+-				if (gDLL->getFlagEntityIFace()->getPlayer(pFlag) == getID()) {
+-					gDLL->getFlagEntityIFace()->destroy(pFlag);
+-					CvFlagEntity* pNewFlag = gDLL->getFlagEntityIFace()->create(getID());
+-					if (pFlag != NULL)
+-						gDLL->getFlagEntityIFace()->setPlot(pNewFlag, &kLoopPlot, false);
+-					gDLL->getFlagEntityIFace()->updateGraphicEra(pNewFlag);
+-				}
+-			}
+-			kLoopPlot.setFlagDirty(true);
+-			//kLoopPlot.updateGraphicEra();*/
++			// (advc: Deleted flag update code that wasn't working and had already been commented out)
+ 		}
+ 
+-		//update flag eras
+-		kInterface.setDirty(Flag_DIRTY_BIT, true);
+ 		if (getID() == GC.getGame().getActivePlayer())
+ 			kInterface.setDirty(Soundtrack_DIRTY_BIT, true);
+ 		kInterface.makeInterfaceDirty();
+@@ -2860,7 +2845,7 @@ CvWString CvPlayer::getFlagDecal() const
+ {
+ 	if (GC.getInitCore().getFlagDecal(getID()).empty())
+ 		return GC.getInfo(getCivilizationType()).getFlagTexture();
+-	else return GC.getInitCore().getFlagDecal(getID());
++	return GC.getInitCore().getFlagDecal(getID());
+ }
+ 
+ bool CvPlayer::isWhiteFlag() const
+@@ -2870,6 +2855,29 @@ bool CvPlayer::isWhiteFlag() const
+ 	return GC.getInitCore().getWhiteFlag(getID());
+ }
+ 
++/*	advc.127c: Wrapper for CvInitCore::setFlagDecal that can (bUpdate=true)
++	attempt to clear all flag symbols on the map in order to update
++	the flag graphics. */
++void CvPlayer::setFlagDecal(CvWString const& szFlagDecal, bool bUpdate)
++{
++	if (&szFlagDecal == &GC.getInitCore().getFlagDecal(getID()))
++		return;
++	GC.getInitCore().setFlagDecal(getID(), szFlagDecal);
++	if (!bUpdate)
++		return;
++	gDLL->getInterfaceIFace()->setDirty(Flag_DIRTY_BIT, true);
++	if (isBarbarian())
++	{
++		FAssertMsg(false, "CvPlot::clearFlagSymbol might not work correctly when"
++				" updating flag symbols after changing the Barbarian flag decal.");
++		return;
++	}
++	for (int i = 0; i < GC.getMap().numPlots(); i++)
++	{
++		GC.getMap().plotByIndex(i)->clearFlagSymbol();
++	}
++}
++
+ 
+ const wchar* CvPlayer::getStateReligionName(uint uiForm) const
+ {
+@@ -10257,7 +10265,7 @@ void CvPlayer::setPersonalityType(LeaderHeadTypes eNewValue)
+ }
+ 
+ 
+-void CvPlayer::setCurrentEra(EraTypes eNewValue, /* advc.127c: */ bool bGraphicsOnly)
++void CvPlayer::setCurrentEra(EraTypes eNewValue)
+ {
+ 	if (getCurrentEra() == eNewValue)
+ 		return; // advc
+@@ -10297,14 +10305,11 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue, /* advc.127c: */ bool bGraphics
+ 		gDLL->getEntityIFace()->updateGraphicEra(pLoopUnit->getUnitEntity(), eOldEra);
+ 	}
+ 
+-	//update flag eras
++	//update main interface flag
+ 	gDLL->getInterfaceIFace()->setDirty(Flag_DIRTY_BIT, true);
+ 
+ 	if (getID() == GC.getGame().getActivePlayer())
+ 		gDLL->getInterfaceIFace()->setDirty(Soundtrack_DIRTY_BIT, true);
+-	// <advc.127c>
+-	if (bGraphicsOnly)
+-		return; // </advc.127c>
+ 
+ 	if (isHuman() && getCurrentEra() != GC.getGame().getStartEra() && !GC.getGame().isNetworkMultiPlayer())
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index e679a3f51..80515cf83 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -152,6 +152,7 @@ public:
+ 	wchar const* getCivilizationAdjectiveKey() const;																									// Exposed to Python
+ 	DllExport CvWString getFlagDecal() const;																																		// Exposed to Python
+ 	DllExport bool isWhiteFlag() const;																																					// Exposed to Python
++	void setFlagDecal(CvWString const& szFlagDecal, bool bUpdate); // advc.127c
+ 	const wchar* getStateReligionName(uint uiForm = 0) const;																					// Exposed to Python
+ 	const wchar* getStateReligionKey() const;																													// Exposed to Python
+ 	const CvWString getBestAttackUnitName(uint uiForm = 0) const;																								// Exposed to Python
+@@ -804,7 +805,7 @@ public:
+ 	void setPersonalityType(LeaderHeadTypes eNewValue);																					// Exposed to Python
+ 	// advc.opt: Inlined
+ 	inline DllExport EraTypes getCurrentEra() const { return m_eCurrentEra; }																										// Exposed to Python
+-	void setCurrentEra(EraTypes eNewValue, /* advc.127c: */ bool bGraphicsOnly = false);
++	void setCurrentEra(EraTypes eNewValue);
+ 
+ 	ReligionTypes getLastStateReligion() const;
+ 	ReligionTypes getStateReligion() const;																									// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index d24b7f3fa..7b4722abb 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6502,6 +6502,25 @@ void CvPlot::updateFlagSymbol()
+ 		gDLL->getFlagEntityIFace()->updateUnitInfo(m_pFlagSymbolOffset, this, true);
+ }
+ 
++// advc.127c: For CvPlayer::setFlagDecal
++void CvPlot::clearFlagSymbol()
++{
++	if (m_pFlagSymbol == NULL)
++		return;
++	CvDLLFlagEntityIFaceBase& kFlagEntityIFace = *gDLL->getFlagEntityIFace();
++	kFlagEntityIFace.destroy(m_pFlagSymbol);
++	m_pFlagSymbol = NULL; // So that updateFlagSymbols will update the flag
++
++	/*	It seems that the EXE maintains some sort of cache or object pool.
++		Temporarily assigning the flag of a player whose flag decal will not change
++		dynamically seems to clear that cache. Note that these calls don't change
++		the state of this CvPlot object; it's all external. */
++	CvFlagEntity* pTmpFlag = kFlagEntityIFace.create(BARBARIAN_PLAYER);
++	kFlagEntityIFace.setPlot(pTmpFlag, this, false);
++	kFlagEntityIFace.destroy(pTmpFlag);
++	setFlagDirty(true); // Will cause the EXE to call updateFlagSymbols
++}
++
+ 
+ CvUnit* CvPlot::getDebugCenterUnit() const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index fd4a41270..9da5a85e4 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -631,6 +631,7 @@ public:
+ 	DllExport CvFlagEntity* getFlagSymbol() const;
+ 	CvFlagEntity* getFlagSymbolOffset() const;
+ 	DllExport void updateFlagSymbol();
++	void clearFlagSymbol(); // advc.127c
+ 
+ 	DllExport CvUnit* getCenterUnit() const { return m_pCenterUnit; } // advc.inl
+ 	DllExport CvUnit* getDebugCenterUnit() const;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=7650

@@ -1,0 +1,119 @@
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+
+in sevopediafeature, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+printObjAttrs(gc.getFeatureInfo(self.iFeature))
+outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+
+
+[DEBUG] Beginning of show obj inner fields.
+
+__class__
+
+__delattr__
+
+__dict__ = {}
+
+__doc__ = None
+
+__getattribute__
+
+__hash__
+
+__init__
+
+__instance_size__ = 500
+
+__module__ = CvPythonExtensions
+
+__new__
+
+__reduce__
+
+__reduce_ex__
+
+__repr__
+
+__setattr__
+
+__str__
+
+__weakref__ = None
+
+getAdvancedStartRemoveCost
+
+getAppearanceProbability
+
+getButton
+
+getCivilopedia
+
+getDefenseModifier
+
+getDescription
+
+getDescriptionForm
+
+getDisappearanceProbability
+
+getGrowthProbability
+
+getHealthPercent
+
+getHelp
+
+getHillsYieldChange
+
+getMovementCost
+
+getNumVarieties
+
+getRiverYieldChange
+
+getSeeThroughChange
+
+getStrategy
+
+getText
+
+getTextKey
+
+getTurnDamage
+
+getType
+
+getWarmingDefense
+
+getYieldChange
+
+isAddsFreshWater
+
+isGraphicalOnly
+
+isImpassable
+
+isMatchForLink
+
+isNoAdjacent
+
+isNoCity
+
+isNoCoast
+
+isNoImprovement
+
+isNoRiver
+
+isNukeImmune
+
+isRequiresFlatlands
+
+isRequiresRiver
+
+isTerrain
+
+isVisibleAlways
+
+[DEBUG] End of show show obj inner fields.

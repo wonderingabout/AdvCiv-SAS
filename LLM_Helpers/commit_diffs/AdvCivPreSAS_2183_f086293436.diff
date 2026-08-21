@@ -1,0 +1,894 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2183
+# Commit: f086293436683a67c24ca769372d8bbbb8593503
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 711ea22eae44dcc78ba99f86d691841c110fed46
+# Title: Clean up "concealed player identity" mess
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	Assets/Python/Screens/CvVictoryScreen.py
+1	4	CvGameCoreDLL/BBAILog.h
+4	4	CvGameCoreDLL/CitySiteEvaluator.cpp
+3	3	CvGameCoreDLL/CvCity.cpp
+35	42	CvGameCoreDLL/CvGameInterface.cpp
+22	12	CvGameCoreDLL/CvInfo_Symbol.cpp
+9	6	CvGameCoreDLL/CvInfo_Symbol.h
+106	75	CvGameCoreDLL/CvPlayer.cpp
+8	19	CvGameCoreDLL/CvPlayer.h
+7	7	CvGameCoreDLL/CvPlot.cpp
+3	4	CvGameCoreDLL/CvReplayInfo.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+0	5	CvGameCoreDLL/CyPlayer.cpp
+0	1	CvGameCoreDLL/CyPlayer.h
+0	1	CvGameCoreDLL/CyPlayerInterface1.cpp
+3	0	CvGameCoreDLL/Project/CvGameCoreDLL.def
+4	8	CvGameCoreDLL/RiseFall.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 458c87b05..88524e80a 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -766,8 +766,7 @@ class CvVictoryScreen:
+ 			activeCiv = gc.getGame().getActivePlayer()
+ 			s = "?"
+ 			if currentTurn >= startTurn and chapterCiv >= 0:
+-			# (getCivShortDescForced was added by advc.007)
+-				s = gc.getPlayer(chapterCiv).getCivShortDescForced()
++				s = gc.getPlayer(chapterCiv).getCivilizationShortDescription(0)
+ 				if ongoing and not extChapter:
+ 					s = self.highlight(s)
+ 			screen.setTableText(szTable, 1, iRow, s, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/CvGameCoreDLL/BBAILog.h b/CvGameCoreDLL/BBAILog.h
+index f52312c44..67e103085 100644
+--- a/CvGameCoreDLL/BBAILog.h
++++ b/CvGameCoreDLL/BBAILog.h
+@@ -5,10 +5,7 @@
+ 
+ // AI decision making logging
+ 
+-/*  advc.mak: Uncomment to enable BBAI logging. NB: Should use this mostly in
+-	Debug mode b/c of K-Mod's CvPlayer::concealUnknownCivs. (Tbd.: Should
+-	replace CvPlayer::getName and getCivilization{Short}Description calls
+-	in logBBAI arguments with CvPlayer::debugName, debugCivDescr. */
++// advc.mak: Uncomment to enable BBAI logging
+ //#define LOG_AI
+ // Log levels:
+ // 0 - None
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 7e0c1562d..beae1e558 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -233,7 +233,7 @@ void CitySiteEvaluator::log(int iX, int iY)
+ 	}
+ 	else
+ 	{
+-		logBBAI("\n\n%S is about to found a city at (%d,%d); turn %d (year %d)", getPlayer().debugName(),
++		logBBAI("\n\n%S is about to found a city at (%d,%d); turn %d (year %d)", getPlayer().getName(),
+ 				iX, iY, GC.getGame().getGameTurn(), GC.getGame().getGameTurnYear());
+ 		logBBAI("Lower bound for found value: %d", getPlayer().AI_getMinFoundValue());
+ 	}
+@@ -1108,7 +1108,7 @@ bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCi
+ 		if (pOtherCity == NULL && abOwnCityRadius[ePlot])
+ 		{
+ 			IFLOG logBBAI("(%d,%d) is in the radius of a %S city whose borders haven't expanded yet",
+-					p->getX(), p->getY(), kPlayer.debugCivDescr());
++					p->getX(), p->getY(), kPlayer.getCivilizationShortDescription());
+ 			/*  Difficult to judge whether tile sharing makes sense;
+ 				better wait for borders to expand. */
+ 			return false;
+@@ -2745,7 +2745,7 @@ bool AIFoundValue::isDeadlockedBonus(CvPlot const& kBonusPlot, int iMinRange) co
+ void CitySiteEvaluator::logSettings() const
+ {
+ 	logBBAI("Found parameters for %S:", isStartingLoc() ?
+-			L"starting location" : getPlayer().debugName());
++			L"starting location" : getPlayer().getName());
+ 	logBBAI("Culture claim treshold: %d", getClaimThreshold());
+ 	if (getMinRivalRange() != -1)
+ 		logBBAI("MinRivalRange: %d", getMinRivalRange());
+@@ -2782,7 +2782,7 @@ void AIFoundValue::logSite() const
+ 	if (bCoastal)
+ 		logBBAI("Site is coastal");
+ 	if (!kSet.isStartingLoc())
+-		logBBAI("%d other %S cities in the area, %d in total", iAreaCities, kPlayer.debugCivDescr(), iCities);
++		logBBAI("%d other %S cities in the area, %d in total", iAreaCities, kPlayer.getCivilizationShortDescription(), iCities);
+ }
+ 
+ void AIFoundValue::logPlot(CvPlot const& p, int iPlotValue, int const* aiYield,
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 1a780ef21..080df5ec0 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11544,8 +11544,8 @@ void CvCity::getCityBillboardSizeIconColors(NiColorA& kDotColor, NiColorA& kText
+ 		/*  advc.001: CvPlayer::getPlayerColor will return the Barbarian color
+ 			if the city owner hasn't been met (city revealed through map trade) */
+ 			GC.getInitCore().getColor(getOwner());
+-	NiColorA kPlayerColor = GC.getInfo((ColorTypes)GC.getInfo(
+-			ePlayerColor).getColorTypePrimary()).getColor();
++	NiColorA kPlayerColor = GC.getInfo(GC.getInfo(ePlayerColor).
++			getColorTypePrimary()).getColor();
+ 	NiColorA kGrowing;
+ 	kGrowing = NiColorA(0.73f, 1,0.73f, 1);
+ 	NiColorA kShrinking(1, 0.73f, 0.73f, 1);
+@@ -11583,7 +11583,7 @@ void CvCity::getCityBillboardSizeIconColors(NiColorA& kDotColor, NiColorA& kText
+ 	else
+ 	{
+ 		kDotColor = kPlayerColor;
+-		NiColorA kPlayerSecondaryColor = GC.getInfo((ColorTypes)
++		NiColorA kPlayerSecondaryColor = GC.getInfo(
+ 				GC.getInfo(ePlayerColor). // advc.001
+ 				getColorTypeSecondary()).getColor();
+ 		kTextColor = kPlayerSecondaryColor;
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 3c6afbe64..679a44a39 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -46,28 +46,26 @@ void CvGame::updateColoredPlots()
+ 	// </advc.004h>
+ 
+ 	// advc: (also removed unnecessary NULL checks after m.plotByIndex calls)
+-	CvMap const& m = GC.getMap();
+-	int iPlots = m.numPlots();
++	CvMap const& kMap = GC.getMap();
++	int const iPlots = kMap.numPlots();
+ 	// BETTER_BTS_AI_MOD, Debug, 06/25/09, jdog5000: START
+ 	if(kUI.isShowYields()) // advc.007
+ 	{
+ 		// City circles for debugging
+ 		if (isDebugMode())
+ 		{
+-			for (int iPlotLoop = 0; iPlotLoop < iPlots; iPlotLoop++)
++			for (int i = 0; i < iPlots; i++)
+ 			{
+-				CvPlot& kPlot = m.getPlotByIndex(iPlotLoop);
+-				for(int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++				CvPlot& kPlot = kMap.getPlotByIndex(i);
++				for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 				{
+-					if (GET_PLAYER((PlayerTypes)iI).isAlive())
++					CvPlayerAI const& kPlayer = *it;
++					if (kPlayer.AI_isPlotCitySite(kPlot))
+ 					{
+-						if (GET_PLAYER((PlayerTypes)iI).AI_isPlotCitySite(kPlot))
+-						{
+-							kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
+-									GC.getInfo((ColorTypes)GC.getInfo(
+-									GET_PLAYER((PlayerTypes)iI).getPlayerColor()).getColorTypePrimary()).getColor(),
+-									PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
+-						}
++						kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
++								GC.getInfo(GC.getInfo(kPlayer.getPlayerColor()).
++								getColorTypePrimary()).getColor(),
++								PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
+ 					}
+ 				}
+ 			}
+@@ -76,9 +74,9 @@ void CvGame::updateColoredPlots()
+ 		// Plot improvement replacement circles for debugging
+ 		if (isDebugMode())
+ 		{
+-			for (int iPlotLoop = 0; iPlotLoop < iPlots; iPlotLoop++)
++			for (int i = 0; i < iPlots; i++)
+ 			{
+-				CvPlot& kPlot = m.getPlotByIndex(iPlotLoop);
++				CvPlot& kPlot = kMap.getPlotByIndex(i);
+ 				CvCityAI const* pWorkingCity = kPlot.AI_getWorkingCity();
+ 				ImprovementTypes eImprovement = kPlot.getImprovementType();
+ 				if (pWorkingCity != NULL && eImprovement != NO_IMPROVEMENT)
+@@ -92,8 +90,8 @@ void CvGame::updateColoredPlots()
+ 							eImprovement != GC.getInfo(eBestBuild).getImprovement())
+ 						{
+ 							kEngine.addColoredPlot(kPlot.getX(), kPlot.getY(),
+-									GC.getInfo(GC.getColorType("RED")).
+-									getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
++									GC.getInfo(GC.getColorType("RED")).getColor(),
++									PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_BASE);
+ 						}
+ 					}
+ 				}
+@@ -107,7 +105,7 @@ void CvGame::updateColoredPlots()
+ 	{
+ 		for (int iPlotLoop = 0; iPlotLoop < iPlots; iPlotLoop++)
+ 		{
+-			CvPlot& kPlot = m.getPlotByIndex(iPlotLoop);
++			CvPlot& kPlot = kMap.getPlotByIndex(iPlotLoop);
+ 			if (GET_PLAYER(getActivePlayer()).getAdvancedStartCityCost(true, &kPlot) > 0)
+ 			{
+ 				bool bStartingPlot = false;
+@@ -147,7 +145,7 @@ void CvGame::updateColoredPlots()
+ 		}
+ 	}
+ 
+-	CvCity* pHeadSelectedCity = kUI.getHeadSelectedCity();
++	CvCity const* pHeadSelectedCity = kUI.getHeadSelectedCity();
+ 	if (pHeadSelectedCity != NULL)
+ 	{
+ 		if (kUI.isCityScreenUp())
+@@ -190,7 +188,7 @@ void CvGame::updateColoredPlots()
+ 		{
+ 			for (int iI = 0; iI < iPlots; iI++)
+ 			{
+-				CvPlot& kPlot = m.getPlotByIndex(iI);
++				CvPlot& kPlot = kMap.getPlotByIndex(iI);
+ 				if (kPlot.getOwner() == pHeadSelectedUnit->getOwner())
+ 				{
+ 					if (kPlot.getWorkingCity() != NULL)
+@@ -324,30 +322,25 @@ void CvGame::updateColoredPlots()
+ 	}
+ 	if (pHeadSelectedUnit->isBlockading())
+ 	{
+-		for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
++		for (MemberIter it(getActiveTeam()); it.hasNext(); ++it)
+ 		{
+-			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+-			if(kPlayer.getTeam() != getActiveTeam())
+-				continue; // advc
+-			FOR_EACH_UNIT(pLoopUnit, kPlayer)
++			CvPlayer& kMember = *it;
++			FOR_EACH_UNIT(pLoopUnit, kMember)
+ 			{
+-				if (pLoopUnit->isBlockading())
+-				{ /*  <advc.033> Replacing code that was (mostly) equivalent
+-					  to CvUnit::updatePlunder */
+-					std::vector<CvPlot*> apRange;
+-					pLoopUnit->blockadeRange(apRange);
+-					for(size_t j = 0; j < apRange.size(); j++) // </advc.033>
+-					{
+-						NiColorA color(GC.getInfo((ColorTypes)GC.getInfo(
+-								GET_PLAYER(getActivePlayer()).getPlayerColor()).
+-								getColorTypePrimary()).getColor());
+-						color.a = 0.5f;
+-						kEngine.fillAreaBorderPlot(
+-								apRange[j]->getX(),
+-								apRange[j]->getY(), color,
+-								AREA_BORDER_LAYER_BLOCKADING);
+-					}
+-
++				if (!pLoopUnit->isBlockading())
++					continue; // advc
++				/*  <advc.033> Replacing code that was (mostly) equivalent
++					to CvUnit::updatePlunder */
++				std::vector<CvPlot*> apRange;
++				pLoopUnit->blockadeRange(apRange);
++				for(size_t j = 0; j < apRange.size(); j++) // </advc.033>
++				{
++					NiColorA color(GC.getInfo(GC.getInfo(
++							/*GET_PLAYER(getActivePlayer())*/kMember. // advc.004
++							getPlayerColor()).getColorTypePrimary()).getColor());
++					color.a = 0.5f;
++					kEngine.fillAreaBorderPlot(apRange[j]->getX(), apRange[j]->getY(),
++							color, AREA_BORDER_LAYER_BLOCKADING);
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvInfo_Symbol.cpp b/CvGameCoreDLL/CvInfo_Symbol.cpp
+index 7d4bf5f0a..8fcd1b230 100644
+--- a/CvGameCoreDLL/CvInfo_Symbol.cpp
++++ b/CvGameCoreDLL/CvInfo_Symbol.cpp
+@@ -170,24 +170,34 @@ bool CvColorInfo::read(CvXMLLoadUtility* pXML)
+ }
+ 
+ CvPlayerColorInfo::CvPlayerColorInfo() :
+-m_iColorTypePrimary(NO_COLOR),
+-m_iColorTypeSecondary(NO_COLOR),
+-m_iTextColorType(NO_COLOR)
++m_eColorTypePrimary(NO_COLOR),
++m_eColorTypeSecondary(NO_COLOR),
++m_eTextColorType(NO_COLOR)
+ {}
+ 
+-int CvPlayerColorInfo::getColorTypePrimary() const
++int CvPlayerColorInfo::getColorTypePrimaryExternal() const
+ {
+-	return m_iColorTypePrimary;
++	return getColorTypePrimary();
+ }
+ 
+-int CvPlayerColorInfo::getColorTypeSecondary() const
++int CvPlayerColorInfo::getColorTypeSecondaryExternal() const
+ {
+-	return m_iColorTypeSecondary;
++	return getColorTypeSecondary();
+ }
+ 
+-int CvPlayerColorInfo::getTextColorType() const
++ColorTypes CvPlayerColorInfo::getColorTypePrimary() const
+ {
+-	return m_iTextColorType;
++	return m_eColorTypePrimary;
++}
++
++ColorTypes CvPlayerColorInfo::getColorTypeSecondary() const
++{
++	return m_eColorTypeSecondary;
++}
++
++ColorTypes CvPlayerColorInfo::getTextColorType() const
++{
++	return m_eTextColorType;
+ }
+ 
+ bool CvPlayerColorInfo::read(CvXMLLoadUtility* pXML)
+@@ -198,13 +208,13 @@ bool CvPlayerColorInfo::read(CvXMLLoadUtility* pXML)
+ 	CvString szTextVal;
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "ColorTypePrimary");
+-	m_iColorTypePrimary = pXML->FindInInfoClass( szTextVal);
++	m_eColorTypePrimary = (ColorTypes)pXML->FindInInfoClass( szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "ColorTypeSecondary");
+-	m_iColorTypeSecondary = pXML->FindInInfoClass( szTextVal);
++	m_eColorTypeSecondary = (ColorTypes)pXML->FindInInfoClass( szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "TextColorType");
+-	m_iTextColorType = pXML->FindInInfoClass( szTextVal);
++	m_eTextColorType = (ColorTypes)pXML->FindInInfoClass( szTextVal);
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Symbol.h b/CvGameCoreDLL/CvInfo_Symbol.h
+index a0b45aee2..ceca8923a 100644
+--- a/CvGameCoreDLL/CvInfo_Symbol.h
++++ b/CvGameCoreDLL/CvInfo_Symbol.h
+@@ -102,16 +102,19 @@ class CvPlayerColorInfo : public CvInfoBase
+ public: // The const functions are exposed to Python
+ 	CvPlayerColorInfo();
+ 
+-	DllExport int getColorTypePrimary() const;
+-	DllExport int getColorTypeSecondary() const;
+-	int getTextColorType() const;
++	// Types changed from int to ColorTypes
++	int getColorTypePrimaryExternal() const; // (exported through .def file)
++	int getColorTypeSecondaryExternal() const; // (exported through .def file)
++	ColorTypes getColorTypePrimary() const;
++	ColorTypes getColorTypeSecondary() const;
++	ColorTypes getTextColorType() const;
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
+ protected:
+-	int m_iColorTypePrimary;
+-	int m_iColorTypeSecondary;
+-	int m_iTextColorType;
++	ColorTypes m_eColorTypePrimary;
++	ColorTypes m_eColorTypeSecondary;
++	ColorTypes m_eTextColorType;
+ };
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index b51f4e43f..bbee937fb 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2712,11 +2712,10 @@ void CvPlayer::updateHuman()
+ // K-Mod
+ static bool concealUnknownCivs()
+ {
+-	CvGame const& g = GC.getGame();
+-	return g.getActiveTeam() != NO_TEAM &&
++	return GC.getGame().getActiveTeam() != NO_TEAM &&
+ 			//gDLL->getChtLvl() == 0
+ 			// advc.135c: Replacing the above (which doesn't work in multiplayer)
+-			!g.isDebugMode() &&
++			!GC.getGame().isDebugMode() &&
+ 			!gDLL->GetWorldBuilderMode();
+ }
+ 
+@@ -2726,26 +2725,14 @@ void CvPlayer::setSavingReplay(bool b)
+ 	m_bSavingReplay = b;
+ } // </advc.106i>
+ 
+-// advc.007: bForceReveal param added
+-const wchar* CvPlayer::getName(bool bForceReveal, uint uiForm) const
++
++const wchar* CvPlayer::getName(uint uiForm) const
+ {
+ 	if (GC.getInitCore().getLeaderName(getID(), uiForm).empty() ||
+ 		(GC.getGame().isMPOption(MPOPTION_ANONYMOUS) && isAlive() &&
+ 		GC.getGame().getGameState() == GAMESTATE_ON))
+ 	{
+-		//return GC.getInfo(getLeaderType()).getDescription(uiForm);
+-		// K-Mod. Conceal the leader name of unmet players.
+-		if (bForceReveal || !concealUnknownCivs() ||
+-			GET_TEAM(GC.getGame().getActiveTeam()).isHasSeen(getTeam()))
+-		{
+-			return GC.getInfo(getLeaderType()).getDescription(uiForm);
+-		}
+-		else
+-		{
+-			// hack to stop the string from going out of scope.
+-			static CvWString szUnknown = gDLL->getText("TXT_KEY_UNKNOWN");
+-			return szUnknown;
+-		} // K-Mod end
++		return GC.getInfo(getLeaderType()).getDescription(uiForm);
+ 	}
+ 	else
+ 	{	// <advc.106i>
+@@ -2766,6 +2753,21 @@ const wchar* CvPlayer::getName(bool bForceReveal, uint uiForm) const
+ 	}
+ }
+ 
++// advc.058: New function; unused, see getKnownCivDescription.
++const wchar* CvPlayer::getKnownName(TeamTypes eObserver) const
++{
++	// advc.058: Moved from getName
++	// K-Mod. Conceal the leader name of unmet players.
++	if (concealUnknownCivs() &&
++		!GET_TEAM(eObserver == NO_TEAM ? GC.getGame().getActiveTeam() : eObserver).
++		isHasSeen(getTeam()))
++	{	// hack to stop the string from going out of scope.
++		static CvWString szUnknown = gDLL->getText("TXT_KEY_UNKNOWN");
++		return szUnknown;
++	} // K-Mod end
++	return getName();
++}
++
+ // K-Mod. Player name to be used in replay
+ const wchar* CvPlayer::getReplayName(uint uiForm) const
+ {
+@@ -2796,19 +2798,29 @@ const wchar* CvPlayer::getNameKey() const
+ 
+ const wchar* CvPlayer::getCivilizationDescription(uint uiForm) const
+ {
+-	// K-Mod. Conceal the civilization of unmet players.
+-	if (concealUnknownCivs() && !GET_TEAM(GC.getGame().getActiveTeam()).isHasSeen(getTeam()))
+-	{
+-		static CvWString string = gDLL->getText("TXT_KEY_TOPCIVS_UNKNOWN"); // hack to stop the string from going out of scope.
+-		return string;
+-	}
+-	// K-Mod end
+-
+ 	if (GC.getInitCore().getCivDescription(getID(), uiForm).empty())
+ 		return GC.getInfo(getCivilizationType()).getDescription(uiForm);
+ 	return GC.getInitCore().getCivDescription(getID(), uiForm);
+ }
+ 
++/*	advc.058: New function. Currently unused because civ descriptions
++	don't currently need to be concealed anywhere. (The Python screens
++	take care of that themselves.) */
++wchar const* CvPlayer::getKnownCivDescription(TeamTypes eObserver) const
++{
++	/*	advc.058: Moved from getCivilizationDescription, active team replaced
++		with eObserver. */
++	// K-Mod. Conceal the civilization of unmet players.
++	if (concealUnknownCivs() &&
++		!GET_TEAM(eObserver == NO_TEAM ? GC.getGame().getActiveTeam() : eObserver).
++		isHasSeen(getTeam()))
++	{	// hack to stop the string from going out of scope.
++		static CvWString string = gDLL->getText("TXT_KEY_TOPCIVS_UNKNOWN");
++		return string;
++	} // K-Mod end
++	return getCivilizationDescription();
++}
++
+ 
+ const wchar* CvPlayer::getCivilizationDescriptionKey() const
+ {
+@@ -2817,20 +2829,27 @@ const wchar* CvPlayer::getCivilizationDescriptionKey() const
+ 	return GC.getInitCore().getCivDescriptionKey(getID());
+ }
+ 
+-// advc.007: bForceReveal param added
+-const wchar* CvPlayer::getCivilizationShortDescription(bool bForceReveal, uint uiForm) const
++
++const wchar* CvPlayer::getCivilizationShortDescription(uint uiForm) const
++{
++	if (GC.getInitCore().getCivShortDesc(getID(), uiForm).empty())
++		return GC.getInfo(getCivilizationType()).getShortDescription(uiForm);
++	return GC.getInitCore().getCivShortDesc(getID(), uiForm);
++}
++
++// advc.058: New function; unused, see getKnownCivDescription.
++const wchar* CvPlayer::getKnownCivShortDescription(TeamTypes eObserver) const
+ {
++	// advc.058: Moved from getCivilizationShortDescription
+ 	// K-Mod. Conceal the civilization of unmet players.
+-	if (!bForceReveal && concealUnknownCivs() &&
+-		!GET_TEAM(GC.getGame().getActiveTeam()).isHasSeen(getTeam()))
++	if (concealUnknownCivs() &&
++		!GET_TEAM(eObserver == NO_TEAM ? GC.getGame().getActiveTeam() : eObserver).
++		isHasSeen(getTeam()))
+ 	{
+ 		static CvWString szUnknown = gDLL->getText("TXT_KEY_UNKNOWN");
+ 		return szUnknown;
+ 	} // K-Mod end
+-
+-	if (GC.getInitCore().getCivShortDesc(getID(), uiForm).empty())
+-		return GC.getInfo(getCivilizationType()).getShortDescription(uiForm);
+-	return GC.getInitCore().getCivShortDesc(getID(), uiForm);
++	return getCivilizationShortDescription();
+ }
+ 
+ 
+@@ -10586,49 +10605,63 @@ void CvPlayer::setTeam(TeamTypes eTeam)
+ 
+ PlayerColorTypes CvPlayer::getPlayerColor() const
+ {
+-	//return GC.getInitCore().getColor(getID());
++	return GC.getInitCore().getColor(getID());
++}
++
++/*	advc.058: New function; see getKnownCivDescription. (But this one here
++	is actually used.) */
++PlayerColorTypes CvPlayer::getKnownPlayerColor(TeamTypes eObserver) const
++{
++	// advc.058: Moved from getPlayerColor
+ 	// K-Mod. Conceal the player colour of unmet players.
+-	if (!concealUnknownCivs() || GET_TEAM(GC.getGame().getActiveTeam()).isHasSeen(getTeam()))
+-		return GC.getInitCore().getColor(getID());
+-	else
++	if (concealUnknownCivs() &&
++		!GET_TEAM(eObserver == NO_TEAM ? GC.getGame().getActiveTeam() : eObserver).
++		isHasSeen(getTeam()))
++	{
+ 		return GC.getInitCore().getColor(BARBARIAN_PLAYER);
+-	// K-Mod end
++	} // K-Mod end
++	return getPlayerColor();
++}
++
++// advc.058: Better conceal colors when the EXE asks (as K-Mod did too)
++PlayerColorTypes CvPlayer::getPlayerColorExternal() const
++{
++	return getKnownPlayerColor();
+ }
+ 
+ 
+ int CvPlayer::getPlayerTextColorR() const
+-{
+-	FAssertMsg(getPlayerColor() != NO_PLAYERCOLOR, "getPlayerColor() is not expected to be equal with NO_PLAYERCOLOR");
+-	return ((int)(GC.getInfo((ColorTypes) GC.getInfo(getPlayerColor()).getTextColorType()).getColor().r * 255));
++{	// advc: Round to nearest; also in the other getPlayerTextColor functions.
++	return ::round(GC.getInfo(GC.getInfo(getPlayerColor()).getTextColorType()).
++			getColor().r * 255);
+ }
+ 
+ 
+ int CvPlayer::getPlayerTextColorG() const
+ {
+-	FAssertMsg(getPlayerColor() != NO_PLAYERCOLOR, "getPlayerColor() is not expected to be equal with NO_PLAYERCOLOR");
+-	return ((int)(GC.getInfo((ColorTypes) GC.getInfo(getPlayerColor()).getTextColorType()).getColor().g * 255));
++	return ::round(GC.getInfo(GC.getInfo(getPlayerColor()).getTextColorType()).
++			getColor().g * 255);
+ }
+ 
+ 
+ int CvPlayer::getPlayerTextColorB() const
+ {
+-	FAssertMsg(getPlayerColor() != NO_PLAYERCOLOR, "getPlayerColor() is not expected to be equal with NO_PLAYERCOLOR");
+-	return ((int)(GC.getInfo((ColorTypes) GC.getInfo(getPlayerColor()).getTextColorType()).getColor().b * 255));
++	return ::round(GC.getInfo(GC.getInfo(getPlayerColor()).getTextColorType()).
++			getColor().b * 255);
+ }
+ 
+ 
+ int CvPlayer::getPlayerTextColorA() const
+ {
+-	FAssertMsg(getPlayerColor() != NO_PLAYERCOLOR, "getPlayerColor() is not expected to be equal with NO_PLAYERCOLOR");
+-	return ((int)(GC.getInfo((ColorTypes) GC.getInfo(getPlayerColor()).getTextColorType()).getColor().a * 255));
++	return ::round(GC.getInfo(GC.getInfo(getPlayerColor()).getTextColorType()).
++			getColor().a * 255);
+ }
+ 
+-// <advc.106>
++// advc.106:
+ ColorTypes CvPlayer::getPlayerTextColor() const
+ {
+-	// Don't call getPlayerColor -- that function conceals the colors of unmet civs.
+-	return (ColorTypes)GC.getInfo(GC.getInitCore().getColor(getID())).getTextColorType();
+-} // </advc.106>
++	return GC.getInfo(getPlayerColor()).getTextColorType();
++} 
+ 
+ 
+ int CvPlayer::getSeaPlotYield(YieldTypes eIndex) const
+@@ -21690,8 +21723,10 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector
+ 					pUnit = kPlot.getBestDefender(NO_PLAYER);
+ 				if (pUnit != NULL)
+ 				{
+-					PlayerColorTypes eUnitColor = GET_PLAYER(pUnit->getVisualOwner()).getPlayerColor();
+-					const NiColorA& kColor = GC.getInfo((ColorTypes) GC.getInfo(eUnitColor).getColorTypePrimary()).getColor();
++					PlayerColorTypes eUnitColor = GET_PLAYER(pUnit->getVisualOwner()).
++							getPlayerColor();
++					const NiColorA& kColor = GC.getInfo(GC.getInfo(eUnitColor).
++							getColorTypePrimary()).getColor();
+ 
+ 					szBuffer.clear();
+ 					GAMETEXT.setPlotListHelp(szBuffer, kPlot, true, true,
+@@ -21741,27 +21776,24 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector
+ 
+ 	if (fMaxPlotStrength > 0)
+ 	{
+-		for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
++		for (PlayerIter<ALIVE> it; it.hasNext(); ++it)
+ 		{
+-			if (GET_PLAYER((PlayerTypes)iPlayer).isAlive())
++			CvPlayer const& kUnitOwner = *it;
++			NiColorA const& kOwnerColor = GC.getInfo(GC.getInfo(
++					kUnitOwner.getPlayerColor()).getColorTypePrimary()).getColor();
++			for (int i = 0; i < kMap.numPlots(); i++)
+ 			{
+-				PlayerColorTypes eCurPlayerColor = GET_PLAYER((PlayerTypes) iPlayer).getPlayerColor();
+-				const NiColorA& kColor = GC.getInfo((ColorTypes) GC.getInfo(eCurPlayerColor).getColorTypePrimary()).getColor();
+-
+-				for (int iI = 0; iI < kMap.numPlots(); iI++)
++				CvPlot const& kPlot = kMap.getPlotByIndex(i);
++				if (kPlot.isVisible(getTeam(), true))
+ 				{
+-					CvPlot const& kPlot = kMap.getPlotByIndex(iI);
+-					if (kPlot.isVisible(getTeam(), true))
++					float fPlotStrength = aafPlayerPlotStrength[kUnitOwner.getID()][i];
++					if (fPlotStrength > 0)
+ 					{
+-						float fPlotStrength = aafPlayerPlotStrength[iPlayer][iI];
+-						if (fPlotStrength > 0)
++						float fAlpha = (fPlotStrength / fMaxPlotStrength * 0.75f + 0.25f) * 0.8f;
++						if (fAlpha > aColors[i].a)
+ 						{
+-							float fAlpha = (fPlotStrength / fMaxPlotStrength * 0.75f + 0.25f) * 0.8f;
+-							if (fAlpha > aColors[iI].a)
+-							{
+-								aColors[iI] = kColor;
+-								aColors[iI].a = fAlpha;
+-							}
++							aColors[i] = kOwnerColor;
++							aColors[i].a = fAlpha;
+ 						}
+ 					}
+ 				}
+@@ -21836,8 +21868,8 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption, std
+ 			}
+ 			else
+ 			{
+-				PlayerColorTypes eCurPlayerColor = GET_PLAYER(eOwner).getPlayerColor();
+-				const NiColorA& kColor = GC.getInfo((ColorTypes)GC.getInfo(eCurPlayerColor).
++				PlayerColorTypes eCurPlayerColor = GET_PLAYER(eOwner).getKnownPlayerColor();
++				const NiColorA& kColor = GC.getInfo(GC.getInfo(eCurPlayerColor).
+ 						getColorTypePrimary()).getColor();
+ 				kData.m_kColor.r = kColor.r;
+ 				kData.m_kColor.g = kColor.g;
+@@ -22016,9 +22048,8 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 			int iCurOwnerIdx = i % plot_owners.size();
+ 			PlayerTypes eCurOwnerID = (PlayerTypes) plot_owners[iCurOwnerIdx].second;
+ 			int iCurCulture = plot_owners[iCurOwnerIdx].first;
+-			const NiColorA& kCurColor = GC.getInfo((ColorTypes)
+-					GC.getInfo(GET_PLAYER(eCurOwnerID).getPlayerColor()).
+-					getColorTypePrimary()).getColor();
++			const NiColorA& kCurColor = GC.getInfo(GC.getInfo(GET_PLAYER(eCurOwnerID).
++					getKnownPlayerColor()).getColorTypePrimary()).getColor();
+ 			// damp the color by the value...
+ 			aColors[iI * iColorsPerPlot + i] = kCurColor;
+ 			/*  <advc.004z> Don't give away info about fogged tiles.
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index e74517944..196ac90de 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -126,29 +126,16 @@ public:
+ 	// </advc.inl>
+ 	DllExport void updateHuman();
+ 
+-	/*  K-Mod note: I've changed getName, getCivilizationDescription,
+-		and getCivilizationShortDescription to only give accurate information
+-		if the active player has met this player.
+-		The "key" versions of those functions are unchanged. This is important
+-		because getNameKey and so on are used to create messages for the replay. */
+-	DllExport wchar const* getName(uint uiForm = 0) const																											// Exposed to Python
+-	{	// <advc.007> debugName function for logging
+-		return getName(false, uiForm);
+-	}
+-	wchar const* getName(bool bForceReveal, uint uiForm) const;
+-	wchar const* debugName() const { return getName(true, 0); } // </advc.007>
++	DllExport wchar const* getName(uint uiForm = 0) const;																											// Exposed to Python
++	wchar const* getKnownName(TeamTypes eObserver = NO_TEAM) const; // advc.058
+ 	// K-Mod. Player name to be used in replay
+ 	wchar const* getReplayName(uint uiForm = 0) const;
+ 	DllExport wchar const* getNameKey() const;																																	// Exposed to Python
+ 	DllExport wchar const* getCivilizationDescription(uint uiForm = 0) const;																		// Exposed to Python
++	wchar const* getKnownCivDescription(TeamTypes eObserver = NO_TEAM) const; // advc.058
+ 	wchar const* getCivilizationDescriptionKey() const;																								// Exposed to Python
+-	wchar const* getCivilizationShortDescription(uint uiForm = 0) const															// Exposed to Python
+-	{	// <advc.007> debugCivDescr function for logging
+-		return getCivilizationShortDescription(false, uiForm);
+-	}
+-	wchar const* getCivilizationShortDescription(bool bForceReveal, uint uiForm) const;
+-	wchar const* debugCivDescr() const { return getCivilizationShortDescription(true, 0); }
+-	// </advc.007>
++	wchar const* getCivilizationShortDescription(uint uiForm = 0) const;															// Exposed to Python
++	wchar const* getKnownCivShortDescription(TeamTypes eObserver = NO_TEAM) const; // advc.058
+ 	wchar const* getCivilizationShortDescriptionKey() const;																					// Exposed to Python
+ 	wchar const* getCivilizationAdjective(uint uiForm = 0) const;																			// Exposed to Python
+ 	wchar const* getCivilizationAdjectiveKey() const;																									// Exposed to Python
+@@ -825,7 +812,9 @@ public:
+ 	void setTeam(TeamTypes eTeam);
+ 	void updateTeamType();
+ 
+-	DllExport PlayerColorTypes getPlayerColor() const;																								// Exposed to Python
++	PlayerColorTypes getPlayerColor() const;																							// Exposed to Python
++	PlayerColorTypes getPlayerColorExternal() const; // advc.058 (exported through .def file)
++	PlayerColorTypes getKnownPlayerColor(TeamTypes eObserver = NO_TEAM) const; // advc.058
+ 	DllExport int getPlayerTextColorR() const;																												// Exposed to Python
+ 	DllExport int getPlayerTextColorG() const;																												// Exposed to Python
+ 	DllExport int getPlayerTextColorB() const;																												// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 4fb0e3c99..f335ba697 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -7056,15 +7056,15 @@ ColorTypes CvPlot::plotMinimapColor()
+ 			CvUnit* pCenterUnit = getDebugCenterUnit();
+ 			if (pCenterUnit != NULL)
+ 			{
+-				return (ColorTypes)GC.getInfo(GET_PLAYER(pCenterUnit->
+-						getVisualOwner()).getPlayerColor()).getColorTypePrimary();
++				return GC.getInfo(GET_PLAYER(pCenterUnit->getVisualOwner()).
++						getKnownPlayerColor()).getColorTypePrimary();
+ 			}
+ 		}
+ 		// dlph.21: Removed !isRevealedBarbarian() clause
+ 		if (getRevealedOwner(eActiveTeam, true) != NO_PLAYER)
+ 		{
+-			return (ColorTypes)GC.getInfo(GET_PLAYER(getRevealedOwner(
+-					eActiveTeam, true)).getPlayerColor()).getColorTypePrimary();
++			return GC.getInfo(GET_PLAYER(getRevealedOwner(eActiveTeam, true)).
++					getKnownPlayerColor()).getColorTypePrimary();
+ 		}
+ 	}
+ 
+@@ -8311,7 +8311,7 @@ bool CvPlot::isConnectSea() const
+ 	   to do, but shortening paths within a water area can also be valuable. */
+ } // </advc.121>
+ 
+-/*  <advc.031c> For found value log; but could also find other uses, possibly through
++/*  advc.031c: For found value log; but could also find other uses, possibly through
+ 	optional call parameters. */
+ wchar const* CvPlot::debugStr() const
+ {
+@@ -8338,6 +8338,6 @@ wchar const* CvPlot::debugStr() const
+ 	if (isFeature())
+ 		out << L" " << GC.getInfo(getFeatureType()).getDescription();
+ 	if (isOwned())
+-		out << L" (" << GET_PLAYER(getOwner()).debugCivDescr() << L")";
++		out << L" (" << GET_PLAYER(getOwner()).getCivilizationShortDescription() << L")";
+ 	return out.str().c_str();
+-} // </advc.031c>
++}
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index dc0c0c7a8..fcf275eb1 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -170,10 +170,9 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 
+ 			PlayerInfo playerInfo;
+ 			playerInfo.m_eLeader = player.getLeaderType();
+-			playerInfo.m_eColor = (ColorTypes)GC.getInfo(
+-					//player.getPlayerColor()).getColorTypePrimary();
+-					// K-Mod. (bypass the conceal colour check.)
+-					GC.getInitCore().getColor((PlayerTypes)iPlayer)).getColorTypePrimary();
++			playerInfo.m_eColor = GC.getInfo(player.getPlayerColor()).getColorTypePrimary();
++					// K-Mod. (bypass the conceal colour check.) // advc.007: Not needed anymore
++					//GC.getInitCore().getColor((PlayerTypes)iPlayer)).getColorTypePrimary();
+ 			for (int iTurn = m_iInitialTurn; iTurn <= m_iFinalTurn; iTurn++)
+ 			{
+ 				TurnData score;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index cba200e1d..b0156ea8a 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1898,7 +1898,7 @@ void CvUnit::updateFoundingBorder(bool bForceClear) const
+ 	{
+ 		return;
+ 	}
+-	ColorTypes eColor = (ColorTypes)GC.getInfo(GET_PLAYER(getOwner()).
++	ColorTypes eColor = GC.getInfo(GET_PLAYER(getOwner()).
+ 			getPlayerColor()).getColorTypePrimary();
+ 	NiColorA const& color = GC.getInfo(eColor).getColor();
+ 	for(int i = 0; i < GC.getMap().numPlots(); i++)
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 3934388ea..8dcf1ac6a 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -150,11 +150,6 @@ std::wstring CyPlayer::getCivilizationShortDescription(int iForm)
+ {
+ 	return m_pPlayer ? m_pPlayer->getCivilizationShortDescription((uint)iForm) : std::wstring();
+ }
+-// <advc.007>
+-std::wstring CyPlayer::getCivShortDescForced()
+-{
+-	return m_pPlayer ? m_pPlayer->getCivilizationShortDescription(true, 0) : std::wstring();
+-} // </advc.007>
+ 
+ std::wstring CyPlayer::getCivilizationShortDescriptionKey()
+ {
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index 653d756f2..4c711bd54 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -53,7 +53,6 @@ public:
+ 	std::wstring getCivilizationDescription(int iForm);
+ 	std::wstring getCivilizationDescriptionKey();
+ 	std::wstring getCivilizationShortDescription(int iForm);
+-	std::wstring getCivShortDescForced(); // advc.007
+ 	std::wstring getCivilizationShortDescriptionKey();
+ 	std::wstring getCivilizationAdjective(int iForm);
+ 	std::wstring getCivilizationAdjectiveKey();
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index 50673c66b..289d3b17b 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -50,7 +50,6 @@ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
+ 		.def("getNameKey", &CyPlayer::getNameKey, "str ()")
+ 		.def("getCivilizationDescription", &CyPlayer::getCivilizationDescription, "str (int) - returns the Civilization Description String")
+ 		.def("getCivilizationShortDescription", &CyPlayer::getCivilizationShortDescription, "str (int) - returns the short Civilization Description")
+-		.def("getCivShortDescForced", &CyPlayer::getCivShortDescForced, "str ()") // advc.007
+ 		.def("getCivilizationDescriptionKey", &CyPlayer::getCivilizationDescriptionKey, "str() - returns the Civilization Description String")
+ 		.def("getCivilizationShortDescriptionKey", &CyPlayer::getCivilizationShortDescriptionKey, "str() - returns the short Civilization Description")
+ 		.def("getCivilizationAdjective", &CyPlayer::getCivilizationAdjective, "str() - returns the Civilization name in adjective form")
+
+diff --git a/CvGameCoreDLL/Project/CvGameCoreDLL.def b/CvGameCoreDLL/Project/CvGameCoreDLL.def
+index 09e1b5ac4..a2afc3129 100644
+--- a/CvGameCoreDLL/Project/CvGameCoreDLL.def
++++ b/CvGameCoreDLL/Project/CvGameCoreDLL.def
+@@ -23,3 +23,6 @@ EXPORTS
+ ?<hidden-email>@@QBE_NXZ=?<hidden-email>@@QBE_NXZ
+ ?getUnit@@YAPAVCvUnit@@UIDInfo@@@Z=?getUnitExternal@@YAPAVCvUnit@@UIDInfo@@@Z
+ ?getCity@@YAPAVCvCity@@UIDInfo@@@Z=?getCityExternal@@YAPAVCvCity@@UIDInfo@@@Z
++?<hidden-email>@@QBEHXZ=?<hidden-email>@@QBEHXZ
++?<hidden-email>@@QBEHXZ=?<hidden-email>@@QBEHXZ
++?<hidden-email>@@QBE?AW4PlayerColorTypes@@XZ=?<hidden-email>@@QBE?AW4PlayerColorTypes@@XZ
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 99d43d7cf..debc51891 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -402,11 +402,8 @@ void RiseFall::atActiveTurnStart() {
+ 		if(chapters[i]->isScored() && !chapters[i]->isScoreShown()) {
+ 			CvPopupInfo* popup = new CvPopupInfo(BUTTONPOPUP_TEXT);
+ 			CvWString text;
+-			/*  Bypass CvPlayer::getCivilizationDescription
+-				(which obscures unknown civs) */
+-			wchar const* civDescr = GC.getInfo(
+-					GET_PLAYER(chapters[i]->getCiv()).getCivilizationType()).
+-					getShortDescription();
++			wchar const* civDescr = GET_PLAYER(chapters[i]->getCiv()).
++					getCivilizationShortDescription();
+ 			if(GET_PLAYER(chapters[i]->getCiv()).isAlive())
+ 				text = gDLL->getText("TXT_KEY_RF_POPUP_SCORE", i + 1, civDescr);
+ 			else text = gDLL->getText("TXT_KEY_RF_POPUP_SCORE_EARLY",  i + 1, civDescr);
+@@ -1075,9 +1072,8 @@ CvWString RiseFall::knownName(PlayerTypes civId, bool nameNumber) const {
+ 				unique = false;
+ 				break;
+ 			}
+-		} // Bypass CvPlayer::getCivDescription
+-		wchar const* civDescr = GC.getInfo(civ.getCivilizationType()).
+-				getShortDescription();
++		}
++		wchar const* civDescr = civ.getCivilizationShortDescription();
+ 		/*  Nicer to show civ names, but if one civ is in the game multiple times,
+ 			will have to show the leader name. */
+ 		if(unique)
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=35528

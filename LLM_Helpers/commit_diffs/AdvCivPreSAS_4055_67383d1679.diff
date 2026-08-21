@@ -1,0 +1,150 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4055
+# Commit: 67383d167967b8a9ad34f84d1210a5c6afea064f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 55aae2e5f0e8d27c24e1f641a4df7d5c5852f8a2
+# Title: Tweak fear of 3rd-party interventions, esp. on crowded maps.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+46	5	CvGameCoreDLL/CvPlayerAI.cpp
+9	6	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9439badb1..2c3d8efa8 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -26468,7 +26468,8 @@ int CvPlayerAI::AI_paranoiaRating(PlayerTypes eRival, int iOurDefPow,
+ {
+ 	CvPlayerAI const& kRival = GET_PLAYER(eRival);
+ 	CvTeamAI const& kRivalTeam = GET_TEAM(eRival);
+-	if (GET_TEAM(getTeam()).AI_getWarPlan(kRivalTeam.getID()) != NO_WARPLAN)
++	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
++	if (kOurTeam.AI_getWarPlan(kRivalTeam.getID()) != NO_WARPLAN)
+ 		return 0;
+ 	bool const bRivalFocusWar = kRival.AI_isFocusWar();
+ 	// <advc.022> Don't fear (AI) civs that are busy
+@@ -26531,13 +26532,13 @@ int CvPlayerAI::AI_paranoiaRating(PlayerTypes eRival, int iOurDefPow,
+ 				pow(fixp(0.23))).round();
+ 	} // </advc.022>
+ 	if (iCloseness > 0 ||
+-		GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea(kRivalTeam.getID())) // K-Mod
++		kOurTeam.AI_hasCitiesInPrimaryArea(kRivalTeam.getID())) // K-Mod
+ 	{	// <advc.022>
+ 		// Humans tend to reciprocate our feelings
+ 		int iHumanWarProb = 70 - AI_getAttitude(eRival) * 10;
+ 		int iAttitudeWarProb = (kRival.isHuman() ? iHumanWarProb :
+ 				// Now based on rival's personality and attitude
+-				100 - kRivalTeam.AI_noWarProbAdjusted(getTeam()));
++				100 - kRivalTeam.AI_noWarProbAdjusted(kOurTeam.getID()));
+ 		// (BBAI military power check deleted)
+ 		//iValue += std::max(0, iAttitudeWarProb/2); // K-Mod
+ 		iValue += std::max(0, (std::min(3, (1 + kRival.AI_getCurrEra()))
+@@ -26557,7 +26558,7 @@ int CvPlayerAI::AI_paranoiaRating(PlayerTypes eRival, int iOurDefPow,
+ 				2 * iOurDefPow);
+ 		iValue /= std::max(1, iOurDefPow);
+ 		// <K-Mod>
+-		if (kRivalTeam.AI_getWorstEnemy() == getTeam())
++		if (kRivalTeam.AI_getWorstEnemy() == kOurTeam.getID())
+ 		{
+ 			//iTempParanoia *= 2;
+ 			// advc.022: Don't give their attitude too much weight
+@@ -26573,10 +26574,50 @@ int CvPlayerAI::AI_paranoiaRating(PlayerTypes eRival, int iOurDefPow,
+ 	else if (kRival.AI_atVictoryStage(AI_VICTORY_DOMINATION3))
+ 		iVictStratParanoia += 75; // advc.022: was 50
+ 	/*  advc.022: Too high in K-Mod I think; who knows when they'll get around
+-		to attacking us. (Could count the alternative targets I guess ...). */
++		to attacking us. */
+ 	iValue += iVictStratParanoia / 2;
+ 	if (iValue <= 0)
+ 		return 0;
++	/*	<advc.104> Somewhat important for large, overcrowded-continents
++		to adjust for alternative targets of eRival. */
++	if (kRival.hasCapital() && hasCapital())
++	{
++		CvCity const& kRivalCapital = *kRival.getCapital();
++		if (kOurTeam.AI_deduceCitySite(kRivalCapital))
++		{
++			int const iDistUsRival = plotDistance(
++					getCapital()->plot(), kRivalCapital.plot());
++			/*	Doesn't really matter how powerful the third party is; if they're
++				strong, then eRival will fear their attack; if they're very weak,
++				an attack by eRival will still be a major distraction. */
++			int iAltTargets = 0;
++			for (PlayerAIIter<CIV_ALIVE,KNOWN_POTENTIAL_ENEMY_OF> itThirdParty(
++				kRivalTeam.getID()); itThirdParty.hasNext(); ++itThirdParty)
++			{
++				if (itThirdParty->getMasterTeam() == getMasterTeam() ||
++					!kOurTeam.isHasMet(itThirdParty->getTeam()) ||
++					(kRivalTeam.isHuman() ?
++					GET_TEAM(itThirdParty->getTeam()).AI_isAvoidWar(kRivalTeam.getID()) :
++					kRivalTeam.AI_isAvoidWar(itThirdParty->getTeam())) ||
++					!itThirdParty->hasCapital())
++				{
++					continue;
++				}
++				CvCity const& kThirdCapital = *itThirdParty->getCapital();
++				if (!kOurTeam.AI_deduceCitySite(kThirdCapital))
++					continue;
++				if (kThirdCapital.sameArea(kRivalCapital) &&
++					5 * plotDistance(
++					kThirdCapital.plot(), kRivalCapital.plot()) < iDistUsRival * 7)
++				{
++					iAltTargets++;
++				}
++			}
++			scaled rAltTargetMult = fixp(1.24) - fixp(0.18) * iAltTargets;
++			rAltTargetMult.increaseTo(fixp(0.4));
++			iValue = (iValue * rAltTargetMult).uceil();
++		}
++	} // </advc.104>
+ 	/*if (iCloseness == 0)
+ 		iTempParanoia /= 2;*/
+ 	// <advc.022> Do something smoother
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 1ec5f7f1a..5c3467718 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -4523,10 +4523,13 @@ int ThirdPartyIntervention::preEvaluate()
+ 	/*	The timing of the intervention is difficult to predict. They may or may not
+ 		need to build up units, and we may be weakest early in the simulation or
+ 		late, but, even in the latter case, they might attack early b/c we already
+-		appear weak enough ... I'm just going to look at the current power values
+-		b/c that's easy to implement. */
+-	m_rDefPow = /*(militAnalyst().gainedPower(eWe, ARMY) +
+-			militAnalyst().gainedPower(eWe, HOME_GUARD)) / 2 +*/ // Count gains half?
++		appear weak enough ... Too complicated to estimate their build-up, but it'll
++		probably be less than ours because we'll start right away and won't stop
++		until the war ends. So let's count our estimated change in power half
++		and theirs not at all - and later adjust our power a bit to account for
++		distraction. */
++	m_rDefPow = (militAnalyst().gainedPower(eWe, ARMY) +
++			militAnalyst().gainedPower(eWe, HOME_GUARD)) / 2 + // Count gains half
+ 			// The cache includes HOME_GUARD in ARMY
+ 			ourCache().getPowerValues()[ARMY]->power();
+ 	m_rDefPow.increaseTo(scaled::epsilon());
+@@ -4648,8 +4651,8 @@ void ThirdPartyIntervention::evaluate()
+ 		int iOurDefPow = kOurTeam.getDefensivePower();
+ 		iOurDefPow = (iOurDefPow * (1 - rOurLostPowRatio)).uround();
+ 		int iParanoia = kWe.AI_paranoiaRating(eThey, iOurDefPow, false, true);
+-		iParanoia = std::min(iParanoia, 190);
+-		rInterventionProb = scaled(iParanoia - 25, 215);
++		iParanoia = std::min(iParanoia, 220);
++		rInterventionProb = scaled(iParanoia - 30, 250);
+ 		if (rInterventionProb > 0)
+ 		{
+ 			log("Our paranoia rating: %d", iParanoia);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5868

@@ -1,0 +1,830 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5803
+# Commit: 38e49c80d083d928c63fb85de0ef2709e2224bab
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c3bec84245fde0622701d6bef939c927979eef9a
+# Title: change gc.getInfoTypeForString lookups to getInfoTypeOrFail in some py files; refactor - a batch of relatively safer ones: advisors, sevopedia - hoist and ca...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+6	28	Assets/Python/SASBattleHistory.py
+18	11	Assets/Python/Screens/CvBUGMilitaryAdvisor.py
+36	26	Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+4	1	Assets/Python/Screens/CvDanQuayle.py
+3	2	Assets/Python/Screens/CvDomesticAdvisor.py
+11	11	Assets/Python/Screens/CvForeignAdvisor.py
+11	12	Assets/Python/Screens/CvInfoScreen.py
+16	15	Assets/Python/Screens/CvMainInterface.py
+3	10	Assets/Python/Screens/CvPolicyAdvisorScreen.py
+11	11	Assets/Python/Screens/CvReplayScreen.py
+1	4	Assets/Python/Screens/CvTechChooser.py
+4	15	Assets/Python/Screens/CvVictoryScreen.py
+3	3	Assets/Python/Screens/CvWorldAdvisorScreen.py
+6	5	Assets/Python/Screens/PLE.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index d01118fbc..ab271541a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -413,7 +413,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				self.SAS_mainLinkToCategory[szLinkKey] = iEnum
+ 
+ 		# <!-- custom: add highlight text for sevopedia sorting needs as we added, here fetched once for performance optimization or such -->
+-		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")
++		self.COLOR_HIGHLIGHT_TEXT = getInfoTypeOrFail("COLOR_HIGHLIGHT_TEXT")
+ 		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
+@@ -1046,7 +1046,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.EXIT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT",    ()).upper())
+ 		# <!-- custom: build grey labels for global footer controls that stay visible but may be inactive. Page-specific
+ 		# Legend links still appear only when applicable: no Legend means no page legend, not an inactive global command. See KI#126. (GPT-5.5) -->
+-		eLightGrey = gc.getInfoTypeForString("COLOR_LIGHT_GREY")
++		eLightGrey = getInfoTypeOrFail("COLOR_LIGHT_GREY")
+ 		self.SAS_eFooterDisabledColor = eLightGrey
+ 		self.BACK_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK", ()).upper(), eLightGrey))
+ 		self.NEXT_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper(), eLightGrey))
+@@ -1058,7 +1058,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		
+ 		self.TOC_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper())
+ 		self.INDEX_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper())
+-		eYellow = gc.getInfoTypeForString("COLOR_YELLOW")
++		eYellow = getInfoTypeOrFail("COLOR_YELLOW")
+ 		self.TOC_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper())
+ 		self.INDEX_ACTIVE_TEXT = SASTextScale.titleText(localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper())
+ 
+@@ -1668,7 +1668,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# <advc.004y> Filter out minor civ, but not Barbarians (which do have
+ 		# sensible strategy text). Distinguish b/w them by checking for
+ 		# free Palace. Not sure if that's really better than using
+-		#gc.getInfoTypeForString("CIVILIZATION_MINOR")
++		#getInfoTypeOrFail("CIVILIZATION_MINOR")
+ 		r = []
+ 		for descr,i in civList:
+ 			# <!-- custom: reveal minor nation, i want all information available in the sevopedia. This information may be useful. -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+index 92f352408..b04ce5514 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+@@ -100,7 +100,7 @@ class SevoPediaUnitChart:
+ 		szMove = u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR)
+ 
+ 		# <!-- custom: display more potentially useful information, useful in AdvCiv-SAS or maybe other mods as well, also so that i don't have to maintain it everytime i make a micro (or big) change, more versatile and flexible this way too. -->
+-		#if self.iGroup == gc.getInfoTypeForString("UNITCOMBAT_AIR") or self.iGroup == gc.getInfoTypeForString("UNITCOMBAT_NAVAL") or self.iGroup == gc.getInfoTypeForString("UNITCOMBAT_SIEGE"):
++		#if self.iGroup == getInfoTypeOrFail("UNITCOMBAT_AIR") or self.iGroup == getInfoTypeOrFail("UNITCOMBAT_NAVAL") or self.iGroup == getInfoTypeOrFail("UNITCOMBAT_SIEGE"):
+ 			# <!-- custom: imported and modified from base advciv in a similar way -->
+ 			#szSpecial = "Bombard"
+ 		#else:
+
+diff --git a/Assets/Python/SASBattleHistory.py b/Assets/Python/SASBattleHistory.py
+index b24936cc1..bd5ff6475 100644
+--- a/Assets/Python/SASBattleHistory.py
++++ b/Assets/Python/SASBattleHistory.py
+@@ -3,6 +3,7 @@
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ 
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ import BugData
+ 
+ 
+@@ -39,14 +40,14 @@ def _getMaxEntries():
+ def _getPeakTerrain():
+ 	global _TERRAIN_PEAK
+ 	if _TERRAIN_PEAK is None:
+-		_TERRAIN_PEAK = gc.getInfoTypeForString("TERRAIN_PEAK")
++		_TERRAIN_PEAK = getInfoTypeOrFail("TERRAIN_PEAK")
+ 	return _TERRAIN_PEAK
+ 
+ 
+ def _getHillTerrain():
+ 	global _TERRAIN_HILL
+ 	if _TERRAIN_HILL is None:
+-		_TERRAIN_HILL = gc.getInfoTypeForString("TERRAIN_HILL")
++		_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL")
+ 	return _TERRAIN_HILL
+ 
+ 
+@@ -201,14 +202,7 @@ def noteCombatActors(cdAttacker, cdDefender, iAttackerXP=None, iDefenderXP=None,
+ 	global _PENDING_COMBAT_ACTORS
+ 	global _PENDING_COMBAT_UNIT_CONTEXT
+ 	bKeepUnitContext = (_PENDING_COMBAT_ACTORS is not None and _PENDING_COMBAT_UNIT_CONTEXT is not None and iAttackerXP is None and iDefenderXP is None and _PENDING_COMBAT_ACTORS[0] == int(cdAttacker.eOwner) and _PENDING_COMBAT_ACTORS[1] == int(cdDefender.eOwner))
+-	_PENDING_COMBAT_ACTORS = (
+-		int(cdAttacker.eOwner),
+-		int(cdDefender.eOwner),
+-		int(cdAttacker.iCurrCombatStr),
+-		int(cdAttacker.iMaxCombatStr),
+-		int(cdDefender.iCurrCombatStr),
+-		int(cdDefender.iMaxCombatStr),
+-	)
++	_PENDING_COMBAT_ACTORS = (int(cdAttacker.eOwner), int(cdDefender.eOwner), int(cdAttacker.iCurrCombatStr), int(cdAttacker.iMaxCombatStr), int(cdDefender.iCurrCombatStr), int(cdDefender.iMaxCombatStr))
+ 	if bKeepUnitContext:
+ 		return
+ 	_PENDING_COMBAT_UNIT_CONTEXT = None
+@@ -234,15 +228,7 @@ def recordCombatResult(pWinner, pLoser):
+ 		if iPendingAttacker == iWinner and iPendingDefender == iLoser:
+ 			iBattleX = pLoser.getX()
+ 			iBattleY = pLoser.getY()
+-	entry = (
+-		CyGame().getGameTurn(),
+-		iWinner,
+-		iLoser,
+-		pWinner.getUnitType(),
+-		pLoser.getUnitType(),
+-		iBattleX,
+-		iBattleY,
+-	)
++	entry = (CyGame().getGameTurn(), iWinner, iLoser, pWinner.getUnitType(), pLoser.getUnitType(), iBattleX, iBattleY)
+ 	if _PENDING_COMBAT_ACTORS is not None:
+ 		iAttacker, iDefender = _PENDING_COMBAT_ACTORS[:2]
+ 		# <!-- custom: only attach combat-log strength data when its attacker/defender owners match this combat result, so a stale pending tuple from an interrupted/odd combat cannot corrupt the next row. Credit: Claude code Opus 4.7 review. (GPT-5.5) -->
+@@ -279,15 +265,7 @@ def recordCombatRetreat(iAttacker, iDefender, iAttackerUnit, iDefenderUnit, iX,
+ 	iDefender = int(iDefender)
+ 	if iAttacker < 0 or iDefender < 0:
+ 		return
+-	entry = (
+-		CyGame().getGameTurn(),
+-		iAttacker,
+-		iDefender,
+-		int(iAttackerUnit),
+-		int(iDefenderUnit),
+-		int(iX),
+-		int(iY),
+-	)
++	entry = (CyGame().getGameTurn(), iAttacker, iDefender, int(iAttackerUnit), int(iDefenderUnit), int(iX), int(iY))
+ 	if _PENDING_COMBAT_ACTORS is not None and _PENDING_COMBAT_ACTORS[0] == iAttacker and _PENDING_COMBAT_ACTORS[1] == iDefender:
+ 		entry += _PENDING_COMBAT_ACTORS
+ 	while len(entry) < _END_STRENGTH_DATA_START:
+
+diff --git a/Assets/Python/Screens/CvBUGMilitaryAdvisor.py b/Assets/Python/Screens/CvBUGMilitaryAdvisor.py
+index c85fb6417..419c0cce9 100644
+--- a/Assets/Python/Screens/CvBUGMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvBUGMilitaryAdvisor.py
+@@ -19,8 +19,15 @@
+ ## Author: Ruff_Hi (Situation Report tab)
+ ##         EmperorFool (Deployment and Strategic Advantages tabs)
+ ##         Karadoc (General changes and reformating to better match the style of the other advisors)
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this BUG screen; the custom Military Advisor lives in CvMilitaryAdvisor.py. Minor edits here are limited to repo-wide consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ import CvUtil
+ import PyHelpers
+ import time
+@@ -251,7 +258,7 @@ class CvMilitaryAdvisor:
+ 		if (self.iScreen != UNIT_LOCATION_SCREEN):
+ 			szText = u"<font=4>" + localText.getText("TXT_KEY_MILITARY_UNIT_LOCATION", ()).upper() + "</font>"
+ 		else:
+-			szText = u"<font=4>" + localText.getColorText("TXT_KEY_MILITARY_UNIT_LOCATION", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + "</font>"
++			szText = u"<font=4>" + localText.getColorText("TXT_KEY_MILITARY_UNIT_LOCATION", (), getInfoTypeOrFail("COLOR_YELLOW")).upper() + "</font>"
+ 		screen.setText(self.UNIT_LOC_TAB_ID, "", szText, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		#xLink += CyInterface().determineWidth(szText) + self.SPACING
+ 		xLink += self.DX_LINK #K-Mod
+@@ -259,7 +266,7 @@ class CvMilitaryAdvisor:
+ 		if (self.iScreen != SITUATION_REPORT_SCREEN):
+ 			szText = u"<font=4>" + localText.getText("TXT_KEY_MILITARY_SITUATION_REPORT", ()).upper() + "</font>"
+ 		else:
+-			szText = u"<font=4>" + localText.getColorText("TXT_KEY_MILITARY_SITUATION_REPORT", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + "</font>"
++			szText = u"<font=4>" + localText.getColorText("TXT_KEY_MILITARY_SITUATION_REPORT", (), getInfoTypeOrFail("COLOR_YELLOW")).upper() + "</font>"
+ 		screen.setText(self.SIT_REP_TAB_ID, "", szText, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		#xLink += CyInterface().determineWidth(szText) + self.SPACING
+ 		xLink += self.DX_LINK #K-Mod
+@@ -267,7 +274,7 @@ class CvMilitaryAdvisor:
+ 		if (self.iScreen != STRATEGIC_ADVANTAGES_SCREEN):
+ 			szText = u"<font=4>" + localText.getText("TXT_KEY_MILITARY_STRATEGIC_ADVANTAGES", ()).upper() + "</font>"
+ 		else:
+-			szText = u"<font=4>" + localText.getColorText("TXT_KEY_MILITARY_STRATEGIC_ADVANTAGES", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + "</font>"
++			szText = u"<font=4>" + localText.getColorText("TXT_KEY_MILITARY_STRATEGIC_ADVANTAGES", (), getInfoTypeOrFail("COLOR_YELLOW")).upper() + "</font>"
+ 		screen.setText(self.STRAT_ADV_TAB_ID, "", szText, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ #### Situation Report Tab ####
+@@ -976,7 +983,7 @@ class CvMilitaryAdvisor:
+ 		szText = localText.getText("TXT_KEY_PEDIA_ALL_UNITS", ()).upper()
+ 		bAllSelected = iGroupID in self.selectedGroups
+ 		if (bAllSelected):
+-			szText = localText.changeTextColor(u"<u>" + szText + u"</u>", gc.getInfoTypeForString("COLOR_YELLOW"))
++			szText = localText.changeTextColor(u"<u>" + szText + u"</u>", getInfoTypeOrFail("COLOR_YELLOW"))
+ 		if (bRedraw):
+ 			screen.addListBoxGFC(self.UNIT_LIST_ID, "", self.X_TEXT + self.MAP_MARGIN, self.Y_TEXT + self.MAP_MARGIN + 15, self.W_TEXT - 2 * self.MAP_MARGIN, self.H_TEXT - 2 * self.MAP_MARGIN - 15, TableStyles.TABLE_STYLE_STANDARD)
+ 			screen.enableSelect(self.UNIT_LIST_ID, False)
+@@ -989,9 +996,9 @@ class CvMilitaryAdvisor:
+ #			for group in grouping.itergroups():
+ #				BugUtil.debug("%s / %s : %d (%d)" % (grouping.grouping.title, group.group.title, group.size(), group.isEmpty()))
+ 		
+-		eYellow = gc.getInfoTypeForString("COLOR_YELLOW")
+-		eRed = gc.getInfoTypeForString("COLOR_RED")
+-		eWhite = gc.getInfoTypeForString("COLOR_WHITE")
++		eYellow = getInfoTypeOrFail("COLOR_YELLOW")
++		eRed = getInfoTypeOrFail("COLOR_RED")
++		eWhite = getInfoTypeOrFail("COLOR_WHITE")
+ 		grouping1 = self.stats.getGrouping(self.groupingKeys[0])
+ 		grouping2 = self.stats.getGrouping(self.groupingKeys[1])
+ 		BugUtil.debug("Grouping 1 is %s" % grouping1.grouping.title)
+@@ -1130,10 +1137,10 @@ class CvMilitaryAdvisor:
+ 			szGGTxt_ID = self.getNextWidgetName()
+ 
+ 			screen.addStackedBarGFC(szGGBar_ID, self.X_GREAT_GENERAL_BAR, self.Y_GREAT_GENERAL_BAR, self.W_GREAT_GENERAL_BAR, self.H_GREAT_GENERAL_BAR, InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
+-			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
+-			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_RATE, gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE"))
+-			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_RATE_EXTRA, gc.getInfoTypeForString("COLOR_EMPTY"))
+-			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_EMPTY, gc.getInfoTypeForString("COLOR_EMPTY"))
++			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_STORED, getInfoTypeOrFail("COLOR_GREAT_PEOPLE_STORED"))
++			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_RATE, getInfoTypeOrFail("COLOR_GREAT_PEOPLE_RATE"))
++			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_RATE_EXTRA, getInfoTypeOrFail("COLOR_EMPTY"))
++			screen.setStackedBarColors(szGGBar_ID, InfoBarTypes.INFOBAR_EMPTY, getInfoTypeOrFail("COLOR_EMPTY"))
+ 			screen.setBarPercentage(szGGBar_ID, InfoBarTypes.INFOBAR_STORED, float(iExperience) / float(gc.getPlayer(self.iActivePlayer).greatPeopleThreshold(true)))
+ 
+ 			screen.setLabel(szGGTxt_ID, "", localText.getText("TXT_KEY_MISC_COMBAT_EXPERIENCE", ()), CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
+
+diff --git a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+index b9743c2a4..a10e47e1e 100644
+--- a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+@@ -54,9 +54,14 @@
+ # AI, UI, or other modifications
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: AdvCiv-SAS does not actively maintain this BUG screen. Edits here are limited to repo-wide
++# consistency passes (e.g. getInfoTypeOrFail for fail-loud XML lookups) and small hoists/caches. (Claude code Opus 4.7) -->
++
+ 
+ 
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ 
+ import PyHelpers
+ import CvUtil
+@@ -401,8 +406,13 @@ class CvCustomizableDomesticAdvisor:
+ 		if(self.runtimeInitDone):
+ 			return
+ 		
+-		self.HURRY_TYPE_POP = gc.getInfoTypeForString("HURRY_POPULATION")
+-		self.HURRY_TYPE_GOLD = gc.getInfoTypeForString("HURRY_GOLD")
++		self.HURRY_TYPE_POP = getInfoTypeOrFail("HURRY_POPULATION")
++		self.HURRY_TYPE_GOLD = getInfoTypeOrFail("HURRY_GOLD")
++		# <!-- custom: cache process IDs used per-city in getColumnProduction. (Claude code Opus 4.7) -->
++		self.PROCESS_WEALTH = getInfoTypeOrFail("PROCESS_WEALTH")
++		self.PROCESS_RESEARCH = getInfoTypeOrFail("PROCESS_RESEARCH")
++		self.PROCESS_CULTURE = getInfoTypeOrFail("PROCESS_CULTURE")
++		self.YIELD_PRODUCTION = getInfoTypeOrFail("YIELD_PRODUCTION")
+ 		
+ 		self.angryIcon = u"%c" % CyGame().getSymbolID(FontSymbols.ANGRY_POP_CHAR)
+ 		self.commerceIcon = u"%c" %(gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar())
+@@ -455,12 +465,12 @@ class CvCustomizableDomesticAdvisor:
+ 		self.objectUnderConstruction = self.hammerIcon
+ 		
+ 		# add the colors dependant on the statuses
+-		self.objectHave = localText.changeTextColor (self.objectIsPresent, gc.getInfoTypeForString("COLOR_GREEN")) #"x"
+-		self.objectNotPossible = localText.changeTextColor (self.objectIsNotPresent, gc.getInfoTypeForString("COLOR_RED")) #"-"
+-		self.objectPossible = localText.changeTextColor (self.objectCanBeBuild, gc.getInfoTypeForString("COLOR_BLUE")) #"o"
+-		self.objectHaveObsolete = localText.changeTextColor (self.objectIsPresent, gc.getInfoTypeForString("COLOR_WHITE")) #"x"
+-		self.objectNotPossibleConcurrent = localText.changeTextColor (self.objectIsNotPresent, gc.getInfoTypeForString("COLOR_YELLOW")) #"-"
+-		self.objectPossibleConcurrent = localText.changeTextColor (self.objectCanBeBuild, gc.getInfoTypeForString("COLOR_YELLOW")) #"o"		
++		self.objectHave = localText.changeTextColor (self.objectIsPresent, getInfoTypeOrFail("COLOR_GREEN")) #"x"
++		self.objectNotPossible = localText.changeTextColor (self.objectIsNotPresent, getInfoTypeOrFail("COLOR_RED")) #"-"
++		self.objectPossible = localText.changeTextColor (self.objectCanBeBuild, getInfoTypeOrFail("COLOR_BLUE")) #"o"
++		self.objectHaveObsolete = localText.changeTextColor (self.objectIsPresent, getInfoTypeOrFail("COLOR_WHITE")) #"x"
++		self.objectNotPossibleConcurrent = localText.changeTextColor (self.objectIsNotPresent, getInfoTypeOrFail("COLOR_YELLOW")) #"-"
++		self.objectPossibleConcurrent = localText.changeTextColor (self.objectCanBeBuild, getInfoTypeOrFail("COLOR_YELLOW")) #"o"		
+ 		
+ 		# Corporation Yield and Commerce values by Bonus
+ 		# Maps are { bonus -> { yield/commerce -> { corporation -> value } } }
+@@ -677,9 +687,9 @@ class CvCustomizableDomesticAdvisor:
+ 			# Colors to highlight with for each type of number (Must be here,
+ 			#  because C++ functions aren't available upon startup of CIV)
+ 			self.COLOR_DICT = {
+-				"PROBLEM": gc.getInfoTypeForString("COLOR_RED"),
+-				"NEUTRAL": gc.getInfoTypeForString("COLOR_YELLOW"),
+-				"GREAT": gc.getInfoTypeForString("COLOR_GREEN"),
++				"PROBLEM": getInfoTypeOrFail("COLOR_RED"),
++				"NEUTRAL": getInfoTypeOrFail("COLOR_YELLOW"),
++				"GREAT": getInfoTypeOrFail("COLOR_GREEN"),
+ 				}
+ 
+ # BUG - Production Grouping - start
+@@ -687,15 +697,15 @@ class CvCustomizableDomesticAdvisor:
+ 			# Colors to use for color-coding of production items.
+ 			# ["DEFAULT"] is used if color-coding is off.
+ 			self.PROD_COLOR_DICT = {
+-				"DEFAULT": gc.getInfoTypeForString("COLOR_WHITE"),
+-				"NOTHING": gc.getInfoTypeForString("COLOR_RED"),
+-				"BUILDING": gc.getInfoTypeForString("COLOR_WHITE"),
+-				"WONDER": gc.getInfoTypeForString("COLOR_CYAN"), 
+-				"WEALTH": gc.getInfoTypeForString("COLOR_YELLOW"),
+-				"RESEARCH": gc.getInfoTypeForString("COLOR_GREEN"),
+-				"CULTURE": gc.getInfoTypeForString("COLOR_MAGENTA"), 
+-				"PROJECT": gc.getInfoTypeForString("COLOR_CYAN"),
+-				"UNIT": gc.getInfoTypeForString("COLOR_YIELD_FOOD"),
++				"DEFAULT": getInfoTypeOrFail("COLOR_WHITE"),
++				"NOTHING": getInfoTypeOrFail("COLOR_RED"),
++				"BUILDING": getInfoTypeOrFail("COLOR_WHITE"),
++				"WONDER": getInfoTypeOrFail("COLOR_CYAN"),
++				"WEALTH": getInfoTypeOrFail("COLOR_YELLOW"),
++				"RESEARCH": getInfoTypeOrFail("COLOR_GREEN"),
++				"CULTURE": getInfoTypeOrFail("COLOR_MAGENTA"),
++				"PROJECT": getInfoTypeOrFail("COLOR_CYAN"),
++				"UNIT": getInfoTypeOrFail("COLOR_YIELD_FOOD"),
+ 				}
+ # BUG - Production Grouping - end
+ 
+@@ -917,7 +927,7 @@ class CvCustomizableDomesticAdvisor:
+ 		x += self.nControlSize + 2
+ 		screen.setImageButton( self.RENAME_PAGE_NAME, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BTN_EVENT_LOG").getPath(), x, self.Y_SPECIAL, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_RENAME_PAGE, -1, -1 )
+ 		x += self.nControlSize + 2
+-		info = gc.getSpecialistInfo(gc.getInfoTypeForString("SPECIALIST_CITIZEN"))
++		info = gc.getSpecialistInfo(getInfoTypeOrFail("SPECIALIST_CITIZEN"))
+ 		screen.addCheckBoxGFC(self.TOGGLE_SPECS_NAME, info.getTexture(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), x, self.Y_SPECIAL, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_TOGGLE_SPECIALISTS, -1, -1, ButtonStyles.BUTTON_STYLE_IMAGE )
+ 		x += self.nControlSize + 2
+ 		screen.setImageButton( self.ADD_PAGE_NAME, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_PLUS").getPath(), x, self.Y_SPECIAL, self.nControlSize, self.nControlSize, WidgetTypes.WIDGET_CDA_ADD_PAGE, -1, -1 )
+@@ -1404,13 +1414,13 @@ class CvCustomizableDomesticAdvisor:
+ 						szColorKey = "BUILDING"
+ 				elif city.isProductionProcess():
+ 					iType = city.getProductionProcess()
+-					if iType == gc.getInfoTypeForString("PROCESS_WEALTH"):
++					if iType == self.PROCESS_WEALTH:
+ 						szColorKey = "WEALTH"
+ 						szIcon = self.goldIcon
+-					elif iType == gc.getInfoTypeForString("PROCESS_RESEARCH"):
++					elif iType == self.PROCESS_RESEARCH:
+ 						szColorKey = "RESEARCH"
+ 						szIcon = self.researchIcon
+-					elif iType == gc.getInfoTypeForString("PROCESS_CULTURE"):
++					elif iType == self.PROCESS_CULTURE:
+ 						szColorKey = "CULTURE"
+ 						szIcon = self.cultureIcon
+ 				elif city.isProductionProject():
+@@ -1490,7 +1500,7 @@ class CvCustomizableDomesticAdvisor:
+ 				iOverflow = iOverflow + city.getCurrentProductionDifference(True, False)
+ 			iMaxOverflow = min(city.getProductionNeeded(), iOverflow)
+ 			iOverflowGold = max(0, iOverflow - iMaxOverflow) * gc.getDefineINT("MAXED_UNIT_GOLD_PERCENT") / 100
+-			iOverflow =  100 * iMaxOverflow / city.getBaseYieldRateModifier(gc.getInfoTypeForString("YIELD_PRODUCTION"), city.getProductionModifier())
++			iOverflow =  100 * iMaxOverflow / city.getBaseYieldRateModifier(self.YIELD_PRODUCTION, city.getProductionModifier())
+ 			return unicode(iOverflow), unicode(iOverflowGold)
+ 		else:
+ 			return self.objectNotPossible, self.objectNotPossible
+@@ -2106,7 +2116,7 @@ class CvCustomizableDomesticAdvisor:
+ 			# If we don't have a plain integer
+ 			if (re.search ("[-+]", nValue)):
+ 				# Color it red and return it
+-				return localText.changeTextColor (nValue, gc.getInfoTypeForString("COLOR_RED"))
++				return localText.changeTextColor (nValue, getInfoTypeOrFail("COLOR_RED"))
+ 			# For each type of comparison
+ 			for szCompareType, clDict in self.COLOR_DICT_DICT.iteritems():
+ 				# Get the color we will use.
+
+diff --git a/Assets/Python/Screens/CvDanQuayle.py b/Assets/Python/Screens/CvDanQuayle.py
+index 031ba1ea1..6c22a4cdc 100644
+--- a/Assets/Python/Screens/CvDanQuayle.py
++++ b/Assets/Python/Screens/CvDanQuayle.py
+@@ -12,6 +12,7 @@ import CvUtil
+ import CvGameUtils
+ import CvScreensInterface
+ from SASFontUtils import *
++from SASUtils import getInfoTypeOrFail
+ import SASTextScale
+ 
+ # globals
+@@ -213,10 +214,12 @@ class CvDanQuayle:
+ 		
+ 		screen.addListBoxGFC(self.LIST_ID, "", self.X_LIST, self.Y_LIST, self.W_LIST, self.H_LIST, TableStyles.TABLE_STYLE_STANDARD)
+ 		screen.enableSelect(self.LIST_ID, False)
++		# <!-- custom: hoist out of per-leader loop. (Claude code Opus 4.7) -->
++		eColorYellow = getInfoTypeOrFail("COLOR_YELLOW")
+ 		for i in range(len(self.leaders)):
+ 			szText = self.leaders[i]
+ 			if (szLeaderText == szText):
+-				szText = localText.getColorText(szText, (), gc.getInfoTypeForString("COLOR_YELLOW"))
++				szText = localText.getColorText(szText, (), eColorYellow)
+ 			else:
+ 				szText = localText.getText(szText, ())
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index 9e3cfb506..8027cceda 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -163,7 +163,8 @@ class CvDomesticAdvisor:
+ 		self.TEXT_EXIT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.TEXT_TAB_FINANCE = localText.getText("TXT_KEY_ECONOMICS_ADVISOR_FINANCE_TAB", ()).upper()
+ 		self.PAGE_NAME_LIST = [self.TEXT_TAB_OVERVIEW1, self.TEXT_TAB_OVERVIEW2, self.TEXT_TAB_OVERVIEW3, self.TEXT_TAB_OVERVIEW4, self.TEXT_TAB_FINANCE]
+-		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
++		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
++		self.PROCESS_WEALTH = getInfoTypeOrFail("PROCESS_WEALTH")
+ 		self.COLOR_POSITIVE_PREFIX = localText.getText("TXT_KEY_COLOR_POSITIVE", ())
+ 		self.COLOR_NEGATIVE_PREFIX = localText.getText("TXT_KEY_COLOR_NEGATIVE", ())
+ 		self.COLOR_REVERT_SUFFIX = localText.getText("TXT_KEY_COLOR_REVERT", ())
+@@ -732,7 +733,7 @@ class CvDomesticAdvisor:
+ 		fSpecialists = 0.0
+ 		iWealthCount = 0
+ 		fWealth = 0.0
+-		eWealth = gc.getInfoTypeForString("PROCESS_WEALTH")
++		eWealth = self.PROCESS_WEALTH
+ 		for city in PlayerUtil.playerCities(player):
+ 			if not city.isDisorder():
+ 				fCityTaxes = city.getYieldRate(YieldTypes.YIELD_COMMERCE) * iTaxRate / 100.0
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index d5dca72da..f29b8444b 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -386,14 +386,14 @@ class CvForeignAdvisor:
+ 		self.TEXT_ESPIONAGE_NO_SPY = localText.getText("TXT_KEY_ESPIONAGE_NO_SPY", ())
+ 		self.TEXT_MISC_THRESHOLD = localText.getText("TXT_KEY_MISC_THRESHOLD", ())
+ 		self.TEXT_CONCEPT_CITIES = localText.getText("TXT_KEY_CONCEPT_CITIES", ())
+-		self.COLOR_WHITE = gc.getInfoTypeForString("COLOR_WHITE")
+-		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
+-		self.COLOR_BLUE = gc.getInfoTypeForString("COLOR_BLUE")
+-		self.COLOR_CITY_GREEN = gc.getInfoTypeForString("COLOR_CITY_GREEN")
+-		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
+-		self.COLOR_CYAN = gc.getInfoTypeForString("COLOR_CYAN")
+-		self.COLOR_LIGHT_GREY = gc.getInfoTypeForString("COLOR_LIGHT_GREY")
+-		self.COLOR_GREEN = gc.getInfoTypeForString("COLOR_GREEN")
++		self.COLOR_WHITE = getInfoTypeOrFail("COLOR_WHITE")
++		self.COLOR_RED = getInfoTypeOrFail("COLOR_RED")
++		self.COLOR_BLUE = getInfoTypeOrFail("COLOR_BLUE")
++		self.COLOR_CITY_GREEN = getInfoTypeOrFail("COLOR_CITY_GREEN")
++		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
++		self.COLOR_CYAN = getInfoTypeOrFail("COLOR_CYAN")
++		self.COLOR_LIGHT_GREY = getInfoTypeOrFail("COLOR_LIGHT_GREY")
++		self.COLOR_GREEN = getInfoTypeOrFail("COLOR_GREEN")
+ 
+ 		eDenialColor = self.COLOR_WHITE
+ 		self.TEXT_REJECTS = localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor)
+@@ -675,7 +675,7 @@ class CvForeignAdvisor:
+ 			else:
+ 				# <!-- custom: keep active tab labels non-routing; clicking an already-active tab should do nothing, not dispatch WIDGET_FOREIGN_ADVISOR with -1 (which can route to the other Foreign shell via CvScreensInterface).
+ 				# Without this, repeated clicks on the 2nd tab of Foreign Diplomacy Advisor (Glance) will jump to the 2nd tab of Foreign Trade Advisor (Bonuses), which is not consistent with how other links behave and is likely unnecessary nor desired for players. (GPT-5.3-Codex) -->
+-				screen.setText (szTextId, "", sasFontTagTitle + localText.getColorText (self.TXT_KEY_DICT[szScreen], (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setText (szTextId, "", sasFontTagTitle + localText.getColorText (self.TXT_KEY_DICT[szScreen], (), self.COLOR_YELLOW).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			xLink += self.LABEL_WIDTH_LIST[i]
+ 	
+ 	def drawActive (self, bInitial):
+@@ -1913,7 +1913,7 @@ class CvForeignAdvisor:
+ 				amount = amount - 1
+ 			
+ 			if (self.RES_SHOW_SURPLUS_AMOUNT_ON_TOP):
+-				amountStr = sasFontTagLabel + localText.changeTextColor(str(amount), gc.getInfoTypeForString("COLOR_YELLOW")) + SAS_FONT_TAG_CLOSE
++				amountStr = sasFontTagLabel + localText.changeTextColor(str(amount), self.COLOR_YELLOW) + SAS_FONT_TAG_CLOSE
+ 			else:
+ 				amountStr = sasFontTagLabel + str(amount) + SAS_FONT_TAG_CLOSE
+ 			screen.setTableText( self.availableTable, iIndex, 0, amountStr, "", WidgetTypes.WIDGET_GENERAL, -1, -1, 0 )
+@@ -2279,7 +2279,7 @@ class CvForeignAdvisor:
+ 		iconGrid.setTextColWidth(iCityColWontCede, iCityColWidth)
+ 
+ 		iconGrid.setHeader(iCityColWants, labelText(self.TEXT_WANTS))
+-		eDenialColor = gc.getInfoTypeForString("COLOR_WHITE")
++		eDenialColor = self.COLOR_WHITE
+ 		iconGrid.setHeader(iCityColRejects, labelText(localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor)))
+ 		iconGrid.setHeader(iCityColWillCede, labelText(self.TEXT_WILL_CEDE))
+ 		iconGrid.setHeader(iCityColWontCede, labelText(localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_WONT_CEDE", (), eDenialColor)))
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index dc56cd939..8fb176fb8 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -314,7 +314,7 @@ class CvInfoScreen:
+ 		self.szSepBase = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR", ())
+ 
+ 		self.TEXT_SHOW_ALL_PLAYERS =  localText.getText("TXT_KEY_SHOW_ALL_PLAYERS", ())
+-		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), gc.getInfoTypeForString("COLOR_PLAYER_GRAY")).upper()
++		self.TEXT_SHOW_ALL_PLAYERS_GRAY = localText.getColorText("TXT_KEY_SHOW_ALL_PLAYERS", (), getInfoTypeOrFail("COLOR_PLAYER_GRAY")).upper()
+ 		
+ 		self.TEXT_ENTIRE_TIMELINE = localText.getText("TXT_KEY_SAS_INFO_ENTIRE_TIMELINE", ())
+ 		self.TEXT_TIMELINE_EMPTY = localText.getText("TXT_KEY_SAS_INFO_TIMELINE_EMPTY", ())
+@@ -327,8 +327,10 @@ class CvInfoScreen:
+ 		self.TEXT_ESPIONAGE = localText.getObjectText("TXT_KEY_ESPIONAGE_CULTURE", 0)
+ 
+ 		# <!-- custom: Score tab shared UI constants cached once per language load. (GPT-5.3-Codex) -->
+-		self.SCORETAB_COLOR_ALT_HIGHLIGHT_TEXT = gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")
+-		self.SCORETAB_COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
++		self.SCORETAB_COLOR_ALT_HIGHLIGHT_TEXT = getInfoTypeOrFail("COLOR_ALT_HIGHLIGHT_TEXT")
++		self.SCORETAB_COLOR_RED = getInfoTypeOrFail("COLOR_RED")
++		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
++		self.COLOR_GREY = getInfoTypeOrFail("COLOR_GREY")
+ 		self.SCORETAB_WAR_CHAR = FontUtil.getChar(FontSymbols.WAR_CHAR)
+ 		self.SCORETAB_PEACE_CHAR = FontUtil.getChar(FontSymbols.PEACE_CHAR)
+ 		self.SCORETAB_TRADE_CHAR = FontUtil.getChar(FontSymbols.TRADE_CHAR)
+@@ -872,7 +874,7 @@ class CvInfoScreen:
+ 			if (self.iActiveTab != i):
+ 				screen.setText (szTextId, "", sasFontTagTitle + localText.getText (self.PAGE_NAME_LIST[i], ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, i, -1)
+ 			else:
+-				screen.setText (szTextId, "", sasFontTagTitle + localText.getColorText (self.PAGE_NAME_LIST[i], (), gc.getInfoTypeForString ("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setText (szTextId, "", sasFontTagTitle + localText.getColorText (self.PAGE_NAME_LIST[i], (), self.COLOR_YELLOW).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink+self.PAGE_LINK_WIDTH[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			xLink += self.PAGE_LINK_WIDTH[i]
+ 
+ 		if (self.iActiveTab >= 0 and self.iActiveTab < len(self.PAGE_NAME_LIST)):
+@@ -1768,15 +1770,12 @@ class CvInfoScreen:
+ 	def drawGraphLines(self, sGRAPH_CANVAS_ID):
+ 		screen = self.getScreen()
+ 
+-		# <!-- custom: performance optimimization: avoid redundant reuse if i'm not mistaken. -->
+-		color_grey = gc.getInfoTypeForString("COLOR_GREY")
+-
+ 		if (self.xSelPt != 0 or self.ySelPt != 0):
+-			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_H_LINE, 0, self.ySelPt, self.W_GRAPH, self.ySelPt, color_grey)
+-			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_V_LINE, self.xSelPt, 0, self.xSelPt, self.H_GRAPH, color_grey)
++			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_H_LINE, 0, self.ySelPt, self.W_GRAPH, self.ySelPt, self.COLOR_GREY)
++			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_V_LINE, self.xSelPt, 0, self.xSelPt, self.H_GRAPH, self.COLOR_GREY)
+ 		else:
+-			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_H_LINE, -1, -1, -1, -1, color_grey)
+-			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_V_LINE, -1, -1, -1, -1, color_grey)
++			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_H_LINE, -1, -1, -1, -1, self.COLOR_GREY)
++			screen.addLineGFC(sGRAPH_CANVAS_ID, self.GRAPH_V_LINE, -1, -1, -1, -1, self.COLOR_GREY)
+ 
+ 
+ 	def drawXLabel(self, screen, turn, x, just = CvUtil.FONT_CENTER_JUSTIFY):
+@@ -2082,7 +2081,7 @@ class CvInfoScreen:
+ 				screen.moveToFront(self.szGraphDropdownWidget_3in1[vGraphID_Locn])
+ 			else:
+ 				screen.addPanel(self.sGraphPanelWidget[vGraphID_Locn], "", "", true, true, iX_GRAPH + 5, iY_GRAPH_TITLE, self.W_LEGEND, 25, PanelStyles.PANEL_STYLE_IN)
+-				zsText = self.sGraphText[0][iGraphID]   #u"<font=3>" + localText.getColorText("TXT_KEY_INFO_GRAPH", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + u"</font>"
++				zsText = self.sGraphText[0][iGraphID]   #u"<font=3>" + localText.getColorText("TXT_KEY_INFO_GRAPH", (), getInfoTypeOrFail("COLOR_YELLOW")).upper() + u"</font>"
+ 				screen.setText(self.sGraphTextHeadingWidget[iGraphID], "", zsText, CvUtil.FONT_LEFT_JUSTIFY, iX_GRAPH + 10, iY_GRAPH_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ #BUG: Change Graphs - start
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 03aaf3acc..8ab3fc9ae 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -15,6 +15,7 @@ import CvUtil
+ import ScreenInput
+ import CvScreenEnums
+ from SASFontUtils import *
++from SASUtils import getInfoTypeOrFail
+ # <!-- custom: in main interface, use LABEL as the base text font instead of BODY because it is more readable. (GPT-5.3-Codex) -->
+ import CvEventInterface
+ import time
+@@ -625,22 +626,22 @@ class CvMainInterface:
+ 		self.yResolution = screen.getYResolution()
+ 
+ 		# <!-- custom: cache for perf opt with the help of ChatGPT-5.2 Thinking thanks. Note: putting them in init function causes python errors, putting them here in initState seemingly solves them. -->
+-		self.colorResearchStored = gc.getInfoTypeForString("COLOR_RESEARCH_STORED")
+-		self.colorResearchRate = gc.getInfoTypeForString("COLOR_RESEARCH_RATE")
+-		self.colorEmpty = gc.getInfoTypeForString("COLOR_EMPTY")
+-		self.colorNegativeRate = gc.getInfoTypeForString("COLOR_NEGATIVE_RATE")
+-		self.colorGreatPeopleStored = gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED")
+-		self.colorGreatPeopleRate = gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE")
+-		self.colorGreatCultureStored = gc.getInfoTypeForString("COLOR_CULTURE_STORED")
+-		self.colorGreatCultureRate = gc.getInfoTypeForString("COLOR_CULTURE_RATE")
+-		self.colorRed = gc.getInfoTypeForString("COLOR_RED")
+-		self.colorYellow = gc.getInfoTypeForString("COLOR_YELLOW")
+-		self.colorGreen = gc.getInfoTypeForString("COLOR_GREEN")
+-		self.colorAltHighlightText = gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")
+-		self.colorBuildingText = gc.getInfoTypeForString("COLOR_BUILDING_TEXT")
++		self.colorResearchStored = getInfoTypeOrFail("COLOR_RESEARCH_STORED")
++		self.colorResearchRate = getInfoTypeOrFail("COLOR_RESEARCH_RATE")
++		self.colorEmpty = getInfoTypeOrFail("COLOR_EMPTY")
++		self.colorNegativeRate = getInfoTypeOrFail("COLOR_NEGATIVE_RATE")
++		self.colorGreatPeopleStored = getInfoTypeOrFail("COLOR_GREAT_PEOPLE_STORED")
++		self.colorGreatPeopleRate = getInfoTypeOrFail("COLOR_GREAT_PEOPLE_RATE")
++		self.colorGreatCultureStored = getInfoTypeOrFail("COLOR_CULTURE_STORED")
++		self.colorGreatCultureRate = getInfoTypeOrFail("COLOR_CULTURE_RATE")
++		self.colorRed = getInfoTypeOrFail("COLOR_RED")
++		self.colorYellow = getInfoTypeOrFail("COLOR_YELLOW")
++		self.colorGreen = getInfoTypeOrFail("COLOR_GREEN")
++		self.colorAltHighlightText = getInfoTypeOrFail("COLOR_ALT_HIGHLIGHT_TEXT")
++		self.colorBuildingText = getInfoTypeOrFail("COLOR_BUILDING_TEXT")
+ 		#
+-		self.hurryPopulation = gc.getInfoTypeForString("HURRY_POPULATION")
+-		self.hurryGold = gc.getInfoTypeForString("HURRY_GOLD")
++		self.hurryPopulation = getInfoTypeOrFail("HURRY_POPULATION")
++		self.hurryGold = getInfoTypeOrFail("HURRY_GOLD")
+ 		#
+ 		self.overlayFortifyPath = ArtFileMgr.getInterfaceArtInfo("OVERLAY_FORTIFY").getPath()
+ 		self.overlayHasmovedPath = ArtFileMgr.getInterfaceArtInfo("OVERLAY_HASMOVED").getPath()
+
+diff --git a/Assets/Python/Screens/CvPolicyAdvisorScreen.py b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+index b83fdddd0..c01923cde 100644
+--- a/Assets/Python/Screens/CvPolicyAdvisorScreen.py
++++ b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+@@ -542,16 +542,9 @@ class CvPolicyAdvisorScreen:
+ 			
+ 			szAreaID = self.AREA_NAME + str(i)
+ 			screen = self.getScreen()
+-			screen.addPanel(szAreaID, "", "", True, True,
+-					fX, fY, self.HEADINGS_WIDTH, self.HEADINGS_BOTTOM - self.HEADINGS_TOP,
+-					PanelStyles.PANEL_STYLE_MAIN)
+-
+-			screen.setLabel(self.POLICY_OPTION_HEADER_NAME + str(i), "Background",
+-					sasFontTagLabel + gc.getCivicOptionInfo(i).getDescription().upper() + SAS_FONT_TAG_CLOSE,
+-					CvUtil.FONT_CENTER_JUSTIFY,
+-					fX + self.HEADINGS_WIDTH / 2, self.HEADINGS_TOP + self.TEXT_MARGIN, 0,
+-					FontTypes.GAME_FONT,
+-					WidgetTypes.WIDGET_GENERAL, -1, -1 )
++			screen.addPanel(szAreaID, "", "", True, True, fX, fY, self.HEADINGS_WIDTH, self.HEADINGS_BOTTOM - self.HEADINGS_TOP, PanelStyles.PANEL_STYLE_MAIN)
++
++			screen.setLabel(self.POLICY_OPTION_HEADER_NAME + str(i), "Background", sasFontTagLabel + gc.getCivicOptionInfo(i).getDescription().upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, fX + self.HEADINGS_WIDTH / 2, self.HEADINGS_TOP + self.TEXT_MARGIN, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 			fY += self.TEXT_MARGIN
+
+diff --git a/Assets/Python/Screens/CvReplayScreen.py b/Assets/Python/Screens/CvReplayScreen.py
+index 22e6d3982..77a150729 100644
+--- a/Assets/Python/Screens/CvReplayScreen.py
++++ b/Assets/Python/Screens/CvReplayScreen.py
+@@ -10,6 +10,7 @@ import time
+ import re
+ import CvScreensInterface
+ from SASFontUtils import *
++from SASUtils import getInfoTypeOrFail
+ 
+ # globals
+ gc = CyGlobalContext()
+@@ -275,6 +276,9 @@ class CvReplayScreen:
+ 					bDone = True
+ 			i += 1
+ 
++		# <!-- custom: hoist out of per-event loop. (Claude code Opus 4.7) -->
++		eColorClear = getInfoTypeOrFail("COLOR_CLEAR")
++		eColorWhite = getInfoTypeOrFail("COLOR_WHITE")
+ 		for iLoopEvent in events:
+ 
+ 			szEventDate = CyGameTextMgr().getDateStr(self.replayInfo.getReplayMessageTurn(iLoopEvent), false, self.replayInfo.getCalendar(), self.replayInfo.getStartYear(), self.replayInfo.getGameSpeed())
+@@ -299,10 +303,10 @@ class CvReplayScreen:
+ 				if iPlayer != -1:
+ 					screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, self.replayInfo.getColor(iPlayer), 0.6)
+ 				else:
+-					screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, gc.getInfoTypeForString("COLOR_CLEAR"), 0.6)
++					screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, eColorClear, 0.6)
+ 			else:
+ 				if (iX > -1 and iY > -1 and not bSilent):
+-					screen.minimapFlashPlot(iX, iY, gc.getInfoTypeForString("COLOR_WHITE"), 10)
++					screen.minimapFlashPlot(iX, iY, eColorWhite, 10)
+ 		if (self.yMessage > self.H_TEXT):
+ 			screen.scrollableAreaScrollToBottom(self.szAreaId)
+ 
+@@ -340,9 +344,11 @@ class CvReplayScreen:
+ 
+ 	def resetMinimapColor(self):
+ 		screen = self.getScreen()
++		# <!-- custom: hoist out of nested xy loop. (Claude code Opus 4.7) -->
++		eColorClear = getInfoTypeOrFail("COLOR_CLEAR")
+ 		for iX in range(self.replayInfo.getMapWidth()):
+ 			for iY in range(self.replayInfo.getMapHeight()):
+-				screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, gc.getInfoTypeForString("COLOR_CLEAR"), 0.6)
++				screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, eColorClear, 0.6)
+ 
+ 	def resetData(self):
+ 		screen = self.getScreen()
+@@ -362,14 +368,8 @@ class CvReplayScreen:
+ 		# so draw SAS-scaled overlay labels instead and keep built-in graph labels empty. (GPT-5.3-Codex) -->
+ 		screen.setGraphLabelX(self.szGraph, u"")
+ 		screen.setGraphLabelY(self.szGraph, u"")
+-		screen.setLabel(self.GRAPH_LABEL_X_ID, "Background",
+-				sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + SAS_FONT_TAG_CLOSE,
+-				CvUtil.FONT_CENTER_JUSTIFY, self.X_GRAPH + (self.W_GRAPH / 2), self.Y_GRAPH + self.H_GRAPH - 16,
+-				self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-		screen.setLabel(self.GRAPH_LABEL_Y_ID, "Background",
+-				sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_SCORE", ()) + SAS_FONT_TAG_CLOSE,
+-				CvUtil.FONT_LEFT_JUSTIFY, self.X_GRAPH + 8, self.Y_GRAPH + 8,
+-				self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(self.GRAPH_LABEL_X_ID, "Background", sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GRAPH + (self.W_GRAPH / 2), self.Y_GRAPH + self.H_GRAPH - 16, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(self.GRAPH_LABEL_Y_ID, "Background", sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_SCORE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_GRAPH + 8, self.Y_GRAPH + 8, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		screen.setGraphYDataRange(self.szGraph, 0.0, 1.0)
+ 
+ 	def setPlaying(self, bPlaying):
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index c893b48c3..8017bc589 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -763,10 +763,7 @@ class CvTechChooser:
+ 		# <advc.500c>
+ 		# No Fear for Safety
+ 		if ( gc.getTechInfo(i).isNoFearForSafety() ):
+-			screen.addDDSGFCAt("FearForSafety" + str(i), szTechRecord,
+-					gc.getMissionInfo(MissionTypes.MISSION_FORTIFY).getButton(),
+-					iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE,
+-					WidgetTypes.WIDGET_HELP_NO_FEAR_FOR_SAFETY, i, -1, False )
++			screen.addDDSGFCAt("FearForSafety" + str(i), szTechRecord, gc.getMissionInfo(MissionTypes.MISSION_FORTIFY).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_NO_FEAR_FOR_SAFETY, i, -1, False )
+ 			fX += X_INCREMENT
+ 		# </advc.550c>
+ 		# Line of Sight bonus...
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index f71f4ce87..5ee3d4e4a 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -93,14 +93,7 @@ class CvVictoryScreen:
+ 
+ 		# <!-- custom: adjusted column widths for percentage display (claude opus 4.5) -->
+ 		someWRoomForCulturePercentages = 27
+-		self.TABLE_WIDTH_BASE = [
+-			350 - (2 * someWRoomForCulturePercentages),
+-			80,
+-			180,
+-			100 + someWRoomForCulturePercentages,
+-			180,
+-			100 + someWRoomForCulturePercentages
+-		]
++		self.TABLE_WIDTH_BASE = [350 - (2 * someWRoomForCulturePercentages), 80, 180, 100 + someWRoomForCulturePercentages, 180, 100 + someWRoomForCulturePercentages]
+ 		self.TABLE2_WIDTH_BASE = [740, 265]
+ 		# <advc.703>
+ 		self.RF_TABLEW_BASE = [125, 150, 250, 260, 205]
+@@ -236,7 +229,7 @@ class CvVictoryScreen:
+ 		self.TEXT_VOTE_SOURCE_NOT_ACTIVE = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_VOTE_SOURCE_NOT_ACTIVE", ())
+ 		self.TEXT_MEMBERS_NO_VOTING_YET = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET", ())
+ 		self.TEXT_NOT_ACTIVE_SHORT = localText.getText("TXT_KEY_SAS_NOT_ACTIVE_SHORT", ())
+-		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
++		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
+ 		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.HEADER_TEXT = sasFontTagTitle.bold + localText.getText("TXT_KEY_VICTORY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.TAB_VICTORIES = localText.getText("TXT_KEY_MAIN_MENU_VICTORIES", ()).upper()
+@@ -1283,12 +1276,8 @@ class CvVictoryScreen:
+ 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# <advc.708>
+ 		elif g.isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
+-			szBuffer = localText.getText("TXT_KEY_RF_HANDICAP_SETTINGS",
+-					(gc.getHandicapInfo(g.getHandicapType()).getTextKey(),
+-					gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(),
+-					gc.getHandicapInfo(g.getAIHandicap()).getTextKey(), ))
+-			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szBuffer,
+-					WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			szBuffer = localText.getText("TXT_KEY_RF_HANDICAP_SETTINGS", (gc.getHandicapInfo(g.getHandicapType()).getTextKey(), gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), gc.getHandicapInfo(g.getAIHandicap()).getTextKey(), ))
++			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, szBuffer, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# </advc.708>
+ 		else:
+ 			szBuffer = "%s :\n  %s (%s) / %s (%s)" % (
+
+diff --git a/Assets/Python/Screens/CvWorldAdvisorScreen.py b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+index 56d9e7b18..892ee1889 100644
+--- a/Assets/Python/Screens/CvWorldAdvisorScreen.py
++++ b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+@@ -152,9 +152,9 @@ class CvWorldAdvisorScreen:
+ 		self.TEXT_RIVER = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_RIVER", ())
+ 		self.TEXT_LAKE = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_LAKE", ())
+ 		self.TEXT_COASTAL = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_COASTAL", ())
+-		self.COLOR_GREEN = gc.getInfoTypeForString("COLOR_GREEN")
+-		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
+-		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
++		self.COLOR_GREEN = getInfoTypeOrFail("COLOR_GREEN")
++		self.COLOR_YELLOW = getInfoTypeOrFail("COLOR_YELLOW")
++		self.COLOR_RED = getInfoTypeOrFail("COLOR_RED")
+ 
+ 		# BFC 1
+ 		self.TEXT_POP = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC1_POP", ())
+
+diff --git a/Assets/Python/Screens/PLE.py b/Assets/Python/Screens/PLE.py
+index 6dea0a057..e22a35a8a 100644
+--- a/Assets/Python/Screens/PLE.py
++++ b/Assets/Python/Screens/PLE.py
+@@ -3,6 +3,7 @@
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ 
+ from CvPythonExtensions import *
++from SASUtils import getInfoTypeOrFail
+ import CvUtil
+ import ScreenInput
+ import CvScreenEnums
+@@ -2200,7 +2201,7 @@ class PLE:
+ 						PanelStyles.PANEL_STYLE_HUD_HELP)
+ 		
+ 		# create shadow text
+-		szTextBlack = localText.changeTextColor(mt.removeColor(szText), gc.getInfoTypeForString("COLOR_BLACK"))
++		szTextBlack = localText.changeTextColor(mt.removeColor(szText), getInfoTypeOrFail("COLOR_BLACK"))
+ 		
+ 		# display shadow text
+ 		screen.addMultilineText( self.UNIT_INFO_TEXT_SHADOW, szTextBlack,
+@@ -2284,7 +2285,7 @@ class PLE:
+ 		# Units led by a GG will get a star instead of a dot.
+ 		if (self.bShowGreatGeneralIndicator):
+ 			# is unit led by a GG?
+-			#iLeaderPromo = gc.getInfoTypeForString("PROMOTION_LEADER")
++			#iLeaderPromo = getInfoTypeOrFail("PROMOTION_LEADER")
+ 			#if (iLeaderPromo != -1 and pLoopUnit.isHasPromotion(iLeaderPromo)):
+ 			# advc: Replacing the above
+ 			if pLoopUnit.getLeaderUnitType() >= 0:
+@@ -2348,11 +2349,11 @@ class PLE:
+ 
+ 			# EF: Colors are set by user instead
+ 			#if (pLoopUnit.getDamage() >= ((pLoopUnit.maxHitPoints() * 2) / 3)):
+-			#	screen.setStackedBarColors(szStringHealthBar, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_RED"))
++			#	screen.setStackedBarColors(szStringHealthBar, InfoBarTypes.INFOBAR_STORED, getInfoTypeOrFail("COLOR_RED"))
+ 			#elif (pLoopUnit.getDamage() >= (pLoopUnit.maxHitPoints() / 3)):
+-			#	screen.setStackedBarColors(szStringHealthBar, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_YELLOW"))
++			#	screen.setStackedBarColors(szStringHealthBar, InfoBarTypes.INFOBAR_STORED, getInfoTypeOrFail("COLOR_YELLOW"))
+ 			#else:
+-			#	screen.setStackedBarColors(szStringHealthBar, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_GREEN"))	
++			#	screen.setStackedBarColors(szStringHealthBar, InfoBarTypes.INFOBAR_STORED, getInfoTypeOrFail("COLOR_GREEN"))	
+ 
+ 			screen.show( szStringHealthBar )
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=16 omittedFiles=0 embeddedPatchBytes=48304

@@ -1,0 +1,112 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3904
+# Commit: 3eba1065cfc8f8672d678ba849bdf4f759f185da
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f3539030ba580c9ef6f33520beccc1aa54fe64c2
+# Title: Refactor: isBonusRevealed over isHasTech (from Civ4Reimag.)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGame.cpp
+5	11	CvGameCoreDLL/CvPlayerAI.cpp
+3	1	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index b90e3ff09..8a9de1b67 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2775,7 +2775,7 @@ bool CvGame::isNormalizationBonus(BonusTypes eBonus, PlayerTypes eStartPlayer,
+ 	}
+ 	/*	advc: BtS had checked this only for seafood; doesn't really matter though
+ 		b/c all of the isNormalize resources are revealed from the start. */
+-	if (!GET_TEAM(eStartPlayer).isHasTech((TechTypes)kBonus.getTechReveal()))
++	if (!GET_TEAM(eStartPlayer).isBonusRevealed(eBonus))
+ 		return false;
+ 	if (kPlot.getBonusType() == eBonus)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5b487252b..248a4f66c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5381,8 +5381,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 		}
+ 		// K-Mod: Value for enabling resources that are already revealed
+ 		else if (kLoopBonus.getTechCityTrade() == eTech &&
+-			(kTeam.isHasTech(kLoopBonus.getTechReveal()) ||
+-			kTeam.isForceRevealedBonus(eLoopBonus)))
++			kTeam.isBonusRevealed(eLoopBonus))
+ 		{
+ 			int iOwned = AI_countOwnedBonuses(eLoopBonus, /* advc.opt: */ 2);
+ 			if (iOwned > 0)
+@@ -6803,8 +6802,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 			}
+ 			else
+ 			{
+-				if ((kTeam.isHasTech(GC.getInfo(ePrereqBonus).getTechReveal()) ||
+-					kTeam.isForceRevealedBonus(ePrereqBonus)) &&
++				if (kTeam.isBonusRevealed(ePrereqBonus) &&
+ 					!AI_isAnyOwnedBonus(ePrereqBonus))
+ 				{
+ 					bDefinitelyMissing = true;
+@@ -6822,8 +6820,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 		BonusTypes ePrereqBonus = kLoopUnit.getPrereqAndBonus();
+ 		if (ePrereqBonus != NO_BONUS && !hasBonus(ePrereqBonus))
+ 		{
+-			if ((kTeam.isHasTech(GC.getInfo(ePrereqBonus).getTechReveal()) ||
+-				kTeam.isForceRevealedBonus(ePrereqBonus)) &&
++			if (kTeam.isBonusRevealed(ePrereqBonus) &&
+ 				!AI_isAnyOwnedBonus(ePrereqBonus))
+ 			{
+ 				bDefinitelyMissing = true;
+@@ -15807,11 +15804,8 @@ int CvPlayerAI::AI_corporationValue(CorporationTypes eCorporation,
+ 			iBonuses += AI_countOwnedBonuses(eBonus);
+ 		else iBonuses += pCity->getNumBonuses(eBonus);
+ 		// maybe use getNumAvailableBonuses ?
+-		if (!kTeam.isHasTech(GC.getInfo(eBonus).getTechReveal()) &&
+-			!kTeam.isForceRevealedBonus(eBonus))
+-		{
++		if (!kTeam.isBonusRevealed(eBonus))
+ 			iBonuses++; // expect that we'll get one of each unrevealed resource
+-		}
+ 	}
+ 	if (!GC.getGame().isCorporationFounded(eCorporation))
+ 	{
+@@ -15888,7 +15882,7 @@ int CvPlayerAI::AI_corporationValue(CorporationTypes eCorporation,
+ 				AI_countOwnedBonuses(eBonusProduced));
+ 		/*	pretend we have 1 bonus if it is not yet revealed.
+ 			(so that we don't overvalue the corp before the resource gets revealed) */
+-		if (!kTeam.isHasTech(GC.getInfo(eBonusProduced).getTechReveal()))
++		if (!kTeam.isBonusRevealed(eBonusProduced))
+ 			iBonuses++;
+ 		iValue += AI_baseBonusVal(eBonusProduced) * 25 /
+ 				(1 + 2 * iBonuses * (iBonuses + 3));
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 8a39a0a55..cd092a5ad 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -5051,7 +5051,9 @@ void CvTeam::setForceRevealedBonus(BonusTypes eBonus, bool bRevealed)
+ 	}
+ }
+ 
+-
++/*	(advc: Replaced some isHasTech checks with calls to this function - based on
++	Civ 4 Reimagined. In some cases, the force-reveal check was missing, which,
++	however, is only relevant for the "Man Named Jed" Oil event.) */
+ bool CvTeam::isBonusRevealed(BonusTypes eBonus) const // K-Mod
+ {
+ 	return (isHasTech(GC.getInfo(eBonus).getTechReveal()) || isForceRevealedBonus(eBonus));
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3751

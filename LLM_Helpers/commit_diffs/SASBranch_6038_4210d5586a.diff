@@ -1,0 +1,514 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6038
+# Commit: 4210d5586a54d36c4ed65fafabc7c4b4d8450afb
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 60a21259371db272f9cbaba00ae76f2fbbeac4f8
+# Title: (Fixed/Improved) Multiple UWAI victory-denial issues could let imminent Space winners survive: no war before fixing this (regardless of whether AI was very s...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+58	0	Assets/XML/GlobalDefines_advciv_sas.xml
+37	0	CvGameCoreDLL/CvDeal.cpp
+11	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	0	CvGameCoreDLL/CvGameCoreUtils.h
+21	0	CvGameCoreDLL/CvTeamAI.cpp
+103	15	CvGameCoreDLL/UWAIAgent.cpp
+63	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+3	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 996fe690f..d22200e4f 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -3107,6 +3107,64 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: Let UWAI treat rivals close to any enabled victory as urgent war targets instead of passively watching them win. BBAI save-file 450 testing showed Egypt/Ramesses winning Space Race at turn 290 while other AIs repeatedly evaluated the threat but never selected a real war plan; this applies to all victory countdowns/stage-4 threats, not only Space Race. See KI#184. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: Countdown window for the victory-denial utility boost. For example, 20 starts the boost when the target can win within 20 turns; the boost grows as the countdown gets shorter. Stage-4 targets without an active countdown only get the smaller stage-4 boost below. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_BOOST</DefineName>
++		<iDefineIntVal>20</iDefineIntVal>
++	</Define>
++	<!-- custom: Maximum countdown where the victory-denial rule may convert war preparation into direct limited/total war if distance and power gates also pass. Save-file 450 showed even weak Lincoln nearly winning Space against much stronger top dogs; 20 is deliberately enough time for attackers to disrupt a victory, not just a small delay tweak over the old too-late 10-turn window. See KI#184. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_DIRECT_WAR</DefineName>
++		<iDefineIntVal>20</iDefineIntVal>
++	</Define>
++	<!-- custom: Maximum countdown where victory-denial wars refuse ordinary peace. In save-file 450, anti-spaceship wars fired but ended two turns later through peace treaties, letting Lincoln still threaten Space Race; if a target is still this close to winning, the emergency war should not be peacefully cancelled immediately. See KI#184. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE</DefineName>
++		<iDefineIntVal>20</iDefineIntVal>
++	</Define>
++	<!-- custom: Also refuse peace with stage-4 victory threats before countdown starts. After earlier victory-denial changes stopped Lincoln, Egypt still won Space because stage-4 anti-spaceship wars ended after 1-2 turns before Egypt's countdown existed; this keeps the emergency war active through the pre-countdown disruption window too. See KI#184. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: Maximum utility added by the countdown part of victory denial. It scales up as the countdown approaches 0; e.g. with max countdown 20 and this set to 600, a 10-turn countdown gives roughly half the boost plus any stage-4 boost. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_COUNTDOWN_UTILITY_BOOST</DefineName>
++		<iDefineIntVal>600</iDefineIntVal>
++	</Define>
++	<!-- custom: Utility added for any stage-4 victory threat even without an active countdown, so the AI can react before the final countdown while avoiding broad stage-3 dogpiles. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_STAGE4_UTILITY_BOOST</DefineName>
++		<iDefineIntVal>150</iDefineIntVal>
++	</Define>
++	<!-- custom: Allow direct victory-denial war against weak/near stage-4 targets even before a countdown exists. Save-file 450 showed Lincoln at 11 spaceship parts before launch; waiting for countdown made the later war too late to matter. Power, distance, and land-target gates still apply. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE4_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: Direct victory-denial war is only allowed if the target's defensive power is at most this percent of our team power. Higher values make the AI more willing to try desperate disruption wars before losing. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_TARGET_POWER_PERCENT</DefineName>
++		<iDefineIntVal>200</iDefineIntVal>
++	</Define>
++	<!-- custom: Direct victory-denial war is only allowed if nearest cities are within this distance. Farther or naval-heavy threats can still receive the utility boost, but normal preparation remains safer than a blind direct war. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE</DefineName>
++		<iDefineIntVal>10</iDefineIntVal>
++	</Define>
++	<!-- custom: Percent of normal avoid-war hesitation kept after the victory-denial boost fires. 0 means imminent victory threats can ignore personality/friendship hesitation; 100 keeps ordinary UWAI avoid-war hesitation. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_AVOID_WAR_HESITATION_PERCENT</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: Preserve both old (SAS define disabled) and and new (SAS define enabled) Base AdvCiv paths instead of merging only the new one and deleting the old as as of now in Base AdvCiv, so players can choose between them: 0 restores the older population rule that keeps New World Barbarians relatively peaceful within their area until civilization population exceeds Barbarian population; 1 uses the newer city/population presence score, which ends that grace period earlier, especially on large maps. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_BARBARIAN_NEW_WORLD_EARLIER_ATTACK_ENABLE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 8b9554ef8..23d68e9a6 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -105,6 +105,38 @@ namespace
+ 		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=%s dealId=%d from=%d to=%d item=%s data=%s flagA=%d flagB=%d cancelPlayer=%d",
+ 				GC.getGame().getGameTurn(), szActionType, iDealId, eFromPlayer, eToPlayer, getSASTradeItemType(kItem.m_eItemType), getSASGameSummaryTradeDataText(kItem, eFromPlayer).GetCString(), bFlagA ? 1 : 0, bFlagB ? 1 : 0, eCancelPlayer);
+ 	}
++
++	bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown = NULL, int* piMaxVictoryStage = NULL)
++	{
++		static const bool bSASUWAIVictoryDenialEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
++		if (!bSASUWAIVictoryDenialEnable)
++			return false;
++		static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
++		int const iCountdown = GET_TEAM(eTeam).AI_getLowestVictoryCountdown();
++		int const iMaxVictoryStage = getSASTeamMaxVictoryStage(eTeam);
++		if (piVictoryCountdown != NULL)
++			*piVictoryCountdown = iCountdown;
++		if (piMaxVictoryStage != NULL)
++			*piMaxVictoryStage = iMaxVictoryStage;
++		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
++		return (iCountdown >= 0 && iCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4);
++	}
++
++	bool isSASUWAIVictoryDenialPeaceDealBlocked(TeamTypes eFirstTeam, TeamTypes eSecondTeam)
++	{
++		int iFirstCountdown, iSecondCountdown, iFirstMaxVictoryStage, iSecondMaxVictoryStage;
++		bool const bFirstVictoryThreat = isSASUWAIVictoryDenialPeaceThreat(eFirstTeam, &iFirstCountdown, &iFirstMaxVictoryStage);
++		bool const bSecondVictoryThreat = isSASUWAIVictoryDenialPeaceThreat(eSecondTeam, &iSecondCountdown, &iSecondMaxVictoryStage);
++		if (!bFirstVictoryThreat && !bSecondVictoryThreat)
++			return false;
++		if (gWarLogLevel >= 1)
++		{
++			static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
++			logBBAI("WAR_TARGET_VICTORY_DENIAL_BLOCK_PEACE_DEAL turn=%d firstTeam=%d secondTeam=%d firstVictoryCountdown=%d secondVictoryCountdown=%d firstMaxVictoryStage=%d secondMaxVictoryStage=%d maxRefusePeaceCountdown=%d",
++					GC.getGame().getGameTurn(), eFirstTeam, eSecondTeam, iFirstCountdown, iSecondCountdown, iFirstMaxVictoryStage, iSecondMaxVictoryStage, iMaxVictoryDenialPeaceCountdown);
++		}
++		return true;
++	}
+ }
+ 
+ 
+@@ -321,6 +353,11 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
+ 			erroneously allow the vassal's units to stay in the master's land. */
+ 		// <advc.039>
+ 		bool bSurrender = isVassalTrade(kFirstList) || isVassalTrade(kSecondList);
++		// <!-- custom: Direct peace treaties reach this implementation path with `canTradeItem(..., bTestDenial=false)`, so CvPlayer::getTradeDenial is not a reliable final guard.
++		// Save-file 450 showed victory-denial wars against Lincoln ending after two turns through ordinary TRADE_PEACE_TREATY deals, and a later run showed stage-4 anti-spaceship wars against Egypt ending before countdown started.
++		// Block non-surrender peace here, just before makePeace, while either side is still a stage-4 or countdown victory threat. (GPT-5.5) -->
++		if (!bSurrender && bPeaceTreaty && isSASUWAIVictoryDenialPeaceDealBlocked(eFirstTeam, eSecondTeam))
++			return;
+ 		bool bDone = false;
+ 		if(!bSurrender && GC.getDefineBOOL(CvGlobals::ANNOUNCE_REPARATIONS))
+ 		{
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 1b7919249..4de2631bc 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -399,6 +399,17 @@ int getSASSpaceVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getS
+ int getSASConquestVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4); }
+ int getSASDominationVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4); }
+ int getSASDiplomacyVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4); }
++int getSASTeamMaxVictoryStage(TeamTypes eTeam)
++{
++	int iMaxVictoryStage = 0;
++	for (MemberAIIter it(eTeam); it.hasNext(); ++it)
++	{
++		AIVictoryStage const eVictoryStageHash = it->AI_getVictoryStageHash();
++		int const iMemberMaxVictoryStage = std::max(std::max(getSASCultureVictoryStageLevel(eVictoryStageHash), getSASSpaceVictoryStageLevel(eVictoryStageHash)), std::max(std::max(getSASConquestVictoryStageLevel(eVictoryStageHash), getSASDominationVictoryStageLevel(eVictoryStageHash)), getSASDiplomacyVictoryStageLevel(eVictoryStageHash)));
++		iMaxVictoryStage = std::max(iMaxVictoryStage, iMemberMaxVictoryStage);
++	}
++	return iMaxVictoryStage;
++}
+ 
+ // advc: No longer needed
+ /*bool isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam)
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index c6748f2a1..c5848cf29 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -123,6 +123,7 @@ int getSASSpaceVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+ int getSASConquestVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+ int getSASDominationVictoryStageLevel(AIVictoryStage eVictoryStageHash);
+ int getSASDiplomacyVictoryStageLevel(AIVictoryStage eVictoryStageHash);
++int getSASTeamMaxVictoryStage(TeamTypes eTeam); // <!-- custom: Shared team-level wrapper for victory-denial logs and rules that need the highest current victory stage among team members. (GPT-5.5) -->
+ 
+ int estimateCollateralWeight(const CvPlot* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenseTeam = NO_TEAM); // K-Mod
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 7122abbcb..abc377063 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -3789,6 +3789,27 @@ DenialTypes CvTeamAI::AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eBroker)
+ 	if (!canChangeWarPeace(ePeaceTeam))
+ 		return DENIAL_VASSAL;
+ 
++	static const bool bSASUWAIVictoryDenialEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
++	if (bSASUWAIVictoryDenialEnable)
++	{
++		int const iVictoryCountdown = GET_TEAM(ePeaceTeam).AI_getLowestVictoryCountdown();
++		int const iMaxVictoryStage = getSASTeamMaxVictoryStage(ePeaceTeam);
++		static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
++		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
++		// <!-- custom: Save-file 450 showed victory-denial wars correctly declared against Lincoln, then cancelled by peace treaties two turns later while his spaceship countdown continued.
++		// A later run fixed Lincoln but Egypt still made peace right after stage-4 anti-spaceship wars, before countdown started, then won Space.
++		// Refuse brokered peace while the target is inside the countdown window or still a stage-4 victory threat; otherwise direct denial wars become mostly cosmetic. See KI#184. (GPT-5.5) -->
++		if ((iVictoryCountdown >= 0 && iVictoryCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4))
++		{
++			if (gWarLogLevel >= 1)
++			{
++				logBBAI("WAR_TARGET_VICTORY_DENIAL_REFUSE_PEACE turn=%d team=%d peaceTeam=%d brokerTeam=%d targetVictoryCountdown=%d targetMaxVictoryStage=%d maxRefusePeaceCountdown=%d warPlan=%s atWarCounter=%d",
++						GC.getGame().getGameTurn(), getID(), ePeaceTeam, eBroker, iVictoryCountdown, iMaxVictoryStage, iMaxVictoryDenialPeaceCountdown, getSASWarPlanType(AI_getWarPlan(ePeaceTeam)), AI_getAtWarCounter(ePeaceTeam));
++			}
++			return DENIAL_VICTORY;
++		}
++	}
++
+ 	// <advc.104>
+ 	if(getUWAI().isEnabled())
+ 		return uwai().makePeaceTrade(ePeaceTeam, eBroker);
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index fb888ddc6..f819ea7bc 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -70,6 +70,50 @@ namespace
+ 		}
+ 	}
+ 
++	int getSASBBAIVictoryDenialUtilityBoost(TeamTypes eTarget, int iTargetMaxVictoryStage)
++	{
++		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
++		if (!bEnable)
++			return 0;
++		int iBoost = 0;
++		int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();
++		static const int iMaxCountdownBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_BOOST");
++		if (iCountdown >= 0 && iCountdown <= iMaxCountdownBoost)
++		{
++			static const int iCountdownUtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_COUNTDOWN_UTILITY_BOOST");
++			iBoost += (iCountdownUtilityBoost * (iMaxCountdownBoost + 1 - iCountdown)) / std::max(1, iMaxCountdownBoost + 1);
++		}
++		if (iTargetMaxVictoryStage >= 4)
++		{
++			static const int iStage4UtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE4_UTILITY_BOOST");
++			iBoost += iStage4UtilityBoost;
++		}
++		return iBoost;
++	}
++
++	bool isSASBBAIVictoryDenialDirectWarAllowed(CvTeamAI const& kAgent, TeamTypes eTarget, int iTargetMaxVictoryStage, bool bNaval)
++	{
++		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
++		if (!bEnable)
++			return false;
++		int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();
++		static const int iMaxCountdownDirectWar = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_DIRECT_WAR");
++		static const bool bDirectStage4Enable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE4_ENABLE");
++		bool const bCountdownDirect = (iCountdown >= 0 && iCountdown <= iMaxCountdownDirectWar);
++		bool const bStage4Direct = (bDirectStage4Enable && iTargetMaxVictoryStage >= 4);
++		// <!-- custom: Save-file 450 showed Lincoln reaching 11 spaceship parts before the victory countdown started, then later reporting stage 3 while countdown still showed only a few turns left.
++		// Allow direct war for either hard countdown emergencies or weak/near stage-4 threats, so UWAI does not wait until the disruption window is almost gone. (GPT-5.5) -->
++		if (!bCountdownDirect && !bStage4Direct)
++			return false;
++		static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_TARGET_POWER_PERCENT");
++		if (getSASBBAITargetPowerPercent(kAgent, eTarget) > iMaxTargetPowerPercent)
++			return false;
++		static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE");
++		if (getSASBBAINearestCityDistance(kAgent.getID(), eTarget) > iMaxDistance)
++			return false;
++		return (!bNaval || kAgent.AI_isLandTarget(eTarget));
++	}
++
+ 	int getSASBBAISpaceshipPartsBuilt(TeamTypes eTeam)
+ 	{
+ 		int iPartsBuilt = 0;
+@@ -1587,14 +1631,19 @@ namespace
+ {
+ 	struct TargetData
+ 	{
+-		TargetData(scaled rDrive, TeamTypes eTeam, bool bTotal, int iU, bool bShortWork)
+-		:	rDrive(rDrive), eTeam(eTeam), bTotal(bTotal), iU(iU), bShortWork(bShortWork)
++		// <!-- custom: Preserve original/boosted utility and victory-denial flags after sorting. Later selection needs them to reduce avoid-war hesitation, avoid local-target vetoes, choose direct vs preparation war, and log the actual adjustment. See KI#184. (GPT-5.5) -->
++		TargetData(scaled rDrive, TeamTypes eTeam, bool bTotal, bool bDirect, int iOriginalU, int iU, int iVictoryDenialBoost, int iTargetMaxVictoryStage, bool bShortWork)
++		:	rDrive(rDrive), eTeam(eTeam), bTotal(bTotal), bDirect(bDirect), iOriginalU(iOriginalU), iU(iU), iVictoryDenialBoost(iVictoryDenialBoost), iTargetMaxVictoryStage(iTargetMaxVictoryStage), bShortWork(bShortWork)
+ 		{}
+ 		bool operator<(TargetData const& kOther) { return rDrive < kOther.rDrive; }
+ 		scaled rDrive;
+ 		TeamTypes eTeam;
+ 		bool bTotal;
++		bool bDirect;
++		int iOriginalU;
+ 		int iU;
++		int iVictoryDenialBoost;
++		int iTargetMaxVictoryStage;
+ 		bool bShortWork;
+ 	};
+ }
+@@ -1673,6 +1722,21 @@ void UWAI::Team::scheme()
+ 			bTotal = (iTotalU + iPadding > (iPadding + iLimitedU) * rLimitedWarWeight);
+ 		}
+ 		int iU = std::max(iLimitedU, iTotalU);
++		// <!-- custom: If a rival is close to winning, ordinary UWAI reluctance can leave the game passive until the victory fires. Save-file 450 BBAI testing showed Egypt/Ramesses winning Space Race at turn 290 while multiple rivals evaluated the threat every turn but never selected a real war plan.
++		// Boost all imminent victory types, not only Space Race; short countdowns can also skip preparation when the target is close and not too strong. (GPT-5.5) -->
++		int const iOriginalU = iU;
++		int const iTargetMaxVictoryStage = getSASTeamMaxVictoryStage(eTarget);
++		int const iVictoryDenialBoost = getSASBBAIVictoryDenialUtilityBoost(eTarget, iTargetMaxVictoryStage);
++		bool const bVictoryDenialDirect = isSASBBAIVictoryDenialDirectWarAllowed(kAgent, eTarget, iTargetMaxVictoryStage, bTotal ? bTotalNaval : bLimitedNaval);
++		if (iVictoryDenialBoost > 0)
++		{
++			iU += iVictoryDenialBoost;
++			if (gWarLogLevel >= 1)
++			{
++				logBBAI("WAR_TARGET_VICTORY_DENIAL_ADJUST turn=%d agentTeam=%d targetTeam=%d originalUtility=%d adjustedUtility=%d boost=%d direct=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d targetSpaceshipParts=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
++						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, iOriginalU, iU, iVictoryDenialBoost, bVictoryDenialDirect, iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAISpaceshipPartsBuilt(eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
++			}
++		}
+ 		m_pReport->setMute(false);
+ 		static int const UWAI_REPORT_THRESH = GC.getDefineINT("UWAI_REPORT_THRESH");
+ 		static int const UWAI_REPORT_THRESH_HUMAN = GC.getDefineINT("UWAI_REPORT_THRESH_HUMAN");
+@@ -1734,7 +1798,7 @@ void UWAI::Team::scheme()
+ 		rPeacePortionRemaining.decreaseTo(fixp(0.95));
+ 		// (Let's try it w/o exponentiation)
+ 		rDrive *= (1 - rPeacePortionRemaining)/*.pow(fixp(1.5))*/;
+-		aTargets.push_back(TargetData(rDrive, eTarget, bTotal, iU, bShortWork));
++		aTargets.push_back(TargetData(rDrive, eTarget, bTotal, bVictoryDenialDirect, iOriginalU, iU, iVictoryDenialBoost, iTargetMaxVictoryStage, bShortWork));
+ 		rTotalDrive += rDrive;
+ 	}
+ 	// Descending by drive
+@@ -1751,7 +1815,18 @@ void UWAI::Team::scheme()
+ 		scaled rDrive = aTargets[i].rDrive;
+ 		// Conscientious hesitation
+ 		if (kAgent.AI_isAvoidWar(eTarget, true))
+-			rDrive -= rTotalDrive / 2;
++		{
++			// <!-- custom: Avoid-war personality hesitation is useful for ordinary wars, but save-file 450 showed it could prevent any response to an imminent Space win. Keep the hesitation tunable for victory-denial targets instead of removing it entirely. See KI#184. (GPT-5.5) -->
++			// rDrive -= rTotalDrive / 2;
++			scaled rAvoidWarHesitation = rTotalDrive / 2;
++			if (aTargets[i].iVictoryDenialBoost > 0)
++			{
++				static const int iVictoryDenialAvoidWarPercent = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_AVOID_WAR_HESITATION_PERCENT");
++				rAvoidWarHesitation *= iVictoryDenialAvoidWarPercent;
++				rAvoidWarHesitation /= 100;
++			}
++			rDrive -= rAvoidWarHesitation;
++		}
+ 		aAdjustedDrives.push_back(rDrive);
+ 		if (rDrive > 0 && isSASBBAIPreferredLocalWarTarget(kAgent, eTarget, rDrive) && isSASBBAIBetterPreferredLocalWarTarget(kAgent, eTarget, rDrive, ePreferredLocalTarget, rPreferredLocalDrive))
+ 		{
+@@ -1771,7 +1846,8 @@ void UWAI::Team::scheme()
+ 		scaled rDrive = aAdjustedDrives[i];
+ 		if (rDrive <= 0)
+ 			continue;
+-		if (shouldSASBBAISkipForPreferredLocalWarTarget(kAgent, eTarget, ePreferredLocalTarget))
++		// <!-- custom: The preferred-local-target guard fixes ordinary faraway-war blunders, but must not veto emergency victory denial. A close-to-win target can be strategically mandatory even if a cleaner local conquest target exists. See KI#184. (GPT-5.5) -->
++		if (aTargets[i].iVictoryDenialBoost <= 0 && shouldSASBBAISkipForPreferredLocalWarTarget(kAgent, eTarget, ePreferredLocalTarget))
+ 		{
+ 			// <!-- custom: Only block targets that are clearly farther than the preferred local land target. Equal-distance and closer targets still use ordinary UWAI, keeping this a narrow faraway-war blunder fix rather than a broad war-target rewrite. (GPT-5.5) -->
+ 			if (gWarLogLevel >= 1)
+@@ -1781,10 +1857,9 @@ void UWAI::Team::scheme()
+ 			}
+ 			continue;
+ 		}
+-		WarPlanTypes const eWP = (aTargets[i].bTotal ? WARPLAN_PREPARING_TOTAL :
+-				WARPLAN_PREPARING_LIMITED);
+-		m_pReport->log("Drive for war preparations against %s: %d percent",
+-				m_pReport->teamName(eTarget), rDrive.getPercent());
++		// <!-- custom: Victory-denial direct-war candidates have already passed narrow power/distance/naval gates; convert only those from preparation to immediate limited/total war so ordinary UWAI preparation behavior stays intact. See KI#184. (GPT-5.5) -->
++		WarPlanTypes const eWP = (aTargets[i].bTotal ? (aTargets[i].bDirect ? WARPLAN_TOTAL : WARPLAN_PREPARING_TOTAL) : (aTargets[i].bDirect ? WARPLAN_LIMITED : WARPLAN_PREPARING_LIMITED));
++		m_pReport->log("Drive for %s against %s: %d percent", aTargets[i].bDirect ? "direct war" : "war preparations", m_pReport->teamName(eTarget), rDrive.getPercent());
+ 		if (gWarLogLevel >= 2)
+ 			logSASBBAIWarTargetDrive(kAgent, eTarget, eWP, aTargets[i].iU, rDrive, aTargets[i].bShortWork, isInBackground());
+ 		if (SyncRandSuccess(rDrive))
+@@ -1792,20 +1867,33 @@ void UWAI::Team::scheme()
+ 			if (gWarLogLevel >= 1)
+ 			{
+ 				// <!-- custom: CHOSEN can be emitted during UWAI background evaluation, where no real war plan is assigned. Keep it for probabilistic target-choice context, but log PLAN_SET below only after the non-background AI_setWarPlan call so victory-pressure audits can distinguish simulated choice from actual action. (GPT-5.5) -->
+-				logBBAI("WAR_TARGET_CHOSEN turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d shortWork=%d targetRank=%d candidateCount=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
+-						GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), aTargets[i].bShortWork, (int)i + 1, (int)aTargets.size(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
++				logBBAI("WAR_TARGET_CHOSEN turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d originalUtility=%d victoryDenialBoost=%d direct=%d targetMaxVictoryStage=%d drivePercent=%d shortWork=%d targetRank=%d candidateCount=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
++						GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, aTargets[i].iOriginalU, aTargets[i].iVictoryDenialBoost, aTargets[i].bDirect, aTargets[i].iTargetMaxVictoryStage, rDrive.getPercent(), aTargets[i].bShortWork, (int)i + 1, (int)aTargets.size(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
+ 				logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "CHOSEN", eWP, aTargets[i].iU, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), isInBackground());
+ 			}
+ 			if (!isInBackground())
+ 			{
+-				kAgent.AI_setWarPlan(eTarget, eWP);
++				// <!-- custom: `AI_setWarPlan(WARPLAN_LIMITED/TOTAL)` was not sufficient in the Lincoln retests; the near-finished spaceship target could still win before a real declaration happened. Declare immediately for the narrow victory-denial direct-war case. See KI#184. (GPT-5.5) -->
++				if (aTargets[i].bDirect && aTargets[i].iVictoryDenialBoost > 0 && kAgent.canDeclareWar(eTarget))
++				{
++					kAgent.declareWar(eTarget, false, eWP);
++					if (gWarLogLevel >= 1)
++					{
++						logBBAI("WAR_TARGET_VICTORY_DENIAL_DECLARE turn=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d originalUtility=%d victoryDenialBoost=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d targetPowerPercent=%d nearestCityDistance=%d",
++								GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, aTargets[i].iOriginalU, aTargets[i].iVictoryDenialBoost, aTargets[i].iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget));
++						logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "DECLARE", eWP, aTargets[i].iU, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), false);
++					}
++				}
++				else kAgent.AI_setWarPlan(eTarget, eWP);
+ 				if (gWarLogLevel >= 1)
+ 				{
+-					logBBAI("WAR_TARGET_PLAN_SET turn=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d targetRank=%d candidateCount=%d stateCounter=%d targetVictoryCountdown=%d targetPowerPercent=%d nearestCityDistance=%d",
+-							GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), kAgent.AI_getWarPlanStateCounter(eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget));
++					logBBAI("WAR_TARGET_PLAN_SET turn=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d originalUtility=%d victoryDenialBoost=%d direct=%d targetMaxVictoryStage=%d drivePercent=%d targetRank=%d candidateCount=%d stateCounter=%d targetVictoryCountdown=%d targetPowerPercent=%d nearestCityDistance=%d",
++							GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, aTargets[i].iOriginalU, aTargets[i].iVictoryDenialBoost, aTargets[i].bDirect, aTargets[i].iTargetMaxVictoryStage, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), kAgent.AI_getWarPlanStateCounter(eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget));
+ 					logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "PLAN_SET", eWP, aTargets[i].iU, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), false);
+ 				}
+-				showWarPrepStartedMsg(eTarget);
++				// <!-- custom: Direct victory-denial wars are already declared, so the preparation-started message would be misleading. Keep it only for actual preparation plans. See KI#184. (GPT-5.5) -->
++				if (!aTargets[i].bDirect)
++					showWarPrepStartedMsg(eTarget);
+ 			}
+ 			m_pReport->log("War plan initiated (%s)", m_pReport->warPlanName(eWP));
+ 			break; // Prepare only one war at a time
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 2108e71ee..a57915b15 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -222,6 +222,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [181 - (Fixed/Improved) AI could train early/midgame Settlers for weak remaining sites after good expansion was gone (e.g., Paris's settler for snow/filler sites example)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#181---fixedimproved-ai-could-train-earlymidgame-settlers-for-weak-remaining-sites-after-good-expansion-was-gone-eg-pariss-settler-for-snowfiller-sites-example)\
+ [182 - (Fixed/Improved) UWAI war-target selection could fall through to farther targets even when a closer weak/disliked land target was available](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#182---fixedimproved-uwai-war-target-selection-could-fall-through-to-farther-targets-even-when-a-closer-weakdisliked-land-target-was-available)\
+ [183 - (Fixed) AdvCiv-SAS faraway-war Risk hard reject could make mediocre wars look extremely good by penalizing the peace scenario](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario)\
++[184 - (Fixed/Improved) Multiple UWAI victory-denial issues could let imminent Space winners survive: no war before fixing this (regardless of whether AI was very strong militarily like in the Ramesses run or very weak like in the Lincoln run), then even after the initial fix wars were still too-late, too-short, or too-low-impact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -6762,3 +6763,65 @@ The remaining high rows were `WAR RISK` rejects only, meaning the guard now work
+ The added `SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD` diagnostic is disabled by default because it can generate very large logs; it is mainly for future UWAI audits when a suspicious target drive or utility value needs an aspect-by-aspect breakdown.
+ 
+ Fixed with the help of GPT-5.5 (on ChatGPT Codex) thanks.
++
++## 184 - (Fixed/Improved) Multiple UWAI victory-denial issues could let imminent Space winners survive: no war before fixing this (regardless of whether AI was very strong militarily like in the Ramesses run or very weak like in the Lincoln run), then even after the initial fix wars were still too-late, too-short, or too-low-impact
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1GZnGuSovQd6mHu3EGumKOeQpEIJvba5Z?usp=sharing).
++
++This is a follow-up to the KI#182 and KI#183 UWAI work. Once faraway-war target fall-through and the peace-scenario Risk sign-flip were improved, BBAI war diagnostics exposed a broader victory-denial problem: the AI could see that a rival was close to winning, but ordinary UWAI target utility, preparation delay, personality hesitation, and peace deals could still let the rival win.
++
++The main observed failure modes were:
++
++- A rival close to a victory could remain unattractive as a war target until too late, even when stopping that victory was strategically urgent.
++- UWAI could set a preparation plan instead of declaring immediately, leaving too few turns to disrupt a launched or nearly launched victory.
++- Emergency anti-victory wars could be cancelled by ordinary peace treaties after only 1-2 turns, making the war almost cosmetic.
++- A weak rival could nearly win Space Race despite much stronger nearby or reachable AIs being capable of killing it.
++
++Repeated autoplay from the same save-file 450 test setup often branched into either a Lincoln Space-win variant or a Ramesses Space-win variant, roughly often enough that both outcomes were useful for testing. This was helpful because they represent different failure severities: very weak Lincoln should be crushed if nearby stronger AIs react correctly, while strong Ramesses can legitimately survive real military pressure and still deserve the win if he remains strong enough. Reference saves kept for these branches include `PC AD-1884 450 292 win but lincoln weak why did htey allow him to win.CivBeyondSwordSave` and `PC AD-1880 450 290 win rameses strong.CivBeyondSwordSave`, with later after-fix saves including `PC AD-1985 450 345 win weak lincoln dies but then soso PC wins quite much later.CivBeyondSwordSave` and `PC AD-1847 450 279 rameses win but hurt now weaker after bbai review.CivBeyondSwordSave`.
++
++The first strong sample was save file 450 with Egypt/Ramesses. In one BBAI run, Ramesses won Space Race at turn 290 while other AIs evaluated him every turn but never turned that evaluation into a real war plan soon enough. This showed that ordinary UWAI utility could be too passive when the actual game objective is "stop this rival now or lose".
++
++Later Ramesses retests were useful because they showed partial progress without proving the whole issue solved. In the final run, Ramesses was not ignored: by turn 280 he was fighting teams 1, 4, and 8, had fallen from the top rank to rank 2, and had lost 25 units / 16 military units from the previous snapshot (`units=95`, `militaryUnits=39`, `power=3267`). By turn 290 he had dropped further to rank 4, lost 2 cities and 49 total city-population points from the previous snapshot, and his power had fallen to 2608. He did not win in that run; instead he recovered later and remained strong. This is a better outcome than the original passive Ramesses Space win: strong leaders can still survive or recover, but the AI is now at least applying real military pressure.
++
++The Lincoln/America follow-up was even clearer because this was the case where "they tried" was not enough: weak Lincoln should lose. In the final `BBAI_20260713T201538Z_load1.log` / `SASGameSummary_20260713T201538Z_load1.log` run, Lincoln was a serious Space Race threat but was very militarily beatable. Around turn 260 he had Space production underway, 4 cities, 55 military units, and 1818 power. That was only about 76% of Arabia/Team 0's 2401 power, about 52% of Ramesses/Egypt's 3490 power, and about 42% of Hannibal/Carthage's 4359 power; Hannibal also had 10 cities and 154 military units. The new victory-denial path fired before countdown:
++
++```text
++WAR_TARGET_VICTORY_DENIAL_DECLARE turn=267 agentTeam=1 targetTeam=9 warPlan=WARPLAN_LIMITED utility=115 originalUtility=-35 victoryDenialBoost=150 targetMaxVictoryStage=4 targetVictoryCountdown=-1 targetPowerPercent=61 nearestCityDistance=6
++WAR_TARGET_VICTORY_DENIAL_DECLARE turn=267 agentTeam=3 targetTeam=9 warPlan=WARPLAN_TOTAL utility=271 originalUtility=121 victoryDenialBoost=150 targetMaxVictoryStage=4 targetVictoryCountdown=-1 targetPowerPercent=51 nearestCityDistance=4
++WAR_TARGET_VICTORY_DENIAL_DECLARE turn=267 agentTeam=4 targetTeam=9 warPlan=WARPLAN_LIMITED utility=191 originalUtility=41 victoryDenialBoost=150 targetMaxVictoryStage=4 targetVictoryCountdown=-1 targetPowerPercent=92 nearestCityDistance=5
++WAR_TARGET_VICTORY_DENIAL_DECLARE turn=269 agentTeam=8 targetTeam=9 warPlan=WARPLAN_LIMITED utility=136 originalUtility=-14 victoryDenialBoost=150 targetMaxVictoryStage=4 targetVictoryCountdown=-1 targetPowerPercent=23 nearestCityDistance=5
++```
++
++Peace was then blocked while Lincoln remained a stage-4 victory threat:
++
++```text
++WAR_TARGET_VICTORY_DENIAL_BLOCK_PEACE_DEAL turn=269 firstTeam=1 secondTeam=9 firstVictoryCountdown=-1 secondVictoryCountdown=-1 firstMaxVictoryStage=3 secondMaxVictoryStage=4 maxRefusePeaceCountdown=20
++WAR_TARGET_VICTORY_DENIAL_BLOCK_PEACE_DEAL turn=270 firstTeam=9 secondTeam=3 firstVictoryCountdown=-1 secondVictoryCountdown=-1 firstMaxVictoryStage=4 secondMaxVictoryStage=3 maxRefusePeaceCountdown=20
++```
++
++The result was the intended one. At turn 270 Lincoln had already fallen to 3 cities, 5 units, and only 489 power while fighting teams 1, 3, 4, and 8:
++
++```text
++GAME_SUMMARY_PLAYER turn=270 player=9 team=9 civ=CIVILIZATION_AMERICA leader=LEADER_LINCOLN ... cities=3 ... units=5 unitsDelta=-57 militaryUnits=5 militaryUnitsDelta=-50 power=489 powerDelta=-1329 ... wars=1,3,4,8
++GAME_SUMMARY_ACTION turn=272 type=PLAYER_ELIMINATED player=9 team=9 civ=CIVILIZATION_AMERICA leader=LEADER_LINCOLN cities=0 units=0 score=0 power=242 playersAlive=10 teamsAlive=10 eliminatedPlayers=9
++```
++
++The implementation is deliberately narrow:
++
++- add a victory-denial utility boost for rivals inside a victory countdown window, and a smaller boost for stage-4 threats before countdown;
++- allow direct limited/total war against weak and near victory threats instead of only setting a preparation plan;
++- reduce or remove avoid-war hesitation for imminent victory threats through a tunable percent;
++- block ordinary peace while either side is still inside the configured victory-denial countdown window or stage-4 peace-refusal condition;
++- keep direct-war power, distance, and land-target gates, so faraway or naval-heavy threats can still receive utility pressure without forcing reckless direct war.
++
++Several earlier attempts helped but were not enough because higher-level UWAI choices could still become preparation plans, direct plans could still fail to declare soon enough, or peace could still be created through lower-level trade/deal paths. The final implementation therefore places the decisive checks in low-level enough paths:
++
++- `UWAI::Team::scheme` adjusts target utility and can call direct `declareWar` for the narrow victory-denial case, similarly in spirit to other AdvCiv-SAS final guards that stop high-level AI intent from being bypassed by later shortcuts;
++- `CvTeamAI::AI_makePeaceTrade` refuses brokered peace with current stage-4/countdown victory threats;
++- `CvDeal::addTradeItems` blocks ordinary non-surrender `TRADE_PEACE_TREATY` deals just before `makePeace`, because direct treaty creation can reach this path with denial checks disabled.
++
++This is not intended to make every late-game AI dogpile every possible winner. It is a sanity layer for cases where the alternative is visibly losing the game to a rival that could realistically be disrupted.
++
++The same final run was therefore the after-fix Lincoln branch, not a Lincoln win: Lincoln died at turn 272, then much later Arabia/Team 0 won Space at turn 345 despite not being dominant (`rank=4`, `cities=7`, `power=2238` at turn 340, compared for example to nearby Hannibal/Team 10 at `rank=1`, `cities=19`, `power=8065`). This was still better than the original failure because Teams 6 and 7 declared at turn 329, France/Team 4 declared at turn 335, Hannibal/Team 10 declared at turn 341, and peace deals were then blocked. The remaining issue was earlier: Hannibal had already fought Arabia, made peace at turn 321, and the resulting forced peace delayed his response until Arabia was already at countdown 4. That suggests a possible later refinement for Space stage 3 with many spaceship parts, but that is separate from this step.
++
++Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index dce865fd4..8f01e35fd 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -181,6 +181,9 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ 
+ Note: cultural victory bullets as of now assume 3 legendary cities are required, if this is changed in a mod mod or such the below explanation would need to be adjusted accordingly.
+ 
++Note 2: AI victory stages are internal AI strategy markers per victory route (`AI_VICTORY_*1` to `AI_VICTORY_*4`); stage 4 means a late/near-completion push. A victory countdown means the AI has an active turns-to-win estimate/launch countdown. UWAI war preparation means the AI has selected `WARPLAN_PREPARING_*` rather than declaring immediately; this can be too slow when a rival is close to winning.
++
++- (Requires AdvCiv-SAS 6037+) **AI victory denial is much more urgent:** BBAI testing in save file 450 showed a deep UWAI issue that UWAI could let a rival close to winning survive too easily: in the Lincoln runs, Lincoln was very weak militarily (~0.7 military power) but still won Space despite much stronger nearby AIs (up to ~2.1) and no war declared on him in the checked late-game snapshots (`wars=-` at T260, T270, T280, T290, then wins Space at T292); in the Ramesses runs, Ramesses was militarily strong (top 2 at ~1.9 vs ~2.1 for top 1) and likewise won Space without being at war in the checked late-game snapshots either (`wars=-` at T260, T270, T280, then wins Space at T290). After fixing the missing-war response, follow-up tests exposed additional failure modes: war could start too late, start but end after 1-2 turns through ordinary peace deals, or happen without enough impact. The decisive checks in this fix are now therefore low-level enough, because higher-level targeted patches did not reliably solve the observed chain of failures (similar in spirit to the AdvCiv-SAS scrapping or `AI_chooseUnit` final guards): in `UWAI::Team::scheme` and related functions. The fix now boosts war utility for stage-4/countdown victory threats, can convert that into direct war when the target is weak and near enough, and refuses ordinary peace while the target remains a serious victory threat. In the final Lincoln-branch retest, Lincoln was weak at T260 as usual (4 cities / 55 military units / 1818 power), but this time Persia, Egypt, France, and Babylon declared at T267-T269, peace was blocked, and America was eliminated at T272. In the separate Ramesses-branch retest, strong Ramesses still survived, but was no longer ignored: he lost 2 cities, 49 city-population points, 28 total units / 30 military units, and about a quarter of his power from T260 to T290. The direct-war gates stay intentionally narrow so distant or naval-heavy threats can receive utility pressure without forcing reckless cross-map attacks. See [KI#184](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact).
+ - **Cultural-victory AI is viability and bottleneck-focused:** The new `SAS_BBAI_CULTURE_LOG_LEVEL` BBAI logging showed Base AdvCiv could treat an AI raising the culture slider only for happiness or border pressure as evidence that it was pursuing a cultural victory. Even the early preparation stage could then raise culture priorities in every city. As a result, the AI could spend production, specialists, and commerce on cities culturally ranked lower than the cultural-victory target group (i.e., the top 3 cities that must reach Legendary culture), on a target city already much closer to Legendary than another target city, or even on a city that had already become Legendary. This was inefficient and could leave the AI dangerously underinvested in stronger economic, scientific, or military priorities. To address these issues, the AI no longer treats its culture slider alone as a cultural-victory commitment, and early preparation no longer raises culture priority throughout the empire. Before serious cultural victory pursuit begins, at least 2 of the 3 target cities must now each have already accumulated a tunable share of the Legendary requirement (10% by default), and the AI must rank among the configured number of leading cultural contenders (No point pursuing culture if we won't win culturally anyway). Once committed, only the target cities receive victory-specific culture weight, shifted toward the city projected to take longest (no point having a city have 70% legendary culture and another 10% legendary culture only, as several legendary cities are required to win culturally, so have the spread be more even); a city that is already Legendary keeps only independent local-border value. Converting production to culture remains available for first-ring expansion and strongly contested borders, but otherwise only to active target cities.
+ - **Hopeless late cultural pursuits are abandoned:** The new `SAS_BBAI_CULTURE_LOG_LEVEL` BBAI logging also showed a late cultural pursuit in which the least advanced target city was projected hundreds of turns from Legendary when the estimated game had little more than 100 turns remaining (e.g., Future Era at T~400 at Normal game speed), despite likely faster Space or other victory routes. The AI now returns to preparation when its maximum affordable culture-slider projection misses the estimated deadline beyond the tunable grace or falls too far behind competing cultural contenders, freeing resources for stronger victory routes.
+ - **Cultural pursuit gated by strong current or planned war enemies:** no point investing heavily in a future cultural victory if the AI may lose the war first. The AI no longer pursues serious culture-victory if its current or planned war enemies reach the shared `bEnemyStrong` power threshold (>=120% enemy power ratio by default) (the local `bDanger` is intentionally absent, because one threatened city should not veto an empire-wide victory strategy), reducing culture-victory pressure on production, specialists, and commerce while preserving ordinary local-border culture. This is not an absolute ban but relative to military high enemy power and cultural advancement: Culture 2 can still remain available against weaker current or planned war opponents, culture can resume after peace if relevant, and a close late cultural win is not abandoned if all target cities already have credible high-culture countdowns. In BBAI tests, a midgame map test showed the rule firing 25 times for Spain at 124% to 288% enemy power, blocking Culture 2+ pursuit despite otherwise meeting the new culture-victory foundation gates; Culture 2 remained available during a weaker war at 67% enemy power and resumed for four consecutive turns after peace.
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=8 omittedFiles=1 embeddedPatchBytes=47584

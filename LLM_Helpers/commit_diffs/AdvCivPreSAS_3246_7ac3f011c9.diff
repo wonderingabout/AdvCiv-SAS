@@ -1,0 +1,59 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3246
+# Commit: 7ac3f011c9cfbeab548a050dafc9f6cada0533bd
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 14d0e94b19c2bf1fee88fd9c7a0c57a18028978b
+# Title: 'Pedia: Let trait production abilities link to traits
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	7	Assets/XML/Text/CIV4GameText_advc.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 8b8927ead..385de5572 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5478,21 +5478,23 @@
+ 		<Spanish>Dobla la velocidad de [ICON_PRODUCTION] con [LINK=literal]%s1_Bonus[\LINK]</Spanish>
+ 	</TEXT>
+ 	<!-- advc.004w: These two are from CIV4GameText_BTS.xml. Replace "production"
+-		 with the production icon for consistency. -->
++		 with the production icon for consistency.
++		 Don't know how to get the German Pedia links right for the trait articles
++		 (advc.004y) while still being concise. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_DOUBLE_SPEED_TRAIT</Tag>
+-		<English>Double [ICON_PRODUCTION] Speed for %s1_trait Leaders</English>
+-		<French>Vitesse de [ICON_PRODUCTION] doubl&#233;e avec le trait %s1_trait</French>
++		<English>Double [ICON_PRODUCTION] Speed for [LINK=literal]%s1_trait[\LINK] Leaders</English>
++		<French>Vitesse de [ICON_PRODUCTION] doubl&#233;e avec le trait [LINK=literal]%s1_trait[\LINK]</French>
+ 		<German>Doppelte [ICON_PRODUCTION]/Runde f&#252;r %s1:2_trait Staatsoberhaupt</German>
+-		<Italian>Doppia velocit&#224; [ICON_PRODUCTION] con un leader %s1_trait</Italian>
++		<Italian>Doppia velocit&#224; [ICON_PRODUCTION] con un leader [LINK=literal]%s1_trait[\LINK]</Italian>
+ 		<Spanish>Doble velocidad de [ICON_PRODUCTION] con l&#237;der %s1:1_trait</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PRODUCTION_MODIFIER_TRAIT</Tag>
+-		<English>%D1_change%% [ICON_PRODUCTION] Speed for %s2_trait Leaders</English>
+-		<French>Vitesse de [ICON_PRODUCTION] de %D1_change%% avec le trait %s2_trait</French>
++		<English>%D1_change%% [ICON_PRODUCTION] Speed for [LINK=literal]%s2_trait[\LINK] Leaders</English>
++		<French>Vitesse de [ICON_PRODUCTION] de %D1_change%% avec le trait [LINK=literal]%s2_trait[\LINK]</French>
+ 		<German>%D1_change%% [ICON_PRODUCTION]/Runde f&#252;r %s2:2_trait Staatsoberhaupt</German>
+-		<Italian>%D1_change%% di velocit&#224; [ICON_PRODUCTION] con un leader %s2_trait</Italian>
++		<Italian>%D1_change%% di velocit&#224; [ICON_PRODUCTION] con un leader [LINK=literal]%s2_trait[\LINK]</Italian>
+ 		<Spanish>%D1_change%% de velocidad de [ICON_PRODUCTION] con l&#237;der %s2:1_trait</Spanish>
+ 	</TEXT>
+ 	<!-- Shorter version -->
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2310

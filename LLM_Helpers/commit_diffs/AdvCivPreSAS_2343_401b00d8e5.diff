@@ -1,0 +1,59 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2343
+# Commit: 401b00d8e5f6aa54eacc6807a2b3aa3e46e487c2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: de12b2cecac7fb89f6dbbf888291d4c329c20851
+# Title: Same Barbarian trade value for all resources
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6d4874010..a204039ea 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -10604,6 +10604,9 @@ int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled,
+ 	bool bTrade) const // advc.036
+ {
+ 	PROFILE_FUNC(); // advc.opt
++	// <advc.304> Relevant for Barbarian city placement
++	if (isBarbarian())
++		return 10; // </advc.304>
+ 	int iValue = 0;
+ 	int const iBonusCount = getNumAvailableBonuses(eBonus);
+ 	// <advc.036>
+@@ -27019,6 +27022,9 @@ int CvPlayerAI::AI_getHappinessWeight(int iHappy, int iExtraPop, bool bPercent)
+ {
+ 	if (iHappy == 0)
+ 		iHappy = 1;
++	// <advc.300> (Probably not important)
++	if (isBarbarian())
++		return 50 * iHappy; // </advc.300>
+ 
+ 	/*  advc.036: This was counting all our cities except Globe Theater (GT).
+ 		I think they should all count; happiness in the GT city just won't
+@@ -27079,6 +27085,10 @@ int CvPlayerAI::AI_getHealthWeight(int iHealth, int iExtraPop, bool bPercent) co
+ 	if (iHealth == 0)
+ 		iHealth = 1;
+ 
++	// <advc.300> (Probably not important)
++	if (isBarbarian())
++		return 50 * iHealth; // </advc.300>
++
+ 	int iCount = getNumCities(); // advc.036: See AI_getHappinessWeight
+ 
+ 	int iValue = 0;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1269

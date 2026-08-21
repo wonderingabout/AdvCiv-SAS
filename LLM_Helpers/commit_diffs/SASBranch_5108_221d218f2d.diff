@@ -1,0 +1,208 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5108
+# Commit: 221d218f2d062ba70454d0c75efe18da84eecaeb
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f3c7a9bac5c1660c9741eb4d1643726aa8332e20
+# Title: (Improved) reduce excessive civic oscillation by adding a min slack percent requirement before civic switch (tunable) - Reduce excessive civics change oscill...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+37	0	Assets/XML/GlobalDefines_advciv_sas.xml
+51	8	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 22f64b450..2e563a6f1 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1000,6 +1000,43 @@
+ 
+ 
+ 
++	<!-- custom: civic excessive oscillation tentative fix. Note: issue happened before our unlimited specialists civic valuation changes based on quick autoplay testing, but they seem more prevalent now that for example civic_caste_system is no longer an autopick and civics change more. Added this with the help of chatgpt 5 to attempt to / to help reduce oscillation. Check if accurate but anyways etc. -->
++	<!--
++	Civic switch hysteresis (anti flip-flop)
++
++	What it does:
++	- Stops the AI from bouncing between near-equal civics. The AI only switches if the
++	new civic is clearly better than the current one by a small "extra lead" called slack.
++
++	How slack is calculated:
++	- slack = max( SAS_DO_CIVICS_SWITCH_MIN_SLACK ,
++				round( abs(current_value) * SAS_DO_CIVICS_SWITCH_SLACK_PERCENT / 100 ) )
++
++	Examples:
++	- Small numbers (early game): current_value=30, MIN=5, PCT=5%
++	-> slack=max(5, round(1.5))=5. New civic must be at least 30+5=35 to switch.
++	- Large numbers (late game): current_value=220, MIN=5, PCT=5%
++	-> slack=max(5, round(11))=11. New civic must be at least 220+11=231 to switch.
++
++	Tuning tips:
++	- Raise MIN to reduce early-game churn (e.g. 6-8). Lower it for more agility.
++	- Raise PCT to require a bigger lead in late game (e.g. 6-8%). Lower it for more frequent switches.
++	- Set both to 0 to disable the anti flip-flop behavior.
++	-->
++	<!-- Absolute floor in value-points; prevents tiny swings from causing a switch when current_value is small. Raise to reduce early-game oscillation; lower to make AI more eager. -->
++	<Define>
++		<DefineName>SAS_DO_CIVICS_SWITCH_MIN_SLACK</DefineName>
++		<iDefineIntVal>5</iDefineIntVal>
++	</Define>
++	<!-- Percent of abs(current_value) added as extra lead required. Keeps late-game switches meaningful when values are large. Raise to add stickiness; lower for responsiveness. -->
++	<!-- custom: note: for some reason as of now sometimes bypassed by AIs entirely for some reason, to ideally investigate but for now if not always or not left as such anyways etc. -->
++	<Define>
++		<DefineName>SAS_DO_CIVICS_SWITCH_SLACK_PERCENT</DefineName>
++		<iDefineIntVal>20</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: set to 1 (enabled) (recommended) to allow sas specialist assignment optimizations (if any are implemented) anyways etc -->
+ 	<Define>
+ 		<DefineName>SAS_JOB_CHANGE_VALUE_OPTIMIZE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5563e7cba..e545665e4 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -18655,7 +18655,10 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	// We can’t compute the full-set anarchy here, so use a cheap, correct-enough proxy:
+ 	//   - if player has zero max anarchy (Spiritual, Cristo, GA rules handled elsewhere), no penalty
+ 	//   - otherwise use the civic’s base anarchy length.
+-	if (iS > 0) // only when considering adopting this civic
++	//
++	// In your unlimited-specialist block you devalue only when iS > 0 (adopting). That means the AI “pays” anarchy when switching to OR, but doesn’t count the anarchy cost when switching away from OR. That creates a bias toward dropping it next pass.
++	// Fix: apply the same scaling whenever we’d change the civic at all.
++	if (iS != 0) // adopting or dropping
+ 	{
+ 		int iAnTurns = 0;
+ 		if (getMaxAnarchyTurns() != 0) // Spiritual/CR/GA -> 0 anarchy windows
+@@ -20994,6 +20997,13 @@ void CvPlayerAI::AI_doCivics()
+ 				AI_civicValue(aeBestCivic.get(eLoopCivicOption)));
+ 	}
+ 
++	// <!-- custom: we seem to have excessive civic oscillation, see below for details anyways etc -->
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++	// --- Hysteresis knobs (tunable in XML if you like) ---
++	static const int iSlackMin   = GC.getDefineINT("SAS_DO_CIVICS_SWITCH_MIN_SLACK");        // e.g. 5
++	static const int iSlackPct   = GC.getDefineINT("SAS_DO_CIVICS_SWITCH_SLACK_PERCENT");    // e.g. 10
++
+ 	int iAnarchyLength = 0;
+ 	bool bWillSwitch;
+ 	bool bWantSwitch;
+@@ -21027,11 +21037,45 @@ void CvPlayerAI::AI_doCivics()
+ 					iThreshold += 15;
+ 				// </advc.132b>
+ 			}
+-			if (100*iBestValue > (100 + /* advc.131: */ (iBestValue >= 0 ? 1 : -1) *
+-				iThreshold) * aiCurrentValue.get(eLoopCivicOption))
++
++			// <!-- custom: we seem to have excessive civic oscillation, especially after our changes to civic valuation that stopped the civic_caste_system autopick and which may have revealed an issue that was masked before (as this oscillation happened to a lesser extent before our changes based on quick autoplay testing). Trying to reduce oscillation so we change civics only when it benefits us and not too often which may be inefficient if we don't have a no anarchy effect. Code provided by chatgpt 5, check if accurate anyways etc -->
++			// This keeps your existing percent threshold logic (which already scales with anarchy) and demands a tiny absolute lead (e.g., max(5, 5% of current)). That’s usually enough to stop OR↔Paganism bounce from rounding/upkeep noise while still allowing real upgrades.
++			// if (100*iBestValue > (100 + /* advc.131: */ (iBestValue >= 0 ? 1 : -1) *
++			// 	iThreshold) * aiCurrentValue.get(eLoopCivicOption))
++			// {
++			// 	FAssert(aeBestCivic.get(eLoopCivicOption) != NO_CIVIC);
++			// 	if (gPlayerLogLevel > 0) logBBAI("    %S decides to switch to %S (value: %d vs %d%S)", getCivilizationDescription(0), GC.getInfo(eNewCivic).getDescription(0), iBestValue, aiCurrentValue.get(eLoopCivicOption), bFirstPass?"" :", on recheck");
++			// 	iAnarchyLength = iTestAnarchy;
++			// 	aeBestCivic.set(eLoopCivicOption, eNewCivic);
++			// 	aiCurrentValue.set(eLoopCivicOption, iBestValue);
++			// 	bWillSwitch = true;
++			// }
++			// else
++			// {
++			// 	if (100 * iBestValue > /* advc.131: */ (iBestValue >= 0 ? 120 : 80)
++			// 		* aiCurrentValue.get(eLoopCivicOption))
++			// 	{
++			// 		bWantSwitch = true;
++			// 	}
++			// }
++			// Civic switch hysteresis (anti flip-flop)
++			const int iCurrent = aiCurrentValue.get(eLoopCivicOption);
++
++			// Require BOTH: (a) your existing percent threshold AND (b) an absolute margin.
++			const int iLHS = 100 * iBestValue;
++			const int iRHS = (100 + ((iBestValue >= 0) ? 1 : -1) * iThreshold) * iCurrent;
++
++			// Absolute margin scaled by current magnitude (handles negatives safely)
++			const int iAbsSlack = std::max(iSlackMin, (int)(std::abs(iCurrent) * iSlackPct) / 100);
++
++			if (iLHS > iRHS && (iBestValue - iCurrent) > iAbsSlack)
+ 			{
+ 				FAssert(aeBestCivic.get(eLoopCivicOption) != NO_CIVIC);
+-				if (gPlayerLogLevel > 0) logBBAI("    %S decides to switch to %S (value: %d vs %d%S)", getCivilizationDescription(0), GC.getInfo(eNewCivic).getDescription(0), iBestValue, aiCurrentValue.get(eLoopCivicOption), bFirstPass?"" :", on recheck");
++				if (gPlayerLogLevel > 0) logBBAI(
++					"    %S switches to %S (value: %d vs %d, slack %d, thr %d)%s",
++					getCivilizationDescription(0), GC.getInfo(eNewCivic).getDescription(0),
++					iBestValue, iCurrent, iAbsSlack, iThreshold, bFirstPass ? "" : ", recheck");
++
+ 				iAnarchyLength = iTestAnarchy;
+ 				aeBestCivic.set(eLoopCivicOption, eNewCivic);
+ 				aiCurrentValue.set(eLoopCivicOption, iBestValue);
+@@ -21039,12 +21083,11 @@ void CvPlayerAI::AI_doCivics()
+ 			}
+ 			else
+ 			{
+-				if (100 * iBestValue > /* advc.131: */ (iBestValue >= 0 ? 120 : 80)
+-					* aiCurrentValue.get(eLoopCivicOption))
+-				{
++				// Not enough margin to commit; still remember we’d like to switch.
++				if (iBestValue > iCurrent)
+ 					bWantSwitch = true;
+-				}
+ 			}
++			// End - Civic switch hysteresis (anti flip-flop)
+ 		}
+ 		bFirstPass = false;
+ 	} while (bWillSwitch && bWantSwitch);
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 803c7a22e..566486f8c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -193,6 +193,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - (Requires AdvCiv-SAS 5103+) Fix the issue of AIs autopicking/overvaluing the former civic_emancipation (or any civic with `iCivicPercentAnger`) just because other rivals have it regardless of how good the civic itself is (the former civic_emancipation was really weak yet still picked by AIs). Now replaced with opportunistic current unhappiness per city-based logic if it benefits us (only pick such a civic if enough of our cities that are unhappy because of the anger civic effect would gain happiness from it). Change in `CvPlayerAI::AI_civicValue` with some tunables in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). Hopefully makes stronger civic choices thanks to this changes as appears to be so in autoplay before vs after change. See for details [KI#75](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue).
+ - (Requires AdvCiv-SAS 5106+) Fix the issue of AIs almost always picking civic_caste_system and then sticking to it no matter what: rewrote the unlimited specialist old logic in `CvPlayerAI::AI_civicValue` that would only value culture specialists, which seemingly led to civic_wage_labour (as of now unlimited engineers, see latest sevopedia/xml for updated values and details anyways etc) never being picked, even when AIs would much benefit from it, including when our ennemies are stronger than us (no point to run a scientist and then die, better capitalize on engineers or serfdom or such but anyways etc). Now we value unlimited specialists' yields (food, hammer, gold) and commerce (beakers, gold, culture, espionage) hierarchically (e.g. higher value per yield for food vs hammer, higher value per yield for beakers vs culture, etc.), so that we value unlimited specialists strategically on a per yield base. Also added high need logic (higher culture value per yield if culture win rush or BFC need quite similarly to old code, and now also higher hammer value per yield for engineers if our ennemies are strong (see code for latest settings anyways etc)). Results in autoplay are very good, we now switch back and forth between civic_slavery and civic_caste_system early (no longer perma caste system), and then later civic_wage_labor is much more popular among AIs. Civic_serfdom is also sometimes switched to late in the game. So the spread overall is much more even of unlimited specialist civics amongs AIs, which is fine and good as it suits their strategical needs much more if i may say but anyways etc. Added anarchy counting logic to devalue civics (less attractive if costly in turns, but still as attractive if no anarchy cost (traits, golden age, wonders, etc. (at least in theory i mean but check to be sure but anyways etc))), but it looks we still switch a bit too much still so may need some tweaking, but even as is should lead to much stronger and responsive AI hopefully, especially following future civic reworks. Partially tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See for details with screenshots and such [KI#76](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue).
++- (Requires AdvCiv-SAS 5108+) Reduce excessive civics change oscillation (was partially masked by civic_caste_system being almost always picked it seems based on autoplay testing, now more prevalent after our civic valuation changes that also value other civics depending on the player's strategic needs but anyways) by adding an additional percent slack new logic (and rewriting the old logic as well) in `CvPlayerAI::AI_doCivics` so that for example a new civic needs to be at least 10% higher valuated to be chosen/switched to (tunable). Note: If percent slack is set too high, it may cause AIs to switch too rarely and react more slowly, but if too low it may be inefficient especially for players that have anarchy turns on civic change—adjust to taste. Note 2: for some reason as of now sometimes bypassed by AIs entirely for some reason, to ideally investigate but for now if not always or not left as such anyways etc.
+ 
+ #### Buildings (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 1a607091f..8624bd5f2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -181,6 +181,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - (Requires AdvCiv-SAS 5103+) **Civic “Percent Anger” logic (rework):** Fixed the AI tendency to adopt any civic with `iCivicPercentAnger` (e.g. the former CIVIC_EMANCIPATION) just because rivals have it, regardless of its actual value. Replaced with an **opportunistic per-city check**: only consider such civics when enough of our cities would directly **lose anger** from the switch. Implemented in `CvPlayerAI::AI_civicValue`; tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). In autoplay before/after tests, civic choices appeared **stronger**. See [KI#75](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue).
+ - (Requires AdvCiv-SAS 5106+) **Civic choice logic — unlimited specialists generalized:** Addressed the AI’s tendency to default to **Caste System** and stay there. Rewrote `CvPlayerAI::AI_civicValue` so **unlimited specialists** are scored by **yields** (Food > Hammers > Gold) and **commerce** (Beakers >= Gold > Espionage > Culture), instead of effectively crediting only culture. This lets civics like **Wage Labor** (unlimited Engineers) be chosen when appropriate. Added “high-need” boosts (e.g., extra Culture weight when pushing culture/BFC (quite similar to old logic); extra Engineer/Hammer weight when enemies are strong) and **anarchy-cost awareness** (devalue switches that cost many turns). Tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). Leads to a more even spread of civics among AIs based on their strategic needs, and to them being more responsive to change. Details/screenshots: [KI#76](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue). *(Observed in autoplay: early new Slavery↔Caste swaps; late much more Wage Labor and new occasional late Serfdom. May still subject to tuning.)*
++- **(Requires AdvCiv-SAS 5108+) Civic-switch damping (anti-oscillation):** Reworked `CvPlayerAI::AI_doCivics` to add a **percent-slack** gate: a new civic must outscore the current one by **~10%** to trigger a switch (**tunable**; see [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). Goal: reduce rapid flip-flopping exposed after the broader civic valuation work. *Note:* If the slack is too high, AIs switch **too rarely** and **react more slowly**; if too low, oscillation returns and players with **anarchy-on-switch** waste turns. Adjust to taste. *Note 2:* sometimes bypassed/ignored by AIs entirely for some reason.
+ 
+ #### Buildings (AI)
+ 
+@@ -342,7 +343,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ ### Civics (non-exhaustive)
+ 
+ - **Civics rebalance (selective):** `CIVIC_REPRESENTATION` adjusted (unlocks earlier in AdvCiv-SAS; effects tweaked to fit timing); `CIVIC_SLAVERY` buffed (**Upkeep: Medium → Low**); `CIVIC_CASTE_SYSTEM` nerfed (**Upkeep: Medium → High**) to curb early snowball. See Sevopedia/XML.
+-- **(Requires AdvCiv-SAS 5104+) Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact and historical accuracy; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. (Requires AdvCiv-SAS 5107+) Some religion civics are buffed/reworked to be refocused on religious play and to stay relevant deeper into the game. Net effect: more viable paths, fewer must-picks.
++- **(Requires AdvCiv-SAS 5104+) Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact and historical accuracy; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. (Requires AdvCiv-SAS 5107+) Some religion civics are buffed/reworked to be refocused on religious play and to stay relevant longer into the game. Net effect: more viable paths, fewer must-picks.
+ - **(Requires AdvCiv-SAS 5105+) Civics order aligned to tech pace:** Reordered civics in XML so the **Civics Advisor** (F3 key) displays them in rough unlock order (UI only; no rules change). Examples: **Universal Suffrage** before **Police State**; **Vassalage** after **Caste System**; **Pacifism** before **Organized Religion**; **Environmentalism** before **State Property**.
+ 
+ ### Buildings (non-exhaustive)
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=18604

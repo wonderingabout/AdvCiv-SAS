@@ -1,0 +1,54 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2748
+# Commit: 5587d90f7448e2893d9245892b9cb1da16b3564e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3151d27398d1b3b520c82442ea6e1cd832ee2688
+# Title: Tiny bit of cleanup
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvPlayer.cpp
+0	2	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3c1a6c3de..a0f59b55d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -10889,13 +10889,13 @@ int CvPlayer::getStartOfTurnMessageLimit() const
+ {
+ 	if(!BUGOption::isEnabled("MainInterface__AutoOpenEventLog", true))
+ 		return -1;
+-	int r = BUGOption::getValue("MainInterface__MessageLimit", 3);
++	int iR = BUGOption::getValue("MainInterface__MessageLimit", 3);
+ 	if(!isOption(PLAYEROPTION_MINIMIZE_POP_UPS) &&
+ 		GC.getDefineINT("MESSAGE_LIMIT_WITHOUT_MPU") == 0)
+ 	{
+ 		return -1;
+ 	}
+-	return r;
++	return iR;
+ } // </advc.106b>
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index fe13f7157..518d2f211 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1,5 +1,3 @@
+-// unit.cpp
+-
+ #include "CvGameCoreDLL.h"
+ #include "CvUnit.h"
+ #include "CvUnitAI.h"
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=892

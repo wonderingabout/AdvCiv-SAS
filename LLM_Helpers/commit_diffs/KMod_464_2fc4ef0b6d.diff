@@ -1,0 +1,102 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 464
+# Commit: 2fc4ef0b6d4444ed6880bef7272a97de2b1f43de
+# History segment: K-Mod history
+# Parent used for diff: 5c0b2f19b3d95145d2b83d3c8e7173531518276f
+# Title: Rewrote the code that handles the highlighting of goody-huts and city site recommendations. It should now be more efficient for non-settlers and non-scouts,...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+31	24	CvGameCoreDLL/CvGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 3211da15e..74884814b 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -312,42 +312,49 @@ void CvGame::updateColoredPlots()
+ 				}
+ 			}
+ 
+-			iRange = 4;
++			// K-Mod. I've rearranged the following code a bit, so that it is more efficient, and so that it shows city sites within 7 turns, rather than just the ones in 4 plot range.
++			// the original code has been deleted, because it was quite bulky.
+ 
+-			for (iDX = -(iRange); iDX <= iRange; iDX++)
++			// city sites
++			const CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
++			KmodPathFinder site_path;
++			site_path.SetSettings(pHeadSelectedUnit->getGroup(), 0, 7, GC.getMOVE_DENOMINATOR());
++			if (pHeadSelectedUnit->isFound())
+ 			{
+-				for (iDY = -(iRange); iDY <= iRange; iDY++)
++
++				for (int i = 0; i < kActivePlayer.AI_getNumCitySites(); i++)
+ 				{
+-					pLoopPlot = plotXY(pHeadSelectedUnit->getX_INLINE(), pHeadSelectedUnit->getY_INLINE(), iDX, iDY);
++					CvPlot* pSite = kActivePlayer.AI_getCitySite(i);
++					if (pSite && site_path.GeneratePath(pSite))
++					{
++						gDLL->getEngineIFace()->addColoredPlot(pSite->getX_INLINE(), pSite->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
++					}
++				}
++			}
+ 
+-					if (pLoopPlot != NULL)
++			// goody huts
++			if (pHeadSelectedUnit->isNoBadGoodies())
++			{
++				iRange = 4;
++				site_path.SetSettings(pHeadSelectedUnit->getGroup(), 0, iRange, GC.getMOVE_DENOMINATOR()); // just a smaller range.
++
++				for (iDX = -(iRange); iDX <= iRange; iDX++)
++				{
++					for (iDY = -(iRange); iDY <= iRange; iDY++)
+ 					{
+-						if ((pLoopPlot->area() == pHeadSelectedUnit->area()) || pLoopPlot->isAdjacentToArea(pHeadSelectedUnit->area()))
++						pLoopPlot = plotXY(pHeadSelectedUnit->getX_INLINE(), pHeadSelectedUnit->getY_INLINE(), iDX, iDY);
++
++						if (pLoopPlot && pLoopPlot->isVisible(pHeadSelectedUnit->getTeam(), false) && pLoopPlot->isRevealedGoody(pHeadSelectedUnit->getTeam()))
+ 						{
+-							if (pHeadSelectedUnit->canFound(pLoopPlot))
+-							{
+-								if (GET_PLAYER(pHeadSelectedUnit->getOwnerINLINE()).AI_isPlotCitySite(pLoopPlot))
+-								{
+-									gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+-								}
+-							}
+-							if (plotDistance(pHeadSelectedUnit->getX_INLINE(), pHeadSelectedUnit->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) <= iRange)
++							if (site_path.GeneratePath(pLoopPlot))
+ 							{
+-								if (pLoopPlot->isVisible(pHeadSelectedUnit->getTeam(), false))
+-								{
+-									if (pHeadSelectedUnit->isNoBadGoodies())
+-									{
+-										if (pLoopPlot->isRevealedGoody(pHeadSelectedUnit->getTeam()))
+-										{
+-											gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+-										}
+-									}
+-								}
++								gDLL->getEngineIFace()->addColoredPlot(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), GC.getColorInfo((ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+ 							}
+ 						}
+ 					}
+ 				}
+ 			}
++			// K-Mod end
+ 		}
+ 
+ 		if (pHeadSelectedUnit->isBlockading())
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3688

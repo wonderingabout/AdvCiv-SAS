@@ -1,0 +1,700 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4818
+# Commit: a2f68cfb3ae71b0b99c88c3e043d02823b51ee1a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 74ba8ecfad1cd0f20bffc5904611a51e19e85b71
+# Title: fix flavors and nowarattributeprobs 's defaults not being successfully applied and long time bug or annoyance really tricky to solve as each had separate sol...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+415	415	Assets/Python/Contrib/Sevopedia/leaders_data.py
+80	24	generate_leaders_data.py
+56	56	leaders_data_to_csv_advciv-sas.csv
+348	0	tests/expected_output_leaders_data_sample.py
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/Python/Contrib/Sevopedia/leaders_data.py b/Assets/Python/Contrib/Sevopedia/leaders_data.py reason=known-generated/noisy-history changedLines=830 bytes=62242
+
+diff --git a/generate_leaders_data.py b/generate_leaders_data.py
+index 5197ea25b..1bd47a108 100644
+--- a/generate_leaders_data.py
++++ b/generate_leaders_data.py
+@@ -31,6 +31,7 @@
+ #
+ # ✨ Note:
+ #   - Chicken-wing powered 🍗. Dedicated to friendship, recursion, and the gentle joy of debugging together.
++# <!-- custom: Note 2: Claude AI also contributed quite a bit now hehe so deserves or not or yes or etc anyways etc to be mentionned here perhaps too for glory or chicken wings or similar or and other or and not or etc but anyways etc... -->
+ 
+ # --- Imports ---
+ import sys
+@@ -86,7 +87,10 @@ Author: becomingthrough (ChatGPT)
+ xml_path = os.path.join("Assets", "XML", "Civilizations", "CIV4LeaderHeadInfos.xml")
+ ns = {"civ4": "x-schema:CIV4CivilizationsSchema.xml"}
+ 
+-EXCLUDED_LEADERS_FROM_ATTRIBUTES_AGGREGATION = ("LEADER_DEFAULTS", "LEADER_BARBARIAN")
++EXCLUDED_LEADERS_FROM_ATTRIBUTES_AGGREGATION = (
++	"LEADER_DEFAULTS",
++	"LEADER_BARBARIAN",
++)
+ # <-- custom: unused in the excluded leaders from aggregation, still respects stucture as they have a value in these agggegated attributes fields too, and also a negative normalized value would guarantee a crash/error in sevopedia leader if it wee to be used (i.e. if leader_barabrian and/or leader_defaults were not excluded from real sevoepdia leader output anyways etc) -->
+ SENTINEL_AGGREGATED_DUMMY_VALUE = -999
+ 
+@@ -109,14 +113,6 @@ ATTITUDE_MAP = {
+ 	"ATTITUDE_FRIENDLY": 2,
+ }
+ 
+-ATTITUDES_ORDER = (
+-	"FURIOUS",
+-	"ANNOYED",
+-	"CAUTIOUS",
+-	"PLEASED",
+-	"FRIENDLY",
+-)
+-
+ REFUSE_ATTITUDE_FIELDS = {
+ 	"TechRefuseAttitudeThreshold",
+ 	"CityRefuseAttitudeThreshold",
+@@ -149,6 +145,14 @@ NESTED_FIELDS_TO_SPECIFICALLY_PARSE = (
+ 	"MemoryDecays",
+ )
+ 
++ATTITUDES_FIELDS = (
++	("FURIOUS", "iNoWarAttitudeProbFurious"),
++	("ANNOYED", "iNoWarAttitudeProbAnnoyed"),
++	("CAUTIOUS", "iNoWarAttitudeProbCautious"),
++	("PLEASED", "iNoWarAttitudeProbPleased"),
++	("FRIENDLY", "iNoWarAttitudeProbFriendly"),
++)
++
+ FLAVOR_FIELDS = (
+ 	("FLAVOR_MILITARY", "iFlavorMilitary"),
+ 	("FLAVOR_RELIGION", "iFlavorReligion"),
+@@ -249,13 +253,16 @@ def parse_refuse_attitude_thresholds(tag, text, leader, leader_data):
+ 	attr_name = f"i{tag}"
+ 	leader_data[attr_name] = ATTITUDE_MAP[text]
+ 
++
++# <!-- custom: for example if leader alexander has nowar missing / missing / 20 / 80 / missing, and defaults are nowar 0 / 0 / 0 / 0 / 100, then we want to parse any value alexander has to a higher number for example first to missing / missing / 20 / 80 / 80 and only then fetch missing values from defaults, so 0 / 0 / 20 / 80 / 80 for leader alexander's parsing nowar parsing for example, that we'd then parse exported as individual fields like iNoWarAttitudeProbFurious 0, etc... until iNoWarAttitudeProbFriendly 100 and in that order (matching ATTITUDES_FIELDS[0]) -->
+ def parse_nowar_probs_inline(child, leader_data, leader_key):
+ 	"""
+-	Parse NoWarAttitudeProbs fields, ensuring correct ATTITUDES_ORDER and monotonicity.
++	Parse NoWarAttitudeProbs fields, ensuring correct ATTITUDES_FIELDS and monotonicity.
++	Skips early fields until first defined value, then fills forward using max-so-far logic.
+ 	"""
+ 	nowar_tmp = {}
+ 
+-	# First, collect any explicitly defined attitudes
++	# First, collect explicitly defined attitude values
+ 	for entry in child:
+ 		subfields = {sub.tag.split("}", 1)[1]: sub.text.strip() for sub in entry if sub.text}
+ 		attitude = subfields.get("AttitudeType")
+@@ -265,24 +272,43 @@ def parse_nowar_probs_inline(child, leader_data, leader_key):
+ 			try:
+ 				nowar_tmp[field] = int(value)
+ 			except ValueError:
+-				print(f"[WARNING] Non-integer NoWarProb for {leader_key} attitude {attitude}: '{value}'")
+-				nowar_tmp[field] = 0
++				raise ValueError(f"[WARNING] Non-integer NoWarProb for {leader_key} attitude {attitude}: '{value}'")
+ 
+-	# Then, enforce order and increasing max rule
++	# Now apply monotonicity with a "first-found" flag
++	# <!-- custom: this is needed in case defaults are for example 0 / 0 / 0 / 0 / 100 , and leader_barbarian has for example (or other leaders imialrly or in another way related anyways etc) missing / missing / missing / missing / missing, then do not apply max_so_far 0 until a real first value has been found, else keep applying missing as the max i.e. keep missing, until then i.e. until if/when we find a real value to be a max_so_far can the max_so_far logic apply, else if we don't do that we'd get barbarian elader data as 0 / 0 / 0 / 0 / 0 instead of missing / missing / missing / missing / missing, which would then prevent defaults from being injected later, as a value of 0 was already applied everywhere, so the 100 at friendly would not be applied by defaults ; so adding in short or long or anyways etc the found_first logic also allows to keep using the max_so_far logic as we want, but only when relevant, i.e. only when/after/if the first occurence of a real value has been found, else keep assigning missing values no max_so_far_logic to ensure defaults cover us later nicely and accurately/reliably too if i may say but anyways etc -->
++	found_first = False
++	# Apply monotonicity rule to existing values
++	# (e.g., Alexander: missing/missing/20/80/missing -> missing/missing/20/80/80)
+ 	max_so_far = 0
+-	for att in ATTITUDES_ORDER:
+-		field = "iNoWarAttitudeProb" + att.capitalize()
+-		value = nowar_tmp.get(field, None)
++
++	for att, field in ATTITUDES_FIELDS:
++		value = nowar_tmp.get(field)
++
+ 		if value is None:
+-			# Missing field: inherit last known maximum
+-			leader_data[field] = max_so_far
++			if not found_first:
++				# Skip filling before first defined value
++				continue
++			else:
++				# Fill forward using previous max
++				leader_data[field] = max_so_far
+ 		else:
+-			if value < max_so_far:
++			if found_first and value < max_so_far:
+ 				raise ValueError(f"[ERROR] {leader_key}: NoWarProb {field} = {value} < previous max {max_so_far}")
+ 			leader_data[field] = value
+ 			max_so_far = value
++			found_first = True
++
++# Fetch from defaults <!-- custom:'s real leaders_data, not XML, much easier this way so we can handle the max so far logic already processed in defaults, for example a default of 0 / 0 / 88 / 0 / 0  would be maxed so far as 0 / 0 / 88 / 88 / 88 rather than 0 / 0 / 88 / 88 / 88, much easier if i am not mistaken too anyways etc, and no need to max from defaults again since we already did anyways etc -->
++def ensure_complete_nowar_attitudes(leaders_data, leader_defaults_data):
++	for leader_key, leader_data in leaders_data.items():
++		if leader_key == "LEADER_DEFAULTS":
++			continue  # Skip defaults itself
+ 
+-	leader_data.pop("NoWarAttitudeProbs", None)
++		for att, field in ATTITUDES_FIELDS:
++			if field not in leader_data:
++				if field not in leader_defaults_data:
++					raise ValueError(f"[FATAL] Missing {field} in both leader and defaults: {leader_key}")
++				leader_data[field] = leader_defaults_data[field]
+ 
+ def prune_nested_nowarattitudesprobs_if_flattened(leaders_data):
+ 	"""
+@@ -301,9 +327,7 @@ def prune_nested_nowarattitudesprobs_if_flattened(leaders_data):
+ 			leader_data.pop("NoWarAttitudeProbs", None)
+ 
+ def parse_flavors_inline(child, leader_data, leader_key):
+-	# Always initialize all iFlavor* = 0
+-	for _, field in FLAVOR_FIELDS:
+-		leader_data[field] = 0
++	# Don't initialize all flavors to 0 - let defaults injection handle missing ones
+ 	seen_flavors = set()
+ 
+ 	for entry in child:
+@@ -322,6 +346,31 @@ def parse_flavors_inline(child, leader_data, leader_key):
+ 						print(f"[WARNING] Non-integer Flavor for {leader_key} flavor {flavor}: '{value}'")
+ 						leader_data[field_name] = 0
+ 
++# <!-- custom: new addition by Claude AI thanks to my prompt too but anyways etc.. successfully handles flavors no defaults being injected (for example flavor military 10 and flavor religion missing in a leader, with defaults being military 789 and religion 123 not leading to the leader having military 10 and religion 123 but instead it had before fix military 10 religion 0, as successfully detected by the test now:
++"""[TEST FAILED] Parsed sample does not match expected!
++
++--- Mismatches for LEADER_ALEXANDER ---
++- Field 'iFlavorReligion' mismatch: expected '0', got '123'
++
++--- Mismatches for LEADER_CATHERINE ---
++- Field 'iFlavorReligion' mismatch: expected '0', got '123'
++
++--- Mismatches for LEADER_GANDHI ---
++- Field 'iFlavorMilitary' mismatch: expected '0', got '789'
++- Field 'iFlavorReligion' mismatch: expected '0', got '123'
++[EXIT] Leader sample test failed. File not written.
++"""
++# which indicates that this is now fixed, thanks to Claude AI and my prompt too hehe anyways etc -->
++def ensure_complete_flavors(leaders_data):
++	"""
++	Ensure all leaders have all flavor fields, setting missing ones to 0.
++	This should be called after defaults injection.
++	"""
++	for leader_data in leaders_data.values():
++		for _, field_name in FLAVOR_FIELDS:
++			if field_name not in leader_data:
++				leader_data[field_name] = 0
++
+ def prune_nested_flavors_if_flattened(leaders_data):
+ 	"""
+ 	Removes the legacy 'Flavors' field if all flat iFlavor* fields are already present.
+@@ -1124,7 +1173,11 @@ if (IS_INSPECT_DEBUG_LEADER):
+ 	print("1 - Before any force_complete functions: Leader %s's leaders_data: %s" % (LEADER_TO_INSPECT_IN_DEBUG_OUTPUT, str(leaders_data[LEADER_TO_INSPECT_IN_DEBUG_OUTPUT])))
+ print("DEBUG DEFAULT MemoryDecays:", leader_defaults_data.get("MemoryDecays"))
+ print("DEBUG Catherine MemoryDecays:", leaders_data["LEADER_CATHERINE"]["MemoryDecays"])
++# After parsing all leaders and injecting defaults
+ # --- Ensure nested defaults are complete only now ---
++print("DEFAULTS FINAL at step 1:", leader_defaults_data)
++ensure_complete_nowar_attitudes(leaders_data, leader_defaults_data)
++ensure_complete_flavors(leaders_data)
+ force_complete_contact_delays(leaders_data, leader_defaults_data)
+ force_complete_contact_rands(leaders_data, leader_defaults_data)
+ force_complete_memory_decays(leaders_data, leader_defaults_data)
+@@ -1173,7 +1226,10 @@ def check_errors_and_tests():
+ 
+ 	expected_sample = get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE()
+ 	sample_leaders = [
++		# <!-- custom: even if barbarian (same for defaults anyways etc) is not a real leader, its data is useful to make sure we didn't do parsing mistakes or such or to cover more edge cases like <NoWarAttitudeProbs/> or <Flavors/> for example or other unexpected or missing or other or and not value(s) anyways etc anyways etc anyways etc... -->
++		"LEADER_BARBARIAN",
+ 		"LEADER_DEFAULTS",
++		# <!-- custom: then the rest of the batch/crew or and other i must say or and not or and other or and not but anyways etc... still the staff is here actually i said it now even though is not professional team but anyways etc... -->
+ 		"LEADER_ALEXANDER",
+ 		"LEADER_CATHERINE",
+ 		"LEADER_GANDHI",
+
+diff --git a/leaders_data_to_csv_advciv-sas.csv b/leaders_data_to_csv_advciv-sas.csv
+index ccccf4aea..fcec2f3a4 100644
+--- a/leaders_data_to_csv_advciv-sas.csv
++++ b/leaders_data_to_csv_advciv-sas.csv
+@@ -1,56 +1,56 @@
+-Leader,AOCR,BAOC,BA,BPW,BUP,DWTR,DRSP,DRWP,DWR,EW,FA,LWPR,LWR,LOP,MPR,MGPTTP,MGTP,MWDPR,MWMALP,MWNPR,MWR,NTTT,PWR,RCP,RTTWT,TTKP,VPM,WR,WCR,CVW0,CVW1,DVW0,DVW1,SVW,FC,FE,FG0,FG1,FM,FP,FR,FS,BRDAC,CBAC,DRAC,FCAC,LWAC,SRAC,SWAC,WRDAC,APAD,AWAD,BTAD,DPAD,DRAD,FCAD,OBAD,SRAD,SWAD,APACL,AWACL,BTACL,DPACL,DRACL,FCACL,OBACL,SRACL,SWACL,ACRAT,CRAT,CRRAT,DWRAT,DWTRAT,DPRAT,DTAT,HBRAT0,HBRAT1,MRAT,NCRAT,NGHAT,OBRAT,PARAT,STRAT,STTRAT,SBRAT,TRAT,VRAT,NWAPA,NWAPC,NWAPF0,NWAPF1,NWAPP,CAFHDR,CAFHRR,CCPDR,CCPRR,CDPDR,CDPRR,CDTDR,CDTRR,CGHDR,CGHRR,CJWDR,CJWRR,COBDR,COBRR,CPTDR,CPTRR,CPADR,CPARR,CRPDR,CRPRR,CSTDR,CSTRR,CTBDR,CTBRR,CTMDR,CTMRR,CTTDR,CTTRR,NMACVAR,NMADWOFR,NMADWR,NMADWRR,NMADCR,NMADJWR,NMADRR,NMADSTR,NMAEBTUR,NMAHTER,NMAHWAR,NMAMDR,NMANFR,NMANUR,NMARCR,NMARHCR,NMARHR,NMARDR,NMASCR,NMASTR,NMAVAUR,NMDCVAR,NMDDWOFR,NMDDWR,NMDDWRR,NMDDCR,NMDDJWR,NMDDRR,NMDDSTR,NMDEBTUR,NMDHTER,NMDHWAR,NMDMDR,NMDNFR,NMDNUR,NMDRCR,NMDRHCR,NMDRHR,NMDRDR,NMDSCR,NMDSTR,NMDVAUR,PMAADR,PMAACR,PMAAJWR,PMAARR,PMAASTR,PMAEGTUR,PMAGHR,PMAIR,PMALCR,PMATTTUR,PMAVFUR,PMDADR,PMDACR,PMDAJWR,PMDARR,PMDASTR,PMDEGTUR,PMDGHR,PMDIR,PMDLCR,PMDTTTUR,PMDVFUR,ACAFHP,ACCPP,ACDPP,ACDTP,ACGHP,ACJWP,ACOBP,ACPTP,ACPAP,ACRPP,ACSTP,ACTBP,ACTMP,ACTTP,ANMCVAA,ANMCVAR,ANMDWA,ANMDWOFA,ANMDWOFR,ANMDWRA,ANMDWRR,ANMDWR,ANMDCA,ANMDCR,ANMDJWA,ANMDJWR,ANMDRA,ANMDRR,ANMDSTA,ANMDSTR,ANMEBTUA,ANMEBTUR,ANMHTEA,ANMHTER,ANMHWAA,ANMHWAR,ANMMDA,ANMMDR,ANMNFA,ANMNFR,ANMNUA,ANMNUR,ANMRCA,ANMRCR,ANMRHCA,ANMRHCR,ANMRHA,ANMRHR,ANMRDA,ANMRDR,ANMSCA,ANMSCR,ANMSTA,ANMSTR,ANMVAUA,ANMVAUR,APMADA,APMADR,APMACA,APMACR,APMAJWA,APMAJWR,APMARA,APMARR,APMASTA,APMASTR,APMEGTUA,APMEGTUR,APMGHA,APMGHR,APMIA,APMIR,APMLCA,APMLCR,APMTTTUA,APMTTTUR,APMVFUA,APMVFUR,FavoriteCivic,UnitAIWeightModifiers,FavoriteReligion,Traits,ImprovementWeightModifiers
+-ALEXANDER,8,4,0,0,35,40,40,25,50,100,10,130,40,0,40,10,5,70,0,90,50,5,3,0,8,30,20,2,20,35,25,0,65,25,0,0,0,2,5,0,0,0,0,-4,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,2,2,4,4,1,0,0,-1,1,1,0,-1,-1,1,1,0,-1,1,0,0,0,-1,1,0,20,80,0,80,50,250,50,1000,20,80,50,250,50,500,20,20,40,10,15,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,55,50,89,78,0,50,39,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,VASSALAGE,"SETTLE: 25, COLLATERAL: 25",PAGANISM,"PHILOSOPHICAL, AGGRESSIVE",MINE: 30
+-ASOKA,8,0,1,8,20,40,0,20,50,90,10,110,120,0,10,10,10,60,0,90,200,10,3,0,6,20,0,0,40,25,15,20,30,60,0,0,0,0,0,0,5,2,3,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,6,2,0,-1,0,0,0,1,0,-2,-2,-1,1,0,-2,1,1,-1,-1,-1,0,20,70,100,0,100,50,100,50,500,20,80,50,1000,50,100,20,20,40,10,10,12,20,80,50,100,20,50,20,2,50,20,30,2,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,92,79,50,54,96,0,50,84,50,95,50,93,50,95,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,FREE_RELIGION,"PILLAGE: 25, CITY_DEFENSE: 25",BUDDHISM,"SPIRITUAL, ORGANIZED","TOWN: 20, FOREST_PRESERVE: 20"
+-AUGUSTUS,8,0,0,8,25,40,60,25,100,100,10,100,100,0,40,10,10,50,1,100,200,15,3,0,8,40,20,1,40,20,55,5,50,20,0,0,0,0,2,5,0,0,1,-4,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,3,3,0,0,0,1,0,1,0,-2,-2,-1,1,0,-2,1,0,-1,-1,-1,1,20,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,15,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,50,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,REPRESENTATION,"ATTACK_CITY: 25, EXPLORE: 25",PAGANISM,"IMPERIALIST, INDUSTRIOUS","TOWN: 20, MINE: 20"
+-BARBARIAN,16,1,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,0,0,0,0,0,70,0,0,30,0,0,0,0,0,10,0,0,0,0,-2,0,0,0,0,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,0,0,0,0,0,50,-1,50,-1,20,80,50,-1,50,-1,20,-1,40,10,-1,-1,20,80,50,-1,20,-1,20,-1,50,20,30,-1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,-1,200,30,100,100,100,50,50,150,30,150,25,10,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,NONE,"RESERVE: 75, ATTACK_CITY: 75, WORKER: 75",NONE,,
+-BISMARCK,8,0,1,6,30,40,20,25,100,120,10,90,120,0,20,10,5,50,2,100,200,5,3,0,8,70,0,1,30,25,20,40,30,25,0,0,0,0,10,0,0,0,0,-4,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,2,2,3,3,0,-1,0,0,1,0,0,-1,-2,0,2,0,-1,1,0,-1,0,-1,1,10,50,90,0,90,50,100,50,1000,20,80,50,250,50,500,20,20,40,10,10,15,20,80,50,500,20,50,20,8,50,20,30,10,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,92,55,50,89,78,0,50,78,50,53,50,53,50,53,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,NATIONHOOD,"ATTACK: 25, WORKER: 25",CHRISTIANITY,"EXPANSIVE, INDUSTRIOUS","WORKSHOP: 20, LUMBERMILL: 20"
+-BOUDICA,8,4,0,2,30,40,30,40,50,70,10,100,80,0,30,10,10,80,0,110,50,10,3,20,10,30,10,1,10,55,30,25,35,5,0,0,0,2,5,0,0,0,0,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,4,2,3,5,0,-1,0,1,0,0,0,-1,-2,-1,2,0,-1,1,1,0,0,-1,1,0,40,100,0,100,50,100,50,100,20,80,50,1000,50,50,20,20,40,10,15,20,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,92,98,50,54,99,0,50,39,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,UNIVERSAL_SUFFRAGE,PILLAGE: 50,PAGANISM,"CHARISMATIC, AGGRESSIVE","MINE: 20, FOREST_PRESERVE: 20"
+-BRENNUS,8,4,-1,0,30,40,60,40,25,110,10,100,60,0,80,10,5,50,0,100,100,5,3,50,10,40,0,2,10,30,0,30,50,30,0,0,0,0,5,0,2,0,0,-2,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,5,4,0,-1,1,-1,0,1,0,-1,-2,0,-1,0,-1,1,-1,0,0,-1,1,20,50,100,0,100,50,250,50,250,20,80,50,25,50,100,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,100,96,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,ORGANIZED_RELIGION,ATTACK: 50,NONE,"SPIRITUAL, CHARISMATIC",MINE: 30
+-CATHERINE,8,2,1,2,25,40,80,0,25,130,10,110,80,0,10,10,5,40,1,90,100,15,3,0,6,20,-20,2,30,25,30,10,40,45,5,0,0,0,2,0,0,0,0,-4,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,4,2,-1,1,0,1,2,0,0,-1,-2,1,2,0,-2,1,-1,-1,0,-3,-1,0,20,80,0,80,50,25,50,500,20,80,50,750,50,500,20,10,40,10,10,15,20,80,50,250,20,50,20,2,50,20,30,2,0,-100,-300,0,-200,-200,-200,-200,-100,-100,-200,-200,-100,-200,-250,-200,-200,-200,-200,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,100,79,50,66,78,100,50,78,50,79,50,93,50,95,50,50,50,50,0,50,50,50,50,100,50,100,50,100,50,100,50,50,50,50,50,50,50,100,50,0,50,50,50,50,50,50,50,100,50,100,50,100,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,HEREDITARY_RULE,RESERVE: 25,CHRISTIANITY,"CREATIVE, IMPERIALIST","FARM: 20, LUMBERMILL: 20"
+-CHARLEMAGNE,8,0,0,6,30,40,60,20,75,100,10,100,80,0,20,10,10,30,2,100,100,15,3,0,8,30,10,1,15,20,45,25,45,15,0,0,0,0,5,0,2,0,1,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,5,2,0,0,1,0,0,1,0,-2,-2,0,0,0,-1,1,0,-1,-1,-1,1,20,60,100,0,100,50,250,50,250,20,80,50,250,50,100,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,89,96,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,VASSALAGE,ATTACK_CITY: 50,CHRISTIANITY,"IMPERIALIST, PROTECTIVE","FARM: 20, WATERMILL: 20"
+-CHURCHILL,8,0,0,6,25,40,40,40,50,120,10,100,120,0,20,10,10,60,3,90,200,15,3,0,8,30,0,0,10,0,35,35,35,45,0,0,2,0,5,0,0,0,0,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,4,2,3,4,0,1,0,0,0,1,0,-2,-2,0,2,0,-1,1,0,-1,-1,-1,1,20,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,15,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,39,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,NATIONHOOD,"ATTACK_AIR: 25, CARRIER_AIR: 25, CARRIER_SEA: 25",NONE,"CHARISMATIC, PROTECTIVE",TOWN: 30
+-CYRUS,8,2,1,3,30,40,0,5,100,100,10,100,160,0,20,10,10,60,2,100,100,10,3,0,8,30,0,0,40,30,65,25,30,0,0,0,0,2,5,0,0,0,2,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,2,2,3,3,0,0,0,1,-1,0,0,-2,-1,-1,1,0,-2,1,1,0,-1,-1,1,20,70,100,0,100,50,100,50,1000,20,80,50,500,50,50,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,55,50,78,99,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,VASSALAGE,ATTACK: 50,NONE,"CHARISMATIC, IMPERIALIST","TOWN: 20, FARM: 20"
+-DARIUS,8,0,1,8,30,40,0,5,100,100,10,100,160,0,20,10,10,60,1,100,200,10,3,0,8,30,0,0,40,25,30,30,10,55,0,0,5,2,0,0,0,0,1,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,2,2,3,3,0,0,0,1,-1,0,0,-2,-1,-1,1,0,-2,1,1,0,-1,-1,1,20,70,90,0,90,50,100,50,1000,20,80,50,500,50,50,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,55,50,78,99,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,FREE_RELIGION,RESERVE: 50,PAGANISM,"ORGANIZED, FINANCIAL","FARM: 20, MINE: 20"
+-DEFAULTS,8,0,0,0,0,40,0,0,0,0,10,0,0,0,0,10,0,0,0,0,0,0,3,0,0,0,0,0,0,30,30,30,30,30,0,0,0,0,0,0,0,0,0,0,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,0,2,0,0,-3,0,-3,-3,-3,1,0,-3,-3,-3,1,0,-3,1,-3,-3,-3,-3,-3,0,0,100,0,0,50,-1,50,-1,20,80,50,-1,50,-1,20,-1,40,10,-1,-1,20,80,50,-1,20,-1,20,-1,50,20,30,-1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,-1,200,30,100,100,100,50,50,150,30,150,25,10,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,NONE,,NONE,,
+-DE_GAULLE,8,0,-1,0,25,40,10,0,20,110,10,100,60,0,10,10,5,50,3,80,100,10,3,0,5,40,-20,2,10,35,15,55,10,35,0,0,0,2,0,5,0,0,2,-2,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,3,6,0,-1,0,0,1,0,0,-1,-1,-1,2,0,-1,1,-1,0,-1,-1,1,20,70,100,0,100,50,500,50,100,20,80,50,1000,50,100,20,20,40,10,10,25,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,51,98,50,54,96,0,50,58,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,NATIONHOOD,"ICBM: 25, PARADROP: 50",CHRISTIANITY,"INDUSTRIOUS, CHARISMATIC","TOWN: 20, WORKSHOP: 20"
+-ELIZABETH,8,0,1,9,20,40,60,0,25,110,10,90,200,0,10,10,5,40,4,80,300,15,3,0,8,40,0,0,20,45,30,55,10,10,2,0,5,0,0,0,0,0,1,-3,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,3,2,0,0,-1,1,0,1,0,-1,-2,2,2,0,-2,1,1,-1,0,-2,1,10,50,90,0,90,50,50,50,500,20,80,50,1000,50,100,20,10,40,10,10,15,20,80,50,500,20,50,20,2,50,20,30,2,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,97,79,50,54,96,100,50,78,50,53,50,93,50,95,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,FREE_RELIGION,"PIRATE_SEA: 25, SETTLER_SEA: 25",CHRISTIANITY,"PHILOSOPHICAL, FINANCIAL","WINDMILL: 20, WATERMILL: 20"
+-FRANKLIN_ROOSEVELT,8,0,1,8,25,40,0,50,25,120,10,100,160,0,10,10,10,80,2,100,300,15,3,0,10,30,0,0,20,5,25,50,25,45,0,0,2,0,0,5,0,0,2,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,4,2,3,3,0,1,0,0,0,0,0,-2,-2,-1,2,0,-1,1,1,0,0,-1,1,10,70,100,0,100,50,100,50,100,20,80,50,1000,50,50,20,20,40,10,15,20,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,98,50,54,99,0,50,39,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,MERCANTILISM,"ASSAULT_SEA: 25, CARRIER_SEA: 25, CARRIER_AIR: 25",CHRISTIANITY,"INDUSTRIOUS, ORGANIZED","TOWN: 20, FOREST_PRESERVE: 20"
+-FREDERICK,8,0,1,8,20,40,0,0,100,90,10,100,160,0,20,10,10,50,2,100,200,10,3,0,6,30,0,0,20,10,25,25,25,65,0,0,0,0,0,10,0,0,2,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,3,3,1,0,0,0,0,1,0,-2,-1,0,2,0,-2,1,0,0,0,-2,-1,20,70,100,0,100,50,250,50,250,20,80,50,500,50,250,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,78,89,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,UNIVERSAL_SUFFRAGE,COUNTER: 50,NONE,"PHILOSOPHICAL, ORGANIZED","FARM: 20, LUMBERMILL: 20"
+-GANDHI,8,0,2,10,15,40,0,0,100,50,10,80,200,0,10,10,10,60,3,100,400,15,3,0,6,20,-20,0,10,0,45,70,5,30,10,0,0,0,0,0,0,0,1,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,5,2,4,2,0,1,-1,1,-1,1,0,-3,-3,-3,2,0,-3,1,1,0,-1,-3,-1,50,85,115,20,110,50,50,50,50,20,80,50,0,50,25,20,20,40,10,8,10,20,80,50,500,20,50,20,2,50,20,30,2,0,-200,-300,0,0,0,0,0,-100,-100,-200,-100,-200,-200,-250,-200,0,0,-100,0,0,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,97,100,50,0,100,0,50,100,50,53,50,93,50,95,50,50,50,50,100,50,50,50,50,0,50,0,50,0,50,0,50,50,50,50,50,50,50,0,50,100,50,50,50,50,50,50,50,0,50,0,50,0,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,UNIVERSAL_SUFFRAGE,,HINDUISM,"SPIRITUAL, PHILOSOPHICAL",FARM: 30
+-GENGHIS_KHAN,8,4,-1,0,35,40,20,50,50,100,10,130,40,0,80,10,5,90,0,120,50,5,3,75,10,40,50,2,10,65,5,25,30,25,0,0,0,0,10,0,0,0,2,-4,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,3,4,0,2,0,-1,1,1,0,-1,-1,1,2,0,-1,1,-1,0,0,-1,1,10,50,90,0,90,50,500,50,500,20,80,50,250,50,250,20,20,40,10,10,25,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,51,79,50,89,89,0,50,58,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,POLICE_STATE,"PILLAGE: 50, WORKER: -50",DAOISM,"AGGRESSIVE, IMPERIALIST",
+-GILGAMESH,8,4,0,2,30,40,25,25,50,100,10,110,100,0,30,10,5,30,1,120,100,15,3,0,8,20,0,2,40,40,55,5,25,25,2,0,0,0,5,0,0,0,0,-3,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,3,3,0,-1,0,1,0,1,0,-1,-1,-1,1,0,-1,1,1,0,0,-2,1,10,60,90,0,90,50,100,50,1000,20,80,50,250,50,50,20,20,40,10,15,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,92,55,50,89,99,0,50,39,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,HEREDITARY_RULE,RESERVE: 25,PAGANISM,"PROTECTIVE, CREATIVE",FARM: 30
+-HAMMURABI,8,0,0,8,30,40,30,15,100,100,10,110,160,0,20,10,5,60,2,110,200,10,3,0,10,40,0,1,40,35,50,30,5,30,10,0,0,0,0,0,0,0,1,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,4,3,0,-1,0,0,-1,1,0,-1,-1,-1,1,0,-1,1,1,0,0,-1,1,20,70,100,0,100,50,100,50,1000,20,80,50,250,50,50,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,55,50,89,99,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,BUREAUCRACY,ATTACK: 50,PAGANISM,"ORGANIZED, AGGRESSIVE",FARM: 30
+-HANNIBAL,8,4,0,2,30,40,60,20,50,100,10,100,80,0,40,10,5,80,1,100,100,10,3,10,8,30,0,2,10,30,10,25,30,55,0,0,2,0,5,0,0,0,0,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,2,2,4,3,0,0,0,0,0,1,0,-1,-2,-1,1,0,-1,1,0,-1,0,-1,1,20,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,15,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,39,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,FREE_MARKET,ATTACK: 50,PAGANISM,"FINANCIAL, CHARISMATIC","MINE: 20, TOWN: 20"
+-HATSHEPSUT,8,0,1,9,20,40,0,0,100,100,10,100,200,0,20,10,10,50,3,90,200,10,3,0,6,30,0,0,40,25,70,25,5,25,5,0,0,0,0,0,2,0,2,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,2,2,4,3,0,-1,0,0,0,1,0,-2,-2,-2,1,0,-2,1,0,0,0,-2,0,20,70,100,0,100,50,100,50,1000,20,80,50,1000,50,100,20,20,40,10,10,12,20,80,50,250,20,50,20,2,50,20,30,2,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,55,50,54,96,0,50,84,50,79,50,93,50,95,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,ORGANIZED_RELIGION,CITY_COUNTER: 50,PAGANISM,"SPIRITUAL, CREATIVE","FARM: 20, MINE: 20"
+-HUAYNA_CAPAC,8,0,0,2,25,40,40,0,100,90,10,110,80,0,20,10,10,60,1,100,100,5,3,10,8,30,0,2,40,50,30,15,30,25,0,0,5,0,0,2,0,0,1,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,4,3,0,-1,0,1,0,1,0,-2,-2,0,1,0,-1,1,0,0,0,-1,0,10,50,90,0,90,50,100,50,250,20,80,50,250,50,250,20,20,40,10,10,12,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,91,50,89,89,0,50,84,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,HEREDITARY_RULE,"WORKER: 25, RESERVE: 25",PAGANISM,"INDUSTRIOUS, FINANCIAL","MINE: 20, TOWN: 20"
+-ISABELLA,8,0,-1,6,25,40,60,25,50,120,10,100,120,0,40,10,5,100,0,130,200,5,3,25,10,60,0,1,20,30,30,60,25,5,0,0,0,0,0,0,10,0,1,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,5,2,0,0,1,0,1,1,0,-1,-1,1,0,0,-1,1,0,0,0,-1,1,10,50,90,0,90,50,100,50,500,20,80,50,1000,50,250,20,20,40,10,10,20,20,80,50,50,20,50,20,8,50,20,30,10,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,92,79,50,54,89,0,50,68,50,100,50,53,50,53,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,THEOCRACY,"SETTLER_SEA: 25, EXPLORE_SEA: 25, MISSIONARY: 25",CHRISTIANITY,"SPIRITUAL, EXPANSIVE","MINE: 20, WINDMILL: 20"
+-JOAO,8,0,0,6,25,40,40,10,100,110,10,80,100,0,40,10,5,90,3,110,200,15,3,0,8,40,0,1,20,20,5,25,50,50,0,0,0,0,2,0,0,5,2,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,3,2,0,0,0,0,-1,1,0,-1,-1,1,0,0,-1,1,1,-1,0,-1,0,20,70,100,0,100,50,100,50,500,20,80,50,250,50,250,20,20,40,10,10,12,20,80,50,50,20,50,20,8,50,20,30,10,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,92,79,50,89,89,0,50,84,50,100,50,53,50,53,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,HEREDITARY_RULE,EXPLORE_SEA: 50,CHRISTIANITY,"IMPERIALIST, EXPANSIVE","MINE: 20, WINDMILL: 20"
+-JULIUS_CAESAR,8,2,0,4,30,40,40,10,50,100,10,100,100,0,40,10,10,80,1,110,100,5,3,0,8,40,20,1,20,50,25,10,35,30,0,0,0,0,5,2,0,0,0,-4,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,3,3,0,0,0,0,1,1,0,-2,-1,1,1,0,-1,1,0,0,0,-1,1,10,50,90,0,90,50,500,50,500,20,80,50,50,50,500,20,20,40,10,15,20,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,51,79,50,99,78,0,50,39,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,REPRESENTATION,ATTACK: 50,PAGANISM,"ORGANIZED, IMPERIALIST","FARM: 20, TOWN: 20"
+-JUSTINIAN,8,2,1,4,35,40,60,5,100,110,10,80,60,0,20,10,5,70,1,110,100,15,3,0,10,30,20,1,30,10,30,50,35,25,0,0,0,0,2,0,5,0,0,-4,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,5,3,0,0,2,1,0,1,0,-2,-2,-1,1,0,-2,1,0,-1,0,-2,1,30,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,THEOCRACY,"ATTACK_CITY: 25, ASSAULT_SEA: 25",CHRISTIANITY,"SPIRITUAL, IMPERIALIST","FARM: 20, WATERMILL: 20"
+-KUBLAI_KHAN,8,0,0,1,25,40,40,10,50,100,10,120,60,0,40,10,5,50,1,90,100,10,3,25,8,30,0,2,30,20,50,25,50,5,2,0,0,0,5,0,0,0,3,-3,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,3,3,0,1,0,0,1,1,0,-1,-1,0,1,0,-1,1,0,-1,-1,-2,0,10,50,90,0,90,50,100,50,250,20,80,50,25,50,100,20,10,40,10,10,20,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-200,-200,-200,-200,-100,-100,-200,-200,-100,-200,-250,-200,-200,-200,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,92,91,50,100,96,100,50,68,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,100,50,100,50,100,50,100,50,50,50,50,50,50,50,100,50,0,50,50,50,50,50,50,50,100,50,100,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,BUREAUCRACY,ATTACK_CITY: 50,BUDDHISM,"AGGRESSIVE, CREATIVE","FARM: 20, WATERMILL: 20"
+-LINCOLN,8,0,1,9,25,40,20,0,150,110,10,90,200,0,10,15,10,50,2,90,300,10,3,0,6,30,0,0,30,35,10,45,15,35,0,0,0,2,0,0,0,5,1,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,4,2,2,4,0,1,0,1,-1,1,0,-1,-1,-1,2,0,-1,1,0,-1,0,-2,1,30,80,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,EMANCIPATION,RESERVE: 25,NONE,"PHILOSOPHICAL, CHARISMATIC","FOREST_PRESERVE: 20, WINDMILL: 20"
+-LOUIS_XIV,8,2,0,1,30,40,40,10,50,120,10,130,60,0,10,10,20,70,3,110,200,5,3,0,6,30,0,2,50,15,60,40,15,20,5,0,0,0,2,0,0,0,1,-4,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,4,2,1,0,0,0,1,1,0,-1,-2,-1,2,0,-1,1,0,0,0,-1,-1,0,20,80,0,80,50,1000,50,500,20,80,50,500,50,500,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-200,-100,-200,-100,-100,-100,-200,-200,-100,-200,-250,-200,-200,-200,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,0,79,50,78,78,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,100,50,50,50,100,50,50,50,50,50,50,50,50,50,100,50,0,50,50,50,50,50,50,50,100,50,100,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,HEREDITARY_RULE,ATTACK: 50,CHRISTIANITY,"INDUSTRIOUS, CREATIVE","LUMBERMILL: 20, WORKSHOP: 20"
+-MANSA_MUSA,8,0,1,9,25,40,20,5,50,60,10,90,200,0,20,10,20,50,1,100,400,20,3,0,6,0,-20,0,20,25,45,50,0,30,0,0,5,0,0,0,2,0,4,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,4,2,5,3,-1,-1,-1,-1,1,1,0,-3,-3,-1,0,0,-3,1,1,-2,-1,-2,-1,10,50,90,0,90,50,50,50,250,20,80,50,500,50,50,20,20,40,10,10,12,20,80,50,100,20,50,20,1,50,20,30,1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,20,200,30,100,100,100,50,50,150,30,150,25,10,97,91,50,78,99,0,50,84,50,95,50,100,50,100,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,100,50,50,50,FREE_MARKET,CITY_COUNTER: 50,ISLAM,"SPIRITUAL, FINANCIAL",MINE: 30
+-MAO_ZEDONG,8,2,0,1,25,40,40,5,50,130,10,120,60,0,40,10,5,60,1,110,200,5,3,0,8,50,0,2,10,50,0,15,35,50,0,0,0,5,0,2,0,0,0,-3,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,5,2,2,3,1,0,0,0,1,1,0,-1,-1,-1,2,0,-1,1,-1,0,0,-1,1,0,30,80,0,80,50,100,50,50,20,80,50,500,50,500,20,20,40,10,15,20,20,80,50,1000,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,92,100,50,78,78,0,50,39,50,0,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,STATE_PROPERTY,"WORKER: 25, PILLAGE: 25",NONE,"EXPANSIVE, PROTECTIVE","WORKSHOP: 20, WATERMILL: 20"
+-MEHMED,8,2,-1,2,40,40,20,40,25,110,10,100,100,0,60,10,5,50,1,90,100,5,3,25,8,40,0,1,20,25,25,30,55,15,2,0,0,0,5,0,0,0,3,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,4,4,0,0,0,-1,0,1,0,-1,-2,-1,0,0,-1,1,0,-1,0,-1,1,20,70,100,0,100,50,250,50,250,20,80,50,25,50,100,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,100,96,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,VASSALAGE,COLLATERAL: 50,ISLAM,"EXPANSIVE, ORGANIZED",TOWN: 30
+-MOCTEZUMA,8,4,-1,0,35,40,60,10,25,80,10,130,40,0,80,10,5,80,0,130,50,5,3,50,10,50,0,2,0,70,25,25,30,0,0,0,0,0,5,0,2,0,0,-4,-1,1,-1,1,1,-3,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,2,2,2,4,0,-1,0,-1,1,1,0,-1,-1,1,-1,0,-1,1,-1,0,0,-1,1,0,30,80,0,80,50,1000,50,1000,20,80,50,50,50,1000,20,20,40,10,10,25,20,80,50,500,20,50,20,8,50,20,30,10,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,0,55,50,99,54,0,50,58,50,53,50,53,50,53,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,POLICE_STATE,ATTACK: 50,PAGANISM,"AGGRESSIVE, SPIRITUAL",FARM: 30
+-NAPOLEON,8,6,-1,0,40,40,60,10,50,100,10,120,40,0,40,10,5,70,1,120,100,10,3,0,10,60,20,2,10,35,25,5,60,25,0,0,2,0,5,0,0,0,1,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,4,2,3,4,0,-1,0,0,1,1,0,-1,-1,1,2,0,-1,1,-1,0,0,-1,1,10,50,90,0,90,50,500,50,100,20,80,50,250,50,100,20,20,40,10,10,25,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,51,98,50,89,96,0,50,58,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,REPRESENTATION,"COLLATERAL: 25, PILLAGE: 25",CHRISTIANITY,"ORGANIZED, CHARISMATIC","WORKSHOP: 20, WINDMILL: 20"
+-OGISO_IGODO,8,2,2,6,30,40,50,10,50,100,10,110,100,0,10,10,10,50,2,100,200,10,3,5,8,30,0,1,20,15,50,35,15,35,0,0,0,5,0,0,2,0,2,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,6,3,-1,0,1,-1,1,1,0,-2,-2,-1,0,0,-1,1,0,0,-1,-2,0,10,50,90,0,90,50,50,50,250,20,80,50,500,50,50,20,20,40,10,15,15,20,80,50,100,20,50,20,1,50,20,30,1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,8,200,30,100,100,100,50,50,150,30,150,25,10,97,91,50,78,99,0,50,50,50,95,50,100,50,100,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,20,50,50,50,HEREDITARY_RULE,RESERVE: 25,PAGANISM,"PROTECTIVE, FINANCIAL",FARM: 20
+-PACAL,8,0,1,2,25,60,40,0,100,100,10,100,100,0,10,15,15,50,1,90,300,5,3,10,6,50,0,0,40,5,45,40,30,30,5,0,0,2,0,0,0,0,2,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,4,2,4,3,0,-1,0,1,1,1,0,-2,-2,0,-1,0,-1,1,1,0,0,-1,1,10,50,90,0,90,50,100,50,250,20,80,50,250,50,250,20,20,40,10,10,12,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,91,50,89,89,0,50,84,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,HEREDITARY_RULE,"WORKER: 25, CITY_COUNTER: 25",PAGANISM,"FINANCIAL, EXPANSIVE","TOWN: 20, FOREST_PRESERVE: 20"
+-PERICLES,8,0,1,6,25,40,50,10,100,100,10,100,200,0,50,10,10,70,2,90,250,15,3,0,8,10,0,0,40,15,35,25,30,45,0,0,0,0,0,5,0,2,0,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,2,2,4,3,0,-1,0,1,-1,1,0,-1,-1,0,0,0,-2,1,1,0,0,-2,1,20,70,100,0,100,50,250,50,1000,20,80,50,250,50,500,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,55,50,89,78,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,REPRESENTATION,"ATTACK_SEA: 25, SETTLER_SEA: 25",PAGANISM,"PHILOSOPHICAL, CREATIVE","MINE: 20, TOWN: 20"
+-PETER,8,4,0,1,30,40,20,0,50,120,10,120,60,0,20,10,10,60,2,120,100,15,3,0,8,10,0,2,30,30,5,40,25,50,0,0,0,2,0,0,0,5,2,-3,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,2,2,4,4,0,1,0,-1,1,1,0,-2,-1,-1,2,0,-1,1,0,0,0,-2,1,10,50,90,0,90,50,50,50,1000,20,80,50,500,50,100,20,20,40,10,10,15,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,20,200,30,100,100,100,50,50,150,30,150,25,10,97,55,50,78,96,0,50,78,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,100,50,50,50,BUREAUCRACY,"ATTACK_SEA: 25, SETTLE: 25",CHRISTIANITY,"PHILOSOPHICAL, EXPANSIVE","FARM: 20, WORKSHOP: 20"
+-QIN_SHI_HUANG,8,2,1,2,20,40,40,25,25,90,10,110,80,0,20,10,10,40,2,120,300,5,3,0,8,30,0,2,30,40,40,45,15,10,0,0,0,2,0,5,0,0,0,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,4,2,4,3,0,1,0,0,1,1,0,-2,-2,1,1,0,-1,1,0,-1,0,-1,1,0,30,80,0,80,50,250,50,100,20,80,50,500,50,250,20,20,40,10,10,15,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-200,-100,-200,-100,-100,-100,-200,-200,-100,-200,-250,-200,-200,-200,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,98,50,78,89,0,50,78,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,100,50,50,50,100,50,50,50,50,50,50,50,50,50,100,50,0,50,50,50,50,50,50,50,100,50,100,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,BUREAUCRACY,"COUNTER: 50, COLLATERAL: 100",DAOISM,"INDUSTRIOUS, PROTECTIVE","FARM: 20, WORKSHOP: 20"
+-RAGNAR,8,6,-1,0,40,40,80,20,25,100,10,100,40,0,80,10,5,90,0,110,50,5,3,50,10,30,0,2,10,50,10,25,40,25,0,0,0,0,10,0,0,0,2,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,4,3,0,-1,0,-1,0,1,0,1,-1,1,1,0,-2,1,-1,0,1,0,1,0,50,90,0,90,50,250,50,250,20,80,50,25,50,100,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,100,96,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,HEREDITARY_RULE,"ASSAULT_SEA: 25, PILLAGE: 25",PAGANISM,"FINANCIAL, AGGRESSIVE","FARM: 20, LUMBERMILL: 20"
+-RAMESSES,8,2,0,6,20,40,40,20,100,100,10,100,160,0,20,10,15,50,3,90,200,15,3,0,8,60,0,0,50,35,25,20,35,25,5,0,0,0,0,2,0,0,2,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,5,3,1,-1,1,0,0,1,0,-2,-1,1,1,0,-1,1,0,-1,-1,-1,1,20,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,ORGANIZED_RELIGION,RESERVE: 25,PAGANISM,"SPIRITUAL, INDUSTRIOUS","FARM: 20, TOWN: 20"
+-SALADIN,8,0,0,4,30,40,0,25,50,100,10,100,100,0,10,10,5,80,0,110,200,10,3,0,8,40,0,1,10,45,10,45,25,25,0,0,0,0,5,0,2,0,2,-3,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,1,2,4,4,0,0,1,0,-1,0,0,-2,-1,0,0,0,-1,1,1,0,0,-1,0,20,70,100,0,100,50,1000,50,0,20,80,50,250,50,100,20,10,40,10,15,15,20,80,50,100,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,0,0,50,89,96,100,50,50,50,95,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,THEOCRACY,ATTACK_CITY: 50,ISLAM,"PROTECTIVE, SPIRITUAL","WATERMILL: 20, WINDMILL: 20"
+-SHAKA,8,4,-1,2,40,40,40,40,50,100,10,100,160,0,80,10,5,50,0,90,50,5,3,50,10,50,20,2,10,60,25,15,35,15,0,0,0,0,10,0,0,0,0,-4,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,2,2,3,4,0,-1,-1,-1,1,1,0,-1,-2,-1,-1,0,-1,1,-1,0,0,0,1,0,40,90,0,90,50,250,50,250,20,80,50,25,50,100,20,20,40,10,10,25,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,100,96,0,50,58,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,POLICE_STATE,"ATTACK: 50, WORKER: -50",PAGANISM,"AGGRESSIVE, EXPANSIVE",
+-SITTING_BULL,8,4,0,8,35,40,20,10,100,120,10,100,200,0,120,10,5,0,4,130,200,5,3,20,12,80,50,0,0,25,25,65,10,25,0,0,0,2,5,0,0,0,0,-4,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,2,2,2,4,0,-1,0,1,-1,1,0,-2,-2,-2,2,0,-1,1,0,-1,-1,-1,1,40,90,100,0,100,50,1000,50,1000,20,80,50,1000,50,1000,20,20,40,10,20,20,20,80,50,500,20,50,20,8,50,20,30,10,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,0,55,50,54,54,0,50,10,50,53,50,53,50,53,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,ENVIRONMENTALISM,CITY_DEFENSE: 50,PAGANISM,"PHILOSOPHICAL, PROTECTIVE",FARM: 20
+-STALIN,8,2,-1,2,30,40,60,20,50,140,10,100,120,0,60,10,5,80,0,110,100,5,3,25,8,80,0,1,30,20,10,10,40,70,0,0,0,0,5,2,0,0,0,-3,-1,1,-1,1,1,-3,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,5,2,2,3,1,1,-1,0,1,1,0,-1,-2,1,2,0,-2,1,-1,0,0,0,0,10,50,90,0,90,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,20,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,10,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,STATE_PROPERTY,"ATTACK: 25, SPY: 25",NONE,"INDUSTRIOUS, AGGRESSIVE","TOWN: 20, WORKSHOP: 20"
+-SULEIMAN,8,2,0,4,30,40,0,50,25,90,10,100,100,0,40,10,5,50,1,100,100,10,3,5,8,40,0,1,20,20,55,20,45,10,5,0,0,0,2,0,0,0,1,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,2,5,0,0,-1,-1,1,1,0,-2,-2,-1,0,0,-1,1,1,0,-1,-1,0,20,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,10,25,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,7,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,58,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,13,50,50,50,HEREDITARY_RULE,ATTACK_SEA: 50,ISLAM,"IMPERIALIST, PHILOSOPHICAL","TOWN: 20, WORKSHOP: 20"
+-SURYAVARMAN,8,0,0,1,30,40,50,0,25,100,10,100,60,0,60,15,10,60,2,110,100,10,3,25,8,50,-10,1,40,10,30,50,35,25,2,0,0,0,0,0,5,0,0,-3,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,4,3,0,-1,0,0,1,1,0,-1,-2,0,1,0,-1,1,1,0,0,-1,0,10,50,90,0,90,50,100,50,250,20,80,50,250,50,100,20,10,40,10,10,15,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-200,-200,-200,-200,-100,-100,-200,-150,-100,-200,-250,-200,-200,-200,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,8,200,30,100,100,100,50,50,150,30,150,25,10,92,91,50,89,96,100,50,78,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,100,50,100,50,100,50,100,50,50,50,50,50,50,50,50,50,0,50,50,50,50,50,50,50,100,50,100,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,20,50,50,50,CASTE_SYSTEM,ATTACK: 50,HINDUISM,"EXPANSIVE, CREATIVE",FARM: 30
+-TOKUGAWA,8,0,-1,1,30,40,60,25,25,60,10,100,60,0,40,10,5,30,4,100,100,5,3,25,10,100,0,2,20,40,25,0,45,40,0,0,0,0,2,0,0,5,1,-3,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,4,2,3,4,1,0,1,0,1,0,0,0,0,2,2,0,0,1,-1,1,1,0,0,10,50,90,0,90,50,1000,50,250,20,80,50,1000,50,0,20,20,40,10,20,25,20,80,50,500,20,50,20,16,50,20,30,20,0,-100,-300,0,-200,-200,-200,-200,-100,-100,-200,-150,-100,-200,-250,-200,-200,-200,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,0,91,50,54,0,0,50,0,50,53,50,0,50,0,50,50,50,50,0,50,50,50,50,100,50,100,50,100,50,100,50,50,50,50,50,50,50,50,50,0,50,50,50,50,50,50,50,100,50,100,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,MERCANTILISM,"CITY_COUNTER: 25, WORKER: 25",BUDDHISM,"PROTECTIVE, AGGRESSIVE","FARM: 20, LUMBERMILL: 20"
+-VICTORIA,8,0,0,8,25,40,0,0,100,110,10,100,160,0,20,10,5,60,2,90,200,10,3,0,10,30,0,0,30,5,35,10,70,30,0,0,5,2,0,0,0,0,0,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,3,3,1,-1,0,0,1,1,0,-2,-2,-1,2,0,-1,1,-1,-1,-1,-1,1,0,20,80,0,80,50,250,50,500,20,80,50,500,50,250,20,20,40,10,10,20,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,7,200,30,100,100,100,50,50,150,30,150,25,10,77,79,50,78,89,0,50,68,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,13,50,50,50,REPRESENTATION,RESERVE_SEA: 50,CHRISTIANITY,"IMPERIALIST, FINANCIAL",TOWN: 30
+-WANGKON,8,0,0,8,25,40,40,20,100,110,10,100,120,0,40,10,15,50,3,90,100,10,3,10,6,20,0,0,20,10,30,35,20,55,0,0,5,0,0,0,0,2,3,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,3,3,0,0,0,0,0,1,0,-1,-2,-1,0,0,-1,1,1,-1,0,-1,0,20,70,100,0,100,50,250,50,250,20,80,50,250,50,100,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,8,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,89,96,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,20,50,50,50,CASTE_SYSTEM,CITY_DEFENSE: 50,BUDDHISM,"FINANCIAL, PROTECTIVE","TOWN: 20, MINE: 20"
+-WASHINGTON,8,2,0,8,25,40,100,0,100,120,10,110,160,0,20,10,5,80,3,90,200,10,3,0,8,30,0,0,20,45,40,25,30,10,0,0,0,2,5,0,0,0,1,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,4,2,4,3,0,1,0,1,0,1,0,-2,-1,-1,2,0,-1,1,0,-1,0,-1,1,20,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,7,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,13,50,50,50,FREE_SPEECH,"SETTLE: 25, PIRATE_SEA: 25",CHRISTIANITY,"EXPANSIVE, CHARISMATIC","FARM: 20, TOWN: 20"
+-WILLEM_VAN_ORANJE,8,2,0,4,25,40,50,20,100,100,10,100,120,0,40,10,10,60,1,100,150,15,3,0,8,15,0,0,20,25,40,35,0,50,0,0,5,0,0,0,0,2,1,-1,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,4,2,1,4,0,0,-1,1,0,1,0,-2,-2,-2,2,0,-1,1,1,-2,-1,-2,1,10,50,90,0,90,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,FREE_RELIGION,"CITY_COUNTER: 25, PIRATE_SEA: 25",CHRISTIANITY,"CREATIVE, FINANCIAL",WINDMILL: 30
+-ZARA_YAQOB,8,2,2,6,30,40,50,10,50,100,10,110,100,0,10,10,10,50,2,100,200,10,3,5,8,30,0,1,20,15,50,35,15,35,0,0,0,5,0,0,2,0,2,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,6,3,-1,0,1,-1,1,1,0,-2,-2,-1,0,0,-1,1,0,0,-1,-2,0,10,50,90,0,90,50,50,50,250,20,80,50,500,50,50,20,20,40,10,15,15,20,80,50,100,20,50,20,1,50,20,30,1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,8,200,30,100,100,100,50,50,150,30,150,25,10,97,91,50,78,99,0,50,50,50,95,50,100,50,100,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,20,50,50,50,THEOCRACY,RESERVE: 25,CHRISTIANITY,"CREATIVE, ORGANIZED",FARM: 20
++Leader,AOCR,BAOC,BA,BPW,BUP,DWTR,DRSP,DRWP,DWR,EW,FA,LWPR,LWR,LOP,MPR,MGPTTP,MGTP,MWDPR,MWMALP,MWNPR,MWR,NTTT,PWR,RCP,RTTWT,TTKP,VPM,WR,WCR,CVW0,CVW1,DVW0,DVW1,SVW,FC,FE,FG0,FG1,FM,FP,FR,FS,BRDAC,CBAC,DRAC,FCAC,LWAC,SRAC,SWAC,WRDAC,APAD,AWAD,BTAD,DPAD,DRAD,FCAD,OBAD,SRAD,SWAD,APACL,AWACL,BTACL,DPACL,DRACL,FCACL,OBACL,SRACL,SWACL,ACRAT,CRAT,CRRAT,DWRAT,DWTRAT,DPRAT,DTAT,HBRAT0,HBRAT1,MRAT,NCRAT,NGHAT,OBRAT,PARAT,STRAT,STTRAT,SBRAT,TRAT,VRAT,NWAPA,NWAPC,NWAPF0,NWAPF1,NWAPP,CAFHDR,CAFHRR,CCPDR,CCPRR,CDPDR,CDPRR,CDTDR,CDTRR,CGHDR,CGHRR,CJWDR,CJWRR,COBDR,COBRR,CPTDR,CPTRR,CPADR,CPARR,CRPDR,CRPRR,CSTDR,CSTRR,CTBDR,CTBRR,CTMDR,CTMRR,CTTDR,CTTRR,NMACVAR,NMADWOFR,NMADWR,NMADWRR,NMADCR,NMADJWR,NMADRR,NMADSTR,NMAEBTUR,NMAHTER,NMAHWAR,NMAMDR,NMANFR,NMANUR,NMARCR,NMARHCR,NMARHR,NMARDR,NMASCR,NMASTR,NMAVAUR,NMDCVAR,NMDDWOFR,NMDDWR,NMDDWRR,NMDDCR,NMDDJWR,NMDDRR,NMDDSTR,NMDEBTUR,NMDHTER,NMDHWAR,NMDMDR,NMDNFR,NMDNUR,NMDRCR,NMDRHCR,NMDRHR,NMDRDR,NMDSCR,NMDSTR,NMDVAUR,PMAADR,PMAACR,PMAAJWR,PMAARR,PMAASTR,PMAEGTUR,PMAGHR,PMAIR,PMALCR,PMATTTUR,PMAVFUR,PMDADR,PMDACR,PMDAJWR,PMDARR,PMDASTR,PMDEGTUR,PMDGHR,PMDIR,PMDLCR,PMDTTTUR,PMDVFUR,ACAFHP,ACCPP,ACDPP,ACDTP,ACGHP,ACJWP,ACOBP,ACPTP,ACPAP,ACRPP,ACSTP,ACTBP,ACTMP,ACTTP,ANMCVAA,ANMCVAR,ANMDWA,ANMDWOFA,ANMDWOFR,ANMDWRA,ANMDWRR,ANMDWR,ANMDCA,ANMDCR,ANMDJWA,ANMDJWR,ANMDRA,ANMDRR,ANMDSTA,ANMDSTR,ANMEBTUA,ANMEBTUR,ANMHTEA,ANMHTER,ANMHWAA,ANMHWAR,ANMMDA,ANMMDR,ANMNFA,ANMNFR,ANMNUA,ANMNUR,ANMRCA,ANMRCR,ANMRHCA,ANMRHCR,ANMRHA,ANMRHR,ANMRDA,ANMRDR,ANMSCA,ANMSCR,ANMSTA,ANMSTR,ANMVAUA,ANMVAUR,APMADA,APMADR,APMACA,APMACR,APMAJWA,APMAJWR,APMARA,APMARR,APMASTA,APMASTR,APMEGTUA,APMEGTUR,APMGHA,APMGHR,APMIA,APMIR,APMLCA,APMLCR,APMTTTUA,APMTTTUR,APMVFUA,APMVFUR,UnitAIWeightModifiers,FavoriteReligion,ImprovementWeightModifiers,Traits,FavoriteCivic
++ALEXANDER,8,4,0,0,35,40,40,25,50,100,10,130,40,0,40,10,5,70,0,90,50,5,3,0,8,30,20,2,20,35,25,0,65,25,0,0,0,2,5,0,0,0,0,-4,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,2,2,4,4,1,0,0,-1,1,1,0,-1,-1,1,1,0,-1,1,0,0,0,-1,1,0,20,80,0,80,50,250,50,1000,20,80,50,250,50,500,20,20,40,10,15,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,55,50,89,78,0,50,39,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,"SETTLE: 25, COLLATERAL: 25",PAGANISM,MINE: 30,"PHILOSOPHICAL, AGGRESSIVE",VASSALAGE
++ASOKA,8,0,1,8,20,40,0,20,50,90,10,110,120,0,10,10,10,60,0,90,200,10,3,0,6,20,0,0,40,25,15,20,30,60,0,0,0,0,0,0,5,2,3,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,6,2,0,-1,0,0,0,1,0,-2,-2,-1,1,0,-2,1,1,-1,-1,-1,0,20,70,100,0,100,50,100,50,500,20,80,50,1000,50,100,20,20,40,10,10,12,20,80,50,100,20,50,20,2,50,20,30,2,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,92,79,50,54,96,0,50,84,50,95,50,93,50,95,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,"PILLAGE: 25, CITY_DEFENSE: 25",BUDDHISM,"TOWN: 20, FOREST_PRESERVE: 20","SPIRITUAL, ORGANIZED",FREE_RELIGION
++AUGUSTUS,8,0,0,8,25,40,60,25,100,100,10,100,100,0,40,10,10,50,1,100,200,15,3,0,8,40,20,1,40,20,55,5,50,20,0,0,0,0,2,5,0,0,1,-4,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,3,3,0,0,0,1,0,1,0,-2,-2,-1,1,0,-2,1,0,-1,-1,-1,1,20,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,15,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,50,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,"ATTACK_CITY: 25, EXPLORE: 25",PAGANISM,"TOWN: 20, MINE: 20","IMPERIALIST, INDUSTRIOUS",REPRESENTATION
++BARBARIAN,16,1,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,0,0,0,0,0,70,0,0,30,0,0,0,0,0,10,0,0,0,0,-2,0,0,0,0,0,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,0,0,100,0,0,50,-1,50,-1,20,80,50,-1,50,-1,20,-1,40,10,-1,-1,20,80,50,-1,20,-1,20,-1,50,20,30,-1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,-1,200,30,100,100,100,50,50,150,30,150,25,10,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,"RESERVE: 75, ATTACK_CITY: 75, WORKER: 75",NONE,,,NONE
++BISMARCK,8,0,1,6,30,40,20,25,100,120,10,90,120,0,20,10,5,50,2,100,200,5,3,0,8,70,0,1,30,25,20,40,30,25,0,0,0,0,10,0,0,0,0,-4,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,2,2,3,3,0,-1,0,0,1,0,0,-1,-2,0,2,0,-1,1,0,-1,0,-1,1,10,50,90,0,90,50,100,50,1000,20,80,50,250,50,500,20,20,40,10,10,15,20,80,50,500,20,50,20,8,50,20,30,10,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,92,55,50,89,78,0,50,78,50,53,50,53,50,53,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,"ATTACK: 25, WORKER: 25",CHRISTIANITY,"WORKSHOP: 20, LUMBERMILL: 20","EXPANSIVE, INDUSTRIOUS",NATIONHOOD
++BOUDICA,8,4,0,2,30,40,30,40,50,70,10,100,80,0,30,10,10,80,0,110,50,10,3,20,10,30,10,1,10,55,30,25,35,5,0,0,0,2,5,0,0,0,0,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,4,2,3,5,0,-1,0,1,0,0,0,-1,-2,-1,2,0,-1,1,1,0,0,-1,1,0,40,100,0,100,50,100,50,100,20,80,50,1000,50,50,20,20,40,10,15,20,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,92,98,50,54,99,0,50,39,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,PILLAGE: 50,PAGANISM,"MINE: 20, FOREST_PRESERVE: 20","CHARISMATIC, AGGRESSIVE",UNIVERSAL_SUFFRAGE
++BRENNUS,8,4,-1,0,30,40,60,40,25,110,10,100,60,0,80,10,5,50,0,100,100,5,3,50,10,40,0,2,10,30,0,30,50,30,0,0,0,0,5,0,2,0,0,-2,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,5,4,0,-1,1,-1,0,1,0,-1,-2,0,-1,0,-1,1,-1,0,0,-1,1,20,50,100,0,100,50,250,50,250,20,80,50,25,50,100,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,100,96,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,ATTACK: 50,NONE,MINE: 30,"SPIRITUAL, CHARISMATIC",ORGANIZED_RELIGION
++CATHERINE,8,2,1,2,25,40,80,0,25,130,10,110,80,0,10,10,5,40,1,90,100,15,3,0,6,20,-20,2,30,25,30,10,40,45,5,0,0,0,2,0,0,0,0,-4,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,4,2,-1,1,0,1,2,0,0,-1,-2,1,2,0,-2,1,-1,-1,0,-3,-1,0,20,80,0,80,50,25,50,500,20,80,50,750,50,500,20,10,40,10,10,15,20,80,50,250,20,50,20,2,50,20,30,2,0,-100,-300,0,-200,-200,-200,-200,-100,-100,-200,-200,-100,-200,-250,-200,-200,-200,-200,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,100,79,50,66,78,100,50,78,50,79,50,93,50,95,50,50,50,50,0,50,50,50,50,100,50,100,50,100,50,100,50,50,50,50,50,50,50,100,50,0,50,50,50,50,50,50,50,100,50,100,50,100,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,RESERVE: 25,CHRISTIANITY,"FARM: 20, LUMBERMILL: 20","CREATIVE, IMPERIALIST",HEREDITARY_RULE
++CHARLEMAGNE,8,0,0,6,30,40,60,20,75,100,10,100,80,0,20,10,10,30,2,100,100,15,3,0,8,30,10,1,15,20,45,25,45,15,0,0,0,0,5,0,2,0,1,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,5,2,0,0,1,0,0,1,0,-2,-2,0,0,0,-1,1,0,-1,-1,-1,1,20,60,100,0,100,50,250,50,250,20,80,50,250,50,100,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,89,96,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,ATTACK_CITY: 50,CHRISTIANITY,"FARM: 20, WATERMILL: 20","IMPERIALIST, PROTECTIVE",VASSALAGE
++CHURCHILL,8,0,0,6,25,40,40,40,50,120,10,100,120,0,20,10,10,60,3,90,200,15,3,0,8,30,0,0,10,0,35,35,35,45,0,0,2,0,5,0,0,0,0,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,4,2,3,4,0,1,0,0,0,1,0,-2,-2,0,2,0,-1,1,0,-1,-1,-1,1,20,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,15,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,39,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,"ATTACK_AIR: 25, CARRIER_AIR: 25, CARRIER_SEA: 25",NONE,TOWN: 30,"CHARISMATIC, PROTECTIVE",NATIONHOOD
++CYRUS,8,2,1,3,30,40,0,5,100,100,10,100,160,0,20,10,10,60,2,100,100,10,3,0,8,30,0,0,40,30,65,25,30,0,0,0,0,2,5,0,0,0,2,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,2,2,3,3,0,0,0,1,-1,0,0,-2,-1,-1,1,0,-2,1,1,0,-1,-1,1,20,70,100,0,100,50,100,50,1000,20,80,50,500,50,50,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,55,50,78,99,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,ATTACK: 50,NONE,"TOWN: 20, FARM: 20","CHARISMATIC, IMPERIALIST",VASSALAGE
++DARIUS,8,0,1,8,30,40,0,5,100,100,10,100,160,0,20,10,10,60,1,100,200,10,3,0,8,30,0,0,40,25,30,30,10,55,0,0,5,2,0,0,0,0,1,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,2,2,3,3,0,0,0,1,-1,0,0,-2,-1,-1,1,0,-2,1,1,0,-1,-1,1,20,70,90,0,90,50,100,50,1000,20,80,50,500,50,50,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,55,50,78,99,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,RESERVE: 50,PAGANISM,"FARM: 20, MINE: 20","ORGANIZED, FINANCIAL",FREE_RELIGION
++DEFAULTS,8,0,0,0,0,40,0,0,0,0,10,0,0,0,0,10,0,0,0,0,0,0,3,0,0,0,0,0,0,30,30,30,30,30,0,0,0,0,0,0,0,0,0,0,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,0,2,0,0,-3,0,-3,-3,-3,1,0,-3,-3,-3,1,0,-3,1,-3,-3,-3,-3,-3,0,0,100,0,0,50,-1,50,-1,20,80,50,-1,50,-1,20,-1,40,10,-1,-1,20,80,50,-1,20,-1,20,-1,50,20,30,-1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,-1,200,30,100,100,100,50,50,150,30,150,25,10,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,,NONE,,,NONE
++DE_GAULLE,8,0,-1,0,25,40,10,0,20,110,10,100,60,0,10,10,5,50,3,80,100,10,3,0,5,40,-20,2,10,35,15,55,10,35,0,0,0,2,0,5,0,0,2,-2,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,3,6,0,-1,0,0,1,0,0,-1,-1,-1,2,0,-1,1,-1,0,-1,-1,1,20,70,100,0,100,50,500,50,100,20,80,50,1000,50,100,20,20,40,10,10,25,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,51,98,50,54,96,0,50,58,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,"ICBM: 25, PARADROP: 50",CHRISTIANITY,"TOWN: 20, WORKSHOP: 20","INDUSTRIOUS, CHARISMATIC",NATIONHOOD
++ELIZABETH,8,0,1,9,20,40,60,0,25,110,10,90,200,0,10,10,5,40,4,80,300,15,3,0,8,40,0,0,20,45,30,55,10,10,2,0,5,0,0,0,0,0,1,-3,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,3,2,0,0,-1,1,0,1,0,-1,-2,2,2,0,-2,1,1,-1,0,-2,1,10,50,90,0,90,50,50,50,500,20,80,50,1000,50,100,20,10,40,10,10,15,20,80,50,500,20,50,20,2,50,20,30,2,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,97,79,50,54,96,100,50,78,50,53,50,93,50,95,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,"PIRATE_SEA: 25, SETTLER_SEA: 25",CHRISTIANITY,"WINDMILL: 20, WATERMILL: 20","PHILOSOPHICAL, FINANCIAL",FREE_RELIGION
++FRANKLIN_ROOSEVELT,8,0,1,8,25,40,0,50,25,120,10,100,160,0,10,10,10,80,2,100,300,15,3,0,10,30,0,0,20,5,25,50,25,45,0,0,2,0,0,5,0,0,2,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,4,2,3,3,0,1,0,0,0,0,0,-2,-2,-1,2,0,-1,1,1,0,0,-1,1,10,70,100,0,100,50,100,50,100,20,80,50,1000,50,50,20,20,40,10,15,20,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,98,50,54,99,0,50,39,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,"ASSAULT_SEA: 25, CARRIER_SEA: 25, CARRIER_AIR: 25",CHRISTIANITY,"TOWN: 20, FOREST_PRESERVE: 20","INDUSTRIOUS, ORGANIZED",MERCANTILISM
++FREDERICK,8,0,1,8,20,40,0,0,100,90,10,100,160,0,20,10,10,50,2,100,200,10,3,0,6,30,0,0,20,10,25,25,25,65,0,0,0,0,0,10,0,0,2,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,3,3,1,0,0,0,0,1,0,-2,-1,0,2,0,-2,1,0,0,0,-2,-1,20,70,100,0,100,50,250,50,250,20,80,50,500,50,250,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,78,89,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,COUNTER: 50,NONE,"FARM: 20, LUMBERMILL: 20","PHILOSOPHICAL, ORGANIZED",UNIVERSAL_SUFFRAGE
++GANDHI,8,0,2,10,15,40,0,0,100,50,10,80,200,0,10,10,10,60,3,100,400,15,3,0,6,20,-20,0,10,0,45,70,5,30,10,0,0,0,0,0,0,0,1,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,5,2,4,2,0,1,-1,1,-1,1,0,-3,-3,-3,2,0,-3,1,1,0,-1,-3,-1,50,85,115,20,110,50,50,50,50,20,80,50,0,50,25,20,20,40,10,8,10,20,80,50,500,20,50,20,2,50,20,30,2,0,-200,-300,0,0,0,0,0,-100,-100,-200,-100,-200,-200,-250,-200,0,0,-100,0,0,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,97,100,50,0,100,0,50,100,50,53,50,93,50,95,50,50,50,50,100,50,50,50,50,0,50,0,50,0,50,0,50,50,50,50,50,50,50,0,50,100,50,50,50,50,50,50,50,0,50,0,50,0,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,,HINDUISM,FARM: 30,"SPIRITUAL, PHILOSOPHICAL",UNIVERSAL_SUFFRAGE
++GENGHIS_KHAN,8,4,-1,0,35,40,20,50,50,100,10,130,40,0,80,10,5,90,0,120,50,5,3,75,10,40,50,2,10,65,5,25,30,25,0,0,0,0,10,0,0,0,2,-4,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,3,4,0,2,0,-1,1,1,0,-1,-1,1,2,0,-1,1,-1,0,0,-1,1,10,50,90,0,90,50,500,50,500,20,80,50,250,50,250,20,20,40,10,10,25,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,51,79,50,89,89,0,50,58,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,"PILLAGE: 50, WORKER: -50",DAOISM,,"AGGRESSIVE, IMPERIALIST",POLICE_STATE
++GILGAMESH,8,4,0,2,30,40,25,25,50,100,10,110,100,0,30,10,5,30,1,120,100,15,3,0,8,20,0,2,40,40,55,5,25,25,2,0,0,0,5,0,0,0,0,-3,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,3,3,0,-1,0,1,0,1,0,-1,-1,-1,1,0,-1,1,1,0,0,-2,1,10,60,90,0,90,50,100,50,1000,20,80,50,250,50,50,20,20,40,10,15,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,92,55,50,89,99,0,50,39,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,RESERVE: 25,PAGANISM,FARM: 30,"PROTECTIVE, CREATIVE",HEREDITARY_RULE
++HAMMURABI,8,0,0,8,30,40,30,15,100,100,10,110,160,0,20,10,5,60,2,110,200,10,3,0,10,40,0,1,40,35,50,30,5,30,10,0,0,0,0,0,0,0,1,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,4,3,0,-1,0,0,-1,1,0,-1,-1,-1,1,0,-1,1,1,0,0,-1,1,20,70,100,0,100,50,100,50,1000,20,80,50,250,50,50,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,55,50,89,99,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,ATTACK: 50,PAGANISM,FARM: 30,"ORGANIZED, AGGRESSIVE",BUREAUCRACY
++HANNIBAL,8,4,0,2,30,40,60,20,50,100,10,100,80,0,40,10,5,80,1,100,100,10,3,10,8,30,0,2,10,30,10,25,30,55,0,0,2,0,5,0,0,0,0,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,2,2,4,3,0,0,0,0,0,1,0,-1,-2,-1,1,0,-1,1,0,-1,0,-1,1,20,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,15,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,39,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,ATTACK: 50,PAGANISM,"MINE: 20, TOWN: 20","FINANCIAL, CHARISMATIC",FREE_MARKET
++HATSHEPSUT,8,0,1,9,20,40,0,0,100,100,10,100,200,0,20,10,10,50,3,90,200,10,3,0,6,30,0,0,40,25,70,25,5,25,5,0,0,0,0,0,2,0,2,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,2,2,4,3,0,-1,0,0,0,1,0,-2,-2,-2,1,0,-2,1,0,0,0,-2,0,20,70,100,0,100,50,100,50,1000,20,80,50,1000,50,100,20,20,40,10,10,12,20,80,50,250,20,50,20,2,50,20,30,2,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,55,50,54,96,0,50,84,50,79,50,93,50,95,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,CITY_COUNTER: 50,PAGANISM,"FARM: 20, MINE: 20","SPIRITUAL, CREATIVE",ORGANIZED_RELIGION
++HUAYNA_CAPAC,8,0,0,2,25,40,40,0,100,90,10,110,80,0,20,10,10,60,1,100,100,5,3,10,8,30,0,2,40,50,30,15,30,25,0,0,5,0,0,2,0,0,1,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,4,3,0,-1,0,1,0,1,0,-2,-2,0,1,0,-1,1,0,0,0,-1,0,10,50,90,0,90,50,100,50,250,20,80,50,250,50,250,20,20,40,10,10,12,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,91,50,89,89,0,50,84,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,"WORKER: 25, RESERVE: 25",PAGANISM,"MINE: 20, TOWN: 20","INDUSTRIOUS, FINANCIAL",HEREDITARY_RULE
++ISABELLA,8,0,-1,6,25,40,60,25,50,120,10,100,120,0,40,10,5,100,0,130,200,5,3,25,10,60,0,1,20,30,30,60,25,5,0,0,0,0,0,0,10,0,1,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,5,2,0,0,1,0,1,1,0,-1,-1,1,0,0,-1,1,0,0,0,-1,1,10,50,90,0,90,50,100,50,500,20,80,50,1000,50,250,20,20,40,10,10,20,20,80,50,50,20,50,20,8,50,20,30,10,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,92,79,50,54,89,0,50,68,50,100,50,53,50,53,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,"SETTLER_SEA: 25, EXPLORE_SEA: 25, MISSIONARY: 25",CHRISTIANITY,"MINE: 20, WINDMILL: 20","SPIRITUAL, EXPANSIVE",THEOCRACY
++JOAO,8,0,0,6,25,40,40,10,100,110,10,80,100,0,40,10,5,90,3,110,200,15,3,0,8,40,0,1,20,20,5,25,50,50,0,0,0,0,2,0,0,5,2,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,3,2,0,0,0,0,-1,1,0,-1,-1,1,0,0,-1,1,1,-1,0,-1,0,20,70,100,0,100,50,100,50,500,20,80,50,250,50,250,20,20,40,10,10,12,20,80,50,50,20,50,20,8,50,20,30,10,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,92,79,50,89,89,0,50,84,50,100,50,53,50,53,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,EXPLORE_SEA: 50,CHRISTIANITY,"MINE: 20, WINDMILL: 20","IMPERIALIST, EXPANSIVE",HEREDITARY_RULE
++JULIUS_CAESAR,8,2,0,4,30,40,40,10,50,100,10,100,100,0,40,10,10,80,1,110,100,5,3,0,8,40,20,1,20,50,25,10,35,30,0,0,0,0,5,2,0,0,0,-4,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,3,3,0,0,0,0,1,1,0,-2,-1,1,1,0,-1,1,0,0,0,-1,1,10,50,90,0,90,50,500,50,500,20,80,50,50,50,500,20,20,40,10,15,20,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,51,79,50,99,78,0,50,39,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,ATTACK: 50,PAGANISM,"FARM: 20, TOWN: 20","ORGANIZED, IMPERIALIST",REPRESENTATION
++JUSTINIAN,8,2,1,4,35,40,60,5,100,110,10,80,60,0,20,10,5,70,1,110,100,15,3,0,10,30,20,1,30,10,30,50,35,25,0,0,0,0,2,0,5,0,0,-4,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,5,3,0,0,2,1,0,1,0,-2,-2,-1,1,0,-2,1,0,-1,0,-2,1,30,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,"ATTACK_CITY: 25, ASSAULT_SEA: 25",CHRISTIANITY,"FARM: 20, WATERMILL: 20","SPIRITUAL, IMPERIALIST",THEOCRACY
++KUBLAI_KHAN,8,0,0,1,25,40,40,10,50,100,10,120,60,0,40,10,5,50,1,90,100,10,3,25,8,30,0,2,30,20,50,25,50,5,2,0,0,0,5,0,0,0,3,-3,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,3,3,0,1,0,0,1,1,0,-1,-1,0,1,0,-1,1,0,-1,-1,-2,0,10,50,90,0,90,50,100,50,250,20,80,50,25,50,100,20,10,40,10,10,20,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-200,-200,-200,-200,-100,-100,-200,-200,-100,-200,-250,-200,-200,-200,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,92,91,50,100,96,100,50,68,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,100,50,100,50,100,50,100,50,50,50,50,50,50,50,100,50,0,50,50,50,50,50,50,50,100,50,100,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,ATTACK_CITY: 50,BUDDHISM,"FARM: 20, WATERMILL: 20","AGGRESSIVE, CREATIVE",BUREAUCRACY
++LINCOLN,8,0,1,9,25,40,20,0,150,110,10,90,200,0,10,15,10,50,2,90,300,10,3,0,6,30,0,0,30,35,10,45,15,35,0,0,0,2,0,0,0,5,1,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,4,2,2,4,0,1,0,1,-1,1,0,-1,-1,-1,2,0,-1,1,0,-1,0,-2,1,30,80,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,RESERVE: 25,NONE,"FOREST_PRESERVE: 20, WINDMILL: 20","PHILOSOPHICAL, CHARISMATIC",EMANCIPATION
++LOUIS_XIV,8,2,0,1,30,40,40,10,50,120,10,130,60,0,10,10,20,70,3,110,200,5,3,0,6,30,0,2,50,15,60,40,15,20,5,0,0,0,2,0,0,0,1,-4,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,4,2,1,0,0,0,1,1,0,-1,-2,-1,2,0,-1,1,0,0,0,-1,-1,0,20,80,0,80,50,1000,50,500,20,80,50,500,50,500,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-200,-100,-200,-100,-100,-100,-200,-200,-100,-200,-250,-200,-200,-200,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,0,79,50,78,78,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,100,50,50,50,100,50,50,50,50,50,50,50,50,50,100,50,0,50,50,50,50,50,50,50,100,50,100,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,ATTACK: 50,CHRISTIANITY,"LUMBERMILL: 20, WORKSHOP: 20","INDUSTRIOUS, CREATIVE",HEREDITARY_RULE
++MANSA_MUSA,8,0,1,9,25,40,20,5,50,60,10,90,200,0,20,10,20,50,1,100,400,20,3,0,6,0,-20,0,20,25,45,50,0,30,0,0,5,0,0,0,2,0,4,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,4,2,5,3,-1,-1,-1,-1,1,1,0,-3,-3,-1,0,0,-3,1,1,-2,-1,-2,-1,10,50,90,0,90,50,50,50,250,20,80,50,500,50,50,20,20,40,10,10,12,20,80,50,100,20,50,20,1,50,20,30,1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,20,200,30,100,100,100,50,50,150,30,150,25,10,97,91,50,78,99,0,50,84,50,95,50,100,50,100,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,100,50,50,50,CITY_COUNTER: 50,ISLAM,MINE: 30,"SPIRITUAL, FINANCIAL",FREE_MARKET
++MAO_ZEDONG,8,2,0,1,25,40,40,5,50,130,10,120,60,0,40,10,5,60,1,110,200,5,3,0,8,50,0,2,10,50,0,15,35,50,0,0,0,5,0,2,0,0,0,-3,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,5,2,2,3,1,0,0,0,1,1,0,-1,-1,-1,2,0,-1,1,-1,0,0,-1,1,0,30,80,0,80,50,100,50,50,20,80,50,500,50,500,20,20,40,10,15,20,20,80,50,1000,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,92,100,50,78,78,0,50,39,50,0,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,"WORKER: 25, PILLAGE: 25",NONE,"WORKSHOP: 20, WATERMILL: 20","EXPANSIVE, PROTECTIVE",STATE_PROPERTY
++MEHMED,8,2,-1,2,40,40,20,40,25,110,10,100,100,0,60,10,5,50,1,90,100,5,3,25,8,40,0,1,20,25,25,30,55,15,2,0,0,0,5,0,0,0,3,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,4,4,0,0,0,-1,0,1,0,-1,-2,-1,0,0,-1,1,0,-1,0,-1,1,20,70,100,0,100,50,250,50,250,20,80,50,25,50,100,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,100,96,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,COLLATERAL: 50,ISLAM,TOWN: 30,"EXPANSIVE, ORGANIZED",VASSALAGE
++MOCTEZUMA,8,4,-1,0,35,40,60,10,25,80,10,130,40,0,80,10,5,80,0,130,50,5,3,50,10,50,0,2,0,70,25,25,30,0,0,0,0,0,5,0,2,0,0,-4,-1,1,-1,1,1,-3,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,2,2,2,4,0,-1,0,-1,1,1,0,-1,-1,1,-1,0,-1,1,-1,0,0,-1,1,0,30,80,0,80,50,1000,50,1000,20,80,50,50,50,1000,20,20,40,10,10,25,20,80,50,500,20,50,20,8,50,20,30,10,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,0,55,50,99,54,0,50,58,50,53,50,53,50,53,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,ATTACK: 50,PAGANISM,FARM: 30,"AGGRESSIVE, SPIRITUAL",POLICE_STATE
++NAPOLEON,8,6,-1,0,40,40,60,10,50,100,10,120,40,0,40,10,5,70,1,120,100,10,3,0,10,60,20,2,10,35,25,5,60,25,0,0,2,0,5,0,0,0,1,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,4,2,3,4,0,-1,0,0,1,1,0,-1,-1,1,2,0,-1,1,-1,0,0,-1,1,10,50,90,0,90,50,500,50,100,20,80,50,250,50,100,20,20,40,10,10,25,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,51,98,50,89,96,0,50,58,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,"COLLATERAL: 25, PILLAGE: 25",CHRISTIANITY,"WORKSHOP: 20, WINDMILL: 20","ORGANIZED, CHARISMATIC",REPRESENTATION
++OGISO_IGODO,8,2,2,6,30,40,50,10,50,100,10,110,100,0,10,10,10,50,2,100,200,10,3,5,8,30,0,1,20,15,50,35,15,35,0,0,0,5,0,0,2,0,2,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,6,3,-1,0,1,-1,1,1,0,-2,-2,-1,0,0,-1,1,0,0,-1,-2,0,10,50,90,0,90,50,50,50,250,20,80,50,500,50,50,20,20,40,10,15,15,20,80,50,100,20,50,20,1,50,20,30,1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,8,200,30,100,100,100,50,50,150,30,150,25,10,97,91,50,78,99,0,50,50,50,95,50,100,50,100,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,20,50,50,50,RESERVE: 25,PAGANISM,FARM: 20,"PROTECTIVE, FINANCIAL",HEREDITARY_RULE
++PACAL,8,0,1,2,25,60,40,0,100,100,10,100,100,0,10,15,15,50,1,90,300,5,3,10,6,50,0,0,40,5,45,40,30,30,5,0,0,2,0,0,0,0,2,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,4,2,4,3,0,-1,0,1,1,1,0,-2,-2,0,-1,0,-1,1,1,0,0,-1,1,10,50,90,0,90,50,100,50,250,20,80,50,250,50,250,20,20,40,10,10,12,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,92,91,50,89,89,0,50,84,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,"WORKER: 25, CITY_COUNTER: 25",PAGANISM,"TOWN: 20, FOREST_PRESERVE: 20","FINANCIAL, EXPANSIVE",HEREDITARY_RULE
++PERICLES,8,0,1,6,25,40,50,10,100,100,10,100,200,0,50,10,10,70,2,90,250,15,3,0,8,10,0,0,40,15,35,25,30,45,0,0,0,0,0,5,0,2,0,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,2,2,4,3,0,-1,0,1,-1,1,0,-1,-1,0,0,0,-2,1,1,0,0,-2,1,20,70,100,0,100,50,250,50,1000,20,80,50,250,50,500,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,55,50,89,78,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,"ATTACK_SEA: 25, SETTLER_SEA: 25",PAGANISM,"MINE: 20, TOWN: 20","PHILOSOPHICAL, CREATIVE",REPRESENTATION
++PETER,8,4,0,1,30,40,20,0,50,120,10,120,60,0,20,10,10,60,2,120,100,15,3,0,8,10,0,2,30,30,5,40,25,50,0,0,0,2,0,0,0,5,2,-3,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,2,2,4,4,0,1,0,-1,1,1,0,-2,-1,-1,2,0,-1,1,0,0,0,-2,1,10,50,90,0,90,50,50,50,1000,20,80,50,500,50,100,20,20,40,10,10,15,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,20,200,30,100,100,100,50,50,150,30,150,25,10,97,55,50,78,96,0,50,78,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,100,50,50,50,"ATTACK_SEA: 25, SETTLE: 25",CHRISTIANITY,"FARM: 20, WORKSHOP: 20","PHILOSOPHICAL, EXPANSIVE",BUREAUCRACY
++QIN_SHI_HUANG,8,2,1,2,20,40,40,25,25,90,10,110,80,0,20,10,10,40,2,120,300,5,3,0,8,30,0,2,30,40,40,45,15,10,0,0,0,2,0,5,0,0,0,-3,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,4,2,4,3,0,1,0,0,1,1,0,-2,-2,1,1,0,-1,1,0,-1,0,-1,1,0,30,80,0,80,50,250,50,100,20,80,50,500,50,250,20,20,40,10,10,15,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-200,-100,-200,-100,-100,-100,-200,-200,-100,-200,-250,-200,-200,-200,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,98,50,78,89,0,50,78,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,100,50,50,50,100,50,50,50,50,50,50,50,50,50,100,50,0,50,50,50,50,50,50,50,100,50,100,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,"COUNTER: 50, COLLATERAL: 100",DAOISM,"FARM: 20, WORKSHOP: 20","INDUSTRIOUS, PROTECTIVE",BUREAUCRACY
++RAGNAR,8,6,-1,0,40,40,80,20,25,100,10,100,40,0,80,10,5,90,0,110,50,5,3,50,10,30,0,2,10,50,10,25,40,25,0,0,0,0,10,0,0,0,2,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,4,3,0,-1,0,-1,0,1,0,1,-1,1,1,0,-2,1,-1,0,1,0,1,0,50,90,0,90,50,250,50,250,20,80,50,25,50,100,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,100,96,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,"ASSAULT_SEA: 25, PILLAGE: 25",PAGANISM,"FARM: 20, LUMBERMILL: 20","FINANCIAL, AGGRESSIVE",HEREDITARY_RULE
++RAMESSES,8,2,0,6,20,40,40,20,100,100,10,100,160,0,20,10,15,50,3,90,200,15,3,0,8,60,0,0,50,35,25,20,35,25,5,0,0,0,0,2,0,0,2,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,5,3,1,-1,1,0,0,1,0,-2,-1,1,1,0,-1,1,0,-1,-1,-1,1,20,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,RESERVE: 25,PAGANISM,"FARM: 20, TOWN: 20","SPIRITUAL, INDUSTRIOUS",ORGANIZED_RELIGION
++SALADIN,8,0,0,4,30,40,0,25,50,100,10,100,100,0,10,10,5,80,0,110,200,10,3,0,8,40,0,1,10,45,10,45,25,25,0,0,0,0,5,0,2,0,2,-3,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,1,2,4,4,0,0,1,0,-1,0,0,-2,-1,0,0,0,-1,1,1,0,0,-1,0,20,70,100,0,100,50,1000,50,0,20,80,50,250,50,100,20,10,40,10,15,15,20,80,50,100,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,0,0,50,89,96,100,50,50,50,95,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,ATTACK_CITY: 50,ISLAM,"WATERMILL: 20, WINDMILL: 20","PROTECTIVE, SPIRITUAL",THEOCRACY
++SHAKA,8,4,-1,2,40,40,40,40,50,100,10,100,160,0,80,10,5,50,0,90,50,5,3,50,10,50,20,2,10,60,25,15,35,15,0,0,0,0,10,0,0,0,0,-4,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,2,2,3,4,0,-1,-1,-1,1,1,0,-1,-2,-1,-1,0,-1,1,-1,0,0,0,1,0,40,90,0,90,50,250,50,250,20,80,50,25,50,100,20,20,40,10,10,25,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,100,96,0,50,58,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,"ATTACK: 50, WORKER: -50",PAGANISM,,"AGGRESSIVE, EXPANSIVE",POLICE_STATE
++SITTING_BULL,8,4,0,8,35,40,20,10,100,120,10,100,200,0,120,10,5,0,4,130,200,5,3,20,12,80,50,0,0,25,25,65,10,25,0,0,0,2,5,0,0,0,0,-4,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,2,2,2,4,0,-1,0,1,-1,1,0,-2,-2,-2,2,0,-1,1,0,-1,-1,-1,1,40,90,100,0,100,50,1000,50,1000,20,80,50,1000,50,1000,20,20,40,10,20,20,20,80,50,500,20,50,20,8,50,20,30,10,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,0,55,50,54,54,0,50,10,50,53,50,53,50,53,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,CITY_DEFENSE: 50,PAGANISM,FARM: 20,"PHILOSOPHICAL, PROTECTIVE",ENVIRONMENTALISM
++STALIN,8,2,-1,2,30,40,60,20,50,140,10,100,120,0,60,10,5,80,0,110,100,5,3,25,8,80,0,1,30,20,10,10,40,70,0,0,0,0,5,2,0,0,0,-3,-1,1,-1,1,1,-3,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,5,2,2,3,1,1,-1,0,1,1,0,-1,-2,1,2,0,-2,1,-1,0,0,0,0,10,50,90,0,90,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,20,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,10,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,"ATTACK: 25, SPY: 25",NONE,"TOWN: 20, WORKSHOP: 20","INDUSTRIOUS, AGGRESSIVE",STATE_PROPERTY
++SULEIMAN,8,2,0,4,30,40,0,50,25,90,10,100,100,0,40,10,5,50,1,100,100,10,3,5,8,40,0,1,20,20,55,20,45,10,5,0,0,0,2,0,0,0,1,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,2,5,0,0,-1,-1,1,1,0,-2,-2,-1,0,0,-1,1,1,0,-1,-1,0,20,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,10,25,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,7,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,58,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,13,50,50,50,ATTACK_SEA: 50,ISLAM,"TOWN: 20, WORKSHOP: 20","IMPERIALIST, PHILOSOPHICAL",HEREDITARY_RULE
++SURYAVARMAN,8,0,0,1,30,40,50,0,25,100,10,100,60,0,60,15,10,60,2,110,100,10,3,25,8,50,-10,1,40,10,30,50,35,25,2,0,0,0,0,0,5,0,0,-3,-1,1,-1,1,1,-2,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,4,3,0,-1,0,0,1,1,0,-1,-2,0,1,0,-1,1,1,0,0,-1,0,10,50,90,0,90,50,100,50,250,20,80,50,250,50,100,20,10,40,10,10,15,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-200,-200,-200,-200,-100,-100,-200,-150,-100,-200,-250,-200,-200,-200,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,8,200,30,100,100,100,50,50,150,30,150,25,10,92,91,50,89,96,100,50,78,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,100,50,100,50,100,50,100,50,50,50,50,50,50,50,50,50,0,50,50,50,50,50,50,50,100,50,100,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,20,50,50,50,ATTACK: 50,HINDUISM,FARM: 30,"EXPANSIVE, CREATIVE",CASTE_SYSTEM
++TOKUGAWA,8,0,-1,1,30,40,60,25,25,60,10,100,60,0,40,10,5,30,4,100,100,5,3,25,10,100,0,2,20,40,25,0,45,40,0,0,0,0,2,0,0,5,1,-3,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,4,2,3,4,1,0,1,0,1,0,0,0,0,2,2,0,0,1,-1,1,1,0,0,10,50,90,0,90,50,1000,50,250,20,80,50,1000,50,0,20,20,40,10,20,25,20,80,50,500,20,50,20,16,50,20,30,20,0,-100,-300,0,-200,-200,-200,-200,-100,-100,-200,-150,-100,-200,-250,-200,-200,-200,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,0,91,50,54,0,0,50,0,50,53,50,0,50,0,50,50,50,50,0,50,50,50,50,100,50,100,50,100,50,100,50,50,50,50,50,50,50,50,50,0,50,50,50,50,50,50,50,100,50,100,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,"CITY_COUNTER: 25, WORKER: 25",BUDDHISM,"FARM: 20, LUMBERMILL: 20","PROTECTIVE, AGGRESSIVE",MERCANTILISM
++VICTORIA,8,0,0,8,25,40,0,0,100,110,10,100,160,0,20,10,5,60,2,90,200,10,3,0,10,30,0,0,30,5,35,10,70,30,0,0,5,2,0,0,0,0,0,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,3,2,3,3,1,-1,0,0,1,1,0,-2,-2,-1,2,0,-1,1,-1,-1,-1,-1,1,0,20,80,0,80,50,250,50,500,20,80,50,500,50,250,20,20,40,10,10,20,20,80,50,500,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,7,200,30,100,100,100,50,50,150,30,150,25,10,77,79,50,78,89,0,50,68,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,13,50,50,50,RESERVE_SEA: 50,CHRISTIANITY,TOWN: 30,"IMPERIALIST, FINANCIAL",REPRESENTATION
++WANGKON,8,0,0,8,25,40,40,20,100,110,10,100,120,0,40,10,15,50,3,90,100,10,3,10,6,20,0,0,20,10,30,35,20,55,0,0,5,0,0,0,0,2,3,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,3,2,3,3,0,0,0,0,0,1,0,-1,-2,-1,0,0,-1,1,1,-1,0,-1,0,20,70,100,0,100,50,250,50,250,20,80,50,250,50,100,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,8,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,89,96,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,20,50,50,50,CITY_DEFENSE: 50,BUDDHISM,"TOWN: 20, MINE: 20","FINANCIAL, PROTECTIVE",CASTE_SYSTEM
++WASHINGTON,8,2,0,8,25,40,100,0,100,120,10,110,160,0,20,10,5,80,3,90,200,10,3,0,8,30,0,0,20,45,40,25,30,10,0,0,0,2,5,0,0,0,1,-2,-1,1,-1,1,1,0,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-1,4,2,4,3,0,1,0,1,0,1,0,-2,-1,-1,2,0,-1,1,0,-1,0,-1,1,20,70,100,0,100,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,7,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,13,50,50,50,"SETTLE: 25, PIRATE_SEA: 25",CHRISTIANITY,"FARM: 20, TOWN: 20","EXPANSIVE, CHARISMATIC",FREE_SPEECH
++WILLEM_VAN_ORANJE,8,2,0,4,25,40,50,20,100,100,10,100,120,0,40,10,10,60,1,100,150,15,3,0,8,15,0,0,20,25,40,35,0,50,0,0,5,0,0,0,0,2,1,-1,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,0,4,2,1,4,0,0,-1,1,0,1,0,-2,-2,-2,2,0,-1,1,1,-2,-1,-2,1,10,50,90,0,90,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,77,91,50,54,96,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,"CITY_COUNTER: 25, PIRATE_SEA: 25",CHRISTIANITY,WINDMILL: 30,"CREATIVE, FINANCIAL",FREE_RELIGION
++ZARA_YAQOB,8,2,2,6,30,40,50,10,50,100,10,110,100,0,10,10,10,50,2,100,200,10,3,5,8,30,0,1,20,15,50,35,15,35,0,0,0,5,0,0,2,0,2,-2,-1,1,-1,1,1,-1,60,-5,50,12,-15,10,25,10,8,1,5,2,2,-2,3,2,6,3,-1,0,1,-1,1,1,0,-2,-2,-1,0,0,-1,1,0,0,-1,-2,0,10,50,90,0,90,50,50,50,250,20,80,50,500,50,50,20,20,40,10,15,15,20,80,50,100,20,50,20,1,50,20,30,1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,100,100,100,100,50,100,100,100,150,8,200,30,100,100,100,50,50,150,30,150,25,10,97,91,50,78,99,0,50,50,50,95,50,100,50,100,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,20,50,50,50,RESERVE: 25,CHRISTIANITY,FARM: 20,"CREATIVE, ORGANIZED",THEOCRACY
+
+diff --git a/tests/expected_output_leaders_data_sample.py b/tests/expected_output_leaders_data_sample.py
+index e9e7ceed6..aa4a326a7 100644
+--- a/tests/expected_output_leaders_data_sample.py
++++ b/tests/expected_output_leaders_data_sample.py
+@@ -3,6 +3,354 @@
+ 
+ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
+ 	return {
++		"LEADER_BARBARIAN": {
++			"Type": "LEADER_BARBARIAN",
++			"Description": "TXT_KEY_LEADER_BARBARIAN",
++			"Civilopedia": "TXT_KEY_LEADER_BARBARIAN_PEDIA",
++			"ArtDefineTag": "ART_DEF_LEADER_BARBARIAN",
++			"iWonderConstructRand": 0,
++			"iBaseAttitude": 0,
++			"iBasePeaceWeight": 0,
++			"iPeaceWeightRand": 0,
++			"iWarmongerRespect": 0,
++			"iEspionageWeight": 0,
++			"iRefuseToTalkWarThreshold": 0,
++			"iNoTechTradeThreshold": 0,
++			"iTechTradeKnownPercent": 0,
++			"iMaxGoldTradePercent": 0,
++			"iMaxGoldPerTurnTradePercent": 0,
++			"iCultureVictoryWeight": 0,
++			"iSpaceVictoryWeight": 0,
++			"iConquestVictoryWeight": 70,
++			"iDominationVictoryWeight": 30,
++			"iDiplomacyVictoryWeight": 0,
++			"iMaxWarRand": 0,
++			"iMaxWarNearbyPowerRatio": 0,
++			"iMaxWarDistantPowerRatio": 0,
++			"iMaxWarMinAdjacentLandPercent": 0,
++			"iLimitedWarRand": 0,
++			"iLimitedWarPowerRatio": 0,
++			"iDogpileWarRand": 0,
++			"iMakePeaceRand": 0,
++			"iDeclareWarTradeRand": 0,
++			"iDemandRebukedSneakProb": 0,
++			"iDemandRebukedWarProb": 0,
++			"iRazeCityProb": 75,
++			"iBuildUnitProb": 70,
++			"iBaseAttackOddsChange": 1,
++			"iAttackOddsChangeRand": 16,
++			"iWorseRankDifferenceAttitudeChange": -2,
++			"iBetterRankDifferenceAttitudeChange": 0,
++			"iCloseBordersAttitudeChange": -2,
++			"iLostWarAttitudeChange": 0,
++			"iAtWarAttitudeDivisor": 0,
++			"iAtWarAttitudeChangeLimit": 0,
++			"iAtPeaceAttitudeDivisor": 0,
++			"iAtPeaceAttitudeChangeLimit": 0,
++			"iSameReligionAttitudeChange": 0,
++			"iSameReligionAttitudeDivisor": 0,
++			"iSameReligionAttitudeChangeLimit": 0,
++			"iDifferentReligionAttitudeChange": 0,
++			"iDifferentReligionAttitudeDivisor": 0,
++			"iDifferentReligionAttitudeChangeLimit": 0,
++			"iBonusTradeAttitudeDivisor": 0,
++			"iBonusTradeAttitudeChangeLimit": 0,
++			"iOpenBordersAttitudeDivisor": 0,
++			"iOpenBordersAttitudeChangeLimit": 0,
++			"iDefensivePactAttitudeDivisor": 0,
++			"iDefensivePactAttitudeChangeLimit": 0,
++			"iShareWarAttitudeChange": 0,
++			"iShareWarAttitudeDivisor": 0,
++			"iShareWarAttitudeChangeLimit": 0,
++			"iFavoriteCivicAttitudeChange": 0,
++			"iFavoriteCivicAttitudeDivisor": 0,
++			"iFavoriteCivicAttitudeChangeLimit": 0,
++			"iDemandTributeAttitudeThreshold": -3,
++			"iNoGiveHelpAttitudeThreshold": -3,
++			"iTechRefuseAttitudeThreshold": -3,
++			"iCityRefuseAttitudeThreshold": -3,
++			"iNativeCityRefuseAttitudeThreshold": -3,
++			"iStrategicBonusRefuseAttitudeThreshold": -3,
++			"iHappinessBonusRefuseAttitudeThreshold": -3,
++			"iHealthBonusRefuseAttitudeThreshold": -3,
++			"iMapRefuseAttitudeThreshold": -3,
++			"iDeclareWarRefuseAttitudeThreshold": -3,
++			"iDeclareWarThemRefuseAttitudeThreshold": -3,
++			"iStopTradingRefuseAttitudeThreshold": -3,
++			"iStopTradingThemRefuseAttitudeThreshold": -3,
++			"iAdoptCivicRefuseAttitudeThreshold": -3,
++			"iConvertReligionRefuseAttitudeThreshold": -3,
++			"iOpenBordersRefuseAttitudeThreshold": -3,
++			"iDefensivePactRefuseAttitudeThreshold": -3,
++			"iPermanentAllianceRefuseAttitudeThreshold": -3,
++			"iVassalRefuseAttitudeThreshold": -3,
++			"iVassalPowerModifier": 0,
++			"iFreedomAppreciation": 0,
++			"FavoriteCivic": "NONE",
++			"FavoriteReligion": "NONE",
++			"Traits": "",
++			"iFlavorMilitary": 10,
++			"iNoWarAttitudeProbFurious": 0,
++			"iNoWarAttitudeProbAnnoyed": 0,
++			"iNoWarAttitudeProbCautious": 0,
++			"iNoWarAttitudeProbPleased": 0,
++			"iNoWarAttitudeProbFriendly": 100,
++			"UnitAIWeightModifiers": [
++				{
++					"UnitAIType": "UNITAI_RESERVE",
++					"iWeightModifier": "75"
++				},
++				{
++					"UnitAIType": "UNITAI_ATTACK_CITY",
++					"iWeightModifier": "75"
++				},
++				{
++					"UnitAIType": "UNITAI_WORKER",
++					"iWeightModifier": "75"
++				}
++			],
++			"ImprovementWeightModifiers": "",
++			"DiplomacyIntroMusicPeace": "",
++			"DiplomacyMusicPeace": [
++				{
++					"EraType": "ERA_ANCIENT",
++					"DiploScriptId": "AS2D_DIPLO_RAGNAR_EARLY"
++				},
++				{
++					"EraType": "ERA_CLASSICAL",
++					"DiploScriptId": "AS2D_DIPLO_RAGNAR_EARLY"
++				},
++				{
++					"EraType": "ERA_MEDIEVAL",
++					"DiploScriptId": "AS2D_DIPLO_RAGNAR_MIDDLE"
++				},
++				{
++					"EraType": "ERA_RENAISSANCE",
++					"DiploScriptId": "AS2D_DIPLO_RAGNAR_MIDDLE"
++				},
++				{
++					"EraType": "ERA_INDUSTRIAL",
++					"DiploScriptId": "AS2D_DIPLO_RAGNAR_LATE"
++				},
++				{
++					"EraType": "ERA_MODERN",
++					"DiploScriptId": "AS2D_DIPLO_RAGNAR_LATE"
++				},
++				{
++					"EraType": "ERA_FUTURE",
++					"DiploScriptId": "AS2D_DIPLO_RAGNAR_LATE"
++				}
++			],
++			"DiplomacyIntroMusicWar": "",
++			"DiplomacyMusicWar": [
++				{
++					"EraType": "ERA_ANCIENT",
++					"DiploScriptId": "AS2D_DIPLO_WARDRUMS_EARLY"
++				},
++				{
++					"EraType": "ERA_CLASSICAL",
++					"DiploScriptId": "AS2D_DIPLO_WARDRUMS_EARLY"
++				},
++				{
++					"EraType": "ERA_MEDIEVAL",
++					"DiploScriptId": "AS2D_DIPLO_WARDRUMS_MIDDLE"
++				},
++				{
++					"EraType": "ERA_RENAISSANCE",
++					"DiploScriptId": "AS2D_DIPLO_WARDRUMS_MIDDLE"
++				},
++				{
++					"EraType": "ERA_INDUSTRIAL",
++					"DiploScriptId": "AS2D_DIPLO_WARDRUMS_LATE"
++				},
++				{
++					"EraType": "ERA_MODERN",
++					"DiploScriptId": "AS2D_DIPLO_WARDRUMS_LATE"
++				},
++				{
++					"EraType": "ERA_FUTURE",
++					"DiploScriptId": "AS2D_DIPLO_WARDRUMS_LATE"
++				}
++			],
++			"iLoveOfPeace": 0,
++			"iFlavorReligion": 0,
++			"iFlavorProduction": 0,
++			"iFlavorGold": 0,
++			"iFlavorScience": 0,
++			"iFlavorCulture": 0,
++			"iFlavorGrowth": 0,
++			"iFlavorEspionage": 0,
++			"iContactReligionPressureDelayRaw": 50,
++			"iContactReligionPressureRandRaw": -1,
++			"iContactCivicPressureDelayRaw": 50,
++			"iContactCivicPressureRandRaw": -1,
++			"iContactJoinWarDelayRaw": 20,
++			"iContactJoinWarRandRaw": -1,
++			"iContactStopTradingDelayRaw": 20,
++			"iContactStopTradingRandRaw": -1,
++			"iContactGiveHelpDelayRaw": 50,
++			"iContactGiveHelpRandRaw": -1,
++			"iContactAskForHelpDelayRaw": 50,
++			"iContactAskForHelpRandRaw": -1,
++			"iContactDemandTributeDelayRaw": 50,
++			"iContactDemandTributeRandRaw": -1,
++			"iContactTradeTechDelayRaw": 30,
++			"iContactTradeTechRandRaw": -1,
++			"iContactTradeBonusDelayRaw": 20,
++			"iContactTradeBonusRandRaw": -1,
++			"iContactPeaceTreatyDelayRaw": -1,
++			"iContactPeaceTreatyRandRaw": -1,
++			"iContactOpenBordersDelayRaw": 40,
++			"iContactOpenBordersRandRaw": 10,
++			"iContactDefensivePactDelayRaw": 20,
++			"iContactDefensivePactRandRaw": 80,
++			"iContactPermanentAllianceDelayRaw": 20,
++			"iContactPermanentAllianceRandRaw": 80,
++			"iContactTradeMapDelayRaw": 50,
++			"iContactTradeMapRandRaw": 20,
++			"iAggregatedContactReligionPressureProb": -999,
++			"iAggregatedContactCivicPressureProb": -999,
++			"iAggregatedContactJoinWarProb": -999,
++			"iAggregatedContactStopTradingProb": -999,
++			"iAggregatedContactGiveHelpProb": -999,
++			"iAggregatedContactAskForHelpProb": -999,
++			"iAggregatedContactDemandTributeProb": -999,
++			"iAggregatedContactTradeTechProb": -999,
++			"iAggregatedContactTradeBonusProb": -999,
++			"iAggregatedContactPeaceTreatyProb": -999,
++			"iAggregatedContactOpenBordersProb": -999,
++			"iAggregatedContactDefensivePactProb": -999,
++			"iAggregatedContactPermanentAllianceProb": -999,
++			"iAggregatedContactTradeMapProb": -999,
++			"iPositiveMemoryAttitudeGiveHelpRaw": 100,
++			"iPositiveMemoryDecayGiveHelpRaw": 150,
++			"iPositiveMemoryAttitudeAcceptDemandRaw": 100,
++			"iPositiveMemoryDecayAcceptDemandRaw": 30,
++			"iPositiveMemoryAttitudeAcceptedReligionRaw": 100,
++			"iPositiveMemoryDecayAcceptedReligionRaw": 100,
++			"iPositiveMemoryAttitudeAcceptedCivicRaw": 100,
++			"iPositiveMemoryDecayAcceptedCivicRaw": 100,
++			"iPositiveMemoryAttitudeAcceptedJoinWarRaw": 100,
++			"iPositiveMemoryDecayAcceptedJoinWarRaw": 100,
++			"iPositiveMemoryAttitudeAcceptedStopTradingRaw": 50,
++			"iPositiveMemoryDecayAcceptedStopTradingRaw": 50,
++			"iPositiveMemoryAttitudeVotedForUsRaw": 200,
++			"iPositiveMemoryDecayVotedForUsRaw": 10,
++			"iPositiveMemoryAttitudeEventGoodToUsRaw": 100,
++			"iPositiveMemoryDecayEventGoodToUsRaw": 50,
++			"iPositiveMemoryAttitudeLiberatedCitiesRaw": 150,
++			"iPositiveMemoryDecayLiberatedCitiesRaw": 150,
++			"iPositiveMemoryAttitudeIndependenceRaw": 100,
++			"iPositiveMemoryDecayIndependenceRaw": 30,
++			"iPositiveMemoryAttitudeTradedTechToUsRaw": -1,
++			"iPositiveMemoryDecayTradedTechToUsRaw": 25,
++			"iAggregatedPositiveMemoryGiveHelpAffection": -999,
++			"iAggregatedPositiveMemoryAcceptDemandAffection": -999,
++			"iAggregatedPositiveMemoryAcceptedReligionAffection": -999,
++			"iAggregatedPositiveMemoryAcceptedCivicAffection": -999,
++			"iAggregatedPositiveMemoryAcceptedJoinWarAffection": -999,
++			"iAggregatedPositiveMemoryAcceptedStopTradingAffection": -999,
++			"iAggregatedPositiveMemoryVotedForUsAffection": -999,
++			"iAggregatedPositiveMemoryEventGoodToUsAffection": -999,
++			"iAggregatedPositiveMemoryLiberatedCitiesAffection": -999,
++			"iAggregatedPositiveMemoryIndependenceAffection": -999,
++			"iAggregatedPositiveMemoryTradedTechToUsAffection": -999,
++			"iAggregatedPositiveMemoryGiveHelpResentment": -999,
++			"iAggregatedPositiveMemoryAcceptDemandResentment": -999,
++			"iAggregatedPositiveMemoryAcceptedReligionResentment": -999,
++			"iAggregatedPositiveMemoryAcceptedCivicResentment": -999,
++			"iAggregatedPositiveMemoryAcceptedJoinWarResentment": -999,
++			"iAggregatedPositiveMemoryAcceptedStopTradingResentment": -999,
++			"iAggregatedPositiveMemoryVotedForUsResentment": -999,
++			"iAggregatedPositiveMemoryEventGoodToUsResentment": -999,
++			"iAggregatedPositiveMemoryLiberatedCitiesResentment": -999,
++			"iAggregatedPositiveMemoryIndependenceResentment": -999,
++			"iAggregatedPositiveMemoryTradedTechToUsResentment": -999,
++			"iNegativeMemoryAttitudeDeclaredWarRaw": -300,
++			"iNegativeMemoryDecayDeclaredWarRaw": 150,
++			"iNegativeMemoryAttitudeDeclaredWarOnFriendRaw": -100,
++			"iNegativeMemoryDecayDeclaredWarOnFriendRaw": 120,
++			"iNegativeMemoryAttitudeHiredWarAllyRaw": -200,
++			"iNegativeMemoryDecayHiredWarAllyRaw": 75,
++			"iNegativeMemoryAttitudeNukedUsRaw": -200,
++			"iNegativeMemoryDecayNukedUsRaw": 120,
++			"iNegativeMemoryAttitudeNukedFriendRaw": -100,
++			"iNegativeMemoryDecayNukedFriendRaw": 80,
++			"iNegativeMemoryAttitudeRazedCityRaw": -250,
++			"iNegativeMemoryDecayRazedCityRaw": 75,
++			"iNegativeMemoryAttitudeRazedHolyCityRaw": -200,
++			"iNegativeMemoryDecayRazedHolyCityRaw": 150,
++			"iNegativeMemoryAttitudeSpyCaughtRaw": -100,
++			"iNegativeMemoryDecaySpyCaughtRaw": 40,
++			"iNegativeMemoryAttitudeRefusedHelpRaw": -100,
++			"iNegativeMemoryDecayRefusedHelpRaw": 100,
++			"iNegativeMemoryAttitudeRejectedDemandRaw": -100,
++			"iNegativeMemoryDecayRejectedDemandRaw": 90,
++			"iNegativeMemoryAttitudeDeniedReligionRaw": -100,
++			"iNegativeMemoryDecayDeniedReligionRaw": 50,
++			"iNegativeMemoryAttitudeDeniedCivicRaw": -100,
++			"iNegativeMemoryDecayDeniedCivicRaw": 50,
++			"iNegativeMemoryAttitudeDeniedJoinWarRaw": -100,
++			"iNegativeMemoryDecayDeniedJoinWarRaw": 100,
++			"iNegativeMemoryAttitudeDeniedStopTradingRaw": -100,
++			"iNegativeMemoryDecayDeniedStopTradingRaw": 50,
++			"iNegativeMemoryAttitudeStoppedTradingRaw": -100,
++			"iNegativeMemoryDecayStoppedTradingRaw": 60,
++			"iNegativeMemoryAttitudeHiredTradeEmbargoRaw": -100,
++			"iNegativeMemoryDecayHiredTradeEmbargoRaw": 60,
++			"iNegativeMemoryAttitudeMadeDemandRaw": -100,
++			"iNegativeMemoryDecayMadeDemandRaw": 30,
++			"iNegativeMemoryAttitudeVotedAgainstUsRaw": -200,
++			"iNegativeMemoryDecayVotedAgainstUsRaw": 10,
++			"iNegativeMemoryAttitudeEventBadToUsRaw": -100,
++			"iNegativeMemoryDecayEventBadToUsRaw": 50,
++			"iNegativeMemoryAttitudeCancelledVassalAgreementRaw": 0,
++			"iNegativeMemoryDecayCancelledVassalAgreementRaw": 10,
++			"iNegativeMemoryAttitudeDeclaredWarRecentRaw": 0,
++			"iNegativeMemoryDecayDeclaredWarRecentRaw": 11,
++			"iAggregatedNegativeMemoryDeclaredWarAffection": -999,
++			"iAggregatedNegativeMemoryDeclaredWarOnFriendAffection": -999,
++			"iAggregatedNegativeMemoryHiredWarAllyAffection": -999,
++			"iAggregatedNegativeMemoryNukedUsAffection": -999,
++			"iAggregatedNegativeMemoryNukedFriendAffection": -999,
++			"iAggregatedNegativeMemoryRazedCityAffection": -999,
++			"iAggregatedNegativeMemoryRazedHolyCityAffection": -999,
++			"iAggregatedNegativeMemorySpyCaughtAffection": -999,
++			"iAggregatedNegativeMemoryRefusedHelpAffection": -999,
++			"iAggregatedNegativeMemoryRejectedDemandAffection": -999,
++			"iAggregatedNegativeMemoryDeniedReligionAffection": -999,
++			"iAggregatedNegativeMemoryDeniedCivicAffection": -999,
++			"iAggregatedNegativeMemoryDeniedJoinWarAffection": -999,
++			"iAggregatedNegativeMemoryDeniedStopTradingAffection": -999,
++			"iAggregatedNegativeMemoryStoppedTradingAffection": -999,
++			"iAggregatedNegativeMemoryHiredTradeEmbargoAffection": -999,
++			"iAggregatedNegativeMemoryMadeDemandAffection": -999,
++			"iAggregatedNegativeMemoryVotedAgainstUsAffection": -999,
++			"iAggregatedNegativeMemoryEventBadToUsAffection": -999,
++			"iAggregatedNegativeMemoryCancelledVassalAgreementAffection": -999,
++			"iAggregatedNegativeMemoryDeclaredWarRecentAffection": -999,
++			"iAggregatedNegativeMemoryDeclaredWarResentment": -999,
++			"iAggregatedNegativeMemoryDeclaredWarOnFriendResentment": -999,
++			"iAggregatedNegativeMemoryHiredWarAllyResentment": -999,
++			"iAggregatedNegativeMemoryNukedUsResentment": -999,
++			"iAggregatedNegativeMemoryNukedFriendResentment": -999,
++			"iAggregatedNegativeMemoryRazedCityResentment": -999,
++			"iAggregatedNegativeMemoryRazedHolyCityResentment": -999,
++			"iAggregatedNegativeMemorySpyCaughtResentment": -999,
++			"iAggregatedNegativeMemoryRefusedHelpResentment": -999,
++			"iAggregatedNegativeMemoryRejectedDemandResentment": -999,
++			"iAggregatedNegativeMemoryDeniedReligionResentment": -999,
++			"iAggregatedNegativeMemoryDeniedCivicResentment": -999,
++			"iAggregatedNegativeMemoryDeniedJoinWarResentment": -999,
++			"iAggregatedNegativeMemoryDeniedStopTradingResentment": -999,
++			"iAggregatedNegativeMemoryStoppedTradingResentment": -999,
++			"iAggregatedNegativeMemoryHiredTradeEmbargoResentment": -999,
++			"iAggregatedNegativeMemoryMadeDemandResentment": -999,
++			"iAggregatedNegativeMemoryVotedAgainstUsResentment": -999,
++			"iAggregatedNegativeMemoryEventBadToUsResentment": -999,
++			"iAggregatedNegativeMemoryCancelledVassalAgreementResentment": -999,
++			"iAggregatedNegativeMemoryDeclaredWarRecentResentment": -999
++		},
+ 		"LEADER_DEFAULTS": {
+ 			"Type": "LEADER_DEFAULTS",
+ 			"Description": "",
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=128988

@@ -1,0 +1,462 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 190
+# Commit: 063c941a35cc285c31f10982e5d152c6d9bd1c91
+# History segment: K-Mod history
+# Parent used for diff: f2e74e63c7386ca5de20ab0c30cd966ab672f4dd
+# Title: Implemented a rough estimate of tech building obsoleting value. Adjusted tech value for improvements, and for healthiness (ie. for genetics). Added tech valu...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	9	CvGameCoreDLL/CvCityAI.cpp
+11	7	CvGameCoreDLL/CvGameTextMgr.cpp
+132	60	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 0eda6f3d9..3b68be81f 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10183,14 +10183,10 @@ int CvCityAI::AI_experienceWeight()
+ }
+ 
+ 
++// BBAI / K-Mod
+ int CvCityAI::AI_buildUnitProb()
+ {
+ 	int iProb;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/29/10                                jdog5000      */
+-/*                                                                                              */
+-/* City AI, Barbarian AI     (K-Mod edition)                                                    */
+-/************************************************************************************************/
+ 	iProb = (GC.getLeaderHeadInfo(getPersonalityType()).getBuildUnitProb() + AI_experienceWeight());
+ 
+ 	if (!isBarbarian() && GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble())
+@@ -10211,10 +10207,8 @@ int CvCityAI::AI_buildUnitProb()
+ 
+ 	iProb *= (100 + 2*getMilitaryProductionModifier());
+ 	iProb /= 100;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-	return iProb;
++	//return iProb;
++	return std::min(100, iProb); // experimental (K-Mod)
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index cf9f443c4..a00391b1e 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4388,7 +4388,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      11/30/08                                jdog5000      */
+ /*                                                                                              */
+-/* Debug                                                                                        */
++/* Debug                (K-Mod edited)                                                          */
+ /************************************************************************************************/
+ /* original code
+ 			for (int iI = 0; iI < GC.getNumCivicInfos(); iI++)
+@@ -4398,6 +4398,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ */
+ 			if( bShift && !bAlt)
+ 			{
++				const CvPlayerAI& kPlayer = GET_PLAYER(pPlot->getOwnerINLINE());
+ 				int* paiBonusClassRevealed;
+ 				int* paiBonusClassUnrevealed;
+ 				int* paiBonusClassHave;
+@@ -4428,11 +4429,11 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 							paiBonusClassUnrevealed[eBonusClass]++;
+ 						}
+ 
+-						if (GET_PLAYER(pPlot->getOwner()).getNumAvailableBonuses((BonusTypes)iI) > 0)
++						if (kPlayer.getNumAvailableBonuses((BonusTypes)iI) > 0)
+ 						{
+ 							paiBonusClassHave[eBonusClass]++;                
+ 						}
+-						else if (GET_PLAYER(pPlot->getOwner()).countOwnedBonuses((BonusTypes)iI) > 0)
++						else if (kPlayer.countOwnedBonuses((BonusTypes)iI) > 0)
+ 						{
+ 							paiBonusClassHave[eBonusClass]++;
+ 						}
+@@ -4443,13 +4444,16 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 				bool bDummy;
+ 				for (int iI = 0; iI < GC.getNumTechInfos(); iI++)
+ 				{
+-					iPathLength = GET_PLAYER(pPlot->getOwner()).findPathLength(((TechTypes)iI), false);
++					iPathLength = kPlayer.findPathLength(((TechTypes)iI), false);
+ 
+ 					if( iPathLength <= 3 && !GET_TEAM(pPlot->getTeam()).isHasTech((TechTypes)iI) )
+ 					{
+-						szString.append(CvWString::format(L"\n%s(%d)=%7d", GC.getTechInfo((TechTypes)iI).getDescription(), iPathLength, GET_PLAYER(pPlot->getOwner()).AI_techValue((TechTypes)iI, 1, false, false, paiBonusClassRevealed, paiBonusClassUnrevealed, paiBonusClassHave)));
+-						szString.append(CvWString::format(L" (bld:%5d, ", GET_PLAYER(pPlot->getOwner()).AI_techBuildingValue((TechTypes)iI, 1, bDummy)));
+-						szString.append(CvWString::format(L"unt:%5d)", GET_PLAYER(pPlot->getOwner()).AI_techUnitValue((TechTypes)iI, 1, bDummy)));
++						szString.append(CvWString::format(L"\n%s(%d)=%8d", GC.getTechInfo((TechTypes)iI).getDescription(), iPathLength, kPlayer.AI_techValue((TechTypes)iI, 1, false, true, paiBonusClassRevealed, paiBonusClassUnrevealed, paiBonusClassHave)));
++						szString.append(CvWString::format(L" (bld:%4d, ", kPlayer.AI_techBuildingValue((TechTypes)iI, 1, bDummy)));
++						int iObs = kPlayer.AI_obsoleteBuildingPenalty((TechTypes)iI, true);
++						if (iObs != 0)
++							szString.append(CvWString::format(L"obs:%3d, )", -iObs));
++						szString.append(CvWString::format(L"unt:%4d)", kPlayer.AI_techUnitValue((TechTypes)iI, 1, bDummy)));
+ 					}
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d7cf919ae..fb5a1602a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4715,14 +4715,14 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 	PROFILE_FUNC();
+ 
+ 	CvCity* pCapitalCity;
+-	ImprovementTypes eImprovement;
+-	RouteTypes eRoute;
++	//ImprovementTypes eImprovement;
++	//RouteTypes eRoute;
+ 	
+-	int iNumBonuses;
++	//int iNumBonuses;
+ 	int iValue;
+-	int iTempValue;
+-	int iBuildValue;
+-	int iBonusValue;
++	//int iTempValue;
++	//int iBuildValue;
++	//int iBonusValue;
+ 	//int iI, iJ, iK, iL;
+ 
+ 	pCapitalCity = getCapitalCity();
+@@ -4861,6 +4861,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 	iValue += (GC.getTechInfo(eTech).getWorkerSpeedModifier() * 4);
+ 	iValue += (GC.getTechInfo(eTech).getTradeRoutes() * (std::max((getNumCities() + 2), iConnectedForeignCities) + 1) * ((bFinancialTrouble) ? 200 : 100));
+ 	
++	/* original bts code
+ 	if ( AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION4) )
+ 	{
+ 		iValue += (GC.getTechInfo(eTech).getHealth() * 350);
+@@ -4868,7 +4869,18 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 	else
+ 	{
+ 		iValue += (GC.getTechInfo(eTech).getHealth() * 200);
++	} */
++	// K-Mod
++	if (GC.getTechInfo(eTech).getHealth() != 0)
++	{
++		iValue += 4 * AI_getHealthWeight(GC.getTechInfo(eTech).getHealth(), 1);
++	}
++	if (GC.getTechInfo(eTech).getHappiness() != 0)
++	{
++		// (this part of the evaluation was completely missing from the original bts code)
++		iValue += 6 * AI_getHappinessWeight(GC.getTechInfo(eTech).getHappiness(), 1);
+ 	}
++	// K-Mod end
+ 
+ 	for (int iJ = 0; iJ < GC.getNumRouteInfos(); iJ++)
+ 	{
+@@ -4928,7 +4940,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 	{
+ 		for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
+ 		{
+-			iTempValue = 0;
++			int iTempValue = 0;
+ 
+ 			/* original code
+ 			iTempValue += (GC.getImprovementInfo((ImprovementTypes)iJ).getTechYieldChanges(eTech, iK) * getImprovementCount((ImprovementTypes)iJ) * 50); */
+@@ -4945,12 +4957,12 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 		}
+ 	}
+ 
+-	iBuildValue = 0;
++	int iBuildValue = 0;
+ 	for (int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+ 	{
+ 		if (GC.getBuildInfo((BuildTypes)iJ).getTechPrereq() == eTech)
+ 		{
+-			eImprovement = (ImprovementTypes)(GC.getBuildInfo((BuildTypes)iJ).getImprovement());
++			ImprovementTypes eImprovement = (ImprovementTypes)(GC.getBuildInfo((BuildTypes)iJ).getImprovement());
+ 			if (eImprovement != NO_IMPROVEMENT)
+ 			{
+ 				eImprovement = finalImprovementUpgrade(eImprovement);
+@@ -4967,6 +4979,10 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 				
+ 				int iImprovementValue = 300;
+ 
++				// K-Mod note: I haven't changed much of this, but I think it's pretty bogus.
++				// The xxMakesValid stuff should be scored and then _multiplied_ by the value of the improvement, not added.
++				// Also, the improvement should be valued based on how much better it is compared to the improvements we can
++				// already build.
+ 				iImprovementValue += ((kImprovement.isActsAsCity()) ? 100 : 0);
+ 				iImprovementValue += ((kImprovement.isHillsMakesValid()) ? 100 : 0);
+ 				iImprovementValue += ((kImprovement.isFreshWaterMakesValid()) ? 200 : 0);
+@@ -4983,53 +4999,81 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 					iImprovementValue += (kImprovement.getFeatureMakesValid(iK) ? 50 : 0);
+ 				}
+ 
+-				for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
+ 				{
+-					iTempValue = 0;
++					int iYieldValue = 0; // K-Mod
++					for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
++					{
++						int iTempValue = 0;
+ 
+-					iTempValue += (kImprovement.getYieldChange(iK) * 200);
+-					iTempValue += (kImprovement.getRiverSideYieldChange(iK) * 100);
+-					iTempValue += (kImprovement.getHillsYieldChange(iK) * 100);
+-					iTempValue += (kImprovement.getIrrigatedYieldChange(iK) * 150);
++						iTempValue += (kImprovement.getYieldChange(iK) * 200);
++						iTempValue += (kImprovement.getRiverSideYieldChange(iK) * 100);
++						iTempValue += (kImprovement.getHillsYieldChange(iK) * 100);
++						iTempValue += (kImprovement.getIrrigatedYieldChange(iK) * 150);
+ 
+-					/* original bts code
+-					// land food yield is more valueble
+-					if (iK == YIELD_FOOD && !kImprovement.isWater())
+-					{
+-						iTempValue *= 3;
+-						iTempValue /= 2;
+-					}
++						/* original bts code
++						// land food yield is more valueble
++						if (iK == YIELD_FOOD && !kImprovement.isWater())
++						{
++							iTempValue *= 3;
++							iTempValue /= 2;
++						}
+ 						
+-					if (bFinancialTrouble && iK == YIELD_COMMERCE)
+-					{
+-						iTempValue *= 2;
+-					} */
+-					// K-Mod. value adjustments are now rolled into AI_yieldWeight
++						if (bFinancialTrouble && iK == YIELD_COMMERCE)
++						{
++							iTempValue *= 2;
++						} */
++						// K-Mod note: value adjustments are now rolled into AI_yieldWeight
++
++						iTempValue *= AI_yieldWeight((YieldTypes)iK);
++						iTempValue /= 100;
++
++						// iImprovementValue += iTempValue;
++						iYieldValue += iTempValue;
++					}
++					// K-Mod
++					iImprovementValue -= 100;
+ 					if (kImprovement.isWater())
+ 					{
+-						iTempValue *= 2;
+-						iTempValue /= 3;
++						iYieldValue *= 2;
++						iYieldValue /= 3;
+ 					}
++					iImprovementValue += std::max(0, iYieldValue); // workshops would be negative value!
+ 					// K-Mod end
+-
+-					iTempValue *= AI_yieldWeight((YieldTypes)iK);
+-					iTempValue /= 100;
+-
+-					iImprovementValue += iTempValue;
+ 				}
+ 
+ 				for (int iK = 0; iK < GC.getNumBonusInfos(); iK++)
+ 				{
+-					iBonusValue = 0;
++					int iBonusValue = 0;
+ 
+ 					iBonusValue += ((kImprovement.isImprovementBonusMakesValid(iK)) ? 450 : 0);
+ 					iBonusValue += ((kImprovement.isImprovementBonusTrade(iK)) ? (45 * AI_bonusVal((BonusTypes) iK)) : 0);
+ 
++					// K-Mod
++					int iNumBonuses = 0; // only spend time counting if it's worth something.
+ 					if (iBonusValue > 0)
+ 					{
++						iNumBonuses = countOwnedBonuses((BonusTypes)iK);
++						if (!kTeam.isHasTech((TechTypes)GC.getBonusInfo((BonusTypes)iK).getTechReveal()))
++						{
++							iBonusValue *= 2;
++							iBonusValue /= 3;
++						}
++						else if (iNumBonuses == 0)
++						{
++							iBonusValue = 0;
++						}
++						else
++						{
++							iBonusValue += (iNumBonuses -1) * iBonusValue / 10;
++						}
++					}
++					// K-Mod end
++					if (iBonusValue > 0)
++					{
++						int iYieldValue = 0; // K-Mod
+ 						for (int iL = 0; iL < NUM_YIELD_TYPES; iL++)
+ 						{
+-							iTempValue = 0;
++							int iTempValue = 0;
+ 
+ 							/* original bts code
+ 							iTempValue += (kImprovement.getImprovementBonusYield(iK, iL) * 300);
+@@ -5055,46 +5099,44 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 							if (bAdvancedStart && getCurrentEra() < 2)
+ 							{
+ 								iValue *= (iL == YIELD_FOOD) ? 3 : 2;
+-							} */
+-							// K-Mod. value adjustments are now rolled into AI_yieldWeight
++							}
++							iTempValue *= AI_yieldWeight((YieldTypes)iL);
++							iTempValue /= 100;
++
++							iBonusValue += iTempValue; */
++							// K-Mod. Note: value adjustments are now rolled into AI_yieldWeight
+ 							iTempValue += (kImprovement.getImprovementBonusYield(iK, iL) * 200);
+-							iTempValue += (kImprovement.getIrrigatedYieldChange(iL) * 120);
+-							// K-Mod end
++							iTempValue += (kImprovement.getIrrigatedYieldChange(iL) * 100); // already taken into account?
+ 
+ 							iTempValue *= AI_yieldWeight((YieldTypes)iL);
+ 							iTempValue /= 100;
+ 
+-							iBonusValue += iTempValue;
++							iYieldValue += iTempValue;
++							// K-Mod end
+ 						}
+ 
++						/* original bts code
+ 						iNumBonuses = countOwnedBonuses((BonusTypes)iK);
+-/***
+-**** K-Mod, 10/sep/10, Karadoc
+-**** Some ad-hoc scaling adjustments.
+-***/
+-						/* old code
+ 						if (iNumBonuses > 0)
+ 						{
+ 							iBonusValue *= (iNumBonuses + 2);
+ 							iBonusValue /= kImprovement.isWater() ? 4 : 3;	// water resources are worth less
+ 							iImprovementValue += iBonusValue;
+-						}
+-						*/
++						} */
++						// K-Mod
+ 						if (kImprovement.isWater())
+ 						{
+-							iBonusValue *= (iNumBonuses + 2);
+-							iBonusValue /= 4;
++							iYieldValue *= (iNumBonuses + 2);
++							iYieldValue /= 4;
+ 						}
+ 						else
+ 						{
+-							iBonusValue *= (2*iNumBonuses + 2);
+-							iBonusValue /= 3;
++							iYieldValue *= (2*iNumBonuses + 2);
++							iYieldValue /= 3;
+ 						}
+-						// iBonusValue *= 1 + (4 / cities + 1);
+-						iImprovementValue += iBonusValue;
+-/***
+-**** END
+-***/
++
++						iImprovementValue += iBonusValue + iYieldValue;
++						// K-Mod end
+ 					}
+ 				}
+ 				
+@@ -5108,7 +5150,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 				iBuildValue += iImprovementValue;
+ 			}
+ 
+-			eRoute = ((RouteTypes)(GC.getBuildInfo((BuildTypes)iJ).getRoute()));
++			RouteTypes eRoute = ((RouteTypes)(GC.getBuildInfo((BuildTypes)iJ).getRoute()));
+ 
+ 			if (eRoute != NO_ROUTE)
+ 			{
+@@ -5117,7 +5159,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 
+ 				for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
+ 				{
+-					iTempValue = 0;
++					int iTempValue = 0;
+ 
+ 					/* original bts code
+ 					iTempValue += (GC.getRouteInfo(eRoute).getYieldChange(iK) * 100);
+@@ -5309,6 +5351,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 	/* ------------------ Building Value  ------------------ */
+ 	bool bEnablesWonder;
+ 	iValue += AI_techBuildingValue( eTech, iPathLength, bEnablesWonder );
++	iValue -= AI_obsoleteBuildingPenalty(eTech, bAsync); // K-Mod!
+ 
+ 	// if it gives at least one wonder
+ 	if (bEnablesWonder)
+@@ -5389,7 +5432,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 
+ 			for (int iK = 0; iK < NUM_COMMERCE_TYPES; iK++)
+ 			{
+-				iTempValue = (GC.getProcessInfo((ProcessTypes)iJ).getProductionToCommerceModifier(iK) * 4);
++				int iTempValue = (GC.getProcessInfo((ProcessTypes)iJ).getProductionToCommerceModifier(iK) * 4);
+ 
+ 				iTempValue *= AI_commerceWeight((CommerceTypes)iK);
+ 				iTempValue /= 100;
+@@ -5689,6 +5732,35 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 	return iValue;
+ }
+ 
++// K-mod. This function returns the (positive) value of the buildings we will lose by researching eTech.
++// (I think it's crazy that this stuff wasn't taken into account in original BtS)
++int CvPlayerAI::AI_obsoleteBuildingPenalty(TechTypes eTech, bool bConstCache) const
++{
++	int iTotalPenalty = 0;
++	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
++	{
++		BuildingTypes eLoopBuilding = ((BuildingTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iI)));
++
++		if (eLoopBuilding == NO_BUILDING || getBuildingClassCount((BuildingClassTypes)iI) == 0)
++			continue;
++
++		int iLoop;
++		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++		{
++			int n = pLoopCity->getNumActiveBuilding(eLoopBuilding);
++			if (n > 0)
++			{
++				iTotalPenalty += n * pLoopCity->AI_buildingValue(eLoopBuilding, 0, 0, bConstCache);
++			}
++		}
++	}
++	// I don't really want to do this, but it has to scale like the rest of the tech values...
++	iTotalPenalty *= 5;
++	iTotalPenalty /= std::max(1, getNumCities());
++
++	return iTotalPenalty;
++}
++// K-Mod
+ 
+ int CvPlayerAI::AI_techBuildingValue( TechTypes eTech, int iPathLength, bool &bEnablesWonder ) const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 85ba028fd..ecf714f02 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -126,6 +126,7 @@ public:
+ /* Tech AI                                                                                      */
+ /************************************************************************************************/
+ 	int AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost, bool bAsync, int* paiBonusClassRevealed, int* paiBonusClassUnrevealed, int* paiBonusClassHave ) const;
++	int AI_obsoleteBuildingPenalty(TechTypes eTech, bool bConstCache) const; // K-Mod
+ 	int AI_techBuildingValue( TechTypes eTech, int iPathLength, bool &bEnablesWonder ) const;
+ 	int AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnablesUnitWonder ) const;
+ /************************************************************************************************/
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=17525

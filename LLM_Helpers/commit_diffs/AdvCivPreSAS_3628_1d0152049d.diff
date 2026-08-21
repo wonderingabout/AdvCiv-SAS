@@ -1,0 +1,108 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3628
+# Commit: 1d0152049d4addc5f99606cafcc9b92d28aa1b90
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cb0d876f2db705aed3e27b17892da1caf53634a2
+# Title: Decrease AnimalAttackProb (except on Settler difficulty)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	8	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 2b6280c9b..08e0ad34d 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -14,7 +14,8 @@
+ 			<Help>TXT_KEY_HANDICAP_SETTLER_HELP</Help>
+ 			<!-- advc.251: was 5 -->
+ 			<iFreeWinsVsBarbs>4</iFreeWinsVsBarbs>
+-			<iAnimalAttackProb>25</iAnimalAttackProb>
++			<!-- advc.309: was 25 -->
++			<iAnimalAttackProb>30</iAnimalAttackProb>
+ 			<iStartingLocPercent>10</iStartingLocPercent>
+ 			<!-- advc.250c: was 150 -->
+ 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+@@ -353,7 +354,8 @@
+ 			<Help>TXT_KEY_HANDICAP_WARLORD_HELP</Help>
+ 			<!-- advc.251: was 3 -->
+ 			<iFreeWinsVsBarbs>2</iFreeWinsVsBarbs>
+-			<iAnimalAttackProb>75</iAnimalAttackProb>
++			<!-- advc.309: was 75 -->
++			<iAnimalAttackProb>60</iAnimalAttackProb>
+ 			<!-- advc.108b: was 30 -->
+ 			<iStartingLocPercent>35</iStartingLocPercent>
+ 			<!-- advc.250c: was 110 -->
+@@ -483,7 +485,8 @@
+ 			<Help>TXT_KEY_HANDICAP_NOBLE_HELP</Help>
+ 			<!-- advc.251: was 2 -->
+ 			<iFreeWinsVsBarbs>1</iFreeWinsVsBarbs>
+-			<iAnimalAttackProb>85</iAnimalAttackProb>
++			<!-- advc.309: was 85 -->
++			<iAnimalAttackProb>70</iAnimalAttackProb>
+ 			<!-- advc.108b: was 40 -->
+ 			<iStartingLocPercent>49</iStartingLocPercent>
+ 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+@@ -609,7 +612,8 @@
+ 			<Help>TXT_KEY_HANDICAP_PRINCE_HELP</Help>
+ 			<!-- advc.251: was 1 -->
+ 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
+-			<iAnimalAttackProb>90</iAnimalAttackProb>
++			<!-- advc.309: was 90 -->
++			<iAnimalAttackProb>70</iAnimalAttackProb>
+ 			<!-- advc.108b: was 50 -->
+ 			<iStartingLocPercent>55</iStartingLocPercent>
+ 			<!-- advc.250c: was 95 -->
+@@ -737,7 +741,8 @@
+ 			<Description>TXT_KEY_HANDICAP_MONARCH</Description>
+ 			<Help>TXT_KEY_HANDICAP_MONARCH_HELP</Help>
+ 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
+-			<iAnimalAttackProb>90</iAnimalAttackProb>
++			<!-- advc.309: was 90 -->
++			<iAnimalAttackProb>70</iAnimalAttackProb>
+ 			<!-- advc.108b: was 60 -->
+ 			<iStartingLocPercent>65</iStartingLocPercent>
+ 			<!-- advc.250c: was 90 -->
+@@ -894,7 +899,8 @@
+ 			<Description>TXT_KEY_HANDICAP_EMPEROR</Description>
+ 			<Help>TXT_KEY_HANDICAP_EMPEROR_HELP</Help>
+ 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
+-			<iAnimalAttackProb>90</iAnimalAttackProb>
++			<!-- advc.309: was 90 -->
++			<iAnimalAttackProb>70</iAnimalAttackProb>
+ 			<!-- advc.108b: was 70 -->
+ 			<iStartingLocPercent>75</iStartingLocPercent>
+ 			<!-- advc.250c: was 85 -->
+@@ -1052,7 +1058,8 @@
+ 			<Description>TXT_KEY_HANDICAP_IMMORTAL</Description>
+ 			<Help>TXT_KEY_HANDICAP_IMMORTAL_HELP</Help>
+ 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
+-			<iAnimalAttackProb>90</iAnimalAttackProb>
++			<!-- advc.309: was 90 -->
++			<iAnimalAttackProb>70</iAnimalAttackProb>
+ 			<!-- advc.108b: was 80 -->
+ 			<iStartingLocPercent>85</iStartingLocPercent>
+ 			<!-- advc.250c: was 80 -->
+@@ -1218,7 +1225,8 @@
+ 			<Description>TXT_KEY_HANDICAP_DEITY</Description>
+ 			<Help>TXT_KEY_HANDICAP_DEITY_HELP</Help>
+ 			<iFreeWinsVsBarbs>0</iFreeWinsVsBarbs>
+-			<iAnimalAttackProb>90</iAnimalAttackProb>
++			<!-- advc.309: was 90 -->
++			<iAnimalAttackProb>70</iAnimalAttackProb>
+ 			<!-- advc.108b: was 90 -->
+ 			<iStartingLocPercent>95</iStartingLocPercent>
+ 			<!-- advc.250c: was 75 -->
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3371

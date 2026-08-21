@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1241
+# Commit: e20bb1d14bd61aa7946782b1029b6e9987379c8f
+# History segment: K-Mod history
+# Parent used for diff: d1f55f29aa0daeec6157ee1e2b473ef37fe7ebe0
+# Title: Improved evaluation of free tech in CvCityAI::AI_buildingValue
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+27	1	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ce10cda32..2b798678c 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4208,7 +4208,33 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 			iValue += (kBuilding.getGlobalPopulationChange() * iNumCities * 4);
+ 
+-			iValue += (kBuilding.getFreeTechs() * 80);
++			// iValue += (kBuilding.getFreeTechs() * 80);
++			// K-Mod. A slightly more nuanced evaluation of free techs (but still very rough)
++			if (kBuilding.getFreeTechs() > 0)
++			{
++				int iTotalTechValue = 0;
++				int iMaxTechValue = 0;
++				int iTechCount = 0;
++
++				for (TechTypes iI = (TechTypes)0; iI < GC.getNumTechInfos(); iI=(TechTypes)(iI+1))
++				{
++					if (kOwner.canResearch(iI, false, true))
++					{
++						int iTechValue = GET_TEAM(getTeam()).getResearchCost(iI);
++						iTotalTechValue += iTechValue;
++						iTechCount++;
++						iMaxTechValue = std::max(iMaxTechValue, iTechValue);
++					}
++				}
++				if (iTechCount > 0)
++				{
++					int iTechValue =  ((iTotalTechValue / iTechCount) + iMaxTechValue)/2;
++
++					// It's hard to measure an instant boost with units of commerce per turn... So I'm just going to divide it by 10.
++					iValue += iTechValue * 10 / GC.getGameSpeedInfo(GC.getGame().getGameSpeedType()).getResearchPercent();
++				}
++				// else: If there is nothing to research, a free tech is worthless.
++			}
+ 
+ 			iValue += kBuilding.getEnemyWarWearinessModifier() / 2;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1496

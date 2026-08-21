@@ -1,0 +1,131 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5375
+# Commit: e653b9b2bb30e2a5a5b4e2b3bf64513e1faacb06
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 06c01a7e582a90ebec2b9aed62511bd1824a27bc
+# Title: make Era buttons redirect to Era Chart most but not the table as it seems not to work, other redirect fine and successfully now
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+3	1	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+4	3	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+1	1	Assets/XML/GameInfo/CIV4CivicInfos.xml
+4	4	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+6	6	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+index 528d1fe6b..5cddd401c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -348,6 +348,9 @@ class SevoPediaMovie:
+ 			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iMovieId, 1)
+ 		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION:
+ 			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iMovieId, 1)
++		# <!-- custom: this successfully works: redirects to Sevopedia Eras Chart category, that has no item and only a chart (like Promotions Tree for example). Done with the very nice help of Claude code Sonnet 4.5 thanks a lot! -->
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
++			return (WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
+ 		return (WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 	def handleInput (self, inputClass):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index 5de97ea27..3239c2998 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -79,6 +79,8 @@ class SevoPediaMusic:
+ 		if szButton:
+ 			if iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_TECH:
+ 				screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iMusicId, 1)
++			elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_ERA:
++				screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
+ 			else:
+ 				screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+@@ -218,7 +220,7 @@ class SevoPediaMusic:
+ 		if iEra != -1:
+ 			szImagePath = gc.getEraInfo(iEra).getButton()
+ 		if szImagePath:
+-			screen.addDDSGFC("MusicPlayerImage", szImagePath, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setImageButton("MusicPlayerImage", szImagePath, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
+ 
+ 		if szSoundScript or (iSoundId != -1):
+ 			self.SAS_musicSoundId = None
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index f7be9eb1b..73226b74f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -1066,9 +1066,10 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 			eraInfo = gc.getEraInfo(iEra)
+ 
+ 			# Era name column with DDS icon
+-			# <!-- custom: Tried WIDGET_PYTHON to navigate to Era Chart page but couldn't get it to work
+-			# with table cells (works for setImageButtonAt but not setTableText). Keeping as simple
+-			# display-only DDS button for now. Can revisit in the future. (Claude Opus 4.5) -->
++			# <!-- custom: NOTE: Cannot make this clickable/redirect to Era Chart because setTableText
++			# does not support navigation widgets (WIDGET_PEDIA_MAIN, WIDGET_PYTHON, etc.).
++			# Navigation widgets only work with setImageButtonAt, not table cells.
++			# To make this clickable, would need to restructure from table to individual buttons. (Claude code Sonnet 4.5) -->
+ 			eraButtonPath = eraInfo.getButton()
+ 			eraText = u"<font=2>%s</font>" % eraInfo.getDescription()
+ 			screen.setTableText(tableName, 0, iRow, eraText, eraButtonPath, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index b37a5d2f5..1da7a6e2e 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -1423,7 +1423,7 @@
+ 			<TradeYieldModifiers/>
+ 			<CommerceModifiers/>
+ 			<CapitalCommerceModifiers/>
+-			<!-- custom: market globally improves not just one specialist liek as of now in trade_bloc, was empty -->
++			<!-- custom: market globally improves not just one specialist like as of now in trade_bloc, was empty -->
+ 			<SpecialistExtraCommerces>
+ 				<iCommerce>1</iCommerce>
+ 				<iCommerce>0</iCommerce>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 49a9018cf..1463ceceb 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -192,7 +192,7 @@ Implementation based on the Middle-earth mod's Platypedia's Movies category and
+ 
+ Todo:
+ 
+-- movies era by xml order or oldest to newest, and make them redirect to sevopedia eras chart
++- movies era by xml order or oldest to newest
+ 
+ <img src="../Images/sevopedia/0.810_sevopedia_movies (1).JPG" alt="0.810_sevopedia_movies (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
+@@ -222,12 +222,12 @@ The implementation still needs some minor polish, but it is as of now entirely f
+ 
+ - In Sevopedia Music, make leaders and such buttons hoverable and clickable with a redirect like tech buttons.
+ - In Sevopedia Music, parse properly from xml or move higher the civ scripts so they are just under leader scripts and so we can possibly link directly to them
+-- Add a custom dds or nif (liek leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
++- Add a custom dds or nif (like leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
+ - Search Bar desyncs when we exit an audio file playing, common to other non-mmedia sevopedia categories though it seems at a glance
+ - Maybe generalize script name for other things than era tracks
+ - Possibly also something GPT-5.2-Codex mentionned like "If you want song titles beyond script IDs, we can add a simple XML alias map and expose that too." or maybe script volume or such.
+-- in header add music id / total (liek total 1759)
+-- In Sevopedia Leader, Civilization, and Eras (to first era sound), redirect to the real track item not just to sevopedia Music page
++- in header add music id / total (like total 1759)
++- In Sevopedia Leader, Civilization, and Eras Chart (to first era sound), redirect to the real track item not just to sevopedia Music page
+ 
+ <img src="../Images/sevopedia/0.820_sevopedia_music (1).JPG" alt="0.820_sevopedia_music (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.820_sevopedia_music (2).JPG" alt="0.820_sevopedia_music (2).JPG" width="250"></img>
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt reason=known-generated/noisy-history changedLines=12 bytes=13268
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=7137

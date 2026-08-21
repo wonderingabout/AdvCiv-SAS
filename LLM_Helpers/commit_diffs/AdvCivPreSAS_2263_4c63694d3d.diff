@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2263
+# Commit: 4c63694d3dcdafe5411e4b3b0341a7dbc6ad4adc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 69d44fe83abbaa582e5efa946f0c5d100d11f750
+# Title: AdvCiv 0.97 (DLL, manual)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	CvGameCoreDLL/CvPlot.h
+-	-	manual.odt
+-	-	manual.pdf
+-	-	manual_0.97.pdf
+ delete mode 100644 manual_0.97.pdf
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index ae97f0be2..fe4320573 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -835,6 +835,6 @@ protected:
+ };
+ 
+ // advc.opt: It's fine to change the size, but might want to double check if it can be avoided.
+-BOOST_STATIC_ASSERT(sizeof(CvPlot) <= 212);
++BOOST_STATIC_ASSERT(MAX_CIV_PLAYERS > 18 || sizeof(CvPlot) <= 212);
+ 
+ #endif
+
+[PATCH OMITTED] file=a/manual.odt b/manual.odt reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH OMITTED] file=a/manual.pdf b/manual.pdf reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH OMITTED] file=a/manual_0.97.pdf b/manual_0.97.pdf reason=binary/generated-file changedLines=0 bytes=150
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=1 omittedFiles=4 embeddedPatchBytes=410

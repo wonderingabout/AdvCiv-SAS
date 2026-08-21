@@ -1,0 +1,185 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4171
+# Commit: 8bfa61dfd7fc7f43b47519a34ac893066517907d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d5d51b2513fd8935296a6218a3895686262776d4
+# Title: Work around messages missed at the end of Hotseat turns
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+54	26	CvGameCoreDLL/CvPlayer.cpp
+3	0	CvGameCoreDLL/CvPlayer.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c34c67ec9..0bae3d35b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -537,10 +537,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 		m_aVote.clear();
+ 		m_aUnitExtraCosts.clear();
+ 		m_triggersFired.clear();
+-		// <advc.106b>
+-		for(size_t i = 0; i < m_aMajorMsgs.size(); i++)
+-			SAFE_DELETE(m_aMajorMsgs[i]);
+-		m_aMajorMsgs.clear(); // </advc.106b>
++		clearMessageCopies(); // advc.106b
+ 	}
+ 
+ 	m_plotGroups.removeAll();
+@@ -8941,7 +8938,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 					if (isActive())
+ 					{
+ 						/*  Make sure that Python events like Civ4lerts are
+-							triggered before processing messages */
++							triggered before processing messages. Don't consider
++							those to be in-between-turn messages, however. */
++						GC.getGame().setInBetweenTurns(false);
+ 						CyArgsList pyArgs;
+ 						pyArgs.add(kGame.getTurnSlice());
+ 						CvEventReporter::getInstance().genericEvent("gameUpdate", pyArgs.makeFunctionArgs());
+@@ -8960,10 +8959,8 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 				else if (kGame.isFinalInitialized()) // No initial autosave here
+ 					kGame.autoSave(); // <advc.106l>
+ 			} // </advc.044>
+-			// <advc.106b> Clear messages in any case (in particular during AIAutoPlay)
+-			for (size_t i = 0; i < m_aMajorMsgs.size(); i++)
+-				SAFE_DELETE(m_aMajorMsgs[i]);
+-			m_aMajorMsgs.clear(); // </106b>
++			// advc.106b: Clear messages in any case (in particular during AIAutoPlay)
++			clearMessageCopies();
+ 		}
+ 
+ 		if (isActive())
+@@ -11002,7 +10999,13 @@ void CvPlayer::addMessage(CvTalkingHeadMessage const& kMessage)
+ 	{
+ 		m_iNewMessages++; // See comment in postProcessBeginTurnEvents
+ 	}
+-	if(eMessage == MESSAGE_TYPE_MAJOR_EVENT)
++	/*	Hotseat clears some messages before players get to see them; we'll show them
++		again at the start of the recipient's next turn. */
++	bool const bMissedMsg = (kGame.isHotSeat() && isActive() &&
++			(eMessage == MESSAGE_TYPE_MINOR_EVENT ||
++			eMessage == MESSAGE_TYPE_MAJOR_EVENT ||
++			eMessage == MESSAGE_TYPE_INFO));
++	if (eMessage == MESSAGE_TYPE_MAJOR_EVENT || bMissedMsg)
+ 	{
+ 		/*  Need to make a copy b/c, apparently, the EXE deletes the original
+ 			before postProcessBeginTurnEvents gets called. */
+@@ -11013,11 +11016,40 @@ void CvPlayer::addMessage(CvTalkingHeadMessage const& kMessage)
+ 				MESSAGE_TYPE_MAJOR_EVENT, kMessage.getIcon(), kMessage.getFlashColor(),
+ 				kMessage.getX(), kMessage.getY(), kMessage.getOffScreenArrows(),
+ 				kMessage.getOnScreenArrows());
+-		m_aMajorMsgs.push_back(pCopy);
++		if (eMessage == MESSAGE_TYPE_MAJOR_EVENT)
++			m_aMajorMsgs.push_back(pCopy);
++		if (bMissedMsg)
++			m_aHotSeatMsgs.push_back(pCopy);
+ 	} // </advc.106b>
+ }
+ 
+ // <advc.106b>
++void CvPlayer::clearMessageCopies(std::vector<CvTalkingHeadMessage*>* pContainer)
++{
++	if (pContainer == NULL)
++	{
++		clearMessageCopies(&m_aMajorMsgs);
++		clearMessageCopies(&m_aHotSeatMsgs);
++		return;
++	}
++	for(size_t i = 0; i < pContainer->size(); i++)
++		SAFE_DELETE((*pContainer)[i]);
++	pContainer->clear();
++}
++
++void CvPlayer::showMessageCopies(std::vector<CvTalkingHeadMessage*>* pContainer)
++{
++	if (pContainer == NULL)
++	{
++		showMessageCopies(&m_aMajorMsgs);
++		showMessageCopies(&m_aHotSeatMsgs);
++		return;
++	}
++	for (size_t i = 0; i < pContainer->size(); i++)
++		gDLL->UI().showMessage(*(*pContainer)[i]);
++}
++
++
+ void CvPlayer::postProcessMessages()
+ {
+ 	/* Determining how many messages are being displayed:
+@@ -11070,29 +11102,25 @@ void CvPlayer::postProcessMessages()
+ 			}
+ 		}
+ 	}
+-	if (!GC.getGame().getAIAutoPlay() && iLimit >= 0 && (m_iNewMessages > iLimit ||
+-		(m_iNewMessages > 0 && (bRelevantDiplo ||
+-		/*  Hotseat seems to show messages only if there hasn't been another
+-			human turn since the message was triggered (can't check that here;
+-			have to show the Turn Log in all cases). */
+-		GC.getGame().isHotSeat()))))
++	bool const bHotSeat = GC.getGame().isHotSeat();
++	if (!GC.getGame().getAIAutoPlay())
+ 	{
+-		gDLL->UI().clearEventMessages();
+-		if(!GC.getGame().isHotSeat())
++		if (iLimit >= 0 && (m_iNewMessages > iLimit ||
++			(m_iNewMessages > 0 && bRelevantDiplo)))
+ 		{
++			gDLL->UI().clearEventMessages();
+ 			/*  Show major events even if the Turn Log gets opened. As with
+ 				NewMessages, CvPlayer needs to keep track of the recent messages;
+ 				use aMajorMsgs for that. */
+-			for(size_t i = 0; i < m_aMajorMsgs.size(); i++)
+-				gDLL->UI().showMessage(*m_aMajorMsgs[i]);
++			showMessageCopies(&m_aMajorMsgs);
++			gDLL->UI().showTurnLog();
+ 		}
+-		gDLL->UI().showTurnLog();
++		// Messages that were missed b/c they were cleared too early
++		else if (bHotSeat)
++			showMessageCopies(&m_aHotSeatMsgs);
+ 	}
+ 	// Clear messages in any case
+-	for(size_t i = 0; i < m_aMajorMsgs.size(); i++)
+-		SAFE_DELETE(m_aMajorMsgs[i]);
+-	m_aMajorMsgs.clear();
+-	GC.getGame().setInBetweenTurns(false);
++	clearMessageCopies();
+ }
+ 
+ int CvPlayer::getStartOfTurnMessageLimit() const
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 8d7cd0a6f..d7a67b248 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1667,6 +1667,7 @@ protected:  // <advc.210>
+ 	std::vector<AdvCiv4lert*> m_paAlerts; // advc.210
+ 	// <advc.106b>
+ 	std::vector<CvTalkingHeadMessage*> m_aMajorMsgs;
++	std::vector<CvTalkingHeadMessage*> m_aHotSeatMsgs;
+ 	int m_iNewMessages; // </advc.106b>
+ 	// advc.074:
+ 	mutable CLinkList<std::pair<PlayerTypes,BonusTypes> > m_cancelingExport;
+@@ -1708,6 +1709,8 @@ protected:  // <advc.210>
+ 	void doWarnings();
+ 	void doEvents();
+ 	// <advc.106b>
++	void clearMessageCopies(std::vector<CvTalkingHeadMessage*>* pContainer = NULL);
++	void showMessageCopies(std::vector<CvTalkingHeadMessage*>* pContainer = NULL);
+ 	void postProcessMessages();
+ 	int getStartOfTurnMessageLimit() const;
+ 	// </advc.106b>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5919

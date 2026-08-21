@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2125
+# Commit: 968880bb420387f4d1022cb9296c8ada3dbfd8f9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 67496f6b3173ad5ab1938952124eedf450f841d1
+# Title: Fix K-Mod bug: food consumption by angry citizens
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 8dbd543d8..0be093a7c 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -2369,7 +2369,8 @@ int CvCity::getProductionDifference(int iProductionNeeded, int iProduction,
+ 		return 0;
+ 
+ 	int iFoodProduction = (bFoodProduction ?
+-			std::max(0, getYieldRate(YIELD_FOOD) - foodConsumption()) : 0);
++			std::max(0, getYieldRate(YIELD_FOOD) - foodConsumption(
++			/* advc.001 (K-Mod bug): */ true)) : 0);
+ 
+ 	int iModifier = getBaseYieldRateModifier(YIELD_PRODUCTION, iProductionModifier);
+ 	int iRate = /* advc.064: */ (bIgnoreYieldRate ? 0 :
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=628

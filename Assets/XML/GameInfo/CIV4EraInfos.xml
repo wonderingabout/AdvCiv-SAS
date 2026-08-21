@@ -12,12 +12,14 @@
 <!-- 4. Clean up the references to the ERA's in CIV4CityLSystem -->
 <!-- 5. Clean up the references to the ERA's in CIV4PlotLSystem -->
 <!-- Good luck! -->
+<!-- custom: add Button to show Sevopedia Movie item buttons, as GPT-5.2 Thinking recommends thanks -->
 <Civ4EraInfos xmlns="x-schema:CIV4GameInfoSchema.xml">
 	<EraInfos>
-		<EraInfo>
+		<EraInfo> <!-- custom: type: ERA_ANCIENT (useful for VS Code upper tree view while scrolling) -->
 			<Type>ERA_ANCIENT</Type>
 			<Description>TXT_KEY_ERA_ANCIENT</Description>
 			<Strategy>TXT_KEY_ERA_ANCIENT_STRATEGY</Strategy>
+			<Button>Art/Movies/Era/Era01-Classical.dds</Button>
 			<bNoGoodies>0</bNoGoodies>
 			<!-- advc.314 -->
 			<bAllGoodyTechs>1</bAllGoodyTechs>
@@ -38,7 +40,9 @@
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
 			<iResearchPercent>100</iResearchPercent>
+			<!-- custom: similarly set this shit to 0 -->
 			<!-- BBAI: -->
 			<iTechCostModifier>0</iTechCostModifier>
 			<!-- advc.groundbr (note): No point in a ground-breaking penalty
@@ -48,7 +52,8 @@
 			<iImprovementPercent>100</iImprovementPercent>
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
 			<iCulturePercent>100</iCulturePercent>
-			<iAnarchyPercent>50</iAnarchyPercent>
+			<!-- custom: effectively this seems to mean anarchy lasts 2 turns. I don't care about realism of late vs early era anarchy duration, i only want the game to be fair and challenging. I think having a bit longer but not tedious or annoying anarchy adds weight to when to change regime or such and make it a more strategic decisions. Indirectly buffs as of now trait_spiritual or such other traits providing no anarchy, and in a general way, we shouldn't change that often civics or such, but if we were to, then we'd value some traits or such more. In short adds bit strategy without too much tediousness hopefully/ideally, was 50 -->
+			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>1</iEventChancePerTurn>
 			<iSoundtrackSpace>0</iSoundtrackSpace>
 			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
@@ -75,10 +80,11 @@
 			<AudioUnitVictoryScript>AS2D_VICTORY_EARLY</AudioUnitVictoryScript>
 			<AudioUnitDefeatScript>AS2D_LOSS_EARLY</AudioUnitDefeatScript>
 		</EraInfo>
-		<EraInfo>
+		<EraInfo> <!-- custom: type: ERA_CLASSICAL -->
 			<Type>ERA_CLASSICAL</Type>
 			<Description>TXT_KEY_ERA_CLASSICAL</Description>
 			<Strategy>TXT_KEY_ERA_CLASSICAL_STRATEGY</Strategy>
+			<Button>Art/Movies/Era/Era01-Classical.dds</Button>
 			<bNoGoodies>0</bNoGoodies>
 			<!-- advc.314 -->
 			<bAllGoodyTechs>1</bAllGoodyTechs>
@@ -98,7 +104,9 @@
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<iResearchPercent>90</iResearchPercent>
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
+			<iResearchPercent>100</iResearchPercent>
+			<!-- custom: similarly set this shit to 0 -->
 			<iTechCostModifier>0</iTechCostModifier>
 			<!-- advc.groundbr: start -->
 			<iAIMaxGroundbreakingPenalty>0</iAIMaxGroundbreakingPenalty>
@@ -108,13 +116,14 @@
 			<iImprovementPercent>100</iImprovementPercent>
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
 			<iCulturePercent>100</iCulturePercent>
-			<iAnarchyPercent>50</iAnarchyPercent>
+			<!-- custom: see code comment at same field previously; was 50 -->
+			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>2</iEventChancePerTurn>
 			<iSoundtrackSpace>400</iSoundtrackSpace>
 			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
 			<EraInfoSoundtracks>
 				<EraInfoSoundtrack>AS2D_SONG_ALEXANDER</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_SONG_VIKING</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_SONG_SCANDINAVIA</EraInfoSoundtrack>
 				<EraInfoSoundtrack>AS2D_SONG_ROME</EraInfoSoundtrack>
 				<EraInfoSoundtrack>AS2D_SONG_PELOPONNESIAN</EraInfoSoundtrack>
 				<EraInfoSoundtrack>AS2D_SONG_CIV_III_MID_ROME</EraInfoSoundtrack>
@@ -150,10 +159,11 @@
 			<AudioUnitVictoryScript>AS2D_VICTORY_EARLY</AudioUnitVictoryScript>
 			<AudioUnitDefeatScript>AS2D_LOSS_EARLY</AudioUnitDefeatScript>
 		</EraInfo>
-		<EraInfo>
+		<EraInfo> <!-- custom: type: ERA_MEDIEVAL -->
 			<Type>ERA_MEDIEVAL</Type>
 			<Description>TXT_KEY_ERA_MEDIEVAL</Description>
 			<Strategy>TXT_KEY_ERA_MEDIEVAL_STRATEGY</Strategy>
+			<Button>Art/Movies/Era/Era02-Medeival.dds</Button>
 			<!-- advc.314: was 0 -->
 			<bNoGoodies>0</bNoGoodies>
 			<!-- advc.314 -->
@@ -175,9 +185,11 @@
 			<iTrainPercent>100</iTrainPercent>
 			<iConstructPercent>100</iConstructPercent>
 			<iCreatePercent>100</iCreatePercent>
-			<iResearchPercent>80</iResearchPercent>
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
+			<iResearchPercent>100</iResearchPercent>
+			<!-- custom: similarly set this shit to 0 -->
 			<!-- BBAI: (was 6 in K-Mod) -->
-			<iTechCostModifier>4</iTechCostModifier>
+			<iTechCostModifier>0</iTechCostModifier>
 			<!-- advc.groundbr: start -->
 			<iAIMaxGroundbreakingPenalty>15</iAIMaxGroundbreakingPenalty>
 			<!-- 20 in DoC -->
@@ -186,9 +198,11 @@
 			<iBuildPercent>100</iBuildPercent>
 			<iImprovementPercent>100</iImprovementPercent>
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
+			<!-- custom: similarly i don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or such rather if needed than this weird modifier thing), was 80 -->
 			<!-- advc.126: was 100 (and was unused) -->
-			<iCulturePercent>80</iCulturePercent>
-			<iAnarchyPercent>40</iAnarchyPercent>
+			<iCulturePercent>100</iCulturePercent>
+			<!-- custom: see code comment at same field previously; was 40 -->
+			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>4</iEventChancePerTurn>
 			<!-- advc.erai -->
 			<bAIAgeOfPestilence>1</bAIAgeOfPestilence>
@@ -233,10 +247,11 @@
 			<AudioUnitVictoryScript>AS2D_VICTORY_MIDDLE</AudioUnitVictoryScript>
 			<AudioUnitDefeatScript>AS2D_LOSS_MIDDLE</AudioUnitDefeatScript>
 		</EraInfo>
-		<EraInfo>
+		<EraInfo> <!-- custom: type: ERA_RENAISSANCE -->
 			<Type>ERA_RENAISSANCE</Type>
 			<Description>TXT_KEY_ERA_RENAISSANCE</Description>
 			<Strategy>TXT_KEY_ERA_RENAISSANCE_STRATEGY</Strategy>
+			<Button>Art/Movies/Era/Era03-Renaissance.dds</Button>
 			<bNoGoodies>1</bNoGoodies>
 			<!-- advc.314 -->
 			<bAllGoodyTechs>1</bAllGoodyTechs>
@@ -254,25 +269,31 @@
 			<iFreePopulation>1</iFreePopulation>
 			<!-- advc.126: was 37 -->
 			<iStartPercent>36</iStartPercent>
-			<iGrowthPercent>90</iGrowthPercent>
-			<iTrainPercent>90</iTrainPercent>
-			<iConstructPercent>90</iConstructPercent>
-			<iCreatePercent>90</iCreatePercent>
-			<iResearchPercent>70</iResearchPercent>
+			<!-- custom: set iGrowthPercent, iTrainPercent, iConstructPercent, and iCreatePercent to 100 at all eras, i don't care about realism here as well as explained in as of now below code comment(s). May explain why AIs and possibly the human player too in autoplay or real game would produce so much units later in the game, as well as gameplay getting seemingly out of hand in middle and late game. I want gameplay to be gradual not exponential, and i'd rather adjust settings such as iCost for each unit myself reliably if need be, i don't need this shit of weird realism or accomodation or whatever it is, was 90-->
+			<iGrowthPercent>100</iGrowthPercent>
+			<iTrainPercent>100</iTrainPercent>
+			<iConstructPercent>100</iConstructPercent>
+			<iCreatePercent>100</iCreatePercent>
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
+			<iResearchPercent>100</iResearchPercent>
+			<!-- custom: similarly set this shit to 0 -->
 			<!-- advc.910: Was 12 in K-Mod, 9 in BBAI. -->
-			<iTechCostModifier>15</iTechCostModifier>
+			<iTechCostModifier>0</iTechCostModifier>
 			<!-- advc.groundbr: start -->
 			<iAIMaxGroundbreakingPenalty>25</iAIMaxGroundbreakingPenalty>
 			<!-- as in DoC -->
 			<iHumanMaxGroundbreakingPenalty>25</iHumanMaxGroundbreakingPenalty>
 			<!-- advc.groundbr: end -->
-			<iBuildPercent>90</iBuildPercent>
-			<iImprovementPercent>90</iImprovementPercent>
+			<!-- custom: similarly set iBuildPercent and iImprovementPercent to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers), so no reason to over-realism here either or whatever the reason was, was 90 -->
+			<iBuildPercent>100</iBuildPercent>
+			<iImprovementPercent>100</iImprovementPercent>
 			<!-- advc.126: was 90 -->
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
+			<!-- custom: see code comment at same field previously; was 70 -->
 			<!-- advc.126: was 90 -->
-			<iCulturePercent>70</iCulturePercent>
-			<iAnarchyPercent>40</iAnarchyPercent>
+			<iCulturePercent>100</iCulturePercent>
+			<!-- custom: see code comment at same field previously; was 40 -->
+			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>4</iEventChancePerTurn>
 			<!-- advc.erai -->
 			<bAIAgeOfExploration>1</bAIAgeOfExploration>
@@ -316,10 +337,11 @@
 			<AudioUnitVictoryScript>AS2D_VICTORY_MIDDLE</AudioUnitVictoryScript>
 			<AudioUnitDefeatScript>AS2D_LOSS_MIDDLE</AudioUnitDefeatScript>
 		</EraInfo>
-		<EraInfo>
+		<EraInfo> <!-- custom: type: ERA_INDUSTRIAL -->
 			<Type>ERA_INDUSTRIAL</Type>
 			<Description>TXT_KEY_ERA_INDUSTRIAL</Description>
 			<Strategy>TXT_KEY_ERA_INDUSTRIAL_STRATEGY</Strategy>
+			<Button>Art/Movies/Era/Era04-Industrial.dds</Button>
 			<bNoGoodies>1</bNoGoodies>
 			<bNoAnimals>1</bNoAnimals>
 			<!-- advc.307: Allow units, disallow cities. -->
@@ -334,25 +356,31 @@
 			<iStartingGold>100</iStartingGold>
 			<iFreePopulation>2</iFreePopulation>
 			<iStartPercent>50</iStartPercent>
-			<iGrowthPercent>80</iGrowthPercent>
-			<iTrainPercent>80</iTrainPercent>
-			<iConstructPercent>80</iConstructPercent>
-			<iCreatePercent>80</iCreatePercent>
-			<iResearchPercent>60</iResearchPercent>
+			<!-- custom: see code comment at same field previously; was 80-->
+			<iGrowthPercent>100</iGrowthPercent>
+			<iTrainPercent>100</iTrainPercent>
+			<iConstructPercent>100</iConstructPercent>
+			<iCreatePercent>100</iCreatePercent>
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
+			<iResearchPercent>100</iResearchPercent>
+			<!-- custom: similarly set this shit to 0 -->
 			<!-- advc.910: Was 16 in K-Mod, 14 in BBAI. -->
-			<iTechCostModifier>18</iTechCostModifier>
+			<iTechCostModifier>0</iTechCostModifier>
 			<!-- advc.groundbr: start -->
 			<iAIMaxGroundbreakingPenalty>35</iAIMaxGroundbreakingPenalty>
 			<!-- 30 in DoC -->
 			<iHumanMaxGroundbreakingPenalty>35</iHumanMaxGroundbreakingPenalty>
 			<!-- advc.groundbr: end -->
-			<iBuildPercent>80</iBuildPercent>
-			<iImprovementPercent>80</iImprovementPercent>
+			<!-- custom: see code comment at same field previously; was 80 -->
+			<iBuildPercent>100</iBuildPercent>
+			<iImprovementPercent>100</iImprovementPercent>
 			<!-- advc.126: was 80 -->
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
+			<!-- custom: see code comment at same field previously; was 60 -->
 			<!-- advc.126: was 80 -->
-			<iCulturePercent>60</iCulturePercent>
-			<iAnarchyPercent>34</iAnarchyPercent>
+			<iCulturePercent>100</iCulturePercent>
+			<!-- custom: see code comment at same field previously; was 34 -->
+			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>6</iEventChancePerTurn>
 			<!-- advc.erai: start -->
 			<bAIAgeOfPollution>1</bAIAgeOfPollution>
@@ -397,10 +425,11 @@
 			<AudioUnitVictoryScript>AS2D_VICTORY_MIDDLE</AudioUnitVictoryScript>
 			<AudioUnitDefeatScript>AS2D_LOSS_MIDDLE</AudioUnitDefeatScript>
 		</EraInfo>
-		<EraInfo>
+		<EraInfo> <!-- custom: type: ERA_MODERN -->
 			<Type>ERA_MODERN</Type>
 			<Description>TXT_KEY_ERA_MODERN</Description>
 			<Strategy>TXT_KEY_ERA_MODERN_STRATEGY</Strategy>
+			<Button>Art/Movies/Era/Era05-Modern.dds</Button>
 			<bNoGoodies>1</bNoGoodies>
 			<bNoAnimals>1</bNoAnimals>
 			<!-- advc.307: Allow units. -->
@@ -415,26 +444,32 @@
 			<iStartingGold>200</iStartingGold>
 			<iFreePopulation>3</iFreePopulation>
 			<iStartPercent>65</iStartPercent>
-			<iGrowthPercent>70</iGrowthPercent>
-			<iTrainPercent>70</iTrainPercent>
-			<iConstructPercent>70</iConstructPercent>
-			<iCreatePercent>70</iCreatePercent>
-			<iResearchPercent>50</iResearchPercent>
+			<!-- custom: see code comment at same field previously; was 70-->
+			<iGrowthPercent>100</iGrowthPercent>
+			<iTrainPercent>100</iTrainPercent>
+			<iConstructPercent>100</iConstructPercent>
+			<iCreatePercent>100</iCreatePercent>
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
+			<iResearchPercent>100</iResearchPercent>
+			<!-- custom: similarly set this shit to 0 -->
 			<!-- advc.910: Was 20 in K-Mod, 18 in BBAI. -->
-			<iTechCostModifier>9</iTechCostModifier>
+			<iTechCostModifier>0</iTechCostModifier>
 			<!-- advc.groundbr: start -->
 			<iAIMaxGroundbreakingPenalty>25</iAIMaxGroundbreakingPenalty>
 			<!-- 40 in DoC, but, that late in the game, aren't players
 				 supposed to get ahead? -->
 			<iHumanMaxGroundbreakingPenalty>25</iHumanMaxGroundbreakingPenalty>
 			<!-- advc.groundbr: end -->
-			<iBuildPercent>70</iBuildPercent>
-			<iImprovementPercent>70</iImprovementPercent>
+			<!-- custom: see code comment at same field previously; was 70 -->
+			<iBuildPercent>100</iBuildPercent>
+			<iImprovementPercent>100</iImprovementPercent>
 			<!-- advc.126: was 70 -->
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
+			<!-- custom: see code comment at same field previously; was 50 -->
 			<!-- advc.126: was 70 -->
-			<iCulturePercent>50</iCulturePercent>
-			<iAnarchyPercent>34</iAnarchyPercent>
+			<iCulturePercent>100</iCulturePercent>
+			<!-- custom: see code comment at same field previously; was 34 -->
+			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>8</iEventChancePerTurn>
 			<!-- advc.erai -->
 			<bAIAtomicAge>1</bAIAtomicAge>
@@ -473,10 +508,11 @@
 			<AudioUnitVictoryScript>AS2D_VICTORY_LATE</AudioUnitVictoryScript>
 			<AudioUnitDefeatScript>AS2D_LOSS_LATE</AudioUnitDefeatScript>
 		</EraInfo>
-		<EraInfo>
+		<EraInfo> <!-- custom: type: ERA_FUTURE -->
 			<Type>ERA_FUTURE</Type>
 			<Description>TXT_KEY_ERA_FUTURE</Description>
 			<Strategy>TXT_KEY_ERA_FUTURE_STRATEGY</Strategy>
+			<Button>Art/Movies/Era/Era05-Modern.dds</Button>
 			<bNoGoodies>1</bNoGoodies>
 			<bNoAnimals>1</bNoAnimals>
 			<!-- advc.307: Allow units. -->
@@ -491,45 +527,49 @@
 			<iStartingGold>400</iStartingGold>
 			<iFreePopulation>4</iFreePopulation>
 			<iStartPercent>80</iStartPercent>
-			<iGrowthPercent>60</iGrowthPercent>
-			<iTrainPercent>60</iTrainPercent>
-			<iConstructPercent>60</iConstructPercent>
-			<iCreatePercent>60</iCreatePercent>
-			<iResearchPercent>40</iResearchPercent>
+			<!-- custom: see code comment at same field previously; was 60-->
+			<iGrowthPercent>100</iGrowthPercent>
+			<iTrainPercent>100</iTrainPercent>
+			<iConstructPercent>100</iConstructPercent>
+			<iCreatePercent>100</iCreatePercent>
+			<!-- custom: now and as of now 100 at all eras, impossible to design a proper symmetrical or such tech tree if they apply all kinds of modifiers here -->
+			<iResearchPercent>100</iResearchPercent>
+			<!-- custom: similarly set this shit to 0 -->
 			<!-- advc.910: Was 18 in K-Mod and BBAI. The historical time line is
 				 less of a concern here, and faster Space victory plays better. -->
-			<iTechCostModifier>7</iTechCostModifier>
+			<iTechCostModifier>0</iTechCostModifier>
 			<!-- advc.groundbr: start -->
 			<iAIMaxGroundbreakingPenalty>0</iAIMaxGroundbreakingPenalty>
 			<!-- 50 in DoC; perhaps that makes sense with DoC's additional
 				 late-game content. -->
 			<iHumanMaxGroundbreakingPenalty>0</iHumanMaxGroundbreakingPenalty>
 			<!-- advc.groundbr: end -->
-			<iBuildPercent>60</iBuildPercent>
-			<iImprovementPercent>60</iImprovementPercent>
+			<!-- custom: see code comment at same field previously; was 60 -->
+			<iBuildPercent>100</iBuildPercent>
+			<iImprovementPercent>100</iImprovementPercent>
 			<!-- advc.126: was 60 -->
 			<iGreatPeoplePercent>100</iGreatPeoplePercent>
+			<!-- custom: see code comment at same field previously; was 50 -->
 			<!-- advc.126: was 60 -->
-			<iCulturePercent>50</iCulturePercent>
-			<iAnarchyPercent>34</iAnarchyPercent>
+			<iCulturePercent>100</iCulturePercent>
+			<!-- custom: see code comment at same field previously; was 34 -->
+			<iAnarchyPercent>100</iAnarchyPercent>
 			<iEventChancePerTurn>10</iEventChancePerTurn>
 			<iSoundtrackSpace>40</iSoundtrackSpace>
 			<bFirstSoundtrackFirst>0</bFirstSoundtrackFirst>
+			<!-- custom: replace with original/specific music instead of the modern era music copy pasted again here; see main readme's copyright section for copyright details if any are there or somewhere else relevant in our mod's docs if any are there as well alternatively as well -->
 			<EraInfoSoundtracks>
-				<EraInfoSoundtrack>AS2D_ANFORTAS_WOUND</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_CHAIRMAN_DANCES</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_CHCONNE</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_CHRISTIAN_ZEAL</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_COMMON_TONES</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_GRAND_PIANOLA_1</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_GRAND_PIANOLA_2</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_HARMONIELEHRE</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_HYMING_SLEWS</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_LOOPS_AND_VERSES</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_MEISTER_ECKHARDT</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_SHAKING_AND_TREMBLING</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_THE_PEOPLE_ARE_HEROES</EraInfoSoundtrack>
-				<EraInfoSoundtrack>AS2D_TROMBA_LONTANA</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_EPIC_SYMPHONIC_METAL_263322</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_FOOT_TAPPER_CLASSICAL</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_FUTURISTIC_ROBOT_COPS_234351</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_HEAVY_THRASH_METAL_377893</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_HOPE_AND_DESPAIR_212413</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_INTENSE_BLACK_METAL_304729</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_INTO_THE_DARKNESS_336411</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_LOFI_295209</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_ON_THE_COSMIC</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_RELAXING_PIANO_LOFI_251401</EraInfoSoundtrack>
+				<EraInfoSoundtrack>AS2D_FUTURE_TACO_TRUCK_HEIST_377352</EraInfoSoundtrack>
 			</EraInfoSoundtracks>
 			<CitySoundscapes>
 				<CitySoundscape>

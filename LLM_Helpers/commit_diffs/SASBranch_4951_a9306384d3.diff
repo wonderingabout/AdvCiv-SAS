@@ -1,0 +1,1702 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4951
+# Commit: a9306384d3f3cce3ad135f1ba11fa539c930058d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e7181173b7498ce4f6ae09140991bdfb88c459eb
+# Title: rebalanced the warrior, archer, longbowman stats +/- make them sooner available and other changes - "rebalanced the warrior / ancient maceman so it gives mor...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/Famine_In_Europe_wav_to_mp3.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/Final_Sunshine_wav_to_mp3.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/Power_in_Their_Hands_wav_to_mp3.mp3
+-	-	Assets/Art/AdvCiv_SAS/Eras/Future/music/World_s_End_wav_to_mp3.mp3
+-	-	Assets/Art/AdvCiv_SAS/Promotions/Medic_4/medic4.dds
+1	1	Assets/XML/Art/CIV4ArtDefines_Building.xml
+0	92	Assets/XML/Audio/Audio2DScripts.xml
+0	28	Assets/XML/Audio/AudioDefines.xml
+2	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+0	4	Assets/XML/GameInfo/CIV4EraInfos.xml
+2	2	Assets/XML/Technologies/CIV4TechInfos.xml
+2	1	Assets/XML/Units/CIV4PromotionInfos.xml
+212	196	Assets/XML/Units/CIV4UnitInfos.xml
+4	6	README.md
+4	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/Famine_In_Europe_wav_to_mp3.mp3
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/Final_Sunshine_wav_to_mp3.mp3
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/Power_in_Their_Hands_wav_to_mp3.mp3
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Eras/Future/music/World_s_End_wav_to_mp3.mp3
+ create mode 100644 Assets/Art/AdvCiv_SAS/Promotions/Medic_4/medic4.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds b/Assets/Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds
+index ad841cab5..e03405249 100644
+Binary files a/Assets/Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds and b/Assets/Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/Famine_In_Europe_wav_to_mp3.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/Famine_In_Europe_wav_to_mp3.mp3
+deleted file mode 100644
+index 7bb391305..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Eras/Future/music/Famine_In_Europe_wav_to_mp3.mp3 and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/Final_Sunshine_wav_to_mp3.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/Final_Sunshine_wav_to_mp3.mp3
+deleted file mode 100644
+index d25169655..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Eras/Future/music/Final_Sunshine_wav_to_mp3.mp3 and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/Power_in_Their_Hands_wav_to_mp3.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/Power_in_Their_Hands_wav_to_mp3.mp3
+deleted file mode 100644
+index a1c5f065f..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Eras/Future/music/Power_in_Their_Hands_wav_to_mp3.mp3 and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Eras/Future/music/World_s_End_wav_to_mp3.mp3 b/Assets/Art/AdvCiv_SAS/Eras/Future/music/World_s_End_wav_to_mp3.mp3
+deleted file mode 100644
+index 99bb768fc..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Eras/Future/music/World_s_End_wav_to_mp3.mp3 and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Promotions/Medic_4/medic4.dds b/Assets/Art/AdvCiv_SAS/Promotions/Medic_4/medic4.dds
+new file mode 100644
+index 000000000..910158a1d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Promotions/Medic_4/medic4.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index e499c9c08..a35b4bc56 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -201,7 +201,7 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Aqueduct.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,7</Button>
+ 		</BuildingArtInfo>
+-		<!-- custom: art animation asset imported from FFH2's ART_DEF_BUILDING_ADVENTURERS_GUILD (in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK" with dragon unpacker anyways etc) and modified/adjusted or not for advciv-sas anyways etc ; as for the button it is ai generated by chatgpt thanks to my prompts too or and adjustments or and not, see docs for details or and other or and not or etc, anyways etc -->
++		<!-- custom: art animation asset imported from FFH2's ART_DEF_BUILDING_ADVENTURERS_GUILD (in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Fall from Heaven 2\Assets\Pak0.FPK" with dragon unpacker anyways etc) and modified/adjusted or not for advciv-sas anyways etc ; as for the button it is ai generated by chatgpt thanks to my prompts too or and adjustments or and not, see docs for details or and other or and not or etc, then after that i added the "bands" on the side with paint.net copy pasting from another (as of now kingdom of benin's civ-specific unit button (that is from another mod as well but anyways etc)) button but anyways etc -->
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM</Type>
+ 			<LSystem>LSYSTEM_1x1</LSystem>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index c4f3caa88..629ebb57d 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -3053,52 +3053,6 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_FUTURE_FAMINE_IN_EUROPE</ScriptID>
+-		<SoundID>SONG_FUTURE_FAMINE_IN_EUROPE</SoundID>
+-		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>65</iMinVolume>
+-		<iMaxVolume>65</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_FUTURE_FINAL_SUNSHINE</ScriptID>
+-		<SoundID>SONG_FUTURE_FINAL_SUNSHINE</SoundID>
+-		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>60</iMinVolume>
+-		<iMaxVolume>60</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_FUTURE_FOOT_TAPPER_CLASSICAL</ScriptID>
+ 		<SoundID>SONG_FUTURE_FOOT_TAPPER_CLASSICAL</SoundID>
+@@ -3283,29 +3237,6 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_FUTURE_POWER_IN_THEIR</ScriptID>
+-		<SoundID>SONG_FUTURE_POWER_IN_THEIR</SoundID>
+-		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>60</iMinVolume>
+-		<iMaxVolume>60</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_FUTURE_RELAXING_PIANO_LOFI_251401</ScriptID>
+ 		<SoundID>SONG_FUTURE_RELAXING_PIANO_LOFI_251401</SoundID>
+@@ -3352,29 +3283,6 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_FUTURE_WORLD_S_END</ScriptID>
+-		<SoundID>SONG_FUTURE_WORLD_S_END</SoundID>
+-		<SoundType>GAME_MUSIC</SoundType>
+-		<iMinVolume>60</iMinVolume>
+-		<iMaxVolume>60</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_FINAL_FRONTIER</ScriptID>
+ 		<SoundID>SONG_FINAL_FRONTIER</SoundID>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index a70ca3d17..c138e1fe6 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -975,20 +975,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SONG_FUTURE_FAMINE_IN_EUROPE</SoundID>
+-			<Filename>Art/AdvCiv_SAS/Eras/Future/music/Famine_In_Europe_wav_to_mp3</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>SONG_FUTURE_FINAL_SUNSHINE</SoundID>
+-			<Filename>Art/AdvCiv_SAS/Eras/Future/music/Final_Sunshine_wav_to_mp3</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SONG_FUTURE_FOOT_TAPPER_CLASSICAL</SoundID>
+ 			<Filename>Art/AdvCiv_SAS/Eras/Future/music/Foot_Tapper_Classical_Music_Dubstep_Fusion_wav_to_mp3</Filename>
+@@ -1045,13 +1031,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SONG_FUTURE_POWER_IN_THEIR</SoundID>
+-			<Filename>Art/AdvCiv_SAS/Eras/Future/music/Power_in_Their_Hands_wav_to_mp3</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SONG_FUTURE_RELAXING_PIANO_LOFI_251401</SoundID>
+ 			<Filename>Art/AdvCiv_SAS/Eras/Future/music/relaxing-piano-lofi-instrumental-251401</Filename>
+@@ -1066,13 +1045,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SONG_FUTURE_WORLD_S_END</SoundID>
+-			<Filename>Art/AdvCiv_SAS/Eras/Future/music/World_s_End_wav_to_mp3</Filename>
+-			<LoadType>STREAMED</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SONG_PELOPONNESIAN_SCENARIO</SoundID>
+ 			<Filename>Sounds/Soundtrack/Scenarios/Peloponnesian</Filename>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 2ab22bfd1..16a85b35c 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -1946,7 +1946,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>NONE</PrereqTech>
++			<!-- custom: hopefully this helps avoiding a military beeline by AIs or human players, or selectively boosts military leaders more with this extra chance in the early game (for those that start with as of now tech_hunting) anyways etc, was NONE -->
++			<PrereqTech>TECH_HUNTING</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+
+diff --git a/Assets/XML/GameInfo/CIV4EraInfos.xml b/Assets/XML/GameInfo/CIV4EraInfos.xml
+index 1c8e15f96..8c2da7e35 100644
+--- a/Assets/XML/GameInfo/CIV4EraInfos.xml
++++ b/Assets/XML/GameInfo/CIV4EraInfos.xml
+@@ -518,8 +518,6 @@
+ 			<!-- custom: replace with original/specific if i may say anyways etc music instead of the modern era music copy pasted again here if i may say anyways etc ; see main readme's copyright section for copyright details if any are there or somewhere else relevant in our mod's docs if any are there as well alternatively as well anyways etc, anyways etc -->
+ 			<EraInfoSoundtracks>
+ 				<EraInfoSoundtrack>AS2D_FUTURE_EPIC_SYMPHONIC_METAL_263322</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_FUTURE_FAMINE_IN_EUROPE</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_FUTURE_FINAL_SUNSHINE</EraInfoSoundtrack>
+ 				<EraInfoSoundtrack>AS2D_FUTURE_FOOT_TAPPER_CLASSICAL</EraInfoSoundtrack>
+ 				<EraInfoSoundtrack>AS2D_FUTURE_FUTURISTIC_ROBOT_COPS_234351</EraInfoSoundtrack>
+ 				<EraInfoSoundtrack>AS2D_FUTURE_HEAVY_THRASH_METAL_377893</EraInfoSoundtrack>
+@@ -528,10 +526,8 @@
+ 				<EraInfoSoundtrack>AS2D_FUTURE_INTO_THE_DARKNESS_336411</EraInfoSoundtrack>
+ 				<EraInfoSoundtrack>AS2D_FUTURE_LOFI_295209</EraInfoSoundtrack>
+ 				<EraInfoSoundtrack>AS2D_FUTURE_ON_THE_COSMIC</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_FUTURE_POWER_IN_THEIR</EraInfoSoundtrack>
+ 				<EraInfoSoundtrack>AS2D_FUTURE_RELAXING_PIANO_LOFI_251401</EraInfoSoundtrack>
+ 				<EraInfoSoundtrack>AS2D_FUTURE_TACO_TRUCK_HEIST_377352</EraInfoSoundtrack>
+-				<EraInfoSoundtrack>AS2D_FUTURE_WORLD_S_END</EraInfoSoundtrack>
+ 			</EraInfoSoundtracks>
+ 			<CitySoundscapes>
+ 				<CitySoundscape>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 1dea8c77b..035185ef9 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -4669,8 +4669,8 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>2</iGridX>
+-			<iGridY>3</iGridY>
++			<iGridX>21</iGridX>
++			<iGridY>1</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 34c9b4234..c669b58c8 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1794,7 +1794,8 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,16</Button>
++			<!-- custom: replaced with a button i made based on the medic 3 button from ri mod (thankfully found it easily there without having to browse through atlas or wherever it was so thanks for this .dds ready to use but anyways etc) then edited with paint.net to add the 4th medic level but anyways etc -->
++			<Button>Art/AdvCiv_SAS/Promotions/Medic_4/medic4.dds</Button>
+ 		</PromotionInfo>
+ 		<PromotionInfo>
+ 			<Type>PROMOTION_MEDIC_AMBULATORY</Type>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index c4e6dfd24..991bdbf96 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -8,6 +8,7 @@
+ - like and in particular naval units as warfare happens mostly on land and even if AI has 10 frigates, it will not win against 2 crossbows or even warriors for example if i am not mistaken anyways etc
+ - also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them
+ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Units\CIV4UnitInf_os_UnitAI_and_notes.txt for details anyways etc -->
++<!-- custom: units now have terrain and feature (+/- plot types e.g. hill for some units such as of now the quechua warrior but anyways etc) attack or/and defense combat modifiers. Civ-specific units in particular as of now all have terrain +/- feature modifiers. I tried to follow a dominant terrain and minor ones approach and not make it too op yet still significant (else people would use civ-specific units instead of longbowmen for defense or their verison of the axeman instead of macemen which wouldn't make sense), and was more permissive for features as long as they don't impact city combat (no forest or jungle in city tiles in particular if i am not mistaken but anyways etc). See sevopedia entry of each unit for details or sevopedia terrain or/and sevopedia feature page(s) to easily visualize these with the new UI additions we made there as well but anyways etc. For example as of now the camel knight or the persian immortal are stronger in desert dominantly, or/and other terrains as well, or possibly in features as well. I was more permissive with terrains that are otherwise especially weak, such as snow (ice sheet) and desert. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the  since all players can build them and as is quite needless otherwise and would add too much complication not necessarily in a way that would improve gameplay or experience but anyways etc, so only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. Note: as of now i'm using plains as a representative of savanna more or less anyways etc -->
+ <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
+ 	<UnitInfos>
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_LION, type: UNIT_LION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+@@ -1364,7 +1365,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+@@ -1374,11 +1375,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+@@ -1390,7 +1391,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>10</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+@@ -1641,23 +1642,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
+-				</TerrainAttack>
+-			</TerrainAttacks>
+-			<TerrainDefenses>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
+-				</TerrainDefense>
+-			</TerrainDefenses>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
+ 			<!-- custom: not functionnal as of now if i am not mistaken as workers are non-fighters as of now in advciv-sas but added for flavor as in for theme and for accuracy and/or exhaustiveness if i may say but anyways etc -->
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
++					<iFeatureAttack>50</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+@@ -5513,7 +5504,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 15 -->
+-			<iCost>20</iCost>
++			<iCost>18</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -5537,7 +5528,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>2</iCombat>
++			<!-- custom: was 2 -->
++			<iCombat>3</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -5552,11 +5544,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<iCityAttack>0</iCityAttack>
++			<!-- custom: was 0 -->
++			<iCityAttack>-33</iCityAttack>
+ 			<!-- custom: was 25 -->
+-			<iCityDefense>10</iCityDefense>
++			<iCityDefense>-33</iCityDefense>
+ 			<!-- custom: was 0 -->
+-			<iAnimalCombat>100</iAnimalCombat>
++			<iAnimalCombat>50</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+@@ -5580,7 +5573,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>3</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>1</iAsset>
+-			<iPower>2</iPower>
++			<!-- custom: was 2 -->
++			<iPower>3</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -5979,23 +5973,23 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
++					<iFeatureAttack>10</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>10</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+@@ -6198,7 +6192,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+@@ -6212,7 +6206,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+@@ -6425,25 +6419,25 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+@@ -7066,13 +7060,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
++					<iFeatureAttack>50</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+@@ -7283,23 +7277,23 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
++					<iFeatureAttack>10</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>10</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+@@ -7499,13 +7493,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+@@ -7921,19 +7915,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
++					<iFeatureAttack>50</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>50</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+@@ -8144,17 +8138,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_SNOW</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>50</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_SNOW</TerrainType>
+@@ -8620,7 +8614,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+@@ -8634,11 +8628,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<!-- custom: no room to give the woods range advantage of spearmen, unit would have too many modifiers as well -->
+@@ -9070,15 +9064,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>30</iHillsAttack>
++			<iHillsAttack>50</iHillsAttack>
+ 			<iHillsDefense>50</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: quechua rework (ctrl+f maybe helpful for that too etc)-->
++			<!-- custom: quechua rework (ctrl+f maybe helpful for that too etc) ; terrain/feature modifiers balance done with the help of chatgpt 5 as map has many terrain/features so was hard to tell xd if i may say but anyways etc, i adjusted it in my own way as well as i saw fit or preferred but anyways etc, check if accurate anyways etc -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+@@ -9086,17 +9080,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+@@ -9105,14 +9099,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<FeatureType>FEATURE_FOREST</FeatureType>
+ 					<iFeatureAttack>10</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>10</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+@@ -9292,7 +9286,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 7 -->
++			<!-- custom: was 6 -->
+ 			<iCombat>7</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+@@ -9342,7 +9336,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+-					<iUnitCombatMod>75</iUnitCombatMod>
++					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+@@ -9571,26 +9565,36 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>50</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>50</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<!-- custom: was "MOUNTED" 100 and UNITCOMBAT_MELEE 100 -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+-					<iUnitCombatMod>75</iUnitCombatMod>
++					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
++					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -9630,6 +9634,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<PromotionType>PROMOTION_COUNTER_MOUNTED</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_COUNTER_MELEE</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
+ 			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+@@ -9683,15 +9691,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
++			<!-- custom: since they are available as of now sooner in our mod, makes sense that they don't upgrade to later units anyways, and since the longbowman is as of now also available much sooner, make it as of now upgrade to the crossbow rather anyways etc, was UNITCLASS_LONGBOWMAN< and UNITCLASS_CROSSBOWMAN -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_LONGBOWMAN</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_CROSSBOWMAN</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+@@ -9754,14 +9759,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_ARCHERY</PrereqTech>
++			<!-- custom: was TECH_ARCHERY -->
++			<PrereqTech>TECH_HUNTING</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>30</iCost>
++			<!-- custom: was 30 -->
++			<iCost>25</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -9785,7 +9792,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>3</iCombat>
++			<!-- custom: was 3 -->
++			<iCombat>2</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -9802,7 +9810,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+ 			<iCityAttack>10</iCityAttack>
+ 			<iCityDefense>50</iCityDefense>
+-			<iAnimalCombat>0</iAnimalCombat>
++			<!-- custom: was 0 -->
++			<iAnimalCombat>50</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+@@ -9845,7 +9854,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>1</iAsset>
+ 			<!-- custom: was 3 -->
+-			<iPower>5</iPower>
++			<iPower>4</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>2</fMaxSpeed>
+@@ -9921,15 +9930,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
++			<!-- custom: was UNITCLASS_LONGBOWMAN< and UNITCLASS_CROSSBOWMAN -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_LONGBOWMAN</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_CROSSBOWMAN</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+@@ -9992,7 +9998,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_ARCHERY</PrereqTech>
++			<PrereqTech>TECH_HUNTING</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+@@ -10024,7 +10030,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>4</iCombat>
++			<!-- custom: was 4 -->
++			<iCombat>3</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -10043,7 +10050,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+ 			<iCityAttack>20</iCityAttack>
+ 			<iCityDefense>50</iCityDefense>
+-			<iAnimalCombat>0</iAnimalCombat>
++			<!-- custom: was 0 -->
++			<iAnimalCombat>50</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+@@ -10066,7 +10074,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+@@ -10078,7 +10086,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>10</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+@@ -10096,7 +10104,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>4</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>1</iAsset>
+-			<iPower>6</iPower>
++			<!-- custom: was 4 -->
++			<iPower>4</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -10172,15 +10181,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
++			<!-- custom: was UNITCLASS_LONGBOWMAN< and UNITCLASS_CROSSBOWMAN -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_LONGBOWMAN</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_CROSSBOWMAN</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+@@ -10243,7 +10249,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_ARCHERY</PrereqTech>
++			<PrereqTech>TECH_HUNTING</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+@@ -10275,7 +10281,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+ 			<!-- custom: was 3 -->
+-			<iCombat>4</iCombat>
++			<iCombat>2</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -10291,9 +10297,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+ 			<!-- custom: was 0 and 0 anyways etc -->
+-			<iCityAttack>10</iCityAttack>
+-			<iCityDefense>10</iCityDefense>
+-			<iAnimalCombat>0</iAnimalCombat>
++			<iCityAttack>50</iCityAttack>
++			<iCityDefense>50</iCityDefense>
++			<!-- custom: was 0 -->
++			<iAnimalCombat>50</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+@@ -10318,18 +10325,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>10</iFeatureAttack>
+-				</FeatureAttack>
+-			</FeatureAttacks>
+-			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>10</iFeatureDefense>
+-				</FeatureDefense>
+-			</FeatureDefenses>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods>
+@@ -10350,8 +10347,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>4</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>1</iAsset>
+-			<!-- custom: was 4 -->
+-			<iPower>5</iPower>
++			<iPower>4</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -10429,6 +10425,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+ 			<!-- custom: was UNITCLASS_RIFLEMAN -->
+ 			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_CROSSBOWMAN</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_MUSKETMAN</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+@@ -10498,7 +10498,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<!-- custom: was TECH_FEUDALISM -->
+ 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_ARCHERY</PrereqTech>
++				<PrereqTech>TECH_HUNTING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -10533,7 +10533,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+ 			<!-- custom: was 6 -->
+-			<iCombat>5</iCombat>
++			<iCombat>4</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -10697,7 +10697,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY -->
+ 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_ARCHERY</PrereqTech>
++				<PrereqTech>TECH_HUNTING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -10894,7 +10894,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY -->
+ 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_ARCHERY</PrereqTech>
++				<PrereqTech>TECH_HUNTING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -10955,7 +10955,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+@@ -10967,7 +10967,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>10</iFeatureAttack>
++					<iFeatureAttack>25</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+@@ -11112,7 +11112,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<!-- custom: was TECH_FEUDALISM + TECH_ARCHERY -->
+ 			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_ARCHERY</PrereqTech>
++				<PrereqTech>TECH_HUNTING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -11178,19 +11178,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
++					<iFeatureAttack>50</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>50</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+@@ -11572,7 +11572,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+@@ -11586,11 +11586,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+@@ -11781,23 +11781,31 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
++					<iFeatureAttack>50</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>50</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+@@ -11982,7 +11990,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+@@ -11996,11 +12004,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+@@ -12646,14 +12654,22 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+@@ -15055,21 +15071,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
++					<iTerrainAttack>35</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>35</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<!-- custom: see code comment at the generic chariot at FeatureAttacks and/or FeatureDefenses if any code comments are there anyways etc for details anyways etc, was empty -->
+@@ -15237,7 +15253,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_ARCHERY</PrereqTech>
++				<PrereqTech>TECH_HUNTING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -15446,7 +15462,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_ARCHERY</PrereqTech>
++				<PrereqTech>TECH_HUNTING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -15505,17 +15521,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+@@ -15688,7 +15704,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_ARCHERY</PrereqTech>
++				<PrereqTech>TECH_HUNTING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -15746,7 +15762,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+@@ -15919,7 +15935,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_ARCHERY</PrereqTech>
++				<PrereqTech>TECH_HUNTING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -15977,10 +15993,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
+-				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+@@ -15989,10 +16001,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
+-				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+ 			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+@@ -16203,7 +16211,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
+@@ -16430,7 +16438,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; remove jungle defense penalty and give an additional jungle attack advantage as of now anyways etc for this civ-specific unit if i may say but anyways etc due to civ geography world map advantage, see other units's code comments for details or/and additional info anyways etc -->
+@@ -16869,12 +16877,28 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+ 					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>10</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainDefense>10</iTerrainDefense>
++				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
+ 			<FeatureAttacks>
+@@ -17100,20 +17124,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
+-				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
+-				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
+ 			<FeatureAttacks>
+@@ -17336,25 +17352,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: make camel units better/stronger in desert and similar terrain +/- features anyways etc, quite little anyways etc bonus for the arabian civilization's civ-specific unit as they are a desertic civilzation so more accustomed/knowledgeable in this case anyways etc to this anyways etc -->
++			<!-- custom: make camel units better/stronger in desert and similar terrain +/- features anyways etc, quite little anyways etc bonus for the arabian civilization's civ-specific unit as they are a desertic civilzation so more accustomed/knowledgeable in this case anyways etc to this anyways etc ; note: made defense not too op for balance, else no point to build defensive units (ideally would increase defense a bit more but hopefully fine as such anyways etc) or such but anyways etc, also maybe thematically accurate how arabs expanded quite heavily so hopefully fine to have higher attack for that purpose as well if i may say but anyways etc -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainAttack>50</iTerrainAttack>
+ 				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
+-				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
+-				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>35</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+@@ -17792,11 +17800,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<FeatureAttacks/>
+ 			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; also remove the unit's forest penalty similarly due to world map, see code comments at other unit's terrainattacks or such for details anyways etc -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+@@ -18002,7 +18015,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in europe due to it being only forestic with no obvious terrain in the world maps i saw but anyways etc, but eastern europe is cold, so symbolize as having a bit of tundra in civ4 terms but anyways etc (see for example this Köppen climate classification map https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification for details or maybe rather info or such hopefully helpful if i may say but anyways etc...) -->
++			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in europe due to it being only forestic with no obvious terrain in the world maps i saw but anyways etc, but eastern europe is cold, so symbolize as having if relevant enough a bit of tundra in civ4 terms but anyways etc (see for example this Köppen climate classification map https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification for details or maybe rather info or such hopefully helpful if i may say but anyways etc...) -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+@@ -18012,11 +18025,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<FeatureAttacks/>
+ 			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; removing the forest penalty due to their geography favouring forest if i am not mistaken in doing so at least i want so hopefully helpful or not or yes or etc but anyways etc, see also as of now the korean civ-specific unit for similar example / type of example if i may say but anyways etc -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+@@ -18229,19 +18247,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
+-				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
+-				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+@@ -18650,6 +18660,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
++			<!-- custom: although i didn't check too much, russia seems a bit better at defense than offense based on some comments  found online but anyways etc, but it's also to not make tundra too op while making sure to buff it enough though but anyways etc -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+@@ -18663,15 +18674,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>35</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_SNOW</TerrainType>
+ 					<iTerrainDefense>50</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<FeatureAttacks/>
+ 			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; also remove the forest penalty due to civ's world map advantage, see other units 's code comments for details anyways etc -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+@@ -19208,7 +19224,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>330</iCost>
++			<iCost>320</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -19232,7 +19248,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>60</iCombat>
++			<iCombat>56</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -19272,7 +19288,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>16</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>6</iAsset>
+-			<iPower>60</iPower>
++			<iPower>56</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -20305,19 +20321,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
++					<iFeatureAttack>50</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>50</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+@@ -20888,7 +20904,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>48</iCombat>
++			<iCombat>46</iCombat>
+ 			<iCombatLimit>85</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -20941,7 +20957,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>6</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>5</iAsset>
+-			<iPower>53</iPower>
++			<iPower>49</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+
+diff --git a/README.md b/README.md
+index 34d7a422c..f9f7a521f 100644
+--- a/README.md
++++ b/README.md
+@@ -295,7 +295,9 @@ Among other maps or information i found online but anyways etc, i mostly also us
+ 
+ ![0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg)
+ 
+-Note: sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe and eastern asia due to them being only forestic with no obvious terrain in the world maps i saw but anyways etc, but they is cold, so symbolize it as having a bit of tundra in civ4 terms but anyways etc (see for example this [Köppen climate classification map on wikipedia](https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification) for details or maybe rather info or such hopefully helpful if i may say but anyways etc...)
++Note: sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe and eastern asia due to them being only forestic with no obvious terrain in the world maps i saw but anyways etc, but they is cold, so symbolize it as having if relevant enough a bit of tundra in civ4 terms but anyways etc (see for example this [Köppen climate classification map on wikipedia](https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification) for details or maybe rather info or such hopefully helpful if i may say but anyways etc...)
++
++Note 2: as of now i'm using plains as a representative of savanna more or less anyways etc
+ 
+ ## Project Goals and global view on gameplay changes
+ 
+@@ -394,8 +396,6 @@ The bit annoying/painful section, but in short this is a fan project that i hope
+ - `LEADER_VICTORIA`: Victorian Violin Waltz - Music by [Luis Humanoide](https://pixabay.com/users/luis_humanoide-12661853/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=222298) from [Pixabay](https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=222298), i also re found it here similarly than for LEADER_EWUARE's music link but anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/classical-string-quartet-victorian-violin-waltz-222298/) seems safe as coming from pixabay as well if i am not mistaken but anyways etc and from asking chatgpt too to be sure seems safe indeed but maybe check too to be sure but should be safe but check to be sure in case i am mistaken but anyways etc
+ - `SONG_OPENING_MENU`: Lofi Song - Music by [DELOSound](https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550), i also re found it here similarly [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/beats-lofi-song-330550/) anyways etc
+ - `AS2D_FUTURE_EPIC_SYMPHONIC_METAL_263322`: Epic Symphonic Metal Instrumental - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=263322) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=263322), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/metal-epic-symphonic-metal-instrumental-263322/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
+-- `AS2D_FUTURE_FAMINE_IN_EUROPE`: Famine In Europe - by Nicholas John Panek from [Soundcloud](https://soundcloud.com/nicholas-panek-961795493/famine-in-europe), seems as of now safe for copyright use as the website says as of now this `Famine In Europe By Nicholas Panek is licensed under a Creative Commons License.` with a link as of now to [CC BY-SA 3.0 - Attribution-ShareAlike 3.0 Unported - Deed](https://creativecommons.org/licenses/by-sa/3.0/) but check to be sure anyways etc
+-- `AS2D_FUTURE_FINAL_SUNSHINE`: Final Sunshine - by Nicholas John Panek from [Soundcloud](https://soundcloud.com/nicholas-panek-961795493/final-sunshine), seems as of now similarly safe for copyright use but check to be sure anyways etc
+ - `AS2D_FUTURE_FOOT_TAPPER_CLASSICAL`: Foot Tapper Classical Music Dubstep Fusion - by Nicholas Panek from [Soundcloud](https://soundcloud.com/nicholas-panek-961795493/foot-tapper-classical-music-dubstep-fusion), seems as of now similarly safe for copyright use but check to be sure anyways etc
+ - `AS2D_FUTURE_FUTURISTIC_ROBOT_COPS_234351`: Futuristic Robotic Cops in a Dystopian City - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=234351) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=234351), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/upbeat-futuristic-robotic-cops-in-a-dystopian-city-234351/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
+ - `AS2D_FUTURE_HEAVY_THRASH_METAL_377893`: Heavy Thrash Metal Instrumental - Irate - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=377893) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=377893), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/metal-heavy-thrash-metal-instrumental-irate-377893/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
+@@ -404,17 +404,15 @@ The bit annoying/painful section, but in short this is a fan project that i hope
+ - `AS2D_FUTURE_INTO_THE_DARKNESS_336411`: Into the Darkness | Symphonic Metal Instrumental - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=336411) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=336411), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/alternative-into-the-darkness-symphonic-metal-instrumental-336411/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
+ - `AS2D_FUTURE_LOFI_295209`: lofi - Music by [Vivid Illustrate](https://pixabay.com/users/vividillustrate-31929813/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=295209) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=295209), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/beats-lofi-295209/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
+ - `AS2D_FUTURE_ON_THE_COSMIC`: Track: On The Cosmic Wave (Inspiring Synthwave Cosmic Background) - soundbay Link: [https://soundbaymusic.fanlink.tv/csmw](https://soundbaymusic.fanlink.tv/csmw) . Should also be safe based on the review of its youtube description if i may say but anyways etc if i am not mistaken but check to be sure anyways etc
+-- `AS2D_FUTURE_POWER_IN_THEIR`: Power In Their Hands - by Nicholas John Panek from [Soundcloud](https://soundcloud.com/nicholas-panek-961795493/power-in-their-hands?in=nicholas-panek-961795493/sets/a011001010110111001100100), seems as of now similarly safe for copyright use but check to be sure anyways etc
+ - `AS2D_FUTURE_RELAXING_PIANO_LOFI_251401`: Relaxing Piano Lofi Instrumental - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=251401) from [Pixabay](https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=251401), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/beats-relaxing-piano-lofi-instrumental-251401/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
+ - `AS2D_FUTURE_TACO_TRUCK_HEIST_377352`: Taco Truck Heist — Flamenco Meets Underground Hip Hop - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=377352) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=377352), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/beats-taco-truck-heist-flamenco-meets-underground-hip-hop-377352/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
+-- `AS2D_FUTURE_WORLD_S_END`: World's End - by Nicholas John Panek from [Soundcloud](https://soundcloud.com/nicholas-panek-961795493/worlds-end), seems as of now similarly safe for copyright use but check to be sure anyways etc
+ - `ART_DEF_MOVIE_NATYA_SHASTRA`: The Natya Shastra wonder's movie, imported from c2c mod's Meenakshi.bik, i don't know if it's copyrighted but doesn't seem anything too drastic and is a quite short if i may say in this case but anyways etc video of 31 seconds approximately so maybe fine in all cases this the info i had when importing it to this advciv-sas mod so hopefully copyright-safe but check to be sure in case i am mistaken anyways etc
+ 
+ >Used for educational and entertainment purposes only.
+ 
+ Note: to know where media files (such as music or videos) might have come from or not, please visit modding_ressources in this git sections, not directly mentioning how due to copyright reasons, but providing examples of how i could have done so or may have not done so, after asking chatgpt this seems safer to state as so while trying to provide general information that may be helpful or not or yes but anyways etc, and i adjusted it bit too based on its feedback suggestion, hopefully helpful or not or yes or etc but anyways etc.
+ 
+-Note 2: about why i used so much music from Nicholas Panek (/ Nicholas John Panek too is the same if i am not mistaken? But check to be sure anyways etc): is because i like this artist's music so much, although of course not all if i may sya but i found many nice ones in arious genres or/and such or whatever i simply enjoyed it :) If i had to pick a favourite, that would be really hard, but 2 (i said "a" but anyways etc) among all future era musics, i'd choose Famine In Europe, but maybe first most importantly before that Into the Darkness, the tune of famine of europe is so nice and the lyrics although i as of now don't understand too much of them but quite a bit seem suepr nice and eep even if i may say but anyways, as for the darkness music, i feel it explores undertones (whatever that means, i mean the type of melodies or simply notes or/and such from what little i know of it or/and feel of it but anyways etc anyways etc) i am not so used to hearing in music, and that i find super nice, although again it is super hard xd and many of these stand out, but these 2 especially more so to me if i may say or/and had to pick too hehe if i may say, but i like them all (or almost xd if not all) but anyways etc... Was super fun to find all this music although bit tedious hehe with some back and forth but anyways etc. But it is just my preference or ont just or yes just that may or not change and that i wantde to share here but anyways etc.
++Note 2: about why i used so much music from Nicholas Panek (/ Nicholas John Panek too is the same if i am not mistaken? But check to be sure anyways etc): is because i like this artist's music so much, although of course not all if i may sya but i found many nice ones in arious genres or/and such or whatever i simply enjoyed it if i may say but anyways etc.
+ 
+ For mods we took from, i mention them in more detail, hopefully exhaustive but i may have forgotten one or 2 or more or not if i didn't notice but anyways etc, in [README.md#credits](/README.md#credits)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 361bba250..9ea2bdae3 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -216,7 +216,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - air explore/recon units (as of now for example the airship (see sevopedia unit or the military changes section in this readme for details about the airship changes anyways etc)) can move through all terrains, including peaks and water tiles (they have additionally on top of `bCanMoveImpassable` also `bCanMoveAllTerrain` enabled in xml anyways etc)
+ - some units have terrain or/and feature movement restrictions, for example chariot units and some siege units cannot as of now move in jungle or forest feature tiles. Note: this only applies to tiles outside of cultural borders (not me who made it so, civ4 or and base advciv, reusing such logic as it is a fine logic i have no objection against in this case anyways etc). This effect applies to these tiles even if they are roaded (again base civ4 or/and advciv if i am not mistaken, i would like to ideally change this part, leaving as is for convenience as easiest, may or not change it if i find how but not guaranteed may not as well though as i said for convenience ease to keep as is even though not ideal, but anyways etc). Clarified info about it in sevopedia unit, and added this missing info ingame in map view of the unit's bullet point effects, see docs in particular known issues doc for details (link in main readme.md anyways etc) if interested anyways etc, or/and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details i mean too if i may say but anyways etc
+ - some other units like mounted_melee (for example the generic horse knight, etc.) units now have forest and jungle penalties to represent how they are handicapped in such dense features for their movement and combat ; some other units such as for example mounted_ranged have milder or in this case more limited penalties, only in defense as they can attack fine from a distance but may not be able to take cover wit their heavy mount or/and navigate the terrain or and such anyways etc, see code comments in xml for detailed reasoning anyways etc, as well as modifiers values in sevopedia terrain jungle or forest entries or and in xml, see also [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details on sevopedia feature category rework that now displays this info for all units (modifier of each unit also available in sevopedia unit category page of any unit if i am not mistaken too but anyways etc anyways etc anyways etc) anyways etc.
+-- terrains and features have a higher importance in military, more units have terrain/feature bonuses, and sometimes rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless i think it is relevant (quite strongly) anyways etc... ; as it is also tedious and less intuitive mostly if i may say too and not necessarily worth it or as i would want it maybe but anyways etc). Civ-specific units in particular as of now all have terrain +/- feature modifiers, see sevopedia entry of each unit for details about each unit's modifiers, or see sevopedia terrain or/and sevopedia feature page to see all units modifiers for said terrain/feature (see for more details [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) anyways etc). For example the camel knight or the zulu impi are stronger in desert or/and other terrains as well. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the balance and as is quite needless, only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. See also [README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units) for additional info anyways etc
++- terrains and features have a higher importance in military, more units have terrain/feature (+/- plot types e.g. hill for some units such as of now the quechua warrior but anyways etc) bonuses, and sometimes rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless i think it is relevant (quite strongly) anyways etc... Civ-specific units in particular as of now all have terrain +/- feature modifiers. I tried to follow a dominant terrain and minor ones approach and not make it too op yet still significant (else people would use civ-specific units instead of longbowmen for defense or their verison of the axeman instead of macemen which wouldn't make sense), and was more permissive for features as long as they don't impact city combat (no forest or jungle in city tiles in particular if i am not mistaken but anyways etc). See sevopedia entry of each unit for details about each unit's modifiers, or see sevopedia terrain or/and feature page(s) to easily (or at least much more easily hopefully but anyways etc) visualize these with the new UI additions we made there as well but anyways etc (see for more details [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) anyways etc). For example as of now the camel knight or the persian immortal are stronger in desert dominantly, or/and other terrains as well, or possibly in features as well. I was more permissive with terrains that are otherwise especially weak, such as snow (ice sheet) and desert. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the  since all players can build them and as is quite needless otherwise and would add too much complication not necessarily in a way that would improve gameplay or experience but anyways etc, so only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. See also [README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units) for additional info anyways etc
+ - buff build_jungle: now gives hammer on remove, as of now increased from 0 to 20, see `BUILD_REMOVE_JUNGLE` in [CIV4BuildInfos.xml](/Assets/XML/Units/CIV4BuildInfos.xml) for updated value, anyways etc
+ - reworked feature_jungle: now does not give any food penalty as according to the few websites or such i visited, jungle is vegetation and animal(s? But anyways etc) rich, and since it is so much weaker than feature_forest, removing the food yield penalty to compensate and rebalance it. As part of this change, also increasing health penalty from jungle tiles ; so although jungle is still weaker than forest for balance (giving it food yield would make jungle op and not necessarily realistic nor immersive for example anyways etc) hopefully it is closer now and jungle tiles can have some use at least they are not too bad as compared to forest as of now at least now anyways etc, as of now iHealthPercent has been increased from -25 to -50 (now and as of now i mean anyways etc same as of the forest health positive modifier but negative here anyways etc), see sevopedia feature category's jungle entry or/and xml for details anyways etc
+ - feature_jungle: reduce `iDefense` (base feature jungle if i am not mistaken but anyways etc) as of now from 0 to -25: gotta get something out of all those jungle penalties, reduce tile defense, which would make it easier for city owners to indirectly defend their cities or/and attack invaders if i am not mistaken, as as outside of cities provide a more man vs man kind of warfare xd if i may say but anyways etc, as also in the jungle everyone is left on their own, which is quite realistic maybe too anyways etc, also this doesn't affect city tile warfare as features are cleared on found if i am not mistaken but anyways etc so should be fine at least i want to do it so anyways etc (note: as of now rival defense of +25% still applies for all features if i am not mistaken, so as of now -25 to +25 (seemingly 25 for all features but i am not 100.0% sure if i may say but anyways etc..., check to be sure anyways etc) would be 0 total feature_jungle defense, vs 0 + 25 = 25 total defense on feature_forest if i am not mistaken anyways etc)
+@@ -333,6 +333,9 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) [https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense](https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense) for details (too anyways etc(.)) anyways etc...
+ - fixed the stealth bomber and other units having a lower collateral damage limit than its base collateral damage (`<iCollateralDamage>100</iCollateralDamage>` vs `<iCollateralDamageLimit>50</iCollateralDamageLimit>`), which i don't know a lot about but seems like a mistake or inconsistent with most units (why put a higher than the limit damage, again i could be mistaken about how this works-functions but anyways etc, but we (i.e. me but anyways etc xd if i may say but anyways etc...) also wanted to add more collateral damage support so now all units have some (swordsmen could throw shurikens) collateral damage limit, even though collateral damage itself starts at 0 for most units still ; such info is now displayed in sevopedia unit chart (as of now named "Combat" category, as well as in each unit's sevopedia unit placeSpecial (as of now named "Special Abilities" panel)), and also ingame in map view when hovering over the unit, in its effects panel (we also now show more reliably the extra collateral damage info there as well if i am not mistaken but anyways etc) ; also as a result and in line/following this change but anyways etc, as of now collateral damage 1 and 2 promotions are available to all eligible units (which should be all or almost all, see sevopedia promotion or sevopedia unit for details) ; hopefully i am not mistaken in doing so or/and it is helpful or not or yes or etc but anyways etc)
+ - some units are buildable at different times/tech, also for historical accuracy, see tech tree i.e. tech advisor for details anyways etc
++- rebalanced the warrior / ancient maceman in particular so it gives more base strength but less city combat, as well as now having animal combat modifier as well, and slightly higher cost.
++- rebalanced the archer and longbowman in particular as of now available sooner with lower base strength and cost but with some other stats, for historical accuracy as well as rebalancing these anyways etc. As for the archer, since it is available as of now sooner in our mod, makes sense that it doesn't upgrade to later units anyways, and since the longbowman is as of now also available much sooner, make it as of now upgrade to the crossbow rather anyways etc. Note: as of now all players still start only with ancient macemen (no archers or such other unit as of now anyways etc) for balance and thematical accuracy as well maybe but anyways etc.
++- barracks in particular now require as of now tech_hunting. Hopefully this helps avoiding a military beeline by AIs or human players, or selectively boosts military leaders more with this extra chance in the early game (for those that start with as of now tech_hunting) anyways etc.
+ - explore units can attack: but their strength should be quite low
+ - military units are versatile: swordsmen can defend, archers can attack or/and fit more in an attacker as well anyways etc
+ - rebalanced also naval units and/or other units like animal units and perhaps other units or not or yes while doing so i mean anyways etc, see xml for details or/and sevopedia ingame also for updated values too i mean anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 464540acc..1ffce1859 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 84a142444..42fa89a2a 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index bd38bb559..b7ea770e8 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index a0968e243..e2e17048e 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG
+index fa48bdcf9..c3f8cc150 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.60_military_tree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+index fe28a677d..a38fff544 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+index 205d94d4c..4bd3597c5 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (3).JPG
+index 655e91dec..f8cb25bf9 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+index a1a85b180..9a1059182 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+index 14dfc6c6b..4d0e9ccde 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+index 9eff54d58..7bbcea88e 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=27 embeddedFiles=27 omittedFiles=0 embeddedPatchBytes=98631

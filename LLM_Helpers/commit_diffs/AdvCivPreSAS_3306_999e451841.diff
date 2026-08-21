@@ -1,0 +1,88 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3306
+# Commit: 999e451841f87848d61dc0968f6b6befbb5a0890
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ed66c7fab2169c5eaa366d7e5363bd2d43ae4d7e
+# Title: Teleported AI units don't always lose moves
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	1	CvGameCoreDLL/CvPlot.cpp
+5	3	CvGameCoreDLL/CvUnit.cpp
+2	1	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 1b5421b7d..6dfad635e 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -729,8 +729,14 @@ void CvPlot::verifyUnitValidPlot()
+ 					if (isVisibleEnemyUnit(&kUnit) &&
+ 						!kUnit.isInvisible(getTeam(), false))
+ 					{
+-						if (!kUnit.jumpToNearestValidPlot(true))
++						if (!kUnit.jumpToNearestValidPlot(true, false,
++							/*	advc.163: Normally, the jump shouldn't be free,
++								but I don't want humans to troll AI stacks with e.g.
++								a worker placed on the path of an invading stack. */
++							!kUnit.isHuman()))
++						{
+ 							bErased = true;
++						}
+ 						// <K-Mod>
+ 						else
+ 						{
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 53a2152af..38ca4c0fd 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2879,7 +2879,8 @@ void CvUnit::move(CvPlot& kPlot, bool bShow, /* advc.163: */ bool bJump, bool bG
+ }
+ 
+ // returns false if unit is killed
+-bool CvUnit::jumpToNearestValidPlot(/* K-Mod: */ bool bGroup, bool bForceMove)
++bool CvUnit::jumpToNearestValidPlot(/* K-Mod: */ bool bGroup, bool bForceMove,
++	bool bFreeMove) // advc.163
+ {
+ 	FAssert(!isAttacking());
+ 	FAssert(!isFighting());
+@@ -2961,8 +2962,9 @@ bool CvUnit::jumpToNearestValidPlot(/* K-Mod: */ bool bGroup, bool bForceMove)
+ 			pGroup->setAutomateType(NO_AUTOMATE);
+ 			pGroup->setActivityType(ACTIVITY_AWAKE); // </advc.163>
+ 		}
+-		//setXY(pBestPlot->getX(), pBestPlot->getY(), bGroup);
+-		move(*pBestPlot, true, true, bGroup); // advc.163
++		if (bFreeMove) // advc.163
++			setXY(pBestPlot->getX(), pBestPlot->getY(), bGroup);
++		else move(*pBestPlot, true, true, bGroup); // advc.163
+ 	}
+ 	else
+ 	{
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 4bb033c13..7dc5b3510 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -94,7 +94,8 @@ public:
+ 	void move(CvPlot& kPlot, bool bShow, // advc: 1st param was CvPlot* (not const b/c of possible feature change)
+ 			bool bJump = false, bool bGroup = true); // advc.163
+ 	// K-Mod added bForceMove and bGroup
+-	bool jumpToNearestValidPlot(bool bGroup = false, bool bForceMove = false);								// Exposed to Python
++	bool jumpToNearestValidPlot(bool bGroup = false, bool bForceMove = false,								// Exposed to Python
++			bool bFreeMove = false); // advc.163
+ 
+ 	bool canAutomate(AutomateTypes eAutomate) const;														// Exposed to Python
+ 	void automate(AutomateTypes eAutomate);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2497

@@ -1,0 +1,83 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3963
+# Commit: f9962dd5591cc12d108013c3e0525bfb954c234b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0a4b1815c336bf226a5900928d43f8d1ba4686dd
+# Title: Show city trade help on Diplo screen
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+2	2	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index a8ed616e6..00a9129a0 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -4655,8 +4655,14 @@ void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct,
+ 		GAMETEXT.setBonusHelp(szBuffer, (BonusTypes)widgetDataStruct.m_iData2);
+ 		break;
+ 	case TRADE_CITIES:
+-		szBuffer.assign(gDLL->getText("TXT_KEY_TRADE_CITIES"));
++	{	// <advc.ctr>
++		CvCity const* pCity = GET_PLAYER(eWhoFrom).getCity(widgetDataStruct.m_iData2);
++		if (pCity != NULL)
++			GAMETEXT.setCityTradeHelp(szBuffer, *pCity, eWhoTo, false, false);
++		else // </advc.ctr>
++			szBuffer.assign(gDLL->getText("TXT_KEY_TRADE_CITIES"));
+ 		break;
++	}
+ 	case TRADE_PEACE:
+ 		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_MAKE_PEACE",
+ 				GET_TEAM(eWhoFrom).getName().GetCString(),
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index e0e1edfae..716da3427 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -8558,7 +8558,7 @@ void CvGameTextMgr::setDiscoverPathHelp(CvWStringBuffer& szBuffer, UnitTypes eUn
+ 
+ // advc.ctr:
+ void CvGameTextMgr::setCityTradeHelp(CvWStringBuffer& szBuffer, CvCity const& kCity,
+-	PlayerTypes eWhoTo, bool bListMore)
++	PlayerTypes eWhoTo, bool bListMore, bool bReason)
+ {
+ 	PlayerTypes eActivePlayer = getActivePlayer();
+ 	/*	For the debug menu on the Cities tab. Don't really know which
+@@ -8576,7 +8576,7 @@ void CvGameTextMgr::setCityTradeHelp(CvWStringBuffer& szBuffer, CvCity const& kC
+ 	else eDenial = GET_PLAYER(eOtherPlayer).AI_cityTrade(kCity.AI(), eActivePlayer);
+ 	bool bWilling = (eDenial == NO_DENIAL);
+ 	CvWString szReason;
+-	if (!bWilling)
++	if (!bWilling && bReason)
+ 	{
+ 		szReason = CvWString::format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_NEGATIVE_TEXT"),
+ 				GC.getInfo(eDenial).getText());
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 72f16b33d..576cafb51 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -106,7 +106,7 @@ public:
+ 	void setDiscoverPathHelp(CvWStringBuffer& szBuffer, UnitTypes eUnit);
+ 	// <advc.ctr>
+ 	void setCityTradeHelp(CvWStringBuffer& szBuffer, CvCity const& kCity,
+-			PlayerTypes eWhoTo, bool bListMore); // </advc.ctr>
++			PlayerTypes eWhoTo, bool bListMore, bool bReason = true); // </advc.ctr>
+ 	void setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool bCivilopediaText = false);
+ 	void setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool bCivilopediaText = false, bool bStrategyText = false, bool bTechChooserText = false, CvCity* pCity = NULL);
+ 	void setBuildingHelp(CvWStringBuffer &szBuffer, BuildingTypes eBuilding, bool bCivilopediaText = false, bool bStrategyText = false, bool bTechChooserText = false, CvCity* pCity = NULL);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2871

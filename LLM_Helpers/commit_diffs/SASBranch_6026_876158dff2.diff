@@ -1,0 +1,628 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6026
+# Commit: 876158dff2f27852320810189730865c68fd69e7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6341d3d556a7f580e3664b8631d52446c2c7c4da
+# Title: Add BBAI and SASGameSummary AI Settler security information
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+269	0	CvGameCoreDLL/CvUnitAI.cpp
+189	6	CvGameCoreDLL/SASGameSummaryLog.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 4f291f566..6494cd6cf 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1341,7 +1341,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Dedicated Settler-unit diagnostics, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions and Settler movement, scouting, returns, and founding; FOUND separately controls detailed city-site scoring calculations. (GPT-5.5) -->
++	<!-- custom: Dedicated Settler-unit diagnostics, separated from UNIT so Settlers and other units can be inspected independently. This covers city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; FOUND separately controls detailed city-site scoring calculations. Level 2 logs compact parking/security decisions, and level 3 adds city unit-list detail for escort-diversion analysis. (GPT-5.5 + ChatGPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_SETTLER_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 937d9ba31..505998529 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -12,6 +12,7 @@
+ #include "BarbarianWeightMap.h" // advc.304
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
++#include "CvInfo_Command.h" // <!-- custom: Settler parking diagnostics log MissionTypes by XML type. (ChatGPT-5.5) -->
+ #include "CvInfo_Building.h" // advc.003x: Only needed for the special buildings that GP can construct
+ #include "CvInfo_City.h" // <!-- custom: Great Artist decision diagnostics log specialist XML types. (GPT-5.5) -->
+ #include "CitySiteEvaluator.h" // <!-- custom: First-settler scoring keeps starting weights without all-seeing evaluation and provides compact diagnostics. (GPT-5.5) -->
+@@ -54,6 +55,259 @@ static void logSASSafetyUnitResult(char const* szAction, CvUnitAI const& kUnit,
+ 		szAction, GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.getX(), kUnit.getY(), (pTargetPlot == NULL ? -1 : pTargetPlot->getX()), (pTargetPlot == NULL ? -1 : pTargetPlot->getY()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(), bIgnoredDanger, iValue, kOwner.AI_getPlotDanger(kUnit.getPlot()), (pTargetPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pTargetPlot)));
+ }
+ 
++
++// <!-- custom: Settler parking diagnostics for expansion-security testing. These logs are deliberately diagnostic-only: they explain why a Settler stayed put, whether it had a target, whether danger was nearby, and whether the current city seemed to have spare escort candidates before any behavior change tries to make Settlers wait for escorts. (ChatGPT-5.5) -->
++struct SASSettlerParkingRecord
++{
++	int iLastTurn;
++	int iCreatedTurn;
++	int iX;
++	int iY;
++	int iTargetX;
++	int iTargetY;
++	int iParkedTurns;
++	SASSettlerParkingRecord() : iLastTurn(-1), iCreatedTurn(-1), iX(-1), iY(-1), iTargetX(-1), iTargetY(-1), iParkedTurns(0) {}
++};
++
++static std::map<int, SASSettlerParkingRecord> g_kSASSettlerParkingRecords;
++
++static const char* SAS_getUnitTypeName(UnitTypes eUnit)
++{
++	return (eUnit == NO_UNIT ? "-" : GC.getInfo(eUnit).getType());
++}
++
++static const char* SAS_getUnitAITypeName(UnitAITypes eUnitAI)
++{
++	return (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType());
++}
++
++static const char* SAS_getMissionTypeName(MissionTypes eMission)
++{
++	return (eMission == NO_MISSION ? "-" : GC.getInfo(eMission).getType());
++}
++
++static int SAS_updateSettlerParkedTurns(CvUnitAI const& kUnit, CvPlot const* pTargetPlot)
++{
++	int const iKey = 1000000 * kUnit.getOwner() + kUnit.getID();
++	SASSettlerParkingRecord& kRecord = g_kSASSettlerParkingRecords[iKey];
++	int const iTurn = GC.getGame().getGameTurn();
++	int const iTargetX = (pTargetPlot == NULL ? -1 : pTargetPlot->getX());
++	int const iTargetY = (pTargetPlot == NULL ? -1 : pTargetPlot->getY());
++	bool const bSameParkingState = (kRecord.iCreatedTurn == kUnit.getGameTurnCreated() && kRecord.iX == kUnit.getX() && kRecord.iY == kUnit.getY() && kRecord.iTargetX == iTargetX && kRecord.iTargetY == iTargetY);
++	if (!bSameParkingState)
++		kRecord.iParkedTurns = 1;
++	else if (kRecord.iLastTurn != iTurn)
++		kRecord.iParkedTurns++;
++	kRecord.iLastTurn = iTurn;
++	kRecord.iCreatedTurn = kUnit.getGameTurnCreated();
++	kRecord.iX = kUnit.getX();
++	kRecord.iY = kUnit.getY();
++	kRecord.iTargetX = iTargetX;
++	kRecord.iTargetY = iTargetY;
++	return kRecord.iParkedTurns;
++}
++
++static bool SAS_isSettlerDiagnosticUnit(CvUnit const& kUnit)
++{
++	return kUnit.AI_getUnitAIType() == UNITAI_SETTLE || kUnit.isFound();
++}
++
++static bool SAS_isWorkerDiagnosticUnit(CvUnit const& kUnit)
++{
++	UnitAITypes const eUnitAI = kUnit.AI_getUnitAIType();
++	return eUnitAI == UNITAI_WORKER || eUnitAI == UNITAI_WORKER_SEA || kUnit.workRate(true) > 0;
++}
++
++static void SAS_countSettlerGroupUnits(CvSelectionGroup const* pGroup, int& iGroupUnits, int& iGroupDefenders, int& iGroupHealthyDefenders, int& iGroupSettlers)
++{
++	iGroupUnits = 0;
++	iGroupDefenders = 0;
++	iGroupHealthyDefenders = 0;
++	iGroupSettlers = 0;
++	if (pGroup == NULL)
++		return;
++	FOR_EACH_UNIT_IN(pLoopUnit, *pGroup)
++	{
++		iGroupUnits++;
++		if (SAS_isSettlerDiagnosticUnit(*pLoopUnit))
++			iGroupSettlers++;
++		if (pLoopUnit->canDefend(pLoopUnit->plot()))
++		{
++			iGroupDefenders++;
++			if (pLoopUnit->getDamage() <= 25)
++				iGroupHealthyDefenders++;
++		}
++	}
++}
++
++struct SASSettlerCityEscortPool
++{
++	CvCityAI const* pCity;
++	int iCityUnits;
++	int iCityDefenders;
++	int iCityHealthyDefenders;
++	int iCityWoundedDefenders;
++	int iCitySettlers;
++	int iCityWorkers;
++	int iCityAttackers;
++	int iCityNeededDefenders;
++	int iCitySpareDefenders;
++	int iEscortCandidates;
++	CvUnit const* pBestEscort;
++	CvString szUnitList;
++	SASSettlerCityEscortPool() : pCity(NULL), iCityUnits(0), iCityDefenders(0), iCityHealthyDefenders(0), iCityWoundedDefenders(0), iCitySettlers(0), iCityWorkers(0), iCityAttackers(0), iCityNeededDefenders(-1), iCitySpareDefenders(-1), iEscortCandidates(0), pBestEscort(NULL) {}
++};
++
++static void SAS_collectSettlerCityEscortPool(CvUnitAI const& kSettler, SASSettlerCityEscortPool& kPool)
++{
++	CvPlot const* pPlot = kSettler.plot();
++	if (pPlot == NULL || !pPlot->isCity() || pPlot->getOwner() != kSettler.getOwner())
++		return;
++	kPool.pCity = pPlot->AI_getPlotCity();
++	if (kPool.pCity == NULL)
++		return;
++	CvSelectionGroup const* pSettlerGroup = kSettler.getGroup();
++	int iLoggedUnits = 0;
++	for (CLLNode<IDInfo> const* pUnitNode = pPlot->headUnitNode(); pUnitNode != NULL; pUnitNode = pPlot->nextUnitNode(pUnitNode))
++	{
++		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
++		if (pLoopUnit == NULL || pLoopUnit->getOwner() != kSettler.getOwner())
++			continue;
++		kPool.iCityUnits++;
++		bool const bCanDefend = pLoopUnit->canDefend(pPlot);
++		if (bCanDefend)
++		{
++			kPool.iCityDefenders++;
++			if (pLoopUnit->getDamage() <= 25)
++				kPool.iCityHealthyDefenders++;
++			else kPool.iCityWoundedDefenders++;
++		}
++		if (SAS_isSettlerDiagnosticUnit(*pLoopUnit))
++			kPool.iCitySettlers++;
++		if (SAS_isWorkerDiagnosticUnit(*pLoopUnit))
++			kPool.iCityWorkers++;
++		if (pLoopUnit->canAttack())
++			kPool.iCityAttackers++;
++		bool const bInSettlerGroup = (pSettlerGroup != NULL && pLoopUnit->getGroup() == pSettlerGroup);
++		if (bCanDefend && !bInSettlerGroup && pLoopUnit->getDamage() <= 50)
++		{
++			kPool.iEscortCandidates++;
++			if (kPool.pBestEscort == NULL || pLoopUnit->baseCombatStr() > kPool.pBestEscort->baseCombatStr() || (pLoopUnit->baseCombatStr() == kPool.pBestEscort->baseCombatStr() && pLoopUnit->getDamage() < kPool.pBestEscort->getDamage()))
++				kPool.pBestEscort = pLoopUnit;
++		}
++		if (gSettlerLogLevel >= 3 && iLoggedUnits < 10)
++		{
++			CvString szItem;
++			szItem.Format("%s#%d:%s:dmg%d:xp%d%s", SAS_getUnitTypeName(pLoopUnit->getUnitType()), pLoopUnit->getID(), SAS_getUnitAITypeName(pLoopUnit->AI_getUnitAIType()), pLoopUnit->getDamage(), pLoopUnit->getExperience(), bInSettlerGroup ? ":settlerGroup" : "");
++			if (!kPool.szUnitList.empty())
++				kPool.szUnitList += ",";
++			kPool.szUnitList += szItem;
++			iLoggedUnits++;
++		}
++	}
++	kPool.iCityNeededDefenders = kPool.pCity->AI_neededDefenders(true);
++	kPool.iCitySpareDefenders = kPool.iCityDefenders - kPool.iCityNeededDefenders;
++}
++
++static void SAS_countVisibleEnemiesNearPlot(CvPlot const& kCenter, PlayerTypes ePlayer, int iRange, int& iVisibleEnemies, int& iVisibleCombatEnemies, CvUnit const*& pNearestEnemy, int& iNearestEnemyDistance)
++{
++	iVisibleEnemies = 0;
++	iVisibleCombatEnemies = 0;
++	pNearestEnemy = NULL;
++	iNearestEnemyDistance = -1;
++	if (ePlayer == NO_PLAYER)
++		return;
++	TeamTypes const eTeam = GET_PLAYER(ePlayer).getTeam();
++	for (int iDX = -iRange; iDX <= iRange; iDX++)
++	{
++		for (int iDY = -iRange; iDY <= iRange; iDY++)
++		{
++			CvPlot const* pLoopPlot = plotXY(kCenter.getX(), kCenter.getY(), iDX, iDY);
++			if (pLoopPlot == NULL || !pLoopPlot->isVisible(eTeam, false))
++				continue;
++			for (CLLNode<IDInfo> const* pUnitNode = pLoopPlot->headUnitNode(); pUnitNode != NULL; pUnitNode = pLoopPlot->nextUnitNode(pUnitNode))
++			{
++				CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
++				if (pLoopUnit == NULL || !pLoopUnit->isEnemy(eTeam, kCenter) || pLoopUnit->isInvisible(eTeam, false))
++					continue;
++				iVisibleEnemies++;
++				if (pLoopUnit->baseCombatStr() > 0 || pLoopUnit->canAttack())
++					iVisibleCombatEnemies++;
++				int const iDistance = plotDistance(kCenter.getX(), kCenter.getY(), pLoopPlot->getX(), pLoopPlot->getY());
++				if (iNearestEnemyDistance < 0 || iDistance < iNearestEnemyDistance)
++				{
++					iNearestEnemyDistance = iDistance;
++					pNearestEnemy = pLoopUnit;
++				}
++			}
++		}
++	}
++}
++
++static void SAS_findBestReachableSettlerSite(CvUnitAI& kSettler, MovementFlags eFlags, CvPlot const*& pBestSite, int& iBestValue, int& iBestPathTurns, CvPlot const*& pBestEndTurnPlot)
++{
++	pBestSite = NULL;
++	iBestValue = 0;
++	iBestPathTurns = -1;
++	pBestEndTurnPlot = NULL;
++	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
++	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
++	{
++		CvPlot& kSite = kOwner.AI_getCitySite(i);
++		if (!kSite.isArea(kSettler.getArea()) && !kSettler.canMoveAllTerrain())
++			continue;
++		int iPathTurns = -1;
++		if (!kSettler.generatePath(kSite, eFlags, true, &iPathTurns))
++			continue;
++		int const iValue = kSite.getFoundValue(kSettler.getOwner());
++		if (iValue > iBestValue)
++		{
++			iBestValue = iValue;
++			iBestPathTurns = iPathTurns;
++			pBestSite = &kSite;
++			pBestEndTurnPlot = &kSettler.getPathEndTurnPlot();
++		}
++	}
++}
++
++static void SAS_logSettlerParking(CvUnitAI& kSettler, char const* szReason, int iAreaBestFoundValue, int iOtherBestFoundValue, bool bDanger, MovementFlags eFlags)
++{
++	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
++	CvSelectionGroupAI const* pGroup = kSettler.AI_getGroup();
++	CvPlot const* pPlot = kSettler.plot();
++	CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
++	CvPlot const* pBestSite = NULL;
++	CvPlot const* pBestEndTurnPlot = NULL;
++	int iBestReachableValue = 0;
++	int iBestReachablePathTurns = -1;
++	SAS_findBestReachableSettlerSite(kSettler, eFlags, pBestSite, iBestReachableValue, iBestReachablePathTurns, pBestEndTurnPlot);
++	CvPlot const* pTargetPlot = (pMissionPlot != NULL ? pMissionPlot : pBestSite);
++	int const iParkedTurns = SAS_updateSettlerParkedTurns(kSettler, pTargetPlot);
++	int iGroupUnits = 0;
++	int iGroupDefenders = 0;
++	int iGroupHealthyDefenders = 0;
++	int iGroupSettlers = 0;
++	SAS_countSettlerGroupUnits(kSettler.getGroup(), iGroupUnits, iGroupDefenders, iGroupHealthyDefenders, iGroupSettlers);
++	int iVisibleEnemies = 0;
++	int iVisibleCombatEnemies = 0;
++	int iNearestEnemyDistance = -1;
++	CvUnit const* pNearestEnemy = NULL;
++	if (pPlot != NULL)
++		SAS_countVisibleEnemiesNearPlot(*pPlot, kSettler.getOwner(), 2, iVisibleEnemies, iVisibleCombatEnemies, pNearestEnemy, iNearestEnemyDistance);
++	SASSettlerCityEscortPool kCityPool;
++	SAS_collectSettlerCityEscortPool(kSettler, kCityPool);
++	MissionTypes const eMission = (pGroup == NULL ? NO_MISSION : pGroup->getMissionType(0));
++	MissionAITypes const eMissionAI = (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType());
++	int const iMissionTargetValue = (pMissionPlot == NULL ? -1 : pMissionPlot->getFoundValue(kSettler.getOwner()));
++	logBBAI("    SETTLER_PARKED turn=%d player=%d %S reason=%s unitId=%d unit=%s unitAI=%s age=%d x=%d y=%d city=%S cityId=%d parkedTurns=%d mission=%s missionAI=%d missionTarget=(%d,%d) missionTargetValue=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d areaBestFoundValue=%d otherBestFoundValue=%d bestReachableValue=%d bestReachable=(%d,%d) bestReachablePathTurns=%d bestEndTurn=(%d,%d) dangerFlag=%d plotDanger=%d visibleEnemiesR2=%d visibleCombatEnemiesR2=%d nearestEnemyPlayer=%d nearestEnemyUnit=%s nearestEnemyDist=%d cityUnits=%d cityDefenders=%d cityHealthyDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d bestEscortId=%d bestEscortUnit=%s bestEscortAI=%s bestEscortDamage=%d",
++		GC.getGame().getGameTurn(), kSettler.getOwner(), kOwner.getCivilizationDescription(0), szReason, kSettler.getID(), SAS_getUnitTypeName(kSettler.getUnitType()), SAS_getUnitAITypeName(kSettler.AI_getUnitAIType()), GC.getGame().getGameTurn() - kSettler.getGameTurnCreated(), kSettler.getX(), kSettler.getY(), (kCityPool.pCity == NULL ? L"-" : kCityPool.pCity->getName().GetCString()), (kCityPool.pCity == NULL ? -1 : kCityPool.pCity->getID()), iParkedTurns, SAS_getMissionTypeName(eMission), eMissionAI, (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iMissionTargetValue, (pGroup == NULL ? -1 : pGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders, iGroupHealthyDefenders, (pGroup == NULL ? 0 : pGroup->canDefend()), iAreaBestFoundValue, iOtherBestFoundValue, iBestReachableValue, (pBestSite == NULL ? -1 : pBestSite->getX()), (pBestSite == NULL ? -1 : pBestSite->getY()), iBestReachablePathTurns, (pBestEndTurnPlot == NULL ? -1 : pBestEndTurnPlot->getX()), (pBestEndTurnPlot == NULL ? -1 : pBestEndTurnPlot->getY()), bDanger, (pPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pPlot)), iVisibleEnemies, iVisibleCombatEnemies, (pNearestEnemy == NULL ? -1 : pNearestEnemy->getOwner()), (pNearestEnemy == NULL ? "-" : SAS_getUnitTypeName(pNearestEnemy->getUnitType())), iNearestEnemyDistance, kCityPool.iCityUnits, kCityPool.iCityDefenders, kCityPool.iCityHealthyDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders, kCityPool.iEscortCandidates, (kCityPool.pBestEscort == NULL ? -1 : kCityPool.pBestEscort->getID()), (kCityPool.pBestEscort == NULL ? "-" : SAS_getUnitTypeName(kCityPool.pBestEscort->getUnitType())), (kCityPool.pBestEscort == NULL ? "-" : SAS_getUnitAITypeName(kCityPool.pBestEscort->AI_getUnitAIType())), (kCityPool.pBestEscort == NULL ? -1 : kCityPool.pBestEscort->getDamage()));
++	if (gSettlerLogLevel >= 3 && kCityPool.pCity != NULL)
++	{
++		logBBAI("    SETTLER_CITY_ESCORT_POOL turn=%d player=%d city=%S cityId=%d x=%d y=%d cityUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d neededDefenders=%d spareDefenders=%d settlers=%d workers=%d attackers=%d escortCandidates=%d units=%s",
++			GC.getGame().getGameTurn(), kSettler.getOwner(), kCityPool.pCity->getName().GetCString(), kCityPool.pCity->getID(), kCityPool.pCity->getX(), kCityPool.pCity->getY(), kCityPool.iCityUnits, kCityPool.iCityDefenders, kCityPool.iCityHealthyDefenders, kCityPool.iCityWoundedDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders, kCityPool.iCitySettlers, kCityPool.iCityWorkers, kCityPool.iCityAttackers, kCityPool.iEscortCandidates, kCityPool.szUnitList.empty() ? "-" : kCityPool.szUnitList.GetCString());
++	}
++}
++
+ // <!-- custom: Record mission and movement context to diagnose units repeatedly returning to evacuating cities. No behavior change. (GPT-5.5) -->
+ static void logSASEvacuationUnitDecision(char const* szMode, CvUnitAI const& kUnit, CvCityAI const& kCity, int iEvacProbPercent, bool bSelected)
+ {
+@@ -3318,7 +3572,10 @@ void CvUnitAI::AI_settleMove()
+ 		{	// flee
+ 			joinGroup(NULL);
+ 			if(AI_retreatToCity())
++			{
++				if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "RETREAT_TO_CITY_DANGER", 0, 0, bDanger, eMoveFlags);
+ 				return;
++			}
+ 			/*if(AI_safety())
+ 				return;
+ 			getGroup()->pushMission(MISSION_SKIP);*/ // BtS
+@@ -3388,6 +3645,7 @@ void CvUnitAI::AI_settleMove()
+ 				if (!kOwner.AI_isAnyUnitTargetMissionAI(*getGroup()->getHeadUnit(), MISSIONAI_PICKUP))
+ 				{
+ 					//FErrorMsg("advc.test: Just to see how frequently the AI scraps settlers"); // hardly ever
++					if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "SCRAP_NO_VALID_CITY_SITE", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+ 					scrap(); //may seem wasteful, but settlers confuse the AI.
+ 					return;
+ 				}
+@@ -3435,6 +3693,7 @@ void CvUnitAI::AI_settleMove()
+ 		bDanger && GC.getGame().getMaxCityElimination() > 0 &&
+ 		getGroup()->getNumUnits() < 3)
+ 	{
++		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_CITY_DANGER_MAX_CITY_ELIMINATION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+ 		getGroup()->pushMission(MISSION_SKIP);
+ 		return;
+ 	}
+@@ -3503,13 +3762,23 @@ void CvUnitAI::AI_settleMove()
+ 	} // K-Mod end
+ 
+ 	if(AI_retreatToCity())
++	{
++		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "RETREAT_TO_CITY_NO_FOUND_ACTION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+ 		return;
++	}
+ 	// K-Mod
+ 	if (AI_handleStranded())
++	{
++		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "HANDLE_STRANDED_NO_FOUND_ACTION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+ 		return;
++	}
+ 	// K-Mod end
+ 	if (AI_safety())
++	{
++		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "SAFETY_NO_FOUND_ACTION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+ 		return;
++	}
++	if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_NO_SETTLER_ACTION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+ 	getGroup()->pushMission(MISSION_SKIP);
+ }
+
+diff --git a/CvGameCoreDLL/SASGameSummaryLog.cpp b/CvGameCoreDLL/SASGameSummaryLog.cpp
+index 3eea69fb0..0b0a16106 100644
+--- a/CvGameCoreDLL/SASGameSummaryLog.cpp
++++ b/CvGameCoreDLL/SASGameSummaryLog.cpp
+@@ -1910,6 +1910,57 @@ static CvString getSASGameSummaryCityTradePartners(CvCity const& kCity)
+ 	return getSASGameSummaryOrDash(szList);
+ }
+ 
++// <!-- custom: Settler unit-state helpers for event-based expansion diagnostics. Keep game-summary rows descriptive: raw unit counts, visible enemy counts and combat/founding context, while BBAI logs carry the heavier AI-decision reasons. No gameplay behavior change. (ChatGPT-5.5) -->
++struct SASGameSummaryPlotUnitCounts
++{
++	int iUnits;
++	int iMilitaryUnits;
++	int iCivilianUnits;
++	int iDefenders;
++	int iHealthyDefenders;
++	int iWoundedDefenders;
++	int iSettlers;
++	int iWorkers;
++	int iAttackers;
++	CvUnit const* pBestDefender;
++	CvUnit const* pFirstSettler;
++	SASGameSummaryPlotUnitCounts() : iUnits(0), iMilitaryUnits(0), iCivilianUnits(0), iDefenders(0), iHealthyDefenders(0), iWoundedDefenders(0), iSettlers(0), iWorkers(0), iAttackers(0), pBestDefender(NULL), pFirstSettler(NULL) {}
++};
++
++static void collectSASGameSummaryPlotUnitCounts(CvPlot const& kPlot, PlayerTypes ePlayer, SASGameSummaryPlotUnitCounts& kCounts)
++{
++	for (CLLNode<IDInfo> const* pUnitNode = kPlot.headUnitNode(); pUnitNode != NULL; pUnitNode = kPlot.nextUnitNode(pUnitNode))
++	{
++		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
++		if (pLoopUnit == NULL || pLoopUnit->getOwner() != ePlayer)
++			continue;
++		kCounts.iUnits++;
++		if (pLoopUnit->baseCombatStr() > 0 || pLoopUnit->canAttack() || pLoopUnit->canDefend(&kPlot))
++			kCounts.iMilitaryUnits++;
++		else kCounts.iCivilianUnits++;
++		if (isSASGameSummarySettlerUnit(*pLoopUnit))
++		{
++			kCounts.iSettlers++;
++			if (kCounts.pFirstSettler == NULL)
++				kCounts.pFirstSettler = pLoopUnit;
++		}
++		if (isSASGameSummaryWorkerUnit(*pLoopUnit))
++			kCounts.iWorkers++;
++		if (pLoopUnit->canAttack())
++			kCounts.iAttackers++;
++		if (pLoopUnit->canDefend(&kPlot))
++		{
++			kCounts.iDefenders++;
++			if (pLoopUnit->getDamage() <= 25)
++				kCounts.iHealthyDefenders++;
++			else kCounts.iWoundedDefenders++;
++			if (kCounts.pBestDefender == NULL || pLoopUnit->baseCombatStr() > kCounts.pBestDefender->baseCombatStr() || (pLoopUnit->baseCombatStr() == kCounts.pBestDefender->baseCombatStr() && pLoopUnit->getDamage() < kCounts.pBestDefender->getDamage()))
++				kCounts.pBestDefender = pLoopUnit;
++		}
++	}
++}
++
++
+ static void logSASGameSummaryWorkedPlots(PlayerTypes ePlayer, int iGameTurn)
+ {
+ 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+@@ -1943,8 +1994,10 @@ static void logSASGameSummaryCityDetail(CvCity const& kCity, int iGameTurn)
+ 	}
+ 	CvPlayer const& kOwner = GET_PLAYER(kCity.getOwner());
+ 	const SASGameSummaryPlotComposition kWorkedPlots = getSASGameSummaryWorkedPlotComposition(kCity);
+-	logSASGameSummary("GAME_SUMMARY_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
+-			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), kCity.getTradeRoutes(), iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE), getSASGameSummaryCityProductionKind(kCity), getSASGameSummaryCityProductionType(kCity), kCity.getProductionTurnsLeft(), kCity.getProduction(), kCity.getProductionNeeded(), kCity.getOverflowProduction(), kCity.getFeatureProduction(), getSASGameSummaryCitySpecialists(kCity, false).GetCString(), getSASGameSummaryCitySpecialists(kCity, true).GetCString(), kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameSummaryCityGPOdds(kCity).GetCString());
++	SASGameSummaryPlotUnitCounts kCityUnits;
++	collectSASGameSummaryPlotUnitCounts(kCity.getPlot(), kCity.getOwner(), kCityUnits);
++	logSASGameSummary("GAME_SUMMARY_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
++			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCityUnits.iUnits, kCityUnits.iMilitaryUnits, kCityUnits.iCivilianUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iSettlers, kCityUnits.iWorkers, kCityUnits.iAttackers, kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), kCity.getTradeRoutes(), iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE), getSASGameSummaryCityProductionKind(kCity), getSASGameSummaryCityProductionType(kCity), kCity.getProductionTurnsLeft(), kCity.getProduction(), kCity.getProductionNeeded(), kCity.getOverflowProduction(), kCity.getFeatureProduction(), getSASGameSummaryCitySpecialists(kCity, false).GetCString(), getSASGameSummaryCitySpecialists(kCity, true).GetCString(), kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameSummaryCityGPOdds(kCity).GetCString());
+ 	logSASGameSummary("GAME_SUMMARY_CITY_HAPPINESS turn=%d player=%d cityId=%d happy=%d unhappy=%d surplus=%d happySources=%s flatUnhappySources=%s angerPercentSources=%s",
+ 			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.happyLevel(), kCity.unhappyLevel(), kCity.happyLevel() - kCity.unhappyLevel(), getSASGameSummaryCityHappySources(kCity).GetCString(), getSASGameSummaryCityFlatUnhappySources(kCity).GetCString(), getSASGameSummaryCityAngerPercentSources(kCity).GetCString());
+ 	logSASGameSummary("GAME_SUMMARY_CITY_HEALTH turn=%d player=%d cityId=%d goodHealth=%d badHealth=%d surplus=%d healthySources=%s unhealthySources=%s",
+@@ -1984,6 +2037,12 @@ static void logSASGameSummaryCities(PlayerTypes ePlayer, int iGameTurn)
+ 	int iSpecialists = 0;
+ 	int iFreeSpecialists = 0;
+ 	int iGarrison = 0;
++	int iCityUnits = 0;
++	int iMilitaryUnitsInCities = 0;
++	int iCivilianUnitsInCities = 0;
++	int iDefendersInCities = 0;
++	int iSettlersInCities = 0;
++	int iWorkersInCities = 0;
+ 	int iBestGPTurns = 1000000;
+ 	CvCity const* pNextGPCity = NULL;
+ 	int iLoop = 0;
+@@ -2024,6 +2083,14 @@ static void logSASGameSummaryCities(PlayerTypes ePlayer, int iGameTurn)
+ 		iSpecialists += pLoopCity->getSpecialistPopulation();
+ 		iFreeSpecialists += pLoopCity->totalFreeSpecialists();
+ 		iGarrison += pLoopCity->plot()->getNumDefenders(ePlayer);
++		SASGameSummaryPlotUnitCounts kCityUnits;
++		collectSASGameSummaryPlotUnitCounts(pLoopCity->getPlot(), ePlayer, kCityUnits);
++		iCityUnits += kCityUnits.iUnits;
++		iMilitaryUnitsInCities += kCityUnits.iMilitaryUnits;
++		iCivilianUnitsInCities += kCityUnits.iCivilianUnits;
++		iDefendersInCities += kCityUnits.iDefenders;
++		iSettlersInCities += kCityUnits.iSettlers;
++		iWorkersInCities += kCityUnits.iWorkers;
+ 		const int iGPTurns = pLoopCity->GPTurnsLeft();
+ 		if (iGPTurns >= 0 && iGPTurns < iBestGPTurns)
+ 		{
+@@ -2055,8 +2122,8 @@ static void logSASGameSummaryCities(PlayerTypes ePlayer, int iGameTurn)
+ 			iCitiesProducingProcesses++;
+ 		if (gGameSummaryLogLevel >= 3) logSASGameSummaryCityDetail(*pLoopCity, iGameTurn);
+ 	}
+-	logSASGameSummary("GAME_SUMMARY_CITIES turn=%d player=%d cities=%d capitalId=%d capital=%S connectedToCapital=%d totalFoodSurplus=%d totalHappySurplus=%d totalHealthSurplus=%d totalFood=%d totalProd=%d totalCommerce=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d unhappyCities=%d unhealthyCities=%d starvingCities=%d specialists=%d freeSpecialists=%d garrison=%d nextGPCityId=%d nextGPCity=%S nextGPTurns=%d nextGPRate=%d nextGPProgress=%d citiesProducingUnits=%d citiesProducingMilitary=%d citiesProducingWorkers=%d citiesProducingSettlers=%d citiesProducingBuildings=%d citiesProducingWonders=%d citiesProducingProjects=%d citiesProducingProcesses=%d",
+-			iGameTurn, ePlayer, iCities, pCapital == NULL ? -1 : pCapital->getID(), pCapital == NULL ? L"-" : pCapital->getName().GetCString(), iConnectedToCapital, iTotalFoodSurplus, iTotalHappySurplus, iTotalHealthSurplus, iTotalFoodYield, iTotalProductionYield, iTotalCommerceYield, iTotalTradeRoutes, iDomesticTradeRoutes, iForeignTradeRoutes, iTradeFood, iTradeProduction, iTradeCommerce, iUnhappyCities, iUnhealthyCities, iStarvingCities, iSpecialists, iFreeSpecialists, iGarrison, pNextGPCity == NULL ? -1 : pNextGPCity->getID(), pNextGPCity == NULL ? L"-" : pNextGPCity->getName().GetCString(), pNextGPCity == NULL ? -1 : iBestGPTurns, pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleRate(), pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleProgress(), iCitiesProducingUnits, iCitiesProducingMilitary, iCitiesProducingWorkers, iCitiesProducingSettlers, iCitiesProducingBuildings, iCitiesProducingWonders, iCitiesProducingProjects, iCitiesProducingProcesses);
++	logSASGameSummary("GAME_SUMMARY_CITIES turn=%d player=%d cities=%d capitalId=%d capital=%S connectedToCapital=%d totalFoodSurplus=%d totalHappySurplus=%d totalHealthSurplus=%d totalFood=%d totalProd=%d totalCommerce=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d unhappyCities=%d unhealthyCities=%d starvingCities=%d specialists=%d freeSpecialists=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d settlers=%d workers=%d nextGPCityId=%d nextGPCity=%S nextGPTurns=%d nextGPRate=%d nextGPProgress=%d citiesProducingUnits=%d citiesProducingMilitary=%d citiesProducingWorkers=%d citiesProducingSettlers=%d citiesProducingBuildings=%d citiesProducingWonders=%d citiesProducingProjects=%d citiesProducingProcesses=%d",
++			iGameTurn, ePlayer, iCities, pCapital == NULL ? -1 : pCapital->getID(), pCapital == NULL ? L"-" : pCapital->getName().GetCString(), iConnectedToCapital, iTotalFoodSurplus, iTotalHappySurplus, iTotalHealthSurplus, iTotalFoodYield, iTotalProductionYield, iTotalCommerceYield, iTotalTradeRoutes, iDomesticTradeRoutes, iForeignTradeRoutes, iTradeFood, iTradeProduction, iTradeCommerce, iUnhappyCities, iUnhealthyCities, iStarvingCities, iSpecialists, iFreeSpecialists, iGarrison, iCityUnits, iMilitaryUnitsInCities, iCivilianUnitsInCities, iDefendersInCities, iSettlersInCities, iWorkersInCities, pNextGPCity == NULL ? -1 : pNextGPCity->getID(), pNextGPCity == NULL ? L"-" : pNextGPCity->getName().GetCString(), pNextGPCity == NULL ? -1 : iBestGPTurns, pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleRate(), pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleProgress(), iCitiesProducingUnits, iCitiesProducingMilitary, iCitiesProducingWorkers, iCitiesProducingSettlers, iCitiesProducingBuildings, iCitiesProducingWonders, iCitiesProducingProjects, iCitiesProducingProcesses);
+ 	logSASGameSummary("GAME_SUMMARY_CITIES_DELTAS turn=%d player=%d deltaValid=%d citiesDelta=%+d connectedToCapitalDelta=%+d totalFoodSurplusDelta=%+d totalHappySurplusDelta=%+d totalHealthSurplusDelta=%+d totalFoodDelta=%+d totalProdDelta=%+d totalCommerceDelta=%+d tradeRoutesDelta=%+d tradeCommerceDelta=%+d specialistsDelta=%+d freeSpecialistsDelta=%+d garrisonDelta=%+d",
+ 			iGameTurn, ePlayer, kPrevious.bValid, getSASGameSummaryDelta(kPrevious.bValid, iCities, kPrevious.iCityCount), getSASGameSummaryDelta(kPrevious.bValid, iConnectedToCapital, kPrevious.iCityConnectedToCapital), getSASGameSummaryDelta(kPrevious.bValid, iTotalFoodSurplus, kPrevious.iCityFoodSurplus), getSASGameSummaryDelta(kPrevious.bValid, iTotalHappySurplus, kPrevious.iCityHappySurplus), getSASGameSummaryDelta(kPrevious.bValid, iTotalHealthSurplus, kPrevious.iCityHealthSurplus), getSASGameSummaryDelta(kPrevious.bValid, iTotalFoodYield, kPrevious.iCityFood), getSASGameSummaryDelta(kPrevious.bValid, iTotalProductionYield, kPrevious.iCityProduction), getSASGameSummaryDelta(kPrevious.bValid, iTotalCommerceYield, kPrevious.iCityCommerce), getSASGameSummaryDelta(kPrevious.bValid, iTotalTradeRoutes, kPrevious.iCityTradeRoutes), getSASGameSummaryDelta(kPrevious.bValid, iTradeCommerce, kPrevious.iCityTradeCommerce), getSASGameSummaryDelta(kPrevious.bValid, iSpecialists, kPrevious.iCitySpecialists), getSASGameSummaryDelta(kPrevious.bValid, iFreeSpecialists, kPrevious.iCityFreeSpecialists), getSASGameSummaryDelta(kPrevious.bValid, iGarrison, kPrevious.iCityGarrison));
+ 	kPrevious.iCityCount = iCities;
+@@ -2203,6 +2270,113 @@ void updateSASGameSummaryPlayerTurnState(PlayerTypes ePlayer)
+ 		g_aiSASGameSummaryTotalAnarchyTurns[ePlayer]++;
+ }
+ 
++
++static void countSASGameSummaryVisibleEnemiesNearPlot(CvPlot const& kCenter, PlayerTypes ePlayer, int iRange, int& iVisibleEnemies, int& iVisibleCombatEnemies, CvUnit const*& pNearestEnemy, int& iNearestEnemyDistance)
++{
++	iVisibleEnemies = 0;
++	iVisibleCombatEnemies = 0;
++	pNearestEnemy = NULL;
++	iNearestEnemyDistance = -1;
++	if (ePlayer == NO_PLAYER)
++		return;
++	TeamTypes const eTeam = GET_PLAYER(ePlayer).getTeam();
++	for (int iDX = -iRange; iDX <= iRange; iDX++)
++	{
++		for (int iDY = -iRange; iDY <= iRange; iDY++)
++		{
++			CvPlot const* pLoopPlot = plotXY(kCenter.getX(), kCenter.getY(), iDX, iDY);
++			if (pLoopPlot == NULL || !pLoopPlot->isVisible(eTeam, false))
++				continue;
++			for (CLLNode<IDInfo> const* pUnitNode = pLoopPlot->headUnitNode(); pUnitNode != NULL; pUnitNode = pLoopPlot->nextUnitNode(pUnitNode))
++			{
++				CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
++				if (pLoopUnit == NULL || !pLoopUnit->isEnemy(eTeam, kCenter) || pLoopUnit->isInvisible(eTeam, false))
++					continue;
++				iVisibleEnemies++;
++				if (pLoopUnit->baseCombatStr() > 0 || pLoopUnit->canAttack())
++					iVisibleCombatEnemies++;
++				int const iDistance = plotDistance(kCenter.getX(), kCenter.getY(), pLoopPlot->getX(), pLoopPlot->getY());
++				if (iNearestEnemyDistance < 0 || iDistance < iNearestEnemyDistance)
++				{
++					iNearestEnemyDistance = iDistance;
++					pNearestEnemy = pLoopUnit;
++				}
++			}
++		}
++	}
++}
++
++static void logSASGameSummaryCityUnits(CvCity const& kCity, char const* szReason)
++{
++	SASGameSummaryPlotUnitCounts kCounts;
++	collectSASGameSummaryPlotUnitCounts(kCity.getPlot(), kCity.getOwner(), kCounts);
++	int iVisibleEnemies = 0;
++	int iVisibleCombatEnemies = 0;
++	int iNearestEnemyDistance = -1;
++	CvUnit const* pNearestEnemy = NULL;
++	countSASGameSummaryVisibleEnemiesNearPlot(kCity.getPlot(), kCity.getOwner(), 2, iVisibleEnemies, iVisibleCombatEnemies, pNearestEnemy, iNearestEnemyDistance);
++	CvCity const* pNearestOtherOwnCity = NULL;
++	int iNearestOtherOwnCityDistance = -1;
++	int iCityLoop = 0;
++	for (CvCity const* pLoopCity = GET_PLAYER(kCity.getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(kCity.getOwner()).nextCity(&iCityLoop))
++	{
++		if (pLoopCity->getID() == kCity.getID())
++			continue;
++		int const iDistance = plotDistance(kCity.getX(), kCity.getY(), pLoopCity->getX(), pLoopCity->getY());
++		if (iNearestOtherOwnCityDistance < 0 || iDistance < iNearestOtherOwnCityDistance)
++		{
++			iNearestOtherOwnCityDistance = iDistance;
++			pNearestOtherOwnCity = pLoopCity;
++		}
++	}
++	logSASGameSummary("GAME_SUMMARY_CITY_UNITS turn=%d reason=%s player=%d cityId=%d city=%S x=%d y=%d pop=%d ownerUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d bestDefenderId=%d bestDefenderUnit=%s bestDefenderAI=%s bestDefenderDamage=%d visibleEnemiesR2=%d visibleCombatEnemiesR2=%d nearestEnemyPlayer=%d nearestEnemyUnit=%s nearestEnemyDist=%d nearestOtherOwnCityId=%d nearestOtherOwnCity=%S nearestOtherOwnCityDistance=%d",
++		GC.getGame().getGameTurn(), szReason, kCity.getOwner(), kCity.getID(), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCounts.iUnits, kCounts.iMilitaryUnits, kCounts.iCivilianUnits, kCounts.iDefenders, kCounts.iHealthyDefenders, kCounts.iWoundedDefenders, kCounts.iSettlers, kCounts.iWorkers, kCounts.iAttackers, (kCounts.pBestDefender == NULL ? -1 : kCounts.pBestDefender->getID()), (kCounts.pBestDefender == NULL ? "-" : getSASGameSummaryUnitType(kCounts.pBestDefender->getUnitType())), (kCounts.pBestDefender == NULL ? "-" : getSASGameSummaryUnitAIType(kCounts.pBestDefender->AI_getUnitAIType())), (kCounts.pBestDefender == NULL ? -1 : kCounts.pBestDefender->getDamage()), iVisibleEnemies, iVisibleCombatEnemies, (pNearestEnemy == NULL ? -1 : pNearestEnemy->getOwner()), (pNearestEnemy == NULL ? "-" : getSASGameSummaryUnitType(pNearestEnemy->getUnitType())), iNearestEnemyDistance, (pNearestOtherOwnCity == NULL ? -1 : pNearestOtherOwnCity->getID()), (pNearestOtherOwnCity == NULL ? L"-" : pNearestOtherOwnCity->getName().GetCString()), iNearestOtherOwnCityDistance);
++}
++
++static bool logSASGameSummarySettlerCombatForPlot(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pPlot, PlayerTypes eSettlerOwner, bool bLoserWasSettler, bool bWinnerWasSettler)
++{
++	if (pWinner == NULL || pLoser == NULL || pPlot == NULL || eSettlerOwner == NO_PLAYER)
++		return false;
++	SASGameSummaryPlotUnitCounts kCounts;
++	collectSASGameSummaryPlotUnitCounts(*pPlot, eSettlerOwner, kCounts);
++	if (kCounts.iSettlers <= 0 && !bLoserWasSettler && !bWinnerWasSettler)
++		return false;
++	CvUnit const* pSettler = (bLoserWasSettler ? pLoser : (bWinnerWasSettler ? pWinner : kCounts.pFirstSettler));
++	CvSelectionGroup const* pSettlerGroup = (pSettler == NULL ? NULL : pSettler->getGroup());
++	int iGroupUnits = 0;
++	int iGroupDefenders = 0;
++	int iGroupSettlers = 0;
++	if (pSettlerGroup != NULL)
++	{
++		FOR_EACH_UNIT_IN(pLoopUnit, *pSettlerGroup)
++		{
++			iGroupUnits++;
++			if (isSASGameSummarySettlerUnit(*pLoopUnit))
++				iGroupSettlers++;
++			if (pLoopUnit->canDefend(pLoopUnit->plot()))
++				iGroupDefenders++;
++		}
++	}
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=SETTLER_GROUP_ATTACKED settlerOwner=%d settlerId=%d settlerUnit=%s x=%d y=%d cityPlot=%d winnerPlayer=%d winnerUnitId=%d winnerUnit=%s winnerAI=%s winnerBaseStr=%d winnerDamage=%d loserPlayer=%d loserUnitId=%d loserUnit=%s loserAI=%s loserBaseStr=%d loserDamage=%d loserWasSettler=%d winnerWasSettler=%d ownerUnitsOnPlot=%d militaryUnitsOnPlot=%d civilianUnitsOnPlot=%d settlersOnPlot=%d defendersOnPlot=%d healthyDefendersOnPlot=%d workersOnPlot=%d settlerGroupId=%d settlerGroupUnits=%d settlerGroupSettlers=%d settlerGroupDefenders=%d",
++		GC.getGame().getGameTurn(), eSettlerOwner, (pSettler == NULL ? -1 : pSettler->getID()), (pSettler == NULL ? "-" : getSASGameSummaryUnitType(pSettler->getUnitType())), pPlot->getX(), pPlot->getY(), pPlot->isCity(), pWinner->getOwner(), pWinner->getID(), getSASGameSummaryUnitType(pWinner->getUnitType()), getSASGameSummaryUnitAIType(pWinner->AI_getUnitAIType()), pWinner->baseCombatStr(), pWinner->getDamage(), pLoser->getOwner(), pLoser->getID(), getSASGameSummaryUnitType(pLoser->getUnitType()), getSASGameSummaryUnitAIType(pLoser->AI_getUnitAIType()), pLoser->baseCombatStr(), pLoser->getDamage(), bLoserWasSettler, bWinnerWasSettler, kCounts.iUnits, kCounts.iMilitaryUnits, kCounts.iCivilianUnits, kCounts.iSettlers, kCounts.iDefenders, kCounts.iHealthyDefenders, kCounts.iWorkers, (pSettlerGroup == NULL ? -1 : pSettlerGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders);
++	return true;
++}
++
++static void logSASGameSummarySettlerCombatIfNeeded(CvUnit const* pWinner, CvUnit const* pLoser)
++{
++	if (pWinner == NULL || pLoser == NULL)
++		return;
++	bool const bLoserWasSettler = isSASGameSummarySettlerUnit(*pLoser);
++	bool const bWinnerWasSettler = isSASGameSummarySettlerUnit(*pWinner);
++	if (bLoserWasSettler && logSASGameSummarySettlerCombatForPlot(pWinner, pLoser, pLoser->plot(), pLoser->getOwner(), true, bWinnerWasSettler))
++		return;
++	if (bWinnerWasSettler && logSASGameSummarySettlerCombatForPlot(pWinner, pLoser, pWinner->plot(), pWinner->getOwner(), bLoserWasSettler, true))
++		return;
++	if (logSASGameSummarySettlerCombatForPlot(pWinner, pLoser, pLoser->plot(), pLoser->getOwner(), false, false))
++		return;
++	logSASGameSummarySettlerCombatForPlot(pWinner, pLoser, pWinner->plot(), pWinner->getOwner(), false, false);
++}
++
+ // <!-- custom: GAME_SUMMARY_ACTION is narrower than a generic row: it records chronological gameplay happenings such as techs, city ownership, war state, Great People, unit upgrades, and victory. Do not rename this to GAME_SUMMARY_ROW; "row" is too generic because every log line is already a row. This keeps the row type useful without using "event", which can be confused with Civ4 EventInfo/random events. (GPT-5.5) -->
+ void logSASGameSummaryTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer)
+ {
+@@ -2215,7 +2389,11 @@ void logSASGameSummaryCityBuilt(CvCity const* pCity)
+ 		return;
+ 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=CITY_BUILT player=%d cityId=%d city=%S x=%d y=%d pop=%d",
+ 			GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), pCity->getName().GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation());
+-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCityBFC(*pCity, "built");
++	if (gGameSummaryLogLevel >= 2)
++	{
++		logSASGameSummaryCityBFC(*pCity, "built");
++		logSASGameSummaryCityUnits(*pCity, "built");
++	}
+ }
+ 
+ void logSASGameSummaryCityRazed(CvCity const* pCity, PlayerTypes ePlayer)
+@@ -2248,7 +2426,11 @@ void logSASGameSummaryCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner,
+ 	}
+ 	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=CITY_ACQUIRED oldOwner=%d newOwner=%d cityId=%d city=%S x=%d y=%d pop=%d conquest=%d trade=%d",
+ 			GC.getGame().getGameTurn(), eOldOwner, eNewOwner, pCity->getID(), pCity->getName().GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation(), bConquest, bTrade);
+-	if (gGameSummaryLogLevel >= 2) logSASGameSummaryCityBFC(*pCity, "acquired");
++	if (gGameSummaryLogLevel >= 2)
++	{
++		logSASGameSummaryCityBFC(*pCity, "acquired");
++		logSASGameSummaryCityUnits(*pCity, "acquired");
++	}
+ }
+ 
+ void logSASGameSummaryChangeWar(bool bWar, TeamTypes eTeam, TeamTypes eOtherTeam)
+@@ -2370,6 +2552,7 @@ void logSASGameSummaryCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
+ {
+ 	if (pWinner == NULL || pLoser == NULL)
+ 		return;
++	if (gGameSummaryLogLevel > 0) logSASGameSummarySettlerCombatIfNeeded(pWinner, pLoser);
+ 	PlayerTypes eWinner = pWinner->getOwner();
+ 	PlayerTypes eLoser = pLoser->getOwner();
+ 	CvPlot const* pPlot = pLoser->plot();
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=43319

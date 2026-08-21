@@ -264,8 +264,7 @@ CyPlot* CySelectionGroup::getPathEndTurnPlot()
 	return m_pSelectionGroup ? new CyPlot(m_pSelectionGroup->getPathEndTurnPlot()) : NULL;
 }
 
-bool CySelectionGroup::generatePath(CyPlot* pFromPlot, CyPlot* pToPlot, int iFlags,
-	bool bReuse, int* piPathTurns)
+bool CySelectionGroup::generatePath(CyPlot* pFromPlot, CyPlot* pToPlot, int iFlags, bool bReuse, int* piPathTurns)
 {
 	if (m_pSelectionGroup == NULL ||
 		pFromPlot->getPlot() == NULL || pToPlot->getPlot() == NULL)

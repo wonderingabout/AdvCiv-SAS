@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 334
+# Commit: d050914afdbf942cec9ce2b1674de9eccca6f127
+# History segment: K-Mod history
+# Parent used for diff: fa0d5c92bdc26c3433a1ccc4e8fb2a2721e61a2f
+# Title: Corporation yield is now taken into account when choosing plot improvements.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	4	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index eb4580b20..669764a9d 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6947,13 +6947,17 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 	int iBonusFoodDeficit = 0;
+ 	int iFeatureFoodSurplus = 0;
+ 	int iHillFoodDeficit = 0;
+-	int iFoodTotal = GC.getYieldInfo(YIELD_FOOD).getMinCity();
+-	int iProductionTotal = GC.getYieldInfo(YIELD_PRODUCTION).getMinCity();
++	//int iFoodTotal = GC.getYieldInfo(YIELD_FOOD).getMinCity();
++	//int iProductionTotal = GC.getYieldInfo(YIELD_PRODUCTION).getMinCity();
++	// K-Mod. include corp. yield. (we should also include building yield - but that isn't so easy.)
++	int iFoodTotal = GC.getYieldInfo(YIELD_FOOD).getMinCity() + getCorporationYield(YIELD_FOOD);
++	int iProductionTotal = GC.getYieldInfo(YIELD_PRODUCTION).getMinCity() + getCorporationYield(YIELD_PRODUCTION);
++	// K-Mod end
+ 	iFoodMultiplier = 100;
+ 	iCommerceMultiplier = 100;
+ 	iProductionMultiplier = 100;
+ 	
+-	int iWorkedFood = 0;
++	//int iWorkedFood = 0;
+ 	int iWorkableFood = 0;
+ 	int iWorkableFoodPlotCount = 0;
+ 	
+@@ -7061,11 +7065,11 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 					}
+ 				}
+ 				
++				/* original code
+ 				if (pLoopPlot->isBeingWorked())
+ 				{
+ 					iWorkedFood += aiFinalYields[YIELD_FOOD];					
+ 				}
+-				/* original code
+ 				else
+ 				{
+ 					if (aiFinalYields[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION())
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1524

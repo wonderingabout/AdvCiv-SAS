@@ -1,0 +1,256 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5670
+# Commit: 2835bc63ff66ba509f232fa65ef75a9d051e0b3e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 57e2cacb59465b09bb5e40977579968cae3c4609
+# Title: Merge branch 'ui-font-scaling' of https://github.com/wonderingabout/AdvCiv-SAS into tech-rework
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds
+3	2	Assets/Python/BUG/Scoreboard.py
+35	3	Assets/Python/Screens/CvMainInterface.py
+5	0	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+10	1	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds
+ create mode 100644 _1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds
+new file mode 100644
+index 000000000..4b4340ab6
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds differ
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 68cb13998..b6aee2e9b 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -450,7 +450,7 @@ class Scoreboard:
+ 
+ 	
+ 		
+-	def draw(self, screen, iScrollOffset=0, iMaxRows=None):
++	def draw(self, screen, iScrollOffset=0, iMaxRows=None, bForceExpanded=False):
+ 		# Sorts and draws the scoreboard right-to-left, bottom-to-top.
+ 		#
+ 		timer = BugUtil.Timer("scores")
+@@ -494,7 +494,8 @@ class Scoreboard:
+ 		szDisplayOrder = ScoreOpt.getDisplayOrder()
+ 		# <advc.085>
+ 		bExpanded = False
+-		if gc.getPlayer(self._activePlayer).isScoreboardExpanded():
++		# <!-- custom: bForceExpanded overrides hover requirement; always shows expanded columns. (Claude code Sonnet 4.6) -->
++		if bForceExpanded or gc.getPlayer(self._activePlayer).isScoreboardExpanded():
+ 			bExpanded = True
+ 		else: # Take out the keys preceded by an underscore
+ 			stringsToRemove = []
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 7d8a9eebd..7af5adedc 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -53,6 +53,16 @@ import ProgressBarUtil # BUG - Progress Bar
+ import PLE # PLE Code
+ import MinimapOptions # advc.002a
+ import RawYields # BUG - Raw Yields
++import WidgetUtil
++# <!-- custom: custom widget types for scoreboard scroll/expand buttons; registered once at module load so hover text works. (Claude code Sonnet 4.6) -->
++WIDGET_SCORE_SCROLL_UP     = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP")
++WIDGET_SCORE_SCROLL_DOWN   = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN")
++WIDGET_SCORE_EXPAND_TOGGLE = WidgetUtil.createWidget("WIDGET_SCORE_EXPAND_TOGGLE")
++def _scoreHelp(szText):
++	return lambda *_: SAS_FONT_TAG_HOVER + szText + SAS_FONT_TAG_CLOSE
++WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP,     _scoreHelp(u"Scroll scoreboard up"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN,   _scoreHelp(u"Scroll scoreboard down"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_EXPAND_TOGGLE, _scoreHelp(u"Toggle lock scoreboard hover"))
+ # <advc.090>
+ import math
+ def floor(f):
+@@ -671,6 +681,8 @@ class CvMainInterface:
+ 		self.bSASLastCommerceRectsCityScreen = None
+ 		# <!-- custom: scoreboard scroll offset; 0 = show bottom of list (highest-ranked), increases to show lower-ranked players. Reset when the scoreboard is rebuilt. (Claude code Sonnet 4.6) -->
+ 		self.iScoreScrollOffset = 0
++		# <!-- custom: always-expand scoreboard toggle; when True, expanded columns shown without hovering. (Claude code Sonnet 4.6) -->
++		self.bScoreAlwaysExpand = False
+ 
+ 
+ 
+@@ -750,6 +762,8 @@ class CvMainInterface:
+ 		self.buildFilterNatWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_OFF").getPath()
+ 		self.buildFilterWorldWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
+ 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
++		# <!-- custom: lock emoji path for the always-expand scoreboard toggle. (Claude code Sonnet 4.6) -->
++		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
+ 		# self.buildFilterProjectOn = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
+ 		# self.buildFilterProjectOff = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
+ 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
+@@ -970,6 +984,7 @@ class CvMainInterface:
+ 		iSScrollBtnSz = BTNSZ(20)
+ 		gSetRect("ScoreScrollUp", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+ 		gSetRect("ScoreScrollDown", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
++		gSetRect("ScoreExpandToggle", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+ 		if self.bScaleHUD:
+ 			# To make room for the Turn Log, whose (default) position I can't change.
+ 			gRect("TurnLogButton").move(6, -3)
+@@ -2358,11 +2373,18 @@ class CvMainInterface:
+ 
+ 		# <!-- custom: score scroll buttons; shown only when player count exceeds available scoreboard rows. (Claude code Sonnet 4.6) -->
+ 		self.setStyledButton("ScoreScrollUp", ButtonStyles.BUTTON_STYLE_CITY_PLUS,
+-				WidgetTypes.WIDGET_GENERAL, -1, -1)
++				WIDGET_SCORE_SCROLL_UP, -1, -1)
+ 		screen.hide("ScoreScrollUp")
+ 		self.setStyledButton("ScoreScrollDown", ButtonStyles.BUTTON_STYLE_CITY_MINUS,
+-				WidgetTypes.WIDGET_GENERAL, -1, -1)
++				WIDGET_SCORE_SCROLL_DOWN, -1, -1)
+ 		screen.hide("ScoreScrollDown")
++		# <!-- custom: always-expand toggle; resolve SAS emoji path explicitly (addCheckBox only auto-resolves INTERFACE_/BUTTON_/RAW_YIELDS_/PLE_ prefixes). (Claude code Sonnet 4.6) -->
++		self.addCheckBox("ScoreExpandToggle",
++				self.szScoreExpandTogglePath, self.szScoreExpandTogglePath,
++				ButtonStyles.BUTTON_STYLE_IMAGE,
++				WIDGET_SCORE_EXPAND_TOGGLE)
++		screen.setState("ScoreExpandToggle", False)
++		screen.hide("ScoreExpandToggle")
+ 		self.setStyledButton("CityScrollMinus", ButtonStyles.BUTTON_STYLE_ARROW_LEFT,
+ 				WidgetTypes.WIDGET_CITY_SCROLL, -1)
+ 		screen.hide("CityScrollMinus")
+@@ -7189,6 +7211,7 @@ class CvMainInterface:
+ 		screen.hide("ScoreBackground")
+ 		screen.hide("ScoreScrollUp")
+ 		screen.hide("ScoreScrollDown")
++		screen.hide("ScoreExpandToggle")
+ 		eUIVis = CyInterface().getShowInterface()
+ 		if (eUIVis == InterfaceVisibility.INTERFACE_HIDE_ALL or
+ 				eUIVis == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or
+@@ -7224,6 +7247,10 @@ class CvMainInterface:
+ 		# <!-- custom: position scroll buttons at runtime below the panel. GlobeToggle.y() is 0 at init so buttons must be placed here instead. (Claude code Sonnet 4.6) -->
+ 		screen.moveItem("ScoreScrollUp", gPoint("ScoreTextLowerRight").x() - 2 * iSScrollBtnSz - HSPACE(1), iSScrollY, -0.3)
+ 		screen.moveItem("ScoreScrollDown", gPoint("ScoreTextLowerRight").x() - iSScrollBtnSz, iSScrollY, -0.3)
++		# <!-- custom: always-expand toggle sits to the left of the scroll buttons with a small gap. (Claude code Sonnet 4.6) -->
++		screen.moveItem("ScoreExpandToggle", gPoint("ScoreTextLowerRight").x() - 3 * iSScrollBtnSz - HSPACE(6), iSScrollY, -0.3)
++		screen.setState("ScoreExpandToggle", self.bScoreAlwaysExpand)
++		screen.show("ScoreExpandToggle")
+ # BUG - Align Icons - start
+ 		bAlignIcons = ScoreOpt.isAlignIcons()
+ 		if bAlignIcons:
+@@ -7328,7 +7355,7 @@ class CvMainInterface:
+ 			else:
+ 				self.iScoreScrollOffset = max(0, min(self.iScoreScrollOffset, iTotalCount - iMaxRows))
+ # BUG - Align Icons - start
+-			scores.draw(screen, self.iScoreScrollOffset, iMaxRows)
++			scores.draw(screen, self.iScoreScrollOffset, iMaxRows, self.bScoreAlwaysExpand)
+ # BUG - Align Icons - end
+ 		# <!-- custom: show scroll buttons when there are more players than visible rows; + (ScoreScrollUp) shows when more lower-ranked players exist below, - (ScoreScrollDown) shows when scrolled down and can go back up. (Claude code Sonnet 4.6) -->
+ 		if iTotalCount > iMaxRows:
+@@ -8087,6 +8114,11 @@ class CvMainInterface:
+ 					self.iScoreScrollOffset = max(0, self.iScoreScrollOffset - 1)
+ 					self.updateScoreStrings()
+ 					return 1
++				# <!-- custom: always-expand toggle; flips bScoreAlwaysExpand so expanded columns are shown permanently. (Claude code Sonnet 4.6) -->
++				elif fn == "ScoreExpandToggle":
++					self.bScoreAlwaysExpand = not self.bScoreAlwaysExpand
++					self.updateScoreStrings()
++					return 1
+ 				elif fn.startswith("BuildFilter"):
+ 					iNewFilter = inputClass.getData1()
+ 					if iNewFilter != self.iBuildingFilter:
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index f1eddb6bb..5e51779d1 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -1783,6 +1783,11 @@ Created as part of AdvCiv-SAS improvements
+ 			<Type>SAS_EMOJI_HERB</Type>
+ 			<Path>Art/AdvCiv_SAS/Emojis/Herb/1f33f_64px.dds</Path>
+ 		</InterfaceArtInfo>
++		<!-- 🔒 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_LOCKED</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds</Path>
++		</InterfaceArtInfo>
+ 		<!-- ⚙️ emoji from emojiterra -->
+ 		<InterfaceArtInfo>
+ 			<Type>SAS_EMOJI_GEAR</Type>
+
+diff --git a/README.md b/README.md
+index 8c37147d9..1e06bee1b 100644
+--- a/README.md
++++ b/README.md
+@@ -10,7 +10,7 @@ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12
+ 
+ Among notable UI changes, advisor screens have been reworked or new ones were added (e.g. new Score tab and Timeline Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
+ 
+-A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions.
++A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
+ 
+ New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
+ 
+@@ -45,6 +45,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[Main interface rework](/README.md#city-screen-rework)  
+ &emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)  
+ &emsp;&emsp;[Map view rework](/README.md#city-screen-rework)  
++&emsp;[Scoreboard](/README.md#scoreboard)  
+ [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
+ &emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia)](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia)  
+ &emsp;[Other new categories](/README.md#other-new-categories)  
+@@ -290,6 +291,14 @@ The city screen has been heavily reworked, beautified, and enhanced, for example
+ 
+ Outside the city screen, UI has been reworked too: moved away the flag from production buttons bars (was needless and cumbersome there: better show more buttons instead: moved optionally to top panel as detailed in main changes guide), added buttons for unit stack and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
+ 
++### Scoreboard
++
++New features have been added: scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
++
++<img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG" alt="0.410_scoreboard (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG" alt="0.410_scoreboard (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG" alt="0.410_scoreboard (3).JPG" width="250"></img>
++
+ ## UI (Main Sevopedia reworks)
+ 
+ Note: for more screenshots and documentation of the Sevopedia reworks in AdvCiv-SAS, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d1b4ecefc..de17430cd 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -350,7 +350,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). (Requires AdvCiv-SAS 5526+) Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**.
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+-- (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+ (up) and - (down) buttons scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow.
++- (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+ (up) and - (down) buttons scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Lock scoreboard hover toggle button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover). Note: in first turns of the game this effectively has no effect since power ratios are not yet visible. See [README.md (Scoreboard)](/README.md#scoreboard)
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ 
+ ### General changes
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG
+new file mode 100644
+index 000000000..b20826b82
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG
+new file mode 100644
+index 000000000..b26ab1e70
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG
+new file mode 100644
+index 000000000..f185cfc05
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=19183

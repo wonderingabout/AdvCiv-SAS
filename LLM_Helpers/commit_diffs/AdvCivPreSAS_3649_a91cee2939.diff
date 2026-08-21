@@ -1,0 +1,549 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3649
+# Commit: a91cee293923370002503e95b41831c42d74d42f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5641565ac968f7962a2041cc6fda6ffb1ccb81f9
+# Title: Re-enable worker stealing - with new restrictions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	0	Assets/XML/GlobalDefines_advc.xml
+26	0	Assets/XML/Text/CIV4GameText_advc.xml
+4	4	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+3	6	Assets/XML/Units/CIV4UnitInfos.xml
+79	8	CvGameCoreDLL/CvGameTextMgr.cpp
+3	1	CvGameCoreDLL/CvGlobals.h
+21	8	CvGameCoreDLL/CvPlayerAI.cpp
+1	4	CvGameCoreDLL/CvTeam.cpp
+2	1	CvGameCoreDLL/CvTeam.h
+35	23	CvGameCoreDLL/CvUnit.cpp
+1	0	CvGameCoreDLL/CvUnit.h
+23	8	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 5641d65ed..66607984d 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1264,4 +1264,23 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.010: Probability of capturing a unit that has a Capture Unit Class
++		 set in Civ4UnitInfos.xml, i.e. normally workers and settlers. If such a
++		 unit isn't successfully captured, it gets destroyed. Set to 100 for
++		 BtS behavior (capture always happens), recommended: 50.
++		 (In the future, this "base" probability might get adjusted dynamically,
++		 e.g. based on the distance to the territory of the capturing player;
++		 but this isn't implemented so far.) -->
++	<Define>
++		<DefineName>BASE_UNIT_CAPTURE_CHANCE</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++	<!-- Replaces the base chance above on the turn that war has been declared
++		 on a captured unit. Use 100 for BtS behavior. Recommended: 0, to
++		 discourage surprise attacks on workers. -->
++	<Define>
++		<DefineName>DOW_UNIT_CAPTURE_CHANCE</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index fd7224f2c..b341ca054 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -7302,6 +7302,32 @@
+ 		<German>[COLOR_WARNING_TEXT]%s1_Leader kann keine Geschenke von Ihnen annehmen.[COLOR_REVERT]</German>
+ 	</TEXT>
+ 
++	<!-- advc.010 -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_UNIT_CAPTURE_ODDS</Tag>
++		<English>Chance to Capture %s1_DefenderDescr: %s2_Odds</English>
++		<French>Chance de capturer %s1_DefenderDescr: %s2_Odds</French>
++		<German>Chance %s1_DefenderDescr gefangen zu nehmen: %s2_Odds</German>
++		<Italian>Probabilit� di catturare %s1_DefenderDescr: %s2_Odds</Italian>
++		<Spanish>Probabilidad de capturar %s1_DefenderDescr: %s2_Odds</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_UNIT_CAPTURE_ODDS_REPL</Tag>
++		<English>Chance to Capture as a %s1_CaptiveDescr: %s2_Odds</English>
++		<French>Chance de capturer comme %s1_CaptiveDescr: %s2_Odds</French>
++		<German>Chance %s1_CaptiveDescr gefangen zu nehmen: %s2_Odds</German>
++		<Italian>Probabilit� di catturare come %s1_CaptiveDescr: %s2_Odds</Italian>
++		<Spanish>Probabilidad de capturar como %s1_CaptiveDescr: %s2_Odds</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_NO_DOW_UNIT_CAPTURE</Tag>
++		<English>(War Declared on this Turn)</English>
++		<French>(guerre d�clar�e ce tour-ci)</French>
++		<German>(Krieg diese Runde erst erkl�rt)</German>
++		<Italian>(guerra dichiarata in questo turno)</Italian>
++		<Spanish>(guerra declarada en este turno)</Spanish>
++	</TEXT>
++
+ 	<!-- advc.500c -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_NO_FEAR_FOR_SAFETY</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index 0283e1e22..bc38c79c6 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -335,13 +335,13 @@
+ 		<Spanish>[H1]Inicio avanzado[\H1][PARAGRAPH:2]El sistema de Inicio avanzado permite a los jugadores empezar una partida de Civilization 4 en una era posterior, y personalizar sus civilizaciones como si hubieran estado jugando hasta el a&#241;o de inicio. Para jugar una partida con Inicio avanzado, utiliza la opci&#243;n "Personalizar partida" que encontrar&#225;s en el men&#250; de partida para "Un jugador". La casilla de verificaci&#243;n aparece debajo de "Opciones de partida". Esta opci&#243;n tambi&#233;n est&#225; disponible en la pantalla de configuraci&#243;n de las partidas multijugador.[NEWLINE][NEWLINE][BOLD]Reglas del Inicio avanzado[\BOLD][PARAGRAPH:1]Los jugadores recibir&#225;n cierta cantidad de oro que luego podr&#225; gastarse en ciudades, edificios, poblaci&#243;n de la ciudad, cultura, unidades, mejoras, tecnolog&#237;as y visibilidad de la casilla. Ciertos elementos no pueden ser eliminados una vez comprados, as&#237; que aseg&#250;rate de quererlos realmente. Estos elementos son: tecnolog&#237;as, ciudades, cultura y visibilidad. Las unidades y los edificios deben colocarse en ciudades. Puedes eliminar los edificios, la poblaci&#243;n y las mejoras una vez colocados si seleccionas el elemento en el men&#250; de Inicio avanzado y, a continuaci&#243;n, haces clic derecho en la casilla donde se encuentra el elemento que quieras eliminar. [PARAGRAPH:1]Los rasgos de los l&#237;deres y los recursos que normalmente reducir&#237;an el tiempo de producci&#243;n de determinados edificios o unidades, ahora proporcionan descuentos en dichos elementos. Por ejemplo, un l&#237;der comunicativo puede construir [LINK=BUILDING_HARBOR]Puertos[\LINK] con descuento, mientras que un l&#237;der con acceso al recurso de la piedra puede construir [LINK=BUILDING_WALLS]Murallas[\LINK] a mitad de precio. La cantidad de oro que un jugador recibe depende del tama&#241;o del mapa, la era en la que el jugador inicia su partida y el nivel de dificultad elegido. Cuanto m&#225;s tard&#237;a sea la era, mayor sea el mapa y menor el h&#225;ndicap seleccionado, m&#225;s oro recibir&#225; el jugador. Al empezar una partida personalizada, tanto de un jugador como multijugador, los jugadores pueden ajustar el n&#250;mero de puntos de Inicio avanzado disponibles en dicha partida.[PARAGRAPH:1]El jugador podr&#225; entonces colocar objetos en el mapa, pero solo aquellos para los que disponga de las tecnolog&#237;as y recursos apropiados. Al usar oro para adquirir nuevas tecnolog&#237;as, unidades m&#225;s avanzadas, edificios, etc., &#233;stos pasar&#225;n a estar disponibles. Es posible adquirir visibilidad ampliada para aumentar el territorio que un jugador puede usar. Las mejoras pueden dar acceso a los recursos necesarios. El oro que no se utilice durante el Inicio avanzado se sumar&#225; al tesoro del jugador al empezar la partida. </Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.010] Can no longer capture units.
+-		advc.005e -->
++	<!-- advc.010: Worker capturing has limitations;
++		 advc.005e. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_UNITS_PEDIA</Tag>
+-		<English>[H1]Units[\H1][PARAGRAPH:2]In Civilization IV, the term "unit" refers to anything that can move around the map. There are a number of different types of units in play - military units, work units, missionaries and great people - with military units forming the bulk of them.[PARAGRAPH:2][H2]Unit Statistics[\H2][PARAGRAPH:2]All units have two basic statistics (or "stats"): movement speed and combat strength.[PARAGRAPH:2][BOLD]Movement Speed[\BOLD][PARAGRAPH:2]A unit's movement speed determines how quickly the unit can move around the map. Movement speeds generally range from 1 to 8. Some units have movement speeds of 0, which indicates that these units have special rules governing their movement. See the section on [LINK=CONCEPT_MOVEMENT]Movement[\LINK] for details.[PARAGRAPH:2][BOLD]Combat Strength[\BOLD][PARAGRAPH:2]A unit's combat strength determines how tough the unit is when fighting an enemy unit. Combat strengths range from 1 to 40, and this base strength can be affected by many modifiers (see [LINK=CONCEPT_COMBAT]Combat[\LINK]). Some units have combat strengths of 0, which indicates that the unit cannot fight or has special rules governing combat. See the section on [LINK=CONCEPT_COMBAT]Combat[\LINK] for more details.[PARAGRAPH:2][H2]Acquiring Units[\H2][PARAGRAPH:2]You can obtain units in a number of ways:[PARAGRAPH:2][BOLD]Game Start[\BOLD][PARAGRAPH:2]You have two or more units at the start of a game. At least one of these units is a settler; the remainder are workers or military units.[PARAGRAPH:2][BOLD]Tribal Villages[\BOLD][PARAGRAPH:2]You may gain a new unit when one of your units enters a tribal village. (Or you may gain gold, technology, or experience - or the village may be hostile and generate barbarians to attack your unit.)[PARAGRAPH:2] [BOLD]Capturing Units[\BOLD][PARAGRAPH:2][BOLD]AdvCiv: It's no longer possible to capture units. Workers and Settlers are just destroyed when attacked, like the other non-military units.[\BOLD] [LINK=UNIT_WORKER]Workers[\LINK] and [LINK=UNIT_SETTLER]Settlers[\LINK] are automatically captured when attacked by a military unit, or when they are in a city that is captured. (Note that settler units turn into workers when captured.)[PARAGRAPH:2][BOLD]Constructing Units in Cities[\BOLD][PARAGRAPH:2]You construct most of your units in [LINK=CONCEPT_CITIES]Cities[\LINK]. See below.[PARAGRAPH:2][BOLD]Generating Units in Cities[\BOLD][PARAGRAPH:2]Your cities generate [LINK=CONCEPT_GREAT_PEOPLE]Great People[\LINK] units automatically. See that section for more details.[PARAGRAPH:2][BOLD]Gifts from other Civilizations[\BOLD][PARAGRAPH:2]Very rarely, a civilization may give you a unit.[PARAGRAPH:2][H2]Constructing Units in Cities[\H2][PARAGRAPH:2]As discussed above, most of your units come from your cities. Cities also construct buildings (plus other specialized items). They can only construct one item at a time - balancing the need for units against the need for buildings is crucial to your success in the game. Following is some information about constructing units; more can be found in the [LINK=CONCEPT_CITIES]Cities[\LINK] entry.[PARAGRAPH:2][BOLD]Choosing Units to Construct[\BOLD][PARAGRAPH:2]When a city is ready to begin constructing a new unit or building, the city construction menu appears. This lists everything that you can construct in that city, as well as the time required for construction. Click on the unit/building you wish to build and the city will begin construction immediately. If you wish to change what a city is constructing, go to the city screen and click on the new item you wish to build.[PARAGRAPH:2][BOLD]Unit Availability[\BOLD][PARAGRAPH:2]Not all units are available for construction at the start of the game. Many units have [LINK=CONCEPT_TECHNOLOGY]Technological[\LINK] requirements, and some units require that you have access to one or more [LINK=CONCEPT_RESOURCES]Resources[\LINK]; for example, you cannot build a [LINK=UNIT_SWORDSMAN]Swordsman[\LINK] until you have researched [LINK=TECH_IRON_WORKING]Iron Working[\LINK] and have access to [LINK=BONUS_IRON]Iron[\LINK]. Also, a few units have [LINK=CONCEPT_BUILDINGS]Building[\LINK] and/or [LINK=CONCEPT_RELIGION]Religious[\LINK] prerequisites.[PARAGRAPH:2][BOLD]Construction Time[\BOLD][PARAGRAPH:2]A unit's construction time is based upon the city's [LINK=CONCEPT_PRODUCTION]Production[\LINK]. The greater the amount of production a city has, the faster it can train new units.[PARAGRAPH:2][BOLD]Unit Support Costs[\BOLD][PARAGRAPH:2]The number of free units you will be able to have is affected by the Difficulty Level you are playing. Once you have surpassed the number of free units you are awarded, you will be charged per unit over your free unit total. Each unit costs one gold per turn to maintain. Certain [LINK=CONCEPT_CIVICS]Civics[\LINK] modify the number number of free units that are available to you.[PARAGRAPH:2][BOLD]Unit Away Costs[\BOLD][PARAGRAPH:2]Units that are not within your civilizations borders cost additional money to maintain and supply. Invading an enemy civilization will cause a serious strain on your budget.[PARAGRAPH:2][H2]Selecting Units[\H2][PARAGRAPH:2]A circle around a unit's indicates that the unit is "selected" and waiting for your orders. The computer auto-selects each unit waiting for orders in turn; if the unit already has orders the computer will not select that unit. You can also click on any of your units to select them manually.[PARAGRAPH:2][H2]Unit Orders[\H2][PARAGRAPH:2]When a unit is selected, you can order it to move (see [LINK=CONCEPT_MOVEMENT]Movement[\LINK]), or to attack (see [LINK=CONCEPT_COMBAT]Combat[\LINK]). The unit might have other options available to it: these are displayed in the unit's "order box" at the middle-bottom of the screen. To give a unit an order, click on the appropriate icon in the order box (many orders have keyboard shortcuts, as well).[PARAGRAPH:2]There are a wide variety of orders available in Civilization IV. The specific orders available vary from unit to unit and may also vary depending upon the unit's location, health status, experience, and so forth. [PARAGRAPH:2][BOLD]Other Orders:[\BOLD] [LINK=UNIT_BOMBER]Bombers[\LINK] may have bombing orders; [LINK=UNIT_FIGHTER]Fighters[\LINK] may have recon orders; [LINK=UNIT_GALLEON]Galleons[\LINK] may have transport orders; and so forth. Check on a [LINK=CONCEPT_UNITS]Unit's[\LINK] Civilopedia entry to find out what a unit can do.[PARAGRAPH:2][H2]Selecting Multiple Units[\H2][PARAGRAPH:2]You can select two or more units and give them both orders simultaneously. All of the units must be in the same space on the map. To do so, click on one unit, then shift-click on the other(s). All units will be selected.[PARAGRAPH:2][BOLD]Moving Multiple Units[\BOLD][PARAGRAPH:2]If two or more units are selected and you give them orders to move, they will do so in a group, at the speed of the SLOWEST unit. (Note: it is often smart to move a settler and a military unit simultaneously to make sure that the settler doesn't get destroyed by the first animal or barbarian it runs into.)[PARAGRAPH:2][BOLD]Multiple Unit Combat[\BOLD][PARAGRAPH:2]If you have the stack attack option enabled and you order two or more military units to attack an enemy unit, the most powerful unit against the defender will attack that unit. If that unit's attack is unsuccessful, the attack won't continue automatically; if you want to attack with another unit, you'll have to give that unit new orders. However, if you hold down the ALT key when ordering an attack with multiple units selected, the units will perform a stack attack with combat resolving immediately.[PARAGRAPH:2][BOLD]Multiple Unit Improvements[\BOLD][PARAGRAPH:2]If you have two or more workers selected, you can order them both to work on improvements. The workers' combined efforts will speed up construction considerably.[PARAGRAPH:2][H2]Promotions[\H2][PARAGRAPH:2]A combat unit gets "experience points" for winning battles. Enough experience points will earn that unit [LINK=CONCEPT_PROMOTIONS]promotions[\LINK].[PARAGRAPH:2][H2]Unit Types[\H2][PARAGRAPH:2]Each unit belongs to a different "group"; for example, [LINK=UNIT_MUSKETMAN]Muskets[\LINK] are Gunpowder units and [LINK=UNIT_KNIGHT]Knights[\LINK] are considered Mounted units. Many of the promotions and natural unit abilities are based upon these unit types. For example, [LINK=UNIT_SPEARMAN]Spearmen[\LINK] naturally get a huge boost when fighting Mounted units, and the [LINK=PROMOTION_SHOCK]Shock[\LINK] promotion grants a unit +25%% against Melee units. Consult the entries on [LINK=PEDIA_MAIN_PROMOTION]Promotions[\LINK] and on each individual unit for more information.[PARAGRAPH:2]</English>
++		<English>[H1]Units[\H1][PARAGRAPH:2]In Civilization IV, the term "unit" refers to anything that can move around the map. There are a number of different types of units in play - military units, work units, missionaries and great people - with military units forming the bulk of them.[PARAGRAPH:2][H2]Unit Statistics[\H2][PARAGRAPH:2]All units have two basic statistics (or "stats"): movement speed and combat strength.[PARAGRAPH:2][BOLD]Movement Speed[\BOLD][PARAGRAPH:2]A unit's movement speed determines how quickly the unit can move around the map. Movement speeds generally range from 1 to 8. Some units have movement speeds of 0, which indicates that these units have special rules governing their movement. See the section on [LINK=CONCEPT_MOVEMENT]Movement[\LINK] for details.[PARAGRAPH:2][BOLD]Combat Strength[\BOLD][PARAGRAPH:2]A unit's combat strength determines how tough the unit is when fighting an enemy unit. Combat strengths range from 1 to 40, and this base strength can be affected by many modifiers (see [LINK=CONCEPT_COMBAT]Combat[\LINK]). Some units have combat strengths of 0, which indicates that the unit cannot fight or has special rules governing combat. See the section on [LINK=CONCEPT_COMBAT]Combat[\LINK] for more details.[PARAGRAPH:2][H2]Acquiring Units[\H2][PARAGRAPH:2]You can obtain units in a number of ways:[PARAGRAPH:2][BOLD]Game Start[\BOLD][PARAGRAPH:2]You have two or more units at the start of a game. At least one of these units is a settler; the remainder are workers or military units.[PARAGRAPH:2][BOLD]Tribal Villages[\BOLD][PARAGRAPH:2]You may gain a new unit when one of your units enters a tribal village. (Or you may gain gold, technology, or experience - or the village may be hostile and generate barbarians to attack your unit.)[PARAGRAPH:2] [BOLD]Capturing Units[\BOLD][PARAGRAPH:2][LINK=UNIT_WORKER]Workers[\LINK] and [LINK=UNIT_SETTLER]Settlers[\LINK] are automatically captured when attacked by a military unit, or when they are in a city that is captured. (Note that settler units turn into workers when captured.) [BOLD]AdvCiv[\BOLD]: Workers and Settlers now only have a [BOLD]chance[\BOLD] of being captured, and that chance is 0 on the turn that war is declared on their owner. When the capture attempt fails, the attacked unit is destroyed (like any other non-military unit).[PARAGRAPH:2][BOLD]Constructing Units in Cities[\BOLD][PARAGRAPH:2]You construct most of your units in [LINK=CONCEPT_CITIES]Cities[\LINK]. See below.[PARAGRAPH:2][BOLD]Generating Units in Cities[\BOLD][PARAGRAPH:2]Your cities generate [LINK=CONCEPT_GREAT_PEOPLE]Great People[\LINK] units automatically. See that section for more details.[PARAGRAPH:2][BOLD]Gifts from other Civilizations[\BOLD][PARAGRAPH:2]Very rarely, a civilization may give you a unit.[PARAGRAPH:2][H2]Constructing Units in Cities[\H2][PARAGRAPH:2]As discussed above, most of your units come from your cities. Cities also construct buildings (plus other specialized items). They can only construct one item at a time - balancing the need for units against the need for buildings is crucial to your success in the game. Following is some information about constructing units; more can be found in the [LINK=CONCEPT_CITIES]Cities[\LINK] entry.[PARAGRAPH:2][BOLD]Choosing Units to Construct[\BOLD][PARAGRAPH:2]When a city is ready to begin constructing a new unit or building, the city construction menu appears. This lists everything that you can construct in that city, as well as the time required for construction. Click on the unit/building you wish to build and the city will begin construction immediately. If you wish to change what a city is constructing, go to the city screen and click on the new item you wish to build.[PARAGRAPH:2][BOLD]Unit Availability[\BOLD][PARAGRAPH:2]Not all units are available for construction at the start of the game. Many units have [LINK=CONCEPT_TECHNOLOGY]Technological[\LINK] requirements, and some units require that you have access to one or more [LINK=CONCEPT_RESOURCES]Resources[\LINK]; for example, you cannot build a [LINK=UNIT_SWORDSMAN]Swordsman[\LINK] until you have researched [LINK=TECH_IRON_WORKING]Iron Working[\LINK] and have access to [LINK=BONUS_IRON]Iron[\LINK]. Also, a few units have [LINK=CONCEPT_BUILDINGS]Building[\LINK] and/or [LINK=CONCEPT_RELIGION]Religious[\LINK] prerequisites.[PARAGRAPH:2][BOLD]Construction Time[\BOLD][PARAGRAPH:2]A unit's construction time is based upon the city's [LINK=CONCEPT_PRODUCTION]Production[\LINK]. The greater the amount of production a city has, the faster it can train new units.[PARAGRAPH:2][BOLD]Unit Support Costs[\BOLD][PARAGRAPH:2]The number of free units you will be able to have is affected by the Difficulty Level you are playing. Once you have surpassed the number of free units you are awarded, you will be charged per unit over your free unit total. Each unit costs one gold per turn to maintain. Certain [LINK=CONCEPT_CIVICS]Civics[\LINK] modify the number number of free units that are available to you.[PARAGRAPH:2][BOLD]Unit Away Costs[\BOLD][PARAGRAPH:2]Units that are not within your civilizations borders cost additional money to maintain and supply. Invading an enemy civilization will cause a serious strain on your budget.[PARAGRAPH:2][H2]Selecting Units[\H2][PARAGRAPH:2]A circle around a unit's indicates that the unit is "selected" and waiting for your orders. The computer auto-selects each unit waiting for orders in turn; if the unit already has orders the computer will not select that unit. You can also click on any of your units to select them manually.[PARAGRAPH:2][H2]Unit Orders[\H2][PARAGRAPH:2]When a unit is selected, you can order it to move (see [LINK=CONCEPT_MOVEMENT]Movement[\LINK]), or to attack (see [LINK=CONCEPT_COMBAT]Combat[\LINK]). The unit might have other options available to it: these are displayed in the unit's "order box" at the middle-bottom of the screen. To give a unit an order, click on the appropriate icon in the order box (many orders have keyboard shortcuts, as well).[PARAGRAPH:2]There are a wide variety of orders available in Civilization IV. The specific orders available vary from unit to unit and may also vary depending upon the unit's location, health status, experience, and so forth. [PARAGRAPH:2][BOLD]Other Orders:[\BOLD] [LINK=UNIT_BOMBER]Bombers[\LINK] may have bombing orders; [LINK=UNIT_FIGHTER]Fighters[\LINK] may have recon orders; [LINK=UNIT_GALLEON]Galleons[\LINK] may have transport orders; and so forth. Check on a [LINK=CONCEPT_UNITS]Unit's[\LINK] Civilopedia entry to find out what a unit can do.[PARAGRAPH:2][H2]Selecting Multiple Units[\H2][PARAGRAPH:2]You can select two or more units and give them both orders simultaneously. All of the units must be in the same space on the map. To do so, click on one unit, then shift-click on the other(s). All units will be selected.[PARAGRAPH:2][BOLD]Moving Multiple Units[\BOLD][PARAGRAPH:2]If two or more units are selected and you give them orders to move, they will do so in a group, at the speed of the SLOWEST unit. (Note: it is often smart to move a settler and a military unit simultaneously to make sure that the settler doesn't get destroyed by the first animal or barbarian it runs into.)[PARAGRAPH:2][BOLD]Multiple Unit Combat[\BOLD][PARAGRAPH:2]If you have the stack attack option enabled and you order two or more military units to attack an enemy unit, the most powerful unit against the defender will attack that unit. If that unit's attack is unsuccessful, the attack won't continue automatically; if you want to attack with another unit, you'll have to give that unit new orders. However, if you hold down the ALT key when ordering an attack with multiple units selected, the units will perform a stack attack with combat resolving immediately.[PARAGRAPH:2][BOLD]Multiple Unit Improvements[\BOLD][PARAGRAPH:2]If you have two or more workers selected, you can order them both to work on improvements. The workers' combined efforts will speed up construction considerably.[PARAGRAPH:2][H2]Promotions[\H2][PARAGRAPH:2]A combat unit gets "experience points" for winning battles. Enough experience points will earn that unit [LINK=CONCEPT_PROMOTIONS]promotions[\LINK].[PARAGRAPH:2][H2]Unit Types[\H2][PARAGRAPH:2]Each unit belongs to a different "group"; for example, [LINK=UNIT_MUSKETMAN]Muskets[\LINK] are Gunpowder units and [LINK=UNIT_KNIGHT]Knights[\LINK] are considered Mounted units. Many of the promotions and natural unit abilities are based upon these unit types. For example, [LINK=UNIT_SPEARMAN]Spearmen[\LINK] naturally get a huge boost when fighting Mounted units, and the [LINK=PROMOTION_SHOCK]Shock[\LINK] promotion grants a unit +25%% against Melee units. Consult the entries on [LINK=PEDIA_MAIN_PROMOTION]Promotions[\LINK] and on each individual unit for more information.[PARAGRAPH:2]</English>
+ 		<French>[H1]Unit&#233;s[\H1][PARAGRAPH:2]Dans Civilization IV, le terme "unit&#233;" fait r&#233;f&#233;rence &#224; tout ce qui peut se d&#233;placer sur la carte. Il y a de nombreux types d'unit&#233;s : les unit&#233;s militaires, les ouvriers, les missionnaires ou encore les personnages illustres, mais la cat&#233;gorie la plus importante est celle des unit&#233;s militaires.[PARAGRAPH:2][H2]Valeurs des unit&#233;s[\H2][PARAGRAPH:2]Toutes les unit&#233;s ont deux valeurs de base : la vitesse de d&#233;placement et la force de combat.[PARAGRAPH:2][BOLD]Vitesse de d&#233;placement[\BOLD][PARAGRAPH:2]La vitesse de d&#233;placement d&#233;termine l'allure &#224; laquelle une unit&#233; circule sur la carte. Elle se situe g&#233;n&#233;ralement entre 1 et 8. Certaines unit&#233;s ont une vitesse de d&#233;placement de 0, ce qui indique que leur d&#233;placement est soumis &#224; des r&#232;gles sp&#233;ciales. Consultez la section [LINK=CONCEPT_MOVEMENT]Mouvement[\LINK].[PARAGRAPH:2][BOLD]Force de combat[\BOLD][PARAGRAPH:2]La force de combat d&#233;termine la puissance de l'unit&#233; lors des combats. Elle se situe g&#233;n&#233;ralement entre 1 et 40, mais la force de combat est affect&#233;e par un certain nombre de modificateurs (consultez la section [LINK=CONCEPT_COMBAT]combat[\LINK]). Certaines unit&#233;s ont une force de combat de 0, ce qui indique qu'elles ne peuvent pas se battre, ou sont soumises &#224; des r&#232;gles sp&#233;ciales. Consultez la section [LINK=CONCEPT_COMBAT]combat[\LINK].[PARAGRAPH:2][H2]Acqu&#233;rir une unit&#233;[\H2][PARAGRAPH:2]Vous pouvez obtenir des unit&#233;s de diff&#233;rentes mani&#232;res :[PARAGRAPH:2][BOLD]D&#233;but de partie[\BOLD][PARAGRAPH:2]Vous d&#233;butez la partie avec deux unit&#233;s ou plus. Au moins une d'entre elles est un colon, les autres sont des ouvriers ou des unit&#233;s militaires.[PARAGRAPH:2][BOLD]Villages isol&#233;s[\BOLD][PARAGRAPH:2]Vous pouvez gagner une nouvelle unit&#233; quand une de vos unit&#233;s entre dans un village isol&#233; (ou vous pouvez obtenir de l'or, des technologies ou de l'exp&#233;rience, ou encore &#234;tre attaqu&#233; par le village qui g&#233;n&#232;re alors des barbares).[PARAGRAPH:2] [BOLD]Capturer des unit&#233;s[\BOLD][PARAGRAPH:2]Les [LINK=UNIT_WORKER]ouvriers[\LINK] et les [LINK=UNIT_SETTLER]colons[\LINK] sont automatiquement captur&#233;s lorsqu'une unit&#233; militaire les attaque, ou quand la ville dans laquelle ils se trouvent est captur&#233;e (notez que les unit&#233;s de colons se transforment en ouvriers quand elles sont captur&#233;es).[PARAGRAPH:2][BOLD]Construire des unit&#233;s dans les villes[\BOLD][PARAGRAPH:2]Vous construisez la plupart de vos unit&#233;s dans les [LINK=CONCEPT_CITIES]villes[\LINK].  et la ville entamera imm&#233;diatement la production. Si vous voulez modifier la construction en cours, allez sur l'&#233;cran de ville et cliquez sur le nouvel &#233;l&#233;ment que vous souhaitez produire.[PARAGRAPH:2][BOLD]Unit&#233;s disponibles[\BOLD][PARAGRAPH:2]En d&#233;but de partie, toutes les unit&#233;s ne sont pas disponibles. La plupart ont des conditions [LINK=CONCEPT_TECHNOLOGY]technologiques[\LINK] pr&#233;alables, et certaines n&#233;cessitent l'acc&#232;s &#224; une ou plusieurs [LINK=CONCEPT_RESOURCES]ressources[\LINK] particuli&#232;res. Vous ne pouvez pas, par exemple, cr&#233;er [LINK=UNIT_SWORDSMAN]de spadassins[\LINK] avant d'avoir d&#233;couvert [LINK=TECH_IRON_WORKING]le travail du fer[\LINK] et il vous faudra en plus disposer de [LINK=BONUS_IRON]fer[\LINK]. Certaines unit&#233;s n&#233;cessitent aussi la pr&#233;sence de [LINK=CONCEPT_BUILDINGS]b&#226;timents[\LINK] et/ou de [LINK=CONCEPT_RELIGION]religions[\LINK].[PARAGRAPH:2][BOLD]Temps de construction[\BOLD][PARAGRAPH:2]Le temps de construction d'une unit&#233; d&#233;pend de la [LINK=CONCEPT_PRODUCTION]production[\LINK] de la ville. Plus la production d'une ville est importante, plus vite elle pourra former de nouvelles unit&#233;s.[PARAGRAPH:2][BOLD]Co&#251;t d'entretien des unit&#233;s[\BOLD][PARAGRAPH:2]Le nombre d'unit&#233;s gratuites dont vous pouvez disposer est d&#233;termin&#233; par le niveau de difficult&#233; auquel vous jouez. Une fois ce nombre atteint, toutes les unit&#233;s suppl&#233;mentaires engendreront un co&#251;t d'entretien. Ce co&#251;t est de 1 or par tour et par unit&#233;. Certains [LINK=CONCEPT_CIVICS]r&#233;gimes politiques[\LINK] modifient le nombre d'unit&#233;s gratuites dont vous pouvez disposer.[PARAGRAPH:2][BOLD]Co&#251;t des unit&#233;s d&#233;plac&#233;es[\BOLD][PARAGRAPH:2]Les unit&#233;s qui ne se trouvent pas &#224; l'int&#233;rieur de vos fronti&#232;res vous co&#251;tent davantage &#224; entretenir et &#224; approvisionner. Envahir un pays ennemi a un prix, et pas des moindres.[PARAGRAPH:2][H2]S&#233;lectionner une unit&#233;[\H2][PARAGRAPH:2]Un cercle autour d'une unit&#233; indique que cette unit&#233; est "s&#233;lectionn&#233;e" et attend vos ordres. Chaque tour, l'ordinateur s&#233;lectionne automatiquement toutes les unit&#233;s qui attendent vos ordres. Une unit&#233; qui a une t&#226;che en cours n'est pas s&#233;lectionn&#233;e. Vous pouvez aussi cliquer sur vos unit&#233;s pour les s&#233;lectionner manuellement.[PARAGRAPH:2][H2]Ordres des unit&#233;s[\H2][PARAGRAPH:2]Lorsqu'une unit&#233; est s&#233;lectionn&#233;e, vous pouvez lui ordonner de se d&#233;placer (consultez la section [LINK=CONCEPT_MOVEMENT]mouvement[\LINK]), ou d'attaquer (consultez la section [LINK=CONCEPT_COMBAT]combat[\LINK], puis cliquez sur les autres en maintenant enfonc&#233;e la touche Maj. Toutes les unit&#233;s seront s&#233;lectionn&#233;es.[PARAGRAPH:2][BOLD]D&#233;placer plusieurs unit&#233;s[\BOLD][PARAGRAPH:2]Lorsque plusieurs unit&#233;s sont s&#233;lectionn&#233;es et que vous leur ordonnez de se d&#233;placer, elles le feront de mani&#232;re group&#233;e, &#224; la vitesse de la plus lente d'entre elles (remarque : il est souvent pr&#233;f&#233;rable de d&#233;placer ensemble un colon et une unit&#233; militaire pour veiller &#224; ce que le colon ne soit pas d&#233;truit par le premier animal sauvage ou barbare venu).[PARAGRAPH:2][BOLD]Combat d'unit&#233;s multiples[\BOLD][PARAGRAPH:2]Si vous ordonnez &#224; plusieurs unit&#233;s d'attaquer une unit&#233; ennemie, la plus puissante d'entre elles face &#224; l'unit&#233; cible attaquera. Si l'attaque &#233;choue, le combat s'arr&#234;te. Si vous voulez le poursuivre avec une autre unit&#233;, vous devrez la s&#233;lectionner et lui donner un ordre. Cependant, si lorsque vous ordonnez aux unit&#233;s s&#233;lectionn&#233;es d'attaquer, vous maintenez enfonc&#233;e la touche ALT, toutes les unit&#233;s attaqueront successivement de mani&#232;re automatique.[PARAGRAPH:2][BOLD]Am&#233;lioration d'unit&#233;s multiples[\BOLD][PARAGRAPH:2]Si vous s&#233;lectionnez plusieurs ouvriers, vous pouvez leur ordonner de construire ensemble des am&#233;liorations. Leurs efforts combin&#233;s acc&#233;l&#233;reront consid&#233;rablement la r&#233;alisation de l'ouvrage.[PARAGRAPH:2][H2]Promotions[\H2][PARAGRAPH:2]Une unit&#233; de combat obtient des "points d'exp&#233;rience" lorsqu'elle remporte un duel. Ces points lui vaudront des [LINK=CONCEPT_PROMOTIONS]promotions.[PARAGRAPH:2][H2]Types d'unit&#233;s[\H2][PARAGRAPH:2]Chaque unit&#233; appartient &#224; un groupe sp&#233;cifique. Les [LINK=UNIT_MUSKETMAN]mousquetaires[\LINK], par exemple, sont des unit&#233;s &#224; armes &#224; feu, tandis que les [LINK=UNIT_KNIGHT]chevaliers[\LINK] sont consid&#233;r&#233;s comme des unit&#233;s mont&#233;es. De nombreuses promotions et capacit&#233;s sp&#233;ciales d&#233;pendent du type des unit&#233;s. Par exemple, les [LINK=UNIT_SPEARMAN]lanciers[\LINK] ont un bonus lorsqu'ils affrontent des unit&#233;s mont&#233;es, et la promotion [LINK=PROMOTION_SHOCK]choc[\LINK] offre aux unit&#233;s un bonus de 25 %% contre les unit&#233;s de combat rapproch&#233;. Pour plus d'informations, consultez la section [LINK=PEDIA_MAIN_PROMOTION]promotions[\LINK] et les fiches des diff&#233;rentes unit&#233;s.[PARAGRAPH:2]</French>
+-		<German>[H1]Einheiten[\H1][PARAGRAPH:2]In Civilization IV bezeichnet der Begriff "Einheit" alle auf der Karte bewegbaren Einheiten. Es gibt im Spiel Milit&#228;reinheiten, Arbeitseinheiten und Gro&#223;e Pers&#246;nlichkeiten. Die meisten Einheiten sind allerdings Milit&#228;reinheiten.[PARAGRAPH:2][H2]Eigenschaften[\H2][PARAGRAPH:2]Alle Einheiten haben zwei grundlegende Eigenschaften: Die Fortbewegungsgeschwindigkeit und die Kampfst&#228;rke.[PARAGRAPH:2][BOLD]Fortbewegungsgeschwindigkeit[\BOLD][PARAGRAPH:2]Die Fortbewegungsgeschwindigkeit (1 bis 8) einer Einheit bestimmt ihr Marschtempo. Hat eine Einheit die Fortbewegungsgeschwindigkeit 0, gelten f&#252;r ihre Fortbewegung spezielle Regeln. Weitere Informationen dazu finden Sie im Abschnitt [LINK=CONCEPT_MOVEMENT]Fortbewegung[\LINK].[PARAGRAPH:2][BOLD]Kampfst&#228;rke[\BOLD][PARAGRAPH:2]Die Kampfst&#228;rke (zwischen 1 und 40) bestimmt die Effektivit&#228;t einer Einheit und kann von verschiedenen Modifikatoren beeinflusst werden. Hat eine Einheit die Kampfst&#228;rke 0, gelten spezielle Regeln. Weitere Informationen dazu finden Sie im Abschnitt [LINK=CONCEPT_COMBAT]Kampf[\LINK].[PARAGRAPH:2][H2]Neue Einheiten[\H2][PARAGRAPH:2]Es gibt verschiedene M&#246;glichkeiten, Einheiten zu erhalten:[PARAGRAPH:2][BOLD]Spielbeginn[\BOLD][PARAGRAPH:2]Am Anfang des Spiels haben Sie mindestens zwei Einheiten: einen Siedler und einen Bautrupp (oder eine Milit&#228;reinheit).[PARAGRAPH:2][BOLD]Stammesd&#246;rfer[\BOLD][PARAGRAPH:2]Betritt eine Ihrer Einheiten ein Stammesdorf, erhalten Sie eine zus&#228;tzliche Einheit, Gold, eine Technologie oder Erfahrung. Ist das Dorf feindselig, greifen Barbaren Ihre Einheit an.[PARAGRAPH:2][BOLD]Gefangennahme von Einheiten[\BOLD][PARAGRAPH:2][LINK=UNIT_WORKER]Bautrupps[\LINK] und [LINK=UNIT_SETTLER]Siedler[\LINK] werden automatisch gefangen genommen, wenn sie von einer Milit&#228;reinheit angegriffen oder mit einer Stadt erobert werden. Hinweis: Nach der Eroberung werden Siedler zu Bautrupps.[PARAGRAPH:2][BOLD]AdvCiv: Es gibt keine Gefangennahme mehr.  Stattdessen werden Bautrupps und Siedler genau wie die anderen zivilen Einheiten bei Angriff zerst�rt.[\BOLD][PARAGRAPH:2][BOLD]Bau von Einheiten in St&#228;dten[\BOLD][PARAGRAPH:2]Die meisten Einheiten werden in [LINK=CONCEPT_CITIES]St&#228;dten[\LINK] gebaut (siehe unten).[PARAGRAPH:2][BOLD]Gro&#223;e Pers&#246;nlichkeiten[\BOLD][PARAGRAPH:2]Ihre St&#228;dte bringen automatisch [LINK=CONCEPT_GREAT_PEOPLE]Gro&#223;e Pers&#246;nlichkeiten[\LINK] hervor. Weitere Informationen dazu finden Sie im entsprechenden Abschnitt.[PARAGRAPH:2][BOLD]Geschenke anderer Zivilisationen[\BOLD][PARAGRAPH:2]Gelegentlich schenkt Ihnen eine andere Zivilisation eine Einheit.[PARAGRAPH:2][H2]Bau von Einheiten in St&#228;dten[\H2][PARAGRAPH:2]Wie bereits erw&#228;hnt, werden die meisten Einheiten in St&#228;dten erschaffen. Allerdings k&#246;nnen hier auch Geb&#228;ude (und andere Spezialobjekte) gebaut werden. Da aber immer nur ein Objekt hergestellt werden kann, m&#252;ssen Sie den Bedarf an Einheiten und Geb&#228;uden genau abw&#228;gen, um im Spiel erfolgreich zu sein. Im Folgenden finden Sie Informationen &#252;ber den Bau von Einheiten. Weitere Informationen dazu finden Sie im Abschnitt [LINK=CONCEPT_CITIES]St&#228;dte[\LINK].[PARAGRAPH:2][BOLD]Auswahl der gew&#252;nschten Einheit[BOLD][PARAGRAPH:2]Kann eine Stadt etwas bauen, erscheint das Baumen&#252;. Hier werden alle Einheiten und Geb&#228;ude aufgelistet, die Sie in der jeweiligen Stadt bauen k&#246;nnen. Au&#223;erdem erhalten Sie Informationen &#252;ber die erforderliche Bauzeit. Klicken Sie auf die gew&#252;nschte Einheit (oder ein Geb&#228;ude), um den Bau zu starten. M&#246;chten Sie ein Bauprojekt &#228;ndern, w&#228;hlen Sie im Baumen&#252; einfach das Objekt aus, das Sie stattdessen bauen m&#246;chten.[PARAGRAPH:2][BOLD]Verf&#252;gbarkeit der Einheiten[\BOLD][PARAGRAPH:2]Am Anfang des Spiels k&#246;nnen Sie noch nicht alle Einheiten bauen. F&#252;r den Bau vieler Einheiten sind bestimmte [LINK=CONCEPT_TECHNOLOGY]Technologien[\LINK] oder [LINK=CONCEPT_RESOURCES]Ressourcen[\LINK] erforderlich. Sie k&#246;nnen beispielsweise keinen [LINK=UNIT_SWORDSMAN]Schwertk&#228;mpfer[\LINK] bauen, wenn Sie die [LINK=TECH_IRON_WORKING]Eisenverarbeitung[\LINK] noch nicht erfunden haben oder kein [LINK=BONUS_IRON]Eisen[\LINK] besitzen. F&#252;r den Bau anderer Einheiten brauchen Sie bestimmte [LINK=CONCEPT_BUILDINGS]Geb&#228;ude[\LINK] und/oder [LINK=CONCEPT_RELIGION]Religionen[\LINK].[PARAGRAPH:2][BOLD]Bauzeit[\BOLD][PARAGRAPH:2]Die Bauzeit einer Einheit ist von der [LINK=CONCEPT_PRODUCTION]Produktion[\LINK] der Stadt abh&#228;ngig. Je mehr eine Stadt produziert, desto mehr neue Einheiten kann sie ausbilden.[PARAGRAPH:2][BOLD]Unterhaltskosten[\BOLD][PARAGRAPH:2]Die Zahl der kostenlosen Einheiten ist vom gew&#228;hlten Schwierigkeitsgrad abh&#228;ngig. Jede weitere Einheit kostet Sie pro Runde 1 Goldst&#252;ck. Bestimmte [LINK=CONCEPT_CIVICS]Staatsformen[\LINK] beeinflussen die Zahl Ihrer kostenlosen Einheiten.[PARAGRAPH:2][BOLD]Unterhaltskosten externer Einheiten[\BOLD][PARAGRAPH:2]Einheiten, die sich nicht innerhalb der Grenzen Ihrer Zivilisation aufhalten, verursachen zus&#228;tzliche Unterhalts- und Versorgungskosten. Wenn Sie eine feindliche Zivilisation angreifen, wird Ihr Budget ebenfalls stark belastet.[PARAGRAPH:2][H2]Auswahl[\H2][PARAGRAPH:2]Ein Kreis um eine Einheit zeigt an, dass diese Einheit "ausgew&#228;hlt" ist und auf Ihre Befehle wartet. Der Computer w&#228;hlt automatisch alle Einheiten aus, die auf Befehle warten. Hat eine Einheit bereits einen Befehl erhalten, wird sie nicht markiert. Klicken Sie auf eine beliebige Einheit, wenn Sie diese manuell ausw&#228;hlen m&#246;chten.[PARAGRAPH:2][H2]Befehle[\H2][PARAGRAPH:2]Ist eine Einheit ausgew&#228;hlt, k&#246;nnen Sie diese bewegen (siehe [LINK=CONCEPT_MOVEMENT]Fortbewegung[\LINK]) oder angreifen (siehe [LINK=CONCEPT_COMBAT]Kampf[\LINK]). Sind weitere Optionen verf&#252;gbar, werden diese im Befehlsmen&#252; der Einheit am unteren Bildschirmrand angezeigt. Klicken Sie in diesem Men&#252; auf das entsprechende Symbol, um einer Einheit einen Befehl zu geben. F&#252;r viele Einheiten gibt es &#252;brigens auch Schnelltasten.[PARAGRAPH:2]In Civilization IV gibt es unz&#228;hlige Befehle. Diese sind von Einheit zu Einheit verschieden und werden unter anderem vom Standort, der Gesundheit und der Erfahrung einer Einheit bestimmt. Im Folgenden finden Sie eine Liste wichtiger Befehle:[PARAGRAPH:2][BOLD]Weitere Befehle:[\BOLD] [LINK=UNIT_BOMBER]Bomber[\LINK] k&#246;nnen einen Bombardierungsbefehl haben, [LINK=UNIT_FIGHTER]J&#228;ger[\LINK] eine Aufkl&#228;rungsmission. [LINK=UNIT_GALLEON]Galeeren[\LINK] haben Transportbefehle, usw. Lesen Sie den Eintrag [LINK=CONCEPT_UNITS]Einheiten[\LINK], wenn Sie weitere Informationen zu den verschiedenen Einheiten ben&#246;tigen.[PARAGRAPH:2][H2]Auswahl mehrerer Einheiten[\H2][PARAGRAPH:2]Sie k&#246;nnen mehrere Einheiten auf einem Gel&#228;ndefeld gleichzeitig befehligen. Klicken Sie dazu mit gedr&#252;ckter Umschalten-Taste auf die gew&#252;nschten Einheiten, um diese auszuw&#228;hlen.[PARAGRAPH:2][BOLD]Verlegung mehrerer Einheiten[\BOLD][PARAGRAPH:2]Haben Sie mehrere Einheiten markiert, r&#252;cken diese mit dem Tempo der LANGSAMSTEN Einheit vor, wenn Sie ihnen einen Fortbewegungsbefehl erteilen. (Hinweis: Es ist oft hilfreich, einem Siedler eine Milit&#228;reinheit zur Seite zu stellen, um ihn vor wilden Tieren und Barbaren zu sch&#252;tzen.)[PARAGRAPH:2][BOLD]Kampf mehrerer Einheiten[\BOLD][PARAGRAPH:2]Geben Sie mehreren Milit&#228;reinheiten den Befehl zum Angriff, greift die in der jeweiligen Situation effektivste Einheit an. Scheitert der Angriff dieser Einheit, wird er nicht automatisch fortgesetzt. M&#246;chten Sie mit einer anderen Einheit angreifen, m&#252;ssen Sie dieser Einheit entsprechende Befehle erteilen. Halten Sie ALT gedr&#252;ckt, w&#228;hrend Sie mehreren Einheiten einen Angriffsbefehl erteilen, ist der Kampf sofort beendet. [PARAGRAPH:2][BOLD]Modernisierung mit mehreren Einheiten[\BOLD][PARAGRAPH:2]Haben Sie mehrere Bautrupps ausgew&#228;hlt, k&#246;nnen diese gleichzeitig an Modernisierungen arbeiten, um den Vorgang zu beschleunigen.[PARAGRAPH:2][H2]Bef&#246;rderung[\H2][PARAGRAPH:2]Kampfeinheiten erhalten f&#252;r gewonnene K&#228;mpfe Erfahrungspunkte. Hat eine Einheit genug Punkte gesammelt, folgt die [LINK=CONCEPT_PROMOTIONS]Bef&#246;rderung[\LINK].[PARAGRAPH:2][H2]Einheitstypen[\H2][PARAGRAPH:2]Jede Einheit geh&#246;rt zu einer bestimmten "Gruppe". [LINK=UNIT_MUSKETMAN]Musketiere[\LINK] sind beispielsweise Schie&#223;pulver-Einheiten. [LINK=UNIT_KNIGHT]Ritter[\LINK] z&#228;hlen zu den berittenen Einheiten. Viele Bef&#246;rderungen und nat&#252;rliche Eigenschaften der Einheiten sind an diese Einheitstypen gebunden. [LINK=UNIT_SPEARMAN]Speerk&#228;mpfer[\LINK] haben beispielsweise einen gro&#223;en Bonus im Kampf gegen berittene Einheiten. Die Bef&#246;rderung [LINK=PROMOTION_SHOCK]Schock[\LINK] verleiht einer Einheit einen 25%%-Bonus im Kampf mit Nahkampfeinheiten. Weitere Informationen dazu finden Sie im Abschnitt [LINK=PEDIA_MAIN_PROMOTION]Bef&#246;rderungen[\LINK] bzw. in den Kapiteln &#252;ber die verschiedenen Einheiten.[PARAGRAPH:2]</German>
++		<German>[H1]Einheiten[\H1][PARAGRAPH:2]In Civilization IV bezeichnet der Begriff "Einheit" alle auf der Karte bewegbaren Einheiten. Es gibt im Spiel Milit&#228;reinheiten, Arbeitseinheiten und Gro&#223;e Pers&#246;nlichkeiten. Die meisten Einheiten sind allerdings Milit&#228;reinheiten.[PARAGRAPH:2][H2]Eigenschaften[\H2][PARAGRAPH:2]Alle Einheiten haben zwei grundlegende Eigenschaften: Die Fortbewegungsgeschwindigkeit und die Kampfst&#228;rke.[PARAGRAPH:2][BOLD]Fortbewegungsgeschwindigkeit[\BOLD][PARAGRAPH:2]Die Fortbewegungsgeschwindigkeit (1 bis 8) einer Einheit bestimmt ihr Marschtempo. Hat eine Einheit die Fortbewegungsgeschwindigkeit 0, gelten f&#252;r ihre Fortbewegung spezielle Regeln. Weitere Informationen dazu finden Sie im Abschnitt [LINK=CONCEPT_MOVEMENT]Fortbewegung[\LINK].[PARAGRAPH:2][BOLD]Kampfst&#228;rke[\BOLD][PARAGRAPH:2]Die Kampfst&#228;rke (zwischen 1 und 40) bestimmt die Effektivit&#228;t einer Einheit und kann von verschiedenen Modifikatoren beeinflusst werden. Hat eine Einheit die Kampfst&#228;rke 0, gelten spezielle Regeln. Weitere Informationen dazu finden Sie im Abschnitt [LINK=CONCEPT_COMBAT]Kampf[\LINK].[PARAGRAPH:2][H2]Neue Einheiten[\H2][PARAGRAPH:2]Es gibt verschiedene M&#246;glichkeiten, Einheiten zu erhalten:[PARAGRAPH:2][BOLD]Spielbeginn[\BOLD][PARAGRAPH:2]Am Anfang des Spiels haben Sie mindestens zwei Einheiten: einen Siedler und einen Bautrupp (oder eine Milit&#228;reinheit).[PARAGRAPH:2][BOLD]Stammesd&#246;rfer[\BOLD][PARAGRAPH:2]Betritt eine Ihrer Einheiten ein Stammesdorf, erhalten Sie eine zus&#228;tzliche Einheit, Gold, eine Technologie oder Erfahrung. Ist das Dorf feindselig, greifen Barbaren Ihre Einheit an.[PARAGRAPH:2][BOLD]Gefangennahme von Einheiten[\BOLD][PARAGRAPH:2][LINK=UNIT_WORKER]Bautrupps[\LINK] und [LINK=UNIT_SETTLER]Siedler[\LINK] werden automatisch gefangen genommen, wenn sie von einer Milit&#228;reinheit angegriffen oder mit einer Stadt erobert werden. Hinweis: Nach der Eroberung werden Siedler zu Bautrupps. [BOLD]AdvCiv[\BOLD]: Die Gefangennahme gelingt nur mit einer gewissen Wahrscheinlichkeit - und niemals im selben Zug, in dem der Krieg erkl�rt wurde. Bei gescheiterter Gefangennahme wird der angegriffene Bautrupp oder Siedler zerst�rt (so wie jede andere Nicht-Milit�reinheit).[PARAGRAPH:2][BOLD]Bau von Einheiten in St&#228;dten[\BOLD][PARAGRAPH:2]Die meisten Einheiten werden in [LINK=CONCEPT_CITIES]St&#228;dten[\LINK] gebaut (siehe unten).[PARAGRAPH:2][BOLD]Gro&#223;e Pers&#246;nlichkeiten[\BOLD][PARAGRAPH:2]Ihre St&#228;dte bringen automatisch [LINK=CONCEPT_GREAT_PEOPLE]Gro&#223;e Pers&#246;nlichkeiten[\LINK] hervor. Weitere Informationen dazu finden Sie im entsprechenden Abschnitt.[PARAGRAPH:2][BOLD]Geschenke anderer Zivilisationen[\BOLD][PARAGRAPH:2]Gelegentlich schenkt Ihnen eine andere Zivilisation eine Einheit.[PARAGRAPH:2][H2]Bau von Einheiten in St&#228;dten[\H2][PARAGRAPH:2]Wie bereits erw&#228;hnt, werden die meisten Einheiten in St&#228;dten erschaffen. Allerdings k&#246;nnen hier auch Geb&#228;ude (und andere Spezialobjekte) gebaut werden. Da aber immer nur ein Objekt hergestellt werden kann, m&#252;ssen Sie den Bedarf an Einheiten und Geb&#228;uden genau abw&#228;gen, um im Spiel erfolgreich zu sein. Im Folgenden finden Sie Informationen &#252;ber den Bau von Einheiten. Weitere Informationen dazu finden Sie im Abschnitt [LINK=CONCEPT_CITIES]St&#228;dte[\LINK].[PARAGRAPH:2][BOLD]Auswahl der gew&#252;nschten Einheit[BOLD][PARAGRAPH:2]Kann eine Stadt etwas bauen, erscheint das Baumen&#252;. Hier werden alle Einheiten und Geb&#228;ude aufgelistet, die Sie in der jeweiligen Stadt bauen k&#246;nnen. Au&#223;erdem erhalten Sie Informationen &#252;ber die erforderliche Bauzeit. Klicken Sie auf die gew&#252;nschte Einheit (oder ein Geb&#228;ude), um den Bau zu starten. M&#246;chten Sie ein Bauprojekt &#228;ndern, w&#228;hlen Sie im Baumen&#252; einfach das Objekt aus, das Sie stattdessen bauen m&#246;chten.[PARAGRAPH:2][BOLD]Verf&#252;gbarkeit der Einheiten[\BOLD][PARAGRAPH:2]Am Anfang des Spiels k&#246;nnen Sie noch nicht alle Einheiten bauen. F&#252;r den Bau vieler Einheiten sind bestimmte [LINK=CONCEPT_TECHNOLOGY]Technologien[\LINK] oder [LINK=CONCEPT_RESOURCES]Ressourcen[\LINK] erforderlich. Sie k&#246;nnen beispielsweise keinen [LINK=UNIT_SWORDSMAN]Schwertk&#228;mpfer[\LINK] bauen, wenn Sie die [LINK=TECH_IRON_WORKING]Eisenverarbeitung[\LINK] noch nicht erfunden haben oder kein [LINK=BONUS_IRON]Eisen[\LINK] besitzen. F&#252;r den Bau anderer Einheiten brauchen Sie bestimmte [LINK=CONCEPT_BUILDINGS]Geb&#228;ude[\LINK] und/oder [LINK=CONCEPT_RELIGION]Religionen[\LINK].[PARAGRAPH:2][BOLD]Bauzeit[\BOLD][PARAGRAPH:2]Die Bauzeit einer Einheit ist von der [LINK=CONCEPT_PRODUCTION]Produktion[\LINK] der Stadt abh&#228;ngig. Je mehr eine Stadt produziert, desto mehr neue Einheiten kann sie ausbilden.[PARAGRAPH:2][BOLD]Unterhaltskosten[\BOLD][PARAGRAPH:2]Die Zahl der kostenlosen Einheiten ist vom gew&#228;hlten Schwierigkeitsgrad abh&#228;ngig. Jede weitere Einheit kostet Sie pro Runde 1 Goldst&#252;ck. Bestimmte [LINK=CONCEPT_CIVICS]Staatsformen[\LINK] beeinflussen die Zahl Ihrer kostenlosen Einheiten.[PARAGRAPH:2][BOLD]Unterhaltskosten externer Einheiten[\BOLD][PARAGRAPH:2]Einheiten, die sich nicht innerhalb der Grenzen Ihrer Zivilisation aufhalten, verursachen zus&#228;tzliche Unterhalts- und Versorgungskosten. Wenn Sie eine feindliche Zivilisation angreifen, wird Ihr Budget ebenfalls stark belastet.[PARAGRAPH:2][H2]Auswahl[\H2][PARAGRAPH:2]Ein Kreis um eine Einheit zeigt an, dass diese Einheit "ausgew&#228;hlt" ist und auf Ihre Befehle wartet. Der Computer w&#228;hlt automatisch alle Einheiten aus, die auf Befehle warten. Hat eine Einheit bereits einen Befehl erhalten, wird sie nicht markiert. Klicken Sie auf eine beliebige Einheit, wenn Sie diese manuell ausw&#228;hlen m&#246;chten.[PARAGRAPH:2][H2]Befehle[\H2][PARAGRAPH:2]Ist eine Einheit ausgew&#228;hlt, k&#246;nnen Sie diese bewegen (siehe [LINK=CONCEPT_MOVEMENT]Fortbewegung[\LINK]) oder angreifen (siehe [LINK=CONCEPT_COMBAT]Kampf[\LINK]). Sind weitere Optionen verf&#252;gbar, werden diese im Befehlsmen&#252; der Einheit am unteren Bildschirmrand angezeigt. Klicken Sie in diesem Men&#252; auf das entsprechende Symbol, um einer Einheit einen Befehl zu geben. F&#252;r viele Einheiten gibt es &#252;brigens auch Schnelltasten.[PARAGRAPH:2]In Civilization IV gibt es unz&#228;hlige Befehle. Diese sind von Einheit zu Einheit verschieden und werden unter anderem vom Standort, der Gesundheit und der Erfahrung einer Einheit bestimmt. Im Folgenden finden Sie eine Liste wichtiger Befehle:[PARAGRAPH:2][BOLD]Weitere Befehle:[\BOLD] [LINK=UNIT_BOMBER]Bomber[\LINK] k&#246;nnen einen Bombardierungsbefehl haben, [LINK=UNIT_FIGHTER]J&#228;ger[\LINK] eine Aufkl&#228;rungsmission. [LINK=UNIT_GALLEON]Galeeren[\LINK] haben Transportbefehle, usw. Lesen Sie den Eintrag [LINK=CONCEPT_UNITS]Einheiten[\LINK], wenn Sie weitere Informationen zu den verschiedenen Einheiten ben&#246;tigen.[PARAGRAPH:2][H2]Auswahl mehrerer Einheiten[\H2][PARAGRAPH:2]Sie k&#246;nnen mehrere Einheiten auf einem Gel&#228;ndefeld gleichzeitig befehligen. Klicken Sie dazu mit gedr&#252;ckter Umschalten-Taste auf die gew&#252;nschten Einheiten, um diese auszuw&#228;hlen.[PARAGRAPH:2][BOLD]Verlegung mehrerer Einheiten[\BOLD][PARAGRAPH:2]Haben Sie mehrere Einheiten markiert, r&#252;cken diese mit dem Tempo der LANGSAMSTEN Einheit vor, wenn Sie ihnen einen Fortbewegungsbefehl erteilen. (Hinweis: Es ist oft hilfreich, einem Siedler eine Milit&#228;reinheit zur Seite zu stellen, um ihn vor wilden Tieren und Barbaren zu sch&#252;tzen.)[PARAGRAPH:2][BOLD]Kampf mehrerer Einheiten[\BOLD][PARAGRAPH:2]Geben Sie mehreren Milit&#228;reinheiten den Befehl zum Angriff, greift die in der jeweiligen Situation effektivste Einheit an. Scheitert der Angriff dieser Einheit, wird er nicht automatisch fortgesetzt. M&#246;chten Sie mit einer anderen Einheit angreifen, m&#252;ssen Sie dieser Einheit entsprechende Befehle erteilen. Halten Sie ALT gedr&#252;ckt, w&#228;hrend Sie mehreren Einheiten einen Angriffsbefehl erteilen, ist der Kampf sofort beendet. [PARAGRAPH:2][BOLD]Modernisierung mit mehreren Einheiten[\BOLD][PARAGRAPH:2]Haben Sie mehrere Bautrupps ausgew&#228;hlt, k&#246;nnen diese gleichzeitig an Modernisierungen arbeiten, um den Vorgang zu beschleunigen.[PARAGRAPH:2][H2]Bef&#246;rderung[\H2][PARAGRAPH:2]Kampfeinheiten erhalten f&#252;r gewonnene K&#228;mpfe Erfahrungspunkte. Hat eine Einheit genug Punkte gesammelt, folgt die [LINK=CONCEPT_PROMOTIONS]Bef&#246;rderung[\LINK].[PARAGRAPH:2][H2]Einheitstypen[\H2][PARAGRAPH:2]Jede Einheit geh&#246;rt zu einer bestimmten "Gruppe". [LINK=UNIT_MUSKETMAN]Musketiere[\LINK] sind beispielsweise Schie&#223;pulver-Einheiten. [LINK=UNIT_KNIGHT]Ritter[\LINK] z&#228;hlen zu den berittenen Einheiten. Viele Bef&#246;rderungen und nat&#252;rliche Eigenschaften der Einheiten sind an diese Einheitstypen gebunden. [LINK=UNIT_SPEARMAN]Speerk&#228;mpfer[\LINK] haben beispielsweise einen gro&#223;en Bonus im Kampf gegen berittene Einheiten. Die Bef&#246;rderung [LINK=PROMOTION_SHOCK]Schock[\LINK] verleiht einer Einheit einen 25%%-Bonus im Kampf mit Nahkampfeinheiten. Weitere Informationen dazu finden Sie im Abschnitt [LINK=PEDIA_MAIN_PROMOTION]Bef&#246;rderungen[\LINK] bzw. in den Kapiteln &#252;ber die verschiedenen Einheiten.[PARAGRAPH:2]</German>
+ 		<Italian>[H1]Unit&#224;[\H1][PARAGRAPH:2]In Civilization IV il termine "unit&#224;" si riferisce a qualunque cosa si possa muovere sulla mappa. Esistono diverse tipologie di unit&#224; - lavoratori, missionari, Grandi Personaggi e militari, che costituiscono il grosso delle unit&#224; presenti.[PARAGRAPH:2][H2]Statistiche delle unit&#224;[\H2][PARAGRAPH:2]Tutte le unit&#224; hanno due statistiche di base: velocit&#224; di movimento e forza di combattimento.[PARAGRAPH:2][BOLD]Velocit&#224; di movimento[\BOLD][PARAGRAPH:2]La velocit&#224; di movimento di un'unit&#224; determina quanto rapidamente si pu&#242; muovere tale unit&#224; sulla mappa. Le velocit&#224; di movimento hanno valori che vanno solitamente da 1 a 8; alcune unit&#224; hanno velocit&#224; di movimento pari a 0, il che significa che esistono speciali regole che ne definiscono il movimento. Vedi il paragrafo [LINK=CONCEPT_MOVEMENT]movimento[\LINK].[PARAGRAPH:2][BOLD]Forza di combattimento[\BOLD][PARAGRAPH:2]La forza di combattimento di un'unit&#224; determina la sua resistenza durante uno scontro con il nemico. Le forze di combattimento hanno valori che vanno da 1 a 40, e possono essere influenzati da molti modificatori (vedi la sezione [LINK=CONCEPT_COMBAT]combattimento[\LINK]). Alcune unit&#224; hanno una forza di combattimento pari a 0, il che vuol dire che non possono combattere o seguono regole specifiche per il combattimento. Per saperne di pi&#249;, leggi il paragrafo sul [LINK=CONCEPT_COMBAT]combattimento[\LINK].[PARAGRAPH:2][H2]Acquisizione di unit&#224;[\H2][PARAGRAPH:2]Puoi ottenere nuove unit&#224; in vari modi:[PARAGRAPH:2][BOLD]Inizio della partita[\BOLD][PARAGRAPH:2]All'inizio della partita hai due o pi&#249; unit&#224;. Almeno una di queste &#232; un colono, le altre possono essere lavoratori o unit&#224; militari.[PARAGRAPH:2][BOLD]Villaggi tribali[\BOLD][PARAGRAPH:2]Puoi guadagnare una nuova unit&#224; quando una delle tue entra in un villaggio tribale (puoi guadagnare anche oro, tecnologia o esperienza - oppure il villaggio pu&#242; rivelarsi ostile e generare barbari che ti attaccano).[PARAGRAPH:2] [BOLD]Catturare unit&#224;[\BOLD][PARAGRAPH:2]I [LINK=UNIT_WORKER]lavoratori[\LINK] e i [LINK=UNIT_SETTLER]coloni[\LINK] vengono automaticamente fatti prigionieri quando sono attaccati da un'unit&#224; militare, oppure se si trovano in una citt&#224; che &#232; stata conquistata (ricorda che le unit&#224; coloni si trasformano in lavoratori quando vengono catturati).[PARAGRAPH:2][BOLD]Costruzione di unit&#224; nelle citt&#224;[\BOLD][PARAGRAPH:2]Puoi costruire la maggior parte delle tue unit&#224; all'interno delle [LINK=CONCEPT_CITIES]citt&#224;[\LINK]. Vedi sotto.[PARAGRAPH:2][BOLD]Produzione di unit&#224; nelle citt&#224;[\BOLD][PARAGRAPH:2]Le tue citt&#224; producono unit&#224; [LINK=CONCEPT_GREAT_PEOPLE]Grandi Personaggi[\LINK] automaticamente. Vedi il paragrafo a loro relativo per saperne di pi&#249;.[PARAGRAPH:2][BOLD]Doni da altre civilt&#224;[\BOLD][PARAGRAPH:2]Molto di rado, una civilt&#224; pu&#242; regalarti un'unit&#224;.[PARAGRAPH:2][H2] Costruzione di unit&#224; nelle citt&#224;[\H2][PARAGRAPH:2]Come visto sopra, la maggior parte delle tue unit&#224; proviene dalle citt&#224;; le citt&#224; costruiscono edifici e altri oggetti specializzati, e possono costruire solo una cosa alla volta - diventa quindi fondamentale, per avere successo nel gioco, bilanciare correttamente la produzione di unit&#224; e quella di edifici. Di seguito trovi alcune informazioni sulla costruzione delle unit&#224;, altre possono essere reperite nella sezione relativa alle [LINK=CONCEPT_CITIES]citt&#224;[\LINK].[PARAGRAPH:2][BOLD]Scelta delle unit&#224; da costruire[\BOLD][PARAGRAPH:2]Quando una citt&#224; &#232; pronta ad avviare la produzione di una nuova unit&#224; o di un edificio, comparir&#224; il menu di costruzione della citt&#224;, nel quale viene elencato tutto quello che puoi costruire, e per ciascuna voce il tempo necessario per portare a termine la sua produzione. Clicca sull'unit&#224;/edificio che vuoi costruire e la citt&#224; si metter&#224; immediatamente all'opera. Se vuoi cambiare quello che la citt&#224; sta costruendo, vai nella schermata della citt&#224; e clicca sul nuovo oggetti che vuoi costruire.[PARAGRAPH:2][BOLD]Disponibilit&#224; di unit&#224;[\BOLD][PARAGRAPH:2]All'inizio di una partita non &#232; possibile costruire tutte le unit&#224;; molte hanno dei requisiti [LINK=CONCEPT_TECHNOLOGY]tecnologici[\LINK], per altre &#232; necessario avere accesso a una o pi&#249; [LINK=CONCEPT_RESOURCES]risorse[\LINK]; ad esempio, non puoi costruire uno [LINK=UNIT_SWORDSMAN]spadaccino[\LINK] fino a quando non hai scoperto la [LINK=TECH_IRON_WORKING]Lavorazione del ferro[\LINK] e non hai accesso al [LINK=BONUS_IRON]ferro[\LINK]. In aggiunta a questo, alcune unit&#224; richiedono la presenza di [LINK=CONCEPT_BUILDINGS]edifici[\LINK] e/o [LINK=CONCEPT_RELIGION]religioni[\LINK].[PARAGRAPH:2][BOLD]Tempo di costruzione[\BOLD][PARAGRAPH:2]Il tempo di costruzione di un'unit&#224; dipende dalla [LINK=CONCEPT_PRODUCTION]produzione[\LINK] di una citt&#224;: maggiore il quantitativo di produzione che essa possiede, minore il tempo richiesto per la costruzione delle unit&#224;.[PARAGRAPH:2][BOLD]Costi di mantenimento delle unit&#224;[\BOLD][PARAGRAPH:2]Il numero di unit&#224; che puoi avere senza dover pagare nulla dipende dal livello di difficolt&#224; cui stai giocando. Una volta superato il limite massimo di unit&#224; concesse gratuitamente, dovrai pagare un oro a turno per ogni unit&#224; in pi&#249;. Alcune [LINK=CONCEPT_CIVICS]forme di governo[\LINK] possono variare il numero di unit&#224; disponibili senza dover pagare nulla.[PARAGRAPH:2][BOLD]Costi per le unit&#224; lontane[\BOLD][PARAGRAPH:2]Le unit&#224; che non si trovano all'interno dei confini della tua civilt&#224; richiedono ulteriore denaro per il loro mantenimento. Per questo motivo l'invasione di una civilt&#224; nemica avr&#224; un grosso impatto sul tuo bilancio.[PARAGRAPH:2][H2]Selezionare le unit&#224;[\H2][PARAGRAPH:2]Un cerchio attorno a un'unit&#224; indica che &#232; attualmente "selezionata" e in attesa dei tuoi ordini. Il computer seleziona automaticamente le unit&#224; che sono in attesa di ordini; se un'unit&#224; ha gi&#224; ordini da eseguire, il computer non la selezioner&#224;. Puoi anche cliccare su qualunque delle tue unit&#224; per selezionarla manualmente.[PARAGRAPH:2][H2]Ordini alle unit&#224;[\H2][PARAGRAPH:2]Quando selezioni un'unit&#224;, puoi impartirle l'ordine di muoversi (vedi [LINK=CONCEPT_MOVEMENT]movimento[\LINK]) o di attaccare (vedi [LINK=CONCEPT_COMBAT]combattimento[\LINK]). L'unit&#224; pu&#242; disporre di ulteriori ordini, visualizzati come azioni in basso al centro dello schermo. Per impartire un ordine a un'unit&#224;, clicca sull'icona dell'ordine che vuoi darle (molti ordini possono essere impartiti tramite scorciatoie da tastiera).[PARAGRAPH:2]Ci sono tantissimi ordini disponibili in Civilization IV; quelli specifici variano da unit&#224; a unit&#224;, e possono dipendere anche da dove si trova, le sue condizioni di salute, la sua esperienza, eccetera. Di seguito vengono elencati alcuni dei pi&#249; comuni ordini presenti nel gioco:[PARAGRAPH:2][PARAGRAPH:2][BOLD]Altri ordini:[\BOLD]I [LINK=UNIT_BOMBER]bombardieri[\LINK] possono avere ordine di bombardare; i [LINK=UNIT_FIGHTER]caccia[\LINK] possono avere ordini di ricognizione; i [LINK=UNIT_GALLEON]galeoni[\LINK] ordini di trasporto, e cos&#236; via. Controlla alla voce dell'[LINK=CONCEPT_UNITS]unit&#224;[\LINK] nella Civilopedia per scoprire quali ordini possono esserle impartiti, e cosa pu&#242; fare.[PARAGRAPH:2][H2]Selezionare pi&#249; unit&#224;[\H2][PARAGRAPH:2]Puoi selezionare due o pi&#249; unit&#224; e impartire loro ordini contemporaneamente; le unit&#224; selezionate devono occupare la medesima casella sulla mappa. Per compiere questa azione, clicca un'unit&#224;, e tenendo premuto il tasto MAIUSC clicca sulle altre, cos&#236; da selezionarle tutte.[PARAGRAPH:2][BOLD]Spostare pi&#249; unit&#224;[\BOLD][PARAGRAPH:2]Se hai selezionato due o pi&#249; unit&#224; e hai dato loro l'ordine di muoversi, lo faranno in gruppo alla velocit&#224; dell'unit&#224; pi&#249; LENTA (una mossa furba &#232; quella di muovere insieme un colono e un'unit&#224; militare, per essere sicuri che il colono non venga annientato dal primo animale o dal primo barbaro che gli si para davanti).[PARAGRAPH:2][BOLD]Combattere con pi&#249; unit&#224;[\BOLD][PARAGRAPH:2]Se ordini a due o pi&#249; unit&#224; di attaccare un'unit&#224; nemica, sar&#224; solo l'unit&#224; pi&#249; potente a combattere; il combattimento non proseguir&#224; automaticamente se non termina con successo. Se vuoi continuare lo scontro, dovrai impartire nuovi ordini. In ogni caso, se tieni premuto il tasto ALT mentre ordini di attaccare con pi&#249; unit&#224; selezionate, esse agiranno tutte insieme.[PARAGRAPH:2][BOLD]Miglioramenti con pi&#249; unit&#224;[\BOLD][PARAGRAPH:2]Se hai selezionato due o pi&#249; lavoratori, puoi ordinare ad entrambi di lavorare a dei miglioramenti; lo sforzo combinato dei lavoratori velocizzer&#224; notevolmente il processo di costruzione.[PARAGRAPH:2][H2]Promozioni[\H2][PARAGRAPH:2]Un'unit&#224; di combattimento ottiene "punti esperienza" quando vince degli scontri; un numero sufficiente di punti esperienza far&#224; guadagnare a quella unit&#224; una [LINK=CONCEPT_PROMOTIONS]promozione[\LINK].[PARAGRAPH:2][H2]Tipi di Unit&#224;[\H2][PARAGRAPH:2]Ogni unit&#224; appartiene a un "gruppo" differente: ad esempio, i [LINK=UNIT_MUSKETMAN]soldati con moschetto[\LINK] sono unit&#224; da fuoco, e i [LINK=UNIT_KNIGHT]cavalieri[\LINK] sono considerati unit&#224; a cavallo. Molte delle promozioni e delle abilit&#224; legate al terreno si basano sul tipo a cui appartengono. Ad esempio, i [LINK=UNIT_SPEARMAN]lancieri[\LINK] ottengono dei bonus automaticamente quando combattono unit&#224; a cavallo, e la promozione [LINK=PROMOTION_SHOCK]Shock[\LINK] d&#224; all'unit&#224; un +25%% nei combattimenti contro unit&#224; da combattimento ravvicinato. Se desideri maggiori informazioni, leggi le voci relative alle [LINK=PEDIA_MAIN_PROMOTION]promozioni[\LINK] e alle varie unit&#224;.[PARAGRAPH:2]</Italian>
+ 		<Spanish>[H1]Unidades[\H1][PARAGRAPH:2]En Civilization IV, con el t&#233;rmino "unidad" nos referimos a todo aquello que pueda moverse por el mapa. En el juego hay muchos tipos de unidades diferentes (militares, trabajadores, misioneros, grandes personajes...), pero las militares forman el grueso de las mismas.[PARAGRAPH:2][H2]Estad&#237;sticas de las unidades[\H2][PARAGRAPH:2]Todas las unidades tienen dos estad&#237;sticas b&#225;sicas: velocidad de movimiento y fuerza de combate.[PARAGRAPH:2][BOLD]Velocidad de movimiento[\BOLD][PARAGRAPH:2]La velocidad de movimiento de la unidad determina lo r&#225;pido que &#233;sta puede moverse por el mapa. Las velocidades de movimiento suelen oscilar entre 1 y 8. Algunas unidades tienen velocidad de movimiento 0, lo cual indica que su movimiento se rige por reglas especiales. Consulta el apartado sobre [LINK=CONCEPT_MOVEMENT]movimiento[\LINK] para obtener m&#225;s detalles.[PARAGRAPH:2][BOLD]Fuerza de combate[\BOLD][PARAGRAPH:2]La fuerza de combate de la unidad determina su dureza a la hora de luchar contra una unidad enemiga. Las fuerzas de combate oscilan entre 1 y 40, y esta base de fuerza puede verse afectada por muchos modificadores (ver [LINK=CONCEPT_COMBAT]Combate[\LINK]). Algunas unidades tienen fuerza de combate 0, lo cual indica que no pueden luchar o que hay reglas especiales que rigen su combate. Consulta el apartado sobre [LINK=CONCEPT_COMBAT]combate[\LINK] para obtener m&#225;s detalles.[PARAGRAPH:2][H2]Conseguir unidades[\H2][PARAGRAPH:2]Puedes obtener unidades de diversas maneras:[PARAGRAPH:2][BOLD]Inicio de la partida[\BOLD][PARAGRAPH:2]Al inicio de la partida tienes dos o m&#225;s unidades. Al menos una de ellas es un colono, y el resto, trabajadores o unidades militares.[PARAGRAPH:2][BOLD]Aldeas tribales[\BOLD][PARAGRAPH:2]Puedes conseguir una unidad nueva cuando una de tus unidades entre en una aldea tribal (aunque tambi&#233;n es posible que ganes oro, tecnolog&#237;a o experiencia, o puede que la aldea sea hostil y genere b&#225;rbaros que ataquen a tus unidades).[PARAGRAPH:2] [BOLD]Capturar unidades[\BOLD][PARAGRAPH:2]Los [LINK=UNIT_WORKER]trabajadores[\LINK] y [LINK=UNIT_SETTLER]colonos[\LINK] son capturados autom&#225;ticamente cuando los ataca una unidad militar o se encuentran en una ciudad que caiga capturada (ten en cuenta que las unidades de colonos se convierten en trabajadores cuando son capturadas).[PARAGRAPH:2][BOLD]Construir unidades en ciudades[\BOLD][PARAGRAPH:2]Puedes construir todas las unidades en las [LINK=CONCEPT_CITIES]ciudades[\LINK]. Ver m&#225;s adelante.[PARAGRAPH:2][BOLD]Generar unidades en ciudades[\BOLD][PARAGRAPH:2]Las ciudades generan las unidades de [LINK=CONCEPT_GREAT_PEOPLE]grandes personajes[\LINK] autom&#225;ticamente. Consulta esa secci&#243;n para obtener m&#225;s detalles.[PARAGRAPH:2][BOLD]Regalos de otras civilizaciones[\BOLD][PARAGRAPH:2]Muy de vez en cuando, puede que una civilizaci&#243;n te d&#233; una unidad.[PARAGRAPH:2][H2]Construir unidades en ciudades[\H2][PARAGRAPH:2]Como se mencionaba antes, todas las unidades provienen de las ciudades. Las ciudades tambi&#233;n construyen edificios (adem&#225;s de otros elementos especializados). Solo pueden construir un elemento a la vez, de modo que equilibrar la necesidad de unidades con la de edificios es crucial para que triunfes en la partida. A continuaci&#243;n se da algo de informaci&#243;n sobre la construcci&#243;n de unidades, pero encontrar&#225;s m&#225;s en el art&#237;culo [LINK=CONCEPT_CITIES]ciudades[\LINK].[PARAGRAPH:2][BOLD]Elegir las unidades a construir[\BOLD][PARAGRAPH:2]Cuando una ciudad est&#233; lista para empezar a construir una nueva unidad o edificio, aparecer&#225; su men&#250; de construcci&#243;n. En &#233;l se indicar&#225; todo lo que puedas construir en esa ciudad, as&#237; como el tiempo necesario para la construcci&#243;n. Haz clic en la unidad o edificio que quieras construir y la ciudad empezar&#225; la construcci&#243;n de inmediato. Si deseas cambiar lo que se est&#233; construyendo, ve a la pantalla de la ciudad y haz clic en el nuevo elemento que desees construir.[PARAGRAPH:2][BOLD]Disponibilidad de las unidades[\BOLD][PARAGRAPH:2]Al empezar la partida no todas las unidades est&#225;n disponibles. Muchas tienen requisitos de [LINK=CONCEPT_TECHNOLOGY]tecnolog&#237;a[\LINK] y algunas requieren que tengas acceso a uno o m&#225;s [LINK=CONCEPT_RESOURCES]recursos[\LINK]. Por ejemplo, no puedes crear un [LINK=UNIT_SWORDSMAN]soldado con espada[\LINK] hasta que hayas investigado la [LINK=TECH_IRON_WORKING]forja del hierro[\LINK] y tengas acceso al [LINK=BONUS_IRON]hierro[\LINK]. Adem&#225;s, unas cuantas unidades tienen requisitos [LINK=CONCEPT_RELIGION]religiosos[\LINK] y/o de [LINK=CONCEPT_BUILDINGS]edificios[\LINK].[PARAGRAPH:2][BOLD]Tiempo de construcci&#243;n[\BOLD][PARAGRAPH:2]El tiempo de construcci&#243;n de la unidad se basa en la [LINK=CONCEPT_PRODUCTION]producci&#243;n[\LINK] de la ciudad. Cuanto mayor sea su producci&#243;n, m&#225;s r&#225;pido podr&#225; entrenar a las nuevas unidades.[PARAGRAPH:2][BOLD]Costes de abastecimiento de las unidades[\BOLD][PARAGRAPH:2]La cantidad de unidades gratuitas que puedes tener se ve afectada por el nivel de dificultad al que est&#233;s jugando. Cuando superes el n&#250;mero de unidades gratuitas que se te concedan, tendr&#225;s que pagar por cada una que tengas de m&#225;s. Mantener cada unidad cuesta 1 de oro por turno. Hay ciertos [LINK=CONCEPT_CIVICS]principios[\LINK] que modifican la cantidad de unidades gratuitas disponibles.[PARAGRAPH:2][BOLD]Costes de las unidades en el extranjero[\BOLD][PARAGRAPH:2]Cuesta m&#225;s dinero mantener y proporcionar suministros a las unidades que no est&#233;n dentro de las fronteras de tu civilizaci&#243;n. Invadir una civilizaci&#243;n enemiga causar&#225; una grave merma en tu presupuesto.[PARAGRAPH:2][H2]Seleccionar unidades[\H2][PARAGRAPH:2]Un c&#237;rculo alrededor de una unidad indica que est&#225; "seleccionada" y a la espera de &#243;rdenes. El ordenador selecciona autom&#225;ticamente y por turno cada unidad que est&#233; aguardando &#243;rdenes. Si la unidad ya tiene &#243;rdenes, el ordenador no la seleccionar&#225;. Tambi&#233;n puedes hacer clic en cualquiera de tus unidades para seleccionarla a mano.[PARAGRAPH:2][H2]&#211;rdenes de las unidades[\H2][PARAGRAPH:2]Cuando se selecciona una unidad, puedes ordenarle que se mueva (ver [LINK=CONCEPT_MOVEMENT]Movimiento[\LINK]) o que ataque (ver [LINK=CONCEPT_COMBAT]Combate[\LINK]). Puede que la unidad tenga otras opciones disponibles. &#201;stas se muestran en el "recuadro de &#243;rdenes", en la mitad inferior de la pantalla. Para darle una orden a una unidad haz clic en la orden apropiada en el recuadro de &#243;rdenes (adem&#225;s, muchas &#243;rdenes cuentan con atajos de teclado).[PARAGRAPH:2]En Civilization IV hay una gran variedad de &#243;rdenes disponibles. Las que est&#225;n disponibles en concreto var&#237;an de una unidad a otra y tambi&#233;n pueden variar dependiendo de la ubicaci&#243;n de la unidad, su estado de salud, experiencia y dem&#225;s. A continuaci&#243;n se da una lista de las &#243;rdenes m&#225;s comunes:[PARAGRAPH:2][PARAGRAPH:2][BOLD]Otras &#243;rdenes:[\BOLD] Los [LINK=UNIT_BOMBER]bombarderos[\LINK] pueden tener &#243;rdenes de bombardeo; los [LINK=UNIT_FIGHTER]cazas[\LINK], de reconocimiento; los [LINK=UNIT_GALLEON]galeones[\LINK], de transporte, etc. Revisa el art&#237;culo de la [LINK=CONCEPT_UNITS]unidad[\LINK] en la Civilopedia para averiguar lo que puede hacer.[PARAGRAPH:2][H2]Seleccionar varias unidades[\H2][PARAGRAPH:2]Puedes seleccionar dos o m&#225;s unidades y darles &#243;rdenes a todas a la vez, aunque todas ellas deben estar en la misma casilla del mapa. Para ello, haz clic en una unidad y luego deja pulsado May&#250;s y haz clic sobre cada una de las otras, de modo que queden seleccionadas todas.[PARAGRAPH:2][BOLD]Mover varias unidades[\BOLD][PARAGRAPH:2]Si hay dos o m&#225;s unidades seleccionadas y les das &#243;rdenes de moverse, lo har&#225;n en grupo y a la velocidad de la unidad M&#193;S LENTA. Nota: A veces conviene mover a un colono y a una unidad militar a la vez para asegurarse de que el colono no sea destruido por el primer animal o b&#225;rbaro con el que se encuentre.[PARAGRAPH:2][BOLD]Combatir con varias unidades[\BOLD][PARAGRAPH:2]Si ordenas a dos o m&#225;s unidades militares que ataquen a una enemiga, la atacar&#225; aqu&#233;lla que sea la m&#225;s poderosa contra la defensora. Si esa unidad no tiene &#233;xito, el ataque no continuar&#225; autom&#225;ticamente. Si quieres atacar con otra unidad, tendr&#225;s que darle nuevas &#243;rdenes. No obstante, si mantienes pulsada la tecla "Alt" mientras ordenas a varias unidades seleccionadas que ataquen, &#233;stas llevar&#225;n a cabo un ataque conjunto y el ataque se resolver&#225; de inmediato.[PARAGRAPH:2][BOLD]Mejoras con varias unidades[\BOLD][PARAGRAPH:2]Si tienes seleccionados a dos trabajadores o m&#225;s, puedes ordenarles que trabajen en mejoras. El esfuerzo combinado de los trabajadores acelerar&#225; considerablemente la construcci&#243;n.[PARAGRAPH:2][H2]Ascensos[\H2][PARAGRAPH:2]Las unidades de combate obtienen "puntos de experiencia" por ganar batallas, y cuando re&#250;nen los suficientes reciben un [LINK=CONCEPT_PROMOTIONS]ascenso[\LINK].[PARAGRAPH:2][H2]Tipos de unidad[\H2][PARAGRAPH:2]Cada unidad pertenece a un "grupo" diferente. Por ejemplo, los [LINK=UNIT_MUSKETMAN]mosquetes[\LINK] son unidades con armas de p&#243;lvora y se considera que los [LINK=UNIT_KNIGHT]caballeros[\LINK] son unidades montadas. Muchos de los ascensos y capacidades naturales de las unidades se basan en esta tipolog&#237;a. Por ejemplo, los [LINK=UNIT_SPEARMAN]lanceros[\LINK] se crecen de forma natural cuando luchan contra unidades montadas y el ascenso de [LINK=PROMOTION_SHOCK]Choque[\LINK] le da a una unidad un +25%% contra unidades de cuerpo a cuerpo. Consulta los art&#237;culos sobre [LINK=PEDIA_MAIN_PROMOTION]ascensos[\LINK] y sobre cada unidad individual para obtener m&#225;s informaci&#243;n.[PARAGRAPH:2]</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index b2b793d90..5e1d12ea6 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -712,8 +712,7 @@
+ 			<Type>UNIT_SETTLER</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+-			<!-- advc.010: was UNICLASS_WORKER -->
+-			<Capture>NONE</Capture>
++			<Capture>UNITCLASS_WORKER</Capture>
+ 			<Combat>NONE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_SETTLE</DefaultUnitAI>
+@@ -892,8 +891,7 @@
+ 			<Type>UNIT_WORKER</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+-			<!-- advc.010: was UNITCLASS_WORKER -->
+-			<Capture>NONE</Capture>
++			<Capture>UNITCLASS_WORKER</Capture>
+ 			<Combat>NONE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_WORKER</DefaultUnitAI>
+@@ -1146,8 +1144,7 @@
+ 			<Type>UNIT_INDIAN_FAST_WORKER</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+-			<!-- advc.010: was UNITCLASS_WORKER -->
+-			<Capture>NONE</Capture>
++			<Capture>UNITCLASS_WORKER</Capture>
+ 			<Combat>NONE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_WORKER</DefaultUnitAI>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 8760f236f..a14b1e953 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -2564,11 +2564,13 @@ void CvGameTextMgr::setInterceptPlotHelp(CvPlot const& kPlot, CvUnit const& kUni
+ 	}
+ }
+ 
+-/*	Returns true if help was given...
+-	K-Mod note: this function can change the center unit on the plot.
++/*	K-Mod note: this function can change the center unit on the plot.
+ 	(because of a change I made)
+ 	Also, I've made some unmarked structural changes to this function
+-	to make it easier to read and to fix a few minor bugs. */
++	to make it easier to read and to fix a few minor bugs.
++	advc.010: Now returns true only if unit capture help was given.
++	(All callers had previously ignored the return value, which had said
++	whether any help was given.) */
+ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ {
+ 	PROFILE_FUNC();
+@@ -2622,12 +2624,64 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 		pDefender = pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwner(), pAttacker,
+ 				!bForceHostile, false, false, false);
+ 		if (pDefender != NULL)
++		{
+ 			setCannotAttackHelp(szString, *pAttacker, *pDefender);
+-		return false;
++			return false;
++		}
+ 	} // </advc.089>
+-	if (pDefender == NULL || !pDefender->canDefend(pPlot) || !pAttacker->canAttack(*pDefender))
++	// <advc.010> Show capture help if war not yet declared even w/o bForceHostiley
++	bool bCaptureHelpOnly = false;
++	if (pDefender == NULL)
++	{
++		pDefender = pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwner(), pAttacker, false);
++		if (pDefender != NULL)
++			bCaptureHelpOnly = true;
++		else return false;
++	} // </advc.010>
++	if (!pAttacker->canAttack(*pDefender))
+ 		return false;
+-
++	if (!pDefender->canDefend(pPlot))
++	{
++		//return false;
++		// <advc.010>
++		/*	(Would be nice to show capture help also when
++			pPlot->getNumVisibleEnemyDefenders()==1
++			i.e. when there is a proper defender and the attacker's victory will
++			immediately result in a captive. However, this gets too complicated
++			b/c there could be multiple captives. If the best defender itself
++			can be captured, then it's clear enough that the capture help refers
++			only to that one unit.) */
++		if (pAttacker->isNoUnitCapture())
++			return false;
++		UnitTypes const eCaptive = pDefender->getCaptureUnitType(
++				GET_PLAYER(pAttacker->getOwner()).getCivilizationType());
++		if (eCaptive == NO_UNIT)
++			return false;
++		int const iCaptureOdds = pAttacker->getCaptureOdds(*pDefender);
++		int const iBaseOdds = GC.getDefineINT(CvGlobals::BASE_UNIT_CAPTURE_CHANCE);
++		if (iCaptureOdds == iBaseOdds && (iBaseOdds <= 0 || iBaseOdds >= 100))
++			return false;
++		CvWString szOdds;
++		szOdds.Format(SETCOLR L"%d%%" ENDCOLR, TEXT_COLOR(iCaptureOdds > 0 ?
++				(iCaptureOdds >= 50 ? "COLOR_POSITIVE_TEXT" : "COLOR_YELLOW") :
++				"COLOR_NEGATIVE_TEXT"), iCaptureOdds);
++		szString.append(gDLL->getText(pDefender->getUnitType() == eCaptive ?
++				"TXT_KEY_MISC_UNIT_CAPTURE_ODDS" :
++				"TXT_KEY_MISC_UNIT_CAPTURE_ODDS_REPL",
++				GC.getInfo(eCaptive).getDescription(), szOdds.c_str()));
++		if (iCaptureOdds != iBaseOdds &&
++			iCaptureOdds == GC.getDefineINT(CvGlobals::DOW_UNIT_CAPTURE_CHANCE) &&
++			(GET_TEAM(pAttacker->getTeam()).hasJustDeclaredWar(pDefender->getTeam()) ||
++			!GET_TEAM(pAttacker->getTeam()).isAtWar(pDefender->getTeam())))
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_MISC_NO_DOW_UNIT_CAPTURE"));
++		}
++		return true; // </advc.010>
++	}
++	// <advc.010>
++	if (bCaptureHelpOnly)
++		return false; // </advc.010>
+ 	// <advc.048>
+ 	bool bBestOddsHelp = false;
+ 	if(!bMaxSurvival && GC.getDefineINT("GROUP_ATTACK_BEST_ODDS_HELP") > 0)
+@@ -2821,7 +2875,8 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 
+ 	szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+ 
+-	return true;
++	//return true;
++	return false; // advc.010: see comment on top
+ }
+ 
+ /*	advc.089: Help text for the conditions checked by CvUnit::canAttack.
+@@ -20150,6 +20205,10 @@ void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot,
+ 			setCityBarHelp(strHelp, *pCity);
+ 		else if (pFlagPlot != NULL)
+ 			setPlotListHelp(strHelp, *pFlagPlot, false, true);
++		/*	<advc.010> Convenient to generate capture help along with
++			combat help, but I want to show capture help a little later. */
++		bool bCaptureHelp = false;
++		CvWStringBuffer szCombatHelp; // </advc.010>
+ 		if (strHelp.isEmpty() && pMouseOverPlot != NULL)
+ 		{
+ 			if (pMouseOverPlot == kUI.getGotoPlot() ||
+@@ -20158,7 +20217,13 @@ void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot,
+ 				!GC.getGame().isDebugMode())) // advc.135c
+ 			{
+ 				if (pMouseOverPlot->isActiveVisible(true))
+-					setCombatPlotHelp(strHelp, pMouseOverPlot);
++				{
++					//setCombatPlotHelp(strHelp, pMouseOverPlot);
++					// <advc.010>
++					bCaptureHelp = setCombatPlotHelp(szCombatHelp, pMouseOverPlot);
++					if (!bCaptureHelp)
++						strHelp.append(szCombatHelp); // </advc.010>
++				}
+ 			}
+ 		}
+ 		if (strHelp.isEmpty() && pMouseOverPlot != NULL &&
+@@ -20170,6 +20235,12 @@ void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot,
+ 				if (!strHelp.isEmpty())
+ 					strHelp.append(NEWLINE);
+ 			}
++			// <advc.010>
++			if (bCaptureHelp && !szCombatHelp.isEmpty())
++			{
++				strHelp.append(szCombatHelp);
++				strHelp.append(NEWLINE);
++			} // </advc.010>
+ 			setPlotHelp(strHelp, *pMouseOverPlot);
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 77367a004..6fbbfac7c 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -564,7 +564,9 @@ public:
+ 		DO(POWER_CORRECTION) /* advc.104 */ \
+ 		DO(TRUE_STARTS_SANITIZE) /* advc.tsl */ \
+ 		DO(TRUE_STARTS_SANITIZE_SCENARIOS) /* advc.tsl */ \
+-		DO(RF_PLAYER_HANDICAP_ADJUSTMENT) /* advc.708 */
++		DO(RF_PLAYER_HANDICAP_ADJUSTMENT) /* advc.708 */ \
++		DO(BASE_UNIT_CAPTURE_CHANCE) /* advc.010 */ \
++		DO(DOW_UNIT_CAPTURE_CHANCE) /* advc.010 */
+ 	#define MAKE_ENUMERATOR(VAR) VAR,
+ 	enum GlobalDefines
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c5ef8f2bb..a5d651ab2 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2135,16 +2135,29 @@ bool CvPlayerAI::AI_acceptUnit(CvUnit const& kUnit) const
+ bool CvPlayerAI::AI_captureUnit(UnitTypes eUnit, CvPlot const& kPlot) const
+ {
+ 	FAssert(!isHuman());
+-	if (kPlot.getTeam() == getTeam())
+-		return true;
+-	CvCity* pNearestCity = GC.getMap().findCity(
+-			kPlot.getX(), kPlot.getY(), NO_PLAYER, getTeam());
+-	if (pNearestCity != NULL)
++	if (kPlot.getTeam() != getTeam())
+ 	{
+-		if (plotDistance(&kPlot, pNearestCity->plot()) <= /*4*/ 8) // advc.010
+-			return true;
++		CvCity const* pNearestCity = GC.getMap().findCity(
++				kPlot.getX(), kPlot.getY(), NO_PLAYER, getTeam());
++		if (pNearestCity == NULL ||
++			plotDistance(&kPlot, pNearestCity->plot()) > /*4*/8) // advc.010
++		{
++			return false;
++		}
+ 	}
+-	return false;
++	//return true;
++	// advc.010: The rest has been cut from CvUnit::kill
++	if (!kPlot.isCity() && AI_isAnyPlotDanger(kPlot))
++	{
++		//return false;
++		/*  <advc.010> If we're not clearly outnumbered, then let the enemy fight
++			over eUnit if they like. */
++		int iOurStrength = AI_localDefenceStrength(&kPlot, getTeam());
++		int iEnemyStrength = AI_localAttackStrength(&kPlot);
++		if (3 * iOurStrength < 2 * iEnemyStrength)
++			return false; // </advc.010>
++	}
++	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 2772482b5..4f5d6f305 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1075,9 +1075,7 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 
+ 	setAtWar(eTarget, true);
+ 	kTarget.setAtWar(getID(), true);
+-	// <advc.162>
+-	if(GC.getDefineBOOL(CvGlobals::SPEND_ALL_MOVES_ON_INVASION))
+-		m_abJustDeclaredWar.set(eTarget, true); // </advc.162>
++	m_abJustDeclaredWar.set(eTarget, true); // advc.162
+ 	// BETTER_BTS_AI_MOD (08/21/09, jdog5000, Efficiency): START
+ 	GC.getMap().invalidateBorderDangerCache(eTarget);
+ 	GC.getMap().invalidateBorderDangerCache(getID());
+@@ -5489,7 +5487,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange,
+ 		}
+ 	}
+ 	if (kTech.isRiverTrade())
+-	{
+ 		changeRiverTradeCount(iChange);
+ 	// <advc.500c>
+ 	if (kTech.isNoFearForSafety())
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 68578112e..668048b01 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -304,7 +304,8 @@ public:
+ 	} // </advc.134a>
+ 	void setAtWar(TeamTypes eIndex, bool bNewValue);
+ 	/*  advc.162: "Just" meaning on the current turn. Don't want to rely on
+-		AI code (AI_getWarPlanStateCounter) for this. */
++		AI code (AI_getWarPlanStateCounter) for this.
++		Also used for advc.010. */
+ 	bool hasJustDeclaredWar(TeamTypes eIndex) const
+ 	{
+ 		return m_abJustDeclaredWar.get(eIndex);
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 7b27984f0..adb5ae093 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -592,20 +592,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 					gDLL->getEntityIFace()->AddMission(&kMission);
+ 				}
+ 				pCapturedUnit->finishMoves();
+-				if (!GET_PLAYER(eCapturingPlayer).isHuman())
+-				{
+-					CvPlot const* pCapturePlot = pCapturedUnit->plot();
+-					if (pCapturePlot != NULL && !pCapturePlot->isCity())
+-					{
+-						if (GET_PLAYER(eCapturingPlayer).AI_isAnyPlotDanger(*pCapturePlot) &&
+-							GC.getDefineBOOL("AI_CAN_DISBAND_UNITS"))
+-						{
+-							//pkCapturedUnit->kill(false);
+-							// K-Mod. roughly the same thing, but this is more appropriate.
+-							pCapturedUnit->scrap();
+-						}
+-					}
+-				}
++				// <advc.010> AI checks moved into AI_captureUnit. Rather than ...
++				/*//pkCapturedUnit->kill(false);
++				// K-Mod. roughly the same thing, but this is more appropriate.
++				pCapturedUnit->scrap();*/
++				// ... let's just not init the unit. </advc.010>
+ 			}
+ 		}
+ 	}
+@@ -1558,8 +1549,11 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted)
+ 			bAdvance = canAdvance(pPlot, pDefender->canDefend() ? 1 : 0);
+ 			if (bAdvance)
+ 			{
+-				if (!isNoUnitCapture())
++				if (//!isNoUnitCapture())
++					SyncRandSuccess100(getCaptureOdds(*pDefender))) // advc.010
++				{
+ 					pDefender->setCapturingPlayer(getOwner());
++				}
+ 			}
+ 
+ 			pDefender->kill(false);
+@@ -6660,6 +6654,25 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
+ 			m_pUnitInfo->getUnitCaptureClassType()));
+ }
+ 
++// advc.010:
++int CvUnit::getCaptureOdds(CvUnit const& kDefender) const
++{
++	if (isNoUnitCapture() || kDefender.getCaptureUnitType(
++		GET_PLAYER(kDefender.getOwner()).getCivilizationType()) == NO_UNIT)
++	{
++		return 0;
++	}
++	if (!isAlwaysHostile())
++	{
++		if (GET_TEAM(getTeam()).hasJustDeclaredWar(kDefender.getTeam()) ||
++			!GET_TEAM(getTeam()).isAtWar(kDefender.getTeam()))
++		{
++			return GC.getDefineINT(CvGlobals::DOW_UNIT_CAPTURE_CHANCE);
++		}
++	}
++	return GC.getDefineINT(CvGlobals::BASE_UNIT_CAPTURE_CHANCE);
++}
++
+ 
+ bool CvUnit::isBarbarian() const
+ {
+@@ -6816,7 +6829,7 @@ bool CvUnit::isNoCityCapture() const
+ 			m_pUnitInfo->isOnlyAttackAnimals()); // advc.315a
+ }
+ 
+-// advc.315b: Allow Explorers to capture units (if worker stealing allowed; cf. advc.010)
++// advc.315b: Allow Explorers to capture units
+ bool CvUnit::isNoUnitCapture() const
+ {
+ 	return (isNoCityCapture() && !m_pUnitInfo->isOnlyAttackBarbarians());
+@@ -8403,14 +8416,13 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
+ 							GET_TEAM(getTeam()).AI_changeWarSuccess(pLoopUnit->getTeam(),
+ 									GC.getDefineINT("WAR_SUCCESS_UNIT_CAPTURING"));
+ 						}
+-						if (!isNoUnitCapture())
+-							pLoopUnit->setCapturingPlayer(getOwner());
+-						// <advc.010> Report death when pLoopUnit won't be captured
+-						if (pLoopUnit->getCaptureUnitType(
+-							GET_PLAYER(getOwner()).getCivilizationType()) == NO_UNIT)
++						if (//!isNoUnitCapture()
++							SyncRandSuccess100(getCaptureOdds(*pLoopUnit))) // advc.010
+ 						{
+-							addAttackSuccessMessages(*pLoopUnit, false);
+-						} // </advc.010>
++							pLoopUnit->setCapturingPlayer(getOwner());
++						}
++						// advc.010: Report death
++						else addAttackSuccessMessages(*pLoopUnit, false);
+ 						pLoopUnit->kill(false, getOwner());
+ 					}
+ 				}
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index bac5b589f..ac4e21e83 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -290,6 +290,7 @@ public:
+ 		return m_pUnitInfo->getSpecialUnitType();
+ 	}
+ 	UnitTypes getCaptureUnitType(CivilizationTypes eCivilization) const;									// Exposed to Python
++	int getCaptureOdds(CvUnit const& kDefender) const; // advc.010
+ 	UnitCombatTypes getUnitCombatType() const																// Exposed to Python
+ 	{
+ 		return m_pUnitInfo->getUnitCombatType();
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index c7f6bfa41..126cb93d5 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -18411,14 +18411,29 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
+ 		return true;
+ 	}
+ 
+-	if (pCity != NULL)
+-	{
+-		if (pCity->getTeam() == getTeam())
+-		{
+-			getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
+-					false, false, MISSIONAI_RETREAT);
+-			return true;
+-		}
++	if (pCity != NULL && pCity->getTeam() == getTeam())
++	{
++		if (bEvac && at(pCity->getPlot()) && // scorched earth
++			m_pUnitInfo->getUnitCaptureClassType() != NO_UNITCLASS)
++		{
++			/*	(Would be nice to check which player is about to capture the city -
++				e.g. Barbarians don't capture units - but that's not worth the
++				implementation effort.) */
++			scaled rScrapOdds = per100(GC.getDefineINT(CvGlobals::
++					BASE_UNIT_CAPTURE_CHANCE)) / 2;
++			// Be more reluctant to scrap expensive units
++			rScrapOdds *= 50; // production cost baseline
++			rScrapOdds /= kOwner.getProductionNeeded(getUnitType()) /
++					per100(GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent());
++			if (SyncRandSuccess(rScrapOdds))
++			{
++				scrap();
++				return true;
++			}
++		} // </advc.010>
++		getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
++				false, false, MISSIONAI_RETREAT);
++		return true;
+ 	}
+ 
+ 	return false;
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=86670

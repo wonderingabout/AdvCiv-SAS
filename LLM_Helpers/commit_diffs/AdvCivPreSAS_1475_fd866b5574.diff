@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1475
+# Commit: fd866b557471ad4bc8609cdbacc1cab1845fa56a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f6d8434b58c17aa0d34d4c93df5f02ca8c6ffa92
+# Title: AI2, AI2b: CvUnitAI::AI_guardFort now checks for a positive defensive modifier
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	4	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index fb393207a..8cdc0906b 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -12127,10 +12127,15 @@ bool CvUnitAI::AI_guardFort(bool bSearch)
+ 		return false; // </advc.107>
+ 	if (plot()->getOwnerINLINE() == getOwnerINLINE())
+ 	{
+-		ImprovementTypes eImprovement = plot()->getImprovementType();
++		const ImprovementTypes eImprovement = plot()->getImprovementType();
+ 		if (eImprovement != NO_IMPROVEMENT)
+ 		{
+-			if (GC.getImprovementInfo(eImprovement).isActsAsCity())
++			const CvImprovementInfo& kImprovement = GC.getImprovementInfo(eImprovement);
++
++			// Erik: Only consider guarding if we actually receive a defensive bonus from the improvement
++			// This is really only relevant for mods that have improvements that will act as a city without
++			// providing a defensive bonus
++			if (kImprovement.isActsAsCity() && kImprovement.getDefenseModifier() > 0)
+ 			{
+ 				if (plot()->plotCount(PUF_isCityAIType, -1, -1, getOwnerINLINE()) <= AI_getPlotDefendersNeeded(plot(), 0))
+ 				{
+@@ -12158,10 +12163,12 @@ bool CvUnitAI::AI_guardFort(bool bSearch)
+ 		{
+ 			if (pLoopPlot->getOwnerINLINE() == getOwnerINLINE())
+ 			{
+-				ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
++				const ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+ 				if (eImprovement != NO_IMPROVEMENT)
+ 				{
+-					if (GC.getImprovementInfo(eImprovement).isActsAsCity())
++					const CvImprovementInfo& kImprovement = GC.getImprovementInfo(eImprovement);
++
++					if (kImprovement.isActsAsCity() && kImprovement.getDefenseModifier() > 0)
+ 					{
+ 						int iValue = AI_getPlotDefendersNeeded(pLoopPlot, 0);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1709

@@ -1,0 +1,1069 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5465
+# Commit: 20989cf63ffdfc44db2ed249b5ce7c80d7f5ef43
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fe25618f49f1841c7224a924f92a41aabe520a51
+# Title: add Civ-specific buildings rework table in README_Assets_Rebalancing - BUILDING_GERMAN_LONGHOUSE: reduce iFoodKept from 50 to 40 and reduce iCost from 55 to...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	5	AGENTS.md
+27	36	Assets/XML/Buildings/CIV4BuildingInfos.xml
+106	106	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+1	1	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+2	2	Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+3	3	Assets/XML/Technologies/CIV4TechInfos.xml
+1	1	Assets/XML/Units/CIV4PromotionInfos.xml
+2	2	README.md
+105	59	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+3	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+1	1	_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (4).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (3).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (4).JPG
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 87afcf0d4..343b30fcf 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -95,7 +95,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the
+ - Preserve contrast/difference phrasing when it carries technical meaning (e.g., "unlike in the foreign advisor").
+ - Keep exact marker strings like "AdvCiv Mod" or "AdvCiv-SAS Mod" for later searches.
+ - When adding new comments, use the format `<!-- custom: ... (GPT-5.3-Codex) -->` (with `//` or `#` prefix as appropriate) instead of other tags like advc.sas.
+-- Do not use `/*` or `"""` or `'''` or such docstrings or variants. Prefer `//` or `#` or similar so they are easierto manage/uncomment and less costly computationally. Keep existing ones as they are, as some `"""` docstrings seem functionally used in tests (do not modify these, only the new ones we create).
++- Do not use `/*` or `"""` or `'''` or such docstrings or variants. Prefer `//` or `#` or similar so they are easier to manage/uncomment and less costly computationally. Keep existing ones as they are, as some `"""` docstrings seem functionally used in tests (do not modify these, only the new ones we create).
+ - Add a suffix with your model name to your code comments; e.g., `(GPT-5.3-Codex (summarized)) -->`, `(Claude code Sonnet 4.5 (summarized)) -->`.
+ - When writing new code, do not use other credentials than our custom ones, e.g. no `// advc.`, as they do not belong to us. Use `<!-- custom:` instead.
+ - Do NOT commit changes without explicit user approval - wait for review at the end.
+@@ -151,10 +151,12 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - For AI or gameplay logic changes, include a slightly more verbose rationale (why it helps efficiency or outcomes), not just what changed.
+ - When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
+ - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
+-- When doing performance optimizations, checking only, checking quotes only on one side is handy to spot all string lookups we could potentially cache. E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")`.
+-- When doing performance optimizations, use local variables only is enough and best if we don't use this variable elsewhere. E.g. `eYellow = gc.getInfoTypeForString("COLOR_YELLOW")` at init in SevoPediaMain.py.
+-- Use specific t names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.asse
++- When doing performance optimizations, checking quotes only on one side is handy to spot all string lookups we could potentially cache. E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")`.
++- When doing performance optimizations, using local variables only is enough and best if we don't use this variable elsewhere. E.g. `eYellow = gc.getInfoTypeForString("COLOR_YELLOW")` at init in SevoPediaMain.py.
++- Use specific asset names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.
+ - Avoid fluff like `================`, keep it nice and simple and clean.
++- Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
++- Prefer UTF-8; avoid UTF-8 with BOM and non-UTF-8 encodings (e.g., Windows-1252), as they can cause mojibake artifacts like `â€”it` or `â€™` or other issues.
+ 
+ ### Python (Civ4)
+ 
+@@ -164,8 +166,9 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Prefer robust UI identifiers: widget names can strip numeric suffixes, so use descriptive text suffixes and map widget IDs to data for event handling.
+ - In fragile Civ4 Python, wrap risky calls in try/except and trust UI state when engine state can drift.
+ - When adding guidance, include at least one simple code example so other agents can copy the pattern.
++- It seems definebool does not exist in python, so use boolean comparison on int rather; e.g., `IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)`. Does not apply to C++ though that has defineBOOL.
+ - Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
+-- Prefer `getInfoTypeOrFail("TAG")` (from `SASUtils`) over raw `gc.getInfoTypeForString("TAG")` whenever possible so bad XML tags fail loudly and early; this helped catch incorrect direction-string usage in Planet Generator map (e.g., incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` failing instead of `DirectionTypes.DIRECTION_NORTH*` enum constants; or incorrect `getInfoTypeOrFail("PLOT_PEAK")` instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map).
++- Prefer `getInfoTypeOrFail("TAG")` (from `SASUtils`) over raw `gc.getInfoTypeForString("TAG")` whenever possible so bad XML tags fail loudly and early; this helped catch incorrect direction-string usage in Planet Generator map (e.g., incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` failing instead of `DirectionTypes.DIRECTION_NORTH*` enum constants; or incorrect `getInfoTypeOrFail("PLOT_PEAK")` instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map)).
+ - When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
+ - Use `from module import *` for helper modules to reduce import tedium and make future additions seamless.
+ - Keep import burden on callers for Civ4-specific dependencies: helper functions should receive Civ4 objects (e.g. `gc`, `screen`, `CyGame()`) as parameters rather than importing them internally. This avoids circular dependencies. Standard Python modules (`re`, `math`, etc.) are fine to import directly in helpers since they're cached and always available.
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 1787729e3..d8e22415c 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -225,7 +225,7 @@
+ 			<bAreaCleanPower>0</bAreaCleanPower>
+ 			<DiploVoteType>NONE</DiploVoteType>
+ 			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+-			<!-- custom: trying to make barbarians more like city states or autonomous empires, also considering their later start, hopefully copensates it a bit and allows for different mechanics (i.e. gameplays) for them, hopefully (more?) interesting for human players this way too (at least maybe me or not or yes or an other or and not) -->
++			<!-- custom: trying to make barbarians more like city states or autonomous empires, also considering their later start, hopefully copensates it a bit and allows for different mechanics (i.e. gameplays) for them, hopefully more interesting for human players this way too -->
+ 			<bCapital>0</bCapital>
+ 			<bGovernmentCenter>1</bGovernmentCenter>
+ 			<bGoldenAge>0</bGoldenAge>
+@@ -247,7 +247,7 @@
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+ 			<iConquestProb>0</iConquestProb>
+-			<!-- custom: no restriction for barbarians building their (few at least of now if not always or not) buidlings -->
++			<!-- custom: no restriction for barbarians building their buidlings -->
+ 			<iCitiesPrereq>0</iCitiesPrereq>
+ 			<iTeamsPrereq>0</iTeamsPrereq>
+ 			<iLevelPrereq>0</iLevelPrereq>
+@@ -2311,7 +2311,7 @@
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+ 			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<!-- custom: avoid circular dependency with freebuilding of barbarian palace (or BARBARIAN_PALACE maybe), not sure it is needed or has a real influence or not, but better be safe here maybe -->
++			<!-- custom: avoid circular dependency with freebuilding of barbarian palace (or BARBARIAN_PALACE maybe), not sure it is needed or has a real influence but just in case -->
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+@@ -3159,7 +3159,7 @@
+ 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not -->
++			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
+ 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -3200,7 +3200,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<!-- custom: the granary should be valuable to all players and war profiles (peaceful or warmonger alike could make great use of it, but do not overly increase it in case alternate strategies are better, trying this value then), was 0 -->
+ 			<iAIWeight>25</iAIWeight>
+-			<!-- custom: cost reduced to make gameplay more gradual, and this building more balanced with the slavery association, also as part of buffing slavery that is too weak see (adjust to your mod path) CIV4HurryInfo.xml for details, also cost was a bit too high for such an early game building, as compared to say the monument, maybe this is more balanced now in that regard, was 60 -->
++			<!-- custom: cost reduced to make gameplay more gradual, and this building more balanced with the slavery association, also as part of buffing slavery that is too weak (see CIV4HurryInfo.xml), also cost was a bit too high for such an early game building, as compared to say the monument, maybe this is more balanced now in that regard, was 60 -->
+ 			<iCost>45</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -3221,7 +3221,7 @@
+ 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+ 			<iExperience>0</iExperience>
+ 			<iGlobalExperience>0</iGlobalExperience>
+-			<!-- custom: reducing this as the granary is a bit too op early, making it a cheaper more gradual building, see code comment at iCost of this building for details, also not affecting civ-specific version of the granary, at least not all of them if there are more, to give more of an advantage to these civs with their civ-specific building, was 50 -->
++			<!-- custom: reducing this as the granary is a bit too op early, making it a cheaper more gradual building, see code comment at iCost of this building for details, also affecting some of the civ-specific variants, was 50 -->
+ 			<iFoodKept>40</iFoodKept>
+ 			<iAirlift>0</iAirlift>
+ 			<iAirModifier>0</iAirModifier>
+@@ -3348,7 +3348,7 @@
+ 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not -->
++			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
+ 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -3536,7 +3536,7 @@
+ 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not -->
++			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
+ 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -3576,7 +3576,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>60</iCost>
++			<iCost>45</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3639,18 +3639,12 @@
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+-			<!-- custom: also add production modifiers to make it even more of a production/growth type of building -->
+-			<YieldModifiers>
+-				<iYield>0</iYield>
+-				<iYield>10</iYield>
+-				<iYield>0</iYield>
+-			</YieldModifiers>
++			<YieldModifiers/>
++			<!-- custom: reworked as part of the slavery+granary rework or rebalancing, gaining culture should be reserved to cultural buildings, and extending borders so easily without a monument or such is a bit too op, was 0, 0, 1 -->
+ 			<CommerceChanges/>
+-			<!-- custom: reworked as part of the slavery+granary rework or rebalance(ing), now the incan granary (qullqa) is a production building, more in line with the pedia entry of it as well, and not a bad change i think as gaining culture should be reserved to cultural buildings, and extending borders so easily without a monument or such is a bit too op or a weird mix/hard to balance combo (either too weak or too strong no real middle margin, i want to rework it as such now), maybe will turn out well, or not, or yes or etc, was was 0, 0, 1 -->
+-			<!-- custom: was 0, 0, 1 (note: as for the below advc comment of base advciv, it applies to the old <iCommerce>1</iCommerce> line now removed entirely as part of our rework in advciv-sas) -->
+ 			<!-- advc.908b: was 2 -->
+ 			<ObsoleteSafeCommerceChanges/>
+-			<!-- custom: also remove culture double times and culture related things in xml now that this is not a cultural building anymore but a production/growth one -->
++			<!-- custom: also remove culture double times and culture related things in xml now that this is not a cultural building anymore -->
+ 			<CommerceChangeDoubleTimes/>
+ 			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
+@@ -3688,12 +3682,12 @@
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- custom: remove culture flavor entirely, increase flavor growth, as this is indeed an op building now in a balanced way if i may say maybe, but in all cases, rework flavors more generally to match the new building's profile -->
++			<!-- custom: remove culture flavor entirely, increase flavor growth -->
+ 			<!-- advc.020: was 10 Growth; doesn't account for the +culture -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>9</iFlavor>
++					<iFlavor>8</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+@@ -3733,7 +3727,7 @@
+ 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not -->
++			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general -->
+ 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -3774,8 +3768,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<!-- custom: see code comment at the generic granary, was 0 -->
+ 			<iAIWeight>25</iAIWeight>
+-			<!-- custom: see code comment at the generic granary, was 60 -->
+-			<iCost>55</iCost>
++			<iCost>45</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3795,8 +3788,7 @@
+ 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+ 			<iExperience>0</iExperience>
+ 			<iGlobalExperience>0</iGlobalExperience>
+-			<!-- custom: give more food storage than the average/generic granary -->
+-			<iFoodKept>50</iFoodKept>
++			<iFoodKept>40</iFoodKept>
+ 			<iAirlift>0</iAirlift>
+ 			<iAirModifier>0</iAirModifier>
+ 			<iAirUnitCapacity>0</iAirUnitCapacity>
+@@ -3883,7 +3875,6 @@
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- custom: a bit less production than the INCAN_QULLQA but still quite important for production even though less / a bit less indeed... -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+@@ -5023,7 +5014,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now  but or not but... so make it cheap enough, which makes sense also as its effect althugh quite good is much weaker than of a granary that is cheap as well, was 80 -->
++			<!-- custom: reduce cost to match old lighthouse or around it, as it is its replacement as the first naval building now so make it cheap enough, which makes sense also as its effect althugh quite good is much weaker than of a granary that is cheap as well, was 80 -->
+ 			<iCost>50</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -9239,8 +9230,7 @@
+ 			<FreeStartEra>ERA_MODERN</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>TECH_NATURALISM</ObsoleteTech>
+-			<!-- custom: until we do and if we do ideallyour full full tech tree rework, for now construction is too far, use polytheism instead for the ziggurat -->
+-			<!-- custom: with our tech tree rework, now based on construction, see docs including but not only or only or not the notes .txt type of files and ctrl+f "ziggurat" for example for details or wikipedia online or such or and other sources or and not -->
++			<!-- custom: until we do and if we do at all our full full tech tree rework, for now construction is too far, use polytheism instead for the ziggurat -->
+ 			<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -10940,7 +10930,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: make the building available sooner while it is more relevant while the game lasts especially considering its science effect would be pointless if there are no more not anymore any tech to research..., is maybe more historically accurate this was as per our reworked tech tree at least if not in civ4 +/- base advciv too maybe (didn't check) or not, was TECH_SUPERCONDUCTORS and tech types empty -->
++			<!-- custom: make the building available sooner while it is more relevant, was TECH_SUPERCONDUCTORS and tech types empty -->
+ 			<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -15236,7 +15226,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: change as per the reworked tech tree now that physics is sooner in tech tree, not sure if accurate checked only a bit but should not be too far off and tech steam power is bloated, i don't see a direct correlation with tech steam power as well unless i'm mistaken bu didn't check lot again, also accounting the time to build them maybe fine as is with this change fine as it is now changed i mean but or not but or yes but, and this buffs tech physics that is a bit weak at least as of now, was TECH_STEAM_POWER -->
++			<!-- custom: change as per the reworked tech tree now that physics is sooner in tech tree, and this buffs tech physics that is a bit weak plus the building itself, was TECH_STEAM_POWER -->
+ 			<PrereqTech>TECH_PHYSICS</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -22938,7 +22928,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: so it appears in tech tree, and so that in sevopedia buildings it is not listed under the as of now "No Tech Prerequisite section". No reason to put it especially late in the tech tree in terms of gameplay -->
+-			<PrereqTech>TECH_MONARCHY</PrereqTech>
++			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25486,7 +25476,7 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+-			<!-- custom: religion is still relevant in modern era for better or worse is what i'd want to say but i really don't know... i mean i don't have a positive view of religion in general but this is a code space so don't mind this i mean if i may say my bad or not as i wanted to say..., was TECH_COMPUTERS -->
++			<!-- custom: religion is still relevant in modern era historically so this better reflects that, was TECH_COMPUTERS -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+ 			<TechTypes/>
+@@ -25982,7 +25972,7 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<!-- custom: (AdvCiv had reduced this to 10 if i may say xd...... but thanks for all changes really i mean now also me i.e. i am tweaking as i see fit or best fit or as i want too or not or yes or etc was 0 / 0 / 10 -->
++			<!-- custom: (AdvCiv had reduced this to 10, was 0 / 0 / 10 -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+@@ -29645,7 +29635,7 @@
+ 			<!-- advc.131c: was 10 -->
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<!-- custom: remove local/city-only effect ((of) SeaPlotYieldChanges  but or not but) -->
++			<!-- custom: remove local/city-only effect of SeaPlotYieldChanges -->
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+ 			<!-- custom: make the effect stronger, now applies to all cities, on top of the building-only effect of the port, was empty -->
+@@ -31192,7 +31182,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
+ 			<ObsoleteTech>TECH_MASS_MEDIA</ObsoleteTech>
+-			<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
++			<!-- custom: not strictly religious; fits UN being around as of now TECH_MASS_MEDIA -->
++			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 96f2f86c7..8afe1d766 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -3617,6 +3617,112 @@
+ 			<CivilizationSelectionSound>AS3D_RUSSIA_SELECT</CivilizationSelectionSound>
+ 			<CivilizationActionSound>AS3D_RUSSIA_ORDER</CivilizationActionSound>
+ 		</CivilizationInfo>
++		<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA"; also also remove "_CHANGED" in txt key / asset name of these units; move above for alphabetical ordering -->
++		<CivilizationInfo>
++			<Type>CIVILIZATION_SCANDINAVIA</Type>
++			<Description>TXT_KEY_CIV_SCANDINAVIA_DESC</Description>
++			<ShortDescription>TXT_KEY_CIV_SCANDINAVIA_SHORT_DESC</ShortDescription>
++			<Adjective>TXT_KEY_CIV_SCANDINAVIA_ADJECTIVE</Adjective>
++			<Civilopedia>TXT_KEY_CIV_SCANDINAVIA_PEDIA</Civilopedia>
++			<DefaultPlayerColor>PLAYERCOLOR_LIGHT_PURPLE</DefaultPlayerColor>
++			<ArtDefineTag>ART_DEF_CIVILIZATION_SCANDINAVIA</ArtDefineTag>
++			<ArtStyleType>ARTSTYLE_EUROPEAN</ArtStyleType>
++			<UnitArtStyleType>UNIT_ARTSTYLE_EUROPEAN</UnitArtStyleType>
++			<bPlayable>1</bPlayable>
++			<bAIPlayable>1</bAIPlayable>
++			<Cities>
++				<City>TXT_KEY_CITY_NAME_NIDAROS</City>
++				<City>TXT_KEY_CITY_NAME_UPPSALA</City>
++				<City>TXT_KEY_CITY_NAME_HAITHABU</City>
++				<City>TXT_KEY_CITY_NAME_BIRKA</City>
++				<City>TXT_KEY_CITY_NAME_BJORGVIN</City>
++				<City>TXT_KEY_CITY_NAME_JELLING</City>
++				<City>TXT_KEY_CITY_NAME_ROSKILDE</City>
++				<City>TXT_KEY_CITY_NAME_TONSBERG</City>
++				<City>TXT_KEY_CITY_NAME_SIGTUNA</City>
++				<City>TXT_KEY_CITY_NAME_LODOSE</City>
++				<City>TXT_KEY_CITY_NAME_ODENSE</City>
++				<City>TXT_KEY_CITY_NAME_OSLO</City>
++				<City>TXT_KEY_CITY_NAME_RIBE</City>
++				<City>TXT_KEY_CITY_NAME_LINDHOLM</City>
++				<City>TXT_KEY_CITY_NAME_VASTERAS</City>
++				<City>TXT_KEY_CITY_NAME_AARHUS</City>
++				<City>TXT_KEY_CITY_NAME_LUND</City>
++				<City>TXT_KEY_CITY_NAME_KAUPANG</City>
++				<City>TXT_KEY_CITY_NAME_REYKJAVIK</City>
++				<City>TXT_KEY_CITY_NAME_THINGVELLIR</City>
++				<City>TXT_KEY_CITY_NAME_JORVIK</City>
++				<City>TXT_KEY_CITY_NAME_LINCOLN</City>
++				<City>TXT_KEY_CITY_NAME_DEORABY</City>
++				<City>TXT_KEY_CITY_NAME_STAMFORD</City>
++				<City>TXT_KEY_CITY_NAME_DYFLIN</City>
++				<City>TXT_KEY_CITY_NAME_VADREJFORD</City>
++				<City>TXT_KEY_CITY_NAME_LIMERICK</City>
++				<City>TXT_KEY_CITY_NAME_ROWANE</City>
++				<City>TXT_KEY_CITY_NAME_KONUGARD</City>
++				<City>TXT_KEY_CITY_NAME_HOLMGARD</City>
++				<City>TXT_KEY_CITY_NAME_ALDEIGJUBORG</City>
++				<City>TXT_KEY_CITY_NAME_KIRKJUVAGR</City>
++				<City>TXT_KEY_CITY_NAME_TYNWALD</City>
++				<City>TXT_KEY_CITY_NAME_LEIRVIK</City>
++				<City>TXT_KEY_CITY_NAME_TINGANES</City>
++				<City>TXT_KEY_CITY_NAME_KIRKJUBOUR</City>
++				<City>TXT_KEY_CITY_NAME_BRATTAHLID</City>
++				<City>TXT_KEY_CITY_NAME_VINLAND</City>
++				<City>TXT_KEY_CITY_NAME_THUNDERFALL</City>
++			</Cities>
++			<Buildings>
++				<Building>
++					<BuildingClassType>BUILDINGCLASS_PORT</BuildingClassType>
++					<BuildingType>BUILDING_SCANDINAVIA_TRADING_POST</BuildingType>
++				</Building>
++			</Buildings>
++			<Units>
++				<Unit>
++					<UnitClassType>UNITCLASS_MACEMAN</UnitClassType>
++					<UnitType>UNIT_SCANDINAVIA_VIKING</UnitType>
++				</Unit>
++			</Units>
++			<FreeUnitClasses>
++				<FreeUnitClass>
++					<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
++					<iFreeUnits>1</iFreeUnits>
++				</FreeUnitClass>
++			</FreeUnitClasses>
++			<FreeBuildingClasses>
++				<FreeBuildingClass>
++					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
++					<bFreeBuildingClass>1</bFreeBuildingClass>
++				</FreeBuildingClass>
++			</FreeBuildingClasses>
++			<FreeTechs>
++				<FreeTech>
++					<TechType>TECH_FISHING</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++				<FreeTech>
++					<TechType>TECH_HUNTING</TechType>
++					<bFreeTech>1</bFreeTech>
++				</FreeTech>
++			</FreeTechs>
++			<DisableTechs/>
++			<InitialCivics>
++				<CivicType>CIVIC_DESPOTISM</CivicType>
++				<CivicType>CIVIC_BARBARISM</CivicType>
++				<CivicType>CIVIC_TRIBALISM</CivicType>
++				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
++				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
++			</InitialCivics>
++			<Leaders>
++				<Leader>
++					<LeaderName>LEADER_RAGNAR</LeaderName>
++					<bLeaderAvailability>1</bLeaderAvailability>
++				</Leader>
++			</Leaders>
++			<DerivativeCiv>CIVILIZATION_AMERICA</DerivativeCiv>
++			<CivilizationSelectionSound>AS3D_SCANDINAVIA_SELECT</CivilizationSelectionSound>
++			<CivilizationActionSound>AS3D_SCANDINAVIA_ORDER</CivilizationActionSound>
++		</CivilizationInfo>
+ 		<CivilizationInfo>
+ 			<Type>CIVILIZATION_SPAIN</Type>
+ 			<Description>TXT_KEY_CIV_SPAIN_DESC</Description>
+@@ -3827,112 +3933,6 @@
+ 			<CivilizationSelectionSound>AS3D_SUMERIA_SELECT</CivilizationSelectionSound>
+ 			<CivilizationActionSound>AS3D_SUMERIA_ORDER</CivilizationActionSound>
+ 		</CivilizationInfo>
+-		<!-- custom: rename "_VIKING" and "_VIKINGS" to "_SCANDINAVIA"; also also remove "_CHANGED" in txt key / asset name of these units -->
+-		<CivilizationInfo>
+-			<Type>CIVILIZATION_SCANDINAVIA</Type>
+-			<Description>TXT_KEY_CIV_SCANDINAVIA_DESC</Description>
+-			<ShortDescription>TXT_KEY_CIV_SCANDINAVIA_SHORT_DESC</ShortDescription>
+-			<Adjective>TXT_KEY_CIV_SCANDINAVIA_ADJECTIVE</Adjective>
+-			<Civilopedia>TXT_KEY_CIV_SCANDINAVIA_PEDIA</Civilopedia>
+-			<DefaultPlayerColor>PLAYERCOLOR_LIGHT_PURPLE</DefaultPlayerColor>
+-			<ArtDefineTag>ART_DEF_CIVILIZATION_SCANDINAVIA</ArtDefineTag>
+-			<ArtStyleType>ARTSTYLE_EUROPEAN</ArtStyleType>
+-			<UnitArtStyleType>UNIT_ARTSTYLE_EUROPEAN</UnitArtStyleType>
+-			<bPlayable>1</bPlayable>
+-			<bAIPlayable>1</bAIPlayable>
+-			<Cities>
+-				<City>TXT_KEY_CITY_NAME_NIDAROS</City>
+-				<City>TXT_KEY_CITY_NAME_UPPSALA</City>
+-				<City>TXT_KEY_CITY_NAME_HAITHABU</City>
+-				<City>TXT_KEY_CITY_NAME_BIRKA</City>
+-				<City>TXT_KEY_CITY_NAME_BJORGVIN</City>
+-				<City>TXT_KEY_CITY_NAME_JELLING</City>
+-				<City>TXT_KEY_CITY_NAME_ROSKILDE</City>
+-				<City>TXT_KEY_CITY_NAME_TONSBERG</City>
+-				<City>TXT_KEY_CITY_NAME_SIGTUNA</City>
+-				<City>TXT_KEY_CITY_NAME_LODOSE</City>
+-				<City>TXT_KEY_CITY_NAME_ODENSE</City>
+-				<City>TXT_KEY_CITY_NAME_OSLO</City>
+-				<City>TXT_KEY_CITY_NAME_RIBE</City>
+-				<City>TXT_KEY_CITY_NAME_LINDHOLM</City>
+-				<City>TXT_KEY_CITY_NAME_VASTERAS</City>
+-				<City>TXT_KEY_CITY_NAME_AARHUS</City>
+-				<City>TXT_KEY_CITY_NAME_LUND</City>
+-				<City>TXT_KEY_CITY_NAME_KAUPANG</City>
+-				<City>TXT_KEY_CITY_NAME_REYKJAVIK</City>
+-				<City>TXT_KEY_CITY_NAME_THINGVELLIR</City>
+-				<City>TXT_KEY_CITY_NAME_JORVIK</City>
+-				<City>TXT_KEY_CITY_NAME_LINCOLN</City>
+-				<City>TXT_KEY_CITY_NAME_DEORABY</City>
+-				<City>TXT_KEY_CITY_NAME_STAMFORD</City>
+-				<City>TXT_KEY_CITY_NAME_DYFLIN</City>
+-				<City>TXT_KEY_CITY_NAME_VADREJFORD</City>
+-				<City>TXT_KEY_CITY_NAME_LIMERICK</City>
+-				<City>TXT_KEY_CITY_NAME_ROWANE</City>
+-				<City>TXT_KEY_CITY_NAME_KONUGARD</City>
+-				<City>TXT_KEY_CITY_NAME_HOLMGARD</City>
+-				<City>TXT_KEY_CITY_NAME_ALDEIGJUBORG</City>
+-				<City>TXT_KEY_CITY_NAME_KIRKJUVAGR</City>
+-				<City>TXT_KEY_CITY_NAME_TYNWALD</City>
+-				<City>TXT_KEY_CITY_NAME_LEIRVIK</City>
+-				<City>TXT_KEY_CITY_NAME_TINGANES</City>
+-				<City>TXT_KEY_CITY_NAME_KIRKJUBOUR</City>
+-				<City>TXT_KEY_CITY_NAME_BRATTAHLID</City>
+-				<City>TXT_KEY_CITY_NAME_VINLAND</City>
+-				<City>TXT_KEY_CITY_NAME_THUNDERFALL</City>
+-			</Cities>
+-			<Buildings>
+-				<Building>
+-					<BuildingClassType>BUILDINGCLASS_PORT</BuildingClassType>
+-					<BuildingType>BUILDING_SCANDINAVIA_TRADING_POST</BuildingType>
+-				</Building>
+-			</Buildings>
+-			<Units>
+-				<Unit>
+-					<UnitClassType>UNITCLASS_MACEMAN</UnitClassType>
+-					<UnitType>UNIT_SCANDINAVIA_VIKING</UnitType>
+-				</Unit>
+-			</Units>
+-			<FreeUnitClasses>
+-				<FreeUnitClass>
+-					<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
+-					<iFreeUnits>1</iFreeUnits>
+-				</FreeUnitClass>
+-			</FreeUnitClasses>
+-			<FreeBuildingClasses>
+-				<FreeBuildingClass>
+-					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+-					<bFreeBuildingClass>1</bFreeBuildingClass>
+-				</FreeBuildingClass>
+-			</FreeBuildingClasses>
+-			<FreeTechs>
+-				<FreeTech>
+-					<TechType>TECH_FISHING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
+-					<bFreeTech>1</bFreeTech>
+-				</FreeTech>
+-			</FreeTechs>
+-			<DisableTechs/>
+-			<InitialCivics>
+-				<CivicType>CIVIC_DESPOTISM</CivicType>
+-				<CivicType>CIVIC_BARBARISM</CivicType>
+-				<CivicType>CIVIC_TRIBALISM</CivicType>
+-				<CivicType>CIVIC_DECENTRALIZATION</CivicType>
+-				<CivicType>CIVIC_PREHISTORIC_RELIGION</CivicType>
+-			</InitialCivics>
+-			<Leaders>
+-				<Leader>
+-					<LeaderName>LEADER_RAGNAR</LeaderName>
+-					<bLeaderAvailability>1</bLeaderAvailability>
+-				</Leader>
+-			</Leaders>
+-			<DerivativeCiv>CIVILIZATION_AMERICA</DerivativeCiv>
+-			<CivilizationSelectionSound>AS3D_SCANDINAVIA_SELECT</CivilizationSelectionSound>
+-			<CivilizationActionSound>AS3D_SCANDINAVIA_ORDER</CivilizationActionSound>
+-		</CivilizationInfo>
+ 		<CivilizationInfo>
+ 			<Type>CIVILIZATION_ZULU</Type>
+ 			<Description>TXT_KEY_CIV_ZULU_DESC</Description>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 61351d5cc..df6c83f6f 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -6251,7 +6251,7 @@
+ 			<!-- Joao: was CIVIC_HEREDITARY_RULE -->
+ 			<FavoriteCivic>CIVIC_FREE_MARKET</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
+-			<!-- João II — was TRAIT_IMPERIALIST and TRAIT_EXPANSIVE -->
++			<!-- Joao II — was TRAIT_IMPERIALIST and TRAIT_EXPANSIVE -->
+ 			<Traits>
+ 				<Trait>
+ 					<TraitType>TRAIT_IMPERIALIST</TraitType>
+
+diff --git a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+index 43f1329e0..28b05a796 100644
+--- a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+@@ -623,7 +623,7 @@
+ 			<iUnitGreatWorkPercent>300</iUnitGreatWorkPercent>
+ 			<iGoldenAgePercent>300</iGoldenAgePercent>
+ 
+-			<!-- Keep hurry â€œinverse-scaledâ€ like the other speeds (Quick=150, Epic=66, Marathon=50). -->
++			<!-- Keep hurry inverse-scaled like the other speeds (Quick=150, Epic=66, Marathon=50). -->
+ 			<iHurryPercent>33</iHurryPercent>
+ 
+ 			<iHurryConscriptAngerPercent>300</iHurryConscriptAngerPercent>
+@@ -727,7 +727,7 @@
+ 			<iUnitGreatWorkPercent>400</iUnitGreatWorkPercent>
+ 			<iGoldenAgePercent>400</iGoldenAgePercent>
+ 
+-			<!-- Keep hurry â€œinverse-scaledâ€ like the other speeds (Quick=150, Epic=66, Marathon=50). -->
++			<!-- Keep hurry inverse-scaled like the other speeds (Quick=150, Epic=66, Marathon=50). -->
+ 			<iHurryPercent>25</iHurryPercent>
+ 
+ 			<iHurryConscriptAngerPercent>400</iHurryConscriptAngerPercent>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index c887e6cde..339da19b4 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -1338,7 +1338,8 @@
+ 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bMapVisible>0</bMapVisible>
+-			<bMapTrading>0</bMapTrading>
++			<!-- custom: was 0 -->
++			<bMapTrading>1</bMapTrading>
+ 			<bTechTrading>0</bTechTrading>
+ 			<bGoldTrading>0</bGoldTrading>
+ 			<bOpenBordersTrading>0</bOpenBordersTrading>
+@@ -3386,8 +3387,7 @@
+ 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bMapVisible>0</bMapVisible>
+-			<!-- custom: was 0 -->
+-			<bMapTrading>1</bMapTrading>
++			<bMapTrading>0</bMapTrading>
+ 			<bTechTrading>0</bTechTrading>
+ 			<bGoldTrading>0</bGoldTrading>
+ 			<bOpenBordersTrading>0</bOpenBordersTrading>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 42568bafd..092e3edc9 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1374,7 +1374,7 @@
+ 			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER1</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>PROMOTION_COMBAT1</PromotionPrereqOr2>
+ 			<!-- custom: reduce tech prerequirement, seems to have been used in classical era if not sooner from quick search about it, was TECH_MILITARY_SCIENCE -->
+-			<TechPrereq>TECH_CONSTITUTION</TechPrereq>
++			<TechPrereq>TECH_WATER_WHEEL</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<!-- advc.164: No change to the value. 1 means 1 extra attack now;
+
+diff --git a/README.md b/README.md
+index 68dbb517e..80648565c 100644
+--- a/README.md
++++ b/README.md
+@@ -10,7 +10,7 @@ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12
+ 
+ New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Spiky_Avenues`).
+ 
+-Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
++Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
+ 
+ All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
+ 
+@@ -332,7 +332,7 @@ They are very handy to see all handicap or game settings info in one go, are sor
+ 
+ We notably also added in game speeds chart extra analysis rows like `Summary 08 (40%)` with values like `T200=+1400 (120)`, or `Increments Years 02` with values like `750, 500, 250`, or `Increments Months 02` with values like `9000, 6000, 3000`.
+ 
+-Also added a new "LOG" buttonto print to `PythonDbg.log` the tables output, and this is done to other charts too.
++Also added a new "LOG" button to print to `PythonDbg.log` the tables output, and this is done to other charts too.
+ 
+ Also Added with the help of GPT-5.3-Codex and Claude code Opus 4.6, notably with new calibration tools ([compare_speed_summaries.py](/LLM_Helpers/compare_speed_summaries.py) and [autotune_speed_from_xml.py](/LLM_Helpers/autotune_speed_from_xml.py) in [LLM_Helpers](/LLM_Helpers/) for finer LLM-enhanced tuning.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index e7573dd8c..2e5f4cd67 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -5,7 +5,8 @@ Some of the asset rebalancing is shown here (not exhaustive)
+ ## Menu
+ 
+ [How to](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#how-to)  
+-[Starting techs rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#starting-techs-rework)  
++[Civs' starting techs rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civs-starting-techs-rework)  
++[Civ-specific buildings rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civ-specific-buildings-rework)  
+ [Leaders' traits rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-traits-rework)  
+ [Leaders' favourite civics rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-favourite-civics-rework)  
+ [Leaders' Favourite religions rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-favourite-religions-rework)  
+@@ -14,7 +15,7 @@ Some of the asset rebalancing is shown here (not exhaustive)
+ 
+ A quite easy way to gather the original data with chatgpt 5.1 for example, is, using vs code (or any tool you prefer), to do a global search (see for example [Another example of how to use VS Code global search](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#another-example-of-how-to-use-vs-code-global-search-also-shows-an-example-of-how-to-also-browse-the-civ4-bug_doc-copy-included-in-our-mod)) for say `<Type>LEADER_` and `<FavoriteReligion>` and then copy paste the results found in civ4leaderheadinfos xml file asking chatgpt to merge them into an .md table. There may be easier ways to do it, but this one is quite effective and worked for me.
+ 
+-## Starting techs rework
++## Civs' starting techs rework
+ 
+ As it is too lengthy to put in the [README_Main_Changes_Guide.md](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md), here are how we changed the starting civ techs in our mod
+ 
+@@ -26,7 +27,7 @@ Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file
+ 
+ See below in the main table after changes as it includes the before values as well.
+ 
+-#### Global tech totals (should sum to 70 = 35 civs × 2) - before change
++#### Global tech totals (should sum to 70 = 35 civs x 2) - before change
+ 
+ Without counting barbarians and minor, the total count among civs is as of now (thanks to chatgpt 5 too and my prompt and such too hehe):
+ 
+@@ -44,7 +45,7 @@ After a few or quite many back and forth and reviewing rounds with chatgpt 5 whi
+ 
+ #### main table (chatgpt 5 written with some tweaks from me)
+ 
+-Goals: (1) stay historically/thematically sane, (2) avoid **too many repeats** of the same pair, and (3) **not too many "amazing" pairs** like **Mining+Hunting** (early rush spike) and **Mining+Pottery** (eco+production spike) — while keeping **quite a few enough** for clear identity/variety.
++Goals: (1) stay historically/thematically sane, (2) avoid **too many repeats** of the same pair, and (3) **not too many "amazing" pairs** like **Mining+Hunting** (early rush spike) and **Mining+Pottery** (eco+production spike) - while keeping **quite a few enough** for clear identity/variety.
+ 
+ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without concern as long as there is not too much of it.
+ 
+@@ -52,42 +53,42 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ | --- | --- | --- | --- |
+ | America | Fishing, Agriculture | **Fishing, Hunting** | Drops disallowed Agriculture. Frontier/scouting flavor; modest econ. *Avoids Mining+Hunting / Mining+Pottery.* |
+ | Arabia | The Wheel, Mysticism | **Hunting, Mysticism** | Desert pastoral/tribal-warrior flavor + smooth path toward Animal Husbandry/camels; Mysticism preserves religion/culture identity (and your UB is university-based so no Pottery dependency). |
+-| Aztec | Mysticism, Hunting | **Mining, Mysticism** | **Jaguar** now at Bronze Working → Mining speeds access. Mysticism matches ritual/state culture. We **avoid Mining+Hunting** to curb rush. |
+-| Babylon | Agriculture, The Wheel | **Pottery, Mysticism** | **Bowman** is now **Longbow-class** at Construction. Pottery fits the Masonry → Construction lane (bricks, aqueducts, Hanging Gardens), while Mysticism preserves the temple/garden flavor. |
++| Aztec | Mysticism, Hunting | **Mining, Mysticism** | **Jaguar** now at Bronze Working -> Mining speeds access. Mysticism matches ritual/state culture. We **avoid Mining+Hunting** to curb rush. |
++| Babylon | Agriculture, The Wheel | **Pottery, Mysticism** | **Bowman** is now **Longbow-class** at Construction. Pottery fits the Masonry -> Construction lane (bricks, aqueducts, Hanging Gardens), while Mysticism preserves the temple/garden flavor. |
+ | Byzantium | The Wheel, Mysticism | **Mysticism, Fishing** | Bosporus/seaborne empire + spiritual tone; removes early-road snowball. |
+ | Carthage | Fishing, Mining | **Fishing, Pottery** | Maritime commerce + cottages; **drops Mining** to lower early snowball and reduce pair repetition. |
+ | Celt | Hunting, Mysticism | **Hunting, Mining** | **Gallic Warrior** metallurgy path justified; shifts from "druidic" to martial. **Intentional strong pair** (Mining+Hunting) for civ-specific unit identity; kept rare overall. |
+ | China | Agriculture, Mining | **Mining, Pottery** | Bronze/iron + ceramics traditions; we keep this as **one of the few** strong **Mining+Pottery** pairs for identity. |
+-| Egypt | The Wheel, Agriculture | **Hunting, Pottery** | Keep **Pottery** to flow into **Masonry → Construction** (builder identity: Pyramids, aqueducts, etc.). Add **Hunting** to align the **War Chariot** path. |
++| Egypt | The Wheel, Agriculture | **Hunting, Pottery** | Keep **Pottery** to flow into **Masonry -> Construction** (builder identity: Pyramids, aqueducts, etc.). Add **Hunting** to align the **War Chariot** path. |
+ | England | Fishing, Mining | **Fishing, Mining** | Industrial metals identity fits; Fishing+Mining is acceptable (Fishing is weakest). Also avoids overusing Mining+Pottery. |
+ | Ethiopia | Hunting, Mining | **Hunting, Mysticism** | Highlands/faith; **removes Mining+Hunting** spike while keeping early defense. |
+-| Kingdom of Benin | / | **Mysticism, Pottery** | Pottery anchors the “fortified/urban builder court-state” + supports your Impluvium/aqueduct line; Mysticism keeps the ritual/court legitimacy flavor (and avoids pushing them toward early bronze play). |
++| Kingdom of Benin | / | **Mysticism, Pottery** | Pottery anchors the "fortified/urban builder court-state" + supports your Impluvium/aqueduct line; Mysticism keeps the ritual/court legitimacy flavor (and avoids pushing them toward early bronze play). |
+ | France | The Wheel, Agriculture | **Hunting, Pottery** | Aristocratic hunt + towns; replaces disallowed pair. |
+ | Germany | Pottery, Mining | **Pottery, Mining** | Crafts + metalwork flexibility. **One of the few** Mining+Pottery we keep (Old World metallurgy). |
+-| Greece | Fishing, Hunting | **Mining, Mysticism** | Keeps the “culture/religion” signal (temples/oracles/cults) while also pushing the Hoplite → Bronze/Iron line sooner via Mining; better matches “bronze + sacred polis” as a starter identity. |
+-| Holy Roman | Mysticism, Hunting | **Mysticism, Pottery** | Reads more like “Church + towns/guild/urban administration” than generic hunting, and unlocks their civ-specific building (Courthouse-based) sooner via the Pottery line. |
++| Greece | Fishing, Hunting | **Mining, Mysticism** | Keeps the "culture/religion" signal (temples/oracles/cults) while also pushing the Hoplite -> Bronze/Iron line sooner via Mining; better matches "bronze + sacred polis" as a starter identity. |
++| Holy Roman | Mysticism, Hunting | **Mysticism, Pottery** | Reads more like "Church + towns/guild/urban administration" than generic hunting, and unlocks their civ-specific building (Courthouse-based) sooner via the Pottery line. |
+ | Inca | Agriculture, Mysticism | **Pottery, Mining** | Andean mining/metallurgy (copper, arsenical bronze; large-scale gold/silver extraction) + state logistics makes Mining a great fit. Also supports Quechua @ **Iron Working** |
+ | India | Mysticism, Mining | **Mysticism, Mining** | Spiritual tradition + engineering; not an "amazing" pair. |
+ | Ireland | / | **Fishing, Mysticism** | Maritime + monastic/cultural identity; balanced opener without Mining/Hunting spikes. |
+-| Japan | Fishing, The Wheel | **Fishing, Hunting** | Keeps maritime identity; **Jōmon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
+-| Khmer | Hunting, Mining | **Fishing, Hunting** | Tonlé Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
+-| Korea | Mining, Mysticism | **Fishing, Mining** | Keeps Mining (the more distinctive “Korea-coded” pillar: metals/engineering), and adds Fishing to reflect a peninsula/coastal civilization with strong maritime/trade exposure—without implying an early religion-race start. |
++| Japan | Fishing, The Wheel | **Fishing, Hunting** | Keeps maritime identity; **Jomon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
++| Khmer | Hunting, Mining | **Fishing, Hunting** | Tonle Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
++| Korea | Mining, Mysticism | **Fishing, Mining** | Keeps Mining (the more distinctive "Korea-coded" pillar: metals/engineering), and adds Fishing to reflect a peninsula/coastal civilization with strong maritime/trade exposure - without implying an early religion-race start. |
+ | Mali | The Wheel, Mining | **Hunting, Pottery** | **Skirmisher** is now **Longbow-class** at Construction. Hunting keeps the Sahel skirmisher/camp identity; Pottery sustains early commerce while beelining Construction. They don't need mining as much for their civ-specific unit. |
+ | Maya | Mining, Mysticism | **Mysticism, Pottery** | Classic Maya = obsidian/chert/jade; metals are late/minor. Holkan @ Bronze Working (Mining line) remains reachable, but early Pottery better fits their builder profile and ramps Ball Court @ Construction, while Mysticism matches ritual/astronomy and supplies early culture. |
+-| Mongol | The Wheel, Hunting | **Hunting, Mysticism** | Pastoral steppe with early horses: Hunting → Animal Husbandry → Mounted Combat (and Barracks @ Hunting in AdvCiv-SAS), which also matches their aggressive-leaning leader profiles; Mysticism reflects Tengri/shamanic cohesion and supplies early culture/monuments to claim steppe space. |
++| Mongol | The Wheel, Hunting | **Hunting, Mysticism** | Pastoral steppe with early horses: Hunting -> Animal Husbandry -> Mounted Combat (and Barracks @ Hunting in AdvCiv-SAS), which also matches their aggressive-leaning leader profiles; Mysticism reflects Tengri/shamanic cohesion and supplies early culture/monuments to claim steppe space. |
+ | Native America | Agriculture, Fishing | **Hunting, Mining** | Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity. |
+ | Netherlands | Agriculture, Fishing | **Fishing, Pottery** | Maritime commerce + early cottages; *no Mining* for a gentler opener. |
+ | Ottoman | The Wheel, Agriculture | **Fishing, Pottery** | **Fishing** to reflect an early maritime footprint on the **Aegean**, **Sea of Marmara** (Bosporus), **Black Sea**, and the **eastern Mediterranean**. Pair with **Pottery** to support early crafts/urbanization and a builder-empire profile. They don't need as much strong starting techs for their civ-specific unit that is later in the game. |
+ | Persia | Agriculture, Hunting | **Hunting, Mining** | Nearer to **Iron Working** path in your tree; strong metallurgy tradition. We accept one more OP pair for identity; totals remain balanced. |
+-| Portugal | Fishing, Mining | **Fishing, Pottery** | Age-of-Discovery maritime commerce; Mining ceded to reduce repetition and fund other civs’ thematic needs. |
++| Portugal | Fishing, Mining | **Fishing, Pottery** | Age-of-Discovery maritime commerce; Mining ceded to reduce repetition and fund other civs' thematic needs. |
+ | Rome | Fishing, Mining | **Fishing, Mining** | Metals for **Legionary** timing; avoids Hunting and Mining+Pottery extremes. |
+-| Russia | Hunting, Mining | **Pottery, Mining** | Land-empire emphasis (settlement/crafts) and less "fishy" opening. Keeps metal identity; also offsets Ottoman’s change to keep 14/14/14/14/14 totals. |
++| Russia | Hunting, Mining | **Pottery, Mining** | Land-empire emphasis (settlement/crafts) and less "fishy" opening. Keeps metal identity; also offsets Ottoman's change to keep 14/14/14/14/14 totals. |
+ | Spain | Fishing, Mysticism | **Fishing, Mysticism** | Maritime reach + organized religion; avoids Mining spikes. |
+ | Sumeria | Mysticism, Pottery | **Mysticism, Mining** | **Vulture** (axe) loves metals; still not the "amazing" Mining+Pottery/Hunting. |
+ | Scandinavia | Fishing, Hunting | **Fishing, Hunting** | Seafaring + raiding/hunting; balanced opener without Mining; keeps variety. |
+ | Zulu | Agriculture, Hunting | **Hunting, Mining** | **Intentionally keep an OP pair (Mining+Hunting)** for **Impi** flavor/identity; brings Agriculture into compliance. |
+ 
+-#### Global tech totals (should sum to 70 = 35 civs × 2)
++#### Global tech totals (should sum to 70 = 35 civs x 2)
+ 
+ | Tech | Count |
+ | --- | --- |
+@@ -115,7 +116,52 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ **Sanity checks:**
+ 
+ - Pair counts sum to **36** civs.  
+-- Tech totals sum to **72** picks. ✅
++- Tech totals sum to **72** picks. OK
++
++## Civ-specific buildings rework
++
++No counts yet (faster pass).  
++
++Note: water buildings are generally avoided as they are too situational (useless in land maps or cities, etc.) and often weaker, unless they strongly fit or well enough.
++
++| Civ | Before (Base AdvCiv) | After (AdvCiv-SAS) | Rationale |
++| --- | --- | --- | --- |
++| America | Mall (Supermarket) | **Keep** (Keep) | |
++| Arabia | Madrassa (Library) | **Keep** (University) | Thematic fit, more balanced than op library. |
++| Aztec | Sacrificial Altar (Courthouse) | ***Keep** (Monument) | Much stronger than late courthouse. Fits aztec early slaving profile |
++| Babylon | Garden (Colosseum) | **Keep** (Keep) | |
++| Byzantium | Hippodrome (Theatre) | **Keep** (Keep) | |
++| Carthage | Cothon (Harbor) | **Keep** (Port) | Port is the new AdvCiv-SAS stronger water classical production building |
++| Celt | Dun (Walls) | **La Tene Smithy** (Forge) | Dun is weak and too defensive/situational; also doesn't match the aggressive Celtic profile. Shift to a Forge-based UB for a stronger metalwork identity, with happiness support tied to Iron/Copper. Good synergy with their swordsman-based civ-specific unit and overall military profile that may use these bonuses as well. |
++| China | Pavillion (Theatre) | **Changpingcang** (Market) | Not so cultural game profile plus it is weaker. This new building leans into a market-management/state-stability theme (price smoothing and social calm) rather than pure food storage. As China in this setup is often health-rich, extra happiness support is valuable and a nice synergy for larger empires and sustained city growth. Identity with happy from Rice capitalizes on such excess health, and food kept fits thematically and is not as op later in the game. |
++| Egypt | Obelisk (Monument) | **Keep** (Keep) | |
++| England | Stock Exchange (Bank) | **Keep** (Keep) | |
++| Ethiopia | Stele (Monument) | **Metsehaf Bet** (Library) | Distinctive theology-to-scholarship identity via Ge'ez manuscript/commentary tradition. Incense support fits the Ethiopian Orthodox liturgical context, where incense is central to worship and naturally links ritual life with learned religious institutions; it also aligns with Ethiopia's historical participation in Red Sea aromatics/incense trade networks. |
++| Ireland | / | **Scriptorium** (University) | New civ: strong monastic-learning thematic fit (scriptoria as centers of manuscript copying/scholarship) and good gameplay/profile match for Irish leaders with gold/diplomatic/science leanings. Paper timing keeps it meaningful without becoming an overpowered early spike (library replacement moved to university timing). |
++| Kingdom of Benin | / | **Impluvium** (Aqueduct) | New civ: Thematic fit; plus fits Ewuare's production/growth profile |
++| France | Salon (Observatory) | **Keep** (University) | Observatory removed (to unclutter); thematic fit with Lumieres theme |
++| Germany | Assembly Plant (Factory) | **Longhouse** (Granary) | Late/weak building; replaced with an early impactful one with thematic fit and gameplay fit for Germany's growth profile |
++| Greece | Odeon (Colosseum) | **Keep** (Keep) | |
++| Holy Roman | Rathaus (Courthouse) | **Rathaus** (Courthouse) | Keep |
++| Inca | Terrace (Granary) | **Qullqa** (Granary) | Renaming for thematic fit; rework for historical accuracy and to make it stronger (financial/organized incan economy profile) rather than mixing culture and growth weirdly and in a bit op way. |
++| India | Mausoleum (Jail) | **Keep** (Keep) | Jail is moved to late Classical so fine as such |
++| Japan | Shale Plant (Factory) | **Doujou** (Jail) | Late/weak building; replaced with an early impactful one; thematic fit and boosts Tokugawa/Japan's isolationist profile by strengthening its espionage and military independence potential |
++| Khmer | Baray (Aqueduct) | **Keep** (Keep) | |
++| Korea | Seowon (University) | **Gyeongdang** (University) | Keep University class but use a more ancient-coded Korean school identity tied to Korea's long education tradition (Taehak, Gyeongdang, later state academies). This keeps the civ's science identity while feeling less generic, and also reflects the historical pairing of scholarship, state ideology, and social cohesion. |
++| Mali | Mint (Forge) | **Keep** (Keep) | |
++| Maya | Ball Court (Colosseum) | **Keep** (Keep) | |
++| Mongol | Ger (Stable) | **Keep** (Keep) | |
++| Native America | Totem (Monument) | **Keep** (Keep) | |
++| Netherlands | Dike (Levee) | **Keep** (Keep) | |
++| Ottoman | Hammam (Aqueduct) | **Keep** (Keep) | |
++| Persia | Apothecary (Grocer) | **Keep** (Keep) | |
++| Portugal | Feitoria (Custom House) | **Keep** (Keep) | Keep; focus on trades routes and new Joao's financial/imperialistic profile more |
++| Rome | Forum (Market) | **Keep** (Keep) | |
++| Russia | Research Institute (Observatory) | **Gord** (Castle) | Observatory removed (to unclutter); fits Russia's aggressive/military profile |
++| Scandinavia | Trading Post (Lighthouse) | **Keep** (Port) | Following water buildings rework; port is a stronger production hub especially given military profile of Ragnar, closer to historical time too |
++| Spain | Citadel (Castle) | **Keep** (Keep) | |
++| Sumeria | Ziggurat (Courthouse) | **Ziggurat** (Monument) | Much stronger than late courthouse. Fits sumerian early religious/historical/culture profile more; better thematic fit for an ancient civilization. |
++| Zulu | Ikhanda (Barracks) | **Keep** (Keep) | |
+ 
+ ## Leaders' traits rework
+ 
+@@ -212,19 +258,19 @@ See below in the main table after changes as it includes the before values as we
+ | Leader | Current Traits | Recommendation | Rationale |
+ | --- | --- | --- | --- |
+ | Alexander | Philosophical, Aggressive | **Keep** | Philosopher-king + relentless conqueror fits. |
+-| Asoka | Spiritual, Organized | **Spiritual, Protective** | Edicts focused on welfare/stability: medical care for people & animals, wells/trees, non-violence. Reads as "guardian of the realm’s well-being." |
++| Asoka | Spiritual, Organized | **Spiritual, Protective** | Edicts focused on welfare/stability: medical care for people & animals, wells/trees, non-violence. Reads as "guardian of the realm's well-being." |
+ | Augustus | Imperialist, Industrious | **Keep** | Empire builder + massive works program. |
+-| Bismarck | Expansive, Industrious | **Organized, Protective** | Why not Aggressive? He orchestrated three short, limited wars (1864, 1866, 1870–71) to unify Germany, then spent the rest of his career preventing great-power war via alliance webs (Dreikaiserbund, Reinsurance Treaty, Congress of Berlin). That’s sharp power politics, not a "wade-in-and-smash" military persona. He wasn’t a battlefield leader; his hallmark is calculated diplomacy + internal statecraft. What really defines him? Organized: high-efficiency governance—central civil service, Reichsbank, tariffs, and the pioneering social insurance system (health 1883, accident 1884, old-age 1889). This maps perfectly to your "-75% upkeep" / efficient state. Protective (in your mod’s sense = stability/no anarchy/health): post-1871 his entire strategy was systemic risk management (deterrence, balance) and domestically "order first" (Anti-Socialist Laws) plus worker protection through insurance—i.e., protecting the state’s cohesion and people’s welfare. Verdict (accuracy-first): Go Organized + Protective. It captures both the manager-state architect and the stability/health side far better than Aggressive. (Charismatic doesn’t fit his public vibe, and Imperialistic doesn’t match his reluctant, late, and limited colonial stance.) |
++| Bismarck | Expansive, Industrious | **Organized, Protective** | Why not Aggressive? He orchestrated three short, limited wars (1864, 1866, 1870-71) to unify Germany, then spent the rest of his career preventing great-power war via alliance webs (Dreikaiserbund, Reinsurance Treaty, Congress of Berlin). That's sharp power politics, not a "wade-in-and-smash" military persona. He wasn't a battlefield leader; his hallmark is calculated diplomacy + internal statecraft. What really defines him? Organized: high-efficiency governance-central civil service, Reichsbank, tariffs, and the pioneering social insurance system (health 1883, accident 1884, old-age 1889). This maps perfectly to your "-75% upkeep" / efficient state. Protective (in your mod's sense = stability/no anarchy/health): post-1871 his entire strategy was systemic risk management (deterrence, balance) and domestically "order first" (Anti-Socialist Laws) plus worker protection through insurance-i.e., protecting the state's cohesion and people's welfare. Verdict (accuracy-first): Go Organized + Protective. It captures both the manager-state architect and the stability/health side far better than Aggressive. (Charismatic doesn't fit his public vibe, and Imperialistic doesn't match his reluctant, late, and limited colonial stance.) |
+ | Boudica | Charismatic, Aggressive | **Keep** | War leader rallying tribes; morale + offense. |
+ | Brennus | Spiritual, Charismatic | **Keep** | Druidic authority + chieftain charisma. |
+-| Catherine | Creative, Imperialist | **Philosophical, Imperialist** | Enlightened despot: corresponded with Voltaire/Diderot, issued the Nakaz, pushed legal/educational reform—more thinker-ruler than pure arts patron. Philosophical = ideas shaping policy. Catherine is the poster child for Enlightened absolutism: the Nakaz (Instruction), legal/education reforms, heavy engagement with Voltaire/Diderot, commissions on law and schooling. Her brand is "rules by ideas.". Creative = culture output/patronage. She absolutely patronized the arts (Hermitage, theatre), but that was a means to an ideological/modernizing end, not her core identity. If you want to signal culture yields in gameplay, Creative is fine; historically, it’s secondary to her policymaking. |
++| Catherine | Creative, Imperialist | **Philosophical, Imperialist** | Enlightened despot: corresponded with Voltaire/Diderot, issued the Nakaz, pushed legal/educational reform-more thinker-ruler than pure arts patron. Philosophical = ideas shaping policy. Catherine is the poster child for Enlightened absolutism: the Nakaz (Instruction), legal/education reforms, heavy engagement with Voltaire/Diderot, commissions on law and schooling. Her brand is "rules by ideas.". Creative = culture output/patronage. She absolutely patronized the arts (Hermitage, theatre), but that was a means to an ideological/modernizing end, not her core identity. If you want to signal culture yields in gameplay, Creative is fine; historically, it's secondary to her policymaking. |
+ | Charlemagne | Imperialist, Protective | **Aggressive, Organized** | Empire via conquest and capitularies/marches/missi dominici. Less settler/colonial growth; more "fight + administer." Dropping Imperialist narrows the tag to true expansion engines. `<!-- custom: note: this is more controversial/debatable according to chatgpt 5, but i hope it is accurate enough. As for ingame behaviour, he seems to perform nice in some games so i hope this helps mesh better with his more aggressive overall civ4 profile -->` |
+ | Churchill | Charismatic, Protective | **Keep** | Wartime morale + defensive strategy. |
+ | Cyrus | Charismatic, Imperialist | **Keep** | Founder of vast empire; tolerant unifier. |
+ | Darius | Organized, Financial | **Keep** | Satrapies/roads/taxation; efficient and wealthy. |
+-| De Gaulle | Industrious, Charismatic | **Charismatic, Organized** | Resistance icon and founder of the Fifth Republic’s institutions. Post-war modernization happened, but his identity is leadership + constitutional/administrative redesign more than building programs. |
+-| Elizabeth | Philosophical, Financial | **Creative, Financial** | Her era is literally shorthand for a cultural bloom: Shakespeare/Marlowe, theatres, court masques, music, letters. She wasn’t a "philosopher-queen" so much as a savvy ruler who presided over (and patronized) an artistic boom. Keeping Financial also tracks (privateering, merchant ventures, early global trade). |
+-| Ewuare | Imperialist, Spiritual | **Spiritual, Industrious** | Benin’s strong court/ritual religion. Benin’s strength = urban works (walls/ditches), craft guilds, and court art; expansion via hegemony/tribute more than settler-style growth. Industrious captures that better than Imperialist. |
++| De Gaulle | Industrious, Charismatic | **Charismatic, Organized** | Resistance icon and founder of the Fifth Republic's institutions. Post-war modernization happened, but his identity is leadership + constitutional/administrative redesign more than building programs. |
++| Elizabeth | Philosophical, Financial | **Creative, Financial** | Her era is literally shorthand for a cultural bloom: Shakespeare/Marlowe, theatres, court masques, music, letters. She wasn't a "philosopher-queen" so much as a savvy ruler who presided over (and patronized) an artistic boom. Keeping Financial also tracks (privateering, merchant ventures, early global trade). |
++| Ewuare | Imperialist, Spiritual | **Spiritual, Industrious** | Benin's strong court/ritual religion. Benin's strength = urban works (walls/ditches), craft guilds, and court art; expansion via hegemony/tribute more than settler-style growth. Industrious captures that better than Imperialist. |
+ | Frederick | Philosophical, Organized | **Philosophical, Creative** | Enlightenment/arts over bureaucracy. |
+ | Gandhi | Spiritual, Philosophical | **Keep** | Canonical fit. |
+ | Grace O'Malley | Financial, Aggressive | **Keep** | Maritime raider profile and commerce fit; keep as-is. |
+@@ -233,12 +279,12 @@ See below in the main table after changes as it includes the before values as we
+ | Hammurabi | Organized, Aggressive | **Organized, Protective** | Lawgiver/city-builder; warfare largely pragmatic/defensive. |
+ | Hannibal | Financial, Charismatic | **Keep** | Hallmark = operational genius + multi-ethnic army cohesion and Italian defections after Cannae. More "inspire & outmaneuver" than brute-force brutality. Charismatic still supports a war playstyle (cheaper promos) without the raw smash of Aggressive; Financial keeps Carthaginian commerce. |
+ | Hatshepsut | Spiritual, Creative | **Spiritual, Financial** | Iconic Punt expedition + trade-focused reign; commerce funded temples/works. Her identity reads more "trade & temple economy" than "arts output." `<!-- custom: also will most likely buff her if i'm not mistaken, which is nice i think -->` |
+-| Huayna Capac | Industrious, Financial | **Industrious, Organized** | Inca economy was state-planned and labor-tax (mit’a), not money/market-driven. "Organized" fits roads, storehouses, and redistribution much better than "Financial." |
++| Huayna Capac | Industrious, Financial | **Industrious, Organized** | Inca economy was state-planned and labor-tax (mit'a), not money/market-driven. "Organized" fits roads, storehouses, and redistribution much better than "Financial." |
+ | Isabella | Spiritual, Expansive | **Spiritual, Aggressive** | Militant piety + ruthless campaigns; reads truer than "Imperialist." |
+ | Joao | Imperialist, Expansive | **Imperialist, Financial** | Maritime commerce + colonial charters; cleaner than Expansive overlap. |
+ | Julius Caesar | Organized, Imperialist | **Aggressive, Imperialist** | Primary identity = conqueror (Gaul, Civil War). Keep Imperialist for expansion; swap in Aggressive to reflect operational boldness. `<!-- custom: plus matches with xml profile of aggression and thematic epicness -->` |
+-| Justinian | Spiritual, Imperialist | **Philosophical, Industrious** | Big reconquests (Africa, Italy, S. Hispania) + colossal building + Corpus Juris Civilis are uncontested. Critics say the reconquest wars/taxation left the state overextended and then the Justinianic Plague hit hard; newer work debates how devastating the plague really was. Net: "restorer & codifier," but also "overstretched the empire.". Less "Spiritual," more "Legal/Scholar + Empire-builder.". Reconquests ≠ colonization. His lasting mark is legal/intellectual codification + mega building (Hagia Sophia, fortifications), not founding/settler-driven growth. |
+-| Kublai Khan | Aggressive, Creative | **Imperialist, Creative** | Completed the Song conquest and pursued large overseas campaigns (Japan, Đại Việt/Champa, Burma, Java). Emphasize empire-building/expansion over personal ferocity; keep Creative for patronage/tolerance. |
++| Justinian | Spiritual, Imperialist | **Philosophical, Industrious** | Big reconquests (Africa, Italy, S. Hispania) + colossal building + Corpus Juris Civilis are uncontested. Critics say the reconquest wars/taxation left the state overextended and then the Justinianic Plague hit hard; newer work debates how devastating the plague really was. Net: "restorer & codifier," but also "overstretched the empire.". Less "Spiritual," more "Legal/Scholar + Empire-builder.". Reconquests != colonization. His lasting mark is legal/intellectual codification + mega building (Hagia Sophia, fortifications), not founding/settler-driven growth. |
++| Kublai Khan | Aggressive, Creative | **Imperialist, Creative** | Completed the Song conquest and pursued large overseas campaigns (Japan, ??i Vi?t/Champa, Burma, Java). Emphasize empire-building/expansion over personal ferocity; keep Creative for patronage/tolerance. |
+ | Lincoln | Philosophical, Charismatic | **Keep** | Moral/philosophical leadership + national unity. |
+ | Louis XIV | Industrious, Creative | **Keep** | Palace/works + arts and culture. |
+ | Mansa Musa | Spiritual, Financial | **Keep** | Pilgrimage/religion + trans-Saharan wealth. He was devout (Hajj, mosques), *and* a patron of learning (Timbuktu/Sankore). |
+@@ -246,26 +292,26 @@ See below in the main table after changes as it includes the before values as we
+ | Mao Zedong | Expansive, Protective | **Aggressive, Protective** | Mass campaigns and external war (Civil War, Korea), purges, and militant mobilization read more "Aggressive" than "cheap administration." Protective still captures internal security/defense posture. `<!-- custom: i like this one very much as i think he was very brutal wasn't he xd, from very little i know about him -->` |
+ | Mehmed | Expansive, Organized | **Imperialist, Aggressive** | Siege monster and serial conqueror (Constantinople, Balkans, Anatolia); "The Conqueror" leans warlike more than "efficient administration." |
+ | Moctezuma | Aggressive, Spiritual | **Keep** | Militarism + ritual/faith. |
+-| Napoleon | Organized, Charismatic | **Imperialist, Charismatic** | Signature is conquest + continental empire (client states, annexations). He *did* codify/administer, but his core identity isn’t "low-upkeep governance"—it’s expansion + leadership aura. |
++| Napoleon | Organized, Charismatic | **Imperialist, Charismatic** | Signature is conquest + continental empire (client states, annexations). He *did* codify/administer, but his core identity isn't "low-upkeep governance"-it's expansion + leadership aura. |
+ | Pacal | Financial, Expansive | **Financial, Industrious** | Monumental architecture/engineering + trade. |
+ | Pericles | Philosophical, Creative | **Keep** | Golden Age of philosophy and arts. |
+-| Peter | Philosophical, Expansive | **Imperialist, Organized** | lean warmonger/reformer, not "arts guy." → Switch to Imperialist, Organized (state-driven expansion + Table of Ranks/navy/army reform) |
++| Peter | Philosophical, Expansive | **Imperialist, Organized** | lean warmonger/reformer, not "arts guy." -> Switch to Imperialist, Organized (state-driven expansion + Table of Ranks/navy/army reform) |
+ | Qin Shi Huang | Industrious, Protective | **Keep** | Great Wall/standardization + legalist control. |
+ | Ragnar | Financial, Aggressive | **Keep** | Raiding/commerce + martial ferocity. |
+ | Ramesses | Spiritual, Industrious | **Keep** | Temple/monument builder with priestly legitimation. |
+ | Roosevelt | Industrious, Organized | **Industrious, Charismatic** | New Deal public works -> keep Industrious. His defining edge was coalition-building and morale (Fireside Chats, wartime leadership) more than bureaucratic cost efficiency. |
+-| Saladin | Protective, Spiritual | **Spiritual, Charismatic** | Admired by both sides; unifying religious leadership — not just a "defender." He led major offensive campaigns (Hattin, Jerusalem) and had broad admiration. Your switch to Spiritual, Charismatic is very defensible; I wouldn’t go back to Protective unless you want to emphasize "shield of Islam" over his rallying aura. |
+-| Shaka | Aggressive, Expansive | **Aggressive, Organized** | Fits Ikhanda-style admin — "charismatic" in Civ terms can imply inspirational popularity; historically he ruled more by fear/discipline. Your pick Aggressive, Organized is perfect (impi/regimental system + logistics). I wouldn’t use Charismatic here. |
++| Saladin | Protective, Spiritual | **Spiritual, Charismatic** | Admired by both sides; unifying religious leadership - not just a "defender." He led major offensive campaigns (Hattin, Jerusalem) and had broad admiration. Your switch to Spiritual, Charismatic is very defensible; I wouldn't go back to Protective unless you want to emphasize "shield of Islam" over his rallying aura. |
++| Shaka | Aggressive, Expansive | **Aggressive, Organized** | Fits Ikhanda-style admin - "charismatic" in Civ terms can imply inspirational popularity; historically he ruled more by fear/discipline. Your pick Aggressive, Organized is perfect (impi/regimental system + logistics). I wouldn't use Charismatic here. |
+ | Sitting Bull | Philosophical, Protective | **Keep** | Visionary/teacher + defensive resistance. |
+ | Stalin | Industrious, Aggressive | **Keep** | Forced industrialization + ruthless offensives. |
+ | Suleiman | Imperialist, Philosophical | **Keep** | "Lawgiver" persona + patronage of learning fits Philosophical better than Spiritual for gameplay and history; keeps imperial scope. `<!-- custom: plus if i remember enough i read he was quite areligious or religious open no? If so phi might fit better indeed than spi no? Thanks thanks -->` |
+ | Suryavarman | Expansive, Creative | **Industrious, Creative** | Builder of Angkor; monumental works + culture. |
+ | Tokugawa | Protective, Aggressive | **Protective, Organized** | After unification, policy emphasized internal order, class discipline, and isolation over external aggression; governance beats battlefield ferocity. `<!-- custom: from a very quick search and my intuition/memory of what i read about him, he was very cautious and cunning/scheming rather so maybe aggressive doesn't fit as well; also from a balance standpoint, if he is isolated, he would benefit much more from tax/costs reduction to run smoothly his empire than aggressive right? If i may say i mean -->` |
+ | Victoria | Imperialist, Financial | **Keep** | Global empire + finance/trade. |
+-| Wang Kon | Financial, Protective | **Organized, Spiritual** | this is the softest OP fit. He’s the founder/administrator (Organized, yes), but the "Protective" piece is less uniquely his (many big defensive moments come under successors). Organized + Spiritual: his Ten Injunctions stress protecting Buddhism, geomancy/ritual legitimacy—reads as statecraft grounded in religion. Bottom line: If you want to trim OP without losing accuracy, flip Wang Kon → Organized, Spiritual (history-first, no change to rare Financial) |
++| Wang Kon | Financial, Protective | **Organized, Spiritual** | this is the softest OP fit. He's the founder/administrator (Organized, yes), but the "Protective" piece is less uniquely his (many big defensive moments come under successors). Organized + Spiritual: his Ten Injunctions stress protecting Buddhism, geomancy/ritual legitimacy - reads as statecraft grounded in religion. Bottom line: If you want to trim OP without losing accuracy, flip Wang Kon -> Organized, Spiritual (history-first, no change to rare Financial) |
+ | Washington | Expansive, Charismatic | **Protective, Charismatic** | Preservation-first Fabian strategy in the Revolution + 1777 army-wide smallpox inoculation (public-health safeguarding). Still inspirational. |
+ | Willem van Oranje | Creative, Financial | **Keep** | Tolerance/trade + arts/commerce. |
+-| Zara Yaqob | Creative, Organized | **Spiritual, Organized** | Strong doctrinal/religious policy + centralized rule — deeply doctrinal, centralizing, sometimes harsh. Spiritual, Organized > Creative. (He wrote and enforced doctrine more than fostering open culture.) |
++| Zara Yaqob | Creative, Organized | **Spiritual, Organized** | Strong doctrinal/religious policy + centralized rule - deeply doctrinal, centralizing, sometimes harsh. Spiritual, Organized > Creative. (He wrote and enforced doctrine more than fostering open culture.) |
+ 
+ #### new traits total count
+ 
+@@ -282,7 +328,7 @@ See below in the main table after changes as it includes the before values as we
+ | Philosophical | 10 |
+ | Creative | 8 |
+ 
+-Sanity: 55 leaders × 2 = 110 total assignments.
++Sanity: 55 leaders x 2 = 110 total assignments.
+ 
+ #### new pairs total count
+ 
+@@ -387,62 +433,62 @@ Done with the help of chatgpt 5.1, and other ais for check-up such as claude son
+ 
+ note: as of now advciv-sas civics are (check if updated in Sevopedia/xml) wage labor is medieval new, protecitonism is late classical new (replaces mercantilism), environmentalism is removed in favour of trade_bloc (medieval (1300s) at printing press in our mod), and civic_paganism has been renamed to civic_prehistoric_religion (although it's as of now the same civic, just to distinguish/differentiate it from the religion_paganism we as of now added in advciv-sas).
+ 
+-Also i added this info from chatgpt 5.1's thoughts as i found it very accurate and nicely phrased thanks: "I think favorite civics should relate to the core of a leader's regime—such as government, legal, or religious systems—not just practices like slavery, which were widespread. For example, Caesar, Hannibal, and Pericles all had slavery—so choosing "Slavery" for one wouldn't add accuracy. Similarly, serfdom or trade bloc membership should be linked more to their regime and identity, not the specific labor practices of their time.".
++Also i added this info from chatgpt 5.1's thoughts as i found it very accurate and nicely phrased thanks: "I think favorite civics should relate to the core of a leader's regime-such as government, legal, or religious systems-not just practices like slavery, which were widespread. For example, Caesar, Hannibal, and Pericles all had slavery-so choosing "Slavery" for one wouldn't add accuracy. Similarly, serfdom or trade bloc membership should be linked more to their regime and identity, not the specific labor practices of their time.".
+ 
+ | Leader | Current Favourite Civic | Recommendation | Rationale |
+ | --- | --- | --- | --- |
+-| Alexander | Vassalage | **Keep** | Alexander’s distinct pattern is: aristocratic companions who owe service for status/land, overlordship of allied Greek poleis and subject kings, use of a Persian-style layered hierarchy (satraps, sub-kings). In other words: a very militarised overlord + vassal network structure. Given that, I think Claude is right that our previous change doesn’t really add clarity; it just makes him "generic monarch" instead of "overlord of vassals". I’d now revert Alexander back to Vassalage as favourite civic. That gives us one very clear "Vassalage leader" in the classical era (plus Ragnar etc.), and still leaves Hereditary Rule plenty represented elsewhere. `<!-- custom: note: based on claude sonnet 4.5's feedback -->` |
++| Alexander | Vassalage | **Keep** | Alexander's distinct pattern is: aristocratic companions who owe service for status/land, overlordship of allied Greek poleis and subject kings, use of a Persian-style layered hierarchy (satraps, sub-kings). In other words: a very militarised overlord + vassal network structure. Given that, I think Claude is right that our previous change doesn't really add clarity; it just makes him "generic monarch" instead of "overlord of vassals". I'd now revert Alexander back to Vassalage as favourite civic. That gives us one very clear "Vassalage leader" in the classical era (plus Ragnar etc.), and still leaves Hereditary Rule plenty represented elsewhere. `<!-- custom: note: based on claude sonnet 4.5's feedback -->` |
+ | Asoka | Free Religion | **Pacifism** | Post-Kalinga, Asoka is defined by renouncing conquest, promoting dhamma, and issuing moral edicts; a peace-focused religious civic captures his historical identity much better than a modern pluralist Free Religion. |
+ | Augustus | Representation | **Bureaucracy** | Augustus builds a durable imperial administration (provinces, census, tax, standing army) centered on Rome; Civ-style Bureaucracy is exactly "imperial capital + strong apparatus," which fits him far better than Representation. |
+-| Bismarck | Nationhood | **Keep** | His short, limited wars (1864, 1866, 1870–71) are national unification wars built on conscription and mass mobilization; "Nation in arms" plus post-1871 nation-state management fits Nationhood very well. |
+-| Boudica | Universal Suffrage | **Nationhood** | Historically she leads a revolt framed as defending "the people" and their land against Rome, rallying tribes into a war coalition; at Civ scale that is closer to a draft/war-mobilization civic than to late-game elections. We avoid Tribalism as a favourite because it’s an empty civic in your mod. |
+-| Brennus | Organized Religion | **Vassalage** | I’d lean to changing Brennus to Vassalage – that gives him something more personal, and different from Boudica, without stretching what we actually know. For this Brennus (279 BCE, Thermopylae/Delphi one), the only clear thing in the sources is that he’s a fearsome coalition war-leader. He commands a big multi-tribal force with subordinate chiefs and warbands – lots of personal loyalty and "follow this chieftain into Greece for plunder." We know far more about him as an overlord of warriors than as a religious organiser or nation-builder. So: Boudica = Nationhood → "people’s war / uprising of the Britons". Brennus = Vassalage → "overlord with allied chiefs and retinues on campaign." That keeps them both Celtic and warlike, but with distinctly different regime "shapes". `<!-- custom: based on my past research, Brennus was fairly areligious, so after pointing/suggesting/asking chatgpt 5.1 this question/point, it told me organized religion works as a celtic society broad abstraction but not so typical of brennus himself who was not known for his piety or such if i understood it correctly. Since i want something more personalized to leaders ideally, changed it from the old organized religion then instead of keeping same trait. It then rereviewed the table again with this perspective/idea in mind and no other change needed for accuracy or such according to it, except for Cyrus (see his line for details) check if accurate thanks for help lot still chatgpt 5.1: -->` "Short answer: with the Brennus change, I don’t see any other leader where the current favourite civic clearly misses their personal/regime identity in the way "Organized Religion → Brennus" did.". |
++| Bismarck | Nationhood | **Keep** | His short, limited wars (1864, 1866, 1870-71) are national unification wars built on conscription and mass mobilization; "Nation in arms" plus post-1871 nation-state management fits Nationhood very well. |
++| Boudica | Universal Suffrage | **Nationhood** | Historically she leads a revolt framed as defending "the people" and their land against Rome, rallying tribes into a war coalition; at Civ scale that is closer to a draft/war-mobilization civic than to late-game elections. We avoid Tribalism as a favourite because it's an empty civic in your mod. |
++| Brennus | Organized Religion | **Vassalage** | I'd lean to changing Brennus to Vassalage - that gives him something more personal, and different from Boudica, without stretching what we actually know. For this Brennus (279 BCE, Thermopylae/Delphi one), the only clear thing in the sources is that he's a fearsome coalition war-leader. He commands a big multi-tribal force with subordinate chiefs and warbands - lots of personal loyalty and "follow this chieftain into Greece for plunder." We know far more about him as an overlord of warriors than as a religious organiser or nation-builder. So: Boudica = Nationhood -> "people's war / uprising of the Britons". Brennus = Vassalage -> "overlord with allied chiefs and retinues on campaign." That keeps them both Celtic and warlike, but with distinctly different regime "shapes". `<!-- custom: based on my past research, Brennus was fairly areligious, so after pointing/suggesting/asking chatgpt 5.1 this question/point, it told me organized religion works as a celtic society broad abstraction but not so typical of brennus himself who was not known for his piety or such if i understood it correctly. Since i want something more personalized to leaders ideally, changed it from the old organized religion then instead of keeping same trait. It then rereviewed the table again with this perspective/idea in mind and no other change needed for accuracy or such according to it, except for Cyrus (see his line for details) check if accurate thanks for help lot still chatgpt 5.1: -->` "Short answer: with the Brennus change, I don't see any other leader where the current favourite civic clearly misses their personal/regime identity in the way "Organized Religion -> Brennus" did.". |
+ | Catherine | Hereditary Rule | **Keep** | Whatever her Enlightenment correspondence, she is an autocratic empress whose legitimacy rests on dynastic monarchy and palace coups; Hereditary Rule is exactly that. |
+ | Charlemagne | Vassalage | **Keep** | Carolingian rule is the textbook example of counts, marcher lords, and benefices granted for service; Vassalage is one of the most accurate favourite civic matches in the entire roster. |
+-| Churchill | Nationhood | **Keep** | Churchill’s moment is wartime Britain: mass conscription, propaganda, and appeals to "the nation" rather than technocratic administration or economics. Nationhood fits that role. |
+-| Cyrus | Vassalage | **Hereditary Rule** | Cyrus is a dynastic "King of Kings" ruling through satraps but anchored in royal lineage; in your civic set, simple Hereditary Rule is a closer abstraction than medieval-style Vassalage. `<!-- custom: following note at brennus: -->` "Right, so the "conflicted" feeling with Cyrus is basically: he looks like a Vassalage guy (King of Kings + satraps), but he is first and foremost a dynastic monarch. What Cyrus actually did (very condensed)" + "He overthrew the Median king, then conquered Lydia and Babylon, creating the Achaemenid Empire in the mid-6th c. BCE. To hold all that together, he used satraps – regional governors – to rule provinces on his behalf. The Achaemenid kings used the title "King of Kings" (shahanshah / basileus tōn basileōn), signalling that there were other kings beneath them – local dynasts and city-kings who stayed in place as subordinates. He’s also famous (maybe a bit romantically) for relatively lenient policies toward conquered peoples – e.g. letting exiles return and respecting local cults (Cyrus Cylinder, Jewish return from Babylon, etc.). So structurally, that does smell a lot like Civ’s Vassalage: a top ruler with subordinate rulers owing service." + "So the conflict is: Vassalage captures the shape of his empire. Hereditary Rule captures the core of his kingship and keeps Darius as the administrative/system guy. On balance, for your goals (personalised, regime-identity-focused, and avoiding too much overlap with Darius), Hereditary Rule wins by a nose. If someday you introduce a second Persian leader focused on the "network of subject kings" angle, that one would be a great place to use Vassalage as their favourite." |
++| Churchill | Nationhood | **Keep** | Churchill's moment is wartime Britain: mass conscription, propaganda, and appeals to "the nation" rather than technocratic administration or economics. Nationhood fits that role. |
++| Cyrus | Vassalage | **Hereditary Rule** | Cyrus is a dynastic "King of Kings" ruling through satraps but anchored in royal lineage; in your civic set, simple Hereditary Rule is a closer abstraction than medieval-style Vassalage. `<!-- custom: following note at brennus: -->` "Right, so the "conflicted" feeling with Cyrus is basically: he looks like a Vassalage guy (King of Kings + satraps), but he is first and foremost a dynastic monarch. What Cyrus actually did (very condensed)" + "He overthrew the Median king, then conquered Lydia and Babylon, creating the Achaemenid Empire in the mid-6th c. BCE. To hold all that together, he used satraps - regional governors - to rule provinces on his behalf. The Achaemenid kings used the title "King of Kings" (shahanshah / basileus ton basileon), signalling that there were other kings beneath them - local dynasts and city-kings who stayed in place as subordinates. He's also famous (maybe a bit romantically) for relatively lenient policies toward conquered peoples - e.g. letting exiles return and respecting local cults (Cyrus Cylinder, Jewish return from Babylon, etc.). So structurally, that does smell a lot like Civ's Vassalage: a top ruler with subordinate rulers owing service." + "So the conflict is: Vassalage captures the shape of his empire. Hereditary Rule captures the core of his kingship and keeps Darius as the administrative/system guy. On balance, for your goals (personalised, regime-identity-focused, and avoiding too much overlap with Darius), Hereditary Rule wins by a nose. If someday you introduce a second Persian leader focused on the "network of subject kings" angle, that one would be a great place to use Vassalage as their favourite." |
+ | Darius | Free Religion | **Bureaucracy** | Darius is the system-builder: satrapies, royal roads, inspectors, standardized tribute. His key trait is administrative statecraft, not modern religious liberty; Bureaucracy fits that centralizing impulse. |
+ | De Gaulle | Nationhood | **Keep** | From the Free French to the Fifth Republic, his whole persona is "voice of the nation" and institutional refounder; a national-mobilization civic suits him well. |
+ | Elizabeth | Free Religion | **Free Market** | Her reign is the birth of English global commerce: chartered companies, privateering, Atlantic ventures. A trade-centric economic civic (Free Market) better captures the "Elizabethan sea-trade" identity than a modern secular religion policy. |
+ | Ewuare | Hereditary Rule | **Keep** | The Oba of Benin is a sacral, hereditary monarch whose power rests on lineage, court ritual, and palace institutions; that is straight Hereditary Rule in Civ terms. |
+ | Frederick | Universal Suffrage | **Bureaucracy** | Frederick the Great is the archetypal "enlightened despot" running a drill-state and efficient civil service; he is much more a bureaucratic monarch than any kind of democrat. |
+-| Gandhi | Universal Suffrage | **Pacifism** | Gandhi’s historical persona centers on non-violent resistance, fasting, and moral pressure, not on holding office inside a voting system; a peace-oriented religious civic is a cleaner expression of his role. |
++| Gandhi | Universal Suffrage | **Pacifism** | Gandhi's historical persona centers on non-violent resistance, fasting, and moral pressure, not on holding office inside a voting system; a peace-oriented religious civic is a cleaner expression of his role. |
+ | Genghis Khan | Police State | **Keep** | Mongol rule under Genghis is total war, harsh law, and near-total social mobilization; Police State is a very accurate Civ-level abstraction. |
+ | Gilgamesh | Hereditary Rule | **Keep** | Bronze Age Uruk is a city-state under a semi-divine king; a basic hereditary monarchy fits that legendary setting well enough. |
+ | Hammurabi | Bureaucracy | **Keep** | He is literally the go-to example for codified law and early centralized administration; Bureaucracy is exactly what his Civ design is already gesturing at. |
+-| Hannibal | Free Market | **Keep** | If you keep the current meaning of "Trade Bloc" (intergovernmental economic union), I still think Hannibal → Free Market is more accurate than Hannibal → Trade Bloc. Why I’d still lean Hannibal = Free Market" + "Given your own rule: favourite civic = the thing that best captures the leader’s regime identity or vibe, not "we need to showcase this civic" then for Hannibal: Core Hannibal / Carthage vibe: Maritime merchant city-empire" + "Money + ports + trade routes fund mercenary armies" + "Carthage as a rich commercial power clashing with a land empire (Rome)" + "Conceptually that is much closer to: Free Market → "commerce-driven society where markets and trade dominate the economy" than to: Trade Bloc → "formal intergovernmental agreement / customs union between multiple states"" + "Your Trade Bloc pedia text (screenshot) is very explicitly about: USMCA, EU-style blocs, 19–20th century economic integration, regional organisations, etc. Carthage’s system is an imperial maritime network, not an institutional trade bloc among equal partners. So if we stay literal about the concept as written, Hannibal’s "dream civic" is still Free Market." + "Given everything you’ve told me about accuracy > symmetry, my honest recommendation is still: Hannibal → Free Market, zero Trade Bloc favourites is OK." |
++| Hannibal | Free Market | **Keep** | If you keep the current meaning of "Trade Bloc" (intergovernmental economic union), I still think Hannibal -> Free Market is more accurate than Hannibal -> Trade Bloc. Why I'd still lean Hannibal = Free Market" + "Given your own rule: favourite civic = the thing that best captures the leader's regime identity or vibe, not "we need to showcase this civic" then for Hannibal: Core Hannibal / Carthage vibe: Maritime merchant city-empire" + "Money + ports + trade routes fund mercenary armies" + "Carthage as a rich commercial power clashing with a land empire (Rome)" + "Conceptually that is much closer to: Free Market -> "commerce-driven society where markets and trade dominate the economy" than to: Trade Bloc -> "formal intergovernmental agreement / customs union between multiple states"" + "Your Trade Bloc pedia text (screenshot) is very explicitly about: USMCA, EU-style blocs, 19-20th century economic integration, regional organisations, etc. Carthage's system is an imperial maritime network, not an institutional trade bloc among equal partners. So if we stay literal about the concept as written, Hannibal's "dream civic" is still Free Market." + "Given everything you've told me about accuracy > symmetry, my honest recommendation is still: Hannibal -> Free Market, zero Trade Bloc favourites is OK." |
+ | Hatshepsut | Organized Religion | **Keep** | Her major beats are Punt expeditions, temple building, and religious legitimation of her rule; a "temples help build things" civic matches that temple-economy flavor well. |
+-| Huayna Capac | Hereditary Rule | **State Property** | The Inca economy is state-planned: no private land, labor tax (mit’a), state storehouses and roads. A command-economy civic like State Property maps far better to that than a generic monarchy favourite. |
++| Huayna Capac | Hereditary Rule | **State Property** | The Inca economy is state-planned: no private land, labor tax (mit'a), state storehouses and roads. A command-economy civic like State Property maps far better to that than a generic monarchy favourite. |
+ | Isabella | Theocracy | **Keep** | Reconquista, Inquisition, and militant Catholic policy: she is almost the archetype for a Theocracy in Civ terms. |
+ | Joao | Hereditary Rule | **Free Market** | Portuguese expansion under Joao leans into Atlantic trade, colonies, and commercial charters; a pro-commerce economic civic is a better summary than another monarchy tag. |
+-| Julius Caesar | Representation | **Police State** | In practice Caesar’s regime is a personal dictatorship backed by loyal legions and proscriptions; a hardline Police State matches that concentration of power better than a representative-government civic. |
++| Julius Caesar | Representation | **Police State** | In practice Caesar's regime is a personal dictatorship backed by loyal legions and proscriptions; a hardline Police State matches that concentration of power better than a representative-government civic. |
+ | Justinian | Theocracy | **Keep** | He rules an explicitly Christian empire, sponsors councils, enforces orthodoxy, and fuses imperial and religious authority; Theocracy is on-point here. |
+ | Kublai Khan | Bureaucracy | **Keep** | As Yuan emperor he leans heavily on Chinese imperial bureaucracy and civil officials; Bureaucracy is exactly the flavor you want to highlight for him. |
+-| Lincoln | Emancipation | **Nationhood** | Lincoln’s presidency is the archetype of "save the Union" via mass mobilization: conscription, war bonds, and appeals to the nation; a draft/propaganda civic expresses that better than a labor-law civic. |
+-| Louis XIV | Hereditary Rule | **Keep** | "L’etat, c’est moi" is pure absolutist monarchy; Hereditary Rule is the clean and accurate match. |
+-| Mansa Musa | Free Market | **Keep** | His fame comes from gold, caravans, and trade routes linking West Africa to the wider Islamic world; a trade-oriented economic civic suits him perfectly. Mansa Musa – Free Market vs Trade Bloc: I agree with your current choice: Free Market. His story is gold + caravans + pilgrimage and wealth, not designing a customs union. |
++| Lincoln | Emancipation | **Nationhood** | Lincoln's presidency is the archetype of "save the Union" via mass mobilization: conscription, war bonds, and appeals to the nation; a draft/propaganda civic expresses that better than a labor-law civic. |
++| Louis XIV | Hereditary Rule | **Keep** | "L'etat, c'est moi" is pure absolutist monarchy; Hereditary Rule is the clean and accurate match. |
++| Mansa Musa | Free Market | **Keep** | His fame comes from gold, caravans, and trade routes linking West Africa to the wider Islamic world; a trade-oriented economic civic suits him perfectly. Mansa Musa - Free Market vs Trade Bloc: I agree with your current choice: Free Market. His story is gold + caravans + pilgrimage and wealth, not designing a customs union. |
+ | Mao Zedong | State Property | **Keep** | Mao leads a communist revolution and then rules a centrally planned economy with collectivization and five-year plans; State Property is exactly the canonical choice. |
+ | Mehmed | Vassalage | **Hereditary Rule** | Mehmed II is a dynastic Ottoman sultan; while he does rely on timar grants and provincial notables, the core structure is an hereditary sultanate, which fits Hereditary Rule better than medieval Vassalage. |
+ | Moctezuma | Police State | **Theocracy** | The Aztec state fuses ruler and priesthood, with ritual war and sacrifice as religious duty; a state-religion fusion civic better captures that sacral militarism than a generic police regime. |
+-| Napoleon | Representation | **Nationhood** | Napoleon is the poster child for levée en masse and national armies fighting for "la nation"; Nationhood captures the mass-mobilization aspect of Napoleonic France more clearly than any formal representative system. |
++| Napoleon | Representation | **Nationhood** | Napoleon is the poster child for levee en masse and national armies fighting for "la nation"; Nationhood captures the mass-mobilization aspect of Napoleonic France more clearly than any formal representative system. |
+ | Pacal | Hereditary Rule | **Caste System** | Classic Maya society is strongly stratified with nobles, priests, and commoners in fixed roles; a labor/social-stratification civic like Caste System is a closer abstraction than a generic monarchy favourite. |
+ | Pericles | Representation | **Keep** | Periclean Athens stands in for democracy in Civ: assembly, juries, pay for civic service; using Representation for that is standard and thematically right. |
+ | Peter | Bureaucracy | **Keep** | Peter the Great is all about building a Western-style, centrally administered state (Table of Ranks, new capital, modernized army); Bureaucracy is a perfect description. |
+-| Qin Shi Huang | Bureaucracy | **Police State** | Qin unification is remembered for harsh Legalist law, forced labor, book burnings, and secret police; in your civic set that’s closer to a hard Police State than to neutral "capital gets extra commerce." |
+-| Ragnar | Hereditary Rule | **Vassalage** | Viking warbands and jarls revolve around personal loyalty and service to a war-leader; Civ’s Vassalage (lords owing military service) is a good abstraction for that retinue-based society. |
++| Qin Shi Huang | Bureaucracy | **Police State** | Qin unification is remembered for harsh Legalist law, forced labor, book burnings, and secret police; in your civic set that's closer to a hard Police State than to neutral "capital gets extra commerce." |
++| Ragnar | Hereditary Rule | **Vassalage** | Viking warbands and jarls revolve around personal loyalty and service to a war-leader; Civ's Vassalage (lords owing military service) is a good abstraction for that retinue-based society. |
+ | Ramesses | Organized Religion | **Keep** | Ramesses II is temple and monument king, backed by priestly legitimation; staying with Organized Religion keeps the "temple economy builds big things" vibe intact. |
+ | Roosevelt | Mercantilism | **Universal Suffrage** | FDR governs within a mature electoral democracy, re-elected multiple times and using the state to intervene in the economy; a modern democratic government civic fits his role better than a narrow trade-policy one. |
+-| Saladin | Theocracy | **Keep** | He’s remembered as the pious unifier leading jihad and defending Jerusalem; a tight fusion of state and religion is exactly what Theocracy represents. |
+-| Shaka | Police State | **Keep** | Shaka’s Zulu state is a hyper-militarized regimental society with intense discipline and coercion; Police State is a very accurate Civ-scale summary. |
+-| Sitting Bull | Environmentalism | **Nationhood** | In Civ terms he stands for defending his people’s land and sovereignty against an expanding state; a "defend the nation/people" civic matches that resistance role better than a late-game environmental/trade-bloc civic. |
+-| Stalin | State Property | **Keep** | Stalin’s USSR is the classic example of full state ownership and command planning; State Property is the obvious and accurate favourite. |
++| Saladin | Theocracy | **Keep** | He's remembered as the pious unifier leading jihad and defending Jerusalem; a tight fusion of state and religion is exactly what Theocracy represents. |
++| Shaka | Police State | **Keep** | Shaka's Zulu state is a hyper-militarized regimental society with intense discipline and coercion; Police State is a very accurate Civ-scale summary. |
++| Sitting Bull | Environmentalism | **Nationhood** | In Civ terms he stands for defending his people's land and sovereignty against an expanding state; a "defend the nation/people" civic matches that resistance role better than a late-game environmental/trade-bloc civic. |
++| Stalin | State Property | **Keep** | Stalin's USSR is the classic example of full state ownership and command planning; State Property is the obvious and accurate favourite. |
+ | Suleiman | Hereditary Rule | **Bureaucracy** | Suleiman "the Lawgiver" is as much about kanun (imperial law) and administrative order as conquest; highlighting a capital-centered admin civic better reflects that than another generic monarchy favourite. |
+ | Suryavarman | Caste System | **Keep** | Angkor-era Khmer society is highly hierarchical with temple elites and organized labor; Caste System is a good abstraction for that social order. |
+-| Tokugawa | Mercantilism | **Protectionism** | The Tokugawa shogunate’s sakoku policy (closed borders, tightly controlled trade) is basically a protectionist, restricted-trade order; your Protectionism civic maps to that very cleanly and replaces Mercantilism in the mod. |
++| Tokugawa | Mercantilism | **Protectionism** | The Tokugawa shogunate's sakoku policy (closed borders, tightly controlled trade) is basically a protectionist, restricted-trade order; your Protectionism civic maps to that very cleanly and replaces Mercantilism in the mod. |
+ | Victoria | Representation | **Free Market** | Victorian Britain is the textbook 19th-century industrial capitalist and free-trade power (post-Corn Laws etc.); a pro-market economic civic captures that better than tweaking the government form. |
+ | Wang Kon | Caste System | **Organized Religion** | As founder of Goryeo he strongly supports Buddhism and religious institutions as pillars of the state; a temple-driven Organized Religion civic fits his Spiritual/Organized flavor better than labor structure alone. |
+ | Washington | Free Speech | **Representation** | Washington presides over the founding of a representative republic and then voluntarily steps down; a government civic representing representative institutions is the cleanest expression of his role. |
+-| Willem van Oranje | Free Religion | **Keep** | He’s famous for religious tolerance and coalition politics in the Dutch Revolt; a pluralist Free Religion civic is exactly his slot. |
++| Willem van Oranje | Free Religion | **Keep** | He's famous for religious tolerance and coalition politics in the Dutch Revolt; a pluralist Free Religion civic is exactly his slot. |
+ | Zara Yaqob | Theocracy | **Keep** | Zara Yaqob is known for enforcing strict Christian orthodoxy and writing doctrinal works; a strong state-church fusion civic is the right summary. |
+ 
+ - sanity: leaders listed in this table = **53** (one favourite civic per leader)
+@@ -527,7 +573,7 @@ update: since i can't find what this refers to at a quick glance, i now asked ch
+ 
+ genghis khan seems to have been tengrist something, but according to a quick search, it seems he had great respect for daoism: [https://fr.wikipedia.org/wiki/Religion_en_Mongolie#Tao%C3%AFsme](https://fr.wikipedia.org/wiki/Religion_en_Mongolie#Tao%C3%AFsme)
+ 
+->Bien que Gengis Khan ait été avant tout tengriste, il manifesta un grand respect à l'égard du dirigeant de la secte taoïste Quanzhen, Qiu Chuji, lorsque celui-ci lui rendit visite dans l'Hindou Kouch, à Kaboul, en 1222, à son invitation, et prédit la conquête de la Chine par les Mongols. En retour, Gengis Khan lui donna d'importants pouvoirs politiques et religieux. Il fut exempté de taxes, et depuis Pékin, sa secte fut la plus favorisée de l'Empire Mongol. Il défendit la liberté d'autogestion des autres sectes, auprès du khagan, qu'il s'agisse des taoïstes, des bouddhistes, des chrétiens nestoriens ou des musulmans[18].
++>Bien que Gengis Khan ait ete avant tout tengriste, il manifesta un grand respect a l'egard du dirigeant de la secte taoiste Quanzhen, Qiu Chuji, lorsque celui-ci lui rendit visite dans l'Hindou Kouch, a Kaboul, en 1222, a son invitation, et predit la conquete de la Chine par les Mongols. En retour, Gengis Khan lui donna d'importants pouvoirs politiques et religieux. Il fut exempte de taxes, et depuis Pekin, sa secte fut la plus favorisee de l'Empire Mongol. Il defendit la liberte d'autogestion des autres sectes, aupres du khagan, qu'il s'agisse des taoistes, des bouddhistes, des chretiens nestoriens ou des musulmans[18].
+ 
+ therefore, it is not incorrect to say, among civ4 advciv-sas's religions in particular, hat his favourite religion, if he had to choose one, is not none but maybe rather indeed daoism, is also quie convenient even though was not main goal that this is not filled., one leader can have a favourite religion even though not having said religion themselves; this is perhaps an important distinction i should add in changelogs and added now.
+ 
+@@ -572,7 +618,7 @@ A summary of my previous notes with the help of chatgpt 5.1 (check if accurate),
+ | Brennus | None | Keep | Already had no favourite religion; the Brennus note mainly informed other XML tweaks (less religious emphasis, more civics focus), not a favourite religion change. |
+ | Catherine | Christianity | Keep | |
+ | Charlemagne | Christianity | Keep | |
+-| Churchill | Christianity | **None** | Biographical sketches don’t show a strong personal attachment to any one faith; dropping his Christian favourite both matches that and helps reduce Christianity’s over-representation in the roster. |
++| Churchill | Christianity | **None** | Biographical sketches don't show a strong personal attachment to any one faith; dropping his Christian favourite both matches that and helps reduce Christianity's over-representation in the roster. |
+ | Cyrus | None | Keep | After a quick read of his religious views, Cyrus looks relatively open and not strongly attached to a single faith, so leaving his favourite religion as None still fits. |
+ | Darius | None | **Paganism** | Darius appears more overtly religious than Cyrus in the sources; giving him a specific favourite religion in-game (Paganism as generic Achaemenid state cult) reflects that. |
+ | De Gaulle | Christianity | Keep | |
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 8820c45d3..b44782080 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -1,4 +1,4 @@
+-﻿# Main Changes Guide
++# Main Changes Guide
+ 
+ This guide highlights key differences between AdvCiv-SAS and AdvCiv 1.12. It’s intentionally practical and a bit verbose so newer players can follow the "what changed" and "why it matters." For technical details, see the main [README](/README.md) and the docs under [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/).
+ 
+@@ -111,6 +111,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+ - Make **paths absolute** in **.gitignore** to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
++- (Requires AdvCiv-SAS 5465+) Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+ 
+ ### 48 Civs DLL
+@@ -505,7 +506,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Removed buildings that didn’t carry their weight or distorted pacing (e.g., **Space Elevator**, **West Point**).
+ - **Iron Works:** now requires **both Coal and Iron empire-wide**; city requirement count lowered; cost up moderately (e.g., 700 -> 800).
+ - **Heroic Epic** (`iMilitaryProductionModifier`): **100% → 50%**. The always-on military production boost was too strong and could let AIs run away; this tones it down while keeping the building relevant.
+-- Some **civ-specific** buildings replaced (especially late-game or underwhelming ones). Example: Russian **Research Institute** replaced with **Gord** (castle-based, earlier impact).
++- Some **civ-specific** buildings replaced (especially late-game or underwhelming ones). Example: Russian **Research Institute** replaced with **Gord** (castle-based, earlier impact). (Requires AdvCiv-SAS 5465+) See [Assets rebalancing: Civ-specific buildings rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civ-specific-buildings-rework) for detailed rationales and before/after changes table.
+ - Added `BuildingClassRequired` chains to curb spam and improve AI focus: e.g., **Drydock** now requires **Port**.
+ - **Culture rebalance:** Trimmed incidental culture from science buildings (e.g., **Library: +2 → +1**) and from some non-purely-cultural national wonders (**Heroic Epic**, **National Epic**, **Forbidden Palace**). In exchange, **buffed/reworked culture-focused buildings** (e.g., **Colosseum** and civ variants) to keep the culture path meaningful.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 4f03f122c..c2c312c3a 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -133,7 +133,7 @@ Then added iFeatureproduction panel with the help of GPT-5.3-Codex thanks.
+ 
+ ### Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)
+ 
+-Also added a new "LOG" buttonto print to `PythonDbg.log` the tables output, and this is done to other charts too.
++Also added a new "LOG" button to print to `PythonDbg.log` the tables output, and this is done to other charts too.
+ 
+ Note: it mirrors the log button we added in the Info screen's [new History tab](/README.md#new-advisors-eg-history-tab-in-the-info-screen-advisor) we added in AdvCiv-SAS.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md b/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+index 444feb958..b9b7d193e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
++++ b/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md
+@@ -73,7 +73,7 @@ Then much later i did this swapping based version but that was based or closer (
+ 
+ ## Starting techs rework
+ 
+-After changing the tech tree, starting techs had to be adjusted. See [README_Assets_Rebalancing.md#starting-techs-rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#starting-techs-rework) for details/results.
++After changing the tech tree, starting techs had to be adjusted. See [README_Assets_Rebalancing.md (Civs' Starting techs rework)](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civs-starting-techs-rework) for details/results.
+ 
+ ## Customizable technology advisor width
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+index da7f2307f..cd6417f11 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (1).JPG
+index 0d5c3270c..237a3cdde 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG
+index 26e3cb286..fd72cd0e8 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (3).JPG
+deleted file mode 100644
+index 237a3cdde..000000000
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (3).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (4).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (4).JPG
+deleted file mode 100644
+index fd72cd0e8..000000000
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (4).JPG and /dev/null differ
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=116440

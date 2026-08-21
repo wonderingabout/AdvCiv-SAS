@@ -1,0 +1,103 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5783
+# Commit: 5383b0c4f6c4071965b2273915bcc4be5cfc603c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 43a26177b81e2ad8466c5ff7811098c6776b442f
+# Title: ui polish number of leader icon rows in map tab
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	11	Assets/Python/Screens/CvMilitaryAdvisor.py
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index bcd663cfe..b8e98249c 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -93,9 +93,9 @@ class CvMilitaryAdvisor:
+ 
+ 		# --- A. Leaders Panel (Top - Full Width) ---
+ 		self.X_LEADERS = 20
+-		self.Y_LEADERS = 80
++		self.Y_LEADERS = 70
+ 		# <!-- custom: keep the Map tab as the single spatial unit browser. A separate Map 2 tab with different minimap geometry had several tab-switch issues: stale dimensions, blank minimaps, or minimap bleed into other tabs depending on the attempted fix. The stable compromise is to widen the existing unit list and preserve the individual-units toggle. (GPT-5.5) -->
+-		self.H_LEADERS = 314
++		self.H_LEADERS = 380
+ 		self.LEADER_BUTTON_SIZE = 64
+ 		self.LEADER_MARGIN = 12
+ 
+@@ -103,7 +103,8 @@ class CvMilitaryAdvisor:
+ 		self.iShiftKeyDown = 0
+ 
+ 		# --- B. Unit List (Right Side - Fixed Width) ---
+-		self.W_TEXT = 700
++		# <!-- custom: at 1080p, this allows 9 leader icons per row on the left; tune the unit panel width manually because it controls the remaining left-column width. A long unit panel width gives budget for long unit names, many promotions, larger promotion icons, etc. (GPT-5.5) -->
++		self.W_TEXT = 745
+ 
+ 		# --- C. Minimap Panel (Left Side - Fills Remaining Space) ---
+ 		self.X_MAP_MINIMAP = 20
+@@ -197,12 +198,12 @@ class CvMilitaryAdvisor:
+ 		self.ART_BATTLE_CITY_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+ 		self.ART_BATTLE_CITY_CAPTURED_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_RESISTANCE").getPath()
+ 		self.ART_BATTLE_ROLE_ATTACKER = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_CROSSED_SWORDS").getPath()
+-		# <!-- custom: tried a military medal emoji but it reads as 2 half emoji with highly clashing colors; hard to read in a data-rich small column width table. Prefer the star emoji with darker variant that renders very well. Trophy seems more suited to races or competitions so not used in military context here. -->
++		# <!-- custom: tried a military medal emoji but it reads as 2 half emoji with highly clashing colors; hard to read in a data-rich small column width table. Prefer the star emoji with darker variant that renders very well. Trophy seems more suited to races or competitions so not used in military context here -->
+ 		self.ART_BATTLE_RESULT_WON = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_WHITE_MEDIUM_STAR_2").getPath()
+-		self.ART_BATTLE_RESULT_LOST = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_SKULL").getPath()
+-		# <!-- custom: this left arrow variant has a good contrast and is clearly distinguishable from the other 2 result emojis; it is plain and dense so fills the cell nicely for retreat. Person Running was not chosen because it is too thin and visually non-homogenous, making it harder to scan quickly. (GPT-5.5) -->
+-		self.ART_BATTLE_RESULT_RETREAT = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LEFT_ARROW_3").getPath()
+-		# <!-- custom: int enum codes for battle result. Replaces previous string-compare on localized "Won"/"Lost"/"Ret." text; the text variants are not displayed in the UI (icon-only), and only the dev-only PythonDbg log dump needs human-readable strings, so localization round-trip via TXT_KEY was wasted work. Credit: Claude code Opus 4.7. (GPT-5.5) -->
++		# <!-- custom: a red plain fairly uniform emoji like this one conveys very well visually the idea of lost/death and scans very fast -->
++		self.ART_BATTLE_RESULT_LOST = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_BROKEN_HEART").getPath()
++		# <!-- custom: this left arrow variant is fairly clearly distinguishable from the other 2 result emojis; it is plain and dense so fills the cell nicely for retreat. Person Running was not chosen because it is too thin and visually non-homogenous, making it harder to scan quickly. (GPT-5.5) -->
++		self.ART_BATTLE_RESULT_RETREAT = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LEFT_ARROW_2").getPath()
+ 		self.RESULT_WON = 0
+ 		self.RESULT_LOST = 1
+ 		self.RESULT_RETREAT = 2
+@@ -223,15 +224,16 @@ class CvMilitaryAdvisor:
+ 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, _, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
+ 		self.Y_LINK = self.Y_EXIT
+ 
+-		# <!-- custom: unit list panel scrolls often once a player has many units, so it is lifted to the top and the leader bar trimmed to accommodate it; the upscaled advisor screen has the lateral room, and the now-2-row leader bar keeps full icon size despite the narrower width. Leader-to-map-minimap vertical gap kept small because every pixel cut from H_MAP_MINIMAP_MAX shrinks W_MAP_MINIMAP via the world aspect ratio, which costs leader icons per row. Excess horizontal space (typical at 1080p+) is split evenly across left margin / center gap / right margin so all three look balanced instead of tight-tight-huge. The combat-experience bar tracks the Map tab minimap X / W to stay flush with it. (Claude code Opus 4.7) -->
++		# <!-- custom: unit list panel scrolls often once a player has many units, so it is lifted to the top and the leader bar trimmed to accommodate it; the upscaled advisor screen has the lateral room, and the taller multi-row leader bar keeps full icon size longer despite the narrower width. Leader-to-map-minimap vertical gap and bottom reserve are kept small because every pixel cut from H_MAP_MINIMAP_MAX shrinks W_MAP_MINIMAP via the world aspect ratio, which can reduce leader icons per row. Excess horizontal space (typical at 1080p+) is split evenly across left margin / center gap / right margin so all three look balanced instead of tight-tight-huge. The combat-experience bar tracks the Map tab minimap X / W to stay flush with it. (Claude code Opus 4.7 + GPT-5.5) -->
+ 		iAdvisorMargin = 20
+-		iLeaderToMapMinimapGap = 10
++		iLeaderToMapMinimapGap = 5
++		iBottomReserve = 15
+ 		self.X_TEXT = self.W_SCREEN - iAdvisorMargin - self.W_TEXT
+ 		self.Y_TEXT = self.Y_LEADERS
+ 		self.H_TEXT = self.H_SCREEN - self.Y_TEXT - 55 - iAdvisorMargin
+ 
+ 		self.Y_MAP_MINIMAP = self.Y_LEADERS + self.H_LEADERS + iLeaderToMapMinimapGap
+-		self.Y_GREAT_GENERAL_BAR = self.Y_BOTTOM_PANEL - self.H_GREAT_GENERAL_BAR - iAdvisorMargin
++		self.Y_GREAT_GENERAL_BAR = self.Y_BOTTOM_PANEL - self.H_GREAT_GENERAL_BAR - iBottomReserve
+ 		self.H_MAP_MINIMAP_MAX = self.Y_GREAT_GENERAL_BAR - iLeaderToMapMinimapGap - self.Y_MAP_MINIMAP
+ 
+ 		iGridW = CyMap().getGridWidth()
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 6167803a5..822637c2c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -358,7 +358,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5522+) New **Policy Advisor**. **Beautified**: enlarge **top panels text** so **long civic names don't overflow**. **Remove multiline nationality** information which was **uninfomative** and **crowded vertically** in the **Religions tab** and the **Corporations tab**; use more precise and compact `Leader (ID)` and `HQ (ID)` **one-liner instead** (**ID** also handles **one leader name being used by several players**); **increase row spacing** (now **unified** (was crowded)). **Remove multiline wrapped bonuses** splitting logic in the **Corporations tab**: use one natural comma-separated line (bonuses row height reduced/standardized) since there is enough space after expanding the Policy Advisor and it is more readable. Also add **new rows** (**Bonuses Generated**, **Yields Generated**), and add **first column descriptions** for rows (as of now `Built By:`, `Consumes:`, `Generates:`, `Generates 2:`). Add a **Great Person icon** in `Built By:` row. Change in [CvPolicyAdvisorScreen.py](/Assets/Python/Screens/CvPolicyAdvisorScreen.py).
+ - **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it.
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-- Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. (Requires AdvCiv-SAS 5530+) Note: **unit icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440). (Requires AdvCiv-SAS 5777+) **Lift up the unit panel to full height** (reduces the need for scrolling vertically) and **expand it laterally** (to avoid line wrap for unit rows). Make **show/hide individual unit text clickable** too (more accessible than the small +/- button alone). **Increase leader icon bar from 1 to multiple rows**, and **do not reduce icon size until all rows are full**. For example, 4 rows allows **at 1080p to show up to 36 players** (including barbarian) at **full leader icon size** before leader icon size is reduced, which should now cover most games. Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported.  See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4), [KI#130](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#130---fixed-base-advciv-bug-of-unit-rows-showing-build-player-name-instead-of-improvement-text-military-advisor-map-tab), and [KI#131](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer).
++- Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. (Requires AdvCiv-SAS 5530+) Note: **unit icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440). (Requires AdvCiv-SAS 5777+) **Lift up the unit panel to full height** (reduces the need for scrolling vertically) and **expand it laterally** to **accomodate lengthy unit rows** (e.g., avoid line wrap if unit name is long, if there are many promotions). Make **show/hide individual unit text clickable** too (more accessible than the small +/- button alone). **Increase leader icon bar from 1 to multiple rows**, and **do not reduce icon size until all rows are full**. For example, at 1080p 5 rows allow to show up to 45 players (including barbarian) at full leader icon size before leader icon size is reduced, which should now cover most games. Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported. See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4), [KI#130](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#130---fixed-base-advciv-bug-of-unit-rows-showing-build-player-name-instead-of-improvement-text-military-advisor-map-tab), and [KI#131](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer).
+ - (Requires AdvCiv-SAS 5771+) Added a new **Battles tab** in the Military Advisor, showing as a **sortable table** the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode): **Turn**, **Year**, **Result** (Won, Lost, Retreat) as emoji, **Estimated Odds %** (simple starting effective strength comparison, not exact Civ4 combat odds), **Role** (Are we the attacker?) as emoji, **base Strength** (XML), **start effective Strength** (including modifiers at that battle), **end effective Strength**, **max effective Strength**, **XP before combat** (yellow if Great-General-led), **Our Unit**, **Their Unit** (unit name in yellow if Great-General-led), **same** strength/XP columns for their unit, **Civ icon**, **Player icon**, **Player ID** (to cover the same leader picked by several leaders (custom games, etc.)), **Captured Unit type**, **Captured Unit icon**, **Hill or Peak icon**, **Terrain icon**, **Feature icon**, **Click Plot icon** (**on click camera is moved to this plot** (as the wonder tabs' (Info Screen) text does), with distinct art for normal plot, defended city, and captured city battles). Icons are **hoverable to sevopedia** (or have a camera effect). **Text color** is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red). Implemented a **legend link**, and **LOG Button** (as the Timeline tab). Examples of LOG: `163 | 760 AD | Lost | 43 | A | 6 | 6.04 |  | 7.20 | 8 | 0 | Camel Archer | Longbowman | 5 | 0 | 4 | 8.10 | 5.04 | 9.00 | 9 | 0 |  |  | TERRAIN_GRASS |  | 54 | 30`, `133 | 10 BC | Won | 64 | A | 3 | 3.30 | 1.81 | 3.30 | 2 | 0 | Trireme | Galley | 1 | 0 | 2 | 1.84 |  | 2.20 | 48 | 0 |  |  | TERRAIN_COAST |  | 32 | 10`. Main files changed: [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py), [CvEventManager.py](/Assets/Python/CvEventManager.py), [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py), [CvUnit.cpp](/CvGameCoreDLL/CvUnit.cpp), [CvDllPythonEvents.cpp](/CvGameCoreDLL/CvDllPythonEvents.cpp), [CvDllPythonEvents.h](/CvGameCoreDLL/CvDllPythonEvents.h), [CvEventReporter.cpp](/CvGameCoreDLL/CvEventReporter.cpp), [CvEventReporter.h](/CvGameCoreDLL/CvEventReporter.h).
+ - (Requires AdvCiv-SAS 5775+) Added a new **Composition Tab**, as a set of **sortable tables** for **Current** (unlike saved data in the Statistics Tab in the Info Screen) **Units** (non-civilian, including Animal (including Barbarian in debug mode)), **Promotions**, and **Unit Combats** **counts**, default-**sorted from most to least** for no tedium (as done in the Statistics Tab). See also [KI#129](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-map-tab-minimap-disappeared-after-switching-tabs).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set an **alternative lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor, and an **alternative top space space** for **advisor buttons** (in map view) because this alternative right space may cover these advisor buttons. **Boldened title** for consistency. (Requires AdvCiv-SAS 5520+) See also [KI#114](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked). (Requires AdvCiv-SAS 5691+) **When opening** Technology Advisor, **right-align scoreboard leader text** so it is easier to read (because text is often not visible due to advisor width expansion). **On Technology Advisor close**, it **reverts back** to usual alignment.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=16670

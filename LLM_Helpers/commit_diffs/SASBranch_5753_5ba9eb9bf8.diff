@@ -1,0 +1,241 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5753
+# Commit: 5ba9eb9bf87c0b658de202a99276f4d377e74053
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 792db3bcb140538159997f2f20406f54137a69d4
+# Title: add legend link in overview tabs; update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	2	Assets/Python/Screens/CvDomesticAdvisor.py
+5	0	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+9	0	Assets/XML/Text/AdvCiv-SAS_Core.xml
+14	4	README.md
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (5)_FONT_4.JPG => 0.510_foreign_advisor (5).JPG}
+-	-	_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (1).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (2).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (3).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (4).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (5).JPG
+ rename _1_AdvCiv-SAS/Images/advisors/{0.510_foreign_advisor (5)_FONT_4.JPG => 0.510_foreign_advisor (5).JPG} (100%)
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (4).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (5).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index 4bc278760..c56d51939 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -1,5 +1,9 @@
+ ## Sid Meier's Civilization 4
+ ## Copyright Firaxis Games 2005
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ from CvPythonExtensions import *
+ import CvUtil
+ import ScreenInput
+@@ -11,13 +15,13 @@ from SASFontUtils import *
+ from SASUtils import *
+ import SASTextScale
+ # <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base domestic-advisor text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
+-
++#
+ #	IMPORTANT INFORMATION
+ #	
+ #	All widget names MUST be unique when creating screens.  If you create a widget named 'Hello', and then try to create another named 'Hello', it will modify the first hello.
+ #
+ #	Also, when attaching widgets, 'Background' is a reserve word meant for the background widget.  Do NOT use 'Background' to name any widget, but when attaching to the background, please use the 'Background' keyword.
+-
++#
+ #  Thanks to Lee Reeves, AKA Taelis on civfanatics.com
+ #  Thanks to Solver
+ 
+@@ -35,6 +39,10 @@ class CvDomesticAdvisor:
+ 		self.iLanguageLoaded = -1
+ 		self.iActivePlayer = CyGame().getActivePlayer()
+ 		self.DEBUG_DROPDOWN_ID = "DomesticAdvisorDropdownWidget"
++		# <!-- custom: minimal shared-advisor widget plumbing only for placeAdvisorLegendLink; Domestic otherwise uses fixed widget IDs and finance-only dynamic widgets. (GPT-5.5) -->
++		self.WIDGET_ID = "DomesticAdvisorWidget"
++		self.nWidgetCount = 0
++		self.Z_CONTROLS = -0.1
+ 		# <!-- custom: keep screen-independent advisor edge constants in init; runtime resolution-dependent geometry is computed in interfaceScreen through shared SASUtils helpers. (GPT-5.3-Codex) -->
+ 		self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS = SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS
+ 		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
+@@ -266,6 +274,7 @@ class CvDomesticAdvisor:
+ 
+ 	def drawTabs(self):
+ 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
++		self.nWidgetCount = 0
+ 		iX = 0
+ 		for iPage in range(len(self.PAGE_NAME_LIST)):
+ 			szLabel = self.PAGE_NAME_LIST[iPage]
+@@ -274,10 +283,16 @@ class CvDomesticAdvisor:
+ 			szText = sasFontTagTitle + szLabel + SAS_FONT_TAG_CLOSE
+ 			screen.setText(self.PAGE_TAB_IDS[iPage], "", szText, CvUtil.FONT_CENTER_JUSTIFY, iX + self.PAGE_LINK_WIDTH[iPage] / 2, self.Y_LINK, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, iPage, -1)
+ 			iX += self.PAGE_LINK_WIDTH[iPage]
++		placeAdvisorLegendLink(self, "CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND", self.nScreenWidth - 12, self.Y_TITLE)
+ 
+ 	def getScreen(self):
+ 		return CyGInterfaceScreen("DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR)
+ 
++	def getNextWidgetName(self):
++		szName = self.WIDGET_ID + str(self.nWidgetCount)
++		self.nWidgetCount += 1
++		return szName
++
+ 	def configureFinanceLayout(self):
+ 		iInnerMargin = self.FINANCE_INNER_MARGIN
+ 		iColumnGap = self.FINANCE_COLUMN_GAP
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index 787b602dc..bac795746 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -28,6 +28,11 @@
+ 			<Description>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
++		<NewConceptInfo>
++			<Type>CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND</Type>
++			<Description>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND_PEDIA</Civilopedia>
++		</NewConceptInfo>
+ 		<NewConceptInfo>
+ 			<Type>CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Type>
+ 			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Description>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 8f14b16b7..d0c162164 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -141,6 +141,15 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>[H1]World Advisor Territory Legend[\H1][PARAGRAPH:2]The Territory tab counts plots and map assets owned by the selected player.[NEWLINE][NEWLINE][ICON_BULLET]BFC: owned plots inside at least one selected-player city BFC.[NEWLINE][ICON_BULLET]Sub: suburbs; owned plots outside all selected-player city BFCs.[NEWLINE][ICON_BULLET]Tot: BFC plus Sub.[NEWLINE][NEWLINE]In Plots, Water, Peak, Hill and Flat partition all owned plots, so Total is their real plot count. River, Lake and Coastal overlap those rows; for example, a riverside Grassland Hill is both Hill and River. Terrain and Features are split because every plot has one terrain, while only some have a feature.[NEWLINE][NEWLINE]Hidden or unexplored plots and bonuses stay hidden unless debug mode is active. Hover row icons for tooltips, or click them to open Sevopedia entries when available.</English>
+ 	</TEXT>
+ 
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND</Tag>
++		<English>Domestic Advisor Legend</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND_PEDIA</Tag>
++		<English>[H1]Domestic Advisor Legend[\H1][PARAGRAPH:2]The Overview tabs show cities for the selected player. In debug mode, the player dropdown can inspect another alive player's cities.[PARAGRAPH:2][H2]Overview 1[\H2][NEWLINE][ICON_BULLET]Rel: religions present.[NEWLINE][ICON_BULLET]T: turns left on current production.[NEWLINE][ICON_BULLET]Defense icon %: city defense.[NEWLINE][ICON_BULLET]Strength icon: defenders.[NEWLINE][ICON_BULLET]Occupation icon %: revolt chance.[PARAGRAPH:2][H2]Overview 2[\H2][NEWLINE][ICON_BULLET]d: net surplus or deficit.[NEWLINE][ICON_BULLET]Food columns: produced food, consumed food, food d, stored food / storage threshold.[NEWLINE][ICON_BULLET]Production columns: produced hammers, stored hammers / production threshold.[NEWLINE][ICON_BULLET]Happiness columns: happy, unhappy, happiness d.[NEWLINE][ICON_BULLET]Health columns: healthy, unhealthy, health d.[NEWLINE][ICON_BULLET]Yield modifier icons %: food, production and commerce yield modifiers.[NEWLINE][ICON_BULLET]Commerce modifier icons %: gold, research, culture and espionage modifiers.[NEWLINE][ICON_BULLET]Trade icon R%: trade route modifier.[NEWLINE][ICON_BULLET]Trade icon FR%: foreign trade route modifier.[PARAGRAPH:2][H2]Overview 3[\H2][NEWLINE][ICON_BULLET]Culture columns: total, threshold, rate, turns.[NEWLINE][ICON_BULLET]Great Person columns: total, threshold, base rate, final rate, modifier %, turns.[NEWLINE][ICON_BULLET]#: total Great People born in the city.[NEWLINE][ICON_BULLET]Bad-gold %: maintenance modifier.[NEWLINE][ICON_BULLET]WW%: war weariness modifier.[NEWLINE][ICON_BULLET]HA%: hurry anger modifier.[NEWLINE][ICON_BULLET]Unhealthy icon %: unhealthy population modifier.[NEWLINE][ICON_BULLET]Mil%: military production modifier.[NEWLINE][ICON_BULLET]Space%: spaceship production modifier.[NEWLINE][ICON_BULLET]Air%: air defense modifier.[NEWLINE][ICON_BULLET]Nuke%: nuclear defense modifier.[NEWLINE][ICON_BULLET]Espionage icon D%: espionage defense modifier.[PARAGRAPH:2][H2]Overview 4[\H2][NEWLINE][ICON_BULLET]Founded: founding year.[NEWLINE][ICON_BULLET]POP#: real population.[NEWLINE][ICON_BULLET]Corp: corporations present.[NEWLINE][ICON_BULLET]XP: free unit experience.[NEWLINE][ICON_BULLET]SXP: specialist free experience.[NEWLINE][ICON_BULLET]Specialist portraits: assigned specialists plus free specialists.[NEWLINE][ICON_BULLET]Angry icon: angry citizens.[PARAGRAPH:2][H2]Sorting and Colors[\H2][NEWLINE][ICON_BULLET]Signed values sort numerically.[NEWLINE][ICON_BULLET]Positive helpful values are green, negative helpful values are red, and penalty modifiers invert that coloring.[NEWLINE][ICON_BULLET]Zero balance columns can show - for easier scanning, while zero modifier columns are blank.</English>
++	</TEXT>
++
+ 
+ 
+ 	<TEXT>
+
+diff --git a/README.md b/README.md
+index ef13b5016..6eea32f2f 100644
+--- a/README.md
++++ b/README.md
+@@ -37,7 +37,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[Home page](/README.md#home-page)  
+ &emsp;[Simple Game rework](/README.md#simple-game-rework)  
+ [UI (Ingame)](/README.md#ui-ingame)  
+-&emsp;[Main Advisors reworks (e.g. new World Advisor; Score Tab and Timeline Tab in the Info Screen Advisor)](/README.md#main-advisors-reworks-eg-new-world-advisor-score-tab-and-timeline-tab-in-the-info-screen-advisor)  
++&emsp;[Main Advisors reworks (e.g., Overview tabs (Domestic Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))](/README.md#main-advisors-reworks-eg-overview-tabs-domestic-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen)  
+ &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
+ &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
+ &emsp;[Diplomacy Screen](/README.md#diplomacy-screen)  
+@@ -173,7 +173,7 @@ Note 2: notably also features the new maps we added in AdvCiv-SAS such as the [B
+ 
+ ## UI (Ingame)
+ 
+-### Main Advisors reworks (e.g. new World Advisor; Score Tab and Timeline Tab in the Info Screen Advisor)
++### Main Advisors reworks (e.g., Overview tabs (Domestic Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))
+ 
+ Also reworked, expanded and beautified most Advisors' UI so they scale to game resolution dynamically instead of hardcoded advisor screen dimensions. The code was also refactored to improve dynamic scaling, ensuring most UI elements automatically realign if dimensions are changed.
+ 
+@@ -183,7 +183,17 @@ See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Ma
+ 
+ #### New Advisors
+ 
+-#### World Advisor
++##### Overview tabs (Domestic Advisor)
++
++The domestic advisor now follows the usual advisor with tabs and debug mode layout as other advisor do, and has been enhanced so it now has 4 overview tabs (plus the finance tab that is part of the domestic advisor too now).
++
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (1).JPG" alt="0.511_domestic_advisor (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (2).JPG" alt="0.511_domestic_advisor (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (3).JPG" alt="0.511_domestic_advisor (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (4).JPG" alt="0.511_domestic_advisor (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (5).JPG" alt="0.511_domestic_advisor (5).JPG" width="250"></img>
++
++##### World Advisor
+ 
+ We added a new World Advisor in AdvCiv-SAS showing detailed geography information about the BFC, suburbs, and territory; per city in its BFC1 (plot types and terrains/features mostly) and BFC2 (bonuses and improvements), and for as a condensed summary for all territory in the territory tab (detailed in the main changes guide).
+ 
+@@ -230,7 +240,7 @@ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab,
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG" alt="0.510_foreign_advisor (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG" alt="0.510_foreign_advisor (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG" alt="0.510_foreign_advisor (4).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5)_FONT_4.JPG" alt="0.510_foreign_advisor (5)_FONT_4.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG" alt="0.510_foreign_advisor (5).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG" alt="0.510_foreign_advisor (6).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (7).JPG" alt="0.510_foreign_advisor (7).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 3ffa8902f..e63c642ed 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -345,8 +345,8 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5531+) **Beautified** and **expanded**, and add **support for text upscaling** for miscallenous **screens**: [CvDawnOfMan.py](/Assets/Python/Screens/CvDawnOfMan.py) ("The sun rises on the Year" greeting new game screen) is **expanded laterally and vertically** to **avoid scrolling**, add **icons** for buildings and units, add icon **chars for traits**; [CvTechSplashScreen.py](/Assets/Python/Screens/CvTechSplashScreen.py) (when a new tech is discovered)  is moderately **expanded** to **avoid scrolling**, vertically center screen (was slightly excentered); [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py) is **maximized to full screen** with enlarged columns, and **new Leader, Civilization, Player Color, and Traits columns** with **icons** or **colors** or **chars** (based on Info Screen's Score tab: note that Civilization icon is approximative and will not work if Civilization name is not the base civ mod name (e.g. "The United States" -> "My American Custom Name Empire") (would add too much complexity in DLL for a working UI feature outside this edge case); note 2: trait info is indicative only (if traits in XML were different when the save file was made (e.g., expansive trait removed, leader trait allocation changed), this information will be lost)); [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py) is **maximized to full screen**; [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen) is **maximized to full screen** and has a **greatly expanded leader NIF** and **maximized vertically score table** to **avoid scrolling**. See [README.md (Miscallenous screens)](/README.md#miscallenous-screens)
+ - (Requires AdvCiv-SAS 5517+) **Reorganized advisors**: **merged** the **espionage** screen into the **Foreign Advisor**, the **Economic Advisor's Finance Tab** into the **Domestic Advisor**, moved away the **Environment Tab** from the former **Economic Advisor** (now removed), the **Religion** Advisor and **Corporation** Advisor (so it is always visible and easier to access) into the new **Policy Advisor**; so they are now **tabs of these instead** (deleted the old now obsolete lone advisor .py files); **swap advisors**: **Victory screen** to F9 and **Info Screen** to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors; **split advisors**: the **Foreign Advisor** is now split into **Foreign Trade Advisor (F4)** (TREATIES, BONUSES, TECHS, CITIES), and **Foreign Diplomacy Advisor (F3)** (RELATIONS, GLANCE, INFO, ESPIONAGE) as it **was crowded** to reduce the need for **tab navigation** and for **clearer thematic differentiation**, using a shell (i.e. almost empty file for **linking only**) [CvForeignDiplomacyAdvisor.py](/Assets/Python/Screens/CvForeignDiplomacyAdvisor.py) file for the 2nd advisor.
+ - (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text to match the advisors changes.
+-- (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-new-world-advisor-score-tab-and-timeline-tab-in-the-info-screen-advisor)
+-- **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, now using a **clearer constrast dark yellow theme** instead. Make the advisor be a tab as the **Overview** tab. Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
++- (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-overview-tabs-domestic-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen).
++- **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, now using a **clearer constrast dark yellow theme** instead, (Requires AdvCiv-SAS 5753+) and is now has **tabs**; **enhanced** the Domestic Advisor so it now has **4 overview tabs** with detailed city information (modifiers, yields, specialists, etc.) with a corresponding **legend link**, and an **enter city on click button** (mirroring the info screen's wonders tab). Added **debug mode support** (for player selection). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
+ - (Requires AdvCiv-SAS 5528+) Minor **beautified** the [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py): increase **legend culture text width** so it is not cramped when upscaled. Note: although it is functional, the Custom Domestic Advisor is **not supported** in AdvCiv-SAS as of now, so it is lacking the Finance Tab. See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4).
+ - (Requires AdvCiv-SAS 5522+) New **Policy Advisor**. **Beautified**: enlarge **top panels text** so **long civic names don't overflow**. **Remove multiline nationality** information which was **uninfomative** and **crowded vertically** in the **Religions tab** and the **Corporations tab**; use more precise and compact `Leader (ID)` and `HQ (ID)` **one-liner instead** (**ID** also handles **one leader name being used by several players**); **increase row spacing** (now **unified** (was crowded)). **Remove multiline wrapped bonuses** splitting logic in the **Corporations tab**: use one natural comma-separated line (bonuses row height reduced/standardized) since there is enough space after expanding the Policy Advisor and it is more readable. Also add **new rows** (**Bonuses Generated**, **Yields Generated**), and add **first column descriptions** for rows (as of now `Built By:`, `Consumes:`, `Generates:`, `Generates 2:`). Add a **Great Person icon** in `Built By:` row. Change in [CvPolicyAdvisorScreen.py](/Assets/Python/Screens/CvPolicyAdvisorScreen.py).
+ - **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it.
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5)_FONT_4.JPG b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5)_FONT_4.JPG
+rename to _1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (1).JPG b/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (1).JPG
+new file mode 100644
+index 000000000..5d1477bab
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (2).JPG b/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (2).JPG
+new file mode 100644
+index 000000000..00e1be02f
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (3).JPG b/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (3).JPG
+new file mode 100644
+index 000000000..49b9bd607
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (4).JPG b/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (4).JPG
+new file mode 100644
+index 000000000..125df10b3
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (5).JPG b/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (5).JPG
+new file mode 100644
+index 000000000..f3dec707c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (5).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=24105

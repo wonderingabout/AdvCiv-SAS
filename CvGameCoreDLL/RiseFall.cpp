@@ -375,7 +375,7 @@ void RiseFall::atTurnEnd(PlayerTypes civId) {
 		currentCh.setScoreAtEnd(currentCh.computeScore());
 		// Even if interludeLength is 0, parts of a round need to be skipped
 		interludeCountdown = interludeLength;
-		g.setAIAutoPlay(0); // In case that the player has retired
+		g.setAIAutoPlay(0, true, SAS_AUTOPLAY_END_RISE_FALL); // In case that the player has retired
 		setPlayerControl(currentCh.getCiv(), false);
 		abandonPlans(currentCh.getCiv());
 		CvWString replayText = gDLL->getText("TXT_KEY_RF_INTERLUDE_STARTED");
@@ -690,8 +690,11 @@ void RiseFall::abandonPlans(PlayerTypes civId) {
 			gDLL->UI().lookAtSelectionPlot();
 		}
 		// Without this, units outside owner's borders don't appear on the main interface.
-		if(gr->plot()->getOwner() != civId)
-			gr->plot()->updateCenterUnit();
+		CvPlot* pGroupPlot = gr->plot();
+		// <!-- custom: guard null group plot so updateCenterUnit does not follow a null plot during abandonPlans; avoids CvSelectionGroup::plot crash path. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
+		if(pGroupPlot != NULL && pGroupPlot->getOwner() != civId)
+			pGroupPlot->updateCenterUnit();
+		// <!-- custom: end guard for null group plot in abandonPlans. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
 		/* ^Perhaps no longer needed due to a change in CvPlot::updateVisibility
 			(advc.061). Should test this some time. */
 	}
@@ -961,7 +964,7 @@ void RiseFall::prepareForExtendedGame() {
 		chapters[pos]->setScored(GC.getGame().getGameTurn() - 1);
 		if(g.getAIAutoPlay()) {
 			abandonPlans(chapters[pos]->getCiv());
-			g.setAIAutoPlay(0);
+			g.setAIAutoPlay(0, true, SAS_AUTOPLAY_END_RISE_FALL);
 		}
 	}
 	else {
@@ -1070,8 +1073,7 @@ bool RiseFall::launchCivSelectionPopup(CvPopup* popup, CvPopupInfo& info) {
 	return true;
 }
 
-void RiseFall::assignCivSelectionHelp(CvWStringBuffer& szBuffer,
-		PlayerTypes selectedCiv) {
+void RiseFall::assignCivSelectionHelp(CvWStringBuffer& szBuffer, PlayerTypes selectedCiv) {
 
 	CvGame& g = GC.getGame();
 	wstringstream wss;
@@ -1363,8 +1365,7 @@ void RiseFall::handleCivSelection(PlayerTypes selectedCiv) {
 	chapters[pos]->setCiv(selectedCiv);
 }
 
-bool RiseFall::isSquareDeal(CLinkList<TradeData> const& humanReceives,
-			CLinkList<TradeData> const& aiReceives, PlayerTypes aiCiv) const {
+bool RiseFall::isSquareDeal(CLinkList<TradeData> const& humanReceives, CLinkList<TradeData> const& aiReceives, PlayerTypes aiCiv) const {
 
 	PlayerTypes human = getActivePlayer();
 		/*  Actually no problem if the human receives sth. non-dual, e.g. gold
@@ -1394,8 +1395,7 @@ bool RiseFall::isNeededWarTrade(CLinkList<TradeData> const& humanReceives) const
 	return false;
 }
 
-bool RiseFall::allSquare(CLinkList<TradeData> const& list, PlayerTypes from,
-		PlayerTypes to) const {
+bool RiseFall::allSquare(CLinkList<TradeData> const& list, PlayerTypes from, PlayerTypes to) const {
 
 	bool allVassal = true;
 	bool allDual = true;
@@ -1416,8 +1416,7 @@ bool RiseFall::allSquare(CLinkList<TradeData> const& list, PlayerTypes from,
 	return allDual || allVassal || allLiberation;
 }
 
-int RiseFall::pessimisticDealVal(PlayerTypes aiCivId, int dealVal,
-		CLinkList<TradeData> const& humanReceives) const {
+int RiseFall::pessimisticDealVal(PlayerTypes aiCivId, int dealVal, CLinkList<TradeData> const& humanReceives) const {
 
 	int r = dealVal;
 	PlayerTypes humanCivId = getActivePlayer();

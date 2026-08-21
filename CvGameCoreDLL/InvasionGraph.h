@@ -73,19 +73,14 @@ public:
 		size_t findCycle(std::vector<Node*>& kPath);
 		// Won't terminate when called on a Node that's part of a cycle
 		Node& findSink();
-		bool hasLost(PlotNumTypes eCityPlot) const
-		{
-			return (m_cityLosses.count(eCityPlot) > 0);
-		}
+		bool hasLost(PlotNumTypes eCityPlot) const { return (m_cityLosses.count(eCityPlot) > 0); }
 		// Updates adjacency lists. NULL deletes an edge.
 		void changePrimaryTarget(Node* pNewTarget);
 		InvasionGraph::Node* getPrimaryTarget() const { return m_pPrimaryTarget; }
 		PlyrSet const& getTargetedBy() const { return m_targetedBy; }
 		/*	To be called on the attacker. Caller needs to delete the result.
 			Last two parameters only for clash steps */
-		SimulationStep* step(scaled rArmyPortionDefender = 0,
-				scaled rArmyPortionAttacker = 1, bool bClashOnly = false,
-				bool bUniformGarrisons = false) const;
+		SimulationStep* step(scaled rArmyPortionDefender = 0, scaled rArmyPortionAttacker = 1, bool bClashOnly = false, bool bUniformGarrisons = false) const;
 		void applyStep(SimulationStep const& kStep); // To be called on the defender
 		void setEliminated(bool b) { m_bEliminated = b; }
 		bool isEliminated() const { return m_bEliminated; }
@@ -100,15 +95,9 @@ public:
 		/*	The rest of the public functions are not to be used
 			until the simulation has finished ... */
 		// Lost power minus shifted power
-		scaled getLostPower(MilitaryBranchTypes eBranch) const
-		{
-			return m_arLostPower[eBranch] - m_arShiftedPower[eBranch];
-		}
+		scaled getLostPower(MilitaryBranchTypes eBranch) const { return m_arLostPower[eBranch] - m_arShiftedPower[eBranch]; }
 		// Power after simulation minus initial power
-		scaled getGainedPower(MilitaryBranchTypes eBranch) const
-		{
-			return m_military[eBranch]->power() - m_arCurrentPow[eBranch];
-		}
+		scaled getGainedPower(MilitaryBranchTypes eBranch) const { return m_military[eBranch]->power() - m_arCurrentPow[eBranch]; }
 		// Invested during the build-up phases
 		scaled getProductionInvested() const { return m_rProductionInvested; }
 		/*	City plots included in the conquest and loss sets are guaranteed to exist
@@ -175,14 +164,10 @@ public:
 		scaled m_rDistractionByDefense;
 
 		scaled productionPortion() const; // Remaining production capacity after losses
-		UWAICache::City const* targetCity(
-				// Default: based on m_pPrimaryTarget
-				PlayerTypes eTargetOwner = NO_PLAYER) const;
+		// Default: based on m_pPrimaryTarget <!-- custom: hoisted from multiline signature before `eTargetOwner` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+		UWAICache::City const* targetCity(PlayerTypes eTargetOwner = NO_PLAYER) const;
 		void addConquest(UWAICache::City const& kConqCity);
-		void addCityLoss(UWAICache::City const& kLostCity)
-		{
-			m_cityLosses.insert(kLostCity.getID());
-		}
+		void addCityLoss(UWAICache::City const& kLostCity) { m_cityLosses.insert(kLostCity.getID()); }
 		// (Vassals that break free are not modeled)
 		void setCapitulated(TeamTypes eMaster);
 		scaled clashDistance(Node const& kOther) const;
@@ -194,34 +179,17 @@ public:
 		/*	Tbd.: Should create a small class for this stuff. Related:
 			Losses from city attack. */
 		static scaled const m_rClashPortion;
-		static std::pair<scaled,scaled> clashLossesWinnerLoser(
-				scaled rPowAtt, scaled rPowDef,
-				bool bNearCity = true, bool bNaval = false);
-		static scaled clashLossesTemporary(scaled rPowAtt, scaled rPowDef)
-		{
-			return m_rClashPortion * std::min(rPowAtt, rPowDef) / 3;
-		}
-		static scaled stake(scaled rPowAtt, scaled rPowDef)
-		{
-			return m_rClashPortion * scaled::min(1, fixp(1.6) *
-					powRatio(rPowAtt, rPowDef));
-		}
-		static scaled powRatio(scaled rFirstPow, scaled rSecondPow)
-		{
-			return std::min(rFirstPow, rSecondPow) /
-					std::max(std::max(rFirstPow, rSecondPow), scaled::epsilon());
-		}
+		static std::pair<scaled,scaled> clashLossesWinnerLoser(scaled rPowAtt, scaled rPowDef, bool bNearCity = true, bool bNaval = false);
+		static scaled clashLossesTemporary(scaled rPowAtt, scaled rPowDef) { return m_rClashPortion * std::min(rPowAtt, rPowDef) / 3; }
+		static scaled stake(scaled rPowAtt, scaled rPowDef) { return m_rClashPortion * scaled::min(1, fixp(1.6) * powRatio(rPowAtt, rPowDef)); }
+		static scaled powRatio(scaled rFirstPow, scaled rSecondPow) { return std::min(rFirstPow, rSecondPow) / std::max(std::max(rFirstPow, rSecondPow), scaled::epsilon()); }
 	};
 
 public:
 	InvasionGraph(MilitaryAnalyst& kMilitaryAnalyst, PlyrSet const& kWarParties,
 			bool bPeaceScenario = false);
 	~InvasionGraph();
-	Node* getNode(PlayerTypes ePlayer) const
-	{
-		FAssertBounds(0, MAX_PLAYERS, ePlayer);
-		return m_nodeMap[ePlayer];
-	}
+	Node* getNode(PlayerTypes ePlayer) const { FAssertBounds(0, MAX_PLAYERS, ePlayer); return m_nodeMap[ePlayer]; }
 	/*	No military build-up is estimated by simulate(int) until
 		this function is called. Intended to be called exactly once.
 		"Our side" being the agent (military analyst). */

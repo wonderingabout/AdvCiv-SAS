@@ -1,0 +1,48 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4036
+# Commit: bc4a48c1aafda3efd5b2a37b319caec276f18541
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 81f42c3d506cf2e26b24223df7e347889a020e4a
+# Title: Fix attitude cache update when loading very old saves
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	12	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0e757b243..9439badb1 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -23021,18 +23021,7 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 	if(isMajorCiv() && (uiFlag < 15 ? isEverAlive() : isAlive()))
+ 		m_pUWAI->read(pStream); // </advc.104>
+ 	if(getID() == MAX_PLAYERS - 1) // advc: After all players have been loaded ...
+-	{
+-		// <advc.148>
+-		if(uiFlag < 9)
+-		{
+-			for(int i = 0; i < MAX_CIV_PLAYERS; i++)
+-			{
+-				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)i);
+-				if(kPlayer.isAlive())
+-					kPlayer.AI_updateAttitude();
+-			}
+-		} // </advc.148>
+-		// <advc.104>
++	{	// <advc.104>
+ 		for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 		{
+ 			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)i);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=813

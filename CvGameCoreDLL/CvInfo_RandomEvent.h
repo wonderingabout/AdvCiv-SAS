@@ -85,6 +85,9 @@ public: // All the const functions returning primitive types are exposed to Pyth
 	int getUnitClassPromotion(int i) const;
 	const CvWString& getWorldNews(int i) const;
 	int getNumWorldNews() const;
+	// <!-- custom: Boost.Python bindings should not expose const CvWString& directly without a return-value policy; provide wstring wrappers for EventInfo text fields. (GPT-5.3-Codex) -->
+	std::wstring pyGetWorldNews(int i) const { return getWorldNews(i); }
+	// <!-- custom: end - Boost.Python bindings should not expose const CvWString& directly without a return-value policy; provide wstring wrappers for EventInfo text fields. (GPT-5.3-Codex) -->
 
 	// <advc.003t> Replacing vectors of tuples
 	DEF_INFO_ENUM2SHORT_MAP(BuildingYieldChange, BuildingClass, Yield, YieldChangeMap, NonDefaultEnumMap);
@@ -101,6 +104,28 @@ public: // All the const functions returning primitive types are exposed to Pyth
 	const wchar* getQuestFailTextKey() const;
 	const wchar* getOtherPlayerPopup() const;
 	const wchar* getLocalInfoTextKey() const;
+	// <!-- custom: add getters for sevopedia eventtrigger -->
+	std::wstring pyGetUnitNameKey()
+	{
+		const wchar* szKey = getUnitNameKey();
+		return (szKey != NULL ? szKey : L"");
+	}
+	std::wstring pyGetQuestFailTextKey()
+	{
+		const wchar* szKey = getQuestFailTextKey();
+		return (szKey != NULL ? szKey : L"");
+	}
+	std::wstring pyGetOtherPlayerPopup()
+	{
+		const wchar* szKey = getOtherPlayerPopup();
+		return (szKey != NULL ? szKey : L"");
+	}
+	std::wstring pyGetLocalInfoTextKey()
+	{
+		const wchar* szKey = getLocalInfoTextKey();
+		return (szKey != NULL ? szKey : L"");
+	}
+	// <!-- custom: end - add getters for sevopedia eventtrigger -->
 	#if ENABLE_XML_FILE_CACHE
 	void read(FDataStreamBase* );
 	void write(FDataStreamBase* );
@@ -257,6 +282,10 @@ public: // All the const functions returning primitive types are exposed to Pyth
 	int getNumTexts() const;
 	const CvWString& getWorldNews(int i) const;
 	int getNumWorldNews() const;
+	// <!-- custom: Boost.Python bindings should not expose const CvWString& directly without a return-value policy; provide wstring wrappers for EventTrigger text fields. (GPT-5.3-Codex) -->
+	std::wstring pyGetText(int i) const { return getText(i); }
+	std::wstring pyGetWorldNews(int i) const { return getWorldNews(i); }
+	// <!-- custom: end - Boost.Python bindings should not expose const CvWString& directly without a return-value policy; provide wstring wrappers for EventTrigger text fields. (GPT-5.3-Codex) -->
 
 	bool isSinglePlayer() const;
 	bool isTeam() const;

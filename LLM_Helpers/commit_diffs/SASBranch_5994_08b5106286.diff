@@ -1,0 +1,58 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5994
+# Commit: 08b51062869d340dbc37df3596cc0bd9cb461d28
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d52228ce31f8ecdd52b35d322a3433b4ff9bd6cd
+# Title: Prevent AI all-in culture pursuit when another active victory countdown is faster
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+7	0	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0ba6f3a0f..6b0330094 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -26342,6 +26342,13 @@ int CvPlayerAI::AI_calculateCultureVictoryStage(int iCountdownThresh) const // a
+ 			return 1;
+ 		}
+ 	}
++	// <!-- custom: Map 428 showed Mali enter Culture 3 and set 100% culture with a projected 106-turn cultural bottleneck while its already-launched Space victory had only 4 turns remaining. An active victory countdown is more concrete than a projected cultural finish; when it is shorter, retain Culture 1/local culture but do not divert empire-wide production, specialists, or commerce into Culture 2/3/4. Use the team's lowest countdown so the same protection applies to any victory type with a real countdown. (GPT-5.5) -->
++	int const iOwnVictoryCountdown = kTeam.AI_getLowestVictoryCountdown();
++	if (!isHuman() && iOwnVictoryCountdown >= 0 && iOwnVictoryCountdown < iWinningCountdown)
++	{
++		if (bLogCultureStage) logBBAI("CULTURE_STAGE_RESULT turn=%d player=%d %S countdownThresh=%d stage=1 reason=shorterActiveVictoryCountdown activeVictoryCountdown=%d cultureWinningCountdown=%d high=%d close=%d legendary=%d needed=%d", kGame.getGameTurn(), getID(), getCivilizationShortDescription(), iCountdownThresh, iOwnVictoryCountdown, (iWinningCountdown < MAX_INT ? iWinningCountdown : -1), iHighCultureCount, iCloseToLegendaryCount, iLegendaryCount, iVictoryCities);
++		return 1;
++	}
+ 	if (iCloseToLegendaryCount >= iVictoryCities ||
+ 		//getCurrentEra() >= (GC.getNumEraInfos() - (2 + AI_getStrategyRand(1) % 2))
+ 		// K-Mod (note: this matches the above)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index b0ca4e799..0de7cdc94 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -181,6 +181,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ - (Requires AdvCiv-SAS 5984+) **AI prioritizes a more advanced victory plan over an unprepared cultural bid:** when an AI has advanced far enough (a tunable AI Victory Stage as of now >= 3 (out of max 4) by default) toward another victory (Space, Conquest, Domination, or Diplomatic), it no longer diverts production, specialists, and commerce into serious cultural-victory spending unless all 3 required Legendary-city candidates are already advanced enough to keep culture credible. Ordinary local-border culture remains unaffected, and an AI already close to winning culturally can still finish the job. In a confirming map-437 BBAI test, this stopped Rome's serious cultural spending 17 times after it reached Domination 3, when only 1 of its 3 required culture cities was advanced and a cultural win remained 499 to 737 turns away. Rome could still experiment with culture before Domination 3, while Spain remained free to pursue culture because it had no similarly advanced alternative victory.
+ - (Requires AdvCiv-SAS 5985+) **AI abandons clearly impossible cultural deadlines sooner:** once all 3 required cities have progressed far enough to produce a complete estimate at the maximum affordable culture slider, the AI now immediately compares its slowest city with the estimated turns remaining instead of waiting for the late game. AI drops from serious Culture 2+ investment to Culture 1 when the estimate exceeds the tunable grace (as of now 125% of the remaining turns): it stops victory-specific cultural spending for now, preserves ordinary local-border culture, and can reconsider later if conditions improve. Before all 3 prospective Legendary cities are developed enough for a reliable estimate, Culture 2 remains available to help the least-developed of them catch up. Unlike the previous change, this does not require another victory plan to be more advanced; an impossible cultural timeline is enough. Another map-437 test's BBAI logging confirmed Spain entered Culture 2 while its third prospective Legendary city was still too undeveloped for a reliable three-city finish estimate; on one such turn, it raised the culture slider to 30% and gave that lagging city the strongest culture priority. Once all 3 cities could be estimated, even the maximum affordable culture slider projected that Spain needed 398 to 401 turns to win culturally, but only 170 to 171 turns remained, so the AI stopped serious cultural spending.
+ - (Requires AdvCiv-SAS 5986+) **Cultural-victory production focus follows the actual Legendary-city targets:** during Culture 2, Base AdvCiv exempted the 4 cities with the highest current culture rates from some routine military production choices, intending to leave more of their production available for cultural development. This could exempt cities that needed no additional cultural help while an actual lagging Legendary-city target continued performing routine production duties. The AI now aligns the culture-production role with victory candidates: it grants this exemption only to the 3 required candidates that still have positive bottleneck-balanced culture investment; other cities remain available for ordinary production. In other map-437 runs, BBAI logging showed the old rule granted 21 logged production exemptions: 14 involved cities that the balancing logic judged needed no further victory-specific culture, and 6 involved cities outside the selected top 3. After the change, all 4 observed exemptions went to active candidates, and every candidate that qualified received the exemption.
++- (Requires AdvCiv-SAS 5994+) **AI prioritizes a faster active victory countdown instead of switching to an all-in cultural pursuit:** an active victory countdown is more reliable than a projected cultural finish. When the AI has already started such a countdown and it is shorter than the estimated turns needed for its slowest prospective Legendary city, the AI now remains at Culture 1 instead of entering Culture 2/3/4. This prevents victory-specific production, specialist, and commerce spending while preserving ordinary local culture and culture-slider spending needed for happiness. Map-428 BBAI logging originally showed Mali enter Culture 3 and set its culture slider to 100% despite needing an estimated 106 turns to win culturally while its launched Space victory had only 4 turns remaining. In the confirming run (i.e. after the change), the new rule fired throughout the final `4 -> 1` Space countdown while culture remained 65-64 turns away: Mali stayed at Culture 1, used only 0-30% culture for happiness, ran no culture process, and continued producing military units.
+ 
+ #### Bonuses (AI)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=6681

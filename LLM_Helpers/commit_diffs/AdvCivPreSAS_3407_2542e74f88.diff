@@ -1,0 +1,139 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3407
+# Commit: 2542e74f88408655b34c3d896fa92ca749b81367
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 328d12c51a4ddc178aafca8cba16943dfdb603fa
+# Title: AP grants only +1 production, costs 350, has 2 Priest slots
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+23	9	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	1	Assets/XML/GameInfo/CIV4VoteSourceInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 72fedff73..b02854f1a 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -14658,7 +14658,8 @@
+ 			<SpecialistCounts>
+ 				<SpecialistCount>
+ 					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+-					<iSpecialistCount>3</iSpecialistCount>
++					<!-- advc.179: was 3 -->
++					<iSpecialistCount>2</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+@@ -15394,7 +15395,8 @@
+ 			<SpecialistCounts>
+ 				<SpecialistCount>
+ 					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+-					<iSpecialistCount>3</iSpecialistCount>
++					<!-- advc.179: was 3 -->
++					<iSpecialistCount>2</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+@@ -16130,7 +16132,8 @@
+ 			<SpecialistCounts>
+ 				<SpecialistCount>
+ 					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+-					<iSpecialistCount>3</iSpecialistCount>
++					<!-- advc.179: was 3 -->
++					<iSpecialistCount>2</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+@@ -16866,7 +16869,8 @@
+ 			<SpecialistCounts>
+ 				<SpecialistCount>
+ 					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+-					<iSpecialistCount>3</iSpecialistCount>
++					<!-- advc.179: was 3 -->
++					<iSpecialistCount>2</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+@@ -17602,7 +17606,8 @@
+ 			<SpecialistCounts>
+ 				<SpecialistCount>
+ 					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+-					<iSpecialistCount>3</iSpecialistCount>
++					<!-- advc.179: was 3 -->
++					<iSpecialistCount>2</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+@@ -18338,7 +18343,8 @@
+ 			<SpecialistCounts>
+ 				<SpecialistCount>
+ 					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+-					<iSpecialistCount>3</iSpecialistCount>
++					<!-- advc.179: was 3 -->
++					<iSpecialistCount>2</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+@@ -19074,7 +19080,8 @@
+ 			<SpecialistCounts>
+ 				<SpecialistCount>
+ 					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
+-					<iSpecialistCount>3</iSpecialistCount>
++					<!-- advc.179: was 3 -->
++					<iSpecialistCount>2</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+@@ -28832,7 +28839,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>400</iCost>
++			<!-- advc.179: was 400 -->
++			<iCost>350</iCost>
+ 			<iHurryCostModifier>300</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>3</iAdvancedStartCostIncrease>
+@@ -28912,7 +28920,13 @@
+ 			<StateReligionCommerces/>
+ 			<CommerceHappinesses/>
+ 			<ReligionChanges/>
+-			<SpecialistCounts/>
++			<!-- advc.179: was 0 -->
++			<SpecialistCounts>
++				<SpecialistCount>
++					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
++					<iSpecialistCount>2</iSpecialistCount>
++				</SpecialistCount>
++			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners>
+
+diff --git a/Assets/XML/GameInfo/CIV4VoteSourceInfos.xml b/Assets/XML/GameInfo/CIV4VoteSourceInfos.xml
+index 7357036e8..09003fce1 100644
+--- a/Assets/XML/GameInfo/CIV4VoteSourceInfos.xml
++++ b/Assets/XML/GameInfo/CIV4VoteSourceInfos.xml
+@@ -27,7 +27,8 @@
+ 			<Civic>NONE</Civic>
+ 			<ReligionYields>
+ 				<iYield>0</iYield>
+-				<iYield>2</iYield>
++				<!-- advc.179: was 2 -->
++				<iYield>1</iYield>
+ 				<iYield>0</iYield>
+ 			</ReligionYields>
+ 			<ReligionCommerces/>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3782

@@ -1,0 +1,269 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1555
+# Commit: 39949af85fb9d9c910a8d2bcd3ddec89bbfa1e78
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 25ab86c584a832bc82356558e1e9ed2b6aecf036
+# Title: Set assertion and profiling macros to (void)0 when disabled
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+3	3	CvGameCoreDLL/CvFractal.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvMap.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+2	2	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.cpp
+2	2	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+5	4	CvGameCoreDLL/FAssert.h
+6	6	CvGameCoreDLL/FProfiler.h
+1	1	CvGameCoreDLL/RiseFall.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 3c311cdfd..bed314a1b 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1056,7 +1056,7 @@ int CvCity::calculateBaseYieldRate(YieldTypes y) {
+ // <advc.003> Code cut and pasted from CvPlot::doCulture; also refactored.
+ void CvCity::doRevolt() {
+ 
+-	PROFILE("CvCity::doRevolts()")
++	PROFILE("CvCity::doRevolts()");
+ 	// <advc.023>
+ 	double prDecr = probabilityOccupationDecrement();
+ 	if(::bernoulliSuccess(prDecr, "advc.023")) {
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index a3f36c89a..d52bcb5c3 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -12545,7 +12545,7 @@ int CvCityAI::AI_cityThreat(bool bDangerPercent)
+ int CvCityAI::AI_calculateSettlerPriority(int iAreaSites, int iBestAreaFoundValue,
+ 		int iWaterAreaSites, int iBestWaterAreaFoundValue) const {
+ 
+-	FAssert(iAreaSites + iWaterAreaSites > 0)
++	FAssert(iAreaSites + iWaterAreaSites > 0);
+ 	if(iAreaSites <= 0)
+ 		return 60; // Don't really want to pace AI colonization
+ 	int r = 19;
+
+diff --git a/CvGameCoreDLL/CvFractal.cpp b/CvGameCoreDLL/CvFractal.cpp
+index 6612c617a..83576f2ed 100644
+--- a/CvGameCoreDLL/CvFractal.cpp
++++ b/CvGameCoreDLL/CvFractal.cpp
+@@ -107,10 +107,10 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
+ 
+ 	int iHintsWidth = (1 << (m_iFracXExp - iSmooth)) + ((m_iFlags & FRAC_WRAP_X) ? 0 : 1);
+ 	int iHintsHeight = (1 << (m_iFracYExp - iSmooth)) + ((m_iFlags & FRAC_WRAP_Y) ? 0 : 1);
+-	if (pbyHints != NULL)
+-		FAssertMsg(iHintsLength == iHintsWidth*iHintsHeight, "pbyHints is the wrong size!")
+ 
+-	int iPolarHeight = polarHeight(); // advc.tsl
++	FAssertMsg(pbyHints == NULL || iHintsLength == iHintsWidth*iHintsHeight, "pbyHints is the wrong size!");
++
++	int const iPolarHeight = polarHeight(); // advc.tsl
+ 
+ 	for (int iPass = iSmooth; iPass >= 0; iPass--)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 18107ebf3..0d3605726 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -12910,7 +12910,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity& city)
+ 
+ 	szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_TOTAL_HAPPY", iTotalHappy));
+ 
+-	FAssert(iTotalHappy == city.happyLevel())
++	FAssert(iTotalHappy == city.happyLevel());
+ }
+ 
+ // BUG - Building Additional Happiness - start
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 277a18a73..83ec4bfc8 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -309,7 +309,7 @@ void CvMap::setAllPlotTypes(PlotTypes ePlotType)
+ // XXX generalize these funcs? (macro?)
+ void CvMap::doTurn()
+ {
+-	PROFILE("CvMap::doTurn()")
++	PROFILE("CvMap::doTurn()");
+ 
+ 	for(int iI = 0; iI < numPlotsINLINE(); iI++)
+ 		plotByIndexINLINE(iI)->doTurn();
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3c3e5008b..63e7889ec 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14107,7 +14107,7 @@ void CvPlayer::doGold()
+ 		{
+ 			int iDisbandUnit = (getStrikeTurns() / 2); // XXX mod?
+ 			// advc.131: Can happen, but should be quite rare.
+-			FAssert(isHuman())
++			FAssert(isHuman());
+ 			for (int iI = 0; iI < iDisbandUnit; iI++)
+ 			{
+ 				disbandUnit(true);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 1d86f72e4..ad6a3fd87 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3166,7 +3166,7 @@ void CvPlot::invalidateBorderDangerCache()
+ PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureRange,
+ 		bool bOwnExclusiveRadius) const // advc.035
+ {
+-	PROFILE("CvPlot::calculateCulturalOwner()")
++	PROFILE("CvPlot::calculateCulturalOwner()");
+ 	int iI;
+ 	/*  advc.001: When a city is captured, the tiles in its culture range (but I
+ 		think not the city plot itself) are set to unowned for 2 turns. This leads
+@@ -8326,7 +8326,7 @@ void CvPlot::setScriptData(const char* szNewValue)
+ 
+ void CvPlot::doFeature()
+ {
+-	PROFILE("CvPlot::doFeature()")
++	PROFILE("CvPlot::doFeature()");
+ 
+ 	if (getFeatureType() != NO_FEATURE)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 20def8c19..4fe4ef5ee 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -4213,7 +4213,7 @@ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToP
+ 	FAssert(const_cast<CvSelectionGroup*>(this)->AI_isControlled());
+ 	// K-Mod end
+ 
+-	PROFILE("CvSelectionGroup::generatePath()")
++	PROFILE("CvSelectionGroup::generatePath()");
+ 
+ 	if (pFromPlot == NULL || pToPlot == NULL)
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 965691a66..75e4b2585 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1131,7 +1131,7 @@ void CvTeam::processBuilding(BuildingTypes eBuilding, int iChange)
+ 
+ void CvTeam::doTurn()
+ {
+-	PROFILE("CvTeam::doTurn()")
++	PROFILE("CvTeam::doTurn()");
+ 
+ 	FAssert(isAlive());
+ 	FAssert(countWarEnemies() == m_iMajorWarEnemies); // advc.003m
+@@ -4585,7 +4585,7 @@ bool CvTeam::isVassal(TeamTypes eMaster) const  // advc.003: param was called eI
+ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
+ {
+ 	FASSERT_BOUNDS(0, MAX_CIV_TEAMS, eMaster, "CvTeam::setVassal");
+-	FAssertMsg(!bNewValue || !GET_TEAM(eMaster).isAVassal(), "can't become a vassal of a vassal")
++	FAssertMsg(!bNewValue || !GET_TEAM(eMaster).isAVassal(), "can't become a vassal of a vassal");
+ 	bool bWasCapitulated = isCapitulated(); // advc.130v
+ 	/*  <advc.003> If this function is used for turning capitulated into
+ 		voluntary vassals at some point, then the code for processing this change
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 23c8357c7..224eac200 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -739,7 +739,7 @@ void CvUnit::NotifyEntity(MissionTypes eMission)
+ 
+ void CvUnit::doTurn()
+ {
+-	PROFILE("CvUnit::doTurn()")
++	PROFILE("CvUnit::doTurn()");
+ 
+ 	FAssertMsg(!isDead(), "isDead did not return false as expected");
+ 	FAssertMsg(getGroup() != NULL, "getGroup() is not expected to be equal with NULL");
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d941ddebd..33a8b937c 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -10080,7 +10080,7 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ 							&& (pLoopGroup->AI_getMissionAIType() != MISSIONAI_GUARD_CITY || !pLoopGroup->plot()->isCity() || pLoopGroup->plot()->plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_CITY, -1, getOwnerINLINE()) > pLoopGroup->plot()->getPlotCity()->AI_minDefenders())
+ 							)
+ 						{
+-							FAssert(!pPlot->isVisibleEnemyUnit(this))
++							FAssert(!pPlot->isVisibleEnemyUnit(this));
+ 							if (iOurImpassableCount > 0 || AI_getUnitAIType() == UNITAI_ASSAULT_SEA)
+ 							{
+ 								int iTheirImpassableCount = 0;
+
+diff --git a/CvGameCoreDLL/FAssert.h b/CvGameCoreDLL/FAssert.h
+index 362d8511b..ea35c1a08 100644
+--- a/CvGameCoreDLL/FAssert.h
++++ b/CvGameCoreDLL/FAssert.h
+@@ -72,10 +72,11 @@ bool FAssertDlg( const char*, const char*, const char*, unsigned int, bool& );
+ 	}
+ // K-Mod end
+ #else
+-// FASSERT_ENABLE not defined
+-#define FAssert( expr )
+-#define FAssertMsg( expr, msg )
+-#define FASSERT_BOUNDS(lower,upper,index,fnString) // K-Mod
++// FASSERT_ENABLE not defined		advc.006c: void(0) added
++#define FAssert( expr ) (void)0
++#define FAssertMsg( expr, msg ) (void)0
++// K-Mod:
++#define FASSERT_BOUNDS(lower,upper,index,fnString) (void)0
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/FProfiler.h b/CvGameCoreDLL/FProfiler.h
+index 75eff3ec4..b2ad334dd 100644
+--- a/CvGameCoreDLL/FProfiler.h
++++ b/CvGameCoreDLL/FProfiler.h
+@@ -132,12 +132,12 @@ private:
+ 
+ #define PROFILE_STACK_DUMP ;
+ #endif
+-#else
+-#define PROFILE(name)				// Remove profiling code
+-#define PROFILE_BEGIN(name)
+-#define PROFILE_END()
+-#define PROFILE_FUNC()
+-#define PROFILE_STACK_DUMP ;
++#else // Remove profiling code		advc.006c: void(0) added
++#define PROFILE(name) (void)0
++#define PROFILE_BEGIN(name) (void)0
++#define PROFILE_END() (void)0
++#define PROFILE_FUNC() (void)0
++#define PROFILE_STACK_DUMP (void)0
+ #endif
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index dab268f24..78571059d 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -1315,7 +1315,7 @@ void RiseFall::handleCivSelection(PlayerTypes selectedCiv) {
+ 
+ 	int pos = getCurrentChapter();
+ 	if(pos < 0) {
+-		FAssert(pos >= 0)
++		FAssert(pos >= 0);
+ 		return;
+ 	}
+ 	if(getCivChapter(selectedCiv) >= 0)
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=8709

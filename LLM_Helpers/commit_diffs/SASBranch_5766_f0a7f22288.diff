@@ -1,0 +1,332 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5766
+# Commit: f0a7f22288da7fc9c49119f94a20575835e2a4f5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 254194766d386cafbad9fb5029047de0e90bb101
+# Title: add end effective strength so it is distinct from start effective str
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+6	0	Assets/Python/CvEventManager.py
+17	0	Assets/Python/SASBattleHistory.py
+46	34	Assets/Python/Screens/CvMilitaryAdvisor.py
+7	0	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index dd558d55e..50c1150ab 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -163,7 +163,8 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Avoid fluff like `================`, keep it nice and simple and clean.
+ - Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
+ - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
+-- Note: sometimes our files have a mix of CRLF/LF in them causing next commit to have a massive git diff (e.g., 240 insertions(+), 240 deletions(-) when there is in fact no change) when VS Code or maybe the LLM tries to next modify it, and this is a problem because it pollutes diff and makes it hard to read. Empirically, it happened to [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) or [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and we could resolve it by adding a newline at end of file, saving, then deleting it (not undoing, so we preserve the change) or some other minor modifications (this is likely why VS Code shows no diff lines changed but the file is still not removed from changed files), then git staging this file only, committing it so the massive noisy diff normalizes, and then reapplying our proper file (note that you need to reapply it in same expected format, usually CRLF not LF, else you'd have every line to be a diff (git would assume we changed it all from CRLF to LF)). On your end, let the user handle it, as it is cheaper in tokens and more reliable, but inform the user if you notice it.
++- Note: codex's shell/tool output likely sometimes displays mojibake for characters that look correct in VS Code or git diff (e.g., smart quotes shown as `â€œ` / `â€`) hence the user/LLM mismatch. Do not "fix" encoding based only on the terminal/tool rendering; rely on VS Code (user feedback) or git diff if they show the file cleanly.
++- Note: sometimes our files have a mix of CRLF/LF in them causing next commit to have a massive git diff (e.g., 240 insertions(+), 240 deletions(-) when there is in fact no change) when VS Code or maybe the LLM tries to next modify it, and this is a problem because it pollutes diff and makes it hard to read. Empirically, it happened to [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) or [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and we could resolve it by adding a newline at end of file, saving, then deleting it (not undoing, so we preserve the change) or some other minor modifications (this is likely why VS Code shows no diff lines changed but the file is still not removed from changed files), then git staging this file only, committing it so the massive noisy diff normalizes, and then reapplying our proper file (note that you need to reapply it in same expected format, usually CRLF not LF, else you'd have every line to be a diff (git would assume we changed it all from CRLF to LF)). This is likely caused by codex's apply patching tool (git bash shows `warning: in the working copy of 'AGENTS.md', LF will be replaced by CRLF the next time Git touches it` after codex's one line modification). On your end, don't mind it and let the user handle it, as it is cheaper in tokens and more reliable, but inform the user if you notice it. Use `git diff --ignore-space-at-eol --stat` and `git diff --ignore-space-at-eol -- <file>` to continue your work and review the semantic changes, then let the user handle EOL cleanup afterwards unless explicitly asked.
+ 
+ ### Python (Civ4)
+ 
+@@ -191,7 +192,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Move XML texts we modify from other files to our AdvCiv-SAS files too and remove other languages while doing so.
+ - Avoid to comment in deep-nested XML just in case. For example, comment before `<ObsoleteSafeCommerceChanges>`, not before its child `<iCommerce>`.
+ - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
+-- Prefer UTF-8 as it's simple and seemingly works well enough; avoid UTF-8 with BOM as it can cause mojibake artifacts like `â€”it` or `â€™` or other issues.
++- Prefer UTF-8 as it's simple and seemingly works well enough; avoid UTF-8 with BOM as it can cause actual mojibake artifacts like `â€”it` or `â€™` the user sees on VS Code or other issues.
+ - Exception: preserve each XML file's existing encoding if it's not UTF-8; do not convert encodings unless explicitly requested for no tedium and as we have no reason to (e.g., keep legacy Windows-1252 files such as BUG XML files as-is), plus this would have a high chance of causing formatting errors otherwise.
+ - Note and additional observation: the codex formatter seems unreliable and inconsistent with what users see (e.g., showing the LLM model a BOM text when user sees a non BOM one, causing mismatches and weird git diff: refer to git diff or what base AdvCiv mod uses as format if in doubt).
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/CvEventManager.py b/Assets/Python/CvEventManager.py
+index b3b50c179..72843e9e5 100644
+--- a/Assets/Python/CvEventManager.py
++++ b/Assets/Python/CvEventManager.py
+@@ -117,6 +117,7 @@ class CvEventManager:
+ 			'EndPlayerTurn'			: self.onEndPlayerTurn,
+ 			'endTurnReady'			: self.onEndTurnReady,
+ 			'combatResult' 			: self.onCombatResult,
++			'sasBattleHistoryCombatDetails'	: self.onSASBattleHistoryCombatDetails,
+ 			'combatLogCalc'	 		: self.onCombatLogCalc,
+ 			'combatLogHit'				: self.onCombatLogHit,
+ 			'improvementBuilt' 		: self.onImprovementBuilt,
+@@ -395,6 +396,11 @@ class CvEventManager:
+ 		iCombatOdds = genericArgs[2]
+ 		CvUtil.combatMessageBuilder(cdAttacker, cdDefender, iCombatOdds)
+ 
++	def onSASBattleHistoryCombatDetails(self, argsList):
++		# <!-- custom: fill Military Advisor battle history role/strength data for all combats, including AI-vs-AI rows visible through debug or active-player vassal selection, without running player-facing combatLogCalc messages for hidden battles. (GPT-5.5) -->
++		genericArgs = argsList[0][0]
++		SASBattleHistory.noteCombatActors(genericArgs[0], genericArgs[1])
++
+ 	def onCombatLogHit(self, argsList):
+ 		'Combat Message'
+ 		global gCombatMessages, gCombatLog
+
+diff --git a/Assets/Python/SASBattleHistory.py b/Assets/Python/SASBattleHistory.py
+index ea6bb08fc..b9946226b 100644
+--- a/Assets/Python/SASBattleHistory.py
++++ b/Assets/Python/SASBattleHistory.py
+@@ -13,6 +13,7 @@ _ENTRIES_KEY = "entries"
+ _MAX_ENTRIES = None
+ _PENDING_COMBAT_ACTORS = None
+ _CAPTURE_DATA_START = 13
++_END_STRENGTH_DATA_START = 16
+ 
+ # <!-- custom: BugData persists this table in the save without DLL or save-format changes; old saves simply start with no rows and record battles from the first combat after loading. Store rows per player because advisor perspective can change. (GPT-5.5) -->
+ 
+@@ -92,6 +93,12 @@ def _getEntryWithCapture(entry, iCapturingPlayer, iCapturedUnitType):
+ 	return tuple(aEntry)
+ 
+ 
++def _getUnitEndCombatStr(pUnit, iMaxCombatStr):
++	if iMaxCombatStr <= 0 or pUnit.maxHitPoints() <= 0:
++		return 0
++	return (iMaxCombatStr * pUnit.currHitPoints()) / pUnit.maxHitPoints()
++
++
+ def _matchesCapturedBattle(entry, iCapturingPlayer, iOldOwner, iOldUnitType):
+ 	if len(entry) < 7:
+ 		return False
+@@ -144,6 +151,16 @@ def recordCombatResult(pWinner, pLoser):
+ 		# <!-- custom: only attach combat-log strength data when its attacker/defender owners match this combat result, so a stale pending tuple from an interrupted/odd combat cannot corrupt the next row. Credit: Claude code Opus 4.7 review. (GPT-5.5) -->
+ 		if (iAttacker == iWinner and iDefender == iLoser) or (iAttacker == iLoser and iDefender == iWinner):
+ 			entry += _PENDING_COMBAT_ACTORS
++			iAttackerEndStr = 0
++			iDefenderEndStr = 0
++			# <!-- custom: combatResult fires after combat damage is applied, so store battle-end effective strength here; capture data still lives before this block for compatibility with the previous saved tuple layout. (GPT-5.5) -->
++			if iAttacker == iWinner:
++				iAttackerEndStr = _getUnitEndCombatStr(pWinner, _PENDING_COMBAT_ACTORS[3])
++			else:
++				iDefenderEndStr = _getUnitEndCombatStr(pWinner, _PENDING_COMBAT_ACTORS[5])
++			while len(entry) < _END_STRENGTH_DATA_START:
++				entry += (0,)
++			entry += (iAttackerEndStr, iDefenderEndStr)
+ 	_PENDING_COMBAT_ACTORS = None
+ 	entriesByPlayer = _getEntriesByPlayer()
+ 	_appendEntry(entriesByPlayer, iWinner, entry, iMaxEntries)
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 7337b110d..588a8538b 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -51,7 +51,7 @@ class CvMilitaryAdvisor:
+ 		self.DEBUG_DROPDOWN_ID = "MilitaryAdvisorBattleDropdownWidget"
+ 		self.BATTLE_TABLE_ID = "MilitaryAdvisorBattleTable"
+ 		self.BATTLE_LOG_BUTTON_ID = "MilitaryAdvisorBattleLogButton"
+-		self.BATTLE_PLOT_COL_ID = 17
++		self.BATTLE_PLOT_COL_ID = 19
+ 		self.PAGE_UNITS = 0
+ 		self.PAGE_BATTLES = 1
+ 		self.iActivePage = self.PAGE_UNITS
+@@ -313,14 +313,19 @@ class CvMilitaryAdvisor:
+ 			iAttacker = entry[7]
+ 			iDefender = entry[8]
+ 		iAttackerCurrStr = 0
++		iAttackerEndStr = 0
+ 		iAttackerMaxStr = 0
+ 		iDefenderCurrStr = 0
++		iDefenderEndStr = 0
+ 		iDefenderMaxStr = 0
+ 		if len(entry) >= 13:
+ 			iAttackerCurrStr = entry[9]
+ 			iAttackerMaxStr = entry[10]
+ 			iDefenderCurrStr = entry[11]
+ 			iDefenderMaxStr = entry[12]
++		if len(entry) >= 18:
++			iAttackerEndStr = entry[16]
++			iDefenderEndStr = entry[17]
+ 		if iAttacker == iWinner and iDefender == iLoser:
+ 			iAttackerUnit = iWinnerUnit
+ 			iDefenderUnit = iLoserUnit
+@@ -334,13 +339,13 @@ class CvMilitaryAdvisor:
+ 			iDefender = iLoser
+ 			iAttackerUnit = iWinnerUnit
+ 			iDefenderUnit = iLoserUnit
+-		return (iTurn, szResult, iColor, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderMaxStr, iX, iY)
++		return (iTurn, szResult, iColor, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iX, iY)
+ 
+ 	def getBattlePerspectiveColumns(self, entry):
+ 		tColumns = self.getBattleEntryColumns(entry)
+ 		if tColumns is None:
+ 			return None
+-		iTurn, szResult, iColor, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderMaxStr, iX, iY = tColumns
++		iTurn, szResult, iColor, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iX, iY = tColumns
+ 		iWinner = entry[1]
+ 		iLoser = entry[2]
+ 		bRoleKnown = False
+@@ -352,12 +357,12 @@ class CvMilitaryAdvisor:
+ 			iOurRole = -1
+ 			if bRoleKnown:
+ 				iOurRole = 1
+-			return (iTurn, szResult, iColor, iOurRole, iAttackerUnit, iAttackerCurrStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderMaxStr, iX, iY) + self.getBattleCapturePerspective(entry)
++			return (iTurn, szResult, iColor, iOurRole, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iX, iY) + self.getBattleCapturePerspective(entry)
+ 		if iDefender == self.iActivePlayer:
+ 			iOurRole = -1
+ 			if bRoleKnown:
+ 				iOurRole = 0
+-			return (iTurn, szResult, iColor, iOurRole, iDefenderUnit, iDefenderCurrStr, iDefenderMaxStr, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerMaxStr, iX, iY) + self.getBattleCapturePerspective(entry)
++			return (iTurn, szResult, iColor, iOurRole, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iX, iY) + self.getBattleCapturePerspective(entry)
+ 		return None
+ 
+ 	def getBattleCapturePerspective(self, entry):
+@@ -429,7 +434,7 @@ class CvMilitaryAdvisor:
+ 		iTableW = iW - 2 * self.MAP_MARGIN
+ 		iTableH = iH - 2 * self.MAP_MARGIN
+ 		self.BATTLE_ROW_PLOTS = {}
+-		screen.addTableControlGFC(self.BATTLE_TABLE_ID, 18, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addTableControlGFC(self.BATTLE_TABLE_ID, 20, iTableX, iTableY, iTableW, iTableH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
+ 		screen.enableSort(self.BATTLE_TABLE_ID)
+ 		screen.setStyle(self.BATTLE_TABLE_ID, "Table_StandardCiv_Style")
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 0, self.TEXT_BATTLE_TURN, 55)
+@@ -441,23 +446,26 @@ class CvMilitaryAdvisor:
+ 		iPIDColW = 38
+ 		iCaptureCountColW = iPIDColW
+ 		iCaptureUnitColW = 35
+-		iUnitColW = max(105, (iTableW - 55 - 105 - 80 - iRoleColW - iBaseColW - 78 - 78 - 35 - 35 - iPIDColW - iBaseColW - 78 - 78 - iCaptureCountColW - iCaptureUnitColW - iPlotColW) / 2)
++		iStrengthColW = 78
++		iUnitColW = max(105, (iTableW - 55 - 105 - 80 - iRoleColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - 35 - 35 - iPIDColW - iBaseColW - iStrengthColW - iStrengthColW - iStrengthColW - iCaptureCountColW - iCaptureUnitColW - iPlotColW) / 2)
+ 		# <!-- custom: show battles from the inspected player's perspective: our unit is always on the left, opponent identity stays on the right, and our repeated civ/leader/PID are omitted because the dropdown/log PerspectivePlayer already identifies us. (GPT-5.5) -->
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 3, self.TEXT_BATTLE_ROLE, iRoleColW)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 4, self.STRENGTH_CHAR + u"b", iBaseColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 5, self.STRENGTH_CHAR + u"c", 78)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 6, self.STRENGTH_CHAR + u"m", 78)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 7, self.TEXT_BATTLE_OUR_UNIT, iUnitColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 8, "", 35)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 5, self.STRENGTH_CHAR + u"s", iStrengthColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 6, self.STRENGTH_CHAR + u"e", iStrengthColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 7, self.STRENGTH_CHAR + u"m", iStrengthColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 8, self.TEXT_BATTLE_OUR_UNIT, iUnitColW)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 9, "", 35)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 10, self.TEXT_BATTLE_PID, iPIDColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 11, self.STRENGTH_CHAR + u"b", iBaseColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 12, self.STRENGTH_CHAR + u"c", 78)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 13, self.STRENGTH_CHAR + u"m", 78)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 14, self.TEXT_BATTLE_THEIR_UNIT, iUnitColW)
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 15, self.TEXT_BATTLE_CAPTURE_COUNT, iCaptureCountColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 10, "", 35)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 11, self.TEXT_BATTLE_PID, iPIDColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 12, self.STRENGTH_CHAR + u"b", iBaseColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 13, self.STRENGTH_CHAR + u"s", iStrengthColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 14, self.STRENGTH_CHAR + u"e", iStrengthColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 15, self.STRENGTH_CHAR + u"m", iStrengthColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 16, self.TEXT_BATTLE_THEIR_UNIT, iUnitColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 17, self.TEXT_BATTLE_CAPTURE_COUNT, iCaptureCountColW)
+ 		# <!-- custom: show captured unit type as a compact pedia icon rather than text. The stored row supports one captured unit type; if a future mod allows one combat to create multiple captured types, expand this column/model then. (GPT-5.5) -->
+-		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 16, "", iCaptureUnitColW)
++		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, 18, "", iCaptureUnitColW)
+ 		SASTextScale.setTableColumnHeaderLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, self.TEXT_BATTLE_PLOT, iPlotColW)
+ 		screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+ 		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
+@@ -472,7 +480,7 @@ class CvMilitaryAdvisor:
+ 		tColumns = self.getBattlePerspectiveColumns(entry)
+ 		if tColumns is None:
+ 			return
+-		iTurn, szResult, iColor, iOurRole, iOurUnit, iOurCurrStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit = tColumns
++		iTurn, szResult, iColor, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit = tColumns
+ 		iRow = screen.appendTableRow(self.BATTLE_TABLE_ID)
+ 		self.BATTLE_ROW_PLOTS[iRow] = (iX, iY)
+ 		kTheirPlayer = gc.getPlayer(iTheirPlayer)
+@@ -487,17 +495,19 @@ class CvMilitaryAdvisor:
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 3, iRow, self.getBattleRoleText(iOurRole), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 4, iRow, self.getBattleBaseStrengthText(iOurUnit), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 5, iRow, self.getBattleCurrentStrengthText(iOurCurrStr, iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 6, iRow, self.getBattleStoredStrengthText(iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 7, iRow, gc.getUnitInfo(iOurUnit).getDescription(), gc.getUnitInfo(iOurUnit).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iOurUnit, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 8, iRow, "", gc.getCivilizationInfo(iTheirCiv).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iTheirCiv, -1, CvUtil.FONT_CENTER_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 9, iRow, "", gc.getLeaderHeadInfo(iTheirLeader).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iTheirLeader, 1, CvUtil.FONT_CENTER_JUSTIFY)
+-		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 10, iRow, str(iTheirPlayer), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 11, iRow, self.getBattleBaseStrengthText(iTheirUnit), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 12, iRow, self.getBattleCurrentStrengthText(iTheirCurrStr, iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 13, iRow, self.getBattleStoredStrengthText(iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 14, iRow, gc.getUnitInfo(iTheirUnit).getDescription(), gc.getUnitInfo(iTheirUnit).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iTheirUnit, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 15, iRow, self.getBattleCaptureCountText(iCapturedCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
+-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 16, iRow, "", self.getBattleCaptureUnitButton(iCapturedCount, iCapturedUnit), eCapturedUnitWidget, iCapturedUnit, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 6, iRow, self.getBattleCurrentStrengthText(iOurEndStr, iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 7, iRow, self.getBattleStoredStrengthText(iOurMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 8, iRow, gc.getUnitInfo(iOurUnit).getDescription(), gc.getUnitInfo(iOurUnit).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iOurUnit, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 9, iRow, "", gc.getCivilizationInfo(iTheirCiv).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iTheirCiv, -1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 10, iRow, "", gc.getLeaderHeadInfo(iTheirLeader).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iTheirLeader, 1, CvUtil.FONT_CENTER_JUSTIFY)
++		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 11, iRow, str(iTheirPlayer), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 12, iRow, self.getBattleBaseStrengthText(iTheirUnit), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 13, iRow, self.getBattleCurrentStrengthText(iTheirCurrStr, iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 14, iRow, self.getBattleCurrentStrengthText(iTheirEndStr, iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 15, iRow, self.getBattleStoredStrengthText(iTheirMaxStr), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 16, iRow, gc.getUnitInfo(iTheirUnit).getDescription(), gc.getUnitInfo(iTheirUnit).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iTheirUnit, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		SASTextScale.setTableIntLabel(screen, self.BATTLE_TABLE_ID, 17, iRow, self.getBattleCaptureCountText(iCapturedCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
++		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, 18, iRow, "", self.getBattleCaptureUnitButton(iCapturedCount, iCapturedUnit), eCapturedUnitWidget, iCapturedUnit, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 	def dbgLogBattleHistory(self):
+@@ -508,24 +518,26 @@ class CvMilitaryAdvisor:
+ 		print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_BEGIN")
+ 		self.dbgLogBattleHistoryPerspectivePlayer()
+ 		self.dbgLogBattleHistoryPlayers(aEntries)
+-		print("Turn | Year | Result | Role | OurStrB | OurStrC | OurStrM | OurUnit | TheirPID | TheirStrB | TheirStrC | TheirStrM | TheirUnit | Cap# | CapUnit | X | Y")
++		print("Turn | Year | Result | Role | OurStrB | OurStrS | OurStrE | OurStrM | OurUnit | TheirPID | TheirStrB | TheirStrS | TheirStrE | TheirStrM | TheirUnit | Cap# | CapUnit | X | Y")
+ 		for entry in aEntries:
+ 			tColumns = self.getBattlePerspectiveColumns(entry)
+ 			if tColumns is None:
+ 				continue
+-			iTurn, szResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit = tColumns
+-			print("%d | %s | %s | %s | %s | %s | %s | %s | %d | %s | %s | %s | %s | %d | %s | %d | %d" % (
++			iTurn, szResult, _, iOurRole, iOurUnit, iOurCurrStr, iOurEndStr, iOurMaxStr, iTheirPlayer, iTheirUnit, iTheirCurrStr, iTheirEndStr, iTheirMaxStr, iX, iY, iCapturedCount, iCapturedUnit = tColumns
++			print("%d | %s | %s | %s | %s | %s | %s | %s | %s | %d | %s | %s | %s | %s | %s | %d | %s | %d | %d" % (
+ 				iTurn,
+ 				self.getTurnDate(iTurn),
+ 				szResult,
+ 				self.getBattleRoleText(iOurRole),
+ 				self.getBattleBaseStrengthText(iOurUnit),
+ 				self.getBattleStoredStrengthText(iOurCurrStr),
++				self.getBattleStoredStrengthText(iOurEndStr),
+ 				self.getBattleStoredStrengthText(iOurMaxStr),
+ 				gc.getUnitInfo(iOurUnit).getDescription(),
+ 				iTheirPlayer,
+ 				self.getBattleBaseStrengthText(iTheirUnit),
+ 				self.getBattleStoredStrengthText(iTheirCurrStr),
++				self.getBattleStoredStrengthText(iTheirEndStr),
+ 				self.getBattleStoredStrengthText(iTheirMaxStr),
+ 				gc.getUnitInfo(iTheirUnit).getDescription(),
+ 				iCapturedCount,
+@@ -548,7 +560,7 @@ class CvMilitaryAdvisor:
+ 			tColumns = self.getBattlePerspectiveColumns(entry)
+ 			if tColumns is None:
+ 				continue
+-			iTheirPlayer = tColumns[7]
++			iTheirPlayer = tColumns[8]
+ 			if iTheirPlayer not in aiPlayers:
+ 				aiPlayers.append(iTheirPlayer)
+ 		aiPlayers.sort()
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 510bf30c6..def1f092f 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1139,6 +1139,13 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ 	getDefenderCombatValues(*pDefender, pPlot, iAttackerStrength, iAttackerFirepower,
+ 			iDefenderOdds, iDefenderStrength, iAttackerDamage, iDefenderDamage,
+ 			&cdDefenderDetails);
++	// <!-- custom: record attacker/defender combat details for every battle so the Military Advisor Battles tab has full strength/role data when selecting vassals or debug players. Keep this separate from combatLogCalc, which is player-facing and still only fires for active-player combat. (GPT-5.5) -->
++	{
++		CyArgsList pyArgsSASBattleDetails;
++		pyArgsSASBattleDetails.add(gDLL->getPythonIFace()->makePythonObject(&cdAttackerDetails));
++		pyArgsSASBattleDetails.add(gDLL->getPythonIFace()->makePythonObject(&cdDefenderDetails));
++		CvEventReporter::getInstance().genericEvent("sasBattleHistoryCombatDetails", pyArgsSASBattleDetails.makeFunctionArgs());
++	}
+ 	int iAttackerKillOdds = iDefenderOdds * (100 - withdrawalProbability()) / 100;
+ 	// advc.001: Replacing isHuman checks
+ 	if (isActiveOwned() || pDefender->isActiveOwned())
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=26946

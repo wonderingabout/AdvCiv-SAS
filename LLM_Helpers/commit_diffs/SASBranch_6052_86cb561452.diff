@@ -1,0 +1,374 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6052
+# Commit: 86cb561452df1ecda413a0b293173b0d17e9db30
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 37111e6874eb326fa68bde675dead6ab6ad2f645
+# Title: (Fixed) AdvCiv-SAS pre-war distance guard could force advantageous ongoing wars to end
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+87	5	CvGameCoreDLL/UWAIAgent.cpp
+24	16	CvGameCoreDLL/WarUtilityAspect.cpp
+14	3	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+3	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 860e218ba..e6a189062 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1406,7 +1406,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_TEAM_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Dedicated war-plan and war-target diagnostics, separated from TEAM so UWAI notably target choice, preparation review/cancellation causes and severity, target switches, direct-war adoption, and declaration context can be inspected without broad team/diplomacy logging. (GPT-5.5 + GPT-5.6-Sol) -->
++	<!-- custom: Dedicated war-plan and war-target diagnostics, separated from TEAM so UWAI notably target choice, target power per city and armies committed elsewhere, ranked-candidate rolls, preparation review/cancellation causes and severity, target switches, direct-war adoption, declaration context, and peace-review/negotiation causes can be inspected without broad team/diplomacy logging. (GPT-5.5 + GPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_WAR_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 1a78f4952..68494b4d4 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -10,6 +10,7 @@
+ #include "CvCityAI.h"
+ #include "CvDiploParameters.h"
+ #include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text and victory-stage helpers for structured war diagnostics. (GPT-5.5) -->
++#include "CvUnit.h" // <!-- custom: Required by WAR target-opportunity diagnostics that inspect candidate-team military locations. (GPT-5.6-Sol) -->
+ #include "TeamPathFinder.h"
+ #include "CvArea.h"
+ #include "RiseFall.h" // advc.705
+@@ -182,6 +183,39 @@ namespace
+ 		return (rCandidateDrive.getPercent() > rCurrentDrive.getPercent());
+ 	}
+ 
++	// <!-- custom: A rival can be an attractive target because its power is spread across too many cities or because its army is committed to another war. Count that context only inside WAR level-2 diagnostics so testing can measure these opportunities before changing UWAI target valuation. Reuse SASGameSummary's military-unit definition for consistent comparison. (GPT-5.6-Sol) -->
++	void getSASBBAITargetMilitaryPosture(TeamTypes eTarget, int& iMilitary, int& iOwnTerritory, int& iOutsideOwnTerritory, int& iEnemyTerritory, int& iInCities)
++	{
++		iMilitary = 0;
++		iOwnTerritory = 0;
++		iOutsideOwnTerritory = 0;
++		iEnemyTerritory = 0;
++		iInCities = 0;
++		for (MemberAIIter itMember(eTarget); itMember.hasNext(); ++itMember)
++		{
++			int iLoop = 0;
++			for (CvUnit const* pLoopUnit = itMember->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = itMember->nextUnit(&iLoop))
++			{
++				CvPlot const* pPlot = pLoopUnit->plot();
++				if (!pLoopUnit->canDefend(pPlot) && pLoopUnit->baseCombatStr() <= 0 && pLoopUnit->airBaseCombatStr() <= 0)
++					continue;
++				iMilitary++;
++				if (pPlot == NULL)
++					continue;
++				if (pPlot->isCity())
++					iInCities++;
++				if (pPlot->getTeam() == eTarget)
++					iOwnTerritory++;
++				else
++				{
++					iOutsideOwnTerritory++;
++					if (pPlot->getTeam() != NO_TEAM && GET_TEAM(eTarget).isAtWar(pPlot->getTeam()))
++						iEnemyTerritory++;
++				}
++			}
++		}
++	}
++
+ 	void logSASBBAIWarTargetEval(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, int iLimitedU, int iTotalU, bool bLimitedNaval, bool bTotalNaval, int iLimitedPrepTime, int iTotalPrepTime, bool bShortWork, bool bBackground)
+ 	{
+ 		CvTeamAI const& kTarget = GET_TEAM(eTarget);
+@@ -190,10 +224,14 @@ namespace
+ 		const int iAttitude = kAgent.AI_getAttitude(eTarget);
+ 		const int iAttitudeValue = kAgent.AI_getAttitudeVal(eTarget);
+ 		const int iOurPower = std::max(1, kAgent.getPower(true));
++		const int iTargetTotalPower = kTarget.getPower(true);
+ 		const int iTargetPower = kTarget.getDefensivePower(kAgent.getID());
+ 		const int iNearestCityDistance = getSASBBAINearestCityDistance(kAgent.getID(), eTarget);
+-		logBBAI("WAR_TARGET_EVAL turn=%d background=%d agentTeam=%d agentLeader=%d targetTeam=%d targetLeader=%d warPlan=%s utility=%d limitedUtility=%d totalUtility=%d limitedNaval=%d totalNaval=%d limitedPrepTurns=%d totalPrepTurns=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d landTarget=%d targetLandTarget=%d nearestCityDistance=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
+-				GC.getGame().getGameTurn(), bBackground, kAgent.getID(), eAgentLeader, eTarget, eTargetLeader, getSASWarPlanType(eWarPlan), iUtility, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), iAttitude, iAttitudeValue, kAgent.AI_teamCloseness(eTarget), kAgent.AI_isLandTarget(eTarget), kTarget.AI_isLandTarget(kAgent.getID()), iNearestCityDistance, iOurPower, iTargetPower, (100 * iTargetPower) / iOurPower, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
++		int iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities;
++		getSASBBAITargetMilitaryPosture(eTarget, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
++		logBBAI("WAR_TARGET_EVAL turn=%d background=%d agentTeam=%d agentLeader=%d targetTeam=%d targetLeader=%d warPlan=%s utility=%d limitedUtility=%d totalUtility=%d limitedNaval=%d totalNaval=%d limitedPrepTurns=%d totalPrepTurns=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d landTarget=%d targetLandTarget=%d nearestCityDistance=%d ourPower=%d targetTotalPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourPowerPerCityX100=%d targetPowerPerCityX100=%d ourWars=%d targetWars=%d targetEnemyPowerPercent=%d targetMilitary=%d targetMilitaryOwnTerritory=%d targetMilitaryOutsideOwnTerritory=%d targetMilitaryEnemyTerritory=%d targetMilitaryInCities=%d",
++				GC.getGame().getGameTurn(), bBackground, kAgent.getID(), eAgentLeader, eTarget, eTargetLeader, getSASWarPlanType(eWarPlan), iUtility, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), iAttitude, iAttitudeValue, kAgent.AI_teamCloseness(eTarget), kAgent.AI_isLandTarget(eTarget), kTarget.AI_isLandTarget(kAgent.getID()), iNearestCityDistance, iOurPower, iTargetTotalPower, iTargetPower, (100 * iTargetPower) / iOurPower, kAgent.getNumCities(), kTarget.getNumCities(),
++				(100 * iOurPower) / std::max(1, kAgent.getNumCities()), (100 * iTargetTotalPower) / std::max(1, kTarget.getNumCities()), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true), kTarget.AI_getEnemyPowerPercent(true), iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
+ 		logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "EVAL", eWarPlan, iUtility, -1, -1, -1, bBackground);
+ 	}
+ 
+@@ -715,8 +753,13 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNav
+ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ {
+ 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
++	int const iInitialU = iU;
+ 	if (!kAgent.canChangeWarPeace(eTarget))
++	{
++		if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d sought=0 reason=cannot_change_war_peace",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU);
+ 		return true;
++	}
+ 	CvTeamAI& kTarget = GET_TEAM(eTarget);
+ 	scaled rPeaceThresh = peaceThreshold(eTarget);
+ 	bool const bHuman = kTarget.isHuman();
+@@ -740,6 +783,10 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 
+ 	// <!-- custom: avoid as of now max 3 wars or even if 2 wars if our opponents are strong enough treat it the same. This allows to be versatile enough (3 wars are fine if a few targets are weak, so don't over-peace which would be bit boring too if i may say or waste potential) but also safe enough (even 2 wars are already dangerous if one or both of these rivals are strong enough to combined ravage us xd so treat it as an emergency) -->
+ 	const bool bEmergencyPeace = ((iMajorWars >= 3) || (iMajorWars >= 2 && iEnemyPowPct > 160));
++	// <!-- custom: Save files 450 and 452 showed 25 of 44 completed wars ending after only two turns, often after the attacker captured just one city or none. Log the inherited UWAI peace valuation and our KI#65 emergency override together so we can distinguish rational retreats from premature peace that lets a weak rival survive and recover. (GPT-5.6-Sol) -->
++	if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_REVIEW turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d emergencyPeace=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWarSuccess=%d targetWarSuccess=%d attitude=%d attitudeValue=%d",
++			GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowPct, bEmergencyPeace,
++			kAgent.getPower(true), kTarget.getDefensivePower(kAgent.getID()), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.AI_getWarSuccess(eTarget).round(), kTarget.AI_getWarSuccess(kAgent.getID()).round(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget));
+ 
+ 	if (bEmergencyPeace)
+ 	{
+@@ -751,6 +798,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 	// keep the existing log (or adjust) after this
+ 	//
+ 	m_pReport->log("Threshold for seeking peace: %d", rPeaceThresh.round());
++	TeamTypes eImminentWarTarget = NO_TEAM;
+ 	if (iU >= rPeaceThresh)
+ 	{
+ 		/*  Peace so we can free our hands for a different war.
+@@ -763,6 +811,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 			TeamTypes const eOther = itOther->getID();
+ 			if (!kAgent.AI_isSneakAttackReady(eOther))
+ 				continue;
++			eImminentWarTarget = eOther;
+ 			FAssert(eOther != eTarget);
+ 			m_pReport->log("Considering peace with %s to focus on"
+ 					" imminent war against %s; evaluating two-front war:",
+@@ -788,6 +837,8 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 		if (iU >= rPeaceThresh)
+ 		{
+ 			m_pReport->log("No peace sought b/c war utility is above the peace threshold");
++			if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d imminentWarTarget=%d emergencyPeace=%d sought=0 reason=utility_above_threshold",
++					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), eImminentWarTarget, bEmergencyPeace);
+ 			return true;
+ 		}
+ 	}
+@@ -795,6 +846,8 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 	if (kAgent.AI_getAtWarCounter(eTarget) <= 1)
+ 	{
+ 		m_pReport->log("Too early to consider peace");
++		if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d emergencyPeace=%d sought=0 reason=minimum_war_age",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), bEmergencyPeace);
+ 		return true;
+ 	}
+ 	CvPlayerAI& kTargetPlayer = GET_PLAYER(kTarget.getRandomMemberAlive(true));
+@@ -803,6 +856,8 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 	{
+ 		m_pReport->log("Can't talk to %s about peace",
+ 				m_pReport->leaderName(kTargetPlayer.getID()));
++		if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d emergencyPeace=%d sought=0 reason=cannot_contact",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), bEmergencyPeace);
+ 		return true; // Can't contact them for capitulation either
+ 	}
+ 	scaled rPeaceProb;
+@@ -871,7 +926,10 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 	{
+ 		m_pReport->log("Probability for peace negotiation: %d percent",
+ 				rPeaceProb.getPercent());
+-		if (SyncRandSuccess(1 - rPeaceProb))
++		bool const bRandomlySkipped = SyncRandSuccess(1 - rPeaceProb);
++		if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_NEGOTIATION_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d randomlySkipped=%d",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowPct, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), bRandomlySkipped);
++		if (bRandomlySkipped)
+ 		{
+ 			m_pReport->log("Peace negotiation randomly skipped");
+ 			if (!bHuman)
+@@ -935,9 +993,17 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 				else m_pReport->log("Failed to find a peace offer");
+ 			}
+ 			else m_pReport->log("Peace negotiation %s", (bPeace ? "succeeded" : "failed"));
++			if (gWarLogLevel >= 2 || (bPeace && gWarLogLevel >= 1)) logBBAI("WAR_PEACE_NEGOTIATION_RESULT turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d theirReluctance=%d maxReparationUtility=%d tradeValue=%d demandValue=%d succeeded=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWarSuccess=%d targetWarSuccess=%d",
++					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowPct, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), iTheirReluct, iMaxReparationUtility, iTradeVal, iDemandVal, bPeace,
++					kAgent.getPower(true), kTarget.getDefensivePower(kAgent.getID()), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.AI_getWarSuccess(eTarget).round(), kTarget.AI_getWarSuccess(kAgent.getID()).round());
+ 			return !bPeace;
+ 		}
+-		else m_pReport->log("No peace negotiation attempted; they're too reluctant");
++		else
++		{
++			m_pReport->log("No peace negotiation attempted; they're too reluctant");
++			if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_NEGOTIATION_RESULT turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d theirReluctance=%d maxReparationUtility=%d succeeded=0 reason=target_reluctant",
++					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowPct, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), iTheirReluct, iMaxReparationUtility);
++		}
+ 	}
+ 	if (considerCapitulation(eTarget, iU, iTheirReluct))
+ 		return true; // No surrender
+@@ -1902,6 +1968,10 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
+ 		logBBAI("WAR_TARGET_LOCAL_PREFERRED turn=%d agentTeam=%d preferredTargetTeam=%d preferredDrivePercent=%d preferredRank=%d candidateCount=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
+ 				GC.getGame().getGameTurn(), kAgent.getID(), ePreferredLocalTarget, rPreferredLocalDrive.getPercent(), iPreferredLocalRank, (int)aTargets.size(), kAgent.AI_getAttitude(ePreferredLocalTarget), kAgent.AI_getAttitudeVal(ePreferredLocalTarget), kAgent.AI_teamCloseness(ePreferredLocalTarget), getSASBBAINearestCityDistance(kAgent.getID(), ePreferredLocalTarget), getSASBBAITargetPowerPercent(kAgent, ePreferredLocalTarget));
+ 	}
++	TeamTypes eBestEligibleTarget = NO_TEAM;
++	scaled rBestEligibleDrive;
++	int iEligibleRank = 0;
++	int iHigherRankRollFailures = 0;
+ 	for (size_t i = 0; i < aTargets.size(); i++)
+ 	{
+ 		TeamTypes const eTarget = aTargets[i].eTeam;
+@@ -1919,12 +1989,23 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
+ 			}
+ 			continue;
+ 		}
++		iEligibleRank++;
++		if (eBestEligibleTarget == NO_TEAM)
++		{
++			eBestEligibleTarget = eTarget;
++			rBestEligibleDrive = rDrive;
++		}
+ 		// <!-- custom: Victory-denial direct-war candidates have already passed narrow power/distance/naval gates; convert only those from preparation to immediate limited/total war so ordinary UWAI preparation behavior stays intact. See KI#184. (GPT-5.5) -->
+ 		WarPlanTypes const eWP = (aTargets[i].bTotal ? (aTargets[i].bDirect ? WARPLAN_TOTAL : WARPLAN_PREPARING_TOTAL) : (aTargets[i].bDirect ? WARPLAN_LIMITED : WARPLAN_PREPARING_LIMITED));
+ 		m_pReport->log("Drive for %s against %s: %d percent", aTargets[i].bDirect ? "direct war" : "war preparations", m_pReport->teamName(eTarget), rDrive.getPercent());
+ 		if (gWarLogLevel >= 2)
+ 			logSASBBAIWarTargetDrive(kAgent, eTarget, eWP, aTargets[i].iU, rDrive, aTargets[i].bShortWork, isInBackground());
+-		if (SyncRandSuccess(rDrive))
++		// <!-- custom: UWAI may select a lower-ranked target when independent rolls reject stronger candidates. Save the exact eligible order and best-target comparison so testing can distinguish intended variety from costly rejection of a much better or closer rival without changing the inherited selection behavior. (GPT-5.6-Sol) -->
++		bool const bSelected = SyncRandSuccess(rDrive);
++		if (gWarLogLevel >= 2) logBBAI("WAR_TARGET_SELECTION_ROLL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d selected=%d targetRank=%d eligibleRank=%d candidateCount=%d higherRankRollFailures=%d bestEligibleTargetTeam=%d bestEligibleDrivePercent=%d candidateDistance=%d bestEligibleDistance=%d candidateTargetPowerPercent=%d bestEligibleTargetPowerPercent=%d candidateAttitude=%d candidateAttitudeValue=%d bestEligibleAttitude=%d bestEligibleAttitudeValue=%d",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), bSelected, (int)i + 1, iEligibleRank, (int)aTargets.size(), iHigherRankRollFailures, eBestEligibleTarget, rBestEligibleDrive.getPercent(),
++				getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eBestEligibleTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, eBestEligibleTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitude(eBestEligibleTarget), kAgent.AI_getAttitudeVal(eBestEligibleTarget));
++		if (bSelected)
+ 		{
+ 			if (gWarLogLevel >= 1)
+ 			{
+@@ -1960,6 +2041,7 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
+ 			m_pReport->log("War plan initiated (%s)", m_pReport->warPlanName(eWP));
+ 			break; // Prepare only one war at a time
+ 		}
++		iHigherRankRollFailures++;
+ 		m_pReport->log("No preparations begun this turn");
+ 		if (GET_TEAM(eTarget).isHuman() && aTargets[i].iU <= 23)
+ 		{
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 52f5e7ce8..685d51736 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -14,6 +14,7 @@
+ #include "CvArea.h"
+ #include "CvInfo_GameOption.h"
+ #include "CvInfo_Building.h" // Just for vote-related info
++#include "BBAILog.h" // <!-- custom: Log the exact reason when the AdvCiv-SAS faraway-war hard reject removes a proposed target. (GPT-5.6-Sol) -->
+ 
+ using std::vector;
+ using std::pair;
+@@ -2902,25 +2903,32 @@ int Risk::preEvaluate()
+ 	static const int MAX_LAND_TURNS = 3;
+ 	static const int MAX_SEA_TURNS  = 12;
+ 
+-	const bool bNaval = m_kParams.isNaval();
+-
+-	int minContact = INT_MAX;
+-	for (int i = 0; i < ourCache().numCities(); ++i)
++	// <!-- custom: The older AdvCiv-SAS hard reject is only a pre-war target guard. Letting it fire in the recursive peace scenario made mediocre wars look artificially excellent (KI#183).
++	// Letting it fire during an ongoing war instead injected -100000 into peace reviews and forced stronger conquerors to stop after reaching a more distant remaining city. Evaluate distance and transport capacity only before war begins, which also avoids the cache scan in both excluded scenarios. (GPT-5.6-Sol) -->
++	const TeamTypes eTarget = m_kParams.getTarget();
++	if (!militAnalyst().isPeaceScenario() && !kOurTeam.isAtWar(eTarget))
+ 	{
+-		UWAICache::City& c = ourCache().cityAt(i);
+-		if (c.city().getTeam() != m_kParams.getTarget()) continue;  // target-specific
+-		if (!c.canReach()) continue;                     // unreachable from our pov
+-		if (!bNaval && !c.canReachByLand()) continue;    // land war needs land path
+-		minContact = std::min(minContact, c.getDistance()); // ~turns incl. roads
++		const bool bNaval = m_kParams.isNaval();
++		int iMinContact = INT_MAX;
++		for (int i = 0; i < ourCache().numCities(); ++i)
++		{
++			UWAICache::City& kCity = ourCache().cityAt(i);
++			if (kCity.city().getTeam() != eTarget) continue; // Target-specific
++			if (!kCity.canReach()) continue;
++			if (!bNaval && !kCity.canReachByLand()) continue;
++			iMinContact = std::min(iMinContact, kCity.getDistance()); // Approximate turns including roads
++		}
++		const int iCanTrainCargo = (bNaval ? ourCache().canTrainAnyCargo() : -1);
++		const bool bNoLift = (bNaval && iCanTrainCargo == 0);
++		const int iMaxTurns = (bNaval ? MAX_SEA_TURNS : MAX_LAND_TURNS);
++		if (iMinContact == INT_MAX || iMinContact > iMaxTurns || bNoLift)
++		{
++			if (gWarLogLevel >= 3) logBBAI("WAR_TARGET_HARD_REJECT turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d preparationTurns=%d nearestContactTurns=%d maxContactTurns=%d canTrainCargo=%d unreachable=%d tooFar=%d noLift=%d",
++					GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, m_kParams.getPreparationTime(), (iMinContact == INT_MAX ? -1 : iMinContact), iMaxTurns, iCanTrainCargo, (iMinContact == INT_MAX), (iMinContact != INT_MAX && iMinContact > iMaxTurns), bNoLift);
++			return -100000; // kill this (agent,target) war plan
++		}
+ 	}
+ 
+-	const bool noLift = (bNaval && !ourCache().canTrainAnyCargo());
+-	const int  maxTurns = bNaval ? MAX_SEA_TURNS : MAX_LAND_TURNS;
+-
+-	// <!-- custom: This older AdvCiv-SAS hard reject is a war-scenario guard. Letting it fire in the recursive peace scenario made mediocre wars look artificially excellent because UWAI computes final utility as war minus peace; e.g. -78 - (-105438) became +105360 in BBAI testing. See KI#183. (GPT-5.5) -->
+-	if (!militAnalyst().isPeaceScenario() && (minContact == INT_MAX || minContact > maxTurns || noLift))
+-		return -100000; // kill this (agent,target) war plan
+-
+ 	// --- END RPE FILTER ---
+ 
+ 	// Handle potential losses of our vassals here
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 9b8e9cbee..3eec54795 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -6753,7 +6753,7 @@ PEACE RISK count=53839 avg=-104994.2 min=-105393 max=-104980
+ WAR   RISK count=45897 avg=-104999.7 min=-105394 max=-178
+ ```
+ 
+-The fix keeps the faraway-war hard reject for actual war scenarios but prevents it from firing during the recursive peace scenario:
++The initial fix kept the faraway-war hard reject for war scenarios but prevented it from firing during the recursive peace scenario:
+ 
+ ```cpp
+ if (!militAnalyst().isPeaceScenario() && (minContact == INT_MAX || minContact > maxTurns || noLift))
+@@ -6767,11 +6767,22 @@ positive final: 0
+ negative final: 72704
+ ```
+ 
+-The remaining high rows were `WAR RISK` rejects only, meaning the guard now works in the intended direction: bad faraway/unreachable war scenarios are unattractive instead of making wars look artificially excellent.
++The remaining high rows were `WAR RISK` rejects only, confirming that the peace-scenario sign flip had disappeared.
++
++A later save-file 450 investigation found a second scope problem in the same AdvCiv-SAS guard: "war scenario" included wars already in progress, although the hard reject was intended only to prevent starting a distant or unreachable war. After Sumer captured New York on turn 79, Lincoln's remaining cities were beyond the three-turn land limit. The guard therefore added `-100000` to Sumer's ongoing-war evaluation despite Sumer having 5 cities against 2, twice Lincoln's power, and 29 war success against 7; this produced `initialUtility=-104901`, a nominal 963% peace probability, and peace on turn 80. Overall, 446 of 777 peace reviews were contaminated by the same hard reject.
++
++The guard now evaluates distance and naval lift only before war begins. Normal UWAI utility decides whether an existing war remains worthwhile:
++
++```cpp
++if (!militAnalyst().isPeaceScenario() && !kOurTeam.isAtWar(eTarget) && (iMinContact == INT_MAX || iMinContact > iMaxTurns || bNoLift))
++	return -100000;
++```
++
++Two deterministic confirming runs removed all `-105000`-scale ongoing-war utilities. Sumer's war with Lincoln lasted 47 turns instead of 2; it remained active but eventually accepted peace at ordinary utility `-15` after failing to capture another city, and other AI attackers eliminated Lincoln later on turn 211. Across the run, median completed-war duration rose from 5 to 8 turns and wars ending within four turns fell from 13 to 8. This preserves the intended pre-war safeguard without forcing a stronger conqueror to stop merely because the next enemy city is farther away.
+ 
+ The added `SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD` diagnostic is disabled by default because it can generate very large logs; it is mainly for future UWAI audits when a suspicious target drive or utility value needs an aspect-by-aspect breakdown.
+ 
+-Fixed with the help of GPT-5.5 (on ChatGPT Codex) thanks.
++Fixed with the help of GPT-5.5 and GPT-5.6-Sol (on ChatGPT Codex) thanks.
+ 
+ ## 184 - (Fixed/Improved) Multiple UWAI victory-denial issues could let imminent Space winners survive: no war before fixing this (regardless of whether AI was very strong militarily like in the Ramesses run or very weak like in the Lincoln run), then even after the initial fix wars were still too-late, too-short, or too-low-impact
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index bd7b18b1f..be4e10664 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -380,8 +380,9 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - New-city **minimum defenders**: ensure new cities are founded/left with **2+ defenders** (priority to capital). Optimization disabled after ~turn 120 (scaled) to save compute once empires stabilize. See **[KI#49](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#49---enhancedaddressed-ai-having-4-defenders-in-capital-city-but-only-1-defender-in-city-b-that-gets-captured-or-razed-by-barbarians-then-now-almost-always-if-not-always-new-cities-go-be-founded-with-2-defenders)**.
+ - **Musketmen — AI role**: now also flagged with `UNITAI_ATTACK_CITY`, so the AI uses Musketmen more often in **offensive city-assault** roles. Civ-specific Musketman variants may also include additional changes.
+ - **Grenadiers & Bazookas — AI role**: now also flagged with `UNITAI_CITY_DEFENSE`, so the AI may use them more for **city defense**.
+-- **War target selection — distance guard**: added a **distance-based pre-filter** in `Risk::preEvaluate` (WarUtilityAspect.cpp) so the AI **rejects faraway rivals** during war-risk evaluation. This curbs "bait" wars that leave cores under-defended and keeps armies concentrated near relevant fronts. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp).
+-- (Requires AdvCiv-SAS 6036+) **War target selection — distance guard** - Update: **Faraway-war Risk reject no longer inflates UWAI war utility: a follow-up BBAI test in save file 450 showed the older AdvCiv-SAS KI#61 hard reject could also fire in the recursive peace scenario. Since UWAI scores war as `war scenario - peace scenario`, this could turn a mediocre war into an absurdly attractive one, e.g. `warScenarioUtility=-220`, `peaceScenarioUtility=-105386`, `finalUtility=105166`. The hard reject now applies only to actual war scenarios; retesting removed all huge positive final-utility artifacts (`positive final: 0`) while preserving the intended negative reject for bad faraway/unreachable war plans. See [KI#183](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario).
++- **War target selection — distance guard**: added a **distance-based pre-filter** in `Risk::preEvaluate` (WarUtilityAspect.cpp) so the AI **rejects faraway rivals** during war-risk evaluation. This curbs "bait" wars that leave cores under-defended and keeps armies concentrated near relevant fronts. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp) and [KI#183](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario).
++- (Requires AdvCiv-SAS 6036+) **War target selection — distance guard** - Update: **Faraway-war Risk reject no longer inflates UWAI war utility: a follow-up BBAI test in save file 450 showed the older AdvCiv-SAS KI#61 hard reject could also fire in the recursive peace scenario. Since UWAI scores war as `war scenario - peace scenario`, this could turn a mediocre war into an absurdly attractive one, e.g. `warScenarioUtility=-220`, `peaceScenarioUtility=-105386`, `finalUtility=105166`. The hard reject no longer applies to the recursive peace scenario; retesting removed all huge positive final-utility artifacts (`positive final: 0`) while preserving the intended negative reject for bad faraway/unreachable war plans. See [KI#183](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario).
++- (Requires AdvCiv-SAS 6052+) Update 2 : later BBAI logging showed that the guard was too invasive after war had already begun. In save file 450, it forced Sumer to make peace after only 2 turns despite capturing New York with twice Lincoln's power, merely because the next enemy city was beyond the distance limit. It is now restricted to pre-war evaluations, leaving normal UWAI logic to decide when an ongoing war should end.
+ - (Requires AdvCiv-SAS 6035+) **UWAI target choice avoids faraway wars:** Following [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp)'s related fix, BBAI war-target logging in save file 450 showed the AI could still prepare some avoidable faraway wars: for example, on turn 182, Arabia (Team 0) could ignore closer Holy Rome (Team 6) at distance 5, attitudeValue -2, and targetPowerPercent 64, then prepare against the farther Netherlands (Team 5) at distance 10, attitudeValue +1, and targetPowerPercent 92. That is dangerous because a faraway war can split armies from the core, slow reinforcements, expose cities to opportunistic invasions, or make captures harder to hold. The new guard only optionally promotes a nearby land-war target, not an island/naval target, when it is close enough, weak enough, disliked/neutral enough, and has minimal UWAI drive (i.e. current war-preparation interest); With the current distance threshold, it only steps in when the alternative target is at least 2 tiles farther away; targets at the same distance or closer are left to normal UWAI. This is intentionally a narrow blunder-fix rather than a war-logic overhaul, so UWAI choices do not become too bland or broadly overridden. In the confirming BBAI run, the guard found 32 valid closer targets and blocked 17 farther alternatives, leaving usual UWAI logic to either pick these closer targets or continue normally if no suitable target remained. See [KI#182](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#182---fixedimproved-uwai-war-target-selection-could-fall-through-to-farther-targets-even-when-a-closer-weakdisliked-land-target-was-available).
+ - **City evacuation — doomed city auto-retreat (land units only)**: in `CvUnitAI::AI_evacuateCity`, the AI now optionally (default ON, recommended) **evacuates 100% of its land units** from a **doomed city** (i.e. a city that exceeds the existing `AI_EVACUATION_THRESH`-based (default as of now: 138%) attacker/defender strength threshold (note: the threshold is raised for important cities, as it is worth defending them and generally bad to evacuate them)). Fixed an inherited Base AdvCiv percentile inversion that instead gave this important-city protection to low-value cities; see [KI#172](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#172---fixed-base-advciv-bug-inverted-city-value-percentile-gave-intended-important-city-evacuation-protection-to-low-value-cities). Previously it often retreated only a tiny fraction (e.g., 2 of 11 defenders vs a 22+ stack, whereas now all 11 defenders would evacuate if the city is deemed doomed). This change might prolong wars/game length, but the intent is a **more competitive, less self-sabotaging** AI. See [KI#62](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity).
+ - **Minimum Stack size before war**: Added a minimum stack unit count requirement to prevent the stack from being marked as "ready" until it has enough units: no `MOVE_DECLARE_WAR` flag, no premature advance toward the city, and AI keeps building units until the stack is big enough. Helps fix the **issue of "back and forth" war declarations with immediate retreat without city attack**: low-numbered unit stacks were especially sensible to power swings (city defenses, one more enemy units skews win chance, etc.). Change in `CvUnitAI::AI_attackCityMove`. See [KI#104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#104---tremendously-improved-base-advciv-issue-of-the-weird-back-and-forth-of-declaring-war-moving-a-stack-then-withdrawing-without-attacking-which-is-extremely-inefficient).
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=36586

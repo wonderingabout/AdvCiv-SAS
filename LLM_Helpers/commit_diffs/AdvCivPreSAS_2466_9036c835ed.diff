@@ -1,0 +1,175 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2466
+# Commit: 9036c835ed2d07db8a4f4bcc13436d41e4b9e065
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: efab6d3d5400c0c5a26cc5bf75662af0dd5839d1
+# Title: Set CAMERA_START_DISTANCE based on FIELD_OF_VIEW
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	4	Assets/XML/GlobalDefines_advc.xml
+1	0	CvGameCoreDLL/CvGame.cpp
+30	5	CvGameCoreDLL/CvGlobals.cpp
+5	3	CvGameCoreDLL/CvGlobals.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index c5fcfdfee..cf300be6a 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -423,12 +423,18 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- [advc.004m]
+-	     No clue how this is measured. Original value is 2200
+-		 (GlobalDefines.xml), recommended: 5400 (4600?). -->
++	<!-- advc.004m: 2200 in BtS.
++		 Determines the camera distance at the start of a new game and after
++		 loading from a savegame, but also affects zoom sensitivity and
++		 the shifts between leader music, era music and ambient sounds.
++		 A lower value results in more fine-grained zoom levels and requires
++		 the player to zoom in farther to hear the leader music.
++		 Recommended: Use a negative value to let the DLL set the
++		 camera start distance dynamically based on the field-of-view value.
++		 -->
+ 	<Define>
+ 		<DefineName>CAMERA_START_DISTANCE</DefineName>
+-		<fDefineFloatVal>5400</fDefineFloatVal>
++		<fDefineFloatVal>-1</fDefineFloatVal>
+ 	</Define>
+ 
+ 	<!-- advc.500b: If this is set to a value greater than 0, unhappiness for
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 275a2f77d..e31423add 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9427,6 +9427,7 @@ void CvGame::onGraphicsInitialized()
+ 	if (GET_PLAYER(getActivePlayer()).getNumUnits() == 0)
+ 		setUpdateTimer(UPDATE_LOOK_AT_STARTING_PLOT, 1);
+ 	// </advc.001>
++	CvGlobals::getInstance().updateCameraStartDistance();
+ }
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 0e1d46716..2e07b9993 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -699,15 +699,26 @@ void CvGlobals::cacheGlobalInts(char const* szChangedDefine, int iNewValue)
+ 	m_iEventMessageTime = getDefineINT("EVENT_MESSAGE_TIME");
+ } // </advc.opt>
+ 
+-void CvGlobals::cacheGlobalFloats()
++void CvGlobals::cacheGlobalFloats(
++	bool bAllowRecursion) // advc.004m: Probably not needed; feels safer.
+ {
+-	m_fPOWER_CORRECTION = getDefineFLOAT("POWER_CORRECTION"); // advc.104
+-
++	//m_fFIELD_OF_VIEW = getDefineFLOAT("FIELD_OF_VIEW");
++	// <advc.004m>
++	float fNewFoV = getDefineFLOAT("FIELD_OF_VIEW");
++	if (fNewFoV != m_fFIELD_OF_VIEW)
++	{
++		m_fFIELD_OF_VIEW = fNewFoV;
++		if (bAllowRecursion && IsGraphicsInitialized())
++		{
++			updateCameraStartDistance();
++			return;
++		}
++	} // </advc.004m>
++	m_fCAMERA_START_DISTANCE = getDefineFLOAT("CAMERA_START_DISTANCE");
+ 	m_fCAMERA_MIN_YAW = getDefineFLOAT("CAMERA_MIN_YAW");
+ 	m_fCAMERA_MAX_YAW = getDefineFLOAT("CAMERA_MAX_YAW");
+ 	m_fCAMERA_FAR_CLIP_Z_HEIGHT = getDefineFLOAT("CAMERA_FAR_CLIP_Z_HEIGHT");
+ 	m_fCAMERA_MAX_TRAVEL_DISTANCE = getDefineFLOAT("CAMERA_MAX_TRAVEL_DISTANCE");
+-	m_fCAMERA_START_DISTANCE = getDefineFLOAT("CAMERA_START_DISTANCE");
+ 	m_fAIR_BOMB_HEIGHT = getDefineFLOAT("AIR_BOMB_HEIGHT");
+ 	m_fPLOT_SIZE = getDefineFLOAT("PLOT_SIZE");
+ 	m_fCAMERA_SPECIAL_PITCH = getDefineFLOAT("CAMERA_SPECIAL_PITCH");
+@@ -715,9 +726,10 @@ void CvGlobals::cacheGlobalFloats()
+ 	m_fCAMERA_MIN_DISTANCE = getDefineFLOAT("CAMERA_MIN_DISTANCE");
+ 	m_fCAMERA_UPPER_PITCH = getDefineFLOAT("CAMERA_UPPER_PITCH");
+ 	m_fCAMERA_LOWER_PITCH = getDefineFLOAT("CAMERA_LOWER_PITCH");
+-	m_fFIELD_OF_VIEW = getDefineFLOAT("FIELD_OF_VIEW");
+ 	m_fSHADOW_SCALE = getDefineFLOAT("SHADOW_SCALE");
+ 	m_fUNIT_MULTISELECT_DISTANCE = getDefineFLOAT("UNIT_MULTISELECT_DISTANCE");
++
++	m_fPOWER_CORRECTION = getDefineFLOAT("POWER_CORRECTION"); // advc.104
+ }
+ 
+ void CvGlobals::cacheGlobals()
+@@ -805,6 +817,19 @@ void CvGlobals::setDefineSTRING(char const* szName, char const* szValue, /* advc
+ 	FAssertMsg(!bUpdateCache, "No strings to update"); // advc.opt
+ }
+ 
++// advc.004m:
++void CvGlobals::updateCameraStartDistance()
++{
++	static float m_fCAMERA_START_DISTANCE_Override = GC.getDefineFLOAT(
++			"CAMERA_START_DISTANCE");
++	float fNewValue = m_fCAMERA_START_DISTANCE_Override;
++	if (fNewValue < 0)
++		fNewValue = std::max(9100 - 100 * getDefineFLOAT("FIELD_OF_VIEW"), 1200.f);
++	setDefineFLOAT("CAMERA_START_DISTANCE", fNewValue,
++			false); // Update the cache explicitly instead:
++	cacheGlobalFloats(false);
++}
++
+ int CvGlobals::getMAX_CIV_PLAYERS()
+ {
+ 	return MAX_CIV_PLAYERS;
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index a61b3ec65..4b11f7bc1 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -674,6 +674,7 @@ public:
+ 	inline float getSHADOW_SCALE() const { return m_fSHADOW_SCALE; }
+ 	DllExport inline float getUNIT_MULTISELECT_DISTANCE() { CvGlobals const& kThis = *this; return kThis.getUNIT_MULTISELECT_DISTANCE(); }
+ 	inline float getUNIT_MULTISELECT_DISTANCE() const { return m_fUNIT_MULTISELECT_DISTANCE; }
++	void updateCameraStartDistance(); // advc.004m
+ 
+ 	DllExport int getUSE_FINISH_TEXT_CALLBACK();
+ 	// advc.003y: Moved the other callback getters to CvPythonCaller
+@@ -935,7 +936,6 @@ protected:
+ 	float m_fCAMERA_MAX_YAW;
+ 	float m_fCAMERA_FAR_CLIP_Z_HEIGHT;
+ 	float m_fCAMERA_MAX_TRAVEL_DISTANCE;
+-	float m_fCAMERA_START_DISTANCE;
+ 	float m_fAIR_BOMB_HEIGHT;
+ 	float m_fPLOT_SIZE;
+ 	float m_fCAMERA_SPECIAL_PITCH;
+@@ -943,9 +943,10 @@ protected:
+ 	float m_fCAMERA_MIN_DISTANCE;
+ 	float m_fCAMERA_UPPER_PITCH;
+ 	float m_fCAMERA_LOWER_PITCH;
+-	float m_fFIELD_OF_VIEW;
+ 	float m_fSHADOW_SCALE;
+ 	float m_fUNIT_MULTISELECT_DISTANCE;
++	float m_fFIELD_OF_VIEW;
++	float m_fCAMERA_START_DISTANCE;
+ 
+ 	CvXMLLoadUtility* m_pXMLLoadUtility; // advc.003v
+ 
+@@ -957,7 +958,8 @@ protected:
+ private:
+ 	// <advc.opt>
+ 	void cacheGlobalInts(char const* szChangedDefine = NULL, int iNewValue = 0);
+-	void cacheGlobalFloats(); // </advc.opt>
++	void cacheGlobalFloats(/* advc.004m: */ bool bAllowRecursion = true);
++	// </advc.opt>
+ 	//void addToInfosVectors(void* infoVector); // advc.enum (no longer used)
+ };
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5847

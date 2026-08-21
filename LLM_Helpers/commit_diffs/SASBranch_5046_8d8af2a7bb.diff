@@ -1,0 +1,543 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5046
+# Commit: 8d8af2a7bb1a4301e009e0fc858de6ee782fb646
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a8c169c9cb040f32575352b624c956965b7dfd6a
+# Title: rework and buff most traits, fix missing FreePromotionUnitCombat in traits anyways etc - fix missing FreePromotionUnitCombat in all unitcombats for trait_pro...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	3	Assets/Python/BUG/TraitUtil.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+140	55	Assets/XML/Buildings/CIV4BuildingInfos.xml
+6	2	Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+32	16	Assets/XML/Civilizations/CIV4TraitInfos.xml
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/TraitUtil.py b/Assets/Python/BUG/TraitUtil.py
+index be8fedf46..4cbf94242 100644
+--- a/Assets/Python/BUG/TraitUtil.py
++++ b/Assets/Python/BUG/TraitUtil.py
+@@ -28,11 +28,16 @@ def init():
+ 	addTrait("AGGRESSIVE", game.getSymbolID(FontSymbols.STRENGTH_CHAR), "Art/Interface/Buttons/Promotions/Combat1.dds")
+ 	addTrait("CHARISMATIC", game.getSymbolID(FontSymbols.HAPPY_CHAR), "Art/Interface/Buttons/TechTree/MassMedia.dds")
+ 	addTrait("CREATIVE", gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar(), "Art/Interface/Buttons/TechTree/Music.dds")
+-	addTrait("EXPANSIVE", game.getSymbolID(FontSymbols.HEALTHY_CHAR), "Art/Interface/Buttons/Actions/Heal.dds")
++	# <!-- custom: TRAIT_EXPANSIVE is now removed so disabled this but anyways etc -->
++	#addTrait("EXPANSIVE", game.getSymbolID(FontSymbols.HEALTHY_CHAR), "Art/Interface/Buttons/Actions/Heal.dds")
+ 	addTrait("FINANCIAL", gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar(), "Art/Interface/Buttons/TechTree/Banking.dds")
+-	addTrait("IMPERIALIST", game.getSymbolID(FontSymbols.OCCUPATION_CHAR), "Art/Interface/Buttons/Actions/FoundCity.dds")
++	# <!-- custom: change trait char, was as commented out below anyways etc -->
++	#addTrait("IMPERIALIST", game.getSymbolID(FontSymbols.OCCUPATION_CHAR), "Art/Interface/Buttons/Actions/FoundCity.dds")
++	addTrait("IMPERIALIST", game.getSymbolID(FontSymbols.TRADE_CHAR), "Art/Interface/Buttons/Actions/FoundCity.dds")
+ 	addTrait("INDUSTRIOUS", gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar(), "Art/Interface/Buttons/TechTree/Industrialism.dds")
+-	addTrait("ORGANIZED", game.getSymbolID(FontSymbols.TRADE_CHAR), "Art/Interface/Buttons/Buildings/Courthouse.dds")
++	# <!-- custom: change trait char, was as commented out below anyways etc -->
++	#addTrait("ORGANIZED", game.getSymbolID(FontSymbols.TRADE_CHAR), "Art/Interface/Buttons/Buildings/Courthouse.dds")
++	addTrait("ORGANIZED", game.getSymbolID(FontSymbols.OCCUPATION_CHAR), "Art/Interface/Buttons/Buildings/Courthouse.dds")
+ 	addTrait("PHILOSOPHICAL", game.getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), "Art/Interface/Buttons/TechTree/Philosophy.dds")
+ 	addTrait("PROTECTIVE", game.getSymbolID(FontSymbols.DEFENSE_CHAR), "Art/Interface/Buttons/Promotions/CityGarrison1.dds")
+ 	addTrait("SPIRITUAL", game.getSymbolID(FontSymbols.RELIGION_CHAR), "Art/Interface/Buttons/TechTree/Meditation.dds")
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index 56b024751..891550ecd 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -34,8 +34,8 @@ class SevoPediaTrait:
+ 		self.X_SPECIAL = self.top.X_PEDIA_PAGE # advc.004y: Omit the MAIN_PANE
+ 		self.Y_SPECIAL = self.Y_LEADERS + self.H_LEADERS + 10
+ 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
+-		# <!-- custom: add bit more room as not all fits in this case i mean but anyways etc, was 150 anyways etc -->
+-		self.H_SPECIAL = 200
++		# <!-- custom: add more room as not all fits in this case i mean but anyways etc, was 150 anyways etc -->
++		self.H_SPECIAL = 300
+ 
+ 		self.H_MAIN_PANE = self.Y_SPECIAL + self.H_SPECIAL - self.Y_MAIN_PANE
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index d87cf6e46..3c1b3cde5 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -5387,12 +5387,8 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
++			<!-- custom: was TRAIT_ORGANIZED 100 -->
++			<ProductionTraits/>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+@@ -5574,12 +5570,8 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
++			<!-- custom: was TRAIT_ORGANIZED 100 -->
++			<ProductionTraits/>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+@@ -7451,9 +7443,10 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
++			<!-- custom: was TRAIT_ORGANIZED 100 -->
+ 			<ProductionTraits>
+ 				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
++					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
+ 					<iProductionTrait>100</iProductionTrait>
+ 				</ProductionTrait>
+ 			</ProductionTraits>
+@@ -9797,13 +9790,15 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
+-			<HappinessTraits/>
++			<!-- custom: was TRAIT_CREATIVE 100 -->
++			<ProductionTraits/>
++			<!-- custom: was empty -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_CREATIVE</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+@@ -10945,13 +10940,15 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
+-			<HappinessTraits/>
++			<!-- custom: was TRAIT_CREATIVE 100 -->
++			<ProductionTraits/>
++			<!-- custom: was empty -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_CREATIVE</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+@@ -11136,13 +11133,15 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
+-			<HappinessTraits/>
++			<!-- custom: was TRAIT_CREATIVE 100 -->
++			<ProductionTraits/>
++			<!-- custom: was empty -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_CREATIVE</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+@@ -11331,13 +11330,15 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
+-			<HappinessTraits/>
++			<!-- custom: was TRAIT_CREATIVE 100 -->
++			<ProductionTraits/>
++			<!-- custom: was empty -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_CREATIVE</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+@@ -11530,7 +11531,13 @@
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<!-- advc.908b: Was 100 from TRAIT_CREATIVE -->
+-			<ProductionTraits/>
++			<!-- custom: was empty -->
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
++					<iProductionTrait>100</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+@@ -11717,7 +11724,13 @@
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<!-- advc.908b: Was 100 from TRAIT_CREATIVE -->
+-			<ProductionTraits/>
++			<!-- custom: was empty -->
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
++					<iProductionTrait>100</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+@@ -11918,7 +11931,13 @@
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<!-- advc.908b: Was 100 from TRAIT_CREATIVE -->
+-			<ProductionTraits/>
++			<!-- custom: was empty -->
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
++					<iProductionTrait>100</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+@@ -12125,7 +12144,13 @@
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<!-- advc.908b: Was 100 from TRAIT_CREATIVE -->
+-			<ProductionTraits/>
++			<!-- custom: was empty -->
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
++					<iProductionTrait>100</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+@@ -12317,7 +12342,13 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits/>
++			<!-- custom: was empty -->
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_CREATIVE</ProductionTraitType>
++					<iProductionTrait>100</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
+ 			<HappinessTraits>
+ 				<HappinessTrait>
+ 					<HappinessTraitType>TRAIT_CHARISMATIC</HappinessTraitType>
+@@ -14414,7 +14445,13 @@
+ 					<iProductionTrait>100</iProductionTrait>
+ 				</ProductionTrait>
+ 			</ProductionTraits>
+-			<HappinessTraits/>
++			<!-- custom: was empty anyways etc -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_ORGANIZED</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+@@ -14608,7 +14645,13 @@
+ 					<iProductionTrait>100</iProductionTrait>
+ 				</ProductionTrait>
+ 			</ProductionTraits>
+-			<HappinessTraits/>
++			<!-- custom: was empty anyways etc -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_ORGANIZED</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+@@ -15693,7 +15736,13 @@
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+-			<HappinessTraits/>
++			<!-- custom: was empty anyways etc -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+@@ -16449,7 +16498,13 @@
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+-			<HappinessTraits/>
++			<!-- custom: was empty anyways etc -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+@@ -17204,7 +17259,13 @@
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+-			<HappinessTraits/>
++			<!-- custom: was empty anyways etc -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+@@ -17959,7 +18020,13 @@
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+-			<HappinessTraits/>
++			<!-- custom: was empty anyways etc -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+@@ -18715,7 +18782,13 @@
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+-			<HappinessTraits/>
++			<!-- custom: was empty anyways etc -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+@@ -19470,7 +19543,13 @@
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+-			<HappinessTraits/>
++			<!-- custom: was empty anyways etc -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+@@ -20225,7 +20304,13 @@
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+-			<HappinessTraits/>
++			<!-- custom: was empty anyways etc -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_SPIRITUAL</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+
+diff --git a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+index 3d1eac181..c170853e4 100644
+--- a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+@@ -29,8 +29,12 @@
+ 			<TechPrereq>TECH_POLYTHEISM</TechPrereq>
+ 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
+ 			<bValid>1</bValid>
+-			<!-- custom: was TRAIT_SPIRITUAL 100 -->
+-			<ProductionTraits/>
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_SPIRITUAL</ProductionTraitType>
++					<iProductionTrait>100</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
+ 			<Button>,Art/Interface/Buttons/Buildings/Cathedral_Jewish.dds,Art/Interface/Buttons/Buildings_Atlas.dds,3,7</Button>
+ 		</SpecialBuildingInfo>
+ 		<!-- custom: cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree anyways etc anyways etc anyways etc... Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or/and wants to pursue a cultural path sooner or/and other reasons or not or yes or and other or and not anyways etc, to also match the multiple pagan holy sites (/shrines ,in a general term way not civ4 building specific term way specifically,?) anyways etc throughout history anyways etc -->
+
+diff --git a/Assets/XML/Civilizations/CIV4TraitInfos.xml b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+index 0897826ce..4d3c04c4e 100644
+--- a/Assets/XML/Civilizations/CIV4TraitInfos.xml
++++ b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+@@ -71,6 +71,14 @@
+ 					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+ 				</FreePromotionUnitCombat>
++				<FreePromotionUnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
++				</FreePromotionUnitCombat>
++				<FreePromotionUnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
++					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
++				</FreePromotionUnitCombat>
+ 				<FreePromotionUnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+@@ -97,13 +105,7 @@
+ 			<ExtraYieldThresholds/>
+ 			<TradeYieldModifiers/>
+ 			<CommerceChanges/>
+-			<!-- custom: was empty -->
+-			<CommerceModifiers>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>15</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-			</CommerceModifiers>
++			<CommerceModifiers/>
+ 			<FreePromotions/>
+ 			<FreePromotionUnitCombats/>
+ 		</TraitInfo>
+@@ -158,13 +160,7 @@
+ 				<!-- advc.908b: was 2 -->
+ 				<iCommerce>1</iCommerce>
+ 			</CommerceChanges>
+-			<!-- custom: was empty anyways etc -->
+-			<CommerceModifiers>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>25</iCommerce>
+-				<iCommerce>0</iCommerce>
+-			</CommerceModifiers>
++			<CommerceModifiers/>
+ 			<FreePromotions/>
+ 			<FreePromotionUnitCombats/>
+ 		</TraitInfo>
+@@ -280,8 +276,28 @@
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
+-			<!-- custom: generally avoid per unit bonuses, tedious and not versatile enough, plus not necessarily the "best" way to buff, considering i find protective weak, buffing it in another (or other) way(s) and removing freepromotioncombats effects entirely -->
+-			<FreePromotionUnitCombats/>
++			<FreePromotionUnitCombats>
++				<FreePromotionUnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
++				</FreePromotionUnitCombat>
++				<FreePromotionUnitCombat>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
++				</FreePromotionUnitCombat>
++				<FreePromotionUnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
++					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
++				</FreePromotionUnitCombat>
++				<FreePromotionUnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
++					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
++				</FreePromotionUnitCombat>
++				<FreePromotionUnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
++					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
++				</FreePromotionUnitCombat>
++			</FreePromotionUnitCombats>
+ 		</TraitInfo>
+ 		<TraitInfo>
+ 			<Type>TRAIT_IMPERIALIST</Type>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index a8f9110b0..062f11caa 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -345,6 +345,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - in particular, removed trait_expansive: was overlapping with our more general trait_protective (does not just protect defensively in our mod but also more generally protects health too and also has no anarchy (protects political stability more or less anyways etc)) and empire-expansion related trait_imperalist (settler discount same, but also trade route based scaling yield modifiers), so trait_expansive was redundant. Also, it was among weakest (flat health not so helpful) and hardest to balance (most often weak or some (very in this case i mean but anyways etc) rare times op) so removed.
+ - in addition to the above, overhauled all traits with a focus on historical accuracy most importantly, but also gameplay relevance (+/- civ-specific building and unit timing and effects as well but anyways etc) and overall civ theme to a lesser extent, with the help of chatgpt 5 and multiple rounds of review, +/- other AIs or not so much or yes in this case i mean but anyways etc. For example, julius caesar has been changed from organized + imperialist to aggressive + imperialist (war theme and strength), hammurabi has been changed from organized + aggressive to organized + protective (more of an administrator + defensive civ overall if i'm not mistaken but anyways etc), saladin has been changed from protective + spiritual to spiritual + charismatic (more of warmonger in civ4 + historical warmonger and charisma), or isabella has been changed from spiritual + expansive to spiritual + aggressive (very ruthless campaigns). See for the list of all changes with a before vs after comparison as well as rationales the table at [README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc) but anyways etc. Note: as of now leaders' flavors unchanged for simplicity vs base advciv but anyways etc
+ - removed trait_expansive related building modifiers (they were the granary and harbor in advciv-sas before, removed as too generic and op plus no good/relevant candidate to replace them in a balanced way but anyways etc)
++- changed imperialistic and organized trait char (the "logo"/"icon" in sevopedia traits if not in other places or not or yes or etc but anyways etc (done in [/BUG/TraitUtil.py](/Assets/Python/BUG/TraitUtil.py) but anyways etc)), commented-out (i.e. disabled but anyways etc) the old trait_expansive info as we don't use it anymore as of now but anyways etc
+ 
+ ### Civics (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 9ceb6b1c7..2754d8c29 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -326,6 +326,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ - **Removed trait — Expansive:** In AdvCiv-SAS, **Protective** is broadened from “just city defense” to an empire-wide protection theme: it now also covers health and no anarchy (political stability), and with **Imperialist** already handling expansion (settler discount + now also trade-route–scaled yields), **Expansive** no longer had a distinct role, was overlapping with the former, and was weak/volatile to balance → removed.
+ - **Trait overhaul (leader assignments):** Overhauled for historical fit + gameplay relevance. **Examples:**: Julius Caesar Organized + Imperialist → Aggressive + Imperialist *(military conqueror; offensive pressure)*; Hammurabi Organized + Aggressive → Organized + Protective *(lawgiver/administrator; defensive empire)*; Saladin Protective + Spiritual → Spiritual + Charismatic *(religious leader with battlefield charisma; warmonger in Civ IV terms)*; Isabella Spiritual + Expansive → Spiritual + Aggressive *(zealous, hard-edged campaigns)*. Full before/after with rationale: [Assets Rebalancing table](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc). *Note: leader “flavors” unchanged.*
+ - **Expansive clean-up:** Removed its building modifiers (**Granary**, **Harbor**)—too generic/OP and no balanced replacements.
++- **Trait icons (UI) & cleanup:** Updated the Sevopedia “char” (glyph/logo) for **Imperialist** and **Organized** traits; commented out the obsolete **Expansive** trait entries now that the trait is removed. Implemented in [/Assets/Python/BUG/TraitUtil.py](/Assets/Python/BUG/TraitUtil.py).
+ 
+ ### Civics (non-exhaustive)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=23881

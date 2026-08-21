@@ -1,0 +1,1602 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2820
+# Commit: f03c3059919ef71aa0b5de4abbd11aeec9db1729
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3b431b62e9ccd9944ec98de1467673072b9a2f63
+# Title: Unit cycling buttons
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	3	Assets/Config/BUG Core.xml
+10	0	Assets/Config/BUG Main Interface.xml
+1	4	Assets/Python/BUG/InputUtil.py
+5	5	Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+76	15	Assets/Python/Screens/CvMainInterface.py
+28	2	Assets/XML/Text/BUG Main Interface Options.xml
+56	0	Assets/XML/Text/CIV4GameText_advc.xml
+23	2	Assets/XML/Units/CIV4ControlInfos.xml
+37	55	CvGameCoreDLL/CvDLLWidgetData.cpp
+2	0	CvGameCoreDLL/CvEnums.h
+13	4	CvGameCoreDLL/CvGame.h
+164	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+8	0	CvGameCoreDLL/CvGameCoreUtils.h
+76	21	CvGameCoreDLL/CvGameInterface.cpp
+37	0	CvGameCoreDLL/CvGameTextMgr.cpp
+3	0	CvGameCoreDLL/CvGameTextMgr.h
+9	2	CvGameCoreDLL/CvGlobals.h
+11	2	CvGameCoreDLL/CvInfo_Base.cpp
+1	0	CvGameCoreDLL/CvInfo_Base.h
+47	19	CvGameCoreDLL/CvPlayer.cpp
+5	2	CvGameCoreDLL/CvPlayer.h
+7	1	CvGameCoreDLL/CvUnit.cpp
+1	0	CvGameCoreDLL/CvUnit.h
+0	162	CvGameCoreDLL/CvXMLLoadUtility.cpp
+2	3	CvGameCoreDLL/CvXMLLoadUtility.h
+1	1	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+1	0	CvGameCoreDLL/CyEnumsInterface.cpp
+8	0	CvGameCoreDLL/CyGame.cpp
+1	0	CvGameCoreDLL/CyGame.h
+3	0	CvGameCoreDLL/CyGameInterface.cpp
+6	0	CvGameCoreDLL/CyUnit.cpp
+1	0	CvGameCoreDLL/CyUnit.h
+1	0	CvGameCoreDLL/CyUnitInterface1.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Core.xml b/Assets/Config/BUG Core.xml
+index d2cab0888..334c1e2fe 100644
+--- a/Assets/Config/BUG Core.xml	
++++ b/Assets/Config/BUG Core.xml	
+@@ -117,9 +117,6 @@
+ 	<shortcut module="InputUtil" function="toggleShowFriendlyMoves" keys="Shift M"/>
+ 	<!-- advc.135c -->
+ 	<shortcut module="InputUtil" function="toggleDebugMode" keys="Ctrl Z"/>
+-	<!-- advc.088: If the key combination is changed here, it'll also have to
+-		 be changed in CvGlobals::suppressCycling. -->
+-	<shortcut module="InputUtil" function="unselectAll" keys="Alt Shift U"/>
+ 	<!-- advc.savem -->
+ 	<shortcut module="savemap" function="savemap" keys="Alt Shift M"/>
+ </mod>
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index c62b9f8fd..cfa9fd0b3 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -199,6 +199,16 @@
+ 				<choice id="Large" get="isBuildIconSizeLarge"/>
+ 			</list>
+ 
++			<!-- advc.154: -->
++			<list   id="UnitCyclingButtons" key="Unit Cycling Buttons" 
++					type="int" default="1" listType="string" 
++					values="Workers|Units|None"
++					get="getUnitCyclingButtons" dirtyBit="SelectionButtons">
++				<choice id="Workers" get="isBothUnitCyclingButtons"/>
++				<choice id="Units" get="isSingleUnitCyclingButton"/>
++				<choice id="None" get="isUnitCyclingButtonsDisabled"/>
++			</list>
++
+ 			<!-- advc.002m: (Note: the DLL relies on this order of the choices) -->
+ 			<list   id="NukeMissionTime" key="Nuke Mission Time" 
+ 					type="int" default="0" listType="string"
+
+diff --git a/Assets/Python/BUG/InputUtil.py b/Assets/Python/BUG/InputUtil.py
+index 79f041e67..badecc882 100644
+--- a/Assets/Python/BUG/InputUtil.py
++++ b/Assets/Python/BUG/InputUtil.py
+@@ -218,7 +218,7 @@ class ShortcutHandler(BugConfig.HandlerWithArgs):
+ 			BugUtil.info("InputUtil - ignoring <%s> %s, requires dll version %s", element.tag, keys, self.resolveDll(element, dll))
+ 
+ 
+-# advc: I've added three keyboard shortcuts and need to put the handlers somewhere. Don't want to create a new BUG module just for this. Tbd.: It might be nicer to do this through Civ4ControlInfos.xml and the DLL.
++# advc: I've added three keyboard shortcuts and need to put the handlers somewhere. Don't want to create a new BUG module just for this. Tbd.: Nicer to do this through Civ4ControlInfos.xml and the DLL. As I've already done it with CONTROL_UNSELECT_ALL (advc.088).
+ 
+ # <advc.102>
+ gc = BugUtil.gc
+@@ -239,9 +239,6 @@ def toggleDebugMode(argsList=None):
+ 	# The built-in shortcut (also Ctrl+Z) works iff ChtLvl>0. Let CvGame::toggleDebugMode decide whether ChtLvl should matter.
+ 	if getChtLvl() <= 0:
+ 		gc.getGame().toggleDebugMode()
+-# advc.088:
+-def unselectAll(argsList=None):
+-	CyInterface().clearSelectionList()
+ # advc.004m: Called by BugOptions when dirty. Defining this handler directly in CvScreensInterface.py leads to problems when reloading scripts, specifically in ChangeHandler.handle (BugOptions.py).
+ def updateDefaultCamDistance(option, value):
+ 	import CvScreensInterface
+
+diff --git a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+index d56ec9b28..a3c5adca9 100644
+--- a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+@@ -23,19 +23,17 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		
+ 		self.createGreatPersonGeneralPanel(screen, left)
+ 		self.addSpacer(screen, left, "GeneralL1")
+-		# advc.004: Extra spacer; for now, there is enough space to align left, center and right in the middle
+-		self.addSpacer(screen, left, "GeneralL2")
+ 		self.createTechSplashPanel(screen, left)
+ 		#self.createLeaderheadPanel(screen, left)
+ 
+ 		#self.createAutoSavePanel(screen, center)
+ 		self.createInfoPanePanel(screen, center)
+-		self.addSpacer(screen, center, "GeneralC1")
++		# advc: Don't have space for this spacer anymore
++		#self.addSpacer(screen, center, "GeneralC1")
+ 		self.createActionsPanel(screen, center) # advc.004: Restored
+ 		
+ 		self.createSlidersPanel(screen, right) # advc.120c
+-		# advc.070: To align Misc with Actions
+-		#self.addSpacer(screen, right, "GeneralR1")
++		self.addSpacer(screen, right, "GeneralR1")
+ 		self.createMiscellaneousPanel(screen, right)
+ #		if Buffy.isEnabled():
+ #			self.addSpacer(screen, right, "General5")
+@@ -78,6 +76,8 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, panel, "MainInterface__SimpleSelection")
+ 		self.addCheckbox(screen, panel, "MainInterface__RapidUnitCycling")
+ 		# </advc.004>
++		# advc.154:
++		self.addTextDropdown(screen, panel, panel, "MainInterface__UnitCyclingButtons", True)
+ 		# advc.004k:
+ 		self.addCheckbox(screen, panel, "MainInterface__SeaPatrol")
+ 		# advc.002m:
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 3a792c63e..3f3d6afcb 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -124,6 +124,7 @@ NUM_SELECTION_BUTTONS = SELECTION_BUTTON_ROWS * SELECTION_BUTTON_COLUMNS
+ g_iNumBuildingWidgets = MAX_DISPLAYABLE_BUILDINGS
+ g_iNumTradeRouteWidgets = MAX_DISPLAYABLE_TRADE_ROUTES
+ 
++iBottomButtonContainerOffsetY = 113 # advc.154
+ # END OF TURN BUTTON POSITIONS
+ ######################
+ iEndOfTurnButtonSize = 32
+@@ -686,7 +687,7 @@ class CvMainInterface:
+ 		# Globeview buttons
+ 		self.createGlobeviewButtons( )
+ 
+-		screen.addMultiListControlGFC( "BottomButtonContainer", u"", iMultiListXL, yResolution - 113, xResolution - (iMultiListXL+iMultiListXR), 100, 4, 48, 48, TableStyles.TABLE_STYLE_STANDARD )		
++		screen.addMultiListControlGFC( "BottomButtonContainer", u"", iMultiListXL, yResolution - iBottomButtonContainerOffsetY, xResolution - (iMultiListXL+iMultiListXR), 100, 4, 48, 48, TableStyles.TABLE_STYLE_STANDARD )		
+ 		screen.hide( "BottomButtonContainer" )
+ 
+ 		# *********************************************************************************
+@@ -2296,11 +2297,20 @@ class CvMainInterface:
+ 		screen.hide( "AutomateProduction" )
+ 		screen.hide( "AutomateCitizens" )
+ 
+-		if (not CyEngine().isGlobeviewUp() and pHeadSelectedCity):
++		# <advc.154>
++		self.hideUnitCyclingButtons(screen)
++		# Moved up:
++		bHeadSelectionChanged = (g_pSelectedUnit != pHeadSelectedUnit)
++		g_pSelectedUnit = pHeadSelectedUnit
++		# </advc.154>
++
++		if not CyEngine().isGlobeviewUp() and pHeadSelectedCity:
+ 
+ 			self.setMinimapButtonVisibility(True)
+ 
+-			if ((pHeadSelectedCity.getOwner() == gc.getGame().getActivePlayer()) or gc.getGame().isDebugMode()):
++			if pHeadSelectedCity.getOwner() == gc.getGame().getActivePlayer() or gc.getGame().isDebugMode():
++				# advc.154: Moved up a bit (needed at all?)
++				g_pSelectedUnit = 0
+ 
+ 				iBtnX = xResolution - 284
+ 				iBtnY = yResolution - 177
+@@ -2407,7 +2417,6 @@ class CvMainInterface:
+ 				screen.setStyle( szButtonID, szStyle )
+ 				screen.hide( szButtonID )
+ 				
+-				g_pSelectedUnit = 0
+ 				screen.setState( "AutomateCitizens", pHeadSelectedCity.isCitizensAutomated() )
+ 				screen.setState( "AutomateProduction", pHeadSelectedCity.isProductionAutomated() )
+ 				
+@@ -2540,15 +2549,12 @@ class CvMainInterface:
+ 
+ 				screen.selectMultiList( "BottomButtonContainer", CyInterface().getCityTabSelectionRow() )
+ 							
+-		elif (not CyEngine().isGlobeviewUp() and pHeadSelectedUnit and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_MINIMAP_ONLY):
+-
+-			self.setMinimapButtonVisibility(True)
+-
+-			if (CyInterface().getInterfaceMode() == InterfaceModeTypes.INTERFACEMODE_SELECTION):
+-			
+-				if ( pHeadSelectedUnit.getOwner() == gc.getGame().getActivePlayer() and g_pSelectedUnit != pHeadSelectedUnit ):
+-				
+-					g_pSelectedUnit = pHeadSelectedUnit
++		elif (not CyEngine().isGlobeviewUp() and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_MINIMAP_ONLY):
++			if pHeadSelectedUnit: # advc.154: Moved out of the condition above
++				self.setMinimapButtonVisibility(True)
++			if CyInterface().getInterfaceMode() == InterfaceModeTypes.INTERFACEMODE_SELECTION:
++				# advc.154: pHeadSelectedUnit moved from above. (Handling of g_pSelectedUnit moved up.)
++				if pHeadSelectedUnit and pHeadSelectedUnit.getOwner() == gc.getGame().getActivePlayer() and bHeadSelectionChanged:
+ 
+ 					iCount = 0
+ 
+@@ -2583,12 +2589,67 @@ class CvMainInterface:
+ 						screen.show( "BottomButtonContainer" )
+ 						
+ 						iCount = iCount + 1
+-
++				# <advc.154>
++				pUnit = None
++				if bHeadSelectionChanged:
++					pUnit = pHeadSelectedUnit
++				self.updateUnitCyclingButtons(screen, pUnit) # </advc.154>
+ 		elif (CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_MINIMAP_ONLY):
+-		
+ 			self.setMinimapButtonVisibility(True)
+ 
+ 		return 0
++	# <advc.154>
++	def hideUnitCyclingButtons(self, kScreen):
++		self.hideUnitCycleButtonGFC("UnitCycle", kScreen)
++		self.hideUnitCycleButtonGFC("WorkerCycle", kScreen)
++		self.hideUnitCycleButtonGFC("Unselect", kScreen)
++
++	def updateUnitCyclingButtons(self, kScreen, pHeadSelectedUnit):
++
++		if MainOpt.isUnitCyclingButtonsDisabled():
++			return
++
++		iUnitCycleButtonMargin = 2 # Thicker margins look bad on low resolutions
++		iUnitCycleButtonSize = 32
++		iUnitCycleButtonX = kScreen.getXResolution() - iMultiListXR - iUnitCycleButtonMargin
++		iUnitCycleButtonY = kScreen.getYResolution() - iBottomButtonContainerOffsetY + iUnitCycleButtonMargin
++		pNextUnit = gc.getGame().getNextUnitInCycle(True, False)
++		if pNextUnit:
++			if pNextUnit.hasMoved():
++				szOverlay = "OVERLAY_HASMOVED"
++			else:
++				szOverlay = "OVERLAY_MOVE"
++			self.showUnitCycleButtonGFC("UnitCycle", kScreen, pNextUnit, iUnitCycleButtonX, iUnitCycleButtonY, iUnitCycleButtonSize, False, False, ArtFileMgr.getInterfaceArtInfo(szOverlay).getPath())
++			iUnitCycleButtonY += iUnitCycleButtonSize + 2 * iUnitCycleButtonMargin
++			if not MainOpt.isSingleUnitCyclingButton() and not pNextUnit.isWorker():
++				pNextWorker = gc.getGame().getNextUnitInCycle(True, True)
++				if pNextWorker and pNextWorker.getID() != pNextUnit.getID():
++					if pNextWorker.hasMoved():
++						szOverlay = "OVERLAY_HASMOVED"
++					else:
++						szOverlay = "OVERLAY_MOVE"
++					self.showUnitCycleButtonGFC("WorkerCycle", kScreen, pNextWorker, iUnitCycleButtonX, iUnitCycleButtonY, iUnitCycleButtonSize, True, False, ArtFileMgr.getInterfaceArtInfo(szOverlay).getPath())
++		# If selected unit is not expecting orders, show unselect button (advc.088).
++		elif pHeadSelectedUnit and (pHeadSelectedUnit.isWaiting() or not pHeadSelectedUnit.canMove()):
++			if pHeadSelectedUnit.canMove():
++				szOverlay = "OVERLAY_FORTIFY"
++			else:
++				szOverlay = "OVERLAY_NOMOVE"
++			self.showUnitCycleButtonGFC("Unselect", kScreen, pHeadSelectedUnit, iUnitCycleButtonX, iUnitCycleButtonY, iUnitCycleButtonSize, False, True, ArtFileMgr.getInterfaceArtInfo(szOverlay).getPath())
++
++	def showUnitCycleButtonGFC(self, szName, kScreen, kUnit, iX, iY, iSize, bWorkers, bUnselect, szOverlayPath):
++
++		iWidgetData2 = -1
++		if not bUnselect:
++			iWidgetData2 = kUnit.getID()
++		kScreen.setButtonGFC(szName + "Button", "", gc.getPlayer(kUnit.getOwner()).getUnitButton(kUnit.getUnitType()), iX, iY, iSize, iSize, WidgetTypes.WIDGET_CYCLE_UNIT, bWorkers, iWidgetData2, ButtonStyles.BUTTON_STYLE_IMAGE)
++		kScreen.addDDSGFCAt(szName + "Overlay", szName + "Button", szOverlayPath, 0, 0, 12, 12, WidgetTypes.WIDGET_CYCLE_UNIT, bWorkers, iWidgetData2, False)
++		kScreen.show(szName + "Button")
++		kScreen.show(szName + "Overlay")
++
++	def hideUnitCycleButtonGFC(self, szName, kScreen):
++		kScreen.hide(szName + "Button")
++		kScreen.hide(szName + "Overlay") # </advc.154>
+ 
+ 	# Will update the research buttons
+ 	def updateResearchButtons( self ):
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index a8f22e5c6..62296a3ba 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -654,12 +654,12 @@
+ 
+ 	<!-- 002b: This option column gets a bit too wide with the larger fonts.
+ 		 Also, "Action button" is clearer than "Build/Action Icon".
+-		 I didn't change the Romanic translations. -->
++		 I didn't change the FIS translations. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__BUILDICONSIZE_TEXT</Tag>
+ 		<English>Action Button Size</English>
+ 		<French>Action Button Size</French>
+-		<German>Gr��e der Schaltfl�chen</German>
++		<German>Schaltfl�chen-Gr��e</German>
+ 		<Italian>Dimensione Icona Costruisci/Azione</Italian>
+ 		<Spanish>Tama�o de Iconos de acci�n/construcci�n</Spanish>
+ 	</TEXT>
+@@ -696,6 +696,32 @@
+ 		<Spanish>Activada, la selecci�n de unidades autom�tica ocurre instant�neamente m�s que con un retardo.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.154: -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__UNITCYCLINGBUTTONS_TEXT</Tag>
++		<English>Next-Unit Button</English>
++		<French>Next-Unit Button</French>
++		<German>N�chste Einheit</German>
++		<Italian>Next-Unit Button</Italian>
++		<Spanish>Next-Unit Button</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__UNITCYCLINGBUTTONS_LIST</Tag>
++		<English>Two Buttons|Enabled|Disabled</English>
++		<French>Two Buttons|Enabled|Disabled</French>
++		<German>Zwei Buttons|Zeige Button|Kein Button</German>
++		<Italian>Two Buttons|Enabled|Disabled</Italian>
++		<Spanish>Two Buttons|Enabled|Disabled</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__UNITCYCLINGBUTTONS_HOVER</Tag>
++		<English>Whether to show unit cycling buttons (to the left of the big flag).[NEWLINE][COLOR_HIGHLIGHT_TEXT]Two Buttons[COLOR_REVERT]: Shows a button for unit cycling and, if any worker units need orders, a separate button for worker cycling. If the next unit in the whole cycle (workers and non-workers) is a worker, then only a single button is shown.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Enabled[COLOR_REVERT]: Enables only the regular unit cycling button; no separate button for worker cycling.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Disabled[COLOR_REVERT]: No unit cycling buttons are shown.[NEWLINE][NEWLINE]Right-clicking either of the unit cycling buttons jumps backwards in the unit cycle. Even if the buttons are disabled, one can always use the (BtS) hotkeys [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] or [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] for unit cycling, [COLOR_HIGHLIGHT_TEXT]/[COLOR_REVERT] for worker cycling and [COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT] for cycling backwards.</English>
++		<French>Whether to show unit cycling buttons (to the left of the big flag).[NEWLINE][COLOR_HIGHLIGHT_TEXT]Two Buttons[COLOR_REVERT]: Shows a button for unit cycling and, if any worker units need orders, a separate button for worker cycling. If the next unit in the whole cycle (workers and non-workers) is a worker, then only a single button is shown.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Enabled[COLOR_REVERT]: Enables only the regular unit cycling button; no separate button for worker cycling.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Disabled[COLOR_REVERT]: No unit cycling buttons are shown.[NEWLINE][NEWLINE]Right-clicking either of the unit cycling buttons jumps backwards in the unit cycle. Even if the buttons are disabled, one can always use the (BtS) hotkeys [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] or [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] for unit cycling, [COLOR_HIGHLIGHT_TEXT]/[COLOR_REVERT] for worker cycling and [COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT] for cycling backwards.</French>
++		<German>Schaltfl�chen (Buttons) zum Wechseln der ausgew�hlten Einheit.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zwei Buttons[COLOR_REVERT]: Ein Button f�r den regul�ren Einheitenwechsel und, falls Arbeiter ([COLOR_UNIT_TEXT]Bautrupps[COLOR_REVERT] oder [COLOR_UNIT_TEXT]Arbeitsboote[COLOR_REVERT]) Befehle ben�tigen, ein weiterer Button zum Arbeiterwechsel. Wenn die n�chste Einheit jedenfalls ein Arbeiter ist, wird nur ein einzelner Button angezeigt.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Button zeigen[COLOR_REVERT]: Zeigt den Einheitenwechsel-Button an, aber nicht den Arbeiterwechsel-Button.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Kein Button[COLOR_REVERT]: Keiner der beiden Buttons wird angezeigt.[NEWLINE][NEWLINE]Ein Rechtsklick auf einen der Buttons wechselt zur zuletzt ausgew�hlten Einheit. Die BtS Tastaturk�rzel funktionieren unabh�ngig von den Buttons: [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] oder [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] f�r den Einheitenwechsel, [COLOR_HIGHLIGHT_TEXT]#[COLOR_REVERT] f�r den Arbeiterwechsel und [COLOR_HIGHLIGHT_TEXT]^[COLOR_REVERT] um zur vorhergehenden Einheit zu wechseln.</German>
++		<Italian>Whether to show unit cycling buttons (to the left of the big flag).[NEWLINE][COLOR_HIGHLIGHT_TEXT]Two Buttons[COLOR_REVERT]: Shows a button for unit cycling and, if any worker units need orders, a separate button for worker cycling. If the next unit in the whole cycle (workers and non-workers) is a worker, then only a single button is shown.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Enabled[COLOR_REVERT]: Enables only the regular unit cycling button; no separate button for worker cycling.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Disabled[COLOR_REVERT]: No unit cycling buttons are shown.[NEWLINE][NEWLINE]Right-clicking either of the unit cycling buttons jumps backwards in the unit cycle. Even if the buttons are disabled, one can always use the (BtS) hotkeys [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] or [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] for unit cycling, [COLOR_HIGHLIGHT_TEXT]/[COLOR_REVERT] for worker cycling and [COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT] for cycling backwards.</Italian>
++		<Spanish>Whether to show unit cycling buttons (to the left of the big flag).[NEWLINE][COLOR_HIGHLIGHT_TEXT]Two Buttons[COLOR_REVERT]: Shows a button for unit cycling and, if any worker units need orders, a separate button for worker cycling. If the next unit in the whole cycle (workers and non-workers) is a worker, then only a single button is shown.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Enabled[COLOR_REVERT]: Enables only the regular unit cycling button; no separate button for worker cycling.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Disabled[COLOR_REVERT]: No unit cycling buttons are shown.[NEWLINE][NEWLINE]Right-clicking either of the unit cycling buttons jumps backwards in the unit cycle. Even if the buttons are disabled, one can always use the (BtS) hotkeys [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] or [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] for unit cycling, [COLOR_HIGHLIGHT_TEXT]/[COLOR_REVERT] for worker cycling and [COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT] for cycling backwards.</Spanish>
++	</TEXT>
++
+ 	<!-- 002m: -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__NUKEMISSIONTIME_TEXT</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 35b4392f1..758068c5c 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -6583,4 +6583,60 @@
+ 		<Spanish>evitando crecimiento</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.154 (Colors match action button help.
++		 Hotkey descr. is already fully formated.) -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_HELP_CYCLE_UNIT</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]Select Next Unit[COLOR_REVERT] %s1_HotKeyDescr: [COLOR_UNIT_TEXT]%s2_UnitDescr[COLOR_REVERT]</English>
++		<French>[COLOR_HIGHLIGHT_TEXT]S�lectionner la prochaine unit�[COLOR_REVERT] %s1_HotKeyDescr: [COLOR_UNIT_TEXT]%s2_UnitDescr[COLOR_REVERT]</French>
++		<German>[COLOR_HIGHLIGHT_TEXT]Zur n�chsten Einheit[COLOR_REVERT] %s1_HotKeyDescr: [COLOR_UNIT_TEXT]%s2_UnitDescr[COLOR_REVERT]</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Seleziona la prossima unit�[COLOR_REVERT] %s1_HotKeyDescr: [COLOR_UNIT_TEXT]%s2_UnitDescr[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Seleccionar la proxima unidad[COLOR_REVERT] %s1_HotKeyDescr: [COLOR_UNIT_TEXT]%s2_UnitDescr[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<!-- Could be a Workboat, usually a Worker. -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_HELP_CYCLE_WORKER</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]Select Next %s1_UnitDescr[COLOR_REVERT] %s2_HotKeyDescr</English>
++		<French>[COLOR_HIGHLIGHT_TEXT]S�lectionner le prochain %s1_UnitDescr[COLOR_REVERT] %s2_HotKeyDescr</French>
++		<German>[COLOR_HIGHLIGHT_TEXT]Zum n�chsten %s1_UnitDescr[COLOR_REVERT] %s2_HotKeyDescr</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Seleziona [NUM1:il prossimo:la prossima:i prossimi:le prossime] %s1_UnitDescr[COLOR_REVERT] %s2_HotKeyDescr</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Seleccionar el proximo %s1_UnitDescr[COLOR_REVERT] %s2_HotKeyDescr</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_HELP_CYCLE_UNIT_GROUP</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]Select Next Group[COLOR_REVERT] %s1_HotKeyDescr: [COLOR_UNIT_TEXT]%s2_UnitDescr[COLOR_REVERT], %d3 units</English>
++		<French>[COLOR_HIGHLIGHT_TEXT]S�lectionner le prochain groupe[COLOR_REVERT] %s1_HotKeyDescr: [COLOR_UNIT_TEXT]%s2_UnitDescr[COLOR_REVERT], %d3 unit�s</French>
++		<German>[COLOR_HIGHLIGHT_TEXT]Zur n�chsten Gruppe[COLOR_REVERT] %s1_HotKeyDescr: [COLOR_UNIT_TEXT]%s2_UnitDescr[COLOR_REVERT], %d3 Einheiten</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Seleziona il prossimo gruppo[COLOR_REVERT] %s1_HotKeyDescr: [COLOR_UNIT_TEXT]%s2_UnitDescr[COLOR_REVERT], %d3 unit�</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Seleccionar el pr�ximo grupo[COLOR_REVERT] %s1_HotKeyDescr: [COLOR_UNIT_TEXT]%s2_UnitDescr[COLOR_REVERT], %d3 unidades</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_HELP_CYCLE_WORKER_GROUP</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]Select Next %s1_UnitDescr Group[COLOR_REVERT] %s2_HotKeyDescr: %d3 units</English>
++		<French>[COLOR_HIGHLIGHT_TEXT]S�lectionner le prochain groupe des %s1_UnitDescr[COLOR_REVERT] %s2_HotKeyDescr: %d3 unit�s</French>
++		<German>[COLOR_HIGHLIGHT_TEXT]Zur n�chsten %s1_UnitDescr-Gruppe[COLOR_REVERT] %s2_HotKeyDescr: %d3 Einheiten</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Seleziona il prossimo gruppo di %s1_UnitDescr[COLOR_REVERT] %s2_HotKeyDescr: %d3 unit&#224;</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Seleccionar el proximo grupo de %s1_UnitDescr[COLOR_REVERT] %s2_HotKeyDescr: %d3 unidades</Spanish>
++	</TEXT>
++	<!-- (Also for advc.088). Note that these two aren't intended for use in
++		 CvHotKeyInfo::getHotKeyDescription. I use custom code for displaying
++		 the unselect button hover text. -->
++	<TEXT>
++		<Tag>TXT_KEY_ACTION_UNSELECT_ALL_HELP</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]Unselect all Units[COLOR_REVERT] %s1_HotKeyDescr</English>
++		<French>[COLOR_HIGHLIGHT_TEXT]D�s�lectionner toutes les unit�s[COLOR_REVERT] %s1_HotKeyDescr</French>
++		<German>[COLOR_HIGHLIGHT_TEXT]Einheiten-Auswahl aufheben[COLOR_REVERT] %s1_HotKeyDescr</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Deseleziona tutte le unit�[COLOR_REVERT] %s1_HotKeyDescr</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Deseleccionar todas las unidades[COLOR_REVERT] %s1_HotKeyDescr</Spanish>
++	</TEXT>
++	<!-- advc.088: (unused) -->
++	<TEXT>
++		<Tag>TXT_KEY_ACTION_UNSELECT_ALL</Tag>
++		<English>Unselect all Units</English>
++		<French>Unselect all Units</French>
++		<German>Einheiten-Auswahl aufheben</German>
++		<Italian>Unselect all Units</Italian>
++		<Spanish>Unselect all Units</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4ControlInfos.xml b/Assets/XML/Units/CIV4ControlInfos.xml
+index 97b205e09..480fa83f8 100644
+--- a/Assets/XML/Units/CIV4ControlInfos.xml
++++ b/Assets/XML/Units/CIV4ControlInfos.xml
+@@ -2,8 +2,9 @@
+ <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Soren Johnson (Firaxis Games) -->
+ <!-- Sid Meier's Civilization 4 -->
+ <!-- Copyright Firaxis Games 2005 -->
+-<!-- -->
+-<!-- Control Infos -->
++
++<!-- advc: Copied from BtS. I've left it in the Units folder, note, however,
++	 that controls are global and very much not tied to units. -->
+ <Civ4ControlInfos xmlns="x-schema:CIV4UnitSchema.xml">
+ 	<!--Changes must be reflected in CvEnums.h-->
+ 	<ControlInfos>
+@@ -953,5 +954,25 @@
+ 			<bCtrlDownAlt>0</bCtrlDownAlt>
+ 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+ 		</ControlInfo>
++		<!-- advc.088:
++			 If the HotKey is changed here, it'll also have to be changed in
++			 CvGlobals::suppressCycling.
++			 The 1st text key is unused, the 2nd displayed
++			 only individually by CvGameTextMgr::setUnselectUnitHelp. -->
++		<ControlInfo>
++			<Type>CONTROL_UNSELECT_ALL</Type>
++			<Description>TXT_KEY_ACTION_UNSELECT_ALL</Description>
++			<Help>TXT_KEY_ACTION_UNSELECT_ALL_HELP</Help>
++			<HotKey>KB_U</HotKey>
++			<bAltDown>1</bAltDown>
++			<bShiftDown>1</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<HotKeyAlt/>
++			<bAltDownAlt>0</bAltDownAlt>
++			<bShiftDownAlt>0</bShiftDownAlt>
++			<bCtrlDownAlt>0</bCtrlDownAlt>
++			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
++		</ControlInfo>
+ 	</ControlInfos>
+ </Civ4ControlInfos>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 860a7c729..b0c608a62 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -54,6 +54,9 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 			return;
+ 		}
+ 	} // </advc.085>
++	/*	advc: (Note - Better not to assume that this is valid, widgets might perhaps
++		get triggered while returning to main memory or sth. like that.) */
++	PlayerTypes const eActivePlayer = GC.getGame().getActivePlayer();
+ 	switch (widgetDataStruct.m_eWidgetType)
+ 	{
+ 	case WIDGET_PLOT_LIST:
+@@ -672,6 +675,17 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	case WIDGET_FOOD_MOD_HELP:
+ 		parseFoodModHelp(widgetDataStruct, szBuffer);
+ 		break; // BULL - Food Rate Hover - end
++	// <advc.154>
++	case WIDGET_CYCLE_UNIT:
++		if (eActivePlayer != NO_PLAYER)
++		{
++			CvUnit const* pUnit = GET_PLAYER(eActivePlayer).
++					getUnit(widgetDataStruct.m_iData2);
++			if (pUnit == NULL)
++				GAMETEXT.setUnselectUnitHelp(szBuffer);
++			else GAMETEXT.setCycleUnitHelp(szBuffer, widgetDataStruct.m_iData1, *pUnit);
++		}
++		break; // </advc.154>
+ 	// <advc.085>
+ 	case WIDGET_EXPAND_SCORES:
+ 		break; // Handled below (not the only widget that expands the scoreboard)
+@@ -997,62 +1011,13 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataStruct)
+ 		}
+ 		break;
+ 	} // </advc.ctr>
+-	case WIDGET_CHOOSE_EVENT:
+-	case WIDGET_ZOOM_CITY:
+-	case WIDGET_HELP_TECH_PREPREQ:
+-	case WIDGET_HELP_OBSOLETE:
+-	case WIDGET_HELP_OBSOLETE_BONUS:
+-	case WIDGET_HELP_OBSOLETE_SPECIAL:
+-	case WIDGET_HELP_MOVE_BONUS:
+-	case WIDGET_HELP_FREE_UNIT:
+-	case WIDGET_HELP_FEATURE_PRODUCTION:
+-	case WIDGET_HELP_WORKER_RATE:
+-	case WIDGET_HELP_TRADE_ROUTES:
+-	case WIDGET_HELP_HEALTH_RATE:
+-	case WIDGET_HELP_HAPPINESS_RATE:
+-	case WIDGET_HELP_FREE_TECH:
+-	case WIDGET_HELP_LOS_BONUS:
+-	case WIDGET_HELP_MAP_CENTER:
+-	case WIDGET_HELP_MAP_REVEAL:
+-	case WIDGET_HELP_MAP_TRADE:
+-	case WIDGET_HELP_TECH_TRADE:
+-	case WIDGET_HELP_GOLD_TRADE:
+-	case WIDGET_HELP_OPEN_BORDERS:
+-	case WIDGET_HELP_DEFENSIVE_PACT:
+-	case WIDGET_HELP_PERMANENT_ALLIANCE:
+-	case WIDGET_HELP_VASSAL_STATE:
+-	case WIDGET_HELP_BUILD_BRIDGE:
+-	case WIDGET_HELP_IRRIGATION:
+-	case WIDGET_HELP_IGNORE_IRRIGATION:
+-	case WIDGET_HELP_WATER_WORK:
+-	case WIDGET_HELP_IMPROVEMENT:
+-	case WIDGET_HELP_DOMAIN_EXTRA_MOVES:
+-	case WIDGET_HELP_ADJUST:
+-	case WIDGET_HELP_TERRAIN_TRADE:
+-	case WIDGET_HELP_SPECIAL_BUILDING:
+-	case WIDGET_HELP_YIELD_CHANGE:
+-	case WIDGET_HELP_BONUS_REVEAL:
+-	case WIDGET_HELP_CIVIC_REVEAL:
+-	case WIDGET_HELP_PROCESS_INFO:
+-	case WIDGET_HELP_FINANCE_NUM_UNITS:
+-	case WIDGET_HELP_FINANCE_UNIT_COST:
+-	case WIDGET_HELP_FINANCE_AWAY_SUPPLY:
+-	case WIDGET_HELP_FINANCE_CITY_MAINT:
+-	case WIDGET_HELP_FINANCE_CIVIC_UPKEEP:
+-	case WIDGET_HELP_FINANCE_FOREIGN_INCOME:
+-	case WIDGET_HELP_FINANCE_INFLATED_COSTS:
+-	case WIDGET_HELP_FINANCE_GROSS_INCOME:
+-	case WIDGET_HELP_FINANCE_NET_GOLD:
+-	case WIDGET_HELP_FINANCE_GOLD_RESERVE:
+-	case WIDGET_HELP_RELIGION_CITY:
+-	case WIDGET_HELP_CORPORATION_CITY:
+-	case WIDGET_HELP_PROMOTION:
+-	case WIDGET_LEADERHEAD:
+-	case WIDGET_LEADER_LINE:
+-	case WIDGET_CLOSE_SCREEN:
+-	case WIDGET_SCORE_BREAKDOWN:
+-		//	Nothing on clicked
++	// <advc.154>
++	case WIDGET_CYCLE_UNIT:
++	{
++		GC.getGame().doControl(iData2 == -1 ? CONTROL_UNSELECT_ALL :
++				(iData1 == 1 ? CONTROL_CYCLEWORKER : CONTROL_CYCLEUNIT_ALT));
+ 		break;
++	} // </advc.154>
+ 	}
+ 
+ 	return bHandled;
+@@ -1155,6 +1120,23 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataStruct)
+ 		if (gDLL->UI().isCityScreenUp())
+ 			return executeAction(widgetDataStruct);
+ 		break; // </advc.ctr>
++	// <advc.154>
++	case WIDGET_CYCLE_UNIT:
++	{
++		if (iData2 == -1)
++		{
++			GC.getGame().doControl(CONTROL_UNSELECT_ALL);
++			break;
++		}
++		// Focus on the unit?
++		/*CvPlayer const& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
++		CvUnit const* pUnit = kActivePlayer.getUnit(iData2);
++		if (pUnit != NULL)
++			gDLL->getEngineIFace()->cameraLookAt(pUnit->getPlot().getPoint());*/
++		// Maybe better: cycle backwards
++		GC.getGame().doControl(CONTROL_LASTUNIT);
++		break;
++	} // </advc.154>
+ 	default:
+ 		bHandled = false;
+ 		break;
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index dc60cb71c..d3d782cc3 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -479,6 +479,7 @@ ENUM_START(Widget, WIDGET)
+ 	WIDGET_GOLDEN_AGE,
+ 	WIDGET_ANARCHY, // </advc.085>
+ 	WIDGET_CITY_TRADE, // advc.ctr
++	WIDGET_CYCLE_UNIT, // advc.154
+ ENUM_END(Widget, WIDGET)
+ 
+ ENUM_START(ButtonPopup, BUTTONPOPUP)
+@@ -1025,6 +1026,7 @@ ENUM_START(Control, CONTROL)
+ 	CONTROL_SELECT_HEALTHY,
+ 	CONTROL_ESPIONAGE_SCREEN,
+ 	CONTROL_FREE_COLONY,
++	CONTROL_UNSELECT_ALL, // advc.154
+ 	// Any additions need to be reflected in XML\Units\Civ4ControlInfos.xml
+ ENUM_END(Control, CONTROL)
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index d5bc3fe09..34b95fb5b 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -87,10 +87,19 @@ public:
+ 		getPlotUnits(pPlot, &kPlotUnits, -1); // advc
+ 	}
+ 
+-	DllExport void cycleCities(bool bForward = true, bool bAdd = false) const;																				// Exposed to Python
+-	void cycleSelectionGroups(bool bClear, bool bForward = true, bool bWorkers = false);								// Exposed to Python
+-	void cycleSelectionGroups_delayed(int iDelay, bool bIncremental, bool bDelayOnly = false); // K-Mod
+-	DllExport bool cyclePlotUnits(CvPlot* pPlot, bool bForward = true, bool bAuto = false, int iCount = -1) const;		// Exposed to Python
++	DllExport void cycleCities(bool bForward = true, bool bAdd = false) const;											// Exposed to Python
++	// <advc.154>
++	CvSelectionGroup* getNextGroupInCycle(bool bForward, bool bWorkers,
++			bool& bWrap, CvUnit*& pCycleUnit) const;
++	CvUnit* getCycleButtonUnit(bool bForward, bool bWorkers) const;  // Exposed to Python
++	// </advc.154>
++	void cycleSelectionGroups(bool bClear,																				// Exposed to Python
++			bool bForward = true, bool bWorkers = false);
++	// K-Mod:
++	void cycleSelectionGroups_delayed(int iDelay,
++			bool bIncremental, bool bDelayOnly = false);
++	DllExport bool cyclePlotUnits(CvPlot* pPlot,																		// Exposed to Python
++			bool bForward = true, bool bAuto = false, int iCount = -1) const;
+ 	DllExport bool selectCity(CvCity* pSelectCity, bool bCtrl, bool bAlt, bool bShift) const;
+ 
+ 	DllExport void selectionListMove(CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const;												// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index eac20871d..56d46e517 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -204,6 +204,170 @@ DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot* pToPlot)
+ 			m.dyWrap(pToPlot->getY() - pFromPlot->getY()));
+ }
+ 
++/*	advc: Cut from CvXMLLoadUtility.cpp, renamed
++	from "CreateHotKeyFromDescription"; nothing is "created" here. */
++CvWString hotkeyDescr::hotKeyFromDescription(TCHAR const* szDescr,
++	bool bShift, bool bAlt, bool bCtrl)
++{
++	// Example: "Delete <COLOR:140,255,40,255>Shift+Delete</COLOR>"
++	CvWString szHotKey;
++	if (szDescr != NULL && strcmp(szDescr, "") != 0)
++	{
++		szHotKey += L" <color=140,255,40,255>";
++		szHotKey += L"&lt;";
++
++		if (bShift)
++			szHotKey += gDLL->getText("TXT_KEY_SHIFT");
++
++		if (bAlt)
++			szHotKey += gDLL->getText("TXT_KEY_ALT");
++
++		if (bCtrl)
++			szHotKey += gDLL->getText("TXT_KEY_CTRL");
++
++		szHotKey += keyStringFromKBCode(szDescr);
++		szHotKey += L">";
++		szHotKey += L"</color>";
++	}
++	return szHotKey;
++}
++
++// KB code to string; e.g. KB_DELETE -> "Delete"
++// advc: Cut from CvXMLLoadUtility.cpp, renamed from "CreateKeyStringFromKBCode".
++CvWString hotkeyDescr::keyStringFromKBCode(TCHAR const* szDescr)
++{
++	PROFILE_FUNC();
++
++	struct CvKeyBoardMapping
++	{
++		TCHAR szDefineString[25];
++		CvWString szKeyString;
++	};
++
++	// TODO - this should be a stl map instead of looping strcmp
++	const int iNumKeyBoardMappings=108;
++	const CvKeyBoardMapping asCvKeyBoardMapping[iNumKeyBoardMappings] =
++	{
++		{"KB_ESCAPE", gDLL->getText("TXT_KEY_KEYBOARD_ESCAPE")},
++		{"KB_0","0"},
++		{"KB_1","1"},
++		{"KB_2","2"},
++		{"KB_3","3"},
++		{"KB_4","4"},
++		{"KB_5","5"},
++		{"KB_6","6"},
++		{"KB_7","7"},
++		{"KB_8","8"},
++		{"KB_9","9"},
++		{"KB_MINUS","-"},	    /* - on main keyboard */
++		{"KB_A","A"},
++		{"KB_B","B"},
++		{"KB_C","C"},
++		{"KB_D","D"},
++		{"KB_E","E"},
++		{"KB_F","F"},
++		{"KB_G","G"},
++		{"KB_H","H"},
++		{"KB_I","I"},
++		{"KB_J","J"},
++		{"KB_K","K"},
++		{"KB_L","L"},
++		{"KB_M","M"},
++		{"KB_N","N"},
++		{"KB_O","O"},
++		{"KB_P","P"},
++		{"KB_Q","Q"},
++		{"KB_R","R"},
++		{"KB_S","S"},
++		{"KB_T","T"},
++		{"KB_U","U"},
++		{"KB_V","V"},
++		{"KB_W","W"},
++		{"KB_X","X"},
++		{"KB_Y","Y"},
++		{"KB_Z","Z"},
++		{"KB_EQUALS","="},
++		{"KB_BACKSPACE",gDLL->getText("TXT_KEY_KEYBOARD_BACKSPACE")},
++		{"KB_TAB","TAB"},
++		{"KB_LBRACKET","["},
++		{"KB_RBRACKET","]"},
++		{"KB_RETURN",gDLL->getText("TXT_KEY_KEYBOARD_ENTER")},		/* Enter on main keyboard */
++		{"KB_LCONTROL",gDLL->getText("TXT_KEY_KEYBOARD_LEFT_CONTROL_KEY")},
++		{"KB_SEMICOLON",";"},
++		{"KB_APOSTROPHE","'"},
++		{"KB_GRAVE","`"},		/* accent grave */
++		{"KB_LSHIFT",gDLL->getText("TXT_KEY_KEYBOARD_LEFT_SHIFT_KEY")},
++		{"KB_BACKSLASH","\\"},
++		{"KB_COMMA",","},
++		{"KB_PERIOD","."},
++		{"KB_SLASH","/"},
++		{"KB_RSHIFT",gDLL->getText("TXT_KEY_KEYBOARD_RIGHT_SHIFT_KEY")},
++		{"KB_NUMPADSTAR",gDLL->getText("TXT_KEY_KEYBOARD_NUM_PAD_STAR")},
++		{"KB_LALT",gDLL->getText("TXT_KEY_KEYBOARD_LEFT_ALT_KEY")},
++		{"KB_SPACE",gDLL->getText("TXT_KEY_KEYBOARD_SPACE_KEY")},
++		{"KB_CAPSLOCK",gDLL->getText("TXT_KEY_KEYBOARD_CAPS_LOCK")},
++		{"KB_F1","F1"},
++		{"KB_F2","F2"},
++		{"KB_F3","F3"},
++		{"KB_F4","F4"},
++		{"KB_F5","F5"},
++		{"KB_F6","F6"},
++		{"KB_F7","F7"},
++		{"KB_F8","F8"},
++		{"KB_F9","F9"},
++		{"KB_F10","F10"},
++		{"KB_NUMLOCK",gDLL->getText("TXT_KEY_KEYBOARD_NUM_LOCK")},
++		{"KB_SCROLL",gDLL->getText("TXT_KEY_KEYBOARD_SCROLL_KEY")},
++		{"KB_NUMPAD7",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 7)},
++		{"KB_NUMPAD8",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 8)},
++		{"KB_NUMPAD9",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 9)},
++		{"KB_NUMPADMINUS",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_MINUS")},
++		{"KB_NUMPAD4",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 4)},
++		{"KB_NUMPAD5",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 5)},
++		{"KB_NUMPAD6",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 6)},
++		{"KB_NUMPADPLUS",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_PLUS")},
++		{"KB_NUMPAD1",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 1)},
++		{"KB_NUMPAD2",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 2)},
++		{"KB_NUMPAD3",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 3)},
++		{"KB_NUMPAD0",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 0)},
++		{"KB_NUMPADPERIOD",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_PERIOD")},
++		{"KB_F11","F11"},
++		{"KB_F12","F12"},
++		{"KB_NUMPADEQUALS",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_EQUALS")},
++		{"KB_AT","@"},
++		{"KB_UNDERLINE","_"},
++		{"KB_COLON",":"},
++		{"KB_NUMPADENTER",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_ENTER_KEY")},
++		{"KB_RCONTROL",gDLL->getText("TXT_KEY_KEYBOARD_RIGHT_CONTROL_KEY")},
++		{"KB_VOLUMEDOWN",gDLL->getText("TXT_KEY_KEYBOARD_VOLUME_DOWN")},
++		{"KB_VOLUMEUP",gDLL->getText("TXT_KEY_KEYBOARD_VOLUME_UP")},
++		{"KB_NUMPADCOMMA",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_COMMA")},
++		{"KB_NUMPADSLASH",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_SLASH")},
++		{"KB_SYSRQ",gDLL->getText("TXT_KEY_KEYBOARD_SYSRQ")},
++		{"KB_RALT",gDLL->getText("TXT_KEY_KEYBOARD_RIGHT_ALT_KEY")},
++		{"KB_PAUSE",gDLL->getText("TXT_KEY_KEYBOARD_PAUSE_KEY")},
++		{"KB_HOME",gDLL->getText("TXT_KEY_KEYBOARD_HOME_KEY")},
++		{"KB_UP",gDLL->getText("TXT_KEY_KEYBOARD_UP_ARROW")},
++		{"KB_PGUP",gDLL->getText("TXT_KEY_KEYBOARD_PAGE_UP")},
++		{"KB_LEFT",gDLL->getText("TXT_KEY_KEYBOARD_LEFT_ARROW")},
++		{"KB_RIGHT",gDLL->getText("TXT_KEY_KEYBOARD_RIGHT_ARROW")},
++		{"KB_END",gDLL->getText("TXT_KEY_KEYBOARD_END_KEY")},
++		{"KB_DOWN",gDLL->getText("TXT_KEY_KEYBOARD_DOWN_ARROW")},
++		{"KB_PGDN",gDLL->getText("TXT_KEY_KEYBOARD_PAGE_DOWN")},
++		{"KB_INSERT",gDLL->getText("TXT_KEY_KEYBOARD_INSERT_KEY")},
++		{"KB_DELETE",gDLL->getText("TXT_KEY_KEYBOARD_DELETE_KEY")},
++	};
++
++	for (int i = 0; i < iNumKeyBoardMappings; i++)
++	{
++		if (strcmp(asCvKeyBoardMapping[i].szDefineString, szDescr) == 0)
++			return asCvKeyBoardMapping[i].szKeyString;
++	}
++
++	return "";
++}
++
++
+ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
+ {
+ 	return (eTeamA != NO_TEAM && eTeamB != NO_TEAM && GET_TEAM(eTeamA).isAtWar(eTeamB));
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 8907452a0..e10d8d4d8 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -260,6 +260,14 @@ DllExport bool isCardinalDirection(DirectionTypes eDirection);															//
+ DirectionTypes estimateDirection(int iDX, int iDY);																// Exposed to Python
+ DllExport DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot* pToPlot);
+ 
++// advc: Moved from CvXMLLoadUtility
++namespace hotkeyDescr
++{
++	CvWString keyStringFromKBCode(TCHAR const* szDescr);
++	CvWString hotKeyFromDescription(TCHAR const* szDescr,
++			bool bShift = false, bool bAlt = false, bool bCtrl = false);
++}
++
+ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);										// Exposed to Python
+ //isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam); // advc: Use CvTeamAI::AI_mayAttack instead
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 1dd933e42..3ef9e4b2d 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -20,8 +20,10 @@
+ 
+ /*  advc: This file was, reportedly, added by patch 3.17:
+ 	forums.civfanatics.com/threads/sdk-using-microsoft-visual-c-2005-express-edition.196283/page-7#post-6942578
++	The near name clash with CyGameInterface.cpp is coincidental.
+ 	Functions previously implemented in CvGame.cpp were moved here.
+-	I guess the idea is to separate the UI code from the game rules. */
++	I guess the idea is to separate the UI code from the game rules, and simply to
++	make the translation units smaller. */
+ 
+ /*	<advc.007b> The functions in this header arguably shouldn't use any of the
+ 	synchronized RNGs that are part of CvGame. */
+@@ -571,39 +573,79 @@ void CvGame::cycleCities(bool bForward, bool bAdd) const
+ 	}
+ }
+ 
+-// advc.003i: const removed so that updateTestEndTurn can be called
+-void CvGame::cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers)
++// advc.154: Extracted the const part out of cycleSelectionGroups
++CvSelectionGroup* CvGame::getNextGroupInCycle(bool bForward, bool bWorkers,
++	bool& bWrap, CvUnit*& pCycleUnit) const // out-params
+ {
+-	CvSelectionGroup* pNextSelectionGroup=NULL;
+-	CvUnit* pCycleUnit = gDLL->UI().getHeadSelectedUnit();
++	bWrap = false;
++	pCycleUnit = gDLL->UI().getHeadSelectedUnit();
++	CvSelectionGroup* pGroup=NULL;
+ 	if (pCycleUnit != NULL)
+ 	{
+ 		if (pCycleUnit->getOwner() != getActivePlayer())
+ 			pCycleUnit = NULL;
+-		bool bWrap=false;
+-		pNextSelectionGroup = GET_PLAYER(getActivePlayer()).cycleSelectionGroups(
++		pGroup = GET_PLAYER(getActivePlayer()).getNextGroupInCycle(
+ 				pCycleUnit, bForward, bWorkers, &bWrap);
+-		if (bWrap)
+-		{
+-			//if (GET_PLAYER(getActivePlayer()).hasAutoUnit())
+-			/*	K-Mod. I've weakend this condition so that the group cycle order
+-				can be refreshed by automoves.
+-				(Maybe I should create & use "sendCycleRefresh" instead.) */
+-			if (pNextSelectionGroup || GET_PLAYER(getActivePlayer()).hasAutoUnit())
+-			// K-Mod end
+-			{
+-				CvMessageControl::getInstance().sendAutoMoves();
+-			}
+-		}
+ 	}
+ 	else
+ 	{
+ 		CvPlot* pPlot = gDLL->UI().getLookAtPlot();
+-		pNextSelectionGroup = GC.getMap().findSelectionGroup(
++		pGroup = GC.getMap().findSelectionGroup(
+ 				pPlot != NULL ? pPlot->getX() : 0,
+ 				pPlot != NULL ? pPlot->getY() : 0,
+ 				getActivePlayer(), true, bWorkers);
+ 	}
++	return pGroup;
++}
++
++/*	advc.154: Python wrapper for the above - but who knows, the DLL too
++	might want to be able to tell what the cycle button is showing. */
++CvUnit* CvGame::getCycleButtonUnit(bool bForward, bool bWorkers) const
++{
++	bool bDummy=false;
++	CvUnit* pDummy=NULL;
++	CvSelectionGroup* pNextGroup = GC.getGame().getNextGroupInCycle(
++			bForward, bWorkers, bDummy, pDummy);
++	if (pNextGroup == NULL || pNextGroup->getNumUnits() <= 0)
++		return NULL;
++	for (int iPass = 0; iPass < (bWorkers ? 1 : 2); iPass++)
++	{
++		FOR_EACH_UNIT_VAR_IN(pUnit, *pNextGroup)
++		{
++			if (!pUnit->IsSelected() && pUnit->canMove() &&
++				/*	!bWorkers doesn't exclude all-worker groups, so we can only
++					_prefer_ selecting a non-worker. */
++				(iPass == 1 || bWorkers == pUnit->isWorker()))
++			{
++				return pUnit;
++			}
++		}
++	}
++	return NULL;
++}
++
++void CvGame::cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers)
++{
++	bool bWrap=false;
++	CvUnit* pCycleUnit=NULL;
++	// advc.154: Moved into a const function
++	CvSelectionGroup* pNextSelectionGroup = getNextGroupInCycle(
++			bForward, bWorkers, bWrap, pCycleUnit);
++	if (gDLL->UI().getHeadSelectedUnit() != NULL)
++	{
++		GET_PLAYER(getActivePlayer()).cycleSelectionGroups(
++				pCycleUnit, bForward, bWorkers, &bWrap);
++	}
++	if (bWrap)
++	{	/*	K-Mod: I've weakend this condition so that the group cycle order
++			can be refreshed by automoves.
++			(Maybe I should create & use "sendCycleRefresh" instead.) */
++		if (pNextSelectionGroup ||
++			GET_PLAYER(getActivePlayer()).hasAutoUnit())
++		{
++			CvMessageControl::getInstance().sendAutoMoves();
++		}
++	}
+ 
+ 	if (pNextSelectionGroup != NULL)
+ 	{
+@@ -1306,6 +1348,14 @@ bool CvGame::canDoControl(ControlTypes eControl) const
+ 			return true;
+ 		}
+ 		break;
++	// <advc.088>
++	case CONTROL_UNSELECT_ALL:
++		if (gDLL->UI().getInterfaceMode() == INTERFACEMODE_SELECTION &&
++			!gDLL->UI().isCityScreenUp() && gDLL->UI().getHeadSelectedUnit() != NULL)
++		{
++			return true;
++		}
++		break; // </advc.088>
+ 
+ 	default:
+ 		FErrorMsg("eControl did not match any valid options");
+@@ -1715,7 +1765,12 @@ void CvGame::doControl(ControlTypes eControl)
+ 		if (pInfo != NULL)
+ 			kUI.addPopup(pInfo);
+ 		break;
+-	}
++	}  // <advc.088>
++	case CONTROL_UNSELECT_ALL:
++	{
++		kUI.clearSelectionList();
++		break;
++	} // </advc.088>
+ 	default: FErrorMsg("Unknown control type");
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 7788dfa2d..eda7b718a 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -20843,6 +20843,43 @@ void CvGameTextMgr::setFoodHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
+ 		setBuildingAdditionalYieldHelp(szBuffer, kCity, YIELD_FOOD, DOUBLE_SEPARATOR);
+ 	} // BULL - Building Additional Food - end
+ } // BULL - Food Rate Hover - end
++// advc.154:
++void CvGameTextMgr::setCycleUnitHelp(CvWStringBuffer &szBuffer,
++	bool bWorkers, CvUnit const& kUnit)
++{
++	CvWString szHotKey(GC.getInfo(bWorkers ?
++			CONTROL_CYCLEWORKER : CONTROL_CYCLEUNIT_ALT).
++			getHotKeyShortDesc());
++	int const iGroupUnits = kUnit.getGroup()->getNumUnits();
++	bool const bSingular = (iGroupUnits == 1);
++	if (!bWorkers && bSingular)
++	{
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_CYCLE_UNIT",
++				szHotKey.c_str(), kUnit.getNameKey()));
++	}
++	else if (bWorkers && bSingular)
++	{
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_CYCLE_WORKER",
++				kUnit.getNameKey(), szHotKey.c_str()));
++	}
++	else if (!bWorkers)
++	{
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_CYCLE_UNIT_GROUP",
++				szHotKey.c_str(), kUnit.getNameKey(), iGroupUnits));
++	}
++	else
++	{
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_CYCLE_WORKER_GROUP",
++				kUnit.getNameKey(), szHotKey.c_str(), iGroupUnits));
++	}
++}
++
++// advc.154:
++void CvGameTextMgr::setUnselectUnitHelp(CvWStringBuffer &szBuffer)
++{
++	CvWString szHotKey(GC.getInfo(CONTROL_UNSELECT_ALL).getHotKeyShortDesc());
++	szBuffer.append(gDLL->getText("TXT_KEY_ACTION_UNSELECT_ALL_HELP", szHotKey.c_str()));
++}
+ 
+ void CvGameTextMgr::getGlobeLayerName(GlobeLayerTypes eType, int iOption, CvWString& strName)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index d7b28460b..9bf668e9c 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -276,6 +276,9 @@ public:
+ 	// BULL - Leaderhead Relations - end
+ 	// BULL - Food Rate Hover:
+ 	void setFoodHelp(CvWStringBuffer &szBuffer, CvCity const& kCity);
++	// <advc.154>
++	void setCycleUnitHelp(CvWStringBuffer &szBuffer, bool bWorkers, CvUnit const& kUnit);
++	void setUnselectUnitHelp(CvWStringBuffer &szBuffer); // </advc.154>
+ 	DllExport void getGlobeLayerName(GlobeLayerTypes eType, int iOption, CvWString& strName);
+ 
+ 	DllExport void getPlotHelp(CvPlot* pMouseOverPlot, CvCity* pCity, CvPlot* pFlagPlot, bool bAlt, CvWStringBuffer& strHelp);
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 6a06b88b1..f6de139a1 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -655,8 +655,15 @@ public:
+ 	inline bool ctrlKey() const { return (GetKeyState(VK_CONTROL) & 0x8000); }
+ 	inline bool shiftKey() const { return (GetKeyState(VK_SHIFT) & 0x8000); }
+ 	// hold X to temporarily suppress automatic unit cycling.
+-	inline bool suppressCycling() const { return (GetKeyState('X') & 0x8000) ||
+-			((GetKeyState('U') & 0x8000) && shiftKey() && altKey()); } // advc.088
++	bool suppressCycling() const
++	{
++		return (GetKeyState('X') & 0x8000) ||
++			/*	advc.088: Needs to be consistent with GC.getInfo(CONTROL_UNSELECT_ALL).
++				getHotKeyVal(), isAltDown() etc. Could check those here, but not in-line.
++				Not quite sure if performance matters here. If it doesn't, then key X
++				should perhaps also be a ControlInfo. */
++			((GetKeyState('U') & 0x8000) && shiftKey() && altKey());
++	}
+ 	// K-Mod end
+ 
+ 	DllExport int getMAX_CIV_PLAYERS(); // advc: Shouldn't be used in the DLL
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.cpp b/CvGameCoreDLL/CvInfo_Base.cpp
+index 2dc6f1706..01691a46b 100644
+--- a/CvGameCoreDLL/CvInfo_Base.cpp
++++ b/CvGameCoreDLL/CvInfo_Base.cpp
+@@ -222,7 +222,8 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_bCtrlDownAlt, "bCtrlDownAlt", false);
+ 	pXML->GetChildXmlValByName(&m_iOrderPriority, "iOrderPriority", 5);
+ 
+-	setHotKeyDescription(getTextKeyWide(), NULL, pXML->HotKeyFromDescription(
++	setHotKeyDescription(getTextKeyWide(), NULL,
++			hotkeyDescr::hotKeyFromDescription(
+ 			getHotKey(), m_bShiftDown, m_bAltDown, m_bCtrlDown));
+ 
+ 	return true;
+@@ -367,13 +368,21 @@ std::wstring CvHotkeyInfo::getHotKeyDescription() const
+ 	return szTemptext;
+ }
+ 
+-void CvHotkeyInfo::setHotKeyDescription(const wchar* szHotKeyDescKey, const wchar* szHotKeyAltDescKey, const wchar* szHotKeyString)
++void CvHotkeyInfo::setHotKeyDescription(const wchar* szHotKeyDescKey,
++	const wchar* szHotKeyAltDescKey, const wchar* szHotKeyString)
+ {
+ 	m_szHotKeyDescriptionKey = szHotKeyDescKey;
+ 	m_szHotKeyAltDescriptionKey = szHotKeyAltDescKey;
+ 	m_szHotKeyString = szHotKeyString;
+ }
+ 
++// advc.154:
++std::wstring CvHotkeyInfo::getHotKeyShortDesc() const
++{
++	return hotkeyDescr::hotKeyFromDescription(
++			getHotKey(), isShiftDown(), isAltDown(), isCtrlDown());
++}
++
+ // <advc.tag>
+ CvXMLInfo::XMLElement::XMLElement(int iEnumValue, CvString szName) :
+ 		m_iEnumValue(iEnumValue), m_szName(szName), m_bMandatory(true) {}
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index 61aff9eeb..857f525a6 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -251,6 +251,7 @@ public:
+ 	std::wstring getHotKeyDescription() const;
+ 	void setHotKeyDescription(const wchar* szHotKeyDescKey, const wchar* szHotKeyAltDescKey,
+ 			const wchar* szHotKeyString);
++	std::wstring getHotKeyShortDesc() const; // advc.154
+ 
+ protected:
+ 	int m_iActionInfoIndex;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 5a581b7b3..b73592cd4 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2237,31 +2237,27 @@ void CvPlayer::killUnits()
+ }
+ 
+ 
+-// XXX should pUnit be a CvSelectionGroup???
+-// Returns the next unit in the cycle...
+-CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward,
+-	bool bWorkers, bool* pbWrap)
++// advc.154: Cut from cycleSelectionGroups except for the non-const parts
++CvSelectionGroup* CvPlayer::getNextGroupInCycle(CvUnit* pUnit, bool bForward,
++	bool bWorkers, bool* pbWrap) const
+ {
+ 	FAssert(GC.getGame().getActivePlayer() == getID() && isHuman());
+ 	/* if (pbWrap != NULL)
+ 		*pbWrap = false;*/
+ 	// <K-Mod>
+-	bool bDummy=false;
++	bool bDummy = false;
+ 	// this means we can just use bWrap directly and it will update *pbWrap if need be.
+ 	bool& bWrap = (pbWrap != NULL ? *pbWrap : bDummy); // <K-Mod>
+ 	bWrap = false;
+-	// <advc.004h>
+-	if(pUnit->canFound())
+-		pUnit->updateFoundingBorder(true); // </advc.004h>
+-	std::set<int>& kCycledGroups = GC.getGame().getActivePlayerCycledGroups(); // K-Mod
++	// advc.154: Copy the set
++	std::set<int> kCycledGroups = GC.getGame().getActivePlayerCycledGroups(); // K-Mod
+ 	CLLNode<int>* pSelectionGroupNode = headGroupCycleNode();
+ 	if (pUnit != NULL)
+ 	{
+ 		while (pSelectionGroupNode != NULL)
+ 		{
+ 			if (getSelectionGroup(pSelectionGroupNode->m_data) == pUnit->getGroup())
+-			{
+-				// <K-Mod>
++			{	// <K-Mod>
+ 				if (isTurnActive())
+ 					kCycledGroups.insert(pSelectionGroupNode->m_data); // </K-Mod>
+ 				if (bForward)
+@@ -2289,7 +2285,7 @@ CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward,
+ 		CvSelectionGroup* pLoopSelectionGroup = getSelectionGroup(
+ 				pSelectionGroupNode->m_data);
+ 		if (pLoopSelectionGroup->readyToSelect(/* advc.153: */ true) &&
+-			kCycledGroups.count(pSelectionGroupNode->m_data) == 0) // K-Mod
++			kCycledGroups.count(pSelectionGroupNode->m_data) <= 0) // K-Mod
+ 		{
+ 			if (!bWorkers || pLoopSelectionGroup->hasWorker())
+ 			{
+@@ -2322,17 +2318,49 @@ CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward,
+ 			// K-Mod
+ 			if (bWrap)
+ 				break;
+-			else
+-			{
+-				kCycledGroups.clear();
+-				bWrap = true;
+-			} // K-Mod end
++			bWrap = true;
++			// K-Mod end
+ 		}
+-	} //
+-
++	}
+ 	return NULL;
+ }
+ 
++// XXX should pUnit be a CvSelectionGroup???
++// Returns the next unit in the cycle...
++CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward,
++	bool bWorkers, bool* pbWrap)
++{
++	FAssert(GC.getGame().getActivePlayer() == getID() && isHuman());
++	if (pbWrap != NULL)
++		*pbWrap = false;
++	// <advc.004h>
++	if(pUnit->canFound())
++		pUnit->updateFoundingBorder(true); // </advc.004h>
++	// <K-Mod>
++	std::set<int>& kCycledGroups = GC.getGame().getActivePlayerCycledGroups();
++	if (pUnit != NULL && isTurnActive())
++	{
++		CLLNode<int>* pSelectionGroupNode = headGroupCycleNode();
++		while (pSelectionGroupNode != NULL)
++		{
++			if (getSelectionGroup(pSelectionGroupNode->m_data) == pUnit->getGroup())
++			{
++				kCycledGroups.insert(pSelectionGroupNode->m_data);
++				if (bForward)
++					pSelectionGroupNode = nextGroupCycleNode(pSelectionGroupNode);
++				else pSelectionGroupNode = previousGroupCycleNode(pSelectionGroupNode);
++				break;
++			}
++			pSelectionGroupNode = nextGroupCycleNode(pSelectionGroupNode);
++		}
++	}
++	// advc.154: Moved into new const function
++	CvSelectionGroup* pGroup = getNextGroupInCycle(pUnit, bForward, bWorkers, pbWrap);
++	if (pbWrap != NULL && pbWrap)
++		kCycledGroups.clear(); // </K-Mod>
++	return pGroup;
++}
++
+ // AI_AUTO_PLAY_MOD, 07/09/08, jdog5000:
+ void CvPlayer::setHumanDisabled(bool bNewVal)
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index d310b4be1..31702ca98 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -97,8 +97,11 @@ public:
+ 			DirectionTypes eFacingDirection = DIRECTION_SOUTH);
+ 	void disbandUnit(bool bAnnounce);																				// Exposed to Python
+ 	void killUnits();																								// Exposed to Python
+-
+-	CvSelectionGroup* cycleSelectionGroups(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap);
++	// <advc.154>
++	CvSelectionGroup* getNextGroupInCycle(CvUnit* pUnit, bool bForward,
++			bool bWorkers, bool* pbWrap) const; // </advc.154>
++	CvSelectionGroup* cycleSelectionGroups(CvUnit* pUnit, bool bForward,
++			bool bWorkers, bool* pbWrap);
+ 
+ 	bool hasTrait(TraitTypes eTrait) const { return GC.getInfo(getLeaderType()).hasTrait(eTrait); }					// Exposed to Python
+ 	// BETTER_BTS_AI_MOD, 12/30/08, jdog5000: START
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 1d5b2fc3c..8610350d2 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2985,7 +2985,7 @@ bool CvUnit::canAutomate(AutomateTypes eAutomate) const
+ 	switch (eAutomate)
+ 	{
+ 	case AUTOMATE_BUILD:
+-		if (AI_getUnitAIType() != UNITAI_WORKER && AI_getUnitAIType() != UNITAI_WORKER_SEA)
++		if (!isWorker())
+ 			return false;
+ 		break;
+ 
+@@ -11795,3 +11795,9 @@ int CvUnit::LFBgetDefenderCombatOdds(const CvUnit* pAttacker) const
+ 	return LFBgetCombatOdds(iDefenderLowFS, iDefenderHighFS, iAttackerLowFS, iAttackerHighFS, iNeededRoundsDefender, iNeededRoundsAttacker, iDefenderOdds);
+ }
+ // BETTER_BTS_AI_MOD: END
++
++// advc.154: for UI purposes
++bool CvUnit::isWorker() const
++{
++	return (AI_getUnitAIType() == UNITAI_WORKER || AI_getUnitAIType() == UNITAI_WORKER_SEA);
++}
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index b69401c3c..d84046eda 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -1022,6 +1022,7 @@ public:
+ 	bool LFBisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank) const;
+ 	int LFBgetDefenderCombatOdds(const CvUnit* pAttacker) const;
+ 	// Lead From Behind: END
++	bool isWorker() const; // advc.154  (Exposed to Python)
+ 
+ 	// <advc.003u>
+ 	// virtual for FFreeListTrashArray
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.cpp b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+index 1f2c23406..1a38aeda2 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+@@ -318,33 +318,6 @@ bool CvXMLLoadUtility::LoadCivXml(FXml* pFXml, const TCHAR* szFilename)
+ 	return true; // success
+ }
+ 
+-// see KeyStringFromKBCode
+-// advc: Renamed from "CreateHotKeyFromDescription"; nothing is "created" here.
+-CvWString CvXMLLoadUtility::HotKeyFromDescription(const TCHAR* pszHotKey, bool bShift, bool bAlt, bool bCtrl)
+-{
+-	// Delete <COLOR:140,255,40,255>Shift+Delete</COLOR>
+-	CvWString szHotKey;
+-	if (pszHotKey && strcmp(pszHotKey,"") != 0)
+-	{
+-		szHotKey += L" <color=140,255,40,255>";
+-		szHotKey += L"&lt;";
+-
+-		if (bShift)
+-			szHotKey += gDLL->getText("TXT_KEY_SHIFT");
+-
+-		if (bAlt)
+-			szHotKey += gDLL->getText("TXT_KEY_ALT");
+-
+-		if (bCtrl)
+-			szHotKey += gDLL->getText("TXT_KEY_CTRL");
+-
+-		szHotKey = szHotKey + KeyStringFromKBCode(pszHotKey);
+-		szHotKey += L">";
+-		szHotKey += L"</color>";
+-	}
+-	return szHotKey;
+-}
+-
+ /*	Sets the number of strings in a list, initializes the string to the correct length,
+ 	and fills it from the current XML file. Assumes that the current node is
+ 	the parent node of the string list children. */
+@@ -370,141 +343,6 @@ bool CvXMLLoadUtility::SetStringList(CvString** ppszStringArray, int* piSize)
+ 	return true;
+ }
+ 
+-// KB code to string; e.g. KB_DELETE -> "Delete"
+-// advc: Renamed from "CreateKeyStringFromKBCode"
+-CvWString CvXMLLoadUtility::KeyStringFromKBCode(const TCHAR* pszHotKey)
+-{
+-	PROFILE("CreateKeyStringFromKBCode");
+-
+-	struct CvKeyBoardMapping
+-	{
+-		TCHAR szDefineString[25];
+-		CvWString szKeyString;
+-	};
+-
+-	// TODO - this should be a stl map instead of looping strcmp
+-	const int iNumKeyBoardMappings=108;
+-	const CvKeyBoardMapping asCvKeyBoardMapping[iNumKeyBoardMappings] =
+-	{
+-		{"KB_ESCAPE", gDLL->getText("TXT_KEY_KEYBOARD_ESCAPE")},
+-		{"KB_0","0"},
+-		{"KB_1","1"},
+-		{"KB_2","2"},
+-		{"KB_3","3"},
+-		{"KB_4","4"},
+-		{"KB_5","5"},
+-		{"KB_6","6"},
+-		{"KB_7","7"},
+-		{"KB_8","8"},
+-		{"KB_9","9"},
+-		{"KB_MINUS","-"},	    /* - on main keyboard */
+-		{"KB_A","A"},
+-		{"KB_B","B"},
+-		{"KB_C","C"},
+-		{"KB_D","D"},
+-		{"KB_E","E"},
+-		{"KB_F","F"},
+-		{"KB_G","G"},
+-		{"KB_H","H"},
+-		{"KB_I","I"},
+-		{"KB_J","J"},
+-		{"KB_K","K"},
+-		{"KB_L","L"},
+-		{"KB_M","M"},
+-		{"KB_N","N"},
+-		{"KB_O","O"},
+-		{"KB_P","P"},
+-		{"KB_Q","Q"},
+-		{"KB_R","R"},
+-		{"KB_S","S"},
+-		{"KB_T","T"},
+-		{"KB_U","U"},
+-		{"KB_V","V"},
+-		{"KB_W","W"},
+-		{"KB_X","X"},
+-		{"KB_Y","Y"},
+-		{"KB_Z","Z"},
+-		{"KB_EQUALS","="},
+-		{"KB_BACKSPACE",gDLL->getText("TXT_KEY_KEYBOARD_BACKSPACE")},
+-		{"KB_TAB","TAB"},
+-		{"KB_LBRACKET","["},
+-		{"KB_RBRACKET","]"},
+-		{"KB_RETURN",gDLL->getText("TXT_KEY_KEYBOARD_ENTER")},		/* Enter on main keyboard */
+-		{"KB_LCONTROL",gDLL->getText("TXT_KEY_KEYBOARD_LEFT_CONTROL_KEY")},
+-		{"KB_SEMICOLON",";"},
+-		{"KB_APOSTROPHE","'"},
+-		{"KB_GRAVE","`"},		/* accent grave */
+-		{"KB_LSHIFT",gDLL->getText("TXT_KEY_KEYBOARD_LEFT_SHIFT_KEY")},
+-		{"KB_BACKSLASH","\\"},
+-		{"KB_COMMA",","},
+-		{"KB_PERIOD","."},
+-		{"KB_SLASH","/"},
+-		{"KB_RSHIFT",gDLL->getText("TXT_KEY_KEYBOARD_RIGHT_SHIFT_KEY")},
+-		{"KB_NUMPADSTAR",gDLL->getText("TXT_KEY_KEYBOARD_NUM_PAD_STAR")},
+-		{"KB_LALT",gDLL->getText("TXT_KEY_KEYBOARD_LEFT_ALT_KEY")},
+-		{"KB_SPACE",gDLL->getText("TXT_KEY_KEYBOARD_SPACE_KEY")},
+-		{"KB_CAPSLOCK",gDLL->getText("TXT_KEY_KEYBOARD_CAPS_LOCK")},
+-		{"KB_F1","F1"},
+-		{"KB_F2","F2"},
+-		{"KB_F3","F3"},
+-		{"KB_F4","F4"},
+-		{"KB_F5","F5"},
+-		{"KB_F6","F6"},
+-		{"KB_F7","F7"},
+-		{"KB_F8","F8"},
+-		{"KB_F9","F9"},
+-		{"KB_F10","F10"},
+-		{"KB_NUMLOCK",gDLL->getText("TXT_KEY_KEYBOARD_NUM_LOCK")},
+-		{"KB_SCROLL",gDLL->getText("TXT_KEY_KEYBOARD_SCROLL_KEY")},
+-		{"KB_NUMPAD7",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 7)},
+-		{"KB_NUMPAD8",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 8)},
+-		{"KB_NUMPAD9",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 9)},
+-		{"KB_NUMPADMINUS",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_MINUS")},
+-		{"KB_NUMPAD4",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 4)},
+-		{"KB_NUMPAD5",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 5)},
+-		{"KB_NUMPAD6",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 6)},
+-		{"KB_NUMPADPLUS",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_PLUS")},
+-		{"KB_NUMPAD1",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 1)},
+-		{"KB_NUMPAD2",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 2)},
+-		{"KB_NUMPAD3",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 3)},
+-		{"KB_NUMPAD0",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_NUMBER", 0)},
+-		{"KB_NUMPADPERIOD",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_PERIOD")},
+-		{"KB_F11","F11"},
+-		{"KB_F12","F12"},
+-		{"KB_NUMPADEQUALS",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_EQUALS")},
+-		{"KB_AT","@"},
+-		{"KB_UNDERLINE","_"},
+-		{"KB_COLON",":"},
+-		{"KB_NUMPADENTER",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_ENTER_KEY")},
+-		{"KB_RCONTROL",gDLL->getText("TXT_KEY_KEYBOARD_RIGHT_CONTROL_KEY")},
+-		{"KB_VOLUMEDOWN",gDLL->getText("TXT_KEY_KEYBOARD_VOLUME_DOWN")},
+-		{"KB_VOLUMEUP",gDLL->getText("TXT_KEY_KEYBOARD_VOLUME_UP")},
+-		{"KB_NUMPADCOMMA",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_COMMA")},
+-		{"KB_NUMPADSLASH",gDLL->getText("TXT_KEY_KEYBOARD_NUMPAD_SLASH")},
+-		{"KB_SYSRQ",gDLL->getText("TXT_KEY_KEYBOARD_SYSRQ")},
+-		{"KB_RALT",gDLL->getText("TXT_KEY_KEYBOARD_RIGHT_ALT_KEY")},
+-		{"KB_PAUSE",gDLL->getText("TXT_KEY_KEYBOARD_PAUSE_KEY")},
+-		{"KB_HOME",gDLL->getText("TXT_KEY_KEYBOARD_HOME_KEY")},
+-		{"KB_UP",gDLL->getText("TXT_KEY_KEYBOARD_UP_ARROW")},
+-		{"KB_PGUP",gDLL->getText("TXT_KEY_KEYBOARD_PAGE_UP")},
+-		{"KB_LEFT",gDLL->getText("TXT_KEY_KEYBOARD_LEFT_ARROW")},
+-		{"KB_RIGHT",gDLL->getText("TXT_KEY_KEYBOARD_RIGHT_ARROW")},
+-		{"KB_END",gDLL->getText("TXT_KEY_KEYBOARD_END_KEY")},
+-		{"KB_DOWN",gDLL->getText("TXT_KEY_KEYBOARD_DOWN_ARROW")},
+-		{"KB_PGDN",gDLL->getText("TXT_KEY_KEYBOARD_PAGE_DOWN")},
+-		{"KB_INSERT",gDLL->getText("TXT_KEY_KEYBOARD_INSERT_KEY")},
+-		{"KB_DELETE",gDLL->getText("TXT_KEY_KEYBOARD_DELETE_KEY")},
+-	};
+-
+-	for (int i = 0; i < iNumKeyBoardMappings; i++)
+-	{
+-		if (strcmp(asCvKeyBoardMapping[i].szDefineString, pszHotKey) == 0)
+-			return asCvKeyBoardMapping[i].szKeyString;
+-	}
+-
+-	return "";
+-}
+-
+ // call the progress updater fxn if it exists
+ void CvXMLLoadUtility::UpdateProgressCB(const char* szMessage)
+ {
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.h b/CvGameCoreDLL/CvXMLLoadUtility.h
+index 6b80f04bf..3929409d0 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.h
++++ b/CvGameCoreDLL/CvXMLLoadUtility.h
+@@ -163,8 +163,8 @@ public:
+ 	void SetVariableListTagPairForAudioScripts(int **ppiList, const TCHAR* szRootTagName,
+ 			int iInfoBaseLength, int iDefaultListVal = -1);
+ 
+-	static CvWString HotKeyFromDescription(TCHAR const* pszHotKey,  // advc: static
+-			bool bShift = false, bool bAlt = false, bool bCtrl = false);
++	// (advc: HotKeyFromDescription, KeyStringFromKBCode moved to CvGameCoreUtils)
++
+ 	bool SetAndLoadVar(int** ppiVar, int iDefault=0);
+ 	bool SetStringList(CvString** ppszStringArray, int* piSize);
+ 	int GetHotKeyInt(const TCHAR* pszHotKeyVal);
+@@ -222,7 +222,6 @@ private:
+ 	//void SetGameText(const char* szTextGroup, const char* szTagName);
+ 	void SetGameText(const char* szTextGroup, const char* szTagName, const std::string& language_name); // K-Mod
+ 
+-	static CvWString KeyStringFromKBCode(TCHAR const* pszHotKey); // advc: static
+ 	/*	<advc.006g> (The BtS code sometimes said "XML Error", sometimes "XML Load Error"
+ 		not sure if that's meanigful, but I'm going to preserve it.)*/
+ 	enum XMLErrorTypes
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index f22c75e70..b30674c92 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -900,7 +900,7 @@ namespace // advc: To get rid of some duplicate code in SetGlobalActionInfo
+ 	{
+ 		kInfo.setHotKeyDescription(kInfo.getTextKeyWide(),
+ 				GC.getInfo(eMissionCommand).getTextKeyWide(),
+-				CvXMLLoadUtility::HotKeyFromDescription(kInfo.getHotKey(),
++				hotkeyDescr::hotKeyFromDescription(kInfo.getHotKey(),
+ 				kInfo.isShiftDown(), kInfo.isAltDown(), kInfo.isCtrlDown()));
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index d17f06ae7..1227f7d18 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -425,6 +425,7 @@ void CyEnumsPythonInterface()
+ 		.value("WIDGET_GOLDEN_AGE", WIDGET_GOLDEN_AGE)
+ 		.value("WIDGET_ANARCHY", WIDGET_ANARCHY) // </advc.085>
+ 		.value("WIDGET_CITY_TRADE", WIDGET_CITY_TRADE) // advc.ctr
++		.value("WIDGET_CYCLE_UNIT", WIDGET_CYCLE_UNIT) // advc.154
+ 		.value("NUM_WIDGET_TYPES", NUM_WIDGET_TYPES)
+ 		;
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index 7935f9f8f..7c66c1760 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -28,6 +28,14 @@ bool CyGame::cyclePlotUnits(CyPlot* pPlot, bool bForward, bool bAuto, int iCount
+ {
+ 	return m_kGame.cyclePlotUnits(pPlot->getPlot(), bForward, bAuto, iCount);
+ }
++// advc.154:
++CyUnit* CyGame::getNextUnitInCycle(bool bForward, bool bWorkers)
++{
++	CvUnit* pUnit = GC.getGame().getCycleButtonUnit(bForward, bWorkers);
++	if (pUnit == NULL)
++		return NULL;
++	return new CyUnit(pUnit);
++}
+ 
+ void CyGame::selectionListMove(CyPlot* pPlot, bool bAlt, bool bShift, bool bCtrl)
+ {
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index 4259713ad..d3f353f70 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -27,6 +27,7 @@ public:
+ 	void cycleCities(bool bForward, bool bAdd);
+ 	void cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers);
+ 	bool cyclePlotUnits(CyPlot* pPlot, bool bForward, bool bAuto, int iCount);
++	CyUnit* getNextUnitInCycle(bool bForward, bool bWorkers); // advc.154
+ 
+ 	void selectionListMove(CyPlot* pPlot, bool bAlt, bool bShift, bool bCtrl);
+ 	void selectionListGameNetMessage(int eMessage, int iData2, int iData3, int iData4, int iFlags, bool bAlt, bool bShift);
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 4663cf3f0..f09343293 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -18,6 +18,9 @@ void CyGamePythonInterface()
+ 		.def("cycleCities", &CyGame::cycleCities, "void (bool bForward, bool bAdd)")
+ 		.def("cycleSelectionGroups", &CyGame::cycleSelectionGroups, "void (bool bClear, bool bForward, bool bWorkers)")
+ 		.def("cyclePlotUnits", &CyGame::cyclePlotUnits, "bool (CyPlot* pPlot, bool bForward, bool bAuto, int iCount)")
++		// <advc.154>
++		.def("getNextUnitInCycle", &CyGame::getNextUnitInCycle, python::return_value_policy<python::reference_existing_object>(),
++				"CyUnit* (bool bForward, bool bWorkers)") // </advc.154>
+ 
+ 		.def("selectionListMove", &CyGame::selectionListMove, "void (CyPlot* pPlot, bool bAlt, bool bShift, bool bCtrl)")
+ 		.def("selectionListGameNetMessage", &CyGame::selectionListGameNetMessage, "void (int eMessage, int iData2, int iData3, int iData4, int iFlags, bool bAlt, bool bShift)")
+
+diff --git a/CvGameCoreDLL/CyUnit.cpp b/CvGameCoreDLL/CyUnit.cpp
+index daea023f6..8a3776cbe 100644
+--- a/CvGameCoreDLL/CyUnit.cpp
++++ b/CvGameCoreDLL/CyUnit.cpp
+@@ -1642,6 +1642,12 @@ void CyUnit::setUnitAIType(int /*UnitAITypes*/ iNewValue)
+ 	}
+ }
+ 
++// advc.154:
++bool CyUnit::isWorker()
++{
++	return m_pUnit ? m_pUnit->isWorker() : false;
++}
++
+ bool CyUnit::IsSelected()
+ {
+ 	return m_pUnit ? m_pUnit->IsSelected() : false;
+
+diff --git a/CvGameCoreDLL/CyUnit.h b/CvGameCoreDLL/CyUnit.h
+index 5ec9e26fd..3487bcf74 100644
+--- a/CvGameCoreDLL/CyUnit.h
++++ b/CvGameCoreDLL/CyUnit.h
+@@ -392,6 +392,7 @@ public:
+ 
+ 	int /*UnitAITypes*/ getUnitAIType();
+ 	void setUnitAIType(int /*UnitAITypes*/ iNewValue);
++	bool isWorker(); // advc.154
+ 
+ 	const CvArtInfoUnit* getArtInfo(int i, EraTypes eEra) const;
+ 	std::string getButton() const;
+
+diff --git a/CvGameCoreDLL/CyUnitInterface1.cpp b/CvGameCoreDLL/CyUnitInterface1.cpp
+index 7cbd17092..2eafe7c06 100644
+--- a/CvGameCoreDLL/CyUnitInterface1.cpp
++++ b/CvGameCoreDLL/CyUnitInterface1.cpp
+@@ -376,6 +376,7 @@ void CyUnitPythonInterface1(python::class_<CyUnit>& x)
+ 
+ 		.def("getUnitAIType", &CyUnit::getUnitAIType, "int UnitAIType () - returns the int value of the UnitAIType")
+ 		.def("setUnitAIType", &CyUnit::setUnitAIType, "void UnitAIType (int iUnitAIType) - sets the unit's UnitAIType")
++		.def("isWorker", &CyUnit::isWorker, "bool isWorker()") // advc.154
+ 
+ 		// Python Helper Functions
+ 		.def("centerCamera", &CyUnit::centerCamera, "void () - Centers the Camera on the unit")
+
+[PATCH COVERAGE]
+patchFiles=33 embeddedFiles=33 omittedFiles=0 embeddedPatchBytes=67957

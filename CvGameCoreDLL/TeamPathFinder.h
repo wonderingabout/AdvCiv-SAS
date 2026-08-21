@@ -51,16 +51,10 @@ public:
 		m_pTeam(pTeam), m_pWarTarget(pWarTarget),
 		m_iHeuristicWeight(iHeuristicWeight)
 	{}
-	int heuristicCost(CvPlot const& kFrom, CvPlot const& kTo) const
-	{
-		return stepDistance(kFrom.getX(), kFrom.getY(), kTo.getX(), kTo.getY()) *
-				m_iHeuristicWeight;
-	}
+	int heuristicCost(CvPlot const& kFrom, CvPlot const& kTo) const { return stepDistance(kFrom.getX(), kFrom.getY(), kTo.getX(), kTo.getY()) * m_iHeuristicWeight; }
 	int initialPathLength() const { return 0; }
-	void initializePathData(PathNode& kNode) const
-	{	// (Same as base class, but calling TeamStepMetric::initialPathLength)
-		kNode.setPathLength(initialPathLength());
-	}
+	// (Same as base class, but calling TeamStepMetric::initialPathLength)
+	void initializePathData(PathNode& kNode) const { kNode.setPathLength(initialPathLength()); }
 	bool isValidStep(CvPlot const& kFrom, CvPlot const& kTo) const
 	{
 		if (eMODE != TeamPath::LAND)
@@ -71,16 +65,11 @@ public:
 		return true;
 	}
 	bool canStepThrough(CvPlot const& kPlot) const;
-	bool canStepThrough(CvPlot const& kPlot, PathNode const& kNode) const
-	{	// No path data to be taken into account
-		return true;
-	}
+	// No path data to be taken into account
+	bool canStepThrough(CvPlot const& kPlot, PathNode const& kNode) const { return true; }
 	bool isValidDest(CvPlot const& kStart, CvPlot const& kDest) const;
-	int cost(CvPlot const& kFrom, CvPlot const& kTo,
-		PathNode const& kParentNode) const
-	{
-		return cost(kFrom, kTo); // disregard kParentNode
-	}
+	// disregard kParentNode
+	int cost(CvPlot const& kFrom, CvPlot const& kTo, PathNode const& kParentNode) const { return cost(kFrom, kTo); }
 	int cost(CvPlot const& kFrom, CvPlot const& kTo) const;
 protected:
 	CvTeam const* m_pTeam;
@@ -101,8 +90,7 @@ public:
 	/*	ctor allowing m_pTeam to be set later so that different teams
 		can use the same node map w/o memory reallocation */
 	TeamPathFinder() : m_pTeam(NULL), m_iHeuristicWeight(-1) {}
-	void init(CvTeam const& kTeam, CvTeam const* pWarTarget = NULL,
-		int iMaxPath = -1)
+	void init(CvTeam const& kTeam, CvTeam const* pWarTarget = NULL, int iMaxPath = -1)
 	{
 		m_pTeam = &kTeam;
 		if (eMODE == TeamPath::LAND)
@@ -113,10 +101,7 @@ public:
 		}
 		reset(pWarTarget, iMaxPath);
 	}
-	int getPathCost() const
-	{
-		return m_pEndNode->m_iTotalCost;
-	}
+	int getPathCost() const { return m_pEndNode->m_iTotalCost; }
 protected:
 	CvTeam const* m_pTeam;
 	int m_iHeuristicWeight;
@@ -133,18 +118,9 @@ public:
 		m_kAnyWaterFinder(kAnyWaterFinder),
 		m_kShallowWaterFinder(kShallowWaterFinder)
 	{}
-	TeamPathFinder<TeamPath::LAND>& landFinder() const
-	{
-		return m_kLandFinder;
-	}
-	TeamPathFinder<TeamPath::ANY_WATER>& anyWaterFinder() const
-	{
-		return m_kAnyWaterFinder;
-	}
-	TeamPathFinder<TeamPath::SHALLOW_WATER>& shallowWaterFinder() const
-	{
-		return m_kShallowWaterFinder;
-	}
+	TeamPathFinder<TeamPath::LAND>& landFinder() const { return m_kLandFinder; }
+	TeamPathFinder<TeamPath::ANY_WATER>& anyWaterFinder() const { return m_kAnyWaterFinder; }
+	TeamPathFinder<TeamPath::SHALLOW_WATER>& shallowWaterFinder() const { return m_kShallowWaterFinder; }
 private:
 	TeamPathFinder<TeamPath::LAND>& m_kLandFinder;
 	TeamPathFinder<TeamPath::ANY_WATER>& m_kAnyWaterFinder;
@@ -169,14 +145,8 @@ public:
 		delete m_pAnyWaterFinder;
 		delete m_pShallowWaterFinder;
 	}
-	TeamPathFinder<TeamPath::ANY_WATER>& anyWaterFinder()
-	{
-		return *m_pAnyWaterFinder;
-	}
-	TeamPathFinder<TeamPath::SHALLOW_WATER>& shallowWaterFinder()
-	{
-		return *m_pShallowWaterFinder;
-	}
+	TeamPathFinder<TeamPath::ANY_WATER>& anyWaterFinder() { return *m_pAnyWaterFinder; }
+	TeamPathFinder<TeamPath::SHALLOW_WATER>& shallowWaterFinder() { return *m_pShallowWaterFinder; }
 private:
 	TeamPathFinder<TeamPath::ANY_WATER>* m_pAnyWaterFinder;
 	TeamPathFinder<TeamPath::SHALLOW_WATER>* m_pShallowWaterFinder;

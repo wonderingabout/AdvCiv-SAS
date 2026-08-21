@@ -1,0 +1,149 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3801
+# Commit: 2c364d8c797728b59e832af26bd740560e60a251
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8b997e93325a6ee6195287a282424368bf7a77c9
+# Title: Refactor CvArtFileMgr singleton pattern
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+28	51	CvGameCoreDLL/CvArtFileMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvArtFileMgr.cpp b/CvGameCoreDLL/CvArtFileMgr.cpp
+index 2e3a46152..0e667d7f5 100644
+--- a/CvGameCoreDLL/CvArtFileMgr.cpp
++++ b/CvGameCoreDLL/CvArtFileMgr.cpp
+@@ -1,22 +1,13 @@
+-//---------------------------------------------------------------------------------------
+-//
+-//  *****************   Civilization IV   ********************
+-//
+-//  FILE:    CvArtFileMgr.cpp
+-//
+-//  AUTHOR:  Jesse Smith / Mustafa Thamer	9/2004
+-//
+-//  PURPOSE: Interfaces with Civ4ArtDefines.xml to manage the paths of art files
+-//
+-//---------------------------------------------------------------------------------------
++// AUTHOR:  Jesse Smith / Mustafa Thamer	9/2004
++// Interfaces with Civ4ArtDefines.xml to manage the paths of art files
+ //  Copyright (c) 2004 Firaxis Games, Inc. All rights reserved.
+-//---------------------------------------------------------------------------------------
+ #include "CvGameCoreDLL.h"
+ #include "CvArtFileMgr.h"
+ #include "CvXMLLoadUtility.h"
+ 
+ // Macro for Building Art Info Maps
+-#if 0	// DEBUGGING
++// (DEBUGGING)
++#if 0
+ #define BUILD_INFO_MAP(map, infoArray, numInfos) \
+ { \
+ 	int iI; \
+@@ -40,12 +31,11 @@
+ 	} \
+ }
+ #endif
+-
+-//
+-// creates a derived artItem class which automatically registers itself with the ARTFILEMGR upon construction.
+-// creates a static var of that artItem type which constructs (and registers) at startup.
+-// creates a getFooArtInfo() function that searches the map based on the id provided and returns the artInfo struct or null.
+-//
++/*	creates a derived artItem class which automatically registers itself with
++	the ARTFILEMGR upon construction. creates a static var of that artItem type,
++	which constructs (and registers) at startup. creates a getFooArtInfo() function
++	that searches the map based on the id provided and returns the artInfo struct
++	or null. */
+ #define ART_INFO_DEFN(name) \
+ \
+ class Cv##name##ArtInfoItem : public CvArtFileMgr::ArtInfoItem \
+@@ -58,8 +48,6 @@ class Cv##name##ArtInfoItem : public CvArtFileMgr::ArtInfoItem \
+ 	} \
+ }; \
+ \
+-static Cv##name##ArtInfoItem* g##name##ArtInfoItem; \
+-\
+ CvArtInfo##name* CvArtFileMgr::get##name##ArtInfo(char const* szArtDefineTag) const \
+ { \
+ 	FAssertMsg(szArtDefineTag, "NULL string on art info lookup?"); \
+@@ -93,10 +81,8 @@ void Cv##name##ArtInfoItem::deInit() \
+ } \
+ CvArtInfo##name& CvArtFileMgr::get##name##ArtInfo(int i) { return *(m_pa##name##ArtInfo[i]); }
+ 
+-#define ART_INFO_INST(name) g##name##ArtInfoItem = new Cv##name##ArtInfoItem();
+-
+ 
+-// Macros the declaration of the art file info maps
++// Macros for the declaration of the art file info maps
+ ART_INFO_DEFN(Asset);
+ ART_INFO_DEFN(Misc);
+ ART_INFO_DEFN(Unit);
+@@ -110,36 +96,27 @@ ART_INFO_DEFN(Feature);
+ ART_INFO_DEFN(Movie);
+ ART_INFO_DEFN(Interface);
+ 
+-//----------------------------------------------------------------------------
+-//
+-//	FUNCTION:	GetInstance()
+-//
+-//	PURPOSE:	Get the instance of this class.
+-//
+-//----------------------------------------------------------------------------
+-static CvArtFileMgr* gs_ArtFileMgr = NULL;
+ 
++/*	advc: Not nice to allocate the singleton with new and then never delete it.
++	Use local static instances instead. Tbd.: Looks like the ArtInfo instances
++	should really be members of the ArtFileMgr. */
++#define ART_INFO_INST(name) static Cv##name##ArtInfoItem g##name##ArtInfoItem;
+ CvArtFileMgr& CvArtFileMgr::GetInstance()
+ {
+-	if (gs_ArtFileMgr == NULL)
+-	{
+-		gs_ArtFileMgr = new CvArtFileMgr();
+-
+-		ART_INFO_INST(Asset);
+-		ART_INFO_INST(Misc);
+-		ART_INFO_INST(Unit);
+-		ART_INFO_INST(Building);
+-		ART_INFO_INST(Civilization);
+-		ART_INFO_INST(Leaderhead);
+-		ART_INFO_INST(Bonus);
+-		ART_INFO_INST(Improvement);
+-		ART_INFO_INST(Terrain);
+-		ART_INFO_INST(Feature);
+-		ART_INFO_INST(Movie);
+-		ART_INFO_INST(Interface);
+-	}
+-
+-	return *gs_ArtFileMgr;
++	static CvArtFileMgr g_ArtFileMgr;
++	ART_INFO_INST(Asset);
++	ART_INFO_INST(Misc);
++	ART_INFO_INST(Unit);
++	ART_INFO_INST(Building);
++	ART_INFO_INST(Civilization);
++	ART_INFO_INST(Leaderhead);
++	ART_INFO_INST(Bonus);
++	ART_INFO_INST(Improvement);
++	ART_INFO_INST(Terrain);
++	ART_INFO_INST(Feature);
++	ART_INFO_INST(Movie);
++	ART_INFO_INST(Interface);
++	return g_ArtFileMgr;
+ }
+ 
+ // Initializes the maps
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4248

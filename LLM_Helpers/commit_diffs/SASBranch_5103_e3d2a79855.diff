@@ -1,0 +1,291 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5103
+# Commit: e3d2a79855f68e5e8a04379adf2c3fbb1cf8b76b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 35b7c0107eea860578467e5a8e4f7a11f4ce5fcc
+# Title: (Tremendously Improved) Fix the issue of AIs autopicking/overvaluing the former civic_emancipation (or any civic with `iCivicPercentAnger`) just because othe...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+17	5	Assets/XML/GameInfo/CIV4CivicInfos.xml
+14	0	Assets/XML/GlobalDefines_advciv_sas.xml
+53	9	CvGameCoreDLL/CvPlayerAI.cpp
+11	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+6	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+6	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index 1c3004ff4..16d232f0c 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -786,7 +786,8 @@
+ 			<!-- custom: we have a tech before it in our re<orked tech tree so we can afford to move civic_slavery sooner, also seems historically more accurate according to quick glance at wikipedia or and such and if i am not mistaken but anyways etc, perhaps more interesting in terms of strategy and gameplay (nerfs main military game tech path of tech_bronze_working, and rewards alternative or groth type of strategies, so you can't have all by just going for a military now, and investing may yield more long term in this case at least if i may say and in theory but hopefully more balanced this way or/and enjoyable and as io wanted it to in this cas ei mean but anyways etc) as we have it sooner but anyways etc, was TECH_BRONZE_WORKING -->
+ 			<TechPrereq>TECH_AGRICULTURE</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+-			<Upkeep>UPKEEP_MEDIUM</Upkeep>
++			<!-- custom: (try to make it relevant longer into the middle game without being op, also it is thematically more accurate to consider slavery cheaper to enact i mean if i may say but anyways etc (buffs its early game performance vs other civics as well which may help if economy is bad or such possibly maybe but anyways etc), was UPKEEP_MEDIUM -->
++			<Upkeep>UPKEEP_LOW</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+ 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+@@ -908,6 +909,7 @@
+ 			<BuildingHappinessChanges/>
+ 			<BuildingHealthChanges/>
+ 			<FeatureHappinessChanges/>
++			<!-- custom: removed the IMPROVEMENT_TOWN penalty (civic was too weak, plus city indirectly benefits from harvests i think in an alternate late game serf-based potential economy/civ anyways etc), and added an extra gold yield on water food improvements to keep agrarian theme as chatgpt 5 approved i mean with the suggestion i mean but anyways etc -->
+ 			<!-- K-Mod -->
+ 			<ImprovementYieldChanges>
+ 				<ImprovementYieldChange>
+@@ -927,11 +929,19 @@
+ 					</ImprovementYields>
+ 				</ImprovementYieldChange>				
+ 				<ImprovementYieldChange>
+-					<ImprovementType>IMPROVEMENT_TOWN</ImprovementType>
++					<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
+ 					<ImprovementYields>
+ 						<iYield>0</iYield>
+ 						<iYield>0</iYield>
+-						<iYield>-1</iYield>
++						<iYield>1</iYield>
++					</ImprovementYields>
++				</ImprovementYieldChange>
++				<ImprovementYieldChange>
++					<ImprovementType>IMPROVEMENT_WHALING_BOATS</ImprovementType>
++					<ImprovementYields>
++						<iYield>0</iYield>
++						<iYield>0</iYield>
++						<iYield>1</iYield>
+ 					</ImprovementYields>
+ 				</ImprovementYieldChange>
+ 			</ImprovementYieldChanges>
+@@ -946,7 +956,8 @@
+ 			<Button>,Art/Interface/Buttons/Civics/Caste_System.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,3,1</Button>
+ 			<TechPrereq>TECH_CODE_OF_LAWS</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+-			<Upkeep>UPKEEP_MEDIUM</Upkeep>
++			<!-- custom: (was too op and ubiquitous anyways etc, now it is still strong but has a significant early cost to sustain it, and scaling improves later in the game instead), was UPKEEP_MEDIUM -->
++			<Upkeep>UPKEEP_HIGH</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+ 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+@@ -1032,7 +1043,8 @@
+ 			<Button>,Art/Interface/Buttons/Civics/Emancipation.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,6,1</Button>
+ 			<TechPrereq>TECH_DEMOCRACY</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+-			<Upkeep>UPKEEP_LOW</Upkeep>
++			<!-- custom: was UPKEEP_LOW -->
++			<Upkeep>UPKEEP_MEDIUM</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+ 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index e764cc36e..56d90ac56 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -937,6 +937,20 @@
+ 
+ 
+ 
++	<!-- custom: how much more we'd value switching to a civic that gives anger to us if other rivals have it (used to be the former civic_emancipation's effect). Old logic resulted in a civic_emancipation auto pick almost and the anger civic effect being way too overevaluated based on autoplay results and according to chatgpt 5's review as well i mean (check if accurate anyways etc). Changed old logic with these new toggles thanks to chatgpt 5's help too i mean thanks etc really if i may say i mean but anyways etc; also i mean check if accurate and thanks for help i mean too but anyways etc. -->
++	<!-- custom: as for these new knobs, for this one the higher the value, the more we want to switch to this civic for each of our cities that are unhappy (it may be worth to change to such a civic if city is unhappy and we have some unhappiness in this city that is due to this civic not being adopted). -->
++	<Define>
++		<DefineName>SAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY</DefineName>
++		<iDefineIntVal>150</iDefineIntVal>
++	</Define>
++	<!-- custom: The higher the value, the more we want to switch to this civic for each of our cities that are happy (no need to change to such a civic if city is happy). -->
++	<Define>
++		<DefineName>SAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: set to 1 (enabled) (recommended) to allow sas specialist assignment optimizations (if any are implemented) anyways etc -->
+ 	<Define>
+ 		<DefineName>SAS_JOB_CHANGE_VALUE_OPTIMIZE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d24e3b667..ba3c0521e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -17958,17 +17958,61 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	// K-Mod end
+ 
+ 
++	// <!-- custom: civic_emancipation is overvalued when it's really not a so great civic especially vs civic_caste_system and civic_serfdom, so reduce the overvaluation potential causes. Use another formula. Use another formula counting unhappiness in cities rather, with the help of chatgpt 5, check if accurate anyways etc -->
++	// Short answer: the AI is over-valuing Emancipation because of the two civic-percent-anger terms in AI_civicValue. With your current XML (iCivicPercentAnger = 400 and low upkeep), those lines alone can outweigh Emancipation’s weak direct effects, so AIs “auto-snap” to it.
++	// if (kCivic.getCivicPercentAnger() != 0)
++	// {
++	// 	/*	K-Mod version. (the original bts code was ridiculous - it is now deleted)
++	// 		value for negation of unhappiness. "percent_anger_divisor" is 1000, not 100. */
++	// 	iValue += (iCities * 12 * iS * AI_getHappinessWeight(
++	// 			iS*getCivicPercentAnger(eCivic, true)*
++	// 			100/GC.getPERCENT_ANGER_DIVISOR(), 2, true)) / 100;
++	// 	/*	value for putting pressure on other civs.
++	// 		(this should probably take into account the civics of other civs) */
++	// 	iValue += kCivic.getCivicPercentAnger() * (SQR(iCities) - iCities) /
++	// 			(5*kGame.getNumCities()); // 5* because "percent" is really per mil.
++	// }
++	// Yes—count the actual anger in your cities and weight it by how tight each city’s happy cap is. Drop this in CvPlayerAI::AI_civicValue and delete (or #if 0) any older emancipation pressure code so we don’t double-count.
++	// --- City-level valuation of "civic percent anger" (defensive only) ---
+ 	if (kCivic.getCivicPercentAnger() != 0)
+ 	{
+-		/*	K-Mod version. (the original bts code was ridiculous - it is now deleted)
+-			value for negation of unhappiness. "percent_anger_divisor" is 1000, not 100. */
+-		iValue += (iCities * 12 * iS * AI_getHappinessWeight(
+-				iS*getCivicPercentAnger(eCivic, true)*
+-				100/GC.getPERCENT_ANGER_DIVISOR(), 2, true)) / 100;
+-		/*	value for putting pressure on other civs.
+-			(this should probably take into account the civics of other civs) */
+-		iValue += kCivic.getCivicPercentAnger() * (SQR(iCities) - iCities) /
+-				(5*kGame.getNumCities()); // 5* because "percent" is really per mil.
++		// Per-mil anger we'd suffer if we DON'T run this civic
++		const int iPermilIfWeDont = getCivicPercentAnger(eCivic, /*bIgnore=*/true);
++		if (iPermilIfWeDont != 0)
++		{
++			// New - current: adopt (iS>0) => negative; drop (iS<0) => positive
++			const int iPermilDelta = -iS * iPermilIfWeDont;
++
++			int iTotal = 0;
++			const int D = GC.getPERCENT_ANGER_DIVISOR();
++
++			static const int iSAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY = GC.getDefineINT("SAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY");
++			static const int iSAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY = GC.getDefineINT("SAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY");
++			
++			FOR_EACH_CITYAI(pCity, *this)
++			{
++				// Happy slack: how many heads we can add before going unhappy
++				const int iSlack = pCity->happyLevel() - pCity->unhappyLevel(0);
++				const bool bCityHappy = (iSlack >= 0);
++
++				// Skip truly safe cities
++				if (bCityHappy)
++					continue;
++
++				// Convert per-mil anger delta to heads (rounded)
++				const int iDeltaUnhappy = (iPermilDelta * pCity->getPopulation() + D/2) / D;
++				if (iDeltaUnhappy == 0)
++					continue;
++
++				// Weight edge / unhappy cities a bit more
++				const int iPressureScale = (!bCityHappy ? iSAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY : iSAS_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY); // tune if desired
++
++				// Turn “less unhappy” into a positive score for the AI
++				const int iCityVal = (12 * AI_getHappinessWeight(-iDeltaUnhappy, 1, true)) / 100;
++				iTotal += iCityVal * iPressureScale / 100;
++			}
++			iValue += iTotal;
++		}
+ 	}
+ 
+ 	if (kCivic.getExtraHealth() != 0)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index b5a72eb80..f4ec345e3 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -106,6 +106,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [72 - (Seemingly fixed/addressed) Base advciv bug of calling getInt in CvRandom.h when iNum is negative, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#72---seemingly-fixedaddressed-base-advciv-bug-of-calling-getint-in-cvrandomh-when-inum-is-negative-then-firing-a-failed-assert)  
+ [73 - (Seemingly fixed/addressed) Base advciv bug of calling scout units stuck in a loop related to iAttempts and iMaxAttempts in CvSelectionGroupAI::AI_update, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#73---seemingly-fixedaddressed-base-advciv-bug-of-calling-scout-units-stuck-in-a-loop-related-to-iattempts-and-imaxattempts-in-cvselectiongroupaiai_update-then-firing-a-failed-assert)  
+ [74 - (Seemingly fixed/addressed) Base advciv bug of AI_bestSpreadUnit returning true even if eBestSpreadUnit is NO_UNIT, then firing a failed assert](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#74---seemingly-fixedaddressed-base-advciv-bug-of-ai_bestspreadunit-returning-true-even-if-ebestspreadunit-is-no_unit-then-firing-a-failed-assert)  
++[75 - (Tremendously Improved) AIs autopicking civic_emancipation (iCivicPercentAnger) just because other rivals have it regardless of how good the civic itself is. Now replaced with opportunistic current unhappiness per city-based logic if it benefits us, in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -2777,3 +2778,13 @@ See code comments there i.e. in `CvSelectionGroupAI::AI_update` in for details a
+ ## 74 - (Seemingly fixed/addressed) Base advciv bug of AI_bestSpreadUnit returning true even if eBestSpreadUnit is NO_UNIT, then firing a failed assert
+ 
+ See code comments there i.e. in parent callers in `CvCityAI::AI_chooseProduction` and `CvCityAI::AI_buildGovernorChooseProduction` in for details anyways etc.
++
++## 75 - (Tremendously Improved) AIs autopicking civic_emancipation (iCivicPercentAnger) just because other rivals have it regardless of how good the civic itself is. Now replaced with opportunistic current unhappiness per city-based logic if it benefits us, in CvPlayerAI::AI_civicValue
++
++See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/16vQkp1ow6sy2Bi99M02HbHMPpFDU9Q1h?usp=sharing) anyways etc.
++
++AI had an issue of seemingly tremendously favouring the former civic_emancipation i guess because of the `iCivicPercentAnger` as chatgpt 5 assessed as per its review (check if accurate anyways etc) i mean but anyways etc, but the problem is that the civic itself was really bad. Just because we'd have some rivals run the civic is no reason to urgently switch to it. Only do so if our cities are unhappy because of this effect rather. Else, keep other civics like as of now civic_caste_system or anything else, unless the civic_emancipation is by itself better (e.g. due to other effects if reworked, etc).
++
++As can be seen in screenshots before/after, AI went from always picking the former civic_emancipation after a few first pick it to now depicking it even if some rivals have it.
++
++To be good, the civic would need to be reworked, and not just picked because other rivals have it, else AIs would make a weak choice vs humans who would value say civic_caste_system or such. Hopefully AIs should be stronger as such, and may open the door to some civic balance i mean hopefully in this case i mean but anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 64384adc3..7b6eb5e85 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -25,6 +25,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ &emsp;&emsp;[Specialists (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#specialists-ai)  
+ &emsp;&emsp;[City Production (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#city-production-ai)  
+ &emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#leaders-ai)  
++&emsp;&emsp;[Civics (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#civics-ai)  
+ &emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#buildings-ai)  
+ &emsp;&emsp;[Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#diplomacy-ai)  
+ &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#military-ai)  
+@@ -188,6 +189,10 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - additionally to iBuildUnitProb changes to some/specific leaders anyways etc anyways etc, also increase all leaders iBuildUnitProb by 10 so they are more competitive if i may say anyways etc and military focused overall and throughout the game anyways etc, mostly because they die too often to barbarians, especially more now that barbarians are stronger, but it was also a problem in base advciv if i am not mistaken, and generally if i may say anyways etc i was not impressed with their military performance overall even at emperor, they just didn't have enough units, i hope the game is more challenging or and realistic as such without forcing too much of a military profile on games anyways etc
+ - fixed many religious inaccuracies in leaders, at least some or those i could spot with (being) enough certainty (certain enough) anyways etc, for example frederick the great was agnostic not christian, brennus seems to have leaned more towards no religion in gaul than paganism (not an accuracy just did not make him auto pagan) if i am not mistaken, cyrus not religious pagan but darius is, seemingly, chruchill not being so and really christian that he would (strongly (enough)) prefer it over other religions, (if i am not mistaken about these or/and others) anyways etc, see notes_about_religious_design.txt in the mod's google drive for details. For now only changed favourite religions and such. Did not change XML religious values of leaders even though ideally a todo, but since fits here better put it here than in todoes for exhaustiveness if i may say even though inconsistent with other todoes not being here but anyways etc
+ 
++#### Civics (AI)
++
++- (Requires AdvCiv-SAS 5103+) Fix the issue of AIs autopicking/overvaluing the former civic_emancipation (or any civic with `iCivicPercentAnger`) just because other rivals have it regardless of how good the civic itself is (the former civic_emancipation was really weak yet still picked by AIs). Now replaced with opportunistic current unhappiness per city-based logic if it benefits us (only pick such a civic if enough of our cities that are unhappy because of the anger civic effect would gain happiness from it). Change in `CvPlayerAI::AI_civicValue` with some tunables in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). Hopefully makes stronger civic choices thanks to this changes as appears to be so in autoplay before vs after change. See for details [KI#75](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue).
++
+ #### Buildings (AI)
+ 
+ - tightened or/and reworked wonders 's (world wonders, and national wonders although a bit lenient threshold anyways etc) keep building thresholds in `CvCityAI::AI_chooseProduction`, so that AIs are now more inclined to ditch wonders we (i.e. the AI itself, i.e. from its point of view anyways etc) are currently building if they are not close from completion, if i am not mistaken anyways etc, if in a war context (at war, or/and planning war, or/and in danger), especially if AI is weaker militarily, then the threshold to ditch the wonder is highest (e.g. as of now 80% completion minimum or ditch it if at war and weaker than the enemy, vs seemingly less at least in some related cases such as danger or such, check code to be sure and have updated values anyways etc). Hopefully this helps AI better react to war threats and not invest too much in wonders when our enemy is about or threatening to conquer city anyway: don't build the wonder for our enemy. Attempt to use the hammer for anything else, perhaps a few extra longbowmen, or walls or something. Hopefully AI has a sharper use of its hammer and more responsive building choices as a result anyways etc.
+@@ -355,7 +360,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ 
+ ### Civics (non-exhaustive, see sevopedia or/and xml for details)
+ 
+-- some civics such as CIVIC_REPRESENTATION have been reworked/rebalanced. For example for CIVIC_REPRESENTATION, it is mainly because it is available sooner in advciv-sas mod, but also to tweak or change its effect a bit too anyways etc.
++- some civics have been reworked/rebalanced. For example for CIVIC_REPRESENTATION, it was mainly because it is available sooner in advciv-sas mod, but also to tweak or change its effect a bit too anyways etc, or CIVIC_SERFDOM has been buffed as of now (removed gold penalty on IMROVEMENT_TOWN (versatile late-game serf-based civ), added water food improvements as well), CIVIC_SLAVERY has been buffed (upkeep changed from medium to low to make it relevant longer as well as in the early game vs other civics for versatility), nerf CIVIC_CASTE_SYSTEM (as of now changed upkeep from medium to high, was too op (now is strong but requires some foundation to leverage it i mean but anyways etc)).
+ - some other civics such as CIVIC_SLAVERY have been moved sooner or at another position in tech tree, as of now for example at tech_agriculture for CIVIC_SLAVERY, for historical accuracy and also gameplay balance or/and strategical variety: having it out of the military tree reduces the power/strength of tech_bronze_working in a quite nice way and rewards additional paths as well. So hopefully all in all best or fine to do/try in our mod if i may say as such but anyways etc
+ 
+ ### Buildings (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 254c1d402..0bad47fb7 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -23,6 +23,7 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv 1.12. It’s
+ &emsp;&emsp;[Specialists (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#specialists-ai)  
+ &emsp;&emsp;[City Production (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#city-production-ai)  
+ &emsp;&emsp;[Leaders (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#leaders-ai)  
++&emsp;&emsp;[Civics (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#civics-ai)  
+ &emsp;&emsp;[Buildings (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#buildings-ai)  
+ &emsp;&emsp;[Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#diplomacy-ai)  
+ &emsp;&emsp;[Military (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#military-ai)  
+@@ -176,6 +177,10 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Global change:** +10 to `iBuildUnitProb` for **all leaders** (applied on top of the per-leader edits).
+ - Corrected favorite religions where historical support was weak or inaccurate; scope limited to “favorite religion” for now (see your notes file for sources).
+ 
++#### Civics (AI)
++
++- (Requires AdvCiv-SAS 5103+) **Civic “Percent Anger” logic (rework):** Fixed the AI tendency to adopt any civic with `iCivicPercentAnger` (e.g. the former CIVIC_EMANCIPATION) just because rivals have it, regardless of its actual value. Replaced with an **opportunistic per-city check**: only consider such civics when enough of our cities would directly **lose anger** from the switch. Implemented in `CvPlayerAI::AI_civicValue`; tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). In autoplay before/after tests, civic choices appeared **stronger**. See [KI#75](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue).
++
+ #### Buildings (AI)
+ 
+ - Tightened/reworked **wonder-keep** thresholds in `CvCityAI::AI_chooseProduction`: if at war/planning war/in danger and not close to completion, AIs will **ditch world wonders** (highest threshold when weaker) and redirect hammers to urgent needs (e.g., walls/units). See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**.
+@@ -335,7 +340,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ 
+ ### Civics (non-exhaustive)
+ 
+-- Some civics reworked/rebalanced (e.g., **Representation** earlier in AdvCiv-SAS and with adjusted effects).
++- **Civics rework/rebalance:** Examples: **Representation** adjusted since it unlocks earlier in AdvCiv-SAS (effects tweaked accordingly); **Serfdom** buffed (removed `IMPROVEMENT_TOWN` gold penalty; added water-tile food improvements); **Slavery** buffed (upkeep **Medium → Low**); **Caste System** nerfed (upkeep **Medium → High** to curb early OP use). See Sevopedia/XML.
+ - Some civics moved on the tech tree for history/balance/variety. **Slavery** is now at **Agriculture** (earlier), which weakens the **Bronze Working** beeline and opens non-military paths.
+ 
+ ### Buildings (non-exhaustive)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=25972

@@ -1,0 +1,228 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3032
+# Commit: a374ad7fdf01c4d8e26a1e378eed3a9186b4e311
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f877839e732ad4949a9172ee51c901570114d91b
+# Title: Store Holy City, HQ symbol as wchar
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	19	CvGameCoreDLL/CvGameTextMgr.cpp
+10	10	CvGameCoreDLL/CvInfo_Organization.cpp
+6	6	CvGameCoreDLL/CvInfo_Organization.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index cc60caafe..ca1d717b9 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -20358,48 +20358,48 @@ void CvGameTextMgr::getTurnTimerText(CvWString& strText)
+ 	}
+ }
+ 
+-
+-void CvGameTextMgr::getFontSymbols(std::vector< std::vector<wchar> >& aacSymbols, std::vector<int>& aiMaxNumRows)
++void CvGameTextMgr::getFontSymbols(std::vector< std::vector<wchar> >& aacSymbols,
++	std::vector<int>& aiMaxNumRows)
+ {
+ 	aacSymbols.push_back(std::vector<wchar>());
+ 	aiMaxNumRows.push_back(1);
+-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	FOR_EACH_ENUM(Yield)
+ 	{
+-		aacSymbols[aacSymbols.size() - 1].push_back((wchar) GC.getInfo((YieldTypes) iI).getChar());
++		aacSymbols[aacSymbols.size() - 1].push_back(GC.getInfo(eLoopYield).getChar());
+ 	}
+ 
+ 	aacSymbols.push_back(std::vector<wchar>());
+ 	aiMaxNumRows.push_back(2);
+-	for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	FOR_EACH_ENUM(Commerce)
+ 	{
+-		aacSymbols[aacSymbols.size() - 1].push_back((wchar) GC.getInfo((CommerceTypes) iI).getChar());
++		aacSymbols[aacSymbols.size() - 1].push_back(GC.getInfo(eLoopCommerce).getChar());
+ 	}
+ 
+ 	aacSymbols.push_back(std::vector<wchar>());
+ 	aiMaxNumRows.push_back(2);
+-	for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
++	FOR_EACH_ENUM(Religion)
+ 	{
+-		aacSymbols[aacSymbols.size() - 1].push_back((wchar) GC.getInfo((ReligionTypes) iI).getChar());
+-		aacSymbols[aacSymbols.size() - 1].push_back((wchar) GC.getInfo((ReligionTypes) iI).getHolyCityChar());
++		aacSymbols[aacSymbols.size() - 1].push_back(GC.getInfo(eLoopReligion).getChar());
++		aacSymbols[aacSymbols.size() - 1].push_back(GC.getInfo(eLoopReligion).getHolyCityChar());
+ 	}
+-	for (int iI = 0; iI < GC.getNumCorporationInfos(); iI++)
++	FOR_EACH_ENUM(Corporation)
+ 	{
+-		aacSymbols[aacSymbols.size() - 1].push_back((wchar) GC.getInfo((CorporationTypes) iI).getChar());
+-		aacSymbols[aacSymbols.size() - 1].push_back((wchar) GC.getInfo((CorporationTypes) iI).getHeadquarterChar());
++		aacSymbols[aacSymbols.size() - 1].push_back(GC.getInfo(eLoopCorporation).getChar());
++		aacSymbols[aacSymbols.size() - 1].push_back(GC.getInfo(eLoopCorporation).getHeadquarterChar());
+ 	}
+ 
+ 	aacSymbols.push_back(std::vector<wchar>());
+ 	aiMaxNumRows.push_back(3);
+-	for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
++	FOR_EACH_ENUM(Bonus)
+ 	{
+-		aacSymbols[aacSymbols.size() - 1].push_back((wchar) GC.getInfo((BonusTypes) iI).getChar());
++		aacSymbols[aacSymbols.size() - 1].push_back(GC.getInfo(eLoopBonus).getChar());
+ 	}
+ 
+ 	aacSymbols.push_back(std::vector<wchar>());
+ 	aiMaxNumRows.push_back(3);
+-	for (int iI = 0; iI < MAX_NUM_SYMBOLS; iI++)
++	for (int i = 0; i < MAX_NUM_SYMBOLS; i++)
+ 	{
+-		aacSymbols[aacSymbols.size() - 1].push_back((wchar) gDLL->getSymbolID(iI));
++		aacSymbols[aacSymbols.size() - 1].push_back((wchar)gDLL->getSymbolID(i));
+ 	}
+ }
+ 
+@@ -20489,7 +20489,7 @@ void CvGameTextMgr::assignFontIds(int iFirstSymbolCode, int iPadAmount)
+ 		iSymbol++;
+ 	} while (iSymbol % iPadAmount != 0);
+ 
+-	if(GC.getNumBonusInfos() < iPadAmount)
++	if (GC.getNumBonusInfos() < iPadAmount)
+ 	{
+ 		do
+ 		{
+@@ -20497,7 +20497,7 @@ void CvGameTextMgr::assignFontIds(int iFirstSymbolCode, int iPadAmount)
+ 		} while (iSymbol % iPadAmount != 0);
+ 	}
+ 
+-	if(GC.getNumBonusInfos() < 2 * iPadAmount)
++	if (GC.getNumBonusInfos() < 2 * iPadAmount)
+ 	{
+ 		do
+ 		{
+@@ -20506,7 +20506,7 @@ void CvGameTextMgr::assignFontIds(int iFirstSymbolCode, int iPadAmount)
+ 	}
+ 
+ 	// set extra symbols
+-	for (int i=0; i < MAX_NUM_SYMBOLS; i++)
++	for (int i = 0; i < MAX_NUM_SYMBOLS; i++)
+ 	{
+ 		gDLL->setSymbolID(i, iSymbol);
+ 		iSymbol++;
+
+diff --git a/CvGameCoreDLL/CvInfo_Organization.cpp b/CvGameCoreDLL/CvInfo_Organization.cpp
+index 68295dd51..c23212108 100644
+--- a/CvGameCoreDLL/CvInfo_Organization.cpp
++++ b/CvGameCoreDLL/CvInfo_Organization.cpp
+@@ -71,7 +71,7 @@ bool CvOrganizationInfo::read(CvXMLLoadUtility* pXML)
+ }
+ 
+ CvReligionInfo::CvReligionInfo() :
+-m_iHolyCityChar(0),
++m_cHolyCityChar(0),
+ m_iNumFreeUnits(0),
+ m_paiGlobalReligionCommerce(NULL),
+ m_paiHolyCityCommerce(NULL),
+@@ -85,14 +85,14 @@ CvReligionInfo::~CvReligionInfo()
+ 	SAFE_DELETE_ARRAY(m_paiStateReligionCommerce);
+ }
+ 
+-int CvReligionInfo::getHolyCityChar() const
++wchar CvReligionInfo::getHolyCityChar() const
+ {
+-	return m_iHolyCityChar;
++	return m_cHolyCityChar;
+ }
+ 
+-void CvReligionInfo::setHolyCityChar(int i)
++void CvReligionInfo::setHolyCityChar(wchar c)
+ {
+-	m_iHolyCityChar = i;
++	m_cHolyCityChar = c;
+ }
+ 
+ int CvReligionInfo::getNumFreeUnits() const
+@@ -210,7 +210,7 @@ bool CvReligionInfo::isReligionTech(TechTypes eTech)
+ }
+ 
+ CvCorporationInfo::CvCorporationInfo() :
+-m_iHeadquarterChar(0),
++m_cHeadquarterChar(0),
+ m_iSpreadCost(0),
+ m_iMaintenance(0),
+ m_eBonusProduced(NO_BONUS),
+@@ -226,14 +226,14 @@ CvCorporationInfo::~CvCorporationInfo()
+ 	SAFE_DELETE_ARRAY(m_paiYieldProduced);
+ }
+ 
+-int CvCorporationInfo::getHeadquarterChar() const
++wchar CvCorporationInfo::getHeadquarterChar() const
+ {
+-	return m_iHeadquarterChar;
++	return m_cHeadquarterChar;
+ }
+ 
+-void CvCorporationInfo::setHeadquarterChar(int i)
++void CvCorporationInfo::setHeadquarterChar(wchar c)
+ {
+-	m_iHeadquarterChar = i;
++	m_cHeadquarterChar = c;
+ }
+ // advc.003t: Calls from Python aren't going to respect the bounds
+ int CvCorporationInfo::py_getPrereqBonus(int i) const
+
+diff --git a/CvGameCoreDLL/CvInfo_Organization.h b/CvGameCoreDLL/CvInfo_Organization.h
+index f2e6057c0..7739d9e48 100644
+--- a/CvGameCoreDLL/CvInfo_Organization.h
++++ b/CvGameCoreDLL/CvInfo_Organization.h
+@@ -48,8 +48,8 @@ public: // All the const functions are exposed to Python
+ 	CvReligionInfo();
+ 	~CvReligionInfo();
+ 
+-	int getHolyCityChar() const;
+-	void setHolyCityChar(int i);
++	wchar getHolyCityChar() const;
++	void setHolyCityChar(wchar c);
+ 	int getNumFreeUnits() const;
+ 
+ 	const TCHAR* getTechButton() const;
+@@ -73,7 +73,7 @@ public: // All the const functions are exposed to Python
+ 	static bool isReligionTech(TechTypes eTech); // advc.003w: Moved from CvGameCoreUtils
+ 
+ protected:
+-	int m_iHolyCityChar;
++	wchar m_cHolyCityChar; // advc: was int
+ 	int m_iNumFreeUnits;
+ 
+ 	CvString m_szTechButton;
+@@ -94,8 +94,8 @@ public: // All the const functions are exposed to Python; advc.inl: inlined some
+ 	CvCorporationInfo();
+ 	virtual ~CvCorporationInfo();
+ 
+-	int getHeadquarterChar() const;
+-	void setHeadquarterChar(int i);
++	wchar getHeadquarterChar() const;
++	void setHeadquarterChar(wchar c);
+ 	int getSpreadCost() const { return m_iSpreadCost; }
+ 	int getMaintenance() const { return m_iMaintenance; }
+ 	BonusTypes getBonusProduced() const { return m_eBonusProduced; }
+@@ -121,7 +121,7 @@ public: // All the const functions are exposed to Python; advc.inl: inlined some
+ 	static bool isCorporationTech(TechTypes eTech); // advc.003w: Moved from CvGameCoreUtils; unused.
+ 
+ protected:
+-	int m_iHeadquarterChar;
++	wchar m_cHeadquarterChar; // advc: was int
+ 	int m_iSpreadCost;
+ 	int m_iMaintenance;
+ 	BonusTypes m_eBonusProduced;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7023

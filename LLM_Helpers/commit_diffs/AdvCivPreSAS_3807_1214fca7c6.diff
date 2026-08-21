@@ -1,0 +1,54 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3807
+# Commit: 1214fca7c6d5e7db76a911a444e53336b728dc87
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 899dfbee30d327c05c53bfb75195494eafd06f0d
+# Title: Move stop-autoplay button on failed-assert popup
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	6	CvGameCoreDLL/FAssert.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/FAssert.cpp b/CvGameCoreDLL/FAssert.cpp
+index 24320dce7..35ebbf8ca 100644
+--- a/CvGameCoreDLL/FAssert.cpp
++++ b/CvGameCoreDLL/FAssert.cpp
+@@ -138,12 +138,6 @@ namespace
+ 		iBtnX += iIncrX;
+ 		dialogTemplate.AddButton( _T("Ignore Always"), WS_VISIBLE, 0,
+ 				iBtnX, iBtnY, iBtnW, iBtnH, IDC_IGNORE_ALWAYS );
+-		iBtnX += iIncrX;
+-		dialogTemplate.AddButton( _T("&Abort"), WS_VISIBLE, 0,
+-				iBtnX, iBtnY, iBtnW, iBtnH, IDC_ABORT );
+-		iBtnX += iIncrX;
+-		dialogTemplate.AddButton( _T("&Debug"), WS_VISIBLE, 0,
+-				iBtnX, iBtnY, iBtnW, iBtnH, IDC_DEBUG );
+ 		// <advc.006l>
+ 		if (bShowStopBtn)
+ 		{
+@@ -151,6 +145,12 @@ namespace
+ 			dialogTemplate.AddButton(_T("&Stop Auto Play"), WS_VISIBLE, 0,
+ 					iBtnX, iBtnY, iBtnW, iBtnH, IDC_STOP);
+ 		} // </advc.006l>
++		iBtnX += iIncrX;
++		dialogTemplate.AddButton( _T("&Abort"), WS_VISIBLE, 0,
++				iBtnX, iBtnY, iBtnW, iBtnH, IDC_ABORT );
++		iBtnX += iIncrX;
++		dialogTemplate.AddButton( _T("&Debug"), WS_VISIBLE, 0,
++				iBtnX, iBtnY, iBtnW, iBtnH, IDC_DEBUG );
+ 		dialogTemplate.AddEditBox( _T(""),
+ 				ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY |
+ 				WS_VSCROLL | WS_HSCROLL | WS_VISIBLE, WS_EX_STATICEDGE,
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1205

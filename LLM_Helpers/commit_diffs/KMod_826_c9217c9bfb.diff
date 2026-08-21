@@ -1,0 +1,126 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 826
+# Commit: c9217c9bfbdf1ac5c0556af9f589057990c00a44
+# History segment: K-Mod history
+# Parent used for diff: 47b75c64afbbe6ad3280ce3a52f6f65b4881cf1e
+# Title: Made some futher adjustments to how a plot's center unit is updated.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	18	CvGameCoreDLL/CvGameTextMgr.cpp
+11	2	CvGameCoreDLL/CvMap.cpp
+2	2	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 200f98a56..f1169709f 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -2046,24 +2046,12 @@ static float getCombatOddsSpecific(CvUnit* pAttacker, CvUnit* pDefender, int n_A
+ /*************************************************************************************************/
+ 
+ // Returns true if help was given...
++
++// K-Mod note: this function can change the center unit on the plot. (because of a change I made)
+ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ {
+ 	PROFILE_FUNC();
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                         05/22/08                             jdog5000      */
+-/*                                                                                              */
+-/* DEBUG                                                                                        */
+-/************************************************************************************************/
+-	if (GC.altKey() && (gDLL->getChtLvl() > 0))
+-	{
+-		setPlotHelp( szString, pPlot );
+-		return true;
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                          END                                               */
+-/************************************************************************************************/
+-
+ /*************************************************************************************************/
+ /** ADVANCED COMBAT ODDS                      3/11/09                           PieceOfMind      */
+ /** BEGIN                                                                       v2.0             */
+@@ -2138,9 +2126,13 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer &szString, CvPlot* pPlot)
+ 
+ 	if (pAttacker != NULL)
+ 	{
+-		// BUG - Combat Odds for Friendlies - start
+-		pDefender = pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwnerINLINE(), pAttacker, !GC.altKey(), NO_TEAM == pAttacker->getDeclareWarMove(pPlot));
+-		// BUG - Combat Odds for Friendlies - end
++		pDefender = pPlot->getBestDefender(NO_PLAYER, pAttacker->getOwnerINLINE(), pAttacker, !GC.altKey());
++		// K-Mod. If the plot's center unit isn't one of our own units, then use this defender as the plot's center unit.
++		// With this, the map will accurately shows who we're up against.
++		// (note. 'friendlies' idea is from BUG)
++		if (pDefender && (pDefender->getOwnerINLINE() == GC.getGameINLINE().getActivePlayer() || !pPlot->getCenterUnit() || pPlot->getCenterUnit()->getOwnerINLINE() != GC.getGameINLINE().getActivePlayer()))
++			pPlot->setCenterUnit(pDefender);
++		// K-Mod end
+ 
+ 		if (pDefender != NULL && pDefender != pAttacker && pDefender->canDefend(pPlot) && pAttacker->canAttack(*pDefender))
+ 		{
+@@ -17783,7 +17775,8 @@ void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot, CvCity* pCity, CvPlot* p
+ 		{
+ 			if (pMouseOverPlot != NULL)
+ 			{
+-				if ((pMouseOverPlot == gDLL->getInterfaceIFace()->getGotoPlot()) || bAlt)
++				//if ((pMouseOverPlot == gDLL->getInterfaceIFace()->getGotoPlot()) || bAlt)
++				if (pMouseOverPlot == gDLL->getInterfaceIFace()->getGotoPlot() || (bAlt && gDLL->getChtLvl() == 0)) // K-Mod. (alt does something else in cheat mode)
+ 				{
+ 					if (pMouseOverPlot->isActiveVisible(true))
+ 					{
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 261e53432..7377fbf2c 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -459,8 +459,17 @@ void CvMap::updateCenterUnit()
+ 		const CvUnit* pLoopUnit = ::getUnit(pSelectionNode->m_data);
+ 		pSelectionNode = gDLL->getInterfaceIFace()->nextSelectionListNode(pSelectionNode);
+ 
+-		int iStepCost = pLoopUnit->getDomainType() == DOMAIN_LAND ? KmodPathFinder::MinimumStepCost(pLoopUnit->baseMoves()) : GC.getMOVE_DENOMINATOR();
+-		iRange = std::min(iRange, pLoopUnit->movesLeft() / iStepCost); // (is it safe to use movesLeft? ie. will this function be called again when the moves are replenished? I think so...)
++		int iLoopRange;
++		if (pLoopUnit->getDomainType() == DOMAIN_AIR)
++		{
++			iLoopRange = pLoopUnit->airRange();
++		}
++		else
++		{
++			int iStepCost = pLoopUnit->getDomainType() == DOMAIN_LAND ? KmodPathFinder::MinimumStepCost(pLoopUnit->baseMoves()) : GC.getMOVE_DENOMINATOR();
++			iLoopRange = pLoopUnit->maxMoves() / iStepCost + (pLoopUnit->canParadrop(pLoopUnit->plot()) ? pLoopUnit->getDropRange() : 0);
++		}
++		iRange = std::max(iRange, iLoopRange);
+ 		// Note: technically we only really need the minimum range; but I'm using the maximum range because I think it will produce more intuitive and useful information for the player.
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 8dccfccbb..9ba8508ef 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -772,10 +772,10 @@ void CvPlot::updateCenterUnit()
+ 		setCenterUnit(getBestDefender(GC.getGameINLINE().getActivePlayer()));
+ 	}
+ 
+-	if (getCenterUnit() == NULL)
++	/* if (getCenterUnit() == NULL)
+ 	{
+ 		setCenterUnit(getBestDefender(NO_PLAYER, GC.getGameINLINE().getActivePlayer(), gDLL->getInterfaceIFace()->getHeadSelectedUnit(), true));
+-	}
++	} */ // disabled by K-Mod. I don't think its relevent whether or not the best defender can move.
+ 
+ 	if (getCenterUnit() == NULL)
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5444

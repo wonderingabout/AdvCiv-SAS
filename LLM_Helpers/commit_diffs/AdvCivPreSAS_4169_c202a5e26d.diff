@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4169
+# Commit: c202a5e26da8a82bda4d9cf22c58ec24f55defd2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b3a61fed382c6d102f76ca0c4edb3ae3bd490968
+# Title: Fix popups being canceled in Hotseat upon saving
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index b3ba18e7a..c34c67ec9 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14893,7 +14893,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 		/*	<advc.001> Don't store popups for AI players. The EXE sometimes adds popups
+ 			to AI players through CvPlayer::getPopups; not sure when and why. Those popups
+ 			linger and appear when switching to an AI player through Alt+Z. */
+-		if (!isActive())
++		if (!isHuman())
+ 		{
+ 			currentPopups.clear();
+ 			clearPopups();
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=565

@@ -1,0 +1,129 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5114
+# Commit: 07ed4d273d111a403eba0554bce7074ae55c004e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ec12352bea05204f3120faba8aeeeaf2c5f89ce4
+# Title: add iCivicPercentAnger info to sevopedia/civics advisor anyways etc - "<!-- custom: show the getCivicPercentAnger numeric value info as well, code added with...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+9	0	Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+17	3	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+index ad283f26a..66ac04b54 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+@@ -202,6 +202,15 @@
+ 	</TEXT>
+ 
+ 
++
++	<!-- custom: show the getCivicPercentAnger numeric value info as well, code added with the help of chatgpt 5 thanks a lot but anyways etc, check if accurate anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_FREEDOM_ANGER</Tag>
++		<English>[ICON_BULLET]%D1_Mod iCivicPercentAnger [ICON_UNHAPPY] for civs without[SPACE]</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: was <English>U.N. Resolution #743 (Global Civic - Emancipation)</English> anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_VOTE_WAGE_LABOR</Tag>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 4f8e50fcd..6cba4193b 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -7648,9 +7648,23 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
+ 	//	Freedom Anger
+ 	if (kCivic.getCivicPercentAnger() != 0)
+ 	{
+-		szHelpText.append(NEWLINE);
+-		szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_FREEDOM_ANGER",
+-				kCivic.getTextKeyWide()));
++		// 	szHelpText.append(NEWLINE);
++		// 	szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_FREEDOM_ANGER",
++		// 			kCivic.getTextKeyWide()));
++		// }
++		// <!-- custom: show the getCivicPercentAnger numeric value info as well, code added with the help of chatgpt 5 thanks a lot but anyways etc, check if accurate anyways etc -->
++		const int iPct = kCivic.getCivicPercentAnger();
++
++		CvWString szFirstBuffer;
++		szFirstBuffer.Format(L"%s%s",
++			NEWLINE,
++			gDLL->getText("TXT_KEY_CIVIC_FREEDOM_ANGER", iPct).c_str());
++
++		CvWString szItem;
++		szItem.Format(L"<link=literal>%s</link>", kCivic.getDescription());
++
++		int iLast = 0;
++		setListHelp(szHelpText, szFirstBuffer, szItem, L", ", iLast, iPct);
+ 	}
+ 
+ 	if (!kCivic.isStateReligion())
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 768e1eb60..e7a85c06f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -364,7 +364,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ ### Civics (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - some civics have been rebalanced. For example for CIVIC_REPRESENTATION, it was mainly because it is available sooner in advciv-sas mod, but also to tweak or change its effect a bit too anyways etc, or CIVIC_SLAVERY has been buffed (upkeep changed from medium to low to make it relevant longer as well as in the early game vs other civics for versatility), or CIVIC_CASTE_SYSTEM has been nerfed (as of now changed upkeep from medium to high, was too op (now is strong but requires some foundation to leverage it i mean but anyways etc)). Also for example buff CIVIC_VASSALAGE (change upkeep from UPKEEP_HIGH to UPKEEP_MEDIUM), and other changes
+-- (Requires AdvCiv-SAS 5104+) some civics have been reworked: for example CIVIC_WAGE_LABOR (old emancipation civic) is now a production/economy civic available sooner which should be stronger and historically more accurate, or CIVIC_SERFDOM has been buffed a to be a much stronger agrarian/food based civic now. (Requires AdvCiv-SAS 5107+) Also, some religious civics were buffed/reworked should so that they are now more about religion and stay relevant longer in the game (note: in particular, the new civic_theocracy `iCivicPercentAnger` effect (a part of this civic's rework) uses a lower value of 200 instead of the value of 400 the former civic_emancipation had). These should allow for more strategic options and versatile strategies while also improving balance (no one op civic that beats all at least much less but anyways etc); and other reworks such as for `CIVIC_NATIONHOOD`.
++- (Requires AdvCiv-SAS 5104+) some civics have been reworked: for example CIVIC_WAGE_LABOR (old emancipation civic) is now a production/economy civic available sooner which should be stronger and historically more accurate, or CIVIC_SERFDOM has been buffed a to be a much stronger agrarian/food based civic now. (Requires AdvCiv-SAS 5107+) Also, some religious civics were buffed/reworked should so that they are now more about religion and stay relevant longer in the game (note: in particular, the new civic_theocracy `iCivicPercentAnger` effect (a part of this civic's rework) uses a lower value of 200 instead of the value of 400 the former civic_emancipation had (note 1.2: value info added to sevopedia and civics advisor anyways etc)). These should allow for more strategic options and versatile strategies while also improving balance (no one op civic that beats all at least much less but anyways etc); and other reworks such as for `CIVIC_NATIONHOOD`.
+ - some other civics such as CIVIC_SLAVERY have been moved sooner or at another position in tech tree, as of now for example at tech_agriculture for CIVIC_SLAVERY, for historical accuracy and also gameplay balance or/and strategical variety: having it out of the military tree reduces the power/strength of tech_bronze_working in a quite nice way and rewards additional paths as well. So hopefully all in all best or fine to do/try in our mod if i may say as such but anyways etc
+ - (Requires AdvCiv-SAS 5105+) Adjust the civics' order in xml so that their display order ingame in the civics advisor (F3 key anyways etc) matches tech tree pace (e.g. Universal Suffrage is before Police State not after, Vassalage is after Caste System not before, Pacifism is before Organized Religion not after) but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 61e4d3bfd..bdc8b1cfd 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -193,6 +193,8 @@ It allowed to polish a bit the sevopedia religion that also had a placeSpecial p
+ 
+ Code provided by/with the help of claude ai too thanks if i may say (and thanks to me too maybe as well if i may say too but anyways etc).
+ 
++More recently, added the `iCivicPercentAnger` info in sevopedia and civics advisor with the help of chatgpt 5 thanks a lot i mean really but anyways etc.
++
+ Examples of output below anyways etc:
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG" alt="0.740_sevopedia_civics_sample (1).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index e1ceb921e..499789091 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -344,7 +344,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ ### Civics (non-exhaustive)
+ 
+ - **Civics rebalance (selective):** `CIVIC_REPRESENTATION` adjusted (unlocks earlier in AdvCiv-SAS; effects tweaked to fit timing); `CIVIC_SLAVERY` buffed (**Upkeep: Medium → Low**); `CIVIC_CASTE_SYSTEM` nerfed (**Upkeep: Medium → High**) to curb early snowball; `CIVIC_VASSALAGE` buffed (**Upkeep: High → Medium**); and other changes. See Sevopedia/XML.
+-- (Requires AdvCiv-SAS 5104+) **Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact and historical accuracy; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. (Requires AdvCiv-SAS 5107+) Some religion civics are buffed/reworked to be refocused on religious play and to stay relevant longer; notably, `CIVIC_THEOCRACY` now uses `iCivicPercentAnger` = 200 (vs 400 on former civic_emancipation); and other reworks such as for `CIVIC_NATIONHOOD`. Net effect: more viable paths, fewer must-picks.
++- (Requires AdvCiv-SAS 5104+) **Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact and historical accuracy; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. (Requires AdvCiv-SAS 5107+) Some religion civics are buffed/reworked to be refocused on religious play and to stay relevant longer; notably, `CIVIC_THEOCRACY` now uses `iCivicPercentAnger` = 200 (vs 400 on former civic_emancipation) (value info added to Sevopedia and Civics Advisor); and other reworks such as for `CIVIC_NATIONHOOD`. Net effect: more viable paths, fewer must-picks.
+ - (Requires AdvCiv-SAS 5105+) **Civics order aligned to tech pace:** Reordered civics in XML so the **Civics Advisor** (F3 key) displays them in rough unlock order (UI only; no rules change). Examples: **Universal Suffrage** before **Police State**; **Vassalage** after **Caste System**; **Pacifism** before **Organized Religion**.
+ 
+ ### Buildings (non-exhaustive)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG
+index 0e59ce822..5184b0ed1 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=9646

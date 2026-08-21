@@ -1,0 +1,123 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4250
+# Commit: 57639c2b7f36f5deaface06151b7dfc8a66b959e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 72f15b349cf55ee6029dc413c555f20b37c9dcb0
+# Title: Relax AI funding cap for aircraft
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+17	16	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ad0bb9026..f6421db89 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2158,8 +2158,14 @@ void CvCityAI::AI_chooseProduction()
+ 	int iAircraftHave = 0;
+ 	UnitTypes eBestAttackAircraft = NO_UNIT;
+ 	UnitTypes eBestMissile = NO_UNIT;
++	// advc: To help consistency between the air production code segments
++	bool bFarTooFewAircraft = false;
+ 	// K-Mod. was +4, now +12 for the new unit spending metric
+-	if (iUnitSpending < iMaxUnitSpending + 12 && (!bCultureCity || bDefenseWar))
++	bool const bFundingForAircraft = //(iUnitSpending < iMaxUnitSpending + 12)
++			// <advc.airf>
++			(iUnitSpending < iMaxUnitSpending + 10 ||
++			iUnitSpending * 100 < iMaxUnitSpending * 115); // </advc.airf>
++	if (bFundingForAircraft && (!bCultureCity || bDefenseWar))
+ 	{
+ 		if (bLandWar || bAssault || iFreeAirExperience > 0 || SyncRandOneChanceIn(3))
+ 		{
+@@ -2196,7 +2202,6 @@ void CvCityAI::AI_chooseProduction()
+ 				{
+ 					iAircraftNeed = std::max(iAircraftNeed, 1 + kPlayer.getNumCities() / 2);
+ 				}
+-
+ 				bool bAirBlitz = kPlayer.AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ);
+ 				bool bLandBlitz = kPlayer.AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ);
+ 				if (bAirBlitz)
+@@ -2209,16 +2214,14 @@ void CvCityAI::AI_chooseProduction()
+ 					iAircraftNeed /= 2;
+ 					iAircraftNeed += 1;
+ 				}
+-
+ 				airWeight.set(UNITAI_ATTACK_AIR, bAirBlitz ? 125 : 80);
+-				airWeight.set(UNITAI_DEFENSE_AIR, /*bLandBlitz ? 100 : 100*/ 100); // advc: huh?
++				airWeight.set(UNITAI_DEFENSE_AIR, /*bLandBlitz?100:100*/ 100); // advc: huh?
+ 				if (iBestMissileValue > 0)
+ 					airWeight.set(UNITAI_MISSILE_AIR, bAssault ? 60 : 40);
+-
+ 				//airWeight.set(UNITAI_ICBM, 20);
+ 				airWeight.set(UNITAI_ICBM, 20 * iNukeWeight / 100); // K-Mod
+-
+-				if (iAircraftHave * 2 < iAircraftNeed)
++				bFarTooFewAircraft = (iAircraftHave * 2 < iAircraftNeed);
++				if (bFarTooFewAircraft)
+ 				{
+ 					if (AI_chooseLeastRepresentedUnit(airWeight))
+ 					{
+@@ -2604,16 +2607,14 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	if (iUnitSpending < iMaxUnitSpending + 12 && !bFinancialTrouble) // was +4 (new metric)
++	if (bFundingForAircraft && !bFarTooFewAircraft && // advc (b/c handled higher up)
++		iAircraftHave < iAircraftNeed && !bFinancialTrouble)
+ 	{
+-		if (iAircraftHave * 2 >= iAircraftNeed && iAircraftHave < iAircraftNeed)
+-		{
+-			int iOdds = 33;
+-			if (iFreeAirExperience > 0 || iProductionRank <= 1 + kPlayer.getNumCities() / 2)
+-				iOdds = -1;
+-			if (AI_chooseLeastRepresentedUnit(airWeight, iOdds))
+-				return;
+-		}
++		int iOdds = 33;
++		if (iFreeAirExperience > 0 || iProductionRank <= 1 + kPlayer.getNumCities() / 2)
++			iOdds = -1;
++		if (AI_chooseLeastRepresentedUnit(airWeight, iOdds))
++			return;
+ 	}
+ 
+ 	if (!bLandWar)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 672416175..33ce288c8 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -26902,7 +26902,7 @@ int CvPlayerAI::AI_getTotalFloatingDefenders(CvArea const& kArea) const
+ // K-Mod. (very basic just as a starting point. I'll refine this later.)
+ int CvPlayerAI::AI_getTotalAirDefendersNeeded() const
+ {
+-	int iNeeded = getNumCities() + 1;
++	int iNeeded = 1 + (3 * getNumCities()) / 4; // advc.airf: 3/4
+ 	//iNeeded = iNeeded + iNeeded*(getCurrentEra()+1) / std::max(1, GC.getNumEraInfos()*2);
+ 	// Todo. Adjust based on what other civs are doing.
+ 
+@@ -26912,7 +26912,7 @@ int CvPlayerAI::AI_getTotalAirDefendersNeeded() const
+ 		iNeeded = iNeeded*3/2;
+ 
+ 	return iNeeded;
+-} // K-Mod end
++}
+ 
+ 
+ RouteTypes CvPlayerAI::AI_bestAdvancedStartRoute(CvPlot* pPlot, int* piYieldValue) const
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=3692

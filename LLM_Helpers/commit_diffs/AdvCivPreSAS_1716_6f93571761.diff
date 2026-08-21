@@ -1,0 +1,1442 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1716
+# Commit: 6f93571761a29ec5f9436b81dedf849720412b76
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b3e8b89c938d797d951f75a51fe6800d91ff39b2
+# Title: Tab for city trades on Foreign Advisor
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	Assets/Config/BUG Advisors.xml
+3	1	Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+1	1	Assets/Python/CvUtil.py
+2	2	Assets/Python/EntryPoints/CvScreensInterface.py
+5	3	Assets/Python/GameFontDisplay.py
+28	13	Assets/Python/Screens/CvDomesticAdvisor.py
+174	8	Assets/Python/Screens/CvExoticForeignAdvisor.py
+144	80	Assets/Python/Screens/IconGrid_BUG.py
+40	0	Assets/XML/Text/BUG Advisors Options.xml
+1	1	Assets/XML/Text/BUG_CIV4GameText.xml
+73	18	Assets/XML/Text/CIV4GameText_advc.xml
+5	3	CvGameCoreDLL/CvCity.cpp
+4	3	CvGameCoreDLL/CvCity.h
+60	9	CvGameCoreDLL/CvDLLWidgetData.cpp
+3	2	CvGameCoreDLL/CvDLLWidgetData.h
+1	0	CvGameCoreDLL/CvEnums.h
+76	1	CvGameCoreDLL/CvGameTextMgr.cpp
+3	0	CvGameCoreDLL/CvGameTextMgr.h
+9	0	CvGameCoreDLL/CyCity.cpp
+2	0	CvGameCoreDLL/CyCity.h
+4	0	CvGameCoreDLL/CyCityInterface1.cpp
+1	0	CvGameCoreDLL/CyEnumsInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Advisors.xml b/Assets/Config/BUG Advisors.xml
+index 3a2c6f3fa..75ad20629 100644
+--- a/Assets/Config/BUG Advisors.xml	
++++ b/Assets/Config/BUG Advisors.xml	
+@@ -31,6 +31,11 @@
+ 			<option id="EFAWarTrades" key="EFA War Trades" 
+ 					type="boolean" default="True" 
+ 					get="isShowGlanceWarTrades"/>
++			<!-- advc.ctr  (Will not realign the tab labels when toggled. No big
++				 deal I think. It's the same with EFAGlanceTab.) -->
++			<option id="EFACityTrades" key="EFA City Trades" 
++					type="boolean" default="True" 
++					get="isCityTradesTab"/>
+ 			<!-- advc.004: default was True in K-Mod -->
+ 			<option id="EFAImprovedInfo" key="EFA Improved Info" 
+ 					type="boolean" default="False"
+
+diff --git a/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py b/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+index b0e72ef6b..c4bd5a6d6 100644
+--- a/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+@@ -51,7 +51,9 @@ class BugAdvisorOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		# advc.072: Align through leftL,leftR instead of ComboBox
+ 		self.addCheckboxTextDropdown(screen, leftL, leftR, "Advisors__EFAGlanceTab", "Advisors__EFAGlanceAttitudes")
+ 		# advc.152:
+-		self.addCheckbox(screen,leftL, "Advisors__EFAWarTrades")
++		self.addCheckbox(screen, leftL, "Advisors__EFAWarTrades")
++		# advc.ctr:
++		self.addCheckbox(screen, leftL, "Advisors__EFACityTrades")
+ 		
+ 		# <advc.004> Moved to center column
+ 		self.addLabel(screen, center, "Military_Advisor", "Military [F5]:")
+
+diff --git a/Assets/Python/CvUtil.py b/Assets/Python/CvUtil.py
+index a021b340a..6f259bd33 100644
+--- a/Assets/Python/CvUtil.py
++++ b/Assets/Python/CvUtil.py
+@@ -433,7 +433,7 @@ def addIconToMap(infoChar, desc):
+ 	uc = infoChar()
+ 	if (uc>=0):
+ 		FontIconMap[desc] = u"%c" %(uc,)
+-
++# advc (note): Don't add to this list; it seems that BUG's FontUtil.py handles the values of the FontSymbols enum in the DLL (so long as they're exposed to Python).
+ OtherFontIcons = { 'happy' : FontSymbols.HAPPY_CHAR,
+ 				'unhappy' : FontSymbols.UNHAPPY_CHAR,
+ 				'healthy' : FontSymbols.HEALTHY_CHAR,
+
+diff --git a/Assets/Python/EntryPoints/CvScreensInterface.py b/Assets/Python/EntryPoints/CvScreensInterface.py
+index bf49ab585..cb49713ee 100644
+--- a/Assets/Python/EntryPoints/CvScreensInterface.py
++++ b/Assets/Python/EntryPoints/CvScreensInterface.py
+@@ -163,8 +163,8 @@ def createDomesticAdvisor():
+ 		HandleInputMap[DOMESTIC_ADVISOR] = domesticAdvisor
+ # BUG - CustDomAdv - end
+ 
+-# advc.003y: removed unused argsList b/c it complicates calls from the DLL
+-def showDomesticAdvisor():
++# advc.003y: Default value for unused param added to simplify calls from the DLL
++def showDomesticAdvisor(argsList=None):
+ 	if (-1 != CyGame().getActivePlayer()):
+ 		domesticAdvisor.interfaceScreen()
+
+diff --git a/Assets/Python/GameFontDisplay.py b/Assets/Python/GameFontDisplay.py
+index 9d4b5ea89..c5e86469b 100644
+--- a/Assets/Python/GameFontDisplay.py
++++ b/Assets/Python/GameFontDisplay.py
+@@ -68,8 +68,8 @@ class GameFontDisplay:
+ 			infoPointer = gc.getBonusInfo(iLoopIndex)
+ 			if infoPointer.getChar() == iIndex:
+ 				return infoPointer
+-
+-		if iIndex >= CyGame().getSymbolID(FontSymbols.HAPPY_CHAR) and iIndex <= (CyGame().getSymbolID(FontSymbols.POWER_CHAR)):
++		# advc.002f: BULL symbols (CITIZEN, GREAT_GENERAL, AIRPORT) added
++		if iIndex >= CyGame().getSymbolID(FontSymbols.HAPPY_CHAR) and iIndex <= (CyGame().getSymbolID(FontSymbols.AIRPORT_CHAR)):
+ 
+ 				list = [ "HAPPY_CHAR",
+ 				"UNHAPPY_CHAR",
+@@ -94,7 +94,9 @@ class GameFontDisplay:
+ 				"MAP_CHAR",
+ 				"OCCUPATION_CHAR",
+ 				"POWER_CHAR",
+-
++				"CITIZEN_CHAR",
++				"GREAT_GENERAL_CHAR",
++				"AIRPORT_CHAR"
+ 				]
+ 
+ 				return list[iIndex - CyGame().getSymbolID(FontSymbols.HAPPY_CHAR)]
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index 1cdad8288..1d1ab163c 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -101,13 +101,14 @@ class CvDomesticAdvisor:
+ 		screen.setTableColumnHeader( "CityListBackground", 1, "<font=2>" + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_NAME", ()) + "</font>", (221 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 		
+ 		# Population Column
+-		screen.setTableColumnHeader( "CityListBackground", 2, "<font=2>" + localText.getText("TXT_KEY_POPULATION", ()) + "</font>", (40 * self.nTableWidth) / self.nNormalizedTableWidth )
++		# advc.002f: Replace localText.getText("TXT_KEY_POPULATION", ()) with CITIZEN_CHAR from BULL
++		screen.setTableColumnHeader( "CityListBackground", 2, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR)) + "</font>", (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 		
+-		# Happiness Column
+-		screen.setTableColumnHeader( "CityListBackground", 3, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.HAPPY_CHAR)) + "</font>", (40 * self.nTableWidth) / self.nNormalizedTableWidth )
++		# Happiness Column  advc.ctr: width was 40
++		screen.setTableColumnHeader( "CityListBackground", 3, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.HAPPY_CHAR)) + "</font>", (33 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 		
+-		# Health Column
+-		screen.setTableColumnHeader( "CityListBackground", 4, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR)) + "</font>", (40 * self.nTableWidth) / self.nNormalizedTableWidth )
++		# Health Column  advc.ctr: width was 40
++		screen.setTableColumnHeader( "CityListBackground", 4, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.HEALTHY_CHAR)) + "</font>", (33 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 		
+ 		# Food Column
+ 		screen.setTableColumnHeader( "CityListBackground", 5, "<font=2>" + (u"%c" % gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()) + "</font>", (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+@@ -132,20 +133,23 @@ class CvDomesticAdvisor:
+ 		# Trade Column
+ 		screen.setTableColumnHeader( "CityListBackground", 11, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.TRADE_CHAR)) + "</font>", (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 				
+-		# Maintenance Column
+-		screen.setTableColumnHeader( "CityListBackground", 12, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.BAD_GOLD_CHAR)) + "</font>", (40 * self.nTableWidth) / self.nNormalizedTableWidth )
++		# Maintenance Column  advc.ctr: width was 40
++		screen.setTableColumnHeader( "CityListBackground", 12, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.BAD_GOLD_CHAR)) + "</font>", (33 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 		
+ 		# Great Person Column
+ 		screen.setTableColumnHeader( "CityListBackground", 13, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR)) + "</font>", (70 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 				
+ 		# Garrison Column
+-		screen.setTableColumnHeader( "CityListBackground", 14, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR)) + "</font>", (35 * self.nTableWidth) / self.nNormalizedTableWidth )
++		# advc.004: Use STRENGTH_CHAR instead of DEFENSE_CHAR
++		screen.setTableColumnHeader( "CityListBackground", 14, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)) + "</font>", (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 				
+ 		# Production Column
+ 		screen.setTableColumnHeader( "CityListBackground", 15, "<font=2>" + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ()) + "</font>", (132 * self.nTableWidth) / self.nNormalizedTableWidth )	
+ 
+ 		# Liberate Column
+-		screen.setTableColumnHeader( "CityListBackground", 16, "", (25 * self.nTableWidth) / self.nNormalizedTableWidth )
++		#screen.setTableColumnHeader( "CityListBackground", 16, "", (25 * self.nTableWidth) / self.nNormalizedTableWidth )
++		# <advc.ctr> Liberation now shown on "Cities" tab. Instead show revolt probability.
++		screen.setTableColumnHeader("CityListBackground", 16, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + "</font>", (80 * self.nTableWidth) / self.nNormalizedTableWidth)
+ 
+ 	# Function to draw the contents of the cityList passed in
+ 	def drawContents (self):
+@@ -298,12 +302,23 @@ class CvDomesticAdvisor:
+ 
+ 		# Liberation
+ 		# advc.004: Mark potential independent colonies too (bCanSplit check added to the two conditions below)
+-		bCanSplit = gc.getPlayer(gc.getGame().getActivePlayer()).canSplitArea(pLoopCity.getArea())
+-		if bCanSplit or pLoopCity.getLiberationPlayer(false) != -1:
++		#bCanSplit = gc.getPlayer(gc.getGame().getActivePlayer()).canSplitArea(pLoopCity.getArea())
++		#if bCanSplit or pLoopCity.getLiberationPlayer(false) != -1:
+ 			# UNOFFICIAL_PATCH begin
+-			if bCanSplit or not gc.getTeam(gc.getPlayer(pLoopCity.getLiberationPlayer(false)).getTeam()).isAtWar(CyGame().getActiveTeam()) :
+-				screen.setTableText( "CityListBackground", 16, i, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + "</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		#	if bCanSplit or not gc.getTeam(gc.getPlayer(pLoopCity.getLiberationPlayer(false)).getTeam()).isAtWar(CyGame().getActiveTeam()) :
++		#		screen.setTableText( "CityListBackground", 16, i, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR)) + "</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 			# UNOFFICIAL_PATCH end
++		# <advc.ctr> Replace this column with revolt probability
++		revoltPr = pLoopCity.revoltProbability()
++		if revoltPr > 0:
++			revoltPr = max(revoltPr, 0.001) # Show all near-0 values as "0.1%"
++			szRevoltPr = ("%.1f" % (100 * revoltPr)) + "%"
++			szColorTag = "COLOR_NEGATIVE_TEXT"
++			if not pLoopCity.canCultureFlip():
++				szColorTag = "COLOR_YIELD_FOOD"
++			szRevoltPr = localText.changeTextColor(szRevoltPr, gc.getInfoTypeForString(szColorTag))
++			screen.setTableText("CityListBackground", 16, i, "<font=2>" + szRevoltPr + "</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# </advc.ctr>
+ 		
+ 	# Draw the specialist and their increase and decrease buttons
+ 	def drawSpecialists(self):
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index 7aa114f9c..8c6d84ca7 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -54,6 +54,14 @@ AdvisorOpt = BugCore.game.Advisors
+  iTechColWont,
+  iTechColCantThem,
+ ) = range(9)
++# <advc.ctr>
++(iCityColLeader,
++ iCityColStatus,
++ iCityColWants,
++ iCityColRejects,
++ iCityColWillCede,
++ iCityColWontCede,
++) = range(6) # </advc.ctr>
+ 
+ # Debugging help
+ def ExoticForPrint (stuff):
+@@ -176,6 +184,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 			"ACTIVE_TRADE": 3,
+ 			"INFO": 4,
+ 			"GLANCE": 5,
++			"CITIES": 6, # advc.ctr
+ 			}
+ 
+ 		self.REV_SCREEN_DICT = {}
+@@ -190,6 +199,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 			"ACTIVE_TRADE": self.drawActive,
+ 			"INFO": self.drawInfo,
+ 			"GLANCE": self.drawGlance,
++			"CITIES": self.drawCityDeals, # advc.ctr
+ 			}
+ 
+ 		self.TXT_KEY_DICT = {
+@@ -199,14 +209,10 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 			"ACTIVE_TRADE": "TXT_KEY_FOREIGN_ADVISOR_ACTIVE",
+ 			"INFO": "TXT_KEY_FOREIGN_ADVISOR_INFO",
+ 			"GLANCE": "TXT_KEY_FOREIGN_ADVISOR_GLANCE",
++			"CITIES": "TXT_KEY_CONCEPT_CITIES", # advc.ctr
+ 			}
+ 
+-		self.ORDER_LIST = ["RELATIONS", \
+-											 "GLANCE", \
+-											 "ACTIVE_TRADE", \
+-											 "BONUS", \
+-											 "INFO", \
+-											 "TECH"]
++		self.ORDER_LIST = ["RELATIONS", "GLANCE", "ACTIVE_TRADE", "BONUS", "INFO", "TECH", "CITIES"] # advc.ctr (add CITIES)
+ 
+ 		# K-Mod
+ 		self.LABEL_WIDTH_LIST = []
+@@ -366,6 +372,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 			if szScreen == "GLANCE" and not AdvisorOpt.isShowGlance():
+ 				continue # skip the GLANCE label
+ # BUG - Glance Tab - end
++			# <advc.ctr>
++			if szScreen == "CITIES" and not AdvisorOpt.isCityTradesTab():
++				continue #</advc.ctr>
+ 			szTextId = self.getNextWidgetName()
+ 			if (self.iScreen != self.SCREEN_DICT[szScreen]):
+ 				screen.setText (szTextId, "", u"<font=4>" + localText.getText (self.TXT_KEY_DICT[szScreen], ()).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, xLink + self.LABEL_WIDTH_LIST[i]/2, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_FOREIGN_ADVISOR, self.SCREEN_DICT[szScreen], -1)
+@@ -1297,7 +1306,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 				self.techIconGrid.addIcon( currentRow, iTechColLeader, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton()
+ 										 , 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader )
+ 
+-# BUG - AI status - end
++# BUG - AI status - start
+ 				zsStatus = ""
+ 				if not DiplomacyUtil.isWillingToTalk(currentPlayer, activePlayer):
+ 					zsStatus += u"!"
+@@ -1343,7 +1352,6 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		self.techIconGrid.refresh()
+ 
+ 
+-
+ 	def initTechTable(self):
+ 		screen = self.getScreen()
+ 		
+@@ -1399,6 +1407,164 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		self.techIconGrid.setPosition(gridX, gridY)
+ 		self.techIconGrid.setSize(gridWidth, gridHeight)
+ 
++	# <advc.ctr>
++	def initCityTable(self): # Based on initTechTable
++		screen = self.getScreen()
++
++		# GRID_ICON for the leader head, then text for the war/peace icon and 4x multi-text for the four city columns.
++		columns = (IconGrid_BUG.GRID_ICON_COLUMN, IconGrid_BUG.GRID_TEXT_COLUMN, IconGrid_BUG.GRID_MULTI_TEXT_COLUMN, IconGrid_BUG.GRID_MULTI_TEXT_COLUMN,IconGrid_BUG.GRID_MULTI_TEXT_COLUMN, IconGrid_BUG.GRID_MULTI_TEXT_COLUMN)
++
++		gridWidth = self.W_SCREEN - self.MIN_LEFT_RIGHT_SPACE * 2 - 20
++		gridHeight = self.H_SCREEN - self.MIN_TOP_BOTTOM_SPACE * 2 - 20
++		iconGrid = IconGrid_BUG.IconGrid_BUG(self.getNextWidgetName(), screen, self.MIN_LEFT_RIGHT_SPACE + 10, self.MIN_TOP_BOTTOM_SPACE + 10, gridWidth, gridHeight, columns, True, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS)
++		iconGrid.setGroupBorder(self.GROUP_BORDER)
++		iconGrid.setGroupLabelOffset(self.GROUP_LABEL_OFFSET)
++		iconGrid.setMinColumnSpace(self.MIN_COLUMN_SPACE)
++		iconGrid.setMinRowSpace(self.MIN_ROW_SPACE)
++
++		iStatusColWidth = self.TECH_STATUS_COL_WIDTH
++		iconGrid.setTextColWidth(iCityColStatus, iStatusColWidth)
++		iRemainingWidth = gridWidth - iStatusColWidth - 64
++		iCityColWidth = iRemainingWidth // 4
++		iconGrid.setTextColWidth(iCityColWants, iCityColWidth)
++		iconGrid.setTextColWidth(iCityColRejects, iCityColWidth)
++		iconGrid.setTextColWidth(iCityColWillCede, iCityColWidth)
++		iconGrid.setTextColWidth(iCityColWontCede, iCityColWidth)
++
++		iconGrid.setHeader(iCityColWants, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WANTS", ()))
++		# Don't want to color the denial headings after all
++		eDenialColor = gc.getInfoTypeForString("COLOR_WHITE")
++		iconGrid.setHeader(iCityColRejects, localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_REJECTS", (), eDenialColor))
++		iconGrid.setHeader(iCityColWillCede, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WILL_CEDE", ()))
++		iconGrid.setHeader(iCityColWontCede, localText.getColorText("TXT_KEY_FOREIGN_ADVISOR_WONT_CEDE", (), eDenialColor))
++
++		gridWidth = iconGrid.getPrefferedWidth()
++		gridHeight = iconGrid.getPrefferedHeight()
++		LEFT_RIGHT_SPACE = (self.W_SCREEN - gridWidth - 20) / 2
++		TOP_BOTTOM_SPACE = (self.H_SCREEN - gridHeight - 20) / 2
++		iconGrid.setPosition(LEFT_RIGHT_SPACE + 10, TOP_BOTTOM_SPACE + 10)
++		iconGrid.setSize(gridWidth, gridHeight)
++		return iconGrid, LEFT_RIGHT_SPACE, TOP_BOTTOM_SPACE
++
++	def drawCityDeals(self, bInitial): # Based on drawTechDeals
++		screen = self.getScreen()
++		self.eDenialColor = gc.getInfoTypeForString("COLOR_LIGHT_GREY")
++
++		iconGrid, PANEL_X, PANEL_Y = self.initCityTable()
++		PANEL_WIDTH = self.W_SCREEN - 2 * PANEL_X
++		PANEL_HEIGHT = self.H_SCREEN - 2 * PANEL_Y
++		screen.addPanel(self.getNextWidgetName(), "", "", True, True, PANEL_X, PANEL_Y, PANEL_WIDTH, PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
++
++		iconGrid.createGrid()
++		iconGrid.clearData()
++		tradeData = TradeData()
++		tradeData.ItemType = TradeableItems.TRADE_CITIES
++
++		iActivePlayer = self.iActiveLeader
++		activePlayer = gc.getPlayer(iActivePlayer)
++		iActiveTeam = activePlayer.getTeam()
++		currentRow = 0
++		for iCurrentPlayer in range(gc.getMAX_CIV_PLAYERS()):
++			currentPlayer = gc.getPlayer(iCurrentPlayer)
++			currentTeam = gc.getTeam(currentPlayer.getTeam())
++
++			if not currentPlayer.isAlive() or currentPlayer.isMinorCiv() or not currentTeam.isHasMet(iActiveTeam) or iCurrentPlayer == iActivePlayer:
++				continue
++
++			iconGrid.appendRow(currentPlayer.getName(), "")
++
++			iconGrid.addIcon(currentRow, iCityColLeader, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), 64, WidgetTypes.WIDGET_LEADERHEAD, iCurrentPlayer, iActivePlayer)
++			# BUG - AI status - start
++			szStatus = ""
++			if not DiplomacyUtil.isWillingToTalk(currentPlayer, activePlayer):
++				szStatus += u"!"
++			if currentTeam.isAtWar(iActiveTeam):
++				szStatus += self.WAR_ICON
++			elif currentTeam.isForcePeace(iActiveTeam):
++				szStatus += self.PEACE_ICON
++			iconGrid.setText(currentRow, iCityColStatus, szStatus)
++			# BUG - AI status - end
++			# Precompute the contents of each cell in order to shorten the city strings as necessary
++			iLiberate = iCityColWontCede + 1 # Pseudo-column for sorting
++			citiesPerCol = { iCityColWants : [], iCityColRejects : [], iCityColWillCede : [], iCityColWontCede : [], iLiberate : [] }
++			(city, iter) = activePlayer.firstCity(False)
++			while(city):
++				tradeData.iData = city.getID()
++				if activePlayer.canTradeItem(iCurrentPlayer, tradeData, False):
++					iCol = iCityColWants
++					if activePlayer.getTradeDenial(iCurrentPlayer, tradeData) != DenialTypes.NO_DENIAL:
++						iCol = iCityColRejects
++					elif city.getLiberationPlayer(False) == iCurrentPlayer:
++						iCol = iLiberate
++					citiesPerCol[iCol].append(city)
++				(city, iter) = activePlayer.nextCity(iter, False)
++			(city, iter) = currentPlayer.firstCity(False)
++			while(city):
++				tradeData.iData = city.getID()
++				if currentPlayer.canTradeItem(iActivePlayer, tradeData, False):
++					iCol = iCityColWillCede
++					if currentPlayer.getTradeDenial(iActivePlayer, tradeData) != DenialTypes.NO_DENIAL:
++						iCol = iCityColWontCede
++					citiesPerCol[iCol].append(city)
++				(city, iter) = currentPlayer.nextCity(iter, False)
++			for iCol in citiesPerCol:
++				# Smallest population first; more likely to be traded.
++				citiesPerCol[iCol].sort(None, lambda city: city.getPopulation())
++			for iCol in citiesPerCol:
++				bGrayOut = (iCol == iCityColRejects or iCol == iCityColWontCede)
++				iCities = len(citiesPerCol[iCol])
++				iAdded = 0
++				for city in citiesPerCol[iCol]:
++					iDisplayCol = iCol
++					# Cities that the non-active player wants liberated go in the "wants" column
++					if iCol == iLiberate:
++						iDisplayCol = iCityColWants
++					szCity = ""
++					widgetType = WidgetTypes.WIDGET_CITY_TRADE
++					iWhoTo = iActivePlayer
++					if city.getOwner() == iActivePlayer:
++						iWhoTo = iCurrentPlayer
++					# Need to fold both players into a single variable
++					widgetData1 = city.getOwner() + 100 * (iWhoTo + 1)
++					widgetData2 = city.getID()
++					if iAdded == 5 and iCities > 6:
++						szCity = localText.getText("TXT_KEY_FOREIGN_ADVISOR_MORE_CITIES", (iCities - iAdded,))
++						# There's still room for a boolean:
++						widgetData1 = (widgetData1 + 1) * 100
++					else:
++						szCity = self.getCityText(city, iCol == iLiberate, bGrayOut, iCities > 3)
++					iconGrid.addText(currentRow, iDisplayCol, szCity, widgetType, widgetData1, widgetData2)
++					iAdded += 1
++					if iAdded >= 6:
++						break
++
++			currentRow += 1
++
++		iconGrid.refresh()
++
++	def getCityText(self, city, bLiberate, bGrayOut, bShort):
++		r = city.getName()
++		iCharLimit = 15
++		if bShort:
++			iCharLimit = 12
++			if bLiberate:
++				iCharLimit = 10
++		if len(r) > iCharLimit:
++			r = r[:iCharLimit-3] + "..."
++		# Looks nicer w/o population counts
++		#if not bShort:
++			#r += " [" + str(city.getPopulation()) + "]"
++		if bGrayOut:
++			r = localText.changeTextColor(r, self.eDenialColor)
++		# With a citizen icon, the population counts look even worse.
++		#if not bShort:
++		#	r += " " + (u"%c" % CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR))
++		#	r += str(city.getPopulation())
++		if bLiberate:
++			r += " " + (u"%c" % CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR))
++		return r
++	# </advc.ctr>
++		
+ ##########################################
+ ### END CHANGES ENHANCED INTERFACE MOD ###
+ ##########################################
+
+diff --git a/Assets/Python/Screens/IconGrid_BUG.py b/Assets/Python/Screens/IconGrid_BUG.py
+index e7adb8e28..991a8ca7e 100644
+--- a/Assets/Python/Screens/IconGrid_BUG.py
++++ b/Assets/Python/Screens/IconGrid_BUG.py
+@@ -1,4 +1,3 @@
+-
+ from CvPythonExtensions import *
+ import CvUtil
+ import ScreenInput
+@@ -12,8 +11,8 @@ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+-class IconData:
+ 
++class IconData:
+ 	def __init__(self, sImage, iSize, widgetType, iData1, iData2=-1, bEnabled=True):
+ 		self.image = sImage
+ 		self.widgetType = widgetType
+@@ -23,12 +22,18 @@ class IconData:
+ 		self.enabled = bEnabled
+ 	
+ class StackedBarData:
+-
+ 	def __init__(self, fValue, sColor, sText, iFont):
+ 		self.value = fValue
+ 		self.color = sColor
+ 		self.text = sText
+ 		self.font = iFont
++# <advc.ctr>
++class TextData:
++	def __init__(self, text, widgetType, iData1, iData2):
++		self.text = text
++		self.widgetType = widgetType
++		self.data1 = iData1
++		self.data2 = iData2 # </advc.ctr>
+ 
+ class CellData:
+ 
+@@ -37,13 +42,26 @@ class CellData:
+ 		self.stackedbar = []
+ 		self.text = ""
+ 		self.font = 3
++		# <advc> Optional help widget (unused)
++		self.textWidgetType = WidgetTypes.WIDGET_GENERAL
++		self.textWidgetData1 = -1
++		self.textWidgetData2 = -1 # </advc>
++		self.multiText = [] # advc.ctr
+ 	
+ 	def addIcon(self, sImage, iSize, widgetType, iData1, iData2=-1, bEnabled=True):
+ 		self.icons.append(IconData(sImage, iSize, widgetType, iData1, iData2, bEnabled))
+-	
+-	def setText(self, sText, iFont):
++	# <advc.ctr>
++	def addText(self, text, widgetType = WidgetTypes.WIDGET_GENERAL, iData1 = -1, iData2 = -1):
++		self.multiText.append(TextData(text, widgetType, iData1, iData2))
++	# </advc.ctr>
++	# advc: params for help widget added
++	def setText(self, sText, iFont, widgetType = WidgetTypes.WIDGET_GENERAL, iData1 = -1, iData2 = -1):
+ 		self.text = sText
+ 		self.font = iFont
++		# <advc>
++		self.textWidgetType = widgetType
++		self.textWidgetData1 = iData1
++		self.textWidgetData2 = iData2 # </advc>
+ 	
+ 	def addStackedBar(self, fValue, sColor, sText, iFont):
+ 		self.stackedbar.append(StackedBarData(fValue, sColor, sText, iFont))
+@@ -62,16 +80,19 @@ class RowData:
+ 	
+ 	def addIcon(self, iColumnIndex, sImage, iSize, widgetType, iData1, iData2=-1, bEnabled=True):
+ 		self.cells[iColumnIndex].addIcon(sImage, iSize, widgetType, iData1, iData2, bEnabled)
+-	
+-	def setText(self, iColumnIndex, sText, iFont):
+-		self.cells[iColumnIndex].setText(sText, iFont)
++	# <advc.ctr>
++	def addText(self, iColumnIndex, text, widgetType = WidgetTypes.WIDGET_GENERAL, iData1 = -1, iData2 = -1):
++		self.cells[iColumnIndex].addText(text, widgetType, iData1, iData2)
++	# </advc.ctr>
++	# advc: Pass along params for help widget
++	def setText(self, iColumnIndex, sText, iFont, widgetType = WidgetTypes.WIDGET_GENERAL, iData1 = -1, iData2 = -1):
++		self.cells[iColumnIndex].setText(sText, iFont, widgetType, iData1, iData2)
+ 
+ 	def addStackedBar(self, iColumnIndex, fValue, sColor, sText, iFont):
+ 		self.cells[iColumnIndex].addStackedBar(fValue, sColor, sText, iFont)
+ 
+ 
+ 
+-
+ class ColumnGroup:
+ 
+ 	def __init__(self, sLabel, iLength):
+@@ -82,6 +103,13 @@ GRID_ICON_COLUMN = 0
+ GRID_MULTI_LIST_COLUMN = 1
+ GRID_TEXT_COLUMN = 2
+ GRID_STACKEDBAR_COLUMN = 3
++# <advc.ctr>
++GRID_MULTI_TEXT_COLUMN = 4
++# Support for multi-text cells added. Use addText to add a text element to a GRID_MULTI_TEXT_COLUMN cell (as opposed to setText for a GRID_TEXT_COLUMN cell). To set a font for a GRID_MULTI_TEXT_COLUMN cell, try calling setText with sString="" (not tested).
++# The cell is split into a left and right half if necessary, so up to 6 elements can be placed. The client will have to ensure appropriate cell dimensions and text length.
++MULTI_TEXT_MAX_LINES = 3
++MULTI_TEXT_LINE_HEIGHT = 20 # (Tbd.: Should better compute this based on the font size)
++# </advc.ctr>
+ 
+ class IconGrid_BUG:
+ 	
+@@ -187,13 +215,13 @@ class IconGrid_BUG:
+ 				prefferedWidth += self.groupBorder * 2
+ 		
+ 		for index in range(len(self.columns)):
+-			if (self.columns[index] == GRID_ICON_COLUMN):
++			if self.columns[index] == GRID_ICON_COLUMN:
+ 				prefferedWidth += self.iconColWidth
+-			elif (self.columns[index] == GRID_MULTI_LIST_COLUMN):
++			elif self.columns[index] == GRID_MULTI_LIST_COLUMN:
+ 				prefferedWidth += self.multiListColWidth
+-			elif (self.columns[index] == GRID_TEXT_COLUMN):
++			elif self.columns[index] == GRID_TEXT_COLUMN or self.columns[index] == GRID_MULTI_TEXT_COLUMN: # advc.ctr
+ 				prefferedWidth += self.textColWidth[index]
+-			elif (self.columns[index] == GRID_STACKEDBAR_COLUMN):
++			elif self.columns[index] == GRID_STACKEDBAR_COLUMN:
+ 				prefferedWidth += self.StackedBarColWidth[index]
+ 		
+ 		if (self.showRowBorder):
+@@ -244,9 +272,13 @@ class IconGrid_BUG:
+ 
+  	def addIcon(self, iRowIndex, iColumnIndex, sImage, iSize, widgetType, iData1, iData2=-1, bEnabled=True):
+  		self.data[iRowIndex].addIcon(iColumnIndex, sImage, iSize, widgetType, iData1, iData2, bEnabled)
+-
+- 	def setText(self, iRowIndex, iColumnIndex, sText, iFont=3):
+- 		self.data[iRowIndex].setText(iColumnIndex, sText, iFont)
++	# <advc.ctr>
++	def addText(self, iRowIndex, iColumnIndex, text, widgetType = WidgetTypes.WIDGET_GENERAL, iData1 = -1, iData2 = -1):
++ 		self.data[iRowIndex].addText(iColumnIndex, text, widgetType, iData1, iData2)
++	# </advc.ctr>
++	# advc: Pass along params for help widget
++ 	def setText(self, iRowIndex, iColumnIndex, sText, iFont=3, widgetType = WidgetTypes.WIDGET_GENERAL, iData1 = -1, iData2 = -1):
++ 		self.data[iRowIndex].setText(iColumnIndex, sText, iFont, widgetType, iData1, iData2)
+ 
+ 	def addStackedBar(self, iRowIndex, iColumnIndex, fValue, sColor, sText, iFont=3):
+ #		BugUtil.debug("addStackedbar %i %i %s %s %i" % (iColumnIndex, fValue, sColor, sText, iFont))
+@@ -302,7 +334,7 @@ class IconGrid_BUG:
+ 	
+ 	
+ 	def refresh(self):
+-		# check if scrollPosistion is valid and show/hide scroll buttons
++		# check if scrollPosition is valid and show/hide scroll buttons
+ 		if (self.scrollPosition <= 0):
+ 			self.screen.hide(self.scrollUpArrow)
+ 			self.screen.hide(self.pageUpArrow)
+@@ -335,10 +367,7 @@ class IconGrid_BUG:
+ 			if (self.showRowHeader):
+ 				currentY += self.rowHeaderHeight
+ 				text = "<font=%i>%s</font>" % (rowData.font, rowData.rowHeader)
+-				self.screen.setLabel(self.rowName + str(rowIndex) + "name", "",
+-									 text, CvUtil.FONT_LEFT_JUSTIFY,
+-									 self.xStart + 5, self.firstRowY + (self.totalRowHeight + self.rowSpace) * rowIndex - 3,
+-									 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				self.screen.setLabel(self.rowName + str(rowIndex) + "name", "", text, CvUtil.FONT_LEFT_JUSTIFY, self.xStart + 5, self.firstRowY + (self.totalRowHeight + self.rowSpace) * rowIndex - 3, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			
+ 			startIndex = 0
+ 			for groupIndex in range(len(self.columnGroups)):
+@@ -379,11 +408,32 @@ class IconGrid_BUG:
+ 						if (self.showRowHeader):
+ 							textY += self.rowHeaderHeight
+ 						text = "<font=%i>%s</font>" % (rowData.cells[startIndex + offset].font, rowData.cells[startIndex + offset].text)
+-						self.screen.setLabel( self.rowName + str(rowIndex) + "_" + str(startIndex + offset), ""
+-											, text, CvUtil.FONT_LEFT_JUSTIFY
+-											, currentX + 6, textY, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++						# <advc> Pass params for help widget to screen
++						widgetType = rowData.cells[startIndex + offset].textWidgetType
++						widgetData1 = rowData.cells[startIndex + offset].textWidgetData1
++						widgetData2 = rowData.cells[startIndex + offset].textWidgetData2
++						# (could use setText here for a clickable widget) </advc>
++						self.screen.setLabel(self.rowName + str(rowIndex) + "_" + str(startIndex + offset), "" , text, CvUtil.FONT_LEFT_JUSTIFY, currentX + 6, textY, 0, FontTypes.GAME_FONT, widgetType, widgetData1, widgetData2)
+ 						currentX += self.textColWidth[startIndex + offset] + self.colSpace
+-
++					# <advc.ctr>
++					elif self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN:
++						textY = self.firstRowY + (self.totalRowHeight + self.rowSpace) * rowIndex + 8
++						if (self.showRowHeader):
++							textY += self.rowHeaderHeight
++						iCount = 0
++						for textData in rowData.cells[startIndex + offset].multiText:
++							text = "<font=%i>%s</font>" % (rowData.cells[startIndex + offset].font, textData.text)
++							textX = currentX + 6
++							offsetX = 0
++							if iCount >= MULTI_TEXT_MAX_LINES:
++								offsetX = self.textColWidth[startIndex + offset] / 2
++							offsetY = (iCount % MULTI_TEXT_MAX_LINES) * MULTI_TEXT_LINE_HEIGHT
++							self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iCount), "" , text, CvUtil.FONT_LEFT_JUSTIFY, textX + offsetX, textY + offsetY, 0, FontTypes.GAME_FONT, textData.widgetType, textData.data1, textData.data2)
++							iCount += 1
++							if iCount > MULTI_TEXT_MAX_LINES * 2:
++								break
++						currentX += self.textColWidth[startIndex + offset] + self.colSpace
++					# </advc.ctr>
+ 					elif (self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN):
+ #						BugUtil.debug("Stacked Bar Start A")
+ 
+@@ -410,10 +460,7 @@ class IconGrid_BUG:
+ #							BugUtil.debug("Stacked Bar value %i" % (stackedbarData.value))
+ 							szBar_ID = self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "SB"
+ 							if stackedbarData.value > 0:
+-								self.screen.addStackedBarGFC(szBar_ID, 
+-															 currentX + 6, textY + iSBarOffset_Y, width, 25,
+-															 InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-
++								self.screen.addStackedBarGFC(szBar_ID, currentX + 6, textY + iSBarOffset_Y, width, 25, InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 								self.screen.setBarPercentage(szBar_ID, InfoBarTypes.INFOBAR_STORED, float(stackedbarData.value) / float(100))
+ 								self.screen.setStackedBarColors(szBar_ID, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString(stackedbarData.color))
+ 							else:
+@@ -422,10 +469,7 @@ class IconGrid_BUG:
+ 							szTxt_ID = self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "T"
+ 							if stackedbarData.text != "":
+ 								text = "<font=%i>%s</font>" % (stackedbarData.font, stackedbarData.text)
+-								self.screen.setLabel (szTxt_ID, "",
+-													  text, CvUtil.FONT_CENTER_JUSTIFY,
+-													  currentX + 6 + width / 2, textY - iSBarOffset_Y,
+-													  -0.1, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++								self.screen.setLabel (szTxt_ID, "", text, CvUtil.FONT_CENTER_JUSTIFY, currentX + 6 + width / 2, textY - iSBarOffset_Y, -0.1, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 							else:
+ 								self.screen.deleteWidget(szTxt_ID)
+ 
+@@ -458,12 +502,30 @@ class IconGrid_BUG:
+ 
+ 				elif (self.columns[startIndex + offset] == GRID_TEXT_COLUMN):
+ 					text = "<font=%i>%s</font>" % (rowData.cells[startIndex + offset].font, rowData.cells[startIndex + offset].text)
+-					self.screen.setLabel(self.rowName + str(rowIndex) + "_" + str(startIndex + offset), "", 
+-										 text, CvUtil.FONT_LEFT_JUSTIFY, 
+-										 currentX + 6, self.firstRowY + (self.totalRowHeight + self.rowSpace) * rowIndex + 28, 
+-										 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++					# <advc> Pass params for help widget to screen
++					widgetType = rowData.cells[startIndex + offset].textWidgetType
++					widgetData1 = rowData.cells[startIndex + offset].textWidgetData1
++					widgetData2 = rowData.cells[startIndex + offset].textWidgetData2
++					# (could use setText here for a clickable widget) </advc>
++					self.screen.setLabel(self.rowName + str(rowIndex) + "_" + str(startIndex + offset), "", text, CvUtil.FONT_LEFT_JUSTIFY, currentX + 6, self.firstRowY + (self.totalRowHeight + self.rowSpace) * rowIndex + 28, 0, FontTypes.GAME_FONT, widgetType, widgetData1, widgetData2)
+ 					currentX += self.textColWidth[startIndex + offset] + self.colSpace
+-
++				# <advc.ctr>
++				elif self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN:
++					textY = self.firstRowY + (self.totalRowHeight + self.rowSpace) * rowIndex + 8
++					iCount = 0
++					for textData in rowData.cells[startIndex + offset].multiText:
++						text = "<font=%i>%s</font>" % (rowData.cells[startIndex + offset].font, textData.text)
++						textX = currentX + 6
++						offsetX = 0
++						if iCount >= MULTI_TEXT_MAX_LINES:
++							offsetX = self.textColWidth[startIndex + offset] / 2
++						offsetY = (iCount % MULTI_TEXT_MAX_LINES) * MULTI_TEXT_LINE_HEIGHT
++						self.screen.setText(self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "_" + str(iCount), "" , text, CvUtil.FONT_LEFT_JUSTIFY, textX + offsetX, textY + offsetY, 0, FontTypes.GAME_FONT, textData.widgetType, textData.data1, textData.data2)
++						iCount += 1
++						if iCount > MULTI_TEXT_MAX_LINES * 2:
++							break
++					currentX += self.textColWidth[startIndex + offset] + self.colSpace
++				# </advc.ctr>
+ 				elif (self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN):
+ #					BugUtil.debug("Stacked Bar Start B")
+ 					bDataFound = True
+@@ -486,9 +548,7 @@ class IconGrid_BUG:
+ 						szBar_ID = self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "SB"
+ 						if stackedbarData.value > 0:
+ 							szBar_ID = self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "SB"
+-							self.screen.addStackedBarGFC(szBar_ID, 
+-														 currentX + 6, textY + iSBarOffset_Y, width, 25,
+-														 InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++							self.screen.addStackedBarGFC(szBar_ID, currentX + 6, textY + iSBarOffset_Y, width, 25, InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 							self.screen.setBarPercentage(szBar_ID, InfoBarTypes.INFOBAR_STORED, float(stackedbarData.value) / float(100))
+ 							self.screen.setStackedBarColors(szBar_ID, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString(stackedbarData.color))
+ 						else:
+@@ -545,21 +605,25 @@ class IconGrid_BUG:
+ 		numMultiListCols = 0
+ 		for colIndex in range(len(self.columns)):
+ 			col = self.columns[colIndex]
+-			if (col == GRID_ICON_COLUMN):
++			if col == GRID_ICON_COLUMN:
+ 				availableWidth -= self.iconColWidth
+-			if (col == GRID_MULTI_LIST_COLUMN):
++			if col == GRID_MULTI_LIST_COLUMN:
+ 				numMultiListCols += 1
+-			if (col == GRID_TEXT_COLUMN):
++			if col == GRID_TEXT_COLUMN or col == GRID_MULTI_TEXT_COLUMN: # advc.ctr
+ 				availableWidth -= self.textColWidth[colIndex]
+-			if (col == GRID_STACKEDBAR_COLUMN):
++			if col == GRID_STACKEDBAR_COLUMN:
+ 				availableWidth -= self.StackedBarColWidth[colIndex]
+ 		
+ 		if (self.showRowBorder):
+ 			availableWidth -= self.rowBorderWidth * 2
+ 
+-		initMultiListColWidth = availableWidth / numMultiListCols
+-		numIcons = (initMultiListColWidth - 16) / (self.iconSize + 2)
+-		self.multiListColWidth = numIcons * (self.iconSize + 2) + 16
++		if numMultiListCols > 0: # advc.ctr: Allow 0 multi list columns
++			initMultiListColWidth = availableWidth / numMultiListCols
++			numIcons = (initMultiListColWidth - 16) / (self.iconSize + 2)
++			self.multiListColWidth = numIcons * (self.iconSize + 2) + 16
++		# <advc.ctr>
++		else:
++			self.multiListColWidth = 0 # <advc.ctr>
+ 		self.colSpace = (availableWidth - self.multiListColWidth * numMultiListCols) / (len(self.columns) - 1) + self.minColSpace
+ 
+ 		# height
+@@ -661,13 +725,13 @@ class IconGrid_BUG:
+ 			if (colGroup.label != ""):
+ 				colGroupWidth = self.groupBorder * 2
+ 				for offset in range(colGroup.length):
+-					if (self.columns[startIndex + offset] == GRID_ICON_COLUMN):
++					if self.columns[startIndex + offset] == GRID_ICON_COLUMN:
+ 						colGroupWidth += self.iconColWidth + self.colSpace
+-					elif (self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN):
++					elif self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN:
+ 						colGroupWidth += self.multiListColWidth + self.colSpace
+-					elif (self.columns[startIndex + offset] == GRID_TEXT_COLUMN):
++					elif self.columns[startIndex + offset] == GRID_TEXT_COLUMN or self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN: # advc.ctr
+ 						colGroupWidth += self.textColWidth[startIndex + offset] + self.colSpace
+-					elif (self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN):
++					elif self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN:
+ 						colGroupWidth += self.StackedBarColWidth[startIndex + offset] + self.colSpace
+ 
+ 				colGroupWidth -= self.colSpace
+@@ -684,13 +748,13 @@ class IconGrid_BUG:
+ 				colGroupX += colGroupWidth + self.colSpace
+ 			else:
+ 				for offset in range(colGroup.length):
+-					if (self.columns[startIndex + offset] == GRID_ICON_COLUMN):
++					if self.columns[startIndex + offset] == GRID_ICON_COLUMN:
+ 						colGroupX += self.iconColWidth + self.colSpace
+-					elif (self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN):
++					elif self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN:
+ 						colGroupX += self.multiListColWidth + self.colSpace
+-					elif (self.columns[startIndex + offset] == GRID_TEXT_COLUMN):
++					elif self.columns[startIndex + offset] == GRID_TEXT_COLUMN or self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN: # advc.ctr
+ 						colGroupX += self.textColWidth[startIndex + offset] + self.colSpace
+-					elif (self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN):
++					elif self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN:
+ 						colGroupX += self.StackedBarColWidth[startIndex + offset] + self.colSpace
+ 
+ 			startIndex += colGroup.length
+@@ -709,13 +773,13 @@ class IconGrid_BUG:
+ 			headerWidth = 0
+ 			
+ 			for offset in range(colGroup.length):
+-				if (self.columns[startIndex + offset] == GRID_ICON_COLUMN):
++				if self.columns[startIndex + offset] == GRID_ICON_COLUMN:
+ 					headerWidth = self.iconColWidth + self.colSpace
+-				elif (self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN):
++				elif self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN:
+ 					headerWidth = self.multiListColWidth + self.colSpace
+-				elif (self.columns[startIndex + offset] == GRID_TEXT_COLUMN):
++				elif self.columns[startIndex + offset] == GRID_TEXT_COLUMN or self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN: # advc.ctr
+ 					headerWidth = self.textColWidth[startIndex + offset] + self.colSpace
+-				elif (self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN):
++				elif self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN:
+ 					headerWidth = self.StackedBarColWidth[startIndex + offset] + self.colSpace
+ 				
+ 				if (offset == colGroup.length - 1): # last column of this group
+@@ -731,13 +795,13 @@ class IconGrid_BUG:
+ 			startIndex += colGroup.length
+ 		
+ 		for offset in range(len(self.columns) - startIndex):
+-			if (self.columns[startIndex + offset] == GRID_ICON_COLUMN):
++			if self.columns[startIndex + offset] == GRID_ICON_COLUMN:
+ 				headerWidth = self.iconColWidth + self.colSpace
+-			elif (self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN):
++			elif self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN:
+ 				headerWidth = self.multiListColWidth + self.colSpace
+-			elif (self.columns[startIndex + offset] == GRID_TEXT_COLUMN):
++			elif self.columns[startIndex + offset] == GRID_TEXT_COLUMN or self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN: # advc.ctr
+ 				headerWidth = self.textColWidth[startIndex + offset] + self.colSpace
+-			elif (self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN):
++			elif self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN:
+ 				headerWidth = self.StackedBarColWidth[startIndex + offset] + self.colSpace
+ 
+ 			self.screen.setTableColumnHeader( self.headerName, startIndex + offset, "", headerWidth )
+@@ -770,16 +834,16 @@ class IconGrid_BUG:
+ 				currentX += self.groupBorder
+ 			
+ 			for offset in range(colGroup.length):
+-				if (self.columns[startIndex + offset] == GRID_ICON_COLUMN):
++				if self.columns[startIndex + offset] == GRID_ICON_COLUMN:
+ 					currentX += self.iconColWidth + self.colSpace
+-				elif (self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN):
++				elif self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN:
+ 					self.screen.addMultiListControlGFC( self.rowName + str(rowIndex) + "_" + str(startIndex + offset), ""
+ 													  , currentX, listY, self.multiListColWidth, self.rowHeight
+ 													  , 1, self.iconSize, self.iconSize, TableStyles.TABLE_STYLE_EMPTY )
+ 					currentX += self.multiListColWidth + self.colSpace
+-				elif (self.columns[startIndex + offset] == GRID_TEXT_COLUMN):
++				elif self.columns[startIndex + offset] == GRID_TEXT_COLUMN or self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN: # advc.ctr
+ 					currentX += self.textColWidth[startIndex + offset] + self.colSpace
+-				elif (self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN):
++				elif self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN:
+ 					currentX += self.StackedBarColWidth[startIndex + offset] + self.colSpace
+ 			
+ 			startIndex += colGroup.length
+@@ -787,16 +851,16 @@ class IconGrid_BUG:
+ 				currentX += self.groupBorder		
+ 		
+ 		for offset in range(len(self.columns) - startIndex):
+-			if (self.columns[startIndex + offset] == GRID_ICON_COLUMN):
++			if self.columns[startIndex + offset] == GRID_ICON_COLUMN:
+ 				currentX += self.iconColWidth + self.colSpace
+-			elif (self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN):
++			elif self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN:
+ 				self.screen.addMultiListControlGFC( self.rowName + str(rowIndex) + "_" + str(startIndex + offset), ""
+ 												  , currentX, listY, self.multiListColWidth, self.rowHeight
+ 												  , 1, self.iconSize, self.iconSize, TableStyles.TABLE_STYLE_EMPTY )
+ 				currentX += self.multiListColWidth + self.colSpace
+-			elif (self.columns[startIndex + offset] == GRID_TEXT_COLUMN):
++			elif self.columns[startIndex + offset] == GRID_TEXT_COLUMN or self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN: # advc.ctr
+ 				currentX += self.textColWidth[startIndex + offset] + self.colSpace
+-			elif (self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN):
++			elif self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN:
+ 				currentX += self.StackedBarColWidth[startIndex + offset] + self.colSpace
+ 
+ 	def hideControls(self):
+@@ -844,13 +908,13 @@ class IconGrid_BUG:
+ 			colGroup = self.columnGroups[groupIndex]
+ 
+ 			for offset in range(colGroup.length):
+-				if (self.columns[startIndex + offset] == GRID_ICON_COLUMN):
++				if self.columns[startIndex + offset] == GRID_ICON_COLUMN:
+ 					self.screen.hide( self.rowName + str(rowIndex) + "_" + str(startIndex + offset))
+-				elif (self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN):
++				elif self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN:
+ 					self.screen.deleteWidget(self.rowName + str(rowIndex) + "_" + str(startIndex + offset))
+-				elif (self.columns[startIndex + offset] == GRID_TEXT_COLUMN):
++				elif self.columns[startIndex + offset] == GRID_TEXT_COLUMN or self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN: # advc.ctr
+ 					self.screen.hide( self.rowName + str(rowIndex) + "_" + str(startIndex + offset))
+-				elif (self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN):
++				elif self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN:
+ 					self.screen.hide( self.rowName + str(rowIndex) + "_" + str(startIndex + offset))
+ 					self.screen.hide( self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "SB")
+ 					self.screen.hide( self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "T")
+@@ -858,13 +922,13 @@ class IconGrid_BUG:
+ 			startIndex += colGroup.length
+ 		
+ 		for offset in range(len(self.columns) - startIndex):
+-			if (self.columns[startIndex + offset] == GRID_ICON_COLUMN):
++			if self.columns[startIndex + offset] == GRID_ICON_COLUMN:
+ 				self.screen.hide( self.rowName + str(rowIndex) + "_" + str(startIndex + offset))
+-			elif (self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN):
++			elif self.columns[startIndex + offset] == GRID_MULTI_LIST_COLUMN:
+ 				self.screen.deleteWidget(self.rowName + str(rowIndex) + "_" + str(startIndex + offset))
+-			elif (self.columns[startIndex + offset] == GRID_TEXT_COLUMN):
++			elif self.columns[startIndex + offset] == GRID_TEXT_COLUMN or self.columns[startIndex + offset] == GRID_MULTI_TEXT_COLUMN: # advc.ctr
+ 				self.screen.hide( self.rowName + str(rowIndex) + "_" + str(startIndex + offset))
+-			elif (self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN):
++			elif self.columns[startIndex + offset] == GRID_STACKEDBAR_COLUMN:
+ 				self.screen.hide( self.rowName + str(rowIndex) + "_" + str(startIndex + offset))
+ 				self.screen.hide( self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "SB")
+ 				self.screen.hide( self.rowName + str(rowIndex) + "_" + str(startIndex + offset) + "T")
+
+diff --git a/Assets/XML/Text/BUG Advisors Options.xml b/Assets/XML/Text/BUG Advisors Options.xml
+index b5051a0ae..e9d72f3c8 100644
+--- a/Assets/XML/Text/BUG Advisors Options.xml	
++++ b/Assets/XML/Text/BUG Advisors Options.xml	
+@@ -137,6 +137,46 @@
+ 		<Spanish>Where to show the remaining number of turns until cancellation for deals that cannot currently be canceled.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Active Tab[COLOR_REVERT]: On the "Active" tab of the Foreign Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Current Deals[COLOR_REVERT]: On the trade table when listing the current deals.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Both[COLOR_REVERT]: On the "Active" tab and the trade table.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Only Tooltip[COLOR_REVERT]: Show the turns to cancel only when hovering over a deal on the "Active" tab or the trade table.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.152 -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAWARTRADES_TEXT</Tag>
++		<English>War Trades</English>
++		<French>Guerres commandit�es</French>
++		<German>Kriegsbereitschaft</German>
++		<Italian>Volont� di guerra</Italian>
++		<Spanish>Guerras patrocinadas</Spanish>
++	</TEXT>
++	<!-- Translations based on TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT in
++		 BUG Advisors Options.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAWARTRADES_HOVER</Tag>
++		<English>When checked, the Glance tab shows fist icons to indicate which leaders are currently willing to start a war at your request.</English>
++		<French>La page Coup d'Oeil affiche les ic�nes poings pour indiquer quels h�ros sont pr�ts � commencer une guerre � votre demande.</French>
++		<German>Zeigt auf dem Reiter "�berblick" durch Faust-Symbole an, welche Gegner bereit sind, auf Ihr Gehei� einen Krieg zu beginnen.</German>
++		<Italian>Mostra dei pugni nella tabella "Occhiata" per indicare quali leader sono disposti ad iniziare una guerra su vostra richiesta.</Italian>
++		<Spanish>Si se activa, la pesta�a Mirar muestra iconos de pu�o para indicar qu� l�deres est�n dispuestos a iniciar una guerra a su petici�n.</Spanish>
++	</TEXT>
++
++	<!-- advc.ctr (FIS translations are placeholders) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFACITYTRADES_TEXT</Tag>
++		<English>Cities Tab</English>
++		<French>Villes</French>
++		<German>St�dte-Bildschirm</German>
++		<Italian>Citt�</Italian>
++		<Spanish>Ciudades</Spanish>
++	</TEXT>
++	<!-- Translations based on TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT in
++		 BUG Advisors Options.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFACITYTRADES_HOVER</Tag>
++		<English>When checked, a tab "Cities" is added to the Foreign Advisor screen, showing which cities the other players are willing to trade.</English>
++		<French>When checked, a tab "Villes" is added to the Foreign Advisor screen, showing which cities the other players are willing to trade.</French>
++		<German>Zeigt auf dem Auslandsberater-Bildschirm den Reiter "St�dte" an, welcher die St�dte auff�hrt, mit denen Ihre Mitspieler bereit sind, Handel zu treiben.</German>
++		<Italian>When checked, a tab "Citt�" is added to the Foreign Advisor screen, showing which cities the other players are willing to trade.</Italian>
++		<Spanish>When checked, a tab "Ciudades" is added to the Foreign Advisor screen, showing which cities the other players are willing to trade.</Spanish>
++	</TEXT>
++
+ <!-- Military Advisor -->
+ 
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/BUG_CIV4GameText.xml b/Assets/XML/Text/BUG_CIV4GameText.xml
+index b67de1679..758fe2650 100644
+--- a/Assets/XML/Text/BUG_CIV4GameText.xml
++++ b/Assets/XML/Text/BUG_CIV4GameText.xml
+@@ -98,7 +98,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_RELIGIOUS_CITY</Tag>
+ 		<English>Cities</English>
+-		<French>Cities</French>
++		<French>Villes</French>
+ 		<German>St�dte</German>
+ 		<Italian>Citt&#224;</Italian>
+ 		<Spanish>Ciudades</Spanish>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 29971c996..0d42a57a7 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3062,24 +3062,6 @@
+ 	</TEXT>
+ 
+ 	<!-- advc.152 -->
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAWARTRADES_TEXT</Tag>
+-		<English>War Trades</English>
+-		<French>Guerres commandit�es</French>
+-		<German>Kriegsbereitschaft</German>
+-		<Italian>Volont� di guerra</Italian>
+-		<Spanish>Guerras patrocinadas</Spanish>
+-	</TEXT>
+-	<!-- Translations based on TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT in
+-		 BUG Advisors Options.xml -->
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAWARTRADES_HOVER</Tag>
+-		<English>When checked, the Glance tab shows fist icons to indicate which leaders are currently willing to start a war at your request.</English>
+-		<French>La page Coup d'Oeil affiche les ic�nes poings pour indiquer quels h�ros sont pr�ts � commencer une guerre � votre demande.</French>
+-		<German>Zeigt auf dem Reiter "�berblick" durch Faust-Symbole an, welche Gegner bereit sind, auf Ihr Gehei� einen Krieg zu beginnen.</German>
+-		<Italian>Mostra dei pugni nella tabella "Occhiata" per indicare quali leader sono disposti ad iniziare una guerra su vostra richiesta.</Italian>
+-		<Spanish>Si se activa, la pesta�a Mirar muestra iconos de pu�o para indicar qu� l�deres est�n dispuestos a iniciar una guerra a su petici�n.</Spanish>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_WILLING_START_WAR</Tag>
+ 		<English>Willing to [COLOR_NEGATIVE_TEXT]declare war[COLOR_REVERT] on %s1_LdrName</English>
+@@ -5635,5 +5617,78 @@
+ 		<Italian>%s1_Ldr ha ceduto %s2_City a %s3_Ldr.</Italian>
+ 		<Spanish>%s1_Ldr ha cedido %s2_City a %s3_Ldr.</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_REJECTS</Tag>
++		<English>Rejects</English>
++		<French>Rejette</French>
++		<German>Lehnt ab</German>
++		<Italian>Declina</Italian>
++		<Spanish>Rechaza</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_WILL_CEDE</Tag>
++		<English>Will Cede</English>
++		<French>C�dera</French>
++		<German>Tritt ab</German>
++		<Italian>Ceder&#224;</Italian>
++		<Spanish>Ceder&#225;</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_WONT_CEDE</Tag>
++		<English>Won't Cede</English>
++		<French>D�nie</French>
++		<German>Verweigert</German>
++		<Italian>Tiene</Italian>
++		<Spanish>Deniega</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_MORE_CITIES</Tag>
++		<English>... (%d1 more)</English>
++		<French>... (%d1 autres)</French>
++		<German>... (%d1 weitere)</German>
++		<Italian>... (%d1 altre)</Italian>
++		<Spanish>... (%d1 otras)</Spanish>
++	</TEXT>
++	<!-- For WIDGET_CITY_TRADE -->
++	<TEXT>
++		<Tag>TXT_KEY_WILLING_TO_CEDE</Tag>
++		<English>is willing to cede</English>
++		<French>est pr�t � c�der</French>
++		<German>ist bereit zur Abtretung von</German>
++		<Italian>&#232; disposto a cedere</Italian>
++		<Spanish>est� dispuesto a ceder</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WANTS_LIBERATED</Tag>
++		<English>wants you to liberate</English>
++		<French>veut qu'on lib�re</French>
++		<German>fordert die �bergabe von</German>
++		<Italian>vuole che liberiamo</Italian>
++		<Spanish>quiere que liberemos</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WILLING_TO_TRADE_FOR</Tag>
++		<English>is willing to trade for</English>
++		<French>est pr�t � faire un �change pour</French>
++		<German>ist interessiert an</German>
++		<Italian>&#232; disposto a scambiare per</Italian>
++		<Spanish>est� dispuesto a cambiar por</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_REFUSES_TO_CEDE</Tag>
++		<English>refuses to cede</English>
++		<French>refuse de c�der</French>
++		<German>verweigert die Abtretung von</German>
++		<Italian>si rifiuta di cedere</Italian>
++		<Spanish>se niega a ceder</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_REFUSES_TO_ACCEPT</Tag>
++		<English>refuses to accept</English>
++		<French>refuse d'accepter</French>
++		<German>hat kein Interesse an</German>
++		<Italian>rifiuta di accettare</Italian>
++		<Spanish>se niega a aceptar</Spanish>
++	</TEXT>
+ 
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 786aebf3a..dd1a20a60 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -9576,9 +9576,11 @@ bool CvCity::canCultureFlip(PlayerTypes eToPlayer, /* advc.101: */ bool bCheckPr
+ {
+ 	/*if (isBarbarian()) // advc.101: Commented out
+ 		return true;*/
+-	// <advc.099c> Actually still guaranteed by caller, but shouldn't rely on it
+-	if(eToPlayer == NO_PLAYER || !GET_PLAYER(eToPlayer).isAlive() ||
+-			eToPlayer == BARBARIAN_PLAYER || // Not guaranteed by caller
++	// <advc.099c>
++	if (eToPlayer == NO_PLAYER)
++		eToPlayer = calculateCulturalOwner();
++	if(eToPlayer == NO_PLAYER || eToPlayer == getOwner() ||
++			!GET_PLAYER(eToPlayer).isAlive() || eToPlayer == BARBARIAN_PLAYER ||
+ 			GET_TEAM(eToPlayer).isVassal(getTeam()))
+ 		return false; // </advc.099c>
+ 	return (!GC.getGame().isOption(GAMEOPTION_NO_CITY_FLIPPING) &&
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index a90761e1d..ea21da426 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -740,13 +740,14 @@ public:
+ 	int getCultureTimes100(PlayerTypes eIndex) const;													// Exposed to Python
+ 	int countTotalCultureTimes100() const;																							// Exposed to Python
+ 	PlayerTypes findHighestCulture() const;																			// Exposed to Python
+-	// advc.101:
++	// advc.101:  (advc.ctr: exposed to Python)
+ 	double revoltProbability( // <advc.023>
+ 			bool bIgnoreWar = false, bool biIgnoreGarrison = false,
+ 			bool bIgnoreOccupation = false) const;
+ 	double probabilityOccupationDecrement() const; // </advc.023>
+-	bool canCultureFlip(PlayerTypes eToPlayer, // K-Mod
+-			bool bCheckPriorRevolts = true) const; // advc.101
++	// K-Mod: (advc.ctr: exposed to Python)
++	bool canCultureFlip(PlayerTypes eToPlayer /* <advc.101> */ = NO_PLAYER,
++			bool bCheckPriorRevolts = true) const; // </advc.101>
+ 	int calculateCulturePercent(PlayerTypes eIndex) const;											// Exposed to Python
+ 	int calculateTeamCulturePercent(TeamTypes eIndex) const;										// Exposed to Python
+ 	void setCulture(PlayerTypes eIndex, int iNewValue, bool bPlots, bool bUpdatePlotGroups);			// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 6e21e5bed..d917e8915 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -645,7 +645,16 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	case WIDGET_RF_CIV_CHOICE:
+ 		GC.getGame().getRiseFall().assignCivSelectionHelp(szBuffer,
+ 				(PlayerTypes)widgetDataStruct.m_iData1);
+-		break; // </advc.706>  <advc.106i>
++		break; // </advc.706>  <advc.ctr>
++	case WIDGET_CITY_TRADE:
++	{
++		CvCity* pCity = NULL;
++		PlayerTypes eWhoTo = NO_PLAYER;
++		bool bListMore = parseCityTradeHelp(widgetDataStruct, pCity, eWhoTo);
++		if (pCity != NULL)
++			GAMETEXT.setCityTradeHelp(szBuffer, *pCity, eWhoTo, bListMore);
++		break;
++	} // </advc.ctr>  <advc.106i>
+ 	case WIDGET_SHOW_REPLAY:
+ 		szBuffer.append(gDLL->getText(widgetDataStruct.m_iData1 == 0 ?
+ 				"TXT_KEY_HOF_SHOW_REPLAY" : "TXT_KEY_HOF_WARN"));
+@@ -956,16 +965,30 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataStruct)
+ 		py.refreshMilitaryAdvisor(iData1, iData2);
+ 		break;
+ 
+-	case WIDGET_CHOOSE_EVENT:
+-		break;
+-
+-	case WIDGET_ZOOM_CITY:
+-		break;
+ 	// <advc.706>
+ 	case WIDGET_RF_CIV_CHOICE:
+ 		GC.getGame().getRiseFall().handleCivSelection((PlayerTypes)iData1);
+ 		break;
+-	// </advc.706>
++	// </advc.706>  <advc.ctr>
++	case WIDGET_CITY_TRADE:
++	{
++		CvCity* pCity = NULL;
++		PlayerTypes foo;
++		parseCityTradeHelp(widgetDataStruct, pCity, foo);
++		// Can't move the camera while Foreign Advisor is up
++		//gDLL->getInterfaceIFace()->lookAt(pCity->plot()->getPoint(), CAMERALOOKAT_NORMAL);
++		// Better than nothing: open city screen (while Foreign Advisor remains open too)
++		if (pCity != NULL)
++		{	// Close city screen with another click on WIDGET_CITY_TRADE
++			if (gDLL->getInterfaceIFace()->isCitySelected(pCity))
++				gDLL->getInterfaceIFace()->clearSelectedCities();
++			else if (pCity->canBeSelected()) // (Tbd.: Could we otherwise at least highlight it on the minimap?)
++				gDLL->getInterfaceIFace()->selectCity(pCity);
++		}
++		break;
++	} // </advc.ctr>
++	case WIDGET_CHOOSE_EVENT:
++	case WIDGET_ZOOM_CITY:
+ 	case WIDGET_HELP_TECH_PREPREQ:
+ 	case WIDGET_HELP_OBSOLETE:
+ 	case WIDGET_HELP_OBSOLETE_BONUS:
+@@ -1112,8 +1135,12 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataStruct)
+ 	case WIDGET_LH_GLANCE: // advc.152
+ 	case WIDGET_LEADERHEAD:
+ 		doContactCiv(widgetDataStruct);
+-		break;
+-
++		break;  // <advc.ctr>
++	case WIDGET_CITY_TRADE:
++		// Both left and right click close the city screen
++		if (gDLL->getInterfaceIFace()->isCityScreenUp())
++			return executeAction(widgetDataStruct);
++		break; // </advc.ctr>
+ 	default:
+ 		bHandled = false;
+ 		break;
+@@ -5921,6 +5948,30 @@ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct, C
+ 	}
+ } // K-Mod end
+ 
++// <advc.ctr>
++bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget, CvCity*& pCity,
++	PlayerTypes& eWhoTo) const
++{
++	bool bListMore = false;
++	// bListMore, eOwner and eWhoTo are all folded into data1
++	int iPlayerCode = kWidget.m_iData1;
++	FAssert(iPlayerCode >= 100);
++	// Undo the computation in drawCityDeals (CvExoticForeignAdvisor.py)
++	if (iPlayerCode >= 10000)
++	{
++		bListMore = true;
++		iPlayerCode /= 100;
++		iPlayerCode--;
++	}
++	PlayerTypes eOwner = (PlayerTypes)(iPlayerCode % 100);
++	FASSERT_BOUNDS(0, MAX_CIV_PLAYERS, eOwner, "CvDLLWidgetData::parseCityTradeHelp");
++	eWhoTo = (PlayerTypes)((iPlayerCode / 100) - 1);
++	FASSERT_BOUNDS(0, MAX_CIV_PLAYERS, eWhoTo, "CvDLLWidgetData::parseCityTradeHelp");
++	pCity = ::getCity(IDInfo(eOwner, kWidget.m_iData2));
++	FAssert(pCity != NULL);
++	return bListMore;
++} // </advc.ctr>
++
+ // <advc.004a>
+ CvWString CvDLLWidgetData::getDiscoverPathText(UnitTypes eUnit, PlayerTypes ePlayer) const {
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.h b/CvGameCoreDLL/CvDLLWidgetData.h
+index 10a13ab00..e27655e8c 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.h
++++ b/CvGameCoreDLL/CvDLLWidgetData.h
+@@ -209,8 +209,9 @@ protected:
+ 		Environmental advisor mouse-over text */
+ 	void parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	void parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+-	// K-Mod end
+-
++	// K-Mod end  <advc.ctr>
++	bool parseCityTradeHelp(CvWidgetDataStruct const& kWidget, CvCity*& pCity,
++			PlayerTypes& eWhoTo) const; // </advc.ctr>
+ 	// <advc.004a> Additional help text:
+ 	 // Discover ("bulb") button
+ 	CvWString getDiscoverPathText(UnitTypes eUnit, PlayerTypes ePlayer) const;
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index f43a27cbb..7b1ba9fc1 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -574,6 +574,7 @@ enum WidgetTypes					// Exposed to Python
+ 	WIDGET_POWER_RATIO,
+ 	WIDGET_GOLDEN_AGE,
+ 	WIDGET_ANARCHY, // </advc.085>
++	WIDGET_CITY_TRADE, // advc.ctr
+ #ifdef _USRDLL
+ 	NUM_WIDGET_TYPES
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index dfba74823..7ca953fb6 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4435,7 +4435,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					szString.append(gDLL->getText("TXT_KEY_MISC_CHANCE_OF_REVOLT",
+ 							floatBuffer));
+ 					int iPriorRevolts = c.getNumRevolts();
+-					if(c.canCultureFlip(c.calculateCulturalOwner()))
++					if(c.canCultureFlip())
+ 					{
+ 						szString.append(L" (");
+ 						szString.append(gDLL->getText("TXT_KEY_MISC_WILL_FLIP"));
+@@ -8858,6 +8858,81 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 	}
+ }
+ 
++// <advc.ctr>
++void CvGameTextMgr::setCityTradeHelp(CvWStringBuffer& szBuffer, CvCity const& kCity,
++	PlayerTypes eWhoTo, bool bListMore)
++{
++	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
++	PlayerTypes eOtherPlayer = (eWhoTo == eActivePlayer ? kCity.getOwner() : eWhoTo);
++	bool bLiberate = (eWhoTo == eOtherPlayer && kCity.getLiberationPlayer(false) == eWhoTo);
++	DenialTypes eDenial = NO_DENIAL;
++	if (kCity.getOwner() == eActivePlayer)
++		eDenial = GET_PLAYER(eActivePlayer).AI_cityTrade(kCity.AI(), eOtherPlayer);
++	else eDenial = GET_PLAYER(eOtherPlayer).AI_cityTrade(kCity.AI(), eActivePlayer);
++	bool bWilling = (eDenial == NO_DENIAL);
++	CvWString szReason;
++	if (!bWilling)
++	{
++		szReason = CvWString::format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_NEGATIVE_TEXT"),
++				GC.getDenialInfo(eDenial).getText());
++	}
++	szBuffer.append(GET_PLAYER(eOtherPlayer).getName());
++	szBuffer.append(L" ");
++	CvWString szAction;
++	if (eWhoTo == eActivePlayer && bWilling)
++		szAction = gDLL->getText("TXT_KEY_WILLING_TO_CEDE");
++	else if (eWhoTo != eActivePlayer && bWilling)
++	{
++		if (bLiberate && !bListMore)
++			szAction = gDLL->getText("TXT_KEY_WANTS_LIBERATED");
++		else szAction = gDLL->getText("TXT_KEY_WILLING_TO_TRADE_FOR");
++	}
++	else if (eWhoTo == eActivePlayer && !bWilling)
++		szAction = gDLL->getText("TXT_KEY_REFUSES_TO_CEDE");
++	else
++	{
++		FAssert(eWhoTo != eActivePlayer && !bWilling)
++		szAction = gDLL->getText("TXT_KEY_REFUSES_TO_ACCEPT");
++	}
++	szBuffer.append(szAction + L" ");
++	szBuffer.append(kCity.getName());
++	if (bListMore)
++	{
++		CvWString szLiberate = L" (" + gDLL->getText("TXT_KEY_LIBERATE_CITY") + ")";
++		if (bLiberate)
++			szBuffer.append(szLiberate);
++		bool bFound = false;
++		FOR_EACH_CITYAI(pLoopCity, GET_PLAYER(kCity.getOwner()))
++		{
++			// Skip to kCity
++			if (!bFound && pLoopCity != &kCity)
++				continue;
++			bFound = true;
++			TradeData item;
++			::setTradeItem(&item, TRADE_CITIES, pLoopCity->getID());
++			if (!GET_PLAYER(kCity.getOwner()).canTradeItem(eWhoTo, item))
++				continue;
++			// Needs to be in the same column of the "Cities" tab as kCity
++			if ((GET_PLAYER(kCity.getOwner()).AI_cityTrade(*pLoopCity, eWhoTo) ==
++					NO_DENIAL) != bWilling)
++				continue;
++			szBuffer.append(L", ");
++			szBuffer.append(pLoopCity->getName());
++			if (kCity.getOwner() == eActivePlayer && pLoopCity->getLiberationPlayer(false) == eWhoTo)
++				szBuffer.append(szLiberate);
++		}
++	}
++	/*  If the texts on the Cities tab show population counts, then this should
++		be shown as an explanation. */
++	/*szBuffer.append(CvWString::format(L" (%d %s)", kCity.getPopulation(),
++			gDLL->getText("TXT_KEY_DEMO_SCREEN_POPULATION_TEXT").GetCString()));*/
++	if (!szReason.empty() && !bListMore)
++	{
++		szBuffer.append(L":\n");
++		szBuffer.append(szReason);
++	}
++} // </advc.ctr>
++
+ // <advc.910>
+ void CvGameTextMgr::setResearchModifierHelp(CvWStringBuffer& szBuffer, TechTypes eTech)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index fcca2ebfc..bac2cb381 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -89,6 +89,9 @@ public:
+ 			bool bPlayerContext = false, bool bStrategyText = false,
+ 			bool bTreeInfo = true, TechTypes eFromTech = NO_TECH);
+ // BULL - Trade Denial - end
++	// <advc.ctr>
++	void setCityTradeHelp(CvWStringBuffer& szBuffer, CvCity const& kCity,
++			PlayerTypes eWhoTo, bool bListMore); // </advc.ctr>
+ 	void setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool bCivilopediaText = false);
+ 	void setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool bCivilopediaText = false, bool bStrategyText = false, bool bTechChooserText = false, CvCity* pCity = NULL);
+ 	void setBuildingHelp(CvWStringBuffer &szBuffer, BuildingTypes eBuilding, bool bCivilopediaText = false, bool bStrategyText = false, bool bTechChooserText = false, CvCity* pCity = NULL);
+
+diff --git a/CvGameCoreDLL/CyCity.cpp b/CvGameCoreDLL/CyCity.cpp
+index 2b1e29d95..9088b1e1f 100644
+--- a/CvGameCoreDLL/CyCity.cpp
++++ b/CvGameCoreDLL/CyCity.cpp
+@@ -670,7 +670,16 @@ int CyCity::cultureGarrison(int /*PlayerTypes*/ ePlayer)
+ {
+ 	return m_pCity ? m_pCity->cultureGarrison((PlayerTypes)ePlayer) : -1;
+ }
++// <advc.ctr>
++float CyCity::revoltProbability()
++{
++	return m_pCity ? static_cast<float>(m_pCity->revoltProbability()) : -1;
++}
+ 
++bool CyCity::canCultureFlip()
++{
++	return m_pCity ? m_pCity->canCultureFlip() : false;
++} // </advc.ctr>
+ int CyCity::getNumBuilding(int /*BuildingTypes*/ iIndex)
+ {
+ 	return m_pCity ? m_pCity->getNumBuilding((BuildingTypes) iIndex) : -1;
+
+diff --git a/CvGameCoreDLL/CyCity.h b/CvGameCoreDLL/CyCity.h
+index 4ee354e9e..854510d59 100644
+--- a/CvGameCoreDLL/CyCity.h
++++ b/CvGameCoreDLL/CyCity.h
+@@ -159,6 +159,8 @@ public:
+ 	int cultureDistance(int iDX, int iDY);
+ 	int cultureStrength(int /*PlayerTypes*/ ePlayer);
+ 	int cultureGarrison(int /*PlayerTypes*/ ePlayer);
++	float revoltProbability(); // advc.ctr
++	bool canCultureFlip(); // advc.ctr
+ 	int getNumBuilding(int /*BuildingTypes*/ iIndex);
+ 	bool isHasBuilding(int /*BuildingTypes*/ iIndex);		// This is a function to help modders out, since it was replaced with getNumBuildings() in the C++
+ 	int getNumActiveBuilding(int /*BuildingTypes*/ iIndex);
+
+diff --git a/CvGameCoreDLL/CyCityInterface1.cpp b/CvGameCoreDLL/CyCityInterface1.cpp
+index f57df53a0..d45f1620d 100644
+--- a/CvGameCoreDLL/CyCityInterface1.cpp
++++ b/CvGameCoreDLL/CyCityInterface1.cpp
+@@ -154,6 +154,10 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("cultureDistance", &CyCity::cultureDistance, "int (iDX, iDY) - culture distance")
+ 		.def("cultureStrength", &CyCity::cultureStrength, "int (ePlayer)")
+ 		.def("cultureGarrison", &CyCity::cultureGarrison, "int (ePlayer)")
++		// <advc.ctr>
++		.def("revoltProbability", &CyCity::revoltProbability, "float ()")
++		.def("canCultureFlip", &CyCity::canCultureFlip, "bool ()")
++		// </advc.ctr>
+ 		.def("getNumBuilding", &CyCity::getNumBuilding, "int - (BuildingID) - How many BuildingID does this city have (real or free)?")
+ 		.def("isHasBuilding", &CyCity::isHasBuilding, "bool (int iBuildingID) - This function actually no longer exists in C++, this is a helper function which hooks up to getNumBuilding() to help mod backwards compatibility")
+ 		.def("getNumActiveBuilding", &CyCity::getNumActiveBuilding, "bool (BuildingID) - is BuildingID active in the city (present & not obsolete)?")
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 5b12fdce0..1220051b0 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -423,6 +423,7 @@ void CyEnumsPythonInterface()
+ 		.value("WIDGET_POWER_RATIO", WIDGET_POWER_RATIO)
+ 		.value("WIDGET_GOLDEN_AGE", WIDGET_GOLDEN_AGE)
+ 		.value("WIDGET_ANARCHY", WIDGET_ANARCHY) // </advc.085>
++		.value("WIDGET_CITY_TRADE", WIDGET_CITY_TRADE) // advc.ctr
+ 		.value("NUM_WIDGET_TYPES", NUM_WIDGET_TYPES)
+ 		;
+ 	/*  K-Mod, 5/jan/11, karadoc
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=22 omittedFiles=0 embeddedPatchBytes=68604

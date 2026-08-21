@@ -1,0 +1,527 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3106
+# Commit: f63a1064a36f69dcd18e770627308d23355c153f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 16ac13d211efb51ff807d55885dbfcc415cc6353
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	10	CvGameCoreDLL/CvCityAI.cpp
+4	2	CvGameCoreDLL/CvEnums.h
+32	28	CvGameCoreDLL/CvGame.cpp
+3	2	CvGameCoreDLL/CvGameTextMgr.cpp
+5	2	CvGameCoreDLL/CvInfoEnums.h
+5	4	CvGameCoreDLL/CvInfo_EnumMap.h
+2	2	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlot.cpp
+7	5	CvGameCoreDLL/CvPlot.h
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+6	3	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b3c976880..16c39d030 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3555,7 +3555,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 
+ 		if (bValid /* advc.004x: */ && iTurnsLeft < MAX_INT)
+ 		{
+-			FAssert((MAX_INT / 1000) > iValue);
++			FAssert(MAX_INT / 1000 > iValue);
+ 			iValue *= 1000;
+ 			iValue /= std::max(1, iTurnsLeft + 3);
+ 
+@@ -3621,7 +3621,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 		calculating the lost value of obsoleting walls and castles.
+ 		There are several sections which could, in the future, be improved
+ 		using bRemove - but I don't see it as a high priority. */
+-	bool const bRemove = (getNumBuilding(eBuilding) >= GC.getDefineINT(CvGlobals::CITY_MAX_NUM_BUILDINGS));
++	bool const bRemove = (getNumBuilding(eBuilding) >=
++			GC.getDefineINT(CvGlobals::CITY_MAX_NUM_BUILDINGS));
+ 	// advc.004c: bRemove && !bObsolete is OK; that means spy attack.
+ 	FAssert(!bObsolete || bRemove);
+ 
+@@ -7138,7 +7139,8 @@ int CvCityAI::AI_clearFeatureValue(CityPlotTypes ePlot) // advc.enum: CityPlotTy
+ 			iHealthValue /= 2;
+ 		}*/ // BtS
+ 		// K-Mod start
+-		iHealthValue += (iHealth < 0 ? 100 : 400/(4+iHealth)) + 100 * pPlot->getPlayerCityRadiusCount(getOwner());
++		iHealthValue += (iHealth < 0 ? 100 : 400 / (4 + iHealth)) +
++				100 * pPlot->getPlayerCityRadiusCount(getOwner());
+ 		iHealthValue *= kFeatureInfo.getHealthPercent();
+ 		iHealthValue /= 100;
+ 		/*  note: health is not any more valuable when we aren't working it.
+@@ -11730,8 +11732,11 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 			else // </advc.004x>
+ 			{
+ 				int iBuildingCost = AI_processValue(eBestProcess) * iConstructionTurns;
+-				int iScaledTime = 10000 * iBuildingCost / (std::max(1, iBestBuildingValue) * GC.getInfo(GC.getGame().getGameSpeedType()).getConstructPercent());
+-				iOdds = 100*(iScaledTime - 400)/(iScaledTime + 600); // <= 4 turns means 0%. 20 turns ~ 61%.
++				int iScaledTime = 10000 * iBuildingCost /
++						(std::max(1, iBestBuildingValue) *
++						GC.getInfo(GC.getGame().getGameSpeedType()).getConstructPercent());
++				// <= 4 turns means 0%. 20 turns ~ 61%.
++				iOdds = 100 * (iScaledTime - 400) / (iScaledTime + 600);
+ 			}
+ 		}
+ 		if (iOdds > 0 && GC.getGame().getSorenRandNum(100, "AI choose process") < iOdds)
+@@ -11752,7 +11757,8 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 		return;
+ }
+ 
+-// K-Mod. This is a chunk of code that I moved out of AI_chooseProduction. The only reason I've moved it is to reduce clutter in the other function.
++/*	K-Mod. This is a chunk of code that I moved out of AI_chooseProduction.
++	The only reason I've moved it is to reduce clutter in the other function. */
+ void CvCityAI::AI_barbChooseProduction()
+ {
+ 	const CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+@@ -12107,6 +12113,7 @@ int CvCityAI::AI_countGoodSpecialists(bool bHealthy) const
+ 	//return iCount;
+ 	return std::max(0, iCount); // K-Mod
+ }
++
+ // return value: 0 is normal. greater than 0 has a special meaning.
+ /*	(K-Mod todo: this function is currently only used for CvCityAI::AI_stealPlots,
+ 	and even there it is only used in a very binary way.
+@@ -12450,7 +12457,7 @@ int CvCityAI::AI_countNumBonuses(BonusTypes eBonus,
+ 	return iCount;
+ }
+ 
+-// BBAI. K-Mod: I've rearranged some stuff and fixed some bugs.
++// BBAI (K-Mod - I've rearranged some stuff and fixed some bugs):
+ // advc (tbd.): Some overlap with CvPlayerAI::AI_isUnimprovedBonus -- merge?
+ int CvCityAI::AI_countNumImprovableBonuses(bool bIncludeNeutral, TechTypes eExtraTech, bool bLand,
+ 	bool bWater) /* advc: */ const
+@@ -12462,7 +12469,7 @@ int CvCityAI::AI_countNumImprovableBonuses(bool bIncludeNeutral, TechTypes eExtr
+ 		if (!((bLand && isArea(kPlot.getArea())) ||
+ 			(bWater && kPlot.isWater())))
+ 		{
+-			continue; // advc
++			continue;
+ 		}
+ 		BonusTypes const eLoopBonus = kPlot.getBonusType(getTeam());
+ 		if (eLoopBonus != NO_BONUS &&
+@@ -12511,7 +12518,7 @@ int CvCityAI::AI_countNumImprovableBonuses(bool bIncludeNeutral, TechTypes eExtr
+ 	}
+ 	return iCount;
+ }
+-// bbai / K-Mod end
++
+ 
+ int CvCityAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance,
+ 	bool bConstCache) const // advc.001n
+@@ -12883,7 +12890,7 @@ int CvCityAI::AI_calculateSettlerPriority(int iAreaSites, int iBestAreaFoundValu
+ 	// Imperialistic trait? Awkward to check ...
+ 	// I don't think the number of sites should matter(?)
+ 	return std::min(100, iPriority);
+-} // </advc.031b>
++}
+ 
+ //Workers have/needed is not intended to be a strict
+ //target but rather an indication.
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 665029d52..6d8ae6e8b 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -3,8 +3,10 @@
+ #ifndef CVENUMS_h
+ #define CVENUMS_h
+ 
+-/*  advc (note): All enums in this file are -probably- exposed to Python through
+-	CyEnumsInterface.cpp -- unless a comment states otherwise */
++/*  advc (note): All enum types in this file are -probably- exposed to Python
++	through CyEnumsInterface.cpp -- unless a comment states otherwise. Also,
++	the EXE might use any of the enum types (no DllExport needed), so
++	enumerators should generally only be added to the end of an enum definition. */
+ // <advc.enum>
+ #include "CvInfoEnums.h"
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 66111dd2a..814a61d8c 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4840,7 +4840,8 @@ int CvGame::calculateGlobalPollution() const
+ 	return iGlobalPollution;
+ }
+ 
+-// if ePlayer == NO_PLAYER, all features are counted. Otherwise, only count features owned by the specified player.
++/*	if ePlayer == NO_PLAYER, all features are counted.
++	Otherwise, only count features owned by the specified player. */
+ int CvGame::calculateGwLandDefence(PlayerTypes ePlayer) const
+ {
+ 	int iTotal = 0;
+@@ -4860,19 +4861,24 @@ int CvGame::calculateGwLandDefence(PlayerTypes ePlayer) const
+ // again, NO_PLAYER means everyone
+ int CvGame::calculateGwSustainabilityThreshold(PlayerTypes ePlayer) const
+ {
+-	// expect each pop to give ~10 pollution per turn at the time we cross the threshold, and ~1 pop per land tile...
+-	// so default resistance should be around 10 per tile.
+-	int iGlobalThreshold = GC.getMap().getLandPlots() * GC.getDefineINT("GLOBAL_WARMING_RESISTANCE");
++	/*	expect each pop to give ~10 pollution per turn at the time
++		we cross the threshold, and ~1 pop per land tile...
++		so default resistance should be around 10 per tile. */
++	int iGlobalThreshold = GC.getMap().getLandPlots() *
++			GC.getDefineINT("GLOBAL_WARMING_RESISTANCE");
+ 
+-	// maybe we should add some points for coastal tiles as well, so that watery maps don't get too much warming
++	/*	maybe we should add some points for coastal tiles as well,
++		so that watery maps don't get too much warming */
+ 
+ 	if (ePlayer == NO_PLAYER)
+ 		return iGlobalThreshold;
+ 
+-	// I have a few possible threshold distribution systems in mind:
+-	// could be proportional to total natural food yield;
+-	// or a combination of population, land size, total completed research, per player, etc.
+-	// Currently, a player's share of the total threshold is just proportional to their land size (just like the threshold itself)
++	/*	I have a few possible threshold distribution systems in mind:
++		could be proportional to total natural food yield;
++		or a combination of population, land size, total completed research,
++		per player, etc.
++		Currently, a player's share of the total threshold is just proportional
++		to their land size (just like the threshold itself) */
+ 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+ 	if (kPlayer.isAlive())
+ 	{
+@@ -5140,9 +5146,8 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, VoteSelectionSubD
+ 	}
+ 	else if (GC.getInfo(kData.eVote).isForcePeace())
+ 	{
+-		CvPlayer& kPlayer = GET_PLAYER(kData.ePlayer);
+-
+-		if(kPlayer.isAVassal()) // advc
++		CvPlayer const& kPlayer = GET_PLAYER(kData.ePlayer);
++		if (kPlayer.isAVassal()) // advc
+ 			return false;
+ 		//if (!kPlayer.isFullMember(eVoteSource))
+ 		// kekm.25: 'These are not necessarily the same.'
+@@ -5165,7 +5170,7 @@ bool CvGame::isValidVoteSelection(VoteSourceTypes eVoteSource, VoteSelectionSubD
+ 	}
+ 	else if (GC.getInfo(kData.eVote).isForceNoTrade())
+ 	{
+-		CvPlayer& kPlayer = GET_PLAYER(kData.ePlayer);
++		CvPlayer const& kPlayer = GET_PLAYER(kData.ePlayer);
+ 		//if (kPlayer.isFullMember(eVoteSource))
+ 		// kekm.25: 'These are not necessarily the same.'
+ 		if (GET_TEAM(kPlayer.getTeam()).isFullMember(eVoteSource))
+@@ -5282,12 +5287,12 @@ void CvGame::toggleDebugMode()
+ 	GC.getMap().setFlagsDirty(); // K-Mod
+ 	updateColoredPlots(); // K-Mod
+ 
+-	gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+-	gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+-	gDLL->getInterfaceIFace()->setDirty(MinimapSection_DIRTY_BIT, true);
+-	gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+-	gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+-	gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
++	gDLL->UI().setDirty(GameData_DIRTY_BIT, true);
++	gDLL->UI().setDirty(Score_DIRTY_BIT, true);
++	gDLL->UI().setDirty(MinimapSection_DIRTY_BIT, true);
++	gDLL->UI().setDirty(UnitInfo_DIRTY_BIT, true);
++	gDLL->UI().setDirty(CityInfo_DIRTY_BIT, true);
++	gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
+ 
+ 	//gDLL->getEngineIFace()->SetDirty(GlobeTexture_DIRTY_BIT, true);
+ 	gDLL->getEngineIFace()->SetDirty(MinimapTexture_DIRTY_BIT, true);
+@@ -5565,9 +5570,9 @@ int CvGame::getDifficultyForEndScore() const
+ 	// <advc.084>
+ 	if (getCivTeamsEverAlive() == 1)
+ 		r /= 4; // </advc.084>
+-	if(isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
++	if (isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+ 		r += 30;
+-	if(!isOption(GAMEOPTION_SPAH))
++	if (!isOption(GAMEOPTION_SPAH))
+ 		return r.round();
+ 	std::vector<int> aiStartPointDistrib;
+ 	m_pSpah->distribution(aiStartPointDistrib);
+@@ -6469,23 +6474,21 @@ void CvGame::setName(TCHAR const* szName)
+ bool CvGame::isDestroyedCityName(CvWString& szName) const
+ {
+ 	std::vector<CvWString>::const_iterator it;
+-
+ 	for (it = m_aszDestroyedCities.begin(); it != m_aszDestroyedCities.end(); ++it)
+ 	{
+ 		if (*it == szName)
+-		{
+ 			return true;
+-		}
+ 	}
+-
+ 	return false;
+ }
+ 
++
+ void CvGame::addDestroyedCityName(const CvWString& szName)
+ {
+ 	m_aszDestroyedCities.push_back(szName);
+ }
+ 
++
+ bool CvGame::isGreatPersonBorn(CvWString& szName) const
+ {
+ 	std::vector<CvWString>::const_iterator it;
+@@ -6501,6 +6504,7 @@ bool CvGame::isGreatPersonBorn(CvWString& szName) const
+ 	return false;
+ }
+ 
++
+ void CvGame::addGreatPersonBornName(const CvWString& szName)
+ {
+ 	m_aszGreatPeopleBorn.push_back(szName);
+@@ -7229,7 +7233,7 @@ int CvGame::religionPriority(PlayerTypes ePlayer, ReligionTypes eReligion) const
+ 			continue;
+ 		}
+ 		iR += 5;
+-		/*  Spiritual human should be sure to get a religion (so long as
++		/*	Spiritual human should be sure to get a religion (so long as
+ 			difficulty isn't above Noble). Not quite sure if my choice of
+ 			numbers in this function and in doHolyCity accomplishes that. */
+ 		if (kPlayer.isHuman())
+@@ -7241,7 +7245,7 @@ int CvGame::religionPriority(PlayerTypes ePlayer, ReligionTypes eReligion) const
+ 	// With the pick-rel option, eReligion will change later on anyway.
+ 	if (!isOption(GAMEOPTION_PICK_RELIGION))
+ 	{
+-		/*  Not excluding human here means that choosing a leader with an early
++		/*	Not excluding human here means that choosing a leader with an early
+ 			fav religion can make a difference in human getting a religion.
+ 			Unexpected, as fav. religions are pretty obscure knowledge. On the
+ 			other hand, it's a pity to assign human an arbitrary religion when
+@@ -7254,7 +7258,7 @@ int CvGame::religionPriority(PlayerTypes ePlayer, ReligionTypes eReligion) const
+ 	return iR;
+ } // </advc.138>
+ 
+-/*  advc: Since none of the BtS corps have a prereq. tech, this function
++/*	advc: Since none of the BtS corps have a prereq. tech, this function
+ 	normally does nothing. It has clearly never been properly tested (I've found
+ 	two errors while refactoring it). I'm tempted to remove it, but corporations
+ 	that get founded through a tech could be interesting for XML modding. It remains
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 89242ca2a..2e4c31d62 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -20312,10 +20312,11 @@ void CvGameTextMgr::getTurnTimerText(CvWString& strText)
+ 
+ 			if (kGame.isOption(GAMEOPTION_ADVANCED_START) &&
+ 				!kGame.isOption(GAMEOPTION_ALWAYS_WAR) &&
+-				kGame.getElapsedGameTurns() <= GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH)
++				kGame.getElapsedGameTurns() <=
++				GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH) &&
+ 				/*  advc.250b: No need to (constantly) remind human of
+ 					"universal" peace when the AI civs have big headstarts. */
+-				&& !kGame.isOption(GAMEOPTION_SPAH))
++				!kGame.isOption(GAMEOPTION_SPAH))
+ 			{
+ 				if(!strText.empty())
+ 					strText += L" -- ";
+
+diff --git a/CvGameCoreDLL/CvInfoEnums.h b/CvGameCoreDLL/CvInfoEnums.h
+index f82ecd395..c1e9f1e06 100644
+--- a/CvGameCoreDLL/CvInfoEnums.h
++++ b/CvGameCoreDLL/CvInfoEnums.h
+@@ -46,7 +46,7 @@
+ 			eLoop##TypeName = (TypeName##Types)(eLoop##TypeName - 1))
+ /*	To be used only in the body of a FOR_EACH_ENUM loop. Don't need to assert
+ 	array bounds then. Not really feasible though to replace all the
+-	CvGlobals::getInfo calls, so ... */
++	CvGlobals::getInfo calls, so maybe better not to use this at all ... */
+ /*#define LOOP_INFO(TypeName) \
+ 	GC.getLoopInfo(eLoop##TypeName)
+ #define SET_LOOP_INFO(TypeName) \
+@@ -55,6 +55,7 @@
+ #define SET_LOOP_INFO2(TypeName, kVar) \
+ 	Cv##TypeName##Info const& kVar = LOOP_INFO(TypeName)*/
+ 
++
+ // Type lists ...
+ 
+ /*  Number of instances not known at compile time, but it's safe to say, even in
+@@ -283,7 +284,9 @@ DEFINE_INCREMENT_OPERATORS(Name##Types)
+ }; \
+ SET_ENUM_LENGTH_STATIC(Name, PREFIX) \
+ DEFINE_INCREMENT_OPERATORS(Name##Types)
+-// (Let's worry about #ifdef _USRDLL only when the source of the EXE is released, i.e. probably never.)
++/*	The original enum definitions had hidden most of the NUM_...._TYPES
++	enumerators from the EXE through _USRDLL checks. Since we can't
++	recompile the EXE, let's not bother with that. */
+ 
+ namespace info_enum_detail
+ {
+
+diff --git a/CvGameCoreDLL/CvInfo_EnumMap.h b/CvGameCoreDLL/CvInfo_EnumMap.h
+index e39b31122..44f010136 100644
+--- a/CvGameCoreDLL/CvInfo_EnumMap.h
++++ b/CvGameCoreDLL/CvInfo_EnumMap.h
+@@ -40,8 +40,8 @@ for (std::pair<UnitCombatTypes,int> perUnitCombatVal =
+ 	perUnitCombatVal.first != non_default_enum_map::end;
+ 	perUnitCombatVal = kBuilding.getUnitCombatFreeXP().nextNonDefault(
+ 	perUnitCombatVal.first, ++iAnonNonDefaultIndex_3947))*/
+-/*	(A heartache that the pair types can't be inferred from the map instance,
+-	but that's how it is.) */
++/*	(A sadness that the pair types can't be inferred from the map instance,
++	but that's how it is. An iterator class wouldn't help with this problem either.) */
+ /*	Mainly for boolean value type. Could make this more efficient by adding
+ 	nextNonDefaultKey functions (returning only the enum key). */
+ #define FOR_EACH_NON_DEFAULT_KEY(kEnumMapSeq, EnumPrefix) \
+@@ -142,7 +142,8 @@ for (std::pair<UnitCombatTypes,int> perUnitCombatVal =
+ 
+ 
+ namespace non_default_enum_map
+-{
++{	/*	-1 won't work here; only a high value avoids a comparison when
++		searching for an enum key in a list. */
+ 	int const end = MAX_SHORT;
+ }
+ 
+@@ -160,7 +161,7 @@ public:
+ 	virtual void finalizeInsertions() {}
+ 	virtual V getDefault() const=0;
+ 	virtual int numKeys() const=0;
+-	/*	<advc.003i> Theese functions are only for the defunct XML cache ...
++	/*	<advc.003i> These functions are only for the defunct XML cache ...
+ 		Not tested - b/c the cache isn't working. */
+ 	void write(FDataStreamBase* pStream) const
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 236faa7c3..fa88dbdb8 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4988,7 +4988,7 @@ void CvPlayer::found(int iX, int iY)
+ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost) const
+ {
+ 	//PROFILE_FUNC(); // advc.003o
+-	UnitClassTypes eUnitClass = GC.getInfo(eUnit).getUnitClassType();
++	UnitClassTypes const eUnitClass = GC.getInfo(eUnit).getUnitClassType();
+ 
+ 	/*	K-Mod note. This assert can fail if team games when checking whether this city can
+ 		upgrade a unit to one of our team member's UUs. */
+@@ -8651,7 +8651,7 @@ void CvPlayer::verifyAlive()
+ 	{
+ 		if (getNumCities() > 0 || getNumUnits() > 0)
+ 			setAlive(true);
+-		return; // advc
++		return;
+ 	}
+ 	bool bKill = false; // advc: Removed superfluous code
+ 	if (!isBarbarian())
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 2b892d880..dc5fe8691 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -7640,7 +7640,8 @@ void CvPlot::getVisibleBonusState(BonusTypes& eType, bool& bImproved, bool& bWor
+ 
+ 	if (eType != NO_BONUS) // improved and worked states ...
+ 	{
+-		ImprovementTypes eRevealedImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam(), true);
++		ImprovementTypes eRevealedImprovement = getRevealedImprovementType(
++				GC.getGame().getActiveTeam(), true);
+ 		if (eRevealedImprovement != NO_IMPROVEMENT &&
+ 			GC.getInfo(eRevealedImprovement).isImprovementBonusTrade(eType))
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index b9f0a3b78..923ee0035 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -213,7 +213,7 @@ public:
+ 			PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM,
+ 			ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1) const;
+ 
+-	inline bool isOwned() const	/* advc.inl */																																		// Exposed to Python
++	inline bool isOwned() const	// advc.inl															// Exposed to Python
+ 	{
+ 		return (getOwner() != NO_PLAYER);
+ 	}
+@@ -527,8 +527,8 @@ public:
+ 	TeamTypes findHighestCultureTeam() const;														// Exposed to Python
+ 	PlayerTypes findHighestCulturePlayer(
+ 			bool bAlive = false) const; // advc.035
+-	int calculateCulturePercent(PlayerTypes eIndex) const;											// Exposed to Python
+-	int calculateTeamCulturePercent(TeamTypes eIndex) const;										// Exposed to Python
++	int calculateCulturePercent(PlayerTypes ePlayer) const;											// Exposed to Python
++	int calculateTeamCulturePercent(TeamTypes eTeam) const;										// Exposed to Python
+ 	void setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate,								// Exposed to Python
+ 			bool bUpdatePlotGroups);
+ 	void changeCulture(PlayerTypes eIndex, int iChange, bool bUpdate);								// Exposed to Python
+@@ -787,7 +787,10 @@ public:
+ 	static void setMaxVisibilityRangeCache();
+ 
+ protected:
+-	// advc (note): Should keep the data members in an order that optimizes the memory layout
++	/*	advc (note): Should keep the data members in an order that optimizes
++		the memory layout. While enum types can be declared as bitfields (:8 or :16),
++		it seems that e.g. a short int and a 16-bit enum won't get packed without
++		padding by the compiler; so I think it's better to stick to char and short. */
+ 	short m_iX;
+ 	short m_iY;
+ 	short m_iFeatureVariety;
+@@ -894,7 +897,6 @@ protected:
+ 	void doFeature();
+ 	void doCulture();
+ 
+-	int countTotalCulture() const; // advc.opt: Was public; replaced by getTotalCulture.
+ 	int areaID() const;
+ 	void processArea(CvArea& kArea, int iChange);
+ 	char calculateLatitude() const; // advc.tsl
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index dc0f601bb..7ca9c6b56 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4989,7 +4989,7 @@ void CvTeamAI::AI_finalizeInit()
+ 		if (m_aiWarPlanCounts.get(eLoopWarPlan) > 0)
+ 			m_bAnyWarPlan = true;
+ 	}
+-	m_aiWarPlanCounts.hasContent(); // De-allocate if all 0
++	m_aiWarPlanCounts.resetIfNoContent();
+ }
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 1b1d6deb7..36558a32d 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -1,5 +1,6 @@
+-/*  advc.enum: From the "We the People" (WtP) mod for Civ4Col, original author: Nightinggale,
+-	who may still be working on the EnumMap classes. This version is from 3 Nov 2019.
++/*  advc.enum: From the "We the People" (WtP) mod for Civ4Col,
++	original author: Nightinggale. This is essentially the version 3 Nov 2019,
++	with just a few tweaks and bugfixes adopted since then.
+ 	I have -for now- omitted the WtP serialization functions, and uncoupled the
+ 	code from the Perl-generated enums that WtP uses. Instead of defining
+ 	ArrayLength functions, the getEnumLength functions that AdvCiv defines in
+@@ -109,6 +110,8 @@ public:
+ 	// Note: hasContent() can release memory if it doesn't alter what get() will return.
+ 	bool isAllocated() const;
+ 	bool hasContent() const;
++	// advc: Non-const alias b/c calling a const function for its side-effect is awkward
++	__forceinline void resetIfNoContent() { hasContent(); }
+ 
+ 	T getMin() const;
+ 	T getMax() const;
+@@ -724,7 +727,7 @@ inline bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ }
+ 
+ template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
+-// advc: inline removed
++// advc: was inline
+ bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::hasContent() const
+ {
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=21519

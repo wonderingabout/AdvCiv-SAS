@@ -1,0 +1,63 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1864
+# Commit: 01547266a491090bfe1e42f806fc80c295478c5d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8199fe2a9c0e0b98a83c15099a16c6c587183ee0
+# Title: Reduced culture spread range on other landmasses
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCity.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 5ba63ffb8..b65548b1b 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4524,7 +4524,7 @@ int CvCity::maxHurryPopulation() const
+ }
+ 
+ 
+-int CvCity::cultureDistance(int iDX, int iDY) const
++int CvCity::cultureDistance(int iDX, int iDY)
+ {
+ 	return std::max(1, plotDistance(0, 0, iDX, iDY));
+ }
+@@ -12371,7 +12371,9 @@ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer, int iCultu
+ 			if(iDistance > iCultureRange)
+ 				continue;
+ 			CvPlot* pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
+-			if(pLoopPlot == NULL || !pLoopPlot->isPotentialCityWorkForArea(area()))
++			if(pLoopPlot == NULL || /* advc.098: */ (pLoopPlot->isWater() &&
++					!pLoopPlot->isPotentialCityWorkForArea(area())) ||
++					(pLoopPlot->getArea() != getArea() && iDistance > eCultureLevel + 1)) // advc.098
+ 				continue;
+ 			//int iCultureToAdd = iCultureRateTimes100*((iScale-1)*(iDistance-iCultureRange)*(iDistance-iCultureRange) + iCultureRange*iCultureRange)/(100*iCultureRange*iCultureRange);
+ 			/*  <advc.001> Deleted some old K-Mod code that had been commented out.
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 339f877e6..345232b02 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -245,7 +245,7 @@ public:
+ 	int hurryAngerLength(HurryTypes eHurry) const;													// Exposed to Python
+ 	int maxHurryPopulation() const;																					// Exposed to Python
+ 
+-	int cultureDistance(int iDX, int iDY) const;														// Exposed to Python
++	static int cultureDistance(int iDX, int iDY); // advc: static														// Exposed to Python
+ 	int cultureStrength(PlayerTypes ePlayer) const;										// Exposed to Python
+ 	int cultureGarrison(PlayerTypes ePlayer) const;										// Exposed to Python
+ 	PlayerTypes calculateCulturalOwner() const; // advc.099c
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1893

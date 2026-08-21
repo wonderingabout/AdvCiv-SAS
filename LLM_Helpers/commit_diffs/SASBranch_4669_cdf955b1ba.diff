@@ -1,0 +1,199 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4669
+# Commit: cdf955b1ba70f18ad00accce1c99695d1fbc309d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b5928cb09f863e6df3e2ebc2669d84951d4b7bd9
+# Title: rename and reorder promotion_pinch to promotion_counter_gun
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/XML/Events/CIV4EventInfos.xml
+26	22	Assets/XML/Units/CIV4PromotionInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Events/CIV4EventInfos.xml b/Assets/XML/Events/CIV4EventInfos.xml
+index 603a3cb47..6cde0877c 100644
+--- a/Assets/XML/Events/CIV4EventInfos.xml
++++ b/Assets/XML/Events/CIV4EventInfos.xml
+@@ -12622,7 +12622,7 @@
+ 			<UnitClassPromotions>
+ 				<UnitClassPromotion>
+ 					<UnitClass>UNITCLASS_MUSKETMAN</UnitClass>
+-					<UnitPromotion>PROMOTION_PINCH</UnitPromotion>
++					<UnitPromotion>PROMOTION_COUNTER_GUN</UnitPromotion>
+ 				</UnitClassPromotion>
+ 			</UnitClassPromotions>
+ 			<BuildingClass>NONE</BuildingClass>
+@@ -12794,7 +12794,7 @@
+ 			<UnitClassPromotions>
+ 				<UnitClassPromotion>
+ 					<UnitClass>UNITCLASS_GRENADIER</UnitClass>
+-					<UnitPromotion>PROMOTION_PINCH</UnitPromotion>
++					<UnitPromotion>PROMOTION_COUNTER_GUN</UnitPromotion>
+ 				</UnitClassPromotion>
+ 			</UnitClassPromotions>
+ 			<BuildingClass>NONE</BuildingClass>
+@@ -22662,7 +22662,7 @@
+ 			<UnitClassPromotions>
+ 				<UnitClassPromotion>
+ 					<UnitClass>UNITCLASS_MUSKETMAN</UnitClass>
+-					<UnitPromotion>PROMOTION_PINCH</UnitPromotion>
++					<UnitPromotion>PROMOTION_COUNTER_GUN</UnitPromotion>
+ 				</UnitClassPromotion>
+ 			</UnitClassPromotions>
+ 			<BuildingClass>NONE</BuildingClass>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index a56f3b7ed..a7a3bbd05 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -710,15 +710,17 @@ full order to take from for quick editing or/and copy/paste:
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Cover.dds,Art/Interface/Buttons/Promotions_Atlas.dds,2,5</Button>
+ 		</PromotionInfo>
++
++
+ 		<PromotionInfo>
+-			<Type>PROMOTION_SHOCK</Type>
+-			<Description>TXT_KEY_PROMOTION_SHOCK</Description>
++			<Type>PROMOTION_COUNTER_GUN</Type>
++			<Description>TXT_KEY_PROMOTION_PINCH</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+ 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>PROMOTION_DRILL1</PromotionPrereqOr2>
+-			<TechPrereq>NONE</TechPrereq>
++			<TechPrereq>TECH_GUNPOWDER</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+@@ -762,7 +764,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDefenses/>
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -771,46 +773,44 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+ 			</UnitCombats>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<Button>,Art/Interface/Buttons/Promotions/Shock.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,5</Button>
++			<Button>,Art/Interface/Buttons/Promotions/Pinch.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,5</Button>
+ 		</PromotionInfo>
++
++
+ 		<PromotionInfo>
+-			<Type>PROMOTION_PINCH</Type>
+-			<Description>TXT_KEY_PROMOTION_PINCH</Description>
++			<Type>PROMOTION_SHOCK</Type>
++			<Description>TXT_KEY_PROMOTION_SHOCK</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+ 			<PromotionPrereqOr1>PROMOTION_COMBAT1</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>PROMOTION_DRILL1</PromotionPrereqOr2>
+-			<TechPrereq>TECH_GUNPOWDER</TechPrereq>
++			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+@@ -854,7 +854,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDefenses/>
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -863,32 +863,36 @@ full order to take from for quick editing or/and copy/paste:
+ 			<FeatureDoubleMoves/>
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 			</UnitCombats>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<Button>,Art/Interface/Buttons/Promotions/Pinch.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,5</Button>
++			<Button>,Art/Interface/Buttons/Promotions/Shock.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,5</Button>
+ 		</PromotionInfo>
+ 		<PromotionInfo>
+ 			<Type>PROMOTION_FORMATION</Type>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6815

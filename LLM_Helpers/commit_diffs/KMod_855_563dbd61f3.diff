@@ -1,0 +1,76 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 855
+# Commit: 563dbd61f37c62b238549f670ebdceb77a9b4537
+# History segment: K-Mod history
+# Parent used for diff: 7d5b230567f9a82283ad2650e1f1e0a49f5dccf6
+# Title: Slightly amplified the effect scaling in AI_warCommitmentCost.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	9	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 264e2aaf6..d3dac00cf 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1561,7 +1561,8 @@ int CvTeamAI::AI_warCommitmentCost(TeamTypes eTarget, WarPlanTypes eWarPlan) con
+ 	// Estimate of military production costs
+ 	{
+ 		// Base commitment for a war of this type.
+-		int iCommitmentPerMil = bTotalWar ? 525 : 240;
++		int iCommitmentPerMil = bTotalWar ? 540 : 250;
++		const int iBaseline = -25; // this value will be added to iCommitmentPerMil at the end of the calculation.
+ 
+ 		// scale based on our current strength relative to our enemies.
+ 		// cf. with code in AI_calculateAreaAIType
+@@ -1643,12 +1644,15 @@ int CvTeamAI::AI_warCommitmentCost(TeamTypes eTarget, WarPlanTypes eWarPlan) con
+ 				iCommitmentPerMil = iCommitmentPerMil * 5/4;
+ 		}
+ 
+-		// iCommitmentPerMil will be multiplied by a rough estimate of the total resources this team could devote to war.
+-		int iCommitmentPool = iOurProduction * 3 + AI_estimateTotalYieldRate(YIELD_COMMERCE); // cf. AI_yieldWeight
+-		// Note: it would probably be good to take into account the expected increase in unit spending - but that's a bit tricky.
++		iCommitmentPerMil += iBaseline; // The baseline should be a negative value which represents some amount of "free" commitment.
+ 
+-		// sometimes are resources are more in demand than other times...
++		if (iCommitmentPerMil > 0)
+ 		{
++			// iCommitmentPerMil will be multiplied by a rough estimate of the total resources this team could devote to war.
++			int iCommitmentPool = iOurProduction * 3 + AI_estimateTotalYieldRate(YIELD_COMMERCE); // cf. AI_yieldWeight
++			// Note: it would probably be good to take into account the expected increase in unit spending - but that's a bit tricky.
++
++			// sometimes are resources are more in demand than other times...
+ 			int iPoolMultiplier = 0;
+ 			for (PlayerTypes eLoopPlayer = (PlayerTypes)0; eLoopPlayer < MAX_PLAYERS; eLoopPlayer=(PlayerTypes)(eLoopPlayer+1))
+ 			{
+@@ -1666,12 +1670,13 @@ int CvTeamAI::AI_warCommitmentCost(TeamTypes eTarget, WarPlanTypes eWarPlan) con
+ 			}
+ 			iPoolMultiplier /= std::max(1, getAliveCount());
+ 			iCommitmentPool = iCommitmentPool * iPoolMultiplier / 100;
+-		}
+ 
+-		if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CULTURE4 | AI_VICTORY_SPACE4) || AI_getLowestVictoryCountdown() >= 0)
+-			iCommitmentPool *= 2;
++			//
++			if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CULTURE4 | AI_VICTORY_SPACE4) || AI_getLowestVictoryCountdown() >= 0)
++				iCommitmentPool *= 2;
+ 
+-		iTotalCost += iCommitmentPerMil * iCommitmentPool / 1000;
++			iTotalCost += iCommitmentPerMil * iCommitmentPool / 1000;
++		}
+ 	}
+ 
+ 	// war weariness
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2712

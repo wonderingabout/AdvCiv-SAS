@@ -1,0 +1,2061 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2287
+# Commit: 2538085dde16fcc547e4a805d96b17ce88efd02c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b267adbbdf15067ac605215dfeafc7ab464f6ab1
+# Title: Remove some unnecessary CvInfo setters (from C2C)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+22	116	CvGameCoreDLL/CvInfo_Base.cpp
+1	15	CvGameCoreDLL/CvInfo_Base.h
+3	27	CvGameCoreDLL/CvInfo_Building.cpp
+0	3	CvGameCoreDLL/CvInfo_Building.h
+2	8	CvGameCoreDLL/CvInfo_City.cpp
+0	1	CvGameCoreDLL/CvInfo_City.h
+1	8	CvGameCoreDLL/CvInfo_Civics.cpp
+0	1	CvGameCoreDLL/CvInfo_Civics.h
+7	22	CvGameCoreDLL/CvInfo_Civilization.cpp
+0	2	CvGameCoreDLL/CvInfo_Civilization.h
+9	26	CvGameCoreDLL/CvInfo_Command.cpp
+0	5	CvGameCoreDLL/CvInfo_Command.h
+30	163	CvGameCoreDLL/CvInfo_Misc.cpp
+0	23	CvGameCoreDLL/CvInfo_Misc.h
+6	47	CvGameCoreDLL/CvInfo_Organization.cpp
+0	7	CvGameCoreDLL/CvInfo_Organization.h
+3	22	CvGameCoreDLL/CvInfo_Tech.cpp
+0	3	CvGameCoreDLL/CvInfo_Tech.h
+25	58	CvGameCoreDLL/CvInfo_Terrain.cpp
+0	5	CvGameCoreDLL/CvInfo_Terrain.h
+4	30	CvGameCoreDLL/CvInfo_Unit.cpp
+1	7	CvGameCoreDLL/CvInfo_Unit.h
+6	33	CvGameCoreDLL/CvInfo_Water.cpp
+2	7	CvGameCoreDLL/CvInfo_Water.h
+6	6	CvGameCoreDLL/CvTeam.cpp
+15	15	CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+0	1	CvGameCoreDLL/CyInfoInterface1.cpp
+0	2	CvGameCoreDLL/CyInfoInterface2.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.cpp b/CvGameCoreDLL/CvInfo_Base.cpp
+index 3efd64071..5b4a11e40 100644
+--- a/CvGameCoreDLL/CvInfo_Base.cpp
++++ b/CvGameCoreDLL/CvInfo_Base.cpp
+@@ -166,11 +166,8 @@ bool CvInfoBase::read(CvXMLLoadUtility* pXML)
+ 
+ bool CvScalableInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	float fScale;
+-	pXML->GetChildXmlValByName(&fScale, "fScale");
+-	setScale(fScale);
+-	pXML->GetChildXmlValByName(&fScale, "fInterfaceScale", 1.0f);
+-	setInterfaceScale(fScale);
++	pXML->GetChildXmlValByName(&m_fScale, "fScale");
++	pXML->GetChildXmlValByName(&m_fInterfaceScale, "fInterfaceScale", 1.0f);
+ 	return true;
+ }
+ 
+@@ -179,28 +176,18 @@ float CvScalableInfo::getScale() const
+ 	return m_fScale;
+ }
+ 
+-void CvScalableInfo::setScale(float fScale)
+-{
+-	m_fScale = fScale;
+-}
+-
+ float CvScalableInfo::getInterfaceScale() const
+ {
+ 	return m_fInterfaceScale;
+ }
+ 
+-void CvScalableInfo::setInterfaceScale(float fInterfaceScale)
+-{
+-	m_fInterfaceScale = fInterfaceScale;
+-}
+-
+ CvHotkeyInfo::CvHotkeyInfo() :
+ m_iActionInfoIndex(-1),
+ m_iHotKeyVal(-1),
+ m_iHotKeyPriority(-1),
+ m_iHotKeyValAlt(-1),
+ m_iHotKeyPriorityAlt(-1),
+-m_iOrderPriority(5), // advc.006b: Moved from CvHotkeyInfo::read
++m_iOrderPriority(-1),
+ m_bAltDown(false),
+ m_bShiftDown(false),
+ m_bCtrlDown(false),
+@@ -214,48 +201,27 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!CvXMLInfo::read(pXML)) // advc.tag
+ 		return false;
+ 
+-	int iVal;
+-	bool bVal;
+-	CvString szTextVal;
+-
+ 	// advc.006b: Default arguments added to GetChildXmlValByName calls
+ 
+-	if (pXML->GetChildXmlValByName(szTextVal, "HotKey", ""))
+-		setHotKey(szTextVal);
+-
+-	setHotKeyVal(pXML->GetHotKeyInt(szTextVal));
+-
+-	if (pXML->GetChildXmlValByName(&iVal, "iHotKeyPriority",  -1))
+-		setHotKeyPriority(iVal);
+-
+-	if (pXML->GetChildXmlValByName(szTextVal, "HotKeyAlt", ""))
+-		setHotKeyValAlt(pXML->GetHotKeyInt(szTextVal));
+-
+-	if (pXML->GetChildXmlValByName(&iVal, "iHotKeyPriorityAlt", -1))
+-		setHotKeyPriorityAlt(iVal);
+-
+-	if (pXML->GetChildXmlValByName(&bVal, "bAltDown", false))
+-		setAltDown(bVal);
+-
+-	if (pXML->GetChildXmlValByName(&bVal, "bShiftDown", false))
+-		setShiftDown(bVal);
+-
+-	if (pXML->GetChildXmlValByName(&bVal, "bCtrlDown", false))
+-		setCtrlDown(bVal);
+-
+-	if (pXML->GetChildXmlValByName(&bVal, "bAltDownAlt", false))
+-		setAltDownAlt(bVal);
+-
+-	if (pXML->GetChildXmlValByName(&bVal, "bShiftDownAlt", false))
+-		setShiftDownAlt(bVal);
+-
+-	if (pXML->GetChildXmlValByName(&bVal, "bCtrlDownAlt", false))
+-		setCtrlDownAlt(bVal);
+-
+-	if (pXML->GetChildXmlValByName(&iVal, "iOrderPriority", 0))
+-		setOrderPriority(iVal);
+-
+-	setHotKeyDescription(getTextKeyWide(), NULL, pXML->HotKeyFromDescription(getHotKey(), m_bShiftDown, m_bAltDown, m_bCtrlDown));
++	pXML->GetChildXmlValByName(m_szHotKey, "HotKey", "");
++	m_iHotKeyVal = pXML->GetHotKeyInt(m_szHotKey);
++	pXML->GetChildXmlValByName(&m_iHotKeyPriority, "iHotKeyPriority",  -1);
++	{
++		CvString szTextVal;
++		if (pXML->GetChildXmlValByName(szTextVal, "HotKeyAlt", ""))
++			m_iHotKeyValAlt =  pXML->GetHotKeyInt(szTextVal);
++	}
++	pXML->GetChildXmlValByName(&m_iHotKeyPriorityAlt, "iHotKeyPriorityAlt", -1);
++	pXML->GetChildXmlValByName(&m_bAltDown, "bAltDown", false);
++	pXML->GetChildXmlValByName(&m_bShiftDown, "bShiftDown", false);
++	pXML->GetChildXmlValByName(&m_bCtrlDown, "bCtrlDown", false);
++	pXML->GetChildXmlValByName(&m_bAltDownAlt, "bAltDownAlt", false);
++	pXML->GetChildXmlValByName(&m_bShiftDownAlt, "bShiftDownAlt", false);
++	pXML->GetChildXmlValByName(&m_bCtrlDownAlt, "bCtrlDownAlt", false);
++	pXML->GetChildXmlValByName(&m_iOrderPriority, "iOrderPriority", 5);
++
++	setHotKeyDescription(getTextKeyWide(), NULL, pXML->HotKeyFromDescription(
++			getHotKey(), m_bShiftDown, m_bAltDown, m_bCtrlDown));
+ 
+ 	return true;
+ }
+@@ -328,121 +294,61 @@ int CvHotkeyInfo::getHotKeyVal() const
+ 	return m_iHotKeyVal;
+ }
+ 
+-void CvHotkeyInfo::setHotKeyVal(int i)
+-{
+-	m_iHotKeyVal = i;
+-}
+-
+ int CvHotkeyInfo::getHotKeyPriority() const
+ {
+ 	return m_iHotKeyPriority;
+ }
+ 
+-void CvHotkeyInfo::setHotKeyPriority(int i)
+-{
+-	m_iHotKeyPriority = i;
+-}
+-
+ int CvHotkeyInfo::getHotKeyValAlt() const
+ {
+ 	return m_iHotKeyValAlt;
+ }
+ 
+-void CvHotkeyInfo::setHotKeyValAlt(int i)
+-{
+-	m_iHotKeyValAlt = i;
+-}
+-
+ int CvHotkeyInfo::getHotKeyPriorityAlt() const
+ {
+ 	return m_iHotKeyPriorityAlt;
+ }
+ 
+-void CvHotkeyInfo::setHotKeyPriorityAlt(int i)
+-{
+-	m_iHotKeyPriorityAlt = i;
+-}
+-
+ int CvHotkeyInfo::getOrderPriority() const
+ {
+ 	return m_iOrderPriority;
+ }
+ 
+-void CvHotkeyInfo::setOrderPriority(int i)
+-{
+-	m_iOrderPriority = i;
+-}
+-
+ bool CvHotkeyInfo::isAltDown() const
+ {
+ 	return m_bAltDown;
+ }
+ 
+-void CvHotkeyInfo::setAltDown(bool b)
+-{
+-	m_bAltDown = b;
+-}
+-
+ bool CvHotkeyInfo::isShiftDown() const
+ {
+ 	return m_bShiftDown;
+ }
+ 
+-void CvHotkeyInfo::setShiftDown(bool b)
+-{
+-	m_bShiftDown = b;
+-}
+-
+ bool CvHotkeyInfo::isCtrlDown() const
+ {
+ 	return m_bCtrlDown;
+ }
+ 
+-void CvHotkeyInfo::setCtrlDown(bool b)
+-{
+-	m_bCtrlDown = b;
+-}
+-
+ bool CvHotkeyInfo::isAltDownAlt() const
+ {
+ 	return m_bAltDownAlt;
+ }
+ 
+-void CvHotkeyInfo::setAltDownAlt(bool b)
+-{
+-	m_bAltDownAlt = b;
+-}
+-
+ bool CvHotkeyInfo::isShiftDownAlt() const
+ {
+ 	return m_bShiftDownAlt;
+ }
+ 
+-void CvHotkeyInfo::setShiftDownAlt(bool b)
+-{
+-	m_bShiftDownAlt = b;
+-}
+-
+ bool CvHotkeyInfo::isCtrlDownAlt() const
+ {
+ 	return m_bCtrlDownAlt;
+ }
+ 
+-void CvHotkeyInfo::setCtrlDownAlt(bool b)
+-{
+-	m_bCtrlDownAlt = b;
+-}
+-
+ const TCHAR* CvHotkeyInfo::getHotKey() const
+ {
+ 	return m_szHotKey;
+ }
+ 
+-void CvHotkeyInfo::setHotKey(const TCHAR* szVal)
+-{
+-	m_szHotKey = szVal;
+-}
+-
+ std::wstring CvHotkeyInfo::getHotKeyDescription() const
+ {
+ 	CvWString szTemptext;
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index aea969f03..1a6e3b41e 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -97,11 +97,9 @@ public:
+ 	CvScalableInfo() : m_fScale(1.0f), m_fInterfaceScale(1.0f) {}
+ 
+ 	DllExport float getScale() const; // Exposed to Python
+-	void setScale(float fScale);
+ 
+ 	// the scale of the unit appearing in the interface screens
+ 	DllExport float getInterfaceScale() const; // Exposed to Python
+-	void setInterfaceScale(float fInterfaceScale);
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
+@@ -228,35 +226,23 @@ public:
+ 	void setActionInfoIndex(int i);
+ 
+ 	int getHotKeyVal() const;
+-	void setHotKeyVal(int i);
+ 	int getHotKeyPriority() const;
+-	void setHotKeyPriority(int i);
+ 	int getHotKeyValAlt() const;
+-	void setHotKeyValAlt(int i);
+ 	int getHotKeyPriorityAlt() const;
+-	void setHotKeyPriorityAlt(int i);
+ 	int getOrderPriority() const;
+-	void setOrderPriority(int i);
+ 
+ 	bool isAltDown() const;
+-	void setAltDown(bool b);
+ 	bool isShiftDown() const;
+-	void setShiftDown(bool b);
+ 	bool isCtrlDown() const;
+-	void setCtrlDown(bool b);
+ 	bool isAltDownAlt() const;
+-	void setAltDownAlt(bool b);
+ 	bool isShiftDownAlt() const;
+-	void setShiftDownAlt(bool b);
+ 	bool isCtrlDownAlt() const;
+-	void setCtrlDownAlt(bool b);
+ 
+ 	const TCHAR* getHotKey() const; // Exposed to Python
+-	void setHotKey(const TCHAR* szVal);
+ 
+ 	std::wstring getHotKeyDescription() const;
+ 	void setHotKeyDescription(const wchar* szHotKeyDescKey, const wchar* szHotKeyAltDescKey,
+-		const wchar* szHotKeyString);
++			const wchar* szHotKeyString);
+ 
+ protected:
+ 	int m_iActionInfoIndex;
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.cpp b/CvGameCoreDLL/CvInfo_Building.cpp
+index 8af5afd54..8c915ab11 100644
+--- a/CvGameCoreDLL/CvInfo_Building.cpp
++++ b/CvGameCoreDLL/CvInfo_Building.cpp
+@@ -275,31 +275,16 @@ const TCHAR* CvBuildingInfo::getConstructSound() const
+ 	return m_szConstructSound;
+ }
+ 
+-void CvBuildingInfo::setConstructSound(const TCHAR* szVal)
+-{
+-	m_szConstructSound = szVal;
+-}
+-
+ const TCHAR* CvBuildingInfo::getArtDefineTag() const
+ {
+ 	return m_szArtDefineTag;
+ }
+ 
+-void CvBuildingInfo::setArtDefineTag(const TCHAR* szVal)
+-{
+-	m_szArtDefineTag = szVal;
+-}
+-
+ const TCHAR* CvBuildingInfo::getMovieDefineTag() const
+ {
+ 	return m_szMovieDefineTag;
+ }
+ 
+-void CvBuildingInfo::setMovieDefineTag(const TCHAR* szVal)
+-{
+-	m_szMovieDefineTag = szVal;
+-}
+-
+ 
+ int CvBuildingInfo::getYieldChange(YieldTypes eYield) const
+ {
+@@ -1059,13 +1044,8 @@ bool CvBuildingInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->SetInfoIDFromChildXmlVal(m_iBuildingClassType, "BuildingClass");
+ 	pXML->SetInfoIDFromChildXmlVal(m_iSpecialBuildingType, "SpecialBuildingType");
+ 	pXML->SetInfoIDFromChildXmlVal(m_iAdvisorType, "Advisor");
+-	{
+-		CvString szTextVal;
+-		pXML->GetChildXmlValByName(szTextVal, "ArtDefineTag");
+-		setArtDefineTag(szTextVal);
+-		pXML->GetChildXmlValByName(szTextVal, "MovieDefineTag");
+-		setMovieDefineTag(szTextVal);
+-	}
++	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag");
++	pXML->GetChildXmlValByName(m_szMovieDefineTag, "MovieDefineTag");
+ 	pXML->SetInfoIDFromChildXmlVal(m_iHolyCity, "HolyCity");
+ 	pXML->SetInfoIDFromChildXmlVal(m_iReligionType, "ReligionType");
+ 	pXML->SetInfoIDFromChildXmlVal(m_iStateReligion, "StateReligion");
+@@ -1375,11 +1355,7 @@ bool CvBuildingInfo::read(CvXMLLoadUtility* pXML)
+ 	}
+ 	else pXML->InitList(&m_pbCommerceChangeOriginalOwner, NUM_COMMERCE_TYPES);
+ 
+-	{
+-		CvString szTextVal;
+-		pXML->GetChildXmlValByName(szTextVal, "ConstructSound");
+-		setConstructSound(szTextVal);
+-	}
++	pXML->GetChildXmlValByName(m_szConstructSound, "ConstructSound");
+ 
+ 	pXML->SetVariableListTagPair(&m_piBonusHealthChanges, "BonusHealthChanges", GC.getNumBonusInfos());
+ 	pXML->SetVariableListTagPair(&m_piBonusHappinessChanges, "BonusHappinessChanges", GC.getNumBonusInfos());
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.h b/CvGameCoreDLL/CvInfo_Building.h
+index b0f8a4a0e..6ed92d00c 100644
+--- a/CvGameCoreDLL/CvInfo_Building.h
++++ b/CvGameCoreDLL/CvInfo_Building.h
+@@ -248,11 +248,8 @@ public: /*	All the const functions are exposed to Python. advc.inl: Inlined most
+ 	bool isAllowsNukes() const { return m_bAllowsNukes; }
+ 
+ 	const TCHAR* getConstructSound() const;
+-	void setConstructSound(const TCHAR* szVal);
+ 	const TCHAR* getArtDefineTag() const;
+-	void setArtDefineTag(const TCHAR* szVal);
+ 	const TCHAR* getMovieDefineTag() const;
+-	void setMovieDefineTag(const TCHAR* szVal);
+ 
+ 	// Array access:
+ 	friend void CyInfoPythonInterface1(); // advc.003x
+
+diff --git a/CvGameCoreDLL/CvInfo_City.cpp b/CvGameCoreDLL/CvInfo_City.cpp
+index c3f4df2e4..0b591417f 100644
+--- a/CvGameCoreDLL/CvInfo_City.cpp
++++ b/CvGameCoreDLL/CvInfo_City.cpp
+@@ -120,20 +120,14 @@ const TCHAR* CvSpecialistInfo::getTexture() const
+ 	return m_szTexture;
+ }
+ 
+-void CvSpecialistInfo::setTexture(const TCHAR* szVal)
+-{
+-	m_szTexture = szVal;
+-}
+-
+ bool CvSpecialistInfo::read(CvXMLLoadUtility* pXML)
+ {
+ 	if (!CvHotkeyInfo::read(pXML))
+ 		return false;
+ 
+-	CvString szTextVal;
++	pXML->GetChildXmlValByName(m_szTexture, "Texture");
+ 
+-	pXML->GetChildXmlValByName(szTextVal, "Texture");
+-	setTexture(szTextVal);
++	CvString szTextVal;
+ 
+ 	pXML->GetChildXmlValByName(&m_bVisible, "bVisible");
+
+diff --git a/CvGameCoreDLL/CvInfo_City.h b/CvGameCoreDLL/CvInfo_City.h
+index 837d6f7dd..656635e41 100644
+--- a/CvGameCoreDLL/CvInfo_City.h
++++ b/CvGameCoreDLL/CvInfo_City.h
+@@ -51,7 +51,6 @@ public: // All the const functions are exposed to Python
+ 	int getFlavorValue(int i) const;
+ 
+ 	const TCHAR* getTexture() const;
+-	void setTexture(const TCHAR* szVal);
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.cpp b/CvGameCoreDLL/CvInfo_Civics.cpp
+index 5ffeeb6ff..eddc2e784 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.cpp
++++ b/CvGameCoreDLL/CvInfo_Civics.cpp
+@@ -320,11 +320,6 @@ const wchar* CvCivicInfo::getWeLoveTheKing()
+ 	return m_szWeLoveTheKingKey;
+ }
+ 
+-void CvCivicInfo::setWeLoveTheKingKey(const TCHAR* szVal)
+-{
+-	m_szWeLoveTheKingKey = szVal;
+-}
+-
+ int CvCivicInfo::getYieldModifier(int i) const
+ {
+ 	FAssertBounds(0, NUM_YIELD_TYPES, i);
+@@ -760,9 +755,7 @@ bool CvCivicInfo::read(CvXMLLoadUtility* pXML)
+ 		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+ 	}
+ 
+-	CvString szTextVal;
+-	pXML->GetChildXmlValByName(szTextVal, "WeLoveTheKing");
+-	setWeLoveTheKingKey(szTextVal);
++	pXML->GetChildXmlValByName(m_szWeLoveTheKingKey, "WeLoveTheKing");
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.h b/CvGameCoreDLL/CvInfo_Civics.h
+index 2ed250c61..b68e34fb5 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.h
++++ b/CvGameCoreDLL/CvInfo_Civics.h
+@@ -70,7 +70,6 @@ public: // The const functions are exposed to Python except those (to be) added
+ 
+ 	std::wstring pyGetWeLoveTheKing() { return getWeLoveTheKing(); }
+ 	const wchar* getWeLoveTheKing();
+-	void setWeLoveTheKingKey(const TCHAR* szVal);
+ 
+ 	// Array access:
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.cpp b/CvGameCoreDLL/CvInfo_Civilization.cpp
+index e2062e05b..7638b1e88 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.cpp
++++ b/CvGameCoreDLL/CvInfo_Civilization.cpp
+@@ -136,11 +136,6 @@ const TCHAR* CvCivilizationInfo::getArtDefineTag() const
+ 	return m_szArtDefineTag;
+ }
+ 
+-void CvCivilizationInfo::setArtDefineTag(const TCHAR* szVal)
+-{
+-	m_szArtDefineTag = szVal;
+-}
+-
+ BuildingTypes CvCivilizationInfo::getCivilizationBuildings(int i) const
+ {
+ 	FAssertBounds(0, GC.getNumBuildingClassInfos(), i);
+@@ -295,11 +290,9 @@ bool CvCivilizationInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(m_szAdjectiveKey, "Adjective");
+ 
+ 	pXML->SetInfoIDFromChildXmlVal(m_iDefaultPlayerColor, "DefaultPlayerColor");
+-	{
+-		CvString szTextVal;
+-		pXML->GetChildXmlValByName(szTextVal, "ArtDefineTag");
+-		setArtDefineTag(szTextVal);
+-	}
++
++	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag");
++
+ 	pXML->SetInfoIDFromChildXmlVal(m_iArtStyleType, "ArtStyleType");
+ 	{
+ 		CvString szTextVal;
+@@ -579,11 +572,6 @@ const TCHAR* CvLeaderHeadInfo::getArtDefineTag() const
+ 	return m_szArtDefineTag;
+ }
+ 
+-void CvLeaderHeadInfo::setArtDefineTag(const TCHAR* szVal)
+-{
+-	m_szArtDefineTag = szVal;
+-}
+-
+ bool CvLeaderHeadInfo::hasTrait(int i) const
+ {
+ 	FAssertBounds(0, GC.getNumTraitInfos(), i);
+@@ -934,13 +922,10 @@ bool CvLeaderHeadInfo::read(CvXMLLoadUtility* pXML)
+ {
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+-	{
+-		CvString szTextVal;
+-		pXML->GetChildXmlValByName(szTextVal, "ArtDefineTag",
+-				// advc.xmldefault:
+-				m_szArtDefineTag.empty() ? NULL : m_szArtDefineTag.c_str());
+-		setArtDefineTag(szTextVal);
+-	}
++
++	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag",
++			// advc.xmldefault:
++			m_szArtDefineTag.empty() ? NULL : m_szArtDefineTag.c_str());
+ 	/*	advc.xmldefault: Redirect the CvXMLLoadUtility::GetChildXmlValByName
+ 		calls through CvLeaderHeadInfo::GetChildXmlValByName. */
+ 	m_pXML = pXML;
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.h b/CvGameCoreDLL/CvInfo_Civilization.h
+index 11a5208de..064cf82db 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.h
++++ b/CvGameCoreDLL/CvInfo_Civilization.h
+@@ -45,7 +45,6 @@ public: // advc: All the const functions are exposed to Python
+ 
+ 	DllExport const TCHAR* getFlagTexture() const;
+ 	const TCHAR* getArtDefineTag() const;
+-	void setArtDefineTag(const TCHAR* szVal);
+ 
+ 	// Array access:
+ 
+@@ -203,7 +202,6 @@ public: // advc: All the const functions are exposed to Python except those adde
+ 	int getLoveOfPeace() const { return m_iLoveOfPeace; } // advc.104
+ 
+ 	const TCHAR* getArtDefineTag() const;
+-	void setArtDefineTag(const TCHAR* szVal);
+ 
+ 	// Array access:
+
+diff --git a/CvGameCoreDLL/CvInfo_Command.cpp b/CvGameCoreDLL/CvInfo_Command.cpp
+index ab95097d8..d4241ed37 100644
+--- a/CvGameCoreDLL/CvInfo_Command.cpp
++++ b/CvGameCoreDLL/CvInfo_Command.cpp
+@@ -19,11 +19,6 @@ int CvCommandInfo::getAutomate() const
+ 	return m_iAutomate;
+ }
+ 
+-void CvCommandInfo::setAutomate(int i)
+-{
+-	m_iAutomate = i;
+-}
+-
+ bool CvCommandInfo::getConfirmCommand() const
+ {
+ 	return m_bConfirmCommand;
+@@ -46,7 +41,7 @@ bool CvCommandInfo::read(CvXMLLoadUtility* pXML)
+ 
+ 	CvString szTextVal;
+ 	if (pXML->GetChildXmlValByName(szTextVal, "Automate", /* advc.006b: */ ""))
+-		setAutomate(GC.getTypesEnum(szTextVal));
++		m_iAutomate = GC.getTypesEnum(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(&m_bConfirmCommand, "bConfirmCommand", /* advc.006b: */ false);
+ 	pXML->GetChildXmlValByName(&m_bVisible, "bVisible", /* advc.006b: */ false);
+@@ -67,21 +62,11 @@ int CvAutomateInfo::getCommand() const
+ 	return m_iCommand;
+ }
+ 
+-void CvAutomateInfo::setCommand(int i)
+-{
+-	m_iCommand = i;
+-}
+-
+ int CvAutomateInfo::getAutomate() const
+ {
+ 	return m_iAutomate;
+ }
+ 
+-void CvAutomateInfo::setAutomate(int i)
+-{
+-	m_iAutomate = i;
+-}
+-
+ bool CvAutomateInfo::getConfirmCommand() const
+ {
+ 	return m_bConfirmCommand;
+@@ -97,11 +82,8 @@ bool CvAutomateInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!CvHotkeyInfo::read(pXML))
+ 		return false;
+ 
+-	CvString szTextVal;
+-	pXML->GetChildXmlValByName(szTextVal, "Command");
+-	setCommand(pXML->FindInInfoClass(szTextVal));
+-	pXML->GetChildXmlValByName(szTextVal, "Automate");
+-	setAutomate(GC.getTypesEnum(szTextVal));
++	pXML->SetInfoIDFromChildXmlVal(m_iCommand, "Command");
++	pXML->SetInfoIDFromChildXmlVal(m_iAutomate, "Automate");
+ 
+ 	pXML->GetChildXmlValByName(&m_bConfirmCommand, "bConfirmCommand", /* advc.006b: */ false);
+ 	pXML->GetChildXmlValByName(&m_bVisible, "bVisible");
+@@ -117,12 +99,13 @@ m_eSubType(NO_ACTIONSUBTYPE)
+ int CvActionInfo::getMissionData() const
+ {
+ 	if (ACTIONSUBTYPE_BUILD == m_eSubType ||
+-			ACTIONSUBTYPE_RELIGION == m_eSubType ||
+-			ACTIONSUBTYPE_CORPORATION == m_eSubType ||
+-			ACTIONSUBTYPE_SPECIALIST == m_eSubType	||
+-			ACTIONSUBTYPE_BUILDING == m_eSubType)
++		ACTIONSUBTYPE_RELIGION == m_eSubType ||
++		ACTIONSUBTYPE_CORPORATION == m_eSubType ||
++		ACTIONSUBTYPE_SPECIALIST == m_eSubType	||
++		ACTIONSUBTYPE_BUILDING == m_eSubType)
++	{
+ 		return m_iOriginalIndex;
+-
++	}
+ 	return -1;
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Command.h b/CvGameCoreDLL/CvInfo_Command.h
+index d47003e55..3acb7253d 100644
+--- a/CvGameCoreDLL/CvInfo_Command.h
++++ b/CvGameCoreDLL/CvInfo_Command.h
+@@ -18,7 +18,6 @@ public:
+ 	CvCommandInfo();
+ 
+ 	int getAutomate() const;
+-	void setAutomate(int i);
+ 
+ 	bool getConfirmCommand() const;
+ 	bool getVisible() const;
+@@ -42,14 +41,10 @@ public:
+ 	CvAutomateInfo();
+ 
+ 	int getCommand() const;
+-	void setCommand(int i);
+ 	int getAutomate() const;
+-	void setAutomate(int i);
+ 
+ 	bool getConfirmCommand() const;
+-	void setConfirmCommand(bool bVal);
+ 	bool getVisible() const;
+-	void setVisible(bool bVal);
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+
+diff --git a/CvGameCoreDLL/CvInfo_Misc.cpp b/CvGameCoreDLL/CvInfo_Misc.cpp
+index ff8dda16c..578778fbb 100644
+--- a/CvGameCoreDLL/CvInfo_Misc.cpp
++++ b/CvGameCoreDLL/CvInfo_Misc.cpp
+@@ -128,21 +128,11 @@ const TCHAR* CvRiverModelInfo::getModelFile() const
+ 	return m_szModelFile;
+ }
+ 
+-void CvRiverModelInfo::setModelFile(const TCHAR* szVal)
+-{
+-	m_szModelFile=szVal;
+-}
+-
+ const TCHAR* CvRiverModelInfo::getBorderFile() const
+ {
+ 	return m_szBorderFile;
+ }
+ 
+-void CvRiverModelInfo::setBorderFile(const TCHAR* szVal)
+-{
+-	m_szBorderFile=szVal;
+-}
+-
+ int CvRiverModelInfo::getTextureIndex() const
+ {
+ 	return m_iTextureIndex;
+@@ -168,11 +158,8 @@ bool CvRiverModelInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+ 
+-	CvString szTextVal;
+-	if(pXML->GetChildXmlValByName(szTextVal, "ModelFile"))
+-		setModelFile(szTextVal);
+-	if(pXML->GetChildXmlValByName(szTextVal, "BorderFile"))
+-		setBorderFile(szTextVal);
++	if(pXML->GetChildXmlValByName(m_szModelFile, "ModelFile"))
++	if(pXML->GetChildXmlValByName(m_szBorderFile, "BorderFile"))
+ 
+ 	pXML->GetChildXmlValByName(&m_iTextureIndex, "TextureIndex");
+ 	pXML->GetChildXmlValByName(m_szDeltaString, "DeltaType");
+@@ -202,31 +189,16 @@ const TCHAR* CvRouteModelInfo::getModelFile() const
+ 	return m_szModelFile;
+ }
+ 
+-void CvRouteModelInfo::setModelFile(const TCHAR* szVal)
+-{
+-	m_szModelFile=szVal;
+-}
+-
+ const TCHAR* CvRouteModelInfo::getLateModelFile() const
+ {
+ 	return m_szLateModelFile;
+ }
+ 
+-void CvRouteModelInfo::setLateModelFile(const TCHAR* szVal)
+-{
+-	m_szLateModelFile=szVal;
+-}
+-
+ const TCHAR* CvRouteModelInfo::getModelFileKey() const
+ {
+ 	return m_szModelFileKey;
+ }
+ 
+-void CvRouteModelInfo::setModelFileKey(const TCHAR* szVal)
+-{
+-	m_szModelFileKey=szVal;
+-}
+-
+ bool CvRouteModelInfo::isAnimated() const
+ {
+ 	return m_bAnimated;
+@@ -252,13 +224,9 @@ bool CvRouteModelInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+ 
+-	CvString szTextVal;
+-	pXML->GetChildXmlValByName(szTextVal, "ModelFile");
+-	setModelFile(szTextVal);
+-	pXML->GetChildXmlValByName(szTextVal, "LateModelFile");
+-	setLateModelFile(szTextVal);
+-	pXML->GetChildXmlValByName(szTextVal, "ModelFileKey");
+-	setModelFileKey(szTextVal);
++	pXML->GetChildXmlValByName(m_szModelFile, "ModelFile");
++	pXML->GetChildXmlValByName(m_szLateModelFile, "LateModelFile");
++	pXML->GetChildXmlValByName(m_szModelFileKey, "ModelFileKey");
+ 
+ 	pXML->GetChildXmlValByName(&m_bAnimated, "Animated");
+ 
+@@ -276,11 +244,6 @@ const TCHAR* CvAdvisorInfo::getTexture() const
+ 	return m_szTexture;
+ }
+ 
+-void CvAdvisorInfo::setTexture(const TCHAR* szVal)
+-{
+-	m_szTexture = szVal;
+-}
+-
+ int CvAdvisorInfo::getNumCodes() const
+ {
+ 	return m_vctEnableDisableCodes.size();
+@@ -303,10 +266,8 @@ bool CvAdvisorInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+ 
+-	CvString szTextVal;
+-	pXML->GetChildXmlValByName(szTextVal, "Texture",
++	pXML->GetChildXmlValByName(m_szTexture, "Texture",
+ 			""); // advc.006b: Actually, none of them has a texture.
+-	setTexture(szTextVal);
+ 
+ 	gDLL->getXMLIFace()->SetToChild(pXML->GetXML());
+ 	while(gDLL->getXMLIFace()->LocateNextSiblingNodeByTagName(pXML->GetXML(), "EventCodes"))
+@@ -376,68 +337,36 @@ const TCHAR* CvThroneRoomInfo::getEvent()
+ 	return m_szEvent;
+ }
+ 
+-void CvThroneRoomInfo::setEvent(const TCHAR* szVal)
+-{
+-	m_szEvent = szVal;
+-}
+-
+ const TCHAR* CvThroneRoomInfo::getNodeName()
+ {
+ 	return m_szNodeName;
+ }
+ 
+-void CvThroneRoomInfo::setNodeName(const TCHAR* szVal)
+-{
+-	m_szNodeName = szVal;
+-}
+-
+ int CvThroneRoomInfo::getFromState()
+ {
+ 	return m_iFromState;
+ }
+ 
+-void CvThroneRoomInfo::setFromState(int iVal)
+-{
+-	m_iFromState = iVal;
+-}
+-
+ int CvThroneRoomInfo::getToState()
+ {
+ 	return m_iToState;
+ }
+ 
+-void CvThroneRoomInfo::setToState(int iVal)
+-{
+-	m_iToState = iVal;
+-}
+-
+ int CvThroneRoomInfo::getAnimation()
+ {
+ 	return m_iAnimation;
+ }
+ 
+-void CvThroneRoomInfo::setAnimation(int iVal)
+-{
+-	m_iAnimation= iVal;
+-}
+-
+ bool CvThroneRoomInfo::read(CvXMLLoadUtility* pXML)
+ {
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+ 
+-	CvString szTextVal;
+-	int iVal;
+-	pXML->GetChildXmlValByName(szTextVal, "Event");
+-	setEvent(szTextVal);
+-	pXML->GetChildXmlValByName(&iVal, "iFromState");
+-	setFromState(iVal);
+-	pXML->GetChildXmlValByName(&iVal, "iToState");
+-	setToState(iVal);
+-	pXML->GetChildXmlValByName(szTextVal, "NodeName");
+-	setNodeName(szTextVal);
+-	pXML->GetChildXmlValByName(&iVal, "iAnimation");
+-	setAnimation(iVal);
++	pXML->GetChildXmlValByName(m_szEvent, "Event");
++	pXML->GetChildXmlValByName(&m_iFromState, "iFromState");
++	pXML->GetChildXmlValByName(&m_iToState, "iToState");
++	pXML->GetChildXmlValByName(m_szNodeName, "NodeName");
++	pXML->GetChildXmlValByName(&m_iAnimation, "iAnimation");
+ 
+ 	return true;
+ }
+@@ -447,46 +376,28 @@ const TCHAR* CvThroneRoomStyleInfo::getArtStyleType()
+ 	return m_szArtStyleType;
+ }
+ 
+-void CvThroneRoomStyleInfo::setArtStyleType(const TCHAR* szVal)
+-{
+-	m_szArtStyleType = szVal;
+-}
+-
+ const TCHAR* CvThroneRoomStyleInfo::getEraType()
+ {
+ 	return m_szEraType;
+ }
+ 
+-void CvThroneRoomStyleInfo::setEraType(const TCHAR* szVal)
+-{
+-	m_szEraType = szVal;
+-}
+-
+ const TCHAR* CvThroneRoomStyleInfo::getFileName()
+ {
+ 	return m_szFileName;
+ }
+ 
+-void CvThroneRoomStyleInfo::setFileName(const TCHAR* szVal)
+-{
+-	m_szFileName = szVal;
+-}
+-
+ bool CvThroneRoomStyleInfo::read(CvXMLLoadUtility* pXML)
+ {
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+ 
+-	CvString szTextVal;
+-	pXML->GetChildXmlValByName(szTextVal, "ArtStyleType");
+-	setArtStyleType(szTextVal);
+-	pXML->GetChildXmlValByName(szTextVal, "EraType");
+-	setEraType(szTextVal);
+-	pXML->GetChildXmlValByName(szTextVal, "FileName");
+-	setFileName(szTextVal);
++	pXML->GetChildXmlValByName(m_szArtStyleType, "ArtStyleType");
++	pXML->GetChildXmlValByName(m_szEraType, "EraType");
++	pXML->GetChildXmlValByName(m_szFileName, "FileName");
+ 
+ 	if(gDLL->getXMLIFace()->SetToChild(pXML->GetXML()))
+ 	{
++		CvString szTextVal;
+ 		while(gDLL->getXMLIFace()->LocateNextSiblingNodeByTagName(pXML->GetXML(), "NodeName"))
+ 		{
+ 			pXML->GetXmlVal(szTextVal);
+@@ -497,6 +408,7 @@ bool CvThroneRoomStyleInfo::read(CvXMLLoadUtility* pXML)
+ 
+ 	if(gDLL->getXMLIFace()->SetToChild(pXML->GetXML()))
+ 	{
++		CvString szTextVal;
+ 		while(gDLL->getXMLIFace()->LocateNextSiblingNodeByTagName(pXML->GetXML(), "TextureName"))
+ 		{
+ 			pXML->GetXmlVal(szTextVal);
+@@ -584,21 +496,11 @@ const TCHAR* CvWorldPickerInfo::getMapName()
+ 	return m_szMapName;
+ }
+ 
+-void CvWorldPickerInfo::setMapName(const TCHAR* szVal)
+-{
+-	m_szMapName = szVal;
+-}
+-
+ const TCHAR* CvWorldPickerInfo::getModelFile()
+ {
+ 	return m_szModelFile;
+ }
+ 
+-void CvWorldPickerInfo::setModelFile(const TCHAR* szVal)
+-{
+-	m_szModelFile = szVal;
+-}
+-
+ int CvWorldPickerInfo::getNumSizes()
+ {
+ 	return m_aSizes.size();
+@@ -644,11 +546,8 @@ bool CvWorldPickerInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+ 
+-	CvString szTextVal;
+-	pXML->GetChildXmlValByName(szTextVal, "MapName");
+-	setMapName(szTextVal);
+-	pXML->GetChildXmlValByName(szTextVal, "ModelFile");
+-	setModelFile(szTextVal);
++	pXML->GetChildXmlValByName(m_szMapName, "MapName");
++	pXML->GetChildXmlValByName(m_szModelFile, "ModelFile");
+ 
+ 	if(gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "Sizes"))
+ 	{
+@@ -670,6 +569,7 @@ bool CvWorldPickerInfo::read(CvXMLLoadUtility* pXML)
+ 	{
+ 		if(gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "ClimatePath"))
+ 		{
++			CvString szTextVal;
+ 			do
+ 			{
+ 				pXML->GetXmlVal(szTextVal);
+@@ -685,6 +585,7 @@ bool CvWorldPickerInfo::read(CvXMLLoadUtility* pXML)
+ 	{
+ 		if(gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "WaterLevelDecalPath"))
+ 		{
++			CvString szTextVal;
+ 			do
+ 			{
+ 				pXML->GetXmlVal(szTextVal);
+@@ -700,6 +601,7 @@ bool CvWorldPickerInfo::read(CvXMLLoadUtility* pXML)
+ 	{
+ 		if(gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "WaterLevelGlossPath"))
+ 		{
++			CvString szTextVal;
+ 			do
+ 			{
+ 				pXML->GetXmlVal(szTextVal);
+@@ -728,11 +630,6 @@ const TCHAR* CvSpaceShipInfo::getNodeName()
+ 	return m_szNodeName;
+ }
+ 
+-void CvSpaceShipInfo::setNodeName(const TCHAR* szVal)
+-{
+-	m_szNodeName = szVal;
+-}
+-
+ const TCHAR* CvSpaceShipInfo::getProjectName()
+ {
+ 	return m_szProjectName;
+@@ -779,12 +676,12 @@ bool CvSpaceShipInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+ 
++	pXML->GetChildXmlValByName(m_szNodeName, "NodeName");
++
+ 	CvString szTextVal;
+-	pXML->GetChildXmlValByName(szTextVal, "NodeName");
+-	setNodeName(szTextVal);
++
+ 	pXML->GetChildXmlValByName(szTextVal, "ProjectName");
+ 	setProjectName(szTextVal);
+-
+ 	pXML->GetChildXmlValByName(szTextVal, "CameraUpAxis");
+ 	if(szTextVal.CompareNoCase("AXIS_X") == 0)
+ 		m_eCameraUpAxis = AXIS_X;
+@@ -1784,21 +1681,6 @@ const TCHAR* CvTutorialMessage::getSound() const
+ 	return m_szTutorialMessageSound;
+ }
+ 
+-void CvTutorialMessage::setText(const TCHAR* szText)
+-{
+-	m_szTutorialMessageText = szText;
+-}
+-
+-void CvTutorialMessage::setImage(const TCHAR* szText)
+-{
+-	m_szTutorialMessageImage = szText;
+-}
+-
+-void CvTutorialMessage::setSound(const TCHAR* szText)
+-{
+-	m_szTutorialMessageSound = szText;
+-}
+-
+ int CvTutorialMessage::getNumTutorialScripts() const
+ {
+ 	return m_iNumTutorialScripts;
+@@ -1814,15 +1696,11 @@ bool CvTutorialMessage::read(CvXMLLoadUtility* pXML)
+ 	if (!pXML->SkipToNextVal())
+ 		return false;
+ 
+-	CvString szTextVal;
+-
+ 	pXML->MapChildren(); // try to hash children for fast lookup by name
+-	if (pXML->GetChildXmlValByName(szTextVal, "TutorialMessageText"))
+-		setText(szTextVal);
+-	if (pXML->GetChildXmlValByName(szTextVal, "TutorialMessageImage"))
+-		setImage(szTextVal);
+-	if (pXML->GetChildXmlValByName(szTextVal, "TutorialMessageSound"))
+-		setSound(szTextVal);
++	pXML->GetChildXmlValByName(m_szTutorialMessageText, "TutorialMessageText");
++	pXML->GetChildXmlValByName(m_szTutorialMessageImage, "TutorialMessageImage");
++	pXML->GetChildXmlValByName(m_szTutorialMessageSound, "TutorialMessageSound");
++
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "TutorialScripts"))
+ 	{
+ 		pXML->SetStringList(&m_paszTutorialScripts, &m_iNumTutorialScripts);
+@@ -1848,11 +1726,6 @@ const TCHAR* CvTutorialInfo::getNextTutorialInfoType()
+ 	return m_szNextTutorialInfoType;
+ }
+ 
+-void CvTutorialInfo::setNextTutorialInfoType(const TCHAR* szVal)
+-{
+-	m_szNextTutorialInfoType = szVal;
+-}
+-
+ bool CvTutorialInfo::initTutorialMessages(int iNum)
+ {
+ 	resetMessages();
+@@ -1882,17 +1755,11 @@ bool CvTutorialInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+ 
+-	CvString szTextVal;
+ 	pXML->MapChildren(); // try to hash children for fast lookup by name
+-	if (pXML->GetChildXmlValByName(szTextVal, "NextTutorialInfoType", /* advc.006b: */ ""))
+-	{
+-		setNextTutorialInfoType(szTextVal);
+-	}
+-
++	pXML->GetChildXmlValByName(m_szNextTutorialInfoType, "NextTutorialInfoType", /* advc.006b: */ "");
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"TutorialMessages"))
+ 	{
+-		int iNum;
+-		iNum = gDLL->getXMLIFace()->NumOfChildrenByTagName(pXML->GetXML(), "TutorialMessage");
++		int iNum = gDLL->getXMLIFace()->NumOfChildrenByTagName(pXML->GetXML(), "TutorialMessage");
+ 		if (iNum > 0)
+ 		{
+ 			gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"TutorialMessage");
+
+diff --git a/CvGameCoreDLL/CvInfo_Misc.h b/CvGameCoreDLL/CvInfo_Misc.h
+index d44291112..28c6be0a3 100644
+--- a/CvGameCoreDLL/CvInfo_Misc.h
++++ b/CvGameCoreDLL/CvInfo_Misc.h
+@@ -79,9 +79,7 @@ public: // All const functions are exposed to Python
+ 	CvRiverModelInfo();
+ 
+ 	DllExport const TCHAR* getModelFile() const; // The model filename
+-	void setModelFile(const TCHAR* szVal);
+ 	DllExport const TCHAR* getBorderFile() const; // The border filename
+-	void setBorderFile(const TCHAR* szVal);
+ 
+ 	DllExport int getTextureIndex() const; // (not exposed to Python)
+ 	DllExport const TCHAR* getDeltaString() const; // The delta type
+@@ -113,11 +111,8 @@ public: // All the const functions are exposed to Python
+ 	DllExport RouteTypes getRouteType() const; // The route type
+ 
+ 	DllExport const TCHAR* getModelFile() const; // The model filename
+-	void setModelFile(const TCHAR* szVal);
+ 	DllExport const TCHAR* getLateModelFile() const; // The model filename
+-	void setLateModelFile(const TCHAR* szVal);
+ 	const TCHAR* getModelFileKey() const; // The model file key reference
+-	void setModelFileKey(const TCHAR* szVal);
+ 
+ 	DllExport bool isAnimated() const;
+ 	// The connections this cell makes ( N S E W NE NW SE SW )
+@@ -149,7 +144,6 @@ class CvAdvisorInfo : public CvInfoBase
+ {
+ public:
+ 	const TCHAR* getTexture() const; // Exposed to Python
+-	void setTexture(const TCHAR* szVal);
+ 	int getNumCodes() const;
+ 	int getEnableCode(uint uiCode) const;
+ 	int getDisableCode(uint uiCode) const;
+@@ -198,15 +192,10 @@ public:
+ 	CvThroneRoomInfo();
+ 
+ 	DllExport const TCHAR* getEvent();
+-	void setEvent(const TCHAR* szVal);
+ 	DllExport const TCHAR* getNodeName();
+-	void setNodeName(const TCHAR* szVal);
+ 	DllExport int getFromState();
+-	void setFromState(int iVal);
+ 	DllExport int getToState();
+-	void setToState(int iVal);
+ 	DllExport int getAnimation();
+-	void setAnimation(int iVal);
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
+@@ -226,11 +215,8 @@ class CvThroneRoomStyleInfo : public CvInfoBase
+ {
+ public:
+ 	DllExport const TCHAR* getArtStyleType();
+-	void setArtStyleType(const TCHAR* szVal);
+ 	DllExport const TCHAR* getEraType();
+-	void setEraType(const TCHAR* szVal);
+ 	DllExport const TCHAR* getFileName();
+-	void setFileName(const TCHAR* szVal);
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
+@@ -286,9 +272,7 @@ class CvWorldPickerInfo : public CvInfoBase
+ {
+ public:
+ 	DllExport const TCHAR* getMapName();
+-	void setMapName(const TCHAR* szVal);
+ 	DllExport const TCHAR* getModelFile();
+-	void setModelFile(const TCHAR* szVal);
+ 	DllExport int getNumSizes();
+ 	DllExport float getSize(int index);
+ 	DllExport int getNumClimates();
+@@ -318,7 +302,6 @@ public:
+ 	CvSpaceShipInfo();
+ 
+ 	DllExport const TCHAR* getNodeName();
+-	void setNodeName(const TCHAR* szVal);
+ 	DllExport const TCHAR* getProjectName();
+ 	void setProjectName(const TCHAR* szVal);
+ 	DllExport ProjectTypes getProjectType();
+@@ -725,11 +708,6 @@ public:
+ 	const TCHAR* getImage() const;
+ 	const TCHAR* getSound() const;
+ 
+-	void setText(const TCHAR* szText);
+-	void setImage(const TCHAR* szText);
+-	void setSound(const TCHAR* szText);
+-	void setScript(int iIndex, const TCHAR* szText);
+-
+ 	int getNumTutorialScripts() const;
+ 	const TCHAR* getTutorialScriptByIndex(int i) const;
+ 	bool read(CvXMLLoadUtility* pXML);
+@@ -751,7 +729,6 @@ public:
+ 	virtual ~CvTutorialInfo();
+ 
+ 	const TCHAR* getNextTutorialInfoType();
+-	void setNextTutorialInfoType(const TCHAR* szVal);
+ 
+ 	bool initTutorialMessages(int iNum);
+ 	void resetMessages();
+
+diff --git a/CvGameCoreDLL/CvInfo_Organization.cpp b/CvGameCoreDLL/CvInfo_Organization.cpp
+index 39b9f92b0..4dde5af09 100644
+--- a/CvGameCoreDLL/CvInfo_Organization.cpp
++++ b/CvGameCoreDLL/CvInfo_Organization.cpp
+@@ -43,31 +43,16 @@ const TCHAR* CvOrganizationInfo::getMovieFile() const
+ 	return m_szMovieFile;
+ }
+ 
+-void CvOrganizationInfo::setMovieFile(const TCHAR* szVal)
+-{
+-	m_szMovieFile = szVal;
+-}
+-
+ const TCHAR* CvOrganizationInfo::getMovieSound() const
+ {
+ 	return m_szMovieSound;
+ }
+ 
+-void CvOrganizationInfo::setMovieSound(const TCHAR* szVal)
+-{
+-	m_szMovieSound = szVal;
+-}
+-
+ const TCHAR* CvOrganizationInfo::getSound() const
+ {
+ 	return m_szSound;
+ }
+ 
+-void CvOrganizationInfo::setSound(const TCHAR* szVal)
+-{
+-	m_szSound=szVal;
+-}
+-
+ bool CvOrganizationInfo::read(CvXMLLoadUtility* pXML)
+ {
+ 	if (!CvHotkeyInfo::read(pXML))
+@@ -78,13 +63,9 @@ bool CvOrganizationInfo::read(CvXMLLoadUtility* pXML)
+ 
+ 	pXML->GetChildXmlValByName(&m_iSpreadFactor, "iSpreadFactor");
+ 
+-	CvString szTextVal;
+-	pXML->GetChildXmlValByName(szTextVal, "MovieFile");
+-	setMovieFile(szTextVal);
+-	pXML->GetChildXmlValByName(szTextVal, "MovieSound");
+-	setMovieSound(szTextVal);
+-	pXML->GetChildXmlValByName(szTextVal, "Sound");
+-	setSound(szTextVal);
++	pXML->GetChildXmlValByName(m_szMovieFile, "MovieFile");
++	pXML->GetChildXmlValByName(m_szMovieSound, "MovieSound");
++	pXML->GetChildXmlValByName(m_szSound, "Sound");
+ 
+ 	return true;
+ }
+@@ -124,21 +105,11 @@ const TCHAR* CvReligionInfo::getTechButton() const
+ 	return m_szTechButton;
+ }
+ 
+-void CvReligionInfo::setTechButton(const TCHAR* szVal)
+-{
+-	m_szTechButton=szVal;
+-}
+-
+ const TCHAR* CvReligionInfo::getGenericTechButton() const
+ {
+ 	return m_szGenericTechButton;
+ }
+ 
+-void CvReligionInfo::setGenericTechButton(const TCHAR* szVal)
+-{
+-	m_szGenericTechButton = szVal;
+-}
+-
+ const TCHAR* CvReligionInfo::getButtonDisabled() const
+ {
+ 	static TCHAR szDisabled[512];
+@@ -155,11 +126,6 @@ const TCHAR* CvReligionInfo::getButtonDisabled() const
+ 	return szDisabled;
+ }
+ 
+-void CvReligionInfo::setAdjectiveKey(const TCHAR* szVal)
+-{
+-	m_szAdjectiveKey = szVal;
+-}
+-
+ const wchar* CvReligionInfo::getAdjectiveKey() const
+ {
+ 	return m_szAdjectiveKey;
+@@ -203,8 +169,6 @@ bool CvReligionInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!CvOrganizationInfo::read(pXML))
+ 		return false;
+ 
+-	CvString szTextVal;
+-
+ 	pXML->GetChildXmlValByName(&m_iNumFreeUnits, "iFreeUnits");
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"GlobalReligionCommerces"))
+@@ -228,14 +192,9 @@ bool CvReligionInfo::read(CvXMLLoadUtility* pXML)
+ 	}
+ 	else pXML->InitList(&m_paiStateReligionCommerce, NUM_COMMERCE_TYPES);
+ 
+-	pXML->GetChildXmlValByName(szTextVal, "TechButton");
+-	setTechButton(szTextVal);
+-
+-	pXML->GetChildXmlValByName(szTextVal, "GenericTechButton");
+-	setGenericTechButton(szTextVal);
+-
+-	pXML->GetChildXmlValByName(szTextVal, "Adjective");
+-	setAdjectiveKey(szTextVal);
++	pXML->GetChildXmlValByName(m_szTechButton, "TechButton");
++	pXML->GetChildXmlValByName(m_szGenericTechButton, "GenericTechButton");
++	pXML->GetChildXmlValByName(m_szAdjectiveKey, "Adjective");
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Organization.h b/CvGameCoreDLL/CvInfo_Organization.h
+index eb2028d6e..9ecaf38d1 100644
+--- a/CvGameCoreDLL/CvInfo_Organization.h
++++ b/CvGameCoreDLL/CvInfo_Organization.h
+@@ -22,11 +22,8 @@ public: // All the const functions are exposed to Python
+ 	void setMissionType(int iNewType);
+ 
+ 	const TCHAR* getMovieFile() const;
+-	void setMovieFile(const TCHAR* szVal);
+ 	const TCHAR* getMovieSound() const;
+-	void setMovieSound(const TCHAR* szVal);
+ 	const TCHAR* getSound() const;
+-	void setSound(const TCHAR* szVal);
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
+@@ -56,13 +53,9 @@ public: // All the const functions are exposed to Python
+ 	int getNumFreeUnits() const;
+ 
+ 	const TCHAR* getTechButton() const;
+-	void setTechButton(const TCHAR* szVal);
+ 	const TCHAR* getGenericTechButton() const;
+-	void setGenericTechButton(const TCHAR* szVal);
+-
+ 	const TCHAR* getButtonDisabled() const;
+ 
+-	void setAdjectiveKey(const TCHAR* szVal);
+ 	const wchar* getAdjectiveKey() const;
+ 	std::wstring pyGetAdjectiveKey() { return getAdjectiveKey(); }
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.cpp b/CvGameCoreDLL/CvInfo_Tech.cpp
+index dfbbddcc6..298f64007 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.cpp
++++ b/CvGameCoreDLL/CvInfo_Tech.cpp
+@@ -89,31 +89,16 @@ std::wstring CvTechInfo::getQuote()	const
+ 	return gDLL->getText(m_szQuoteKey);
+ }
+ 
+-void CvTechInfo::setQuoteKey(const TCHAR* szVal)
+-{
+-	m_szQuoteKey = szVal;
+-}
+-
+ const TCHAR* CvTechInfo::getSound() const
+ {
+ 	return m_szSound;
+ }
+ 
+-void CvTechInfo::setSound(const TCHAR* szVal)
+-{
+-	m_szSound = szVal;
+-}
+-
+ const TCHAR* CvTechInfo::getSoundMP() const
+ {
+ 	return m_szSoundMP;
+ }
+ 
+-void CvTechInfo::setSoundMP(const TCHAR* szVal)
+-{
+-	m_szSoundMP = szVal;
+-}
+-
+ int CvTechInfo::getDomainExtraMoves(int i) const
+ {
+ 	FAssertBounds(0, NUM_DOMAIN_TYPES, i); // advc: check bounds
+@@ -353,13 +338,9 @@ bool CvTechInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->SetVariableListTagPair(&m_pbTerrainTrade, "TerrainTrades", GC.getNumTerrainInfos(), false);
+ 	pXML->SetVariableListTagPair(&m_piFlavorValue, "Flavors", GC.getNumFlavorTypes());
+ 
+-	CvString szTextVal;
+-	pXML->GetChildXmlValByName(szTextVal, "Quote");
+-	setQuoteKey(szTextVal);
+-	pXML->GetChildXmlValByName(szTextVal, "Sound");
+-	setSound(szTextVal);
+-	pXML->GetChildXmlValByName(szTextVal, "SoundMP");
+-	setSoundMP(szTextVal);
++	pXML->GetChildXmlValByName(m_szQuoteKey, "Quote");
++	pXML->GetChildXmlValByName(m_szSound, "Sound");
++	pXML->GetChildXmlValByName(m_szSoundMP, "SoundMP");
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.h b/CvGameCoreDLL/CvInfo_Tech.h
+index 944c20036..1442075fc 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.h
++++ b/CvGameCoreDLL/CvInfo_Tech.h
+@@ -53,10 +53,7 @@ public: // advc: All the const functions are exposed to Python except those adde
+ 	inline bool isRiverTrade() const { return m_bRiverTrade; }
+ 
+ 	std::wstring getQuote() const;
+-	void setQuoteKey(const TCHAR* szVal);
+-	void setSound(const TCHAR* szVal);
+ 	const TCHAR* getSound() const;
+-	void setSoundMP(const TCHAR* szVal);
+ 	const TCHAR* getSoundMP() const;
+ 
+ 	// Array access:
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.cpp b/CvGameCoreDLL/CvInfo_Terrain.cpp
+index a23ff6f6e..98eacd9d4 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.cpp
++++ b/CvGameCoreDLL/CvInfo_Terrain.cpp
+@@ -37,11 +37,6 @@ const TCHAR* CvTerrainInfo::getArtDefineTag() const
+ 	return m_szArtDefineTag;
+ }
+ 
+-void CvTerrainInfo::setArtDefineTag(const TCHAR* szTag)
+-{
+-	m_szArtDefineTag = szTag;
+-}
+-
+ int CvTerrainInfo::getWorldSoundscapeScriptId() const
+ {
+ 	return m_iWorldSoundscapeScriptId;
+@@ -77,9 +72,7 @@ bool CvTerrainInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+ 
+-	CvString szTextVal;
+-	pXML->GetChildXmlValByName( szTextVal, "ArtDefineTag");
+-	setArtDefineTag(szTextVal);
++	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag");
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"Yields"))
+ 	{
+@@ -115,12 +108,13 @@ bool CvTerrainInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iDefenseModifier, "iDefense");
+ 
+ 	pXML->SetVariableListTagPairForAudioScripts(&m_pi3DAudioScriptFootstepIndex, "FootstepSounds", GC.getNumFootstepAudioTypes());
+-
+-	pXML->GetChildXmlValByName(szTextVal, "WorldSoundscapeAudioScript", /* advc.006b: */ "");
+-	if (szTextVal.GetLength() > 0)
+-		m_iWorldSoundscapeScriptId = gDLL->getAudioTagIndex(szTextVal.GetCString(), AUDIOTAG_SOUNDSCAPE);
+-	else m_iWorldSoundscapeScriptId = -1;
+-
++	{
++		CvString szTextVal;
++		pXML->GetChildXmlValByName(szTextVal, "WorldSoundscapeAudioScript", /* advc.006b: */ "");
++		if (szTextVal.GetLength() > 0)
++			m_iWorldSoundscapeScriptId = gDLL->getAudioTagIndex(szTextVal.GetCString(), AUDIOTAG_SOUNDSCAPE);
++		else m_iWorldSoundscapeScriptId = -1;
++	}
+ 	return true;
+ }
+ 
+@@ -270,11 +264,6 @@ const TCHAR* CvFeatureInfo::getArtDefineTag() const
+ 	return m_szArtDefineTag;
+ }
+ 
+-void CvFeatureInfo::setArtDefineTag(const TCHAR* szTag)
+-{
+-	m_szArtDefineTag = szTag;
+-}
+-
+ int CvFeatureInfo::getWorldSoundscapeScriptId() const
+ {
+ 	return m_iWorldSoundscapeScriptId;
+@@ -328,9 +317,7 @@ bool CvFeatureInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+ 
+-	CvString szTextVal;
+-	pXML->GetChildXmlValByName( szTextVal, "ArtDefineTag");
+-	setArtDefineTag(szTextVal);
++	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag");
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"YieldChanges"))
+ 	{
+@@ -388,12 +375,13 @@ bool CvFeatureInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(m_szOnUnitChangeTo, "OnUnitChangeTo");
+ 
+ 	pXML->SetVariableListTagPairForAudioScripts(&m_pi3DAudioScriptFootstepIndex, "FootstepSounds", GC.getNumFootstepAudioTypes());
+-
+-	pXML->GetChildXmlValByName(szTextVal, "WorldSoundscapeAudioScript", /* advc.006b: */ "");
+-	if (szTextVal.GetLength() > 0)
+-		m_iWorldSoundscapeScriptId = gDLL->getAudioTagIndex(szTextVal.GetCString(), AUDIOTAG_SOUNDSCAPE);
+-	else m_iWorldSoundscapeScriptId = -1;
+-
++	{
++		CvString szTextVal;
++		pXML->GetChildXmlValByName(szTextVal, "WorldSoundscapeAudioScript", /* advc.006b: */ "");
++		if (szTextVal.GetLength() > 0)
++			m_iWorldSoundscapeScriptId = gDLL->getAudioTagIndex(szTextVal.GetCString(), AUDIOTAG_SOUNDSCAPE);
++		else m_iWorldSoundscapeScriptId = -1;
++	}
+ 	pXML->GetChildXmlValByName(m_szEffectType, "EffectType");
+ 	pXML->GetChildXmlValByName(&m_iEffectProbability, "iEffectProbability");
+ 
+@@ -576,11 +564,6 @@ const TCHAR* CvBonusInfo::getArtDefineTag() const
+ 	return m_szArtDefineTag;
+ }
+ 
+-void CvBonusInfo::setArtDefineTag(const TCHAR* szVal)
+-{
+-	m_szArtDefineTag = szVal;
+-}
+-
+ const CvArtInfoBonus* CvBonusInfo::getArtInfo() const
+ {
+ 	return ARTFILEMGR.getBonusArtInfo( getArtDefineTag());
+@@ -722,11 +705,9 @@ bool CvBonusInfo::read(CvXMLLoadUtility* pXML)
+ 		return false;
+ 
+ 	pXML->SetInfoIDFromChildXmlVal(m_iBonusClassType, "BonusClassType");
+-	{
+-		CvString szTextVal;
+-		pXML->GetChildXmlValByName(szTextVal, "ArtDefineTag");
+-		setArtDefineTag(szTextVal);
+-	}
++
++	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag");
++
+ 	pXML->SetInfoIDFromChildXmlVal((int&)m_eTechReveal, "TechReveal");
+ 	pXML->SetInfoIDFromChildXmlVal((int&)m_eTechCityTrade, "TechCityTrade");
+ 	pXML->SetInfoIDFromChildXmlVal((int&)m_eTechObsolete, "TechObsolete");
+@@ -1004,11 +985,6 @@ const TCHAR* CvImprovementInfo::getArtDefineTag() const
+ 	return m_szArtDefineTag;
+ }
+ 
+-void CvImprovementInfo::setArtDefineTag(const TCHAR* szVal)
+-{
+-	m_szArtDefineTag = szVal;
+-}
+-
+ int CvImprovementInfo::getWorldSoundscapeScriptId() const
+ {
+ 	return m_iWorldSoundscapeScriptId;
+@@ -1319,11 +1295,9 @@ bool CvImprovementInfo::read(CvXMLLoadUtility* pXML)
+ {
+ 	if (!CvXMLInfo::read(pXML)) // advc.tag
+ 		return false;
+-	{
+-		CvString szTextVal;
+-		pXML->GetChildXmlValByName(szTextVal, "ArtDefineTag");
+-		setArtDefineTag(szTextVal);
+-	}
++
++	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag");
++
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"PrereqNatureYields"))
+ 	{
+ 		pXML->SetYields(&m_piPrereqNatureYield);
+@@ -1616,20 +1590,13 @@ const TCHAR* CvGoodyInfo::getSound() const
+ 	return m_szSound;
+ }
+ 
+-void CvGoodyInfo::setSound(const TCHAR* szVal)
+-{
+-	m_szSound=szVal;
+-}
+-
+ bool CvGoodyInfo::read(CvXMLLoadUtility* pXML)
+ {
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+-	{
+-		CvString szTextVal;
+-		pXML->GetChildXmlValByName(szTextVal, "Sound");
+-		setSound(szTextVal);
+-	}
++
++	pXML->GetChildXmlValByName(m_szSound, "Sound");
++
+ 	pXML->GetChildXmlValByName(&m_iGold, "iGold");
+ 	pXML->GetChildXmlValByName(&m_iGoldRand1, "iGoldRand1");
+ 	pXML->GetChildXmlValByName(&m_iGoldRand2, "iGoldRand2");
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.h b/CvGameCoreDLL/CvInfo_Terrain.h
+index 99068c4a5..417cef8e8 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.h
++++ b/CvGameCoreDLL/CvInfo_Terrain.h
+@@ -37,7 +37,6 @@ public: // All the const functions are exposed to Python except for those relate
+ 	inline bool isFoundFreshWater() const { return m_bFoundFreshWater; }
+ 
+ 	DllExport const TCHAR* getArtDefineTag() const;
+-	void setArtDefineTag(const TCHAR* szTag);
+ 
+ 	int getWorldSoundscapeScriptId() const;
+ 
+@@ -114,7 +113,6 @@ public: /*  All the const functions are exposed to Python except for those deali
+ 	const TCHAR* getOnUnitChangeTo() const;
+ 
+ 	const TCHAR* getArtDefineTag() const;
+-	void setArtDefineTag(const TCHAR* szTag);
+ 
+ 	int getWorldSoundscapeScriptId() const;
+ 
+@@ -232,7 +230,6 @@ public: // All the const functions are exposed to Python
+ 	bool isNormalize() const;
+ 
+ 	const TCHAR* getArtDefineTag() const;
+-	void setArtDefineTag(const TCHAR* szVal);
+ 
+ 	int getYieldChange(int i) const;
+ 	int* getYieldChangeArray();
+@@ -407,7 +404,6 @@ public: /*  All the const functions are exposed to Python except those dealing w
+ 	inline bool isOutsideBorders() const { return m_bOutsideBorders; }
+ 
+ 	const TCHAR* getArtDefineTag() const;
+-	void setArtDefineTag(const TCHAR* szVal);
+ 
+ 	int getWorldSoundscapeScriptId() const;
+ 
+@@ -558,7 +554,6 @@ public: // The const functions are exposed to Python
+ 	bool isBad() const;
+ 
+ 	const TCHAR* getSound() const;
+-	void setSound(const TCHAR* szVal);
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+
+diff --git a/CvGameCoreDLL/CvInfo_Unit.cpp b/CvGameCoreDLL/CvInfo_Unit.cpp
+index 02695da2f..9f14cde18 100644
+--- a/CvGameCoreDLL/CvInfo_Unit.cpp
++++ b/CvGameCoreDLL/CvInfo_Unit.cpp
+@@ -1851,41 +1851,22 @@ int CvPromotionInfo::getPrereqPromotion() const
+ 	return m_iPrereqPromotion;
+ }
+ 
+-void CvPromotionInfo::setPrereqPromotion(int i)
+-{
+-	m_iPrereqPromotion = i;
+-}
+-
+ int CvPromotionInfo::getPrereqOrPromotion1() const
+ {
+ 	return m_iPrereqOrPromotion1;
+ }
+ 
+-void CvPromotionInfo::setPrereqOrPromotion1(int i)
+-{
+-	m_iPrereqOrPromotion1 = i;
+-}
+-
+ int CvPromotionInfo::getPrereqOrPromotion2() const
+ {
+ 	return m_iPrereqOrPromotion2;
+ }
+ 
+-void CvPromotionInfo::setPrereqOrPromotion2(int i)
+-{
+-	m_iPrereqOrPromotion2 = i;
+-}
+-// K-Mod, 7/jan/11
++// K-Mod, 7/jan/11:
+ int CvPromotionInfo::getPrereqOrPromotion3() const
+ {
+ 	return m_iPrereqOrPromotion3;
+ }
+ 
+-void CvPromotionInfo::setPrereqOrPromotion3(int i)
+-{
+-	m_iPrereqOrPromotion3 = i;
+-} // K-Mod end
+-
+ int CvPromotionInfo::getTechPrereq() const
+ {
+ 	return m_iTechPrereq;
+@@ -2091,11 +2072,6 @@ const TCHAR* CvPromotionInfo::getSound() const
+ 	return m_szSound;
+ }
+ 
+-void CvPromotionInfo::setSound(const TCHAR* szVal)
+-{
+-	m_szSound = szVal;
+-}
+-
+ int CvPromotionInfo::getTerrainAttackPercent(int i) const
+ {
+ 	FAssertBounds(0, GC.getNumTerrainInfos(), i);
+@@ -2307,11 +2283,9 @@ bool CvPromotionInfo::read(CvXMLLoadUtility* pXML)
+ {
+ 	if (!CvHotkeyInfo::read(pXML))
+ 		return false;
+-	{
+-		CvString szTextVal;
+-		pXML->GetChildXmlValByName(szTextVal, "Sound");
+-		setSound(szTextVal);
+-	}
++
++	pXML->GetChildXmlValByName(m_szSound, "Sound");
++
+ 	pXML->SetInfoIDFromChildXmlVal(m_iLayerAnimationPath, "LayerAnimationPath");
+ 	pXML->SetInfoIDFromChildXmlVal(m_iTechPrereq, "TechPrereq");
+ 	pXML->SetInfoIDFromChildXmlVal(m_iStateReligionPrereq, "StateReligionPrereq");
+
+diff --git a/CvGameCoreDLL/CvInfo_Unit.h b/CvGameCoreDLL/CvInfo_Unit.h
+index a51b3d6a0..1b38d3477 100644
+--- a/CvGameCoreDLL/CvInfo_Unit.h
++++ b/CvGameCoreDLL/CvInfo_Unit.h
+@@ -563,14 +563,9 @@ public: // All the const functions are exposed to Python
+ 
+ 	int getLayerAnimationPath() const;
+ 	int getPrereqPromotion() const;
+-	void setPrereqPromotion(int i);
+ 	int getPrereqOrPromotion1() const;
+-	void setPrereqOrPromotion1(int i);
+ 	int getPrereqOrPromotion2() const;
+-	void setPrereqOrPromotion2(int i);
+-	// K-Mod, 7/jan/11, karadoc
+-	int getPrereqOrPromotion3() const;
+-	void setPrereqOrPromotion3(int i); // K-Mod end
++	int getPrereqOrPromotion3() const; // K-Mod, 7/jan/11
+ 	int getTechPrereq() const;
+ 	int getStateReligionPrereq() const;
+ 	int getVisibilityChange() const;
+@@ -616,7 +611,6 @@ public: // All the const functions are exposed to Python
+ 	bool isImmuneToFirstStrikes() const;
+ 
+ 	const TCHAR* getSound() const;
+-	void setSound(const TCHAR* szVal);
+ 
+ 	// Array access:
+
+diff --git a/CvGameCoreDLL/CvInfo_Water.cpp b/CvGameCoreDLL/CvInfo_Water.cpp
+index 0955feb09..1cd3f021c 100644
+--- a/CvGameCoreDLL/CvInfo_Water.cpp
++++ b/CvGameCoreDLL/CvInfo_Water.cpp
+@@ -46,21 +46,11 @@ const TCHAR * CvWaterPlaneInfo::getBaseTexture() const
+ 	return m_szBaseTexture;
+ }
+ 
+-void CvWaterPlaneInfo::setBaseTexture(const TCHAR* szVal)
+-{
+-	m_szBaseTexture=szVal;
+-}
+-
+ const TCHAR * CvWaterPlaneInfo::getTransitionTexture() const
+ {
+ 	return m_szTransitionTexture;
+ }
+ 
+-void CvWaterPlaneInfo::setTransitionTexture(const TCHAR* szVal)
+-{
+-	m_szTransitionTexture=szVal;
+-}
+-
+ float CvWaterPlaneInfo::getTextureScaling() const
+ {
+ 	return m_BaseTextureScale;
+@@ -78,7 +68,6 @@ float CvWaterPlaneInfo::getTextureScrollRateV() const
+ 
+ bool CvWaterPlaneInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	CvString  szTextVal;
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+ 
+@@ -119,8 +108,7 @@ bool CvWaterPlaneInfo::read(CvXMLLoadUtility* pXML)
+ 	{
+ 		if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "WaterBaseTexture"))
+ 		{
+-			pXML->GetChildXmlValByName( szTextVal, "TextureFile");
+-			setBaseTexture(szTextVal);
++			pXML->GetChildXmlValByName(m_szBaseTexture, "TextureFile");
+ 
+ 			pXML->GetChildXmlValByName( &m_BaseTextureScale, "TextureScaling");
+ 			pXML->GetChildXmlValByName( &m_fURate, "URate");
+@@ -129,10 +117,9 @@ bool CvWaterPlaneInfo::read(CvXMLLoadUtility* pXML)
+ 			gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+ 
+ 		}
+-		if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"WaterTransitionTexture"))
++		if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "WaterTransitionTexture"))
+ 		{
+-			pXML->GetChildXmlValByName( szTextVal, "TextureFile");
+-			setTransitionTexture(szTextVal);
++			pXML->GetChildXmlValByName(m_szTransitionTexture, "TextureFile");
+ 		}
+ 
+ 		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+@@ -182,11 +169,6 @@ const TCHAR * CvTerrainPlaneInfo::getBaseTexture() const
+ 	return m_szBaseTexture;
+ }
+ 
+-void CvTerrainPlaneInfo::setBaseTexture(const TCHAR* szVal)
+-{
+-	m_szBaseTexture=szVal;
+-}
+-
+ float CvTerrainPlaneInfo::getTextureScalingU() const
+ {
+ 	return m_BaseTextureScaleU;
+@@ -227,9 +209,7 @@ bool CvTerrainPlaneInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName( &m_fMaterialAlpha, "MaterialAlpha");
+ 	pXML->GetChildXmlValByName( &m_fCloseAlpha, "CloseAlpha");
+ 
+-	CvString  szTextVal;
+-	pXML->GetChildXmlValByName( szTextVal, "TextureFile");
+-	setBaseTexture(szTextVal);
++	pXML->GetChildXmlValByName(m_szBaseTexture, "TextureFile");
+ 
+ 	pXML->GetChildXmlValByName( &m_BaseTextureScaleU, "TextureScalingU");
+ 	pXML->GetChildXmlValByName( &m_BaseTextureScaleV, "TextureScalingV");
+@@ -237,6 +217,7 @@ bool CvTerrainPlaneInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName( &m_fVRate, "VRate");
+ 	pXML->GetChildXmlValByName( &m_fZHeight, "ZHeight");
+ 
++	CvString szTextVal;
+ 	pXML->GetChildXmlValByName( szTextVal, "FogType");
+ 	if(szTextVal.CompareNoCase("FOG_TYPE_NONE") == 0)
+ 		m_eFogType = FOG_TYPE_NONE;
+@@ -268,11 +249,6 @@ const TCHAR * CvCameraOverlayInfo::getBaseTexture() const
+ 	return m_szBaseTexture;
+ }
+ 
+-void CvCameraOverlayInfo::setBaseTexture(const TCHAR* szVal)
+-{
+-	m_szBaseTexture = szVal;
+-}
+-
+ CameraOverlayTypes CvCameraOverlayInfo::getCameraOverlayType() const
+ {
+ 	return m_eCameraOverlayType;
+@@ -284,12 +260,9 @@ bool CvCameraOverlayInfo::read(CvXMLLoadUtility* pXML)
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_bVisible, "bVisible");
++	pXML->GetChildXmlValByName(m_szBaseTexture, "TextureFile");
+ 
+ 	CvString szTextVal;
+-
+-	pXML->GetChildXmlValByName(szTextVal, "TextureFile");
+-	setBaseTexture(szTextVal);
+-
+ 	pXML->GetChildXmlValByName(szTextVal, "CameraOverlayType");
+ 	if(szTextVal.CompareNoCase("CAMERA_OVERLAY_DECAL") == 0)
+ 		m_eCameraOverlayType = CAMERA_OVERLAY_DECAL;
+
+diff --git a/CvGameCoreDLL/CvInfo_Water.h b/CvGameCoreDLL/CvInfo_Water.h
+index e797b0c15..3c1145f37 100644
+--- a/CvGameCoreDLL/CvInfo_Water.h
++++ b/CvGameCoreDLL/CvInfo_Water.h
+@@ -38,11 +38,8 @@ public:
+ 	DllExport float getTextureScrollRateU() const; // The water plane's texture scroll rate in U
+ 	DllExport float getTextureScrollRateV() const; // The water plane's texture scroll rate in V
+ 
+-	DllExport const TCHAR * getBaseTexture() const; // The filename of the base texture
+-	void setBaseTexture(const TCHAR* szVal);
+-
+-	DllExport const TCHAR *getTransitionTexture() const; // The transition texture for fading ocean into land
+-	void setTransitionTexture(const TCHAR* szVal);
++	DllExport const TCHAR* getBaseTexture() const; // The filename of the base texture
++	DllExport const TCHAR* getTransitionTexture() const; // The transition texture for fading ocean into land
+ 
+ 	bool read(CvXMLLoadUtility*);
+ 
+@@ -83,7 +80,6 @@ public:
+ 	DllExport FogTypes getFogType() const;
+ 
+ 	DllExport const TCHAR * getBaseTexture() const; // The filename of the base texture
+-	void setBaseTexture(const TCHAR* szVal);
+ 
+ 	bool read(CvXMLLoadUtility*);
+ 
+@@ -117,7 +113,6 @@ public:
+ 	DllExport CameraOverlayTypes getCameraOverlayType() const;
+ 
+ 	DllExport const TCHAR * getBaseTexture() const; // The filename of the base texture
+-	void setBaseTexture(const TCHAR* szVal);
+ 
+ 	bool read(CvXMLLoadUtility*);
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 7969e58f1..554325790 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1061,8 +1061,8 @@ bool CvTeam::canEventuallyDeclareWar(TeamTypes eTeam) const
+ 
+ // K-Mod note: I've shuffled things around a bit in this function.  // advc: refactored
+ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDoW,
+-		PlayerTypes eSponsor, // advc.100
+-		bool bRandomEvent) // advc.106g
++	PlayerTypes eSponsor, // advc.100
++	bool bRandomEvent) // advc.106g
+ {
+ 	PROFILE_FUNC();
+ 	FAssert(eTarget != NO_TEAM);
+@@ -1199,12 +1199,12 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
+ 						// advc.127b:
+ 						getCapitalX(kObs.getTeam()), getCapitalY(kObs.getTeam()));
+ 			}
+-			else if((isHasMet(kObs.getTeam()) && kTarget.isHasMet(kObs.getTeam()))
+-				|| kObs.isSpectator()) // advc.127
++			else if((isHasMet(kObs.getTeam()) && kTarget.isHasMet(kObs.getTeam())) ||
++				kObs.isSpectator()) // advc.127
+ 			{	// <advc.100> Inform third parties about sponsor
+ 				if(eSponsor != NO_PLAYER && eSponsor != kObs.getID() &&
+-						(GET_TEAM(eSponsor).isHasMet(kObs.getTeam()) ||
+-						kObs.isSpectator())) // advc.127
++					(GET_TEAM(eSponsor).isHasMet(kObs.getTeam()) ||
++					kObs.isSpectator())) // advc.127
+ 				{
+ 					szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_HIRED_WAR",
+ 							getName().GetCString(), kTarget.getName().GetCString(), cpSponsorName);
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+index afa476962..851793f63 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+@@ -481,7 +481,7 @@ bool CvXMLLoadUtility::GetChildXmlValByName(wchar* r, TCHAR const* szName, wchar
+ {
+ 	assignDefault(r, szDefault);
+ 	/*int iNumChildrenByTagName=1;
+-	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
++	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml, szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag name than expected, should only be 1.");
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
+@@ -489,10 +489,10 @@ bool CvXMLLoadUtility::GetChildXmlValByName(wchar* r, TCHAR const* szName, wchar
+ 	/*  advc.006b: The iNumChildrenByTagName check had already been disabled.
+ 		Keep it that way b/c NumOfChildrenByTagName can't handle comments in XML.
+ 		As comments don't seem to lead to overcounting, one could still do this: */
+-	//FAssertMsg(gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName) < 2,"More children with tag name than expected, should only be 1.");
++	//FAssertMsg(gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml, szName) < 2,"More children with tag name than expected, should only be 1.");
+ 	// ... However, I think FXML already detects duplicate tags when enforcing the XML schema.
+ 
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+ 		// skip to the next non-comment node
+ 		if (SkipToNextVal())
+@@ -529,12 +529,12 @@ bool CvXMLLoadUtility::GetChildXmlValByName(char* r, TCHAR const* szName, char c
+ 	assignDefault(r, szDefault);
+ 	// advc.006b: See GetChildXmlValByName(wchar*...)
+ 	/*int iNumChildrenByTagName=1;
+-	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
++	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml, szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag name than expected, should only be 1.");
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
+ 	{*/
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+ 		// skip to the next non-comment node
+ 		if (SkipToNextVal())
+@@ -570,12 +570,12 @@ bool CvXMLLoadUtility::GetChildXmlValByName(std::string& r, TCHAR const* szName,
+ 	assignDefault(r, szDefault);
+ 	// advc.006b: See GetChildXmlValByName(wchar*...)
+ 	/*int iNumChildrenByTagName=1;
+-	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
++	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml, szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag name than expected, should only be 1.");
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
+ 	{*/
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 		{
+@@ -609,12 +609,12 @@ bool CvXMLLoadUtility::GetChildXmlValByName(std::wstring& r, TCHAR const* szName
+ 	assignDefault(r, szDefault);
+ 	// advc.006b: See GetChildXmlValByName(wchar*...)
+ 	/*int iNumChildrenByTagName=1;
+-	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
++	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml, szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag name than expected, should only be 1.");
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
+ 	{*/
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 		{
+@@ -648,12 +648,12 @@ bool CvXMLLoadUtility::GetChildXmlValByName(int* r, TCHAR const* szName, int iDe
+ 	assignDefault(*r, iDefault);
+ 	// advc.006b: See GetChildXmlValByName(wchar*...)
+ 	/*int iNumChildrenByTagName=1;
+-	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
++	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml, szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag name than expected, should only be 1.");
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
+ 	{*/
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 		{
+@@ -693,12 +693,12 @@ bool CvXMLLoadUtility::GetChildXmlValByName(float* r, TCHAR const* szName, float
+ 	assignDefault(*r, fDefault);
+ 	// advc.006b: See GetChildXmlValByName(wchar*...)
+ 	/*int iNumChildrenByTagName=1;
+-	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
++	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml, szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag5 name than expected, should only be 1.");
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
+ 	{*/
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 		{
+@@ -737,12 +737,12 @@ bool CvXMLLoadUtility::GetChildXmlValByName(bool* r, TCHAR const* szName,
+ 	assignDefault(*r, bDefault);
+ 	// advc.006b: See GetChildXmlValByName(wchar*...)
+ 	/*int iNumChildrenByTagName=1;
+-	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml,szName);
++	iNumChildrenByTagName = gDLL->getXMLIFace()->NumOfChildrenByTagName(m_pFXml, szName);
+ 	FAssertMsg((iNumChildrenByTagName < 2),"More children with tag name than expected, should only be 1.");
+ 	// we only continue if there are one and only one children with this tag name
+ 	if (iNumChildrenByTagName == 1)
+ 	{*/
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,szName))
++	if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szName))
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 		{
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index 937818565..caf173cd9 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -29,7 +29,6 @@ void CyInfoPythonInterface1()
+ 		;
+ 
+ 	python::class_<CvScalableInfo, boost::noncopyable>("CvScalableInfo")
+-		.def("setScale", &CvScalableInfo::setScale, "void (float fScale)")
+ 		.def("getScale", &CvScalableInfo::getScale, "float  ()")
+ 		;
+
+diff --git a/CvGameCoreDLL/CyInfoInterface2.cpp b/CvGameCoreDLL/CyInfoInterface2.cpp
+index 31bf2212c..0784648ef 100644
+--- a/CvGameCoreDLL/CyInfoInterface2.cpp
++++ b/CvGameCoreDLL/CyInfoInterface2.cpp
+@@ -27,9 +27,7 @@ void CyInfoPythonInterface2()
+ 	python::class_<CvRouteModelInfo, boost::noncopyable, python::bases<CvInfoBase> >("CvRouteModelInfo")
+ 
+ 		.def("getModelFile", &CvRouteModelInfo::getModelFile, "string ()")
+-		.def("setModelFile", &CvRouteModelInfo::setModelFile, "void (string)")
+ 		.def("getModelFileKey", &CvRouteModelInfo::getModelFileKey, "string ()")
+-		.def("setModelFileKey", &CvRouteModelInfo::setModelFileKey, "void (string)")
+ 
+ 		.def("getConnectString", &CvRouteModelInfo::getConnectString, "string ()")
+ 		.def("getModelConnectString", &CvRouteModelInfo::getModelConnectString, "string ()")
+
+[PATCH COVERAGE]
+patchFiles=28 embeddedFiles=28 omittedFiles=0 embeddedPatchBytes=63937

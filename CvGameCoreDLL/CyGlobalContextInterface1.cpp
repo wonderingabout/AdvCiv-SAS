@@ -23,6 +23,9 @@ void CyGlobalContextPythonInterface1(python::class_<CyGlobalContext>& x)
 		.def("getActivePlayer", &CyGlobalContext::getCyActivePlayer, python::return_value_policy<python::reference_existing_object>(), "() - active player instance")
 		.def("getASyncRand", &CyGlobalContext::getCyASyncRand, python::return_value_policy<python::reference_existing_object>(), "Non-Synch'd random #")
 		.def("getTeam", &CyGlobalContext::getCyTeam, python::return_value_policy<python::reference_existing_object>(), "(iTeam) - iTeam instance")
+		// <!-- custom: begin - expose getAudio3DScriptName so Python can play 3D audio previews by script name instead of quiet positional playback. See KI#141. (GPT-5.5?) -->
+		.def("getAudio3DScriptName", &CyGlobalContext::getAudio3DScriptName, "string (int iScriptId)")
+		// <!-- custom: end - See KI#141. (GPT-5.5?) -->
 		// <kekm.27>
 		.def("isLogging", &CyGlobalContext::isLogging, "bool () - returns true iff logging is enabled in the INI")
 		.def("isRandLogging", &CyGlobalContext::isRandLogging, "bool () - returns true iff rand logging (MPLog) is enabled in the INI")

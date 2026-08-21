@@ -1,0 +1,35 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2745
+# Commit: 3fb6a3d18e44e5e392cdf1a9ee6423fbd5da21a0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6670f734d92dd60204b552fc6bb32c7d04e423b6
+# Title: Remove an unnecessary Python import
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	Assets/Python/Contrib/MinimapOptions.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/MinimapOptions.py b/Assets/Python/Contrib/MinimapOptions.py
+index 3e84d549d..40c99dae7 100644
+--- a/Assets/Python/Contrib/MinimapOptions.py
++++ b/Assets/Python/Contrib/MinimapOptions.py
+@@ -2,7 +2,6 @@
+ 
+ from CvPythonExtensions import *
+ import BugCore
+-import BugOptions
+ 
+ gc = CyGlobalContext()
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=333

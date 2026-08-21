@@ -1,0 +1,92 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 385
+# Commit: 25134da1a7dd6bbfc322ba0e8d9ffb703e75aeb4
+# History segment: K-Mod history
+# Parent used for diff: e68ad23d63afd8186c38dd56da489b3892401ca2
+# Title: The attitude cache from the CAR mod (included in BBAI) is now saved in the savefiles - this is to avoid potential OOS problems when a player joins mid-game.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	18	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5b7fdff3a..bd473e4e3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -16984,7 +16984,13 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 	pStream->Read(MAX_PLAYERS, m_aiPeacetimeGrantValue);
+ 	pStream->Read(MAX_PLAYERS, m_aiGoldTradedTo);
+ 	pStream->Read(MAX_PLAYERS, m_aiAttitudeExtra);
+-
++	// K-Mod. Load the attitude cache. (originally, in BBAI and the CAR Mod, this was not saved.
++	// But there are rare situations in which it needs to be saved/read to avoid OOS errors.)
++	if (uiFlag >= 4)
++		pStream->Read(MAX_PLAYERS, m_aiAttitudeCache);
++	else
++		AI_invalidateAttitudeCache();
++	// K-Mod end
+ 	pStream->Read(MAX_PLAYERS, m_abFirstContact);
+ 
+ 	for (int i = 0; i < MAX_PLAYERS; i++)
+@@ -16996,8 +17002,6 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 		pStream->Read(NUM_MEMORY_TYPES, m_aaiMemoryCount[i]);
+ 	}
+ 
+-	
+-
+ 	pStream->Read(&m_bWasFinancialTrouble);
+ 	pStream->Read(&m_iTurnLastProductionDirty);
+ 	
+@@ -17017,19 +17021,6 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 	pStream->Read(GC.getNumUnitClassInfos(), m_aiUnitClassWeights);
+ 	pStream->Read(GC.getNumUnitCombatInfos(), m_aiUnitCombatWeights);
+ 	pStream->Read(MAX_PLAYERS, m_aiCloseBordersAttitudeCache);
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/03/09                       poyuzhe & jdog5000     */
+-/*                                                                                              */
+-/* Efficiency                                                                                   */
+-/************************************************************************************************/
+-	// From Sanguo Mod Performance, ie the CAR Mod
+-	// Attitude cache
+-	AI_invalidateAttitudeCache();
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+ }
+ 
+ 
+@@ -17045,7 +17036,7 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 	uint uiFlag=0;
+ */
+ 	// Flag for type of save
+-	uint uiFlag=3;
++	uint uiFlag=4;
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iPeaceWeight);
+@@ -17083,7 +17074,9 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 	pStream->Write(MAX_PLAYERS, m_aiPeacetimeGrantValue);
+ 	pStream->Write(MAX_PLAYERS, m_aiGoldTradedTo);
+ 	pStream->Write(MAX_PLAYERS, m_aiAttitudeExtra);
+-
++	// K-Mod. save the attitude cache. (to avoid OOS problems)
++	pStream->Write(MAX_PLAYERS, m_aiAttitudeCache); // uiFlag >= 4
++	// K-Mod end
+ 	pStream->Write(MAX_PLAYERS, m_abFirstContact);
+ 
+ 	for (int i = 0; i < MAX_PLAYERS; i++)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2917

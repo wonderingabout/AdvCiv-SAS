@@ -1,0 +1,64 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3195
+# Commit: b1b77d1e73641619954e3d28b0201e0447e3c528
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3fdb21e5509c739163fbc479c7c1ecc7da91b066
+# Title: Minor amendments to the yield-info-leak commit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	8	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 504ee27cd..93b230d25 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5159,26 +5159,27 @@ int CvPlot::calculateImprovementYieldChange(
+ 		iYield += kImpr.getHillsYieldChange(eYield);
+ 	if (isIrrigationAvailable())
+ 		iYield += kImpr.getIrrigatedYieldChange(eYield);
+-	{
+-		RouteTypes eRoute = getRouteType();
+-		if (eRoute != NO_ROUTE)
+-			iYield += kImpr.getRouteYieldChanges(eRoute, eYield);
+-	}
+ 	/*	<advc.182> Compute the yield of the plot owner. Fall back on ePlayer
+-		only for (apparently) unowned tiles. Use the map knowledge of ePlayer.
+-		Call locations changed accordingly. */
++		only for (apparently) unowned tiles. Use the map knowledge of ePlayer. */
+ 	TeamTypes const eObs = (ePlayer == NO_PLAYER ? NO_TEAM : TEAMID(ePlayer));
+ 	PlayerTypes eRevealedOwner = (eObs == NO_TEAM ? getOwner() :
+ 			getRevealedOwner(eObs));
+ 	PlayerTypes eYieldPlayer = (eRevealedOwner == NO_PLAYER ? ePlayer :
+ 			eRevealedOwner); // </advc.182>
++	{	// <advc.001i>
++		RouteTypes eRoute = (eObs == NO_TEAM ? getRouteType() :
++				getRevealedRouteType(eObs)); // </advc.001i>
++		if (eRoute != NO_ROUTE)
++			iYield += kImpr.getRouteYieldChanges(eRoute, eYield);
++	}
++	
+ 	if (eYieldPlayer == NO_PLAYER)
+ 	{
+ 		FOR_EACH_ENUM(Tech)
+ 		{
+ 			iYield += kImpr.getTechYieldChanges(eLoopTech, eYield);
+ 		}
+-		/*	K-Mod not: this doesn't calculate the 'optimal' yield, because it
++		/*	K-Mod (note): this doesn't calculate the 'optimal' yield, because it
+ 			will count negative effects and it will count effects from competing civics. */
+ 		/*FOR_EACH_ENUM(Civic)
+ 			iYield += GC.getInfo(eLoopCivic).getImprovementYieldChanges(eImprovement, eYield);*/
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1730

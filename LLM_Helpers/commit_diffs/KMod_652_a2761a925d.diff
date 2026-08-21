@@ -1,0 +1,196 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 652
+# Commit: a2761a925d784ae1870be60db6865a8ecd574ee3
+# History segment: K-Mod history
+# Parent used for diff: 3b87abfc0b5ac32c80f33044677fdb986a383f86
+# Title: Right clicking on the +/- commerce rate buttons will now set the commerce rate to 100% / 0% respectively. Changed the symmetry breaking mechanism in the path...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	CvGameCoreDLL/CvCity.cpp
+6	3	CvGameCoreDLL/CvCityAI.cpp
+12	0	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	0	CvGameCoreDLL/CvDLLWidgetData.h
+20	19	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 656b65136..2903aba44 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5415,8 +5415,7 @@ void CvCity::setPopulation(int iNewValue)
+ 			  ((getPopulation() == 1) && (iOldPopulation > 1))
+ 			  || ((getPopulation() > iOldPopulation) && (GET_PLAYER(getOwnerINLINE()).getNumCities() <= 2)))
+ 		{
+-			//if (!isHuman())
+-			if (!isHuman() || isProductionAutomated()) // K-Mod
++			if (!isHuman())
+ 			{
+ 				AI_setChooseProductionDirty(true);
+ 			}
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index d91d24692..e8845fe2d 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7237,7 +7237,7 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 	{
+ 		if (AI_isEmphasizeYield(YIELD_FOOD))
+ 		{
+-			iFoodMultiplier *= 130;
++			iFoodMultiplier *= 140; // was 130
+ 			iFoodMultiplier /= 100;
+ 		}
+ 		if (AI_isEmphasizeYield(YIELD_PRODUCTION))
+@@ -7245,8 +7245,11 @@ void CvCityAI::AI_getYieldMultipliers( int &iFoodMultiplier, int &iProductionMul
+ 			iProductionMultiplier *= 130; // was 140
+ 			iProductionMultiplier /= 100;
+ 			// K-Mod
+-			iCommerceMultiplier *= 80;
+-			iCommerceMultiplier /= 100;
++			if (!AI_isEmphasizeYield(YIELD_COMMERCE))
++			{
++				iCommerceMultiplier *= 80;
++				iCommerceMultiplier /= 100;
++			}
+ 			// K-Mod end
+ 		}
+ 		if (AI_isEmphasizeYield(YIELD_COMMERCE))
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 5ef51aef9..61e7a5a60 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -938,6 +938,11 @@ bool CvDLLWidgetData::executeAltAction( CvWidgetDataStruct &widgetDataStruct )
+ 	case WIDGET_TECH_TREE:
+ 		doPediaTechJump(widgetDataStruct);
+ 		break;
++	// K-Mod
++	case WIDGET_CHANGE_PERCENT:
++		doChangePercentAlt(widgetDataStruct);
++		break;
++	// K-Mod end
+ 	case WIDGET_TRAIN:
+ 		doPediaTrainJump(widgetDataStruct);
+ 		break;
+@@ -1286,6 +1291,13 @@ void CvDLLWidgetData::doChangePercent(CvWidgetDataStruct &widgetDataStruct)
+ 	CvMessageControl::getInstance().sendPercentChange(((CommerceTypes)widgetDataStruct.m_iData1), widgetDataStruct.m_iData2);
+ }
+ 
++// K-Mod. Right click on "change percent" buttons will set them to min / max.
++void CvDLLWidgetData::doChangePercentAlt(CvWidgetDataStruct &widgetDataStruct)
++{
++	CvMessageControl::getInstance().sendPercentChange((CommerceTypes)widgetDataStruct.m_iData1, widgetDataStruct.m_iData2 * 100);
++}
++// K-Mod end
++
+ void CvDLLWidgetData::doCityTab(CvWidgetDataStruct &widgetDataStruct)
+ {
+ 	gDLL->getInterfaceIFace()->setCityTabSelectionRow((CityTabTypes)widgetDataStruct.m_iData1);
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.h b/CvGameCoreDLL/CvDLLWidgetData.h
+index 115b4b751..7dbb37905 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.h
++++ b/CvGameCoreDLL/CvDLLWidgetData.h
+@@ -41,6 +41,7 @@ public:
+ 	void doChangeSpecialist(CvWidgetDataStruct &widgetDataStruct);
+ 	void doResearch(CvWidgetDataStruct &widgetDataStruct);
+ 	void doChangePercent(CvWidgetDataStruct &widgetDataStruct);
++	void doChangePercentAlt(CvWidgetDataStruct &widgetDataStruct); // K-Mod (right-click)
+ 	void doCityTab(CvWidgetDataStruct &widgetDataStruct);
+ 	void doContactCiv(CvWidgetDataStruct &widgetDataStruct);
+ 	void doConvert(CvWidgetDataStruct &widgetDataStruct);
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index cddbf7cc8..432bc1961 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -28,7 +28,7 @@
+ #define PATH_DEFENSE_WEIGHT     (4) // K-Mod. ( * defence bonus)
+ #define PATH_TERRITORY_WEIGHT   (5) // was 3
+ #define PATH_STEP_WEIGHT        (4) // was 2
+-#define PATH_STRAIGHT_WEIGHT    (3) // was 1
++#define PATH_STRAIGHT_WEIGHT    (2) // was 1
+ //#define PATH_ASYMMETRY_WEIGHT   (1) // K-Mod
+ 
+ // #define PATH_DAMAGE_WEIGHT      (500) // K-Mod (disabled because it isn't used)
+@@ -1581,21 +1581,6 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 
+ 	iWorstCost += PATH_STEP_WEIGHT;
+ 
+-	// K-Mod note: it's actually marginally better strategy to move diagonally - for mapping reasons.
+-	// So let the AI prefer diagonal movement.
+-	// However, diagonal zig-zags will probably seem unnatural and weird to humans who are just trying to move in a straight line.
+-	// So let the pathfinding for human groups prefer cardinal movement.
+-	if (pSelectionGroup->AI_isControlled())
+-	{
+-		if (pFromPlot->getX_INLINE() == pToPlot->getX_INLINE() || pFromPlot->getY_INLINE() == pToPlot->getY_INLINE())
+-			iWorstCost += PATH_STRAIGHT_WEIGHT;
+-	}
+-	else
+-	{
+-		if ((pFromPlot->getX_INLINE() != pToPlot->getX_INLINE()) && (pFromPlot->getY_INLINE() != pToPlot->getY_INLINE()))
+-			iWorstCost += PATH_STRAIGHT_WEIGHT;
+-	}
+-
+ 	// symmetry breaking. This is meant to prevent two paths from having equal cost.
+ 	// (If two paths have equal cost, sometimes the interface shows one path and the units follow the other. This is bad.)
+ 	/* original K-Mod symmetry breaking. (extra cost for turning a corner)
+@@ -1636,11 +1621,27 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 	} */
+ 
+ 	// Unfortunately, the above code is not sufficient to fix the symmetry problem.
+-	// Here's a new method:
+-	iWorstCost += (node->m_iX + node->m_iY)%3;
++	// Here's a new method, which combines symmetry breaking with the old "straight path" effect.
++	// Note: symmetry breaking is not important for AI controlled units.
++
++	// It's actually marginally better strategy to move diagonally - for mapping reasons.
++	// So let the AI prefer diagonal movement.
++	// However, diagonal zig-zags will probably seem unnatural and weird to humans who are just trying to move in a straight line.
++	// So let the pathfinding for human groups prefer cardinal movement.
++	if (pSelectionGroup->AI_isControlled())
++	{
++		if (pFromPlot->getX_INLINE() == pToPlot->getX_INLINE() || pFromPlot->getY_INLINE() == pToPlot->getY_INLINE())
++			iWorstCost += PATH_STRAIGHT_WEIGHT;
++	}
++	else
++	{
++		if ((pFromPlot->getX_INLINE() != pToPlot->getX_INLINE()) && (pFromPlot->getY_INLINE() != pToPlot->getY_INLINE()))
++			iWorstCost += PATH_STRAIGHT_WEIGHT * (1+(node->m_iX + node->m_iY)%2);
++		iWorstCost += (node->m_iX + node->m_iY+1)%3;
++	}
+ 	// unfortunately, this simple method may have problems at the world-wrap boundries.
+ 	// It's difficult to tell when to correct for wrap effects and when not to, because as soon as the
+-	// unit start moving, the start position of the path changes, and so it's no longer posible to tell
++	// unit starts moving, the start position of the path changes, and so it's no longer posible to tell
+ 	// whether or not the unit started on the other side of the boundry.  Drat.
+ 
+ 	// end symmetry breaking.
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index b55c2ae3b..9f71d6a71 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -15037,7 +15037,7 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 				bSomethingHappened = true;
+ 				bShowExplosion = true;
+ 				// K-Mod
+-				if (!isHuman() || pCity->isProductionAutomated())
++				if (!isHuman()) // not for automated cities
+ 					pCity->AI_setChooseProductionDirty(true);
+ 				// K-Mod end
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=7345

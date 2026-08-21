@@ -14,6 +14,7 @@
 #include "CvArea.h"
 #include "CvInfo_GameOption.h"
 #include "CvInfo_Building.h" // Just for vote-related info
+#include "BBAILog.h" // <!-- custom: Log the exact reason when the AdvCiv-SAS faraway-war hard reject removes a proposed target. (GPT-5.6-Sol) -->
 
 using std::vector;
 using std::pair;
@@ -195,8 +196,7 @@ void WarUtilityAspect::log(char const* fmt, ...) const
 }
 #endif
 
-scaled WarUtilityAspect::normalizeUtility(scaled rUtilityTeamOnTeam,
-	TeamTypes eOther) const
+scaled WarUtilityAspect::normalizeUtility(scaled rUtilityTeamOnTeam, TeamTypes eOther) const
 {
 	if (eOther == NO_TEAM)
 		eOther = eTheirTeam;
@@ -205,8 +205,7 @@ scaled WarUtilityAspect::normalizeUtility(scaled rUtilityTeamOnTeam,
 }
 
 
-scaled WarUtilityAspect::netLostRivalAssetScore(PlayerTypes eTo,
-	scaled* prTotalScore, TeamTypes eIgnoreGains) const
+scaled WarUtilityAspect::netLostRivalAssetScore(PlayerTypes eTo, scaled* prTotalScore, TeamTypes eIgnoreGains) const
 {
 	PROFILE_FUNC();
 	scaled rNetLoss;
@@ -380,8 +379,7 @@ scaled WarUtilityAspect::lossesFromNukes(PlayerTypes eVictim, PlayerTypes eSourc
 }
 
 // advc.035:
-scaled WarUtilityAspect::lossesFromFlippedTiles(PlayerTypes eVictim,
-	PlayerTypes eTo) const
+scaled WarUtilityAspect::lossesFromFlippedTiles(PlayerTypes eVictim, PlayerTypes eTo) const
 {
 	if (!GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS))
 		return 0;
@@ -1630,9 +1628,7 @@ scaled MilitaryVictory::progressRatingDiplomacy() const
 }
 
 
-void MilitaryVictory::addConquestsByPartner(
-	std::map<PlotNumTypes,scaled>& kWeightedConquests,
-	AttitudeTypes eAttitudeThresh, scaled rWeight) const
+void MilitaryVictory::addConquestsByPartner(std::map<PlotNumTypes, scaled>& kWeightedConquests, AttitudeTypes eAttitudeThresh, scaled rWeight) const
 {
 	if (kTheirTeam.isHuman()) // Human won't vote for us unless a vassal
 	{
@@ -1972,8 +1968,7 @@ void HiredHand::evaluate()
 }
 
 
-scaled HiredHand::eval(PlayerTypes eAlly, int iOriginalUtility,
-	int iObligationThresh) const
+scaled HiredHand::eval(PlayerTypes eAlly, int iOriginalUtility, int iObligationThresh) const
 {
 	// (These conditions overlap with those under Fidelity)
 	if (eAlly != NO_PLAYER && (kOurTeam.isAtWar(TEAMID(eAlly)) ||
@@ -2374,8 +2369,7 @@ void KingMaking::addWinning(std::set<PlayerTypes>& kWinning, bool bPredict) cons
 }
 
 
-bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage,
-	bool bPredict) const
+bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage, bool bPredict) const
 {
 	FAssert(iStage == 3 || iStage == 4);
 	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
@@ -2479,8 +2473,7 @@ bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iSta
 }
 
 
-void KingMaking::addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin,
-	bool bPredict) const
+void KingMaking::addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin, bool bPredict) const
 {
 	CvCity const* pOurCapital = kWe.getCapital();
 	scaled rBestScore = 1;
@@ -2899,6 +2892,63 @@ void Effort::evaluate() {}
 
 int Risk::preEvaluate()
 {
+	// <!-- custom: also handle risk of going to war too far away and leaving our cities defenseless and dying pathetically if i may say or stupidly shortly after, as is very problematic as of now in base advciv and advciv-sas as of now, see known issue as of now 61 for details, also code is provided thanks to chatgpt 5, check if accurate; result of this code change: we seem to live a bit longer but still attack the wrong target when a closer and weaker one was in reach, but since it seems harmless and we seem to live longer due to not attacking first target if not due to autoplay fluctuation, kept as such. -->
+	// if you want a fixed, super-simple “turns-to-contact" cap like 8–10 for land (and e.g. 12 for sea), just replace those calls with constants (or XML defines). the cached city distance we use (UWAICache::City::getDistance()) is the team pathfinder’s notion of turns, and it already factors roads/terrain/domain speed. so roads naturally make the path “shorter" in turns; you don’t need extra code for roads.
+	// --- SIMPLE HARD REJECT / RPE FILTER ---
+
+	// <!-- custom: we get very very good results with 2, now spain ai (our ai in autoplay) doesn't get baited by faraway ais and finishes off weak nearby one, as a result we don't get targeted by cyrus ai and keep our lead, now trying to extend the range a bit to see if still safe -->
+	// <!-- custom: result: seemingly even better, see known issue as of now 61 for details, not increased further to not risk falling back to old pitfalls, while keeping variety enough in war outcomes with larger window -->
+	static int const iMaxLandTurns = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS_UNSCALED_GAMESPEED"));
+	static int const iMaxSeaTurns = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS_UNSCALED_GAMESPEED"));
+	static int const iExistingPlanTolerance = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_EXISTING_PLAN_CONTACT_TOLERANCE_TURNS_UNSCALED_GAMESPEED"));
+
+	// <!-- custom: The older AdvCiv-SAS hard reject is only a pre-war target guard. Letting it fire in the recursive peace scenario made mediocre wars look artificially excellent (KI#183).
+	// Letting it fire during an ongoing war instead injected -100000 into peace reviews and forced stronger conquerors to stop after reaching a more distant remaining city. Evaluate distance and transport capacity only before war begins, which also avoids the cache scan in both excluded scenarios. (GPT-5.6-Sol) -->
+	const TeamTypes eTarget = m_kParams.getTarget();
+	if (!militAnalyst().isPeaceScenario() && !kOurTeam.isAtWar(eTarget))
+	{
+		bool const bNaval = m_kParams.isNaval();
+		int iMinLandContact = INT_MAX;
+		int iMinAnyContact = INT_MAX;
+		for (int i = 0; i < ourCache().numCities(); ++i)
+		{
+			UWAICache::City& kCity = ourCache().cityAt(i);
+			if (kCity.city().getTeam() != eTarget) continue; // Target-specific
+			if (!kCity.canReach()) continue;
+			iMinAnyContact = std::min(iMinAnyContact, kCity.getDistance()); // Approximate turns including roads
+			if (kCity.canReachByLand()) iMinLandContact = std::min(iMinLandContact, kCity.getDistance());
+		}
+		// <!-- custom: Save-file 450 logging showed the same land-reachable target passing this guard as a naval plan during selection, then receiving about -100000 utility under the land limit during its next review. Holy Rome consequently started 12 preparations and canceled 11 while up to 110 of 142 military units waited in one staging city.
+		// When any target city is reachable by land, apply the land distance consistently even if UWAI temporarily prefers a naval scenario. Use the wider sea limit and transport requirement only when reaching the target actually requires naval transport; this prevents a single transport or evaluator-mode change from repeatedly creating and destroying the same plan. (GPT-5.6-Sol) -->
+		bool const bDistanceGateNaval = (bNaval && iMinLandContact == INT_MAX);
+		int const iMinContact = (iMinLandContact != INT_MAX ? iMinLandContact : (bDistanceGateNaval ? iMinAnyContact : INT_MAX));
+		int const iCanTrainCargo = (bDistanceGateNaval ? ourCache().canTrainAnyCargo() : -1);
+		bool const bNoLift = (bDistanceGateNaval && iCanTrainCargo == 0);
+		bool const bExistingPlan = (kOurTeam.AI_getWarPlan(eTarget) != NO_WARPLAN);
+		int const iContactTolerance = (bExistingPlan ? iExistingPlanTolerance : 0);
+		int const iMaxTurns = (bDistanceGateNaval ? iMaxSeaTurns : iMaxLandTurns) + iContactTolerance;
+		bool const bOrdinaryHardReject = (iMinContact == INT_MAX || iMinContact > iMaxTurns || bNoLift);
+		// <!-- custom: Save-file 449 showed the ordinary 3-turn land-contact gate assigning about -100000 utility to Celts and Aztecs even though the victory-denial policy approved them as nearby, stronger emergency responders to India's launched spaceship. If the exact shared urgency, power, distance and land-access policy approves the target using this evaluator's cached path turns, bypass only the ordinary distance veto; unreachable targets and naval plans without transport remain rejected.
+		// Applying the wider distance at stage 3 caused four independent declarations at only 8/16 spaceship parts. Preserve close stage-3 direct wars, but require stage 4/countdown urgency for this new bypass unless the separate XML switch explicitly enables it. (GPT-5.6-Sol) -->
+		bool const bVictoryDenialContactCandidate = (bOrdinaryHardReject && iMinContact != INT_MAX && !bNoLift);
+		int const iTargetMaxVictoryStage = (bVictoryDenialContactCandidate ? getSASTeamMaxVictoryStage(eTarget) : -1);
+		int const iTargetVictoryCountdown = (bVictoryDenialContactCandidate ? GET_TEAM(eTarget).AI_getLowestVictoryCountdown() : -1);
+		static const bool bStage3SpaceContactBypassEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_CONTACT_BYPASS_ENABLE");
+		bool const bWiderVictoryDenialContactAllowed = (bStage3SpaceContactBypassEnable || iTargetMaxVictoryStage >= 4 || iTargetVictoryCountdown >= 0);
+		bool const bVictoryDenialContactBypass = (bVictoryDenialContactCandidate && bWiderVictoryDenialContactAllowed && kOurTeam.uwai().isSASVictoryDenialDirectWarAllowed(eTarget, iTargetMaxVictoryStage, bNaval, iMinContact));
+		// <!-- custom: In a confirming save-file 450 run, Holy Rome chose a profitable target at 3 cached path turns, but an Arabian road was pillaged two turns later and raised contact to 4; the hard reject then canceled the direct plan. Preserve the strict limit for new targets, but give an already-started plan a small XML-tunable tolerance so a single route or border fluctuation does not waste its mobilization. (GPT-5.6-Sol) -->
+		if (bOrdinaryHardReject && !bVictoryDenialContactBypass)
+		{
+			if (gWarLogLevel >= 3 || (gOverseasTransportLogLevel >= 3 && bDistanceGateNaval) || (gOverseasTransportLogLevel >= 2 && bNoLift)) logBBAI("WAR_TARGET_HARD_REJECT turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d distanceGateNaval=%d existingPlan=%d contactToleranceTurns=%d preparationTurns=%d nearestContactTurns=%d nearestLandContactTurns=%d nearestAnyContactTurns=%d maxContactTurns=%d canTrainCargo=%d unreachable=%d tooFar=%d noLift=%d",
+					GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, bDistanceGateNaval, bExistingPlan, iContactTolerance, m_kParams.getPreparationTime(), (iMinContact == INT_MAX ? -1 : iMinContact), (iMinLandContact == INT_MAX ? -1 : iMinLandContact), (iMinAnyContact == INT_MAX ? -1 : iMinAnyContact), iMaxTurns, iCanTrainCargo, (iMinContact == INT_MAX), (iMinContact != INT_MAX && iMinContact > iMaxTurns), bNoLift);
+			return -100000; // kill this (agent,target) war plan
+		}
+		if (bVictoryDenialContactBypass && gWarLogLevel >= 1) logBBAI("WAR_TARGET_VICTORY_DENIAL_CONTACT_BYPASS turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d existingPlan=%d nearestContactTurns=%d ordinaryMaxContactTurns=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d targetPowerPercent=%d",
+				GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, bExistingPlan, iMinContact, iMaxTurns, iTargetMaxVictoryStage, iTargetVictoryCountdown, 100 * GET_TEAM(eTarget).getDefensivePower(eOurTeam) / std::max(1, kOurTeam.getPower(true)));
+	}
+
+	// --- END RPE FILTER ---
+
 	// Handle potential losses of our vassals here
 	scaled rUtility; // (Positive value, gets subtracted in the end.)
 	for (PlayerIter<ALIVE,VASSAL_OF> itVassal(eOurTeam); itVassal.hasNext(); ++itVassal)
@@ -3545,8 +3595,7 @@ void Distraction::evaluate()
 	FAssert(!m_kParams.isIgnoreDistraction());
 	int const iWarDuration = kOurTeam.AI_getAtWarCounter(eTheirTeam);
 	// Utility ignoring Distraction cost
-	scaled const rWarUtilityVsThem = normalizeUtility(
-			ourCache().warUtilityIgnoringDistraction(eTheirTeam));
+	scaled const rWarUtilityVsThem = normalizeUtility(ourCache().warUtilityIgnoringDistraction(eTheirTeam));
 	scaled rDistractionCost;
 	int iAltWars = 0;
 	scaled rTotalOpportunityCost;
@@ -3593,8 +3642,7 @@ void Distraction::evaluate()
 				(sponsored or diplo vote) to declare war on eThey. (Not possible:
 				preparations against eAltTarget and eThey at the same time.) */
 				rDistractionCost += rWarUtilityVsAlt;
-				log("%d extra cost for distraction from war in preparation",
-						rWarUtilityVsAlt.uround());
+				log("%d extra cost for distraction from war in preparation", rWarUtilityVsAlt.uround());
 			}
 			// NB: Imminent war against eAltTarget is covered by UWAI::Team::considerPeace
 		}
@@ -3641,6 +3689,26 @@ void Distraction::evaluate()
 			log("Adjusted cost for all (%d) potential wars: %d", iAltWars,
 					rOverallOpportunityCost.uround());
 			rDistractionCost += rOverallOpportunityCost;
+		}
+	}
+	// <!-- custom: Base AdvCiv UWAI could abandon a decisively successful war because alternative-war opportunities outweighed the current war.
+	// In save file 452, Mali still had 7 cities vs Maya's 3, 891 vs 397 power and an 83-point war-success lead, while the current war remained profitable before Distraction; nevertheless, a new India preparation raised Distraction from -18 to -96 and caused immediate peace.
+	// The first prototype capped only the preparation-specific portion, reducing Distraction to -75, but Mali still accepted peace on the next turn. A 50-percent cap on the whole cost kept Mali at war long enough to capture another city, but its turn-161 review remained negative and only skipped peace by chance. When the current enemy is clearly weaker and losing, apply the stricter tunable cap relative to the cached positive value of the current war; effort, risk, war weariness and emergency multi-war peace remain unchanged. (GPT-5.6-Sol) -->
+	if (rDistractionCost > 0 && rWarUtilityVsThem > 0 && kOurTeam.getNumCities() > kTheirTeam.getNumCities())
+	{
+		static int const iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_DISTRACTION_WINNING_WAR_MAX_TARGET_POWER_PERCENT");
+		static int const iMaxCostPercent = GC.getDefineINT("SAS_UWAI_DISTRACTION_WINNING_WAR_MAX_COST_PERCENT");
+		int const iTargetPowerPercent = 100 * kTheirTeam.getPower(true) / std::max(1, kOurTeam.getPower(true));
+		scaled const rWarSuccessLead = kOurTeam.AI_getWarSuccess(eTheirTeam) - kTheirTeam.AI_getWarSuccess(eOurTeam);
+		if (iTargetPowerPercent <= iMaxTargetPowerPercent && rWarSuccessLead >= GC.getWAR_SUCCESS_CITY_CAPTURING())
+		{
+			scaled const rOldDistractionCost = rDistractionCost;
+			rDistractionCost.decreaseTo(rWarUtilityVsThem * per100(iMaxCostPercent));
+			if (rDistractionCost < rOldDistractionCost)
+			{
+				log("Distraction reduced from %d to %d: current war utility %d, target power %d percent, war-success lead %d",
+						rOldDistractionCost.round(), rDistractionCost.round(), rWarUtilityVsThem.round(), iTargetPowerPercent, rWarSuccessLead.round());
+			}
 		}
 	}
 	/*	If we expect to knock them out, the current war may be over before the

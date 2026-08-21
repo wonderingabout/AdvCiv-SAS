@@ -1,0 +1,105 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 712
+# Commit: 94632d7ecbef89bf94fb98f3141c117ba1cd6cf3
+# History segment: K-Mod history
+# Parent used for diff: 66faa5a8e40a550f165cba9df955ddb27e848c12
+# Title: Restored the functionality of 'select all' commands which do not use the alt key. (These commands were unintentially disabled when I changed the functionalit...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+6	2	CvGameCoreDLL/CvGame.cpp
+6	3	CvGameCoreDLL/CvGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index efdf11320..bafee3706 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1080,7 +1080,8 @@ void CvDLLWidgetData::doPlotList(CvWidgetDataStruct &widgetDataStruct)
+ 		{
+ 			bWasCityScreenUp = gDLL->getInterfaceIFace()->isCityScreenUp();
+ 
+-			gDLL->getInterfaceIFace()->selectGroup(pUnit, GC.shiftKey(), GC.ctrlKey(), GC.altKey());
++			//gDLL->getInterfaceIFace()->selectGroup(pUnit, gDLL->shiftKey(), gDLL->ctrlKey(), gDLL->altKey());
++			gDLL->getInterfaceIFace()->selectGroup(pUnit, GC.shiftKey(), GC.ctrlKey() || GC.altKey(), GC.altKey()); // K-Mod
+ 
+ 			if (bWasCityScreenUp)
+ 			{
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 93ccdf0ca..11c131f5f 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2457,12 +2457,15 @@ void CvGame::selectUnit(CvUnit* pUnit, bool bClear, bool bToggle, bool bSound) c
+ }
+ 
+ 
++// K-Mod. I've made an ugly hack to change the functionality of double-click from select-all to wake-all. Here's how it works:
++// if this function is called with only bAlt == true, but without the alt key actually down, then wake-all is triggered rather than select-all.
++// To achieve the select-all functionality without the alt key, call the function with bCtrl && bAlt.
+ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt) const
+ {
+ 	PROFILE_FUNC();
+ 
+ 	FAssertMsg(pUnit != NULL, "pUnit == NULL unexpectedly");
+-	// K-Mod. A hack to change the functionality of double-click from select all to wake all. 
++	// K-Mod. the hack (see above)
+ 	if (bAlt && !bShift && !bCtrl && !GC.altKey() && !gDLL->altKey()) // (using gDLL->altKey, to better match the state of bAlt)
+ 	{
+ 		// the caller says alt is pressed, but the computer says otherwise. Lets assume this is a double-click.
+@@ -2553,7 +2556,8 @@ void CvGame::selectAll(CvPlot* pPlot) const
+ 
+ 	if (pSelectUnit != NULL)
+ 	{
+-		gDLL->getInterfaceIFace()->selectGroup(pSelectUnit, false, false, true);
++		//gDLL->getInterfaceIFace()->selectGroup(pSelectUnit, false, false, true);
++		gDLL->getInterfaceIFace()->selectGroup(pSelectUnit, false, true, true); // K-Mod
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 0597dcbba..1b80f7f4a 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -988,7 +988,8 @@ void CvGame::selectionListMove(CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl
+ 
+ 	if (bAlt)
+ 	{
+-		gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit, false, false, true);
++		//gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit, false, false, true);
++		gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit, false, true, true); // K-Mod
+ 	}
+ 	else if (bCtrl)
+ 	{
+@@ -1326,7 +1327,8 @@ void CvGame::handleAction(int iAction)
+ 		{
+ 			if (GC.getInterfaceModeInfo((InterfaceModeTypes)GC.getActionInfo(iAction).getInterfaceModeType()).getSelectAll())
+ 			{
+-				gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit, false, false, true);
++				//gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit, false, false, true);
++				gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit, false, true, true); // K-Mod
+ 			}
+ 			else if (GC.getInterfaceModeInfo((InterfaceModeTypes)GC.getActionInfo(iAction).getInterfaceModeType()).getSelectType())
+ 			{
+@@ -1572,7 +1574,8 @@ void CvGame::doControl(ControlTypes eControl)
+ 		pHeadSelectedUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
+ 		if (pHeadSelectedUnit != NULL)
+ 		{
+-			gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit, false, false, true);
++			//gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit, false, false, true);
++			gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit, false, true, true); // K-Mod
+ 		}
+ 		break;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3872

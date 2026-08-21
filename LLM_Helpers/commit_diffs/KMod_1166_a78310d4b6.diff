@@ -1,0 +1,69 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1166
+# Commit: a78310d4b69654e8e54a042b43608afab047b318
+# History segment: K-Mod history
+# Parent used for diff: 01a1931ddca660503546b7d9098ca9639aa66525
+# Title: Added debug information for commerce weights in cities.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	8	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 263bd390f..1671167db 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5195,6 +5195,11 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					for (YieldTypes i = (YieldTypes)0; i < NUM_YIELD_TYPES; i = (YieldTypes)(i+1))
+ 						szString.append(CvWString::format(L"%s%d%c", i == 0 ? L"" : L", ", pCityAI->AI_specialYieldMultiplier(i), GC.getYieldInfo(i).getChar()));
+ 					szString.append(L")");
++
++					szString.append(CvWString::format(L"\nCity weights: ("));
++					for (CommerceTypes i = (CommerceTypes)0; i < NUM_COMMERCE_TYPES; i=(CommerceTypes)(i+1))
++						szString.append(CvWString::format(L"%s%d%c", i == 0 ? L"" : L", ", GET_PLAYER(pCity->getOwnerINLINE()).AI_commerceWeight(i, pCity), GC.getCommerceInfo(i).getChar()));
++					szString.append(L")");
+ 					// K-Mod end
+ 
+ 					szString.append(CvWString::format(L"\nExchange"));
+@@ -5205,11 +5210,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 						szString.append(szTempBuffer);
+ 					}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      07/08/09                                jdog5000      */
+-/*                                                                                              */
+-/* DEBUG                                                                                        */
+-/************************************************************************************************/
++					// BBAI
+ 					szString.append(CvWString::format(L"\nAvg mults"));
+ 					for (int iI = 0; iI < NUM_COMMERCE_TYPES; ++iI)
+ 					{
+@@ -5217,13 +5218,12 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 						szTempBuffer.Format(L", %d%c", iCommerce, GC.getCommerceInfo((CommerceTypes) iI).getChar());
+ 						szString.append(szTempBuffer);
+ 					}
++					// BBAI end
+ 					// K-Mod
+ 					szString.append(CvWString::format(L"\nAvg %c pressure: %d",
+ 						GC.getCommerceInfo(COMMERCE_CULTURE).getChar(),
+ 						GET_PLAYER(pCity->getOwnerINLINE()).AI_averageCulturePressure()));
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++					// K-Mod end
+ 
+ 					if (GET_PLAYER(pCity->getOwnerINLINE()).AI_isFinancialTrouble())
+ 					{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2637

@@ -1,0 +1,2432 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1430
+# Commit: efd11afbebbb7f23e10de6189ef0ac9ff1fead3f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 729352db6c7f5eec3eeb7ee0dcf4c946d762832e
+# Title: Save replays in the BtS format, bugfixes for R&F option
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	1	Assets/Python/Screens/CvDomesticAdvisor.py
+46	19	Assets/Python/Screens/CvHallOfFameScreen.py
+7	8	Assets/xml/GameInfo/CIV4Hints.xml
+31	0	Assets/xml/GlobalDefines_advc.xml
+30	9	Assets/xml/Text/CIV4GameText_advc.008d.xml
+35	0	Assets/xml/Text/CIV4GameText_advc.xml
+0	21	Assets/xml/Text/K-Mod hints.xml
+1	1	Assets/xml/Text/Shortcuts_CIV4GameText.xml
+70	71	CvGameCoreDLL/CvDLLButtonPopup.cpp
+5	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+3	1	CvGameCoreDLL/CvEnums.h
+55	40	CvGameCoreDLL/CvGame.cpp
+10	6	CvGameCoreDLL/CvGame.h
+20	13	CvGameCoreDLL/CvGameInterface.cpp
+10	10	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.h
+39	4	CvGameCoreDLL/CvGlobals.cpp
+2	0	CvGameCoreDLL/CvGlobals.h
+30	5	CvGameCoreDLL/CvHallOfFameInfo.cpp
+2	0	CvGameCoreDLL/CvHallOfFameInfo.h
+2	2	CvGameCoreDLL/CvInfos.cpp
+149	41	CvGameCoreDLL/CvReplayInfo.cpp
+18	3	CvGameCoreDLL/CvReplayInfo.h
+99	99	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+1	0	CvGameCoreDLL/CyEnumsInterface.cpp
+59	13	CvGameCoreDLL/RiseFall.cpp
+2	0	CvGameCoreDLL/RiseFall.h
+-	-	manual_0.94f.odt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index 25fa6b164..f5311a265 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -268,7 +268,10 @@ class CvDomesticAdvisor:
+ 		screen.setTableInt( "CityListBackground", 11, i, unicode(pLoopCity.getTradeYield(YieldTypes.YIELD_COMMERCE)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Maintenance...
+-		screen.setTableInt( "CityListBackground", 12, i, unicode(pLoopCity.getMaintenance()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		#iMaintenance = pLoopCity.getMaintenance()
++		# advc.004: Based on K-Mod code in CvMainInterface.py
++		iMaintenance = pLoopCity.getMaintenanceTimes100() * (100+gc.getPlayer(pLoopCity.getOwner()).calculateInflationRate()) // 10000
++		screen.setTableInt( "CityListBackground", 12, i, unicode(iMaintenance), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Great Person
+ 		iGreatPersonRate = pLoopCity.getGreatPeopleRate()
+
+diff --git a/Assets/Python/Screens/CvHallOfFameScreen.py b/Assets/Python/Screens/CvHallOfFameScreen.py
+index 7dcb9bc6e..c5792bce7 100644
+--- a/Assets/Python/Screens/CvHallOfFameScreen.py
++++ b/Assets/Python/Screens/CvHallOfFameScreen.py
+@@ -49,7 +49,7 @@ class CvHallOfFameScreen:
+ 		self.REPLAY_BUTTON_ID = "HallOfFameReplayButton"
+ 
+ 		self.X_SCREEN = 500
+-		self.Y_SCREEN = 396
++		#self.Y_SCREEN = 396 advc.003: unused
+ 		self.W_SCREEN = 1024
+ 		self.H_SCREEN = 768
+ 		self.Y_TITLE = 12
+@@ -280,9 +280,13 @@ class CvHallOfFameScreen:
+ 		for i in range(self.hallOfFame.getNumGames()):
+ 			replayInfo = self.hallOfFame.getReplayInfo(i)
+ 			if self.isDisplayed(replayInfo):
++				szUnknown = localText.getText("TXT_KEY_UNKNOWN", ()) # advc.106i
+ 				szVictory = u""
+ 				if replayInfo.getVictoryType() <= 0:
+ 					szVictory = localText.getText("TXT_KEY_NONE", ())
++				# <advc.106i>
++				elif replayInfo.getVictoryType() >= gc.getNumVictoryInfos():
++					szVictory = szUnknown # </advc.106i>
+ 				else:
+ 					szVictory = gc.getVictoryInfo(replayInfo.getVictoryType()).getDescription()
+ # BUG - Win/Loss Info - start
+@@ -300,27 +304,46 @@ class CvHallOfFameScreen:
+ 					iValue = replayInfo.getFinalTurn()
+ 				elif self.iSortBy == SORT_BY_GAME_SCORE:
+ 					iValue = -replayInfo.getFinalScore()
+-				# <advc.250a> Legacy support for King difficulty
+-				handicapDescr = "(invalid)"
+-				diffic = replayInfo.getDifficulty()
+-				if diffic >= 0 and diffic < gc.getNumHandicapInfos():
+-					handicapDescr = gc.getHandicapInfo(diffic).getDescription()
+-				# The 10th handicap (ids start at 0) used to be King
+-				elif diffic == 9:
+-					handicapDescr = "King"
+-				# </advc.250a>
++				# <advc.106i>  (also legacy support for advc.250a)
++				szHandicap = ""
++				iHandicap = replayInfo.getDifficulty()
++				if iHandicap >= 0 and iHandicap < gc.getNumHandicapInfos():
++					szHandicap = gc.getHandicapInfo(iHandicap).getDescription()
++				else:
++					szHandicap = szUnknown
++				szWorldSize = ""
++				iWorldSize = replayInfo.getWorldSize()
++				if iWorldSize >= 0 and iWorldSize < gc.getNumWorldInfos():
++					szWorldSize = gc.getWorldInfo(iWorldSize).getDescription()
++				else:
++					szWorldSize = szUnknown
++				szStartEra = ""
++				iStartEra = replayInfo.getEra()
++				if iStartEra >= 0 and iStartEra < gc.getNumEraInfos():
++					szStartEra = gc.getEraInfo(iStartEra).getDescription()
++				else:
++					szStartEra = szUnknown
++				szSpeed = ""
++				iSpeed = replayInfo.getGameSpeed()
++				if iSpeed >= 0 and iSpeed < gc.getNumGameSpeedInfos():
++					szSpeed = gc.getGameSpeedInfo(iSpeed).getDescription()
++				else:
++					szSpeed = szUnknown
++				# </advc.106i>
+ 				self.infoList[iItem] = (iValue,
+ 						localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (replayInfo.getLeaderName(), replayInfo.getShortCivDescription())),
+ 						replayInfo.getNormalizedScore(),
+ 						replayInfo.getFinalDate(),
+ 						replayInfo.getFinalScore(), 
+ 						szVictory,
+-						handicapDescr, # advc.250a
+-						gc.getWorldInfo(replayInfo.getWorldSize()).getDescription(),
+-#						gc.getClimateInfo(replayInfo.getClimate()).getDescription(),
+-#						gc.getSeaLevelInfo(replayInfo.getSeaLevel()).getDescription(),
+-						gc.getEraInfo(replayInfo.getEra()).getDescription(),
+-						gc.getGameSpeedInfo(replayInfo.getGameSpeed()).getDescription(),
++						# <advc.106i>
++						szHandicap,
++						szWorldSize,
++# Note: These two have been disabled since Vanilla Civ 4. AdvCiv no longer stores the sea level.
++# gc.getClimateInfo(replayInfo.getClimate()).getDescription(),
++# gc.getSeaLevelInfo(replayInfo.getSeaLevel()).getDescription(),
++						szStartEra,
++						szSpeed, # </advc.106i>
+ 						i)
+ 				iItem += 1
+ 		self.infoList.sort()
+@@ -328,8 +351,12 @@ class CvHallOfFameScreen:
+ 		for i in range(len(self.infoList)):
+ 		
+ 			szButtonName = self.REPLAY_BUTTON_ID + str(i)
+-			screen.setButtonGFC(szButtonName, self.infoList[i][1], "",
+-				0, 0, 10, 10, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++			# <advc.106i>
++			data1 = 0
++			if i > 22:
++				data1 = 1
++			# </advc.106i>
++			screen.setButtonGFC(szButtonName, self.infoList[i][1], "", 0, 0, 10, 10, WidgetTypes.WIDGET_SHOW_REPLAY, data1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+ 		
+ 			screen.appendTableRow(self.TABLE_ID)
+ 			screen.setTableText(self.TABLE_ID, 1, i, self.infoList[i][1], "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -359,7 +386,7 @@ class CvHallOfFameScreen:
+ 		count = 0
+ 		while msgNum >= 0:
+ 			msg = replay.getReplayMessageText(msgNum)
+-			if count > 100:
++			if count > 25: # advc.003b: was 100
+ 				BugUtil.debug("no victory message in first 100; skipping")
+ 				break
+ 			matches = reWinText.match(msg)
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index 87fe6befc..ddacb38ee 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -475,14 +475,10 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_KMOD_HINT_15</Description>
+ 		</HintInfo> <!-- right-click on +/- -->
+-		<!-- advc.008c: Alt+Wake -->
++		<!-- k146: Alt+Wake -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_KMOD_HINT_16</Description>
+ 		</HintInfo>
+-		<!-- advc.008c: Vassal war preparations -->
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_17</Description>
+-		</HintInfo>
+ 		
+ 		<!-- advc.008d: Copied K-Mod hints to increase their probability: -->
+ 		<HintInfo>
+@@ -533,9 +529,6 @@
+ 			<Description>TXT_KEY_KMOD_HINT_15</Description>
+ 		</HintInfo>
+ 		<!-- Skip 16 b/c it's rarely useful -->
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_17</Description>
+-		</HintInfo>
+ 		<!-- These have been replaced or updated; should receive higher
+ 			 probability too. -->
+ 		<HintInfo>
+@@ -666,6 +659,9 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_35</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_36</Description>
++		</HintInfo>
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_1</Description>
+ 		</HintInfo>
+@@ -766,5 +762,8 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_35</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_36</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 6f8a88263..fc1923385 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -374,6 +374,37 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	
++	<!-- advc.106i: If set to 1, replay files are written in such a way that
++		 they appear like unmodded replays to BtS, meaning that AdvCiv replays
++		 will show up on the Hall of Fame screen even when no mod is loaded.
++		 If any player colors are added to CIV4ColorVals.xml beyond those in
++		 BtS, then this option is automatically disabled (as if set to 0)
++		 because BtS is unable to show replays that use unfamiliar color
++		 values. (AdvCiv does not add such colors, but derived mods might.) -->
++	<Define>
++		<DefineName>HOF_STORE_REPLAYS_AS_BTS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- advc.106i: If set to 1, replays from unmodded BtS can be viewed
++		 through AdvCiv's Hall of Fame screen. If set to 0, unmodded replays
++		 are filtered out. -->
++	<Define>
++		<DefineName>HOF_DISPLAY_BTS_REPLAYS</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- advc.106i: If set to 1, replays from other mods appear on AdvCiv's
++		 Hall of Fame screen if they use the regular format for replays (I
++		 think almost all mods do), though error handling code may discard
++		 replays with highly unusual data (not sure if e.g. Caveman2Cosmos
++		 replays would pass). If color ids appear in the replay that exceed
++		 the number of colors in AdvCiv, those colors are replaced (by
++		 applying the modulo operator to the color id).
++		 If set to 0, replays from other mods are filtered out. -->
++	<Define>
++		<DefineName>HOF_DISPLAY_OTHER_MOD_REPLAYS</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	
+ 	<!-- [advc.099]
+ 		 The default value for culture-based anger assumes Open Borders in
+ 		 AdvCiv. With closed borders, the anger is CLOSED_BORDERS_CULTURE_
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index bea48bf46..495ed9d9e 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -337,21 +337,21 @@
+ <!-- advc.124 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_17</Tag>
+-	<English>(AdvCiv) If a civilization refuses to sign [COLOR_HIGHLIGHT_TEXT]Open Borders[COLOR_REVERT] with you on grounds of having "nothing to gain", have patience. Once their scouts reach your lands, they'll want to explore inside your borders. Civs that like you enough sign Open Borders even if they haven't located your territory yet.</English>
+-	<French>(AdvCiv) If a civilization refuses to sign [COLOR_HIGHLIGHT_TEXT]Open Borders[COLOR_REVERT] with you on grounds of having "nothing to gain", have patience. Once their scouts reach your lands, they'll want to explore inside your borders. Civs that like you enough sign Open Borders even if they haven't located your territory yet.</French>
++	<English>(AdvCiv) If a civilization refuses to sign [COLOR_HIGHLIGHT_TEXT]Open Borders[COLOR_REVERT] with you on grounds of having "nothing to gain," have patience. Once their scouts reach your lands, they'll want to explore inside your borders. Civs that like you enough sign Open Borders even if they haven't located your territory yet.</English>
++	<French>(AdvCiv) If a civilization refuses to sign [COLOR_HIGHLIGHT_TEXT]Open Borders[COLOR_REVERT] with you on grounds of having "nothing to gain," have patience. Once their scouts reach your lands, they'll want to explore inside your borders. Civs that like you enough sign Open Borders even if they haven't located your territory yet.</French>
+ 	<German>(AdvCiv) Geduld, wenn eine Zivilisation sagt, dass sie von [COLOR_HIGHLIGHT_TEXT]Offenen Grenzen[COLOR_REVERT] "nichts h�tte". Sobald die gegnerischen Kundschafter Ihr Gebiet erreichen, werden sie Ihre Grenzen betreten wollen. Wer Sie genug mag, vereinbart Offene Grenzen aber auch ohne Ihre Grenzen erreicht zu haben.</German>
+-	<Italian>(AdvCiv) If a civilization refuses to sign [COLOR_HIGHLIGHT_TEXT]Open Borders[COLOR_REVERT] with you on grounds of having "nothing to gain", have patience. Once their scouts reach your lands, they'll want to explore inside your borders. Civs that like you enough sign Open Borders even if they haven't located your territory yet.</Italian>
+-	<Spanish>(AdvCiv) If a civilization refuses to sign [COLOR_HIGHLIGHT_TEXT]Open Borders[COLOR_REVERT] with you on grounds of having "nothing to gain", have patience. Once their scouts reach your lands, they'll want to explore inside your borders. Civs that like you enough sign Open Borders even if they haven't located your territory yet.</Spanish>
++	<Italian>(AdvCiv) If a civilization refuses to sign [COLOR_HIGHLIGHT_TEXT]Open Borders[COLOR_REVERT] with you on grounds of having "nothing to gain," have patience. Once their scouts reach your lands, they'll want to explore inside your borders. Civs that like you enough sign Open Borders even if they haven't located your territory yet.</Italian>
++	<Spanish>(AdvCiv) If a civilization refuses to sign [COLOR_HIGHLIGHT_TEXT]Open Borders[COLOR_REVERT] with you on grounds of having "nothing to gain," have patience. Once their scouts reach your lands, they'll want to explore inside your borders. Civs that like you enough sign Open Borders even if they haven't located your territory yet.</Spanish>
+ </TEXT>
+ 
+ <!-- advc.099 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_18</Tag>
+-	<English>(AdvCiv) If conquered cities complain about "being ruled by a foreign culture", it won't help to conquer the remaining cities of the former owner. You'll have to increase your own culture in the conquered cities, or learn to live with the anger.</English>
+-	<French>(AdvCiv) If conquered cities complain about "being ruled by a foreign culture", it won't help to conquer the remaining cities of the former owner. You'll have to increase your own culture in the conquered cities, or learn to live with the anger.</French>
++	<English>(AdvCiv) If conquered cities complain about "being ruled by a foreign culture," it won't help to conquer the remaining cities of the former owner. You'll have to increase your own culture in the conquered cities, or learn to live with the anger.</English>
++	<French>(AdvCiv) If conquered cities complain about "being ruled by a foreign culture," it won't help to conquer the remaining cities of the former owner. You'll have to increase your own culture in the conquered cities, or learn to live with the anger.</French>
+ 	<German>(AdvCiv) Wenn eine eroberte Stadt dar�ber klagt, "von einer fremden Kultur beherrscht" zu werden, hilft es nichts, die verbleibenden St�dte des Vorbesitzers zu erobern. Sie k�nnen nur Ihren Kulturwert in den St�dten erh�hen, oder sich mit der Unzufriedenheit arrangieren.</German>
+-	<Italian>(AdvCiv) If conquered cities complain about "being ruled by a foreign culture", it won't help to conquer the remaining cities of the former owner. You'll have to increase your own culture in the conquered cities, or learn to live with the anger.</Italian>
+-	<Spanish>(AdvCiv) If conquered cities complain about "being ruled by a foreign culture", it won't help to conquer the remaining cities of the former owner. You'll have to increase your own culture in the conquered cities, or learn to live with the anger.</Spanish>
++	<Italian>(AdvCiv) If conquered cities complain about "being ruled by a foreign culture," it won't help to conquer the remaining cities of the former owner. You'll have to increase your own culture in the conquered cities, or learn to live with the anger.</Italian>
++	<Spanish>(AdvCiv) If conquered cities complain about "being ruled by a foreign culture," it won't help to conquer the remaining cities of the former owner. You'll have to increase your own culture in the conquered cities, or learn to live with the anger.</Spanish>
+ </TEXT>
+ 
+ <!-- advc.108 -->
+@@ -502,7 +502,7 @@
+ </TEXT>
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_63</Tag>
+-	<English>If you are vexed by enemy spies, consider placing a Spy unit in each of your border cities.</English>
++	<English>If you are vexed by enemy spies, consider placing a Spy unit in your most vulnerable cities.</English>
+ 	<French>Gardez quelques espions &#224; l'int&#233;rieur de vos fronti&#232;res pour le contre-espionnage. Les espions ennemis peuvent faire des ravages !</French>
+ 	<German>Wenn feindliche Spione Ihnen &#196;rger bereiten, erw&#228;gen Sie, eigene Spione in einigen Ihrer Grenzst&#228;dte zu stationieren.</German>
+ 	<Italian>Tieni alcune spie all'interno dei tuoi confini per effettuare il controspionaggio. Le spie nemiche possono scatenare il caos!</Italian>
+@@ -936,4 +936,25 @@
+ 	<Spanish>When more than one of your cities is able to work a tile, the game assigns that tile to the closest city. You can override this by opening the screen of another city and left-clicking the tile. Right-click the tile to undo the assignment.</Spanish>
+ </TEXT>
+ 
++<!-- advc.008c: Thought it'd be nice to mention the small K-Mod change to
++	 fortified Spies. Overwrites the value in CIV4GameText_BTS.xml -->
++<TEXT>
++	<Tag>TXT_KEY_HINT_51</Tag>
++	<English>Good things come to spies who wait. Leaving a spy on a tile will reduce the costs of all Espionage Missions performed in that tile. If you fortify a Spy in a foreign tile, it will wake up once mission costs are maximally reduced.</English>
++	<French>Un espion patient est toujours r&#233;compens&#233;. Si vous laissez un espion sur une case, cela r&#233;duira le co&#251;t de toutes les missions d'espionnage lanc&#233;es contre les &#233;l&#233;ments dans cette case. Si vous laissez un espion dans une ville &#233;trang&#232;re, vos missions dans cette ville vous co&#251;teront donc bien moins cher.</French>
++	<German>Gut Ding will Weile haben - das gilt auch f&#252;r Spione. Je l&#228;nger sich ein Spion auf einem Gel&#228;ndefeld aufh&#228;lt, desto geringer werden die Kosten f&#252;r Spionagemissionen auf diesem Feld. Wenn Sie einen Spion auf einem gegnerischen Feld verschanzen, meldet er sich, wenn die Missionskosten maximal gesenkt sind.</German>
++	<Italian>La spia migliore &#232; quella che sa aspettare. Lasciando una spia su una casella riduce i costi di tutte le missioni di spionaggio verso quella casella. Perci&#242;, lasciando una spia in una citt&#224; nemica, le missioni verso di questa costeranno meno.</Italian>
++	<Spanish>Los esp&#237;as que saben esperar tienen sus ventajas. Dejar un esp&#237;a en una casilla reducir&#225; los costes de todas las misiones de espionaje realizadas contra los objetos de dicha casilla. Por tanto, dejar un esp&#237;a en una ciudad enemiga abaratar&#225; significativamente el coste de tus misiones en dicha ciudad.</Spanish>
++</TEXT>
++
++<!-- advc.008c: New hint (about a K-Mod feature) -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_36</Tag>
++	<English>(K-Mod) Your vassals will join you in preparing for war if you inform them of your war plans through "Let's discuss something else." You can also tell them to abandon their preparations.</English>
++	<French>(K-Mod) Your vassals will join you in preparing for war if you inform them of your war plans through "Let's discuss something else." You can also tell them to abandon their preparations.</French>
++	<German>(K-Mod) Wenn Sie Ihre Vasallenstaaten �ber einen geplanten Krieg in Kenntnis setzen, werden diese verst�rkt Milit�reinheiten produzieren. Sie finden diese Option unter "Reden wir �ber etwas anderes".</German>
++	<Italian>(K-Mod) Your vassals will join you in preparing for war if you inform them of your war plans through "Let's discuss something else." You can also tell them to abandon their preparations.</Italian>
++	<Spanish>(K-Mod) Your vassals will join you in preparing for war if you inform them of your war plans through "Let's discuss something else." You can also tell them to abandon their preparations.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 534897309..5ced86eb2 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -465,6 +465,25 @@
+ 		<Spanish>[AdvCiv]</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.106i -->
++	<TEXT>
++		<Tag>TXT_KEY_HOF_WARN</Tag>
++		<English>Known issue: If replay buttons at the bottom of the screen don't work, it can help to shorten the list through the menus.</English>
++		<French>Known issue: If replay buttons at the bottom of the screen don't work, it can help to shorten the list through the menus.</French>
++		<German>Bekanntes Problem: Falls die Schaltfl�chen am unteren Ende des Bildschirms nicht funktionieren, kann es helfen, �ber die Men�s einen Filter einzustellen, so dass weniger Eintr�ge angezeigt werden.</German>
++		<Italian>Known issue: If replay buttons at the bottom of the screen don't work, it can help to shorten the list through the menus.</Italian>
++		<Spanish>Known issue: If replay buttons at the bottom of the screen don't work, it can help to shorten the list through the menus.</Spanish>
++	</TEXT>
++	<!-- Based on TXT_KEY_REPLAY_SCREEN_TITLE in CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_HOF_SHOW_REPLAY</Tag>
++		<English>Show Replay</English>
++		<French>Montrer film</French>
++		<German>Wiederholung abspielen</German>
++		<Italian>Mostra replay</Italian>
++		<Spanish>Mostrar repetici�n</Spanish>
++	</TEXT>
++
+ 	<!-- advc.106h -->
+ 	<!-- Based on TXT_KEY_LEADER_CIV_DESCRIPTION in CIV4GameText_Misc1.xml -->
+ 	<TEXT>
+@@ -3433,6 +3452,14 @@
+ 		<Italian>If you retire, your remaining %d1 turns of the chapter are played by the AI.</Italian>
+ 		<Spanish>If you retire, your remaining %d1 turns of the chapter are played by the AI.</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_RF_RETIRE_FOR_GOOD</Tag>
++		<English>Alternatively, you can retire for good, that is, end the game right away and save a replay file for the Hall of Fame screen.</English>
++		<French>Alternatively, you can retire for good, that is, end the game right away and save a replay file for the Hall of Fame screen.</French>
++		<German>Sie k�nnen aber auch endg�ltig abdanken, das Spiel also direkt beenden und einen Eintrag in der Ruhmeshalle anlegen.</German>
++		<Italian>Alternatively, you can retire for good, that is, end the game right away and save a replay file for the Hall of Fame screen.</Italian>
++		<Spanish>Alternatively, you can retire for good, that is, end the game right away and save a replay file for the Hall of Fame screen.</Spanish>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_CONFIRM_RETIRE_INTERLUDE</Tag>
+ 		<English>Plus a %d1-turn intermediate period on Auto Play.</English>
+@@ -3441,6 +3468,14 @@
+ 		<Italian>Plus a %d1-turn intermediate period on Auto Play.</Italian>
+ 		<Spanish>Plus a %d1-turn intermediate period on Auto Play.</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_RF_END_GAME</Tag>
++		<English>End the game</English>
++		<French>End the game</French>
++		<German>Spiel beenden</German>
++		<Italian>End the game</Italian>
++		<Spanish>End the game</Spanish>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_POPUP_RECOMMEND_RETIRE</Tag>
+ 		<English>Recommendation: Unless you can win in this chapter, it may be time to retire (through the game menu). Since you've already reached rank 1, your score is not going to improve much, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</English>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index 35a482fa1..7967713f3 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -185,25 +185,4 @@
+ 	<Spanish>Hold [ALT] when clicking the 'Wake' command in order to wake all your units of the same type around the world.</Spanish>
+ </TEXT>
+ 
+-<!-- advc.008c: Thought it'd be nice to mention the small K-Mod change to
+-	 fortified Spies. Overwrites the value in CIV4GameText_BTS.xml -->
+-<TEXT>
+-	<Tag>TXT_KEY_HINT_51</Tag>
+-	<English>Good things come to spies who wait. Leaving a spy on a tile will reduce the costs of all Espionage Missions performed in that tile. If you fortify a Spy in a foreign tile, it will wake up once mission costs are maximally reduced.</English>
+-	<French>Un espion patient est toujours r&#233;compens&#233;. Si vous laissez un espion sur une case, cela r&#233;duira le co&#251;t de toutes les missions d'espionnage lanc&#233;es contre les &#233;l&#233;ments dans cette case. Si vous laissez un espion dans une ville &#233;trang&#232;re, vos missions dans cette ville vous co&#251;teront donc bien moins cher.</French>
+-	<German>Gut Ding will Weile haben - das gilt auch f&#252;r Spione. Je l&#228;nger sich ein Spion auf einem Gel&#228;ndefeld aufh&#228;lt, desto geringer werden die Kosten f&#252;r Spionagemissionen auf diesem Feld. Wenn Sie einen Spion auf einem gegnerischen Feld verschanzen, meldet er sich, wenn die Missionskosten maximal gesenkt sind.</German>
+-	<Italian>La spia migliore &#232; quella che sa aspettare. Lasciando una spia su una casella riduce i costi di tutte le missioni di spionaggio verso quella casella. Perci&#242;, lasciando una spia in una citt&#224; nemica, le missioni verso di questa costeranno meno.</Italian>
+-	<Spanish>Los esp&#237;as que saben esperar tienen sus ventajas. Dejar un esp&#237;a en una casilla reducir&#225; los costes de todas las misiones de espionaje realizadas contra los objetos de dicha casilla. Por tanto, dejar un esp&#237;a en una ciudad enemiga abaratar&#225; significativamente el coste de tus misiones en dicha ciudad.</Spanish>
+-</TEXT>
+-
+-<!-- advc.008c: New hint (about a K-Mod feature) -->
+-<TEXT>
+-	<Tag>TXT_KEY_KMOD_HINT_17</Tag>
+-	<English>(K-Mod) Your vassals will join you in preparing for war if you inform them of your war plans through "Let's discuss something else." You can also tell them to abandon their preparations.</English>
+-	<French>(K-Mod) Your vassals will join you in preparing for war if you inform them of your war plans through "Let's discuss something else." You can also tell them to abandon their preparations.</French>
+-	<German>(K-Mod) Wenn Sie Ihre Vasallenstaaten �ber einen geplanten Krieg in Kenntnis setzen, werden diese verst�rkt Milit�reinheiten produzieren. Sie finden diese Option unter "Reden wir �ber etwas anderes".</German>
+-	<Italian>(K-Mod) Your vassals will join you in preparing for war if you inform them of your war plans through "Let's discuss something else." You can also tell them to abandon their preparations.</Italian>
+-	<Spanish>(K-Mod) Your vassals will join you in preparing for war if you inform them of your war plans through "Let's discuss something else." You can also tell them to abandon their preparations.</Spanish>
+-</TEXT>
+-
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/Shortcuts_CIV4GameText.xml b/Assets/xml/Text/Shortcuts_CIV4GameText.xml
+index 4692775a7..1671d4edf 100644
+--- a/Assets/xml/Text/Shortcuts_CIV4GameText.xml
++++ b/Assets/xml/Text/Shortcuts_CIV4GameText.xml
+@@ -127,7 +127,7 @@
+ 	<!-- advc.004z: "Scoreboard instead of "Score display" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SHORTCUTS_MOUSE_PEDIA</Tag>
+-		<English>[H1]Mouse Shortcuts[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click on city bar[COLOR_REVERT][\BOLD][TAB][TAB]Select all cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click on scoreboard [COLOR_REVERT][\BOLD][TAB]Declare war or demand tribute from a vassal[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+right-click on tile[COLOR_REVERT][\BOLD][NEWLINE][TAB][TAB]Move the selected unit and all units in the same tile to the clicked tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click on city bar[COLOR_REVERT][\BOLD][TAB][TAB]Select all cities on same continent[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click on scoreboard[COLOR_REVERT][\BOLD][TAB]Open trade window[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+roll mouse wheel[COLOR_REVERT][\BOLD][TAB][TAB]Cycle units in selected tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click city bars[COLOR_REVERT][\BOLD][TAB][TAB]Select multiple cities (to change production)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+right-click city bars[COLOR_REVERT][\BOLD][TAB]Set rally point for multiple cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click on tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Open context menu[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Right Click city bars[COLOR_REVERT][\BOLD][TAB]Set rally point for those cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Hold both mouse buttons[COLOR_REVERT][\BOLD][TAB]Drag map[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Hold right mouse button[COLOR_REVERT][\BOLD][TAB]Display combat odds[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click empty tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Center camera on that tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Fwd/Back mouse buttons[COLOR_REVERT][\BOLD][TAB]Cycle through units in selected tile[NEWLINE]</English>
++		<English>[H1]Mouse Shortcuts[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click on city bar[COLOR_REVERT][\BOLD][TAB][TAB]Select all cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click on scoreboard [COLOR_REVERT][\BOLD][TAB]Declare war or demand tribute from a vassal[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+right-click on tile[COLOR_REVERT][\BOLD][NEWLINE][TAB][TAB]Move the selected unit and all units in the same tile to the clicked tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click on city bar[COLOR_REVERT][\BOLD][TAB][TAB]Select all cities on same continent[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click on scoreboard[COLOR_REVERT][\BOLD][TAB]Open trade window[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+roll mouse wheel[COLOR_REVERT][\BOLD][TAB][TAB]Cycle units in selected tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click city bars[COLOR_REVERT][\BOLD][TAB][TAB]Select multiple cities (to change production)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+right-click on tile[COLOR_REVERT][\BOLD][TAB]Set as rally point for any selected cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+right-click on city [COLOR_REVERT][\BOLD][TAB]Delete the rally points of any selected cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click on tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Open context menu[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Hold both mouse buttons[COLOR_REVERT][\BOLD][TAB]Drag map[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Hold right mouse button[COLOR_REVERT][\BOLD][TAB]Display combat odds[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click empty tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Center camera on that tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Fwd/Back mouse buttons[COLOR_REVERT][\BOLD][TAB]Cycle through units in selected tile[NEWLINE]</English>
+ 		<French>[H1]Mouse Shortcuts[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click on city bar[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Select all player's cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click on Civ in score display[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Declare war on that Civ[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+right-click a tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Move all units from same tile to selected tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click on city bar[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Select all cities on same continent[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click on Civ in score display[COLOR_REVERT][\BOLD][TAB][TAB]Open trade window with that Civ[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+roll mouse wheel[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Cycle units on tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click any city bars[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Select multiple cities (to change production)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+right-click any city bars[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Set rally point for multiple cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click on city bars[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Select those cities to change queue[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click any tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Open context menu for that tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Right Click city bars[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Set rally point for those cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Roll mouse wheel[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Zoom in/out[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click+hold left and right mouse buttons[COLOR_REVERT][\BOLD][TAB]Drag map[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click+hold right mouse button over enemy[COLOR_REVERT][\BOLD][TAB]Display combat odds[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click any tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB]Center the map on that tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click Fwd and Back mouse buttons[COLOR_REVERT][\BOLD][TAB][TAB]Cycle through units on the same tile[NEWLINE]</French>
+ 		<German>[H1]Maussteuerung[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Klick auf Stadtleiste[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Alle eigenen St�dte ausw�hlen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Klick auf Gegnername in der [NEWLINE]Punkteanzeige[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Zivilisation den Krieg erkl�ren[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Rechtsklick auf Gel�ndefeld[COLOR_REVERT][\BOLD][TAB]Alle Einheiten eines Gel�ndefeldes zum [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]gew�hlten Gel�ndefeld bewegen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Klick auf Stadtleiste[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Alle eigenen St�dte auf demselben [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Kontinent ausw�hlen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Klick auf Gegnername in der [NEWLINE]Punkteanzeige[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Handelsfenster �ffnen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Mausrad, Seitentasten[COLOR_REVERT][\BOLD][TAB][TAB]Zur vorherigen/n�chsten Einheit wechseln [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB](gleiches Feld)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+Klick auf Stadtleiste[COLOR_REVERT][\BOLD][TAB][TAB]Mehrere St�dte ausw�hlen (um die dezeitigen [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Bauprojekte simultan zu �ndern)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+Rechtsklick auf [NEWLINE]Stadtleiste[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Einheitensammelpunkt f�r mehrere St�dte [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]setzen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+Klick auf Gel�ndefeld[COLOR_REVERT][\BOLD][TAB]Kontextmen� des Gel�ndefeldes[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Mausrad[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB]Zoomfaktor verringern/erh�hen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Linke und rechte Maustaste [NEWLINE]dr�cken und halten[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Karte ziehen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Rechte Maustaste halten und �ber [NEWLINE]feindliche Einheit scrollen[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Anzeige der Siegchance[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Klick auf Gel�ndefeld[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Auf Gel�ndefeld zentrieren[NEWLINE]</German>
+ 		<Italian>[H1]Scorciatoie per il mouse[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click su una Barra cittadina[COLOR_REVERT][\BOLD][TAB]Seleziona tutte le Citt� del giocatore[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click su una Barra cittadina[COLOR_REVERT][\BOLD][TAB]Seleziona tutte le Citt� del giocatore nel continente[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click su pi� Barre cittadine[COLOR_REVERT][\BOLD][TAB]Seleziona le corrispondenti Citt�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click-d su Barre cittadine[COLOR_REVERT][\BOLD][TAB]Imposta una destinazione per tali Citt�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click su una Civilt�[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Dichiara guerra alla Civilt�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click su una Civilt�[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Apre l'interfaccia diplomatica con la Civilt�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click su una casella[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Centra la mappa sulla casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click su una casella[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Apre il men� contestuale della casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click-d su una casella[COLOR_REVERT][\BOLD][TAB][TAB]Muove insieme tutte le Unit� nella casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+rotellina[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Scorre fra le Unit� nella casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Rotellina[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB]Zoom[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Muovere il mouse con i tasti premuti[COLOR_REVERT][\BOLD][TAB]Sposta la mappa[NEWLINE]</Italian>
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 314126f63..ff67b1f80 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -86,7 +86,8 @@ void CvDLLButtonPopup::OnAltExecute(CvPopup& popup, const PopupReturn& popupRetu
+ 
+ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, CvPopupInfo &info)
+ {
+-	FAssert(GC.getGameINLINE().getActivePlayer() != NO_PLAYER); // K-Mod
++	CvGame& g = GC.getGameINLINE();
++	FAssert(g.getActivePlayer() != NO_PLAYER); // K-Mod
+ 
+ 	switch (info.getButtonPopupType())
+ 	{
+@@ -105,15 +106,15 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 				gDLL->getInterfaceIFace()->exitingToMainMenu();
+ 				break;
+ 			case 2:
+-				//GC.getGameINLINE().doControl(CONTROL_RETIRE);
+-				GC.getGameINLINE().retire(); // K-Mod
++				//g.doControl(CONTROL_RETIRE);
++				g.retire(); // K-Mod
+ 				break;
+ 			case 3:
+-				GC.getGameINLINE().regenerateMap();
++				g.regenerateMap();
+ 				break;
+ 			case 4:
+-				//GC.getGameINLINE().doControl(CONTROL_WORLD_BUILDER);
+-				GC.getGameINLINE().enterWorldBuilder(); // K-Mod
++				//g.doControl(CONTROL_WORLD_BUILDER);
++				g.enterWorldBuilder(); // K-Mod
+ 				break;
+ 			}
+ 		}
+@@ -130,7 +131,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 				if (NULL != pInfo)
+ 				{
+ 					pInfo->setData1(0);
+-					gDLL->getInterfaceIFace()->addPopup(pInfo, GC.getGameINLINE().getActivePlayer(), true);
++					gDLL->getInterfaceIFace()->addPopup(pInfo, g.getActivePlayer(), true);
+ 				}
+ 			}
+ 			break;
+@@ -140,7 +141,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 				if (NULL != pInfo)
+ 				{
+ 					pInfo->setData1(1);
+-					gDLL->getInterfaceIFace()->addPopup(pInfo, GC.getGameINLINE().getActivePlayer(), true);
++					gDLL->getInterfaceIFace()->addPopup(pInfo, g.getActivePlayer(), true);
+ 				}
+ 			}
+ 			break;
+@@ -151,10 +152,10 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 				if (NULL != pInfo)
+ 				{
+ 					pInfo->setData1(2);
+-					gDLL->getInterfaceIFace()->addPopup(pInfo, GC.getGameINLINE().getActivePlayer(), true);
++					gDLL->getInterfaceIFace()->addPopup(pInfo, g.getActivePlayer(), true);
+ 				}
+ 			} */
+-			GC.getGameINLINE().doControl(CONTROL_RETIRE); // K-Mod
++			g.doControl(CONTROL_RETIRE); // K-Mod
+ 			break;
+ 		case MM_REGENERATE_MAP:
+ 			{
+@@ -162,15 +163,15 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 				if (NULL != pInfo)
+ 				{
+ 					pInfo->setData1(3);
+-					gDLL->getInterfaceIFace()->addPopup(pInfo, GC.getGameINLINE().getActivePlayer(), true);
++					gDLL->getInterfaceIFace()->addPopup(pInfo, g.getActivePlayer(), true);
+ 				}
+ 			}
+ 			break;
+ 		case MM_LOAD_GAME:
+-			GC.getGameINLINE().doControl(CONTROL_LOAD_GAME);
++			g.doControl(CONTROL_LOAD_GAME);
+ 			break;
+ 		case MM_SAVE_GAME:
+-			GC.getGameINLINE().doControl(CONTROL_SAVE_NORMAL);
++			g.doControl(CONTROL_SAVE_NORMAL);
+ 			break;
+ 		case MM_OPTIONS:
+ 			gDLL->getPythonIFace()->callFunction("CvScreensInterface", "showOptionsScreen");
+@@ -185,16 +186,16 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 				if (NULL != pInfo)
+ 				{
+ 					pInfo->setData1(4);
+-					gDLL->getInterfaceIFace()->addPopup(pInfo, GC.getGameINLINE().getActivePlayer(), true);
++					gDLL->getInterfaceIFace()->addPopup(pInfo, g.getActivePlayer(), true);
+ 				}
+ 			} */
+-			GC.getGameINLINE().doControl(CONTROL_WORLD_BUILDER); // K-Mod
++			g.doControl(CONTROL_WORLD_BUILDER); // K-Mod
+ 			break;
+ 		case MM_GAME_DETAILS:
+-			GC.getGameINLINE().doControl(CONTROL_ADMIN_DETAILS);
++			g.doControl(CONTROL_ADMIN_DETAILS);
+ 			break;
+ 		case MM_PLAYER_DETAILS:
+-			GC.getGameINLINE().doControl(CONTROL_DETAILS);
++			g.doControl(CONTROL_DETAILS);
+ 			break;
+ 		default: // cancel
+ 			break;
+@@ -218,8 +219,8 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 					!GET_TEAM(TEAMREF(at->getSecondOwner()).getMasterTeam()).
+ 					isDefensivePact(GET_TEAM((TeamTypes)info.getData1()).
+ 					getMasterTeam())))) { // </advc.035>
+-				//GC.getGameINLINE().selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_MOVE_TO, info.getData2(), info.getData3(), info.getFlags(), false, info.getOption1());
+-				GC.getGameINLINE().selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_MOVE_TO, info.getData2(), info.getData3(), info.getFlags() | MOVE_DECLARE_WAR, false, info.getOption1()); // K-Mod
++				//g.selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_MOVE_TO, info.getData2(), info.getData3(), info.getFlags(), false, info.getOption1());
++				g.selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_MOVE_TO, info.getData2(), info.getData3(), info.getFlags() | MOVE_DECLARE_WAR, false, info.getOption1()); // K-Mod
+ 				// (See comments in CvGame::selectionListGameNetMessage for an explanation for the MOVE_DECLARE_WAR flag. Basically, it's a kludge.)
+ 			}
+ 		}
+@@ -229,7 +230,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 		if (pPopupReturn->getButtonClicked() == 0)
+ 		{
+ 			int iAction = info.getData1();
+-			GC.getGameINLINE().selectionListGameNetMessage(GAMEMESSAGE_DO_COMMAND, GC.getActionInfo(iAction).getCommandType(), GC.getActionInfo(iAction).getCommandData(), -1, 0, info.getOption1());
++			g.selectionListGameNetMessage(GAMEMESSAGE_DO_COMMAND, GC.getActionInfo(iAction).getCommandType(), GC.getActionInfo(iAction).getCommandData(), -1, 0, info.getOption1());
+ 		}
+ 		break;
+ 
+@@ -256,7 +257,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 						iCount--;
+ 						if (iCount == 0)
+ 						{
+-							GC.getGameINLINE().selectionListGameNetMessage(GAMEMESSAGE_DO_COMMAND, COMMAND_LOAD_UNIT, pLoopUnit->getOwnerINLINE(), pLoopUnit->getID());
++							g.selectionListGameNetMessage(GAMEMESSAGE_DO_COMMAND, COMMAND_LOAD_UNIT, pLoopUnit->getOwnerINLINE(), pLoopUnit->getID());
+ 							break;
+ 						}
+ 					}
+@@ -288,7 +289,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 						iCount--;
+ 						if (iCount == 0)
+ 						{
+-							GC.getGameINLINE().selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_LEAD, pLoopUnit->getID());
++							g.selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_LEAD, pLoopUnit->getID());
+ 							break;
+ 						}
+ 					}
+@@ -300,14 +301,14 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 	case BUTTONPOPUP_DOESPIONAGE:
+ 		if (pPopupReturn->getButtonClicked() != NO_ESPIONAGEMISSION)
+ 		{
+-			GC.getGameINLINE().selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_ESPIONAGE, (EspionageMissionTypes) pPopupReturn->getButtonClicked());
++			g.selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_ESPIONAGE, (EspionageMissionTypes) pPopupReturn->getButtonClicked());
+ 		}
+ 		break;
+ 
+ 	case BUTTONPOPUP_DOESPIONAGE_TARGET:
+ 		if (pPopupReturn->getButtonClicked() != -1)
+ 		{
+-			GC.getGameINLINE().selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_ESPIONAGE, (EspionageMissionTypes)info.getData1(), pPopupReturn->getButtonClicked());
++			g.selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_ESPIONAGE, (EspionageMissionTypes)info.getData1(), pPopupReturn->getButtonClicked());
+ 		}
+ 		break;
+ 
+@@ -315,7 +316,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 		if (pPopupReturn->getButtonClicked() == GC.getNumTechInfos())
+ 		{
+ 			gDLL->getPythonIFace()->callFunction("CvScreensInterface", "showTechChooser");
+-			GET_PLAYER(GC.getGameINLINE().getActivePlayer()).chooseTech(0, "", true);
++			GET_PLAYER(g.getActivePlayer()).chooseTech(0, "", true);
+ 		}
+ 		break;
+ 
+@@ -326,32 +327,32 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 		}
+ 		else if (pPopupReturn->getButtonClicked() == 2)
+ 		{
+-			CvCity* pCity = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).getCity(info.getData1());
++			CvCity* pCity = GET_PLAYER(g.getActivePlayer()).getCity(info.getData1());
+ 			if (NULL != pCity)
+ 			{
+-				CvEventReporter::getInstance().cityAcquiredAndKept(GC.getGameINLINE().getActivePlayer(), pCity);
++				CvEventReporter::getInstance().cityAcquiredAndKept(g.getActivePlayer(), pCity);
+ 			}
+ 
+ 			CvMessageControl::getInstance().sendDoTask(info.getData1(), TASK_GIFT, info.getData2(), -1, false, false, false, false);
+ 		}
+ 		else if (pPopupReturn->getButtonClicked() == 3)
+ 		{
+-			CvCity* pCity = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).getCity(info.getData1());
++			CvCity* pCity = GET_PLAYER(g.getActivePlayer()).getCity(info.getData1());
+ 			if (NULL != pCity)
+ 			{
+ 				gDLL->getInterfaceIFace()->selectCity(pCity, false);
+ 			}
+ 
+ 			CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_RAZECITY, info.getData1(), info.getData2(), info.getData3());
+-			gDLL->getInterfaceIFace()->addPopup(pInfo, GC.getGameINLINE().getActivePlayer(), false, true);
++			gDLL->getInterfaceIFace()->addPopup(pInfo, g.getActivePlayer(), false, true);
+ 		}
+ 		else if (pPopupReturn->getButtonClicked() == 0)
+ 		{
+-			CvCity* pCity = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).getCity(info.getData1());
++			CvCity* pCity = GET_PLAYER(g.getActivePlayer()).getCity(info.getData1());
+ 			if (NULL != pCity)
+ 			{
+ 				pCity->chooseProduction();
+-				CvEventReporter::getInstance().cityAcquiredAndKept(GC.getGameINLINE().getActivePlayer(), pCity);
++				CvEventReporter::getInstance().cityAcquiredAndKept(g.getActivePlayer(), pCity);
+ 			}
+ 		}
+ 		break;
+@@ -363,11 +364,11 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 		}
+ 		else if (pPopupReturn->getButtonClicked() == 0)
+ 		{
+-			CvCity* pCity = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).getCity(info.getData1());
++			CvCity* pCity = GET_PLAYER(g.getActivePlayer()).getCity(info.getData1());
+ 			if (NULL != pCity)
+ 			{
+ 				pCity->chooseProduction();
+-				CvEventReporter::getInstance().cityAcquiredAndKept(GC.getGameINLINE().getActivePlayer(), pCity);
++				CvEventReporter::getInstance().cityAcquiredAndKept(g.getActivePlayer(), pCity);
+ 			}
+ 		}
+ 		break;
+@@ -381,7 +382,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 
+ 		if (pPopupReturn->getButtonClicked() == iExamineCityID)
+ 		{
+-			CvCity* pCity = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).getCity(info.getData1());
++			CvCity* pCity = GET_PLAYER(g.getActivePlayer()).getCity(info.getData1());
+ 			if (pCity != NULL)
+ 			{
+ 				gDLL->getInterfaceIFace()->selectCity(pCity, true);
+@@ -395,7 +396,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 			std::vector<CivicTypes> aeNewCivics(GC.getNumCivicOptionInfos());
+ 			for (int iI = 0; iI < GC.getNumCivicOptionInfos(); iI++)
+ 			{
+-				aeNewCivics[iI] = GET_PLAYER(GC.getGameINLINE().getActivePlayer()).getCivics((CivicOptionTypes)iI);
++				aeNewCivics[iI] = GET_PLAYER(g.getActivePlayer()).getCivics((CivicOptionTypes)iI);
+ 			}
+ 			aeNewCivics[info.getData1()] = ((CivicTypes)(info.getData2()));
+ 
+@@ -416,7 +417,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 
+ 	case BUTTONPOPUP_CHOOSEELECTION:
+ 		{
+-			VoteSelectionData* pData = GC.getGameINLINE().getVoteSelection(info.getData1());
++			VoteSelectionData* pData = g.getVoteSelection(info.getData1());
+ 			if (NULL != pData && pPopupReturn->getButtonClicked() < (int)pData->aVoteOptions.size())
+ 			{
+ 				CvMessageControl::getInstance().sendChooseElection((VoteTypes)(pPopupReturn->getButtonClicked()), info.getData1());
+@@ -441,7 +442,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 	case BUTTONPOPUP_PYTHON:
+ 		if (!info.getOnClickedPythonCallback().IsEmpty())
+ 		{
+-			FAssertMsg(!GC.getGameINLINE().isNetworkMultiPlayer(), "Danger: Out of Sync");
++			FAssertMsg(!g.isNetworkMultiPlayer(), "Danger: Out of Sync");
+ 			CyArgsList argsList;
+ 			argsList.add(pPopupReturn->getButtonClicked());
+ 			argsList.add(info.getData1());
+@@ -485,21 +486,21 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 			{
+ 				szCivAdjective = pPopupReturn->getEditBoxString(3);
+ 			}
+-			if (GC.getGameINLINE().isHotSeat() || GC.getGameINLINE().isPbem())
++			if (g.isHotSeat() || g.isPbem())
+ 			{
+ 				if (pPopupReturn->getEditBoxString(4) && *(pPopupReturn->getEditBoxString(4)))
+ 				{
+ 					szCivPassword = pPopupReturn->getEditBoxString(4);
+ 				}
+ 			}
+-			if (GC.getGameINLINE().isPitboss() || GC.getGameINLINE().isPbem())
++			if (g.isPitboss() || g.isPbem())
+ 			{
+ 				if (pPopupReturn->getEditBoxString(5) && *(pPopupReturn->getEditBoxString(5)))
+ 				{
+ 					szEmail = CvString(pPopupReturn->getEditBoxString(5));
+ 				}
+ 			}
+-			if (GC.getGameINLINE().isPbem())
++			if (g.isPbem())
+ 			{
+ 				if (pPopupReturn->getEditBoxString(6) && *(pPopupReturn->getEditBoxString(6)))
+ 				{
+@@ -519,7 +520,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 			GC.getInitCore().setSmtpHost(eID, szSmtpHost);
+ 			gDLL->sendPlayerInfo(eID);
+ 
+-			if (GC.getGameINLINE().isPbem() && pPopupReturn->getButtonClicked() == 0)
++			if (g.isPbem() && pPopupReturn->getButtonClicked() == 0)
+ 			{
+ 				gDLL->sendPbemTurn(NO_PLAYER);
+ 			}
+@@ -547,7 +548,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 					szAdminPassword = L"";
+ 				}
+ 			}
+-			if (!GC.getGameINLINE().isGameMultiPlayer())
++			if (!g.isGameMultiPlayer())
+ 			{
+ 				if (pPopupReturn->getCheckboxBitfield(2)
+ 					//advc.003: Redundant
+@@ -602,23 +603,23 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 	case BUTTONPOPUP_EXTENDED_GAME:
+ 		if (pPopupReturn->getButtonClicked() == 0)
+ 		{
+-			if (GC.getGameINLINE().isNetworkMultiPlayer())
++			if (g.isNetworkMultiPlayer())
+ 			{
+ 
+ 				CvMessageControl::getInstance().sendExtendedGame();
+ 			}
+ 			else
+ 			{
+-				GC.getGameINLINE().setGameState(GAMESTATE_EXTENDED);
++				g.setGameState(GAMESTATE_EXTENDED);
+ 			}
+ 		}
+ 		else if (pPopupReturn->getButtonClicked() == 1)
+ 		{
+ 			// exit to main menu
+-			if (GC.getGameINLINE().isNetworkMultiPlayer() && GC.getGameINLINE().canDoControl(CONTROL_RETIRE) && GC.getGameINLINE().countHumanPlayersAlive() > 1)
++			if (g.isNetworkMultiPlayer() && g.canDoControl(CONTROL_RETIRE) && g.countHumanPlayersAlive() > 1)
+ 			{
+-				//GC.getGameINLINE().doControl(CONTROL_RETIRE);
+-				GC.getGameINLINE().retire(); // K-Mod
++				//g.doControl(CONTROL_RETIRE);
++				g.retire(); // K-Mod
+ 			}
+ 			else if (!gDLL->getInterfaceIFace()->isDebugMenuCreated())
+ 			{
+@@ -634,7 +635,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 	case BUTTONPOPUP_DIPLOMACY:
+ 		if (pPopupReturn->getButtonClicked() != MAX_CIV_PLAYERS)
+ 		{
+-			GET_PLAYER(GC.getGameINLINE().getActivePlayer()).contact((PlayerTypes)(pPopupReturn->getButtonClicked()));
++			GET_PLAYER(g.getActivePlayer()).contact((PlayerTypes)(pPopupReturn->getButtonClicked()));
+ 		}
+ 		break;
+ 
+@@ -661,7 +662,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 			PlayerTypes eVassal = (PlayerTypes)info.getData1();
+ 			if (GET_PLAYER(eVassal).isHuman())
+ 			{
+-				CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_VASSAL_GRANT_TRIBUTE, GC.getGameINLINE().getActivePlayer(), pPopupReturn->getButtonClicked());
++				CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_VASSAL_GRANT_TRIBUTE, g.getActivePlayer(), pPopupReturn->getButtonClicked());
+ 				if (NULL != pInfo)
+ 				{
+ 					gDLL->sendPopup(eVassal, pInfo);
+@@ -676,12 +677,12 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 				CLinkList<TradeData> theirList;
+ 				theirList.insertAtEnd(item);
+ 
+-				if (GET_PLAYER(eVassal).AI_considerOffer(GC.getGameINLINE().getActivePlayer(), &ourList, &theirList))
++				if (GET_PLAYER(eVassal).AI_considerOffer(g.getActivePlayer(), &ourList, &theirList))
+ 				{
+ 					gDLL->sendImplementDealMessage(eVassal, &ourList, &theirList);
+ 
+-					CvWString szBuffer = gDLL->getText("TXT_KEY_VASSAL_GRANT_TRIBUTE_ACCEPTED", GET_PLAYER(eVassal).getNameKey(), GET_PLAYER(GC.getGameINLINE().getActivePlayer()).getNameKey(), GC.getBonusInfo((BonusTypes)pPopupReturn->getButtonClicked()).getTextKeyWide());
+-					gDLL->getInterfaceIFace()->addHumanMessage(GC.getGameINLINE().getActivePlayer(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer);
++					CvWString szBuffer = gDLL->getText("TXT_KEY_VASSAL_GRANT_TRIBUTE_ACCEPTED", GET_PLAYER(eVassal).getNameKey(), GET_PLAYER(g.getActivePlayer()).getNameKey(), GC.getBonusInfo((BonusTypes)pPopupReturn->getButtonClicked()).getTextKeyWide());
++					gDLL->getInterfaceIFace()->addHumanMessage(g.getActivePlayer(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer);
+ 				}
+ 				else
+ 				{
+@@ -703,7 +704,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 			
+ 			gDLL->sendImplementDealMessage((PlayerTypes)info.getData1(), &ourList, &theirList);
+ 
+-			CvWString szBuffer = gDLL->getText("TXT_KEY_VASSAL_GRANT_TRIBUTE_ACCEPTED", GET_PLAYER(GC.getGameINLINE().getActivePlayer()).getNameKey(), GET_PLAYER((PlayerTypes)info.getData1()).getNameKey(), GC.getBonusInfo((BonusTypes)info.getData2()).getTextKeyWide());
++			CvWString szBuffer = gDLL->getText("TXT_KEY_VASSAL_GRANT_TRIBUTE_ACCEPTED", GET_PLAYER(g.getActivePlayer()).getNameKey(), GET_PLAYER((PlayerTypes)info.getData1()).getNameKey(), GC.getBonusInfo((BonusTypes)info.getData2()).getTextKeyWide());
+ 			gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)info.getData1(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer);
+ 		}
+ 		else
+@@ -716,7 +717,7 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 	case BUTTONPOPUP_EVENT:
+ 		if (pPopupReturn->getButtonClicked() == GC.getNumEventInfos())
+ 		{
+-			CvPlayer& kActivePlayer = GET_PLAYER(GC.getGameINLINE().getActivePlayer());
++			CvPlayer& kActivePlayer = GET_PLAYER(g.getActivePlayer());
+ 			EventTriggeredData* pTriggeredData = kActivePlayer.getEventTriggered(info.getData1());
+ 			if (NULL != pTriggeredData)
+ 			{
+@@ -728,18 +729,18 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 			}
+ 
+ 			CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_EVENT, info.getData1());
+-			gDLL->getInterfaceIFace()->addPopup(pInfo, GC.getGameINLINE().getActivePlayer(), false, true);
++			gDLL->getInterfaceIFace()->addPopup(pInfo, g.getActivePlayer(), false, true);
+ 		}
+ 		else if (-1 != pPopupReturn->getButtonClicked())
+ 		{
+-			CvMessageControl::getInstance().sendEventTriggered(GC.getGameINLINE().getActivePlayer(), (EventTypes)pPopupReturn->getButtonClicked(), info.getData1());
++			CvMessageControl::getInstance().sendEventTriggered(g.getActivePlayer(), (EventTypes)pPopupReturn->getButtonClicked(), info.getData1());
+ 		}
+ 		break;
+ 
+ 	case BUTTONPOPUP_FREE_COLONY:
+ 		if (pPopupReturn->getButtonClicked() > 0)
+ 		{
+-			CvMessageControl::getInstance().sendEmpireSplit(GC.getGameINLINE().getActivePlayer(), pPopupReturn->getButtonClicked());
++			CvMessageControl::getInstance().sendEmpireSplit(g.getActivePlayer(), pPopupReturn->getButtonClicked());
+ 		}
+ 		else if (pPopupReturn->getButtonClicked() < 0)
+ 		{
+@@ -750,20 +751,22 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 	case BUTTONPOPUP_LAUNCH:
+ 		if (0 == pPopupReturn->getButtonClicked())
+ 		{
+-			CvMessageControl::getInstance().sendLaunch(GC.getGameINLINE().getActivePlayer(), (VictoryTypes)info.getData1());
++			CvMessageControl::getInstance().sendLaunch(g.getActivePlayer(), (VictoryTypes)info.getData1());
+ 		}
+ 		break;
+ 
+ 	case BUTTONPOPUP_FOUND_RELIGION:
+-		CvMessageControl::getInstance().sendFoundReligion(GC.getGameINLINE().getActivePlayer(), (ReligionTypes)pPopupReturn->getButtonClicked(), (ReligionTypes)info.getData1());
++		CvMessageControl::getInstance().sendFoundReligion(g.getActivePlayer(), (ReligionTypes)pPopupReturn->getButtonClicked(), (ReligionTypes)info.getData1());
+ 		break;
+ 	// <advc.706>
+ 	case BUTTONPOPUP_RF_CHOOSECIV:
+-		GC.getGameINLINE().getRiseFall().afterCivSelection(pPopupReturn->getButtonClicked());
++		g.getRiseFall().afterCivSelection(pPopupReturn->getButtonClicked());
+ 		break;
+ 	case BUTTONPOPUP_RF_DEFEAT:
+-		GC.getGameINLINE().getRiseFall().handleDefeatPopup(
+-				pPopupReturn->getButtonClicked());
++		g.getRiseFall().handleDefeatPopup(pPopupReturn->getButtonClicked());
++		break;
++	case BUTTONPOPUP_RF_RETIRE:
++		g.getRiseFall().handleRetirePopup(pPopupReturn->getButtonClicked());
+ 		break; // </advc.706>
+ 
+ 	default:
+@@ -895,11 +898,13 @@ bool CvDLLButtonPopup::launchButtonPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	if(g.isOption(GAMEOPTION_RISE_FALL)) {
+ 		ButtonPopupTypes bpt = info.getButtonPopupType();
+ 		if(bpt == BUTTONPOPUP_RF_CHOOSECIV)
+-			return GC.getGameINLINE().getRiseFall().launchCivSelectionPopup(pPopup, info);
++			return g.getRiseFall().launchCivSelectionPopup(pPopup, info);
+ 		if(bpt == BUTTONPOPUP_RF_DEFEAT)
+-			return GC.getGameINLINE().getRiseFall().launchDefeatPopup(pPopup, info);
++			return g.getRiseFall().launchDefeatPopup(pPopup, info);
+ 		if(CvPlot::isAllFog())
+ 			return false;
++		if(bpt == BUTTONPOPUP_RF_RETIRE)
++			return g.getRiseFall().launchRetirePopup(pPopup, info);
+ 		/*  The EXE launches these popups after human takeover; afterwards(?),
+ 			the AI makes a choice, and the popup is killed once the player clicks
+ 			on it. */
+@@ -2334,15 +2339,9 @@ bool CvDLLButtonPopup::launchConfirmMenu(CvPopup *pPopup, CvPopupInfo &info)
+ 	case 1:
+ 		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_EXIT_TO_MAIN_MENU").c_str(), NULL, 0, WIDGET_GENERAL);
+ 		break;
+-	case 2: { // <advc.706>
+-		CvGame const& g = GC.getGameINLINE();
+-		if(g.isOption(GAMEOPTION_RISE_FALL)) {
+-			gDLL->getInterfaceIFace()->popupSetBodyString(pPopup,
+-					g.getRiseFall().retireConfirmMsg());
+-		} // </advc.706>
++	case 2:
+ 		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_RETIRE").c_str(), NULL, 0, WIDGET_GENERAL);
+ 		break;
+-	}
+ 	case 3:
+ 		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_POPUP_REGENERATE_MAP").c_str(), NULL, 0, WIDGET_GENERAL);
+ 		break;
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index fefc5a3cd..720a5648c 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -619,7 +619,11 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	case WIDGET_RF_CIV_CHOICE:
+ 		GC.getGameINLINE().getRiseFall().assignCivSelectionHelp(szBuffer,
+ 				(PlayerTypes)widgetDataStruct.m_iData1);
+-		break; // </advc.706>
++		break; // </advc.706>  <advc.106i>
++	case WIDGET_SHOW_REPLAY:
++		szBuffer.append(gDLL->getText(widgetDataStruct.m_iData1 == 0 ?
++				"TXT_KEY_HOF_SHOW_REPLAY" : "TXT_KEY_HOF_WARN"));
++		break; // </advc.106i>
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index e0cafd8eb..396d708b5 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -556,6 +556,7 @@ enum WidgetTypes					// Exposed to Python
+ 	// K-Mod end
+ 	WIDGET_RF_CIV_CHOICE, // advc.706
+ 	WIDGET_LH_GLANCE, // advc.152
++	WIDGET_SHOW_REPLAY, // advc.106i
+ 	// BULL - Trade Denial - start
+ 	WIDGET_PEDIA_JUMP_TO_BONUS_TRADE,
+ 	WIDGET_PEDIA_JUMP_TO_TECH_TRADE,
+@@ -606,7 +607,8 @@ enum ButtonPopupTypes			// Exposed to Python
+ 	BUTTONPOPUP_FOUND_RELIGION,
+ 	// <advc.706>
+ 	BUTTONPOPUP_RF_CHOOSECIV,
+-	BUTTONPOPUP_RF_DEFEAT, // </advc.706>
++	BUTTONPOPUP_RF_DEFEAT,
++	BUTTONPOPUP_RF_RETIRE, // </advc.706>
+ 
+ #ifdef _USRDLL
+ 	NUM_BUTTONPOPUP_TYPES
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index da2ab0097..31d304562 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -63,6 +63,7 @@ CvGame::CvGame()
+ 	m_paHeadquarters = NULL;
+ 
+ 	m_pReplayInfo = NULL;
++	m_pHallOfFame = NULL; // advc.106i
+ 
+ 	m_aiShrineBuilding = NULL;
+ 	m_aiShrineReligion = NULL;
+@@ -289,7 +290,7 @@ void CvGame::setInitialItems()
+ 		setOption(GAMEOPTION_SPAH, false);
+ 	if(isOption(GAMEOPTION_SPAH))
+ 		// Reassigns start plots and start points
+-		spah.setInitialItems(); // </advc.250b>
++		m_spah.setInitialItems(); // </advc.250b>
+ 	int iStartTurn = getStartTurn(); // advc.250c, advc.251
+ 	// <advc.250c>
+ 	if(getStartEra() == 0 && GC.getDefineINT("INCREASE_START_TURN") > 0) {
+@@ -422,8 +423,8 @@ void CvGame::regenerateMap()
+ 	cycleSelectionGroups_delayed(1, false);
+ 	// <advc.700>
+ 	if(isOption(GAMEOPTION_RISE_FALL)) {
+-		riseFall.reset();
+-		riseFall.init();
++		m_riseFall.reset();
++		m_riseFall.init();
+ 	}
+ 	else { // </advc.700>
+ 		gDLL->getEngineIFace()->AutoSave(true);
+@@ -507,7 +508,7 @@ void CvGame::uninit()
+ 	m_aeInactiveTriggers.clear();
+ 	/*  advc.700: Need to call this explicitly due to the unusual way that
+ 		RiseFall is initialized (from updateBlockadedPlots) */
+-	riseFall.reset();
++	m_riseFall.reset();
+ }
+ 
+ // <advc.250c> Function body cut from CvGame::init. Changes marked in-line.
+@@ -587,7 +588,10 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	// Uninit class
+ 	uninit();
+ 	m_bAllGameDataRead = false; // advc.003;
+-
++	// <advc.106i>
++	if(m_pHallOfFame != NULL)
++		m_pHallOfFame->uninit(); // Don't keep HoF in memory indefinitely
++	// </advc.106i>
+ 	m_iElapsedGameTurns = 0;
+ 	m_iStartTurn = 0;
+ 	m_iStartYear = 0;
+@@ -2542,7 +2546,7 @@ void CvGame::update()
+ 			gDLL->getInterfaceIFace()->setWorldBuilder(true);
+ 		} // <advc.705>
+ 		if(isOption(GAMEOPTION_RISE_FALL))
+-			riseFall.restoreDiploText(); // </advc.705>
++			m_riseFall.restoreDiploText(); // </advc.705>
+ 		// <advc.003d>
+ 		if(!m_bResourceLayerSet) {
+ 			gDLL->getEngineIFace()->setResourceLayer(isResourceLayer());
+@@ -5554,7 +5558,7 @@ int CvGame::getDifficultyForEndScore() const {
+ 	if(!isOption(GAMEOPTION_SPAH))
+ 		return r;
+ 	std::vector<int> aiStartPointDistrib;
+-	spah.distribution(aiStartPointDistrib);
++	m_spah.distribution(aiStartPointDistrib);
+ 	std::vector<double> distr;
+ 	for(size_t i = 0; i < aiStartPointDistrib.size(); i++)
+ 		distr.push_back(aiStartPointDistrib[i]);
+@@ -5648,7 +5652,8 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
+ 				addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GET_TEAM(getWinner()).getLeaderID(), szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 			}
+ 
+-			if ((getAIAutoPlay() > 0) || gDLL->GetAutorun())
++			if ((getAIAutoPlay() > 0 || gDLL->GetAutorun())
++					&& !isOption(GAMEOPTION_RISE_FALL)) // advc.707
+ 			{
+ 				setGameState(GAMESTATE_EXTENDED);
+ 			}
+@@ -5685,33 +5690,28 @@ GameStateTypes CvGame::getGameState() const
+ 
+ void CvGame::setGameState(GameStateTypes eNewValue)
+ {
+-	if (getGameState() != eNewValue)
+-	{
+-		m_eGameState = eNewValue;
++	if (getGameState() == eNewValue)
++		return; // advc.003
+ 
+-		if (eNewValue == GAMESTATE_OVER)
++	m_eGameState = eNewValue;
++	if (eNewValue == GAMESTATE_OVER)
++	{
++		CvEventReporter::getInstance().gameEnd();
++		// <advc.707>
++		if(isOption(GAMEOPTION_RISE_FALL))
++			m_riseFall.prepareForExtendedGame(); // </advc.707>
++		showEndGameSequence();
++		for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 		{
+-			CvEventReporter::getInstance().gameEnd();
+-			// <advc.707>
+-			if(isOption(GAMEOPTION_RISE_FALL))
+-				riseFall.prepareForExtendedGame(); // </advc.707>
+-			showEndGameSequence();
+-			for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+-			{
+-				if (GET_PLAYER((PlayerTypes)iI).isHuman())
+-				{
+-					// One more turn?
+-					CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_EXTENDED_GAME);
+-					if (NULL != pInfo)
+-					{
+-						GET_PLAYER((PlayerTypes)iI).addPopup(pInfo);
+-					}
+-				}
++			if (GET_PLAYER((PlayerTypes)iI).isHuman())
++			{	// One more turn?
++				CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_EXTENDED_GAME);
++				if (NULL != pInfo)
++					GET_PLAYER((PlayerTypes)iI).addPopup(pInfo);
+ 			}
+ 		}
+-
+-		gDLL->getInterfaceIFace()->setDirty(Cursor_DIRTY_BIT, true);
+ 	}
++	gDLL->getInterfaceIFace()->setDirty(Cursor_DIRTY_BIT, true);
+ }
+ 
+ 
+@@ -6690,7 +6690,7 @@ void CvGame::doTurn()
+ 	verifyDeals();
+ 	// <advc.700>
+ 	if(isOption(GAMEOPTION_RISE_FALL))
+-		riseFall.atGameTurnStart(); // </advc.700>
++		m_riseFall.atGameTurnStart(); // </advc.700>
+ 	// advc.127: was right after doHeadquarters
+ 	doDiploVote();
+ 
+@@ -6769,7 +6769,7 @@ void CvGame::doTurn()
+ 	stopProfilingDLL(true);
+ 	// <advc.700>
+ 	if(isOption(GAMEOPTION_RISE_FALL))
+-		riseFall.autoSave();
++		m_riseFall.autoSave();
+ 	else {// </advc.700>
+ 		/*  <advc.127> Avoid overlapping auto-saves in test games played on a
+ 			single machine. Don't know how to check this properly. */
+@@ -9698,10 +9698,10 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	m_sorenRand.read(pStream);
+ 	// <advc.250b>
+ 	if(isOption(GAMEOPTION_SPAH))
+-		spah.read(pStream); // </advc.250b><advc.701>
++		m_spah.read(pStream); // </advc.250b><advc.701>
+ 	if(uiFlag >= 2) {
+ 		if(isOption(GAMEOPTION_RISE_FALL))
+-			riseFall.read(pStream);
++			m_riseFall.read(pStream);
+ 	}
+ 	else { // Options have been shuffled around
+ 		setOption(GAMEOPTION_NEW_RANDOM_SEED, isOption(GAMEOPTION_RISE_FALL));
+@@ -9931,9 +9931,9 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	m_sorenRand.write(pStream);
+ 	// <advc.250b>
+ 	if(isOption(GAMEOPTION_SPAH))
+-		spah.write(pStream); // </advc.250b><advc.701>
++		m_spah.write(pStream); // </advc.250b><advc.701>
+ 	if(isOption(GAMEOPTION_RISE_FALL))
+-		riseFall.write(pStream); // </advc.701>
++		m_riseFall.write(pStream); // </advc.701>
+ 	ReplayMessageList::_Alloc::size_type iSize = m_listReplayMessages.size();
+ 	pStream->Write(iSize);
+ 	for (ReplayMessageList::const_iterator it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); it++)
+@@ -9991,7 +9991,7 @@ void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
+ 		m_pReplayInfo->createInfo(ePlayer);
+ 		// <advc.707>
+ 		if(isOption(GAMEOPTION_RISE_FALL))
+-			m_pReplayInfo->setFinalScore(riseFall.getFinalRiseScore());
++			m_pReplayInfo->setFinalScore(m_riseFall.getFinalRiseScore());
+ 		// </advc.707>
+ 		m_pReplayInfo->write(stream);
+ 	}
+@@ -10092,6 +10092,10 @@ void CvGame::showEndGameSequence()
+ 			{
+ 				pInfo->setText(L"showReplay"); 
+ 				pInfo->setData1(iI);
++				/*  advc.106i (comment): The BtS comment below means that the HoF
++					is not shown right after the player exits from the Replay screen.
++					That it still gets shown later on is intentional (see a few
++					lines below). */
+ 				pInfo->setOption1(false); // don't go to HOF on exit
+ 				player.addPopup(pInfo);
+ 			}
+@@ -11516,16 +11520,27 @@ void CvGame::setScenario(bool b) {
+ // advc.250b:
+ StartPointsAsHandicap& CvGame::startPointsAsHandicap() {
+ 
+-	return spah;
++	return m_spah;
+ }
+ 
+ // <advc.703>
+ RiseFall const& CvGame::getRiseFall() const {
+ 
+-	return riseFall;
++	return m_riseFall;
+ }
+ 
+ RiseFall& CvGame::getRiseFall() {
+ 
+-	return riseFall;
++	return m_riseFall;
+ } // </advc.703>
++
++// <advc.106i>
++void CvGame::setHallOfFame(CvHallOfFameInfo* pHallOfFame) {
++
++	m_pHallOfFame = pHallOfFame;
++}
++
++CvHallOfFameInfo* CvGame::getHallOfFame() { // advc.tmp
++
++	return m_pHallOfFame;
++} // </advc.106i>
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index eeb41c882..220bd16e6 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -8,10 +8,9 @@
+ //#include "CvStructs.h"
+ #include "CvDeal.h"
+ #include "CvRandom.h"
+-// advc.250b:
+-#include "StartPointsAsHandicap.h"
+-// advc.700:
+-#include "RiseFall.h"
++#include "StartPointsAsHandicap.h" // advc.250b
++#include "RiseFall.h" // advc.700
++#include "CvHallOfFameInfo.h" // advc.106i
+ 
+ class CvPlot;
+ class CvCity;
+@@ -659,6 +658,10 @@ public:
+ 	RiseFall const& getRiseFall() const;
+ 	RiseFall& getRiseFall();
+ 	// </advc.703>
++	// <advc.106i>
++	void setHallOfFame(CvHallOfFameInfo* pHallOfFame);
++	CvHallOfFameInfo* getHallOfFame(); // advc.tmp: This I don't intend to keep
++	// </advc.106i>
+ 
+ protected:
+ 	int m_iElapsedGameTurns;
+@@ -767,6 +770,7 @@ protected:
+ 	ReplayMessageList m_listReplayMessages; 
+ 	CvReplayInfo* m_pReplayInfo;
+ 	int m_iNumSessions;
++	CvHallOfFameInfo* m_pHallOfFame; // advc.106i
+ 
+ 	std::vector<PlotExtraYield> m_aPlotExtraYields;
+ 	std::vector<PlotExtraCost> m_aPlotExtraCosts;
+@@ -781,8 +785,8 @@ protected:
+ 	int		m_iNumCultureVictoryCities;
+ 	int		m_eCultureVictoryCultureLevel;
+ 
+-	StartPointsAsHandicap spah; // advc.250b
+-	RiseFall riseFall; // advc.700
++	StartPointsAsHandicap m_spah; // advc.250b
++	RiseFall m_riseFall; // advc.700
+ 
+ 	void uninit();
+ 	void setStartTurnYear(int iTurn = 0); // advc.250c
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 0726081b7..b457c411a 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -428,7 +428,7 @@ void CvGame::updateBlockadedPlots()
+ 		initialized so that I can send an error msg to the player if necessary.
+ 		Not the case in e.g. CvGame::init or setInitialItems. */
+ 	if(isOption(GAMEOPTION_RISE_FALL) && getElapsedGameTurns() <= 0)
+-		riseFall.init(); // </advc.700>
++		m_riseFall.init(); // </advc.700>
+ }
+ 
+ 
+@@ -779,7 +779,7 @@ void CvGame::cycleSelectionGroups_delayed(int iDelay, bool bIncremental, bool bD
+ 	// Also note, cycleSelectionGroups currently causes a crash if the game is not initialised.
+ 	// (and this function is indirectly called during the set of up a new game - so we currently need that init check.)
+ 	PlayerTypes eActive = getActivePlayer();
+-	if (GC.getGameINLINE().isFinalInitialized() &&
++	if (isFinalInitialized() &&
+ 		eActive != NO_PLAYER && GET_PLAYER(eActive).isHuman() &&
+ 		getBugOptionBOOL("MainInterface__RapidUnitCycling", false))
+ 	{
+@@ -1793,14 +1793,20 @@ void CvGame::doControl(ControlTypes eControl)
+ 		gDLL->getPythonIFace()->callFunction("CvScreensInterface", "showOptionsScreen");
+ 		break;
+ 
+-	case CONTROL_RETIRE:
++	case CONTROL_RETIRE: // <advc.706> Need three buttons, so no BUTTONPOPUP_CONFIRM_MENU.
++		if(isOption(GAMEOPTION_RISE_FALL)) {
++			pInfo = new CvPopupInfo(BUTTONPOPUP_RF_RETIRE);
++			if(pInfo != NULL)
++				gDLL->getInterfaceIFace()->addPopup(pInfo, getActivePlayer(), true);
++		}
++		else // </advc.706>
+ 		// K-Mod. (original code moved into CvGame::retire)
+ 		{
+ 			pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
+ 			if (NULL != pInfo)
+ 			{
+ 				pInfo->setData1(2);
+-				gDLL->getInterfaceIFace()->addPopup(pInfo, GC.getGameINLINE().getActivePlayer(), true);
++				gDLL->getInterfaceIFace()->addPopup(pInfo, getActivePlayer(), true);
+ 			}
+ 		}
+ 		// K-Mod end
+@@ -1989,14 +1995,14 @@ void CvGame::doControl(ControlTypes eControl)
+ 		// K-Mod. (original code moved into CvGame::retire)
+ 		{
+ 			// <advc.007>
+-			if(GC.getGameINLINE().isDebugMode())
++			if(isDebugMode())
+ 				enterWorldBuilder();
+ 			else { // </advc.007>
+ 				pInfo = new CvPopupInfo(BUTTONPOPUP_CONFIRM_MENU);
+ 				if (NULL != pInfo)
+ 				{
+ 					pInfo->setData1(4);
+-					gDLL->getInterfaceIFace()->addPopup(pInfo, GC.getGameINLINE().getActivePlayer(), true);
++					gDLL->getInterfaceIFace()->addPopup(pInfo, getActivePlayer(), true);
+ 				}
+ 			} // advc.007
+ 		}
+@@ -2035,11 +2041,7 @@ void CvGame::doControl(ControlTypes eControl)
+ void CvGame::retire()
+ {
+ 	FAssert(canDoControl(CONTROL_RETIRE));
+-	// <advc.706>
+-	if(isOption(GAMEOPTION_RISE_FALL)) {
+-		riseFall.retire();
+-		return;
+-	} // </advc.706>
++
+ 	if (!isGameMultiPlayer() || countHumanPlayersAlive() == 1)
+ 	{
+ 		if (gDLL->GetAutorun())
+@@ -2589,7 +2591,7 @@ void CvGame::loadBuildQueue(const CvString& strItem) const
+ 
+ void CvGame::cheatSpaceship() const
+ {	// <advc.007b> I don't know how this is triggered; it's safer to block it.
+-	if(!GC.getGameINLINE().isDebugMode())
++	if(!isDebugMode())
+ 		return; // </advc.007b>
+ 	//add one space project that is still available
+ 	CvTeam& kTeam = GET_TEAM(getActiveTeam());
+@@ -3024,7 +3026,12 @@ void CvGame::handleCityScreenPlotDoublePicked(CvCity* pCity, CvPlot* pPlot, bool
+ void CvGame::handleCityScreenPlotRightPicked(CvCity* pCity, CvPlot* pPlot, bool bAlt, bool bShift, bool bCtrl) const
+ {
+ 	if (pCity != NULL && pPlot != NULL)
+-	{
++	{	/*  <advc.004t> Can't assign a working city to the city plot, so use this
++			for exiting the screen. */
++		if(pCity->plot() == pPlot) {
++			gDLL->getInterfaceIFace()->clearSelectedCities();
++			return;
++		} // </advc.004t>
+ 		if (pCity->getOwnerINLINE() == getActivePlayer() &&
+ 				pPlot->getOwnerINLINE() == getActivePlayer() &&
+ 				pCity->getCityPlotIndex(pPlot) != -1)
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 90b194096..6725c6f88 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -13642,11 +13642,15 @@ void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 	CvGame const& g = GC.getGameINLINE();
+ 	PlayerTypes eActivePlayer = g.getActivePlayer();
+ 	CvPlayerAI const* pActivePlayer = (eActivePlayer == NO_PLAYER ? NULL:
+-			&GET_PLAYER(eActivePlayer));
++			&GET_PLAYER(eActivePlayer)); // </advc.003>
+ 	// gDLL->isMPDiplomacy() does sth. else, apparently.
+ 	bool bDiplo = (g.isGameMultiPlayer() ? gDLL->isMPDiplomacyScreenUp() :
+ 			gDLL->isDiplomacy());
+-	// </advc.003>
++	CvCity* pCity = (gDLL->getInterfaceIFace()->isCityScreenUp() ?
++			/*  A city can also be selected without the city screen being up;
++				don't want that here. */
++			gDLL->getInterfaceIFace()->getHeadSelectedCity() : NULL);
++
+ 	int iHappiness = GC.getBonusInfo(eBonus).getHappiness();
+ 	int iHealth = GC.getBonusInfo(eBonus).getHealth();
+ 
+@@ -13703,8 +13707,8 @@ void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 					szBuffer.append(gDLL->getText("TXT_KEY_BONUS_AVAILABLE_PLAYER",
+ 							GET_PLAYER(eTradePlayer).getNumAvailableBonuses(eBonus),
+ 							GET_PLAYER(eTradePlayer).getNameKey()));
+-				}
+-				else if(iAvailable != 1) {
++				} // Don't show amount on city screen if it's 1
++				else if(iAvailable != 1 || pCity == NULL) {
+ 					// When not trading, this should be clear enough:
+ 					szBuffer.append(gDLL->getText("TXT_KEY_BONUS_AVAILABLE_US",
+ 							iAvailable));
+@@ -13746,7 +13750,7 @@ void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 			// K-Mod. Only display the perks of the bonus if it is not already obsolete
+ 			!TEAMREF(eActivePlayer).isBonusObsolete(eBonus)) {
+ 		// advc.004w: Effects from buildings, projects and units in a subroutine
+-		setBonusExtraHelp(szBuffer, eBonus, bCivilopediaText, eTradePlayer, bDiplo);
++		setBonusExtraHelp(szBuffer, eBonus, bCivilopediaText, eTradePlayer, bDiplo, pCity);
+ 	}
+ // BULL - Trade Denial - start  (advc.073: refactored; getBugOptionBOOL check removed)
+ 	if (eTradePlayer != NO_PLAYER && eActivePlayer != NO_PLAYER)
+@@ -13845,7 +13849,7 @@ void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 
+ // advc.004w: Some code cut from setBonusHelp, but mostly new code.
+ void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus,
+-		bool bCivilopediaText, PlayerTypes eTradePlayer, bool bDiplo) {
++		bool bCivilopediaText, PlayerTypes eTradePlayer, bool bDiplo, CvCity* pCity) {
+ 
+ 	PROFILE_FUNC();
+ 	CvGame const& g = GC.getGameINLINE();
+@@ -13858,10 +13862,6 @@ void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 		pActivePlayer = &GET_PLAYER(eActivePlayer);
+ 		iCurrentEra = pActivePlayer->getCurrentEra();
+ 	}
+-	CvCity* pCity = (gDLL->getInterfaceIFace()->isCityScreenUp() ?
+-			/*  A city can also be selected without the city screen being up;
+-				don't want that here. */
+-			gDLL->getInterfaceIFace()->getHeadSelectedCity() : NULL);
+ 	
+ 	for(int i = 0; i < GC.getNumBuildingClassInfos(); i++) {
+ 		BuildingClassTypes eBuildingClass = (BuildingClassTypes)i;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index d73746494..4ed315399 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -129,7 +129,7 @@ public:
+ // BULL - Trade Denial - end
+ 	// <advc.004w>
+ 	void setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus,
+-			bool bCivilopediaText, PlayerTypes eTradePlayer, bool bDiplo);
++			bool bCivilopediaText, PlayerTypes eTradePlayer, bool bDiplo, CvCity* pCity);
+ 	// </advc.004w>
+ 	void setReligionHelp(CvWStringBuffer &szBuffer, ReligionTypes eReligion, bool bCivilopedia = false);
+ 	void setReligionHelpCity(CvWStringBuffer &szBuffer, ReligionTypes eReligion, CvCity *pCity, bool bCityScreen = false, bool bForceReligion = false, bool bForceState = false, bool bNoStateReligion = false);
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 501eedab8..c6c98536e 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -154,7 +154,8 @@ m_aeTurnRightDirection(NULL),
+ //m_aPlayerOptionsInfo(NULL),
+ m_Profiler(NULL),
+ m_VarSystem(NULL),
+-m_bCachingDone(false),
++m_bCachingDone(false), // advc.003c
++m_bHoFScreenUp(false), // advc.106i
+ m_iEXTRA_YIELD(0), // K-Mod
+ m_bJOIN_WAR_DIPLO_BONUS(false), // advc.130s
+ m_iTILE_CULTURE_DECAY_PER_MILL(0), // advc.099
+@@ -884,7 +885,13 @@ std::vector<CvColorInfo*>& CvGlobals::getColorInfo()
+ CvColorInfo& CvGlobals::getColorInfo(ColorTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumColorInfos());
++	/*  <advc.106i> So that AdvCiv is able to show replays from mods with
++		extra colors. And anyway, a bad color value shouldn't lead to a crash. */
++	if(e >= GC.getNumColorInfos()) {
++		FAssert(m_bHoFScreenUp || e < GC.getNumColorInfos());
++		// +7: Skip COLOR_CLEAR to COLOR_LIGHT_GREY
++		e = (ColorTypes)((e + 7) % GC.getNumColorInfos());
++	} // </advc.106i>
+ 	return *(m_paColorInfo[e]);
+ }
+ 
+@@ -3723,6 +3730,12 @@ bool CvGlobals::isCachingDone() const {
+ 	return m_bCachingDone;
+ } // </advc.003c>
+ 
++// <advc.106i>
++void CvGlobals::setHoFScreenUp(bool b) {
++
++	m_bHoFScreenUp = b;
++} // </Advc.106i>
++
+ //
+ // Global Infos Hash Map
+ //
+@@ -3738,10 +3751,32 @@ int CvGlobals::getInfoTypeForString(const char* szType, bool hideAssert) const
+ 
+ 	//if(!hideAssert)
+ 	if (!hideAssert && !(strcmp(szType, "NONE")==0 || strcmp(szType, "")==0)) // K-Mod
+-	{
++	{	// <advc.006>
++		char const* szCurrentXMLFile = GC.getCurrentXMLFile().GetCString();
++		/*  This function gets called from Python with szType=PLOT_PEAK etc.
++			These are PlotTypes, which don't have associated info objects. Results
++			in an error message in the xml.log. Perhaps the WB plot types in
++			CIV4ArtDefines_Interface.xml are meant? I'm simply returning the
++			plot type. In fact, it doesn't seem to matter what values are returned;
++			no observable error occurs.
++			Looks like BUG introduced this problem, but I can't find the
++			call location in the BUG code, hence the workaround. */
++		if(std::strcmp(szCurrentXMLFile, "xml\\GameInfo/CIV4ForceControlInfos.xml") == 0) {
++			if(std::strcmp(szType, "PLOT_PEAK") == 0)
++				return PLOT_PEAK;
++				//return getInfoTypeForString("WORLDBUILDER_PLOT_TYPE_MOUNTAIN");
++			if(std::strcmp(szType, "PLOT_LAND") == 0)
++				//return getInfoTypeForString("WORLDBUILDER_PLOT_TYPE_PLAINS");
++				return PLOT_LAND;
++			if(std::strcmp(szType, "PLOT_OCEAN") == 0)
++				//return getInfoTypeForString("WORLDBUILDER_PLOT_TYPE_OCEAN");
++				return PLOT_OCEAN;
++		} // </advc.006>
+ 		CvString szError;
+-		szError.Format("info type %s not found, Current XML file is: %s", szType, GC.getCurrentXMLFile().GetCString());
++		szError.Format("info type %s not found, Current XML file is: %s", szType, szCurrentXMLFile);
+ 		//FAssertMsg(strcmp(szType, "NONE")==0 || strcmp(szType, "")==0, szError.c_str());
++		// advc.006: Adding an assert (the one above was already commented out)
++		FAssertMsg(false, szError.c_str());
+ 		gDLL->logMsg("xml.log", szError);
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 115ea778e..cb7e240b8 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -944,6 +944,7 @@ public:
+ 
+ 	void deleteInfoArrays();
+ 	bool isCachingDone() const; // advc.003c
++	void setHoFScreenUp(bool b); // advc.106i
+ 
+ protected:
+ 
+@@ -1173,6 +1174,7 @@ protected:
+ 
+ 	CvString m_szCurrentXMLFile;
+ 	bool m_bCachingDone; // advc.003c
++	bool m_bHoFScreenUp; // advc.106i
+ 	//////////////////////////////////////////////////////////////////////////
+ 	// Formerly Global Defines
+ 	//////////////////////////////////////////////////////////////////////////
+
+diff --git a/CvGameCoreDLL/CvHallOfFameInfo.cpp b/CvGameCoreDLL/CvHallOfFameInfo.cpp
+index 1b10bb3d3..ff641e2c2 100644
+--- a/CvGameCoreDLL/CvHallOfFameInfo.cpp
++++ b/CvGameCoreDLL/CvHallOfFameInfo.cpp
+@@ -4,18 +4,43 @@
+ 
+ CvHallOfFameInfo::CvHallOfFameInfo()
+ {
++	GC.getGameINLINE().setHallOfFame(this); // advc.106i
++	m_bUninit = false; // advc.tmp
+ }
+ 
+ CvHallOfFameInfo::~CvHallOfFameInfo()
+-{
+-	for (uint i = 0; i < m_aReplays.size(); i++)
+-	{
+-		SAFE_DELETE(m_aReplays[i]);
+-	}
++{	// <advc.106i>
++	uninit();
+ }
+ 
++void CvHallOfFameInfo::uninit(CvReplayInfo const* pReplay) {
++	// <advc.tmp>
++	if(m_bUninit) // (Indirect) recursive call
++		return;
++	m_bUninit = true;
++	if(pReplay == NULL) { // </advc.tmp>
++		GC.getGameINLINE().setHallOfFame(NULL);
++		GC.setHoFScreenUp(false);
++	}
++	for(size_t i = 0; i < m_aReplays.size(); i++) {
++		// <advc.tmp>
++		if(pReplay != NULL) {
++			if(m_aReplays[i] == pReplay) {
++				FAssertMsg(false, "Shouldn't have to remove individual replays");
++				m_aReplays[i] = NULL; // Caller is deleting it
++				return;
++			}
++		} // </advc.tmp>
++		else SAFE_DELETE(m_aReplays[i]);
++	}
++	if(pReplay == NULL) // advc.tmp
++		m_aReplays.clear();
++	m_bUninit = false; // advc.tmp
++} // </advc.106i>
++
+ void CvHallOfFameInfo::loadReplays()
+ {
++	GC.setHoFScreenUp(true); // advc.106i
+ 	gDLL->loadReplays(m_aReplays);
+ }
+
+diff --git a/CvGameCoreDLL/CvHallOfFameInfo.h b/CvGameCoreDLL/CvHallOfFameInfo.h
+index 5eee3c591..52018ea1d 100644
+--- a/CvGameCoreDLL/CvHallOfFameInfo.h
++++ b/CvGameCoreDLL/CvHallOfFameInfo.h
+@@ -10,6 +10,7 @@ class CvHallOfFameInfo
+ public:
+ 	CvHallOfFameInfo();
+ 	virtual ~CvHallOfFameInfo();
++	void uninit(/* advc.tmp: */ CvReplayInfo const* pReplay = NULL); // advc.106i
+ 
+ 	void loadReplays();
+ 	int getNumGames() const;
+@@ -17,6 +18,7 @@ public:
+ 
+ protected:
+ 	std::vector<CvReplayInfo*> m_aReplays;
++	bool m_bUninit; // advc.tmp
+ };
+ 
+ #endif
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index 7eb78e307..03b0316a4 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -10592,8 +10592,8 @@ void CvHandicapInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_iUnitCostPercent);
+ 	// <advc.251>
+ 	if(uiFlag >= 4)
+-		stream->read(&iBuildTimePercent);
+-	else iBuildTimePercent = 100;
++		stream->Read(&m_iBuildTimePercent);
++	else m_iBuildTimePercent = 100;
+ 	if(uiFlag >= 3) {
+ 		stream->Read(&m_iBaseGrowthThresholdPercent);
+ 		stream->Read(&m_iGPThresholdPercent);
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 73e8023af..51d2e2ddf 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -9,7 +9,8 @@
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvInitCore.h"
+ 
+-int CvReplayInfo::REPLAY_VERSION = 5; // advc.707: was 4
++int CvReplayInfo::REPLAY_VERSION = 6; // advc.707, advc.106i: 4 in BtS
++bool CvReplayInfo::STORE_REPLAYS_AS_BTS = false; // advc.106i
+ 
+ CvReplayInfo::CvReplayInfo() :
+ 	m_iActivePlayer(0),
+@@ -27,11 +28,23 @@ CvReplayInfo::CvReplayInfo() :
+ 	m_pcMinimapPixels(NULL),
+ 	m_eCalendar(NO_CALENDAR), // advc.003: Safer to initialize it here
+ 	m_iNormalizedScore(0),
+-	m_iFinalScore(-1), // advc.707
+ 	m_bMultiplayer(false),
+ 	m_iStartYear(0)
+ {
+ 	m_nMinimapSize = ((GC.getDefineINT("MINIMAP_RENDER_SIZE") * GC.getDefineINT("MINIMAP_RENDER_SIZE")) / 2);
++	m = new Data(); // advc.003k
++	m->iFinalScore = -1; // advc.707
++	// <advc.106i>
++	m->szPurportedModName = gDLL->getModName(); // Local copy; not sure if necessary.
++	m->iVersionRead = -1;
++	m->bDisplayOtherMods = false;
++	// See comment in GlobalDefines_advc.xml
++	STORE_REPLAYS_AS_BTS = (GC.getDefineINT("HOF_STORE_REPLAYS_AS_BTS") > 0 &&
++			(GC.getNumPlayerColorInfos() <= 44 ||
++			/*  If no colors are added beyond those in BtS, then the new
++				player colors are apparently all old colors; no problem then. */
++			GC.getNumColorInfos() <= 127));
++	// </advc.106i>
+ }
+ 
+ CvReplayInfo::~CvReplayInfo()
+@@ -41,6 +54,11 @@ CvReplayInfo::~CvReplayInfo()
+ 		SAFE_DELETE(m_listReplayMessages[i]);
+ 	}
+ 	SAFE_DELETE(m_pcMinimapPixels);
++	// <advc.tmp>
++	if(!m_szLeaderName.empty() && GC.getGameINLINE().getHallOfFame() != NULL)
++		GC.getGameINLINE().getHallOfFame()->uninit(this);
++	// </advc.tmp>
++	SAFE_DELETE(m); // advc.003k
+ }
+ 
+ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+@@ -194,11 +212,11 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 	void *ptexture = (void*)gDLL->getInterfaceIFace()->getMinimapBaseTexture();
+ 	if (ptexture)
+ 		memcpy((void*)m_pcMinimapPixels, ptexture, m_nMinimapSize);
+-
+-	m_szModName = gDLL->getModName();
++	if(!STORE_REPLAYS_AS_BTS) // advc.106i
++		m_szModName = gDLL->getModName();
+ 	// <advc.707>
+-	if(m_iFinalScore < 0)
+-		m_iFinalScore = getFinalPlayerScore(); // </advc.707>
++	if(m->iFinalScore < 0)
++		m->iFinalScore = getFinalPlayerScore(); // </advc.707>
+ }
+ 
+ // <advc.106h>
+@@ -627,9 +645,9 @@ int CvReplayInfo::getPlayerAgriculture(int iPlayer, int iTurn) const
+ 
+ int CvReplayInfo::getFinalScore() const
+ {
+-	return m_iFinalScore; // advc.707
++	return m->iFinalScore; // advc.707
+ }
+-// <advc.707> This new function now does what getFinalScore used to do
++// <advc.707> This new function does what getFinalScore used to do
+ int CvReplayInfo::getFinalPlayerScore() const
+ {
+ 	return getPlayerScore(m_iActivePlayer, m_iFinalTurn);
+@@ -637,7 +655,7 @@ int CvReplayInfo::getFinalPlayerScore() const
+ // Can now also set the final score to sth. other than the player score
+ void CvReplayInfo::setFinalScore(int sc)
+ {
+-	m_iFinalScore = sc;
++	m->iFinalScore = sc;
+ } // </advc.707>
+ 
+ int CvReplayInfo::getFinalEconomy() const
+@@ -676,67 +694,100 @@ const unsigned char* CvReplayInfo::getMinimapPixels() const
+ }
+ 
+ const char* CvReplayInfo::getModName() const
+-{
+-	return m_szModName;
++{	/*  <advc.106i> Pretend to the EXE that every replay is an AdvCiv replay.
++		(Let CvReplayInfo::read decide which ones to show in HoF.) */ 
++	if(STORE_REPLAYS_AS_BTS || GC.getDefineINT("HOF_DISPLAY_BTS_REPLAYS") > 0 ||
++			GC.getDefineINT("HOF_DISPLAY_OTHER_MOD_REPLAYS") > 0)
++		return m->szPurportedModName;
++	else // </advc.106i>
++		return m_szModName;
+ }
+ 
+ 
+ bool CvReplayInfo::read(FDataStreamBase& stream)
+ {
+-	int iType;
+-	int iNumTypes;
+ 	bool bSuccess = true;
+-
+-	try
+-	{
++	try {
++		int iType;
++		int iNumTypes;
+ 		int iVersion;
+ 		stream.Read(&iVersion);
++		// <advc.106i> Unpack mod id and version
++		int iAdvCivID = GC.getDefineINT("SAVE_VERSION");
++		int iModID = -1;
++		m->bDisplayOtherMods = (GC.getDefineINT("HOF_DISPLAY_OTHER_MOD_REPLAYS") > 0);
++		if(iVersion >= 100 * iAdvCivID) {
++			iModID = iVersion / 100;
++			iVersion = iVersion % 100;
++			/*  This would have to be an AdvCiv modmod with a different id, or
++				any mod that uses a very high replay version number. */
++			if(iModID != iAdvCivID && !m->bDisplayOtherMods)
++				return false;
++		} /* Replay from another mod that has increased the replay version;
++			 won't be able to parse that. (Actually, it might be OK - if the mod
++			 only appends additional data at the end of the stream.) */
++		if(iVersion > REPLAY_VERSION)
++			return false;
++		m->iVersionRead = iVersion; // For the checkBounds function
++		// </advc.106i>
+ 		if (iVersion < 2)
+-		{
+ 			return false;
+-		}
+-
+ 		stream.Read(&m_iActivePlayer);
+-
++		if(!checkBounds(m_iActivePlayer, 0, 64)) return false; // advc.106i
+ 		stream.Read(&iType);
+ 		m_eDifficulty = (HandicapTypes)iType;
++		if(!checkBounds(m_eDifficulty, 0, GC.getNumHandicapInfos())) return false; // advc.106i  (not -1 b/c of advc.250a)
+ 		stream.ReadString(m_szLeaderName);
+ 		stream.ReadString(m_szCivDescription);
+ 		stream.ReadString(m_szShortCivDescription);
+ 		stream.ReadString(m_szCivAdjective);
+-		if (iVersion > 3)
+-		{
++		if(iVersion > 3)
+ 			stream.ReadString(m_szMapScriptName);
+-		}
+-		else
+-		{
+-			m_szMapScriptName = gDLL->getText("TXT_KEY_TRAIT_PLAYER_UNKNOWN");
+-		}
++		else m_szMapScriptName = gDLL->getText("TXT_KEY_TRAIT_PLAYER_UNKNOWN");
++		if(!checkBounds(m_szLeaderName.length() + m_szCivDescription.length() + m_szShortCivDescription.length() + m_szCivAdjective.length() + m_szMapScriptName.length(), 5, 250)) return false; // advc.106i
+ 		stream.Read(&iType);
+ 		m_eWorldSize = (WorldSizeTypes)iType;
++		if(!checkBounds(m_eWorldSize, 0, GC.getNumWorldInfos() - 1)) return false; // advc.106i
+ 		stream.Read(&iType);
+ 		m_eClimate = (ClimateTypes)iType;
++		if(!checkBounds(m_eClimate, 0, GC.getNumClimateInfos() - 1)) return false; // advc.106i
+ 		stream.Read(&iType);
+-		m_eSeaLevel = (SeaLevelTypes)iType;
++		 // <advc.106i> For compatibility with advc.707
++		if(iVersion != 5 && iVersion >= 6) { // ==5 handled at the end of this function
++			m->iFinalScore = iType;
++			m_eSeaLevel = NO_SEALEVEL; // unused
++		}
++		else {
++			m->iFinalScore = INT_MIN; // Compute it later
++			m_eSeaLevel = (SeaLevelTypes)iType;
++			if(!checkBounds(m_eSeaLevel, 0, GC.getNumSeaLevelInfos() - 1)) return false; // advc.106i
++		} // </advc.106i>
+ 		stream.Read(&iType);
+ 		m_eEra = (EraTypes)iType;
++		if(!checkBounds(m_eEra, 0, GC.getNumEraInfos() - 1)) return false; // advc.106i
+ 		stream.Read(&iType);
+ 		m_eGameSpeed = (GameSpeedTypes)iType;
++		if(!checkBounds(m_eGameSpeed, 0, GC.getNumGameSpeedInfos() - 1)) return false; // advc.106i
+ 		stream.Read(&iNumTypes);
++		if(!checkBounds(iNumTypes, 0, GC.getNumGameOptionInfos() - 1)) return false; // advc.106i
+ 		for (int i = 0; i < iNumTypes; i++)
+ 		{
+ 			stream.Read(&iType);
++			if(!checkBounds(iType, 0, GC.getNumGameOptionInfos() - 1)) return false; // advc.106i
+ 			m_listGameOptions.push_back((GameOptionTypes)iType);
+ 		}
+ 		stream.Read(&iNumTypes);
+ 		for (int i = 0; i < iNumTypes; i++)
+ 		{
+ 			stream.Read(&iType);
++			if(!checkBounds(iType, 0, GC.getNumVictoryInfos() - 1)) return false; // advc.106i
+ 			m_listVictoryTypes.push_back((VictoryTypes)iType);
+ 		}
+ 		stream.Read(&iType);
+ 		m_eVictoryType = (VictoryTypes)iType;
++		if(!checkBounds(m_eVictoryType, -1, GC.getNumVictoryInfos() - 1)) return false; // advc.106i
+ 		stream.Read(&iNumTypes);
++		if(!checkBounds(iNumTypes, 0, 50000)) return false; // advc.106i
+ 		for (int i = 0; i < iNumTypes; i++)
+ 		{
+ 			CvReplayMessage* pMessage = new CvReplayMessage(0);
+@@ -747,22 +798,32 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
+ 			m_listReplayMessages.push_back(pMessage);
+ 		}
+ 		stream.Read(&m_iInitialTurn);
++		if(!checkBounds(m_iInitialTurn, 0, 1500)) return false; // advc.106i
+ 		stream.Read(&m_iStartYear);
++		if(!checkBounds(m_iStartYear, -10000, 100000)) return false; // advc.106i
+ 		stream.Read(&m_iFinalTurn);
++		checkBounds(m_iFinalTurn, 0, 10000); // advc.106i
+ 		stream.ReadString(m_szFinalDate);
++		if(!checkBounds(m_szFinalDate.length(), 4, 50)) return false; // advc.106i
+ 		stream.Read(&iType);
+ 		m_eCalendar = (CalendarTypes)iType;
++		if(!checkBounds(m_eCalendar, 0, GC.getNumCalendarInfos() - 1)) return false; // advc.106i
+ 		stream.Read(&m_iNormalizedScore);
++		if(!checkBounds(m_iNormalizedScore, -10000, 1000000)) return false; // advc.106i
+ 		stream.Read(&iNumTypes);
++		if(!checkBounds(iNumTypes, 1, 64)) return false; // advc.106i
+ 		for (int i = 0; i < iNumTypes; i++)
+ 		{
+ 			PlayerInfo info;
+ 			stream.Read(&iType);
+ 			info.m_eLeader = (LeaderHeadTypes)iType;
++			if(!checkBounds(info.m_eLeader, 0, GC.getNumLeaderHeadInfos() - 1)) return false; // advc.106i
+ 			stream.Read(&iType);
+ 			info.m_eColor = (ColorTypes)iType;
++			if(!checkBounds(info.m_eColor, 0, GC.getNumColorInfos() - 1)) return false; // advc.106i
+ 			int jNumTypes;
+ 			stream.Read(&jNumTypes);
++			if(!checkBounds(jNumTypes, 0, 10000)) return false; // advc.106i
+ 			for (int j = 0; j < jNumTypes; j++)
+ 			{
+ 				TurnData data;
+@@ -775,29 +836,50 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
+ 			m_listPlayerScoreHistory.push_back(info);
+ 		}
+ 		stream.Read(&m_iMapWidth);
++		if(!checkBounds(m_iMapWidth, 1, 1000)) return false; // advc.106i
+ 		stream.Read(&m_iMapHeight);
++		if(!checkBounds(m_iMapHeight, 1, 1000)) return false; // advc.106i
+ 		SAFE_DELETE(m_pcMinimapPixels);
+ 		m_pcMinimapPixels = new unsigned char[m_nMinimapSize];
+ 		stream.Read(m_nMinimapSize, m_pcMinimapPixels);
+ 		stream.Read(&m_bMultiplayer);
+ 		if (iVersion > 2)
+-		{
+-			stream.ReadString(m_szModName);
++		{	// <advc.106i>
++			try { /* I've had some issues with m_szModName sometimes remaining
++					 uninitialized, so I've added a separate try block. */
++				stream.ReadString(m_szModName);
++				m_szModName.GetLength(); // To check if bad ptr
++			} catch(...) {
++				FAssertMsg(false, "Failed to read replay file");
++				return false;
++			}
++			if(m_szModName.empty()) {
++				if(iModID < 0 && GC.getDefineINT("HOF_DISPLAY_BTS_REPLAYS") <= 0)
++					return false;
++			}
++			else if(!m->bDisplayOtherMods &&
++					std::strcmp(m_szModName.GetCString(), gDLL->getModName()) != 0)
++				return false; // Replay from a different mod
++			// </advc.106i>
+ 		} // <advc.707>
+-		if(iVersion >= 5)
+-			stream.Read(&m_iFinalScore);
+-		else m_iFinalScore = getFinalPlayerScore(); // </advc.707>
+-	}
+-	catch (...)
+-	{
+-		bSuccess = false;
+-	}
++		if(iVersion == 5)
++			stream.Read(&m->iFinalScore);
++		// </advc.707>
++	} catch(...) {
++		FAssertMsg(false, "Failed to read replay file");
++		return false;
++	} // <advc.707>
++	if(m->iFinalScore == INT_MIN)
++		m->iFinalScore = getFinalPlayerScore();
++	// </advc.707>
+ 	return bSuccess;
+ }
+ 
+ void CvReplayInfo::write(FDataStreamBase& stream)
+ {
+-	stream.Write(REPLAY_VERSION);
++	//stream.Write(REPLAY_VERSION);
++	// <advc.106i> Fold AdvCiv's (hopefully) globally unique id into the replay version
++	stream.Write(GC.getDefineINT("SAVE_VERSION") * 100 + REPLAY_VERSION);
+ 	stream.Write(m_iActivePlayer);
+ 	stream.Write((int)m_eDifficulty);
+ 	stream.WriteString(m_szLeaderName);
+@@ -807,7 +889,11 @@ void CvReplayInfo::write(FDataStreamBase& stream)
+ 	stream.WriteString(m_szMapScriptName);
+ 	stream.Write((int)m_eWorldSize);
+ 	stream.Write((int)m_eClimate);
+-	stream.Write((int)m_eSeaLevel);
++	//stream.Write((int)m_eSeaLevel);
++	/*  advc.106i: m_eSeaLevel is unused in AdvCiv and BtS. Need to stick to the
++		BtS replay format. Well, it's probably OK to append additional data at
++		the end, but I'm not quite sure. */
++	stream.Write(m->iFinalScore); // advc.707
+ 	stream.Write((int)m_eEra);
+ 	stream.Write((int)m_eGameSpeed);
+ 	stream.Write((int)m_listGameOptions.size());
+@@ -855,5 +941,27 @@ void CvReplayInfo::write(FDataStreamBase& stream)
+ 	stream.Write(m_nMinimapSize, m_pcMinimapPixels);
+ 	stream.Write(m_bMultiplayer);
+ 	stream.WriteString(m_szModName);
+-	stream.Write(m_iFinalScore); // advc.707
+ }
++
++// <advc.106i>
++bool CvReplayInfo::checkBounds(int iValue, int iLower, int iUpper) const {
++
++	/*  If CvReplayInfo::read encounters a replay from another mod, it won't be able
++		to tell until it reaches the mod name at the end of the stream. I'm not aware
++		of any mods that change the replay format, but, if they do, the read function
++		is going to get out of step, which may throw an exception, which causes
++		the replay to be disregarded (good). If there is no exception, then the
++		mod name check should reject the replay. But ... I don't know, I don't
++		want to rely on exceptions. As all mods place their replays in the same
++		folder, it's not such an exceptional thing to encounter a strange replay. */
++	if(m->bDisplayOtherMods) // Still want sanity checks then, but be more generous.
++		iUpper *= 2;
++	if(iValue < iLower || iValue > iUpper) {
++		/*  The assertion is only there to warn me when an AdvCiv replay gets
++			rejected. If another mod has changed the replay format, then probably
++			just once, from version 4 to 5, but not to REPLAY_VERSION. */
++		FAssert(m->bDisplayOtherMods || m->iVersionRead < REPLAY_VERSION);
++		return false;
++	}
++	return true;
++} // </advc.106i>
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.h b/CvGameCoreDLL/CvReplayInfo.h
+index 735613983..8f16a6e5b 100644
+--- a/CvGameCoreDLL/CvReplayInfo.h
++++ b/CvGameCoreDLL/CvReplayInfo.h
+@@ -78,7 +78,10 @@ protected:
+ 	bool isValidPlayer(int i) const;
+ 	bool isValidTurn(int i) const;
+ 	void addSettingsMsg(); // advc.106h
+-
++	// <advc.106i>
++	bool checkBounds(int iValue, int iLower, int iUpper) const;
++	static bool STORE_REPLAYS_AS_BTS;
++	// </advc.106i>
+ 	static int REPLAY_VERSION;
+ 
+ 	int m_iActivePlayer;
+@@ -108,7 +111,6 @@ protected:
+ 	CvWString m_szFinalDate;
+ 	CalendarTypes m_eCalendar;
+ 	int m_iNormalizedScore;
+-	int m_iFinalScore; // advc.707
+ 
+ 	struct TurnData
+ 	{
+@@ -135,6 +137,19 @@ protected:
+ 	int m_nMinimapSize;
+ 
+ 	CvString m_szModName;
+-};
+ 
++	// <advc.003k> Additional data members
++	class Data {
++		int iFinalScore; // advc.707
++		// <advc.106i>
++		int iVersionRead;
++		bool bDisplayOtherMods;
++		CvString szPurportedModName;
++		// </advc.106i>
++		friend CvReplayInfo;
++	};
++	Data* m;
++};
++typedef char assertSizeOfReplayInfo[(sizeof(CvReplayInfo)==340)*2-1];
++// </advc.003k>
+ #endif
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 6d22e5c2e..ec53e2c34 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -139,7 +139,8 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 			}
+ 
+ 			// write global defines info to cache
+-			bool bOk = gDLL->cacheWrite(cache);
++			// advc.003i: Disabled
++			/*bool bOk = gDLL->cacheWrite(cache);
+ 			if (!bOk)
+ 			{
+ 				char	szMessage[1024];
+@@ -149,7 +150,7 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 			else
+ 			{
+ 				logMsg("Wrote GlobalDefines to cache");
+-			}
++			}*/
+ 		}
+ 	}
+ 
+@@ -552,120 +553,119 @@ bool CvXMLLoadUtility::SetGlobalArtDefines()
+ bool CvXMLLoadUtility::LoadGlobalText()
+ {
+ 	CvCacheObject* cache = gDLL->createGlobalTextCacheObject("GlobalText.dat");	// cache file name
+-	if (!gDLL->cacheRead(cache))
++	// advc.003: Handle successful read upfront
++	if (gDLL->cacheRead(cache)) {
++		logMsg("Read GlobalText from cache");
++		gDLL->destroyCache(cache);
++		return true; 
++	}
++
++	if (!CreateFXml())
+ 	{
+-		bool bLoaded = false;
++		return false;
++	}
+ 
+-		if (!CreateFXml())
+-		{
+-			return false;
+-		}
++	//
++	// load all files in the xml text directory
++	//
++	std::vector<CvString> aszFiles;
++	std::vector<CvString> aszModfiles;
+ 
+-		//
+-		// load all files in the xml text directory
+-		//
+-		std::vector<CvString> aszFiles;
+-		std::vector<CvString> aszModfiles;
+-
+-		gDLL->enumerateFiles(aszFiles, "xml\\text\\*.xml");
+-
+-		// K-Mod. Text files from mods may not have the same set of language as the base game.
+-		// When such a mismatch occurs, we cannot simply rely on "getCurrentLanguage()" to give us the correct text from the mod file. We should instead check the xml tags.
+-		// So, before we start loading text, we need to extract the current name of our language tag. This isn't as easy as I'd like. Here's what I'm going to do:
+-		// CIV4GameText_Misc1.xml contains the text for the language options dropdown menu in the settings screen; so I'm going to assume that particular text file is
+-		// well formed, and I'm going to use it to determine the current language name. (Note: I'd like to use the names from TXT_KEY_LANGUAGE_#, but that text isn't easy to access.)
+-		// label text for the currently selected language -- that should correspond to the xml label used for that language.
+-		std::string langauge_name;
+-		if (LoadCivXml(m_pFXml, "xml\\text\\CIV4GameText_Misc1.xml"))
+-		{
+-			bool bValid = true;
+-			bValid = bValid && gDLL->getXMLIFace()->LocateNode(m_pFXml, "Civ4GameText/TEXT");
+-			bValid = bValid && gDLL->getXMLIFace()->SetToChild(m_pFXml);
++	gDLL->enumerateFiles(aszFiles, "xml\\text\\*.xml");
++
++	// K-Mod. Text files from mods may not have the same set of language as the base game.
++	// When such a mismatch occurs, we cannot simply rely on "getCurrentLanguage()" to give us the correct text from the mod file. We should instead check the xml tags.
++	// So, before we start loading text, we need to extract the current name of our language tag. This isn't as easy as I'd like. Here's what I'm going to do:
++	// CIV4GameText_Misc1.xml contains the text for the language options dropdown menu in the settings screen; so I'm going to assume that particular text file is
++	// well formed, and I'm going to use it to determine the current language name. (Note: I'd like to use the names from TXT_KEY_LANGUAGE_#, but that text isn't easy to access.)
++	// label text for the currently selected language -- that should correspond to the xml label used for that language.
++	std::string langauge_name;
++	if (LoadCivXml(m_pFXml, "xml\\text\\CIV4GameText_Misc1.xml"))
++	{
++		bool bValid = true;
++		bValid = bValid && gDLL->getXMLIFace()->LocateNode(m_pFXml, "Civ4GameText/TEXT");
++		bValid = bValid && gDLL->getXMLIFace()->SetToChild(m_pFXml);
+ 
+-			if (bValid)
++		if (bValid)
++		{
++			const int& iLanguage = GAMETEXT.getCurrentLanguage();
++			const int iMax = GC.getDefineINT("MAX_NUM_LANGUAGES");
++			int i;
++			for (i = 0; i < iMax; i++)
+ 			{
+-				const int& iLanguage = GAMETEXT.getCurrentLanguage();
+-				const int iMax = GC.getDefineINT("MAX_NUM_LANGUAGES");
+-				int i;
+-				for (i = 0; i < iMax; i++)
+-				{
+-					SkipToNextVal();
++				SkipToNextVal();
+ 
+-					if (!gDLL->getXMLIFace()->NextSibling(m_pFXml))
+-						break;
+-					if (i == iLanguage)
++				if (!gDLL->getXMLIFace()->NextSibling(m_pFXml))
++					break;
++				if (i == iLanguage)
++				{
++					char buffer[1024]; // no way to determine max tag name size. .. This is really bad; but what can I do about it?
++					if (gDLL->getXMLIFace()->GetLastLocatedNodeTagName(m_pFXml, buffer))
+ 					{
+-						char buffer[1024]; // no way to determine max tag name size. .. This is really bad; but what can I do about it?
+-						if (gDLL->getXMLIFace()->GetLastLocatedNodeTagName(m_pFXml, buffer))
+-						{
+-							buffer[1023] = 0; // just in case the buffer isn't even terminated!
+-							langauge_name.assign(buffer);
+-						}
++						buffer[1023] = 0; // just in case the buffer isn't even terminated!
++						langauge_name.assign(buffer);
+ 					}
+ 				}
+-				// this is stupid...
+-				// the number of languages is a static private variable which can only be set by a non-static function.
+-				CvGameText dummy;
+-				dummy.setNumLanguages(i);
+-			}
+-		}
+-
+-		// Remove duplicate files. (Both will be loaded from the mod folder anyway, so this will save us some time.)
+-		// However, we must not disturb the order of the list, because it is important that the modded files overrule the unmodded files.
+-		for(std::vector<CvString>::iterator it = aszFiles.begin(); it != aszFiles.end(); ++it)
+-		{
+-			std::vector<CvString>::iterator jt = it+1;
+-			while (jt != aszFiles.end())
+-			{
+-				if (it->CompareNoCase(*jt) == 0)
+-					jt = aszFiles.erase(jt);
+-				else
+-					++jt;
+ 			}
++			// this is stupid...
++			// the number of languages is a static private variable which can only be set by a non-static function.
++			CvGameText dummy;
++			dummy.setNumLanguages(i);
+ 		}
+-		// K-Mod end
+-
+-		if (gDLL->isModularXMLLoading())
+-		{
+-			gDLL->enumerateFiles(aszModfiles, "modules\\*_CIV4GameText.xml");
+-			aszFiles.insert(aszFiles.end(), aszModfiles.begin(), aszModfiles.end());
+-		}
++	}
+ 
+-		for(std::vector<CvString>::iterator it = aszFiles.begin(); it != aszFiles.end(); ++it)
++	// Remove duplicate files. (Both will be loaded from the mod folder anyway, so this will save us some time.)
++	// However, we must not disturb the order of the list, because it is important that the modded files overrule the unmodded files.
++	for(std::vector<CvString>::iterator it = aszFiles.begin(); it != aszFiles.end(); ++it)
++	{
++		std::vector<CvString>::iterator jt = it+1;
++		while (jt != aszFiles.end())
+ 		{
+-			bLoaded = LoadCivXml(m_pFXml, *it); // Load the XML
+-			if (!bLoaded)
+-			{
+-				char	szMessage[1024];
+-				sprintf( szMessage, "LoadXML call failed for %s. \n Current XML file is: %s", (*it).c_str(), GC.getCurrentXMLFile().GetCString());
+-				gDLL->MessageBox(szMessage, "XML Load Error");
+-			}
+-			if (bLoaded)
+-			{
+-				// if the xml is successfully validated
+-				SetGameText("Civ4GameText", "Civ4GameText/TEXT", langauge_name);
+-			}
++			if (it->CompareNoCase(*jt) == 0)
++				jt = aszFiles.erase(jt);
++			else
++				++jt;
+ 		}
++	}
++	// K-Mod end
+ 
+-		DestroyFXml();
+-
+-		// write global text info to cache
+-		bool bOk = gDLL->cacheWrite(cache);
++	if (gDLL->isModularXMLLoading())
++	{
++		gDLL->enumerateFiles(aszModfiles, "modules\\*_CIV4GameText.xml");
++		aszFiles.insert(aszFiles.end(), aszModfiles.begin(), aszModfiles.end());
++	}
++	bool bLoaded = false;
++	for(std::vector<CvString>::iterator it = aszFiles.begin(); it != aszFiles.end(); ++it)
++	{
++		bLoaded = LoadCivXml(m_pFXml, *it); // Load the XML
+ 		if (!bLoaded)
+ 		{
+ 			char	szMessage[1024];
+-			sprintf( szMessage, "Failed writing to Global Text cache. \n Current XML file is: %s", GC.getCurrentXMLFile().GetCString());
+-			gDLL->MessageBox(szMessage, "XML Caching Error");
++			sprintf( szMessage, "LoadXML call failed for %s. \n Current XML file is: %s", (*it).c_str(), GC.getCurrentXMLFile().GetCString());
++			gDLL->MessageBox(szMessage, "XML Load Error");
+ 		}
+-		if (bOk)
++		if (bLoaded)
+ 		{
+-			logMsg("Wrote GlobalText to cache");
++			// if the xml is successfully validated
++			SetGameText("Civ4GameText", "Civ4GameText/TEXT", langauge_name);
+ 		}
+-	}	// didn't read from cache
+-	else
++	}
++
++	DestroyFXml();
++
++	// write global text info to cache
++	// advc.003i: Disabled
++	/*bool bOk = gDLL->cacheWrite(cache);
++	if (!bLoaded)
+ 	{
+-		logMsg("Read GlobalText from cache");
++		char	szMessage[1024];
++		sprintf( szMessage, "Failed writing to Global Text cache. \n Current XML file is: %s", GC.getCurrentXMLFile().GetCString());
++		gDLL->MessageBox(szMessage, "XML Caching Error");
+ 	}
++	if (bOk)
++	{
++		logMsg("Wrote GlobalText to cache");
++	}*/
+ 
+ 	gDLL->destroyCache(cache);
+ 
+@@ -1578,8 +1578,8 @@ void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
+ 					}
+ 				}
+ 			}
+-
+-			if (NULL != pArgFunction && bWriteCache)
++			// advc.003i: Disabled
++			/*if (NULL != pArgFunction && bWriteCache)
+ 			{
+ 				// write info to cache
+ 				bool bOk = gDLL->cacheWrite(pCache);
+@@ -1593,7 +1593,7 @@ void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
+ 				{
+ 					logMsg("Wrote %s to cache", szFileDirectory);
+ 				}
+-			}
++			}*/
+ 		}
+ 	}
+ 
+@@ -1657,8 +1657,8 @@ void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInf
+ 					}
+ 				}
+ 			}
+-
+-			if (NULL != pArgFunction && bWriteCache)
++			// advc.003i: Disabled
++			/*if (NULL != pArgFunction && bWriteCache)
+ 			{
+ 				// write info to cache
+ 				bool bOk = gDLL->cacheWrite(pCache);
+@@ -1672,7 +1672,7 @@ void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInf
+ 				{
+ 					logMsg("Wrote %s to cache", szFileDirectory);
+ 				}
+-			}
++			}*/
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 517550c36..82fe95723 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -403,6 +403,7 @@ void CyEnumsPythonInterface()
+ 		.value("WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE", WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE)
+ 		// K-Mod end
+ 		.value("WIDGET_LH_GLANCE", WIDGET_LH_GLANCE) // advc.152
++		.value("WIDGET_SHOW_REPLAY", WIDGET_SHOW_REPLAY) // advc.106i
+ 		// BULL - Trade Denial - start
+ 		.value("WIDGET_PEDIA_JUMP_TO_BONUS_TRADE", WIDGET_PEDIA_JUMP_TO_BONUS_TRADE)
+ 		.value("WIDGET_PEDIA_JUMP_TO_TECH_TRADE", WIDGET_PEDIA_JUMP_TO_TECH_TRADE)
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 189aa5edc..62b3a8fe5 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -308,6 +308,9 @@ void RiseFall::atTurnEnd(PlayerTypes civId) {
+ 	if(g.getGameState() == GAMESTATE_EXTENDED)
+ 		return;
+ 	int gameTurn = g.gameTurn();
++	// The chapter of civ 0 needs to be started at the end of the previous game turn
++	if(civId == BARBARIAN_PLAYER)
++		gameTurn++;
+ 	/*  Conduct scoring exactly as scheduled at the end of a turn of the
+ 		civ being scored; show the score popup at the start of the next
+ 		active player turn. */
+@@ -317,10 +320,12 @@ void RiseFall::atTurnEnd(PlayerTypes civId) {
+ 			chapters[i]->score();
+ 	}
+ 	int currentChPos = getCurrentChapter();
+-	if(currentChPos < 0 || currentChPos >= ((int)chapters.size()) - 1)
++	if(currentChPos < 0 || currentChPos >= (int)chapters.size()) {
++		FAssertMsg(currentChPos < 0 || interludeCountdown < 0, "Interlude past final chapter");
+ 		return;
++	}
+ 	RFChapter& currentCh = *chapters[currentChPos];
+-	PlayerTypes nextCivId = (PlayerTypes)((civId + 1) % MAX_PLAYERS);
++	PlayerTypes nextCivId = nextCivAlive(civId);
+ 	if(nextCivId == currentCh.getCiv()) {
+ 		if(nextCivId != g.getActivePlayer()) {
+ 			if(GET_PLAYER(nextCivId).isAlive()) {
+@@ -456,28 +461,30 @@ void RiseFall::setPlayerControl(PlayerTypes civId, bool b) {
+ 	PlayerTypes formerHumanCiv = g.getActivePlayer();
+ 	if(formerHumanCiv != NO_PLAYER && !GET_PLAYER(formerHumanCiv).isHuman())
+ 		formerHumanCiv = NO_PLAYER;
+-	if(!b || !GET_PLAYER(civId).isHuman()) // Unless human control continues
++	CvPlayer& civ = GET_PLAYER(civId);
++	if(!b || !civ.isHuman()) // Unless human control continues
+ 		gDLL->getInterfaceIFace()->clearQueuedPopups();
+ 	if(b) {
+ 		g.changeHumanPlayer(civId);
+ 		GC.getInitCore().setHandicap(civId, g.getHandicapType());
+ 	}
+ 	else {
+-		GET_PLAYER(civId).setIsHuman(false);
++		civ.setIsHuman(false);
+ 		GC.getInitCore().setHandicap(civId, g.getAIHandicap());
+ 		GC.getInitCore().setLeaderName(civId,
+-				GC.getLeaderHeadInfo(GET_PLAYER(civId).getLeaderType()).
+-				getDescription());
++				GC.getLeaderHeadInfo(civ.getLeaderType()).getDescription());
+ 		gDLL->getInterfaceIFace()->flushTalkingHeadMessages();
+ 		gDLL->getInterfaceIFace()->clearEventMessages();
+ 		gDLL->getInterfaceIFace()->clearSelectedCities();
+ 		gDLL->getInterfaceIFace()->clearSelectionList();
+ 	}
+ 	// (Un)fog the map
+-	CvPlot::setAllFog(!b);
+-	if(!b)
+-		g.updateActiveVisibility();
+-	setUIHidden(!b);
++	if(b || !g.isDebugMode()) {
++		CvPlot::setAllFog(!b);
++		if(!b)
++			g.updateActiveVisibility();
++		setUIHidden(!b);
++	}
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 		CvPlayerAI& other = GET_PLAYER((PlayerTypes)i);
+ 		if(!other.isAlive() || other.isMinorCiv())
+@@ -489,6 +496,11 @@ void RiseFall::setPlayerControl(PlayerTypes civId, bool b) {
+ 				isHasMet(other.getTeam()))
+ 			other.AI_updateAttitudeCache(formerHumanCiv);
+ 	}
++	if(b) { // Updates to apply human modifiers
++		civ.updateWarWearinessPercentAnger(); int foo=-1;
++		for(CvCity* c = civ.firstCity(&foo); c != NULL; c = civ.nextCity(&foo))
++			c->updateMaintenance();
++	}
+ }
+ 
+ void RiseFall::setUIHidden(bool b) {
+@@ -848,6 +860,7 @@ PlayerTypes RiseFall::nextCivAlive(PlayerTypes startExcluded) const {
+ 		r = (r + 1) % MAX_PLAYERS;
+ 	if(r == startExcluded)
+ 		return NO_PLAYER;
++	FAssert(startExcluded == BARBARIAN_PLAYER || startExcluded < r || r == BARBARIAN_PLAYER);
+ 	return (PlayerTypes)r;
+ }
+ 
+@@ -1186,12 +1199,45 @@ int RiseFall::victoryStage(PlayerTypes civId) {
+ CvWString RiseFall::retireConfirmMsg() const {
+ 
+ 	CvWString r = gDLL->getText("TXT_KEY_RF_CONFIRM_RETIRE", getRetireTurns());
+-	if(interludeLength > 0)
+-		r += L" (" + gDLL->getText("TXT_KEY_RF_CONFIRM_RETIRE_INTERLUDE",
+-				interludeLength) + L")";
++	if(interludeLength > 0 && getCurrentChapter() < (int)(chapters.size() - 1))
++		r.append(L" (" + gDLL->getText("TXT_KEY_RF_CONFIRM_RETIRE_INTERLUDE",
++				interludeLength) + L")");
++	r.append(NEWLINE);
++	r.append(NEWLINE);
++	r.append(gDLL->getText("TXT_KEY_RF_RETIRE_FOR_GOOD"));
+ 	return r;
+ }
+ 
++bool RiseFall::launchRetirePopup(CvPopup* popup, CvPopupInfo& info) {
++
++	int pos = getCurrentChapter();
++	FAssert(pos >= 0);
++	bool bEndless = (pos >= 0 && chapters[pos]->isEndless());
++	CvDLLInterfaceIFaceBase& base = *gDLL->getInterfaceIFace();
++	base.popupSetBodyString(popup, bEndless ?
++			gDLL->getText("TXT_KEY_POPUP_ARE_YOU_SURE") :
++			retireConfirmMsg());
++	// The popupAddGenericButton calls are copied from CvDLLButtonPopup::launchConfirmMenu
++	if(!bEndless) {
++		base.popupAddGenericButton(popup, gDLL->getText("TXT_KEY_POPUP_RETIRE"),
++				NULL, 0, WIDGET_GENERAL);
++	}
++	base.popupAddGenericButton(popup, gDLL->getText("TXT_KEY_POPUP_CANCEL"),
++			NULL, 1, WIDGET_GENERAL);
++	base.popupAddGenericButton(popup, gDLL->getText("TXT_KEY_RF_END_GAME"),
++			NULL, 2, WIDGET_GENERAL);
++	base.popupLaunch(popup, false, POPUPSTATE_IMMEDIATE);
++	return true;
++}
++
++void RiseFall::handleRetirePopup(int buttonClicked) {
++
++	if(buttonClicked == 2)
++		GC.getGameINLINE().retire();
++	else if(buttonClicked == 0)
++		retire();
++}
++
+ int RiseFall::getCivChapter(PlayerTypes civId) const {
+ 
+ 	int r = -1;
+
+diff --git a/CvGameCoreDLL/RiseFall.h b/CvGameCoreDLL/RiseFall.h
+index a46f9d7ad..1ae8d5e72 100644
+--- a/CvGameCoreDLL/RiseFall.h
++++ b/CvGameCoreDLL/RiseFall.h
+@@ -43,6 +43,8 @@ public:
+ 	  void assignCivSelectionHelp(CvWStringBuffer& szBuffer,
+ 			PlayerTypes selectedCiv);
+ 	  CvWString retireConfirmMsg() const;
++	  bool launchRetirePopup(CvPopup* popup, CvPopupInfo& info);
++	  void handleRetirePopup(int buttonClicked);
+ 	  bool isSelectingCiv() const; // Waiting for callback
+ 	bool isDeliverMessages(PlayerTypes civId) const;
+ 	bool isCooperationRestricted(PlayerTypes aiCiv) const;
+
+[PATCH OMITTED] file=a/manual_0.94f.odt b/manual_0.94f.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=28 embeddedFiles=27 omittedFiles=1 embeddedPatchBytes=113951

@@ -1,0 +1,117 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3044
+# Commit: 8a2a75e1e04dbe2882bcc347ffd0b8ae53d99ab4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ef51ddbbffbc9f0aabe744310de1d4ed9edd27e4
+# Title: Fix two minor inconsistencies in the UWAI cache
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/UWAI.cpp
+5	3	CvGameCoreDLL/UWAICache.cpp
+2	4	CvGameCoreDLL/UWAICache.h
+2	2	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/UWAI.cpp b/CvGameCoreDLL/UWAI.cpp
+index a0de64775..f3ab4c93f 100644
+--- a/CvGameCoreDLL/UWAI.cpp
++++ b/CvGameCoreDLL/UWAI.cpp
+@@ -36,7 +36,7 @@ void UWAI::initNewPlayerInGame(PlayerTypes eNewPlayer)
+ 
+ void UWAI::processNewPlayerInGame(PlayerTypes eNewPlayer)
+ {
+-	GET_PLAYER(eNewPlayer).uwai().getCache().updateTypicalUnits();
++	GET_PLAYER(eNewPlayer).uwai().getCache().update(true);
+ 	for (TeamIter<MAJOR_CIV> it; it.hasNext(); ++it)
+ 		it->uwai().turnPre();
+ }
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 959588fc8..3dacb1114 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -297,7 +297,7 @@ void UWAICache::read(FDataStreamBase* pStream)
+ 
+ /*	Called each turn. Some data are also updated throughout the turn, e.g. through
+ 	reportUnitCreated. */
+-void UWAICache::update()
++void UWAICache::update(bool bNewPlayer)
+ {
+ 	PROFILE_FUNC();
+ 	clear(true);
+@@ -317,10 +317,12 @@ void UWAICache::update()
+ 	updateTotalAssetScore();
+ 	updateTargetMissionCounts();
+ 	updateTypicalUnits();
+-	bool const bPlayerHistAvailable = (GC.getGame().getElapsedGameTurns() > 0);
++	bool const bPlayerHistAvailable = (GC.getGame().getElapsedGameTurns() > 0 &&
++			!bNewPlayer);
+ 	if (bPlayerHistAvailable) // Can't do yield estimates on the first turn
+ 		updateThreatRatings();
+-	updateVassalScores();
++	if (!GET_PLAYER(m_eOwner).isAVassal())
++		updateVassalScores();
+ 	updateAdjacentLand();
+ 	updateLostTilesAtWar(); // advc.035
+ 	updateRelativeNavyPower();
+
+diff --git a/CvGameCoreDLL/UWAICache.h b/CvGameCoreDLL/UWAICache.h
+index 0ebf05699..1872f235c 100644
+--- a/CvGameCoreDLL/UWAICache.h
++++ b/CvGameCoreDLL/UWAICache.h
+@@ -64,7 +64,7 @@ public:
+ 		+	The reset function is named "clear" and is also used before cache updates. */
+ 	void init(PlayerTypes eOwner);
+ 	void uninit();
+-	void update();
++	void update(bool bNewPlayer = false);
+ 	void write(FDataStreamBase* pStream) const;
+ 	void read(FDataStreamBase* pStream);
+ 	int numReachableCities(PlayerTypes ePlayer) const
+@@ -165,9 +165,6 @@ public:
+ 	void addTeam(PlayerTypes eOtherLeader);
+ 	// Moves data that is stored only at the team leader
+ 	void onTeamLeaderChanged(PlayerTypes formerLeaderId);
+-	/*	public b/c this needs to be done ahead of the normal update when a
+-		colony is created (bootstrapping problem) */
+-	void updateTypicalUnits();
+ 
+ private:
+ 	// bBeforeUpdate: Only clear data that is recomputed by the update function
+@@ -182,6 +179,7 @@ private:
+ 	TeamPathFinders* createTeamPathFinders() const;
+ 	static void deleteTeamPathFinders(TeamPathFinders& kPathFinders);
+ 	void resetTeamPathFinders(TeamPathFinders& kPathFinders, TeamTypes eWarTarget) const;
++	void updateTypicalUnits();
+ 	void updateTraits();
+ 	void updateTargetMissionCounts();
+ 	void updateThreatRatings();
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index a58005edf..f5e6faa3a 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2900,8 +2900,8 @@ int Risk::preEvaluate()
+ 		scaled rVassalCost; // (i.e. negative utility)
+ 		if (rRelativeVassalLoss > 0)
+ 		{	/*	advc.test: Total asset score less than the sum of the city scores.
+-				I've seen this happen with the total being 0.
+-				To be investigated further. */
++				Had not worked correctly when called from UWAI::processNewPlayerInGame.
++				Should be fixed now; let's see ... */
+ 			FAssert(rRelativeVassalLoss <= 1);
+ 			rRelativeVassalLoss.decreaseTo(1);
+ 			rVassalCost = rRelativeVassalLoss * 33;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3548

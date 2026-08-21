@@ -1,0 +1,231 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2088
+# Commit: efff313af62a78c44d1198ecc172b8641cdda6f7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4a87dd87ef06abda2ba349502ba5eb0251595b23
+# Title: Amend refactoring changes to research progress functions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	26	CvGameCoreDLL/CvPlayer.cpp
+49	51	CvGameCoreDLL/CvPlayerAI.cpp
+2	3	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 9d2578b35..f207a29f6 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6742,53 +6742,32 @@ bool CvPlayer::canResearch(TechTypes eTech, bool bTrade, bool bFree,
+ 
+ TechTypes CvPlayer::getCurrentResearch() const
+ {
+-	CLLNode<TechTypes>* pResearchNode;
+-
+-	pResearchNode = headResearchQueueNode();
+-
++	CLLNode<TechTypes>* pResearchNode = headResearchQueueNode();
+ 	if (pResearchNode != NULL)
+-	{
+ 		return pResearchNode->m_data;
+-	}
+-	else
+-	{
+-		return NO_TECH;
+-	}
++	return NO_TECH;
+ }
+ 
+ 
+ bool CvPlayer::isCurrentResearchRepeat() const
+ {
+-	TechTypes eCurrentResearch;
+-
+-	eCurrentResearch = getCurrentResearch();
+-
++	TechTypes eCurrentResearch = getCurrentResearch();
+ 	if (eCurrentResearch == NO_TECH)
+-	{
+ 		return false;
+-	}
+-
+ 	return GC.getInfo(eCurrentResearch).isRepeat();
+ }
+ 
+ 
+ bool CvPlayer::isNoResearchAvailable() const
+ {
+-	int iI;
+-
+ 	if (getCurrentResearch() != NO_TECH)
+-	{
+ 		return false;
+-	}
+ 
+-	for (iI = 0; iI < GC.getNumTechInfos(); iI++)
++	FOR_EACH_ENUM(Tech)
+ 	{
+-		if (canResearch((TechTypes)iI))
+-		{
++		if (canResearch(eLoopTech))
+ 			return false;
+-		}
+ 	}
+-
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 876859f53..6d824b371 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -19570,64 +19570,62 @@ void CvPlayerAI::AI_proposeWarTrade(PlayerTypes eHireling)
+ 	int iBestTeamPrice = -1;
+ 	// </advc.104o>
+ 	TeamTypes eBestTarget = NO_TEAM;
++	int iBestValue = 0;
++	for (TeamIter<MAJOR_CIV,ENEMY_OF> itTarget(getTeam());
++		itTarget.hasNext(); ++itTarget)
+ 	{
+-		int iBestValue = 0;
+-		for (TeamIter<MAJOR_CIV,ENEMY_OF> itTarget(getTeam());
+-			itTarget.hasNext(); ++itTarget)
++		CvTeamAI const& kTarget = *itTarget;
++		if (kTarget.isAtWar(kHireling.getTeam()))
++			continue;
++		// <advc.104o>
++		if (getUWAI.isEnabled())
+ 		{
+-			CvTeamAI const& kTarget = *itTarget;
+-			if (kTarget.isAtWar(kHireling.getTeam()))
++			/*  AI_declareWarTrade checks attitude toward the target;
++				no war if the target is liked. Shouldn't matter for
++				capitulated vassals, but an unpopular voluntary vassal
++				should be a valid target even if the master would not be.
++				Attitude toward the master still factors into tradeValJointWar. */
++			if (kTarget.isCapitulated())
+ 				continue;
+-			// <advc.104o>
+-			if (getUWAI.isEnabled())
++			if (!kHireling.canTradeItem(getID(),
++				/*	(Important here for performance and UWAI log output that
++					AI denial now gets tested after the game rule checks.) */
++				TradeData(TRADE_WAR, kTarget.getID()), true))
+ 			{
+-				/*  AI_declareWarTrade checks attitude toward the target;
+-					no war if the target is liked. Shouldn't matter for
+-					capitulated vassals, but an unpopular voluntary vassal
+-					should be a valid target even if the master would not be.
+-					Attitude toward the master still factors into tradeValJointWar. */
+-				if (kTarget.isCapitulated())
+-					continue;
+-				if (!kHireling.canTradeItem(getID(),
+-					/*	(Important here for performance and UWAI log output that
+-						AI denial now gets tested after the game rule checks.) */
+-					TradeData(TRADE_WAR, kTarget.getID()), true))
+-				{
+-					continue;
+-				}
+-				int iValue = kOurTeam.uwai().tradeValJointWar(
+-						kTarget.getID(), kHireling.getTeam());
+-				if (iValue <= iBestTargetValue)
+-					continue;
+-				/*  This call doesn't compute how much our team values the DoW
+-					by eHireling (that's iValue), it computes how much eHireling
+-					needs to be payed for the DoW. Has to work this way b/c
+-					AI_declareWarTradeVal is also used for human-AI war trades. */
+-				int iTheirPrice = kOurTeam.AI_declareWarTradeVal(
+-						kTarget.getID(), kHireling.getTeam());
+-				/*  Don't try to make the trade if the DoW by ePlayer isn't
+-					nearly as valuable to us as what they'll charge */
+-				if (4 * iValue >= 3 * iTheirPrice)
+-				{
+-					iBestTargetValue = iValue;
+-					eBestTarget = kTarget.getID();
+-					iBestTeamPrice = iTheirPrice;
+-				}
++				continue;
+ 			}
+-			else // </advc.104o>
+-			 if (kTarget.getNumWars() < std::max(2, kGame.countCivTeamsAlive() / 2))
++			int iValue = kOurTeam.uwai().tradeValJointWar(
++					kTarget.getID(), kHireling.getTeam());
++			if (iValue <= iBestTargetValue)
++				continue;
++			/*  This call doesn't compute how much our team values the DoW
++				by eHireling (that's iValue), it computes how much eHireling
++				needs to be payed for the DoW. Has to work this way b/c
++				AI_declareWarTradeVal is also used for human-AI war trades. */
++			int iTheirPrice = kOurTeam.AI_declareWarTradeVal(
++					kTarget.getID(), kHireling.getTeam());
++			/*  Don't try to make the trade if the DoW by ePlayer isn't
++				nearly as valuable to us as what they'll charge */
++			if (4 * iValue >= 3 * iTheirPrice)
+ 			{
+-				if (kHireling.canTradeItem(getID(),
+-					TradeData(TRADE_WAR, kTarget.getID()), true))
++				iBestTargetValue = iValue;
++				eBestTarget = kTarget.getID();
++				iBestTeamPrice = iTheirPrice;
++			}
++		}
++		else // </advc.104o>
++		 if (kTarget.getNumWars() < std::max(2, kGame.countCivTeamsAlive() / 2))
++		{
++			if (kHireling.canTradeItem(getID(),
++				TradeData(TRADE_WAR, kTarget.getID()), true))
++			{
++				int iValue = 1 + kGame.getSorenRandNum(1000, "AI Declare War Trading");
++				iValue *= (101 + kTarget.AI_getAttitudeWeight(getTeam()));
++				iValue /= 100;
++				if (iValue > iBestValue)
+ 				{
+-					int iValue = 1 + kGame.getSorenRandNum(1000, "AI Declare War Trading");
+-					iValue *= (101 + kTarget.AI_getAttitudeWeight(getTeam()));
+-					iValue /= 100;
+-					if (iValue > iBestValue)
+-					{
+-						iBestValue = iValue;
+-						eBestTarget = kTarget.getID();
+-					}
++					iBestValue = iValue;
++					eBestTarget = kTarget.getID();
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 11b0a9f46..fd62685d0 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2079,7 +2079,6 @@ int CvTeam::getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain) const
+ 
+ int CvTeam::getResearchCost(TechTypes eTech, bool bGlobalModifiers, bool bTeamSizeModifiers) const // K-Mod: params added
+ {
+-	FAssertMsg(eTech != NO_TECH, "Tech is not assigned a valid value");
+ 	CvGame const& g = GC.getGame();
+ 
+ 	// advc.251: To reduce rounding errors (as there are quite a few modifiers to apply)
+@@ -2156,8 +2155,8 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bGlobalModifiers, bool bTeamSi
+ 
+ int CvTeam::getResearchLeft(TechTypes eTech) const
+ {
+-	// <advc> Safer, cleaner this way
+-	if (isHasTech(eTech))
++	// <advc> Safer, cleaner this way. (NB: NO_TECH isn't allowed here.)
++	if (isHasTech(eTech) && !GC.getInfo(eTech).isRepeat())
+ 		return 0; // </advc>
+ 	return std::max(0, getResearchCost(eTech) - getResearchProgress(eTech));
+ }
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6878

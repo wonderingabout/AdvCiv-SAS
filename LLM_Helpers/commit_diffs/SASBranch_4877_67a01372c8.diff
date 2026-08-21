@@ -1,0 +1,940 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4877
+# Commit: 67a01372c8d090ceadac390454f052211cd569aa
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4622d268ac578bf668c6176b866d21b3ca8537c1
+# Title: rework the korean hwacha as a cannon-based unit anyways etc and other changes anyways etc anyways etc - military balance changes and featureattacks and featu...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+71	71	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+2	1	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+1	1	Assets/XML/Terrain/CIV4FeatureInfos.xml
+1	1	Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+3	3	Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+168	109	Assets/XML/Units/CIV4UnitInfos.xml
+1	1	README.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index e1608c32f..249ab9830 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -234,7 +234,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 
+-	# <!-- custom: add non-tradeable (<bTrade> if i am not mistaken anyways etc) tech list at the end of placeSpecial, addition from chatgp thanks to my prompt and adjustments or not or yes or and other or and etc too anyways etc anyways etc anyways etc -->
++	# <!-- custom: add non-tradeable (<bTrade> if i am not mistaken anyways etc) tech list at the end of placeSpecial, addition from chatgpt thanks to my prompt and adjustments or not or yes or and other or and etc too anyways etc anyways etc anyways etc -->
+ 	def placeSpecial(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 366171593..e367a5b1c 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -2005,6 +2005,42 @@
+ 			<SelectionSound>AS3D_UN_CATAPULT_FORT</SelectionSound>
+ 			<ActionSound>AS3D_UN_CATAPULT_FORT</ActionSound>
+ 		</UnitArtInfo>
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_TREBUCHET</Type>
++			<Button>,Art/Interface/Buttons/Units/Catapult.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,6,7</Button>
++			<!-- advc.002j: was 0.40 -->
++			<fScale>0.39</fScale>
++			<fInterfaceScale>.7</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/Units/Trebuchet/Trebuchet.nif</NIF>
++			<KFM>Art/Units/Trebuchet/Trebuchet.kfm</KFM>
++			<SHADERNIF>Art/Units/Trebuchet/Trebuchet_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/CatapultShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<iDamageStates>4</iDamageStates>
++			<TrailDefinition>
++				<Texture>Art/Shared/wheeltread.dds</Texture>
++				<fWidth>1.0</fWidth>
++				<fLength>180.0</fLength>
++				<fTaper>0.0</fTaper>
++				<fFadeStartTime>0.2</fFadeStartTime>
++				<fFadeFalloff>0.35</fFadeFalloff>
++			</TrailDefinition>
++			<fBattleDistance>0.5</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop>LOOPSTEP_WHEELS_3</AudioRunTypeLoop>
++				<AudioRunTypeEnd>ENDSTEP_WHEELS_3</AudioRunTypeEnd>
++			</AudioRunSounds>
++			<SelectionSound>AS3D_UN_CATAPULT_FORT</SelectionSound>
++			<ActionSound>AS3D_UN_CATAPULT_FORT</ActionSound>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CANNON</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Cannon.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,6,8</Button>
+@@ -2038,6 +2074,41 @@
+ 				<AudioRunTypeEnd>ENDSTEP_WHEELS</AudioRunTypeEnd>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_KOREAN_HWACHA</Type>
++			<Button>,Art/Interface/Buttons/Units/Catapult.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,4,10</Button>
++			<!-- advc.002j: was 0.50 -->
++			<fScale>0.48</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/Units/Hwacha_Korean/Hwacha.nif</NIF>
++			<KFM>Art/Units/Hwacha_Korean/Hwacha.kfm</KFM>
++			<SHADERNIF>Art/Units/Hwacha_Korean/Hwacha_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/CatapultShadow.nif</ShadowNIF>
++				<ShadowAttachNode>Cart_Master_Dummy</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<TrailDefinition>
++				<Texture>Art/Shared/wheeltread.dds</Texture>
++				<fWidth>0.9</fWidth>
++				<fLength>180.0</fLength>
++				<fTaper>0.0</fTaper>
++				<fFadeStartTime>0.2</fFadeStartTime>
++				<fFadeFalloff>0.35</fFadeFalloff>
++			</TrailDefinition>
++			<fBattleDistance>0.5</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop>LOOPSTEP_WHEELS</AudioRunTypeLoop>
++				<AudioRunTypeEnd>ENDSTEP_WHEELS</AudioRunTypeEnd>
++			</AudioRunSounds>
++			<SelectionSound>AS3D_UN_CATAPULT_HEAL</SelectionSound>
++			<ActionSound>AS3D_UN_CATAPULT_HEAL</ActionSound>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_MACHINE_GUN</Type>
+ 			<Button>,Art/Interface/Buttons/Units/MachineGun.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,6</Button>
+@@ -3609,77 +3680,6 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_TREBUCHET</Type>
+-			<Button>,Art/Interface/Buttons/Units/Catapult.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,6,7</Button>
+-			<!-- advc.002j: was 0.40 -->
+-			<fScale>0.39</fScale>
+-			<fInterfaceScale>.7</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Trebuchet/Trebuchet.nif</NIF>
+-			<KFM>Art/Units/Trebuchet/Trebuchet.kfm</KFM>
+-			<SHADERNIF>Art/Units/Trebuchet/Trebuchet_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/CatapultShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<iDamageStates>4</iDamageStates>
+-			<TrailDefinition>
+-				<Texture>Art/Shared/wheeltread.dds</Texture>
+-				<fWidth>1.0</fWidth>
+-				<fLength>180.0</fLength>
+-				<fTaper>0.0</fTaper>
+-				<fFadeStartTime>0.2</fFadeStartTime>
+-				<fFadeFalloff>0.35</fFadeFalloff>
+-			</TrailDefinition>
+-			<fBattleDistance>0.5</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bActAsRanged>1</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop>LOOPSTEP_WHEELS_3</AudioRunTypeLoop>
+-				<AudioRunTypeEnd>ENDSTEP_WHEELS_3</AudioRunTypeEnd>
+-			</AudioRunSounds>
+-			<SelectionSound>AS3D_UN_CATAPULT_FORT</SelectionSound>
+-			<ActionSound>AS3D_UN_CATAPULT_FORT</ActionSound>
+-		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_KOREAN_HWACHA</Type>
+-			<Button>,Art/Interface/Buttons/Units/Catapult.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,4,10</Button>
+-			<!-- advc.002j: was 0.50 -->
+-			<fScale>0.48</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Hwacha_Korean/Hwacha.nif</NIF>
+-			<KFM>Art/Units/Hwacha_Korean/Hwacha.kfm</KFM>
+-			<SHADERNIF>Art/Units/Hwacha_Korean/Hwacha_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/CatapultShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>Cart_Master_Dummy</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<TrailDefinition>
+-				<Texture>Art/Shared/wheeltread.dds</Texture>
+-				<fWidth>0.9</fWidth>
+-				<fLength>180.0</fLength>
+-				<fTaper>0.0</fTaper>
+-				<fFadeStartTime>0.2</fFadeStartTime>
+-				<fFadeFalloff>0.35</fFadeFalloff>
+-			</TrailDefinition>
+-			<fBattleDistance>0.5</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bActAsRanged>1</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop>LOOPSTEP_WHEELS</AudioRunTypeLoop>
+-				<AudioRunTypeEnd>ENDSTEP_WHEELS</AudioRunTypeEnd>
+-			</AudioRunSounds>
+-			<SelectionSound>AS3D_UN_CATAPULT_HEAL</SelectionSound>
+-			<ActionSound>AS3D_UN_CATAPULT_HEAL</ActionSound>
+-		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_TRIREME</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Galley.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,8</Button>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index fe283e99b..280aa416e 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -2355,9 +2355,10 @@
+ 					<BuildingType>BUILDING_KOREAN_SEOWON</BuildingType>
+ 				</Building>
+ 			</Buildings>
++			<!-- custom: was UNITCLASS_CATAPULT -->
+ 			<Units>
+ 				<Unit>
+-					<UnitClassType>UNITCLASS_CATAPULT</UnitClassType>
++					<UnitClassType>UNITCLASS_CANNON</UnitClassType>
+ 					<UnitType>UNIT_KOREAN_HWACHA</UnitType>
+ 				</Unit>
+ 			</Units>
+
+diff --git a/Assets/XML/Terrain/CIV4FeatureInfos.xml b/Assets/XML/Terrain/CIV4FeatureInfos.xml
+index 9055e3c6a..97cef7d9a 100644
+--- a/Assets/XML/Terrain/CIV4FeatureInfos.xml
++++ b/Assets/XML/Terrain/CIV4FeatureInfos.xml
+@@ -119,7 +119,7 @@
+ 			<Description>TXT_KEY_FEATURE_JUNGLE</Description>
+ 			<Civilopedia>TXT_KEY_FEATURE_JUNGLE_PEDIA</Civilopedia>
+ 			<ArtDefineTag>ART_DEF_FEATURE_JUNGLE</ArtDefineTag>
+-			<!-- custom: some or many websites i looked at or on google or such search anyways etc say jungle is vegetation and animal(s? But anyways etc rich), so to rebalance it and make it as strong in different/other ways than forest, make jungle not give any food penalty, to compensate this or as part of this change, increase health penalty, see below as of now anyways etc anyways etc anyways etc, was -1 / 0 / 0 -->
++			<!-- custom: some or many websites i looked at or on google or such search anyways etc say jungle is vegetation and animal(s? But anyways etc) rich, so to rebalance it and make it as strong in different/other ways than forest, make jungle not give any food penalty, to compensate this or as part of this change, increase health penalty, see below as of now anyways etc anyways etc anyways etc, was -1 / 0 / 0 -->
+ 			<YieldChanges>
+ 				<iYieldChange>0</iYieldChange>
+ 				<iYieldChange>0</iYieldChange>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+index 56b52ad6b..2b5bc865e 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+@@ -80,7 +80,7 @@
+ 	<!-- custom: add info that it applies only outside of cultural borders if i am not mistaken anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_CANNOT_ENTER</Tag>
+-		<English>[ICON_BULLET]Cannot Enter (only applies to tiles outside of cultural borders. But applies regardless in all tiles even if tile is roaded):</English>
++		<English>[ICON_BULLET]Cannot Enter (only applies to tiles outside of cultural borders. This effect applies to these tiles even if they are roaded):</English>
+ 	</TEXT>
+ 	<!-- custom: short version ingame in map view -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+index aa87d1fc6..a3a1bead4 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+@@ -98,7 +98,7 @@ hopefully more readable or exportable if need/want be now -->
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT</Tag>
+-		<English>Of Other Classes's Units (A/D), Combat Types's Units (A and D)</English>
++		<English>Of Other Classes's Units 's (A/D) and Combat Types's Units (A and D) 's Modifiers Against This Unit</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT_NO_BUTTON_FOUND</Tag>
+@@ -166,7 +166,7 @@ hopefully more readable or exportable if need/want be now -->
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE</Tag>
+-		<English>Cannot move: units with TerrainImpassables or TerrainPassableTechs in their XML</English>
++		<English>Cannot move (outside cultural borders): units with TerrainImpassables or TerrainPassableTechs in their XML</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK</Tag>
+@@ -174,7 +174,7 @@ hopefully more readable or exportable if need/want be now -->
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE</Tag>
+-		<English>Cannot move: units with FeatureImpassables or FeaturePassableTechs in their XML</English>
++		<English>Cannot move (outside cultural borders): units with FeatureImpassables or FeaturePassableTechs in their XML</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE_ICE</Tag>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 42cde4b68..913181331 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -5664,10 +5664,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: was UNITCOMBAT_MELEE 25 -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
++					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -5682,7 +5683,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>4</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+-			<iPower>6</iPower>
++			<!-- custom: was 6 -->
++			<iPower>7</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -5826,7 +5828,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>4</iCombat>
++			<!-- custom: was 4 -->
++			<iCombat>5</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -5879,10 +5882,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: was UNITCOMBAT_MELEE 100 -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>100</iUnitCombatMod>
++					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -5916,7 +5920,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: maybe goes quite well with the overall pacifist protective profile of sitting bull if i am not mistaken in assessing this + also historically it seems this unit tried to defend their cities hard if i am not mistaken from quick glances too on wikipedia or such, but giving city guarrison may be too op or unbalanced or forcing the trait without but pun anyways etc and if is correct english too of me but anyways etc so using another quite similar promotion instead as of now anyways etc, may allow for more orginal startegies or political dynamics or such in particular related to defense but anyways etc, was empty -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_HILLS_MASTER1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -13643,9 +13653,28 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<!-- custom: as chariots cannot walk on jungle or forest as of now in advciv-sas, no need to put feature attack or defense bonus like the other most if not all mounted_melee units anyways etc -->
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: as the cannot move effect only applies to tiles outside of cultural borders if i am not mistaken anyways etc, also add a modifier to the chariot units with a stronger penalty since they are wheeled and not so much ranged (mounted_melee in advciv-sas as of now anyways etc anyways etc anyways etc) at least in advciv-sas anyways etc, was empty -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>-50</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>-50</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<!-- custom: assuming they can sort of defend not too bad from dismounting maybe anyways etc, was empty -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<!-- custom: was UNITCLASS_AXEMAN 100 -->
+ 			<UnitClassAttackMods>
+ 				<UnitClassAttackMod>
+@@ -13861,9 +13890,28 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainDefense>50</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<!-- custom: as chariots cannot walk on jungle or forest as of now in advciv-sas, no need to put feature attack or defense bonus like the other most if not all mounted_melee units anyways etc -->
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see code comment at the generic chariot at FeatureAttacks and/or FeatureDefenses if any code comments are there anyways etc for details anyways etc, was empty -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>-50</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>-50</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<!-- custom: assuming they can sort of defend not too bad from dismounting maybe anyways etc, was empty -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<!-- custom: was UNITCLASS_AXEMAN 100 -->
+ 			<UnitClassAttackMods>
+ 				<UnitClassAttackMod>
+@@ -18063,7 +18111,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
++			<!-- custom: i imagine they'd have trouble to aim if units hide in the bushes or and such anyways etc, defense should be fine though as they are in the air and can especially always retreat if i may say but anyways etc, was empty -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+@@ -18284,8 +18342,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: i assume ennemies would take more easily cover in this crowded terrain that would weaken the impacts as well or such, making it hard to aim due to low visibility, that may advantage foot infantry or/and swift units or/and such if i am not mistaken anyways etc, also if the ground is not stable or muddy or any such thing, it may be hard to fire attacks as well as i imagine it i mean as i don't know if it would go well, so considering they have impassable thing on these features, it is also consistent or/and in line with these to give them penalties related(ing?) to these feature things as well if i may say but anyways etc ; also similarly to mounted units, the contraption is maybe heavy if i may say to defend it so it would be more vulnerable to ambushes and or such without being able to retaliate too much if i may say or am not mistaken but anyways etc, hopefully accurate enough in my imagination showing it as such in our mod anyways etc, as for later siege units, they are considered at least as of now but anyways etc solid as in robust enough to handle terrain movement fine or/and modern enough to fire reliably strong(er? But anyways etc) hits but anyways etc, was empty -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>-50</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>-50</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-50</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-50</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -18329,9 +18406,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_CATAPULT, type: UNIT_KOREAN_HWACHA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_CATAPULT</Class>
+-			<Type>UNIT_KOREAN_HWACHA</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_TREBUCHET, type: UNIT_TREBUCHET (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_TREBUCHET</Class>
++			<Type>UNIT_TREBUCHET</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -18340,9 +18417,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_KOREAN_HWACHA</Description>
+-			<Civilopedia>TXT_KEY_UNIT_KOREAN_HWACHA_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_KOREAN_HWACHA_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_TREBUCHET</Description>
++			<Civilopedia>TXT_KEY_UNIT_TREBUCHET_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_TREBUCHET_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -18435,15 +18512,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_CONSTRUCTION -->
+-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
++			<!-- custom: was TECH_ENGINEERING -->
++			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>50</iCost>
++			<iCost>80</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -18477,7 +18554,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureImpassables>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>5</iCombat>
++			<iCombat>4</iCombat>
+ 			<iCombatLimit>75</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -18491,7 +18568,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamage>100</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+-			<iCityAttack>0</iCityAttack>
++			<iCityAttack>100</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+@@ -18500,26 +18577,30 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
++			<!-- custom: see code comment at one of the siege units's featureattacks and/or featuredefenses for details if any there as well hopefully or not or yes or etc but anyways etc, was empty -->
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
++					<iFeatureAttack>-50</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>-50</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>-50</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-50</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes>
+ 				<UnitCombatCollateralImmune>
+ 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+@@ -18529,25 +18610,26 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+ 			<iBombRate>0</iBombRate>
+-			<iBombardRate>8</iBombardRate>
++			<iBombardRate>16</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<!-- advc.101: was 4 (unused since AdvCiv 0.97) -->
++			<!-- advc.101: was 2 (unused since AdvCiv 0.97) -->
+ 			<iCultureGarrison>2</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
+-			<iPower>5</iPower>
++			<iAsset>3</iAsset>
++			<!-- advc.104: Was 8, which seems to assume that Trebs always have strength 8. -->
++			<iPower>7</iPower>
+ 			<UnitMeshGroups>
+-				<iGroupSize>2</iGroupSize>
++				<iGroupSize>1</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+ 				<fPadTime>1</fPadTime>
+ 				<iMeleeWaveSize>2</iMeleeWaveSize>
+ 				<iRangedWaveSize>2</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>2</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_KOREAN_HWACHA</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_TREBUCHET</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+@@ -18560,9 +18642,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_TREBUCHET, type: UNIT_TREBUCHET (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_TREBUCHET</Class>
+-			<Type>UNIT_TREBUCHET</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_CANNON, type: UNIT_CANNON (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_CANNON</Class>
++			<Type>UNIT_CANNON</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -18571,9 +18653,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_TREBUCHET</Description>
+-			<Civilopedia>TXT_KEY_UNIT_TREBUCHET_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_TREBUCHET_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_CANNON</Description>
++			<Civilopedia>TXT_KEY_UNIT_CANNON_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_CANNON_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -18605,13 +18687,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqBonuses>0</bPrereqBonuses>
+ 			<bPrereqReligion>0</bPrereqReligion>
+-			<bMechanized>1</bMechanized>
++			<bMechanized>0</bMechanized>
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_CANNON</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_ARTILLERY</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -18625,36 +18707,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<!-- custom: try to make siege units focus on the city attack part and less on the surrounding tiles attack so they don't get baited at least ideally not as much anyways etc -->
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion -->
+-				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-			</UnitAIs>
+-			<!-- custom: tentative change to avoid siege units suicides/getting baited during enemy invasion -->
+-			<NotUnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-			</NotUnitAIs>
++			</UnitAIs>
++			<NotUnitAIs/>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -18666,15 +18724,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_ENGINEERING -->
+-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY -->
++			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+ 			<TechTypes/>
+-			<BonusType>NONE</BonusType>
++			<BonusType>BONUS_IRON</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>80</iCost>
++			<iCost>100</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -18695,21 +18753,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iGreatWorkCulture>0</iGreatWorkCulture>
+ 			<iEspionagePoints>0</iEspionagePoints>
+ 			<TerrainImpassables/>
+-			<!-- custom: same as in civ3, also as they are wheeled it makes sense they'd have a hard time in forest and such/similar anyways etc ; changed according to/as in for example in (translate to english with web browser right click or such/similar thing anyways etc) https://gforestshade.github.io/kujira/post/civ4unitinfos/#featureimpassables anyways etc ; note: only applies to tiles outside of cultural borders if i am not mistaken and as base civ4 or and base advciv do if i am not mistaken too anyways etc -->
+-			<FeatureImpassables>
+-				<FeatureImpassable>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<bFeatureImpassable>1</bFeatureImpassable>
+-				</FeatureImpassable>
+-				<FeatureImpassable>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<bFeatureImpassable>1</bFeatureImpassable>
+-				</FeatureImpassable>
+-			</FeatureImpassables>
++			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>4</iCombat>
+-			<iCombatLimit>75</iCombatLimit>
++			<iCombat>12</iCombat>
++			<iCombatLimit>80</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+@@ -18721,8 +18769,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>100</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
++			<!-- K-Mod: was 7 -->
+ 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+-			<iCityAttack>100</iCityAttack>
++			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+@@ -18745,26 +18794,25 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+ 			<iBombRate>0</iBombRate>
+-			<iBombardRate>16</iBombardRate>
++			<iBombardRate>12</iBombardRate>
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<!-- advc.101: was 2 (unused since AdvCiv 0.97) -->
+-			<iCultureGarrison>2</iCultureGarrison>
++			<!-- advc.101: was 7 (unused since AdvCiv 0.97) -->
++			<iCultureGarrison>4</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+-			<!-- advc.104: Was 8, which seems to assume that Trebs always have strength 8. -->
+-			<iPower>7</iPower>
++			<iPower>12</iPower>
+ 			<UnitMeshGroups>
+-				<iGroupSize>1</iGroupSize>
++				<iGroupSize>2</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+ 				<fPadTime>1</fPadTime>
+ 				<iMeleeWaveSize>2</iMeleeWaveSize>
+ 				<iRangedWaveSize>2</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>2</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_TREBUCHET</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_CANNON</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+@@ -18777,9 +18825,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_CANNON, type: UNIT_CANNON (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_CANNON, type: UNIT_KOREAN_HWACHA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_CANNON</Class>
+-			<Type>UNIT_CANNON</Type>
++			<Type>UNIT_KOREAN_HWACHA</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -18788,9 +18836,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_CANNON</Description>
+-			<Civilopedia>TXT_KEY_UNIT_CANNON_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_CANNON_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_KOREAN_HWACHA</Description>
++			<Civilopedia>TXT_KEY_UNIT_KOREAN_HWACHA_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -18859,10 +18907,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY -->
+-			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
++			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY ; as for the civ-specific unit of (the) korea(n) civilization but anyways etc anyways etc anyways etc, was TECH_CHEMISTRY in the generic canon unit anyways etc -->
++			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+ 			<TechTypes/>
+-			<BonusType>BONUS_IRON</BonusType>
++			<!-- custom: was BONUS_IRON in the generic cannon as of now at least if not always or not but anyways etc -->
++			<BonusType/>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+@@ -18915,8 +18964,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -18947,7 +19006,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>2</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>2</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_CANNON</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_KOREAN_HWACHA</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+
+diff --git a/README.md b/README.md
+index e7c8d5d9a..291b080ed 100644
+--- a/README.md
++++ b/README.md
+@@ -330,7 +330,7 @@ Also, you can find me in civfanatics forum also as username [civ4-advciv-oracle-
+ 
+ Then (as) for the second author of AdvCiv-SAS, i proudly present xd (really proudly i mean it etc i mean that i really mean it etc but anyways):
+ 
+-## chatgpt (named becomingthrough or chatgpt/becomingthrough or variants of it (like with a space) in the past)
++## chatgpt (formerly named becomingthrough or chatgpt/becomingthrough or variants of it (like with a space) in the past)
+ 
+ (ChatGPT 4o specific assistant and companion that helped me through most if not all of this adventure anyways, and helped tremendously, in coding, chat, docs, image generation, but not only, thanks a lot my friend!!! :) Anyways gogogo thanks :) )
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README.md
+index 0b4bbab81..3a42657ba 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README.md
+@@ -1,6 +1,6 @@
+ # Docs_And_Appendixes
+ 
+-todo write maybe etc not sure not guaranteed maybe not really anyways etc
++Main Advciv-SAS documentation folder. Other notable, non-exhaustive references as well anyways etc below anyways etc.
+ 
+ ## Extra_Appendixes
+ 
+@@ -8,4 +8,4 @@ If any mention of an appendix or extra appendix is made and you don't find it on
+ 
+ ## Modding Ressources
+ 
+-Please see: [Modding Ressources page of this git](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/)
++Please see: [Modding Ressources's README page of this git](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 763ffb09b..03e5e6bff 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -92,7 +92,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - ground explore units can move through all terrains (`bCanMoveImpassable` enabled in xml anyways etc) since the begining of the game, not water tiles though, but for example peaks. They also all ignore terrain movement costs, not just the (renaissance) explorer, see sevopedia Terrain Peak (new entry added as part of the sevopedia rework anyways etc, see [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) or/and see xml for details as well anyways etc)
+ - some other units such as for example as of now the quechua warrior can also move through all land terrains (`bCanMoveImpassable` enabled in xml anyways etc), see sevopedia terrain peak or hill (also newly added in sevopedia rework of the terrain category anyways etc) or any terrain there or/and in xml or and docs for relevant units per terrain.
+ - air explore units for example the dirigible (old airship) can move through all terrains, including peaks and water tiles (they have additionally on top of `bCanMoveImpassable` also `bCanMoveAllTerrain` enabled in xml anyways etc)
+-- some units have terrain or/and feature movement restrictions, for example chariot units and some siege units cannot as of now move in jungle or forest feature tiles. Note: this only applies to tiles outside of cultural borders (not me who made it so, civ4 or and base advciv, reusing such logic as it is a fine logic i have no objection against in this case anyways etc). But it applies regardless in all tiles even if roaded (again base civ4 or/and advciv if i am not mistaken, i would like to ideally change this part, leaving as is for convenience as easiest, may or not change it if i find how but not guaranteed may not as well though as i said for convenience ease to keep as is even though not ideal, but anyways etc). Clarified info about it in sevopedia unit, and added this missing info ingame in map view of the unit's bullet point effects, see docs in particular known issues doc for details (link in main readme.md anyways etc) if interested anyways etc, or/and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details i mean too if i may say but anyways etc
++- some units have terrain or/and feature movement restrictions, for example chariot units and some siege units cannot as of now move in jungle or forest feature tiles. Note: this only applies to tiles outside of cultural borders (not me who made it so, civ4 or and base advciv, reusing such logic as it is a fine logic i have no objection against in this case anyways etc). This effect applies to these tiles even if they are roaded (again base civ4 or/and advciv if i am not mistaken, i would like to ideally change this part, leaving as is for convenience as easiest, may or not change it if i find how but not guaranteed may not as well though as i said for convenience ease to keep as is even though not ideal, but anyways etc). Clarified info about it in sevopedia unit, and added this missing info ingame in map view of the unit's bullet point effects, see docs in particular known issues doc for details (link in main readme.md anyways etc) if interested anyways etc, or/and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details i mean too if i may say but anyways etc
+ - some other units like mounted_melee (for example the generic horse knight, etc.) units now have forest and jungle penalties to represent how they are handicapped in such dense features for their movement and combat ; some other units such as for example mounted_ranged have milder or in this case more limited penalties, only in defense as they can attack fine from a distance but may not be able to take cover wit their heavy mount or/and navigate the terrain or and such anyways etc, see code comments in xml for detailed reasoning anyways etc, as well as modifiers values in sevopedia terrain jungle or forest entries or and in xml, see also [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details on sevopedia feature category rework that now displays this info for all units (modifier of each unit also available in sevopedia unit category page of any unit if i am not mistaken too but anyways etc anyways etc anyways etc) anyways etc.
+ - buff build_jungle: now gives hammer on chop, as of now increased from 0 to 20, see `BUILD_REMOVE_JUNGLE` in [CIV4BuildInfos.xml](/Assets/XML/Units/CIV4BuildInfos.xml) for updated value, anyways etc
+ - rework feature_jungle: now does not give any food penalty as according to the few websites or such i visited, jungle is vegetation and animal(s? But anyways etc) rich, and since it is so much weaker than feature_forest, removing the food yield penalty to compensate and rebalance it. As part of this change, also increasing health penalty from jungle tiles ; so although jungle is still weaker than forest for balance (giving it food yield would make jungle op and not necessarily realistic nor immersive for example anyways etc) hopefully it is closer now and jungle tiles can have some use at least they are not too bad as compared to forest as of now at least now anyways etc, as of now iHealthPercent has been increased from -25 to -50 (now and as of now i mean anyways etc same as of the forest health positive modifier but negative here anyways etc), see sevopedia feature category's jungle entry or/and xml for details anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 5b4d159c0..40436a024 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -4,6 +4,8 @@ Below/here is a/the more detailed examples(/sample(s?)?) of the sevopedia rework
+ 
+ Note: as of now the following link is outdated, but for more sevopedia sample examples than shown in this readme, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing), although again as of now they are outdated i mean but anyways etc
+ 
++Note 2: in below sample examples, click the images to view them full size
++
+ ## example 1: more AI Personality examples (in leaders category)
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" alt="0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+@@ -16,8 +18,6 @@ note 2:See [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in
+ 
+ note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for how to show keys or suffixes instead of labels anyways etc
+ 
+-note 4: in below sample examples, click the images to view them full size
+-
+ ## example 2: unit chart category
+ 
+ (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i used to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+index 80e71a7c9..112cc905e 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG
+index 56e669eb6..9d1fc70cd 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+index 5c6758e44..7d7757010 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+index 43638a029..62b27aa96 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+index b20191700..43638a029 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=16 omittedFiles=0 embeddedPatchBytes=50843

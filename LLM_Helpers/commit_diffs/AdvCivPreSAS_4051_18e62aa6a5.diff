@@ -1,0 +1,191 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4051
+# Commit: 18e62aa6a57840ba2105face5179388417487ccf
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5bf8ffeab88f7d85617406539d8c24d6d7b8c5e1
+# Title: Fix (hopefully) lag upon expanding scoreboard in large games
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	1	Assets/Python/BUG/Scoreboard.py
+10	0	Assets/Python/Screens/CvMainInterface.py
+1	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	0	CvGameCoreDLL/CvEnums.h
+2	2	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+6	5	CvGameCoreDLL/CvPlayer.cpp
+2	0	CvGameCoreDLL/CyEnumsInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 9b032bac4..0135dee1f 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -388,15 +388,25 @@ class Scoreboard:
+ 		if maxPlayers > 0 and len(self._playerScores) > maxPlayers:
+ 			self._playerScores = self._playerScores[len(self._playerScores) - maxPlayers:]
+ 		
+-	def hide(self, screen):
++	def hide(self, screen,
++			bUnhide = False): # advc.085
+ 		"""Hides the text from the screen before building the scoreboard."""
+ 		#screen.hide( "ScoreBackground" ) # advc.004z: Handled by CvMainInterface now
+ 		for p in range( gc.getMAX_CIV_PLAYERS() ):
+ 			name = "ScoreText%d" %( p ) # the part that flashes? holds the score and name
+ 			screen.hide( name )
++			# <advc.085> (The point is to trigger a mouse-over check for widget help,
++			# resulting in a call to CvDLLWidgetData::parseHelp)
++			if bUnhide:
++				screen.show(name) # </advc.085>
+ 			for c in range( NUM_PARTS ):
+ 				name = "ScoreText%d-%d" %( p, c )
+ 				screen.hide( name )
++				# <advc.085>
++				if bUnhide:
++					screen.show(name) # </advc.085>
++
++	
+ 		
+ 	def draw(self, screen):
+ 		"""Sorts and draws the scoreboard right-to-left, bottom-to-top."""
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 0a83b63a0..8c9541238 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -91,6 +91,7 @@ g_NumActionInfos = 0
+ g_eEndTurnButtonState = -1
+ g_pSelectedUnit = 0
+ g_szTimeText = ""
++gAlignedScoreboard = None # advc.085
+ # BUG - NJAGC - start
+ g_bShowTimeTextAlt = False
+ g_iTimeTextCounter = -1
+@@ -2395,6 +2396,12 @@ class CvMainInterface:
+ 			self.updateScoreStrings()
+ 			CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, False)
+ 			bScoreStringsUpdated = True # advc.004z
++		# <advc.085>
++		if CyInterface().isDirty(InterfaceDirtyBits.ScoreHelp_DIRTY_BIT):
++			if gAlignedScoreboard:
++				gAlignedScoreboard.hide(screen, True)
++			CyInterface().setDirty(InterfaceDirtyBits.ScoreHelp_DIRTY_BIT, False)
++		# </advc.085>
+ 		if (CyInterface().isDirty(InterfaceDirtyBits.GlobeInfo_DIRTY_BIT) == True):
+ 			# Globeview and Globelayer buttons
+ 			CyInterface().setDirty(InterfaceDirtyBits.GlobeInfo_DIRTY_BIT, False)
+@@ -6283,6 +6290,9 @@ class CvMainInterface:
+ 		bAlignIcons = ScoreOpt.isAlignIcons()
+ 		if bAlignIcons:
+ 			scores = Scoreboard.Scoreboard()
++			# <advc.085>
++			global gAlignedScoreboard
++			gAlignedScoreboard = scores # </advc.085>
+ 		# <advc>
+ 		else:
+ 			scores = None # </advc>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 5b6767edb..404e4c0bb 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1508,7 +1508,7 @@ void CvDLLWidgetData::doContactCiv(CvWidgetDataStruct &widgetDataStruct)
+ 	}  /* <advc.085> Give the player time to move the cursor off the scoreboard
+ 		  (cf. comments in CvPlayer::setScoreboardExpanded) */
+ 	if (BUGOption::isEnabled("Scores__ExpandOnHover", false, false))
+-		GC.getGame().setUpdateTimer(CvGame::UPDATE_DIRTY_SCORE_BOARD, 4); // </advc.085>
++		GC.getGame().setUpdateTimer(CvGame::UPDATE_DIRTY_SCORE_HELP, 4); // </advc.085>
+ 	// BETTER_BTS_AI_MOD, Player Interface, 01/11/09, jdog5000: START
+ 	if (GC.shiftKey() && !GC.altKey())
+ 	{
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index e556e7060..00b6edd8c 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1699,6 +1699,7 @@ enum InterfaceDirtyBits
+ 	Espionage_Advisor_DIRTY_BIT,
+ 	Advanced_Start_DIRTY_BIT,
+ 	Tech_Screen_DIRTY_BIT, // advc.068
++	ScoreHelp_DIRTY_BIT, // advc.085
+ #ifdef _USRDLL
+ 	NUM_INTERFACE_DIRTY_BITS
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 955d001da..40b5068d9 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -8634,8 +8634,8 @@ void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType)
+ 		case UPDATE_COLLAPSE_SCORE_BOARD:
+ 			GET_PLAYER(getActivePlayer()).setScoreboardExpanded(false);
+ 			break;
+-		case UPDATE_DIRTY_SCORE_BOARD:
+-			gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++		case UPDATE_DIRTY_SCORE_HELP:
++			gDLL->getInterfaceIFace()->setDirty(ScoreHelp_DIRTY_BIT, true);
+ 			break; // </advc.085>
+ 		// <advc.001w>
+ 		case UPDATE_MOUSE_FOCUS:
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index fc4bfa6d3..cd8b26a26 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -453,7 +453,7 @@ public:
+ 	// <advc.003r> Akin to deferCall in BugUtil.py
+ 	enum UpdateTimerTypes {
+ 		UPDATE_COLLAPSE_SCORE_BOARD, // advc.085
+-		UPDATE_DIRTY_SCORE_BOARD, // advc.085
++		UPDATE_DIRTY_SCORE_HELP, // advc.085
+ 		UPDATE_MOUSE_FOCUS, // advc.001w
+ 		UPDATE_LOOK_AT_STARTING_PLOT, // advc.004j
+ 		UPDATE_STORE_REPLAY_TEXTURE, // advc.106n
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 38481d524..2613fc1cb 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -18512,11 +18512,12 @@ void CvPlayer::setScoreboardExpanded(bool b)
+ 				gDLL->UI().setDirty(Score_DIRTY_BIT, true);
+ 			/*  The EXE calls CvDLLWidgetData::parseHelp when the cursor is moved
+ 				onto a widget - but not while the cursor rests there. Workaround:
+-				Redraw the scoreboard and its widgets. That also causes a parseHelp
+-				call (if the cursor is on a widget). Must still allow game updates
+-				in between though (otherwise, e.g. animations will start lagging).
+-				Therefore, don't set the dirty bit until the next game update. */
+-			else kGame.setUpdateTimer(CvGame::UPDATE_DIRTY_SCORE_BOARD, iDelay - 1);
++				Hiding (and immediately unhiding) the scoreboard causes a
++				parseHelp call if the cursor is on a widget. Originally, I had
++				instead redrawn the scoreboard. Delaying that until the next
++				game update had kept the resulting lag in check. Perhaps not needed
++				anymore, but doesn't hurt, so I'm keeping the delay in place. */
++			else kGame.setUpdateTimer(CvGame::UPDATE_DIRTY_SCORE_HELP, iDelay - 1);
+ 			m_bScoreboardExpanded = true;
+ 		}
+ 		else m_bScoreboardExpanded = false;
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 01e225256..6b0090854 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -221,6 +221,8 @@ void CyEnumsPythonInterface()
+ 		.value("Advanced_Start_DIRTY_BIT", Advanced_Start_DIRTY_BIT)
+ 		// advc.068:
+ 		.value("Tech_Screen_DIRTY_BIT", Tech_Screen_DIRTY_BIT)
++		// advc.085:
++		.value("ScoreHelp_DIRTY_BIT", ScoreHelp_DIRTY_BIT)
+ 		.value("NUM_INTERFACE_DIRTY_BITS", NUM_INTERFACE_DIRTY_BITS)
+ 		;
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=6692

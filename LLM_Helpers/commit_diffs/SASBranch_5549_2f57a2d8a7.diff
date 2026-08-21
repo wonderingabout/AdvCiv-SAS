@@ -1,0 +1,312 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5549
+# Commit: 2f57a2d8a727e06e92b3ece1c165139eef0b7423
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b90338d72d9024d7769d04ae189ae27f7f8a746a
+# Title: add Legends for numTxt and sevopedia categories + refactor
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+1	0	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+2	0	Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+1	27	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+1	0	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+1	0	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+25	0	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+10	0	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+20	0	Assets/XML/Text/AdvCiv-SAS_Core.xml
+2	1	README.md
+4	4	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 176e4815a..1b4ee584f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -170,6 +170,7 @@ class SevoPediaBuilding:
+ 		self.placeReplace()
+ 		self.placeCivilizations()
+ 		self.placeHistory()
++		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND")
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index ecfa553f7..6d2c1aaa5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -169,6 +169,7 @@ class SevoPediaFeature:
+ 		self.placeUnitsImpassable()
+ 		self.placeSpecial()
+ 		self.placeHistory()
++		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND")
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+index 819357826..478f7b9c1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+@@ -10,6 +10,7 @@ import ScreenInput
+ import SevoScreenEnums
+ import BugUtil
+ from SASFontUtils import *
++from _sevopedia_helpers import place_new_concept_legend_link
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+@@ -212,6 +213,7 @@ class SevoPediaIndex:
+ 	def placeIndex(self):
+ 		screen = self.top.getScreen()
+ 		CONCEPT_CHAR = gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar()
++		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND")
+ 		
+ 		if self.SAS_indexWidgetNames:
+ 			for szWidget in self.SAS_indexWidgetNames:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 1458ff1fa..21c3a7c2f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -21,7 +21,6 @@ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
+ from _sevopedia_helpers import *
+-from SASUtils import getNewConceptID
+ # <!-- custom: import to display chars before Traits -->
+ import TraitUtil
+ 
+@@ -38,7 +37,6 @@ localText = CyTranslator()
+ 
+ # <!-- custom: Leader page display toggle (not part of AI cache module). -->
+ IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
+-IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
+ IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE") > 0)
+ IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE") > 0)
+ SAS_PEDIA_PYTHON_LEADER_ATTITUDE = 6805
+@@ -123,8 +121,6 @@ class SevoPediaLeader:
+ 		
+ 		self.H_FAVORITES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 		self.N_AI_TABLE_NUM = 3
+-		self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID = getNewConceptID("CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND")
+-		self.SEVOPEDIA_LEADER_LEGEND_LINK_TEXT = u"<font=3>Legend</font>"
+ 
+ 		# <!-- custom: 2) (most) relative dimensions or positions then -->
+ 
+@@ -203,7 +199,7 @@ class SevoPediaLeader:
+ 		self.placeHistory()
+ 		self.placeCiv()
+ 		self.placeTraits()
+-		self.placeLegendLink()
++		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND")
+ 
+ 		# <!-- custom: for excluded leader indexes from calculations, leave the zone/space where the AI personality panel was supposed to be especially empty, instead of getting a key error or missing leader from leaders_info_cached; Long_Comments_py.txt #10 -->
+ 		#
+@@ -361,28 +357,6 @@ class SevoPediaLeader:
+ 
+ 
+ 
+-	def placeLegendLink(self):
+-		if not IS_SAS_SHOW_LEGEND_LINK:
+-			return
+-		if self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID < 0:
+-			return
+-		screen = self.top.getScreen()
+-		screen.setText(
+-			self.top.getNextWidgetName(),
+-			"Background",
+-			self.SEVOPEDIA_LEADER_LEGEND_LINK_TEXT,
+-			CvUtil.FONT_LEFT_JUSTIFY,
+-			self.top.X_TOC,
+-			self.top.Y_BOT_PANEL + 16,
+-			0,
+-			FontTypes.TITLE_FONT,
+-			WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
+-			CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
+-			self.SEVOPEDIA_LEADER_LEGEND_NEW_CONCEPT_ID
+-		)
+-
+-
+-
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 2e3f0228c..2138a8514 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -121,6 +121,7 @@ class SevoPediaTerrain:
+ 		self.placeUnitsImpassable()
+ 		self.placeSpecial()
+ 		self.placeHistory()
++		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND")
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index bc026b66f..0b603fd0b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -224,6 +224,7 @@ class SevoPediaUnit:
+ 		# Row 5: Special (left) | History (right)
+ 		self.placeSpecial()
+ 		self.placeHistory()
++		place_new_concept_legend_link(self.top, "CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND")
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 1ebeffbb1..c5477015d 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -10,6 +10,7 @@ import CvUtil
+ import re
+ from SASFontUtils import *
+ import SASTextScale
++from SASUtils import getNewConceptID
+ 
+ 
+ 
+@@ -17,6 +18,7 @@ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
++IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
+ 
+ 
+ 
+@@ -301,6 +303,29 @@ def get_concept_id(concept_type):
+ 
+ 
+ 
++def place_new_concept_legend_link(top, new_concept_type):
++	if not IS_SAS_SHOW_LEGEND_LINK:
++		return
++	iConcept = getNewConceptID(new_concept_type)
++	if iConcept < 0:
++		return
++	screen = top.getScreen()
++	szLabel = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PEDIA_SAS_LEGEND_LINK_SHORT", ()) + SAS_FONT_TAG_CLOSE
++	screen.setText(
++		top.getNextWidgetName(),
++		"Background",
++		szLabel,
++		CvUtil.FONT_LEFT_JUSTIFY,
++		top.X_TOC,
++		top.Y_BOT_PANEL + 16,
++		0,
++		FontTypes.TITLE_FONT,
++		WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
++		CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
++		iConcept
++	)
++
++
+ def get_concept_widgetType_widgetID1_widgetID2(conceptID, widgetTypes, civilopediaPageTypes):
+ 	if conceptID != -1:
+ 		# For concepts, use WIDGET_PEDIA_DESCRIPTION with proper page type and ID
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index 21a41b0c3..48a19e993 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -28,6 +28,16 @@
+ 			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
++		<NewConceptInfo>
++			<Type>CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND</Type>
++			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND_PEDIA</Civilopedia>
++		</NewConceptInfo>
++		<NewConceptInfo>
++			<Type>CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND</Type>
++			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND_PEDIA</Civilopedia>
++		</NewConceptInfo>
+ 		<!-- advc.004y: Shortcut categories restored (originally by
+ 			 Ekmek) -->
+ 		<NewConceptInfo>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 90d181ef1..612e2c18f 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -140,4 +140,24 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND_PEDIA</Tag>
+ 		<English>[H1]Sevopedia Leader Legend[\H1][PARAGRAPH:2][H2]Attitude / Action Buttons[\H2][PARAGRAPH:2]- Attitude buttons row (top): pick the leader mood preview shown in the 3D leaderhead. Emoji mode uses icons (furious, annoyed, cautious, pleased, friendly); text mode uses FU/AN/CA/PL/FR.[PARAGRAPH:2]- Action buttons row (bottom): trigger animation preview (no/idle reset, greeting, agree, disagree) for the selected leader.[PARAGRAPH:2][H2]AI Personality Panel Legend[\H2][PARAGRAPH:2]- 1st column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened explanation of what iMaxWarRand means ingame), as said earlier. This column contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes. For aggregated ai aattributes, like contact probs, positive and negative memory resentments and affections, etc, the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W on FR (-200/120)" line shows that Gandhi has a raw ai attribute memory attitude percent of -200 (i.e. Gandhi resents quite strongly you declaring war on his friends) and a memory decay of 120. And for Moctezuma, for the same "D.W on Fr" negative memory resentment, Moctezuma does not resent as much (memory attitude percent of -100, and memory decay same though of 120 (currently btw decays are same among all leaders (in civ4/advciv and thus advciv-sas too), not ideal but maybe functional))[PARAGRAPH:2]- 2nd column: the normalized score is displayed. As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100. Sometimes all leaders will have 50 (if same value among all leaders, happens sometimes in civ4 not ideal), and else leaders are ranked gradually from 0 (worse performer for better or worse) to 100 (best performer. Moctezuma performs good at war attributes, and gandhi good at peace attributes, for example). Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones, and how much), and you could also additionally tweak the existing leaders xml values. (If you think for example the roman leaders underperform in war, you may tweak their xml. As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized, they are not re-normalized during caching and Sevopedia Leader computation. In short, they can be intepreted similarly as raw ai attributes.[PARAGRAPH:2]- 3rd column: scale, this is an indicative display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear while also civ4-compatible). So for example maxwarrand 400 gandhi has a score of 0 normalized among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too))) so his scale is "++++++++++" (100th percentile), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50)))), so his scale is "" (0th percentile). Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is likely, relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols so he will be "#######". If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####". This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute aggregated or raw is same in this case functionally, i.e. they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50. So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders for an easier read.[PARAGRAPH:2]See docs for details about the AI Personality Panel, notably _1_AdvCiv-SAS\Docs\README_AI_Personality_Panel.md. </English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_LEGEND_LINK_SHORT</Tag>
++		<English>Legend</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND</Tag>
++		<English>Sevopedia numTxt Legend</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_NUMTXT_LEGEND_PEDIA</Tag>
++		<English>[H1]Sevopedia numTxt Legend[\H1][PARAGRAPH:2]This page explains abbreviated labels shown under icon buttons in Sevopedia Building, Unit, Terrain, and Feature pages.[PARAGRAPH:2][H2]Building page numTxt[\H2][PARAGRAPH:2]- InC: required in city (the prerequisite building must be in the same city).[PARAGRAPH:2]- RM: world-size requirement modifier (not random). This is the same RM used inside AllC N+RM.[PARAGRAPH:2]- AllC N+RM: required in all cities. N = base XML requirement, RM = world-size requirement modifier from World Size iBuildingClassPrereqModifier (rounded up). [PARAGRAPH:2]- Example for AllC with N=2: Duel/Tiny (modifier 0) => 2; Standard (+38) => 3; Huge (+75) => 4.[PARAGRAPH:2]- All Cs: applies to all cities.[PARAGRAPH:2]- All Un.C: applies to all eligible unit classes/combats.[PARAGRAPH:2]- (!)Civic(s): this prerequisite can be bypassed or altered by civic rules.[PARAGRAPH:2]- OR: alternative prerequisite grouping; one of the OR-linked icons can satisfy that part.[PARAGRAPH:2]- Plain number (for example 1, 2, 3): exact count linked to that icon (for example free specialists count).[PARAGRAPH:2]- RM (when shown alone for free bonus count): world-size dependent free bonus count (iNumFreeBuildingBonuses). In this mod, for example: Standard=4, Huge=6.[PARAGRAPH:2][H2]Unit/Terrain/Feature page numTxt[\H2][PARAGRAPH:2]- +A/+D: attack and defense percent modifiers.[PARAGRAPH:2]- +A/_: attack-only modifier.[PARAGRAPH:2]- _/+D: defense-only modifier.[PARAGRAPH:2]- _/_: no attack/defense modifier.[PARAGRAPH:2]- +X%: single percent modifier (for example combat-class modifier).[PARAGRAPH:2]- N: unit has free Navigator promotion.[PARAGRAPH:2]- HM1, HM2, HM3: unit has free Hills Master tier 1/2/3. Combined forms (for example HM1+2+3) indicate multiple free tiers.[PARAGRAPH:2]- W1, W2, W3: unit has free Woodsman tier 1/2/3. Combined forms (for example W1+2+3) indicate multiple free tiers.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND</Tag>
++		<English>Sevopedia Categories Legend</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_CATEGORIES_LEGEND_PEDIA</Tag>
++		<English>[H1]Sevopedia Categories Legend[\H1][PARAGRAPH:2]This page explains shortened category labels used in the left Sevopedia category list.[PARAGRAPH:2]- Improv.: Improvements.[PARAGRAPH:2]- Un. List: Unit List.[PARAGRAPH:2]- Un. Tree: Unit Upgrade Tree.[PARAGRAPH:2]- Pr. List: Promotion List.[PARAGRAPH:2]- Pr. Tree: Promotion Tree.[PARAGRAPH:2]- N. Wond.: National Wonders.[PARAGRAPH:2]- W. Wond.: World Wonders.[PARAGRAPH:2]- W. Sizes: World Sizes.[PARAGRAPH:2]- Corporat.: Corporations.[PARAGRAPH:2]- Outdated: legacy/reference pages kept for compatibility/history.[PARAGRAPH:2]- Mods Info: custom AdvCiv-SAS concept pages and legends.[PARAGRAPH:2]Labels are shortened mainly to fit sidebar width cleanly at different resolutions and UI scales.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/README.md b/README.md
+index 6fa4fb86e..15070313a 100644
+--- a/README.md
++++ b/README.md
+@@ -450,10 +450,11 @@ The Sevopedia "Mods Info" (reusing the old civ4 concepts category or similar, th
+ 
+ ##### Legends
+ 
+-We also use the Mods info category to show the legend of some tables, with a clickable Legend button in the caller pages, that redirects to the corresponding sevopedia concept page showing the legend.
++We also use the Mods info category to show the legend of some tables or abbreviations, with a clickable Legend button in the caller pages, that redirects to the corresponding sevopedia concept page showing the legend.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (1).JPG" alt="0.806_sevopedia_mods_info_legend (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (2).JPG" alt="0.806_sevopedia_mods_info_legend (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (3).JPG" alt="0.806_sevopedia_mods_info_legend (3).JPG" width="250"></img>
+ 
+ ## UI (Common)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d4d6a1c00..6c8b83241 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -307,14 +307,14 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Civilizations: Add **cities panel**. Add optional **grouping by Art style** (e.g. European, Asian).
+-- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons, and optional **grouping by civilization (with an icon)**. See also [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py). Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between Traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry**: change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). (Requires AdvCiv-SAS 5502+) Add **Attitude** (furious, annoyed, cautious, pleased, friendly) and **Action buttons** (noanim/idle, greeting, agree, disagree). On click, the animation changes its behaviour to that of the buttons clicked. Also added a clickable **"Legend"** (can be hidden) link that **redirects** to Sevopedia Concepts' corresponding legend. See also: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels).
++- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons, and optional **grouping by civilization (with an icon)**. See also [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py). Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between Traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry**: change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). (Requires AdvCiv-SAS 5502+) Add **Attitude** (furious, annoyed, cautious, pleased, friendly) and **Action buttons** (noanim/idle, greeting, agree, disagree). On click, the animation changes its behaviour to that of the buttons clicked. See also: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels).
++- Sevopedia — Concepts (`ConceptInfos`) (placed under the "Outdated" *Sevopedia category*): added reference entries — e.g. `concept_rivers`, `concept_global_warming`, `concept_customization`. **"Outdated" is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse. See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
++- Sevopedia — Mods Infos (`NewConceptInfos`): Added **Mods Infos** (e.g., K-Mod, AdvCiv, AdvCiv-SAS). Added **Legend items** showing the legend (e.g., for the Info Screen's new Score Tab; for the Sevopedia Leader's AI Personality Panel, (Requires AdvCiv-SAS 5509+) Sevopedia Categories, numTxt abbreviation meaning (e.g., `+50/-75` or `InC`)). See also: [README.md (Legends)](/README.md#legends).
++- Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context.
+ - Sevopedia — Traits: New **Trait Charts**: 2 **sortable** charts showing how widespread **pairs are in a Trait**, and **ranking for each Trait combination**, with **clickable leader buttons**. The Leaders' panel's **header shows statistics** (e.g. "Leader 12/53 (22%)"). Additionally, **Beautified** and added a **new Background panel** with **mod-agnostic blurbs**. See [Sevopedia reworks (Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-traits-category-traits-charts-and-other-changes).
+ - Sevopedia — Techs: New **Starting Techs Charts**: **sortable** charts showing Civilization **pairs and combinations** for **each starting tech**, mirroring the Traits' Charts. New **Untradeable Techs** Chart shows per era untradeable techs similarly. Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. Also **beautified** with a new **Enables** panel enriched with **more information** (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and a **new First to Discover** panel (Founds Religion, Receives a Great Person, Receives a Free Tech) and **Untradeable panel** for the currently selected tech (Emoji or "Yes"). See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+ - Sevopedia — Specialists: new **Extra Slots** (showing slot, free slots, unlimited specialists) and **Extra Yields** panel showing detailed yield information per asset for each specialist.
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog ("Enter caption") to add/remove text on the selected tile.
+-- Sevopedia — Concepts (`ConceptInfos`) (placed under the "Outdated" *Sevopedia category*): added reference entries — e.g. `concept_rivers`, `concept_global_warming`, `concept_customization`. **"Outdated" is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse. See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+-- Sevopedia — Mods Infos (`NewConceptInfos`): Added **Mods Infos** (e.g. K-Mod, AdvCiv). Added **Legend items** showing the legend (e.g., for the Info Screen's new Score Tab; for the AI Personality Panel). See also: [README.md (Legends)](/README.md#legends).
+-- Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context.
+ 
+ ### UI (In-game)
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (3).JPG
+new file mode 100644
+index 000000000..c38089212
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.806_sevopedia_mods_info_legend (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=24894

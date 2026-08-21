@@ -1,0 +1,521 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 199
+# Commit: a865535e8561ffff87723dd9a25c5c759b186c0c
+# History segment: K-Mod history
+# Parent used for diff: ce2854b46eeeba078c1602ddeb9c378da3253d45
+# Title: Added a some missing tests to AI_obsoleteBuildingPenalty - (before this, it basically did nothing). Restructured and adjusted the evaluation code for defensi...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+95	24	CvGameCoreDLL/CvCityAI.cpp
+6	6	CvGameCoreDLL/CvGameTextMgr.cpp
+13	7	CvGameCoreDLL/CvPlayerAI.cpp
+42	25	CvGameCoreDLL/CvTeamAI.cpp
+1	0	CvGameCoreDLL/CvTeamAI.h
+18	7	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b51450afc..b98e40daf 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3247,9 +3247,10 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 		aiUnitAIVal[UNITAI_ATTACK] /= 2;
+ 		aiUnitAIVal[UNITAI_ATTACK_AIR] *= 2;
+ 	}
+-	if (GET_TEAM(getTeam()).AI_getRivalAirPower() <= 10 * GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(area(), UNITAI_DEFENSE_AIR))
++	if (GET_TEAM(getTeam()).AI_getRivalAirPower() <= 8 * GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(area(), UNITAI_DEFENSE_AIR))
+ 	{
+-		// if each of our air defence units has a power of around 50, then this means the rival air power is very low.
++		// unfortunately, I don't have an easy way to get the approximate power of our air defence units.
++		// So I'm just going to assume the power of each unit is around 12 - the power of a fighter plane.
+ 		aiUnitAIVal[UNITAI_DEFENSE_AIR] /= 4;
+ 	}
+ 	// K-Mod end
+@@ -3892,6 +3893,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ /************************************************************************************************/		
+ 
+ 	bool bCanPopRush = GET_PLAYER(getOwnerINLINE()).canPopRush();
++	bool bWarPlan = GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0; // K-Mod
+ 
+ 	bool bForeignTrade = false;
+ 	int iNumTradeRoutes = getTradeRoutes();
+@@ -3944,6 +3946,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 		    
+ 			if ((iFocusFlags & BUILDINGFOCUS_DEFENSE) || (iPass > 0))
+ 			{
++				/* original bts code
+ 				if (!bAreaAlone)
+ 				{
+ 					if ((GC.getGameINLINE().getBestLandUnit() == NO_UNIT) || !(GC.getUnitInfo(GC.getGameINLINE().getBestLandUnit()).isIgnoreBuildingDefense()))
+@@ -3959,7 +3962,44 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				
+ 				iValue += ((kBuilding.getAllCityDefenseModifier() * iNumCities) / 5);
+ 				
+-				iValue += kBuilding.getAirlift() * 25;
++				iValue += kBuilding.getAirlift() * 25; */
++
++				// K-Mod. I've merged and modified the code from here and the code from higher up.
++				if (!bAreaAlone)
++				{
++					if (GC.getGameINLINE().getBestLandUnit() == NO_UNIT || !GC.getUnitInfo(GC.getGameINLINE().getBestLandUnit()).isIgnoreBuildingDefense())
++					{
++						// bRemove means that we're evaluating the cost of losing this building rather than adding it.
++						// the definition used here is just a kludge because there currently isn't any other to tell the difference.
++						// Also, this isn't the only part of the evaluation that depends on whether we are adding or removing
++						// but this is a particular important case due to the way walls and castles get obsoleted...
++						bool bRemove = getNumActiveBuilding(eBuilding) > 0;
++
++						int iTemp = 0;
++						// bombard reduction
++						int iOldBombardMod = getBuildingBombardDefense() - (bRemove ? kBuilding.getBombardDefenseModifier() : 0);
++						iTemp += std::max((bRemove ?0 :kBuilding.getDefenseModifier()) + getBuildingDefense(), getNaturalDefense()) * std::min(kBuilding.getBombardDefenseModifier(), 100-iOldBombardMod) / std::max(80, 8 * (100 - iOldBombardMod));
++						// defence bonus
++						iTemp += std::max(0, std::min((bRemove? 0 :kBuilding.getDefenseModifier()) + getBuildingDefense() - getNaturalDefense() - 10, kBuilding.getDefenseModifier())) / 4;
++
++						iTemp *= (bWarPlan ? 3 : 2);
++						iTemp /= 3;
++						iValue += iTemp;
++					}
++				}
++				iValue += kBuilding.getAirlift() * 10 + (iNumCitiesInArea < iNumCities && kBuilding.getAirlift() > 0 ? getPopulation()+25 : 0);
++
++				int iAirDefense = -kBuilding.getAirModifier();
++				if (iAirDefense > 0)
++				{
++					int iTemp = iAirDefense;
++					iTemp *= std::max(200, 100 * GET_TEAM(getTeam()).AI_getRivalAirPower() / std::max(1, GET_TEAM(getTeam()).AI_getAirPower()));
++					iTemp /= 200;
++					iValue += iTemp;
++				}
++
++				iValue += -kBuilding.getNukeModifier() / (GC.getGameINLINE().isNukesValid() && !GC.getGameINLINE().isNoNukes() ? 4 : 40);
++				// K-Mod end
+ 			}
+ 
+ 			if ((iFocusFlags & BUILDINGFOCUS_ESPIONAGE) || (iPass > 0))
+@@ -4402,7 +4442,20 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 				if (kBuilding.getFreePromotion() != NO_PROMOTION)
+ 				{
+-					iValue += ((iHasMetCount > 0) ? 100 : 40); // XXX some sort of promotion value???
++					/* original bts code
++					iValue += ((iHasMetCount > 0) ? 100 : 40); // XXX some sort of promotion value??? */
++					// K-Mod.
++					// Ideally, we'd use AI_promotionValue to work out what the promotion is worth
++					// but unfortunately, that function requires a target unit, and I can't think of a good
++					// way to choose a suitable unit for evaluation.
++					// So.. I'm just going to do a really basic kludge to stop the Dun from being worth more than Red Cross
++					const CvPromotionInfo& kInfo = GC.getPromotionInfo((PromotionTypes)kBuilding.getFreePromotion());
++					bool bAdvanced = kInfo.getPrereqPromotion() != NO_PROMOTION ||
++						kInfo.getPrereqOrPromotion1() != NO_PROMOTION || kInfo.getPrereqOrPromotion2() != NO_PROMOTION || kInfo.getPrereqOrPromotion3() != NO_PROMOTION;
++					iValue += (bAdvanced ? 200 : 20);
++					// cf. iValue += (kBuilding.getFreeExperience() * ((iHasMetCount > 0) ? 12 : 6));
++					// just don't make the mistake of thinking that I'm happy with this...
++					// K-Mod end
+ 				}
+ 
+ 				if (kBuilding.getCivicOption() != NO_CIVICOPTION)
+@@ -4446,12 +4499,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 				iValue += (kBuilding.getGlobalFreeExperience() * iNumCities * ((iHasMetCount > 0) ? 6 : 3));
+ 
++				/* original bts code. (moved to where the rest of foodKept is valued)
+ 				if (bCanPopRush)
+ 				{
+ 					iValue += kBuilding.getFoodKept() / 2;
+-				}
++				} */
+ 
+-				iValue += kBuilding.getAirlift() * (getPopulation() + 10); // originally population * 3 + 10
++				/* original bts code. (This stuff is already counted in the defense section.)
++				iValue += kBuilding.getAirlift() * (getPopulation()*3 + 10);
+ 				
+ 				int iAirDefense = -kBuilding.getAirModifier();
+ 				if (iAirDefense > 0)
+@@ -4462,9 +4517,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					}
+ 				}
+ 
+-				iValue += kBuilding.getAirUnitCapacity() * (getPopulation() * 2 + 10) / 2; // originally didn't have /2
++				iValue += kBuilding.getAirUnitCapacity() * (getPopulation() * 2 + 10);
++
++				iValue += (-(kBuilding.getNukeModifier()) / ((iHasMetCount > 0) ? 10 : 20)); */
+ 
+-				iValue += (-(kBuilding.getNukeModifier()) / ((iHasMetCount > 0) ? 10 : 20));
++				iValue += std::max(0, kBuilding.getAirUnitCapacity() - plot()->airUnitSpaceAvailable(getTeam())/2) * (getPopulation() + 12); // K-Mod
+ 
+ 				iValue += (kBuilding.getFreeSpecialist() * 16);
+ 				iValue += (kBuilding.getAreaFreeSpecialist() * iNumCitiesInArea * 12);
+@@ -4748,7 +4805,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 										if (iI == YIELD_PRODUCTION)
+ 										{
+ 											// priority += 2% per 1% in production increase. roughly. More when at war.
+-											iPriorityFactor += std::min(100, (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0 ? 300 : 200)*iTempValue/std::max(1, 4*getYieldRate(YIELD_PRODUCTION)));
++											iPriorityFactor += std::min(100, (bWarPlan ? 300 : 200)*iTempValue/std::max(1, 4*getYieldRate(YIELD_PRODUCTION)));
+ 										}
+ 										// K-Mod end
+ 										iTempValue *= kOwner.AI_yieldWeight((YieldTypes)iYield, this);
+@@ -4791,7 +4848,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				if (iFoodDifference > 0)
+ 				{
+ 					//iValue += kBuilding.getFoodKept() / 2;
+-					iValue += std::max(0, 2*(AI_getTargetPopulation() - getPopulation())+1) * kBuilding.getFoodKept() / 4;
++					iValue += std::max(0, 2*(AI_getTargetPopulation() - getPopulation())+(bCanPopRush ?3 :1)) * kBuilding.getFoodKept() / 4;
+ 				}
+ 
+ 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+@@ -4876,7 +4933,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 						if (iI == YIELD_PRODUCTION)
+ 						{
+ 							// priority += 2% per 1% in production increase. roughly. More when at war.
+-							iPriorityFactor += std::min(100, (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0 ? 300 : 200)*iTempValue/std::max(1, 5*getYieldRate(YIELD_PRODUCTION)));
++							iPriorityFactor += std::min(100, (bWarPlan ? 300 : 200)*iTempValue/std::max(1, 5*getYieldRate(YIELD_PRODUCTION)));
+ 						}
+ 						// K-Mod end
+ 
+@@ -10880,11 +10937,38 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 			int iOdds = (bWar ? 100 : 50) - kOwner.AI_unitCostPerMil()/2;
+ 			iOdds *= 50 + iBestBuildingValue;
+ 			iOdds /= 50 + 10 * iBestBuildingValue;
++
++   			if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 10, iOdds))
++			{
++				return;
++			}
++
+ 			if (AI_chooseUnit(NO_UNITAI, iOdds))
+ 			{
+ 				return;
+ 			}
+ 		}
++
++		//spread
++		int iSpreadUnitOdds = (100 - iBestBuildingValue) / 3;
++
++		int iSpreadUnitThreshold = 1000 + (bWar ? 1000: 0);
++		// is it wrong to use UNITAI values for human players?
++		iSpreadUnitThreshold += kOwner.AI_totalAreaUnitAIs(area(), UNITAI_MISSIONARY) * 300;
++
++		UnitTypes eBestSpreadUnit = NO_UNIT;
++		int iBestSpreadUnitValue = -1;
++		if (AI_bestSpreadUnit(true, true, iSpreadUnitOdds, &eBestSpreadUnit, &iBestSpreadUnitValue))
++		{
++			if (iBestSpreadUnitValue > iSpreadUnitThreshold)
++			{
++				if (AI_chooseUnit(eBestSpreadUnit, UNITAI_MISSIONARY))
++				{
++					return;
++				}
++				FAssertMsg(false, "AI_bestSpreadUnit should provide a valid unit when it returns true");
++			}
++		}
+ 	}
+ 
+ 	//default
+@@ -11513,19 +11597,6 @@ int CvCityAI::AI_countNumImprovableBonuses( bool bIncludeNeutral, TechTypes eExt
+ int CvCityAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance)
+ {
+ 	FAssert(GET_PLAYER(eIndex).isAlive());
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/16/10                              jdog5000        */
+-/*                                                                                              */
+-/* War tactics AI                                                                               */
+-/************************************************************************************************/
+-/* original bts code
+-	FAssert(eIndex != getID());
+-*/
+-	// No point checking player type against city ID ... Firaxis copy and paste error from
+-	// CvPlayerAI version of this function
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 	if ((m_iCachePlayerClosenessTurn != GC.getGame().getGameTurn())
+ 		|| (m_iCachePlayerClosenessDistance != iMaxDistance))
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 317041e37..6d4ffd928 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4452,12 +4452,12 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 
+ 					if( iPathLength <= 3 && !GET_TEAM(pPlot->getTeam()).isHasTech((TechTypes)iI) )
+ 					{
+-						szString.append(CvWString::format(L"\n%s(%d)=%8d", GC.getTechInfo((TechTypes)iI).getDescription(), iPathLength, kPlayer.AI_techValue((TechTypes)iI, 1, false, true, paiBonusClassRevealed, paiBonusClassUnrevealed, paiBonusClassHave)));
+-						szString.append(CvWString::format(L" (bld:%4d, ", kPlayer.AI_techBuildingValue((TechTypes)iI, 1, bDummy)));
++						szString.append(CvWString::format(L"\n%s(%d)=%9d", GC.getTechInfo((TechTypes)iI).getDescription(), iPathLength, kPlayer.AI_techValue((TechTypes)iI, 1, false, true, paiBonusClassRevealed, paiBonusClassUnrevealed, paiBonusClassHave)));
++						szString.append(CvWString::format(L" (bld:%d, ", kPlayer.AI_techBuildingValue((TechTypes)iI, 1, bDummy)));
+ 						int iObs = kPlayer.AI_obsoleteBuildingPenalty((TechTypes)iI, true);
+ 						if (iObs != 0)
+-							szString.append(CvWString::format(L"obs:%3d, )", -iObs));
+-						szString.append(CvWString::format(L"unt:%4d)", kPlayer.AI_techUnitValue((TechTypes)iI, 1, bDummy)));
++							szString.append(CvWString::format(L"obs:%d, ", -iObs));
++						szString.append(CvWString::format(L"unt:%d)", kPlayer.AI_techUnitValue((TechTypes)iI, 1, bDummy)));
+ 					}
+ 				}
+ 			}
+@@ -4818,7 +4818,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					int iBuildUnitProb = static_cast<CvCityAI*>(pCity)->AI_buildUnitProb();
+ 					szString.append(CvWString::format(L"\nBuild unit prob: %d%%", iBuildUnitProb));
+ 					BuildingTypes eBestBuilding = static_cast<CvCityAI*>(pCity)->AI_bestBuildingThreshold(0, 0, 0, true);
+-					int iBestBuildingValue = (eBestBuilding == NO_BUILDING) ? 0 : pCity->AI_buildingValue(eBestBuilding);
++					int iBestBuildingValue = (eBestBuilding == NO_BUILDING) ? 0 : pCity->AI_buildingValue(eBestBuilding, 0, 0, true);
+ 					iBuildUnitProb *= (150 + iBestBuildingValue);
+ 					iBuildUnitProb /= (60 + 3 * iBestBuildingValue);
+ 					szString.append(CvWString::format(L" (%d%%)", iBuildUnitProb));
+@@ -10394,7 +10394,7 @@ void CvGameTextMgr::setBuildingHelp(CvWStringBuffer &szBuffer, BuildingTypes eBu
+ 		
+ 		if ((gDLL->getChtLvl() > 0) && gDLL->ctrlKey() && (pCity != NULL))
+ 		{
+-			int iBuildingValue = pCity->AI_buildingValue(eBuilding);
++			int iBuildingValue = pCity->AI_buildingValue(eBuilding, 0, 0, true);
+ 			szBuffer.append(CvWString::format(L"\nAI Building Value = %d", iBuildingValue));
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3a38573e8..834180dc3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5744,16 +5744,22 @@ int CvPlayerAI::AI_obsoleteBuildingPenalty(TechTypes eTech, bool bConstCache) co
+ 	{
+ 		BuildingTypes eLoopBuilding = ((BuildingTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iI)));
+ 
+-		if (eLoopBuilding != NO_BUILDING && GC.getBuildingInfo(eLoopBuilding).getObsoleteTech() == eTech
+-			&& getBuildingClassCount((BuildingClassTypes)iI) > 0)
++		if (eLoopBuilding != NO_BUILDING)
+ 		{
+-			int iLoop;
+-			for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++			bool bObsolete = GC.getBuildingInfo(eLoopBuilding).getObsoleteTech() == eTech
++				|| (GC.getBuildingInfo(eLoopBuilding).getSpecialBuildingType() != NO_SPECIALBUILDING
++				&& GC.getSpecialBuildingInfo((SpecialBuildingTypes)GC.getBuildingInfo(eLoopBuilding).getSpecialBuildingType()).getObsoleteTech() == eTech);
++
++			if (bObsolete && getBuildingClassCount((BuildingClassTypes)iI) > 0)
+ 			{
+-				int n = pLoopCity->getNumActiveBuilding(eLoopBuilding);
+-				if (n > 0)
++				int iLoop;
++				for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 				{
+-					iTotalPenalty += n * pLoopCity->AI_buildingValue(eLoopBuilding, 0, 0, bConstCache);
++					int n = pLoopCity->getNumActiveBuilding(eLoopBuilding);
++					if (n > 0)
++					{
++						iTotalPenalty += n * pLoopCity->AI_buildingValue(eLoopBuilding, 0, 0, bConstCache);
++					}
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 2b66939db..763edb039 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2431,51 +2431,68 @@ int CvTeamAI::AI_getEnemyPowerPercent( bool bConsiderOthers ) const
+ 	// K-Mod end
+ }
+ 
++// K-Mod
++int CvTeamAI::AI_getAirPower() const
++{
++	int iTotalPower = 0;
++
++	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
++	{
++		// Since units of each class are counted per team rather than units of each type, just assume the default unit type.
++		UnitTypes eLoopUnit = (UnitTypes)GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex();
++		if (eLoopUnit != NO_UNIT)
++		{
++			const CvUnitInfo& kUnitInfo = GC.getUnitInfo(eLoopUnit);
++
++			if (kUnitInfo.getDomainType() == DOMAIN_AIR && kUnitInfo.getAirCombat() > 0)
++			{
++				iTotalPower += getUnitClassCount((UnitClassTypes)iI) * kUnitInfo.getPowerValue();
++			}
++		}
++	}
++
++	return iTotalPower;
++}
++
+ /// \brief Sum up air power of enemies plus average of other civs we've met.
+ ///
++// K-Mod: I've rewritten this function to loop over unit classes rather than unit types.
++// This is because a loop over unit types will double-count if there are two units in the same class.
+ int CvTeamAI::AI_getRivalAirPower( ) const
+ {
+ 	// Count enemy air units, not just those visible to us
+ 	int iRivalAirPower = 0;
+ 	int iEnemyAirPower = 0;
++	int iTeamCount = 0;
+ 
+-	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
++	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+ 	{
+-		CvUnitInfo& kUnitInfo = GC.getUnitInfo((UnitTypes)iI);
+-
+-		if( kUnitInfo.getDomainType() == DOMAIN_AIR ) 
++		// Since units of each class are counted per team rather than units of each type, just assume the default unit type.
++		UnitTypes eLoopUnit = (UnitTypes)GC.getUnitClassInfo((UnitClassTypes)iI).getDefaultUnitIndex();
++		if (eLoopUnit != NO_UNIT)
+ 		{
+-			if( kUnitInfo.getAirCombat() > 0 )
++			const CvUnitInfo& kUnitInfo = GC.getUnitInfo(eLoopUnit);
++
++			if (kUnitInfo.getDomainType() == DOMAIN_AIR && kUnitInfo.getAirCombat() > 0)
+ 			{
+-				for( int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++ )
++				for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++)
+ 				{
+-					if( iTeam != getID() )
++					if (iTeam != getID() && GET_TEAM((TeamTypes)iTeam).isAlive()
++						&& isHasMet((TeamTypes)iTeam) && !GET_TEAM((TeamTypes)iTeam).isMinorCiv())
+ 					{
+-						if( GET_TEAM((TeamTypes)iTeam).isAlive() && isHasMet((TeamTypes)iTeam) )
+-						{
+-							int iUnitPower = GET_TEAM((TeamTypes)iTeam).getUnitClassCount((UnitClassTypes)kUnitInfo.getUnitClassType());
++						iTeamCount++;
+ 
+-							if( iUnitPower > 0 )
+-							{
+-								iUnitPower *= kUnitInfo.getPowerValue();
++						int iUnitPower = kUnitInfo.getPowerValue() * GET_TEAM((TeamTypes)iTeam).getUnitClassCount((UnitClassTypes)iI);
+ 
+-								if( AI_getWarPlan((TeamTypes)iTeam) == NO_WARPLAN )
+-								{
+-									iRivalAirPower += iUnitPower;
+-								}
+-								else
+-								{
+-									iEnemyAirPower += iUnitPower;
+-								}
+-							}
+-						}
++						iRivalAirPower += iUnitPower;
++						if (AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN)
++							iEnemyAirPower += iUnitPower;
+ 					}
+ 				}
+ 			}
+ 		}
+ 	}
+-
+-	return (iEnemyAirPower + (iRivalAirPower / std::max(1,getHasMetCivCount(true))));
++	return iEnemyAirPower + iRivalAirPower / std::max(1, iTeamCount);
+ }
+ 
+ bool CvTeamAI::AI_acceptSurrender( TeamTypes eSurrenderTeam )
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index be2a1c82b..176a440b5 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -126,6 +126,7 @@ public:
+ /************************************************************************************************/
+ 	int AI_getWarSuccessCapitulationRatio() const;
+ 	int AI_getEnemyPowerPercent( bool bConsiderOthers = false ) const;
++	int AI_getAirPower() const; // K-Mod
+ 	int AI_getRivalAirPower( ) const;
+ 	bool AI_acceptSurrender( TeamTypes eSurrenderTeam );
+ 	bool AI_isOkayVassalTarget( TeamTypes eTeam );
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 8443c1462..e54c4eae4 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -9665,7 +9665,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+ 	int iValue;
+ 	int iTemp;
+ 	int iExtra;
+-	int iI;
++	//int iI;
+ 
+ 	iValue = 0;
+ 
+@@ -10018,7 +10018,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+ 	// try to use Warlords to create super-medic units
+ 	if (GC.getPromotionInfo(ePromotion).getAdjacentTileHealChange() > 0 || GC.getPromotionInfo(ePromotion).getSameTileHealChange() > 0)
+ 	{
+-		PromotionTypes eLeader = NO_PROMOTION;
++		/* original bts code PromotionTypes eLeader = NO_PROMOTION;
+ 		for (iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+ 		{
+ 			if (GC.getPromotionInfo((PromotionTypes)iI).isLeader())
+@@ -10030,7 +10030,18 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+ 		if (isHasPromotion(eLeader) && eLeader != NO_PROMOTION)
+ 		{
+ 			iValue += GC.getPromotionInfo(ePromotion).getAdjacentTileHealChange() + GC.getPromotionInfo(ePromotion).getSameTileHealChange();
++		} */
++		// K-Mod, I've changed the way we work out if we are a leader or not.
++		// The original method would break if there was more than one "leader" promotion)
++		for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
++		{
++			if (GC.getPromotionInfo((PromotionTypes)iI).isLeader() && isHasPromotion((PromotionTypes)iI))
++			{
++				iValue += GC.getPromotionInfo(ePromotion).getAdjacentTileHealChange() + GC.getPromotionInfo(ePromotion).getSameTileHealChange();
++				break;
++			}
+ 		}
++		// K-Mod end
+ 	}
+ 
+ 	iTemp = GC.getPromotionInfo(ePromotion).getCombatPercent();
+@@ -10209,7 +10220,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+ 		iValue += (iTemp / 64);
+ 	}
+ 
+-	for (iI = 0; iI < GC.getNumTerrainInfos(); iI++)
++	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+ 	{
+ 		iTemp = GC.getPromotionInfo(ePromotion).getTerrainAttackPercent(iI);
+ 		if (iTemp != 0)
+@@ -10268,7 +10279,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+ 		}
+ 	}
+ 
+-	for (iI = 0; iI < GC.getNumFeatureInfos(); iI++)
++	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+ 	{
+ 		iTemp = GC.getPromotionInfo(ePromotion).getFeatureAttackPercent(iI);
+ 		if (iTemp != 0)
+@@ -10334,7 +10345,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+     int iOtherCombat = 0; 
+     int iSameCombat = 0;
+     
+-    for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
++    for (int iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
+     {
+         if ((UnitCombatTypes)iI == getUnitCombatType())
+         {
+@@ -10346,7 +10357,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+         }
+     }
+ 
+-	for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
++	for (int iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
+ 	{
+ 		iTemp = GC.getPromotionInfo(ePromotion).getUnitCombatModifierPercent(iI);
+ 		int iCombatWeight = 0;
+@@ -10393,7 +10404,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+ 		}
+ 	}
+ 
+-	for (iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
++	for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+ 	{
+ 		//WTF? why float and cast to int?
+ 		//iTemp = ((int)((GC.getPromotionInfo(ePromotion).getDomainModifierPercent(iI) + getExtraDomainModifier((DomainTypes)iI)) * 100.0f));
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=22776

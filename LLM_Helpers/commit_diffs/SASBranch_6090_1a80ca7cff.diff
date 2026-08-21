@@ -1,0 +1,879 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6090
+# Commit: 1a80ca7cff111011fa27c8f19ebf19fe44b5fe0b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2be4fd2642f193dd11df172eb97ac08b919cbb09
+# Title: Add SASGameRecord geography information, and fix Base AdvCiv/K-Mod AI naval-trade sea-explorer military production (KI#197.6)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+55	11	CvGameCoreDLL/CvCityAI.cpp
+637	1	CvGameCoreDLL/SASGameRecordLog.cpp
+2	2	README.md
+16	1	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 79091277e..534e7683f 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -43,7 +43,7 @@ In particular but not only, these are usually helpful:
+ - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log"
+ - "C:\Users\PC\Documents\My Games\beyond the sword\CivilizationIV.ini"
+ - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI.log" or timestamped (e.g., `BBAI_20260608T065231Z.log`) (after enabling BBAI logging with AdvCiv-SAS XML defines). BBAI logs can be very long; for broad raw-log diagnosis, let the user feed the log to an external LLM/AI such as ChatGPT for agentic-token-free analysis first (also good to give us a different point of view/review if needed), then verify the resulting hypothesis locally while still using the log as evidence.
+-- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\SASGameRecord.log" or timestamped (e.g., `SASGameRecord_20260710T064839Z_load1.log`) (after enabling the AdvCiv-SAS game-record XML defines). This is separate from BBAI logging: use it for compact autoplay / AI-benchmark context such as economy, expansion, city and battle history, worked plots, diplomacy, and high-level game state; use BBAI for detailed AI-decision diagnostics. It can also be useful alongside BBAI logs to give an LLM the broader "what happened" context before drilling into decision traces. It is an all-player diagnostic record and can contain spoilers; do not treat it as a spoiler-free player-advice log.
++- "C:\Users\PC\Documents\My Games\beyond the sword\Logs\SASGameRecord.log" or timestamped (e.g., `SASGameRecord_20260710T064839Z_load1.log`) (after enabling the AdvCiv-SAS game-record XML defines). This is separate from BBAI logging: use it for compact autoplay / AI-benchmark context such as initial map/landmass geography and resource/yield context, economy, expansion, city and battle history, worked plots, diplomacy, and high-level game state; use BBAI for detailed AI-decision diagnostics. It can also be useful alongside BBAI logs to give an LLM the broader "what happened" context before drilling into decision traces. It is an all-player diagnostic record and can contain spoilers; do not treat it as a spoiler-free player-advice log.
+ 
+ The root Program Files Civ4 folder is here:
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index f44d20117..50a0a6b02 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2789,21 +2789,59 @@ void CvCityAI::AI_chooseProduction()
+ 		{
+ 			/*	Don't rely on seaExplorersTarget. Can be 0 if already met all
+ 				other civs or if there is a larger separate water area. */
+-			bool bEnoughWaterUnits = false;
+-			int iWaterUnits = 0;
++			// <!-- custom: Base AdvCiv's naval-trade explorer fallback counted only units physically in the water area, so docked/queued ships disappeared from its <3 cap; save-file 456 also showed late Attack Submarine/Destroyer explorers after the entire relevant water area was revealed.
++			// Count actual sea-domain UnitAIs including docked and queued ships, and require at least one unrevealed tile before this special trade-exploration fallback can fire. Keep the inherited cap of 3 ships and 25% explorer choice. (ChatGPT-5.6-Sol) -->
++			int iSeaUnitsAtSea = 0;
++			int iSeaUnitsIncludingDocked = 0;
++			int iSeaUnitsTraining = 0;
+ 			for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
+ 			{
+-				iWaterUnits += pWaterArea->getNumAIUnits(itMember->getID(), NO_UNITAI);
+-				if (iWaterUnits >= 3)
++				CvPlayerAI const& kMember = GET_PLAYER(itMember->getID());
++				FOR_EACH_UNIT(pLoopUnit, kMember)
+ 				{
+-					bEnoughWaterUnits = true;
+-					break;
++					if (pLoopUnit->getDomainType() != DOMAIN_SEA)
++						continue;
++					if (&pLoopUnit->getArea() == pWaterArea)
++						iSeaUnitsAtSea++;
++					if (pLoopUnit->getPlot().waterArea() == pWaterArea)
++						iSeaUnitsIncludingDocked++;
++				}
++				FOR_EACH_CITY(pLoopCity, kMember)
++				{
++					if (pLoopCity->waterArea() != pWaterArea)
++						continue;
++					FOR_EACH_ENUM(UnitAI)
++					{
++						if (kMember.AI_unitAIDomainType(eLoopUnitAI) == DOMAIN_SEA)
++							iSeaUnitsTraining += pLoopCity->getNumTrainUnitAI(eLoopUnitAI);
++					}
+ 				}
+ 			}
+-			/*	Would rather use a condition based on the number of unrevealed
+-				tiles, but it's difficult to count just the tiles that an explorer
+-				could actually reach. */
+-			if (!bEnoughWaterUnits && AI_chooseUnit(UNITAI_EXPLORE_SEA, 25))
++			int const iWaterUnits = iSeaUnitsIncludingDocked + iSeaUnitsTraining;
++			bool const bEnoughWaterUnits = (iWaterUnits >= 3);
++			int const iUnrevealedWaterTiles = pWaterArea->getNumUnrevealedTiles(getTeam());
++			bool const bHasUnrevealedWater = (iUnrevealedWaterTiles > 0);
++			bool const bSeaExplorerEligible = (bHasUnrevealedWater && !bEnoughWaterUnits);
++
++			int iInheritedAreaUnitsExact = 0;
++			int iTeamSeaExplorersNow = 0;
++			if (bLogDetailedMilitaryProduction)
++			{
++				for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
++				{
++					CvPlayerAI const& kMember = GET_PLAYER(itMember->getID());
++					iInheritedAreaUnitsExact += pWaterArea->getNumAIUnits(kMember.getID(), NO_UNITAI);
++					iTeamSeaExplorersNow += kMember.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_EXPLORE_SEA);
++				}
++			}
++			bool bSeaExplorerChosen = false;
++			if (bSeaExplorerEligible)
++				bSeaExplorerChosen = AI_chooseUnit(UNITAI_EXPLORE_SEA, 25);
++			if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_NAVAL_TRADE_EXPLORER turn=%d player=%d %S city=%S cityId=%d waterArea=%d waterTiles=%d unrevealedWaterTiles=%d hasUnrevealedWater=%d biggestWaterArea=%d metCivs=%d otherCivsAlive=%d seaExplorerTarget=%d seaExplorerNow=%d teamSeaExplorerNow=%d correctedSeaUnits=%d correctedEnough=%d inheritedAreaUnits=%d actualSeaAtSea=%d actualSeaDocked=%d actualSeaIncludingDocked=%d seaTraining=%d actualSeaIncludingDockedAndTraining=%d inheritedNonSeaAreaUnits=%d unitSpending=%d maxPlus15=%d overPlus15=%d financialTrouble=%d landWar=%d assault=%d eligible=%d attempted=%d chosen=%d",
++				kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), pWaterArea->getID(), pWaterArea->getNumTiles(), iUnrevealedWaterTiles, bHasUnrevealedWater, GC.getMap().findBiggestArea(true) == pWaterArea, kTeam.getHasMetCivCount(true), kGame.countCivTeamsAlive() - 1,
++				iSeaExplorersTarget, iSeaExplorersNow, iTeamSeaExplorersNow, iWaterUnits, bEnoughWaterUnits, iInheritedAreaUnitsExact, iSeaUnitsAtSea, iSeaUnitsIncludingDocked - iSeaUnitsAtSea, iSeaUnitsIncludingDocked, iSeaUnitsTraining, iSeaUnitsIncludingDocked + iSeaUnitsTraining, iInheritedAreaUnitsExact - iSeaUnitsAtSea,
++				iUnitSpending, iMaxUnitSpending + 15, iUnitSpending >= iMaxUnitSpending + 15, bFinancialTrouble, bLandWar, bAssault, bSeaExplorerEligible, bSeaExplorerEligible, bSeaExplorerChosen);
++			if (bSeaExplorerChosen)
+ 			{
+ 				if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose sea explorer for naval trade", sCityName);
+ 				return;
+@@ -3889,8 +3927,14 @@ void CvCityAI::AI_chooseProduction()
+ 			{	// advc.124 (no functional change)
+ 				if (iSeaExplorersNow < std::min(1, iSeaExplorersTarget))
+ 				{
+-					if (AI_chooseUnit(UNITAI_EXPLORE_SEA))
++					bool const bLateSeaExplorerChosen = AI_chooseUnit(UNITAI_EXPLORE_SEA);
++					if (bLogDetailedMilitaryProduction) logBBAI("MILITARY_PRODUCTION_SEA_EXPLORER_TARGET turn=%d player=%d %S city=%S cityId=%d stage=LATE_TARGET waterArea=%d waterTiles=%d unrevealedWaterTiles=%d seaExplorerTarget=%d seaExplorerNow=%d unitSpending=%d maxPlus15=%d overPlus15=%d financialTrouble=%d assault=%d chosen=%d",
++						kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), pWaterArea->getID(), pWaterArea->getNumTiles(), pWaterArea->getNumUnrevealedTiles(getTeam()), iSeaExplorersTarget, iSeaExplorersNow, iUnitSpending, iMaxUnitSpending + 15, iUnitSpending >= iMaxUnitSpending + 15, bFinancialTrouble, bAssault, bLateSeaExplorerChosen);
++					if (bLateSeaExplorerChosen)
++					{
++						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S uses choose late target sea explorer", sCityName);
+ 						return;
++					}
+ 				}
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index 3f599763b..a51c1c694 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -1359,12 +1359,649 @@ static void logSASGameRecordAttitudeLegend()
+ 			iFuriousMax, iFuriousMax + 1, iAnnoyedMax, iAnnoyedMax + 1, iPleasedMin - 1, iPleasedMin, iFriendlyMin - 1, iFriendlyMin);
+ }
+ 
++struct SASGameRecordLandmassGeography
++{
++	SASGameRecordLandmassGeography() : iAreaId(-1), iAnchorX(-1), iAnchorY(-1), iPlots(0), iHabitablePlots(0), iImpassablePlots(0), iZeroNatureYieldPlots(0), iWaterBorderPlots(0), iSeaBorderPlots(0), iLakeBorderPlots(0), iIceBorderPlots(0), iSeaBorderEdges(0), iLakeBorderEdges(0), iIceBorderEdges(0), iHillsPlots(0), iPeakPlots(0), iRiverSidePlots(0), iFreshWaterPlots(0), iSumWrappedDX(0), iSumWrappedDY(0), iStartingPlayers(0), iNatureFood(0), iNatureProduction(0), iNatureCommerce(0), iBonusCount(0) {}
++	int iAreaId;
++	int iAnchorX;
++	int iAnchorY;
++	int iPlots;
++	int iHabitablePlots;
++	int iImpassablePlots;
++	int iZeroNatureYieldPlots;
++	int iWaterBorderPlots;
++	int iSeaBorderPlots;
++	int iLakeBorderPlots;
++	int iIceBorderPlots;
++	int iSeaBorderEdges;
++	int iLakeBorderEdges;
++	int iIceBorderEdges;
++	int iHillsPlots;
++	int iPeakPlots;
++	int iRiverSidePlots;
++	int iFreshWaterPlots;
++	int iSumWrappedDX;
++	int iSumWrappedDY;
++	int iStartingPlayers;
++	int iNatureFood;
++	int iNatureProduction;
++	int iNatureCommerce;
++	int iBonusCount;
++	CvString szStartingPlayers;
++	std::vector<int> aiNoOceanConnectedAreas;
++	std::vector<int> aiNoOceanNavigableConnectedAreas;
++	std::vector<int> aiAdjacentLakeAreas;
++	std::vector<int> aiTerrainCounts;
++	std::vector<int> aiFeatureCounts;
++	std::vector<int> aiBonusCounts;
++	std::vector<CvString> aszBonusCoordinates;
++	std::vector<int> aiEraRevealedRawFood;
++	std::vector<int> aiEraRevealedRawProduction;
++	std::vector<int> aiEraRevealedRawCommerce;
++	std::vector<int> aiEraRevealedRaw321;
++	std::vector<int> aiEraBonusPotentialFood;
++	std::vector<int> aiEraBonusPotentialProduction;
++	std::vector<int> aiEraBonusPotentialCommerce;
++	std::vector<int> aiEraBonusPotential321;
++};
++
++static SASGameRecordLandmassGeography* getSASGameRecordLandmassGeography(std::vector<SASGameRecordLandmassGeography>& aLandmasses, int iAreaId)
++{
++	for (size_t iI = 0; iI < aLandmasses.size(); iI++)
++	{
++		if (aLandmasses[iI].iAreaId == iAreaId)
++			return &aLandmasses[iI];
++	}
++	return NULL;
++}
++
++static void addSASGameRecordUniqueArea(std::vector<int>& aiAreas, int iAreaId)
++{
++	if (iAreaId < 0)
++		return;
++	if (std::find(aiAreas.begin(), aiAreas.end(), iAreaId) == aiAreas.end())
++		aiAreas.push_back(iAreaId);
++}
++
++static CvString getSASGameRecordLandmassName(SASGameRecordLandmassGeography const& kLandmass)
++{
++	CvString szName;
++	szName.Format("LAND_%d_%d_A%d", kLandmass.iAnchorX, kLandmass.iAnchorY, kLandmass.iAreaId);
++	return szName;
++}
++
++static CvString getSASGameRecordLandmassList(std::vector<SASGameRecordLandmassGeography> const& aLandmasses, std::vector<int> const& aiAreas)
++{
++	CvString szList;
++	for (size_t iI = 0; iI < aiAreas.size(); iI++)
++	{
++		for (size_t iJ = 0; iJ < aLandmasses.size(); iJ++)
++		{
++			if (aLandmasses[iJ].iAreaId != aiAreas[iI])
++				continue;
++			CvString szItem;
++			CvString const szName = getSASGameRecordLandmassName(aLandmasses[iJ]);
++			szItem.Format(szList.empty() ? "%s" : ",%s", szName.GetCString());
++			szList += szItem;
++			break;
++		}
++	}
++	return getSASGameRecordOrDash(szList);
++}
++
++static CvString getSASGameRecordLandmassTerrainPercentages(SASGameRecordLandmassGeography const& kLandmass)
++{
++	CvString szList;
++	for (int iTerrain = 0; iTerrain < (int)kLandmass.aiTerrainCounts.size(); iTerrain++)
++	{
++		if (kLandmass.aiTerrainCounts[iTerrain] <= 0)
++			continue;
++		CvString szItem;
++		szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", GC.getInfo((TerrainTypes)iTerrain).getType(), getSASGameRecordPercentX100(kLandmass.aiTerrainCounts[iTerrain], kLandmass.iPlots));
++		szList += szItem;
++	}
++	return getSASGameRecordOrDash(szList);
++}
++
++static CvString getSASGameRecordLandmassFeaturePercentages(SASGameRecordLandmassGeography const& kLandmass)
++{
++	CvString szList;
++	for (int iFeature = 0; iFeature < (int)kLandmass.aiFeatureCounts.size(); iFeature++)
++	{
++		if (kLandmass.aiFeatureCounts[iFeature] <= 0)
++			continue;
++		CvString szItem;
++		szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", GC.getInfo((FeatureTypes)iFeature).getType(), getSASGameRecordPercentX100(kLandmass.aiFeatureCounts[iFeature], kLandmass.iPlots));
++		szList += szItem;
++	}
++	return getSASGameRecordOrDash(szList);
++}
++
++static int getSASGameRecordAdjacentLakePlots(SASGameRecordLandmassGeography const& kLandmass)
++{
++	int iPlots = 0;
++	for (size_t iI = 0; iI < kLandmass.aiAdjacentLakeAreas.size(); iI++)
++	{
++		CvArea const* pArea = GC.getMap().getArea(kLandmass.aiAdjacentLakeAreas[iI]);
++		if (pArea != NULL && pArea->isLake())
++			iPlots += pArea->getNumTiles();
++	}
++	return iPlots;
++}
++
++static bool isSASGameRecordTechAvailableByEra(TechTypes eTech, EraTypes eEra)
++{
++	return (eTech == NO_TECH || GC.getInfo(eTech).getEra() <= eEra);
++}
++
++static bool isSASGameRecordBuildAvailableByEra(CvPlot const& kPlot, BuildTypes eBuild, EraTypes eEra)
++{
++	CvBuildInfo const& kBuild = GC.getInfo(eBuild);
++	if (kBuild.getImprovement() == NO_IMPROVEMENT || !isSASGameRecordTechAvailableByEra(kBuild.getTechPrereq(), eEra))
++		return false;
++	FeatureTypes const eFeature = kPlot.getFeatureType();
++	if (eFeature != NO_FEATURE && kBuild.isFeatureRemove(eFeature) && !isSASGameRecordTechAvailableByEra(kBuild.getFeatureTech(eFeature), eEra))
++		return false;
++	return kPlot.canHaveImprovement(kBuild.getImprovement(), NO_TEAM, true, eBuild, false);
++}
++
++static bool isSASGameRecordIrrigationAvailableByEra(EraTypes eEra)
++{
++	static std::vector<char> abAvailable;
++	if (abAvailable.empty())
++	{
++		abAvailable.assign(GC.getNumEraInfos(), 0);
++		FOR_EACH_ENUM(Tech)
++		{
++			if (!GC.getInfo(eLoopTech).isIrrigation())
++				continue;
++			for (int iEra = GC.getInfo(eLoopTech).getEra(); iEra < GC.getNumEraInfos(); iEra++)
++				abAvailable[iEra] = 1;
++		}
++	}
++	return (eEra >= 0 && eEra < (int)abAvailable.size() && abAvailable[eEra] != 0);
++}
++
++static int getSASGameRecordImprovementTechYieldByEra(ImprovementTypes eImprovement, YieldTypes eYield, EraTypes eEra)
++{
++	static std::vector<int> aiYield;
++	int const iNumEras = GC.getNumEraInfos();
++	int const iNumImprovements = GC.getNumImprovementInfos();
++	if (aiYield.empty())
++	{
++		aiYield.assign(iNumEras * iNumImprovements * NUM_YIELD_TYPES, 0);
++		for (int iEra = 0; iEra < iNumEras; iEra++)
++		{
++			for (int iImprovement = 0; iImprovement < iNumImprovements; iImprovement++)
++			{
++				FOR_EACH_ENUM(Yield)
++				{
++					int iValue = 0;
++					FOR_EACH_ENUM(Tech)
++					{
++						if (GC.getInfo(eLoopTech).getEra() <= iEra)
++							iValue += GC.getInfo((ImprovementTypes)iImprovement).getTechYieldChanges(eLoopTech, eLoopYield);
++					}
++					aiYield[(iEra * iNumImprovements + iImprovement) * NUM_YIELD_TYPES + eLoopYield] = iValue;
++				}
++			}
++		}
++	}
++	if (eEra < 0 || eEra >= iNumEras || eImprovement < 0 || eImprovement >= iNumImprovements || eYield < 0 || eYield >= NUM_YIELD_TYPES)
++		return 0;
++	return aiYield[(eEra * iNumImprovements + eImprovement) * NUM_YIELD_TYPES + eYield];
++}
++
++static void getSASGameRecordLandmassPlotPotential(CvPlot const& kPlot, EraTypes eEra, int& iRawFood, int& iRawProduction, int& iRawCommerce, int& iRaw321, int& iPotentialFood, int& iPotentialProduction, int& iPotentialCommerce, int& iPotential321)
++{
++	BonusTypes const eBonus = kPlot.getBonusType(NO_TEAM);
++	bool const bBonusRevealed = (eBonus != NO_BONUS && isSASGameRecordTechAvailableByEra(GC.getInfo(eBonus).getTechReveal(), eEra));
++	int aiRaw[NUM_YIELD_TYPES] = { 0 };
++	FOR_EACH_ENUM(Yield)
++	{
++		aiRaw[eLoopYield] = kPlot.calculateNatureYield(eLoopYield, NO_TEAM);
++		if (bBonusRevealed)
++			aiRaw[eLoopYield] += GC.getInfo(eBonus).getYieldChange(eLoopYield);
++	}
++	iRawFood = aiRaw[YIELD_FOOD];
++	iRawProduction = aiRaw[YIELD_PRODUCTION];
++	iRawCommerce = aiRaw[YIELD_COMMERCE];
++	iRaw321 = 3 * iRawFood + 2 * iRawProduction + iRawCommerce;
++	iPotentialFood = iRawFood;
++	iPotentialProduction = iRawProduction;
++	iPotentialCommerce = iRawCommerce;
++	iPotential321 = iRaw321;
++	if (!bBonusRevealed || !isSASGameRecordTechAvailableByEra(GC.getInfo(eBonus).getTechCityTrade(), eEra))
++		return;
++	bool const bIrrigationPotential = (isSASGameRecordIrrigationAvailableByEra(eEra) && kPlot.canHavePotentialIrrigation());
++	FOR_EACH_ENUM(Build)
++	{
++		if (!isSASGameRecordBuildAvailableByEra(kPlot, eLoopBuild, eEra))
++			continue;
++		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
++		ImprovementTypes const eImprovement = kBuild.getImprovement();
++		CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
++		// <!-- custom: Ordinary Farm/Cottage/Mine/etc. choices encode city specialization rather than intrinsic geography. Only project an improvement when XML explicitly says that it connects this bonus, making the resource improvement a comparatively unambiguous part of the landmass's potential. (ChatGPT-5.6-Sol) -->
++		if (!kImprovement.isImprovementBonusMakesValid(eBonus))
++			continue;
++		int aiYield[NUM_YIELD_TYPES] = { 0 };
++		FOR_EACH_ENUM(Yield)
++		{
++			int iYield = kPlot.calculateNatureYield(eLoopYield, NO_TEAM, kPlot.getFeatureType() != NO_FEATURE && kBuild.isFeatureRemove(kPlot.getFeatureType()));
++			iYield += GC.getInfo(eBonus).getYieldChange(eLoopYield);
++			iYield += kImprovement.getYieldChange(eLoopYield);
++			if (kPlot.isRiverSide())
++				iYield += kImprovement.getRiverSideYieldChange(eLoopYield);
++			if (kPlot.isHills())
++				iYield += kImprovement.getHillsYieldChange(eLoopYield);
++			if (bIrrigationPotential)
++				iYield += kImprovement.getIrrigatedYieldChange(eLoopYield);
++			iYield += getSASGameRecordImprovementTechYieldByEra(eImprovement, eLoopYield, eEra);
++			iYield += kImprovement.getImprovementBonusYield(eBonus, eLoopYield);
++			aiYield[eLoopYield] = std::max(0, iYield);
++		}
++		iPotentialFood = std::max(iPotentialFood, aiYield[YIELD_FOOD]);
++		iPotentialProduction = std::max(iPotentialProduction, aiYield[YIELD_PRODUCTION]);
++		iPotentialCommerce = std::max(iPotentialCommerce, aiYield[YIELD_COMMERCE]);
++		iPotential321 = std::max(iPotential321, 3 * aiYield[YIELD_FOOD] + 2 * aiYield[YIELD_PRODUCTION] + aiYield[YIELD_COMMERCE]);
++	}
++}
++
++static CvString getSASGameRecordEraLandmassYieldList(SASGameRecordLandmassGeography const& kLandmass, bool bBonusPotential)
++{
++	CvString szList;
++	for (int iEra = 0; iEra < GC.getNumEraInfos(); iEra++)
++	{
++		if (kLandmass.iPlots <= 0)
++			continue;
++		std::vector<int> const& aiFood = (bBonusPotential ? kLandmass.aiEraBonusPotentialFood : kLandmass.aiEraRevealedRawFood);
++		std::vector<int> const& aiProduction = (bBonusPotential ? kLandmass.aiEraBonusPotentialProduction : kLandmass.aiEraRevealedRawProduction);
++		std::vector<int> const& aiCommerce = (bBonusPotential ? kLandmass.aiEraBonusPotentialCommerce : kLandmass.aiEraRevealedRawCommerce);
++		std::vector<int> const& ai321 = (bBonusPotential ? kLandmass.aiEraBonusPotential321 : kLandmass.aiEraRevealedRaw321);
++		CvString szItem;
++		szItem.Format(szList.empty() ? "%s:%d/%d/%d/%d" : ",%s:%d/%d/%d/%d", GC.getInfo((EraTypes)iEra).getType(), (100 * aiFood[iEra]) / kLandmass.iPlots, (100 * aiProduction[iEra]) / kLandmass.iPlots, (100 * aiCommerce[iEra]) / kLandmass.iPlots, (100 * ai321[iEra]) / kLandmass.iPlots);
++		szList += szItem;
++	}
++	return getSASGameRecordOrDash(szList);
++}
++
++static CvString getSASGameRecordLandmassBonusTypes(SASGameRecordLandmassGeography const& kLandmass)
++{
++	CvString szTypes;
++	for (int iBonus = 0; iBonus < (int)kLandmass.aiBonusCounts.size(); iBonus++)
++	{
++		if (kLandmass.aiBonusCounts[iBonus] <= 0)
++			continue;
++		appendSASGameRecordTypeCount(szTypes, getSASGameRecordBonusType((BonusTypes)iBonus), kLandmass.aiBonusCounts[iBonus]);
++	}
++	return getSASGameRecordOrDash(szTypes);
++}
++
++static void logSASGameRecordLandmassBonusCoordinates(SASGameRecordLandmassGeography const& kLandmass, CvString const& szLandmassName)
++{
++	std::vector<CvString> aszParts;
++	CvString szPart;
++	for (size_t iI = 0; iI < kLandmass.aszBonusCoordinates.size(); iI++)
++	{
++		CvString const& szItem = kLandmass.aszBonusCoordinates[iI];
++		if (!szPart.empty() && szPart.length() + szItem.length() + 1 > 1200)
++		{
++			aszParts.push_back(szPart);
++			szPart = "";
++		}
++		if (!szPart.empty())
++			szPart += ";";
++		szPart += szItem;
++	}
++	if (!szPart.empty())
++		aszParts.push_back(szPart);
++	if (aszParts.empty())
++	{
++		logSASGameRecord("GAME_RECORD_LANDMASS_BONUS_COORDS turn=%d landmass=%s part=1 parts=1 bonuses=-", GC.getGame().getGameTurn(), szLandmassName.GetCString());
++		return;
++	}
++	for (size_t iI = 0; iI < aszParts.size(); iI++)
++		logSASGameRecord("GAME_RECORD_LANDMASS_BONUS_COORDS turn=%d landmass=%s part=%d parts=%d bonuses=%s", GC.getGame().getGameTurn(), szLandmassName.GetCString(), (int)iI + 1, (int)aszParts.size(), aszParts[iI].GetCString());
++}
++
++// <!-- custom: Record a map-geography snapshot once per new/load context so autoplay analysis can distinguish crowded continents, isolated islands, coast-connected landmasses, terrain/feature composition, lake/sea structure, map-resource distribution, and underlying land quality without reconstructing the map from later city history.
++// Landmass names use a deterministic anchor coordinate plus the Civ4 area ID; center coordinates are wrap-aware approximations. "habitable" uses CvPlot::isHabitable, while impassable and zero-natural-yield plots remain separate.
++// Nature yields exclude bonuses. Per-era raw value adds a bonus only from its reveal era; conservative potential improves only revealed/connectable bonus plots through an XML-valid resource improvement, leaving ordinary non-bonus specialization choices untouched.
++// Routes, civics and improvement maturation remain excluded because they are not intrinsic geography. (ChatGPT-5.6-Sol); or because they are available everywhere, so counting them or not has no extra strategic information value so do not count them. -->
++static void addSASGameRecordNoOceanConnections(CvMap const& kMap, TerrainTypes eOcean, bool bSkipImpassable, std::vector<SASGameRecordLandmassGeography>& aLandmasses)
++{
++	std::vector<char> abVisited(kMap.numPlots(), 0);
++	for (int iI = 0; iI < kMap.numPlots(); iI++)
++	{
++		CvPlot const& kStart = kMap.getPlotByIndex(iI);
++		if (abVisited[iI] || !kStart.isWater() || kStart.getTerrainType() == eOcean || (bSkipImpassable && kStart.isImpassable()))
++			continue;
++		std::vector<int> aiQueue;
++		std::vector<int> aiBorderLandAreas;
++		abVisited[iI] = 1;
++		aiQueue.push_back(iI);
++		for (size_t iQ = 0; iQ < aiQueue.size(); iQ++)
++		{
++			CvPlot const& kWater = kMap.getPlotByIndex(aiQueue[iQ]);
++			FOR_EACH_ADJ_PLOT(kWater)
++			{
++				if (!pAdj->isWater())
++				{
++					addSASGameRecordUniqueArea(aiBorderLandAreas, pAdj->getArea().getID());
++					continue;
++				}
++				if (pAdj->getTerrainType() == eOcean || (bSkipImpassable && pAdj->isImpassable()))
++					continue;
++				int const iAdjIndex = kMap.plotNum(pAdj->getX(), pAdj->getY());
++				if (iAdjIndex < 0 || abVisited[iAdjIndex])
++					continue;
++				abVisited[iAdjIndex] = 1;
++				aiQueue.push_back(iAdjIndex);
++			}
++		}
++		for (size_t iA = 0; iA < aiBorderLandAreas.size(); iA++)
++		{
++			SASGameRecordLandmassGeography* pLandmass = getSASGameRecordLandmassGeography(aLandmasses, aiBorderLandAreas[iA]);
++			if (pLandmass == NULL)
++				continue;
++			for (size_t iB = 0; iB < aiBorderLandAreas.size(); iB++)
++			{
++				if (iA == iB)
++					continue;
++				if (bSkipImpassable)
++					addSASGameRecordUniqueArea(pLandmass->aiNoOceanNavigableConnectedAreas, aiBorderLandAreas[iB]);
++				else addSASGameRecordUniqueArea(pLandmass->aiNoOceanConnectedAreas, aiBorderLandAreas[iB]);
++			}
++		}
++	}
++}
++
++static void logSASGameRecordGeography()
++{
++	CvMap const& kMap = GC.getMap();
++	std::vector<SASGameRecordLandmassGeography> aLandmasses;
++	int iLandPlots = 0;
++	int iWaterPlots = 0;
++	int iSeaPlots = 0;
++	int iLakePlots = 0;
++	int iCoastSeaPlots = 0;
++	int iOceanSeaPlots = 0;
++	int iOtherSeaPlots = 0;
++	int iIcePlots = 0;
++	int iIceSeaPlots = 0;
++	int iIceLakePlots = 0;
++	int iIceCoastSeaPlots = 0;
++	int iIceOceanSeaPlots = 0;
++	int iWaterAreas = 0;
++	int iSeaAreas = 0;
++	int iLakeAreas = 0;
++	TerrainTypes const eCoast = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_COAST");
++	TerrainTypes const eOcean = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_OCEAN");
++	FeatureTypes const eIce = (FeatureTypes)GC.getInfoTypeForString("FEATURE_ICE");
++	int iLoop = 0;
++	for (CvArea const* pLoopArea = kMap.firstArea(&iLoop); pLoopArea != NULL; pLoopArea = kMap.nextArea(&iLoop))
++	{
++		if (pLoopArea->isWater())
++		{
++			iWaterAreas++;
++			if (pLoopArea->isLake())
++				iLakeAreas++;
++			else iSeaAreas++;
++			continue;
++		}
++		SASGameRecordLandmassGeography kLandmass;
++		kLandmass.iAreaId = pLoopArea->getID();
++		kLandmass.aiTerrainCounts.assign(GC.getNumTerrainInfos(), 0);
++		kLandmass.aiFeatureCounts.assign(GC.getNumFeatureInfos(), 0);
++		kLandmass.aiBonusCounts.assign(GC.getNumBonusInfos(), 0);
++		kLandmass.aiEraRevealedRawFood.assign(GC.getNumEraInfos(), 0);
++		kLandmass.aiEraRevealedRawProduction.assign(GC.getNumEraInfos(), 0);
++		kLandmass.aiEraRevealedRawCommerce.assign(GC.getNumEraInfos(), 0);
++		kLandmass.aiEraRevealedRaw321.assign(GC.getNumEraInfos(), 0);
++		kLandmass.aiEraBonusPotentialFood.assign(GC.getNumEraInfos(), 0);
++		kLandmass.aiEraBonusPotentialProduction.assign(GC.getNumEraInfos(), 0);
++		kLandmass.aiEraBonusPotentialCommerce.assign(GC.getNumEraInfos(), 0);
++		kLandmass.aiEraBonusPotential321.assign(GC.getNumEraInfos(), 0);
++		aLandmasses.push_back(kLandmass);
++	}
++	for (int iI = 0; iI < kMap.numPlots(); iI++)
++	{
++		CvPlot const& kPlot = kMap.getPlotByIndex(iI);
++		if (kPlot.isWater())
++		{
++			iWaterPlots++;
++			bool const bIce = (eIce != NO_FEATURE && kPlot.getFeatureType() == eIce);
++			if (bIce)
++				iIcePlots++;
++			if (kPlot.isLake())
++			{
++				iLakePlots++;
++				if (bIce)
++					iIceLakePlots++;
++				FOR_EACH_ADJ_PLOT(kPlot)
++				{
++					if (pAdj->isWater())
++						continue;
++					SASGameRecordLandmassGeography* pAdjacentLandmass = getSASGameRecordLandmassGeography(aLandmasses, pAdj->getArea().getID());
++					if (pAdjacentLandmass != NULL)
++						addSASGameRecordUniqueArea(pAdjacentLandmass->aiAdjacentLakeAreas, kPlot.getArea().getID());
++				}
++			}
++			else
++			{
++				iSeaPlots++;
++				if (bIce)
++					iIceSeaPlots++;
++				if (kPlot.getTerrainType() == eCoast)
++				{
++					iCoastSeaPlots++;
++					if (bIce)
++						iIceCoastSeaPlots++;
++				}
++				else if (kPlot.getTerrainType() == eOcean)
++				{
++					iOceanSeaPlots++;
++					if (bIce)
++						iIceOceanSeaPlots++;
++				}
++				else iOtherSeaPlots++;
++			}
++			continue;
++		}
++		iLandPlots++;
++		SASGameRecordLandmassGeography* pLandmass = getSASGameRecordLandmassGeography(aLandmasses, kPlot.getArea().getID());
++		if (pLandmass == NULL)
++			continue;
++		if (pLandmass->iPlots == 0)
++		{
++			pLandmass->iAnchorX = kPlot.getX();
++			pLandmass->iAnchorY = kPlot.getY();
++		}
++		pLandmass->iPlots++;
++		if (kPlot.getTerrainType() != NO_TERRAIN)
++			pLandmass->aiTerrainCounts[kPlot.getTerrainType()]++;
++		if (kPlot.getFeatureType() != NO_FEATURE)
++			pLandmass->aiFeatureCounts[kPlot.getFeatureType()]++;
++		if (kPlot.isHills())
++			pLandmass->iHillsPlots++;
++		if (kPlot.isPeak())
++			pLandmass->iPeakPlots++;
++		if (kPlot.isRiverSide())
++			pLandmass->iRiverSidePlots++;
++		if (kPlot.isFreshWater())
++			pLandmass->iFreshWaterPlots++;
++		pLandmass->iSumWrappedDX += kMap.dxWrap(kPlot.getX() - pLandmass->iAnchorX);
++		pLandmass->iSumWrappedDY += kMap.dyWrap(kPlot.getY() - pLandmass->iAnchorY);
++		if (kPlot.isHabitable())
++			pLandmass->iHabitablePlots++;
++		if (kPlot.isImpassable())
++			pLandmass->iImpassablePlots++;
++		int const iNatureFood = kPlot.calculateNatureYield(YIELD_FOOD, NO_TEAM);
++		int const iNatureProduction = kPlot.calculateNatureYield(YIELD_PRODUCTION, NO_TEAM);
++		int const iNatureCommerce = kPlot.calculateNatureYield(YIELD_COMMERCE, NO_TEAM);
++		if (iNatureFood + iNatureProduction + iNatureCommerce <= 0)
++			pLandmass->iZeroNatureYieldPlots++;
++		pLandmass->iNatureFood += iNatureFood;
++		pLandmass->iNatureProduction += iNatureProduction;
++		pLandmass->iNatureCommerce += iNatureCommerce;
++		BonusTypes const eBonus = kPlot.getBonusType(NO_TEAM);
++		if (eBonus != NO_BONUS)
++		{
++			pLandmass->iBonusCount++;
++			if (eBonus >= 0 && eBonus < (int)pLandmass->aiBonusCounts.size())
++				pLandmass->aiBonusCounts[eBonus]++;
++			CvString szBonus;
++			szBonus.Format("%s@%d,%d", getSASGameRecordBonusType(eBonus), kPlot.getX(), kPlot.getY());
++			pLandmass->aszBonusCoordinates.push_back(szBonus);
++		}
++		for (int iEra = 0; iEra < GC.getNumEraInfos(); iEra++)
++		{
++			int iRawFood = 0;
++			int iRawProduction = 0;
++			int iRawCommerce = 0;
++			int iRaw321 = 0;
++			int iPotentialFood = 0;
++			int iPotentialProduction = 0;
++			int iPotentialCommerce = 0;
++			int iPotential321 = 0;
++			getSASGameRecordLandmassPlotPotential(kPlot, (EraTypes)iEra, iRawFood, iRawProduction, iRawCommerce, iRaw321, iPotentialFood, iPotentialProduction, iPotentialCommerce, iPotential321);
++			pLandmass->aiEraRevealedRawFood[iEra] += iRawFood;
++			pLandmass->aiEraRevealedRawProduction[iEra] += iRawProduction;
++			pLandmass->aiEraRevealedRawCommerce[iEra] += iRawCommerce;
++			pLandmass->aiEraRevealedRaw321[iEra] += iRaw321;
++			pLandmass->aiEraBonusPotentialFood[iEra] += iPotentialFood;
++			pLandmass->aiEraBonusPotentialProduction[iEra] += iPotentialProduction;
++			pLandmass->aiEraBonusPotentialCommerce[iEra] += iPotentialCommerce;
++			pLandmass->aiEraBonusPotential321[iEra] += iPotential321;
++		}
++		bool bBordersWater = false;
++		bool bBordersSea = false;
++		bool bBordersLake = false;
++		bool bBordersIce = false;
++		FOR_EACH_ADJ_PLOT(kPlot)
++		{
++			if (!pAdj->isWater())
++				continue;
++			bBordersWater = true;
++			if (pAdj->isLake())
++			{
++				bBordersLake = true;
++				pLandmass->iLakeBorderEdges++;
++			}
++			else
++			{
++				bBordersSea = true;
++				pLandmass->iSeaBorderEdges++;
++			}
++			if (eIce != NO_FEATURE && pAdj->getFeatureType() == eIce)
++			{
++				bBordersIce = true;
++				pLandmass->iIceBorderEdges++;
++			}
++		}
++		if (bBordersWater) pLandmass->iWaterBorderPlots++;
++		if (bBordersSea) pLandmass->iSeaBorderPlots++;
++		if (bBordersLake) pLandmass->iLakeBorderPlots++;
++		if (bBordersIce) pLandmass->iIceBorderPlots++;
++	}
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	{
++		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
++		CvPlayer const& kPlayer = GET_PLAYER(eLoopPlayer);
++		CvPlot const* pStart = kPlayer.getStartingPlot();
++		if (!kPlayer.isEverAlive() || kPlayer.isBarbarian() || pStart == NULL || pStart->isWater())
++			continue;
++		SASGameRecordLandmassGeography* pLandmass = getSASGameRecordLandmassGeography(aLandmasses, pStart->getArea().getID());
++		if (pLandmass == NULL)
++			continue;
++		pLandmass->iStartingPlayers++;
++		CvString szItem;
++		szItem.Format(pLandmass->szStartingPlayers.empty() ? "%d@%d,%d" : ";%d@%d,%d", eLoopPlayer, pStart->getX(), pStart->getY());
++		pLandmass->szStartingPlayers += szItem;
++	}
++	if (eOcean != NO_TERRAIN)
++	{
++		// <!-- custom: Keep terrain-only coastal connectivity for shape/topology, then separately exclude impassable water (currently Ice) to capture what ordinary pre-ocean sea units can actually traverse. (ChatGPT-5.6-Sol) -->
++		addSASGameRecordNoOceanConnections(kMap, eOcean, false, aLandmasses);
++		addSASGameRecordNoOceanConnections(kMap, eOcean, true, aLandmasses);
++	}
++
++	int iLargestAreaId = -1;
++	int iLargestAreaPlots = 0;
++	for (size_t iI = 0; iI < aLandmasses.size(); iI++)
++	{
++		if (aLandmasses[iI].iPlots > iLargestAreaPlots)
++		{
++			iLargestAreaPlots = aLandmasses[iI].iPlots;
++			iLargestAreaId = aLandmasses[iI].iAreaId;
++		}
++	}
++	CvString szLargestLandmass = "-";
++	SASGameRecordLandmassGeography* pLargestLandmass = getSASGameRecordLandmassGeography(aLandmasses, iLargestAreaId);
++	if (pLargestLandmass != NULL)
++		szLargestLandmass = getSASGameRecordLandmassName(*pLargestLandmass);
++	int const iMapPlots = iLandPlots + iWaterPlots;
++	logSASGameRecord("GAME_RECORD_GEOGRAPHY_SUMMARY turn=%d landmasses=%d waterAreas=%d seaAreas=%d lakeAreas=%d mapPlots=%d landPlots=%d landPercentOfMapX100=%d waterPlots=%d waterPercentOfMapX100=%d seaPlots=%d seaPercentOfMapX100=%d coastSeaPlots=%d coastSeaPercentOfMapX100=%d oceanSeaPlots=%d oceanSeaPercentOfMapX100=%d otherSeaPlots=%d lakePlots=%d lakePercentOfMapX100=%d icePlots=%d icePercentOfMapX100=%d icePercentOfWaterX100=%d iceSeaPlots=%d icePercentOfSeaX100=%d iceCoastSeaPlots=%d iceOceanSeaPlots=%d iceLakePlots=%d largestLandmass=%s largestLandmassPlots=%d wrapX=%d wrapY=%d coastTerrain=%s oceanTerrain=%s iceFeature=%s",
++			GC.getGame().getGameTurn(), (int)aLandmasses.size(), iWaterAreas, iSeaAreas, iLakeAreas, iMapPlots, iLandPlots, getSASGameRecordPercentX100(iLandPlots, iMapPlots), iWaterPlots, getSASGameRecordPercentX100(iWaterPlots, iMapPlots), iSeaPlots, getSASGameRecordPercentX100(iSeaPlots, iMapPlots), iCoastSeaPlots, getSASGameRecordPercentX100(iCoastSeaPlots, iMapPlots), iOceanSeaPlots, getSASGameRecordPercentX100(iOceanSeaPlots, iMapPlots), iOtherSeaPlots, iLakePlots, getSASGameRecordPercentX100(iLakePlots, iMapPlots), iIcePlots, getSASGameRecordPercentX100(iIcePlots, iMapPlots), getSASGameRecordPercentX100(iIcePlots, iWaterPlots), iIceSeaPlots, getSASGameRecordPercentX100(iIceSeaPlots, iSeaPlots), iIceCoastSeaPlots, iIceOceanSeaPlots, iIceLakePlots,
++			szLargestLandmass.GetCString(), iLargestAreaPlots, kMap.isWrapX(), kMap.isWrapY(), eCoast == NO_TERRAIN ? "-" : GC.getInfo(eCoast).getType(), eOcean == NO_TERRAIN ? "-" : GC.getInfo(eOcean).getType(), eIce == NO_FEATURE ? "-" : GC.getInfo(eIce).getType());
++	logSASGameRecord("GAME_RECORD_GEOGRAPHY_YIELD_LEGEND nature=terrain_feature_hills_river_without_bonus revealedRaw=nature_plus_bonus_base_yield_from_reveal_era bonusImprovedPotential=revealedRaw_plus_only_XML_valid_bonus_improvement_after_reveal_connection_and_build_tech nonBonusPlots=never_improvement_optimized routesCivicsMaturation=excluded potentialIrrigation=allowed_on_valid_bonus_improvement improvementTechYieldChanges=included score321=3F+2H+C averageScale=100 eraFormat=ERA:F/H/C/321");
++	logSASGameRecord("GAME_RECORD_GEOGRAPHY_COMPOSITION_LEGEND percentScale=100 terrainPercentDenominator=landmassPlots featurePercentDenominator=landmassPlots featurelessPercent=plots_without_feature waterBorderLand=land_plots_adjacent_to_any_water seaBorderLand=land_plots_adjacent_to_nonlake_water lakeBorderLand=land_plots_adjacent_to_lake_water borderEdgesPerLandX100=adjacent_land_water_edges_per_land_plot_times_100 iceBorderLand=land_plots_adjacent_to_FEATURE_ICE adjacentLakePlots=unique_lake_area_tiles_touching_landmass adjacentLakePerLandPercentDenominator=landmassPlots noOceanConnected=non_ocean_water_topology_ignoring_impassable_features noOceanNavigable=non_ocean_water_excluding_impassable_plots sea=water_excluding_lakes coastSea=nonlake_TERRAIN_COAST oceanSea=nonlake_TERRAIN_OCEAN");
++	for (size_t iI = 0; iI < aLandmasses.size(); iI++)
++	{
++		SASGameRecordLandmassGeography const& kLandmass = aLandmasses[iI];
++		if (kLandmass.iPlots <= 0)
++			continue;
++		int iCenterX100 = kLandmass.iAnchorX * 100 + (100 * kLandmass.iSumWrappedDX) / kLandmass.iPlots;
++		int iCenterY100 = kLandmass.iAnchorY * 100 + (100 * kLandmass.iSumWrappedDY) / kLandmass.iPlots;
++		if (kMap.isWrapX())
++		{
++			int const iWidthX100 = kMap.getGridWidth() * 100;
++			while (iCenterX100 < 0) iCenterX100 += iWidthX100;
++			while (iCenterX100 >= iWidthX100) iCenterX100 -= iWidthX100;
++		}
++		if (kMap.isWrapY())
++		{
++			int const iHeightX100 = kMap.getGridHeight() * 100;
++			while (iCenterY100 < 0) iCenterY100 += iHeightX100;
++			while (iCenterY100 >= iHeightX100) iCenterY100 -= iHeightX100;
++		}
++		CvString const szName = getSASGameRecordLandmassName(kLandmass);
++		logSASGameRecord("GAME_RECORD_LANDMASS turn=%d landmass=%s area=%d anchor=%d,%d centerX100=%d centerY100=%d plots=%d landSharePercentX100=%d habitablePlots=%d nonHabitablePlots=%d impassablePlots=%d zeroNatureYieldPlots=%d waterBorderPlots=%d seaBorderPlots=%d lakeBorderPlots=%d startingPlayers=%d starts=%s noOceanConnectedCount=%d noOceanConnectedTo=%s",
++				GC.getGame().getGameTurn(), szName.GetCString(), kLandmass.iAreaId, kLandmass.iAnchorX, kLandmass.iAnchorY, iCenterX100, iCenterY100, kLandmass.iPlots, getSASGameRecordPercentX100(kLandmass.iPlots, iLandPlots), kLandmass.iHabitablePlots, kLandmass.iPlots - kLandmass.iHabitablePlots, kLandmass.iImpassablePlots, kLandmass.iZeroNatureYieldPlots, kLandmass.iWaterBorderPlots, kLandmass.iSeaBorderPlots, kLandmass.iLakeBorderPlots, kLandmass.iStartingPlayers, getSASGameRecordOrDash(kLandmass.szStartingPlayers).GetCString(), (int)kLandmass.aiNoOceanConnectedAreas.size(), getSASGameRecordLandmassList(aLandmasses, kLandmass.aiNoOceanConnectedAreas).GetCString());
++		std::vector<int> aiIceBlockedNoOceanAreas;
++		for (size_t iConnection = 0; iConnection < kLandmass.aiNoOceanConnectedAreas.size(); iConnection++)
++		{
++			int const iAreaId = kLandmass.aiNoOceanConnectedAreas[iConnection];
++			if (std::find(kLandmass.aiNoOceanNavigableConnectedAreas.begin(), kLandmass.aiNoOceanNavigableConnectedAreas.end(), iAreaId) == kLandmass.aiNoOceanNavigableConnectedAreas.end())
++				aiIceBlockedNoOceanAreas.push_back(iAreaId);
++		}
++		logSASGameRecord("GAME_RECORD_LANDMASS_NAVIGATION turn=%d landmass=%s noOceanNavigableConnectedCount=%d iceBlockedNoOceanCount=%d iceBlockedNoOceanTo=%s",
++				GC.getGame().getGameTurn(), szName.GetCString(), (int)kLandmass.aiNoOceanNavigableConnectedAreas.size(), (int)aiIceBlockedNoOceanAreas.size(), getSASGameRecordLandmassList(aLandmasses, aiIceBlockedNoOceanAreas).GetCString());
++		int iFeaturePlots = 0;
++		for (size_t iFeature = 0; iFeature < kLandmass.aiFeatureCounts.size(); iFeature++)
++			iFeaturePlots += kLandmass.aiFeatureCounts[iFeature];
++		int const iAdjacentLakePlots = getSASGameRecordAdjacentLakePlots(kLandmass);
++		logSASGameRecord("GAME_RECORD_LANDMASS_COMPOSITION turn=%d landmass=%s hillsPercentX100=%d peakPercentX100=%d riverSidePercentX100=%d freshWaterPercentX100=%d waterBorderLandPercentX100=%d seaBorderLandPercentX100=%d lakeBorderLandPercentX100=%d iceBorderLandPercentX100=%d seaBorderEdgesPerLandX100=%d lakeBorderEdgesPerLandX100=%d iceBorderEdgesPerLandX100=%d featurelessPercentX100=%d adjacentLakePlots=%d adjacentLakePerLandPercentX100=%d terrainPercentX100=%s featurePercentX100=%s",
++				GC.getGame().getGameTurn(), szName.GetCString(), getSASGameRecordPercentX100(kLandmass.iHillsPlots, kLandmass.iPlots), getSASGameRecordPercentX100(kLandmass.iPeakPlots, kLandmass.iPlots), getSASGameRecordPercentX100(kLandmass.iRiverSidePlots, kLandmass.iPlots), getSASGameRecordPercentX100(kLandmass.iFreshWaterPlots, kLandmass.iPlots),
++				getSASGameRecordPercentX100(kLandmass.iWaterBorderPlots, kLandmass.iPlots), getSASGameRecordPercentX100(kLandmass.iSeaBorderPlots, kLandmass.iPlots), getSASGameRecordPercentX100(kLandmass.iLakeBorderPlots, kLandmass.iPlots), getSASGameRecordPercentX100(kLandmass.iIceBorderPlots, kLandmass.iPlots), (100 * kLandmass.iSeaBorderEdges) / kLandmass.iPlots, (100 * kLandmass.iLakeBorderEdges) / kLandmass.iPlots, (100 * kLandmass.iIceBorderEdges) / kLandmass.iPlots, getSASGameRecordPercentX100(kLandmass.iPlots - iFeaturePlots, kLandmass.iPlots), iAdjacentLakePlots, getSASGameRecordPercentX100(iAdjacentLakePlots, kLandmass.iPlots), getSASGameRecordLandmassTerrainPercentages(kLandmass).GetCString(), getSASGameRecordLandmassFeaturePercentages(kLandmass).GetCString());
++		int const iFinalEra = GC.getNumEraInfos() - 1;
++		int const iNature321 = 3 * kLandmass.iNatureFood + 2 * kLandmass.iNatureProduction + kLandmass.iNatureCommerce;
++		logSASGameRecord("GAME_RECORD_LANDMASS_YIELDS turn=%d landmass=%s natureAvgF100=%d natureAvgH100=%d natureAvgC100=%d natureAvg321X100=%d revealedRawFinalAvgF100=%d revealedRawFinalAvgH100=%d revealedRawFinalAvgC100=%d revealedRawFinalAvg321X100=%d bonusImprovedPotentialFinalAvgF100=%d bonusImprovedPotentialFinalAvgH100=%d bonusImprovedPotentialFinalAvgC100=%d bonusImprovedPotentialFinalAvg321X100=%d eraRevealedRawAvgFHC321X100=%s eraBonusImprovedPotentialAvgFHC321X100=%s",
++				GC.getGame().getGameTurn(), szName.GetCString(), (100 * kLandmass.iNatureFood) / kLandmass.iPlots, (100 * kLandmass.iNatureProduction) / kLandmass.iPlots, (100 * kLandmass.iNatureCommerce) / kLandmass.iPlots, (100 * iNature321) / kLandmass.iPlots,
++				iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraRevealedRawFood[iFinalEra]) / kLandmass.iPlots, iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraRevealedRawProduction[iFinalEra]) / kLandmass.iPlots, iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraRevealedRawCommerce[iFinalEra]) / kLandmass.iPlots, iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraRevealedRaw321[iFinalEra]) / kLandmass.iPlots,
++				iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraBonusPotentialFood[iFinalEra]) / kLandmass.iPlots, iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraBonusPotentialProduction[iFinalEra]) / kLandmass.iPlots, iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraBonusPotentialCommerce[iFinalEra]) / kLandmass.iPlots, iFinalEra < 0 ? 0 : (100 * kLandmass.aiEraBonusPotential321[iFinalEra]) / kLandmass.iPlots, getSASGameRecordEraLandmassYieldList(kLandmass, false).GetCString(), getSASGameRecordEraLandmassYieldList(kLandmass, true).GetCString());
++		logSASGameRecord("GAME_RECORD_LANDMASS_BONUS_SUMMARY turn=%d landmass=%s bonusCount=%d types=%s", GC.getGame().getGameTurn(), szName.GetCString(), kLandmass.iBonusCount, getSASGameRecordLandmassBonusTypes(kLandmass).GetCString());
++		logSASGameRecordLandmassBonusCoordinates(kLandmass, szName);
++	}
++}
++
+ static void logSASGameRecordInitialContext()
+ {
+ 	// <!-- custom: Archived records can otherwise be mistaken for logs from another Civ4 mod. Record the active cached mod folder name and mod-relative path once, without relying on file timestamps or a manually maintained version string. (GPT-5.6-Sol) -->
+ 	logSASGameRecord("GAME_RECORD_MOD_CONTEXT modName=%s modPath=%s", getSASGameRecordQuoted(GC.getModName().getName()).GetCString(), getSASGameRecordQuoted(GC.getModName().getPathInRoot()).GetCString());
+ 	// <!-- custom: Player/team IDs appear throughout the record, but live-player counts do not reveal where ordinary civilization slots end and the special Barbarian slots begin. Record the fixed DLL boundaries once at setup so external analysis can interpret every later ID correctly. (GPT-5.6-Sol) -->
+ 	logSASGameRecord("GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=%d MAX_PLAYERS=%d BARBARIAN_PLAYER=%d MAX_CIV_TEAMS=%d MAX_TEAMS=%d BARBARIAN_TEAM=%d NO_PLAYER=%d NO_TEAM=%d", MAX_CIV_PLAYERS, MAX_PLAYERS, BARBARIAN_PLAYER, MAX_CIV_TEAMS, MAX_TEAMS, BARBARIAN_TEAM, NO_PLAYER, NO_TEAM);
++	logSASGameRecordGeography();
+ 	if (gGameRecordLogLevel >= 2) logSASGameRecordAttitudeLegend();
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+@@ -3881,4 +4518,3 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
+ 				GC.getGame().getGameTurn(), eWinner, eLoser, getSASGameRecordUnitType(pWinner->getUnitType()), getSASGameRecordUnitType(pLoser->getUnitType()), pLoser->getX(), pLoser->getY(), bCityPlot, pWinner->baseCombatStr(), pLoser->baseCombatStr(), pWinner->getDamage(), pLoser->getDamage(), getSASGameRecordUnitType(pWinner->getLeaderUnitType()), getSASGameRecordUnitType(pLoser->getLeaderUnitType()));
+ 	}
+ }
+-
+
+diff --git a/README.md b/README.md
+index 149db2df3..96698fade 100644
+--- a/README.md
++++ b/README.md
+@@ -18,7 +18,7 @@ Content overall addition is minimal, as of now mostly in the future era (like th
+ 
+ Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate. Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now gives us an agentic-token-free analysis (e.g., Codex, Claude Code) (also good to give us a different point of view/review if needed). Note: they are now optionally written to a new timestamped file for each new game or loaded save (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins with lines showing the new/load time, currently active BBAI log levels, and some game settings to help doing that.
+ 
+-A separate `SASGameRecord_*.log` can also be enabled notably for compact autoplay / AI-benchmark review, recording what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, etc.) or to give more gameplay context to complement BBAI's detailed decision traces. This is an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
++A separate `SASGameRecord_*.log` can also be enabled notably for compact autoplay / AI-benchmark review, recording what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, initial map/landmass geography, etc.) or to give more gameplay context to complement BBAI's detailed decision traces. This is an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
+ 
+ All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
+ 
+@@ -923,7 +923,7 @@ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1
+ 
+ ### SAS game record log
+ 
+-`SASGameRecord_*.log` is a separate compact game record for autoplay and AI-strength review. It gives high-level context such as economy, expansion, city and battle history, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition, diplomacy, exploration, environmental and map changes, project-victory progress, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
++`SASGameRecord_*.log` is a separate compact game record for autoplay and AI-strength review. It gives high-level context such as initial map/landmass geography and resource/yield context, economy, expansion, city and battle history, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition, diplomacy, exploration, environmental and map changes, project-victory progress, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
+ 
+ Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 4fd647f2d..a421b096b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -250,6 +250,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [197.3 - (Fixed/Improved) Base AdvCiv/K-Mod late floating-defender retry ignored military unit-spending limits and could keep producing extra defenders far above budget in peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1973---fixedimproved-base-advcivk-mod-late-floating-defender-retry-ignored-military-unit-spending-limits-and-could-keep-producing-extra-defenders-far-above-budget-in-peace)\
+ [197.4 - (Fixed/Improved) AdvCiv-SAS excess-defender optimization could replace explicitly required `UNITAI_CITY_DEFENSE` production with offensive UnitAIs, including minimum defenders and Settler escorts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1974---fixedimproved-advciv-sas-excess-defender-optimization-could-replace-explicitly-required-unitai_city_defense-production-with-offensive-unitais-including-minimum-defenders-and-settler-escorts)\
+ [197.5 - (Fixed/Improved) Base AdvCiv/K-Mod generic city-hunting-stack production ignored military unit-spending limits and could keep growing peaceful offensive stacks far above budget](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1975---fixedimproved-base-advcivk-mod-generic-city-hunting-stack-production-ignored-military-unit-spending-limits-and-could-keep-growing-peaceful-offensive-stacks-far-above-budget)\
++[197.6 - (Fixed/Improved) Base AdvCiv/K-Mod naval-trade sea-explorer fallback could ignore docked/queued ships and keep producing explorers after the relevant water area was fully revealed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1976---fixedimproved-base-advcivk-mod-naval-trade-sea-explorer-fallback-could-ignore-dockedqueued-ships-and-keep-producing-explorers-after-the-relevant-water-area-was-fully-revealed)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7403,7 +7404,7 @@ In practical terms, the correction made the ordinary AI production logic noticea
+ 
+ The runs also retained substantial variation between civilizations rather than equalizing every army. Small empires were evaluated by military density rather than being asked to chase the raw total power of much larger rivals, while rapidly expanded empires could receive strong temporary pressure until their military caught up. The earlier SAS Process-fallback overproduction did not return: the refined runs continued to show only genuine empty-queue fallback contexts and no Process-replacement fallback.
+ 
+-A separate related Base AdvCiv/K-Mod follow-up was also exposed by the same diagnostics: `AI_chooseProduction` short-circuit 2 explicitly lowers building odds as `iBuildUnitProb` rises, while the later short-circuit 3 did not use `iBuildUnitProb`. That distinct issue is addressed in KI#197.2. Continued production-branch auditing then exposed the separate spending and role-selection issues documented in KI#197.3 through KI#197.5.
++A separate related Base AdvCiv/K-Mod follow-up was also exposed by the same diagnostics: `AI_chooseProduction` short-circuit 2 explicitly lowers building odds as `iBuildUnitProb` rises, while the later short-circuit 3 did not use `iBuildUnitProb`. That distinct issue is addressed in KI#197.2. Continued production-branch auditing then exposed the separate spending and role-selection issues documented in KI#197.3 through KI#197.6.
+ 
+ Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
+ 
+@@ -7466,3 +7467,17 @@ The final save-file 456 validation evaluated the city-hunting spending gate 1,97
+ Save file 457 independently confirmed the rule on a different game history: 2,122 gate evaluations included 351 peaceful over-budget cases that were blocked and 20 over-budget land-war cases that remained eligible. The run produced 45 actual generic city-hunting-stack starts and none occurred above `max+15`. The targeted Barbarian-attacker path fired only once in that run and did so below the spending threshold. Together with save file 456, this shows that the cure removes a broad peaceful offensive spending bypass without suppressing wartime stack growth or the separate bounded Barbarian-conquest logic.
+ 
+ Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
++
++## 197.6 - (Fixed/Improved) Base AdvCiv/K-Mod naval-trade sea-explorer fallback could ignore docked/queued ships and keep producing explorers after the relevant water area was fully revealed
++
++The continued KI#197 military-production audit exposed another inherited `CvCityAI::AI_chooseProduction` edge case in AdvCiv's special naval-trade sea-explorer fallback. Base AdvCiv/K-Mod deliberately handles trade exploration separately from the ordinary sea-explorer target: if a city has access to naval trade, the branch ignores `seaExplorersTarget`, counts up to three "water units" in the relevant water area, and then has a 25% chance to request `UNITAI_EXPLORE_SEA`. Direct comparison with Base AdvCiv 1.13 confirmed that this behavior is inherited.
++
++Dedicated diagnostics showed two problems with the inherited eligibility test. First, `CvArea::getNumAIUnits(..., NO_UNITAI)` counts units physically located in the water area, so docked ships and ships already being trained are omitted even though they already satisfy the intended small-navy safety cap; it can also count non-sea units located on water plots. Second, despite an inherited comment saying that unrevealed tiles would be the preferable criterion, the branch had no requirement that any water actually remain unrevealed. In the pre-fix save-file 456 run, 32 naval-trade explorer choices were made. Twenty-five occurred with zero unrevealed water tiles, 22 occurred while the team already had at least three actual sea-domain ships including docked/queued ships, and 14 occurred while it already had at least ten.
++
++The late-game examples made the effect especially clear. On turn 258, Germany had already met every surviving civilization, the entire 3,080-plot main ocean was revealed, `seaExplorerTarget=0`, and three naval units were docked; the inherited counter nevertheless saw zero units in the water area and Frankfurt produced a 200-hammer Attack Submarine as `UNITAI_EXPLORE_SEA`. On turn 270, Egypt likewise had zero unrevealed water, `seaExplorerTarget=0`, and 11 docked naval units while the inherited count was zero; Pi-Ramesses and Giza both ordered Attack Submarines and Akhetaten ordered a Destroyer through the same fallback.
++
++AdvCiv-SAS keeps the special naval-trade fallback, its inherited cap of three ships, and its 25% explorer choice, but makes those prerequisites mean what the branch intended. It now counts actual `DOMAIN_SEA` units associated with the relevant water area, including ships docked in coastal cities and sea-domain UnitAIs already being trained there. The fallback also requires at least one unrevealed tile in that water area. The ordinary later target-based sea-explorer path is unchanged, and the special trade path still does not depend on `seaExplorerTarget`, so it can continue to cover a separate water area or trade-exploration need that the ordinary target does not represent.
++
++The confirming save-file 456 rerun logged 437 naval-trade fallback evaluations. Only 44 met the corrected eligibility conditions and attempted the inherited 25% roll, producing 8 actual explorer choices. Every actual choice had unrevealed water and fewer than three corrected sea units; none occurred above the normal `max+15` military-spending allowance in this run. Three of the eight successful choices still had `seaExplorerTarget=0` (Cologne on turn 114, Munich on turn 227 and Bursa on turn 254), confirming that the distinct naval-trade fallback remains functional instead of merely duplicating the ordinary target-based explorer rule. The earlier fully explored / already-large-navy Attack Submarine and Destroyer production disappeared because those states are no longer eligible.
++
++Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 7c6118d75..e973cff01 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -161,7 +161,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+ - **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis (also good to give us a different point of view/review if needed).
+ - **Timestamped BBAI log files:** Optionally log each new game and loaded save to a **new UTC-timestamped file** (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins notably with the new/load time, currently active BBAI log levels, turn/year, map and game settings (including `landheavy` and `navalheavy` actual game information), player counts, and RNG states, avoiding mixed logs and the need to restart Civ4 between repeated save-file tests. See also [README.md (BBAI logging and head example)](/README.md#bbai-logging-and-head-example).
+-- (Requires AdvCiv-SAS 6022+) **SAS game-record log:** added a separate `SASGameRecord_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by recording what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly. (Requires AdvCiv-SAS 6057+) It also notably records compact per-turn exploration, map changes and environmental status, explicit spaceship launches and project-victory progress, and a full final snapshot when the game is won. (Requires AdvCiv-SAS 6058+) It notably also records war-declaration causes and sponsors, diplomacy memories, progress for all enabled victories, project-victory resets and failures, and compact full-map revelation. (Requires AdvCiv-SAS 6077+) It notably also further records active mod and DLL-slot identity, research and production overflow, production conversion and lost-production gold, city buildings and pollution, trade unlocks, and compact territory development including routes, improvements, irrigation, and improved/unimproved bonus types, and also names player-wide health/happiness modifier sources and records AI victory-stage strategies and the target's victory context when war is declared.
++- (Requires AdvCiv-SAS 6022+) **SAS game-record log:** added a separate `SASGameRecord_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as initial map/landmass geography and resource/yield context, economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by recording what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly. (Requires AdvCiv-SAS 6057+) It also notably records compact per-turn exploration, map changes and environmental status, explicit spaceship launches and project-victory progress, and a full final snapshot when the game is won. (Requires AdvCiv-SAS 6058+) It notably also records war-declaration causes and sponsors, diplomacy memories, progress for all enabled victories, project-victory resets and failures, and compact full-map revelation. (Requires AdvCiv-SAS 6077+) It notably also further records active mod and DLL-slot identity, research and production overflow, production conversion and lost-production gold, city buildings and pollution, trade unlocks, and compact territory development including routes, improvements, irrigation, and improved/unimproved bonus types, and also names player-wide health/happiness modifier sources and records AI victory-stage strategies and the target's victory context when war is declared.
+ - Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-record log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_RECORD_TURN_INTERVAL` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context while staying compact enough to upload and share. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
+@@ -399,6 +399,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - (Requires AdvCiv-SAS 6088+) **The AI's final important-building retry now respects military-production pressure while another unit still fits its spending budget:** military-production logs showed that Base AdvCiv/K-Mod could reach the end of city production with strong reasons to build units, then give an important building one final chance that ignored that military pressure: in `CvCityAI::AI_chooseProduction`, short-circuit 2 already lowers building odds as `iBuildUnitProb` rises, but short-circuit 3 - the final "last chance to catch important buildings" immediately before generic unit production - recalculated its building chance from building value and land-war state alone. Strong military-production pressure could therefore survive the earlier production logic and then be partly forgotten at the final building retry. In the severe under-strength samples that exposed the issue, this late building retry won 7/9 and 7/8 times in two save-file 458 runs and 15/25 times in save file 457. To fix this, the AI now reduces only this final building chance in proportion to its existing willingness to build units, and only while the normal military-spending gate still has room; once the AI is already over that unit budget, the inherited building odds are left unchanged. The final save-file 458 validation left 375/640 already-over-budget evaluations untouched, while severe under-strength cases that still had spending room fell from about 48% average base building odds to about 33% and chose the building only 5/25 times. This keeps important infrastructure possible while preventing the last building retry from disproportionately overriding the military pressure already used by the surrounding production logic. See [KI#197.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1972---fixedimproved-base-advcivk-mod-final-building-short-circuit-cvcityaiai_chooseproductions-short-circuit-3-ignored-buildunitprob-and-could-override-strong-military-production-pressure-immediately-before-generic-unit-production).
+ - (Requires AdvCiv-SAS 6089+) **Late floating-defender production now respects military-spending limits unless floating defenders are severely below need:** dedicated BBAI military-production logging exposed a Base AdvCiv/K-Mod inconsistency in `CvCityAI::AI_chooseProduction`: the earlier floating-defender pass checks unit spending before adding more defenders, but the later 50% retry did not. In the pre-fix save-file 457 run, 153 of 281 actual floating-defender-2 choices occurred at or above the normal `max+15` allowance, including 97 peaceful cases; save file 456 had 85 of 243 above the same threshold, including 70 peaceful cases. One extreme save-file 456 example had Persia only one floating defender short (6 available versus 7 wanted) while unit spending was already 220 against a normal maximum of 84, yet the late retry still produced another military unit. To fix this, ordinary peaceful shortages now require the normal `max+15` spending headroom, while land wars and severe floating-defender shortages may still use the retry; severe shortage uses the same threshold as the earlier floating-defender pass. In the final save-file 456 validation, 143 ordinary peaceful over-budget candidates were blocked and every actual over-budget choice was explained by the intended war/severe-shortage exceptions. Save file 457 independently reduced actual over-budget choices from 153/281 in the old run to only 12/233, all explained by 10 severe shortages and 2 land-war cases. See [KI#197.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1973---fixedimproved-base-advcivk-mod-late-floating-defender-retry-ignored-military-unit-spending-limits-and-could-keep-producing-extra-defenders-far-above-budget-in-peace).
+ - (Requires AdvCiv-SAS 6089+) **Generic peaceful city-hunting-stack production now respects military-spending limits:** BBAI military-production logging exposed another Base AdvCiv/K-Mod spending bypass in `CvCityAI::AI_chooseProduction`: the generic "city hunting stack" heuristic can request `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` before the later generic military-spending gate, so it could keep growing an offensive stack even when the AI was already far over budget and not at war. In the pre-fix save-file 456 run, 9 of 53 actual `start city attack stack` choices occurred at or above `max+15`; only one was during a land war, leaving 8 peaceful over-budget stack starts. The clearest example was Roosevelt on turn 100: America had 3 cities, no land war and no immediate danger, unit spending 200 against a normal maximum of 76 (`max+15=91`), yet this branch still ordered another `UNITAI_ATTACK_CITY` Axeman. To fix this, generic city-hunting-stack production now requires the normal `max+15` spending headroom while at peace, while land-war behavior remains unrestricted; the separate bounded target-specific Barbarian-city attacker logic remains unchanged. In the final save-file 456 validation, 391 peaceful over-budget evaluations were blocked while 188 over-budget land-war evaluations remained eligible, and none of 44 actual generic stack starts were peaceful and over budget. Save file 457 independently blocked 351 peaceful over-budget evaluations while preserving 20 over-budget land-war evaluations; none of its 45 actual generic stack starts exceeded `max+15`. See [KI#197.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1975---fixedimproved-base-advcivk-mod-generic-city-hunting-stack-production-ignored-military-unit-spending-limits-and-could-keep-growing-peaceful-offensive-stacks-far-above-budget).
++- (Requires AdvCiv-SAS 6090+) **Naval-trade sea-explorer fallback now counts docked/queued ships and stops once the relevant water area is fully revealed:** BBAI military-production logging exposed an inherited Base AdvCiv/K-Mod edge case in the special naval-trade explorer branch. Its `<3` safety cap counted only units physically in the water area and it never required any unrevealed water, so it could ignore a substantial docked/queued navy and still build late `UNITAI_EXPLORE_SEA` ships after exploration was complete. In the pre-fix save-file 456 run, 25 of 32 actual choices occurred with zero unrevealed water and 22 of 32 occurred despite at least three actual sea-domain ships including docked/queued units; one turn-258 example had Germany build a 200-hammer Attack Submarine while the main ocean was fully revealed and three naval units were already docked. To fix this, the branch now counts actual sea-domain ships associated with the water area, including docked and queued ships, and requires at least one unrevealed water tile while preserving the inherited three-ship cap and 25% roll. In the confirming save-file 456 rerun, only 44 of 437 evaluations remained eligible and 8 actual choices were made; every one had unrevealed water and fewer than three corrected sea units, while three successful choices still had `seaExplorerTarget=0`, confirming that the distinct trade-exploration fallback remains active where useful. See [KI#197.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1976---fixedimproved-base-advcivk-mod-naval-trade-sea-explorer-fallback-could-ignore-dockedqueued-ships-and-keep-producing-explorers-after-the-relevant-water-area-was-fully-revealed).
+ - Rebalance perceived **iPower**: downweight some naval units; adjust certain land units (e.g., warrior, animals) to reduce **fake power** that triggers bad wars. See [Long_Comments/Long_Comments_XML.txt](/Long_Comments/Long_Comments_XML.txt) (search for `UnitAI notes (Units XML)`).
+ - XML **DefaultUnitAI / UnitAIs / NotUnitAIs**: align roles with efficiency (e.g., swordsmen primarily offensive even if versatile; longbows defensive unless explicitly set otherwise).
+ - Promotions logic in `CvUnitAI::AI_promotionValue`: add **hard rules** so AIs pick context-appropriate promotions (e.g., City Garrison for `UNITAI_CITY_DEFENSE`, City Raider for `UNITAI_ATTACK_CITY`; avoid Woodsman/Medic on front-line attackers unless context justifies). Rules apply per **UnitAI** (not just by unit type); with exceptions like recon. See **[KI#47](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more)**.
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=73073

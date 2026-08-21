@@ -1,0 +1,916 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5336
+# Commit: d0c8fa479d1415e7bf00950a0ddb65ab9868582d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4a72a7877ed256e0d7f7571c8facb7c17cd34b05
+# Title: Add more info in Sevopedia Techs' Enables panel, add new First to Discover panel - Sevopedia Techs: **Enables** panel enriched with **more information** (Civ...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	9	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+6	6	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+263	15	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+6	6	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+0	4	Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+3	2	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+17	68	Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 7d774fe8a..16951d1b8 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -272,7 +272,7 @@ class SevoPediaBonus:
+ 		if not bAnyFound:
+ 			yPanelCenter = self.Y_IMPROVEMENTS + (self.H_IMPROVEMENTS / 2)
+ 			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_BONUS_GENERIC_NONE", ())
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
+ 			screen.addMultilineText(textName, szText, self.X_IMPROVEMENTS + 7, yPanelCenter, self.W_IMPROVEMENTS - 14, self.H_IMPROVEMENTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+@@ -318,7 +318,7 @@ class SevoPediaBonus:
+ 		if not bAnyFound:
+ 			yPanelCenter = self.Y_UNITS + (self.H_UNITS / 2)
+ 			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_BONUS_GENERIC_NONE", ())
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
+ 			screen.addMultilineText(textName, szText, self.X_UNITS + 7, yPanelCenter, self.W_UNITS - 14, self.H_UNITS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+@@ -375,7 +375,7 @@ class SevoPediaBonus:
+ 		if not bAnyDisplayed:
+ 			yPanelCenter = self.Y_BUILDINGS_AND_PROJECTS + (self.H_BUILDINGS_AND_PROJECTS / 2)
+ 			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_BONUS_GENERIC_NONE", ())
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
+ 			screen.addMultilineText(textName, szText, self.X_BUILDINGS_AND_PROJECTS + 7, yPanelCenter, self.W_BUILDINGS_AND_PROJECTS - 14, self.H_BUILDINGS_AND_PROJECTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+@@ -431,7 +431,7 @@ class SevoPediaBonus:
+ 				#iButtonIndex += 1
+ 		
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_BONUS_GENERIC_NONE"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+@@ -489,7 +489,7 @@ class SevoPediaBonus:
+ 				#iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_BONUS_GENERIC_NONE"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+@@ -547,7 +547,7 @@ class SevoPediaBonus:
+ 				#iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_BONUS_GENERIC_NONE"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+@@ -609,7 +609,7 @@ class SevoPediaBonus:
+ 		else:
+ 			yPanelCenter = self.Y_REVEALED_BY + (self.H_REVEALED_BY / 2)
+ 			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_BONUS_REVEALED_BY_NO_BUTTON_FOUND", ())
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS", ())
+ 			screen.addMultilineText(textName, szText, self.X_REVEALED_BY + 7, yPanelCenter, self.W_REVEALED_BY - 14, self.H_REVEALED_BY - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+@@ -629,7 +629,7 @@ class SevoPediaBonus:
+ 		else:
+ 			yPanelCenter = self.Y_TRADEABLE_SINCE + (self.H_TRADEABLE_SINCE / 2)
+ 			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_BONUS_TRADEABLE_SINCE_NO_BUTTON_FOUND", ())
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS", ())
+ 			screen.addMultilineText(textName, szText, self.X_TRADEABLE_SINCE + 7, yPanelCenter, self.W_TRADEABLE_SINCE - 14, self.H_TRADEABLE_SINCE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+@@ -656,7 +656,7 @@ class SevoPediaBonus:
+ 		else:
+ 			yPanelCenter = self.Y_OBSOLETE_WITH + (self.H_OBSOLETE_WITH / 2)
+ 			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_BONUS_OBSOLETE_WITH_NO_BUTTON_FOUND", ())
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER", ())
+ 			screen.addMultilineText(textName, szText, self.X_OBSOLETE_WITH + 7, yPanelCenter, self.W_OBSOLETE_WITH - 14, self.H_OBSOLETE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 4b1231249..5cf391ff4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -716,7 +716,7 @@ class SevoPediaBuilding:
+ 					iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+@@ -841,7 +841,7 @@ class SevoPediaBuilding:
+ 				iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_REQUIRED_FOR_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+@@ -883,7 +883,7 @@ class SevoPediaBuilding:
+ 			#screen.attachLabel(panelName, "", localText.getText("TXT_KEY_PEDIA_NEVER_OBSOLETE", ()))
+ 			yPanelCenter = self.Y_OBSOLETE_WITH + (self.H_OBSOLETE_WITH / 2)
+ 			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_PEDIA_OBSOLETE_NO_BUTTON_FOUND", ())
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER", ())
+ 			screen.addMultilineText(textName, szText, self.X_OBSOLETE_WITH + 7, yPanelCenter, self.W_OBSOLETE_WITH - 14, self.H_OBSOLETE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+@@ -993,7 +993,7 @@ class SevoPediaBuilding:
+ 				iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+@@ -1113,7 +1113,7 @@ class SevoPediaBuilding:
+ 					screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuildingLoop).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingLoop, -1, False)
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_WITH_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+@@ -1164,7 +1164,7 @@ class SevoPediaBuilding:
+ 						screen.attachImageButton(panel, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+index 9fa3578c3..2613c53b7 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+@@ -267,7 +267,7 @@ class SevoPediaEraChart:
+ 				return (_font2(glyph) + _sort_key(0, iRowIndex), "")
+ 			return (_sort_key(0, iRowIndex), "")
+ 
+-		none_text = localText.getText("TXT_KEY_PEDIA_SAS_HANDICAP_CHART_FREE_TECHS_NONE", ())
++		none_text = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
+ 		yes_text = localText.getText("TXT_KEY_YES", ())
+ 		no_text = localText.getText("TXT_KEY_NO", ())
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+index 1489701af..36ed15715 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+@@ -275,7 +275,7 @@ class SevoPediaHandicapChart:
+ 			"Industrialism": "Industr.",
+ 		}
+ 		techs_per_cell = 1
+-		none_text = localText.getText("TXT_KEY_PEDIA_SAS_HANDICAP_CHART_FREE_TECHS_NONE", ())
++		none_text = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
+ 
+ 		# Collect tech types once.
+ 		tech_types = []
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+index 9866fcc1e..fa7365740 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+@@ -203,7 +203,7 @@ class SevoPediaPromotion:
+ 				#iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_PROMOTIONS_UNITS_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+@@ -262,7 +262,7 @@ class SevoPediaPromotion:
+ 				#iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_PROMOTION_BUILDINGS_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index a3beb1d73..3f312c80a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -70,7 +70,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		# <!-- custom: reorganized layout (Claude code Opus 4.5):
+ 		# Row 1: Tech Pane (left) | Starting Civs (right)
+ 		# Row 2: Requires (left half) | Leads To (right half)
+-		# Row 3: Obsoletes (full width)
++		# Row 3: First to Discover (left, narrow) | Obsoletes (right, remaining width)
+ 		# Row 4: Enables (full width) - merged units + buildings
+ 		# Row 5: Special (left, W_TECH_PANE width) | History (right, remaining space)
+ 		# -->
+@@ -110,9 +110,16 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.W_LEADS_TO = self.top.R_PEDIA_PAGE - self.X_LEADS_TO
+ 		self.H_LEADS_TO = self.H_ROW
+ 
+-		# Row 3: Obsoletes (full width)
+-		self.X_OBSOLETES = self.X_TECH_PANE
+-		self.Y_OBSOLETES = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
++		# Row 3: First to Discover (left, narrow) | Obsoletes (right, remaining width)
++		# <!-- custom: First to Discover panel for religions, corporations, great people, free techs - positioned left of Obsoletes (Claude Code Opus 4.5) -->
++		self.W_FIRST_TO_DISCOVER = 84  # Same width as SevoPediaBuilding's obsolete panel - enough for one button
++		self.X_FIRST_TO_DISCOVER = self.X_TECH_PANE
++		self.Y_FIRST_TO_DISCOVER = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
++		self.H_FIRST_TO_DISCOVER = self.H_ROW
++
++		# Obsoletes panel - dynamically positioned after First to Discover
++		self.X_OBSOLETES = self.X_FIRST_TO_DISCOVER + self.W_FIRST_TO_DISCOVER + self.MEDIUM_MARGIN
++		self.Y_OBSOLETES = self.Y_FIRST_TO_DISCOVER
+ 		self.W_OBSOLETES = self.top.R_PEDIA_PAGE - self.X_OBSOLETES
+ 		self.H_OBSOLETES = self.H_ROW
+ 
+@@ -151,6 +158,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.placePrereqs()
+ 		self.placeLeadsTo()
+ 		# Row 3
++		self.placeFirstToDiscover()
+ 		self.placeObsoletes()
+ 		# Row 4
+ 		self.placeEnables()
+@@ -211,6 +219,58 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 
++	# <!-- custom: First to Discover panel showing religions, corporations, great people, and free techs that can be gained by being first to discover this tech (Claude code Opus 4.5 + GPT-5.2-Codex) -->
++	def placeFirstToDiscover(self):
++		screen = self.top.getScreen()
++		techInfo = gc.getTechInfo(self.iTech)
++		iActivePlayer = gc.getGame().getActivePlayer()
++
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_FIRST_TO_DISCOVER", ()), "", False, True, self.X_FIRST_TO_DISCOVER, self.Y_FIRST_TO_DISCOVER, self.W_FIRST_TO_DISCOVER, self.H_FIRST_TO_DISCOVER, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++
++		bButtonFound = False
++
++		# Religions founded by first discoverer
++		for iReligion in range(gc.getNumReligionInfos()):
++			religionInfo = gc.getReligionInfo(iReligion)
++			if religionInfo.getTechPrereq() == self.iTech:
++				screen.attachImageButton(panelName, "", religionInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iReligion, 1, False)
++				bButtonFound = True
++
++		# Free unit (great person) for first discoverer
++		iFirstFreeUnitClass = techInfo.getFirstFreeUnitClass()
++		if iFirstFreeUnitClass != -1:
++			# Get civ-specific unit if active player exists
++			if iActivePlayer >= 0:
++				iUnit = gc.getCivilizationInfo(gc.getGame().getActiveCivilizationType()).getCivilizationUnits(iFirstFreeUnitClass)
++			else:
++				iUnit = gc.getUnitClassInfo(iFirstFreeUnitClass).getDefaultUnitIndex()
++			if iUnit != -1:
++				unitInfo = gc.getUnitInfo(iUnit)
++				szButton = unitInfo.getButton()
++				if iActivePlayer >= 0:
++					szButton = gc.getPlayer(iActivePlayer).getUnitButton(iUnit)
++				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++				bButtonFound = True
++
++		# Free tech for first discoverer
++		if techInfo.getFirstFreeTechs() > 0:
++			szButton = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_FREETECH").getPath()
++			# <!-- custom: similarly, as of now upscale the smaller button to 46 px not more -->
++			screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_FREE_TECH, self.iTech, -1, False)
++			bButtonFound = True
++
++		if not bButtonFound:
++			# No first-to-discover effects - display "None" text
++			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNone, ())
++			yPanelCenter = self.Y_FIRST_TO_DISCOVER + (self.H_FIRST_TO_DISCOVER / 2)
++			screen.addMultilineText(textName, szText, self.X_FIRST_TO_DISCOVER + 7, yPanelCenter, self.W_FIRST_TO_DISCOVER - 14, self.H_FIRST_TO_DISCOVER - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
+ 	# <!-- custom: new obsoletes panel showing buildings, bonuses, special buildings, and units obsoleted by this tech with red X overlay (Claude code Sonnet 4.5) -->
+ 	def placeObsoletes(self):
+ 		screen = self.top.getScreen()
+@@ -350,7 +410,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		
+ 		else:
+ 			# No obsolete items - display "None" text
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OBSOLETES_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = self.Y_OBSOLETES + (self.H_OBSOLETES / 2)
+@@ -364,16 +424,26 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, szLeadsTo, "", False, True, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
++		bButtonFound = False
+ 
+ 		for j in range(gc.getNumTechInfos()):
+ 			for k in range(gc.getNUM_OR_TECH_PREREQS()):
+ 				iPrereq = gc.getTechInfo(j).getPrereqOrTechs(k)
+ 				if (iPrereq == self.iTech):
+ 					screen.attachImageButton(panelName, "", gc.getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False)
++					bButtonFound = True
+ 			for k in range(gc.getNUM_AND_TECH_PREREQS()):
+ 				iPrereq = gc.getTechInfo(j).getPrereqAndTechs(k)
+ 				if (iPrereq == self.iTech):
+ 					screen.attachImageButton(panelName, "", gc.getTechInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_DERIVED_TECH, j, self.iTech, False)
++					bButtonFound = True
++
++		if not bButtonFound:
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = self.Y_LEADS_TO + (self.H_LEADS_TO / 2)
++			screen.addMultilineText(textName, szText, self.X_LEADS_TO + 7, yPanelCenter, self.W_LEADS_TO - 14, self.H_LEADS_TO - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -383,29 +453,29 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, szRequires, "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
+-		bFirst = True
++		bButtonFound = False
++		bHasAnd = False
+ 		for j in range(gc.getNUM_AND_TECH_PREREQS()):
+ 			eTech = gc.getTechInfo(self.iTech).getPrereqAndTechs(j)
+ 			if (eTech > -1):
+-				if (not bFirst):
++				if bHasAnd:
+ 					screen.attachLabel(panelName, "", localText.getText("TXT_KEY_AND", ()))
+ 				else:
+-					bFirst = False
++					bHasAnd = True
+ 				screen.attachImageButton(panelName, "", gc.getTechInfo(eTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_REQUIRED_TECH, eTech, j, False)
++				bButtonFound = True
+ 		nOrTechs = 0
+ 		for j in range(gc.getNUM_OR_TECH_PREREQS()):
+ 			if (gc.getTechInfo(self.iTech).getPrereqOrTechs(j) > -1):
+ 				nOrTechs += 1
+ 		szLeftDelimeter = ""
+ 		szRightDelimeter = ""
+-		if (not bFirst):
++		if bHasAnd:
+ 			if (nOrTechs > 1):
+ 				szLeftDelimeter = localText.getText("TXT_KEY_AND", ()) + "("
+ 				szRightDelimeter = ") "
+ 			elif (nOrTechs > 0):
+ 				szLeftDelimeter = localText.getText("TXT_KEY_AND", ())
+-			else:
+-				return
+ 		if len(szLeftDelimeter) > 0:
+ 			screen.attachLabel(panelName, "", szLeftDelimeter)
+ 		bFirst = True
+@@ -417,12 +487,20 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 				else:
+ 					bFirst = False
+ 				screen.attachImageButton(panelName, "", gc.getTechInfo(eTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_REQUIRED_TECH, eTech, j, False)
++				bButtonFound = True
+ 		if len(szRightDelimeter) > 0:
+ 			screen.attachLabel(panelName, "", szRightDelimeter)
+ 
++		if not bButtonFound:
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
++			screen.addMultilineText(textName, szText, self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 
+ 
+-	# <!-- custom: merged placeUnits and placeBuildings into single placeEnables (Claude code Opus 4.5) -->
++	# <!-- custom: merged placeUnits and placeBuildings into single placeEnables, expanded to include all tech advisor items (Claude code Opus 4.5 + GPT-5.2-Codex) -->
+ 	def placeEnables(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+@@ -430,6 +508,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		screen.attachLabel(panelName, "", "  ")
+ 
+ 		iActivePlayer = gc.getGame().getActivePlayer()
++		techInfo = gc.getTechInfo(self.iTech)
++		bButtonFound = False
+ 
+ 		# Units enabled
+ 		for eLoopUnit in range(gc.getNumUnitInfos()):
+@@ -439,17 +519,186 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 					if iActivePlayer >= 0:
+ 						szButton = gc.getPlayer(iActivePlayer).getUnitButton(eLoopUnit)
+ 					screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False)
++					bButtonFound = True
+ 
+ 		# Buildings enabled
+ 		for eLoopBuilding in range(gc.getNumBuildingInfos()):
+ 			if eLoopBuilding != -1:
+ 				if isTechRequiredForBuilding(self.iTech, eLoopBuilding):
+ 					screen.attachImageButton(panelName, "", gc.getBuildingInfo(eLoopBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, 1, False)
++					bButtonFound = True
+ 
+ 		# Projects enabled
+ 		for eLoopProject in range(gc.getNumProjectInfos()):
+ 			if isTechRequiredForProject(self.iTech, eLoopProject):
+ 				screen.attachImageButton(panelName, "", gc.getProjectInfo(eLoopProject).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, eLoopProject, 1, False)
++				bButtonFound = True
++
++		# Promotions enabled
++		for iPromotion in range(gc.getNumPromotionInfos()):
++			if gc.getPromotionInfo(iPromotion).getTechPrereq() == self.iTech:
++				screen.attachImageButton(panelName, "", gc.getPromotionInfo(iPromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iPromotion, 1, False)
++				bButtonFound = True
++
++		# Civics enabled
++		for iCivic in range(gc.getNumCivicInfos()):
++			if gc.getCivicInfo(iCivic).getTechPrereq() == self.iTech:
++				screen.attachImageButton(panelName, "", gc.getCivicInfo(iCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
++				bButtonFound = True
++
++		# Bonuses revealed
++		for iBonus in range(gc.getNumBonusInfos()):
++			if gc.getBonusInfo(iBonus).getTechReveal() == self.iTech:
++				screen.attachImageButton(panelName, "", gc.getBonusInfo(iBonus).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
++				bButtonFound = True
++
++		# Builds/Improvements enabled (includes feature-removal builds like Chop Forest, roads, etc.)
++		for iBuild in range(gc.getNumBuildInfos()):
++			buildInfo = gc.getBuildInfo(iBuild)
++			bTechFound = False
++			# Check if this build's tech prereq matches
++			if buildInfo.getTechPrereq() == -1:
++				# No direct tech prereq - check feature-specific techs (e.g. Chop Jungle needs specific tech)
++				for iFeature in range(gc.getNumFeatureInfos()):
++					if buildInfo.getFeatureTech(iFeature) == self.iTech:
++						bTechFound = True
++						break
++			else:
++				if buildInfo.getTechPrereq() == self.iTech:
++					bTechFound = True
++
++			if bTechFound:
++				iImprovement = buildInfo.getImprovement()
++				if iImprovement != -1:
++					screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
++				else:
++					# Use WIDGET_HELP_IMPROVEMENT to keep the feature-removal tooltip/redirect behavior (DLL change).
++					screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_IMPROVEMENT, self.iTech, iBuild, False)
++				bButtonFound = True
++
++		# Special buildings like monasteries
++		for iSpecialBuilding in range(gc.getNumSpecialBuildingInfos()):
++			if gc.getSpecialBuildingInfo(iSpecialBuilding).getTechPrereq() == self.iTech:
++				screen.attachImageButton(panelName, "", gc.getSpecialBuildingInfo(iSpecialBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_SPECIAL_BUILDING, self.iTech, iSpecialBuilding, False)
++				bButtonFound = True
++
++		# Route movement change (faster roads)
++		# <!-- custom: use BUTTON_SIZE_46 for interface art buttons - this is the largest size the engine supports for attachImageButton;
++		# unintended but beneficial side effect: the smaller size helps visually distinguish these "ability" icons from the 64px game object buttons above (Claude Code Opus 4.5) -->
++		for iRoute in range(gc.getNumRouteInfos()):
++			if gc.getRouteInfo(iRoute).getTechMovementChange(self.iTech) != 0:
++				screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MOVE_BONUS").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_MOVE_BONUS, self.iTech, -1, False)
++				bButtonFound = True
++				break  # Only show once even if multiple routes affected
++
++		# Bridge Building
++		if techInfo.isBridgeBuilding():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_BRIDGEBUILDING").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_BUILD_BRIDGE, self.iTech, -1, False)
++			bButtonFound = True
++
++		# Irrigation
++		if techInfo.isIrrigation():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_IRRIGATION, self.iTech, -1, False)
++			bButtonFound = True
++
++		# Ignore Irrigation (farms spread without fresh water)
++		if techInfo.isIgnoreIrrigation():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_NOIRRIGATION").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_IGNORE_IRRIGATION, self.iTech, -1, False)
++			bButtonFound = True
++
++		# Water Work (coastal work)
++		if techInfo.isWaterWork():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_WATERWORK").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_WATER_WORK, self.iTech, -1, False)
++			bButtonFound = True
++
++		# Domain Extra Moves (e.g. extra naval movement)
++		for iDomain in range(DomainTypes.NUM_DOMAIN_TYPES):
++			if techInfo.getDomainExtraMoves(iDomain) != 0:
++				screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_WATERMOVES").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_DOMAIN_EXTRA_MOVES, self.iTech, iDomain, False)
++				bButtonFound = True
++
++		# Terrain trade routes (coastal/ocean trade)
++		for iTerrain in range(gc.getNumTerrainInfos()):
++			if techInfo.isTerrainTrade(iTerrain):
++				szArtInfoType = "INTERFACE_TECH_WATERTRADE"
++				if iTerrain == gc.getDefineINT("DEEP_WATER_TERRAIN"):
++					szArtInfoType = "INTERFACE_TECH_DEEPWATERTRADE"
++				screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo(szArtInfoType).getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_TERRAIN_TRADE, self.iTech, iTerrain, False)
++				bButtonFound = True
++
++		# River trade
++		if techInfo.isRiverTrade():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_RIVERTRADE").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_TERRAIN_TRADE, self.iTech, gc.getNumTerrainInfos(), False)
++			bButtonFound = True
++
++		# Commerce slider adjustments (culture, espionage sliders)
++		for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
++			if techInfo.isCommerceFlexible(iCommerce):
++				if iCommerce == CommerceTypes.COMMERCE_CULTURE:
++					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_CULTURE").getPath()
++				elif iCommerce == CommerceTypes.COMMERCE_ESPIONAGE:
++					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_ESPIONAGE").getPath()
++				else:
++					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_GENERAL_QUESTIONMARK").getPath()
++				screen.attachImageButton(panelName, "", szFileName, GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_ADJUST, self.iTech, iCommerce, False)
++				bButtonFound = True
++
++		# Map Trading
++		if techInfo.isMapTrading():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MAPTRADING").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_MAP_TRADE, self.iTech, -1, False)
++			bButtonFound = True
++
++		# Tech Trading
++		if techInfo.isTechTrading():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_TECHTRADING").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_TECH_TRADE, self.iTech, -1, False)
++			bButtonFound = True
++
++		# Gold Trading
++		if techInfo.isGoldTrading():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_GOLDTRADING").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_GOLD_TRADE, self.iTech, -1, False)
++			bButtonFound = True
++
++		# Open Borders
++		if techInfo.isOpenBordersTrading():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_OPENBORDERS").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_OPEN_BORDERS, self.iTech, -1, False)
++			bButtonFound = True
++
++		# Defensive Pact
++		if techInfo.isDefensivePactTrading():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_DEFENSIVEPACT").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_DEFENSIVE_PACT, self.iTech, -1, False)
++			bButtonFound = True
++
++		# Permanent Alliance
++		if techInfo.isPermanentAllianceTrading():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_PERMALLIANCE").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_PERMANENT_ALLIANCE, self.iTech, -1, False)
++			bButtonFound = True
++
++		# Vassal States
++		if techInfo.isVassalStateTrading():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_VASSAL_STATE, self.iTech, -1, False)
++			bButtonFound = True
++
++		# Extra LOS (line of sight) from water
++		if techInfo.isExtraWaterSeeFrom():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_LOS").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_LOS_BONUS, self.iTech, -1, False)
++			bButtonFound = True
++
++		# Map centering
++		if techInfo.isMapCentering():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MAPCENTER").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_MAP_CENTER, self.iTech, -1, False)
++			bButtonFound = True
++
++		# Map reveal
++		if techInfo.isMapVisible():
++			screen.attachImageButton(panelName, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MAPREVEAL").getPath(), GenericButtonSizes.BUTTON_SIZE_46, WidgetTypes.WIDGET_HELP_MAP_REVEAL, self.iTech, -1, False)
++			bButtonFound = True
++
++		if not bButtonFound:
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = self.Y_ENABLES + (self.H_ENABLES / 2)
++			screen.addMultilineText(textName, szText, self.X_ENABLES + 7, yPanelCenter, self.W_ENABLES - 14, self.H_ENABLES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -469,8 +718,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 					szSpecialText += u"\n\n"
+ 				szSpecialText += UNTRADEABLE_TECHS_TEXT
+ 
+-		# <!-- custom: seems to overfill a bit actually quite a bit xd after rechecking, reduce height, was self.H_SPECIAL-10 -->
+-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 35, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 3, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -485,7 +733,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		szQuoteTextWidget = self.top.getNextWidgetName()
+ 		# <!-- custom: i prefer the fancier design, find it way more beautiful too, restoring it; as for padding adjust/modify it a bit too, was self.X_HISTORY + 9, self.Y_HISTORY + 12, also we removed _HISTORY to simplify and standardize code and display and as we don't need nor want the extra height in this case -->
+ 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(szQuoteTextWidget, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(szQuoteTextWidget, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 5, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 524de7183..0f3b87d34 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -372,7 +372,7 @@ class SevoPediaUnit:
+ 
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_UPGRADES_TO_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+@@ -409,7 +409,7 @@ class SevoPediaUnit:
+ 				screen.attachImageButton(panelName, "", gc.getPromotionInfo(iPromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iPromotion, -1, False)
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_PROMOTIONS_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+@@ -502,7 +502,7 @@ class SevoPediaUnit:
+ 					iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+@@ -592,7 +592,7 @@ class SevoPediaUnit:
+ 					iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+@@ -720,7 +720,7 @@ class SevoPediaUnit:
+ 				iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+@@ -853,7 +853,7 @@ class SevoPediaUnit:
+ 						screen.attachImageButton(panel, "", gc.getUnitInfo(iUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND"
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+index 63608369c..6524baf0e 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+@@ -120,8 +120,4 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_ERA_CHART</Tag>
+ 		<English>Eras</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_SAS_HANDICAP_CHART_FREE_TECHS_NONE</Tag>
+-		<English>None</English>
+-	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index 2983c4a4c..90f9e3fcc 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -239,9 +239,10 @@
+ 		<Tag>TXT_KEY_PEDIA_OBSOLETES</Tag>
+ 		<English>Obsoletes</English>
+ 	</TEXT>
++	<!-- custom: new text key for First to Discover panel in Sevopedia Tech (Claude code Opus 4.5 + GPT-5.2-Codex) -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_OBSOLETES_NO_BUTTON_FOUND</Tag>
+-		<English>None</English>
++		<Tag>TXT_KEY_PEDIA_FIRST_TO_DISCOVER</Tag>
++		<English>First to D</English>
+ 	</TEXT>
+ 	<!-- custom: new text key for Enables panel in Sevopedia Tech (Claude code Opus 4.5) -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+index 438109278..465c4b81f 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+@@ -33,6 +33,23 @@ Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml -->
+ 		<Tag>TXT_KEY_PEDIA_NO_TECH_PREREQUISITE</Tag>
+ 		<English>No Tech Prerequisite</English>
+ 	</TEXT>
++	<!-- custom: shared Sevopedia no-button-found strings for None/Never/Nothing/Always (GPT-5.2-Codex) -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE</Tag>
++		<English>None</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER</Tag>
++		<English>Never</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING</Tag>
++		<English>Nothing</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS</Tag>
++		<English>Always</English>
++	</TEXT>
+ 
+ 
+ 
+@@ -49,10 +66,6 @@ Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml -->
+ 		<Tag>TXT_KEY_PEDIA_OBSOLETE</Tag>
+ 		<English>Obsolete</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_OBSOLETE_NO_BUTTON_FOUND</Tag>
+-		<English>Never</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_UNIT_OBSOLETE_WITH</Tag>
+ 		<English>Obsoletes With</English>
+@@ -65,110 +78,46 @@ Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml -->
+ 		<Tag>TXT_KEY_PEDIA_REPLACE_REPLACES_CUSTOM</Tag>
+ 		<English>Replaces</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_REPLACE_NO_BUTTON_FOUND</Tag>
+-		<English>Nothing</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_FREE_PBBS</Tag>
+ 		<English>Free Promotion, Building, Bonus, Specialists</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND</Tag>
+-		<English>None</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_FREE_WITH</Tag>
+ 		<English>Free W/</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_FREE_WITH_NO_BUTTON_FOUND</Tag>
+-		<English>None</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS</Tag>
+ 		<English>Free Promotions</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS_NO_BUTTON_FOUND</Tag>
+-		<English>None</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_REQUIRES_NO_BUTTON_FOUND</Tag>
+-		<English>None</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_REQUIRED_FOR</Tag>
+ 		<English>Required For</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_REQUIRED_FOR_NO_BUTTON_FOUND</Tag>
+-		<English>Nothing</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_UPGRADES_TO_NO_BUTTON_FOUND</Tag>
+-		<English>Nothing</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS</Tag>
+ 		<English>Against Classes (A/D), Combat T. (A and D)</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND</Tag>
+-		<English>None</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT</Tag>
+ 		<English>Of Other Classes's Units 's (A/D) and Combat Types's Units (A and D) 's Modifiers Against This Unit</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT_NO_BUTTON_FOUND</Tag>
+-		<English>None</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS</Tag>
+ 		<English>Peak, Hill, City, Terrains, Features (A/D)</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS_NO_BUTTON_FOUND</Tag>
+-		<English>None</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BONUS_OBSOLETE_WITH</Tag>
+ 		<English>Obsolete With</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BONUS_OBSOLETE_WITH_NO_BUTTON_FOUND</Tag>
+-		<English>Never</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BONUS_REVEALED_BY_NO_BUTTON_FOUND</Tag>
+-		<English>Always</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BONUS_TRADEABLE_SINCE_NO_BUTTON_FOUND</Tag>
+-		<English>Always</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BONUS_GENERIC_NONE</Tag>
+-		<English>None</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS_UNITS</Tag>
+ 		<English>Free Promotions (Units)</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_FREE_PROMOTIONS_UNITS_NO_BUTTON_FOUND</Tag>
+-		<English>None</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_FREE_PROMOTION_BUILDINGS</Tag>
+ 		<English>Free Promotion (Buildings)</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_FREE_PROMOTION_BUILDINGS_NO_BUTTON_FOUND</Tag>
+-		<English>None</English>
+-	</TEXT>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 772e76fcb..a5c726aee 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -135,7 +135,7 @@ Note: see moe details in the [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs/REA
+ - (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons. See for legend: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5312+) Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between traits** for readability: change in [CyGameTextMgr.cpp](/CvGameCoreDLL/CyGameTextMgr.cpp).
+-- (Requires AdvCiv-SAS 5333+) Sevopedia — Techs: Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. Also **beautified** with a new **Enables** panel enriched with **more information**. See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
++- (Requires AdvCiv-SAS 5333+) Sevopedia — Techs: Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. Also **beautified** with a new **Enables** panel enriched with **more information** (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and a **new First to Discover** panel (Founds Religion, Receives a Great Person, Receives a Free Tech). See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+ - (Requires AdvCiv-SAS 5331+) Sevopedia — Specialists: new **Extra Slots** (showing slot, free slots, unlimited specialists) and **Extra Yields** panel showing detailed yield information per asset for each specialist.
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+ - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 10d4e638f..fa64ba0fa 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -308,7 +308,7 @@ More recently, i also fixed based advciv issue of obsoletes spanning vertically
+ 
+ And after that, added a new Obsoletes panel with the help of Claude code Sonnet 4.5, that notably shows a new thinner RedX art than in Civ4 (as it was too bold and hard to read at 64px) for any asset that has a button this tech obsoletes. ChatGPT 5.2 very impressively helped adding such a feature. See [README.md#redx-new-art-button](/README.md#redx-new-art-button).
+ 
+-Also, with the help of Claude Opus 4.5 thanks a lot, i reworked and beautified, as well as reordered the panels for a much cleaner and prettier read! Then, merged the old Units Enabled and Buildings Enabled into a new Enables Panel enriched with more information too.
++Also, with the help of Claude Opus 4.5 thanks a lot, i reworked and beautified, as well as reordered the panels for a much cleaner and prettier read! Then, merged the old Units Enabled and Buildings Enabled into a new Enables Panel enriched with more information (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and then also added with the additional help of GPT-5.2-Codex thanks a lot too a new First to Discover panel (Founds Religion, Receives a Great Person, Receives a Free Tech).
+ 
+ <img src="../Images/sevopedia/0.710_sevopedia_techs (1).JPG" alt="0.710_sevopedia_techs (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.710_sevopedia_techs (2).JPG" alt="0.710_sevopedia_techs (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG
+index 5ad9451c0..c1f1c1970 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG
+index 314e99fdb..87a9f2594 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG
+index a2e5d3ec1..0d7bb4061 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.710_sevopedia_techs (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=47627

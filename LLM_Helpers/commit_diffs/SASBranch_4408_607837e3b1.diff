@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4408
+# Commit: 607837e3b1abb0ec5e4577c98f2b5391ed19d453
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ff0662a208f438ca2450779d2813515b327a7b26
+# Title: Clarify a few comments in PerfectMongoose
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	PrivateMaps/PerfectMongoose.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 83f958512..aee4d4c37 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -1167,7 +1167,7 @@ class FloatMap:
+ 		for i in range(self.length):
+ 			self.data[i] = func(self.data[i])
+ 
+-
++	# advc.opt: Now only used by Smooth_Legacy, i.e. normally unused.
+ 	def GetAverageInHex(self, x, y, radius):
+ 		'''
+ 		# advc.oxi: Was getCirclePoints
+@@ -1189,7 +1189,7 @@ class FloatMap:
+ 		avg /= count # </advc.oxi>
+ 		return avg
+ 		'''
+-		# advc.opt: The above is too slow. Expanding the function calls
++		# advc.opt: The above was too slow. Expanding the function calls
+ 		# allows the bulk of the overhead to be eliminated. I've mostly let an
+ 		# LLM perform this task.
+ 
+@@ -1277,7 +1277,7 @@ class FloatMap:
+ 	# that just the same results as before are produced (see commented out
+ 	# test code at the call location and also run_smooth_tests). And, if there's
+ 	# a problem, one can always go back to the version above, which, for the
+-	# now halved radii, is just a few seconds slower.
++	# current radius, is just a few seconds slower.
+ 	def Smooth(self, radius):
+ 		width = self.width
+ 		height = self.height
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1218

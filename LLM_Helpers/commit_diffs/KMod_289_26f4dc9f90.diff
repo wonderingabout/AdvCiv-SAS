@@ -1,0 +1,93 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 289
+# Commit: 26f4dc9f90caf28834de0a001de5b4c0364c4f41
+# History segment: K-Mod history
+# Parent used for diff: 4a6c37bc59986060192e6036adf9410f7bfac899
+# Title: Adjusted the way the AI chooses which city to attack. - It now has a constant-random component for each city / head-unit pair. Removed the groupDeclareWar fr...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvPlayer.cpp
+3	1	CvGameCoreDLL/CvSelectionGroup.cpp
+12	3	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index fa2d43feb..816b34b66 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -11958,6 +11958,7 @@ void CvPlayer::setCommercePercent(CommerceTypes eIndex, int iNewValue)
+ 			gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+ 			gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+ 			gDLL->getInterfaceIFace()->setDirty(CityScreen_DIRTY_BIT, true);
++			gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true); // K-Mod
+ 			gDLL->getInterfaceIFace()->setDirty(Financial_Screen_DIRTY_BIT, true);
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 3939c7ce3..fb959e66a 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -4066,10 +4066,12 @@ bool CvSelectionGroup::groupAmphibMove(CvPlot* pPlot, int iFlags)
+ 
+ 	FAssert(getOwnerINLINE() != NO_PLAYER);
+ 
++	/* original bts code
+ 	if (groupDeclareWar(pPlot))
+ 	{
+ 		return true;
+-	}
++	} */
++	// K-Mod. I've disabled this groupDeclareWar for a bunch of reasons. Suffice to say, it shouldn't be here.
+ 
+ 	if (isAmphibPlot(pPlot))
+ 	{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 362e277d5..1cbf3c09f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -15204,10 +15204,19 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 									iValue *= 1000;
+ 
+ 									// If city is minor civ, less interesting
+-									if( GET_PLAYER(pLoopCity->getOwnerINLINE()).isMinorCiv() || GET_PLAYER(pLoopCity->getOwnerINLINE()).isBarbarian() )
++									if (GET_PLAYER(pLoopCity->getOwnerINLINE()).isMinorCiv() || GET_PLAYER(pLoopCity->getOwnerINLINE()).isBarbarian())
+ 									{
+-										iValue /= 2;
++										//iValue /= 2;
++										iValue /= 3; // K-Mod
++									}
++									// K-Mod. A const-random component, so that the AI doesn't always go for the same city.
++									{
++										int iHash = AI_getBirthmark() + GC.getMapINLINE().plotNumINLINE(pLoopCity->getX_INLINE(), pLoopCity->getY_INLINE());
++										iHash *= 2654435761; // golden ratio of 2^32;
++										iValue *= 85 + iHash % 31;
++										iValue /= 100;
+ 									}
++									// K-Mod
+ 
+ 									// If stack has poor bombard, direct towards lower defense cities
+ 									//iPathTurns += std::min(12, getGroup()->getBombardTurns(pLoopCity)/4);
+@@ -15677,7 +15686,7 @@ bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, bool bFollow)
+ 	if (pBestPlot != NULL)
+ 	{
+ 		FAssert(!atPlot(pBestPlot));
+-		// K-Mod
++		// K-Mod. (Note. we probably don't really want to declare war here, but that's just the way it works currently.)
+ 		if (AI_considerDOW(pBestPlot))
+ 		{
+ 			// after DOW, we might not be able to get to our target this turn... but try anyway.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2864

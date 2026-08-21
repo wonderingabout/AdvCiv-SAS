@@ -1,0 +1,40 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4136
+# Commit: f341d608e490479c2265081fe5a87710351b4117
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 99f31a43eff07936842b1eccb3237fa97d8a8161
+# Title: Strip non-ASCII chars from signs when WB-saving
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	1	Assets/Python/pyWB/CvWBDesc.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/pyWB/CvWBDesc.py b/Assets/Python/pyWB/CvWBDesc.py
+index 6ce7d137a..c7ffed501 100644
+--- a/Assets/Python/pyWB/CvWBDesc.py
++++ b/Assets/Python/pyWB/CvWBDesc.py
+@@ -1473,7 +1473,10 @@ class CvSignDesc:
+ 		f.write("\tplotX=%d\n" %(sign.getPlot().getX(),))
+ 		f.write("\tplotY=%d\n" %(sign.getPlot().getY(),))
+ 		f.write("\tplayerType=%d\n" %(sign.getPlayerType(),))
+-		f.write("\tcaption=%s\n" %(sign.getCaption(),))
++		uCaption = sign.getCaption()
++		# advc.001: Strip non-ascii
++		uCaption = uCaption.encode('ascii', 'ignore').decode()
++		f.write("\tcaption=%s\n" %(uCaption,))
+ 		f.write("EndSign\n")
+ 
+ 	def read(self, f):
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=649

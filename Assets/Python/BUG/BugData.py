@@ -38,38 +38,31 @@ from CvPythonExtensions import CyGame
 import BugUtil
 import cPickle as pickle
 
-
 ## Data Access
 
 def hasTable(*keys):
-	"""
-	Returns True if the chain of key(s) leads to a table, False otherwise.
-	"""
+	# Returns True if the chain of key(s) leads to a table, False otherwise.
+
 	return getGameData().hasTable(*keys)
 
 def findTable(*keys):
-	"""
-	If the key(s) lead to an existing table, it is returned. Otherwise None is returned.
-	
-	This function will not create any new tables. You must check the return value for None
-	or you will get an exception.
-	"""
+	# If the key(s) lead to an existing table, it is returned. Otherwise None is returned.
+	#
+	# This function will not create any new tables. You must check the return value for None or you will get an exception.
+	#
 	return getGameData().findTable(*keys)
 
 def getTable(*keys):
-	"""
-	Returns the table at the end of the chain of key(s), creating any missing tables along the way.
-	
-	This function always returns a valid table.
-	"""
+	# Returns the table at the end of the chain of key(s), creating any missing tables along the way.
+	#
+	# This function always returns a valid table.
+	#
 	return getGameData().getTable(*keys)
 
 def deleteTable(*keys):
-	"""
-	If the chain of key(s) leads to a table, it is deleted and True is returned; otherwise False is returned.
-	"""
+	# If the chain of key(s) leads to a table, it is deleted and True is returned; otherwise False is returned.
+	#
 	return getGameData().delTable(*keys)
-
 
 ## Event Handlers and Internal Access
 
@@ -84,7 +77,6 @@ def initGameData():
 	g_data = RootTable()
 	return g_data
 
-
 ## Event Handlers
 
 def onGameStart(argsList):
@@ -96,11 +88,9 @@ def onGameLoad(argsList):
 def save():
 	getGameData().save()
 
-
 ## Globals
 
 g_data = None
-
 
 ## Table Classes
 
@@ -130,7 +120,7 @@ class Table(object):
 	def __del__(self):
 		if self.dirty:
 			BugUtil.warn("Data not saved: %s", self)
-	
+
 	def setData(self, data):
 		self.data = data
 		self.dirty = True
@@ -152,7 +142,7 @@ class Table(object):
 			self.dirty = True
 		except:
 			pass
-	
+
 	def hasValue(self, key):
 		return key in self
 	def getValue(self, key):
@@ -161,7 +151,7 @@ class Table(object):
 		self[key] = value
 	def delValue(self, key):
 		del self[key]
-	
+
 	def hasTable(self, *keys):
 		if len(keys) == 1:
 			return self._hasTable(keys[0])
@@ -213,7 +203,7 @@ class Table(object):
 		if self._hasTable(key):
 			BugUtil.debug("BugData - deleting %s.%s", self, key)
 			del self[key]
-	
+
 	def _isOpen(self, key):
 		return key in self.children
 	def _openTable(self, key, data):
@@ -228,7 +218,6 @@ class Table(object):
 			table.discard()
 			del self.children[key]
 
-
 class RootTable(Table):
 	def __init__(self):
 		super(RootTable, self).__init__("root", dict())
@@ -241,7 +230,6 @@ class RootTable(Table):
 			BugUtil.debug("BugData - loaded %r", self.data)
 	def _save(self):
 		self.game.setScriptData(pickle.dumps(self.data))
-
 
 class ChildTable(Table):
 	def __init__(self, parent, key, data):

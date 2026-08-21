@@ -1,0 +1,232 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4568
+# Commit: 4a3f26d999290488fd4ed02beae27d9f721b12a6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d0db3d4aeede69567e2eaddc031520729bb90679
+# Title: Use arabic numerals for Combat promotions, for example "Combat I" is now "Combat 1" Much clearer and easier to read, hopefully less strain trying to decipher...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+157	4	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+6	3	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index bfcb89d6d..a7b5d2aa2 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -354,7 +354,7 @@
+ 		</Spanish>
+ 	</TEXT>
+ 
+-	<!-- custom: clear counter unit promotion names-->
++	<!-- custom: clear counter unit promotion names -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_AMBUSH</Tag>
+ 		<English>Counter-Tank</English>
+@@ -426,9 +426,10 @@
+ 			<Gender>Male</Gender>
+ 			<Plural>0</Plural>
+ 		</Spanish>
+-	<!-- custom: rename or/and create subtypes for each melee type maybe or maybe not
+-	and put them all in same promotion easier? Or partly simply by having counter
+-	melee sword, or counter sword? Todo -->
++	<!-- custom: rename or/and create subtypes for each melee type
++	maybe or maybe not and put them all in same promotion easier?
++	Or partly simply by having counter melee sword, or counter sword?
++	Todo -->
+ 	</TEXT>
+ 		<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_SHOCK</Tag>
+@@ -502,4 +503,156 @@
+ 			<Plural>0</Plural>
+ 		</Spanish>
+ 	</TEXT>
++
++	<!-- custom: use arabic numerals for/in promotions naming(/es),
++	add missing "translations" for some promotions too (for example)
++	combat 6, even though i just copy paste to english for ease of use
++	(of translation) and convenience, i don't want it to be displayed
++	as "VI" ingame but "6" so adding these extra ones. -->
++		<TEXT>
++		<Tag>TXT_KEY_PROMOTION_COMBAT1</Tag>
++		<English>Combat 1</English>
++		<French>
++			<Text>Combat 1</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Kampf 1</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Combattimento 1</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Combate 1</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_COMBAT2</Tag>
++		<English>Combat 2</English>
++		<French>
++			<Text>Combat 2</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Kampf 2</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Combattimento 2</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Combate 2</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_COMBAT3</Tag>
++		<English>Combat 3</English>
++		<French>
++			<Text>Combat 3</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Kampf 3</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Combattimento 3</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Combate 3</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_COMBAT4</Tag>
++		<English>Combat 4</English>
++		<French>
++			<Text>Combat 4</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Kampf 4</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Combattimento 4</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Combate 4</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_COMBAT5</Tag>
++		<English>Combat 5</English>
++		<French>
++			<Text>Combat 5</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Kampf 5</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Combattimento 5</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Combate 5</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<!-- custom added missing languages in base civ4/BTS to have "6"
++	not "VI" everywhere -->
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_COMBAT6</Tag>
++		<English>Combat 6</English>
++		<French>
++			<Text>Combat 6</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Kampf 6</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Combattimento 6</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Combate 6</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index a079c6003..72ce4a5bb 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -40,11 +40,14 @@ Defenders may have a chance to prevail while being behind in tech but it will be
+ - explore units can attack: but their strength should be quite low
+ - military units are versatile: swordsmen can defend, archers can attack,
+ maybe even workers too
++- unit promotions have clearer names now too: for example Counter-Archer,
++counter Siege, Counter-Tank. Or another example is "City Bombard" (instead
++of barrage). Numeric naming has been changed too for clarity and ease of read:
++for example "Combat III" is now "Combat 3" too.
+ - unit promotions are reworked or/and rebalanced: woodsman for example is buffed,
+ some are rebalanced or nerfed, and other some promotions have also their requirements
+-changed, for example todo
+-- unit promotions have clearer names now too: for example Counter-Archer,
+-counter Siege, Counter-Tank.
++changed, for archers have access to city bombard promotion (units are reworked too,
++see below)
+ - military units are reworked: for example the holy roman empire special unit,
+ to better accomodate its history and stats, can be built starting from a different
+ tech, in particular the settler is now not freely available but requires agriculture
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6000

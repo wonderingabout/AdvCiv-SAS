@@ -1,0 +1,404 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4617
+# Commit: bd637af5c2549907a256d30901103383e16a91e2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9b2a569e43036cce4adccf3361607d7afc84f792
+# Title: reordering some XML assets not sure there is much point to do this as it is very messy and most importantly inconsistent with BTS folders, leaving as is for...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+46	25	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+16	0	Assets/XML/Text/CIV4GameTextInfos_advc_Custom.xml
+16	1	Assets/XML/Text/CIV4GameText_Custom.xml
+64	0	Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+0	114	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+15	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml
+ create mode 100644 Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index b487a2949..6624eb1b1 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -5,6 +5,52 @@
+ <!-- -->
+ <!-- Game Text Objects -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
++	<!-- custom: "Unique Units" were not unique (could be built
++	many times, just it was only by one civ in civ4, so i had
++	renamed	it to "Civ-specific Units" initially.
++	After futher consideration, there are no multi Civ-specific
++	units (units that can be built only	be a few civs in common)
++	in AdvCiv-SAS if i am not mistaken,	and the name civ-specific
++	is quite tedious/complicated to remember/use, so renaming it
++	rather to "Civilization Units", which may be shortened to
++	"Civ Units" by players if they so desire or prefer maybe,
++	hopefully clearer.
++	-->
++	<TEXT>
++		<Tag>TXT_KEY_FREE_UNITS</Tag>
++		<English>Civilization Units</English>
++		<French>Civilization Units</French>
++		<German>Civilization Units</German>
++		<Italian>Civilization Units</Italian>
++		<Spanish>Civilization Units</Spanish>
++	</TEXT>
++		<TEXT>
++		<Tag>TXT_KEY_FREE_UNITS_NO</Tag>
++		<English>No Civilization Unit</English>
++		<French>No Civilization Unit</French>
++		<German>No Civilization Unit</German>
++		<Italian>No Civilization Unit</Italian>
++		<Spanish>No Civilization Unit</Spanish>
++	</TEXT>
++	<!-- custom: "Civilization Unit for Russian Empire"
++	-> "Civilization Unit For the Russian Empire";
++	Adding a "the" too, hopefully clearer this way,	also i was
++	not sure if "of" is more correct than "for" but seems more
++	intuitive to me but may be grammatically incorrect or less
++	accurate, leaving as is but adding a mention of it here.
++	-->
++	<TEXT>
++		<Tag>TXT_KEY_UNIQUE_UNIT</Tag>
++		<English>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</English>
++		<French>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</French>
++		<German>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</German>
++		<Italian>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Italian>
++		<Spanish>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Spanish>
++	</TEXT>
++	<!--custom:	Not changing it in TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR
++	as it is an outdated doc. -->
++	
++
+ 	<!-- custom: gather all base civ4 (vanilla or BTS alike)
+ 	content in the same category, was "Game Concepts".
+ 	I prefer to keep the data as it can be useful/helpful to
+@@ -983,29 +1029,4 @@
+ 			<Plural>1</Plural>
+ 		</Spanish>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_UNITCOMBAT_AIR_BOMBER</Tag>
+-		<English>Air (Bomber)</English>
+-		<French>
+-			<Text>Air (Bomber)</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</French>
+-		<German>
+-			<Text>Air (Bomber)</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</German>
+-		<Italian>
+-			<Text>Air (Bomber)</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</Italian>
+-		<Spanish>
+-			<Text>Air (Bomber)</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</Spanish>
+-	</TEXT>
+-
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_advc_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_advc_Custom.xml
+index 6801e54d8..da58c1a20 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_advc_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_advc_Custom.xml
+@@ -5,6 +5,22 @@
+ <!-- -->
+ <!-- Game Text Infos -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
++	<!-- advc.008a: Removed "Only" because this is going to be shown for
++		 wonders like Stonehenge that become unavailable surprisingly early
++		 (Classical start), but also for e.g. Apostolic Palace, which becomes
++		 unavailable surprisingly late (Industrial start).
++		 German and Italian text was missing the "start era" part and thus
++		 misleading. Original key in CIV4GameTextInfos.xml. -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_MAX_START_ERA</Tag>
++		<English>[ICON_BULLET]Can be Built on %s1_Name and Earlier Starts</English>
++		<French>[ICON_BULLET]Construction possible &#224; l'&#233;poque "%s1_Name" et pour les d&#233;buts de partie plus pr&#233;coces</French>
++		<German>[ICON_BULLET]Kann bei Start im Zeitalter %s1_Name oder fr&#252;her errichtet werden</German>
++		<Italian>[ICON_BULLET]Può essere costruito quando si inizia nell'era %s1_Name o prima</Italian>
++		<Spanish>[ICON_BULLET]Se puede construir en [NUM1:el:la:los:las] %s1_Name e inicios anteriores</Spanish>
++	</TEXT>
++	
++
+     <!-- custom: rename Civilopedia to Sevopedia 
+     imported from: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml
+     and then modified for AdvCiv-SAS
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index 6fafe5618..7d687fde7 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -1,7 +1,22 @@
+ <?xml version="1.0" encoding="ISO-8859-1"?>
+ <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
+-<!-- custom: custom assets for AdvCiv-SAS -->
++<!-- custom: custom GameText xml type of assets for AdvCiv-SAS -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
++	<!-- advc.002b: Shortening "Beyond the Sword" to "BtS" so that the page
++		 names can be displayed despite the increased font size.
++		 Originally in CIV4GameText_BTS.xml and CIV4GameText_Objects_BTS.xml. -->
++	<!-- custom: remove BTS links, unneeded, see CIV4NewConceptInfos.xml for details -->
++	<!-- custom: moved to file with similar filename than in civ4 bts -->
++	<TEXT>
++		<Tag>TXT_KEY_BTS_RULES_CHANGES</Tag>
++		<English>BtS Rules Changes</English>
++		<French>R&#232;gles modifi&#233;es de BtS</French>
++		<German>BtS-Regel&#228;nderungen</German>
++		<Italian>Cambiamenti delle regole di BtS</Italian>
++		<Spanish>Cambios en las reglas de "BtS"</Spanish>
++	</TEXT>
++
++
+     <!-- custom: Kingdom of Benin cities -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CITY_NAME_EDO_CUSTOM</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Objects_Custom.xml b/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+new file mode 100644
+index 000000000..16b859551
+--- /dev/null
++++ b/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+@@ -0,0 +1,64 @@
++<?xml version="1.0" encoding="ISO-8859-1"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Game Text - New -->
++<!-- custom: based on:
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Objects_BTS.xml
++-->
++<Civ4GameText xmlns="http://www.firaxis.com">
++    <!-- custom: use civ4 dev language unless we have
++	a reason not, harmonizes terminlogy hopefully
++	while being clearer for players. -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT</Tag>
++		<English>Unit Combat Types</English>
++		<French>
++			<Text>Unit Combat Types</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Unit Combat Types</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Unit Combat Types</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Unit Combat Types</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++
++	<TEXT>
++		<Tag>TXT_KEY_UNITCOMBAT_AIR_BOMBER</Tag>
++		<English>Air (Bomber)</English>
++		<French>
++			<Text>Air (Bomber)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Air (Bomber)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Air (Bomber)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Air (Bomber)</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++
++</Civ4GameText>
+\ No newline at end of file
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index 06e8861ec..92ad314a5 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -15,47 +15,6 @@ hopefully more readable or exportable if need/want be now -->
+ 	 are also from K-Mod. -->
+ 
+ <Civ4GameText>
+-	<!-- advc.008a: Removed "Only" because this is going to be shown for
+-		 wonders like Stonehenge that become unavailable surprisingly early
+-		 (Classical start), but also for e.g. Apostolic Palace, which becomes
+-		 unavailable surprisingly late (Industrial start).
+-		 German and Italian text was missing the "start era" part and thus
+-		 misleading. Original key in CIV4GameTextInfos.xml. -->
+-	<TEXT>
+-		<Tag>TXT_KEY_BUILDING_MAX_START_ERA</Tag>
+-		<English>[ICON_BULLET]Can be Built on %s1_Name and Earlier Starts</English>
+-		<French>[ICON_BULLET]Construction possible &#224; l'&#233;poque "%s1_Name" et pour les d&#233;buts de partie plus pr&#233;coces</French>
+-		<German>[ICON_BULLET]Kann bei Start im Zeitalter %s1_Name oder fr&#252;her errichtet werden</German>
+-		<Italian>[ICON_BULLET]Pu� essere costruito quando si inizia nell'era %s1_Name o prima</Italian>
+-		<Spanish>[ICON_BULLET]Se puede construir en [NUM1:el:la:los:las] %s1_Name e inicios anteriores</Spanish>
+-	</TEXT>
+-
+-	<!-- advc.005e: replaced the German text with text from Wikipedia b/c the
+-		 German text was talking about triremes. Could've added that text to
+-		 the Trireme unit, but that unit already has a very lengthy background 
+-		 text. -->
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_GALLEY_PEDIA</Tag>
+-		<English>[TAB]The galley was the first ship designed for war. Introduced by the Greeks, galleys were powered by banks of oars on each side, manned by well-trained oarsmen. These oarsmen were highly paid professionals or patriotic citizens, not slaves and prisoners as depicted in fiction. A huge, bronze "beak" mounted at the bow of the ship was used to ram and sink enemy ships. Because of its long, narrow hull, the galley was very unstable in all but the calmest waters, and as a consequence its crew rarely ventured out of sight of land for long periods of time, lest the ship be caught in a storm and sunk.</English>
+-		<French>[TAB]La gal&#232;re fut le premier navire con&#231;u pour la guerre. Cr&#233;&#233;e par les Grecs, elle &#233;tait propuls&#233;e par plusieurs rangs de rameurs bien entra&#238;n&#233;s, install&#233;s de chaque c&#244;t&#233; du bateau. Contrairement &#224; ce que l'on pense, ces rameurs &#233;taient des professionnels ou des volontaires, et non des esclaves ou des prisonniers. Un &#233;norme "&#233;peron" en bronze &#233;tait fix&#233; sur la proue pour &#233;peronner et couler les navires ennemis. La longue coque &#233;troite du bateau le rendait instable d&#232;s que la mer s'agitait un peu, et les &#233;quipages &#233;vitaient g&#233;n&#233;ralement de s'aventurer trop longtemps loin des c&#244;tes, de peur qu'une temp&#234;te survienne et coule le navire.</French>
+-		<German>[TAB](Wikipedia) Die Pentekontere war eine fr�he Form der Galeere, die recht lang, schmal und flach aufgebaut war. Der Begriff "Galeere" wird teilweise als Sammelbegriff f�r alle historischen geruderten Kriegsschiffe verwendet.</German>
+-		<Italian>[TAB]La galea &#232; stata la prima nave appositamente progettata per la guerra. Introdotta dai Greci, quest'imbarcazione si muoveva grazie alla presenza di file di remi su ciascun lato, utilizzati da rematori ben addestrati. Questi uomini erano professionisti con un ottimo salario o cittadini patriottici, non schiavi e prigionieri come si crede. Un grosso "rostro" di bronzo, montato sulla prua della nave, veniva utilizzato per colpire e affondare le navi nemiche. A causa del suo scafo lungo e stretto, la galea era molto instabile al di fuori delle acque placide: di conseguenza, l'equipaggio non perdeva mai di vista la costa, proprio per evitare pericoli durante la navigazione.</Italian>
+-		<Spanish>[TAB]La galera fue el primer barco dise&#241;ado para la guerra. Inventadas por los griegos, las galeras contaban con bancos de remos a ambos lados, manejados por marineros avezados.  Los remeros eran profesionales muy bien remunerados o patriotas, no los esclavos y prisioneros que aparecen en las pel&#237;culas. Un enorme ?espol&#243;n? de bronce instalado en la proa de la nave se utilizaba para embestir y hundir las embarcaciones enemigas. Debido a su casco alargado y de poco calado, la galera solo era estable en las aguas m&#225;s tranquilas, y como consecuencia de ello, raramente se alejaba de la costa durante largos periodos de tiempo, no fuera a sucumbir en alguna tormenta.</Spanish>
+-	</TEXT>
+-
+-	<!-- advc.002b: Shortening "Beyond the Sword" to "BtS" so that the page
+-		 names can be displayed despite the increased font size.
+-		 Originally in CIV4GameText_BTS.xml and CIV4GameText_Objects_BTS.xml. -->
+-	<!-- custom: remove BTS links, unneeded, see CIV4NewConceptInfos.xml for details -->
+-	<TEXT>
+-		<Tag>TXT_KEY_BTS_RULES_CHANGES</Tag>
+-		<English>BtS Rules Changes</English>
+-		<French>R&#232;gles modifi&#233;es de BtS</French>
+-		<German>BtS-Regel&#228;nderungen</German>
+-		<Italian>Cambiamenti delle regole di BtS</Italian>
+-		<Spanish>Cambios en las reglas de "BtS"</Spanish>
+-	</TEXT>
+-
+ 	<!-- advc.004y: Heading for "changes" box in trait articles -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CHANGES</Tag>
+@@ -99,77 +58,4 @@ hopefully more readable or exportable if need/want be now -->
+ 			<Plural>0</Plural>
+ 		</Spanish>
+ 	</TEXT>
+-
+-	<!-- custom: use civ4 dev language unless we have
+-	a reason not, harmonizes terminlogy hopefully
+-	while being clearer for players. -->
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT</Tag>
+-		<English>Unit Combat Types</English>
+-		<French>
+-			<Text>Unit Combat Types</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</French>
+-		<German>
+-			<Text>Unit Combat Types</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</German>
+-		<Italian>
+-			<Text>Unit Combat Types</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</Italian>
+-		<Spanish>
+-			<Text>Unit Combat Types</Text>
+-			<Gender>Male</Gender>
+-			<Plural>0</Plural>
+-		</Spanish>
+-	</TEXT>
+-
+-	<!-- custom: "Unique Units" were not unique (could be built
+-	many times, just it was only by one civ in civ4, so i had
+-	renamed	it to "Civ-specific Units" initially.
+-	After futher consideration, there are no multi Civ-specific
+-	units (units that can be built only	be a few civs in common)
+-	in AdvCiv-SAS if i am not mistaken,	and the name civ-specific
+-	is quite tedious/complicated to remember/use, so renaming it
+-	rather to "Civilization Units", which may be shortened to
+-	"Civ Units" by players if they so desire or prefer maybe,
+-	hopefully clearer.
+-	-->
+-	<TEXT>
+-		<Tag>TXT_KEY_FREE_UNITS</Tag>
+-		<English>Civilization Units</English>
+-		<French>Civilization Units</French>
+-		<German>Civilization Units</German>
+-		<Italian>Civilization Units</Italian>
+-		<Spanish>Civilization Units</Spanish>
+-	</TEXT>
+-		<TEXT>
+-		<Tag>TXT_KEY_FREE_UNITS_NO</Tag>
+-		<English>No Civilization Unit</English>
+-		<French>No Civilization Unit</French>
+-		<German>No Civilization Unit</German>
+-		<Italian>No Civilization Unit</Italian>
+-		<Spanish>No Civilization Unit</Spanish>
+-	</TEXT>
+-	<!-- custom: "Civilization Unit for Russian Empire"
+-	-> "Civilization Unit For the Russian Empire";
+-	Adding a "the" too, hopefully clearer this way,	also i was
+-	not sure if "of" is more correct than "for" but seems more
+-	intuitive to me but may be grammatically incorrect or less
+-	accurate, leaving as is but adding a mention of it here.
+-	-->
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIQUE_UNIT</Tag>
+-		<English>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</English>
+-		<French>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</French>
+-		<German>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</German>
+-		<Italian>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Italian>
+-		<Spanish>Civilization Unit for the [LINK=literal]%s1_civ[\LINK]</Spanish>
+-	</TEXT>
+-	<!--custom:	Not changing it in TXT_KEY_BTS_RULES_CHANGES_PEDIA_SR
+-	as it is an outdated doc. -->
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml
+index 16f08121d..043684dde 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml
+@@ -16,6 +16,21 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 	 are also from K-Mod. -->
+ 
+ <Civ4GameText>
++	<!-- advc.005e: replaced the German text with text from Wikipedia b/c the
++		 German text was talking about triremes. Could've added that text to
++		 the Trireme unit, but that unit already has a very lengthy background 
++		 text. -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GALLEY_PEDIA</Tag>
++		<English>[TAB]The galley was the first ship designed for war. Introduced by the Greeks, galleys were powered by banks of oars on each side, manned by well-trained oarsmen. These oarsmen were highly paid professionals or patriotic citizens, not slaves and prisoners as depicted in fiction. A huge, bronze "beak" mounted at the bow of the ship was used to ram and sink enemy ships. Because of its long, narrow hull, the galley was very unstable in all but the calmest waters, and as a consequence its crew rarely ventured out of sight of land for long periods of time, lest the ship be caught in a storm and sunk.</English>
++		<French>[TAB]La gal&#232;re fut le premier navire con&#231;u pour la guerre. Cr&#233;&#233;e par les Grecs, elle &#233;tait propuls&#233;e par plusieurs rangs de rameurs bien entra&#238;n&#233;s, install&#233;s de chaque c&#244;t&#233; du bateau. Contrairement &#224; ce que l'on pense, ces rameurs &#233;taient des professionnels ou des volontaires, et non des esclaves ou des prisonniers. Un &#233;norme "&#233;peron" en bronze &#233;tait fix&#233; sur la proue pour &#233;peronner et couler les navires ennemis. La longue coque &#233;troite du bateau le rendait instable d&#232;s que la mer s'agitait un peu, et les &#233;quipages &#233;vitaient g&#233;n&#233;ralement de s'aventurer trop longtemps loin des c&#244;tes, de peur qu'une temp&#234;te survienne et coule le navire.</French>
++		<German>[TAB](Wikipedia) Die Pentekontere war eine frühe Form der Galeere, die recht lang, schmal und flach aufgebaut war. Der Begriff "Galeere" wird teilweise als Sammelbegriff für alle historischen geruderten Kriegsschiffe verwendet.</German>
++		<Italian>[TAB]La galea &#232; stata la prima nave appositamente progettata per la guerra. Introdotta dai Greci, quest'imbarcazione si muoveva grazie alla presenza di file di remi su ciascun lato, utilizzati da rematori ben addestrati. Questi uomini erano professionisti con un ottimo salario o cittadini patriottici, non schiavi e prigionieri come si crede. Un grosso "rostro" di bronzo, montato sulla prua della nave, veniva utilizzato per colpire e affondare le navi nemiche. A causa del suo scafo lungo e stretto, la galea era molto instabile al di fuori delle acque placide: di conseguenza, l'equipaggio non perdeva mai di vista la costa, proprio per evitare pericoli durante la navigazione.</Italian>
++		<Spanish>[TAB]La galera fue el primer barco dise&#241;ado para la guerra. Inventadas por los griegos, las galeras contaban con bancos de remos a ambos lados, manejados por marineros avezados.  Los remeros eran profesionales muy bien remunerados o patriotas, no los esclavos y prisioneros que aparecen en las pel&#237;culas. Un enorme ?espol&#243;n? de bronce instalado en la proa de la nave se utilizaba para embestir y hundir las embarcaciones enemigas. Debido a su casco alargado y de poco calado, la galera solo era estable en las aguas m&#225;s tranquilas, y como consecuencia de ello, raramente se alejaba de la costa durante largos periodos de tiempo, no fuera a sucumbir en alguna tormenta.</Spanish>
++	</TEXT>
++
++
++
+ 	<!-- Simply deleted the paragraph that talks about Praetorians. Conveniently,
+ 		 the first paragraph was already about legions; no change needed. -->
+ 	<TEXT>
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=20239

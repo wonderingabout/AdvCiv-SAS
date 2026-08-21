@@ -1,0 +1,185 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5176
+# Commit: bdfef2944c566ee03e974ff48e7f3a42ff966db3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 916d3a319f3946e3e94e7517ce3f92fb9b6c39a1
+# Title: update and enhance these ai-generated images with nano banana pro thanks a lot!!: the mounted combat, gord, and impluvium nano banana pro is so amazing!!!!!...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Russian_Gord/Gord.dds
+-	-	Assets/Art/AdvCiv_SAS/Techs/Mounted_Combat/Mounted_Combat.dds
+15	3	README.md
+21	11	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds b/Assets/Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds
+index e03405249..c3ff4d877 100644
+Binary files a/Assets/Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds and b/Assets/Art/AdvCiv_SAS/Buildings/KoB_Impluvium/Impluvium.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Russian_Gord/Gord.dds b/Assets/Art/AdvCiv_SAS/Buildings/Russian_Gord/Gord.dds
+index 44b31fc5b..ecdb595d3 100644
+Binary files a/Assets/Art/AdvCiv_SAS/Buildings/Russian_Gord/Gord.dds and b/Assets/Art/AdvCiv_SAS/Buildings/Russian_Gord/Gord.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Techs/Mounted_Combat/Mounted_Combat.dds b/Assets/Art/AdvCiv_SAS/Techs/Mounted_Combat/Mounted_Combat.dds
+index 68c4ba132..053fe442f 100644
+Binary files a/Assets/Art/AdvCiv_SAS/Techs/Mounted_Combat/Mounted_Combat.dds and b/Assets/Art/AdvCiv_SAS/Techs/Mounted_Combat/Mounted_Combat.dds differ
+
+diff --git a/README.md b/README.md
+index 0ea57260d..20da1059e 100644
+--- a/README.md
++++ b/README.md
+@@ -265,9 +265,15 @@ I edited some of these with Paint.NET to add in some of them the blue "ribbon" (
+ 
+ Note: these are low size images, see link mentionned above for the google drive link to view them in high quality (full/original resolution) anyways etc
+ 
+-<img src="https://drive.google.com/thumbnail?id=1KxNi9tdGYsoWlwGiVihdixa9F4yIJri0&sz=w1024" alt="mounted_tech_edited.png" width="150"></img>
+-<img src="https://drive.google.com/thumbnail?id=1U-syGoHzWMQevTgmKhfuwfcT529yQPCx&sz=w1024" alt="gord.png" width="150"></img>
+-<img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV&sz=w2048" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp" width="267"></img>
++Also Nano banana pro (see [/README.md#nano-banana-pro](/README.md#nano-banana-pro)) helped me amazingly and very easily fix the a tech's image and recolor the border as blue with just this simple prompt:
++
++> "please remove the extra part of a camel in this civ4 button image and make the outside "cadre" color dark blue not white"
++
++It also helped me generate a very nice building_russian_gord corresponding button and other images as well if any. The images are so good i'm losing my mind (in a good way i mean if i may say but anyways etc.) thanks a lot!!!
++
++<img src="https://drive.google.com/thumbnail?id=15rhihjY5wM0ABKwpBn_BqqRh_EU_6vLg&sz=w1024" width="150" alt="mounted_tech_edited.png"></img>
++<img src="https://drive.google.com/thumbnail?id=1IrxlGcTWPkZ0Y2VLfRVdg7h9A_uvBXKI&sz=w1024" width="150" alt="gord.png"></img>
++<img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV&sz=w2048" width="267" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp"></img>
+ 
+ ## Less Generic-neutral unit names or/and combat types and note about woman units
+ 
+@@ -623,6 +629,12 @@ I used it to help refine and co-think with chatgpt 5 on how to solve an issue, a
+ 
+ Its context is incredibly generous in free mode, and its visual understanding is amazing vs previous AIs it seems based on quick testing thanks a lot!! Anyways etc.
+ 
++#### Nano Banana Pro
++
++Helped me amazingly fix the a tech's image and recolor the border as blue thanks a lot!!!
++
++The images are so good i'm losing my mind (in a good way i mean if i may say but anyways etc.) thanks a lot!!!
++
+ ### DeepSeek AI
+ 
+ #### V3 if i'm not mistaken anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md
+index 3b05a7e7b..7600c8d29 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Generated_Images.md
+@@ -14,9 +14,9 @@ Update: very unlikely to be implemented, since i don't think i will change units
+ 
+ You can find below an example of preview for the lancer medium 2 (bronze age as of now if not always or not anyways) for example here anyways etc, the longbow 3 (iron age), and the sword light 4 (medieval era):
+ 
+-<img src="https://drive.google.com/thumbnail?id=1_CcxxS36yJmp779-oxuQD3QSWI0eBubC&sz=w1024" alt="lance_medium_2.png" width="150"></img>
+-<img src="https://drive.google.com/thumbnail?id=1xnoVb0f_rTnCr1uMXTrcf7qgKg3MAQ1J&sz=w1024" alt="longbow_3.png" width="150"></img>
+-<img src="https://drive.google.com/thumbnail?id=1zXIdyZx_yjZ-c3PUFusxYbGpquFccQoU&sz=w1024" alt="sword_light_4.png" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1_CcxxS36yJmp779-oxuQD3QSWI0eBubC&sz=w1024" width="150" alt="lance_medium_2.png"></img>
++<img src="https://drive.google.com/thumbnail?id=1xnoVb0f_rTnCr1uMXTrcf7qgKg3MAQ1J&sz=w1024" width="150" alt="longbow_3.png"></img>
++<img src="https://drive.google.com/thumbnail?id=1zXIdyZx_yjZ-c3PUFusxYbGpquFccQoU&sz=w1024" width="150" alt="sword_light_4.png"></img>
+ 
+ See also: [README_Less_Generic_Neutral_Unit_Names.md#note-about-women-units-anyways-etc-as-of-now-stale](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md#note-about-women-units-anyways-etc-as-of-now-stale)
+ 
+@@ -24,16 +24,26 @@ See also: [README_Less_Generic_Neutral_Unit_Names.md#note-about-women-units-anyw
+ 
+ Example with some buildings (the Gord (new Russian building based on the castle, see the [google drive folder of how i implemented the gord](https://drive.google.com/drive/folders/1UhABiU4hylKHGV1JK0kXEZwzkFRmF3Px?usp=sharing) anyways etc) for example, and the Impluvium as well (Kingdom of Benin's building))
+ 
+-<img src="https://drive.google.com/thumbnail?id=1ORGSZmBXkpK9Gyw_I7T3xJU8wTR6feGv&sz=w1024" alt="impluvium_west_african.png" width="150"></img>
+-<img src="https://drive.google.com/thumbnail?id=1U-syGoHzWMQevTgmKhfuwfcT529yQPCx&sz=w1024" alt="gord.png" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1ORGSZmBXkpK9Gyw_I7T3xJU8wTR6feGv&sz=w1024" width="150" alt="impluvium_west_african.png"></img>
++<img src="https://drive.google.com/thumbnail?id=1U-syGoHzWMQevTgmKhfuwfcT529yQPCx&sz=w1024" width="150" alt="gord.png"></img>
+ 
+ ### Tech buttons
+ 
+ Example with some techs (for example the theory of evolution new tech if we add it todo, mounted combat/riding/warfare (edited with Paint.NET by myself to remove extra camel, not sure i did best but hopefully good enough and was fun even though bit tedious xd but anyways etc ([see in this google drive folder image edit with Paint.NET](https://drive.google.com/drive/folders/1UNyrAqEjOJCHkNH8c05q2MFx1C6l0fNi?usp=sharing) for details, i really wanted this image so had to fix it if i may say, but anyways etc anyways etc anyways etc... this image i mean anyways etc...)))
+ 
+-<img src="https://drive.google.com/thumbnail?id=1by2tQKbfjkQUAP-kh2Tuh1oKq6t4uYnJ&sz=w1024" alt="theory_of_evolution.png" width="150"></img>
+-<img src="https://drive.google.com/thumbnail?id=1nHZBm85mTTs_i_o84pWlNArtkfTwTz_S&sz=w1024" alt="mounted_tech.png" width="150"></img>
+-<img src="https://drive.google.com/thumbnail?id=1KxNi9tdGYsoWlwGiVihdixa9F4yIJri0&sz=w1024" alt="mounted_tech_edited.png" width="150"></img>
++Update: now used/added anyways etc. Nano banana pro (see [/README.md#nano-banana-pro](/README.md#nano-banana-pro)) to do it which it did amazingly and very easily which fixes the a tech's image and recolored the border as blue with just this simple prompt:
++
++> "please remove the extra part of a camel in this civ4 button image and make the outside "cadre" color dark blue not white"
++
++Then i could convert it to .dds with Paint.NET (as of now and for this one for example by doing magic wand to remove white background then crop to closest edges then resize to 64px then convert to dds anyways etc.)!!
++
++It also helped me generate a very nice building_russian_gord corresponding button and possibly other images as well if any thanks a lot!!! thanks a lot!!!
++
++<img src="https://drive.google.com/thumbnail?id=1by2tQKbfjkQUAP-kh2Tuh1oKq6t4uYnJ&sz=w1024" width="150" alt="theory_of_evolution.png"></img>
++<img src="https://drive.google.com/thumbnail?id=1nHZBm85mTTs_i_o84pWlNArtkfTwTz_S&sz=w1024" width="150" alt="mounted_tech.png"></img>
++<img src="https://drive.google.com/thumbnail?id=15rhihjY5wM0ABKwpBn_BqqRh_EU_6vLg&sz=w1024" width="150" alt="mounted_tech_edited.png"></img>
++<img src="https://drive.google.com/thumbnail?id=1IrxlGcTWPkZ0Y2VLfRVdg7h9A_uvBXKI&sz=w1024" width="150" alt="gord.png"></img>
++<img src="https://drive.google.com/thumbnail?id=1dA0zEE0MqlPUZ8LTmZKBsBhwxLrN-Z9g&sz=w1024" width="150" alt="impluvium.png"></img>
+ 
+ People or/and modders are free to reuse them as long as you mention me and chatgpt (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
+ 
+@@ -45,7 +55,7 @@ First to generate our main menu image/theme, i used as advised by chatgpt Creato
+ 
+ "Landscape 1920 x 1080 image for a civ4 based mod's wallpaper, showing some natural landscape with a hint of deer or/and camel, in a calm setting, and in line with civ4 artstyle"
+ 
+-<img src="https://drive.google.com/thumbnail?id=1xDlcEiaGf71MaEnl4PUUcISa6wdX82xN" alt="advciv-sas main menu 1024 x 1024 (Creator Nightcafe Studio).webp" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1xDlcEiaGf71MaEnl4PUUcISa6wdX82xN" width="150" alt="advciv-sas main menu 1024 x 1024 (Creator Nightcafe Studio).webp"></img>
+ 
+ Tip: make sure you download your ai-generated images at each step in case the tool modifies it as part of one of your actions/requests (such as expanding) or/and prompts and then the original image is lost, while the new one is not satisfying. Thankfully i had done so to show it to chatgpt (or maybe also just because i liked it? But in all cases or not or yes or etc anyways etc...), else would have lost the image :/ Phew if i may say but i thankfully escaped this if i may say but anyways etc...
+ 
+@@ -53,13 +63,13 @@ Tip: make sure you download your ai-generated images at each step in case the to
+ 
+ Then the problem was that it was 1024 x 1024 though, although otherwise amazing, so since i didn't want any other image but anyways etc, and trying a few just weren't as good nor near nowhere as good, i wanted to enhance and expand this image to 1920 x 1080 with new details (not stretched), so i found this feature in Creator Nightcafe Studio too i mean if i may say but anyways etc, but the result was not as satisfying although not too bad, it was overall much worse quality.
+ 
+-<img src="https://drive.google.com/thumbnail?id=1PMaPYxcX7ai6xCc8e-hG-sydadjHpjvS" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=1PMaPYxcX7ai6xCc8e-hG-sydadjHpjvS" width="150" alt="advciv-sas main menu expanded to 1920 x 1080 (Creator Nightcafe Studio).webp"></img>
+ 
+ I had resigned myself to maybe using it as again it was really not too bad, but i still asked chatgpt xd if i may say if there are tools to expand our images, and to do a web search on it too if i may say but anyways etc, and among the results, it advised me the very nice tool Pixelcut AI, as again if i may say but anyways etc i really wanted to use our if i may say/this image as i like/love it even maybe a loooooot, but i needed it at 16:9 so 1920 x 1080, and not stretched, and i found this one to be incredibly niiiiice!!! And it succeeded at first try as well!!!! (At least in a way i can be and am (very!!!) satified of if i may say but anyways etc...)
+ 
+ The output is amazing and it is now our main menu image :)
+ 
+-<img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp" width="150"></img>
++<img src="https://drive.google.com/thumbnail?id=18F-HKoEUBJZ7GmmKYFhVATd6UYRlWAmV" width="150" alt="advciv-sas main menu expanded to 1920 x 1080 (Pixelcut AI).webp"></img>
+ 
+ Then i converted it to .dds with Paint.NET similarly than for other image files in our mod anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 4194b7050..f3d98ee04 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 3cde65664..ded403513 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index d7fe2096c..2b93ea818 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 02219eb87..e52b0589e 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (1).JPG
+index 2ef142946..b1ad318b5 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (2).JPG
+index a31efff43..3bbf85449 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (3).JPG
+index f8cb25bf9..919bfb18f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilizations_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=14777

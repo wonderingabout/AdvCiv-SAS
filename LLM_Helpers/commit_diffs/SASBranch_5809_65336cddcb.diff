@@ -1,0 +1,470 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5809
+# Commit: 65336cddcb00b9b4e417efb3623091136e4cb27b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b6192c987b67b6221f148f55ac1e51fd0358282c
+# Title: add scroll fast up/down and fastest up/down scoreboard buttons (tunable thresholds)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	AGENTS.md
+1	1	Assets/Python/BUG/AttitudeUtil.py
+1	1	Assets/Python/BUG/BugEventManager.py
+1	1	Assets/Python/BUG/BugUtil.py
+1	1	Assets/Python/BUG/DealUtil.py
+1	1	Assets/Python/BUG/FontUtil.py
+1	1	Assets/Python/BUG/InputUtil.py
+1	1	Assets/Python/BUG/RawYields.py
+1	1	Assets/Python/BUG/TechPrefs.py
+1	1	Assets/Python/BUG/TradeUtil.py
+1	1	Assets/Python/BUG/UnitGrouper.py
+1	1	Assets/Python/BUG/UnitUtil.py
+1	1	Assets/Python/Contrib/AIAutoPlay.py
+71	4	Assets/Python/Screens/CvMainInterface.py
+1	1	Assets/Python/Screens/RectLayout.py
+13	0	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	PrivateMaps/PerfectMongoose.py
+5	5	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 050daf9c2..0315f8eda 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -202,6 +202,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Move XML texts we modify from other files to our AdvCiv-SAS files too and remove other languages while doing so.
+ - Avoid to comment in deep-nested XML just in case. For example, comment before `<ObsoleteSafeCommerceChanges>`, not before its child `<iCommerce>`.
+ - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
++- Never put a double-hyphen `--` (or `---`, etc.) inside an XML comment `<!-- ... -->`: it is illegal per the XML spec and breaks parsing of the whole file (empirically broke `GlobalDefines_advciv_sas.xml` when a comment described scoreboard/commerce buttons as `"++"/"--"`). This applies to actual `.xml` files only, not Python `#`/C++ `//` comments. When describing `--`/`---` button glyphs in an XML comment, space them (`- -`, `- - -`) or use words (`minus minus`, `fast step`, `fast/fastest tier`, etc.) instead.
+ - Prefer UTF-8 as it's simple and seemingly works well enough; avoid UTF-8 with BOM as it can cause actual mojibake artifacts like `â€”it` or `â€™` the user sees on VS Code or other issues.
+ - Exception: preserve each XML file's existing encoding if it's not UTF-8; do not convert encodings unless explicitly requested for no tedium and as we have no reason to (e.g., keep legacy Windows-1252 files such as BUG XML files as-is), plus this would have a high chance of causing formatting errors otherwise.
+ - Note and additional observation: the codex formatter seems unreliable and inconsistent with what users see (e.g., showing the LLM model a BOM text when user sees a non BOM one, causing mismatches and weird git diff: refer to git diff or what base AdvCiv mod uses as format if in doubt).
+
+diff --git a/Assets/Python/BUG/AttitudeUtil.py b/Assets/Python/BUG/AttitudeUtil.py
+index 6d66bb897..c07638bfb 100644
+--- a/Assets/Python/BUG/AttitudeUtil.py
++++ b/Assets/Python/BUG/AttitudeUtil.py
+@@ -14,7 +14,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ import BugUtil
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index 699dde280..93565eca8 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -103,7 +103,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ import CvEventManager
+
+diff --git a/Assets/Python/BUG/BugUtil.py b/Assets/Python/BUG/BugUtil.py
+index 53960efb1..d5589947c 100644
+--- a/Assets/Python/BUG/BugUtil.py
++++ b/Assets/Python/BUG/BugUtil.py
+@@ -138,7 +138,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ import ColorUtil
+
+diff --git a/Assets/Python/BUG/DealUtil.py b/Assets/Python/BUG/DealUtil.py
+index 55d5f2992..cf4c2e678 100644
+--- a/Assets/Python/BUG/DealUtil.py
++++ b/Assets/Python/BUG/DealUtil.py
+@@ -32,7 +32,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ import BugDll
+
+diff --git a/Assets/Python/BUG/FontUtil.py b/Assets/Python/BUG/FontUtil.py
+index 323cf6416..1ef93ef29 100644
+--- a/Assets/Python/BUG/FontUtil.py
++++ b/Assets/Python/BUG/FontUtil.py
+@@ -36,7 +36,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ import BugConfig
+
+diff --git a/Assets/Python/BUG/InputUtil.py b/Assets/Python/BUG/InputUtil.py
+index 2f47c864f..cf5ca696a 100644
+--- a/Assets/Python/BUG/InputUtil.py
++++ b/Assets/Python/BUG/InputUtil.py
+@@ -11,7 +11,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ import BugConfig
+
+diff --git a/Assets/Python/BUG/RawYields.py b/Assets/Python/BUG/RawYields.py
+index 982ce6b09..66fbaad98 100644
+--- a/Assets/Python/BUG/RawYields.py
++++ b/Assets/Python/BUG/RawYields.py
+@@ -12,7 +12,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+
+diff --git a/Assets/Python/BUG/TechPrefs.py b/Assets/Python/BUG/TechPrefs.py
+index 33d44d203..33d9b5281 100644
+--- a/Assets/Python/BUG/TechPrefs.py
++++ b/Assets/Python/BUG/TechPrefs.py
+@@ -11,7 +11,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+
+diff --git a/Assets/Python/BUG/TradeUtil.py b/Assets/Python/BUG/TradeUtil.py
+index eca644227..83b9c5fe0 100644
+--- a/Assets/Python/BUG/TradeUtil.py
++++ b/Assets/Python/BUG/TradeUtil.py
+@@ -103,7 +103,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ import BugUtil
+
+diff --git a/Assets/Python/BUG/UnitGrouper.py b/Assets/Python/BUG/UnitGrouper.py
+index 2016f4f8b..1a7101c3f 100644
+--- a/Assets/Python/BUG/UnitGrouper.py
++++ b/Assets/Python/BUG/UnitGrouper.py
+@@ -11,7 +11,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ import BugUtil
+
+diff --git a/Assets/Python/BUG/UnitUtil.py b/Assets/Python/BUG/UnitUtil.py
+index 102679621..38641196e 100644
+--- a/Assets/Python/BUG/UnitUtil.py
++++ b/Assets/Python/BUG/UnitUtil.py
+@@ -11,7 +11,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ import BugUtil
+
+diff --git a/Assets/Python/Contrib/AIAutoPlay.py b/Assets/Python/Contrib/AIAutoPlay.py
+index 4d5cebb86..4fa9734a9 100644
+--- a/Assets/Python/Contrib/AIAutoPlay.py
++++ b/Assets/Python/Contrib/AIAutoPlay.py
+@@ -8,7 +8,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ import CvScreenEnums
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 26b853dfa..b8ba7d18f 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -58,12 +58,21 @@ import WidgetUtil
+ # <!-- custom: custom widget types for scoreboard scroll/expand buttons; registered once at module load so hover text works. (Claude code Sonnet 4.6) -->
+ WIDGET_SCORE_SCROLL_UP     = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP")
+ WIDGET_SCORE_SCROLL_DOWN   = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN")
++# <!-- custom: fast-scroll tiers; step sizes come from SAS defines (FAST / FASTEST). Names must stay digit-free: the engine strips trailing numeric suffixes from control names, so "...Fastest" collapsed onto "...Fast" and both tiers ran the same step (see AGENTS.md XML/UID notes). Hover text stays generic so it stays correct if the defines change. (Claude code Opus 4.7) -->
++WIDGET_SCORE_SCROLL_UP_FAST    = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FAST")
++WIDGET_SCORE_SCROLL_UP_FASTEST   = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FASTEST")
++WIDGET_SCORE_SCROLL_DOWN_FAST  = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN_FAST")
++WIDGET_SCORE_SCROLL_DOWN_FASTEST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN_FASTEST")
+ WIDGET_SCORE_EXPAND_TOGGLE = WidgetUtil.createWidget("WIDGET_SCORE_EXPAND_TOGGLE")
+ WIDGET_ANNOTATIONS_TOGGLE  = WidgetUtil.createWidget("WIDGET_ANNOTATIONS_TOGGLE")
+ def _scoreHelp(szText):
+ 	return lambda *_: sasFontTagHover + szText + SAS_FONT_TAG_CLOSE
+ WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP,     _scoreHelp(u"Scroll scoreboard up"))
+ WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN,   _scoreHelp(u"Scroll scoreboard down"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FAST,    _scoreHelp(u"Scroll scoreboard up (fast)"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FASTEST,   _scoreHelp(u"Scroll scoreboard up (fastest)"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN_FAST,  _scoreHelp(u"Scroll scoreboard down (fast)"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN_FASTEST, _scoreHelp(u"Scroll scoreboard down (fastest)"))
+ WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_EXPAND_TOGGLE, _scoreHelp(u"Toggle lock scoreboard hover"))
+ WidgetUtil.setWidgetHelpFunction(WIDGET_ANNOTATIONS_TOGGLE,  _scoreHelp(u"Toggle show map annotations"))
+ # <advc.090>
+@@ -571,6 +580,9 @@ class CvMainInterface:
+ 		self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT = None
+ 		# <!-- custom: cached vanilla engine defines used across city-screen update methods. (Claude code Sonnet 4.6) -->
+ 		self.iCOMMERCE_PERCENT_CHANGE_INCREMENTS = None
++		# <!-- custom: cached SAS scoreboard fast-scroll tier defines; lazily fetched on first use like iCOMMERCE_PERCENT_CHANGE_INCREMENTS. (Claude code Opus 4.7) -->
++		self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST = None
++		self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST = None
+ 		self.iDEFAULT_SPECIALIST = None
+ 		self.iMAX_TRADE_ROUTES = None
+ 		self.IS_USE_KMOD_TRADE_CULTURE = None
+@@ -812,6 +824,11 @@ class CvMainInterface:
+ 		iSScrollBtnSz = BTNSZ(20)
+ 		gSetRect("ScoreScrollUp", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+ 		gSetRect("ScoreScrollDown", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
++		# <!-- custom: fast-scroll tier button rects; positioned at runtime alongside the base buttons. (Claude code Opus 4.7) -->
++		gSetRect("ScoreScrollUpFast", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
++		gSetRect("ScoreScrollUpFastest", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
++		gSetRect("ScoreScrollDownFast", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
++		gSetRect("ScoreScrollDownFastest", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+ 		gSetRect("ScoreExpandToggle", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+ 		if self.bScaleHUD:
+ 			# To make room for the Turn Log, whose (default) position I can't change.
+@@ -1858,6 +1875,15 @@ class CvMainInterface:
+ 		screen.hide("ScoreScrollUp")
+ 		self.setStyledButton("ScoreScrollDown", ButtonStyles.BUTTON_STYLE_CITY_MINUS, WIDGET_SCORE_SCROLL_DOWN, -1, -1)
+ 		screen.hide("ScoreScrollDown")
++		# <!-- custom: fast-scroll tiers reuse the plain +/- glyph (no double-plus art exists); the tier is conveyed by position and hover text. (Claude code Opus 4.7) -->
++		self.setStyledButton("ScoreScrollUpFast", ButtonStyles.BUTTON_STYLE_CITY_PLUS, WIDGET_SCORE_SCROLL_UP_FAST, -1, -1)
++		screen.hide("ScoreScrollUpFast")
++		self.setStyledButton("ScoreScrollUpFastest", ButtonStyles.BUTTON_STYLE_CITY_PLUS, WIDGET_SCORE_SCROLL_UP_FASTEST, -1, -1)
++		screen.hide("ScoreScrollUpFastest")
++		self.setStyledButton("ScoreScrollDownFast", ButtonStyles.BUTTON_STYLE_CITY_MINUS, WIDGET_SCORE_SCROLL_DOWN_FAST, -1, -1)
++		screen.hide("ScoreScrollDownFast")
++		self.setStyledButton("ScoreScrollDownFastest", ButtonStyles.BUTTON_STYLE_CITY_MINUS, WIDGET_SCORE_SCROLL_DOWN_FASTEST, -1, -1)
++		screen.hide("ScoreScrollDownFastest")
+ 		# <!-- custom: always-expand toggle; resolve SAS emoji path explicitly (addCheckBox only auto-resolves INTERFACE_/BUTTON_/RAW_YIELDS_/PLE_ prefixes). (Claude code Sonnet 4.6) -->
+ 		self.addCheckBox("ScoreExpandToggle", self.szScoreExpandTogglePath, self.szScoreExpandTogglePath, ButtonStyles.BUTTON_STYLE_IMAGE, WIDGET_SCORE_EXPAND_TOGGLE)
+ 		screen.setState("ScoreExpandToggle", False)
+@@ -6025,6 +6051,11 @@ class CvMainInterface:
+ 		screen.hide("ScoreBackground")
+ 		screen.hide("ScoreScrollUp")
+ 		screen.hide("ScoreScrollDown")
++		# <!-- custom: hide fast-scroll tiers too; shown again below only when the list overflows. (Claude code Opus 4.7) -->
++		screen.hide("ScoreScrollUpFast")
++		screen.hide("ScoreScrollUpFastest")
++		screen.hide("ScoreScrollDownFast")
++		screen.hide("ScoreScrollDownFastest")
+ 		screen.hide("ScoreExpandToggle")
+ 		eUIVis = CyInterface().getShowInterface()
+ 		if (eUIVis == InterfaceVisibility.INTERFACE_HIDE_ALL or eUIVis == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or not CyInterface().isScoresVisible() or CyInterface().isCityScreenUp()):
+@@ -6054,10 +6085,16 @@ class CvMainInterface:
+ 		iAvailH = iScoreBottom - iScoreTopMin
+ 		iMaxRows = max(1, iAvailH // iBtnHeight)
+ 		# <!-- custom: position scroll buttons at runtime below the panel. GlobeToggle.y() is 0 at init so buttons must be placed here instead. (Claude code Sonnet 4.6) -->
+-		screen.moveItem("ScoreScrollUp", gPoint("ScoreTextLowerRight").x() - 2 * iSScrollBtnSz - HSPACE(1), iSScrollY, -0.3)
+-		screen.moveItem("ScoreScrollDown", gPoint("ScoreTextLowerRight").x() - iSScrollBtnSz, iSScrollY, -0.3)
+-		# <!-- custom: always-expand toggle sits to the left of the scroll buttons with a small gap. (Claude code Sonnet 4.6) -->
+-		screen.moveItem("ScoreExpandToggle", gPoint("ScoreTextLowerRight").x() - 3 * iSScrollBtnSz - HSPACE(6), iSScrollY, -0.3)
++		# <!-- custom: row layout right->left is [Lock] [-50][-10][-1] [+1][+10][+50]. Lock/unlock is now the rightmost, fixed slot so it stays anchored to the panel edge even when the scroll tiers are hidden (player count <= capacity); previously it floated mid-row. Speed increases outward from the central +/-1 pair. (Claude code Opus 4.7) -->
++		iSRight = gPoint("ScoreTextLowerRight").x()
++		iSGap = HSPACE(6)  # gap separating the Lock toggle from the scroll cluster
++		screen.moveItem("ScoreExpandToggle",     iSRight - 1 * iSScrollBtnSz, iSScrollY, -0.3)
++		screen.moveItem("ScoreScrollDownFastest",  iSRight - 2 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
++		screen.moveItem("ScoreScrollDownFast",   iSRight - 3 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
++		screen.moveItem("ScoreScrollDown",       iSRight - 4 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
++		screen.moveItem("ScoreScrollUp",         iSRight - 5 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
++		screen.moveItem("ScoreScrollUpFast",     iSRight - 6 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
++		screen.moveItem("ScoreScrollUpFastest",    iSRight - 7 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+ 		screen.setState("ScoreExpandToggle", self.bScoreAlwaysExpand)
+ 		# <!-- custom: swap emoji per state. (Claude code Opus 4.7) -->
+ 		if self.bScoreAlwaysExpand:
+@@ -6137,10 +6174,15 @@ class CvMainInterface:
+ # BUG - Align Icons - end
+ 		# <!-- custom: show scroll buttons when there are more players than visible rows; + (ScoreScrollUp) shows when more lower-ranked players exist below, - (ScoreScrollDown) shows when scrolled down and can go back up. (Claude code Sonnet 4.6) -->
+ 		if iTotalCount > iMaxRows:
++			# <!-- custom: fast tiers share the base buttons' visibility (any room to scroll that way shows the whole tier set); the offset clamp in the click handler / above absorbs any overshoot. (Claude code Opus 4.7) -->
+ 			if self.iScoreScrollOffset < iTotalCount - iMaxRows:
+ 				screen.show("ScoreScrollUp")
++				screen.show("ScoreScrollUpFast")
++				screen.show("ScoreScrollUpFastest")
+ 			if self.iScoreScrollOffset > 0:
+ 				screen.show("ScoreScrollDown")
++				screen.show("ScoreScrollDownFast")
++				screen.show("ScoreScrollDownFastest")
+ 
+ 	# <advc> Body cut from updateScoreStrings in order to reduce indentation
+ 	def playerScoreString(self, ePlayer, scores, bAlignIcons):
+@@ -6916,6 +6958,31 @@ class CvMainInterface:
+ 					self.iScoreScrollOffset = max(0, self.iScoreScrollOffset - 1)
+ 					self.updateScoreStrings()
+ 					return 1
++				# <!-- custom: fast-scroll tiers; step sizes from SAS defines, lazily cached like iCOMMERCE_PERCENT_CHANGE_INCREMENTS. updateScoreStrings clamps the offset to [0, total - rows] so overshoot pins to the end. (Claude code Opus 4.7) -->
++				elif fn == "ScoreScrollUpFast" or fn == "ScoreScrollUpFastest":
++					if self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST is None:
++						self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST = gc.getDefineINT("SAS_SCOREBOARD_SCROLL_INCREMENT_FAST")
++					if self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST is None:
++						self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST = gc.getDefineINT("SAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST")
++					if fn == "ScoreScrollUpFastest":
++						iStep = self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST
++					else:
++						iStep = self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST
++					self.iScoreScrollOffset += iStep
++					self.updateScoreStrings()
++					return 1
++				elif fn == "ScoreScrollDownFast" or fn == "ScoreScrollDownFastest":
++					if self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST is None:
++						self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST = gc.getDefineINT("SAS_SCOREBOARD_SCROLL_INCREMENT_FAST")
++					if self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST is None:
++						self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST = gc.getDefineINT("SAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST")
++					if fn == "ScoreScrollDownFastest":
++						iStep = self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST
++					else:
++						iStep = self.iSAS_SCOREBOARD_SCROLL_INCREMENT_FAST
++					self.iScoreScrollOffset = max(0, self.iScoreScrollOffset - iStep)
++					self.updateScoreStrings()
++					return 1
+ 				# <!-- custom: always-expand toggle; flips bScoreAlwaysExpand so expanded columns are shown permanently. (Claude code Sonnet 4.6) -->
+ 				elif fn == "ScoreExpandToggle":
+ 					self.bScoreAlwaysExpand = not self.bScoreAlwaysExpand
+
+diff --git a/Assets/Python/Screens/RectLayout.py b/Assets/Python/Screens/RectLayout.py
+index 855d19428..0290e9f0f 100644
+--- a/Assets/Python/Screens/RectLayout.py
++++ b/Assets/Python/Screens/RectLayout.py
+@@ -5,7 +5,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: changes here are minor (e.g. collapsed multiline statements to single-line for grep/readability such as ctors/__str__/_calc* calls/__init__ param-doc signatures, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: changes here are minor (e.g. collapsed multiline statements to single-line for grep/readability such as ctors/__str__/_calc* calls/__init__ param-doc signatures, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ # (Not naming this "Point2D" to avoid potential clashes with other modules)
+ class PointLayout:
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index c04bae9d4..3da65e9b7 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -171,6 +171,19 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: scoreboard fast-scroll step. This tier moves this many rows per click. (Claude code Opus 4.7) -->
++	<Define>
++		<DefineName>SAS_SCOREBOARD_SCROLL_INCREMENT_FAST</DefineName>
++		<iDefineIntVal>5</iDefineIntVal>
++	</Define>
++	<!-- custom: scoreboard fastest-scroll step. Rows per click for the outermost scroll buttons; offset is clamped so a value at or above the player cap behaves as jump-to-end. 50 covers the 48-player cap in one click. (Claude code Opus 4.7) -->
++	<Define>
++		<DefineName>SAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: Tech Chooser (i.e. Technology Advisor) low-res scoreboard swap threshold (in pixels).
+ 	<= 0: hard disable; > 0: if current screen width is below this threshold, Tech Chooser uses the alternate low-res scoreboard margin below to gain tree width (more columns). A very high value like 9999 effectively always applies on current displays.
+ 	Example: a value of 2560 means the right space alternate value applies for widths below 2560*1440 (i.e. 1440p) (e.g., for 1920*1080 (i.e. 1080p)).
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 24ca5ccd9..26ed7aab8 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -44,7 +44,7 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks), no behavior change. (Claude code Opus 4.7) -->
++# <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+ from SAS_WorldSizes import *
+
+diff --git a/README.md b/README.md
+index 8c3914ad7..88411084d 100644
+--- a/README.md
++++ b/README.md
+@@ -10,7 +10,7 @@ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12
+ 
+ Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Summary Tab, new Composition Tab, new Battles Tab (Military Advisor); new Score tab and Timeline tabs (Info Screen)); and they now dynamically adjust to game resolution.They were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
+ 
+-A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
++A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up and scroll down buttons, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
+ 
+ New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units, `EraArtDefineTags` and `EraArtDefineTag` for leaderhead era art); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
+ 
+@@ -344,7 +344,7 @@ Besides these and other changes in the main changes guide or code only, a notabl
+ 
+ ##### Scoreboard
+ 
+-New scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button features have been added.
++The new scroll up, scroll fast up, and scroll fastest buttons (same for scroll down), the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button features have been added.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG" alt="0.410_scoreboard (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG" alt="0.410_scoreboard (2).JPG" width="250"></img>
+@@ -709,11 +709,11 @@ The changes before/after with rationale tables are synthethized in .md tables in
+ 
+ ### How to use
+ 
+-48 Civs DLL is provided and is now the default in AdvCiv-SAS, because we ship world sizes (e.g., SAS24/SAS32/SAS40/SAS48) that support such higher player counts, but using the old 18 civs DLL would result in map never being populated. It is easier to have a uniform DLL as well
++48 Civs DLL is provided and is now the default DLL in AdvCiv-SAS, because we it allows to support the new larger SAS world sizes (e.g., SAS24/SAS32/SAS40/SAS48) that use such higher player counts, and using the old 18 civs DLL would result in map never being populated due to player count being capped at 18. It is also easier to maintain than pivotting between 18 and 48 civs DLLs during testing or playing.
+ 
+-For compatibility or performance or such, a 18 civs DLL is also available and provided in this mod. (As of now named "CvGameCoreDLL_18_civs_dll.dll").
++For compatibility or performance or such, a 18 civs DLL is also available and provided in this mod. ([CvGameCoreDLL_18_civs_DLL.dll](/Assets/CvGameCoreDLL_18_civs_DLL.dll)).
+ 
+-To use it, rename current base 48 `MAX_CIV_PLAYERS` DLL file named "CvGameCoreDLL.dll" to any name you like as long as it's another name, for example to "CvGameCoreDLL_48_civs_dll.dll", and rename the "CvGameCoreDLL_18_civs_dll.dll" to ""CvGameCoreDLL.dll" (vice versa to revert to old 48 players DLL).
++To use it, rename current base 48 `MAX_CIV_PLAYERS` DLL file named `CvGameCoreDLL.dll` to any name as long as it's another name, for example to `CvGameCoreDLL_48_civs_dll.dll`, and rename the `CvGameCoreDLL_18_civs_dll.dll` to `CvGameCoreDLL.dll` (vice versa to revert to old 48 players DLL).
+ 
+ Note: it seems that savegames are not compatible when switching from 48 civ DLL to 18 civ DLL (or vice versa i assume) though based on the [related code comments in CvEnums.h](https://github.com/wonderingabout/AdvCiv-SAS/blob/2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 4f966e16c..c1ee34786 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -375,7 +375,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**. Show **Era text default ON** (as of now on top left); **strip " Era" suffix** so text is now only e.g., `Renaissance` not `Renaissance Era` (would overflow during golden age when text is upscaled, plus it is unneeded). See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** ((Requires AdvCiv-SAS 5690+) with optional separate blue ribbon, bar Y position and bar height position fine-tuning tunables (e.g., helps remove needless scroll bar when there are not more than max rows, or keep display symetric or prettier)) and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). (Requires AdvCiv-SAS 5526+) Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5689+) Adjust **city camera** to the north (tunable) so extra rows can be shown without overflowing into bottom BFC plots in `CvGame::onCityScreenChange`. And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5726+) Added **help text box** (`DefaultHelpArea`) (on the left side) optional **width adjustment** (negative value shrinks it). Make **x and y positions** (resolution-scaled), and **width** (hard pixel; not resolution-scaled) of the **unit bar** (`PlotListPanel`) **adjustable**, and **fix horizontal overflow of unit bar into scoreboard** when unit bar is full and scoreboard is hovered on (or toggle lock scoreboard hover is ON) (see [KI#124](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)). (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**. (Requires AdvCiv-SAS 5723+) Added a **Toggle show annotations** (Alt + S **captions**, Alt + X **BFC marks**) button (next to the other buttons **above the Minimap**); the toggled state **persists on save and load**; reorganized buttons as part of this change (this takes the Event Log's former HUD icon former (it gets another one instead)). See [README.md (Map annotations)](/README.md#map-annotations).
+-- (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+ (up) and - (down) scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Lock scoreboard hover toggle button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover). Note: in first turns of the game this effectively has no effect since power ratios are not yet visible. Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard).
++- (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+** (up, fast up, and fastest up) and **-** (down, fast down, and fastest down (e.g., 1 by 1, 5 by 5, or 50 by 50 (effectively max))) **scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Lock scoreboard hover toggle button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover). Note: in first turns of the game the lock button effectively has no effect since power ratios are not yet visible. Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard).
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=19 omittedFiles=0 embeddedPatchBytes=41284

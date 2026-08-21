@@ -10,10 +10,7 @@
 	serve any reasonable purpose. Even if they do, wrapping those checks
 	into a factory function would be much better. */
 
-CvPopupInfo::CvPopupInfo(
-	ButtonPopupTypes eButtonPopupType,
-	int iData1, int iData2, int iData3, int iFlags,
-	bool bOption1, bool bOption2)
+CvPopupInfo::CvPopupInfo(ButtonPopupTypes eButtonPopupType, int iData1, int iData2, int iData3, int iFlags, bool bOption1, bool bOption2)
 :	m_iData1(iData1),
 	m_iData2(iData2),
 	m_iData3(iData3),

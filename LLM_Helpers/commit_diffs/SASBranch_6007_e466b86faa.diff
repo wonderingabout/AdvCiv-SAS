@@ -1,0 +1,617 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6007
+# Commit: e466b86faa145a17749e77ef1021d0da6afbfb6c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d66eb5de02594040e036ca600a86b21503b714a6
+# Title: Add evacuation BBAI diagnostics and fix Base AdvCiv important-city evacuation percentile bug (KI#172) (SAS_BBAI_EVACUATION_LOG_LEVEL) - clarify and rename do...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	.github/workflows/README.md
+29	17	.github/workflows/build/bbai_log.py
+1	1	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+11	6	Assets/XML/GlobalDefines_advciv_sas.xml
+8	1	CvGameCoreDLL/BBAILog.cpp
+2	0	CvGameCoreDLL/BBAILog.h
+43	0	CvGameCoreDLL/CvCityAI.cpp
+3	3	CvGameCoreDLL/CvPlayerAI.cpp
+69	14	CvGameCoreDLL/CvUnitAI.cpp
+1	1	README.md
+12	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+6	4	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index f64e3b0c4..cc32228a7 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -200,7 +200,7 @@ Verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed
+ 
+ ### `build/bbai_log.py`
+ 
+-Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`.
++Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. Every integer `SAS_BBAI_*` define is discovered automatically and required to be `0`, so dedicated categories such as Citizen, Culture, Evacuation, Worker, and Worker-sea logging cannot be omitted from the check when categories are added. The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL=100` and `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1`; these configure how enabled logging behaves but do not enable logging themselves.
+ 
+ ### `build/fonts.py`
+
+diff --git a/.github/workflows/build/bbai_log.py b/.github/workflows/build/bbai_log.py
+index 7ac043c04..905ae167c 100644
+--- a/.github/workflows/build/bbai_log.py
++++ b/.github/workflows/build/bbai_log.py
+@@ -6,28 +6,40 @@
+ # Build check: BBAI logging must be disabled by default.
+ 
+ from pathlib import Path
++import argparse
+ import sys
+ 
+ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
+ 
+-from xml_defines import main_from_expected_values
+-
+-
+-EXPECTED_DISABLED_BBAI_DEFINES = {
+-	"SAS_BBAI_LOG_ENABLE": 0,
+-	"SAS_BBAI_PLAYER_LOG_LEVEL": 0,
+-	"SAS_BBAI_TEAM_LOG_LEVEL": 0,
+-	"SAS_BBAI_CITY_LOG_LEVEL": 0,
+-	"SAS_BBAI_UNIT_LOG_LEVEL": 0,
+-	# <!-- custom: New Land-worker BBAI log level for Worker AI build, movement, and improvement-replacement diagnostics. This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
+-	"SAS_BBAI_WORKER_LOG_LEVEL": 0,
+-	# <!-- custom: New Worker-sea/Work Boat BBAI log level for UNITAI_WORKER_SEA production, target, audit, movement, and sea-improvement diagnostics. This separates noisy Work Boat diagnostics from both CITY and UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
+-	"SAS_BBAI_WORKER_SEA_LOG_LEVEL": 0,
+-	"SAS_BBAI_MAP_LOG_LEVEL": 0,
+-	"SAS_BBAI_FOUND_LOG_LEVEL": 0,
+-	"SAS_BBAI_DEAL_CANCEL_LOG_LEVEL": 0,
++from xml_defines import get_default_repo_root, read_global_define_ints, require_int_values
++
++
++EXPECTED_NONZERO_BBAI_DEFAULTS = {
++	# These configure enabled logging but do not enable it themselves.
++	"SAS_BBAI_SCORE_LOG_INTERVAL": 100,
++	"SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME": 1,
+ }
+ 
+ 
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that every SAS_BBAI_* define is disabled by default unless explicitly listed as non-enabling configuration.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	defines = read_global_define_ints(args.repo_root)
++	# <!-- custom: The old manual list missed Citizen and Culture logging. Require every integer SAS_BBAI_* define to be 0 automatically, with explicit exceptions only for settings that configure enabled logging without enabling it. This also covers future BBAI categories without another manual checker update. (GPT-5.5) -->
++	expected = {name: 0 for name in defines if name.startswith("SAS_BBAI_")}
++	expected.update(EXPECTED_NONZERO_BBAI_DEFAULTS)
++	expected["SAS_BBAI_LOG_ENABLE"] = 0
++	failures = require_int_values(defines, expected)
++	if failures:
++		print("FAIL BBAI logging disabled by default")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++	print(f"PASS BBAI logging disabled by default: checked {len(expected)} SAS_BBAI_* define(s)")
++	return 0
++
++
+ if __name__ == "__main__":
+-	main_from_expected_values("BBAI logging disabled by default", EXPECTED_DISABLED_BBAI_DEFINES, "Check that AdvCiv-SAS BBAI logging is disabled by default.")
++	sys.exit(main())
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 8b178ab81..97c350543 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -206,7 +206,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - C++ signatures: prefer safe one-line function declarations/definitions for easier grep, diffs, and LLM-agent review, especially for overloaded functions like `void addMessage` where the whole signature is the useful search key. Example: a declaration like `void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude, PlayerTypes eCancelPlayer) // advc.130p` is easier to find and reason about than the old three-line equivalent. See also [collapse_cpp_signatures.py](/LLM_Helpers/README.md#collapse_cpp_signaturespy) if needed. Note: Since the C++ codebase is large, apply this as we go if deemed relevant rather than trying to fix them all right away.
+ - When doing performance optimizations, such as caching to `CvTeamAI const& kTeam = GET_TEAM(getTeam());` redundant definitions in a function, reuse existing variable names unless not relevant for our needs. It is fine if some functions have `kTeam` while others have `kOurTeam` in the same file, what matters is same function is consistent when using the same variable. This avoids errors too. Same reasoning with `kPlayer` and `kOwner`, etc.
+ - Use `static const` for our defines whenever possible and relevant for computational efficiency (value is always the same, quick check it rather). Example `static const bool bSAS_CAN_SCRAP_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CAN_SCRAP_OBSOLETE_TECH");`.
+-- Gate BBAI logging (e.g., check `gUnitLogLevel`, or the relevant logging macro) before `logBBAI(...)` for perf opt (notably avoids computing unused arguments if relevant logging is disabled).
++- Gate BBAI logging at the caller before `logBBAI(...)` or a logging helper, and guard logging-only setup too; a check inside the helper is too late because C++ evaluates call arguments first which is needless and inefficient perf cost. So do not guard inside the logging helper: the burden belongs at every call site, and do not use e.g., `void logUnitDecision(...) { if (gUnitLogLevel < 2) return; ... }` and then call `logUnitDecision(computeDetail());` unconditionally; keep the helper unguarded and use `if (gUnitLogLevel >= 2) logUnitDecision(computeDetail());` at the caller instead.
+ 
+ ### Docs
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 1442ad7a2..51fc30ae9 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1226,12 +1226,12 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_CITY_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: New dedicated citizen-assignment diagnostics following the shared log-level classification above. Level 3 compares final worked/unworked jobs contextually and also reports simple 3F + 2H + 1C raw-yield disagreements, without enabling broad city logs. Use 0 outside targeted tests because exhaustive pair comparisons are intentionally expensive. (GPT-5.5) -->
++	<!-- custom: New dedicated citizen-assignment diagnostics following the shared log-level classification above. Level 3 notably compares final worked/unworked jobs contextually and also reports simple 3F + 2H + 1C raw-yield disagreements, without enabling broad city logs. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_CITIZEN_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: New dedicated culture-victory BBAI diagnostics following the shared log-level classification above, without enabling broad player/city logs. Use this to diagnose AI cultural-victory overinvestment, uneven Legendary-city targeting, production opportunity costs, and hopeless culture attempts before changing behavior. (ChatGPT-5.5 + GPT-5.5 review) -->
++	<!-- custom: New dedicated culture-victory BBAI diagnostics following the shared log-level classification above, without enabling broad player/city logs. Use this to notably diagnose AI cultural-victory overinvestment, uneven Legendary-city targeting, production opportunity costs, and hopeless culture attempts before changing behavior. (ChatGPT-5.5 + GPT-5.5 review) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_CULTURE_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -1241,12 +1241,17 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: New Land-worker BBAI log level for Worker AI build, movement, and improvement-replacement diagnostics. This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
++	<!-- custom: Evacuation/retreat diagnostics, notably for doomed cities, workers, and naval units. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_BBAI_EVACUATION_LOG_LEVEL</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: New Land-worker BBAI log level notably for Worker AI build, movement, and improvement-replacement diagnostics. This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_WORKER_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: New Worker-sea/Work Boat BBAI log level for UNITAI_WORKER_SEA production, target, audit, movement, and sea-improvement diagnostics. This separates noisy Work Boat diagnostics from both CITY and UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
++	<!-- custom: New Worker-sea/Work Boat BBAI log level for UNITAI_WORKER_SEA, notably for production, target, audit, movement, and sea-improvement diagnostics. This separates noisy Work Boat diagnostics from both CITY and UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_WORKER_SEA_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -2879,9 +2884,9 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: disable to restore old base advciv evacuate logic (recommended to be enabled instead though as disabling this to restore base advciv logic should be weaker than the advciv-sas' always evacuate doomed cities logic but left for player customization) -->
++	<!-- custom: Applied only after the attacker/defender strength ratio exceeds the existing AI_EVACUATION_THRESH-based doom threshold (raised for important cities, as it is worth defending them and generally bad to evacuate them). Enable to make every eligible land unit attempt retreat; disable to use instead Base AdvCiv's probabilistic unit selection. Note: Retreat can still fail without a safe city/path. Default enabled and recommended. See KI#172. (GPT-5.5) -->
+ 	<Define>
+-		<DefineName>SAS_AI_EVACUATE_CITY_ALWAYS_EVACUATE_DOOMED_CITIES</DefineName>
++		<DefineName>SAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ </Civ4Defines>
+
+diff --git a/CvGameCoreDLL/BBAILog.cpp b/CvGameCoreDLL/BBAILog.cpp
+index 00d1d12c3..fb672c421 100644
+--- a/CvGameCoreDLL/BBAILog.cpp
++++ b/CvGameCoreDLL/BBAILog.cpp
+@@ -21,7 +21,7 @@ static int getClampedSASBBAILogLevel(char const* szDefineName)
+ // <!-- custom: Cache each effective XML-backed log setting on first use for cheap hot-path checks. (GPT-5.5?) -->
+ bool isSASBBAILogEnabled()
+ {
+-	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
++	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
+ 	return bEnabled;
+ }
+ 
+@@ -62,6 +62,13 @@ int getSASBBAIUnitLogLevel()
+ 	return iLevel;
+ }
+ 
++// <!-- custom: Separate evacuation/retreat diagnostics, notably for doomed cities, workers, and naval units. (GPT-5.5) -->
++int getSASBBAIEvacuationLogLevel()
++{
++	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_EVACUATION_LOG_LEVEL") : 0);
++	return iLevel;
++}
++
+ // <!-- custom: New Land-worker BBAI log level for Worker AI build, movement, and improvement-replacement diagnostics. This keeps WORKER_* diagnostics out of the general UNIT category, so UNIT can stay focused on non-worker unit AI. (ChatGPT-5.5 + GPT-5.5 review) -->
+ int getSASBBAIWorkerLogLevel()
+ {
+
+diff --git a/CvGameCoreDLL/BBAILog.h b/CvGameCoreDLL/BBAILog.h
+index 732a513f6..5763414c7 100644
+--- a/CvGameCoreDLL/BBAILog.h
++++ b/CvGameCoreDLL/BBAILog.h
+@@ -20,6 +20,7 @@ int getSASBBAITeamLogLevel();
+ int getSASBBAICityLogLevel();
+ int getSASBBAICitizenLogLevel();
+ int getSASBBAIUnitLogLevel();
++int getSASBBAIEvacuationLogLevel();
+ int getSASBBAIWorkerLogLevel();
+ int getSASBBAIWorkerSeaLogLevel();
+ int getSASBBAIMapLogLevel();
+@@ -35,6 +36,7 @@ int getSASBBAIScoreLogInterval();
+ #define gCityLogLevel getSASBBAICityLogLevel()
+ #define gCitizenLogLevel getSASBBAICitizenLogLevel() // <!-- custom: Citizen-assignment and plot-allocation diagnostics. (GPT-5.5) -->
+ #define gUnitLogLevel getSASBBAIUnitLogLevel()
++#define gEvacuationLogLevel getSASBBAIEvacuationLogLevel() // <!-- custom: Evacuation/retreat diagnostics. (GPT-5.5) -->
+ #define gWorkerLogLevel getSASBBAIWorkerLogLevel() // <!-- custom: New Land-worker BBAI log level for Worker AI. (ChatGPT-5.5 + GPT-5.5 review) -->
+ #define gWorkerSeaLogLevel getSASBBAIWorkerSeaLogLevel() // <!-- custom: New Worker-sea/Work Boat BBAI log level for WORKER_SEA AI. (ChatGPT-5.5 + GPT-5.5 review) -->
+ #define gMapLogLevel getSASBBAIMapLogLevel() // K-Mod
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 8c73d6c06..e76515d4d 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2,8 +2,10 @@
+ #include "CvCityAI.h"
+ #include "CoreAI.h"
+ #include "CvSelectionGroupAI.h"
++#include "CvUnitAI.h" // <!-- custom: Evacuation diagnostics inspect nearby CvUnitAI details. (GPT-5.5) -->
+ #include "UWAIAgent.h" // advc.031b (for trait checks)
+ #include "CityPlotIterator.h"
++#include "PlotRange.h" // <!-- custom: Evacuation diagnostics use SquareIter for nearby attackers. (GPT-5.5) -->
+ #include "CvUnit.h"
+ #include "CvArea.h"
+ #include "CvInfo_City.h"
+@@ -9805,6 +9807,7 @@ bool CvCityAI::AI_isDanger() /* advc: */ const
+ void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
+ {
+ 	PROFILE_FUNC();
++	CitySafetyTypes const ePreviousSafety = m_eSafety;
+ 	m_eSafety = CITYSAFETY_SAFE;
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	if(kOwner.getNumCities() <= 1)
+@@ -9874,6 +9877,46 @@ void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
+ 		if (kOwner.getNumCities() <= 2 && isCapital())
+ 			rThresh *= 2;
+ 		bEvac = (scaled(iAttStrength, iDefStrength + 1) > rThresh);
++		// <!-- custom: Log doomed-city thresholds and nearby attack context for analysis/logging purposes. (GPT-5.5) -->
++		if (bEvac && gEvacuationLogLevel > 0 && (gEvacuationLogLevel >= 2 || ePreviousSafety != CITYSAFETY_EVACUATING))
++		{
++			TeamTypes eStrongestEnemy = NO_TEAM;
++			int iStrongestEnemyAttack = 0;
++			for (TeamIter<ALIVE,ENEMY_OF> itEnemy(getTeam()); itEnemy.hasNext(); ++itEnemy)
++			{
++				int const iEnemyAttack = kOwner.AI_localAttackStrength(plot(), itEnemy->getID(), DOMAIN_LAND, 1, true, false, false);
++				if (iEnemyAttack > iStrongestEnemyAttack)
++				{
++					iStrongestEnemyAttack = iEnemyAttack;
++					eStrongestEnemy = itEnemy->getID();
++				}
++			}
++			int iOwnedLandUnits = 0;
++			FOR_EACH_UNIT_IN(pLoopUnit, getPlot())
++			{
++				if (pLoopUnit->getOwner() == getOwner() && pLoopUnit->getDomainType() == DOMAIN_LAND)
++					iOwnedLandUnits++;
++			}
++			static bool const bAllLandUnitsWhenDoomed = GC.getDefineBOOL("SAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE");
++			logBBAI("    EVACUATION_CITY_DECISION turn=%d player=%d %S city=%S cityId=%d city=(%d,%d) cityAcquiredTurn=%d cityOwnerTurns=%d pop=%d capital=%d totalCities=%d previousSafety=%d allLandUnitsWhenDoomed=%d attackers=%d defenders=%d ownedLandUnits=%d attackStrength=%d defenseStrength=%d attackDefensePercent=%d baseThresholdPercent=%d adjustedThresholdPercent=%d cityValuePercent=%d strongestEnemyTeam=%d strongestEnemy=%S strongestEnemyAttack=%d",
++				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(), getX(), getY(), getGameTurnAcquired(), GC.getGame().getGameTurn() - getGameTurnAcquired(), getPopulation(), isCapital(), kOwner.getNumCities(), ePreviousSafety, bAllLandUnitsWhenDoomed, iAttackers, iDefenders, iOwnedLandUnits, iAttStrength, iDefStrength, scaled(iAttStrength, iDefStrength + 1).getPercent(), iAIEvacuationThresh, rThresh.getPercent(), AI_getCityValPercent(), eStrongestEnemy, (eStrongestEnemy == NO_TEAM ? L"-" : GET_TEAM(eStrongestEnemy).getName().GetCString()), iStrongestEnemyAttack);
++			if (gEvacuationLogLevel >= 3 && ePreviousSafety != CITYSAFETY_EVACUATING)
++			{
++				for (SquareIter itPlot(getPlot(), 1); itPlot.hasNext(); ++itPlot)
++				{
++					CvPlot const& kEnemyPlot = *itPlot;
++					if (!kEnemyPlot.isVisible(getTeam()))
++						continue;
++					FOR_EACH_UNITAI_IN(pEnemyUnit, kEnemyPlot)
++					{
++						if (!kTeam.isAtWar(pEnemyUnit->getTeam()) || pEnemyUnit->getDomainType() != DOMAIN_LAND || !pEnemyUnit->canAttack() || pEnemyUnit->getUnitInfo().isMostlyDefensive())
++							continue;
++						logBBAI("      EVACUATION_ENEMY_UNIT turn=%d cityOwner=%d city=%S enemyPlayer=%d %S enemyTeam=%d unitId=%d unit=%S unitAI=%d plot=(%d,%d) hp=%d/%d baseCombat=%d level=%d experience=%d canMove=%d movesLeft=%d",
++							GC.getGame().getGameTurn(), getOwner(), getName().GetCString(), pEnemyUnit->getOwner(), GET_PLAYER(pEnemyUnit->getOwner()).getCivilizationDescription(0), pEnemyUnit->getTeam(), pEnemyUnit->getID(), pEnemyUnit->getName(0).GetCString(), pEnemyUnit->AI_getUnitAIType(), pEnemyUnit->getX(), pEnemyUnit->getY(), pEnemyUnit->currHitPoints(), pEnemyUnit->maxHitPoints(), pEnemyUnit->baseCombatStr(), pEnemyUnit->getLevel(), pEnemyUnit->getExperience(), pEnemyUnit->canMove(), pEnemyUnit->movesLeft());
++					}
++				}
++			}
++		}
+ 	}
+ 	if (bEvac)
+ 		m_eSafety = CITYSAFETY_EVACUATING;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6b0330094..15cc028b3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -408,9 +408,9 @@ void CvPlayerAI::AI_updateCacheData()
+ 	int i = 0;
+ 	FOR_EACH_CITYAI_VAR(pCity, *this)
+ 	{
+-		pCity->AI_setCityValPercent(
+-				(1 - stats::percentileRank(
+-				rCityValues, rCityValues[i] + scaled::epsilon())).getPercent());
++		// <!-- custom: Base AdvCiv inverted this percentile, so low-value cities received the intended important-city evacuation protection while major cities did not.
++		// Keep the direct asset-value percentile so higher means more valuable, matching AI_updateSafety and the AdvCiv manual. See KI#172. (GPT-5.5) -->
++		pCity->AI_setCityValPercent(stats::percentileRank(rCityValues, rCityValues[i] + scaled::epsilon()).getPercent());
+ 		pCity->AI_updateSafety();
+ 		i++;
+ 	} // </advc.139>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 329878fe9..1d3472ecc 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -33,11 +33,43 @@ CvUnitAI::~CvUnitAI()
+ 	//AI_uninit(); // Delete member pointers right here (but there are none)
+ }
+ 
+-// <!-- custom: Diagnostic-only Work Boat movement logging to pair with CvCityAI worker-sea production logs. Production logs showed many completed Work Boats while the same sea bonuses stayed unimproved, so record whether UNITAI_WORKER_SEA units improve, retreat, seek safety, or idle. No behavior change. See KI#157. (GPT-5.5) -->
++// <!-- custom: Log retreat outcomes, notably for doomed cities, workers, and naval units, without broad unit logging for analysis/logging purposes. No behavior change. (GPT-5.5) -->
++static void logSASRetreatUnitResult(char const* szAction, CvUnitAI const& kUnit, CvCity const* pSourceCity, CvCity const* pTargetCity, CvPlot const* pEndTurnPlot, int iPathTurns, int iCurrentDanger, bool bDoomedCityEvacuation)
++{
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
++	logBBAI("    RETREAT_UNIT_RESULT action=%s turn=%d player=%d %S doomedCityEvacuation=%d sourceCity=%S sourceCityId=%d source=(%d,%d) unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d hp=%d/%d level=%d experience=%d targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) pathTurns=%d currentDanger=%d endTurnDanger=%d",
++		szAction, GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), bDoomedCityEvacuation, (pSourceCity == NULL ? L"-" : pSourceCity->getName().GetCString()), (pSourceCity == NULL ? -1 : pSourceCity->getID()), (pSourceCity == NULL ? -1 : pSourceCity->getX()), (pSourceCity == NULL ? -1 : pSourceCity->getY()),
++		kUnit.getID(), kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(),
++		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getID()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), iPathTurns, iCurrentDanger, (pEndTurnPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pEndTurnPlot)));
++}
++
++// <!-- custom: Log local-safety outcomes through the evacuation/retreat category. No behavior change. (GPT-5.5) -->
++static void logSASSafetyUnitResult(char const* szAction, CvUnitAI const& kUnit, CvPlot const* pTargetPlot, bool bIgnoredDanger, int iValue)
++{
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
++	logBBAI("    SAFETY_UNIT_RESULT action=%s turn=%d player=%d %S unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d source=(%d,%d) target=(%d,%d) hp=%d/%d level=%d experience=%d ignoredDanger=%d value=%d sourceDanger=%d targetDanger=%d",
++		szAction, GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.getX(), kUnit.getY(), (pTargetPlot == NULL ? -1 : pTargetPlot->getX()), (pTargetPlot == NULL ? -1 : pTargetPlot->getY()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(), bIgnoredDanger, iValue, kOwner.AI_getPlotDanger(kUnit.getPlot()), (pTargetPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pTargetPlot)));
++}
++
++// <!-- custom: Record mission and movement context to diagnose units repeatedly returning to evacuating cities. No behavior change. (GPT-5.5) -->
++static void logSASEvacuationUnitDecision(char const* szMode, CvUnitAI const& kUnit, CvCityAI const& kCity, int iEvacProbPercent, bool bSelected)
++{
++	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
++	CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
++	CvCityAI const* pMissionCity = (pMissionPlot == NULL ? NULL : pMissionPlot->AI_getPlotCity());
++	int const iGameTurn = GC.getGame().getGameTurn();
++	logBBAI("    EVACUATION_UNIT_DECISION turn=%d player=%d %S city=%S cityId=%d cityAcquiredTurn=%d cityOwnerTurns=%d unitId=%d unit=%S unitAI=%d domain=%d unitAge=%d groupId=%d groupUnits=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionCity=%S missionCityId=%d missionCityEvacuating=%d missionQueue=%d forceUpdate=%d hp=%d/%d level=%d experience=%d fortifyTurns=%d movesSpent=%d movesLeft=%d hasMoved=%d madeAttack=%d mode=%s evacProbPercent=%d selected=%d",
++		iGameTurn, kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kCity.getGameTurnAcquired(), iGameTurn - kCity.getGameTurnAcquired(),
++		kUnit.getID(), kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), iGameTurn - kUnit.getGameTurnCreated(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), (pGroup == NULL ? NO_ACTIVITY : pGroup->getActivityType()), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()),
++		(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pMissionCity == NULL ? L"-" : pMissionCity->getName().GetCString()), (pMissionCity == NULL ? -1 : pMissionCity->getID()), (pMissionCity == NULL ? 0 : pMissionCity->AI_isEvacuating()), (pGroup == NULL ? -1 : pGroup->getLengthMissionQueue()), (pGroup == NULL ? 0 : pGroup->isForceUpdate()),
++		kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(), kUnit.getFortifyTurns(), kUnit.getMoves(), kUnit.movesLeft(), kUnit.hasMoved(), kUnit.isMadeAttack(), szMode, iEvacProbPercent, bSelected);
++}
++
++// <!-- custom: Work Boat movement diagnostics; retreat/safety uses the evacuation category, while other tasks use worker-sea logging. No behavior change. See KI#157. (GPT-5.5) -->
+ static void logSASWorkerSeaMoveDetail(char const* szReason, CvUnitAI const& kUnit)
+ {
+-	if (gWorkerSeaLogLevel < 2)
+-		return;
+ 	CvPlayerAI const& kPlayer = GET_PLAYER(kUnit.getOwner());
+ 	CvPlot const& kPlot = kUnit.getPlot();
+ 	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+@@ -8678,7 +8710,7 @@ void CvUnitAI::AI_workerSeaMove()
+ 		{
+ 			if (AI_retreatToCity())
+ 			{
+-				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("danger retreat to city", *this);
++				if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("danger retreat to city", *this);
+ 				return;
+ 			}
+ 		}
+@@ -8750,13 +8782,13 @@ void CvUnitAI::AI_workerSeaMove()
+ 
+ 	if (AI_retreatToCity())
+ 	{
+-		if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("retreat to city", *this);
++		if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("retreat to city", *this);
+ 		return;
+ 	}
+ 
+ 	if (AI_safety())
+ 	{
+-		if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("safety", *this);
++		if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("safety", *this);
+ 		return;
+ 	}
+ 
+@@ -13500,10 +13532,12 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
+ 			bool const bMoreNeeded = (iDefendersNeeded > iDefendersHave); // advc.300
+ 			if (iDefendersWant <= 0) // No functional change from BtS
+ 				continue;
+-			if (pLoopCity->AI_isEvacuating() &&
+-				iDefendersWant > fixp(0.75) * getGroup()->getNumUnits())
++			if (pLoopCity->AI_isEvacuating())
+ 			{
+-				continue;
++				bool const bRejectEvacuatingCity = (iDefendersWant > fixp(0.75) * getGroup()->getNumUnits());
++				if (gEvacuationLogLevel >= 3) logBBAI("    EVACUATION_REENTRY_GUARD_CHECK result=%s turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) groupId=%d groupUnits=%d defendersNeeded=%d defendersHave=%d defendersWant=%d extraDefenders=%d", (bRejectEvacuatingCity ? "reject" : "allow"), GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), getX(), getY(), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(), getGroup()->getID(), getGroup()->getNumUnits(), iDefendersNeeded, iDefendersHave, iDefendersWant, iExtraDefenders);
++				if (bRejectEvacuatingCity)
++					continue;
+ 			} // </advc.139>
+ 			/*if (pLoopCity->getPlot().isVisibleEnemyUnit(this)) // advc.opt: It's our city
+ 				continue;*/
+@@ -13544,6 +13578,8 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
+ 	if (pEndTurnPlot == NULL || pBestGuardPlot == NULL)
+ 		return false;
+ 
++	CvCityAI const* pBestGuardCityForEvacuationLog = pBestGuardPlot->AI_getPlotCity();
++	if (gEvacuationLogLevel >= 3 && pBestGuardCityForEvacuationLog != NULL && pBestGuardCityForEvacuationLog->AI_isEvacuating()) logBBAI("    EVACUATION_REENTRY_GUARD_RESULT turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) groupId=%d groupUnits=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), getX(), getY(), pBestGuardCityForEvacuationLog->getName().GetCString(), pBestGuardCityForEvacuationLog->getID(), pBestGuardCityForEvacuationLog->getX(), pBestGuardCityForEvacuationLog->getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY(), getGroup()->getID(), getGroup()->getNumUnits());
+ 	CvSelectionGroup* pOldGroup = getGroup();
+ 	CvUnit* pEjectedUnit = AI_getGroup()->AI_ejectBestDefender(plot());
+ 	if (pEjectedUnit == NULL)
+@@ -13616,6 +13652,8 @@ bool CvUnitAI::AI_guardCityAirlift()
+ 
+ 	if (pBestPlot != NULL)
+ 	{
++		CvCityAI const* pBestAirliftCityForEvacuationLog = pBestPlot->AI_getPlotCity();
++		if (gEvacuationLogLevel >= 3 && pBestAirliftCityForEvacuationLog != NULL && pBestAirliftCityForEvacuationLog->AI_isEvacuating()) logBBAI("    EVACUATION_REENTRY_GUARD_AIRLIFT turn=%d player=%d %S unitId=%d unit=%S unitAI=%d sourceCity=%S sourceCityId=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) hp=%d/%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), pCity->getName().GetCString(), pCity->getID(), pCity->getX(), pCity->getY(), pBestAirliftCityForEvacuationLog->getName().GetCString(), pBestAirliftCityForEvacuationLog->getID(), pBestAirliftCityForEvacuationLog->getX(), pBestAirliftCityForEvacuationLog->getY(), currHitPoints(), maxHitPoints());
+ 		getGroup()->pushMission(MISSION_AIRLIFT, pBestPlot->getX(), pBestPlot->getY());
+ 		return true;
+ 	}
+@@ -16048,6 +16086,7 @@ bool CvUnitAI::AI_safety()
+ 
+ 	if (pBestPlot != NULL)
+ 	{
++		if (gEvacuationLogLevel >= 3) logSASSafetyUnitResult(at(*pBestPlot) ? "wait" : "move", *this, pBestPlot, bIgnoreDanger, iBestValue);
+ 		if (at(*pBestPlot))
+ 		{
+ 			getGroup()->pushMission(MISSION_SKIP);
+@@ -16061,6 +16100,7 @@ bool CvUnitAI::AI_safety()
+ 		}
+ 	}
+ 
++	if (gEvacuationLogLevel >= 3) logSASSafetyUnitResult("fail-no-plot", *this, NULL, bIgnoreDanger, iBestValue);
+ 	return false;
+ }
+ 
+@@ -17497,14 +17537,16 @@ bool CvUnitAI::AI_defensiveCollateral(int iThreshold, int iSearchRange)
+ // advc.139:
+ bool CvUnitAI::AI_evacuateCity()
+ {
+-	if(!getPlot().AI_getPlotCity()->AI_isEvacuating())
++	CvCityAI const& kCity = *getPlot().AI_getPlotCity();
++	if(!kCity.AI_isEvacuating())
+ 		return false;
+ 
+-	static const bool bSAS_AI_EVACUATE_CITY_ALWAYS_EVACUATE_DOOMED_CITIES = GC.getDefineBOOL("SAS_AI_EVACUATE_CITY_ALWAYS_EVACUATE_DOOMED_CITIES");
+-	if (bSAS_AI_EVACUATE_CITY_ALWAYS_EVACUATE_DOOMED_CITIES)
++	static const bool bSAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE = GC.getDefineBOOL("SAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE");
++	if (bSAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE)
+ 	{
+ 		// <!-- custom: if we have determined city is doomed, evacuate each and any single unit, splitting forces is worse than staying with all units or leaving with all units. Leaving with all units is the best since city will fall or has been determined to anyway, so do not care about anything else and simply evacuate all (it may drag the game a bit longer but is best for the AI and its competitiveness), see known issue as of now 62 for details and issue this attempts to fix -->
+ 		// <!-- custom: important note!! You need at least 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. If we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns -->
++		if (gEvacuationLogLevel >= 2) logSASEvacuationUnitDecision("always", *this, kCity, 100, true);
+ 		return AI_retreatToCity();
+ 	}
+ 	// <!-- custom: not recommended as should be weaker for the AI, kept for legacy or player customization choice -->
+@@ -17545,7 +17587,9 @@ bool CvUnitAI::AI_evacuateCity()
+ 		}
+ 		/*  retreatToCity isn't perfect for this; selects the city based on plot danger.
+ 			Hopefully sufficient most of the time. */
+-		if (SyncRandSuccess(rEvacProb))
++		bool const bEvacuate = SyncRandSuccess(rEvacProb);
++		if (gEvacuationLogLevel >= 2) logSASEvacuationUnitDecision("legacy", *this, kCity, rEvacProb.getPercent(), bEvacuate);
++		if (bEvacuate)
+ 			return AI_retreatToCity();
+ 	}
+ 	return false;
+@@ -21990,6 +22034,9 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
+ 			GET_PLAYER(getOwner()).AI_getPlotDanger(getPlot())); 
+ 
+ 	CvCityAI const* pCity = getPlot().AI_getPlotCity();
++	bool const bEvac = (pCity != NULL && pCity->AI_isEvacuating());
++	int const iEvacuationLogLevel = gEvacuationLogLevel;
++	bool const bLogRetreatResult = (iEvacuationLogLevel >= 3 || (bEvac && iEvacuationLogLevel >= 2));
+ 	if (iCurrentDanger <= 0 && pCity != NULL &&
+ 		pCity->getOwner() == getOwner())
+ 	{
+@@ -21997,6 +22044,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
+ 		{
+ 			if (!bPrioritiseAirlift || pCity->getMaxAirlift() > 0)
+ 			{	//if (!pCity->getPlot().isVisibleEnemyUnit(this)) {
++				if (bLogRetreatResult) logSASRetreatUnitResult("wait-safe-city", *this, pCity, pCity, &getPlot(), 0, iCurrentDanger, bEvac);
+ 				getGroup()->pushMission(MISSION_SKIP);
+ 				return true;
+ 			}
+@@ -22015,9 +22063,9 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
+ 	CvPlot* pBestPlot = NULL;
+ 	int iShortestPath = MAX_INT;
+ 	// <advc.139>
+-	bool bEvac = (pCity != NULL && pCity->AI_isEvacuating());
+ 	bool bSafe = (pCity != NULL && pCity->AI_isSafe());
+ 	// </advc.139>
++	CvCityAI const* pBestRetreatCityForLog = NULL;
+ 	// <advc>
+ 	int iPass = 0; // Used after the loop
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // </advc>
+@@ -22081,6 +22129,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
+ 					{
+ 						iShortestPath = iPathTurns;
+ 						pBestPlot = &getPathEndTurnPlot();
++						if (bLogRetreatResult) pBestRetreatCityForLog = pLoopCity;
+ 					}
+ 				}
+ 			}
+@@ -22095,6 +22144,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
+ 
+ 	if (pBestPlot != NULL)
+ 	{
++		if (bLogRetreatResult) logSASRetreatUnitResult(at(*pBestPlot) ? "wait" : "retreat", *this, pCity, pBestRetreatCityForLog, pBestPlot, iShortestPath, iCurrentDanger, bEvac);
+ 		if (at(*pBestPlot))
+ 		{
+ 			getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
+@@ -22129,15 +22179,18 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
+ 					per100(GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent());
+ 			if (SyncRandSuccess(rScrapOdds))
+ 			{
++				if (bLogRetreatResult) logSASRetreatUnitResult("scrap", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);
+ 				scrap();
+ 				return true;
+ 			}
+ 		} // </advc.010>
++		if (bLogRetreatResult) logSASRetreatUnitResult("stay-no-safe-city", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);
+ 		getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
+ 				false, false, MISSIONAI_RETREAT);
+ 		return true;
+ 	}
+ 
++	if (bLogRetreatResult) logSASRetreatUnitResult("fail-no-city", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);
+ 	return false;
+ }
+ 
+@@ -25329,6 +25382,8 @@ bool CvUnitAI::AI_moveIntoCity(int iRange)
+ 
+ 	if (pBestPlot != NULL)
+ 	{
++		CvCityAI const* pBestCityForEvacuationLog = pBestPlot->AI_getPlotCity();
++		if (gEvacuationLogLevel >= 3 && pBestCityForEvacuationLog != NULL && pBestCityForEvacuationLog->AI_isEvacuating()) logBBAI("    EVACUATION_REENTRY_HEAL_CITY turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) groupId=%d groupUnits=%d hp=%d/%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), getX(), getY(), pBestCityForEvacuationLog->getName().GetCString(), pBestCityForEvacuationLog->getID(), pBestCityForEvacuationLog->getX(), pBestCityForEvacuationLog->getY(), getGroup()->getID(), getGroup()->getNumUnits(), currHitPoints(), maxHitPoints());
+ 		pushGroupMoveTo(*pBestPlot);
+ 		return true;
+ 	}
+
+diff --git a/README.md b/README.md
+index 2c51f9afd..7d6ab98a6 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+ # AdvCiv-SAS (Simple Advanced Strategy)
+ 
+-This mod (AdvCiv-SAS (Simple Advanced Strategy)) ([Discussion thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/)) is based on [AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the [latest AdvCiv](https://forums.civfanatics.com/threads/advanced-civ.614217/) version as of now, and will/may update whenever there are new changes that are stable.
++AdvCiv-SAS (Simple Advanced Strategy) ([Discussion thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/)) is a mod based on [AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the [latest AdvCiv](https://forums.civfanatics.com/threads/advanced-civ.614217/) version as of now, and will/may update whenever there are new changes that are stable.
+ 
+ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) and at the [ModDB website](https://www.moddb.com/mods/advciv-sas-simple-advanced-strategy), not just on github anymore (read [below for download/install instructions](/README.md#how-to-play)).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 17e067895..78c0859ad 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -6249,3 +6249,15 @@ Reviewing that region found a Base AdvCiv bug in `CvPlot::checkLateEra`: for an
+ This safely fixes the `NO_PLAYER` bug, but the available evidence does not prove that the bug caused this T281 crash.
+ 
+ Tentatively addressed and hardened with the help of GPT-5.5 (on Codex) thanks.
++
++## 172 - (Fixed) Base AdvCiv bug: inverted city-value percentile gave intended important-city evacuation protection to low-value cities
++
++Base AdvCiv ranks each city by `AI_assetVal`, then uses that rank in `CvCityAI::AI_updateSafety` to raise the evacuation threshold for important cities. However, `CvPlayerAI::AI_updateCacheData` stored `1 - percentileRank`, so higher-value cities received lower percentages and low-value cities received the intended protection instead.
++
++This contradicted both the nearby Base AdvCiv comment, "Higher threshold for important cities," and the AdvCiv manual statement that the AI is less willing to abandon major cities than unimportant ones.
++
++The fix stores the direct asset-value percentile. The existing `AI_updateSafety` logic can therefore raise the doom threshold for cities in the more valuable half as intended; its separate extra protection for a capital when the player has at most two cities remains unchanged.
++
++Found while clarifying the doomed-city evacuation threshold and fixed with the help of GPT-5.5 (on Codex) thanks.
++
++Note: this may be related to the very problematic Base AdvCiv 1.12 issue i encountered ingame and that i mentioned in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i had made back then, of an AI stack defending the capital leaving it and thus being exposed without city defense modifiers to the attacker stack, leaving the strong capital almost defenseless, and the former defending stack open to ambushes (in other variants it left to go to weaker cities iirc too) numbered example 37.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 7f6975106..a339cd3c1 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -152,10 +152,11 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints.
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+ - **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis (also good to give us a different point of view/review if needed).
+-- (Requires AdvCiv-SAS 5980+) **Culture-victory BBAI diagnostics:** added a new dedicated `SAS_BBAI_CULTURE_LOG_LEVEL` for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs. It notably records culture-stage reasons, current/projected Legendary-city countdowns and rival ranking, competing victory progress, actual culture-slider decisions, per-city weights and production, and culture contributed by production processes and assigned specialists.
+-- (Requires AdvCiv-SAS 5988+) **Citizen-allocation BBAI diagnostics:** added a dedicated `SAS_BBAI_CITIZEN_LOG_LEVEL` for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked. At the highest level, it also reports suspicious worked/unworked plot pairs under a simple food-first yield check; this second report is diagnostic only because city needs can legitimately outweigh raw yields.
+-- (Requires AdvCiv-SAS 5962+) **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - (Requires AdvCiv-SAS 5925+) **BBAI log files timestamped name**: Optionally log BBAI to a **new file each time** Civ4 launch/session with a **new UTC-timestamp** in filename such as (e.g., `BBAI_20260608T065231Z.log`) instead of repeatedly appending to `BBAI.log`. This **avoids previous tedious manual clearing** `BBAI.log` before restarting Civ4, prevents one **massive mixed log from accumulating** across many test runs, and makes the **relevant log easier to identify, store, or upload** for review.
++- (Requires AdvCiv-SAS 5962+) **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
++- (Requires AdvCiv-SAS 5980+) **Culture-victory BBAI diagnostics:** added a new dedicated `SAS_BBAI_CULTURE_LOG_LEVEL` notably for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs. It records for example culture-stage reasons, current/projected Legendary-city countdowns and rival ranking, competing victory progress, actual culture-slider decisions, per-city weights and production, and culture contributed by production processes and assigned specialists.
++- (Requires AdvCiv-SAS 5988+) **Citizen-allocation BBAI diagnostics:** added a dedicated `SAS_BBAI_CITIZEN_LOG_LEVEL` notably for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked. At the highest level, it also reports suspicious worked/unworked plot pairs under a simple food-first yield check.
++- (Requires AdvCiv-SAS 6007+) **Evacuation and retreat BBAI diagnostics:** added `SAS_BBAI_EVACUATION_LOG_LEVEL`. It notably helps investigate evacuation/retreat behavior without broad city or unit logging, for doomed cities, workers, and naval units.
+ - **BBAI logging guard cleanup:** now that BBAI logging is runtime-tunable rather than compile-gated, some older logging-only code paths are **guarded more explicitly** through the relevant log-level defines. This avoids running logging passes or expensive/unneeded evaluation and formatting of **log parameters** that ultimately won't be used when that log category is disabled.
+ 
+ ### 48 Civs DLL
+@@ -244,6 +245,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ 
+ - **Barbarians** no longer attempt **world wonders** (prevents hammer sinks). See [KI#3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders).
+ - Barbarians also tend to **target weaker rivals**, and may **raze cities** more than base AdvCiv/Civ4
++- (Requires AdvCiv-SAS 6006+) **New World barbarian aggression toggle:** preserve both the old (as of now removed in Base AdvCiv) and the new Base AdvCiv behaviors via the `SAS_AI_BARBARIAN_NEW_WORLD_EARLIER_ATTACK_ENABLE` SAS define: The default `1` as of now uses the newer city/population presence rule that can end the local peace period earlier; the old as of now disabled `0` restores the older peaceable population rule.
+ 
+ #### Diplomacy (AI)
+ 
+@@ -345,7 +347,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Musketmen — AI role**: now also flagged with `UNITAI_ATTACK_CITY`, so the AI uses Musketmen more often in **offensive city-assault** roles. Civ-specific Musketman variants may also include additional changes.
+ - **Grenadiers & Bazookas — AI role**: now also flagged with `UNITAI_CITY_DEFENSE`, so the AI may use them more for **city defense**.
+ - **War target selection — distance guard**: added a **distance-based pre-filter** in `Risk::preEvaluate` (WarUtilityAspect.cpp) so the AI **rejects faraway rivals** during war-risk evaluation. This curbs "bait" wars that leave cores under-defended and keeps armies concentrated near relevant fronts. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp).
+-- **City evacuation — doomed city auto-retreat (land units only)**: in `CvUnitAI::AI_evacuateCity`, the AI now optionally (default ON, recommended) **evacuates 100% of its land units** from a **doomed city**. Previously it often retreated only a tiny fraction (e.g., 2 of 11 defenders vs a 22+ stack, whereas now all 11 defenders would evacuate if the city is deemed doomed). This change might prolong wars/game length, but the intent is a **more competitive, less self-sabotaging** AI. See [KI#62](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity).
++- **City evacuation — doomed city auto-retreat (land units only)**: in `CvUnitAI::AI_evacuateCity`, the AI now optionally (default ON, recommended) **evacuates 100% of its land units** from a **doomed city** (i.e. a city that exceeds the existing `AI_EVACUATION_THRESH`-based (default as of now: 138%) attacker/defender strength threshold (note: the threshold is raised for important cities, as it is worth defending them and generally bad to evacuate them)). (Requires AdvCiv-SAS 6007+) Fixed an inherited Base AdvCiv percentile inversion that instead gave this important-city protection to low-value cities; see [KI#172](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#172---fixed-base-advciv-bug-inverted-city-value-percentile-gave-intended-important-city-evacuation-protection-to-low-value-cities). Previously it often retreated only a tiny fraction (e.g., 2 of 11 defenders vs a 22+ stack, whereas now all 11 defenders would evacuate if the city is deemed doomed). This change might prolong wars/game length, but the intent is a **more competitive, less self-sabotaging** AI. See [KI#62](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity).
+ - **Minimum Stack size before war**: Added a minimum stack unit count requirement to prevent the stack from being marked as "ready" until it has enough units: no `MOVE_DECLARE_WAR` flag, no premature advance toward the city, and AI keeps building units until the stack is big enough. Helps fix the **issue of "back and forth" war declarations with immediate retreat without city attack**: low-numbered unit stacks were especially sensible to power swings (city defenses, one more enemy units skews win chance, etc.). Change in `CvUnitAI::AI_attackCityMove`. See [KI#104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#104---tremendously-improved-base-advciv-issue-of-the-weird-back-and-forth-of-declaring-war-moving-a-stack-then-withdrawing-without-attacking-which-is-extremely-inefficient).
+ - **City attack oscillation — pre-check vs strong targets (possible mitigation)**: In `CvUnitAI::AI_attackCityMove`, add a sanity check to **skip marching to/attacking a city** when the **defending stack is too strong**. Goal: prevent the inefficient **advance → abort → backtrack** loop and reduce the risk of being caught without time to retreat. **Note:** in the test sample, this behavior also resolved without the change by running ~2+ autoplay turns in a row instead of 1 turn only from a slightly older save file rather; treat this as a **possible fix/sanity check** (not (at least not yet) broadly tested). See [KI#63](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but).
+ - **Early-game razing — distance-aware captures**: Updated conquer/raze logic so that, for roughly the first **~120 turns** (scaled by game speed), the AI **razes captured cities** that aren’t **close enough** to justify early investment, in `CvPlayerAI::AI_conquerCity`. This addresses the base AdvCiv pattern where forces overextend (most troops sit in a faraway capture while **core cities** thin out) and also preserves scarce early economy (city maintenance, low pop, time to build improvements/culture). Indirect effect: less fog-busting far from us → **more barbarians** there, which tends to pressure rivals. Net: a **stronger, more focused** early AI (fewer "split in two" empires). See [KI#64](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity).
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=12 omittedFiles=1 embeddedPatchBytes=53793

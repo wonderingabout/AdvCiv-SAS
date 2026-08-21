@@ -1,0 +1,256 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3864
+# Commit: fd51b29b66aaa8cc43efe8444cf2bad17630ce4f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: adf567bdc90436aafa0e579730d93dde63c65dfa
+# Title: A little bit of refactoring; comment, whitespace changes.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CombatOdds.cpp
+1	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+1	2	CvGameCoreDLL/CvSelectionGroup.cpp
+4	4	CvGameCoreDLL/CvTeam.cpp
+30	23	CvGameCoreDLL/CvUnit.cpp
+1	0	CvGameCoreDLL/CvUnit.h
+4	3	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CombatOdds.cpp b/CvGameCoreDLL/CombatOdds.cpp
+index a9367b406..2bf62979c 100644
+--- a/CvGameCoreDLL/CombatOdds.cpp
++++ b/CvGameCoreDLL/CombatOdds.cpp
+@@ -617,7 +617,7 @@ int LFBcalculateCombatOdds(Combatant const& att, Combatant const& def)
+ 	Returns true if the attacker wins. Reaching its damage limit counts as a win. */
+ bool simulateCombat(CvUnit const& kAttacker, CvUnit const& kDefender)
+ {
+-	// Odds of defender destroying attacker, per-round damage to(!) attacker, to defender.
++	// Odds of defender hitting attacker, per-round damage to(!) attacker, to defender.
+ 	int iDefenderOdds=0, iAttackerDamage=0, iDefenderDamage=0;
+ 	{
+ 		int iDefenderStrength=0;
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 3ae20c13d..67dbac664 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2012,8 +2012,7 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	{
+ 		MissionTypes eMission = (MissionTypes)kAction.getMissionType();
+ 		if (eMission != NO_MISSION)
+-		{
+-			// advc: Moved into subroutine
++		{	// advc: Moved into subroutine
+ 			parseActionHelp_Mission(kAction, *pHeadSelectedUnit, eMission, szBuffer);
+ 		}
+ 		if (kAction.getCommandType() != NO_COMMAND)
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index df40dd048..e7d44c26f 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -3563,7 +3563,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
+ 		szString.append(CvWString::format(SETCOLR, TEXT_COLOR("COLOR_NEGATIVE_TEXT")));
+ 		szString.append(NEWLINE);
+ 		szString.append(gDLL->getText("TXT_KEY_PLOT_BLOCKADED"));
+-		szString.append(CvWString::format( ENDCOLR));
++		szString.append(CvWString::format(ENDCOLR));
+ 	}
+ 
+ 	if (kPlot.isFeature())
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 32aab5b1b..f480abcf1 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -210,8 +210,7 @@ void CvSelectionGroup::doTurn()
+ 				setActivityType(ACTIVITY_AWAKE); // time to wake up!
+ 			}
+ 		}
+-	}
+-	// K-Mod end
++	} // K-Mod end
+ 
+ 	// do unit's turns (checking for damage)
+ 	bool bHurt = false;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 55a4b0082..02275931c 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -5057,17 +5057,17 @@ bool CvTeam::isBonusRevealed(BonusTypes eBonus) const // K-Mod
+ 	return (isHasTech(GC.getInfo(eBonus).getTechReveal()) || isForceRevealedBonus(eBonus));
+ }
+ 
+-// <advc.108> Based on CvPlayer::initFreeUnits
++// advc.108: Based on CvPlayer::initFreeUnits
+ void CvTeam::revealSurroundingPlots(CvPlot const& kCenter, int iRange) const
+ {
+ 	CvMap const& kMap = GC.getMap();
+-	for(int i = 0; i < kMap.numPlots(); i++)
++	for (int i = 0; i < kMap.numPlots(); i++)
+ 	{
+ 		CvPlot& kPlot = kMap.getPlotByIndex(i);
+-		if(plotDistance(&kPlot, &kCenter) <= iRange)
++		if (plotDistance(&kPlot, &kCenter) <= iRange)
+ 			kPlot.setRevealed(getID(), true, false, NO_TEAM, false);
+ 	}
+-} // </advc.108>
++}
+ 
+ int CvTeam::countNumHumanGameTurnActive() const
+ {
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 59c0459cf..53f4a7f15 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1693,25 +1693,9 @@ bool CvUnit::isActionRecommended(int iAction)
+ {
+ 	if (!isActiveOwned() || /* advc.127: */ !isHuman())
+ 		return false;
+-	/*  <advc.002e> This needs to be done in some CvUnit function that gets called
+-		by the EXE after read, after isPromotionReady and late enough for IsSelected
+-		to work. (E.g. setupGraphical and shouldShowEnemyGlow are too early.) */
+-	if (iAction == 0 && !BUGOption::isEnabled("PLE__ShowPromotionGlow", false))
+-	{
+-		FOR_EACH_UNIT_VAR_IN(pUnit, *getGroup())
+-		{
+-			if(pUnit != NULL)
+-			{
+-				bool bGlow = pUnit->isPromotionReady();
+-				gDLL->getEntityIFace()->showPromotionGlow(pUnit->getEntity(), bGlow);
+-			}
+-		}
+-	} // </advc.002e>
+-
+-	// <advc.004h> Hack for replacing the founding borders shown around Settlers
+-	if (iAction == 0 && isFound())
+-		updateFoundingBorder(); // </advc.004h>
+-
++	// <advc> (Don't know how else the DLL could tell)
++	if (iAction == 0)
++		onActiveSelection(); // </advc>
+ 	if (GET_PLAYER(getOwner()).isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS))
+ 		return false;
+ 
+@@ -1877,6 +1861,28 @@ bool CvUnit::isActionRecommended(int iAction)
+ 	return false;
+ }
+ 
++// advc: Called when the active player selects a unit
++void CvUnit::onActiveSelection()
++{
++	/*  <advc.002e> This needs to happen in some CvUnit function that gets called
++		by the EXE after read, after isPromotionReady and late enough for IsSelected
++		to work. (E.g. setupGraphical and shouldShowEnemyGlow are too early.) */
++	if (!BUGOption::isEnabled("PLE__ShowPromotionGlow", false))
++	{
++		FOR_EACH_UNIT_VAR_IN(pUnit, *getGroup())
++		{
++			if (pUnit != NULL)
++			{
++				bool bGlow = pUnit->isPromotionReady();
++				gDLL->getEntityIFace()->showPromotionGlow(pUnit->getEntity(), bGlow);
++			}
++		}
++	} // </advc.002e>
++	// <advc.004h>
++	if (isFound())
++		updateFoundingBorder(); // </advc.004h>
++}
++
+ // advc.004h:
+ void CvUnit::updateFoundingBorder(bool bForceClear) const
+ {
+@@ -2691,7 +2697,8 @@ void CvUnit::fightInterceptor(CvPlot const& kPlot, bool bQuick) // advc: was CvP
+ 	updateAirCombat(bQuick);
+ }
+ 
+-void CvUnit::attackForDamage(CvUnit *pDefender, int attackerDamageChange, int defenderDamageChange)
++void CvUnit::attackForDamage(CvUnit *pDefender,
++	int attackerDamageChange, int defenderDamageChange)
+ {
+ 	FAssert(getCombatTimer() == 0);
+ 	FAssert(pDefender != NULL);
+@@ -4792,7 +4799,7 @@ void CvUnit::updatePlunder(int iChange, bool bUpdatePlotGroups)
+ 	}*/
+ 	// <advc.033>
+ 	// Update colors -- unless we're about to unit-cycle
+-	if(isHuman() && ((iChange == -1 && gDLL->UI().getHeadSelectedUnit() == this) ||
++	if (isHuman() && ((iChange == -1 && gDLL->UI().getHeadSelectedUnit() == this) ||
+ 		GC.suppressCycling()))
+ 	{
+ 		GC.getGame().updateColoredPlots();
+@@ -7486,10 +7493,10 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
+ 		bool bFound = false;
+ 		FOR_EACH_UNIT_IN(pUnit, getPlot())
+ 		{
+-			if(pUnit->getTeam() == getTeam() && !pUnit->isInvisible(eAttackerTeam, false))
++			if (pUnit->getTeam() == getTeam() && !pUnit->isInvisible(eAttackerTeam, false))
+ 				bFound = true;
+ 		}
+-		if(!bFound)
++		if (!bFound)
+ 			return false;
+ 	}
+ 	// Moved down: // </advc.028>
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 2fe94123b..90fc25750 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -34,6 +34,7 @@ public:
+ 	bool updateAirStrike(CvPlot& kPlot, bool bQuick, bool bFinish);
+ 
+ 	bool isActionRecommended(int iAction);
++	void onActiveSelection(); // advc
+ 	void updateFoundingBorder(bool bForceClear = false) const; // advc.004h
+ 
+ 	bool isUnowned() const; // advc.061
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1dfa00a16..a3db7ae30 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -10429,7 +10429,7 @@ bool CvUnitAI::AI_guardCityAirlift()
+ 	return false;
+ }
+ 
+-// K-Mod.
++// K-Mod:
+ // This function will use our naval unit to block the coast outside our cities.
+ bool CvUnitAI::AI_guardCoast(bool bPrimaryOnly, MovementFlags eFlags, int iMaxPath)
+ {
+@@ -10525,7 +10525,7 @@ bool CvUnitAI::AI_guardCoast(bool bPrimaryOnly, MovementFlags eFlags, int iMaxPa
+ 	}
+ 
+ 	return false;
+-} // K-Mod end
++}
+ 
+ 
+ bool CvUnitAI::AI_guardBonus(int iMinValue)
+@@ -10585,7 +10585,8 @@ bool CvUnitAI::AI_guardBonus(int iMinValue)
+ 	{
+ 		if (at(*pBestGuardPlot))
+ 		{
+-			getGroup()->pushMission(  // <K-Mod>
++			getGroup()->pushMission(
++					// <K-Mod>
+ 					canSeaPatrol(pBestGuardPlot) ? MISSION_SEAPATROL :
+ 					(isFortifyable() ? MISSION_FORTIFY : MISSION_SKIP), // </K-Mod>
+ 					-1, -1, NO_MOVEMENT_FLAGS, false, false, MISSIONAI_GUARD_BONUS,
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=8031

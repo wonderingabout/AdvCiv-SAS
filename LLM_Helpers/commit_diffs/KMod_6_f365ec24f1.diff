@@ -1,0 +1,1921 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6
+# Commit: f365ec24f1f5b4506e8b27d83e839a66e43e791f
+# History segment: K-Mod history
+# Parent used for diff: d63edcad210cdd651b59b2302173ff97ebe53687
+# Title: assets to go with UnhealthyPopulationModifier change
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Screens/EconomicsAdvisor.py
+27	32	Assets/xml/GameInfo/CIV4CivicInfos.xml
+2	2	Assets/xml/GameInfo/CIV4GameInfoSchema.xml
+0	9	Assets/xml/Text/CIV4GameText_UnofficialPatch.xml
+93	0	Assets/xml/Text/Civ4GameText_K-Mod.xml
+161	166	Assets/xml/buildings/CIV4BuildingInfos.xml
+2	2	Assets/xml/buildings/CIV4BuildingsSchema.xml
+ create mode 100644 Assets/xml/Text/Civ4GameText_K-Mod.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/EconomicsAdvisor.py b/Assets/Python/Screens/EconomicsAdvisor.py
+index 4683fdca3..5156083fb 100644
+--- a/Assets/Python/Screens/EconomicsAdvisor.py
++++ b/Assets/Python/Screens/EconomicsAdvisor.py
+@@ -631,7 +631,7 @@ class EconomicsAdvisor:
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Potential events per turn" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iGlobalWarmingRolls) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+-		if (iGwEventTally > 0):
++		if (iGwEventTally >= 0):
+ 			yLocation += 1.5 * self.Y_SPACING
+ 			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Event tally" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iGwEventTally) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+
+diff --git a/Assets/xml/GameInfo/CIV4CivicInfos.xml b/Assets/xml/GameInfo/CIV4CivicInfos.xml
+index f1ec7bcdd..a0beecb63 100644
+--- a/Assets/xml/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/xml/GameInfo/CIV4CivicInfos.xml
+@@ -38,7 +38,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -103,7 +103,7 @@
+ 			<iHappyPerMilitaryUnit>1</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -168,7 +168,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>3</iLargestCityHappiness>
+@@ -237,7 +237,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -302,7 +302,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -381,7 +381,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -446,7 +446,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -511,7 +511,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -580,7 +580,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>3</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -655,7 +655,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -733,7 +733,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -798,7 +798,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -868,7 +868,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -950,7 +950,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1037,7 +1037,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1102,7 +1102,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1167,7 +1167,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1232,7 +1232,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1297,7 +1297,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1369,7 +1369,7 @@
+ 			<iDistanceMaintenanceModifier>0</iDistanceMaintenanceModifier>
+ 			<iNumCitiesMaintenanceModifier>0</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>25</iCorporationMaintenanceModifier>
+-			<iExtraHealth>6</iExtraHealth>
++			<iExtraHealth>0</iExtraHealth>
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+@@ -1383,7 +1383,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>-30</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1411,12 +1411,7 @@
+ 			<SpecialBuildingNotRequireds/>
+ 			<SpecialistValids/>
+ 			<BuildingHappinessChanges/>
+-			<BuildingHealthChanges>
+-				<BuildingHealthChange>
+-					<BuildingType>BUILDINGCLASS_PUBLIC_TRANSPORTATION</BuildingType>
+-					<iHealthChange>2</iHealthChange>
+-				</BuildingHealthChange>
+-			</BuildingHealthChanges>
++			<BuildingHealthChanges/>
+ 			<FeatureHappinessChanges/>
+ 			<ImprovementYieldChanges>
+ 				<ImprovementYieldChange>
+@@ -1470,7 +1465,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1535,7 +1530,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1605,7 +1600,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1670,7 +1665,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+@@ -1735,7 +1730,7 @@
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<iLargestCityHappiness>0</iLargestCityHappiness>
+
+diff --git a/Assets/xml/GameInfo/CIV4GameInfoSchema.xml b/Assets/xml/GameInfo/CIV4GameInfoSchema.xml
+index 63f18ecf7..ac074d671 100644
+--- a/Assets/xml/GameInfo/CIV4GameInfoSchema.xml
++++ b/Assets/xml/GameInfo/CIV4GameInfoSchema.xml
+@@ -640,7 +640,7 @@
+ 	<ElementType name="iHappyPerMilitaryUnit" content="textOnly" dt:type="int"/>
+ 	<ElementType name="bMilitaryFoodProduction" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="iMaxConscript" content="textOnly" dt:type="int"/>
+-	<ElementType name="bNoUnhealthyPopulation" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iUnhealthyPopulationModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iExpInBorderModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="bBuildingOnlyHealthy" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="iLargestCityHappiness" content="textOnly" dt:type="int"/>
+@@ -774,7 +774,7 @@
+ 		<element type="iHappyPerMilitaryUnit"/>
+ 		<element type="bMilitaryFoodProduction"/>
+ 		<element type="iMaxConscript"/>
+-		<element type="bNoUnhealthyPopulation"/>
++		<element type="iUnhealthyPopulationModifier"/>
+ 		<element type="iExpInBorderModifier"/>
+ 		<element type="bBuildingOnlyHealthy"/>
+ 		<element type="iLargestCityHappiness"/>
+
+diff --git a/Assets/xml/Text/CIV4GameText_UnofficialPatch.xml b/Assets/xml/Text/CIV4GameText_UnofficialPatch.xml
+index c59e07b82..1abf910b0 100644
+--- a/Assets/xml/Text/CIV4GameText_UnofficialPatch.xml
++++ b/Assets/xml/Text/CIV4GameText_UnofficialPatch.xml
+@@ -39,13 +39,4 @@
+ 		<Italian>[COLOR_WARNING_TEXT]Richiede [LINK=literal]%s1_Name[\LINK] (%d2_NumTotal totali)[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_WARNING_TEXT]Requiere [LINK=literal]%s1_Name[\LINK] (%d2_NumTotal en total)[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+-	<!-- K-Mod trade culture -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_HELP_TRADE_CULTURE</Tag>
+-		<English>[ICON_BULLET]%s1[ICON_CULTURE] from [ICON_TRADE]</English>
+-		<French>[ICON_BULLET]%s1[ICON_CULTURE] ([ICON_TRADE])</French>
+-		<German>[ICON_BULLET]%s1[ICON_CULTURE] durch [ICON_TRADE]</German>
+-		<Italian>[ICON_BULLET]%s1[ICON_CULTURE] dalla [ICON_TRADE]</Italian>
+-		<Spanish>[ICON_BULLET]%s1[ICON_CULTURE] por [ICON_TRADE]</Spanish>
+-	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+new file mode 100644
+index 000000000..1ccd46c6e
+--- /dev/null
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -0,0 +1,93 @@
++<?xml version="1.0" encoding="ISO-8859-1"?>
++<!-- edited by karadoc, using an ordinary text editor -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Game Text Infos -->
++<Civ4GameText xmlns="http://www.firaxis.com">
++	<!-- K-Mod trade culture -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_HELP_TRADE_CULTURE</Tag>
++		<English>[ICON_BULLET]%s1[ICON_CULTURE] from [ICON_TRADE]</English>
++		<French>[ICON_BULLET]%s1[ICON_CULTURE] ([ICON_TRADE])</French>
++		<German>[ICON_BULLET]%s1[ICON_CULTURE] durch [ICON_TRADE]</German>
++		<Italian>[ICON_BULLET]%s1[ICON_CULTURE] dalla [ICON_TRADE]</Italian>
++		<Spanish>[ICON_BULLET]%s1[ICON_CULTURE] por [ICON_TRADE]</Spanish>
++	</TEXT>
++	<!-- Global warming text -->
++	<TEXT>
++		<Tag>TXT_KEY_ENVIRONMENTAL_ADVISOR_TITLE</Tag>
++		<English>Environmental Advisor</English>
++		<French>Environnement</French>
++		<German>Umwelt</German>
++		<Italian>Ambiente</Italian>
++		<Spanish>Medio Ambiente</Spanish>
++	</TEXT>
++	<!-- TODO: get translations for the following keys. -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_GLOBAL_WARMING_ACTIVE</Tag>
++		<English>Worldwide pollution has reached the sustainability threshold.</English>
++		<French>Worldwide pollution has reached the sustainability threshold.</French>
++		<German>Worldwide pollution has reached the sustainability threshold.</German>
++		<Italian>Worldwide pollution has reached the sustainability threshold.</Italian>
++		<Spanish>Worldwide pollution has reached the sustainability threshold.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_POPUP_ENVIRONMENTAL_ADVISOR</Tag>
++		<English>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. We have appointed an environmental advisor to provide you with further information. (See the economics screen; F2)</English>
++		<French>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. We have appointed an environmental advisor to provide you with further information. (See the economics screen; F2)</French>
++		<German>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. We have appointed an environmental advisor to provide you with further information. (See the economics screen; F2)</German>
++		<Italian>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. We have appointed an environmental advisor to provide you with further information. (See the economics screen; F2)</Italian>
++		<Spanish>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. We have appointed an environmental advisor to provide you with further information. (See the economics screen; F2)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNHEALTHY_POP_MODIFIER</Tag>
++		<English>[ICON_BULLET]%D1_Mod%% [ICON_UNHEALTHY] from Population</English>
++		<French>[ICON_BULLET]%D1_Mod%% [ICON_UNHEALTHY] &#224; cause de la population</French>
++		<German>[ICON_BULLET]%D1_Mod%% [ICON_UNHEALTHY] durch Bev&#246;lkerung</German>
++		<Italian>[ICON_BULLET]%D1_Mod%% [ICON_UNHEALTHY] tra la popolazione</Italian>
++		<Spanish>[ICON_BULLET]%D1_Mod%% [ICON_UNHEALTHY] por poblaci&#243;n</Spanish>		
++	</TEXT>
++	<!-- unused tags
++	<TEXT>
++		<Tag>TXT_KEY_MISC_NUCLEAR_WINTER_NEAR_CITY</Tag>
++		<English>Radioactive dust fills the skies near %s1_CityName!</English>
++		<French>*Hiver nucl�aire* Alerte ! R&#233;chauffement plan&#233;taire pr&#232;s de %s1_CityName !</French>
++		<German>*Kernwinter* Nahe der Stadt %s1_CityName zeigen sich Auswirkungen der globalen Erw&#228;rmung!</German>
++		<Italian>*Inverno nucleare* Gli effetti del riscaldamento globale colpiscono %s1_CityName!</Italian>
++		<Spanish>*Invierno nuclear* El calentamiento global causa efecto cerca de %s1_CityName.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GAME_OPTION_RISING_SEAS</Tag>
++		<English>Rising Seas</English>
++		<French>Mers Er Hausse</French>
++		<German>Steigende Meere</German>
++		<Italian>Mari Aumentanti</Italian>
++		<Spanish>Mares De Levantamiento</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GAME_OPTION_RISING_SEAS_HELP</Tag>
++		<English>Global warming can raise sea level.</English>
++		<French>Le rechauffement global peut soulever le niveau de la mer.</French>
++		<German>Die globale Erwarmung kann Meeresspiegel anheben.</German>
++		<Italian>Il riscaldamento globale puo sollevare il livello del mare.</Italian>
++		<Spanish>El calentamiento del planeta puede levantar nivel del mar.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_DOMESTIC_ADVISOR_CITY</Tag>
++		<English>Cities</English>
++		<French>Villes</French>
++		<German>St�dte</German>
++		<Italian>Citt�</Italian>
++		<Spanish>Ciudades</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_DOMESTIC_ADVISOR_ENVIRONMENT</Tag>
++		<English>Environment</English>
++		<French>Environnement</French>
++		<German>Umwelt</German>
++		<Italian>Ambiente</Italian>
++		<Spanish>Medio Ambiente</Spanish>
++	</TEXT>
++	[end of unused tags] -->
++</Civ4GameText>
+
+diff --git a/Assets/xml/buildings/CIV4BuildingInfos.xml b/Assets/xml/buildings/CIV4BuildingInfos.xml
+index e8d6a9a12..8a35515e0 100644
+--- a/Assets/xml/buildings/CIV4BuildingInfos.xml
++++ b/Assets/xml/buildings/CIV4BuildingInfos.xml
+@@ -60,7 +60,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -230,7 +230,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -414,7 +414,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -598,7 +598,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -770,7 +770,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -942,7 +942,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -1140,7 +1140,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -1343,7 +1343,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -1515,7 +1515,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -1686,7 +1686,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -1853,7 +1853,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -2020,7 +2020,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -2182,7 +2182,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -2349,7 +2349,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -2529,7 +2529,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -2716,7 +2716,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -2883,7 +2883,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -3049,7 +3049,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -3215,7 +3215,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -3377,7 +3377,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>1</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -3544,7 +3544,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -3713,7 +3713,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -3882,7 +3882,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -4062,7 +4062,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -4237,7 +4237,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -4404,7 +4404,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -4580,7 +4580,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -4752,7 +4752,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -4924,7 +4924,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -5114,7 +5114,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -5310,7 +5310,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -5501,7 +5501,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -5692,7 +5692,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -5859,7 +5859,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -6031,7 +6031,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -6198,7 +6198,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -6365,7 +6365,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -6558,7 +6558,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -6733,7 +6733,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -6913,7 +6913,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -7092,7 +7092,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -7267,7 +7267,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>-15</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -7308,7 +7308,7 @@
+ 			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+ 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+ 			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>1</iHealth>
++			<iHealth>0</iHealth>
+ 			<iAreaHealth>0</iAreaHealth>
+ 			<iGlobalHealth>0</iGlobalHealth>
+ 			<iHappiness>0</iHappiness>
+@@ -7351,12 +7351,7 @@
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+ 			<ConstructSound>AS2D_BUILD_RECYCLING_CENTER</ConstructSound>
+-			<BonusHealthChanges>
+-				<BonusHealthChange>
+-					<BonusType>BONUS_OIL</BonusType>
+-					<iHealthChange>1</iHealthChange>
+-				</BonusHealthChange>
+-			</BonusHealthChanges>
++			<BonusHealthChanges/>
+ 			<BonusHappinessChanges/>
+ 			<BonusProductionModifiers/>
+ 			<UnitCombatFreeExperiences/>
+@@ -7434,7 +7429,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -7612,7 +7607,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -7795,7 +7790,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -7982,7 +7977,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -8165,7 +8160,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -8343,7 +8338,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -8513,7 +8508,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -8688,7 +8683,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -8863,7 +8858,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -9048,7 +9043,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -9237,7 +9232,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -9430,7 +9425,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -9614,7 +9609,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -9784,7 +9779,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -9972,7 +9967,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -10142,7 +10137,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -10312,7 +10307,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -10500,7 +10495,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -10686,7 +10681,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -10876,7 +10871,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -11066,7 +11061,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -11252,7 +11247,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -11416,7 +11411,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -11580,7 +11575,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -11766,7 +11761,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -11972,7 +11967,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -12153,7 +12148,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -12334,7 +12329,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -12515,7 +12510,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -12696,7 +12691,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -12882,7 +12877,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -13063,7 +13058,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -13228,7 +13223,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -13396,7 +13391,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -13578,7 +13573,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -13750,7 +13745,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -13925,7 +13920,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -14111,7 +14106,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -14284,7 +14279,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -14468,7 +14463,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -14643,7 +14638,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -14829,7 +14824,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -15002,7 +14997,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -15186,7 +15181,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -15361,7 +15356,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -15547,7 +15542,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -15720,7 +15715,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -15904,7 +15899,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -16079,7 +16074,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -16265,7 +16260,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -16438,7 +16433,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -16622,7 +16617,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -16797,7 +16792,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -16983,7 +16978,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -17156,7 +17151,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -17340,7 +17335,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -17515,7 +17510,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -17701,7 +17696,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -17874,7 +17869,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -18058,7 +18053,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -18233,7 +18228,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -18419,7 +18414,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -18592,7 +18587,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -18776,7 +18771,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -18956,7 +18951,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -19136,7 +19131,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>1</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -19321,7 +19316,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>1</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>-100</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -19496,7 +19491,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -19667,7 +19662,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -19860,7 +19855,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -20039,7 +20034,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -20233,7 +20228,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -20404,7 +20399,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -20579,7 +20574,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -20754,7 +20749,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -20921,7 +20916,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -21095,7 +21090,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>1</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -21274,7 +21269,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -21465,7 +21460,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -21644,7 +21639,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -21828,7 +21823,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -22016,7 +22011,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -22197,7 +22192,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -22371,7 +22366,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -22564,7 +22559,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -22743,7 +22738,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -22922,7 +22917,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -23109,7 +23104,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -23290,7 +23285,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -23469,7 +23464,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -23648,7 +23643,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -23828,7 +23823,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -24012,7 +24007,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -24196,7 +24191,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -24366,7 +24361,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -24536,7 +24531,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -24706,7 +24701,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -24872,7 +24867,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -25042,7 +25037,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -25211,7 +25206,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -25382,7 +25377,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -25552,7 +25547,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -25736,7 +25731,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -25918,7 +25913,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -26097,7 +26092,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -26281,7 +26276,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -26460,7 +26455,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -26633,7 +26628,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -26812,7 +26807,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -26998,7 +26993,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -27176,7 +27171,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -27354,7 +27349,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -27532,7 +27527,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -27710,7 +27705,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -27888,7 +27883,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -28066,7 +28061,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+@@ -28240,7 +28235,7 @@
+ 			<bAllowsNukes>0</bAllowsNukes>
+ 			<bMapCentering>0</bMapCentering>
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+-			<bNoUnhealthyPopulation>0</bNoUnhealthyPopulation>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+ 			<bNukeImmune>1</bNukeImmune>
+
+diff --git a/Assets/xml/buildings/CIV4BuildingsSchema.xml b/Assets/xml/buildings/CIV4BuildingsSchema.xml
+index 3cd0cccf6..986922288 100644
+--- a/Assets/xml/buildings/CIV4BuildingsSchema.xml
++++ b/Assets/xml/buildings/CIV4BuildingsSchema.xml
+@@ -104,7 +104,7 @@
+ 	<ElementType name="bAllowsNukes" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="bMapCentering" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="bNoUnhappiness" content="textOnly" dt:type="boolean"/>
+-	<ElementType name="bNoUnhealthyPopulation" content="textOnly" dt:type="boolean"/>
++	<ElementType name="iUnhealthyPopulationModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="bBuildingOnlyHealthy" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="bNeverCapture" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="bNukeImmune" content="textOnly" dt:type="boolean"/>
+@@ -434,7 +434,7 @@
+ 		<element type="bAllowsNukes"/>
+ 		<element type="bMapCentering"/>
+ 		<element type="bNoUnhappiness"/>
+-		<element type="bNoUnhealthyPopulation"/>
++		<element type="iUnhealthyPopulationModifier"/>
+ 		<element type="bBuildingOnlyHealthy"/>
+ 		<element type="bNeverCapture"/>
+ 		<element type="bNukeImmune"/>
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=83720

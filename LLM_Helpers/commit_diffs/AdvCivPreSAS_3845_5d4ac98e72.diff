@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3845
+# Commit: 5d4ac98e72f43361c7c98fc2271e883f4bc6c300
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5355820f3ac6530a945b4267323cfcdb532b0d0e
+# Title: Some additional sanity tests when loading replays
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	1	CvGameCoreDLL/CvReplayInfo.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 8abaa7ae8..d38db860b 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -742,13 +742,19 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
+ 		m_eDifficulty = (HandicapTypes)iType;
+ 		if(!checkBounds(m_eDifficulty, 0, GC.getNumHandicapInfos())) return false; // advc.106i  (not -1 b/c of advc.250a)
+ 		stream.ReadString(m_szLeaderName);
++		if(!checkBounds(m_szLeaderName.length(), 0, 128)) return false; // advc.106i
+ 		stream.ReadString(m_szCivDescription);
++		if(!checkBounds(m_szCivDescription.length(), 0, 128)) return false; // advc.106i
+ 		stream.ReadString(m_szShortCivDescription);
++		if(!checkBounds(m_szShortCivDescription.length(), 0, 128)) return false; // advc.106i
+ 		stream.ReadString(m_szCivAdjective);
++		if(!checkBounds(m_szCivAdjective.length(), 0, 128)) return false; // advc.106i
+ 		if(iVersion > 3)
++		{
+ 			stream.ReadString(m_szMapScriptName);
++			if(!checkBounds(m_szMapScriptName.length(), 0, 128)) return false; // advc.106i
++		}
+ 		else m_szMapScriptName = gDLL->getText("TXT_KEY_TRAIT_PLAYER_UNKNOWN");
+-		if(!checkBounds(m_szLeaderName.length() + m_szCivDescription.length() + m_szShortCivDescription.length() + m_szCivAdjective.length() + m_szMapScriptName.length(), 5, 250)) return false; // advc.106i
+ 		stream.Read(&iType);
+ 		m_eWorldSize = (WorldSizeTypes)iType;
+ 		if(!checkBounds(m_eWorldSize, 0, GC.getNumWorldInfos() - 1)) return false; // advc.106i
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1505

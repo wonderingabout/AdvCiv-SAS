@@ -1,0 +1,212 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5507
+# Commit: cc7e46a6dd900cb47587ac28ecaeb4703d491412
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c9be31986ebfdb95cd91b0c2bf3298739ab4ffaf
+# Title: restore flag as an optional compact flag on top left in main interface - "**Main Interface (civilization flag):** **Removed the civilization flag** from the...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+47	31	Assets/Python/Screens/CvMainInterface.py
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	README.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index eda600811..780573b4e 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -662,6 +662,8 @@ class CvMainInterface:
+ 		self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN = None
+ 		# <!-- custom: optional unit info button in the map view unit panel. (GPT-5.2-Codex) -->
+ 		self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = None
++		# <!-- custom: optional top-left flag and left-text spacing shift (e.g. treasury) for the main interface. (GPT-5.3-Codex (summarized)) -->
++		self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT = None
+ 
+ 
+ 
+@@ -963,8 +965,14 @@ class CvMainInterface:
+ 		lBUGOptBtn = gRect("TurnLogButton").copy()
+ 		lBUGOptBtn.move(gRect("TurnLogButton").size() + HSPACE(4), 0)
+ 		gSetRectangle("BUGOptionsScreenWidget", lBUGOptBtn)
+-		gSetPoint("GoldText", PointLayout(
+-				(gRect("TurnLogButton").x() * 2) / 3, gPoint("TimeText").y()))
++		iGoldTextX = (gRect("TurnLogButton").x() * 2) / 3
++		bTopLeftFlagAndTreasuryShift = self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT
++		if bTopLeftFlagAndTreasuryShift is None:
++			bTopLeftFlagAndTreasuryShift = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
++		if bTopLeftFlagAndTreasuryShift:
++			# <!-- custom: when this define is off, no flag is drawn here, so the left text (e.g. treasury) keeps its base position (no extra room needed). (GPT-5.3-Codex) -->
++			iGoldTextX += HSPACE(18)
++		gSetPoint("GoldText", PointLayout(iGoldTextX, gPoint("TimeText").y()))
+ 		gSetPoint("EraText", PointLayout(
+ 				gRect("CityLeftPanel").xRight() - HSPACE(8), gPoint("GoldText").y()))
+ 		self.setCommerceAdjustRects()
+@@ -984,16 +992,16 @@ class CvMainInterface:
+ 				iEndTurnBtnX,
+ 				iEndTurnBtnY,
+ 				iEndTurnBtnSz)
+-		# <!-- custom: position flag directly to the left of the minimap, like in the C2C mod  (Claude code Opus 4.5) -->
+-		# Use absolute positioning based on minimap's actual screen position
+-		iFlagWidth = 68
++		# <!-- custom: compact BtS-ratio top-left flag slot; runtime drawing is toggled in updateFlag. (GPT-5.3-Codex) -->
++		iFlagWidth = 24
+ 		iFlagHeight = iFlagWidth * 250 / 68
+-		iFlagX = gRect("MiniMapPanel").x() - iFlagWidth - 4  # 4px gap to the left of minimap
+-		iFlagY = gRect("MiniMapPanel").y() + 4  # 4px from top of minimap panel
++		# <!-- custom: clamp to visible screen bounds; negative top-left offsets can hide the flag widget entirely on some HUD layouts. (GPT-5.3-Codex) -->
++		iFlagX = max(0, gRect("InterfaceTopLeft").x() + HSPACE(2))
++		iFlagY = max(0, gRect("InterfaceTopLeft").y() + VSPACE(0))
+ 		gSetRect("CivilizationFlag", "Top",
+ 				iFlagX, iFlagY,
+ 				iFlagWidth, iFlagHeight)
+-		# CivFlagArea kept for compatibility, sized to fit the flag
++		# CivFlagArea kept for compatibility, sized to fit the flag.
+ 		gSetRect("CivFlagArea", "CivilizationFlag",
+ 				0, 0,
+ 				RectLayout.MAX, RectLayout.MAX)
+@@ -1918,7 +1926,8 @@ class CvMainInterface:
+ 			self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN") > 0)
+ 		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON is None:
+ 			self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON") > 0)
+-
++		if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT is None:
++			self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
+ 		lTop = gRect("Top")
+ 
+ 		self.setDefaultHelpTextArea()
+@@ -2846,7 +2855,9 @@ class CvMainInterface:
+ 			self.updatePercentButtons()
+ 			CyInterface().setDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT, False)
+ 		if (CyInterface().isDirty(InterfaceDirtyBits.Flag_DIRTY_BIT)):
+-			# self.updateFlag()
++			# <!-- custom: changed from unconditional refresh to define-gated refresh so this optional UI feature stays no-op when disabled. (GPT-5.3-Codex) -->
++			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT:
++				self.updateFlag()
+ 			CyInterface().setDirty(InterfaceDirtyBits.Flag_DIRTY_BIT, False)
+ 		if (CyInterface().isDirty(InterfaceDirtyBits.MiscButtons_DIRTY_BIT)):
+ 			# Miscellaneous buttons (civics screen, etc)
+@@ -3098,13 +3109,19 @@ class CvMainInterface:
+ # BUG - Great Person Bar - end
+ 		#CyInterface().shouldDisplayFlag() and
+ 		# <advc.004y> Don't check shouldDisplayFlag for the Civilopedia button, but do check if the city screen is up.
+-		if (CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_SHOW and
+-				not CyInterface().isCityScreenUp()):
+-			screen.show("InterfaceHelpButton")
+-			if CyInterface().shouldDisplayFlag():
+-				screen.show("MainMenuButton")
+-			else:
++		# <!-- custom: we also show the flag in city screen, unlike base AdvCiv. Because this mod moves it to a small top-left slot, it no longer interferes with city-action buttons; therefore keeping it visible in city screen is useful (traits hover + capital jump) rather than intrusive. This remains an optional behavior. (GPT-5.3-Codex) -->
++		if (CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_SHOW):
++			if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT:
++				self.updateFlag()
++			if CyInterface().isCityScreenUp():
++				screen.hide("InterfaceHelpButton")
+ 				screen.hide("MainMenuButton")
++			else:
++				screen.show("InterfaceHelpButton")
++				if CyInterface().shouldDisplayFlag():
++					screen.show("MainMenuButton")
++				else:
++					screen.hide("MainMenuButton")
+ 			# </advc.004y>
+ 		else:
+ 			screen.hide("CivilizationFlag")
+@@ -3709,21 +3726,20 @@ class CvMainInterface:
+ 		return 0
+ # BUG - BUG unit plot draw method - end
+ 
+-
+-	# <!-- custom: do not show the useless flag, we need the space for buttons anyway, done with the help of GPT-5.2-Codex thanks a lot -->
+-	# # This will update the flag widget for SP hotseat and dbeugging
+-	# def updateFlag(self):
+-	# 	self.screen.hide("CivilizationFlag")
+-	# 	return
+-	# 	eIFaceVis = CyInterface().getShowInterface()
+-	# 	if (eIFaceVis != InterfaceVisibility.INTERFACE_HIDE_ALL and
+-	# 			eIFaceVis != InterfaceVisibility.INTERFACE_MINIMAP_ONLY and
+-	# 			eIFaceVis != InterfaceVisibility.INTERFACE_ADVANCED_START):
+-	# 		lRect = gRect("CivilizationFlag")
+-	# 		self.screen.addFlagWidgetGFC("CivilizationFlag",
+-	# 				lRect.x(), lRect.y(), lRect.width(), lRect.height(),
+-	# 				gc.getGame().getActivePlayer(),
+-	# 				WidgetTypes.WIDGET_FLAG, gc.getGame().getActivePlayer(), -1)
++	# <!-- custom: restored flag-widget update path (was disabled before our UI option) so hover/click flag behavior can be toggled by define-gated callers. (GPT-5.3-Codex) -->
++	def updateFlag(self):
++		eIFaceVis = CyInterface().getShowInterface()
++		if (eIFaceVis != InterfaceVisibility.INTERFACE_HIDE_ALL and
++				eIFaceVis != InterfaceVisibility.INTERFACE_MINIMAP_ONLY and
++				eIFaceVis != InterfaceVisibility.INTERFACE_ADVANCED_START):
++			lRect = gRect("CivilizationFlag")
++			self.screen.addFlagWidgetGFC("CivilizationFlag",
++					lRect.x(), lRect.y(), lRect.width(), lRect.height(),
++					gc.getGame().getActivePlayer(),
++					WidgetTypes.WIDGET_FLAG, gc.getGame().getActivePlayer(), -1)
++			self.screen.show("CivilizationFlag")
++		else:
++			self.screen.hide("CivilizationFlag")
+ 
+ 	# Will hide and show the selection buttons and their associated buttons
+ 	def updateSelectionButtons(self):
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index c920a66ac..6918cd2b6 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -346,6 +346,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: enable compact top-left civ flag (hover/click) and matching left-text spacing shift (e.g. treasury); set to 0 to hide the flag and keep left text at base position. (GPT-5.3-Codex (summarized)) -->
++	<Define>
++		<DefineName>SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
+
+diff --git a/README.md b/README.md
+index 2b7175c5d..fcde33955 100644
+--- a/README.md
++++ b/README.md
+@@ -277,7 +277,7 @@ The city screen has been heavily reworked, beautified, and enhanced, for example
+ 
+ #### Map view rework
+ 
+-Outside the city screen, UI has been reworked too: removed the flag (was needless and cumbersome: better show more buttons instead), added buttons for unit stack and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
++Outside the city screen, UI has been reworked too: moved away the flag from production buttons bars (was needless and cumbersome there: better show more buttons instead: moved optionally to top panel as detailed in main changes guide), added buttons for unit stack and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
+ 
+ ## UI (Main Sevopedia reworks)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 134635415..b4820d3d8 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -331,6 +331,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). And other changes. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**.
++- (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#customizable-technology-advisor-width).
+ - **Inverted BUG Options** for the **Technology Advisor** and the **Religious Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+ 
+@@ -568,7 +569,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Melee Unit Combat Type split (rework + balance change):** `UNITCOMBAT_MELEE` is now split into `UNITCOMBAT_MELEE_POLEARM` (melee units that attack from some distance with a lance-like weapon; e.g. Spearmen, Pikemen) and `UNITCOMBAT_MELEE_SHOCK` (close-contact/brawl; e.g. Axemen, Swordsmen, Macemen). For example, after this change, axes still counter polearms but are only slightly stronger than swords; pikemen are no longer worse than axemen which was very odd considering cost and tech requirements difference. Civ-specific variants such as the Babylonian Bowman, or simply the generic Crossbow, now only apply vs. `UNITCOMBAT_MELEE_SHOCK` (i.e., weak vs pikes). **General idea for melee units:** Axeman > Spearman; Crossbow > Axeman/Swordsman/Maceman; Pikeman > Crossbow; Pikeman ≈ Axeman; Maceman > Pikeman. Civ variants retagged to match gear (e.g., Persia Immortal → polearm). **General idea for mounted units:** Spearman > Chariot (`UNITCOMBAT_MOUNTED_MELEE`); generic Horse/Camel Archer (`UNITCOMBAT_MOUNTED_RANGED`) > Spearman; generic Horse/Camel Knights (`UNITCOMBAT_MOUNTED_MELEE`) < Pikemen (`UNITCOMBAT_MELEE_POLEARM`); generic Horse/Camel Cuirassiers > Pikemen (`UNITCOMBAT_MELEE_POLEARM`). See Sevopedia/XML.
+ - **Reassignments:** e.g., **Mechanized Infantry** counts as **Armored** (not "Gun") for counter logic.
+ - **City defenses** affect all units, including gunpowder and later. See `bIgnoreBuildingDefense` in `CIV4UnitInfos.xml`.
+-- **Collateral** values normalized (fixed cases like **Stealth Bomber** having higher base collateral than its limit). Most units now show a **collateral damage limit** (starting at 0 for many). **Collateral promotions 1/2** are broadly available where eligible. Info shown in Sevopedia (Unit chart/Special Abilities) and unit hover panels.
++- **Collateral** values normalized (fixed cases like **Stealth Bomber** having higher base collateral than its limit). Most units now show a **collateral damage limit** (starting at 0 for many) ((Requires AdvCiv-SAS 5506+) hidden for civilian units since they don't use it). **Collateral promotions 1/2** are broadly available where eligible. Info shown in Sevopedia (Unit chart/Special Abilities) and unit hover panels.
+ - **Promotions retuned:**
+   - Some buffed (e.g., **Woodsman**), some reworked/nerfed (e.g., **Hills Master 2 and 3**), some prereqs changed (e.g., **Archers** can take **City Bombard**; **Logistics** (formerly Commando) requires **Combat 1** or **City Raider 1**; higher-tier promotions (**City Raider/Garrison/First Strike 3**) also need **Combat 2**).
+   - **Logistics** now at **The Wheel** (was Military Science).
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=16419

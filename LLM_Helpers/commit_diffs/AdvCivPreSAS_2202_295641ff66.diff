@@ -1,0 +1,82 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2202
+# Commit: 295641ff660772ef03056551d4fbfd202b0844d1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e81428bdf26543d80f761d689a5fb7b66092108d
+# Title: Remove MinStartingDistModifier from some map scripts
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	PrivateMaps/Hemispheres.py
+5	5	PrivateMaps/Mixed_Continents.py
+3	2	PrivateMaps/not_too_Big_or_Small.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Hemispheres.py b/PrivateMaps/Hemispheres.py
+index 10ff6b0d3..4c0f758b3 100644
+--- a/PrivateMaps/Hemispheres.py
++++ b/PrivateMaps/Hemispheres.py
+@@ -99,8 +99,9 @@ def getCustomMapOptionDefault(argsList):
+ 		}
+ 	return option_defaults[iOption]
+ 
+-def minStartingDistanceModifier():
+-	return -12
++# advc.027: Leave this up to the DLL entirely
++#def minStartingDistanceModifier():
++#	return -12
+ 
+ def beforeGeneration():
+ 	global xShiftRoll
+
+diff --git a/PrivateMaps/Mixed_Continents.py b/PrivateMaps/Mixed_Continents.py
+index 5e36f4010..19fa8caa7 100644
+--- a/PrivateMaps/Mixed_Continents.py
++++ b/PrivateMaps/Mixed_Continents.py
+@@ -196,12 +196,12 @@ def getWrapX():
+ 
+ 
+ def getWrapY():
+-	return (CyMap().getCustomMapOption(3) == 2) # </advc.mxc>
+-
+-
+-def minStartingDistanceModifier():
+-	return -12
++	return (CyMap().getCustomMapOption(3) == 2)
+ 
++# Leave this up to the DLL
++#def minStartingDistanceModifier():
++#	return -12
++# </advc.mxc>
+ 
+ def beforeGeneration():
+ 	global xShiftRoll
+
+diff --git a/PrivateMaps/not_too_Big_or_Small.py b/PrivateMaps/not_too_Big_or_Small.py
+index 2eecc4e63..690f7a768 100644
+--- a/PrivateMaps/not_too_Big_or_Small.py
++++ b/PrivateMaps/not_too_Big_or_Small.py
+@@ -92,8 +92,9 @@ def getWrapX():
+ def getWrapY():
+ 	return (CyMap().getCustomMapOption(2) == 2) # </dlph.32>
+ 
+-def minStartingDistanceModifier():
+-	return -12
++# advc.027: Leave this up to the DLL entirely
++#def minStartingDistanceModifier():
++#	return -12
+ 
+ def beforeGeneration():
+ 	#global xShiftRoll # advc (comment): Overlap option disabled by K-Mod
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1573

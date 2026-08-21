@@ -1,0 +1,56 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4397
+# Commit: 6d00b3d8383a1190ccf32beb15000d5444c0ee8e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5ae87c37c6f6fbaa440d9371f537c48884c78e7a
+# Title: Fix AI workers executing queued mission in wrong plot
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL[1.12].dll
+11	3	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL[1.12].dll b/Assets/CvGameCoreDLL[1.12].dll reason=binary/generated-file changedLines=0 bytes=200
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index b3fa83eb7..58a356e27 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1500,13 +1500,21 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 			break;
+ 
+ 		case MISSION_BUILD:
+-			if(!groupBuild((BuildTypes)missionData.iData1,
+-				!missionData.bModified)) // advc.011b
++		{
++			BuildTypes eBuild = (BuildTypes)missionData.iData1;
++			/*	<advc.001> (based on SAS) Routes may get built along the way to the
++				mission plot, but, if route-to or move-to fails and the mission plot
++				isn't reached, then any improvement build needs to be canceled. */
++			CvPlot const* pMissionAIPlot = AI().AI_getMissionAIPlot();
++			bool bCancel = (pMissionAIPlot != NULL && eBuild != NO_BUILD &&
++					GC.getInfo(eBuild).getRoute() == NO_ROUTE && !atPlot(pMissionAIPlot));
++			if (bCancel || // </advc.001>
++				!groupBuild(eBuild, /* advc.011b: */ !missionData.bModified))
+ 			{
+ 				bDone = true;
+ 			}
+ 			break;
+-
++		}
+ 		default: FAssert(false);
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=1087

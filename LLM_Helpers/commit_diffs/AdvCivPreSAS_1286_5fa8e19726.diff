@@ -1,0 +1,1754 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1286
+# Commit: 5fa8e19726954e4a6fa748a0303102a4452ff047
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8aaaae059d3db7d47d430c099ace4adc92e3afdb
+# Title: Not a working version; no DLL committed.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+463	0	Assets/XML/Misc/CIV4DetailManager.xml
+10	5	Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+2	6	Assets/xml/GameInfo/CIV4Hints.xml
+9	0	Assets/xml/GlobalDefines_advc.xml
+11	2	CvGameCoreDLL/CvCity.cpp
+14	4	CvGameCoreDLL/CvDLLButtonPopup.cpp
+76	6	CvGameCoreDLL/CvGameCoreUtils.cpp
+3	2	CvGameCoreDLL/CvGameCoreUtils.h
+3	0	CvGameCoreDLL/CvGlobals.cpp
+3	0	CvGameCoreDLL/CvGlobals.h
+10	1	CvGameCoreDLL/CvPlayer.cpp
+126	67	CvGameCoreDLL/CvPlayerAI.cpp
+78	10	CvGameCoreDLL/CvPlot.cpp
+11	4	CvGameCoreDLL/CvPlot.h
+34	0	CvGameCoreDLL/CvTeam.cpp
+8	4	CvGameCoreDLL/CvUnitAI.cpp
+43	5	CvGameCoreDLL/WarAndPeaceCache.cpp
+4	1	CvGameCoreDLL/WarAndPeaceCache.h
+34	0	CvGameCoreDLL/WarUtilityAspect.cpp
+2	0	CvGameCoreDLL/WarUtilityAspect.h
+-	-	manual_v0.91b.pdf
+ create mode 100644 Assets/XML/Misc/CIV4DetailManager.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Misc/CIV4DetailManager.xml b/Assets/XML/Misc/CIV4DetailManager.xml
+new file mode 100644
+index 000000000..32f047212
+--- /dev/null
++++ b/Assets/XML/Misc/CIV4DetailManager.xml
+@@ -0,0 +1,463 @@
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Firaxis Games (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Detail Manager -->
++<!-- Deines level-o-detail controllers or Cbiv4 graphical elements -->
++<!-- Useful hint: values in this file can be changed on the fly (i.e. effects will be noticeable w/o restarting the game) -->
++<DetailManagerInfos xmlns="x-schema:CIV4DetailManagerSchema.xml">
++	<Fader>
++		<Name>DF_DETAIL</Name>
++		<Key>700, 0.00</Key>
++		<Key>750, 1.00</Key>
++	</Fader>
++	<!-- advc.004m: Was 6000,0.00;6400,1.0. Don't know what each number means,
++		 so I've kept them at the same ratio as before. -->
++	<Fader>
++		<Name>DF_SKY</Name>
++		<Key>6900, 0.00</Key>
++		<Key>7360, 1.0</Key>
++		<Key>%CAMERA_MAX_DISTANCE, 1.00</Key>
++	</Fader>
++	<Fader>
++		<Name>DF_GLOBE_TERRAIN</Name>
++		<Key>6000, 0.00</Key>
++		<Key>6400, 1.00</Key>
++	</Fader>
++	<Fader>
++		<Name>DF_GLOBE_MORPH</Name>
++		<Key>6400,	0.00</Key>
++		<Key>%CAMERA_MAX_DISTANCE*0.97, 1.00</Key>
++	</Fader>
++	<Fader>
++		<Name>UNIT_SCALE</Name>
++		<Key>700.0,  1.0</Key>
++		<Key>1500.0, 1.3</Key>
++		<Key>3000.0, 1.6</Key>
++		<Key>5000.0, 2.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_UNIT_CUT_RADIUS</Name>
++		<!-- controls the radius of space to leave around fortified unit in a city layout -->
++		<Value>20</Value>
++	</Fader>
++	<Fader>
++		<Name>FLAG_SCALE</Name>
++		<Key>700.0,  0.6</Key>
++		<Key>1500.0, 0.7</Key>
++		<Key>3000.0, 0.9</Key>
++		<Key>5000.0, 1.2</Key>
++	</Fader>
++	<Fader>
++		<Name>F_PLOTINDICATOR_SCALE</Name>
++		<Key>0.0,  0.0</Key>
++		<Key>0.2,  0.9</Key>
++		<Key>1.0,  1.0</Key>
++	</Fader>
++	<Fader>
++		<Name>F_PLOTINDICATOR_ALPHA</Name>
++		<Key>0.0,  0.0</Key>
++		<Key>0.2,  0.5</Key>
++		<Key>0.7,  0.8</Key>
++		<Key>1.0,  1.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITY_GLOBEVIEW_ZOOM</Name>
++		<!-- cities grow synthetically in the globe view to this size -->
++		<Value>2.0f</Value>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_SCALE</Name>
++		<!-- changes the size of the billboards based on the camera distance -->
++		<Key>700,	 1.5</Key>
++		<Key>2500,   1.0</Key>
++		<Key>6000,   0.67</Key>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_HEIGHT</Name>
++		<!-- changes the height of the city billboards ***toward the camera*** based on camera distnace -->
++		<Key>700, 300.0</Key>
++		<Key>5000, 300.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_RADIUS</Name>
++		<!-- the billboard is placed a certain distance out from the center of the city ... this is the distance used, again vs. camera distance -->
++		<Key>700, 90.0</Key>
++		<Key>5000, 35.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_TURN_BIAS</Name>
++		<!-- as you turn the camera left and right, the city billboard gets placed in the local south, i.e. "down on your screen"... but this bias pushes the placement left and right from there... the -.784 is a full 45 degree left-tilt, +.784 is right -->
++		<Key>-0.785,0.0</Key>
++		<Key> 0.000,0.0</Key>
++		<Key>+0.785,0.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_TURN_BIAS2</Name>
++		<!-- as the camera zooms out, the city billboard sometimes appears to move left and right ... this allows you to force it to the left or right slightly based upon zoom ... -->
++		<Key>700,0.0</Key>
++		<Key>5000,0.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_ANGLE_SCALE</Name>
++		<!-- as the city billboard moves to the edge of the globe, it shrinks ... play with these values while in globeview to get an idea of what this fader does in practice. -->
++		<Key>0.0,  0.0</Key>
++		<Key>0.2,  0.75</Key>
++		<Key>1.0,  1.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITYBILLBOARD_ANGLE_HEIGHT_BIAS</Name>
++		<!-- as the city billboard moves to the edge of the globe, it gets lower in the sky... play with these values while in globeview to get an idea of what this fader does in practice. -->
++		<Key>0.0,  -250.0</Key>
++		<Key>1.0,  0.0</Key>
++	</Fader>
++	<Fader>
++		<Name>CITY_TWIST</Name>
++		<Value>-0.7853981633</Value>
++		<!-- how much to rotate cities about their axis -->
++		<!-- make sure you keep CITY_WALLS and CITY_AQUEDUCT sync'd to this in CityLSystem.xml -->
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_SIZE</Name>
++		<!-- controls how big a city is, in terms of numbers of plots -->
++		<Value>0.72</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_NODE_WATERINESS</Name>
++		<!-- roughly speaking, the percent of area allowed to be in-water for a node to finalize -->
++		<Value>0.5</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_PRODUCTION_WATERINESS</Name>
++		<!-- the percent of area in a production allowed for it to be finalized -->
++		<Value>0.5</Value>
++	</Fader>
++	<Fader>
++		<Name>	CITY_LAYOUT_COAST_FINDER_RADIUS</Name>
++		<Value>1.5</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_COAST_FINDER_DENSITY</Name>
++		<Value>20</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_COAST_FINDER_FILTER_SIZE</Name>
++		<Value>40</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_COAST_FINDER_NOISE</Name>
++		<Value>0</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_COAST_FINDER_CLOSENESS</Name>
++		<Value>60</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_COAST_FINDER_WATER_CLOSENESS</Name>
++		<Value>80</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_TREECUT_SCALE</Name>
++		<!-- multiplies plot size to obtain the radius of the treecut on cities -->
++		<Value>1.0</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_TREECUT_ZONE_BEGIN</Name>
++		<!-- if a node lies outside this radius from the city center, then it gets a treecut added to it when finalized -->
++		<Value>100</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_GROUND_SCALE</Name>
++		<Value>1.0</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_GROUND_ZOFFSET_PLAINS</Name>
++		<Value>1.0</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_GROUND_ZOFFSET_HILLS</Name>
++		<Value>4.5</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_BUILDING_SCALE</Name>
++		<!-- controls the scale applied to buildings in the city ... keep in mind that the actual size of a building is this value multiplied by CITY_SCALE -->
++		<Value>0.33</Value>
++	</Fader>
++	<Fader>
++		<Name>WALL_DEPTH</Name>
++		<!-- controls how high walls are off of the ground -->
++		<Value>-5.0</Value>
++	</Fader>
++	<Fader>
++		<Name>WALL_TWEAK_X</Name>
++		<!-- small translation factor for walls to keep them aligned with the city -->
++		<Value>0.50</Value>
++	</Fader>
++	<Fader>
++		<Name>WALL_TWEAK_Y</Name>
++		<!-- small translation factor for walls to keep them aligned with the city-->
++		<Value>.5</Value>
++	</Fader>
++	<Fader>
++		<Name>WALL_OFFSET_AMOUNT</Name>
++		<!-- how far are the walls away from the core city outline? -->
++		<Value>8</Value>
++	</Fader>
++	<Fader>
++		<Name>WALL_MIN_POST_DISTANCE</Name>
++		<!-- how far are the walls away from the core city outline? -->
++		<Value>40</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_WALLS_MAX_RADIUS</Name>
++		<!-- the maximum radius of the wall, in Civ4CityLSystem units -->
++		<Value>6</Value>
++	</Fader>
++	<Fader>
++		<Name>BONUS_DYNSCALE</Name>
++		<!-- nothing to see here... move on folks, move on... -->
++		<Value>0.5</Value>
++	</Fader>
++	<Fader>
++		<Name>PLOT_LAYOUT_SIZE</Name>
++		<!-- nothing to see here... move on folks, move on... -->
++		<Value>0.5</Value>
++	</Fader>
++	<Fader>
++		<Name>PLOT_LAYOUT_NODE_WATERINESS</Name>
++		<!-- roughly speaking, the percent of area allowed to be in-water for a node to finalize -->
++		<Value>0.2</Value>
++	</Fader>
++	<Fader>
++		<Name>PLOT_LAYOUT_PRODUCTION_WATERINESS</Name>
++		<!-- the percent of area in a production allowed for it to be finalized -->
++		<Value>0.5</Value>
++	</Fader>
++	<Fader>
++		<Name>SYMBOL_SCALE</Name>
++		<Key>700.0,  1.1</Key>
++		<Key>1800.0, 1.6</Key>
++		<Key>5000.0, 2.8</Key>
++	</Fader>
++	<!-- PlotBuilder node priority is computed in one of two ways:
++		   1) By the distance of the node from the center of the plot
++		   2) By the minimum distnace of one of the node's corners to the plot cente
++		 At F_PLOTBUILDER_PBLEND=0.0, the first metric will dominate node priority and at
++		 F_PLOTBUILDER_PBLEND=1.0, the second will dominate. -->
++	<Fader>
++		<Name>F_PLOTBUILDER_PBLEND</Name>
++		<Value>0.5</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_LANDSCAPE_BIAS</Name>
++		<Value>5.0</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_SKY_HEIGHT</Name>
++		<Value>65.0</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_CAP_RADIUS</Name>
++		<!-- what ART_GLOBEVIEW_WORLD_CAP -->
++		<Value>83.0</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_CAP_BIAS</Name>
++		<!-- displaces the icecap vertices +GLOBE_CAP_BIAS units along their normal -->
++		<Value>0.0</Value>
++	</Fader>
++	<!-- the following three parameters control how the Civ4 globe is lit.
++	     Since the size and position of the globe varies from map to map, it is necessary
++	     for these values to vary somewhat from map-to-map. This is accomplished with a fader whose
++	     X values are the "world size" and the Y values are the resulting value for that world size.
++	     Generally speaking, common values for world sizes are 7000 in the case of small maps to 15000 for large maps.
++	     The general rule, however, is hand-tuning: just tweak these numbers for different keyings to get the effect you want
++	     -->
++	<Fader>
++		<!-- maps from current globe radius to lighting angle -->
++		<Name>GLOBE_SPOTLIGHT_ANGLE</Name>
++		<!--<Key>%MAX_CAMERA_DISTANCE,24</Key>-->
++		<Key>3810,22</Key>
++		<Key>7619,26</Key>
++		<Key>9908,30</Key>
++		<Key>19799,30</Key>
++		<Key>100000,90</Key>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_SPOTLIGHT_XTRANS</Name>
++		<!--- in/out of globe light in screenspace versus max camera distance -->
++		<Key>10000,0</Key>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_SPOTLIGHT_YTRANS</Name>
++		<!-- up/down of globe light in screenspace -->
++		<Key>10000,250</Key>
++		<Key>23803,350</Key>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_SPOTLIGHT_ZTRANS</Name>
++		<!-- left/right of globe light in screenspace -->
++		<Key>10000,2000</Key>
++		<Key>23803,2200</Key>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_SPOTLIGHT_EXPONENT</Name>
++		<Value>1.4</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_MATERIAL_SHININESS</Name>
++		<Value>1.0</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_MATERIAL_AMBIENT_DAMPING</Name>
++		<Value>0.15</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_MATERIAL_DIFFUSE_DAMPING</Name>
++		<Value>1.0</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_SPOTLIGHT_YROT</Name>
++		<Value>-.25</Value>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_NIGHTSKY_SCALE</Name>
++		<Value>4.0</Value>
++	</Fader>
++	<Fader>
++		<Name>CAMERA_MAX_DISTANCE_FADER </Name>
++		<Value>0.75</Value>
++	</Fader>
++	<Fader>
++		<Name>CAMERA_FAR_PLANE_SCALE</Name>
++		<Value>10.0</Value>
++	</Fader>
++	<Fader>
++		<Name>UNIT_HEALTH_BILLBOARD_SCALE</Name>
++		<!-- changes the size of the billboards based on the camera distance -->
++		<Key>700,	 3.0</Key>
++		<Key>2500,   2.0</Key>
++	</Fader>
++	<Fader>
++		<Name>UNIT_HEALTH_BILLBOARD_Z</Name>
++		<!-- changes the height of the city billboards ***toward the camera*** based on camera distnace -->
++		<Key>700, 80.0</Key>
++		<Key>5000,70.0</Key>
++	</Fader>
++	<Fader>
++		<Name>UNIT_HEALTH_BILLBOARD_RADIUS</Name>
++		<!-- the billboard is placed a certain distance out from the center of the city ... this is the distance used, again vs. camera distance -->
++		<Key>700, 0.0</Key>
++		<Key>2000,-60</Key>
++		<Key>5000, -80.0</Key>
++	</Fader>
++	<Fader>
++		<Name>UNIT_HEALTH_BILLBOARD_Z_VS_TURN</Name>
++		<!-- as you turn the camera left and right, the city billboard gets placed in the local south, i.e. "down on your screen"... but this bias pushes the placement left and right from there... the -.784 is a full 45 degree left-tilt, +.784 is right -->
++		<Key>-0.785,-25.0</Key>
++		<Key> 0.000,0.0</Key>
++		<Key>+0.785,0.0</Key>
++	</Fader>
++	<!-- Controllers for how the aqueduct sourc eand sink is found -->
++	<Fader>
++		<Name>AQUEDUCT_SINK_MIN_DIST</Name>
++		<Value>50.0</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_SINK_MAX_DIST</Name>
++		<Value>80.0</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_SINK_TWIST</Name>
++		<Value>0.15</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_SOURCE_MIN_DIST</Name>
++		<Value>180.0</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_SOURCE_MAX_DIST</Name>
++		<Value>256.0</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_PLOT_SEARCH_DIST</Name>
++		<Value>2</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_HEIGHT_CUTOFF</Name> <!-- points in the aqueduct won't be created above this altitutde -->
++		<Value>100</Value>
++	</Fader>
++
++	<!-- controllers for how the path between source and sink is found ... 
++		we recursively split the line between source and sink until it reaches and ideal length,
++		adding noise to each split vertex in the tangent (X) and normal (Y) directions -->
++	<Fader>
++		<Name>AQUEDUCT_MIN_SEGMENT_LENGTH</Name>
++		<!-- how big is each segement in the aqueduct -->
++		<Value>20.0</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_SPLIT_NOISE_TANGENT</Name>
++		<!-- segment length VERSUS midpoint position in percentage from segment midpoint -->
++		<Key>32,	0.0</Key>
++		<Key>128,	0.1</Key>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_SPLIT_NOISE_NORMAL</Name>
++		<!-- segment length VERSUS offset in tangent direction in percentage of length -->
++		<Key>32,	0.0</Key>
++		<Key>90,	0.4</Key>
++		<Key>128,	0.4</Key>
++	</Fader>
++	<!-- controllers for how trees and buildings interact with the aqueduct -->
++	<Fader>
++		<Name>AQUEDUCT_CUT_DENSITY</Name>
++		<!-- add a cut every few units along the aqueduct length -->
++		<Value>10.0f</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_CUT_RADIUS</Name>
++		<Value>5.0f</Value>
++	</Fader>
++	<!-- controllers for the overall size of the aqueduct -->
++	<Fader>
++		<Name>AQUEDUCT_BASEMENT_DEPTH</Name>
++		<Value>-20.0f</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_MAIN_SCALE</Name>
++		<Value>0.4f</Value>
++	</Fader>
++	<Fader>
++		<Name>AQUEDUCT_HEIGHT_SCALE</Name>
++		<Value>0.5f</Value>
++	</Fader>
++	<Fader>
++		<Name>PLOT_LAYOUT_REGIONQUERY_SWELL</Name>
++		<Value>0.0f</Value>
++	</Fader>
++	<Fader>
++		<Name>CITY_LAYOUT_REGIONQUERY_SWELL</Name>
++		<Value>10.0f</Value>
++	</Fader>
++	<!-- these faders control how fast the globe pans in response to mouse movement in the x and y directions respectively...
++	     the first value is the width and height of the map being played -->
++	<Fader>
++		<Name>GLOBE_PAN_RATE_X</Name>
++		<Key>3810,0.005</Key>
++		<Key>19799,0.0075</Key>
++	</Fader>
++	<Fader>
++		<Name>GLOBE_PAN_RATE_Y</Name>
++		<Key>3810,0.005</Key>
++		<Key>19799,0.005</Key>
++	</Fader>
++	<!-- cities visible on globe -->
++	<Fader>
++		<Name>CITY_VISIBILITY</Name>
++		<Key>6000, 1.0</Key>
++		<!-- uncomment this to hide cities on maps wider than 6000 units
++		<Key>6001,0.0</Key>
++		-->
++	</Fader>
++</DetailManagerInfos>
+
+diff --git a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+index e3fe2828f..77c003b10 100644
+--- a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -6605,7 +6605,8 @@
+ 			<iAttackOddsChangeRand>8</iAttackOddsChangeRand>
+ 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
+ 			<iBetterRankDifferenceAttitudeChange>1</iBetterRankDifferenceAttitudeChange>
+-			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
++			<!-- advc.005a: was -2 -->
++			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<iLostWarAttitudeChange>-1</iLostWarAttitudeChange>
+ 			<iAtWarAttitudeDivisor>-5</iAtWarAttitudeDivisor>
+ 			<iAtWarAttitudeChangeLimit>5</iAtWarAttitudeChangeLimit>
+@@ -18666,7 +18667,8 @@
+ 			<iAttackOddsChangeRand>8</iAttackOddsChangeRand>
+ 			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+-			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
++			<!-- advc.005a: was -2 -->
++			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<iLostWarAttitudeChange>-1</iLostWarAttitudeChange>
+ 			<iAtWarAttitudeDivisor>-5</iAtWarAttitudeDivisor>
+ 			<iAtWarAttitudeChangeLimit>5</iAtWarAttitudeChangeLimit>
+@@ -23146,7 +23148,8 @@
+ 			<iAttackOddsChangeRand>8</iAttackOddsChangeRand>
+ 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+-			<iCloseBordersAttitudeChange>-4</iCloseBordersAttitudeChange>
++			<!-- advc.005a: was -4 -->
++			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<iLostWarAttitudeChange>-1</iLostWarAttitudeChange>
+ 			<iAtWarAttitudeDivisor>-5</iAtWarAttitudeDivisor>
+ 			<iAtWarAttitudeChangeLimit>5</iAtWarAttitudeChangeLimit>
+@@ -25044,7 +25047,8 @@
+ 			<iAttackOddsChangeRand>8</iAttackOddsChangeRand>
+ 			<iWorseRankDifferenceAttitudeChange>-1</iWorseRankDifferenceAttitudeChange>
+ 			<iBetterRankDifferenceAttitudeChange>2</iBetterRankDifferenceAttitudeChange>
+-			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
++			<!-- advc.005a: was -3 -->
++			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<iLostWarAttitudeChange>-1</iLostWarAttitudeChange>
+ 			<iAtWarAttitudeDivisor>-5</iAtWarAttitudeDivisor>
+ 			<iAtWarAttitudeChangeLimit>5</iAtWarAttitudeChangeLimit>
+@@ -27578,7 +27582,8 @@
+ 			<iAttackOddsChangeRand>8</iAttackOddsChangeRand>
+ 			<iWorseRankDifferenceAttitudeChange>-3</iWorseRankDifferenceAttitudeChange>
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+-			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
++			<!-- advc.005a: was -2 -->
++			<iCloseBordersAttitudeChange>-3</iCloseBordersAttitudeChange>
+ 			<iLostWarAttitudeChange>-1</iLostWarAttitudeChange>
+ 			<iAtWarAttitudeDivisor>-5</iAtWarAttitudeDivisor>
+ 			<iAtWarAttitudeChangeLimit>5</iAtWarAttitudeChangeLimit>
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index 2d0af89fa..960e8cfe9 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -585,9 +585,7 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_6</Description>
+ 		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_7</Description>
+-		</HintInfo>
++		<!-- advc.130j: TXT_KEY_ADVC_HINT_7 no longer applies -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_8</Description>
+ 		</HintInfo>
+@@ -649,9 +647,7 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_6</Description>
+ 		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_7</Description>
+-		</HintInfo>
++		<!-- advc.130j: TXT_KEY_ADVC_HINT_7 no longer applies -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_8</Description>
+ 		</HintInfo>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 9bb2b64fa..8cce2dc80 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -850,4 +850,13 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- [advc.035] If set to 1 (recommended), tiles that are only within the
++		 radius of one city belong to the owner of that city regardless of
++		 culture. Set to 0 for BtS behavior (ownership determined only by
++		 culture range and tile culture). -->
++	<Define>
++		<DefineName>OWN_EXCLUSIVE_RADIUS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 8d4738655..ae4ce18be 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4387,7 +4387,8 @@ bool CvCity::isHeadquarters(CorporationTypes eIndex) const
+ 
+ void CvCity::setHeadquarters(CorporationTypes eIndex)
+ {
+-	GC.getGameINLINE().setHeadquarters(eIndex, this, true);
++	GC.getGameINLINE().setHeadquarters(eIndex, this,
++			false); // advc.106e
+ 
+ 	if (GC.getCorporationInfo(eIndex).getFreeUnitClass() != NO_UNITCLASS)
+ 	{
+@@ -5263,8 +5264,16 @@ int CvCity::cultureStrength(PlayerTypes ePlayer) const
+ 				((DirectionTypes)i));
+ 		if(pLoopPlot == NULL)
+ 			continue;
++		// <advc.035>
++		PlayerTypes loopOwner = pLoopPlot->getOwnerINLINE();
++		if(GC.getOWN_EXCLUSIVE_RADIUS() && loopOwner != NO_PLAYER &&
++				!TEAMREF(loopOwner).isAtWar(owner.getTeam())) {
++			PlayerTypes const secondOwner = pLoopPlot->getSecondOwner();
++			if(secondOwner != loopOwner) // Checked only for easier debugging
++				loopOwner = secondOwner;
++		} // </advc.035>
+ 		if(canFlip && // advc.101
+-				pLoopPlot->getOwnerINLINE() == ePlayer) {
++				loopOwner == ePlayer) { // advc.035
+ 			// advc.101:
+ 			strFromInnerRadius += ::dRange(time/div - 2/3.0, 0.0, 3.5) * eraFactor;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 1a6863e27..e65f40c81 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -212,10 +212,20 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
+ 			CvMessageControl::getInstance().sendChangeWar((TeamTypes)info.getData1(), true);
+ 		}
+ 		if (((pPopupReturn->getButtonClicked() == 0) || info.getOption2()) && info.getFlags() == 0)
+-		{
+-			//GC.getGameINLINE().selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_MOVE_TO, info.getData2(), info.getData3(), info.getFlags(), false, info.getOption1());
+-			GC.getGameINLINE().selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_MOVE_TO, info.getData2(), info.getData3(), info.getFlags() | MOVE_DECLARE_WAR, false, info.getOption1()); // K-Mod
+-			// (See comments in CvGame::selectionListGameNetMessage for an explanation for the MOVE_DECLARE_WAR flag. Basically, it's a kludge.)
++		{	// <advc.035>
++			CvUnit* u = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
++			CvPlot* at = (u == NULL ? NULL : u->plot());
++			// Don't move ahead if the tile we're on is going to flip
++			if(at != NULL && (!at->isOwned() ||
++					(TEAMREF(at->getSecondOwner()).getMasterTeam() !=
++					GET_TEAM((TeamTypes)info.getData1()).getMasterTeam() &&
++					!GET_TEAM(TEAMREF(at->getSecondOwner()).getMasterTeam()).
++					isDefensivePact(GET_TEAM((TeamTypes)info.getData1()).
++					getMasterTeam())))) { // </advc.035>
++				//GC.getGameINLINE().selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_MOVE_TO, info.getData2(), info.getData3(), info.getFlags(), false, info.getOption1());
++				GC.getGameINLINE().selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, MISSION_MOVE_TO, info.getData2(), info.getData3(), info.getFlags() | MOVE_DECLARE_WAR, false, info.getOption1()); // K-Mod
++				// (See comments in CvGame::selectionListGameNetMessage for an explanation for the MOVE_DECLARE_WAR flag. Basically, it's a kludge.)
++			}
+ 		}
+ 		break;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index efd78b0a2..a998faf35 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -150,13 +150,14 @@ float hash(long x, PlayerTypes civId) {
+ 	return hash(v, civId);
+ }
+ 
+-void fatCross(CvPlot const& p, vector<CvPlot const*>& r) {
++void fatCross(CvPlot const& p, vector<CvPlot*>& r) {
+ 
+ 	FAssert(r.empty());
+ 	r.reserve(21);
+ 	for(int i = 0; i < 21; i++)
+ 		r.push_back(NULL);
+-	r[0] = &p;
++	// Perhaps better just r[0]=const_cast<CvPlot*>(&p)
++	r[0] = GC.getMapINLINE().plot(p.getX_INLINE(), p.getY_INLINE());
+ 	int pos = 1;
+ 	CvMap& map = GC.getMap();
+ 	for(int dx = -CITY_PLOTS_RADIUS; dx <= CITY_PLOTS_RADIUS; dx++) {
+@@ -171,7 +172,49 @@ void fatCross(CvPlot const& p, vector<CvPlot const*>& r) {
+ 	}
+ 	FAssert(pos == 21);
+ } // </advc.003>
+-
++// <advc.035>
++void contestedPlots(std::vector<CvPlot*>& r, TeamTypes t1, TeamTypes t2) {
++
++	if(GC.getOWN_EXCLUSIVE_RADIUS() <= 0)
++		return;
++	// Enough to check plots around the teams' cities
++	std::vector<CvCity*> cities;
++	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++		CvPlayer& member = GET_PLAYER((PlayerTypes)i);
++		if(!member.isAlive() || (member.getTeam() != t1 && member.getTeam() != t2))
++			continue;
++		int dummy=-1;
++		for(CvCity* c = member.firstCity(&dummy); c != NULL; c = member.nextCity(&dummy))
++			cities.push_back(c);
++	}
++	std::set<int> seenPlots; // To avoid duplicates
++	for(size_t i = 0; i < cities.size(); i++) {
++		CvCity const& c = *cities[i];
++		std::vector<CvPlot*> cross;
++		fatCross(*c.plot(), cross);
++		for(size_t j = 1; j < cross.size(); j++) {
++			if(cross[j] == NULL) continue;
++			CvPlot& p = *cross[j];
++			if(p.isCity())
++				continue;
++			PlayerTypes secondOwner = p.getSecondOwner();
++			PlayerTypes owner = p.getOwnerINLINE();
++			if(owner == NO_PLAYER || secondOwner == NO_PLAYER)
++				continue;
++			TeamTypes team = TEAMID(owner);
++			TeamTypes secondTeam = TEAMID(secondOwner);
++			if(team == secondTeam)
++				continue;
++			if((team == t1 && secondTeam == t2) || (team == t2 && secondTeam == t1)) {
++				int plotId = p.getX_INLINE() * 1000 + p.getY_INLINE();
++				if(seenPlots.count(plotId) <= 0) {
++					seenPlots.insert(plotId);
++					r.push_back(&p);
++				}
++			}
++		}
++	}
++} // </advc.035>
+ 
+ CvPlot* plotCity(int iX, int iY, int iIndex)
+ {
+@@ -1778,7 +1821,9 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 	int iWorstMaxMoves = MAX_INT;
+ 
+ 	TeamTypes eTeam = pSelectionGroup->getHeadTeam();
+-
++	// <advc.035>
++	int const flipModifierDiv = 7;
++	int flipModifier = flipModifierDiv; // </advc.035>
+ 	// K-Mod
+ 	int iExploreModifier = 3; // (in thirds)
+ 	if (!pToPlot->isRevealed(eTeam, false))
+@@ -1794,7 +1839,31 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 		}
+ 	}
+ 	// K-Mod end
+-
++	// <advc.035>
++	else if(GC.getOWN_EXCLUSIVE_RADIUS() > 0 && (iFlags & MOVE_DECLARE_WAR) &&
++			eTeam != BARBARIAN_TEAM) {
++		PlayerTypes const secondOwner = pToPlot->getSecondOwner();
++		PlayerTypes const firstOwner = pToPlot->getOwnerINLINE();
++		if(secondOwner != NO_PLAYER && firstOwner != NO_PLAYER &&
++				((pSelectionGroup->getDomainType() == DOMAIN_SEA) == pToPlot->isWater())) {
++			// Avoid tiles that flip from us to the enemy upon DoW
++			if(TEAMID(firstOwner) == eTeam && (GET_TEAM(eTeam).isHuman() ?
++					(!GET_TEAM(eTeam).isFriendlyTerritory(TEAMID(secondOwner)) &&
++					!GET_TEAM(eTeam).isAtWar(TEAMID(secondOwner))) :
++					GET_TEAM(eTeam).AI_isSneakAttackReady(TEAMID(secondOwner))))
++				flipModifier++;
++			// Seek out enemy tiles that will flip to us upon DoW
++			if(TEAMID(secondOwner) == eTeam && (GET_TEAM(eTeam).isHuman() ?
++					(!GET_TEAM(eTeam).isFriendlyTerritory(TEAMID(firstOwner)) &&
++					!GET_TEAM(eTeam).isAtWar(TEAMID(firstOwner))) :
++					GET_TEAM(eTeam).AI_isSneakAttackReady(TEAMID(firstOwner))))
++				flipModifier--;
++			/*  This could be done much more accurately, taking into account
++				vassal agreements, defensive pacts, and going through the entire
++				selection group, but I worry about the performance, and it's OK
++				if it doesn't always work correctly. */
++		}
++	} // </advc.035>
+ 	{
+ 		CLLNode<IDInfo>* pUnitNode = pSelectionGroup->headUnitNode();
+ 		while (pUnitNode != NULL)
+@@ -1811,7 +1880,8 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 			iWorstMaxMoves = std::min(iWorstMaxMoves, iMaxMoves);
+ 
+ 			int iCost = PATH_MOVEMENT_WEIGHT * (iMovesLeft == 0 ? iMaxMoves : iMoveCost);
+-			iCost = iCost * iExploreModifier / 3;
++			iCost = (iCost * iExploreModifier) / 3;
++			iCost = (iCost * flipModifier) / flipModifierDiv; // advc.035
+ 			if (iCost > iWorstCost)
+ 			{
+ 				iWorstCost = iCost;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 5d7b3e887..7628c1b36 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -66,8 +66,9 @@ float hash(long x, PlayerTypes civId = NO_PLAYER);
+ 	will be placed. &p itself gets placed in r[0]; the others in no particular
+ 	order. If the fat cross has fewer than 21 plots (edge of the map),
+ 	NULL entries will be included. */
+-void fatCross(CvPlot const& p, std::vector<CvPlot const*>& r);
+-// </advc.003>
++void fatCross(CvPlot const& p, std::vector<CvPlot*>& r);
++// </advc.003> // advc.035:
++void contestedPlots(std::vector<CvPlot*>& r, TeamTypes t1, TeamTypes t2);
+ 
+ //sign function taken from FirePlace - JW
+ template<class T> __forceinline T getSign( T x ) { return (( x < 0 ) ? T(-1) : x > 0 ? T(1) : T(0)); };
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 7a5118fde..6c1e2e969 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -150,6 +150,7 @@ m_bJOIN_WAR_DIPLO_BONUS(false), // advc.130s
+ m_iTILE_CULTURE_DECAY_PER_MILL(0), // advc.099
+ m_iNUM_WARNING_REVOLTS(0), // advc.101
+ m_iMAX_DISTANCE_CITY_MAINTENANCE(0), // advc.140
++m_iOWN_EXCLUSIVE_RADIUS(0), // advc.035
+ m_iMOVE_DENOMINATOR(0),
+ m_iNUM_UNIT_PREREQ_OR_BONUSES(0),
+ m_iNUM_BUILDING_PREREQ_OR_BONUSES(0),
+@@ -2665,6 +2666,8 @@ void CvGlobals::cacheGlobals()
+ 	m_iNUM_WARNING_REVOLTS = getDefineINT("NUM_WARNING_REVOLTS");
+ 	// advc.140:
+ 	m_iMAX_DISTANCE_CITY_MAINTENANCE = getDefineINT("MAX_DISTANCE_CITY_MAINTENANCE");
++	// advc.035:
++	m_iOWN_EXCLUSIVE_RADIUS = getDefineINT("OWN_EXCLUSIVE_RADIUS");
+ 	m_iMOVE_DENOMINATOR = getDefineINT("MOVE_DENOMINATOR");
+ 	m_iNUM_UNIT_PREREQ_OR_BONUSES = getDefineINT("NUM_UNIT_PREREQ_OR_BONUSES");
+ 	m_iNUM_BUILDING_PREREQ_OR_BONUSES = getDefineINT("NUM_BUILDING_PREREQ_OR_BONUSES");
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 39bef8fd1..fae218443 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -704,6 +704,8 @@ public:
+ 	inline int getNUM_WARNING_REVOLTS() { return m_iNUM_WARNING_REVOLTS; }
+ 	// advc.140:
+ 	inline int getMAX_DISTANCE_CITY_MAINTENANCE() { return m_iMAX_DISTANCE_CITY_MAINTENANCE; }
++	// advc.035:
++	inline int getOWN_EXCLUSIVE_RADIUS() { return m_iOWN_EXCLUSIVE_RADIUS; }
+ 	int getMOVE_DENOMINATOR();
+ 	int getNUM_UNIT_PREREQ_OR_BONUSES();
+ 	int getNUM_BUILDING_PREREQ_OR_BONUSES();
+@@ -1159,6 +1161,7 @@ protected:
+ 	int m_iTILE_CULTURE_DECAY_PER_MILL; // advc.099
+ 	int m_iNUM_WARNING_REVOLTS; // advc.101
+ 	int m_iMAX_DISTANCE_CITY_MAINTENANCE; // advc.140
++	int m_iOWN_EXCLUSIVE_RADIUS; // advc.035
+ 	int m_iMOVE_DENOMINATOR;
+ 	int m_iNUM_UNIT_PREREQ_OR_BONUSES;
+ 	int m_iNUM_BUILDING_PREREQ_OR_BONUSES;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6a819f673..ab709e248 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3653,7 +3653,8 @@ void CvPlayer::doTurn()
+ 	// </advc.029>
+ 	/*  <advc.034> Cancel disengagement agreements at the end of a round, i.e.
+ 		at the end of the barb turn. */
+-	if(isBarbarian() && GC.getDefineINT("DISENGAGE_LENGTH") > 0) {
++	int disengageLength = GC.getDefineINT("DISENGAGE_LENGTH") > 0;
++	if(isBarbarian() && disengageLength > 0) {
+ 		CvGame& g = GC.getGame(); int dummy=-1;
+ 		for(CvDeal* d = g.firstDeal(&dummy); d != NULL; d = g.nextDeal(&dummy)) {
+ 			if(d->isDisengage() && d->turnsToCancel() <= 1) {
+@@ -3664,6 +3665,14 @@ void CvPlayer::doTurn()
+ 				d->kill();
+ 			}
+ 		}
++	} // If DISENGAGE_LENGTH set to 0 in between sessions
++	else if(disengageLength <= 0) {
++		CvTeam& ourTeam = GET_TEAM(getTeam());
++		for(int i = 0; i < MAX_CIV_TEAMS; i++) {
++			TeamTypes tId = (TeamTypes)i;
++			if(ourTeam.isDisengage(tId))
++				ourTeam.cancelDisengage(tId);
++		}
+ 	} // </advc.034>
+ 	updateEconomyHistory(GC.getGameINLINE().getGameTurn(), calculateTotalCommerce());
+ 	updateIndustryHistory(GC.getGameINLINE().getGameTurn(), calculateTotalYield(YIELD_PRODUCTION));
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 8a7e0fbad..b6e6fab88 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3105,29 +3105,17 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 		}
+ 	}
+ 
+-	int iOwnedTiles = 0;
+-
+-	for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+-	{
+-		CvPlot* pLoopPlot = plotCity(iX, iY, iI);
+-
+-		if (pLoopPlot == NULL || (pLoopPlot->isOwned() && pLoopPlot->getTeam() != getTeam()))
+-		{
+-			iOwnedTiles++;
+-		}
+-	}
+-
+-	if (iOwnedTiles > (NUM_CITY_PLOTS / 3))
+-	{
+-		return 0;
+-	}
+-
+ 	// (K-Mod this site radius check code was moved from higher up)
+ 	//Explaination of city site adjustment:
+ 	//Any plot which is otherwise within the radius of a city site
+ 	//is basically treated as if it's within an existing city radius
+ 	std::vector<bool> abCitySiteRadius(NUM_CITY_PLOTS, false);
+-
++	/*  <advc.035>
++		Need to distinguish tiles within the radius of one of our team's cities
++		from those within just any city radius. */
++	std::vector<bool> abOwnCityRadius(NUM_CITY_PLOTS, false);
++	// Whether the tile flips to us once we settle near it
++	std::vector<bool> abFlip(NUM_CITY_PLOTS, false);
+ 	// K-Mod. bug fixes etc. (original code deleted)
+ 	if (!kSet.bStartingLoc)
+ 	{
+@@ -3156,9 +3144,38 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 					}
+ 				}
+ 			}
++		} // <advc.035>
++		int dummy=-1;
++		for(CvCity* c = firstCity(&dummy); c != NULL; c = nextCity(&dummy)) {
++			for(int i = 0; i < NUM_CITY_PLOTS; i++) {
++				CvPlot* p = plotCity(iX, iY, i);
++				if(p != NULL && plotDistance(p->getX_INLINE(), p->getY_INLINE(),
++						c->getX_INLINE(), c->getY_INLINE()) <= CITY_PLOTS_RADIUS)
++					abOwnCityRadius[i] = true;
++			}
+ 		}
++		for(int i = 0; i < NUM_CITY_PLOTS; i++) {
++			CvPlot* p = plotCity(iX, iY, i);
++			abFlip[i] = p != NULL && p->isOwned() && p->isCityRadius() &&
++					!abOwnCityRadius[i] && p->getTeam() != getTeam() &&
++					(p->getSecondOwner() == getID() ||
++					/*  The above is enough b/c the tile may not be within the
++						culture range of one of our cities; but it will be once
++						the new city is founded. */
++					p->findHighestCulturePlayer(true) == getID());
++		} // </advc.035>
+ 	}
+ 	// K-Mod end
++	// advc.035: Moved the owned-tile counting down b/c I need abFlip for it
++	int iOwnedTiles = 0;
++	for(int i = 0; i < NUM_CITY_PLOTS; i++) {
++		CvPlot* pLoopPlot = plotCity(iX, iY, i);
++		if (pLoopPlot == NULL || (pLoopPlot->isOwned() && pLoopPlot->getTeam() != getTeam()
++				&& !abFlip[i])) // advc.035
++			iOwnedTiles++;
++	}
++	if(iOwnedTiles > NUM_CITY_PLOTS / 3)
++		return 0;
+ 
+ 	std::vector<int> viBonusCount(GC.getNumBonusInfos(), 0);
+ 
+@@ -3180,12 +3197,24 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 
+ 		if (iI != CITY_HOME_PLOT)
+ 		{
+-			if ((pLoopPlot == NULL) || pLoopPlot->isImpassable())
+-			{
++			/*  <advc.031> NULL and impassable count as 2 bad tiles (as in BtS),
++				but don't cheat with unrevealed tiles. */
++			if(pLoopPlot == NULL) {
+ 				iBadTile += 2;
++				continue; 
+ 			}
++			if(!kSet.bAllSeeing && !pLoopPlot->isRevealed(getTeam(), false)) {
++				// <advc.040>
++				if(firstColony)
++					unrev++; // </advc.040>
++				continue;
++			}
++			if(pLoopPlot->isImpassable()) {
++				iBadTile += 2;
++				continue;
++			} // </advc.031>
+ 			// K-Mod (original code deleted)
+-			else if (//!pLoopPlot->isFreshWater() &&
++			if (//!pLoopPlot->isFreshWater() &&
+ 			/*  advc.031: Flood plains have high nature yield anyway,
+ 				so this is about snow. Perhaps snow river should be
+ 				just 1 bad tile(?). Bonus check added (Incense). */
+@@ -3211,22 +3240,22 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 			}
+ 			else if (pLoopPlot->isOwned())
+ 			{
+-				if (pLoopPlot->getTeam() != getTeam() || pLoopPlot->isBeingWorked())
+-				{
+-					iBadTile++;
+-				}
+-				// note: this final condition is... not something I intend to keep permanently.
+-				else if (pLoopPlot->isCityRadius() || abCitySiteRadius[iI])
+-				{
+-					iBadTile++;
+-				}
++				if(!abFlip[iI]) { // advc.035
++					if (pLoopPlot->getTeam() != getTeam() || pLoopPlot->isBeingWorked())
++					{
++						iBadTile++;
++					}
++					// note: this final condition is... not something I intend to keep permanently.
++					else if (pLoopPlot->isCityRadius() || abCitySiteRadius[iI])
++					{
++						iBadTile++;
++					}
++				} // advc.035
+ 			}
+ 			// K-Mod end
+ 			// <advc.040>
+-			else if(firstColony && pLoopPlot->isRevealed(getTeam(), false))
+-				revDecentLand++;
+-			if(pLoopPlot != NULL && firstColony && !pLoopPlot->isRevealed(getTeam(), false))
+-				unrev++; // </advc.040>
++			else if(firstColony)
++				revDecentLand++; // </advc.040>
+ 		}
+ 	} /* <advc.040> Make sure we do naval exploration near the spot before
+ 		 sending a Settler */
+@@ -3309,15 +3338,9 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 		}
+ 		//else if (pLoopPlot->isCityRadius() || abCitySiteRadius[iI])
+ 		else if (iI != CITY_HOME_PLOT && (pLoopPlot->isCityRadius() || abCitySiteRadius[iI]) // K-Mod
+-				// <advc.300> Barb city radius won't expand
+-				&& (pLoopPlot->getOwnerINLINE() != NO_PLAYER ||
+-				pLoopPlot->findHighestCulturePlayer() != BARBARIAN_PLAYER))
+-		{		// </advc.300>
++				&& !abFlip[iI]) // advc.035
++		{
+ 			iTakenTiles++;
+-			/*  <advc.300> Don't settle close to barbarians, conquer their
+-				cities instead (or raze before deciding where to settle). */
+-			if(pLoopPlot->getOwnerINLINE() == BARBARIAN_PLAYER)
+-				iTakenTiles++; // </advc.300>
+ 			if (abCitySiteRadius[iI])
+ 			{
+ 				iTeammateTakenTiles++;
+@@ -3366,7 +3389,8 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 			// to take into account the proximity of foreign cities and so on.
+ 			// (similar to the calculation at the end of this function!)
+ 			int iCultureMultiplier;
+-			if (!pLoopPlot->isOwned() || pLoopPlot->getOwnerINLINE() == getID())
++			if (!pLoopPlot->isOwned() || pLoopPlot->getOwnerINLINE() == getID()
++					|| abFlip[iI]) // advc.035
+ 				iCultureMultiplier = 100;
+ 			else
+ 			{
+@@ -3376,9 +3400,16 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 				int iOtherCulture = std::max(1, pLoopPlot->getCulture(pLoopPlot->getOwnerINLINE()));
+ 				iCultureMultiplier = 100 * (iOurCulture + kSet.iClaimThreshold);
+ 				iCultureMultiplier /= (iOtherCulture + kSet.iClaimThreshold
+-						// advc.031: The above is too optimistic
+-						+ ::round(0.72 * (iOurCulture + kSet.iClaimThreshold)));
++						/*  advc.035: The above is OK if cities own their
++							exclusive radius ... */
++						+ (GC.getOWN_EXCLUSIVE_RADIUS() ? 0 :
++						// advc.031: but w/o that rule, it's too optimistic.
++						::round(0.72 * (iOurCulture + kSet.iClaimThreshold))));
+ 				iCultureMultiplier = std::min(100, iCultureMultiplier);
++				// <advc.035> Increase it a bit?
++				/*if(GC.getOWN_EXCLUSIVE_RADIUS())
++					iCultureMultiplier = (2 * iCultureMultiplier + 100) / 3;*/
++				// </advc.035>
+ 			}
+ 
+ 			//
+@@ -3388,7 +3419,11 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 				//discourage hopeless cases, especially on other continents.
+ 				iTakenTiles += (iNumAreaCities > 0) ? 1 : 2;
+ 			}
+-
++			/*  <advc.035> The discouragement above is still useful for avoiding
++				revolts */
++			if(GC.getOWN_EXCLUSIVE_RADIUS())
++				iCultureMultiplier = std::max(iCultureMultiplier, 65);
++			// </advc.035>
+ 			if (eBonus != NO_BONUS /* <advc.031> A Fort doesn't help if it
+ 									  doesn't actually connect the bonus. */
+ 					&& GET_TEAM(getTeam()).isHasTech((TechTypes)GC.getBonusInfo(
+@@ -3639,7 +3674,8 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 
+ 			iValue += iPlotValue;
+ 			// advc.031: Was 33, but now computed differently.
+-			if (iCultureMultiplier > 20) //ignore hopelessly entrenched tiles.
++			if (iCultureMultiplier > 20 //ignore hopelessly entrenched tiles.
++					|| GC.getOWN_EXCLUSIVE_RADIUS() > 0) // advc.035
+ 			{
+ 
+ 				if (eBonus != NO_BONUS && // K-Mod added water case (!!)
+@@ -3756,10 +3792,12 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 					}
+ 				} // end if usable bonus
+ 				if (eBonusImprovement == NO_IMPROVEMENT && iI != CITY_HOME_PLOT
+-						/*  advc.031: Need to account for foreign culture
++						/*  <advc.031> Need to account for foreign culture
+ 							somehow, and I don't want to divide the
+ 							special food plus, which is usually just 1 or 2. */
+-						&& iCultureMultiplier > 55)
++						&& iCultureMultiplier >
++							(GC.getOWN_EXCLUSIVE_RADIUS() ? 40 : // advc.035
++							55)) // </advc.031>
+ 				{
+ 					// non bonus related special food. (Note: the city plot is counted elsewhere.)
+ 					int iEffectiveFood = aiYield[YIELD_FOOD];
+@@ -8364,7 +8402,7 @@ int CvPlayerAI::AI_calculateStolenCityRadiusPlots(PlayerTypes ePlayer) const
+ 	int dummy=-1;
+ 	for(CvCity* cp = firstCity(&dummy); cp != NULL; cp = nextCity(&dummy)) {
+ 		CvCity const& c = *cp;
+-		std::vector<CvPlot const*> radius;
++		std::vector<CvPlot*> radius;
+ 		::fatCross(*c.plot(), radius);
+ 		int perCityCount = 0;
+ 		int upperBound = std::max(6,
+@@ -8427,22 +8465,37 @@ void CvPlayerAI::AI_updateCloseBorderAttitudeCache(PlayerTypes ePlayer)
+ 		m_aiCloseBordersAttitudeCache[ePlayer] = 0;
+ 		return;
+ 	} // </advc.130v>
+-	int iPercent = std::min(60, (AI_calculateStolenCityRadiusPlots(ePlayer) * 3));
+-
+-	//if (GET_TEAM(getTeam()).AI_isLandTarget(GET_PLAYER(ePlayer).getTeam()))
++	// <advc.035>
++	int weOwnCulturally = 0;
++	bool bWar = kOurTeam.isAtWar(eTheirTeam);
++	if(!bWar) {
++		std::vector<CvPlot*> contested;
++		::contestedPlots(contested, kOurTeam.getID(), eTheirTeam);
++		for(size_t i = 0; i < contested.size(); i++)
++			if(contested[i]->getSecondOwner() == getID())
++				weOwnCulturally++;
++	}
++	int stolenWeight = 4; // advc.147: 3 in BtS
++	if(GC.getOWN_EXCLUSIVE_RADIUS() > 0 && !bWar)
++		stolenWeight = 6; // </advc.035>
++	// advc.003: For visibility in debugger
++	int stolen = AI_calculateStolenCityRadiusPlots(ePlayer);
++	int iPercent = std::min(60, stolen *
++			stolenWeight + 3 * weOwnCulturally); // advc.035
+ 	// K-Mod. I've rewritten AI_isLandTarget. The condition I'm using here is equivalent to the original function.
+-	if (kOurTeam.AI_hasCitiesInPrimaryArea(eTheirTeam) && kOurTeam.AI_calculateAdjacentLandPlots(eTheirTeam) >= 8)
+-	// K-Mod end
+-	{
+-		iPercent += 40;
+-	}
+-
+-	// bbai
+-	if( AI_isDoStrategy(AI_VICTORY_CONQUEST3) )
+-	{
+-		iPercent = std::min( 120, (3 * iPercent)/2 );
+-	}
+-	// bbai end
++	/*if (kOurTeam.AI_hasCitiesInPrimaryArea(eTheirTeam) && kOurTeam.AI_calculateAdjacentLandPlots(eTheirTeam) >= 8) // K-Mod end
++		iPercent += 40;*/
++	// <advc.147> Replacing the above
++	if (kOurTeam.AI_hasCitiesInPrimaryArea(eTheirTeam)) {
++		int adjLand = kOurTeam.AI_calculateAdjacentLandPlots(eTheirTeam);
++		if(adjLand > 5) {
++			int targetCities = GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).
++					getTargetNumCities();
++			double adjWeight = ::dRange((5 * targetCities) /
++					std::sqrt((double)getTotalLand()), 2.0, 4.0);
++			iPercent += std::min(40, ::round(adjLand * adjWeight));
++		}
++	} // </advc.147>
+ 	// <advc.130v>
+ 	if(TEAMREF(ePlayer).isCapitulated())
+ 		iPercent /= 2; // </advc.130v>
+@@ -8457,8 +8510,14 @@ void CvPlayerAI::AI_updateCloseBorderAttitudeCache(PlayerTypes ePlayer)
+ 			if(fromVassal > 0)
+ 				iPercent += fromVassal;
+ 		}
+-	} // </advc.130v>
+-	iPercent = ::round(iPercent * 1.2); // advc.147
++	}
++	iPercent = std::min(iPercent, 100); // </advc.130v>
++	// bbai
++	if( AI_isDoStrategy(AI_VICTORY_CONQUEST3) )
++	{
++		iPercent = std::min( 120, (3 * iPercent)/2 );
++	}
++	// bbai end
+ 	m_aiCloseBordersAttitudeCache[ePlayer] = (limit * iPercent) / 100;
+ }
+ // K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 1f8512bfa..4fe152507 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -209,7 +209,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
+ 	m_bFlagDirty = false;
+ 	m_bPlotLayoutDirty = false;
+ 	m_bLayoutStateWorked = false;
+-	
++	m_eSecondOwner = // advc.035
+ 	m_eOwner = NO_PLAYER;
+ 	m_ePlotType = PLOT_OCEAN;
+ 	m_eTerrainType = NO_TERRAIN;
+@@ -544,8 +544,21 @@ void CvPlot::doImprovementUpgrade()
+ void CvPlot::updateCulture(bool bBumpUnits, bool bUpdatePlotGroups)
+ {
+ 	if (!isCity())
+-	{
+-		setOwner(calculateCulturalOwner(), bBumpUnits, bUpdatePlotGroups);
++	{	// <advc.035>
++		PlayerTypes ownerId = calculateCulturalOwner();
++		setSecondOwner(ownerId);
++		if(GC.getOWN_EXCLUSIVE_RADIUS() > 0 && ownerId != NO_PLAYER) {
++			PlayerTypes secondOwnerId = calculateCulturalOwner(false, true);
++			if(secondOwnerId != NO_PLAYER) {
++				if(!TEAMREF(secondOwnerId).isAtWar(TEAMID(ownerId)))
++					ownerId = secondOwnerId;
++				else setSecondOwner(secondOwnerId);
++			}
++			else FAssertMsg(secondOwnerId != NO_PLAYER, "ownerId!=NO_PLAYER"
++					" should imply secondOwnerId!=NO_PLAYER");
++		}
++		setOwner(ownerId, // </advc.035>
++				bBumpUnits, bUpdatePlotGroups);
+ 	}
+ }
+ 
+@@ -3299,7 +3312,8 @@ void CvPlot::invalidateBorderDangerCache()
+ // K-Mod end
+ 
+ PlayerTypes CvPlot::calculateCulturalOwner(
+-	bool ignoreCultureRange // advc.099c
++	bool ignoreCultureRange, // advc.099c
++	bool ownExclusiveRadius // advc.035
+ 	) const
+ {
+ 	PROFILE("CvPlot::calculateCulturalOwner()")
+@@ -3325,12 +3339,34 @@ PlayerTypes CvPlot::calculateCulturalOwner(
+ 	{
+ 		return NO_PLAYER;
+ 	}
+-
++	// <advc.035>
++	bool inCityRadius[MAX_PLAYERS];
++	for(int i = 0; i < MAX_PLAYERS; i++)
++		inCityRadius[i] = false;
++	bool anyCityRadius = false;
++	if(ownExclusiveRadius) {
++		std::vector<CvPlot*> cross;
++		::fatCross(*this, cross);
++		for(size_t i = 1; i < cross.size(); i++) {
++			if(cross[i] == NULL) continue;
++			CvPlot const& p = *cross[i];
++			if(!p.isCity() || p.getPlotCity()->isOccupation())
++				continue;
++			PlayerTypes cityOwner = p.getPlotCity()->getOwnerINLINE();
++			if(isWithinCultureRange(cityOwner)) {
++				inCityRadius[cityOwner] = true;
++				anyCityRadius = true;
++			}
++		}
++	}
++	// </advc.035>
+ 	iBestCulture = 0;
+ 	eBestPlayer = NO_PLAYER;
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; ++iI)
+-	{
++	{	// <advc.035>
++		if(ownExclusiveRadius && anyCityRadius && !inCityRadius[iI])
++			continue; // </advc.035>
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive()
+ 			|| ignoreCultureRange // advc.099c
+ 			)
+@@ -5336,6 +5372,31 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ }
+ 
+ 
++// <advc.035>
++PlayerTypes CvPlot::getSecondOwner() const {
++
++	if(isCity())
++		return getPlotCity()->getOwnerINLINE();
++	return (PlayerTypes)m_eSecondOwner;
++}
++
++void CvPlot::setSecondOwner(PlayerTypes eNewValue) {
++
++	m_eSecondOwner = (char)eNewValue;
++}
++
++bool CvPlot::isContestedByRival(PlayerTypes rivalId) const {
++
++	PlayerTypes const firstOwner = getOwnerINLINE();
++	PlayerTypes const secondOwner = getSecondOwner();
++	return secondOwner != NO_PLAYER && firstOwner != NO_PLAYER &&
++			firstOwner != secondOwner && (rivalId == NO_PLAYER ||
++			secondOwner == rivalId || firstOwner == rivalId) &&
++			TEAMREF(firstOwner).getMasterTeam() !=
++			TEAMREF(secondOwner).getMasterTeam();
++} // </advc.035>
++
++
+ PlotTypes CvPlot::getPlotType() const
+ {
+ 	return (PlotTypes)m_ePlotType;
+@@ -6858,7 +6919,8 @@ TeamTypes CvPlot::findHighestCultureTeam() const
+ }
+ 
+ 
+-PlayerTypes CvPlot::findHighestCulturePlayer() const
++PlayerTypes CvPlot::findHighestCulturePlayer(
++		bool bAlive) const // advc.035
+ {
+ 	PlayerTypes eBestPlayer = NO_PLAYER;
+ 	int iBestValue = 0;
+@@ -6866,7 +6928,9 @@ PlayerTypes CvPlot::findHighestCulturePlayer() const
+ 	for (int iI = 0; iI < MAX_PLAYERS; ++iI)
+ 	{
+ 		// advc.099: Replaced "Alive" with "EverAlive"
+-		if (GET_PLAYER((PlayerTypes)iI).isEverAlive())
++		if ((GET_PLAYER((PlayerTypes)iI).isEverAlive()
++				// advc.035:
++				&& !bAlive) || GET_PLAYER((PlayerTypes)iI).isAlive())
+ 		{
+ 			int iValue = getCulture((PlayerTypes)iI);
+ 
+@@ -9262,7 +9326,10 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_eRouteType);
+ 	pStream->Read(&m_eRiverNSDirection);
+ 	pStream->Read(&m_eRiverWEDirection);
+-
++	// <advc.035>
++	if(uiFlag >= 1)
++		pStream->Read(&m_eSecondOwner);
++	else m_eSecondOwner = m_eOwner; // </advc.035>
+ 	pStream->Read((int*)&m_plotCity.eOwner);
+ 	pStream->Read(&m_plotCity.iID);
+ 	pStream->Read((int*)&m_workingCity.eOwner);
+@@ -9464,6 +9531,7 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	uint iI;
+ 
+ 	uint uiFlag=0;
++	uiFlag = 1; // advc.035
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iX);
+@@ -9501,7 +9569,7 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_eRouteType);
+ 	pStream->Write(m_eRiverNSDirection);
+ 	pStream->Write(m_eRiverWEDirection);
+-
++	pStream->Write(m_eSecondOwner); // advc.035
+ 	pStream->Write(m_plotCity.eOwner);
+ 	pStream->Write(m_plotCity.iID);
+ 	pStream->Write(m_workingCity.eOwner);
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 1d04b95ee..695b19eee 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -179,7 +179,8 @@ public:
+ /************************************************************************************************/
+ 
+ 	PlayerTypes calculateCulturalOwner(
+-		bool ignoreCultureRange = false // advc.099c
++		bool ignoreCultureRange = false, // advc.099c
++		bool ownExclusiveRadius = false // advc.035
+ 		) const;
+ 
+ 	void plotAction(PlotUnitFunc func, int iData1 = -1, int iData2 = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM);
+@@ -343,7 +344,12 @@ public:
+ 	}
+ #endif
+ 	void setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotGroup);
+-
++	/*  <advc.035> The returned civ becomes the owner if war/peace changes
++		between that civ and the current owner */
++	PlayerTypes getSecondOwner() const;
++	void setSecondOwner(PlayerTypes eNewValue);
++	bool isContestedByRival(PlayerTypes rivalId = NO_PLAYER) const;
++	// </advc.035>
+ 	PlotTypes getPlotType() const;																																			// Exposed to Python
+ 	DllExport bool isWater() const;																																								// Exposed to Python
+ 	bool isFlatlands() const;																																											// Exposed to Python
+@@ -421,7 +427,8 @@ public:
+ 	int countTotalCulture() const;																														// Exposed to Python
+ 	int countFriendlyCulture(TeamTypes eTeam) const;
+ 	TeamTypes findHighestCultureTeam() const;																														// Exposed to Python
+-	PlayerTypes findHighestCulturePlayer() const;
++	PlayerTypes findHighestCulturePlayer(
++			bool bAlive = false) const; // advc.035
+ 	int calculateCulturePercent(PlayerTypes eIndex) const;																		// Exposed to Python
+ 	int calculateTeamCulturePercent(TeamTypes eIndex) const;																						// Exposed to Python
+ 	void setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate, bool bUpdatePlotGroups);																		// Exposed to Python
+@@ -596,7 +603,7 @@ protected:
+ 	short /*RouteTypes*/ m_eRouteType;
+ 	char /*CardinalDirectionTypes*/ m_eRiverNSDirection;
+ 	char /*CardinalDirectionTypes*/ m_eRiverWEDirection;
+-
++	char /*PlayerTypes*/ m_eSecondOwner; // advc.035
+ 	IDInfo m_plotCity;
+ 	IDInfo m_workingCity;
+ 	IDInfo m_workingCityOverride;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index dd5866e09..409e0b0ab 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4339,7 +4339,41 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
++	// <advc.035>
++	if(m_abAtWar[eIndex] == bNewValue)
++		return; // </advc.035>
+ 	m_abAtWar[eIndex] = bNewValue;
++	// <advc.035>
++	if(eIndex < getID())
++		return; // setAtWar gets called on both sides; do this only once.
++	std::vector<CvPlot*> flipPlots;
++	::contestedPlots(flipPlots, getID(), eIndex);
++	for(size_t i = 0; i < flipPlots.size(); i++) {
++		CvPlot& p = *flipPlots[i];
++		PlayerTypes secondOwner = p.getSecondOwner();
++		p.setSecondOwner(p.getOwnerINLINE());
++		/*  I guess it's a bit cleaner (faster?) not to bump units and update
++			plot groups until all tiles are flipped */
++		p.setOwner(secondOwner, false, false);
++	}
++	for(size_t i = 0; i < flipPlots.size(); i++) {
++		CvPlot& p = *flipPlots[i];
++		p.updatePlotGroup();
++		p.verifyUnitValidPlot();
++	}
++	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++		CvPlayerAI& ourMember = GET_PLAYER((PlayerTypes)i);
++		if(!ourMember.isAlive() || ourMember.getTeam() != getID())
++			continue;
++		for(int j = 0; j < MAX_CIV_PLAYERS; j++) {
++			CvPlayerAI& theirMember = GET_PLAYER((PlayerTypes)j);
++			if(!theirMember.isAlive() || theirMember.getTeam() != eIndex)
++				continue;
++			ourMember.AI_updateCloseBorderAttitudeCache(theirMember.getID());
++			theirMember.AI_updateCloseBorderAttitudeCache(ourMember.getID());
++		}
++	} // (AttitudeCache is updated by caller)
++	// </advc.035>
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index c37a8a6b6..6289c0523 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -10642,8 +10642,8 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+ 			iValue += (iTemp / 16);
+ 		}
+ 	}
+-
+-	iTemp = GC.getPromotionInfo(ePromotion).getRevoltProtection();
++	// advc.099e: Commented out
++	/*iTemp = GC.getPromotionInfo(ePromotion).getRevoltProtection();
+ 	if ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
+ 		(AI_getUnitAIType() == UNITAI_CITY_COUNTER) ||
+ 		(AI_getUnitAIType() == UNITAI_CITY_SPECIAL))
+@@ -10656,7 +10656,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+ 				iValue += (iTemp / 2);
+ 			}
+ 		}
+-	}
++	}*/
+ 
+ 	iTemp = GC.getPromotionInfo(ePromotion).getCollateralDamageProtection();
+ 	if ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
+@@ -20076,7 +20076,8 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
+ 		{
+ 			if (pLoopPlot->getOwnerINLINE() == getOwnerINLINE()) // XXX team???
+ 			{
+-				if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
++				if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT
++						&& !pLoopPlot->isContestedByRival()) // advc.035
+ 				{
+ 					int iValue = 0;
+ 					iValue += bCanal ? kOwner.AI_getPlotCanalValue(pLoopPlot) : 0;
+@@ -20337,6 +20338,9 @@ bool CvUnitAI::AI_improveBonus() // K-Mod. (all that junk wasn't being used anyw
+ 												iValue /= (GC.getBuildInfo(eBuild).getTime() + 1);*/
+ 												CvImprovementInfo& imp = GC.getImprovementInfo(impId);
+ 												int defenseUtility = imp.getDefenseModifier();
++												// <advc.035>
++												if(pLoopPlot->isContestedByRival())
++													defenseUtility = 0; // </advc.035>
+ 												FeatureTypes ft = pLoopPlot->getFeatureType();
+ 												TerrainTypes tt = pLoopPlot->getTerrainType();
+ 												/* Prioritize Forts on tiles with high natural defense and on important
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index ebd1b6c3c..1fe02621a 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -30,8 +30,9 @@ WarAndPeaceCache::WarAndPeaceCache() {
+ 				vassalResourceScores[i] = adjacentLand[i] = -1;
+ 	}
+ 	for(int i = 0; i < MAX_CIV_TEAMS; i++) {
+-		pastWarScores[i] = sponsorshipsAgainst[i] = sponsorsAgainst[i] =
+-			warUtilityIgnDistraction[i] = -1;
++		lostTilesAtWar[i] = // advc.035
++			pastWarScores[i] = sponsorshipsAgainst[i] =
++			sponsorsAgainst[i] = warUtilityIgnDistraction[i] = -1;
+ 	} 
+ }
+ 
+@@ -75,8 +76,10 @@ void WarAndPeaceCache::clear(bool beforeUpdate) {
+ 	goldPerProduction = 0;
+ 	canScrub = false;
+ 	trainDeepSeaCargo = trainAnyCargo = false;
+-	for(int i = 0; i < MAX_CIV_TEAMS; i++)
++	for(int i = 0; i < MAX_CIV_TEAMS; i++) {
++		lostTilesAtWar[i] = 0; // advc.035
+ 		warUtilityIgnDistraction[i] = MIN_INT;
++	}
+ 	if(!beforeUpdate) {
+ 		nNonNavyUnits = 0;
+ 		latestTurnReachableBySea.clear();
+@@ -95,6 +98,7 @@ void WarAndPeaceCache::clear(bool beforeUpdate) {
+ void WarAndPeaceCache::write(FDataStreamBase* stream) {
+ 
+ 	int savegameVersion = 1;
++	savegameVersion = 2; // advc.035
+ 	/*  I hadn't thought of a version number in the initial release. Need
+ 		to fold it into ownerId now to avoid breaking compatibility. */
+ 	stream->Write(ownerId + 100 * savegameVersion);
+@@ -110,6 +114,7 @@ void WarAndPeaceCache::write(FDataStreamBase* stream) {
+ 	stream->Write(MAX_CIV_PLAYERS, adjacentLand);
+ 	stream->Write(MAX_CIV_PLAYERS, relativeNavyPow);
+ 	stream->Write(MAX_CIV_PLAYERS, wwAnger);
++	stream->Write(MAX_CIV_TEAMS, lostTilesAtWar); // advc.035
+ 	stream->Write(MAX_CIV_TEAMS, pastWarScores);
+ 	stream->Write(MAX_CIV_TEAMS, sponsorshipsAgainst);
+ 	stream->Write(MAX_CIV_TEAMS, sponsorsAgainst);
+@@ -162,6 +167,9 @@ void WarAndPeaceCache::read(FDataStreamBase* stream) {
+ 	if(savegameVersion >= 1)
+ 		stream->Read(MAX_CIV_PLAYERS, relativeNavyPow);
+ 	stream->Read(MAX_CIV_PLAYERS, wwAnger);
++	// <advc.035>
++	if(savegameVersion >= 2)
++		stream->Read(MAX_CIV_TEAMS, lostTilesAtWar); // </advc.035>
+ 	stream->Read(MAX_CIV_TEAMS, pastWarScores);
+ 	stream->Read(MAX_CIV_TEAMS, sponsorshipsAgainst);
+ 	stream->Read(MAX_CIV_TEAMS, sponsorsAgainst);
+@@ -218,6 +226,7 @@ void WarAndPeaceCache::update() {
+ 	updateThreatRatings();
+ 	updateVassalScores();
+ 	updateAdjacentLand();
++	updateLostTilesAtWar(); // advc.035
+ 	updateRelativeNavyPower();
+ 	updateGoldPerProduction();
+ 	updateWarAnger();
+@@ -536,6 +545,13 @@ int WarAndPeaceCache::numAdjacentLandPlots(PlayerTypes civId) const {
+ 		return -1;
+ 	return adjacentLand[civId];
+ }
++// <advc.035>
++int WarAndPeaceCache::numLostTilesAtWar(TeamTypes tId) const {
++
++	if(tId == NO_TEAM)
++		return -1;
++	return lostTilesAtWar[tId];
++} // </advc.035>
+ 
+ double WarAndPeaceCache::relativeNavyPower(PlayerTypes civId) const {
+ 
+@@ -757,6 +773,25 @@ void WarAndPeaceCache::updateAdjacentLand() {
+ 			adjacentLand[o]++;
+ 	}
+ }
++// <advc.035>
++void WarAndPeaceCache::updateLostTilesAtWar() {
++
++	PROFILE_FUNC();
++	CvTeam const& ownerTeam = TEAMREF(ownerId);
++	for(int i = 0; i < MAX_CIV_TEAMS; i++) {
++		TeamTypes tId = (TeamTypes)i;
++		std::vector<CvPlot*> flipped;
++		::contestedPlots(flipped, ownerTeam.getID(), tId);
++		int lost = 0;
++		for(size_t j = 0; j < flipped.size(); j++) {
++			TeamTypes plotTeamId = flipped[j]->getTeam(); // current tile owner
++			// Count the tiles that ownerTeam loses when at war with tId
++			if(plotTeamId == (ownerTeam.isAtWar(tId) ? tId : ownerTeam.getID()))
++				lost++;
++		}
++		lostTilesAtWar[i] = lost;
++	}
++} // </advc.035>
+ 
+ void WarAndPeaceCache::updateRelativeNavyPower() {
+ 
+@@ -1504,7 +1539,7 @@ bool WarAndPeaceCache::City::measureDistance(DomainTypes dom, CvPlot* start,
+ 	return (*r >= 0);
+ } // </advc.104b>
+ 
+-void WarAndPeaceCache::City::fatCross(vector<CvPlot const*>& r) {
++void WarAndPeaceCache::City::fatCross(vector<CvPlot*>& r) {
+ 
+ 	if(city() == NULL) {
+ 		FAssert(r.empty());
+@@ -1552,7 +1587,7 @@ void WarAndPeaceCache::City::updateAssetScore() {
+ 		r += c.getPopulation() / 2.0;
+ 	// Plot deduced but unrevealed; use an estimate:
+ 	else r += 3 * GET_PLAYER(cityOwnerId).getCurrentEra() / 2;
+-	vector<CvPlot const*> fc;
++	vector<CvPlot*> fc;
+ 	fatCross(fc);
+ 	for(int i = 0; i < 21; i++) {
+ 		CvPlot const* pp = fc[i];
+@@ -1591,6 +1626,9 @@ void WarAndPeaceCache::City::updateAssetScore() {
+ 				2.0 * ctp.calculateCulturePercent(cacheOwnerId) +
+ 				ctp.calculateCulturePercent(c.getOwner()) +
+ 				ctp.calculateCulturePercent(BARBARIAN_PLAYER)) / 100.0);
++		// <advc.035>
++		if(GC.getOWN_EXCLUSIVE_RADIUS() > 0 && cultureModifier < 1)
++			cultureModifier = (2 * cultureModifier + 1) / 3; // </advc.035>
+ 		r += baseTileScore * cultureModifier;
+ 	}
+ 	double inflationMultiplier = 1 + cacheOwner.calculateInflationRate() / 100.0;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.h b/CvGameCoreDLL/WarAndPeaceCache.h
+index aa4c85d65..b9c7c1a23 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.h
++++ b/CvGameCoreDLL/WarAndPeaceCache.h
+@@ -69,6 +69,7 @@ public:
+ 	 int vassalTechScore(PlayerTypes civId) const;
+ 	 int vassalResourceScore(PlayerTypes civId) const;
+ 	int numAdjacentLandPlots(PlayerTypes civId) const;
++	int numLostTilesAtWar(TeamTypes tId) const; // advc.035
+ 	double relativeNavyPower(PlayerTypes civId) const;
+ 	int pastWarScore(TeamTypes tId) const;
+ 	// Trade value paid to us for declaring war against tId
+@@ -120,6 +121,7 @@ private:
+ 	void updateThreatRatings();
+ 	void updateVassalScores();
+ 	void updateAdjacentLand();
++	void updateLostTilesAtWar(); // advc.035
+ 	void updateRelativeNavyPower();
+ 	void updateTargetMissionCount(PlayerTypes civId);
+ 	double calculateThreatRating(PlayerTypes civId) const;
+@@ -166,6 +168,7 @@ private:
+ 	 int adjacentLand[MAX_CIV_PLAYERS];
+ 	 double relativeNavyPow[MAX_CIV_PLAYERS];
+ 	// per team
++	 int lostTilesAtWar[MAX_CIV_TEAMS]; // advc.035
+ 	 int pastWarScores[MAX_CIV_TEAMS];
+ 	 // Value of the sponsorship
+ 	 int sponsorshipsAgainst[MAX_CIV_TEAMS];
+@@ -200,7 +203,7 @@ public:
+ 		CvCity* city() const;
+ 		/*  See ::fatCross in CvGameCoreUtils. If the underlying CvCity
+ 			no longer exists, all entries are NULL. */
+-		void fatCross(std::vector<CvPlot const*>& r);
++		void fatCross(std::vector<CvPlot*>& r);
+ 		void write(FDataStreamBase* stream);
+ 		void read(FDataStreamBase* stream);
+ 	    static CvCity* cityById(int id);
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index c4aed38a4..89fb16761 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -187,6 +187,7 @@ double WarUtilityAspect::lostAssetScore(PlayerTypes to, double* returnTotal,
+ 	double blockadeMultiplier = lossesFromBlockade(theyId, to);
+ 	double fromBlockade = 0.1 * blockadeMultiplier * (total - r);
+ 	r += fromBlockade;
++	r += lossesFromFlippedTiles(theyId, to); // advc.035
+ 	if(returnTotal != NULL)
+ 		*returnTotal = total;
+ 	return r;
+@@ -271,6 +272,37 @@ double WarUtilityAspect::lossesFromNukes(PlayerTypes victimId, PlayerTypes srcId
+ 	return r;
+ }
+ 
++// <advc.035>
++double WarUtilityAspect::lossesFromFlippedTiles(PlayerTypes victimId,
++		PlayerTypes srcId) {
++	
++	if(GC.getOWN_EXCLUSIVE_RADIUS() <= 0)
++		return 0;
++	double r = 0;
++	int victimLostTiles = 0;
++	std::vector<TeamTypes> sources;
++	if(srcId == NO_PLAYER) {
++		for(size_t i = 0; i < properTeams.size(); i++)
++			sources.push_back(properTeams[i]);
++	}
++	else sources.push_back(TEAMID(srcId));
++	WarAndPeaceCache const& victimCache = GET_PLAYER(victimId).warAndPeaceAI().
++			getCache();
++	for(size_t i = 0; i < sources.size(); i++) {
++		if(m->isWar(sources[i], TEAMID(victimId))) {
++			victimLostTiles += victimCache.numLostTilesAtWar(sources[i]);
++		}
++	}
++	int const teamSz = TEAMREF(theyId).getNumMembers();
++	if(std::abs(victimLostTiles) <= 4 * teamSz)
++		return 0;
++	int victimLandTiles = GET_PLAYER(victimId).getTotalLand();
++	double const weight = 125;
++	r = (weight * victimLostTiles) / std::max(5, victimLandTiles);
++	r /= teamSz; // Tiles are counted per team, but this is a per-civ function.
++	return r;
++} // </advc.035>
++
+ double WarUtilityAspect::conqAssetScore(bool mute) {
+ 
+ 	if(weConquerFromThem.empty())
+@@ -2366,6 +2398,8 @@ void Risk::evaluate() {
+ 		fromNukes = scareCost;
+ 	}
+ 	uMinus += fromNukes;
++	/*  advc.035 (comment): Don't consider lossFromFlippedTiles here. We might
++	capture the very cities that steal our tiles by continuing the war. */
+ 	uMinus /= total;
+ 	if(uMinus > 0.5) {
+ 		if(fromBlockade > 0.5)
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.h b/CvGameCoreDLL/WarUtilityAspect.h
+index 8198fbe0c..d9d013f7f 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.h
++++ b/CvGameCoreDLL/WarUtilityAspect.h
+@@ -100,6 +100,8 @@ protected:
+ 			TeamTypes ignoreGains = NO_TEAM);
+ 	 double lossesFromBlockade(PlayerTypes victimId, PlayerTypes to);
+ 	 double lossesFromNukes(PlayerTypes victimId, PlayerTypes sourceId);
++	 // advc.035:
++	 double lossesFromFlippedTiles(PlayerTypes victimId, PlayerTypes sourceId = NO_PLAYER);
+ 	 /* Score for assets conquered by us from them (as set by evaluate(void)).
+ 		'mute' disables logging within the function body. */
+ 	 double conqAssetScore(bool mute = true);
+
+[PATCH OMITTED] file=a/manual_v0.91b.pdf b/manual_v0.91b.pdf reason=binary/generated-file changedLines=0 bytes=148
+
+[PATCH COVERAGE]
+patchFiles=21 embeddedFiles=20 omittedFiles=1 embeddedPatchBytes=63827

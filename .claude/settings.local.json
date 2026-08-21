@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Grep(*)",
+      "Bash(grep *)",
+      "Bash(grep)",
+      "Bash(ls *)",
+      "Bash(ls)",
+      "Bash(awk *)",
+      "Bash(for *)",
+      "Bash(sort *)",
+      "Bash(find *)",
+      "Bash(find)",
+      "Bash(xargs sed *)",
+      "Bash(python -m py_compile *)",
+      "Bash(dir *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git status *)",
+      "Bash(git show *)",
+      "Bash(git branch *)",
+      "Read(//c/Program Files \\(x86\\)/Steam/steamapps/common/Sid Meier's Civilization IV/**)",
+      "Read(//c/Users/PC/Documents/My Games/beyond the sword/**)",
+      "WebFetch(domain:forums.civfanatics.com)"
+    ]
+  }
+}

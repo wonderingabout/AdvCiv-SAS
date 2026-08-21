@@ -1,0 +1,420 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3861
+# Commit: bf88ce17bdf5be12aa3c85b82e0e8a19aa0fe0fe
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 69a6c512b05239d05a49256d6b385d22fc977db7
+# Title: Reorder unit command buttons, use two rows.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+58	29	Assets/Python/Screens/CvMainInterface.py
+48	39	Assets/XML/Units/CIV4CommandInfos.xml
+12	6	Assets/XML/Units/CIV4MissionInfos.xml
+5	4	CvGameCoreDLL/CvEnums.h
+1	1	CvGameCoreDLL/CvInfo_Command.h
+5	4	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+1	0	CvGameCoreDLL/CyInfoInterface1.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 0c97ffd6c..dda12a7ab 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1997,15 +1997,19 @@ class CvMainInterface:
+ 		except AttributeError:
+ 			pass
+ 
+-	def updateBottomButtonList(self):
++	# advc.004k Cut from updateBottomButtonList
++	def bottomListBtnSize(self):
+ # BUG - Build/Action Icon Size - start
+ 		if MainOpt.isBuildIconSizeLarge():
+-			iButtonSize = 64
++			return 64
+ 		elif MainOpt.isBuildIconSizeMedium():
+-			iButtonSize = 48
+-		else:
+-			iButtonSize = 36
++			return 48
++		return 36
++# BUG - Build/Action Icon Size - end
+ 
++	def updateBottomButtonList(self):
++# BUG - Build/Action Icon Size - start
++		iButtonSize = self.bottomListBtnSize()
+ 		# EF: minimum icon size for disabled buttons to work is 33 so these sizes won't fly
+ 		# iButtonSize=32, iHeight=102
+ 		# iButtonSize=24, iHeight=104
+@@ -3418,19 +3422,41 @@ class CvMainInterface:
+ 				if (pHeadSelectedUnit and
+ 						pHeadSelectedUnit.getOwner() == gc.getGame().getActivePlayer() and
+ 						bHeadSelectionChanged):
++					# <advc.004k>
++					bGroupButtonsDone = False
++					iMaxCols = int((gRect("BottomButtonList").width()
++							# (Safety margin - not sure if MultiListControl can use its entire width.)
++							-5) / self.bottomListBtnSize())
++					# Can display any number of them, but we don't want a scrollbar.
++					iMaxRows = int((gRect("BottomButtonList").height() - 5) /
++							self.bottomListBtnSize())
++					# </advc.004k>
+ 					iCount = 0
+ 					actions = CyInterface().getActionsToShow()
+-					# advc.004: Hide the Skip button while asleep, but keep the hotkey available? Maybe better not ...
+-					#bWaiting = pHeadSelectedUnit.isWaiting()
+ 					for i in actions:
+-						# <advc.004> See above
+-						#if bWaiting and gc.getActionInfo(i).getHotKey() == "KB_SPACE":
+-						#	continue # </advc.004>
++						# <advc.004k>
++						# Show grouping commands before promotions, upgrades
++						if (not bGroupButtonsDone and
++								(gc.getActionInfo(i).getCommandType() == CommandTypes.COMMAND_PROMOTION or
++								gc.getActionInfo(i).getCommandType() == CommandTypes.COMMAND_UPGRADE)):
++							bGroupButtonsDone = True
++							iCount += self.appendGroupBottomButtons()
++						# Put promotions, upgrades on a separate row -
++						# if we haven't exceeded a full row already and can
++						# fit all promos and upgrades in the 2nd row.
++						if (bGroupButtonsDone and iMaxRows >= 2 and
++								iCount <= iMaxCols and
++								len(actions) - iCount <= iMaxCols):
++							iRow = 1
++						else:
++							iRow = 0
++						# </advc.004k>
+ 						screen.appendMultiListButton("BottomButtonList",
+-								gc.getActionInfo(i).getButton(), 0,
++								gc.getActionInfo(i).getButton(),
++								iRow, # advc.004k: was 0
+ 								WidgetTypes.WIDGET_ACTION, i, -1, False)
+ 						screen.show("BottomButtonList")
+-						if (not CyInterface().canHandleAction(i, False)):
++						if not CyInterface().canHandleAction(i, False):
+ 							screen.disableMultiListButton("BottomButtonList",
+ 									0, iCount, gc.getActionInfo(i).getButton())
+ 						if (pHeadSelectedUnit.isActionRecommended(i)
+@@ -3439,24 +3465,12 @@ class CvMainInterface:
+ 							screen.enableMultiListPulse("BottomButtonList", True, 0, iCount)
+ 						else:
+ 							screen.enableMultiListPulse("BottomButtonList", False, 0, iCount)
+-
+-						iCount += 1
+-
+-					if (CyInterface().canCreateGroup()):
+-						screen.appendMultiListButton("BottomButtonList",
+-								ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CREATEGROUP").getPath(), 0,
+-								WidgetTypes.WIDGET_CREATE_GROUP, -1, -1, False)
+-						screen.show("BottomButtonList")
+-
+-						iCount += 1
+-
+-					if (CyInterface().canDeleteGroup()):
+-						screen.appendMultiListButton("BottomButtonList",
+-								ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_SPLITGROUP").getPath(), 0,
+-								WidgetTypes.WIDGET_DELETE_GROUP, -1, -1, False)
+-						screen.show("BottomButtonList")
+-
+ 						iCount += 1
++					# <advc.004k>
++					if not bGroupButtonsDone: # If no promotions, upgrades.
++						# Moved into new method
++						iCount += self.appendGroupBottomButtons()
++						screen.show("BottomButtonList") # </advc.004k>
+ 				# <advc.154>
+ 				pUnit = None
+ 				if bHeadSelectionChanged:
+@@ -3467,6 +3481,21 @@ class CvMainInterface:
+ 			self.setMinimapButtonVisibility(True)
+ 
+ 		return 0
++	# advc.004k: Moved from updateSelectionButtons above
++	def appendGroupBottomButtons(self):
++		iAppended = 0
++		if CyInterface().canCreateGroup():
++			self.screen.appendMultiListButton("BottomButtonList",
++					ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CREATEGROUP").getPath(), 0,
++					WidgetTypes.WIDGET_CREATE_GROUP, -1, -1, False)
++			iAppended += 1
++		if CyInterface().canDeleteGroup():
++			self.screen.appendMultiListButton("BottomButtonList",
++					ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_SPLITGROUP").getPath(), 0,
++					WidgetTypes.WIDGET_DELETE_GROUP, -1, -1, False)
++			iAppended += 1
++		return iAppended
++
+ 	# <advc.154>
+ 	def hideUnitCyclingButtons(self):
+ 		self.hideUnitCycleButtonGFC("UnitCycle")
+
+diff --git a/Assets/XML/Units/CIV4CommandInfos.xml b/Assets/XML/Units/CIV4CommandInfos.xml
+index 1a4abf948..5f4d61989 100644
+--- a/Assets/XML/Units/CIV4CommandInfos.xml
++++ b/Assets/XML/Units/CIV4CommandInfos.xml
+@@ -7,16 +7,43 @@
+ <Civ4CommandInfos xmlns="x-schema:CIV4UnitSchema.xml">
+ 	<!--Changes must be reflected in CvEnums.h-->
+ 	<CommandInfos>
++		<!-- advc.004k: DELETE and GIFT swapped with PROMOTE, UPGRADE -->
+ 		<CommandInfo>
+-			<Type>COMMAND_PROMOTION</Type>
+-			<Description>TXT_KEY_COMMAND_PROMOTION</Description>
+-			<Help/>
++			<Type>COMMAND_DELETE</Type>
++			<Description>TXT_KEY_COMMAND_DELETE</Description>
++			<Help>TXT_KEY_COMMAND_DELETE_HELP</Help>
++			<HotKey>KB_DELETE</HotKey>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<HotKeyAlt/>
++			<bAltDownAlt>0</bAltDownAlt>
++			<bShiftDownAlt>0</bShiftDownAlt>
++			<bCtrlDownAlt>0</bCtrlDownAlt>
++			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
++			<!-- advc.004k: Commented out -->
++			<!--iOrderPriority>16</iOrderPriority-->
++			<bConfirmCommand>1</bConfirmCommand>
++			<bVisible>1</bVisible>
++			<Button>Art/Interface/Buttons/Actions/Delete.dds</Button>
+ 		</CommandInfo>
+ 		<CommandInfo>
+-			<Type>COMMAND_UPGRADE</Type>
+-			<Description>TXT_KEY_COMMAND_UPGRADE</Description>
+-			<Help/>
+-			<bAll>1</bAll>
++			<Type>COMMAND_GIFT</Type>
++			<Description>TXT_KEY_COMMAND_GIFT</Description>
++			<Help>TXT_KEY_COMMAND_GIFT_HELP</Help>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<HotKeyAlt/>
++			<bAltDownAlt>0</bAltDownAlt>
++			<bShiftDownAlt>0</bShiftDownAlt>
++			<bCtrlDownAlt>0</bCtrlDownAlt>
++			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
++			<bVisible>1</bVisible>
++			<Button>Art/Interface/Buttons/Actions/GiveUnits.dds</Button>
+ 		</CommandInfo>
+ 		<CommandInfo>
+ 			<Type>COMMAND_AUTOMATE</Type>
+@@ -97,42 +124,24 @@
+ 			<bAll>1</bAll>
+ 			<Button>Art/Interface/Buttons/Actions/Cancel.dds</Button>
+ 		</CommandInfo>
++		<!-- advc.004k: Swapped position of PROMOTION, UPGRADE with
++			 DELETE, GIFT -->
+ 		<CommandInfo>
+-			<Type>COMMAND_DELETE</Type>
+-			<Description>TXT_KEY_COMMAND_DELETE</Description>
+-			<Help>TXT_KEY_COMMAND_DELETE_HELP</Help>
+-			<HotKey>KB_DELETE</HotKey>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-			<HotKeyAlt/>
+-			<bAltDownAlt>0</bAltDownAlt>
+-			<bShiftDownAlt>0</bShiftDownAlt>
+-			<bCtrlDownAlt>0</bCtrlDownAlt>
+-			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+-			<iOrderPriority>16</iOrderPriority>
+-			<bConfirmCommand>1</bConfirmCommand>
+-			<bVisible>1</bVisible>
+-			<Button>Art/Interface/Buttons/Actions/Delete.dds</Button>
++			<Type>COMMAND_PROMOTION</Type>
++			<Description>TXT_KEY_COMMAND_PROMOTION</Description>
++			<Help/>
++			<!-- advc.004k -->
++			<iOrderPriority>4</iOrderPriority>
+ 		</CommandInfo>
+ 		<CommandInfo>
+-			<Type>COMMAND_GIFT</Type>
+-			<Description>TXT_KEY_COMMAND_GIFT</Description>
+-			<Help>TXT_KEY_COMMAND_GIFT_HELP</Help>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-			<HotKeyAlt/>
+-			<bAltDownAlt>0</bAltDownAlt>
+-			<bShiftDownAlt>0</bShiftDownAlt>
+-			<bCtrlDownAlt>0</bCtrlDownAlt>
+-			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+-			<bVisible>1</bVisible>
+-			<Button>Art/Interface/Buttons/Actions/GiveUnits.dds</Button>
++			<Type>COMMAND_UPGRADE</Type>
++			<Description>TXT_KEY_COMMAND_UPGRADE</Description>
++			<Help/>
++			<!-- advc.004k -->
++			<iOrderPriority>3</iOrderPriority>
++			<bAll>1</bAll>
+ 		</CommandInfo>
++
+ 		<CommandInfo>
+ 			<Type>COMMAND_LOAD</Type>
+ 			<Description>TXT_KEY_COMMAND_LOAD</Description>
+
+diff --git a/Assets/XML/Units/CIV4MissionInfos.xml b/Assets/XML/Units/CIV4MissionInfos.xml
+index 34bb92c4b..40cfab517 100644
+--- a/Assets/XML/Units/CIV4MissionInfos.xml
++++ b/Assets/XML/Units/CIV4MissionInfos.xml
+@@ -56,7 +56,8 @@
+ 			<bShiftDownAlt>0</bShiftDownAlt>
+ 			<bCtrlDownAlt>0</bCtrlDownAlt>
+ 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+-			<iOrderPriority>13</iOrderPriority>
++			<!-- advc.004k: was 13 -->
++			<iOrderPriority>11</iOrderPriority>
+ 			<bVisible>1</bVisible>
+ 			<Button>,Art/Interface/Buttons/Actions/SkipUnit.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,5,4</Button>
+ 		</MissionInfo>
+@@ -151,7 +152,8 @@
+ 			<bShiftDownAlt>0</bShiftDownAlt>
+ 			<bCtrlDownAlt>0</bCtrlDownAlt>
+ 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+-			<iOrderPriority>14</iOrderPriority>
++			<!-- advc.004k: was 14 -->
++			<iOrderPriority>12</iOrderPriority>
+ 			<bVisible>1</bVisible>
+ 			<Button>,Art/Interface/Buttons/Actions/Intercept.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,3,2</Button>
+ 		</MissionInfo>
+@@ -174,7 +176,8 @@
+ 			<bShiftDownAlt>0</bShiftDownAlt>
+ 			<bCtrlDownAlt>1</bCtrlDownAlt>
+ 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+-			<iOrderPriority>12</iOrderPriority>
++			<!-- advc.004k: Commented out -->
++			<!--iOrderPriority>12</iOrderPriority-->
+ 			<bVisible>1</bVisible>
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,6,16</Button>
+ 		</MissionInfo>
+@@ -198,7 +201,8 @@
+ 			<bShiftDownAlt>0</bShiftDownAlt>
+ 			<bCtrlDownAlt>0</bCtrlDownAlt>
+ 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+-			<iOrderPriority>11</iOrderPriority>
++			<!-- advc.004k: was 11 -->
++			<iOrderPriority>14</iOrderPriority>
+ 			<bVisible>1</bVisible>
+ 			<Button>,Art/Interface/Buttons/Actions/Heal.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,2</Button>
+ 		</MissionInfo>
+@@ -217,7 +221,8 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<iOrderPriority>12</iOrderPriority>
++			<!-- advc.004k: was 12 -->
++			<iOrderPriority>13</iOrderPriority>
+ 			<bVisible>1</bVisible>
+ 			<Button>,Art/Interface/Buttons/Actions/Sentry.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,4,4</Button>
+ 		</MissionInfo>
+@@ -844,7 +849,8 @@
+ 			<bShiftDownAlt>0</bShiftDownAlt>
+ 			<bCtrlDownAlt>0</bCtrlDownAlt>
+ 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+-			<iOrderPriority>11</iOrderPriority>
++			<!-- (advc.004k: Same as HEAL) -->
++			<iOrderPriority>14</iOrderPriority>
+ 			<bVisible>1</bVisible>
+ 			<Button>,Art/Interface/Buttons/Actions/Heal.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,2,2</Button>
+ 		</MissionInfo>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 9ba08fb12..815b10518 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -977,15 +977,16 @@ ENUM_START(MissionAI, MISSIONAI)
+ ENUM_END(MissionAI, MISSIONAI)
+ 
+ ENUM_START(Command, COMMAND)
+-	COMMAND_PROMOTION,
+-	COMMAND_UPGRADE,
++	// advc.004k: Swapped DELETE and GIFT with PROMOTION and UPGRADE
++	COMMAND_DELETE,
++	COMMAND_GIFT,
+ 	COMMAND_AUTOMATE,
+ 	COMMAND_WAKE,
+ 	COMMAND_CANCEL,
+ 	COMMAND_CANCEL_ALL,
+ 	COMMAND_STOP_AUTOMATION,
+-	COMMAND_DELETE,
+-	COMMAND_GIFT,
++	COMMAND_PROMOTION,
++	COMMAND_UPGRADE,
+ 	COMMAND_LOAD,
+ 	COMMAND_LOAD_UNIT,
+ 	COMMAND_UNLOAD,
+
+diff --git a/CvGameCoreDLL/CvInfo_Command.h b/CvGameCoreDLL/CvInfo_Command.h
+index 539003cb2..63fd94c83 100644
+--- a/CvGameCoreDLL/CvInfo_Command.h
++++ b/CvGameCoreDLL/CvInfo_Command.h
+@@ -93,7 +93,7 @@ public:
+ 	int getMissionData() const; // Exposed to Python
+ 	int getCommandData() const; // Exposed to Python
+ 
+-	int getAutomateType() const;
++	int getAutomateType() const; // (advc.004k: Exposed to Python)
+ 	int getInterfaceModeType() const; // Exposed to Python
+ 	DllExport int getMissionType() const; // Exposed to Python
+ 	int getCommandType() const; // Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index c5a9c3588..0419c5724 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -982,18 +982,19 @@ void CvXMLLoadUtility::SetGlobalActionInfo()
+ 		}
+ 	/*	The order of these calls serves as a tie-breaker for action priorities
+ 		(which determine the order in which actions are displayed on the HUD. */
+-	SET_ACTION_DATA(Command, COMMAND);
+ 	SET_ACTION_DATA(InterfaceMode, INTERFACEMODE);
++	SET_ACTION_DATA(Mission, MISSION); // advc.004k: Moved up (from after AUTOMATE)
+ 	SET_ACTION_DATA(Build, BUILD);
+-	SET_ACTION_DATA(Promotion, PROMOTION);
+-	SET_ACTION_DATA(Unit, UNIT);
+ 	SET_ACTION_DATA(Religion, RELIGION);
+ 	SET_ACTION_DATA(Corporation, CORPORATION);
+ 	SET_ACTION_DATA(Specialist, SPECIALIST);
+ 	SET_ACTION_DATA(Building, BUILDING);
+ 	SET_ACTION_DATA(Control, CONTROL);
+ 	SET_ACTION_DATA(Automate, AUTOMATE);
+-	SET_ACTION_DATA(Mission, MISSION);
++	SET_ACTION_DATA(Command, COMMAND); // advc.004k: Moved down (was first)
++	// <advc.004k> Moved down from before RELIGION
++	SET_ACTION_DATA(Promotion, PROMOTION); 
++	SET_ACTION_DATA(Unit, UNIT); // </advc.004k>
+ 	#undef SET_ACTION_DATA
+ 	/*	Bugfix? Was std::sort. That runs counter to the idea of breaking ties
+ 		in a deliberate way. */
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index 71b5ae06e..eb40ed3be 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -188,6 +188,7 @@ void CyInfoPythonInterface1()
+ 		.def("getMissionType", &CvActionInfo::getMissionType, "int ()")
+ 		.def("getCommandType", &CvActionInfo::getCommandType, "int ()")
+ 		.def("getControlType", &CvActionInfo::getControlType, "int ()")
++		.def("getAutomateType", &CvActionInfo::getAutomateType, "int ()") // advc.004k
+ 
+ 		.def("isConfirmCommand", &CvActionInfo::isConfirmCommand, "bool ()")
+ 		.def("isVisible", &CvActionInfo::isVisible, "bool ()")
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=15028

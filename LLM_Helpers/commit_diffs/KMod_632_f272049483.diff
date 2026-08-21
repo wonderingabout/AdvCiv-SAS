@@ -1,0 +1,339 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 632
+# Commit: f2720494832c928b1d5922f76916d88ce21125f3
+# History segment: K-Mod history
+# Parent used for diff: 9a312e4c89621f52bb1af55db7cc347efb6bd882
+# Title: Costs returned by getGoldPerMilitaryUnit and getGoldPerUnit are now in units of 1/100 gold. Changed the xml, and supporting code in the dll and save format,...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/GameInfo/CIV4CivicInfos.xml
+4	0	Assets/xml/GlobalDefinesAlt.xml
+18	1	Assets/xml/Text/Civ4GameText_K-Mod.xml
+18	8	CvGameCoreDLL/CvGameTextMgr.cpp
+8	1	CvGameCoreDLL/CvInfos.cpp
+35	16	CvGameCoreDLL/CvPlayer.cpp
+3	3	CvGameCoreDLL/CvPlayer.h
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4CivicInfos.xml b/Assets/xml/GameInfo/CIV4CivicInfos.xml
+index c1d204753..36c0676fc 100644
+--- a/Assets/xml/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/xml/GameInfo/CIV4CivicInfos.xml
+@@ -1674,7 +1674,7 @@
+ 			<iFreeUnitsPopulationPercent>0</iFreeUnitsPopulationPercent>
+ 			<iFreeMilitaryUnitsPopulationPercent>0</iFreeMilitaryUnitsPopulationPercent>
+ 			<iGoldPerUnit>0</iGoldPerUnit>
+-			<iGoldPerMilitaryUnit>1</iGoldPerMilitaryUnit>
++			<iGoldPerMilitaryUnit>50</iGoldPerMilitaryUnit>
+ 			<iHappyPerMilitaryUnit>0</iHappyPerMilitaryUnit>
+ 			<bMilitaryFoodProduction>0</bMilitaryFoodProduction>
+ 			<iMaxConscript>0</iMaxConscript>
+
+diff --git a/Assets/xml/GlobalDefinesAlt.xml b/Assets/xml/GlobalDefinesAlt.xml
+index 293c93929..d82977d75 100644
+--- a/Assets/xml/GlobalDefinesAlt.xml
++++ b/Assets/xml/GlobalDefinesAlt.xml
+@@ -9,6 +9,10 @@
+ 		<DefineName>SAVE_VERSION</DefineName>
+ 		<iDefineIntVal>303</iDefineIntVal>
+ 	</Define>
++	<Define>
++		<DefineName>INITIAL_GOLD_PER_UNIT</DefineName>
++		<iDefineIntVal>100</iDefineIntVal> <!-- this is now percent cost, so I've changed it from 1 to 100 -->
++	</Define>
+ 	<Define>
+ 		<DefineName>BASE_REVOLT_OCCUPATION_TURNS</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal> <!-- increased from 2, because of changes that I've made to its useage -->
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index 934dff18f..3cd542e65 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -58,7 +58,7 @@
+ 		<Italian>[ICON_BULLET]%s1[ICON_CULTURE] dalla [ICON_TRADE]</Italian>
+ 		<Spanish>[ICON_BULLET]%s1[ICON_CULTURE] por [ICON_TRADE]</Spanish>
+ 	</TEXT>
+-	<!-- a replacement for the standard game text... for some minor things that have been bothering me -->
++	<!-- replacements for standard game text -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TRANSFER_GAME_DATA_TITLE</Tag>
+ 		<English>Transferring Game Data</English>
+@@ -83,6 +83,23 @@
+ 		<Italian>[NEWLINE]%d3[ICON_GOLD]: Costo per %d1 unit&#224; militari (supporto gratuito per %d2)</Italian>
+ 		<Spanish>[NEWLINE]%d3 [ICON_GOLD]: coste unitario de %d1 [NUM1:unidad militar:unidades militares] (abastecimiento gratis para %d2)</Spanish>
+ 	</TEXT>
++	<!-- unit support costs use to be gold per unit, now they are 1/100 gold per unit - so the text needs to be changed to be more flexible. I've removed the bullet, the number, and the icon. Those will now be in the dll. -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_SUPPORT_COSTS</Tag>
++		<English>Support Cost per Unit</English>
++		<French>Co&#251;t d'entretien par unit&#233;</French>
++		<German>Unterhaltskosten pro Einheit</German>
++		<Italian>Costo di supporto per unit&#224;</Italian>
++		<Spanish>de coste de abastecimiento por cada unidad</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_MILITARY_SUPPORT_COSTS</Tag>
++		<English>Support Cost per Military Unit</English>
++		<French>Co&#251;t de ravitaillement par unit&#233; militaire</French>
++		<German>Unterhaltskosten pro Milit&#228;reinheit</German>
++		<Italian>Costo di supporto per le unit&#224; militari</Italian>
++		<Spanish>de coste de abastecimiento por cada unidad militar</Spanish>
++	</TEXT>	
+ 	<!-- "-X% strength to opposing city defenders"?
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_CITY_ATTACK_TEXT</Tag>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 0ff55e17f..b41255105 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -7589,15 +7589,23 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
+ 	//	Gold cost per unit
+ 	if (GC.getCivicInfo(eCivic).getGoldPerUnit() != 0)
+ 	{
+-		szHelpText.append(NEWLINE);
+-		szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_SUPPORT_COSTS", (GC.getCivicInfo(eCivic).getGoldPerUnit() > 0), GC.getCommerceInfo(COMMERCE_GOLD).getChar()));
++		/* szHelpText.append(NEWLINE);
++		szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_SUPPORT_COSTS", (GC.getCivicInfo(eCivic).getGoldPerUnit() > 0), GC.getCommerceInfo(COMMERCE_GOLD).getChar())); */
++		// K-Mod
++		szHelpText.append(CvWString::format(L"\n%c%+.2f%c %s", gDLL->getSymbolID(BULLET_CHAR), (float)GC.getCivicInfo(eCivic).getGoldPerUnit()/100, GC.getCommerceInfo(COMMERCE_GOLD).getChar(),
++			gDLL->getText("TXT_KEY_CIVIC_SUPPORT_COSTS").GetCString()));
++		// K-Mod end
+ 	}
+ 
+ 	//	Gold cost per military unit
+ 	if (GC.getCivicInfo(eCivic).getGoldPerMilitaryUnit() != 0)
+ 	{
+-		szHelpText.append(NEWLINE);
+-		szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_MILITARY_SUPPORT_COSTS", (GC.getCivicInfo(eCivic).getGoldPerMilitaryUnit() > 0), GC.getCommerceInfo(COMMERCE_GOLD).getChar()));
++		/* szHelpText.append(NEWLINE);
++		szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_MILITARY_SUPPORT_COSTS", (GC.getCivicInfo(eCivic).getGoldPerMilitaryUnit() > 0), GC.getCommerceInfo(COMMERCE_GOLD).getChar())); */
++		// K-Mod
++		szHelpText.append(CvWString::format(L"\n%c%+.2f%c %s", gDLL->getSymbolID(BULLET_CHAR), (float)GC.getCivicInfo(eCivic).getGoldPerMilitaryUnit()/100, GC.getCommerceInfo(COMMERCE_GOLD).getChar(),
++			gDLL->getText("TXT_KEY_CIVIC_MILITARY_SUPPORT_COSTS").GetCString()));
++		// K-Mod end
+ 	}
+ 
+ 	if (!CvWString(GC.getCivicInfo(eCivic).getHelp()).empty())
+@@ -14463,14 +14471,14 @@ void CvGameTextMgr::buildFinanceUnitCostString(CvWStringBuffer& szBuffer, Player
+ 	int iPaidUnits = iUnits;
+ 	int iPaidMilitaryUnits = iMilitaryUnits;
+ 	int iMilitaryCost = 0;
+-	int iBaseUnitCost = 0;
++	int iUnitCost = 0; // was called "base unit cost"
+ 	int iExtraCost = 0;
+-	int iCost = player.calculateUnitCost(iFreeUnits, iFreeMilitaryUnits, iPaidUnits, iPaidMilitaryUnits, iBaseUnitCost, iMilitaryCost, iExtraCost);
+-	int iHandicap = iCost-iBaseUnitCost-iMilitaryCost-iExtraCost;
++	int iCost = player.calculateUnitCost(iFreeUnits, iFreeMilitaryUnits, iPaidUnits, iPaidMilitaryUnits, iUnitCost, iMilitaryCost, iExtraCost);
++	int iHandicap = iCost-iUnitCost-iMilitaryCost-iExtraCost;
+ 
+ 	szBuffer.append(NEWLINE);
+ 	//szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST", iPaidUnits, iFreeUnits, iBaseUnitCost));
+-	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST", iUnits, iFreeUnits, iBaseUnitCost)); // K-Mod
++	szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST", iUnits, iFreeUnits, iUnitCost)); // K-Mod
+ 
+ 	//if (iPaidMilitaryUnits != 0)
+ 	if (iMilitaryCost != 0) // K-Mod
+@@ -14484,6 +14492,7 @@ void CvGameTextMgr::buildFinanceUnitCostString(CvWStringBuffer& szBuffer, Player
+ 	}
+ 	if (iHandicap != 0)
+ 	{
++		FAssertMsg(false, "not all unit costs were accounted for"); // K-Mod (handicap modifier are now rolled into the other costs)
+ 		szBuffer.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_HANDICAP_COST", iHandicap));
+ 		szBuffer.append(CvWString::format(L" (%+d%%)", GC.getHandicapInfo(player.getHandicapType()).getUnitCostPercent()-100)); // K-Mod
+ 	}
+@@ -14507,6 +14516,7 @@ void CvGameTextMgr::buildFinanceAwaySupplyString(CvWStringBuffer& szBuffer, Play
+ 	CvWString szHandicap;
+ 	if (iHandicap != 0)
+ 	{
++		FAssertMsg(false, "not all supply costs were accounted for"); // K-Mod (handicap modifier are now rolled into the other costs)
+ 		szHandicap = gDLL->getText("TXT_KEY_FINANCE_ADVISOR_HANDICAP_COST", iHandicap);
+ 	}
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index 36dac8f85..719cb9ef6 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -5768,6 +5768,13 @@ void CvCivicInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_iFreeMilitaryUnitsPopulationPercent);			
+ 	stream->Read(&m_iGoldPerUnit);
+ 	stream->Read(&m_iGoldPerMilitaryUnit);
++	// K-Mod
++	if (uiFlag < 1)
++	{
++		m_iGoldPerUnit *= 100;
++		m_iGoldPerMilitaryUnit *= 100;
++	}
++	// K-Mod end
+ 	stream->Read(&m_iHappyPerMilitaryUnit);
+ 	stream->Read(&m_iLargestCityHappiness);
+ 	stream->Read(&m_iWarWearinessModifier);
+@@ -5866,7 +5873,7 @@ void CvCivicInfo::write(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::write(stream);
+ 
+-	uint uiFlag=0;
++	uint uiFlag=1;
+ 	stream->Write(uiFlag);		// flag for expansion
+ 
+ 	stream->Write(m_iCivicOptionType);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 5ec9d10a5..f098aa05c 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7229,9 +7229,9 @@ void CvPlayer::setGwPercentAnger(int iNewValue)
+ ** K-Mod end
+ */
+ 
+-int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& iPaidUnits, int& iPaidMilitaryUnits, int& iBaseUnitCost, int& iMilitaryCost, int& iExtraCost) const
++int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& iPaidUnits, int& iPaidMilitaryUnits, int& iUnitCost, int& iMilitaryCost, int& iExtraCost) const
+ {
+-	int iSupport;
++	//int iSupport;
+ 
+ 	iFreeUnits = GC.getHandicapInfo(getHandicapType()).getFreeUnits();
+ 
+@@ -7241,12 +7241,7 @@ int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& i
+ 	iFreeMilitaryUnits = getBaseFreeMilitaryUnits();
+ 	iFreeMilitaryUnits += ((getTotalPopulation() * getFreeMilitaryUnitsPopulationPercent()) / 100);
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      09/17/09                                jdog5000      */
+-/*                                                                                              */
+-/*                                                                                              */
+-/************************************************************************************************/
+-/* original BTS code
++	/* original BTS code
+ 	if (!isHuman())
+ 	{
+ 		if (GET_TEAM(getTeam()).hasMetHuman())
+@@ -7254,18 +7249,14 @@ int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& i
+ 			iFreeUnits += getNumCities(); // XXX
+ 			iFreeMilitaryUnits += getNumCities(); // XXX
+ 		}
+-	}
+-*/
+-	// Removed hidden AI bonus
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	} */ // Hidden AI bonus removed by BBAI.
+ 
+ 	iPaidUnits = std::max(0, getNumUnits() - iFreeUnits);
+ 	iPaidMilitaryUnits = std::max(0, getNumMilitaryUnits() - iFreeMilitaryUnits);
+ 
+-	iSupport = 0;
++	//iSupport = 0;
+ 
++	/* original bts code
+ 	iBaseUnitCost = iPaidUnits * getGoldPerUnit();
+ 	iMilitaryCost = iPaidMilitaryUnits * getGoldPerMilitaryUnit();
+ 	iExtraCost = getExtraUnitCost();
+@@ -7282,7 +7273,28 @@ int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& i
+ 
+ 		iSupport *= std::max(0, ((GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
+ 		iSupport /= 100;
++	}*/
++
++	// K-Mod. GoldPerUnit, etc, are now done as percentages.
++	// Also, "UnitCostPercent" handicap modifiers now apply directly to unit cost only, not military or extra cost.
++	// (iBaseUnitCost is no longer fed back to the caller. Only the modified cost is.)
++	iUnitCost = iPaidUnits * getGoldPerUnit() / 100;
++	iMilitaryCost = iPaidMilitaryUnits * getGoldPerMilitaryUnit() / 100;
++	iExtraCost = getExtraUnitCost() / 100;
++
++	iUnitCost *= GC.getHandicapInfo(getHandicapType()).getUnitCostPercent();
++	iUnitCost /= 100;
++
++	if (!isHuman() && !isBarbarian())
++	{
++		iUnitCost *= GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIUnitCostPercent();
++		iUnitCost /= 100;
++
++		iUnitCost *= std::max(0, ((GC.getHandicapInfo(GC.getGameINLINE().getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
++		iUnitCost /= 100;
+ 	}
++	int iSupport = iUnitCost + iMilitaryCost + iExtraCost;
++	// K-Mod end
+ 
+ 	FAssert(iSupport >= 0);
+ 
+@@ -17145,6 +17157,13 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iFreeMilitaryUnitsPopulationPercent);
+ 	pStream->Read(&m_iGoldPerUnit);
+ 	pStream->Read(&m_iGoldPerMilitaryUnit);
++	// K-Mod
++	if (uiFlag < 3)
++	{
++		m_iGoldPerUnit *= 100;
++		m_iGoldPerMilitaryUnit *= 100;
++	}
++	// K-Mod end
+ 	pStream->Read(&m_iExtraUnitCost);
+ 	pStream->Read(&m_iNumMilitaryUnits);
+ 	pStream->Read(&m_iHappyPerMilitaryUnit);
+@@ -17567,7 +17586,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ {
+ 	int iI;
+ 
+-	uint uiFlag = 2;
++	uint uiFlag = 3;
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iStartingX);
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index f60aed252..67afac95f 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -272,7 +272,7 @@ public:
+ 	int getGwPercentAnger() const; // K-Mod, Exposed to Python
+ 	void setGwPercentAnger(int iNewValue); // K-Mod
+ 
+-	int calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& iPaidUnits, int& iPaidMilitaryUnits, int& iBaseUnitCost, int& iMilitaryCost, int& iExtraCost) const;
++	int calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& iPaidUnits, int& iPaidMilitaryUnits, int& iUnitCost, int& iMilitaryCost, int& iExtraCost) const; // (K-Mod changed iBaseUnitCost to iUnitCost)
+ 	int calculateUnitCost() const;																																				// Exposed to Python
+ 	int calculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost) const;																	// Exposed to Python
+ 	int calculateUnitSupply() const;																																			// Exposed to Python
+@@ -485,9 +485,9 @@ public:
+ 	int getFreeMilitaryUnitsPopulationPercent() const;																										// Exposed to Python
+ 	void changeFreeMilitaryUnitsPopulationPercent(int iChange);											
+ 
+-	// K-Mod
+-	int getTypicalUnitValue(UnitAITypes eUnitAI) const;
++	int getTypicalUnitValue(UnitAITypes eUnitAI) const; // K-Mod
+ 
++	// K-Mod note: GoldPerUnit and GoldPerMilitaryUnit are now in units of 1/100 gold.
+ 	int getGoldPerUnit() const;																																								// Exposed to Python
+ 	void changeGoldPerUnit(int iChange);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c1318f80e..51a8e240a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13260,8 +13260,8 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	iValue += (kCivic.getBaseFreeMilitaryUnits() / 2);
+ 	iValue += ((kCivic.getFreeUnitsPopulationPercent() * getTotalPopulation()) / 200);
+ 	iValue += ((kCivic.getFreeMilitaryUnitsPopulationPercent() * getTotalPopulation()) / 300);
+-	iValue += -(kCivic.getGoldPerUnit() * getNumUnits());
+-	iValue += -(kCivic.getGoldPerMilitaryUnit() * getNumMilitaryUnits() * iWarmongerPercent) / 200;
++	iValue += -(kCivic.getGoldPerUnit() * getNumUnits())/100; // didn't have /100
++	iValue += -(kCivic.getGoldPerMilitaryUnit() * getNumMilitaryUnits() * iWarmongerPercent) / 20000; // was 200
+ 
+ 	//iValue += ((kCivic.isMilitaryFoodProduction()) ? 0 : 0);
+ 	// bbai
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=14880

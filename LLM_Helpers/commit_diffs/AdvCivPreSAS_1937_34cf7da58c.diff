@@ -1,0 +1,61 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1937
+# Commit: 34cf7da58ca6002120e90797b9538a539c856ed6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3a748b1fef5c1ce0fb9f327d543a89932d984cb2
+# Title: Fix autosave when active player defeated during AI Auto Play
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	2	CvGameCoreDLL/CvGame.cpp
+2	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 83f30851f..b89ee29df 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6422,8 +6422,14 @@ void CvGame::doTurn()
+ 	PROFILE_END();
+ 
+ 	stopProfilingDLL(true);
+-
+-	// (advc.044: autosave moved to CvPlayer::setTurnActive)
++	// <advc.044>
++	CvPlayer const& kActivePlayer = GET_PLAYER(getActivePlayer());
++	if (!kActivePlayer.isAlive())
++	{
++		FAssert(kActivePlayer.isHumanDisabled());
++		autoSave();
++	} // (Otherwise, autosave in CvPlayer::setTurnActive.)
++	// </advc.044>
+ }
+ 
+ // <advc.106b>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1e01269d7..a9cc202ff 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -326,7 +326,8 @@ void CvPlayer::initAlerts(bool bSilentCheck)
+ {
+ 	if (!m_paAlerts.empty())
+ 	{
+-		FAssertMsg(false, "initAlerts called redundantly");
++		// OK if this happens when the active player is defeated during Auto Play
++		FAssertMsg(!isAlive() && isHumanDisabled(), "initAlerts called redundantly");
+ 		uninitAlerts();
+ 	}
+ 	/*  The order of this array needs to correspond to the ids returned
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1156

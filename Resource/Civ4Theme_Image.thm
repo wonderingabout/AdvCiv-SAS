@@ -45,7 +45,7 @@ with GFC_Control_Image
 			.TopLayer						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap				=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-											
+
 			// Control flag change masks	
 			.Mask_InvalidateControl			=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -56,7 +56,7 @@ with GFC_Control_Image
 			.Margin							=	GFC_Control_Color_Surface;
 
 			.Bitmap_Default					=	GFC_Control_Color_Image_Default;
-			
+
 			// NOTE: There properties MUST map to the .Bitmap_Default in order for GImageCtrl to support
 			// assigning properties in code!
 			.Bitmap_Disable					=	.Bitmap_Default;
@@ -68,7 +68,7 @@ with GFC_Control_Image
 		{
 			.Inner							=	GFC_Control_Combine_Surface;
 			.Margin							=	GFC_Control_Combine_Surface;
-			
+
 			.Bitmap_Default_Dest			=	GFC_Control_Combine_Image_Default_Dest;
 			.Bitmap_Default_Factor			=	GFC_Control_Combine_Image_Default_Factor;
 
@@ -115,7 +115,7 @@ with GFC_Control_Image
 		// Image bitmap skins
 		// - skins can be used, instead of single layer bitmaps, by other controls
 		//   which contain image controls as children and want multiple layered images
-		
+
 		/*
 		with GFC_CtrlTheme_Bitmap_Control_Image_Skin_Bitmap
 		{

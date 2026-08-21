@@ -1,0 +1,145 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2380
+# Commit: fa33a520178f13a6c6507bf3242f365ddccfd43e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6cd26af827e6f0314b068e63585a25fa34781369
+# Title: Tweak AI_civicTradeVal
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvGlobals.h
+8	9	CvGameCoreDLL/CvPlayer.cpp
+6	0	CvGameCoreDLL/CvPlayer.h
+13	5	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 52e03cf41..4fdb3c1c8 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -492,6 +492,7 @@ public:
+ 		DO(FREE_VASSAL_LAND_PERCENT) \
+ 		DO(FREE_VASSAL_POPULATION_PERCENT) \
+ 		DO(OVERSEAS_TRADE_MODIFIER) \
++		DO(MIN_REVOLUTION_TURNS) \
+ 		/* </advc.opt> */ \
+ 		DO(PATH_DAMAGE_WEIGHT) \
+ 		DO(HILLS_EXTRA_DEFENSE) \
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 665419f54..5832bee6a 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7052,8 +7052,8 @@ void CvPlayer::revolution(CivicTypes* paeNewCivics, bool bForce)
+ 		FOR_EACH_ENUM(CivicOption)
+ 			setCivics(eLoopCivicOption, paeNewCivics[eLoopCivicOption]);
+ 	}
+-
+-	setRevolutionTimer(std::max(1, ((100 + getAnarchyModifier()) * GC.getDefineINT("MIN_REVOLUTION_TURNS")) / 100) + iAnarchyLength);
++	// advc: Revolution turns calculation moved into auxiliary function
++	setRevolutionTimer(iAnarchyLength + getMinTurnsBetweenRevolutions());
+ 
+ 	if (getID() == GC.getGame().getActivePlayer())
+ 	{
+@@ -14317,14 +14317,13 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 		if (eTargetPlayer != NO_PLAYER)
+ 		{
+ 			announceEspionageToThirdParties(eMission, eTargetPlayer); // advc.120f
+-			int iCivic = iExtraData;
++			CivicTypes eCivic = (CivicTypes)iExtraData;
+ 			szBuffer = gDLL->getText("TXT_KEY_ESPIONAGE_TARGET_SWITCH_CIVIC",
+-					GC.getInfo((CivicTypes)iCivic).getDescription()).GetCString();
+-			GET_PLAYER(eTargetPlayer).setCivics((CivicOptionTypes)GC.getInfo((CivicTypes)iCivic).
+-					getCivicOptionType(), (CivicTypes)iCivic);
+-			GET_PLAYER(eTargetPlayer).setRevolutionTimer(std::max(1,
+-					((100 + GET_PLAYER(eTargetPlayer).getAnarchyModifier()) *
+-					GC.getDefineINT("MIN_REVOLUTION_TURNS")) / 100));
++					GC.getInfo(eCivic).getDescription()).GetCString();
++			GET_PLAYER(eTargetPlayer).setCivics(
++					GC.getInfo(eCivic).getCivicOptionType(), eCivic);
++			// advc: Revolution turns calculation moved into auxiliary function
++			GET_PLAYER(eTargetPlayer).setRevolutionTimer(getMinTurnsBetweenRevolutions());
+ 			bSomethingHappened = true;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index c4826eeed..12e8bd843 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -351,6 +351,12 @@ public:
+ 	bool canDoCivics(CivicTypes eCivic) const;																														// Exposed to Python
+ 	bool canRevolution(CivicTypes* paeNewCivics) const;																					// Exposed to Python
+ 	void revolution(CivicTypes* paeNewCivics, bool bForce = false);												// Exposed to Python
++	// advc: Cut from the body of the revolution function above
++	int getMinTurnsBetweenRevolutions() const
++	{
++		return std::max(1, ((100 + getAnarchyModifier()) *
++				GC.getDefineINT(CvGlobals::MIN_REVOLUTION_TURNS)) / 100);
++	}
+ 	int getCivicPercentAnger(CivicTypes eCivic, bool bIgnore = false) const;																										// Exposed to Python
+ 
+ 	bool canDoReligion(ReligionTypes eReligion) const;																										// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a4d48b978..c7ac3437d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -127,7 +127,7 @@ void CvPlayerAI::AI_init()
+ 
+ 	// Init other game data ...
+ 	AI_updatePersonality(); // advc.104: Moved into a subroutine
+-	//AI_setCivicTimer(((getMaxAnarchyTurns() == 0) ? (GC.getDefineINT("MIN_REVOLUTION_TURNS") * 2) : CIVIC_CHANGE_DELAY) / 2);  // This was commented out by the BtS expansion
++	//AI_setCivicTimer(((getMaxAnarchyTurns() == 0) ? (GC.getDefineINT(CvGlobals::MIN_REVOLUTION_TURNS) * 2) : CIVIC_CHANGE_DELAY) / 2);  // This was commented out by the BtS expansion
+ 	AI_setReligionTimer(1);
+ 	AI_setCivicTimer((getMaxAnarchyTurns() == 0) ? 1 : 2);
+ 	AI_initStrategyRand(); // K-Mod
+@@ -12335,7 +12335,11 @@ int CvPlayerAI::AI_civicTradeVal(CivicTypes eCivic, PlayerTypes ePlayer) const
+ 	if (eBestCivic != NO_CIVIC && eBestCivic != eCivic)
+ 	{
+ 		iValue += //std::max(0, // advc.132: Handle that below
+-				2 * (kPlayer.AI_civicValue(eBestCivic) - kPlayer.AI_civicValue(eCivic));
++				2 * (kPlayer.AI_civicValue(eBestCivic) - kPlayer.AI_civicValue(eCivic)
++				/*	advc.132: AI_civicValue is at a scale of 1 commerce per turn.
++					ePlayer will have to run the new civic for more than 2 turns ...
++					2*MIN_REVOLUTION_TURNS is consistent with the end of AI_doCivics. */
++				* GC.getDefineINT(CvGlobals::MIN_REVOLUTION_TURNS));
+ 	}
+ 	/*  advc.132: ePlayer charges less than the anarchyCost if they were going to
+ 		switch anyway. */
+@@ -18561,7 +18565,8 @@ void CvPlayerAI::AI_doCivics()
+ 	if (canRevolution(&aeBestCivic[0]))
+ 	{
+ 		revolution(&aeBestCivic[0]);
+-		AI_setCivicTimer((getMaxAnarchyTurns() == 0) ? (GC.getDefineINT("MIN_REVOLUTION_TURNS") * 2) : CIVIC_CHANGE_DELAY);
++		AI_setCivicTimer(getMaxAnarchyTurns() != 0 ? CIVIC_CHANGE_DELAY :
++				GC.getDefineINT(CvGlobals::MIN_REVOLUTION_TURNS) * 2);
+ 	}
+ }
+ 
+@@ -27460,8 +27465,11 @@ int CvPlayerAI::AI_anarchyTradeVal(CivicTypes eCivic) const
+ 	}
+ 	FAssert(iAnarchyLength >= 0 && iSwitchBackAnarchyLength >= 0);
+ 	/*  Uncertain whether we'll want to switch back; fair chance that it can
+-		be piggybacked on another revolution. */
+-	r *= (iAnarchyLength + 0.36 * iSwitchBackAnarchyLength);
++		be piggybacked on another revolution. Also, the new civic or religion
++		may not be so bad; that's something the caller will evaluate anyway. */
++	r *= (iAnarchyLength + fixp(1/4.) * iSwitchBackAnarchyLength);
++	// There's always the inconvenience of not being able to have another revolution
++	r += scaled(getTotalPopulation() * getMinTurnsBetweenRevolutions(), 3);
+ 	/*  Going to get only half the trade val as gpt. But we're also going to
+ 		benefit from denying gold to a competitor. So far, only humans can
+ 		trade for religion and civics changes, and they're strong competitors.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5983

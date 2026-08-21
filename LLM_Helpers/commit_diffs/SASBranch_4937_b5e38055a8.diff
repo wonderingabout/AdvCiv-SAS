@@ -1,0 +1,658 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4937
+# Commit: b5e38055a81c5a9f000b430f1507c3c1bfcc6ee1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8797e7f461bd05732daf4a0d59949a092e0f6fe9
+# Title: (Enhanced) Discourage AIs from settling on coastal starts for their first city, prefer going to a more central location for better expansion and plot tile wo...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+206	67	CvGameCoreDLL/CitySiteEvaluator.cpp
+3	7	CvGameCoreDLL/CvUnitAI.cpp
+27	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+4	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index f2bb081d2..5ea1aa39d 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -377,8 +377,17 @@ short AIFoundValue::evaluate()
+ 	int iLandTiles = 0; // advc.031
+ 	// <advc.040>
+ 
++	// <!-- custom: add support for counting water tiles in starting locations anyways etc -->
++	// int const iElapsedTurns = GC.getGame().getElapsedGameTurns();
++	int const iNumCities = kPlayer.getNumCities();
++	bool const bStartPhase = (iNumCities == 0);
++	// <!-- custom: use tile count rather than water plots, as we may be skipping them due to isUsablePlot as claude ai noticed/noted if i may say but anyways etc, and with chatgpt 5's and other ai's help anyways etc -->
++	int iTileCountWaterWithBonus = 0;
++	int iTileCountLand = 0;
++
++	int iCautiousHealthPercent = 0;
++
+ 	// <!-- custom: attempt to support terrains and feature(s) conditional settling/founding city logic anyways etc -->
+-	static const TerrainTypes eTerrainPeak = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PEAK");
+ 	static const TerrainTypes eTerrainDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
+ 	static const TerrainTypes eTerrainSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
+ 	static const TerrainTypes eTerrainPlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");
+@@ -386,6 +395,8 @@ short AIFoundValue::evaluate()
+ 	static const TerrainTypes eTerrainGrass = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_GRASS");
+ 
+ 	static const FeatureTypes eFeatureFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
++	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
++	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
+ 	static const FeatureTypes eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
+ 
+ 	bool bFirstColony = isPrioritizeAsFirstColony();
+@@ -449,13 +460,87 @@ short AIFoundValue::evaluate()
+ 
+ 	FOR_EACH_ENUM(CityPlot)
+ 	{
++		// <!-- custom: refactor below and adding our new logic(s? But anyways etc) anyways etc -->
+ 		// <advc.031>
++		// CvPlot const* pLoopPlot = plotCity(iX, iY, eLoopCityPlot);
++		// if (pLoopPlot != NULL && pLoopPlot->isGoody() &&
++		// 	eLoopCityPlot != CITY_HOME_PLOT) // advc.027
++		// {
++		// 	iGoody++;
++		// }
++
+ 		CvPlot const* pLoopPlot = plotCity(iX, iY, eLoopCityPlot);
+-		if (pLoopPlot != NULL && pLoopPlot->isGoody() &&
+-			eLoopCityPlot != CITY_HOME_PLOT) // advc.027
++
++		if (pLoopPlot != NULL)
+ 		{
+-			iGoody++;
++			if (pLoopPlot->isGoody() && eLoopCityPlot != CITY_HOME_PLOT) // advc.027)
++			{
++				iGoody++;
++			}
++
++			// <!-- custom: regardless of coastal status if i am not mistaken and if i may say but anyways etc if starting site, we want land tiles, not water tiles, as they we can work them and ahve better long term potential, this should help especially for high coast value but low land count tiles issue, see known issue as of now 44 for details but anyways etc -->
++			const bool bHomePlot = isHome(*pLoopPlot);
++			const BonusTypes eBonusPlot = getBonus(*pLoopPlot);
++
++			if (bStartPhase)
++			{
++				if (!bHomePlot)
++				{
++					if (!pLoopPlot->isWater())
++					{
++						++iTileCountLand;
++					}
++					else
++					{
++						if (eBonusPlot != NO_BONUS)
++						{
++							++iTileCountWaterWithBonus;
++						}
++					}
++				}
++			}
++
++			TerrainTypes const eTerrainPlot = pLoopPlot->getTerrainType();
++			FeatureTypes const eFeaturePlot = pLoopPlot->getFeatureType();
++
++			// <!-- custom: optimization as recommended by chatgpt 5 thanks anyways etc -->
++			const bool pLoopPlotIsHills = pLoopPlot->isHills();
++			const bool pLoopPlotIsPeak  = pLoopPlot->isPeak();
++
++			if (!bHomePlot)
++			{
++				// <!-- custom: low-food environment logic detection, as of now used to prioritize food settling/planting/found cities on coastal locations if environment is poor to make best of yields rather than starve soon (and/or dicentivize not doing so maybe too anyways etc) ; note: this is a bit simplified as current plains or tundra or such location could have a lot of wheat and tundra -->
++				if ((eTerrainPlot == eTerrainPlains) || (eTerrainPlot == eTerrainTundra))
++				{
++					if (pLoopPlotIsHills)
++					{
++						iLowFoodLocationCount += 2;
++					}
++					else
++					{
++						iLowFoodLocationCount += 1;
++					}
++				}
++				// <!-- note: also accounting for peak, as 4 grass + 8 peak is not better than 1 grass + 11 plains if i am not mistaken but anyways etc -->
++				else if ((eTerrainPlot == eTerrainSnow) || pLoopPlotIsPeak)
++				{
++					iLowFoodLocationCount += 2;
++				}
++				else if (eTerrainPlot == eTerrainDesert)
++				{
++					if ((eFeaturePlot == eFeatureFloodPlains) || (eFeaturePlot == eFeatureOasis))
++					{
++						iLowFoodLocationCount -= 1;
++					}
++					// <!-- custom: no flood plains, no oasis, most likely this is a "naked" if i may say and if i am not mistaken and in this case but anyways etc terrain (0 food as of now if i am not mistaken but anyways etc), so count as such anyways etc ; note: hill or not treated the same -->
++					else
++					{
++						iLowFoodLocationCount += 2;
++					}
++				}
++			}
+ 		}
++
+ 		bool bShare = false;
+ 		bool bSteal = false; // </advc.031>
+ 		bool bCityRadius = false;
+@@ -467,6 +552,10 @@ short AIFoundValue::evaluate()
+ 		}
+ 		CvPlot const& p = *pLoopPlot;
+ 		bool const bHome = isHome(p);
++
++		// <!-- custom: optimization as recommended by chatgpt 5 thanks anyways etc -->
++		const bool pIsHills = p.isHills();
++
+ 		// advc.035: The own-exclusive-radius rule only helps if the radii don't overlap
+ 		bool const bOwnExcl = (GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS) &&
+ 				!bCityRadius && bForeignOwned);
+@@ -544,6 +633,12 @@ short AIFoundValue::evaluate()
+ 			rBaseProduction += aiNatureYield[YIELD_PRODUCTION];
+ 			iSpecialFoodPlus += std::max(0, aiNatureYield[YIELD_FOOD] -
+ 					GC.getFOOD_CONSUMPTION_PER_POPULATION());
++
++			// <!-- custom: add home plot health valorization of fresh water, as it seems to be missing if i am not mistaken anyways etc ; or if not missing somehow then not strongly enough applied, as AIs blatantly avoid in range fresh water home plot that is arguably better, most likely to not seeing its value if i may say in this case but anyways etc, so opening its eyes or trying to without going overboard and in this case i mean too if i may say but anyways etc -->
++			if (!p.isWater())
++			{
++				iPlotValue += ((p.isRiver() || p.isFreshWater()) ? 150 : 0);
++			}
+ 		}
+ 		else
+ 		{
+@@ -586,9 +681,9 @@ short AIFoundValue::evaluate()
+ 				rBaseProduction += estimateImprovementProduction(p, bPersistentFeature);
+ 			if (!p.isWater())
+ 			{
++				// <!-- custom: this is most likely a lie or an omission, i checked other functions and this one for fresh water calls or such, no mention of this for home plot, so added ourselves if i am not mistaken anyways etc -->
+ 				// freshwater health (home plot) will be counted later
+-				iPlotValue += evaluateFreshWater(p, aiNatureYield, bSteal,
+-						iRiverTiles, iGreenTiles);
++				iPlotValue += evaluateFreshWater(p, aiNatureYield, bSteal, iRiverTiles, iGreenTiles);
+ 			}
+ 		}
+ 		iPlotValue += evaluateYield(aiNatureYield, &p, bCanNeverImprove); // (K-Mod: iTempValue in BtS)
+@@ -620,23 +715,23 @@ short AIFoundValue::evaluate()
+ 				if (aiNatureYield[YIELD_FOOD] >= 1)
+ 				{
+ 					// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such if i am not mistaken but anyways etc, 400 may seem high but even 300 was not enough although it fluctuated a bit before staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses :) -->
+-					int const iOnBonusPenalty = 400;
++					int const iOnBonusPenalty = 450;
+ 					r -= iOnBonusPenalty;
+ 					IFLOG logBBAI("-%d penalty for founding on food bonus", iOnBonusPenalty);
+ 				}
+ 				else if (aiNatureYield[YIELD_PRODUCTION] >= 1)
+ 				{
+-					int iOnBonusPenalty = 250;
++					int iOnBonusPenalty = 300;
+ 
+ 					// <!-- custom: but if bonus is very low-food, and yield is not too high, this is attractive, especially on a hill ; note: although a bit redundant, it gives flexibility to tweak values anyways etc -->
+-					if (eTerrain == eTerrainSnow || eTerrain == eTerrainDesert || p.isHills())
++					if (eTerrain == eTerrainSnow || eTerrain == eTerrainDesert || pIsHills)
+ 					{
+-						iOnBonusPenalty -= 250;
++						iOnBonusPenalty -= 200;
+ 
+-						// <!-- custom: counter this plot "terrain" scale with yield, the higher the yield, the less inclined we'd be to settle on it, e.g. settle on bonus production hill low food except if it gives a lot of improved hammer then better not or not as much -->
++						// <!-- custom: settle on hill bonus production, that is low food, except if it gives a lot of improved bonus hammer or/and commerce then better not or not as much -->
+ 						if (eBonusImprovement != NO_IMPROVEMENT)
+ 						{
+-							iOnBonusPenalty += 25 * aiBonusImprovementYield[YIELD_PRODUCTION];
++							iOnBonusPenalty += 25 * (aiBonusImprovementYield[YIELD_PRODUCTION] + aiBonusImprovementYield[YIELD_COMMERCE]);
+ 						}
+ 					}
+ 
+@@ -645,17 +740,17 @@ short AIFoundValue::evaluate()
+ 				}
+ 				else if (aiNatureYield[YIELD_COMMERCE] >= 1)
+ 				{
+-					int iOnBonusPenalty = 150;
++					int iOnBonusPenalty = 200;
+ 
+ 					// <!-- custom: but if bonus is very low-food, and yield is not too high, this is attractive, especially on a hill ; note: although a bit redundant, it gives flexibility to tweak values anyways etc -->
+-					if (eTerrain == eTerrainSnow || eTerrain == eTerrainDesert || p.isHills())
++					if (eTerrain == eTerrainSnow || eTerrain == eTerrainDesert || pIsHills)
+ 					{
+ 						iOnBonusPenalty -= 150;
+ 
+-						// <!-- custom: counter this plot "terrain" scale with yield, the higher the yield, the less inclined we'd be to settle on it, e.g. settle on bonus commerce hill low food except if it gives a lot of improved commerce then better not or not as much -->
++						// <!-- custom: counter this plot "terrain" scale with yield, the higher the yield, the less inclined we'd be to settle on it, e.g. settle on bonus commerce hill low food except if it gives a lot of improved commerce or/and hammer then better not or not as much -->
+ 						if (eBonusImprovement != NO_IMPROVEMENT)
+ 						{
+-							iOnBonusPenalty += 25 * aiBonusImprovementYield[YIELD_COMMERCE];
++							iOnBonusPenalty += 25 * (aiBonusImprovementYield[YIELD_COMMERCE] + aiBonusImprovementYield[YIELD_PRODUCTION]);
+ 						}
+ 					}
+ 
+@@ -689,12 +784,12 @@ short AIFoundValue::evaluate()
+ 				{
+ 					if (eFeature == eFeatureFloodPlains)
+ 					{
+-						// <!-- custom: don't settle here, unless locally extremely good otherwise -->
+-						iValue -= 75;
++						// <!-- custom: don't settle here, unless locally extremely good otherwise, higher as some still dont listen anyways etc -->
++						iValue -= 150;
+ 					}
+ 					else 
+ 					{
+-						if (p.isHills())
++						if (pIsHills)
+ 						{
+ 							// <!-- custom: still good as is low-food, although not as good as settling on hill plains ideally but anyways etc -->
+ 							iValue += 50;
+@@ -708,7 +803,7 @@ short AIFoundValue::evaluate()
+ 				}
+ 				else if (eTerrain == eTerrainGrass)
+ 				{
+-					if (p.isHills())
++					if (pIsHills)
+ 					{
+ 						// <!-- custom: even more valuable than flatland grass, the hammer yield for low food cost is extremely good, early and even later in game too if i am not mistaken still quite good anyways etc, absolutely avoid settling on this unless really the best locally otherwise -->
+ 						iValue -= 75;
+@@ -721,20 +816,20 @@ short AIFoundValue::evaluate()
+ 				}
+ 				else if (eTerrain == eTerrainPlains)
+ 				{
+-					if (p.isHills())
++					if (pIsHills)
+ 					{
+-						// <!-- custom: extremely good, we remove a low-food tile and get a free extra hammer, plus defensive bonus, ideal starting plot when it comes to terrain if i am not mistaken anyways etc -->
+-						iValue += 100;
++						// <!-- custom: extremely good, we remove a low-food tile and get a free extra hammer, plus defensive bonus, ideal starting plot when it comes to terrain if i am not mistaken anyways etc ; one minus than fresh water, would be as good otherwise anyways etc ; try higher value as some cities still don't listen anyways etc, not too high as 10 plains + settle on hill plains is not better than 10 grass + settle on grass -->
++						iValue += 250;
+ 					}
+ 					else
+ 					{
+ 						// <!-- custom: still quite good, we remove a bad low food tile after all, but not too good to overlook otherwise good local other plot concurrents -->
+-						iValue += 25;
++						iValue += 50;
+ 					}
+ 				}
+ 				else if (eTerrain == eTerrainTundra)
+ 				{
+-					if (p.isHills())
++					if (pIsHills)
+ 					{
+ 						// <!-- custom: quite good similarly, just not as good as say hill plains but very good otherwise as a starter -->
+ 						iValue += 50;
+@@ -747,7 +842,7 @@ short AIFoundValue::evaluate()
+ 				}
+ 				else if (eTerrain == eTerrainSnow)
+ 				{
+-					if (p.isHills())
++					if (pIsHills)
+ 					{
+ 						// <!-- custom: quite good similarly, just not as good as say hill plains but very good otherwise as a starter -->
+ 						iValue += 50;
+@@ -785,28 +880,6 @@ short AIFoundValue::evaluate()
+ 			continue;
+ 		}
+ 
+-		// <!-- custom: low-food environment logic detection, as of now used to prioritize food settling/planting/found cities on coastal locations if environment is poor to make best of yields rather than starve soon (and/or dicentivize not doing so maybe too anyways etc) ; note: this is a bit simplified as current plains or tundra or such location coudl have a lot of wheat and tundra-->
+-		if ((eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra))
+-		{
+-			++iLowFoodLocationCount;
+-		}
+-		else if ((eTerrain == eTerrainSnow) || ((eTerrain == eTerrainPeak)) || p.isHills())
+-		{
+-			iLowFoodLocationCount += 2;
+-		}
+-		else if (eTerrain == eTerrainDesert)
+-		{
+-			if ((eFeature == eFeatureFloodPlains) || (eFeature == eFeatureOasis))
+-			{
+-			iLowFoodLocationCount -= 1;
+-			}
+-			// <!-- custom: no flood plains, no oasis, most likely this is a "naked" if i may say and if i am not mistaken and in this case but anyways etc terrain (0 food as of now if i am not mistaken but anyways etc), so count as such anyways etc -->
+-			else
+-			{
+-				iLowFoodLocationCount += 2;
+-			}
+-		}
+-
+ 		if (eBonus != NO_BONUS) // advc.040: Same-area checks moved into nonYieldBonusValue
+ 		{
+ 			if (!bBarbarian && // advc.303: Barbarians don't care about resource trade
+@@ -834,6 +907,19 @@ short AIFoundValue::evaluate()
+ 				iValue -= iPenalty;
+ 			} // </advc.031>
+ 		}
++		else
++		{
++			// <!-- custom: do not count flood plains as the good outweights the bad, it can be considered neutral in terms of health vs unhealthiness overall benefits for this calculation but anyways, but to be strictly fair we'd still grow even accounting for unhealthiness anyways etc however simpler to just nullify it as it is about as good as bad to simplify if i am not mistaken, but anyways etc-->
++			if (eFeature == eFeatureJungle)
++			{
++				iCautiousHealthPercent += GC.getInfo(eFeature).getHealthPercent();
++			}
++			else if (eFeature == eFeatureForest)
++			{
++				iCautiousHealthPercent += GC.getInfo(eFeature).getHealthPercent();
++			}
++		}
++
+ 		if (!bHome) // (Home plot was handled upfront)
+ 		{
+ 			// <!-- custom: for non-bonus tiles and not for home plot but instead which environment to settle near if i am not mistaken but anyways etc, add our own logic to also tell the AI other than just valuing any tile as we do for bonuses as long as tile has a bonus, here even if tile doesn't have a bonus, we tell the AI to value local environment specifically (if not already done by the code i mean but helps to do as well maybe to improve settling further if not optimal or close to it but anyways etc maybe if i am not mistaken but anyways etc ; note: this does not apply to home plot, where we use a different logic in this function (for example settling near flood plains or flatland grass is good, but settling on home plot floodplains or flatland grass is bad and not done here if i am not mistaken anyways etc) -->
+@@ -845,16 +931,16 @@ short AIFoundValue::evaluate()
+ 					if (eFeature == eFeatureFloodPlains)
+ 					{
+ 						// <!-- custom: high food and great cottage candidate, very strong -->
+-						iValue += 50;
++						iValue += 100;
+ 					}
+ 					else if (eFeature == eFeatureOasis)
+ 					{
+ 						// <!-- custom: can't grow as much as flood plains with a cottage as it cannot be improved if i am not mistaken, but we have no health penalty, and we get the extra commerce yield immediately, plus it provides fresh water as well if i am not mistaken but anyways etc. I assume (hope but anyways etc) fresh water code is handled elsewhere that supports oasis too hopefully, but even if not and in all cases, maybe this valorization can help. -->
+-						iValue += 50;
++						iValue += 90;
+ 					}
+ 					else 
+ 					{
+-						if (p.isHills())
++						if (pIsHills)
+ 						{
+ 							// <!-- custom: low food but at least we can mine it, avoid but not like flatland desert, defensive bonus is locally not too bad maybe as well if someone invades us (but harder to attack them there as well so so so anyways etc) -->
+ 							iValue -= 25 ;
+@@ -862,26 +948,26 @@ short AIFoundValue::evaluate()
+ 						else
+ 						{
+ 							// <!-- custom: low food and cannot be improve, strongly avoid -->
+-							iValue -= 50;
++							iValue -= 75;
+ 						}
+ 					}
+ 				}
+ 				else if (eTerrain == eTerrainGrass)
+ 				{
+-					if (p.isHills())
++					if (pIsHills)
+ 					{
+ 						// <!-- custom: very good, low food cost high hammer, a tile we'd want to mine very early for high yields even in stone age, very high value tile to have in city radius if i'm not mistaken anyways etc -->
+-						iValue += 50;
++						iValue += 75;
+ 					}
+ 					else
+ 					{
+ 						// <!-- custom: very valuable for flatland as well, a great tile to start near in our city radius if i am not mistaken anyways etc, slightly worse than floodplains, but since it doesn't have health penalty maybe we can count it as about the same anyways etc -->
+-						iValue += 50;
++						iValue += 60;
+ 					}
+ 				}
+ 				else if (eTerrain == eTerrainPlains)
+ 				{
+-					if (p.isHills())
++					if (pIsHills)
+ 					{
+ 						// <!-- custom: quite good tile with hammer yield but food is really too low, value but not a lot, we want to grow most after all, but this is not too bad either -->
+ 						iValue += 10;
+@@ -889,12 +975,12 @@ short AIFoundValue::evaluate()
+ 					else
+ 					{
+ 						// <!-- custom: low-food, has a base hammer though, but we'd need to irrigate it to get the equivalent of a grass tile, and if we cottage it it drains our food growth. This is quite good later in the game with workshops that don't cost food or such, but assume it to be bad as a general rule as most game and cities are settled early anyway if i'm not mistaken anyways etc -->
+-						iValue -= 10;
++						iValue -= 20;
+ 					}
+ 				}
+ 				else if (eTerrain == eTerrainTundra)
+ 				{
+-					if (p.isHills())
++					if (pIsHills)
+ 					{
+ 						// <!-- custom: worse than plains hill yield for same low-food food, this is really bad, especially in a tundra environment where food is scarce already, but if needed the hammer yield is not too bad  -->
+ 						iValue -= 30;
+@@ -902,20 +988,20 @@ short AIFoundValue::evaluate()
+ 					else
+ 					{
+ 						// <!-- custom: not too bad with as of now the tundra base commerce yield buff we added, still weaker than a base hammer of the plains, avoid more than flatland plains -->
+-						iValue -= 20;
++						iValue -= 25;
+ 					}
+ 				}
+ 				else if (eTerrain == eTerrainSnow)
+ 				{
+-					if (p.isHills())
++					if (pIsHills)
+ 					{
+ 						// <!-- custom: same as tundra hill if i am not mistaken, this is really not great, and i am not sure the less base commerce yield makes too much of a difference. We could mine it though maybe if i'm not mistaken or some other improvements maybe too although i didn't check, but it would be costly in food if i'm not mistaken, so not a great choice to have in our city radius (great to settle on though otherwise if i'm not mistaken but is not handled here, as we are in the non-home-plot code if i am not mistaken if i may say but anyways etc) -->
+-						iValue -= 40;
++						iValue -= 35;
+ 					}
+ 					else
+ 					{
+ 						// <!-- custom: low-food same as desert, i am not sure we can do anything with this in our city radius, maybe find a way to buff in our mod somehow, but for now if not always or not, this is really low value tile to have in our city radius, better avoid if i am not mistaken but anyways etc -->
+-						iValue -= 50;
++						iValue -= 75;
+ 					}
+ 				}
+ 			}
+@@ -969,7 +1055,7 @@ short AIFoundValue::evaluate()
+ 	// <!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal anyways etc -->
+ 	else
+ 	{
+-		if (iLowFoodLocationCount >= 7)
++		if (iLowFoodLocationCount >= 8)
+ 		{
+ 			// <!-- custom: sometimes this is still ignored, although it shows to have helped in some cities already and at first, increase penalty quite a bit more if i may say anyways etc, which solved on testing successfully the issue, see known issue for details  -->
+ 			// iValue -= 50 * iLowFoodLocationCount;
+@@ -977,6 +1063,32 @@ short AIFoundValue::evaluate()
+ 		}
+ 	}
+ 
++	if (bStartPhase)
++	{
++		// <!-- custom: regardless of coastal status if i am not mistaken but anyways etc, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better but anyways etc ; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages but anyways etc, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion if i am not mistaken but anyways etc ; as for value we have 20 bfc tiles (minus home plot) if i'm not mistaken, so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site, anyways etc -->
++		const int iGoodBFCTiles = iTileCountLand + iTileCountWaterWithBonus;
++
++		if (iGoodBFCTiles <= 12)
++		{
++			// <!-- custom: attempt to prevent overflow if any while still sorting our values and by extension if i may say but anyways etc settling spots form worst lowest value to least worst highest or not lowest value if i am not mistaken anyways etc -->
++			// <!-- custom: finally some code fixed it, so now doing it cleaner, and since iValue modifying seems to not work for moscow AI (see known issue as of now 44 for details anyways etc, early return rather anyways etc, to not settle here unless really hard worst if i am not mistaken but anyways etc -->
++			// return -2;
++			// <!-- custom: this works too, try a cleaner return, positive value as chatgpt 5 advised just in case anyways etc -->
++			//return std::max<short>(-100, truncIntCast<short>(-100 + iGoodBFCTiles));
++			// <!-- custom: this works too as well, but try to enhance our formula, so that 13 water tiles non bonus + 8 grass tiles that are far, is a better site than 13 water tiles non bonus same + 8 snow tiles near, as so far AI can't differentiate them. To do that, let's compress iValue so that we don't beat the other stronger land tiles, but if, e.g. archipelago, these are the only 2 candidates, we still want to favour the better scored one, so add only a portion of the value just to distinguish them if i may say but anyways etc. Also, since this is as of now not for all cities but only for first city we found, influence should be minimal and it shouldn't conflict with the otherwise confusing hard return 1 logic but betetr mess the code anyways etc... Hopefully this improves things if i am not mistaken and thanks to chatgpt 5, without messing everything up but anyways etc ; return a positive value just in case anyways etc ; below example given by chatgpt 5, check if accurate, anyways etc -->
++			//return 0;
++			// Example:
++			// “8 grass far” → say iValue=2200, good=8 ⇒ <!-- custom: 2200 / 50 = 44 --> →, return 1+8+<!-- custom:44=53 if i'm not mistaken anyways etc -->.
++			// “8 snow here” → say iValue=1200, good=8 ⇒ <!-- custom: 1200 / 50 = 24 -->, return 1+8+24=33.
++			// A truly good inland site just returns, e.g., iValue=1800 (>> <!-- custom:44 -->), so it wins.
++			// <!-- custom: update: i tried this code to enhance it for archipelago or such very rare land starts but then moscow (see known issue as of now 44 for details anyways etc) goes back to settling on its water location again, then just disabling it, dig it if you want to improve it, i believe our results are in most if not all cases much better and it was just an extra polish anyways etc, hopefully helpful/informative or not or yes or etc but anyways etc -->
++			// const int iValueCompressed = (1 + iGoodBFCTiles + std::max(0, iValue / 50));
++			// return std::max<short>(1, truncIntCast<short>(iValueCompressed));
++			return 0;
++		}
++	}
++
++
+ 	// <!-- custom: remove evaluate defense logic as we have a yield focus logic rather, especially do not make barbarian cities weaker, it is infuriating, needless interference, and also this city later will be captured, so make it a good settlement location in all cases anyways etc -->
+ 	// iValue += evaluateDefense();
+ 	// IFLOG logBBAI("=%d in total before modifiers", iValue);
+@@ -1038,9 +1150,6 @@ short AIFoundValue::evaluate()
+ 	if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
+ 		iValue = adjustToCivSurroundings(iValue, iStealPercent);
+ 
+-	if (iValue <= 0)
+-		return 1;
+-
+ 	iValue = adjustToCitiesPerArea(iValue);
+ 
+ 	if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
+@@ -1050,14 +1159,44 @@ short AIFoundValue::evaluate()
+ 	// iValue = adjustToBadTiles(iValue, iBadTiles /* advc.031: */ + (4 * iTakenTiles) / 10
+ 	// 		-(bBarbarian ? 2 : (4 + iGreenTiles + iSpecialFoodPlus)) // advc.303
+ 	// 		/ (kSet.isStartingLoc() && !kSet.isScenario() ? 2 : 1)); // advc.108, advc.031f
++
++	// <!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather if i am not mistaken and if i may say but anyways etc ; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5 but anyways etc ; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine -->
+ 	// iValue = adjustToBadHealth(iValue, iHealth);
+ 	// // <advc.031>
++	if (bStartPhase)
++	{
++		// <!-- custom: for example as of now 7 jungle tiles is -50 * 7 = -350, or 8 jungle tiles and 2 forest tiles is (8 * (-50)) + ((2 * 50)) = -400 + 100 = -300 if i am not mistaken anyways etc -->
++		if (iCautiousHealthPercent <= -300)
++		{
++			int const iValueLossPercentPerBadUnhealthiness = 10;
++			// <!-- custom: e.g -3.5 total health points / bad unhealthiness in city, to clarify to chatgpt 5 so may as well add here if helps and me too helps me maybe hehe maybe but anyways etc -->
++			int const iBadUnhealthiness = (iCautiousHealthPercent / 100);
++			// <!-- custom: note: addition not substraction, so that we reduce iValue the more unhealthy we are, not the opposite (-350 should reduce iValue, not increase it with a (- (- 350) etc.. which would be (+350) etc.. and not what we want as nicely noted by chatgpt 5 hehe thanks but anyways etc-->
++			// <!-- custom: e.g. with a iValue of 500: (100 - ((-1) * (-3.5 * 10)) * 500 / 100 = (100 - 35) * 500 / 100 = 65 * 500 / 100 = 325 ; so value lost 35% value as intended if i am not mistaken, added to clarify calculation to chatgpt 5 or proof it to myself hehe but anyways etc -->
++			int const iValueAdjustedForBadUnhealthiness = ((100 - std::min(100, ((-1) * iValueLossPercentPerBadUnhealthiness * iBadUnhealthiness))) * iValue) / 100;
++			iValue = iValueAdjustedForBadUnhealthiness;
++		}
++	}
++	else
++	{
++		if (iCautiousHealthPercent <= -450)
++		{
++			int const iValueLossPercentPerBadUnhealthiness = 5;
++			int const iBadUnhealthiness = (iCautiousHealthPercent / 100);
++			int const iValueAdjustedForBadUnhealthiness = ((100 - std::min(100, ((-1) * iValueLossPercentPerBadUnhealthiness * iBadUnhealthiness))) * iValue) / 100;
++			iValue = iValueAdjustedForBadUnhealthiness;
++		}
++	}
++
+ 	if (kSet.isNormalizing())
+ 		iValue += evaluateGoodies(iGoody); // </advc.031>
+ 
+ 	// advc: BtS code (iDifferentAreaTile) deleted
+ 	// (disabled by K-Mod. This kind of stuff is already taken into account.)
+ 
++	// // <!-- custom: move this below to attempt to / in case it better avoid / avoids (but anyways etc) overflow, as chatgpt 5 seems to rightfully if i may sya but anyways etc be concerned about it :) but anyways etc. -->
++	if (iValue <= 0)
++		return 1;
+ 	FAssert(iValue >= 0);
+ 	IFLOG logBBAI("Bottom line (found-city value): %d\n", iValue);
+ 	return std::max<short>(1, truncIntCast<short>(iValue));
+@@ -3165,7 +3304,7 @@ int AIFoundValue::adjustToCivSurroundings(int iValue, int iStealPercent) const
+ 		} // </advc.031>
+ 		// K-Mod.
+ 
+-		// <!-- custom: remove long distance penalties in this case i mean but anyways etc, currently cities are too crowded which is inefficient and indeed as said in base advciv a bad AI settlment, i hope this helps, while our overall yield logic that we added makes AI simply go for best sites rather and spreading cities a bit more at least in theory although i didn't check in detail how this works (advised to remove penalty by claude ai as i asked it what this does and how we coudl spread cities further or something similar anyways etc) but anyways etc --> 
++		// <!-- custom: remove long distance penalties in this case i mean but anyways etc, currently cities are too crowded which is inefficient and indeed as said in base advciv a bad AI settlment, i hope this helps, while our overall yield logic that we added makes AI simply go for best sites rather and spreading cities a bit more at least in theory although i didn't check in detail how this works (advised to remove penalty by claude ai as i asked it what this does and how we could spread cities further or something similar anyways etc) but anyways etc --> 
+ 		/*  advc.031: Make expansive leaders indifferent about distance 5 vs. 6,
+ 			but don't encourage greater distances. */
+ 		// if (iNearestDistance > iTargetRange +
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 6258c6fd5..cb1d21d0e 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2579,7 +2579,7 @@ bool CvUnitAI::AI_foundFirstCity()
+ 
+ 	// <!-- custom: give AIs more time to pick best spot ; sometimes they start in really bad spot, sometimes they could get a much better one, no hurry to settle right away, give it a few turns safely, also same on all maps to simplify and because no reason no to, as capital city is important even at fastest speed if i am not mistaken but anyways etc. Lower quality starts may be fine for a 3rd city or such but not for capital that is key to wining, definitely spend sometime to find a better spot ; also did some minor refactor and cleanup but anyways etc ; code with the help of chatgpt 5 and claude ai and my adjustments or such, check if accurate, anyways etc -->
+ 	// int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
+-	int const iMaxTurnsToFound = 4;
++	int const iMaxTurnsToFound = 5;
+ 
+ 	if(!kGame.isScenario() && // advc: Let the creator of the scenario decide where the AI settles
+ 		canMove() && !kOwner.AI_isPlotCitySite(getPlot()) &&
+@@ -2632,18 +2632,14 @@ bool CvUnitAI::AI_foundFirstCity()
+ 
+ 				int iTurnWeight;
+ 
+-				// <!-- custom: until we have spent the number of turns allowed, no penalty to get a better plot, then sharp emergency rather, so we don't discard better sites just because they are far ; also note: >, not >= to strictly allow 4 entire turns before any penalty is applied anyways etc ; give AI the best chances to win and overcome a bad start on tundra, coast only, etc ; removed old advciv / kmod flat penalty per turn code for cleanliness and readability if i may say andif i am not mistaken in my understanding too i mean but anyways etc -->
++				// <!-- custom: until we have spent the number of turns allowed, no penalty to get a better plot, then sharp emergency rather, so we don't discard better sites just because they are far ; also note: >, not >= to strictly allow 5 entire turns before any penalty is applied anyways etc ; give AI the best chances to win and overcome a bad start on tundra, coast only, etc ; removed old advciv / kmod flat penalty per turn code for cleanliness and readability if i may say and if i am not mistaken in my understanding too i mean but anyways etc -->
+ 				if (iTurnsBeyondMaxToFound == 0)
+ 				{
+ 					iTurnWeight = 100;
+ 				}
+ 				else if (iTurnsBeyondMaxToFound == 1)
+ 				{
+-					iTurnWeight = 67; 
+-				}
+-				else if (iTurnsBeyondMaxToFound == 2)
+-				{
+-					iTurnWeight = 33; 
++					iTurnWeight = 50; 
+ 				}
+ 				// <!-- custom: else, see claude ai's explanation below if i am not mistaken and it is not too i mean, check if accurate, anyways etc -->
+ 				// CLAUDE: Since we already filtered out plots that take too long above,
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 55610134d..1220fe04d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -59,6 +59,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [41 - (Seemingly fixed) Tremendously improved AI worker mobility/flexibility/reliability](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc)  
+ [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc)  
+ [43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes)  
++[44 - (Enhanced) Make/Encourage AI settlers walk away from bad starting sites in this case i mean but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but-anyways-etc)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -1301,11 +1302,35 @@ A few changes in this issue, with i believe more potential for long term better
+ 
+ For now and as of now, here are the main changes, in `CvUnitAI::AI_foundFirstCity` and other more minor functions (see below for details anyways etc) i made to base advciv's founding first city logic, with the help of chatgpt 5 and claude ai but anyways etc:
+ 
+-- no more hurry/panic fast settling and no penalty per turn not found, i.e. in old base advciv system, there was say a 15% penalty to the value of all plots per turn. So no matter what, a tile to found city at would only have say 85% of the value it had at turn 0, no matter how good it was. I believe this was done to encourage fast growth or such maybe or maybe for other reasons or not, but i believe giving AIs time would lead to better long term outcomes, especially when starters are really bad, like tundra, not enough land tiles, etc. For now, i am only addressing the issue in a general way, so our new system now gives AI settlers as of 4 turns to path to consider best site without any penalty, meaning as long as a site can be reached in 4 path turns (i.e. to walk there if i am not mistaken anyways etc), then only best value will be considered, no penalty per turn. This window is longer than in base advciv.
+-- after the free window ends, we get stronger penalties to quickly encourage settling, i.e. if a tile gets say 5 turns from turn 0 to get there, it loses 33% value, meaning unless it's super high value, it would be highly unlikely to be chosen, but still not totally impossible. The penalty gets stronger being 67% for 6 turns of travel as of now but anyways etc, and then for 7+ tiles no tile is considered, only the best from before is taken. Meaning in total we have a window of up to 6 turns to choose our best city, with 4 no penalty free ones. In save file 336 i often do auto play on as of now at least but anyways etc, spain AI founded its capital on 4th turn only, it chose a strong starting point, although it didn't develop it totally optimally, but in theory it could do well. Its early game was slower as a result, but with more land tiles, river so more commerce and health if not before (not here but in theory i mean but anyways etc), and many commerce bonuses which would help a lot with plantations later. Food is lower but potential higher, as more land tiles can be grown. Most AIs didn't change their preferred best tile in this save file, so it may not make a huge difference, but may, especially for bad starts.
++- no more hurry/panic fast settling and no penalty per turn not found, i.e. in old base advciv system, there was say a 15% penalty to the value of all plots per turn. So no matter what, a tile to found city at would only have say 85% of the value it had at turn 0, no matter how good it was. I believe this was done to encourage fast growth or such maybe or maybe for other reasons or not, but i believe giving AIs time would lead to better long term outcomes, especially when starters are really bad, like tundra, not enough land tiles, etc. For now, i am only addressing the issue in a general way, so our new system now gives AI settlers as of 5 turns to path to consider best site without any penalty, meaning as long as a site can be reached in 5 path turns (i.e. to walk there if i am not mistaken anyways etc), then only best value will be considered, no penalty per turn. This window is longer than in base advciv.
++- after the free window ends, we get stronger penalties to quickly encourage settling, i.e. if a tile gets say 6 turns from turn 0 to get there, it loses 50% value, meaning unless it's super high value, it would be highly unlikely to be chosen, but still not totally impossible. Then for 7+ tiles no tile is considered, only the best from before is taken. Meaning in total we have a window of up to 6 turns to choose our best city, with 5 no penalty free ones. In save file 336 i often do auto play on as of now at least but anyways etc, spain AI founded its capital on 5th turn only, it chose a strong starting point, although it didn't develop it totally optimally, but in theory it could do well. Its early game was slower as a result, but with more land tiles, river so more commerce and health if not before (not here but in theory i mean but anyways etc), and many commerce bonuses which would help a lot with plantations later. Food is lower but potential higher, as more land tiles can be grown. Most AIs didn't change their preferred best tile in this save file, so it may not make a huge difference, but may, especially for bad starts.
+ - Another change is non-coastal sites are not penalized anymore, by disabling the code that did that in `AIFoundValue::evaluateYield` no non-coastal penalty is applied. I.e. if a city site is not coastal, it will still be considered best if it was the best, and not be discarded like in base advciv. I believe to just take the best, and if it happens to be coastal great, if not land is probably stronger then. We added code in evaluate function to tell AI when coast is better (such as when terrain is rich in high food, or if there are water bonuses, anyways etc)
+ - Also, we (i.e. me but anyways etc) now don't discard sites that are not on fresh water or river unlike in base advciv but anyways etc. If they are otherwise the best, it woud be a really bad move to discard them jsut to get river and a worse site. Similar logic than before for coast.
+ 
+ As for examples, as i said Spain AI, screenshots 2100 and 2101 show how it was before this change (minus all other changes we did since base advciv that are here though but anyways etc), and then remaining existing screenshots between 2092 and 2107 show how the AI behaved with this change with the other site it took. Again it had a slower growth as a result, but i believe long term potential of this site is higher. In other maps, in particular tundra or such although i didn't test them, it can be expected AI will/would actively avoid them rather than settle here, but test to be sure, anyways etc.
+ 
+ Note: part of the reason why its growth was slower is due to using a specialist too soon when it had room to grow if i'm not mistaken, which i attempt to fix, even if not the case here, as it happened in other cities before this change and is really crippling, but anyways etc.
++
++## 44 - (Enhanced) Make/Encourage AI settlers walk away from bad starting sites in this case i mean but anyways etc
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1G0PcE4CyEcVUJCoOyzM4970U7YSARM5O?usp=sharing).
++
++This tremedously improves again AI settler preferences by doing targeted but really impactful changes in `AIFoundValue::evaluate()`. Also chatgpt 5 helped me a lot for it and other AIs too like claude ai, deepseek ai, it was a huge mess due to the `return 0;` and overflow avoiding attempts or weird code behaviorus i didn't want to mess with too much as long as it worked / woudl work which it didn't for a long while xd but thankfully ti does now, and AI is strong shiny and awesome, i believe even on settlers games would be challenging and interesting, but there are many areas AI can improve still and i hope i can contribute to but not guaranteed may or may not, but anyways etc.
++
++About this issue, many things were changed while solving this issue, but first the relevant one is (see quick get started guide for details on other related improvements anyways etc) here to move away from too watery starts (except water bonus plots), past a certain threshold, so as of now our threshold is 12, meaning as long as we have 12 "good" bfc plots (land plots (including peak as what we really want here is to just avoid the coastal start, so that we have more tiles to grow into cottages, mines, workshops, also a more central position for better expansion midgame and higher likeliness to have a radial empire, better center map position for wars or invasion or such and defending the empire from the capital, etc if any other advantages), or water plots but with a bonus like fish) then we're good.
++
++But if we have less, say among our 20 bfc plots (excluding the home plot (i.e. where the city will be planted if i am not mistake but anyways etc (as we won't harvest it so no need to count it, it doesn't matter what it is as long as we can settle on it if i'm not mistaken but anyways etc)), so not 21 tiles but 21 - 1 = 20 plots instead), only 10 are land, 1 is bonus fish so counted as well so 10 + 1 = 11 good plots but is not enough to reach the 12 required, (meaning we have 20 - 11 = 9 non bonus water tiles), the we have a strong penalty from this threshold telling the AI settler to move away from here, usually to a more central position, and with good yields.
++
++This makes AI starting points a lot stronger, especially for bad starts such as for moscow AI (see screenshots 2164 before the change vs 2179 after the change).
++
++Other cities behave also better, by moving to a more central position, they indirectly are reserving a nice spot for their city 2 or city 3, and in fact the original moscow AI spot is nice for a city 3 or city 4, but for capital it's not enough and moscow AI was certain to fall behind. In continuation with our changes at previous known issue as of now [43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes), the AI settlers have up to 5 free unpenalized turns to choose their best spot, much unlike in base advciv or civ4 too unless i'm not aware of it or mistaken maybe or just not knowledgeable if the case.
++
++I believe Moscow AI will have a much better game as a result, and it really walked 5 path turns to this spot, which is very nice.
++
++But it is not automatic, for example Edo AI (kingdom of benin) chose to still settle coastal, as it didn't reach its threshold of 12 good tiles not being met, and assessed coastal to be better. But many AIs moved away, to i believe better spots, see screenshots for details. Paris AI was also surrounded in water tiles (9 non bonus water tiles so it had met threshold too), but its site was quite good, still, forcing it to move away, the site is slightly better, as although it chooses to found on grass cow/cattle, it is actually better when i think about it, as there is 1 free food yield (i didn't tell them about this, only the free yield for hill plains hehe but still they preferred it nice if i may say although i could tell them too but fine as such as a general rule maybe but anyways etc especially if they handle fine these edge cases but anyways etc), more land tiles so more cottages or worskhops or potential to do so, nice for a capital, and still enough food bonuses on water, and fresh water, so all in all much better than original start i think, although really not intuitive.
++
++I did many other changes small or not in this case i mean but anyways etc, for example, teaching AIs to heavily faovur settling on hill plains due to many advantages it provides, see quick get started guide for details. Timbuktu AI also was the last one i told by tweaking value to move away from the 3 desert, to 3 any other land tiles (did same for Constantinople AI telling it not to settle on flood plains further more despite how good it seemed, see screenshots (e.g. 2174 still had the issue for constantinople AI vs not in later ones but anyways etc) for details too anyways etc).
++
++Note: thanks to our/these changes but anyways etc, the game turned much betetr for these AIs, for example moscow Ai has as stronger central position and a nice strong empire and army at turn 100 with nicely positonned capital if i may say but anyways etc, which wouldn't have been possible or so easy starting from the edge. At turn 150, they are crazy strong xd, very nice. (!!) I hope i can improve the AI even more :), this is just at emperor xd btw, so i hope they provide a good challenge now, but i have many ways i want to improve them still hehe and ideas and all hoepfully but anyways etc.
++
++Note: these are done at emperor difficulty, before changing all tech prereqs, so tech tree is still mostly base advciv one minus many changes we made but no deep reordering yet, so hopefully quite representative of how strong or how AI behaves now vs base advciv, which i'd like to think is stronger now even though base advciv was not too bad and i have other ideas to improve ours further while fixing issues i added or remaining from base advciv +/- civ, not guaranteed i would though, i deally i would want ot, may or may not, in this case i mean but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 5ca568c7b..9fcc63ade 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -103,7 +103,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - about water bonuses/ressources in particular, quite often it seems they are in range of city settle/found/plant spot but ignored by AI settling/founding/planting its city instead but anyways etc a non-coastal location, attempt to fix/address this as well by making the penalty in that case much stronger, as of now increased from -165 to -400 (seems to have been -800 in k-mod if i am not mistaken but anyways etc, see [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or/and updated value anyways etc), hopefully helps the AI consider more often water ressources or at least not ignore them when they are in range of their city sites considerations if i may say in this case at least maybe but anyways etc anyways etc anyways etc
+ - even for non bonus water ressources, also told the AI to now prioritize settling on coast when food environment is low (many tundra or/and plains or/and desert or/and snow (or/and peak although i assume is not counted but to be safe anyways etc)) (the "Corinth screenshot"), which should make AI settling significantly stronger instead of otherwise starving at very low pop, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot) for details anyways etc
+ - (Attemptingly fixed/addressed) tell AI settlers which (non-home and non-bonus tiles) terrains and features environments are best to settle near (for example good if a lot of grass or flood plains in city radius, bad if desert or plains in city radius). As for local tile to settle on (bHome) optimization as well: hate to settle on hill grass or flood plains, love to settle on hill plains or tundra or desert ; overridden only if locally plot is otherwise really good (e.g. allows to have 2 bonuses or such so ideal spot but we have to settle on flood plains for it for example or some other good tile anyways etc), hopefully AI settles much better its cities and is stronger as a result, but check to be sure as i didn't test it since refactor i did which already improved this a lot at that time if i'm not mistaken but anyways etc. And in some local cases, it may be good to override these (e.g. a city spot has few plains but 2 food bonuses, or for example settling on flatland grass but with a lot of flood plains and other flatland grass, etc). See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#26---attemptingly-fixedaddressed-tell-ai-settlers-which-non-home-and-non-bonus-tiles-terrains-and-features-environments-are-best-to-settle-near-for-example-good-if-a-lot-of-grass-or-flood-plains-in-city-radius-bad-if-desert-or-plains-in-city-radius-as-for-local-tile-to-settle-on-bhome-optimization-as-well-hate-to-settle-on-hill-grass-or-flood-plains-love-to-settle-on-hill-plains-or-tundra-or-desert--overridden-only-if-locally-plot-is-otherwise-really-good-eg-allows-to-have-2-bonuses-or-such-so-ideal-spot-but-we-have-to-settle-on-flood-plains-for-it-for-example-or-some-other-good-tile-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#26---attemptingly-fixedaddressed-tell-ai-settlers-which-non-home-and-non-bonus-tiles-terrains-and-features-environments-are-best-to-settle-near-for-example-good-if-a-lot-of-grass-or-flood-plains-in-city-radius-bad-if-desert-or-plains-in-city-radius-as-for-local-tile-to-settle-on-bhome-optimization-as-well-hate-to-settle-on-hill-grass-or-flood-plains-love-to-settle-on-hill-plains-or-tundra-or-desert--overridden-only-if-locally-plot-is-otherwise-really-good-eg-allows-to-have-2-bonuses-or-such-so-ideal-spot-but-we-have-to-settle-on-flood-plains-for-it-for-example-or-some-other-good-tile-anyways-etc) for details.
+-- disable `AIFoundValue::adjustToBadHealth`, so that now AI settlers would go for yield potential, not avoid immediate bad health if i am not mistaken in thinking so or my understanding but anyways etc. Also now in our mod jungle yields as of now production on remove as well although a bit less than forest for a bit longer time in this case i mean but anyways etc, but what i mean is look at plot potential rather than immediate health, it can't be that different except in mod mods or such, which we don't intend to support with this change anyways etc.
++- disable `AIFoundValue::adjustToBadHealth`, so that now AI settlers would go for yield potential, not avoid immediate bad health if i am not mistaken in thinking so or my understanding but anyways etc. Also now in our mod jungle yields as of now production on remove as well although a bit less than forest for a bit longer time in this case i mean but anyways etc, but what i mean is look at plot potential rather than immediate health, it can't be that different except in mod mods or such, which we don't intend to support with this change anyways etc. Update: since then toned it down a bit and enhanced it: now we have a threshold, we tolerate some bad health without penalty, after not too bad, we can as of now chop jungle for benefits (see changes to feature_jungle below anyways etc), but if too much health to the point we may not grow or it's just too high, and not offset by forest good health, then we avoid the site for our capital quite strongly and a bit less for later cities. For example, as of now for the capital the healthpercent difference we tolerate is <= 350 without applying penalty yet. So if you have as of now (i.e if the AI settler, not human players, anyways etc) 7 jungle tiles, of 50 health percent (i.e -0.50 health in city if i am not mistaken but anyways etc) in city radius (if i am not mistaken too but anyways etc), then you are barely not penalized i mean the AI settler still thinks it is good, same if city spot candidate had say 9 jungle and 3 forest (9 x (-50) + 3 x (+ 50) = 6 x (-50) = -300 still under 350 so AI thinks it's good even for capital, but say 8 jungle tiles without forest is beyond the threshold (8 x (-50) = -400)), so AI will quite strongly avoid it, at least for now, until no better site remains, so that it grows fine. When AI has more workers, it willb e able to chop these easier so i hope these make sense, but old base advciv code penalized them more linearly and not dynamically like we do, but ofc i could be mistaken and just glanced at their code before changing it, so check to be sure if accurate, anyways etc. As of now for later cities the ratio of tolerance is >= 450 if i am not mistaken so we have more leeway, still overly jungly or such areas will be aovided at least at first, else fine. Note: floodplains not counted as their advantage of high food offsets the health penalty, as of now. As a result, AI have better starting cities, not totally rejecting fine sites, but avoid early the very unhelathy one,s and then coming back to them later as they can be often quite good actually in potential, epecially with our jungle changes, but later in the game most often at least in theory (i didn't retest it too much since that change but seems to behave as so and as intended, but check to be sure) check code for details as of now in `AIFoundValue::evaluate` if i am not mistaken anyways etc, anyways etc.
+ - make ai cities wider spread and simplify conditions with changes in `AIFoundValue::isTooManyTakenTiles` and `AIFoundValue::adjustToCivSurroundings` (remove long distance penalties of settling cities in this case i mean but anyways etc, and if i am not mistaken anyways etc), they were often times too or even very much way too crowded and close in a way that doesn't allow them to grow past size 4 or 6 and they'd compete for yields, hopefully much more efficient now with a wider spreading, although as a result they are a bit thinner and militarily weaker but should be very worth it or so i think but anyways etc.
+ - since that change, fine tune it further by penalizing too close cities, and also penalizing too far cities. Not from our capital as in old code and that we disabled, but from our nearest city rather. This means that otherwise good city spots that are not compatible with a star-shaped empire will still be considered and not unfairly or unfortunately dismissed because they don't fit this. So thin empires may be good, only criterion is how far or close we are to nearest city. This penalty is strongest early as empire needs to be especially cohesive early, and fades moderately the more cities we have (see `int AIFoundValue::adjustToCivSurroundings` for details). Hopefully AI is more creative and combative, especially later as the game goes on if i may say in this case but anyways etc and the city spots remaining are less, while economy should be stronger and strong enough now in this case i mean but anyways etc to support farther city settlements(/settling ?), and military stronger to protect this potentially thinner empire too if i am not mistaken but anyways etc, in its city settlement(/settling ?) choices. I hope this helps AI spread cities more as is needed as they are too crowded in base advciv +/- civ4 quite often, plus also penalize spreading too far the farther we are, but the less we penalize it the more cities we have. Code provided by gemini ai which i then tweaked, results seem very good (cities nicely spread but not too far as with my first change) but test/check to be sure anyways etc.
+ - make AI workers always (in theory at least for this part of the code anyways etc) improve bonuses (see renaming section of this readme or the corresponding sevopedia category for details about what bonuses mean in advciv-sas anyways etc) first before anything else, with a higher priority to food bonuses in particular. Hopefully this fixes AI not prioritizing, sometimes even ignoring for a long while available to improve bonuses, in particular food bonuses but not only these, any bonus, anyways etc. This is done by refactoring/rewriting `CvUnitAI::AI_bestCityBuild`, and seemingly as well results in a slightly faster code as a nice side effect anyways etc, thanks to gemini ai's persistence/stubborness hehe as well anyways etc (and bit of chatgpt's help), see also [/README.md#gemini-ai](/README.md#gemini-ai) and [/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details anyways etc.
+@@ -122,7 +122,9 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - restricted settlers for AIs to be built only in capital, and only if city pop >= 5 (i.e. not <= 4 anyways etc). This is so they can use more efficiently the food as production, as it's much easier to produce a settler using food from the many population count additionally to existing hammer yields as well, than it is at low pop. And if city stagnates, it is very efficient too, at least food is put to use instead of stagnating. There are other advantages, such as seemingly a bit less barbarian captures, and more units early. We may use 1 or 2 spots, but barbarian captures happen much less, and secondary cities can grow more. This change is in line with the settler now being a national unit as of now (1 allowed for whole empire including existing unit but anyways etc, check quick get started guide for updated values or/and info, or/and sevopedia or/and xml anyways etc). As for small new cities, it guarantees they grow as well instead of being stuck producing a settler for a long time, as hapepned many times and was the original reason why i did this to begin with, then expanded on it. I added a patch, although should never happen with the settler being a national unit and only in capital, but that if city is very small and stagnant, switch to worker instead, but since only cpaital as of now produces them and it grows fast, this shouldn't happen but if changed this patch woudl help as well small cities being stuck in a very lnog settler production and being stagnant anyways etc, in fact it's necessary now else our capital can't produce a settler, as chatgpt 5 noticed and/or noted as well but anyways etc. Update: also as it mentionned to me to add here as well, there are exceptions such as a city somehow being stagnant, then even if pop is small, we are not using the food anyway, so may as well take our chances and build a settler, as it rightly told me to add to this doc hehe which i forogt but i think this is a quite good summary otherwise if i may say but anyways etc...
+ - free window: during the first as of now 75 turns at normal game speed (adjusted based on game speed), the AI will have free production of settler (minus restrictions said before). So it can take its time and grow freely. Then after this window, it will consider which strategy to take, either offense mode, or defense mode, or other maybe which i added hardcoded in cvcityAI. Based on these, it may not build settlers anymore and start to stack units. This is something i had a problem with in base advciv, of AI expanding again and again while it was near me, instead of preparing for the likely war. Hopefulyl AI would react better to these.
+ - additionally, tweaked unitais, although i don't know how effective these changes will be or if i did them at the right place, in `CvCityAI::AI_bestUnit` and `CvCityAI::AI_bestUnitAI` and `CvCityAI::AI_chooseProduction` functions as of now in cvcityai but anyways etc. It does seem though as of now to be taken quite well into acocunt, but test to be sure anyways etc. This also depends on map type (less on naval maps, a lot more on land maps, hybrid in other maps, see above links in this known issue for details anyways etc), but now for example if an AI enters offense mode, and the map is a land map, say pangea, continents, etc, as best as we could classify them i mean with chatgpt 5 if i may say so check if accurate and if works as intended test to be sure but anyways etc, AI will more or less ignore unitais that don't help it directly in war as we instructed it, so it will value a lot more `UNITAI_ATTACK` or `UNITAI_ATTACK_CITY` for example, a bit of `UNITAI_RESERVE` (visible in debug mode (ctrl+z and "chipotle") by holding ctrl or alt i forgot which while hovering on a unit or unit stack anyways etc), and this means its units won't wander or such and atatck more decisively at least in theory, and vice versa in defense mode they'd value these less and unitais such as `UNITAI_CITY_DEFENSE`, `UNITAI_CITY_SPECIAL`, `UNITAI_RESERVE` etc if any more as well i mean too but anyways etc, for the most part. Hopefully helps the AI better execute its attacks but many things could influence it. It will not care to produce any naval or such unitais units. So it can produce say a swordsman with the attack_city or attack or even reserve unitais maybe, but naval units can't have these, and their unitais like `UNITAI_ATTACK_SEA` or such if i'm not mistaken are tremendously less valued. This avoids the issue i had in base advciv of AI having 10 galleons but barely any land defender on a pangea if i'm not mistaken, see above links for details as well. In naval maps, if detcted as such with our code i mean but anyways etc, this is toned down a bit, but the general idea remains to protect our cities first and foremost, and aim for most effiicent roles but anyways etc, see cvcityai for details. Also, is this galleon / trireme / galley really worth the 2-3 extra axemen / swordsmen / extra worker or half settler? Probably not, and wastes turns time to build not just ressources as in yields, so we are delayed in war plans, tech etc. I believe it is more efficient to do so at least for AIs and in most cases but anyways etc. I didn't test code too much, but based on it semeingly having much less barbarian successful invasions, and on the theory of efficiency behind it as i explained and ideas i got and autoplay results, it seems better for the AI to go slower, even if we lose 1-2 city spots or wonders, the benefits are larger it seems anyways etc. This is a summary i attempted to do of the changes and again didn't test too much so far ; while i hope it helps the AI, i am not necessarily too open to feedback, so i would suggest you best share your experience regarding this on a forum, such as CFC forum, i do hope that it helps and is enjoyable to play though but anyways etc. I also hope these changes fix base advciv issue of AI abandonning capital city, sometimes in a way that ruins the entire game, jsut to attack 1 unit. I didn't test it, but i hope with these unitais that now exclude colalteral, pillage, etc, units woudl be more efficient in not doing so, and better guard cities, as well as be, when on offense mode, more focused on their goal, at least in theory, but many other parts of the code could interfere or i coudl have gotten the logic wrong somehow. It seems to be applied quite well in few autoplays i quickly glanced at skimemd through i may say, hopefully helpful and making AI stronger and more capable as a result but test to be sure anyways etc.
+-- make AI settlers take longer to decide which site to start at for its first city to found, thanks to changes in ``CvUnitAI::AI_foundFirstCity``. In summary, now AI will take a free window of 4 turns of path from its spawn time vs 2 with penaltie sni base advciv max, to decide best plot to found its first city. Also, non-coastal sites are no longer discarded if coastal ones are in range if i am not mistaken but anyways etc, and non-rivers and non-fresh water ones are no longer discarded as well if rivers or fresh water ones are in range. Our system allows for much better site selection, although in most games AI settlers should sitll choose best site they start on already, but in some cases, like low food tundra or such, if grassland is nearby at a few turns of walk, the AI would probably settle there, and hopefully have a stronger, no emergency, no strong starting type of city bias and discarding potentially locally better ones (if river is bets all good, but don't discard a better site just because it doesn't ave a river or fresh water, and rivers aand such are valorized already at evaluate part of the code of bets site anyway for all cities to found during the game if i am not mistaken not just first one so no need to overdo it if i am not mistaken but anyways etc), so hopefully AI has stronger starting city sites thanks to these changes, especially if starting site is somehow really bad ; see for details [43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes)
++- make AI settlers take longer to decide which site to start at for its first city to found, thanks to changes in ``CvUnitAI::AI_foundFirstCity``. In summary, now AI will take a free window of 5 turns of path from its spawn location without any penalty to any potential city site considered in that range, vs 2 with immediate penalties per turn if not found at turn 0 in base advciv if i'm not mistaken and base advciv having 2 turns max even on top of that. Also, non-coastal sites are no longer discarded now in our mod even if coastal ones are in range if i am not mistaken but anyways etc, and non-rivers and non-fresh water ones are no longer discarded as well if rivers or fresh water ones are in range: just pick the best, if it happens to be a coast, great, a river, great, if not, great too, simply pick best without bias or much less or less than before ideally but anyways etc. Our system allows for much better site selection, although in most games AI settlers should sitll choose best site they start on already, but in some cases, like low food tundra or such, if grassland is nearby at a few turns of walk, the AI would probably have settled there in base advciv regardless but not in our mod, where it would instead attempt to hopefully have a stronger, no emergency, and no strong starting type of city bias and discarding potentially locally better ones (if river is best all good, but don't discard a better site just because it doesn't have a river or fresh water, and rivers aand such are valorized already at evaluate part of the code of bets site anyway for all cities to found during the game if i am not mistaken not just first one so no need to overdo it if i am not mistaken but anyways etc) first city site, so hopefully AI has stronger starting city sites thanks to these changes, especially if starting site is somehow really bad ; see for details [43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes)
++- since, then further enhanced AI settler preferences in `AIFoundValue::evaluate`, by discouraging them from settling on too watery starts. As of now, if a city site has less than 12 good starter bfc tiles (what we consider to be any land tile (including peak), or water tiles with bonuses (such as coast fish)), excluding the home plot/tile (i.e. where the city is planted/founded/settled but anyways etc), which would mean if we account for the BFC having 20 plots/tiles (21 minus home plot is 20 if i'm not mistaken but anyways etc), this would mean that 20 - 12 = max 8 water non bonus tiles are tolerated without penalty, after/past that threshold a strong penalty is applied so they are encouraged to explore any site with other settings i didn't change as too messy xd but anyways, up to 5 path turns away as explained in known issue as of now 43 before (see as of now above anyways etc). This results in AI having a more central start, securing a later nice city spot, having a more radial empire with a stronger capital that can better defend the empire and expand towards rivals early settling. Economically land tiles allow the capital to grow cottages/workshops etc more than water tiles, so the high water site that may have been fine for city 3/c or 4/d etc is not so good for the capital city. AI is much stronger now, see [44 - (Enhanced) Make/Encourage AI settlers walk away from bad starting sites in this case i mean but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but-anyways-etc) for details, with screenshots about moscow AI having a very nice expansion and early and middle game as a result of moving 5 tiles away from its start 17 non bonus water tile edge. I also did while doing these other changes such as making AI like hill plains a lot more, etc, should be explained in other changes but tedious xd to track all, will do for some though but not all anyways etc, hopefully AI is more competitive now as well and enjoyable to play against anyways etc. Note: this change only applies to capital city, as i think it really needs land and a more central position and such for its growth etc, but other cities don't have this restriction, so they can take these sites better as in screenshots, see known issue link as of now 44 as mentionned here for details, hopefully helpful or not or yes or etc but anyways etc.
++- other changes in batch in `AIFoundValue::evaluate` (non-exhaustive) and other related functions to AI settler preferences if i am not mistaken anyways etc: value fresh water more for city site by refactorign, simplifying and merging + reworking `AIFoundValue::evaluateFreshWater` in `AIFoundValue::evaluate` with other related changes too if i'm not mistaken but anyways etc, value settling on hill plains extra lot more (extra yield, one less low food tile, defense modifier, no blocking irrigation if i am not mistaken too, etc if any other advantages), disable `AIFoundValue::adjustToCivSurroundings` anti-crowd policy, we don't mind it, simply pick best site and don't interfere with our choice if i'm not mistaken and if i may say anyways etc ; 
+ 
+ ### UI / In-game
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=75527

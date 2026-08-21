@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4916
+# Commit: a12a30bc7ebc07b49086b35d32fa62e83bc7594a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: faa3eb266994c15ad1afe8bdbf25d1e14cb09e2b
+# Title: fix inaccurate code and code comments anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	10	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 2327c23a2..dd811956e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -125,27 +125,19 @@ class SevoPediaImprovement:
+ 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getYieldChange(k)
+ 
+ 			if iYieldChange != 0:
+-				# <!-- custom: for some reason the production char has one less char or something similar anyways etc, so pad it to the right as advised to me by chatgpt in a different way than what i did here but helped although i had same idea too xd but helped still thanks to find easier the char or see the idea itself so i could reflect on it if i may say anyways etc -->
+-				if gc.getYieldInfo(k).getChar() == YieldTypes.YIELD_PRODUCTION:
+-					s += u" "
+-
+ 				if iYieldChange > 0:
+ 					sign = "+"
+ 				else:
+ 					sign = ""
+-				s += (u"%s%i%c" % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
++				s += (u"%s%i%c " % (sign, iYieldChange, gc.getYieldInfo(k).getChar()))
+ 				nCount += 1
+ 		
+-				# <!-- custom: also pad to the right as it seems we miss a char there as well anyways etc -->
+-				if gc.getYieldInfo(k).getChar() == YieldTypes.YIELD_PRODUCTION:
+-					s += u" "
+-		
+ 		if nCount > 0:
+ 			szYield = u"<font=4>%s</font>" % s
+ 
+ 			xCenteringAdjust = 0
+ 			for i in range(nCount):
+-				xCenteringAdjust -= 21
++				xCenteringAdjust -= 23
+ 
+ 			xCenteringPositioning = ((self.W_IMPROVEMENT_PANE-10) / 2) - 4
+ 			yBottomPositioning = self.H_IMPROVEMENT_PANE - 44
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG
+index 3f26f4da2..57bddd593 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG
+index de478ff09..482680fcf 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG
+index 7368eb443..058348c51 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.720_sevopedia_improvements_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=2971

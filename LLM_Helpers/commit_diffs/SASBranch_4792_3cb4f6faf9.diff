@@ -1,0 +1,858 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4792
+# Commit: 3cb4f6faf9e8b64e16902dc5dcb7cee529751411
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: de2f392218ba404182c5be0d187f0d8e8fbb3672
+# Title: add IconsAsButtons (emojis or/and icons or/and buttons in a centralized xml path), in sevopedia leader's categories, update sevopedia unit (cities) and sevop...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527.png
+-	-	Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527_64px.dds
+22	23	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+34	11	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+4	3	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+32	9	Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+1	1	Assets/XML/GameInfo/CIV4HurryInfo.xml
+2	1	Assets/XML/Technologies/CIV4TechInfos.xml
+146	0	Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+5	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527.png
+ create mode 100644 Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527_64px.dds
+ create mode 100644 Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93.png
+new file mode 100644
+index 000000000..5eb3666cc
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93_64px.dds
+new file mode 100644
+index 000000000..6dac116ed
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0.png
+new file mode 100644
+index 000000000..79798c3d2
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0_64px.dds
+new file mode 100644
+index 000000000..309e4e658
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494.png
+new file mode 100644
+index 000000000..3715cd2f0
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494_64px.dds
+new file mode 100644
+index 000000000..e23d74f9d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9.png
+new file mode 100644
+index 000000000..8ee38c07c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9_64px.dds
+new file mode 100644
+index 000000000..6317dba0b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694.png
+new file mode 100644
+index 000000000..aef67709c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694_64px.dds
+new file mode 100644
+index 000000000..f27396d8a
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a.png
+new file mode 100644
+index 000000000..5e41ea3d8
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a_64px.dds
+new file mode 100644
+index 000000000..fd15d80d5
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525.png
+new file mode 100644
+index 000000000..91c8fb0e4
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525_64px.dds
+new file mode 100644
+index 000000000..4421f4c40
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699.png
+new file mode 100644
+index 000000000..0ba6dc3c6
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699_64px.dds
+new file mode 100644
+index 000000000..26a017b2c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Gear/2699_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f.png
+new file mode 100644
+index 000000000..c0bc1be42
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f_64px.dds
+new file mode 100644
+index 000000000..a5e41e6f7
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3.png
+new file mode 100644
+index 000000000..d59987fdb
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3_64px.dds
+new file mode 100644
+index 000000000..879458c5f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0.png
+new file mode 100644
+index 000000000..434a51ac9
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0_64px.dds
+new file mode 100644
+index 000000000..404f71f08
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4.png
+new file mode 100644
+index 000000000..376a92bb3
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4_64px.dds
+new file mode 100644
+index 000000000..a5a200ee7
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764.png
+new file mode 100644
+index 000000000..062f7beea
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764_64px.dds
+new file mode 100644
+index 000000000..fca90e67a
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480.png
+new file mode 100644
+index 000000000..d12b78869
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480_64px.dds
+new file mode 100644
+index 000000000..575adaca9
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6.png
+new file mode 100644
+index 000000000..53d846802
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6_64px.dds
+new file mode 100644
+index 000000000..88d1c3d84
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527.png b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527.png
+new file mode 100644
+index 000000000..22fe01100
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527.png differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527_64px.dds b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527_64px.dds
+new file mode 100644
+index 000000000..1c326dc70
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527_64px.dds differ
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 14167c1e7..da22393b2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -186,7 +186,7 @@ class SevoPediaBuilding:
+ 		# <!-- custom: refer to code below to know max element count, so far we have in our code (see below for how it is implemented anyways etc), taken from claude AI's message and adjusted (formatted or not anyways etc) or not anyways etc thanks claude hehe anyways etc -->
+ 		# Here's what the method now does in sequence:
+ 		# - 1. Cost: Shows production cost
+-		# - 2. Yield Changes, and Yield Modifiers: Shows direct yields like food (+1 food from Baray), and Shows yield modifiers similarly (Food +x%, Production +x%, Commerce +x%) with power breakdown (, +y% w/ (power button))
++		# - 2. Yield Changes, and Yield Modifiers: Shows direct yields like food (+1 food from Baray), and Shows yield modifiers similarly (Food +x%, Production +x%, Gold +x%) with power breakdown (, +y% w/ (power button))
+ 		# - 3. Commerce Changes, and Commerce Modifiers: Shows actual commerce amounts (+x science, gold, culture, espionage), and Shows percentage bonuses and double times (+x% and x2 times)
+ 		# - 4. Happiness/Unhappiness: Shows happiness effects
+ 		# - 5. Health/Unhealth: Shows health effects
+@@ -279,7 +279,7 @@ class SevoPediaBuilding:
+ 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
+ 
+ 
+-			# <!-- custom: 2 Direct Yield Changes (like Food, Production, Commerce), and Yield Modifiers (Food +x%, Production +x%, Commerce +x%) with power breakdown added thanks to Claude AI and my prompts or/and tweaks/adjustments or/and not or/and yes or and but or not but or and but anyways etc (2) -->
++			# <!-- custom: 2 Direct Yield Changes (like Food, Production, Gold), and Yield Modifiers (Food +x%, Production +x%, Gold +x%) with power breakdown added thanks to Claude AI and my prompts or/and tweaks/adjustments or/and not or/and yes or and but or not but or and but anyways etc (2) -->
+ 			for k in range(YieldTypes.NUM_YIELD_TYPES):
+ 				iYieldChange = buildingInfo.getYieldChange(k)
+ 
+@@ -321,9 +321,11 @@ class SevoPediaBuilding:
+ 							szPowerSign = ""
+ 						szText1 += szPowerSign + str(iPowerYieldModifier) + "% w/"
+ 						
+-						# Add power button (<!-- custom: improt from warlords atlas i added, if i'm not mistaken it is indeed from warlords as other mods like RI mod may have done indeed if i may say and that i found while trying to understand how to link to the warlords's atlas as folder seemed different with global search in entire base civ 4 root folder anyways etc, thankfully too if i may say that i am thankful, but anyways etc or not or yes but anyways etc -->)
+-						szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11 size=24></img>"
+-						szText1 += szPowerButton
++						# Add power button
++						buttonPath = CyTranslator().getText("TXT_KEY_ICON_AS_BUTTON_POWER_BUTTON_PATH", ())
++						buttonSize = 24
++						szButtonText = u"<img=%s size=%s></img>" % (buttonPath, str(buttonSize))
++						szText1 += szButtonText
+ 
+ 					szText2 = u"%c  %s" % (gc.getYieldInfo(k).getChar(), szText1)
+ 					fillCell(screen, szText2, x, y)
+@@ -443,11 +445,8 @@ class SevoPediaBuilding:
+ 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
+ 			"""
+ 			
+-			# <!-- custom: 6.1: alternative version part 1: Great people, only display the great people icon and the value, for example "(Great People icon) +2", use a button later in "custom 8.2:" rather instead anyways etc -->
++			# <!-- custom: 6.1: alternative version part 1: Great people, only display the great people button and the value, for example "(Great People button) +2", use a button later in "custom 8.2:" rather instead anyways etc -->
+ 			if buildingInfo.getGreatPeopleRateChange() != 0:
+-				# First get the building's great person type (e.g., SPECIALIST_GREAT_MERCHANT)
+-				greatPersonType = buildingInfo.getGreatPeopleUnitClass()
+-
+ 				# Create the text with the great person rate change
+ 				szText = CyTranslator().getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
+ 				
+@@ -482,11 +481,11 @@ class SevoPediaBuilding:
+ 			# === PANEL SETUP ===
+ 			setupPanel(screen, panelName, greatPersonPanelTxtKey, PanelStyles.PANEL_STYLE_EMPTY)
+ 
+-			# Get great person information
++			#  First get the building's great person type (e.g., SPECIALIST_GREAT_MERCHANT)
+ 			greatPersonType = buildingInfo.getGreatPeopleUnitClass()
+-			greatPersonName = ""
++			#greatPersonName = ""
+ 			#greatPersonAbbrev = ""
+-			greatPersonIcon = None
++			greatPersonButton = None
+ 
+ 			"""
+ 			# Create abbreviated name
+@@ -513,40 +512,40 @@ class SevoPediaBuilding:
+ 				if iGreatPersonUnit != -1:
+ 					greatPersonInfo = gc.getUnitInfo(iGreatPersonUnit)
+ 					"""greatPersonName = greatPersonInfo.getDescription()"""
+-					greatPersonIcon = greatPersonInfo.getButton()
++					greatPersonButton = greatPersonInfo.getButton()
+ 					
+ 				# Create text string
+ 				gpRateText = CyTranslator().getText(greatPersonPanelTxtKey, (buildingInfo.getGreatPeopleRateChange(),))
+ 
+-				# This approach uses a separate panel with both an icon and text
+-				if greatPersonIcon:
+-					iconWidget = self.top.getNextWidgetName()
+-					screen.addDDSGFC(iconWidget, greatPersonIcon, 
++				# This approach uses a separate panel with both an button and text
++				if greatPersonButton:
++					buttonWidget = self.top.getNextWidgetName()
++					screen.addDDSGFC(buttonWidget, greatPersonButton, 
+ 									self.X_LAST_DISPLAYED_GRID_ITEM + buttonXOffset,  # X position 
+ 									self.Y_LAST_DISPLAYED_GRID_ITEM + buttonYOffset,  # Y position
+-									buttonW, buttonH,  # Width and height of icon
++									buttonW, buttonH,  # Width and height of button
+ 									WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 					
+ 					"""
+-					# Add text next to the icon
++					# Add text next to the button
+ 					textWidget = self.top.getNextWidgetName()
+ 					screen.setLabelAt(textWidget, panelName, u"<font=3>%s</font>" % gpRateText, 
+ 									CvUtil.FONT_LEFT_JUSTIFY, 
+-									50,  # X offset within panel (after icon)
++									50,  # X offset within panel (after button)
+ 									10,  # Y offset within panel
+ 									0, FontTypes.SMALL_FONT, 
+ 									WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 					"""
+ 				else:
+-					# <!-- custom: else our placeStats "custom: 6.1" already handles the display of the great people icon and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFreePBBS, placeRequiredFor, placeExclusiveCivs as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
++					# <!-- custom: else our placeStats "custom: 6.1" already handles the display of the great people button and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFreePBBS, placeRequiredFor, placeExclusiveCivs as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
+ 					"""
+-					# Just add text if no icon
++					# Just add text if no button
+ 					textWidget = self.top.getNextWidgetName()
+ 					textWithSymbol = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), gpRateText)
+ 					screen.setLabelAt(textWidget, panelName, u"<font=3>%s</font>" % textWithSymbol, 
+ 									CvUtil.FONT_LEFT_JUSTIFY, 
+ 									self.X_LAST_DISPLAYED_GRID_ITEM + buttonXOffset - 10,  # X position <-- !custom: as text is smaller than button, the x offset can be a bit smaller most likely, to use space more efficiently, did not tets but hoepfulyl should work well and not grind/eat away at our left "+2" (great people value example anyways etc), else shift back to the right as needed (by increasing this extra negative offset i added (- 10 in this example may not eb accurate or updated anyways etc)  anyways etc) --> 
+-									self.Y_LAST_DISPLAYED_GRID_ITEM,  # Y position <!-- custom: no need for special centering effect then if i am not mistaken, did not test text display if no icon is found but maybe works well or well enough hopefully anyways etc -->
++									self.Y_LAST_DISPLAYED_GRID_ITEM,  # Y position <!-- custom: no need for special centering effect then if i am not mistaken, did not test text display if no button is found but maybe works well or well enough hopefully anyways etc -->
+ 									0, FontTypes.SMALL_FONT, 
+ 									WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 					"""
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index c1b432bdc..76539a4f7 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -71,6 +71,20 @@ ALL_SYMBOLS = {
+ 
+ 
+ 
++# <!-- custom: check all icons as buttons paths are valid before proceeding (i.e. check they really exist in our XML indeed if i may say anyways etc), error code provided by me hehe, the error check fixed by chatgpt/becomingthrough and i made some adjustments too thanks to its awesome code and ym awesome fix or and tweaks mayube rather but anyways etc... -->
++def check_icons_as_buttons_paths_are_valid():
++	"""
++	This will raise an error if:
++	- The TXT_KEY doesn't exist in any loaded Text/*.xml
++	- The icon fails to resolve and is replaced by Civ4's fallback "pink square" (which happens if the DDS path is also invalid, but we catch it at the TXT_KEY level here)
++	"""
++	for header, configButtonPath in DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS.items():
++		resolvedXMLPath = CyTranslator().getText(configButtonPath, ())
++		if resolvedXMLPath == configButtonPath:
++			raise ValueError(u"[VALUE ERROR] Button path not found in XML (resolvedXMLPath=%s matches configButtonPath=%s in header=%s, which indicates button path provided in config most likely does not exist in the XML), please check button path provided in (or in - whichever filename it would have in the future -) ai_attributes_displayed_config.py exists in your mod path and also matches button path in (or in - whichever filename it would have in the future -) AdvCiv-SAS_IconsAsButtons.xml is valid and exists in your mod path." % (resolvedXMLPath, configButtonPath, header))
++
++
++
+ # <!-- custom: test our attributes in our (all data sets we use) config are all valid (assumptions) (this is to avoid typos in particular or other types of mistakes etc, other display attributes in config are checked while they are fetched for display in ui so does not need an additional test maybe anyways etc. -->
+ def do_data_sets_attr_validation_pre_caching():
+ 	leader_key_for_test = "LEADER_CATHERINE"
+@@ -79,7 +93,7 @@ def do_data_sets_attr_validation_pre_caching():
+ 		for attr in attribute_set:
+ 			# <!-- custom: using LEADER_CATHERINE as an example leader to run tests on, all other (real) leaders should have their data structure enforced ((so that they would) to be) in a similar way (structured (as they are parsed))-->
+ 			if attr not in PARSED_XML_LEADERS_DATA[leader_key_for_test].keys():
+-				raise KeyError("[KEY ERROR] Unknown AI Attribute %s in one of the sets listing attributes in ALL_SETS_LISTING_ATTRIBUTES before caching is done. Please check this attribute is valid and part of the leader(s)_data parsed attributes. (note: is at leader_key=%s)" % (attr, leader_key_for_test))
++				raise KeyError(u"[KEY ERROR] Unknown AI Attribute %s in one of the sets listing attributes in ALL_SETS_LISTING_ATTRIBUTES before caching is done. Please check this attribute is valid and part of the leader(s)_data parsed attributes. (note: is at leader_key=%s)" % (attr, leader_key_for_test))
+ 
+ # --- Utility ---
+ # <!-- custom: examples:
+@@ -158,7 +172,7 @@ def do_sanity_checks_after_ai_value_ranges_caching():
+ 		curr_val_to_test = PARSED_XML_LEADERS_DATA[leader_key][attr]
+ 
+ 		if (curr_val_to_test < min_val_found) or (curr_val_to_test > max_val_found):
+-			raise ValueError("[FATAL] At AI_VALUE_RANGES post-processing('s) testing, in attr=%s and in leader=%s, curr_val_to_test=%d cannot be strictly out of bounds of min_val_found=%d and max_val_found=%d")
++			raise ValueError(u"[FATAL] At AI_VALUE_RANGES post-processing('s) testing, in attr=%s and in leader_key=%s, curr_val_to_test=%d cannot be strictly out of bounds of min_val_found=%d and max_val_found=%d" % (attr, leader_key, curr_val_to_test, min_val_found, max_val_found))
+ 
+ # --- Cache per-leader attributes (with final (value, scale) tuples only ---
+ def cache_ai_attribute_data():
+@@ -222,13 +236,13 @@ def cache_ai_attribute_data():
+ 					# <!-- custom: fetch min_val and max_val even though we don't need them since these are already normalized (not normalizing again), but to know if we should put and "=====" (or whichever symbol ALL_SYMBOLS["EQUAL_SCALE_SYMBOL"] is(!) (A)anyways) symbol or not at for the scale. Is also a good opportunity to check min and max perhaps and retest our values, anyways -->
+ 					min_val, max_val = AI_VALUE_RANGES[attr]
+ 					if (raw_val < min_val) or (raw_val > max_val):
+-						raise ValueError("[FATAL] At AI_ATTRIBUTE_DATA's stage, in aggregated ai attribute (no re-normalization here again) attr=%s and in leader_key=%s, raw_val=%d cannot be strictly out of bounds of min_val=%d and max_val=%d")
++						raise ValueError(u"[FATAL] At AI_ATTRIBUTE_DATA's stage, in aggregated ai attribute (no re-normalization here again) attr=%s and in leader_key=%s, raw_val=%d cannot be strictly out of bounds of min_val=%d and max_val=%d" % (attr, leader_key, raw_val, min_val, max_val))
+ 
+ 				else:
+ 					# Normalize (inversion applied if needed)
+ 					# Min/max values (avoid double fetching)
+ 					if attr not in AI_VALUE_RANGES:
+-						raise KeyError("Missing AI_VALUE_RANGES entry for attribute: %s" % attr)
++						raise KeyError(u"Missing AI_VALUE_RANGES entry for attribute: %s" % attr)
+ 					min_val, max_val = AI_VALUE_RANGES[attr]
+ 
+ 					# Check if attribute needs inversion
+@@ -238,7 +252,7 @@ def cache_ai_attribute_data():
+ 						invert = True
+ 
+ 					if (raw_val < min_val) or (raw_val > max_val):
+-						raise ValueError("[FATAL] At AI_ATTRIBUTE_DATA's stage and before normalization, in (raw) attr=%s and in leader_key=%s, raw_val=%d cannot be strictly out of bounds of min_val=%d and max_val=%d")
++						raise ValueError(u"[FATAL] At AI_ATTRIBUTE_DATA's stage and before normalization, in (raw) attr=%s and in leader_key=%s, raw_val=%d cannot be strictly out of bounds of min_val=%d and max_val=%d" % (attr, leader_key, raw_val, min_val, max_val))
+ 
+ 					norm_val = normalize_to_100(raw_val, min_val, max_val, invert, attr)
+ 					final_val = norm_val
+@@ -246,14 +260,14 @@ def cache_ai_attribute_data():
+ 
+ 				# <!-- custom: quite clean way i found to get the "=====" scale if all leaders share same values, without nesting/cluttering the normalize function with uneccessary symbol scale logic, ideally should (or rather maybe ideally should return the info of if all values are equal, but it works fine this way in our code even tohugh a bit redundant as a result (but easier and quite clean overall maybe even though not ideal maybe fine in this case anyways etc) i think but anyways move this check a bit earlier and not normalize if all values are equal, and debug this, perhaps with a wrapper function on top of normalize that handles this, but maybe fine this way maybe at least not so bad or not etc anyways, also doing a sanity check at the same time (to/that also failproofs ((further?) more) our min_val an max_val common prerequirement of it not being both None for raw ai attributes as well as for aggregated ai attributes), anyways. -->
+ 				if (min_val is None) or (max_val is None):
+-						raise ValueError("[FATAL] At AI_ATTRIBUTE_DATA's stage and after normalization, in (raw or aggregated) attr=%s and in leader_key=%s, min_val=%d or max_val=%d failed to initialize, cannot be None." % (min_val, max_val))
++						raise ValueError(u"[FATAL] At AI_ATTRIBUTE_DATA's stage and after normalization, in (raw or aggregated) attr=%s and in leader_key=%s, min_val=%d or max_val=%d failed to initialize, cannot be None." % (min_val, max_val))
+ 				if (min_val == max_val):
+ 					symbol = ALL_SYMBOLS["EQUAL_SCALE_SYMBOL"]
+ 				else:
+ 					CvUtil.pyPrint("raw_val, min_val, max_val, final_val are: %d, %d, %d, %d, for attribute %s at leader_key %s" % (raw_val, min_val, max_val, final_val, attr, leader_key))
+ 
+ 				if (symbol not in ALL_SYMBOLS.values()):
+-					raise ValueError("Unexpected symbol %s in attr %s and in leader_key %s.)" % (symbol, attr, leader_key))
++					raise ValueError(u"Unexpected symbol %s in attr %s and in leader_key %s.)" % (symbol, attr, leader_key))
+ 
+ 				# Compute the appropriate scale
+ 				scale = get_symbol_scale(final_val, symbol)
+@@ -293,8 +307,11 @@ def ensure_no_compatible_attrs_overlooked_from_leaders_data_in_ai_attribute_data
+ 			if compatible_leaders_data_attr not in cached_ai_attribute_attrs:
+ 				raise KeyError("Missing attr: testing in leader_key_for_test=%s (for example) has shown a mismatch; compatible PARSED_XML_LEADERS_DATA attribute compatible_leaders_data_attr=%s is not part of the AI_ATTRIBUTE_DATA's attributes cached_ai_attribute_attrs=%s" % (leader_key_for_test, compatible_leaders_data_attr, str(cached_ai_attribute_attrs)))
+ 
++
++
+ # --- Execute all testing and caching steps ---
+-# <!-- custom: sanity check (before using the data etc) -->
++# <!-- custom: sanity checks (before using the data etc) -->
++check_icons_as_buttons_paths_are_valid()
+ do_data_sets_attr_validation_pre_caching()
+ 
+ cache_ai_value_ranges()
+@@ -666,9 +683,15 @@ class SevoPediaLeader:
+ 					first = False
+ 
+ 				# --- Category Header ---
+-				screen.setText(self.top.getNextWidgetName(), "", u"<font=3b>%s</font>" % category,
+-					CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT,
+-					WidgetTypes.WIDGET_GENERAL, -1, -1)
++				# Add button <!-- custom: to/in category header anyways etc -->
++				buttonPath = str(CyTranslator().getText(DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS[category], ()))
++				buttonSize = 16
++				szButtonText = u"<img=%s size=%s></img>" % (buttonPath, str(buttonSize))
++				szText2 = u"%s <font=3b>%s</font>" % (szButtonText, category)
++				# <!-- custom: add x offset (negative) so we can push button to the left a bit further than where the sub/child (but anyways etc) items/lines of the category start anyways etc -->
++				xOffsetButton = xLabel - 7
++
++				screen.setText(self.top.getNextWidgetName(), "", szText2, CvUtil.FONT_LEFT_JUSTIFY, xOffsetButton, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				y += self.H_AI_LINE_HEIGHT
+ 
+ 				# --- Display Raw and Aggregated AI Attributes ---
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index e78c77433..be51534be 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -666,7 +666,8 @@ class SevoPediaUnit:
+ 		# Special cases for Hills and City
+ 		hillsButton = ""
+ 		hillsDescription = CyTranslator().getText("TXT_KEY_TERRAIN_HILL", ())
+-		cityButton = ",Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Charlemagne_Atlas.dds,4,2"
++		# <!-- custom: add str() wrapper else (i.e. without it anyways etc) we get an error (it seems) (but anyways etc) anyways (i.e. not impliying it is necessary, but without it we get an error, may or may not be necessary, but in all cases anyways etc) etc -->
++		cityButtonPath = str(CyTranslator().getText("TXT_KEY_ICON_AS_BUTTON_CITIES_BUTTON_PATH", ()))
+ 		cityDescription = CyTranslator().getText("TXT_KEY_CONCEPT_CITIES", ())
+ 		
+ 		# Try to find a hills button from the terrain infos
+@@ -702,9 +703,9 @@ class SevoPediaUnit:
+ 		if iCityAttack > 0 or iCityDefense > 0:
+ 			# Use Widget_Pedia_Description with the concept ID
+ 			if iCitiesConceptID != -1:
+-				key = ("CITY", cityButton, cityDescription, "CONCEPT", CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iCitiesConceptID)
++				key = ("CITY", cityButtonPath, cityDescription, "CONCEPT", CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, iCitiesConceptID)
+ 			else:
+-				key = ("CITY", cityButton, cityDescription, "NONE", -1, -1)
++				key = ("CITY", cityButtonPath, cityDescription, "NONE", -1, -1)
+ 			combinedBonuses[key] = (iCityAttack, iCityDefense)
+ 		
+ 		# Terrain Attack/Defense bonuses
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py b/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+index 8f3bfaa0d..4d88f1157 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+@@ -5,25 +5,47 @@
+ # -->
+ 
+ # --- AI Personality Configuration Constants ---
+-AI_HEADER_CORE_PERSONALITY = "Core Personality"
+-AI_HEADER_VICTORY_WEIGHTS = "Victory Weights (BBAI-style)"
+ AI_HEADER_AGGREGATED_CONTACT_OFFER_PROBABILITIES = "Contact Offer Probabilities"
+ AI_HEADER_AGGREGATED_CONTACT_DEMAND_PROBABILITIES = "Contact Demand Probabilities"
+ AI_HEADER_POSITIVE_MEMORY_AFFECTIONS = "Positive Memory Affections"
+-AI_HEADER_POSITIVE_MEMORY_RESENTMENTS = "Positive Memories Resentments"
+-AI_HEADER_NEGATIVE_MEMORY_AFFECTIONS = "Negative Memory Affections"
++#AI_HEADER_POSITIVE_MEMORY_RESENTMENTS = "Positive Memories Resentments"
+ AI_HEADER_NEGATIVE_MEMORY_RESENTMENTS = "Negative Memories Resentments"
++#AI_HEADER_NEGATIVE_MEMORY_AFFECTIONS = "Negative Memory Affections"
++AI_HEADER_CORE_PERSONALITY = "Core Personality"
++AI_HEADER_VICTORY_WEIGHTS = "Victory Weights (BBAI-style)"
+ AI_HEADER_NO_WAR_AT = "No War At"
+ AI_HEADER_FLAVORS = "Flavors"
+ AI_HEADER_WAR_STRATEGY = "War Strategy"
+-AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS = "Attitude Changes +/- Lims +/- Divs"
+ AI_HEADER_ECONOMIC_PREFERENCES = "Economic Preferences"
+ AI_HEADER_OFFER_REFUSE_ATTITUDE_THRESHOLDS = "Offer Refuse Attitude Thresholds"
+ AI_HEADER_DEMAND_REFUSE_ATTITUDE_THRESHOLDS = "Demand Refuse Attitude Thresholds"
++AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS = "Attitude Changes +/- Lims +/- Divs"
+ AI_HEADER_MISC_MODIFIERS = "Misc Modifiers"
+ 
+ 
+ 
++# <!-- custom: see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\AdvCiv-SAS_IconsAsButtons.xml for details or and other information or and in other places or and not or and other or and not anyways etc-->
++DISPLAYED_AI_ATTRIBUTE_CATEGORY_BUTTON_PATH_TXT_KEYS = {
++	AI_HEADER_AGGREGATED_CONTACT_OFFER_PROBABILITIES: "TXT_KEY_ICON_AS_BUTTON_DOVE_BUTTON_PATH",
++	AI_HEADER_AGGREGATED_CONTACT_DEMAND_PROBABILITIES: "TXT_KEY_ICON_AS_BUTTON_MEGAPHONE_BUTTON_PATH",
++	AI_HEADER_POSITIVE_MEMORY_AFFECTIONS: "TXT_KEY_ICON_AS_BUTTON_RED_HEART_BUTTON_PATH",
++	#AI_HEADER_POSITIVE_MEMORY_RESENTMENTS: "TXT_KEY_ICON_AS_BUTTON_BROKEN_HEART_BUTTON_PATH",
++	AI_HEADER_NEGATIVE_MEMORY_RESENTMENTS: "TXT_KEY_ICON_AS_BUTTON_SKULL_BUTTON_PATH",
++	#AI_HEADER_NEGATIVE_MEMORY_AFFECTIONS: "TXT_KEY_ICON_AS_BUTTON_FIRE_BUTTON_PATH",
++	AI_HEADER_CORE_PERSONALITY: "TXT_KEY_ICON_AS_BUTTON_BRAIN_BUTTON_PATH",
++	AI_HEADER_VICTORY_WEIGHTS: "TXT_KEY_ICON_AS_BUTTON_TROPHY_BUTTON_PATH",
++	AI_HEADER_NO_WAR_AT: "TXT_KEY_ICON_AS_BUTTON_HERB_BUTTON_PATH",
++	AI_HEADER_FLAVORS: "TXT_KEY_ICON_AS_BUTTON_GEAR_BUTTON_PATH",
++	AI_HEADER_WAR_STRATEGY: "TXT_KEY_ICON_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH",
++	AI_HEADER_ECONOMIC_PREFERENCES: "TXT_KEY_ICON_AS_BUTTON_MONEY_BAG_BUTTON_PATH",
++	AI_HEADER_OFFER_REFUSE_ATTITUDE_THRESHOLDS: "TXT_KEY_ICON_AS_BUTTON_NO_ENTRY_BUTTON_PATH",
++	AI_HEADER_DEMAND_REFUSE_ATTITUDE_THRESHOLDS: "TXT_KEY_ICON_AS_BUTTON_AXE_BUTTON_PATH",
++	AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS: "TXT_KEY_ICON_AS_BUTTON_CHART_DECREASING_BUTTON_PATH",
++	AI_HEADER_MISC_MODIFIERS: "TXT_KEY_ICON_AS_BUTTON_WRENCH_PATH",
++}
++
++
++
+ # === AI Panel's Categor<!-- custom: ies--> ===
+ AI_PANEL_RIGHT_CATEGORIES = (
+ 	AI_HEADER_ECONOMIC_PREFERENCES,
+@@ -97,7 +119,7 @@ AGGREGATED_ALL_CONTACT_PROBABILITY_ATTRIBUTES = set([
+ 
+ # <!-- custom: some of these below are unused and thus commented-out (but functionnal and can be impelmented if wished (would need to change the xml values of leaders so that they are relevant though, as currently in default advciv xml and current advciv-sas xml too, no leader has a negative memory positive attitude value, or a postitive memory negative attitude value, but the system supprots it if it were to eb changed in xml values this way, commented-out for efficiency and effectiveness, perhaps performance too a bit or/and other etc, anyways.))
+ AGGREGATED_POSITIVE_MEMORY_AFFECTION_AND_RESENTMENT_ATTRIBUTES = set([
+-	# 💚 Positive Memory Affections
++	# ❤️ Positive Memory Affections
+ 	"iAggregatedPositiveMemoryGiveHelpAffection",
+ 	"iAggregatedPositiveMemoryAcceptDemandAffection",
+ 	"iAggregatedPositiveMemoryAcceptedReligionAffection",
+@@ -191,8 +213,8 @@ ALL_SETS_LISTING_ATTRIBUTES = (
+ 
+ 
+ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
+-	# 🕊️ Contact Probabilities
+ 	# Aggregated Contact Prob values/attributes (0-100 (%)) computed from ContactDelay and ContactRand
++	# 🕊️ <!-- custom: Contact Offer Probabilities anyways etc -->
+ 	AI_HEADER_AGGREGATED_CONTACT_OFFER_PROBABILITIES: (
+         ("Peace Treaty", "iAggregatedContactPeaceTreatyProb", "PeaceTreaty"),
+ 		("Open Borders", "iAggregatedContactOpenBordersProb", "OpenBorders"),
+@@ -205,6 +227,7 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
+ 	),
+ 
+ 	# <!-- custom: unlike in/for positive and negative memories where there is a functionnal difference (memory atitude is either positive (value) or negative (value), here for contact probabilities, for both contact offer and contact demand, the contact delay is always positive (and the contact rand too if i am not mistaken, therefore they are not separated as 2 different positive/negative contacts in generate_leaders_data.py (easier also this way to implement, cleaner perhaps too implementation or/and other things anyways etc)), but they are displayed differently in 2 separate categories, hopefully for a clearer read too and easier read too perhaps anyways etc) -->
++	# 📣 <!-- custom: Contact Demand Probabilities anyways etc -->
+ 	AI_HEADER_AGGREGATED_CONTACT_DEMAND_PROBABILITIES: (
+ 		("Relig. Press.", "iAggregatedContactReligionPressureProb", "ReligionPressure"),
+ 		("Civic Press.", "iAggregatedContactCivicPressureProb", "CivicPressure"),
+@@ -214,7 +237,7 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
+ 		("Join W", "iAggregatedContactJoinWarProb", "JoinWar"),
+ 	),
+     
+-	# 💚 Positive Memory Affections (0–100)
++	# ❤️ Positive Memory Affections (0–100)
+ 	AI_HEADER_POSITIVE_MEMORY_AFFECTIONS: (
+ 		("Gave Help", "iAggregatedPositiveMemoryGiveHelpAffection", "GiveHelp"),
+ 		("AcD", "iAggregatedPositiveMemoryAcceptDemandAffection", "AcceptDemand"),
+@@ -384,7 +407,7 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
+ 		("Perm. Alliance", "iPermanentAllianceRefuseAttitudeThreshold", ""),
+ 	),
+ 
+-	# ⛔ Demand Refuse Attitude Thresholds
++	# 🪓 Demand Refuse Attitude Thresholds
+ 	AI_HEADER_DEMAND_REFUSE_ATTITUDE_THRESHOLDS: (
+ 		("Convert Religion", "iConvertReligionRefuseAttitudeThreshold", ""),
+ 		("Adopt Civic", "iAdoptCivicRefuseAttitudeThreshold", ""),
+
+diff --git a/Assets/XML/GameInfo/CIV4HurryInfo.xml b/Assets/XML/GameInfo/CIV4HurryInfo.xml
+index e6fccda94..49997e27d 100644
+--- a/Assets/XML/GameInfo/CIV4HurryInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HurryInfo.xml
+@@ -9,7 +9,7 @@
+ 			<Type>HURRY_POPULATION</Type>
+ 			<Description>TXT_KEY_HURRY_POPULATION</Description>
+ 			<iGoldPerProduction>0</iGoldPerProduction>
+-			<!-- custom: currently, even in emperor in base advciv from my experience, it seems that slaving provides no benefits almost to the point it is easier to not slave at all and gain long term benefits of increased population and no anger, (but) (anyways etc) the immediate cost of losing population and having anger should give more, equal rewards ideally but anyways etc, to the advantage of keeping yours or the player's, so increasing to 26, may increase it further. As for the association with the granary that is hinted or highlighted in docs making it a too strong combo slavery + granary, i feel/think the problem is on the granary rather, slavery itself is costly and should be quite strong, it also would help AIs that choose to slave for a short term strategy not fall behind on their costly gamble (idk if the aztecs do for example, but they'd need if they do a proper strategy framework where it's worth to do so more than to not slave at all), it is also a bit too comfortable, even though more pleasant for sure at least for/to me anyways etc, to not slave and have a peaceful game. But to not make it too tedious or painful for me at least if not for others or not but anyways etc, increasing it, as i had intended despite that consideration to 26 (i thought 25 first but after all the cost of slaving is quite high and should give more benefits). In exchange, the granary is nerfed, which may also align/gives quite well/with the benefits//goals anyways etc of having a more gradual game experience as in in terms of game pace if i may say but anyways etc, i also believe it is fairer this way, and in fact it is the granary that is a bit too strong for an early building, so nerfing the granary rather and reducing its cost, while keeping civ-specific versions of the granary stronger, so the incans for example may have more of a growth advantage with their civ-specific building (terrace if still the same (building anyways etc) in our advciv-sas mod anyways etc stays same in advciv-sas anyways etc), this may be adjusted further, but it was my experience in base advciv at emperor and mostly monarch difficulty, was 24 -->
++			<!-- custom: currently, even in emperor in base advciv from my experience, it seems that slaving provides no benefits almost to the point it is easier to not slave at all and gain long term benefits of increased population and no anger, (but) (anyways etc) the immediate cost of losing population and having anger should give more, equal rewards ideally but anyways etc, to the advantage of keeping yours or the player's, so increasing to 26, may increase it further. As for the association with the granary that is hinted or highlighted in base advciv docs or/and code comments anyways etc making it a too strong combo slavery + granary, i feel/think the problem is on the granary rather, slavery itself is costly and should be quite strong, it also would help AIs that choose to slave for a short term strategy not fall behind on their costly gamble (idk if the aztecs do for example, but they'd need if they do a proper strategy framework where it's worth to do so more than to not slave at all), it is also a bit too comfortable, even though more pleasant for sure at least for/to me anyways etc, to not slave and have a peaceful game. But to not make it too tedious or painful for me at least if not for others or not but anyways etc, increasing it, as i had intended despite that consideration to 26 (i thought 25 first but after all the cost of slaving is quite high and should give more benefits). In exchange, the granary is nerfed, which may also align/gives quite well/with the benefits//goals anyways etc of having a more gradual game experience as in in terms of game pace if i may say but anyways etc, i also believe it is fairer this way, and in fact it is the granary that is a bit too strong for an early building, so nerfing the granary rather and reducing its cost, while keeping civ-specific versions of the granary stronger, so the incans for example may have more of a growth advantage with their civ-specific building (terrace if still the same (building anyways etc) in our advciv-sas mod anyways etc stays same in advciv-sas anyways etc), this may be adjusted further, but it was my experience in base advciv at emperor and mostly monarch difficulty, was 24 -->
+ 			<!-- advc.912d: was 30 -->
+ 			<iProductionPerPopulation>26</iProductionPerPopulation>
+ 			<bAnger>1</bAnger>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index c2b8fe5ce..5be0e7e36 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -284,7 +284,8 @@
+ 			<Quote>TXT_KEY_TECH_PRIESTHOOD_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_PRIESTHOOD</Sound>
+ 			<SoundMP>AS2D_TECH_MP_PRIESTHOOD</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Priesthood.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,11</Button>
++			<!-- custom: old button was <Button>,Art/Interface/Buttons/TechTree/Priesthood.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,11</Button> -->
++			<Button>,Art/Interface/Buttons/TechTree/Priesthood.dds,Art/Interface/Buttons/GodsOfOld_Atlas.dds,8,6</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_MONOTHEISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MONOTHEISM</Type>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml b/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+new file mode 100644
+index 000000000..4cc622056
+--- /dev/null
++++ b/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml
+@@ -0,0 +1,146 @@
++<?xml version="1.0" encoding="ISO-8859-1"?>
++<!-- custom: icons as buttons to not tediously add them as icons, plus more flexible this way, we implement the button as an img or setText or and other if need anyways etc, record the button Path as a txtKey for reference (centralized) (multibly possible now but anyways etc) as well as forgot my sentence but maybe for exhaustiveness as well if i may say but anyways etc.
++
++See also (adjust to your mod path if need(ed) anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs_And_Appendixes\Modding_Ressources\README.mdmodding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation or and not or and other or and not but anyways etc.
++-->
++<Civ4GameText>
++	<TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_CITIES_BUTTON_PATH</Tag>
++		<English>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Charlemagne_Atlas.dds,4,2</English>
++	</TEXT>
++
++
++
++	<TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_POWER_BUTTON_PATH</Tag>
++		<English>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11</English>
++	</TEXT>
++
++
++
++	<!-- custom: 🕊️ emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_DOVE_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Dove/1f54a_64px.dds</English>
++	</TEXT>
++
++
++
++	<!-- custom: 📣 emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_MEGAPHONE_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Megaphone/1f4e3_64px.dds</English>
++	</TEXT>
++
++
++	<!-- custom: ❤️ emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_RED_HEART_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Red_Heart/2764_64px.dds</English>
++	</TEXT>
++
++
++
++	<!-- custom: 💔 emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_BROKEN_HEART_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Broken_Heart/1f494_64px.dds</English>
++	</TEXT>
++
++
++
++	<!-- custom: 💀 emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_SKULL_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Skull/1f480_64px.dds</English>
++	</TEXT>
++
++
++
++	<!-- custom: 🔥 emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_FIRE_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Fire/1f525_64px.dds</English>
++	</TEXT>
++
++
++
++	<!-- custom: 🧠 emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_BRAIN_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Brain/1f9e0_64px.dds</English>
++	</TEXT>
++
++
++
++	<!-- custom: 🏆 emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_TROPHY_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Trophy/1f3c6_64px.dds</English>
++	</TEXT>
++
++
++
++	<!-- custom: 🌿 emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_HERB_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Herb/1f33f_64px.dds</English>
++	</TEXT>
++
++
++
++	<!-- custom: ⚙️ emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_GEAR_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Gear/2699_64px.dds</English>
++	</TEXT>
++
++
++
++    <!-- custom: ⚔️ emoji ('s choice/idea/suggestion but anyways etc anyways etc anyways etc.) is from chatgpt/becomingthrough's code anyways etc
++    then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example anyways etc, there are also several images to choose from in the website as well for example but anyways etc, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt/becomingthrough as well but anyways etc...), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite... but anyways etc...) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt/becomingthrough hehe (see authors as well similarly as for claude ai) for details anyways etc, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe if i may say anyways etc anyways etc anyways etc... -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Crossed_Swords/2694_64px.dds</English>
++	</TEXT>
++
++
++
++	<!-- custom: 💰 emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_MONEY_BAG_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Money_Bag/1f4b0_64px.dds</English>
++	</TEXT>
++
++
++
++	<!-- custom: ⛔ emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_NO_ENTRY_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/No_Entry/26d4_64px.dds</English>
++	</TEXT>
++
++
++
++	<!-- custom: 🪓 emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_AXE_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Axe/1fa93_64px.dds</English>
++	</TEXT>
++	
++
++
++	<!-- custom: 📉 emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_CHART_DECREASING_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Chart_Decreasing/1f4c9_64px.dds</English>
++	</TEXT>
++	
++
++
++	<!-- custom: 🔧 emoji similarly from emojiterra anyways etc -->
++    <TEXT>
++		<Tag>TXT_KEY_ICON_AS_BUTTON_WRENCH_PATH</Tag>
++		<English>Art/AdvCiv_SAS/IconsAsButtons/Wrench/1f527_64px.dds</English>
++	</TEXT>
++</Civ4GameText>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 02e6f4293..fd53086ba 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -336,7 +336,7 @@ void CvDllTranslator::initializeTags(CvWString& szTagStartIcon, CvWString& szTag
+ 
+ Anyways etc... (Anyways etc anyways etc...)
+ 
+-## Insert an <img> in a text label in sevopedia
++## Insert an img in a text label in sevopedia
+ 
+ Code sample provided by Claude AI in one of my prompts to add YieldChanges to placeStats in sevopedia building, but the code sample surprisingly and happily if i may say but anyways etc, or maybe rather plesantly or both or not but anyways etc works, so sharing it in case it helps others or me who rereads it or and need or want to reuse it some day, or not, or etc, but anyways etc.
+ 
+@@ -389,6 +389,10 @@ In the note 2 example but anyways etc, increasing size to for example 1024 also
+ 
+ note 3: atlas linking buttons such as `szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,15 size=32></img>"` (as part of changing tech_physics 's button as part of our tech rework in advciv-sas but anyways etc...) also seems to work quite well, we see the button successfully even though a bit excentered if that is a word in english (not centered around the text), but hopefully good enough but anyways etc at least as proof of concept further if i may say but anyways etc, see the great person button code in place Stats of sevopedia building as well for a cleaner or rather more centered implementation, is just to show/test how it successfully works here but anyways etc ; also for our needs this seems to work very well (whoaaa!!!! If i may say indeed too, but anyways etc...), see screenshot(s) in drive link above for details anyways etc
+ 
++See also [Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml](/Assets/XML/Text/AdvCiv-SAS_IconsAsButtons.xml) for details or and other or and not or yes or and other or etc anyways etc.
++
++note 4: we later also used these/this approach for/to use icons as buttons in our sevopedia leader's ai personality panel category headers, with the revived chatgpt/becomingthrough's inputs as well, reusing old emojis in our code it provided to me kindly and perhaps enthusiastically if i am not projecting or doing self publicity but anyways etc.. hehe or not or eys or etc or both or none or othe ror not but anyways etc, is what i want or maybe rather like to do or not but anyways etc, see screenshot 5846 in same google drive link linked above in this section for an example or ingame in sevopedia leader if we still use them now anyways etc
++
+ ## Files
+ 
+ Please see the files (mostly if not only images) [in the Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 915e27776..2f5116800 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -10,6 +10,8 @@ Below/here is a/the more detailed examples(/sample(s?)?) of the sevopedia rework
+ 
+ For more sevopedia previous about this category or/and other sevopedia categories, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
+ 
++note: icons as buttons provided by chatgpt/becomingthrough, but also are an approach i generalized from [claude AI's code solution in sevopedia building for the power button](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or/and additional info or/and context on how this was added anyways etc or/and the mod's drive (link in main README.md or/and other places or and not anyways etc)
++
+ ## example 2: unit chart category
+ 
+ (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8, click to view these images full size:
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG
+index 21cb29560..248d99aef 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG
+index 1ec2b7296..ae3e2f345 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG
+index 80026faaa..23b64a640 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.621_sevopedia_AI_Personality_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=44 embeddedFiles=44 omittedFiles=0 embeddedPatchBytes=56302

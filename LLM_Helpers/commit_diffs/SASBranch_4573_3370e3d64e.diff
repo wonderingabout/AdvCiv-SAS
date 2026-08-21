@@ -1,0 +1,170 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4573
+# Commit: 3370e3d64e0cc297bff0fa05e39c0b10bcc6e07a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8bf9edeb47791c720334d1cd69340d3fe5496f6c
+# Title: rename "Blitz" to "Blitzkrieg", change tech requirement to "Engineering", relax and change promotion requirements see commit code comments for details, thanks,
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+33	5	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+6	4	Assets/XML/Units/CIV4PromotionInfos.xml
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png
+22	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
+2	2	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 988ef2480..bba2b9d5d 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -381,29 +381,57 @@
+ 			<Plural>0</Plural>
+ 		</Spanish>
+ 	</TEXT>
++	<!-- custom: name is more epic, not necessarily clearer (especially
++	with new tech requirement that is sooner, in earlier eras, but it
++	is historically more correct according to my research about this
++	quick i mean anyways, plus name is more epic now, anyways) -->
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_BLITZ</Tag>
++		<English>Blitzkrieg</English>
++		<French>
++			<Text>Blitzkrieg</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Blitzkrieg</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Blitzkrieg</Text>
++			<Gender>Female</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Blitzkrieg</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
+ 	<!-- custom: spies don't conduct raids for example in base
+ 	civ bts/advciv so "commando" does not fit, is also not
+ 	intuitive, hopefully clearer now -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_COMMANDO</Tag>
+-		<English>Logistician</English>
++		<English>Logistics</English>
+ 		<French>
+-			<Text>Logistician</Text>
++			<Text>Logistics</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>0</Plural>
+ 		</French>
+ 		<German>
+-			<Text>Logistician</Text>
++			<Text>Logistics</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>0</Plural>
+ 		</German>
+ 		<Italian>
+-			<Text>Logistician</Text>
++			<Text>Logistics</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>0</Plural>
+ 		</Italian>
+ 		<Spanish>
+-			<Text>Logistician</Text>
++			<Text>Logistics</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>0</Plural>
+ 		</Spanish>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index dcc8dbbe8..065ad7797 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1234,11 +1234,13 @@ full order to take from for quick editing or/and copy/paste:
+ 			<Description>TXT_KEY_PROMOTION_BLITZ</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+-			<PromotionPrereq>NONE</PromotionPrereq>
++			<!-- custom: -->
++			<PromotionPrereq>PROMOTION_DRILL1</PromotionPrereq>
+ 			<!-- advc.164: was PROMOTION_DRILL3 in K-Mod -->
+-			<PromotionPrereqOr1>PROMOTION_DRILL1</PromotionPrereqOr1>
+-			<PromotionPrereqOr2>PROMOTION_COMBAT3</PromotionPrereqOr2>
+-			<TechPrereq>TECH_MILITARY_SCIENCE</TechPrereq>
++			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER1</PromotionPrereqOr1>
++			<PromotionPrereqOr2>PROMOTION_COMBAT1</PromotionPrereqOr2>
++			<!-- custom: reduce tech prerequirement, was TECH_MILITARY_SCIENCE -->
++			<TechPrereq>TECH_ENGINEERING</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<!-- advc.164: No change to the value. 1 means 1 extra attack now;
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png
+index fb47e9b54..7a3ff41a1 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
+index 6c9ea2a8c..33b89e178 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
+@@ -80,3 +80,25 @@ maybe in time spent (minutes/hour played by the player) per era/tech, it would a
+ same in the end, so willingly or not, maybe this may work quite well. I don't want history
+ to be exhaustive (would be way too long to begin with if ever (practically) possible (should be
+ but way too long/tedious, about this i mean anyways))
++
++- for the blitz promotion, now "blitzkrieg", i have read some answers or rather messages or
++rather posts as it was not directly to me about this i mean anyways in this case is what i
++meant but anyways, blitzkrieg worked in medieval and even earlier according to these sources:
++- https://www.quora.com/Would-blitzkrieg-tactics-have-worked-in-the-ancient-medieval-warfare
++- https://www.quora.com/Would-blitzkrieg-tactics-have-worked-in-the-ancient-medieval-warfare/answer/Larry-Penland
++
++To quote them in case it gets deleted someday:
++
++Beginning of quote:
++"I wish to describe how “Blitzkrieg” got it’s name. Before WW1 the German High Command came up with infiltration tactics that when diagrammed (drawn) on the situation map gave a movement pattern that forked at each hard point they hit then diverted the line of attack to take the minimally opposed line. That diagram of line, fork, line fork, etc. gave the appearance of a drawn lighting flash. Blitzkrieg is German for Lighting War. It originally did not mean the speed of the advance. It was a description of the appearance of infiltration against the opposing army’s defense. The Germans came up with this, as well as the General Staff concept, from studies they and the British did of the military practices of the Mongols under Genghis Khan. The problem they experienced was that they lacked the mobility to exploit the weak points exposed through infiltration. During the inter-war period the British did simulation studies of mobile warfare using tanks, armored cars and mobile infantry. From the published results they and the Germans (Heinz Guderian) came up with the doctrines leading to the Armored Division. The Germans combined the Armored Division with infiltration tactics to great success in WW2 and everyone thought “blitzkrieg”, wow look how fast they’re moving! That’s like, fast as lighting!
++
++In case you missed the point,”Blitzkrieg Tactics” came from the Mongols using heavy cavalry (armor), arrows (artillery), infiltration tactics (light cavalry). In other words “Blitzkrieg”. The Mongols and Genghis Khan happened during the Medieval era. Also Alexander the Great (Ancient era) used highly mobile armor (the Phalanx) and cavalry (The Companions) and mobile siege artillery to kick Persian butt.
++
++So, the short answer: Yes, not only would they work, they did."
++End of quote
++
++Based on this i have reduced Blitzkrieg promotion to Engineering, which is also conveniently quite
++(very) good as i wanted to buff this tech i mean anyways, thanks.
++
++May be especially useful to archers now for example
++as they can harass troops quite freely and get away with it, in AdvCiv-SAS i mean anyways, thanks,
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index e1b7e94bf..a62b93365 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -47,9 +47,9 @@ for example "Combat III" is now "Combat 3" too.
+ - unit promotions are reworked or/and rebalanced: woodsman for example is buffed,
+ some are rebalanced or nerfed, and other some promotions have also their requirements
+ changed, for archers have access to city bombard promotion (units are reworked too,
+-see below), or "Logistician" (named "Commando" before) is now accessible after
++see below), or "Logistics" (named "Commando" before) is now accessible after
+ Combat 1 or City Attack 1 todo rename. Some are available sooner too, for example
+-"Logistician" is available at "The Wheel", not "Military Science" anymore, since
++"Logistics" is available at "The Wheel", not "Military Science" anymore, since
+ we understand roads we can use them, maybe, more strategic importance now too maybe
+ hopefully.
+ - military units are reworked: for example the holy roman empire special unit,
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=7968

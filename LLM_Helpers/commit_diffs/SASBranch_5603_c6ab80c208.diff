@@ -1,0 +1,465 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5603
+# Commit: c6ab80c208b515bee40ec53e06873317b9a07808
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0532e0fd8b7a45227bc1cd6ff83f6cc4dbfc80ca
+# Title: update advisor buttons order and other related changes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+4	29	Assets/Python/Screens/CvMainInterface.py
+2	2	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+14	2	Assets/XML/Text/AdvCiv-SAS_main.xml
+2	36	Assets/XML/Text/BUG_Options_Screen.xml
+1	8	Assets/XML/Text/CIV4GameText_Shortcuts.xml
+2	1	Assets/XML/Text/CIV4GameText_advc_hints.xml
+3	32	Assets/XML/Units/CIV4ControlInfos.xml
+1	2	CvGameCoreDLL/CvEnums.h
+2	11	CvGameCoreDLL/CvGameInterface.cpp
+1	2	CvGameCoreDLL/CyEnumsInterface.cpp
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 9c609046f..ad2ada13c 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -181,12 +181,14 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ 
+ ## XML
+ 
+-- Any new XML text should to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG`), and only in `<English>`.
++- Any new XML text should go to our AdvCiv-SAS files such as [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml) (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG`), and only in `<English>`.
+ - Example of exception: long Civilopedia blurbs (e.g., `TXT_KEY_BUILDING_KOREAN_GYEONGDANG_PEDIA`) in [AdvCiv-SAS_Sevopedia_Lengthy.xml](/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml), even when it uses a stub (becuase it will be filled later with lengthy content).
+ - Move XML texts we modify from other files to our AdvCiv-SAS files too and remove other languages while doing so.
+ - Avoid to comment in deep-nested XML just in case. For example, comment before `<ObsoleteSafeCommerceChanges>`, not before its child `<iCommerce>`.
+ - Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
+ - Prefer UTF-8 as it's simple and seemingly works well enough; avoid UTF-8 with BOM as it can cause mojibake artifacts like `â€”it` or `â€™` or other issues.
++- Exception: preserve each XML file's existing encoding if it's not UTF-8; do not convert encodings unless explicitly requested for no tedium and as we have no reason to (e.g., keep legacy Windows-1252 files such as BUG XML files as-is), plus this would have a high chance of causing formatting errors otherwise.
++- Note and additional observation: the codex formatter seems unreliable and inconsistent with what users see (e.g., showing the LLM model a BOM text when user sees a non BOM one, causing mismatches and weird git diff: refer to git diff or what base AdvCiv mod uses as format if in doubt).
+ 
+ ## C++
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index b9ca6fefc..2c4b8ac59 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1400,9 +1400,9 @@ class CvMainInterface:
+ 
+ 	def setAdvisorButtonRects(self):
+ 		iSize = BTNSZ(28)
+-		# <!-- custom: advisor button order updated to Info then Victory after the F8/F9 swap. (GPT-5.3-Codex) -->
+-		advisorNames = [ "Domestic", "Finance", "Civics", "Foreign", "Military", "Tech",
+-				"Religious", "Corporation", "Info", "Victory" ]
++		# <!-- custom: advisor button order follows active shortcuts (F1/F2/F3...); Religion/Corporation buttons removed. (GPT-5.3-Codex) -->
++		advisorNames = [ "Domestic", "Civics", "Finance", "Foreign", "Military", "Tech",
++				"Info", "Victory" ]
+ 		if GameUtil.isEspionage():
+ 			advisorNames.append("Espionage")
+ 		iButtons = len(advisorNames)
+@@ -2073,14 +2073,7 @@ class CvMainInterface:
+ 				WidgetTypes.WIDGET_ACTION,
+ 				gc.getControlInfo(ControlTypes.CONTROL_TECH_CHOOSER).getActionInfoIndex())
+ 		screen.hide("TechAdvisorButton")
+-		self.setStyledButton("ReligiousAdvisorButton", "Button_HUDAdvisorReligious_Style",
+-				WidgetTypes.WIDGET_ACTION,
+-				gc.getControlInfo(ControlTypes.CONTROL_RELIGION_SCREEN).getActionInfoIndex())
+-		screen.hide("ReligiousAdvisorButton")
+-		self.setStyledButton("CorporationAdvisorButton", "Button_HUDAdvisorCorporation_Style",
+-				WidgetTypes.WIDGET_ACTION,
+-				gc.getControlInfo(ControlTypes.CONTROL_CORPORATION_SCREEN).getActionInfoIndex())
+-		screen.hide("CorporationAdvisorButton")
++		# <!-- custom: Religion/Corporation advisor HUD buttons removed; those screens are planned to be merged as Civics tabs. (GPT-5.3-Codex) -->
+ 		self.setStyledButton("VictoryAdvisorButton", "Button_HUDAdvisorVictory_Style",
+ 				WidgetTypes.WIDGET_ACTION,
+ 				gc.getControlInfo(ControlTypes.CONTROL_VICTORY_SCREEN).getActionInfoIndex())
+@@ -3178,8 +3171,6 @@ class CvMainInterface:
+ 			screen.hide("ForeignAdvisorButton")
+ 			screen.hide("TechAdvisorButton")
+ 			screen.hide("CivicsAdvisorButton")
+-			screen.hide("ReligiousAdvisorButton")
+-			screen.hide("CorporationAdvisorButton")
+ 			screen.hide("FinanceAdvisorButton")
+ 			screen.hide("MilitaryAdvisorButton")
+ 			screen.hide("VictoryAdvisorButton")
+@@ -3209,8 +3200,6 @@ class CvMainInterface:
+ 			screen.hide("ForeignAdvisorButton")
+ 			screen.hide("TechAdvisorButton")
+ 			screen.hide("CivicsAdvisorButton")
+-			screen.hide("ReligiousAdvisorButton")
+-			screen.hide("CorporationAdvisorButton")
+ 			screen.hide("FinanceAdvisorButton")
+ 			screen.hide("MilitaryAdvisorButton")
+ 			screen.hide("VictoryAdvisorButton")
+@@ -3241,8 +3230,6 @@ class CvMainInterface:
+ 			screen.show("ForeignAdvisorButton")
+ 			screen.show("TechAdvisorButton")
+ 			screen.show("CivicsAdvisorButton")
+-			screen.show("ReligiousAdvisorButton")
+-			screen.show("CorporationAdvisorButton")
+ 			screen.show("FinanceAdvisorButton")
+ 			screen.show("MilitaryAdvisorButton")
+ 			screen.show("VictoryAdvisorButton")
+@@ -3265,8 +3252,6 @@ class CvMainInterface:
+ 			screen.moveToFront("ForeignAdvisorButton")
+ 			screen.moveToFront("TechAdvisorButton")
+ 			screen.moveToFront("CivicsAdvisorButton")
+-			screen.moveToFront("ReligiousAdvisorButton")
+-			screen.moveToFront("CorporationAdvisorButton")
+ 			screen.moveToFront("FinanceAdvisorButton")
+ 			screen.moveToFront("MilitaryAdvisorButton")
+ 			screen.moveToFront("VictoryAdvisorButton")
+@@ -3288,8 +3273,6 @@ class CvMainInterface:
+ 			screen.hide("ForeignAdvisorButton")
+ 			screen.hide("TechAdvisorButton")
+ 			screen.hide("CivicsAdvisorButton")
+-			screen.hide("ReligiousAdvisorButton")
+-			screen.hide("CorporationAdvisorButton")
+ 			screen.hide("FinanceAdvisorButton")
+ 			screen.hide("MilitaryAdvisorButton")
+ 			screen.hide("VictoryAdvisorButton")
+@@ -3316,8 +3299,6 @@ class CvMainInterface:
+ 			screen.show("ForeignAdvisorButton")
+ 			screen.show("TechAdvisorButton")
+ 			screen.show("CivicsAdvisorButton")
+-			screen.show("ReligiousAdvisorButton")
+-			screen.show("CorporationAdvisorButton")
+ 			screen.show("FinanceAdvisorButton")
+ 			screen.show("MilitaryAdvisorButton")
+ 			screen.show("VictoryAdvisorButton")
+@@ -3340,8 +3321,6 @@ class CvMainInterface:
+ 			screen.moveToFront("ForeignAdvisorButton")
+ 			screen.moveToFront("TechAdvisorButton")
+ 			screen.moveToFront("CivicsAdvisorButton")
+-			screen.moveToFront("ReligiousAdvisorButton")
+-			screen.moveToFront("CorporationAdvisorButton")
+ 			screen.moveToFront("FinanceAdvisorButton")
+ 			screen.moveToFront("MilitaryAdvisorButton")
+ 			screen.moveToFront("VictoryAdvisorButton")
+@@ -3364,8 +3343,6 @@ class CvMainInterface:
+ 			screen.show("ForeignAdvisorButton")
+ 			screen.show("TechAdvisorButton")
+ 			screen.show("CivicsAdvisorButton")
+-			screen.show("ReligiousAdvisorButton")
+-			screen.show("CorporationAdvisorButton")
+ 			screen.show("FinanceAdvisorButton")
+ 			screen.show("MilitaryAdvisorButton")
+ 			screen.show("VictoryAdvisorButton")
+@@ -3396,8 +3373,6 @@ class CvMainInterface:
+ 			screen.moveToFront("ForeignAdvisorButton")
+ 			screen.moveToFront("TechAdvisorButton")
+ 			screen.moveToFront("CivicsAdvisorButton")
+-			screen.moveToFront("ReligiousAdvisorButton")
+-			screen.moveToFront("CorporationAdvisorButton")
+ 			screen.moveToFront("FinanceAdvisorButton")
+ 			screen.moveToFront("MilitaryAdvisorButton")
+ 			screen.moveToFront("VictoryAdvisorButton")
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 2b5d71511..cb0851a8d 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -1438,9 +1438,9 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET_PEDIA</Tag>
+ 		<English>[TAB]Traditional education within the Ethiopian Orthodox Tewahedo Church follows a structured progression through ecclesiastical schools. Students initially enter the Nebab Bet (house of reading), where they acquire literacy skills and commit to memory essential prayers and the Psalms. Subsequent advancement encompasses liturgical studies, chant (zema), and poetry (qene), ultimately leading to the Metsehaf Bet?a specialized institution devoted to advanced textual exegesis.[PARAGRAPH:1]The term Metsehaf Bet functions as an umbrella designation for commentary schools comprising four principal divisions: Old Testament studies (Beluy), New Testament studies (Haddis), patristics and ancillary disciplines (Liqawent, incorporating canon law and computus), and monastic literature (Menekosat). Pedagogical methodology centers on intensive textual analysis, wherein students engage in line-by-line interpretation and examine theological, ethical, and historical dimensions through established commentary traditions.</English>
+ 	</TEXT>
+-	<!-- custom: advisor shortcuts updated to F8 Info Screen and F9 Victory Status. (GPT-5.3-Codex) -->
++	<!-- custom: advisor shortcuts updated: Civics = F2, Finance = F3, Religion/Corporation removed, Info Screen = F8, Victory Screen = F9. (GPT-5.3-Codex), and renamed from inconsistent or inaccurate "Demographics" and "Victory Conditions" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SHORTCUTS_ADVISORS_PEDIA</Tag>
+-		<English>[H1]Advisors[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Domestic Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Split Colonies[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Financial Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Civics Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Military Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Technology Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F7[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Religion Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+F7[COLOR_REVERT][\BOLD][TAB][TAB]Corporation Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Espionage Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Info Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Victory Status[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Capital City[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Globe View[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sevopedia[NEWLINE]</English>
++		<English>[H1]Advisors[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Domestic Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Split Colonies[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Civics Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Financial Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Military Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Technology Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Espionage Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Info Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Victory Screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Capital City[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Globe View[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sevopedia[NEWLINE]</English>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index ca2dd8b1a..974d698fc 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3541,7 +3541,15 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MICHAEL_COLLINS_1</Tag>
+ 		<English>Pay, [CT_NAME]. I would rather end this cleanly.</English>
+ 	</TEXT>
+-	<!-- custom: advisor hotkey labels: Info Screen = F8, Victory = F9. (GPT-5.3-Codex) -->
++	<!-- custom: advisor hotkey labels updated: Civics = F2, Finance = F3, Info Screen = F8, Victory Screen = F9 (renamed from Victory), Sevopedia = F12. (GPT-5.3-Codex) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPTLABEL_FINANCE_ADVISOR</Tag>
++		<English>Finance [F3]:</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_ACTION_SHOW_CIVICS_SCREEN</Tag>
++		<English>Civics Advisor</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_INFO_SCREEN</Tag>
+ 		<English>Info Screen</English>
+@@ -3552,6 +3560,10 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_VICTORY_CONDITIONS</Tag>
+-		<English>Victory [F9]:</English>
++		<English>Victory Screen [F9]:</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPTLABEL_SEVOPEDIA</Tag>
++		<English>Sevopedia [F12]:</English>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/BUG_Options_Screen.xml b/Assets/XML/Text/BUG_Options_Screen.xml
+index 5a6caec5b..362c88252 100644
+--- a/Assets/XML/Text/BUG_Options_Screen.xml
++++ b/Assets/XML/Text/BUG_Options_Screen.xml
+@@ -242,14 +242,7 @@
+ 		<Italian>Interno [F1]:</Italian>
+ 		<Spanish>Interior [F1]:</Spanish>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPTLABEL_FINANCE_ADVISOR</Tag>
+-		<English>Finance [F2]:</English>
+-		<French>Finance [F2]:</French>
+-		<German>Finanzen [F2]:</German>
+-		<Italian>Economico [F2]:</Italian>
+-		<Spanish>Financiero [F2]:</Spanish>
+-	</TEXT>
++	<!-- custom: removed obsolete/duplicate advisor labels (Religion/Finance/Victory/Info/Sevopedia) from BUG base text after advisor control cleanup; active English overrides are in AdvCiv-SAS_main.xml where needed. (GPT-5.3-Codex) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_FOREIGN_ADVISOR</Tag>
+ 		<English>Foreign [F4]:</English>
+@@ -274,34 +267,6 @@
+ 		<Italian>Tecnologico [F6]:</Italian>
+ 		<Spanish>Tecnolog�a [F6]:</Spanish>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPTLABEL_RELIGIOUS_ADVISOR</Tag>
+-		<English>Religion [F7]:</English>
+-		<French>Religion [F7]:</French>
+-		<German>Religion [F7]:</German>
+-		<Italian>Religioso [F7]:</Italian>
+-		<Spanish>Religi�n [F7]:</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPTLABEL_VICTORY_CONDITIONS</Tag>
+-		<English>Victory [F8]:</English>
+-		<French>Victory [F8]:</French>
+-		<German>Siegbedingungen [F8]:</German>
+-		<Italian>Vittoria [F8]:</Italian>
+-		<Spanish>Victoria [F8]:</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPTLABEL_INFO_SCREENS</Tag>
+-		<English>Info [F9]:</English>
+-		<French>Info [F9]:</French>
+-		<German>Info-Bildschirm [F9]:</German>
+-		<Italian>Info [F9]:</Italian>
+-		<Spanish>Info [F9]:</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUG_OPTLABEL_SEVOPEDIA</Tag>
+-		<English>Sevopedia [F12]:</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_ESPIONAGE_SCREEN</Tag>
+ 		<English>Espionage [CTRL + E]:</English>
+@@ -827,3 +792,4 @@
+ 		<Spanish>Agradecimientos</Spanish>
+ 	</TEXT>
+ </Civ4GameText>
++
+
+diff --git a/Assets/XML/Text/CIV4GameText_Shortcuts.xml b/Assets/XML/Text/CIV4GameText_Shortcuts.xml
+index 1f16a7b31..6e93d2782 100644
+--- a/Assets/XML/Text/CIV4GameText_Shortcuts.xml
++++ b/Assets/XML/Text/CIV4GameText_Shortcuts.xml
+@@ -96,14 +96,7 @@
+ 		 though) -->
+ 	<!-- advc.004y: Stylistic changes to most of the _PEDIA keys, but only for
+ 		 English. -->
+-	<TEXT>
+-		<Tag>TXT_KEY_SHORTCUTS_ADVISORS_PEDIA</Tag>
+-		<English>[H1]Advisors[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Domestic Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Split Colonies[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Financial Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Civics Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Foreign Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Military Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Technology Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F7[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Religion Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+F7[COLOR_REVERT][\BOLD][TAB][TAB]Corporation Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Espionage Advisor[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Victory Status[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Demographics[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Capital City[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Globe View[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sevopedia[NEWLINE]</English>
+-		<French>[H1]Adviseurs[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Adviseur Domestique [NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+F1[COLOR_REVERT][\BOLD][TAB][TAB]Cr�er des  Colonies[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Adviseur Financier[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Adviseur Civique [NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Adviseur International[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Adviseur Militaire[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Adviseur Technologique[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F7[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Adviseur  Religieux[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+F7[COLOR_REVERT][\BOLD][TAB][TAB]Adviseur des Corporations [NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+E[COLOR_REVERT][\BOLD][TAB][TAB]Adviseur d'Espionnage[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Etat des Victoires[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB]D�mographies[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Capitale[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Vue Globale[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Sevopedia[NEWLINE]</French>
+-		<German>[H1]Berater[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Inlandsberater[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Kolonie freigeben[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Finanzberater[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Staatsformenberater[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Auslandsberater[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Milit�rberater[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Technologieberater[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F7[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Religionsberater[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+F7[COLOR_REVERT][\BOLD][TAB][TAB]Kapitalgesellschaften[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Spionagebildschirm[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sieg[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Info-Bildschirm[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Hauptstadt[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Globale Ansicht[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sevopedia[NEWLINE]</German>
+-		<Italian>[H1]Consiglieri[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere interno[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere economico[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere politico[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere estero[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere militare[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere tecnologico[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F7[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Consigliere religioso[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+F7[COLOR_REVERT][\BOLD][TAB][TAB]Consigliere corporativo[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consigliere spionistico[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Condizioni di vittoria[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Demografica[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Capitale[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Vista globale[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Sevopedia[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Shift+H[COLOR_REVERT][\BOLD][TAB]Hall of Fame[NEWLINE][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Libera Colonia[NEWLINE]</Italian>
+-		<Spanish>[H1]Consejeros[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero de Interior[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+F1[COLOR_REVERT][\BOLD][TAB][TAB]Separar Colonias[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F2[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero Financiero[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F3[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero de Principios[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F4[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero de Asuntos Exteriores[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F5[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero Militar[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F6[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero de Tecnolog�a[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F7[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Consejero de Religi�n[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+F7[COLOR_REVERT][\BOLD][TAB][TAB]Consejero de Corporaciones[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+E[COLOR_REVERT][\BOLD][TAB][TAB]Consejero de Espionaje[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F8[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Condiciones de Victoria[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F9[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Poblaci�n[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F10[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Ciudad Capital[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F11[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Vista Global[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]F12[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Sevopedia[NEWLINE]</Spanish>
+-	</TEXT>
++	<!-- custom: duplicate TXT_KEY_SHORTCUTS_ADVISORS_PEDIA removed from base file; active English override is in AdvCiv-SAS_Sevopedia_Lengthy.xml. (GPT-5.3-Codex) -->
+ 	<!-- advc.004: Ctrl+A, NUM 0, Alt+G, H added. Unit cycling commands moved from Game section.
+ 		 Ctrl+H (was present only in Italian). -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index 8d8f81aa8..71c4aa21c 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -509,10 +509,11 @@
+ 	<English>While in the city screen, press [CTRL] and a number key to save the production queue. This queue can be loaded in any other city by pressing the number key again.</English>
+ </TEXT>
+ 
++<!-- custom: rename "Victory Conditions" to "Victory Screen" -->
+ <!-- advc.008c: Minor changes -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_INTERFACE_68</Tag>
+-	<English>To view your Spaceship, go to the "Victory Conditions" screen [F8] and press the "View" button next to "Space Race."</English>
++	<English>To view your Spaceship, go to the "Victory Screen" screen [F8] and press the "View" button next to "Space Race."</English>
+ </TEXT>
+ 
+ <!-- advc.008c: This needed some more explanation -->
+
+diff --git a/Assets/XML/Units/CIV4ControlInfos.xml b/Assets/XML/Units/CIV4ControlInfos.xml
+index ad273bd1a..3d7616b98 100644
+--- a/Assets/XML/Units/CIV4ControlInfos.xml
++++ b/Assets/XML/Units/CIV4ControlInfos.xml
+@@ -624,41 +624,12 @@
+ 			<bCtrlDownAlt>0</bCtrlDownAlt>
+ 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+ 		</ControlInfo>
+-		<ControlInfo>
+-			<Type>CONTROL_RELIGION_SCREEN</Type>
+-			<Description>TXT_KEY_ACTION_SHOW_RELIGION_SCREEN</Description>
+-			<Help/>
+-			<HotKey>KB_F7</HotKey>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-			<HotKeyAlt/>
+-			<bAltDownAlt>0</bAltDownAlt>
+-			<bShiftDownAlt>0</bShiftDownAlt>
+-			<bCtrlDownAlt>0</bCtrlDownAlt>
+-			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+-		</ControlInfo>
+-		<ControlInfo>
+-			<Type>CONTROL_CORPORATION_SCREEN</Type>
+-			<Description>TXT_KEY_ACTION_SHOW_CORPORATION_SCREEN</Description>
+-			<Help/>
+-			<HotKey>KB_F7</HotKey>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>1</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-			<HotKeyAlt/>
+-			<bAltDownAlt>0</bAltDownAlt>
+-			<bShiftDownAlt>0</bShiftDownAlt>
+-			<bCtrlDownAlt>0</bCtrlDownAlt>
+-			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+-		</ControlInfo>
++		<!-- custom: Civics/Finance hotkeys swapped so Civics = F2 and Finance = F3. (GPT-5.3-Codex) -->
+ 		<ControlInfo>
+ 			<Type>CONTROL_CIVICS_SCREEN</Type>
+ 			<Description>TXT_KEY_ACTION_SHOW_CIVICS_SCREEN</Description>
+ 			<Help/>
+-			<HotKey>KB_F3</HotKey>
++			<HotKey>KB_F2</HotKey>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+@@ -688,7 +659,7 @@
+ 			<Type>CONTROL_FINANCIAL_SCREEN</Type>
+ 			<Description>TXT_KEY_FINANCIAL_ADVISOR_TITLE</Description>
+ 			<Help/>
+-			<HotKey>KB_F2</HotKey>
++			<HotKey>KB_F3</HotKey>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 3c82120f4..7a78b9080 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1052,8 +1052,7 @@ ENUM_START(Control, CONTROL)
+ 	CONTROL_MOUSE_FLYING_CAMERA,
+ 	CONTROL_TOP_DOWN_CAMERA,
+ 	CONTROL_CIVILOPEDIA,
+-	CONTROL_RELIGION_SCREEN,
+-	CONTROL_CORPORATION_SCREEN,
++	// <!-- custom: Religion/Corporation controls removed; those screens are planned as Civics tabs. (GPT-5.3-Codex) -->
+ 	CONTROL_CIVICS_SCREEN,
+ 	CONTROL_FOREIGN_SCREEN,
+ 	CONTROL_FINANCIAL_SCREEN,
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 05ca9489d..ac5edbc50 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1315,8 +1315,7 @@ bool CvGame::canDoControl(ControlTypes eControl) const
+ 	case CONTROL_DOMESTIC_SCREEN:
+ 	case CONTROL_VICTORY_SCREEN:
+ 	case CONTROL_CIVILOPEDIA:
+-	case CONTROL_RELIGION_SCREEN:
+-	case CONTROL_CORPORATION_SCREEN:
++	// <!-- custom: CONTROL_RELIGION_SCREEN / CONTROL_CORPORATION_SCREEN removed; those screens are planned as Civics tabs. (GPT-5.3-Codex) -->
+ 	case CONTROL_CIVICS_SCREEN:
+ 	case CONTROL_FOREIGN_SCREEN:
+ 	case CONTROL_FINANCIAL_SCREEN:
+@@ -1682,15 +1681,7 @@ void CvGame::doControl(ControlTypes eControl)
+ 		GC.getPythonCaller()->callScreenFunction("pediaShow");
+ 		break;
+ 
+-	case CONTROL_RELIGION_SCREEN:
+-		GET_PLAYER(getActivePlayer()).killAll(BUTTONPOPUP_CHANGERELIGION); // advc.004x
+-		GC.getPythonCaller()->showPythonScreen("ReligionScreen");
+-		break;
+-
+-	case CONTROL_CORPORATION_SCREEN:
+-		GC.getPythonCaller()->showPythonScreen("CorporationScreen");
+-		break;
+-
++	// <!-- custom: control handlers for Religion/Corporation removed after control enum cleanup. (GPT-5.3-Codex) -->
+ 	case CONTROL_CIVICS_SCREEN:
+ 		GET_PLAYER(getActivePlayer()).killAll(BUTTONPOPUP_CHANGECIVIC); // advc.004x
+ 		GC.getPythonCaller()->showPythonScreen("CivicsScreen");
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index bb3bc8795..dc8d05744 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -1182,8 +1182,7 @@ void CyEnumsPythonInterface()
+ 		.value("CONTROL_MOUSE_FLYING_CAMERA", CONTROL_MOUSE_FLYING_CAMERA)
+ 		.value("CONTROL_TOP_DOWN_CAMERA", CONTROL_TOP_DOWN_CAMERA)
+ 		.value("CONTROL_CIVILOPEDIA", CONTROL_CIVILOPEDIA)
+-		.value("CONTROL_RELIGION_SCREEN", CONTROL_RELIGION_SCREEN)
+-		.value("CONTROL_CORPORATION_SCREEN", CONTROL_CORPORATION_SCREEN)
++		// <!-- custom: CONTROL_RELIGION_SCREEN / CONTROL_CORPORATION_SCREEN removed; those screens are planned as Civics tabs. (GPT-5.3-Codex) -->
+ 		.value("CONTROL_CIVICS_SCREEN", CONTROL_CIVICS_SCREEN)
+ 		.value("CONTROL_FOREIGN_SCREEN", CONTROL_FOREIGN_SCREEN)
+ 		.value("CONTROL_FINANCIAL_SCREEN", CONTROL_FINANCIAL_SCREEN)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index af092c742..841b1a8e7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -99,6 +99,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Cavalry → Dragoon (too generic/era-agnostic; new name and unit better matches early-industrial role).
+ - Promotion names made more explicit (e.g., Counter-Archer, Counter-Siege, City Bombard Damage). Roman numerals → Arabic ("Combat 3").
+ - (Requires AdvCiv-SAS 5524+) "Demographics" → "Info Screen" (correct advisor name, not only shows the Demographics tab of the Info Screen)
++- (Requires AdvCiv-SAS 5525+) "Victory Status" and "Victory Conditions" → "Victory Screen" (similar inconsistent naming in Sevopedia Shortcuts)
+ 
+ ### Code/Performance optimizations
+ 
+@@ -324,7 +325,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ ### UI (In-game)
+ 
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+-- (Requires AdvCiv-SAS 5517+) **Reorganized advisors**. For example, **merged the espionage screen into the Foreign Advisor**, and **merged the Economic Advisor's Finance Tab into the Domestic Advisor** and the **Economic Advisor's Environment Tab into the Info Screen**, so they are now tabs of these instead (deleted the old now obsolete lone advisor .py files). (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text (e.g., move Victory screen to F9 and Info Screen to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors).
++- (Requires AdvCiv-SAS 5517+) **Reorganized advisors**. For example, **merged the espionage screen into the Foreign Advisor**, and **merged the Economic Advisor's Finance Tab into the Domestic Advisor** and the **Economic Advisor's Environment Tab into the Info Screen**, so they are now tabs of these instead (deleted the old now obsolete lone advisor .py files). (Requires AdvCiv-SAS 5524+) Rearrange Advisor **keyboard shortcuts** (in [CIV4ControlInfos.xml](/Assets/XML/Units/CIV4ControlInfos.xml) and DLL files like [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvEnums.h](/CvGameCoreDLL/CvEnums.h), [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp), and [CyEnumsInterface.cpp](/CvGameCoreDLL/CyEnumsInterface.cpp)) and adjust the **order of advisor buttons** in map view and **Sevopedia shortcuts** corresponding text (e.g., move Victory screen to F9 and Info Screen to F8 so the Info Screen is easier to split to F7 and F8 later on and so layout is **more logically organized** from internal to external advisors).
+ - (Requires AdvCiv-SAS 5521+) **Expand** and most **advisors** so they scale to **game resolution dynamically** instead of hardcoded advisor screen dimensions. The code was also refactored to improve **dynamic scaling**, ensuring **most UI elements automatically realign** if dimensions are changed. Advisors are now **excentered** so **overall more information** is displayed, thus **reducing the need for scrolling**, while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). Some of their dimensions are **harmonized**. Note: some **right space for scoreboard** and **top space for the top bars** of the main interface was made (since commerce sliders are now as of now on the right side, they don't need left space anymore). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor)
+ - **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, now using a **clearer constrast dark yellow theme** instead. Make the advisor be a tab as the **Overview** tab. Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
+ - (Requires AdvCiv-SAS 5522+) **Beautified** the **Civics Advisor**: enlarge **top panels text** so **long civic names don't overflow**. Change in [CvCivicsScreen.py](/Assets/Python/Screens/CvCivicsScreen.py).
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=12 omittedFiles=1 embeddedPatchBytes=35166

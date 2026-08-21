@@ -31,7 +31,7 @@ with GFC_Control_Separator
 	GFC_Control_DefaultSeparator_Style
 	{
 		GFC_Control_Renderer_Control			=	GFC_CtrlTheme_Bitmap_Control_Separator_Renderer_Control;
-		
+
 		with GFC_Control_Flag
 		{
 			// Base control flags				
@@ -45,7 +45,7 @@ with GFC_Control_Separator
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-												
+
 			// Control flag change masks		
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -83,7 +83,7 @@ with GFC_Control_Separator
 		}
 
 		// ******* Initialize all the Bitmap theme Separator properties to avoid inheritance problems
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Separator_Skin
 		{
 			.HBar_Default						=	0;
@@ -118,7 +118,7 @@ with GFC_Control_Separator
 			}
 			.Disable				= .Default;
 		}
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Separator_Skin_VBar
 		{
 			.Default
@@ -138,15 +138,15 @@ with GFC_Control_Separator
 		map GFC_CtrlTheme_Bitmap_Control_Separator	=	GFC_Control_DefaultSeparator_Style;
 		map GFC_Control								=	GFC_Control_DefaultSeparator_Style;
 	}
-	
+
 	// In style
 	GFC_Control_InSeparator_Style
 	{
-		
+
 		map GFC_CtrlTheme_Bitmap_Control_Separator				=	GFC_Control_StandardSeparator_Style;
 		map GFC_Control											=	GFC_Control_StandardSeparator_Style;
 	}
-	
+
 	// Out style
 	GFC_Control_OutSeparator_Style
 	{
@@ -166,7 +166,7 @@ with GFC_Control_Separator
 	// Empty style
 	GFC_Control_EmptySeparator_Style
 	{
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Separator_Skin
 		{
 			.HBar_Default						=	SF_CtrlTheme_Civ4_Control_Skin_Blank;

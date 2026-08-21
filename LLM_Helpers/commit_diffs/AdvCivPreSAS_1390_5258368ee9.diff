@@ -1,0 +1,373 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1390
+# Commit: 5258368ee9a8c51943dbbadf6283f15e9e96640d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5c007429ae034192cad8bf8032bf499970255ff3
+# Title: Technical stuff (debug/cheat tools, multiplayer settings); AI found value tweaked
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	Assets/Config/Reminder.xml
+50	1	Assets/Python/BUG/BugEventManager.py
+1	1	Assets/Python/BUG/TechPrefs.py
+5	3	Assets/Python/Contrib/Civ4lerts.py
+10	4	Assets/Python/Screens/CvVictoryScreen.py
+3	1	CvGameCoreDLL/CvArtFileMgr.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+2	3	CvGameCoreDLL/CvGame.cpp
+19	6	CvGameCoreDLL/CvInitCore.cpp
+31	24	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/Reminder.xml b/Assets/Config/Reminder.xml
+index 4e9ac0553..b411e4403 100644
+--- a/Assets/Config/Reminder.xml
++++ b/Assets/Config/Reminder.xml
+@@ -34,6 +34,8 @@
+ 	</options>
+ 	
+ 	<events/>
+-	<shortcut key="Alt Ctrl R | Alt M" function="createReminder"/>
++	<!-- advc.007b: Was "Alt Ctrl R | Alt M", but Alt+Ctrl+R is used for
++		 reloading Art Defines when cheats are enabled. -->
++	<shortcut key="Alt M" function="createReminder"/>
+ 	
+ </mod>
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index 9d7b95029..82549c862 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -104,7 +104,10 @@ import BugData
+ import BugUtil
+ import InputUtil
+ import types
+-
++# <advc.007b>
++import CvUtil
++import CvScreensInterface
++# </advc.007b>
+ # --------- Better BTS AI mod (1/2) -------------
+ import AIAutoPlay
+ import ChangePlayer
+@@ -475,11 +478,57 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 		eventType, key, mx, my, px, py = argsList
+ 		if eventType == self.EventKeyDown:
+ 			if not InputUtil.isModifier(key):
++				# <advc.007b>
++				theKey = int(key)
++				if self.bCtrl and self.bAlt and theKey == int(InputTypes.KB_R):
++					BugUtil.warn("Note (AdvCiv): Reloading of Art Defines (Ctrl+Alt+R) is disabled")
++					return 1 # Don't use this key combination for anything else
++				# </advc.007b>
+ 				stroke = InputUtil.Keystroke(key, self.bAlt, self.bCtrl, self.bShift)
+ 				if stroke in self.shortcuts:
+ 					BugUtil.debug("BugEventManager - calling handler for shortcut %s", stroke)
+ 					self.shortcuts[stroke](argsList)
+ 					return 1
++				# <advc.007b>
++				if gc.getGame().isDebugMode():
++					# Cheats copied from CvEventManager
++					# Shift - T Debug - techs
++					if self.bShift and theKey == int(InputTypes.KB_T):
++						self.beginEvent(CvUtil.EventAwardTechsAndGold)
++						return 1
++					elif self.bShift and self.bCtrl and theKey == int(InputTypes.KB_W):
++						self.beginEvent(CvUtil.EventShowWonder)
++						return 1
++					# Shift - ] Debug - currently mouse-over'd unit: health+=10
++					elif theKey == int(InputTypes.KB_LBRACKET) and self.bShift:
++						unit = CyMap().plot(px, py).getUnit(0)
++						if not unit.isNone():
++							d = min(unit.maxHitPoints()-1, unit.getDamage() + 10)
++							unit.setDamage(d, PlayerTypes.NO_PLAYER)
++					# Shift - [ Debug - currently mouse-over'd unit: health-= 10
++					elif theKey == int(InputTypes.KB_RBRACKET) and self.bShift:
++						unit = CyMap().plot(px, py).getUnit(0)
++						if not unit.isNone():
++							d = max(0, unit.getDamage() - 10)
++							unit.setDamage(d, PlayerTypes.NO_PLAYER)
++					elif theKey == int(InputTypes.KB_F1):
++						if self.bShift:
++							CvScreensInterface.replayScreen.showScreen(False)
++							return 1
++					elif theKey == int(InputTypes.KB_F2):
++						if self.bShift:
++							import CvDebugInfoScreen
++							CvScreensInterface.showDebugInfoScreen()
++							return 1
++					elif theKey == int(InputTypes.KB_F3):
++						if self.bShift:
++							CvScreensInterface.showDanQuayleScreen(())
++							return 1
++					elif theKey == int(InputTypes.KB_F4):
++						if self.bShift:
++							CvScreensInterface.showUnVictoryScreen(())
++							return 1
++				# </advc.007b>
+ 		return 0
+
+diff --git a/Assets/Python/BUG/TechPrefs.py b/Assets/Python/BUG/TechPrefs.py
+index 65a81720e..a09ca1bfd 100644
+--- a/Assets/Python/BUG/TechPrefs.py
++++ b/Assets/Python/BUG/TechPrefs.py
+@@ -36,7 +36,7 @@ class TechPrefs:
+ 
+ 	def __init__(self):
+ 		self.NUM_TECHS = gc.getNumTechInfos()
+-		# <advc.003c> Was getDefineINT, which causes and exception b/c XML isn't loaded yet. It's OK b/c this function gets called again later on.
++		# <advc.003c> Was getDefineINT, which causes an exception b/c XML isn't loaded yet. It's OK b/c this function gets called again later on.
+ 		if self.NUM_TECHS <= 0: return
+ 		# Also: Might as well use the cached values
+ 		self.NUM_AND_PREREQS = gc.getNUM_AND_TECH_PREREQS()
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index d9eb4d411..da17136a8 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -911,13 +911,15 @@ class RefusesToTalk(AbstractStatefulAlert):
+ 		except AttributeError:
+ 			return # </advc.009b>
+ 		newRefusals = set()
++		newRefusalsDisplay = set() # advc.106d: Don't necessarily display them all
+ 		for player in PlayerUtil.players(True, False, False, False):
+ 			if DiplomacyUtil.canContact(activePlayer, player) and not DiplomacyUtil.isWillingToTalk(player, eActivePlayer):
+ 				newRefusals.add(player.getID())
++				# <advc.106d> Don't report refusal when war just begun, nor when stopped trading (i.e. when not at war).
++				if gc.getTeam(gc.getPlayer(eActivePlayer).getTeam()).isAtWar(player.getTeam()) and gc.getTeam(gc.getPlayer(eActivePlayer).getTeam()).AI_getAtWarCounter(player.getTeam()) > 1:
++					newRefusalsDisplay.add(player.getID()) # </advc.106d>
+ 		self.display(eActivePlayer, "TXT_KEY_CIV4LERTS_ON_WILLING_TO_TALK", refusals.difference(newRefusals))
+-		# advc.106d: Don't report refusal when war just begun, nor when stopped trading (i.e. when not at war).
+-		if gc.getTeam(gc.getPlayer(eActivePlayer).getTeam()).isAtWar(player.getTeam()) and gc.getTeam(gc.getPlayer(eActivePlayer).getTeam()).AI_getAtWarCounter(player.getTeam()) > 1:
+-			self.display(eActivePlayer, "TXT_KEY_CIV4LERTS_ON_REFUSES_TO_TALK", newRefusals.difference(refusals))
++		self.display(eActivePlayer, "TXT_KEY_CIV4LERTS_ON_REFUSES_TO_TALK", newRefusalsDisplay.difference(refusals)) # advc.106d: was newRefusals...
+ 		self.refusals[eActivePlayer] = newRefusals
+ 	
+ 	def display(self, eActivePlayer, key, players):
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 5fb45ebb6..127f7b960 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -1030,14 +1030,20 @@ class CvVictoryScreen:
+ 			# </advc.250b>
+ 			screen.appendListBoxStringNoUpdate(szOptionsTable, szNumPoints, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-		if (gc.getGame().isGameMultiPlayer()):
++		if gc.getGame().isGameMultiPlayer():
+ 			for i in range(gc.getNumMPOptionInfos()):
+ 				if (gc.getGame().isMPOption(i)):
+ 					screen.appendListBoxStringNoUpdate(szOptionsTable, gc.getMPOptionInfo(i).getDescription(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-			if (gc.getGame().getMaxTurns() > 0):
+-				szMaxTurns = u"%s %d" % (localText.getText("TXT_KEY_TURN_LIMIT_TAG", ()), gc.getGame().getMaxTurns())
+-				screen.appendListBoxStringNoUpdate(szOptionsTable, szMaxTurns, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			if gc.getGame().getMaxTurns() > 0:
++				# <advc.135d> Based on code in CvGame::setStartTurnYear
++				iDefaultEndTurn = 0
++				for i in range(gc.getGameSpeedInfo(gc.getGame().getGameSpeedType()).getNumTurnIncrements()):
++					iDefaultEndTurn += gc.getGameSpeedInfo(gc.getGame().getGameSpeedType()).getGameTurnInfo(i).iNumGameTurnsPerIncrement;
++				if gc.getGame().getMaxTurns() != iDefaultEndTurn:
++				# </advc.135d>
++					szMaxTurns = u"%s %d" % (localText.getText("TXT_KEY_TURN_LIMIT_TAG", ()), gc.getGame().getMaxTurns())
++					screen.appendListBoxStringNoUpdate(szOptionsTable, szMaxTurns, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 			if (gc.getGame().getMaxCityElimination() > 0):
+ 				szMaxCityElimination = u"%s %d" % (localText.getText("TXT_KEY_CITY_ELIM_TAG", ()), gc.getGame().getMaxCityElimination())
+
+diff --git a/CvGameCoreDLL/CvArtFileMgr.cpp b/CvGameCoreDLL/CvArtFileMgr.cpp
+index da2f1b6bf..099b78729 100644
+--- a/CvGameCoreDLL/CvArtFileMgr.cpp
++++ b/CvGameCoreDLL/CvArtFileMgr.cpp
+@@ -180,7 +180,9 @@ void CvArtFileMgr::DeInit()
+ //
+ //----------------------------------------------------------------------------
+ void CvArtFileMgr::Reset()
+-{
++{	// <advc.007b> Reloading Art Defines (Ctrl+Alt+R) is broken; would crash.
++	if(GC.IsGraphicsInitialized())
++		return; // </advc.007b>
+ 	DeInit();		// Cleans Art Defines
+ 	CvXMLLoadUtility XMLLoadUtility;
+ 	XMLLoadUtility.SetGlobalArtDefines();		// Reloads/allocs Art Defines
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e8710765e..c404e80e9 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -8352,7 +8352,7 @@ int CvCityAI::AI_countBonusesToClear(FeatureTypes eFeature) const {
+ 				p->getFeatureType() == eFeature &&
+ 				p->getImprovementType() == NO_IMPROVEMENT) {
+ 				BonusTypes eBonus = p->getNonObsoleteBonusType(getTeam());
+-				if(eBonus == NO_BONUS || !GET_TEAM(getTeam()).isBonusRevealed(eBonus))
++				if(eBonus == NO_BONUS)
+ 					continue;
+ 			for(int j = 0; j < GC.getNumBuildInfos(); j++) {
+ 				CvBuildInfo const& bi = GC.getBuildInfo((BuildTypes)j);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 9db1ca918..b58425933 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -534,8 +534,7 @@ void CvGame::setStartTurnYear(int iTurn) {
+     setStartTurn(getGameTurn());
+ 
+     if (getMaxTurns() == 0
+-            || iTurn > 0 // advc.250c
+-        )
++            || iTurn > 0) // advc.250c
+     {
+         iEstimateEndTurn = 0;
+ 
+@@ -8112,7 +8111,7 @@ CvPlot* CvGame::randomBarbPlot(CvArea const& a, Shelf* shelf) const {
+ 		r = GC.getMap().syncRandPlot(restrictionFlags, a.getID(), iDist, -1, &iLegal);
+ 	else {
+ 		r = shelf->randomPlot(restrictionFlags, iDist, &iLegal);
+-		if(iLegal * 100 < shelf->size())
++		if(r != NULL && iLegal * 100 < shelf->size())
+ 			r = NULL;
+ 	}
+ 	if(r != NULL) {
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 5f37525a3..c9954e6b7 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -1184,12 +1184,25 @@ void CvInitCore::setType(GameType eType)
+ 	if (getType() != eType)
+ 	{
+ 		m_eType = eType;
+-		// <advc.054> Always visible in scenarios
+-		CvGameOptionInfo& goi = GC.getGameOptionInfo(GAMEOPTION_NO_CHANGING_WAR_PEACE);
+-		if(eType == GAME_SP_SCENARIO || eType == GAME_MP_SCENARIO)
+-			goi.setVisible(true);
+-		// Otherwise as set in XML
+-		else goi.setVisible(goi.getVisibleXML()); // </advc.054>
++		// <advc.054>
++		{	// Always visible in scenarios
++			CvGameOptionInfo& goi = GC.getGameOptionInfo(GAMEOPTION_NO_CHANGING_WAR_PEACE);
++			if(eType == GAME_SP_SCENARIO || eType == GAME_MP_SCENARIO ||
++					eType == GAME_HOTSEAT_SCENARIO || eType == GAME_PBEM_SCENARIO)
++				goi.setVisible(true);
++			// Otherwise as set in XML
++			else goi.setVisible(goi.getVisibleXML());
++		}
++		{	// Never visible in MP
++			CvGameOptionInfo& goi = GC.getGameOptionInfo(GAMEOPTION_LOCK_MODS);
++			if(eType == GAME_MP_SCENARIO || eType == GAME_MP_NEW || eType == GAME_MP_LOAD ||
++					eType == GAME_HOTSEAT_SCENARIO || eType == GAME_HOTSEAT_NEW ||
++					eType == GAME_PBEM_LOAD || eType == GAME_PBEM_NEW ||
++					eType == GAME_PBEM_SCENARIO)
++				goi.setVisible(false);
++			// Otherwise as set in XML
++			else goi.setVisible(goi.getVisibleXML());
++		} // </advc.054>
+ 		if(CvPlayerAI::areStaticsInitialized())
+ 		{
+ 			for (int i = 0; i < MAX_PLAYERS; ++i)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 38bef21f6..4415323af 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3316,10 +3316,10 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 	if (!kSet.bStartingLoc)
+ 	{
+ 		if ((iBadTile > (NUM_CITY_PLOTS / 2)) || (pArea->getNumTiles() <= 2)
+-			|| (isBarbarian() && iBadTile > 3) // advc.303
+-			)
++			|| (isBarbarian() && iBadTile > 3)) // advc.303
+ 		{
+ 			bool bHasGoodBonus = false;
++			int iMediocreBonus = 0; // advc.031
+ 			int freshw = (pPlot->isFreshWater() ? 1 : 0); // advc.031
+ 			for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 			{
+@@ -3327,35 +3327,38 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 				// <advc.303>
+ 				if(isBarbarian() && !::isInnerRing(pLoopPlot, pPlot))
+ 					continue; // </advc.303>
+-
+ 				if (pLoopPlot != NULL && (kSet.bAllSeeing || pLoopPlot->isRevealed(getTeam(), false)))
+ 				{
+-					if (!(pLoopPlot->isOwned()))
++					if (!pLoopPlot->isOwned())
+ 					{
+-						if (pLoopPlot->isWater() || (pLoopPlot->area() == pArea) || (pLoopPlot->area()->getCitiesPerPlayer(getID()) > 0))
++						//BonusTypes eBonus = pLoopPlot->getBonusType(getTeam());
++						BonusTypes eBonus = pLoopPlot->getNonObsoleteBonusType(getTeam()); // K-Mod
++						if (eBonus != NO_BONUS)
+ 						{
+-							//BonusTypes eBonus = pLoopPlot->getBonusType(getTeam());
+-							BonusTypes eBonus = pLoopPlot->getNonObsoleteBonusType(getTeam()); // K-Mod
+-
+-							if (eBonus != NO_BONUS)
++							if ((getNumTradeableBonuses(eBonus) == 0 ||
++								AI_bonusVal(eBonus, 1, true) > 10 ||
++								GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD) > 0) &&
++								// <advc.031> Moved from above
++								(pLoopPlot->isWater() || pLoopPlot->area() == pArea ||
++								pLoopPlot->area()->getCitiesPerPlayer(getID()) > 0))
++								// </advc.031>
+ 							{
+-								if ((getNumTradeableBonuses(eBonus) == 0) || (AI_bonusVal(eBonus, 1, true) > 10)
+-									|| (GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD) > 0))
+-								{
+-									bHasGoodBonus = true;
+-									break;
+-								}
++								bHasGoodBonus = true;
++								break;
+ 							} // <advc.031>
+-							if(pLoopPlot->isFreshWater())
+-								freshw++; // </advc.031>
++							else iMediocreBonus++;
+ 						}
++						if(pLoopPlot->isFreshWater())
++							freshw++; // </advc.031>
+ 					}
+ 				}
+ 			}
+ 
+-			if (!bHasGoodBonus
+-					&& freshw < 3 // advc.031
+-					&& !bFirstColony) // advc.040
++			if (!bHasGoodBonus &&
++					// <advc.031>
++					freshw < 3 &&
++					iMediocreBonus < 2 && // </advc.031>
++					!bFirstColony) // advc.040
+ 			{
+ 				return 0;
+ 			}
+@@ -4679,10 +4682,14 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 				// <advc.031> Don't discourage settling on small nearby landmasses
+ 				if(pCapital == NULL || pArea == pCapital->area() ||
+ 						plotDistance(pPlot, pCapital->plot()) >= 10 ||
+-						pArea->getNumTiles() >= NUM_CITY_PLOTS) { // </advc.031>
+-					iValue -= std::min(500 * iDistance, (//8000
+-							std::max(8000 - getCurrentEra() * 1000, 4000) // advc.031
+-							* iDistance) / GC.getMapINLINE().maxPlotDistance());
++						pArea->getNumTiles() >= NUM_CITY_PLOTS) { 
++					int iDistPenalty = 7000 - getCurrentEra() * 1000; // (was just 8000)
++					iDistPenalty = std::max(3000, iDistPenalty);
++					// </advc.031> (no functional change below)
++					iDistPenalty *= iDistance;
++					iDistPenalty /= GC.getMapINLINE().maxPlotDistance();
++					iDistPenalty = std::min(500 * iDistance, iDistPenalty);
++					iValue -= iDistPenalty;
+ 				}
+ 			}
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=14818

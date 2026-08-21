@@ -1,0 +1,247 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2861
+# Commit: 1f5533a0eeb00eb17f9a5bfcefa647d2b10e8b2c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f1969cddaeb686388f4c565e94f373b837d00805
+# Title: Preprocessor define for pathfinder tests
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+24	22	CvGameCoreDLL/GroupPathFinder.cpp
+25	24	CvGameCoreDLL/GroupPathFinder.h
+6	1	CvGameCoreDLL/KmodPathFinderLegacy.cpp
+11	3	CvGameCoreDLL/KmodPathFinderLegacy.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index 9d93625e1..984908252 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -720,10 +720,10 @@ template bool GroupStepMetric::updatePathData<FAStarNode>(FAStarNode&, FAStarNod
+ 
+ void GroupPathFinder::setGroup(CvSelectionGroup const& kGroup,
+ 	MovementFlags eFlags, int iMaxPath, int iHeuristicWeight)
+-{	// <advc.tmp>
+-	#ifdef FASSERT_ENABLE
+-	leg.SetSettings(&kGroup,eFlags,iMaxPath,iHeuristicWeight);
+-	#endif //</advc.tmp>
++{	// <advc.test>
++	#ifdef VERIFY_PATHF
++	kLegacyPathf.SetSettings(&kGroup, eFlags, iMaxPath, iHeuristicWeight);
++	#endif //</advc.test>
+ 	CvSelectionGroup const* pOldGroup = m_stepMetric.getGroup();
+ 	if (pOldGroup != &kGroup)
+ 		resetNodes();
+@@ -775,11 +775,10 @@ void GroupPathFinder::invalidateGroup(CvSelectionGroup const& kGroup)
+ 		PROFILE("GroupPathFinder::invalidateGroup - resetNodes");
+ 		resetNodes();
+ 		m_stepMetric = GroupStepMetric();
+-		// <advc.tmp>
+-		#ifdef FASSERT_ENABLE
+-		leg.Reset();//advc.tmp
+-		leg.SetSettings(NULL,NO_MOVEMENT_FLAGS,-1,-1);
+-		#endif // </advc.tmp>
++		// <advc.test>
++		#ifdef VERIFY_PATHF
++		kLegacyPathf.SetSettings(NULL, NO_MOVEMENT_FLAGS, -1, -1);
++		#endif // </advc.test>
+ 	}
+ }
+ 
+@@ -789,15 +788,6 @@ bool GroupPathFinder::generatePath(CvPlot const& kTo)
+ 	FAssertMsg(m_stepMetric.getGroup() != NULL, "Must call SetSettings before GeneratePath");
+ 	return generatePath(m_stepMetric.getGroup()->getPlot(), kTo);
+ }
+-//<advc.tmp>
+-#ifdef FASSERT_ENABLE
+-bool GroupPathFinder::generatePath(CvPlot const& kFrom, CvPlot const& kTo)
+-{
+-	bool r=KmodPathFinder<GroupStepMetric,GroupPathNode>::generatePath(kFrom, kTo);FAssert(r==
+-		leg.GeneratePath(kFrom.getX(), kFrom.getY(),kTo.getX(),kTo.getY()));
+-		return r;
+-}
+-#endif //</advc.tmp>
+ 
+ 
+ CvPlot& GroupPathFinder::getPathEndTurnPlot() const
+@@ -809,11 +799,23 @@ CvPlot& GroupPathFinder::getPathEndTurnPlot() const
+ 		pNode = pNode->m_pParent;
+ 	}
+ 	FAssert(pNode != NULL);
+-	#ifndef FASSERT_ENABLE // advc.tmp
++	#ifndef VERIFY_PATHF // advc.test
+ 	return pNode->getPlot();
+-	// <advc.tmp>
++	// <advc.test>
+ 	#else
+-	CvPlot& r=pNode->getPlot(); FAssert(&r ==leg.GetPathEndTurnPlot());return r;
+-	#endif // </advc.tmp>
++	CvPlot& kEndTurnPlot = pNode->getPlot();
++	FAssert(&kEndTurnPlot == kLegacyPathf.GetPathEndTurnPlot());
++	return kEndTurnPlot;
++	#endif // </advc.test>
+ }
+ 
++// <advc.test>
++#ifdef VERIFY_PATHF
++bool GroupPathFinder::generatePath(CvPlot const& kFrom, CvPlot const& kTo)
++{
++	bool bSuccess = KmodPathFinder<GroupStepMetric,GroupPathNode>::generatePath(kFrom, kTo);
++	FAssert(bSuccess == kLegacyPathf.GeneratePath(
++			kFrom.getX(), kFrom.getY(), kTo.getX(), kTo.getY()));
++	return bSuccess;
++}
++#endif // </advc.test>
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.h b/CvGameCoreDLL/GroupPathFinder.h
+index b7287ffbc..bdb6cdb74 100644
+--- a/CvGameCoreDLL/GroupPathFinder.h
++++ b/CvGameCoreDLL/GroupPathFinder.h
+@@ -5,10 +5,7 @@
+ 
+ #include "KmodPathFinder.h"
+ #include "CvMap.h" // for inlining heuristicStepCost
+-// <advc.tmp>
+-#ifdef FASSERT_ENABLE
+-#include "KmodPathFinderLegacy.h"
+-#endif // </advc.tmp>
++#include "KmodPathFinderLegacy.h" // advc.test
+ 
+ /*	advc.pf: New header for classes implementing an A* pathfinder for
+ 	selection groups of units. Mostly pre-AdvCiv code, just organized differently. */
+@@ -138,24 +135,12 @@ public:
+ 			MovementFlags eFlags = NO_MOVEMENT_FLAGS,
+ 			int iMaxPath = -1, int iHeuristicWeight = -1);
+ 	bool generatePath(CvPlot const& kTo);
+-	#ifndef FASSERT_ENABLE // advc.tmp
++	#ifndef VERIFY_PATHF // advc.test
+ 	// Unhide 2-argument version
+ 	using KmodPathFinder<GroupStepMetric,GroupPathNode>::generatePath;
+-	inline int getPathTurns() const
+-	{
+-		return getPathLength();
+-	}
++	inline int getPathTurns() const { return getPathLength(); }
+ 	__forceinline void reset() { resetNodes(); }
+-	// <advc.tmp>
+-	#else
+-	bool generatePath(CvPlot const& kFrom, CvPlot const& kTo);
+-	int getPathTurns() const
+-	{
+-		int r= getPathLength(); FAssert(r==leg.GetPathTurns()); return r;
+-	}
+-	inline void reset() { resetNodes(); leg.Reset(); }
+-	CvPlot& getPathFirstPlot() const { CvPlot& r= KmodPathFinder<GroupStepMetric, GroupPathNode>::getPathFirstPlot(); FAssert(&r ==leg.GetPathFirstPlot()); return r;}
+-	#endif // </advc.tmp>
++	#endif // advc.test
+ 	CvPlot& getPathEndTurnPlot() const;
+ 	int getFinalMoves() const
+ 	{
+@@ -173,15 +158,31 @@ public:
+ 		FAssert(m_pEndNode != NULL);
+ 		return m_pEndNode;
+ 	}
+-	// <advc.tmp>
+-	#ifdef FASSERT_ENABLE
++	// <advc.test>
++	#ifdef VERIFY_PATHF
++	bool generatePath(CvPlot const& kFrom, CvPlot const& kTo);
++	int getPathTurns() const
++	{
++		int iTurns = getPathLength();
++		FAssert(iTurns == kLegacyPathf.GetPathTurns());
++		return iTurns;
++	}
++	inline void reset() { resetNodes(); kLegacyPathf.Reset(); }
++	CvPlot& getPathFirstPlot() const
++	{
++		CvPlot& kPlot = KmodPathFinder<GroupStepMetric, GroupPathNode>::getPathFirstPlot();
++		FAssert(&kPlot == kLegacyPathf.GetPathFirstPlot());
++		return kPlot;
++	}
+ 	static void initHeuristicWeights(int iMinMovementCost, int iMinFlatMovementCost)
+ 	{
+ 		KmodPathFinderLegacy::InitHeuristicWeights();
+-		KmodPathFinder<GroupStepMetric,GroupPathNode>::initHeuristicWeights(iMinMovementCost, iMinFlatMovementCost);
++		KmodPathFinder<GroupStepMetric,GroupPathNode>::initHeuristicWeights(
++				iMinMovementCost, iMinFlatMovementCost);
+ 	}
+-private: KmodPathFinderLegacy leg;
+-	#endif // <advc.tmp>
++private:
++	KmodPathFinderLegacy kLegacyPathf;
++	#endif // <advc.test>
+ };
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/KmodPathFinderLegacy.cpp b/CvGameCoreDLL/KmodPathFinderLegacy.cpp
+index cce23d586..096384a3f 100644
+--- a/CvGameCoreDLL/KmodPathFinderLegacy.cpp
++++ b/CvGameCoreDLL/KmodPathFinderLegacy.cpp
+@@ -1,12 +1,15 @@
+ #include "CvGameCoreDLL.h"
+ #include "KmodPathFinderLegacy.h"
++
++// advc.test: See comment in header
++#ifdef VERIFY_PATHF
++
+ #include "GroupPathFinder.h" // for the step metric
+ #include "CvSelectionGroupAI.h"
+ #include "CvUnit.h"
+ #include "CoreAI.h"
+ #include "CvInfo_Terrain.h"
+ 
+-// advc.tmp: See comment in header
+ 
+ int KmodPathFinderLegacy::admissible_base_weight = 1;
+ int KmodPathFinderLegacy::admissible_scaled_weight = 1;
+@@ -531,3 +534,5 @@ void KmodPathFinderLegacy::ForwardPropagate(FAStarNode* head, int cost_delta)
+ 		}
+ 	}
+ }
++
++#endif // advc.test (VERIFY_PATHF)
+
+diff --git a/CvGameCoreDLL/KmodPathFinderLegacy.h b/CvGameCoreDLL/KmodPathFinderLegacy.h
+index b1d001504..b24ec5d5a 100644
+--- a/CvGameCoreDLL/KmodPathFinderLegacy.h
++++ b/CvGameCoreDLL/KmodPathFinderLegacy.h
+@@ -3,9 +3,15 @@
+ #ifndef K_MOD_PATH_FINDER_LEGACY_H
+ #define K_MOD_PATH_FINDER_LEGACY_H
+ 
+-/*	advc.tmp: I'll remove this header once I'm done with my changes to KmodPathFinder.
+-	It's the old (AdvCiv 0.98) version of the code. For verifying the correctness of
+-	the restructured AdvCiv 0.99 version. */
++/*	<advc.test> This is the old (AdvCiv 0.98) version of KmodPathFinder.
++	For verifying the correctness of the current, restructured version. */
++#ifdef FASSERT_ENABLE
++	#define VERIFY_PATHF 0
++#else
++	#define VERIFY_PATHF 0
++#endif
++
++#ifdef VERIFY_PATHF // </advc.test>
+ 
+ #include "FAStarNode.h"
+ 
+@@ -96,4 +102,6 @@ protected:
+ 	static int admissible_scaled_weight;
+ };
+ 
++#endif // advc.test (VERIFY_PATHF)
++
+ #endif
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=7314

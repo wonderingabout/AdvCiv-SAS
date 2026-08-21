@@ -1,0 +1,372 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4522
+# Commit: 440b08e86ffbead197c125ef6932948699f16cfe
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b66582338dbf77f21f204863c6194ba4c3f23abb
+# Title: reapply cleanly from base advciv 1.12 CIV4PromotionInfos.xml so i can see the diff i mean anyways in: https://github.com/wonderingabout/AdvCiv-SAS/pull/15
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+37	126	Assets/XML/Units/CIV4PromotionInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 03425217e..90073fe8a 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1569,8 +1569,7 @@
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iHillsAttack>0</iHillsAttack>
+-			<!-- custom: similarly to woodsman promotions, make it more even between levels, was 20 -->
+-			<iHillsDefense>25</iHillsDefense>
++			<iHillsDefense>20</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+ 			<iRevoltProtection>0</iRevoltProtection>
+ 			<iCollateralDamageProtection>0</iCollateralDamageProtection>
+@@ -1645,8 +1644,7 @@
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iHillsAttack>0</iHillsAttack>
+-			<!-- custom: similarly to woodsman promotions, make it more even between levels, was 30 -->
+-			<iHillsDefense>25</iHillsDefense>
++			<iHillsDefense>30</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+ 			<iRevoltProtection>0</iRevoltProtection>
+ 			<iCollateralDamageProtection>0</iCollateralDamageProtection>
+@@ -1809,31 +1807,15 @@
+ 			<iExperiencePercent>0</iExperiencePercent>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
+-		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
+-			at offense in such terrains
+-			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
+-			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
+-			would still not affect too much the warfare in the end so it would not be OP.
+-			Also tweak the values a bit for it to be more gradual, was 20 -->
+-			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
+-				</FeatureAttack>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
+-				</FeatureAttack>
+-			</FeatureAttacks>
++			<FeatureAttacks/>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>20</iFeatureDefense>
+ 				</FeatureDefense>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>20</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitCombatMods/>
+@@ -1909,31 +1891,15 @@
+ 			<iExperiencePercent>0</iExperiencePercent>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
+-		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
+-			at offense in such terrains
+-			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
+-			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
+-			would still not affect too much the warfare in the end so it would not be OP.
+-			Also tweak the values a bit for it to be more gradual, was 30 -->
+-			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
+-				</FeatureAttack>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
+-				</FeatureAttack>
+-			</FeatureAttacks>
++			<FeatureAttacks/>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>30</iFeatureDefense>
+ 				</FeatureDefense>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>30</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitCombatMods/>
+@@ -2018,34 +1984,17 @@
+ 			<iExperiencePercent>0</iExperiencePercent>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
+-		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
+-			at offense in such terrains
+-			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
+-			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
+-			would still not affect too much the warfare in the end so it would not be OP.
+-			Also tweak the values a bit for it to be more gradual, was 50 -->
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
++					<iFeatureAttack>50</iFeatureAttack>
+ 				</FeatureAttack>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
++					<iFeatureAttack>50</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+-			<!-- custom: was 0 -->
+-			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
+-				</FeatureDefense>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
+-				</FeatureDefense>
+-			</FeatureDefenses>
++			<FeatureDefenses/>
+ 			<UnitCombatMods/>
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+@@ -2334,13 +2283,7 @@
+ 			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
+ 			<iCombatPercent>0</iCombatPercent>
+ 			<iCityAttack>0</iCityAttack>
+-			<!-- custom: make this promotion gradual too, also as strong as an option as guerilla
+-			promotions with their change now, was 20. It could be also said perhaps that cities are
+-			easier to garrison than to attack, especially at earlier/lower levels (anyone could maybe
+-			defend the city or barricade, but fewer would be able to attack maybe.
+-			This also makes defender units slightly more attractive as only them can have this
+-			promotion unless i'm mistaken) -->
+-			<iCityDefense>25</iCityDefense>
++			<iCityDefense>20</iCityDefense>
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+@@ -2362,20 +2305,6 @@
+ 					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<!-- custom: spearmen reworked, trying it to make them a more versatile unit,
+-				and better defenders too to be more realistic/accurate maybe and also
+-				competitive, as they are a bit too weak currently.
+-				While doing this rework, i noticed (and thought before too briefly i mean)
+-				that there is no specific reason why melee units can't defend cities too,
+-				so i am adding the city defense promotion to them too
+-				I am not sure it is necessary to add more strict UNITAI tags to make sure
+-				melee units are strictly offensive units, it may be fine if the AI uses them
+-				at defense too, but should try to still give defensive units an edge and specific
+-				value-->
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -2447,11 +2376,6 @@
+ 					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<!-- custom: allowing this promotion too for melee units -->
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -2501,9 +2425,7 @@
+ 			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
+ 			<iCombatPercent>0</iCombatPercent>
+ 			<iCityAttack>0</iCityAttack>
+-			<!-- custom: make this promotion gradual in line with the other city garrison
+-			ones, was 30 -->
+-			<iCityDefense>25</iCityDefense>
++			<iCityDefense>30</iCityDefense>
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+@@ -2516,10 +2438,12 @@
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+-			<!-- custom: since more units have access to this promotion now, make it a bit weaker,
+-			not only for balance, also because defenders can be good against all invaders, not only
+-			a specific type, i think it's more realistic this way, was UNITCOMBAT_MELEE 10 -->
+-			<UnitCombatMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>10</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
+@@ -2528,11 +2452,6 @@
+ 					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<!-- custom: allowing this promotion too for melee units -->
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -2973,10 +2892,6 @@
+ 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -2989,8 +2904,6 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Barrage1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,1</Button>
+ 		</PromotionInfo>
+-		<!-- custom: barrage op due to versatility (out of city
+-		attack too) and multi unit damage, nerf it a bit -->
+ 		<PromotionInfo>
+ 			<Type>PROMOTION_BARRAGE2</Type>
+ 			<Description>TXT_KEY_PROMOTION_BARRAGE2</Description>
+@@ -3017,7 +2930,7 @@
+ 			<iEvasionChange>0</iEvasionChange>
+ 			<iWithdrawalChange>0</iWithdrawalChange>
+ 			<iCargoChange>0</iCargoChange>
+-			<iCollateralDamageChange>20</iCollateralDamageChange>
++			<iCollateralDamageChange>30</iCollateralDamageChange>
+ 			<iBombardRateChange>0</iBombardRateChange>
+ 			<iFirstStrikesChange>0</iFirstStrikesChange>
+ 			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
+@@ -3041,7 +2954,12 @@
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+-			<UnitCombatMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>10</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
+@@ -3050,10 +2968,6 @@
+ 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -3092,7 +3006,7 @@
+ 			<iEvasionChange>0</iEvasionChange>
+ 			<iWithdrawalChange>0</iWithdrawalChange>
+ 			<iCargoChange>0</iCargoChange>
+-			<iCollateralDamageChange>20</iCollateralDamageChange>
++			<iCollateralDamageChange>50</iCollateralDamageChange>
+ 			<iBombardRateChange>0</iBombardRateChange>
+ 			<iFirstStrikesChange>0</iFirstStrikesChange>
+ 			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
+@@ -3116,7 +3030,12 @@
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+-			<UnitCombatMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<iUnitCombatMod>10</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
+@@ -3125,10 +3044,6 @@
+ 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -3147,8 +3062,8 @@
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+-			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
+-			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
++			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER1</PromotionPrereqOr1>
++			<PromotionPrereqOr2>PROMOTION_BARRAGE1</PromotionPrereqOr2>
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+@@ -3168,7 +3083,7 @@
+ 			<iWithdrawalChange>0</iWithdrawalChange>
+ 			<iCargoChange>0</iCargoChange>
+ 			<iCollateralDamageChange>0</iCollateralDamageChange>
+-			<iBombardRateChange>10</iBombardRateChange>
++			<iBombardRateChange>8</iBombardRateChange>
+ 			<iFirstStrikesChange>0</iFirstStrikesChange>
+ 			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
+ 			<iEnemyHealChange>0</iEnemyHealChange>
+@@ -3232,7 +3147,7 @@
+ 			<iAirRangeChange>0</iAirRangeChange>
+ 			<iInterceptChange>0</iInterceptChange>
+ 			<iEvasionChange>0</iEvasionChange>
+-			<iWithdrawalChange>15</iWithdrawalChange>
++			<iWithdrawalChange>10</iWithdrawalChange>
+ 			<iCargoChange>0</iCargoChange>
+ 			<iCollateralDamageChange>0</iCollateralDamageChange>
+ 			<iBombardRateChange>0</iBombardRateChange>
+@@ -3267,10 +3182,6 @@
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=14127

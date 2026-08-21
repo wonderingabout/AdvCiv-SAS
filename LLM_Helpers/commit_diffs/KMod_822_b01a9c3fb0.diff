@@ -1,0 +1,54 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 822
+# Commit: b01a9c3fb0984a2a0185cac0f8ace65db5075832
+# History segment: K-Mod history
+# Parent used for diff: 88ef0d528a03c4589cde274382ddd47b4eb9873f
+# Title: Fixed a potential infinite loop in CvCityAI::AI_getImprovementValue.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	0	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index cf839cd86..e9f7b4dd8 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7677,12 +7677,25 @@ int CvCityAI::AI_getImprovementValue(CvPlot* pPlot, ImprovementTypes eImprovemen
+ 		{
+ 			// cottage/villages (don't want to chop them up if turns have been invested)
+ 			ImprovementTypes eImprovementDowngrade = (ImprovementTypes)GC.getImprovementInfo(pPlot->getImprovementType()).getImprovementPillage();
++			/* original bts code
+ 			while (eImprovementDowngrade != NO_IMPROVEMENT)
+ 			{
+ 				CvImprovementInfo& kImprovementDowngrade = GC.getImprovementInfo(eImprovementDowngrade);
+ 				iValue -= kImprovementDowngrade.getUpgradeTime() * 8;
+ 				eImprovementDowngrade = (ImprovementTypes)kImprovementDowngrade.getImprovementPillage();
++			} */
++			// K-Mod. Be careful not to get trapped in an infinite loop of improvement downgrades.
++			if (eImprovementDowngrade != NO_IMPROVEMENT)
++			{
++				std::set<ImprovementTypes> cited_improvements;
++				while (eImprovementDowngrade != NO_IMPROVEMENT && cited_improvements.insert(eImprovementDowngrade).second)
++				{
++					const CvImprovementInfo& kImprovementDowngrade = GC.getImprovementInfo(eImprovementDowngrade);
++					iValue -= kImprovementDowngrade.getUpgradeTime() * 8;
++					eImprovementDowngrade = (ImprovementTypes)kImprovementDowngrade.getImprovementPillage();
++				}
+ 			}
++			// K-Mod end
+ 
+ 			if (GC.getImprovementInfo(pPlot->getImprovementType()).getImprovementUpgrade() != NO_IMPROVEMENT)
+ 			{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1550

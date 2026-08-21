@@ -1,0 +1,135 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2298
+# Commit: 893807eb97ffdee86e9202b5da42967253ffb519
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ffee2c4c33306bb08012f1cf628c8aeb58b5c6e6
+# Title: River placement accounts for terrain on both banks equally
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+43	10	CvGameCoreDLL/CvMapGenerator.cpp
+1	2	CvGameCoreDLL/CvMapGenerator.h
+2	2	CvGameCoreDLL/CvPythonCaller.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index e485b75d6..cbe35de6c 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -956,26 +956,59 @@ void CvMapGenerator::setPlotTypes(const int* paiPlotTypes)
+ }
+ 
+ 
+-int CvMapGenerator::getRiverValueAtPlot(CvPlot* pPlot)
++int CvMapGenerator::getRiverValueAtPlot(CvPlot const& kPlot) const // advc: const x2
+ {
+ 	bool bOverride=false;
+-	int pyValue = GC.getPythonCaller()->riverValue(*pPlot, bOverride);
++	int pyValue = GC.getPythonCaller()->riverValue(kPlot, bOverride);
+ 	if (bOverride)
+ 		return pyValue;
+ 	int iSum = pyValue; // Add to value from Python
+ 
+-	iSum += (NUM_PLOT_TYPES - pPlot->getPlotType()) * 20;
+-
+-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+-	{
+-		CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), (DirectionTypes)iI);
++	/*iSum += (NUM_PLOT_TYPES - kPlot.getPlotType()) * 20;
++	FOR_EACH_ENUM(Direction) {
++		CvPlot* pAdjacentPlot = plotDirection(kPlot.getX(), kPlot.getY(), eLoopDirection);
+ 		if (pAdjacentPlot != NULL)
+ 			iSum += (NUM_PLOT_TYPES - pAdjacentPlot->getPlotType());
+ 		else iSum += (NUM_PLOT_TYPES * 10);
+-	}
++	}*/
++	/*	<advc.129> kPlot is the plot at whose southeastern corner the river will arrive.
++		That corner also touches 3 other plots, which are no less important.
++		In addition to those 4, I'm going to count the 8 plots orthogonally adjacent
++		to them, resulting in a 4x4 square without its 4 corners.
++		(This range is awkward to traverse b/c it doesn't have a center plot.) */
++	CvMap const& kMap = GC.getMap();
++	for (int iDX = 0; iDX < 4; iDX++)
++	{
++		int const iX = kPlot.getX() - 1 + iDX; // west to east
++		for (int iDY = 0; iDY < 4; iDY++)
++		{
++			int const iY = kPlot.getY() + 1 - iDY; // north to south
++			// Skip corners
++			if ((iDX == 0 || iDX == 3) && (iDY == 0 || iDY == 3))
++				continue;
++			CvPlot const* p = kMap.plotValidXY(iX, iY);
++			int iPlotVal = NUM_PLOT_TYPES * 3; // p == NULL
++			if (p != NULL)
++			{
++				if (p->isWater() && !p->isLake())
++				{	/*	The term in the else branch (as in BtS) counts 1 more
++						for hills than for flat and would count 1 less
++						for water than for flat. I'm making (non-lake) water
++						symmetrical with peak instead. */
++					iPlotVal = 0;
++				}
++				else iPlotVal = NUM_PLOT_TYPES - p->getPlotType();
++			}
++			// Inner plots have much higher weight
++			if ((iDX == 1 || iDX == 2) && (iDY == 1 || iDY == 2))
++				iPlotVal *= 6;
++			iSum += iPlotVal;
++		}
++	} // <advc.129>
+ 	CvRandom riverRand;
+-	riverRand.init((pPlot->getX() * 43251267) + (pPlot->getY() * 8273903));
+-	iSum += riverRand.get(10, "River Rand");
++	riverRand.init(kPlot.getX() * 43251267 + kPlot.getY() * 8273903);
++	// advc.129: Was 10. The scale hasn't really changed; I just want more randomness.
++	iSum += riverRand.get(20, "River Rand");
+ 
+ 	return iSum;
+ }
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.h b/CvGameCoreDLL/CvMapGenerator.h
+index b45d29f5d..715227108 100644
+--- a/CvGameCoreDLL/CvMapGenerator.h
++++ b/CvGameCoreDLL/CvMapGenerator.h
+@@ -50,8 +50,7 @@ public:
+ 
+ protected:
+ 
+-	// Utility functions for roughenHeights()
+-	int getRiverValueAtPlot(CvPlot* pPlot);
++	int getRiverValueAtPlot(CvPlot const& kPlot) const;
+ 	int calculateNumBonusesToAdd(BonusTypes eBonusType);
+ 	// advc.129: To avoid duplicate code in addUniqueBonus and addNonUniqueBonus
+ 	int placeGroup(BonusTypes eBonusType, CvPlot const& kCenter,
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.cpp b/CvGameCoreDLL/CvPythonCaller.cpp
+index acdea0810..0dc6a89e4 100644
+--- a/CvGameCoreDLL/CvPythonCaller.cpp
++++ b/CvGameCoreDLL/CvPythonCaller.cpp
+@@ -1376,12 +1376,12 @@ int CvPythonCaller::riverValue(CvPlot const& kPlot, bool& bOverride) const
+ 	delete pyPlot;
+ 	bOverride = isOverride();
+ 	if (!bOverride)
+-		return -1;
++		return 0;
+ 	if (lResult < 0)
+ 	{
+ 		FAssert(lResult >= 0);
+ 		bOverride = false;
+-		return -1;
++		return 0;
+ 	}
+ 	return toInt(lResult);
+ }
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3963

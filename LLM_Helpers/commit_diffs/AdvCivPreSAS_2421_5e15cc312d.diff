@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2421
+# Commit: 5e15cc312da591e4de4ed035630ad399db6c41c8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2b730ca88220f8f23af6aa7f5cc0f37e46df8858
+# Title: Show cannot-undo hints in Advanced Start for buildings, tech
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	1	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 54cf5912e..171165ad8 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -21042,6 +21042,7 @@ void CvGameTextMgr::getCityDataForAS(std::vector<CvWBData>& mapCityList,
+ 			{
+ 				szBuffer.clear();
+ 				setBuildingHelp(szBuffer, eBuilding);
++				szBuffer.append(gDLL->getText("TXT_KEY_AS_UNREMOVABLE")); // advc.250c
+ 				mapBuildingList.push_back(CvWBData(eBuilding, szBuffer.getCString(),
+ 						GC.getInfo(eBuilding).getButton()));
+ 			}
+@@ -21131,7 +21132,11 @@ void CvGameTextMgr::getVisibilityDataForAS(std::vector<CvWBData>& mapVisibilityL
+ 
+ void CvGameTextMgr::getTechDataForAS(std::vector<CvWBData>& mapTechList)
+ {
+-	mapTechList.push_back(CvWBData(0, gDLL->getText("TXT_KEY_WB_AS_TECH"), ARTFILEMGR.getInterfaceArtInfo("INTERFACE_BTN_TECH")->getPath()));
++	static CvWString szTechHelp = // advc.250c
++				CvWString(gDLL->getText("TXT_KEY_WB_AS_TECH")) +
++				gDLL->getText("TXT_KEY_AS_UNREMOVABLE"); // advc.250c
++	mapTechList.push_back(CvWBData(0, szTechHelp.c_str(),
++			ARTFILEMGR.getInterfaceArtInfo("INTERFACE_BTN_TECH")->getPath()));
+ }
+ 
+ void CvGameTextMgr::getUnitDataForWB(std::vector<CvWBData>& mapUnitData)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1246

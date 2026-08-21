@@ -1,0 +1,2102 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1620
+# Commit: 556758e13ba0a3ede36ac6841419b2d73567cc21
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6794398758ba34329fc0ba23e443aa4051773804
+# Title: Removed global getter functions for CvInfo vectors
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	517	CvGameCoreDLL/CvGlobals.cpp
+26	113	CvGameCoreDLL/CvGlobals.h
+5	5	CvGameCoreDLL/CvXMLLoadUtility.cpp
+109	106	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index cebafbbb2..397f7b7ef 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -653,7 +653,7 @@ FAStar& CvGlobals::getPlotGroupFinder()
+ 	return m_pt3Origin;
+ }*/
+ 
+-std::vector<CvInterfaceModeInfo*>& CvGlobals::getInterfaceModeInfo()		// For Moose - XML Load Util and CvInfos
++std::vector<CvInterfaceModeInfo*>& CvGlobals::getInterfaceModeInfo()
+ {
+ 	return m_paInterfaceModeInfo;
+ }
+@@ -772,11 +772,6 @@ int CvGlobals::getNumWorldInfos()
+ 	return (int)m_paWorldInfo.size();
+ }
+ 
+-std::vector<CvWorldInfo*>& CvGlobals::getWorldInfo()
+-{
+-	return m_paWorldInfo;
+-}
+-
+ CvWorldInfo& CvGlobals::getWorldInfo(WorldSizeTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -793,11 +788,6 @@ int CvGlobals::getNumClimateInfos()
+ 	return (int)m_paClimateInfo.size();
+ }
+ 
+-std::vector<CvClimateInfo*>& CvGlobals::getClimateInfo()
+-{
+-	return m_paClimateInfo;
+-}
+-
+ CvClimateInfo& CvGlobals::getClimateInfo(ClimateTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -814,11 +804,6 @@ int CvGlobals::getNumSeaLevelInfos()
+ 	return (int)m_paSeaLevelInfo.size();
+ }
+ 
+-std::vector<CvSeaLevelInfo*>& CvGlobals::getSeaLevelInfo()
+-{
+-	return m_paSeaLevelInfo;
+-}
+-
+ CvSeaLevelInfo& CvGlobals::getSeaLevelInfo(SeaLevelTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -831,11 +816,6 @@ int CvGlobals::getNumHints()
+ 	return (int)m_paHints.size();
+ }
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getHints()
+-{
+-	return m_paHints;
+-}
+-
+ CvInfoBase& CvGlobals::getHints(int i)
+ {
+ 	return *(m_paHints[i]);
+@@ -846,11 +826,6 @@ int CvGlobals::getNumMainMenus()
+ 	return (int)m_paMainMenus.size();
+ }
+ 
+-std::vector<CvMainMenuInfo*>& CvGlobals::getMainMenus()
+-{
+-	return m_paMainMenus;
+-}
+-
+ CvMainMenuInfo& CvGlobals::getMainMenus(int i)
+ {
+ 	if (i >= getNumMainMenus())
+@@ -866,11 +841,6 @@ int CvGlobals::getNumColorInfos()
+ 	return (int)m_paColorInfo.size();
+ }
+ 
+-std::vector<CvColorInfo*>& CvGlobals::getColorInfo()
+-{
+-	return m_paColorInfo;
+-}
+-
+ CvColorInfo& CvGlobals::getColorInfo(ColorTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -890,11 +860,6 @@ int CvGlobals::getNumPlayerColorInfos()
+ 	return (int)m_paPlayerColorInfo.size();
+ }
+ 
+-std::vector<CvPlayerColorInfo*>& CvGlobals::getPlayerColorInfo()
+-{
+-	return m_paPlayerColorInfo;
+-}
+-
+ CvPlayerColorInfo& CvGlobals::getPlayerColorInfo(PlayerColorTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -907,11 +872,6 @@ int CvGlobals::getNumAdvisorInfos()
+ 	return (int)m_paAdvisorInfo.size();
+ }
+ 
+-std::vector<CvAdvisorInfo*>& CvGlobals::getAdvisorInfo()
+-{
+-	return m_paAdvisorInfo;
+-}
+-
+ CvAdvisorInfo& CvGlobals::getAdvisorInfo(AdvisorTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -924,11 +884,6 @@ int CvGlobals::getNumRouteModelInfos()
+ 	return (int)m_paRouteModelInfo.size();
+ }
+ 
+-std::vector<CvRouteModelInfo*>& CvGlobals::getRouteModelInfo()
+-{
+-	return m_paRouteModelInfo;
+-}
+-
+ CvRouteModelInfo& CvGlobals::getRouteModelInfo(int i)
+ {
+ 	FAssert(i > -1);
+@@ -941,11 +896,6 @@ int CvGlobals::getNumRiverInfos()
+ 	return (int)m_paRiverInfo.size();
+ }
+ 
+-std::vector<CvRiverInfo*>& CvGlobals::getRiverInfo()
+-{
+-	return m_paRiverInfo;
+-}
+-
+ CvRiverInfo& CvGlobals::getRiverInfo(RiverTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -958,11 +908,6 @@ int CvGlobals::getNumRiverModelInfos()
+ 	return (int)m_paRiverModelInfo.size();
+ }
+ 
+-std::vector<CvRiverModelInfo*>& CvGlobals::getRiverModelInfo()
+-{
+-	return m_paRiverModelInfo;
+-}
+-
+ CvRiverModelInfo& CvGlobals::getRiverModelInfo(int i)
+ {
+ 	FAssert(i > -1);
+@@ -975,11 +920,6 @@ int CvGlobals::getNumWaterPlaneInfos()
+ 	return (int)m_paWaterPlaneInfo.size();
+ }
+ 
+-std::vector<CvWaterPlaneInfo*>& CvGlobals::getWaterPlaneInfo()		// For Moose - CvDecal and CvWater
+-{
+-	return m_paWaterPlaneInfo;
+-}
+-
+ CvWaterPlaneInfo& CvGlobals::getWaterPlaneInfo(int i)
+ {
+ 	FAssert(i > -1);
+@@ -992,11 +932,6 @@ int CvGlobals::getNumTerrainPlaneInfos()
+ 	return (int)m_paTerrainPlaneInfo.size();
+ }
+ 
+-std::vector<CvTerrainPlaneInfo*>& CvGlobals::getTerrainPlaneInfo()
+-{
+-	return m_paTerrainPlaneInfo;
+-}
+-
+ CvTerrainPlaneInfo& CvGlobals::getTerrainPlaneInfo(int i)
+ {
+ 	FAssert(i > -1);
+@@ -1009,11 +944,6 @@ int CvGlobals::getNumCameraOverlayInfos()
+ 	return (int)m_paCameraOverlayInfo.size();
+ }
+ 
+-std::vector<CvCameraOverlayInfo*>& CvGlobals::getCameraOverlayInfo()
+-{
+-	return m_paCameraOverlayInfo;
+-}
+-
+ CvCameraOverlayInfo& CvGlobals::getCameraOverlayInfo(int i)
+ {
+ 	FAssert(i > -1);
+@@ -1026,11 +956,6 @@ int CvGlobals::getNumAnimationPathInfos()
+ 	return (int)m_paAnimationPathInfo.size();
+ }
+ 
+-std::vector<CvAnimationPathInfo*>& CvGlobals::getAnimationPathInfo()
+-{
+-	return m_paAnimationPathInfo;
+-}
+-
+ CvAnimationPathInfo& CvGlobals::getAnimationPathInfo(AnimationPathTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1043,11 +968,6 @@ int CvGlobals::getNumAnimationCategoryInfos()
+ 	return (int)m_paAnimationCategoryInfo.size();
+ }
+ 
+-std::vector<CvAnimationCategoryInfo*>& CvGlobals::getAnimationCategoryInfo()
+-{
+-	return m_paAnimationCategoryInfo;
+-}
+-
+ CvAnimationCategoryInfo& CvGlobals::getAnimationCategoryInfo(AnimationCategoryTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1060,11 +980,6 @@ int CvGlobals::getNumEntityEventInfos()
+ 	return (int)m_paEntityEventInfo.size();
+ }
+ 
+-std::vector<CvEntityEventInfo*>& CvGlobals::getEntityEventInfo()
+-{
+-	return m_paEntityEventInfo;
+-}
+-
+ CvEntityEventInfo& CvGlobals::getEntityEventInfo(EntityEventTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1077,11 +992,6 @@ int CvGlobals::getNumEffectInfos()
+ 	return (int)m_paEffectInfo.size();
+ }
+ 
+-std::vector<CvEffectInfo*>& CvGlobals::getEffectInfo()
+-{
+-	return m_paEffectInfo;
+-}
+-
+ CvEffectInfo& CvGlobals::getEffectInfo(int i)
+ {
+ 	FAssert(i > -1);
+@@ -1095,11 +1005,6 @@ int CvGlobals::getNumAttachableInfos()
+ 	return (int)m_paAttachableInfo.size();
+ }
+ 
+-std::vector<CvAttachableInfo*>& CvGlobals::getAttachableInfo()
+-{
+-	return m_paAttachableInfo;
+-}
+-
+ CvAttachableInfo& CvGlobals::getAttachableInfo(int i)
+ {
+ 	FAssert(i > -1);
+@@ -1112,11 +1017,6 @@ int CvGlobals::getNumCameraInfos()
+ 	return (int)m_paCameraInfo.size();
+ }
+ 
+-std::vector<CvCameraInfo*>& CvGlobals::getCameraInfo()
+-{
+-	return m_paCameraInfo;
+-}
+-
+ CvCameraInfo& CvGlobals::getCameraInfo(CameraAnimationTypes eCameraAnimationNum)
+ {
+ 	return *(m_paCameraInfo[eCameraAnimationNum]);
+@@ -1127,11 +1027,6 @@ int CvGlobals::getNumUnitFormationInfos()
+ 	return (int)m_paUnitFormationInfo.size();
+ }
+ 
+-std::vector<CvUnitFormationInfo*>& CvGlobals::getUnitFormationInfo()		// For Moose - CvUnitEntity
+-{
+-	return m_paUnitFormationInfo;
+-}
+-
+ CvUnitFormationInfo& CvGlobals::getUnitFormationInfo(int i)
+ {
+ 	FAssert(i > -1);
+@@ -1145,22 +1040,12 @@ int CvGlobals::getNumGameTextXML()
+ 	return (int)m_paGameTextXML.size();
+ }
+ 
+-std::vector<CvGameText*>& CvGlobals::getGameTextXML()
+-{
+-	return m_paGameTextXML;
+-}
+-
+ // Landscape INFOS
+ int CvGlobals::getNumLandscapeInfos()
+ {
+ 	return (int)m_paLandscapeInfo.size();
+ }
+ 
+-std::vector<CvLandscapeInfo*>& CvGlobals::getLandscapeInfo()
+-{
+-	return m_paLandscapeInfo;
+-}
+-
+ CvLandscapeInfo& CvGlobals::getLandscapeInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+@@ -1184,11 +1069,6 @@ int CvGlobals::getNumTerrainInfos()
+ 	return (int)m_paTerrainInfo.size();
+ }
+ 
+-std::vector<CvTerrainInfo*>& CvGlobals::getTerrainInfo()		// For Moose - XML Load Util, CvInfos, CvTerrainTypeWBPalette
+-{
+-	return m_paTerrainInfo;
+-}
+-
+ CvTerrainInfo& CvGlobals::getTerrainInfo(TerrainTypes eTerrainNum)
+ {
+ 	FAssert(eTerrainNum > -1);
+@@ -1201,11 +1081,6 @@ int CvGlobals::getNumBonusClassInfos()
+ 	return (int)m_paBonusClassInfo.size();
+ }
+ 
+-std::vector<CvBonusClassInfo*>& CvGlobals::getBonusClassInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paBonusClassInfo;
+-}
+-
+ CvBonusClassInfo& CvGlobals::getBonusClassInfo(BonusClassTypes eBonusNum)
+ {
+ 	FAssert(eBonusNum > -1);
+@@ -1219,11 +1094,6 @@ int CvGlobals::getNumBonusInfos()
+ 	return (int)m_paBonusInfo.size();
+ }
+ 
+-std::vector<CvBonusInfo*>& CvGlobals::getBonusInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paBonusInfo;
+-}
+-
+ CvBonusInfo& CvGlobals::getBonusInfo(BonusTypes eBonusNum)
+ {
+ 	FAssert(eBonusNum > -1);
+@@ -1236,11 +1106,6 @@ int CvGlobals::getNumFeatureInfos()
+ 	return (int)m_paFeatureInfo.size();
+ }
+ 
+-std::vector<CvFeatureInfo*>& CvGlobals::getFeatureInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paFeatureInfo;
+-}
+-
+ CvFeatureInfo& CvGlobals::getFeatureInfo(FeatureTypes eFeatureNum)
+ {
+ 	FAssert(eFeatureNum > -1);
+@@ -1263,11 +1128,6 @@ int CvGlobals::getNumCivilizationInfos()
+ 	return (int)m_paCivilizationInfo.size();
+ }
+ 
+-std::vector<CvCivilizationInfo*>& CvGlobals::getCivilizationInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paCivilizationInfo;
+-}
+-
+ CvCivilizationInfo& CvGlobals::getCivilizationInfo(CivilizationTypes eCivilizationNum)
+ {
+ 	FAssert(eCivilizationNum > -1);
+@@ -1281,11 +1141,6 @@ int CvGlobals::getNumLeaderHeadInfos()
+ 	return (int)m_paLeaderHeadInfo.size();
+ }
+ 
+-std::vector<CvLeaderHeadInfo*>& CvGlobals::getLeaderHeadInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paLeaderHeadInfo;
+-}
+-
+ CvLeaderHeadInfo& CvGlobals::getLeaderHeadInfo(LeaderHeadTypes eLeaderHeadNum)
+ {
+ 	FAssert(eLeaderHeadNum > -1);
+@@ -1299,11 +1154,6 @@ int CvGlobals::getNumTraitInfos()
+ 	return (int)m_paTraitInfo.size();
+ }
+ 
+-std::vector<CvTraitInfo*>& CvGlobals::getTraitInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paTraitInfo;
+-}
+-
+ CvTraitInfo& CvGlobals::getTraitInfo(TraitTypes eTraitNum)
+ {
+ 	FAssert(eTraitNum > -1);
+@@ -1317,11 +1167,6 @@ int CvGlobals::getNumCursorInfos()
+ 	return (int)m_paCursorInfo.size();
+ }
+ 
+-std::vector<CvCursorInfo*>& CvGlobals::getCursorInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paCursorInfo;
+-}
+-
+ CvCursorInfo& CvGlobals::getCursorInfo(CursorTypes eCursorNum)
+ {
+ 	FAssert(eCursorNum > -1);
+@@ -1334,11 +1179,6 @@ int CvGlobals::getNumThroneRoomCameras()
+ 	return (int)m_paThroneRoomCamera.size();
+ }
+ 
+-std::vector<CvThroneRoomCamera*>& CvGlobals::getThroneRoomCamera()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paThroneRoomCamera;
+-}
+-
+ CvThroneRoomCamera& CvGlobals::getThroneRoomCamera(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+@@ -1351,11 +1191,6 @@ int CvGlobals::getNumThroneRoomInfos()
+ 	return (int)m_paThroneRoomInfo.size();
+ }
+ 
+-std::vector<CvThroneRoomInfo*>& CvGlobals::getThroneRoomInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paThroneRoomInfo;
+-}
+-
+ CvThroneRoomInfo& CvGlobals::getThroneRoomInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+@@ -1368,11 +1203,6 @@ int CvGlobals::getNumThroneRoomStyleInfos()
+ 	return (int)m_paThroneRoomStyleInfo.size();
+ }
+ 
+-std::vector<CvThroneRoomStyleInfo*>& CvGlobals::getThroneRoomStyleInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paThroneRoomStyleInfo;
+-}
+-
+ CvThroneRoomStyleInfo& CvGlobals::getThroneRoomStyleInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+@@ -1385,11 +1215,6 @@ int CvGlobals::getNumSlideShowInfos()
+ 	return (int)m_paSlideShowInfo.size();
+ }
+ 
+-std::vector<CvSlideShowInfo*>& CvGlobals::getSlideShowInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paSlideShowInfo;
+-}
+-
+ CvSlideShowInfo& CvGlobals::getSlideShowInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+@@ -1402,11 +1227,6 @@ int CvGlobals::getNumSlideShowRandomInfos()
+ 	return (int)m_paSlideShowRandomInfo.size();
+ }
+ 
+-std::vector<CvSlideShowRandomInfo*>& CvGlobals::getSlideShowRandomInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paSlideShowRandomInfo;
+-}
+-
+ CvSlideShowRandomInfo& CvGlobals::getSlideShowRandomInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+@@ -1419,11 +1239,6 @@ int CvGlobals::getNumWorldPickerInfos()
+ 	return (int)m_paWorldPickerInfo.size();
+ }
+ 
+-std::vector<CvWorldPickerInfo*>& CvGlobals::getWorldPickerInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paWorldPickerInfo;
+-}
+-
+ CvWorldPickerInfo& CvGlobals::getWorldPickerInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+@@ -1436,11 +1251,6 @@ int CvGlobals::getNumSpaceShipInfos()
+ 	return (int)m_paSpaceShipInfo.size();
+ }
+ 
+-std::vector<CvSpaceShipInfo*>& CvGlobals::getSpaceShipInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paSpaceShipInfo;
+-}
+-
+ CvSpaceShipInfo& CvGlobals::getSpaceShipInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+@@ -1453,11 +1263,6 @@ int CvGlobals::getNumUnitInfos()
+ 	return (int)m_paUnitInfo.size();
+ }
+ 
+-std::vector<CvUnitInfo*>& CvGlobals::getUnitInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paUnitInfo;
+-}
+-
+ CvUnitInfo& CvGlobals::getUnitInfo(UnitTypes eUnitNum)
+ {
+ 	FAssert(eUnitNum > -1);
+@@ -1470,11 +1275,6 @@ int CvGlobals::getNumSpecialUnitInfos()
+ 	return (int)m_paSpecialUnitInfo.size();
+ }
+ 
+-std::vector<CvSpecialUnitInfo*>& CvGlobals::getSpecialUnitInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paSpecialUnitInfo;
+-}
+-
+ CvSpecialUnitInfo& CvGlobals::getSpecialUnitInfo(SpecialUnitTypes eSpecialUnitNum)
+ {
+ 	FAssert(eSpecialUnitNum > -1);
+@@ -1488,11 +1288,6 @@ int CvGlobals::getNumConceptInfos()
+ 	return (int)m_paConceptInfo.size();
+ }
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getConceptInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paConceptInfo;
+-}
+-
+ CvInfoBase& CvGlobals::getConceptInfo(ConceptTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1506,11 +1301,6 @@ int CvGlobals::getNumNewConceptInfos()
+ 	return (int)m_paNewConceptInfo.size();
+ }
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getNewConceptInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paNewConceptInfo;
+-}
+-
+ CvInfoBase& CvGlobals::getNewConceptInfo(NewConceptTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1524,11 +1314,6 @@ int CvGlobals::getNumCityTabInfos()
+ 	return (int)m_paCityTabInfo.size();
+ }
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getCityTabInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paCityTabInfo;
+-}
+-
+ CvInfoBase& CvGlobals::getCityTabInfo(CityTabTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1542,11 +1327,6 @@ int CvGlobals::getNumCalendarInfos()
+ 	return (int)m_paCalendarInfo.size();
+ }
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getCalendarInfo()
+-{
+-	return m_paCalendarInfo;
+-}
+-
+ CvInfoBase& CvGlobals::getCalendarInfo(CalendarTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1560,11 +1340,6 @@ int CvGlobals::getNumSeasonInfos()
+ 	return (int)m_paSeasonInfo.size();
+ }
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getSeasonInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paSeasonInfo;
+-}
+-
+ CvInfoBase& CvGlobals::getSeasonInfo(SeasonTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1578,11 +1353,6 @@ int CvGlobals::getNumMonthInfos()
+ 	return (int)m_paMonthInfo.size();
+ }
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getMonthInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paMonthInfo;
+-}
+-
+ CvInfoBase& CvGlobals::getMonthInfo(MonthTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1596,11 +1366,6 @@ int CvGlobals::getNumDenialInfos()
+ 	return (int)m_paDenialInfo.size();
+ }
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getDenialInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paDenialInfo;
+-}
+-
+ CvInfoBase& CvGlobals::getDenialInfo(DenialTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1614,11 +1379,6 @@ int CvGlobals::getNumInvisibleInfos()
+ 	return (int)m_paInvisibleInfo.size();
+ }
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getInvisibleInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paInvisibleInfo;
+-}
+-
+ CvInfoBase& CvGlobals::getInvisibleInfo(InvisibleTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1632,11 +1392,6 @@ int CvGlobals::getNumVoteSourceInfos()
+ 	return (int)m_paVoteSourceInfo.size();
+ }
+ 
+-std::vector<CvVoteSourceInfo*>& CvGlobals::getVoteSourceInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paVoteSourceInfo;
+-}
+-
+ CvVoteSourceInfo& CvGlobals::getVoteSourceInfo(VoteSourceTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1650,11 +1405,6 @@ int CvGlobals::getNumUnitCombatInfos()
+ 	return (int)m_paUnitCombatInfo.size();
+ }
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getUnitCombatInfo()
+-{
+-	return m_paUnitCombatInfo;
+-}
+-
+ CvInfoBase& CvGlobals::getUnitCombatInfo(UnitCombatTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1663,11 +1413,6 @@ CvInfoBase& CvGlobals::getUnitCombatInfo(UnitCombatTypes e)
+ }
+ 
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getDomainInfo()
+-{
+-	return m_paDomainInfo;
+-}
+-
+ CvInfoBase& CvGlobals::getDomainInfo(DomainTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1676,126 +1421,81 @@ CvInfoBase& CvGlobals::getDomainInfo(DomainTypes e)
+ }
+ 
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getUnitAIInfo()
+-{
+-	return m_paUnitAIInfos;
+-}
+-
+ CvInfoBase& CvGlobals::getUnitAIInfo(UnitAITypes eUnitAINum)
+ {
+ 	FAssert(eUnitAINum >= 0);
+ 	FAssert(eUnitAINum < NUM_UNITAI_TYPES);
+-	return *(m_paUnitAIInfos[eUnitAINum]);
++	return *(m_paUnitAIInfo[eUnitAINum]);
+ }
+ 
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getAttitudeInfo()
+-{
+-	return m_paAttitudeInfos;
+-}
+-
+ CvInfoBase& CvGlobals::getAttitudeInfo(AttitudeTypes eAttitudeNum)
+ {
+ 	FAssert(eAttitudeNum >= 0);
+ 	FAssert(eAttitudeNum < NUM_ATTITUDE_TYPES);
+-	return *(m_paAttitudeInfos[eAttitudeNum]);
++	return *(m_paAttitudeInfo[eAttitudeNum]);
+ }
+ 
+ 
+-std::vector<CvInfoBase*>& CvGlobals::getMemoryInfo()
+-{
+-	return m_paMemoryInfos;
+-}
+-
+ CvInfoBase& CvGlobals::getMemoryInfo(MemoryTypes eMemoryNum)
+ {
+ 	FAssert(eMemoryNum >= 0);
+ 	FAssert(eMemoryNum < NUM_MEMORY_TYPES);
+-	return *(m_paMemoryInfos[eMemoryNum]);
++	return *(m_paMemoryInfo[eMemoryNum]);
+ }
+ 
+ 
+ int CvGlobals::getNumGameOptionInfos()
+ {
+-	return (int)m_paGameOptionInfos.size();
+-}
+-
+-std::vector<CvGameOptionInfo*>& CvGlobals::getGameOptionInfo()
+-{
+-	return m_paGameOptionInfos;
++	return (int)m_paGameOptionInfo.size();
+ }
+ 
+ CvGameOptionInfo& CvGlobals::getGameOptionInfo(GameOptionTypes eGameOptionNum)
+ {
+ 	FAssert(eGameOptionNum >= 0);
+ 	FAssert(eGameOptionNum < getNumGameOptionInfos());
+-	return *(m_paGameOptionInfos[eGameOptionNum]);
++	return *(m_paGameOptionInfo[eGameOptionNum]);
+ }
+ 
+ int CvGlobals::getNumMPOptionInfos()
+ {
+-	return (int)m_paMPOptionInfos.size();
+-}
+-
+-std::vector<CvMPOptionInfo*>& CvGlobals::getMPOptionInfo()
+-{
+-	 return m_paMPOptionInfos;
++	return (int)m_paMPOptionInfo.size();
+ }
+ 
+ CvMPOptionInfo& CvGlobals::getMPOptionInfo(MultiplayerOptionTypes eMPOptionNum)
+ {
+ 	FAssert(eMPOptionNum >= 0);
+ 	FAssert(eMPOptionNum < getNumMPOptionInfos());
+-	return *(m_paMPOptionInfos[eMPOptionNum]);
++	return *(m_paMPOptionInfo[eMPOptionNum]);
+ }
+ 
+ int CvGlobals::getNumForceControlInfos()
+ {
+-	return (int)m_paForceControlInfos.size();
+-}
+-
+-std::vector<CvForceControlInfo*>& CvGlobals::getForceControlInfo()
+-{
+-	return m_paForceControlInfos;
++	return (int)m_paForceControlInfo.size();
+ }
+ 
+ CvForceControlInfo& CvGlobals::getForceControlInfo(ForceControlTypes eForceControlNum)
+ {
+ 	FAssert(eForceControlNum >= 0);
+ 	FAssert(eForceControlNum < getNumForceControlInfos());
+-	return *(m_paForceControlInfos[eForceControlNum]);
+-}
+-
+-std::vector<CvPlayerOptionInfo*>& CvGlobals::getPlayerOptionInfo()
+-{
+-	return m_paPlayerOptionInfos;
++	return *(m_paForceControlInfo[eForceControlNum]);
+ }
+ 
+ CvPlayerOptionInfo& CvGlobals::getPlayerOptionInfo(PlayerOptionTypes ePlayerOptionNum)
+ {
+ 	FAssert(ePlayerOptionNum >= 0);
+ 	FAssert(ePlayerOptionNum < NUM_PLAYEROPTION_TYPES);
+-	return *(m_paPlayerOptionInfos[ePlayerOptionNum]);
+-}
+-
+-std::vector<CvGraphicOptionInfo*>& CvGlobals::getGraphicOptionInfo()
+-{
+-	return m_paGraphicOptionInfos;
++	return *(m_paPlayerOptionInfo[ePlayerOptionNum]);
+ }
+ 
+ CvGraphicOptionInfo& CvGlobals::getGraphicOptionInfo(GraphicOptionTypes eGraphicOptionNum)
+ {
+ 	FAssert(eGraphicOptionNum >= 0);
+ 	FAssert(eGraphicOptionNum < NUM_GRAPHICOPTION_TYPES);
+-	return *(m_paGraphicOptionInfos[eGraphicOptionNum]);
++	return *(m_paGraphicOptionInfo[eGraphicOptionNum]);
+ }
+ 
+ 
+-std::vector<CvYieldInfo*>& CvGlobals::getYieldInfo()	// For Moose - XML Load Util
+-{
+-	return m_paYieldInfo;
+-}
+-
+ CvYieldInfo& CvGlobals::getYieldInfo(YieldTypes eYieldNum)
+ {
+ 	FAssert(eYieldNum > -1);
+@@ -1804,11 +1504,6 @@ CvYieldInfo& CvGlobals::getYieldInfo(YieldTypes eYieldNum)
+ }
+ 
+ 
+-std::vector<CvCommerceInfo*>& CvGlobals::getCommerceInfo()	// For Moose - XML Load Util
+-{
+-	return m_paCommerceInfo;
+-}
+-
+ CvCommerceInfo& CvGlobals::getCommerceInfo(CommerceTypes eCommerceNum)
+ {
+ 	FAssert(eCommerceNum > -1);
+@@ -1821,11 +1516,6 @@ int CvGlobals::getNumRouteInfos()
+ 	return (int)m_paRouteInfo.size();
+ }
+ 
+-std::vector<CvRouteInfo*>& CvGlobals::getRouteInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paRouteInfo;
+-}
+-
+ CvRouteInfo& CvGlobals::getRouteInfo(RouteTypes eRouteNum)
+ {
+ 	FAssert(eRouteNum > -1);
+@@ -1838,11 +1528,6 @@ int CvGlobals::getNumImprovementInfos()
+ 	return (int)m_paImprovementInfo.size();
+ }
+ 
+-std::vector<CvImprovementInfo*>& CvGlobals::getImprovementInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paImprovementInfo;
+-}
+-
+ CvImprovementInfo& CvGlobals::getImprovementInfo(ImprovementTypes eImprovementNum)
+ {
+ 	FAssert(eImprovementNum > -1);
+@@ -1855,11 +1540,6 @@ int CvGlobals::getNumGoodyInfos()
+ 	return (int)m_paGoodyInfo.size();
+ }
+ 
+-std::vector<CvGoodyInfo*>& CvGlobals::getGoodyInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paGoodyInfo;
+-}
+-
+ CvGoodyInfo& CvGlobals::getGoodyInfo(GoodyTypes eGoodyNum)
+ {
+ 	FAssert(eGoodyNum > -1);
+@@ -1872,11 +1552,6 @@ int CvGlobals::getNumBuildInfos()
+ 	return (int)m_paBuildInfo.size();
+ }
+ 
+-std::vector<CvBuildInfo*>& CvGlobals::getBuildInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paBuildInfo;
+-}
+-
+ CvBuildInfo& CvGlobals::getBuildInfo(BuildTypes eBuildNum)
+ {
+ 	FAssert(eBuildNum > -1);
+@@ -1889,11 +1564,6 @@ int CvGlobals::getNumHandicapInfos()
+ 	return (int)m_paHandicapInfo.size();
+ }
+ 
+-std::vector<CvHandicapInfo*>& CvGlobals::getHandicapInfo()	// Do NOT export outside of the DLL	// For Moose - XML Load Util
+-{
+-	return m_paHandicapInfo;
+-}
+-
+ CvHandicapInfo& CvGlobals::getHandicapInfo(HandicapTypes eHandicapNum)
+ {
+ 	FAssert(eHandicapNum > -1);
+@@ -1906,11 +1576,6 @@ int CvGlobals::getNumGameSpeedInfos()
+ 	return (int)m_paGameSpeedInfo.size();
+ }
+ 
+-std::vector<CvGameSpeedInfo*>& CvGlobals::getGameSpeedInfo()	// Do NOT export outside of the DLL	// For Moose - XML Load Util
+-{
+-	return m_paGameSpeedInfo;
+-}
+-
+ CvGameSpeedInfo& CvGlobals::getGameSpeedInfo(GameSpeedTypes eGameSpeedNum)
+ {
+ 	FAssert(eGameSpeedNum > -1);
+@@ -1923,11 +1588,6 @@ int CvGlobals::getNumTurnTimerInfos()
+ 	return (int)m_paTurnTimerInfo.size();
+ }
+ 
+-std::vector<CvTurnTimerInfo*>& CvGlobals::getTurnTimerInfo()	// Do NOT export outside of the DLL	// For Moose - XML Load Util
+-{
+-	return m_paTurnTimerInfo;
+-}
+-
+ CvTurnTimerInfo& CvGlobals::getTurnTimerInfo(TurnTimerTypes eTurnTimerNum)
+ {
+ 	FAssert(eTurnTimerNum > -1);
+@@ -1940,11 +1600,6 @@ int CvGlobals::getNumProcessInfos()
+ 	return (int)m_paProcessInfo.size();
+ }
+ 
+-std::vector<CvProcessInfo*>& CvGlobals::getProcessInfo()
+-{
+-	return m_paProcessInfo;
+-}
+-
+ CvProcessInfo& CvGlobals::getProcessInfo(ProcessTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1957,11 +1612,6 @@ int CvGlobals::getNumVoteInfos()
+ 	return (int)m_paVoteInfo.size();
+ }
+ 
+-std::vector<CvVoteInfo*>& CvGlobals::getVoteInfo()
+-{
+-	return m_paVoteInfo;
+-}
+-
+ CvVoteInfo& CvGlobals::getVoteInfo(VoteTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1974,11 +1624,6 @@ int CvGlobals::getNumProjectInfos()
+ 	return (int)m_paProjectInfo.size();
+ }
+ 
+-std::vector<CvProjectInfo*>& CvGlobals::getProjectInfo()
+-{
+-	return m_paProjectInfo;
+-}
+-
+ CvProjectInfo& CvGlobals::getProjectInfo(ProjectTypes e)
+ {
+ 	FAssert(e > -1);
+@@ -1991,11 +1636,6 @@ int CvGlobals::getNumBuildingClassInfos()
+ 	return (int)m_paBuildingClassInfo.size();
+ }
+ 
+-std::vector<CvBuildingClassInfo*>& CvGlobals::getBuildingClassInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paBuildingClassInfo;
+-}
+-
+ CvBuildingClassInfo& CvGlobals::getBuildingClassInfo(BuildingClassTypes eBuildingClassNum)
+ {
+ 	FAssert(eBuildingClassNum > -1);
+@@ -2008,11 +1648,6 @@ int CvGlobals::getNumBuildingInfos()
+ 	return (int)m_paBuildingInfo.size();
+ }
+ 
+-std::vector<CvBuildingInfo*>& CvGlobals::getBuildingInfo()	// For Moose - XML Load Util, CvInfos, CvCacheObject
+-{
+-	return m_paBuildingInfo;
+-}
+-
+ CvBuildingInfo& CvGlobals::getBuildingInfo(BuildingTypes eBuildingNum)
+ {
+ 	FAssert(eBuildingNum > -1);
+@@ -2025,11 +1660,6 @@ int CvGlobals::getNumSpecialBuildingInfos()
+ 	return (int)m_paSpecialBuildingInfo.size();
+ }
+ 
+-std::vector<CvSpecialBuildingInfo*>& CvGlobals::getSpecialBuildingInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paSpecialBuildingInfo;
+-}
+-
+ CvSpecialBuildingInfo& CvGlobals::getSpecialBuildingInfo(SpecialBuildingTypes eSpecialBuildingNum)
+ {
+ 	FAssert(eSpecialBuildingNum > -1);
+@@ -2042,11 +1672,6 @@ int CvGlobals::getNumUnitClassInfos()
+ 	return (int)m_paUnitClassInfo.size();
+ }
+ 
+-std::vector<CvUnitClassInfo*>& CvGlobals::getUnitClassInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paUnitClassInfo;
+-}
+-
+ CvUnitClassInfo& CvGlobals::getUnitClassInfo(UnitClassTypes eUnitClassNum)
+ {
+ 	FAssert(eUnitClassNum > -1);
+@@ -2059,11 +1684,6 @@ int CvGlobals::getNumActionInfos()
+ 	return (int)m_paActionInfo.size();
+ }
+ 
+-std::vector<CvActionInfo*>& CvGlobals::getActionInfo()	// For Moose - XML Load Util
+-{
+-	return m_paActionInfo;
+-}
+-
+ CvActionInfo& CvGlobals::getActionInfo(int i)
+ {
+ 	FAssertMsg(i < getNumActionInfos(), "Index out of bounds");
+@@ -2071,10 +1691,6 @@ CvActionInfo& CvGlobals::getActionInfo(int i)
+ 	return *(m_paActionInfo[i]);
+ }
+ 
+-std::vector<CvMissionInfo*>& CvGlobals::getMissionInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paMissionInfo;
+-}
+ 
+ CvMissionInfo& CvGlobals::getMissionInfo(MissionTypes eMissionNum)
+ {
+@@ -2083,10 +1699,6 @@ CvMissionInfo& CvGlobals::getMissionInfo(MissionTypes eMissionNum)
+ 	return *(m_paMissionInfo[eMissionNum]);
+ }
+ 
+-std::vector<CvControlInfo*>& CvGlobals::getControlInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paControlInfo;
+-}
+ 
+ CvControlInfo& CvGlobals::getControlInfo(ControlTypes eControlNum)
+ {
+@@ -2096,10 +1708,6 @@ CvControlInfo& CvGlobals::getControlInfo(ControlTypes eControlNum)
+ 	return *(m_paControlInfo[eControlNum]);
+ }
+ 
+-std::vector<CvCommandInfo*>& CvGlobals::getCommandInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paCommandInfo;
+-}
+ 
+ CvCommandInfo& CvGlobals::getCommandInfo(CommandTypes eCommandNum)
+ {
+@@ -2113,11 +1721,6 @@ int CvGlobals::getNumAutomateInfos()
+ 	return (int)m_paAutomateInfo.size();
+ }
+ 
+-std::vector<CvAutomateInfo*>& CvGlobals::getAutomateInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paAutomateInfo;
+-}
+-
+ CvAutomateInfo& CvGlobals::getAutomateInfo(int iAutomateNum)
+ {
+ 	FAssertMsg(iAutomateNum < getNumAutomateInfos(), "Index out of bounds");
+@@ -2130,11 +1733,6 @@ int CvGlobals::getNumPromotionInfos()
+ 	return (int)m_paPromotionInfo.size();
+ }
+ 
+-std::vector<CvPromotionInfo*>& CvGlobals::getPromotionInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paPromotionInfo;
+-}
+-
+ CvPromotionInfo& CvGlobals::getPromotionInfo(PromotionTypes ePromotionNum)
+ {
+ 	FAssert(ePromotionNum > -1);
+@@ -2147,11 +1745,6 @@ int CvGlobals::getNumTechInfos()
+ 	return (int)m_paTechInfo.size();
+ }
+ 
+-std::vector<CvTechInfo*>& CvGlobals::getTechInfo()	// For Moose - XML Load Util, CvInfos, CvCacheObject
+-{
+-	return m_paTechInfo;
+-}
+-
+ CvTechInfo& CvGlobals::getTechInfo(TechTypes eTechNum)
+ {
+ 	FAssert(eTechNum > -1);
+@@ -2164,11 +1757,6 @@ int CvGlobals::getNumReligionInfos()
+ 	return (int)m_paReligionInfo.size();
+ }
+ 
+-std::vector<CvReligionInfo*>& CvGlobals::getReligionInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paReligionInfo;
+-}
+-
+ CvReligionInfo& CvGlobals::getReligionInfo(ReligionTypes eReligionNum)
+ {
+ 	FAssert(eReligionNum > -1);
+@@ -2181,11 +1769,6 @@ int CvGlobals::getNumCorporationInfos()
+ 	return (int)m_paCorporationInfo.size();
+ }
+ 
+-std::vector<CvCorporationInfo*>& CvGlobals::getCorporationInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paCorporationInfo;
+-}
+-
+ CvCorporationInfo& CvGlobals::getCorporationInfo(CorporationTypes eCorporationNum)
+ {
+ 	FAssert(eCorporationNum > -1);
+@@ -2198,11 +1781,6 @@ int CvGlobals::getNumSpecialistInfos()
+ 	return (int)m_paSpecialistInfo.size();
+ }
+ 
+-std::vector<CvSpecialistInfo*>& CvGlobals::getSpecialistInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paSpecialistInfo;
+-}
+-
+ CvSpecialistInfo& CvGlobals::getSpecialistInfo(SpecialistTypes eSpecialistNum)
+ {
+ 	FAssert(eSpecialistNum > -1);
+@@ -2215,11 +1793,6 @@ int CvGlobals::getNumCivicOptionInfos()
+ 	return (int)m_paCivicOptionInfo.size();
+ }
+ 
+-std::vector<CvCivicOptionInfo*>& CvGlobals::getCivicOptionInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paCivicOptionInfo;
+-}
+-
+ CvCivicOptionInfo& CvGlobals::getCivicOptionInfo(CivicOptionTypes eCivicOptionNum)
+ {
+ 	FAssert(eCivicOptionNum > -1);
+@@ -2232,11 +1805,6 @@ int CvGlobals::getNumCivicInfos()
+ 	return (int)m_paCivicInfo.size();
+ }
+ 
+-std::vector<CvCivicInfo*>& CvGlobals::getCivicInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paCivicInfo;
+-}
+-
+ CvCivicInfo& CvGlobals::getCivicInfo(CivicTypes eCivicNum)
+ {
+ 	FAssert(eCivicNum > -1);
+@@ -2249,11 +1817,6 @@ int CvGlobals::getNumDiplomacyInfos()
+ 	return (int)m_paDiplomacyInfo.size();
+ }
+ 
+-std::vector<CvDiplomacyInfo*>& CvGlobals::getDiplomacyInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paDiplomacyInfo;
+-}
+-
+ CvDiplomacyInfo& CvGlobals::getDiplomacyInfo(int iDiplomacyNum)
+ {
+ 	FAssertMsg(iDiplomacyNum < getNumDiplomacyInfos(), "Index out of bounds");
+@@ -2266,11 +1829,6 @@ int CvGlobals::getNumEraInfos()
+ 	return (int)m_aEraInfo.size();
+ }
+ 
+-std::vector<CvEraInfo*>& CvGlobals::getEraInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_aEraInfo;
+-}
+-
+ CvEraInfo& CvGlobals::getEraInfo(EraTypes eEraNum)
+ {
+ 	FAssert(eEraNum > -1);
+@@ -2283,11 +1841,6 @@ int CvGlobals::getNumHurryInfos()
+ 	return (int)m_paHurryInfo.size();
+ }
+ 
+-std::vector<CvHurryInfo*>& CvGlobals::getHurryInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paHurryInfo;
+-}
+-
+ CvHurryInfo& CvGlobals::getHurryInfo(HurryTypes eHurryNum)
+ {
+ 	FAssert(eHurryNum > -1);
+@@ -2300,11 +1853,6 @@ int CvGlobals::getNumEmphasizeInfos()
+ 	return (int)m_paEmphasizeInfo.size();
+ }
+ 
+-std::vector<CvEmphasizeInfo*>& CvGlobals::getEmphasizeInfo()	// For Moose - XML Load Util
+-{
+-	return m_paEmphasizeInfo;
+-}
+-
+ CvEmphasizeInfo& CvGlobals::getEmphasizeInfo(EmphasizeTypes eEmphasizeNum)
+ {
+ 	FAssert(eEmphasizeNum > -1);
+@@ -2317,11 +1865,6 @@ int CvGlobals::getNumUpkeepInfos()
+ 	return (int)m_paUpkeepInfo.size();
+ }
+ 
+-std::vector<CvUpkeepInfo*>& CvGlobals::getUpkeepInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paUpkeepInfo;
+-}
+-
+ CvUpkeepInfo& CvGlobals::getUpkeepInfo(UpkeepTypes eUpkeepNum)
+ {
+ 	FAssert(eUpkeepNum > -1);
+@@ -2334,11 +1877,6 @@ int CvGlobals::getNumCultureLevelInfos()
+ 	return (int)m_paCultureLevelInfo.size();
+ }
+ 
+-std::vector<CvCultureLevelInfo*>& CvGlobals::getCultureLevelInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paCultureLevelInfo;
+-}
+-
+ CvCultureLevelInfo& CvGlobals::getCultureLevelInfo(CultureLevelTypes eCultureLevelNum)
+ {
+ 	FAssert(eCultureLevelNum > -1);
+@@ -2351,11 +1889,6 @@ int CvGlobals::getNumVictoryInfos()
+ 	return (int)m_paVictoryInfo.size();
+ }
+ 
+-std::vector<CvVictoryInfo*>& CvGlobals::getVictoryInfo()	// For Moose - XML Load Util, CvInfos
+-{
+-	return m_paVictoryInfo;
+-}
+-
+ CvVictoryInfo& CvGlobals::getVictoryInfo(VictoryTypes eVictoryNum)
+ {
+ 	FAssert(eVictoryNum > -1);
+@@ -2369,11 +1902,6 @@ CvVictoryInfo& CvGlobals::getVictoryInfo(VictoryTypes eVictoryNum)
+ 	return (int)m_paQuestInfo.size();
+ }
+ 
+-std::vector<CvQuestInfo*>& CvGlobals::getQuestInfo()
+-{
+-	return m_paQuestInfo;
+-}
+-
+ CvQuestInfo& CvGlobals::getQuestInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+@@ -2386,11 +1914,6 @@ int CvGlobals::getNumTutorialInfos()
+ 	return (int)m_paTutorialInfo.size();
+ }
+ 
+-std::vector<CvTutorialInfo*>& CvGlobals::getTutorialInfo()
+-{
+-	return m_paTutorialInfo;
+-}
+-
+ CvTutorialInfo& CvGlobals::getTutorialInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+@@ -2403,11 +1926,6 @@ int CvGlobals::getNumEventTriggerInfos()
+ 	return (int)m_paEventTriggerInfo.size();
+ }
+ 
+-std::vector<CvEventTriggerInfo*>& CvGlobals::getEventTriggerInfo()
+-{
+-	return m_paEventTriggerInfo;
+-}
+-
+ CvEventTriggerInfo& CvGlobals::getEventTriggerInfo(EventTriggerTypes eEventTrigger)
+ {
+ 	FAssert(eEventTrigger > -1);
+@@ -2420,11 +1938,6 @@ int CvGlobals::getNumEventInfos()
+ 	return (int)m_paEventInfo.size();
+ }
+ 
+-std::vector<CvEventInfo*>& CvGlobals::getEventInfo()
+-{
+-	return m_paEventInfo;
+-}
+-
+ CvEventInfo& CvGlobals::getEventInfo(EventTypes eEvent)
+ {
+ 	FAssert(eEvent > -1);
+@@ -2437,11 +1950,6 @@ int CvGlobals::getNumEspionageMissionInfos()
+ 	return (int)m_paEspionageMissionInfo.size();
+ }
+ 
+-std::vector<CvEspionageMissionInfo*>& CvGlobals::getEspionageMissionInfo()
+-{
+-	return m_paEspionageMissionInfo;
+-}
+-
+ CvEspionageMissionInfo& CvGlobals::getEspionageMissionInfo(EspionageMissionTypes eEspionageMissionNum)
+ {
+ 	FAssert(eEspionageMissionNum > -1);
+@@ -2534,11 +2042,6 @@ int CvGlobals::getNumUnitArtStyleTypeInfos()
+ 	return (int)m_paUnitArtStyleTypeInfo.size();
+ }
+ 
+-std::vector<CvUnitArtStyleTypeInfo*>& CvGlobals::getUnitArtStyleTypeInfo()
+-{
+-	return m_paUnitArtStyleTypeInfo;
+-}
+-
+ CvUnitArtStyleTypeInfo& CvGlobals::getUnitArtStyleTypeInfo(UnitArtStyleTypes eUnitArtStyleTypeNum)
+ {
+ 	FAssert(eUnitArtStyleTypeNum > -1);
+@@ -3675,14 +3178,14 @@ void CvGlobals::deleteInfoArrays()
+ 	deleteInfoArray(m_paInvisibleInfo);
+ 	deleteInfoArray(m_paUnitCombatInfo);
+ 	deleteInfoArray(m_paDomainInfo);
+-	deleteInfoArray(m_paUnitAIInfos);
+-	deleteInfoArray(m_paAttitudeInfos);
+-	deleteInfoArray(m_paMemoryInfos);
+-	deleteInfoArray(m_paGameOptionInfos);
+-	deleteInfoArray(m_paMPOptionInfos);
+-	deleteInfoArray(m_paForceControlInfos);
+-	deleteInfoArray(m_paPlayerOptionInfos);
+-	deleteInfoArray(m_paGraphicOptionInfos);
++	deleteInfoArray(m_paUnitAIInfo);
++	deleteInfoArray(m_paAttitudeInfo);
++	deleteInfoArray(m_paMemoryInfo);
++	deleteInfoArray(m_paGameOptionInfo);
++	deleteInfoArray(m_paMPOptionInfo);
++	deleteInfoArray(m_paForceControlInfo);
++	deleteInfoArray(m_paPlayerOptionInfo);
++	deleteInfoArray(m_paGraphicOptionInfo);
+ 
+ 	deleteInfoArray(m_paYieldInfo);
+ 	deleteInfoArray(m_paTerrainInfo);
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 080f41d25..f073cfb6c 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -140,6 +140,19 @@ class CvGlobals
+ {
+ //	friend class CvDLLUtilityIFace;
+ 	friend class CvXMLLoadUtility;
++	/*  advc.003: Removed the std::vector<Cv...Info*>& getters for each info type.
++		Comments in CvGlobals.cpp had said that those getters were
++		"For Moose - XML Load Util and CvInfos."
++		The only calls came from CvXMLLoadUtility (mostly the three
++		CvXMLLoadUtility::Load...Infos functions). CvXMLLoadUtility is a friend
++		class anyway; not a good reason to fully expose all the info vectors.
++		Some more comments deleted from CvGlobals.cpp:
++		getWaterPlaneInfo: "For Moose - CvDecal and CvWater"
++		getUnitFormationInfo: "For Moose - CvUnitEntity"
++		getBuildingInfo, getTechInfo "For Moose - XML Load Util, CvInfos, CvCacheObject"
++		None of those were called outside of CvXMLLoadUtility.
++		getHandicapInfo, getGameSpeed, getTurnTimer: "Do NOT export outside of the DLL"
++		Strange, but no reason not to remove those getter. */
+ public:
+ 
+ 	// singleton accessor
+@@ -224,395 +237,295 @@ public:
+ 	DllExport void infosReset();
+ 
+ 	DllExport int getNumWorldInfos();
+-	std::vector<CvWorldInfo*>& getWorldInfo();
+ 	DllExport CvWorldInfo& getWorldInfo(WorldSizeTypes e);
+ 
+ 	DllExport int getNumClimateInfos();
+-	std::vector<CvClimateInfo*>& getClimateInfo();
+ 	DllExport CvClimateInfo& getClimateInfo(ClimateTypes e);
+ 
+ 	DllExport int getNumSeaLevelInfos();
+-	std::vector<CvSeaLevelInfo*>& getSeaLevelInfo();
+ 	DllExport CvSeaLevelInfo& getSeaLevelInfo(SeaLevelTypes e);
+ 
+ 	int getNumColorInfos();
+-	std::vector<CvColorInfo*>& getColorInfo();
+ 	DllExport CvColorInfo& getColorInfo(ColorTypes e);
+ 
+ 	DllExport int getNumPlayerColorInfos();
+-	std::vector<CvPlayerColorInfo*>& getPlayerColorInfo();
+ 	DllExport CvPlayerColorInfo& getPlayerColorInfo(PlayerColorTypes e);
+ 
+ 	int getNumAdvisorInfos();
+-	std::vector<CvAdvisorInfo*>& getAdvisorInfo();
+ 	CvAdvisorInfo& getAdvisorInfo(AdvisorTypes e);
+ 
+ 	DllExport  int getNumHints();
+-	std::vector<CvInfoBase*>& getHints();
+ 	DllExport CvInfoBase& getHints(int i);
+ 
+ 	int getNumMainMenus();
+-	std::vector<CvMainMenuInfo*>& getMainMenus();
+ 	DllExport CvMainMenuInfo& getMainMenus(int i);
+ 
+ 	DllExport int getNumRouteModelInfos();
+-	std::vector<CvRouteModelInfo*>& getRouteModelInfo();
+ 	DllExport CvRouteModelInfo& getRouteModelInfo(int i);
+ 
+ 	int getNumRiverInfos();
+-	std::vector<CvRiverInfo*>& getRiverInfo();
+ 	CvRiverInfo& getRiverInfo(RiverTypes e);
+ 
+ 	DllExport int getNumRiverModelInfos();
+-	std::vector<CvRiverModelInfo*>& getRiverModelInfo();
+ 	DllExport CvRiverModelInfo& getRiverModelInfo(int i);
+ 
+ 	int getNumWaterPlaneInfos();
+-	std::vector<CvWaterPlaneInfo*>& getWaterPlaneInfo();
+ 	DllExport CvWaterPlaneInfo& getWaterPlaneInfo(int i);
+ 
+ 	DllExport int getNumTerrainPlaneInfos();
+-	std::vector<CvTerrainPlaneInfo*>& getTerrainPlaneInfo();
+ 	DllExport CvTerrainPlaneInfo& getTerrainPlaneInfo(int i);
+ 
+ 	DllExport int getNumCameraOverlayInfos();
+-	std::vector<CvCameraOverlayInfo*>& getCameraOverlayInfo();
+ 	DllExport CvCameraOverlayInfo& getCameraOverlayInfo(int i);
+ 
+ 	int getNumAnimationPathInfos();
+-	std::vector<CvAnimationPathInfo*>& getAnimationPathInfo();
+ 	DllExport CvAnimationPathInfo& getAnimationPathInfo(AnimationPathTypes e);
+ 
+ 	int getNumAnimationCategoryInfos();
+-	std::vector<CvAnimationCategoryInfo*>& getAnimationCategoryInfo();
+ 	DllExport CvAnimationCategoryInfo& getAnimationCategoryInfo(AnimationCategoryTypes e);
+ 
+ 	int getNumEntityEventInfos();
+-	std::vector<CvEntityEventInfo*>& getEntityEventInfo();
+ 	DllExport CvEntityEventInfo& getEntityEventInfo(EntityEventTypes e);
+ 
+ 	int getNumEffectInfos();
+-	std::vector<CvEffectInfo*>& getEffectInfo();
+ 	DllExport CvEffectInfo& getEffectInfo(int i);
+ 
+ 	int getNumAttachableInfos();
+-	std::vector<CvAttachableInfo*>& getAttachableInfo();
+ 	DllExport CvAttachableInfo& getAttachableInfo(int i);
+ 
+ 	int getNumCameraInfos();
+-	std::vector<CvCameraInfo*>& getCameraInfo();
+ 	CvCameraInfo& getCameraInfo(CameraAnimationTypes eCameraAnimationNum);
+ 
+ 	DllExport int getNumUnitFormationInfos();
+-	std::vector<CvUnitFormationInfo*>& getUnitFormationInfo();
+ 	DllExport CvUnitFormationInfo& getUnitFormationInfo(int i);
+ 
+ 	int getNumGameTextXML();
+-	std::vector<CvGameText*>& getGameTextXML();
+ 
+ 	int getNumLandscapeInfos();
+-	std::vector<CvLandscapeInfo*>& getLandscapeInfo();
+ 	DllExport CvLandscapeInfo& getLandscapeInfo(int iIndex);
+ 	DllExport int getActiveLandscapeID();
+ 	DllExport void setActiveLandscapeID(int iLandscapeID);
+ 
+ 	DllExport int getNumTerrainInfos();
+-	std::vector<CvTerrainInfo*>& getTerrainInfo();
+ 	DllExport CvTerrainInfo& getTerrainInfo(TerrainTypes eTerrainNum);
+ 
+ 	int getNumBonusClassInfos();
+-	std::vector<CvBonusClassInfo*>& getBonusClassInfo();
+ 	CvBonusClassInfo& getBonusClassInfo(BonusClassTypes eBonusNum);
+ 
+ 	DllExport int getNumBonusInfos();
+-	std::vector<CvBonusInfo*>& getBonusInfo();
+ 	DllExport CvBonusInfo& getBonusInfo(BonusTypes eBonusNum);
+ 
+ 	DllExport int getNumFeatureInfos();
+-	std::vector<CvFeatureInfo*>& getFeatureInfo();
+ 	DllExport CvFeatureInfo& getFeatureInfo(FeatureTypes eFeatureNum);
+ 
+ 	DllExport int& getNumPlayableCivilizationInfos();
+ 	DllExport int& getNumAIPlayableCivilizationInfos();
+ 	DllExport int getNumCivilizationInfos();
+-	std::vector<CvCivilizationInfo*>& getCivilizationInfo();
+ 	DllExport CvCivilizationInfo& getCivilizationInfo(CivilizationTypes eCivilizationNum);
+ 
+ 	DllExport int getNumLeaderHeadInfos();
+-	std::vector<CvLeaderHeadInfo*>& getLeaderHeadInfo();
+ 	DllExport CvLeaderHeadInfo& getLeaderHeadInfo(LeaderHeadTypes eLeaderHeadNum);
+ 
+ 	int getNumTraitInfos();
+-	std::vector<CvTraitInfo*>& getTraitInfo();
+ 	CvTraitInfo& getTraitInfo(TraitTypes eTraitNum);
+ 
+ 	DllExport int getNumCursorInfos();
+-	std::vector<CvCursorInfo*>& getCursorInfo();
+ 	DllExport	CvCursorInfo& getCursorInfo(CursorTypes eCursorNum);
+ 
+ 	int getNumThroneRoomCameras();
+-	std::vector<CvThroneRoomCamera*>& getThroneRoomCamera();
+ 	DllExport	CvThroneRoomCamera& getThroneRoomCamera(int iIndex);
+ 
+ 	DllExport int getNumThroneRoomInfos();
+-	std::vector<CvThroneRoomInfo*>& getThroneRoomInfo();
+ 	DllExport	CvThroneRoomInfo& getThroneRoomInfo(int iIndex);
+ 
+ 	DllExport int getNumThroneRoomStyleInfos();
+-	std::vector<CvThroneRoomStyleInfo*>& getThroneRoomStyleInfo();
+ 	DllExport	CvThroneRoomStyleInfo& getThroneRoomStyleInfo(int iIndex);
+ 
+ 	DllExport int getNumSlideShowInfos();
+-	std::vector<CvSlideShowInfo*>& getSlideShowInfo();
+ 	DllExport	CvSlideShowInfo& getSlideShowInfo(int iIndex);
+ 
+ 	DllExport int getNumSlideShowRandomInfos();
+-	std::vector<CvSlideShowRandomInfo*>& getSlideShowRandomInfo();
+ 	DllExport	CvSlideShowRandomInfo& getSlideShowRandomInfo(int iIndex);
+ 
+ 	DllExport int getNumWorldPickerInfos();
+-	std::vector<CvWorldPickerInfo*>& getWorldPickerInfo();
+ 	DllExport	CvWorldPickerInfo& getWorldPickerInfo(int iIndex);
+ 
+ 	DllExport int getNumSpaceShipInfos();
+-	std::vector<CvSpaceShipInfo*>& getSpaceShipInfo();
+ 	DllExport	CvSpaceShipInfo& getSpaceShipInfo(int iIndex);
+ 
+ 	int getNumUnitInfos();
+-	std::vector<CvUnitInfo*>& getUnitInfo();
+ 	CvUnitInfo& getUnitInfo(UnitTypes eUnitNum);
+ 
+ 	int getNumSpecialUnitInfos();
+-	std::vector<CvSpecialUnitInfo*>& getSpecialUnitInfo();
+ 	CvSpecialUnitInfo& getSpecialUnitInfo(SpecialUnitTypes eSpecialUnitNum);
+ 
+ 	int getNumConceptInfos();
+-	std::vector<CvInfoBase*>& getConceptInfo();
+ 	CvInfoBase& getConceptInfo(ConceptTypes e);
+ 
+ 	int getNumNewConceptInfos();
+-	std::vector<CvInfoBase*>& getNewConceptInfo();
+ 	CvInfoBase& getNewConceptInfo(NewConceptTypes e);
+ 
+ 	int getNumCityTabInfos();
+-	std::vector<CvInfoBase*>& getCityTabInfo();
+ 	CvInfoBase& getCityTabInfo(CityTabTypes e);
+ 
+ 	int getNumCalendarInfos();
+-	std::vector<CvInfoBase*>& getCalendarInfo();
+ 	CvInfoBase& getCalendarInfo(CalendarTypes e);
+ 
+ 	int getNumSeasonInfos();
+-	std::vector<CvInfoBase*>& getSeasonInfo();
+ 	CvInfoBase& getSeasonInfo(SeasonTypes e);
+ 
+ 	int getNumMonthInfos();
+-	std::vector<CvInfoBase*>& getMonthInfo();
+ 	CvInfoBase& getMonthInfo(MonthTypes e);
+ 
+ 	int getNumDenialInfos();
+-	std::vector<CvInfoBase*>& getDenialInfo();
+ 	CvInfoBase& getDenialInfo(DenialTypes e);
+ 
+ 	int getNumInvisibleInfos();
+-	std::vector<CvInfoBase*>& getInvisibleInfo();
+ 	CvInfoBase& getInvisibleInfo(InvisibleTypes e);
+ 
+ 	int getNumVoteSourceInfos();
+-	std::vector<CvVoteSourceInfo*>& getVoteSourceInfo();
+ 	CvVoteSourceInfo& getVoteSourceInfo(VoteSourceTypes e);
+ 
+ 	int getNumUnitCombatInfos();
+-	std::vector<CvInfoBase*>& getUnitCombatInfo();
+ 	CvInfoBase& getUnitCombatInfo(UnitCombatTypes e);
+ 
+-	std::vector<CvInfoBase*>& getDomainInfo();
+ 	CvInfoBase& getDomainInfo(DomainTypes e);
+ 
+-	std::vector<CvInfoBase*>& getUnitAIInfo();
+ 	CvInfoBase& getUnitAIInfo(UnitAITypes eUnitAINum);
+ 
+-	std::vector<CvInfoBase*>& getAttitudeInfo();
+ 	CvInfoBase& getAttitudeInfo(AttitudeTypes eAttitudeNum);
+ 
+-	std::vector<CvInfoBase*>& getMemoryInfo();
+ 	CvInfoBase& getMemoryInfo(MemoryTypes eMemoryNum);
+ 
+ 	int getNumGameOptionInfos();
+-	std::vector<CvGameOptionInfo*>& getGameOptionInfo();
+-	DllExport	CvGameOptionInfo& getGameOptionInfo(GameOptionTypes eGameOptionNum);
++	DllExport CvGameOptionInfo& getGameOptionInfo(GameOptionTypes eGameOptionNum);
+ 
+ 	int getNumMPOptionInfos();
+-	std::vector<CvMPOptionInfo*>& getMPOptionInfo();
+-	DllExport	CvMPOptionInfo& getMPOptionInfo(MultiplayerOptionTypes eMPOptionNum);
++	DllExport CvMPOptionInfo& getMPOptionInfo(MultiplayerOptionTypes eMPOptionNum);
+ 
+ 	int getNumForceControlInfos();
+-	std::vector<CvForceControlInfo*>& getForceControlInfo();
+ 	CvForceControlInfo& getForceControlInfo(ForceControlTypes eForceControlNum);
+ 
+-	std::vector<CvPlayerOptionInfo*>& getPlayerOptionInfo();
+-	DllExport	CvPlayerOptionInfo& getPlayerOptionInfo(PlayerOptionTypes ePlayerOptionNum);
++	DllExport CvPlayerOptionInfo& getPlayerOptionInfo(PlayerOptionTypes ePlayerOptionNum);
+ 
+-	std::vector<CvGraphicOptionInfo*>& getGraphicOptionInfo();
+-	DllExport	CvGraphicOptionInfo& getGraphicOptionInfo(GraphicOptionTypes eGraphicOptionNum);
++	DllExport CvGraphicOptionInfo& getGraphicOptionInfo(GraphicOptionTypes eGraphicOptionNum);
+ 
+-	std::vector<CvYieldInfo*>& getYieldInfo();
+ 	CvYieldInfo& getYieldInfo(YieldTypes eYieldNum);
+ 
+-	std::vector<CvCommerceInfo*>& getCommerceInfo();
+ 	CvCommerceInfo& getCommerceInfo(CommerceTypes eCommerceNum);
+ 
+ 	DllExport int getNumRouteInfos();
+-	std::vector<CvRouteInfo*>& getRouteInfo();
+ 	CvRouteInfo& getRouteInfo(RouteTypes eRouteNum);
+ 
+ 	DllExport int getNumImprovementInfos();
+-	std::vector<CvImprovementInfo*>& getImprovementInfo();
+ 	DllExport CvImprovementInfo& getImprovementInfo(ImprovementTypes eImprovementNum);
+ 
+ 	int getNumGoodyInfos();
+-	std::vector<CvGoodyInfo*>& getGoodyInfo();
+ 	CvGoodyInfo& getGoodyInfo(GoodyTypes eGoodyNum);
+ 
+ 	int getNumBuildInfos();
+-	std::vector<CvBuildInfo*>& getBuildInfo();
+ 	DllExport CvBuildInfo& getBuildInfo(BuildTypes eBuildNum);
+ 
+ 	DllExport int getNumHandicapInfos();
+-	std::vector<CvHandicapInfo*>& getHandicapInfo();
+ 	DllExport CvHandicapInfo& getHandicapInfo(HandicapTypes eHandicapNum);
+ 
+ 	DllExport int getNumGameSpeedInfos();
+-	std::vector<CvGameSpeedInfo*>& getGameSpeedInfo();
+ 	DllExport CvGameSpeedInfo& getGameSpeedInfo(GameSpeedTypes eGameSpeedNum);
+ 
+ 	DllExport int getNumTurnTimerInfos();
+-	std::vector<CvTurnTimerInfo*>& getTurnTimerInfo();
+ 	DllExport CvTurnTimerInfo& getTurnTimerInfo(TurnTimerTypes eTurnTimerNum);
+ 
+ 	int getNumProcessInfos();
+-	std::vector<CvProcessInfo*>& getProcessInfo();
+ 	CvProcessInfo& getProcessInfo(ProcessTypes e);
+ 
+ 	int getNumVoteInfos();
+-	std::vector<CvVoteInfo*>& getVoteInfo();
+ 	CvVoteInfo& getVoteInfo(VoteTypes e);
+ 
+ 	int getNumProjectInfos();
+-	std::vector<CvProjectInfo*>& getProjectInfo();
+ 	CvProjectInfo& getProjectInfo(ProjectTypes e);
+ 
+ 	int getNumBuildingClassInfos();
+-	std::vector<CvBuildingClassInfo*>& getBuildingClassInfo();
+ 	CvBuildingClassInfo& getBuildingClassInfo(BuildingClassTypes eBuildingClassNum);
+ 
+ 	int getNumBuildingInfos();
+-	std::vector<CvBuildingInfo*>& getBuildingInfo();
+ 	CvBuildingInfo& getBuildingInfo(BuildingTypes eBuildingNum);
+ 
+ 	int getNumSpecialBuildingInfos();
+-	std::vector<CvSpecialBuildingInfo*>& getSpecialBuildingInfo();
+ 	CvSpecialBuildingInfo& getSpecialBuildingInfo(SpecialBuildingTypes eSpecialBuildingNum);
+ 
+ 	int getNumUnitClassInfos();
+-	std::vector<CvUnitClassInfo*>& getUnitClassInfo();
+ 	CvUnitClassInfo& getUnitClassInfo(UnitClassTypes eUnitClassNum);
+ 
+ 	DllExport int getNumActionInfos();
+-	std::vector<CvActionInfo*>& getActionInfo();
+ 	DllExport CvActionInfo& getActionInfo(int i);
+ 
+-	std::vector<CvMissionInfo*>& getMissionInfo();
+ 	DllExport CvMissionInfo& getMissionInfo(MissionTypes eMissionNum);
+ 
+-	std::vector<CvControlInfo*>& getControlInfo();
+ 	CvControlInfo& getControlInfo(ControlTypes eControlNum);
+ 
+-	std::vector<CvCommandInfo*>& getCommandInfo();
+ 	CvCommandInfo& getCommandInfo(CommandTypes eCommandNum);
+ 
+ 	DllExport int getNumAutomateInfos();
+-	std::vector<CvAutomateInfo*>& getAutomateInfo();
+ 	CvAutomateInfo& getAutomateInfo(int iAutomateNum);
+ 
+ 	int getNumPromotionInfos();
+-	std::vector<CvPromotionInfo*>& getPromotionInfo();
+ 	CvPromotionInfo& getPromotionInfo(PromotionTypes ePromotionNum);
+ 
+ 	int getNumTechInfos();
+-	std::vector<CvTechInfo*>& getTechInfo();
+ 	CvTechInfo& getTechInfo(TechTypes eTechNum);
+ 
+ 	int getNumReligionInfos();
+-	std::vector<CvReligionInfo*>& getReligionInfo();
+ 	CvReligionInfo& getReligionInfo(ReligionTypes eReligionNum);
+ 
+ 	int getNumCorporationInfos();
+-	std::vector<CvCorporationInfo*>& getCorporationInfo();
+ 	CvCorporationInfo& getCorporationInfo(CorporationTypes eCorporationNum);
+ 
+ 	int getNumSpecialistInfos();
+-	std::vector<CvSpecialistInfo*>& getSpecialistInfo();
+ 	CvSpecialistInfo& getSpecialistInfo(SpecialistTypes eSpecialistNum);
+ 
+ 	int getNumCivicOptionInfos();
+-	std::vector<CvCivicOptionInfo*>& getCivicOptionInfo();
+ 	CvCivicOptionInfo& getCivicOptionInfo(CivicOptionTypes eCivicOptionNum);
+ 
+ 	int getNumCivicInfos();
+-	std::vector<CvCivicInfo*>& getCivicInfo();
+ 	CvCivicInfo& getCivicInfo(CivicTypes eCivicNum);
+ 
+ 	int getNumDiplomacyInfos();
+-	std::vector<CvDiplomacyInfo*>& getDiplomacyInfo();
+ 	CvDiplomacyInfo& getDiplomacyInfo(int iDiplomacyNum);
+ 
+ 	DllExport int getNumEraInfos();
+-	std::vector<CvEraInfo*>& getEraInfo();
+ 	DllExport CvEraInfo& getEraInfo(EraTypes eEraNum);
+ 
+ 	int getNumHurryInfos();
+-	std::vector<CvHurryInfo*>& getHurryInfo();
+ 	CvHurryInfo& getHurryInfo(HurryTypes eHurryNum);
+ 
+ 	int getNumEmphasizeInfos();
+-	std::vector<CvEmphasizeInfo*>& getEmphasizeInfo();
+ 	CvEmphasizeInfo& getEmphasizeInfo(EmphasizeTypes eEmphasizeNum);
+ 
+ 	int getNumUpkeepInfos();
+-	std::vector<CvUpkeepInfo*>& getUpkeepInfo();
+ 	CvUpkeepInfo& getUpkeepInfo(UpkeepTypes eUpkeepNum);
+ 
+ 	int getNumCultureLevelInfos();
+-	std::vector<CvCultureLevelInfo*>& getCultureLevelInfo();
+ 	CvCultureLevelInfo& getCultureLevelInfo(CultureLevelTypes eCultureLevelNum);
+ 
+ 	DllExport int getNumVictoryInfos();
+-	std::vector<CvVictoryInfo*>& getVictoryInfo();
+ 	DllExport CvVictoryInfo& getVictoryInfo(VictoryTypes eVictoryNum);
+ 	// advc.003j:
+ 	/*int getNumQuestInfos();
+-	std::vector<CvQuestInfo*>& getQuestInfo();
+ 	CvQuestInfo& getQuestInfo(int iIndex);*/
+ 
+ 	int getNumTutorialInfos();
+-	std::vector<CvTutorialInfo*>& getTutorialInfo();
+ 	CvTutorialInfo& getTutorialInfo(int i);
+ 
+ 	int getNumEventTriggerInfos();
+-	std::vector<CvEventTriggerInfo*>& getEventTriggerInfo();
+ 	CvEventTriggerInfo& getEventTriggerInfo(EventTriggerTypes eEventTrigger);
+ 
+ 	int getNumEventInfos();
+-	std::vector<CvEventInfo*>& getEventInfo();
+ 	CvEventInfo& getEventInfo(EventTypes eEvent);
+ 
+ 	int getNumEspionageMissionInfos();
+-	std::vector<CvEspionageMissionInfo*>& getEspionageMissionInfo();
+ 	CvEspionageMissionInfo& getEspionageMissionInfo(EspionageMissionTypes eEspionageMissionNum);
+ 
+ 	int getNumUnitArtStyleTypeInfos();
+-	std::vector<CvUnitArtStyleTypeInfo*>& getUnitArtStyleTypeInfo();
+ 	CvUnitArtStyleTypeInfo& getUnitArtStyleTypeInfo(UnitArtStyleTypes eUnitArtStyleTypeNum);
+ 
+ 	//
+@@ -1100,15 +1013,15 @@ protected:
+ 	std::vector<CvVoteSourceInfo*> m_paVoteSourceInfo;
+ 	std::vector<CvInfoBase*> m_paUnitCombatInfo;
+ 	std::vector<CvInfoBase*> m_paDomainInfo;
+-	std::vector<CvInfoBase*> m_paUnitAIInfos;
+-	std::vector<CvInfoBase*> m_paAttitudeInfos;
+-	std::vector<CvInfoBase*> m_paMemoryInfos;
+-	std::vector<CvInfoBase*> m_paFeatInfos;
+-	std::vector<CvGameOptionInfo*> m_paGameOptionInfos;
+-	std::vector<CvMPOptionInfo*> m_paMPOptionInfos;
+-	std::vector<CvForceControlInfo*> m_paForceControlInfos;
+-	std::vector<CvPlayerOptionInfo*> m_paPlayerOptionInfos;
+-	std::vector<CvGraphicOptionInfo*> m_paGraphicOptionInfos;
++	std::vector<CvInfoBase*> m_paUnitAIInfo;
++	std::vector<CvInfoBase*> m_paAttitudeInfo;
++	std::vector<CvInfoBase*> m_paMemoryInfo;
++	std::vector<CvInfoBase*> m_paFeatInfo;
++	std::vector<CvGameOptionInfo*> m_paGameOptionInfo;
++	std::vector<CvMPOptionInfo*> m_paMPOptionInfo;
++	std::vector<CvForceControlInfo*> m_paForceControlInfo;
++	std::vector<CvPlayerOptionInfo*> m_paPlayerOptionInfo;
++	std::vector<CvGraphicOptionInfo*> m_paGraphicOptionInfo;
+ 	std::vector<CvSpecialistInfo*> m_paSpecialistInfo;
+ 	std::vector<CvEmphasizeInfo*> m_paEmphasizeInfo;
+ 	std::vector<CvUpkeepInfo*> m_paUpkeepInfo;
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.cpp b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+index 4882ed94d..3303f5abb 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtility.cpp
+@@ -91,10 +91,10 @@ void CvXMLLoadUtility::ResetLandscapeInfo()
+ {
+ 	for (int i = 0; i < GC.getNumLandscapeInfos(); ++i)
+ 	{
+-		SAFE_DELETE(GC.getLandscapeInfo()[i]);
++		SAFE_DELETE(GC.m_paLandscapeInfo[i]);
+ 	}
+ 
+-	GC.getLandscapeInfo().clear();
++	GC.m_paLandscapeInfo.clear();
+ 
+ 	SetupGlobalLandscapeInfo();
+ }
+@@ -110,12 +110,12 @@ void CvXMLLoadUtility::ResetGlobalEffectInfo()
+ {
+ 	for (int i = 0; i < GC.getNumEffectInfos(); ++i)
+ 	{
+-		SAFE_DELETE(GC.getEffectInfo()[i]);
++		SAFE_DELETE(GC.m_paEffectInfo[i]);
+ 	}
+ 
+-	GC.getEffectInfo().clear();
++	GC.m_paEffectInfo.clear();
+ 
+-	LoadGlobalClassInfo(GC.getEffectInfo(), "CIV4EffectInfos", "Misc", "Civ4EffectInfos/EffectInfos/EffectInfo", false, false);
++	LoadGlobalClassInfo(GC.m_paEffectInfo, "CIV4EffectInfos", "Misc", "Civ4EffectInfos/EffectInfos/EffectInfo", false, false);
+ }
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index f19a8c69c..8a17e3cb1 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -473,7 +473,7 @@ bool CvXMLLoadUtility::SetupGlobalLandscapeInfo()
+ 		return false;
+ 	}
+ 
+-	LoadGlobalClassInfo(GC.getLandscapeInfo(), "CIV4TerrainSettings", "Terrain", "Civ4TerrainSettings/LandscapeInfos/LandscapeInfo", false);
++	LoadGlobalClassInfo(GC.m_paLandscapeInfo, "CIV4TerrainSettings", "Terrain", "Civ4TerrainSettings/LandscapeInfos/LandscapeInfo", false);
+ 
+ 	// delete the pointer to the FXml variable
+ 	DestroyFXml();
+@@ -642,23 +642,24 @@ bool CvXMLLoadUtility::LoadGlobalText()
+ bool CvXMLLoadUtility::LoadBasicInfos()
+ {
+ 	if (!CreateFXml())
+-	{
+ 		return false;
+-	}
+ 
+-	LoadGlobalClassInfo(GC.getConceptInfo(), "CIV4BasicInfos", "BasicInfos", "Civ4BasicInfos/ConceptInfos/ConceptInfo", false);
+-	LoadGlobalClassInfo(GC.getNewConceptInfo(), "CIV4NewConceptInfos", "BasicInfos", "Civ4NewConceptInfos/NewConceptInfos/NewConceptInfo", false);
+-	LoadGlobalClassInfo(GC.getCityTabInfo(), "CIV4CityTabInfos", "BasicInfos", "Civ4CityTabInfos/CityTabInfos/CityTabInfo", false);
+-	LoadGlobalClassInfo(GC.getCalendarInfo(), "CIV4CalendarInfos", "BasicInfos", "Civ4CalendarInfos/CalendarInfos/CalendarInfo", false);
+-	LoadGlobalClassInfo(GC.getSeasonInfo(), "CIV4SeasonInfos", "BasicInfos", "Civ4SeasonInfos/SeasonInfos/SeasonInfo", false);
+-	LoadGlobalClassInfo(GC.getMonthInfo(), "CIV4MonthInfos", "BasicInfos", "Civ4MonthInfos/MonthInfos/MonthInfo", false);
+-	LoadGlobalClassInfo(GC.getDenialInfo(), "CIV4DenialInfos", "BasicInfos", "Civ4DenialInfos/DenialInfos/DenialInfo", false);
+-	LoadGlobalClassInfo(GC.getInvisibleInfo(), "CIV4InvisibleInfos", "BasicInfos", "Civ4InvisibleInfos/InvisibleInfos/InvisibleInfo", false);
+-	LoadGlobalClassInfo(GC.getUnitCombatInfo(), "CIV4UnitCombatInfos", "BasicInfos", "Civ4UnitCombatInfos/UnitCombatInfos/UnitCombatInfo", false);
+-	LoadGlobalClassInfo(GC.getDomainInfo(), "CIV4DomainInfos", "BasicInfos", "Civ4DomainInfos/DomainInfos/DomainInfo", false);
+-	LoadGlobalClassInfo(GC.getUnitAIInfo(), "CIV4UnitAIInfos", "BasicInfos", "Civ4UnitAIInfos/UnitAIInfos/UnitAIInfo", false);
+-	LoadGlobalClassInfo(GC.getAttitudeInfo(), "CIV4AttitudeInfos", "BasicInfos", "Civ4AttitudeInfos/AttitudeInfos/AttitudeInfo", false);
+-	LoadGlobalClassInfo(GC.getMemoryInfo(), "CIV4MemoryInfos", "BasicInfos", "Civ4MemoryInfos/MemoryInfos/MemoryInfo", false);
++	/* advc.003: Replaced all GC.get...Info() calls with direct accesses; see the
++		comment under the friend declaration in CvGlobals.h. */
++
++	LoadGlobalClassInfo(GC.m_paConceptInfo, "CIV4BasicInfos", "BasicInfos", "Civ4BasicInfos/ConceptInfos/ConceptInfo", false);
++	LoadGlobalClassInfo(GC.m_paNewConceptInfo, "CIV4NewConceptInfos", "BasicInfos", "Civ4NewConceptInfos/NewConceptInfos/NewConceptInfo", false);
++	LoadGlobalClassInfo(GC.m_paCityTabInfo, "CIV4CityTabInfos", "BasicInfos", "Civ4CityTabInfos/CityTabInfos/CityTabInfo", false);
++	LoadGlobalClassInfo(GC.m_paCalendarInfo, "CIV4CalendarInfos", "BasicInfos", "Civ4CalendarInfos/CalendarInfos/CalendarInfo", false);
++	LoadGlobalClassInfo(GC.m_paSeasonInfo, "CIV4SeasonInfos", "BasicInfos", "Civ4SeasonInfos/SeasonInfos/SeasonInfo", false);
++	LoadGlobalClassInfo(GC.m_paMonthInfo, "CIV4MonthInfos", "BasicInfos", "Civ4MonthInfos/MonthInfos/MonthInfo", false);
++	LoadGlobalClassInfo(GC.m_paDenialInfo, "CIV4DenialInfos", "BasicInfos", "Civ4DenialInfos/DenialInfos/DenialInfo", false);
++	LoadGlobalClassInfo(GC.m_paInvisibleInfo, "CIV4InvisibleInfos", "BasicInfos", "Civ4InvisibleInfos/InvisibleInfos/InvisibleInfo", false);
++	LoadGlobalClassInfo(GC.m_paUnitCombatInfo, "CIV4UnitCombatInfos", "BasicInfos", "Civ4UnitCombatInfos/UnitCombatInfos/UnitCombatInfo", false);
++	LoadGlobalClassInfo(GC.m_paDomainInfo, "CIV4DomainInfos", "BasicInfos", "Civ4DomainInfos/DomainInfos/DomainInfo", false);
++	LoadGlobalClassInfo(GC.m_paUnitAIInfo, "CIV4UnitAIInfos", "BasicInfos", "Civ4UnitAIInfos/UnitAIInfos/UnitAIInfo", false);
++	LoadGlobalClassInfo(GC.m_paAttitudeInfo, "CIV4AttitudeInfos", "BasicInfos", "Civ4AttitudeInfos/AttitudeInfos/AttitudeInfo", false);
++	LoadGlobalClassInfo(GC.m_paMemoryInfo, "CIV4MemoryInfos", "BasicInfos", "Civ4MemoryInfos/MemoryInfos/MemoryInfo", false);
+ 
+ 	DestroyFXml();
+ 	return true;
+@@ -672,81 +673,82 @@ bool CvXMLLoadUtility::LoadBasicInfos()
+ bool CvXMLLoadUtility::LoadPreMenuGlobals()
+ {
+ 	if (!CreateFXml())
+-	{
+ 		return false;
+-	}
+ 
+-	LoadGlobalClassInfo(GC.getGameSpeedInfo(), "CIV4GameSpeedInfo", "GameInfo", "Civ4GameSpeedInfo/GameSpeedInfos/GameSpeedInfo", false);
+-	LoadGlobalClassInfo(GC.getTurnTimerInfo(), "CIV4TurnTimerInfo", "GameInfo", "Civ4TurnTimerInfo/TurnTimerInfos/TurnTimerInfo", false);
+-	LoadGlobalClassInfo(GC.getWorldInfo(), "CIV4WorldInfo", "GameInfo", "Civ4WorldInfo/WorldInfos/WorldInfo", false);
+-	LoadGlobalClassInfo(GC.getClimateInfo(), "CIV4ClimateInfo", "GameInfo", "Civ4ClimateInfo/ClimateInfos/ClimateInfo", false);
+-	LoadGlobalClassInfo(GC.getSeaLevelInfo(), "CIV4SeaLevelInfo", "GameInfo", "Civ4SeaLevelInfo/SeaLevelInfos/SeaLevelInfo", false);
+-	LoadGlobalClassInfo(GC.getAdvisorInfo(), "CIV4AdvisorInfos", "Interface", "Civ4AdvisorInfos/AdvisorInfos/AdvisorInfo", false);
+-	LoadGlobalClassInfo(GC.getTerrainInfo(), "CIV4TerrainInfos", "Terrain", "Civ4TerrainInfos/TerrainInfos/TerrainInfo", false);
+-	LoadGlobalClassInfo(GC.getEraInfo(), "CIV4EraInfos", "GameInfo", "Civ4EraInfos/EraInfos/EraInfo", false);
+-	LoadGlobalClassInfo(GC.getUnitClassInfo(), "CIV4UnitClassInfos", "Units", "Civ4UnitClassInfos/UnitClassInfos/UnitClassInfo", false);
+-	LoadGlobalClassInfo(GC.getSpecialistInfo(), "CIV4SpecialistInfos", "GameInfo", "Civ4SpecialistInfos/SpecialistInfos/SpecialistInfo", false);
+-	LoadGlobalClassInfo(GC.getVoteSourceInfo(), "CIV4VoteSourceInfos", "GameInfo", "Civ4VoteSourceInfos/VoteSourceInfos/VoteSourceInfo", false);
+-	LoadGlobalClassInfo(GC.getTechInfo(), "CIV4TechInfos", "Technologies", "Civ4TechInfos/TechInfos/TechInfo", true, &CvDLLUtilityIFaceBase::createTechInfoCacheObject);
+-	LoadGlobalClassInfo(GC.getFeatureInfo(), "Civ4FeatureInfos", "Terrain", "Civ4FeatureInfos/FeatureInfos/FeatureInfo", false);
+-	LoadGlobalClassInfo(GC.getReligionInfo(), "CIV4ReligionInfo", "GameInfo", "Civ4ReligionInfo/ReligionInfos/ReligionInfo", false);
+-	LoadGlobalClassInfo(GC.getAnimationCategoryInfo(), "CIV4AnimationInfos", "Units", "Civ4AnimationInfos/AnimationCategories/AnimationCategory", false);
+-	LoadGlobalClassInfo(GC.getAnimationPathInfo(), "CIV4AnimationPathInfos", "Units", "Civ4AnimationPathInfos/AnimationPaths/AnimationPath", false);
+-	LoadGlobalClassInfo(GC.getPromotionInfo(), "CIV4PromotionInfos", "Units", "Civ4PromotionInfos/PromotionInfos/PromotionInfo", true, &CvDLLUtilityIFaceBase::createPromotionInfoCacheObject);
+-	LoadGlobalClassInfo(GC.getTraitInfo(), "CIV4TraitInfos", "Civilizations", "Civ4TraitInfos/TraitInfos/TraitInfo", false);
+-	LoadGlobalClassInfo(GC.getGoodyInfo(), "CIV4GoodyInfo", "GameInfo", "Civ4GoodyInfo/GoodyInfos/GoodyInfo", false);
+-	LoadGlobalClassInfo(GC.getHandicapInfo(), "CIV4HandicapInfo", "GameInfo", "Civ4HandicapInfo/HandicapInfos/HandicapInfo", false, &CvDLLUtilityIFaceBase::createHandicapInfoCacheObject);
+-	LoadGlobalClassInfo(GC.getCursorInfo(), "CIV4CursorInfo", "GameInfo", "Civ4CursorInfo/CursorInfos/CursorInfo", false);
+-	LoadGlobalClassInfo(GC.getCivicOptionInfo(), "CIV4CivicOptionInfos", "GameInfo", "Civ4CivicOptionInfos/CivicOptionInfos/CivicOptionInfo", false);
+-	LoadGlobalClassInfo(GC.getUpkeepInfo(), "CIV4UpkeepInfo", "GameInfo", "Civ4UpkeepInfo/UpkeepInfos/UpkeepInfo", false);
+-	LoadGlobalClassInfo(GC.getHurryInfo(), "CIV4HurryInfo", "GameInfo", "Civ4HurryInfo/HurryInfos/HurryInfo", false);
+-	LoadGlobalClassInfo(GC.getSpecialBuildingInfo(), "CIV4SpecialBuildingInfos", "Buildings", "Civ4SpecialBuildingInfos/SpecialBuildingInfos/SpecialBuildingInfo", false);
+-	LoadGlobalClassInfo(GC.getCultureLevelInfo(), "CIV4CultureLevelInfo", "GameInfo", "Civ4CultureLevelInfo/CultureLevelInfos/CultureLevelInfo", false);
+-	LoadGlobalClassInfo(GC.getBonusClassInfo(), "CIV4BonusClassInfos", "Terrain", "Civ4BonusClassInfos/BonusClassInfos/BonusClassInfo", false);
+-	LoadGlobalClassInfo(GC.getVictoryInfo(), "CIV4VictoryInfo", "GameInfo", "Civ4VictoryInfo/VictoryInfos/VictoryInfo", false);
+-	LoadGlobalClassInfo(GC.getBonusInfo(), "CIV4BonusInfos", "Terrain", "Civ4BonusInfos/BonusInfos/BonusInfo", false, &CvDLLUtilityIFaceBase::createBonusInfoCacheObject);
+-	LoadGlobalClassInfo(GC.getCorporationInfo(), "CIV4CorporationInfo", "GameInfo", "Civ4CorporationInfo/CorporationInfos/CorporationInfo", false);
+-	LoadGlobalClassInfo(GC.getRouteInfo(), "Civ4RouteInfos", "Misc", "Civ4RouteInfos/RouteInfos/RouteInfo", false);
+-	LoadGlobalClassInfo(GC.getImprovementInfo(), "CIV4ImprovementInfos", "Terrain", "Civ4ImprovementInfos/ImprovementInfos/ImprovementInfo", true, &CvDLLUtilityIFaceBase::createImprovementInfoCacheObject);
+-	LoadGlobalClassInfo(GC.getBuildingClassInfo(), "CIV4BuildingClassInfos", "Buildings", "Civ4BuildingClassInfos/BuildingClassInfos/BuildingClassInfo", false);
+-	LoadGlobalClassInfo(GC.getBuildingInfo(), "CIV4BuildingInfos", "Buildings", "Civ4BuildingInfos/BuildingInfos/BuildingInfo", false, &CvDLLUtilityIFaceBase::createBuildingInfoCacheObject);
++	/* advc.003: Replaced all GC.get...Info() calls with direct accesses; see the
++		comment under the friend declaration in CvGlobals.h. */
++
++	LoadGlobalClassInfo(GC.m_paGameSpeedInfo, "CIV4GameSpeedInfo", "GameInfo", "Civ4GameSpeedInfo/GameSpeedInfos/GameSpeedInfo", false);
++	LoadGlobalClassInfo(GC.m_paTurnTimerInfo, "CIV4TurnTimerInfo", "GameInfo", "Civ4TurnTimerInfo/TurnTimerInfos/TurnTimerInfo", false);
++	LoadGlobalClassInfo(GC.m_paWorldInfo, "CIV4WorldInfo", "GameInfo", "Civ4WorldInfo/WorldInfos/WorldInfo", false);
++	LoadGlobalClassInfo(GC.m_paClimateInfo, "CIV4ClimateInfo", "GameInfo", "Civ4ClimateInfo/ClimateInfos/ClimateInfo", false);
++	LoadGlobalClassInfo(GC.m_paSeaLevelInfo, "CIV4SeaLevelInfo", "GameInfo", "Civ4SeaLevelInfo/SeaLevelInfos/SeaLevelInfo", false);
++	LoadGlobalClassInfo(GC.m_paAdvisorInfo, "CIV4AdvisorInfos", "Interface", "Civ4AdvisorInfos/AdvisorInfos/AdvisorInfo", false);
++	LoadGlobalClassInfo(GC.m_paTerrainInfo, "CIV4TerrainInfos", "Terrain", "Civ4TerrainInfos/TerrainInfos/TerrainInfo", false);
++	LoadGlobalClassInfo(GC.m_aEraInfo, "CIV4EraInfos", "GameInfo", "Civ4EraInfos/EraInfos/EraInfo", false);
++	LoadGlobalClassInfo(GC.m_paUnitClassInfo, "CIV4UnitClassInfos", "Units", "Civ4UnitClassInfos/UnitClassInfos/UnitClassInfo", false);
++	LoadGlobalClassInfo(GC.m_paSpecialistInfo, "CIV4SpecialistInfos", "GameInfo", "Civ4SpecialistInfos/SpecialistInfos/SpecialistInfo", false);
++	LoadGlobalClassInfo(GC.m_paVoteSourceInfo, "CIV4VoteSourceInfos", "GameInfo", "Civ4VoteSourceInfos/VoteSourceInfos/VoteSourceInfo", false);
++	LoadGlobalClassInfo(GC.m_paTechInfo, "CIV4TechInfos", "Technologies", "Civ4TechInfos/TechInfos/TechInfo", true, &CvDLLUtilityIFaceBase::createTechInfoCacheObject);
++	LoadGlobalClassInfo(GC.m_paFeatureInfo, "Civ4FeatureInfos", "Terrain", "Civ4FeatureInfos/FeatureInfos/FeatureInfo", false);
++	LoadGlobalClassInfo(GC.m_paReligionInfo, "CIV4ReligionInfo", "GameInfo", "Civ4ReligionInfo/ReligionInfos/ReligionInfo", false);
++	LoadGlobalClassInfo(GC.m_paAnimationCategoryInfo, "CIV4AnimationInfos", "Units", "Civ4AnimationInfos/AnimationCategories/AnimationCategory", false);
++	LoadGlobalClassInfo(GC.m_paAnimationPathInfo, "CIV4AnimationPathInfos", "Units", "Civ4AnimationPathInfos/AnimationPaths/AnimationPath", false);
++	LoadGlobalClassInfo(GC.m_paPromotionInfo, "CIV4PromotionInfos", "Units", "Civ4PromotionInfos/PromotionInfos/PromotionInfo", true, &CvDLLUtilityIFaceBase::createPromotionInfoCacheObject);
++	LoadGlobalClassInfo(GC.m_paTraitInfo, "CIV4TraitInfos", "Civilizations", "Civ4TraitInfos/TraitInfos/TraitInfo", false);
++	LoadGlobalClassInfo(GC.m_paGoodyInfo, "CIV4GoodyInfo", "GameInfo", "Civ4GoodyInfo/GoodyInfos/GoodyInfo", false);
++	LoadGlobalClassInfo(GC.m_paHandicapInfo, "CIV4HandicapInfo", "GameInfo", "Civ4HandicapInfo/HandicapInfos/HandicapInfo", false, &CvDLLUtilityIFaceBase::createHandicapInfoCacheObject);
++	LoadGlobalClassInfo(GC.m_paCursorInfo, "CIV4CursorInfo", "GameInfo", "Civ4CursorInfo/CursorInfos/CursorInfo", false);
++	LoadGlobalClassInfo(GC.m_paCivicOptionInfo, "CIV4CivicOptionInfos", "GameInfo", "Civ4CivicOptionInfos/CivicOptionInfos/CivicOptionInfo", false);
++	LoadGlobalClassInfo(GC.m_paUpkeepInfo, "CIV4UpkeepInfo", "GameInfo", "Civ4UpkeepInfo/UpkeepInfos/UpkeepInfo", false);
++	LoadGlobalClassInfo(GC.m_paHurryInfo, "CIV4HurryInfo", "GameInfo", "Civ4HurryInfo/HurryInfos/HurryInfo", false);
++	LoadGlobalClassInfo(GC.m_paSpecialBuildingInfo, "CIV4SpecialBuildingInfos", "Buildings", "Civ4SpecialBuildingInfos/SpecialBuildingInfos/SpecialBuildingInfo", false);
++	LoadGlobalClassInfo(GC.m_paCultureLevelInfo, "CIV4CultureLevelInfo", "GameInfo", "Civ4CultureLevelInfo/CultureLevelInfos/CultureLevelInfo", false);
++	LoadGlobalClassInfo(GC.m_paBonusClassInfo, "CIV4BonusClassInfos", "Terrain", "Civ4BonusClassInfos/BonusClassInfos/BonusClassInfo", false);
++	LoadGlobalClassInfo(GC.m_paVictoryInfo, "CIV4VictoryInfo", "GameInfo", "Civ4VictoryInfo/VictoryInfos/VictoryInfo", false);
++	LoadGlobalClassInfo(GC.m_paBonusInfo, "CIV4BonusInfos", "Terrain", "Civ4BonusInfos/BonusInfos/BonusInfo", false, &CvDLLUtilityIFaceBase::createBonusInfoCacheObject);
++	LoadGlobalClassInfo(GC.m_paCorporationInfo, "CIV4CorporationInfo", "GameInfo", "Civ4CorporationInfo/CorporationInfos/CorporationInfo", false);
++	LoadGlobalClassInfo(GC.m_paRouteInfo, "Civ4RouteInfos", "Misc", "Civ4RouteInfos/RouteInfos/RouteInfo", false);
++	LoadGlobalClassInfo(GC.m_paImprovementInfo, "CIV4ImprovementInfos", "Terrain", "Civ4ImprovementInfos/ImprovementInfos/ImprovementInfo", true, &CvDLLUtilityIFaceBase::createImprovementInfoCacheObject);
++	LoadGlobalClassInfo(GC.m_paBuildingClassInfo, "CIV4BuildingClassInfos", "Buildings", "Civ4BuildingClassInfos/BuildingClassInfos/BuildingClassInfo", false);
++	LoadGlobalClassInfo(GC.m_paBuildingInfo, "CIV4BuildingInfos", "Buildings", "Civ4BuildingInfos/BuildingInfos/BuildingInfo", false, &CvDLLUtilityIFaceBase::createBuildingInfoCacheObject);
+ 	for (int i=0; i < GC.getNumBuildingClassInfos(); ++i)
+ 	{
+ 		GC.getBuildingClassInfo((BuildingClassTypes)i).readPass3();
+ 	}
+-	LoadGlobalClassInfo(GC.getSpecialUnitInfo(), "CIV4SpecialUnitInfos", "Units", "Civ4SpecialUnitInfos/SpecialUnitInfos/SpecialUnitInfo", false);
+-	LoadGlobalClassInfo(GC.getProjectInfo(), "CIV4ProjectInfo", "GameInfo", "Civ4ProjectInfo/ProjectInfos/ProjectInfo", true);
+-	LoadGlobalClassInfo(GC.getCivicInfo(), "CIV4CivicInfos", "GameInfo", "Civ4CivicInfos/CivicInfos/CivicInfo", false, &CvDLLUtilityIFaceBase::createCivicInfoCacheObject);
++	LoadGlobalClassInfo(GC.m_paSpecialUnitInfo, "CIV4SpecialUnitInfos", "Units", "Civ4SpecialUnitInfos/SpecialUnitInfos/SpecialUnitInfo", false);
++	LoadGlobalClassInfo(GC.m_paProjectInfo, "CIV4ProjectInfo", "GameInfo", "Civ4ProjectInfo/ProjectInfos/ProjectInfo", true);
++	LoadGlobalClassInfo(GC.m_paCivicInfo, "CIV4CivicInfos", "GameInfo", "Civ4CivicInfos/CivicInfos/CivicInfo", false, &CvDLLUtilityIFaceBase::createCivicInfoCacheObject);
+ 	for (int i=0; i < GC.getNumVoteSourceInfos(); ++i)
+ 	{
+ 		GC.getVoteSourceInfo((VoteSourceTypes)i).readPass3();
+ 	}
+-	LoadGlobalClassInfo(GC.getLeaderHeadInfo(), "CIV4LeaderHeadInfos", "Civilizations", "Civ4LeaderHeadInfos/LeaderHeadInfos/LeaderHeadInfo", false, &CvDLLUtilityIFaceBase::createLeaderHeadInfoCacheObject);
+-	LoadGlobalClassInfo(GC.getColorInfo(), "CIV4ColorVals", "Interface", "Civ4ColorVals/ColorVals/ColorVal", false);
+-	LoadGlobalClassInfo(GC.getPlayerColorInfo(), "CIV4PlayerColorInfos", "Interface", "Civ4PlayerColorInfos/PlayerColorInfos/PlayerColorInfo", false);
+-	LoadGlobalClassInfo(GC.getEffectInfo(), "CIV4EffectInfos", "Misc", "Civ4EffectInfos/EffectInfos/EffectInfo", false);
+-	LoadGlobalClassInfo(GC.getEntityEventInfo(), "CIV4EntityEventInfos", "Units", "Civ4EntityEventInfos/EntityEventInfos/EntityEventInfo", false);
+-	LoadGlobalClassInfo(GC.getBuildInfo(), "CIV4BuildInfos", "Units", "Civ4BuildInfos/BuildInfos/BuildInfo", false);
+-	LoadGlobalClassInfo(GC.getUnitInfo(), "CIV4UnitInfos", "Units", "Civ4UnitInfos/UnitInfos/UnitInfo", false, &CvDLLUtilityIFaceBase::createUnitInfoCacheObject);
++	LoadGlobalClassInfo(GC.m_paLeaderHeadInfo, "CIV4LeaderHeadInfos", "Civilizations", "Civ4LeaderHeadInfos/LeaderHeadInfos/LeaderHeadInfo", false, &CvDLLUtilityIFaceBase::createLeaderHeadInfoCacheObject);
++	LoadGlobalClassInfo(GC.m_paColorInfo, "CIV4ColorVals", "Interface", "Civ4ColorVals/ColorVals/ColorVal", false);
++	LoadGlobalClassInfo(GC.m_paPlayerColorInfo, "CIV4PlayerColorInfos", "Interface", "Civ4PlayerColorInfos/PlayerColorInfos/PlayerColorInfo", false);
++	LoadGlobalClassInfo(GC.m_paEffectInfo, "CIV4EffectInfos", "Misc", "Civ4EffectInfos/EffectInfos/EffectInfo", false);
++	LoadGlobalClassInfo(GC.m_paEntityEventInfo, "CIV4EntityEventInfos", "Units", "Civ4EntityEventInfos/EntityEventInfos/EntityEventInfo", false);
++	LoadGlobalClassInfo(GC.m_paBuildInfo, "CIV4BuildInfos", "Units", "Civ4BuildInfos/BuildInfos/BuildInfo", false);
++	LoadGlobalClassInfo(GC.m_paUnitInfo, "CIV4UnitInfos", "Units", "Civ4UnitInfos/UnitInfos/UnitInfo", false, &CvDLLUtilityIFaceBase::createUnitInfoCacheObject);
+ 	for (int i=0; i < GC.getNumUnitClassInfos(); ++i)
+ 	{
+ 		GC.getUnitClassInfo((UnitClassTypes)i).readPass3();
+ 	}
+-	LoadGlobalClassInfo(GC.getUnitArtStyleTypeInfo(), "CIV4UnitArtStyleTypeInfos", "Civilizations", "Civ4UnitArtStyleTypeInfos/UnitArtStyleTypeInfos/UnitArtStyleTypeInfo", false);
+-	LoadGlobalClassInfo(GC.getCivilizationInfo(), "CIV4CivilizationInfos", "Civilizations", "Civ4CivilizationInfos/CivilizationInfos/CivilizationInfo", true, &CvDLLUtilityIFaceBase::createCivilizationInfoCacheObject);
+-	LoadGlobalClassInfo(GC.getHints(), "CIV4Hints", "GameInfo", "Civ4Hints/HintInfos/HintInfo", false);
+-	LoadGlobalClassInfo(GC.getMainMenus(), "CIV4MainMenus", "Art", "Civ4MainMenus/MainMenus/MainMenu", false);
+-	LoadGlobalClassInfo(GC.getSlideShowInfo(), "CIV4SlideShowInfos", "Interface", "Civ4SlideShowInfos/SlideShowInfos/SlideShowInfo", false);
+-	LoadGlobalClassInfo(GC.getSlideShowRandomInfo(), "CIV4SlideShowRandomInfos", "Interface", "Civ4SlideShowRandomInfos/SlideShowRandomInfos/SlideShowRandomInfo", false);
+-	LoadGlobalClassInfo(GC.getWorldPickerInfo(), "CIV4WorldPickerInfos", "Interface", "Civ4WorldPickerInfos/WorldPickerInfos/WorldPickerInfo", false);
+-	LoadGlobalClassInfo(GC.getSpaceShipInfo(), "Civ4SpaceShipInfos", "Interface", "Civ4SpaceShipInfos/SpaceShipInfos/SpaceShipInfo", false);
++	LoadGlobalClassInfo(GC.m_paUnitArtStyleTypeInfo, "CIV4UnitArtStyleTypeInfos", "Civilizations", "Civ4UnitArtStyleTypeInfos/UnitArtStyleTypeInfos/UnitArtStyleTypeInfo", false);
++	LoadGlobalClassInfo(GC.m_paCivilizationInfo, "CIV4CivilizationInfos", "Civilizations", "Civ4CivilizationInfos/CivilizationInfos/CivilizationInfo", true, &CvDLLUtilityIFaceBase::createCivilizationInfoCacheObject);
++	LoadGlobalClassInfo(GC.m_paHints, "CIV4Hints", "GameInfo", "Civ4Hints/HintInfos/HintInfo", false);
++	LoadGlobalClassInfo(GC.m_paMainMenus, "CIV4MainMenus", "Art", "Civ4MainMenus/MainMenus/MainMenu", false);
++	LoadGlobalClassInfo(GC.m_paSlideShowInfo, "CIV4SlideShowInfos", "Interface", "Civ4SlideShowInfos/SlideShowInfos/SlideShowInfo", false);
++	LoadGlobalClassInfo(GC.m_paSlideShowRandomInfo, "CIV4SlideShowRandomInfos", "Interface", "Civ4SlideShowRandomInfos/SlideShowRandomInfos/SlideShowRandomInfo", false);
++	LoadGlobalClassInfo(GC.m_paWorldPickerInfo, "CIV4WorldPickerInfos", "Interface", "Civ4WorldPickerInfos/WorldPickerInfos/WorldPickerInfo", false);
++	LoadGlobalClassInfo(GC.m_paSpaceShipInfo, "Civ4SpaceShipInfos", "Interface", "Civ4SpaceShipInfos/SpaceShipInfos/SpaceShipInfo", false);
+ 
+ 
+-	LoadGlobalClassInfo(GC.getYieldInfo(), "CIV4YieldInfos", "Terrain", "Civ4YieldInfos/YieldInfos/YieldInfo", false);
+-	LoadGlobalClassInfo(GC.getCommerceInfo(), "CIV4CommerceInfo", "GameInfo", "Civ4CommerceInfo/CommerceInfos/CommerceInfo", false);
+-	LoadGlobalClassInfo(GC.getGameOptionInfo(), "CIV4GameOptionInfos", "GameInfo", "Civ4GameOptionInfos/GameOptionInfos/GameOptionInfo", false);
+-	LoadGlobalClassInfo(GC.getMPOptionInfo(), "CIV4MPOptionInfos", "GameInfo", "Civ4MPOptionInfos/MPOptionInfos/MPOptionInfo", false);
+-	LoadGlobalClassInfo(GC.getForceControlInfo(), "CIV4ForceControlInfos", "GameInfo", "Civ4ForceControlInfos/ForceControlInfos/ForceControlInfo", false);
++	LoadGlobalClassInfo(GC.m_paYieldInfo, "CIV4YieldInfos", "Terrain", "Civ4YieldInfos/YieldInfos/YieldInfo", false);
++	LoadGlobalClassInfo(GC.m_paCommerceInfo, "CIV4CommerceInfo", "GameInfo", "Civ4CommerceInfo/CommerceInfos/CommerceInfo", false);
++	LoadGlobalClassInfo(GC.m_paGameOptionInfo, "CIV4GameOptionInfos", "GameInfo", "Civ4GameOptionInfos/GameOptionInfos/GameOptionInfo", false);
++	LoadGlobalClassInfo(GC.m_paMPOptionInfo, "CIV4MPOptionInfos", "GameInfo", "Civ4MPOptionInfos/MPOptionInfos/MPOptionInfo", false);
++	LoadGlobalClassInfo(GC.m_paForceControlInfo, "CIV4ForceControlInfos", "GameInfo", "Civ4ForceControlInfos/ForceControlInfos/ForceControlInfo", false);
+ 
+ 	// add types to global var system
+ 	for (int i = 0; i < GC.getNumCursorInfos(); ++i)
+@@ -797,78 +799,79 @@ bool CvXMLLoadUtility::LoadPostMenuGlobals()
+ {
+ 	PROFILE_FUNC();
+ 	if (!CreateFXml())
+-	{
+ 		return false;
+-	}
++
++	/* advc.003: Replaced all GC.get...Info() calls with direct accesses; see the
++		comment under the friend declaration in CvGlobals.h. */
+ 
+ 	//throne room disabled
+ 	UpdateProgressCB("Global Throne Room");
+ 
+-	LoadGlobalClassInfo(GC.getThroneRoomCamera(), "CIV4ThroneRoomCameraInfos", "Interface", "Civ4ThroneRoomCameraInfos/ThroneRoomCameraInfos/ThroneRoomCamera", false);
+-	LoadGlobalClassInfo(GC.getThroneRoomInfo(), "CIV4ThroneRoomInfos", "Interface", "Civ4ThroneRoomInfos/ThroneRoomInfos/ThroneRoomInfo", false);
+-	LoadGlobalClassInfo(GC.getThroneRoomStyleInfo(), "CIV4ThroneRoomStyleInfos", "Interface", "Civ4ThroneRoomStyleInfos/ThroneRoomStyleInfos/ThroneRoomStyleInfo", false);
++	LoadGlobalClassInfo(GC.m_paThroneRoomCamera, "CIV4ThroneRoomCameraInfos", "Interface", "Civ4ThroneRoomCameraInfos/ThroneRoomCameraInfos/ThroneRoomCamera", false);
++	LoadGlobalClassInfo(GC.m_paThroneRoomInfo, "CIV4ThroneRoomInfos", "Interface", "Civ4ThroneRoomInfos/ThroneRoomInfos/ThroneRoomInfo", false);
++	LoadGlobalClassInfo(GC.m_paThroneRoomStyleInfo, "CIV4ThroneRoomStyleInfos", "Interface", "Civ4ThroneRoomStyleInfos/ThroneRoomStyleInfos/ThroneRoomStyleInfo", false);
+ 
+ 	UpdateProgressCB("Global Events");
+ 
+-	LoadGlobalClassInfo(GC.getEventInfo(), "CIV4EventInfos", "Events", "Civ4EventInfos/EventInfos/EventInfo", true, &CvDLLUtilityIFaceBase::createEventInfoCacheObject);
+-	LoadGlobalClassInfo(GC.getEventTriggerInfo(), "CIV4EventTriggerInfos", "Events", "Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo", false, &CvDLLUtilityIFaceBase::createEventTriggerInfoCacheObject);
++	LoadGlobalClassInfo(GC.m_paEventInfo, "CIV4EventInfos", "Events", "Civ4EventInfos/EventInfos/EventInfo", true, &CvDLLUtilityIFaceBase::createEventInfoCacheObject);
++	LoadGlobalClassInfo(GC.m_paEventTriggerInfo, "CIV4EventTriggerInfos", "Events", "Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo", false, &CvDLLUtilityIFaceBase::createEventTriggerInfoCacheObject);
+ 
+ 	UpdateProgressCB("Global Routes");
+ 
+-	LoadGlobalClassInfo(GC.getRouteModelInfo(), "Civ4RouteModelInfos", "Art", "Civ4RouteModelInfos/RouteModelInfos/RouteModelInfo", false);
++	LoadGlobalClassInfo(GC.m_paRouteModelInfo, "Civ4RouteModelInfos", "Art", "Civ4RouteModelInfos/RouteModelInfos/RouteModelInfo", false);
+ 
+ 	UpdateProgressCB("Global Rivers");
+ 
+-	LoadGlobalClassInfo(GC.getRiverInfo(), "CIV4RiverInfos", "Misc", "Civ4RiverInfos/RiverInfos/RiverInfo", false);
+-	LoadGlobalClassInfo(GC.getRiverModelInfo(), "CIV4RiverModelInfos", "Art", "Civ4RiverModelInfos/RiverModelInfos/RiverModelInfo", false);
++	LoadGlobalClassInfo(GC.m_paRiverInfo, "CIV4RiverInfos", "Misc", "Civ4RiverInfos/RiverInfos/RiverInfo", false);
++	LoadGlobalClassInfo(GC.m_paRiverModelInfo, "CIV4RiverModelInfos", "Art", "Civ4RiverModelInfos/RiverModelInfos/RiverModelInfo", false);
+ 
+ 	UpdateProgressCB("Global Other");
+ 
+-	LoadGlobalClassInfo(GC.getWaterPlaneInfo(), "CIV4WaterPlaneInfos", "Misc", "Civ4WaterPlaneInfos/WaterPlaneInfos/WaterPlaneInfo", false);
+-	LoadGlobalClassInfo(GC.getTerrainPlaneInfo(), "CIV4TerrainPlaneInfos", "Misc", "Civ4TerrainPlaneInfos/TerrainPlaneInfos/TerrainPlaneInfo", false);
+-	LoadGlobalClassInfo(GC.getCameraOverlayInfo(), "CIV4CameraOverlayInfos", "Misc", "Civ4CameraOverlayInfos/CameraOverlayInfos/CameraOverlayInfo", false);
++	LoadGlobalClassInfo(GC.m_paWaterPlaneInfo, "CIV4WaterPlaneInfos", "Misc", "Civ4WaterPlaneInfos/WaterPlaneInfos/WaterPlaneInfo", false);
++	LoadGlobalClassInfo(GC.m_paTerrainPlaneInfo, "CIV4TerrainPlaneInfos", "Misc", "Civ4TerrainPlaneInfos/TerrainPlaneInfos/TerrainPlaneInfo", false);
++	LoadGlobalClassInfo(GC.m_paCameraOverlayInfo, "CIV4CameraOverlayInfos", "Misc", "Civ4CameraOverlayInfos/CameraOverlayInfos/CameraOverlayInfo", false);
+ 
+ 
+ 	UpdateProgressCB("Global Process");
+ 
+-	LoadGlobalClassInfo(GC.getProcessInfo(), "CIV4ProcessInfo", "GameInfo", "Civ4ProcessInfo/ProcessInfos/ProcessInfo", false);
++	LoadGlobalClassInfo(GC.m_paProcessInfo, "CIV4ProcessInfo", "GameInfo", "Civ4ProcessInfo/ProcessInfos/ProcessInfo", false);
+ 
+ 	UpdateProgressCB("Global Emphasize");
+ 
+-	LoadGlobalClassInfo(GC.getEmphasizeInfo(), "CIV4EmphasizeInfo", "GameInfo", "Civ4EmphasizeInfo/EmphasizeInfos/EmphasizeInfo", false);
++	LoadGlobalClassInfo(GC.m_paEmphasizeInfo, "CIV4EmphasizeInfo", "GameInfo", "Civ4EmphasizeInfo/EmphasizeInfos/EmphasizeInfo", false);
+ 
+ 	UpdateProgressCB("Global Other");
+ 
+-	LoadGlobalClassInfo(GC.getMissionInfo(), "CIV4MissionInfos", "Units", "Civ4MissionInfos/MissionInfos/MissionInfo", false);
+-	LoadGlobalClassInfo(GC.getControlInfo(), "CIV4ControlInfos", "Units", "Civ4ControlInfos/ControlInfos/ControlInfo", false);
+-	LoadGlobalClassInfo(GC.getCommandInfo(), "CIV4CommandInfos", "Units", "Civ4CommandInfos/CommandInfos/CommandInfo", false);
+-	LoadGlobalClassInfo(GC.getAutomateInfo(), "CIV4AutomateInfos", "Units", "Civ4AutomateInfos/AutomateInfos/AutomateInfo", false);
++	LoadGlobalClassInfo(GC.m_paMissionInfo, "CIV4MissionInfos", "Units", "Civ4MissionInfos/MissionInfos/MissionInfo", false);
++	LoadGlobalClassInfo(GC.m_paControlInfo, "CIV4ControlInfos", "Units", "Civ4ControlInfos/ControlInfos/ControlInfo", false);
++	LoadGlobalClassInfo(GC.m_paCommandInfo, "CIV4CommandInfos", "Units", "Civ4CommandInfos/CommandInfos/CommandInfo", false);
++	LoadGlobalClassInfo(GC.m_paAutomateInfo, "CIV4AutomateInfos", "Units", "Civ4AutomateInfos/AutomateInfos/AutomateInfo", false);
+ 
+ 	UpdateProgressCB("Global Vote");
+ 
+-	LoadGlobalClassInfo(GC.getVoteInfo(), "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
++	LoadGlobalClassInfo(GC.m_paVoteInfo, "CIV4VoteInfo", "GameInfo", "Civ4VoteInfo/VoteInfos/VoteInfo", false);
+ 
+ 	UpdateProgressCB("Global Interface");
+ 
+-	LoadGlobalClassInfo(GC.getCameraInfo(), "CIV4CameraInfos", "Interface", "Civ4CameraInfos/CameraInfos/CameraInfo", false);
+-	LoadGlobalClassInfo(GC.getInterfaceModeInfo(), "CIV4InterfaceModeInfos", "Interface", "Civ4InterfaceModeInfos/InterfaceModeInfos/InterfaceModeInfo", false);
++	LoadGlobalClassInfo(GC.m_paCameraInfo, "CIV4CameraInfos", "Interface", "Civ4CameraInfos/CameraInfos/CameraInfo", false);
++	LoadGlobalClassInfo(GC.m_paInterfaceModeInfo, "CIV4InterfaceModeInfos", "Interface", "Civ4InterfaceModeInfos/InterfaceModeInfos/InterfaceModeInfo", false);
+ 
+ 	SetGlobalActionInfo();
+ 
+ 
+ 	// Load the formation info
+-	LoadGlobalClassInfo(GC.getUnitFormationInfo(), "CIV4FormationInfos", "Units", "UnitFormations/UnitFormation", false);
++	LoadGlobalClassInfo(GC.m_paUnitFormationInfo, "CIV4FormationInfos", "Units", "UnitFormations/UnitFormation", false);
+ 
+ 	// Load the attachable infos
+-	LoadGlobalClassInfo(GC.getAttachableInfo(), "CIV4AttachableInfos", "Misc", "Civ4AttachableInfos/AttachableInfos/AttachableInfo", false);
++	LoadGlobalClassInfo(GC.m_paAttachableInfo, "CIV4AttachableInfos", "Misc", "Civ4AttachableInfos/AttachableInfos/AttachableInfo", false);
+ 
+ 	// Special Case Diplomacy Info due to double vectored nature and appending of Responses
+-	LoadDiplomacyInfo(GC.getDiplomacyInfo(), "CIV4DiplomacyInfos", "GameInfo", "Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo", &CvDLLUtilityIFaceBase::createDiplomacyInfoCacheObject);
++	LoadDiplomacyInfo(GC.m_paDiplomacyInfo, "CIV4DiplomacyInfos", "GameInfo", "Civ4DiplomacyInfos/DiplomacyInfos/DiplomacyInfo", &CvDLLUtilityIFaceBase::createDiplomacyInfoCacheObject);
+ 	// advc.003j:
+-	//LoadGlobalClassInfo(GC.getQuestInfo(), "Civ4QuestInfos", "Misc", "Civ4QuestInfos/QuestInfo", false);
+-	LoadGlobalClassInfo(GC.getTutorialInfo(), "Civ4TutorialInfos", "Misc", "Civ4TutorialInfos/TutorialInfo", false);
++	//LoadGlobalClassInfo(GC.QuestInfo, "Civ4QuestInfos", "Misc", "Civ4QuestInfos/QuestInfo", false);
++	LoadGlobalClassInfo(GC.m_paTutorialInfo, "Civ4TutorialInfos", "Misc", "Civ4TutorialInfos/TutorialInfo", false);
+ 
+-	LoadGlobalClassInfo(GC.getEspionageMissionInfo(), "CIV4EspionageMissionInfo", "GameInfo", "Civ4EspionageMissionInfo/EspionageMissionInfos/EspionageMissionInfo", false);
++	LoadGlobalClassInfo(GC.m_paEspionageMissionInfo, "CIV4EspionageMissionInfo", "GameInfo", "Civ4EspionageMissionInfo/EspionageMissionInfos/EspionageMissionInfo", false);
+ 
+ 	DestroyFXml();
+ 	return true;
+@@ -1204,7 +1207,7 @@ void CvXMLLoadUtility::SetGlobalActionInfo()
+ 			GC.getMissionInfo((MissionTypes)piIndexList[piOrderedIndex[i]]).setActionInfoIndex(i + iNumOrigVals);
+ 		}
+ 
+-		GC.getActionInfo().push_back(pActionInfo);
++		GC.m_paActionInfo.push_back(pActionInfo);
+ 	}
+ 
+ 	SAFE_DELETE_ARRAY(piOrderedIndex);
+@@ -2656,7 +2659,7 @@ DllExport bool CvXMLLoadUtility::LoadPlayerOptions()
+ 	if (!CreateFXml())
+ 		return false;
+ 
+-	LoadGlobalClassInfo(GC.getPlayerOptionInfo(), "CIV4PlayerOptionInfos", "GameInfo", "Civ4PlayerOptionInfos/PlayerOptionInfos/PlayerOptionInfo", false);
++	LoadGlobalClassInfo(GC.m_paPlayerOptionInfo, "CIV4PlayerOptionInfos", "GameInfo", "Civ4PlayerOptionInfos/PlayerOptionInfos/PlayerOptionInfo", false);
+ 	FAssert(GC.getNumPlayerOptionInfos() == NUM_PLAYEROPTION_TYPES);
+ 
+ 	DestroyFXml();
+@@ -2668,7 +2671,7 @@ DllExport bool CvXMLLoadUtility::LoadGraphicOptions()
+ 	if (!CreateFXml())
+ 		return false;
+ 
+-	LoadGlobalClassInfo(GC.getGraphicOptionInfo(), "CIV4GraphicOptionInfos", "GameInfo", "Civ4GraphicOptionInfos/GraphicOptionInfos/GraphicOptionInfo", false);
++	LoadGlobalClassInfo(GC.m_paGraphicOptionInfo, "CIV4GraphicOptionInfos", "GameInfo", "Civ4GraphicOptionInfos/GraphicOptionInfos/GraphicOptionInfo", false);
+ 	FAssert(GC.getNumGraphicOptions() == NUM_GRAPHICOPTION_TYPES);
+ 
+ 	DestroyFXml();
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=83612

@@ -1,0 +1,370 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6050
+# Commit: e88cb89821c63958b03c889ddc91a3dc07449029
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c89861b618e8512ea2731d1cfd832b33ec060970
+# Title: (Fixed/Improved) Major Base AdvCiv/K-Mod bug: city-assault armies without a reachable target or war plan could keep waiting for reinforcements indefinitely a...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+151	15	CvGameCoreDLL/CvUnitAI.cpp
+33	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 38bf57bac..00e52fc2d 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -2935,7 +2935,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: Minimum number of units required in a stack before it can be "ready to attack" a city. Prevents premature wars where small stacks advance, declare war, then retreat ("weird back and forth"). Low-numbered unit stacks are sensitive to quick power swings. Simple sanity check that doesn't rely on complex ratio calculations. See KI#104 (GPT-5.2-Codex + Claude code Opus 4.5) -->
++	<!-- custom: Minimum number of units required in a stack before it can be "ready to attack" a city. Prevents premature wars where small stacks advance, declare war, then retreat ("weird back and forth"). Low-numbered unit stacks are sensitive to quick power swings. Simple sanity check that doesn't rely on complex ratio calculations. Also acts as the minimum city-assault nucleus retained when a peaceful army has no target or war plan; the estimated Barbarian requirement can retain more, while excess suitable units return to general military duties until a target appears. See KI#104 and KI#188.3. (GPT-5.2-Codex + Claude code Opus 4.5 + GPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_MIN_ATTACK_CITY_STACK_UNITS</DefineName>
+ 		<iDefineIntVal>9</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ff10b17fc..704308f31 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -837,6 +837,60 @@ static int SAS_getBarbarianCityExpeditionMaxUnits(int iBarbarianGarrison, int iB
+ 	return std::max(std::max(1, iBarbarianAttackersNeeded), iGarrisonMultiplier * std::max(0, iBarbarianGarrison) - 1);
+ }
+ 
++// <!-- custom: BBAI testing found peaceful city-assault groups repeatedly waiting for reinforcements despite having no war plan, reachable rival city, or pathable Barbarian city. America's group grew from 6 units on turn 126 to 18 of 47 military units by turn 225 while still targetless and peaceful; after a short war it returned to peace with 21 of 51 units on turn 247. Retaining a useful nucleus is worthwhile, but repeatedly concentrating every suitable unit when no target exists is not.
++// Detach units already assigned to other roles first, then convert excess UNITAI_ATTACK_CITY units that have positive general-attack value into UNITAI_ATTACK. Preserve the group head and enough units for at least the normal minimum city-assault stack or estimated Barbarian requirement. General attackers can defend and perform other duties during peace, while normal wartime grouping can organize them again when a real target appears. See KI#188.3. (GPT-5.6-Sol) -->
++static bool SAS_releaseTargetlessPeacetimeAttackCityExcess(CvUnitAI& kUnit, int iRetainedUnits)
++{
++	CvSelectionGroup* pGroup = kUnit.getGroup();
++	if (pGroup == NULL || pGroup->getNumUnits() <= iRetainedUnits)
++		return false;
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	int const iOriginalGroupId = pGroup->getID();
++	int const iOriginalGroupUnits = pGroup->getNumUnits();
++	std::vector<std::pair<int,int> > aReleaseCandidates;
++	FOR_EACH_UNITAI_IN(pLoopUnit, *pGroup)
++	{
++		if (pLoopUnit == &kUnit) continue;
++		if (pLoopUnit->AI_getUnitAIType() != UNITAI_ATTACK_CITY)
++		{
++			aReleaseCandidates.push_back(std::make_pair(MAX_INT, pLoopUnit->getID()));
++			continue;
++		}
++		int const iAttackValue = kOwner.AI_unitValue(pLoopUnit->getUnitType(), UNITAI_ATTACK, &kUnit.getArea());
++		if (iAttackValue <= 0) continue;
++		int const iAttackCityValue = kOwner.AI_unitValue(pLoopUnit->getUnitType(), UNITAI_ATTACK_CITY, &kUnit.getArea());
++		aReleaseCandidates.push_back(std::make_pair(100 * iAttackValue / std::max(1, iAttackCityValue), pLoopUnit->getID()));
++	}
++	std::sort(aReleaseCandidates.begin(), aReleaseCandidates.end(), std::greater<std::pair<int,int> >());
++	int iDetachedExistingRoles = 0;
++	int iReassignedAttackers = 0;
++	for (std::vector<std::pair<int,int> >::const_iterator it = aReleaseCandidates.begin(); it != aReleaseCandidates.end() && pGroup->getNumUnits() > iRetainedUnits; ++it)
++	{
++		CvUnitAI* pReleaseUnit = kOwner.AI_getUnit(it->second);
++		if (pReleaseUnit == NULL || pReleaseUnit->getGroup() != pGroup) continue;
++		if (pReleaseUnit->AI_getUnitAIType() == UNITAI_ATTACK_CITY)
++		{
++			pReleaseUnit->AI_setUnitAIType(UNITAI_ATTACK);
++			iReassignedAttackers++;
++		}
++		else
++		{
++			pReleaseUnit->joinGroup(NULL);
++			iDetachedExistingRoles++;
++		}
++	}
++	int const iReleasedUnits = iDetachedExistingRoles + iReassignedAttackers;
++	if (iReleasedUnits <= 0)
++		return false;
++	if (gUnitLogLevel >= 2)
++	{
++		logBBAI("    ATTACK_CITY_TARGETLESS_PEACETIME_EXCESS_RELEASED turn=%d player=%d %S originalGroupId=%d originalGroupUnits=%d retainedLimit=%d candidates=%d detachedExistingRoles=%d reassignedAttackers=%d remainingGroupId=%d remainingGroupUnits=%d unreleasedExcess=%d totalMilitary=%d",
++			GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), iOriginalGroupId, iOriginalGroupUnits, iRetainedUnits, (int)aReleaseCandidates.size(), iDetachedExistingRoles, iReassignedAttackers, pGroup->getID(), pGroup->getNumUnits(), std::max(0, pGroup->getNumUnits() - iRetainedUnits), kOwner.getNumMilitaryUnits());
++	}
++	pGroup->pushMission(MISSION_SKIP);
++	return true;
++}
++
+ // <!-- custom: The barbarian-expedition fix showed that capable UNITAI_ATTACK units can remain fragmented when an area has no UNITAI_ATTACK_CITY leader. Before extending that behavior to wars against other civilizations, record whether the same organizational gap occurs during active or planned wars, whether a land target is pathable, and how much useful military strength is available.
+ // This is called only after ordinary city-defense claims and immediate plot danger have already taken priority. Deduplicate by player, land area, and turn so multiple suitable attackers do not flood BBAI.log; behavior is unchanged. (GPT-5.6-Sol) -->
+ static void SAS_logMissingWarCityExpeditionLeaderCandidate(CvUnitAI& kUnit, CvPlayerAI const& kOwner, CvTeamAI const& kTeam, int iAreaAttackCityUnits, int iNumWars, bool bAnyWarPlan, bool bSneakAttackReady, bool bTurtle)
+@@ -1082,8 +1136,22 @@ static void SAS_logLargeAttackCityStackAction(CvUnitAI const& kUnit, char const*
+ 	if (pGroup == NULL)
+ 		return;
+ 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	CvTeamAI const& kTeam = GET_TEAM(kUnit.getTeam());
+ 	CvPlot const* pMissionPlot = pGroup->AI_getMissionAIPlot();
+ 	CvUnitAI const* pMissionUnit = pGroup->AI_getMissionAIUnit();
++	CvCity const* pAreaTargetCity = kUnit.getArea().AI_getTargetCity(kUnit.getOwner());
++	int iWarPlanTargets = 0;
++	TeamTypes eFirstWarPlanTarget = NO_TEAM;
++	WarPlanTypes eFirstWarPlan = NO_WARPLAN;
++	for (TeamIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itTarget(kUnit.getTeam()); itTarget.hasNext(); ++itTarget)
++	{
++		WarPlanTypes const eWarPlan = kTeam.AI_getWarPlan(itTarget->getID());
++		if (eWarPlan == NO_WARPLAN) continue;
++		iWarPlanTargets++;
++		if (eFirstWarPlanTarget != NO_TEAM) continue;
++		eFirstWarPlanTarget = itTarget->getID();
++		eFirstWarPlan = eWarPlan;
++	}
+ 	int iWounded = 0;
+ 	FOR_EACH_UNIT_IN(pLoopUnit, *pGroup)
+ 	{
+@@ -1091,10 +1159,61 @@ static void SAS_logLargeAttackCityStackAction(CvUnitAI const& kUnit, char const*
+ 	}
+ 	int const iTotalMilitary = kOwner.getNumMilitaryUnits();
+ 	int const iIncomingJoiners = kOwner.AI_unitTargetMissionAIs(kUnit, MISSIONAI_GROUP);
+-	logBBAI("    ATTACK_CITY_LARGE_STACK_ACTION turn=%d player=%d %S action=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d wounded=%d at=(%d,%d) city=%S activity=%d mission=%s missionAI=%d missionPlot=(%d,%d) missionUnitOwner=%d missionUnitId=%d missionQueue=%d incomingJoiners=%d movesLeft=%d target=%S target=(%d,%d) wars=%d anyWarPlan=%d",
++	logBBAI("    ATTACK_CITY_LARGE_STACK_ACTION turn=%d player=%d %S action=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d wounded=%d at=(%d,%d) city=%S activity=%d mission=%s missionAI=%d missionPlot=(%d,%d) missionUnitOwner=%d missionUnitId=%d missionQueue=%d incomingJoiners=%d movesLeft=%d target=%S target=(%d,%d) areaTarget=%S areaTarget=(%d,%d) areaAI=%d wars=%d anyWarPlan=%d chosenWar=%d sneakAttackReady=%d warPlanTargets=%d firstWarPlanTarget=%d firstWarPlan=%s",
+ 		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), pGroup->getID(), pGroup->getNumUnits(), iTotalMilitary, 100 * pGroup->getNumUnits() / std::max(1, iTotalMilitary), iWounded,
+ 		kUnit.getX(), kUnit.getY(), (kUnit.getPlot().getPlotCity() == NULL ? L"-" : kUnit.getPlot().getPlotCity()->getName().GetCString()), pGroup->getActivityType(), SAS_getMissionTypeName(pGroup->getMissionType(0)), pGroup->AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pMissionUnit == NULL ? -1 : pMissionUnit->getOwner()), (pMissionUnit == NULL ? -1 : pMissionUnit->getID()), pGroup->getLengthMissionQueue(),
+-		iIncomingJoiners, kUnit.movesLeft(), (pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), GET_TEAM(kUnit.getTeam()).getNumWars(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan());
++		iIncomingJoiners, kUnit.movesLeft(), (pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()),
++		(pAreaTargetCity == NULL ? L"-" : pAreaTargetCity->getName().GetCString()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getY()), kUnit.getArea().getAreaAIType(kUnit.getTeam()), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kTeam.AI_isAnyChosenWar(), kTeam.AI_isSneakAttackReady(), iWarPlanTargets, eFirstWarPlanTarget, getSASWarPlanType(eFirstWarPlan));
++}
++
++// <!-- custom: A test had two large Carthaginian city-assault groups waiting in Hadrumetum during an overseas war plan while AI_load only removed one unit on two isolated turns. When the existing large-stack diagnostic sees an assault-loading failure, summarize each AI_findTransport filter and the fleet's cargo use so insufficient ships, reserved capacity, unsafe missions, and unreachable transports can be distinguished before changing behavior. This is diagnostic only and is called inside the UNIT level-2 large-stack gate. (GPT-5.6-Sol) -->
++static void SAS_logAssaultTransportFailure(CvUnitAI& kUnit, MovementFlags eFlags, int iMaxPath)
++{
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	int iAssaultTransports = 0;
++	int iCargoCapacity = 0;
++	int iCargoUsed = 0;
++	int iGeographicallyEligible = 0;
++	int iGeographicCapacity = 0;
++	int iGeographicCargoUsed = 0;
++	int iCanLoadOnto = 0;
++	int iWithRawSpace = 0;
++	int iRawSpace = 0;
++	int iReservedSpace = 0;
++	int iWithUsableSpace = 0;
++	int iUsableSpace = 0;
++	int iSafeMissionTargets = 0;
++	int iPathable = 0;
++	MissionAITypes aeLoadMissionAI[] = { MISSIONAI_LOAD_ASSAULT, MISSIONAI_LOAD_SETTLER, MISSIONAI_LOAD_SPECIAL, MISSIONAI_ATTACK_SPY };
++	FOR_EACH_UNITAI(pTransport, kOwner)
++	{
++		if (pTransport->AI_getUnitAIType() != UNITAI_ASSAULT_SEA) continue;
++		iAssaultTransports++;
++		iCargoCapacity += pTransport->cargoSpace();
++		iCargoUsed += pTransport->getCargo();
++		if (pTransport->cargoSpace() <= 0 || (!kUnit.sameArea(*pTransport) && !pTransport->getPlot().isAdjacentToArea(kUnit.getArea()))) continue;
++		iGeographicallyEligible++;
++		iGeographicCapacity += pTransport->cargoSpace();
++		iGeographicCargoUsed += pTransport->getCargo();
++		if (!kUnit.canLoadOnto(*pTransport, pTransport->getPlot())) continue;
++		iCanLoadOnto++;
++		int const iTransportRawSpace = pTransport->cargoSpaceAvailable(kUnit.getSpecialUnitType(), kUnit.getDomainType());
++		if (iTransportRawSpace <= 0) continue;
++		iWithRawSpace++;
++		iRawSpace += iTransportRawSpace;
++		int const iTransportReservedSpace = kOwner.AI_unitTargetMissionAIs(*pTransport, aeLoadMissionAI, ARRAYSIZE(aeLoadMissionAI), kUnit.getGroup());
++		iReservedSpace += iTransportReservedSpace;
++		int const iTransportUsableSpace = iTransportRawSpace - iTransportReservedSpace;
++		if (iTransportUsableSpace <= 0) continue;
++		iWithUsableSpace++;
++		iUsableSpace += iTransportUsableSpace;
++		CvPlot const* pUnitTargetPlot = pTransport->AI_getGroup()->AI_getMissionAIPlot();
++		if (pUnitTargetPlot != NULL && pUnitTargetPlot->getTeam() != kUnit.getTeam() && pUnitTargetPlot->isOwned() && kUnit.AI_isPotentialEnemyOf(pUnitTargetPlot->getTeam(), *pUnitTargetPlot)) continue;
++		iSafeMissionTargets++;
++		if (kUnit.at(pTransport->getPlot()) || kUnit.generatePath(pTransport->getPlot(), eFlags, true, NULL, iMaxPath)) iPathable++;
++	}
++	logBBAI("    ATTACK_CITY_ASSAULT_TRANSPORT_FAIL turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d at=(%d,%d) area=%d areaAI=%d assaultTransports=%d cargoCapacity=%d cargoUsed=%d geographicallyEligible=%d geographicCapacity=%d geographicCargoUsed=%d canLoadOnto=%d withRawSpace=%d rawSpace=%d reservedSpace=%d withUsableSpace=%d usableSpace=%d safeMissionTargets=%d pathableWithin=%d maxPath=%d",
++		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), kUnit.getX(), kUnit.getY(), kUnit.getArea().getID(), kUnit.getArea().getAreaAIType(kUnit.getTeam()), iAssaultTransports, iCargoCapacity, iCargoUsed, iGeographicallyEligible, iGeographicCapacity, iGeographicCargoUsed, iCanLoadOnto, iWithRawSpace, iRawSpace, iReservedSpace, iWithUsableSpace, iUsableSpace, iSafeMissionTargets, iPathable, iMaxPath);
+ }
+ 
+ // <!-- custom: Diagnostic logging for suspected large army parking in remote conquered cities. Keep this narrow:
+@@ -6311,6 +6430,8 @@ void CvUnitAI::AI_attackCityMove()
+ 
+ 	AreaAITypes const eAreaAI = getArea().getAreaAIType(getTeam());
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
++	CvTeamAI const& kTeam = GET_TEAM(getTeam());
++	bool const bAnyWarPlan = kTeam.AI_isAnyWarPlan();
+ 	bool const bLogLargeAttackCityStack = (gUnitLogLevel >= 2 && SAS_isLargeAttackCityStackDiagnostic(*this));
+ 	if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "entry");
+ 	//bool bLandWar = !isBarbarian() && ((eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) || (eAreaAIType == AREAAI_MASSING));
+@@ -6539,6 +6660,8 @@ void CvUnitAI::AI_attackCityMove()
+ 			pTargetCity = AI_pickTargetCity(eMoveFlags, MAX_INT, bHuntBarbs);
+ 		}
+ 	}
++	// <!-- custom: Base AdvCiv/K-Mod reinforcement waits otherwise return before a targetless peaceful army can release its excess units. Only wait for more joiners when the group has selected a city or has a real war plan; otherwise continue to the safe release below. See KI#188.3. (GPT-5.6-Sol) -->
++	bool const bHasTargetOrWarPlan = (pTargetCity != NULL || bAnyWarPlan);
+ 
+ 	/*	K-Mod. This is used to prevent the AI from oscillating
+ 		between moving to attack moving to pillage. */
+@@ -6767,6 +6890,7 @@ void CvUnitAI::AI_attackCityMove()
+ 			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_load_assault", pTargetCity);
+ 			return;
+ 		}
++		if (bLogLargeAttackCityStack) SAS_logAssaultTransportFailure(*this, eMoveFlags, 6);
+ 	} // K-Mod end
+ 	{
+ 		int iMaxGroupPath = 2;
+@@ -6923,7 +7047,7 @@ void CvUnitAI::AI_attackCityMove()
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+ 			int iJoiners = (iMaxWaitTurns > 0 ? kOwner.AI_unitTargetMissionAIs(*this, &eMissionAIType, 1, getGroup(), iMaxWaitTurns) : 0);
+ 
+-			if (iJoiners * range(iPathTurns-1, 2, 5) > getGroup()->getNumUnits())
++			if (bHasTargetOrWarPlan && iJoiners * range(iPathTurns-1, 2, 5) > getGroup()->getNumUnits())
+ 			{	// (the mission is just for debug feedback)
+ 				if (bLogAttackCityParking) SAS_logAttackCityParking(*this, pTargetCity, "wait_joiners_ready", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iJoiners, iPathTurns, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
+ 				getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
+@@ -6958,7 +7082,7 @@ void CvUnitAI::AI_attackCityMove()
+ 			}
+ 
+ 			int iTargetCount = kOwner.AI_unitTargetMissionAIs(*this, MISSIONAI_GROUP);
+-			if (iTargetCount * 5 > getGroup()->getNumUnits())
++			if (bHasTargetOrWarPlan && iTargetCount * 5 > getGroup()->getNumUnits())
+ 			{
+ 				MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+ 				int iJoiners = kOwner.AI_unitTargetMissionAIs(*this, &eMissionAIType, 1, getGroup(), 2);
+@@ -7008,8 +7132,7 @@ void CvUnitAI::AI_attackCityMove()
+ 	}
+ 
+ 	if (bReadyToAttack /* advc.083: */ && !bTargetTooStrong)
+-	{	// advc.opt: Moved into the bReadyToAttack branch
+-		bool bAnyWarPlan = GET_TEAM(getTeam()).AI_isAnyWarPlan();
++	{
+ 		/* BBAI code
+ 		if (isBarbarian()) {
+ 			if (AI_goToTargetCity(eMoveFlags, 12))
+@@ -7278,6 +7401,12 @@ void CvUnitAI::AI_attackCityMove()
+ 						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY(),
+ 						(pBarbTargetCity == NULL ? L"-" : pBarbTargetCity->getName().GetCString()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getX()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getY()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getOwner()), (pBarbTargetCity != NULL && pBarbTargetCity->isBarbarian()), iFallbackPickedPathTurns, iFallbackPickedValue, iFallbackPickedTargetValue, iFallbackPickedStepDistance, iFallbackPickedDefenders);
+ 				}
++				// <!-- custom: Base AdvCiv/K-Mod could keep a city-assault army assembled indefinitely after both normal and Barbarian target selection failed. At peace with no war plan, release excess units once the army is safely inside its own territory; preserve the useful nucleus and avoid fragmenting an army in foreign territory or immediate danger. See KI#188.3. (GPT-5.6-Sol) -->
++				if (!bAnyWarPlan && kTeam.getNumWars() <= 0 && getPlot().getOwner() == getOwner() && kOwner.AI_getPlotDanger(getPlot()) <= 0)
++				{
++					int const iRetainedUnits = std::max(iMinStackSize, std::max(1, iBarbarianAttackersNeeded));
++					if (SAS_releaseTargetlessPeacetimeAttackCityExcess(*this, iRetainedUnits)) return;
++				}
+ 			}
+ 		}
+ 	}
+@@ -7296,7 +7425,7 @@ void CvUnitAI::AI_attackCityMove()
+ 		}*/ // BtS
+ 		// K-Mod
+ 		int iTargetCount = kOwner.AI_unitTargetMissionAIs(*this, MISSIONAI_GROUP);
+-		if (6 * iTargetCount > getGroup()->getNumUnits())
++		if (bHasTargetOrWarPlan && 6 * iTargetCount > getGroup()->getNumUnits())
+ 		{
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+ 			int iNearbyJoiners = kOwner.AI_unitTargetMissionAIs(*this, &eMissionAIType, 1, getGroup(), 2);
+@@ -13837,21 +13966,28 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ 	int iEffectiveMaxGroup = iMaxGroup;
+ 	bool bEffectiveStackOfDoom = bStackOfDoom;
+ 	// <!-- custom: BBAI diagnostics found 166 grouping decisions that bypassed the peaceful barbarian-expedition cap: 113 from UNITAI_COUNTER, 48 from other UNITAI_ATTACK_CITY groups, and 5 from UNITAI_CITY_DEFENSE. Enforce the cap centrally whenever any UnitAI groups with an attack-city expedition, rather than relying on every present and future caller to duplicate it.
+-	// AI_omniGroup intentionally excludes the caller's head unit from iMaxGroup for legacy compatibility, so subtract one from the actual expedition cap. Active war, sneak-attack, turtle, and non-barbarian-hunting contexts retain the caller's normal group limit and stack-of-doom allowance. See KI#188. (GPT-5.6-Sol) -->
++	// Later testing found targetless peaceful groups repeatedly attracting reinforcements for more than 120 turns. With no war plan, retain only the larger of the normal minimum city-assault stack and estimated Barbarian requirement; this prevents released general attackers from immediately rebuilding the parked army. AI_omniGroup intentionally excludes the caller's head unit from iMaxGroup, so subtract one from the actual cap. Active war, sneak-attack, and turtle contexts retain the caller's normal group limit and stack-of-doom allowance. See KI#188 and KI#188.3. (GPT-5.6-Sol) -->
+ 	if (eUnitAI == UNITAI_ATTACK_CITY && !isBarbarian() && bMergeGroups)
+ 	{
+ 		CvTeamAI const& kTeam = GET_TEAM(getTeam());
+ 		if (!kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE) && !kTeam.AI_isSneakAttackReady() && kTeam.getNumWars() <= 0)
+ 		{
+-			int const iBarbarianGarrison = kOwner.AI_estimateBarbarianGarrisonSize();
+-			AreaAITypes const eAreaAI = getArea().getAreaAIType(getTeam());
+-			bool const bHuntBarbs = ((eAreaAI != AREAAI_DEFENSIVE && eAreaAI != AREAAI_OFFENSIVE && !kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1)) || iBarbarianGarrison < 2 * kOwner.AI_getCurrEraFactor());
+-			if (bHuntBarbs)
++			int iActualGroupMax = -1;
++			if (!kTeam.AI_isAnyWarPlan())
++			{
++				static int const iMinAttackCityStack = GC.getDefineINT("SAS_MIN_ATTACK_CITY_STACK_UNITS");
++				iActualGroupMax = std::max(iMinAttackCityStack, kOwner.AI_neededCityAttackersVsBarbarians().ceil());
++			}
++			else
+ 			{
+-				int const iExpeditionGroupMax = std::max(0, SAS_getBarbarianCityExpeditionMaxUnits(iBarbarianGarrison, kOwner.AI_neededCityAttackersVsBarbarians().ceil()) - 1);
+-				if (iEffectiveMaxGroup < 0 || iExpeditionGroupMax < iEffectiveMaxGroup) iEffectiveMaxGroup = iExpeditionGroupMax;
+-				bEffectiveStackOfDoom = false;
++				int const iBarbarianGarrison = kOwner.AI_estimateBarbarianGarrisonSize();
++				AreaAITypes const eAreaAI = getArea().getAreaAIType(getTeam());
++				bool const bHuntBarbs = ((eAreaAI != AREAAI_DEFENSIVE && eAreaAI != AREAAI_OFFENSIVE && !kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1)) || iBarbarianGarrison < 2 * kOwner.AI_getCurrEraFactor());
++				if (bHuntBarbs) iActualGroupMax = SAS_getBarbarianCityExpeditionMaxUnits(iBarbarianGarrison, kOwner.AI_neededCityAttackersVsBarbarians().ceil());
+ 			}
++			int const iOmniGroupMax = std::max(0, iActualGroupMax - 1);
++			if (iActualGroupMax > 0 && (iEffectiveMaxGroup < 0 || iOmniGroupMax < iEffectiveMaxGroup)) iEffectiveMaxGroup = iOmniGroupMax;
++			if (iActualGroupMax > 0) bEffectiveStackOfDoom = false;
+ 		}
+ 	}
+ 	/*	<advc.057> Except for assault groups, the head unit should have the
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 2c148c8e5..cfa144de8 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -230,6 +230,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [187 - (Fixed/Improved) Base AdvCiv excessively devalued soon-connectable bonuses in AI city-site scoring](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#187---fixedimproved-base-advciv-excessively-devalued-soon-connectable-bonuses-in-ai-city-site-scoring)\
+ [188 - (Fixed/Improved) Major Base AdvCiv/K-Mod bug in organizing armies against Barbarian cities could park 65-82% of an AI's military or prevent capable attackers from forming city-assault expeditions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#188---fixedimproved-major-base-advcivk-mod-bug-in-organizing-armies-against-barbarian-cities-could-park-65-82-of-an-ais-military-or-prevent-capable-attackers-from-forming-city-assault-expeditions)\
+ [188.2 - (Fixed/Improved) Base AdvCiv/K-Mod issue: offensive armies could ignore nearby endangered cities instead of going back to try to help defending them](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1882---fixedimproved-base-advcivk-mod-issue-offensive-armies-could-ignore-nearby-endangered-cities-instead-of-going-back-to-try-to-help-defending-them)\
++[188.3 - (Fixed/Improved) Major Base AdvCiv/K-Mod bug: city-assault armies without a reachable target or war plan could keep waiting for reinforcements indefinitely and park 40-53% of an AI's military](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1883---fixedimproved-major-base-advcivk-mod-bug-city-assault-armies-without-a-reachable-target-or-war-plan-could-keep-waiting-for-reinforcements-indefinitely-and-park-40-53-of-an-ais-military)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7052,3 +7053,35 @@ The iterative logs were important because two superficially reasonable versions
+ The exact Baghdad history diverged in subsequent runs, so it could not be directly replayed after the cure. The confirming `BBAI_20260717T114542Z_load1.log` instead verified the corrected behavior in analogous endangered-city responses and contained 168 priority actions: 16 whole-group invader counters, 16 expedition splits, 10 group-head redirects, and 126 explicit guard-city continuations. Its 215 detached-unit rows represented 89 new assignments and 126 continuations. No short-interval fresh reassignment of the same unit to the same city remained. On turn 182, Amsterdam needed 12 defenders and had 5; a nearby 18-unit Dutch army detached the exact 7-unit shortage and retained 11 units. The reinforcements continued into Amsterdam on turn 183, and the first emergency ended. When a genuinely new emergency appeared on turn 193, Amsterdam needed 13 defenders and had 3; a 19-unit army sent 10 and retained 9. `SASGameSummary_20260717T114542Z_load1.log` showed that Amsterdam survived through the test. This confirms that emergency defenders can complete their mission without permanently freezing ordinary garrisons or needlessly dissolving every offensive army.
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
++
++## 188.3 - (Fixed/Improved) Major Base AdvCiv/K-Mod bug: city-assault armies without a reachable target or war plan could keep waiting for reinforcements indefinitely and park 40-53% of an AI's military
++
++This is a peacetime follow-up to KI#188. The original cure stopped an oversized civilization AI expedition against a Barbarian city from being declared unready merely because it had more units than its weak target required. Later BBAI diagnostics showed a separate Base AdvCiv/K-Mod failure: a city-assault army could have no selected rival city, no pathable Barbarian city, and no war plan, yet continue using generic reinforcement-wait behavior instead of returning its excess units to other military duties.
++
++This affects ordinary civilization AIs, not the Barbarian player. Barbarian cities matter here because an AI civilization at peace with every rival can still attack an independent Barbarian city without starting a normal war. If no such city is reachable either, the army has nothing useful to attack. The cure does not change how Barbarian units move or how civilization AIs respond to Barbarian units attacking their territory.
++
++The clearest baseline example was the United States in save file 450. Its group grew from 6 units on turn 126 to 18 of the empire's 47 military units by turn 225 while still peaceful, without a target or war plan. The group then fought during a short war, showing that retaining a prepared nucleus was useful, but it returned to peace still holding 21 of 51 military units on turn 247. Repeatedly committing that much of the army before and after a war was not useful when no target existed. Those units still cost maintenance and could not flexibly defend other cities, form another expedition, or exploit a different opportunity.
++
++The Netherlands showed the upper end of the title's measured range: 22 of its 41 military units (53%) were parked without a target or war plan on turn 219, then the group immediately became useful after the empire was attacked on turn 220. This again showed that the army itself was valuable once a real need appeared; the bug was committing most of it to reinforcement waiting before that need existed.
++
++Three related behaviors sustained the parking:
++
++- K-Mod's generic waits for incoming group members could return before the no-target path completed, even though the army had neither a selected city nor a war plan.
++- After normal rival-city selection and the pathable-Barbarian fallback both failed, Base AdvCiv/K-Mod had no deliberate action for releasing a targetless peaceful army.
++- General attackers and other military UnitAI roles released from the group could be attracted back through `AI_omniGroup`, rebuilding the same concentration.
++
++The cure preserves preparation without keeping the whole army unavailable:
++
++- Reinforcement waits now require either a selected target city or an actual war plan. A peaceful group with neither continues through the no-target handling instead of waiting merely because more units are approaching.
++- After both normal and Barbarian target selection fail, an army at peace with no war plan releases excess units once it is safely inside its owner's territory and the plot is not threatened. It is not fragmented in foreign territory or immediate danger.
++- The group head and a useful nucleus remain together. The retained size is the larger of `SAS_MIN_ATTACK_CITY_STACK_UNITS` and the estimated number of attackers needed against Barbarian cities.
++- Units already assigned to other military roles are detached first. Only excess `UNITAI_ATTACK_CITY` units with positive general-attack value are converted to `UNITAI_ATTACK`, so units unsuitable for ordinary attack duties are not discarded from their specialist role.
++- While there is no war plan, the central `AI_omniGroup` cap prevents released units from immediately rebuilding the parked group. Active wars, war plans, sneak-attack readiness, and turtle strategy retain normal large-army grouping.
++
++The confirming save-file 450 run logged 59 releases across eight civilizations. All 357 detachments or reassignments reached the intended retained limit, with no unreleased excess; 327 units already had other military roles and only 30 genuine city-assault units required conversion. The United States groups were reduced from 13 to 11 units and later from 12 to 11. When a real war appeared, normal concentration still worked: Carthage combined a 63-unit army and advanced toward Susa.
++
++Save file 452 independently confirmed the behavior with 93 releases across ten civilizations and 463 detachments or reassignments, again with no unreleased excess. Of those, 439 units already had other military roles and only 24 city-assault units were converted. Japan's targetless peaceful group was reduced from 21 to 11. Wartime armies remained unrestricted: China assembled roughly 180-202 units for its attack on Aksum, and several other empires launched 40-57-unit offensives. When peace followed Aksum's capture, the Chinese army immediately began splitting; China then adopted another war plan on the following turn, so it was free to regroup rather than being incorrectly dismantled during renewed preparation.
++
++This reuses `SAS_MIN_ATTACK_CITY_STACK_UNITS` rather than adding another tuning value, because the existing minimum already expresses how large a generally useful city-assault nucleus should be.
++
++Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index dd6892391..d9ec43016 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -407,6 +407,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - (Requires AdvCiv-SAS 6047+) **Capable early armies can organize themselves to capture Barbarian cities:** SASGameSummary and BBAI logging also found AIs with 9-14 units individually able (`UNITAI_ATTACK`) to attack and capture cities, but none assigned to organize the others (`UNITAI_ATTACK_CITY`) into a city-assault army, so this is a difference in `UNITAI` assignment, not their abilities. A K-Mod rule automatically broke down any group of 4 or more such units into smaller groups of 2 or 3 units if the group was in territory owned by the AI or one of its teammates. Because of this, many of the AI's military units could remain at home instead of grouping together to capture a reachable Barbarian city. To fix this, if no city the unit can reach within one turn needs it as a defender and the unit is not currently threatened, the AI now checks if enough attackers are available in the area, and if so, the AI assigns that unit as the expedition leader; the others can then group with it and they set out against a Barbarian city. For example, the save file 453 confirming run created four such expedition leaders. Among them, one was of a Spanish Chariot reassigned on T60 had gathered a four-unit group by T61, redirected toward Minoan on T73, and Spain captured it on T77. Another was of a War Elephant reassigned for the Holy Roman Empire on T79 was leading four units toward Khoisan by T86, and the Holy Roman Empire captured it on T90. See [KI#188](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#188---fixedimproved-major-base-advcivk-mod-bug-in-organizing-armies-against-barbarian-cities-could-park-65-82-of-an-ais-military-or-prevent-capable-attackers-from-forming-city-assault-expeditions).
+ - (Requires AdvCiv-SAS 6049+) **Offensive armies can interrupt or divide an expedition to defend nearby endangered cities:** Following KI#188, similar logging showed a ready AI army, including one already in enemy territory after being backstabbed, could in Base AdvCiv/K-Mod select another enemy city while an underdefended own city was reachable within a few turns. The clearest diagnostic case was in save file 450: Baghdad needed 12 defenders and had 5, but a healthy 11-unit Arabian city-assault army only two turns away waited for more units, grew to 23 units / 32% of Arabia's military, and attacked Prague; Baghdad fell, Prague was not captured, and Arabia retook Baghdad five turns later after its population had fallen from 10 to 4. To fix and enhance this, before choosing its next offensive target, the army now first tries to counter a suitable nearby invader when its area is considered defensive. If no such counterattack is selected, it can send enough units to fill an endangered city's remaining defender shortage within three turns and continue the expedition with the rest. The AI does not begin a rescue when a one-unit group cannot fill a larger shortage or when filling it would consume more than three quarters of the group, and doomed-city evacuation still takes priority. This lets a military advantage serve defense without automatically abandoning every viable offensive. After the fix, history diverged, but a similar save file 450 run showed the intended choices working: an Arabian city-assault group suspended its expedition to counter Holy Roman units near Baghdad, which remained Arabian. Later, a Dutch army sent 10 of its 19 units to protect Amsterdam while keeping 9 in the field; the Dutch won three of four nearby land battles and successfully retained the city. Overall, 11 of the 16 expedition-split decisions targeted cities that survived the immediate war or remained held through the test. The five failures were all on the collapsing Holy Roman front, where Najran, Vienna, Nuremberg, Prague, and Aachen still fell, so the response improves viable defenses without pretending an overwhelmed empire can save every city. See [KI#188.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1882---fixedimproved-base-advcivk-mod-issue-offensive-armies-could-ignore-nearby-endangered-cities-instead-of-going-back-to-try-to-help-defending-them).
+ - (Requires AdvCiv-SAS 6049+) **Emergency city reinforcements now complete their assigned rescue:** Similar logging showed that the first prototypes of the cure above could detach defenders only for them to immediately regroup with their offensive army instead of reaching the endangered city. For example, at Chichen Itza, 6 units detached from an 8-unit army, regrouped, and had to be detached again two turns later; the city fell before the rescue was completed. This was not an inherited Base AdvCiv/K-Mod issue, but a missing part of our candidate cure. To complete the cure, emergency reinforcements now retain their city assignment, count as incoming defenders so the AI does not duplicate the same response, and remain in the city while needed; once the danger or defender shortage ends, they return to normal duties. In the confirming save file 450 run, 7 units successfully reached Amsterdam while the other 11 remained together for their campaign. See [KI#188.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1882---fixedimproved-base-advcivk-mod-issue-offensive-armies-could-ignore-nearby-endangered-cities-instead-of-going-back-to-try-to-help-defending-them).
++- (Requires AdvCiv-SAS 6050+) **Large AI armies parked with nothing reachable to attack:** BBAI logging showed a major Base AdvCiv/K-Mod bug: even while at peace, with no planned war and no rival or Barbarian city it could reach, the AI could keep waiting for reinforcements and effectively lock more units into the same army so they could not be released for other duties. For example, in save file 450, a United States group grew from 6 units on T126 to 18 of the empire's 47 military units by T225, and then, after the short war, it returned to peace still holding 21 of 51 units on T247. So it concentrated about 40% of the AI's military in one city and left far fewer units available to defend the rest of its empire or pursue another opportunity, which was very problematic. To fix this, when the AI has nothing to attack, it now stops waiting for more reinforcements: if the army is already in its own territory and not immediately threatened, the AI now only keeps one modest core group ready for a future city attack. As for the excess units, they now instead leave the group and resume defending cities or preparing another expedition. Note: an army that is still abroad or in immediate danger remains together until it returns to its own territory and is no longer immediately threatened, so the fix does not break it apart while exposed. Note 2: the units can also regroup into a large army as soon as a real target or planned war appears. After the fix, confirming runs of save files 450 and 452 showed the intended behavior: in save file 452, Japan reduced its peacetime city-assault group with nothing to attack from 21 to 11 units, freeing 10 units for other duties; at the same time, the AI could still assemble large armies when a real war began, as Carthage attacked Susa with 63 units in save file 450, and China attacked Aksum with roughly 180-202 units in save file 452. See [KI#188.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1883---fixedimproved-major-base-advcivk-mod-bug-city-assault-armies-without-a-reachable-target-or-war-plan-could-keep-waiting-for-reinforcements-indefinitely-and-park-40-53-of-an-ais-military).
+ 
+ ## UI
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=39032

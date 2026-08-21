@@ -1,0 +1,412 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5686
+# Commit: 85e356f7ed1646734eabe13468b398b47249b8ca
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 56fe019d7edc9ff1af08daf448f971afb23d528b
+# Title: add leaderhead art era buttons in sevopedia leader, expanded leaderhead panel, and legend - minor expand leader buttons in expanded leaderhead panel
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+121	5	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+5	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+2	2	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	Assets/XML/Text/AdvCiv-SAS_Core.xml
+2	0	CvGameCoreDLL/CvInfo_Civilization.h
+2	0	CvGameCoreDLL/CyInfoInterface3.cpp
+2	2	README.md
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+2	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index e301b0fc3..64011da88 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -42,8 +42,12 @@ IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SH
+ IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE") > 0)
+ IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE") > 0)
+ IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0)
++# <!-- custom: era art feature gate — mirrors the C++ XML-load define. When False, the era art row in the Sevopedia leader attitude panel is never shown. (Claude code Sonnet 4.6) -->
++IS_SAS_LEADERHEAD_ERA_ART = (gc.getDefineINT("SAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS") > 0)
+ SAS_PEDIA_PYTHON_LEADER_ATTITUDE = 6805
+ SAS_PEDIA_PYTHON_LEADER_ACTION = 6806
++# <!-- custom: 6810 — Sevopedia leader era art preview buttons (default/"D" + per-era index buttons). Routed via SevoPediaMain.handleInput → applyLeaderEra. (Claude code Sonnet 4.6) -->
++SAS_PEDIA_PYTHON_LEADER_ERA = 6810
+ SAS_LEADER_ATTITUDE_PREVIEW_ORDER = (
+ 	AttitudeTypes.ATTITUDE_FURIOUS,
+ 	AttitudeTypes.ATTITUDE_ANNOYED,
+@@ -101,6 +105,17 @@ class SevoPediaLeader:
+ 		self.ACTION_BUTTON_WIDGET_BY_ACTION = {}
+ 		for iAction, _ in SAS_LEADER_ACTION_PREVIEW_ORDER:
+ 			self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction] = "SevoPediaLeaderActionBtn%d" % iAction
++		# <!-- custom: era art preview state: -1 = default (no override), else the selected era index. (Claude code Sonnet 4.6) -->
++		self.iSelectedEra = -1
++		self.ERA_DEFAULT_BUTTON_WIDGET = "SevoPediaLeaderEraDefaultBtn"
++		self.ERA_BUTTON_WIDGET_BY_ERA = {}
++		for iEra in xrange(gc.getNumEraInfos()):
++			self.ERA_BUTTON_WIDGET_BY_ERA[iEra] = "SevoPediaLeaderEraBtn%d" % iEra
++		self.eraDefaultIconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
++		self.eraIconPathByEra = {}
++		for iEra in xrange(gc.getNumEraInfos()):
++			self.eraIconPathByEra[iEra] = gc.getEraInfo(iEra).getButton()
++		self.ERA_ICON_SIZE = 16
+ 		# <!-- custom: cache resolved AI categories once at init for this screen instance (runtime Y-resolution aware); no separate header/symbol cache is needed because this already avoids per-draw rebuild cost. Also only do this when AIP is enabled; otherwise skip needless setup. We intentionally don't re-resolve on in-session resolution changes: main interface still needs restart after such changes for correct layout, so dynamic Sevopedia-only redraw adds complexity for little practical gain. (GPT-5.3-Codex) -->
+ 		if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
+ 			iScreenHeight = self.top.getScreen().getYResolution()
+@@ -225,6 +240,7 @@ class SevoPediaLeader:
+ 		if self.iLeader != iLeader:
+ 			self.bHistoryExpanded = False
+ 			self.bContentExpanded = False
++			self.iSelectedEra = -1
+ 		self.iLeader = iLeader
+ 
+ 		if self.bContentExpanded:
+@@ -264,7 +280,8 @@ class SevoPediaLeader:
+ 			self.top.SAS_PEDIA_PYTHON_CONTENT_EXPAND
+ 		)
+ 		self.leaderWidget = self.top.getNextWidgetName()
+-		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, self.iSelectedAttitude, iLhX, iLhY, iLhW, iLhH, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		iRenderLeader = self._getEraRenderLeader(self.iLeader, self.iSelectedEra)
++		screen.addLeaderheadGFC(self.leaderWidget, iRenderLeader, self.iSelectedAttitude, iLhX, iLhY, iLhW, iLhH, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		if self.bContentExpanded:
+ 			self._drawAttitudeRowAt(screen, iAttX, iAttY, iAttW, iAttH)
+ 
+@@ -318,12 +335,20 @@ class SevoPediaLeader:
+ 		# <!-- custom: add direct mood buttons in the center gap (between Favorites and Music) so clicking previews leader attitude animations without keyboard-only hotkeys. (GPT-5.3-Codex) -->
+ 		screen.addPanel(self.ATTITUDES_PANEL_ID, "", "", False, True, self.X_ATTITUDES, self.Y_ATTITUDES, self.W_ATTITUDES, self.H_ATTITUDES, PanelStyles.PANEL_STYLE_BLUE50)
+ 
++		# <!-- custom: 3 rows when this leader has era art, 2 rows otherwise. (Claude code Sonnet 4.6) -->
++		leaderEraArts = []
++		if IS_SAS_LEADERHEAD_ERA_ART:
++			leaderEraArts = self._getLeaderEraArts(self.iLeader)
++		iNumRows = 2
++		if leaderEraArts:
++			iNumRows = 3
++
+ 		iRowGap = 4
+ 		iTopPadding = 8
+ 		iBottomPadding = 8
+ 		# <!-- custom: simple manual Y nudge for the two attitude/action rows as one block; increase to move both rows lower. (GPT-5.3-Codex) -->
+ 		iVerticalNudgeY = 3
+-		iButtonH = (self.H_ATTITUDES - iTopPadding - iBottomPadding - iRowGap) / 2
++		iButtonH = (self.H_ATTITUDES - iTopPadding - iBottomPadding - iRowGap * (iNumRows - 1)) / iNumRows
+ 		if iButtonH < 16:
+ 			iButtonH = 16
+ 
+@@ -380,6 +405,10 @@ class SevoPediaLeader:
+ 			screen.setButtonGFC(szWidget, SASTextScale.labelText(szLabel), "", iActionX, iActionY, iActionButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ACTION, iAction, ButtonStyles.BUTTON_STYLE_STANDARD)
+ 			iActionX += iActionButtonW + iActionSpacing
+ 
++		# <!-- custom: era art preview row — only when IS_SAS_LEADERHEAD_ERA_ART and this leader has era art entries. (Claude code Sonnet 4.6) -->
++		if leaderEraArts:
++			self._placeEraRowAt(screen, self.X_ATTITUDES, iActionY + iButtonH + iRowGap, self.W_ATTITUDES, iButtonH, leaderEraArts, named=True)
++
+ 
+ 	def deleteAttitudeWidgets(self, screen):
+ 		screen.deleteWidget(self.ATTITUDES_PANEL_ID)
+@@ -387,6 +416,9 @@ class SevoPediaLeader:
+ 			screen.deleteWidget(self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE[iAttitude])
+ 		for iAction, _ in SAS_LEADER_ACTION_PREVIEW_ORDER:
+ 			screen.deleteWidget(self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction])
++		screen.deleteWidget(self.ERA_DEFAULT_BUTTON_WIDGET)
++		for iEra in xrange(gc.getNumEraInfos()):
++			screen.deleteWidget(self.ERA_BUTTON_WIDGET_BY_ERA[iEra])
+ 
+ 
+ 	def getAttitudeButtonLabel(self, iAttitude):
+@@ -396,12 +428,85 @@ class SevoPediaLeader:
+ 		return szLabelLower
+ 
+ 
++	# <!-- custom: era art helpers. (Claude code Sonnet 4.6) -->
++
++	def _getLeaderEraArts(self, iLeader):
++		# Returns [(iEra, szArtTag), ...] for eras that have art defined for this leader.
++		result = []
++		leaderInfo = gc.getLeaderHeadInfo(iLeader)
++		for iEra in xrange(gc.getNumEraInfos()):
++			szTag = leaderInfo.getEraArtDefineTag(iEra)
++			if szTag:
++				result.append((iEra, szTag))
++		return result
++
++	def _getEraRenderLeader(self, iLeader, iSelectedEra):
++		# Returns the leader index to pass to addLeaderheadGFC for the given era selection.
++		# iSelectedEra == -1 means default (no override). Otherwise finds the leader whose
++		# base ArtDefineTag matches the era art tag, so the right 3D model is rendered.
++		if iSelectedEra < 0:
++			return iLeader
++		szEraTag = gc.getLeaderHeadInfo(iLeader).getEraArtDefineTag(iSelectedEra)
++		if not szEraTag:
++			return iLeader
++		for i in xrange(gc.getNumLeaderHeadInfos()):
++			if gc.getLeaderHeadInfo(i).getArtDefineTag() == szEraTag:
++				return i
++		return iLeader
++
++	def _placeEraRowAt(self, screen, iX, iY, iW, iH, leaderEraArts, named):
++		# Draws default + era buttons. named=True uses stable widget IDs (for deleteAttitudeWidgets);
++		# named=False uses anonymous widget names (expanded overlay, cleaned up by pediaJump).
++		iSpacing = -3
++		iPadding = 0
++		iEraCount = 1 + len(leaderEraArts)  # 1 for default button
++		iButtonW = (iW - 2 * iPadding - iSpacing * (iEraCount - 1)) / iEraCount
++		if iButtonW < 14:
++			iButtonW = 14
++		iTotalW = iEraCount * iButtonW + iSpacing * (iEraCount - 1)
++		iDrawX = iX + (iW - iTotalW) / 2
++
++		if self.iSelectedEra < 0:
++			szDefaultLabel = u"<img=%s size=%d></img>" % (self.eraDefaultIconPath, self.ERA_ICON_SIZE)
++		else:
++			szDefaultLabel = SASTextScale.labelText(u"d")
++		if named:
++			szDefaultWidget = self.ERA_DEFAULT_BUTTON_WIDGET
++		else:
++			szDefaultWidget = self.top.getNextWidgetName()
++		screen.setButtonGFC(szDefaultWidget, szDefaultLabel, "", iDrawX, iY, iButtonW, iH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ERA, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++		iDrawX += iButtonW + iSpacing
++
++		for iEra, _ in leaderEraArts:
++			if self.iSelectedEra == iEra:
++				szEraLabel = u"<img=%s size=%d></img>" % (self.eraIconPathByEra[iEra], self.ERA_ICON_SIZE)
++			else:
++				szEraLabel = SASTextScale.labelText(u"%d" % iEra)
++			if named:
++				szEraWidget = self.ERA_BUTTON_WIDGET_BY_ERA[iEra]
++			else:
++				szEraWidget = self.top.getNextWidgetName()
++			screen.setButtonGFC(szEraWidget, szEraLabel, "", iDrawX, iY, iButtonW, iH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ERA, iEra, ButtonStyles.BUTTON_STYLE_STANDARD)
++			iDrawX += iButtonW + iSpacing
++
++	def applyLeaderEra(self, iEra):
++		# iEra == -1 resets to default art; otherwise selects that era's art.
++		self.iSelectedEra = iEra
++		if self.bContentExpanded:
++			self.top.pediaJump(self.top.iCategory, self.top.iItem, False, False)
++			return 1
++		self.refreshLeaderheadWidget()
++		self.placeAttitudes()
++		return 1
++
++
+ 	def refreshLeaderheadWidget(self):
+ 		if self.iLeader < 0:
+ 			return 0
+ 		screen = self.top.getScreen()
+ 		screen.deleteWidget(self.leaderWidget)
+-		screen.addLeaderheadGFC(self.leaderWidget, self.iLeader, self.iSelectedAttitude, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		iRenderLeader = self._getEraRenderLeader(self.iLeader, self.iSelectedEra)
++		screen.addLeaderheadGFC(self.leaderWidget, iRenderLeader, self.iSelectedAttitude, self.X_LEADERHEAD, self.Y_LEADERHEAD, self.W_LEADERHEAD, self.H_LEADERHEAD, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		return 1
+ 
+ 
+@@ -417,10 +522,16 @@ class SevoPediaLeader:
+ 
+ 
+ 	def _drawAttitudeRowAt(self, screen, iX, iY, iW, iH):
+-		# <!-- custom: draws attitude+action buttons in the expanded overlay right column. iW and iH are fixed by the helper (191x100), so no need for the dynamic fallback resizing that placeAttitudes uses for variable screen widths. (Claude code Sonnet 4.6) -->
++		# <!-- custom: draws attitude+action (+ optional era) buttons in the expanded overlay right column. iW and iH are fixed by the helper (191x100), so no need for the dynamic fallback resizing that placeAttitudes uses for variable screen widths. (Claude code Sonnet 4.6) -->
+ 		iSpacing = 3
+ 		iPadding = 6
+-		iButtonH = (iH - 20) / 2
++		leaderEraArts = []
++		if IS_SAS_LEADERHEAD_ERA_ART:
++			leaderEraArts = self._getLeaderEraArts(self.iLeader)
++		iNumRows = 2
++		if leaderEraArts:
++			iNumRows = 3
++		iButtonH = (iH - 20 - 4 * (iNumRows - 2)) / iNumRows
+ 		iAttitudeY = iY + 11
+ 
+ 		iAttitudeCount = len(SAS_LEADER_ATTITUDE_PREVIEW_ORDER)
+@@ -447,6 +558,9 @@ class SevoPediaLeader:
+ 			screen.setButtonGFC(self.top.getNextWidgetName(), SASTextScale.labelText(szLabel), "", iActionX, iActionY, iActionButtonW, iButtonH, WidgetTypes.WIDGET_PYTHON, SAS_PEDIA_PYTHON_LEADER_ACTION, iAction, ButtonStyles.BUTTON_STYLE_STANDARD)
+ 			iActionX += iActionButtonW + iSpacing
+ 
++		if leaderEraArts:
++			self._placeEraRowAt(screen, iX, iActionY + iButtonH + 4, iW, iButtonH, leaderEraArts, named=False)
++
+ 
+ 
+ 	def placeHistory(self):
+@@ -752,6 +866,8 @@ class SevoPediaLeader:
+ 				return self.applyLeaderAttitude(inputClass.getData2())
+ 			if inputClass.getData1() == SAS_PEDIA_PYTHON_LEADER_ACTION:
+ 				return self.applyLeaderAction(inputClass.getData2())
++			if inputClass.getData1() == SAS_PEDIA_PYTHON_LEADER_ERA:
++				return self.applyLeaderEra(inputClass.getData2())
+ 
+ 		# <!-- custom: leaderhead hotkeys (animations/moods) are cosmetic; if they conflict with search,
+ 		# consider removing or remapping here. (GPT-5.2-Codex) -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index e98b6ccce..2e18f446f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -118,6 +118,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_PEDIA_PYTHON_HISTORY_EXPAND = 6807
+ 		self.SAS_PEDIA_PYTHON_CONTENT_EXPAND = 6808
+ 		self.SAS_PEDIA_PYTHON_CONTENT_RELOAD = 6809
++		# <!-- custom: 6810 = SAS_PEDIA_PYTHON_LEADER_ERA (Sevopedia leader era art preview buttons) defined in SevoPediaLeader.py. (Claude code Sonnet 4.6) -->
+ 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
+ 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
+ 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
+@@ -2296,6 +2297,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ACTION:
+ 				if self.iCategory == SevoScreenEnums.PEDIA_LEADERS:
+ 					return self.pediaLeader.applyLeaderAction(iData2)
++			# <!-- custom: route era art preview buttons. (Claude code Sonnet 4.6) -->
++			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ERA:
++				if self.iCategory == SevoScreenEnums.PEDIA_LEADERS:
++					return self.pediaLeader.applyLeaderEra(iData2)
+ 		elif inputClass.getButtonType() == WidgetTypes.WIDGET_HELP_IMPROVEMENT:
+ 			iBuild = inputClass.getData2()
+ 			# <!-- custom: use same hybrid trick as Tech Chooser for Sevopedia build entries: this widget restores
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 78ef4d1c1..1d5a84d0e 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -513,7 +513,7 @@ def draw_expandable_content_panel_container(screen, top, panelTitle, panelX, pan
+ def draw_expandable_leaderhead_panel(screen, top, panelX, panelY, panelW, panelH, leaderX, leaderY, leaderW, leaderH, bExpanded, iPythonWidgetData1):
+ 	# <!-- custom: expandable panel helper for the leaderhead. Like draw_expandable_content_panel_container but has no RELOAD button (leaderhead re-renders only on attitude/action button clicks, not on reload — use the attitude/action buttons in the right column instead) and reserves a right column for those buttons. Returns ((lhX, lhY, lhW, lhH), (attX, attY, attW, attH)). Collapsed returns the passed leader coords unchanged. (Claude code Sonnet 4.6) -->
+ 	iCloseButtonW = 85
+-	iAttColW = 191
++	iAttColW = 260
+ 	iExpandButtonW = 107
+ 	if bExpanded:
+ 		iOverlayX = top.X_PEDIA_PAGE
+@@ -541,7 +541,7 @@ def draw_expandable_leaderhead_panel(screen, top, panelX, panelY, panelW, panelH
+ 		iAttX = iOverlayX + iOverlayW - (iAttColW + 10)
+ 		iAttW = iAttColW
+ 		iAttY = iOverlayY + EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET + 26 + 4
+-		iAttH = 100
++		iAttH = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 		# leaderhead: full height, width capped by ratio to preserve portrait proportions
+ 		iLhX = iOverlayX + 10
+ 		iLhY = iOverlayY + 40
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 6257e15c9..6ed869e19 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -244,7 +244,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: some players may prefer that all leaders keep a single fixed leaderhead art across the whole game. When enabled, leaders with EraArtDefineTags entries in CIV4LeaderHeadInfos.xml show different art for their current era; when disabled the parser is skipped at XML load and every leader always shows the base ArtDefineTag. (Claude code Opus 4.7) -->
+ 	<Define>
+ 		<DefineName>SAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS</DefineName>
+-		<iDefineIntVal>0</iDefineIntVal>
++		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 4a785fd60..4d4baa1d2 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -138,7 +138,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND_PEDIA</Tag>
+-		<English>[H1]Sevopedia Leader Legend[\H1][PARAGRAPH:2][H2]Attitude / Action Buttons[\H2][PARAGRAPH:2]- Attitude buttons row (top): pick the leader mood preview shown in the 3D leaderhead. Emoji mode uses icons (furious, annoyed, cautious, pleased, friendly); text mode uses FU/AN/CA/PL/FR.[PARAGRAPH:2]- Action buttons row (bottom): trigger animation preview (no/idle reset, greeting, agree, disagree) for the selected leader.[PARAGRAPH:2][H2]AI Personality Panel Legend[\H2][PARAGRAPH:2]- 1st column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened explanation of what iMaxWarRand means ingame), as said earlier. This column contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes. For aggregated ai aattributes, like contact probs, positive and negative memory resentments and affections, etc, the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W onFr (-200/120)" line shows that Gandhi has a raw ai attribute memory attitude percent of -200 (i.e. Gandhi resents quite strongly you declaring war on his friends) and a memory decay of 120. And for Moctezuma, for the same "D.W onFr" negative memory resentment, Moctezuma does not resent as much (memory attitude percent of -100, and memory decay same though of 120 (currently btw decays are same among all leaders (in civ4/advciv and thus advciv-sas too), not ideal but maybe functional))[PARAGRAPH:2]- 2nd column: the normalized score is displayed. As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100. Sometimes all leaders will have 50 (if same value among all leaders, happens sometimes in civ4 not ideal), and else leaders are ranked gradually from 0 (worse performer for better or worse) to 100 (best performer. Moctezuma performs good at war attributes, and gandhi good at peace attributes, for example). Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones, and how much), and you could also additionally tweak the existing leaders xml values. (If you think for example the roman leaders underperform in war, you may tweak their xml. As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized, they are not re-normalized during caching and Sevopedia Leader computation. In short, they can be intepreted similarly as raw ai attributes.[PARAGRAPH:2]- (Inverted): when a line is marked (Inverted), lower raw values are better/more intense and higher raw values are weaker/less likely. Example: T.W Likely (getMaxWarRand) at 50 means much more war-prone than 400.[PARAGRAPH:2]- 3rd column: scale, this is an indicative display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear while also civ4-compatible). So for example maxwarrand 400 gandhi has a score of 0 normalized among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too))) so his scale is "++++++++++" (100th percentile), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50)))), so his scale is "" (0th percentile). Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is likely, relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols so he will be "#######". If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####". This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute aggregated or raw is same in this case functionally, i.e. they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50. So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders for an easier read.[PARAGRAPH:2][H2]Category Label -> Internal Key (Exhaustive, by category)[\H2][NEWLINE][NEWLINE]Core Personality:[NEWLINE]- Base Attitude -> getBaseAttitude.[NEWLINE]- Base Peace Weig -> getBasePeaceWeight.[NEWLINE]- Peace Weig Rand -> getPeaceWeightRand.[NEWLINE]- Worse Rank AC -> getWorseRankDifferenceAttitudeChange.[NEWLINE]- Better Rank AC -> getBetterRankDifferenceAttitudeChange.[NEWLINE]- Warmonger Resp -> getWarmongerRespect.[NEWLINE]- CloseBordSpark -> getCloseBordersAttitudeChange (Inverted).[NEWLINE]- Same Relig ACL -> getSameReligionAttitudeChangeLimit.[NEWLINE]- Diff Relig ACL -> getDifferentReligionAttitudeChangeLimit (Inverted).[NEWLINE]- Fav Civic ACL -> getFavoriteCivicAttitudeChangeLimit.[NEWLINE][NEWLINE]BBAI Victory Weights:[NEWLINE]- Conquest -> getConquestVictoryWeight.[NEWLINE]- Domination -> getDominationVictoryWeight.[NEWLINE]- Culture -> getCultureVictoryWeight.[NEWLINE]- Diplomacy -> getDiplomacyVictoryWeight.[NEWLINE]- Space -> getSpaceVictoryWeight.[NEWLINE][NEWLINE]Flavors:[NEWLINE]- Military -> iFlavorMilitary.[NEWLINE]- Religion -> iFlavorReligion.[NEWLINE]- Production -> iFlavorProduction.[NEWLINE]- Gold -> iFlavorGold.[NEWLINE]- Science -> iFlavorScience.[NEWLINE]- Culture -> iFlavorCulture.[NEWLINE]- Growth -> iFlavorGrowth.[NEWLINE]- Espionage -> iFlavorEspionage.[NEWLINE][NEWLINE]War Strategy:[NEWLINE]- T.W Likely -> getMaxWarRand (Inverted).[NEWLINE]- T.W NearPR -> getMaxWarNearbyPowerRatio.[NEWLINE]- T.W DistPR -> getMaxWarDistantPowerRatio.[NEWLINE]- T.W MinNearPR -> getMaxWarMinAdjacentLandPercent (Inverted).[NEWLINE]- Lim.W Likely -> getLimitedWarRand (Inverted).[NEWLINE]- Lim.W PR -> getLimitedWarPowerRatio.[NEWLINE]- Risky Aggr -> getBaseAttackOddsChange.[NEWLINE]- Risky AggrRand+ -> getAttackOddsChangeRand.[NEWLINE]- Raz C % -> getRazeCityProb.[NEWLINE]- TribRSneakW% -> getDemandRebukedSneakProb.[NEWLINE]- TribRef W% -> getDemandRebukedWarProb.[NEWLINE]- Dogpile Likely -> getDogpileWarRand (Inverted).[NEWLINE]- WAllianceMaker -> getDeclareWarTradeRand.[NEWLINE]- Share W ACL -> getShareWarAttitudeChangeLimit.[NEWLINE]- ResistCapitulPM -> getVassalPowerModifier.[NEWLINE]- Ref2TalkWSpan -> getRefuseToTalkWarThreshold.[NEWLINE]- MakePeaceLikely -> getMakePeaceRand (Inverted).[NEWLINE][NEWLINE]Economic Preferences:[NEWLINE]- Max Gold Tr% -> getMaxGoldTradePercent.[NEWLINE]- Max GPT Tr% -> getMaxGoldPerTurnTradePercent.[NEWLINE]- NoTechYetRdy% -> getTechTradeKnownPercent.[NEWLINE]- NoTech2AdvT -> getNoTechTradeThreshold (Inverted).[NEWLINE]- Build Unit % -> getBuildUnitProb.[NEWLINE]- Wonder C.R -> getWonderConstructRand.[NEWLINE]- EspionageWeig -> getEspionageWeight.[NEWLINE][NEWLINE]Contact Offer Probabilities:[NEWLINE]- PeaceTreaty -> iAggregatedContactProbPeaceTreaty.[NEWLINE]- Open Borders -> iAggregatedContactProbOpenBorders.[NEWLINE]- Tr Map -> iAggregatedContactProbTradeMap.[NEWLINE]- Tr Tech -> iAggregatedContactProbTradeTech.[NEWLINE]- Tr Bonus -> iAggregatedContactProbTradeBonus.[NEWLINE]- Gave Help -> iAggregatedContactProbGiveHelp.[NEWLINE]- DefensPact -> iAggregatedContactProbDefensivePact.[NEWLINE]- PermAlliance -> iAggregatedContactProbPermanentAlliance.[NEWLINE][NEWLINE]Contact Demand Probabilities:[NEWLINE]- Relig Press -> iAggregatedContactProbReligionPressure.[NEWLINE]- Civic Press -> iAggregatedContactProbCivicPressure.[NEWLINE]- Stop Tr -> iAggregatedContactProbStopTrading.[NEWLINE]- Trib -> iAggregatedContactProbDemandTribute.[NEWLINE]- Help -> iAggregatedContactProbAskForHelp.[NEWLINE]- Join W -> iAggregatedContactProbJoinWar.[NEWLINE]- Contact probabilities raw pair shown in label: getContactRand(iContactType)/getContactDelay(iContactType).[NEWLINE][NEWLINE]Refusal Thresholds (Offer):[NEWLINE]- Open Bord -> getOpenBordersRefuseAttitudeThreshold.[NEWLINE]- Map -> getMapRefuseAttitudeThreshold.[NEWLINE]- Tech -> getTechRefuseAttitudeThreshold.[NEWLINE]- Strategic Bonus -> getStrategicBonusRefuseAttitudeThreshold.[NEWLINE]- Happiness Bonus -> getHappinessBonusRefuseAttitudeThreshold.[NEWLINE]- Health Bonus -> getHealthBonusRefuseAttitudeThreshold.[NEWLINE]- PrideNoHelp -> getNoGiveHelpAttitudeThreshold.[NEWLINE]- DefensPact -> getDefensivePactRefuseAttitudeThreshold.[NEWLINE][NEWLINE]Refusal Thresholds (Demand):[NEWLINE]- Convert Religion -> getConvertReligionRefuseAttitudeThreshold.[NEWLINE]- Adopt Civic -> getAdoptCivicRefuseAttitudeThreshold.[NEWLINE]- D.W -> getDeclareWarRefuseAttitudeThreshold.[NEWLINE]- LoyaltyNoD.W -> getDeclareWarThemRefuseAttitudeThreshold (Inverted).[NEWLINE]- StopTr -> getStopTradingRefuseAttitudeThreshold.[NEWLINE]- LoyaltyNoStopTr -> getStopTradingThemRefuseAttitudeThreshold (Inverted).[NEWLINE]- ScaryNoTrib -> getDemandTributeAttitudeThreshold (Inverted).[NEWLINE]- C -> getCityRefuseAttitudeThreshold.[NEWLINE]- Native C -> getNativeCityRefuseAttitudeThreshold.[NEWLINE]- Vassal -> getVassalRefuseAttitudeThreshold.[NEWLINE][NEWLINE]No War At:[NEWLINE]- Furious -> iNoWarAttitudeProbFurious.[NEWLINE]- Annoyed -> iNoWarAttitudeProbAnnoyed.[NEWLINE]- Cautious -> iNoWarAttitudeProbCautious.[NEWLINE]- Pleased -> iNoWarAttitudeProbPleased.[NEWLINE]- Friendly -> iNoWarAttitudeProbFriendly.[NEWLINE][NEWLINE]Attitude Changes:[NEWLINE]- Same Relig AC -> getSameReligionAttitudeChange.[NEWLINE]- Same Relig AD -> getSameReligionAttitudeDivisor.[NEWLINE]- Diff Relig AC -> getDifferentReligionAttitudeChange.[NEWLINE]- Diff Relig AD -> getDifferentReligionAttitudeDivisor.[NEWLINE]- Fav Civic AC -> getFavoriteCivicAttitudeChange.[NEWLINE]- Fav Civic AD -> getFavoriteCivicAttitudeDivisor.[NEWLINE]- Lost W AC -> getLostWarAttitudeChange.[NEWLINE]- At W AD -> getAtWarAttitudeDivisor.[NEWLINE]- At W ACL -> getAtWarAttitudeChangeLimit.[NEWLINE]- At Peace AD -> getAtPeaceAttitudeDivisor.[NEWLINE]- At Peace ACL -> getAtPeaceAttitudeChangeLimit.[NEWLINE]- Share W AC -> getShareWarAttitudeChange.[NEWLINE]- Share W AD -> getShareWarAttitudeDivisor.[NEWLINE]- Bonus Tr AD -> getBonusTradeAttitudeDivisor.[NEWLINE]- Bonus Tr ACL -> getBonusTradeAttitudeChangeLimit.[NEWLINE]- Open Bord AD -> getOpenBordersAttitudeDivisor.[NEWLINE]- Open Bord ACL -> getOpenBordersAttitudeChangeLimit.[NEWLINE]- Defens Pact AD -> getDefensivePactAttitudeDivisor.[NEWLINE]- Defens Pact ACL -> getDefensivePactAttitudeChangeLimit.[NEWLINE][NEWLINE]Misc Modifiers:[NEWLINE]- FreedomApprec -> getFreedomAppreciation.[NEWLINE][NEWLINE]Positive Memory Affections:[NEWLINE]- Gave Help -> iAggregatedPositiveMemoryGiveHelpAffection.[NEWLINE]- AcD -> iAggregatedPositiveMemoryAcceptDemandAffection.[NEWLINE]- AcRelig -> iAggregatedPositiveMemoryAcceptedReligionAffection.[NEWLINE]- AcCivic -> iAggregatedPositiveMemoryAcceptedCivicAffection.[NEWLINE]- AcJoin W -> iAggregatedPositiveMemoryAcceptedJoinWarAffection.[NEWLINE]- AcStop Tr -> iAggregatedPositiveMemoryAcceptedStopTradingAffection.[NEWLINE]- VotedForUs -> iAggregatedPositiveMemoryVotedForUsAffection.[NEWLINE]- Event Good -> iAggregatedPositiveMemoryEventGoodToUsAffection.[NEWLINE]- LiberatedC -> iAggregatedPositiveMemoryLiberatedCitiesAffection.[NEWLINE]- Indep -> iAggregatedPositiveMemoryIndependenceAffection.[NEWLINE]- Tr Tech -> iAggregatedPositiveMemoryTradedTechToUsAffection.[NEWLINE][NEWLINE]Negative Memory Resentments:[NEWLINE]- D.W -> iAggregatedNegativeMemoryDeclaredWarResentment.[NEWLINE]- D.W onFr -> iAggregatedNegativeMemoryDeclaredWarOnFriendResentment.[NEWLINE]- HirWAlly -> iAggregatedNegativeMemoryHiredWarAllyResentment.[NEWLINE]- Nuked Us -> iAggregatedNegativeMemoryNukedUsResentment.[NEWLINE]- Nuked Fr -> iAggregatedNegativeMemoryNukedFriendResentment.[NEWLINE]- RazC -> iAggregatedNegativeMemoryRazedCityResentment.[NEWLINE]- RazHolyC -> iAggregatedNegativeMemoryRazedHolyCityResentment.[NEWLINE]- Spy Caught -> iAggregatedNegativeMemorySpyCaughtResentment.[NEWLINE]- RefHelpUs -> iAggregatedNegativeMemoryRefusedHelpResentment.[NEWLINE]- Rej D -> iAggregatedNegativeMemoryRejectedDemandResentment.[NEWLINE]- Dn Relig -> iAggregatedNegativeMemoryDeniedReligionResentment.[NEWLINE]- Dn Civic -> iAggregatedNegativeMemoryDeniedCivicResentment.[NEWLINE]- Dn JoinW -> iAggregatedNegativeMemoryDeniedJoinWarResentment.[NEWLINE]- Dn StopTr -> iAggregatedNegativeMemoryDeniedStopTradingResentment.[NEWLINE]- StoppedTr -> iAggregatedNegativeMemoryStoppedTradingResentment.[NEWLINE]- TrEmbargo -> iAggregatedNegativeMemoryHiredTradeEmbargoResentment.[NEWLINE]- Made D -> iAggregatedNegativeMemoryMadeDemandResentment.[NEWLINE]- VotedAgUs -> iAggregatedNegativeMemoryVotedAgainstUsResentment.[NEWLINE]- Event Bad -> iAggregatedNegativeMemoryEventBadToUsResentment.[NEWLINE]- CancVassal -> iAggregatedNegativeMemoryCancelledVassalAgreementResentment.[NEWLINE]- Recent W -> iAggregatedNegativeMemoryDeclaredWarRecentResentment.[NEWLINE]- RecentTechAny -> iAggregatedNegativeMemoryReceivedTechFromAnyResentment.[NEWLINE]- RecentMadeD -> iAggregatedNegativeMemoryMadeDemandRecentResentment.[NEWLINE]- CancelledOB -> iAggregatedNegativeMemoryCancelledOpenBordersResentment.[NEWLINE]- CancelledDP -> iAggregatedNegativeMemoryCancelledDefensivePactResentment.[NEWLINE]- Memory raw pair shown in label: getMemoryAttitudePercent(iMemoryType)/getMemoryDecayRand(iMemoryType).[PARAGRAPH:2]See docs for details about the AI Personality Panel, notably _1_AdvCiv-SAS\Docs\README_AI_Personality_Panel.md. </English>
++		<English>[H1]Sevopedia Leader Legend[\H1][PARAGRAPH:2][H2]Attitude / Action Buttons[\H2][PARAGRAPH:2]- Attitude buttons row (top): pick the leader mood preview shown in the 3D leaderhead. Emoji mode uses icons (furious, annoyed, cautious, pleased, friendly); text mode uses FU/AN/CA/PL/FR.[PARAGRAPH:2]- Action buttons row (bottom): trigger animation preview (no/idle reset, greeting, agree, disagree) for the selected leader.[PARAGRAPH:2][H2]Era Art Buttons[\H2][PARAGRAPH:2]- Only shown when the per-era leaderhead art SAS define is enabled and the leader has per-era art entries defined in XML.[PARAGRAPH:2]- Selected button shows an icon: lock icon = default art active; era icon = that era's art active. Unselected buttons show text: d = default, numbers = era index (0 = Ancient, 1 = Classical, 2 = Medieval, 3 = Renaissance, 4 = Industrial, 5 = Modern, 6 = Future in a standard 7-era setup; may differ if the mod uses a different era count or order). Only eras that have art defined appear. Clicking switches the leaderhead 3D preview to that era's art.[PARAGRAPH:2][H2]AI Personality Panel Legend[\H2][PARAGRAPH:2]- 1st column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened explanation of what iMaxWarRand means ingame), as said earlier. This column contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes. For aggregated ai aattributes, like contact probs, positive and negative memory resentments and affections, etc, the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W onFr (-200/120)" line shows that Gandhi has a raw ai attribute memory attitude percent of -200 (i.e. Gandhi resents quite strongly you declaring war on his friends) and a memory decay of 120. And for Moctezuma, for the same "D.W onFr" negative memory resentment, Moctezuma does not resent as much (memory attitude percent of -100, and memory decay same though of 120 (currently btw decays are same among all leaders (in civ4/advciv and thus advciv-sas too), not ideal but maybe functional))[PARAGRAPH:2]- 2nd column: the normalized score is displayed. As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100. Sometimes all leaders will have 50 (if same value among all leaders, happens sometimes in civ4 not ideal), and else leaders are ranked gradually from 0 (worse performer for better or worse) to 100 (best performer. Moctezuma performs good at war attributes, and gandhi good at peace attributes, for example). Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones, and how much), and you could also additionally tweak the existing leaders xml values. (If you think for example the roman leaders underperform in war, you may tweak their xml. As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized, they are not re-normalized during caching and Sevopedia Leader computation. In short, they can be intepreted similarly as raw ai attributes.[PARAGRAPH:2]- (Inverted): when a line is marked (Inverted), lower raw values are better/more intense and higher raw values are weaker/less likely. Example: T.W Likely (getMaxWarRand) at 50 means much more war-prone than 400.[PARAGRAPH:2]- 3rd column: scale, this is an indicative display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear while also civ4-compatible). So for example maxwarrand 400 gandhi has a score of 0 normalized among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too))) so his scale is "++++++++++" (100th percentile), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50)))), so his scale is "" (0th percentile). Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is likely, relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols so he will be "#######". If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####". This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute aggregated or raw is same in this case functionally, i.e. they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50. So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders for an easier read.[PARAGRAPH:2][H2]Category Label -> Internal Key (Exhaustive, by category)[\H2][NEWLINE][NEWLINE]Core Personality:[NEWLINE]- Base Attitude -> getBaseAttitude.[NEWLINE]- Base Peace Weig -> getBasePeaceWeight.[NEWLINE]- Peace Weig Rand -> getPeaceWeightRand.[NEWLINE]- Worse Rank AC -> getWorseRankDifferenceAttitudeChange.[NEWLINE]- Better Rank AC -> getBetterRankDifferenceAttitudeChange.[NEWLINE]- Warmonger Resp -> getWarmongerRespect.[NEWLINE]- CloseBordSpark -> getCloseBordersAttitudeChange (Inverted).[NEWLINE]- Same Relig ACL -> getSameReligionAttitudeChangeLimit.[NEWLINE]- Diff Relig ACL -> getDifferentReligionAttitudeChangeLimit (Inverted).[NEWLINE]- Fav Civic ACL -> getFavoriteCivicAttitudeChangeLimit.[NEWLINE][NEWLINE]BBAI Victory Weights:[NEWLINE]- Conquest -> getConquestVictoryWeight.[NEWLINE]- Domination -> getDominationVictoryWeight.[NEWLINE]- Culture -> getCultureVictoryWeight.[NEWLINE]- Diplomacy -> getDiplomacyVictoryWeight.[NEWLINE]- Space -> getSpaceVictoryWeight.[NEWLINE][NEWLINE]Flavors:[NEWLINE]- Military -> iFlavorMilitary.[NEWLINE]- Religion -> iFlavorReligion.[NEWLINE]- Production -> iFlavorProduction.[NEWLINE]- Gold -> iFlavorGold.[NEWLINE]- Science -> iFlavorScience.[NEWLINE]- Culture -> iFlavorCulture.[NEWLINE]- Growth -> iFlavorGrowth.[NEWLINE]- Espionage -> iFlavorEspionage.[NEWLINE][NEWLINE]War Strategy:[NEWLINE]- T.W Likely -> getMaxWarRand (Inverted).[NEWLINE]- T.W NearPR -> getMaxWarNearbyPowerRatio.[NEWLINE]- T.W DistPR -> getMaxWarDistantPowerRatio.[NEWLINE]- T.W MinNearPR -> getMaxWarMinAdjacentLandPercent (Inverted).[NEWLINE]- Lim.W Likely -> getLimitedWarRand (Inverted).[NEWLINE]- Lim.W PR -> getLimitedWarPowerRatio.[NEWLINE]- Risky Aggr -> getBaseAttackOddsChange.[NEWLINE]- Risky AggrRand+ -> getAttackOddsChangeRand.[NEWLINE]- Raz C % -> getRazeCityProb.[NEWLINE]- TribRSneakW% -> getDemandRebukedSneakProb.[NEWLINE]- TribRef W% -> getDemandRebukedWarProb.[NEWLINE]- Dogpile Likely -> getDogpileWarRand (Inverted).[NEWLINE]- WAllianceMaker -> getDeclareWarTradeRand.[NEWLINE]- Share W ACL -> getShareWarAttitudeChangeLimit.[NEWLINE]- ResistCapitulPM -> getVassalPowerModifier.[NEWLINE]- Ref2TalkWSpan -> getRefuseToTalkWarThreshold.[NEWLINE]- MakePeaceLikely -> getMakePeaceRand (Inverted).[NEWLINE][NEWLINE]Economic Preferences:[NEWLINE]- Max Gold Tr% -> getMaxGoldTradePercent.[NEWLINE]- Max GPT Tr% -> getMaxGoldPerTurnTradePercent.[NEWLINE]- NoTechYetRdy% -> getTechTradeKnownPercent.[NEWLINE]- NoTech2AdvT -> getNoTechTradeThreshold (Inverted).[NEWLINE]- Build Unit % -> getBuildUnitProb.[NEWLINE]- Wonder C.R -> getWonderConstructRand.[NEWLINE]- EspionageWeig -> getEspionageWeight.[NEWLINE][NEWLINE]Contact Offer Probabilities:[NEWLINE]- PeaceTreaty -> iAggregatedContactProbPeaceTreaty.[NEWLINE]- Open Borders -> iAggregatedContactProbOpenBorders.[NEWLINE]- Tr Map -> iAggregatedContactProbTradeMap.[NEWLINE]- Tr Tech -> iAggregatedContactProbTradeTech.[NEWLINE]- Tr Bonus -> iAggregatedContactProbTradeBonus.[NEWLINE]- Gave Help -> iAggregatedContactProbGiveHelp.[NEWLINE]- DefensPact -> iAggregatedContactProbDefensivePact.[NEWLINE]- PermAlliance -> iAggregatedContactProbPermanentAlliance.[NEWLINE][NEWLINE]Contact Demand Probabilities:[NEWLINE]- Relig Press -> iAggregatedContactProbReligionPressure.[NEWLINE]- Civic Press -> iAggregatedContactProbCivicPressure.[NEWLINE]- Stop Tr -> iAggregatedContactProbStopTrading.[NEWLINE]- Trib -> iAggregatedContactProbDemandTribute.[NEWLINE]- Help -> iAggregatedContactProbAskForHelp.[NEWLINE]- Join W -> iAggregatedContactProbJoinWar.[NEWLINE]- Contact probabilities raw pair shown in label: getContactRand(iContactType)/getContactDelay(iContactType).[NEWLINE][NEWLINE]Refusal Thresholds (Offer):[NEWLINE]- Open Bord -> getOpenBordersRefuseAttitudeThreshold.[NEWLINE]- Map -> getMapRefuseAttitudeThreshold.[NEWLINE]- Tech -> getTechRefuseAttitudeThreshold.[NEWLINE]- Strategic Bonus -> getStrategicBonusRefuseAttitudeThreshold.[NEWLINE]- Happiness Bonus -> getHappinessBonusRefuseAttitudeThreshold.[NEWLINE]- Health Bonus -> getHealthBonusRefuseAttitudeThreshold.[NEWLINE]- PrideNoHelp -> getNoGiveHelpAttitudeThreshold.[NEWLINE]- DefensPact -> getDefensivePactRefuseAttitudeThreshold.[NEWLINE][NEWLINE]Refusal Thresholds (Demand):[NEWLINE]- Convert Religion -> getConvertReligionRefuseAttitudeThreshold.[NEWLINE]- Adopt Civic -> getAdoptCivicRefuseAttitudeThreshold.[NEWLINE]- D.W -> getDeclareWarRefuseAttitudeThreshold.[NEWLINE]- LoyaltyNoD.W -> getDeclareWarThemRefuseAttitudeThreshold (Inverted).[NEWLINE]- StopTr -> getStopTradingRefuseAttitudeThreshold.[NEWLINE]- LoyaltyNoStopTr -> getStopTradingThemRefuseAttitudeThreshold (Inverted).[NEWLINE]- ScaryNoTrib -> getDemandTributeAttitudeThreshold (Inverted).[NEWLINE]- C -> getCityRefuseAttitudeThreshold.[NEWLINE]- Native C -> getNativeCityRefuseAttitudeThreshold.[NEWLINE]- Vassal -> getVassalRefuseAttitudeThreshold.[NEWLINE][NEWLINE]No War At:[NEWLINE]- Furious -> iNoWarAttitudeProbFurious.[NEWLINE]- Annoyed -> iNoWarAttitudeProbAnnoyed.[NEWLINE]- Cautious -> iNoWarAttitudeProbCautious.[NEWLINE]- Pleased -> iNoWarAttitudeProbPleased.[NEWLINE]- Friendly -> iNoWarAttitudeProbFriendly.[NEWLINE][NEWLINE]Attitude Changes:[NEWLINE]- Same Relig AC -> getSameReligionAttitudeChange.[NEWLINE]- Same Relig AD -> getSameReligionAttitudeDivisor.[NEWLINE]- Diff Relig AC -> getDifferentReligionAttitudeChange.[NEWLINE]- Diff Relig AD -> getDifferentReligionAttitudeDivisor.[NEWLINE]- Fav Civic AC -> getFavoriteCivicAttitudeChange.[NEWLINE]- Fav Civic AD -> getFavoriteCivicAttitudeDivisor.[NEWLINE]- Lost W AC -> getLostWarAttitudeChange.[NEWLINE]- At W AD -> getAtWarAttitudeDivisor.[NEWLINE]- At W ACL -> getAtWarAttitudeChangeLimit.[NEWLINE]- At Peace AD -> getAtPeaceAttitudeDivisor.[NEWLINE]- At Peace ACL -> getAtPeaceAttitudeChangeLimit.[NEWLINE]- Share W AC -> getShareWarAttitudeChange.[NEWLINE]- Share W AD -> getShareWarAttitudeDivisor.[NEWLINE]- Bonus Tr AD -> getBonusTradeAttitudeDivisor.[NEWLINE]- Bonus Tr ACL -> getBonusTradeAttitudeChangeLimit.[NEWLINE]- Open Bord AD -> getOpenBordersAttitudeDivisor.[NEWLINE]- Open Bord ACL -> getOpenBordersAttitudeChangeLimit.[NEWLINE]- Defens Pact AD -> getDefensivePactAttitudeDivisor.[NEWLINE]- Defens Pact ACL -> getDefensivePactAttitudeChangeLimit.[NEWLINE][NEWLINE]Misc Modifiers:[NEWLINE]- FreedomApprec -> getFreedomAppreciation.[NEWLINE][NEWLINE]Positive Memory Affections:[NEWLINE]- Gave Help -> iAggregatedPositiveMemoryGiveHelpAffection.[NEWLINE]- AcD -> iAggregatedPositiveMemoryAcceptDemandAffection.[NEWLINE]- AcRelig -> iAggregatedPositiveMemoryAcceptedReligionAffection.[NEWLINE]- AcCivic -> iAggregatedPositiveMemoryAcceptedCivicAffection.[NEWLINE]- AcJoin W -> iAggregatedPositiveMemoryAcceptedJoinWarAffection.[NEWLINE]- AcStop Tr -> iAggregatedPositiveMemoryAcceptedStopTradingAffection.[NEWLINE]- VotedForUs -> iAggregatedPositiveMemoryVotedForUsAffection.[NEWLINE]- Event Good -> iAggregatedPositiveMemoryEventGoodToUsAffection.[NEWLINE]- LiberatedC -> iAggregatedPositiveMemoryLiberatedCitiesAffection.[NEWLINE]- Indep -> iAggregatedPositiveMemoryIndependenceAffection.[NEWLINE]- Tr Tech -> iAggregatedPositiveMemoryTradedTechToUsAffection.[NEWLINE][NEWLINE]Negative Memory Resentments:[NEWLINE]- D.W -> iAggregatedNegativeMemoryDeclaredWarResentment.[NEWLINE]- D.W onFr -> iAggregatedNegativeMemoryDeclaredWarOnFriendResentment.[NEWLINE]- HirWAlly -> iAggregatedNegativeMemoryHiredWarAllyResentment.[NEWLINE]- Nuked Us -> iAggregatedNegativeMemoryNukedUsResentment.[NEWLINE]- Nuked Fr -> iAggregatedNegativeMemoryNukedFriendResentment.[NEWLINE]- RazC -> iAggregatedNegativeMemoryRazedCityResentment.[NEWLINE]- RazHolyC -> iAggregatedNegativeMemoryRazedHolyCityResentment.[NEWLINE]- Spy Caught -> iAggregatedNegativeMemorySpyCaughtResentment.[NEWLINE]- RefHelpUs -> iAggregatedNegativeMemoryRefusedHelpResentment.[NEWLINE]- Rej D -> iAggregatedNegativeMemoryRejectedDemandResentment.[NEWLINE]- Dn Relig -> iAggregatedNegativeMemoryDeniedReligionResentment.[NEWLINE]- Dn Civic -> iAggregatedNegativeMemoryDeniedCivicResentment.[NEWLINE]- Dn JoinW -> iAggregatedNegativeMemoryDeniedJoinWarResentment.[NEWLINE]- Dn StopTr -> iAggregatedNegativeMemoryDeniedStopTradingResentment.[NEWLINE]- StoppedTr -> iAggregatedNegativeMemoryStoppedTradingResentment.[NEWLINE]- TrEmbargo -> iAggregatedNegativeMemoryHiredTradeEmbargoResentment.[NEWLINE]- Made D -> iAggregatedNegativeMemoryMadeDemandResentment.[NEWLINE]- VotedAgUs -> iAggregatedNegativeMemoryVotedAgainstUsResentment.[NEWLINE]- Event Bad -> iAggregatedNegativeMemoryEventBadToUsResentment.[NEWLINE]- CancVassal -> iAggregatedNegativeMemoryCancelledVassalAgreementResentment.[NEWLINE]- Recent W -> iAggregatedNegativeMemoryDeclaredWarRecentResentment.[NEWLINE]- RecentTechAny -> iAggregatedNegativeMemoryReceivedTechFromAnyResentment.[NEWLINE]- RecentMadeD -> iAggregatedNegativeMemoryMadeDemandRecentResentment.[NEWLINE]- CancelledOB -> iAggregatedNegativeMemoryCancelledOpenBordersResentment.[NEWLINE]- CancelledDP -> iAggregatedNegativeMemoryCancelledDefensivePactResentment.[NEWLINE]- Memory raw pair shown in label: getMemoryAttitudePercent(iMemoryType)/getMemoryDecayRand(iMemoryType).[PARAGRAPH:2]See docs for details about the AI Personality Panel, notably _1_AdvCiv-SAS\Docs\README_AI_Personality_Panel.md. </English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SAS_LEGEND_LINK_SHORT</Tag>
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.h b/CvGameCoreDLL/CvInfo_Civilization.h
+index 9ee61d4bd..cfd010db4 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.h
++++ b/CvGameCoreDLL/CvInfo_Civilization.h
+@@ -205,6 +205,8 @@ public: // advc: All the const functions are exposed to Python except those adde
+ 	const TCHAR* getArtDefineTag() const;
+ 	// <!-- custom: per-era leader art (optional). Returns "" if nothing set for that era. (Claude code Opus 4.7) -->
+ 	const TCHAR* getEraArtDefineTag(EraTypes eEra) const;
++	// <!-- custom: Python wrapper (int param) — exposed for Sevopedia leader era art preview buttons; not part of the ingame era-art rendering (that goes through getArtInfo()). (Claude code Sonnet 4.6) -->
++	const TCHAR* py_getEraArtDefineTag(int iEra) const { return getEraArtDefineTag((EraTypes)iEra); }
+ 
+ 	// Array access:
+
+diff --git a/CvGameCoreDLL/CyInfoInterface3.cpp b/CvGameCoreDLL/CyInfoInterface3.cpp
+index 1f59f7a29..cbccfff40 100644
+--- a/CvGameCoreDLL/CyInfoInterface3.cpp
++++ b/CvGameCoreDLL/CyInfoInterface3.cpp
+@@ -122,6 +122,8 @@ void CyInfoPythonInterface3()
+ 		.def("getFreedomAppreciation", &CvLeaderHeadInfo::getFreedomAppreciation, "int ()")
+ 
+ 		.def("getArtDefineTag", &CvLeaderHeadInfo::getArtDefineTag, "string ()")
++		// <!-- custom: per-era leader art tag query — exposed for Sevopedia leader era art preview buttons only; ingame rendering goes through getArtInfo(), not this. (Claude code Sonnet 4.6) -->
++		.def("getEraArtDefineTag", &CvLeaderHeadInfo::py_getEraArtDefineTag, "string (int i)")
+ 
+ 		// Arrays
+
+diff --git a/README.md b/README.md
+index 1cd7d7513..96652f293 100644
+--- a/README.md
++++ b/README.md
+@@ -375,7 +375,7 @@ We also added Sevopedia Expanded Text Panels, with EXPAND and CLOSE buttons. See
+ 
+ We similarly also added Expanded Content (Non-text; e.g., Animation) Panels. We also added a RELOAD button so e.g. the animation can be reloaded (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) without having to tediously exit and reopen expanded view. See [Sevopedia Reworks (example 0.94: Expanded content (non-text; e.g., animation) panel (with EXPAND, RELOAD, and CLOSE buttons))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-reload-and-close-buttons).
+ 
+-Similarly also added expanded leaderhead panel. It does not have a RELOAD button since it is ineffective in changing leaderhead animation behaviour but instead has attitude and action buttons matching the ones in sevopedia leader. Also, animation occupies all page height but width is a percentage of height (e.g., 80 percent) so most of leaderhead is shown (if too high or too low less of the leaderhead animation is visible). See [Sevopedia Reworks (example 0.95: Expanded leaderhead panel))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
++Similarly also added expanded leaderhead panel. It does not have a RELOAD button since it is ineffective in changing leaderhead animation behaviour but instead has attitude, action, and (if set) leaderhead art era buttons matching the ones in sevopedia leader. Also, animation occupies all page height but width is a percentage of height (e.g., 80 percent) so most of leaderhead is shown (if too high or too low less of the leaderhead animation is visible). See [Sevopedia Reworks (example 0.95: Expanded leaderhead panel))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
+ 
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG" alt="0.840_sevopedia_expanded_text (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.841_sevopedia_expanded_content (2).JPG" alt="0.841_sevopedia_expanded_content (2).JPG" width="250"></img>
+@@ -424,7 +424,7 @@ Another significant contribution from our AI helpers is the new Traits Charts, t
+ 
+ Based on it, we notably also made, in Sevopedia Improvement, a new sortable Improvement Weights (Leaders) Chart, showing Weights, Count per Weight, and clickable Leader buttons for each weight and improvement.
+ 
+-Another notable addition is the new sevopedia leader Attitude (furious, annoyed, cautious, pleased, friendly) and Action Buttons (noanim/idle, greeting, agree, disagree) buttons (from AdvCiv-SAS-NIF-Gallery mod where we first implemented them there). On click, the animation changes its behaviour to that of the buttons clicked.
++Another notable addition is the new sevopedia leader Attitude (furious, annoyed, cautious, pleased, friendly), Action (noanim/idle, greeting, agree, disagree) buttons (from AdvCiv-SAS-NIF-Gallery mod where we first implemented them there), and (if set) Leaderhead Art Era Buttons. On click, the animation changes its behaviour to that of the buttons clicked.
+ 
+ Here is below a sample of the example screenshots showing the AI Personality panel, Traits Charts, and the many other reworks we did in Sevopedia in AdvCiv-SAS:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 73576419d..815d1967e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -315,12 +315,12 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. Note: there are **multiple sounds in an item** for each civilization sound item, so **replay many times the same item to hear all civilization sounds**. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia).
+ - (Requires AdvCiv-SAS 5673+) New **Expanded Text Panels** so History/Background **text** (e.g. of the Viking unit that is long and requires scrolling to be seen or of the Great General Unit (that includes uniquenames that require scrolling to be scanned quickly)) easier to read, with **EXPAND** and **CLOSE** buttons. It occupies the whole item's page but **preserves the rest of the sevopedia page display** (footer, header, item bar and category bar) for easy browsing. This allows to **browse other category items** (e.g., other leaders from sevopedia leader's item bar) **without having to close and reopen expanded view** everytime item is changed (e.g. when clicking on another leader). Added as an optional helper shared accross all eligible categories (main code in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)). See [Sevopedia reworks (Expanded text panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
+ - (Requires AdvCiv-SAS 5674+) New **Expanded Content (Non-text; e.g. Animation) Panels** similarly so **animations** (e.g. of the Viking unit) can be viewed **maximized** (i.e. using all the item's page), with **EXPAND**, **RELOAD** (so e.g. the animation can be **reloaded** (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) **without having to exit and reopen expanded view**), and **CLOSE** buttons. Applied for eligible categories: Bonuses, Improvements, Units ("Un.List"), Buildings ("Buildings", "N.Wond.", "W.Wond"). See [Sevopedia reworks (Expanded Content (Non-text; e.g., Animation) Panels)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-and-close-buttons).
+-- (Requires AdvCiv-SAS 5677+) New **Expanded leaderhead panel** similarly with **EXPAND** and **CLOSE** button, and **leaderhead animation** with **expanded height and scaling width** (percentage of height **to maximize display of the full leaderhead** (because a suboptimal width/height ratio causes animation to show less of the leaderhead)), and leaderhead **attitude and action buttons** synchronized with the ones in sevopedia leader. See [Sevopedia reworks (Expanded leaderhead panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
++- (Requires AdvCiv-SAS 5677+) New **Expanded leaderhead panel** similarly with **EXPAND** and **CLOSE** button, and **leaderhead animation** with **expanded height and scaling width** (percentage of height **to maximize display of the full leaderhead** (because a suboptimal width/height ratio causes animation to show less of the leaderhead)), and leaderhead **attitude**, **action**, and (if set) **leaderhead art era buttons** synchronized with the ones in sevopedia leader. See [Sevopedia reworks (Expanded leaderhead panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
+ - Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ - Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Civilizations: Add **cities panel**. Add optional **grouping by Art style** (e.g. European, Asian).
+-- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons, and optional **grouping by civilization (with an icon)**. See also [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py). Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between Traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry**: change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). (Requires AdvCiv-SAS 5502+) Add **Attitude** (furious, annoyed, cautious, pleased, friendly) and **Action buttons** (noanim/idle, greeting, agree, disagree). On click, the animation changes its behaviour to that of the buttons clicked. See also: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5529+) Moved **BACK/NEXT/EXIT** buttons (in the **footer**) to **the left of the AI Personality Panel** so they are clickable despite intentional vertical overflow of the AI Personality Panel (to maximize usable space and show more rows/fields). Note: **AI Personality Panel categories' organization** is adjusted depending on **vertical room** (**resolutionY**); e.g., since higher resolutions like 1440p have more vertical room that allows to show categories like ACL-related categories (that are not visible at 1080p), we optimize this further by moving **No War At** from `middle_categories` to `left_categories` so the middle column has enough room to fully show ACL-related categories.
++- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons, and optional **grouping by civilization (with an icon)**. See also [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py). Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between Traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry**: change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). (Requires AdvCiv-SAS 5502+) Add **Attitude** (furious, annoyed, cautious, pleased, friendly), **Action buttons** (noanim/idle, greeting, agree, disagree), and (if set) **leaderhead art era buttons**. On click, the animation changes its behaviour to that of the buttons clicked. See also: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5529+) Moved **BACK/NEXT/EXIT** buttons (in the **footer**) to **the left of the AI Personality Panel** so they are clickable despite intentional vertical overflow of the AI Personality Panel (to maximize usable space and show more rows/fields). Note: **AI Personality Panel categories' organization** is adjusted depending on **vertical room** (**resolutionY**); e.g., since higher resolutions like 1440p have more vertical room that allows to show categories like ACL-related categories (that are not visible at 1080p), we optimize this further by moving **No War At** from `middle_categories` to `left_categories` so the middle column has enough room to fully show ACL-related categories.
+ - (Requires AdvCiv-SAS 5512+) Also make **item bar shorter** with a **per font size tunable width** to accommodate the **AI Personality panel wider columns when text is upscaled**. Note: this applied **only for lower resolutions**, because higher resolutions have enough width to accomodate an enlarged AI Personality Panel when text is upscaled, so there is no need to reduce item bar width in Sevopedia Leader to accomodate it.
+ - Sevopedia — Concepts (`ConceptInfos`) (placed under the "Outdated" *Sevopedia category*): added reference entries — e.g. `concept_rivers`, `concept_global_warming`, `concept_customization`. **"Outdated" is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse. See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+ - Sevopedia — Mods Infos (`NewConceptInfos`): Added **Mods Infos** (e.g., K-Mod, AdvCiv, AdvCiv-SAS). Added **Legend items** showing the legend (e.g., for the Info Screen's new Score Tab; for the Sevopedia Leader's AI Personality Panel, (Requires AdvCiv-SAS 5509+) Sevopedia Categories, abbreviation meaning (e.g., for numTxt `+50/-75` or `InC`; for the AI Personality Panel `T.W Likely -> getMaxWarRand` or `Build Unit % -> getBuildUnitProb`)), with `(Inverted)` information; for Sevopedia Speeds. See also: [README.md (Legends)](/README.md#legends).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 7e5a6e615..ae76c4f75 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -317,6 +317,8 @@ More recently, added leader Attitude (furious, annoyed, cautious, pleased, frien
+ 
+ Since then, increased ai personality panel default font size from body (default 2) to label (default 3), and made item bar shorter with a per font size tunable value to accomodate the AI Personality panel larger rows.
+ 
++Since then, we also added era attitude buttons with the very nice help of Claude code Sonnet 4.6 thanks.
++
+ <img src="../Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.620_sevopedia_leaders (2).JPG" alt="0.620_sevopedia_leaders (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.620_sevopedia_leaders (3).JPG" alt="0.620_sevopedia_leaders (3).JPG" width="250"></img>
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=10 omittedFiles=1 embeddedPatchBytes=61974

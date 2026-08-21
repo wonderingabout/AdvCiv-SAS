@@ -22,9 +22,9 @@ done = False
 rev = None
 error = None
 def testL():
-	print getLocalRevision("C:/Coding/Civ/BUG/BUG New Core")
+	print(getLocalRevision("C:/Coding/Civ/BUG/BUG New Core"))
 def testR():
-	print getRemoteRevision("http://civ4bug.svn.sourceforge.net/svnroot/civ4bug/BUG Mod/")
+	print(getRemoteRevision("http://civ4bug.svn.sourceforge.net/svnroot/civ4bug/BUG Mod/"))
 def testW():
 	global done
 	done = False
@@ -36,41 +36,39 @@ def testW():
 		else:
 			global error
 			error = result.message
-	t = getRemoteRevision("http://civ4bug.svn.sourceforge.net/svnroot/civ4bug/BUG Mod/",
-			callback)
+	t = getRemoteRevision("http://civ4bug.svn.sourceforge.net/svnroot/civ4bug/BUG Mod/", callback)
 	count = 0
 	while not t.done() and count < 100:
 		time.sleep(0.05)
 		count += 1
-	print t.rev()
+	print(t.rev())
 
 def getLocalRevision(path):
-	"""
-	Parses and returns the revision number from a local SVN working copy.
-	
-	It is read from the 'entries' file as long as the file has format 7 or higher.
-	A BugError exception is raised if the file isn't found or it has an incorrect
-	format or revision number format.
-	
-	Based on 
-	  http://svn.collab.net/repos/svn/trunk/tools/client-side/change-svn-wc-format.py
-	
-	See http://svn.collab.net/repos/svn/trunk/subversion/libsvn_wc/README
-	'The entries file' for a description of the entries file format.
-	
-	In summary, the first line is the format number followed by an entry for
-	the directory itself (no name). Each entry is separated by a form feed 0x0c
-	and a line feed 0x0a, and each entry contains lines terminated by 0x0a.
-	Subsequent empty lines at the end of an entry may be omitted.
-	
-	The first few lines of each entry that we care about are
-	
-	  - name		  empty for first entry (a.k.a. this_dir)
-	  - kind		  file or dir
-	  - revision	  0 for entries not yet in repository
-	  - url
-	  - repository
-	"""
+	# Parses and returns the revision number from a local SVN working copy.
+	#
+	# It is read from the 'entries' file as long as the file has format 7 or higher.
+	# A BugError exception is raised if the file isn't found or it has an incorrect
+	# format or revision number format.
+	#
+	# Based on 
+	#   http://svn.collab.net/repos/svn/trunk/tools/client-side/change-svn-wc-format.py
+	#
+	# See http://svn.collab.net/repos/svn/trunk/subversion/libsvn_wc/README
+	# 'The entries file' for a description of the entries file format.
+	#
+	# In summary, the first line is the format number followed by an entry for
+	# the directory itself (no name). Each entry is separated by a form feed 0x0c
+	# and a line feed 0x0a, and each entry contains lines terminated by 0x0a.
+	# Subsequent empty lines at the end of an entry may be omitted.
+	#
+	# The first few lines of each entry that we care about are
+	#
+	#   - name		  empty for first entry (a.k.a. this_dir)
+	#   - kind		  file or dir
+	#   - revision	  0 for entries not yet in repository
+	#   - url
+	#   - repository
+	#
 	path = os.path.join(path, ".svn", "entries")
 	try:
 		BugUtil.debug("SvnUtil.getLocalRevision - opening '%s'", path)
@@ -86,7 +84,7 @@ def getLocalRevision(path):
 				raise BugUtil.BugError("invalid SVN entries file format '%s'" % format_line)
 			if not format_nbr >= MINIMUM_ENTRIES_FORMAT:
 				raise BugUtil.BugError("SVN entries file format %d too old" % format_nbr)
-			
+
 			# Verify first entry's name and kind.
 			name = input.readline().strip()
 			if name != "":
@@ -94,7 +92,7 @@ def getLocalRevision(path):
 			kind = input.readline().strip()
 			if kind != "dir":
 				BugUtil.warn("SvnUtil.getLocalRevision - first SVN is not a dir, kind '%s'", kind)
-			
+
 			# Extract the revision number for the first entry.
 			rev_line = input.readline().strip()
 			BugUtil.debug("SvnUtil.getLocalRevision - revision '%s'", rev_line)
@@ -102,22 +100,22 @@ def getLocalRevision(path):
 				rev = int(rev_line)
 			except ValueError:
 				raise BugUtil.BugError("invalid SVN revision number format '%s'" % rev_line)
-			
+
 			return rev
 		finally:
 			input.close()
-	except IOError, e:
+	# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil for cases that still need the exception object, so this syntax cleanup is deemed safe. (GPT-5.5) -->
+	except IOError:
 		raise BugUtil.BugError("failed to read SVN entries file")
 
 def getRemoteRevision(url, callback=None):
-	"""
-	Retrieves the latest revision for a remote repository directory.
-	
-	If callback is given, a background thread is used and the callback is called
-	after the revision is retrieved or an error occurs. If the operation is successful,
-	the revision number (an int) is passed to the callback; otherwise the exception
-	caught is passed.
-	"""
+	# Retrieves the latest revision for a remote repository directory.
+	#
+	# If callback is given, a background thread is used and the callback is called
+	# after the revision is retrieved or an error occurs. If the operation is successful,
+	# the revision number (an int) is passed to the callback; otherwise the exception
+	# caught is passed.
+	#
 	if callback is None:
 		return _getRemoteRevision(url)
 	else:
@@ -137,7 +135,10 @@ class RemoteRevisionThread(threading.Thread):
 		try:
 			self._rev = _getRemoteRevision(self._url)
 			BugUtil.debug("RemoteRevisionThread.run - found revision %d", self._rev)
-		except BugError, e:
+		# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe; also qualify BugError because this module imports BugUtil, not BugError directly. (GPT-5.5) -->
+		except BugUtil.BugError:
+			import sys
+			e = sys.exc_info()[1]
 			self._error = e
 			BugUtil.debug("RemoteRevisionThread.run - %s", self._error.message)
 		self._done = True
@@ -159,16 +160,15 @@ class RemoteRevisionThread(threading.Thread):
 			self._callback(self._error)
 
 def _getRemoteRevision(url):
-	"""
-	Parses and returns the revision number from a remote SVN repository.
-	
-	The URL must be correctly escaped (+ for space, etc).
-	A BugError exception is raised if the URL can't be connected to or it doesn't
-	have the expected format.
-	
-	This function looks specifically for the string 'Revision: ####' anywhere
-	in the first MAX_READ_LINES
-	"""
+	# Parses and returns the revision number from a remote SVN repository.
+	#
+	# The URL must be correctly escaped (+ for space, etc).
+	# A BugError exception is raised if the URL can't be connected to or it doesn't
+	# have the expected format.
+	#
+	# This function looks specifically for the string 'Revision: ####' anywhere
+	# in the first MAX_READ_LINES
+	#
 	try:
 		timer = BugUtil.Timer("SvnUtil.getRevision")
 		try:
@@ -183,14 +183,16 @@ def _getRemoteRevision(url):
 						try:
 							return int(result.group(1))
 						except ValueError:
-							raise BugUtil.BugError("invalid SVN revision format '%s'" 
-									% result.group(1))
+							raise BugUtil.BugError("invalid SVN revision format '%s'" % result.group(1))
 					count += 1
 					if count > MAX_READ_LINES:
 						return None
 			finally:
 				web.close()
-		except IOError, e:
+		# <!-- custom: Avoid old comma-exception binding while staying compatible with Civ4 Python 2.4; sys.exc_info()[1] was already used in BugUtil, so this pattern is deemed safe. (GPT-5.5) -->
+		except IOError:
+			import sys
+			e = sys.exc_info()[1]
 			raise BugUtil.BugError("failed to access SVN repository: %s" % str(e))
 		return None
 	finally:

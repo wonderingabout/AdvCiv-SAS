@@ -1,0 +1,526 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5214
+# Commit: 5e2c60c8fb8ea1d04145be53a3e696a36c883b3a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d7d4ee5ed06b186ab28fd5db787bb5af2ba8d27f
+# Title: add grouping by era (tech prereq) in sevopedia building (regular buildings only) anyways etc.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	11	.gitattributes
+126	9	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+-	-	Assets/Python/Contrib/Sevopedia/___civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk
+7	4	Assets/XML/Buildings/CIV4BuildingInfos.xml
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+35	10	Assets/XML/Technologies/CIV4TechInfos.xml
+5	0	Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+2	2	Assets/XML/Units/CIV4UnitInfos.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+3	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG
+ delete mode 100644 Assets/Python/Contrib/Sevopedia/___civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index 8a2972522..9c5f82059 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -29,14 +29,15 @@
+ *.pdn  export-ignore
+ *.PDN  export-ignore
+ 
+-/scan_xml_duplicates-3.3.py                                     export-ignore
+-/_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                      export-ignore
+-/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt                      export-ignore
+-/_0_Common_Docs/AdvCiv_Base_Doc/CIV4BuildingInf_os_Doto_mod.txt export-ignore
+-/_0_Common_Docs/git_log_anonymized_email.txt                    export-ignore
+-/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/        export-ignore
+-/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/          export-ignore
+-/Assets/XML/BasicInfos/CIV4BasicInf_os.txt                      export-ignore
+-/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt     export-ignore
+-/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt           export-ignore
+-/Assets/Res/Fonts/other_mods/                                   export-ignore
++/scan_xml_duplicates-3.3.py                                             export-ignore
++/_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                              export-ignore
++/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt                              export-ignore
++/_0_Common_Docs/AdvCiv_Base_Doc/CIV4BuildingInf_os_Doto_mod.txt         export-ignore
++/_0_Common_Docs/git_log_anonymized_email.txt                            export-ignore
++/_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/                export-ignore
++/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/                  export-ignore
++/Assets/XML/BasicInfos/CIV4BasicInf_os.txt                              export-ignore
++/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt             export-ignore
++/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt                   export-ignore
++/Assets/Res/Fonts/other_mods/                                           export-ignore
++/Assets/Python/Contrib/Sevopedia/SevopediaLead_derExamplesOfOutputs.txt export-ignore
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 170002b55..b16467908 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -79,12 +79,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.ITEM_LIST_ID	= "PediaMainItemList"
+ 		self.UPGRADES_GRAPH_ID	= "PediaMainUpgradesGraph"
+ 
+-		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
+-		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
+-		# <!-- custom: do something similar for the untradeable techs text and or such other similar or quite similar codes if i may say or not or yes or etc but anyways etc anyways etc anyways etc -->
+-		self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = False
+-		self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = False
+-
+ 		self.H_SCREEN = 768
+ 		self.W_SCREEN = 1024
+ 
+@@ -187,6 +181,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# <!-- custom: compute once to be computationally more efficient if i'm not mistaken in my thinking, and added with the help of chatgpt 5.2 thanks, anyways etc. -->
+ 		self.SAS_cacheCivicsTuple = None
+ 		self.SAS_cacheTechsTuple = None
++		self.SAS_cacheBuildingsTuple = None
++
++		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
++		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
++		# <!-- custom: do something similar for the untradeable techs text and or such other similar or quite similar codes if i may say or not or yes or etc but anyways etc anyways etc anyways etc -->
++		self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = False
++		self.IS_FEATURES_PRE_LOADING_XML_DATA_VALIDATION_DONE = False
+ 
+ 		self.mapListGenerators = {
+ 			SevoScreenEnums.PEDIA_TECHS		: self.placeTechs,
+@@ -392,6 +393,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString('COLOR_HIGHLIGHT_TEXT')
+ 		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
+ 
+ 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
+ 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
+@@ -625,8 +627,123 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.list = self.getBuildingList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingInfo)
+ 	
++	# <!-- custom: similarly, in sevopedia buildings, group techs by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getBuildingList(self):
+-		return self.pediaBuilding.getBuildingSortedList(0)
++		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
++			if self.SAS_cacheBuildingsTuple is None:
++				buildingsList = []
++				baseList = self.pediaBuilding.getBuildingSortedList(0)
++
++				iNumEras = gc.getNumEraInfos()
++				iNumAndTechs = gc.getNUM_BUILDING_AND_TECH_PREREQS()
++
++				# --- "All Eras" group first (no tech prereq) ---
++				tmp = []
++				for (szName, iBuilding) in baseList:
++					info = gc.getBuildingInfo(iBuilding)
++					if info.isGraphicalOnly():
++						continue
++
++					iEra = -1
++
++					# <!-- custom: it seems getPrereqOrTechs does not exist causing a python error, but with the help of chatgpt 5.2 found the correct way to fetch tech prereqs that addresses and fixes it and that works as intended in displaying the building at latest tech prereq of the building's corresponding era. Seems to run fine in testing/empirically, check if accurate anyways etc. -->
++					# When first implementing era-tiered building lists, we hit a crash: AttributeError: 'CvBuildingInfo' object has no attribute 'getPrereqOrTechs' (Python traceback from SevoPediaMain.getBuildingList). We verified the cause by inspecting our exported Cy/Cv infos (as of now __SevoPediaBuilding-gc-inner-debug-content.txt and __SevoPediaBuilding-gc-debug-content.txt): CvBuildingInfo in this DLL exposes getPrereqAndTech() + getPrereqAndTechs(i), but NOT getPrereqOrTechs(i) (unlike some other mods / DLLs). (Mapping to our XML schema: <PrereqTech> maps to getPrereqAndTech(), and <TechTypes><PrereqTech>...</PrereqTech></TechTypes> maps to getPrereqAndTechs(i).)
++					# Fix: compute the building "availability era" using only these AND-tech prereqs: start with getPrereqAndTech(), then scan additional prereqs via getPrereqAndTechs(i) for i in range(gc.getNUM_BUILDING_AND_TECH_PREREQS()). We bucket the building into the LATEST (max) era among these prereq techs, so it shows up in the era when it actually becomes buildable.
++					# Empirical sanity check: we tested a building with two widely separated PrereqTech and TechTypes (e.g. TECH_MATHEMATICS (Classical) and TECH_FUSION (Future)) in both permutations (A then B, and B then A), and in both cases the building was listed under the later era (Future), confirming the "max era of prereqs" rule behaves correctly in practice.
++					# Additional sanity check: we also tested <PrereqTech>NONE</PrereqTech> with an existing TechTypes prereq (i.e. only the <TechTypes> prereq was set), and the building was still listed under the correct era, confirming the fallback scan of getPrereqAndTechs(i) works even when the main <PrereqTech> is NONE. -->
++					iTech = info.getPrereqAndTech()
++					if iTech >= 0:
++						iEra = gc.getTechInfo(iTech).getEra()
++
++					# extra AND tech prereqs (if any)
++					for j in range(iNumAndTechs):
++						iTech2 = info.getPrereqAndTechs(j)
++						if iTech2 >= 0:
++							iEra2 = gc.getTechInfo(iTech2).getEra()
++							if iEra2 > iEra:
++								iEra = iEra2
++
++					# <!-- custom: special buildings need also to be checked for a tech prereq. For example the buddhist monastery as of now has no TechPrereq and TechTypes NONE, but the parent specialbuilding_monastery requires TECH_MONARCHY. Yet, without taking special buildings into account, the buddhist monastery is incorrectly listed at the "No Tech Prereq" part instead of at the "Classical Era" part. Fix this by taking their actual tech prereq into account properly with the help of chatgpt 5.2 thanks anyways etc. -->
++					# Yep — that’s exactly why: for “special buildings” (Temple/Cathedral/Monastery/etc.), the real tech gate often lives in CIV4SpecialBuildingInfos.xml (e.g. SPECIALBUILDING_MONASTERY has TechPrereq = TECH_MONARCHY). So your era-bucketing currently sees “no building tech prereq” and dumps it into All Eras.
++					# Also consider SpecialBuilding tech prereq (e.g. Monastery -> TECH_MONARCHY in CIV4SpecialBuildingInfos.xml)
++					iSpecialBuildingType = info.getSpecialBuildingType()
++					if iSpecialBuildingType >= 0:
++						iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
++						if iSpecialTech >= 0:
++							iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
++							if iSpecialEra > iEra:
++								iEra = iSpecialEra
++
++					if iEra == -1:
++						tmp.append((szName, iBuilding))
++
++				if tmp:
++					if self.isSortLists():
++						tmp.sort()
++					buildingsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
++					for x in tmp:
++						buildingsList.append(x)
++
++				# --- Era groups ---
++				for iEraLoop in range(iNumEras):
++					tmp = []
++
++					for (szName, iBuilding) in baseList:
++						info = gc.getBuildingInfo(iBuilding)
++						if info.isGraphicalOnly():
++							continue
++
++						iEra = -1
++
++						iTech = info.getPrereqAndTech()
++						if iTech >= 0:
++							iEra = gc.getTechInfo(iTech).getEra()
++
++						for j in range(iNumAndTechs):
++							iTech2 = info.getPrereqAndTechs(j)
++							if iTech2 >= 0:
++								iEra2 = gc.getTechInfo(iTech2).getEra()
++								if iEra2 > iEra:
++									iEra = iEra2
++
++						# In the “No Tech Prereq” pre-pass, you now compute iEra using SpecialBuilding tech prereq, so the monastery’s iEra becomes (say) Classical → it no longer goes into the “No Tech Prereq” bucket.
++						# But in the per-era loop, you do not apply the SpecialBuilding tech prereq logic, so iEra stays -1 there → it doesn’t match any iEraLoop.
++						# Result: it’s in neither list → it disappears.
++						# Fix (minimal): copy the same SpecialBuilding block into the per-era loop
++						iSpecialBuildingType = info.getSpecialBuildingType()
++						if iSpecialBuildingType >= 0:
++							iSpecialTech = gc.getSpecialBuildingInfo(iSpecialBuildingType).getTechPrereq()
++							if iSpecialTech >= 0:
++								iSpecialEra = gc.getTechInfo(iSpecialTech).getEra()
++								if iSpecialEra > iEra:
++									iEra = iSpecialEra
++
++						if iEra != iEraLoop:
++							continue
++
++						tmp.append((szName, iBuilding))
++
++					if not tmp:
++						continue
++
++					if self.isSortLists():
++						tmp.sort()
++
++					if buildingsList:
++						buildingsList.append(("", -1))
++
++					buildingsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
++					for x in tmp:
++						buildingsList.append(x)
++
++				self.SAS_cacheBuildingsTuple = tuple(buildingsList)
++
++			return self.SAS_cacheBuildingsTuple
++
++		else:
++			if self.SAS_cacheBuildingsTuple is None:
++				self.SAS_cacheBuildingsTuple = tuple(self.pediaBuilding.getBuildingSortedList(0))
++			return self.SAS_cacheBuildingsTuple
+ 
+ 
+ 	def placeNationalWonders(self):
+@@ -957,8 +1074,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			# <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
+ 			# Step 1 (required): Teach your SevoPediaMain.placeItems() to handle headers
+ 			# Right now your placeItems() always does info(item[1]).getButton(), so any header rows like ("Government", -1) would crash. RFC DoC fixes this by treating item[1] == -1 as a non-clickable, highlighted header row.
+-			# <!-- custom: similarly, in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. --> -->
+-			elif info == gc.getCivicInfo or info == gc.getTechInfo:
++			# <!-- custom: similarly, in sevopedia techs, group techs by era (e.g. Ancient Era, Classical Era, etc.) instead of one long list. Also did similarly for sevopedia buildings and similar pages anyways etc. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
++			elif info == gc.getCivicInfo or info == gc.getTechInfo or info == gc.getBuildingInfo:
+ 				# <!-- custom: reuse fallback base advciv value since we don't change it in chatgpt 5.2's solution if i'm not mistaken anyways etc. -->
+ 				data2 = 1
+
+diff --git a/Assets/Python/Contrib/Sevopedia/___civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk b/Assets/Python/Contrib/Sevopedia/___civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk
+deleted file mode 100644
+index 108a94860..000000000
+Binary files a/Assets/Python/Contrib/Sevopedia/___civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk and /dev/null differ
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 964eb5e3e..983bfefac 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -2123,7 +2123,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>NONE</PrereqTech>
++			<!-- custom: changed same as the generic barracks; was NONE. -->
++			<PrereqTech>TECH_HUNTING</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -2303,7 +2304,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>NONE</PrereqTech>
++			<PrereqTech>TECH_HUNTING</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -9617,7 +9618,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>NONE</PrereqTech>
++			<!-- custom: change tech prereq so this building appears in the Technology Advisor and is not listed in sevopedia buildings in the "No Tech Prerequisite" group anyways etc. For balance and strategy, also helps reward the science path more than give a generic free academy path for warmogners or anyone; anyways etc., was NONE. -->
++			<PrereqTech>TECH_LITERATURE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -22747,7 +22749,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>NONE</PrereqTech>
++			<!-- custom: so it appears in tech tree, and so that in sevopedia buildings it is not listed under the as of now "No Tech Prerequisite section". No reason to put it especially late in the tech tree in terms of gameplay anyways etc. -->
++			<PrereqTech>TECH_MONARCHY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index bdae6cc95..7290ae02d 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -50,6 +50,11 @@
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: in sevopedia buildings (as of now regular buildings, national wonders, world wonders), group techs by era (obtained from tech prereqs since Buildings don't have eras per-se if i'm not mistaken and as chatgpt 5.2 explained to me thanks but anyways etc.) (e.g. Ancient Era, Classical Era, No Tech Prereq (available at any era), etc.) instead of one long list -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index c8934efbe..d7fdb3026 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -415,15 +415,15 @@
+ 			</CommerceFlexible>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: was FLAVOR_MILITARY 3 -->
++			<!-- custom: was FLAVOR_MILITARY 3 espionage and growth 0 (was empty anyways etc.) culture 9 religion 4 production 3 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_RELIGION</FlavorType>
+-					<iFlavor>4</iFlavor>
++					<iFlavor>8</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>1</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+@@ -433,6 +433,18 @@
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+ 					<iFlavor>9</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>4</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
++					<iFlavor>5</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>4</iFlavor>
++				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_CALENDAR</PrereqTech>
+@@ -493,7 +505,7 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: was FLAVOR_MILITARY 3 -->
++			<!-- custom: was FLAVOR_MILITARY 3 science 0 and growth 0 (were missing anyways etc.) culture 10 religion 4 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+@@ -501,11 +513,19 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_RELIGION</FlavorType>
+-					<iFlavor>4</iFlavor>
++					<iFlavor>1</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>5</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<iFlavor>6</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -1335,7 +1355,7 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- advc.015a: Production was 3 -->
++			<!-- advc.015a: Production was 3; add flavor science (was missing anyways etc.)-->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -2638,6 +2658,7 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was flavors espionage 0 (empty) growth 1 science 6 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_RELIGION</FlavorType>
+@@ -2657,7 +2678,11 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>1</iFlavor>
++					<iFlavor>3</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -2793,7 +2818,7 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: was flavor religion 3 culture 6 military 0 (add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now i mean if i may say but anyways etc.). -->
++			<!-- custom: was flavor religion 3 culture 6 military 0 (add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now i mean if i may say but anyways etc.) science 8. -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_RELIGION</FlavorType>
+@@ -2801,7 +2826,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+index 67ef34a4c..2fbd0ce29 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+@@ -23,10 +23,15 @@ hopefully more readable or exportable if need/want be now -->
+ 
+ 
+ 
++	<!-- custom: as of now used for sevopedia entries grouping by era or/ans such other use cases but anyways etc. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_ERA</Tag>
+ 		<English>Era</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_NO_TECH_PREREQUISITE</Tag>
++		<English>No Tech Prerequisite</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 0ed33811c..a97bc46cc 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -2977,8 +2977,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: no more old TECH_ALPHABET now replaced with TECH_NATURALISM now for tech tree efficiency and faster early game if i may say too indeed but anyways etc, advance it to a sooner tech or/and alternative one, was TECH_NATURALISM -->
+-			<PrereqTech>TECH_MONARCHY</PrereqTech>
++			<!-- custom: was TECH_ALPHABET (now removed) -->
++			<PrereqTech>TECH_CALENDAR</PrereqTech>
+ 			<TechTypes/>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index ed9245239..dee2a9e85 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -124,7 +124,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - additionally, also expanded sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc
+ - reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.
+ - in particular replaced some pedia entries of religions in particular but not only (also of some techs, buildings, units, bonuses, a few terrains/features as of now too, etc.), with wikipedia based entries (unless stated otherwise in the pedia entry or in code comments or docs), so that it is more accurate and possibly if i may say anyways etc instructive or/and informative or/and neutral/objective or/and perhaps also enjoyable anyways etc.
+-- (Requires AdvCiv-SAS 5212+ to 5213+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.); Sevopedia Techs' entries are **grouped by Era Type** (e.g. Ancient Era, Classical Era, All Eras (not requiring any technology, so available at any era), etc.).
++- (Requires AdvCiv-SAS 5212+ to 5214+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.) or **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries.
+ - sevopedia shortcuts category: add info about Alt+S shortcut (Toggle on/off write some text ("Enter caption") on a tile) (added in the Map Layers subcategory anyways etc).
+ - added a few new concepts (as of now in the "Outdated" sevopedia category) entries such as concept_rivers, concept_route_road, concept_route_railroad. These are not supported in advciv-sas, hence the "outdated" name (i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images, or that i found informative or/and wanted to add anyways etc. See [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details.
+ - removed the strategy text in history / background panels as they are oftentimes outdated or/and tedious to maintain anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index f35cdddd9..035c9ddca 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -118,7 +118,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - Wider content area, narrower main category column; fills available screen space.
+ - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md).
+-- (Requires AdvCiv-SAS 5212+ to 5213+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.); Sevopedia Techs' entries are **grouped by Era Type** (e.g. Ancient Era, Classical Era, All Eras (not requiring any technology, so available at any era), etc.).
++- (Requires AdvCiv-SAS 5212+ to 5214+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.) or **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries.
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+ - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+ - Sevopedia — History/Background panels: removed the embedded **Strategy** text; it was often outdated and tedious to maintain.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index ff50f05d3..9c65aefed 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -134,6 +134,8 @@ Based on the sevopedia unit previous rework, and also with the help of Claude AI
+ 
+ Also added later iConquestProb display in placeSpecial, idea i got from watching ingame the sevopedia of ri mod (didn't watch that part of code as tedious anyways etc) with chatgpt +/- claude ai i forgot who xd maybe both but anyways etc.
+ 
++Now grouped by eras (tech prereq of the building) as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
++
+ <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG" alt="0.690_sevopedia_buildings_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG" alt="0.690_sevopedia_buildings_sample (2).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (3).JPG" alt="0.690_sevopedia_buildings_sample (3).JPG" width="250"></img>
+@@ -164,7 +166,7 @@ Before that, i had also added a list of untradeable techs following the anti tec
+ 
+ Note: the untradeable techs list as string/text is very efficiently precomputed only once at first tech list load and only if sevopedia tech is accessed (which is as of now always when sevoepdia is first opened as "Techs" is the first category as of now so opened by default) thanks to gemini ai's help and my prompt too and adjustments or not but anyways etc too but anyways etc ; see similar precomputing logic or/and its explanation at sevoepdia reworks's sevopedia leader readme section in [README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-1-more-ai-personality-examples-in-leaders-category) for details anyways etc
+ 
+-Now grouped by eras as well similarly than in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
++Now grouped by eras as well similarly to how was done in [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category) anyways etc.
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (2).JPG" alt="0.710_sevopedia_techs_sample (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 1affa4898..212be0600 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG
+index 65b5afdd3..953d71e50 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG
+index 89d36dda7..7ea9fe6e2 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_buildings_sample (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=32261

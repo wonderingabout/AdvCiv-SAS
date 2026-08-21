@@ -1,0 +1,90 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 104
+# Commit: 6d084e7d69d6d9ffe13a8586eb46ac82be5e22d1
+# History segment: K-Mod history
+# Parent used for diff: 5750806e12638791999cb664ed82602822e05e6b
+# Title: Fixed a minor problem with the way the AI values healthiness from buildings. Fixed a divide by zero crash at the start of the game... Updated the changelog....
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	1	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+8	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 647e551ed..8da43dcd4 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3657,7 +3657,10 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 	// Reduce reaction to espionage induced happy/health problems
+ 	int iHappinessLevel = happyLevel() - unhappyLevel(1) + getEspionageHappinessCounter()/2;
+ 	int iAngryPopulation = range(-iHappinessLevel, 0, (getPopulation() + 1));
+-	int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, std::max(0, (iHappinessLevel + 1) / 2)) + getEspionageHealthCounter()/2;
++	//int iHealthLevel = goodHealth() - badHealth(/*bNoAngry*/ false, std::max(0, (iHappinessLevel + 1) / 2)) + getEspionageHealthCounter()/2;
++	int iHealthLevel = goodHealth()
++		- badHealth(false, std::max(0, std::min(foodDifference()/GC.getFOOD_CONSUMPTION_PER_POPULATION(), (iHappinessLevel + 1) / 2)))
++		+ getEspionageHealthCounter()/2;
+ 	int iBadHealth = std::max(0, -iHealthLevel);
+ 
+ 	int iHappyModifier = (iHappinessLevel <= iHealthLevel && iHappinessLevel <= 6) ? 6 : 3;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 256c10e79..b86dd21d5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2439,7 +2439,7 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, CvCity* pCity) const
+ 			// K-Mod
+ 			iAllTeamTotalPoints /= std::max(1, iTeamCount);
+ 			iWeight *= std::min(GET_TEAM(getTeam()).getEspionagePointsEver() + 2*iAllTeamTotalPoints, 6*iAllTeamTotalPoints);
+-			iWeight /= 3 * iAllTeamTotalPoints;
++			iWeight /= std::max(12, 3 * iAllTeamTotalPoints);
+ 			if (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE))
+ 			{
+ 				iWeight *= 2;
+
+diff --git a/changelog.txt b/changelog.txt
+index b0783e7a5..f6f85eb10 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,4 +1,4 @@
+-This is K-Mod version 0.98.
++This is K-Mod version 0.98b.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+@@ -21,15 +21,22 @@ v0.98 changelist
+ + Unit value is awarded for secondary tech prereqs if the player already has the primary prereq.
+ 
+ + Fixed an original BtS bug which would sometimes prevent AI spies from doing any espionage missions.
+++ Fixed an original BtS bug which prevent the AI from using the culture slider for anything other than a cultural victory.
+ + Rewrote the AI's decision making process for choosing the best espionage mission. [You're probably use to the AI just using Poison Water Supply over and over; so brace yourself for some more painful missions.]
+ + Reworked most of the spy unit AI code; choosing target cities etc.
+ + Changed many parts of the AI's espionage strategies. (points targeting etc.)
+ + Implemented a new AI strategy: espionage economy. The way it works is that when the AI recognises that stealing techs is significantly cheaper than researching them - it may choose to focus on espionage instead of research. [The conditions for this strategy are pretty strict. Don't be surprised if you never see the AI try it.]
+++ Increased the build priority of spies, so that the AI will still sometimes build them when at war.
+++ The AI's espionage targets are now adjusted for different game speeds.
+ 
+ + Rewrote most of the decision making process for "Force Peace" votes, to take into account relative power. [Previously, if an AI player had lost a few more units in the war, then it would vote for peace even if it was much stronger and even if aiming for a conquest victory!]
+ + Replaced most of the AI's great person usage decisions with a new decision making process. [Before this change, the AI would _always_ use its great spies to build Scotland yard, unless every city already had it. The logic process was quite absurd.]
+ + Added some personality-based changes to city site evaluation.
+ + Fixed some problems in the way the AIs main strategies are chosen, to decorrelate "random" decisions.
+++ Corrected a bug in the calculation of average commerce yield modifier.
+++ Changed the way happiness and healthiness are evaluated for civics.
+++ Tweaked the usage of, and civic value of, conscription.
+++ Changed the way the AI classifies war areas - to correct a problem which sometimes caused the AI to use an "offense" strategy when it was losing an intercontinental battle.
+ 
+ + Changed many parts of how the AI chooses which improvements to build. [I'll list some...]
+ + Changed the AI's definition of a "good tile", and hence changed their city population targets.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4597

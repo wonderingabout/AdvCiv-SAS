@@ -1,0 +1,51 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1875
+# Commit: bf240ea4298e287b88e55400a66c67a8870f5b8f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8fbc178ba1e399b21607eed8ddc8fdfabc8ddefb
+# Title: Log UWAI aspect names in mixed case
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	3	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 12a117c89..4e36e65a0 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -129,9 +129,19 @@ bool WarUtilityAspect::concernsOnlyWarParties() const { return true; }
+ 
+ char const* WarUtilityAspect::aspectName() const {
+ 
+-	/*  Tbd.(?): Convert from upper case to mixed case and replace underscores with spaces.
+-		Will need some static buffer for that. */
+-	return getUWAI.aspectName(xmlId());
++	if (report.isMute()) // Don't waste time processing the string then
++		return getUWAI.aspectName(xmlId());
++	// Convert from upper case to mixed case and replace underscores with spaces
++	static CvString szBuffer;
++	szBuffer = getUWAI.aspectName(xmlId());
++	for (uint i = 0; i < szBuffer.length(); i++)
++	{
++		if (szBuffer[i] == '_')
++			szBuffer[i] = ' ';
++		if (i > 0 && szBuffer[i - 1] != ' ')
++			szBuffer[i] = ::tolower(szBuffer[i]);
++	}
++	return szBuffer.GetCString();
+ }
+ 
+ void WarUtilityAspect::log(char const* fmt, ...) {
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1055

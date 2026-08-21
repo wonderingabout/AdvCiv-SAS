@@ -1,0 +1,1235 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5357
+# Commit: fedd1d40b55056539b38df66592fa2c47c5ecf68
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0e20b8f04d1d7793166613b2f9dafb4af5730f4d
+# Title: Add Sevopedia Movies with audio support - New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, and **Eras**,...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	.claude/settings.local.json
+8	0	AGENTS.md
+-	-	Assets/Art/AdvCiv_SAS/Images_As_Buttons/Play_Button/25b6_64px.dds
+39	1	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+15	15	Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+142	7	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+333	0	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+38	1	Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+44	5	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+1	0	Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+16	0	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+2	0	Assets/Python/EntryPoints/CvScreensInterface.py
+11	2	Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml
+36	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+14	3	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+17	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Images_As_Buttons/Play_Button/25b6_64px.dds
+ create mode 100644 Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (3).JPG
+
+[PATCHES]
+
+diff --git a/.claude/settings.local.json b/.claude/settings.local.json
+index c8cb35f05..a67253b15 100644
+--- a/.claude/settings.local.json
++++ b/.claude/settings.local.json
+@@ -7,7 +7,8 @@
+       "Bash(done)",
+       "Bash(sort:*)",
+       "Bash(xargs sed:*)",
+-      "Bash(python -m py_compile:*)"
++      "Bash(python -m py_compile:*)",
++      "Read(//c/Program Files \\(x86\\)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/**)"
+     ]
+   }
+ }
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 8974b375d..1ace8e7d0 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -43,6 +43,10 @@ Also, legacy documentation (K-Mod, AdvCiv, etc.) may prove helpful, in particula
+ 
+ - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\manual.txt"
+ 
++Civ4 BUG documentation is also provided as .txt, but it is lengthy, consider reading it for double check or grep needs or such. It helped us find the `Destroy2DSound` python function for example (with the help of Claude code Opus 4.5, although it didn't ultimately solve our issue, doc is helpful as reference (but lengthy)):
++
++- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt"
++
+ Our AdvCiv-SAS documentation is mostly located here:
+ 
+ - root README.md: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\README.md"
+@@ -51,6 +55,10 @@ Our AdvCiv-SAS documentation is mostly located here:
+ 
+ May help to find key documentation, additionally to doing a grep or such, indexes like `# advc.004y: Restored (comment out to remove traits)` refer to and provide key information about a change (grep the tag e.g. `004y` in the manual).
+ 
++## Information Fetching online
++
++If you find yourself stuck like for audio stopping issues, feel free to ask the user to perform one or many web searches, maybe some solutions exist or insights on how solvable issues are.
++
+ ## Comment Editing Rules
+ 
+ - Always preserve the `<!-- custom` prefix - never remove it when summarizing comments. At the end of your comment, append a `-->` if not already done.
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Play_Button/25b6_64px.dds b/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Play_Button/25b6_64px.dds
+new file mode 100644
+index 000000000..52ae88a69
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Play_Button/25b6_64px.dds differ
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 7924c29ee..09a3a45e0 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -138,12 +138,18 @@ class SevoPediaBuilding:
+ 		# <!-- custom: see sevopediaunit's self.W_TOTAL_EFFECTIVE_UNIT_PANE for differences in implementation -->
+ 		self.W_TOTAL_EFFECTIVE_BUILDING_PANE = self.W_BUILDING_PANE
+ 
++		self.W_MOVIE = 84
++
+ 		self.X_REQUIRES = self.X_BUILDING_PANE
+ 		self.Y_REQUIRES = self.Y_BUILDING_PANE + self.H_BUILDING_PANE + self.SMALL_MARGIN
+-		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
++		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_MOVIE - self.MEDIUM_MARGIN
+ 		self.H_REQUIRES = 110
+ 
+ 		self.W_OBSOLETE_WITH = 84
++		self.H_MOVIE = self.H_REQUIRES
++
++		self.X_MOVIE = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
++		self.Y_MOVIE = self.Y_REQUIRES
+ 
+ 		self.X_REQUIRED_FOR = self.X_BUILDING_PANE
+ 		self.Y_REQUIRED_FOR = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+@@ -207,6 +213,7 @@ class SevoPediaBuilding:
+ 		self.placeBuildingPane()
+ 		self.placeStats()
+ 		self.placeRequires()
++		self.placeMovie()
+ 		self.placeRequiredFor()
+ 		self.placeObsoleteWith()
+ 		self.placeFreePBBS()
+@@ -722,6 +729,37 @@ class SevoPediaBuilding:
+ 
+ 
+ 
++	def placeMovie(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_MOVIE_PANEL", ()), "", False, True, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE, PanelStyles.PANEL_STYLE_BLUE50)
++
++		# <!-- custom: use attachLabel for padding similar to Obsolete panel -->
++		screen.attachLabel(panelName, "", "  ")
++
++		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_WONDER
++		if self.top.pediaMovies.hasMovie(iMovieType, self.iBuilding):
++			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
++			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
++			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
++			check_button_path_is_valid("Sevopedia Building Movie button", buttonPath, buttonPathTxtKey)
++
++			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iBuilding)
++			buttonSize = 64
++			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
++			# X: Standard centering works correctly.
++			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
++			buttonX = (self.W_MOVIE - buttonSize) / 2
++			buttonY = 10
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
++		else:
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
++			screen.addMultilineText(textName, szText, self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
+ 	# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas -->  
+ 	def is_building_prereq_overridden_by_civic(self, iBuildingId):
+ 		# Checks if the prerequisite for the given building ID can be overridden by any civic.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+index c449dfab3..d60c1a1a1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+@@ -87,6 +87,14 @@ class SevoPediaEraChart:
+ 			else:
+ 				buttonRowStartX = tableX + self.W_FIELD
+ 
++			playButtonPath = CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH", ()))
++			if playButtonPath:
++				playButtonX = buttonRowStartX - wNum
++				# <!-- custom: use iEra=1 (Classical) instead of 0 to avoid weird blue highlight on header row.
++				# Use MOVIE_ENTRY to redirect to movie page, not MOVIE_PLAY to autoplay. (Claude Opus 4.5) -->
++				iPackedMovie = self.top.SAS_packMovieKey(self.top.SAS_PEDIA_MOVIE_TYPE_ERA, 1)
++				screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
++
+ 			era_count = gc.getNumEraInfos()
+ 			for iEra in xrange(era_count):
+ 				if iEra >= value_cols:
+@@ -94,11 +102,16 @@ class SevoPediaEraChart:
+ 				info = gc.getEraInfo(iEra)
+ 				button = info.getButton()
+ 				if not button:
+-					button = self._getEraFallbackButton(iEra)
++					button = get_era_movie_path(iEra)
+ 				if button:
+ 					btnX = buttonRowStartX + (iEra * wNum)
+ 					btnY = buttonRowY
+-					screen.addDDSGFC(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
++					# <!-- custom: each era button redirects to its movie entry if movie exists. (Claude Opus 4.5) -->
++					if self.top.pediaMovies.hasMovie(self.top.SAS_PEDIA_MOVIE_TYPE_ERA, iEra):
++						iPackedEraMovie = self.top.SAS_packMovieKey(self.top.SAS_PEDIA_MOVIE_TYPE_ERA, iEra)
++						screen.setImageButton(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedEraMovie)
++					else:
++						screen.addDDSGFC(self.top.getNextWidgetName(), button, btnX, btnY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		# Table starts below the button row (or at top if buttons disabled)
+ 		tableY = y + self.MARGIN + 4 + buttonRowH
+@@ -408,16 +421,3 @@ class SevoPediaEraChart:
+ 			rows.append(row)
+ 		return rows
+ 
+-	# <!-- custom: Fallback era button paths when EraInfo lacks a button. (Claude Opus 4.5) -->
+-	def _getEraFallbackButton(self, iEra):
+-		if iEra == 0:
+-			return "Art/Movies/Era/Era01-Classical.dds"
+-		elif iEra == 1:
+-			return "Art/Movies/Era/Era01-Classical.dds"
+-		elif iEra == 2:
+-			return "Art/Movies/Era/Era02-Medeival.dds"
+-		elif iEra == 3:
+-			return "Art/Movies/Era/Era03-Renaissance.dds"
+-		elif iEra == 4:
+-			return "Art/Movies/Era/Era04-Industrial.dds"
+-		return "Art/Movies/Era/Era05-Modern.dds"
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index d10319029..0d997d9a3 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -46,6 +46,7 @@ import SevoPediaHistory
+ import SevoPediaProject
+ import SevoPediaReligion
+ import SevoPediaCorporation
++import SevoPediaMovie
+ import SevoPediaIndex
+ 
+ import UnitUpgradesGraph
+@@ -101,6 +102,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# actual item ID (build/trait index) as data2. Handled in placeItems(), handleInput(), and SevoPediaIndex. -->
+ 		self.SAS_PEDIA_PYTHON_BUILD = 6798
+ 		self.SAS_PEDIA_PYTHON_TRAIT = 6799  # <!-- custom: (Claude Opus 4.5) -->
++		self.SAS_PEDIA_PYTHON_MOVIE_ENTRY = 6800
++		self.SAS_PEDIA_PYTHON_MOVIE_PLAY = 6801
++		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
++		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
++		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
++		self.SAS_PEDIA_MOVIE_TYPE_RELIGION = 4
++		self.SAS_PEDIA_MOVIE_TYPE_ERA = 5
+ 
+ 		self.H_SCREEN = 768
+ 		self.W_SCREEN = 1024
+@@ -218,6 +226,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_cacheBuildsTuple = None
+ 		self.SAS_cacheTerrainsTuple = None
+ 		self.SAS_cacheFeaturesTuple = None
++		self.SAS_cacheMoviesTuple = None
+ 
+ 		# <!-- custom: type-to-filter search bar state variables (chatgpt 5.2 + claude opus 4.5) -->
+ 		self.SAS_szSearchString = u""
+@@ -245,6 +254,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.pediaBuilding	= SevoPediaBuilding.SevoPediaBuilding(self)
+ 		self.pediaLeader	= SevoPediaLeader.SevoPediaLeader(self)
+ 		self.pediaIndex     = SevoPediaIndex.SevoPediaIndex(self)
++		self.pediaMovies    = SevoPediaMovie.SevoPediaMovie(self)
+ 		# <!-- custom: keep a shared handicap chart instance so its internal table cache survives between openings. (GPT-5.2-Codex) -->
+ 		self.pediaHandicapChart = SevoPediaHandicapChart.SevoPediaHandicapChart(self)
+ 		# <!-- custom: keep a shared game speed chart instance so its internal table cache survives between openings. (GPT-5.2-Codex) -->
+@@ -272,6 +282,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		iconYieldCommerce = u"%c  " % (gc.getYieldInfo(YieldTypes.YIELD_COMMERCE).getChar())
+ 		iconDefense = u"%c  " % (CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR))
+ 		iconGreatGeneral = u"%c  " % (CyGame().getSymbolID(FontSymbols.GREAT_GENERAL_CHAR))
++		iconOccupation = u"%c  " % (CyGame().getSymbolID(FontSymbols.OCCUPATION_CHAR))
+ 
+ 		# <!-- custom: central category wiring for list generators, screen handlers, and PEDIA_MAIN links.
+ 		# To add a category, insert one row in SAS_CATEGORY_DEFS: (PEDIA_ENUM, TXT_KEY, icon, listMethodName, screenClassOrInstance, PEDIA_MAIN_LINK_KEY or None).
+@@ -283,6 +294,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			(SevoScreenEnums.PEDIA_CONCEPTS, "TXT_KEY_PEDIA_CATEGORY_CONCEPT", iconYieldCommerce, "placeConcepts", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_CONCEPT"),
+ 			(SevoScreenEnums.PEDIA_HINTS, "TXT_KEY_PEDIA_CATEGORY_HINTS", iconYieldCommerce, "placeHints", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_HINTS"),
+ 			(SevoScreenEnums.PEDIA_SHORTCUTS, "TXT_KEY_PEDIA_CATEGORY_SHORTCUTS", iconYieldCommerce, "placeShortcuts", SevoPediaHistory.SevoPediaHistory, "PEDIA_MAIN_SHORTCUTS"),
++			(SevoScreenEnums.PEDIA_MOVIES, "TXT_KEY_PEDIA_SAS_CATEGORY_MOVIES", iconCommerceCulture, "placeMovies", self.pediaMovies, None),
+ 			(SevoScreenEnums.PEDIA_ERA_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_ERA_CHART", iconDefense, "placeEraChart", self.pediaEraChart, None),
+ 			(SevoScreenEnums.PEDIA_HANDICAP_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_HANDICAP_CHART", iconDefense, "placeHandicapChart", self.pediaHandicapChart, None),
+ 			(SevoScreenEnums.PEDIA_GAME_SPEED_CHART, "TXT_KEY_PEDIA_SAS_CATEGORY_GAME_SPEED_CHART", iconDefense, "placeGameSpeedChart", self.pediaGameSpeedChart, None),
+@@ -305,9 +317,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			(SevoScreenEnums.PEDIA_NATIONAL_WONDERS, "TXT_KEY_PEDIA_CATEGORY_NATIONAL_WONDERS", iconYieldProduction, "placeNationalWonders", SevoPediaBuilding.SevoPediaBuilding, None),
+ 			(SevoScreenEnums.PEDIA_WORLD_WONDERS, "TXT_KEY_PEDIA_CATEGORY_WORLD_WONDERS", iconYieldProduction, "placeWorldWonders", SevoPediaBuilding.SevoPediaBuilding, None),
+ 			(SevoScreenEnums.PEDIA_PROJECTS, "TXT_KEY_PEDIA_CATEGORY_PROJECT", iconYieldProduction, "placeProjects", SevoPediaProject.SevoPediaProject, "PEDIA_MAIN_PROJECT"),
+-			(SevoScreenEnums.PEDIA_CIVICS, "TXT_KEY_PEDIA_CATEGORY_CIVIC", iconCommerceCulture, "placeCivics", SevoPediaCivic.SevoPediaCivic, "PEDIA_MAIN_CIVIC"),
+-			(SevoScreenEnums.PEDIA_RELIGIONS, "TXT_KEY_PEDIA_CATEGORY_RELIGION", iconCommerceCulture, "placeReligions", SevoPediaReligion.SevoPediaReligion, "PEDIA_MAIN_RELIGION"),
+-			(SevoScreenEnums.PEDIA_CORPORATIONS, "TXT_KEY_CONCEPT_CORPORATIONS", iconCommerceCulture, "placeCorporations", SevoPediaCorporation.SevoPediaCorporation, None),
++			(SevoScreenEnums.PEDIA_CIVICS, "TXT_KEY_PEDIA_CATEGORY_CIVIC", iconOccupation, "placeCivics", SevoPediaCivic.SevoPediaCivic, "PEDIA_MAIN_CIVIC"),
++			(SevoScreenEnums.PEDIA_RELIGIONS, "TXT_KEY_PEDIA_CATEGORY_RELIGION", iconOccupation, "placeReligions", SevoPediaReligion.SevoPediaReligion, "PEDIA_MAIN_RELIGION"),
++			(SevoScreenEnums.PEDIA_CORPORATIONS, "TXT_KEY_CONCEPT_CORPORATIONS", iconOccupation, "placeCorporations", SevoPediaCorporation.SevoPediaCorporation, None),
+ 			(SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconCommerceResearch, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH"),
+ 		)
+ 
+@@ -318,7 +330,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			if szListMethod:
+ 				self.mapListGenerators[iEnum] = getattr(self, szListMethod)
+ 			if screenSpec:
+-				if screenSpec in (self.pediaBuilding, self.pediaLeader, self.pediaHandicapChart, self.pediaGameSpeedChart, self.pediaWorldSizeChart, self.pediaEraChart):
++				if screenSpec in (self.pediaBuilding, self.pediaLeader, self.pediaHandicapChart, self.pediaGameSpeedChart, self.pediaWorldSizeChart, self.pediaEraChart, self.pediaMovies):
+ 					self.mapScreenFunctions[iEnum] = screenSpec
+ 				else:
+ 					self.mapScreenFunctions[iEnum] = screenSpec(self)
+@@ -2430,6 +2442,90 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			return info
+ 		return None
+ 
++	def placeMovies(self):
++		self.list = self.getMovieList()
++		self.placeItems(WidgetTypes.WIDGET_PYTHON, self.getMovieInfo)
++
++	def getMovieList(self):
++		if self.SAS_cacheMoviesTuple is None:
++			listEntries = []
++
++			def addSection(szHeader, items):
++				if len(items) == 0:
++					return
++				if listEntries:
++					listEntries.append(("", -1))
++				listEntries.append((szHeader, -1))
++				for item in items:
++					listEntries.append(item)
++
++			victoryItems = []
++			for iVictory in range(gc.getNumVictoryInfos()):
++				info = gc.getVictoryInfo(iVictory)
++				if info and info.getMovie():
++					victoryItems.append((info.getDescription(), self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_VICTORY, iVictory)))
++
++			wonderItems = []
++			for iBuilding in range(gc.getNumBuildingInfos()):
++				info = gc.getBuildingInfo(iBuilding)
++				if info and info.getMovie():
++					wonderItems.append((info.getDescription(), self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_WONDER, iBuilding)))
++
++			projectItems = []
++			for iProject in range(gc.getNumProjectInfos()):
++				info = gc.getProjectInfo(iProject)
++				if info and info.getMovieArtDef():
++					projectItems.append((info.getDescription(), self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_PROJECT, iProject)))
++
++			religionItems = []
++			for iReligion in range(gc.getNumReligionInfos()):
++				info = gc.getReligionInfo(iReligion)
++				if info and info.getMovieFile():
++					religionItems.append((info.getDescription(), self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_RELIGION, iReligion)))
++
++			eraItems = []
++			for iEra in range(gc.getNumEraInfos()):
++				info = gc.getEraInfo(iEra)
++				if info:
++					szEraName = info.getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ())
++					eraItems.append((szEraName, self.SAS_packMovieKey(self.SAS_PEDIA_MOVIE_TYPE_ERA, iEra)))
++
++			if self.isSortLists():
++				victoryItems.sort()
++				wonderItems.sort()
++				projectItems.sort()
++				religionItems.sort()
++				eraItems.sort()
++
++			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_VICTORY", ()), victoryItems)
++			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_WONDER", ()), wonderItems)
++			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_PROJECT", ()), projectItems)
++			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_RELIGION", ()), religionItems)
++			addSection(localText.getText("TXT_KEY_PEDIA_SAS_MOVIES_HEADER_ERA", ()), eraItems)
++
++			self.SAS_cacheMoviesTuple = tuple(listEntries)
++		return self.SAS_cacheMoviesTuple
++
++	def SAS_packMovieKey(self, iMovieType, iMovieId):
++		return (iMovieType << 16) | (iMovieId & 0xFFFF)
++
++	def SAS_unpackMovieKey(self, iPacked):
++		iMovieType = (iPacked >> 16) & 0xFFFF
++		iMovieId = iPacked & 0xFFFF
++		return (iMovieType, iMovieId)
++
++	def getMovieInfo(self, iPacked):
++		iMovieType, iMovieId = self.SAS_unpackMovieKey(iPacked)
++		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_VICTORY:
++			return gc.getVictoryInfo(iMovieId)
++		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_WONDER:
++			return gc.getBuildingInfo(iMovieId)
++		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_PROJECT:
++			return gc.getProjectInfo(iMovieId)
++		if iMovieType == self.SAS_PEDIA_MOVIE_TYPE_RELIGION:
++			return gc.getReligionInfo(iMovieId)
++		return None
++	
+ 	def isShortcutInfo(self, info):
+ 		return info.getType().find("SHORTCUTS") != -1
+ 
+@@ -2550,10 +2646,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			bSAS_hasCustomData2 = False
+ 			# Even though you later handle data1 == -1 inside the civics block, you still do szButtonPlaceItems = info(item[1]).getButton() before any header check.
+ 			# When getCivicList() inserts headers and spacers, you now have rows like ("Government", -1) and ("", -1). So you end up calling gc.getCivicInfo(-1).getButton() and Civ4 blows up with Access violation - no RTTI data!. Minimal fix:
++			szButtonPlaceItems = ""
+ 			if data1 != -1:
+-				szButtonPlaceItems = info(data1).getButton()
+-			else:
+-				szButtonPlaceItems = ""
++				if info == self.getMovieInfo:
++					infoObj = info(data1)
++					if infoObj:
++						szButtonPlaceItems = infoObj.getButton()
++				else:
++					szButtonPlaceItems = info(data1).getButton()
+ 
+ 			if info == gc.getBuildInfo:
+ 				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
+@@ -2570,6 +2670,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 					data1 = self.SAS_PEDIA_PYTHON_TRAIT
+ 					bSAS_hasCustomData2 = True
+ 
++			if info == self.getMovieInfo:
++				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
++				if data1 != -1:
++					data2 = data1
++					data1 = self.SAS_PEDIA_PYTHON_MOVIE_ENTRY
++					bSAS_hasCustomData2 = True
++
+ 			if info == gc.getConceptInfo:
+ 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT
+ 				# <!-- custom: we cannot change to data1 here as we changed it in this scope so need to properly use item[1] rather as chatgpt 5.2 recommends and that indeed lead to an issue ingame of displaying always same sevopedia concept's text. To be safe, not changing it in other places as well unless we need to -->
+@@ -2645,6 +2752,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 	def handleInput (self, inputClass):
++		if self.pediaMovies.isMoviePlayerOpen():
++			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_MOVIE_DONE:
++				self.pediaMovies.closeMoviePlayer()
++				return 1
++			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER:
++				if inputClass.getData() == int(InputTypes.KB_ESCAPE):
++					self.pediaMovies.closeMoviePlayer()
++					return 1
++			if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
++				if inputClass.getFunctionName() == self.pediaMovies.MOVIE_PLAYER_EXIT_ID:
++					self.pediaMovies.closeMoviePlayer()
++					return 1
++			return 1
++
+ 		# Forward to leader page (existing behavior).
+ 		if (inputClass.getPythonFile() == SevoScreenEnums.PEDIA_LEADERS):
+ 			return self.pediaLeader.handleInput(inputClass)
+@@ -2733,6 +2854,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 					item = self.list[iListIdx]
+ 					if item[1] != -1:
+ 						return self.pediaJump(SevoScreenEnums.PEDIA_TRAITS, item[1], True, False)
++			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_MOVIES:
++				iRow = inputClass.getData()
++				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
++				if iListIdx is not None:
++					item = self.list[iListIdx]
++					if item[1] != -1:
++						self.pediaJump(SevoScreenEnums.PEDIA_MOVIES, item[1], True, False)
++						self.pediaMovies.playMovie(item[1])
++						return 1
+ 
+ 		# Existing TOC/INDEX buttons.
+ 		if self.SAS_USE_BOTTOM_TABS:
+@@ -2751,6 +2881,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			# <!-- custom: Handle trait clicks with WIDGET_PYTHON. (Claude Opus 4.5) -->
+ 			if iData1 == self.SAS_PEDIA_PYTHON_TRAIT:
+ 				return self.pediaJump(SevoScreenEnums.PEDIA_TRAITS, iData2, True, False)
++			if iData1 == self.SAS_PEDIA_PYTHON_MOVIE_ENTRY:
++				return self.pediaJump(SevoScreenEnums.PEDIA_MOVIES, iData2, True, False)
++			if iData1 == self.SAS_PEDIA_PYTHON_MOVIE_PLAY:
++				self.pediaMovies.playMovie(iData2)
++				return 1
+ 
+ 		return 0
+ 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+new file mode 100644
+index 000000000..7cc848299
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -0,0 +1,333 @@
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: based on the Middle-earth mod's Platypedia's Movies category and adjusted for AdvCiv-SAS then enhanced with the help of GPT-5.2-Codex and Claude code Opus 4.5 thanks a lot. (GPT-5.2-Codex (summarized)) -->
++#
++
++
++
++from CvPythonExtensions import *
++import CvUtil
++import SevoScreenEnums
++
++from _sevopedia_helpers import *
++
++gc = CyGlobalContext()
++localText = CyTranslator()
++UserProfile = CyUserProfile()
++
++
++
++class SevoPediaMovie:
++
++	def __init__(self, main):
++		self.top = main
++		self.iMovie = -1
++		self.MOVIE_PLAYER_SCREEN = "SevoPediaMoviePlayer"
++		self.MOVIE_PLAYER_EXIT_ID = "SAS_MoviePlayerExit"
++		self.SAS_savedNoMovies = None
++		self.SAS_isMoviePlayerOpen = False
++		self.SAS_movieSoundId = None
++
++		self.X_HEADER = self.top.X_PEDIA_PAGE
++		self.Y_HEADER = self.top.Y_PEDIA_PAGE
++		self.W_HEADER = self.top.W_PEDIA_PAGE
++		self.H_HEADER = 120
++
++		self.W_ICON = 100
++		self.H_ICON = 100
++		self.X_ICON = self.X_HEADER + 10
++		self.Y_ICON = self.Y_HEADER + 10
++		self.ICON_SIZE = 64
++
++		self.X_TITLE = self.X_ICON + self.W_ICON + 10
++		self.Y_TITLE = self.Y_HEADER + 12
++
++		# <!-- custom: changed from text button to image button. (Claude Opus 4.5) -->
++		self.W_BUTTON = 64
++		self.H_BUTTON = 64
++		self.X_BUTTON = self.X_HEADER + self.W_HEADER - self.W_BUTTON - 10
++		self.Y_BUTTON = self.Y_HEADER + (self.H_HEADER - self.H_BUTTON) / 2
++
++		self.X_TEXT = self.X_HEADER
++		self.Y_TEXT = self.Y_HEADER + self.H_HEADER + 10
++		self.W_TEXT = self.top.W_PEDIA_PAGE
++		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
++
++
++
++	def interfaceScreen(self, iVictory):
++		self.iMovie = iVictory
++
++		self.placeHeader()
++		self.placeText()
++
++
++
++	def placeHeader(self):
++		screen = self.top.getScreen()
++		iMovieType, iMovieId = self.top.SAS_unpackMovieKey(self.iMovie)
++		info = self.getMovieInfo(iMovieType, iMovieId)
++
++		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_HEADER, self.Y_HEADER, self.W_HEADER, self.H_HEADER, PanelStyles.PANEL_STYLE_BLUE50)
++
++		szButton = ""
++		if info:
++			szButton = info.getButton()
++		if szButton:
++			widgetType, widgetData1, widgetData2 = self.getPediaJumpWidget(iMovieType, iMovieId)
++			if widgetType == WidgetTypes.WIDGET_GENERAL:
++				screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			else:
++				screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, widgetType, widgetData1, widgetData2)
++
++		szTitleText = ""
++		if info:
++			szTitleText = info.getDescription()
++		szTitle = u"<font=4b>" + szTitleText.upper() + u"</font>"
++		screen.setLabel(self.top.getNextWidgetName(), "Background", szTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++
++		if self.hasMovie(iMovieType, iMovieId):
++			# <!-- custom: use image button with play emoji instead of text button. (Claude Opus 4.5) -->
++			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
++			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
++			screen.setImageButton(self.top.getNextWidgetName(), buttonPath, self.X_BUTTON, self.Y_BUTTON, self.W_BUTTON, self.H_BUTTON, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_PLAY, self.iMovie)
++
++
++
++	def placeText(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
++		iMovieType, iMovieId = self.top.SAS_unpackMovieKey(self.iMovie)
++		info = self.getMovieInfo(iMovieType, iMovieId)
++		szText = ""
++		if info:
++			try:
++				szText = info.getCivilopedia()
++			except:
++				szText = ""
++		if szText and szText.startswith("TXT_KEY_"):
++			szText = ""
++		screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
++	def playMovie(self, iVictory):
++		game = CyGame()
++		if game.isNetworkMultiPlayer() or game.isPitbossHost():
++			return
++
++		iMovieType, iMovieId = self.top.SAS_unpackMovieKey(iVictory)
++		moviePayload = self.getMoviePayload(iMovieType, iMovieId)
++		if moviePayload is None:
++			return
++		self.showMoviePlayer(iMovieType, iMovieId, moviePayload)
++
++
++
++	def showMoviePlayer(self, iMovieType, iMovieId, moviePayload):
++		szMovieFile, szMovieKind, szSoundScript = moviePayload
++
++		self.SAS_savedNoMovies = CyUserProfile().getGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES)
++		CyUserProfile().setGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES, False)
++
++		screen = CyGInterfaceScreen(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES)
++		self.SAS_isMoviePlayerOpen = True
++
++		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
++		screen.setRenderInterfaceOnly(True)
++		screen.enableWorldSounds(False)
++		screen.addPanel("MoviePlayerBG", u"", u"", True, False, -10, -10, screen.getXResolution() + 20, screen.getYResolution() + 20, PanelStyles.PANEL_STYLE_MAIN)
++
++		iScreenW = screen.getXResolution()
++		iScreenH = screen.getYResolution()
++		iMovieW = iScreenW
++		iMovieH = iScreenW * 2 / 3
++		if iMovieH > iScreenH:
++			iMovieH = iScreenH
++			iMovieW = iMovieH * 3 / 2
++		iMovieX = (iScreenW - iMovieW) / 2
++		iMovieY = (iScreenH - iMovieH) / 2
++
++		szTitleText = self.getMovieTitle(iMovieType, iMovieId)
++		screen.setLabel("MoviePlayerTitle", "Background", u"<font=4b>" + szTitleText.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, iScreenW / 2, 8, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++
++		if szMovieKind == "nif":
++			screen.addReligionMovieWidgetGFC("MoviePlayerMovie", szMovieFile, iMovieX, iMovieY, iMovieW, iMovieH, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		elif szMovieKind == "dds":
++			screen.addDDSGFC("MoviePlayerMovie", szMovieFile, iMovieX, iMovieY, iMovieW, iMovieH, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		else:
++			screen.playMovie(szMovieFile, -1, -1, -1, -1, 0)
++
++		# <!-- custom: Play audio using Play2DSound/Destroy2DSound approach. This works fine for both
++		# starting audio on open and stopping it on exit. An alternative cleaner approach exists in
++		# CvEraMovieScreen.py using screen.setSound() before showScreen(), but we couldn't make it work
++		# in our context, so we stick with this approach. Credit: GPT-5.2-Codex, Claude Opus 4.5. -->
++		if szSoundScript:
++			self.SAS_movieSoundId = None
++			try:
++				self.SAS_movieSoundId = CyAudioGame().Play2DSound(szSoundScript)
++			except:
++				self.SAS_movieSoundId = None
++			if self.SAS_movieSoundId is None or self.SAS_movieSoundId == -1:
++				CyInterface().playGeneralSound(szSoundScript)
++				self.SAS_movieSoundId = None
++
++		screen.setButtonGFC(self.MOVIE_PLAYER_EXIT_ID, localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", iScreenW / 2 - 50, iScreenH - 42, 100, 30, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++
++
++
++	def closeMoviePlayer(self):
++		if not self.SAS_isMoviePlayerOpen:
++			return
++
++		if self.SAS_savedNoMovies is not None:
++			CyUserProfile().setGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES, self.SAS_savedNoMovies)
++
++		# <!-- custom: try to stop the specific 2D sound via Destroy2DSound(handle); if that fails, fall back to
++		# CyInterface().stop2DSound() as a global 2D stop for stubborn handles. Credit: CIV4BUG API docs.
++		# (GPT-5.2-Codex (summarized)) -->
++		if self.SAS_movieSoundId is not None and self.SAS_movieSoundId != -1:
++			try:
++				CyAudioGame().Destroy2DSound(self.SAS_movieSoundId)
++			except:
++				try:
++					CyInterface().stop2DSound()
++				except:
++					pass
++			self.SAS_movieSoundId = None
++		elif self.SAS_movieSoundId is not None:
++			try:
++				CyInterface().stop2DSound()
++			except:
++				pass
++			self.SAS_movieSoundId = None
++
++		screen = CyGInterfaceScreen(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES)
++		screen.hideScreen()
++		self.SAS_isMoviePlayerOpen = False
++
++		self.top.pediaJump(SevoScreenEnums.PEDIA_MOVIES, self.iMovie, False, False)
++
++
++
++	def isMoviePlayerOpen(self):
++		return self.SAS_isMoviePlayerOpen
++
++
++
++	def getMovieInfo(self, iMovieType, iMovieId):
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_VICTORY:
++			return gc.getVictoryInfo(iMovieId)
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_WONDER:
++			return gc.getBuildingInfo(iMovieId)
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_PROJECT:
++			return gc.getProjectInfo(iMovieId)
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION:
++			return gc.getReligionInfo(iMovieId)
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
++			return gc.getEraInfo(iMovieId)
++		return None
++
++	def getMoviePayload(self, iMovieType, iMovieId):
++		if not self.hasMovie(iMovieType, iMovieId):
++			return None
++
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_VICTORY:
++			szArtDef = gc.getVictoryInfo(iMovieId).getMovie()
++			if not szArtDef:
++				return None
++			szMovie = CyArtFileMgr().getMovieArtInfo(szArtDef).getPath()
++			if not szMovie:
++				return None
++			return (szMovie, "movie", None)
++
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_WONDER:
++			szMovie = gc.getBuildingInfo(iMovieId).getMovie()
++			if not szMovie:
++				return None
++			if szMovie:
++				if (szMovie.find(".") == -1) or (szMovie.find("ART_DEF") > -1):
++					szMovie = CyArtFileMgr().getMovieArtInfo(szMovie).getPath()
++			if not szMovie:
++				return None
++			szMovieKind = "movie"
++			if szMovie.find(".dds") > -1:
++				szMovieKind = "dds"
++			return (szMovie, szMovieKind, None)
++
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_PROJECT:
++			szArtDef = gc.getProjectInfo(iMovieId).getMovieArtDef()
++			if not szArtDef:
++				return None
++			szMovie = CyArtFileMgr().getMovieArtInfo(szArtDef).getPath()
++			if not szMovie:
++				return None
++			return (szMovie, "movie", None)
++
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION:
++			szMovieFile = gc.getReligionInfo(iMovieId).getMovieFile()
++			if not szMovieFile:
++				return None
++			szMovieKind = "movie"
++			if szMovieFile.find(".nif") > -1:
++				szMovieKind = "nif"
++			szSoundScript = ""
++			try:
++				szSoundScript = gc.getReligionInfo(iMovieId).getMovieSound()
++			except:
++				szSoundScript = ""
++			if szSoundScript == "NONE":
++				szSoundScript = ""
++			return (szMovieFile, szMovieKind, szSoundScript)
++
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
++			szMovieFile = get_era_movie_path(iMovieId)
++			if not szMovieFile:
++				return None
++			return (szMovieFile, "dds", "AS2D_NEW_ERA")
++
++		return None
++
++	def getMovieTitle(self, iMovieType, iMovieId):
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
++			info = self.getMovieInfo(iMovieType, iMovieId)
++			if info:
++				return info.getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ())
++			return u""
++
++		info = self.getMovieInfo(iMovieType, iMovieId)
++		if info:
++			return info.getDescription()
++		return u""
++
++	def hasMovie(self, iMovieType, iMovieId):
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_VICTORY:
++			info = gc.getVictoryInfo(iMovieId)
++			return (info is not None) and bool(info.getMovie())
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_WONDER:
++			info = gc.getBuildingInfo(iMovieId)
++			return (info is not None) and bool(info.getMovie())
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_PROJECT:
++			info = gc.getProjectInfo(iMovieId)
++			return (info is not None) and bool(info.getMovieArtDef())
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION:
++			info = gc.getReligionInfo(iMovieId)
++			return (info is not None) and bool(info.getMovieFile())
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_ERA:
++			return bool(get_era_movie_path(iMovieId))
++		return False
++
++	def getPediaJumpWidget(self, iMovieType, iMovieId):
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_WONDER:
++			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iMovieId, 1)
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_PROJECT:
++			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iMovieId, 1)
++		if iMovieType == self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION:
++			return (WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iMovieId, 1)
++		return (WidgetTypes.WIDGET_GENERAL, -1, -1)
++
++	def handleInput (self, inputClass):
++		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+index a883907d4..acc9437e2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+@@ -20,6 +20,8 @@ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
+ 
++from _sevopedia_helpers import *
++
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+@@ -36,10 +38,14 @@ class SevoPediaProject:
+ 		self.X_REQUIRES = self.top.R_PEDIA_PAGE - self.W_REQUIRES
+ 		self.Y_REQUIRES = self.top.Y_PEDIA_PAGE
+ 		self.H_REQUIRES = 116
++		self.W_MOVIE = 84
++		self.X_MOVIE = self.X_REQUIRES - self.W_MOVIE - 10
++		self.Y_MOVIE = self.Y_REQUIRES
++		self.H_MOVIE = self.H_REQUIRES
+ 
+ 		self.X_PROJECT_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_PROJECT_PANE = self.top.Y_PEDIA_PAGE
+-		self.W_PROJECT_PANE = self.top.W_PEDIA_PAGE - self.W_REQUIRES - 10
++		self.W_PROJECT_PANE = self.top.W_PEDIA_PAGE - self.W_REQUIRES - self.W_MOVIE - 20
+ 		self.H_PROJECT_PANE = 116
+ 
+ 		self.W_ICON = 100
+@@ -71,6 +77,7 @@ class SevoPediaProject:
+ 		self.placeProjectPane()
+ 		self.placeStats()
+ 		self.placeRequires()
++		self.placeMovie()
+ 		self.placeSpecial()
+ 		self.placeText()
+ 
+@@ -130,6 +137,36 @@ class SevoPediaProject:
+ 		if (iPrereq >= 0):
+ 			screen.attachImageButton(panelName, "", gc.getTechInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereq, 1, False)
+ 
++	def placeMovie(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_MOVIE_PANEL", ()), "", False, True, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE, PanelStyles.PANEL_STYLE_BLUE50)
++
++		# <!-- custom: use attachLabel for padding similar to Requires panel -->
++		screen.attachLabel(panelName, "", "  ")
++
++		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_PROJECT
++		if self.top.pediaMovies.hasMovie(iMovieType, self.iProject):
++			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
++			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
++			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
++			check_button_path_is_valid("Sevopedia Project Movie button", buttonPath, buttonPathTxtKey)
++
++			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iProject)
++			buttonSize = 64
++			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
++			# X: Standard centering works correctly.
++			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
++			buttonX = (self.W_MOVIE - buttonSize) / 2
++			buttonY = 10
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
++		else:
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
++			screen.addMultilineText(textName, szText, self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 
+ 
+ 	def placeSpecial(self):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 72f652161..7a87e8ea2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -64,24 +64,31 @@ class SevoPediaReligion:
+ 		self.Y_ICON = self.Y_RELIGION_PANE + (self.H_RELIGION_PANE - self.H_ICON) / 2 + 3
+ 
+ 		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_LEADERS + self.MEDIUM_MARGIN) - self.MEDIUM_MARGIN - (self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN)
++		self.W_LEFT_COLUMN = self.W_REMAINING_CENTER_SPACE / 2
+ 
+ 		self.X_BUILDINGS = self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN
+ 		self.Y_BUILDINGS = self.Y_RELIGION_PANE
+-		self.W_BUILDINGS = self.W_REMAINING_CENTER_SPACE / 2
++		self.W_BUILDINGS = self.W_LEFT_COLUMN - 84 - self.MEDIUM_MARGIN
+ 		self.H_BUILDINGS = 110
+ 
+ 		self.W_REQUIRES = 84
++		self.W_MOVIE = 84
+ 
+ 		self.X_UNITS = self.X_BUILDINGS
+ 		self.Y_UNITS = self.Y_BUILDINGS + self.H_BUILDINGS + self.SMALL_MARGIN
+-		self.W_UNITS = self.W_BUILDINGS - self.W_REQUIRES - self.MEDIUM_MARGIN
++		self.W_UNITS = self.W_BUILDINGS
+ 		self.H_UNITS = self.H_BUILDINGS
+ 
+-		self.X_REQUIRES = self.X_UNITS + self.W_UNITS + self.MEDIUM_MARGIN
+-		self.Y_REQUIRES = self.Y_UNITS
+ 		self.H_REQUIRES = self.H_BUILDINGS
+ 
+-		self.X_SPECIAL = self.X_BUILDINGS + self.W_BUILDINGS + self.MEDIUM_MARGIN
++		self.X_MOVIE = self.X_BUILDINGS + self.W_BUILDINGS + self.MEDIUM_MARGIN
++		self.Y_MOVIE = self.Y_BUILDINGS
++		self.H_MOVIE = self.H_REQUIRES
++
++		self.X_REQUIRES = self.X_MOVIE
++		self.Y_REQUIRES = self.Y_UNITS
++
++		self.X_SPECIAL = self.X_BUILDINGS + self.W_LEFT_COLUMN + self.MEDIUM_MARGIN
+ 		self.Y_SPECIAL = self.Y_BUILDINGS
+ 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL - self.W_LEADERS - self.MEDIUM_MARGIN
+ 		self.H_SPECIAL = self.H_BUILDINGS + self.SMALL_MARGIN + self.H_UNITS
+@@ -99,6 +106,7 @@ class SevoPediaReligion:
+ 		self.placeLeaders()
+ 		self.placeReligionPane()
+ 		self.placeBuilding()
++		self.placeMovie()
+ 		self.placeUnit()
+ 		self.placeRequires()
+ 		self.placeSpecial()
+@@ -193,6 +201,37 @@ class SevoPediaReligion:
+ 
+ 
+ 
++	def placeMovie(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_MOVIE_PANEL", ()), "", False, True, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE, PanelStyles.PANEL_STYLE_BLUE50)
++
++		# <!-- custom: use attachLabel for padding similar to Requires panel -->
++		screen.attachLabel(panelName, "", "  ")
++
++		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION
++		if self.top.pediaMovies.hasMovie(iMovieType, self.iReligion):
++			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
++			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
++			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
++			check_button_path_is_valid("Sevopedia Religion Movie button", buttonPath, buttonPathTxtKey)
++
++			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iReligion)
++			buttonSize = 64
++			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
++			# X: Standard centering works correctly.
++			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
++			buttonX = (self.W_MOVIE - buttonSize) / 2
++			buttonY = 10
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
++		else:
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
++			screen.addMultilineText(textName, szText, self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
+ 	def placeUnit(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py b/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+index 17522c56f..dc4ba3202 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+@@ -39,3 +39,4 @@ PEDIA_STRATEGY  	= 228
+ PEDIA_GAME_SPEED_CHART	= 229
+ PEDIA_WORLD_SIZE_CHART	= 230
+ PEDIA_ERA_CHART		= 231
++PEDIA_MOVIES		= 233
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index b37321028..92542a4e6 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -340,6 +340,22 @@ def get_extra_correction_x_inbetween_buttons(button_size):
+ 
+ 
+ 
++# <!-- custom: note: era button path also used in CvEraMovieScreen.py -->
++def get_era_movie_path(iEra):
++	if iEra == 0:
++		return "Art/Movies/Era/Era01-Classical.dds"
++	if iEra == 1:
++		return "Art/Movies/Era/Era01-Classical.dds"
++	if iEra == 2:
++		return "Art/Movies/Era/Era02-Medeival.dds"
++	if iEra == 3:
++		return "Art/Movies/Era/Era03-Renaissance.dds"
++	if iEra == 4:
++		return "Art/Movies/Era/Era04-Industrial.dds"
++	return "Art/Movies/Era/Era05-Modern.dds"
++
++
++
+ def get_multilist_max_buttons_per_row(panelWidth, buttonsize):
+ 	totalButtonWidth = buttonsize + HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING
+
+diff --git a/Assets/Python/EntryPoints/CvScreensInterface.py b/Assets/Python/EntryPoints/CvScreensInterface.py
+index 64f22b46d..34be9cee0 100644
+--- a/Assets/Python/EntryPoints/CvScreensInterface.py
++++ b/Assets/Python/EntryPoints/CvScreensInterface.py
+@@ -354,6 +354,7 @@ def createCivilopedia():
+ 								SevoScreenEnums.PEDIA_BTS_CONCEPTS	: pediaMainScreen,
+ 								SevoScreenEnums.PEDIA_HINTS		: pediaMainScreen,
+ 								SevoScreenEnums.PEDIA_SHORTCUTS		: pediaMainScreen,
++								SevoScreenEnums.PEDIA_MOVIES		: pediaMainScreen,
+ 							})
+ 		global HandleNavigationMap
+ 		HandleNavigationMap = {
+@@ -403,6 +404,7 @@ def createCivilopedia():
+ 							SevoScreenEnums.PEDIA_BTS_CONCEPTS	: pediaMainScreen,
+ 							SevoScreenEnums.PEDIA_HINTS			: pediaMainScreen,
+ 							SevoScreenEnums.PEDIA_SHORTCUTS		: pediaMainScreen,
++							SevoScreenEnums.PEDIA_MOVIES			: pediaMainScreen,
+ 						}
+ 
+ def linkToPedia(argsList):
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml b/Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml
+index 9423dcbfc..6e22a1250 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml
+@@ -21,6 +21,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 
+ 
++
+ 	<!-- custom: ❤️ emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_RED_HEART_BUTTON_PATH</Tag>
+@@ -85,7 +86,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-    <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #31 -->
++    <!-- custom: ⚔️ emoji similarly from emojiterra; GPT-5.2-Codex: Long_Comments_XML.txt #31 -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Crossed_Swords/2694_64px.dds</English>
+@@ -157,9 +158,17 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: 🥉 emoji similarly from emojiterra. -->
++	<!-- custom: 🦁 emoji similarly from emojiterra. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH</Tag>
+ 		<English>Art/AdvCiv_SAS/Images_As_Buttons/Lion_Face/1f981_64px.dds</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: ▶️ emoji similarly from emojiterra. -->
++    <TEXT>
++		<Tag>TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH</Tag>
++		<English>Art/AdvCiv_SAS/Images_As_Buttons/Play_Button/25b6_64px.dds</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 224cafd48..5cea15b4c 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -325,6 +325,42 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_ERA_CHART</Tag>
+ 		<English>Eras</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_MOVIES</Tag>
++		<English>Movies</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_PLAY_MOVIE</Tag>
++		<English>Play Movie</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MOVIE_PANEL</Tag>
++		<English>Movie</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_OPEN_PEDIA_ENTRY</Tag>
++		<English>Open Pedia</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_VICTORY</Tag>
++		<English>Victories</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_WONDER</Tag>
++		<English>Wonders</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_PROJECT</Tag>
++		<English>Projects</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_RELIGION</Tag>
++		<English>Religions</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MOVIES_HEADER_ERA</Tag>
++		<English>Eras</English>
++	</TEXT>
+
+diff --git a/README.md b/README.md
+index 94c8169d9..a3af71d43 100644
+--- a/README.md
++++ b/README.md
+@@ -6,7 +6,7 @@ AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.c
+ 
+ The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
+ 
+-Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI Sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Index as Category, sortable charts as Sevopedia categories (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart), AI Personality Panel, Traits Charts, Improvement Weights (Leaders) Chart), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
++Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for UI Sevopedia (new Search Bar, Keyboard UP/DOWN navigation, Index as Category, sortable charts as Sevopedia categories (e.g., Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart), AI Personality Panel, Traits Charts, Improvement Weights (Leaders) Chart, Movies (with audio support)), most Advisor screens reworked, and the city screen reworks in particular, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
+ 
+ Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin), and as for mechanics new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g. `ObsoleteTech` for units); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+ 
+@@ -36,7 +36,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
+ &emsp;[City Screen rework](/README.md#city-screen-rework)  
+ [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
+-&emsp;[Some lower level Sevopedia reworks (Search Bar, Keyboard UP/DOWN navigation, Index as category, etc.)](/README.md#some-lower-level-sevopedia-reworks-search-bar-keyboard-updown-navigation-index-as-category-etc)  
++&emsp;[Some lower level Sevopedia reworks (e.g., Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support))](/README.md#some-lower-level-sevopedia-reworks-eg-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support)  
+ &emsp;[Other new categories](/README.md#other-new-categories)  
+ &emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/README.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
+ &emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
+@@ -208,7 +208,7 @@ Additionally, also added a new specialists breakdown as of now on bottom-right.
+ 
+ Note: for more screenshots and documentation of the Sevopedia reworks in AdvCiv-SAS, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
+ 
+-### Some lower level Sevopedia reworks (Search Bar, Keyboard UP/DOWN navigation, Index as category, etc.)
++### Some lower level Sevopedia reworks (e.g., Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support))
+ 
+ #### Search Bar
+ 
+@@ -238,6 +238,17 @@ See [example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Rework
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG" alt="0.611_sevopedia_index_as_category (3).JPG" width="250"></img>
+ 
++#### Media File playing (e.g. Movies with audio support)
++
++Based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS, we provide a new Sevopedia Movies category with movies (bik, nif, dds) playing and additional audio support for non-bik files such as religions (nif + separate sound asset).
++
++Multiple categories are supported, as of now Victories, Wonders, Projects, Religions, and Eras. The movie starts in a new screen that can be exited anytime. A clickable Play Button, emoji-based following our [Images As Buttons](/README.md#images-as-buttons) approach, has been provided.
++
++See [example 0.35: movies category (with audio support)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-035-movies-category-with-audio-support).
++
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (1).JPG" alt="0.810_sevopedia_movies (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
++
+ ### Other new categories
+ 
+ #### Widget Python 6798 to link (e.g. for Builds, for Traits)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index af040a2ef..2844c30fb 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -296,6 +296,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game speed Turbo) and marked with `*` to distinguish them from regular XML info fields. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+ - (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+ - (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras, and notably **optional era buttons**. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
++- (Requires AdvCiv-SAS 5357+) New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. Movies are played on a **new screen**. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-035-movies-category-with-audio-support).
+ - (Requires AdvCiv-SAS 5340+) Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ - (Requires AdvCiv-SAS 5354+) Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 8bebbac9b..709a43849 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -16,6 +16,7 @@ Note 2: in below sample examples, click the images to view them full size.
+ &emsp;[example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several Sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages)  
+ &emsp;[example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category)  
+ [Other new categories](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#other-new-categories)  
++&emsp;&emsp;[example 0.35: movies category (with audio support)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-035-movies-category-with-audio-support)  
+ &emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
+ &emsp;&emsp;[example 0.40 builds category (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm)  
+ &emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
+@@ -102,6 +103,22 @@ Then, to make those Index Builds entries fully clickable and stable, we kept the
+ <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (2).JPG" alt="0.611_sevopedia_index_as_category (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.611_sevopedia_index_as_category (3).JPG" alt="0.611_sevopedia_index_as_category (3).JPG" width="250"></img>
+ 
++### example 0.35: movies category (with audio support)
++
++Added a Movies category in Sevopedia that lists movies (as of now Victories, Wonders, Projects, Religions, Eras) from bik, nif, dds, with audio support and play on item/entry click.
++
++A new screen is opened with audio from mai menu being silent, an as of now "OK" button to exit it midway if wished, and audio from main menu resuming while the media's audio ends. History navigation is preserved because it is a new screen.
++
++Play button, emoji based as in our usual as of now Images as Button approach, is added to Sevopedia Building, Project, Religions, and Eras Chart.
++
++Implementation based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS with the very nice help of GPT-5.2-Codex and Claude code Opus 4.5, and Claude code Sonnet 4.5 a bit for some UI, thanks a lot!
++
++See 
++
++<img src="../Images/sevopedia/0.810_sevopedia_movies (1).JPG" alt="0.810_sevopedia_movies (1).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.810_sevopedia_movies (3).JPG" alt="0.810_sevopedia_movies (3).JPG" width="250"></img>
++
+ ## Other new categories
+ 
+ ### Widget Python 6798 to link (e.g. for Builds, for Traits)
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (1).JPG
+new file mode 100644
+index 000000000..4f698a62c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG
+new file mode 100644
+index 000000000..812283fdb
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (3).JPG
+new file mode 100644
+index 000000000..8f94e9f08
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_movies (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=20 embeddedFiles=20 omittedFiles=0 embeddedPatchBytes=61760

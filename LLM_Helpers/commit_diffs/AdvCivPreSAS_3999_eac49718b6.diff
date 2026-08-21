@@ -1,0 +1,129 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3999
+# Commit: eac49718b66dc148687b0c147fdf5dde9608b59d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f4e23e6b1ebf574947f9bb2c6030c140b371dbb3
+# Title: Fix broken UWAI_PERSONALITY_PERCENT XML param
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	CvGameCoreDLL/CvInfo_Civilization.h
+31	10	CvGameCoreDLL/UWAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.h b/CvGameCoreDLL/CvInfo_Civilization.h
+index ff24d04bd..43d574064 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.h
++++ b/CvGameCoreDLL/CvInfo_Civilization.h
+@@ -234,6 +234,8 @@ public: // advc: All the const functions are exposed to Python except those adde
+ protected:
+ 	/*	advc.xmldefault (note): The copy-ctor relies on m_iWonderConstructRand
+ 		being the first data member */
++	/*	Also note: Data members added here should also be added to the list
++		in UWAI::applyPersonalityWeight */
+ 	int m_iWonderConstructRand;
+ 	int m_iBaseAttitude;
+ 	int m_iBasePeaceWeight;
+@@ -323,6 +325,8 @@ protected:
+ 
+ 	bool* m_pbTraits;
+ 
++	/*	Caveat: UWAI::applyPersonalityWeight depends on these being implemented
++		as int arrays */
+ 	int* m_piFlavorValue;
+ 	int* m_piContactRand;
+ 	int* m_piContactDelay;
+
+diff --git a/CvGameCoreDLL/UWAI.cpp b/CvGameCoreDLL/UWAI.cpp
+index c1e2c1259..3b510e5d0 100644
+--- a/CvGameCoreDLL/UWAI.cpp
++++ b/CvGameCoreDLL/UWAI.cpp
+@@ -114,11 +114,14 @@ void UWAI::applyPersonalityWeight()
+ 		return;
+ 	std::vector<std::vector<int*>*> personalityMatrix;
+ 	int iMembers = -1;
++	/*	Hack to make this function compatible with unallocated
++		CvLeaderHeadInfo member arrays */
++	static int aiDevNull[100] = {};
+ 	FOR_EACH_ENUM(LeaderHead)
+ 	{
+-		if(eLoopLeaderHead == GET_PLAYER(BARBARIAN_PLAYER).getLeaderType())
+-			continue;
+ 		CvLeaderHeadInfo& kLeader = GC.getInfo(eLoopLeaderHead);
++		if (std::strcmp(kLeader.getType(), "LEADER_BARBARIAN") == 0)
++			continue;
+ 		/*  Basically serialize CvLeaderHeadInfo to avoid writing any more code
+ 			per member variable than necessary. Tempting to use CvLeaderHeadInfo::
+ 			write(FDataStreamBase*) for this, but some members have to be excluded. */
+@@ -156,6 +159,7 @@ void UWAI::applyPersonalityWeight()
+ 			&kLeader.m_iFavoriteCivicAttitudeDivisor, &kLeader.m_iFavoriteCivicAttitudeChangeLimit,
+ 			&kLeader.m_iDemandTributeAttitudeThreshold, &kLeader.m_iNoGiveHelpAttitudeThreshold,
+ 			&kLeader.m_iTechRefuseAttitudeThreshold, &kLeader.m_iStrategicBonusRefuseAttitudeThreshold,
++			&kLeader.m_iCityRefuseAttitudeThreshold, &kLeader.m_iNativeCityRefuseAttitudeThreshold, // advc.ctr
+ 			&kLeader.m_iHappinessBonusRefuseAttitudeThreshold, &kLeader.m_iHealthBonusRefuseAttitudeThreshold,
+ 			&kLeader.m_iMapRefuseAttitudeThreshold,
+ 			&kLeader.m_iDeclareWarRefuseAttitudeThreshold, &kLeader.m_iDeclareWarThemRefuseAttitudeThreshold,
+@@ -164,26 +168,43 @@ void UWAI::applyPersonalityWeight()
+ 			&kLeader.m_iOpenBordersRefuseAttitudeThreshold, &kLeader.m_iDefensivePactRefuseAttitudeThreshold,
+ 			&kLeader.m_iPermanentAllianceRefuseAttitudeThreshold, &kLeader.m_iVassalRefuseAttitudeThreshold,
+ 			&kLeader.m_iVassalPowerModifier, &kLeader.m_iFreedomAppreciation,
++			&kLeader.m_iLoveOfPeace,
+ 		};
+ 		int const iPrimitiveMembers = ARRAYSIZE(aiPrimitiveMembers);
+ 		std::vector<int*>* paiPersonalityVector = new std::vector<int*>(
+ 				aiPrimitiveMembers, aiPrimitiveMembers + iPrimitiveMembers);
++		int* aiFlavorValue = (kLeader.m_piFlavorValue == NULL ? aiDevNull :
++				kLeader.m_piFlavorValue);
+ 		FOR_EACH_ENUM(Flavor)
+-			paiPersonalityVector->push_back(&kLeader.m_piFlavorValue[eLoopFlavor]);
++			paiPersonalityVector->push_back(&aiFlavorValue[eLoopFlavor]);
++		int* aiContactRand = (kLeader.m_piContactRand == NULL ? aiDevNull :
++				kLeader.m_piContactRand);
+ 		FOR_EACH_ENUM(Contact)
+-			paiPersonalityVector->push_back(&kLeader.m_piContactRand[eLoopContact]);
++			paiPersonalityVector->push_back(&aiContactRand[eLoopContact]);
++		int* aiContactDelay = (kLeader.m_piContactDelay == NULL ? aiDevNull :
++				kLeader.m_piContactDelay);
+ 		FOR_EACH_ENUM(Contact)
+-			paiPersonalityVector->push_back(&kLeader.m_piContactDelay[eLoopContact]);
++			paiPersonalityVector->push_back(&aiContactDelay[eLoopContact]);
++		int* aiMemoryDecayRand = (kLeader.m_piMemoryDecayRand == NULL ? aiDevNull :
++				kLeader.m_piMemoryDecayRand);
+ 		FOR_EACH_ENUM(Memory)
+-			paiPersonalityVector->push_back(&kLeader.m_piMemoryDecayRand[eLoopMemory]);
++			paiPersonalityVector->push_back(&aiMemoryDecayRand[eLoopMemory]);
++		int* aiMemoryAttitudePercent = (kLeader.m_piMemoryAttitudePercent == NULL ? aiDevNull :
++				kLeader.m_piMemoryAttitudePercent);
+ 		FOR_EACH_ENUM(Memory)
+-			paiPersonalityVector->push_back(&kLeader.m_piMemoryAttitudePercent[eLoopMemory]);
++			paiPersonalityVector->push_back(&aiMemoryAttitudePercent[eLoopMemory]);
++		int* aiNoWarAttitudeProb = (kLeader.m_piNoWarAttitudeProb == NULL ? aiDevNull :
++				kLeader.m_piNoWarAttitudeProb);
+ 		FOR_EACH_ENUM(Attitude)
+-			paiPersonalityVector->push_back(&kLeader.m_piNoWarAttitudeProb[eLoopAttitude]);
++			paiPersonalityVector->push_back(&aiNoWarAttitudeProb[eLoopAttitude]);
++		int* aiUnitAIWeightModifier = (kLeader.m_piUnitAIWeightModifier == NULL ? aiDevNull :
++				kLeader.m_piUnitAIWeightModifier);
+ 		FOR_EACH_ENUM(UnitAI)
+-			paiPersonalityVector->push_back(&kLeader.m_piUnitAIWeightModifier[eLoopUnitAI]);
++			paiPersonalityVector->push_back(&aiUnitAIWeightModifier[eLoopUnitAI]);
++		int* aiImprovementWeightModifier = (kLeader.m_piImprovementWeightModifier == NULL ? aiDevNull :
++				kLeader.m_piImprovementWeightModifier);
+ 		FOR_EACH_ENUM(Improvement)
+-			paiPersonalityVector->push_back(&kLeader.m_piImprovementWeightModifier[eLoopImprovement]);
++			paiPersonalityVector->push_back(&aiImprovementWeightModifier[eLoopImprovement]);
+ 		personalityMatrix.push_back(paiPersonalityVector);
+ 		FAssert(iMembers == -1 || iMembers == paiPersonalityVector->size());
+ 		iMembers = (int)paiPersonalityVector->size();
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5576

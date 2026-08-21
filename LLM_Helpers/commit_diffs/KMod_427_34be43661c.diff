@@ -1,0 +1,163 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 427
+# Commit: 34be43661cae38453c860e7b2dc52636311be29d
+# History segment: K-Mod history
+# Parent used for diff: d3a36aa7c507e16e5d4917100982a2470ed86138
+# Title: Changed the way AI_pickTargetCity accounts for city defences. (This fixes a problem which caused groups with no bombard to almost always target cities with n...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	21	CvGameCoreDLL/CvPlayerAI.cpp
+9	8	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c7d08b368..6ed8c875a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2559,6 +2559,8 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, const CvCity* pCity)
+ 					}
+ 				}
+ 			}
++			if (iTeamCount == 0)
++				return iWeight / 4; // can't put points on anyone - but accumulating "total points ever" is still better than nothing.
+ 
+ 			iAllTeamTotalPoints /= std::max(1, iTeamCount); // Get the average total points
+ 			iWeight *= std::min(GET_TEAM(getTeam()).getEspionagePointsEver() + 3*iAllTeamTotalPoints + 16*GC.getGame().getGameTurn(), 5*iAllTeamTotalPoints);
+@@ -20277,6 +20279,7 @@ void CvPlayerAI::AI_updateStrategyHash()
+ void CvPlayerAI::AI_updateGreatPersonWeights()
+ {
+ 	PROFILE_FUNC();
++	int iLoop;
+ 
+ 	m_GreatPersonWeights.clear();
+ 
+@@ -20289,11 +20292,19 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 
+ 		FAssert(GC.getSpecialistInfo((SpecialistTypes)i).getGreatPeopleRateChange() > 0);
+ 
+-		bool bValid = false;
+-		int iLoop;
+-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++		if (m_GreatPersonWeights.find(eGreatPersonClass) != m_GreatPersonWeights.end())
++			continue; // already evaluated
++
++		UnitTypes eGreatPerson = (UnitTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(eGreatPersonClass);
++		if (eGreatPerson == NO_UNIT)
++			continue;
++
++		/* I've disabled the validity check, because 'invalid' specialists still affect the value of the things that enable them.
++		bool bValid = isSpecialistValid((SpecialistTypes)i) || i == GC.getDefineINT("DEFAULT_SPECIALIST");
++		int iLoop; // moved.
++		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity && !bValid; pLoopCity = nextCity(&iLoop))
+ 		{
+-			if (pLoopCity->isSpecialistValid((SpecialistTypes)i))
++			if (pLoopCity->getMaxSpecialistCount((SpecialistTypes)i) > 0)
+ 			{
+ 				bValid = true;
+ 				break;
+@@ -20301,14 +20312,7 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 		}
+ 
+ 		if (!bValid)
+-			continue;
+-
+-		if (m_GreatPersonWeights.find(eGreatPersonClass) != m_GreatPersonWeights.end())
+-			continue; // already evaluated
+-
+-		UnitTypes eGreatPerson = (UnitTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(eGreatPersonClass);
+-		if (eGreatPerson == NO_UNIT)
+-			continue;
++			continue; */
+ 
+ 		// We've estabilish that we can use this specialist, and that they provide great-person points for a unit which
+ 		// we have not yet evaluated. So now we just have to evaluate the unit!
+@@ -20382,7 +20386,6 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 		iSum += it->second;
+ 	}
+ 	int iMean = iSum / std::max(1, (int)m_GreatPersonWeights.size());
+-	iSum = 0;
+ 
+ 	// scale the values so that they are between 50 and 500, with the mean value translating to 100.
+ 	// (note: I don't expect it to get anywhere near the maximum. The maximum only occurs when the value is infinite!)
+@@ -20392,15 +20395,7 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 		iValue = 100 * iValue / std::max(1, iMean);
+ 		iValue = (40000 + 500 * iValue) / (800 + iValue);
+ 		it->second = iValue;
+-		iSum += iValue;
+ 	}
+-
+-	// finally, normalise so that 100 is the average value.
+-	//iMean = iSum / std::max(1, (int)m_GreatPersonWeights.size());
+-	//for (it = m_GreatPersonWeights.begin(); it != m_GreatPersonWeights.end(); ++it)
+-	//{
+-	//	it->second = 100 * it->second / std::max(1, iMean);
+-	//}
+ }
+ 
+ int CvPlayerAI::AI_getGreatPersonWeight(UnitClassTypes eGreatPerson) const
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ef1530f82..69e107ba7 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -15319,13 +15319,13 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 									{
+ 										iValue = kOwner.AI_targetCityValue(pLoopCity, true, true);
+ 									}
+-									// K-Mod adjust value based on defence
++									// K-Mod adjust value based on defensive bonuses
+ 									{
+ 										int iMod =
+-											pLoopCity->getDefenseModifier(false) / (bombardRate() > 0 ? 3 : 1)
++											std::min(8, getGroup()->getBombardTurns(pLoopCity)) * pLoopCity->getDefenseModifier(false) / 8
+ 											+ (pLoopCity->plot()->isHills() ? GC.getHILLS_EXTRA_DEFENSE() : 0);
+-										iValue *= std::max(100, 160 - iMod);
+-										iValue /= 100;
++										iValue *= std::max(25, 125 - iMod);
++										iValue /= 25; // the denominator is arbitrary, and unimportant.
+ 									}
+ 									// K-Mod end
+ 
+@@ -15345,7 +15345,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 									}
+ 									// K-Mod end
+ 
+-									if ((area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
++									if (area()->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
+ 									{
+ 										iValue *= 50 + pLoopCity->calculateCulturePercent(getOwnerINLINE());
+ 										iValue /= 50;
+@@ -15372,9 +15372,9 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 										// a more sensitive adjustment than usual (w/ modifier on the denominator), so as not to be too deterred before bombarding.
+ 										iEnemyDefence *= 100;
+ 										iEnemyDefence /= 100 + (bombardRate() > 0 ? pLoopCity->getDefenseModifier(false) : 0);
+-										if (100 * iEnemyDefence > 125 * iOurOffence) // an uneven comparison, just in case we can get some air support or other help somehow.
++										if (100 * iEnemyDefence > 110 * iOurOffence) // an uneven comparison, just in case we can get some air support or other help somehow.
+ 										{
+-											iValue *= std::max(50, 125 * iOurOffence / iEnemyDefence);
++											iValue *= std::max(33, 110 * iOurOffence / iEnemyDefence);
+ 											iValue /= 100;
+ 										}
+ 									}
+@@ -15398,7 +15398,8 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 
+ 									// If stack has poor bombard, direct towards lower defense cities
+ 									//iPathTurns += std::min(12, getGroup()->getBombardTurns(pLoopCity)/4);
+-									iPathTurns += std::min(6, getGroup()->getBombardTurns(pLoopCity)/3); // K-Mod. That's 18 turns!
++									//iPathTurns += bombardRate() > 0 ? std::min(5, getGroup()->getBombardTurns(pLoopCity)/3) : 0; // K-Mod
++									// (already taken into account.)
+ 
+ 									iValue /= 8 + iPathTurns*iPathTurns; // was 4+
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6423

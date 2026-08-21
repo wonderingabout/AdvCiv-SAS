@@ -2,6 +2,7 @@
 
 #include "CvGameCoreDLL.h"
 #include "CvXMLLoadUtility.h"
+#include "CvPlayer.h" // <!-- custom: era-aware leader art lookup needs CvPlayer (Claude code Opus 4.7) -->
 
 
 CvCivilizationInfo::CvCivilizationInfo() :
@@ -485,6 +486,7 @@ m_iFreedomAppreciation(0),
 m_iLoveOfPeace(0),
 m_eFavoriteCivic(NO_CIVIC),
 m_eFavoriteReligion(NO_RELIGION),
+m_paszEraArtDefineTags(NULL), // <!-- custom: per-era leader art tag array (Claude code Opus 4.7) -->
 m_pbTraits(NULL),
 m_piFlavorValue(NULL),
 m_piContactRand(NULL),
@@ -533,6 +535,14 @@ CvLeaderHeadInfo::CvLeaderHeadInfo(CvLeaderHeadInfo const& kOther)
 	allocCopy(m_piDiploPeaceMusicScriptIds, kOther.m_piDiploPeaceMusicScriptIds, GC.getNumEraInfos());
 	allocCopy(m_piDiploWarIntroMusicScriptIds, kOther.m_piDiploWarIntroMusicScriptIds, GC.getNumEraInfos());
 	allocCopy(m_piDiploWarMusicScriptIds, kOther.m_piDiploWarMusicScriptIds, GC.getNumEraInfos());
+	// <!-- custom: CvString elements need proper copy-construction; allocCopy's memcpy would alias the underlying buffers, so copy element-wise instead. (Claude code Opus 4.7) -->
+	if (kOther.m_paszEraArtDefineTags != NULL)
+	{
+		int const iNumEras = GC.getNumEraInfos();
+		m_paszEraArtDefineTags = new CvString[iNumEras];
+		for (int i = 0; i < iNumEras; i++)
+			m_paszEraArtDefineTags[i] = kOther.m_paszEraArtDefineTags[i];
+	}
 } // </advc.xmldefault>
 
 CvLeaderHeadInfo::~CvLeaderHeadInfo()
@@ -550,6 +560,7 @@ CvLeaderHeadInfo::~CvLeaderHeadInfo()
 	SAFE_DELETE_ARRAY(m_piDiploPeaceMusicScriptIds);
 	SAFE_DELETE_ARRAY(m_piDiploWarIntroMusicScriptIds);
 	SAFE_DELETE_ARRAY(m_piDiploWarMusicScriptIds);
+	SAFE_DELETE_ARRAY(m_paszEraArtDefineTags); // <!-- custom: free per-era leader art tag array (Claude code Opus 4.7) -->
 }
 
 const TCHAR* CvLeaderHeadInfo::getButton() const
@@ -901,9 +912,35 @@ void CvLeaderHeadInfo::write(FDataStreamBase* stream)
 }
 #endif
 
+// <!-- custom: per-era leader art lookup (optional). Empty string = not set. (Claude code Opus 4.7) -->
+const TCHAR* CvLeaderHeadInfo::getEraArtDefineTag(EraTypes eEra) const
+{
+	if (m_paszEraArtDefineTags == NULL || eEra == NO_ERA)
+		return "";
+	FAssertBounds(0, GC.getNumEraInfos(), eEra);
+	return m_paszEraArtDefineTags[eEra];
+}
+
 const CvArtInfoLeaderhead* CvLeaderHeadInfo::getArtInfo() const
 {
-	return ARTFILEMGR.getLeaderheadArtInfo( getArtDefineTag());
+	// <!-- custom: per-era leader art. Early-out when no overrides are defined for this leader (the common case) avoids the MAX_PLAYERS scan on every scene render. Otherwise locate the (first) alive player using this leader and, if an override is set for their current era, return that. Eras without an explicit override (and any non-ingame context: XML load, pedia browsing for unused leaders) fall straight back to the base ArtDefineTag. Duplicate-leader limitation: all duplicates (e.g., De Gaulle used by 3 players) render with the lowest-index player's era art. See KI#120. (Claude code Opus 4.7) -->
+	if (m_paszEraArtDefineTags != NULL)
+	{
+		EraTypes eEra = NO_ERA;
+		for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
+		{
+			CvPlayer const& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+			if (kPlayer.isEverAlive() &&
+				&GC.getInfo(kPlayer.getLeaderType()) == this)
+			{
+				eEra = kPlayer.getCurrentEra();
+				break;
+			}
+		}
+		if (eEra != NO_ERA && !m_paszEraArtDefineTags[eEra].empty())
+			return ARTFILEMGR.getLeaderheadArtInfo(m_paszEraArtDefineTags[eEra]);
+	}
+	return ARTFILEMGR.getLeaderheadArtInfo(getArtDefineTag());
 }
 
 bool CvLeaderHeadInfo::read(CvXMLLoadUtility* pXML)
@@ -914,6 +951,43 @@ bool CvLeaderHeadInfo::read(CvXMLLoadUtility* pXML)
 	pXML->GetChildXmlValByName(m_szArtDefineTag, "ArtDefineTag",
 			// advc.xmldefault:
 			m_szArtDefineTag.empty() ? NULL : m_szArtDefineTag.c_str());
+	// <!-- custom: optional per-era leader art tags. Format: <EraArtDefineTags><EraArtDefineTag><EraType>ERA_X</EraType><ArtDefineTag>ART_DEF_LEADER_X_ERA_X</ArtDefineTag></EraArtDefineTag>...</EraArtDefineTags>. Gated by a SAS define: when disabled the whole parser is skipped, m_paszEraArtDefineTags stays NULL, and getArtInfo() early-outs to the base ArtDefineTag. The define check is a cached static since SAS defines require a Civ4 restart to change. (Claude code Opus 4.7) -->
+	static const bool bSAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS = GC.getDefineBOOL("SAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS");
+	if (bSAS_CV_LEADER_HEAD_INFO_ENABLE_XML_ERA_ART_DEFS &&
+		gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "EraArtDefineTags"))
+	{
+		if (pXML->SkipToNextVal())
+		{
+			int const iNumSibs = gDLL->getXMLIFace()->GetNumChildren(pXML->GetXML());
+			if (iNumSibs > 0 && gDLL->getXMLIFace()->SetToChild(pXML->GetXML()))
+			{
+				int const iNumEras = GC.getNumEraInfos();
+				SAFE_DELETE_ARRAY(m_paszEraArtDefineTags);
+				m_paszEraArtDefineTags = new CvString[iNumEras];
+				TCHAR szEraText[256];
+				for (int i = 0; i < iNumSibs; i++)
+				{
+					if (pXML->SkipToNextVal() && pXML->GetChildXmlVal(szEraText))
+					{
+						// <!-- custom: use GC.getInfoTypeForString, not pXML->getGlobalEnumFromString: the latter is private to CvXMLLoadUtility (C2248) and this public lookup resolves "ERA_MEDIEVAL" -> enum index identically. (Claude code Opus 4.7) -->
+						int const iEra = GC.getInfoTypeForString(szEraText);
+						if (iEra >= 0 && iEra < iNumEras)
+						{
+							CvString szTag;
+							pXML->GetNextXmlVal(szTag);
+							m_paszEraArtDefineTags[iEra] = szTag;
+						}
+						gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+					}
+					if (!gDLL->getXMLIFace()->NextSibling(pXML->GetXML()))
+						break;
+				}
+				gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+			}
+		}
+		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+	}
+	// <!-- custom: end of per-era leader art tag parser (Claude code Opus 4.7) -->
 	/*	advc.xmldefault: Redirect the CvXMLLoadUtility::GetChildXmlValByName
 		calls through CvLeaderHeadInfo::GetChildXmlValByName. */
 	m_pXML = pXML;

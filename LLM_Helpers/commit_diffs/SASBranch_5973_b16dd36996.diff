@@ -1,0 +1,2903 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5973
+# Commit: b16dd369962846de2c2be911efe3cbc7721b1b4b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1ccad777821b1f7a832292cb58e73d2ae7eda286
+# Title: Add AIP predump checker, refactor share ingame/checker logic, fix stale predump ("%" text not updated), add --write mode so it can run outside Civ4 (#29)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+48	1	.github/workflows/README.md
+1	0	.github/workflows/build.yml
+525	0	.github/workflows/build/aip_predump_values.py
+55	16	.github/workflows/build/line_endings.py
+43	831	Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+397	397	Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py
+3	10	Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+3	2	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+783	53	Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+14	0	Assets/Python/Contrib/Sevopedia/sas_utils_shared_with_civ4.py
+3	3	Assets/XML/GlobalDefines_advciv_sas.xml
+2	2	LLM_Helpers/README.md
+31	20	LLM_Helpers/make_light_source_zip.py
+3	1	README.md
+7	1	_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 .github/workflows/build/aip_predump_values.py
+ create mode 100644 Assets/Python/Contrib/Sevopedia/sas_utils_shared_with_civ4.py
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 40d381191..f4ee3073a 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -61,6 +61,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
+ - [`build/fonts.py`](#buildfontspy)
+ - [`build/detail_manager.py`](#builddetail_managerpy)
+ - [`build/aip.py`](#buildaippy)
++- [`build/aip_predump_values.py`](#buildaip_predump_valuespy)
+ - [`build/worldsizes.py`](#buildworldsizespy)
+ - [`build/mapscripts.py`](#buildmapscriptspy)
+ - [`build/python24_compile.py`](#buildpython24_compilepy)
+@@ -73,9 +74,32 @@ Verifies `CvGameCoreDLL/Project/temp_files/` exists through its zero-byte tracke
+ 
+ Verifies active text-like source/config/docs files do not mix CRLF and LF line endings within the same file and that non-empty files end with a newline. This is intentionally a reporting/fail-fast build check only; for local reviewed cleanup, use [`LLM_Helpers/fix_line_endings.py`](/LLM_Helpers/fix_line_endings.py). Generated/reference helper folders such as `LLM_Helpers/outputs` are excluded to avoid noise from old reports/diffs.
+ 
++The script prints its scan mode. In a normal Git checkout it lists tracked files with `git ls-files` and checks the current checked-out bytes. In a plain exported folder, such as an extracted light-source zip without `.git`, it falls back to scanning the configured active source/doc folders directly.
++
+ Before the first cleanup, this checker found 79 local worktree issues, while GitHub Actions reported only 19. Comparing local bytes with `git show :path` showed that some local mixed-EOL files were clean LF-only in Git's indexed blob (e.g., `BugInit.py`) while true CI failures stayed mixed in both (e.g., `Pangaea.py`).
+ 
+-Fixing all local findings updated 78 worktree files, but staging kept only the 19 stored-content changes that Git/CI saw. This makes local output useful cleanup guidance, while staged/GitHub output is the authoritative committed-content failure set.
++Fixing all local findings updated 78 worktree files, but staging kept only the 19 stored-content changes that Git/CI saw. This makes local output useful cleanup/export guidance, while staged/GitHub output is the authoritative committed-content failure set.
++
++Note: later on, we noticed a line endings test failed locally:
++
++```log
++FAIL text line-ending hygiene
++  - .github/workflows/build/aip_predump_values.py: has mixed line endings: CRLF=560, LF=2, lone_CR=0
++  - Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py: has mixed line endings: CRLF=485, LF=1, lone_CR=0
++  ```
++
++The LF-only lines are just blank lines:
++
++```log
++.github/workflows/build/aip_predump_values.py
++  LF-only line 393
++  LF-only line 440
++
++Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
++  LF-only line 334
++```
++
++But it passed on [GitHub Actions test](https://github.com/wonderingabout/AdvCiv-SAS/pull/29/commits/c0e4c7624edafb022946267c606692071784dbf0): GitHub Actions checks its own post-checkout bytes, so local/exported mixed line endings can still need cleanup even when CI passes. When this happens in a Git checkout, the script notes failing worktree files that are already clean in the Git index. To make this clearer, the checker now prints its scan mode and can note when a failing worktree file is already clean in the Git index.
+ 
+ ### `build/assets_dlls.py`
+ 
+@@ -163,6 +187,29 @@ Verifies `Assets/XML/Misc/CIV4DetailManager.xml` `CITYBILLBOARD_SCALE` keys matc
+ 
+ Verifies the Sevopedia Leader AI Personality Panel is enabled, uses the predumped cache by default, does not dump recomputed cache data to the log by default, and has a non-empty predumped cache file.
+ 
++### `build/aip_predump_values.py`
++
++Validates effective AIP predump values outside Civ4. It compares committed entries in `Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py` against values reconstructed from `Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml`, mirroring the narrow DLL path needed for these values: `LEADER_DEFAULTS` copy behavior, `CvLeaderHeadInfo::GetChildXmlValByName` missing-tag defaults, primitive array/list loading, and `UWAI::applyPersonalityWeight` with `UWAI_PERSONALITY_PERCENT`.
++
++This script is intentionally separate from [`build/aip.py`](#buildaippy). `aip.py` remains the lightweight release-safety check, while this deeper value mirror checks the committed predump against effective XML+DLL-style values. It currently checks full cached tuples for direct scalar getter keys, scalar attitude-threshold getters, flavors, no-war attitude probabilities, contact aggregate values, and displayed positive/negative memory aggregate values. Contact and memory aggregate formulas are shared with the in-game AIP helper code; unit AI modifiers and improvement modifiers are not checked because they are not currently displayed/predumped. The script fails by default when mismatches or missing/unparsed entries are found; use `--allow-mismatch` only for exploratory/debug runs such as `--no-uwai`.
++
++Practical predump workflow:
++
++1. The normal checker run reconstructs the expected AIP cache outside Civ4 and compares it with the committed `SevoPediaLeaderCachePredumped.py`. CI runs this automatically on commits/PRs, so a failure usually means the committed predump is stale relative to leader XML or shared AIP display logic.
++2. To refresh the committed file without launching Civ4, run `python .github/workflows/build/aip_predump_values.py --write`, review the diff, then rerun the checker.
++3. The old manual fallback still works: temporarily set `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun this checker.
++
++The generated file intentionally has no timestamp. This keeps no-op `--write` runs byte-identical when cache data is unchanged, avoiding false diffs and future bot/maintenance churn.
++
++This full-tuple check is intentionally stricter than a raw-value-only comparison. During development, the earlier numeric-only check passed, but the tuple check found 394 stale predump entries after shared/runtime AIP label metadata had changed. The underlying values were mostly correct, but many committed labels were missing updated `%` text, such as `Build Unit (52)` instead of `Build Unit % (52)`. Refreshing `SevoPediaLeaderCachePredumped.py` fixed those mismatches and confirmed that this check catches display-cache drift, not just numeric-value drift.
++
++Example local commands (Git Bash):
++
++```bash
++cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && python .github/workflows/build/aip_predump_values.py
++cd "/c/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS" && python .github/workflows/build/aip_predump_values.py --write
++```
++
+ ### `build/worldsizes.py`
+ 
+ Verifies hardcoded C++/Python `WorldSizeTypes` enum exposure matches the `Assets/XML/GameInfo/CIV4WorldInfo.xml` order, and that old `SAS_MAGIC_WORLDSIZE_*` Python runtime references have not returned.
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index e5b48ec7c..d7de3bb45 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -40,5 +40,6 @@ jobs:
+       - run: python .github/workflows/build/fonts.py
+       - run: python .github/workflows/build/detail_manager.py
+       - run: python .github/workflows/build/aip.py
++      - run: python .github/workflows/build/aip_predump_values.py
+       - run: python .github/workflows/build/worldsizes.py
+       - run: python .github/workflows/build/mapscripts.py
+
+diff --git a/.github/workflows/build/aip_predump_values.py b/.github/workflows/build/aip_predump_values.py
+new file mode 100644
+index 000000000..9255683de
+--- /dev/null
++++ b/.github/workflows/build/aip_predump_values.py
+@@ -0,0 +1,525 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: Build-check helper: compare LeaderHeadInfo AIP predump values against a lightweight Python mirror of CvLeaderHeadInfo XML defaults plus UWAI::applyPersonalityWeight.
++# This is intentionally a separate script from build/aip.py so the always-on AIP release-safety check can stay lightweight while this deeper effective-value mirror can validate committed predump values.
++# Direct scalar/simple-array values are checked here, and derived contact/memory aggregate values reuse the same pre-normalization AIP helper logic as the in-game Sevopedia AIP cache. UnitAIWeightModifiers and ImprovementWeightModifiers are not checked because they are not currently displayed/predumped. (ChatGPT-5.5) -->
++
++from __future__ import annotations
++
++import argparse
++import ast
++import datetime as _datetime
++import math
++import re
++import sys
++from copy import deepcopy
++from dataclasses import dataclass
++from fractions import Fraction
++from pathlib import Path
++from typing import Any, Dict, List, Optional, Tuple
++from xml.etree import ElementTree as ET
++
++PREDUMP_RELATIVE_PATH = Path("Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py")
++LEADER_XML_RELATIVE_PATH = Path("Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml")
++UWAI_DEFINE_NAME = "UWAI_PERSONALITY_PERCENT"
++DEFAULTS_LEADER_TYPE = "LEADER_DEFAULTS"
++AIP_EXCLUDED_LEADER_TYPES: Tuple[str, ...] = ()
++
++# <!-- custom: Shared AIP enum/type lists, direct field specs, XML array specs, and aggregate key-family metadata are imported from ai_utils_shared_with_civ4.py in configure_shared_aip_constants(). Keeping them shared avoids drifting copies of getter fields, CONTACT_*, MEMORY_*, attitude indexes, and iAggregated* metadata. (ChatGPT-5.5) -->
++
++ATTITUDE_TO_INDEX: Dict[str, int] = {}
++FLAVOR_TYPES: Tuple[str, ...] = ()
++NO_WAR_ATTITUDE_TYPES: Tuple[str, ...] = ()
++CONTACT_TYPES: Tuple[str, ...] = ()
++MEMORY_TYPES: Tuple[str, ...] = ()
++DIRECT_INT_FIELDS: Tuple[Tuple[str, str, int], ...] = ()
++ATTITUDE_THRESHOLD_FIELDS: Tuple[Tuple[str, str, int], ...] = ()
++EXTRA_UWAI_ONLY_INT_FIELDS: Tuple[Tuple[str, str, int], ...] = ()
++ALL_INT_FIELDS: Tuple[Tuple[str, str, int], ...] = ()
++DISPLAY_ARRAY_FIELD_SPECS: Tuple[Tuple[str, str, str, Tuple[str, ...], str], ...] = ()
++HIDDEN_ARRAY_FIELD_SPECS: Tuple[Tuple[str, str, str, Tuple[str, ...], str], ...] = ()
++ARRAY_FIELD_SPECS: Tuple[Tuple[str, str, str, Tuple[str, ...], str], ...] = ()
++
++RAW_INT_RE = re.compile(r"\((-?\d+)\)")
++
++
+<hidden-email>
++class LeaderRecord:
++	index: int
++	type: str
++	values: Dict[str, int]
++
++
+<hidden-email>
++class ComparisonResult:
++	leader_index: int
++	leader_type: str
++	getter_key: str
++	expected: Any
++	actual: Any
++	status: str
++
++
++def find_repo_root(start: Path) -> Path:
++	current = start.resolve()
++	for candidate in (current,) + tuple(current.parents):
++		if (candidate / "Assets").is_dir() and (candidate / "CvGameCoreDLL").is_dir():
++			return candidate
++	raise RuntimeError("Could not locate repo root containing Assets/ and CvGameCoreDLL/.")
++
++
++def strip_xml_namespaces(root: ET.Element) -> None:
++	for elem in root.iter():
++		if "}" in elem.tag:
++			elem.tag = elem.tag.split("}", 1)[1]
++
++
++def child_text(elem: ET.Element, tag: str) -> Optional[str]:
++	child = elem.find(tag)
++	if child is None or child.text is None:
++		return None
++	text = child.text.strip()
++	return text if text != "" else None
++
++
++def parse_int(text: str, path: Path, leader_type: str, tag: str) -> int:
++	try:
++		return int(text)
++	except ValueError as exc:
++		raise ValueError(f"{path}: leader {leader_type}: tag {tag} expected int, got {text!r}") from exc
++
++
++def get_pascal_case_suffix(xml_type: str) -> str:
++	# Mirrors the AIP helper convention: FLAVOR_MILITARY -> Military,
++	# ATTITUDE_FURIOUS -> Furious.
++	parts = [part for part in xml_type.split("_") if part]
++	if len(parts) > 1:
++		parts = parts[1:]
++	return "".join(part[:1] + part[1:].lower() for part in parts)
++
++
++def array_value_key(key_prefix: str, xml_type: str) -> str:
++	return "%s%s" % (key_prefix, get_pascal_case_suffix(xml_type))
++
++
++def displayed_value_keys(shared_helpers: Any) -> Tuple[str, ...]:
++	array_keys: List[str] = []
++	for _root_tag, _key_tag, _value_tag, type_names, key_prefix in DISPLAY_ARRAY_FIELD_SPECS:
++		for type_name in type_names:
++			array_keys.append(array_value_key(key_prefix, type_name))
++	# <!-- custom: displayed aggregate keys are shared with the in-game AIP helper layer, so the workflow checker does not duplicate which synthetic contact/memory fields are predumped. (ChatGPT-5.5) -->
++	aggregate_keys = shared_helpers.get_aip_displayed_aggregate_value_keys()
++	return (
++		tuple(getter for getter, _tag, _default in DIRECT_INT_FIELDS)
++		+ tuple(getter for getter, _tag, _default in ATTITUDE_THRESHOLD_FIELDS)
++		+ tuple(array_keys)
++		+ tuple(aggregate_keys)
++	)
++
++
++def uwai_primitive_value_keys() -> Tuple[str, ...]:
++	array_keys: List[str] = []
++	for _root_tag, _key_tag, _value_tag, type_names, key_prefix in ARRAY_FIELD_SPECS:
++		for type_name in type_names:
++			array_keys.append(array_value_key(key_prefix, type_name))
++	return (
++		tuple(getter for getter, _tag, _default in ALL_INT_FIELDS)
++		+ tuple(getter for getter, _tag, _default in ATTITUDE_THRESHOLD_FIELDS)
++		+ tuple(array_keys)
++	)
++
++
++def constructor_defaults() -> Dict[str, int]:
++	values: Dict[str, int] = {}
++	for getter, _tag, _explicit_default in ALL_INT_FIELDS:
++		values[getter] = 0
++	for getter, _tag, constructor_default in ATTITUDE_THRESHOLD_FIELDS:
++		values[getter] = constructor_default
++	for _root_tag, _key_tag, _value_tag, type_names, key_prefix in ARRAY_FIELD_SPECS:
++		for type_name in type_names:
++			values[array_value_key(key_prefix, type_name)] = 0
++	return values
++
++
++def read_array_fields(values: Dict[str, int], leader_elem: ET.Element, xml_path: Path, leader_type: str) -> None:
++	for root_tag, key_tag, value_tag, type_names, key_prefix in ARRAY_FIELD_SPECS:
++		known_types = set(type_names)
++		root = leader_elem.find(root_tag)
++		if root is None:
++			continue
++		for item in list(root):
++			type_name = child_text(item, key_tag)
++			value_text = child_text(item, value_tag)
++			if type_name is None or value_text is None:
++				continue
++			if type_name not in known_types:
++				raise ValueError(f"{xml_path}: leader {leader_type}: tag {root_tag}/{key_tag} unknown type {type_name!r}")
++			values[array_value_key(key_prefix, type_name)] = parse_int(value_text, xml_path, leader_type, value_tag)
++
++
++def read_leader_record(base_values: Dict[str, int], leader_elem: ET.Element, xml_path: Path) -> Tuple[str, Dict[str, int]]:
++	leader_type = child_text(leader_elem, "Type")
++	if leader_type is None:
++		raise ValueError(f"{xml_path}: LeaderHeadInfo without <Type>")
++	values = deepcopy(base_values)
++
++	for getter, tag, explicit_default in ALL_INT_FIELDS:
++		text = child_text(leader_elem, tag)
++		if text is not None:
++			values[getter] = parse_int(text, xml_path, leader_type, tag)
++		else:
++			# Mirrors CvLeaderHeadInfo::GetChildXmlValByName: if the copied value is
++			# non-zero, it becomes the missing-tag default; otherwise use the explicit
++			# default argument from CvLeaderHeadInfo::read.
++			values[getter] = values[getter] if values[getter] != 0 else explicit_default
++
++	for getter, tag, _constructor_default in ATTITUDE_THRESHOLD_FIELDS:
++		text = child_text(leader_elem, tag)
++		if text is None:
++			continue
++		if text not in ATTITUDE_TO_INDEX:
++			raise ValueError(f"{xml_path}: leader {leader_type}: tag {tag} unknown attitude value {text!r}")
++		values[getter] = ATTITUDE_TO_INDEX[text]
++
++	read_array_fields(values, leader_elem, xml_path, leader_type)
++
++	return leader_type, values
++
++
++def read_leaders_from_xml(repo_root: Path) -> List[LeaderRecord]:
++	xml_path = repo_root / LEADER_XML_RELATIVE_PATH
++	root = ET.parse(str(xml_path)).getroot()
++	strip_xml_namespaces(root)
++	infos = root.findall("./LeaderHeadInfos/LeaderHeadInfo")
++	if not infos:
++		raise ValueError(f"{xml_path}: no LeaderHeadInfo entries found")
++
++	leaders: List[LeaderRecord] = []
++	defaults_template: Optional[Dict[str, int]] = None
++	for info in infos:
++		base = constructor_defaults() if defaults_template is None else deepcopy(defaults_template)
++		leader_type, values = read_leader_record(base, info, xml_path)
++		if leader_type == DEFAULTS_LEADER_TYPE:
++			defaults_template = values
++			continue
++		leaders.append(LeaderRecord(index=len(leaders), type=leader_type, values=values))
++	return leaders
++
++
++def read_global_define_int(repo_root: Path, define_name: str) -> int:
++	for path in sorted((repo_root / "Assets" / "XML").rglob("*.xml")):
++		try:
++			root = ET.parse(str(path)).getroot()
++		except ET.ParseError:
++			continue
++		strip_xml_namespaces(root)
++		for define in root.findall(".//Define"):
++			name = child_text(define, "DefineName")
++			if name != define_name:
++				continue
++			text = child_text(define, "iDefineIntVal")
++			if text is None:
++				raise ValueError(f"{path}: {define_name} missing iDefineIntVal")
++			return parse_int(text, path, define_name, "iDefineIntVal")
++	raise ValueError(f"Could not find {define_name} under Assets/XML")
++
++
++def median_fraction(values: List[int]) -> Fraction:
++	ordered = sorted(values)
++	mid = len(ordered) // 2
++	if len(ordered) % 2:
++		return Fraction(ordered[mid], 1)
++	return Fraction(ordered[mid - 1] + ordered[mid], 2)
++
++
++def round_cpp_scaled(value: Fraction) -> int:
++	# Mirrors ScaledNum::round for signed values: add +/- 0.5, then truncate
++	# toward zero. For exact Fractions, floor/ceil express that behavior cleanly.
++	if value >= 0:
++		return math.floor(value + Fraction(1, 2))
++	return math.ceil(value - Fraction(1, 2))
++
++
++def apply_uwai_personality_weight(leaders: List[LeaderRecord], weight: int) -> None:
++	if weight == 100:
++		return
++	personality_leaders = [leader for leader in leaders if leader.type not in AIP_EXCLUDED_LEADER_TYPES]
++	if not personality_leaders:
++		return
++	for getter_key in uwai_primitive_value_keys():
++		median = median_fraction([leader.values[getter_key] for leader in personality_leaders])
++		for leader in personality_leaders:
++			old_value = leader.values[getter_key]
++			new_value = (median * (100 - weight) + old_value * weight) / 100
++			leader.values[getter_key] = round_cpp_scaled(new_value)
++
++
++def import_aip_shared_helpers(repo_root: Path) -> Any:
++	sevopedia_path = repo_root / "Assets" / "Python" / "Contrib" / "Sevopedia"
++	sevopedia_path_text = str(sevopedia_path)
++	if sevopedia_path_text not in sys.path:
++		sys.path.insert(0, sevopedia_path_text)
++	import ai_utils_shared_with_civ4  # pylint: disable=import-error,import-outside-toplevel
++	return ai_utils_shared_with_civ4
++
++
++def configure_shared_aip_constants(shared_helpers: Any) -> None:
++	# <!-- custom: Keep enum/type lists, direct getter metadata, Civ4 attitude-index mapping, XML array specs, and aggregate key-family metadata shared with the runtime AIP helpers. (ChatGPT-5.5) -->
++	global AIP_EXCLUDED_LEADER_TYPES, ATTITUDE_TO_INDEX, FLAVOR_TYPES, NO_WAR_ATTITUDE_TYPES, CONTACT_TYPES, MEMORY_TYPES
++	global DIRECT_INT_FIELDS, ATTITUDE_THRESHOLD_FIELDS, EXTRA_UWAI_ONLY_INT_FIELDS, ALL_INT_FIELDS
++	global DISPLAY_ARRAY_FIELD_SPECS, HIDDEN_ARRAY_FIELD_SPECS, ARRAY_FIELD_SPECS
++	AIP_EXCLUDED_LEADER_TYPES = tuple(shared_helpers.get_aip_excluded_leader_types())
++	ATTITUDE_TO_INDEX = shared_helpers.get_aip_attitude_type_to_index()
++	FLAVOR_TYPES = tuple(shared_helpers.get_aip_flavor_types_assessed())
++	NO_WAR_ATTITUDE_TYPES = tuple(shared_helpers.get_aip_no_war_attitude_types_assessed())
++	CONTACT_TYPES = tuple(shared_helpers.get_aip_contact_types_assessed())
++	MEMORY_TYPES = tuple(shared_helpers.get_aip_memory_types_assessed())
++	DIRECT_INT_FIELDS = tuple((getter, xml_tag, xml_default) for getter, xml_tag, xml_default, _label, _invert in shared_helpers.get_aip_direct_int_field_specs())
++	ATTITUDE_THRESHOLD_FIELDS = tuple((getter, xml_tag, xml_default) for getter, xml_tag, xml_default, _label, _invert in shared_helpers.get_aip_attitude_threshold_field_specs())
++	EXTRA_UWAI_ONLY_INT_FIELDS = tuple(shared_helpers.get_aip_extra_uwai_only_int_field_specs())
++	ALL_INT_FIELDS = DIRECT_INT_FIELDS + EXTRA_UWAI_ONLY_INT_FIELDS
++	DISPLAY_ARRAY_FIELD_SPECS = tuple(shared_helpers.get_aip_display_array_field_specs())
++	HIDDEN_ARRAY_FIELD_SPECS = tuple(shared_helpers.get_aip_hidden_array_field_specs())
++	ARRAY_FIELD_SPECS = tuple(shared_helpers.get_aip_array_field_specs())
++
++
++class XmlAipValueProvider:
++	# <!-- custom: Workflow-side provider for the shared pure AIP cache builder. Values come from the XML mirror after LEADER_DEFAULTS, CvLeaderHeadInfo missing-tag defaults, and optional UWAI weighting have already been applied. (ChatGPT-5.5) -->
++	def __init__(self, leaders: List[LeaderRecord]):
++		self.leaders_by_index = {leader.index: leader for leader in leaders}
++
++	def get_value(self, iLeader: int, cache_key: str) -> int:
++		return self.leaders_by_index[iLeader].values[cache_key]
++
++	def get_flavor_value(self, iLeader: int, iFlavor: int) -> int:
++		return self.get_value(iLeader, array_value_key("iFlavor", FLAVOR_TYPES[iFlavor]))
++
++	def get_no_war_attitude_prob(self, iLeader: int, iAttitude: int) -> int:
++		return self.get_value(iLeader, array_value_key("iNoWarAttitudeProb", NO_WAR_ATTITUDE_TYPES[iAttitude]))
++
++	def get_contact_rand(self, iLeader: int, iContact: int) -> int:
++		return self.get_value(iLeader, array_value_key("iContactRand", CONTACT_TYPES[iContact]))
++
++	def get_contact_delay(self, iLeader: int, iContact: int) -> int:
++		return self.get_value(iLeader, array_value_key("iContactDelay", CONTACT_TYPES[iContact]))
++
++	def get_memory_type(self, iMemoryIndex: int) -> str:
++		return MEMORY_TYPES[iMemoryIndex]
++
++	def get_memory_attitude_percent(self, iLeader: int, iMemoryIndex: int) -> int:
++		return self.get_value(iLeader, array_value_key("iMemoryAttitudePercent", MEMORY_TYPES[iMemoryIndex]))
++
++	def get_memory_decay_rand(self, iLeader: int, iMemoryIndex: int) -> int:
++		return self.get_value(iLeader, array_value_key("iMemoryDecay", MEMORY_TYPES[iMemoryIndex]))
++
++
++def get_non_excluded_leaders(leaders: List[LeaderRecord]) -> List[LeaderRecord]:
++	return [leader for leader in leaders if leader.type not in AIP_EXCLUDED_LEADER_TYPES]
++
++
++def build_expected_predump_cache(leaders: List[LeaderRecord], shared_helpers: Any, is_show_raw_xml_field_names_instead: bool) -> Dict[int, Dict[str, Tuple[Any, ...]]]:
++	# <!-- custom: Expected predump creation now delegates to the same provider-based cache builder used by runtime AIP. The workflow only supplies XML/UWAI values; labels, normalization, scale strings, aggregate selection, and tuple shape are shared. (ChatGPT-5.5) -->
++	non_excluded_leader_indexes = tuple(leader.index for leader in get_non_excluded_leaders(leaders))
++	return shared_helpers.compute_leaders_info_aip_cache_from_provider(non_excluded_leader_indexes, XmlAipValueProvider(leaders), is_show_raw_xml_field_names_instead, False, False)
++
++
++def read_predump_cache(repo_root: Path) -> Dict[int, Dict[str, Tuple[Any, ...]]]:
++	path = repo_root / PREDUMP_RELATIVE_PATH
++	module_ast = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
++	for node in module_ast.body:
++		if isinstance(node, ast.Assign):
++			for target in node.targets:
++				if isinstance(target, ast.Name) and target.id == "LEADERS_INFO_CACHED":
++					value = ast.literal_eval(node.value)
++					if not isinstance(value, dict):
++						raise ValueError(f"{path}: LEADERS_INFO_CACHED is not a dict")
++					return value
++	raise ValueError(f"{path}: could not find LEADERS_INFO_CACHED assignment")
++
++
++def format_leader_index_type_pairs(leaders: List[LeaderRecord], shared_helpers: Any) -> str:
++	return shared_helpers.format_aip_leader_index_type_pairs([(leader.index, leader.type) for leader in leaders])
++
++
++def build_predump_module_text(leaders: List[LeaderRecord], expected_cache: Dict[int, Dict[str, Tuple[Any, ...]]], is_emoji_enabled: bool, is_raw_xml_names: bool, shared_helpers: Any) -> str:
++	# <!-- custom: Deterministic outside-Civ4 writer for SevoPediaLeaderCachePredumped.py. Tuple creation stays shared with runtime AIP; shared helper formatting also keeps the generated module header/data literal aligned with the in-game PythonDbg.log fallback. The generated file intentionally has no timestamp, so a no-op --write run does not dirty the working tree. (ChatGPT-5.5) -->
++	source_header_lines = (
++		"# Generated by: .github/workflows/build/aip_predump_values.py --write",
++	)
++	leader_count_line = "#   - Number of leaders parsed from XML, excluding %s: %d" % (DEFAULTS_LEADER_TYPE, len(leaders))
++	leader_index_type_line = format_leader_index_type_pairs(leaders, shared_helpers)
++	lines = shared_helpers.build_aip_predump_module_lines(expected_cache, leader_count_line, AIP_EXCLUDED_LEADER_TYPES, leader_index_type_line, is_emoji_enabled, is_raw_xml_names, source_header_lines, True)
++	return "\n".join(lines) + "\n"
++
++
++def write_predump_cache(repo_root: Path, leaders: List[LeaderRecord], expected_cache: Dict[int, Dict[str, Tuple[Any, ...]]], is_emoji_enabled: bool, is_raw_xml_names: bool, shared_helpers: Any) -> Path:
++	path = repo_root / PREDUMP_RELATIVE_PATH
++	text = build_predump_module_text(leaders, expected_cache, is_emoji_enabled, is_raw_xml_names, shared_helpers)
++	path.write_text(text, encoding="utf-8", newline="\r\n")
++	return path
++
++
++def compare_values(leaders: List[LeaderRecord], predump: Dict[int, Dict[str, Tuple[Any, ...]]], expected_cache: Dict[int, Dict[str, Tuple[Any, ...]]]) -> List[ComparisonResult]:
++	results: List[ComparisonResult] = []
++	for leader in get_non_excluded_leaders(leaders):
++		expected_leader_cache = expected_cache[leader.index]
++		actual_leader_cache = predump.get(leader.index)
++		if actual_leader_cache is None:
++			for getter_key, expected_tuple in sorted(expected_leader_cache.items()):
++				results.append(ComparisonResult(leader.index, leader.type, getter_key, expected_tuple, None, "missing-leader"))
++			continue
++
++		for getter_key, expected_tuple in sorted(expected_leader_cache.items()):
++			actual_tuple = actual_leader_cache.get(getter_key)
++			if actual_tuple is None:
++				results.append(ComparisonResult(leader.index, leader.type, getter_key, expected_tuple, None, "missing-field"))
++				continue
++			status = "match" if actual_tuple == expected_tuple else "mismatch"
++			results.append(ComparisonResult(leader.index, leader.type, getter_key, expected_tuple, actual_tuple, status))
++	return results
++
++
++def print_failure_summary(results: List[ComparisonResult], max_rows: int = 20) -> None:
++	failures = [result for result in results if result.status != "match"]
++	if not failures:
++		return
++	print("")
++	print("First failing AIP predump tuple entries:")
++	for result in failures[:max_rows]:
++		print("  %d %s %s status=%s" % (result.leader_index, result.leader_type, result.getter_key, result.status))
++		print("    expected=%r" % (result.expected,))
++		print("    actual  =%r" % (result.actual,))
++	if len(failures) > max_rows:
++		print("  ... %d more failing entries not shown" % (len(failures) - max_rows))
++
++def normalize_markdown_lines(lines: List[str]) -> List[str]:
++	normalized: List[str] = []
++	previous_blank = False
++	for line in lines:
++		is_blank = line.strip() == ""
++		if is_blank and previous_blank:
++			continue
++		normalized.append(line)
++		previous_blank = is_blank
++	while normalized and normalized[-1].strip() == "":
++		normalized.pop()
++	return normalized
++
++
++def write_markdown_report(path: Path, repo_root: Path, leaders: List[LeaderRecord], weight: int, results: List[ComparisonResult], max_mismatches: int) -> None:
++	compared = len(results)
++	matches = sum(1 for result in results if result.status == "match")
++	mismatches = [result for result in results if result.status == "mismatch"]
++	missing = [result for result in results if result.status != "match" and result.status != "mismatch"]
++
++	lines: List[str] = []
++	lines.append("# Leader AIP predump effective-value check")
++	lines.append("")
++	lines.append("Current full-tuple comparison between `CIV4LeaderHeadInfos.xml`, shared AIP tuple helpers, and `SevoPediaLeaderCachePredumped.py`.")
++	lines.append("")
++	lines.append("This helper mirrors the narrow DLL path needed for effective AIP values checked by this script:")
++	lines.append("")
++	lines.append("- `LEADER_DEFAULTS` copy behavior from `CvXMLLoadUtility::SetGlobalClassInfo`.")
++	lines.append("- `CvLeaderHeadInfo::GetChildXmlValByName` missing-tag behavior.")
++	lines.append("- `UWAI::applyPersonalityWeight` for scalar primitive fields and checked primitive array/list fields.")
++	lines.append("- Shared AIP contact/memory aggregate helpers for derived pre-normalization fields.")
++	lines.append("- Shared AIP tuple formatting for labels, normalized values, and scale strings.")
++	lines.append("")
++	lines.append("Unit AI modifiers and improvement modifiers are intentionally not checked yet because they are not currently displayed/predumped by the AIP panel.")
++	lines.append("")
++	lines.append("## Summary")
++	lines.append("")
++	lines.append(f"- Repo root: `{repo_root}`")
++	lines.append(f"- Leaders parsed, excluding `{DEFAULTS_LEADER_TYPE}`: {len(leaders)}")
++	lines.append(f"- UWAI personality percent: {weight}")
++	lines.append(f"- Effective-value entries compared: {compared}")
++	lines.append(f"- Matches: {matches}")
++	lines.append(f"- Mismatches: {len(mismatches)}")
++	lines.append(f"- Missing/unparsed entries: {len(missing)}")
++	lines.append("")
++	if mismatches:
++		lines.append("## Mismatches")
++		lines.append("")
++		lines.append("| Leader | Getter | Expected tuple | Predump tuple |")
++		lines.append("|---|---|---|---|")
++		for result in mismatches[:max_mismatches]:
++			lines.append(f"| {result.leader_index}: `{result.leader_type}` | `{result.getter_key}` | `{result.expected!r}` | `{result.actual!r}` |")
++		if len(mismatches) > max_mismatches:
++			lines.append("")
++			lines.append(f"_Only first {max_mismatches} mismatches shown._")
++		lines.append("")
++	if missing:
++		lines.append("## Missing or unparsed entries")
++		lines.append("")
++		lines.append("| Leader | Getter | Expected tuple | Status |")
++		lines.append("|---|---|---|---|")
++		for result in missing[:max_mismatches]:
++			lines.append(f"| {result.leader_index}: `{result.leader_type}` | `{result.getter_key}` | `{result.expected!r}` | {result.status} |")
++		if len(missing) > max_mismatches:
++			lines.append("")
++			lines.append(f"_Only first {max_mismatches} missing/unparsed entries shown._")
++		lines.append("")
++	if not mismatches and not missing:
++		lines.append("## Result")
++		lines.append("")
++		lines.append("All checked AIP predump tuples match the committed predump.")
++		lines.append("")
++	path.parent.mkdir(parents=True, exist_ok=True)
++	path.write_text("\n".join(normalize_markdown_lines(lines)) + "\n", encoding="utf-8", newline="\n")
++
++
++def default_output_path(repo_root: Path) -> Path:
++	timestamp = _datetime.datetime.now().strftime("%Y%m%dT%H%M%S")
++	return repo_root / "LLM_Helpers" / "outputs" / f"leader_aip_predump_values_{timestamp}.md"
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Compare LeaderHeadInfo AIP predump values against XML+UWAI-emulated effective values.")
++	parser.add_argument("--repo-root", type=Path, default=None, help="repository root; defaults to the current tree containing Assets/ and CvGameCoreDLL/")
++	parser.add_argument("--output", type=Path, default=None, help="Markdown report path; defaults to LLM_Helpers/outputs/leader_aip_predump_values_<timestamp>.md")
++	parser.add_argument("--max-mismatches", type=int, default=120, help="maximum mismatch rows to include in each report section")
++	parser.add_argument("--write", action="store_true", help="rewrite SevoPediaLeaderCachePredumped.py from the reconstructed XML+UWAI AIP cache before comparing")
++	parser.add_argument("--no-uwai", action="store_true", help="debug mode: do not apply UWAI_PERSONALITY_PERCENT before comparing")
++	parser.add_argument("--allow-mismatch", action="store_true", help="debug mode: return exit code 0 even when mismatches or missing/unparsed entries are found")
++	args = parser.parse_args()
++	if args.write and args.no_uwai:
++		parser.error("--write cannot be combined with --no-uwai because --no-uwai is a mismatch/debug mode")
++
++	repo_root = find_repo_root(args.repo_root or Path.cwd())
++	shared_helpers = import_aip_shared_helpers(repo_root)
++	configure_shared_aip_constants(shared_helpers)
++	leaders = read_leaders_from_xml(repo_root)
++	weight = read_global_define_int(repo_root, UWAI_DEFINE_NAME)
++	if args.no_uwai:
++		weight = 100
++	else:
++		apply_uwai_personality_weight(leaders, weight)
++	is_show_raw_xml_field_names_instead = read_global_define_int(repo_root, "SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0
++	is_emoji_enabled = read_global_define_int(repo_root, "SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0
++	expected_cache = build_expected_predump_cache(leaders, shared_helpers, is_show_raw_xml_field_names_instead)
++	if args.write:
++		written_path = write_predump_cache(repo_root, leaders, expected_cache, is_emoji_enabled, is_show_raw_xml_field_names_instead, shared_helpers)
++		print(f"Wrote refreshed AIP predump cache: {written_path}")
++	predump = read_predump_cache(repo_root)
++	results = compare_values(leaders, predump, expected_cache)
++	mismatch_count = sum(1 for result in results if result.status == "mismatch")
++	missing_count = sum(1 for result in results if result.status != "match" and result.status != "mismatch")
++	output_path = args.output or default_output_path(repo_root)
++	write_markdown_report(output_path, repo_root, leaders, weight, results, args.max_mismatches)
++
++	print_failure_summary(results)
++	print("Leader AIP predump effective-value check")
++	print(f"  compared: {len(results)}")
++	print(f"  mismatches: {mismatch_count}")
++	print(f"  missing/unparsed: {missing_count}")
++	print(f"  report: {output_path}")
++	if not args.allow_mismatch and (mismatch_count or missing_count):
++		return 1
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/line_endings.py b/.github/workflows/build/line_endings.py
+index 9016c5e34..8d6485709 100644
+--- a/.github/workflows/build/line_endings.py
++++ b/.github/workflows/build/line_endings.py
+@@ -91,16 +91,19 @@ def git_tracked_files(repo_root: Path) -> list[Path] | None:
+ 	return paths
+ 
+ 
+-def iter_candidate_files(repo_root: Path) -> list[Path]:
++def iter_candidate_files(repo_root: Path) -> tuple[list[Path], str]:
+ 	tracked_paths = git_tracked_files(repo_root)
+ 	if tracked_paths is not None:
+-		return sorted(
+-			path
+-			for path in tracked_paths
+-			if path.is_file()
+-			and is_text_like_path(path)
+-			and not is_ignored(path.relative_to(repo_root))
+-			and any(is_under(path.relative_to(repo_root), scan_path) or path.relative_to(repo_root) == scan_path for scan_path in SCAN_RELATIVE_PATHS)
++		return (
++			sorted(
++				path
++				for path in tracked_paths
++				if path.is_file()
++				and is_text_like_path(path)
++				and not is_ignored(path.relative_to(repo_root))
++				and any(is_under(path.relative_to(repo_root), scan_path) or path.relative_to(repo_root) == scan_path for scan_path in SCAN_RELATIVE_PATHS)
++			),
++			"git-tracked working-tree files",
+ 		)
+ 
+ 	paths: list[Path] = []
+@@ -121,7 +124,7 @@ def iter_candidate_files(repo_root: Path) -> list[Path]:
+ 				continue
+ 			if is_text_like_path(child):
+ 				paths.append(child)
+-	return sorted(set(paths))
++	return sorted(set(paths)), "plain directory fallback scan (no Git index available)"
+ 
+ 
+ def line_ending_counts(data: bytes) -> tuple[int, int, int]:
+@@ -132,9 +135,7 @@ def line_ending_counts(data: bytes) -> tuple[int, int, int]:
+ 	return crlf_count, lf_count, lone_cr_count
+ 
+ 
+-def check_file(repo_root: Path, path: Path) -> list[EolIssue]:
+-	data = path.read_bytes()
+-	relative_path = path.relative_to(repo_root)
++def check_data(relative_path: Path, data: bytes) -> list[EolIssue]:
+ 	failures: list[EolIssue] = []
+ 
+ 	if not data or is_probably_binary(data):
+@@ -153,13 +154,41 @@ def check_file(repo_root: Path, path: Path) -> list[EolIssue]:
+ 	return failures
+ 
+ 
+-def check_line_endings(repo_root: Path) -> list[EolIssue]:
++def check_file(repo_root: Path, path: Path) -> list[EolIssue]:
++	return check_data(path.relative_to(repo_root), path.read_bytes())
++
++
++def read_git_index_bytes(repo_root: Path, relative_path: Path) -> bytes | None:
++	try:
++		result = subprocess.run(
++			["git", "show", ":%s" % relative_path.as_posix()],
++			cwd=repo_root,
++			check=True,
++			stdout=subprocess.PIPE,
++			stderr=subprocess.PIPE,
++		)
++	except (OSError, subprocess.CalledProcessError):
++		return None
++	return result.stdout
++
++
++def get_index_clean_worktree_failures(repo_root: Path, failures: list[EolIssue]) -> list[Path]:
++	clean_in_index: list[Path] = []
++	for relative_path in sorted({failure.relative_path for failure in failures}):
++		data = read_git_index_bytes(repo_root, relative_path)
++		if data is not None and not check_data(relative_path, data):
++			clean_in_index.append(relative_path)
++	return clean_in_index
++
++
++def check_line_endings(repo_root: Path) -> tuple[list[EolIssue], str]:
+ 	failures: list[EolIssue] = []
++	candidate_files, scan_mode = iter_candidate_files(repo_root)
+ 
+-	for path in iter_candidate_files(repo_root):
++	for path in candidate_files:
+ 		failures.extend(check_file(repo_root, path))
+ 
+-	return failures
++	return failures, scan_mode
+ 
+ 
+ def main() -> int:
+@@ -168,18 +197,28 @@ def main() -> int:
+ 	parser.add_argument("--max-failures", type=int, default=80, help="maximum number of failures to print before summarizing")
+ 	args = parser.parse_args()
+ 
+-	failures = check_line_endings(args.repo_root)
++	failures, scan_mode = check_line_endings(args.repo_root)
+ 
+ 	if failures:
+ 		print("FAIL text line-ending hygiene")
++		print(f"  scan mode: {scan_mode}")
+ 		for failure in failures[: args.max_failures]:
+ 			print(f"  - {failure.format()}")
+ 		remaining = len(failures) - args.max_failures
+ 		if remaining > 0:
+ 			print(f"  - ... {remaining} more failure(s) not shown")
++		if scan_mode.startswith("git-tracked"):
++			clean_in_index = get_index_clean_worktree_failures(args.repo_root, failures)
++			if clean_in_index:
++				print("  note: %d failing worktree file(s) are clean in the Git index; GitHub Actions may pass if its checkout uses those normalized/indexed bytes." % len(clean_in_index))
++				for relative_path in clean_in_index[:10]:
++					print(f"    index-clean: {relative_path.as_posix()}")
++				if len(clean_in_index) > 10:
++					print("    ... %d more index-clean worktree failure(s) not shown" % (len(clean_in_index) - 10))
+ 		return 1
+ 
+ 	print("PASS text line-ending hygiene")
++	print(f"  scan mode: {scan_mode}")
+ 	return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+index 3c161afc4..6a0604fc9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+@@ -25,8 +25,9 @@ B_WARN = False
+ if IS_DEBUG_LEADER:
+ 	print("[DEBUG] Leaders index to type is: %s" % str(get_leaders_index_to_type_map()))
+ 
+-# <!-- custom: Use shared exclusion list from _sevopedia_helpers. (Claude Opus 4.5) -->
+-EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_excluded_leader_indexes(EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA)
++# <!-- custom: Use the AIP-specific exclusion list shared with the workflow predump checker, not the broader Sevopedia leader/civ association exclusion list. (ChatGPT-5.5) -->
++AIP_EXCLUDED_LEADER_TYPES = get_aip_excluded_leader_types()
++EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = get_excluded_leader_indexes(AIP_EXCLUDED_LEADER_TYPES)
+ 
+ # <!-- custom: more consistently and reliably exclude leaders by having a ready list of such leaders we can call -->
+ if IS_DEBUG_LEADER:
+@@ -44,35 +45,14 @@ def dump_leader_cache_to_pythondbg(leaders_info_cached, excluded_leader_types, i
+ 		sys.stdout.write("%s\n" % line)
+ 	leader_index_type_pairs = []
+ 	for iLeader in xrange(gc.getNumLeaderHeadInfos()):
+-		leader_type = gc.getLeaderHeadInfo(iLeader).getType()
+-		leader_index_type_pairs.append("%d: %s" % (iLeader, leader_type))
+-	leader_index_type_line = ", ".join(leader_index_type_pairs)
+-
+-	# BEGIN marker
+-	emit("# === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===")
+-
+-	# Header with generation info
+-	emit("# Generated from in-game dump to PythonDbg.log")
+-	emit("# Copy this entire block (from BEGIN to END) into: %s.py" % PREDUMPED_MODULE_NAME)
+-	emit("#")
+-	emit("# Generation info:")
+-	emit("#   - Number of leaders (gc.getNumLeaderHeadInfos): %d" % gc.getNumLeaderHeadInfos())
+-	emit("#   - Excluded leader types: %r" % (excluded_leader_types,))
+-	emit("#   - Leader index:type pairs: %s" % leader_index_type_line)
+-	emit("#   - Emoji headers enabled: %s" % str(is_emoji_enabled))
+-	emit("#   - Raw XML field names: %s" % str(is_raw_xml_names))
+-
+-	# The actual data
+-	emit("LEADERS_INFO_CACHED = {")
+-	for iLeader in sorted(leaders_info_cached.keys()):
+-		emit("	%r: {" % iLeader)
+-		leader_info_cached = leaders_info_cached[iLeader]
+-		for cache_key in sorted(leader_info_cached.keys()):
+-			emit("		%r: %r," % (cache_key, leader_info_cached[cache_key]))
+-		emit("	},")
+-	emit("}")
+-	# END marker
+-	emit("# === SAS_LEADER_AI_CACHE_PYMODULE_END ===")
++		leader_index_type_pairs.append((iLeader, gc.getLeaderHeadInfo(iLeader).getType()))
++	leader_index_type_line = format_aip_leader_index_type_pairs(leader_index_type_pairs)
++	source_header_lines = (
++		"# Generated by: manual in-game PythonDbg.log cache dump",
++	)
++	leader_count_line = "#   - Number of leaders (gc.getNumLeaderHeadInfos): %d" % gc.getNumLeaderHeadInfos()
++	for line in build_aip_predump_module_lines(leaders_info_cached, leader_count_line, excluded_leader_types, leader_index_type_line, is_emoji_enabled, is_raw_xml_names, source_header_lines, False):
++		emit(line)
+ 
+ 	emit("AI Personality Panel cache dumped to PythonDbg.log successfully.")
+ 
+@@ -115,8 +95,7 @@ def get_leader_cache_predumped_or_compute(compute_func, excluded_leader_types, i
+ # <!-- custom: note: collapse this below function with the VS Code UI option or similar to see the line after function definition directly (i.e. as of now around line 1530, right after function definition line e.g. around line 100) for easier reading if desired. -->
+ # <!-- custom: read at end of this function at the return's code comment of when and why we call the sevopedia cache precomputing as a function from sevopedia main -->
+ def _compute_leader_cache_internal():
+-	# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or such) -->
+-	# Build once <!-- custom: at this function's scope as we don't need it outside of it but need it many times here -->
++	# <!-- custom: runtime provider for the shared pure AIP cache builder. This keeps Civ4-only gc/DLL access here, while tuple creation, labels, normalization, scale strings, and displayed aggregate selection live in ai_utils_shared_with_civ4.py for reuse by the workflow predump checker. (ChatGPT-5.5) -->
+ 	NUM_LEADERS = gc.getNumLeaderHeadInfos()
+ 	NON_EXCLUDED_LEADERS = tuple(i for i in xrange(NUM_LEADERS) if i not in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS)
+ 
+@@ -138,248 +117,7 @@ def _compute_leader_cache_internal():
+ 			# success: only check first real leader
+ 			if IS_DEBUG_LEADER:
+ 				print("[DEBUG] Getter check passed for iLeader=%d. All required Python getters are present." % iLeader)
+-			break  # ?. success: no need to check further
+-
+-	# <!-- custom: modified from claude ai's code sample, see sevopedia helpers py also for details; note: NUM_MEMORY_TYPES_ASSESSED are not here in sevopedia leader since we use a different looping emthod as in methodology, see positive_or_negative_memory_indexes and its related code comments -->
+-	NUM_CONTACT_TYPES_ASSESSED = 14
+-	NUM_ATTITUDE_TYPES_ASSESSED = 5
+-
+-	# <!-- custom: make sure our normalize function behaves-works-functions as intended before we use it. -->
+-	test_expected_shifting_pre_normalize_to_100()
+-
+-	if IS_DEBUG_LEADER:
+-		print("[DEBUG] test_expected_shifting_pre_normalize_to_100 passed.")
+-
+-	def computeAndStoreMinMaxOfOneKey(key, value, leader_info_minimums, leader_info_maximums):
+-		if key not in leader_info_minimums:
+-			leader_info_minimums[key] = value
+-			leader_info_maximums[key] = value
+-			if IS_DEBUG_LEADER:
+-				print("[DEBUG] Set initial min/max for key=%s → %d" % (key, value))
+-		else:
+-			prev_min = leader_info_minimums[key]
+-			prev_max = leader_info_maximums[key]
+-
+-			if value < prev_min:
+-				leader_info_minimums[key] = value
+-				if IS_DEBUG_LEADER:
+-					print("[DEBUG] New min for %s: %d → %d" % (key, prev_min, value))
+-
+-			if value > prev_max:
+-				leader_info_maximums[key] = value
+-				if IS_DEBUG_LEADER:
+-					print("[DEBUG] New max for %s: %d → %d" % (key, prev_max, value))
+-
+-	# <!-- custom: store raw aggregated contact probs (iAggregatedRaw...) separately from normalized aggregated probs (iAggregated...).
+-	# Only the normalized values are displayed; raw values are kept for later normalization/min-max. The raw-to-normalized parsing
+-	# and label composition happens later in compute_and_store_leaders_info_cached. Do the same for raw aggregated positive/negative
+-	# memory affections/resentments. (GPT-5.2-Codex (summarized)) -->
+-	leaders_info_aggregated_raw_contact_probs = {}
+-	leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments = {}
+-
+-	def compute_and_store_leaders_info_aggregated_raw_contact_probs(leaders_info_aggregated_raw_contact_probs):
+-		# leaders_info_aggregated_raw_contact_probs[iLeader][parsed_contact_key] = aggregated_raw_score
+-		# parsed_contact_key is e.g. "iAggregatedRawContactProbStopTrading" (0-100)
+-		#
+-		# We compute these in two passes:
+-		# - Pass 1: adjusted rand/delay values + min/max per contact type
+-		# - Pass 2: normalize adjusted values to 0-100, then combine into an aggregated raw score
+-
+-		# Precompute per-contact metadata once.
+-		contact_types = [gc.getContactTypes(i) for i in xrange(NUM_CONTACT_TYPES_ASSESSED)]
+-		contact_suffixes = [get_pascal_case_suffix(contact_type) for contact_type in contact_types]
+-		parsed_adjusted_rand_names = ["iAdjustedContactRand%s" % suffix for suffix in contact_suffixes]
+-		parsed_adjusted_delay_names = ["iAdjustedContactDelay%s" % suffix for suffix in contact_suffixes]
+-		parsed_aggregated_raw_names = ["iAggregatedRawContactProb%s" % suffix for suffix in contact_suffixes]
+-
+-		# Pass 1: compute adjusted values and collect min/max across leaders.
+-		# temp_by_leader[iLeader][i] = (adjusted_rand, adjusted_delay, b_force_zero)
+-		temp_by_leader = {}
+-		min_adj_rand = [None] * NUM_CONTACT_TYPES_ASSESSED
+-		max_adj_rand = [None] * NUM_CONTACT_TYPES_ASSESSED
+-		min_adj_delay = [None] * NUM_CONTACT_TYPES_ASSESSED
+-		max_adj_delay = [None] * NUM_CONTACT_TYPES_ASSESSED
+-
+-		for iLeader in NON_EXCLUDED_LEADERS:
+-			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
+-			leader_rows = [None] * NUM_CONTACT_TYPES_ASSESSED
+-
+-			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
+-				value_1_rand_raw = loopLeaderHeadInfo.getContactRand(i)
+-				value_1_delay_raw = loopLeaderHeadInfo.getContactDelay(i)
+-
+-				adjusted_rand, adjusted_delay, b_force_zero = get_adjusted_contact_values(value_1_rand_raw, value_1_delay_raw, IS_DEBUG_LEADER, contact_types[i])
+-
+-				leader_rows[i] = (adjusted_rand, adjusted_delay, b_force_zero)
+-
+-				# Min/max init
+-				if min_adj_rand[i] is None:
+-					min_adj_rand[i] = adjusted_rand
+-					max_adj_rand[i] = adjusted_rand
+-					min_adj_delay[i] = adjusted_delay
+-					max_adj_delay[i] = adjusted_delay
+-				else:
+-					if adjusted_rand < min_adj_rand[i]:
+-						min_adj_rand[i] = adjusted_rand
+-					if adjusted_rand > max_adj_rand[i]:
+-						max_adj_rand[i] = adjusted_rand
+-					if adjusted_delay < min_adj_delay[i]:
+-						min_adj_delay[i] = adjusted_delay
+-					if adjusted_delay > max_adj_delay[i]:
+-						max_adj_delay[i] = adjusted_delay
+-
+-			temp_by_leader[iLeader] = leader_rows
+-
+-		if IS_DEBUG_LEADER:
+-			print("[DEBUG] Contact aggregation pass 1 done. min_adj_rand=%s max_adj_rand=%s min_adj_delay=%s max_adj_delay=%s" % (str(min_adj_rand), str(max_adj_rand), str(min_adj_delay), str(max_adj_delay)))
+-
+-		# Pass 2: normalize and compute final aggregated raw score per contact type.
+-		b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
+-
+-		for iLeader in NON_EXCLUDED_LEADERS:
+-			if iLeader in leaders_info_aggregated_raw_contact_probs:
+-				raise KeyError("[FATAL] Unexpected key iLeader=%d in leaders_info_aggregated_raw_contact_probs already existing" % iLeader)
+-			leaders_info_aggregated_raw_contact_probs[iLeader] = {}
+-
+-			leader_rows = temp_by_leader[iLeader]
+-			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
+-				adjusted_rand, adjusted_delay, b_force_zero = leader_rows[i]
+-
+-				adjusted_rand_norm_score = normalize_to_100(adjusted_rand, min_adj_rand[i], max_adj_rand[i], B_WARN, b_invert_contact_rands, parsed_adjusted_rand_names[i])
+-
+-				adjusted_delay_norm_score = normalize_to_100(adjusted_delay, min_adj_delay[i], max_adj_delay[i], B_WARN, b_invert_contact_delays, parsed_adjusted_delay_names[i])
+-
+-				aggregated_value = get_aggregated_raw_contact_score_from_adjusted_values(adjusted_rand_norm_score, adjusted_delay_norm_score, b_force_zero)
+-
+-				leaders_info_aggregated_raw_contact_probs[iLeader][parsed_aggregated_raw_names[i]] = aggregated_value
+-
+-		if IS_DEBUG_LEADER:
+-			print("[DEBUG] leaders_info_aggregated_raw_contact_probs after pass 2: %s" % str(leaders_info_aggregated_raw_contact_probs))
+-
+-		# Cleanup
+-		del temp_by_leader
+-		del min_adj_rand, max_adj_rand, min_adj_delay, max_adj_delay
+-
+-	# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or such) -->
+-	MEM_POS_IDX = tuple(get_positive_memory_indexes_to_types().keys())
+-	MEM_NEG_IDX = tuple(get_negative_memory_indexes_to_types().keys())
+-
+-	def get_positive_or_negative_memory_indexes(is_positive):
+-		# <!-- custom: similarly to contact aggregated code but for memory fields, that have positive/negative memory affection/resentment aggregated probs (see the related python docs for details). -->
+-		# <!-- custom: use memory indexes instead rather than types (string of full memory type name) as we fetch from DLL directly in sevopedia leader unlike in generate_leaders_data.py so we have access to these indexes so use them. -->
+-		positive_or_negative_memory_indexes = None
+-
+-		if is_positive:
+-			positive_or_negative_memory_indexes = MEM_POS_IDX
+-		else:
+-			positive_or_negative_memory_indexes = MEM_NEG_IDX
+-
+-		if not positive_or_negative_memory_indexes:
+-			raise ValueError("[VALUE ERROR] memory_indexes=%s check is false; memory_indexes cannot be empty or missing or some other kind of related or similar error, please check memory types (positive or negative) are fetched/imported correctly" % str(positive_or_negative_memory_indexes))
+-
+-		return positive_or_negative_memory_indexes
+-
+-	def compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, is_positive, is_affection):
+-		# leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_memory_key] = aggregated_raw_score
+-		# parsed_memory_key is e.g. "iAggregatedRawPositiveMemoryDeclaredWarAffection" (0-100)
+-		#
+-		# We compute these in two passes, similar to contact probs:
+-		# - Pass 1: adjusted attitude%/decay values + min/max per memory type
+-		# - Pass 2: normalize adjusted values to 0-100, then combine into an aggregated raw score
+-
+-		positive_or_negative_memory_indexes = get_positive_or_negative_memory_indexes(is_positive)
+-		positive_negative = get_positive_negative(is_positive)
+-		affection_resentment = get_affection_resentment(is_affection)
+-
+-		# Precompute per-memory metadata once.
+-		memory_indexes = list(positive_or_negative_memory_indexes)
+-		memory_types = [gc.getMemoryInfo(iMemoryIndex).getType() for iMemoryIndex in memory_indexes]
+-		memory_suffixes = [get_pascal_case_suffix(memory_type) for memory_type in memory_types]
+-
+-		parsed_adjusted_attitude_names = ["iAdjustedMemoryAttitudePercent%s%s" % (suffix, affection_resentment) for suffix in memory_suffixes]
+-		parsed_adjusted_decay_names = ["iAdjustedMemoryDecay%s%s" % (suffix, affection_resentment) for suffix in memory_suffixes]
+-		parsed_aggregated_raw_names = ["iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix, affection_resentment) for suffix in memory_suffixes]
+-
+-		count = len(memory_indexes)
+-
+-		# Pass 1: compute adjusted values and collect min/max across leaders.
+-		# temp_by_leader[iLeader][j] = (adjusted_attitude_percent, adjusted_decay, b_force_zero)
+-		temp_by_leader = {}
+-		min_adj_attitude = [None] * count
+-		max_adj_attitude = [None] * count
+-		min_adj_decay = [None] * count
+-		max_adj_decay = [None] * count
+-
+-		for iLeader in NON_EXCLUDED_LEADERS:
+-			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
+-			leader_rows = [None] * count
+-
+-			for j in xrange(count):
+-				iMemoryIndex = memory_indexes[j]
+-				memory_type = memory_types[j]
+-
+-				attitude_percent_raw = loopLeaderHeadInfo.getMemoryAttitudePercent(iMemoryIndex)
+-				decay_rand_raw = loopLeaderHeadInfo.getMemoryDecayRand(iMemoryIndex)
+-
+-				adjusted_attitude_percent, adjusted_decay, b_force_zero = get_adjusted_memory_values(attitude_percent_raw, decay_rand_raw, is_affection, IS_DEBUG_LEADER, memory_type)
+-
+-				leader_rows[j] = (adjusted_attitude_percent, adjusted_decay, b_force_zero)
+-
+-				# Min/max init
+-				if min_adj_attitude[j] is None:
+-					min_adj_attitude[j] = adjusted_attitude_percent
+-					max_adj_attitude[j] = adjusted_attitude_percent
+-					min_adj_decay[j] = adjusted_decay
+-					max_adj_decay[j] = adjusted_decay
+-				else:
+-					if adjusted_attitude_percent < min_adj_attitude[j]:
+-						min_adj_attitude[j] = adjusted_attitude_percent
+-					if adjusted_attitude_percent > max_adj_attitude[j]:
+-						max_adj_attitude[j] = adjusted_attitude_percent
+-					if adjusted_decay < min_adj_decay[j]:
+-						min_adj_decay[j] = adjusted_decay
+-					if adjusted_decay > max_adj_decay[j]:
+-						max_adj_decay[j] = adjusted_decay
+-
+-			temp_by_leader[iLeader] = leader_rows
+-
+-		if IS_DEBUG_LEADER:
+-			print("[DEBUG] Memory aggregation pass 1 done for %s/%s" % (positive_negative, affection_resentment))
+-			print("[DEBUG] min_adj_attitude=%s max_adj_attitude=%s" % (str(min_adj_attitude), str(max_adj_attitude)))
+-			print("[DEBUG] min_adj_decay=%s max_adj_decay=%s" % (str(min_adj_decay), str(max_adj_decay)))
+-
+-		# Pass 2: normalize and compute final aggregated raw score per memory type.
+-		b_invert_attitude_percent, b_invert_decay = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
+-
+-		for iLeader in NON_EXCLUDED_LEADERS:
+-			if iLeader not in leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments:
+-				leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader] = {}
+-
+-			leader_rows = temp_by_leader[iLeader]
+-			for j in xrange(count):
+-				adjusted_attitude_percent, adjusted_decay, b_force_zero = leader_rows[j]
+-
+-				adjusted_attitude_norm_score = normalize_to_100(adjusted_attitude_percent, min_adj_attitude[j], max_adj_attitude[j], B_WARN, b_invert_attitude_percent, parsed_adjusted_attitude_names[j])
+-
+-				adjusted_decay_norm_score = normalize_to_100(adjusted_decay, min_adj_decay[j], max_adj_decay[j], B_WARN, b_invert_decay, parsed_adjusted_decay_names[j])
+-
+-				aggregated_value = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(adjusted_attitude_norm_score, adjusted_decay_norm_score, b_force_zero)
+-
+-				leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_aggregated_raw_names[j]] = aggregated_value
+-
+-		if IS_DEBUG_LEADER:
+-			print("[DEBUG] leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments after pass 2 for %s/%s: %s" % (positive_negative, affection_resentment, str(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)))
+-
+-		# Cleanup
+-		del temp_by_leader
+-		del min_adj_attitude, max_adj_attitude, min_adj_decay, max_adj_decay
+-
+-	# <!-- custom: before computing minimums and maximums, compute and store raw aggregated fields, flattened, so they can be processed like any field/attribute and do min/max on them too for all leaders -->
+-	compute_and_store_leaders_info_aggregated_raw_contact_probs(leaders_info_aggregated_raw_contact_probs)
+-
+-	for is_positive in (True, False):
+-		for is_affection in (True, False):
+-			compute_and_store_leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, is_positive, is_affection)
++			break
+ 
+ 	def check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(excluded_leaders_indexes_from_calculations, leaders_dict, leaders_dict_name):
+ 		leaders_dict_keys = leaders_dict.keys()
+@@ -396,567 +134,41 @@ def _compute_leader_cache_internal():
+ 				key_type_name = str(type(key))
+ 				raise TypeError("[FATAL] In leaders_dict_name=%s, key=%s is not an integer index (key_name=%s). Only integer iLeader indexes should be used as keys. Please ensure that key_type_name=%s uses iLeader (e.g. 0, 1, 2...) as keys, not leader_type strings." % (leaders_dict_name, key, key_name, key_type_name))
+ 
+-	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, leaders_info_aggregated_raw_contact_probs, "leaders_info_aggregated_raw_contact_probs")
+-	check_leaders_dict_only_has_leader_index_keys(leaders_info_aggregated_raw_contact_probs, "leaders_info_aggregated_raw_contact_probs")
+-
+-	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, "leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments")
+-	check_leaders_dict_only_has_leader_index_keys(leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, "leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments")
+-
+-	def get_fields_directly_parsed():
+-		# <!-- custom: dict of getter_name: (label, b_invert) -->
+-		# <!-- custom: note: --> Attributes that need value inversion when normalizing <!-- custom: is when --> high = bad, low = good
+-		fields_with_direct_getters = {
+-			# ==== FIRST XML FIELDS PART 1 (from XML order) ====
+-			"getWonderConstructRand": ("Wonder C.R", False),
+-			"getBaseAttitude": ("Base Attitude", False),
+-			"getBasePeaceWeight": ("Base Peace Weig", False),
+-			"getPeaceWeightRand": ("Peace Weig Rand", False),
+-			"getWarmongerRespect": ("Warmonger Resp", False),
+-			"getEspionageWeight": ("EspionageWeig", False),
+-			"getRefuseToTalkWarThreshold": ("Ref2TalkWSpan", False),
+-			"getNoTechTradeThreshold": ("NoTech2AdvT", True),
+-			"getTechTradeKnownPercent": ("NoTechYetRdy%", False),
+-			"getMaxGoldTradePercent": ("Max Gold Tr%", False),
+-			"getMaxGoldPerTurnTradePercent": ("Max GPT Tr%", False),
+-			# ==== BBAI VICTORY WEIGHTS ====
+-			# <!-- custom: now exposed to python, see sevopedia helpers py file code comments for details -->
+-			"getCultureVictoryWeight": ("Culture", False),
+-			"getSpaceVictoryWeight": ("Space", False),
+-			"getConquestVictoryWeight": ("Conquest", False),
+-			"getDominationVictoryWeight": ("Domination", False),
+-			"getDiplomacyVictoryWeight": ("Diplomacy", False),
+-			# <!-- custom: end of now exposed to python fields -->
+-			# ==== WAR XML FIELDS (from XML order) ====
+-			"getMaxWarRand": ("T.W Likely", True),
+-			"getMaxWarNearbyPowerRatio": ("T.W NearPR", False),
+-			"getMaxWarDistantPowerRatio": ("T.W DistPR", False),
+-			"getMaxWarMinAdjacentLandPercent": ("T.W MinNearPR", True),
+-			"getLimitedWarRand": ("Lim.W Likely", True),
+-			"getLimitedWarPowerRatio": ("Lim.W PR", False),
+-			"getDogpileWarRand": ("Dogpile Likely", True),
+-			"getMakePeaceRand": ("MakePeaceLikely", True),
+-			"getDeclareWarTradeRand": ("WAllianceMaker", False),
+-			"getDemandRebukedSneakProb": ("TribRSneakW%", False),
+-			"getDemandRebukedWarProb": ("TribRef W%", False),
+-			"getRazeCityProb": ("Raz C %", False),
+-			"getBuildUnitProb": ("Build Unit %", False),
+-			# ==== ATTITUDE MODIFIER FIELDS (from XML order) ====
+-			"getBaseAttackOddsChange": ("Risky Aggr", False),
+-			"getAttackOddsChangeRand": ("Risky AggrRand+", False),
+-			"getWorseRankDifferenceAttitudeChange": ("Worse Rank AC", False),
+-			"getBetterRankDifferenceAttitudeChange": ("Better Rank AC", False),
+-			# <!-- custom: inverted according to: https://modiki.civfanatics.com/index.php/Civ4LeaderHeadInfos at "iCloseBordersAttitudeChange" and then according to also https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#iclosebordersattitudechange (description translated(ion) seems a bit less accurate but is informative and helpful maybe etc -->
+-			"getCloseBordersAttitudeChange": ("CloseBordSpark", True),
+-			"getLostWarAttitudeChange": ("Lost W AC", False),
+-			"getAtWarAttitudeDivisor": ("At W AD", False),
+-			"getAtWarAttitudeChangeLimit": ("At W ACL", False),
+-			"getAtPeaceAttitudeDivisor": ("At Peace AD", False),
+-			"getAtPeaceAttitudeChangeLimit": ("At Peace ACL", False),
+-			"getSameReligionAttitudeChange": ("Same Relig AC", False),
+-			"getSameReligionAttitudeDivisor": ("Same Relig AD", False),
+-			"getSameReligionAttitudeChangeLimit": ("Same Relig ACL", False),
+-			"getDifferentReligionAttitudeChange": ("Diff Relig AC", False),
+-			"getDifferentReligionAttitudeDivisor": ("Diff Relig AD", False),
+-			"getDifferentReligionAttitudeChangeLimit": ("Diff Relig ACL", True),
+-			"getBonusTradeAttitudeDivisor": ("Bonus Tr AD", False),
+-			"getBonusTradeAttitudeChangeLimit": ("Bonus Tr ACL", False),
+-			"getOpenBordersAttitudeDivisor": ("Open Bord AD", False),
+-			"getOpenBordersAttitudeChangeLimit": ("Open Bord ACL", False),
+-			"getDefensivePactAttitudeDivisor": ("Defens Pact AD", False),
+-			"getDefensivePactAttitudeChangeLimit": ("Defens Pact ACL", False),
+-			"getShareWarAttitudeChange": ("Share W AC", False),
+-			"getShareWarAttitudeDivisor": ("Share W AD", False),
+-			"getShareWarAttitudeChangeLimit": ("Share W ACL", False),
+-			"getFavoriteCivicAttitudeChange": ("Fav Civic AC", False),
+-			"getFavoriteCivicAttitudeDivisor": ("Fav Civic AD", False),
+-			"getFavoriteCivicAttitudeChangeLimit": ("Fav Civic ACL", False),
+-			# <!-- custom: attitude thresholds later in code in case we want to aggregate them or do aggregate them but not sure may or may not do -->
+-			# ==== VASSAL AND FREEDOM FIELDS (from XML order) ====
+-			"getVassalPowerModifier": ("ResistCapitulPM", False),
+-			"getFreedomAppreciation": ("FreedomApprec", False),
+-			# <!-- custom: then fields with nested or incremental getters (flavors, contacts, memory, nowarattitudeprobs, etc if any more) are handled separately later -->
+-		}
+-
+-		# ==== ATTITUDE THRESHOLDS ====
+-		# <!-- custom: Long_Comments_py.txt #9 -->
+-		fields_attitude_thresholds = {
+-			# <!-- custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#demandtributeattitudethreshold -->
+-			"getDemandTributeAttitudeThreshold": ("ScaryNoTrib", True),
+-			"getNoGiveHelpAttitudeThreshold": ("PrideNoHelp", False),
+-			"getTechRefuseAttitudeThreshold": ("Tech", False),
+-			# <!-- custom: now exposed to python, see sevopedia helpers py file code comments for details -->
+-			"getCityRefuseAttitudeThreshold": ("C", False),
+-			"getNativeCityRefuseAttitudeThreshold": ("Native C", False),
+-			# <!-- custom: end of now exposed to python fields -->
+-			"getStrategicBonusRefuseAttitudeThreshold": ("Strategic Bonus", False),
+-			"getHappinessBonusRefuseAttitudeThreshold": ("Happiness Bonus", False),
+-			"getHealthBonusRefuseAttitudeThreshold": ("Health Bonus", False),
+-			"getMapRefuseAttitudeThreshold": ("Map", False),
+-			"getDeclareWarRefuseAttitudeThreshold": ("D.W", False),
+-			# <!-- custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#declarewarthemrefuseattitudethreshold -->
+-			"getDeclareWarThemRefuseAttitudeThreshold": ("LoyaltyNoD.W", True),
+-			"getStopTradingRefuseAttitudeThreshold": ("StopTr", False),
+-			# <!-- custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#stoptradingthemrefuseattitudethreshold -->
+-			"getStopTradingThemRefuseAttitudeThreshold": ("LoyaltyNoStopTr", True),
+-			"getAdoptCivicRefuseAttitudeThreshold": ("Adopt Civic", False),
+-			"getConvertReligionRefuseAttitudeThreshold": ("Convert Religion", False),
+-			"getOpenBordersRefuseAttitudeThreshold": ("Open Bord", False),
+-			"getDefensivePactRefuseAttitudeThreshold": ("DefensPact", False),
+-			"getPermanentAllianceRefuseAttitudeThreshold": ("PermAlliance", False),
+-			"getVassalRefuseAttitudeThreshold": ("Vassal", False),
+-		}
+-
+-		# <!-- custom: fields not parsed into leaders_info_cached yet; useful for deeper AI modeling later:
+-		# Advanced arrays (optional):
+-		# - <UnitAIWeightModifier> by UnitAIType
+-		# - <ImprovementWeightModifier> by ImprovementType (GPT-5.2-Codex) -->
+-		return fields_with_direct_getters, fields_attitude_thresholds
+-
+-	# <!-- custom: store only the fields we want to display in the AI personality panel not the other / not all XML fields, see sevopedia debuggers py file and debugPrintLeaderHeadInfoFieldsToFetch and or its example of output for details -->
+-	fields_with_direct_getters, fields_attitude_thresholds = get_fields_directly_parsed()
++	fields_with_direct_getters, fields_attitude_thresholds = get_aip_fields_directly_parsed()
+ 	required_getters = tuple(fields_with_direct_getters.keys()) + tuple(fields_attitude_thresholds.keys())
+ 	check_required_newly_exposed_python_getters_gc_leader_exist(required_getters)
+-	def get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments):
+-		# <!-- custom: fake leaders that stores minimum values among all leader for each field we want to display regardless of inversions, same for maximum values too -->
+-		leader_info_minimums = {}
+-		leader_info_maximums = {}
+ 
+-		for iLeader in NON_EXCLUDED_LEADERS:
+-			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or such) -->
+-			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
+-
+-			for getter_name, (label, b_invert) in fields_with_direct_getters.items():
+-				value_generic = getattr(loopLeaderHeadInfo, getter_name)()
+-				computeAndStoreMinMaxOfOneKey(getter_name, value_generic, leader_info_minimums, leader_info_maximums)
+-
+-			for getter_name, (label, b_invert) in fields_attitude_thresholds.items():
+-				value_attitude_threshold = getattr(loopLeaderHeadInfo, getter_name)()
+-				computeAndStoreMinMaxOfOneKey(getter_name, value_attitude_threshold, leader_info_minimums, leader_info_maximums)
+-
+-			# <!-- custom: parse fields with nested or with incremental getters as flat fields with an alternative key so we can loop over them more easily and reorder them later if needed, also our code is more consistent this way -->
+-			# ==== FLAVORS ====
+-			for i in xrange(gc.getNumFlavorTypes()):
+-				# <!-- custom: store them as a parsed key name since getter is incremental and does not directly reference the name of each flavor -->
+-				value_flavor = loopLeaderHeadInfo.getFlavorValue(i)
+-				flavor_type = gc.getFlavorTypes(i)  # e.g. "FLAVOR_MILITARY"
+-				suffix = get_pascal_case_suffix(flavor_type) # → <!-- custom: "Military" -->
+-				parsed_name_flavor = "iFlavor%s" % suffix  # → iFlavorMilitary
+-				computeAndStoreMinMaxOfOneKey(parsed_name_flavor, value_flavor, leader_info_minimums, leader_info_maximums)
+-
+-			# ==== CONTACTS ====
+-			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
+-				# <!-- custom: compute minimum and maximum among all leaders for raw contact fields, which here and as of now are only contact rands and contact delays -->
+-				# <!-- custom: Step 1: Raw contact rands and delays -->
+-				contact_type = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
+-				suffix = get_pascal_case_suffix(contact_type) # → "JoinWar"
+-
+-				value_rand_raw = loopLeaderHeadInfo.getContactRand(i)
+-				value_delay_raw = loopLeaderHeadInfo.getContactDelay(i)
+-				parsed_name_rand = "iContactRand%s" % suffix # → iContactRandJoinWar
+-				parsed_name_delay = "iContactDelay%s" % suffix # → iContactDelayJoinWar
+-				computeAndStoreMinMaxOfOneKey(parsed_name_delay, value_delay_raw, leader_info_minimums, leader_info_maximums)
+-				computeAndStoreMinMaxOfOneKey(parsed_name_rand, value_rand_raw, leader_info_minimums, leader_info_maximums)
+-
+-				# <!-- custom: also export the minimum and maximum raw aggregated contact prob (based on iLeader's rand and iLeader's delay (note: not based on the min and max rand among all leaders nor the min and max delay among all leaders)) among all leaders for each contact type -->
+-				# <!-- custom: Step 2: Raw aggregated contact probs -->
+-				parsed_name_aggregated_raw_contact_prob = "iAggregatedRawContactProb%s" % suffix # → iAggregatedRawContactProbJoinWar
+-				value_aggregated_raw_contact_prob = leaders_info_aggregated_raw_contact_probs[iLeader][parsed_name_aggregated_raw_contact_prob]
+-				computeAndStoreMinMaxOfOneKey(parsed_name_aggregated_raw_contact_prob, value_aggregated_raw_contact_prob, leader_info_minimums, leader_info_maximums)
+-
+-			# ==== MEMORY ====
+-			# <!-- custom: compute minimum and maximum among all leaders for raw contact fields, which here and as of now are only contact rands and contact delays; here we can loop over real DLL i index directly like in sevopedia_helpers py file debug code (see there for details), and unlike for raw aggregated memory fields that are separated in positive and negative memories, so here we can loop over real DLL i index directly -->
+-			for is_positive in (True, False):
+-				for is_affection in (True, False):
+-					positive_or_negative_memory_indexes = get_positive_or_negative_memory_indexes(is_positive)
+-					positive_negative = get_positive_negative(is_positive)
+-					affection_resentment = get_affection_resentment(is_affection)
+-
+-					for i in positive_or_negative_memory_indexes:
+-						memory_type = gc.getMemoryInfo(i).getType() # e.g. "MEMORY_DECLARED_WAR"
+-						suffix = get_pascal_case_suffix(memory_type) # → "DeclaredWar"
+-
+-						# <!-- custom: Step 1: Raw memory attitude percents and decays -->
+-						# <!-- custom: since we display same raw attitude percent and decay fields values in UI regardless of positive/negative memory affection/resentment (raw aggregated values then the normalized aggregated values are is displayed) aggregation, no need to store multiple versions (i.e. positive/negative and affection/resentment) of these raw attitude percent and decay fields, store only one kind for all of these 4 possible combination cases (positive-affection, positive-resentment, negative-affection, negative-resentment) same as in XML fields structuration too for raw attitude percents and decays, i.e. for example only for example iMemoryAttitudePercentDeclaredWar (no positive-negative, no affection-resentment) for raw attitude_percent and decay fields same as in XML -->
+-						# <!-- custom: similarly for min max of raw attitude percents and decays export only once out of the 4 combinations (among positive-affection, positive-resentment, negative-affection, negative-resentment), since the raw value is always the same field and field name, no need to do it again for the other 3 times/combinations -->
+-						parsed_name_attitude_percent = "iMemoryAttitudePercent%s" % suffix # → iMemoryAttitudePercentDeclaredWar
+-						if (parsed_name_attitude_percent not in leader_info_minimums) and (parsed_name_attitude_percent not in leader_info_maximums):
+-							value_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
+-							computeAndStoreMinMaxOfOneKey(parsed_name_attitude_percent, value_attitude_percent, leader_info_minimums, leader_info_maximums)
+-
+-						parsed_name_decay = "iMemoryDecay%s" % suffix # → iMemoryDecayDeclaredWar
+-						if (parsed_name_decay not in leader_info_minimums) and (parsed_name_decay not in leader_info_maximums):
+-							value_decay = loopLeaderHeadInfo.getMemoryDecayRand(i)
+-							computeAndStoreMinMaxOfOneKey(parsed_name_decay, value_decay, leader_info_minimums, leader_info_maximums)
+-
+-						# <!-- custom: Step 2: Raw aggregated positive and negative memory affections and resentments -->
+-						parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment = "iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
+-						value_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
+-						computeAndStoreMinMaxOfOneKey(parsed_name_aggregated_raw_positive_or_negative_memory_affection_or_resentment, value_aggregated_raw_positive_or_negative_memory_affection_or_resentment, leader_info_minimums, leader_info_maximums)
+-
+-			# ==== NOWARATTITUDEPROBS ====
+-			for i in xrange(NUM_ATTITUDE_TYPES_ASSESSED):
+-				value_no_war_attitude_prob = loopLeaderHeadInfo.getNoWarAttitudeProb(i)
+-				attitude_type = gc.getAttitudeInfo(i).getType()  # e.g. "ATTITUDE_FURIOUS"
+-				suffix = get_pascal_case_suffix(attitude_type)  # → "Furious"
+-				parsed_name_no_war_attitude_prob = "iNoWarAttitudeProb%s" % suffix  # → iNoWarAttitudeProbFurious
+-				computeAndStoreMinMaxOfOneKey(parsed_name_no_war_attitude_prob, value_no_war_attitude_prob, leader_info_minimums, leader_info_maximums)
+-
+-		# <!-- custom: after all min and max parsing is done, some sanity and warning checks -->
+-		for key in leader_info_minimums:
+-			# <!-- custom: ensure our leader_info_minimums is reliable even if a bit if not lot or not or yes or etcbefore proceeding further -->
+-			if key not in leader_info_maximums:
+-				raise KeyError(u"[KEY ERROR] Missing leader_info_maximums key=%s, in leader_info_minimums but not in leader_info_maximums, cannot proceed if both leader_info_minimums and leader_info_maximums all have same keys, please check your min and max computing or and DLL behaviour that may explain missing fields." % key)
+-
+-			# <!-- custom: also warn once if min == max for each field/key and now while it is computationally (at module load) inexpensive to do so, do not rewarn at each leader computation nor later at init or and such -->
+-			if leader_info_minimums[key] == leader_info_maximums[key]:
+-				if IS_DEBUG_LEADER:
+-					print("[WARNING] Key=%s has an identical min and max value (%d). Warning only once at module load so we don't have/want/need to redo it later at the normalization stage, fix/change the XML leader info value(s) of some leader(s) so that min and max among all leaders are different if desired, or keep as is if intended/desired that leaders behave the same for this key." % (key, leader_info_minimums[key]))
+-
+-		if IS_DEBUG_LEADER:
+-			print("[DEBUG] At end of the function get_leader_info_minimums_and_maximums, we return for the minimums leader_info_minimums=%s" % str(leader_info_minimums))
+-			print("[DEBUG] At end of the function get_leader_info_minimums_and_maximums, we return for the maximums leader_info_maximums=%s" % str(leader_info_maximums))
+-
+-		return (leader_info_minimums, leader_info_maximums)
+-
+-	leader_info_minimums, leader_info_maximums = get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments)
+-
+-	# <!-- custom: note: leader_info_minimums, leader_info_maximums are like fake leaders, they dont have iLeader keys but only field/attribute keys (like "getMaxWarRand", "iAggregatedEtc...", "getBasePeaceWeight", "iFlavorMilitary", etc), so no need and not relevant to check if excluded leaders or if keys are only indexes because they are not, we have enough sanity checks overall everywhere to not need to resanity check this xd even though may help maybe but is bit tedious since dbug also helps, so as for sanity checks skipping them for leader_info_minimums, leader_info_maximums. -->
+-
+-	# Store per-leader <!-- custom: cached info for all keys/attributes -->
+-	# LEADERS_INFO_CACHED: dict of leaderName → dict of attributeName → <!-- custom: tuple of (label, raw_value, norm_value, scale) for later display at UI code -->
+-	LEADERS_INFO_CACHED = {}
+-
+-	def get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, tail_to_trim, abbreviated_tail, label_raw, max_length):
+-		# <!-- custom: for example for "SameReligionAttitudeChangeLimit" (note: "get" front already stripped), "ACL", "(39)", 15: -->
+-
+-		# <!-- custom: first trim the tail in key_or_suffix if any, for example "SameReligionAttitudeChangeLimit" → "SameReligion" -->
+-		if tail_to_trim:
+-			key_or_suffix_with_tail_trimmed = key_or_suffix[:-len(tail_to_trim)]
+-		else:
+-			key_or_suffix_with_tail_trimmed = key_or_suffix
+-
+-		# <!-- custom: check if this result is longer than would allow to fit "ACL" + " " + "(39)" as compared to what max_length would allow in total in the final label, and if all good trim it as such i.e. trim enough of the key_or_suffix_with_tail_trimmed until it allows to fit total_tail_length within max_length, for example:
+-		# - "SameReligion" has a length of 12
+-		# - "ACL" + " " + "(39)" has a total_tail_length of 3 + 1 + 4 = 8
+-		# - max_length is 15
+-		# So there will be max_length - total_tail_length = 15 - 8 = 7 chars remaining for the key_or_suffix_with_tail_trimmed, trim anything beyond that, so the key_or_suffix_with_tail_trimmed is now only for example "SameReligion" → "SameRel" -->
+-		total_tail_length = len(abbreviated_tail) + len(" ") + len(label_raw)
+-		room_for_first = max_length - total_tail_length
+-		if room_for_first <= 0:
+-			raise ValueError(u"[ERROR] Unexpected label_raw=%s + ' ' + abbreviated_tail=%s total_tail_length=%d, too long to fit key_or_suffix_with_tail_trimmed=%s within max_length = %d in the final label. This should not happen, please make sure abbreviated_tail + ' ' + label_raw are short enough relative to max_length, or that max_length is high enough." % (label_raw, abbreviated_tail, total_tail_length, key_or_suffix_with_tail_trimmed, max_length))
+-		# <!-- custom: minimum 1 to accommodate for the " " space character -->
+-		key_or_suffix_with_tail_trimmed_further_trimmed = key_or_suffix_with_tail_trimmed[:max(1, room_for_first)]
+-
+-		# <!-- custom: finally append ' ' + the abbreviated tail as intended, for example "SameRel" → "SameRelACL (39)" -->
+-		key_or_suffix_with_abbreviated_tail = key_or_suffix_with_tail_trimmed_further_trimmed + abbreviated_tail + " " + label_raw
+-
+-		return key_or_suffix_with_abbreviated_tail
+-
+-	def get_labels_as_keys_or_suffixes_max_length_label(key_or_suffix, label_raw, max_length):
+-		# Returns key_or_suffix + label_raw, trimmed so total length ≤ max_length.
+-		#
+-		# <!-- custom: examples of output from chagpt as well and some added by me as well too thanks and my prompt too: -->
+-		# "getMaxWarRand", " (50)", 18 → "MaxWarRand (50)"
+-		# "DemandWar", " (50/510)", 18 → "Demand (50/510)"
+-		# "LongLongKeyNameHere", " (9)", 14 → "LongLongKe (9)"
+-		# "getConquestVictoryWeight", " (39)", 19 → "Conquest (39)"
+-		# "getSameReligionAttitudeChangeLimit", " (39)", 15 → "SameRelACL (39)"
+-
+-		# <!-- custom: first strip front or tail, for example "getSameReligionAttitudeChangeLimit" → "SameReligion"
+-		if key_or_suffix.startswith("get"):
+-			# <!-- custom: strip this front part ("get") first -->
+-			key_or_suffix_without_front = key_or_suffix[len("get"):]
+-
+-			if key_or_suffix_without_front.endswith("VictoryWeight"):
+-				# <!-- custom: just strip tail (i.e. without appending any abbreviated_tail as a replacement) -->
+-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "VictoryWeight", "", label_raw, max_length)
+-			elif key_or_suffix_without_front.endswith("RefuseAttitudeThreshold"):
+-				# <!-- custom: no need for a "RAT" abbreviated_tail as would clutter and they are all in same category at least as of now if not always or not or yes or etc; so opt for a more compact label instead -->
+-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "RefuseAttitudeThreshold", "", label_raw, max_length)
+-			elif key_or_suffix_without_front.endswith("AttitudeThreshold"):
+-				# <!-- custom: the "AT" vs "RAT" here is informative though i think for the few fields that have it i think so display it i think -->
+-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeThreshold", "AT", label_raw, max_length)
+-			elif key_or_suffix_without_front.endswith("AttitudeChangeLimit"):
+-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeLimit", "ACL", label_raw, max_length)
+-			elif key_or_suffix_without_front.endswith("AttitudeChangeDivisor"):
+-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeDivisor", "ACD", label_raw, max_length)
+-			elif key_or_suffix_without_front.endswith("AttitudeChange"):
+-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChange", "AC", label_raw, max_length)
+-			else:
+-				return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "", "", label_raw, max_length)
+-		# <!-- custom: no front nor tail, just trim key_or_suffix to fit label_raw within max_length -->
+-		else:
+-			return get_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, "", "", label_raw, max_length)
+-
+-	def get_symbol_scale(score, symbol):
+-		# <!-- custom: examples:
+-		# - with symbol "+" and value 64 (/100), returns "++++++"
+-		# - with symbol "#" and value 39 (/100), returns "###"
+-		# -->
+-		return symbol * (score // 10)
+-
+-	def compute_and_store_leader_info_cached_tuple(raw_value, min_value, max_value, b_invert, symbol, all_symbols, cache_key, label, iLeader, leader_info_cached):
+-		norm_value = normalize_to_100(raw_value, min_value, max_value, B_WARN, b_invert, cache_key)
+-
+-		if (min_value == max_value):
+-			symbol = all_symbols["EQUAL_SCALE_SYMBOL"]
+-
+-		if IS_DEBUG_LEADER:
+-			print("[DEBUG] raw_value=%d, min_value=%d, max_value=%d, norm_value=%d, for cache_key=%s, b_invert=%s at iLeader=%d" % (raw_value, min_value, max_value, norm_value, cache_key, str(b_invert), iLeader))
+-
+-		if not label:
+-			raise ValueError(u"Unexpected label=%s tested false as a boolean in cache_key=%s at iLeader=%d, please check label is not empty or missing or some other kind of invalid format" % (str(label), cache_key, iLeader))
+-
+-		if (symbol not in all_symbols.values()):
+-			raise ValueError(u"Unexpected symbol=%s not in all_symbols=%s in cache_key=%s at iLeader=%d." % (symbol, str(all_symbols), cache_key, iLeader))
+-		scale = get_symbol_scale(norm_value, symbol)
+-
+-		# Store final as <!-- custom: a tuple after all parsing/caching is finished for this leader for faster/better performance than dict or such other storage --> for future display at UI code
+-		leader_info_cached_tuple = (label, norm_value, scale)
+-		leader_info_cached[cache_key] = leader_info_cached_tuple
+-		if IS_DEBUG_LEADER:
+-			print(u"[DEBUG] Leader info cached tuple for iLeader=%d is leader_info_cached_tuple=%s" % (iLeader, str(leader_info_cached_tuple)))
+-
+-	def compute_and_store_leaders_info_cached(leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, fields_with_direct_getters, fields_attitude_thresholds, leader_info_minimums, leader_info_maximums):
+-		# Loops over all leaders and normalizes each attribute to a 0-100 scale, using previously computed min/max per attribute and inversion flags.
+-
+-		# Symbol settings
+-		all_symbols = {
+-			"RAW_SCALE_SYMBOL": "+",
+-			"AGGREGATED_SCALE_SYMBOL": "#",
+-			"EQUAL_SCALE_SYMBOL": "=",
+-		}
+-
+-		# <!-- custom: in the debug output (i=0 to NUM_CONTACT_TYPES_ASSESSED (i=13 so 14 values in total as of now see latest value or code comments or docs for updated value or and info)) order -->
+-		contact_index_labels = {
+-			0: "Relig Press",		# CONTACT_RELIGION_PRESSURE
+-			1: "Civic Press",		# CONTACT_CIVIC_PRESSURE
+-			2: "Join W", 			# CONTACT_JOIN_WAR
+-			3: "Stop Tr",			# CONTACT_STOP_TRADING
+-			4: "Gave Help",			# CONTACT_GIVE_HELP
+-			5: "Help",				# CONTACT_ASK_FOR_HELP
+-			6: "Trib",				# CONTACT_DEMAND_TRIBUTE
+-			7: "Open Borders",		# CONTACT_OPEN_BORDERS
+-			8: "DefensPact",		# CONTACT_DEFENSIVE_PACT
+-			9: "PermAlliance",		# CONTACT_PERMANENT_ALLIANCE
+-			10: "PeaceTreaty",		# CONTACT_PEACE_TREATY
+-			11: "Tr Tech",			# CONTACT_TRADE_TECH
+-			12: "Tr Bonus",			# CONTACT_TRADE_BONUS
+-			13: "Tr Map",			# CONTACT_TRADE_MAP
+-		}
+-
+-		positive_memory_index_labels = {
+-			8:  "Gave Help",		# MEMORY_GIVE_HELP
+-			10: "AcD",				# MEMORY_ACCEPT_DEMAND
+-			12: "AcRelig",			# MEMORY_ACCEPTED_RELIGION
+-			14: "AcCivic",			# MEMORY_ACCEPTED_CIVIC
+-			16: "AcJoin W",			# MEMORY_ACCEPTED_JOIN_WAR
+-			18: "AcStop Tr",		# MEMORY_ACCEPTED_STOP_TRADING
+-			28: "Tr Tech",			# MEMORY_TRADED_TECH_TO_US
+-			31: "VotedForUs",		# MEMORY_VOTED_FOR_US
+-			32: "Event Good",		# MEMORY_EVENT_GOOD_TO_US
+-			34: "LiberatedC",		# MEMORY_LIBERATED_CITIES
+-			35: "Indep",			# MEMORY_INDEPENDENCE
+-		}
+-
+-		negative_memory_index_labels = {
+-			0:  "D.W",				# MEMORY_DECLARED_WAR
+-			1:  "D.W onFr",			# MEMORY_DECLARED_WAR_ON_FRIEND
+-			2:  "HirWAlly",			# MEMORY_HIRED_WAR_ALLY
+-			3:  "Nuked Us",			# MEMORY_NUKED_US
+-			4:  "Nuked Fr",			# MEMORY_NUKED_FRIEND
+-			5:  "RazC",				# MEMORY_RAZED_CITY
+-			6:  "RazHolyC",			# MEMORY_RAZED_HOLY_CITY
+-			7:  "Spy Caught",		# MEMORY_SPY_CAUGHT
+-			9:  "RefHelpUs",		# MEMORY_REFUSED_HELP
+-			11: "Rej D",			# MEMORY_REJECTED_DEMAND
+-			13: "Dn Relig",			# MEMORY_DENIED_RELIGION
+-			15: "Dn Civic",			# MEMORY_DENIED_CIVIC
+-			17: "Dn JoinW",			# MEMORY_DENIED_JOIN_WAR
+-			19: "Dn StopTr",		# MEMORY_DENIED_STOP_TRADING
+-			20: "StoppedTr",		# MEMORY_STOPPED_TRADING
+-			21: "RecStoppedTr",		# MEMORY_STOPPED_TRADING_RECENT
+-			22: "TrEmbargo",		# MEMORY_HIRED_TRADE_EMBARGO
+-			23: "Made D",			# MEMORY_MADE_DEMAND
+-			24: "CancVassal",		# MEMORY_CANCELLED_VASSAL_AGREEMENT
+-			25: "RecentMadeD",		# MEMORY_MADE_DEMAND_RECENT
+-			26: "CancelledOB",		# MEMORY_CANCELLED_OPEN_BORDERS
+-			27: "CancelledDP",		# MEMORY_CANCELLED_DEFENSIVE_PACT
+-			29: "RecentTechAny",	# MEMORY_RECEIVED_TECH_FROM_ANY
+-			30: "VotedAgUs",		# MEMORY_VOTED_AGAINST_US
+-			33: "Event Bad",		# MEMORY_EVENT_BAD_TO_US
+-			36: "Recent W",			# MEMORY_DECLARED_WAR_RECENT
+-		}
+-
+-		# <!-- custom: a minimal sanity check before merging the index_labels (not checking if some indexes are missing here in the dictionary as we'd likely i assume get a key error later otherwise -->
+-		check_overlapping_keys_between_dicts(positive_memory_index_labels, negative_memory_index_labels)
+-		# ✅ Combined dictionary
+-		positive_and_negative_memory_index_labels = {}
+-		positive_and_negative_memory_index_labels.update(positive_memory_index_labels)
+-		positive_and_negative_memory_index_labels.update(negative_memory_index_labels)
++	# <!-- custom: make sure our normalize function behaves-works-functions as intended before we use it. -->
++	test_expected_shifting_pre_normalize_to_100()
++	if IS_DEBUG_LEADER:
++		print("[DEBUG] test_expected_shifting_pre_normalize_to_100 passed.")
+ 
+-		for iLeader in NON_EXCLUDED_LEADERS:
+-			leader_info_cached = {}
+-
+-			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or such) -->
+-			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
+-
+-			symbol_generics = all_symbols["RAW_SCALE_SYMBOL"]
+-			for getter_name_generic, (label_generic, b_invert_generic) in fields_with_direct_getters.items():
+-				raw_value_generic = getattr(loopLeaderHeadInfo, getter_name_generic)()
+-				# <!-- custom: also add raw value to label like "Military (12)" for example for flavors instead of just "Military" (so we have both raw value in label as well as normalized value in the 2nd column of each of the AI personality panel tables (i.e. before the scale (e.g. "++++" or similar column of each of the AI personality panel tables too -->
+-				label_raw_generic = "(%d)" % raw_value_generic
+-				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+-					label_with_raw_value_generic = get_labels_as_keys_or_suffixes_max_length_label(getter_name_generic, label_raw_generic, 18)
+-				else:
+-					label_with_raw_value_generic = "%s %s" % (label_generic, label_raw_generic)
+-				min_value_generic = leader_info_minimums[getter_name_generic]
+-				max_value_generic = leader_info_maximums[getter_name_generic]
+-				compute_and_store_leader_info_cached_tuple(raw_value_generic, min_value_generic, max_value_generic, b_invert_generic, symbol_generics, all_symbols, getter_name_generic, label_with_raw_value_generic, iLeader, leader_info_cached)
+-
+-			symbol_attitude_thresholds = all_symbols["RAW_SCALE_SYMBOL"]
+-			for getter_name_attitude_threshold, (label_attitude_threshold, b_invert_attitude_threshold) in fields_attitude_thresholds.items():
+-				raw_value_attitude_threshold = getattr(loopLeaderHeadInfo, getter_name_attitude_threshold)()
+-				label_raw_attitude_threshold = "(%d)" % raw_value_attitude_threshold
+-				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+-					label_with_raw_value_attitude_threshold = get_labels_as_keys_or_suffixes_max_length_label(getter_name_attitude_threshold, label_raw_attitude_threshold, 18)
+-				else:
+-					label_with_raw_value_attitude_threshold = "%s %s" % (label_attitude_threshold, label_raw_attitude_threshold)
+-				min_value_attitude_threshold = leader_info_minimums[getter_name_attitude_threshold]
+-				max_value_attitude_threshold = leader_info_maximums[getter_name_attitude_threshold]
+-				compute_and_store_leader_info_cached_tuple(raw_value_attitude_threshold, min_value_attitude_threshold, max_value_attitude_threshold, b_invert_attitude_threshold, symbol_attitude_thresholds, all_symbols, getter_name_attitude_threshold, label_with_raw_value_attitude_threshold, iLeader, leader_info_cached)
+-
+-			b_invert_flavors = False
+-			symbol_flavors = all_symbols["RAW_SCALE_SYMBOL"]
+-			for i in xrange(gc.getNumFlavorTypes()):
+-				flavor_type = gc.getFlavorTypes(i)  # e.g. "FLAVOR_MILITARY"
+-				suffix = get_pascal_case_suffix(flavor_type) # → "Military"
+-				parsed_name_flavor = "iFlavor%s" % suffix  # → iFlavorMilitary
+-				label_flavor = suffix
+-				raw_value_flavor = loopLeaderHeadInfo.getFlavorValue(i)
+-				label_raw_flavor = "(%d)" % raw_value_flavor
+-				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+-					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
+-					label_with_raw_value_flavor = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_flavor, 19)
+-				else:
+-					label_with_raw_value_flavor = "%s %s" % (label_flavor, label_raw_flavor)
+-				min_value_flavor = leader_info_minimums[parsed_name_flavor]
+-				max_value_flavor = leader_info_maximums[parsed_name_flavor]
+-				compute_and_store_leader_info_cached_tuple(raw_value_flavor, min_value_flavor, max_value_flavor, b_invert_flavors, symbol_flavors, all_symbols, parsed_name_flavor, label_with_raw_value_flavor, iLeader, leader_info_cached)
+-
+-			# <!-- custom: for contact fields, normalize the aggregated contact probs, do not normalize the rands nor the delays (would be redundant, as we don't display them with scale symbols or such, just the raw value in label is enough); to export raw fields (rand and delay, uncomment the related rand and delay lines below (untested but probably works-functions else tweak bit) to export them to UI if want to display them (then you'd need to uncomment or add if missing them in UI categories too)) -->
+-
+-			b_invert_4_aggregated_contact_probs = False
+-			symbol_aggregated_contact_probs = all_symbols["AGGREGATED_SCALE_SYMBOL"]
+-			for i in xrange(NUM_CONTACT_TYPES_ASSESSED):
+-				contact_type = gc.getContactTypes(i) # e.g. "CONTACT_JOIN_WAR"
+-				suffix = get_pascal_case_suffix(contact_type) # → "JoinWar"
+-				label_contact = contact_index_labels[i]
+-
+-				parsed_name_4_aggregated_raw_contact_prob = "iAggregatedRawContactProb%s" % suffix # → iAggregatedRawContactProbJoinWar
+-				# <!-- custom: be careful/note: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated contact probs caching -->
+-				parsed_name_4_aggregated_contact_prob = "iAggregatedContactProb%s" % suffix # → iAggregatedContactProbJoinWar
+-
+-				# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done in/at UI -->
+-				raw_value_rand = loopLeaderHeadInfo.getContactRand(i)
+-				raw_value_delay = loopLeaderHeadInfo.getContactDelay(i)
+-				# <!-- custom: do not display the raw aggregated prob here, but instead the raw rand and raw delay -->
+-				label_raw_rand_and_raw_delay = "(%d/%d)" % (raw_value_rand, raw_value_delay)
+-				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+-					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
+-					label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_rand_and_raw_delay, 19)
+-				else:
+-					label_with_raw_value_rand_and_raw_value_delay = "%s %s" % (label_contact, label_raw_rand_and_raw_delay)
+-
+-				# <!-- custom: be careful/note, min and max value are stored under the raw aggregated value and thus key, not the normalized aggregated one, use raw aggregated key to access them in leader_info minimums and same for maximums (normalized key does not exist yet, would get an error), similar reasoning to retrieve the previously stored raw aggregated value in leaders_info_aggregated_raw_contact_probs as well -->
+-				raw_value_4_aggregated_contact_prob = leaders_info_aggregated_raw_contact_probs[iLeader][parsed_name_4_aggregated_raw_contact_prob]
+-				min_value_4_aggregated_raw_contact_prob = leader_info_minimums[parsed_name_4_aggregated_raw_contact_prob]
+-				max_value_4_aggregated_raw_contact_prob = leader_info_maximums[parsed_name_4_aggregated_raw_contact_prob]
+-
+-				# <!-- custom: note: chatgpt 5 told me to change parsed_name_4_aggregated_contact_prob to parsed_name_4_aggregated_raw_contact_prob claiming it was a real bug, but doing it created an error ingame; Long_Comments_py.txt #11; so not a bug -->
+-				compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_contact_prob, min_value_4_aggregated_raw_contact_prob, max_value_4_aggregated_raw_contact_prob, b_invert_4_aggregated_contact_probs, symbol_aggregated_contact_probs, all_symbols, parsed_name_4_aggregated_contact_prob, label_with_raw_value_rand_and_raw_value_delay, iLeader, leader_info_cached)
+-
+-			# <!-- custom: for memory fields, we display only aggregated positive/negative memory affections and resentments.
+-			# Raw attitude_percent/decay are already embedded in labels and are not normalized, so we don't display them separately.
+-			# We also skip positive memory resentments and negative memory affections because the table is too small and these would
+-			# overlap with positive memory affections / negative memory resentments given positive memories have positive attitude_percent
+-			# and negative memories have negative attitude_percent. They are also niche and would clutter the dump/cache; the pipeline
+-			# still supports them if you add their parsed_name fields to the UI category order below (test to be sure). (GPT-5.2-Codex (summarized)) -->
+-			b_invert_4_positive_and_negative_memory_affections_and_resentments = False
+-			symbol_aggregated_positive_and_negative_memory_affections_and_resentments = all_symbols["AGGREGATED_SCALE_SYMBOL"]
+-
+-			for is_positive in (True, False):
+-				for is_affection in (True, False):
+-					# <!-- custom: skip positive memory resentments and negative memory affections as said in top code comment before, uncomment or remove this/these checks to export them as well -->
+-					if is_positive and (not is_affection):
+-						continue
+-					if (not is_positive) and is_affection:
+-						continue
+-
+-					positive_or_negative_memory_indexes = get_positive_or_negative_memory_indexes(is_positive)
+-					positive_negative = get_positive_negative(is_positive)
+-					affection_resentment = get_affection_resentment(is_affection)
+-
+-					for i in positive_or_negative_memory_indexes:
+-						memory_type = gc.getMemoryInfo(i).getType() # e.g. "MEMORY_DECLARED_WAR"
+-						suffix = get_pascal_case_suffix(memory_type) # → "DeclaredWar"
+-						label_memory = positive_and_negative_memory_index_labels[i]
+-
+-						# <!-- custom: note: unlike for min max exports (compute and store) of raw, we can do positive and negative memory affections and resentments aggregated normalization at same time without having to reloop over positive_or_negative_memory_indexes as the raw aggregated prob is now a flat field at this normalization stage, that is already available for all leaders, so we can normalize it directly and independently from the raw memory attitude percents and decays, see also min max code of memory fields at step 1 step 2 or similar code comments for details -->
+-						parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = "iAggregatedRaw%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedRawPositiveMemoryDeclaredWarAffection or iAggregatedRawPositiveMemoryDeclaredWarResentment or iAggregatedRawNegativeMemoryDeclaredWarAffection or iAggregatedRawNegativeMemoryDeclaredWarResentment
+-
+-						# <!-- custom: be careful/note: the normalized aggregated value is not stored in cache with the old pre-normalization key/parsed_name, so we remove "raw" here in key/parsed_name since aggregated value is normalized now, so use for caching the new key/parsed_name that does not have "raw" in key for aggregated fields at least for aggregated positive and negative memory affections and resentments caching -->
+-						parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment = "iAggregated%sMemory%s%s" % (positive_negative, suffix, affection_resentment) # → iAggregatedPositiveMemoryDeclaredWarAffection or iAggregatedPositiveMemoryDeclaredWarResentment or iAggregatedNegativeMemoryDeclaredWarAffection or iAggregatedNegativeMemoryDeclaredWarResentment
+-
+-						# <!-- custom: generate the label before normalizing, and so we also have the label as well for later display after normalization done in/at UI -->
+-						raw_value_4_attitude_percent = loopLeaderHeadInfo.getMemoryAttitudePercent(i)
+-						raw_value_4_decay = loopLeaderHeadInfo.getMemoryDecayRand(i)
+-						label_raw_attitude_percent_and_raw_decay = "(%d/%d)" % (raw_value_4_attitude_percent, raw_value_4_decay)
+-						if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+-							# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
+-							label_with_raw_value_rand_and_raw_value_delay = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_attitude_percent_and_raw_decay, 19)
+-						else:
+-							label_with_raw_value_rand_and_raw_value_delay = "%s %s" % (label_memory, label_raw_attitude_percent_and_raw_decay)
+-
+-						# <!-- custom: be careful/note, min and max value are stored under the raw aggregated value and thus key, not the normalized aggregated one, use raw aggregated key to access them in leader_info minimums and same for maximums (normalized key does not exist yet, would get an error), similar reasoning to retrieve the previously stored raw aggregated value in leaders_info_aggregated_raw_contact_probs as well -->
+-						raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment = leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments[iLeader][parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
+-						min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_minimums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
+-						max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment = leader_info_maximums[parsed_name_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment]
+-
+-						compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_positive_or_negative_memory_affection_or_resentment, min_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, max_value_4_aggregated_raw_positive_or_negative_memory_affection_or_resentment, b_invert_4_positive_and_negative_memory_affections_and_resentments, symbol_aggregated_positive_and_negative_memory_affections_and_resentments, all_symbols, parsed_name_4_aggregated_positive_or_negative_memory_affection_or_resentment, label_with_raw_value_rand_and_raw_value_delay, iLeader, leader_info_cached)
+-
+-			b_invert_no_war_attitude_probs = False
+-			symbol_no_war_attitude_probs = all_symbols["RAW_SCALE_SYMBOL"]
+-			for i in xrange(NUM_ATTITUDE_TYPES_ASSESSED):
+-				attitude_type = gc.getAttitudeInfo(i).getType()  # e.g. "ATTITUDE_FURIOUS"
+-				suffix = get_pascal_case_suffix(attitude_type)  # → "Furious"
+-				parsed_name_no_war_attitude_prob = "iNoWarAttitudeProb%s" % suffix  # → iNoWarAttitudeProbFurious
+-				label_no_war_attitude_prob = suffix
+-				raw_value_no_war_attitude_prob = loopLeaderHeadInfo.getNoWarAttitudeProb(i)
+-				label_raw_no_war_attitude_prob = "(%d)" % raw_value_no_war_attitude_prob
+-				if IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD:
+-					# <!-- custom: for these fields, the suffix like "Military" is much shorter than the parsed name like "iFlavorMilitary", and clear enough for our need for the labels as keys or suffixes, so use the suffix it instead of parsed name -->
+-					label_with_raw_value_no_war_attitude_prob = get_labels_as_keys_or_suffixes_max_length_label(suffix, label_raw_no_war_attitude_prob, 19)
+-				else:
+-					label_with_raw_value_no_war_attitude_prob = "%s %s" % (label_no_war_attitude_prob, label_raw_no_war_attitude_prob)
+-				min_value_no_war_attitude_prob = leader_info_minimums[parsed_name_no_war_attitude_prob]
+-				max_value_no_war_attitude_prob = leader_info_maximums[parsed_name_no_war_attitude_prob]
+-				compute_and_store_leader_info_cached_tuple(raw_value_no_war_attitude_prob, min_value_no_war_attitude_prob, max_value_no_war_attitude_prob, b_invert_no_war_attitude_probs, symbol_no_war_attitude_probs, all_symbols, parsed_name_no_war_attitude_prob, label_with_raw_value_no_war_attitude_prob, iLeader, leader_info_cached)
+-
+-			# <!-- custom: store final complete leader_info_cached (i.e. store a leader_info_cached for each iLeader) in LEADERS_INFO_CACHED -->
+-			LEADERS_INFO_CACHED[iLeader] = leader_info_cached
+-			if IS_DEBUG_LEADER:
+-				print(u"[DEBUG] Leader info cached for iLeader=%d is leader_info_cached=%s" % (iLeader, str(leader_info_cached)))
++	class Civ4AipValueProvider:
++		def get_value(self, iLeader, cache_key):
++			return getattr(gc.getLeaderHeadInfo(iLeader), cache_key)()
++
++		def get_contact_rand(self, iLeader, iContact):
++			return gc.getLeaderHeadInfo(iLeader).getContactRand(iContact)
++
++		def get_contact_delay(self, iLeader, iContact):
++			return gc.getLeaderHeadInfo(iLeader).getContactDelay(iContact)
++
++		def get_memory_type(self, iMemoryIndex):
++			return get_aip_memory_type_by_index(iMemoryIndex)
++
++		def get_memory_attitude_percent(self, iLeader, iMemoryIndex):
++			return gc.getLeaderHeadInfo(iLeader).getMemoryAttitudePercent(iMemoryIndex)
++
++		def get_memory_decay_rand(self, iLeader, iMemoryIndex):
++			return gc.getLeaderHeadInfo(iLeader).getMemoryDecayRand(iMemoryIndex)
++
++		def get_flavor_value(self, iLeader, iFlavor):
++			return gc.getLeaderHeadInfo(iLeader).getFlavorValue(iFlavor)
+ 
+-	compute_and_store_leaders_info_cached(leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments, fields_with_direct_getters, fields_attitude_thresholds, leader_info_minimums, leader_info_maximums)
++		def get_no_war_attitude_prob(self, iLeader, iAttitude):
++			return gc.getLeaderHeadInfo(iLeader).getNoWarAttitudeProb(iAttitude)
+ 
+-	# <!-- custom: cleanup -->
+-	del leaders_info_aggregated_raw_contact_probs
+-	del leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments
+-	del fields_with_direct_getters
+-	del fields_attitude_thresholds
+-	del leader_info_minimums
+-	del leader_info_maximums
++	LEADERS_INFO_CACHED = compute_leaders_info_aip_cache_from_provider(NON_EXCLUDED_LEADERS, Civ4AipValueProvider(), IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD, B_WARN, IS_DEBUG_LEADER)
+ 
+ 	check_excluded_leaders_indexes_are_not_in_leaders_dict_keys(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS, LEADERS_INFO_CACHED, "LEADERS_INFO_CACHED")
+ 	check_leaders_dict_only_has_leader_index_keys(LEADERS_INFO_CACHED, "LEADERS_INFO_CACHED")
+@@ -970,5 +182,5 @@ def _compute_leader_cache_internal():
+ 
+ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
+ 	# Wrapper that either loads pre-dumped cache or computes it
+-	return get_leader_cache_predumped_or_compute(compute_func = _compute_leader_cache_internal, excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA, is_emoji_enabled = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0), is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD)
++	return get_leader_cache_predumped_or_compute(compute_func = _compute_leader_cache_internal, excluded_leader_types = AIP_EXCLUDED_LEADER_TYPES, is_emoji_enabled = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0), is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD)
+
+[PATCH OMITTED] file=a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py reason=known-generated/noisy-history changedLines=794 bytes=183517
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+index 046215904..022bd7b56 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+@@ -9,6 +9,7 @@
+ # Get all attributes of the object
+ 
+ from CvPythonExtensions import *
++from ai_utils_shared_with_civ4 import get_aip_attitude_index_to_type
+ 
+ gc = CyGlobalContext()
+ localText = CyTranslator()
+@@ -140,16 +141,8 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader):
+ 	#
+ 	# I have done a global search and they are the only leaders with "<MapRefuseAttitudeThreshold>ATTITUDE_FRIENDLY</MapRefuseAttitudeThreshold>", so this seems most likely intended that map trading in base advciv code at least if not other mods preceding it or and base civ4 or not handle it as such (increment one level of atittude higher than the value, to make map trading harsher, so friendly means they will always refuse map trading i assume / in my assumption, all other leaders don't trigger a key error nor in/at this field nor in any other field, so keep as is and display it accurately as DLL handles it) -->
+ 
+-	# Mapping of attitude values to their Civ4 XML constants
+-	DLL_ATTITUDE_MAP = {
+-		-1: "NONE",
+-		0: "ATTITUDE_FURIOUS",
+-		1: "ATTITUDE_ANNOYED",
+-		2: "ATTITUDE_CAUTIOUS",
+-		3: "ATTITUDE_PLEASED",
+-		4: "ATTITUDE_FRIENDLY",
+-		5: "ALWAYS??" # <!-- custom: comment-out to reproduce the error, added this value also as this seems like a purposeful valid DLL behaviour, see above for explanation or of my understanding of it -->
+-	}
++	# <!-- custom: Map debug attitude integers back to Civ4 XML constants through the shared AIP helper; includes debug-only 5: "ALWAYS??" for the AdvCiv map-trade refusal edge case explained above. (ChatGPT-5.5) -->
++	DLL_ATTITUDE_MAP = get_aip_attitude_index_to_type(True)
+ 
+ 	for attr in dir(info):
+ 		if attr.startswith("get") and attr.endswith("AttitudeThreshold"):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 16b2c670b..1a4cad82c 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -240,9 +240,10 @@ def attach_button_label_row(screen, top, panelName, buttonPath, widgetType, widg
+ 	screen.attachImageButton(childPanelName, "", buttonPath, GenericButtonSizes.BUTTON_SIZE_CUSTOM, widgetType, widgetID1, widgetID2, False)
+ 	screen.attachLabel(childPanelName, "", SASTextScale.titleText(szText))
+ 
+-# <!-- custom: Shared exclusion list for Sevopedia Leader and Trait pages.
++# <!-- custom: Broad Sevopedia leader-exclusion list for non-AIP leader/civ association views such as Traits, Improvements, Religions, Civics, and groupings.
+ # LEADER_BARBARIAN is excluded because it's not a playable/selectable leader.
+-# LEADER_DEFAULTS is not listed because it has no index (it's an XML template). (Claude Opus 4.5) -->
++# LEADER_DEFAULTS is not listed because it has no index (it's an XML template).
++# Keep this separate from get_aip_excluded_leader_types() in ai_utils_shared_with_civ4.py, which is shared by the runtime AIP cache and workflow predump checker. (ChatGPT-5.5) -->
+ EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA = ("LEADER_BARBARIAN",)
+ 
+ # <!-- custom: favorite leader type selectors for get_favorite_leader_counts. (GPT-5.2-Codex) -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+index a9b66413a..5aad0e69d 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+@@ -2,53 +2,306 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ 
+-# <!-- custom: indexes based on real ingame sevopedia leader debug output, see sevopedia_helpers py file code comments for details -->
+-# <!-- custom: 11 entries total -->
+-def get_positive_memory_indexes_to_types():
++from sas_utils_shared_with_civ4 import get_sas_python_file_header_lines
++
++
++# <!-- custom: This module is shared by Civ4 runtime Python and GitHub workflow Python. Keep it pure-helper only: no CvPythonExtensions imports, no game-context globals, and no syntax newer than Python 2.4 unless guarded outside runtime paths. (ChatGPT-5.5) -->
++# <!-- custom: Shared AIP enum/type metadata used by both the in-game Sevopedia AIP code and workflow predump validation. These specs mirror the compact subset currently assessed by the AIP panel, not every possible future field. (ChatGPT-5.5) -->
++def get_aip_excluded_leader_types():
++	# <!-- custom: AIP-only excluded leaders shared by the runtime Sevopedia AIP cache and the workflow predump checker. Keep separate from EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA in _sevopedia_helpers.py, which is the broader Sevopedia leader/civ association list used by Traits, Improvements, Religions, Civics, and groupings. (ChatGPT-5.5) -->
++	return ("LEADER_BARBARIAN",)
++
++def get_aip_flavor_types_assessed():
++	return (
++		"FLAVOR_MILITARY",
++		"FLAVOR_RELIGION",
++		"FLAVOR_PRODUCTION",
++		"FLAVOR_GOLD",
++		"FLAVOR_SCIENCE",
++		"FLAVOR_CULTURE",
++		"FLAVOR_GROWTH",
++		"FLAVOR_ESPIONAGE",
++	)
++
++def get_aip_no_war_attitude_types_assessed():
++	return (
++		"ATTITUDE_FURIOUS",
++		"ATTITUDE_ANNOYED",
++		"ATTITUDE_CAUTIOUS",
++		"ATTITUDE_PLEASED",
++		"ATTITUDE_FRIENDLY",
++	)
++
++def get_aip_contact_specs():
++	# <!-- custom: Central contact metadata tuple: (debug/index order, XML/DLL contact type, compact AIP UI label). Example: index 0 maps CONTACT_RELIGION_PRESSURE to "Relig Press", preserving the old 0: "Relig Press" clarity without a separate duplicated label dict. (ChatGPT-5.5) -->
++	return (
++		(0, "CONTACT_RELIGION_PRESSURE", "Relig Press"),
++		(1, "CONTACT_CIVIC_PRESSURE", "Civic Press"),
++		(2, "CONTACT_JOIN_WAR", "Join W"),
++		(3, "CONTACT_STOP_TRADING", "Stop Tr"),
++		(4, "CONTACT_GIVE_HELP", "Gave Help"),
++		(5, "CONTACT_ASK_FOR_HELP", "Help"),
++		(6, "CONTACT_DEMAND_TRIBUTE", "Trib"),
++		(7, "CONTACT_OPEN_BORDERS", "Open Borders"),
++		(8, "CONTACT_DEFENSIVE_PACT", "DefensPact"),
++		(9, "CONTACT_PERMANENT_ALLIANCE", "PermAlliance"),
++		(10, "CONTACT_PEACE_TREATY", "PeaceTreaty"),
++		(11, "CONTACT_TRADE_TECH", "Tr Tech"),
++		(12, "CONTACT_TRADE_BONUS", "Tr Bonus"),
++		(13, "CONTACT_TRADE_MAP", "Tr Map"),
++	)
++
++
++def get_aip_contact_types_assessed():
++	return tuple([contact_type for _index, contact_type, _label in get_aip_contact_specs()])
++
++def get_aip_memory_specs():
++	# <!-- custom: indexes based on real ingame sevopedia leader debug output, see sevopedia_helpers py file code comments for details -->
++	# <!-- custom: Central memory metadata tuple: (debug/index order, XML/DLL memory type, compact AIP UI label, is_positive_memory). Positive/negative aggregate helpers derive from this single structure so type lists, labels, and polarity cannot drift separately. (ChatGPT-5.5) -->
++	return (
++		(0, "MEMORY_DECLARED_WAR", "D.W", False),
++		(1, "MEMORY_DECLARED_WAR_ON_FRIEND", "D.W onFr", False),
++		(2, "MEMORY_HIRED_WAR_ALLY", "HirWAlly", False),
++		(3, "MEMORY_NUKED_US", "Nuked Us", False),
++		(4, "MEMORY_NUKED_FRIEND", "Nuked Fr", False),
++		(5, "MEMORY_RAZED_CITY", "RazC", False),
++		(6, "MEMORY_RAZED_HOLY_CITY", "RazHolyC", False),
++		(7, "MEMORY_SPY_CAUGHT", "Spy Caught", False),
++		(8, "MEMORY_GIVE_HELP", "Gave Help", True),
++		(9, "MEMORY_REFUSED_HELP", "RefHelpUs", False),
++		(10, "MEMORY_ACCEPT_DEMAND", "AcD", True),
++		(11, "MEMORY_REJECTED_DEMAND", "Rej D", False),
++		(12, "MEMORY_ACCEPTED_RELIGION", "AcRelig", True),
++		(13, "MEMORY_DENIED_RELIGION", "Dn Relig", False),
++		(14, "MEMORY_ACCEPTED_CIVIC", "AcCivic", True),
++		(15, "MEMORY_DENIED_CIVIC", "Dn Civic", False),
++		(16, "MEMORY_ACCEPTED_JOIN_WAR", "AcJoin W", True),
++		(17, "MEMORY_DENIED_JOIN_WAR", "Dn JoinW", False),
++		(18, "MEMORY_ACCEPTED_STOP_TRADING", "AcStop Tr", True),
++		(19, "MEMORY_DENIED_STOP_TRADING", "Dn StopTr", False),
++		(20, "MEMORY_STOPPED_TRADING", "StoppedTr", False),
++		(21, "MEMORY_STOPPED_TRADING_RECENT", "RecStoppedTr", False),
++		(22, "MEMORY_HIRED_TRADE_EMBARGO", "TrEmbargo", False),
++		(23, "MEMORY_MADE_DEMAND", "Made D", False),
++		(24, "MEMORY_CANCELLED_VASSAL_AGREEMENT", "CancVassal", False),
++		(25, "MEMORY_MADE_DEMAND_RECENT", "RecentMadeD", False),
++		(26, "MEMORY_CANCELLED_OPEN_BORDERS", "CancelledOB", False),
++		(27, "MEMORY_CANCELLED_DEFENSIVE_PACT", "CancelledDP", False),
++		(28, "MEMORY_TRADED_TECH_TO_US", "Tr Tech", True),
++		# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any ; Long_Comments_py.txt #7 -->
++		(29, "MEMORY_RECEIVED_TECH_FROM_ANY", "RecentTechAny", False),
++		(30, "MEMORY_VOTED_AGAINST_US", "VotedAgUs", False),
++		(31, "MEMORY_VOTED_FOR_US", "VotedForUs", True),
++		(32, "MEMORY_EVENT_GOOD_TO_US", "Event Good", True),
++		(33, "MEMORY_EVENT_BAD_TO_US", "Event Bad", False),
++		(34, "MEMORY_LIBERATED_CITIES", "LiberatedC", True),
++		(35, "MEMORY_INDEPENDENCE", "Indep", True),
++		(36, "MEMORY_DECLARED_WAR_RECENT", "Recent W", False),
++	)
++
++
++def get_aip_memory_types_assessed():
++	return tuple([memory_type for _index, memory_type, _label, _is_positive in get_aip_memory_specs()])
++
++def get_aip_attitude_type_to_index():
+ 	return {
+-		8: "MEMORY_GIVE_HELP",
+-		10: "MEMORY_ACCEPT_DEMAND",
+-		12: "MEMORY_ACCEPTED_RELIGION",
+-		14: "MEMORY_ACCEPTED_CIVIC",
+-		16: "MEMORY_ACCEPTED_JOIN_WAR",
+-		18: "MEMORY_ACCEPTED_STOP_TRADING",
+-		28: "MEMORY_TRADED_TECH_TO_US",
+-		31: "MEMORY_VOTED_FOR_US",
+-		32: "MEMORY_EVENT_GOOD_TO_US",
+-		34: "MEMORY_LIBERATED_CITIES",
+-		35: "MEMORY_INDEPENDENCE",
++		"NO_ATTITUDE": -1,
++		"NONE": -1,
++		"ATTITUDE_FURIOUS": 0,
++		"ATTITUDE_ANNOYED": 1,
++		"ATTITUDE_CAUTIOUS": 2,
++		"ATTITUDE_PLEASED": 3,
++		"ATTITUDE_FRIENDLY": 4,
+ 	}
+ 
++
++# <!-- custom: Shared AIP direct scalar field specs. Each direct-int tuple is (getter name, XML tag, CvLeaderHeadInfo::read explicit default, display label, invert-for-ranking flag). Each attitude-threshold tuple uses the same shape, with the default matching the constructor/XML-loader default integer. These central specs let the Sevopedia AIP panel and workflow predump checker use the same field list instead of maintaining parallel dictionaries. (ChatGPT-5.5) -->
++def get_aip_direct_int_field_specs():
++	return (
++		('getWonderConstructRand', 'iWonderConstructRand', 0, 'Wonder C.R', False),
++		('getBaseAttitude', 'iBaseAttitude', 0, 'Base Attitude', False),
++		('getBasePeaceWeight', 'iBasePeaceWeight', 0, 'Base Peace Weig', False),
++		('getPeaceWeightRand', 'iPeaceWeightRand', 0, 'Peace Weig Rand', False),
++		('getWarmongerRespect', 'iWarmongerRespect', 0, 'Warmonger Resp', False),
++		('getEspionageWeight', 'iEspionageWeight', 0, 'EspionageWeig', False),
++		('getRefuseToTalkWarThreshold', 'iRefuseToTalkWarThreshold', 0, 'Ref2TalkWSpan', False),
++		('getNoTechTradeThreshold', 'iNoTechTradeThreshold', 0, 'NoTech2AdvT', True),
++		('getTechTradeKnownPercent', 'iTechTradeKnownPercent', 0, 'NoTechYetRdy%', False),
++		('getMaxGoldTradePercent', 'iMaxGoldTradePercent', 0, 'Max Gold Tr%', False),
++		('getMaxGoldPerTurnTradePercent', 'iMaxGoldPerTurnTradePercent', 0, 'Max GPT Tr%', False),
++		('getCultureVictoryWeight', 'iCultureVictoryWeight', 30, 'Culture', False),
++		('getSpaceVictoryWeight', 'iSpaceVictoryWeight', 30, 'Space', False),
++		('getConquestVictoryWeight', 'iConquestVictoryWeight', 30, 'Conquest', False),
++		('getDominationVictoryWeight', 'iDominationVictoryWeight', 30, 'Domination', False),
++		('getDiplomacyVictoryWeight', 'iDiplomacyVictoryWeight', 30, 'Diplomacy', False),
++		('getMaxWarRand', 'iMaxWarRand', 0, 'T.W Likely', True),
++		('getMaxWarNearbyPowerRatio', 'iMaxWarNearbyPowerRatio', 0, 'T.W NearPR', False),
++		('getMaxWarDistantPowerRatio', 'iMaxWarDistantPowerRatio', 0, 'T.W DistPR', False),
++		('getMaxWarMinAdjacentLandPercent', 'iMaxWarMinAdjacentLandPercent', 0, 'T.W MinNearPR', True),
++		('getLimitedWarRand', 'iLimitedWarRand', 0, 'Lim.W Likely', True),
++		('getLimitedWarPowerRatio', 'iLimitedWarPowerRatio', 0, 'Lim.W PR', False),
++		('getDogpileWarRand', 'iDogpileWarRand', 0, 'Dogpile Likely', True),
++		('getMakePeaceRand', 'iMakePeaceRand', 0, 'MakePeaceLikely', True),
++		('getDeclareWarTradeRand', 'iDeclareWarTradeRand', 0, 'WAllianceMaker', False),
++		('getDemandRebukedSneakProb', 'iDemandRebukedSneakProb', 0, 'TribRSneakW%', False),
++		('getDemandRebukedWarProb', 'iDemandRebukedWarProb', 0, 'TribRef W%', False),
++		('getRazeCityProb', 'iRazeCityProb', 0, 'Raz C %', False),
++		('getBuildUnitProb', 'iBuildUnitProb', 0, 'Build Unit %', False),
++		('getBaseAttackOddsChange', 'iBaseAttackOddsChange', 0, 'Risky Aggr', False),
++		('getAttackOddsChangeRand', 'iAttackOddsChangeRand', 0, 'Risky AggrRand+', False),
++		('getWorseRankDifferenceAttitudeChange', 'iWorseRankDifferenceAttitudeChange', 0, 'Worse Rank AC', False),
++		('getBetterRankDifferenceAttitudeChange', 'iBetterRankDifferenceAttitudeChange', 0, 'Better Rank AC', False),
++		('getCloseBordersAttitudeChange', 'iCloseBordersAttitudeChange', 0, 'CloseBordSpark', True),
++		('getLostWarAttitudeChange', 'iLostWarAttitudeChange', 0, 'Lost W AC', False),
++		('getAtWarAttitudeDivisor', 'iAtWarAttitudeDivisor', 0, 'At W AD', False),
++		('getAtWarAttitudeChangeLimit', 'iAtWarAttitudeChangeLimit', 0, 'At W ACL', False),
++		('getAtPeaceAttitudeDivisor', 'iAtPeaceAttitudeDivisor', 0, 'At Peace AD', False),
++		('getAtPeaceAttitudeChangeLimit', 'iAtPeaceAttitudeChangeLimit', 0, 'At Peace ACL', False),
++		('getSameReligionAttitudeChange', 'iSameReligionAttitudeChange', 0, 'Same Relig AC', False),
++		('getSameReligionAttitudeDivisor', 'iSameReligionAttitudeDivisor', 0, 'Same Relig AD', False),
++		('getSameReligionAttitudeChangeLimit', 'iSameReligionAttitudeChangeLimit', 0, 'Same Relig ACL', False),
++		('getDifferentReligionAttitudeChange', 'iDifferentReligionAttitudeChange', 0, 'Diff Relig AC', False),
++		('getDifferentReligionAttitudeDivisor', 'iDifferentReligionAttitudeDivisor', 0, 'Diff Relig AD', False),
++		('getDifferentReligionAttitudeChangeLimit', 'iDifferentReligionAttitudeChangeLimit', 0, 'Diff Relig ACL', True),
++		('getBonusTradeAttitudeDivisor', 'iBonusTradeAttitudeDivisor', 0, 'Bonus Tr AD', False),
++		('getBonusTradeAttitudeChangeLimit', 'iBonusTradeAttitudeChangeLimit', 0, 'Bonus Tr ACL', False),
++		('getOpenBordersAttitudeDivisor', 'iOpenBordersAttitudeDivisor', 0, 'Open Bord AD', False),
++		('getOpenBordersAttitudeChangeLimit', 'iOpenBordersAttitudeChangeLimit', 0, 'Open Bord ACL', False),
++		('getDefensivePactAttitudeDivisor', 'iDefensivePactAttitudeDivisor', 0, 'Defens Pact AD', False),
++		('getDefensivePactAttitudeChangeLimit', 'iDefensivePactAttitudeChangeLimit', 0, 'Defens Pact ACL', False),
++		('getShareWarAttitudeChange', 'iShareWarAttitudeChange', 0, 'Share W AC', False),
++		('getShareWarAttitudeDivisor', 'iShareWarAttitudeDivisor', 0, 'Share W AD', False),
++		('getShareWarAttitudeChangeLimit', 'iShareWarAttitudeChangeLimit', 0, 'Share W ACL', False),
++		('getFavoriteCivicAttitudeChange', 'iFavoriteCivicAttitudeChange', 0, 'Fav Civic AC', False),
++		('getFavoriteCivicAttitudeDivisor', 'iFavoriteCivicAttitudeDivisor', 0, 'Fav Civic AD', False),
++		('getFavoriteCivicAttitudeChangeLimit', 'iFavoriteCivicAttitudeChangeLimit', 0, 'Fav Civic ACL', False),
++		('getVassalPowerModifier', 'iVassalPowerModifier', 0, 'ResistCapitulPM', False),
++		('getFreedomAppreciation', 'iFreedomAppreciation', 0, 'FreedomApprec', False),
++	)
++
++def get_aip_attitude_threshold_field_specs():
++	return (
++		('getDemandTributeAttitudeThreshold', 'DemandTributeAttitudeThreshold', -1, 'ScaryNoTrib', True),
++		('getNoGiveHelpAttitudeThreshold', 'NoGiveHelpAttitudeThreshold', -1, 'PrideNoHelp', False),
++		('getTechRefuseAttitudeThreshold', 'TechRefuseAttitudeThreshold', -1, 'Tech', False),
++		('getCityRefuseAttitudeThreshold', 'CityRefuseAttitudeThreshold', 2, 'C', False),
++		('getNativeCityRefuseAttitudeThreshold', 'NativeCityRefuseAttitudeThreshold', 3, 'Native C', False),
++		('getStrategicBonusRefuseAttitudeThreshold', 'StrategicBonusRefuseAttitudeThreshold', -1, 'Strategic Bonus', False),
++		('getHappinessBonusRefuseAttitudeThreshold', 'HappinessBonusRefuseAttitudeThreshold', -1, 'Happiness Bonus', False),
++		('getHealthBonusRefuseAttitudeThreshold', 'HealthBonusRefuseAttitudeThreshold', -1, 'Health Bonus', False),
++		('getMapRefuseAttitudeThreshold', 'MapRefuseAttitudeThreshold', -1, 'Map', False),
++		('getDeclareWarRefuseAttitudeThreshold', 'DeclareWarRefuseAttitudeThreshold', -1, 'D.W', False),
++		# <!-- custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#declarewarthemrefuseattitudethreshold -->
++		('getDeclareWarThemRefuseAttitudeThreshold', 'DeclareWarThemRefuseAttitudeThreshold', -1, 'LoyaltyNoD.W', True),
++		('getStopTradingRefuseAttitudeThreshold', 'StopTradingRefuseAttitudeThreshold', -1, 'StopTr', False),
++		# <!-- custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#stoptradingthemrefuseattitudethreshold -->
++		('getStopTradingThemRefuseAttitudeThreshold', 'StopTradingThemRefuseAttitudeThreshold', -1, 'LoyaltyNoStopTr', True),
++		('getAdoptCivicRefuseAttitudeThreshold', 'AdoptCivicRefuseAttitudeThreshold', -1, 'Adopt Civic', False),
++		('getConvertReligionRefuseAttitudeThreshold', 'ConvertReligionRefuseAttitudeThreshold', -1, 'Convert Religion', False),
++		('getOpenBordersRefuseAttitudeThreshold', 'OpenBordersRefuseAttitudeThreshold', -1, 'Open Bord', False),
++		('getDefensivePactRefuseAttitudeThreshold', 'DefensivePactRefuseAttitudeThreshold', -1, 'DefensPact', False),
++		('getPermanentAllianceRefuseAttitudeThreshold', 'PermanentAllianceRefuseAttitudeThreshold', -1, 'PermAlliance', False),
++		('getVassalRefuseAttitudeThreshold', 'VassalRefuseAttitudeThreshold', -1, 'Vassal', False),
++	)
++
++def get_aip_extra_uwai_only_int_field_specs():
++	# <!-- custom: UWAI::applyPersonalityWeight also mutates iLoveOfPeace even though the current AIP panel does not display it. Keep it in the workflow median vector so XML+UWAI validation mirrors the DLL primitive-member list. (ChatGPT-5.5) -->
++	return (
++		('getLoveOfPeace', 'iLoveOfPeace', 0),
++	)
++
++def get_aip_fields_directly_parsed():
++	# <!-- custom: Return the runtime display dictionaries expected by SevoPediaLeaderAIPValues.py: getter_name -> (label, b_invert). Attributes with b_invert=True are ones where high raw values are worse and low raw values are better. (ChatGPT-5.5) -->
++	fields_with_direct_getters = {}
++	for getter_name, _xml_tag, _xml_default, label, b_invert in get_aip_direct_int_field_specs():
++		fields_with_direct_getters[getter_name] = (label, b_invert)
++	fields_attitude_thresholds = {}
++	for getter_name, _xml_tag, _xml_default, label, b_invert in get_aip_attitude_threshold_field_specs():
++		fields_attitude_thresholds[getter_name] = (label, b_invert)
++	return fields_with_direct_getters, fields_attitude_thresholds
++
++def get_aip_contact_index_labels():
++	labels = {}
++	for index, _contact_type, label in get_aip_contact_specs():
++		labels[index] = label
++	return labels
++
++
++def get_aip_positive_memory_index_labels():
++	labels = {}
++	for index, _memory_type, label, is_positive in get_aip_memory_specs():
++		if is_positive:
++			labels[index] = label
++	return labels
++
++
++def get_aip_negative_memory_index_labels():
++	labels = {}
++	for index, _memory_type, label, is_positive in get_aip_memory_specs():
++		if not is_positive:
++			labels[index] = label
++	return labels
++
++
++def get_aip_memory_index_labels_assessed():
++	labels = {}
++	for index, _memory_type, label, _is_positive in get_aip_memory_specs():
++		labels[index] = label
++	return labels
++
++def get_aip_attitude_index_to_type(include_debug_always):
++	index_to_type = {}
++	for attitude_type, attitude_index in get_aip_attitude_type_to_index().items():
++		# <!-- custom: Prefer NONE over NO_ATTITUDE for the shared reverse/debug label because it is shorter and matches existing debug output. (ChatGPT-5.5) -->
++		if attitude_index == -1 and attitude_type != "NONE":
++			continue
++		index_to_type[attitude_index] = attitude_type
++	if include_debug_always:
++		# <!-- custom: AdvCiv can expose attitude threshold 5 in debug output for harsh map-trade refusal behavior; it is not a normal XML attitude enum. (ChatGPT-5.5) -->
++		index_to_type[5] = "ALWAYS??"
++	return index_to_type
++
++
++# <!-- custom: Shared AIP primitive array/list specs. These are used by the workflow checker to parse LeaderHeadInfo XML and by comments/helpers in the runtime AIP code to keep field-family metadata in one place. Each tuple is (xml parent tag, xml enum key tag, xml value tag, assessed enum/type names, synthetic AIP key prefix). (ChatGPT-5.5) -->
++def get_aip_display_array_field_specs():
++	return (
++		("Flavors", "FlavorType", "iFlavor", get_aip_flavor_types_assessed(), "iFlavor"),
++		("NoWarAttitudeProbs", "AttitudeType", "iNoWarProb", get_aip_no_war_attitude_types_assessed(), "iNoWarAttitudeProb"),
++	)
++
++def get_aip_hidden_array_field_specs():
++	# These are not displayed directly in the AIP predump. They feed shared synthetic contact/memory aggregate fields below.
++	return (
++		("ContactRands", "ContactType", "iContactRand", get_aip_contact_types_assessed(), "iContactRand"),
++		("ContactDelays", "ContactType", "iContactDelay", get_aip_contact_types_assessed(), "iContactDelay"),
++		("MemoryDecays", "MemoryType", "iMemoryRand", get_aip_memory_types_assessed(), "iMemoryDecay"),
++		("MemoryAttitudePercents", "MemoryType", "iMemoryAttitudePercent", get_aip_memory_types_assessed(), "iMemoryAttitudePercent"),
++	)
++
++def get_aip_array_field_specs():
++	return get_aip_display_array_field_specs() + get_aip_hidden_array_field_specs()
++
++def get_aip_memory_type_by_index(iMemoryIndex):
++	return get_aip_memory_types_assessed()[iMemoryIndex]
++
++def get_aip_contact_type_by_index(iContactIndex):
++	return get_aip_contact_types_assessed()[iContactIndex]
++
++# <!-- custom: 11 positive entries total -->
++def get_positive_memory_indexes_to_types():
++	memory_indexes_to_types = {}
++	for index, memory_type, _label, is_positive in get_aip_memory_specs():
++		if is_positive:
++			memory_indexes_to_types[index] = memory_type
++	return memory_indexes_to_types
++
++
+ def get_negative_memory_indexes_to_types():
+-	# <!-- custom: for MEMORY_RECEIVED_TECH_FROM_ANY in particular, it seems less clear if this is negative or not, i found this info for example in kujira's website in (translate to english with your web browser or such): https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#memory_received_tech_from_any ; Long_Comments_py.txt #7 -->
+-	return {
+-		0: "MEMORY_DECLARED_WAR",
+-		1: "MEMORY_DECLARED_WAR_ON_FRIEND",
+-		2: "MEMORY_HIRED_WAR_ALLY",
+-		3: "MEMORY_NUKED_US",
+-		4: "MEMORY_NUKED_FRIEND",
+-		5: "MEMORY_RAZED_CITY",
+-		6: "MEMORY_RAZED_HOLY_CITY",
+-		7: "MEMORY_SPY_CAUGHT",
+-		9: "MEMORY_REFUSED_HELP",
+-		11: "MEMORY_REJECTED_DEMAND",
+-		13: "MEMORY_DENIED_RELIGION",
+-		15: "MEMORY_DENIED_CIVIC",
+-		17: "MEMORY_DENIED_JOIN_WAR",
+-		19: "MEMORY_DENIED_STOP_TRADING",
+-		20: "MEMORY_STOPPED_TRADING",
+-		21: "MEMORY_STOPPED_TRADING_RECENT",
+-		22: "MEMORY_HIRED_TRADE_EMBARGO",
+-		23: "MEMORY_MADE_DEMAND",
+-		24: "MEMORY_CANCELLED_VASSAL_AGREEMENT",
+-		25: "MEMORY_MADE_DEMAND_RECENT",
+-		26: "MEMORY_CANCELLED_OPEN_BORDERS",
+-		27: "MEMORY_CANCELLED_DEFENSIVE_PACT",
+-		29: "MEMORY_RECEIVED_TECH_FROM_ANY",
+-		30: "MEMORY_VOTED_AGAINST_US",
+-		33: "MEMORY_EVENT_BAD_TO_US",
+-		36: "MEMORY_DECLARED_WAR_RECENT",
+-	}
++	memory_indexes_to_types = {}
++	for index, memory_type, _label, is_positive in get_aip_memory_specs():
++		if not is_positive:
++			memory_indexes_to_types[index] = memory_type
++	return memory_indexes_to_types
+ 
+ def get_shifted_values(min_val, value, max_val):
+ 	# <!-- custom:
+@@ -122,7 +375,19 @@ def test_expected_shifting_pre_normalize_to_100():
+ 		assert(shifted_max == expected_shifted_max)
+ 
+ # Attribute normalization
+-def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
++def round_half_away_from_zero(value):
++	# <!-- custom: deterministic alternate rounder for the memory aggregate edge case described below. -->
++	if value >= 0:
++		return int(value + 0.5)
++	return int(value - 0.5)
++
++
++def round_current_runtime(value):
++	# <!-- custom: keep normal normalize_to_100 on the same round() behavior used by the existing AIP cache path. Making half-away-from-zero the default looked cleaner but changed current committed contact aggregate values: e.g. CONTACT_RELIGION_PRESSURE raw 52 in range 10..90 normalizes to 52.5, and the committed predump stores 52, while half-away would produce 53 and caused 21 mismatches. (ChatGPT-5.5) -->
++	return int(round(value))
++
++
++def normalize_to_100_with_rounder(value, min_val, max_val, B_WARN, invert, attr_name, rounder):
+ 	# Normalizes an AI attribute value to a 0-100 integer scale.
+ 	#
+ 	# - First checks if min_val > max_val or if value outside [min_val, max_val].
+@@ -132,7 +397,7 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
+ 	#   - If min_val > 0, shifts range downwards.
+ 	# - Normalizes shifted_value / shifted_max.
+ 	# - Optionally inverts the normalized value.
+-	# - Converts final normalized value to 0-100 integer.
++	# - Converts final normalized value to 0-100 integer using the supplied rounder.
+ 	#
+ 	# Warnings:
+ 	# - <!-- custom: if B_WARN is set to true, --> Uniform min==max -> All normalized scores will be 50.
+@@ -145,13 +410,6 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
+ 	# - Shifted value negative -> Raises an error.
+ 	# - Normalized value out of bounds -> Raises an error.
+ 	#
+-	# Parameters:
+-	# - value (int): Raw XML attribute value.
+-	# - min_val (int): Minimum observed attribute value.
+-	# - max_val (int): Maximum observed attribute value.
+-	# - invert (bool): Whether to invert normalized scale.
+-	# - attr_name (str, optional): Attribute name for debug warnings.
+-	#
+ 	# Returns:
+ 	# - final_score (int): Normalized integer 0-100.
+ 
+@@ -186,7 +444,7 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
+ 
+ 	norm = float(shifted_value) / float(shifted_max)
+ 
+-	final_score = int(round(norm * 100))
++	final_score = rounder(norm * 100)
+ 	if (final_score < 0) or (final_score > 100):
+ 		raise ValueError("Norm of %s out of range (0-100) during normalization: final_score=%.3f, shifted_min=%d, shifted_max=%d, min_val=%d, max_val=%d" % (attr_name, final_score, shifted_min, shifted_max, min_val, max_val))
+ 
+@@ -195,6 +453,92 @@ def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
+ 
+ 	return final_score
+ 
++
++def normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name):
++	return normalize_to_100_with_rounder(value, min_val, max_val, B_WARN, invert, attr_name, round_current_runtime)
++
++
++def normalize_to_100_half_away_from_zero(value, min_val, max_val, B_WARN, invert, attr_name):
++	# <!-- custom: The existing committed predump has one known .5-sensitive memory aggregate family where normal Python 3 round() under-validates compared with the cache: e.g. MEMORY_TRADED_TECH_TO_US affection raw 36 in range 10..90 normalizes to 32.5, but the predump stores 33. Keep this explicit rather than silently changing the default contact behavior above. (ChatGPT-5.5) -->
++	return normalize_to_100_with_rounder(value, min_val, max_val, B_WARN, invert, attr_name, round_half_away_from_zero)
++
++
++# <!-- custom: Shared final AIP tuple formatting. The runtime Sevopedia cache and workflow predump checker both call these pure helpers so labels, normalized numeric values, and scale strings cannot drift independently. Keep this section free of CvPythonExtensions/game-context dependencies. (ChatGPT-5.5) -->
++def get_aip_scale_symbols():
++	return {
++		"RAW_SCALE_SYMBOL": "+",
++		"AGGREGATED_SCALE_SYMBOL": "#",
++		"EQUAL_SCALE_SYMBOL": "=",
++	}
++
++
++def get_aip_symbol_scale(score, symbol):
++	# <!-- custom: examples: score 64 with "+" returns "++++++"; score 39 with "#" returns "###". -->
++	return symbol * (score // 10)
++
++
++def get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, tail_to_trim, abbreviated_tail, label_raw, max_length):
++	# <!-- custom: Shared raw-XML-name label compactor used when SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD is enabled. Kept byte-for-byte behavior-equivalent to the old runtime-local helper. (ChatGPT-5.5) -->
++	if tail_to_trim:
++		key_or_suffix_with_tail_trimmed = key_or_suffix[:-len(tail_to_trim)]
++	else:
++		key_or_suffix_with_tail_trimmed = key_or_suffix
++
++	total_tail_length = len(abbreviated_tail) + len(" ") + len(label_raw)
++	room_for_first = max_length - total_tail_length
++	if room_for_first <= 0:
++		raise ValueError(u"[ERROR] Unexpected label_raw=%s + ' ' + abbreviated_tail=%s total_tail_length=%d, too long to fit key_or_suffix_with_tail_trimmed=%s within max_length = %d in the final label. This should not happen, please make sure abbreviated_tail + ' ' + label_raw are short enough relative to max_length, or that max_length is high enough." % (label_raw, abbreviated_tail, total_tail_length, key_or_suffix_with_tail_trimmed, max_length))
++	key_or_suffix_with_tail_trimmed_further_trimmed = key_or_suffix_with_tail_trimmed[:max(1, room_for_first)]
++
++	return key_or_suffix_with_tail_trimmed_further_trimmed + abbreviated_tail + " " + label_raw
++
++
++def get_aip_labels_as_keys_or_suffixes_max_length_label(key_or_suffix, label_raw, max_length):
++	# <!-- custom: Returns key_or_suffix + label_raw, trimmed so total length <= max_length. This is shared with the predump checker so raw-name-mode labels are checked with the same compacting rules as runtime. (ChatGPT-5.5) -->
++	if key_or_suffix.startswith("get"):
++		key_or_suffix_without_front = key_or_suffix[len("get"):]
++
++		if key_or_suffix_without_front.endswith("VictoryWeight"):
++			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "VictoryWeight", "", label_raw, max_length)
++		elif key_or_suffix_without_front.endswith("RefuseAttitudeThreshold"):
++			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "RefuseAttitudeThreshold", "", label_raw, max_length)
++		elif key_or_suffix_without_front.endswith("AttitudeThreshold"):
++			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeThreshold", "AT", label_raw, max_length)
++		elif key_or_suffix_without_front.endswith("AttitudeChangeLimit"):
++			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeLimit", "ACL", label_raw, max_length)
++		elif key_or_suffix_without_front.endswith("AttitudeChangeDivisor"):
++			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChangeDivisor", "ACD", label_raw, max_length)
++		elif key_or_suffix_without_front.endswith("AttitudeChange"):
++			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "AttitudeChange", "AC", label_raw, max_length)
++		else:
++			return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix_without_front, "", "", label_raw, max_length)
++	else:
++		return get_aip_labels_as_keys_or_suffixes_with_abbreviated_tail(key_or_suffix, "", "", label_raw, max_length)
++
++
++def get_aip_label_with_raw_value(key_or_suffix, display_label, label_raw, max_length, is_show_raw_xml_field_names_instead):
++	if is_show_raw_xml_field_names_instead:
++		return get_aip_labels_as_keys_or_suffixes_max_length_label(key_or_suffix, label_raw, max_length)
++	return "%s %s" % (display_label, label_raw)
++
++
++def build_aip_cached_tuple(raw_value, min_value, max_value, b_invert, symbol, all_symbols, cache_key, label, B_WARN, normalizer=None):
++	if normalizer is None:
++		normalizer = normalize_to_100
++	norm_value = normalizer(raw_value, min_value, max_value, B_WARN, b_invert, cache_key)
++
++	if min_value == max_value:
++		symbol = all_symbols["EQUAL_SCALE_SYMBOL"]
++
++	if not label:
++		raise ValueError(u"Unexpected label=%s tested false as a boolean in cache_key=%s, please check label is not empty or missing or some other kind of invalid format" % (str(label), cache_key))
++
++	if symbol not in all_symbols.values():
++		raise ValueError(u"Unexpected symbol=%s not in all_symbols=%s in cache_key=%s." % (symbol, str(all_symbols), cache_key))
++
++	return (label, norm_value, get_aip_symbol_scale(norm_value, symbol))
++
++
+ def get_positive_negative(is_positive):
+ 	if (is_positive):
+ 		return "Positive"
+@@ -224,6 +568,87 @@ def get_pascal_case_suffix(enumType):
+ 	parts = suffix.lower().split("_")
+ 	return "".join([part.capitalize() for part in parts])
+ 
++def get_aip_array_value_key(key_prefix, enum_type):
++	return "%s%s" % (key_prefix, get_pascal_case_suffix(enum_type))
++
++def get_aip_adjusted_contact_rand_key(contact_type):
++	return get_aip_array_value_key("iAdjustedContactRand", contact_type)
++
++def get_aip_adjusted_contact_delay_key(contact_type):
++	return get_aip_array_value_key("iAdjustedContactDelay", contact_type)
++
++def get_aip_aggregated_raw_contact_prob_key(contact_type):
++	return get_aip_array_value_key("iAggregatedRawContactProb", contact_type)
++
++def get_aip_aggregated_contact_prob_key(contact_type):
++	return get_aip_array_value_key("iAggregatedContactProb", contact_type)
++
++def get_aip_adjusted_memory_attitude_key(memory_type, is_affection):
++	return "iAdjustedMemoryAttitudePercent%s%s" % (get_pascal_case_suffix(memory_type), get_affection_resentment(is_affection))
++
++def get_aip_adjusted_memory_decay_key(memory_type, is_affection):
++	return "iAdjustedMemoryDecay%s%s" % (get_pascal_case_suffix(memory_type), get_affection_resentment(is_affection))
++
++def get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection):
++	return "iAggregatedRaw%sMemory%s%s" % (get_positive_negative(is_positive), get_pascal_case_suffix(memory_type), get_affection_resentment(is_affection))
++
++def get_aip_aggregated_memory_key(memory_type, is_positive, is_affection):
++	return "iAggregated%sMemory%s%s" % (get_positive_negative(is_positive), get_pascal_case_suffix(memory_type), get_affection_resentment(is_affection))
++
++
++def get_aip_raw_contact_aggregate_specs(contact_types=None):
++	# <!-- custom: Central synthetic raw contact specs. Each tuple is (contact index, contact type, synthetic raw key); e.g. CONTACT_RELIGION_PRESSURE creates iAggregatedRawContactProbReligionPressure before min/max normalization creates iAggregatedContactProbReligionPressure. (ChatGPT-5.5) -->
++	if contact_types is None:
++		contact_types = get_aip_contact_types_assessed()
++	specs = []
++	for i in range(len(contact_types)):
++		contact_type = contact_types[i]
++		specs.append((i, contact_type, get_aip_aggregated_raw_contact_prob_key(contact_type)))
++	return tuple(specs)
++
++
++def get_aip_displayed_contact_aggregate_specs(contact_types=None):
++	# <!-- custom: Displayed synthetic contact specs extend the raw specs with the normalized display/predump key and compact label, so AIP runtime and workflow checker agree on the same iAggregatedRaw* -> iAggregated* mapping. (ChatGPT-5.5) -->
++	if contact_types is None:
++		contact_types = get_aip_contact_types_assessed()
++	contact_index_labels = get_aip_contact_index_labels()
++	specs = []
++	for i, contact_type, raw_key in get_aip_raw_contact_aggregate_specs(contact_types):
++		specs.append((i, contact_type, raw_key, get_aip_aggregated_contact_prob_key(contact_type), contact_index_labels[i]))
++	return tuple(specs)
++
++
++def get_aip_raw_memory_aggregate_specs():
++	# <!-- custom: Central synthetic raw memory specs. This intentionally returns the full positive/negative x affection/resentment matrix even though the current panel displays only positive affections and negative resentments, keeping future UI expansion data-driven. (ChatGPT-5.5) -->
++	specs = []
++	for is_positive in (True, False):
++		for is_affection in (True, False):
++			for i in get_positive_or_negative_memory_indexes(is_positive):
++				memory_type = get_aip_memory_type_by_index(i)
++				specs.append((i, memory_type, is_positive, is_affection, get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection)))
++	return tuple(specs)
++
++
++def get_aip_displayed_memory_aggregate_specs():
++	# <!-- custom: Current displayed synthetic memory specs: positive memory affections and negative memory resentments. Each tuple includes both the synthetic raw key and normalized display/predump key, e.g. iAggregatedRawPositiveMemoryTradedTechToUsAffection -> iAggregatedPositiveMemoryTradedTechToUsAffection. (ChatGPT-5.5) -->
++	memory_index_labels = get_aip_memory_index_labels_assessed()
++	specs = []
++	for is_positive in (True, False):
++		is_affection = is_positive
++		for i in get_positive_or_negative_memory_indexes(is_positive):
++			memory_type = get_aip_memory_type_by_index(i)
++			specs.append((i, memory_type, is_positive, is_affection, get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection), get_aip_aggregated_memory_key(memory_type, is_positive, is_affection), memory_index_labels[i]))
++	return tuple(specs)
++
++
++def get_aip_displayed_aggregate_value_keys():
++	keys = []
++	for _i, _contact_type, _raw_key, display_key, _label in get_aip_displayed_contact_aggregate_specs():
++		keys.append(display_key)
++	for _i, _memory_type, _is_positive, _is_affection, _raw_key, display_key, _label in get_aip_displayed_memory_aggregate_specs():
++		keys.append(display_key)
++	return tuple(keys)
++
+ def get_adjusted_contact_values(contact_rand_raw, contact_delay_raw, is_debug, contact_type):
+ 	# Adjusts contact rand and contact delay values according to standard rules.
+ 	# Returns: (adjusted_rand, adjusted_delay, aggregated_prob_force_zero_flag)
+@@ -371,3 +796,308 @@ def get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score
+ 		raw_aggregated = MAIN_WEIGHT * adjusted_value_attitude_percent_norm_score + SECONDARY_WEIGHT * adjusted_value_decay_norm_score
+ 		# <!-- custom: similarly round, see the aggregated contact prob similar function to this. -->
+ 		return int(round(raw_aggregated))
++
++
++# <!-- custom: Shared pre-normalization AIP derived-value builders.
++# These helpers create synthetic raw AIP fields from already-effective LeaderHeadInfo values before the normal Sevopedia min/max normalization and display-cache step. They are deliberately free of gc/UI imports so the in-game AIP code and the Python 3 workflow checker can reuse the same contact/memory aggregation logic with different value providers. (ChatGPT-5.5) -->
++def get_positive_or_negative_memory_indexes(is_positive):
++	if is_positive:
++		positive_or_negative_memory_indexes = tuple(sorted(get_positive_memory_indexes_to_types().keys()))
++	else:
++		positive_or_negative_memory_indexes = tuple(sorted(get_negative_memory_indexes_to_types().keys()))
++
++	if not positive_or_negative_memory_indexes:
++		raise ValueError("[VALUE ERROR] memory indexes missing; please check positive/negative memory type helpers")
++
++	return positive_or_negative_memory_indexes
++
++def compute_leaders_info_aggregated_raw_contact_probs(non_excluded_leaders, contact_types, get_contact_rand, get_contact_delay, B_WARN, is_debug):
++	# Returns leaders_info_aggregated_raw_contact_probs[iLeader][parsed_contact_key] = aggregated_raw_score.
++	# parsed_contact_key is e.g. "iAggregatedRawContactProbStopTrading".
++	contact_count = len(contact_types)
++	parsed_adjusted_rand_names = [get_aip_adjusted_contact_rand_key(contact_type) for contact_type in contact_types]
++	parsed_adjusted_delay_names = [get_aip_adjusted_contact_delay_key(contact_type) for contact_type in contact_types]
++	parsed_aggregated_raw_names = [get_aip_aggregated_raw_contact_prob_key(contact_type) for contact_type in contact_types]
++
++	temp_by_leader = {}
++	min_adj_rand = [None] * contact_count
++	max_adj_rand = [None] * contact_count
++	min_adj_delay = [None] * contact_count
++	max_adj_delay = [None] * contact_count
++
++	for iLeader in non_excluded_leaders:
++		leader_rows = [None] * contact_count
++
++		for i in range(contact_count):
++			value_1_rand_raw = get_contact_rand(iLeader, i)
++			value_1_delay_raw = get_contact_delay(iLeader, i)
++			adjusted_rand, adjusted_delay, b_force_zero = get_adjusted_contact_values(value_1_rand_raw, value_1_delay_raw, is_debug, contact_types[i])
++			leader_rows[i] = (adjusted_rand, adjusted_delay, b_force_zero)
++
++			if min_adj_rand[i] is None:
++				min_adj_rand[i] = adjusted_rand
++				max_adj_rand[i] = adjusted_rand
++				min_adj_delay[i] = adjusted_delay
++				max_adj_delay[i] = adjusted_delay
++			else:
++				if adjusted_rand < min_adj_rand[i]:
++					min_adj_rand[i] = adjusted_rand
++				if adjusted_rand > max_adj_rand[i]:
++					max_adj_rand[i] = adjusted_rand
++				if adjusted_delay < min_adj_delay[i]:
++					min_adj_delay[i] = adjusted_delay
++				if adjusted_delay > max_adj_delay[i]:
++					max_adj_delay[i] = adjusted_delay
++
++		temp_by_leader[iLeader] = leader_rows
++
++	if is_debug:
++		print("[DEBUG] Contact aggregation pass 1 done. min_adj_rand=%s max_adj_rand=%s min_adj_delay=%s max_adj_delay=%s" % (str(min_adj_rand), str(max_adj_rand), str(min_adj_delay), str(max_adj_delay)))
++
++	leaders_info_aggregated_raw_contact_probs = {}
++	b_invert_contact_rands, b_invert_contact_delays = get_contact_rand_and_delay_invert_flags()
++
++	for iLeader in non_excluded_leaders:
++		leaders_info_aggregated_raw_contact_probs[iLeader] = {}
++		leader_rows = temp_by_leader[iLeader]
++		for i in range(contact_count):
++			adjusted_rand, adjusted_delay, b_force_zero = leader_rows[i]
++			adjusted_rand_norm_score = normalize_to_100(adjusted_rand, min_adj_rand[i], max_adj_rand[i], B_WARN, b_invert_contact_rands, parsed_adjusted_rand_names[i])
++			adjusted_delay_norm_score = normalize_to_100(adjusted_delay, min_adj_delay[i], max_adj_delay[i], B_WARN, b_invert_contact_delays, parsed_adjusted_delay_names[i])
++			aggregated_value = get_aggregated_raw_contact_score_from_adjusted_values(adjusted_rand_norm_score, adjusted_delay_norm_score, b_force_zero)
++			leaders_info_aggregated_raw_contact_probs[iLeader][parsed_aggregated_raw_names[i]] = aggregated_value
++
++	if is_debug:
++		print("[DEBUG] leaders_info_aggregated_raw_contact_probs after pass 2: %s" % str(leaders_info_aggregated_raw_contact_probs))
++
++	return leaders_info_aggregated_raw_contact_probs
++
++def compute_leaders_info_aggregated_raw_memory_family(non_excluded_leaders, memory_indexes, memory_types, get_memory_attitude_percent, get_memory_decay_rand, is_positive, is_affection, B_WARN, is_debug):
++	# Returns leaders_info_aggregated_raw_memory_family[iLeader][parsed_memory_key] = aggregated_raw_score.
++	positive_negative = get_positive_negative(is_positive)
++	affection_resentment = get_affection_resentment(is_affection)
++	parsed_adjusted_attitude_names = [get_aip_adjusted_memory_attitude_key(memory_type, is_affection) for memory_type in memory_types]
++	parsed_adjusted_decay_names = [get_aip_adjusted_memory_decay_key(memory_type, is_affection) for memory_type in memory_types]
++	parsed_aggregated_raw_names = [get_aip_aggregated_raw_memory_key(memory_type, is_positive, is_affection) for memory_type in memory_types]
++
++	count = len(memory_indexes)
++	temp_by_leader = {}
++	min_adj_attitude = [None] * count
++	max_adj_attitude = [None] * count
++	min_adj_decay = [None] * count
++	max_adj_decay = [None] * count
++
++	for iLeader in non_excluded_leaders:
++		leader_rows = [None] * count
++		for j in range(count):
++			iMemoryIndex = memory_indexes[j]
++			memory_type = memory_types[j]
++			attitude_percent_raw = get_memory_attitude_percent(iLeader, iMemoryIndex)
++			decay_rand_raw = get_memory_decay_rand(iLeader, iMemoryIndex)
++			adjusted_attitude_percent, adjusted_decay, b_force_zero = get_adjusted_memory_values(attitude_percent_raw, decay_rand_raw, is_affection, is_debug, memory_type)
++			leader_rows[j] = (adjusted_attitude_percent, adjusted_decay, b_force_zero)
++
++			if min_adj_attitude[j] is None:
++				min_adj_attitude[j] = adjusted_attitude_percent
++				max_adj_attitude[j] = adjusted_attitude_percent
++				min_adj_decay[j] = adjusted_decay
++				max_adj_decay[j] = adjusted_decay
++			else:
++				if adjusted_attitude_percent < min_adj_attitude[j]:
++					min_adj_attitude[j] = adjusted_attitude_percent
++				if adjusted_attitude_percent > max_adj_attitude[j]:
++					max_adj_attitude[j] = adjusted_attitude_percent
++				if adjusted_decay < min_adj_decay[j]:
++					min_adj_decay[j] = adjusted_decay
++				if adjusted_decay > max_adj_decay[j]:
++					max_adj_decay[j] = adjusted_decay
++
++		temp_by_leader[iLeader] = leader_rows
++
++	if is_debug:
++		print("[DEBUG] Memory aggregation pass 1 done for %s/%s" % (positive_negative, affection_resentment))
++		print("[DEBUG] min_adj_attitude=%s max_adj_attitude=%s" % (str(min_adj_attitude), str(max_adj_attitude)))
++		print("[DEBUG] min_adj_decay=%s max_adj_decay=%s" % (str(min_adj_decay), str(max_adj_decay)))
++
++	leaders_info_aggregated_raw_memory_family = {}
++	b_invert_attitude_percent, b_invert_decay = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
++
++	for iLeader in non_excluded_leaders:
++		leaders_info_aggregated_raw_memory_family[iLeader] = {}
++		leader_rows = temp_by_leader[iLeader]
++		for j in range(count):
++			adjusted_attitude_percent, adjusted_decay, b_force_zero = leader_rows[j]
++			adjusted_attitude_norm_score = normalize_to_100(adjusted_attitude_percent, min_adj_attitude[j], max_adj_attitude[j], B_WARN, b_invert_attitude_percent, parsed_adjusted_attitude_names[j])
++			adjusted_decay_norm_score = normalize_to_100(adjusted_decay, min_adj_decay[j], max_adj_decay[j], B_WARN, b_invert_decay, parsed_adjusted_decay_names[j])
++			aggregated_value = get_aggregated_raw_positive_or_negative_memory_affection_or_resentment_score_from_adjusted_values(adjusted_attitude_norm_score, adjusted_decay_norm_score, b_force_zero)
++			leaders_info_aggregated_raw_memory_family[iLeader][parsed_aggregated_raw_names[j]] = aggregated_value
++
++	if is_debug:
++		print("[DEBUG] leaders_info_aggregated_raw_memory_family after pass 2 for %s/%s: %s" % (positive_negative, affection_resentment, str(leaders_info_aggregated_raw_memory_family)))
++
++	return leaders_info_aggregated_raw_memory_family
++
++def compute_leaders_info_aggregated_raw_memory_affections_and_resentments(non_excluded_leaders, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, B_WARN, is_debug):
++	leaders_info_aggregated_raw_memory_affections_and_resentments = {}
++	for is_positive in (True, False):
++		for is_affection in (True, False):
++			memory_indexes = get_positive_or_negative_memory_indexes(is_positive)
++			memory_types = [get_memory_type(iMemoryIndex) for iMemoryIndex in memory_indexes]
++			family_values = compute_leaders_info_aggregated_raw_memory_family(non_excluded_leaders, memory_indexes, memory_types, get_memory_attitude_percent, get_memory_decay_rand, is_positive, is_affection, B_WARN, is_debug)
++			for iLeader in family_values.keys():
++				if iLeader not in leaders_info_aggregated_raw_memory_affections_and_resentments:
++					leaders_info_aggregated_raw_memory_affections_and_resentments[iLeader] = {}
++				leaders_info_aggregated_raw_memory_affections_and_resentments[iLeader].update(family_values[iLeader])
++
++	return leaders_info_aggregated_raw_memory_affections_and_resentments
++
++# <!-- custom: Shared final numeric values for AIP-derived contact/memory fields. This still does not build UI labels/scales; it only turns shared raw aggregate formulas into the normalized numbers stored in the predumped cache, so workflow validation and in-game AIP can share the math without importing UI formatting.
++# Example: contact rand/delay first create a pre-normalization synthetic key such as iAggregatedRawContactProbReligionPressure; this function then normalizes that raw aggregate across leaders into iAggregatedContactProbReligionPressure, which is the displayed/predumped value. For memories, it similarly turns iAggregatedRawPositiveMemoryTradedTechToUsAffection into iAggregatedPositiveMemoryTradedTechToUsAffection. (ChatGPT-5.5) -->
++def compute_leaders_info_aip_synthetic_raw_values(non_excluded_leaders, contact_types, get_contact_rand, get_contact_delay, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, B_WARN, is_debug):
++	# <!-- custom: Shared synthetic raw field creator. It combines contact and memory aggregate builders into one per-leader flat dict so callers do not need to know which synthetic raw family created each iAggregatedRaw* key. (ChatGPT-5.5) -->
++	contact_raw = compute_leaders_info_aggregated_raw_contact_probs(non_excluded_leaders, contact_types, get_contact_rand, get_contact_delay, B_WARN, is_debug)
++	memory_raw = compute_leaders_info_aggregated_raw_memory_affections_and_resentments(non_excluded_leaders, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, B_WARN, is_debug)
++	synthetic_raw_values = {}
++	for iLeader in non_excluded_leaders:
++		synthetic_raw_values[iLeader] = {}
++		synthetic_raw_values[iLeader].update(contact_raw[iLeader])
++		synthetic_raw_values[iLeader].update(memory_raw[iLeader])
++	return synthetic_raw_values
++
++
++def compute_leaders_info_aip_aggregate_display_values(non_excluded_leaders, contact_types, get_contact_rand, get_contact_delay, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, B_WARN, is_debug):
++	synthetic_raw_values = compute_leaders_info_aip_synthetic_raw_values(non_excluded_leaders, contact_types, get_contact_rand, get_contact_delay, get_memory_type, get_memory_attitude_percent, get_memory_decay_rand, B_WARN, is_debug)
++	display_values = {}
++	for iLeader in non_excluded_leaders:
++		display_values[iLeader] = {}
++
++	for _contact_index, _contact_type, raw_key, display_key, _label in get_aip_displayed_contact_aggregate_specs(contact_types):
++		raw_values = [synthetic_raw_values[iLeader][raw_key] for iLeader in non_excluded_leaders]
++		min_value = min(raw_values)
++		max_value = max(raw_values)
++		for iLeader in non_excluded_leaders:
++			display_values[iLeader][display_key] = normalize_to_100(synthetic_raw_values[iLeader][raw_key], min_value, max_value, B_WARN, False, display_key)
++
++	for _memory_index, _memory_type, _is_positive, _is_affection, raw_key, display_key, _label in get_aip_displayed_memory_aggregate_specs():
++		raw_values = [synthetic_raw_values[iLeader][raw_key] for iLeader in non_excluded_leaders]
++		min_value = min(raw_values)
++		max_value = max(raw_values)
++		for iLeader in non_excluded_leaders:
++			# <!-- custom: preserve the current predump's memory aggregate .5 behavior; see normalize_to_100_half_away_from_zero for the concrete MEMORY_TRADED_TECH_TO_US example. (ChatGPT-5.5) -->
++			display_values[iLeader][display_key] = normalize_to_100_half_away_from_zero(synthetic_raw_values[iLeader][raw_key], min_value, max_value, B_WARN, False, display_key)
++
++	return display_values
++
++# <!-- custom: Shared provider-based AIP cache builder. Runtime Civ4 code supplies a provider backed by gc/DLL getters; workflow validation/generation supplies a provider backed by parsed XML+UWAI values. This keeps tuple creation, labels, normalization, scale strings, and displayed aggregate selection in one pure helper path. (ChatGPT-5.5) -->
++def compute_leaders_info_aip_cache_from_provider(non_excluded_leaders, provider, is_show_raw_xml_field_names_instead, B_WARN, is_debug):
++	contact_types = get_aip_contact_types_assessed()
++	memory_types = get_aip_memory_types_assessed()
++	all_symbols = get_aip_scale_symbols()
++	raw_symbol = all_symbols["RAW_SCALE_SYMBOL"]
++	aggregated_symbol = all_symbols["AGGREGATED_SCALE_SYMBOL"]
++
++	synthetic_raw_values = compute_leaders_info_aip_synthetic_raw_values(non_excluded_leaders, contact_types, provider.get_contact_rand, provider.get_contact_delay, provider.get_memory_type, provider.get_memory_attitude_percent, provider.get_memory_decay_rand, B_WARN, is_debug)
++
++	def get_provider_value(iLeader, key):
++		if key in synthetic_raw_values[iLeader]:
++			return synthetic_raw_values[iLeader][key]
++		return provider.get_value(iLeader, key)
++
++	def get_min_max_for_key(key):
++		values = [get_provider_value(iLeader, key) for iLeader in non_excluded_leaders]
++		return min(values), max(values)
++
++	def get_min_max_from_values(values):
++		return min(values), max(values)
++
++	def build_label(key_or_suffix, display_label, label_raw, max_length):
++		return get_aip_label_with_raw_value(key_or_suffix, display_label, label_raw, max_length, is_show_raw_xml_field_names_instead)
++
++	leaders_info_cached = {}
++	for iLeader in non_excluded_leaders:
++		leader_info_cached = {}
++
++		for getter_key, _xml_tag, _xml_default, display_label, b_invert in get_aip_direct_int_field_specs():
++			raw_value = provider.get_value(iLeader, getter_key)
++			min_value, max_value = get_min_max_for_key(getter_key)
++			label = build_label(getter_key, display_label, "(%d)" % raw_value, 18)
++			leader_info_cached[getter_key] = build_aip_cached_tuple(raw_value, min_value, max_value, b_invert, raw_symbol, all_symbols, getter_key, label, B_WARN)
++
++		for getter_key, _xml_tag, _xml_default, display_label, b_invert in get_aip_attitude_threshold_field_specs():
++			raw_value = provider.get_value(iLeader, getter_key)
++			min_value, max_value = get_min_max_for_key(getter_key)
++			label = build_label(getter_key, display_label, "(%d)" % raw_value, 18)
++			leader_info_cached[getter_key] = build_aip_cached_tuple(raw_value, min_value, max_value, b_invert, raw_symbol, all_symbols, getter_key, label, B_WARN)
++
++		for i, flavor_type in enumerate(get_aip_flavor_types_assessed()):
++			suffix = get_pascal_case_suffix(flavor_type)
++			cache_key = get_aip_array_value_key("iFlavor", flavor_type)
++			raw_value = provider.get_flavor_value(iLeader, i)
++			min_value, max_value = get_min_max_from_values([provider.get_flavor_value(loopLeader, i) for loopLeader in non_excluded_leaders])
++			label = build_label(suffix, suffix, "(%d)" % raw_value, 19)
++			leader_info_cached[cache_key] = build_aip_cached_tuple(raw_value, min_value, max_value, False, raw_symbol, all_symbols, cache_key, label, B_WARN)
++
++		for i, contact_type, raw_key, display_key, display_label in get_aip_displayed_contact_aggregate_specs(contact_types):
++			suffix = get_pascal_case_suffix(contact_type)
++			raw_value = synthetic_raw_values[iLeader][raw_key]
++			min_value, max_value = get_min_max_for_key(raw_key)
++			label_raw = "(%d/%d)" % (provider.get_contact_rand(iLeader, i), provider.get_contact_delay(iLeader, i))
++			label = build_label(suffix, display_label, label_raw, 19)
++			leader_info_cached[display_key] = build_aip_cached_tuple(raw_value, min_value, max_value, False, aggregated_symbol, all_symbols, display_key, label, B_WARN)
++
++		for i, memory_type, _is_positive, _is_affection, raw_key, display_key, display_label in get_aip_displayed_memory_aggregate_specs():
++			suffix = get_pascal_case_suffix(memory_type)
++			raw_value = synthetic_raw_values[iLeader][raw_key]
++			min_value, max_value = get_min_max_for_key(raw_key)
++			label_raw = "(%d/%d)" % (provider.get_memory_attitude_percent(iLeader, i), provider.get_memory_decay_rand(iLeader, i))
++			label = build_label(suffix, display_label, label_raw, 19)
++			# <!-- custom: Preserve the current predump's memory aggregate .5 behavior; see normalize_to_100_half_away_from_zero for the concrete MEMORY_TRADED_TECH_TO_US example. (ChatGPT-5.5) -->
++			leader_info_cached[display_key] = build_aip_cached_tuple(raw_value, min_value, max_value, False, aggregated_symbol, all_symbols, display_key, label, B_WARN, normalize_to_100_half_away_from_zero)
++
++		for i, attitude_type in enumerate(get_aip_no_war_attitude_types_assessed()):
++			suffix = get_pascal_case_suffix(attitude_type)
++			cache_key = get_aip_array_value_key("iNoWarAttitudeProb", attitude_type)
++			raw_value = provider.get_no_war_attitude_prob(iLeader, i)
++			min_value, max_value = get_min_max_from_values([provider.get_no_war_attitude_prob(loopLeader, i) for loopLeader in non_excluded_leaders])
++			label = build_label(suffix, suffix, "(%d)" % raw_value, 19)
++			leader_info_cached[cache_key] = build_aip_cached_tuple(raw_value, min_value, max_value, False, raw_symbol, all_symbols, cache_key, label, B_WARN)
++
++		leaders_info_cached[iLeader] = leader_info_cached
++		if is_debug:
++			print(u"[DEBUG] Leader info cached for iLeader=%d is leader_info_cached=%s" % (iLeader, str(leader_info_cached)))
++
++	return leaders_info_cached
++
++# <!-- custom: Shared predump module serializer for both the in-game PythonDbg.log fallback and the outside-Civ4 workflow writer. The callers provide only source-specific header lines and leader-count text; markers, common generation metadata, and deterministic cache literal formatting stay in one place. Keep this Python 2.4-safe because the in-game AIP code imports this module. No real generation timestamp is written: the writer should be safe to rerun as a no-op without creating false diffs or future bot/maintenance churn. (ChatGPT-5.5) -->
++def format_aip_leader_index_type_pairs(index_type_pairs):
++	return ", ".join(["%d: %s" % (iLeader, leader_type) for iLeader, leader_type in index_type_pairs])
++
++
++
++def build_aip_predump_module_lines(leaders_info_cached, leader_count_line, excluded_leader_types, leader_index_type_line, is_emoji_enabled, is_raw_xml_names, source_header_lines, b_include_file_header):
++	lines = []
++	if b_include_file_header:
++		lines.extend(get_sas_python_file_header_lines())
++
++	lines.append("# === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===")
++	for line in source_header_lines:
++		lines.append(line)
++	lines.append("# No timestamp is stored; no-op --write runs stay byte-identical when cache data is unchanged.")
++	lines.append("#")
++	lines.append("# Generation info:")
++	lines.append(leader_count_line)
++	lines.append("#   - Excluded leader types: %r" % (excluded_leader_types,))
++	lines.append("#   - Leader index:type pairs: %s" % leader_index_type_line)
++	lines.append("#   - Emoji headers enabled: %s" % str(is_emoji_enabled))
++	lines.append("#   - Raw XML field names: %s" % str(is_raw_xml_names))
++	lines.append("LEADERS_INFO_CACHED = {")
++	for iLeader in sorted(leaders_info_cached.keys()):
++		lines.append("	%r: {" % iLeader)
++		leader_info_cached = leaders_info_cached[iLeader]
++		for cache_key in sorted(leader_info_cached.keys()):
++			lines.append("		%r: %r," % (cache_key, leader_info_cached[cache_key]))
++		lines.append("	},")
++	lines.append("}")
++	lines.append("# === SAS_LEADER_AI_CACHE_PYMODULE_END ===")
++	return lines
++
+
+diff --git a/Assets/Python/Contrib/Sevopedia/sas_utils_shared_with_civ4.py b/Assets/Python/Contrib/Sevopedia/sas_utils_shared_with_civ4.py
+new file mode 100644
+index 000000000..2f568b5f5
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/sas_utils_shared_with_civ4.py
+@@ -0,0 +1,14 @@
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++
++# <!-- custom: Pure shared AdvCiv-SAS helpers imported by both Civ4 Python 2.4 runtime code and outside-Civ4 Python 3 workflow scripts. Keep this file free of CvPythonExtensions, CyGlobalContext/gc, localText, screen objects, and other game-runtime side effects. Runtime-only helpers belong in SASUtils.py instead. (ChatGPT-5.5) -->
++def get_sas_python_file_header_lines():
++	return [
++		"# AI, UI, or other modifications",
++		"# Created as part of AdvCiv-SAS improvements",
++		"# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)",
++		"#",
++		"",
++	]
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 6732fbbd0..37b7ea87d 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -325,13 +325,13 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Long_Comments_XML.txt #132 -->
+-	<!-- Set to 1 to load from pre-dumped module (SevoPediaLeaderCachePredumped.py)
+-	Set to 0 to compute at runtime -->
++	<!-- custom: Set to 1 to load the committed pre-dumped module (SevoPediaLeaderCachePredumped.py).
++	Set to 0 to compute the cache at runtime instead. Note that this old manual way of regenerating the predump (in case it changed for example, to update it) is no longer mandatory, because now aip_predump_values.py also checks the committed predump still matches XML leader info / Python UI code (e.g., "%" text in labels in AIP) automatically in CI/local runs, and if needed it is possible to run this script with its write mode to refresh SevoPediaLeaderCachePredumped.py without having to run Civ4. The Manual fallback remains alternatively: set this to 0 and SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG to 1, open the Leaders / AI Personality panel once, copy the PythonDbg.log cache block, then restore defaults. (ChatGPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: When computing at runtime: 0 = don't dump to log, 1 = dump to PythonDbg.log (for grabbing later); Long_Comments_XML.txt #192 -->
++	<!-- custom: Runtime cache logging only: 0 = don't dump to log, 1 = dump a PythonDbg.log block for the old manual predump refresh path (Note: not necessary to enable if you use the new script-based way of regenerating the predump). (ChatGPT-5.5); Long_Comments_XML.txt #192 -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index 3d67f1846..36f95321a 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -907,9 +907,9 @@ In short: this script is kept as a historical and practical discovery helper, wh
+ - Uses repo-relative archive paths and `ZIP_STORED` / no compression. ZIP is intentionally used instead of 7z because 7z uploads caused errors before, while ZIP is currently an as of now seemingly easily compatible format for ChatGPT/code-agent review.
+ - Default output directory is the mod root. Use `--output-dir` for Downloads or another handoff folder.
+ - Output filename defaults to `<detected-mod-folder-name>_light_source_<timestamp>.zip`, with `UnspecifiedModName` as a fallback. Use `--mod-name` or `--prefix` only for unusual/manual labels.
+-- Includes small source/data/docs folders useful for review: root lone files, selected `Assets` folders, root helper/doc/config folders, top-level `CvGameCoreDLL` files, and top-level `CvGameCoreDLL/Project` files under 1 MB, plus `_1_AdvCiv-SAS/Docs` and `_1_AdvCiv-SAS/git_logs`.
++- Includes small source/data/docs folders useful for review: root lone files, selected `Assets` folders, root helper/doc/config folders, top-level `CvGameCoreDLL` files, top-level `CvGameCoreDLL/Project` files under 1 MB, the exact `CvGameCoreDLL/Project/temp_files` folder and any files currently inside it, plus `_1_AdvCiv-SAS/Docs` and `_1_AdvCiv-SAS/git_logs`.
+ - Missing optional folders are skipped with warnings, so the helper can also be run on base AdvCiv or partial comparison folders.
+-- Skips generated/helper outputs by default, Python cache files, previous light-source ZIPs, heavy/binary `.dll` and `.fpk`, non-useful compact-review `.tga`, original `manual.pdf`/`manual.odt`, `Assets/res/Cursors`, and large/temporary DLL project artifacts such as `.sdf` or project files over 1 MB.
++- Skips generated/helper outputs such as `LLM_Helpers/outputs`, Python cache files, previous light-source ZIPs, heavy/binary `.dll` and `.fpk`, non-useful compact-review `.tga`, original `manual.pdf`/`manual.odt`, `Assets/res/Cursors`, and large/temporary DLL project artifacts such as `.sdf` or project files over 1 MB.
+ - Does not globally exclude common image files such as `.jpg` or `.png`; small previews can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image folders by not adding those folders to the include lists instead.
+ - Use `--dry-run` first to review file count, size, target archive path, and included repo-relative paths without writing the ZIP.
+ - Created/refined with help of ChatGPT-5.5 and Codex.
+
+diff --git a/LLM_Helpers/make_light_source_zip.py b/LLM_Helpers/make_light_source_zip.py
+index b0a1251f6..1ca616521 100644
+--- a/LLM_Helpers/make_light_source_zip.py
++++ b/LLM_Helpers/make_light_source_zip.py
+@@ -60,11 +60,14 @@ SKIP_DIR_NAMES = {".git", "__pycache__"}
+ # and are usually noise for source/debugging tasks.
+ SKIP_REL_DIRS = {"assets/res/cursors"}
+ 
+-# Skip generated/binary payloads that are too heavy or not useful for compact
+-# ChatGPT/code-agent source review. FPK art packs and DLL binaries should be
+-# shared separately only when specifically needed.
++# Skip generated/binary payloads that are too heavy or not useful for compact ChatGPT/code-agent source review.
++# FPK art packs and DLL binaries should be shared separately only when specifically needed.
+ SKIP_SUFFIXES = {".pyc", ".pyo", ".dll", ".fpk", ".tga"}
+ 
++# Preserve this exact build-check/workflow folder in light-source archives, including any current contents.
++# It is intentionally exported even though release archives omit build temp files.
++PRESERVED_LIGHT_SOURCE_TEMP_DIR = "CvGameCoreDLL/Project/temp_files"
++
+ # Visual Studio database files can be very large and are regenerated locally.
+ # Other small lone project files are useful enough to keep.
+ DLL_PROJECT_SKIP_SUFFIXES = {".sdf"}
+@@ -113,11 +116,6 @@ def parse_args() -> argparse.Namespace:
+             "<mod-name>_light_source. Use this only for manual labels or old naming."
+         ),
+     )
+-    parser.add_argument(
+-        "--include-helper-outputs",
+-        action="store_true",
+-        help="Include LLM_Helpers/outputs. By default it is skipped to avoid bundling generated reports/ZIPs.",
+-    )
+     parser.add_argument(
+         "--dry-run",
+         action="store_true",
+@@ -191,15 +189,14 @@ def rel_for_message(path: Path, repo_root: Path) -> str:
+         return str(path)
+ 
+ 
+-def should_skip_dir(path: Path, repo_root: Path, include_helper_outputs: bool) -> bool:
++def should_skip_dir(path: Path, repo_root: Path) -> bool:
+     if path.name in SKIP_DIR_NAMES:
+         return True
+     rel = rel_for_message(path, repo_root).lower()
+     if rel in SKIP_REL_DIRS:
+         return True
+-    if not include_helper_outputs:
+-        if rel == "llm_helpers/outputs" or rel.startswith("llm_helpers/outputs/"):
+-            return True
++    if rel == "llm_helpers/outputs" or rel.startswith("llm_helpers/outputs/"):
++        return True
+     return False
+ 
+ 
+@@ -216,7 +213,7 @@ def should_skip_file(path: Path) -> bool:
+     return False
+ 
+ 
+-def iter_tree_files(root: Path, repo_root: Path, include_helper_outputs: bool) -> Iterator[Path]:
++def iter_tree_files(root: Path, repo_root: Path) -> Iterator[Path]:
+     if not root.exists():
+         print(f"Warning: missing folder skipped: {rel_for_message(root, repo_root)}")
+         return
+@@ -226,9 +223,9 @@ def iter_tree_files(root: Path, repo_root: Path, include_helper_outputs: bool) -
+ 
+     for child in sorted(root.iterdir(), key=lambda p: p.name.lower()):
+         if child.is_dir():
+-            if should_skip_dir(child, repo_root, include_helper_outputs):
++            if should_skip_dir(child, repo_root):
+                 continue
+-            yield from iter_tree_files(child, repo_root, include_helper_outputs)
++            yield from iter_tree_files(child, repo_root)
+         elif child.is_file() and not should_skip_file(child):
+             yield child
+ 
+@@ -269,7 +266,17 @@ def iter_dll_project_top_level_files(repo_root: Path) -> Iterator[Path]:
+         yield child
+ 
+ 
+-def collect_files(repo_root: Path, include_helper_outputs: bool) -> list[Path]:
++def iter_preserved_temp_files(repo_root: Path) -> Iterator[Path]:
++    temp_dir = repo_root / PRESERVED_LIGHT_SOURCE_TEMP_DIR
++    if not temp_dir.is_dir():
++        print(f"Warning: missing folder skipped: {PRESERVED_LIGHT_SOURCE_TEMP_DIR}")
++        return
++    for path in sorted(temp_dir.rglob("*"), key=lambda p: p.relative_to(repo_root).as_posix().lower()):
++        if path.is_file():
++            yield path
++
++
++def collect_files(repo_root: Path) -> list[Path]:
+     files: list[Path] = []
+     seen: set[str] = set()
+ 
+@@ -283,16 +290,17 @@ def collect_files(repo_root: Path, include_helper_outputs: bool) -> list[Path]:
+     add(iter_root_files(repo_root))
+ 
+     for rel_dir in ASSET_SUBDIRS:
+-        add(iter_tree_files(repo_root / rel_dir, repo_root, include_helper_outputs))
++        add(iter_tree_files(repo_root / rel_dir, repo_root))
+ 
+     for rel_dir in ROOT_SUBDIRS:
+-        add(iter_tree_files(repo_root / rel_dir, repo_root, include_helper_outputs))
++        add(iter_tree_files(repo_root / rel_dir, repo_root))
+ 
+     add(iter_dll_top_level_files(repo_root))
+     add(iter_dll_project_top_level_files(repo_root))
++    add(iter_preserved_temp_files(repo_root))
+ 
+     for rel_dir in EXTRA_SUBDIRS:
+-        add(iter_tree_files(repo_root / rel_dir, repo_root, include_helper_outputs))
++        add(iter_tree_files(repo_root / rel_dir, repo_root))
+ 
+     return sorted(files, key=lambda p: p.relative_to(repo_root).as_posix().lower())
+ 
+@@ -304,6 +312,9 @@ def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path]) -> int:
+         temp_path.unlink()
+ 
+     with ZipFile(temp_path, "w", compression=ZIP_STORED, allowZip64=True) as archive:
++        preserved_temp_dir = repo_root / PRESERVED_LIGHT_SOURCE_TEMP_DIR
++        if preserved_temp_dir.is_dir():
++            archive.writestr(PRESERVED_LIGHT_SOURCE_TEMP_DIR.rstrip("/") + "/", b"")
+         for path in files:
+             rel = path.relative_to(repo_root).as_posix()
+             archive.write(path, rel)
+@@ -319,7 +330,7 @@ def main() -> int:
+     mod_name = derive_mod_name(repo_root, args.mod_name)
+     prefix = archive_prefix(mod_name, args.prefix)
+     zip_path = output_path(repo_root, args.output_dir, prefix, not args.dry_run)
+-    files = collect_files(repo_root, args.include_helper_outputs)
++    files = collect_files(repo_root)
+     total_bytes = sum(path.stat().st_size for path in files)
+ 
+     print(f"Repo root: {repo_root}")
+
+diff --git a/README.md b/README.md
+index 9c97a3366..b8756587e 100644
+--- a/README.md
++++ b/README.md
+@@ -523,7 +523,9 @@ note: its performance should be very very efficient and optimized. See [README_A
+ 
+ note 2: you can enable/disable the emoji display as you prefer (see [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader)) or display key names instead of abbreviated custom labels in the AI Personality Panel (see [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels)).
+ 
+-note 3: if you want to mod and modify the xml civ4 leader info, then you need to either update the [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) file manually, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). This was done so players don't always recompute these values that do not change on their end, and rarely so even for modders, and should scale better (if i'm not mistaken) as there are more leaders or xml fields in a mod vs computing them once every time the civ4 game is launched. See : [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md)
++note 3: if you want to mod and modify the XML Civ4 leader info or shared AI Personality Panel display logic, the GitHub workflow now checks that [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) still matches automatically on commit/PR. If it fails, refresh the committed predump with `.github/workflows/build/aip_predump_values.py --write`, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). The old in-game `PythonDbg.log` dump path remains a manual fallback.
++
++This predump file was added for perfance optimization, so players don't always recompute these values that do not change on their end, and rarely so even for modders, and should scale better (if i'm not mistaken) as there are more leaders or xml fields in a mod vs computing them once every time the civ4 game is launched. See: [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md)
+ 
+ ### Some other Sevopedia reworks
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+index ff1f0ae72..42e53a996 100644
+--- a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+@@ -111,7 +111,13 @@ Update: since then the computing the values logic from sevopedia leader to [Sevo
+ 
+ ## If you want to mod
+ 
+-If you want to mod and modify the xml civ4 leader info, then you need to either update the [SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py) file manually, or disable the option to use the predumped file (see toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)).
++If you modify leader XML values or shared AIP display logic, the predumped cache may need to be refreshed. The current preferred path is:
++
++1. Let CI check it automatically on commit/PR, or run [`build/aip_predump_values.py`](/.github/workflows/build/aip_predump_values.py) locally. A failure usually means the committed predump no longer matches the XML/shared AIP logic.
++2. Refresh outside Civ4 with `python .github/workflows/build/aip_predump_values.py --write`, review the diff, and rerun the checker. The generated file has no timestamp, so no-op `--write` runs stay byte-identical when cache data is unchanged instead of producing false diffs.
++3. Manual fallback: set `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED = 0` and `SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_DUMP_TO_LOG = 1`, open the Leaders / AI Personality panel once, copy the generated `PythonDbg.log` block into `SevoPediaLeaderCachePredumped.py`, restore the defaults, and rerun `aip_predump_values.py`.
++
++This means ordinary player builds stay fast by loading the predumped cache, while modders/LLMs get automatic stale-cache detection and a normal outside-Civ4 refresh path. During development, the full-tuple checker caught 394 stale label entries, including labels like `Build Unit (52)` that were missing the updated `%` text (`Build Unit % (52)`); write mode can now refresh that kind of drift without relying only on the old manual PythonDbg.log copy path.
+ 
+ ## Note about some ai attributes being ignored
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index be123e490..6dec0ff34 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -142,7 +142,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Avoid** some **hardcoded values**; e.g., `szButton = "Art/Interface/Buttons/Civilizations/Barbarian.dds"` in Advisors UI code replaced with `szButton = gc.getCivilizationInfo(player.getCivilizationType()).getButton()`; adding a new `<Button>` field for eras.
+ - **Centralize magic numbers** in [`SASMagicNumbers.py`](/Assets/Python/SASMagicNumbers.py), an import-free leaf helper for named constants used across screens, Sevopedia, mapscripts, and map generator utilities. Examples: Sevopedia/Tech Chooser `WIDGET_PYTHON` data1 IDs and Sevopedia Movie/Music packed-key type IDs. This avoids duplicated definitions, widget-id drift/collisions, and circular-import/load-order risk.
+ - **Cache once per session precomputed** Sevopedia Traits' Charts and Sevopedia Improvements' Weights (Leaders) Chart on category open before any entry is clicked on. This uses a simplified version of the AI Personality Panel's caching approach. See [AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+-- **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
++- **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. (Requires AdvCiv-SAS 5973+) For modders, CI now checks that the committed predump still matches leader XML/shared AIP display logic; if it fails, `aip_predump_values.py --write` can refresh the file outside Civ4. This checker notably caught 394 stale label entries, such as `Build Unit (52)` missing the updated `Build Unit % (52)` text and then helped generate an updated predump. The old manual in-game `PythonDbg.log` dump path remains a manual fallback or alternative way of refreshing the predump.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same).
+ - Refactor to **helper files** reusable logic; e.g., debug dropdown making, place legend link, advisor footer tabs, or geometry for advisors [SASUtils.py](/Assets/Python/SASUtils.py); expanded text and animation panels or draw none text ([_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)), and many others.
+ - **Sortable icon-only table cells**: for actual image-icon cells where visible text is empty, add an invisible `<font=1>` sort key using **zero-width Unicode marks** `U+200B`, `U+200C`, `U+200D`, `U+200E`, and `U+200F`. **Sevopedia charts** and **in-category chart icon helpers** use `chart_sort_key` in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py); **advisors** use `getAdvisorIconSortKey` in [SASUtils.py](/Assets/Python/SASUtils.py), reused for example by the Military Advisor Battles tab and Info Screen Score Tab leader/civ/research image cells. This is intentionally **only for separate icon-button** cells: **GameFont chars** such as religions, attitudes, trait icons, trade, war/peace, etc. **already sort as text**. The hardcoded `font=1` is intentionally not upscaled because the key must stay invisible and must not affect row height.
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=15 omittedFiles=1 embeddedPatchBytes=187826

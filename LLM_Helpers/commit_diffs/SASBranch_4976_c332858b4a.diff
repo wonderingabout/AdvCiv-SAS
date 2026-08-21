@@ -1,0 +1,535 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4976
+# Commit: c332858b4aa48bf2a74a0654bb4ce69d967d1e9a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e8199e74b391efc36a2f156694e2f672a2d6ca5f
+# Title: rename "_EDUCATION" to "_BROADER_EDUCATION"
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/XML/Audio/Audio2DScripts.xml
+2	2	Assets/XML/Audio/AudioDefines.xml
+7	7	Assets/XML/Buildings/CIV4BuildingInfos.xml
+27	27	Assets/XML/Events/CIV4EventTriggerInfos.xml
+10	10	Assets/XML/Technologies/CIV4TechInfos.xml
+6	1	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+6	1	Assets/XML/Text/CIV4GameText_Custom.xml
+9	1	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index e245d0ec4..2dc6aaaae 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -12875,8 +12875,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_EDUCATION</ScriptID>
+-		<SoundID>SND_TECH_EDUCATION</SoundID>
++		<ScriptID>AS2D_TECH_BROADER_EDUCATION</ScriptID>
++		<SoundID>SND_TECH_BROADER_EDUCATION</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -14991,8 +14991,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_EDUCATION</ScriptID>
+-		<SoundID>SND_TECH_MP_EDUCATION</SoundID>
++		<ScriptID>AS2D_TECH_MP_BROADER_EDUCATION</ScriptID>
++		<SoundID>SND_TECH_MP_BROADER_EDUCATION</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index b388a4c53..0efa98a16 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8655,7 +8655,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_EDUCATION</SoundID>
++			<SoundID>SND_TECH_BROADER_EDUCATION</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Education</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -9299,7 +9299,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_EDUCATION</SoundID>
++			<SoundID>SND_TECH_MP_BROADER_EDUCATION</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Education</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 8e6a36ac9..a5a7bc712 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -8538,7 +8538,7 @@
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++			<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 			<PrereqTech>TECH_MYSTICISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -10008,7 +10008,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_EDUCATION</PrereqTech>
++			<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -10393,7 +10393,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_EDUCATION</PrereqTech>
++			<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -10578,7 +10578,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_EDUCATION</PrereqTech>
++			<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25340,7 +25340,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_EDUCATION</PrereqTech>
++			<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -27782,7 +27782,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
+ 			<!-- custom: was TECH_SCIENTIFIC_METHOD (now removed anyways etc) -->
+-			<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++			<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 			<!-- custom: was TECH_POLYTHEISM and tech types empty anyways etc-->
+ 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+ 			<TechTypes>
+@@ -27992,7 +27992,7 @@
+ 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+ 			<!-- custom: was TECH_COMPUTERS -->
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_EDUCATION</PrereqTech>
++			<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 			<!-- custom: was empty anyways etc -->
+ 			<TechTypes>
+ 				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index f0ea21d97..846885ec7 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -5988,7 +5988,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -6166,7 +6166,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -7886,7 +7886,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -8150,7 +8150,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -8671,7 +8671,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -9013,7 +9013,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -9375,7 +9375,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -9461,7 +9461,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -9547,7 +9547,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -9633,7 +9633,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -9719,7 +9719,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -9914,7 +9914,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -9998,7 +9998,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
+ 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+-				<PrereqTech>TECH_EDUCATION</PrereqTech>
++				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+ 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+ 			</OrPreReqs>
+@@ -11225,7 +11225,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -11317,7 +11317,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -11579,7 +11579,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -11671,7 +11671,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -11757,7 +11757,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -11849,7 +11849,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -12710,7 +12710,7 @@
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+-				<PrereqTech>TECH_EDUCATION</PrereqTech>
++				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+ 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+ 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
+@@ -13655,7 +13655,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
+ 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+-				<PrereqTech>TECH_EDUCATION</PrereqTech>
++				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+ 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+ 			</OrPreReqs>
+@@ -13742,7 +13742,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
+ 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+-				<PrereqTech>TECH_EDUCATION</PrereqTech>
++				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+ 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+ 			</OrPreReqs>
+@@ -13829,7 +13829,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
+ 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+-				<PrereqTech>TECH_EDUCATION</PrereqTech>
++				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+ 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+ 			</OrPreReqs>
+@@ -14523,7 +14523,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -14612,7 +14612,7 @@
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
+ 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -15862,7 +15862,7 @@
+ 				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
+ 			</AndPreReqs>
+ 			<ObsoleteTechs>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+@@ -16811,7 +16811,7 @@
+ 			<OrPreReqs/>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
++				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
+ 			</ObsoleteTechs>
+ 			<bRecurring>0</bRecurring>
+ 			<bTeam>0</bTeam>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 56e9ed046..4af47378c 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -2595,7 +2595,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_EDUCATION</PrereqTech>
++				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+@@ -2972,12 +2972,12 @@
+ 			<SoundMP>AS2D_TECH_MP_BANKING</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Banking.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,1</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_EDUCATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_EDUCATION</Type>
+-			<Description>TXT_KEY_TECH_EDUCATION</Description>
+-			<Civilopedia>TXT_KEY_TECH_EDUCATION_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_BROADER_EDUCATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_BROADER_EDUCATION</Type>
++			<Description>TXT_KEY_TECH_BROADER_EDUCATION</Description>
++			<Civilopedia>TXT_KEY_TECH_BROADER_EDUCATION_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_EDUCATION_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+@@ -3040,9 +3040,9 @@
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+ 			</AndPreReqs>
+-			<Quote>TXT_KEY_TECH_EDUCATION_QUOTE</Quote>
+-			<Sound>AS2D_TECH_EDUCATION</Sound>
+-			<SoundMP>AS2D_TECH_MP_EDUCATION</SoundMP>
++			<Quote>TXT_KEY_TECH_BROADER_EDUCATION_QUOTE</Quote>
++			<Sound>AS2D_TECH_BROADER_EDUCATION</Sound>
++			<SoundMP>AS2D_TECH_MP_BROADER_EDUCATION</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Education.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,3</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_PRINTING_PRESS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+@@ -5624,7 +5624,7 @@
+ 				<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_EDUCATION</PrereqTech>
++				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_GUNPOWDER_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_GUNPOWDER</Sound>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 0bdef019e..36f7d869f 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -910,9 +910,14 @@
+ 		<Tag>TXT_KEY_TECH_SPACE_EXPLORATION</Tag>
+ 		<English>Space Exploration</English>
+ 	</TEXT>
+-	<!-- custom: rename "_RIFLING" with "_FIREARMS" -->
++	<!-- custom: rename "_RIFLING" to "_FIREARMS" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_FIREARMS</Tag>
+ 		<English>Firearms</English>
+ 	</TEXT>
++	<!-- custom: rename "_EDUCATION" to "_BROADER_EDUCATION" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_BROADER_EDUCATION</Tag>
++		<English>Broader Education</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index ecc7be4e8..1cc7d7c48 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -420,11 +420,16 @@
+ 		<Tag>TXT_KEY_TECH_STEAM_POWER_QUOTE</Tag>
+ 		<English>"Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win." - Sun-Tzu</English>
+ 	</TEXT>
+-	<!-- custom: rename "_RIFLING" with "_FIREARMS" -->
++	<!-- custom: rename "_RIFLING" to "_FIREARMS" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_FIREARMS_QUOTE</Tag>
+ 		<English>"Political power grows out of the barrel of a gun." - Mao Zedong</English>
+ 	</TEXT>
++	<!-- custom: rename "_EDUCATION" to "_BROADER_EDUCATION" -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_BROADER_EDUCATION_QUOTE</Tag>
++		<English>"There is no wealth like knowledge, no poverty like ignorance." - Ali ibn Abi-Talib</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 10bed3039..6b27b7811 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -812,9 +812,17 @@
+ 
+ 
+ 
+-	<!-- custom: rename "_RIFLING" with "_FIREARMS"; also pedia entry from https://en.wikipedia.org/wiki/Firearm#History similarly anyways etc, and modified or not for advciv-sas anyways etc -->
++	<!-- custom: rename "_RIFLING" to "_FIREARMS"; also pedia entry from https://en.wikipedia.org/wiki/Firearm#History similarly anyways etc, and modified or not for advciv-sas anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_FIREARMS_PEDIA</Tag>
+ 		<English>[TAB]The first firearms were invented in 10th century China when the man-portable fire lance (a bamboo or metal tube that could shoot ignited gunpowder) was combined with projectiles such as scrap metal, broken porcelain, or darts/arrows.[PARAGRAPH:1]An early depiction of a firearm is a sculpture from a cave in Sichuan, China. The sculpture dates to the 12th century and represents a figure carrying a vase-shaped bombard, with flames and a cannonball coming out of it. The oldest surviving gun, the Heilongjiang hand cannon, was a hand cannon made of bronze, dating to 1288 because it was discovered at a site in modern-day Acheng District, Heilongjiang, China, where the Yuan Shi records that battles were fought at that time. The firearm had a 17.5 cm (6.9 in) barrel of a 2.5 cm (1 in) diameter, a 6.6 cm (2.6 in) chamber for the gunpowder and a socket for the firearm's handle. It is 34 centimetres (13 in) long and 3.54 kilograms (7.8 lb) without the handle, which would have been made of wood.[PARAGRAPH:1]The Arabs and Mamluks had firearms in the late-13th century. Europeans obtained firearms in the 14th century. The Koreans adopted firearms from the Chinese in the 14th century. The Iranians (first Aq Qoyunlu and Safavids) and Indians (first Mughals) all got them no later than the 15th century, from the Ottoman Turks. The people of the Nusantara archipelago of Southeast Asia used the long arquebus at least by the last quarter of the 15th century.[PARAGRAPH:1]Even though the knowledge of making gunpowder-based weapons in the Nusantara archipelago had been known after the failed Mongol invasion of Java (1293), and the predecessor of firearms, the pole gun (bedil tombak), was recorded as being used by Java in 1413, the knowledge of making "true" firearms came much later, after the middle of 15th century. It was brought by the Islamic nations of West Asia, most probably the Arabs. The precise year of introduction is unknown, but it may be safely concluded to be no earlier than 1460. Before the arrival of the Portuguese in Southeast Asia, the natives already possessed firearms, the Java arquebus.[PARAGRAPH:1]The technology of firearms in Southeast Asia further improved after the Portuguese capture of Malacca (1511). Starting in the 1513, the traditions of German-Bohemian gun-making merged with Turkish gun-making traditions. This resulted in the Indo-Portuguese tradition of matchlocks. Indian craftsmen modified the design by introducing a very short, almost pistol-like buttstock held against the cheek, not the shoulder, when aiming. They also reduced the caliber and made the gun lighter and more balanced. This was a hit with the Portuguese who did a lot of fighting aboard ship and on river craft, and valued a more compact gun. The Malaccan gunfounders, compared as being in the same level with those of Germany, quickly adapted these new firearms, and thus a new type of arquebus, the istinggar, appeared. The Japanese did not acquire firearms until the 16th century, and then from the Portuguese rather than from the Chinese.[PARAGRAPH:1]Developments in firearms accelerated during the 19th and 20th centuries. Breech-loading became more or less a universal standard for the reloading of most hand-held firearms and continues to be so with some notable exceptions (such as mortars). Instead of loading individual rounds into weapons, magazines holding multiple munitions were adopted - these aided rapid reloading. Automatic and semi-automatic firing mechanisms meant that a single soldier could fire many more rounds in a minute than a vintage weapon could fire over the course of a battle. Polymers and alloys in firearm construction made weaponry progressively lighter and thus easier to deploy. Ammunition changed over the centuries from simple metallic ball-shaped projectiles that rattled down the barrel to bullets and cartridges manufactured to high precision. Especially in the past century particular attention has focused on accuracy and sighting to make firearms altogether far more accurate than ever before. More than any single factor though, firearms have proliferated due to the advent of mass production - enabling arms-manufacturers to produce large quantities of weaponry to a consistent standard.[PARAGRAPH:1]Velocities of bullets increased with the use of a "jacket" of metals such as copper or copper alloys that covered a lead core and allowed the bullet to glide down the barrel more easily than exposed lead. Such bullets are known as "full metal jacket" (FMJ). Such FMJ bullets are less likely to fragment on impact and are more likely to traverse through a target while imparting less energy. Hence, FMJ bullets impart less tissue damage than non-jacketed bullets that expand. This led to their adoption for military use by countries adhering to the Hague Convention of 1899.[PARAGRAPH:1]That said, the basic principle behind firearm operation remains unchanged to this day. A musket of several centuries ago is still similar in principle to a modern-day rifle - using the expansion of gases to propel projectiles over long distances - albeit less accurately and rapidly.</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: rename "_EDUCATION" to "_BROADER_EDUCATION"; also pedia entry from https://en.wikipedia.org/wiki/Education#History similarly anyways etc, and modified or not for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_BROADER_EDUCATION_PEDIA</Tag>
++		<English>[TAB]The history of education delves into the processes, methods, and institutions entwined with teaching and learning, aiming to elucidate their interplay and influence on educational practices over time.[PARAGRAPH:2]Education during prehistory primarily facilitated enculturation, emphasizing practical knowledge and skills essential for daily life, such as food production, clothing, shelter, and safety. Formal schools and specialized instructors were absent, with adults in the community assuming teaching roles, and learning transpiring informally through daily activities, including observation and imitation of elders. In oral societies, storytelling served as a pivotal means of transmitting cultural and religious beliefs across generations. With the advent of agriculture during the Neolithic Revolution around 9000 BCE, a gradual educational shift toward specialization ensued, driven by the formation of larger communities and the demand for increasingly intricate artisanal and technical skills.[PARAGRAPH:2]Commencing in the 4th millennium BCE and spanning subsequent eras, a pivotal transformation in educational methodologies unfolded with the advent of writing in regions such as Mesopotamia, ancient Egypt, the Indus Valley, and ancient China. This breakthrough profoundly influenced the trajectory of education. Writing facilitated the storage, preservation, and dissemination of information, ushering in subsequent advancements such as the creation of educational aids like textbooks and the establishment of institutions such as schools.[PARAGRAPH:1]Another significant aspect of ancient education was the establishment of formal education. This became necessary as civilizations evolved and the volume of knowledge expanded, surpassing what informal education could effectively transmit across generations. Teachers assumed specialized roles to impart knowledge, leading to a more abstract educational approach less tied to daily life. Formal education remained relatively rare in ancient societies, primarily accessible to the intellectual elite. It covered fields like reading and writing, record keeping, leadership, civic and political life, religion, and technical skills associated with specific professions. Formal education introduced a new teaching paradigm that emphasized discipline and drills over the informal methods prevalent earlier. Two notable achievements of ancient education include the founding of Plato's Academy in Ancient Greece, often regarded as the earliest institution of higher learning, and the establishment of the Great Library of Alexandria in Ancient Egypt, renowned as one of the ancient world's premier libraries.[PARAGRAPH:2]Many facets of education during the medieval period were profoundly influenced by religious traditions. In Europe, the Catholic Church wielded considerable authority over formal education. In the Arab world, the rapid spread of Islam led to various educational advancements during the Islamic Golden Age, integrating classical and religious knowledge and establishing madrasa schools. In Jewish communities, yeshivas emerged as institutions dedicated to the study of religious texts and Jewish law. In China, an expansive state educational and examination system, shaped by Confucian teachings, was instituted. As new complex societies emerged in regions like Africa, the Americas, Northern Europe, and Japan, some adopted existing educational practices, while others developed new traditions.[PARAGRAPH:1]Additionally, this era witnessed the establishment of various institutes of higher education and research. Prominent among these were the University of Bologna (the world's oldest university in continuous operation), the University of Paris, and Oxford University in Europe. Other influential centers included the Al-Qarawiyyin University in Morocco, Al-Azhar University in Egypt, and the House of Wisdom in Iraq. Another significant development was the formation of guilds, associations of skilled craftsmen and merchants who regulated their trades and provided vocational education. Prospective members underwent various stages of training on their journey to mastery.[PARAGRAPH:2]Starting in the early modern period, education in Europe during the Renaissance slowly began to shift from a religious approach towards one that was more secular. This development was tied to an increased appreciation of the importance of education and a broadened range of topics, including a revived interest in ancient literary texts and educational programs. The turn toward secularization was accelerated during the Age of Enlightenment starting in the 17th century, which emphasized the role of reason and the empirical sciences. European colonization affected education in the Americas through Christian missionary initiatives. In China, the state educational system was further expanded and focused more on the teachings of neo-Confucianism. In the Islamic world, the outreach of formal education increased and remained under the influence of religion. A key development in the early modern period was the invention and popularization of the printing press in the middle of the 15th century, which had a profound impact on general education. It significantly reduced the cost of producing books, which were hand-written before, and thereby augmented the dissemination of written documents, including new forms like newspapers and pamphlets. The increased availability of written media had a major influence on the general literacy of the population.[PARAGRAPH:1]These alterations paved the way for the advancement of public education during the 18th and 19th centuries. This era witnessed the establishment of publicly funded schools with the goal of providing education for all, in contrast to previous periods when formal education was primarily delivered by private schools, religious institutions, and individual tutors. An exception to this trend was the Aztec civilization, where formal education was compulsory for youth across social classes as early as the 14th century. Closely related changes were to make education compulsory and free of charge for all children up to a certain age.[PARAGRAPH:2]The promotion of public education and universal access to education gained momentum in the 20th and 21st centuries, endorsed by intergovernmental organizations such as the UN. Key initiatives included the Universal Declaration of Human Rights, the Convention on the Rights of the Child, the Education for All initiative, the Millennium Development Goals, and the Sustainable Development Goals. These endeavors led to a consistent increase in all forms of education, particularly impacting primary education. In 1970, 28% of all primary-school-age children worldwide were not enrolled in school; by 2015, this figure had decreased to 9%.[PARAGRAPH:1]The establishment of public education was accompanied by the introduction of standardized curricula for public schools as well as standardized tests to assess the progress of students. Contemporary examples are the Test of English as a Foreign Language, which is a globally used test to assess language proficiency in non-native English speakers, and the Programme for International Student Assessment, which evaluates education systems across the world based on the performance of 15-year-old students in reading, mathematics, and science. Similar shifts impacted teachers, with the establishment of institutions and norms to regulate and oversee teacher training, including certification mandates for teaching in public schools.[PARAGRAPH:1]Emerging educational technologies have significantly influenced modern education. The widespread availability of computers and the internet has notably expanded access to educational resources and facilitated new forms of learning, such as online education. This became particularly pertinent during the COVID-19 pandemic when schools worldwide closed for prolonged periods, prompting many to adopt remote learning methods through video conferencing or pre-recorded video lessons to sustain instruction. Additionally, contemporary education is impacted by the increasing globalization and internationalization of educational practices.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 22ae2e97b..cc8c2224c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 44b4fe529..eb153e249 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index c5be7e14f..987bbbfee 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index dbe24cf91..c5b944185 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=34390

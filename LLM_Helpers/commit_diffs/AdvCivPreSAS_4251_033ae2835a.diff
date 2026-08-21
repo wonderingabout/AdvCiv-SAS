@@ -1,0 +1,341 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4251
+# Commit: 033ae2835a55c5c35b52f3cb8e95de5ae4f9c512
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 57639c2b7f36f5deaface06151b7dfc8a66b959e
+# Title: Initial attempt at adjustable help text area width
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+13	4	Assets/Python/Screens/CvMainInterface.py
+4	4	Assets/XML/GlobalDefines_advc.xml
+2	0	CvGameCoreDLL/CvGame.h
+26	0	CvGameCoreDLL/CvGameInterface.cpp
+3	17	CvGameCoreDLL/CvGameTextMgr.cpp
+5	0	CvGameCoreDLL/CyGame.cpp
+1	0	CvGameCoreDLL/CyGame.h
+2	0	CvGameCoreDLL/CyGameInterface.cpp
+71	0	CvGameCoreDLL/SelfMod.cpp
+7	1	CvGameCoreDLL/SelfMod.h
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 1148f3db5..6a06b9ec8 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -336,7 +336,11 @@ class CvMainInterface:
+ 			lRect = gRect("DefaultHelpAreaMin")
+ 		else:
+ 			lRect = gRect("DefaultHelpArea")
+-		# (Seems that the EXE ignores the fWidth and iMinWidth params. Sadly.)
++		# advc.092c: Since the EXE apparently ignores the iMinWidth param
++		# (as well as fWidth), let the DLL handle the matter - which it will do
++		# by hacking the EXE. And this hack needs to happen before creating the
++		# help text area.
++		gc.getGame().setHelpTextAreaWidth(lRect.width())
+ 		self.screen.setHelpTextArea(HLEN(350), FontTypes.SMALL_FONT,
+ 				lRect.x(), lRect.y(), -0.1,
+ 				False, "", True, False, CvUtil.FONT_LEFT_JUSTIFY, lRect.width())
+@@ -845,6 +849,7 @@ class CvMainInterface:
+ 		self.m_iNumPlotListButtonsPerRow = (
+ 				(gRect("BottomButtonMaxSpace").width() - 2 * iPlotListUnitBtnSz) /
+ 				iPlotListUnitBtnSz)
++		# (Also used for the PLE Info Pane)
+ 		gSetRect("DefaultHelpArea", "Top",
+ 				HSPACE(7),
+ 				# (The center bottom panel doesn't fully scale up, so we shouldn't
+@@ -854,9 +859,13 @@ class CvMainInterface:
+ 				# to maximize the amount of text we can display (while also having tall corners
+ 				# for the sake of a large minimap).
+ 				gRect("LowerLeftCornerBackgr").y(),
+-				# Default area will actually ignore this, but it's relevant
+-				# for the PLE Info Pane.
+-				gRect("LowerLeftCorner").width() + HLEN(6), 0)
++				# The subtrahend should account for decorations on the corner panel;
++				# for visual alignment.
++				#gRect("LowerLeftCornerPanel").width() - 21,
++				# But the help text really doesn't use that much width; it's been kept
++				# short with the original width in mind. So ...
++				gRect("LowerLeftCornerPanel").width() - HLEN(0.12 * gRect("LowerLeftCornerPanel").width()),
++				0)
+ 		gSetRect("DefaultHelpAreaMin", "Top",
+ 				HSPACE(7),
+ 				# As in BtS; pretty arbitrary and overlaps the unit pane.
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 831dcb294..21de10612 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -21,14 +21,14 @@
+ 	</Define>
+ 
+ 	<!-- advc.002b: The DLL needs to know (well, it's not crucial ...) the
+-		 font size of Size1_Normal in Civ4Theme_Common.thm. AdvCiv sets that
+-		 to 14. If a mod-mod changes Size1_Normal, then FONT_SIZE_FACTOR should
++		 font size of Size2_Normal in Civ4Theme_Common.thm. AdvCiv sets that
++		 to 16. If a mod-mod changes Size2_Normal, then FONT_SIZE_FACTOR should
+ 		 be adjusted accordingly. If the AdvCiv theme is removed (and not
+ 		 replaced with a different custom theme), then there should be no need
+ 		 to edit this value; the DLL can figure that out on its own. -->
+ 	<Define>
+-		<DefineName>FONT_SIZE_FACTOR</DefineName>
+-		<iDefineIntVal>14</iDefineIntVal>
++		<DefineName>HELP_FONT_SIZE</DefineName>
++		<iDefineIntVal>16</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- advc.009: Moved from GlobalDefinesAlt.xml.
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 4199cb7f9..dc409e279 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -960,6 +960,8 @@ public:
+ 			bool bAlt, bool bShift, bool bCtrl) const;
+ 	DllExport void handleMiddleMouse(bool bCtrl, bool bAlt, bool bShift);
+ 	DllExport void handleDiplomacySetAIComment(DiploCommentTypes eComment) const;
++	int getHelpFontSize() const; // advc.002b
++	void setHelpTextAreaWidth(float fWidth); // advc.092c (exposed to Python)
+ 
+ 	scaled goodyHutEffectFactor(bool bSpeedAdjust = true) const; // advc.314
+ 	// <advc.004m>
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index c88ac9650..b640d6a2b 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2812,6 +2812,32 @@ void CvGame::handleDiplomacySetAIComment(DiploCommentTypes eComment) const
+ 	m_bShowingCurrentDeals = (eComment == GC.getAIDiploCommentType("CURRENT_DEALS"));
+ }
+ 
++// advc.002b:
++int CvGame::getHelpFontSize() const
++{
++	// Default for Size2Normal (the smallest size used) when there is no custom theme
++	int iFontSize = 14;
++	CvArtInfoMisc const* pTheme = ARTFILEMGR.getMiscArtInfo("DEFAULT_THEME_NAME");
++	if (pTheme != NULL && pTheme->getPath() != NULL)
++	{
++		CvString szThemePath(pTheme->getPath());
++		/*  Don't know how to look up the font size. Would perhaps have to
++			(re-)parse the theme files (no, thanks). Instead, the DLL is told
++			through XML what font size to assume.
++			I do know how to check if the mod's theme has been removed, and I don't
++			want to rely on players changing the XML setting after removing it. */
++		if (szThemePath.find("Mods") != CvString::npos)
++			iFontSize = ::range(GC.getDefineINT("HELP_FONT_SIZE", 16), 8, 22);
++	}
++	return iFontSize;
++}
++
++// advc.092c:
++void CvGame::setHelpTextAreaWidth(float fWidth)
++{
++	smc::BtS_EXE.setHelpTextAreaSize(fWidth);
++}
++
+ // <advc.004x>
+ void CvGame::setDawnOfManShown(bool b)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d6f41555d..9ff649478 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1606,23 +1606,9 @@ void CvGameTextMgr::setPlotListHelpPerOwner(CvWStringBuffer& szString,
+ {
+ 	if(kPlot.getCenterUnit() == NULL)
+ 		return;
+-	// <advc.002b>
+-	int iFontSize = 12; // default when there is no custom theme
+-	CvArtInfoMisc const* pTheme = ARTFILEMGR.getMiscArtInfo("DEFAULT_THEME_NAME");
+-	if(pTheme != NULL && pTheme->getPath() != NULL)
+-	{
+-		CvString szThemePath(pTheme->getPath());
+-		/*  Don't know how to look up the font size. Would perhaps have to
+-			(re-)parse the theme files (no, thanks). Instead, the DLL is told
+-			through XML what font size to assume.
+-			I do know how to check if the mod's theme has been removed, and I don't
+-			want to rely on players changing the XML setting after removing it. */
+-		if(szThemePath.find("Mods") != CvString::npos)
+-			iFontSize = ::range(GC.getDefineINT("FONT_SIZE_FACTOR", 13), 7, 19);
+-	}
+-	// (The code below was written for iFontSize=14, so that's fontFactor=1.)
+-	double dFontFactor = 14.0 / iFontSize;
+-	// </advc.002b>
++	/*	advc.002b: This function was written with size 16 in mind, so needs to
++		adjust (only) when a different size is used. */
++	double const dFontFactor = 16.0 / GC.getGame().getHelpFontSize();
+ 	CvGame const& kGame = GC.getGame();
+ 	int iScreenHeight = kGame.getScreenHeight();
+ 	int iLineLimit = (iScreenHeight == 0 ? 25 :
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index c955fe718..49f617564 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -1141,6 +1141,11 @@ void CyGame::setCityBarWidth(bool bWide)
+ {
+ 	m_kGame.setCityBarWidth(bWide);
+ }
++// advc.092c:
++void CyGame::setHelpTextAreaWidth(float fWidth)
++{
++	m_kGame.setHelpTextAreaWidth(fWidth);
++}
+ // BULL - AutoSave:
+ void CyGame::saveGame(std::string szFileName)
+ {
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index 0db679e54..d7e4b9952 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -287,6 +287,7 @@ public:
+ 	void doControl(int iControl);
+ 
+ 	void setCityBarWidth(bool bWide); // advc.095
++	void setHelpTextAreaWidth(float fWidth); // advc.092c
+ 	void saveGame(std::string szFileName); // BULL - AutoSave
+ 	bool useKModAI(); // advc.104
+ 	int getBarbarianStartTurn(); // advc.300
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 76d880d91..76cd09450 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -279,6 +279,8 @@ void CyGamePythonInterface()
+ 		.def("doControl", &CyGame::doControl, "void (int /*ControlTypes*/ iControl)")
+ 		// advc.095:
+ 		.def("setCityBarWidth", &CyGame::setCityBarWidth, "void (bool)")
++		// advc.092c:
++		.def("setHelpTextAreaWidth", &CyGame::setHelpTextAreaWidth, "void (float)")
+ 		// BULL - AutoSave:
+ 		.def("saveGame", &CyGame::saveGame, "void saveGame(string fullyQualifiedFileName)")
+ 		// advc.104:
+
+diff --git a/CvGameCoreDLL/SelfMod.cpp b/CvGameCoreDLL/SelfMod.cpp
+index 4d3b9ddc0..21e6680c8 100644
+--- a/CvGameCoreDLL/SelfMod.cpp
++++ b/CvGameCoreDLL/SelfMod.cpp
+@@ -349,6 +349,66 @@ private:
+ 	};
+ };
+ 
++// advc.092c:
++class HelpTextAreaWidthMod : public SelfMod
++{
++public:
++	HelpTextAreaWidthMod(double dTargetWidth) : m_dTargetWidth(dTargetWidth) {}
++protected:
++	bool apply() // override
++	{
++		byte const iTargetMultiplicand = calculateTargetMultiplicand();
++		/*	The multiplicand is hardcoded as a single-byte immediate operand:
++			|Code addr.| Disassembly						| Code bytes
++			------------------------------------------------------------------------------
++			 00559A91	push 1Dh							  6A 1D
++			------------------------------------------------------------------------------
++			This is in a function that seems to get called (only?) via
++			CyGInterface.setHelpTextArea - and probably not directly from that
++			function and not on every call of it (reliably on the first call,
++			it seems). */
++		uint const uiCodeAddress = 0x00559A91;
++		/*	Before applying our patch, let's confirm that the code is layed out
++			in memory as we expect it to be. */
++		byte aTestBytes[] = { 0x6A };//mustn't include the operand (b/c we may want to modify that repeatedly)
++		/*	Longer sequence to search for if we have to find an address offset.
++			(tbd.) */
++		/*byte aNeedleBytes[] = {
++			
++		};
++		int iAddressOffset = findAddressOffset(
++				aNeedleBytes, ARRAYSIZE(aNeedleBytes), 0x00464930,
++				aQuickTestBytes, ARRAYSIZE(aQuickTestBytes), 0x004649A9);*/
++		int iAddressOffset = findAddressOffset(aTestBytes, ARRAYSIZE(aTestBytes),
++				uiCodeAddress);
++		if (iAddressOffset == MIN_INT)
++			return false;
++		FAssert(((int)uiCodeAddress) > -iAddressOffset);
++		// Apply our patch
++		uint const uiPatchAddress = uiCodeAddress + 1;
++		if (!unprotectPage(reinterpret_cast<LPVOID>(uiPatchAddress), sizeof(byte)))
++			return false;
++		*reinterpret_cast<byte*>(uiPatchAddress) = iTargetMultiplicand;
++		return true;
++	}
++	
++private:
++	double const m_dTargetWidth;
++	byte calculateTargetMultiplicand()
++	{
++		/*	The EXE seems to convert the font size set by the theme to a somewhat
++			smaller scale, perhaps one expressing the horizontal space taken up. */
++		double dFontFactorInternal = floor(GC.getGame().getHelpFontSize() / 1.5);
++		/*	The total width seems to get calculated as a hardcoded constant times
++			the font size factor */
++		double const dMultiplicandInternal = 29;
++		double dWidthInternal = std::max<double>(dFontFactorInternal, 5) * dMultiplicandInternal;
++		double dAdjustmentFactor = m_dTargetWidth / dWidthInternal;
++		return safeIntCast<byte>(fmath::round(
++				dMultiplicandInternal * dAdjustmentFactor));
++	}
++};
++
+ } // (end of unnamed namespace)
+ 
+ 
+@@ -384,3 +444,14 @@ void Civ4BeyondSwordPatches::patchPlotIndicatorSize()
+ 				"of the BUG menu");
+ 	}
+ }
++
++
++// advc.092c:
++void Civ4BeyondSwordPatches::setHelpTextAreaSize(float fWidth)
++{
++	if (abs(fWidth - getHelpTextAreaWidth()) < 0.5f)
++		return;
++	m_fHelpTextAreaWidth = fWidth;
++	if (!HelpTextAreaWidthMod(fWidth).applyIfEnabled())
++		FErrorMsg("Failed to change help text area width");
++}
+
+diff --git a/CvGameCoreDLL/SelfMod.h b/CvGameCoreDLL/SelfMod.h
+index fd87425d0..246544f81 100644
+--- a/CvGameCoreDLL/SelfMod.h
++++ b/CvGameCoreDLL/SelfMod.h
+@@ -9,12 +9,18 @@ class Civ4BeyondSwordPatches
+ public:
+ 	void patchPlotIndicatorSize(); // (exposed to Python via CyGameCoreUtils) 
+ 	bool isPlotIndicatorSizePatched() const { return m_bPlotIndicatorSizePatched; }
++	// <advc.092c>
++	void setHelpTextAreaSize(float fWidth); // (exposed to Python via CyGame)
++	float getHelpTextAreaWidth() const { return m_fHelpTextAreaWidth; }
++	bool isHelpTextAreaWidthPatched() const { return (getHelpTextAreaWidth() != 0); }
++	// </advc.092c>
+ 	Civ4BeyondSwordPatches()
+-	:	m_bPlotIndicatorSizePatched(false)
++	:	m_bPlotIndicatorSizePatched(false), m_fHelpTextAreaWidth(0)
+ 	{}
+ 
+ private:
+ 	bool m_bPlotIndicatorSizePatched;
++	float m_fHelpTextAreaWidth; // advc.092c
+ 	void showErrorMsgToPlayer(CvWString szMsg);
+ };
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=10 omittedFiles=1 embeddedPatchBytes=12250

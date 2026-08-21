@@ -1,0 +1,35 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2646
+# Commit: da5f282da2d871a4f0e9a433b03dbe26d9caf182
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5b5561581ea89fc3f4523b926377d684e4dedb7e
+# Title: Fix recently introduced UI bug in pathfinding code
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/FAStarFunc.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/FAStarFunc.cpp b/CvGameCoreDLL/FAStarFunc.cpp
+index ff90f1606..7b64b9763 100644
+--- a/CvGameCoreDLL/FAStarFunc.cpp
++++ b/CvGameCoreDLL/FAStarFunc.cpp
+@@ -30,7 +30,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node,
+ 			GC.getMap().getPlot(node->m_iX, node->m_iY),
+ 			*reinterpret_cast<CvSelectionGroup const*>(pointer),
+ 			(MovementFlags)gDLL->getFAStarIFace()->GetInfo(finder),
+-			parent->m_iData1, parent->m_iKnownCost != 0); // </advc.pf>
++			parent->m_iData1, parent->m_iKnownCost == 0); // </advc.pf>
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=542

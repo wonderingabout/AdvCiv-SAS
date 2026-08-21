@@ -1,0 +1,103 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4330
+# Commit: 6fe41cc646c86fc69483d2edcd169000df9fadbc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6ea40150a6a430a23a881b0ae5e2ab373ad49514
+# Title: Apply AI improvement personality weights additively
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+34	20	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 2b3df6be0..0ac475f93 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7864,7 +7864,7 @@ namespace
+ 	}
+ }
+ 
+-
++// advc (note): K-Mod function based on AI_updateBestBuild
+ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImprovement,
+ 	int iFoodPriority, int iProductionPriority, int iCommercePriority, int iDesiredFoodChange,
+ 	int iClearFeatureValue, bool bEmphasizeIrrigation, BuildTypes* peBestBuild) const
+@@ -8082,11 +8082,38 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 			(weightedYieldDiffs.get(YIELD_FOOD) > 0)));
+ 	// This corrected priority isn't perfect, but I think it will be better than nothing.
+ 	// K-Mod end
+-
+-	rValue += weightedYieldDiffs.get(YIELD_FOOD) * iCorrectedFoodPriority;
+-	rValue += weightedYieldDiffs.get(YIELD_PRODUCTION) * iProductionPriority * fixp(0.8); // was 0.6
+-	rValue += weightedYieldDiffs.get(YIELD_COMMERCE) * iCommercePriority * fixp(0.4);
+-
++	{
++		YieldPercentMap weights;
++		weights.set(YIELD_FOOD, iCorrectedFoodPriority);
++		// Was 60% in BtS, now 80%.
++		weights.set(YIELD_PRODUCTION, (iProductionPriority * 102) / 128);
++		weights.set(YIELD_COMMERCE, (iCommercePriority * 51) / 128);
++		FOR_EACH_ENUM(Yield)
++			rValue += weightedYieldDiffs.get(eLoopYield) * weights.get(eLoopYield);
++		// <advc.131>, advc.005a: Personality moved up
++		if (!isHuman())
++		{
++			int iPersonalityModifier = GC.getInfo(getPersonalityType()).
++					getImprovementWeightModifier(eFinalImprovement);
++			// This would not help the current improvement
++			/*rValue *= std::max(0, 200 + iPersonalityModifier);
++			rValue /= 200;*/ // BtS
++			// Cleaner based on the difference in modifiers
++			iPersonalityModifier -=
++					(kPlot.isImproved() ? GC.getInfo(getPersonalityType()).
++					getImprovementWeightModifier(kPlot.getImprovementType()) : 0);
++			if (iPersonalityModifier != 0) // save time
++			{
++				/*	Let a 100% personality modifier be as weighty as one unit of
++					the least important yield type (probably commerce). Typical
++					modifiers in XML are 20 to 30%. */
++				scaled rMinWeight = scaled::MAX;
++				FOR_EACH_ENUM(Yield)
++					rMinWeight.decreaseTo(weights.get(eLoopYield));
++				rValue += scaled(iPersonalityModifier, 100) * rMinWeight;
++			}
++		} // </advc.131>
++	}
+ 	/*	K-Mod. If we're going to have too much food
+ 		regardless of the improvement on this plot, then reduce the food value */
+ 	if (iDesiredFoodChange < 0 && -iDesiredFoodChange >=
+@@ -8168,20 +8195,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 		rValue += AI_healthHappyImprovementValue(kPlot, eImprovement,
+ 				eFinalImprovement, bIgnoreFeature, false); // </advc.901>
+ 	}
+-	/*  <advc.131> When considering to replace an improvement, iValue is
+-		based on the yield difference. A small negative value means that the
+-		new improvement is almost as good as the old one. Temporarily increase
+-		the value to allow ImprovementWeightModifier to tip the scales. */
+-	int const iPadding = 50;
+-	rValue += iPadding; // </advc.131>
+-	if (!isHuman() /* advc.131: */ && rValue > 0)
+-	{
+-		rValue *= std::max(0, GC.getInfo(getPersonalityType()).
+-				// advc.005a: was +200
+-				getImprovementWeightModifier(eFinalImprovement) + 100);
+-		rValue /= 100; // advc.005a: was /=200
+-	}
+-	rValue -= iPadding; // advc.131
++	// (advc.131: Leader personality moved up)
+ 	if (!kPlot.isImproved())
+ 	{
+ 		if (kPlot.isBeingWorked() &&
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3540

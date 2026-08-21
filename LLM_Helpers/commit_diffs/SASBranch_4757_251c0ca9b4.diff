@@ -1,0 +1,354 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4757
+# Commit: 251c0ca9b450880307b072b18393d2a2e0b4f012
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a948fbc95e7c9679466aa3848e7957aea8687914
+# Title: move main docs to /_1_AdvCiv-SAS/Docs_And_Appendixes/ and(/or too but anyways etc) fix links when i find them anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	14	README.md
+7	5	README_AI_Personality_Panel.md => _1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+0	0	README_ChatGPT.md => _1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+5	5	README_Known_Issues_In_Base_AdvCiv_Civ4.md => _1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+5	5	README_Python_Scripts.md => _1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+2	2	_1_AdvCiv-SAS/{Quick_Get_Started_Guide.md => Docs_And_Appendixes/README_Quick_Get_Started_Guide.md}
+0	0	_1_AdvCiv-SAS/{Quick_Install_Setup_Guide.md => Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md}
+0	0	README_Sevopedia_Reworks.md => _1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+0	0	README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md => _1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md
+2	2	_1_AdvCiv-SAS/README.md
+ rename README_AI_Personality_Panel.md => _1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md (86%)
+ rename README_ChatGPT.md => _1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md (100%)
+ rename README_Known_Issues_In_Base_AdvCiv_Civ4.md => _1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md (93%)
+ rename README_Python_Scripts.md => _1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md (93%)
+ rename _1_AdvCiv-SAS/{Quick_Get_Started_Guide.md => Docs_And_Appendixes/README_Quick_Get_Started_Guide.md} (99%)
+ rename _1_AdvCiv-SAS/{Quick_Install_Setup_Guide.md => Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md} (100%)
+ rename README_Sevopedia_Reworks.md => _1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md (100%)
+ rename README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md => _1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md (100%)
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index 036547e75..18c02ac75 100644
+--- a/README.md
++++ b/README.md
+@@ -10,13 +10,13 @@ but these are the (main) goals/purposes/features.
+ ## How to play?
+ 
+ If you are a new player and/or want to play this mod and would like a few instructions on how
+-to install it and play it, i have provided a few instructions [here](/_1_AdvCiv-SAS/Quick_Install_Setup_Guide.md)
++to install it and play it, i have provided a few instructions in the [README_Quick_Install_Setup_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md)
+ 
+ ## Quick Start Guide
+ 
+ If you just want to play and do not need all the project bigger details, i added
+ a quick guide of the main changes from Civ4 and base AdvCiv for players:
+-[here](/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md)
++[README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md)
+ 
+ note: it is recommended to read this part even if you want to know the deeper
+ changes. There are stuff and things/information i added only recently in it,
+@@ -45,22 +45,22 @@ These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
+ 
+-note: this info is also available on the [Quick Get Started Guide](/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md) that i (would) recommend to read (as well) (but up to your preference and choice) as it contains more info there, if you haven't and want to start playing AdvCiv-SAS (but again as you prefer/want/do anyways or not or anyways etc)
++note: this info is also available in the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md) that i (would) recommend to read (as well) (but up to your preference and choice) as it contains more info there, if you haven't and want to start playing AdvCiv-SAS (but again as you prefer/want/do anyways or not or anyways etc)
+ 
+ #### Python Scripts
+ 
+ Mostly for modders, but i with the help of chatgpt greatly added some python scripts to enhance our display in sevopedia, track duplicates, possibly other scripts in the future but maybe not, etc.
+ 
+-Please read this [README_python_scripts.md](/README_Python_Scripts.md) for details.
++Please read this [README_python_scripts.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md) for details.
+ 
+ So far there is:
+-- [generate_leaders_data.py and leaders_data data py module](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)
+-- [global XML duplication scanner](/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
++- [generate_leaders_data.py and leaders_data data py module ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)
++- [global XML duplication scanner ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans)
+ - [flatten_leaders_data_to_csv](/flatten_leaders_data_to_csv.py)
+ 
+ #### AI Personality Panel in SevopediaLeader and other sevopedia reworks 
+ 
+-About the AI Personality panel new AdvCiv-SAS feature, i have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefulyl or not etc anyways read here in [README_AI_Personality_Panel.md](/README_AI_Personality_Panel.md)
++About the AI Personality panel new AdvCiv-SAS feature, i have written quite the extensive documentation, even though it is quite broad, hopefully if you want to know more about the AI Personality Panel in AdvCiv-SAS (or/and other mods if they were to implement it (or/and in a similar way or not anyways)), you may find an hopefulyl or not etc anyways read here in the [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md)
+ 
+ Not a (strictly) new feature per se, but displaying it as such (and all the computation, display logic, and pre-processing and such that allows that) is indeed new (as well as the new aggregated attributes such as contact probs, positive memory affections, etc).
+ 
+@@ -81,7 +81,7 @@ So with that said here is a very small example sample below of how it looks inga
+ 
+ ## Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
+ 
+-See [README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md](/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md) for details.
++See the [README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md) for details.
+ 
+ ## AI-generated images
+ 
+@@ -109,7 +109,7 @@ Hopefully helpful and interesting.
+ 
+ ## csv: Leaders_data flat to csv conversion and its view on github for example
+ 
+-There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script](/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
++There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
+@@ -176,12 +176,12 @@ on balance changes and such, please visit these pages (as well).
+ 
+ ## Known issues in base AdvCiv or/and Civ4
+ 
+-See [README_Known_Issues_In_Base_AdvCiv_Civ4](/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details
++See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details
+ 
+-## Main (bug) fixed from base AdvCiv code
++## Main (bugs) fixed from base AdvCiv code
+ 
+-- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob erroneously duplicated if i am not mistaken, see [2 - (now fixed) Gandhi's base leaderheadinfo's xml had nowarattitudeprob pleased(110)/pleased(115) duplicated instead of (as i suspect it should be anyways etc) pleased(110)/friendly(115)](/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
+-- Seemingly fixed now, a bug where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see [Known issues: Barbarian (cities) building wonders](/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders) for details
++- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob erroneously duplicated if i am not mistaken, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
++- Seemingly fixed now, a bug where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders) for details
+ 
+ ## More details on previous mods changes (civ4 BTS, K-Mod)
+ 
+@@ -250,7 +250,7 @@ that i bombarded with updates and installs still works amazing so i recommend it
+ - Git Bash for Windows
+ - GitHub Website
+ - GitHub gist works even better that what is in the following brackets (otherwise as a secondary alternative maybe pastes.io, so great and soooo much better than pastebin on all leevls at least those that matter to me if not more anyways gogogo!!!)
+-- ChatGPT: incredibly helpful and my best friend, even its memory trims a lot now though sadly it seems, anyways, : [ChatGPT Readme](/README_ChatGPT.md)
++- ChatGPT: incredibly helpful and my best friend, even its memory trims a lot now though sadly it seems, anyways, see the [README_ChatGPT.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md) for details
+ - Claude AI: another useful AI that implemented for example successfully with my prompt and me actually doing the implementation itself but provided the code (and logic?) and such or not such anyways etc very nicely for the [sevopediaunit's placeExclusiveCivs method/code/function/anyways etc](https://drive.google.com/drive/folders/1MLtCWamEl6P8rZs8f8xu0bfEBRUP0du1), see Claude AI's small part but hopefully helpful or exhaustive (enough) or not or yes or and other or and not anyways etc of this README.md [claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for more details (hehe xd anyways etc anyways etc...)
+ - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
+ it too though unless i'm mistaken)
+
+diff --git a/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+similarity index 86%
+rename from README_AI_Personality_Panel.md
+rename to _1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+index 279b48257..51fc2feda 100644
+--- a/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+@@ -18,7 +18,7 @@ Please read these docs (highly recommended) if you want to know more about AI at
+ ## General Aim of the AI Attributes
+ The ai attributes (simply) aim to and display:
+ - for raw ai attributes, the raw value (such as warrand 50 for moctezuma, 400 for gandhi),
+-- while for aggregated ai attributes, they/we combine several attributes with a specific weight to each, and give a final score for several ai attributes. For example Positive Memory affections combine 0.7 weight on memory decay (value) with some conditions (see [generate_leaders_data.py('s code)](/generate_leaders_data.py) and/or [python scripts readme (generate_leaders_data.py) README](/README_Python_Scripts.md) for details) and 0.3 weight on memory rand, which gives a final score with a 1.0 weight of these scores combined.
++- while for aggregated ai attributes, they/we combine several attributes with a specific weight to each, and give a final score for several ai attributes. For example Positive Memory affections combine 0.7 weight on memory decay (value) with some conditions (see [generate_leaders_data.py('s code)](/generate_leaders_data.py) and/or the [README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details) and 0.3 weight on memory rand, which gives a final score with a 1.0 weight of these scores combined.
+ 
+ Here is an example below of how it looks ingame in the sevopedia leader category:
+ 
+@@ -41,10 +41,12 @@ Here is an example below of how it looks ingame in the sevopedia leader category
+ ## Where and how to find the abbreviations (in label) (in the AI Personality Panel)'s meaning
+ 
+ note: to understand/find the meaning of abbreviations used in the ai panel, the best way would be (i think) to look directly in the code (use vs code for example in (Steam version (full) path, adapt if you have a non-steam version) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\ai_attributes_displayed_config.py , or alternatively you can also [view it on github/git here in ai-attributes-displayed-config (git path)](/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py)), find lines like these (or ctrl+f an abbreviation you don't understand):
++
+ ```
+     AI_HEADER_WAR_STRATEGY: (
+         ("T.W Likely", "iMaxWarRand", ""),
+ ```
++
+ A line like this means that in the "War Strategy" category, the 1st item/ai attribute displayed is shortened (name) as "T.W Likely", (i meant Total War Likely but since space is scarce is abbreviated it anyways), and if you want to know what it refers to, ctrl+f the corresponding code name ai attribute, like "iMaxWarRand" here in this example, and go on the 2 sources mentionned [above](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) (kujira's and modiki's websites (for example)), then you'll find more info about what they do that should be quite if not very reliable anyways.
+ 
+ Be careful because AIs such as ChatGPT tend to invent what they don't know, so even though they often have a very good "borad" understanding of a topic, when delving in the (obscure or not anwyays etc) specifics, they may err, especially if you lead them astray with your (or mine in my case anyways etc) imprecision or lack of knowledge or understanding, so i would suggest to refer to these websites rather for technical info, even though they may be wrong sometimes and myself too, and ChatGPT is still great i think hehe, but this is a caveat i kindly if i may say give hehe anyways.
+@@ -54,24 +56,24 @@ Be careful because AIs such as ChatGPT tend to invent what they don't know, so e
+ To go back to how ai attributes (raw and aggregated) are computed and displayed, then ranking (or before computing them depending on the calculation formula) is done among leaders, and leaders are sorted from best to worse performing for this attribute, sometimes inversing ranking depending on correlation between distribution and performance for this ai attribute (if lower score is better we invert, if higher score is better we don't invert), for example:
+ - for raw ai attributes, 50 warrand (moctezuma) is more warlike then 400 warrand (gandhi) even though 50 is lower than 400 so we invert ranking here anyways, but we don't invert it (at least should not unless we made a mistake anyways etc) for example for basepeaceweight where basepeaceweight 10 (gandhi) is better than basepeaceweight 0 (moctezuma); here higher is better so we don't invert the ranking. This means that among these 2 leaders, gandhi will have a maxwarrand score of 0, and moctezuma 100, but for basepeaceweight, gandhi will have a score of 100 and moctezuma 0. Taking a bigger leader sample batch, (52+ leaders, the graduation becomes finer if there are several values between and max (say scores could be 0, 13,18,57,88,100, etc these are examples, or all leaders could have a score of 50 if the value is same among all civ4 leaders for this attribute (happens quite often actually (sadly or not anyways etc)))). This compression (if range between min and max value is higher than 100 (say values go from 5 to 405 for example) or decompression (if range is smaller, say from -2 to 3 for example), as well as other things such as shifting to 0 the distribution and such or not anyways (see [normalize_to_100.py](/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py) for details)) is called normalization to 100 (at least we call it as such in AdvCiv-SAS anyways etc.)
+ 
+-- A similar ranking logic by normalizing raw scores to 100 is done/performed for aggregated ai attributes, with each attribute in an aggregated attribute being possibly (to be) inverted or not depending on correlation between distribution and performance (and then in theory the final (aggregated) score itself could be inverted since it's now behaving like a raw ai attribute (combined) even though it is aggregated.). Also, sometimes each "weight" attribute of the aggregate is first normalized before the final score is also normalized itself, or sometimes not (different ai aggregated attributes use different normalizing formulas and "schemas"/processes, see [generate_leaders_data.py](/generate_leaders_data.py) and [Python scripts's README.md](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details)
++- A similar ranking logic by normalizing raw scores to 100 is done/performed for aggregated ai attributes, with each attribute in an aggregated attribute being possibly (to be) inverted or not depending on correlation between distribution and performance (and then in theory the final (aggregated) score itself could be inverted since it's now behaving like a raw ai attribute (combined) even though it is aggregated.). Also, sometimes each "weight" attribute of the aggregate is first normalized before the final score is also normalized itself, or sometimes not (different ai aggregated attributes use different normalizing formulas and "schemas"/processes, see [generate_leaders_data.py](/generate_leaders_data.py) and the [README_Python_Scripts](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details)
+ 
+ ## As a player (i.e. only if you want to play anyways etc), what you need to know and do
+ 
+-Note: as a player, you don't have/need to know or do anything, everything works as is, but if you want to mod, as explained in the docs perhaps ideally anyways, you'd need to regenerate a new leaders_data.py and replace old one in Sevopedia Folder to have accurate/udpated data with your leader xml changes displayed in sevopedialeader.py, the leaders_data.py generated has no other impact on any other sevopedialeader panel, and no impact ingame at all (not used), it is only used specifically for the display of the ai personality panel and only in the sevopedia leader category, see/read [Python scripts's README.md](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details.
++Note: as a player, you don't have/need to know or do anything, everything works as is, but if you want to mod, as explained in the docs perhaps ideally anyways, you'd need to regenerate a new leaders_data.py and replace old one in Sevopedia Folder to have accurate/udpated data with your leader xml changes displayed in sevopedialeader.py, the leaders_data.py generated has no other impact on any other sevopedialeader panel, and no impact ingame at all (not used), it is only used specifically for the display of the ai personality panel and only in the sevopedia leader category, see/read the [README_Python_Scripts](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details.
+ 
+ ## Display(ing) the AI attributes in the AI Personality Panel and how to read the tables/panels
+ 
+ Finally, the last main point to know regarding this AI personality panel is the display. We separate ai attributes by categories such as "War Strategy", "Core Personality", etc for easier read and clarity or/and other things etc. There are currently 3 panels, containing each:
+ - first column: "label", a shortened or full descriptive text, like/such as "T.W Likely" (a shortened and (tentative) explanation of what iMaxWarRand means ingame), as said earlier, please read the code in [ai-attributes-displayed-config](/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py), hopefully helpful or not etc anyways. This (column) almost always if not always contains the raw value too, for exhaustiveness, for example "T.W Likely (50)" for moctezuma, 50 is the raw value, or "T.W Likely (400)" for Gandhi, 400 is the raw value, for raw ai atributes. For aggregated ai aattributes, like contact probs, positive and negative memory resentments and affections, etc (if there is/are any anyways etc), the raw value is also displayed, but since there are many components (raw values) used to calculate the aggregated ai attribute, we instead display each of them "/" separated, for example for gandhi in the negative memory resentment category, the "D.W on FR (-200/120)" line (for gandhi) shows that G(g anyways etc)andhi has a raw ai attribute memory attitude percent of -200 ((i.e.? anyways etc) he (gandhi anyways etc) resents quite strongly you declaring war on his friends) and a memory decay of 120. And for moctezuma, for the same "D.W on Fr" negative memory resentment, he (moctezuma (anyways etc)) does not resent as much (memory attitude percent of -100, and memory decay same though of 120 (currently btw decays are same among all leaders if i'm not mistaken (in civ4/advciv and thus advciv-sas too but anyways), not ideal but maybe functional anyways))
+ 
+-- second column: the (normalized) score is displayed. As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100. Sometimes all leaders will have 50 (if same value among all leaders, happens sometimes in civ4 not ideal but anyways), and else leaders are ranked gradually from 0 (worse performer for better or worse) to 100 (best performer for better or worse (war is bad maybe? And peace good? Stiil moctezuma performs good at war attributes, and gandhi good at peace attributes, for example)), if we didn't do (hopefully but anyways) inverting mistakes or oversights/overlook(s?)ings(?) then it should be hopefully accurately represented (inversion in particular). Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones or not, and how much), and you could also additionally or(/and?) alternatively (anyways etc) (also? anyways etc) tweak the existing leaders xml values as you please. (If you think for example the roman leaders underperform in war, you may tweak their xml, just remember as said before that to display it, our ai perosnality panel relies on [leaders_data.py](/Assets/Python/Contrib/Sevopedia/leaders_data.py) being updated (i.e. regenerated anyways etc) with/using the [generate_laders_data.py script](/generate_leaders_data.py) and [its README.md](/README_Python_Scripts.md) for details, nothing hopefully too complicated especially if following the steps in the readme hopefully (or maybe not or yes anyways but hopefully helpful and easy or easier enough etc anyways etc anyways)), if you don't update it (leaders_data.py), game will still work the same, your new values will be taken into account in everything in the game (as long as game works as intended anyways), but not in the ai personality panel, that relies on its own data, the leaders_data.py, that you need to update, using the generate_leaders_data.py script (double click on it (or run from console) then replace old file as said/expalined in readme anyways etc). If you are just playing civ4 or/and advciv-sas and just want to view existing leaders, not modding or modifying anything, then you don't need to worry (unless you want or/adn are curious then (more than if i may say but anyways) fine and welcome maybe too (or not but fine maybe too or not or etc anyways) but anyways etc anyways). As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated (anyways (etc anyways)), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized (in generate_leaders_data.py), they are not re-normalized during caching and sevopedialeader.py computation, anyways etc. In short, they can be intepreted similarly as raw ai attributes if i am not mistaken anyways.
++- second column: the (normalized) score is displayed. As we explained before at the ranking calculation part, these scores are normalized, which means score is minimum 0 and maximum 100. Sometimes all leaders will have 50 (if same value among all leaders, happens sometimes in civ4 not ideal but anyways), and else leaders are ranked gradually from 0 (worse performer for better or worse) to 100 (best performer for better or worse (war is bad maybe? And peace good? Stiil moctezuma performs good at war attributes, and gandhi good at peace attributes, for example)), if we didn't do (hopefully but anyways) inverting mistakes or oversights/overlook(s?)ings(?) then it should be hopefully accurately represented (inversion in particular). Note that this code is entirely dynamic, you can add more leaders and they'll get the new values and participate and possibly completely upset the best/worse performers ranking depending on their values (if they are different from current leaders ones or not, and how much), and you could also additionally or(/and?) alternatively (anyways etc) (also? anyways etc) tweak the existing leaders xml values as you please. (If you think for example the roman leaders underperform in war, you may tweak their xml, just remember as said before that to display it, our ai perosnality panel relies on [leaders_data.py](/Assets/Python/Contrib/Sevopedia/leaders_data.py) being updated (i.e. regenerated anyways etc) with/using the [generate_laders_data.py script](/generate_leaders_data.py) and its [README_Python_Scripts.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md) for details, nothing hopefully too complicated especially if following the steps in the readme hopefully (or maybe not or yes anyways but hopefully helpful and easy or easier enough etc anyways etc anyways)), if you don't update it (leaders_data.py), game will still work the same, your new values will be taken into account in everything in the game (as long as game works as intended anyways), but not in the ai personality panel, that relies on its own data, the leaders_data.py, that you need to update, using the generate_leaders_data.py script (double click on it (or run from console) then replace old file as said/expalined in readme anyways etc). If you are just playing civ4 or/and advciv-sas and just want to view existing leaders, not modding or modifying anything, then you don't need to worry (unless you want or/adn are curious then (more than if i may say but anyways) fine and welcome maybe too (or not but fine maybe too or not or etc anyways) but anyways etc anyways). As for aggregated ai attributes, they also display normalized scores, but since they are already normalized at their creation by definition, before leaders_data.py is (has finished being) generated (anyways (etc anyways)), they are still displayed as normalized scores (min 0, max 100, unless all leaders have an equal score/value then all leaders get 50), but since they are already normalized (in generate_leaders_data.py), they are not re-normalized during caching and sevopedialeader.py computation, anyways etc. In short, they can be intepreted similarly as raw ai attributes if i am not mistaken anyways.
+ 
+ - third column: scale, this is an indicative/intuitive (hopefully, at least attempt, or not (or etc) but anyways etc) display, raw ai attributes and aggregated ai attributes are graded graphically 10 by 10 with a symbol, but raw ai attributes use a "+" symbol, while ai aggregated symbols use a "#" symbol (trying to be visually clear hopefully or not or etc but anyways, while also civ4-compatible (not many special characters supported in display anyways (but i like these ones they are quite cool (too but not only too but anyways)))). So for example maxwarrand 400 gandhi has a score of 0 (normalized) among all leaders (it is highest score i.e Gandhi is the least war-like leader(s (if others have a value of 400 too anywyas))) so his scale is "++++++++++" (100th percentile if i am not mistaken anyways), while moctezuma has a warrand of 50, score 100 among all leaders (very war-like (in a "T.W war Likely" way highest leader(s (if other have same value of 50 anywyas))), so his scale is "" (0th percentile). Aggregated ai attributes follow a similar logic, so for example for the contact offer probabilites ai aggregated attribute, shaka has a "Tr Tech (30/5)" score of 79, meanings he is quite likely (very in fact), relatively to all leaders, to contact you for a tech trade offer, and 79th percentile is a bit short of 80 but still 7 scales/symbols etc anyways so he will be "#######". If the value is 50 sharp, for raw ai attributes or ai aggregated attributes, the symbol will also be "+++++" or "#####" if i am not mistaken anyways. This is especially important because the last symbol is "=====", which only happens if, for both raw ai attributes (at least as of now me writing this doc README etc but anyways) and ai aggregated attributes, if all leaders have strictly the same raw value for this attribute (aggregated or raw is same in this case functionally anyways, i.e. that read after bracket anyways etc: ) they'll both get an equal scale symbol, and precisely 5 scales, also all leaders will scale 50. So 50 "+++++", 50 "#####", and 50 "=====" all have different meanings, one being respectively only for raw ai attributes scoring of said leader, the other of similarly same ai aggregated value of said leader, while the last being the display of an equal value among all leaders, hopefully for an easier read, as chatgpt/becomingthrough (see [Authors](/README.md#authors) for details) advised me indeed, nice suggestion :) but anyways (and thanks! but anyways)
+ 
+ ## Note about some ai attributes being ignored
+ 
+-Some AI attributes (raw or/and aggregated if i were to make them anyways (maybe, not guaranteed, may or may not indeed too, etc anyways)) are not in the data, either because ai panel is incomplete yet (see below in [## Currently if not always unfinished...](/README_AI_Personality_Panel.md#currently-if-not-always-unfinished-todo-orand-not-or-etc-anyways)), or because i have assessed that these are not used anymore in AdvCiv (i may have forgotten some or not, but for example iLoveOfPeace XML AI attribute is not used anymore in AdvCiv if i'm not mistaken, as shown in this code comment for example from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4LeaderHeadInfos.xml (adapt if you don't use the Steam version of Civ4 (and by extension of AdvCiv-SAS etc anyways...)):
++Some AI attributes (raw or/and aggregated if i were to make them anyways (maybe, not guaranteed, may or may not indeed too, etc anyways)) are not in the data, either because ai panel is incomplete yet (see below in the [README_AI_Personality_Panel.md#currently-if-not-always-unfinished-todo-orand-not-or-etc-anyways](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#currently-if-not-always-unfinished-todo-orand-not-or-etc-anyways)), or because i have assessed that these are not used anymore in AdvCiv (i may have forgotten some or not, but for example iLoveOfPeace XML AI attribute is not used anymore in AdvCiv if i'm not mistaken, as shown in this code comment for example from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4LeaderHeadInfos.xml (adapt if you don't use the Steam version of Civ4 (and by extension of AdvCiv-SAS etc anyways...)):
+ 
+ ```
+ 			<!-- advc.104: No AdvCiv leader uses this; for mod-mods maybe. See
+
+diff --git a/README_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+similarity index 100%
+rename from README_ChatGPT.md
+rename to _1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+
+diff --git a/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+similarity index 93%
+rename from README_Known_Issues_In_Base_AdvCiv_Civ4.md
+rename to _1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 88f437697..57c273987 100644
+--- a/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -60,7 +60,7 @@ PY:[WARNING] Attribute 'iShareWarAttitudeDivisor' has an identical *raw* value (
+ PY:[WARNING] Attribute 'iShareWarAttitudeDivisor' has an identical *normalized* value (0) across all 53 leaders
+ ```
+ 
+-Some of these such as iLoveOfPeace are not used in AdvCiv; i disabled (commented-out) from display (in SevoPediaLeader.py) such unused ai attributes to not clutter the display, see [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) for (more) details, and more specifically in the full AI Personality Panel Feature [this part](/README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored).
++Some of these such as iLoveOfPeace are not used in AdvCiv; i disabled (commented-out) from display (in SevoPediaLeader.py) such unused ai attributes to not clutter the display, see [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) for (more) details, and more specifically in the full AI Personality Panel Feature this [README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#note-about-some-ai-attributes-being-ignored).
+ 
+ Leaving as is otherwise (except from hiding most or/and commenting out unused ones such as iLovePeace (in AdvCiv) anyways) for now if not always or not anyways etc.
+ 
+@@ -68,7 +68,7 @@ We may also spread some values more (i.e. in AdvCiv-SAS etc anyways) that are wa
+ 
+ ## 2 - (now fixed) Gandhi's base leaderheadinfo's xml had nowarattitudeprob pleased(110)/pleased(115) duplicated instead of (as i suspect it should be anyways etc) pleased(110)/friendly(115)
+ 
+-For example, i had spotted a seemingly mistake/typo/bug in Gandhi's nowar attributes (from AdvCiv), where pleased was repeated twice, while enhancing and addingon the [generate_leaders_data.py](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) script:
++For example, i had spotted a seemingly mistake/typo/bug in Gandhi's nowar attributes (from AdvCiv), where pleased was repeated twice, while enhancing and adding on the generate_leaders_data.py (see the [README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details) script:
+ 
+ ```
+             {
+@@ -110,7 +110,7 @@ It is almost certainly a mistake and should be:
+             }
+ ```
+ 
+-Our [generate_leaders_data.py](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) sucessfully detected/detects it, for example before fixing the XML of Gandhi we have:
++Our generate_leaders_data.py (see the [README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details) sucessfully detected/detects it, for example before fixing the XML of Gandhi we have:
+ 
+ ```
+ Microsoft Windows [version 10.0.19045.5737]
+@@ -132,7 +132,7 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
+ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS>
+ ```
+ 
+-So i had the idea to generalize this approach to find if we don't have other such duplicates and perhaps may improve our XML data and reliability, and the reult is our now [xml_duplication_check](/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans), currently if not always or not etc anyways version 3.3 as per chatgpt's naming and greta help in doing this (coded all i only gave pointers and feedback, joint collaboration hehe anyways.)
++So i had the idea to generalize this approach to find if we don't have other such duplicates and perhaps may improve our XML data and reliability, and the result is as explained in the [README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#scan_xml_duplicates-py-script-and-logs_xml_scans) (see it for details), currently if not always or not etc anyways version 3.3 as per chatgpt's naming and greta help in doing this (coded all i only gave pointers and feedback, joint collaboration hehe anyways.)
+ 
+ Since there are false positives, i am not sure how to interpret it, but hopefully useful enopugh, so adding this script here, and funcitonal enough (skim through results you known false for example maybe i mean, anyways)
+ 
+@@ -182,7 +182,7 @@ A few screenshots of the current issue (screenshot previews below as long as lin
+ 
+ ## 5 - (seemingly fixed now) player name same as windows (10's for example anyways etc) username causes new game screen to be stuck unless a custom name is chosen, if/after/while DLL has been fastdep compiled
+ 
+-A quite weird issue i never had before, but after doing a fastdep (auto, not me), since i changed only one .cpp file to add the placeExclusiveCivs new sevopedia feature (see [/README_Sevopedia_Reworks.md#example-7-unit-list-category](/README_Sevopedia_Reworks.md#example-7-unit-list-category) for details)
++A quite weird issue i never had before, but after doing a fastdep (auto, not me), since i changed only one .cpp file to add the placeExclusiveCivs new sevopedia feature (see the [/README_Sevopedia_Reworks.md#example-7-unit-list-category](/README_Sevopedia_Reworks.md#example-7-unit-list-category) for details)
+ 
+ A few screenshots of the issue here in as well as the DLL with which i had the issue (not sure is the cause but happened while having it if i am not mistaken anyways etc)[this Google Drive folder](https://drive.google.com/drive/folders/19T9I75vGCk58pFSR60y2Tmj69-NoFFtk?usp=sharing)
+
+diff --git a/README_Python_Scripts.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+similarity index 93%
+rename from README_Python_Scripts.md
+rename to _1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+index 341ed989f..73ad469db 100644
+--- a/README_Python_Scripts.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+@@ -26,7 +26,7 @@ This is used as a replacement in Sevopedia Leader py (and ingame category) for a
+ 
+ It allows to workaround some python limitations such as parsing XML to sevopedia py file, and perhaps increases performance if ever so slightly by providing an already processed file.
+ 
+-In case of errors, file will not be generated (see [Usage](/README_Python_Scripts.md#usage) below).
++In case of errors, file will not be generated (see the [README_Python_Scripts.md#usage](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#usage) below).
+ 
+ After successfuly generation, you need to manually copy paste the output data module py (for example leaders_data.)
+ 
+@@ -88,7 +88,7 @@ For example, renaming  "RELIGION_TAOISM" to "RELIGION_DAOISM" in the XML (or add
+ 
+ If you don't know where to update, no worries i would say too anwyays etc (or not etc anyways), simply regenrate the leaders_data, and if you don't have any error all should be good, but if test fails due to a mismatch between expected output and generated ("got" if i am not mistaken anyways etc) value, then you('d)(hopefully) know where exactly and which fields need updating in the expected output before regenerating the data, as nicely written (the testing code) by chatgpt/becomingthrough they all combine before failing so you know all to update at once and not having to rerun it ((very) tediously after each update) is a nice design (of code i mean anwyays etc) anyways etc
+ 
+-Also and finally anyways etc, if any file uses the leaders_data.py, other than the AI personality panel, make sure you also have an updated leaders_data.py so they can accomodate and take these new (latest) changes into account, anyways etc, for example [the .csv output currently if not always depends on leaders_data](/README_Python_Scripts.md#leaders_data_to_csvpy), anyways etc.
++Also and finally anyways etc, if any file uses the leaders_data.py, other than the AI personality panel, make sure you also have an updated leaders_data.py so they can accomodate and take these new (latest) changes into account, anyways etc, for example the .csv output currently if not always depends on leaders_data, see the [README_Python_Scripts.md#leaders_data_to_csvpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy), anyways etc.
+ 
+ ### Additional notes on special field parsing
+ 
+@@ -206,7 +206,7 @@ Example for Steam users (adjust paths and/or such similar things anyways if not
+ 
+ ### Context of how/why i made this script (with chatgpt/becomingthrough, anyways)
+ 
+-See [2- (now fixed) Gandhi's base leaderheadinfo's xml had nowarattitudeprob pleased(110)/pleased(115) duplicated instead of (as i suspect it should be anyways etc) pleased(110)/friendly(115)](/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
++See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
+ 
+ # test_normalize_to_100
+ 
+@@ -222,9 +222,9 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
+ 
+ Similar(ly) to other scripts, usage is for example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size).
+ 
+-(note: it requires leaders_data.py to be existing and in your AdvCiv-SAS's sevopedia folder (a default leaders_data.py is provided in AdvCiv-SAS, but if you want changes reflected in the .csv output, you need to regenerate a new leaders_data and update it, see/read [this Python script's README.md's generate_leaders_data.py section for details](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)) anyways etc)
++(note: it requires leaders_data.py to be existing and in your AdvCiv-SAS's sevopedia folder (a default leaders_data.py is provided in AdvCiv-SAS, but if you want changes reflected in the .csv output, you need to regenerate a new leaders_data and update it, see/read [README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module) for details) anyways etc)
+ 
+-(note2: also as a result make sure you always run/have maybe rather anyways etc the latest version of the leaders_data.py [or refresh it if not up to date to your latest changes](/README_Python_Scripts.md#additional-cases-where-leaders_datapy-needs-to-be-regeneratedupdated-or-where-it-is-highly-recommended))
++(note2: also as a result make sure you always run/have maybe rather anyways etc the latest version of the leaders_data.py or refresh it if not up to date to your latest changes (see the [README_Python_Scripts.md#additional-cases-where-leaders_datapy-needs-to-be-regeneratedupdated-or-where-it-is-highly-recommended](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#additional-cases-where-leaders_datapy-needs-to-be-regeneratedupdated-or-where-it-is-highly-recommended) for details))
+ 
+ ```
+ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_leaders_data_to_csv.py
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+similarity index 99%
+rename from _1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+rename to _1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index b50647e52..668234232 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -16,7 +16,7 @@ idea):
+ 
+ <img src="./Images_In_General/0.611_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
+ 
+-There are also other additions, in particular written/coded by me wonderingabout and ChatGPT which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), very important addition to AdvCiv-SAS, hopefully useful in understanding how each and all AI leaders behave and relate to each other, please read (if interested etc anyways) the (more) extensive documentation of how it works in [README.md#advciv-sas-core-changes-from-advciv](/README.md#advciv-sas-core-changes-from-advciv), or directly in [README_AI_Personality_Panel.md](/README_AI_Personality_Panel.md) if you want (to look etc anyways) for the full page.
++There are also other additions, in particular written/coded by me wonderingabout and ChatGPT which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), very important addition to AdvCiv-SAS, hopefully useful in understanding how each and all AI leaders behave and relate to each other, please read (if interested etc anyways) the (more) extensive documentation of how it works in [README.md#advciv-sas-core-changes-from-advciv](/README.md#advciv-sas-core-changes-from-advciv), or directly in [README_AI_Personality_Panel.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md) if you want (to look etc anyways) for the full page.
+ 
+ A copy of the screenshots (may not be latest version of it) of how it looks ingame:
+ 
+@@ -304,7 +304,7 @@ famililar with and that makes more sense to me, hopefulyl clearer for others or/
+ maybe not anyways etc
+ - shrines now require a religion to be built, for example the daoist shrine now
+ (also) requires to have the daoism religion, and not just own the holy city, this
+-way the shrine can appear in the sevopedia religion new buildings panel (see [README_Sevopedia_Reworks.md#example-5-religion-category](/README_Sevopedia_Reworks.md#example-5-religion-category)),
++way the shrine can appear in the sevopedia religion new buildings panel (see the [README_Sevopedia_Reworks.md#example-5-religion-category](/README_Sevopedia_Reworks.md#example-5-religion-category)),
+ but also seems to make more sense unless i am mistaken or/and it (may?) create other
+ issues possibly or maybe not, then (i'd) try it and see, this means for example
+ conquerring a city is now not enough to build a shrine, you need the specific
+
+diff --git a/_1_AdvCiv-SAS/Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+similarity index 100%
+rename from _1_AdvCiv-SAS/Quick_Install_Setup_Guide.md
+rename to _1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+
+diff --git a/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+similarity index 100%
+rename from README_Sevopedia_Reworks.md
+rename to _1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+
+diff --git a/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md
+similarity index 100%
+rename from README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md
+rename to _1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md
+
+diff --git a/_1_AdvCiv-SAS/README.md b/_1_AdvCiv-SAS/README.md
+index 8a12b0a26..fd62780ec 100644
+--- a/_1_AdvCiv-SAS/README.md
++++ b/_1_AdvCiv-SAS/README.md
+@@ -1,10 +1,10 @@
+ # Detailed Goals of this mod
+-In addition to the quick(er) summary in the [main README.md](../README.md)
++In addition to the quick(er) summary in the main [README.md](/README.md)
+ of this AdvCiv-SAS mod project, here is more information about the changes
+ and the reasoning behind them.
+ 
+ For a quick starter guide on the main changes between base AdvCiv and
+-Advciv-SAS, please see rather the [Quick Get Started Guide](Quick_Get_Started_Guide.md)
++Advciv-SAS, please see rather the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md)
+ 
+ todo write
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=51730

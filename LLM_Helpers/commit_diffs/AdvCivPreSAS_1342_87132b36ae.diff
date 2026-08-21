@@ -1,0 +1,3229 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1342
+# Commit: 87132b36aec4044d6eb4f7e9eeeabe7cb7246d11
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a5724ff58159f2c073fe9b3b55ddcc30210dbf13
+# Title: India and Tibet added to the EuroWorld scenario
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+651	487	EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave
+47	1	EuroWorld scenario/java/wbo/Civ.java
+413	54	EuroWorld scenario/java/wbo/WBOut.java
+8	5	EuroWorld scenario/readme.txt
+2	0	links.txt
+
+[PATCHES]
+
+diff --git a/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave b/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave
+index f3bb7b426..77d33b1a1 100644
+--- a/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave	
++++ b/EuroWorld scenario/EuroWorld.CivBeyondSwordWBSave	
+@@ -8,9 +8,17 @@ BeginGame
+ 	Description=Eurocentric world map to replace Earth18Civs. Custom projection with some resemblance to the Bonne projection. Optimized for the Advanced Civ mod, but no mod is required. Work in progress.
+ EndGame
+ BeginTeam
++	Tech=TECH_FISHING
+ 	Tech=TECH_MYSTICISM
+-	Tech=TECH_THE_WHEEL
+ 	Tech=TECH_CALENDAR
++	Tech=TECH_SATELLITES
++	Tech=TECH_POLYTHEISM
++	Tech=TECH_CODE_OF_LAWS
++	Tech=TECH_PHILOSOPHY
++EndTeam
++BeginTeam
++	Tech=TECH_MYSTICISM
++	Tech=TECH_THE_WHEEL
+ EndTeam
+ BeginTeam
+ 	Tech=TECH_MINING
+@@ -56,10 +64,6 @@ BeginTeam
+ 	Tech=TECH_FISHING
+ 	Tech=TECH_AGRICULTURE
+ EndTeam
+-BeginTeam
+-	Tech=TECH_FISHING
+-	Tech=TECH_MYSTICISM
+-EndTeam
+ BeginTeam
+ 	Tech=TECH_AGRICULTURE
+ EndTeam
+@@ -74,14 +78,58 @@ EndTeam
+ BeginTeam
+ EndTeam
+ 
++BeginPlayer
++	LeaderType=LEADER_TOKUGAWA
++	CivType=CIVILIZATION_JAPAN
++	Team=0
++	PlayableCiv=1
++	StartingX=53, StartingY=14
++	Handicap=HANDICAP_NOBLE
++	CityList=TXT_KEY_CITY_NAME_AOMORI
++	CityList=TXT_KEY_CITY_NAME_KYOTO
++	CityList=TXT_KEY_CITY_NAME_OSAKA
++	CityList=TXT_KEY_CITY_NAME_TOKYO
++	CityList=TXT_KEY_CITY_NAME_SATSUMA
++	CityList=TXT_KEY_CITY_NAME_KAGOSHIMA
++	CityList=TXT_KEY_CITY_NAME_NARA
++	CityList=TXT_KEY_CITY_NAME_NAGOYA
++	CityList=TXT_KEY_CITY_NAME_IZUMO
++	CityList=TXT_KEY_CITY_NAME_NAGASAKI
++	CityList=TXT_KEY_CITY_NAME_YOKOHAMA
++	CityList=TXT_KEY_CITY_NAME_SHIMONOSEKI
++	CityList=TXT_KEY_CITY_NAME_MATSUYAMA
++	CityList=TXT_KEY_CITY_NAME_SAPPORO
++	CityList=TXT_KEY_CITY_NAME_HAKODATE
++	CityList=TXT_KEY_CITY_NAME_ISE
++	CityList=TXT_KEY_CITY_NAME_TOYAMA
++	CityList=TXT_KEY_CITY_NAME_FUKUSHIMA
++	CityList=TXT_KEY_CITY_NAME_SUO
++	CityList=TXT_KEY_CITY_NAME_BIZEN
++	CityList=TXT_KEY_CITY_NAME_ECHIZEN
++	CityList=TXT_KEY_CITY_NAME_IZUMI
++	CityList=TXT_KEY_CITY_NAME_OMI
++	CityList=TXT_KEY_CITY_NAME_ECHIGO
++	CityList=TXT_KEY_CITY_NAME_KOZUKE
++	CityList=TXT_KEY_CITY_NAME_SADO
++	CityList=TXT_KEY_CITY_NAME_KOBE
++	CityList=TXT_KEY_CITY_NAME_NAGANO
++	CityList=TXT_KEY_CITY_NAME_HIROSHIMA
++	CityList=TXT_KEY_CITY_NAME_TAKAYAMA
++	CityList=TXT_KEY_CITY_NAME_AKITA
++	CityList=TXT_KEY_CITY_NAME_FUKUOKA
++	CityList=TXT_KEY_CITY_NAME_KAMAKURO
++	CityList=TXT_KEY_CITY_NAME_KOCHI
++	CityList=TXT_KEY_CITY_NAME_NAHA
++EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_ASOKA
+ 	CivType=CIVILIZATION_INDIA
+-	Team=0
++	Team=1
+ 	PlayableCiv=1
+-	StartingX=18, StartingY=14
++	StartingX=90, StartingY=40
+ 	Handicap=HANDICAP_NOBLE
+ 	CityList=TXT_KEY_CITY_NAME_PATALIPUTRA
++	CityList=TXT_KEY_CITY_NAME_AMARAVATI
+ 	CityList=TXT_KEY_CITY_NAME_DELHI
+ 	CityList=TXT_KEY_CITY_NAME_BOMBAY
+ 	CityList=TXT_KEY_CITY_NAME_VIJAYANAGARA
+@@ -109,7 +157,6 @@ BeginPlayer
+ 	CityList=TXT_KEY_CITY_NAME_THANJAVUR
+ 	CityList=TXT_KEY_CITY_NAME_BODHGAYA
+ 	CityList=TXT_KEY_CITY_NAME_KUSHINAGAR
+-	CityList=TXT_KEY_CITY_NAME_AMARAVATI
+ 	CityList=TXT_KEY_CITY_NAME_GAUR
+ 	CityList=TXT_KEY_CITY_NAME_GWALIOR
+ 	CityList=TXT_KEY_CITY_NAME_JAIPUR
+@@ -182,7 +229,7 @@ EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_CHARLEMAGNE
+ 	CivType=CIVILIZATION_CELT
+-	Team=1
++	Team=2
+ 	PlayableCiv=1
+ 	StartingX=55, StartingY=50
+ 	Handicap=HANDICAP_NOBLE
+@@ -236,7 +283,7 @@ EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_CHINESE_LEADER
+ 	CivType=CIVILIZATION_CHINA
+-	Team=2
++	Team=3
+ 	PlayableCiv=1
+ 	StartingX=38, StartingY=14
+ 	Handicap=HANDICAP_NOBLE
+@@ -288,14 +335,14 @@ EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_DARIUS
+ 	CivType=CIVILIZATION_PERSIA
+-	Team=3
++	Team=4
+ 	PlayableCiv=1
+ 	StartingX=75, StartingY=36
+ 	Handicap=HANDICAP_NOBLE
+ 	CityList=TXT_KEY_CITY_NAME_PERSEPOLIS
+ 	CityList=TXT_KEY_CITY_NAME_ECBATANA
+-	CityList=TXT_KEY_CITY_NAME_KANDAHAR
+ 	CityList=TXT_KEY_CITY_NAME_MERV
++	CityList=TXT_KEY_CITY_NAME_KANDAHAR
+ 	CityList=TXT_KEY_CITY_NAME_PASARGADAE
+ 	CityList=TXT_KEY_CITY_NAME_SUSA
+ 	CityList=TXT_KEY_CITY_NAME_TARSUS
+@@ -361,7 +408,7 @@ EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_GENGHIS_KHAN
+ 	CivType=CIVILIZATION_MONGOL
+-	Team=4
++	Team=5
+ 	PlayableCiv=1
+ 	StartingX=28, StartingY=14
+ 	Handicap=HANDICAP_NOBLE
+@@ -403,7 +450,7 @@ EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_JULIUS_CAESAR
+ 	CivType=CIVILIZATION_ROME
+-	Team=5
++	Team=6
+ 	PlayableCiv=1
+ 	StartingX=54, StartingY=44
+ 	Handicap=HANDICAP_NOBLE
+@@ -466,7 +513,7 @@ EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_PERICLES
+ 	CivType=CIVILIZATION_GREECE
+-	Team=6
++	Team=7
+ 	PlayableCiv=1
+ 	StartingX=60, StartingY=41
+ 	Handicap=HANDICAP_NOBLE
+@@ -519,7 +566,7 @@ EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_PETER
+ 	CivType=CIVILIZATION_RUSSIA
+-	Team=7
++	Team=8
+ 	PlayableCiv=1
+ 	StartingX=69, StartingY=51
+ 	Handicap=HANDICAP_NOBLE
+@@ -565,7 +612,7 @@ EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_RAGNAR
+ 	CivType=CIVILIZATION_ENGLAND
+-	Team=8
++	Team=9
+ 	PlayableCiv=1
+ 	StartingX=53, StartingY=57
+ 	Handicap=HANDICAP_NOBLE
+@@ -616,7 +663,7 @@ EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_RAMESSES
+ 	CivType=CIVILIZATION_EGYPT
+-	Team=9
++	Team=10
+ 	PlayableCiv=1
+ 	StartingX=64, StartingY=35
+ 	Handicap=HANDICAP_NOBLE
+@@ -681,7 +728,7 @@ EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_SALADIN
+ 	CivType=CIVILIZATION_ARABIA
+-	Team=10
++	Team=11
+ 	PlayableCiv=1
+ 	StartingX=71, StartingY=37
+ 	Handicap=HANDICAP_NOBLE
+@@ -729,7 +776,7 @@ EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_SURYAVARMAN
+ 	CivType=CIVILIZATION_KHMER
+-	Team=11
++	Team=12
+ 	PlayableCiv=1
+ 	StartingX=48, StartingY=14
+ 	Handicap=HANDICAP_NOBLE
+@@ -776,49 +823,6 @@ BeginPlayer
+ 	CityList=TXT_KEY_CITY_NAME_LOVEK
+ 	CityList=TXT_KEY_CITY_NAME_UDONG
+ EndPlayer
+-BeginPlayer
+-	LeaderType=LEADER_TOKUGAWA
+-	CivType=CIVILIZATION_JAPAN
+-	Team=12
+-	PlayableCiv=1
+-	StartingX=53, StartingY=14
+-	Handicap=HANDICAP_NOBLE
+-	CityList=TXT_KEY_CITY_NAME_AOMORI
+-	CityList=TXT_KEY_CITY_NAME_KYOTO
+-	CityList=TXT_KEY_CITY_NAME_OSAKA
+-	CityList=TXT_KEY_CITY_NAME_TOKYO
+-	CityList=TXT_KEY_CITY_NAME_SATSUMA
+-	CityList=TXT_KEY_CITY_NAME_KAGOSHIMA
+-	CityList=TXT_KEY_CITY_NAME_NARA
+-	CityList=TXT_KEY_CITY_NAME_NAGOYA
+-	CityList=TXT_KEY_CITY_NAME_IZUMO
+-	CityList=TXT_KEY_CITY_NAME_NAGASAKI
+-	CityList=TXT_KEY_CITY_NAME_YOKOHAMA
+-	CityList=TXT_KEY_CITY_NAME_SHIMONOSEKI
+-	CityList=TXT_KEY_CITY_NAME_MATSUYAMA
+-	CityList=TXT_KEY_CITY_NAME_SAPPORO
+-	CityList=TXT_KEY_CITY_NAME_HAKODATE
+-	CityList=TXT_KEY_CITY_NAME_ISE
+-	CityList=TXT_KEY_CITY_NAME_TOYAMA
+-	CityList=TXT_KEY_CITY_NAME_FUKUSHIMA
+-	CityList=TXT_KEY_CITY_NAME_SUO
+-	CityList=TXT_KEY_CITY_NAME_BIZEN
+-	CityList=TXT_KEY_CITY_NAME_ECHIZEN
+-	CityList=TXT_KEY_CITY_NAME_IZUMI
+-	CityList=TXT_KEY_CITY_NAME_OMI
+-	CityList=TXT_KEY_CITY_NAME_ECHIGO
+-	CityList=TXT_KEY_CITY_NAME_KOZUKE
+-	CityList=TXT_KEY_CITY_NAME_SADO
+-	CityList=TXT_KEY_CITY_NAME_KOBE
+-	CityList=TXT_KEY_CITY_NAME_NAGANO
+-	CityList=TXT_KEY_CITY_NAME_HIROSHIMA
+-	CityList=TXT_KEY_CITY_NAME_TAKAYAMA
+-	CityList=TXT_KEY_CITY_NAME_AKITA
+-	CityList=TXT_KEY_CITY_NAME_FUKUOKA
+-	CityList=TXT_KEY_CITY_NAME_KAMAKURO
+-	CityList=TXT_KEY_CITY_NAME_KOCHI
+-	CityList=TXT_KEY_CITY_NAME_NAHA
+-EndPlayer
+ BeginPlayer
+ 	LeaderType=LEADER_ZARA_YAQOB
+ 	CivType=CIVILIZATION_ETHIOPIA
+@@ -7608,8 +7612,8 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=18,y=14
+-	TerrainType=TERRAIN_GRASS
+-	PlotType=2
++	TerrainType=TERRAIN_OCEAN
++	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=18,y=15
+@@ -7735,25 +7739,6 @@ BeginPlot
+ 	x=18,y=39
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=2
+-	BeginUnit
+-		UnitType=UNIT_ARCHER, UnitOwner=18
+-	EndUnit
+-	BeginUnit
+-		UnitType=UNIT_WARRIOR, UnitOwner=18
+-	EndUnit
+-	BeginCity
+-		CityOwner=18
+-		CityName=TXT_KEY_CITY_NAME_dummy
+-		ReligionType=RELIGION_BUDDHISM
+-		ReligionType=RELIGION_HINDUISM
+-		ReligionType=RELIGION_CONFUCIANISM
+-		ReligionType=RELIGION_TAOISM
+-		HolyCityReligionType=RELIGION_BUDDHISM
+-		HolyCityReligionType=RELIGION_HINDUISM
+-		HolyCityReligionType=RELIGION_CONFUCIANISM
+-		HolyCityReligionType=RELIGION_TAOISM
+-	EndCity
+-	ImprovementType=IMPROVEMENT_GOODY_HUT
+ EndPlot
+ BeginPlot
+ 	x=18,y=40
+@@ -17088,17 +17073,17 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=44,y=31
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=44,y=32
+ 	BonusType=BONUS_RICE
+-	isNOfRiver
+-	RiverWEDirection=1
+ 	isWOfRiver
+ 	RiverNSDirection=0
++	isNOfRiver
++	RiverWEDirection=1
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -17463,7 +17448,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=45,y=30
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -17845,7 +17830,7 @@ BeginPlot
+ 	x=46,y=30
+ 	isWOfRiver
+ 	RiverNSDirection=2
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -18226,7 +18211,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=47,y=30
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -18611,7 +18596,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=48,y=30
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -19007,7 +18992,7 @@ BeginPlot
+ 	x=49,y=30
+ 	isWOfRiver
+ 	RiverNSDirection=2
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -19391,7 +19376,7 @@ BeginPlot
+ 	x=50,y=30
+ 	isNOfRiver
+ 	RiverWEDirection=3
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -19771,7 +19756,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=51,y=29
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+@@ -19780,7 +19765,7 @@ BeginPlot
+ 	BonusType=BONUS_FUR
+ 	isNOfRiver
+ 	RiverWEDirection=3
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -20157,7 +20142,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=52,y=28
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -20319,7 +20304,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=52,y=56
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+@@ -20549,13 +20534,13 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=53,y=28
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=53,y=29
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -20944,7 +20929,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=54,y=28
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -21101,7 +21086,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=54,y=57
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+@@ -21114,7 +21099,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=54,y=59
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=2
+ 	TerrainType=TERRAIN_TUNDRA
+ 	PlotType=1
+ EndPlot
+@@ -21336,13 +21321,13 @@ EndPlot
+ BeginPlot
+ 	x=55,y=28
+ 	BonusType=BONUS_IRON
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=55,y=29
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -21503,7 +21488,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=55,y=58
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=2
+ 	TerrainType=TERRAIN_TUNDRA
+ 	PlotType=1
+ EndPlot
+@@ -21724,7 +21709,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=56,y=28
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -21890,7 +21875,7 @@ BeginPlot
+ 	x=56,y=58
+ 	isWOfRiver
+ 	RiverNSDirection=2
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=2
+ 	TerrainType=TERRAIN_TUNDRA
+ 	PlotType=1
+ EndPlot
+@@ -22106,13 +22091,13 @@ BeginPlot
+ 	x=57,y=27
+ 	isNOfRiver
+ 	RiverWEDirection=3
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=57,y=28
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -22495,7 +22480,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=58,y=27
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -22880,7 +22865,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=59,y=26
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -23274,7 +23259,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=60,y=26
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -23663,7 +23648,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=61,y=26
+-	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -24447,10 +24432,10 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=63,y=27
+-	isWOfRiver
+-	RiverNSDirection=0
+ 	isNOfRiver
+ 	RiverWEDirection=1
++	isWOfRiver
++	RiverNSDirection=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=1
+ EndPlot
+@@ -24838,7 +24823,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=64,y=25
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -24865,10 +24850,10 @@ EndPlot
+ BeginPlot
+ 	x=64,y=29
+ 	BonusType=BONUS_IRON
+-	isNOfRiver
+-	RiverWEDirection=1
+ 	isWOfRiver
+ 	RiverNSDirection=0
++	isNOfRiver
++	RiverWEDirection=1
+ 	TerrainType=TERRAIN_DESERT
+ 	PlotType=1
+ EndPlot
+@@ -24911,10 +24896,10 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=64,y=35
+-	isWOfRiver
+-	RiverNSDirection=0
+ 	isNOfRiver
+ 	RiverWEDirection=3
++	isWOfRiver
++	RiverNSDirection=0
+ 	FeatureType=FEATURE_FLOOD_PLAINS, FeatureVariety=0
+ 	TerrainType=TERRAIN_DESERT
+ 	PlotType=2
+@@ -25295,10 +25280,10 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=65,y=32
+-	isNOfRiver
+-	RiverWEDirection=1
+ 	isWOfRiver
+ 	RiverNSDirection=0
++	isNOfRiver
++	RiverWEDirection=1
+ 	FeatureType=FEATURE_FLOOD_PLAINS, FeatureVariety=0
+ 	TerrainType=TERRAIN_DESERT
+ 	PlotType=2
+@@ -26149,7 +26134,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=67,y=43
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+@@ -26178,10 +26163,10 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=67,y=48
+-	isNOfRiver
+-	RiverWEDirection=3
+ 	isWOfRiver
+ 	RiverNSDirection=2
++	isNOfRiver
++	RiverWEDirection=3
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -27402,10 +27387,10 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=70,y=53
+-	isWOfRiver
+-	RiverNSDirection=2
+ 	isNOfRiver
+ 	RiverWEDirection=3
++	isWOfRiver
++	RiverNSDirection=2
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+@@ -29317,10 +29302,10 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=75,y=45
+-	isNOfRiver
+-	RiverWEDirection=3
+ 	isWOfRiver
+ 	RiverNSDirection=2
++	isNOfRiver
++	RiverWEDirection=3
+ 	FeatureType=FEATURE_FLOOD_PLAINS, FeatureVariety=0
+ 	TerrainType=TERRAIN_DESERT
+ 	PlotType=2
+@@ -29651,7 +29636,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=76,y=35
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+@@ -30177,10 +30162,10 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=77,y=59
+-	isWOfRiver
+-	RiverNSDirection=0
+ 	isNOfRiver
+ 	RiverWEDirection=3
++	isWOfRiver
++	RiverNSDirection=0
+ 	TerrainType=TERRAIN_SNOW
+ 	PlotType=2
+ EndPlot
+@@ -30541,7 +30526,7 @@ BeginPlot
+ 	x=78,y=54
+ 	isNOfRiver
+ 	RiverWEDirection=3
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -30554,7 +30539,7 @@ BeginPlot
+ 	x=78,y=56
+ 	isNOfRiver
+ 	RiverWEDirection=3
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -30831,10 +30816,10 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=79,y=37
+-	isWOfRiver
+-	RiverNSDirection=2
+ 	isNOfRiver
+ 	RiverWEDirection=3
++	isWOfRiver
++	RiverNSDirection=2
+ 	FeatureType=FEATURE_FLOOD_PLAINS, FeatureVariety=0
+ 	TerrainType=TERRAIN_DESERT
+ 	PlotType=2
+@@ -30869,7 +30854,7 @@ BeginPlot
+ 	x=79,y=43
+ 	isNOfRiver
+ 	RiverWEDirection=3
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+@@ -31253,7 +31238,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=80,y=44
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+@@ -31592,6 +31577,17 @@ BeginPlot
+ 	x=81,y=36
+ 	TerrainType=TERRAIN_DESERT
+ 	PlotType=1
++	BeginUnit
++		UnitType=UNIT_ARCHER, UnitOwner=18
++	EndUnit
++	BeginUnit
++		UnitType=UNIT_WARRIOR, UnitOwner=18
++	EndUnit
++	BeginCity
++		CityOwner=18
++		CityName=TXT_KEY_CITY_NAME_ARYAN
++	EndCity
++	ImprovementType=IMPROVEMENT_GOODY_HUT
+ EndPlot
+ BeginPlot
+ 	x=81,y=37
+@@ -31625,7 +31621,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=81,y=42
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+@@ -31980,10 +31976,10 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=82,y=39
+-	isWOfRiver
+-	RiverNSDirection=2
+ 	isNOfRiver
+ 	RiverWEDirection=3
++	isWOfRiver
++	RiverNSDirection=2
+ 	FeatureType=FEATURE_FLOOD_PLAINS, FeatureVariety=0
+ 	TerrainType=TERRAIN_DESERT
+ 	PlotType=2
+@@ -32007,7 +32003,7 @@ EndPlot
+ BeginPlot
+ 	x=82,y=42
+ 	BonusType=BONUS_SILK
+-	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_GRASS
+ 	PlotType=1
+ EndPlot
+@@ -32359,20 +32355,11 @@ BeginPlot
+ 	x=83,y=39
+ 	TerrainType=TERRAIN_DESERT
+ 	PlotType=2
+-	BeginUnit
+-		UnitType=UNIT_ARCHER, UnitOwner=18
+-	EndUnit
+-	BeginUnit
+-		UnitType=UNIT_WARRIOR, UnitOwner=18
+-	EndUnit
+-	BeginCity
+-		CityOwner=18
+-		CityName=TXT_KEY_CITY_NAME_ARYAN
+-	EndCity
+ EndPlot
+ BeginPlot
+ 	x=83,y=40
+ 	BonusType=BONUS_SUGAR
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
+ 	TerrainType=TERRAIN_PLAINS
+ 	PlotType=2
+ EndPlot
+@@ -32392,7 +32379,7 @@ EndPlot
+ BeginPlot
+ 	x=83,y=43
+ 	TerrainType=TERRAIN_SNOW
+-	PlotType=0
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=83,y=44
+@@ -33078,92 +33065,92 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=85,y=33
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=85,y=34
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=85,y=35
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_COAST
+-	PlotType=3
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=85,y=36
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_COAST
+-	PlotType=3
++	BonusType=BONUS_BANANA
++	isNOfRiver
++	RiverWEDirection=3
++	isWOfRiver
++	RiverNSDirection=2
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=85,y=37
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_COAST
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=85,y=38
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_COAST
+-	PlotType=3
++	isWOfRiver
++	RiverNSDirection=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=85,y=39
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_COAST
+-	PlotType=3
++	isWOfRiver
++	RiverNSDirection=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=85,y=40
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_COAST
+-	PlotType=3
++	isWOfRiver
++	RiverNSDirection=2
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=85,y=41
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_COAST
+-	PlotType=3
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=85,y=42
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_COAST
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=85,y=43
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_COAST
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=85,y=44
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_COAST
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=85,y=45
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_COAST
+-	PlotType=3
++	TerrainType=TERRAIN_DESERT
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=85,y=46
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_COAST
+-	PlotType=3
++	TerrainType=TERRAIN_DESERT
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=85,y=47
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_COAST
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=85,y=48
+@@ -33173,6 +33160,7 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=85,y=49
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+@@ -33448,106 +33436,104 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=86,y=32
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=86,y=33
+-	TerrainType=TERRAIN_OCEAN
++	BonusType=BONUS_FISH
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=86,y=34
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=86,y=35
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=86,y=36
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=86,y=37
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_SHEEP
++	isNOfRiver
++	RiverWEDirection=3
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=86,y=38
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=86,y=39
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_SUGAR
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=86,y=40
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isNOfRiver
++	RiverWEDirection=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=86,y=41
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=86,y=42
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=86,y=43
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=86,y=44
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=86,y=45
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=86,y=46
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=86,y=47
+-	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_DESERT
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=86,y=48
+ 	FeatureType=FEATURE_ICE, FeatureVariety=0
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=86,y=49
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+@@ -33818,96 +33804,115 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=87,y=31
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=87,y=32
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=87,y=33
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_PIG
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=87,y=34
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_IVORY
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=87,y=35
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_SILK
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=87,y=36
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isNOfRiver
++	RiverWEDirection=1
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=87,y=37
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_IVORY
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=87,y=38
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_DYE
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=87,y=39
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_COW
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=87,y=40
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_IRON
++	isNOfRiver
++	RiverWEDirection=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=87,y=41
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=87,y=42
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=87,y=43
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=87,y=44
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=87,y=45
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_TUNDRA
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=87,y=46
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=87,y=47
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_DESERT
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=87,y=48
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=87,y=49
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+@@ -34173,101 +34178,117 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=88,y=30
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=88,y=31
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=88,y=32
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_SPICES
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=88,y=33
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=88,y=34
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=88,y=35
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isNOfRiver
++	RiverWEDirection=1
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=88,y=36
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isNOfRiver
++	RiverWEDirection=1
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=88,y=37
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=88,y=38
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_COAL
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=88,y=39
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=88,y=40
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isWOfRiver
++	RiverNSDirection=0
++	isNOfRiver
++	RiverWEDirection=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=88,y=41
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=88,y=42
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=88,y=43
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=88,y=44
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=88,y=45
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_TUNDRA
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=88,y=46
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=88,y=47
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=88,y=48
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=88,y=49
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+@@ -34533,101 +34554,129 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=89,y=30
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=89,y=31
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_SPICES
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=89,y=32
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_IRON
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=89,y=33
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_GOLD
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=89,y=34
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_INCENSE
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=89,y=35
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_GEMS
++	isNOfRiver
++	RiverWEDirection=1
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=89,y=36
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_RICE
++	isNOfRiver
++	RiverWEDirection=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=89,y=37
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_ALUMINUM
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=89,y=38
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=89,y=39
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_COAL
++	isNOfRiver
++	RiverWEDirection=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=89,y=40
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_COPPER
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=89,y=41
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_SPICES
++	isNOfRiver
++	RiverWEDirection=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=89,y=42
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=89,y=43
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=89,y=44
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=89,y=45
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_TUNDRA
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=89,y=46
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=89,y=47
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=89,y=48
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=89,y=49
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+@@ -34893,101 +34942,121 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=90,y=30
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=90,y=31
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_BANANA
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=90,y=32
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_SUGAR
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=90,y=33
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_DYE
++	isNOfRiver
++	RiverWEDirection=1
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=90,y=34
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=90,y=35
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=90,y=36
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=90,y=37
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=90,y=38
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_IRON
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=90,y=39
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_URANIUM
++	isNOfRiver
++	RiverWEDirection=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=90,y=40
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=90,y=41
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isNOfRiver
++	RiverWEDirection=1
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=90,y=42
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=90,y=43
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=90,y=44
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=90,y=45
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=90,y=46
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=90,y=47
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=90,y=48
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=90,y=49
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+@@ -35253,101 +35322,119 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=91,y=30
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=91,y=31
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=91,y=32
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=91,y=33
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=91,y=34
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=91,y=35
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=91,y=36
+-	TerrainType=TERRAIN_OCEAN
++	BonusType=BONUS_FISH
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=91,y=37
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=91,y=38
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=91,y=39
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_DYE
++	isNOfRiver
++	RiverWEDirection=1
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=91,y=40
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_RICE
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=91,y=41
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isNOfRiver
++	RiverWEDirection=1
++	isWOfRiver
++	RiverNSDirection=2
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=91,y=42
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isWOfRiver
++	RiverNSDirection=2
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=91,y=43
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=91,y=44
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=91,y=45
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_HORSE
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=91,y=46
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=91,y=47
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=91,y=48
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=91,y=49
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+@@ -35608,22 +35695,25 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=92,y=29
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=92,y=30
+-	TerrainType=TERRAIN_OCEAN
++	BonusType=BONUS_CLAM
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=92,y=31
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_GEMS
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_TUNDRA
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=92,y=32
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+@@ -35648,66 +35738,81 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=92,y=37
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=92,y=38
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=92,y=39
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=92,y=40
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=92,y=41
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_SUGAR
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=92,y=42
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_DYE
++	isWOfRiver
++	RiverNSDirection=2
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=92,y=43
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=92,y=44
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_SNOW
++	PlotType=0
+ EndPlot
+ BeginPlot
+ 	x=92,y=45
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=92,y=46
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=92,y=47
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_SILK
++	isWOfRiver
++	RiverNSDirection=0
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=92,y=48
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=92,y=49
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+@@ -35968,22 +36073,24 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=93,y=29
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=93,y=30
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_SPICES
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=93,y=31
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_IVORY
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=93,y=32
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+@@ -36018,56 +36125,75 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=93,y=39
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=93,y=40
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_IVORY
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=93,y=41
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isWOfRiver
++	RiverNSDirection=2
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=93,y=42
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isNOfRiver
++	RiverWEDirection=1
++	isWOfRiver
++	RiverNSDirection=2
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=93,y=43
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isWOfRiver
++	RiverNSDirection=2
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=93,y=44
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=93,y=45
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=93,y=46
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_ALUMINUM
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=93,y=47
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_GRASS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=93,y=48
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=93,y=49
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+@@ -36328,22 +36454,22 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=94,y=29
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=94,y=30
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=94,y=31
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=94,y=32
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+@@ -36378,56 +36504,74 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=94,y=39
+-	TerrainType=TERRAIN_OCEAN
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=94,y=40
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isWOfRiver
++	RiverNSDirection=2
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=94,y=41
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isNOfRiver
++	RiverWEDirection=1
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_GRASS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=94,y=42
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_GEMS
++	FeatureType=FEATURE_JUNGLE, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=94,y=43
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	isWOfRiver
++	RiverNSDirection=2
++	FeatureType=FEATURE_FOREST, FeatureVariety=0
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=94,y=44
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	BonusType=BONUS_SILVER
++	isNOfRiver
++	RiverWEDirection=1
++	TerrainType=TERRAIN_PLAINS
++	PlotType=1
+ EndPlot
+ BeginPlot
+ 	x=94,y=45
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=94,y=46
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=94,y=47
+-	TerrainType=TERRAIN_OCEAN
+-	PlotType=3
++	FeatureType=FEATURE_FOREST, FeatureVariety=1
++	TerrainType=TERRAIN_PLAINS
++	PlotType=2
+ EndPlot
+ BeginPlot
+ 	x=94,y=48
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=94,y=49
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+@@ -36738,52 +36882,62 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=95,y=39
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=95,y=40
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=95,y=41
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=95,y=42
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=95,y=43
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=95,y=44
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=95,y=45
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=95,y=46
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=95,y=47
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=95,y=48
+-	TerrainType=TERRAIN_OCEAN
++	FeatureType=FEATURE_ICE, FeatureVariety=0
++	TerrainType=TERRAIN_COAST
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+@@ -37098,51 +37252,61 @@ BeginPlot
+ EndPlot
+ BeginPlot
+ 	x=96,y=39
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=96,y=40
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=96,y=41
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=96,y=42
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=96,y=43
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=96,y=44
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=96,y=45
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=96,y=46
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=96,y=47
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+ BeginPlot
+ 	x=96,y=48
++	FeatureType=FEATURE_ICE, FeatureVariety=0
+ 	TerrainType=TERRAIN_OCEAN
+ 	PlotType=3
+ EndPlot
+
+diff --git a/EuroWorld scenario/java/wbo/Civ.java b/EuroWorld scenario/java/wbo/Civ.java
+index b49686580..cdb57df29 100644
+--- a/EuroWorld scenario/java/wbo/Civ.java	
++++ b/EuroWorld scenario/java/wbo/Civ.java	
+@@ -6,6 +6,25 @@ import java.util.ArrayList;
+ 
+ public class Civ implements Comparable<Civ> {
+ 
++	public Civ(String leader, String civ, int x, int y, String tech1, String tech2,
++			String[] cities, String handicap, boolean playable, boolean test,
++			String[] religions) {
++		initDefault();
++		this.leader = leader;
++		this.civ = civ;
++		this.start = new Point(x, y);
++		this.tech1 = tech1;
++		this.tech2 = tech2;
++		for(String city : cities)
++			this.cities.add(city);
++		this.handicap = handicap;
++		this.playable = playable;
++		this.test = test;
++		for(String rel : religions)
++			this.religions.add(rel);
++		finalizeInit();
++	}
++	
+ 	public Civ(String leader, String civ, int x, int y, String tech1, String tech2,
+ 				String[] cities, String handicap, boolean playable, boolean test) {
+ 		initDefault();
+@@ -102,8 +121,29 @@ public class Civ implements Comparable<Civ> {
+ 			r += "\tTech=TECH_" + tech1 + "\n";
+ 		if(!tech2.isEmpty())
+ 			r += "\tTech=TECH_" + tech2 + "\n";
+-		if(test)
++		if(test) {
+ 			r += "\tTech=TECH_CALENDAR\n";
++			r += "\tTech=TECH_SATELLITES\n";
++		}
++		for(String rel : religions) {
++			String relTech = "";
++			if(rel.equals("BUDDHISM"))
++				relTech = "MEDITATION";
++			if(rel.equals("HINDUISM"))
++				relTech = "POLYTHEISM";
++			if(rel.equals("JUDAISM"))
++				relTech = "MONOTHEISM";
++			if(rel.equals("CONFUCIANISM"))
++				relTech = "CODE_OF_LAWS";
++			if(rel.equals("TAOISM"))
++				relTech = "PHILOSOPHY";
++			if(rel.equals("CHRISTIANITY"))
++				relTech = "THEOLOGY";
++			if(rel.equals("ISLAM"))
++				relTech = "DIVINE_RIGHT";
++			if(!relTech.isEmpty())
++				r += "\tTech=TECH_" + relTech + "\n";
++		}
+ 		return r + "EndTeam";
+ 	}
+ 	
+@@ -126,6 +166,10 @@ public class Civ implements Comparable<Civ> {
+ 	@Override
+ 	public int compareTo(Civ other) {
+ 
++		if(test && !other.test)
++			return -1;
++		if(!test && other.test)
++			return 1;
+ 		int thisHP = handicapPriority();
+ 		int otherHP = other.handicapPriority();
+ 		if(thisHP > otherHP)
+@@ -137,6 +181,7 @@ public class Civ implements Comparable<Civ> {
+ 	
+ 	private void initDefault() {
+ 		cities = new ArrayList<String>();
++		religions = new ArrayList<String>();
+ 		start = new Point(0, 0);
+ 		playable = true;
+ 		leader = civ = tech1 = tech2 = handicap = "";
+@@ -213,6 +258,7 @@ public class Civ implements Comparable<Civ> {
+ 
+ 	private String leader, civ, tech1, tech2, handicap;
+ 	private ArrayList<String> cities;
++	private ArrayList<String> religions;
+ 	private Point2D start;
+ 	private boolean playable, test;
+ 	private static final String[][] btsCities = {
+
+diff --git a/EuroWorld scenario/java/wbo/WBOut.java b/EuroWorld scenario/java/wbo/WBOut.java
+index 80ac43f9d..237391e53 100644
+--- a/EuroWorld scenario/java/wbo/WBOut.java	
++++ b/EuroWorld scenario/java/wbo/WBOut.java	
+@@ -31,18 +31,19 @@ public class WBOut {
+ 				"Work in progress.",
+ 				"EndGame",
+ 		};
+-		final boolean placeBarbs = false;
+ 		for(String line : preamble)
+ 			pr(line);
++		String[] blockedReligions = {"HINDUISM","CONFUCIANISM","TAOISM"};
++		final boolean placeBarbs = false;
+ 		Civ civs[] = {
+-				new Civ("ASOKA", "INDIA", 10, 10, "MYSTICISM", "THE_WHEEL",
+-						new String[]{"PATALIPUTRA"}, "", true, true),
++				new Civ("ASOKA", "INDIA", 82, 36, "MYSTICISM", "THE_WHEEL",
++						new String[]{"PATALIPUTRA","AMARAVATI",/*"UJJAIN"*/}),
+ 				new Civ("JULIUS_CAESAR"/*"AUGUSTUS"*/, "ROME", 46, 40, "FISHING", "MINING",
+ 						new String[]{"ROME"/*,"SYRACUSE"*/,"LUGDUNUM"}), // MARSEILLES?
+ 				new Civ("CHARLEMAGNE", "CELT", 47, 46, "MINING", "THE_WHEEL",
+ 						new String[]{"PRAGUE"}),
+ 				new Civ("DARIUS"/*"CYRUS"*/, "PERSIA", 67, 32, "THE_WHEEL", "MYSTICISM",
+-						new String[]{"PERSEPOLIS","ECBATANA","KANDAHAR","MERV"/*,"SAMARQAND"*/}),
++						new String[]{"PERSEPOLIS","ECBATANA","MERV","KANDAHAR"/*,"SAMARQAND"*/}),
+ 				new Civ("GENGHIS_KHAN", "MONGOL", 20, 10, "MINING", "HUNTING",
+ 						new String[]{"TARTAR"}),
+ 				new Civ(placeBarbs ? "HATSHEPSUT" : "RAMESSES", "EGYPT", 56, 31, "AGRICULTURE", "MINING",
+@@ -60,7 +61,7 @@ public class WBOut {
+ 				new Civ("SURYAVARMAN", "KHMER", 40, 10, "FISHING", "AGRICULTURE",
+ 						new String[]{"NINGBO"}),//"GUANGZHOU"?
+ 				new Civ("TOKUGAWA", "JAPAN", 45, 10, "FISHING", "MYSTICISM",
+-						new String[]{"AOMORI"}),
++						new String[]{"AOMORI"}, "", true, true, blockedReligions),
+ 				new Civ("ZARA_YAQOB", "ETHIOPIA", 59, 24, "AGRICULTURE", "",
+ 						new String[]{"AKSUM","NUBIAN"}, "PRINCE"),
+ 				new Civ("MANSA_MUSA", "MALI", 36, 29, "MINING", "",
+@@ -111,14 +112,14 @@ public class WBOut {
+ 				new BarbCity("NUMIDIAN",40,35),
+ 				//new BarbCity("GEPID",50,47),
+ 				new BarbCity("MAGYAR",50,44),
+-				// To block the Eastern religions
+-				new BarbCity("dummy",10,35,new String[]{"BUDDHISM","HINDUISM","CONFUCIANISM","TAOISM"}),
++				/* This doesn't work - civs discovering a religion tech get
++				 * to found a different religion then, e.g. Christianity from
++				 * Polytheism. */
++				//new BarbCity("dummy",10,35,blockedReligions),
+ 		})) : new HashSet<BarbCity>(
+ 				Arrays.asList(new BarbCity[] {
+-				/* Perhaps a good idea to place Aryans in any case; after all,
+-				 * the Harappans were one of the great early civilizations. */ 
+-				new BarbCity("ARYAN",75,35),
+-				new BarbCity("dummy",10,35,new String[]{"BUDDHISM","HINDUISM","CONFUCIANISM","TAOISM"}),
++				// To keep civs from rushing into the Indus valley 
++				new BarbCity("ARYAN",73,32),
+ 		}));
+ 		final boolean magyars = barbs.stream().anyMatch(p -> p.getName().equals("MAGYAR") || p.getName().equals("GEPID")); 
+ 		final Set<Point2D> desert = new HashSet<Point2D>(
+@@ -331,6 +332,11 @@ public class WBOut {
+ 				new Point(76,41),
+ 				new Point(75,40),
+ 				new Point(76,40),
++				new Point(77,41),
++				new Point(77,42),
++				// Gobi
++				new Point(78,43),
++				new Point(79,43),
+ 				// Iran, Afghanistan, Indus, Thar
+ 				new Point(66,37),
+ 				new Point(67,37),
+@@ -534,7 +540,7 @@ public class WBOut {
+ 				new Point(72,36),
+ 				new Point(73,36),
+ 				new Point(73,35),
+-				// NW India
++				// India
+ 				new Point(74,37),
+ 				new Point(75,37),
+ 				new Point(75,36),
+@@ -544,6 +550,60 @@ public class WBOut {
+ 				new Point(76,33),
+ 				new Point(76,32),
+ 				new Point(75,31),
++				new Point(84,37),
++				new Point(77,36),
++				new Point(81,36),
++				new Point(82,36),
++				new Point(77,35),
++				new Point(78,35),
++				new Point(79,35),
++				new Point(80,35),
++				new Point(83,35),
++				new Point(77,34),
++				new Point(78,34),
++				new Point(82,34),
++				new Point(77,33),
++				new Point(82,33),
++				new Point(77,32),
++				new Point(78,32),
++				new Point(79,32),
++				new Point(80,32),
++				new Point(82,32),
++				new Point(77,31),
++				new Point(78,31),
++				new Point(79,31),
++				new Point(81,31),
++				new Point(78,30),
++				new Point(79,30),
++				new Point(80,30),
++				new Point(81,30),
++				new Point(79,29),
++				new Point(80,28),
++				new Point(82,28),
++				new Point(81,27),
++				new Point(82,27),
++				// Burma
++				new Point(85,36),
++				new Point(86,36),
++				// China
++				new Point(77,43),
++				new Point(80,43),
++				new Point(81,43),
++				new Point(82,43),
++				new Point(83,43),
++				new Point(84,43),
++				new Point(86,43),
++				new Point(80,42),
++				new Point(81,42),
++				new Point(86,42),
++				new Point(82,41),
++				new Point(83,41),
++				new Point(86,41),
++				new Point(81,40),
++				new Point(86,40),
++				new Point(84,39),
++				new Point(86,39),
++				new Point(86,38),
+ 				// Arabian Peninsula
+ 				new Point(62,27),
+ 				new Point(62,26),
+@@ -826,6 +886,51 @@ public class WBOut {
+ 				new Point(73,38),
+ 				new Point(74,38),
+ 				new Point(76,37),
++				new Point(77,37),
++				new Point(78,36),
++				new Point(79,36),
++				new Point(80,36),
++				new Point(81,37),
++				new Point(82,37),
++				new Point(83,38),
++				new Point(82,39),
++				new Point(81,39),
++				// India (rest)
++				new Point(83,37),
++				new Point(84,38),
++				new Point(83,36),
++				new Point(81,35),
++				new Point(82,35),
++				new Point(79,34),
++				new Point(80,34),
++				new Point(81,34),
++				new Point(83,34),
++				new Point(78,33),
++				new Point(79,33),
++				new Point(80,33),
++				new Point(81,33),
++				new Point(81,32),
++				new Point(80,31),
++				new Point(80,29),
++				new Point(81,29),
++				new Point(82,29),
++				new Point(81,28),
++				// Sri Lanka
++				new Point(85,27),
++				new Point(85,26),
++				// Burma
++				new Point(85,38),
++				new Point(85,37),
++				new Point(86,37),
++				// W China
++				new Point(85,39),
++				new Point(85,40),
++				new Point(85,41),
++				new Point(85,42),
++				new Point(85,43),
++				new Point(84,41),
++				new Point(84,42),
++				new Point(82,42),
+ 				// Arabian Peninsula
+ 				new Point(61,27),
+ 				new Point(63,25),
+@@ -1006,17 +1111,36 @@ public class WBOut {
+ 				new Point(73,42),
+ 				new Point(74,43),
+ 				new Point(75,43),
+-				// Hindu Kush - Himalaya
++				// Hindu Kush - Himalaya - Kunlun
+ 				new Point(73,40),
+ 				new Point(74,40),
+ 				new Point(72,39),
+ 				new Point(73,39),
+ 				new Point(74,39),
+-				new Point(75,39),
+ 				new Point(76,39),
+ 				new Point(72,38),
+ 				new Point(75,38),
+ 				new Point(76,38),
++				new Point(78,42),
++				new Point(79,42),
++				new Point(83,42), // Hengduan Mts.
++				new Point(78,41),
++				new Point(77,40),
++				new Point(78,40),
++				new Point(80,40),
++				new Point(82,40),
++				new Point(83,40),
++				new Point(84,40),
++				new Point(77,39),
++				new Point(83,39),
++				new Point(77,38),
++				new Point(78,38),
++				new Point(81,38),
++				new Point(82,38),
++				new Point(78,37),
++				new Point(79,37),
++				new Point(80,37),
++				//new Point(75,39), // Karakorum pass
+ 				// Alps
+ 				new Point(44,43),
+ 				new Point(45,44),
+@@ -1148,6 +1272,11 @@ public class WBOut {
+ 				new Point(54,21),
+ 				new Point(55,21),
+ 				//new Point(54,22), // Sudd - try a lake instead
++				// Tibetan Plateau
++				new Point(79,41),
++				new Point(80,41),
++				new Point(81,41),
++				new Point(84,27), // Sri Lanka
+ 		}));
+ 		final Set<Point2D> snow = new HashSet<Point2D>(
+ 				Arrays.asList(new Point[] {
+@@ -1177,6 +1306,15 @@ public class WBOut {
+ 				new Point(59,55), // Novaya Zemlya
+ 				new Point(63,57), // Severnaya Zemlya
+ 				new Point(67,57), // Lyakhovsky Islands
++				// Should perhaps be a peak to prevent a city (Leh) here
++				new Point(75,39),
++				// Changtang
++				new Point(79,40),
++				new Point(78,39),
++				new Point(79,39),
++				new Point(80,39),
++				new Point(79,38),
++				new Point(80,38),
+ 		}));
+ 		Set<Point2D> land = new HashSet<Point2D>();
+ 		addSafe(land, desert);
+@@ -1504,6 +1642,51 @@ public class WBOut {
+ 				new River(E,64,33,S), // Karun
+ 				new River(S,65,35,E), // Zayand�
+ 				new River(S,67,33,E), // Kor
++				// Yangtze
++				new River(S,83,44,E), // Jialing
++				new River(S,84,44,E), // Jialing
++				new River(E,84,43,N),
++				// Mekong
++				new River(S,86,40,E), // Lancang
++				new River(E,86,39,S), // Lancang
++				// Irawaddy
++				new River(E,85,39,S),
++				new River(E,85,38,S),
++				new River(E,85,37,S),
++				new River(E,84,38,S), // Chindwin
++				new River(S,85,38,E), // Chindwin
++				new River(S,86,37,E),
++				new River(E,86,36,S),
++				// Brahmaputra (Jamuna)
++				new River(E,83,38,S),
++				new River(E,83,37,S),
++				// Ganges
++				new River(E,77,36,S), // Ganges/Yamuna
++				new River(E,77,35,N), // Chamba/Betwa
++				new River(E,77,34,N), // Chamba/Betwa
++				new River(S,78,36,E),
++				new River(S,79,36,E),
++				new River(S,80,36,E),
++				new River(E,80,36,N),
++				new River(S,81,37,E),
++				new River(S,82,37,E),
++				new River(S,83,37,E),
++				// Mahanadi
++				new River(S,81,35,E),
++				new River(S,82,35,E),
++				new River(S,83,35,E),
++				// Godavari
++				new River(S,79,32,E),
++				new River(S,80,32,E),
++				new River(S,81,32,E),
++				// Krishna
++				new River(S,80,31,E),
++				new River(S,81,31,E),
++				new River(S,82,29,E), // Kaveri
++				// Narmada, Tapti
++				new River(S,78,33,W),
++				new River(E,77,32,S),
++				new River(S,77,32,W),
+ 		}));
+ 		final Set<Point2D> hills = new HashSet<Point2D>(
+ 				Arrays.asList(new Point[] {
+@@ -1752,7 +1935,40 @@ public class WBOut {
+ 				// Taklamakan
+ 				new Point(74,42),
+ 				new Point(75,40),
+-				// Afghanistan, N Pakistan, Kashmir, SE Iran
++				// W China, Burma
++				new Point(75,39), // Karakorum pass
++				new Point(80,43),
++				new Point(81,43),
++				new Point(82,43),
++				new Point(85,43),
++				new Point(80,42),
++				new Point(81,42),
++				new Point(82,42),
++				new Point(84,42),
++				new Point(85,42),
++				new Point(82,41),
++				new Point(83,41),
++				new Point(84,41),
++				new Point(81,40),
++				new Point(85,40),
++				new Point(86,40),
++				new Point(78,39),
++				new Point(80,39),
++				new Point(81,39),
++				new Point(82,39),
++				new Point(84,39),
++				new Point(85,39),
++				new Point(86,39),
++				new Point(79,38),
++				new Point(80,38),
++				new Point(83,38),
++				new Point(84,38),
++				new Point(85,38),
++				new Point(86,38),
++				new Point(85,37),
++				new Point(85,36),
++				new Point(86,36),
++				// Afghanistan, SE Iran, Bugyals
+ 				new Point(71,38),
+ 				new Point(73,38),
+ 				new Point(74,38),
+@@ -1776,6 +1992,30 @@ public class WBOut {
+ 				new Point(73,32),
+ 				new Point(71,31),
+ 				new Point(72,31),
++				new Point(77,37),
++				new Point(79,36),
++				// India (rest)
++				new Point(81,37),
++				new Point(82,37),
++				new Point(81,36),
++				new Point(81,35),
++				new Point(82,35),
++				new Point(79,34),
++				new Point(80,34),
++				new Point(82,34),
++				new Point(78,33),
++				new Point(79,33),
++				new Point(81,33),
++				new Point(82,33),
++				new Point(78,31),
++				new Point(78,30),
++				new Point(81,30),
++				new Point(79,29),
++				new Point(80,29),
++				new Point(80,28),
++				new Point(81,28),
++				new Point(81,27),
++				new Point(85,26), // Sri Lanka
+ 				// Kola
+ 				new Point(52,56),
+ 				new Point(53,55),
+@@ -1855,36 +2095,17 @@ public class WBOut {
+ 				new Point(42,35),
+ 				new Point(43,34),
+ 				new Point(50,32), // Cyrene
+-				// Western Sudanic Zone
++				// Sudanic Zone
+ 				new Point(35,27),
+-				new Point(36,27),
+ 				new Point(38,27),
+ 				new Point(40,27),
+ 				new Point(42,27),
+-				new Point(37,26),
+-				new Point(38,26),
+-				new Point(39,26),
+-				new Point(40,26),
+-				new Point(41,26),
++				new Point(49,24),
+ 				new Point(42,26),
+ 				new Point(43,26),
+-				new Point(43,25),
+ 				new Point(44,25),
+ 				new Point(45,25),
+ 				new Point(47,25),
+-				new Point(44,24),
+-				new Point(45,24),
+-				new Point(46,24),
+-				new Point(47,24),
+-				new Point(48,24),
+-				new Point(49,24),
+-				new Point(49,23),
+-				// Eastern Sudanic Zone
+-				new Point(50,23),
+-				new Point(51,22),
+-				new Point(52,22),
+-				new Point(53,22),
+-				new Point(56,21),
+ 				// Great Britain
+ 				new Point(39,54),
+ 				new Point(39,53),
+@@ -2084,13 +2305,57 @@ public class WBOut {
+ 				new Point(67,47), // Kazakhstan
+ 				// Around Hindu Kush - Himalaya
+ 				new Point(71,41),
+-				//new Point(71,40), // not clear if logging feasible at great heigh/ steepness 
++				//new Point(71,40), // not clear if logging feasible at great steepness 
+ 				new Point(74,38),
+ 				new Point(72,40),
+ 				new Point(71,39),
+ 				new Point(73,38),
+ 				new Point(76,37),
+ 				new Point(76,36),
++				new Point(75,36),
++				new Point(83,38),
++				new Point(84,38),
++				new Point(81,37),
++				new Point(82,37),
++				new Point(77,37),
++				new Point(78,36),
++				new Point(79,36),
++				new Point(80,36),
++				// W China
++				new Point(82,43),
++				new Point(83,43),
++				new Point(84,43),
++				new Point(85,43),
++				new Point(86,43),
++				new Point(84,42),
++				new Point(85,42),
++				new Point(86,42),
++				new Point(84,41),
++				new Point(85,41),
++				new Point(84,39),
++				new Point(85,39),
++				new Point(86,39),
++				new Point(85,38), // Burma
++				// India (rest)
++				new Point(84,37),
++				new Point(81,36),
++				new Point(83,36),
++				new Point(78,35),
++				new Point(81,35),
++				new Point(82,35),
++				new Point(79,34),
++				new Point(80,34),
++				new Point(82,34),
++				new Point(83,34),
++				new Point(79,33),
++				new Point(81,33),
++				new Point(82,33),
++				new Point(81,32),
++				new Point(78,31),
++				new Point(79,31),
++				new Point(79,30),
++				new Point(81,30),
++				new Point(81,28),
+ 		}));
+ 		final Set<Point2D> jungle = new HashSet<Point2D>(
+ 				Arrays.asList(new Point[] {
+@@ -2130,6 +2395,43 @@ public class WBOut {
+ 				new Point(54,21),
+ 				new Point(55,21),
+ 				//new Point(54,22), // Sudd - try a lake instead
++				  /* Seasonal tropical forest (set all of these to Forest
++				   * at first; some are still Forests) */
++				new Point(36,27),
++				new Point(37,26),
++				new Point(38,26),
++				new Point(39,26),
++				new Point(40,26),
++				new Point(41,26),
++				new Point(43,25),
++				new Point(44,24),
++				new Point(45,24),
++				new Point(46,24),
++				new Point(47,24),
++				new Point(48,24),
++				new Point(49,23),
++				new Point(50,23),
++				new Point(51,22),
++				new Point(52,22),
++				new Point(53,22),
++				new Point(56,21),
++				// Burma, S China
++				new Point(86,38),
++				new Point(85,37),
++				new Point(86,37),
++				new Point(85,36),
++				new Point(86,36),
++				// India
++				new Point(77,32),
++				new Point(77,31),
++				new Point(78,30),
++				new Point(79,29),
++				new Point(80,29),
++				new Point(80,28),
++				new Point(82,28),
++				new Point(81,27),
++				new Point(82,27),
++				new Point(84,27), // Sri Lanka
+ 		}));
+ 		final Set<Point2D> oases = new HashSet<Point2D>(
+ 				Arrays.asList(new Point[] {
+@@ -2157,7 +2459,7 @@ public class WBOut {
+ 				new Point(67,29), // Al-Ain, Liwa
+ 				// Taklamakan
+ 				new Point(74,41), // Kaxgar
+-				new Point(75,41), // Tarim river
++				new Point(75,41), // Yarkant
+ 				new Point(76,42), // Kuqa
+ 				new Point(76,40), // Hotan
+ 		}));
+@@ -2256,11 +2558,11 @@ public class WBOut {
+ 			ice.add(new Point(71,y));
+ 			ice.add(new Point(72,y));
+ 		}
+-		for(int y = 44; y >= 30; y--) { // Southern Asia
+-			ice.add(new Point(77,y));
+-			ice.add(new Point(78,y));
++		for(int y = 44; y >= 35; y--) { // Southern Asia
++			ice.add(new Point(87,y));
++			ice.add(new Point(88,y));
+ 		}
+-		for(int x = 73; x <= 76; x++) { // Connect the two
++		for(int x = 73; x <= 86; x++) { // Connect the two
+ 			ice.add(new Point(x,44));
+ 			ice.add(new Point(x,45));
+ 		}
+@@ -2292,6 +2594,8 @@ public class WBOut {
+ 				new Point(75,35), // Harappa
+ 				new Point(74,33), // Mohenjodaro
+ 				//new Point(73,41), // Kokand (Silk Road)
++				new Point(79,43), // Golmud (salts)
++				new Point(81,39), // Lhasa
+ 		}));
+ 		for(Point2D p : hills)
+ 			p.setLocation(p.getX() + offsetX, p.getY() + offsetY);
+@@ -2504,6 +2808,52 @@ public class WBOut {
+ 				new Bonus("DYE",75,31),
+ 				new Bonus("OIL",76,31),
+ 				new Bonus("SILK",74,38),
++				// India (rest)
++				new Bonus("DYE",84,38),
++				new Bonus("SUGAR",84,37),
++				new Bonus("SPICES",81,37),
++				new Bonus("COPPER",81,36),
++				new Bonus("RICE",83,36),
++				new Bonus("IRON",79,36),
++				new Bonus("SUGAR",78,35),
++				new Bonus("COW",79,35),
++				new Bonus("COAL",81,35),
++				new Bonus("URANIUM",82,35),
++				new Bonus("DYE",83,35),
++				new Bonus("DYE",79,34),
++				new Bonus("COAL",80,34),
++				new Bonus("IRON",82,34),
++				new Bonus("SHEEP",78,33),
++				new Bonus("IVORY",79,33),
++				new Bonus("ALUMINUM",81,33),
++				new Bonus("BANANA",77,32),
++				new Bonus("RICE",81,32),
++				new Bonus("FISH",83,32),
++				new Bonus("SILK",79,31),
++				new Bonus("GEMS",81,31),
++				new Bonus("IVORY",79,30),
++				new Bonus("INCENSE",81,30),
++				new Bonus("FISH",78,29),
++				new Bonus("PIG",79,29),
++				new Bonus("GOLD",81,29),
++				new Bonus("DYE",82,29),
++				new Bonus("SPICES",80,28),
++				new Bonus("IRON",81,28),
++				new Bonus("SUGAR",82,28),
++				new Bonus("SPICES",81,27),
++				new Bonus("BANANA",82,27),
++				new Bonus("CLAM",84,26), // Moved closer to Sri Lanka to make the island more likely to be settled by the AI
++				new Bonus("GEMS",84,27),
++				new Bonus("IVORY",85,27),
++				new Bonus("SPICES",85,26),
++				// Burma
++				new Bonus("GEMS",86,38),
++				new Bonus("IVORY",85,36),
++				// W China
++				new Bonus("SILK",84,43),
++				new Bonus("ALUMINUM",85,42),
++				new Bonus("HORSE",83,41),
++				new Bonus("SILVER",86,40),
+ 				// Iran
+ 				new Bonus("HORSE",65,36),
+ 				new Bonus("COW",64,35),
+@@ -2617,31 +2967,39 @@ public class WBOut {
+ 						if(plotType != 1)
+ 							variety = 0;
+ 						else {
+-							int adjCold = 0, adjOtherLand = 0;
++							int adjCold = 0, adjOtherLand = 0, adjJungle = 0;
+ 							for(Point2D adjPlot : adjacentPlots(plot)) {
+ 								if(hills.stream().anyMatch(p -> p.equals(adjPlot)) ||
+ 										tundra.stream().anyMatch(p -> p.equals(adjPlot)) ||
+ 										snow.stream().anyMatch(p -> p.equals(adjPlot)) ||
+-										ice.stream().anyMatch(p -> p.equals(adjPlot)))
++										ice.stream().anyMatch(p -> p.equals(adjPlot)) ||
++										peak.stream().anyMatch(p -> p.equals(adjPlot)))
+ 									adjCold++;
+ 								else if(land.stream().anyMatch(p -> p.equals(adjPlot)))
+ 									adjOtherLand++;
++								if(jungle.stream().anyMatch(p -> p.equals(adjPlot)))
++									adjJungle++;
+ 							}
+-							if(adjCold - adjOtherLand >= 2)
++							if(plotType == 1) // If 'plot' is a hill
++								adjCold++;
++							if(adjCold - adjOtherLand >= 2 && adjJungle <= 0)
+ 								variety = 1;
+ 						}
+ 					}
+ 					else if(terrain.equals("TUNDRA")) {
+ 						variety = 2; // Boreal forest
+-						int adjIcy = 0, adjOtherLand = 0;
++						int adjIcy = 0;//, adjOtherLand = 0;
+ 						for(Point2D adjPlot : adjacentPlots(plot)) {
+ 							if(snow.stream().anyMatch(p -> p.equals(adjPlot)) ||
+-									ice.stream().anyMatch(p -> p.equals(adjPlot)))
++									ice.stream().anyMatch(p -> p.equals(adjPlot)) ||
++									peak.stream().anyMatch(p -> p.equals(adjPlot)))
+ 								adjIcy++;
+-							else if(land.stream().anyMatch(p -> p.equals(adjPlot)))
+-								adjOtherLand++;
++							/*else if(land.stream().anyMatch(p -> p.equals(adjPlot)))
++								adjOtherLand++;*/
+ 						}
+-						if(adjOtherLand - adjIcy >= 2)
++						if(plotType == 1)
++							adjIcy++;
++						if(adjIcy < 2)
+ 							variety = 1;
+ 					}
+ 					else if(terrain.equals("PLAINS")) {
+@@ -2649,12 +3007,13 @@ public class WBOut {
+ 						int adjWet = 0, adjDry = 0;
+ 						for(Point2D adjPlot : adjacentPlots(plot)) {
+ 							if(grass.stream().anyMatch(p -> p.equals(adjPlot)) ||
+-									tundra.stream().anyMatch(p -> p.equals(adjPlot)) ||
+-									snow.stream().anyMatch(p -> p.equals(adjPlot)) ||
+-									ice.stream().anyMatch(p -> p.equals(adjPlot)))
++									tundra.stream().anyMatch(p -> p.equals(adjPlot)))
+ 								adjWet++;
++							if(jungle.stream().anyMatch(p -> p.equals(adjPlot)))
++								adjWet += 3;
+ 							if(plains.stream().anyMatch(p -> p.equals(adjPlot)) ||
+-									desert.stream().anyMatch(p -> p.equals(adjPlot)))
++									desert.stream().anyMatch(p -> p.equals(adjPlot)) ||
++									peak.stream().anyMatch(p -> p.equals(adjPlot)))
+ 								adjDry++;
+ 						}
+ 						if(adjWet - adjDry >= 2)
+
+diff --git a/EuroWorld scenario/readme.txt b/EuroWorld scenario/readme.txt
+index 414adde2f..67d548f9c 100644
+--- a/EuroWorld scenario/readme.txt	
++++ b/EuroWorld scenario/readme.txt	
+@@ -1,15 +1,18 @@
+-This Earth scenario is work in progress; I'm uploading it mostly as a backup, though Europe, the Near East and two thirds of Africa are already playable. The scenario is optimized for the AdvCiv AI, but doesn't require any mod. I'm focusing on those regions of the world that can be best represented with the available civs, techs, terrain types etc., chiefly among them Europe. 
++This Earth scenario is work in progress; I'm uploading it mostly as a backup, though Europe, the Near East, India and two thirds of Africa are already playable. The scenario is optimized for the AdvCiv AI, but doesn't require any mod. I'm focusing on those regions of the world that can be best represented with the available civs, techs, terrain types etc., chiefly among them Europe. 
+ 
+ I'm using a custom map projection (see projection.jpg) designed to shrink unproductive areas and to reduce the distance between Mongolia and Europe in order to make a Mongolian Invasion feasible. The result has some resemblance to the Bonne projection. One downside is that Russia has no easy access to Alaska. 
+ Link: en.wikipedia.org/wiki/Bonne_projection
+ 
++Installation:
++Drop EuroWorld.CivBeyondSwordWBSave either into "AdvCiv\Private Maps" (if AdvCiv is installed) or into the BtS "Public Maps" folder.
++
+ Temporary measures:
+-* Free calendar for Asoka – for immediate access to Globe view in testing.
++* Free Calendar and Satellites for Tokugawa – for immediate access to Globe view in testing.
++* Free Polytheism, Code of Laws and Philosophy for Tokugawa in order to block three of the religions.
+ * Landmasses in the North Atlantic to prevent Barbarian cities from appearing on the British Isles all the time.
+-* A remote Barbarian city that is the holy city of all religions except Christianity and Islam.
+ 
+ To be done:
+-* 8 more leaders. Only 5 of these are intended to be playable: Asoka, Mao, Suryavarman, Tokugawa, Genghis Khan.
++* 7 more leaders. Only 4 of these are intended to be playable: Mao, Suryavarman, Genghis Khan, Tokugawa.
+ * Rules changes in AdvCiv that forbid Farms on Tundra and remove the health penalty from Jungle. Just to reduce implausible deforestation.
+ * Eventually, I'd like to reassign most of the leader traits in AdvCiv. E.g. Zara Yaqob would then lose the Creative trait. I might also swap in Cyrus after making his personality a bit more warlike.
+ * Possibly add more Barbarian cities in order to shape the early expansion of the civs; hopefully not necessary.
+@@ -19,4 +22,4 @@ To be done:
+ 
+ Further material:
+ * The Java program that I've used for generating the WBSave file.
+-* A screenshot from an all-AI game on the half-finished map.
+\ No newline at end of file
++* A screenshot from an all-AI game on the half-finished map. (Since then, India has been added.)
+\ No newline at end of file
+
+diff --git a/links.txt b/links.txt
+index 812078de1..deae3f848 100644
+--- a/links.txt
++++ b/links.txt
+@@ -6,3 +6,5 @@ Source code on GitHub:
+ 	https://github.com/f1rpo/AdvCiv
+ Discussion thread on CivFanatics:
+ 	https://forums.civfanatics.com/threads/advanced-civ.614217
++A half-finished Earth scenario for AdvCiv:
++	https://github.com/f1rpo/AdvCiv/tree/master/EuroWorld%20scenario
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=75650

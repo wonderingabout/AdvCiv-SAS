@@ -1,0 +1,76 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2071
+# Commit: 71da0d54492257bcc1defd78305792e005542dbb
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 507332fd0f239677826a773c0d543a5e9d23b92d
+# Title: Fix minor BtS bug with unit bumping after city acquisition
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCity.h
+1	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index b5969ceed..771f7775f 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -295,7 +295,7 @@ void CvCity::setupGraphical()
+ }
+ 
+ 
+-void CvCity::kill(bool bUpdatePlotGroups)
++void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
+ {
+ 	CvPlot& kPlot = *plot();
+ 
+@@ -392,7 +392,7 @@ void CvCity::kill(bool bUpdatePlotGroups)
+ 	CvEventReporter::getInstance().cityLost(this);
+ 	GET_PLAYER(getOwner()).deleteCity(getID());
+ 
+-	kPlot.updateCulture(true, false);
++	kPlot.updateCulture(/*true*/ bBumpUnits, false); // advc.001
+ 	FOR_EACH_ENUM(Direction)
+ 	{
+ 		CvPlot* pAdjacentPlot = plotDirection(kPlot.getX(), kPlot.getY(), eLoopDirection);
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index bb45ee175..3acfb981d 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -22,7 +22,7 @@ public:
+ 	virtual ~CvCity();
+ 
+ 	void setupGraphical();
+-	void kill(bool bUpdatePlotGroups);																			// Exposed to Python
++	void kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits = true);									// Exposed to Python
+ 	void doTurn();
+ 	void doRevolt(); // advc: previously in CvPlot::doCulture
+ 	// K-Mod. public for the "insert culture" espionage mission. (I've also changed the functionality of it quite a bit.)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 19db2f59c..17d0435a6 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1894,7 +1894,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 			aBuildingHealthChange.push_back(std::make_pair(eBuildingClass, iChange));
+ 	}
+ 
+-	pOldCity->kill(false);
++	pOldCity->kill(false, /* advc.001: */ false); // Don't bump units yet
+ 	pOldCity = NULL; // advc: Shouldn't access that past this point
+ 
+ 	if (bTrade) // Repercussions of cession: tile culture, war success (city culture: further down)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1966

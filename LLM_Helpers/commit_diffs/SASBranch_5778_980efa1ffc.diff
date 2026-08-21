@@ -1,0 +1,223 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5778
+# Commit: 980efa1ffc1d5e0b1252f5fd35847740afccc3ee
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b7420a011cca8beeb52469b7c2c692f06f5af071
+# Title: add text color in sevopedia expanded text playground
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	AGENTS.md
+6	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+61	3	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 2aeed861b..1337e3c05 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -63,7 +63,6 @@ Compile errors (e.g., for a "Release" build) at:
+ 
+ ## File reading from a non-global link
+ 
+-- If the user provides a link like [Civ4ScreenShot1511.JPG](Assets/Python/Screens/Civ4ScreenShot1511.JPG), or some other relative path, then since you know where our mod is ("C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\"), then you can infer and reconstruct the path from it without asking the user unless you are unable to, for example ""C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Screens\Civ4ScreenShot1511.JPG"
+ - If you cannot read one of the files or links the user sends (not including web pages or such), specify it to the user instead of blindly proceeding, as the info like a screenshot may help you see and solve the issue.
+ 
+ ## Sevopedia debug dumps (Python API introspection)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 9a42a33ec..8a1c6d34a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -140,6 +140,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_PEDIA_PYTHON_PANEL_STYLE_CYCLE = 6816
+ 		# <!-- custom: companion widget id for cycling the underlying background DDS in the same playground; same iData2 convention. See KI#128. (Claude code Opus 4.7 + GPT-5.5) -->
+ 		self.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE = 6817
++		self.SAS_PEDIA_PYTHON_TEXT_COLOR_CYCLE = 6818
+ 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
+ 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
+ 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
+@@ -2775,6 +2776,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 					cycle_sas_pedia_background(iData2)
+ 					self.pediaJump(self.iCategory, self.iItem, False, False)
+ 					return 1
++			if iData1 == self.SAS_PEDIA_PYTHON_TEXT_COLOR_CYCLE:
++				if self.iItem != -1:
++					cycle_sas_pedia_text_color(iData2)
++					self.pediaJump(self.iCategory, self.iItem, False, False)
++					return 1
+ 			# <!-- custom: route Sevopedia leader attitude preview buttons here as a fallback because some WIDGET_PYTHON clicks may not reach SevoPediaLeader.handleInput depending on pythonFile routing. (GPT-5.3-Codex) -->
+ 			# <!-- custom: this is code from AdvCiv-SAS-NIF-Gallery mod as part of adding sevopedia leader attitude and action buttons: while trying to minimally adding this feature in AdvCiv-SAS mod as well, i tried to remove these iData1 attitude and action checks but then attitude and action buttons become ineffective (i.e. clicking produces no animation action or attitude), so kept here as well in AdvCiv-SAS here as well. -->
+ 			if iData1 == SevoPediaLeader.SAS_PEDIA_PYTHON_LEADER_ATTITUDE:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index ef337da24..b9e559a26 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -54,6 +54,10 @@ SAS_PEDIA_BG_NAMES = None
+ g_iSasPediaPanelStyleIdx = None
+ g_iSasPediaBgIdx = None
+ IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE = None
++# <!-- custom: index 0 is reserved as a "(default)" sentinel with RGB None so draw_expandable_text_panel can skip the <color=...> wrap and leave any inline color tags inside szText intact. See KI#128 for the deferred-discovery rationale. (Claude code Opus 4.7) -->
++SAS_PEDIA_TEXT_COLOR_NAMES = None
++SAS_PEDIA_TEXT_COLOR_RGBS = None
++g_iSasPediaTextColorIdx = None
+ 
+ 
+ def _sas_pedia_collect_bg_names():
+@@ -78,10 +82,33 @@ def _sas_pedia_collect_bg_names():
+     return tuple([u"(none)"] + aNames)
+ 
+ 
++def _sas_pedia_collect_text_colors():
++    # <!-- custom: no Python getNumColorInfos() binding exists, but CyGlobalContext::getColorInfo returns NULL once i is out of range, so we stop on the first None. (Claude code Opus 4.7) -->
++    aNames = [u"(default)"]
++    aRgbs = [None]
++    iIdx = 0
++    while True:
++        pInfo = gc.getColorInfo(iIdx)
++        if pInfo is None:
++            break
++        sType = pInfo.getType()
++        if sType.startswith(u"COLOR_"):
++            sLabel = sType[len(u"COLOR_"):]
++        else:
++            sLabel = sType
++        # <!-- custom: NiColorA channels are floats in [0, 1] but the <color=...> tag expects 0..255. (Claude code Opus 4.7) -->
++        kRgba = pInfo.getColor()
++        aRgbs.append((int(kRgba.r * 255), int(kRgba.g * 255), int(kRgba.b * 255), int(kRgba.a * 255)))
++        aNames.append(sLabel)
++        iIdx += 1
++    return (tuple(aNames), tuple(aRgbs))
++
++
+ def init_sas_pedia_playground_cache():
+-    # <!-- custom: lazy-init the Sevopedia style/background playground instead of enumerating PanelStyles/interface art at module import time. This mirrors our safer advisor define-cache pattern: the playground is discovered once when first used, persists for the Civ4 session, and avoids import-time UI/DLL probing after an empirical native crash while cycling style/background options. Define changes still require a game restart. See KI#128. (GPT-5.5) -->
++    # <!-- custom: lazy-init avoids import-time UI/DLL probing after an empirical native crash while cycling style/background options. Define changes still require a game restart. See KI#128. (GPT-5.5 + Claude code Opus 4.7) -->
+     global SAS_PEDIA_PANEL_STYLE_NAMES, SAS_PEDIA_PANEL_STYLE_VALUES, SAS_PEDIA_BG_NAMES
+-    global g_iSasPediaPanelStyleIdx, g_iSasPediaBgIdx
++    global SAS_PEDIA_TEXT_COLOR_NAMES, SAS_PEDIA_TEXT_COLOR_RGBS
++    global g_iSasPediaPanelStyleIdx, g_iSasPediaBgIdx, g_iSasPediaTextColorIdx
+     global IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE
+     if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE is None:
+         IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE = (gc.getDefineINT("SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE") > 0)
+@@ -90,8 +117,11 @@ def init_sas_pedia_playground_cache():
+             SAS_PEDIA_PANEL_STYLE_NAMES = ()
+             SAS_PEDIA_PANEL_STYLE_VALUES = ()
+             SAS_PEDIA_BG_NAMES = ()
++            SAS_PEDIA_TEXT_COLOR_NAMES = ()
++            SAS_PEDIA_TEXT_COLOR_RGBS = ()
+             g_iSasPediaPanelStyleIdx = 0
+             g_iSasPediaBgIdx = 0
++            g_iSasPediaTextColorIdx = 0
+         return
+     if SAS_PEDIA_PANEL_STYLE_NAMES is None:
+         # <!-- custom: auto-discover all PanelStyles enum values exposed by the DLL via boost::python (CvEnums.h PanelStyles). The selected style is applied to the expanded overlay and shown in the header so it can be copied into target call sites. Python 2.4 tuples have no .index(), so default lookup is a manual scan. (Claude code Opus 4.7 + GPT-5.5) -->
+@@ -110,6 +140,9 @@ def init_sas_pedia_playground_cache():
+             if SAS_PEDIA_BG_NAMES[_iIdx] == "SCREEN_BG_OPAQUE":
+                 g_iSasPediaBgIdx = _iIdx
+                 break
++    if SAS_PEDIA_TEXT_COLOR_NAMES is None:
++        SAS_PEDIA_TEXT_COLOR_NAMES, SAS_PEDIA_TEXT_COLOR_RGBS = _sas_pedia_collect_text_colors()
++        g_iSasPediaTextColorIdx = 0
+ 
+ 
+ def cycle_sas_pedia_panel_style(iDelta):
+@@ -128,6 +161,14 @@ def cycle_sas_pedia_background(iDelta):
+     iCount = len(SAS_PEDIA_BG_NAMES)
+     if iCount > 0:
+         g_iSasPediaBgIdx = (g_iSasPediaBgIdx + iDelta) % iCount
++
++
++def cycle_sas_pedia_text_color(iDelta):
++    global g_iSasPediaTextColorIdx
++    init_sas_pedia_playground_cache()
++    iCount = len(SAS_PEDIA_TEXT_COLOR_NAMES)
++    if iCount > 0:
++        g_iSasPediaTextColorIdx = (g_iSasPediaTextColorIdx + iDelta) % iCount
+ # <!-- custom: some constants often used in sevopedia -->
+ LARGE_MARGIN = 20
+ MEDIUM_MARGIN = 15
+@@ -508,7 +549,24 @@ def draw_expandable_text_panel(screen, top, panelTitle, panelX, panelY, panelW,
+ 				screen.setText(top.getNextWidgetName(), "Background", szBgLabel, CvUtil.FONT_RIGHT_JUSTIFY, iLabelRightX, iBgRowYLabel, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iBgRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+ 				screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iBgRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_BACKGROUND_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
+-		screen.addMultilineText(top.getNextWidgetName(), SASTextScale.labelText(szText), iOverlayX + 10, iOverlayY + 40, iOverlayW - 20, iOverlayH - 50, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			iTextRowYBtn = iCycleY - 60
++			iTextRowYLabel = iLabelY - 60
++			tColorPreview = SAS_PEDIA_TEXT_COLOR_RGBS[g_iSasPediaTextColorIdx]
++			if tColorPreview is None:
++				szColorCode = u"-"
++			else:
++				szColorCode = u"%d,%d,%d,%d" % tColorPreview
++			szTextColorLabel = SASTextScale.labelText(u"TEXT: %s (%s) (%d/%d)" % (SAS_PEDIA_TEXT_COLOR_NAMES[g_iSasPediaTextColorIdx], szColorCode, g_iSasPediaTextColorIdx + 1, len(SAS_PEDIA_TEXT_COLOR_NAMES)))
++			screen.setText(top.getNextWidgetName(), "Background", szTextColorLabel, CvUtil.FONT_RIGHT_JUSTIFY, iLabelRightX, iTextRowYLabel, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"-"), "", iPrevX, iTextRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_TEXT_COLOR_CYCLE, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++			screen.setButtonGFC(top.getNextWidgetName(), SASTextScale.labelText(u"+"), "", iNextX, iTextRowYBtn, iCycleBtnW, 26, WidgetTypes.WIDGET_PYTHON, top.SAS_PEDIA_PYTHON_TEXT_COLOR_CYCLE, 1, ButtonStyles.BUTTON_STYLE_STANDARD)
++		# <!-- custom: <color=R,G,B,A> wrap syntax matches BUG/RawYields.py:246. (Claude code Opus 4.7) -->
++		szTextForOverlay = szText
++		if IS_SAS_PEDIA_PANEL_STYLE_PLAYGROUND_ENABLE and len(SAS_PEDIA_TEXT_COLOR_RGBS) > 0:
++			tColor = SAS_PEDIA_TEXT_COLOR_RGBS[g_iSasPediaTextColorIdx]
++			if tColor is not None:
++				szTextForOverlay = u"<color=%d,%d,%d,%d>%s</color>" % (tColor[0], tColor[1], tColor[2], tColor[3], szText)
++		screen.addMultilineText(top.getNextWidgetName(), SASTextScale.labelText(szTextForOverlay), iOverlayX + 10, iOverlayY + 40, iOverlayW - 20, iOverlayH - 50, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		return 1
+ 
+ 	panelName = top.getNextWidgetName()
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 2ccbddffd..eccf362ba 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -323,7 +323,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - New **Media Player** (**shared** between Sevopedia Movies and Music): supports **Replay**, **Eject (Exit)**, **Previous Track** and **Next track**, **Toggle Movies/Music**, **Fast Up** and **Fast Down** (change grouping), **Timer**, and a **Playlist** and a **TV panel** on the right side for **non-bik** files (e.g., for **nif**, **dds**), or **a more compact** queue form **for bik files**. This allows to view without having to exit the screen. Click on **Eject button** or **Right-click** to **stop the media playing**; press Escape or Enter key for main menu. See [Sevopedia reworks (Media Player)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-media-player).
+ - New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, (Requires AdvCiv-SAS 5511+) **Corporations**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-movies-category-with-audio-support).
+ - New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. Note: there are **multiple sounds in an item** for each civilization sound item, so **replay many times the same item to hear all civilization sounds**. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-092-music-category-1750-audio-scripts-playable-in-sevopedia).
+-- (Requires AdvCiv-SAS 5673+) New **Expanded Text Panels** so History/Background **text** (e.g. of the Viking unit that is long and requires scrolling to be seen or of the Great General Unit (that includes uniquenames that require scrolling to be scanned quickly)) easier to read, with **EXPAND** and **CLOSE** buttons. It occupies the whole item's page but **preserves the rest of the sevopedia page display** (footer, header, item bar and category bar) for easy browsing. This allows to **browse other category items** (e.g., other leaders from sevopedia leader's item bar) **without having to close and reopen expanded view** everytime item is changed (e.g. when clicking on another leader). Added as an optional helper shared accross all eligible categories (main code in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)). Added optional **Playground** to experiment with **background and panel styles** with `+` and `-` button to change them and descriptions like `BG: MAINMENU_SLIDESHOW_LOAD (7/13)` and `STYLE: PANEL_STYLE_MAIN_TAN (36/50)`: helps choosing or testing optimal art style without having to tediously manually testing them one by one. See [Sevopedia reworks (Expanded text panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
++- (Requires AdvCiv-SAS 5673+) New **Expanded Text Panels** so History/Background **text** (e.g. of the Viking unit that is long and requires scrolling to be seen or of the Great General Unit (that includes uniquenames that require scrolling to be scanned quickly)) easier to read, with **EXPAND** and **CLOSE** buttons. It occupies the whole item's page but **preserves the rest of the sevopedia page display** (footer, header, item bar and category bar) for easy browsing. This allows to **browse other category items** (e.g., other leaders from sevopedia leader's item bar) **without having to close and reopen expanded view** everytime item is changed (e.g. when clicking on another leader). Added as an optional helper shared accross all eligible categories (main code in [_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)). Added optional **Playground** to experiment with **text color**, **background**, and **panel styles**, with `+` and `-` button to swap them and descriptions like `TEXT: PLAYER_LIGHT_BLUE_TEXT (147,188,252,255) (57/129)`,  `BG: MAINMENU_SLIDESHOW_LOAD (2/8)`, and `STYLE: PANEL_STYLE_MAIN_TAN (36/50)`: helps choosing or testing optimal art style without having to tediously manually testing them one by one. See [Sevopedia reworks (Expanded text panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-093-expanded-text-panel-with-expand-and-close-buttons).
+ - (Requires AdvCiv-SAS 5674+) New **Expanded Content (Non-text; e.g. Animation) Panels** similarly so **animations** (e.g. of the Viking unit) can be viewed **maximized** (i.e. using all the item's page), with **EXPAND**, **RELOAD** (so e.g. the animation can be **reloaded** (e.g., to change unit color, reset animation, reset camera position/auto-rotation movement) **without having to exit and reopen expanded view**), and **CLOSE** buttons. Applied for eligible categories: Bonuses, Improvements, Units, Buildings ("Buildings", "N.Wond.", "W.Wond"). See [Sevopedia reworks (Expanded Content (Non-text; e.g., Animation) Panels)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-094-expanded-content-non-text-eg-animation-panel-with-expand-and-close-buttons).
+ - (Requires AdvCiv-SAS 5677+) New **Expanded leaderhead panel** similarly with **EXPAND** and **CLOSE** button, and **leaderhead animation** with **expanded height and scaling width** (percentage of height **to maximize display of the full leaderhead** (because a suboptimal width/height ratio causes animation to show less of the leaderhead)), and leaderhead **attitude**, **action**, and (if set) **leaderhead art era buttons** synchronized with the ones in sevopedia leader. See [Sevopedia reworks (Expanded leaderhead panel)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-095-expanded-leaderhead-panel).
+ - Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index a00e3a3d3..7971d1c60 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -296,7 +296,7 @@ This was inspired by how c2c mod shows animations maximized for units for exampl
+ 
+ Added with the very nice help of GPT-5.3-Codex and Claude code Sonnet 4.6 thanks.
+ 
+-Also added optional Playground to experiment with background and panel styles with `+` and `-` button to change them and descriptions like `BG: MAINMENU_SLIDESHOW_LOAD (7/13)` and `STYLE: PANEL_STYLE_MAIN_TAN (36/50)`. Helps choosing or testing optimal art style without having to tediously manually testing them one by one.
++Also added optional Playground to experiment with text color, background, and panel styles, with `+` and `-` button to change them and descriptions like `TEXT: PLAYER_LIGHT_BLUE_TEXT (147,188,252,255) (57/129)`, `BG: MAINMENU_SLIDESHOW_LOAD (2/8)`, and `STYLE: PANEL_STYLE_MAIN_TAN (36/50)`. Helps choosing or testing optimal art style without having to tediously manually testing them one by one.
+ 
+ <img src="../Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG" alt="0.840_sevopedia_expanded_text (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG" alt="0.840_sevopedia_expanded_text (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG
+index 402e77527..27206e970 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG
+index 63d0477df..c5803eb56 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG
+index c7e463316..d16bac2af 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.840_sevopedia_expanded_text (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=20033

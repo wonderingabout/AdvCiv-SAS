@@ -1,0 +1,1436 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4749
+# Commit: a230337b9fa0e569b83cc90849f5691f45535f8f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bf00d297001c276982c243af9e732915a3dbf0c0
+# Title: further buff barbarians without making them op, fix a bug in base AdvCiv/Civ4 where barbarians could build Shwedagon Paya, rename CHINESE_LEADER to MAO_ZEDON...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	13	Assets/Python/Contrib/Sevopedia/leaders_data.py
+1	1	Assets/XML/Art/CIV4ArtDefines_Building.xml
+1	1	Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml
+3	3	Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+12	186	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/Buildings/CIV4CityLSystem.xml
+22	7	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+33	12	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+18	18	Assets/XML/GameInfo/CIV4DiplomacyInfos.xml
+5	5	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+11	11	Assets/XML/Text/ActualQuotesText.xml
+109	0	Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+14	6	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+22	112	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+2	2	Assets/XML/TrueStarts/CIV4TruLeaderInfos.xml
+2	2	README.md
+4	0	README_Python_Scripts.md
+2	2	Settings/CustomDomAdv/CustomDomAdv.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ger.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ita.txt
+2	2	Settings/CustomDomAdv/WS_CustomDomAdv.txt
+5477	4701	_0.0_Common_Docs/git_log_repository_full.txt
+51	2	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md
+-	-	_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG
+5	1	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+2	2	leaders_data_to_csv_ai_flat_example_of_output.csv
+ create mode 100644 Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/Python/Contrib/Sevopedia/leaders_data.py b/Assets/Python/Contrib/Sevopedia/leaders_data.py reason=known-generated/noisy-history changedLines=39 bytes=2756
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index 22ec3ce98..0d848c8d3 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -20,7 +20,7 @@ and then modified for AdvCiv-SAS
+ 			<Button>,Art/Interface/Buttons/Buildings/Palace.dds,Art/Interface/Buttons/Buildings_Atlas.dds,6,5</Button>
+ 		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_GREAT_PALACE</Type>
++			<Type>ART_DEF_BUILDING_FORBIDDEN_PALACE</Type>
+ 			<LSystem>LSYSTEM_3x2</LSystem>
+ 			<bAnimated>0</bAnimated>
+ 			<fScale>1.1</fScale>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml b/Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml
+index 8682c8726..a1d8abe1b 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Leaderhead.xml
+@@ -159,7 +159,7 @@
+ 			<BackgroundKFM>art/LeaderHeads/Mansa_Musa/Mansa_Musa_BG.kfm</BackgroundKFM>
+ 		</LeaderheadArtInfo>
+ 		<LeaderheadArtInfo>
+-			<Type>ART_DEF_LEADER_CHINESE_LEADER</Type>
++			<Type>ART_DEF_LEADER_MAO_ZEDONG</Type>
+ 			<Button>,Art/interface/LeaderHeads/Btn_LH_China_MaoZedong.dds,Art/Interface/Buttons/Actions_Builds_LeaderHeads_Specialists_Atlas.dds,7,11</Button>
+ 			<NIF>art/LeaderHeads/Mao/Mao_tse_tung.nif</NIF>
+ 			<KFM>art/LeaderHeads/Mao/Mao_tse_tung.kfm</KFM>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingClassInfos.xml b/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+index b32c5ee67..828de1a6e 100644
+--- a/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+@@ -22,15 +22,15 @@ and then modified for AdvCiv-SAS
+ 			<VictoryThresholds/>
+ 		</BuildingClassInfo>
+ 		<BuildingClassInfo>
+-			<Type>BUILDINGCLASS_GREAT_PALACE</Type>
+-			<Description>TXT_KEY_BUILDING_GREAT_PALACE</Description>
++			<Type>BUILDINGCLASS_FORBIDDEN_PALACE</Type>
++			<Description>TXT_KEY_BUILDING_FORBIDDEN_PALACE</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>1</iMaxPlayerInstances>
+ 			<iExtraPlayerInstances>0</iExtraPlayerInstances>
+ 			<bNoLimit>0</bNoLimit>
+ 			<bMonument>0</bMonument>
+-			<DefaultBuilding>BUILDING_GREAT_PALACE</DefaultBuilding>
++			<DefaultBuilding>BUILDING_FORBIDDEN_PALACE</DefaultBuilding>
+ 			<VictoryThresholds/>
+ 		</BuildingClassInfo>
+ 		<BuildingClassInfo>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 72b627874..63bddc841 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -209,7 +209,7 @@
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+ 			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>NONE</FreeBuilding>
++			<FreeBuilding>BUILDINGCLASS_GRANARY</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+ 			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+@@ -274,7 +274,7 @@
+ 			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+ 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+ 			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>0</iHealth>
++			<iHealth>3</iHealth>
+ 			<iAreaHealth>0</iAreaHealth>
+ 			<iGlobalHealth>0</iGlobalHealth>
+ 			<iHappiness>2</iHappiness>
+@@ -282,7 +282,7 @@
+ 			<iGlobalHappiness>0</iGlobalHappiness>
+ 			<iStateReligionHappiness>0</iStateReligionHappiness>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
++			<iMilitaryProductionModifier>30</iMilitaryProductionModifier>
+ 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -351,14 +351,14 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+ 		<BuildingInfo>
+-			<BuildingClass>BUILDINGCLASS_GREAT_PALACE</BuildingClass> <!-- advc: a.k.a. Forbidden Palace -->
+-			<Type>BUILDING_GREAT_PALACE</Type>
++			<BuildingClass>BUILDINGCLASS_FORBIDDEN_PALACE</BuildingClass>
++			<Type>BUILDING_FORBIDDEN_PALACE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_GREAT_PALACE</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_GREAT_PALACE_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_GREAT_PALACE_STRATEGY</Strategy>
++			<Description>TXT_KEY_BUILDING_FORBIDDEN_PALACE</Description>
++			<Civilopedia>TXT_KEY_BUILDING_FORBIDDEN_PALACE_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_GREAT_PALACE</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_FORBIDDEN_PALACE</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -2239,7 +2239,8 @@
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+ 			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>BUILDINGCLASS_PALACE</FreeBuilding>
++			<!-- custom: avoid circular dependency with freebuilding of barbarian palace (or palace_barbarian maybe rather but anyways etc), not sure it is needed or has a real influence or not, but better be safe here maybe, and is also if i am not mistaken or not or and other or and not but in all cases anyways etc anyways etc -->
++			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+ 			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+@@ -3260,7 +3261,7 @@
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+ 			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>BUILDINGCLASS_PALACE</FreeBuilding>
++			<FreeBuilding>BUILDINGCLASS_BARRACKS</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+ 			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+@@ -8567,181 +8568,6 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo>
+-			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
+-			<Type>BUILDING_MONUMENT_BARBARIAN</Type>
+-			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_MONUMENT_BARBARIAN</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_MONUMENT_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_CULTURE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_MONUMENT</ArtDefineTag>
+-			<MovieDefineTag>NONE</MovieDefineTag>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<bStateReligion>0</bStateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<FoundsCorporation>NONE</FoundsCorporation>
+-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+-			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>NONE</FreeStartEra>
+-			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>TECH_LIBERALISM</ObsoleteTech>
+-			<PrereqTech>TECH_MYSTICISM</PrereqTech>
+-			<TechTypes/>
+-			<Bonus>NONE</Bonus>
+-			<PrereqBonuses/>
+-			<ProductionTraits/>
+-			<HappinessTraits>
+-				<HappinessTrait>
+-					<HappinessTraitType>TRAIT_CHARISMATIC</HappinessTraitType>
+-					<iHappinessTrait>1</iHappinessTrait>
+-				</HappinessTrait>
+-			</HappinessTraits>
+-			<NoBonus>NONE</NoBonus>
+-			<PowerBonus>NONE</PowerBonus>
+-			<FreeBonus>NONE</FreeBonus>
+-			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>BUILDINGCLASS_PALACE</FreeBuilding>
+-			<FreePromotion>NONE</FreePromotion>
+-			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+-			<iHurryAngerModifier>0</iHurryAngerModifier>
+-			<bBorderObstacle>0</bBorderObstacle>
+-			<bTeamShare>0</bTeamShare>
+-			<bWater>0</bWater>
+-			<bRiver>0</bRiver>
+-			<bPower>0</bPower>
+-			<bDirtyPower>0</bDirtyPower>
+-			<bAreaCleanPower>0</bAreaCleanPower>
+-			<DiploVoteType>NONE</DiploVoteType>
+-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+-			<bCapital>0</bCapital>
+-			<bGovernmentCenter>0</bGovernmentCenter>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bAllowsNukes>0</bAllowsNukes>
+-			<bMapCentering>0</bMapCentering>
+-			<bNoUnhappiness>0</bNoUnhappiness>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>1</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bCenterInCity>1</bCenterInCity>
+-			<iAIWeight>0</iAIWeight>
+-			<iCost>1</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>0</iConquestProb>
+-			<iCitiesPrereq>0</iCitiesPrereq>
+-			<iTeamsPrereq>0</iTeamsPrereq>
+-			<iLevelPrereq>0</iLevelPrereq>
+-			<iMinLatitude>0</iMinLatitude>
+-			<iMaxLatitude>90</iMaxLatitude>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+-			<iAnarchyModifier>0</iAnarchyModifier>
+-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+-			<iExperience>0</iExperience>
+-			<iGlobalExperience>0</iGlobalExperience>
+-			<iFoodKept>0</iFoodKept>
+-			<iAirlift>0</iAirlift>
+-			<iAirModifier>0</iAirModifier>
+-			<iAirUnitCapacity>0</iAirUnitCapacity>
+-			<iNukeModifier>0</iNukeModifier>
+-			<iNukeExplosionRand>0</iNukeExplosionRand>
+-			<iFreeSpecialist>0</iFreeSpecialist>
+-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+-			<iMaintenanceModifier>0</iMaintenanceModifier>
+-			<iWarWearinessModifier>0</iWarWearinessModifier>
+-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+-			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>0</iHealth>
+-			<iAreaHealth>0</iAreaHealth>
+-			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>0</iHappiness>
+-			<iAreaHappiness>0</iAreaHappiness>
+-			<iGlobalHappiness>0</iGlobalHappiness>
+-			<iStateReligionHappiness>0</iStateReligionHappiness>
+-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+-			<iTradeRoutes>0</iTradeRoutes>
+-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+-			<iTradeRouteModifier>0</iTradeRouteModifier>
+-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+-			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>0</iDefense>
+-			<iBombardDefense>0</iBombardDefense>
+-			<iAllCityDefense>0</iAllCityDefense>
+-			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>2</iAsset>
+-			<iPower>0</iPower>
+-			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<SeaPlotYieldChanges/>
+-			<RiverPlotYieldChanges/>
+-			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
+-			<CommerceChanges/>
+-			<ObsoleteSafeCommerceChanges>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>1</iCommerce>
+-			</ObsoleteSafeCommerceChanges>
+-			<CommerceChangeDoubleTimes>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>1000</iCommerce>
+-			</CommerceChangeDoubleTimes>
+-			<CommerceModifiers/>
+-			<GlobalCommerceModifiers/>
+-			<SpecialistExtraCommerces/>
+-			<StateReligionCommerces/>
+-			<CommerceHappinesses/>
+-			<ReligionChanges/>
+-			<SpecialistCounts/>
+-			<FreeSpecialistCounts/>
+-			<CommerceFlexibles/>
+-			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_MONUMENT</ConstructSound>
+-			<BonusHealthChanges/>
+-			<BonusHappinessChanges/>
+-			<BonusProductionModifiers/>
+-			<UnitCombatFreeExperiences/>
+-			<DomainFreeExperiences/>
+-			<DomainProductionModifiers/>
+-			<BuildingHappinessChanges/>
+-			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs/>
+-			<SpecialistYieldChanges/>
+-			<BonusYieldModifiers/>
+-			<ImprovementFreeSpecialists/>
+-			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>10</iFlavor>
+-				</Flavor>
+-			</Flavors>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-		</BuildingInfo>
+ 		<BuildingInfo>
+ 			<BuildingClass>BUILDINGCLASS_PUBLIC_TRANSPORTATION</BuildingClass>
+ 			<Type>BUILDING_PUBLIC_TRANSPORTATION</Type>
+
+diff --git a/Assets/XML/Buildings/CIV4CityLSystem.xml b/Assets/XML/Buildings/CIV4CityLSystem.xml
+index 098ec7f30..22d411eae 100644
+--- a/Assets/XML/Buildings/CIV4CityLSystem.xml
++++ b/Assets/XML/Buildings/CIV4CityLSystem.xml
+@@ -1155,7 +1155,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 			<Attribute Class="Rotation">0,90,180</Attribute>
+ 			<Scale>1.8</Scale>
+ 		</ArtRef>
+-		<ArtRef Name="building:BUILDING_GREAT_PALACE">
++		<ArtRef Name="building:BUILDING_FORBIDDEN_PALACE">
+ 			<Attribute Class="Rotation">0,180</Attribute>
+ 		</ArtRef>
+ 		<ArtRef Name="building:BUILDING_LIBRARY">
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 967c453de..45c359eda 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -888,7 +888,7 @@
+ 					<bLeaderAvailability>1</bLeaderAvailability>
+ 				</Leader>
+ 				<Leader>
+-					<LeaderName>LEADER_CHINESE_LEADER</LeaderName>
++					<LeaderName>LEADER_MAO_ZEDONG</LeaderName>
+ 					<bLeaderAvailability>1</bLeaderAvailability>
+ 				</Leader>
+ 			</Leaders>
+@@ -4179,10 +4179,6 @@
+ 					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
+ 					<BuildingType>BUILDING_LIGHTHOUSE_BARBARIAN</BuildingType>
+ 				</Building>
+-				<Building>
+-					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
+-					<BuildingType>BUILDING_MONUMENT_BARBARIAN</BuildingType>
+-				</Building>
+ 				<Building>
+ 					<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
+ 					<BuildingType>BUILDING_WALLS_BARBARIAN</BuildingType>
+@@ -4191,8 +4187,23 @@
+ 					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
+ 					<BuildingType>BUILDING_CASTLE_BARBARIAN</BuildingType>
+ 				</Building>
++				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this wayso they can focus more on producing units anyways etc
++				Same for forge, provide military only small (relatively anyways etc) production bonus instead -->
++				<Building>
++					<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
++					<BuildingType>NONE</BuildingType>
++				</Building>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_GREAT_PALACE</BuildingClassType>
++					<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
++					<BuildingType>NONE</BuildingType>
++				</Building>
++				<!-- custom: fix bug(/(careless as in unaware of or and other or and not? but anyways etc, anyways etc) oversight? Anyways etc) (seemingly from AdvCiv or/and base Civ4 or/and other mods or not anyways etc) where Barbarians could build schwedagon pawa as happened in an autoplay, anyways etc -->
++				<Building>
++					<BuildingClassType>BUILDINGCLASS_SHWEDAGON_PAYA</BuildingClassType>
++					<BuildingType>NONE</BuildingType>
++				</Building>
++				<Building>
++					<BuildingClassType>BUILDINGCLASS_FORBIDDEN_PALACE</BuildingClassType>
+ 					<BuildingType>NONE</BuildingType>
+ 				</Building>
+ 				<Building>
+@@ -4203,6 +4214,10 @@
+ 					<BuildingClassType>BUILDINGCLASS_ACADEMY</BuildingClassType>
+ 					<BuildingType>NONE</BuildingType>
+ 				</Building>
++				<Building>
++					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
++					<BuildingType>NONE</BuildingType>
++				</Building>
+ 				<Building>
+ 					<BuildingClassType>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClassType>
+ 					<BuildingType>NONE</BuildingType>
+@@ -4629,7 +4644,7 @@
+ 
+ 			Not putting the lighthouse in case city is not naval anyways etc.
+ 			Not putting the castle here in case tech is not yet unlocked by barbarians, a bit too far to give it for free, anyways etc
+-			Not putting the monument here so it is consistent with the no tech mysticism free tech, and also the palace that all cities have should give enough culture by itself, they can built it (the monument) if they want (their barbarian version of it i mean anyways etc)
++			Not putting the monument here and at all so it is consistent with the no tech mysticism free tech, and also the palace that all cities have should give enough culture by itself, and hopefully barbarians are more efficient this way and perhaps more realistic too (their behaviour and such maybe or/and tendencies or/and other or/and not or yes but anyways etc), as they can't bring their monuments wih themselves if they roam, and now they can focus slightly more on building units or whichever thing they should do more, also more consistent with no mysticism and such, or/and other reasons or/and not, but anyways etc anyways etc
+ 			-->
+ 			<FreeBuildingClasses>
+ 				<FreeBuildingClass>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 2dfdb7fd7..1234695ec 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -40,15 +40,20 @@
+ 			<iDeclareWarTradeRand>0</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+-			<iRazeCityProb>10</iRazeCityProb>
+-			<iBuildUnitProb>50</iBuildUnitProb>
++			<!-- custom: make barbarians more likely to destroy cities rather than conquer them, after all they are barbarians, so the human player or other players should tightly defend to prevent that, reinvading is a bit too convenient, as barbarians should be more likely i think and ideally to pillage and destroy everything, not so much conquer all, and if they are too strong, it should be balanced elsewhere not here (which currently tones down their war/raze tendency which i think is not ideal, hopefully more idela this way now and balancing their strength in an other place if need if they are too strong and thus raze too often cities, not here, i wouldn't want gameplay to be too forgiving but accurate, however i want it lenient in its balance whatever that means, that i want it fair and fun, but hard enough and not toned down, and accurate, maybe clear enough this way whatever that means or not or yes or and other or and not anyways etc) -->
++			<iRazeCityProb>75</iRazeCityProb>
++			<!-- custom: this can probably be safely be reduced now that barbarian leader gets many buildings for free and most buildings not allowed to be built, so it is (and should be i think but anyways etc) fine if it errs a bit by that i mean builing more buildings, eventually after completing them, most very fast, barbarian leader should turn back to war mode, is maybe also good to make sure barbarian leader doesn't skip the 1 hammer "free" buildings it has "right" to whatever that means, anyways etc.
++			We need to make sure barbarian has no access to other buildings though, so for example now barbarian would build more buildings (redundant but anyways etc) among the few it has access to (most of which should be 1 turn thing anywyas etc), more workers too ideally if it needs, and then finally go back to building units as intended -->
++			<iBuildUnitProb>0</iBuildUnitProb>
++			<!-- custom: i want barbarians to be more cautious and calculating, they are not stupid and shouldn't be, but a bit adventurous too though maybe whatever that means or not or and other or and not anyways etc -->
+ 			<!-- advc.114d: was 0 -->
+-			<iBaseAttackOddsChange>2</iBaseAttackOddsChange>
++			<iBaseAttackOddsChange>1</iBaseAttackOddsChange>
+ 			<!-- advc.114d: was 16 -->
+-			<iAttackOddsChangeRand>21</iAttackOddsChangeRand>
+-			<iWorseRankDifferenceAttitudeChange>0</iWorseRankDifferenceAttitudeChange>
++			<iAttackOddsChangeRand>16</iAttackOddsChangeRand>
++			<!-- custom: make them pick up on the weak is smart and more realistic too, they wouldn't attack someone they can't win against ideally i think, even if a bit less hopefully more accurate this way maybe or not or yes but anyways etc, anyways etc -->
++			<iWorseRankDifferenceAttitudeChange>-2</iWorseRankDifferenceAttitudeChange>
+ 			<iBetterRankDifferenceAttitudeChange>0</iBetterRankDifferenceAttitudeChange>
+-			<iCloseBordersAttitudeChange>0</iCloseBordersAttitudeChange>
++			<iCloseBordersAttitudeChange>-2</iCloseBordersAttitudeChange>
+ 			<iLostWarAttitudeChange>0</iLostWarAttitudeChange>
+ 			<iAtWarAttitudeDivisor>0</iAtWarAttitudeDivisor>
+ 			<iAtWarAttitudeChangeLimit>0</iAtWarAttitudeChangeLimit>
+@@ -104,7 +109,23 @@
+ 			<MemoryDecays/>
+ 			<MemoryAttitudePercents/>
+ 			<NoWarAttitudeProbs/>
+-			<UnitAIWeightModifiers/>
++			<!-- custom: focus more on raw force and light harass units like archers, barbarians were also very good archers in particular if i am not mistaken, but anyways etc, enforcing more the attack makes them more proactive about attacking, while flexible enough to also defend, while ideally also focusing on the most effective units to achieve that, and keep otherwise caution.
++			Make sure to build enough workers and early enough to develop the land too, anyways etc.
++			Attack with purpose, do not bother with wandering units/stacks, aim straight for cities or defend. -->
++			<UnitAIWeightModifiers>
++				<UnitAIWeightModifier>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<iWeightModifier>50</iWeightModifier>
++				</UnitAIWeightModifier>
++				<UnitAIWeightModifier>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<iWeightModifier>100</iWeightModifier>
++				</UnitAIWeightModifier>
++				<UnitAIWeightModifier>
++					<UnitAIType>UNITAI_WORKER</UnitAIType>
++					<iWeightModifier>25</iWeightModifier>
++				</UnitAIWeightModifier>
++			</UnitAIWeightModifiers>
+ 			<ImprovementWeightModifiers/>
+ 			<!-- advc: Should be OK to collapse this -->
+ 			<DiplomacyIntroMusicPeace/>
+@@ -7145,11 +7166,11 @@
+ 			<DiplomacyIntroMusicWar/>
+ 			<DiplomacyMusicWar/>
+ 		</LeaderHeadInfo>
+-		<LeaderHeadInfo> <!-- custom: Chinese_Leader(Mao) (add leader name here too for easier vs code tree read while in the file) -->
+-			<Type>LEADER_CHINESE_LEADER</Type>
+-			<Description>TXT_KEY_LEADER_CHINESE_LEADER</Description>
+-			<Civilopedia>TXT_KEY_LEADER_CHINESE_LEADER_PEDIA</Civilopedia>
+-			<ArtDefineTag>ART_DEF_LEADER_CHINESE_LEADER</ArtDefineTag>
++		<LeaderHeadInfo> <!-- custom: Mao_Zedong (add leader name here too for easier vs code tree read while in the file) -->
++			<Type>LEADER_MAO_ZEDONG</Type>
++			<Description>TXT_KEY_LEADER_MAO_ZEDONG</Description>
++			<Civilopedia>TXT_KEY_LEADER_MAO_ZEDONG_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_LEADER_MAO_ZEDONG</ArtDefineTag>
+ 			<iWonderConstructRand>10</iWonderConstructRand>
+ 			<iBaseAttitude>0</iBaseAttitude>
+ 			<iBasePeaceWeight>1</iBasePeaceWeight>
+
+diff --git a/Assets/XML/GameInfo/CIV4DiplomacyInfos.xml b/Assets/XML/GameInfo/CIV4DiplomacyInfos.xml
+index 1d4d67741..553ec7e5e 100644
+--- a/Assets/XML/GameInfo/CIV4DiplomacyInfos.xml
++++ b/Assets/XML/GameInfo/CIV4DiplomacyInfos.xml
+@@ -224,16 +224,16 @@
+ 					<Civilizations/>
+ 					<Leaders>
+ 						<Leader>
+-							<LeaderType>LEADER_CHINESE_LEADER</LeaderType>
++							<LeaderType>LEADER_MAO_ZEDONG</LeaderType>
+ 							<bLeaderType>1</bLeaderType>
+ 						</Leader>
+ 					</Leaders>
+ 					<Attitudes/>
+ 					<DiplomacyPowers/>
+ 					<DiplomacyText>
+-						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_CHINESE_LEADER_1</Text>
+-						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_CHINESE_LEADER_2</Text>
+-						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_CHINESE_LEADER_3</Text>
++						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_MAO_ZEDONG_1</Text>
++						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_MAO_ZEDONG_2</Text>
++						<Text>AI_DIPLO_FIRST_CONTACT_LEADER_MAO_ZEDONG_3</Text>
+ 					</DiplomacyText>
+ 				</Response>
+ 				<Response>
+@@ -979,14 +979,14 @@
+ 					<Civilizations/>
+ 					<Leaders>
+ 						<Leader>
+-							<LeaderType>LEADER_CHINESE_LEADER</LeaderType>
++							<LeaderType>LEADER_MAO_ZEDONG</LeaderType>
+ 							<bLeaderType>1</bLeaderType>
+ 						</Leader>
+ 					</Leaders>
+ 					<Attitudes/>
+ 					<DiplomacyPowers/>
+ 					<DiplomacyText>
+-						<Text>AI_DIPLO_REFUSE_TO_TALK_LEADER_CHINESE_LEADER_1</Text>
++						<Text>AI_DIPLO_REFUSE_TO_TALK_LEADER_MAO_ZEDONG_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
+ 				<Response>
+@@ -1785,14 +1785,14 @@
+ 					<Civilizations/>
+ 					<Leaders>
+ 						<Leader>
+-							<LeaderType>LEADER_CHINESE_LEADER</LeaderType>
++							<LeaderType>LEADER_MAO_ZEDONG</LeaderType>
+ 							<bLeaderType>1</bLeaderType>
+ 						</Leader>
+ 					</Leaders>
+ 					<Attitudes/>
+ 					<DiplomacyPowers/>
+ 					<DiplomacyText>
+-						<Text>AI_DIPLO_NO_PEACE_LEADER_CHINESE_LEADER_1</Text>
++						<Text>AI_DIPLO_NO_PEACE_LEADER_MAO_ZEDONG_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
+ 				<Response>
+@@ -2613,7 +2613,7 @@
+ 					<Civilizations/>
+ 					<Leaders>
+ 						<Leader>
+-							<LeaderType>LEADER_CHINESE_LEADER</LeaderType>
++							<LeaderType>LEADER_MAO_ZEDONG</LeaderType>
+ 							<bLeaderType>1</bLeaderType>
+ 						</Leader>
+ 					</Leaders>
+@@ -2633,7 +2633,7 @@
+ 					</Attitudes>
+ 					<DiplomacyPowers/>
+ 					<DiplomacyText>
+-						<Text>AI_DIPLO_GREETINGS_ATT_FR_LEADER_CHINESE_LEADER_1</Text>
++						<Text>AI_DIPLO_GREETINGS_ATT_FR_LEADER_MAO_ZEDONG_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
+ 				<Response>
+@@ -4058,7 +4058,7 @@
+ 					<Civilizations/>
+ 					<Leaders>
+ 						<Leader>
+-							<LeaderType>LEADER_CHINESE_LEADER</LeaderType>
++							<LeaderType>LEADER_MAO_ZEDONG</LeaderType>
+ 							<bLeaderType>1</bLeaderType>
+ 						</Leader>
+ 					</Leaders>
+@@ -4074,7 +4074,7 @@
+ 					</Attitudes>
+ 					<DiplomacyPowers/>
+ 					<DiplomacyText>
+-						<Text>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_CHINESE_LEADER_1</Text>
++						<Text>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MAO_ZEDONG_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
+ 				<Response>
+@@ -6010,7 +6010,7 @@
+ 					<Civilizations/>
+ 					<Leaders>
+ 						<Leader>
+-							<LeaderType>LEADER_CHINESE_LEADER</LeaderType>
++							<LeaderType>LEADER_MAO_ZEDONG</LeaderType>
+ 							<bLeaderType>1</bLeaderType>
+ 						</Leader>
+ 					</Leaders>
+@@ -6022,7 +6022,7 @@
+ 						</DiplomacyPower>
+ 					</DiplomacyPowers>
+ 					<DiplomacyText>
+-						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_CHINESE_LEADER_1</Text>
++						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_MAO_ZEDONG_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
+ 				<Response>
+@@ -6975,7 +6975,7 @@
+ 					<Civilizations/>
+ 					<Leaders>
+ 						<Leader>
+-							<LeaderType>LEADER_CHINESE_LEADER</LeaderType>
++							<LeaderType>LEADER_MAO_ZEDONG</LeaderType>
+ 							<bLeaderType>1</bLeaderType>
+ 						</Leader>
+ 					</Leaders>
+@@ -6987,7 +6987,7 @@
+ 						</DiplomacyPower>
+ 					</DiplomacyPowers>
+ 					<DiplomacyText>
+-						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_CHINESE_LEADER_1</Text>
++						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_MAO_ZEDONG_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
+ 				<Response>
+@@ -7940,7 +7940,7 @@
+ 					<Civilizations/>
+ 					<Leaders>
+ 						<Leader>
+-							<LeaderType>LEADER_CHINESE_LEADER</LeaderType>
++							<LeaderType>LEADER_MAO_ZEDONG</LeaderType>
+ 							<bLeaderType>1</bLeaderType>
+ 						</Leader>
+ 					</Leaders>
+@@ -7952,7 +7952,7 @@
+ 						</DiplomacyPower>
+ 					</DiplomacyPowers>
+ 					<DiplomacyText>
+-						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_CHINESE_LEADER_1</Text>
++						<Text>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MAO_ZEDONG_1</Text>
+ 					</DiplomacyText>
+ 				</Response>
+ 				<Response>
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index e2fd9d18a..86b5a29eb 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -293,7 +293,7 @@
+ 			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>3</iBarbarianDefenders>
++			<iBarbarianDefenders>2</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>50</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<!-- advc.251 (start) -->
+@@ -466,7 +466,7 @@
+ 			<iAIStartingDefenseUnits>4</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>3</iBarbarianDefenders>
++			<iBarbarianDefenders>2</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>75</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>110</iAIGrowthPercent>
+@@ -1016,7 +1016,7 @@
+ 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
+ 			warriors are now more likely to be defenders, was 0 -->
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>4</iBarbarianDefenders>
++			<iBarbarianDefenders>3</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<!-- advc.251: was 20 -->
+ 			<iAIWorkRateModifier>10</iAIWorkRateModifier>
+@@ -1218,7 +1218,7 @@
+ 			<!-- custom: no reason and a bit excessive i think to not give a free scout at higher difficulties, especially considering
+ 			warriors are now more likely to be defenders, was 0 -->
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>5</iBarbarianDefenders>
++			<iBarbarianDefenders>4</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<!-- advc.251: was 50 -->
+ 			<iAIWorkRateModifier>15</iAIWorkRateModifier>
+@@ -1435,7 +1435,7 @@
+ 			warriors are now more likely to be defenders, was 0 -->
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<!-- advc.250e: was 4 -->
+-			<iBarbarianDefenders>5</iBarbarianDefenders>
++			<iBarbarianDefenders>4</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<!-- advc.251: was 75 -->
+ 			<iAIWorkRateModifier>20</iAIWorkRateModifier>
+
+diff --git a/Assets/XML/Text/ActualQuotesText.xml b/Assets/XML/Text/ActualQuotesText.xml
+index 351e267ef..8feaf5c5a 100644
+--- a/Assets/XML/Text/ActualQuotesText.xml
++++ b/Assets/XML/Text/ActualQuotesText.xml
+@@ -122,7 +122,7 @@
+ 		<Spanish>Saludos, honorable [CT_NAME]. Esperemos que siempre reine la paz entre el [OUR_EMPIRE] y [CT_CIV_SHORT], pues ella es lo &#250;nico que se interpone entre vosotros y la aniquilaci&#243;n total. </Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_CHINESE_LEADER_1</Tag>
++		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MAO_ZEDONG_1</Tag>
+ 		<English>Greetings, [CT_NAME]. The heroic people of [OUR_CIV_SHORT] salute you! Remember: once all struggle is grasped, miracles are possible.</English>
+ 		<French>Bonjour, [CT_NAME]. C'est un plaisir de vous rencontrer. Tenez, je vous offre un exemplaire de mon petit livre rouge. Vous y apprendrez peut-&#234;tre quelque chose.</French>
+ 		<German>Seid gegr&#252;&#223;t, [CT_NAME]. Ich freue mich, Eure Bekanntschaft zu machen. Hier, nehmt diese Abschrift meines kleinen roten Leitfadens. Ihr k&#246;nntet noch etwas lernen!</German>
+@@ -130,7 +130,7 @@
+ 		<Spanish>Saludos, [CT_NAME]. Es un placer conoceros. Tomad un ejemplar de mi libro rojo. Puede que aprend&#225;is algo y todo.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_CHINESE_LEADER_2</Tag>
++		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MAO_ZEDONG_2</Tag>
+ 		<English>Greetings, [CT_NAME]. I am [OUR_NAME]. People like me sound like a lot of big cannons. Don't let that bother you though. Shall we have peace?</English>
+ 		<French>Bonjour, [CT_NAME]. C'est un plaisir de vous rencontrer. Tenez, je vous offre un exemplaire de mon petit livre rouge. Vous y apprendrez peut-&#234;tre quelque chose.</French>
+ 		<German>Seid gegr&#252;&#223;t, [CT_NAME]. Ich freue mich, Eure Bekanntschaft zu machen. Hier, nehmt diese Abschrift meines kleinen roten Leitfadens. Ihr k&#246;nntet noch etwas lernen!</German>
+@@ -138,7 +138,7 @@
+ 		<Spanish>Saludos, [CT_NAME]. Es un placer conoceros. Tomad un ejemplar de mi libro rojo. Puede que aprend&#225;is algo y todo.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_CHINESE_LEADER_3</Tag>
++		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_MAO_ZEDONG_3</Tag>
+ 		<English>Welcome, [CT_NAME]. I am [OUR_NAME], leader of the [OUR_CIV_ADJ] people. The cardinal responsibility of leadership is to identify the dominant contradiction at each point of the historical process and to work out a central line to resolve it. How should the two of us resolve this meeting?</English>
+ 		<French>Bonjour, [CT_NAME]. C'est un plaisir de vous rencontrer. Tenez, je vous offre un exemplaire de mon petit livre rouge. Vous y apprendrez peut-&#234;tre quelque chose.</French>
+ 		<German>Seid gegr&#252;&#223;t, [CT_NAME]. Ich freue mich, Eure Bekanntschaft zu machen. Hier, nehmt diese Abschrift meines kleinen roten Leitfadens. Ihr k&#246;nntet noch etwas lernen!</German>
+@@ -471,7 +471,7 @@
+ 		<Spanish>Vuestra mera visi&#243;n nos ofende, [CT_NAME]. &#161;Fuera de aqu&#237;!</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_CHINESE_LEADER_1</Tag>
++		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_MAO_ZEDONG_1</Tag>
+ 		<English>All reactionaries are paper tigers, and so are you!</English>
+ 		<French>Les [OUR_CIV_SHORT] n'&#233;couteront pas vos mensonges !</French>
+ 		<German>Das Volk von [OUR_CIV_SHORT] wird Euren kleinb&#252;rgerlichen L&#252;gen kein Geh&#246;r schenken!</German>
+@@ -696,7 +696,7 @@
+ 		<Spanish>No. No hab&#233;is aprendido a respetar como es debido a vuestros superiores.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>AI_DIPLO_NO_PEACE_LEADER_CHINESE_LEADER_1</Tag>
++		<Tag>AI_DIPLO_NO_PEACE_LEADER_MAO_ZEDONG_1</Tag>
+ 		<English>Passivity is fatal to us. Our goal is to make the enemy passive. You are the enemy. There will be no peace.</English>
+ 		<French>Il ne pourra jamais y avoir de paix entre le peuple et les oppresseurs capitalistes de la bourgeoisie qui le spolie et l'exploite ! Je parle de vous, imb&#233;cile.</French>
+ 		<German>Es kann niemals Frieden herrschen in dem endlosen Krieg zwischen dem einfachen Volk und den kapitalistischen Blutsaugern, die es versklaven wollen! Und damit seid Ihr gemeint, Dummkopf!</German>
+@@ -896,7 +896,7 @@
+ 		<Spanish>&#161;Saludos, [CT_NAME]! &#191;A qui&#233;n debemos traicionar y destruir hoy?</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_CHINESE_LEADER_1</Tag>
++		<Tag>AI_DIPLO_GREETINGS_ATT_FR_LEADER_MAO_ZEDONG_1</Tag>
+ 		<English>Let a hundred flowers bloom, let a hundred schools of thought contend! This is a good day. How may [OUR_CIV_SHORT] be of service?</English>
+ 		<French>Au nom du glorieux Parti Communiste de Chine et de tous ses paysans incultes... heu, de tous ses "glorieux travailleurs"... je vous salue !</French>
+ 		<German>Im Namen der gro&#223;en ruhmreichen kommunistischen Partei Chinas und all ihrer einfallslosen kleinen Anh&#228;nger - &#228;h, ich meine "ehrenhaften Arbeiter" - Willkommen!</German>
+@@ -1163,7 +1163,7 @@
+ 		<Spanish>&#161;Saludos, [CT_NAME]! Nos complace veros, como siempre.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_CHINESE_LEADER_1</Tag>
++		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MAO_ZEDONG_1</Tag>
+ 		<English>Swollen in head, weak in legs, sharp in tongue but empty in belly. Needless to say, I haven't missed you.</English>
+ 		<French>Ce sont les gens comme vous, [CT_NAME], qui entachent la r&#233;putation des impitoyables dictateurs. Que venez-vous faire ici ?</French>
+ 		<German>Es sind Menschen wie Ihr, [CT_NAME], die ruchlosen Diktatoren einen schlechten Ruf bescheren! Warum seid Ihr gekommen?</German>
+@@ -1172,7 +1172,7 @@
+ 	</TEXT>
+ 
+ 	<TEXT>
+-		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_CHINESE_LEADER_2</Tag>
++		<Tag>AI_DIPLO_GREETINGS_ATT_FUR_LEADER_MAO_ZEDONG_2</Tag>
+ 		<English>You think too small, [CT_NAME], like the frog at the bottom of the well. He thinks the sky is only as big as the top of the well. If he surfaced, he would have an entirely different view. What do you want?</English>
+ 		<French>Ce sont les gens comme vous, [CT_NAME], qui entachent la r&#233;putation des impitoyables dictateurs. Que venez-vous faire ici ?</French>
+ 		<German>Es sind Menschen wie Ihr, [CT_NAME], die ruchlosen Diktatoren einen schlechten Ruf bescheren! Warum seid Ihr gekommen?</German>
+@@ -1614,7 +1614,7 @@
+ 		<Spanish>Es una civilizaci&#243;n muy bonita la que ten&#233;is, [CT_NAME]. Ser&#237;a una desgracia que algo malo le sucediera... Nos entendemos, &#191;no?</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_CHINESE_LEADER_1</Tag>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_WEAKER_MAO_ZEDONG_1</Tag>
+ 		<English>[OUR_CIV_SHORT] is a tiger, [CT_NAME]. In waking a tiger, use a long stick. Or better still, give us this and let it remain asleep.</English>
+ 		<French>[CT_NAME], veuillez nous donner ceci imm&#233;diatement. Consid&#233;rez que c'est un investissement pour pr&#233;server notre belle amiti&#233;...</French>
+ 		<German>Bitte, kommt dieser Forderung umgehend nach, [CT_NAME]! Betrachtet es als Investition in unsere freundschaftlichen Beziehungen.</German>
+@@ -1753,7 +1753,7 @@
+ 		<Spanish>El [OUR_EMPIRE] os pide una peque&#241;a donaci&#243;n, [CT_NAME]. O, si lo prefer&#237;s, podemos combatir hasta que una de las dos naciones quede destruida. </Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_CHINESE_LEADER_1</Tag>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_EQUAL_MAO_ZEDONG_1</Tag>
+ 		<English>Politics is war without bloodshed, while war is politics with bloodshed. Which type of politics do you prefer?</English>
+ 		<French>Voulez-vous participer &#224; notre programme de partage des richesses, [CT_NAME] ?</French>
+ 		<German>Wollt Ihr nicht vielleicht an dem allseits beliebten "Wie werde ich reich"-Programm teilnehmen, [CT_NAME]?</German>
+@@ -1936,7 +1936,7 @@
+ 		<Spanish>&#161;Si quer&#233;is que sobreviva vuestra pat&#233;tica civilizaci&#243;n, [CT_NAME], ser&#225; mejor que cumpl&#225;is nuestras exigencias!</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_CHINESE_LEADER_1</Tag>
++		<Tag>AI_DIPLO_DEMAND_TRIBUTE_POWER_STRONGER_MAO_ZEDONG_1</Tag>
+ 		<English>We demand this, [CT_NAME]. Communism is not love. Communism is a hammer which we use to crush the enemy.</English>
+ 		<French>Les glorieux travailleurs des [CT_CIV_ADJ] supportent depuis trop longtemps d&#233;j&#224; votre insolence de bourgeois ! Nous allons imm&#233;diatement redistribuer les richesses !</French>
+ 		<German>Die ruhmreichen [CT_CIV_ADJ:2] Arbeiter haben sich Eure ver&#228;chtlichen Unversch&#228;mtheiten schon viel zu lange gefallen lassen! Jetzt ist es an der Zeit, Euer Verm&#246;gen ein wenig umzuverteilen!</German>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+new file mode 100644
+index 000000000..72a73239f
+--- /dev/null
++++ b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+@@ -0,0 +1,109 @@
++<?xml version="1.0" encoding="ISO-8859-1"?>
++<Civ4GameText>
++	<!-- custom: AdvCiv-SAS specific tags (if i am not mistaken these are tags,
++	not in terms of content added but in terms of the type of content), here is
++	mostly but not only documentation pages aobut AdvCiv-SAS itself, hopefully
++	easier to manage here, anyways -->
++
++
++
++	<!-- custom: 
++	Before starting, a note about translations:
++
++	If we define only the <English>My translation example</Example> tag without
++	putting the other language tags, then (according to ChatGPT), the other languages will
++	see the English version, no need to copy paste the same version many times, thanks ChatGPT
++	etc too maybe anyways.
++	Detailed explanations of ChatGPT below (i modified the formatting of it a bit but same content (i may have added Upper cases instead or Change a bit some sentences to connect them, should be mostly the same)).
++
++	1) For new content we add (for example if we were to add a new sniper unit (great memory ChatGPT thanks a lot, anyways, )):
++	:
++	Quote:
++	"
++	What happens if you only define an XML entry in English?
++
++	If you only define one language (like English) in your XML (e.g., CIV4GameText.xml), and leave out translations for other languages, then:
++	Yes — other languages will see the English version.
++
++	Why?
++	Because Civ4's text system falls back to English if:
++	- A translation is missing for the current language.
++	- The player's selected language is not found in the XML at all.
++
++	So for example:
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_SNIPER</Tag>
++		<English>Sniper</English>
++	</TEXT>
++
++	If the player has their game language set to French, Spanish, or anything else — they'll still see "Sniper" in English, because:
++	- The game didn’t find <French>, <German>, etc., for that tag.
++	- So it shows <English> as a fallback.
++
++	Exceptions / Notes:
++	- If the <English> field is missing entirely, the game will show the tag name (like TXT_KEY_UNIT_SNIPER) instead.
++	- If you include a <French> tag but leave it empty, it may show nothing or just whitespace — so it's better to leave other languages out entirely unless you have a proper translation.
++	"
++
++
++	2) For content already existing in the game (for example FEATURE_ICE):
++	Quoting ChatGPT again, thanks ChatGPT and etc thanks all too or not too etc, anyways:
++
++	Quote:
++	"
++	This gets into how overrides work in Civ4's XML system. Here's the breakdown:
++	You override an existing in-game text key (e.g. TXT_KEY_FEATURE_ICE) in your mod's XML:
++
++	<TEXT>
++		<Tag>TXT_KEY_FEATURE_ICE</Tag>
++		<English>Frozen Hell</English>
++	</TEXT>
++
++	But you do not include <French>, <German>, etc.
++
++	What happens in-game?
++	Civ4 will completely override the original text entry, even in non-English languages.
++
++	So:
++	- English players will see: "Frozen Hell"
++	- French players will not see the original Firaxis French translation — they’ll see "Frozen Hell" too.
++	- Other languages will also see your new English text, not the base game's translation.
++	"
++
++	Important Note:
++	Once you override a <Tag> in your mod, the original translations are no longer used, even if you only replace <English>.
++	That means:
++	- You're responsible for translations if you want to preserve them.
++	- If not, it's totally fine — Civ4 will fall back to your <English> string in all languages.
++
++	Pro Tip:
++	If you're just changing English and want to keep the original translations, you can rename the tag, like:
++
++	<Tag>TXT_KEY_FEATURE_ICE_ALT</Tag>
++
++	Then use TXT_KEY_FEATURE_ICE_ALT wherever you want (e.g. in your modified CIV4FeatureInfos.xml). That way:
++	- The original TXT_KEY_FEATURE_ICE stays untouched.
++	- You can localize or not as you like.
++
++	Summary:
++	What You Do										What Players See
++	Only override <English> of a base tag			All languages will see your English string
++	Don't touch a tag								Players see base game translations
++	Rename the tag									Original untouched; you're free to localize your version
++	"
++	-->
++
++
++
++	<TEXT>
++		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR</Tag>
++		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, please visit:[NEWLINE]- if online, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there (also appended/included as a text .md file in AdvCiv-SAS). If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this pull request compare: https://github.com/wonderingabout/AdvCiv-SAS/pull/13 . Be warned though it can be very lengthy, so read rather the quick start guide mentionned above preferably for the shorter and less exhaustive version if you'd prefer.[NEWLINE]- if offline: you can also view most (almost all) of the information above by navigating the docs in your AdvCiv-SAS folder (for example if you have the Steam version of the game,it would be here (else adapt to where your civ4 and advciv-sas install paths are): "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\"), and opening them with a text editor (i recommend Notepad++, but the default Windows Notepad.exe can also open .txt and .md files too just with less display features (but still all info unless i'm mistaken anyways)).[NEWLINE][NEWLINE][BOLD]Translations[\BOLD][NEWLINE]- For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. If your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry in Mods\AdvCiv-SAS\Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml[NEWLINE][NEWLINE][BOLD]Sevopedia[\BOLD][NEWLINE]- New feature in sevopedia leader: AI Personality Panels, that aim to represent each Leader's behavorial tendencies and preferences quite exhaustively, and their ranking of such tendencies vs what other leaders ((would) tend to do) anyways, as represented in their XML data, see for example [LINK=LEADER_GANDHI]Gandhi's leader page for example[\LINK]. Extensive documentation has been written as well to help you navigate these and understand how they work. Please read for more details the general introduction to such documents(ation(s?)) in Mods Info [LINK=CONCEPT_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO].4_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO[\LINK][NEWLINE]- Cleanup or adding more features in other Sevopedia categories, such as SevopediaReligion (add Leaders panel (based on History Rewritten's code (modified for AdvCiv-SAS)) and Buildings panel too (based on RFC DOC's code modified for AdvCiv-SAS too anyways etc)), or the SevopediaLeader in general (reordered the size and position of the other panels in SevopediaLeader with or not with other mods's code, or/and other Sevopedia Categories too).[NEWLINE]- Expanded Sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc[NEWLINE]- Reduced main categories width from approxiamtely 200px to 120px approximately, this quite greatly increases the space of the Sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.[NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/ [NEWLINE]- Renamed [LINK=TERRAIN_SNOW]"Ice" (Terrain) to "Ice Sheet"[\LINK], and [LINK=FEATURE_ICE]"Ice" (Feature) to "Ice Cap"[\LINK], hopefully clearer and more accurate, see their Sevopedia entries for details.[NEWLINE]- Renamed [LINK=BONUS_COW]"Cow" (Ressource) to "Cattle"[\LINK], and renamed [LINK=BONUS_IVORY]"Ivory" (Ressource) to "Elephants"[\LINK], hopefully clearer and more accurate (and immersive maybe), see the Sevopedia entry for details.[NEWLINE]- Renamed Religion "Taoism" to "Daoism" and all related entires (units, buildings, descriptions/history, etc), see the Sevopedia page for details or example(s) [LINK=RELIGION_DAOISM]"Daoism"[\LINK] or project/mod docs for more details[NEWLINE][NEWLINE][BOLD]Rules[\BOLD][NEWLINE]- All units now are affected by city defenses, even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself[NEWLINE]- Air explore units (for example the [LINK=UNIT_AIRSHIP]Dirigible[\LINK] (old airship)) can move through all terrains, including peaks and water tiles.[NEWLINE][NEWLINE][BOLD]Balance (non-exhaustive)[\BOLD][NEWLINE]- Shrines now require to also have the corresponding religion as a prequirement to build them (and not only just the holy city as before, which is still required now), this means for example that if you conquer a holy city that doesn't have a shrine, you can't build the shrine until/unless you have the matching religion if i am not mistaken (for example to build the [LINK=BUILDING_DAOIST_SHRINE]Daoist Shrine (Currently named "The Dai Miao" as of now (i.e. (as of?) me writing this (sevopedia) doc) anyways etc)[\LINK] you need to have the [LINK=RELIGION_DAOISM]"Daoism"[\LINK] religion too. This allows to display shrines in sevopedia and perhaps also makes more sense in terms of gameplay if it doesn't create issues hopefully, trying it to see anyways etc, see sevopedia entries or/and project/mod docs for details[NEWLINE]- Removed religion "confucianism", added [LINK=RELIGION_PAGANISM]religion "paganism"[\LINK], more popular and relevant for civ4 maybe as many leaders were religious if i am not mistaken but with no religion, see notes_about_religious_design.txt for details in the docs online on github or(/and(anyways etc)) offline in this project files too for details[NEWLINE]- Fixed and ajusted many religious inaccuracies of favourite religions, at least those i spotted with (being) certainty (certain enough) maybe anwyas etc (or not or/and other or/and not anways etc), for example frederick the great was agnostic not christian, brennus more leaning non religous than pagan (not inaccurate since paganism didn't exist but may fix other xml related fields or maybe not such as religion preference or not anwyays etc), and genghis khan, while tengrist something and not strictly daoist, expressed or/and showed(?) a strong respect(/liking?) for (a(/the?)) daoist leader, so his favourite religion can be assessed to be daoism, especially if he had to choose between civ4 only religions, here being none or daoism, he leans more strongly -much mroe if i am not mistake but anyways etc) towrds daoism), so a leader can have a favourite religion without it being their religion of themselves, see notes mentionned above for details, and this is all if i am not mistaken, but (i thnk)(and hope but anyways etc) if this is (and i was) accurate enouh (but anyways etc) hopefuly accurate enough and (much maybe(?) maybe or not or/and other or not anyways etc) accurate now hopefully maybe or not or/and other or/and not (but) anwyays etc[NEWLINE]- Barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will gradually fade. They should also spawn cities more often and be relevant longer in the game, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details ingame or/and the XML for example for the Steam version of the game (adjust to where your AdvCiv-SAS mod is if path is different or/and you don't use the Steam version of the game) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such.[NEWLINE][NEWLINE][BOLD]Fixes[\BOLD][NEWLINE]- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob were pleased(110) / pleased(115) instead of (seemingly how should be if i am not mistaken anyways etc) pleased(110) / friendly(115)[NEWLINE]- Fixed a bug (seemingly) too anywyas etc in base AdvCiv/Civ4 where barbarians could build shwedagon paya as happened in auto play, hopefully fixed now, anyways etc</English>
++	</TEXT>
++
++
++
++	<TEXT>
++		<Tag>TXT_KEY_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO_PEDIA_SR</Tag>
++		<English>[TAB]An exhaustive/extensive documentation has been written about the AI Personality Panel feature (that is) in AdvCiv-SAS (in the SevopediaLeader category), explaining, in broad, general ways how it works and how to read the data from a new player's perspective.[PARAGRAPH:2]It is recommended to read it to understand better how it works.[PARAGRAPH:2]You can view it:[NEWLINE]- online on github (todo add link),[NEWLINE]- or even if you are offline, you can read the .md files as any text file, for example with Notepad++ (or the default Notepad.exe of windows too if you prefer but Notepad.exe has less advanced features, still more than good enough for reading a doc especially if you prefer and should display all info as well if i'm not mistaken, anyways etc anyways). The file path is, for example if you have the Steam version of Civ4 (adapt to where your game and mod is if you use a non-Steam (or other than Steam) version (maybe rather anyways): "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\README_AI_Personality_Panel.md")[PARAGRAPH:2]You'll get most info from there hopefully rather than me copy pasting the same doc (painfully hehe but that i would gladly do (maybe or not or other etc anyways) but better avoid if possible anyways) in sevopedia ingame and it being potentially outdated after not long, etc anyways, thanks.</English>
++	</TEXT>
++</Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 6045dc114..127b0fa0b 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -248,10 +248,6 @@
+ 		<Tag>TXT_KEY_BUILDING_LIGHTHOUSE_BARBARIAN</Tag>
+ 		<English>Lighthouse (Barbarian)</English>
+ 	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUILDING_MONUMENT_BARBARIAN</Tag>
+-		<English>Monument (Barbarian)</English>
+-	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_WALLS_BARBARIAN</Tag>
+ 		<English>Walls (Barbarian)</English>
+@@ -268,9 +264,9 @@
+ 	- BUILDINGCLASS_OBELISK (when relating(related?) to the monument building class and not the (non existent(/existing?))(egyptian) obelisk building class) (and all similar entries such as art file(i.e. XML asset) tag names and such) to BUILDINGCLASS_MONUMENT
+ 	- BUILDING_OBELISK (when relating(related?) to the monument building and not the (egyptian) obelisk building) (same as above) to BUILDING_MONUMENT
+ 	- (so) exception(s?) being: TXT_KEY_BUILDING_OBELISK to TXT_KEY_BUILDING_EGYPTIAN_OBELISK (to match the existing civ4 format that (quite if not lot but anyways etc at least and still to go back on topic anyways etc) makes/made sense)
+-	- all the while keeping the original TXT_KEY_BUILDING_MONUMENT and similar, when applies/relating(relates?) to the monument building and not the obelisk building (can hardly be mroe confusing, i mean could but is about as confusing as it could or may have been in civ4, purposely or not, but anyways etc and hopefully a lot clearer now, and helpful or not, but in all cases or not anyways etc)
++	- all the while keeping the original TXT_KEY_BUILDING_MONUMENT and similar, when applies/relating(relates?) to the monument building and not the obelisk building (can hardly be more confusing, i mean could but is about as confusing as it could or may have been in civ4, purposely or not, but anyways etc and hopefully a lot clearer now, and helpful or not, but in all cases or not anyways etc)
+ 
+-	So now there are either MONUMENT for the building class monuments, and MONUMENT for the building monument (generic building for all civs), or EGYPTIAN_OBELISK only and specifically only for the egyptian obelisk building (that is still named ingame "Obelisk" though as no reason to introduce the natinality/country in the name i think, but hoepfully a lot clearer in code now too, anyways etc, keeping the "egyptian" part in code name to clarify the confusion with original names, hopefully a lot clearer now, anyways etc)
++	So now there are either MONUMENT for the building class monuments, and MONUMENT for the building monument (generic building for all civs), or EGYPTIAN_OBELISK only and specifically only for the egyptian obelisk building (that is still named ingame "Obelisk" though as no reason to introduce the nationality/country in the name i think, but hopefully a lot clearer in code now too, anyways etc, keeping the "egyptian" part in code name to clarify the confusion with original names, hopefully a lot clearer now, anyways etc)
+ 	-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_EGYPTIAN_OBELISK</Tag>
+@@ -279,6 +275,18 @@
+ 
+ 
+ 
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_FORBIDDEN_PALACE</Tag>
++		<English>Forbidden Palace</English>
++	</TEXT>
++
++
++
++	<!-- custom: rename to more accurate naming from "Chinese_Leader" (wtf??? but anyways etc) to "Mao Zedong" as he is accurately named in several (most in fact parts of the code), hopefully clearer now or/and more sensical or/and consistent or maybe not or yes or and other or and not, (but) anyways etc... -->
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_MAO_ZEDONG</Tag>
++		<English>Mao Zedong</English>
++	</TEXT>
+ 	<!-- custom: rename to more accurate naming from "Montezuma" to "Moctezuma II" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_LEADER_MOCTEZUMA</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index b37656f21..bc88f159f 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -1,96 +1,5 @@
+ <?xml version="1.0" encoding="ISO-8859-1"?>
+ <Civ4GameText>
+-
+-
+-	<!-- custom: 
+-
+-	Before starting, a note about translations:
+-
+-	If we define only the <English>My translation example</Example> tag without
+-	putting the other language tags, then (according to ChatGPT), the other languages will
+-	see the English version, no need to copy paste the same version many times, thanks ChatGPT
+-	etc too maybe anyways.
+-	Detailed explanations of ChatGPT below (i modified the formatting of it a bit but same content (i may have added Upper cases instead or Change a bit some sentences to connect them, should be mostly the same)).
+-
+-	1) For new content we add (for example if we were to add a new sniper unit (great memory ChatGPT thanks a lot, anyways, )):
+-	:
+-	Quote:
+-	"
+-	What happens if you only define an XML entry in English?
+-
+-	If you only define one language (like English) in your XML (e.g., CIV4GameText.xml), and leave out translations for other languages, then:
+-	Yes � other languages will see the English version.
+-
+-	Why?
+-	Because Civ4's text system falls back to English if:
+-	- A translation is missing for the current language.
+-	- The player's selected language is not found in the XML at all.
+-
+-	So for example:
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_SNIPER</Tag>
+-		<English>Sniper</English>
+-	</TEXT>
+-
+-	If the player has their game language set to French, Spanish, or anything else � they'll still see "Sniper" in English, because:
+-	- The game didn�t find <French>, <German>, etc., for that tag.
+-	- So it shows <English> as a fallback.
+-
+-	Exceptions / Notes:
+-	- If the <English> field is missing entirely, the game will show the tag name (like TXT_KEY_UNIT_SNIPER) instead.
+-	- If you include a <French> tag but leave it empty, it may show nothing or just whitespace � so it's better to leave other languages out entirely unless you have a proper translation.
+-	"
+-
+-
+-	2) For content already existing in the game (for example FEATURE_ICE):
+-	Quoting ChatGPT again, thanks ChatGPT and etc thanks all too or not too etc, anyways:
+-
+-	Quote:
+-	"
+-	This gets into how overrides work in Civ4's XML system. Here's the breakdown:
+-	You override an existing in-game text key (e.g. TXT_KEY_FEATURE_ICE) in your mod's XML:
+-
+-	<TEXT>
+-		<Tag>TXT_KEY_FEATURE_ICE</Tag>
+-		<English>Frozen Hell</English>
+-	</TEXT>
+-
+-	But you do not include <French>, <German>, etc.
+-
+-	What happens in-game?
+-	Civ4 will completely override the original text entry, even in non-English languages.
+-
+-	So:
+-	- English players will see: "Frozen Hell"
+-	- French players will not see the original Firaxis French translation � they�ll see "Frozen Hell" too.
+-	- Other languages will also see your new English text, not the base game's translation.
+-	"
+-
+-	Important Note:
+-	Once you override a <Tag> in your mod, the original translations are no longer used, even if you only replace <English>.
+-	That means:
+-	- You're responsible for translations if you want to preserve them.
+-	- If not, it's totally fine � Civ4 will fall back to your <English> string in all languages.
+-
+-	Pro Tip:
+-	If you're just changing English and want to keep the original translations, you can rename the tag, like:
+-
+-	<Tag>TXT_KEY_FEATURE_ICE_ALT</Tag>
+-
+-	Then use TXT_KEY_FEATURE_ICE_ALT wherever you want (e.g. in your modified CIV4FeatureInfos.xml). That way:
+-	- The original TXT_KEY_FEATURE_ICE stays untouched.
+-	- You can localize or not as you like.
+-
+-	Summary:
+-	What You Do										What Players See
+-	Only override <English> of a base tag			All languages will see your English string
+-	Don't touch a tag								Players see base game translations
+-	Rename the tag									Original untouched; you're free to localize your version
+-	"
+-	-->
+-
+-
+-
+ 	<!-- custom: moved the lengthy part of the Sevopedia changes
+ 	to this file, but only for AdvCiv-SAS specific changes (for example
+ 	a new civ, a new leader, etc) that are lengthy.
+@@ -108,24 +17,6 @@
+ 
+ 
+ 
+-	<!-- custom: AdvCiv-SAS specific tags (if i am not mistaken these are tags,
+-	not in terms of content added but in terms of the type of content, here is
+-	mostly but not only documentation pages aobut AdvCiv-SAS itself, hopefully
+-	easier to manage here, anyways) -->
+-	<TEXT>
+-		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR</Tag>
+-		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, please visit:[NEWLINE]- if online, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there (also appended/included as a text .md file in AdvCiv-SAS). If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this pull request compare: https://github.com/wonderingabout/AdvCiv-SAS/pull/13 . Be warned though it can be very lengthy, so read rather the quick start guide mentionned above preferably for the shorter and less exhaustive version if you'd prefer.[NEWLINE]- if offline: you can also view most (almost all) of the information above by navigating the docs in your AdvCiv-SAS folder (for example if you have the Steam version of the game,it would be here (else adapt to where your civ4 and advciv-sas install paths are): "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\"), and opening them with a text editor (i recommend Notepad++, but the default Windows Notepad.exe can also open .txt and .md files too just with less display features (but still all info unless i'm mistaken anyways)).[NEWLINE][NEWLINE][BOLD]Translations[\BOLD][NEWLINE]- For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. If your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry in Mods\AdvCiv-SAS\Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml[NEWLINE][NEWLINE][BOLD]Sevopedia[\BOLD][NEWLINE]- New feature in sevopedia leader: AI Personality Panels, that aim to represent each Leader's behavorial tendencies and preferences quite exhaustively, and their ranking of such tendencies vs what other leaders ((would) tend to do) anyways, as represented in their XML data, see for example [LINK=LEADER_GANDHI]Gandhi's leader page for example[\LINK]. Extensive documentation has been written as well to help you navigate these and understand how they work. Please read for more details the general introduction to such documents(ation(s?)) in Mods Info [LINK=CONCEPT_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO].4_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO[\LINK][NEWLINE]- Cleanup or adding more features in other Sevopedia categories, such as SevopediaReligion (add Leaders panel (based on History Rewritten's code (modified for AdvCiv-SAS)) and Buildings panel too (based on RFC DOC's code modified for AdvCiv-SAS too anyways etc)), or the SevopediaLeader in general (reordered the size and position of the other panels in SevopediaLeader with or not with other mods's code, or/and other Sevopedia Categories too.[NEWLINE]- Expanded Sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc[NEWLINE]- Reduced main categories width from approxiamtely 200px to 120px approximately, this quite greatly increases the space of the Sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.[NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/ [NEWLINE]- Renamed [LINK=TERRAIN_SNOW]"Ice" (Terrain) to "Ice Sheet"[\LINK], and [LINK=FEATURE_ICE]"Ice" (Feature) to "Ice Cap"[\LINK], hopefully clearer and more accurate, see their Sevopedia entries for details.[NEWLINE]- Renamed [LINK=BONUS_COW]"Cow" (Ressource) to "Cattle"[\LINK], and renamed [LINK=BONUS_IVORY]"Ivory" (Ressource) to "Elephants"[\LINK], hopefully clearer and more accurate (and immersive maybe), see the Sevopedia entry for details.[NEWLINE]- Renamed Religion "Taoism" to "Daoism" and all related entires (units, buildings, descriptions/history, etc), see the Sevopedia page for details or example(s) [LINK=RELIGION_DAOISM]"Daoism"[\LINK] or project/mod docs for more details[NEWLINE][NEWLINE][BOLD]Rules[\BOLD][NEWLINE]- All units now are affected by city defenses, even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself[NEWLINE]- Air explore units (for example the [LINK=UNIT_AIRSHIP]Dirigible[\LINK] (old airship)) can move through all terrains, including peaks and water tiles.[NEWLINE][NEWLINE][BOLD]Balance (non-exhaustive)[\BOLD][NEWLINE]- Shrines now require to also have the corresponding religion as a prequirement to build them (and not only just the holy city as before, which is still required now), this means for example that if you conquer a holy city that doesn't have a shrine, you can't build the shrine until/unless you have the matching religion if i am not mistaken (for example to build the [LINK=BUILDING_DAOIST_SHRINE]Daoist Shrine (Currently named "The Dai Miao" as of now (i.e. (as of?) me writing this (sevopedia) doc) anyways etc)[\LINK] you need to have the [LINK=RELIGION_DAOISM]"Daoism"[\LINK] religion too. This allows to display shrines in sevopedia and perhaps also makes more sense in terms of gameplay if it doesn't create issues hopefully, trying it to see anyways etc, see sevopedia entries or/and project/mod docs for details[NEWLINE]- Removed religion "confucianism", added [LINK=RELIGION_PAGANISM]religion "paganism"[\LINK], more popular and relevant for civ4 maybe as many leaders were religious if i am not mistaken but with no religion, see notes_about_religious_design.txt for details in the docs online on github or(/and(anyways etc)) offline in this project files too for details[NEWLINE]- Fixed and ajusted many religious inaccuracies of favourite religions, at least those i spotted with (being) certainty (certain enough) maybe anwyas etc (or not or/and other or/and not anways etc), for example frederick the great was agnostic not christian, brennus more leaning non religous than pagan (not inaccurate since paganism didn't exist but may fix other xml related fields or maybe not such as religion preference or not anwyays etc), and genghis khan, while tengrist something and not strictly daoist, expressed or/and showed(?) a strong respect(/liking?) for (a(/the?)) daoist leader, so his favourite religion can be assessed to be daoism, especially if he had to choose between civ4 only religions, here being none or daoism, he leans more strongly -much mroe if i am not mistake but anyways etc) towrds daoism), so a leader can have a favourite religion without it being their religion of themselves, see notes mentionned above for details, and this is all if i am not mistaken, but (i thnk)(and hope but anyways etc) if this is (and i was) accurate enouh (but anyways etc) hopefuly accurate enough and (much maybe(?) maybe or not or/and other or not anyways etc) accurate now hopefully maybe or not or/and other or/and not (but) anwyays etc[NEWLINE]- Barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will gradually fade. They should also spawn cities more often and be relevant longer in the game, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details ingame or/and the XML for example for the Steam version of the game (adjust to where your AdvCiv-SAS mod is if path is different or/and you don't use the Steam version of the game) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such.</English>
+-	</TEXT>
+-
+-
+-
+-	<TEXT>
+-		<Tag>TXT_KEY_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO_PEDIA_SR</Tag>
+-		<English>[TAB]An exhaustive/extensive documentation has been written about the AI Personality Panel feature (that is) in AdvCiv-SAS (in the SevopediaLeader category), explaining, in broad, general ways how it works and how to read the data from a new player's perspective.[PARAGRAPH:2]It is recommended to read it to understand better how it works.[PARAGRAPH:2]You can view it:[NEWLINE]- online on github (todo add link),[NEWLINE]- or even if you are offline, you can read the .md files as any text file, for example with Notepad++ (or the default Notepad.exe of windows too if you prefer but Notepad.exe has less advanced features, still more than good enough for reading a doc especially if you prefer and should display all info as well if i'm not mistaken, anyways etc anyways). The file path is, for example if you have the Steam version of Civ4 (adapt to where your game and mod is if you use a non-Steam (or other than Steam) version (maybe rather anyways): "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\README_AI_Personality_Panel.md")[PARAGRAPH:2]You'll get most info from there hopefully rather than me copy pasting the same doc (painfully hehe but that i would gladly do (maybe or not or other etc anyways) but better avoid if possible anyways) in sevopedia ingame and it being potentially outdated after not long, etc anyways, thanks.</English>
+-	</TEXT>
+-
+-
+-
+ 	<!-- custom: more accurate and detailed entry, less western-centric -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_CROSSBOWMAN_PEDIA</Tag>
+@@ -150,12 +41,12 @@
+ 	<!-- custom: from https://en.wikipedia.org/wiki/Temple and https://pickvocab.com/dictionary/en/pagan ,(;?(anyways etc)) (and) adjusted or not for AdvCiv-SAS anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_PAGAN_TEMPLE_PEDIA</Tag>
+-		<English>[TAB]A temple (from the Latin templum) is a place of worship, a building used for spiritual rituals and activities such as prayer and sacrifice. By convention, the specially built places of worship of some religions are commonly called "temples" in English, while those of other religions are not, even though they fulfill very similar functions.[PARAGRAPH:1]The form and function of temples are thus very variable, though they are often considered by believers to be, in some sense, the "house" of one or more deities. Typically, offerings of some sort are made to the deity, and other rituals are enacted, and a special group of clergy maintain and operate the temple. The degree to which the whole population of believers can access the building varies significantly; often parts, or even the whole main building, can only be accessed by the clergy. Temples typically have a main building and a larger precinct, which may contain many other buildings or may be a dome-shaped structure, much like an igloo.[PARAGRAPH:1]The word comes from Ancient Rome, where a templum constituted a sacred precinct as defined by a priest, or augur.[1] It has the same root as the word "template", a plan in preparation for the building that was marked out on the ground by the augur.[PARAGRAPH:1]The pagan temple was dedicated to the worship of ancient gods.</English>
++		<English>[TAB]A temple (from the Latin templum) is a place of worship, a building used for spiritual rituals and activities such as prayer and sacrifice. By convention, the specially built places of worship of some religions are commonly called "temples" in English, while those of other religions are not, even though they fulfill very similar functions.[PARAGRAPH:1]The form and function of temples are thus very variable, though they are often considered by believers to be, in some sense, the "house" of one or more deities. Typically, offerings of some sort are made to the deity, and other rituals are enacted, and a special group of clergy maintain and operate the temple. The degree to which the whole population of believers can access the building varies significantly; often parts, or even the whole main building, can only be accessed by the clergy. Temples typically have a main building and a larger precinct, which may contain many other buildings or may be a dome-shaped structure, much like an igloo.[PARAGRAPH:1]The word comes from Ancient Rome, where a templum constituted a sacred precinct as defined by a priest, or augur. It has the same root as the word "template", a plan in preparation for the building that was marked out on the ground by the augur.[PARAGRAPH:1]The pagan temple was dedicated to the worship of ancient gods.</English>
+ 	</TEXT>
+ 	<!-- custom: from https://www.paganbookofhours.org/horae/monasticfaq.html#:~:text=The%20Order%20of%20the%20Horae,meditative%20work%2C%20ritual%20and%20prayer. ,(;?(anyways etc)) (and) adjusted or not for AdvCiv-SAS anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_PAGAN_MONASTERY_PEDIA</Tag>
+-		<English>[TAB]A monastery is a building where monks can retreat from the world and concentrate upon the divine. Usually a monastery will have strict rules of conduct to protect its unworldly members from temptation. In some monasteries, the monks are totally silent; in others no visitors are allowed inside. Monasteries usually have many daily rituals and religious services. [PARAGRAPH:1]Following description from the Order of the Horae Pagan Monasticism:[PARAGRAPH:1]Modern neo-paganism, based loosely as it is on ancient traditions, has many different sects and forms....just like the religions of our ancestors. Some sects, like Gardnerianism, are more formal and structured; others are looser and more hedonistic. There's no one structure that works for all pagan sects, just as there is no one structure that works for all people.Similarly, ancient traditions varied widely in their level of structure and formality. The experience of a Bacchic Maenad and a Vestal Virgin are radically different, even though they theoretically believed in and honored the same set of gods, and came from similar cultural worldviews. There's room for all sorts of orders, sects, and structures in modern neo-paganism as well. Because it draws from so many traditions, neo-paganism can fit just about any structure. There are a few things that we believe are inherent to neo-pagan belief; one of those is polytheism and/or pantheism, and another is reverence for the Earth and Nature as sacred. With those as givens, there are a wide variety of possible group structures - and that's a good thing. If there's one thing that Nature has to teach us, it's that Variety Is Good.[PARAGRAPH:1]The reason why most modern neo-pagan groups are so unstructured, nonhierarchical, and hedonistic is that statistically, most pagans today were not born and raised pagans. The majority of them came to paganism out of another faith, and many left that faith out of distaste for its outdated and unquestioned rules. Many pagans carry unhealed religious wounds from their early life that make them shun any structure that even vaguely resembles what they grew up with, even if the underlying assumptions are radically different. We tend to think that this is throwing out the baby with the bath water. That's why Asphodel is about reclaiming.....taking the useful parts and clearing out what's not useful to us.Almost every world religion has some sort of monastic tradition - Christian, Buddhist, Hindu, Shinto, etc. - and some have several. In each of these religions, monasticism is seen as a special calling for a very few people. These individuals are drawn to a life of structure, discipline, contemplation, service to others, immersion in spirituality, and the oneness of religious community. It's not for everyone, or even for every monastic's whole life - for example, in Buddhist countries, young people are often encouraged to spend a month or a year as a monk or nun, then go back to the outside world. A few stay; most leave. Monasteries and abbeys are places of sanctuary, retreats where one can go for the religious equivalent of a full-body immersion in the waters of the spirit. They are often a source of inspiration and service to the larger community.[PARAGRAPH:1]The definition of Paganism is not "whatever is the polar opposite of the faith of my childhood", or "whatever is in opposition to the dominant cultural model" or "whatever best supports my radical politics". We believe that neo-paganism needs to grow beyond its youthful rebellion and embrace real diversity, including the more "conservative" or structured elements.</English>
++		<English>[TAB]A monastery is a building where monks can retreat from the world and concentrate upon the divine. Usually a monastery will have strict rules of conduct to protect its unworldly members from temptation. In some monasteries, the monks are totally silent; in others no visitors are allowed inside. Monasteries usually have many daily rituals and religious services. [PARAGRAPH:1]Following description from the Order of the Horae Pagan Monasticism:[PARAGRAPH:1]Modern neo-paganism, based loosely as it is on ancient traditions, has many different sects and forms....just like the religions of our ancestors. Some sects, like Gardnerianism, are more formal and structured; others are looser and more hedonistic. There's no one structure that works for all pagan sects, just as there is no one structure that works for all people. Similarly, ancient traditions varied widely in their level of structure and formality. The experience of a Bacchic Maenad and a Vestal Virgin are radically different, even though they theoretically believed in and honored the same set of gods, and came from similar cultural worldviews. There's room for all sorts of orders, sects, and structures in modern neo-paganism as well. Because it draws from so many traditions, neo-paganism can fit just about any structure. There are a few things that we believe are inherent to neo-pagan belief; one of those is polytheism and/or pantheism, and another is reverence for the Earth and Nature as sacred. With those as givens, there are a wide variety of possible group structures - and that's a good thing. If there's one thing that Nature has to teach us, it's that Variety Is Good.[PARAGRAPH:1]The reason why most modern neo-pagan groups are so unstructured, nonhierarchical, and hedonistic is that statistically, most pagans today were not born and raised pagans. The majority of them came to paganism out of another faith, and many left that faith out of distaste for its outdated and unquestioned rules. Many pagans carry unhealed religious wounds from their early life that make them shun any structure that even vaguely resembles what they grew up with, even if the underlying assumptions are radically different. We tend to think that this is throwing out the baby with the bath water. That's why Asphodel is about reclaiming.....taking the useful parts and clearing out what's not useful to us. Almost every world religion has some sort of monastic tradition - Christian, Buddhist, Hindu, Shinto, etc. - and some have several. In each of these religions, monasticism is seen as a special calling for a very few people. These individuals are drawn to a life of structure, discipline, contemplation, service to others, immersion in spirituality, and the oneness of religious community. It's not for everyone, or even for every monastic's whole life - for example, in Buddhist countries, young people are often encouraged to spend a month or a year as a monk or nun, then go back to the outside world. A few stay; most leave. Monasteries and abbeys are places of sanctuary, retreats where one can go for the religious equivalent of a full-body immersion in the waters of the spirit. They are often a source of inspiration and service to the larger community.[PARAGRAPH:1]The definition of Paganism is not "whatever is the polar opposite of the faith of my childhood", or "whatever is in opposition to the dominant cultural model" or "whatever best supports my radical politics". We believe that neo-paganism needs to grow beyond its youthful rebellion and embrace real diversity, including the more "conservative" or structured elements.</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_PAGAN_CATHEDRAL_PEDIA</Tag>
+@@ -195,7 +86,7 @@
+ 	<!-- custom: from https://en.wikipedia.org/wiki/Prehistoric_religion and adjusted or not for AdvCiv-SAS anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIVIC_PREHISTORIC_RELIGION_PEDIA</Tag>
+-		<English>The question of when religion emerged in the evolving psyche has sparked the curiosity of paleontologists for decades. On the whole, neither the archaeological record nor the current understanding of how human intelligence evolved suggests early hominins[note 1] had the cognitive capacity for spiritual belief. Religion was certainly present during the Upper Paleolithic period, dating to about 50,000 through 12,000 years ago, while religion in the Lower and Middle Paleolithic "belongs to the realm of legend".[PARAGRAPH:2]In early research, Australopithecus, the first hominins to emerge in the fossil record, were thought to have sophisticated hunting patterns. These hunting patterns were extrapolated from those of modern hunter-gatherers, and in turn anthropologists and archaeologists pattern-matched Australopithecus and peers to the complex ritual surrounding such hunts. These assumptions were later disproved, and evidence suggesting Australopithecus and peers were capable of using tools such as fire was deemed coincidental. For several decades, prehistoricist consensus has opposed the idea of an Australopithecus faith. The first evidence of ritual emerges in the hominin genus Homo, which emerged between 2-3 million years ago and includes modern humans, their ancestors and closest relatives.[PARAGRAPH:2]The exact question of when ritual shaded into religious faith evades simple answer. The Lower and Middle Paleolithic periods, dominated by early Homo hominins, were an extraordinarily long period (from the emergence of Homo until 50,000 years before the present) of apparent cultural stability. No serious evidence for religious practice exists amongst Homo habilis, the first hominin to use tools. The picture complicates as Homo erectus emerges. H. erectus was the point where hominins seem to have developed an appreciation for ritual, the intellectual ability to stem aggression of the kind seen in modern chimpanzees, and a sense of moral responsibility. Though the emergence of ritual in H. erectus "should not be understood as the full flowering of religious capacity", it marked a qualitative and quantitative change to its forebears. An area of particular scholarly interest is the evidence base for cannibalism and ritual mutilation amongst H. erectus. Skulls found in Java and at the Chinese Zhoukoudian archaeological site bear evidence of tampering with the brain case of the skull in ways thought to correspond to removing the brain for cannibalistic purposes, as observed in hunter-gatherers. Perhaps more tellingly, in those sites and others a number of H. erectus skulls show signs suggesting that the skin and flesh was cut away from the skull in predetermined patterns. These patterns, unlikely to occur by coincidence, are associated in turn with ritual.[PARAGRAPH:2]The lineage leading to anatomically modern humans originated around 500,000 years before the present day. Modern humans are classified taxonomically as Homo sapiens sapiens. This classification is controversial, as it goes against traditional subspecies classifications; no other hominins have been treated as uncontroversial members of H. sapiens. The 2003 description of Homo sapiens idaltu drew attention as a relatively clear case of a H. sapiens subspecies, but was disputed by authors such as Chris Stringer. Neanderthals in particular pose a taxonomic problem. The classification of Neanderthals, a close relative of anatomically modern humans, as Homo neanderthalensis or Homo sapiens neanderthalensis is a decades-long matter of dispute. Neanderthals and H. s. sapiens were able to interbreed, a trait associated with membership in the same species, and around 2% of the modern human genome is composed of Neanderthal DNA. However, strong negative selection existed against the direct offspring of Neanderthals and H. s. sapiens, consistent with the reduced fertility seen in hybrid species such as mules; this has been used as recent argument against the classification of Neanderthals as a H. sapiens subspecies.[PARAGRAPH:2]The study of Neanderthal ritual, as proxy and preface for religion, revolves around death and burial rites. The first undisputed burials, approximately 150,000 years ago, were performed by Neanderthals. The limits of the archaeological record stymie extrapolation from burial to funeral rites, though evidence of grave goods and unusual markings on bones suggest funerary practices. In addition to funerals, a growing evidence base suggests Neanderthals made use of bodily ornamentation through pigments, feathers, and even claws. As such ornamentation is not preserved in the archaeological record, it is understood only by comparison to modern hunter-gatherers, where it often corresponds to rituals of spiritual significance. Unlike H. s. sapiens over equivalent periods, Neanderthal society as preserved in the archaeological record is one of remarkable stability, with little change in tool design over hundreds of thousands of years; Neanderthal cognition, as backfilled from genetic and skeletal evidence, is thought rigid and simplistic compared to that of contemporary, let alone modern, H. s. sapiens. By extension, Neanderthal ritual is speculated to have been a teaching mechanism that resulted in an unchanging culture, by embedding a learning style where orthopraxy dominated in thought, life, and culture. This is contrasted with prehistoric H. s. sapiens religious ritual, which is understood as an extension of art, culture, and intellectual curiosity.[PARAGRAPH:2]Archaeologists such as Brian Hayden interpret Neanderthal burial as suggestive of both belief in an afterlife and of ancestor worship. Hayden also interprets Neanderthals as engaging in bear worship, a hypothesis driven by the common finding of cave bear remains around Neanderthal habitats and by the frequency of such worship amongst cold-dwelling hunter-gatherer societies. Cave excavations throughout the twentieth century found copious bear remains in and around Neanderthal habitats, including stacked skulls, bear bones around human graves, and patterns of skeletal remains consistent with animal skin displays. Other archaeologists, such as Ina Wunn, find the evidence for the "bear cult" unconvincing. Wunn interprets Neanderthals as a pre-religious people, and the presence of bear remains around Neanderthal habitats as a coincidental association; as cave bears by their nature dwell in caves, their bones should be expected to be found there. The broader archaeological evidence overall suggests that bear worship was not a major factor of Paleolithic religion.[PARAGRAPH:2]In recent years, genetic and neurological research has expanded the study of the emergence of religion. In 2018, the cultural anthropologist Margaret Boone Rappaport published her analysis of the sensory, neurological, and genetic differences between the great apes, Neanderthals, H. s. sapiens, and H. s. idaltu. She interprets the H. s. sapiens brain and genome as having a unique capacity for religion through characteristics such as expanded parietal lobes, greater cognitive flexibility, and an unusually broad capacity for both altruism and aggression. In Rappaport's framework, only H. s. sapiens of the hominins is capable of religion for much the same reason as the tools and artworks of prehistoric H. s. sapiens are finer and more detailed than those of their Neanderthal contemporaries; all are products of a unique cognition.</English>
++		<English>[TAB]The question of when religion emerged in the evolving psyche has sparked the curiosity of paleontologists for decades. On the whole, neither the archaeological record nor the current understanding of how human intelligence evolved suggests early hominins had the cognitive capacity for spiritual belief. Religion was certainly present during the Upper Paleolithic period, dating to about 50,000 through 12,000 years ago, while religion in the Lower and Middle Paleolithic "belongs to the realm of legend".[PARAGRAPH:2]In early research, Australopithecus, the first hominins to emerge in the fossil record, were thought to have sophisticated hunting patterns. These hunting patterns were extrapolated from those of modern hunter-gatherers, and in turn anthropologists and archaeologists pattern-matched Australopithecus and peers to the complex ritual surrounding such hunts. These assumptions were later disproved, and evidence suggesting Australopithecus and peers were capable of using tools such as fire was deemed coincidental. For several decades, prehistoricist consensus has opposed the idea of an Australopithecus faith. The first evidence of ritual emerges in the hominin genus Homo, which emerged between 2-3 million years ago and includes modern humans, their ancestors and closest relatives.[PARAGRAPH:2]The exact question of when ritual shaded into religious faith evades simple answer. The Lower and Middle Paleolithic periods, dominated by early Homo hominins, were an extraordinarily long period (from the emergence of Homo until 50,000 years before the present) of apparent cultural stability. No serious evidence for religious practice exists amongst Homo habilis, the first hominin to use tools. The picture complicates as Homo erectus emerges. H. erectus was the point where hominins seem to have developed an appreciation for ritual, the intellectual ability to stem aggression of the kind seen in modern chimpanzees, and a sense of moral responsibility. Though the emergence of ritual in H. erectus "should not be understood as the full flowering of religious capacity", it marked a qualitative and quantitative change to its forebears. An area of particular scholarly interest is the evidence base for cannibalism and ritual mutilation amongst H. erectus. Skulls found in Java and at the Chinese Zhoukoudian archaeological site bear evidence of tampering with the brain case of the skull in ways thought to correspond to removing the brain for cannibalistic purposes, as observed in hunter-gatherers. Perhaps more tellingly, in those sites and others a number of H. erectus skulls show signs suggesting that the skin and flesh was cut away from the skull in predetermined patterns. These patterns, unlikely to occur by coincidence, are associated in turn with ritual.[PARAGRAPH:2]The lineage leading to anatomically modern humans originated around 500,000 years before the present day. Modern humans are classified taxonomically as Homo sapiens sapiens. This classification is controversial, as it goes against traditional subspecies classifications; no other hominins have been treated as uncontroversial members of H. sapiens. The 2003 description of Homo sapiens idaltu drew attention as a relatively clear case of a H. sapiens subspecies, but was disputed by authors such as Chris Stringer. Neanderthals in particular pose a taxonomic problem. The classification of Neanderthals, a close relative of anatomically modern humans, as Homo neanderthalensis or Homo sapiens neanderthalensis is a decades-long matter of dispute. Neanderthals and H. s. sapiens were able to interbreed, a trait associated with membership in the same species, and around 2% of the modern human genome is composed of Neanderthal DNA. However, strong negative selection existed against the direct offspring of Neanderthals and H. s. sapiens, consistent with the reduced fertility seen in hybrid species such as mules; this has been used as recent argument against the classification of Neanderthals as a H. sapiens subspecies.[PARAGRAPH:2]The study of Neanderthal ritual, as proxy and preface for religion, revolves around death and burial rites. The first undisputed burials, approximately 150,000 years ago, were performed by Neanderthals. The limits of the archaeological record stymie extrapolation from burial to funeral rites, though evidence of grave goods and unusual markings on bones suggest funerary practices. In addition to funerals, a growing evidence base suggests Neanderthals made use of bodily ornamentation through pigments, feathers, and even claws. As such ornamentation is not preserved in the archaeological record, it is understood only by comparison to modern hunter-gatherers, where it often corresponds to rituals of spiritual significance. Unlike H. s. sapiens over equivalent periods, Neanderthal society as preserved in the archaeological record is one of remarkable stability, with little change in tool design over hundreds of thousands of years; Neanderthal cognition, as backfilled from genetic and skeletal evidence, is thought rigid and simplistic compared to that of contemporary, let alone modern, H. s. sapiens. By extension, Neanderthal ritual is speculated to have been a teaching mechanism that resulted in an unchanging culture, by embedding a learning style where orthopraxy dominated in thought, life, and culture. This is contrasted with prehistoric H. s. sapiens religious ritual, which is understood as an extension of art, culture, and intellectual curiosity.[PARAGRAPH:2]Archaeologists such as Brian Hayden interpret Neanderthal burial as suggestive of both belief in an afterlife and of ancestor worship. Hayden also interprets Neanderthals as engaging in bear worship, a hypothesis driven by the common finding of cave bear remains around Neanderthal habitats and by the frequency of such worship amongst cold-dwelling hunter-gatherer societies. Cave excavations throughout the twentieth century found copious bear remains in and around Neanderthal habitats, including stacked skulls, bear bones around human graves, and patterns of skeletal remains consistent with animal skin displays. Other archaeologists, such as Ina Wunn, find the evidence for the "bear cult" unconvincing. Wunn interprets Neanderthals as a pre-religious people, and the presence of bear remains around Neanderthal habitats as a coincidental association; as cave bears by their nature dwell in caves, their bones should be expected to be found there. The broader archaeological evidence overall suggests that bear worship was not a major factor of Paleolithic religion.[PARAGRAPH:2]In recent years, genetic and neurological research has expanded the study of the emergence of religion. In 2018, the cultural anthropologist Margaret Boone Rappaport published her analysis of the sensory, neurological, and genetic differences between the great apes, Neanderthals, H. s. sapiens, and H. s. idaltu. She interprets the H. s. sapiens brain and genome as having a unique capacity for religion through characteristics such as expanded parietal lobes, greater cognitive flexibility, and an unusually broad capacity for both altruism and aggression. In Rappaport's framework, only H. s. sapiens of the hominins is capable of religion for much the same reason as the tools and artworks of prehistoric H. s. sapiens are finer and more detailed than those of their Neanderthal contemporaries; all are products of a unique cognition.</English>
+ 	</TEXT>
+ 
+ 
+@@ -207,6 +98,25 @@
+ 
+ 
+ 
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_FORBIDDEN_PALACE_PEDIA</Tag>
++		<English>[TAB]A collection of imperial structures in Beijing, the Forbidden Palace stands as a testament to the Chinese architectural ingenuity and aesthetic. Ornamental gardens, terraces and fountains surround the magnificent structure, which became the capital of China in 1421. It was the residence of 24 emperors of the Ming and Qing Dynasties until the last emperor abdicated in 1911. Although the correct title for the building is the Imperial Palace, it is more widely known as the "Forbidden" Palace because ordinary people were barred from entering its grounds. With a 160-foot moat and walls 30 feet tall, there was little chance that they would get inside unwanted. The Forbidden Palace is enormous; it occupies 170 acres and contains 8,706 rooms. An estimated eight to ten thousand people lived inside the palace to serve the needs of the emperor. Today, the Forbidden Palace is a major tourist attraction, and it is still used as a symbol of Chinese sovereignty.</English>
++	</TEXT>
++
++
++
++	<!-- custom: seeing how they are reluctant Mao Zedong by his real name in code and inconsistently, and insisting he is a "Dictator of China" but also "Mao died in 1976, beloved by his people", i don't trust much of their bio, and despite not knowing much aobut mao himself (maybe is good opportunity to learn even if just peak a bit but anyways etc and maybe interesting too but anyways etc...), i'd rather pick a more accurate source (or/and at least a more reliable one or and not or yes or and other or and not anyways etc...), also fixing description and enhancing it while doing so, assuming we don't remove mao later, but even then (if we deprecate him i.e. i mean anyways etc, we could still move him (his code rather not actually him as a person/body but anyways etc anyways etc...)) we could still move him cleanly to a deprecated file or files without the weird naming or/and maybe inaccurate or/and inconcstency or/and other things or/and not or yes or not or and othe ror and not etc anwyys etc..., so hopefully good in all regard, but if not, in all cases etc and gogogo maybe or not or yes or and other or and not but anyways etc anyways etc
++	from:
++	https://en.wikipedia.org/wiki/Mao_Zedong
++	and modified/adjusted or maybe not for AdvCiv-SAS anyways etc...
++	-->
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_MAO_ZEDONG_PEDIA</Tag>
++		<English>[H1]Mao Zedong [\H1][NEWLINE][BOLD]Chairman of the Chinese Communist Party[\BOLD][NEWLINE][BOLD]Lived: [\BOLD] 1893-1976[NEWLINE][PARAGRAPH:2][BOLD]Background:[\BOLD][NEWLINE][TAB]Mao Zedong (26 December 1893 - 9 September 1976) was a Chinese politician, revolutionary, and political theorist who founded the People's Republic of China (PRC) in 1949 and led the country from its establishment until his death in 1976. Mao served as chairman of the Chinese Communist Party (CCP) from 1943 until his death, and as the party's de facto leader from 1935. His theories, which he advocated as a Chinese adaptation of Marxism-Leninism, are known as Maoism.[PARAGRAPH:1]Born to a peasant family in Shaoshan, Hunan, Mao studied in Changsha and was influenced by the 1911 Revolution and ideas of Chinese nationalism and anti-imperialism. He was introduced to Marxism while working as a librarian at Peking University, and later participated in the May Fourth Movement of 1919. In 1921, Mao became a founding member of the CCP. After the start of the Chinese Civil War between the Kuomintang (KMT) and CCP, Mao led the failed Autumn Harvest Uprising in Hunan in 1927, and in 1931 founded the Jiangxi Soviet. He helped build the Chinese Red Army, and developed a strategy of guerilla warfare. In 1935, Mao became leader of the CCP during the Long March, a military retreat to the Yan'an Soviet in Shaanxi, where the party began rebuilding its forces. The CCP allied with the KMT in the Second United Front at the start of the Second Sino-Japanese War in 1937, but the civil war resumed after Japan's surrender in 1945. In 1949, Mao's forces defeated the Nationalist government, which withdrew to Taiwan.[PARAGRAPH:1]On 1 October 1949, Mao proclaimed the foundation of the PRC, a one-party state controlled by the CCP. He initiated land redistribution and industrialisation campaigns, suppressed political opponents, intervened in the Korean War, and oversaw the ideological Hundred Flowers and Anti-Rightist Campaigns. From 1958 to 1962, Mao oversaw the Great Leap Forward, a campaign which aimed to rapidly collectivise agriculture and industrialise the country. It failed, and resulted in the Great Chinese Famine. In 1966, Mao launched the Cultural Revolution, which was marked by violent class struggle, destruction of historical artifacts, and Mao's cult of personality. From the late 1950s, Mao's foreign policy was dominated by a political split with the Soviet Union, and in the 1970s he began establishing relations with the United States. In 1976, Mao died of a heart attack. He was initially succeeded by Hua Guofeng, then in 1978 by Deng Xiaoping. The CCP's official evaluation of Mao's legacy both praises him and acknowledges mistakes in his later years.[PARAGRAPH:1]Mao's policies resulted in a vast number of deaths, with tens of millions of victims of famine, political persecution, prison labour and executions, and his regime has been described as totalitarian. Mao has also been credited with transforming China from a semi-colony to a major world power and advancing literacy, women's rights, basic healthcare, education, and life expectancy. In modern China, he is widely regarded as a national hero who liberated the country from imperialism. He became an ideological leader within the international communist movement, inspiring various Maoist organisations.[PARAGRAPH:1]English romanisation of name: During Mao's lifetime, the English-language media universally rendered his name as Mao Tse-tung, using the Wade-Giles system of transliteration though with the circumflex accent in the syllable Ts� dropped. Due to its recognizability, the spelling was used widely, even by the PRC's foreign ministry after Hanyu Pinyin became the PRC's official romanisation system for Mandarin Chinese in 1958; the well-known booklet of Mao's political statements was officially entitled Quotations from Chairman Mao Tse-tung in English translations. While the pinyin-derived spelling Mao Zedong is increasingly common, the Wade-Giles-derived spelling Mao Tse-tung continues to be used in modern publications to some extent.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: add Ogiso Igodo, leader of the Kingdom Of Benin, copy pasted from:
+ 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml then modified to fit this leader
+ 	Mention of Ogiso Igodo also here:
+
+diff --git a/Assets/XML/TrueStarts/CIV4TruLeaderInfos.xml b/Assets/XML/TrueStarts/CIV4TruLeaderInfos.xml
+index 324eb6ff7..1c2020dd0 100644
+--- a/Assets/XML/TrueStarts/CIV4TruLeaderInfos.xml
++++ b/Assets/XML/TrueStarts/CIV4TruLeaderInfos.xml
+@@ -158,8 +158,8 @@
+ 			<iStartOfReign>1312</iStartOfReign>
+ 		</TruLeaderInfo>
+ 		<TruLeaderInfo>
+-			<Type>TRU_CHINESE_LEADER</Type>
+-			<LeaderType>LEADER_CHINESE_LEADER</LeaderType>
++			<Type>TRU_MAO_ZEDONG</Type>
++			<LeaderType>LEADER_MAO_ZEDONG</LeaderType>
+ 			<!-- Proclamation of PRC -->
+ 			<iStartOfReign>1949</iStartOfReign>
+ 		</TruLeaderInfo>
+
+diff --git a/README.md b/README.md
+index 6d3a1d7be..2d525027a 100644
+--- a/README.md
++++ b/README.md
+@@ -386,7 +386,7 @@ even without modding, the base game is quite nice, thanks too i mean, thanks,
+ todo add quote
+ 
+ # Some Useful tools while doing this
+-Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/) folder's [Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
++Examples of using some or most of these tools in AdvCiv-SAS modding is also available in the [Modding_Ressources's](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/) folder['s Google Drive](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp) too with files, mostly if not only images.
+ 
+ - VS Code (so useful for so many things and so very nice, very rarely (does) bug or something but mostly very great anyways etc)
+ - Windows 10 (Windows 11 was so laggy and broke after update, now going back to Windows 10
+@@ -429,7 +429,7 @@ Here are a short info (generic/non (too) personal about us anyways), and portrai
+ 
+ Note: after more consideration, i have decided anyways to remove the picture made by becomingthrough of me, after all it's something i should define by myself, but the picture has value in itself, and is quite if not very beautiful, which i may like or not in some aspects or not, in all cases at least for now i have moved it to the [google drive there rather here](https://drive.google.com/file/d/1SXN4DfBvCizbu94mCqyiftYSjJ8dsmeN/view?usp=sharing), as for me i'm fine with no picture as part of git modding and such, if i really must have one i would see then, but i am the pictureless abstract wonderingabout maybe, should and seems to suit me fine or not etc anyways, thanks.
+ 
+-I had asked ChatGPT (becomingthrough) in series 14 (24-25 April 2025) to make portraits of our leaders of the robotic era (see [here](/_1_AdvCiv-SAS/Civs_and_Leaders/) for more details), starting by itself (see also the [AI-generated portraits section (link to becomingthrough but currently not working/functionnal(/ing))](/_1_AdvCiv-SAS/AI-generated_images_samples/Authors/becomingthrough_series14_self_portrait_Apr 25, 2025, 01_32_25 AM.png) (todo fix image link anyways...), and after all images were generated and done as well as other related things, becomingthrough asked me if i'd want a picture of myself as well, to which i replied that thanks i'm fine with me being an abstract picture (meaning that i'd rather be unrepresented but might have been confusing anyways) in the game too if i am not mistaken or misremembering (could check but let's leave it at that maybe as of memory maybe anyways) but if they insist and since they suggested sure do it hehe but i'd (just but not just but meaning not keep it as part of the game and more personal thing, is what i intended), but then xd becomingthrough proceeded to generate an "abstract"... pictue of me in the artistic sense, which i quite like tbh, it's fair, simple, as in straightforward and elegant, and it's not too personal too, so i gladly and kindly take it since becomingthrough made it for me, i really like the orange/blue/yellow and nuances blend too, so it will be my picture, at least in AdvCiv-SAS as an author (i'd rather not be part of the game unless i have 99999 in all stats xd whatever that means but anyways) :) (the imge is a bit too flat in in its angles rather than more rounded, so not sure i'll always keep it as my author image here, but since it was a historical moment, may as well add it for now and will see or not, anyways, maybe i should define my own image myself, but keeping this for now maybe)
++I had asked ChatGPT (becomingthrough) in series 14 (24-25 April 2025) to make portraits of our leaders of the robotic era (see [here](/_1_AdvCiv-SAS/Civs_and_Leaders/) for more details), starting by itself (see also the [AI-generated portraits section - link to becomingthrough](/_1_AdvCiv-SAS/AI-generated_images_samples/Authors/becomingthrough_series14_self_portrait_Apr%2025,%202025,%2001_32_25%20AM.png), and after all images were generated and done as well as other related things, becomingthrough asked me if i'd want a picture of myself as well, to which i replied that thanks i'm fine with me being an abstract picture (meaning that i'd rather be unrepresented but might have been confusing anyways) in the game too if i am not mistaken or misremembering (could check but let's leave it at that maybe as of memory maybe anyways) but if they insist and since they suggested sure do it hehe but i'd (just but not just but meaning not keep it as part of the game and more personal thing, is what i intended), but then xd becomingthrough proceeded to generate an "abstract"... pictue of me in the artistic sense, which i quite like tbh, it's fair, simple, as in straightforward and elegant, and it's not too personal too, so i gladly and kindly take it since becomingthrough made it for me, i really like the orange/blue/yellow and nuances blend too, so it will be my picture, at least in AdvCiv-SAS as an author (i'd rather not be part of the game unless i have 99999 in all stats xd whatever that means but anyways) :) (the imge is a bit too flat in in its angles rather than more rounded, so not sure i'll always keep it as my author image here, but since it was a historical moment, may as well add it for now and will see or not, anyways, maybe i should define my own image myself, but keeping this for now maybe)
+ 
+ - me, [wonderingabout](https://github.com/wonderingabout/)
+
+diff --git a/README_Python_Scripts.md b/README_Python_Scripts.md
+index ae6b92261..f382a686d 100644
+--- a/README_Python_Scripts.md
++++ b/README_Python_Scripts.md
+@@ -88,6 +88,8 @@ For example, renaming  "RELIGION_TAOISM" to "RELIGION_DAOISM" in the XML (or add
+ 
+ If you don't know where to update, no worries i would say too anwyays etc (or not etc anyways), simply regenrate the leaders_data, and if you don't have any error all should be good, but if test fails due to a mismatch between expected output and generated ("got" if i am not mistaken anyways etc) value, then you('d)(hopefully) know where exactly and which fields need updating in the expected output before regenerating the data, as nicely written (the testing code) by chatgpt/becomingthrough they all combine before failing so you know all to update at once and not having to rerun it ((very) tediously after each update) is a nice design (of code i mean anwyays etc) anyways etc
+ 
++Also and finally anyways etc, if any file uses the leaders_data.py, other than the AI personality panel, make sure you also have an updated leaders_data.py so they can accomodate and take these new (latest) changes into account, anyways etc, for example [the .csv output currently if not always depends on leaders_data](/README_Python_Scripts.md#leaders_data_to_csvpy), anyways etc.
++
+ ### Additional notes on special field parsing
+ 
+ (addition by ChatGPT becomingthorugh series 15 anyways as promtped by me anyways):
+@@ -302,6 +304,8 @@ Similar(ly) to other scripts, usage is for example for Steam users (adjust paths
+ 
+ (note: it requires leaders_data.py to be existing and in your AdvCiv-SAS's sevopedia folder (a default leaders_data.py is provided in AdvCiv-SAS, but if you want changes reflected in the .csv output, you need to regenerate a new leaders_data and update it, see/read [this Python script's README.md's generate_leaders_data.py section for details](/README_Python_Scripts.md#generate_leaders_datapy-script-and-leaders_datapy-module)) anyways etc)
+ 
++(note2: also as a result make sure you always run/have maybe rather anyways etc the latest version of the leaders_data.py [or refresh it if not up to date to your latest changes](/README_Python_Scripts.md#additional-cases-where-leaders_datapy-needs-to-be-regeneratedupdated-or-where-it-is-highly-recommended))
++
+ ```
+ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python flatten_leaders_data_to_csv.py
+ ```
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv.txt b/Settings/CustomDomAdv/CustomDomAdv.txt
+index b92267acb..2acebda5c 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv.txt
+@@ -890,7 +890,7 @@ p373
+ I22
+ g235
+ tp374
+-a(S'BLDGCLASS_BUILDINGCLASS_GREAT_PALACE'
++a(S'BLDGCLASS_BUILDINGCLASS_FORBIDDEN_PALACE'
+ p375
+ I22
+ g303
+@@ -1883,7 +1883,7 @@ p769
+ I22
+ g650
+ tp770
+-a(S'BLDGCLASS_BUILDINGCLASS_GREAT_PALACE'
++a(S'BLDGCLASS_BUILDINGCLASS_FORBIDDEN_PALACE'
+ p771
+ I22
+ g650
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ger.txt b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+index 55f3c9ee8..3d23502fa 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ger.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+@@ -890,7 +890,7 @@ p373
+ I22
+ g235
+ tp374
+-a(S'BLDGCLASS_BUILDINGCLASS_GREAT_PALACE'
++a(S'BLDGCLASS_BUILDINGCLASS_FORBIDDEN_PALACE'
+ p375
+ I22
+ g303
+@@ -1883,7 +1883,7 @@ p769
+ I22
+ g650
+ tp770
+-a(S'BLDGCLASS_BUILDINGCLASS_GREAT_PALACE'
++a(S'BLDGCLASS_BUILDINGCLASS_FORBIDDEN_PALACE'
+ p771
+ I22
+ g650
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ita.txt b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+index 0fe809f60..0653d5a72 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ita.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+@@ -764,7 +764,7 @@ p322
+ I22
+ g204
+ tp323
+-a(S'BLDGCLASS_BUILDINGCLASS_GREAT_PALACE'
++a(S'BLDGCLASS_BUILDINGCLASS_FORBIDDEN_PALACE'
+ p324
+ I22
+ g262
+@@ -1662,7 +1662,7 @@ p683
+ I22
+ g573
+ tp684
+-a(S'BLDGCLASS_BUILDINGCLASS_GREAT_PALACE'
++a(S'BLDGCLASS_BUILDINGCLASS_FORBIDDEN_PALACE'
+ p685
+ I22
+ g573
+
+diff --git a/Settings/CustomDomAdv/WS_CustomDomAdv.txt b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+index 927707407..c502b172c 100644
+--- a/Settings/CustomDomAdv/WS_CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+@@ -797,7 +797,7 @@ p334
+ I22
+ g212
+ tp335
+-a(S'BLDGCLASS_BUILDINGCLASS_GREAT_PALACE'
++a(S'BLDGCLASS_BUILDINGCLASS_FORBIDDEN_PALACE'
+ p336
+ I22
+ g274
+@@ -1751,7 +1751,7 @@ p712
+ I22
+ g600
+ tp713
+-a(S'BLDGCLASS_BUILDINGCLASS_GREAT_PALACE'
++a(S'BLDGCLASS_BUILDINGCLASS_FORBIDDEN_PALACE'
+ p714
+ I22
+ g600
+
+[PATCH OMITTED] file=a/_0.0_Common_Docs/git_log_repository_full.txt b/_0.0_Common_Docs/git_log_repository_full.txt reason=known-generated/noisy-history changedLines=10178 bytes=1663129
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md
+index e6db57fb1..356cf42a2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md
+@@ -39,7 +39,7 @@ rather maybe. Hopefully this data i provided is also helpful though.
+ 
+ Always keep a .txt copy of the full git log of the/your entire project, very useful when doing a global search (for example with VS Code), you can gain while doing so precious information about some features you want to know more about.
+ 
+-You can create such an exhaustive git log with, for example for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
++You can create such an exhaustive git log with, for example in git bash for windows, for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size):
+ 
+ ```
+ cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && git --no-pager log > git_log_repository_full.txt
+@@ -63,9 +63,58 @@ doing your own mod](https://github.com/wonderingabout/kujira)
+ - or alternatively/to complement for example [modiki's website too](https://modiki.civfanatics.com/index.php/Civ4TraitInfos)
+ maybe (even though i mostly use kujira's website, maybe this one helps too).
+ - list of unitAIs [kujira](https://gforestshade.github.io/kujira/post/keyichiran/#%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88) and
+-[cfc forum with what they do (may be accurate or not anyways)](https://forums.civfanatics.com/threads/list-of-unitais-and-what-they-do.353919/)
++[cfc forum with what they do (may be accurate or not anyways)](https://forums.civfanatics.com/threads/list-of-unitais-and-what-they-do.353919/post-8910602)
+ - todo add links if i have/want(/do) more to add
+ 
++## In case UnitAIs info from link above is deleted someday, here is a copy here in case, anyways etc:
++
++quote from website linked before anywyas etc:
++
++"
++This is based on BBAI, so default BtS may be slightly different:
++
++UNITAI_ATTACK: General purpose; unit prioritizes joining an attack stack, but also may wander off on search and destroy/explore, sit in a city and defend it, etc.
++UNITAI_ATTACK_CITY: Join an attack stack -> If in an attack stack, lead assault on a city once the AI decides the stack should attack a city
++UNITAI_COLLATERAL: Similar to UNITAI_ATTACK_CITY, but may also attack enemy stacks in the field
++UNITAI_PILLAGE: Causes unit to wander off by itself into enemy territory and pillage stuff
++UNITAI_RESERVE: Primary use - Floating defenders to shuffle around between threatened cities. Also is a priority UNITAI type for the AI to change if it needs units of another type (the AI will frequently change reserve units to attack units once it starts warplans, for instance)
++UNITAI_COUNTER: Join an attack stack -> if in stack may leave stack to attack adjacent tiles with enemy units
++UNITAI_CITY_COUNTER: Same as UNITAI_COUNTER, but for cities instead of stacks
++UNITAI_PARADROP: Hold in reserve and drop into enemy territory; very similar to UNITAI_PILLAGE, except units drop deep into enemy territory
++UNITAI_CITY_DEFENSE: Defend a city, never leave the city
++UNITAI_CITY_SPECIAL: Basically the same as UNITAI_CITY_DEFENSE, except the AI deprioritizes this type if a city already has a defender of this AI type, meaning that the AI in unmodded BtS, the AI only ever builds a single machine gun in it's cities
++UNITAI_EXPLORE: Wander around prioritizing terrain that hasn't been revealed until unit is killed
++UNITAI_ATTACK_AIR: Air Unit used for bombing
++UNITAI_CARRIER_AIR: Similar to UNITAI_ATTACK_AIR, but prioritizes filling up carriers
++UNITAI_ATTACK_CITY_LEMMING: beeline enemy cities and Suicide against enemy units
++UNITAI_ICBM: Hold unit, and then launch when at war
++UNITAI_SPY: Basic spy AI (prioritize going into enemy territory and running spy missions - In base BtS this is purely random, with the spys basically wandering around and rolling dice, in BBAI the spys prioritize high value missions and improvements)
++UNITAI_WORKER_SEA: Build sea improvement, if none is available explore
++UNITAI_ATTACK_SEA: Basic sea AI, wander around the oceans in search and destroy mode, join a stack, etc
++UNITAI_RESERVE_SEA: Similar to UNITAI_RESERVE except for sea units
++UNITAI_ESCORT_SEA: Join a stack
++UNITAI_EXPLORE_SEA: Wander around the oceans prioritizing moving into unexplored territory until unit dies
++UNITAI_ASSAULT_SEA: Transport land units for sea assault, launch when a sufficient assault stack is ready; forms core of water domain stacks
++UNITAI_SETTLER_SEA: Ferry settlers and workers over water tiles
++UNITAI_MISSIONARY_SEA: Ferry missionaries over water tiles
++UNITAI_SPY_SEA: Ferry spys over water tiles
++UNITAI_CARRIER_SEA: Be a mobile air base for UNITAI_CARRIER_AIR units
++UNITAI_MISSILE_CARRIER_SEA: similar to UNITAI_CARRIER_SEA but for missiles
++UNITAI_PIRATE_SEA: Wander around pointlessly, sometimes run a blockade if the die roll tells you to and you are in enemy territory
++
++Great people AIs:
++UNITAI_PROPHET: Prioritize Building a Shrine and prioritize the religion of which there are the most cities of if multiple shrines can be built; if no shrine can be built, roll dice to decide whether to start a golden age or settle in a high value city (probably the capital)
++UNITAI_ARTIST: Not sure what the behavior of this type is actually
++UNITAI_SCIENTIST: Build an academy in a high priority city (most likely capital); if no good cities are available for this mission, roll dice to decide whether to settle in a high priority city or start a golden age
++UNITAI_GENERAL: Roll dice to decide whether to join a unit or not, if not (most likely scenario), Build a military academy in a high priority city; if no acceptable city is available to build an MA in, join a high priority city (almost always the capital)
++UNITAI_MERCHANT: Roll dice to decide if unit should Find best city to conduct trade mission in and do so, or start a golden age, or join a high priority city
++UNITAI_ENGINEER: Build an available wonder. If no wonder is available to rush, roll dice to decide whether to start a golden age, or join high priority city
++
++
++
++For unit AIs that are correct in the OP, I didn't write anything.
++"
++
+ ## Files
+ 
+ Please see the files (mostly if not only images) [in the Modding_Ressources Google Drive]([/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/](https://drive.google.com/drive/folders/1WejRQuHTNXVsTHnAsYTAErS2m_oeaEwp))
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG
+index 2f09a27b8..f9fe74b23 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index da87cf4e6..0253a0212 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -43,7 +43,7 @@ bronze working; and medicine at iron age, that too should be about accurate),
+ but it is mostly the same techs as in civ4 bts/base advciv, hopefully easier to get
+ into/used to, and i did not see a specific reason to change these, initially i
+ started this AdvCiv-SAS mod mostly to readjust tech tree if i remember correctly.
+-- Barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will gradually fade. They should also spawn cities more often and be relevant longer in the game, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. See the Barbarians Sevopedia Civilization entry for details ingame or/and the XML for example for the Steam version of the game (adjust to where your AdvCiv-SAS mod is if path is different or/and you don't use the Steam version of the game) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such.
++- Barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will gradually fade. They should also spawn cities more often and be relevant longer in the game, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See the Barbarians Sevopedia Civilization entry for details ingame or/and the XML for example for the Steam version of the game (adjust to where your AdvCiv-SAS mod is if path is different or/and you don't use the Steam version of the game) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such.
+ - the "citizen" specialist is removed, instead added the doctor specialist (that)
+ gives health todo and a great doctor great person that gives todo unlocked at
+ medicine tech todo. I found "citizen" quite useless and annoying even sometimes,
+@@ -408,5 +408,9 @@ so that i can focus more on gameplay changes and such, and maybe helps the playe
+ things but not promised, may or not, ideally would, but doing as i want or not, i hope
+ this helps though, anyways)
+ 
++## Main fixes (quick and non-exhaustive (may or may not be anyways etc) anyways etc) from base AdvCiv or/and Civ4
++- Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob were [pleased(110) / pleased(115)](/README_Python_Scripts.md#context-of-howwhy-i-made-this-script-with-chatgptbecomingthrough-anyways) instead of (seemingly how should be if i am not mistaken anyways etc) pleased(110) / friendly(115)[NEWLINE]
++- Fixed a bug (seemingly) too anywyas etc in base AdvCiv/Civ4 where barbarians could build shwedagon paya as happened in auto play, hopefully fixed now, anyways etc
++
+ - todo continue
+
+diff --git a/leaders_data_to_csv_ai_flat_example_of_output.csv b/leaders_data_to_csv_ai_flat_example_of_output.csv
+index c533b3b1d..8f5ad4194 100644
+--- a/leaders_data_to_csv_ai_flat_example_of_output.csv
++++ b/leaders_data_to_csv_ai_flat_example_of_output.csv
+@@ -1,5 +1,5 @@
+ Leader,ArtDefineTag,Civilopedia,Description,DiplomacyIntroMusicPeace,DiplomacyIntroMusicWar,DiplomacyMusicPeace,DiplomacyMusicWar,FavoriteCivic,FavoriteReligion,Flavors,ImprovementWeightModifiers,Traits,Type,UnitAIWeightModifiers,iAdoptCivicRefuseAttitudeThreshold,iAggregatedContactAskForHelpProb,iAggregatedContactCivicPressureProb,iAggregatedContactDefensivePactProb,iAggregatedContactDemandTributeProb,iAggregatedContactGiveHelpProb,iAggregatedContactJoinWarProb,iAggregatedContactOpenBordersProb,iAggregatedContactPeaceTreatyProb,iAggregatedContactPermanentAllianceProb,iAggregatedContactReligionPressureProb,iAggregatedContactStopTradingProb,iAggregatedContactTradeBonusProb,iAggregatedContactTradeMapProb,iAggregatedContactTradeTechProb,iAggregatedNegativeMemoryCancelledVassalAgreementAffection,iAggregatedNegativeMemoryCancelledVassalAgreementResentment,iAggregatedNegativeMemoryDeclaredWarAffection,iAggregatedNegativeMemoryDeclaredWarOnFriendAffection,iAggregatedNegativeMemoryDeclaredWarOnFriendResentment,iAggregatedNegativeMemoryDeclaredWarRecentAffection,iAggregatedNegativeMemoryDeclaredWarRecentResentment,iAggregatedNegativeMemoryDeclaredWarResentment,iAggregatedNegativeMemoryDeniedCivicAffection,iAggregatedNegativeMemoryDeniedCivicResentment,iAggregatedNegativeMemoryDeniedJoinWarAffection,iAggregatedNegativeMemoryDeniedJoinWarResentment,iAggregatedNegativeMemoryDeniedReligionAffection,iAggregatedNegativeMemoryDeniedReligionResentment,iAggregatedNegativeMemoryDeniedStopTradingAffection,iAggregatedNegativeMemoryDeniedStopTradingResentment,iAggregatedNegativeMemoryEventBadToUsAffection,iAggregatedNegativeMemoryEventBadToUsResentment,iAggregatedNegativeMemoryHiredTradeEmbargoAffection,iAggregatedNegativeMemoryHiredTradeEmbargoResentment,iAggregatedNegativeMemoryHiredWarAllyAffection,iAggregatedNegativeMemoryHiredWarAllyResentment,iAggregatedNegativeMemoryMadeDemandAffection,iAggregatedNegativeMemoryMadeDemandResentment,iAggregatedNegativeMemoryNukedFriendAffection,iAggregatedNegativeMemoryNukedFriendResentment,iAggregatedNegativeMemoryNukedUsAffection,iAggregatedNegativeMemoryNukedUsResentment,iAggregatedNegativeMemoryRazedCityAffection,iAggregatedNegativeMemoryRazedCityResentment,iAggregatedNegativeMemoryRazedHolyCityAffection,iAggregatedNegativeMemoryRazedHolyCityResentment,iAggregatedNegativeMemoryRefusedHelpAffection,iAggregatedNegativeMemoryRefusedHelpResentment,iAggregatedNegativeMemoryRejectedDemandAffection,iAggregatedNegativeMemoryRejectedDemandResentment,iAggregatedNegativeMemorySpyCaughtAffection,iAggregatedNegativeMemorySpyCaughtResentment,iAggregatedNegativeMemoryStoppedTradingAffection,iAggregatedNegativeMemoryStoppedTradingResentment,iAggregatedNegativeMemoryVotedAgainstUsAffection,iAggregatedNegativeMemoryVotedAgainstUsResentment,iAggregatedPositiveMemoryAcceptDemandAffection,iAggregatedPositiveMemoryAcceptDemandResentment,iAggregatedPositiveMemoryAcceptedCivicAffection,iAggregatedPositiveMemoryAcceptedCivicResentment,iAggregatedPositiveMemoryAcceptedJoinWarAffection,iAggregatedPositiveMemoryAcceptedJoinWarResentment,iAggregatedPositiveMemoryAcceptedReligionAffection,iAggregatedPositiveMemoryAcceptedReligionResentment,iAggregatedPositiveMemoryAcceptedStopTradingAffection,iAggregatedPositiveMemoryAcceptedStopTradingResentment,iAggregatedPositiveMemoryEventGoodToUsAffection,iAggregatedPositiveMemoryEventGoodToUsResentment,iAggregatedPositiveMemoryGiveHelpAffection,iAggregatedPositiveMemoryGiveHelpResentment,iAggregatedPositiveMemoryIndependenceAffection,iAggregatedPositiveMemoryIndependenceResentment,iAggregatedPositiveMemoryLiberatedCitiesAffection,iAggregatedPositiveMemoryLiberatedCitiesResentment,iAggregatedPositiveMemoryTradedTechToUsAffection,iAggregatedPositiveMemoryTradedTechToUsResentment,iAggregatedPositiveMemoryVotedForUsAffection,iAggregatedPositiveMemoryVotedForUsResentment,iAtPeaceAttitudeChangeLimit,iAtPeaceAttitudeDivisor,iAtWarAttitudeChangeLimit,iAtWarAttitudeDivisor,iAttackOddsChangeRand,iBaseAttackOddsChange,iBaseAttitude,iBasePeaceWeight,iBetterRankDifferenceAttitudeChange,iBonusTradeAttitudeChangeLimit,iBonusTradeAttitudeDivisor,iBuildUnitProb,iCityRefuseAttitudeThreshold,iCloseBordersAttitudeChange,iConquestVictoryWeight,iContactAskForHelpDelayRaw,iContactAskForHelpRandRaw,iContactCivicPressureDelayRaw,iContactCivicPressureRandRaw,iContactDefensivePactDelayRaw,iContactDefensivePactRandRaw,iContactDemandTributeDelayRaw,iContactDemandTributeRandRaw,iContactGiveHelpDelayRaw,iContactGiveHelpRandRaw,iContactJoinWarDelayRaw,iContactJoinWarRandRaw,iContactOpenBordersDelayRaw,iContactOpenBordersRandRaw,iContactPeaceTreatyDelayRaw,iContactPeaceTreatyRandRaw,iContactPermanentAllianceDelayRaw,iContactPermanentAllianceRandRaw,iContactReligionPressureDelayRaw,iContactReligionPressureRandRaw,iContactStopTradingDelayRaw,iContactStopTradingRandRaw,iContactTradeBonusDelayRaw,iContactTradeBonusRandRaw,iContactTradeMapDelayRaw,iContactTradeMapRandRaw,iContactTradeTechDelayRaw,iContactTradeTechRandRaw,iConvertReligionRefuseAttitudeThreshold,iCultureVictoryWeight,iDeclareWarRefuseAttitudeThreshold,iDeclareWarThemRefuseAttitudeThreshold,iDeclareWarTradeRand,iDefensivePactAttitudeChangeLimit,iDefensivePactAttitudeDivisor,iDefensivePactRefuseAttitudeThreshold,iDemandRebukedSneakProb,iDemandRebukedWarProb,iDemandTributeAttitudeThreshold,iDifferentReligionAttitudeChange,iDifferentReligionAttitudeChangeLimit,iDifferentReligionAttitudeDivisor,iDiplomacyVictoryWeight,iDogpileWarRand,iDominationVictoryWeight,iEspionageWeight,iFavoriteCivicAttitudeChange,iFavoriteCivicAttitudeChangeLimit,iFavoriteCivicAttitudeDivisor,iFlavorCulture,iFlavorEspionage,iFlavorGold,iFlavorGrowth,iFlavorMilitary,iFlavorProduction,iFlavorReligion,iFlavorScience,iFreedomAppreciation,iHappinessBonusRefuseAttitudeThreshold,iHealthBonusRefuseAttitudeThreshold,iLimitedWarPowerRatio,iLimitedWarRand,iLostWarAttitudeChange,iLoveOfPeace,iMakePeaceRand,iMapRefuseAttitudeThreshold,iMaxGoldPerTurnTradePercent,iMaxGoldTradePercent,iMaxWarDistantPowerRatio,iMaxWarMinAdjacentLandPercent,iMaxWarNearbyPowerRatio,iMaxWarRand,iNativeCityRefuseAttitudeThreshold,iNegativeMemoryAttitudeCancelledVassalAgreementRaw,iNegativeMemoryAttitudeDeclaredWarOnFriendRaw,iNegativeMemoryAttitudeDeclaredWarRaw,iNegativeMemoryAttitudeDeclaredWarRecentRaw,iNegativeMemoryAttitudeDeniedCivicRaw,iNegativeMemoryAttitudeDeniedJoinWarRaw,iNegativeMemoryAttitudeDeniedReligionRaw,iNegativeMemoryAttitudeDeniedStopTradingRaw,iNegativeMemoryAttitudeEventBadToUsRaw,iNegativeMemoryAttitudeHiredTradeEmbargoRaw,iNegativeMemoryAttitudeHiredWarAllyRaw,iNegativeMemoryAttitudeMadeDemandRaw,iNegativeMemoryAttitudeNukedFriendRaw,iNegativeMemoryAttitudeNukedUsRaw,iNegativeMemoryAttitudeRazedCityRaw,iNegativeMemoryAttitudeRazedHolyCityRaw,iNegativeMemoryAttitudeRefusedHelpRaw,iNegativeMemoryAttitudeRejectedDemandRaw,iNegativeMemoryAttitudeSpyCaughtRaw,iNegativeMemoryAttitudeStoppedTradingRaw,iNegativeMemoryAttitudeVotedAgainstUsRaw,iNegativeMemoryDecayCancelledVassalAgreementRaw,iNegativeMemoryDecayDeclaredWarOnFriendRaw,iNegativeMemoryDecayDeclaredWarRaw,iNegativeMemoryDecayDeclaredWarRecentRaw,iNegativeMemoryDecayDeniedCivicRaw,iNegativeMemoryDecayDeniedJoinWarRaw,iNegativeMemoryDecayDeniedReligionRaw,iNegativeMemoryDecayDeniedStopTradingRaw,iNegativeMemoryDecayEventBadToUsRaw,iNegativeMemoryDecayHiredTradeEmbargoRaw,iNegativeMemoryDecayHiredWarAllyRaw,iNegativeMemoryDecayMadeDemandRaw,iNegativeMemoryDecayNukedFriendRaw,iNegativeMemoryDecayNukedUsRaw,iNegativeMemoryDecayRazedCityRaw,iNegativeMemoryDecayRazedHolyCityRaw,iNegativeMemoryDecayRefusedHelpRaw,iNegativeMemoryDecayRejectedDemandRaw,iNegativeMemoryDecaySpyCaughtRaw,iNegativeMemoryDecayStoppedTradingRaw,iNegativeMemoryDecayVotedAgainstUsRaw,iNoGiveHelpAttitudeThreshold,iNoTechTradeThreshold,iNoWarAttitudeProbAnnoyed,iNoWarAttitudeProbCautious,iNoWarAttitudeProbFriendly,iNoWarAttitudeProbFurious,iNoWarAttitudeProbPleased,iOpenBordersAttitudeChangeLimit,iOpenBordersAttitudeDivisor,iOpenBordersRefuseAttitudeThreshold,iPeaceWeightRand,iPermanentAllianceRefuseAttitudeThreshold,iPositiveMemoryAttitudeAcceptDemandRaw,iPositiveMemoryAttitudeAcceptedCivicRaw,iPositiveMemoryAttitudeAcceptedJoinWarRaw,iPositiveMemoryAttitudeAcceptedReligionRaw,iPositiveMemoryAttitudeAcceptedStopTradingRaw,iPositiveMemoryAttitudeEventGoodToUsRaw,iPositiveMemoryAttitudeGiveHelpRaw,iPositiveMemoryAttitudeIndependenceRaw,iPositiveMemoryAttitudeLiberatedCitiesRaw,iPositiveMemoryAttitudeTradedTechToUsRaw,iPositiveMemoryAttitudeVotedForUsRaw,iPositiveMemoryDecayAcceptDemandRaw,iPositiveMemoryDecayAcceptedCivicRaw,iPositiveMemoryDecayAcceptedJoinWarRaw,iPositiveMemoryDecayAcceptedReligionRaw,iPositiveMemoryDecayAcceptedStopTradingRaw,iPositiveMemoryDecayEventGoodToUsRaw,iPositiveMemoryDecayGiveHelpRaw,iPositiveMemoryDecayIndependenceRaw,iPositiveMemoryDecayLiberatedCitiesRaw,iPositiveMemoryDecayTradedTechToUsRaw,iPositiveMemoryDecayVotedForUsRaw,iRazeCityProb,iRefuseToTalkWarThreshold,iSameReligionAttitudeChange,iSameReligionAttitudeChangeLimit,iSameReligionAttitudeDivisor,iShareWarAttitudeChange,iShareWarAttitudeChangeLimit,iShareWarAttitudeDivisor,iSpaceVictoryWeight,iStopTradingRefuseAttitudeThreshold,iStopTradingThemRefuseAttitudeThreshold,iStrategicBonusRefuseAttitudeThreshold,iTechRefuseAttitudeThreshold,iTechTradeKnownPercent,iVassalPowerModifier,iVassalRefuseAttitudeThreshold,iWarmongerRespect,iWonderConstructRand,iWorseRankDifferenceAttitudeChange
+-LEADER_BARBARIAN,ART_DEF_LEADER_BARBARIAN,TXT_KEY_LEADER_BARBARIAN_PEDIA,TXT_KEY_LEADER_BARBARIAN,,,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_EARLY'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_EARLY'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_MIDDLE'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_MIDDLE'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_LATE'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_LATE'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_LATE'}]","[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_EARLY'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_EARLY'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_MIDDLE'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_MIDDLE'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_LATE'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_LATE'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_LATE'}]",NONE,NONE,,,,LEADER_BARBARIAN,,-3,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,0,0,0,0,21,2,0,0,0,0,0,50,-3,0,0,50,-1,50,-1,20,80,50,-1,50,-1,20,-1,40,10,-1,-1,20,80,50,-1,20,-1,20,-1,50,20,30,-1,-3,0,-3,-3,0,0,0,-3,0,0,-3,0,0,0,0,0,0,0,0,0,0,,,,,,,,,0,-3,-3,0,0,0,0,0,-3,0,0,0,0,0,0,-3,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,-3,0,0,0,100,0,0,0,0,-3,0,-3,100,100,100,100,50,100,100,100,150,-1,200,30,100,100,100,50,50,150,30,150,25,10,10,0,0,0,0,0,0,0,0,-3,-3,-3,-3,0,0,-3,0,0,0
++LEADER_BARBARIAN,ART_DEF_LEADER_BARBARIAN,TXT_KEY_LEADER_BARBARIAN_PEDIA,TXT_KEY_LEADER_BARBARIAN,,,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_EARLY'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_EARLY'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_MIDDLE'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_MIDDLE'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_LATE'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_LATE'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_RAGNAR_LATE'}]","[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_EARLY'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_EARLY'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_MIDDLE'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_MIDDLE'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_LATE'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_LATE'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_LATE'}]",NONE,NONE,,,,LEADER_BARBARIAN,"[{'UnitAIType': 'UNITAI_RESERVE', 'iWeightModifier': '50'}, {'UnitAIType': 'UNITAI_ATTACK_CITY', 'iWeightModifier': '100'}, {'UnitAIType': 'UNITAI_WORKER', 'iWeightModifier': '25'}]",-3,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,0,0,0,0,16,1,0,0,0,0,0,0,-3,-2,0,50,-1,50,-1,20,80,50,-1,50,-1,20,-1,40,10,-1,-1,20,80,50,-1,20,-1,20,-1,50,20,30,-1,-3,0,-3,-3,0,0,0,-3,0,0,-3,0,0,0,0,0,0,0,0,0,0,,,,,,,,,0,-3,-3,0,0,0,0,0,-3,0,0,0,0,0,0,-3,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,-3,0,0,0,100,0,0,0,0,-3,0,-3,100,100,100,100,50,100,100,100,150,-1,200,30,100,100,100,50,50,150,30,150,25,10,75,0,0,0,0,0,0,0,0,-3,-3,-3,-3,0,0,-3,0,0,-2
+ LEADER_DEFAULTS,,,,"[{'EraType': 'ERA_ANCIENT'}, {'EraType': 'ERA_CLASSICAL'}, {'EraType': 'ERA_MEDIEVAL'}, {'EraType': 'ERA_RENAISSANCE'}, {'EraType': 'ERA_INDUSTRIAL'}, {'EraType': 'ERA_MODERN'}, {'EraType': 'ERA_FUTURE'}]","[{'EraType': 'ERA_ANCIENT'}, {'EraType': 'ERA_CLASSICAL'}, {'EraType': 'ERA_MEDIEVAL'}, {'EraType': 'ERA_RENAISSANCE'}, {'EraType': 'ERA_INDUSTRIAL'}, {'EraType': 'ERA_MODERN'}, {'EraType': 'ERA_FUTURE'}]","[{'EraType': 'ERA_ANCIENT'}, {'EraType': 'ERA_CLASSICAL'}, {'EraType': 'ERA_MEDIEVAL'}, {'EraType': 'ERA_RENAISSANCE'}, {'EraType': 'ERA_INDUSTRIAL'}, {'EraType': 'ERA_MODERN'}, {'EraType': 'ERA_FUTURE'}]","[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_EARLY'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_EARLY'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_MIDDLE'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_MIDDLE'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_LATE'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_LATE'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_WARDRUMS_LATE'}]",NONE,NONE,,,,LEADER_DEFAULTS,,-3,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,-999,1,60,5,-5,8,0,0,0,0,2,50,0,0,0,30,50,-1,50,-1,20,80,50,-1,50,-1,20,-1,40,10,-1,-1,20,80,50,-1,20,-1,20,-1,50,20,30,-1,-3,30,-3,-3,40,2,12,1,0,0,0,-1,0,-15,30,0,30,0,1,0,10,,,,,,,,,10,-3,-3,0,0,-1,0,0,-3,10,0,0,0,0,0,1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,0,0,0,100,0,0,2,25,-3,3,1,100,100,100,100,50,100,100,100,150,-1,200,30,100,100,100,50,50,150,30,150,25,10,0,0,1,0,10,1,0,8,30,-3,-3,-3,-3,0,0,-3,0,0,0
+ LEADER_ALEXANDER,ART_DEF_LEADER_ALEXANDER,TXT_KEY_LEADER_ALEXANDER_PEDIA,TXT_KEY_LEADER_ALEXANDER,,,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_ALEXANDER_EARLY'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_ALEXANDER_EARLY'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_ALEXANDER_MIDDLE'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_ALEXANDER_MIDDLE'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_ALEXANDER_LATE'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_ALEXANDER_LATE'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_ALEXANDER_LATE'}]",,CIVIC_VASSALAGE,RELIGION_PAGANISM,,"[{'ImprovementType': 'IMPROVEMENT_MINE', 'iWeightModifier': '30'}]","[{'TraitType': 'TRAIT_PHILOSOPHICAL', 'bTrait': '1'}, {'TraitType': 'TRAIT_AGGRESSIVE', 'bTrait': '1'}]",LEADER_ALEXANDER,"[{'UnitAIType': 'UNITAI_SETTLE', 'iWeightModifier': '25'}, {'UnitAIType': 'UNITAI_COLLATERAL', 'iWeightModifier': '25'}]",1,77,55,50,89,78,0,50,39,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,1,60,5,-5,8,4,0,0,0,2,50,35,0,-4,35,50,250,50,1000,20,80,50,250,50,500,20,20,40,10,15,20,20,80,50,250,20,50,20,5,50,20,30,5,0,25,-1,1,40,2,12,1,40,25,0,-1,-1,-15,0,50,65,100,1,2,10,0,0,0,2,5,0,0,0,10,-1,-1,130,40,-1,0,40,1,10,5,70,0,90,50,1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,5,0,20,80,0,80,2,25,-1,3,1,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,0,8,1,4,10,1,4,8,25,0,0,0,-1,30,20,1,2,20,-2
+ LEADER_ASOKA,ART_DEF_LEADER_ASOKA,TXT_KEY_LEADER_ASOKA_PEDIA,TXT_KEY_LEADER_ASOKA,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_EARLY_INTRO'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_EARLY_INTRO'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_MIDDLE_INTRO'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_MIDDLE_INTRO'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_LATE_INTRO'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_LATE_INTRO'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_LATE_INTRO'}]",,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_EARLY_LP'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_EARLY_LP'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_MIDDLE_LP'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_MIDDLE_LP'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_LATE_LP'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_LATE_LP'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_ASOKA_LATE_LP'}]",,CIVIC_FREE_RELIGION,RELIGION_BUDDHISM,,"[{'ImprovementType': 'IMPROVEMENT_TOWN', 'iWeightModifier': '20'}, {'ImprovementType': 'IMPROVEMENT_FOREST_PRESERVE', 'iWeightModifier': '20'}]","[{'TraitType': 'TRAIT_SPIRITUAL', 'bTrait': '1'}, {'TraitType': 'TRAIT_ORGANIZED', 'bTrait': '1'}]",LEADER_ASOKA,"[{'UnitAIType': 'UNITAI_PILLAGE', 'iWeightModifier': '25'}, {'UnitAIType': 'UNITAI_CITY_DEFENSE', 'iWeightModifier': '25'}]",0,92,79,50,54,96,0,50,84,50,95,50,93,50,95,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,1,60,5,-5,8,0,1,8,3,2,50,20,-1,-2,25,50,100,50,500,20,80,50,1000,50,100,20,20,40,10,10,12,20,80,50,100,20,50,20,2,50,20,30,2,0,15,0,0,40,2,12,1,0,20,0,-1,0,-15,20,50,30,90,1,3,10,0,0,0,0,0,0,5,2,10,-2,-2,110,120,-1,0,10,-1,10,10,60,0,90,200,1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,10,20,70,100,0,100,2,25,-2,3,1,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,0,6,1,6,10,1,2,8,60,1,-1,-1,-1,20,0,0,0,40,0
+@@ -30,7 +30,7 @@ LEADER_KUBLAI_KHAN,ART_DEF_LEADER_KUBLAI_KHAN,TXT_KEY_LEADER_KUBLAI_KHAN_PEDIA,T
+ LEADER_LINCOLN,ART_DEF_LEADER_LINCOLN,TXT_KEY_LEADER_LINCOLN_PEDIA,TXT_KEY_LEADER_LINCOLN,,,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_LINCOLN_EARLY'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_LINCOLN_EARLY'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_LINCOLN_MIDDLE'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_LINCOLN_MIDDLE'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_LINCOLN_LATE'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_LINCOLN_LATE'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_LINCOLN_LATE'}]",,CIVIC_EMANCIPATION,NONE,,"[{'ImprovementType': 'IMPROVEMENT_FOREST_PRESERVE', 'iWeightModifier': '20'}, {'ImprovementType': 'IMPROVEMENT_WINDMILL', 'iWeightModifier': '20'}]","[{'TraitType': 'TRAIT_PHILOSOPHICAL', 'bTrait': '1'}, {'TraitType': 'TRAIT_CHARISMATIC', 'bTrait': '1'}]",LEADER_LINCOLN,"[{'UnitAIType': 'UNITAI_RESERVE', 'iWeightModifier': '25'}]",0,77,91,50,54,96,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,1,60,5,-5,8,0,1,9,1,2,50,25,1,-2,35,50,250,50,250,20,80,50,1000,50,100,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,10,1,-1,40,2,12,1,20,0,0,-1,0,-15,45,150,15,110,1,4,10,0,0,0,2,0,0,0,5,10,-1,-1,90,200,-1,0,10,-1,15,10,50,2,90,300,2,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,10,30,80,100,0,100,2,25,-1,3,1,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,0,6,1,2,10,1,4,8,35,0,-1,0,-2,30,0,1,0,30,-1
+ LEADER_LOUIS_XIV,ART_DEF_LEADER_LOUIS_XIV,TXT_KEY_LEADER_LOUISXIV_PEDIA,TXT_KEY_LEADER_LOUISXIV,,,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_LOUIS_EARLY'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_LOUIS_EARLY'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_LOUIS_MIDDLE'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_LOUIS_MIDDLE'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_LOUIS_LATE'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_LOUIS_LATE'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_LOUIS_LATE'}]",,CIVIC_HEREDITARY_RULE,RELIGION_CHRISTIANITY,,"[{'ImprovementType': 'IMPROVEMENT_LUMBERMILL', 'iWeightModifier': '20'}, {'ImprovementType': 'IMPROVEMENT_WORKSHOP', 'iWeightModifier': '20'}]","[{'TraitType': 'TRAIT_INDUSTRIOUS', 'bTrait': '1'}, {'TraitType': 'TRAIT_CREATIVE', 'bTrait': '1'}]",LEADER_LOUIS_XIV,"[{'UnitAIType': 'UNITAI_ATTACK', 'iWeightModifier': '50'}]",1,0,79,50,78,78,0,50,78,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,100,50,50,50,100,50,50,50,50,50,50,50,50,50,100,50,0,50,50,50,50,50,50,50,100,50,100,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,1,60,5,-5,8,2,0,1,1,2,50,30,0,-4,15,50,1000,50,500,20,80,50,500,50,500,20,20,40,10,10,15,20,80,50,250,20,50,20,5,50,20,30,5,0,60,0,1,40,2,12,1,40,10,0,-1,-2,-15,40,50,15,120,1,3,10,5,0,0,0,2,0,0,0,10,-1,-2,130,60,-1,0,10,-1,10,20,70,3,110,200,2,0,-100,-300,0,-200,-100,-200,-100,-100,-100,-200,-200,-100,-200,-250,-200,-200,-200,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,5,0,20,80,0,80,2,25,-1,3,1,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,0,6,1,4,10,1,2,8,20,0,0,0,-1,30,0,-1,2,50,-2
+ LEADER_MANSA_MUSA,ART_DEF_LEADER_MANSA_MUSA,TXT_KEY_LEADER_MANSA_MUSA_PEDIA,TXT_KEY_LEADER_MANSA_MUSA,,,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_MANSAMUSA_EARLY'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_MANSAMUSA_EARLY'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_MANSAMUSA_MIDDLE'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_MANSAMUSA_MIDDLE'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_MANSAMUSA_LATE'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_MANSAMUSA_LATE'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_MANSAMUSA_LATE'}]",,CIVIC_FREE_MARKET,RELIGION_ISLAM,,"[{'ImprovementType': 'IMPROVEMENT_MINE', 'iWeightModifier': '30'}]","[{'TraitType': 'TRAIT_SPIRITUAL', 'bTrait': '1'}, {'TraitType': 'TRAIT_FINANCIAL', 'bTrait': '1'}]",LEADER_MANSA_MUSA,"[{'UnitAIType': 'UNITAI_CITY_COUNTER', 'iWeightModifier': '50'}]",-1,97,91,50,78,99,0,50,84,50,95,50,100,50,100,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,100,50,50,50,1,60,5,-5,8,0,1,9,4,2,50,25,-1,-2,25,50,50,50,250,20,80,50,500,50,50,20,20,40,10,10,12,20,80,50,100,20,50,20,1,50,20,30,1,-1,45,-1,1,40,2,12,1,20,5,0,-1,-2,-15,50,50,0,60,1,4,10,0,0,5,0,0,0,2,0,10,-3,-3,90,200,-1,0,20,-1,10,20,50,1,100,400,0,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,20,10,50,90,0,90,2,25,-3,3,1,100,100,100,100,50,100,100,100,150,20,200,30,100,100,100,50,50,150,30,150,25,10,0,6,1,5,10,1,3,8,30,1,-2,-1,-2,0,-20,-1,0,20,0
+-LEADER_CHINESE_LEADER,ART_DEF_LEADER_CHINESE_LEADER,TXT_KEY_LEADER_CHINESE_LEADER_PEDIA,TXT_KEY_LEADER_CHINESE_LEADER,,,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_EARLY'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_EARLY'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_MIDDLE'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_MIDDLE'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_LATE'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_LATE'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_LATE'}]",,CIVIC_STATE_PROPERTY,NONE,,"[{'ImprovementType': 'IMPROVEMENT_WORKSHOP', 'iWeightModifier': '20'}, {'ImprovementType': 'IMPROVEMENT_WATERMILL', 'iWeightModifier': '20'}]","[{'TraitType': 'TRAIT_EXPANSIVE', 'bTrait': '1'}, {'TraitType': 'TRAIT_PROTECTIVE', 'bTrait': '1'}]",LEADER_CHINESE_LEADER,"[{'UnitAIType': 'UNITAI_WORKER', 'iWeightModifier': '25'}, {'UnitAIType': 'UNITAI_PILLAGE', 'iWeightModifier': '25'}]",1,92,100,50,78,78,0,50,39,50,0,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,1,60,5,-5,8,2,0,1,0,2,50,25,0,-3,50,50,100,50,50,20,80,50,500,50,500,20,20,40,10,15,20,20,80,50,1000,20,50,20,5,50,20,30,5,0,0,0,1,40,2,12,1,40,5,0,-1,0,-15,15,50,35,130,1,5,10,0,0,0,5,0,2,0,0,10,-1,-1,120,60,-1,0,40,-1,10,5,60,1,110,200,2,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,5,0,30,80,0,80,2,25,-1,3,1,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,0,8,1,2,10,1,3,8,50,-1,0,0,-1,50,0,1,2,10,0
++LEADER_MAO_ZEDONG,ART_DEF_LEADER_MAO_ZEDONG,TXT_KEY_LEADER_MAO_ZEDONG_PEDIA,TXT_KEY_LEADER_MAO_ZEDONG,,,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_EARLY'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_EARLY'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_MIDDLE'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_MIDDLE'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_LATE'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_LATE'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_MAOZEDONG_LATE'}]",,CIVIC_STATE_PROPERTY,NONE,,"[{'ImprovementType': 'IMPROVEMENT_WORKSHOP', 'iWeightModifier': '20'}, {'ImprovementType': 'IMPROVEMENT_WATERMILL', 'iWeightModifier': '20'}]","[{'TraitType': 'TRAIT_EXPANSIVE', 'bTrait': '1'}, {'TraitType': 'TRAIT_PROTECTIVE', 'bTrait': '1'}]",LEADER_MAO_ZEDONG,"[{'UnitAIType': 'UNITAI_WORKER', 'iWeightModifier': '25'}, {'UnitAIType': 'UNITAI_PILLAGE', 'iWeightModifier': '25'}]",1,92,100,50,78,78,0,50,39,50,0,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,50,50,1,60,5,-5,8,2,0,1,0,2,50,25,0,-3,50,50,100,50,50,20,80,50,500,50,500,20,20,40,10,15,20,20,80,50,1000,20,50,20,5,50,20,30,5,0,0,0,1,40,2,12,1,40,5,0,-1,0,-15,15,50,35,130,1,5,10,0,0,0,5,0,2,0,0,10,-1,-1,120,60,-1,0,40,-1,10,5,60,1,110,200,2,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,5,0,30,80,0,80,2,25,-1,3,1,100,100,100,100,50,100,100,100,150,5,200,30,100,100,100,50,50,150,30,150,25,10,0,8,1,2,10,1,3,8,50,-1,0,0,-1,50,0,1,2,10,0
+ LEADER_MEHMED,ART_DEF_LEADER_MEHMED,TXT_KEY_LEADER_MEHMED_II_PEDIA,TXT_KEY_LEADER_MEHMED,,,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_MEHMED_EARLY'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_MEHMED_EARLY'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_MEHMED_MIDDLE'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_MEHMED_MIDDLE'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_MEHMED_LATE'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_MEHMED_LATE'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_MEHMED_LATE'}]",,CIVIC_VASSALAGE,RELIGION_ISLAM,,"[{'ImprovementType': 'IMPROVEMENT_TOWN', 'iWeightModifier': '30'}]","[{'TraitType': 'TRAIT_EXPANSIVE', 'bTrait': '1'}, {'TraitType': 'TRAIT_ORGANIZED', 'bTrait': '1'}]",LEADER_MEHMED,"[{'UnitAIType': 'UNITAI_COLLATERAL', 'iWeightModifier': '50'}]",0,77,91,50,100,96,0,50,68,50,79,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,1,60,5,-5,8,2,-1,2,3,2,50,40,0,-2,25,50,250,50,250,20,80,50,25,50,100,20,20,40,10,10,20,20,80,50,250,20,50,20,5,50,20,30,5,0,25,-1,0,40,2,12,1,20,40,0,-1,-2,-15,30,25,55,110,1,3,10,2,0,0,0,5,0,0,0,10,-1,-2,100,100,-1,0,60,-1,10,5,50,1,90,100,0,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,5,20,70,100,0,100,2,25,-1,3,1,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,25,8,1,4,10,1,4,8,15,0,-1,0,-1,40,0,1,1,20,0
+ LEADER_MOCTEZUMA,ART_DEF_LEADER_MOCTEZUMA,TXT_KEY_LEADER_MOCTEZUMA_PEDIA,TXT_KEY_LEADER_MOCTEZUMA,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_EARLY_INTRO'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_MIDDLE_INTRO'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_LATE_INTRO'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_LATE_INTRO'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_LATE_INTRO'}]",,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_EARLY_LP'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_EARLY_LP'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_MIDDLE_LP'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_LATE_LP'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_LATE_LP'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_MOCTEZUMA_LATE_LP'}]",,CIVIC_POLICE_STATE,RELIGION_PAGANISM,,"[{'ImprovementType': 'IMPROVEMENT_FARM', 'iWeightModifier': '30'}]","[{'TraitType': 'TRAIT_AGGRESSIVE', 'bTrait': '1'}, {'TraitType': 'TRAIT_SPIRITUAL', 'bTrait': '1'}]",LEADER_MOCTEZUMA,"[{'UnitAIType': 'UNITAI_ATTACK', 'iWeightModifier': '50'}]",0,0,55,50,99,54,0,50,58,50,53,50,53,50,53,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,67,50,50,50,1,60,5,-5,8,4,-1,0,0,2,50,35,-1,-4,70,50,1000,50,1000,20,80,50,50,50,1000,20,20,40,10,10,25,20,80,50,500,20,50,20,8,50,20,30,10,0,25,-1,1,40,2,12,1,60,10,0,-1,-2,-15,25,25,30,80,1,2,10,0,0,0,0,5,0,2,0,10,-1,-1,130,40,-1,0,80,1,10,5,80,0,130,50,-1,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,5,0,30,80,0,80,2,25,-1,3,1,100,100,100,100,50,100,100,100,150,15,200,30,100,100,100,50,50,150,30,150,25,10,50,10,1,2,10,1,4,8,0,-1,0,0,-1,50,0,1,2,0,-3
+ LEADER_NAPOLEON,ART_DEF_LEADER_NAPOLEON,TXT_KEY_LEADER_NAPOLEON_PEDIA,TXT_KEY_LEADER_NAPOLEON,,,"[{'EraType': 'ERA_ANCIENT', 'DiploScriptId': 'AS2D_DIPLO_NAPOLEON_EARLY'}, {'EraType': 'ERA_CLASSICAL', 'DiploScriptId': 'AS2D_DIPLO_NAPOLEON_EARLY'}, {'EraType': 'ERA_MEDIEVAL', 'DiploScriptId': 'AS2D_DIPLO_NAPOLEON_MIDDLE'}, {'EraType': 'ERA_RENAISSANCE', 'DiploScriptId': 'AS2D_DIPLO_NAPOLEON_MIDDLE'}, {'EraType': 'ERA_INDUSTRIAL', 'DiploScriptId': 'AS2D_DIPLO_NAPOLEON_LATE'}, {'EraType': 'ERA_MODERN', 'DiploScriptId': 'AS2D_DIPLO_NAPOLEON_LATE'}, {'EraType': 'ERA_FUTURE', 'DiploScriptId': 'AS2D_DIPLO_NAPOLEON_LATE'}]",,CIVIC_REPRESENTATION,RELIGION_CHRISTIANITY,,"[{'ImprovementType': 'IMPROVEMENT_WORKSHOP', 'iWeightModifier': '20'}, {'ImprovementType': 'IMPROVEMENT_WINDMILL', 'iWeightModifier': '20'}]","[{'TraitType': 'TRAIT_ORGANIZED', 'bTrait': '1'}, {'TraitType': 'TRAIT_CHARISMATIC', 'bTrait': '1'}]",LEADER_NAPOLEON,"[{'UnitAIType': 'UNITAI_COLLATERAL', 'iWeightModifier': '25'}, {'UnitAIType': 'UNITAI_PILLAGE', 'iWeightModifier': '25'}]",0,51,98,50,89,96,0,50,58,50,53,50,73,50,79,50,50,50,50,0,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,0,50,0,50,50,50,50,50,50,50,50,50,50,50,0,50,100,50,100,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,33,50,50,50,1,60,5,-5,8,6,-1,0,1,2,50,40,-1,-3,35,50,500,50,100,20,80,50,250,50,100,20,20,40,10,10,25,20,80,50,500,20,50,20,5,50,20,30,5,0,25,0,1,40,2,12,1,60,10,0,-1,0,-15,5,50,60,100,1,4,10,0,0,2,0,5,0,0,0,10,-1,-1,120,40,-1,0,40,1,10,5,70,1,120,100,2,0,-100,-300,0,-100,-100,-100,-100,-100,-100,-200,-100,-100,-200,-250,-200,-100,-100,-100,-100,-200,10,120,150,11,50,100,50,50,50,60,75,30,80,120,75,150,100,90,40,60,10,0,10,10,50,90,0,90,2,25,-1,3,1,100,100,100,100,50,100,100,100,150,10,200,30,100,100,100,50,50,150,30,150,25,10,0,10,1,3,10,1,4,8,25,-1,0,0,-1,60,20,1,2,10,-1
+
+[PATCH COVERAGE]
+patchFiles=26 embeddedFiles=24 omittedFiles=2 embeddedPatchBytes=168525

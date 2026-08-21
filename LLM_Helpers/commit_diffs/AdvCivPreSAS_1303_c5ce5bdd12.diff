@@ -1,0 +1,50 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1303
+# Commit: c5ce5bdd12e6363071d654031c3440774297dae0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: edb223ac8dd400aa552c9f270d79c88267bf2c61
+# Title: Darker background for the Hints section of Sevopedia. [advc.004y]
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	2	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index d54301628..0eb7026c6 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -401,8 +401,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		screen.setRenderInterfaceOnly(True)
+ 		screen.setScreenGroup(1)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+-
+-		screen.addDDSGFC(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		# advc.001: Was getInterfaceArtInfo("SCREEN_BG_OPAQUE"), meaning that self.INTERFACE_ART_INFO was ignored. The original Civilopedia has the same bug fwiw.
++		screen.addDDSGFC(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo(self.INTERFACE_ART_INFO).getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		screen.addPanel(self.TOP_PANEL_ID, u"", u"", True, False, self.X_TOP_PANEL, self.Y_TOP_PANEL, self.W_TOP_PANEL, self.H_TOP_PANEL, PanelStyles.PANEL_STYLE_TOPBAR)
+ 		screen.addPanel(self.BOT_PANEL_ID, u"", u"", True, False, self.X_BOT_PANEL, self.Y_BOT_PANEL, self.W_BOT_PANEL, self.H_BOT_PANEL, PanelStyles.PANEL_STYLE_BOTTOMBAR)
+ 		screen.setDimensions(screen.centerX(0), screen.centerY(0), self.W_SCREEN, self.H_SCREEN)
+@@ -648,6 +648,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def placeHints(self):
+ 		screen = self.getScreen()
+ 		self.getScreen().deleteWidget("PediaMainItemList")
++		# <advc.004y> Put a Blue50-styled panel behind the ListBox below, using the same dimensions.
++		screen.addPanel(self.getNextWidgetName(), "", "", false, false,
++			self.X_ITEMS, self.Y_PEDIA_PAGE - 10, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 23, PanelStyles.PANEL_STYLE_BLUE50)
++		# </advc.004y>
+ 		szHintBox = self.getNextWidgetName()
+ 		screen.addListBoxGFC(szHintBox, "", self.X_ITEMS, self.Y_PEDIA_PAGE - 10, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 23, TableStyles.TABLE_STYLE_STANDARD)
+ 		screen.enableSelect(szHintBox, False)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2126

@@ -1,0 +1,45 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2479
+# Commit: 562e6a6ccd123396bea9045753bb57408e187f7c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4c8b94c3b2d42e1ac71ec4b3b87cf9ffde9c5157
+# Title: Tweak K-Mod hint about disconnecting fossil fuels
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/XML/Text/K-Mod hints.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/K-Mod hints.xml b/Assets/XML/Text/K-Mod hints.xml
+index 7b19bb4dc..14a9b8b1d 100644
+--- a/Assets/XML/Text/K-Mod hints.xml	
++++ b/Assets/XML/Text/K-Mod hints.xml	
+@@ -54,12 +54,12 @@
+ 	<Italian>(K-Mod) Se una civilt� rivale punta a dominare il mondo - attenzione! Potrebbe decidere di attacacrti anche se appare amichevole.</Italian>
+ 	<Spanish>(K-Mod) Si un rival se ha obsesionado en la dominaci�n mundial - �ten cuidado! Pueden decidir atacarte incluso si parecen amistosos.</Spanish>
+ </TEXT>
+-<!-- advc.008c: Apparently a mix-up of Assembly Line and Industrial Park-->
++<!-- advc.008c: Apparently a mix-up of Assembly Line and Industrial Park. Added mention of global warming. -->
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_5</Tag>
+-	<English>Factories and Industrial Parks create extra pollution with coal and oil. If you aren't using your fossil fuels, consider removing access to them so that your people will be healthier.</English>
+-	<French>Factories and Industrial Parks create extra pollution with coal and oil. If you aren't using your fossil fuels, consider removing access to them so that your people will be healthier.</French>
+-	<German>Fabriken und Industriegebiete erzeugen zus�tzliche Verschmutzung mit Kohle und �l. Ben�tigen Sie ihre fossilen Brennstoffe nicht, ziehen Sie in Betracht, den Zugang zu ihnen abzuschneiden, damit Ihre Bev�lkerung ges�nder wird.</German>
++	<English>Factories and Industrial Parks create extra pollution with coal and oil. If you aren't using your fossil fuels, consider removing access to them so that your people will be healthier - and to slow down global warming.</English>
++	<French>Factories and Industrial Parks create extra pollution with coal and oil. If you aren't using your fossil fuels, consider removing access to them so that your people will be healthier - and to slow down global warming.</French>
++	<German>Fabriken und Industriegebiete erzeugen zus�tzliche Verschmutzung mit Kohle und �l. Ben�tigen Sie ihre fossilen Brennstoffe nicht, ziehen Sie in Betracht, den Zugang zu ihnen abzuschneiden, damit Ihre Bev�lkerung ges�nder wird - und um die globale Erw�rmung zu bremsen.</German>
+ 	<Italian>Fabbriche e Linee di produzione causano ulteriore inquinamento con carbone e petrolio. Se non usi combustibili fossili, considera di rimuoverne l'accesso per aumentare la salute di cittadini.</Italian>
+ 	<Spanish>Las f�bricas y cadenas de montaje pueden producir poluci�n extra con carb�n y petr�leo. Si no est�s usando combustibles f�siles, considera quitar el acceso a ellos para que tu gente sea m�s saludable.</Spanish>
+ </TEXT>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2658

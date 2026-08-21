@@ -64,7 +64,7 @@ with GFC_Control_Tab
 			.TopLayer						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap				=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-											
+
 			// Control flag change masks	
 			.Mask_InvalidateControl			=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -86,14 +86,14 @@ with GFC_Control_Tab
 			.Item_HAlign					=	GFlags(GTabCtrl, GFC_CF_TAB_ITEM_HCENTER);
 			.Item_VTextAlign				=	GFlags(GTabCtrl, GFC_CF_TAB_ITEM_TEXT_VCENTER);
 			.Item_HTextAlign				=	GFlags(GTabCtrl, GFC_CF_TAB_ITEM_TEXT_RIGHT);
-				
+
 			// .ButtonMask_InvalidateControl
 		}
 
 		// Base sizes
 		with .Size
 		{
-		
+
 			// Space between text and image in a tab
 			.ItemContentSpace			=	GFC_Control_Size_ItemSpace;
 
@@ -263,20 +263,20 @@ with GFC_Control_Tab
 			.TextShadow_WinoffDisable			=	.TextShadow_Disable;
 			.TextShadow_WinoffDisableSelect		=	.TextShadow_DisableSelect;
 		}									
-												
+
 		with .Combine							
 		{									
 			.Inner_Dest							=	GFC_Control_Combine_Inner_Default;
 			.Inner_Factor						=	GColorCombine(Source, Source);
-												
+
 			.Highlight_Dest						=	GFC_Control_Combine_Inner_Default;
 			.Highlight_Factor					=	GColorCombine(Source, Source);
-			
+
 			.Image_Default_Dest					=	GFC_Control_Combine_Image_Default_Dest;
 			.Image_Default_Factor				=	GFC_Control_Combine_Image_Default_Factor;
 			.Image_Disable_Dest					=	GFC_Control_Combine_Image_Disable_Dest;
 			.Image_Disable_Factor				=	GFC_Control_Combine_Image_Disable_Factor;
-			
+
 			.Text_Default_Dest					=	GFC_Control_Combine_Text_Default_Dest;
 			.Text_Default_Factor				=	GFC_Control_Combine_Text_Default_Factor;
 			.Text_Rollover_Dest					=	.Text_Default_Dest;
@@ -315,7 +315,7 @@ with GFC_Control_Tab
 			.TextShadow_Disable_Factor			=	GFC_Control_Combine_TextShadow_Disable_Factor;			
 			.TextShadow_DisableSelect_Dest		=	GFC_Control_Combine_TextShadow_Disable_Dest;
 			.TextShadow_DisableSelect_Factor	=	GFC_Control_Combine_TextShadow_Disable_Factor;
-			
+
 			.TextShadow_Winoff_Dest						=	GFC_Control_Combine_TextShadow_Default_Dest;			
 			.TextShadow_Winoff_Factor					=	GFC_Control_Combine_TextShadow_Default_Factor;
 			.TextShadow_WinoffRollover_Dest				=	.TextShadow_Default_Dest;		
@@ -349,7 +349,7 @@ with GFC_Control_Button
 	style SF_CtrlTheme_Civ4_Control_Tab_Arrow_LeftButton_Style
 	{
 		GFC_Control_Renderer_Control		=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;		
-		
+
 		.Size_Default						=	GSize(14,14);
 
 		.Size_BorderMargin					=	GRectMargin(3,3,3,3);
@@ -406,7 +406,7 @@ with GFC_Control_Button
 	style SF_CtrlTheme_Civ4_Control_Tab_Arrow_RightButton_Style
 	{
 		GFC_Control_Renderer_Control		=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;		
-		
+
 		.Size_Default						=	GSize(14,14);
 
 		.Size_BorderMargin					=	GRectMargin(3,3,3,3);
@@ -464,7 +464,7 @@ with GFC_Control_Button
 	style SF_CtrlTheme_Civ4_Control_Tab_Arrow_UpButton_Style
 	{
 		GFC_Control_Renderer_Control		=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;		
-		
+
 		.Size_Default						=	GSize(14,14);
 
 		.Size_BorderMargin					=	GRectMargin(3,3,3,3);
@@ -512,7 +512,7 @@ with GFC_Control_Button
 			.Focus				= .Rollover;
 			.FocusRollover		= .Rollover;
 		}
-			
+
 		// Map the rest of the properties to default
 		map GFC_CtrlTheme_Bitmap_Control_Button		=	GFC_Control_DefaultButton_Style;
 		map GFC_Control								=	GFC_Control_DefaultButton_Style;
@@ -521,7 +521,7 @@ with GFC_Control_Button
 	style SF_CtrlTheme_Civ4_Control_Tab_Arrow_DownButton_Style
 	{
 		GFC_Control_Renderer_Control		=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;		
-		
+
 		.Size_Default						=	GSize(14,14);
 
 		.Size_BorderMargin					=	GRectMargin(3,3,3,3);
@@ -592,9 +592,9 @@ with GFC_Control_Button
 
 		// Styles for the tab drawn items
 
-		
+
 		// ***** Top Tab Styles
-		
+
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Top_Begin_BaseLevel_Single
 		{
 			with GFC_CtrlTheme_Bitmap_Control_Tab_Skin_Full
@@ -1272,7 +1272,7 @@ with GFC_Control_Button
 			{
 				.SkinSizeExtent_Default			=	GRectMargin(10,5,10,4);	//L,T,R,B
 				.SkinSizeExtent_Select			=	GRectMargin(10,5,10,4);	//L,T,R,B
-											
+
 				.SkinExtent_Default				=	GRectMargin(2,1,1,-1);	//L,T,R,B
 				.SkinExtent_Select				=	GRectMargin(2,0,1,0);	//L,T,R,B
 
@@ -1301,7 +1301,7 @@ with GFC_Control_Button
 		// Top Left - edge single
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Top_Begin_BaseLevel_SingleBeginEdge
 		{			
-						
+
 			map GFC_CtrlTheme_Bitmap_Control_Tab		=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Top_Begin_BaseLevel_Single;
 			map GFC_Control								=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Top_Begin_BaseLevel_Single;
 		}
@@ -1309,7 +1309,7 @@ with GFC_Control_Button
 		// Top Right - edge single
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Top_Begin_BaseLevel_SingleEndEdge
 		{			
-						
+
 			map GFC_CtrlTheme_Bitmap_Control_Tab		=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Top_Begin_BaseLevel_Single;
 			map GFC_Control								=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Top_Begin_BaseLevel_Single;
 		}
@@ -1317,7 +1317,7 @@ with GFC_Control_Button
 		// Top Both Edges
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Top_Begin_BaseLevel_SingleTwoEdge
 		{
-				
+
 			map GFC_CtrlTheme_Bitmap_Control_Tab		=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Top_Begin_BaseLevel_Single;
 			map GFC_Control								=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Top_Begin_BaseLevel_Single;
 		}														
@@ -1409,7 +1409,7 @@ with GFC_Control_Button
 
 
 		// ***** Left Tab Styles
-		
+
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Left_Begin_BaseLevel_Single
 		{
 			with GFC_CtrlTheme_Bitmap_Control_Tab_Skin_Full
@@ -2087,7 +2087,7 @@ with GFC_Control_Button
 			{
 				.SkinSizeExtent_Default			=	GRectMargin(5,10,4,10);	//B,L,T,R
 				.SkinSizeExtent_Select			=	GRectMargin(5,10,4,10);	//B,L,T,R
-											
+
 				.SkinExtent_Default				=	GRectMargin(2,1,1,-1);	//B,L,T,R
 				.SkinExtent_Select				=	GRectMargin(2,0,1,0);	//B,L,T,R
 
@@ -2109,7 +2109,7 @@ with GFC_Control_Button
 		// Left Top - edge single
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Left_Begin_BaseLevel_SingleBeginEdge
 		{			
-			
+
 			map GFC_CtrlTheme_Bitmap_Control_Tab	=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Left_Begin_BaseLevel_Single;
 			map GFC_Control							=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Left_Begin_BaseLevel_Single;
 		}
@@ -2117,7 +2117,7 @@ with GFC_Control_Button
 		// Left Bottom - edge single
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Left_Begin_BaseLevel_SingleEndEdge
 		{			
-			
+
 			map GFC_CtrlTheme_Bitmap_Control_Tab	=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Left_Begin_BaseLevel_Single;
 			map GFC_Control							=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Left_Begin_BaseLevel_Single;
 		}
@@ -2125,11 +2125,11 @@ with GFC_Control_Button
 		// Left Both Edges
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Left_Begin_BaseLevel_SingleTwoEdge
 		{
-		
+
 			map GFC_CtrlTheme_Bitmap_Control_Tab	=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Left_Begin_BaseLevel_Single;
 			map GFC_Control							=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Left_Begin_BaseLevel_Single;
 		}
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Left
 		{
 			//.Begin_BaseLevel_Single
@@ -2888,7 +2888,7 @@ with GFC_Control_Button
 			{
 				.SkinSizeExtent_Default			=	GRectMargin(10,6,10,3);	//L,B,R,T
 				.SkinSizeExtent_Select			=	GRectMargin(10,6,10,3);	//L,B,R,T
-											
+
 				.SkinExtent_Default				=	GRectMargin(2,1,1,-1);	//L,T,R,B
 				.SkinExtent_Select				=	GRectMargin(2,0,1,0);	//L,T,R,B
 
@@ -2910,7 +2910,7 @@ with GFC_Control_Button
 		// Bottom Left - edge single
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Bottom_Begin_BaseLevel_SingleBeginEdge
 		{			
-			
+
 			map GFC_CtrlTheme_Bitmap_Control_Tab	=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Bottom_Begin_BaseLevel_Single;
 			map GFC_Control							=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Bottom_Begin_BaseLevel_Single;
 		}
@@ -2918,7 +2918,7 @@ with GFC_Control_Button
 		// Bottom Right - edge single
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Bottom_Begin_BaseLevel_SingleEndEdge
 		{			
-		
+
 			map GFC_CtrlTheme_Bitmap_Control_Tab	=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Bottom_Begin_BaseLevel_Single;
 			map GFC_Control							=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Bottom_Begin_BaseLevel_Single;
 		}
@@ -2926,7 +2926,7 @@ with GFC_Control_Button
 		// Bottom Both Edges
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Bottom_Begin_BaseLevel_SingleTwoEdge
 		{
-		
+
 			map GFC_CtrlTheme_Bitmap_Control_Tab	=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Bottom_Begin_BaseLevel_Single;
 			map GFC_Control							=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Bottom_Begin_BaseLevel_Single;
 		}
@@ -3013,7 +3013,7 @@ with GFC_Control_Button
 
 
 		// ***** Right Tab Styles
-		
+
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Right_Begin_BaseLevel_Single
 		{
 			with GFC_CtrlTheme_Bitmap_Control_Tab_Skin_Full
@@ -3691,7 +3691,7 @@ with GFC_Control_Button
 			{
 				.SkinSizeExtent_Default			=	GRectMargin(4,10,5,10);	//T,R,B,L
 				.SkinSizeExtent_Select			=	GRectMargin(4,10,5,10);	//T,R,B,L
-											
+
 				.SkinExtent_Default				=	GRectMargin(2,1,1,-1);	//B,L,T,R
 				.SkinExtent_Select				=	GRectMargin(2,0,1,0);	//B,L,T,R
 
@@ -3714,7 +3714,7 @@ with GFC_Control_Button
 		// Right Top - edge single
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Right_Begin_BaseLevel_SingleBeginEdge
 		{			
-			
+
 			map GFC_CtrlTheme_Bitmap_Control_Tab	=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Right_Begin_BaseLevel_Single;
 			map GFC_Control								=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Right_Begin_BaseLevel_Single;
 		}
@@ -3722,7 +3722,7 @@ with GFC_Control_Button
 		// Right Bottom - edge single
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Right_Begin_BaseLevel_SingleEndEdge
 		{			
-			
+
 			map GFC_CtrlTheme_Bitmap_Control_Tab	=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Right_Begin_BaseLevel_Single;
 			map GFC_Control								=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Right_Begin_BaseLevel_Single;
 		}
@@ -3730,12 +3730,12 @@ with GFC_Control_Button
 		// Right Both Edges
 		GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Right_Begin_BaseLevel_SingleTwoEdge
 		{
-		
+
 			map GFC_CtrlTheme_Bitmap_Control_Tab	=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Right_Begin_BaseLevel_Single;
 			map GFC_Control								=	GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Right_Begin_BaseLevel_Single;
 		}
 
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Tab_SkinStyle_Right
 		{
 			//.Begin_BaseLevel_Single
@@ -3812,7 +3812,7 @@ with GFC_Control_Button
 			.End_BaseLevel_LastTwoEdge			=	.Begin_BaseLevel_SingleTwoEdge;
 		}
 
-		
+
 		map GFC_CtrlTheme_Bitmap_Control_Tab	=	GFC_Control_DefaultTab_Style;
 		map GFC_Control								=	GFC_Control_DefaultTab_Style;
 	}
@@ -3822,4 +3822,4 @@ with GFC_Control_Button
 }
 
 
-	
+

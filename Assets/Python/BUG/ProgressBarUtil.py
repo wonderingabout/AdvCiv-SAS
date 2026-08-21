@@ -16,11 +16,9 @@ SOLID_MARKS = 0
 TICK_MARKS = 1
 CENTER_MARKS = 2
 
-
 # Globals
 
 ArtFileMgr = CyArtFileMgr()
-
 
 # ProgressBar Class
 
@@ -62,7 +60,7 @@ class ProgressBar:
 		self.line_cnt = 0
 		self.bVisible = False
 		self.barItems = []
-	
+
 	def addBarItem(self, item):
 		self.barItems.append(item)
 
@@ -85,7 +83,6 @@ class ProgressBar:
 			self._resetLineCount()
 			self._setVisible(False)
 
-
 	def hide(self, screen):
 		screen.hide(self.id)
 
@@ -106,16 +103,14 @@ class ProgressBar:
 		for item in self.barItems:
 			screen.moveToFront(item)
 
-
-
 	def _drawTickMarks_Forward(self, screen, iCurr, iTotal, iFirst, iRate, bDouble):
 		i = 1
 		iXPrev = self.w * (iCurr + iFirst) / iTotal
 		while True:
 			iX = self.w * (iCurr + iFirst + i * iRate) / iTotal
 
-			if (iX > self.w
-			or  abs(iX - iXPrev) < 5): break
+			if (iX > self.w or abs(iX - iXPrev) < 5):
+				break
 
 			self._drawline(screen, self.id, iX, self.m_y1, iX, self.m_y2, self.color, bDouble)
 			if self.marks == TICK_MARKS:
@@ -123,7 +118,6 @@ class ProgressBar:
 
 			i += 1
 			iXPrev = iX
-
 
 	def _drawTickMarks_Backward(self, screen, iCurr, iTotal, iFirst, iRate, bDouble):
 		i = 1
@@ -134,8 +128,8 @@ class ProgressBar:
 			iX = self.w * (iTotal - i * iRate) / iTotal
 #			BugUtil.debug("tick marks: %i %i %i %i %i %i", iCurr, iTotal, iFirst, iRate, iX, iMin)
 
-			if (iX < iMin
-			or  abs(iX - iXPrev) < 5): break
+			if (iX < iMin or abs(iX - iXPrev) < 5):
+				break
 
 			self._drawline(screen, self.id, iX, self.m_y1, iX, self.m_y2, self.color, bDouble)
 			if self.marks == TICK_MARKS:

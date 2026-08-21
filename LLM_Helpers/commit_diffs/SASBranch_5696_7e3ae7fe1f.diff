@@ -1,0 +1,1415 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5696
+# Commit: 7e3ae7fe1f6abdf8329ed8abb97403e5429c11be
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 24e206d39dec3fadeadd32fa0c6403287685156c
+# Title: sevopedia eventtriggerinfo: initial implementation - changes load order in CvXMLLoadUtilitySet.cpp so events can be loaded in main menu (similarly to votes)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+204	0	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-eventinfo.txt
+211	0	Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-inner.txt
+463	0	Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+65	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	0	Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+92	0	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+156	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+35	13	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+ create mode 100644 Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-eventinfo.txt
+ create mode 100644 Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-inner.txt
+ create mode 100644 Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-eventinfo.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-eventinfo.txt
+new file mode 100644
+index 000000000..c260044d7
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-eventinfo.txt
+@@ -0,0 +1,204 @@
++AI, UI, or other modifications
++Created as part of AdvCiv-SAS improvements
++(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++in sevopediaeventtrigger, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
++info = gc.getEventTriggerInfo(self.iTrigger)
++printObjAttrs(gc.getEventInfo(info.getEvent(i)))
++returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++
++
++
++[DEBUG] SevoPediaEventTrigger event dump: iEvent=30, Type=EVENT_AIRLINER_CRASH_1
++
++[DEBUG] Beginning of show obj inner fields.
++
++__class__
++
++__delattr__
++
++__dict__ = {}
++
++__doc__ = None
++
++__getattribute__
++
++__hash__
++
++__init__
++
++__instance_size__ = 844
++
++__module__ = CvPythonExtensions
++
++__new__
++
++__reduce__
++
++__reduce_ex__
++
++__repr__
++
++__setattr__
++
++__str__
++
++__weakref__ = None
++
++getAIValue
++
++getAdditionalEventChance
++
++getAdditionalEventTime
++
++getAttitudeModifier
++
++getBonus
++
++getBonusChange
++
++getBonusGift
++
++getBonusRevealed
++
++getBuildingChange
++
++getBuildingClass
++
++getBuildingCommerceChange
++
++getBuildingHappyChange
++
++getBuildingHealthChange
++
++getBuildingYieldChange
++
++getButton
++
++getCivilopedia
++
++getClearEventChance
++
++getConvertOtherCities
++
++getConvertOwnCities
++
++getCulture
++
++getDescription
++
++getDescriptionForm
++
++getEspionagePoints
++
++getFeature
++
++getFeatureChange
++
++getFood
++
++getFoodPercent
++
++getFreeSpecialistCount
++
++getFreeUnitSupport
++
++getGold
++
++getHappy
++
++getHappyTurns
++
++getHealth
++
++getHelp
++
++getHurryAnger
++
++getImprovement
++
++getImprovementChange
++
++getInflationModifier
++
++getMaxNumReligions
++
++getMaxPillage
++
++getMinPillage
++
++getNumUnits
++
++getOurAttitudeModifier
++
++getPlotExtraYield
++
++getPopulationChange
++
++getPrereqTech
++
++getRandomGold
++
++getRevoltTurns
++
++getRoute
++
++getRouteChange
++
++getSpaceProductionModifier
++
++getStrategy
++
++getTech
++
++getTechCostPercent
++
++getTechFlavorValue
++
++getTechMinTurnsLeft
++
++getTechPercent
++
++getText
++
++getTextKey
++
++getTheirEnemyAttitudeModifier
++
++getType
++
++getUnitClass
++
++getUnitClassPromotion
++
++getUnitCombatPromotion
++
++getUnitExperience
++
++getUnitImmobileTurns
++
++getUnitPromotion
++
++isCityEffect
++
++isDeclareWar
++
++isDisbandUnit
++
++isGlobal
++
++isGoldToPlayer
++
++isGoldenAge
++
++isGraphicalOnly
++
++isMatchForLink
++
++isOtherPlayerCityEffect
++
++isQuest
++
++isTeam
++
++[DEBUG] End of show show obj inner fields.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-inner.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-inner.txt
+new file mode 100644
+index 000000000..2d9eb7112
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaEventTrigger-gc-inner.txt
+@@ -0,0 +1,211 @@
++AI, UI, or other modifications
++Created as part of AdvCiv-SAS improvements
++(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++in sevopediaeventtrigger, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
++printObjAttrs(gc.getEventTriggerInfo(self.iTrigger))
++returns/logs/prints this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
++
++
++
++[DEBUG] SevoPediaEventTrigger trigger dump: iTrigger=15, Type=EVENTTRIGGER_AIRLINER_CRASH
++
++[DEBUG] Beginning of show obj inner fields.
++
++__class__
++
++__delattr__
++
++__dict__ = {}
++
++__doc__ = None
++
++__getattribute__
++
++__hash__
++
++__init__
++
++__instance_size__ = 840
++
++__module__ = CvPythonExtensions
++
++__new__
++
++__reduce__
++
++__reduce_ex__
++
++__repr__
++
++__setattr__
++
++__str__
++
++__weakref__ = None
++
++getAngry
++
++getBonusRequired
++
++getBuildingRequired
++
++getButton
++
++getCityFoodWeight
++
++getCivic
++
++getCivilopedia
++
++getCorporationRequired
++
++getDescription
++
++getDescriptionForm
++
++getEvent
++
++getFeatureRequired
++
++getHelp
++
++getImprovementRequired
++
++getMaxOurLandmass
++
++getMaxPopulation
++
++getMinDifficulty
++
++getMinMapLandmass
++
++getMinOurLandmass
++
++getMinPopulation
++
++getMinTreasury
++
++getNumBonusesRequired
++
++getNumBuildings
++
++getNumBuildingsGlobal
++
++getNumBuildingsRequired
++
++getNumCorporations
++
++getNumCorporationsRequired
++
++getNumEvents
++
++getNumFeaturesRequired
++
++getNumImprovementsRequired
++
++getNumObsoleteTechs
++
++getNumPlotsRequired
++
++getNumPrereqAndTechs
++
++getNumPrereqEvents
++
++getNumPrereqOrTechs
++
++getNumReligions
++
++getNumReligionsRequired
++
++getNumRoutesRequired
++
++getNumTerrainsRequired
++
++getNumUnits
++
++getNumUnitsGlobal
++
++getNumUnitsRequired
++
++getObsoleteTech
++
++getOtherPlayerHasTech
++
++getOtherPlayerShareBorders
++
++getPercentGamesActive
++
++getPlotsType
++
++getPrereqAndTechs
++
++getPrereqEvent
++
++getPrereqOrTechs
++
++getProbability
++
++getReligionRequired
++
++getRouteRequired
++
++getStrategy
++
++getTerrainRequired
++
++getText
++
++getTextKey
++
++getType
++
++getUnhealthy
++
++getUnitDamagedWeight
++
++getUnitDistanceWeight
++
++getUnitExperienceWeight
++
++getUnitRequired
++
++isGlobal
++
++isGraphicalOnly
++
++isMatchForLink
++
++isOtherPlayerAI
++
++isOtherPlayerHasOtherReligion
++
++isOtherPlayerHasReligion
++
++isOwnPlot
++
++isPickCity
++
++isPickOtherPlayerCity
++
++isPickPlayer
++
++isPickReligion
++
++isPrereqEventCity
++
++isProbabilityBuildingMultiply
++
++isProbabilityUnitMultiply
++
++isRecurring
++
++isSinglePlayer
++
++isStateReligion
++
++isTeam
++
++isUnitsOnPlot
++
++[DEBUG] End of show show obj inner fields.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+new file mode 100644
+index 000000000..120b6f1c0
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+@@ -0,0 +1,463 @@
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++
++# <!-- custom: Sevopedia Event Trigger detail page. Layout mirrors SevoPediaBuild:
++# - Top strip: trigger icon/name/type header + small Probability/Flags panel + Requires panel
++# - Mid strip: horizontal stack of "Choices" cards (one per event in getNumEvents()), each
++#   showing the event's icon, name and bullet-effect summary — a la Slay the Spire outcomes
++# - Bottom: Family panel (sibling triggers sharing the stripped-suffix root) + Civilopedia
++#   Background expandable panel
++# The page treats the trigger as the dominant entity (matches player's mental model: the
++# trigger is "what happens", events are "the choices when it fires"). (Claude code Opus 4.7) -->
++
++from CvPythonExtensions import *
++import CvUtil
++import SevoScreenEnums
++import SASTextScale
++
++from _sevopedia_helpers import *
++from _sevopedia_debuggers import *
++
++gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
++localText = CyTranslator()
++
++IS_DEBUG_SEVOPEDIA_EVENT_TRIGGER_INFO = True
++
++
++# <!-- custom: strip trigger "family suffix" so siblings in a family share a root.
++# Example: EVENTTRIGGER_FESTIVAL / EVENTTRIGGER_FESTIVAL_AGAIN / EVENTTRIGGER_FESTIVAL_DONE
++# all share root EVENTTRIGGER_FESTIVAL. Used by the Family panel to find siblings.
++# (Claude code Opus 4.7) -->
++def _stripFamilySuffix(szType):
++	if not szType:
++		return szType
++	for szSuffix in ("_AGAIN", "_DONE", "_REVEALED"):
++		if szType.endswith(szSuffix):
++			return szType[:-len(szSuffix)]
++	return szType
++
++
++class SevoPediaEventTrigger:
++
++	def __init__(self, main):
++		self.iTrigger = -1
++		self.top = main
++		self.bHistoryExpanded = False
++
++		# Full-width Name row at the top (like Votes' Name panel). Trigger has no button
++		# art of its own in general, so we skip the icon pane entirely and surface the
++		# trigger name + type directly — this reads better than a large empty icon frame.
++		self.X_NAME = self.top.X_PEDIA_PAGE
++		self.Y_NAME = self.top.Y_PEDIA_PAGE
++		self.W_NAME = self.top.R_PEDIA_PAGE - self.X_NAME
++		self.H_NAME = 75
++
++		# Trigger info row: Requires | Summary | Family (three equal-ish columns).
++		# Requires sits leftmost because "what has to be true for this to fire" reads
++		# before "how often / what flags" and "what other variants exist".
++		iColGap = MEDIUM_MARGIN
++		iRowTop = self.Y_NAME + self.H_NAME + SMALL_MARGIN
++		iRowH = 180
++		iAvailableW = self.W_NAME - 2 * iColGap
++		iColW = iAvailableW / 3
++
++		self.X_REQUIREMENTS = self.X_NAME
++		self.Y_REQUIREMENTS = iRowTop
++		self.W_REQUIREMENTS = iColW
++		self.H_REQUIREMENTS = iRowH
++
++		self.X_SUMMARY = self.X_REQUIREMENTS + self.W_REQUIREMENTS + iColGap
++		self.Y_SUMMARY = iRowTop
++		self.W_SUMMARY = iColW
++		self.H_SUMMARY = iRowH
++
++		self.X_FAMILY = self.X_SUMMARY + self.W_SUMMARY + iColGap
++		self.Y_FAMILY = iRowTop
++		self.W_FAMILY = self.top.R_PEDIA_PAGE - self.X_FAMILY
++		self.H_FAMILY = iRowH
++
++		# Events row (Slay-the-Spire-style horizontal choice cards) — fixed height so
++		# the cards stay proportionate instead of stretching to fill leftover vertical
++		# space. Anchored directly under the trigger info row.
++		self.X_EVENTS = self.X_NAME
++		self.Y_EVENTS = iRowTop + iRowH + SMALL_MARGIN
++		self.W_EVENTS = self.W_NAME
++		self.H_EVENTS = 400
++
++		# History/Civilopedia fills the remaining page space.
++		self.X_HISTORY = self.X_NAME
++		self.Y_HISTORY = self.Y_EVENTS + self.H_EVENTS + SMALL_MARGIN
++		self.W_HISTORY = self.W_NAME
++		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
++
++		# Event-card layout constants.
++		self.EVENT_CARD_BUTTON_BOTTOM_MARGIN = 12
++		self.EVENT_CARD_BUTTON_SIZE = 48
++		self.EVENT_CARD_PANEL_HEADER_H = 28
++
++		self.BULLET_PREFIX = u"%c " % CyGame().getSymbolID(FontSymbols.BULLET_CHAR)
++
++
++	def interfaceScreen(self, iTrigger):
++		bTriggerChanged = (self.iTrigger != iTrigger)
++		if bTriggerChanged:
++			self.bHistoryExpanded = False
++		self.iTrigger = iTrigger
++		if IS_DEBUG_SEVOPEDIA_EVENT_TRIGGER_INFO and bTriggerChanged:
++			self._debugDumpTriggerAndEvents()
++
++		# Order top-to-bottom: trigger identity first (Name), then trigger metadata row
++		# (Requires / Summary / Family), then events ("choices" shown as cards), then
++		# the flavor Civilopedia panel at the bottom.
++		self.placeName()
++		self.placeRequirements()
++		self.placeSummary()
++		self.placeFamily()
++		self.placeEvents()
++		self.placeHistory()
++
++
++	def _debugDumpTriggerAndEvents(self):
++		info = self._getTriggerInfo()
++		if not info:
++			return
++		print("\n\n[DEBUG] SevoPediaEventTrigger trigger dump: iTrigger=%d, Type=%s" % (self.iTrigger, info.getType()))
++		printObjAttrs(info)
++		for i in range(info.getNumEvents()):
++			iEvent = info.getEvent(i)
++			if iEvent < 0:
++				continue
++			eventInfo = gc.getEventInfo(iEvent)
++			if not eventInfo:
++				continue
++			print("\n\n[DEBUG] SevoPediaEventTrigger event dump: iEvent=%d, Type=%s" % (iEvent, eventInfo.getType()))
++			printObjAttrs(eventInfo)
++
++
++	def _getTriggerInfo(self):
++		if self.iTrigger < 0:
++			return None
++		return gc.getEventTriggerInfo(self.iTrigger)
++
++
++	def _getTriggerDisplayName(self):
++		info = self._getTriggerInfo()
++		if not info:
++			return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNKNOWN", ())
++		szName = info.getDescription()
++		if szName and len(szName.strip()) > 0:
++			return szName
++		szType = info.getType()
++		if szType and szType.startswith("EVENTTRIGGER_"):
++			szType = szType[len("EVENTTRIGGER_"):]
++		if szType:
++			return szType.replace("_", " ").title()
++		return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNKNOWN", ())
++
++
++	def placeName(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_VOTE_NAME", ()), "", True, False, self.X_NAME, self.Y_NAME, self.W_NAME, self.H_NAME, PanelStyles.PANEL_STYLE_BLUE50)
++
++		info = self._getTriggerInfo()
++		szDisplayName = self._getTriggerDisplayName()
++		szType = ""
++		if info:
++			szType = info.getType()
++		szLine = self.BULLET_PREFIX + szDisplayName
++		if szType:
++			szLine = szLine + u"  (" + szType + u")"
++		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szLine), self.X_NAME + 14, self.Y_NAME + 30, self.W_NAME - 28, self.H_NAME - 36, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++	def placeSummary(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_SUMMARY", ()), "", True, False, self.X_SUMMARY, self.Y_SUMMARY, self.W_SUMMARY, self.H_SUMMARY, PanelStyles.PANEL_STYLE_BLUE50)
++
++		info = self._getTriggerInfo()
++		lines = []
++		if info:
++			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY", ()) + u": %d" % info.getProbability())
++			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ACTIVE_GAMES", ()) + u": %d%%" % info.getPercentGamesActive())
++			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OUTCOME_COUNT", ()) + u": %d" % info.getNumEvents())
++			listFlags = []
++			if info.isRecurring():
++				listFlags.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_RECURRING", ()))
++			if info.isGlobal():
++				listFlags.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_GLOBAL", ()))
++			if info.isTeam():
++				listFlags.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_TEAM", ()))
++			if info.isSinglePlayer():
++				listFlags.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_SINGLE_PLAYER", ()))
++			if listFlags:
++				szFlags = u", ".join(listFlags)
++			else:
++				szFlags = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
++			lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAGS", ()) + u": " + szFlags)
++
++		if lines:
++			szText = u"\n".join(lines)
++		else:
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
++		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_SUMMARY + 14, self.Y_SUMMARY + 34, self.W_SUMMARY - 28, self.H_SUMMARY - 44, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++	def _joinInfoNames(self, listIds, infoGetter):
++		listNames = []
++		for iId in listIds:
++			if iId >= 0:
++				info = infoGetter(iId)
++				if info:
++					listNames.append(info.getDescription())
++		if listNames:
++			return u", ".join(listNames)
++		return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
++
++
++	def placeRequirements(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", True, False, self.X_REQUIREMENTS, self.Y_REQUIREMENTS, self.W_REQUIREMENTS, self.H_REQUIREMENTS, PanelStyles.PANEL_STYLE_BLUE50)
++
++		info = self._getTriggerInfo()
++		lines = []
++		if info:
++			listOrTechs = [info.getPrereqOrTechs(i) for i in range(info.getNumPrereqOrTechs())]
++			listAndTechs = [info.getPrereqAndTechs(i) for i in range(info.getNumPrereqAndTechs())]
++			listObsoleteTechs = [info.getObsoleteTech(i) for i in range(info.getNumObsoleteTechs())]
++
++			if listOrTechs:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OR_TECHS", ()) + u": " + self._joinInfoNames(listOrTechs, gc.getTechInfo))
++			if listAndTechs:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_AND_TECHS", ()) + u": " + self._joinInfoNames(listAndTechs, gc.getTechInfo))
++			if listObsoleteTechs:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OBSOLETE_TECHS", ()) + u": " + self._joinInfoNames(listObsoleteTechs, gc.getTechInfo))
++
++			iCivic = info.getCivic()
++			if iCivic >= 0:
++				civicInfo = gc.getCivicInfo(iCivic)
++				if civicInfo:
++					lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CIVIC", ()) + u": " + civicInfo.getDescription())
++
++			if info.getMinPopulation() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_POP", ()) + u": %d" % info.getMinPopulation())
++			if info.getMaxPopulation() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MAX_POP", ()) + u": %d" % info.getMaxPopulation())
++			if info.getMinTreasury() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_TREASURY", ()) + u": %d" % info.getMinTreasury())
++			if info.getNumUnits() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CITY_UNITS", ()) + u": %d" % info.getNumUnits())
++			if info.getNumBuildings() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CITY_BUILDINGS", ()) + u": %d" % info.getNumBuildings())
++			if info.getNumUnitsGlobal() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GLOBAL_UNITS", ()) + u": %d" % info.getNumUnitsGlobal())
++			if info.getNumBuildingsGlobal() > 0:
++				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GLOBAL_BUILDINGS", ()) + u": %d" % info.getNumBuildingsGlobal())
++
++		if lines:
++			szText = u"\n".join(lines)
++		else:
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
++		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_REQUIREMENTS + 14, self.Y_REQUIREMENTS + 34, self.W_REQUIREMENTS - 28, self.H_REQUIREMENTS - 44, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++	def _formatEventEffectSummary(self, iEvent):
++		eventInfo = gc.getEventInfo(iEvent)
++		if not eventInfo:
++			return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
++
++		parts = []
++		if eventInfo.getGold() != 0:
++			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD", ()) + u": %+d" % eventInfo.getGold())
++		if eventInfo.getRandomGold() != 0:
++			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_RANDOM_GOLD", ()) + u": %+d" % eventInfo.getRandomGold())
++		if eventInfo.getCulture() != 0:
++			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CULTURE", ()) + u": %+d" % eventInfo.getCulture())
++		if eventInfo.getEspionagePoints() != 0:
++			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ESPIONAGE", ()) + u": %+d" % eventInfo.getEspionagePoints())
++		if eventInfo.getHappyTurns() != 0:
++			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HAPPY_TURNS", ()) + u": %d" % eventInfo.getHappyTurns())
++		if eventInfo.getPopulationChange() != 0:
++			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_POPULATION", ()) + u": %+d" % eventInfo.getPopulationChange())
++		if eventInfo.isGoldenAge():
++			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLDEN_AGE", ()))
++		if eventInfo.isDeclareWar():
++			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_DECLARE_WAR", ()))
++
++		iTech = eventInfo.getTech()
++		if iTech >= 0:
++			techInfo = gc.getTechInfo(iTech)
++			if techInfo:
++				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_TECH", ()) + u": " + techInfo.getDescription())
++		elif eventInfo.getTechPercent() > 0:
++			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_PERCENT", ()) + u": %d%%" % eventInfo.getTechPercent())
++
++		if not parts:
++			return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_SCRIPTED", ())
++		return u"\n".join([self.BULLET_PREFIX + p for p in parts])
++
++
++	def _getEventDisplayName(self, iEvent):
++		eventInfo = gc.getEventInfo(iEvent)
++		if not eventInfo:
++			return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNKNOWN", ())
++		szName = eventInfo.getDescription()
++		if szName and len(szName.strip()) > 0:
++			return szName
++		szType = eventInfo.getType()
++		if szType and szType.startswith("EVENT_"):
++			szType = szType[len("EVENT_"):]
++		if szType:
++			return szType.replace("_", " ").title()
++		return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNKNOWN", ())
++
++
++	def placeEvents(self):
++		screen = self.top.getScreen()
++		info = self._getTriggerInfo()
++
++		# Header panel covers the full events strip; per-event "choice cards" live inside.
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_EVENTS_HEADER", ()), "", True, False, self.X_EVENTS, self.Y_EVENTS, self.W_EVENTS, self.H_EVENTS, PanelStyles.PANEL_STYLE_BLUE50)
++
++		if not info:
++			return
++
++		events = []
++		for i in range(info.getNumEvents()):
++			iEvent = info.getEvent(i)
++			if iEvent < 0:
++				continue
++			eventInfo = gc.getEventInfo(iEvent)
++			if not eventInfo:
++				continue
++			events.append((iEvent, eventInfo))
++
++		if not events:
++			noneText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
++			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(noneText), self.X_EVENTS + 10, self.Y_EVENTS + 30, self.W_EVENTS - 20, self.H_EVENTS - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			return
++
++		cardCount = len(events)
++		# Per-card panel geometry — cards sit inside the events strip, offset below its header.
++		cardMargin = 4
++		cardGap = 4
++		cardInnerMargin = 4
++		panelGap = 4
++		innerX = self.X_EVENTS + cardMargin
++		innerY = self.Y_EVENTS + self.EVENT_CARD_PANEL_HEADER_H + 2
++		innerW = self.W_EVENTS - (2 * cardMargin)
++		innerH = self.H_EVENTS - self.EVENT_CARD_PANEL_HEADER_H - cardMargin - 2
++
++		cardW = (innerW - ((cardCount - 1) * cardGap)) / cardCount
++		cardH = innerH
++
++		availableInnerH = cardH - (2 * cardInnerMargin) - panelGap
++		minSummaryPanelH = self.EVENT_CARD_BUTTON_SIZE + self.EVENT_CARD_BUTTON_BOTTOM_MARGIN + 24
++		namePanelH = 200
++		maxNamePanelH = availableInnerH - minSummaryPanelH
++		if namePanelH > maxNamePanelH:
++			namePanelH = maxNamePanelH
++		if namePanelH < 44:
++			namePanelH = 44
++
++		for i, (iEvent, eventInfo) in enumerate(events):
++			cardX = innerX + (i * (cardW + cardGap))
++			cardY = innerY
++
++			namePanelX = cardX + cardInnerMargin
++			namePanelY = cardY + cardInnerMargin
++			namePanelW = cardW - (2 * cardInnerMargin)
++
++			summaryPanelX = namePanelX
++			summaryPanelY = namePanelY + namePanelH + panelGap
++			summaryPanelW = namePanelW
++			summaryPanelH = availableInnerH - namePanelH
++
++			namePanel = self.top.getNextWidgetName()
++			screen.addPanel(namePanel, "", "", False, False, namePanelX, namePanelY, namePanelW, namePanelH, PanelStyles.PANEL_STYLE_BLUE50)
++
++			summaryPanel = self.top.getNextWidgetName()
++			screen.addPanel(summaryPanel, "", "", False, False, summaryPanelX, summaryPanelY, summaryPanelW, summaryPanelH, PanelStyles.PANEL_STYLE_BLUE50)
++
++			szName = self._getEventDisplayName(iEvent)
++			textMarginX = 10
++			textMarginY = 8
++			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szName), namePanelX + textMarginX, namePanelY + textMarginY, namePanelW - (textMarginX * 2), namePanelH - (textMarginY * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++			szSummary = self._formatEventEffectSummary(iEvent)
++			buttonTopRel = summaryPanelH - self.EVENT_CARD_BUTTON_SIZE - self.EVENT_CARD_BUTTON_BOTTOM_MARGIN
++			summaryTextTop = textMarginY
++			summaryTextH = buttonTopRel - summaryTextTop - 6
++			if summaryTextH < 20:
++				summaryTextH = 20
++			screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szSummary), summaryPanelX + textMarginX, summaryPanelY + summaryTextTop, summaryPanelW - (textMarginX * 2), summaryTextH, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++			szEventButton = eventInfo.getButton()
++			if szEventButton:
++				btnX = (summaryPanelW - self.EVENT_CARD_BUTTON_SIZE) / 2
++				screen.setImageButtonAt(self.top.getNextWidgetName(), summaryPanel, szEventButton, btnX, buttonTopRel, self.EVENT_CARD_BUTTON_SIZE, self.EVENT_CARD_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, iEvent, 1)
++
++
++	def placeFamily(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FAMILY", ()), "", True, False, self.X_FAMILY, self.Y_FAMILY, self.W_FAMILY, self.H_FAMILY, PanelStyles.PANEL_STYLE_BLUE50)
++
++		info = self._getTriggerInfo()
++		lines = []
++		if info:
++			szRoot = _stripFamilySuffix(info.getType())
++			for iOther in range(gc.getNumEventTriggerInfos()):
++				if iOther == self.iTrigger:
++					continue
++				otherInfo = gc.getEventTriggerInfo(iOther)
++				if not otherInfo:
++					continue
++				if _stripFamilySuffix(otherInfo.getType()) == szRoot:
++					lines.append(self.BULLET_PREFIX + otherInfo.getType())
++
++		if lines:
++			szText = u"\n".join(lines)
++		else:
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
++		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_FAMILY + 14, self.Y_FAMILY + 34, self.W_FAMILY - 28, self.H_FAMILY - 44, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++	def setHistoryExpanded(self, bExpanded):
++		self.bHistoryExpanded = bExpanded
++
++
++	def placeHistory(self):
++		screen = self.top.getScreen()
++		szText = u""
++		info = self._getTriggerInfo()
++		if info:
++			szCivilopedia = info.getCivilopedia()
++			if szCivilopedia and len(szCivilopedia.strip()) > 0:
++				szText = szCivilopedia
++		if not szText:
++			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
++
++		draw_expandable_text_panel(
++			screen,
++			self.top,
++			localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()),
++			self.X_HISTORY,
++			self.Y_HISTORY,
++			self.W_HISTORY,
++			self.H_HISTORY,
++			szText,
++			self.bHistoryExpanded,
++			self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND,
++			24
++		)
++
++
++	def handleInput(self, inputClass):
++		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index dd69f2da4..8039cb5e8 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -46,6 +46,7 @@ import SevoPediaProject
+ import SevoPediaReligion
+ import SevoPediaCorporation
+ import SevoPediaVote
++import SevoPediaEventTrigger
+ import SevoPediaMovie
+ import SevoPediaMusic
+ import SevoPediaIndex
+@@ -122,6 +123,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# <!-- custom: 6810 = SAS_PEDIA_PYTHON_LEADER_ERA (Sevopedia leader era art preview buttons) defined in SevoPediaLeader.py. (Claude code Sonnet 4.6) -->
+ 		# <!-- custom: Votes category has no native engine jump widget (no WIDGET_PEDIA_JUMP_TO_VOTE), so left-list entries use WIDGET_PYTHON dispatched via this id. (Claude code Opus 4.7) -->
+ 		self.SAS_PEDIA_PYTHON_VOTE_ENTRY = 6811
++		# <!-- custom: Event Trigger category also has no native jump widget in the DLL, so
++		# use WIDGET_PYTHON routing like Votes. (Claude code Opus 4.7) -->
++		self.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY = 6812
+ 		self.SAS_PEDIA_MOVIE_TYPE_VICTORY = 1
+ 		self.SAS_PEDIA_MOVIE_TYPE_WONDER = 2
+ 		self.SAS_PEDIA_MOVIE_TYPE_PROJECT = 3
+@@ -257,6 +261,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_cacheMoviesTuple = None
+ 		self.SAS_cacheMusicTuple = None
+ 		self.SAS_cacheVotesTuple = None
++		self.SAS_cacheEventTriggersTuple = None
+ 		self.SAS_musicEraTracks = None
+ 		self.SAS_musicLeaderTracks = None
+ 		self.SAS_musicCivTracks = None
+@@ -359,6 +364,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			(SevoScreenEnums.PEDIA_RELIGIONS, "TXT_KEY_PEDIA_CATEGORY_RELIGION", iconOccupation, "placeReligions", SevoPediaReligion.SevoPediaReligion, "PEDIA_MAIN_RELIGION"),
+ 			(SevoScreenEnums.PEDIA_CORPORATIONS, "TXT_KEY_CONCEPT_CORPORATIONS", iconOccupation, "placeCorporations", SevoPediaCorporation.SevoPediaCorporation, None),
+ 			(SevoScreenEnums.PEDIA_VOTES, "TXT_KEY_PEDIA_CATEGORY_VOTE", iconOccupation, "placeVotes", SevoPediaVote.SevoPediaVote, None),
++			(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, "TXT_KEY_PEDIA_SAS_CATEGORY_EVENT_TRIGGERS", iconOccupation, "placeEventTriggers", SevoPediaEventTrigger.SevoPediaEventTrigger, None),
+ 			(SevoScreenEnums.PEDIA_TECHS, "TXT_KEY_PEDIA_CATEGORY_TECH", iconCommerceResearch, "placeTechs", SevoPediaTech.SevoPediaTech, "PEDIA_MAIN_TECH"),
+ 		)
+ 
+@@ -1513,6 +1519,43 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				break
+ 		return ""
+ 
++	# <!-- custom: Sevopedia Event Triggers category (grouped by earliest era, with the
++	# "Any era (no tech requirement)" bucket placed FIRST since those events fire from
++	# turn 1). No native engine jump widget for triggers, so items route via WIDGET_PYTHON
++	# + SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY like Votes. Left-list button falls back to
++	# the first child event's icon when the trigger itself has no button art in XML.
++	# (Claude code Opus 4.7) -->
++	def placeEventTriggers(self):
++		self.list = self.getEventTriggerList()
++		self.placeItems(WidgetTypes.WIDGET_PYTHON, self.getEventTriggerInfoForList)
++
++	def getEventTriggerList(self):
++		if self.SAS_cacheEventTriggersTuple is None:
++			listEntries = SAS_MainGroupings.SAS_getEventTriggersGroupedByEra(self.isSortLists())
++			self.SAS_cacheEventTriggersTuple = tuple(listEntries)
++		return self.SAS_cacheEventTriggersTuple
++
++	def getEventTriggerInfoForList(self, id):
++		return gc.getEventTriggerInfo(id)
++
++	def SAS_getEventTriggerButton(self, iTrigger):
++		info = gc.getEventTriggerInfo(iTrigger)
++		if not info:
++			return ""
++		szButton = info.getButton()
++		if szButton:
++			return szButton
++		for i in range(info.getNumEvents()):
++			iEvent = info.getEvent(i)
++			if iEvent < 0:
++				continue
++			eventInfo = gc.getEventInfo(iEvent)
++			if eventInfo:
++				szEventButton = eventInfo.getButton()
++				if szEventButton:
++					return szEventButton
++		return ""
++
+ 
+ 	def placeConcepts(self):
+ 		self.list = self.getConceptList()
+@@ -2022,6 +2065,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 					szButtonPlaceItems = self.SAS_getMusicButton(data1)
+ 				elif info == self.getVoteInfoForList:
+ 					szButtonPlaceItems = self.SAS_getVoteButton(data1)
++				elif info == self.getEventTriggerInfoForList:
++					szButtonPlaceItems = self.SAS_getEventTriggerButton(data1)
+ 				else:
+ 					szButtonPlaceItems = info(data1).getButton()
+ 
+@@ -2059,6 +2104,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 					data2 = data1
+ 					data1 = self.SAS_PEDIA_PYTHON_VOTE_ENTRY
+ 					bSAS_hasCustomData2 = True
++			# <!-- custom: event triggers also have no native jump widget, so route through
++			# WIDGET_PYTHON like Votes. (Claude code Opus 4.7) -->
++			if info == self.getEventTriggerInfoForList:
++				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
++				if data1 != -1:
++					data2 = data1
++					data1 = self.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY
++					bSAS_hasCustomData2 = True
+ 
+ 			if info == gc.getConceptInfo:
+ 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT
+@@ -2281,6 +2334,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 					item = self.list[iListIdx]
+ 					if item[1] != -1:
+ 						return self.pediaJump(SevoScreenEnums.PEDIA_VOTES, item[1], True, False)
++			# <!-- custom: Event Triggers list click -> trigger page. (Claude code Opus 4.7) -->
++			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_EVENT_TRIGGERS:
++				iRow = inputClass.getData()
++				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
++				if iListIdx is not None:
++					item = self.list[iListIdx]
++					if item[1] != -1:
++						return self.pediaJump(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, item[1], True, False)
+ 
+ 		# Existing TOC/INDEX buttons.
+ 		if self.SAS_USE_BOTTOM_TABS:
+@@ -2312,6 +2373,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			# <!-- custom: Vote WIDGET_PYTHON route (no native WIDGET_PEDIA_JUMP_TO_VOTE exists). (Claude code Opus 4.7) -->
+ 			if iData1 == self.SAS_PEDIA_PYTHON_VOTE_ENTRY:
+ 				return self.pediaJump(SevoScreenEnums.PEDIA_VOTES, iData2, True, False)
++			# <!-- custom: Event Trigger WIDGET_PYTHON route (same situation as Votes — no
++			# native jump-to-event-trigger widget in the DLL). (Claude code Opus 4.7) -->
++			if iData1 == self.SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY:
++				return self.pediaJump(SevoScreenEnums.PEDIA_EVENT_TRIGGERS, iData2, True, False)
+ 			# <!-- custom: chart LOG button is routed through WIDGET_PYTHON/data1 instead of function-name matching because generated widget names can be unstable in Sevopedia; this keeps clicks reliable like Movie/Music actions. (GPT-5.3-Codex) -->
+ 			if iData1 == self.SAS_PEDIA_PYTHON_CHART_LOG:
+ 				if self.iCategory == SevoScreenEnums.PEDIA_HANDICAP_CHART:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py b/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+index dd5d6f8f4..588e99b40 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoScreenEnums.py
+@@ -42,3 +42,4 @@ PEDIA_ERA_CHART		= 231
+ PEDIA_MOVIES		= 233
+ PEDIA_MUSIC		= 234
+ PEDIA_VOTES		= 235
++PEDIA_EVENT_TRIGGERS	= 236
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index 280dbdc83..146f0881f 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -1388,6 +1388,98 @@ def SAS_getVotesGroupedByVoteSource(bSortLists):
+ 	return listEntries
+ 
+ 
++# <!-- custom: earliest era at which an event trigger can fire, based on its prereq techs.
++# Iterates both OR-prereqs and AND-prereqs and returns the minimum era found. Returns -1 if
++# the trigger has no tech prereqs at all (these are "always available" flavor/social events
++# and are surfaced in their own "Any era" bucket placed at the TOP of the list, since from
++# the player's perspective they start firing immediately, not "after all other eras".
++# (Claude code Opus 4.7) -->
++def _SAS_getEventTriggerEarliestEra(iTrigger):
++	info = gc.getEventTriggerInfo(iTrigger)
++	if not info:
++		return -1
++	iBestEra = -1
++	for i in range(info.getNumPrereqOrTechs()):
++		iTech = info.getPrereqOrTechs(i)
++		if iTech >= 0:
++			techInfo = gc.getTechInfo(iTech)
++			if techInfo:
++				iEra = techInfo.getEra()
++				if iBestEra == -1 or iEra < iBestEra:
++					iBestEra = iEra
++	for i in range(info.getNumPrereqAndTechs()):
++		iTech = info.getPrereqAndTechs(i)
++		if iTech >= 0:
++			techInfo = gc.getTechInfo(iTech)
++			if techInfo:
++				iEra = techInfo.getEra()
++				if iBestEra == -1 or iEra < iBestEra:
++					iBestEra = iEra
++	return iBestEra
++
++
++def _SAS_getEventTriggerRowLabel(iTrigger):
++	info = gc.getEventTriggerInfo(iTrigger)
++	if not info:
++		return "Trigger %d" % iTrigger
++	szLabel = info.getDescription()
++	if (not szLabel) or len(szLabel.strip()) == 0:
++		szType = info.getType()
++		if szType and szType.startswith("EVENTTRIGGER_"):
++			szType = szType[len("EVENTTRIGGER_"):]
++		if szType:
++			szLabel = szType.replace("_", " ").title()
++		else:
++			szLabel = "Trigger %d" % iTrigger
++	return szLabel
++
++
++# <!-- custom: Sevopedia Event Triggers grouped by the earliest era at which they can fire.
++# - "Any era (no tech requirement)" bucket is placed FIRST because these triggers are
++#   active from turn 1 — putting them first matches the player's "when does this fire?"
++#   mental model better than appending them at the end.
++# - Within each era section, triggers are emitted in XML declaration order. This preserves
++#   the modder's intended grouping (families like FESTIVAL / FESTIVAL_AGAIN / FESTIVAL_DONE
++#   are typically declared adjacently in CIV4EventTriggerInfos.xml, so they stay adjacent
++#   in the list for free). If a family is ever scattered in the XML, fix at XML level.
++# - bSortLists is honored: when the user enables Sort Lists, entries within each era
++#   sort alphabetically by label instead of XML order (same convention as other pedia
++#   categories in this module). (Claude code Opus 4.7) -->
++def SAS_getEventTriggersGroupedByEra(bSortLists):
++	listEntries = []
++	iNumEras = gc.getNumEraInfos()
++	# -1 bucket holds "no prereq tech" triggers; iEra 0..iNumEras-1 are real eras.
++	groups = {}
++	iNumTriggers = gc.getNumEventTriggerInfos()
++	for iTrigger in range(iNumTriggers):
++		info = gc.getEventTriggerInfo(iTrigger)
++		if not info:
++			continue
++		iEra = _SAS_getEventTriggerEarliestEra(iTrigger)
++		if iEra not in groups:
++			groups[iEra] = []
++		groups[iEra].append((_SAS_getEventTriggerRowLabel(iTrigger), iTrigger))
++
++	# Any-era bucket FIRST.
++	if -1 in groups:
++		items = groups[-1]
++		if bSortLists:
++			items = sorted(items)
++		_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_NO_TECH", ()), items)
++
++	# Then era buckets in era order.
++	for iEra in range(iNumEras):
++		if iEra not in groups:
++			continue
++		items = groups[iEra]
++		if bSortLists:
++			items = sorted(items)
++		szHeader = gc.getEraInfo(iEra).getDescription()
++		_SAS_addSection(listEntries, szHeader, items)
++
++	return listEntries
++
++
+ def _SAS_appendSoundLabel(szLabel, szSoundScript, iSoundId):
+ 	if szSoundScript:
+ 		return szLabel + " - " + szSoundScript
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 3b71caa20..f0f5e2208 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3761,4 +3761,160 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_SEVOPEDIA</Tag>
+ 		<English>Sevopedia [F12]:</English>
+ 	</TEXT>
++	<!-- custom: Sevopedia Event Triggers category text keys. Category groups event
++	triggers by earliest era (no-tech bucket first, since those fire from turn 1).
++	Trigger detail page shows its events as "choice cards" a la Slay the Spire.
++	(Claude code Opus 4.7) -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_CATEGORY_EVENT_TRIGGERS</Tag>
++		<English>Event Triggers</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GROUP_NO_TECH</Tag>
++		<English>Any era (no tech requirement)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_TYPE</Tag>
++		<English>Type</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE</Tag>
++		<English>None</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNKNOWN</Tag>
++		<English>Unknown</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_SUMMARY</Tag>
++		<English>Summary</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PROBABILITY</Tag>
++		<English>Probability</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_ACTIVE_GAMES</Tag>
++		<English>Active in Games</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OUTCOME_COUNT</Tag>
++		<English>Outcomes</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAGS</Tag>
++		<English>Flags</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_RECURRING</Tag>
++		<English>Recurring</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_GLOBAL</Tag>
++		<English>Global</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_TEAM</Tag>
++		<English>Team</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FLAG_SINGLE_PLAYER</Tag>
++		<English>Single Player</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OR_TECHS</Tag>
++		<English>Any of Techs</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_AND_TECHS</Tag>
++		<English>All of Techs</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_OBSOLETE_TECHS</Tag>
++		<English>Obsolete with</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CIVIC</Tag>
++		<English>Civic</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_POP</Tag>
++		<English>Min Population</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MAX_POP</Tag>
++		<English>Max Population</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_TREASURY</Tag>
++		<English>Min Treasury</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CITY_UNITS</Tag>
++		<English>City Units</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_CITY_BUILDINGS</Tag>
++		<English>City Buildings</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GLOBAL_UNITS</Tag>
++		<English>Global Units</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_GLOBAL_BUILDINGS</Tag>
++		<English>Global Buildings</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_EVENTS_HEADER</Tag>
++		<English>Events</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_FAMILY</Tag>
++		<English>Family</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD</Tag>
++		<English>Gold</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_RANDOM_GOLD</Tag>
++		<English>Random Gold</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CULTURE</Tag>
++		<English>Culture</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ESPIONAGE</Tag>
++		<English>Espionage</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HAPPY_TURNS</Tag>
++		<English>Happy Turns</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_POPULATION</Tag>
++		<English>Population</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLDEN_AGE</Tag>
++		<English>Golden Age</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_DECLARE_WAR</Tag>
++		<English>Declare War</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_FREE_TECH</Tag>
++		<English>Free Tech</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_TECH_PERCENT</Tag>
++		<English>Tech Percent</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_SCRIPTED</Tag>
++		<English>Scripted or conditional</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 8ebc71237..ca3966524 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -734,6 +734,24 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
+ 	LoadGlobalClassInfo(GC.m_paGameOptionInfo, "CIV4GameOptionInfos", "GameInfo", "Civ4GameOptionInfos/GameOptionInfos/GameOptionInfo", false);
+ 	LoadGlobalClassInfo(GC.m_paMPOptionInfo, "CIV4MPOptionInfos", "GameInfo", "Civ4MPOptionInfos/MPOptionInfos/MPOptionInfo", false);
+ 	LoadGlobalClassInfo(GC.m_paForceControlInfo, "CIV4ForceControlInfos", "GameInfo", "Civ4ForceControlInfos/ForceControlInfos/ForceControlInfo", false);
++	// <!-- custom: moved CIV4EventInfos + CIV4EventTriggerInfos load here from
++	// LoadOptionalGlobals so event data is parsed at app startup instead of only after
++	// a game begins. Reason: our Sevopedia Event Triggers category would otherwise show
++	// an empty list when opened from the main menu, since gc.getNumEventTriggerInfos()
++	// returns 0 pre-game, and Sevopedia caches that empty list. Same pattern as the
++	// CIV4VoteInfo move earlier in this function. Placed at the END of the info-loading
++	// block because CIV4EventInfos.xml references yields (YIELD_PRODUCTION, ...) and
++	// commerces (COMMERCE_*) via iYield/iCommerce fields — those info types are loaded
++	// just above on lines ending with CIV4YieldInfos / CIV4CommerceInfo, and an earlier
++	// placement produced "Tag: YIELD_PRODUCTION ... was incorrect" XML errors at launch.
++	// Events also reference civs/leaders/religions/etc., all of which are now loaded too.
++	// We also set m->bEventsLoaded so LoadOptionalGlobals skips its own (now-redundant)
++	// load. Note: GAMEOPTION_NO_EVENTS intentionally does NOT gate this load — that
++	// option controls whether events *fire* in-game, not whether their data is available
++	// for display in Sevopedia. (Claude code Opus 4.7) -->
++	LoadGlobalClassInfo(GC.m_paEventInfo, "CIV4EventInfos", "Events", "Civ4EventInfos/EventInfos/EventInfo", true, &CvDLLUtilityIFaceBase::createEventInfoCacheObject);
++	LoadGlobalClassInfo(GC.m_paEventTriggerInfo, "CIV4EventTriggerInfos", "Events", "Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo", false, &CvDLLUtilityIFaceBase::createEventTriggerInfoCacheObject);
++	m->bEventsLoaded = true;
+ 
+ 	// Allow data to be cached
+ 	CvEraInfo::allInfosRead(); // advc.erai
+@@ -866,19 +884,23 @@ bool CvXMLLoadUtility::LoadPostMenuGlobals()
+ bool CvXMLLoadUtility::LoadOptionalGlobals()
+ {
+ 	bool bFXmlCreated = false; // Perhaps better not to do this twice
+-	if (!m->bEventsLoaded &&
+-		(!GC.getGame().isOption(GAMEOPTION_NO_EVENTS) ||
+-		/*	Don't risk sync issue that might arise from one player having
+-			loaded the data through a previously started game */
+-		GC.getGame().isNetworkMultiPlayer()))
+-	{
+-		if (!CreateFXml())
+-			return false;
+-		LoadGlobalClassInfo(GC.m_paEventInfo, "CIV4EventInfos", "Events", "Civ4EventInfos/EventInfos/EventInfo", true, &CvDLLUtilityIFaceBase::createEventInfoCacheObject);
+-		LoadGlobalClassInfo(GC.m_paEventTriggerInfo, "CIV4EventTriggerInfos", "Events", "Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo", false, &CvDLLUtilityIFaceBase::createEventTriggerInfoCacheObject);
+-		m->bEventsLoaded = true;
+-		bFXmlCreated = true;
+-	}
++	// <!-- custom: CIV4EventInfos + CIV4EventTriggerInfos load moved to
++	// LoadPreMenuGlobals (right after CIV4VoteInfo) so the Sevopedia Event Triggers
++	// category populates from the main menu too. See the matching comment at the new
++	// load site for the full rationale. (Claude code Opus 4.7) -->
++	//if (!m->bEventsLoaded &&
++	//	(!GC.getGame().isOption(GAMEOPTION_NO_EVENTS) ||
++	//	/*	Don't risk sync issue that might arise from one player having
++	//		loaded the data through a previously started game */
++	//	GC.getGame().isNetworkMultiPlayer()))
++	//{
++	//	if (!CreateFXml())
++	//		return false;
++	//	LoadGlobalClassInfo(GC.m_paEventInfo, "CIV4EventInfos", "Events", "Civ4EventInfos/EventInfos/EventInfo", true, &CvDLLUtilityIFaceBase::createEventInfoCacheObject);
++	//	LoadGlobalClassInfo(GC.m_paEventTriggerInfo, "CIV4EventTriggerInfos", "Events", "Civ4EventTriggerInfos/EventTriggerInfos/EventTriggerInfo", false, &CvDLLUtilityIFaceBase::createEventTriggerInfoCacheObject);
++	//	m->bEventsLoaded = true;
++	//	bFXmlCreated = true;
++	//}
+ 	// <advc.tsl>
+ 	if (!m->bTrueStartsDataLoaded && GC.getGame().isOption(GAMEOPTION_TRUE_STARTS))
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=8 omittedFiles=1 embeddedPatchBytes=46687

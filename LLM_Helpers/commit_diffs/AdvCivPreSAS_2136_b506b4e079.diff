@@ -1,0 +1,135 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2136
+# Commit: b506b4e0797ac7dc3bae5be7509abdd8cb54d72f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ecd0fc4fbf47240f594e989f92d0aebe64554bdb
+# Title: Amend recent bugfix for AI peace proposals
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	4	CvGameCoreDLL/CvPlayerAI.cpp
+18	11	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 61ac2a10e..e2de658af 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -688,7 +688,7 @@ void CvPlayerAI::AI_doPeace()  // advc: refactored
+ 	}
+ }
+ 
+-// <advc.134a>
++// advc.134a:
+ bool CvPlayerAI::AI_upholdPeaceOffer(PlayerTypes eHuman, CvDiploParameters const& kOffer) const
+ {
+ 	int iOurBenefit = AI_dealVal(eHuman, kOffer.getTheirOfferList());
+@@ -702,7 +702,7 @@ bool CvPlayerAI::AI_upholdPeaceOffer(PlayerTypes eHuman, CvDiploParameters const
+ 	}
+ 	// Neither uphold highly generous offers, nor terrible ones.
+ 	return (2 * iOurBenefit >= iTheirBenefit && 2 * iTheirBenefit > iOurBenefit);
+-} // </advc.134a>
++}
+ 
+ /*  <advc.104h> Cut and pasted (and refactored) from doPeace b/c UWAI needs
+ 	this subroutine. While decisions of war and peace are made by teams, an
+@@ -774,7 +774,7 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
+ 		FAssert(theyGive.getLength() <= 0);
+ 		weGive.insertAtEnd(peaceTreaty);
+ 	}
+-	if(kOther.isHuman() && iTheirBenefit < iOurBenefit && theyGive.getLength() == 1)
++	if(kOther.isHuman() && iTheirBenefit < iOurBenefit && theyGive.getLength() == 0)
+ 	{
+ 		/*  Really can't make an attractive offer w/o considering all tradeable items,
+ 			including map and gpt. */
+@@ -792,7 +792,15 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
+ 		iTheirBenefit = kOther.AI_dealVal(getID(), weGive);
+ 		if(5 * iTheirBenefit < 3 * iOurBenefit)
+ 			return false;
+-	} // </advc.134a>
++	}
++	/*	Now that trade balancing is through:
++		Important to have a peace treaty on both sides in the diplo popup,
++		and the code for announcing reparations (advc.039) also depends on it. */
++	if (weGive.getLength() == 0)
++		weGive.insertAtEnd(peaceTreaty);
++	if (theyGive.getLength() == 0)
++		theyGive.insertAtEnd(peaceTreaty);
++	// </advc.134a>
+ 	if(kOther.isHuman())
+ 	{
+ 		AI_changeContactTimer(eOther, CONTACT_PEACE_TREATY,
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index add2b0e7a..30ead28aa 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1429,30 +1429,37 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
+ 		{
+ 			// <advc.039>
+ 			CvWString szBuffer;
+-			bool bReparations = false;
++			bool bAnyReparations = false;
+ 			if (pReparations != NULL)
+ 			{
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_PEACE_IN_EXCHANGE",
+ 						getName().GetCString(), kTarget.getName().GetCString()) + L" ";
++				std::vector<CvWString> aszTradeItems;
+ 				for (CLLNode<TradeData> const* pNode = pReparations->head(); pNode != NULL;
+ 					pNode = pReparations->next(pNode))
+ 				{
+-					CvWString const szItem(tradeItemString(pNode->m_data.m_eItemType, pNode->m_data.m_iData, eTarget));
+-					if (szItem.length() <= 0)
+-						continue;
+-					bReparations = true;
+-					szBuffer += szItem;
+-					if (pReparations->next(pNode) != NULL)
++					CvWString const szItem(tradeItemString(
++							pNode->m_data.m_eItemType, pNode->m_data.m_iData, eTarget));
++					if (szItem.length() > 0)
++						aszTradeItems.push_back(szItem);
++				}
++				// The loop above has only filtered out items w/o string representation
++				for (size_t i = 0; i < aszTradeItems.size(); i++)
++				{
++					bAnyReparations = true;
++					szBuffer += aszTradeItems[i];
++					int iRemaining = ((int)aszTradeItems.size()) - i - 1;
++					if (iRemaining > 0)
+ 					{
+-						if(pReparations->next(pReparations->next(pNode)) == NULL)
++						if(iRemaining == 1)
+ 							szBuffer += L" " + gDLL->getText("TXT_KEY_AND") + L" ";
+ 						else szBuffer += L", ";
+ 					}
+ 					else szBuffer += L".";
+ 				} // Can handle it, but I don't think it should happen:
+-				FAssert(bReparations);
++				FAssert(bAnyReparations);
+ 			}
+-			if(!bReparations) // </advc.039>
++			if(!bAnyReparations) // </advc.039>
+ 			{
+ 				szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_MADE_PEACE",
+ 						getName().GetCString(), kTarget.getName().GetCString());
+@@ -1462,7 +1469,7 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
+ 					szSoundThey, (isAVassal() || kTarget.isAVassal() ?
+ 					MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY : // </advc.106b>
+ 					MESSAGE_TYPE_MAJOR_EVENT), NULL,
+-					(bReparations ? NO_COLOR : // advc.039
++					(bAnyReparations ? NO_COLOR : // advc.039
+ 					GC.getColorType("HIGHLIGHT_TEXT")),
+ 					// advc.127b:
+ 					getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4523

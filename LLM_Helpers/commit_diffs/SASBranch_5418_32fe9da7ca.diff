@@ -1,0 +1,471 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5418
+# Commit: 32fe9da7ca043d88077144eb25a7349ad7351a3c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3f862dc357c0816be25d28d9f95eba8b551e8a41
+# Title: Fix Maze.py similarly
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	6	PrivateMaps/Inland_Sea.py
+374	0	PrivateMaps/Maze.py
+1	1	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 PrivateMaps/Maze.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Inland_Sea.py b/PrivateMaps/Inland_Sea.py
+index f38a5e53b..d407be50d 100644
+--- a/PrivateMaps/Inland_Sea.py
++++ b/PrivateMaps/Inland_Sea.py
+@@ -608,7 +608,7 @@ def getBottomLatitude():
+ 
+ def getGridSize(argsList):
+ 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
+-	# <!-- custom: Use integer world-size indices plus SAS fallback for ARENA/SAS compatibility and to avoid KeyError on expanded world sizes. Inland Sea is land-heavy (not almost-all-land), so calibrate SAS24/32/40/48 close to Huge baseline geometry/economy (21x13 with up to 18 players): keep ratio near 21/13 and tiles-per-player near 273/18 to avoid oversized late tiers. (GPT-5.3-Codex) -->
++	# <!-- custom: Use integer world-size indices with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; Inland Sea is land-heavy (not almost-all-land), so derive SAS tiers from this script's Huge anchor instead of hardcoding them. (GPT-5.3-Codex) -->
+ 	grid_sizes = {
+ 		0:  (5, 3),    # ARENA
+ 		1:  (6, 4),    # DUEL
+@@ -617,16 +617,16 @@ def getGridSize(argsList):
+ 		4:  (13, 8),   # STANDARD
+ 		5:  (16, 10),  # LARGE
+ 		6:  (21, 13),  # HUGE
+-		7:  (24, 15),  # SAS24
+-		8:  (28, 17),  # SAS32
+-		9:  (31, 19),  # SAS40
+-		10: (34, 21),  # SAS48
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	return sas_lookup_world_size(eWorldSize, grid_sizes)
++	return sas_lookup_world_size_with_calibrated_sas(
++		eWorldSize,
++		grid_sizes,
++		SAS_HUGE_CUSTOM_MAX_PLAYERS
++	)
+ 
+ # Subclasses to fix the FRAC_POLAR zero row bugs.
+ class ISFractalWorld(CvMapGeneratorUtil.FractalWorld):
+
+diff --git a/PrivateMaps/Maze.py b/PrivateMaps/Maze.py
+new file mode 100644
+index 000000000..1613280c6
+--- /dev/null
++++ b/PrivateMaps/Maze.py
+@@ -0,0 +1,374 @@
++#
++#	FILE:	 Maze.py
++#	AUTHOR:  Bob Thomas (Sirian)
++#	PURPOSE: Regional map script - Creates a land/sea maze.
++#-----------------------------------------------------------------------------
++#	Copyright (c) 2005 Firaxis Games, Inc. All rights reserved.
++#-----------------------------------------------------------------------------
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++from CvPythonExtensions import *
++import CvUtil
++import CvMapGeneratorUtil
++from CvMapGeneratorUtil import FractalWorld
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++from CvMapGeneratorUtil import BonusBalancer
++from SAS_WorldSizes import *
++
++balancer = BonusBalancer()
++
++def getDescription():
++	return "TXT_KEY_MAP_SCRIPT_MAZE_DESCR"
++
++def getNumCustomMapOptions():
++	return 3
++
++def getNumHiddenCustomMapOptions():
++	return 2
++
++def getCustomMapOptionName(argsList):
++	[iOption] = argsList
++	option_names = {
++		0:	"TXT_KEY_MAP_SCRIPT_MAZE_WIDTH",
++		1:	"TXT_KEY_MAP_WORLD_WRAP",
++		2:  "TXT_KEY_CONCEPT_RESOURCES"
++		}
++	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
++	return translated_text
++	
++def getNumCustomMapOptionValues(argsList):
++	[iOption] = argsList
++	option_values = {
++		0:	5,
++		1:	3,
++		2:  2
++		}
++	return option_values[iOption]
++	
++def getCustomMapOptionDescAt(argsList):
++	[iOption, iSelection] = argsList
++	selection_names = {
++		0:	{
++			0: "TXT_KEY_MAP_SCRIPT_1_PLOT_WIDE",
++			1: "TXT_KEY_MAP_SCRIPT_2_PLOTS_WIDE",
++			2: "TXT_KEY_MAP_SCRIPT_3_PLOTS_WIDE",
++			3: "TXT_KEY_MAP_SCRIPT_4_PLOTS_WIDE",
++			4: "TXT_KEY_MAP_SCRIPT_5_PLOTS_WIDE"
++			},
++		1:	{
++			0: "TXT_KEY_MAP_WRAP_FLAT",
++			1: "TXT_KEY_MAP_WRAP_CYLINDER",
++			2: "TXT_KEY_MAP_WRAP_TOROID"
++			},
++		2:	{
++			0: "TXT_KEY_WORLD_STANDARD",
++			1: "TXT_KEY_MAP_BALANCED"
++			}
++		}
++	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
++	return translated_text
++	
++def getCustomMapOptionDefault(argsList):
++	[iOption] = argsList
++	option_defaults = {
++		0:	2,
++		1:	1,
++		2:  0
++		}
++	return option_defaults[iOption]
++
++def isRandomCustomMapOption(argsList):
++	[iOption] = argsList
++	option_random = {
++		0:	true,
++		1:	false,
++		2:  false
++		}
++	return option_random[iOption]
++
++def getWrapX():
++	map = CyMap()
++	return (map.getCustomMapOption(1) == 1 or map.getCustomMapOption(1) == 2)
++	
++def getWrapY():
++	map = CyMap()
++	return (map.getCustomMapOption(1) == 2)
++	
++def normalizeAddExtras():
++	if (CyMap().getCustomMapOption(2) == 1):
++		balancer.normalizeAddExtras()
++	CyPythonMgr().allowDefaultImpl()	# do the rest of the usual normalizeStartingPlots stuff, don't overrride
++
++def addBonusType(argsList):
++	[iBonusType] = argsList
++	gc = CyGlobalContext()
++	type_string = gc.getBonusInfo(iBonusType).getType()
++
++	if (CyMap().getCustomMapOption(2) == 1):
++		if (type_string in balancer.resourcesToBalance) or (type_string in balancer.resourcesToEliminate):
++			return None # don't place any of this bonus randomly
++		
++	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
++
++def isAdvancedMap():
++	"This map should not show up in simple mode"
++	return 1
++
++def isSeaLevelMap():
++	return 0
++
++def startHumansOnSameTile():
++	return True
++
++def getGridSize(argsList):
++	# <!-- custom: Keep original base tiers and calibrate only sizes above Huge with shared SAS helper to avoid KeyError on ARENA/SAS24/SAS32/SAS40/SAS48. (GPT-5.3-Codex) -->
++	grid_sizes = {
++		0:	(4,3),    # ARENA
++		1:	(6,4),    # DUEL
++		2:	(9,4),    # TINY
++		3:	(10,6),   # SMALL
++		4:	(14,8),   # STANDARD
++		5:	(18,10),  # LARGE
++		6:	(24,14)   # HUGE
++	}
++
++	if (argsList[0] == -1): # (-1,) is passed to function on loads
++		return []
++	[eWorldSize] = argsList
++	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes, SAS_HUGE_CUSTOM_MAX_PLAYERS)
++
++def generatePlotTypes():
++	NiTextOut("Setting Plot Types (Python Maze) ...")
++	gc = CyGlobalContext()
++	map = CyMap()
++	dice = gc.getGame().getMapRand()
++	iW = map.getGridWidth()
++	iH = map.getGridHeight()
++
++	# Get user input
++	userInputMazeWidth = map.getCustomMapOption(0)
++	multiplier = 1 + userInputMazeWidth
++
++	# Set peak percentage by maze width:
++	if userInputMazeWidth > 1:
++		extraPeaks = 5 - userInputMazeWidth
++	else:
++		extraPeaks = 0 
++
++	# Varying grains for reducing "clumping" of hills/peaks on larger maps.
++	sizekey = map.getWorldSize()
++	grainvalues = {
++		0:	2, # ARENA
++		1:	3, # DUEL
++		2:	3, # TINY
++		3:	4, # SMALL
++		4:	4, # STANDARD
++		5:	5, # LARGE
++		6:	6  # HUGE
++		}
++	grain_amount = grainvalues.get(int(sizekey), grainvalues[6])
++
++	# Init fractal for distribution of Hills plots.
++	hillsFrac = CyFractal()
++	peaksFrac = CyFractal()
++	hillsFrac.fracInit(iW, iH, grain_amount, dice, 0, -1, -1)
++	peaksFrac.fracInit(iW, iH, grain_amount + 1, dice, 0, -1, -1)
++	iHillsBottom1 = hillsFrac.getHeightFromPercent(max((25 - gc.getClimateInfo(map.getClimate()).getHillRange()), 0))
++	iHillsTop1 = hillsFrac.getHeightFromPercent(min((25 + gc.getClimateInfo(map.getClimate()).getHillRange()), 100))
++	iHillsBottom2 = hillsFrac.getHeightFromPercent(max((75 - gc.getClimateInfo(map.getClimate()).getHillRange()), 0))
++	iHillsTop2 = hillsFrac.getHeightFromPercent(min((75 + gc.getClimateInfo(map.getClimate()).getHillRange()), 100))
++	iPeakThreshold = peaksFrac.getHeightFromPercent((10 * extraPeaks) + gc.getClimateInfo(map.getClimate()).getPeakPercent())
++	
++	# Set maze dimensions
++	mazeW = iW/(2 * multiplier)
++	mazeH = iH/(2 * multiplier)
++	
++	# Init Maze
++	plotTypes = [PlotTypes.PLOT_OCEAN] * (iW*iH)
++	matrix = [False] * (mazeW*mazeH)
++	path = []
++	remainingSegments = mazeW*mazeH - 1
++	iX = dice.get(mazeW, "Starting X - Maze PYTHON")
++	iY = dice.get(mazeH, "Starting Y - Maze PYTHON")
++	directions = 4
++	if iX == 0 or iX == mazeW - 1:
++		directions -= 1
++	if iY == 0 or iY == mazeH - 1:
++		directions -= 1
++	
++	# Add land at initial vertex.
++	x = iX * 2 * multiplier
++	y = iY * 2 * multiplier
++	i = y*iW + x
++	hillVal = hillsFrac.getHeight(x,y)
++	if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
++		plotTypes[i] = PlotTypes.PLOT_HILLS
++	else:
++		plotTypes[i] = PlotTypes.PLOT_LAND
++	
++	if multiplier == 1: pass
++	else:
++		for mazeX in range(x, x+multiplier):
++			for mazeY in range(y, y+multiplier):
++				i = mazeY*iW + mazeX
++				hillVal = hillsFrac.getHeight(mazeX,mazeY)
++				if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
++					peakVal = peaksFrac.getHeight(mazeX,mazeY)
++					if (peakVal <= iPeakThreshold):
++						plotTypes[i] = PlotTypes.PLOT_PEAK
++					else:
++						plotTypes[i] = PlotTypes.PLOT_HILLS
++				else:
++					plotTypes[i] = PlotTypes.PLOT_LAND
++
++	# Add Segments
++	while remainingSegments:
++		remainingSegments -= 1
++		matrixIndex = mazeW*iY + iX
++		matrix[matrixIndex] = True
++		# Count number of valid possible paths from this vertex.
++		# North
++		if iY == mazeH - 1:
++			north = 0
++		elif matrix[matrixIndex + mazeW] == True:
++			north = 0
++		else:
++			north = 1
++		# South
++		if iY == 0:
++			south = 0
++		elif matrix[matrixIndex - mazeW] == True:
++			south = 0
++		else:
++			south = 1
++		# East
++		if iX == mazeW - 1:
++			east = 0
++		elif matrix[matrixIndex + 1] == True:
++			east = 0
++		else:
++			east = 1
++		# West
++		if iX == 0:
++			west = 0
++		elif matrix[matrixIndex - 1] == True:
++			west = 0
++		else:
++			west = 1
++		
++		# Possible Directions
++		directions = north + south + east + west
++		# Remember this vertex for possible return to it later
++		if directions > 1:
++			path.append([iX, iY])
++			
++		# If no Directions possible, must choose another vertex.
++		while directions < 1:
++			vertexRoll = dice.get(len(path), "Pathfinding - Maze PYTHON")
++			[iX, iY] = path[vertexRoll]
++			matrixIndex = mazeW*iY + iX
++			# Count number of valid possible paths from replacement vertex.
++			# North
++			if iY == mazeH - 1:
++				north = 0
++			elif matrix[matrixIndex + mazeW] == True:
++				north = 0
++			else:
++				north = 1
++			# South
++			if iY == 0:
++				south = 0
++			elif matrix[matrixIndex - mazeW] == True:
++				south = 0
++			else:
++				south = 1
++			# East
++			if iX == mazeW - 1:
++				east = 0
++			elif matrix[matrixIndex + 1] == True:
++				east = 0
++			else:
++				east = 1
++			# West
++			if iX == 0:
++				west = 0
++			elif matrix[matrixIndex - 1] == True:
++				west = 0
++			else:
++				west = 1
++			# Possible Directions
++			directions = north + south + east + west
++			# Remove this vertex if no longer valid
++			if directions < 2:
++				del path[vertexRoll]
++		
++		# Choose a direction at random.
++		choose = []
++		if north: choose.append([0, 1])
++		if south: choose.append([0, -1])
++		if east: choose.append([1, 0])
++		if west: choose.append([-1, 0])
++		dir = dice.get(len(choose), "Segment Direction - Maze PYTHON")
++		[xPlus, yPlus] = choose[dir]
++		
++		# Add land in the chosen direction.
++		for loop in range(1, 3):
++			x = (iX * 2 * multiplier) + (multiplier * xPlus * loop)
++			y = (iY * 2 * multiplier) + (multiplier * yPlus * loop)
++			i = y*iW + x
++			hillVal = hillsFrac.getHeight(x,y)
++			if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
++				plotTypes[i] = PlotTypes.PLOT_HILLS
++			else:
++				plotTypes[i] = PlotTypes.PLOT_LAND
++	
++			if multiplier == 1: pass
++			else:
++				for mazeX in range(x, x+multiplier):
++					for mazeY in range(y, y+multiplier):
++						i = mazeY*iW + mazeX
++						hillVal = hillsFrac.getHeight(mazeX,mazeY)
++						if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
++							peakVal = peaksFrac.getHeight(mazeX,mazeY)
++							if (peakVal <= iPeakThreshold):
++								plotTypes[i] = PlotTypes.PLOT_PEAK
++							else:
++								plotTypes[i] = PlotTypes.PLOT_HILLS
++						else:
++							plotTypes[i] = PlotTypes.PLOT_LAND
++
++		iX += xPlus
++		iY += yPlus
++		
++	# Finished generating the maze!
++	return plotTypes
++	
++def generateTerrainTypes():
++	NiTextOut("Generating Terrain (Python Maze) ...")
++	terraingen = TerrainGenerator()
++	terrainTypes = terraingen.generateTerrain()
++	return terrainTypes
++
++def addFeatures():
++	# Remove all peaks along the coasts, before adding Features, Bonuses, Goodies, etc.
++	map = CyMap()
++	iW = map.getGridWidth()
++	iH = map.getGridHeight()
++	for plotIndex in range(iW * iH):
++		pPlot = map.plotByIndex(plotIndex)
++		if pPlot.isPeak() and pPlot.isCoastalLand():
++			# If a peak is along the coast, change to hills and recalc.
++			pPlot.setPlotType(PlotTypes.PLOT_HILLS, true, true)
++			
++	# Now add the features.
++	NiTextOut("Adding Features (Python Maze) ...")
++	featuregen = FeatureGenerator()
++	featuregen.addFeatures()
++	return 0
++
++def normalizeRemovePeaks():
++	return None
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index 33c2e6259..7d4df7f4b 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -421,7 +421,7 @@ Done with the help of GPT-5.2 Thinking thanks:
+ | `Inland_Sea`           | Central inland sea with surrounding land; coastal play is central but not an island world; `<!-- custom: empirically looks landHeavy -->`         | Other (central inland sea layout); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, AdvCiv-SAS |
+ | `Islands`              | Island-heavy map (often fewer/larger islands than Archipelago, depending on script).                                                              | Water                                    | Base Civ4, Warlords                  |
+ | `Lakes`                | Land-heavy with many internal lakes and inland coastlines.                                                                                        | Land                                     | Base Civ4, Warlords, AdvCiv-SAS      |
+-| `Maze`                 | Labyrinth corridors and chokepoints (movement constrained by channels); `<!-- custom: empirically looks landHeavy -->` | Other (maze/chokepoint geometry); `<!-- custom: Land, see description -->` | Base Civ4, Warlords                  |
++| `Maze`                 | Labyrinth corridors and chokepoints (movement constrained by channels); `<!-- custom: empirically looks landHeavy -->` | Other (maze/chokepoint geometry); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, AdvCiv-SAS                    |
+ | `Medium_and_Small`     | Mix of medium landmasses plus smaller islands; more hybrid than pure continents.                                                                  | Other (hybrid land + islands)            | BTS                                  |
+ | `Mirror`               | Symmetrical/mirrored layout for fairness (often MP-friendly).                                                                                     | Other (symmetry-based layout)            | Base Civ4, Warlords                  |
+ | `Oasis`                | Desert-heavy with fertile pockets; expansion routes revolve around green clusters.                                                                | Land                                     | Base Civ4, Warlords                  |
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 6c8128cf0..89a8146b3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -343,7 +343,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ ### Maps
+ 
+ - (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
+-- (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea](/PrivateMaps/Inland_Sea.py), [Lakes](/PrivateMaps/Lakes.py).
++- (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py).
+ - (Requires AdvCiv-SAS 5413+) **Reduced the grid size** of some maps that are **almost entirely composed of land** plots. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py).
+ - (Requires AdvCiv-SAS 5415+) Add new **SAS_Worldsizes map**: helper sandbox map: almost all land with mostly flat grass tiles.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=17164

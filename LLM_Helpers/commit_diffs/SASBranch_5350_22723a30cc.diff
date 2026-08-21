@@ -1,0 +1,941 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5350
+# Commit: 22723a30cca8cac2b364227937b12d02eb748b9d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 67cdf2fade51d1c2ac59c1a6591d3a687064a829
+# Title: refactor sevopedia charts with the help of claude code opus 4.5 thanks a lot
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	AGENTS.md
+25	97	Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+15	78	Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+22	95	Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+19	47	Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+126	0	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index e8e6ca8f9..44138954e 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -129,6 +129,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - When doing performance optimizations, checking only, checking quotes only on one side is handy to spot all string lookups we could potentially cache. E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")`.
+ - When doing performance optimizations, use local variables only is enough and best if we don't use this variable elsewhere. E.g. `eYellow = gc.getInfoTypeForString("COLOR_YELLOW")` at init in SevoPediaMain.py.
+ - Use specific asset names whenever possibly to avoid likely reuse of an unknown BTS one that may not be listed in our mod's files. Example: `TXT_KEY_PEDIA_STATISTICS` to `TXT_KEY_PEDIA_SAS_STATISTICS`.
++- Avoid fluff like `================`, keep it nice and simple and clean.
+ 
+ ### Python (Civ4)
+ 
+@@ -140,6 +141,9 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - When adding guidance, include at least one simple code example so other agents can copy the pattern.
+ - Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
+ - When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
++- Use `from module import *` for helper modules to reduce import tedium and make future additions seamless.
++- Keep import burden on callers for Civ4-specific dependencies: helper functions should receive Civ4 objects (e.g. `gc`, `screen`, `CyGame()`) as parameters rather than importing them internally. This avoids circular dependencies. Standard Python modules (`re`, `math`, etc.) are fine to import directly in helpers since they're cached and always available.
++- When extracting shared code to helpers, group all patterns together if similar enough otherwise (e.g. all enum prefixes in one tuple) for simplicity, even if some prefixes are only used by one caller.
+ 
+ ## XML
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+index e3404f734..b454a8564 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+@@ -8,14 +8,11 @@
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+-import re
++from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
+ localText = CyTranslator()
+ 
+-def _font2(szText):
+-	return u"<font=2>%s</font>" % unicode(szText)
+-
+ 
+ 
+ class SevoPediaEraChart:
+@@ -23,9 +20,9 @@ class SevoPediaEraChart:
+ 		self.top = main
+ 		self._cachedTable = None
+ 
+-		self.MARGIN = 4
+-		self.ROW_H = 15
+-		self.W_ICON = 24
++		self.MARGIN = CHART_TABLE_MARGIN
++		self.ROW_H = CHART_TABLE_ROW_H
++		self.W_ICON = CHART_TABLE_W_ICON
+ 		self.W_FIELD = 210
+ 		self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS") > 0)
+ 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_TABLE_FILL_PERCENT")
+@@ -217,22 +214,6 @@ class SevoPediaEraChart:
+ 		for name, glyph in _glyph_defs:
+ 			glyph_by_name[name] = glyph
+ 
+-		# ---------------------------------------------------------------------
+-		# Stable icon sorting (prevents same-icon rows from shuffling on re-sort)
+-		# ---------------------------------------------------------------------
+-		_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
+-
+-		def _encode_base5(iValue, iDigits):
+-			out = []
+-			for _ in xrange(iDigits):
+-				out.append(_SORT_DIGITS[iValue % 5])
+-				iValue //= 5
+-			out.reverse()
+-			return u"".join(out)
+-
+-		def _sort_key(iGroup, iRowIndex):
+-			return u"<font=1>" + _encode_base5(iGroup, 4) + _encode_base5(iRowIndex, 3) + u"</font>"
+-
+ 		icon_token_by_key = {}
+ 		display_label_by_key = {}
+ 		for field_name, display_label, _getter_name, icon_token, _value_type in row_specs:
+@@ -243,26 +224,26 @@ class SevoPediaEraChart:
+ 
+ 		def icon_cell_for_key(icon_key, iRowIndex):
+ 			if not icon_key:
+-				return (_sort_key(0, iRowIndex), "")
++				return (chart_sort_key(0, iRowIndex), "")
+ 			token = icon_token_by_key.get(icon_key, "")
+ 			if not token:
+-				return (_sort_key(0, iRowIndex), "")
++				return (chart_sort_key(0, iRowIndex), "")
+ 			if token.startswith("btn:"):
+ 				name = token[4:]
+ 				btn = btn_by_name.get(name)
+ 				if btn is None:
+-					return (_sort_key(0, iRowIndex), "")
++					return (chart_sort_key(0, iRowIndex), "")
+ 				path, iGroup = btn[0], btn[1]
+ 				if not path:
+-					return (_sort_key(0, iRowIndex), "")
+-				return (_sort_key(iGroup, iRowIndex), path)
++					return (chart_sort_key(0, iRowIndex), "")
++				return (chart_sort_key(iGroup, iRowIndex), path)
+ 			if token.startswith("glyph:"):
+ 				name = token[6:]
+ 				glyph = glyph_by_name.get(name, u"")
+ 				if not glyph:
+-					return (_sort_key(0, iRowIndex), "")
+-				return (_font2(glyph) + _sort_key(0, iRowIndex), "")
+-			return (_sort_key(0, iRowIndex), "")
++					return (chart_sort_key(0, iRowIndex), "")
++				return (chart_font2(glyph) + chart_sort_key(0, iRowIndex), "")
++			return (chart_sort_key(0, iRowIndex), "")
+ 
+ 		none_text = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
+ 		yes_text = localText.getText("TXT_KEY_YES", ())
+@@ -298,7 +279,7 @@ class SevoPediaEraChart:
+ 				continue
+ 			tech_name = tech_info.getDescription()
+ 			if not tech_name:
+-				tech_name = self._beautify_enum_name(tech_info.getType())
++				tech_name = chart_beautify_enum_name(tech_info.getType())
+ 			techs_by_era[era_types[iEra]].append(tech_name)
+ 
+ 		for era_type in era_types:
+@@ -311,11 +292,11 @@ class SevoPediaEraChart:
+ 		header = []
+ 		if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
+ 			header.append(u"")
+-			header.append(_font2("Field"))
++			header.append(chart_font2("Field"))
+ 		else:
+-			header.append(_font2("Field"))
++			header.append(chart_font2("Field"))
+ 		for label in era_labels:
+-			header.append(_font2(label))
++			header.append(chart_font2(label))
+ 
+ 		table = [header]
+ 
+@@ -328,27 +309,27 @@ class SevoPediaEraChart:
+ 					display_text = tech_row["Field"]
+ 					if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
+ 						icon_key = tech_row.get("IconKey", "")
+-						row = [icon_cell_for_key(icon_key, row_index), _font2(display_text)]
++						row = [icon_cell_for_key(icon_key, row_index), chart_font2(display_text)]
+ 					else:
+-						row = [_font2(display_text)]
++						row = [chart_font2(display_text)]
+ 					for era_type in era_types:
+-						row.append(_font2(tech_row.get(era_type, "")))
++						row.append(chart_font2(tech_row.get(era_type, "")))
+ 					table.append(row)
+ 					row_index += 1
+ 				continue
+ 
+-			szFieldName = display_label_by_key.get(field_name, self._beautify_field_name(field_name))
++			szFieldName = display_label_by_key.get(field_name, chart_beautify_field_name(field_name))
+ 
+ 			if self.IS_SAS_SEVOPEDIA_ERA_CHART_HEADER_ICONS:
+-				row = [icon_cell_for_key(field_name, row_index), _font2(szFieldName)]
++				row = [icon_cell_for_key(field_name, row_index), chart_font2(szFieldName)]
+ 			else:
+-				row = [_font2(szFieldName)]
++				row = [chart_font2(szFieldName)]
+ 
+ 			for era_type in era_types:
+ 				val = parsed_data.get(era_type, {}).get(field_name, "")
+ 				if value_type == "bool":
+ 					val = self._format_bool(val, yes_text, no_text)
+-				row.append(_font2(val))
++				row.append(chart_font2(val))
+ 
+ 			table.append(row)
+ 			row_index += 1
+@@ -368,52 +349,13 @@ class SevoPediaEraChart:
+ 				return ""
+ 		return value
+ 
+-	def _beautify_field_name(self, raw_name):
+-		name = raw_name
+-		if name.startswith("i") and len(name) > 1 and name[1].isupper():
+-			name = name[1:]
+-		if name.startswith("b") and len(name) > 1 and name[1].isupper():
+-			name = name[1:]
+-		name = re.sub(r"_", " ", name)
+-		name = re.sub(r"([a-z])([A-Z])", r"\1 \2", name)
+-		if name.endswith("Percent"):
+-			name = name[:-len("Percent")] + "%"
+-		return name
+-
+-	def _beautify_enum_name(self, raw_name):
+-		name = raw_name
+-		for prefix in ("TECH_", "HANDICAP_", "GOODY_", "ERA_"):
+-			if name.startswith(prefix):
+-				name = name[len(prefix):]
+-				break
+-		name = re.sub(r"_", " ", name)
+-		return name.title()
+-
+-	def _format_tech_list(self, value, return_list, none_text):
+-		if not value:
+-			if return_list:
+-				return []
+-			return none_text
+-		parts = value.split(",")
+-		out = []
+-		for part in parts:
+-			p = part.strip()
+-			if not p:
+-				continue
+-			out.append(p)
+-		if return_list:
+-			return out
+-		if len(out) == 0:
+-			return none_text
+-		return ", ".join(out)
+-
+ 	def _expandTechRows(self, field_name, era_types, parsed_data, techs_per_cell, none_text):
+ 		per_era_chunks = {}
+ 		max_chunks = 1
+ 		for era_type in era_types:
+ 			raw = parsed_data.get(era_type, {}).get(field_name, "")
+-			items = self._format_tech_list(raw, True, none_text)
+-			chunks = self._chunkList(items, techs_per_cell)
++			items = chart_format_tech_list(raw, True, none_text)
++			chunks = chart_chunk_list(items, techs_per_cell)
+ 			if not chunks:
+ 				chunks = [[none_text]]
+ 			per_era_chunks[era_type] = chunks
+@@ -434,17 +376,3 @@ class SevoPediaEraChart:
+ 					row[era_type] = ""
+ 			rows.append(row)
+ 		return rows
+-
+-	def _chunkList(self, items, size):
+-		if size <= 0:
+-			return [items]
+-		chunks = []
+-		current = []
+-		for item in items:
+-			current.append(item)
+-			if len(current) >= size:
+-				chunks.append(current)
+-				current = []
+-		if current:
+-			chunks.append(current)
+-		return chunks
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+index 054ad9f80..3cf6bafd9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+@@ -8,14 +8,11 @@
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+-import re
++from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
+ localText = CyTranslator()
+ 
+-def _font2(szText):
+-	return u"<font=2>%s</font>" % unicode(szText)
+-
+ 
+ 
+ class SevoPediaGameSpeedChart:
+@@ -23,9 +20,9 @@ class SevoPediaGameSpeedChart:
+ 		self.top = main
+ 		self._cachedTable = None
+ 
+-		self.MARGIN = 4
+-		self.ROW_H = 15
+-		self.W_ICON = 24
++		self.MARGIN = CHART_TABLE_MARGIN
++		self.ROW_H = CHART_TABLE_ROW_H
++		self.W_ICON = CHART_TABLE_W_ICON
+ 		self.W_FIELD = 180
+ 		self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS") > 0)
+ 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_GAME_SPEED_CHART_TABLE_FILL_PERCENT")
+@@ -252,36 +249,6 @@ class SevoPediaGameSpeedChart:
+ 		for (k, _getter, icon_spec) in row_specs:
+ 			icon_spec_by_key[k] = icon_spec
+ 
+-		# ---------------------------------------------------------------------
+-		# Stable icon sorting (fixes "emoji order changes / ties shuffle")
+-		# ---------------------------------------------------------------------
+-		#
+-		# Civ4 table sorting uses the raw cell text. If multiple rows share the same icon,
+-		# tie ordering can shuffle between ascending/descending clicks.
+-		#
+-		# We fix ties by appending an invisible sort key (icon_group + row_index) to the icon cell text.
+-		#
+-		# IMPORTANT: We avoid ASCII control chars (0x01..0x1F) here. Some Civ4 builds can fail to render
+-		# *any* glyph in a table cell if such chars are present. This was the root cause of:
+-		#   "buttons show, but GameFont glyphs (food/citizen/gold/etc) are blank".
+-		#
+-		# Instead we use Unicode zero-width/formatting marks (U+200B..U+200F), which are invisible
+-		# and safe to include in Civ4's UI strings.
+-		_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")  # 5 invisible marks
+-
+-		def _encode_base5(iValue, iDigits):
+-			out = []
+-			for _ in xrange(iDigits):
+-				out.append(_SORT_DIGITS[iValue % 5])
+-				iValue //= 5
+-			out.reverse()
+-			return u"".join(out)
+-
+-		def _sort_key(iGroup, iRowIndex):
+-			# 4 base-5 digits cover up to 624, enough for our "group" numbering (<= 140).
+-			# 3 digits cover up to 124 rows.
+-			return u"<font=1>" + _encode_base5(iGroup, 4) + _encode_base5(iRowIndex, 3) + u"</font>"
+-
+ 		def icon_cell_for_key(key, iRowIndex):
+ 			icon_spec = icon_spec_by_key.get(key)
+ 
+@@ -291,16 +258,16 @@ class SevoPediaGameSpeedChart:
+ 
+ 			if not icon_spec:
+ 				# No icon: still return a stable, invisible tie-breaker so sorting can't shuffle.
+-				return (_sort_key(0, iRowIndex), "")
++				return (chart_sort_key(0, iRowIndex), "")
+ 
+ 			(kind, name) = icon_spec
+ 			if kind == "btn":
+ 				(path, iGroup) = btn_by_name.get(name, ("", 0))
+-				return (_sort_key(iGroup, iRowIndex), path)
++				return (chart_sort_key(iGroup, iRowIndex), path)
+ 
+ 			# kind == "glyph"
+ 			(glyph, iGroup) = glyph_by_name.get(name, ("", 0))
+-			return (_font2(glyph) + _sort_key(iGroup, iRowIndex), "")
++			return (chart_font2(glyph) + chart_sort_key(iGroup, iRowIndex), "")
+ 
+ 		# ---------------------------------------------------------------------
+ 		# Extract data from DLL infos
+@@ -315,7 +282,7 @@ class SevoPediaGameSpeedChart:
+ 		speed_labels = []
+ 		for i in xrange(gc.getNumGameSpeedInfos()):
+ 			info = gc.getGameSpeedInfo(i)
+-			szName = self._beautify_enum_name(info.getType())
++			szName = chart_beautify_enum_name(info.getType())
+ 			iNumInc = info.getNumTurnIncrements()
+ 			iTurns = 0
+ 			for iInc in xrange(iNumInc):
+@@ -410,17 +377,17 @@ class SevoPediaGameSpeedChart:
+ 
+ 		row_index = 0
+ 		for field in field_order:
+-			szFieldName = self._beautify_field_name(field)
++			szFieldName = chart_beautify_field_name(field)
+ 			if derived_field_keys.get(field):
+ 				szFieldName += u"*"
+ 
+ 			if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
+-				row = [icon_cell_for_key(field, row_index), _font2(szFieldName)]
++				row = [icon_cell_for_key(field, row_index), chart_font2(szFieldName)]
+ 			else:
+-				row = [_font2(szFieldName)]
++				row = [chart_font2(szFieldName)]
+ 
+ 			for speed_type in speed_types:
+-				row.append(_font2(parsed_data.get(speed_type, {}).get(field, "")))
++				row.append(chart_font2(parsed_data.get(speed_type, {}).get(field, "")))
+ 
+ 			table.append(row)
+ 			row_index += 1
+@@ -431,12 +398,12 @@ class SevoPediaGameSpeedChart:
+ 			szName = CyTranslator().getText(str(info.getTextKey()), ())
+ 
+ 			if self.IS_SAS_SEVOPEDIA_GAME_SPEED_CHART_HEADER_ICONS:
+-				row = [icon_cell_for_key("iCulturePercent", row_index), _font2(szName)]
++				row = [icon_cell_for_key("iCulturePercent", row_index), chart_font2(szName)]
+ 			else:
+-				row = [_font2(szName)]
++				row = [chart_font2(szName)]
+ 
+ 			for iSpeed in xrange(len(speed_types)):
+-				row.append(_font2(str(info.getSpeedThreshold(iSpeed))))
++				row.append(chart_font2(str(info.getSpeedThreshold(iSpeed))))
+ 
+ 			table.append(row)
+ 			row_index += 1
+@@ -528,33 +495,3 @@ class SevoPediaGameSpeedChart:
+ 		else:
+ 			szSep = "="
+ 		return "+%d%s%s%s%s" % (turns, szOp, szRate, szSep, szEnd)
+-
+-
+-
+-	def _beautify_field_name(self, raw_name):
+-		# Keep field labels readable; only shorten trailing "Percent" to "%".
+-		name = raw_name
+-
+-		# Strip leading 'i' from iFooBar style fields
+-		if name.startswith("i") and len(name) > 1 and name[1].isupper():
+-			name = name[1:]
+-
+-		# Pretty-split underscores / camelCase
+-		name = re.sub(r"_", " ", name)
+-		name = re.sub(r"([a-z])([A-Z])", r"\1 \2", name)
+-
+-		# Replace trailing "Percent" with "%"
+-		if name.endswith("Percent"):
+-			name = name[:-len("Percent")] + "%"
+-
+-		return name
+-
+-
+-	def _beautify_enum_name(self, raw_name):
+-		name = raw_name
+-		for prefix in ("TECH_", "HANDICAP_", "GOODY_", "GAMESPEED_"):
+-			if name.startswith(prefix):
+-				name = name[len(prefix):]
+-				break
+-		name = re.sub(r"_", " ", name)
+-		return name.title()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+index 583fc9776..f355a8c32 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+@@ -12,6 +12,7 @@
+ from CvPythonExtensions import *
+ import CvUtil
+ import re
++from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
+ localText = CyTranslator()
+@@ -23,9 +24,9 @@ class SevoPediaHandicapChart:
+ 		self.top = main
+ 		self._cachedTable = None
+ 
+-		self.MARGIN = 4
+-		self.ROW_H = 15
+-		self.W_ICON = 24
++		self.MARGIN = CHART_TABLE_MARGIN
++		self.ROW_H = CHART_TABLE_ROW_H
++		self.W_ICON = CHART_TABLE_W_ICON
+ 		self.W_FIELD = 290
+ 		self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS") > 0)
+ 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT")
+@@ -389,9 +390,6 @@ class SevoPediaHandicapChart:
+ 		# --------------------------------------------------------------------
+ 		# One-time render prep (kept local; cache stores only final table cells)
+ 		# --------------------------------------------------------------------
+-		def _font2(s):
+-			return u"<font=2>%s</font>" % s
+-
+ 		icon_cell_for_key = None
+ 		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
+ 			game = CyGame()
+@@ -433,35 +431,7 @@ class SevoPediaHandicapChart:
+ 			for _name, _glyph in _glyph_defs:
+ 				glyph_by_name[_name] = _glyph
+ 			
+-			# ---------------------------------------------------------------------
+-			# Stable icon sorting (prevents same-icon rows from shuffling on re-sort)
+-			# ---------------------------------------------------------------------
+-			#
+-			# Civ4 table sorting uses the raw cell text. When multiple rows share the
+-			# same icon, tie ordering can shuffle between ascending/descending clicks.
+-			#
+-			# We fix ties by appending an invisible sort key (icon_group + row_index)
+-			# to the icon cell text. This keeps the chart readable while making sort
+-			# results fully deterministic.
+-			#
+-			# We avoid ASCII control chars (0x01..0x1F): some Civ4 builds can cause
+-			# GameFont glyphs to render blank when such chars appear in table cells.
+-			# Instead we use Unicode zero-width/formatting marks (U+200B..U+200F).
+-			_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
+-
+-			def _encode_base5(iValue, iDigits):
+-				out = []
+-				for _ in xrange(iDigits):
+-					out.append(_SORT_DIGITS[iValue % 5])
+-					iValue //= 5
+-				out.reverse()
+-				return u"".join(out)
+-
+-			def _sort_key(iGroup, iRowIndex):
+-				# 4 base-5 digits cover group ids comfortably; 3 digits cover up to 124 rows.
+-				return u"<font=1>" + _encode_base5(iGroup, 4) + _encode_base5(iRowIndex, 3) + u"</font>"
+-
+-			# Token map: key -> "btn:name" or "glyph:name"
++				# Token map: key -> "btn:name" or "glyph:name"
+ 			# Built from the centralized specs above, so there is only ONE place to edit.
+ 			icon_token_by_key = {}
+ 			for field_name, _getter_name, icon_token in field_specs:
+@@ -477,36 +447,36 @@ class SevoPediaHandicapChart:
+ 			def icon_cell_for_key(icon_key, iRowIndex):
+ 				# Always return a stable invisible tie-breaker, even if no icon is found.
+ 				if not icon_key:
+-					return (_sort_key(0, iRowIndex), "")
++					return (chart_sort_key(0, iRowIndex), "")
+ 				token = icon_token_by_key.get(icon_key, "")
+ 				if not token:
+-					return (_sort_key(0, iRowIndex), "")
++					return (chart_sort_key(0, iRowIndex), "")
+ 				if token.startswith("btn:"):
+ 					name = token[4:]
+ 					btn = btn_by_name.get(name)
+ 					if btn is None:
+-						return (_sort_key(0, iRowIndex), "")
++						return (chart_sort_key(0, iRowIndex), "")
+ 					path, iGroup = btn[0], btn[1]
+ 					if not path:
+-						return (_sort_key(0, iRowIndex), "")
+-					return (_sort_key(iGroup, iRowIndex), path)
++						return (chart_sort_key(0, iRowIndex), "")
++					return (chart_sort_key(iGroup, iRowIndex), path)
+ 				if token.startswith("glyph:"):
+ 					name = token[6:]
+ 					glyph = glyph_by_name.get(name, u"")
+ 					if not glyph:
+-						return (_sort_key(0, iRowIndex), "")
++						return (chart_sort_key(0, iRowIndex), "")
+ 					# Preserve the visible glyph, but add an invisible tie-breaker.
+-					return (_font2(glyph) + _sort_key(0, iRowIndex), "")
+-				return (_sort_key(0, iRowIndex), "")
++					return (chart_font2(glyph) + chart_sort_key(0, iRowIndex), "")
++				return (chart_sort_key(0, iRowIndex), "")
+ 
+ 
+ 		# Build header (pre-fonted)
+ 		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
+-			header = [u"", _font2("Field")]
++			header = [u"", chart_font2("Field")]
+ 		else:
+-			header = [_font2("Field")]
++			header = [chart_font2("Field")]
+ 		for difficulty in difficulty_types:
+-			header.append(_font2(self._beautify_enum_name(difficulty)))
++			header.append(chart_font2(chart_beautify_enum_name(difficulty)))
+ 
+ 		data = [header]
+ 
+@@ -521,15 +491,15 @@ class SevoPediaHandicapChart:
+ 				icon_cell = (u"", "")
+ 				if icon_cell_for_key is not None:
+ 					icon_cell = icon_cell_for_key(icon_key, row_index)
+-				out_row = [icon_cell, _font2(display_field)]
++				out_row = [icon_cell, chart_font2(display_field)]
+ 			else:
+-				out_row = [_font2(display_field)]
++				out_row = [chart_font2(display_field)]
+ 
+ 			for difficulty in difficulty_types:
+ 				value = row.get(difficulty, "")
+ 				if row["Field"] in ("FreeTechs", "AIFreeTechs"):
+-					value = self._format_tech_list(value, False, none_text, abbrev_tech_names)
+-				out_row.append(_font2(value))
++					value = chart_format_tech_list(value, False, none_text, abbrev_tech_names)
++				out_row.append(chart_font2(value))
+ 
+ 			data.append(out_row)
+ 			row_index += 1
+@@ -576,15 +546,6 @@ class SevoPediaHandicapChart:
+ 		all_fields["FreeTechs"] = 1
+ 		all_fields["AIFreeTechs"] = 1
+ 
+-	def _beautify_enum_name(self, raw_name):
+-		name = raw_name
+-		for prefix in ("TECH_", "HANDICAP_", "GOODY_"):
+-			if name.startswith(prefix):
+-				name = name[len(prefix):]
+-				break
+-		name = re.sub(r"_", " ", name)
+-		return name.title()
+-
+ 	def _mergeHumanAiRows(self, rows, difficulty_types, none_text):
+ 		row_by_field = {}
+ 		for row in rows:
+@@ -633,26 +594,6 @@ class SevoPediaHandicapChart:
+ 		base = re.sub(r"([a-z])([A-Z])", r"\1 \2", base)
+ 		return base + " (Human / AI)"
+ 
+-	def _format_tech_list(self, value, return_list, none_text, abbrev_tech_names):
+-		if not value:
+-			if return_list:
+-				return []
+-			return none_text
+-		parts = value.split(",")
+-		out = []
+-		for part in parts:
+-			p = part.strip()
+-			if not p:
+-				continue
+-			name = self._beautify_enum_name(p)
+-			name = abbrev_tech_names.get(name, name)
+-			out.append(name)
+-		if return_list:
+-			return out
+-		if len(out) == 0:
+-			return none_text
+-		return ", ".join(out)
+-
+ 	def _expandTechRows(self, rows, difficulty_types, techs_per_cell, none_text, abbrev_tech_names):
+ 		new_rows = []
+ 		for row in rows:
+@@ -665,8 +606,8 @@ class SevoPediaHandicapChart:
+ 			max_chunks = 1
+ 			for difficulty in difficulty_types:
+ 				raw = row.get(difficulty, "")
+-				items = self._format_tech_list(raw, True, none_text, abbrev_tech_names)
+-				chunks = self._chunkList(items, techs_per_cell)
++				items = chart_format_tech_list(raw, True, none_text, abbrev_tech_names)
++				chunks = chart_chunk_list(items, techs_per_cell)
+ 				if not chunks:
+ 					chunks = [[none_text]]
+ 				per_diff_chunks[difficulty] = chunks
+@@ -690,17 +631,3 @@ class SevoPediaHandicapChart:
+ 						new_row[difficulty] = ""
+ 				new_rows.append(new_row)
+ 		return new_rows
+-
+-	def _chunkList(self, items, size):
+-		if size <= 0:
+-			return [items]
+-		chunks = []
+-		current = []
+-		for item in items:
+-			current.append(item)
+-			if len(current) >= size:
+-				chunks.append(current)
+-				current = []
+-		if current:
+-			chunks.append(current)
+-		return chunks
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+index c82a4a152..e92948d2e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+@@ -8,14 +8,11 @@
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+-import re
++from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
+ localText = CyTranslator()
+ 
+-def _font2(szText):
+-	return u"<font=2>%s</font>" % unicode(szText)
+-
+ 
+ 
+ class SevoPediaWorldSizeChart:
+@@ -23,9 +20,9 @@ class SevoPediaWorldSizeChart:
+ 		self.top = main
+ 		self._cachedTable = None
+ 
+-		self.MARGIN = 4
+-		self.ROW_H = 15
+-		self.W_ICON = 24
++		self.MARGIN = CHART_TABLE_MARGIN
++		self.ROW_H = CHART_TABLE_ROW_H
++		self.W_ICON = CHART_TABLE_W_ICON
+ 		self.W_FIELD = 210
+ 		self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS = (gc.getDefineINT("SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS") > 0)
+ 		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_WORLD_SIZE_CHART_TABLE_FILL_PERCENT")
+@@ -214,21 +211,6 @@ class SevoPediaWorldSizeChart:
+ 			glyph_by_name[name] = glyph
+ 
+ 
+-		# ---------------------------------------------------------------------
+-		# Stable icon sorting (prevents same-icon rows from shuffling on re-sort)
+-		# ---------------------------------------------------------------------
+-		_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
+-
+-		def _encode_base5(iValue, iDigits):
+-			out = []
+-			for _ in xrange(iDigits):
+-				out.append(_SORT_DIGITS[iValue % 5])
+-				iValue //= 5
+-			out.reverse()
+-			return u"".join(out)
+-
+-		def _sort_key(iGroup, iRowIndex):
+-			return u"<font=1>" + _encode_base5(iGroup, 4) + _encode_base5(iRowIndex, 3) + u"</font>"
+ 		icon_token_by_key = {}
+ 		for field_name, _display_label, _getter_name, icon_token in row_specs:
+ 			if icon_token:
+@@ -242,26 +224,26 @@ class SevoPediaWorldSizeChart:
+ 		def icon_cell_for_key(icon_key, iRowIndex):
+ 			# Always return a stable invisible tie-breaker, even if no icon is found.
+ 			if not icon_key:
+-				return (_sort_key(0, iRowIndex), "")
++				return (chart_sort_key(0, iRowIndex), "")
+ 			token = icon_token_by_key.get(icon_key, "")
+ 			if not token:
+-				return (_sort_key(0, iRowIndex), "")
++				return (chart_sort_key(0, iRowIndex), "")
+ 			if token.startswith("btn:"):
+ 				name = token[4:]
+ 				btn = btn_by_name.get(name)
+ 				if btn is None:
+-					return (_sort_key(0, iRowIndex), "")
++					return (chart_sort_key(0, iRowIndex), "")
+ 				path, iGroup = btn[0], btn[1]
+ 				if not path:
+-					return (_sort_key(0, iRowIndex), "")
+-				return (_sort_key(iGroup, iRowIndex), path)
++					return (chart_sort_key(0, iRowIndex), "")
++				return (chart_sort_key(iGroup, iRowIndex), path)
+ 			if token.startswith("glyph:"):
+ 				name = token[6:]
+ 				glyph = glyph_by_name.get(name, u"")
+ 				if not glyph:
+-					return (_sort_key(0, iRowIndex), "")
+-				return (_font2(glyph) + _sort_key(0, iRowIndex), "")
+-			return (_sort_key(0, iRowIndex), "")
++					return (chart_sort_key(0, iRowIndex), "")
++				return (chart_font2(glyph) + chart_sort_key(0, iRowIndex), "")
++			return (chart_sort_key(0, iRowIndex), "")
+ 
+ 
+ 		world_types = []
+@@ -341,41 +323,31 @@ class SevoPediaWorldSizeChart:
+ 		header = []
+ 		if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
+ 			header.append(u"")
+-			header.append(_font2("Field"))
++			header.append(chart_font2("Field"))
+ 		else:
+-			header.append(_font2("Field"))
++			header.append(chart_font2("Field"))
+ 		for label in world_labels:
+-			header.append(_font2(label))
++			header.append(chart_font2(label))
+ 
+ 		table = [header]
+ 
+ 		row_index = 0
+ 		for field_name, display_label, _getter_name, _icon_token in row_specs:
+-			szFieldName = display_label_by_key.get(field_name, self._beautify_field_name(field_name))
++			szFieldName = display_label_by_key.get(field_name, chart_beautify_field_name(field_name))
+ 
+ 			if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
+-				row = [icon_cell_for_key(field_name, row_index), _font2(szFieldName)]
++				row = [icon_cell_for_key(field_name, row_index), chart_font2(szFieldName)]
+ 			else:
+-				row = [_font2(szFieldName)]
++				row = [chart_font2(szFieldName)]
+ 
+ 			for world_type in world_types:
+-				row.append(_font2(parsed_data.get(world_type, {}).get(field_name, "")))
++				row.append(chart_font2(parsed_data.get(world_type, {}).get(field_name, "")))
+ 
+ 			table.append(row)
+ 			row_index += 1
+ 
+ 		return table
+ 
+-	def _beautify_field_name(self, raw_name):
+-		name = raw_name
+-		if name.startswith("i") and len(name) > 1 and name[1].isupper():
+-			name = name[1:]
+-		name = re.sub(r"_", " ", name)
+-		name = re.sub(r"([a-z])([A-Z])", r"\1 \2", name)
+-		if name.endswith("Percent"):
+-			name = name[:-len("Percent")] + "%"
+-		return name
+-
+ 	def _format_ratio(self, width, height):
+ 		if width <= 0 or height <= 0:
+ 			return ""
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 786974e2f..4f97c87be 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -2,6 +2,8 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
++import re
++#
+ # <!-- custom: constants useful for numTxt under button placement in a grid-like manner anyways , i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe thanks thanks chatgpt etc and me toot thanks; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday-->
+ #HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
+ #HYPOTHESIZED_INTER_BUTTON_SPACING = 4
+@@ -303,3 +305,127 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX,
+ 	textH = 30
+ 
+ 	screen.addMultilineText(textName, numTxt, textX, textY, textW, textH, widgetType, -1, -1, font)
++
++
++
++# <!-- custom: Sevopedia Chart Helpers (shared across Handicap/GameSpeed/WorldSize/Era charts). (Claude Code Opus 4.5) -->
++#
++# <!-- custom: Common constants for chart tables -->
++CHART_TABLE_MARGIN = 4
++CHART_TABLE_ROW_H = 15
++CHART_TABLE_W_ICON = 24
++# <!-- custom: All known enum prefixes to strip. Grouped here for simplicity across all charts. -->
++CHART_ENUM_PREFIXES = ("TECH_", "HANDICAP_", "GOODY_", "GAMESPEED_", "ERA_", "WORLDSIZE_")
++# <!-- custom: # Stable icon sorting (fixes "emoji order changes / ties shuffle")
++#
++# Civ4 table sorting uses the raw cell text. If multiple rows share the same icon,
++# tie ordering can shuffle between ascending/descending clicks.
++# We fix ties by appending an invisible sort key (icon_group + row_index) to the icon cell text.
++# IMPORTANT: We avoid ASCII control chars (0x01..0x1F) here. Some Civ4 builds can fail to render
++# *any* glyph in a table cell if such chars are present. This was the root cause of:
++#   "buttons show, but GameFont glyphs (food/citizen/gold/etc) are blank".
++# Instead we use Unicode zero-width/formatting marks (U+200B..U+200F), which are invisible
++# and safe to include in Civ4's UI strings. (GPT-5.2-Codex + ChatGPT-5.2 Thinking) -->
++CHART_SORT_DIGITS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")  # 5 invisible marks
++
++
++
++def chart_font2(szText):
++	# Wrap text in <font=2> tags for chart table cells.
++	return u"<font=2>%s</font>" % unicode(szText)  # noqa: F821
++
++
++
++def chart_encode_base5(iValue, iDigits):
++	# Encode an integer as a base-5 string using invisible Unicode chars.
++	out = []
++	for _ in xrange(iDigits):  # noqa: F821
++		out.append(CHART_SORT_DIGITS[iValue % 5])
++		iValue //= 5
++	out.reverse()
++	return u"".join(out)
++
++
++
++def chart_sort_key(iGroup, iRowIndex):
++	# Generate an invisible sort key for stable icon column sorting.
++	# 4 base-5 digits cover up to 624, enough for our "group" numbering (<= 140).
++	# 3 digits cover up to 124 rows.
++	return u"<font=1>" + chart_encode_base5(iGroup, 4) + chart_encode_base5(iRowIndex, 3) + u"</font>"
++
++
++
++def chart_beautify_field_name(raw_name):
++	# Convert camelCase/underscore field names to readable labels.
++	# Strips leading 'i' or 'b' prefix, replaces _ with spaces, splits camelCase, replaces Percent with %.
++	name = raw_name
++	if name.startswith("i") and len(name) > 1 and name[1].isupper():
++		name = name[1:]
++	if name.startswith("b") and len(name) > 1 and name[1].isupper():
++		name = name[1:]
++	name = re.sub(r"_", " ", name)
++	name = re.sub(r"([a-z])([A-Z])", r"\1 \2", name)
++	if name.endswith("Percent"):
++		name = name[:-len("Percent")] + "%"
++	return name
++
++
++
++def chart_beautify_enum_name(raw_name):
++	# Convert ENUM_STYLE_NAMES to Title Case Labels.
++	# Strips known prefixes, replaces _ with spaces, converts to title case.
++	name = raw_name
++	for prefix in CHART_ENUM_PREFIXES:
++		if name.startswith(prefix):
++			name = name[len(prefix):]
++			break
++	name = re.sub(r"_", " ", name)
++	return name.title()
++
++
++
++def chart_chunk_list(items, size):
++	# Split a list into chunks of given size. Returns list of lists.
++	if size <= 0:
++		return [items]
++	chunks = []
++	current = []
++	for item in items:
++		current.append(item)
++		if len(current) >= size:
++			chunks.append(current)
++			current = []
++	if current:
++		chunks.append(current)
++	return chunks
++
++
++
++def chart_format_tech_list(value, return_list, none_text, abbrev_tech_names=None):
++	# Parse a comma-separated tech list string into formatted output.
++	# value: comma-separated string of tech names/types
++	# return_list: if True, return list; if False, return joined string
++	# none_text: text to return/use when list is empty
++	# abbrev_tech_names: optional dict of {full_name: abbreviated_name}
++	if not value:
++		if return_list:
++			return []
++		return none_text
++	parts = value.split(",")
++	out = []
++	for part in parts:
++		p = part.strip()
++		if not p:
++			continue
++		# Beautify if it looks like an enum (e.g. TECH_AGRICULTURE)
++		if p.startswith("TECH_"):
++			p = chart_beautify_enum_name(p)
++		# Apply abbreviations if provided
++		if abbrev_tech_names and p in abbrev_tech_names:
++			p = abbrev_tech_names[p]
++		out.append(p)
++	if return_list:
++		return out
++	if len(out) == 0:
++		return none_text
++	return ", ".join(out)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=34180

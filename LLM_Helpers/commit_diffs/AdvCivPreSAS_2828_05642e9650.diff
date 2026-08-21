@@ -1,0 +1,308 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2828
+# Commit: 05642e9650dd8bac67708cf94115469dc902a62b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 908d32fdf8086a4102bc82c71b4285a059117ba6
+# Title: Tech hover text for missing alt. prereqs
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	16	Assets/XML/Text/BULL_CIV4GameText.xml
+56	1	Assets/XML/Text/CIV4GameText_advc.xml
+80	19	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/BULL_CIV4GameText.xml b/Assets/XML/Text/BULL_CIV4GameText.xml
+index ad9c6512a..2921d5396 100644
+--- a/Assets/XML/Text/BULL_CIV4GameText.xml
++++ b/Assets/XML/Text/BULL_CIV4GameText.xml
+@@ -283,22 +283,7 @@
+ <!-- BULL - Leaderhead Relations - end -->
+ 
+ <!-- Tech Hover -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_SPEEDS_UP</Tag>
+-		<English>[NEWLINE][ICON_BULLET]Speeds up[SPACE]</English>
+-		<French>[NEWLINE][ICON_BULLET]Acc�l�re[SPACE]</French>
+-		<German>[NEWLINE][ICON_BULLET]Beschleunigt[SPACE]</German>
+-		<Italian>[NEWLINE][ICON_BULLET]Accelera[SPACE]</Italian>
+-		<Spanish>[NEWLINE][ICON_BULLET]Acelera[SPACE]</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_SPED_UP_BY</Tag>
+-		<English>[NEWLINE][ICON_BULLET]Sped up by[SPACE]</English>
+-		<French>[NEWLINE][ICON_BULLET]Acc�l�r�e par[SPACE]</French>
+-		<German>[NEWLINE][ICON_BULLET]Beschleunigt durch[SPACE]</German>
+-		<Italian>[NEWLINE][ICON_BULLET]Accelerato da[SPACE]</Italian>
+-		<Spanish>[NEWLINE][ICON_BULLET]Acelerado por[SPACE]</Spanish>
+-	</TEXT>
++<!-- advc.910: Handled by Civ4GameText_advc.xml  -->
+ 
+ <!-- Actual Effects -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 758068c5c..4ffa55e2e 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5374,6 +5374,7 @@
+ 		<Italian>[NEWLINE][ICON_BULLET]Condurr� a[SPACE]</Italian>
+ 		<Spanish>[NEWLINE][ICON_BULLET]Llevar� a[SPACE]</Spanish>
+ 	</TEXT>
++	<!-- Moved from the BULL game text file -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_SPEEDS_UP</Tag>
+ 		<English>[NEWLINE][ICON_BULLET]Speeds up[SPACE]</English>
+@@ -5382,7 +5383,6 @@
+ 		<Italian>[NEWLINE][ICON_BULLET]Accelera:[SPACE]</Italian>
+ 		<Spanish>[NEWLINE][ICON_BULLET]Acelera:[SPACE]</Spanish>
+ 	</TEXT>
+-	<!-- (better no COLOR_POSITIVE_TEXT) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_SPEED_UP_BY_PERCENT</Tag>
+ 		<English>[SPACE]by %d1%%</English>
+@@ -5391,6 +5391,42 @@
+ 		<Italian>[SPACE]di %d1%%</Italian>
+ 		<Spanish>[SPACE]en %d1%%</Spanish>
+ 	</TEXT>
++	<!-- Gotta put red color somewhere, but don't want it to be too alarming.
++		 Coloring just the percentage seems best. -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_CAN_BE_SPED_UP_BY_PERCENT</Tag>
++		<English>[SPACE]by [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT]</English>
++		<French>[SPACE]de [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT]</French>
++		<German>[SPACE]um [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT]</German>
++		<Italian>[SPACE]di [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT]</Italian>
++		<Spanish>[SPACE]en [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_CAN_BE_SPED_UP_BY_PERCENT_EACH</Tag>
++		<English>[SPACE]by [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT] each</English>
++		<French>[SPACE]de [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT] chacune</French>
++		<German>[SPACE]um jeweils [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT]</German>
++		<Italian>[SPACE]di [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT] ciascuna</Italian>
++		<Spanish>[SPACE]en [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT] cada una</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_CAN_BE_SPED_UP_BY_ANOTHER_PERCENT</Tag>
++		<English>[SPACE]by another [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT]</English>
++		<French>[SPACE]de [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT] de plus</French>
++		<German>[SPACE]um weitere [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT]</German>
++		<Italian>[SPACE]di un altro [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT]</Italian>
++		<Spanish>[SPACE]en un [COLOR_WARNING_TEXT]%d1%%[COLOR_REVERT] m�s</Spanish>
++	</TEXT>
++	<!-- Replacing TXT_KEY_MISC_SPED_UP_BY, which I've deleted from the
++		 BULL game text file. -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_CAN_BE_SPED_UP_BY</Tag>
++		<English>[NEWLINE][ICON_BULLET]Can be sped up through[SPACE]</English>
++		<French>[NEWLINE][ICON_BULLET]Peut �tre acc�l�r� via[SPACE]</French>
++		<German>[NEWLINE][ICON_BULLET]Beschleunigung m�glich durch[SPACE]</German>
++		<Italian>[NEWLINE][ICON_BULLET]Pu� essere accelerato con[SPACE]</Italian>
++		<Spanish>[NEWLINE][ICON_BULLET]Puede acelerarse mediante[SPACE]</Spanish>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RESEARCH_MODIFIER</Tag>
+ 		<English>Research Modifier</English>
+@@ -5437,6 +5473,25 @@
+ 		<Italian>from breaking new ground</Italian>
+ 		<Spanish>from breaking new ground</Spanish>
+ 	</TEXT>
++	<!-- advc.004x: From CIV4GameTextInfos.xml. Leading bullet remove;
++		 will place that depending on context in the DLL. -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_NUM_TURNS</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]%d1_Num Turns[COLOR_REVERT]</English>
++		<French>[COLOR_HIGHLIGHT_TEXT]%d1_Num tours[COLOR_REVERT]</French>
++		<German>[COLOR_HIGHLIGHT_TEXT]%d1_Num Runden[COLOR_REVERT]</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]%d1_Num [NUM1:turno:turni][COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]%d1_Num [NUM1:turno:turnos][COLOR_REVERT]</Spanish>
++	</TEXT>
++	<!-- From Civ4GameText_BTS.xml. Bullet removed. -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_ERA_ADVANCE</Tag>
++		<English>Advances to the [COLOR_HIGHLIGHT_TEXT]%s1_era[COLOR_REVERT] Era</English>
++		<French>Avance &#224; l'&#233;poque : [COLOR_HIGHLIGHT_TEXT]%s1_era[COLOR_REVERT]</French>
++		<German>Fortschritt zum Zeitalter [COLOR_HIGHLIGHT_TEXT]%s1_era[COLOR_REVERT]</German>
++		<Italian>Avanza all'era [COLOR_HIGHLIGHT_TEXT]%s1_era[COLOR_REVERT]</Italian>
++		<Spanish>Avanza a la era [NUM1:del:de la:de los:de las] [COLOR_HIGHLIGHT_TEXT]%s1_era[COLOR_REVERT]</Spanish>
++	</TEXT>
+ 
+ 	<!-- kekm.7 (advc): From CIV4GameText_BTS.xml. Was "Cannot Nuke Friendly
+ 		 Territory or Units" - that's still true, but units don't prevent
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 0aa0c684e..e1c5f4cbe 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9427,17 +9427,19 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 	{
+ 		bFirst = buildPromotionString(szBuffer, eTech, eLoopPromotion, bFirst, true, bPlayerContext);
+ 	}
+-
+-	if (bTreeInfo && NO_TECH == eFromTech)
+-	{
+-		buildSingleLineTechTreeString(szBuffer, eTech, bPlayerContext);
+-	}
+-
++	/*	advc.910: Moved above SingleLineTechTreeString - so that the custom help text
++		(unused in BtS/AdvCiv btw) can't end up in the middle of cost-related info. */
+ 	if (!CvWString(GC.getInfo(eTech).getHelp()).empty())
+ 	{
+-		szBuffer.append(CvWString::format(L"%s%s", NEWLINE, GC.getInfo(eTech).getHelp()).c_str());
++		szBuffer.append(CvWString::format(L"%s%s", NEWLINE,
++				GC.getInfo(eTech).getHelp()).c_str());
+ 	}
+ 
++	if (bTreeInfo && eFromTech == NO_TECH)
++		buildSingleLineTechTreeString(szBuffer, eTech, bPlayerContext);
++
++	bool const bDiplo = gDLL->isDiplomacy(); // advc.004x
++
+ 	if (!bCivilopediaText)
+ 	{
+ 		if (eActivePlayer == NO_PLAYER)
+@@ -9457,17 +9459,24 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 		else
+ 		{
+ 			szBuffer.append(NEWLINE);
+-			// <advc.004x>
++			// <advc.004x> (based on BtS code)
+ 			bool bShowTurns = GET_PLAYER(eActivePlayer).isResearch();
+ 			int iTurnsLeft = (bShowTurns ? GET_PLAYER(eActivePlayer).
+-					getResearchTurnsLeft(eTech, GC.ctrlKey() || !GC.shiftKey()) : -1);
++					/*	Note: bTreeInfo is _false_ when hovering on the tech tree.
++						The Shift check is for queuing up techs; don't know what
++						the Ctrl check is for. */
++					getResearchTurnsLeft(eTech, !bTreeInfo &&
++					(GC.ctrlKey() || !GC.shiftKey())) : -1);
+ 			if (iTurnsLeft < 0)
+ 				bShowTurns = false;
+-			if(bShowTurns)
++			if (bDiplo) // To set the cost apart from trade denial text
++				szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(BULLET_CHAR)));
++			if (bShowTurns)
+ 			{
+ 				szBuffer.append(gDLL->getText("TXT_KEY_TECH_NUM_TURNS", iTurnsLeft));
+-				szBuffer.append(L' '); // advc.004x: Append this separately
+-			} // </advc.004x>
++				szBuffer.append(L' '); // Append this separately
++			}
++			// </advc.004x>
+ 			szTempBuffer.Format(L"%s%d/%d %c%s",
+ 					bShowTurns ? L"(" : L"", // advc.004x
+ 					GET_TEAM(eActiveTeam).getResearchProgress(eTech),
+@@ -9476,7 +9485,7 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 					bShowTurns ? L")" : L""); // advc.004x
+ 			szBuffer.append(szTempBuffer);
+ 			// <advc.910>
+-			if(bShowTurns && bPlayerContext)
++			if (!bDiplo && bShowTurns && bPlayerContext)
+ 				setResearchModifierHelp(szBuffer, eTech); // </advc.910>
+ 		}
+ 	}
+@@ -9500,7 +9509,15 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 			if (GET_PLAYER(eActivePlayer).getCurrentEra() < GC.getInfo(eTech).getEra())
+ 			{
+ 				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText("TXT_KEY_TECH_ERA_ADVANCE", GC.getInfo((EraTypes)GC.getInfo(eTech).getEra()).getTextKeyWide()));
++				/*	<advc.004x> Moved out of the text key. The era advance comes more down to
++					the overall game state than to the specific eTech. Shouldn't be a
++					bulleted item. (But place a bullet all the same during diplo in order
++					to set it apart from the denial text.) */
++				if (bDiplo)
++					szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(BULLET_CHAR)));
++				// </advc.004x>
++				szBuffer.append(gDLL->getText("TXT_KEY_TECH_ERA_ADVANCE",
++						GC.getInfo(GC.getInfo(eTech).getEra()).getTextKeyWide()));
+ 			}
+ 		}
+ 	}
+@@ -15970,12 +15987,35 @@ void CvGameTextMgr::buildSingleLineTechTreeString(CvWStringBuffer &szBuffer,
+ 	TechTypes eTech, bool bPlayerContext)
+ {
+ 	FAssert(eTech != NO_TECH);
+-	/*  Separate containers for techs that eTech
+-		- will immediately enable,
+-		- those that have an additional requirement which is yet unmet and
+-		- (not listed by BtS) those that are merely sped up (OR req. already met).
++	/*  Separate containers for
++		- techs that eTech will immediately enable,
++		- techs that have an additional requirement which is yet unmet
++		and - not listed by BtS -
++		- techs that are merely sped up by eTech (OR req. already met),
++		- techs that would speed up eTech if we had them (but we don't).
+ 		Put the tech cost in the first component b/c I want to sort by that. */
+-	std::vector<std::pair<int,TechTypes> > aieImmediate, aieLater, aieSpeedsUp;
++	std::vector<std::pair<int,TechTypes> > aieImmediate, aieLater,
++			aieSpeedsUp, aieMissingSpeedUps;
++	int iORReqsSatisfied = 0;
++	if (bPlayerContext)
++	{
++		PlayerTypes const eActivePlayer = GC.getGame().getActivePlayer();
++		if (!GET_TEAM(eActivePlayer).isHasTech(eTech) &&
++			GET_PLAYER(eActivePlayer).canResearch(eTech))
++		{
++			for(int i = 0; i < GC.getInfo(eTech).getNumOrTechPrereqs(); i++)
++			{
++				TechTypes eORReq = GC.getInfo(eTech).getPrereqOrTechs(i);
++				if (GET_TEAM(eActivePlayer).isHasTech(eORReq))
++					iORReqsSatisfied++;
++				else
++				{
++					aieMissingSpeedUps.push_back(std::make_pair(
++							GC.getInfo(eORReq).getResearchCost(), eORReq));
++				}
++			}
++		}
++	}
+ 	FOR_EACH_ENUM2(Tech, eLeadsTo)
+ 	{
+ 		bool bCanAlreadyResearch = false;
+@@ -16053,6 +16093,7 @@ void CvGameTextMgr::buildSingleLineTechTreeString(CvWStringBuffer &szBuffer,
+ 	std::sort(aieImmediate.begin(), aieImmediate.end());
+ 	std::sort(aieLater.begin(), aieLater.end());
+ 	std::sort(aieSpeedsUp.begin(), aieSpeedsUp.end());
++	std::sort(aieMissingSpeedUps.begin(), aieMissingSpeedUps.end());
+ 	CvWString szTempBuffer;
+ 	bool bFirst = true;
+ 	for(size_t i = 0; i < aieImmediate.size(); i++)
+@@ -16101,6 +16142,26 @@ void CvGameTextMgr::buildSingleLineTechTreeString(CvWStringBuffer &szBuffer,
+ 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_SPEED_UP_BY_PERCENT",
+ 				iSpeedUpPercent));
+ 	}
++	bFirst = true;
++	for(size_t i = 0; i < aieMissingSpeedUps.size(); i++)
++	{
++		TechTypes eORReq = aieMissingSpeedUps[i].second;
++		szTempBuffer.Format(SETCOLR L"<link=literal>%s</link>" ENDCOLR,
++				TEXT_COLOR("COLOR_TECH_TEXT"),
++				GC.getInfo(eORReq).getDescription());
++		setListHelp(szBuffer, gDLL->getText("TXT_KEY_MISC_CAN_BE_SPED_UP_BY").c_str(),
++				szTempBuffer, L", ", bFirst);
++		bFirst = false;
++	}
++	if(!aieMissingSpeedUps.empty())
++	{
++		szBuffer.append(gDLL->getText(aieMissingSpeedUps.size() > 1 ? 
++				"TXT_KEY_MISC_CAN_BE_SPED_UP_BY_PERCENT_EACH" :
++				(iORReqsSatisfied > 1 ?
++				"TXT_KEY_MISC_CAN_BE_SPED_UP_BY_ANOTHER_PERCENT" :
++				"TXT_KEY_MISC_CAN_BE_SPED_UP_BY_PERCENT"),
++				iSpeedUpPercent));
++	}
+ }
+ 
+ // Information about other prerequisite technologies to eTech besides eFromTech
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=12395

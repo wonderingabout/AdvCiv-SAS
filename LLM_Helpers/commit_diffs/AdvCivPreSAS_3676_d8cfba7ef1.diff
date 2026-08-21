@@ -1,0 +1,599 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3676
+# Commit: d8cfba7ef1da7868f9ca1c3e6e1fe01326c46e25
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4f22fa839f2e11cd2a011cfede11975e55adac62
+# Title: Refactor: Move religion tech eval into subroutine
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+273	267	CvGameCoreDLL/CvPlayerAI.cpp
+4	0	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c34545fdf..cf15bf1c5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5709,273 +5709,10 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 			iRaceModifier = rRaceMod.getPercent();
+ 			// </advc.171>
+ 			FAssert(iRaceModifier >= -100 && iRaceModifier <= 100); // K-Mod
+-
+-			ReligionTypes const eFavoriteReligion = GC.getInfo(getLeaderType()).
+-					getFavoriteReligion();
+-			// <advc.171>
+-			bool bLateFavoriteReligion = false;
+-			bool bLateReligion = false; // </advc.171>
+-			// <kekm.36>
+-			// (advc: No real need for this impromptu cache)
+-			/*static int iLaterReligions = MIN_INT;
+-			if (iLaterReligions == MIN_INT)*/
+-			int iLaterReligions = 0;
+-			FOR_EACH_ENUM(Religion)
+-			{
+-				// "Number of non-early religions, characterized by giving free missionaries."
+-				// </kekm.36>
+-				/*	<advc.171> That seems like a fragile criterion. Use that only
+-					as a fallback. */
+-				bool bLate = false;
+-				TechTypes eReligionTech = GC.getInfo(eLoopReligion).getTechPrereq();
+-				if (eReligionTech == NO_TECH)
+-				{
+-					if (GC.getInfo(eLoopReligion).getNumFreeUnits() > 0)
+-						bLate = true;
+-				}
+-				else if (GC.getInfo(eReligionTech).getEra() * 4 >= GC.getNumEraInfos() ||
+-					(GC.getInfo(eReligionTech).getEra() != GC.getGame().getStartEra() &&
+-					GC.getInfo(eReligionTech).getResearchCost() >= 175))
+-				{
+-					bLate = true;
+-				}
+-				if (bLate)
+-				{
+-					iLaterReligions++;
+-					if (eLoopReligion == eFavoriteReligion)
+-						bLateFavoriteReligion = true;
+-					if (eTech == GC.getInfo(eLoopReligion).getTechPrereq())
+-						bLateReligion = true;
+-				} // </advc.171>
+-			}
+-			int iReligionValue = 0;
+-			int iPotentialReligions = 0;
+-			int iAvailableReligions = 0; // K-Mod
+-			FOR_EACH_ENUM(Religion)
+-			{
+-				TechTypes eReligionTech = GC.getInfo(eLoopReligion).getTechPrereq();
+-				/*if (kTeam.isHasTech(eReligionTech)) {
+-					if (!(GC.getGame().isReligionSlotTaken((ReligionTypes)iJ)))
+-						iPotentialReligions++;
+-				}*/ // BtS
+-				/*	K-Mod. iPotentialReligions will only be non-zero during the
+-					first few turns of advanced start games. Otherwise it is always zero.
+-					Presumably that's what the original developers intended...
+-					so I'm going to leave that alone, and create a new value: iAvailableReligions. */
+-				if (!GC.getGame().isReligionSlotTaken(eLoopReligion))
+-				{
+-					iAvailableReligions++;
+-					if (kTeam.isHasTech(eReligionTech))
+-						iPotentialReligions++;
+-				}
+-				// K-Mod end
+-
+-				if (eReligionTech == eTech &&
+-					!GC.getGame().isReligionSlotTaken(eLoopReligion))
+-				{
+-					int iRoll = 225; // advc.171: Was 400 in BtS, 150 in K-Mod 1.46.
+-					if (!GC.getGame().isOption(GAMEOPTION_PICK_RELIGION) &&
+-						eFavoriteReligion != NO_RELIGION)
+-					{
+-						if (eLoopReligion == eFavoriteReligion)
+-						{
+-							// <advc.171>
+-							bool bPrereqFoundsReligion = false;
+-							FOR_EACH_ENUM2(Religion, ePrereqReligion)
+-							{
+-								if (ePrereqReligion == eLoopReligion ||
+-									GC.getGame().isReligionSlotTaken(ePrereqReligion))
+-								{
+-									continue;
+-								}
+-								TechTypes ePrereqTech = GC.getInfo(ePrereqReligion).
+-										getTechPrereq();
+-								if (kTeam.isHasTech(ePrereqTech))
+-									continue;
+-								/*	Would like to know whether eLoopReligion
+-									requires any other tech that will found a religion.
+-									Can't easily check that for the full path here,
+-									so I'll only check the proximate prereqs. */
+-								if (kTech.getNumOrTechPrereqs() == 1)
+-								{
+-									if (kTech.getPrereqOrTechs(0) == ePrereqTech)
+-										bPrereqFoundsReligion = true;
+-								}
+-								if (!bPrereqFoundsReligion)
+-								{
+-									for (int i = 0; i < kTech.getNumAndTechPrereqs(); i++)
+-									{
+-										if (kTech.getPrereqAndTechs(i) == ePrereqTech)
+-										{
+-											bPrereqFoundsReligion = true;
+-											break;
+-										}
+-									}
+-								}
+-								if (bPrereqFoundsReligion)
+-									break;
+-							}
+-							if (bPrereqFoundsReligion)
+-								iRoll = iRoll * 3/4;
+-							/*	(In addition to multi-religion
+-								discouragement farther below) */
+-							else if (countHolyCities() > 0)
+-								iRoll = iRoll * 4/3;
+-							else iRoll = iRoll * 5/3; // was *3/2
+-							// </advc.171>
+-						}
+-						else iRoll = iRoll * /*2/3*/ 6/10; // advc.171
+-					}
+-					iRoll *= 200 + iRaceModifier;
+-					iRoll /= 200;
+-					{
+-						int const iRaceModThresh = 10;
+-						if (iRaceModifier > iRaceModThresh &&
+-							AI_getFlavorValue(FLAVOR_RELIGION) > 0)
+-						{
+-							iReligionValue += (iRoll *
+-									(iRaceModifier - iRaceModThresh)) / 300;
+-						}
+-					}
+-					// <advc.171> Dial down the randomness
+-					iReligionValue += (iRoll * 32) / 100;
+-					iRoll = (iRoll * 36) / 100; // </advc.171>
+-					if (bRandomize)
+-					{
+-						iReligionValue += kRand.get(iRoll, "AI Research Religion");
+-						/*	Note: relation value will be scaled down by other factors
+-							in the next section. */
+-						iRandomMax += iRoll; // (Note: doesn't include later factors)
+-					}
+-					else iReligionValue += iRoll / 2; // advc
+-				}
+-			}
+-
+-			if (iReligionValue > 0)
+-			{
+-				if (AI_atVictoryStage(AI_VICTORY_CULTURE1))
+-				{
+-					iReligionValue += 50; // k146: was 100
+-					if (countHolyCities() < 1)
+-					{
+-						//iReligionValue += 200;
+-						// k146: Replacing the line above
+-						iReligionValue += (iCityCount > 1 ? 100 : 0);
+-					}
+-				}
+-				else
+-				{
+-					iReligionValue /= 1 + countHolyCities() +
+-							(iPotentialReligions > 0 ? 1 : 0);
+-				}
+-				if (countTotalHasReligion() == 0 && iPotentialReligions == 0)
+-				{
+-					bool bNeighbouringReligions = false;
+-					for (PlayerIter<MAJOR_CIV,KNOWN_TO> itOther(getTeam());
+-						itOther.hasNext(); ++itOther)
+-					{
+-						if (itOther->getID() == getID())
+-							continue;
+-						if (getStateReligion() != NO_RELIGION &&
+-							// <advc.001>
+-							((getTeam() != itOther->getTeam() &&
+-							kTeam.AI_hasSharedPrimaryArea(itOther->getTeam())) ||
+-							(getTeam() == itOther->getTeam() &&
+-							getID() != itOther->getID() &&
+-							AI_hasSharedPrimaryArea(itOther->getID()))))
+-						/*  The case where both civs are on the same team previously led
+-							to a failed assertion in CvTeamAI::hasSharedPrimaryArea.
+-							Added a new clause that checks if the civs (not their teams)
+-							share a primary area. Rationale: If a team member on the same
+-							continent has already founded a religion, we should be
+-							less inclined to found another (will soon spread to us). */
+-							// </advc.001>
+-						{
+-							bNeighbouringReligions = true;
+-							break;
+-						}
+-					}
+-					if (!bNeighbouringReligions)
+-					{
+-						iReligionValue += 30; // advc.171: was 20
+-						if (AI_getFlavorValue(FLAVOR_RELIGION) > 0)
+-							iReligionValue += 28 + 4 * AI_getFlavorValue(FLAVOR_RELIGION);
+-						if (AI_atVictoryStage(AI_VICTORY_CULTURE1))
+-							iReligionValue += 84;
+-					}
+-					/*if (100 * GC.getGame().getElapsedGameTurns() <
+-						32 * GC.getInfo(GC.getGame().getGameSpeedType()).
+-						getResearchPercent())*/
+-					// <advc.171> More rational behavior for early religions
+-					if (!bLateReligion)
+-					{
+-						scaled rUtility = 30;
+-						rUtility += AI_getHappinessWeight(1, 2);
+-						scaled rPoorCultureCities;
+-						if (!AI_isEasyCulture())
+-						{
+-							FOR_EACH_CITYAI(pCity, *this)
+-							{
+-								if (pCity->AI_needsCultureToWorkFullRadius())
+-									rPoorCultureCities++;
+-							}
+-							if (getNumCities() == 1 && AI_getNumCitySites() > 0)
+-							{	// Making the 2nd city holy would be best ...
+-								if (AI_getNumAIUnits(UNITAI_SETTLE) > 0)
+-									rPoorCultureCities++;
+-								/*	... but fast border spread in the capital is also
+-									likely to help. */
+-								else if (AI_getNumTrainAIUnits(UNITAI_SETTLE) > 0)
+-									rPoorCultureCities += fixp(0.5);
+-							}
+-						}
+-						rUtility += rPoorCultureCities * 50;
+-						scaled rAvailWeight = 2;
+-						if (bLateFavoriteReligion)
+-							rAvailWeight -= fixp(3/4.);
+-						else if (AI_getFlavorValue(FLAVOR_RELIGION) > 0)
+-							rAvailWeight += 1;
+-						rUtility *= 1 + rAvailWeight * (1 - scaled(std::max(1,
+-								iAvailableReligions - iLaterReligions),
+-								GC.getNumReligionInfos() - iLaterReligions));
+-						if (!bNeighbouringReligions)
+-							rUtility *= fixp(4/3.);
+-						if (AI_getFlavorValue(FLAVOR_RELIGION) > 0)
+-							rUtility *= fixp(4/3.);
+-						iReligionValue += rUtility.uround();
+-					}
+-					else
+-					/*	(K-Mod had used this logic after 32 turns; now only for
+-						the non-ancient religions.) */ // </advc.171>
+-					{
+-						if (!bNeighbouringReligions)
+-							iReligionValue += 50;
+-						int iAvailMult = 1;
+-						/*	kekm.36: Was <= 4.
+-							"I assume that [...] means the number of non-early religions" */
+-						if (iAvailableReligions <= iLaterReligions ||
+-							AI_getFlavorValue(FLAVOR_RELIGION) > 0)
+-						{	// advc.171: Was max(0,...); future-proofing.
+-							iAvailMult = std::max(1, 6 - iAvailableReligions);
+-						}
+-						if (iAvailMult > 1)
+-						{
+-							iReligionValue *= 2;
+-							iReligionValue += 56;
+-						}
+-						else iReligionValue = iReligionValue * 3/2;
+-						iReligionValue += iAvailMult * 28;
+-					}
+-				}
+-				if (AI_isDoStrategy(AI_STRATEGY_DAGGER))
+-					iReligionValue /= 2;
+-				scaled rCityMult(std::min(iCityCount, iCityTarget),
+-						std::max(1, iCityTarget));
+-				// <advc.171> Don't make it proportional to the city count
+-				rCityMult.exponentiate(fixp(0.85));
+-				rCityMult /= fixp(1.5); // </advc.171>
+-				iValue += (iReligionValue * rCityMult)/* advc.171: */.uround();
+-			}
++			// <advc> Moved into subroutine
++			iValue += AI_techReligionValue(eTech, iPathLength,
++					iRaceModifier, iCityTarget,
++					kRand, iRandomMax, bRandomize); // </advc>
+ 
+ 			/*	K-Mod note: I've moved corporation value outside of this block.
+ 				(because you don't need to be first to the tech to get the corp!) */
+@@ -7177,6 +6914,275 @@ int CvPlayerAI::AI_techProjectValue(TechTypes eTech,
+ 	return iValue;
+ } // </k146>
+ 
++// advc: Based on code cut from AI_techValue
++int CvPlayerAI::AI_techReligionValue(TechTypes eTech, int iPathLength,
++	int iRaceModifier, int iCityTarget,
++	CvRandom& kRand, int& iRandomMax, bool bRandomize) const
++{
++	CvTechInfo const& kTech = GC.getInfo(eTech);
++	ReligionTypes const eFavoriteReligion = GC.getInfo(getLeaderType()).
++			getFavoriteReligion();
++	// <advc.171>
++	bool bLateFavoriteReligion = false;
++	bool bLateReligion = false; // </advc.171>
++	// <kekm.36>
++	// (advc: No real need for this impromptu cache)
++	/*static int iLaterReligions = MIN_INT;
++	if (iLaterReligions == MIN_INT)*/
++	int iLaterReligions = 0;
++	FOR_EACH_ENUM(Religion)
++	{
++		// "Number of non-early religions, characterized by giving free missionaries."
++		// </kekm.36>
++		/*	<advc.171> That seems like a fragile criterion. Use that only
++			as a fallback. */
++		bool bLate = false;
++		TechTypes eReligionTech = GC.getInfo(eLoopReligion).getTechPrereq();
++		if (eReligionTech == NO_TECH)
++		{
++			if (GC.getInfo(eLoopReligion).getNumFreeUnits() > 0)
++				bLate = true;
++		}
++		else if (GC.getInfo(eReligionTech).getEra() * 4 >= GC.getNumEraInfos() ||
++			(GC.getInfo(eReligionTech).getEra() != GC.getGame().getStartEra() &&
++			GC.getInfo(eReligionTech).getResearchCost() >= 175))
++		{
++			bLate = true;
++		}
++		if (bLate)
++		{
++			iLaterReligions++;
++			if (eLoopReligion == eFavoriteReligion)
++				bLateFavoriteReligion = true;
++			if (eTech == GC.getInfo(eLoopReligion).getTechPrereq())
++				bLateReligion = true;
++		} // </advc.171>
++	}
++	int iReligionValue = 0;
++	int iPotentialReligions = 0;
++	int iAvailableReligions = 0; // K-Mod
++	FOR_EACH_ENUM(Religion)
++	{
++		TechTypes eReligionTech = GC.getInfo(eLoopReligion).getTechPrereq();
++		/*if (kTeam.isHasTech(eReligionTech)) {
++			if (!(GC.getGame().isReligionSlotTaken((ReligionTypes)iJ)))
++				iPotentialReligions++;
++		}*/ // BtS
++		/*	K-Mod. iPotentialReligions will only be non-zero during the
++			first few turns of advanced start games. Otherwise it is always zero.
++			Presumably that's what the original developers intended...
++			so I'm going to leave that alone, and create a new value: iAvailableReligions. */
++		if (!GC.getGame().isReligionSlotTaken(eLoopReligion))
++		{
++			iAvailableReligions++;
++			if (GET_TEAM(getTeam()).isHasTech(eReligionTech))
++				iPotentialReligions++;
++		} // K-Mod end
++		if (eReligionTech == eTech &&
++			!GC.getGame().isReligionSlotTaken(eLoopReligion))
++		{
++			int iRoll = 225; // advc.171: Was 400 in BtS, 150 in K-Mod 1.46.
++			if (!GC.getGame().isOption(GAMEOPTION_PICK_RELIGION) &&
++				eFavoriteReligion != NO_RELIGION)
++			{
++				if (eLoopReligion == eFavoriteReligion)
++				{
++					// <advc.171>
++					bool bPrereqFoundsReligion = false;
++					FOR_EACH_ENUM2(Religion, ePrereqReligion)
++					{
++						if (ePrereqReligion == eLoopReligion ||
++							GC.getGame().isReligionSlotTaken(ePrereqReligion))
++						{
++							continue;
++						}
++						TechTypes ePrereqTech = GC.getInfo(ePrereqReligion).
++								getTechPrereq();
++						if (GET_TEAM(getTeam()).isHasTech(ePrereqTech))
++							continue;
++						/*	Would like to know whether eLoopReligion requires any
++							other tech that will found a religion. Can't easily check
++							that for the full path here, so I'll only check the
++							proximate prereqs. */
++						if (kTech.getNumOrTechPrereqs() == 1)
++						{
++							if (kTech.getPrereqOrTechs(0) == ePrereqTech)
++								bPrereqFoundsReligion = true;
++						}
++						if (!bPrereqFoundsReligion)
++						{
++							for (int i = 0; i < kTech.getNumAndTechPrereqs(); i++)
++							{
++								if (kTech.getPrereqAndTechs(i) == ePrereqTech)
++								{
++									bPrereqFoundsReligion = true;
++									break;
++								}
++							}
++						}
++						if (bPrereqFoundsReligion)
++							break;
++					}
++					if (bPrereqFoundsReligion)
++						iRoll = iRoll * 3/4;
++					/*	(In addition to multi-religion
++						discouragement farther below) */
++					else if (countHolyCities() > 0)
++						iRoll = iRoll * 4/3;
++					else iRoll = iRoll * 5/3; // was *3/2
++					// </advc.171>
++				}
++				else iRoll = iRoll * /*2/3*/ 6/10; // advc.171
++			}
++			iRoll *= 200 + iRaceModifier;
++			iRoll /= 200;
++			{
++				int const iRaceModThresh = 10;
++				if (iRaceModifier > iRaceModThresh &&
++					AI_getFlavorValue(FLAVOR_RELIGION) > 0)
++				{
++					iReligionValue += (iRoll *
++							(iRaceModifier - iRaceModThresh)) / 300;
++				}
++			}
++			// <advc.171> Dial down the randomness
++			iReligionValue += (iRoll * 32) / 100;
++			iRoll = (iRoll * 36) / 100; // </advc.171>
++			if (bRandomize)
++			{
++				iReligionValue += kRand.get(iRoll, "AI Research Religion");
++				/*	Note: relation value will be scaled down by other factors
++					in the next section. */
++				iRandomMax += iRoll; // (Note: doesn't include later factors)
++			}
++			else iReligionValue += iRoll / 2; // advc
++		}
++	}
++	if (iReligionValue <= 0)
++		return 0;
++	if (AI_atVictoryStage(AI_VICTORY_CULTURE1))
++	{
++		iReligionValue += 50; // k146: was 100
++		if (countHolyCities() < 1)
++		{
++			//iReligionValue += 200;
++			// k146: Replacing the line above
++			iReligionValue += (getNumCities() > 1 ? 100 : 0);
++		}
++	}
++	else
++	{
++		iReligionValue /= 1 + countHolyCities() +
++				(iPotentialReligions > 0 ? 1 : 0);
++	}
++	if (countTotalHasReligion() == 0 && iPotentialReligions == 0)
++	{
++		bool bNeighbouringReligions = false;
++		for (PlayerIter<MAJOR_CIV,KNOWN_TO> itOther(getTeam());
++			itOther.hasNext(); ++itOther)
++		{
++			if (itOther->getID() == getID())
++				continue;
++			if (getStateReligion() != NO_RELIGION &&
++				// <advc.001>
++				((getTeam() != itOther->getTeam() &&
++				GET_TEAM(getTeam()).AI_hasSharedPrimaryArea(itOther->getTeam())) ||
++				(getTeam() == itOther->getTeam() &&
++				getID() != itOther->getID() &&
++				AI_hasSharedPrimaryArea(itOther->getID()))))
++			/*	The case where both civs are on the same team previously led to a
++				failed assertion in CvTeamAI::hasSharedPrimaryArea. Added a new clause
++				that checks if the civs (not their teams) share a primary area. Rationale:
++				If a team member on the same continent has already founded a religion,
++				we should be less inclined to found another (will soon spread to us). */
++				// </advc.001>
++			{
++				bNeighbouringReligions = true;
++				break;
++			}
++		}
++		if (!bNeighbouringReligions)
++		{
++			iReligionValue += 30; // advc.171: was 20
++			if (AI_getFlavorValue(FLAVOR_RELIGION) > 0)
++				iReligionValue += 28 + 4 * AI_getFlavorValue(FLAVOR_RELIGION);
++			if (AI_atVictoryStage(AI_VICTORY_CULTURE1))
++				iReligionValue += 84;
++		}
++		/*if (100 * GC.getGame().getElapsedGameTurns() <
++			32 * GC.getInfo(GC.getGame().getGameSpeedType()).
++			getResearchPercent())*/
++		// <advc.171> More rational behavior for early religions
++		if (!bLateReligion)
++		{
++			scaled rUtility = 30;
++			rUtility += AI_getHappinessWeight(1, 2);
++			scaled rPoorCultureCities;
++			if (!AI_isEasyCulture())
++			{
++				FOR_EACH_CITYAI(pCity, *this)
++				{
++					if (pCity->AI_needsCultureToWorkFullRadius())
++						rPoorCultureCities++;
++				}
++				if (getNumCities() == 1 && AI_getNumCitySites() > 0)
++				{	// Sanctifying the 2nd city would be best ...
++					if (AI_getNumAIUnits(UNITAI_SETTLE) > 0)
++						rPoorCultureCities++;
++					/*	... but fast border spread in the capital is also
++						likely to help. */
++					else if (AI_getNumTrainAIUnits(UNITAI_SETTLE) > 0)
++						rPoorCultureCities += fixp(0.5);
++				}
++			}
++			rUtility += rPoorCultureCities * 50;
++			scaled rAvailWeight = 2;
++			if (bLateFavoriteReligion)
++				rAvailWeight -= fixp(3/4.);
++			else if (AI_getFlavorValue(FLAVOR_RELIGION) > 0)
++				rAvailWeight += 1;
++			rUtility *= 1 + rAvailWeight * (1 - scaled(std::max(1,
++					iAvailableReligions - iLaterReligions),
++					GC.getNumReligionInfos() - iLaterReligions));
++			if (!bNeighbouringReligions)
++				rUtility *= fixp(4/3.);
++			if (AI_getFlavorValue(FLAVOR_RELIGION) > 0)
++				rUtility *= fixp(4/3.);
++			iReligionValue += rUtility.uround();
++		}
++		else
++		/*	(K-Mod had used this logic after 32 turns; now only for
++			the non-ancient religions.) */ // </advc.171>
++		{
++			if (!bNeighbouringReligions)
++				iReligionValue += 50;
++			int iAvailMult = 1;
++			/*	kekm.36: Was <= 4.
++				"I assume that [...] means the number of non-early religions" */
++			if (iAvailableReligions <= iLaterReligions ||
++				AI_getFlavorValue(FLAVOR_RELIGION) > 0)
++			{	// advc.171: Was max(0,...); future-proofing.
++				iAvailMult = std::max(1, 6 - iAvailableReligions);
++			}
++			if (iAvailMult > 1)
++			{
++				iReligionValue *= 2;
++				iReligionValue += 56;
++			}
++			else iReligionValue = iReligionValue * 3/2;
++			iReligionValue += iAvailMult * 28;
++		}
++	}
++	if (AI_isDoStrategy(AI_STRATEGY_DAGGER))
++		iReligionValue /= 2;
++	scaled rCityMult(std::min(getNumCities(), iCityTarget),
++			std::max(1, iCityTarget));
++	// <advc.171> Don't make it proportional to the city count
++	rCityMult.exponentiate(fixp(0.85));
++	rCityMult /= fixp(1.5); // </advc.171>
++	return (iReligionValue * rCityMult)/* advc.171: */.uround();
++}
++
+ int CvPlayerAI::AI_cultureVictoryTechValue(TechTypes eTech) const
+ {
+ 	if (eTech == NO_TECH)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 3246075f2..9bc0e004e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -189,6 +189,10 @@ public:
+ 	// BETTER_BTS_AI_MOD: END
+ 	// k146:
+ 	int AI_techProjectValue(TechTypes eTech, int iPathLength, bool &bEnablesProjectWonder) const;
++	// <advc>
++	int AI_techReligionValue(TechTypes eTech, int iPathLength,
++			int iRaceModifier, int iCityTarget,
++			CvRandom& kRand, int& iRandomMax, bool bRandomize) const; // </advc>
+ 	int AI_cultureVictoryTechValue(TechTypes eTech) const;
+ 
+ 	void AI_chooseFreeTech(/* advc.121: */ bool bEndOfTurn = false);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=20050

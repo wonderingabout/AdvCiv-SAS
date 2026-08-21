@@ -1,0 +1,114 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4709
+# Commit: 98548c0bedbbdec0280a83a1318282b4eaaad615
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 306f11c5df759d9c1debd1705a9ebba2f6597f6b
+# Title: add initial/early functionnal spacing in/between ai aggregates anyways
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+35	21	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index cf5540c6b..dbf029412 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -71,7 +71,7 @@ AI_ATTRIBUTE_CATEGORIES = {
+ 		("Tech Trade Known %", "getTechTradeKnownPercent"),
+ 		("Declare War Trade Rand", "getDeclareWarTradeRand"),
+ 	],
+-	"Victory Strategy": [
++	"Victory Strategy (currently not working)": [
+ 		("Culture Victory Weight", "getCultureVictoryWeight"),
+ 		("Space Victory Weight", "getSpaceVictoryWeight"),
+ 		("Conquest Victory Weight", "getConquestVictoryWeight"),
+@@ -565,23 +565,30 @@ class SevoPediaLeader:
+ 
+ 		# Same categories as before, with Aggregates inserted
+ 		left_categories = ["War Strategy", AGGREGATES_HEADER]
+-		right_categories = ["Diplomacy", "Attitude Modifiers", "Economic Preferences", "Trade Thresholds", "Victory Strategy"]
+-
+-		attr_types = {
+-			"War Strategy": "threat",
+-			"Diplomacy": "diplomacy",
+-			"Victory Strategy": "efficiency",
+-			"Economic Preferences": "efficiency",
+-			"Attitude Modifiers": "diplomacy",
+-			"Trade Thresholds": "diplomacy",
+-			"Aggregates": "efficiency"
+-		}
+-
+-		symbols = {
+-			"threat": "#",
+-			"efficiency": ">",
+-			"diplomacy": "="
+-		}
++		right_categories = ["Diplomacy", "Attitude Modifiers", "Economic Preferences", "Trade Thresholds", "Victory Strategy (currently not working)"]
++
++		# <!-- custom: currently if not always logic not used of different symbols for different categories,
++		# may be useful or not keeping as is or not, anyways
++		# -->
++		#attr_types = {
++		#	"War Strategy": "threat",
++		#	"Diplomacy": "diplomacy",
++		#	"Victory Strategy (currently not working)": "efficiency",
++		#	"Economic Preferences": "efficiency",
++		#	"Attitude Modifiers": "diplomacy",
++		#	"Trade Thresholds": "diplomacy",
++		#	"Aggregates": "efficiency"
++		#}
++
++		# <!-- custom: also note alternative symbols to consider too maybe:
++		# "+", "o" (the letter o renders quite well but anyways)
++
++
++		#symbols = {
++		#	"threat": "#",
++		#	"efficiency": ">",
++		#	"diplomacy": "="
++		#}
+ 
+ 		inverse_logic = [
+ 			"getDogpileWarRand", "getDemandRebukedWarProb", "getDeclareWarTradeRand",
+@@ -604,9 +611,13 @@ class SevoPediaLeader:
+ 				y += lineHeight
+ 
+ 				if category == AGGREGATES_HEADER:
+-					for label, fields in AI_AGGREGATES:
++					for idx, (label, fields) in enumerate(AI_AGGREGATES):
++						if idx in [6, 13]:  # or whatever indexes separate groups (War/Diplomacy/Economic/etc.)
++							y += categorySpacing
++
+ 						score = calculate_aggregate(leader, fields)
+ 						symbols_used = get_symbol_scale(score)
++						
+ 						screen.setText(self.top.getNextWidgetName(), "", u"<font=2>%s</font>" % label,
+ 									   CvUtil.FONT_LEFT_JUSTIFY, xName, y, 0, FontTypes.SMALL_FONT,
+ 									   WidgetTypes.WIDGET_GENERAL, -1, -1)
+@@ -619,8 +630,11 @@ class SevoPediaLeader:
+ 						y += lineHeight
+ 					continue
+ 
+-				attrType = attr_types.get(category, "efficiency")
+-				symbol = symbols.get(attrType, ">")
++				# <!-- custom: currently if not always logic not used of different symbols for different categories,
++				# may be useful or not keeping as is or not, anyways
++				#attrType = attr_types.get(category, "efficiency")
++				#symbol = symbols.get(attrType, ">")
++				# -->
+ 
+ 				for label, funcName in AI_ATTRIBUTE_CATEGORIES.get(category, []):
+ 					try:
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3442

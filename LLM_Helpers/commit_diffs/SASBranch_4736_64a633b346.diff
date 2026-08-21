@@ -1,0 +1,189 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4736
+# Commit: 64a633b346b24802bf40300500fafa1fbbc6d7ee
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 000be3f76c4c4ebac3f45023b081303d7aa3787e
+# Title: (quite) minor ai attribute adjustments in ai personality panels + (quite?(too??)) minor other changes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	7	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+20	20	Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+1	1	Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 6ad582704..13036ef14 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -160,11 +160,6 @@ def do_sanity_checks_after_ai_value_ranges_caching():
+ 		if (curr_val_to_test < min_val_found) or (curr_val_to_test > max_val_found):
+ 			raise ValueError("[FATAL] At AI_VALUE_RANGES post-processing('s) testing, in attr=%s and in leader=%s, curr_val_to_test=%d cannot be strictly out of bounds of min_val_found=%d and max_val_found=%d")
+ 
+-def check_excluded_leaders_are_excluded_from_ai_attribute_data():
+-	for excluded_leader_key in EXCLUDED_LEADERS:
+-		if (excluded_leader_key in AI_ATTRIBUTE_DATA.keys()):
+-			raise KeyError("[FATAL] During sanity checks testing, (excluded) leader_key=%s was assessed to not be properly excluded from the calculations and is part of the AI_ATTRIBUTE_DATA." % excluded_leader_key)
+-
+ # --- Cache per-leader attributes (with final (value, scale) tuples only ---
+ def cache_ai_attribute_data():
+ 	"""
+@@ -281,8 +276,14 @@ def cache_ai_attribute_data():
+ 		else:
+ 			raise ValueError("[VALUE ERROR] No AI attribute data found for leader_key %s" % leader_key)
+ 
++def check_excluded_leaders_are_excluded_from_ai_attribute_data():
++	for excluded_leader_key in EXCLUDED_LEADERS:
++		if (excluded_leader_key in AI_ATTRIBUTE_DATA.keys()):
++			raise KeyError("[FATAL] During sanity checks testing, (excluded) leader_key=%s was assessed to not be properly excluded from the calculations and is part of the AI_ATTRIBUTE_DATA." % excluded_leader_key)
++
+ # <!-- custom: also check for missing (compatible ai attributes as compared to what is parsed in leaders_data.py to make sure we didn't miss any (attribute)) -->
+ def ensure_no_compatible_attrs_overlooked_from_leaders_data_in_ai_attribute_data_after_caching():
++	# <!-- custom: testing for only one leader (any) after all are parsed should be enough, no need to test for all as they have the same structure if i am not mistaken anyways etc -->
+ 	leader_key_for_test = "LEADER_CATHERINE"
+ 	cached_ai_attribute_attrs = AI_ATTRIBUTE_DATA[leader_key_for_test].keys()
+ 	test_leader_data = PARSED_XML_LEADERS_DATA[leader_key_for_test]
+@@ -301,9 +302,8 @@ do_sanity_checks_after_ai_value_ranges_caching()
+ 
+ test_expected_shifting_pre_normalize_to_100()
+ cache_ai_attribute_data()
++# <!-- custom: make sure our just/newly stored values in AI_ATTRIBUTE_DATA are reliable at least quite a bit maybe anyways etc anyways etc -->
+ check_excluded_leaders_are_excluded_from_ai_attribute_data()
+-
+-# <!-- custom: make sure our just/newly stored values in AI_ATTRIBUTE_DATA are reliable at least quite a bit maybe anyways etc anyways etc, testing for only one leader (any) after all are parsed should be enough, no need to test for all as they have the same structure if i am not mistaken anyways etc -->
+ ensure_no_compatible_attrs_overlooked_from_leaders_data_in_ai_attribute_data_after_caching()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py b/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+index 362b66dc7..f01046e37 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+@@ -16,11 +16,11 @@ AI_HEADER_NEGATIVE_MEMORY_RESENTMENTS = "Negative Memories Resentments"
+ AI_HEADER_NO_WAR_AT = "No War At"
+ AI_HEADER_FLAVORS = "Flavors"
+ AI_HEADER_WAR_STRATEGY = "War Strategy"
+-AI_HEADER_RELIGIONS_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS = "Attitude Changes +/- Limits +/- Divisors"
++AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS = "Attitude Changes +/- Limits +/- Divisors"
+ AI_HEADER_ECONOMIC_PREFERENCES = "Economic Preferences"
+ AI_HEADER_OFFER_REFUSE_ATTITUDE_THRESHOLDS = "Offer Refuse Attitude Thresholds"
+ AI_HEADER_DEMAND_REFUSE_ATTITUDE_THRESHOLDS = "Demand Refuse Attitude Thresholds"
+-AI_HEADER_MODIFIERS = "Misc Modifiers"
++AI_HEADER_MISC_MODIFIERS = "Misc Modifiers"
+ 
+ 
+ 
+@@ -31,6 +31,7 @@ AI_PANEL_RIGHT_CATEGORIES = (
+ 	AI_HEADER_AGGREGATED_CONTACT_DEMAND_PROBABILITIES,
+ 	AI_HEADER_OFFER_REFUSE_ATTITUDE_THRESHOLDS,
+ 	AI_HEADER_DEMAND_REFUSE_ATTITUDE_THRESHOLDS,
++	AI_HEADER_MISC_MODIFIERS,
+ )
+ AI_PANEL_MIDDLE_CATEGORIES = (
+ 	AI_HEADER_POSITIVE_MEMORY_AFFECTIONS,
+@@ -38,14 +39,13 @@ AI_PANEL_MIDDLE_CATEGORIES = (
+ 	AI_HEADER_NEGATIVE_MEMORY_RESENTMENTS,
+ 	# <!-- custom: not used in AdvCiv-AdvCiv-SAS's data, no masochistic :o (would be fun even nice maybe but anyways, not that i dislike nor do i especially want.. but anyways etc anyways...) AI in AdvCiv/AdvCiv-SAS at least not now hehe (i don't think i'll change it (for AdvCiv-SAS i or the AdvCiv-SAS authors (including becomingthrough/chatgpt at least hehe but anyways) hehe will change it anyways etc), but if i want the tools are there, anyways etc anyways) AI_HEADER_NEGATIVE_MEMORY_AFFECTIONS, -->
+ 	AI_HEADER_NO_WAR_AT,
+-	AI_HEADER_MODIFIERS,
++	AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS,
+ )
+ AI_PANEL_LEFT_CATEGORIES = (
+ 	AI_HEADER_CORE_PERSONALITY,
+ 	AI_HEADER_VICTORY_WEIGHTS,
+ 	AI_HEADER_FLAVORS,
+ 	AI_HEADER_WAR_STRATEGY,
+-	AI_HEADER_RELIGIONS_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS,
+ )
+ 
+ 
+@@ -301,7 +301,6 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
+ 		("Better Rank AC", "iBetterRankDifferenceAttitudeChange", ""),
+ 		("Warmonger Resp", "iWarmongerRespect", ""),
+ 		("CloseBordersSpark", "iCloseBordersAttitudeChange", ""),
+-		("RefToTalkW Span", "iRefuseToTalkWarThreshold", ""),
+         ("Espionage Weig", "iEspionageWeight", ""),
+ 
+ 	),
+@@ -355,6 +354,8 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
+ 		("TribRef W%", "iDemandRebukedWarProb", ""),
+         ("Raz C %", "iRazeCityProb", ""),
+         ("Build Unit %", "iBuildUnitProb", ""),
++		("ResistCapitulP.M", "iVassalPowerModifier", ""),
++		("RefToTalkW Span", "iRefuseToTalkWarThreshold", ""),
+         ("MakePeaceLikely", "iMakePeaceRand", ""),
+ 	),
+ 
+@@ -394,35 +395,34 @@ DISPLAYED_AI_ATTRIBUTE_CATEGORIES = {
+ 	),
+ 
+ 	# 📉 ACs +/- Limits
+-	AI_HEADER_RELIGIONS_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS: (
+-        ("Lost W AC", "iLostWarAttitudeChange", ""),
+-		("At W AD", "iAtWarAttitudeDivisor", ""),
+-		("At W ACL", "iAtWarAttitudeChangeLimit", ""),
+-		("At Peace AD", "iAtPeaceAttitudeDivisor", ""),
+-		("At Peace ACL", "iAtPeaceAttitudeChangeLimit", ""),
++	AI_HEADER_ATTITUDE_CHANGES_OR_AND_LIMITS_OR_AND_DIVISORS: (
+ 		("Same Religion AC", "iSameReligionAttitudeChange", ""),
+ 		("Same Religion AD", "iSameReligionAttitudeDivisor", ""),
+ 		("Same Religion ACL", "iSameReligionAttitudeChangeLimit", ""),
+         ("Diff.Religion AC", "iDifferentReligionAttitudeChange", ""),
+ 		("Diff.Religion AD", "iDifferentReligionAttitudeDivisor", ""),
+ 		("Diff.Religion ACL", "iDifferentReligionAttitudeChangeLimit", ""),
+-        ("Bonus Tr AD", "iBonusTradeAttitudeDivisor", ""),
++		("Favorite Civic AC", "iFavoriteCivicAttitudeChange", ""),
++		("Favorite Civic AD", "iFavoriteCivicAttitudeDivisor", ""),
++		("Favorite Civic ACL", "iFavoriteCivicAttitudeChangeLimit", ""),
++		("Lost W AC", "iLostWarAttitudeChange", ""),
++		("At W AD", "iAtWarAttitudeDivisor", ""),
++		("At W ACL", "iAtWarAttitudeChangeLimit", ""),
++		("At Peace AD", "iAtPeaceAttitudeDivisor", ""),
++		("At Peace ACL", "iAtPeaceAttitudeChangeLimit", ""),
++		("Share W AC", "iShareWarAttitudeChange", ""),
++		("Share W AD", "iShareWarAttitudeDivisor", ""),
++		("Share W ACL", "iShareWarAttitudeChangeLimit", ""),
++		("Bonus Tr AD", "iBonusTradeAttitudeDivisor", ""),
+ 		("Bonus Tr ACL", "iBonusTradeAttitudeChangeLimit", ""),
+ 		("Open Borders AD", "iOpenBordersAttitudeDivisor", ""),
+ 		("Open Borders ACL", "iOpenBordersAttitudeChangeLimit", ""),
+ 		("Defensive Pact AD", "iDefensivePactAttitudeDivisor", ""),
+ 		("Defensive Pact ACL", "iDefensivePactAttitudeChangeLimit", ""),
+-		("Share W AC", "iShareWarAttitudeChange", ""),
+-		("Share W AD", "iShareWarAttitudeDivisor", ""),
+-		("Share W ACL", "iShareWarAttitudeChangeLimit", ""),
+-    	("Favorite Civic AC", "iFavoriteCivicAttitudeChange", ""),
+-		("Favorite Civic AD", "iFavoriteCivicAttitudeDivisor", ""),
+-		("Favorite Civic ACL", "iFavoriteCivicAttitudeChangeLimit", ""),
+ 	),
+ 
+ 	# 🔧 Misc Modifiers
+-	AI_HEADER_MODIFIERS: (
+-		("Vassal P.Modif", "iVassalPowerModifier", ""),
++	AI_HEADER_MISC_MODIFIERS: (
+         ("FreedomApprec", "iFreedomAppreciation", ""),
+ 	),
+ }
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+index 3b56767a7..e062c3291 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+@@ -83,7 +83,7 @@ def normalize_to_100(value, min_val, max_val, invert, attr_name=""):
+ 	- Shifts for non-zero minimums:
+ 	  - If min_val < 0, shifts range upwards.
+ 	  - If min_val > 0, shifts range downwards.
+-	- Normalizes shifted_min / shifted_max.
++	- Normalizes shifted_value / shifted_max.
+ 	- Optionally inverts the normalized value.
+ 	- Converts final normalized value to 0–100 integer.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=9187

@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1933
+# Commit: 109e9296282a553dd8961dede347df77c98e5cad
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 37fa9f1674b169b48d144948fbbef4a730754c3e
+# Title: Fix two recently introduced bugs in CvUnitAI
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvUnit.cpp
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 4fff63945..c1ae37bdf 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -9559,7 +9559,7 @@ void CvUnit::setTransportUnit(CvUnit* pTransportUnit)
+ 
+ 	if (pTransportUnit != NULL)
+ 	{
+-		FAssertMsg(pTransportUnit->cargoSpaceAvailable(getSpecialUnitType(), getDomainType()) > 0, "Cargo space is expected to be available");
++		FAssert(pTransportUnit->cargoSpaceAvailable(getSpecialUnitType(), getDomainType()) > 0);
+ 
+ 		//joinGroup(NULL, true); // Because what if a group of 3 tries to get in a transport which can hold 2...
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 5df7a383a..9a7290862 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -19109,7 +19109,7 @@ bool CvUnitAI::AI_missileLoad(UnitAITypes eTargetUnitAI, int iMaxOwnUnitAI, bool
+ 	CvPlayer const& kOwner = GET_PLAYER(getOwner());
+ 	FOR_EACH_UNIT_VAR(pLoopUnit, kOwner)
+ 	{
+-		if (!bStealthOnly || pLoopUnit->getInvisibleType() != NO_INVISIBLE &&
++		if ((!bStealthOnly || pLoopUnit->getInvisibleType() != NO_INVISIBLE) &&
+ 			pLoopUnit->AI_getUnitAIType() == eTargetUnitAI &&
+ 			(iMaxOwnUnitAI == -1 ||
+ 			pLoopUnit->getUnitAICargo(AI_getUnitAIType()) <= iMaxOwnUnitAI) &&
+@@ -19499,7 +19499,7 @@ int CvUnitAI::AI_exploreAirPlotValue(CvPlot const* pPlot)
+ 		/*	<advc.029> There tend to be more non-visible water tiles anyway.
+ 			And why not explore other land areas?
+ 			Let's rather incentivize sth. important: */
+-		if (kOurTeam.isAtWar(pPlot->getTeam()) && !pPlot->isBarbarian())
++		if (::atWar(kOurTeam.getID(), pPlot->getTeam()) && !pPlot->isBarbarian())
+ 			iValue *= 3;// </advc.029>
+ 	}
+ 	return iValue;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1720

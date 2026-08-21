@@ -1,0 +1,402 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5378
+# Commit: 7503091323be53b0d41737f2dd0589c9e43c8cbf
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c13f5a3c6132ab58824b3cae022e1c52f51143fd
+# Title: Add civilizations parsing to sevopedia music - "Later on, added civilizations parsing as well similarly with buttons. Note: the same item can be replayed man...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+55	2	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+35	1	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+58	3	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+12	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+3	1	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (4).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (6).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 0ce8ff3d5..aa2013249 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -117,8 +117,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_PEDIA_MUSIC_TYPE_TECH = 1
+ 		self.SAS_PEDIA_MUSIC_TYPE_ERA = 2
+ 		self.SAS_PEDIA_MUSIC_TYPE_LEADER = 3
+-		self.SAS_PEDIA_MUSIC_TYPE_SCRIPT = 4
+-		self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D = 5
++		self.SAS_PEDIA_MUSIC_TYPE_CIV = 4
++		self.SAS_PEDIA_MUSIC_TYPE_SCRIPT = 5
++		self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D = 6
+ 
+ 		self.H_SCREEN = 768
+ 		self.W_SCREEN = 1024
+@@ -241,6 +242,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_cacheMusicTuple = None
+ 		self.SAS_musicEraTracks = None
+ 		self.SAS_musicLeaderTracks = None
++		self.SAS_musicCivTracks = None
+ 		self.SAS_musicScriptTracks = None
+ 		self.SAS_musicScript3DTracks = None
+ 		self.SAS_firstCivScript3DMusicKey = None
+@@ -1469,6 +1471,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				listEntries,
+ 				self.SAS_musicEraTracks,
+ 				self.SAS_musicLeaderTracks,
++				self.SAS_musicCivTracks,
+ 				self.SAS_musicScriptTracks,
+ 				self.SAS_musicScript3DTracks,
+ 				self.SAS_firstCivScript3DMusicKey
+@@ -1478,6 +1481,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				self.SAS_PEDIA_MUSIC_TYPE_TECH,
+ 				self.SAS_PEDIA_MUSIC_TYPE_ERA,
+ 				self.SAS_PEDIA_MUSIC_TYPE_LEADER,
++				self.SAS_PEDIA_MUSIC_TYPE_CIV,
+ 				self.SAS_PEDIA_MUSIC_TYPE_SCRIPT,
+ 				self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D,
+ 				self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY,
+@@ -1534,6 +1538,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				return None
+ 			iLeader, _, _, _, _ = self.SAS_musicLeaderTracks[iMusicId]
+ 			return gc.getLeaderHeadInfo(iLeader)
++		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
++			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
++				return None
++			iCiv, _, _, _, _ = self.SAS_musicCivTracks[iMusicId]
++			return gc.getCivilizationInfo(iCiv)
+ 		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_SCRIPT:
+ 			return None
+ 		return None
+@@ -1553,6 +1562,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				return ""
+ 			szScript, _, _ = self.SAS_musicScriptTracks[iMusicId]
+ 			return szScript
++		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
++			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
++				return ""
++			_, _, szScript, _, _ = self.SAS_musicCivTracks[iMusicId]
++			return szScript
+ 		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D:
+ 			if (self.SAS_musicScript3DTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicScript3DTracks)):
+ 				return ""
+@@ -1572,6 +1586,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				return -1
+ 			_, _, _, iSoundId, _ = self.SAS_musicLeaderTracks[iMusicId]
+ 			return iSoundId
++		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
++			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
++				return -1
++			_, iSoundId, _, _, _ = self.SAS_musicCivTracks[iMusicId]
++			return iSoundId
+ 		return -1
+ 
+ 	def SAS_getMusicEra(self, iPacked):
+@@ -1591,6 +1610,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				return -1
+ 			_, iEra, _, _, _ = self.SAS_musicLeaderTracks[iMusicId]
+ 			return iEra
++		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
++			return -1
+ 		return -1
+ 
+ 	def SAS_getMusicTitle(self, iPacked):
+@@ -1626,6 +1647,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				return u""
+ 			_, _, szLabel = self.SAS_musicScriptTracks[iMusicId]
+ 			return unicode(szLabel)
++		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
++			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
++				return u""
++			_, _, _, szLabel, _ = self.SAS_musicCivTracks[iMusicId]
++			return unicode(szLabel)
+ 		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D:
+ 			if (self.SAS_musicScript3DTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicScript3DTracks)):
+ 				return u""
+@@ -1651,6 +1677,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			info = gc.getLeaderHeadInfo(iLeader)
+ 			if info:
+ 				return info.getButton()
++		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
++			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
++				return ""
++			iCiv, _, _, _, _ = self.SAS_musicCivTracks[iMusicId]
++			info = gc.getCivilizationInfo(iCiv)
++			if info:
++				return info.getButton()
+ 		return ""
+ 
+ 	def SAS_getMusicLeaderId(self, iPacked):
+@@ -1663,6 +1696,26 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			return iLeader
+ 		return -1
+ 
++	def SAS_getMusicCivId(self, iPacked):
++		# Returns the civ ID if this is a civ music type, otherwise returns -1
++		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
++		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
++			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
++				return -1
++			iCiv, _, _, _, _ = self.SAS_musicCivTracks[iMusicId]
++			return iCiv
++		return -1
++
++	def SAS_isMusicSound3D(self, iPacked):
++		# Returns True when a sound id should be played as 3D audio.
++		iMusicType, iMusicId = self.SAS_unpackMusicKey(iPacked)
++		if iMusicType == self.SAS_PEDIA_MUSIC_TYPE_CIV:
++			if (self.SAS_musicCivTracks is None) or (iMusicId < 0) or (iMusicId >= len(self.SAS_musicCivTracks)):
++				return False
++			_, _, _, _, bIs3D = self.SAS_musicCivTracks[iMusicId]
++			return bIs3D
++		return False
++
+ 	def SAS_getLeaderPeaceMusicKey(self, iLeader):
+ 		# Returns the packed music key for a leader's "Peace" music entry, or -1 if not found
+ 		# Ensure music cache is populated first
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index 841da223b..dda30f062 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -87,6 +87,12 @@ class SevoPediaMusic:
+ 					screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeaderId, 1)
+ 				else:
+ 					screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_CIV:
++				iCivId = self.top.SAS_getMusicCivId(self.iMusic)
++				if iCivId != -1:
++					screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCivId, 1)
++				else:
++					screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			else:
+ 				screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+@@ -150,6 +156,16 @@ class SevoPediaMusic:
+ 				szText = szTitleText + u"\nTrack ID: %d" % iTrackId
+ 			else:
+ 				szText = szTitleText
++		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_CIV:
++			szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
++			szScript = self.top.SAS_getMusicSoundScript(self.iMusic)
++			iSoundId = self.top.SAS_getMusicSoundId(self.iMusic)
++			if iSoundId != -1:
++				szText = szTitleText + u"\nSound ID: %d" % iSoundId
++			elif szScript:
++				szText = szTitleText + u"\n" + szScript
++			else:
++				szText = szTitleText
+ 		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_SCRIPT:
+ 			szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
+ 			szScript = self.top.SAS_getMusicSoundScript(self.iMusic)
+@@ -164,6 +180,20 @@ class SevoPediaMusic:
+ 					szText = szTitleText + u"\n" + szSoundId + u"\n" + szScript
+ 			else:
+ 				szText = szTitleText + u"\n" + szScript
++		elif iMusicType == self.top.SAS_PEDIA_MUSIC_TYPE_SCRIPT_3D:
++			szTitleText = self.top.SAS_getMusicTitle(self.iMusic)
++			szScript = self.top.SAS_getMusicSoundScript(self.iMusic)
++			szSoundId = ""
++			iMusicType, iMusicId = self.top.SAS_unpackMusicKey(self.iMusic)
++			if (self.top.SAS_musicScript3DTracks is not None) and (iMusicId >= 0) and (iMusicId < len(self.top.SAS_musicScript3DTracks)):
++				_, szSoundId, _ = self.top.SAS_musicScript3DTracks[iMusicId]
++			if szSoundId:
++				if szTitleText == szSoundId:
++					szText = szTitleText + u"\n" + szScript
++				else:
++					szText = szTitleText + u"\n" + szSoundId + u"\n" + szScript
++			else:
++				szText = szTitleText + u"\n" + szScript
+ 		screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+@@ -233,7 +263,11 @@ class SevoPediaMusic:
+ 			self.SAS_is3DSound = False
+ 			try:
+ 				if iSoundId != -1:
+-					self.SAS_musicSoundId = CyAudioGame().Play2DSoundWithId(iSoundId)
++					if self.top.SAS_isMusicSound3D(iMusic):
++						self.SAS_musicSoundId = CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0)
++						self.SAS_is3DSound = True
++					else:
++						self.SAS_musicSoundId = CyAudioGame().Play2DSoundWithId(iSoundId)
+ 				elif szSoundScript.startswith("AS3D_"):
+ 					# 3D scripts need Play3DSound
+ 					self.SAS_musicSoundId = CyAudioGame().Play3DSound(szSoundScript, 0, 0, 0)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index 719e254a0..6b1084351 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -1298,15 +1298,16 @@ def _SAS_extractTagValue(line, tagName):
+ 	return line[start:end].strip()
+ 
+ 
+-def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTech, iTypeEra, iTypeLeader, iTypeScript, iTypeScript3D, bLeaderIntroPeaceFirstOnly, bLeaderPeaceFirstOnly, bLeaderIntroWarFirstLeaderOnly, bLeaderWarFirstLeaderOnly):
++def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTech, iTypeEra, iTypeLeader, iTypeCiv, iTypeScript, iTypeScript3D, bLeaderIntroPeaceFirstOnly, bLeaderPeaceFirstOnly, bLeaderIntroWarFirstLeaderOnly, bLeaderWarFirstLeaderOnly):
+ 	# Return:
+-	#   (listEntries, musicEraTracks, musicLeaderTracks, musicScriptTracks, musicScript3DTracks, firstCivScript3DKey)
++	#   (listEntries, musicEraTracks, musicLeaderTracks, musicCivTracks, musicScriptTracks, musicScript3DTracks, firstCivScript3DKey)
+ 	#
+ 	# These tables are required by SevoPediaMusic for Play button behavior and for showing Track IDs.
+ 	#
+ 	listEntries = []
+ 	musicEraTracks = []
+ 	musicLeaderTracks = []
++	musicCivTracks = []
+ 	musicScriptTracks = []
+ 	musicScript3DTracks = []
+ 
+@@ -1498,6 +1499,60 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_INTRO_WAR", ()), leaderIntroWarItems)
+ 	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_WAR", ()), leaderWarItems)
+ 
++	# <!-- custom: Civilizations (Selection/Action sounds from CIV4CivilizationInfos.xml) (GPT-5.2-Codex) -->
++	civItems = []
++	szSelectLabel = localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_CIV_SELECT", ())
++	szOrderLabel = localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_CIV_ORDER", ())
++	for iCiv in range(gc.getNumCivilizationInfos()):
++		civInfo = gc.getCivilizationInfo(iCiv)
++		if not civInfo or civInfo.isGraphicalOnly():
++			continue
++		szCivName = civInfo.getDescription()
++
++		selVal = civInfo.getSelectionSoundScriptId()
++		if selVal != -1 and selVal != "" and selVal != "NONE":
++			iSoundId = -1
++			szScript = ""
++			try:
++				if isinstance(selVal, (int, long)):
++					iSoundId = selVal
++				else:
++					szScript = selVal
++			except:
++				try:
++					if isinstance(selVal, int):
++						iSoundId = selVal
++					else:
++						szScript = selVal
++				except:
++					szScript = selVal
++			iTrackId = len(musicCivTracks)
++			musicCivTracks.append((iCiv, iSoundId, szScript, szCivName + " (" + szSelectLabel + ")", True))
++			civItems.append((szCivName + " (" + szSelectLabel + ")", packMusicKey(iTypeCiv, iTrackId)))
++
++		actVal = civInfo.getActionSoundScriptId()
++		if actVal != -1 and actVal != "" and actVal != "NONE":
++			iSoundId = -1
++			szScript = ""
++			try:
++				if isinstance(actVal, (int, long)):
++					iSoundId = actVal
++				else:
++					szScript = actVal
++			except:
++				try:
++					if isinstance(actVal, int):
++						iSoundId = actVal
++					else:
++						szScript = actVal
++				except:
++					szScript = actVal
++			iTrackId = len(musicCivTracks)
++			musicCivTracks.append((iCiv, iSoundId, szScript, szCivName + " (" + szOrderLabel + ")", True))
++			civItems.append((szCivName + " (" + szOrderLabel + ")", packMusicKey(iTypeCiv, iTrackId)))
++
++	_SAS_addSection(listEntries, localText.getText("TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_CIVILIZATIONS", ()), civItems)
++
+ 	
+ 	# Sound scripts (2D) - keep grouping/labels identical to the original SevoPediaMain implementation.
+ 	# <!-- custom: use TXT_KEYs for section groupings (GPT-5.2-Codex) -->
+@@ -1683,4 +1738,4 @@ def SAS_getMusicListAndTables(bSortLists, packMusicKey, unpackMusicKey, iTypeTec
+ 		szDisplayHeader3D = localText.getText(szHeader3D, ())
+ 		_SAS_addSection(listEntries, szDisplayHeader3D, items3D)
+ 
+-	return (listEntries, musicEraTracks, musicLeaderTracks, musicScriptTracks, musicScript3DTracks, firstCivScript3DKey)
++	return (listEntries, musicEraTracks, musicLeaderTracks, musicCivTracks, musicScriptTracks, musicScript3DTracks, firstCivScript3DKey)
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index f9d0862d5..068fc37b2 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -387,6 +387,18 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_LEADERS_WAR</Tag>
+ 		<English>Leaders (War)</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_CIVILIZATIONS</Tag>
++		<English>Civilizations</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_CIV_SELECT</Tag>
++		<English>Select</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_CIV_ORDER</Tag>
++		<English>Order</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SAS_MUSIC_GROUPING_MENUS_OPENING</Tag>
+ 		<English>Menus (Opening)</English>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d0a8a6471..e8d82f583 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -297,7 +297,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+ - (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras, and notably **optional era buttons**. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+ - (Requires AdvCiv-SAS 5357+) New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. Movies are played on a **new screen**. Click on "OK" or Right-click to **stop the media playing**; press Escape or Enter key for main menu. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-movies-category-with-audio-support).
+-- (Requires AdvCiv-SAS 5359+) New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-music-category-1750-audio-scripts-playable-in-sevopedia).
++- (Requires AdvCiv-SAS 5359+) New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. Note: there are **multiple sounds in an item** for each civilization sound item, so **replay many times the same item to hear all civilization sounds**. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-music-category-1750-audio-scripts-playable-in-sevopedia).
+ - (Requires AdvCiv-SAS 5340+) Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ - (Requires AdvCiv-SAS 5354+) Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index ed2898520..f70315bfd 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -210,13 +210,15 @@ Can use the search bar with it too which is very handy as well!
+ 
+ Note: some sounds appear twice such as Tech, Leader, Era sounds. This is because an audio script may exist in the game's audio assets while not being allocated to any real asset (e.g., as of now the space elevator remains, or the tutorial sounds we don't use in our mod). Ideally should clean these up (if it does not create issues to do so), but having the real XML info entry (e.g. `<DiploScriptId>AS2D_DIPLO_ALEXANDER_EARLY</DiploScriptId>`) vs a list of audio scripts in 2D or 3D allows to make sure each ingame asset has a corresponding audio as well as being able to check in-game which it is.
+ 
++Later on, added civilizations parsing as well similarly with buttons. Note: the same item can be replayed many times and has a different sound (i.e. multiple select and order sounds per civilization)
++
+ Done with the very big and nice help of GPT-5.2-Codex, Claude code Opus 4.5, Claude code Sonnet 4.5, ChatGPT-5.2 Thinking, Gemini 2.5 pro (in VS Code).
+ 
+ As of now, click on "OK" or Right-click to stop the media playing; press Escape or Enter key for main menu
+ 
+ The implementation still needs some minor polish, but it is as of now entirely functional. Polish includes:
+ 
+-- In Sevopedia Music, parse properly Civilization tracks from xml or move higher the civ scripts so they are just under leader scripts and so we can possibly link directly to them
++- Link directly from sevopedia civilization to sevopedia music's corresponding civilziation entry
+ - Add a custom dds or nif (like leader animation, as we did for religion animations in Sevopedia Movies) while playing, as well as the track name / item name and maybe also text such as quote or such (what the panel displays)
+ - Search Bar desyncs when we exit an audio file playing, common to other non-mmedia sevopedia categories though it seems at a glance
+ - Maybe generalize script name for other things than era tracks
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (4).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (4).JPG
+index c815fbf0a..e11baae9e 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (4).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG
+index ce32b1b4d..717258d2f 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (5).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (6).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (6).JPG
+index c4619decd..f4e39e68d 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (6).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.820_sevopedia_music (6).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=22353

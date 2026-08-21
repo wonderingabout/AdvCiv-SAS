@@ -1,0 +1,221 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2082
+# Commit: 5a6bff0b8fbdb037f0c875aab7d3d6ed61beba09
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ecd183b7e9896a9c5831ecf9d140c45620ca3d32
+# Title: Some misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	6	CvGameCoreDLL/CvPlayer.cpp
+4	2	CvGameCoreDLL/CvPlot.cpp
+13	4	CvGameCoreDLL/CvTeam.cpp
+5	5	CvGameCoreDLL/CvUnit.cpp
+5	2	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6d1acd209..1e8bc196d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6804,14 +6804,19 @@ int CvPlayer::getResearchTurnsLeft(TechTypes eTech, bool bOverflow) const
+ 
+ int CvPlayer::getResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow) const  // advc: style changes
+ {
++	// <advc>
++	if (GET_TEAM(getTeam()).isHasTech(eTech))
++		return 0; // </advc>
+ 	int iResearchRate = 0;
+ 	int iOverflow = 0;
+ 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		CvPlayer const& kMember = GET_PLAYER((PlayerTypes)iI);
+-		if(!kMember.isAlive() || kMember.getTeam() != getTeam()
+-				|| !kMember.isResearch()) // advc.004x
++		if(!kMember.isAlive() || kMember.getTeam() != getTeam() ||
++			!kMember.isResearch()) // advc.004x
++		{
+ 			continue;
++		}
+ 		if(iI == getID() || kMember.getCurrentResearch() == eTech)
+ 		{
+ 			//iResearchRate += GET_PLAYER((PlayerTypes)iI).calculateResearchRate(eTech);
+@@ -13247,12 +13252,14 @@ void CvPlayer::doResearch()
+ 		TechTypes eCurrentTech = getCurrentResearch();
+ 		if (eCurrentTech == NO_TECH)
+ 		{
+-			int iOverflow = (100 * calculateResearchRate()) / std::max(1, calculateResearchModifier(eCurrentTech));
++			int iOverflow = (100 * calculateResearchRate()) /
++					std::max(1, calculateResearchModifier(eCurrentTech));
+ 			changeOverflowResearch(iOverflow);
+ 		}
+ 		else
+ 		{
+-			int iOverflowResearch = (getOverflowResearch() * calculateResearchModifier(eCurrentTech)) / 100;
++			int iOverflowResearch = (getOverflowResearch() *
++					calculateResearchModifier(eCurrentTech)) / 100;
+ 			setOverflowResearch(0);
+ 			GET_TEAM(getTeam()).changeResearchProgress(eCurrentTech,
+ 					// K-Mod (replacing the minimum which used to be in calculateResearchRate)
+@@ -18748,7 +18755,9 @@ bool CvPlayer::isValidEventTech(TechTypes eTech, EventTypes eEvent, PlayerTypes
+ 		return false;
+ 	}
+ 
+-	if (kEvent.getTechPercent() < 0 && GET_TEAM(getTeam()).getResearchProgress(eTech) <= 0)
++	if (kEvent.getTechPercent() < 0 &&
++		(GET_TEAM(getTeam()).isHasTech(eTech) || // advc: Don't rely on getResearchProgress
++		GET_TEAM(getTeam()).getResearchProgress(eTech) <= 0))
+ 	{
+ 		return false;
+ 	}
+@@ -18764,7 +18773,7 @@ bool CvPlayer::isValidEventTech(TechTypes eTech, EventTypes eEvent, PlayerTypes
+ 		return false;
+ 	}
+ 
+-	if (NO_PLAYER != eOtherPlayer && !GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).isHasTech(eTech))
++	if (NO_PLAYER != eOtherPlayer && !GET_TEAM(eOtherPlayer).isHasTech(eTech))
+ 	{
+ 		return false;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 13a1d09f1..a5d6319e2 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2121,9 +2121,11 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
+ 			if (bAny)
+ 				return &kLoopUnit; // </advc>
+ 			if (kLoopUnit.isBetterDefenderThan(pBestUnit, pAttacker,
+-					&iBestUnitRank, // UncutDragon
+-					bTestVisible)) // advc.061
++				&iBestUnitRank, // UncutDragon
++				bTestVisible)) // advc.061
++			{
+ 				pBestUnit = &kLoopUnit;
++			}
+ 		}
+ 	}
+ 	// BETTER_BTS_AI_MOD: END
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 198f0fd88..11b0a9f46 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2156,7 +2156,10 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bGlobalModifiers, bool bTeamSi
+ 
+ int CvTeam::getResearchLeft(TechTypes eTech) const
+ {
+-	return std::max(0, (getResearchCost(eTech) - getResearchProgress(eTech)));
++	// <advc> Safer, cleaner this way
++	if (isHasTech(eTech))
++		return 0; // </advc>
++	return std::max(0, getResearchCost(eTech) - getResearchProgress(eTech));
+ }
+ 
+ 
+@@ -3870,7 +3873,9 @@ void CvTeam::changeObsoleteBuildingCount(BuildingTypes eIndex, int iChange)
+ 	}
+ }
+ 
+-
++/*	advc (note): If the tech is already known, then the research progress
++	is equal to the number of beakers that this team has put into it;
++	i.e. it's not necessarily greater than the tech cost, can even be 0. */
+ int CvTeam::getResearchProgress(TechTypes eIndex) const
+ {
+ 	if (eIndex != NO_TECH)
+@@ -3895,8 +3900,9 @@ void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes eP
+ 			Popup_DIRTY_BIT would suffice here?) */
+ 		CvPlayer& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
+ 		if(kActivePlayer.getCurrentResearch() == NO_TECH &&
+-				kActivePlayer.isFoundedFirstCity() &&
+-				kActivePlayer.isHuman()) { // i.e. not during Auto Play
++			kActivePlayer.isFoundedFirstCity() &&
++			kActivePlayer.isHuman()) // i.e. not during Auto Play
++		{
+ 			kActivePlayer.killAll(BUTTONPOPUP_CHOOSETECH);
+ 			kActivePlayer.chooseTech();
+ 		} // </advc.004x>
+@@ -3907,6 +3913,9 @@ void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes eP
+ 		int iOverflow = (100 * (getResearchProgress(eIndex) - getResearchCost(eIndex))) /
+ 				std::max(1, GET_PLAYER(ePlayer).calculateResearchModifier(eIndex));
+ 		GET_PLAYER(ePlayer).changeOverflowResearch(iOverflow);
++		// <advc> Cleaner to subtract the overflow. Cf. comment in getResearchProgress.
++		m_aiResearchProgress.add(eIndex,
++				getResearchProgress(eIndex) - getResearchCost(eIndex)); // </advc>
+ 		setHasTech(eIndex, true, ePlayer, true, true);
+ 		/*if (!GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS) && !GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
+ 			setNoTradeTech(eIndex, true);*/ // BtS
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 8533d9523..20537b12d 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -11298,7 +11298,7 @@ bool CvUnit::LFBisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAtt
+ 	int iOurRanking = LFBgetDefenderRank(pAttacker);
+ 	int iTheirRanking = -1;
+ 	if (pBestDefenderRank)
+-		iTheirRanking = (*pBestDefenderRank);
++		iTheirRanking = *pBestDefenderRank;
+ 	if (iTheirRanking == -1)
+ 		iTheirRanking = pDefender->LFBgetDefenderRank(pAttacker);
+ 
+@@ -11308,15 +11308,15 @@ bool CvUnit::LFBisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAtt
+ 	{
+ 		if (isBeforeUnitCycle(*pDefender))
+ 			iTheirRanking++;
+-		else
+-			iTheirRanking--;
++		else iTheirRanking--;
+ 	}
+ 
+ 	// Retain the basic rank (before value adjustment) for the best defender
+ 	if (pBestDefenderRank)
++	{
+ 		if (iOurRanking > iTheirRanking)
+ 			(*pBestDefenderRank) = iOurRanking;
+-
++	}
+ 	return (iOurRanking > iTheirRanking);
+ }
+ 
+@@ -11357,7 +11357,7 @@ int CvUnit::LFBgetDefenderOdds(const CvUnit* pAttacker) const
+ 	// Check if we have a valid attacker
+ 	bool bUseAttacker = false;
+ 	int iAttStrength = 0;
+-	if (pAttacker)
++	if (pAttacker != NULL)
+ 		iAttStrength = pAttacker->currCombatStr(NULL, NULL);
+ 	if (iAttStrength > 0)
+ 		bUseAttacker = true;
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index d2e7524f9..7a5771d81 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -1521,8 +1521,11 @@ int UWAI::Team::endWarVal(TeamTypes enemyId) const {
+ 	CvTeamAI const& ai =  (agentHuman ? GET_TEAM(enemyId) : GET_TEAM(agentId));
+ 	int aiReluct = ai.uwai().reluctanceToPeace(human.getID(), false);
+ 	// If no payment is possible, human utility shouldn't matter.
+-	if(aiReluct <= 0 && !human.isGoldTrading() && !human.isTechTrading() &&
+-			!ai.isGoldTrading() && !ai.isTechTrading())
++	if(aiReluct <= 0 &&
++			!GET_PLAYER(human.getLeaderID()).
++			canPossiblyTradeItem(ai.getLeaderID(), TRADE_GOLD) &&
++			!GET_PLAYER(human.getLeaderID()).
++			canPossiblyTradeItem(ai.getLeaderID(), TRADE_TECHNOLOGIES))
+ 		return 0;
+ 	// Really just utility given how peaceThreshold is computed for humans
+ 	int humanUtility = human.uwai().reluctanceToPeace(ai.getID(), false);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=7690

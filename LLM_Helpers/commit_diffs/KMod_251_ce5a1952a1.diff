@@ -1,0 +1,306 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 251
+# Commit: ce5a1952a160a27345e555e640c6c5be9d7b3bb2
+# History segment: K-Mod history
+# Parent used for diff: 93e0d14fd34d3c9efa1826a44973ed17e97f4945
+# Title: Many and various numerical adjustments. Changed the way the AI refuses peace when going for conquest - again. (the previous method also prevented capitualtion)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/BBAI_AI_Variables_GlobalDefines.xml
+2	2	Assets/xml/GlobalDefinesAlt.xml
+1	1	CvGameCoreDLL/CvCity.cpp
+31	6	CvGameCoreDLL/CvCityAI.cpp
+8	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+22	13	CvGameCoreDLL/CvPlayer.cpp
+1	8	CvGameCoreDLL/CvPlayerAI.cpp
+5	0	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/BBAI_AI_Variables_GlobalDefines.xml b/Assets/xml/BBAI_AI_Variables_GlobalDefines.xml
+index f4788bb4e..ebaa1dc52 100644
+--- a/Assets/xml/BBAI_AI_Variables_GlobalDefines.xml
++++ b/Assets/xml/BBAI_AI_Variables_GlobalDefines.xml
+@@ -30,7 +30,7 @@
+ 		This ratio is reduced by the AI's best attacker odds and how long it will take to bombard the city.
+ 		Lower means AI will more readily skip bombarding.  BBAI default: 300 -->
+ 		<DefineName>BBAI_SKIP_BOMBARD_BASE_STACK_RATIO</DefineName>
+-		<iDefineIntVal>250</iDefineIntVal>
++		<iDefineIntVal>260</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Minimum stack strength ratio for AI to skip bombarding city and just attack, higher is more conservative.  BBAI default: 150 -->
+
+diff --git a/Assets/xml/GlobalDefinesAlt.xml b/Assets/xml/GlobalDefinesAlt.xml
+index 76aead16b..28701290d 100644
+--- a/Assets/xml/GlobalDefinesAlt.xml
++++ b/Assets/xml/GlobalDefinesAlt.xml
+@@ -119,11 +119,11 @@
+ 	</Define>
+ 	<Define>
+ 		<DefineName>RELIGION_INFLUENCE_TIME_WEIGHT</DefineName>
+-		<iDefineIntVal>60</iDefineIntVal>
++		<iDefineIntVal>70</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>RELIGION_INFLUENCE_SHRINE_WEIGHT</DefineName>
+-		<iDefineIntVal>10</iDefineIntVal>
++		<iDefineIntVal>15</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>RELIGION_INFLUENCE_STATE_RELIGION_WEIGHT</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 10c4b13e8..9830db073 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10927,7 +10927,7 @@ void CvCity::setHasReligion(ReligionTypes eIndex, bool bNewValue, bool bAnnounce
+ 			if (bAnnounce)
+ 			{
+ 				CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_RELIGION_REMOVE", GC.getReligionInfo(eIndex).getTextKeyWide(), getNameKey());
+-				gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), false, GC.getDefineINT("EVENT_MESSAGE_TIME_LONG"), szBuffer, "AS2D_BLIGHT", MESSAGE_TYPE_MAJOR_EVENT, GC.getReligionInfo(eIndex).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), getX_INLINE(), getY_INLINE(), bArrows, bArrows);
++				gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), false, GC.getDefineINT("EVENT_MESSAGE_TIME_LONG"), szBuffer, "AS2D_BLIGHT", MESSAGE_TYPE_MAJOR_EVENT, GC.getReligionInfo(eIndex).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), getX_INLINE(), getY_INLINE(), bArrows, bArrows);
+ 			}
+ 		}
+ 		// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index a7fb7f534..fc78371a9 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1033,6 +1033,15 @@ void CvCityAI::AI_chooseProduction()
+ 	// (because early game buildings are relatively weaker)
+ 	iBestBuildingValue *= 2*GC.getNumEraInfos() - kPlayer.getCurrentEra();
+ 	iBestBuildingValue /= std::max(1, GC.getNumEraInfos());
++	// also, reduce the value to encourage early expansion until we reach the recommend city target
++	{
++		int iTargetCities = GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities();
++		if (iNumAreaCitySites > 0 && kPlayer.getNumCities() < iTargetCities)
++		{
++			iBestBuildingValue *= kPlayer.getNumCities() + iTargetCities;
++			iBestBuildingValue /= 2*iTargetCities;
++		}
++	}
+ 
+ 	// Check for military exemption for commerce cities and underdeveloped cities.
+ 	// Don't give exemptions to cities that don't have anything good to build anyway.
+@@ -4947,7 +4956,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					iTempValue += ((kBuilding.getPowerYieldModifier(iI) * getBaseYieldRate((YieldTypes)iI)) / ((bProvidesPower || isPower()) ? 12 : 15));*/
+ 					// K-Mod
+ 					iTempValue += kBuilding.getYieldModifier(iI) * getBaseYieldRate((YieldTypes)iI) / 20;
+-					iTempValue += kBuilding.getPowerYieldModifier(iI) * getBaseYieldRate((YieldTypes)iI) / (bProvidesPower || isPower() ? 21 : 30);
++					iTempValue += kBuilding.getPowerYieldModifier(iI) * getBaseYieldRate((YieldTypes)iI) / (bProvidesPower || isPower() ? 21 : 32);
+ 
+ 					if (bProvidesPower && !isPower())
+ 					{
+@@ -11150,13 +11159,29 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 
+ 			if (GC.getGameINLINE().getSorenRandNum(100, "City governor choose military") < iOdds)
+ 			{
+-				if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 10))
++				UnitAITypes eUnitAI;
++				UnitTypes eBestUnit = AI_bestUnit(false, NO_ADVISOR, &eUnitAI);
++				if (eBestUnit != NO_UNIT)
+ 				{
+-					return;
+-				}
++					const CvUnitInfo& kUnit = GC.getUnitInfo(eBestUnit);
+ 
+-				if (AI_chooseUnit(NO_UNITAI))
+-				{
++					BuildingTypes eExperienceBuilding = AI_bestBuildingThreshold(BUILDINGFOCUS_EXPERIENCE);
++
++					if (eExperienceBuilding != NO_BUILDING)
++					{
++						const CvBuildingInfo& kBuilding = GC.getBuildingInfo(eExperienceBuilding);
++						if (kBuilding.getFreeExperience() > 0 ||
++							kBuilding.getUnitCombatFreeExperience(kUnit.getUnitCombatType()) > 0 ||
++							kBuilding.getDomainFreeExperience(kUnit.getDomainType()) > 0)
++						{
++							// This building helps the unit we want
++							// ...so do the building first.
++							pushOrder(ORDER_CONSTRUCT, eBestBuilding, -1, false, false, false);
++							return;
++						}
++					}
++					// otherwise, we're ready to build the unit
++					pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, false);
+ 					return;
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 69fc58b9a..ee74dac9f 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -2467,6 +2467,14 @@ void getMissionAIString(CvWString& szString, MissionAITypes eMissionAI)
+ 	case MISSIONAI_ASSAULT: szString = L"MISSIONAI_ASSAULT"; break;
+ 	case MISSIONAI_CARRIER: szString = L"MISSIONAI_CARRIER"; break;
+ 	case MISSIONAI_PICKUP: szString = L"MISSIONAI_PICKUP"; break;
++// K-Mod
++#define mission_string(x) case x: szString = L#x; break;
++	mission_string(MISSIONAI_RECON_SPY)
++	mission_string(MISSIONAI_JOIN)
++	mission_string(MISSIONAI_TRADE)
++	mission_string(MISSIONAI_INFILTRATE)
++#undef mission_string
++// K-Mod end
+ 
+ 	default: szString = CvWString::format(L"UNKOWN_MISSION_AI(%d)", eMissionAI); break;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index a4adb7e22..672492b8f 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5064,6 +5064,7 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ DenialTypes CvPlayer::getTradeDenial(PlayerTypes eWhoTo, TradeData item) const
+ {
+ 	CvCity* pCity;
++	const CvTeamAI& kOurTeam = GET_TEAM(getTeam()); // K-Mod
+ 
+ 	// K-Mod note: I've changed it so that AI players on human teams can be contacted when not at war.
+ 	// So.. as a follow up on that change, I'm making the AI deny trades which affect the team, not just the player.
+@@ -5071,10 +5072,10 @@ DenialTypes CvPlayer::getTradeDenial(PlayerTypes eWhoTo, TradeData item) const
+ 	{
+ 	case TRADE_TECHNOLOGIES:
+ 		// K-Mod
+-		if (!isHuman() && GET_TEAM(getTeam()).isHuman())
++		if (!isHuman() && kOurTeam.isHuman())
+ 			return DENIAL_MYSTERY;
+ 		// K-Mod end
+-		return GET_TEAM(getTeam()).AI_techTrade(((TechTypes)(item.m_iData)), GET_PLAYER(eWhoTo).getTeam());
++		return kOurTeam.AI_techTrade(((TechTypes)(item.m_iData)), GET_PLAYER(eWhoTo).getTeam());
+ 		break;
+ 
+ 	case TRADE_RESOURCES:
+@@ -5094,27 +5095,27 @@ DenialTypes CvPlayer::getTradeDenial(PlayerTypes eWhoTo, TradeData item) const
+ 		break;
+ 
+ 	case TRADE_MAPS:
+-		return GET_TEAM(getTeam()).AI_mapTrade(GET_PLAYER(eWhoTo).getTeam());
++		return kOurTeam.AI_mapTrade(GET_PLAYER(eWhoTo).getTeam());
+ 		break;
+ 
+ 	case TRADE_SURRENDER:
+-		return GET_TEAM(getTeam()).AI_surrenderTrade(GET_PLAYER(eWhoTo).getTeam(), 140);
++		return kOurTeam.AI_surrenderTrade(GET_PLAYER(eWhoTo).getTeam(), 140);
+ 		break;
+ 
+ 	case TRADE_VASSAL:
+ 		// K-Mod
+-		if (!isHuman() && GET_TEAM(getTeam()).isHuman())
++		if (!isHuman() && kOurTeam.isHuman())
+ 			return DENIAL_MYSTERY;
+ 		// K-Mod end
+-		return GET_TEAM(getTeam()).AI_vassalTrade(GET_PLAYER(eWhoTo).getTeam());
++		return kOurTeam.AI_vassalTrade(GET_PLAYER(eWhoTo).getTeam());
+ 		break;
+ 
+ 	case TRADE_PEACE:
+-		return GET_TEAM(getTeam()).AI_makePeaceTrade(((TeamTypes)(item.m_iData)), GET_PLAYER(eWhoTo).getTeam());
++		return kOurTeam.AI_makePeaceTrade(((TeamTypes)(item.m_iData)), GET_PLAYER(eWhoTo).getTeam());
+ 		break;
+ 
+ 	case TRADE_WAR:
+-		return GET_TEAM(getTeam()).AI_declareWarTrade(((TeamTypes)(item.m_iData)), GET_PLAYER(eWhoTo).getTeam());
++		return kOurTeam.AI_declareWarTrade(((TeamTypes)(item.m_iData)), GET_PLAYER(eWhoTo).getTeam());
+ 		break;
+ 
+ 	case TRADE_EMBARGO:
+@@ -5130,26 +5131,34 @@ DenialTypes CvPlayer::getTradeDenial(PlayerTypes eWhoTo, TradeData item) const
+ 		break;
+ 
+ 	case TRADE_OPEN_BORDERS:
+-		return GET_TEAM(getTeam()).AI_openBordersTrade(GET_PLAYER(eWhoTo).getTeam());
++		return kOurTeam.AI_openBordersTrade(GET_PLAYER(eWhoTo).getTeam());
+ 		break;
+ 
+ 	case TRADE_DEFENSIVE_PACT:
+ 		// K-Mod
+-		if (!isHuman() && GET_TEAM(getTeam()).isHuman())
++		if (!isHuman() && kOurTeam.isHuman())
+ 			return DENIAL_MYSTERY;
+ 		// K-Mod end
+-		return GET_TEAM(getTeam()).AI_defensivePactTrade(GET_PLAYER(eWhoTo).getTeam());
++		return kOurTeam.AI_defensivePactTrade(GET_PLAYER(eWhoTo).getTeam());
+ 		break;
+ 
+ 	case TRADE_PERMANENT_ALLIANCE:
+ 		// K-Mod
+-		if (!isHuman() && GET_TEAM(getTeam()).isHuman())
++		if (!isHuman() && kOurTeam.isHuman())
+ 			return DENIAL_MYSTERY;
+ 		// K-Mod end
+-		return GET_TEAM(getTeam()).AI_permanentAllianceTrade(GET_PLAYER(eWhoTo).getTeam());
++		return kOurTeam.AI_permanentAllianceTrade(GET_PLAYER(eWhoTo).getTeam());
+ 		break;
+ 
+ 	case TRADE_PEACE_TREATY:
++		// K-Mod
++		if (kOurTeam.AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST4 | AI_VICTORY_DOMINATION4) &&
++			(kOurTeam.AI_isChosenWar(GET_PLAYER(eWhoTo).getTeam()) || kOurTeam.getAtWarCount(true, true) == 1) &&
++			kOurTeam.AI_getWarSuccessCapitulationRatio() > 0)
++		{
++			return DENIAL_VICTORY;
++		}
++		// K-Mod end
+ 		break;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index e14958d8f..8151eee05 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6826,13 +6826,6 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ 		// K-Mod
+ 		if (kOurTeam.isHuman())
+ 			return false;
+-
+-		if (kOurTeam.AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST4 | AI_VICTORY_DOMINATION4) &&
+-			(kOurTeam.AI_isChosenWar(GET_PLAYER(ePlayer).getTeam()) || kOurTeam.getAtWarCount(true, true) == 1) &&
+-			kOurTeam.AI_getWarSuccessCapitulationRatio() > 0)
+-		{
+-			return false;
+-		}
+ 		// K-Mod end
+ 
+ 		if (kOurTeam.isAVassal())
+@@ -18747,7 +18740,7 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 
+ 	//if (iAttackUnitCount <= 1)
+ 	if ((iAttackUnitCount <= 1 && GC.getGame().getGameTurn() > GC.getGameSpeedInfo(GC.getGame().getGameSpeedType()).getBarbPercent()/20)
+-		|| (100*iAverageEnemyUnit > 140*iTypicalAttack && 100*iAverageEnemyUnit > 140*iTypicalDefence))
++		|| (100*iAverageEnemyUnit > 135*iTypicalAttack && 100*iAverageEnemyUnit > 135*iTypicalDefence))
+ 	{
+ 		m_iStrategyHash |= AI_STRATEGY_GET_BETTER_UNITS;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 126ba1b9b..62bc02bd4 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1715,6 +1715,11 @@ bool CvUnit::isActionRecommended(int iAction)
+ 
+ 			if (canBuild(pPlot, eBuild))
+ 			{
++				/// K-Mod
++				if (pPlot->getBuildProgress(eBuild) > 0)
++					return true;
++				// K-Mod end
++
+ 				eImprovement = ((ImprovementTypes)(GC.getBuildInfo(eBuild).getImprovement()));
+ 				eRoute = ((RouteTypes)(GC.getBuildInfo(eBuild).getRoute()));
+ 				//eBonus = pPlot->getBonusType(getTeam());
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=11708

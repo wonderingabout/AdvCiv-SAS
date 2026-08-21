@@ -1,0 +1,429 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3975
+# Commit: b5a4b6c0ddafc04fb8eec3a21c135b909bc25e2f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cbb9fe7ef68b7e8ea9ee5dd3ab5eb9883a83273d
+# Title: Show attacker's odds in combat messages
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/XML/GlobalDefines_advc.xml
+55	19	Assets/XML/Text/CIV4GameText_advc.xml
+6	5	CvGameCoreDLL/CvGameTextMgr.cpp
+3	1	CvGameCoreDLL/CvGameTextMgr.h
+125	31	CvGameCoreDLL/CvUnit.cpp
+7	0	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 3b3efd660..52759593c 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1362,4 +1362,14 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.048c: Set to 1 (recommended) to include the attacker's combat odds
++		 (survival odds if withdrawal possible) in on-screen messages about
++		 the outcomes of combat that happens in between turns. Set to 0 to
++		 restore the BtS messages. The attacker's odds can, in any case, be
++		 found on the Combat tab of the Turn Log. -->
++	<Define>
++		<DefineName>SHOW_ODDS_IN_COMBAT_MESSAGES</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 75f204436..2a63f870d 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -134,6 +134,61 @@
+ 		<Italian>contro</Italian>
+ 		<Spanish>contra</Spanish>
+ 	</TEXT>
++	<!-- Akin to TXT_ACO_PressALT in AdvancedCombatOdds_CIV4GameText.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_GROUP_ATTACK_BEST_ODDS_HELP</Tag>
++		<English>[COLOR_HIGHLIGHT_TEXT]Recommended attack (ALT for best odds)[COLOR_REVERT]:</English>
++		<French>[COLOR_HIGHLIGHT_TEXT]Attaque recommand�e (ALT pour meilleure probabilit�)[COLOR_REVERT]:</French>
++		<German>[COLOR_HIGHLIGHT_TEXT]Empfohl. Angriff (ALT f�r beste Chancen)[COLOR_REVERT]:</German>
++		<Italian>[COLOR_HIGHLIGHT_TEXT]Attacco raccomandato (ALT per migliori probabilit�)[COLOR_REVERT]:</Italian>
++		<Spanish>[COLOR_HIGHLIGHT_TEXT]Ataque recomendado (ALT para mejores probabilidades)[COLOR_REVERT]:</Spanish>
++	</TEXT>
++	<!-- advc.048b: Overwrites CIV4GameText_Warlords.xml -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_COMBAT_PLOT_ODDS_RETREAT</Tag>
++		<English>Withdrawal odds: %s1%%</English>
++		<French>Chances de retraite : %s1 %%</French>
++		<German>R&#252;ckzugschance: %s1%%</German>
++		<Italian>Probabilit&#224; di ritirata: %s1%%</Italian>
++		<Spanish>Probabilidades de retirada: %s1%%</Spanish>
++	</TEXT>
++	<!-- advc.048c: start -->
++	<!-- Based on TXT_KEY_MISC_YOU_KILLED_ENEMY_UNIT, TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED,
++		 TXT_KEY_MISC_ENEMY_UNIT_WITHDRAW (CIV4GameText_BTS.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_YOU_KILLED_ENEMY_UNIT_ODDS</Tag>
++		<English>While defending, your %s1_UnitName%s4_Strength has killed a %s3_owner_adjective %s2_EnUName (attacker's odds: %s5_Odds%%).</English>
++		<French>En se d&#233;fendant, votre %s1_UnitName%s4_Strength a &#233;limin&#233; [NUM2:un:une:des:des] %s2_EnUName (%s3_owner_adjective); chances de l'attaquant: %s5_Odds%%.</French>
++		<German>Eure Einheit %s1_UnitName%s4_Strength hat w&#228;hrend eines Verteidigungsman&#246;vers eine Einheit %s2_EnUName (%s3_owner_adjective) vernichtet (Chance des Angreifers: %s5_Odds%%).</German>
++		<Italian>Difendendo, la tua unit&#224; %s1_UnitName%s4_Strength ha ucciso l'unit&#224; nemica %s2_EnUName (%s3_owner_adjective); prob. dell'attaccante: %s5_Odds%%.</Italian>
++		<Spanish>Mientras se [NUM1:defend&#237;a:defend&#237;a:defend&#237;an:defend&#237;an], [NUM1:vuestro:vuestra:vuestros:vuestras] %s1_UnitName%s4_Strength [NUM1:ha:ha:han:han] acabado con [NUM2:un:una:unos:unas] %s2_EnUName (%s3_owner_adjective); prob. del atacante: %s5_Odds%%.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_ODDS</Tag>
++		<English>While defending, your %s1_UnitName%s4_Strength was destroyed by a %s3_owner_adjective %s2_EnUName (attacker's odds: %s5_Odds%%).</English>
++		<French>En se d&#233;fendant, votre unit&#233; "%s1_UnitName"%s4_Strength a &#233;t&#233; d&#233;truite par [NUM2:un:une:des:des] %s2_EnUName (%s3_owner_adjective); chances de l'attaquant: %s5_Odds%%.</French>
++		<German>Eure Einheit %s1_UnitName%s4_Strength wurde w&#228;hrend eines Verteidigungsman&#246;vers von einer Einheit %s2_EnUName (%s3_owner_adjective) vernichtet (Chance des Angreifers: %s5_Odds%%).</German>
++		<Italian>Difendendo, la tua unit&#224; %s1_UnitName%s4_Strength &#232; stata distrutta dall'unit&#224; nemica %s2_EnUName (%s3_owner_adjective); prob. dell'attaccante: %s5_Odds%%.</Italian>
++		<Spanish>Mientras se [NUM1:defend&#237;a:defend&#237;a:defend&#237;an:defend&#237;an], [NUM1:vuestro:vuestra:vuestros:vuestras] %s1_UnitName%s4_Strength [NUM1:ha sido destruido:ha sido destruida:han sido destruidos:han sido destruidas] por [NUM2:un:una:unos:unas] %s2_EnUName (%s3_owner_adjective); prob. del atacante: %s5_Odds%%.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_ENEMY_UNIT_WITHDRAW_ODDS</Tag>
++		<English>A %s1_EnUName has withdrawn (odds: %s4_Odds%%) from combat with your %s2_UnitName%s3_Strength.</English>
++		<French>L'unit&#233; de combat ennemie (%s1_EnUName) a fui le combat face &#224; votre %s2_UnitName%s3_Strength; chances de survie �taient: %s4_Odds%%.</French>
++		<German>Eine Einheit %s1_EnUName hat im Kampf gegen Eure Einheit %s2_UnitName%s3_Strength den R&#252;ckzug angetreten (�berlebenschance betrug %s4_Odds%%).</German>
++		<Italian>L'unit&#224; nemica %s1_EnUName si &#232; ritirata  (prob. di sopravvivenza: %s4_Odds%%) dal combattimento contro la tua unit&#224; %s2_UnitName%s3_Strength.</Italian>
++		<Spanish>[NUM1:Un:Una:Unos:Unas] %s1_EnUName se [NUM1:ha:ha:han:han] retirado (prob de supervivencia:  %s4_Odds%%) del combate contra [NUM2:vuestro:vuestra:vuestros:vuestras] %s2_UnitName.</Spanish>
++	</TEXT>
++	<!-- Based on TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_UNKNOWN (CIV4GameText_BTS.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_UNKNOWN_ODDS</Tag>
++		<English>While defending, your %s1_UnitName%s3_Strength was destroyed by a %s2_EnUName (attacker's odds: %s4_Odds%%).</English>
++		<French>En se d&#233;fendant, votre unit&#233; "%s1_UnitName"%s3_Strength a &#233;t&#233; d&#233;truite par l'unit&#233; ennemie : %s2_EnUName (chances de l'attaquant: %s4_Odds%%).</French>
++		<German>Eure Einheit %s1_UnitName%s3_Strength wurde w&#228;hrend eines Verteidigungsman&#246;vers von einer Einheit %s2_EnUName vernichtet (Chance des Angreifers: %s5_Odds%%).</German>
++		<Italian>Difendendo, la tua unit&#224; %s1_UnitName%s3_Strength &#232; stata distrutta dall'unit&#224; nemica %s2_EnUName (prob. dell'attaccante: %s5_Odds%%).</Italian>
++		<Spanish>Mientras se [NUM1:defend&#237;a:defend&#237;a:defend&#237;an:defend&#237;an], [NUM1:vuestro:vuestra:vuestros:vuestras] %s1_UnitName%s3_Strength [NUM1:ha sido destruido:ha sido destruida:han sido destruidos:han sido destruidas] por [NUM2:un:una:unos:unas] %s2_EnUName (prob. del atacante: %s5_Odds%%).</Spanish>
++	</TEXT>
++	<!-- advc.048c: end -->
+ 	
+ 	<!-- advc.106g: Based on TXT_KEY_GAME_OPTION_NO_EVENTS
+ 		 (CIV4GameText_BTS.xml) -->
+@@ -4561,25 +4616,6 @@
+ 		<Spanish>"Nos forzasteis a pagar un tributo."</Spanish>
+ 	</TEXT>
+ 
+-	<!-- Akin to TXT_ACO_PressALT in AdvancedCombatOdds_CIV4GameText.xml -->
+-	<TEXT>
+-		<Tag>TXT_KEY_GROUP_ATTACK_BEST_ODDS_HELP</Tag>
+-		<English>[COLOR_HIGHLIGHT_TEXT]Recommended attack (ALT for best odds)[COLOR_REVERT]:</English>
+-		<French>[COLOR_HIGHLIGHT_TEXT]Attaque recommand�e (ALT pour meilleure probabilit�)[COLOR_REVERT]:</French>
+-		<German>[COLOR_HIGHLIGHT_TEXT]Empfohl. Angriff (ALT f�r beste Chancen)[COLOR_REVERT]:</German>
+-		<Italian>[COLOR_HIGHLIGHT_TEXT]Attacco raccomandato (ALT per migliori probabilit�)[COLOR_REVERT]:</Italian>
+-		<Spanish>[COLOR_HIGHLIGHT_TEXT]Ataque recomendado (ALT para mejores probabilidades)[COLOR_REVERT]:</Spanish>
+-	</TEXT>
+-	<!-- advc.048b: Overwrites CIV4GameText_Warlords.xml -->
+-	<TEXT> <!-- redefine -->
+-		<Tag>TXT_KEY_COMBAT_PLOT_ODDS_RETREAT</Tag>
+-		<English>Withdrawal odds: %s1%%</English>
+-		<French>Chances de retraite : %s1 %%</French>
+-		<German>R&#252;ckzugschance: %s1%%</German>
+-		<Italian>Probabilit&#224; di ritirata: %s1%%</Italian>
+-		<Spanish>Probabilidades de retirada: %s1%%</Spanish>
+-	</TEXT>
+-	
+ 	<!-- advc.178: Based on TXT_KEY_NONE in CIV4GameTextInfos.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_EARLY_ELECTION</Tag>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index fe76c1dc8..d7313a754 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1331,15 +1331,16 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ /*	advc.004: Based on code cut from setUnitHelp.
+ 	Avoids showing units that are very slightly damaged at full strength
+ 	or units that are barely alive at 0 strength. */
+-void CvGameTextMgr::setHurtUnitStrength(CvWString& szBuffer, CvUnit const& kUnit)
++void CvGameTextMgr::setHurtUnitStrength(CvWString& szBuffer, CvUnit const& kUnit,
++	/* <advc.048c> */ int iHP)
+ {
++	if (iHP < 0)
++		iHP = kUnit.currHitPoints(); // </advc.048c>
+ 	int const iBaseStr = (kUnit.getDomainType() == DOMAIN_AIR ?
+ 			kUnit.airBaseCombatStr() : kUnit.baseCombatStr());
+ 	// as in BtS:
+-	float fCurrStrength = iBaseStr * kUnit.currHitPoints() /
+-			(float)kUnit.maxHitPoints();
+-	int iCurrStrengthTimes100 = (100 * iBaseStr *
+-			kUnit.currHitPoints()) / kUnit.maxHitPoints();
++	float fCurrStrength = iBaseStr * iHP / (float)kUnit.maxHitPoints();
++	int iCurrStrengthTimes100 = (100 * iBaseStr * iHP) / kUnit.maxHitPoints();
+ 	// %.1f would round up to e.g. 2.0/2 for a Warrior here
+ 	if (iBaseStr * kUnit.maxHitPoints() - iCurrStrengthTimes100 <= 5)
+ 		fCurrStrength = iBaseStr - 0.1f;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 576cafb51..db49d701f 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -45,7 +45,9 @@ public:
+ 			bool bColorAllegiance = false, // advc.048
+ 			bool bOmitOwner = false, // advc.061
+ 			bool bIndicator = false); // advc.007
+-	void setHurtUnitStrength(CvWString& szBuffer, CvUnit const& kUnit); // advc.004
++	// advc.004 (Exposed to Python, replacing redunant code in CyMainInterface.py)
++	void setHurtUnitStrength(CvWString& szBuffer, CvUnit const& kUnit,
++			int iHP = -1); // advc.048c
+ 	void setPlotListHelp(CvWStringBuffer &szString, CvPlot const& kPlot, bool bOneLine, bool bShort,
+ 			bool bIndicator = false); // advc.061
+ 	// <advc.004c>
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 49ff30816..783f0c751 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -11,6 +11,7 @@
+ #include "PlotRange.h"
+ #include "CvArea.h"
+ #include "BarbarianWeightMap.h" // advc.304
++#include "CvGameTextMgr.h" // advc.048c
+ #include "CvInfo_Command.h"
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+@@ -41,6 +42,9 @@ CvUnit::CvUnit() // advc.003u: Body cut from the deleted reset function
+ 	m_iCargo = 0;
+ 	m_iAttackPlotX = INVALID_PLOT_COORD;
+ 	m_iAttackPlotY = INVALID_PLOT_COORD;
++	// <advc.048c>
++	m_iAttackOdds = -1;
++	m_iPreCombatHP = -1; // </advc.048c>
+ 	m_iCombatTimer = 0;
+ 	m_iCombatFirstStrikes = 0;
+ 	m_iFortifyTurns = 0;
+@@ -1080,6 +1084,11 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ 			iDefenderOdds, iDefenderStrength, iAttackerDamage, iDefenderDamage,
+ 			&cdDefenderDetails);
+ 	int iAttackerKillOdds = iDefenderOdds * (100 - withdrawalProbability()) / 100;
++	// <advc.048c> Preserve info for interface message
++	m_iAttackOdds = pDefender->m_iAttackOdds = GC.getCOMBAT_DIE_SIDES()
++			- iAttackerKillOdds;
++	m_iPreCombatHP = currHitPoints();
++	pDefender->m_iPreCombatHP = pDefender->currHitPoints(); // </advc.048c>
+ 
+ 	// advc.001: Replacing isHuman checks
+ 	if (isActiveOwned() || pDefender->isActiveOwned())
+@@ -1601,24 +1610,10 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted,
+ 	}
+ 	else
+ 	{
+-		bool const bSea = (getDomainType() == DOMAIN_SEA); // advc.002l
+-		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WITHDRAW",
+-				getNameKey(), pDefender->getNameKey()));
+-		gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
+-				bSea ? "AS2D_OUR_SEA_WITHDRAWL" : // advc.002l
+-				"AS2D_OUR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL,
+-				GC.getColorType("GREEN"), pPlot->getX(), pPlot->getY());
+-		szBuffer = gDLL->getText("TXT_KEY_MISC_ENEMY_UNIT_WITHDRAW",
+-				getNameKey(), pDefender->getNameKey());
+-		gDLL->UI().addMessage(pDefender->getOwner(), true, -1, szBuffer,
+-				bSea ? "AS2D_THEIR_SEA_WITHDRAWL" : // advc.002l
+-				"AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL,
+-				GC.getColorType("RED"), pPlot->getX(), pPlot->getY());
+-
++		addWithdrawalMessages(*pDefender); // advc: Moved into new function
+ 		changeMoves(std::max(GC.getMOVE_DENOMINATOR(),
+ 				pPlot->movementCost(*this, getPlot())));
+ 		checkRemoveSelectionAfterAttack();
+-
+ 		getGroup()->clearMissionQueue();
+ 	}
+ }
+@@ -1636,25 +1631,14 @@ void CvUnit::addAttackSuccessMessages(CvUnit const& kDefender, bool bFought) con
+ 			: NULL, // advc.010: No victory sound for killing noncombatant
+ 			MESSAGE_TYPE_INFO, NULL,
+ 			GC.getColorType("GREEN"), kPlot.getX(), kPlot.getY());
+-	if (getVisualOwner(kDefender.getTeam()) != getOwner())
+-	{
+-		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_UNKNOWN",
+-				kDefender.getNameKeyNoGG(), // advc.004u
+-				getNameKey());
+-	}
+-	else
+-	{
+-		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED",
+-				kDefender.getNameKeyNoGG(), // advc.004u
+-				getNameKey(), getVisualCivAdjective(kDefender.getTeam()));
+-	}
++	setHasBeenDefendedAgainstMessage(szBuffer, kDefender, 1); // advc.048c
+ 	gDLL->UI().addMessage(kDefender.getOwner(), bFought, -1, szBuffer,
+ 			bSound ? GC.getInfo(GET_PLAYER(kDefender.getOwner()) // advc.002l
+ 			.getCurrentEra()).getAudioUnitDefeatScript() /* advc.002l: */ : NULL,
+ 			MESSAGE_TYPE_INFO, NULL, GC.getColorType("RED"), kPlot.getX(), kPlot.getY());
+ }
+ 
+-// advc: Cut from resolveCombat - just to be consistent with addAttackSuccessMessages.
++// <advc> Cut from resolveCombat - just to be consistent with addAttackSuccessMessages.
+ void CvUnit::addDefenseSuccessMessages(CvUnit const& kDefender) const
+ {
+ 	bool const bSound = !suppressStackAttackSound(kDefender);
+@@ -1667,9 +1651,7 @@ void CvUnit::addDefenseSuccessMessages(CvUnit const& kDefender) const
+ 			.getCurrentEra()).getAudioUnitDefeatScript() /* 002l: */ : NULL,
+ 			MESSAGE_TYPE_INFO, NULL, GC.getColorType("RED"),
+ 			kPlot.getX(), kPlot.getY());
+-	szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_KILLED_ENEMY_UNIT", kDefender.getNameKey(),
+-			getNameKeyNoGG(), // advc.004u
+-			getVisualCivAdjective(kDefender.getTeam()));
++	setHasBeenDefendedAgainstMessage(szBuffer, kDefender, -1); // advc.048c
+ 	gDLL->UI().addMessage(kDefender.getOwner(),
+ 			true, -1, szBuffer,
+ 			bSound ? GC.getInfo(GET_PLAYER(kDefender.getOwner()) // advc.002l
+@@ -1678,6 +1660,118 @@ void CvUnit::addDefenseSuccessMessages(CvUnit const& kDefender) const
+ 			kPlot.getX(), kPlot.getY());
+ }
+ 
++
++void CvUnit::addWithdrawalMessages(CvUnit const& kDefender) const
++{
++	bool const bSea = (getDomainType() == DOMAIN_SEA); // advc.002l
++	CvPlot const& kPlot = kDefender.getPlot();
++	CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WITHDRAW",
++			getNameKey(), kDefender.getNameKey()));
++	gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
++			bSea ? "AS2D_OUR_SEA_WITHDRAWL" : // advc.002l
++			"AS2D_OUR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL,
++			GC.getColorType("GREEN"), kPlot.getX(), kPlot.getY());
++	setHasBeenDefendedAgainstMessage(szBuffer, kDefender, 0); // advc.048c
++	gDLL->UI().addMessage(kDefender.getOwner(), true, -1, szBuffer,
++			bSea ? "AS2D_THEIR_SEA_WITHDRAWL" : // advc.002l
++			"AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL,
++			GC.getColorType("RED"), kPlot.getX(), kPlot.getY());
++} // </advc>
++
++/*	advc.048c: Based on code originally in resolveCombat.
++	iAttackSuccess:
++	1 for defender destroyed, -1 for attacker destroyed, 0 for withdrawal. */
++void CvUnit::setHasBeenDefendedAgainstMessage(CvWString& kBuffer,
++	CvUnit const& kDefender, int iAttackSuccess) const
++{
++	static bool const bOdds = GC.getDefineBOOL("SHOW_ODDS_IN_COMBAT_MESSAGES");
++	CvWString szOdds, szDefStrength;
++	if (bOdds)
++	{
++		szOdds.Format(L"%.1f", (m_iAttackOdds * 100.f) / GC.getCOMBAT_DIE_SIDES());
++		if (kDefender.m_iPreCombatHP < kDefender.maxHitPoints())
++		{
++			CvWString szHurtStr;
++			GAMETEXT.setHurtUnitStrength(szHurtStr, kDefender,
++					kDefender.m_iPreCombatHP);
++			szDefStrength.append(L" (");
++			szDefStrength.append(szHurtStr);
++			szDefStrength.append(L")");
++		}
++	}
++	if (iAttackSuccess < 0)
++	{
++		if (bOdds)
++		{
++			kBuffer = gDLL->getText("TXT_KEY_MISC_YOU_KILLED_ENEMY_UNIT_ODDS",
++					kDefender.getNameKey(),
++					getNameKeyNoGG(), // advc.004u
++					getVisualCivAdjective(kDefender.getTeam()),
++					szDefStrength.c_str(), szOdds.c_str());
++		}
++		else
++		{
++			kBuffer = gDLL->getText("TXT_KEY_MISC_YOU_KILLED_ENEMY_UNIT",
++					kDefender.getNameKey(),
++					getNameKeyNoGG(), // advc.004u
++					getVisualCivAdjective(kDefender.getTeam()));
++		}
++	}
++	else if (iAttackSuccess > 0)
++	{
++		if (getVisualOwner(kDefender.getTeam()) != getOwner())
++		{
++			if (bOdds)
++			{
++				kBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_UNKNOWN_ODDS",
++						kDefender.getNameKeyNoGG(), // advc.004u
++						getNameKey(),
++						szDefStrength.c_str(), szOdds.c_str());
++			}
++			else
++			{
++				kBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_UNKNOWN",
++						kDefender.getNameKeyNoGG(), // advc.004u
++						getNameKey());
++			}
++		}
++		else
++		{
++			if (bOdds)
++			{
++				kBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED_ODDS",
++						kDefender.getNameKeyNoGG(), // advc.004u
++						getNameKey(),
++						getVisualCivAdjective(kDefender.getTeam()),
++						szDefStrength.c_str(), szOdds.c_str());
++			}
++			else
++			{
++				kBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED",
++						kDefender.getNameKeyNoGG(), // advc.004u
++						getNameKey(),
++						getVisualCivAdjective(kDefender.getTeam()));
++			}
++		}
++	}
++	else
++	{
++		if (bOdds)
++		{
++			kBuffer = gDLL->getText("TXT_KEY_MISC_ENEMY_UNIT_WITHDRAW_ODDS",
++					getNameKey(),
++					kDefender.getNameKeyNoGG(), // advc.004u
++					szDefStrength.c_str(), szOdds.c_str());
++		}
++		else
++		{
++			kBuffer = gDLL->getText("TXT_KEY_MISC_ENEMY_UNIT_WITHDRAW",
++					getNameKey(),
++					kDefender.getNameKeyNoGG()); // advc.004u
++		}
++	}
++}
++
+ // advc.002l:
+ bool CvUnit::suppressStackAttackSound(CvUnit const& kDefender) const
+ {
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 42a56e160..d0251e077 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -1115,6 +1115,9 @@ protected:
+ 	int m_iCargoCapacity;
+ 	int m_iAttackPlotX;
+ 	int m_iAttackPlotY;
++	// <advc.048c>
++	int m_iAttackOdds;
++	int m_iPreCombatHP; // </advc.048c>
+ 	int m_iCombatTimer;
+ 	int m_iCombatFirstStrikes;
+ 	//int m_iCombatDamage; // advc.003j: unused
+@@ -1224,6 +1227,10 @@ protected:
+ 	void resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible); // K-Mod
+ 	void addAttackSuccessMessages(CvUnit const& kDefender, bool bFought) const; // advc.010
+ 	void addDefenseSuccessMessages(CvUnit const& kDefender) const; // advc
++	void addWithdrawalMessages(CvUnit const& kDefender) const; // advc
++	// <advc.048c>
++	void setHasBeenDefendedAgainstMessage(CvWString& kBuffer, CvUnit const& kDefender,
++			int iAttackSuccess) const; // </advc.048c>
+ 	bool suppressStackAttackSound(CvUnit const& kDefender) const; // advc.002l
+ 	void resolveAirCombat(CvUnit* pInterceptor, CvPlot* pPlot, CvAirMissionDefinition& kBattle);
+ 	void checkRemoveSelectionAfterAttack();
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=19451

@@ -1,0 +1,136 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1530
+# Commit: ad61744bd8f1626429af34f267b5a8f1e77bd2aa
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9ac5275bc779084f8d1fa0b4fcdc7afbd3d21d92
+# Title: Record spaceship launch in replays
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	3	CvGameCoreDLL/CvCity.cpp
+28	27	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index e50eef212..9d912e967 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8361,12 +8361,23 @@ void CvCity::setCultureLevel(CultureLevelTypes eNewValue, bool bUpdatePlotGroups
+ 				MESSAGE_TYPE_MINOR_EVENT, GC.getCommerceInfo(COMMERCE_CULTURE).
+ 				getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"),
+ 				getX_INLINE(), getY_INLINE(), true, true);
+-		if (getCultureLevel() == GC.getNumCultureLevelInfos() - 1)
+-		{	// <advc.106> Cut from below. Use this for the replay message as well.
++		// <advc.106>
++		// To replace hardcoded getCultureLevel()==GC.getNumCultureLevelInfos()-1
++		int iVictoryCultureLevel = NO_CULTURELEVEL;
++		for(int i = 0; i < GC.getNumVictoryInfos(); i++)
++		{
++			if(!GC.getGameINLINE().isVictoryValid((VictoryTypes)i))
++				continue;
++			int iLevel = GC.getVictoryInfo((VictoryTypes)i).getCityCulture();
++			if(iLevel > 0 && (iVictoryCultureLevel <= 0 || iVictoryCultureLevel > iLevel))
++				iVictoryCultureLevel = iLevel;
++		}
++		if (getCultureLevel() == iVictoryCultureLevel && iVictoryCultureLevel > 0)
++		{	// Cut from below. Use this for the replay message as well.
+ 			CvWString szMsg(gDLL->getText("TXT_KEY_MISC_CULTURE_LEVEL", getNameKey(),
+ 					GC.getCultureLevelInfo(getCultureLevel()).getTextKeyWide()));
+ 			// </advc.106>
+-			for (int iI = 0; iI < MAX_PLAYERS; iI++)
++			for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 			{
+ 				CvPlayer const& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
+ 				if (!kLoopPlayer.isAlive())
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 7cc39c3d1..645e56796 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -21361,11 +21361,8 @@ bool CvPlayer::isValidTriggerCorporation(const CvEventTriggerInfo& kTrigger, CvC
+ void CvPlayer::launch(VictoryTypes eVictory)
+ {
+ 	CvTeam& kTeam = GET_TEAM(getTeam());
+-
+ 	if (!kTeam.canLaunch(eVictory))
+-	{
+ 		return;
+-	}
+ 
+ 	kTeam.finalizeProjectArtTypes();
+ 	kTeam.setVictoryCountdown(eVictory, kTeam.getVictoryDelay(eVictory));
+@@ -21378,34 +21375,38 @@ void CvPlayer::launch(VictoryTypes eVictory)
+ 
+ 	kTeam.setCanLaunch(eVictory, false);
+ 
+-	CvCity *capital = getCapitalCity();
+-
+-	//message
+-	CvWString szBuffer;
+-	for(int i = 0; i < MAX_PLAYERS; ++i)
++	CvCity* pCapital = getCapitalCity();
++	// <advc.106> Cut from the loop below. Use this for the replay message as well.
++	CvWString szMsg(gDLL->getText("TXT_KEY_VICTORY_TEAM_HAS_LAUNCHED",
++			kTeam.getName().GetCString()));
++	int iPlotX = -1;
++	int iPlotY = -1; // </advc.106>
++	for(int i = 0; i < MAX_CIV_PLAYERS; ++i)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)i).isAlive())
+-		{
+-			int plotX = -1;
+-			int plotY = -1;
+-			if((capital != NULL) && capital->isRevealed(GET_PLAYER((PlayerTypes) i).getTeam(), false))
+-			{
+-				plotX = capital->getX();
+-				plotY = capital->getY();
+-			}
+-
+-			if (GET_PLAYER((PlayerTypes)i).getTeam() == getTeam())
+-			{
+-				szBuffer = gDLL->getText("TXT_KEY_VICTORY_YOU_HAVE_LAUNCHED");
+-			}
+-			else
+-			{
+-				szBuffer = gDLL->getText("TXT_KEY_VICTORY_TEAM_HAS_LAUNCHED", GET_TEAM(getTeam()).getName().GetCString());
+-			}
++		CvPlayer const& kObs = GET_PLAYER((PlayerTypes)i);
++		if (!kObs.isAlive())
++			continue;
+ 
+-			gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)i), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CULTURELEVEL", MESSAGE_TYPE_MAJOR_EVENT, ARTFILEMGR.getMiscArtInfo("SPACE_SHIP_BUTTON")->getPath(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"), plotX, plotY, true, true);
++		if(pCapital != NULL && pCapital->isRevealed(kObs.getTeam(), false))
++		{
++			iPlotX = pCapital->getX();
++			iPlotY = pCapital->getY();
+ 		}
++		CvWString szBuffer(szMsg); // advc.106
++		if (kObs.getTeam() == getTeam())
++			szBuffer = gDLL->getText("TXT_KEY_VICTORY_YOU_HAVE_LAUNCHED");
++
++		gDLL->getInterfaceIFace()->addHumanMessage(kObs.getID(), true,
++				GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CULTURELEVEL",
++				MESSAGE_TYPE_MAJOR_EVENT, ARTFILEMGR.getMiscArtInfo("SPACE_SHIP_BUTTON")->getPath(),
++				(ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++				iPlotX, iPlotY, true, true);
+ 	}
++	// <advc.106>
++	GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
++			getID(), szMsg, iPlotX, iPlotY,
++			(ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++	// </advc.106>
+ }
+ 
+ bool CvPlayer::isFreePromotion(UnitCombatTypes eUnitCombat, PromotionTypes ePromotion) const
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4483

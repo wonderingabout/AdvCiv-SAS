@@ -1,0 +1,241 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6089
+# Commit: 2be4fd2642f193dd11df172eb97ac08b919cbb09
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a9690eb86bfbef33c92ca27d37de53c0f1945911
+# Title: Fix multiple AI military production follow-up issues
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+56	28	CvGameCoreDLL/CvCityAI.cpp
+48	1	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+3	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index acc60a59a..f44d20117 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2192,38 +2192,47 @@ void CvCityAI::AI_chooseProduction()
+ 			int iAttackCityCount = kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK_CITY);
+ 			int iAttackCount = iAttackCityCount +
+ 					kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK);
+-			if (iAttackCount == 0)
++			// <!-- custom: This generic early city-hunting stack can otherwise bypass the later normal military-spending gate entirely.
++			// Keep its inherited wartime freedom, but while peaceful stop growing the generic offensive stack once the same +15 spending headroom used by normal unit production is exhausted.
++			// The targeted advc.300 Barbarian-city attacker logic below remains unchanged. Full save-file 456 runs exposed peaceful cases such as Roosevelt at turn 100 building another city attacker at unitSpending 200 versus maxUnitSpending 76. See KI#197.5. (ChatGPT-5.6-Sol) -->
++			bool const bCityHuntingStackSpendingAllowed = (bLandWar || iUnitSpending < iMaxUnitSpending + 15);
++			if (gMilitaryProductionLogLevel >= 3) logBBAI("MILITARY_PRODUCTION_SPENDING_GATE turn=%d player=%d %S city=%S stage=CITY_HUNTING_STACK unitSpending=%d maxPlus15=%d spendingAllowed=%d landWar=%d attackCount=%d attackCityCount=%d startAttackStackRand=%d",
++				GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, iUnitSpending, iMaxUnitSpending + 15, bCityHuntingStackSpendingAllowed, bLandWar, iAttackCount, iAttackCityCount, iStartAttackStackRand);
++			if (bCityHuntingStackSpendingAllowed)
+ 			{
+-				if (!bFinancialTrouble)
++				if (iAttackCount == 0)
+ 				{
+-					if (AI_chooseUnit(UNITAI_ATTACK, iStartAttackStackRand))
+-						return;
+-				}
+-			}
+-			else
+-			{
+-				//if((iAttackCount > 1) && (iAttackCityCount == 0))
+-				/*  <advc.017> Just 1 city-attacker? Isn't it supposed to be a
+-					"city hunting stack"? Early units don't have the ATTACK_CITY
+-					AI type, but AI_chooseUnit doesn't care much about the AI types
+-					assigned in XML. Otoh, ATTACK units will be more useful than
+-					ATTACK_CITY if we don't end up hunting for any cities ... */
+-				if (iAttackCount >= iAttackCityCount &&
+-					iAttackCityCount < 1 + iBuildUnitProb / 19) // </advc.017>
+-				{
+-					if (AI_chooseUnit(UNITAI_ATTACK_CITY))
++					if (!bFinancialTrouble)
+ 					{
+-						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses to start city attack stack", sCityName);
+-						return;
++						if (AI_chooseUnit(UNITAI_ATTACK, iStartAttackStackRand))
++							return;
+ 					}
+ 				}
+-				//else if (iAttackCount < 3 + iBuildUnitProb / 10)
+-				else if (iAttackCount < 2 + iBuildUnitProb / 18) // advc.017
++				else
+ 				{
+-					if (AI_chooseUnit(UNITAI_ATTACK))
++					//if((iAttackCount > 1) && (iAttackCityCount == 0))
++					/*  <advc.017> Just 1 city-attacker? Isn't it supposed to be a
++						"city hunting stack"? Early units don't have the ATTACK_CITY
++						AI type, but AI_chooseUnit doesn't care much about the AI types
++						assigned in XML. Otoh, ATTACK units will be more useful than
++						ATTACK_CITY if we don't end up hunting for any cities ... */
++					if (iAttackCount >= iAttackCityCount &&
++						iAttackCityCount < 1 + iBuildUnitProb / 19) // </advc.017>
+ 					{
+-						if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses to add to city attack stack", sCityName);
+-						return;
++						if (AI_chooseUnit(UNITAI_ATTACK_CITY))
++						{
++							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses to start city attack stack", sCityName);
++							return;
++						}
++					}
++					//else if (iAttackCount < 3 + iBuildUnitProb / 10)
++					else if (iAttackCount < 2 + iBuildUnitProb / 18) // advc.017
++					{
++						if (AI_chooseUnit(UNITAI_ATTACK))
++						{
++							if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S chooses to add to city attack stack", sCityName);
++							return;
++						}
+ 					}
+ 				}
+ 			}
+@@ -3667,8 +3676,16 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	if (!bUnitExempt && iTotalFloatingDefenders < iNeededFloatingDefenders &&
+-		(!bFinancialTrouble || bLandWar))
++	// <!-- custom: The earlier floating-defender pass respects unit spending, but this late 50% retry did not and could keep topping up peaceful empires far above the generic military budget.
++	// Preserve wartime behavior and severe composition recovery, but for ordinary peaceful shortages require the same +15 spending headroom as the later generic-unit path.
++	// Use the same severe-shortage threshold as floating defender 1 so both passes agree on when deficient army composition is important enough to override spending.
++	// Save files 456, 457, and 458 repeatedly showed the late retry firing over budget, while the first spending-gated save-456 rerun also exposed rare severe shortages that should retain this composition-repair path. See KI#197.3. (ChatGPT-5.6-Sol) -->
++	bool const bFloatingDefender2Candidate = (!bUnitExempt && iTotalFloatingDefenders < iNeededFloatingDefenders && (!bFinancialTrouble || bLandWar));
++	bool const bFloatingDefendersSeverelyLow = (iTotalFloatingDefenders < (iNeededFloatingDefenders + 1) / (bGetBetterUnits ? 3 : 2));
++	bool const bFloatingDefender2SpendingAllowed = (bLandWar || bFloatingDefendersSeverelyLow || iUnitSpending < iMaxUnitSpending + 15);
++	if (bLogDetailedMilitaryProduction && bFloatingDefender2Candidate) logBBAI("MILITARY_PRODUCTION_SPENDING_GATE turn=%d player=%d %S city=%S stage=FLOATING_DEFENDER_2 floatingHave=%d floatingNeed=%d unitSpending=%d maxPlus15=%d spendingAllowed=%d severelyLow=%d landWar=%d",
++		kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, iTotalFloatingDefenders, iNeededFloatingDefenders, iUnitSpending, iMaxUnitSpending + 15, bFloatingDefender2SpendingAllowed, bFloatingDefendersSeverelyLow, bLandWar);
++	if (bFloatingDefender2Candidate && bFloatingDefender2SpendingAllowed)
+ 	{
+ 		if (AI_chooseLeastRepresentedUnit(floatingDefenderWeight, 50))
+ 		{
+@@ -13361,10 +13378,21 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 
+ 					if (bStrictLandDefenderUnitAI && bNoExcessStrictDefendersUnitAIs)
+ 					{
++						// <!-- custom: a concrete UNITAI_CITY_DEFENSE request is not excess while this city is still below its minimum strict city-defense requirement (including Settlers waiting here for an escort), or while the empire is in the same minimal military-per-city state used by the immediate post-Settler defense branch. Keep this narrow to CITY_DEFENSE so ordinary RESERVE/CITY_SPECIAL requests still use the existing anti-defender-overproduction optimization. See KI#197.4. (ChatGPT-5.6-Sol) -->
++						const bool bCityDefenseRequest = (eChangedUnitAI == UNITAI_CITY_DEFENSE);
++						const int iPlotSettlers = getPlot().plotCount(PUF_isUnitAIType, UNITAI_SETTLE, -1, getOwner());
++						const int iPlotCityDefenders = getPlot().plotCount(PUF_isUnitAIType, UNITAI_CITY_DEFENSE, -1, getOwner());
++						const int iMinCityDefenders = AI_minDefenders();
++						const int iMilitaryUnits = kPlayer.getNumMilitaryUnits();
++						const bool bMinimumCityDefenseNeed = (bCityDefenseRequest && iPlotCityDefenders < iMinCityDefenders + iPlotSettlers);
++						const bool bEmpireMilitaryThin = (bCityDefenseRequest && iMilitaryUnits <= iNumCities + 1);
++						const bool bStrictDefenderActuallyExcess = (!bMinimumCityDefenseNeed && !bEmpireMilitaryThin);
++						if (bLogDetailedMilitaryProduction && !bStrictDefenderActuallyExcess) logBBAI("MILITARY_PRODUCTION_STRICT_DEFENDER_GATE turn=%d player=%d %S city=%S cityId=%d requestedUnit=%s requestedAI=%s result=PRESERVE_DEFENDER cityDefenseRequest=%d minimumCityDefenseNeed=%d empireMilitaryThin=%d plotCityDefenders=%d minCityDefenders=%d plotSettlers=%d militaryUnits=%d cities=%d", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), getID(), GC.getInfo(eChangedUnit).getType(), GC.getInfo(eChangedUnitAI).getType(), bCityDefenseRequest, bMinimumCityDefenseNeed, bEmpireMilitaryThin, iPlotCityDefenders, iMinCityDefenders, iPlotSettlers, iMilitaryUnits, iNumCities);
++
+ 						// 2) Don’t starve defenders if there’s immediate danger
+ 						// <!-- custom: update: the unitai swap to unitai_counter is not working anymore ingame it seems, so make it less strict to see if solves -->
+ 						// if (!bDanger && !(bAtWar && bEnemyStrong))
+-						if (!(bAtWar && bEnemyStrong))
++						if (bStrictDefenderActuallyExcess && !(bAtWar && bEnemyStrong))
+ 						{
+ 							// // <!-- custom: if we are overall strong and have met unit requirements to defend cities we should go on the offensive. See known issue as of now 53.2.2 for details or related info -->
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 339abadb9..4fd647f2d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -247,6 +247,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [196 - (Fixed/Improved) AdvCiv-SAS's short-chain irrigation replacement could leave valuable BFC bonus Farms dry for up to 191 turns (Base AdvCiv had a similar untargeted routine, which AdvCiv-SAS does not use because it conflicted with SAS improvement choice)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#196---fixedimproved-advciv-sass-short-chain-irrigation-replacement-could-leave-valuable-bfc-bonus-farms-dry-for-up-to-191-turns-base-advciv-had-a-similar-untargeted-routine-which-advciv-sas-does-not-use-because-it-conflicted-with-sas-improvement-choice)\
+ [197 - (Fixed/Improved) Base AdvCiv/K-Mod military production could remain too low when an empire was under-strength for its size because relative-power logic only throttled strong AIs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#197---fixedimproved-base-advcivk-mod-military-production-could-remain-too-low-when-an-empire-was-under-strength-for-its-size-because-relative-power-logic-only-throttled-strong-ais)\
+ [197.2 - (Fixed/Improved) Base AdvCiv/K-Mod final building short-circuit (`CvCityAI::AI_chooseProduction`'s short-circuit 3) ignored BuildUnitProb and could override strong military-production pressure immediately before generic unit production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1972---fixedimproved-base-advcivk-mod-final-building-short-circuit-cvcityaiai_chooseproductions-short-circuit-3-ignored-buildunitprob-and-could-override-strong-military-production-pressure-immediately-before-generic-unit-production)\
++[197.3 - (Fixed/Improved) Base AdvCiv/K-Mod late floating-defender retry ignored military unit-spending limits and could keep producing extra defenders far above budget in peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1973---fixedimproved-base-advcivk-mod-late-floating-defender-retry-ignored-military-unit-spending-limits-and-could-keep-producing-extra-defenders-far-above-budget-in-peace)\
++[197.4 - (Fixed/Improved) AdvCiv-SAS excess-defender optimization could replace explicitly required `UNITAI_CITY_DEFENSE` production with offensive UnitAIs, including minimum defenders and Settler escorts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1974---fixedimproved-advciv-sas-excess-defender-optimization-could-replace-explicitly-required-unitai_city_defense-production-with-offensive-unitais-including-minimum-defenders-and-settler-escorts)\
++[197.5 - (Fixed/Improved) Base AdvCiv/K-Mod generic city-hunting-stack production ignored military unit-spending limits and could keep growing peaceful offensive stacks far above budget](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1975---fixedimproved-base-advcivk-mod-generic-city-hunting-stack-production-ignored-military-unit-spending-limits-and-could-keep-growing-peaceful-offensive-stacks-far-above-budget)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7400,7 +7403,7 @@ In practical terms, the correction made the ordinary AI production logic noticea
+ 
+ The runs also retained substantial variation between civilizations rather than equalizing every army. Small empires were evaluated by military density rather than being asked to chase the raw total power of much larger rivals, while rapidly expanded empires could receive strong temporary pressure until their military caught up. The earlier SAS Process-fallback overproduction did not return: the refined runs continued to show only genuine empty-queue fallback contexts and no Process-replacement fallback.
+ 
+-A separate related Base AdvCiv/K-Mod follow-up was also exposed by the same diagnostics: `AI_chooseProduction` short-circuit 2 explicitly lowers building odds as `iBuildUnitProb` rises, while the later short-circuit 3 did not use `iBuildUnitProb`. That distinct issue is now addressed separately in KI#197.2.
++A separate related Base AdvCiv/K-Mod follow-up was also exposed by the same diagnostics: `AI_chooseProduction` short-circuit 2 explicitly lowers building odds as `iBuildUnitProb` rises, while the later short-circuit 3 did not use `iBuildUnitProb`. That distinct issue is addressed in KI#197.2. Continued production-branch auditing then exposed the separate spending and role-selection issues documented in KI#197.3 through KI#197.5.
+ 
+ Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
+ 
+@@ -7419,3 +7422,47 @@ The refined save-file 458 run evaluated short-circuit 3 640 times. 375 evaluatio
+ The earlier save-file 457 prototype test also supported the intended direction: severe short-circuit 3 building choices fell from 15 of 25 in the old run to 11 of 27 after weighting. Retrospectively, 24 of the 25 old severe save-file 457 cases had the spending headroom required by the final refinement, so the added spending gate preserves almost all of the target correction while avoiding unrelated pressure once the AI is already over its normal unit budget.
+ 
+ Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
++
++## 197.3 - (Fixed/Improved) Base AdvCiv/K-Mod late floating-defender retry ignored military unit-spending limits and could keep producing extra defenders far above budget in peace
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1_X49NMplPbGxRBoroNTki2ky1kl6HiJ2?usp=sharing).
++
++The continued KI#197 military-production audit exposed a separate inherited spending inconsistency in `CvCityAI::AI_chooseProduction`. Base AdvCiv/K-Mod has an earlier floating-defender pass that checks unit spending before adding more defenders, but the later 50% retry (the branch logged as `choose floating defender 2`) only checked whether the AI was short of floating defenders and whether financial trouble or land war allowed the branch. It had no military-spending check. Direct comparison with Base AdvCiv 1.13 confirmed that this late retry is inherited rather than introduced by AdvCiv-SAS.
++
++The effect was repeatable across several pre-fix full runs. In save file 457, 153 of 281 actual floating-defender-2 choices occurred at or above the normal `max+15` military-spending allowance; 97 of those 153 were peaceful rather than land-war cases. Save file 456 had 85 of 243 choices above `max+15`, including 70 peaceful cases, and a refined save-file 458 run had 49 of 270, including 44 peaceful cases. Many were only small composition shortages. One extreme save-file 456 example had Persia at 6 floating defenders against 7 wanted while unit spending was already 220 against a normal maximum of 84, yet the late retry still produced another military unit.
++
++The first cure simply required the same `max+15` spending headroom used by later generic military production unless the AI was in a land war. That stopped the ordinary peaceful overspending, but the first save-file 456 rerun exposed the opposite edge case: a large army can still have a genuinely poor defensive composition. Eight blocked peaceful cases were severely short of floating defenders; for example, Persia later had only 8 floating defenders against 21 wanted while unit spending was only slightly above the threshold. A blanket budget veto would therefore fix overproduction at the cost of sometimes preventing useful composition repair.
++
++The final rule keeps the spending gate but adds a narrow severe-shortage exception using the same threshold as the earlier floating-defender pass. Floating defender 2 can now ignore the `max+15` budget only during a land war or when floating defenders are severely below the requested count; an ordinary peaceful shortage must have spending headroom. This preserves the inherited role as a composition safety valve without allowing a one- or two-unit shortage to keep expanding an already oversized peaceful military.
++
++The final save-file 456 validation logged 436 floating-defender-2 candidate states. 143 ordinary peaceful over-budget candidates were blocked, and no blocked candidate still produced through this branch. Eleven actual choices remained above `max+15`: 6 were severe peaceful shortages, 4 were land-war cases, and 1 qualified for both reasons. Save file 457 independently confirmed the same behavior. The old run had 153 of 281 actual choices above `max+15`; the final run had only 12 of 233, all explicitly explained by the intended exceptions (10 severe shortages and 2 land-war cases). Thus the branch remains active when composition really needs repair, while the broad peaceful spending bypass is removed.
++
++Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
++
++## 197.4 - (Fixed/Improved) AdvCiv-SAS excess-defender optimization could replace explicitly required `UNITAI_CITY_DEFENSE` production with offensive UnitAIs, including minimum defenders and Settler escorts
++
++The same production audit exposed an AdvCiv-SAS-specific interaction rather than a Base AdvCiv/K-Mod bug. `SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS` can redirect strict defensive UnitAI requests toward offense when the AI appears to have enough defenders. That optimization is useful for avoiding large passive defender stacks, but it was applied inside the broad concrete `AI_chooseUnit` path without knowing whether the caller had specifically determined that a `UNITAI_CITY_DEFENSE` unit was required for a safety invariant.
++
++This could make a safety branch request a real city defender and then return success after AdvCiv-SAS substituted an offensive role. The clearest logs were minimum-city-defense and Settler-escort cases. In one save-file 456 run, Pasargadae entered the minimum-defender branch and selected a Longbowman as `UNITAI_CITY_DEFENSE`, but the SAS substitution changed the result to a Catapult with `UNITAI_ATTACK_CITY`; the caller then logged that it had used the minimum-defender branch. Thebes repeatedly did the same while explicitly asking for defense for an existing Settler. Across the audited runs, 40-98 minimum-defender requests per run could be rewritten; in the last pre-fix save-file 456 sample, 98 of 322 minimum-defender requests were converted, including 49 while military spending was already above `max+15`.
++
++An initial attempt guarded the substitution with `AI_countExcessDefenders`, but save-file testing showed that this metric is broader than the caller's actual requirement. It counts a general set of units that can help defend a city, whereas the minimum-defense branch is specifically comparing strict `UNITAI_CITY_DEFENSE` coverage against `AI_minDefenders()` plus Settlers waiting for an escort. Under that first guard, 94 minimum-defender requests and 6 existing-Settler escort requests were still rewritten, so the approximation was discarded.
++
++The final safeguard stays local to the existing SAS excess-defender optimization and leaves `AI_chooseUnit` signatures and production callers unchanged. It only protects a concrete `UNITAI_CITY_DEFENSE` request when the city has fewer strict city defenders than `AI_minDefenders() + plot Settlers`, or when the empire is in the same minimal military-per-city state used by the immediate post-Settler defense path. `UNITAI_RESERVE` and `UNITAI_CITY_SPECIAL` requests remain eligible for the normal SAS defender-to-offense optimization. Thus the change tightens the meaning of "excess defender" rather than creating special wrappers or disabling the optimization broadly.
++
++The final save-file 456 run confirmed the intended separation: all 264 minimum-defender choices, all 34 existing-Settler escort-defense choices, all 8 zero-defender choices and all 5 quick post-Settler defense choices kept their requested defensive UnitAI. Ordinary excess-defender conversion remained active; 15 `UNITAI_CITY_DEFENSE`-to-offense substitutions still occurred, all from floating-defender production rather than the protected safety branches. Save file 457 independently reproduced the result: 262 minimum-defender completions, 24 existing-Settler escort defenses and 9 zero-defender branches had zero SAS role rewrites, while the safeguard itself fired 120 times and every protected request remained a defender. Floating-defender production still produced 65 ordinary role substitutions in that run, confirming that the original anti-overdefense optimization remains functional.
++
++Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
++
++## 197.5 - (Fixed/Improved) Base AdvCiv/K-Mod generic city-hunting-stack production ignored military unit-spending limits and could keep growing peaceful offensive stacks far above budget
++
++After the floating-defender and strict-defender fixes, the remaining production logs exposed another inherited spending bypass in `CvCityAI::AI_chooseProduction`. Base AdvCiv/K-Mod contains an early "city hunting stack" block intended to give the AI an appetite for offensive units on tight maps. It can request `UNITAI_ATTACK` or `UNITAI_ATTACK_CITY` before the later generic military-spending gate, and the inherited block has no equivalent unit-spending check. Direct comparison with Base AdvCiv 1.13 confirmed that this generic stack-building behavior is inherited.
++
++The pre-fix save-file 456 run recorded 53 actual `start city attack stack` choices. Nine occurred at or above `max+15`; only one of those nine was during a land war, leaving eight peaceful over-budget stack starts. The clearest example was Roosevelt on turn 100: America had 3 cities, no land war and no immediate danger, but unit spending was 200 against a normal maximum of 76 (`max+15=91`), and the generic city-hunting branch still ordered another `UNITAI_ATTACK_CITY` Axeman. This was not a local defense invariant or a bounded target requirement; it was a generic offensive-stack heuristic continuing despite the normal military budget already being far exceeded.
++
++AdvCiv-SAS now applies the same `max+15` military-spending headroom to the unit-building portion of this generic city-hunting block while peaceful. Land-war behavior is left unchanged, so an actual war can still override the ordinary budget. The experience-building opportunity at the start of the block is also unchanged because it is not another unit order. Importantly, the separate `advc.300` Barbarian-city attacker logic immediately below remains independent: that path estimates a concrete number of attackers from `AI_neededCityAttackersVsBarbarians()` and its existing safety margin, so it is a bounded target-specific requirement rather than the generic stack-growth loop being fixed here.
++
++The final save-file 456 validation evaluated the city-hunting spending gate 1,976 times. 391 peaceful over-budget evaluations were blocked, while 188 over-budget land-war evaluations remained eligible. There were 44 actual generic stack starts; zero peaceful starts occurred at or above `max+15`, and the only actual over-budget start was a deliberate wartime case. The targeted Barbarian-attacker path remained available independently, including cases where the generic stack was blocked but a calculated Barbarian-city requirement still justified a unit.
++
++Save file 457 independently confirmed the rule on a different game history: 2,122 gate evaluations included 351 peaceful over-budget cases that were blocked and 20 over-budget land-war cases that remained eligible. The run produced 45 actual generic city-hunting-stack starts and none occurred above `max+15`. The targeted Barbarian-attacker path fired only once in that run and did so below the spending threshold. Together with save file 456, this shows that the cure removes a broad peaceful offensive spending bypass without suppressing wartime stack growth or the separate bounded Barbarian-conquest logic.
++
++Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 2e9641e48..7c6118d75 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -397,6 +397,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - Retune UnitAI **selection/weights** in `AI_bestUnit`, `AI_bestUnitAI`, `AI_chooseProduction`: land maps emphasize `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` (with some `UNITAI_RESERVE`); defense mode emphasizes `UNITAI_CITY_DEFENSE` / `UNITAI_CITY_SPECIAL` / `UNITAI_RESERVE`; naval UnitAIs are downweighted on land-focused maps. Goal: fewer wandering/baited units; more decisive stacks.
+ - (Requires AdvCiv-SAS 6087+) **AI military production now catches up when an empire becomes under-strength for its size:** dedicated BBAI military-production logging together with SASGameRecord exposed a Base AdvCiv/K-Mod asymmetry: relative-power logic could reduce unit production when an AI was already strong, but there was no opposite catch-up when expansion outpaced army growth. This could leave a rapidly expanding empire with too little military for the amount of territory and cities it needed to defend. To address this, the AI now compares its power per city with the city-weighted average of relevant rivals and proportionally increases its normal willingness to build units while under-strength, while still respecting financial/economic reductions, the better-units strategy and the inherited high-power throttle. In two full post-fix runs from save file 458 and an independent post-fix run from save file 457, this catch-up activated in about 46-47% of logged military-production evaluations when applicable. For example, one save-file 458 state had Kublai at 9 cities and 579 power (about 64 power per city versus 125 for the relevant-rival average), increasing his BuildUnitProb from 47 to 70; save file 457 independently showed Shaka at 7 cities and 377 power (about 54 versus 94 per city), increasing it from 57 to 81. In practice, under-strength AIs therefore became noticeably more willing to reinforce their armies until they caught up, while already-strong AIs received no boost. See [KI#197](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#197---fixedimproved-base-advcivk-mod-military-production-could-remain-too-low-when-an-empire-was-under-strength-for-its-size-because-relative-power-logic-only-throttled-strong-ais).
+ - (Requires AdvCiv-SAS 6088+) **The AI's final important-building retry now respects military-production pressure while another unit still fits its spending budget:** military-production logs showed that Base AdvCiv/K-Mod could reach the end of city production with strong reasons to build units, then give an important building one final chance that ignored that military pressure: in `CvCityAI::AI_chooseProduction`, short-circuit 2 already lowers building odds as `iBuildUnitProb` rises, but short-circuit 3 - the final "last chance to catch important buildings" immediately before generic unit production - recalculated its building chance from building value and land-war state alone. Strong military-production pressure could therefore survive the earlier production logic and then be partly forgotten at the final building retry. In the severe under-strength samples that exposed the issue, this late building retry won 7/9 and 7/8 times in two save-file 458 runs and 15/25 times in save file 457. To fix this, the AI now reduces only this final building chance in proportion to its existing willingness to build units, and only while the normal military-spending gate still has room; once the AI is already over that unit budget, the inherited building odds are left unchanged. The final save-file 458 validation left 375/640 already-over-budget evaluations untouched, while severe under-strength cases that still had spending room fell from about 48% average base building odds to about 33% and chose the building only 5/25 times. This keeps important infrastructure possible while preventing the last building retry from disproportionately overriding the military pressure already used by the surrounding production logic. See [KI#197.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1972---fixedimproved-base-advcivk-mod-final-building-short-circuit-cvcityaiai_chooseproductions-short-circuit-3-ignored-buildunitprob-and-could-override-strong-military-production-pressure-immediately-before-generic-unit-production).
++- (Requires AdvCiv-SAS 6089+) **Late floating-defender production now respects military-spending limits unless floating defenders are severely below need:** dedicated BBAI military-production logging exposed a Base AdvCiv/K-Mod inconsistency in `CvCityAI::AI_chooseProduction`: the earlier floating-defender pass checks unit spending before adding more defenders, but the later 50% retry did not. In the pre-fix save-file 457 run, 153 of 281 actual floating-defender-2 choices occurred at or above the normal `max+15` allowance, including 97 peaceful cases; save file 456 had 85 of 243 above the same threshold, including 70 peaceful cases. One extreme save-file 456 example had Persia only one floating defender short (6 available versus 7 wanted) while unit spending was already 220 against a normal maximum of 84, yet the late retry still produced another military unit. To fix this, ordinary peaceful shortages now require the normal `max+15` spending headroom, while land wars and severe floating-defender shortages may still use the retry; severe shortage uses the same threshold as the earlier floating-defender pass. In the final save-file 456 validation, 143 ordinary peaceful over-budget candidates were blocked and every actual over-budget choice was explained by the intended war/severe-shortage exceptions. Save file 457 independently reduced actual over-budget choices from 153/281 in the old run to only 12/233, all explained by 10 severe shortages and 2 land-war cases. See [KI#197.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1973---fixedimproved-base-advcivk-mod-late-floating-defender-retry-ignored-military-unit-spending-limits-and-could-keep-producing-extra-defenders-far-above-budget-in-peace).
++- (Requires AdvCiv-SAS 6089+) **Generic peaceful city-hunting-stack production now respects military-spending limits:** BBAI military-production logging exposed another Base AdvCiv/K-Mod spending bypass in `CvCityAI::AI_chooseProduction`: the generic "city hunting stack" heuristic can request `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` before the later generic military-spending gate, so it could keep growing an offensive stack even when the AI was already far over budget and not at war. In the pre-fix save-file 456 run, 9 of 53 actual `start city attack stack` choices occurred at or above `max+15`; only one was during a land war, leaving 8 peaceful over-budget stack starts. The clearest example was Roosevelt on turn 100: America had 3 cities, no land war and no immediate danger, unit spending 200 against a normal maximum of 76 (`max+15=91`), yet this branch still ordered another `UNITAI_ATTACK_CITY` Axeman. To fix this, generic city-hunting-stack production now requires the normal `max+15` spending headroom while at peace, while land-war behavior remains unrestricted; the separate bounded target-specific Barbarian-city attacker logic remains unchanged. In the final save-file 456 validation, 391 peaceful over-budget evaluations were blocked while 188 over-budget land-war evaluations remained eligible, and none of 44 actual generic stack starts were peaceful and over budget. Save file 457 independently blocked 351 peaceful over-budget evaluations while preserving 20 over-budget land-war evaluations; none of its 45 actual generic stack starts exceeded `max+15`. See [KI#197.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1975---fixedimproved-base-advcivk-mod-generic-city-hunting-stack-production-ignored-military-unit-spending-limits-and-could-keep-growing-peaceful-offensive-stacks-far-above-budget).
+ - Rebalance perceived **iPower**: downweight some naval units; adjust certain land units (e.g., warrior, animals) to reduce **fake power** that triggers bad wars. See [Long_Comments/Long_Comments_XML.txt](/Long_Comments/Long_Comments_XML.txt) (search for `UnitAI notes (Units XML)`).
+ - XML **DefaultUnitAI / UnitAIs / NotUnitAIs**: align roles with efficiency (e.g., swordsmen primarily offensive even if versatile; longbows defensive unless explicitly set otherwise).
+ - Promotions logic in `CvUnitAI::AI_promotionValue`: add **hard rules** so AIs pick context-appropriate promotions (e.g., City Garrison for `UNITAI_CITY_DEFENSE`, City Raider for `UNITAI_ATTACK_CITY`; avoid Woodsman/Medic on front-line attackers unless context justifies). Rules apply per **UnitAI** (not just by unit type); with exceptions like recon. See **[KI#47](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more)**.
+@@ -441,6 +443,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Minimum Stack size before war**: Added a minimum stack unit count requirement to prevent the stack from being marked as "ready" until it has enough units: no `MOVE_DECLARE_WAR` flag, no premature advance toward the city, and AI keeps building units until the stack is big enough. Helps fix the **issue of "back and forth" war declarations with immediate retreat without city attack**: low-numbered unit stacks were especially sensible to power swings (city defenses, one more enemy units skews win chance, etc.). Change in `CvUnitAI::AI_attackCityMove`. See [KI#104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#104---tremendously-improved-base-advciv-issue-of-the-weird-back-and-forth-of-declaring-war-moving-a-stack-then-withdrawing-without-attacking-which-is-extremely-inefficient).
+ - **City attack oscillation — pre-check vs strong targets (possible mitigation)**: In `CvUnitAI::AI_attackCityMove`, add a sanity check to **skip marching to/attacking a city** when the **defending stack is too strong**. Goal: prevent the inefficient **advance → abort → backtrack** loop and reduce the risk of being caught without time to retreat. **Note:** in the test sample, this behavior also resolved without the change by running ~2+ autoplay turns in a row instead of 1 turn only from a slightly older save file rather; treat this as a **possible fix/sanity check** (not (at least not yet) broadly tested). See [KI#63](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but).
+ - **Early defender overbuild → switch to versatile offense (AI)**: Heuristic in `CvCityAI::AI_chooseUnit` reduces **early-game overproduction of pure defenders** (especially Longbowmen) by swapping the build to a more **offensive/versatile** unit when defense is already sufficient — e.g., Spearmen, Axemen, Camel Archers, with a preference for civ-specific units like War Chariots when available. Also caps/avoids siege (esp. Trebuchets) when they’re inefficient defensively; production can drop **down to zero** if conditions warrant. If no good replacement exists, the AI can **reflag** the chosen defender to an **attack/attack_city/counter** `UnitAI` instead. In testing, this produced **fewer pure defenders** and **more varied stacks** (e.g., a run where Hatshepsut shifted from ~30 Longbowmen at T130 to ~32 War Chariots, plus Camel Archers). See [KI#53.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#532---fixed-and-enhanced-joao-ai-building-way-too-many-defenders-36-longbowmen-at-turn-130-almost-all-with-unitai_city_defense-or-similar-while-being-boxed-in-with-only-3-cities-instead-of-making-about-half-of-these-offense-units-or-versatile-ones-to-punish-overextending-thin-neighbour-fixed-by-having-an-early-phase-we-have-expectedly-too-few-cities-at-this-stage-of-the-game-no-need-to-overbuild-anymore-denders-at-this-stage-of-the-game-switch-to-offense-or-versatile-unitai-rather-and-our-military-composition-has-way-too-many-defender-unitais-switch-to-offense-or-versatile-unitais-which-seemingly-fix-the-issue) and [KI#53.2.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#5322-seemingly-greatly-enhanced-ai-overproducing-defenders-early-on-especially-longbowmen-but-not-only-replaced-with-an-early-produce-more-versatile-units-especially-civ-specific-ones-when-defended-enough-at-least-in-theory-in-cvcityaiai_chooseunit).
++- (Requires AdvCiv-SAS 6089+) **Update :** military-production logging exposed an AdvCiv-SAS-specific edge case where this defender-to-offense substitution could rewrite a `UNITAI_CITY_DEFENSE` request even when the caller had explicitly determined that a real city defender or Settler escort was required. In one pre-fix save-file 456 sample, 98 of 322 minimum-defender requests were converted to another UnitAI; concrete examples included Pasargadae requesting a Longbowman for minimum defense but receiving a Catapult with `UNITAI_ATTACK_CITY`, and Thebes repeatedly requesting defense for an existing Settler but likewise receiving offensive units. To fix this, the optimization now preserves concrete `UNITAI_CITY_DEFENSE` requests when the strict city-defender count is below `AI_minDefenders() + plot Settlers`, plus the existing thin-military post-Settler case. In the final save-file 456 run, all 264 minimum-defender choices, 34 existing-Settler escort choices, 8 zero-defender choices and 5 quick post-Settler defense choices kept their requested UnitAI, while 15 ordinary floating-defender requests were still redirected to offense. Save file 457 independently reproduced the separation: 262 minimum-defender completions, 24 Settler-escort defenses and 9 zero-defender branches had zero SAS role rewrites, while floating-defender production still made 65 ordinary substitutions. See [KI#197.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1974---fixedimproved-advciv-sas-excess-defender-optimization-could-replace-explicitly-required-unitai_city_defense-production-with-offensive-unitais-including-minimum-defenders-and-settler-escorts).
+ - **Siege production — conditional minimization (trebuchets especially)**: In `CvCityAI::AI_chooseUnit`, added targeted checks to keep **siege output** as low as needed—**up to none at all** when conditions say they’re poor value (e.g., when the AI is **weaker** or not preparing **city assaults**). Rationale: **trebuchets** are very **hammer-inefficient** outside direct city attacks; **catapults/cannons** also aren’t versatile enough (and are often misused) for defense. Current tuning intentionally leans **low** versus before (but not permanently zero when other conditions are met). Result: **more varied offensive stacks** and **stronger defense** when behind. See [KI#53.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only). **Update:** Thresholds have been **slightly relaxed pre-Renaissance**; **extra-relaxed when holding key strategic bonuses** (**Iron**, **Copper**, **Horse**, **Camel**, **Elephants**) to enable offense windows (e.g., longbow + siege); and **heavily relaxed from Renaissance onward** so **Cannons** can serve as a defensive pivot and the AI avoids over-producing Pikemen into Cuirassiers, and more generally since later sieges units are stronger and more effective, to also have a more varied and effective military composition.
+ - **City-counter role pruning (e.g. Macemen)**: Removed `UNITAI_CITY_COUNTER` from **non-versatile** units (e.g., `UNIT_MACEMAN`). For example for macemen, as city defenders they’re too easy to punish—knights counter them hard, and even crossbow stacks can beat defending macemen—so they’re better assigned to **offensive** `UnitAI` roles. While macemen beat pikemen, pikes seldom assault cities efficiently, so the city-counter slot isn’t warranted. The same adjustment applies to any other units with this mismatch.
+ - **Mounted "Counter" role pruning:** Removed `UNITAI_COUNTER` from the mounted units (`UNIT_CHARIOT`, `UNIT_EGYPTIAN_WAR_CHARIOT`, `UNIT_CARTHAGE_NUMIDIAN_CAVALRY`) that had it. Rationale: mounted units don’t "receive defense bonuses" (note: not related to bonuses/ressources) and can be countered by other units; assigning them to COUNTER can park them in cities (e.g. seemingly seen in autoplay with War Chariots) and occupies a slot **Longbowmen** are more fit to fill as they unlock early and are cheap and versatile defenders, so these mounted unit lines are better used for offense roles rather during its window—or skipped outside it.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=42136

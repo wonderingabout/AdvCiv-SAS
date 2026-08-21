@@ -1,0 +1,96 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 699
+# Commit: d5ba0bdd2d85b51c88a05ade47242bb0b6d0f9ba
+# History segment: K-Mod history
+# Parent used for diff: 91062bd8870eee2c620f093736d13ddbda573f86
+# Title: The automoves phase for human players now will not automatically activate when one of the automoves units is selected. Automated units which airlift themselv...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	CvGameCoreDLL/CvGameInterface.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+15	3	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 710569c02..b7df87bf3 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -496,7 +496,11 @@ void CvGame::updateTestEndTurn()
+ 				{
+ 					if (GET_PLAYER(getActivePlayer()).hasAutoUnit())
+ 					{
+-						if (!(GC.shiftKey()))
++						//if (!(GC.shiftKey()))
++						// K-Mod. Don't start automoves if we currently have a group selected which would move.
++						CvUnit* pSelectedUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
++						if (!GC.shiftKey() && (pSelectedUnit == NULL || !pSelectedUnit->getGroup()->readyToAuto()))
++						// K-Mod end
+ 						{
+ 							CvMessageControl::getInstance().sendAutoMoves();
+ 						}
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index cd4fe8b98..632a2935a 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -14257,7 +14257,7 @@ void CvGameTextMgr::getWarWearinessString(CvWStringBuffer& szBuffer, PlayerTypes
+ 	else
+ 	{
+ 		const CvPlayer& kTargetPlayer = GET_PLAYER(eTargetPlayer);
+-		if (atWar(kPlayer.getTeam(), kTargetPlayer.getTeam()))
++		if (atWar(kPlayer.getTeam(), kTargetPlayer.getTeam()) && (gDLL->getChtLvl() > 0 || GET_PLAYER(GC.getGameINLINE().getActivePlayer()).canSeeDemographics(ePlayer)))
+ 		{
+ 			iWarWeariness = kPlayer.getModifiedWarWearinessPercentAnger(GET_TEAM(kPlayer.getTeam()).getWarWeariness(kTargetPlayer.getTeam()) * std::max(0, 100 + GET_TEAM(kTargetPlayer.getTeam()).getEnemyWarWearinessModifier())/10000);
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 8afd9bed4..41b904388 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -4000,7 +4000,9 @@ bool CvUnit::airlift(int iX, int iY)
+ 
+ 	finishMoves();
+ 
++	AutomateTypes eAuto = getGroup()->getAutomateType(); // K-Mod
+ 	setXY(pTargetPlot->getX_INLINE(), pTargetPlot->getY_INLINE());
++	getGroup()->setAutomateType(eAuto); // K-Mod. (automated workers sometimes airlift themselves. They should stay automated.)
+ 
+ 	return true;
+ }
+@@ -9560,10 +9562,20 @@ void CvUnit::joinGroup(CvSelectionGroup* pSelectionGroup, bool bRemoveSelected,
+ 		{
+ 			if (getGroup()->getNumUnits() > 1)
+ 			{
+-				// K-Mod - to avoid AI deadlocks, where they just keep grouping and ungroup indefinitely...
+-				if (getGroup()->AI_getMissionAIType() == MISSIONAI_GROUP || getLastMoveTurn() == GC.getGameINLINE().getTurnSlice())
+-				// K-Mod end
++				/* original bts code
++				getGroup()->setActivityType(ACTIVITY_AWAKE); */
++				// K-Mod. For human players, clear existing missions when new units are added to a group; otherwise the group might run away from us as soon as the units are added.
++				// For the AI, only wake the group in particular circumstances. This is to avoid AI deadlocks where they just keep grouping and ungroup indefinitely.
++				if (isHuman())
++				{
++					getGroup()->setAutomateType(NO_AUTOMATE);
++					// On second thought, I'm not going to clear the mission queue. I'm just going to change to rules so that "automoves" won't start while the group is selected.
++					//getGroup()->setActivityType(ACTIVITY_AWAKE);
++					//getGroup()->clearMissionQueue();
++				}
++				else if (getGroup()->AI_getMissionAIType() == MISSIONAI_GROUP || getLastMoveTurn() == GC.getGameINLINE().getTurnSlice())
+ 					getGroup()->setActivityType(ACTIVITY_AWAKE);
++				// K-Mod end
+ 			}
+ 			else
+ 			{
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3442

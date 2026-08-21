@@ -1,0 +1,354 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4925
+# Commit: c4ffe69511a53516e41181b230f0554c9921c42b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a6525a8b7c78ccc5058b657ec5d049d4c41d97a2
+# Title: (Attemptingly fixed or addressed) AI building too many military naval units then gets invaded on land and can't defend, same for AI building settlers at crit...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+3	1	Assets/XML/Units/CIV4UnitClassInfos.xml
+50	40	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+3	0	README.md
+57	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+10	4	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Units/CIV4UnitClassInfos.xml b/Assets/XML/Units/CIV4UnitClassInfos.xml
+index 3435601fb..d2c15580e 100644
+--- a/Assets/XML/Units/CIV4UnitClassInfos.xml
++++ b/Assets/XML/Units/CIV4UnitClassInfos.xml
+@@ -42,12 +42,14 @@
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+ 			<DefaultUnit>UNIT_WOLF</DefaultUnit>
+ 		</UnitClassInfo>
++		<!-- custom: make the settler a national unit (such as are the missionaries in civ4 +/- base advciv as well if i am not mistaken but anyways etc), with only one allowed simultaneously per player, so that AI doesn't spam them very inefficiently (e.g. building settlers in 2 cities at the same time is very costly, see known issue 37 for details, or building one settler when we already have one, there shouldn't be a strong reason to do so, it is more likely to cripple economy than not). Hopefully it does not inconvenience or reduce player freedom too much, but i also think it makes sense in terms of gameplay, to settle one city at a time if i may say, hopefully fine as such or not too bad or even maybe good for balance as well as tremendously helping AI in all cases i think ; this is done thanks to claude ai too who helped me locate this xml spot hehe although i could maybe have found it too but it gave me feedback too and help is nice if i may say when and as i asked if i may say thanks claude ai hehe if i may say too or again here in this case i mean but anyways etc ; it may also make settler timing more strategic as well, as well as also the importance to/in making sure they don't die and to escort them well maybe too, so maybe a fine or/and interesting change at least i want to do it as such but anyways etc anyways etc anyways etc -->
+ 		<UnitClassInfo>
+ 			<Type>UNITCLASS_SETTLER</Type>
+ 			<Description>TXT_KEY_UNIT_SETTLER</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+-			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
++			<!-- custom: was - 1 -->
++			<iMaxPlayerInstances>1</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+ 			<DefaultUnit>UNIT_SETTLER</DefaultUnit>
+ 		</UnitClassInfo>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index dae4ee840..5ed0b553b 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2888,6 +2888,11 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 					GC.getGame().getNukesExploded()) /
+ 					(GC.getGame().countFreeTeamsAlive() + 1));
+ 		}
++
++		// <!-- custom: do not build any settler at all if war likely, prepare for war, the hammer is very precious and can make us win the war with more units, but having an extra city to defend would make us even thinner, having split military, on top of having less units, see known issue 36 for details -->
++		aiUnitAIVal[UNITAI_SETTLE] = 0;
++		// <!-- custom: not sure this one is necessary nor exactly what it does but just in case anyways etc -->
++		aiUnitAIVal[UNITAI_SETTLER_SEA] = 0;
+ 	}
+ 
+ 	if (isBarbarian())
+@@ -2924,33 +2929,34 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 
+ 				aiUnitAIVal[UNITAI_PIRATE_SEA] += pWaterArea->getNumTiles() / 600;
+ 
+-				if (bWarPossible)
+-				{
+-					// K-Mod note: this is bogus. TODO: change it so that it scales properly with map size.
+-					aiUnitAIVal[UNITAI_ATTACK_SEA] += std::min(
+-							pWaterArea->getNumTiles() / 150,
+-							(iCoastalCities * 2 + iMilitaryWeight / 9) / (bAssault ? 4 : 6) +
+-							(bPrimaryArea ? 1 : 0));
+-					aiUnitAIVal[UNITAI_RESERVE_SEA] += std::min(
+-							pWaterArea->getNumTiles() / 200,
+-							(iCoastalCities * 2 + iMilitaryWeight / 7) / 5 +
+-							(bPrimaryArea ? 1 : 0));
+-					aiUnitAIVal[UNITAI_ESCORT_SEA] += (kOwner.AI_totalWaterAreaUnitAIs(
+-							*pWaterArea, UNITAI_ASSAULT_SEA) +
+-							(kOwner.AI_totalWaterAreaUnitAIs(
+-							*pWaterArea, UNITAI_CARRIER_SEA) * 2));
+-					aiUnitAIVal[UNITAI_ASSAULT_SEA] += std::min(pWaterArea->getNumTiles() / 250,
+-							(iCoastalCities * 2 + iMilitaryWeight / 6) / (bAssault ? 5 : 8) +
+-							(bPrimaryArea ? 1 : 0));
+-					aiUnitAIVal[UNITAI_CARRIER_SEA] += std::min(
+-							pWaterArea->getNumTiles() / 350,
+-							(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
+-							(bPrimaryArea ? 1 : 0));
+-					aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] += std::min(
+-							pWaterArea->getNumTiles() / 350,
+-							(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
+-							(bPrimaryArea ? 1 : 0));
+-				}
++				// <!-- custom: even if war is possible, and especially if, focus on land warfare rather, so also deprioritize naval units there, see below for details, i noticed this spot as well thanks to gemini ai who gave me feedback about my first solution to this -->
++				// if (bWarPossible)
++				// {
++				// 	// K-Mod note: this is bogus. TODO: change it so that it scales properly with map size.
++				// 	aiUnitAIVal[UNITAI_ATTACK_SEA] += std::min(
++				// 			pWaterArea->getNumTiles() / 150,
++				// 			(iCoastalCities * 2 + iMilitaryWeight / 9) / (bAssault ? 4 : 6) +
++				// 			(bPrimaryArea ? 1 : 0));
++				// 	aiUnitAIVal[UNITAI_RESERVE_SEA] += std::min(
++				// 			pWaterArea->getNumTiles() / 200,
++				// 			(iCoastalCities * 2 + iMilitaryWeight / 7) / 5 +
++				// 			(bPrimaryArea ? 1 : 0));
++				// 	aiUnitAIVal[UNITAI_ESCORT_SEA] += (kOwner.AI_totalWaterAreaUnitAIs(
++				// 			*pWaterArea, UNITAI_ASSAULT_SEA) +
++				// 			(kOwner.AI_totalWaterAreaUnitAIs(
++				// 			*pWaterArea, UNITAI_CARRIER_SEA) * 2));
++				// 	aiUnitAIVal[UNITAI_ASSAULT_SEA] += std::min(pWaterArea->getNumTiles() / 250,
++				// 			(iCoastalCities * 2 + iMilitaryWeight / 6) / (bAssault ? 5 : 8) +
++				// 			(bPrimaryArea ? 1 : 0));
++				// 	aiUnitAIVal[UNITAI_CARRIER_SEA] += std::min(
++				// 			pWaterArea->getNumTiles() / 350,
++				// 			(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
++				// 			(bPrimaryArea ? 1 : 0));
++				// 	aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] += std::min(
++				// 			pWaterArea->getNumTiles() / 350,
++				// 			(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
++				// 			(bPrimaryArea ? 1 : 0));
++				// }
+ 			}
+ 		}
+ 
+@@ -2989,7 +2995,9 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 				aiUnitAIVal[UNITAI_DEFENSE_AIR] += (bDefense ? 1 : 0) *
+ 						kOwner.getNumCities() + 1;
+ 
+-				if (pWaterArea != NULL)
++				// <!-- custom: add a check here as well as advised by gemini ai: if city is landlocked (i assume it means is in a lake, do not build any military naval unit on it is quite pointless or at least do not prioritize it further anyways etc) ; note: i don't know if this is the correct way to access MIN_WATER_SIZE_FOR_OCEAN or whichever thing if i may say but anyways etc is relevant for our check of city being landlocked if i am not mistaken but anyways etc, but it compiled successfully and gemini ai provided it to me based on our global search results and a code sample i provided too so hopefully accurate but anyways etc (if not i wouldn't mind less military naval units, but i hope this is as intended though and there are still a bit of military naval units still but not too much or/and too prioritized if i am not mistaken too if i may say but anyways etc). -->
++				// if (pWaterArea != NULL)
++				if (pWaterArea != NULL && isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")))
+ 				{
+ 					if (kOwner.getNumCities() > 3 || getArea().getNumUnownedTiles() < 10)
+ 					{
+@@ -3080,17 +3088,18 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	//aiUnitAIVal[UNITAI_ICBM] *= 18;
+ 	aiUnitAIVal[UNITAI_ICBM] *= 18 * kOwner.AI_nukeWeight() / 100; // K-Mod
+ 	aiUnitAIVal[UNITAI_WORKER_SEA] *= (bDanger ? 3 : 10);
+-	aiUnitAIVal[UNITAI_ATTACK_SEA] *= 5;
+-	aiUnitAIVal[UNITAI_RESERVE_SEA] *= 4;
+-	aiUnitAIVal[UNITAI_ESCORT_SEA] *= 20;
+-	aiUnitAIVal[UNITAI_EXPLORE_SEA] *= 18;
+-	aiUnitAIVal[UNITAI_ASSAULT_SEA] *= 14;
+-	aiUnitAIVal[UNITAI_SETTLER_SEA] *= 16;
+-	aiUnitAIVal[UNITAI_MISSIONARY_SEA] *= 12;
+-	aiUnitAIVal[UNITAI_SPY_SEA] *= 10;
+-	aiUnitAIVal[UNITAI_CARRIER_SEA] *= 8;
+-	aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] *= 8;
+-	aiUnitAIVal[UNITAI_PIRATE_SEA] *= 5;
++	// <!-- custom: deprioritize military sea units, as AI builds them too much then its cities die (10+ galleons and almost no land unit defending cities, see known issue number as of now 35 for details), but land warfare should be most important, although this favours pangea a bit too much, it makes AI hopefully overall stronger and less prone to abuse -->
++	// aiUnitAIVal[UNITAI_ATTACK_SEA] *= 5;
++	// aiUnitAIVal[UNITAI_RESERVE_SEA] *= 4;
++	// aiUnitAIVal[UNITAI_ESCORT_SEA] *= 20;
++	// aiUnitAIVal[UNITAI_EXPLORE_SEA] *= 18;
++	// aiUnitAIVal[UNITAI_ASSAULT_SEA] *= 14;
++	// aiUnitAIVal[UNITAI_SETTLER_SEA] *= 16;
++	// aiUnitAIVal[UNITAI_MISSIONARY_SEA] *= 12;
++	// aiUnitAIVal[UNITAI_SPY_SEA] *= 10;
++	// aiUnitAIVal[UNITAI_CARRIER_SEA] *= 8;
++	// aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] *= 8;
++	// aiUnitAIVal[UNITAI_PIRATE_SEA] *= 5;
+ 	aiUnitAIVal[UNITAI_ATTACK_AIR] *= 6;
+ 	aiUnitAIVal[UNITAI_DEFENSE_AIR] *= 4; // K-Mod, up from *3
+ 	aiUnitAIVal[UNITAI_CARRIER_AIR] *= 15;
+@@ -10429,7 +10438,8 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 		// iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;
+ 		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemignly done or at least bypassed at the cost of angry cities still growing and having lower production but anyways etc) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state if i may say but anyways etc: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated anyways etc ; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances but anyways etc, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing and glance anyways etc -->
+ 		// iValue += ((iFoodYieldTimes100+50)/100) * 100;
+-		if (iHappinessLevel > 0)
++		// <!-- custom: note: also include 0 happiness (i.e not unhappy) as it seems in another same file, ulundi again was starving while not unhappy nor happy (at 0 exactly) instead of allocating a food tile anyways etc ; note 2: the issue happens still with this change but fixed itself right away the next turn, so i'd tend or like to think this is ideally solved, see known issue 34 appendix for details anyways etc.
++		if (iHappinessLevel >= 0)
+ 		{
+ 			iValue += ((iFoodYieldTimes100+50)/100) * 3;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index fd26f8af9..04defd24a 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1327,7 +1327,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 							{
+ 								eBestSupposedBuild = eBuildWorkshop;
+ 
+-								// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe anyways etc, but in all cases shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in improved ones hopefulyl as this is a strong choice i would say especially in later game anyways etc -->
++								// <!-- custom: solid mid-game choice, essentially it is the same as a hill grassland later in the game, prefer cottages still as a general rule in the early game, but we may need the production rather later, starting to plan mid game wars and invasions, hopefully we have enough commerce by now in all the empire maybe anyways etc, but in all cases shift a bit more towards production, especially for unimproved tiles, but it may still be quite storng even in improved ones hopefully as this is a strong choice i would say especially in later game anyways etc -->
+ 								iValue += 1650;
+ 							}
+ 							// <!-- custom: i don't think we need farms, they are or may be quite tempting, but capitalize on high food of this tile to grow slow for later higher commerce, should statistically help most, if i may say but anyways etc -->
+@@ -1536,7 +1536,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 								iValue += 575;
+ 
+ 							}
+-							// <!-- custom: note: we could have added the watermill, but the yields are not good enough and early enough, also even if not, this is not a high production terrain and is likely to be surrounded by economy tiles as well or/and tundra ones maybe too but anyways etc, bet on commerce rather for these tiles/cities maybe, hopefulyl staistically often most helpful for AI but anyways etc -->
++							// <!-- custom: note: we could have added the watermill, but the yields are not good enough and early enough, also even if not, this is not a high production terrain and is likely to be surrounded by economy tiles as well or/and tundra ones maybe too but anyways etc, bet on commerce rather for these tiles/cities maybe, hopefully statistically often most helpful for AI but anyways etc -->
+ 							else if (canBuild(kPlot, eBuildCottage))
+ 							{
+ 								// <!-- custom: still quite good especially with the tundra change that now gives one extra commerce in our mod advciv-sas if i may say but anyways etc, but still not ultimate best if i may say but anyways etc, delay if all higher potential food tiles especially unimproved ones have been improved already -->
+
+diff --git a/README.md b/README.md
+index d96ef381f..2b7627dcc 100644
+--- a/README.md
++++ b/README.md
+@@ -331,6 +331,9 @@ Non-exhaustive list of fixes, see docs for details or/and additional info anyway
+ - AIFoundValue::evaluateDefense: remove evaluate defense logic as we have a yield focus logic rather, especially do not make barbarian cities weaker, it is infuriating, needless interference, and also this city later will be captured, so make it a good settlement location in all cases anyways etc
+ - AIFoundValue::adjustToBarbarianSurroundings: remove this logic as well: i want AI to take best city spots even if there are barbarians there, do not have this interferring logic that may produce unexpected results and/or lead to weaker AI anyways etc
+ - (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation: starving or stagnant cities prefer 1 hammer over 4 food plots that are unallocated to any population ("Ulundi screenshots", "Prague Screenshots", and others) + food not being valued when food is production (e.g. worker, settler, etc if any more) when it is in fact the exact same and probably more reliable to set rather than production, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production) with screenshots and detailed (at least more detailed) analysis there, hopefully AI is a lot or quite a lot or quite a bit or such in this case i mean but anyways etc stronger or more versatile this way while not having the opposite downside of valuing food too much as well hopefully, see there for details, anyways etc.
++- (Attemptingly fixed or addressed) AI building too many military naval units then gets invaded on land and can't defend (10+ galleons and barely any land defender) by doing changes in `CvCityAI::AI_bestUnit`. Hopefully makes AI much stronger on land relatively even if it comes at the cost of being slightly weaker on/at naval warfare, i believe most of the critical fighting spot is on land anyway, so i hope the now (although i didn't test it but anyways etc) naval military unit output is still enough at least to protect workboats or such, but besides that i wouldn't want it to be a handicap and mislead it if i may say in this case but anyways etc to build many naval units (10+ galleons in the screenshot in the following link and barely and land defender then die easily by a land invasion). Also, as part of this fix/tentative patch, do not build extra more military naval units if city is landlocked (i.e. for example coastal but in a lake only, these units would be quite pointless) as noted by gemini ai. Also do not build extra more naval military units if war is possible, focus on land warfare rather. Hopefully AI is stronger with these (unless playing archipelago maybe xd but even then cities wouldn't be invaded at least maybe but anyways etc, i hope AI is much more efficient with these at least in theory as i didn't test it but i assume it would do so but anyways etc), and it fixes the example 148 in base advciv issue i had reported at the time, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender) for details with a screenshot and such anyways etc.
++- (Attemptingly fixed or addressed) AI building settlers at critical time when war is likely, instead of preparing for war: very bad as the few more units with the hammer saved could make us gain or not lose the war, while the extra city makes all our empire thinner and our units split, on top of having less units overall as well, by doing changes in `CvCityAI::AI_bestUnit` as well but anyways etc. I hope AI is much stronger or at least not weaker in such circumstances as i had noticed happen twice in same game in base advciv in example 47, see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well-anyways-etc) for details anyways etc. See also [README_Quick_Get_Started_Guide.md#civilian-units](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#civilian-units) for additional or related info (settler now a national unit), which may help quite a lot AI effiency on top of adding extra strategy for all players too but anyways etc.
++- (Workaround and rebalanced) AI building 2 settlers very inefficiently at same time or when a settler unit already exists - now settler is a national unit (only 1 allowed per player), see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player) for details.
+ 
+ ## Not supported in AdvCiv-SAS
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 2d1d769ed..288afdedc 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -201,6 +201,8 @@ Not sure what the issue was, would have liked to be notified of the error/corrup
+ 
+ So hopefully fine and solved now even though not sure and not guaranteed but maybe is hopefully or maybe not, in all cases hopefully this info is helpful to me or and others or and not anyways etc anyways etc.
+ 
++See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#38---no-idea-why-but-anyways-etc-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwith-but-anyways-etc-exact-same-source-files-if-i-am-not-mistaken-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#38---no-idea-why-but-anyways-etc-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwith-but-anyways-etc-exact-same-source-files-if-i-am-not-mistaken-but-anyways-etc)
++
+ ## 6 - (now worked around anyways etc) Too long XML code comments cause errors or/and game crashes
+ 
+ Related to [example/issue 9](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#9---art-and-maybe-other-assets-too-or-not-anyways-etc-xml-assets-silently-causing-a-game-crash-during-initgame-loadstartup-instead-of-telling-us-which-asset-was-missing-no-error)
+@@ -980,10 +982,10 @@ The fixes: they are tentative and quite conservative, perhaps patches in some ca
+ The code that seemed to make a nice and decisive positive difference it seems to me at least but anyways etc was as of now this one i added if i am not mistaken anyways etc:
+ 
+ ```cpp
+-		// iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;
+ 		// <!-- custom: commented-out line below (that was a test to try to fix known issue 34 which is seemignly done or at least bypassed at the cost of angry cities still growing and having lower production but anyways etc) fixes it or so it seems, but at the cost of lowered produciton, even if cities have few angry citizens, try to make it more fine-tuned to city current state if i may say but anyways etc: we value food as long as we are not angry, if we are angry, value production in an attempt to build things that would make us go out of unhappiness, but even if we don't, no point in growing further, the citizen won't be allocated anyways etc ; results of this change seem to be very good, cities are not starving anymore unallocating food tiles, they grow until unhappy, then it seems to halt but the food tiles are still reasonable allocated even though production is now high as well and growth slow it seems from quick testing / glances but anyways etc, although this is a patch and not full fix, i hope this helps the issue a lot, or so it seems from quick testing and glance anyways etc -->
+ 		// iValue += ((iFoodYieldTimes100+50)/100) * 100;
+-		if (iHappinessLevel > 0)
++		// <!-- custom: note: also include 0 happiness (i.e not unhappy) as it seems in another same file, ulundi again was starving while not unhappy nor happy (at 0 exactly) instead of allocating a food tile anyways etc
++		if (iHappinessLevel >= 0)
+ 		{
+ 			iValue += ((iFoodYieldTimes100+50)/100) * 3;
+ 		}
+@@ -993,6 +995,58 @@ The code that seemed to make a nice and decisive positive difference it seems to
+ 		}
+ ```
+ 
+-I also did a few other tentative changes that may be relevant or not, not documented here, see commit [todo add link](todo add link) for details anyways etc.
++I also did a few other tentative changes that may be relevant or not, not documented here, see [this git commit on the mod's github](https://github.com/wonderingabout/AdvCiv-SAS/commit/a6525a8b7c78ccc5058b657ec5d049d4c41d97a2) for details anyways etc.
++
++Appendix: i have noticed the issue still happens in screenshots 1690 and 1691, now in map 336 but somehow still in ulundi!! (Although all players should be random but anyways etc). The city was just at happiness cap (5 happy vs 5 unhappy = 0 if i am not mistaken, although i am not sure it is exactly counted as such in our code but let's assume for the sake of explanation if i may say but anyways etc), so instead of `>0` i did as is now fixed also above `>=0`. The issue happened again with this change in screenshots 1695 and 1696 (starting from turn 50, the exact same save file that was already at turn 50 if i am not mistaken but anyways etc), but after ending turn, fixed itself at screenshots 1697 and 1698 right away the next, with the very nice sheep hill grassland now allocated and starvation solved :) So i hope this fixes the issue or at least i'd like to think so. If not, i hope and in all cases too i mean if i may say that it helped, and that AI is now stronger or not weaker than it was thnaks to this change (production seems good and strong too in this example if i am not mistaken too but anyways etc).
+ 
+ Hopefully AI is a bit stronger with this changed i attempted to make in a balanced way (not too much food, not as it was too much production)
++
++## 35 - (Attemptingly fixed or addressed) AI building too many military naval units then gets invaded on land and can't defend (10+ galleons and barely any land defender) + do not prioritize water military units if city is landlocked (i assume it means stuck in a lake or something if i am not mistaken but anyways etc)
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/15-WwGpkgFQ87O6t-tCQtJCAeiWQdQRXD?usp=sharing).
++
++It is from when i was still playing base advciv if i may say but anyways etc, but it is an issue i had found (that i had named example 148, to be more precise 148.1 for the screenshot file but or not but or yes but or etc but anyways etc), so the save file(s) and/or screenhsots linked in this google drive issue come from base advciv nor our mod anyways etc, see for details the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made but anyways etc.
++
++I did not test it since then, but i hope the patch/tweak/ tentative fix i added in as of now but anyways etc `CvCityAI::AI_bestUnit` helps and adresses that, making AI much more land-focused and overall stronger, even if it would now come i assume although i didn't check/test in this case if i may say but anyways etc at the cost of being military weaker on naval warfare, but i hope in most cases it would most benefit AI largely to do so anyways etc.
++
++I also fixed thanks to gemini ai various other conditions where we don't want the AI focusing on military naval units, such as before war (build more military land units rather relatively (didn't change land production although i'd want to but maybe fine as such for now but anyways etc, only removed naval military unit one)), or if city is landlocked (i.e. coastal but on a lake, then military naval units would be pointless there, leave it as it is for simplicity, but do not prioritize further in this case if i may say but anyways etc).
++
++## 36 - (Attemptingly fixed or addressed) AI building settlers at critical time when war is likely, instead of preparing for war: very bad as the few more units with the hammer saved could make us gain or not lose the war, while the extra city makes all our empire thinner and our units split, on top of having less units overall as well anyways etc
++
++No screenshots from that time except save files, that i'd prefer not to rescreenshot now but anyways etc, however i had listed this issue in example 47 in the list of base advciv issues i had compiled as in listed gradually here in [this CFC forum post](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814) i made but anyways etc, where it happened 2 times to/for Augustus AI making it/him but anyways etc much weaker militarily and my conquest of him much easier in this game (although he/it but anyways etc was still surprisingly strong so is like a wasted chance in this case at least i mean but anyways etc)
++
++In all cases but anyways etc, i have in a similar function than in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender--do-not-prioritize-water-military-units-if-city-is-landlocked-i-assume-it-means-stuck-in-a-lake-or-something-if-i-am-not-mistaken-but-anyways-etc) (while doing this known issue as well but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender--do-not-prioritize-water-military-units-if-city-is-landlocked-i-assume-it-means-stuck-in-a-lake-or-something-if-i-am-not-mistaken-but-anyways-etc) (while doing this known issue as well but anyways etc), a spot where we could add such a restriction to settler building.
++
++Hopefully AI is now much stronger with this change as well although i didn't test it since i made it but anyways etc.
++
++## 37 - (Workaround and rebalanced) AI building 2 settlers very inefficiently at same time or when a settler unit already exists - now settler is a national unit (only 1 allowed per player)
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1Uf1OOilcGXfyNix7EwXYhQCcsd-bq4Pa?usp=sharing).
++
++Expanding on previous issue as of now in number 36 but anyways etc, i have also noticed, now in this as of now known issue number 37 but anyways etc, that for example in screenhot 1680, AI was building 2 settlers at same time. It is very inefficient, and i thought that building one settler in top city (for efficiency, as weakest city may take a long time to build it hindering its growth or/and not getting settler ready on time but anyways etc ; ideally i would handle that too but not done for simplicity and as of now simply building in any city that does it but anyways etc) is enough.
++
++Instead of tediously telling AI which city to build its settler on, and only in 1 city at a time, as the hammer loss is huge of building 2 settlers, and also not if we already have a settler unit existing, as founding too many cities may result in economical inefficiency so build them gradually rather instead of spam then crash i'd say i think at least in this case if i may say but anyways etc, making the settler a national unit seems a very very nice tradeoff and easy way to achieve that.
++
++On top of that, it also adds strategy, as now settlers are more precious if i may say in this case at least but anyways etc, as although their price is same as before, killing/hunting a player's settler is worth more, potentially even worth going to war for depending on tempo and your or a player's strategy (kind of how declaring war to (attempt to) steal a worker (now restored in advciv-sas unlike in base advciv but anyways etc, see [README_Quick_Get_Started_Guide.md#civilian-units](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#civilian-units) for details) may be good intiative if i may say but anyways etc). So AIs and all players must get better or be more strategic or/and value more guarding their settlers, as losing one is a higher blow if one may say, as although cost is same, city building would be significantly more delayed.
++
++I believe these changes add nice strategy and overall on top of AI benefits make the game really interesting. Although i was and am not still totally sure about it, maybe humans can use it to their advantage, for example to slave strategically or such to enhance their settler building maybe? Which may also be easier since slaving is worth now in advciv-sas unlike base advciv (see [README_Quick_Get_Started_Guide.md#general-changes-non-exhaustive-see-global-defines-and-other-unrelated-xml-files-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#general-changes-non-exhaustive-see-global-defines-and-other-unrelated-xml-files-for-details) for details anyways etc), so they can maybe have a small edge over AI players, at least for now sice i didn't or other modders hehe didn't optimize it. But AI players also have handicap advantages especially at higher difficulties so they wouldn't be as affected by this. Still, they may delay a tiny bit more building their cities which should also help them gain in effiency economically or not ruin their hammer production. Instead of doing an extensive code patch or fix or rework, i find or/and believe this works really well, perhaps even best if i may say, and i find it an interesting change.
++
++As for the screenshots, after this change, in screenshots 1684 to 1689, the native american AI player now moves north instead, and is not building 2 settlers at same time. And while the settler is travelling, AI is not wasting time building another settler but is using effectively its hammer. I believe AI will be a lot more efficient thanks to this in most cases. Its city location is also nice in these screenshots 1689 and such, hopefully thanks to our city location settling/founding/planting choices AI changes as well but anyways etc.
++
++Also this change is also thanks to claude ai which (who? But anyways etc) helped me locate where to make units national in the xml although i could have found myself but it helped still thanks claude ai if i may say but anyways etc.
++
++Note: after retesting from turn save file at turn 0 to be sure, and also due to the below as of now known issue 38 so i wanted to test again anyway and since they seemed to do same when starting from save file that is at turn 50 if i'm not mistaken, i wanted to try from save file that is at turn 0 instead, i have found they did it even nicer, and settled extremely ambitiously a super nice city not too far from their capital, very very nice, see screenshots 1701 and 1702 (skipped 1700 since 1702 was more nicely centered around city but 1700 was first centered around city if i may say before 1701 but anyways etc) for details/illustration of it if i may say but or not but or yes but or and etc anyways etc.
++
++## 38 - (No idea why but anyways etc) Sometimes compile mysteriously/strangely/inconsistently fails, and recompiling succeeds under/with but anyways etc exact same source files if i am not mistaken but anyways etc
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1rjgs7CbmxP78ixCWrf4W-a8xn_7mT68k?usp=sharing).
++
++I have no idea why, and this is one of the strangest issues i have encountered so far in base advciv or rather advciv-sas, but recompiling dll after adding a code comment or tweaking it, for peace of mind in my case if i may say but anyways etc, resulted in a compile error at very end (see screenshots for details, log missing as i thought it was a regular issue or/and simply forgot to save it apart back it up if i may say but anyways etc, and overwritten at next compile due to my carelessness hehe if i may say but i hope the screenshot helps enough at least even though log woudl have been ideal maybe unless screenshot has all info but in all cases if i may say anyways etc).
++
++This should not have happened, as i only changed code comments, which should be inconsequential if i am not mistaken regardless of what i type in them but anyways etc.
++
++However, after recompiling, with exact same source files, no change at all if i am not mistaken but anyways etc (except maybe ctrl+z ctrl+y ctrl+s just to make sure i had no other change or for some other related or not reason but anyways etc), then suddenly compile succeeded.
++
++At this point, or in general, i'd say my best guess would be a cosmic ray fell on my PC somehow and corrupted a bit like in the mario speedrun and as it happened to nasa if i am not mistaken but anyways etc.
++
++But in all cases, and more seriously really, even though my previous guess was quite serious too, i'd recommend if all seems good otherwise, to make sure you remove all content in temp_files folder (as i have found fast compile seems to cause issues and i strictly avoid it unless doing quick testing never for final dll as of now at least but anyways etc, as mentionned in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#5---seemingly-worked-around-now-player-name-same-as-windows-10s-for-example-anyways-etc-username-causes-new-game-screen-to-be-stuck-unless-a-custom-name-is-chosen-ifafterwhile-dll-has-been-fastdep-compiled)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#5---seemingly-worked-around-now-player-name-same-as-windows-10s-for-example-anyways-etc-username-causes-new-game-screen-to-be-stuck-unless-a-custom-name-is-chosen-ifafterwhile-dll-has-been-fastdep-compiled) too if i am not mistaken but anyways etc ; and note too: i think i also made extra sure here that i did delete it as well just before launching the faulty compile, hence my guess that it would be something else like a cosmic ray or soemthign else maybe like a quantic ray xd maybe?? Whatever that means but anyways etc, added this extra clarification as part of reading claude ai's answer or the beginning of it, which gav me the idea to add this, hopefully clearer with this although maybe uneeded or maybe needed in this case i mean but in all cases anyways etc), and compile again, which in this case, again strangely but all goood maybe xd if i may say although i would have liked to know how maybe too indeed if i may say but anyways etc. So adding this info for reference if helps if i may say but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index b6767759d..af450d13a 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -79,6 +79,8 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - AIFoundValue::evaluateDefense: remove evaluate defense logic as we have a yield focus logic rather, especially do not make barbarian cities weaker, it is infuriating, needless interference, and also this city later will be captured, so make it a good settlement location in all cases anyways etc
+ - AIFoundValue::adjustToBarbarianSurroundings: remove this logic as well: i want AI to take best city spots even if there are barbarians there, do not have this interferring logic that may produce unexpected results and/or lead to weaker AI anyways etc
+ - (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation: starving or stagnant cities prefer 1 hammer over 4 food plots that are unallocated to any population ("Ulundi screenshots", "Prague Screenshots", and others) + food not being valued when food is production (e.g. worker, settler, etc if any more) when it is in fact the exact same and probably more reliable to set rather than production, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production) with screenshots and detailed (at least more detailed) analysis there, hopefully AI is a lot or quite a lot or quite a bit or such in this case i mean but anyways etc stronger or more versatile this way while not having the opposite downside of valuing food too much as well hopefully, see there for details, anyways etc.
++- (Attemptingly fixed or addressed) AI building too many military naval units then gets invaded on land and can't defend (10+ galleons and barely any land defender) by doing changes in `CvCityAI::AI_bestUnit`. Hopefully makes AI much stronger on land relatively even if it comes at the cost of being slightly weaker on/at naval warfare, i believe most of the critical fighting spot is on land anyway, so i hope the now (although i didn't test it but anyways etc) naval military unit output is still enough at least to protect workboats or such, but besides that i wouldn't want it to be a handicap and mislead it if i may say in this case but anyways etc to build many naval units (10+ galleons in the screenshot in the following link and barely and land defender then die easily by a land invasion). Also, as part of this fix/tentative patch, do not build extra more military naval units if city is landlocked (i.e. for example coastal but in a lake only, these units would be quite pointless) as noted by gemini ai. Also do not build extra more naval military units if war is possible, focus on land warfare rather. Hopefully AI is stronger with these (unless playing archipelago maybe xd but even then cities wouldn't be invaded at least maybe but anyways etc, i hope AI is much more efficient with these at least in theory as i didn't test it but i assume it would do so but anyways etc), and it fixes the example 148 in base advciv issue i had reported at the time, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#35---attemptingly-fixed-or-addressed-ai-building-too-many-military-naval-units-then-gets-invaded-on-land-and-cant-defend-10-galleons-and-barely-any-land-defender) for details with a screenshot and such anyways etc.
++- (Attemptingly fixed or addressed) AI building settlers at critical time when war is likely, instead of preparing for war: very bad as the few more units with the hammer saved could make us gain or not lose the war, while the extra city makes all our empire thinner and our units split, on top of having less units overall as well, by doing changes in `CvCityAI::AI_bestUnit` as well but anyways etc. I hope AI is much stronger or at least not weaker in such circumstances as i had noticed happen twice in same game in base advciv in example 47, see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well-anyways-etc) for details anyways etc. See also [README_Quick_Get_Started_Guide.md#civilian-units](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#civilian-units) for additional or related info (settler now a national unit), which may help quite a lot AI effiency on top of adding extra strategy for all players too but anyways etc.
+ 
+ ### General changes (non-exhaustive, see global defines and other unrelated xml files for details)
+ 
+@@ -215,7 +217,12 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - corporation executives have their cost significantly reduced
+ - have greater variety in great person type, one great person type per corporation type without overlap anyways etc, see xml or sevopedia for updated values anyways etc
+ 
+-### Military (non-exhaustive, see sevopedia or/and xml for details)
++### Civilian Units
++
++- increased DOW_UNIT_CAPTURE_CHANCE from 0 to 50, this means even at the turn where war is declared, chance to capture workers is 50%, no reason to explicitly discourage capturing workers as suprise attacks and opportunistic/efficient attacks as well are an important and natural component of war i think, would help and reward AIs and the human player for behaving as such. It would be the same, otherwise, than having a no capture city at first turn, or such unrealistic limitations i would say. I find best at least in advciv-sas to set this to same number as BASE_UNIT_CAPTURE_CHANCE (as of now and in base advciv as of now too is 50 meaning 50% capture chance if i am not mistaken anywyas etc). So now the worker capture chance in all turns is also extended to being the same capture chance at the turn where/when war is declared too, not 0 anymore at this turn anyways etc.
++- the settler is now a national unit: only one allowed per player. This helps AI efficiency a lot (no more building 2 settlers at same time, or one when one already exists), but also adds a layer of strategy for all players, as targetting settlers is worth more, also the timing of when to build settlers, whether to slave or not (see slaving changes, that is now buffed in the general or such changes in this readme as well for extra info or details anyways etc) and at which timing and in which city. All these become more important to manage, as well as better escorting settlers too. Since AI has as of now handicap advantages at higher difficulties, it shouldn't be as affected but still greatly benefit in most cases from the increased effiency, as the amount of hammer saved or optimized now could be used to build many things, and if unfortunately as of now its settler is destroyed, then no big deal it can build a new one, as well as prepare for war better or build something else instead of building too many settlers. There may be other related changes in the way to approach settlers strategically thanks to or with this change, but i believe it's interesting also not too sure but looks very good or/and interesting to me. See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player) for details and extra info (although most should be here but maybe screenshots or such extra info if any there, hopefully helpful or not or yes or etc but anyways etc)
++
++### Military and some civilian units related info (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - Unit combat types refers to unit categories/types, for example in Civ4 BTS/base AdvCiv these were for example archery units, recon units (scout, explorer, (now also added the airship, see below anyways etc)), melee units (spearman, axeman, swordsman, maceman, pikeman, etc.), etc. There are many new unit combat types, still a todo as of now but some have been implemented already (not sure will be done further or/and immediately nor soon if at all, may or may not anyways etc), see the sevopedia entry "Unit Combat Types" for details. This allows to give specific bonuses to specific combat types. For example, there are now new combat types of units (and modified existing ones too), for example the archers combat type is now subdivided instead into new archers (bow, short), archers (long), and archers (crossbow) if one wants to give specific combat modifiers based on these types more specifically if i may say anyways etc (i.e. modifier vs crossbows but not vs longbowmen, or vs short bows and longbows but not vs crossbows or a different modifier i mean anyways etc) ; as of now if i am not mistaken though there should not be much if at all differences between how these units are handled so this is as of now only a functional difference if i may say but ideally one may want to add differences between them maybe, for example crossbows defending first or such against units, but not implemented in advciv-sas as of now if i am not mistaken (didn't check but i don't remember such a change or type of change if i am not mistaken anyways etc).
+ - some units are now in another combat type, for example as of now the mechanized_infantry is now in armored units, not in gun units anymore.
+@@ -232,18 +239,17 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - unit promotions are reworked or/and rebalanced: woodsman for example is buffed, some are rebalanced or nerfed, and other some promotions have also their requirements changed, for archers have access to city bombard promotion (units are reworked too, see below), or "Logistics" (named "Commando" before) is now accessible after Combat 1 or City Raider I (todo rename to City Attack 1 anyways etc). Some are available sooner too, for example "Logistics" is available at "The Wheel", not "Military Science" anymore, since we understand roads we can use them, maybe, more strategic importance now too maybe hopefully.
+ - removed some promotions such as of now only PROMOTION_TACTICS, as effect is redundant with retreat 1 and retreat 2 plus bypassing it, having too high retreat chance would be broken as well and inefficient as a promotion tree maybe anyways etc
+ - military units are reworked: for example the holy roman empire special unit, to better accomodate its history and stats, can be built starting from a different tech
+-- military units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values
++- military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values
+ - some units have been removed: sometimes for gameplay reasons: for example the nuclear_submarine is not relevant enough and does not actually hold nuclear weapons, only is nuclear powered if i am not mistaken, but effect is not strong enough to justify the hassle so just remove them anyways etc ; or for example the caravel as it was not very sensical / nonsensical to me at least anyways etc that openly nation-specific and announced caravels could freely travel in outer borders even if borders are not open (and send annoying spies and such) without declaring war while doing so, so now this ability is now specific only to the privateer, among visible units at least (unlike the (normal) submarine for example if i am not mistaken anyways etc), and the privateer is now also buffed, see sevopedia for latest values and effects anyways etc, as for the caravel its transportation effect or faster mobility (if i am not mistaken about it being faster due to it being smaller if i am not mistaken about this as well anyways etc) is not worth the hassle of having 2 naval units (i.e. than the galleon anyways etc) at same era that do otherwise about the same thing anyways etc
+ - some military units have no military support cost such as for example as of now for example the robotic_infantry or the robotic_tank we added in advciv-sas anyways etc, and some no longer have a free cost such as of now the privateer that was free, but now costs like all or almost all military units (even if it has nationality, it would still cost gold/money to run if i may say but anyways etc, but the AI can be considered cheap labor enough that can be considered free to maintain after it has been produced at least in our mod and as of now if i may say but anyways etc). This information is displayed in sevopedia (As of now "No military support cost"), see also [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) for related info anyways etc
+ - the stealth ability has been removed from some units where i felt/thought it didn't make sense if any more have this ability that i'd want to be removed, except for units such as submarines, spies, stealth bombers too as it would be tedious to add many new air units, and perhaps complicate needlessly the game, they fit fine as an upgrade to the bomber in civ4 terms i think for both efficient and progressive/gradual strategy maybe anyways etc, and maybe other units too if any other units anyways etc.
+ - for simplicity most unit upgrades are fairly straightforward and relaxed, for example all mounted units can upgrade to the next mounted tier without much restriction, for example chariots upgrade to horse_archers now not to knights anymore, war elephants upgrade to knights not to cuirassiers anymore, a horse archer can become a camel knight or a horse knight, and a camel archer can become a horse knight or a camel knight as well. I assume that the riders themselves can transition to another mount type so it would make sense to reinvest their skills in new mounts hence them being upgradeable if i am not mistaken anyways etc. In particular, longbows and crossbows, as well as macemen, now upgrade to musketmen not to riflemen anymore, which makes a lot of sense and is historically more accurate, as well as a lot more balanced as cuirassiers and such other gun units can't abuse these early ranged or melee units that would have no problem and be just as suited if not more anyways etc to have a gun as well, should help mostly AIs as they tend to build many longbowmen and macemen and such but perhaps also human players depending on strategy. Cuirassiers are a bit stronger (even though quite a bit more expensive too anyways etc) to compensate and rebalance them. Also note that as of now for similar reasons, cavalry units have been reworked, and now in particular anyways etc upgrade to tanks. There are also other unit upgrade and such related changes to other units as of now too anyways etc, see sevopedia ingame or/and tech tree view or/and xml for accurate/updated value(s) anyways etc
+ - similarly, also changed/reworked upgrade paths for naval units if i may say anyways etc, and while doing so in particular found the very inconsistent or/and nonsensical ironclad not being able to "walk" on ocean tiles??????? Wtf if i may say but anyways etc.. So disabled this and now ironclad can "walk" on ocean tiles as all naval units of its era or around it if i am not mistaken, i didn't check if accurate but would be surprised if not, buffed ironclad too so it is now an upgrade to frigates for example anyways etc, see [README.md#military-tree-and-changes](/README.md#military-tree-and-changes) for details or/and for all upgrade changes, or/and sevopedia entries of the units or/and related sevopedia entries, or/and xml or docs in advciv-sas mod folder hopefully helpful and most importantly more balanced this way and making sense if i may say but anyways etc anyways etc anyways etc
+-- increased DOW_UNIT_CAPTURE_CHANCE from 0 to 50, this means even at the turn where war is declared, chance to capture workers is 50%, no reason to explicitly discourage capturing workers as suprise attacks and opportunistic/efficient attacks as well are an important and natural component of war i think, would help and reward AIs and the human player for behaving as such. It would be the same, otherwise, than having a no capture city at first turn, or such unrealistic limitations i would say. I find best at least in advciv-sas to set this to same number as BASE_UNIT_CAPTURE_CHANCE (as of now and in base advciv as of now too is 50 meaning 50% capture chance if i am not mistaken anywyas etc). So now the worker capture chance in all turns is also extended to being the same capture chance at the turn where/when war is declared too, not 0 anymore at this turn anyways etc.
+ - in BBAI_Game_Options_GlobalDefines.xml, disabled BBAI_DEFENSIVE_PACT_BEHAVIOR to restore default BTS behavior of defensive pacts between players being broken when a player has declared war on the other if i understood it correctly and am not mistaken in my understanding anyways etc, was 1, now 0 (see xml for updated value anyways etc), anyways etc anyways etc anyways etc
+ - voluntary vassals are permanent, think of their culture being absorbed by the empire,
+ and them merging with the empire, becoming its citizens, something to pay attention to maybe in particular if you don't want it to happen to other rivals anyways etc anyways etc
+ - move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non- miltiary techs for players (would need to change flavors or/and such for AIs if i am not mistaken anyways etc) ; also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability anyways etc for example anyways etc, one tech for build process culture for example too i mean anyways etc, hopefully more balanced or/and startegically interesting if i may say but anyways etc anyways etc anyways etc
+-- reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least if i am not mistaken anyways etc, see xml for details anyways etc) so that hopefully more varied types or/and there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones if i am not mistaken in my understanding +/- guess anyways etc, both for defense but more importantly for offense if i am not mistaken and from asking chatgpt too with web search anyways etc.
++- reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least if i am not mistaken anyways etc, see xml for details anyways etc)) so that hopefully more varied types or/and there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones if i am not mistaken in my understanding +/- guess anyways etc, both for defense but more importantly for offense if i am not mistaken and from asking chatgpt too with web search anyways etc.
+ - to compensate this reduction of flavor, also make barracks more valued by AI in all circumstances, if i am not mistaken anyways etc, also increase iAIWeight so that AIs in particular don't do too premature rushes and start building units unit they have barracks ideally so that these units are upgraded units in experience ideally, by also asking chatgpt with web search and such kujira (see useful links or somewhere in readme that mentions kujira anyways etc for details) example to be sure anyways etc, and also by seeing what FFH2 mod does (it uses a value of 40 for example anyways etc) as of now from 0 to 70 (as of now 75 for the zulu bararcks due to extra gold effect, see xml for updated values or and details anyways etc), so all AI leaders (except barbarian as it just needs more units more efficient for it i think anyways etc) prioritize building barracks more, hopefully not too high so that versatility and other alternative efficient or quite efficient strategies could be explored as well, if i am not mistaken, hopefully AI would plan more and execute better their rushes with stronger in experience if i may say anyways etc units even if these rushes are slightly delayed as a result if i am not mistaken anyways etc
+ - stables buildings: similar reasoning and balance changes, as of now iAIWeight from 0 to 75, see xml or and docs or/and other relevant info in our mod or outside of it maybe if helps and if i am not mistaken too i mean but anyways etc
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=64133

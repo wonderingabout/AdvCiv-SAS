@@ -1,0 +1,376 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1501
+# Commit: 72eb8cc66b8939503fd0205b9cbf0d72b6ea7b3e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4196f0aed1dbb1fdd93a8165c9d1a6be7f6e5d46
+# Title: Invalid orders don't generate overflow; art style bugfix
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	4	Assets/xml/GlobalDefines_advc.xml
+33	17	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvCity.h
+20	2	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+10	6	CvGameCoreDLL/CvPlot.cpp
+31	20	CvGameCoreDLL/CvPlotGroup.cpp
+1	0	CvGameCoreDLL/CvPlotGroup.h
+3	0	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index cb776a0fb..c5f963c06 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -912,10 +912,13 @@
+ 		<iDefineIntVal>-28</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- [advc.034] The number of turns with Open Borders after making peace.
+-		 The turn on which peace is made counts as the first turn with Open
+-		 Borders. Can't be more than 10 turns (PEACE_TREATY_LENGTH in the
+-		 original GlobalDefines.xml). 0 means no Open Borders (BtS behavior).
++	<!-- [advc.034] The number of turns with Open Borders after making peace
++		 (disengagement agreement). The turn on which peace is made counts as
++		 the first turn with Open Borders. Can't be more than 10 turns
++		 (PEACE_TREATY_LENGTH in the original GlobalDefines.xml). 0 means no
++		 Open Borders (BtS behavior). -1 also means no OB and, additionally,
++		 any disengagement agreements are canceled at turn end. This is intended
++		 for turning disengagement agreements off in the middle of a game.
+ 		 Recommended: 0 or 3 to 5 -->
+ 	<Define>
+ 		<DefineName>DISENGAGE_LENGTH</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 079f6c094..d98bd2100 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -906,7 +906,7 @@ void CvCity::doTurn()  // advc.003: some style changes
+ 		m_szPreviousName.clear();
+ 	} // </advc.106k>
+ 	bool bAllowNoProduction = !doCheckProduction();
+-
++	bAllowNoProduction = false; // advc.064d
+ 	doGrowth();
+ 
+ 	doCulture();
+@@ -1901,6 +1901,13 @@ bool CvCity::isBuildingsMaxed() const
+ 	return false;
+ }
+ 
++// <advc.064d>
++void CvCity::verifyProduction() {
++
++	if(isProduction()) // Only want to address invalid orders here; no production is OK.
++		doCheckProduction();
++} // </advc.064d>
++
+ 
+ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades,
+ 		bool bCheckAirUnitCap, // advc.001b
+@@ -9839,6 +9846,7 @@ void CvCity::updateCorporationBonus()
+ 			else
+ 			{
+ 				processBonus((BonusTypes)iI, -1);
++				verifyProduction(); // advc.064d
+ 			}
+ 		}
+ 	}
+@@ -10489,6 +10497,7 @@ void CvCity::changeNoBonusCount(BonusTypes eIndex, int iChange)
+ 		if (getNumBonuses(eIndex) > 0)
+ 		{
+ 			processBonus(eIndex, -1);
++			verifyProduction(); // advc.064d
+ 		}
+ 
+ 		m_paiNoBonus[eIndex] += iChange;
+@@ -10557,29 +10566,29 @@ void CvCity::changeNumBonuses(BonusTypes eIndex, int iChange)
+ 	FAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+ 	FAssertMsg(eIndex < GC.getNumBonusInfos(), "eIndex expected to be < GC.getNumBonusInfos()");
+ 
+-	if (iChange != 0)
+-	{
+-		bool bOldHasBonus = hasBonus(eIndex);
++	if (iChange == 0)
++		return;
++
++	bool bOldHasBonus = hasBonus(eIndex);
+ 
+-		m_paiNumBonuses[eIndex] += iChange;
++	m_paiNumBonuses[eIndex] += iChange;
+ 
+-		if (bOldHasBonus != hasBonus(eIndex))
++	if (bOldHasBonus != hasBonus(eIndex))
++	{
++		if (hasBonus(eIndex))
+ 		{
+-			if (hasBonus(eIndex))
+-			{
+-				processBonus(eIndex, 1);
+-			}
+-			else
+-			{
+-				processBonus(eIndex, -1);
+-			}
++			processBonus(eIndex, 1);
+ 		}
+-
+-		if (isCorporationBonus(eIndex))
++		else
+ 		{
+-			updateCorporation();
++			processBonus(eIndex, -1);
+ 		}
+ 	}
++
++	if (isCorporationBonus(eIndex))
++	{
++		updateCorporation();
++	}
+ }
+ 
+ // <advc.149>
+@@ -13130,6 +13139,13 @@ bool CvCity::doCheckProduction()  // advc.003:some style changes
+ 			}
+ 		}
+ 	}
++	// <advc.064d>
++	if (!isProduction() && !isDisorder())
++	{
++		if(isHuman() && !isProductionAutomated())
++			chooseProduction();
++		else AI_chooseProduction();
++	} // </advc.064d>
+ 
+ 	return bOK;
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 0bc50d7da..7c7189cce 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -69,6 +69,7 @@ public:
+ 	int getNumNationalWondersLeft() const; // advc.004w, advc.131
+ 	bool isBuildingsMaxed() const;																								// Exposed to Python
+ 
++	void verifyProduction(); // advc.064d: public wrapper for doCheckProduction
+ 	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false,					// Exposed to Python
+ 			bool bIgnoreCost = false, bool bIgnoreUpgrades = false,
+ 			bool bCheckAirUnitCap = true, // advc.001b
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 85c5d82fb..110721741 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3176,8 +3176,8 @@ void CvPlayer::doTurn()  // advc.003: style changes
+ 				d->kill();
+ 			}
+ 		}
+-	} // If DISENGAGE_LENGTH set to 0 in between sessions
+-	else if(iDisengageLength <= 0) {
++	}
++	else if(iDisengageLength < 0) { // See GlobalDefines_advc.xml about this
+ 		CvTeam& kOurTeam = GET_TEAM(getTeam());
+ 		for(int i = 0; i < MAX_CIV_TEAMS; i++) {
+ 			TeamTypes tId = (TeamTypes)i;
+@@ -3316,6 +3316,15 @@ void CvPlayer::verifyStateReligion() {
+ 		setLastStateReligion(NO_RELIGION);
+ } // </dlph.10>
+ 
++// <advc.064d>
++void CvPlayer::verifyCityProduction() {
++
++	int foo;
++	for(CvCity* c = firstCity(&foo); c != NULL; c = nextCity(&foo))
++		c->verifyProduction();
++} // </advc.064d>
++
++
+ void CvPlayer::updatePlotGroups()
+ {
+ 	PROFILE_FUNC();
+@@ -11192,6 +11201,8 @@ void CvPlayer::setLastStateReligion(ReligionTypes eNewValue)
+ 		}
+ 		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer);
+ 	}
++	// advc.064d: Production of religious buildings and units may no longer be valid
++	verifyCityProduction();
+ 
+ 	// Python Event
+ 	CvEventReporter::getInstance().playerChangeStateReligion(getID(), eNewValue, eOldReligion);
+@@ -23620,6 +23631,13 @@ const CvArtInfoUnit* CvPlayer::getUnitArtInfo(UnitTypes eUnit, int iMeshGroup) c
+ 	{
+ 		eCivilization = (CivilizationTypes) GC.getDefineINT("BARBARIAN_CIVILIZATION");
+ 	}
++	// <advc.001> Redirect the call to the city owner
++	if(gDLL->getInterfaceIFace()->isCityScreenUp())
++	{
++		PlayerTypes eCityOwner = gDLL->getInterfaceIFace()->getHeadSelectedCity()->getOwnerINLINE();
++		if(eCityOwner != getID())
++			return GET_PLAYER(eCityOwner).getUnitArtInfo(eUnit, iMeshGroup);
++	} // </advc.001>
+ 	UnitArtStyleTypes eStyle = (UnitArtStyleTypes) GC.getCivilizationInfo(eCivilization).getUnitArtStyleType();
+ 	EraTypes eEra = getCurrentEra();
+ 	if (eEra == NO_ERA)
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index ee457fe99..89c30b721 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -126,6 +126,7 @@ public:
+ 
+ 	void verifyCivics();
+ 	void verifyStateReligion(); // dlph.10
++	void verifyCityProduction(); // advc.064d
+ 	void updatePlotGroups();
+ 
+ 	void updateYield();
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index f52574711..7442c60fd 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1189,6 +1189,12 @@ void CvPlot::updatePlotGroupBonus(bool bAdd)  // advc.003 style changes
+ 	if (eBonus != NO_BONUS && pPlotGroup && isBonusNetwork(getTeam()))
+ 		pPlotGroup->changeNumBonuses(eBonus, bAdd ? 1 : -1);
+ 	// K-Mod end
++	/*  <advc.064d> This function is always called with bAdd=false first and
++		then with bAdd=true. Verifying city production after the first call would
++		be wasteful and would result in spurious choose production popups (as the
++		bonus is taken away only temporarily). */
++	if(bAdd)
++		pPlotGroup->verifyCityProduction(); // </advc.064d>
+ }
+ 
+ 
+@@ -6605,12 +6611,10 @@ void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate, bool bU
+ 		return;
+ 	
+ 	if(m_aiCulture == NULL)
+-	{
+-		m_aiCulture = new int[MAX_PLAYERS];
+-		for(int iI = 0; iI < MAX_PLAYERS; ++iI)
+-			m_aiCulture[iI] = 0;
+-		m_iTotalCulture = 0; // advc.003b
+-	} // <advc.003b>
++	{	// <advc.003b>
++		m_aiCulture = new int[MAX_PLAYERS](); // value-initialize
++		m_iTotalCulture = 0;
++	}
+ 	if(GET_PLAYER(eIndex).isEverAlive())
+ 		m_iTotalCulture += iNewValue - m_aiCulture[eIndex]; // </advc.003b>
+ 	m_aiCulture[eIndex] = iNewValue;
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.cpp b/CvGameCoreDLL/CvPlotGroup.cpp
+index c2471fe47..2221cc9f4 100644
+--- a/CvGameCoreDLL/CvPlotGroup.cpp
++++ b/CvGameCoreDLL/CvPlotGroup.cpp
+@@ -215,37 +215,48 @@ void CvPlotGroup::changeNumBonuses(BonusTypes eBonus, int iChange)
+ 	FAssertMsg(eBonus >= 0, "eBonus is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eBonus < GC.getNumBonusInfos(), "eBonus is expected to be within maximum bounds (invalid Index)");
+ 
+-	if (iChange != 0)
+-	{
+-		//iOldNumBonuses = getNumBonuses(eBonus);
+-
+-		m_paiNumBonuses[eBonus] = (m_paiNumBonuses[eBonus] + iChange);
++	if (iChange == 0)
++		return; // advc.003
+ 
+-		//FAssertMsg(m_paiNumBonuses[eBonus] >= 0, "m_paiNumBonuses[eBonus] is expected to be non-negative (invalid Index)"); XXX
++	//iOldNumBonuses = getNumBonuses(eBonus);
++	m_paiNumBonuses[eBonus] = (m_paiNumBonuses[eBonus] + iChange);
+ 
+-		// K-Mod note, m_paiNumBonuses[eBonus] is often temporarily negative while plot groups are being updated.
+-		// It's an unfortuante side effect of the way the update is implemented. ... and so this assert is invalid.
+-		// (This isn't my fault. I haven't changed it. It has always been like this.)
++	//FAssertMsg(m_paiNumBonuses[eBonus] >= 0, "m_paiNumBonuses[eBonus] is expected to be non-negative (invalid Index)"); XXX
++	// K-Mod note, m_paiNumBonuses[eBonus] is often temporarily negative while plot groups are being updated.
++	// It's an unfortuante side effect of the way the update is implemented. ... and so this assert is invalid.
++	// (This isn't my fault. I haven't changed it. It has always been like this.)
+ 
+-		CLLNode<XYCoords>* pPlotNode = headPlotsNode();
++	CLLNode<XYCoords>* pPlotNode = headPlotsNode();
+ 
+-		while (pPlotNode != NULL)
++	while (pPlotNode != NULL)
++	{
++		CvCity* pCity = GC.getMapINLINE().plotSorenINLINE(pPlotNode->m_data.iX, pPlotNode->m_data.iY)->getPlotCity();
++		if (pCity != NULL)
+ 		{
+-			CvCity* pCity = GC.getMapINLINE().plotSorenINLINE(pPlotNode->m_data.iX, pPlotNode->m_data.iY)->getPlotCity();
+-
+-			if (pCity != NULL)
++			if (pCity->getOwnerINLINE() == getOwnerINLINE())
+ 			{
+-				if (pCity->getOwnerINLINE() == getOwnerINLINE())
+-				{
+-					pCity->changeNumBonuses(eBonus, iChange);
+-				}
++				pCity->changeNumBonuses(eBonus, iChange);
+ 			}
+-
+-			pPlotNode = nextPlotsNode(pPlotNode);
+ 		}
++
++		pPlotNode = nextPlotsNode(pPlotNode);
+ 	}
+ }
+ 
++// <advc.064d>
++void CvPlotGroup::verifyCityProduction() {
++
++	PROFILE_FUNC();
++	CvMap const& m = GC.getMapINLINE();
++	CLLNode<XYCoords>* pPlotNode = headPlotsNode();
++	while (pPlotNode != NULL) {
++		CvCity* pCity = m.plotSorenINLINE(pPlotNode->m_data.iX, pPlotNode->m_data.iY)->getPlotCity();
++		if (pCity != NULL && pCity->getOwnerINLINE() == getOwnerINLINE())
++			pCity->verifyProduction();
++		pPlotNode = nextPlotsNode(pPlotNode);
++	}
++} // </advc.064d>
++
+ 
+ void CvPlotGroup::insertAtEndPlots(XYCoords xy)
+ {
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.h b/CvGameCoreDLL/CvPlotGroup.h
+index c22c116dd..1d07ca47e 100644
+--- a/CvGameCoreDLL/CvPlotGroup.h
++++ b/CvGameCoreDLL/CvPlotGroup.h
+@@ -37,6 +37,7 @@ public:
+ 	int getNumBonuses(BonusTypes eBonus) const;
+ 	bool hasBonus(BonusTypes eBonus);
+ 	void changeNumBonuses(BonusTypes eBonus, int iChange);
++	void verifyCityProduction(); // advc.064d
+ 
+ 	void insertAtEndPlots(XYCoords xy);
+ 	CLLNode<XYCoords>* deletePlotsNode(CLLNode<XYCoords>* pNode);
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 4029e5638..340230125 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3206,6 +3206,9 @@ void CvUnit::move(CvPlot* pPlot, bool bShow)
+ 		}
+ 	} // </advc.162>
+ 	setXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), true, true, bShow && pPlot->isVisibleToWatchingHuman(), bShow);
++	// <advc.001b> Arrival of air unit may interrupt production b/c of unit limit
++	if(getDomainType() == DOMAIN_AIR && pPlot->isCity() && pPlot->getOwnerINLINE() == getOwnerINLINE())
++		pPlot->getPlotCity()->verifyProduction(); // </advc.001b>
+ 
+ 	//change feature
+ 	FeatureTypes featureType = pPlot->getFeatureType();
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=11970

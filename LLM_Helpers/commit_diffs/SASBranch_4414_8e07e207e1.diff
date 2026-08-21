@@ -1,0 +1,52 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4414
+# Commit: 8e07e207e1e572110f8f452d5768c236598856a0
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ed82efc3b27b922fe85087ff8d2943a76cf7629e
+# Title: Minor refactor in CvUnit::updateFoundingBorder
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 8f10dbbec..701442116 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2053,19 +2053,19 @@ void CvUnit::updateFoundingBorder(bool bForceClear) const
+ 		return;
+ 	int iMode = BUGOption::getValue("MainInterface__FoundingBorder", 2);
+ 	gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_FOUNDING_BORDER);
+-	if(bForceClear || iMode <= 0 || !isFound())
++	if (bForceClear || iMode <= 0 || !isFound())
+ 		return;
+ 	FOR_EACH_UNIT_IN(pUnit, *getGroup())
+ 	{
+-		if(pUnit == NULL || (pUnit->IsSelected() && !pUnit->isFound()))
++		if (pUnit->IsSelected() && !pUnit->isFound())
+ 			return;
+ 	}
+ 	CvPlot* pGoToPlot = gDLL->UI().getGotoPlot();
+ 	CvPlot* pCenter;
+-	if(pGoToPlot == NULL)
++	if (pGoToPlot == NULL)
+ 		pCenter = plot();
+ 	else pCenter = pGoToPlot;
+-	if(pCenter == NULL || !pCenter->isRevealed(TEAMID(getOwner())) ||
++	if (pCenter == NULL || !pCenter->isRevealed(TEAMID(getOwner())) ||
+ 		(!atPlot(pCenter) && !canMoveInto(*pCenter)) || !canFound(pCenter))
+ 	{
+ 		return;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1074

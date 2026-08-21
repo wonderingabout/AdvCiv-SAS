@@ -1,0 +1,129 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4188
+# Commit: 8f92e0843d86a3312c0bb115a66d130f53f9f492
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 363a8faff9b665099c4d5f659b4fbfc799992817
+# Title: Fix rare bug in plot-to-working-city assignment
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/CvPlot.cpp
+4	2	CvGameCoreDLL/CvPlot.h
+3	0	CvGameCoreDLL/CvSelectionGroupAI.cpp
+1	0	CvGameCoreDLL/CvStructs.h
+4	0	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 6f6e92076..329c7d813 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5023,9 +5023,12 @@ void CvPlot::updateWorkingCity()
+ 		pBestCity = defaultWorkingCity(); // advc: Moved into new function
+ 
+ 	CvCity* pOldWorkingCity = getWorkingCity();
+-	if (pOldWorkingCity == pBestCity)
++	if (pOldWorkingCity == pBestCity &&
++		// advc.001 (from WtP): Allow proper update upon CvCity::kill
++		(pOldWorkingCity != NULL || m_workingCity.isValid()))
++	{
+ 		return;
+-
++	}
+ 	if (pOldWorkingCity != NULL)
+ 		pOldWorkingCity->setWorkingPlot(*this, false);
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 5ca9eff18..42ac67a20 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -272,8 +272,8 @@ public:
+ 
+ 	// advc.inl:
+ 	bool isCity() const
+-	{	// (Should perhaps simply turn m_plotCity into a CvCity pointer.)
+-		return (m_plotCity.iID != NO_PLAYER); // avoid ::getCity call
++	{
++		return m_plotCity.isValid(); // avoid ::getCity call
+ 	}
+ 	/*	advc: Deprecated; exported through .def file. Should use more specific checks
+ 		such as isCity (inline) or (CvTeam) isBase, isCityTrade, isCityDefense, isCityHeal. */
+@@ -894,6 +894,8 @@ protected:
+ 		CvArea* m_pArea; // This acted as a cache in BtS (was mutable)
+ 		int m_iArea;
+ 	}; // </advc>
++	/*	advc (note): These aren't CvCity pointers b/c of the order of deserialization.
++		Could use the same pattern as above (union) though. */
+ 	IDInfo m_plotCity;
+ 	IDInfo m_workingCity;
+ 	IDInfo m_workingCityOverride;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index de2647d89..ee59f22be 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -1044,6 +1044,9 @@ void CvSelectionGroupAI::AI_setMissionAI(MissionAITypes eNewMissionAI,
+ 
+ CvUnitAI* CvSelectionGroupAI::AI_getMissionAIUnit() const
+ {
++	/*	advc (note): Could possibly return an incorrect unit if the correct
++		one has been killed and the same FFreeList ID has gotten assigned to
++		a new unit. I.e. this data member is not getting reset by CvUnit::kill. */
+ 	return ::AI_getUnit(m_missionAIUnit);
+ }
+
+diff --git a/CvGameCoreDLL/CvStructs.h b/CvGameCoreDLL/CvStructs.h
+index 55c9fc5b0..12a077026 100644
+--- a/CvGameCoreDLL/CvStructs.h
++++ b/CvGameCoreDLL/CvStructs.h
+@@ -37,6 +37,7 @@ struct IDInfo
+ 		//FAssert(iID != FFreeList::INVALID_INDEX || eOwner == BARBARIAN_PLAYER);
+ 	}
+ 	void validateOwner(); // advc.opt
++	bool isValid() const { return iID != FFreeList::INVALID_INDEX; } // advc
+ 
+ 	PlayerTypes eOwner;
+ 	int iID;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 0d59e7ff5..45422f82a 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -435,6 +435,10 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 			pLoopUnit->kill(false, ePlayer);
+ 		}
+ 	}
++	/*	advc (note - known issue): We're not checking whether this unit was set
++		as the m_missionAIUnit of a CvSelectionGroup. This becomes a problem
++		only if our FFreeList ID gets assigned to a new unit. Unknown if this
++		ever actually happens. Don't want to loop through all groups just in case. */
+ 
+ 	CvPlayerAI& kOwner = GET_PLAYER(getOwner()); // advc
+ 	if (ePlayer != NO_PLAYER)
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 0efc19c5c..c16c9e86a 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -1185,7 +1185,7 @@ protected:
+ 	// <advc.opt>
+ 	CvArea* m_pArea;
+ 	CvPlot* m_pPlot; // </advc.opt>
+-
++	// advc (note): These aren't CvUnit pointers b/c of the order of deserialization
+ 	IDInfo m_combatUnit;
+ 	IDInfo m_transportUnit;
+ 	/*	advc.opt (tbd.): string objects take up 28 byte each; replace with pointers.
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=3762

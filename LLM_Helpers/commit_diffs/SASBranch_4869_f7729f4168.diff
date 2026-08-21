@@ -1,0 +1,696 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4869
+# Commit: f7729f4168cb99b8687cbde21638a19e3c99e86b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a538d84e143e611e3939464c099dc0ea16173604
+# Title: refactor sevopedia unit and such to use screen.addMultiListControlGFC as in sevopedia religion 's leaders panel anyways etc and other changes anyways etc add...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	18	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+17	10	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+70	40	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+68	3	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+2	4	Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+2	2	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+3	3	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+3	9	generate_leaders_data.py
+1	1	handicap_info_to_csv_advciv-sas.csv
+4	14	test_crazy_normalize_to_100.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index a43fe6867..864463994 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -198,9 +198,6 @@ class SevoPediaBuilding:
+ 		# <!-- custom: see sevopediaunit's self.W_TOTAL_EFFECTIVE_UNIT_PANE for differences in implementation anyways etc -->
+ 		self.W_TOTAL_EFFECTIVE_BUILDING_PANE = self.W_BUILDING_PANE
+ 
+-		self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 8
+-		self.HYPOTHESIZED_INTER_BUTTON_SPACING = 4
+-
+ 		self.X_REQUIRES = self.X_BUILDING_PANE
+ 		self.Y_REQUIRES = self.Y_BUILDING_PANE + self.H_BUILDING_PANE + self.SMALL_MARGIN
+ 		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
+@@ -665,7 +662,7 @@ class SevoPediaBuilding:
+ 				numFreeTxt = ""
+ 				xSubstractedAdjustment = int(0.91 * buttonSize)
+ 				xPanel = self.X_REQUIRES
+-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 				# <!-- custom: (but) attach button right now -->
+ 				screen.attachImageButton( panelName, "", gc.getTechInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iPrereq, 1, False )
+@@ -676,7 +673,7 @@ class SevoPediaBuilding:
+ 			numFreeTxt = ""
+ 			xSubstractedAdjustment = int(0.91 * buttonSize)
+ 			xPanel = self.X_REQUIRES
+-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 			screen.attachImageButton( panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False )
+ 
+@@ -687,7 +684,7 @@ class SevoPediaBuilding:
+ 				numFreeTxt = ""
+ 				xSubstractedAdjustment = int(0.91 * buttonSize)
+ 				xPanel = self.X_REQUIRES
+-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 				screen.attachImageButton(panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False)
+ 
+@@ -705,7 +702,7 @@ class SevoPediaBuilding:
+ 					numFreeTxt = ""
+ 					xSubstractedAdjustment = int(0.91 * buttonSize)
+ 					xPanel = self.X_REQUIRES
+-					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 					screen.attachImageButton(panelName, "", gc.getBonusInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iPrereq, -1, False)
+ 
+@@ -715,7 +712,7 @@ class SevoPediaBuilding:
+ 			numFreeTxt = ""
+ 			xSubstractedAdjustment = int(0.91 * buttonSize)
+ 			xPanel = self.X_REQUIRES
+-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 			screen.attachImageButton(panelName, "", gc.getReligionInfo(iPrereq).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iPrereq, -1, False)
+ 
+@@ -735,7 +732,7 @@ class SevoPediaBuilding:
+ 					numFreeTxt = ""
+ 					xSubstractedAdjustment = int(0.91 * buttonSize)
+ 					xPanel = self.X_REQUIRES
+-					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 					screen.attachImageButton(panelName, "", projectInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, -1, False)
+ 
+ 					# Add "OR" text between projects
+@@ -746,7 +743,7 @@ class SevoPediaBuilding:
+ 						numFreeTxt = localText.getText("TXT_KEY_OR", ())
+ 						xSubstractedAdjustment = int(1.27 * buttonSize)
+ 						xPanel = self.X_REQUIRES
+-						xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++						xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 					bFirst = False
+ 
+@@ -769,7 +766,7 @@ class SevoPediaBuilding:
+ 					numFreeTxt = "InC"
+ 					xSubstractedAdjustment = int(0.75 * buttonSize)
+ 					xPanel = self.X_REQUIRES
+-					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 					screen.attachImageButton(panelName, "", gc.getBuildingInfo(iDefaultBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, -1, False)
+ 
+@@ -791,7 +788,7 @@ class SevoPediaBuilding:
+ 					numFreeTxt = u"AllC %s+RM" % iNumRequired
+ 					xSubstractedAdjustment = int(1.19 * buttonSize)
+ 					xPanel = self.X_REQUIRES
+-					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 					screen.attachImageButton(panelName, "", gc.getBuildingInfo(iDefaultBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, -1, False)
+ 					
+@@ -833,7 +830,7 @@ class SevoPediaBuilding:
+ 				numFreeTxt = "InC"
+ 				xSubstractedAdjustment = int(0.75 * buttonSize)
+ 				xPanel = self.X_REQUIRED_FOR
+-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 				screen.attachImageButton(panelName, "", loopBuildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, -1, False)
+ 			
+@@ -844,7 +841,7 @@ class SevoPediaBuilding:
+ 				numFreeTxt = u"AllC %s+RM" % iNumRequired
+ 				xSubstractedAdjustment = int(1.19 * buttonSize)
+ 				xPanel = self.X_REQUIRED_FOR
+-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 				screen.attachImageButton(panelName, "", loopBuildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, -1, False)
+ 
+@@ -918,7 +915,7 @@ class SevoPediaBuilding:
+ 			numFreeTxt = "All Un.C"
+ 			xSubstractedAdjustment = int(1.04 * buttonSize)
+ 			xPanel = self.X_FREE_PBBS
+-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 			# <!-- custom: (but) attach button right now -->
+ 			screen.attachImageButton(panelName, "", gc.getPromotionInfo(iFreePromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iFreePromotion, -1, False)
+@@ -930,7 +927,7 @@ class SevoPediaBuilding:
+ 			numFreeTxt = "All Cs"
+ 			xSubstractedAdjustment = int(0.87 * buttonSize)
+ 			xPanel = self.X_FREE_PBBS
+-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 			# Get the default building of this class for the current civilization
+ 			if self.top.iActivePlayer != -1:
+@@ -964,7 +961,7 @@ class SevoPediaBuilding:
+ 				raise ValueError("[FATAL] Unexpected iNumFreeBonuses=%d value out of bounds iNumFreeBonuses == -1 or iNumFreeBonuses >=1, please verify the code and iNumFreeBonuses are behaving as intended and adjust this sevopedia code or/and your mod code based on this as you want/prefer anyways etc. Note: for info str(FreeBonus) (for display in this error message anyways etc)=%s anyways etc." % (iNumFreeBonuses, str(iFreeBonus)))
+ 			
+ 			xPanel = self.X_FREE_PBBS
+-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 			# <!-- custom: (but) attach button right now -->
+ 			screen.attachImageButton(panelName, "", gc.getBonusInfo(iFreeBonus).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iFreeBonus, -1, False)
+@@ -978,7 +975,7 @@ class SevoPediaBuilding:
+ 				numFreeTxt = u"%s" % (iSpecialistCount)
+ 				xSubstractedAdjustment = int(xSubstractedAdjustmentNums * buttonSize)
+ 				xPanel = self.X_FREE_PBBS
+-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
++				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numFreeTxt))
+ 
+ 				# <!-- custom: (but) attach button right now -->
+ 				screen.attachImageButton(panelName, "", gc.getSpecialistInfo(iSpecialist).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, -1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 8138da3af..da1232b44 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -208,24 +208,30 @@ class SevoPediaReligion:
+ 		# Create panel with proper styling
+ 		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_CATEGORY_LEADER", ()), "", False, True, self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, PanelStyles.PANEL_STYLE_BLUE50)
+ 
++		# <!-- custom: note: this doesn't seem to do anything in multilist methods if i am not mistaken anyways etc and in particular no padding so do not use this here i mean for multilists i mean anyways etc anyways etc -->
++		# Additional left side padding for the button(s)
++		#screen.attachLabel(panelName, "", "  ")
++
+ 		# Create MultiList for leaders
+ 		rowListName = self.top.getNextWidgetName()
+ 		
+-		# Constants for leader button display
+-		BUTTON_SIZE = 64 # Size of each leader button
+-		PADDING_X = 9
+-		PADDING_Y = 36
++		# Constants for button display
++		BUTTON_SIZE = 64 # Size of each button
++		PANEL_MULTILIST_OFFSET_X = 9
++		PANEL_MULTILIST_OFFSET_Y = 36
++		PANEL_MULTILIST_ADDITIONAL_W = -1 * (PANEL_MULTILIST_OFFSET_X * 2)
++		PANEL_MULTILIST_ADDITIONAL_H = -1 * (PANEL_MULTILIST_OFFSET_Y + 10)
+ 
+ 		# Create the MultiList control
+ 		# Per documentation, the numLists parameter (7th) is actually number of columns
+ 		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
+-		multiItemX = self.X_LEADERS + PADDING_X
+-		multiItemY = self.Y_LEADERS + PADDING_Y
+-		multiItemW = self.W_LEADERS - (PADDING_X * 2)
+-		multiItemH = self.H_LEADERS - (PADDING_Y + 10)
++		multiListX = self.X_LEADERS + PANEL_MULTILIST_OFFSET_X
++		multiListY = self.Y_LEADERS + PANEL_MULTILIST_OFFSET_Y
++		multiListW = self.W_LEADERS + PANEL_MULTILIST_ADDITIONAL_W
++		multiListH = self.H_LEADERS + PANEL_MULTILIST_ADDITIONAL_H
+ 		# Using 1 for auto-calculation of buttons per row
+ 		buttonCalculate = 1
+-		screen.addMultiListControlGFC(rowListName, "", multiItemX, multiItemY, multiItemW, multiItemH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+ 		# Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: anyways etc (not catch them all... or maybe.. or not or yes, anyways etc... xd anyways etc...) -->
+ 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
+@@ -234,7 +240,8 @@ class SevoPediaReligion:
+ 				LeaderInfo = gc.getLeaderHeadInfo(iLeader)
+ 				# Column index (always 0 when numLists=1)
+ 				columnIndex = 0
+-				screen.appendMultiListButton(rowListName, LeaderInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
++				leaderButton = LeaderInfo.getButton()
++				screen.appendMultiListButton(rowListName, leaderButton, columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index dd369b9a1..78a1f51c3 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -89,9 +89,6 @@ class SevoPediaUnit:
+ 		# <!-- custom: see sevopediabuilding's self.W_TOTAL_EFFECTIVE_BUILDING_PANE for differences in implementation anyways etc -->
+ 		self.W_TOTAL_EFFECTIVE_UNIT_PANE = self.W_UNIT_PANE + self.W_PROMO_PANE - self.W_MERGE_PANELS_EFFECT
+ 
+-		self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 8
+-		self.HYPOTHESIZED_INTER_BUTTON_SPACING = 4
+-
+ 		self.X_REQUIRES = self.X_UNIT_PANE
+ 		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + self.SMALL_MARGIN
+ 		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_UNIT_PANE
+@@ -173,8 +170,9 @@ class SevoPediaUnit:
+ 		self.placeUnitAnimation()
+ 		self.placeReplace()
+ 		self.placeCivilizations()
+-		# <!--  custom: moved self.placeSpecial() and self.placeHistory() calls after and from inside self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit so that we make sure the height and Y position of their respective panels are adjusted if needed depending on how much self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit needs for all its units (shrink/size down height + Y postion) them if self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit needs more, else keep default, anyways etc) -->
+ 		self.placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit()
++		self.placeSpecial()
++		self.placeHistory()
+ 
+ 
+ 
+@@ -396,14 +394,7 @@ class SevoPediaUnit:
+ 			if unitInfo.getFreePromotions(iPromotion):
+ 				isButtonFound = True
+ 				# Attach promotion button
+-				screen.attachImageButton(
+-					panelName, "", 
+-					gc.getPromotionInfo(iPromotion).getButton(), 
+-					GenericButtonSizes.BUTTON_SIZE_CUSTOM, 
+-					WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, 
+-					iPromotion, -1, False
+-				)
+-		
++				screen.attachImageButton(panelName, "", gc.getPromotionInfo(iPromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iPromotion, -1, False)
+ 
+ 		# If there's no <!-- custom: item --> to display, display "Nothing" <!-- custom: or similar anyways etc -->
+ 		if not isButtonFound:
+@@ -419,7 +410,7 @@ class SevoPediaUnit:
+ 		addedOffset = 0
+ 		xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
+ 		xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
+-		xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
++		xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+ 
+ 
+ 
+@@ -447,48 +438,92 @@ class SevoPediaUnit:
+ 		
+ 		# Create panel with proper styling
+ 		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS", ()), "", False, True, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS, PanelStyles.PANEL_STYLE_BLUE50)
+-		# Additional left side padding for the button(s)
+-		screen.attachLabel(panelName, "", "  ")
+ 
+-		nCountOccurencesFound = 0
+-		xNumsOrTextsFound = []
+-		buttonSize = 64
++		# Create MultiList for class and combat buttons
++		rowListName = self.top.getNextWidgetName()
++
++		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel if i may say but anyways etc anyways etc anyways etc -->
++		# Constants for button display
++		BUTTON_SIZE = 64 # Size of each button
++		PANEL_MULTILIST_OFFSET_X = 9
++		PANEL_MULTILIST_OFFSET_Y = 36
++		PANEL_MULTILIST_ADDITIONAL_W = -1 * (PANEL_MULTILIST_OFFSET_X * 2)
++		PANEL_MULTILIST_ADDITIONAL_H = -1 * (PANEL_MULTILIST_OFFSET_Y)
++
++		# Create the MultiList control
++		# Per documentation, the numLists parameter (7th) is actually number of columns
++		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
++		multiListX = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + PANEL_MULTILIST_OFFSET_X
++		multiListY = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS + PANEL_MULTILIST_OFFSET_Y
++		multiListW = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + PANEL_MULTILIST_ADDITIONAL_W
++		multiListH = self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS + PANEL_MULTILIST_ADDITIONAL_H
++		# Using 1 for auto-calculation of buttons per row
++		buttonCalculate = 1
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++
++		isButtonFound = False
++		iButtonIndex = 0
++
++		# <!--custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		buttonsPerRow = get_max_occurences_found_buttons_per_row(self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS, BUTTON_SIZE)
+ 
+ 		# Get the unit info
+ 		unitInfo = gc.getUnitInfo(self.iUnit)
+ 		iUnitCombatType = unitInfo.getUnitCombatType()
+ 
+-		# Check for UnitClassAttackMods <!-- custom: and UnitClassDefenseMods after this refactor with claude ai all in one go but anyways etc -->
+-		for i in range(gc.getNumUnitClassInfos()):
++		for i in xrange(gc.getNumUnitClassInfos()):
+ 			# Check class-based modifiers (attack and defense)
+ 			iModAttack = unitInfo.getUnitClassAttackModifier(i)
+ 			iModDefense = unitInfo.getUnitClassDefenseModifier(i)
+-			# Handle class modifiers with x/y format
+-			numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
+ 
+ 			if iModAttack != 0 or iModDefense != 0:
+-				nCountOccurencesFound += 1
+-				self.precompute_modifier_button_to_display(numTxt, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, nCountOccurencesFound, buttonSize, xNumsOrTextsFound)
++				# Column index (always 0 when numLists=1)
++				columnIndex = 0
++				# <!-- custom: as highlighted by chatgpt and provided now after asked by me that/who noticed too i mean but anyways etc, the unit widget expects unit indexes, not unit class indexes, so fetching a corresponding index to this unit class index if i am not mistaken anyways etc ; then chatgpt also helped solve the unitClass button not displaying due to being generic now solved and with my help too and idea(s) if i may say but anyways etc -->
++				# Find a representative unit from this class
++				unitClassInfo = gc.getUnitClassInfo(i)
++				iRepresentativeUnit = unitClassInfo.getDefaultUnitIndex()
++				unitClassButton = gc.getUnitInfo(iRepresentativeUnit).getButton()
++				screen.appendMultiListButton(rowListName, unitClassButton, columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iRepresentativeUnit, 1, False)
++
++				# Handle class modifiers with x/y format
++				numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
++				extraCorrectionX = get_x_extra_correction(numTxt)
++
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++
++				isButtonFound = True
++				iButtonIndex += 1
+ 
+ 		# Check for UnitCombatMods
+ 		# <!-- custom: we need to do this in a separate loop according to chatgpt as "i is a UnitClass index ; gc.getUnitCombatInfo(i) expects a UnitCombatTypes index" and indeed i don't know if this is the cause but we got an error when trying to refactor too aggressively with claude ai i mean but anyways etc the code (ignorantly perhaps of me but good to try or not or yes but anyways etc), so making sure i mean to have a separate loop for combat type modifiers if i am not mistaken in understanding this anyways etc -->
+ 		# Check for unit combat types that this unit belongs to
+ 		if iUnitCombatType != -1:  # Make sure this unit has a combat type
+ 			# Loop through all units to find those with UnitCombatMods against this combat type
+-			for i in range(gc.getNumUnitCombatInfos()):
++			for i in xrange(gc.getNumUnitCombatInfos()):
+ 				iModCombat = unitInfo.getUnitCombatModifier(i)
+-				numTxt = u"%+d%%" % (iModCombat)
+ 
+ 				if iModCombat != 0:
+-					nCountOccurencesFound += 1
+-					self.precompute_modifier_button_to_display(numTxt, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, nCountOccurencesFound, buttonSize, xNumsOrTextsFound)
++					isButtonFound = True
++					# Column index (always 0 when numLists=1)
++					columnIndex = 0
++					combatTypeButton = gc.getUnitCombatInfo(i).getButton()
++					# <!-- custom: switch to combat type categories instead using relevant widget instead as provided by claude ai after i prompted it and reflecting on it in this case anyways etc, our previous code was seemingly mistaken in this case but anyways etc -->
++					screen.appendMultiListButton(rowListName, combatTypeButton, columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, 1, False)
+ 
+-					# Display the combat type button
+-					screen.attachImageButton(panelName, "", gc.getUnitCombatInfo(i).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, -1, False)
++					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
++					extraCorrectionX = get_x_extra_correction(numTxt)
+ 
+-		isButtonFound = (nCountOccurencesFound > 0)
+-		txtKeyNoButtonFound = "TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND"
+-		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS, self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++
++					isButtonFound = True
++					iButtonIndex += 1
++
++		if not isButtonFound:
++			yPanelCenter = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS + (self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS / 2)
++			textName = self.top.getNextWidgetName()
++			szText = CyTranslator().getText("TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND", ())
++			screen.addMultilineText(textName, szText, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + 7, yPanelCenter, self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS - 14, self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -528,8 +563,6 @@ class SevoPediaUnit:
+ 				# Display the specific unit button
+ 				screen.attachImageButton(panelName, "", otherUnitInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, -1, False)
+ 		
+-				# <!-- custom: avoid duplicate, if unit has an attack modifier, no need to check if it also has a defense modifier as well, we have displayed it already, don't redisplay it if i am not mistaken, anyways etc -->
+-		
+ 		# Check for unit combat types that this unit belongs to
+ 		if iUnitCombatType != -1:  # Make sure this unit has a combat type
+ 			# Loop through all units to find those with UnitCombatMods against this combat type
+@@ -539,7 +572,7 @@ class SevoPediaUnit:
+ 				
+ 				if iModCombat != 0:
+ 					nCountOccurencesFound += 1
+-					numTxt = u"%+d%%" % (iModCombat)  # Use %+d to always show the sign (+ or -)
++					numTxt = get_numTxt_combat_type_modifiers(iModCombat)
+ 					self.precompute_modifier_button_to_display(numTxt, self.X_OF_OTHER_UNITS_MODIFIERS, nCountOccurencesFound, buttonSize, xNumsOrTextsFound)
+ 					
+ 					# Display the specific unit button
+@@ -549,9 +582,6 @@ class SevoPediaUnit:
+ 		txtKeyNoButtonFound = "TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT_NO_BUTTON_FOUND"
+ 		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_OF_OTHER_UNITS_MODIFIERS, self.Y_OF_OTHER_UNITS_MODIFIERS, self.W_OF_OTHER_UNITS_MODIFIERS, self.H_OF_OTHER_UNITS_MODIFIERS)
+ 
+-		# <!-- custom: after all is done, call self.placeSpecial and self.placeHistory from here inside this function i mean anyways etc so that we have adjusted values for their corresponding H and Y positions after placeModifiersOfOtherUnitClassesCombatTypesAgainstThisUnit has finished displaying its content and has also updated these H and Y positions if needed anyways etc, we make sure to not call the below functions too early if i may say this way as well anyways etc -->
+-		self.placeSpecial()
+-		self.placeHistory()
+ 
+ 
+ 	def placePeakHillCityTerrainsFeaturesModifiers(self):
+@@ -669,7 +699,7 @@ class SevoPediaUnit:
+ 			
+ 			# Add text position to our list
+ 			xPanel = self.X_TERRAIN_FEATURE_CITY_BONUSES
+-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
++			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+ 			
+ 			# Determine widget type based on the jumpType
+ 			widgetType = WidgetTypes.WIDGET_GENERAL
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 194e0e00e..82ac1ec7e 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -1,3 +1,16 @@
++# <!-- custom: constants useful for numTxt under button placement in a grid-like manner anyways , i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe anyways etc thanks anyways etc thanks chatgpt etc anyways etc and me toot thanks anyways etc -->
++HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
++HYPOTHESIZED_INTER_BUTTON_SPACING = 4
++
++# <!-- custom: for multiline lists -->
++HYPOTHESIZED_MULTI_LIST_EDGE_PADDING = 9
++# <!-- custom: it seems the multilist method uses a smaller inter button lateral spacing than the non multilist one, so adjust as fit anyways etc -->
++HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING = 2
++# <!-- custom: note: below line not yet tested anyways etc -->
++HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
++
++
++
+ def get_leaders_index_to_type_map(gc):
+ 	# Returns a dictionary mapping each leader index (int) to its string type (e.g., "LEADER_GANDHI").
+ 	# Excluded leaders (like BARBARIAN) must be filtered by caller if needed.
+@@ -109,6 +122,12 @@ def check_images_as_buttons_paths_are_valid(txtKeyDict, localText):
+ 
+ 
+ 
++def get_max_occurences_found_buttons_per_row(panelWidth, buttonsize):
++	totalButtonWidth = buttonsize + HYPOTHESIZED_INTER_BUTTON_SPACING
++	return int((panelWidth - HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING) / totalButtonWidth)
++
++
++
+ def get_numTxt_attack_defense_modifiers(iModAttack, iModDefense):
+ 	numTxt = None
+ 
+@@ -117,18 +136,64 @@ def get_numTxt_attack_defense_modifiers(iModAttack, iModDefense):
+ 	if iModAttack != 0 or iModDefense != 0:
+ 		if iModAttack != 0 and iModDefense != 0:
+ 			# Both attack and defense: x/y format
+-			return u"%+d/%+d" % (iModAttack, iModDefense)
++			return "%+d/%+d" % (iModAttack, iModDefense)
+ 		elif iModAttack != 0:
+ 			# Only attack: x/* format
+-			return u"%+d/_" % (iModAttack)
++			return "%+d/_" % (iModAttack)
+ 		elif iModDefense != 0:
+ 			# Only defense: */y format
+-			return u"_/%+d" % (iModDefense)
++			return "_/%+d" % (iModDefense)
+ 	
+ 	return numTxt
+ 
+ 
+ 
++def get_numTxt_combat_type_modifiers(iModCombat):
++	return "%+d%%" % iModCombat
++
++
++
++def get_x_extra_correction(numTxt):
++	if len(numTxt) < 3:
++		return -3
++	elif len(numTxt) == 3:
++		return -4
++	elif len(numTxt) == 4:
++		# <!-- custom: example "+50%" -->
++		return -5
++	elif len(numTxt) == 5:
++		# <!-- custom: example "+50/_", "+100%", etc -->
++		return -6
++	elif len(numTxt) == 6:
++		return -7
++	else:
++		# <!-- custom: example "+25/+25" -->
++		return -8
++
++
++
++def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, button_size, buttonsPerRow, numTxt, screen, selfTop, widgetType, font):
++	textName = selfTop.getNextWidgetName()
++	buttonColumn = iButtonIndex % buttonsPerRow
++	buttonRow = iButtonIndex // buttonsPerRow
++
++	# <!-- custom: note: since we start at 0 in this nice system chatgpt and claude ai if i may say helped me design and adjust but anyways etc and that i did myself too if i may say but anyways etc anyways etc anyways etc, we don't need to handle the 1th no spacing with next item of the list, as anything multilied by 0 negates spacing, this applies to both column and row calculation(s) if i am not mistaken but or not but but anyways etc anyways etc anyways etc ; however we just add a X correction to start not at leftmost part of the button anyways but instead at center/middle of button to place our first and onwards numTxT anyways etc -->
++	startAtMiddleOfButtonCorrectionX = +1 * (int(button_size / 2))
++
++	# <!-- custom: note: in this code, it seems we are still slightly off vs an ideally centered label, i don't know what the exact cause is, but maybe we can use this as a parameter to control more precisely label positioning based on/depending on anyways etc numTxt and such as we prefer (center more or less aggressively depending on whether numTxt is expected to be long (like "+25/+100" for example) vs short (for example anyways etc "+25%") if i am not mistaken in trying it as such anyways etc, so we add a tiny bit of in this case if i may say anyways etc extra x correction (extraCorrectionX) anyways etc etc -->
++	textX = multiListX + HYPOTHESIZED_MULTI_LIST_EDGE_PADDING + startAtMiddleOfButtonCorrectionX + extraCorrectionX + ((buttonColumn - 1) * button_size) + ((buttonColumn - 1) * HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
++
++	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text i mean anyways etc, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length anyways etc), then it is fine i think anyways etc to hardcode it here for convenience and efficiency anyways etc at least i want to do so hopefully convenient or/and helpful or not or yes or etc anyways etc to do so i mean anyways etc -->
++	extraCorrectionY = -9
++	textY = multiListY + button_size + extraCorrectionY + (buttonRow * button_size) + (buttonRow * HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING)
++
++	textW = 2 * button_size
++	textH = 30
++
++	screen.addMultilineText(textName, numTxt, textX, textY, textW, textH, widgetType, -1, -1, font)
++
++
++
+ def getXOccurenceFound(xPanel, leftPadding, interButtonSpacing, nCountOccurencesFound, buttonSize, xSubstractedAdjustment):
+ 	# <!-- custom: all buttons are spaced, except the first one that depends on panel left side padding, so do a - 1 to account for that -->
+ 	if (nCountOccurencesFound < 1):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+index 17ded00d6..0647ecbc3 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+@@ -362,10 +362,8 @@ def get_aggregated_raw_contact_score_from_adjusted_values(adjusted_value_rand_no
+ 		# --- Sanity check: weights must sum to exactly 1.0 ---
+ 		weight_sum = MAIN_WEIGHT + SECONDARY_WEIGHT
+ 		if not abs(weight_sum - 1.0) < 1e-6:
+-			raise ValueError(
+-				u"[VALUE ERROR] Weights must sum to 1.0: got MAIN = %f, SECONDARY = %f (sum = %f)"
+-				% (MAIN_WEIGHT, SECONDARY_WEIGHT, weight_sum)
+-			)
++			raise ValueError(u"[VALUE ERROR] Weights must sum to 1.0: got MAIN = %f, SECONDARY = %f (sum = %f)"
++				% (MAIN_WEIGHT, SECONDARY_WEIGHT, weight_sum))
+ 
+ 		# --- Aggregate score: round for consistency, since we later normalize as int 0–100 anyway ---
+ 		raw_aggregated = MAIN_WEIGHT * adjusted_value_rand_norm_score + SECONDARY_WEIGHT * adjusted_value_delay_norm_score
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index c3e40b226..79f82be46 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -28,7 +28,7 @@
+ 			<iCultureVictoryWeight>0</iCultureVictoryWeight>
+ 			<iSpaceVictoryWeight>0</iSpaceVictoryWeight>
+ 			<!-- custom: try to make barbarians more aggressive or conqueror like now that they have developped enough cities with many units to do so instead of keeping them too long in cities -->
+-			<iConquestVictoryWeight>70</iConquestVictoryWeight>
++			<iConquestVictoryWeight>120</iConquestVictoryWeight>
+ 			<iDominationVictoryWeight>30</iDominationVictoryWeight>
+ 			<iDiplomacyVictoryWeight>0</iDiplomacyVictoryWeight>
+ 			<!-- BBAI Victory Strategy -->
+@@ -49,7 +49,7 @@
+ 			- Update about this buildunitprob 100: it seems extremely effective no wonder at all in one autoplay ; and update 2 seems to always work perfectly in a few autoplays of 100-200 turns each anyways etc so maybe is good and safe to say it almost if not always works extremely well in preventing barbarians building wonders now anyways etc, and old spaghetti code was indeed useless for that i mean at least rather or not rather but thanks for doing it still if i assume it is old still thanks from the future self who (me i.e. anyways etc) read your code carefully crafted in the past thanks a lot, hopefully is even more polished and beautiful now, anyways etc ; , much less normal buildings too in barbarians but still the core palace we want, no lighthouse ever though even in naval cities, may tweak it bit but seems extremely promising, testing more to be sure, anyways etc
+ 			- This can probably be safely be reduced fine if it errs a bit by that i mean builing more buildings, eventually after completing them, most very fast, barbarian leader should turn back to war mode, is maybe also good to make sure barbarian leader doesn't skip the 1 hammer "free" buildings it has "right" to whatever that means, anyways etc. I would also want them to get their barbarian lighthouse and barbarian workboats too for example (and maybe workers too) if a (maybe) too high (or not or yes or not or yes or and other or and not anyways etc) (would) prevent that anyways etc, so reducing it a bit to see and test if i may say anyways etc
+ 			-->
+-			<iBuildUnitProb>70</iBuildUnitProb>
++			<iBuildUnitProb>80</iBuildUnitProb>
+ 			<!-- custom: i want barbarians to be more cautious and calculating, they are not stupid and shouldn't be, but a bit adventurous too though maybe whatever that means or not or and other or and not anyways etc -->
+ 			<!-- advc.114d: was 0 -->
+ 			<iBaseAttackOddsChange>1</iBaseAttackOddsChange>
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 2615b37df..8ca359d33 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -526,7 +526,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>2</iBarbarianDefenders>
++			<iBarbarianDefenders>1</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<iAIWorkRateModifier>0</iAIWorkRateModifier>
+ 			<iAIGrowthPercent>100</iAIGrowthPercent>
+@@ -657,7 +657,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+-			<iBarbarianDefenders>2</iBarbarianDefenders>
++			<iBarbarianDefenders>1</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>110</iAIDeclareWarProb>
+ 			<!-- advc.251: was 10 -->
+ 			<iAIWorkRateModifier>10</iAIWorkRateModifier>
+@@ -1069,7 +1069,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- advc.250e: was 1 -->
+ 			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
+ 			<!-- advc.250e: was 4 -->
+-			<iBarbarianDefenders>3</iBarbarianDefenders>
++			<iBarbarianDefenders>2</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>140</iAIDeclareWarProb>
+ 			<!-- advc.251: was 75 -->
+ 			<iAIWorkRateModifier>40</iAIWorkRateModifier>
+
+diff --git a/generate_leaders_data.py b/generate_leaders_data.py
+index 17339f35c..c66d06901 100644
+--- a/generate_leaders_data.py
++++ b/generate_leaders_data.py
+@@ -1236,25 +1236,19 @@ if not ARGV_NO_TESTING:
+ 			for leader, expected_data in expected.items():
+ 				actual_data = actual.get(leader)
+ 				if actual_data is None:
+-					grouped_mismatches.setdefault(leader, []).append(
+-						f"[{leader}] Leader is missing in parsed data."
+-					)
++					grouped_mismatches.setdefault(leader, []).append(f"[{leader}] Leader is missing in parsed data.")
+ 					continue
+ 
+ 				# Check for field mismatches
+ 				for key, expected_value in expected_data.items():
+ 					actual_value = actual_data.get(key, "<MISSING>")
+ 					if actual_value != expected_value:
+-						grouped_mismatches.setdefault(leader, []).append(
+-							f"Field '{key}' mismatch: expected '{expected_value}', got '{actual_value}'"
+-						)
++						grouped_mismatches.setdefault(leader, []).append(f"Field '{key}' mismatch: expected '{expected_value}', got '{actual_value}'")
+ 
+ 				# Check for unexpected extra fields
+ 				for key in actual_data.keys():
+ 					if key not in expected_data:
+-						grouped_mismatches.setdefault(leader, []).append(
+-							f"Unexpected extra field '{key}' present in parsed data (value: '{actual_data[key]}')"
+-						)
++						grouped_mismatches.setdefault(leader, []).append(f"Unexpected extra field '{key}' present in parsed data (value: '{actual_data[key]}')")
+ 
+ 			return grouped_mismatches
+
+diff --git a/handicap_info_to_csv_advciv-sas.csv b/handicap_info_to_csv_advciv-sas.csv
+index fbc8608b5..db1094cdc 100644
+--- a/handicap_info_to_csv_advciv-sas.csv
++++ b/handicap_info_to_csv_advciv-sas.csv
+@@ -34,7 +34,7 @@ iBarbarianCityAttackBonus,,,,,0,0,0,0,0
+ iBarbarianCityCreationProb,5,10,15,20,25,30,35,40,45
+ iBarbarianCityCreationTurnsElapsed,46,44,42,40,38,36,34,32,30
+ iBarbarianCreationTurnsElapsed,40,38,36,34,32,30,28,26,24
+-iBarbarianDefenders,1,1,1,2,2,2,2,3,3
++iBarbarianDefenders,1,1,1,1,1,2,2,2,3
+ iBaseGrowthThresholdPercent,85,90,95,100,105,110,115,120,125
+ iBuildTimePercent,100,100,100,100,100,100,100,100,100
+ iCivicUpkeepPercent,100,100,100,100,100,100,100,100,100
+
+diff --git a/test_crazy_normalize_to_100.py b/test_crazy_normalize_to_100.py
+index 0be45d6f0..ab9daee50 100644
+--- a/test_crazy_normalize_to_100.py
++++ b/test_crazy_normalize_to_100.py
+@@ -16,9 +16,7 @@ def progress_bar(score, width=10):
+ 	# - bar (str): ASCII string representing the progress bar.
+ 
+ 	filled_units = int(round((score / 100.0) * width))
+-	return (
+-		"|" + ("█" * filled_units) + ("-" * (width - filled_units)) + "| %d%%" % score
+-	)
++	return ("|" + ("█" * filled_units) + ("-" * (width - filled_units)) + "| %d%%" % score)
+ 
+ def run_tests():
+ 	print("--- Running crazy normalization tests ---")
+@@ -35,19 +33,11 @@ def run_tests():
+ 
+ 	for name, value, min_val, max_val, invert in test_cases:
+ 		try:
+-			final_score = normalize_to_100(
+-				value, min_val, max_val, B_WARN, invert, attr_name=name
+-			)
+-			print(
+-				"[PASS] %s: value=%d, min=%d, max=%d, invert=%s -> score=%d"
+-				% (name, value, min_val, max_val, invert, final_score)
+-			)
++			final_score = normalize_to_100(value, min_val, max_val, B_WARN, invert, attr_name=name)
++			print("[PASS] %s: value=%d, min=%d, max=%d, invert=%s -> score=%d" % (name, value, min_val, max_val, invert, final_score))
+ 			print(progress_bar(final_score))
+ 		except Exception as e:
+-			print(
+-				"[FAIL] %s: value=%d, min=%d, max=%d, invert=%s -> ERROR: %s"
+-				% (name, value, min_val, max_val, invert, str(e))
+-			)
++			print("[FAIL] %s: value=%d, min=%d, max=%d, invert=%s -> ERROR: %s" % (name, value, min_val, max_val, invert, str(e)))
+ 
+ 	print("--- Done! ---")
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=44464

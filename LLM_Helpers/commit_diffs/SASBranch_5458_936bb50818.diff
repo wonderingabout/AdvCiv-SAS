@@ -1,0 +1,318 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5458
+# Commit: 936bb5081816bc5eac56e82ffb86ae3d7ed348c4
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3fffd5ea98c6ba9287173e65d7733feb32ee5098
+# Title: add Water.py (modified) see docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Maps/Water/FLAT_Water.dds
+6	1	Assets/XML/GlobalDefines_advciv_sas.xml
+27	0	Assets/XML/Interface/CIV4WorldPickerInfos.xml
+173	0	PrivateMaps/Water.py
+1	0	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Maps/Water/FLAT_Water.dds
+ create mode 100644 PrivateMaps/Water.py
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/Water/FLAT_Water.dds b/Assets/Art/AdvCiv_SAS/Maps/Water/FLAT_Water.dds
+new file mode 100644
+index 000000000..917a5a95a
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Maps/Water/FLAT_Water.dds differ
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 412ea48fc..cfa00bbc7 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -301,7 +301,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: comma-separated map script names (optional .py/path tolerated) treated as land-heavy by DLL cache (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
+-		<DefineTextVal>aDebugMap,Arboria,Balanced,BTG_Cross,BTG_Grid,BTG_Lagoon,Continents,Custom_Continents,Donut,Earth2,Fractal,Global_Highlands,Hemispheres,Ice_Age,Inland_Sea,Maze,Mixed_Continents,Pangaea,Peirce,Planet_Generator_0_68,Ring,SAS_Longworld,SAS_Spiky_Avenues,Tectonics,Terra,Wheel</DefineTextVal>
++		<DefineTextVal>aDebugMap,Arboria,Balanced,BTG_Cross,BTG_Grid,BTG_Lagoon,Continents,Custom_Continents,Donut,Earth2,Fractal,Global_Highlands,Hemispheres,Ice_Age,Inland_Sea,Maze,Mixed_Continents,Pangaea,Peirce,Planet_Generator_0_68,Ring,SAS_Longworld,SAS_Spiky_Avenues,Tectonics,Terra,Water,Wheel</DefineTextVal>
+ 	</Define>
+ 	<!-- custom: note: these are about making AI stronger by telling it map land/naval heaviness, which is distinct and as of now unrelated to map grid size adjustments in map scripts (.py files) (e.g., if almost_all_land then reduce grid size to accomodate for no water that causes too wide city spacing if not corrected for it) -->
+ 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
+@@ -326,6 +326,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_MAP_STARTING_AREAS_LAND_HEAVY_MIN_PCT</DefineName>
+ 		<iDefineIntVal>66</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Water.py mapscript has too many peak plots by default; this knob sets the kept peak percentage vs original (e.g., 25 = 25% of original peaks). The remainder stays under the script's normal non-peak logic (land/hills/water). (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_WATER_MAP_PEAK_PERCENT_OF_BASE</DefineName>
++		<iDefineIntVal>25</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Earth2 staged starts by player count: below AFRICA_MIN_PLAYERS populate only Europe and Asia (base-like), from AFRICA_MIN_PLAYERS also populate Africa, and from FULL_WORLD_MIN_PLAYERS populate the whole world (notably America + Australia too). (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_EARTH2_STARTS_POPULATE_AFRICA_MIN_PLAYERS</DefineName>
+
+diff --git a/Assets/XML/Interface/CIV4WorldPickerInfos.xml b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+index 9c890982b..6966690de 100644
+--- a/Assets/XML/Interface/CIV4WorldPickerInfos.xml
++++ b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+@@ -843,6 +843,33 @@
+ 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra03.dds</WaterLevelGlossPath> <!-- High -->
+ 			</WaterLevelGloss>
+ 		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Water</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Water/FLAT_Water.dds</WaterLevelDecalPath>
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
+ 		<WorldPickerInfo>
+ 			<MapName>Wheel</MapName>
+ 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+
+diff --git a/PrivateMaps/Water.py b/PrivateMaps/Water.py
+new file mode 100644
+index 000000000..458a00f85
+--- /dev/null
++++ b/PrivateMaps/Water.py
+@@ -0,0 +1,173 @@
++#
++#	FILE:	 Water.py
++#	AUTHOR:  Sean McCarthy
++#	PURPOSE: Loosely adapted from Lakes.py, emphasizing many small bodies of water, extra rivers, and chokepoints.
++#-----------------------------------------------------------------------------
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: adapted from https://forums.civfanatics.com/resources/water.15334/ (GPT-5.3-Codex) -->
++
++from CvPythonExtensions import *
++import CvMapGeneratorUtil
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++from SAS_WorldSizes import *
++
++gc = CyGlobalContext()
++
++def getDescription():
++	return "A map script that generates a single landmass filled with lots of freshwater and saltwater lakes, and a few extra rivers. Uploaded on CFC by SevenSpirits. In AdvCiv-SAS, we observed that unlike Lakes.py, this script really produces many lakes; we further adapted it for larger SAS world sizes and tighter grid sizing to reduce overly wide city spacing."
++
++def isAdvancedMap():
++	"This map should show up in simple mode"
++	# <!-- custom: No custom map options in this script, so the stale multi-option/Simple Game cache guard is not needed (empirically verified in-game). (GPT-5.3-Codex) -->
++	return 0
++
++def getGridSize(argsList):
++	# <!-- custom: Water is land-heavy (not almost-all-land): keep map tighter than default to avoid over-wide starts while preserving mixed naval play. (GPT-5.3-Codex) -->
++	grid_sizes = {
++		0:									(3,3),   # ARENA
++		WorldSizeTypes.WORLDSIZE_DUEL:		(4,3),
++		WorldSizeTypes.WORLDSIZE_TINY:		(6,3),
++		WorldSizeTypes.WORLDSIZE_SMALL:		(8,4),
++		WorldSizeTypes.WORLDSIZE_STANDARD:	(9,6),
++		WorldSizeTypes.WORLDSIZE_LARGE:		(12,8),
++		WorldSizeTypes.WORLDSIZE_HUGE:		(15,9)
++	}
++
++	if (argsList[0] == -1): # (-1,) is passed to function on loads
++		return []
++	[eWorldSize] = argsList
++	return sas_lookup_world_size_with_calibrated_sas(
++		eWorldSize,
++		grid_sizes,
++		sas_huge_custom_max_players()
++	)
++
++def getWrapX(): return True
++def getWrapY(): return False
++
++def minStartingDistanceModifier():
++	return -15
++
++def findStartingArea(argsList):
++	"make sure all players are on the biggest area"
++	[playerID] = argsList
++	return gc.getMap().findBiggestArea(False).getID()
++
++# Subclass to customize sea level effects.
++class WaterFractalWorld(CvMapGeneratorUtil.FractalWorld):
++	def generatePlotTypes(self, water_percent=30, shift_plot_types=False, 
++						grain_amount=3):
++		# Check for changes to User Input variances.
++		self.checkForOverrideDefaultUserInputVariances()
++		
++		self.hillsFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount, self.mapRand, 0, self.fracXExp, self.fracYExp)
++		self.peaksFrac.fracInit(self.iNumPlotsX, self.iNumPlotsY, grain_amount+1, self.mapRand, 0, self.fracXExp, self.fracYExp)
++
++		water_percent += self.seaLevelChange
++		water_percent = min(water_percent, 40)
++		water_percent = max(water_percent, 20)
++
++		hill1range =  int(25 * increase(self.hillGroupOneRange/25.0, 1.6))
++		hill2range =  int(25 * increase(self.hillGroupTwoRange/25.0, 1.6))
++
++		iWaterThreshold = self.continentsFrac.getHeightFromPercent(water_percent)
++		iHillsBottom1 = self.hillsFrac.getHeightFromPercent(max((self.hillGroupOneBase - hill1range), 0))
++		iHillsTop1 = self.hillsFrac.getHeightFromPercent(min((self.hillGroupOneBase + hill1range), 100))
++		iHillsBottom2 = self.hillsFrac.getHeightFromPercent(max((self.hillGroupTwoBase - hill2range), 0))
++		iHillsTop2 = self.hillsFrac.getHeightFromPercent(min((self.hillGroupTwoBase + hill2range), 100))
++		iBasePeakPercent = int(100 * increase(self.peakPercent / 100.0, 2.3))
++		iPeakPercentScale = gc.getDefineINT("SAS_WATER_MAP_PEAK_PERCENT_OF_BASE")
++		iPeakPercent = (iBasePeakPercent * iPeakPercentScale) / 100
++		if iPeakPercent < 0:
++			iPeakPercent = 0
++		if iPeakPercent > 100:
++			iPeakPercent = 100
++		iPeakThreshold = self.peaksFrac.getHeightFromPercent(iPeakPercent)
++
++		for x in range(self.iNumPlotsX):
++			for y in range(self.iNumPlotsY):
++				i = y*self.iNumPlotsX + x
++				
++				# Continuing on with plot generation.
++				val = self.continentsFrac.getHeight(x,y)
++				if val <= iWaterThreshold:
++					self.plotTypes[i] = PlotTypes.PLOT_OCEAN
++				else:
++					hillVal = self.hillsFrac.getHeight(x,y)
++					if ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)):
++						peakVal = self.peaksFrac.getHeight(x,y)
++						if (peakVal <= iPeakThreshold):
++							self.plotTypes[i] = PlotTypes.PLOT_PEAK
++						else:
++							self.plotTypes[i] = PlotTypes.PLOT_HILLS
++					else:
++						self.plotTypes[i] = PlotTypes.PLOT_LAND
++
++		# Convert 1-tile lakes into flatland. We have plenty of larger lakes, and having the 1-tile lakes too really limits space for rivers.
++		for x in range(self.iNumPlotsX):
++			for y in range(self.iNumPlotsY):
++				i = y*self.iNumPlotsX + x
++				if self.plotTypes[i] == PlotTypes.PLOT_OCEAN and self.isSurroundedByLand(x, y):
++					self.plotTypes[i] = PlotTypes.PLOT_LAND	
++							
++
++		if shift_plot_types:
++			self.shiftPlotTypes()
++		
++		
++
++		return self.plotTypes
++
++	def isSurroundedByLand(self, x, y):
++		for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
++			j = ((y+dy) % self.iNumPlotsY)*self.iNumPlotsX + (x+dx) % self.iNumPlotsX
++			if self.plotTypes[j] == PlotTypes.PLOT_OCEAN:
++				return False
++		return True
++
++def generatePlotTypes():
++	"generate a very grainy world for lots of little lakes"
++	NiTextOut("Setting Plot Types (Python Water) ...")
++	global fractal_world
++	fractal_world = WaterFractalWorld()
++	fractal_world.initFractal(continent_grain = 4, rift_grain = -1, has_center_rift = False, invert_heights = True)
++	plot_types = fractal_world.generatePlotTypes(water_percent = 30)
++	return plot_types
++
++def generateTerrainTypes():
++	NiTextOut("Generating Terrain (Python Lakes) ...")
++	terraingen = TerrainGenerator(iDesertPercent=25, iPlainsPercent=13,
++				fSnowLatitude=1.00, fTundraLatitude=0.89,
++				fGrassLatitude=0.13, fDesertBottomLatitude=0.23,
++				fDesertTopLatitude=0.63, fracXExp=-1,
++				fracYExp=-1, grain_amount=5)
++	terrainTypes = terraingen.generateTerrain()
++	return terrainTypes
++
++def addFeatures():
++	NiTextOut("Adding Features (Python Lakes) ...")
++	featuregen = FeatureGenerator()
++	featuregen.addFeatures()
++	return 0
++
++def increase(fraction, multiplier):
++	"(0 <= fraction <= 1, 1 < multiplier): for very small frac this is equivalent to multiplying by multiplier. for larger fraction, the effect is smaller, such that the return value always stays below 1"
++	return 1 - (1 - fraction) ** multiplier
++
++def addRivers():
++	# More rivers!
++	CyGlobalContext().setDefineINT("PLOTS_PER_RIVER_EDGE", int(CyGlobalContext().getDefineINT("PLOTS_PER_RIVER_EDGE") / 2))
++	CyGlobalContext().setDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE", 1)
++	CyGlobalContext().setDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE", 2)
++	CyPythonMgr().allowDefaultImpl()
++
++# Do not add any lakes! We have enough.
++def normalizeAddLakes():
++	return
++
++def addLakes():
++	return
+
+diff --git a/README.md b/README.md
+index fa13862f4..6841bfef0 100644
+--- a/README.md
++++ b/README.md
+@@ -592,6 +592,7 @@ Trick: by having the view box in a water or snow zone you can edit it later and
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG" alt="0.3201_maps_simple_game (8).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG" alt="0.3201_maps_simple_game (9).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG" alt="0.3201_maps_simple_game (10).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG" alt="0.3201_maps_simple_game (11).JPG" width="250"></img>
+ 
+ ## Change from short to int the Found value pipeline
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index cc7805222..681c6c854 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -358,7 +358,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps so it is more illustrative or accurate than a dark or incorrect globe map. See [Readme.md (New .dds for maps in Simple Game)](/README.md#new-dds-for-maps-in-simple-game) and [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+ - (Requires AdvCiv-SAS 5455+) **Add** a new AdvCiv-SAS original map: [SAS_Longworld](/PrivateMaps/SAS_Longworld.py): A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified. Similarly also **add** [SAS_Spiky_Avenues.py](/PrivateMaps/SAS_Spiky_Avenues.py) (Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets). See [Readme.md (AdvCiv-SAS original mapscripts)](/README.md#advciv-sas-original-mapscripts-eg-sas_longworld-sas_spiky_avenues).
+ - (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) map (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, **change some options** (e.g., allow Desert as Default), and expose the map in both **Simple Game** and **Custom Game** lists. (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Grid.py](/PrivateMaps/BTG_Grid.py), [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
+-- (Requires AdvCiv-SAS 5449+) **Add and adapt** [Planet_Generator_0_68.py](/PrivateMaps/Planet_Generator_0_68.py) (from [CFC](https://forums.civfanatics.com/resources/planet-generator-0-68.1817/)): keeps its core behavior (unpredictable continent shapes with balanced continent sizes) while applying AdvCiv-SAS map compatibility changes, notably **world-size percentage scaling**, **removed unneeded options** (map-size override and redundant resources choice), and **bug fixes** (including robust direction handling). Expose the map in both **Simple Game** and **Custom Game** lists. Similarly add [Equal_Islands_V2_beta.py](/PrivateMaps/Equal_Islands_V2_beta.py) (from [CFC](https://forums.civfanatics.com/resources/equal-islands-v2-beta.19405/)).
++- (Requires AdvCiv-SAS 5449+) **Add and adapt** [Planet_Generator_0_68.py](/PrivateMaps/Planet_Generator_0_68.py) (from [CFC](https://forums.civfanatics.com/resources/planet-generator-0-68.1817/)): keeps its core behavior (unpredictable continent shapes with balanced continent sizes) while applying AdvCiv-SAS map compatibility changes, notably **world-size percentage scaling**, **removed unneeded options** (map-size override and redundant resources choice), and **bug fixes** (including robust direction handling). Expose the map in both **Simple Game** and **Custom Game** lists. Similarly add [Equal_Islands_V2_beta.py](/PrivateMaps/Equal_Islands_V2_beta.py) (from [CFC](https://forums.civfanatics.com/resources/equal-islands-v2-beta.19405/)), [Water.py](/PrivateMaps/Water.py) (from [CFC](https://forums.civfanatics.com/resources/water.15334/)) (actually has many lakes unlike [Lakes.py](/PrivateMaps/Lakes.py); also **adjusted city spacing** that **was too wide**).
+ - (Requires AdvCiv-SAS 5445+) Make other maps **also appear in Simple Game**: [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Ring.py](/PrivateMaps/Ring.py), [Wheel.py](/PrivateMaps/Wheel.py)
+ 
+ ### Handicaps
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+index 7eca6fae9..0aaf6e72f 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG
+new file mode 100644
+index 000000000..4a45e7e5f
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=17057

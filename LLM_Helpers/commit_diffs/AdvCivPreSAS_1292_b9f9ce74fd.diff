@@ -1,0 +1,437 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1292
+# Commit: b9f9ce74fd00689fd1b88d74cd87b654fe299686
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8493e0199b0dcf756b92ac0bd17351d7e0a4e88c
+# Title: v0.92rc (release candidate)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	0	Assets/Python/BUG/GPUtil.py
+20	20	Assets/xml/Text/CIV4GameText_advc.008d.xml
+8	0	Assets/xml/Text/CIV4GameText_advc.xml
+4	4	CvGameCoreDLL/AdvCiv4lerts.cpp
+27	8	CvGameCoreDLL/CvCityAI.cpp
+6	5	CvGameCoreDLL/CvGame.cpp
+11	8	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/RiseFall.cpp
+2	1	CvGameCoreDLL/WarAndPeaceCache.cpp
+1	1	PrivateMaps/PerfectMongoose.py
+8	0	links.txt
+-	-	manual_v0.91b.odt => manual_v0.92rc.odt
+-	-	manual_v0.91b.pdf => manual_v0.92rc.pdf
+ create mode 100644 links.txt
+ rename manual_v0.91b.odt => manual_v0.92rc.odt (68%)
+ rename manual_v0.91b.pdf => manual_v0.92rc.pdf (59%)
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/BUG/GPUtil.py b/Assets/Python/BUG/GPUtil.py
+index 7383a381d..4690da489 100644
+--- a/Assets/Python/BUG/GPUtil.py
++++ b/Assets/Python/BUG/GPUtil.py
+@@ -169,6 +169,7 @@ def getCityTurns(city):
+ 	return None
+ 
+ def calcPercentages(city):
++	# advc.001c (comment): Would be better to predict the probabilities based on GPP per turn like in CvGameTextMgr::parseGreatPeopleHelp.
+ 	# Calc total rate
+ 	iTotal = 0
+ 	for iUnit in g_gpUnitTypes:
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index 152a27b1a..73631ef6c 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -92,11 +92,11 @@
+ <!-- advc.300 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_43</Tag>
+-	<English>(AdvCiv) Don't be lulled if barbarians appear only in small numbers in the ancient era - it's often not until the end of the classical era that they reach their full strength.</English>
+-	<French>(AdvCiv) Don't be lulled if barbarians appear only in small numbers in the ancient era - it's often not until the end of the classical era that they reach their full strength.</French>
++	<English>(AdvCiv) Don't be lulled if Barbarians appear only in small numbers in the ancient era - it's often not until the end of the classical era that they reach their full strength.</English>
++	<French>(AdvCiv) Don't be lulled if Barbarians appear only in small numbers in the ancient era - it's often not until the end of the classical era that they reach their full strength.</French>
+ 	<German>(AdvCiv) Wiegen Sie sich nicht in Sicherheit, wenn im Altertum zun�chst nur wenige Barbaren erscheinen. Oft dauert es bis zur sp�ten Klassik, ehe die Barbaren ihre volle St�rke erreichen.</German>
+-	<Italian>(AdvCiv) Don't be lulled if barbarians appear only in small numbers in the ancient era - it's often not until the end of the classical era that they reach their full strength.</Italian>
+-	<Spanish>(AdvCiv) Don't be lulled if barbarians appear only in small numbers in the ancient era - it's often not until the end of the classical era that they reach their full strength.</Spanish>
++	<Italian>(AdvCiv) Don't be lulled if Barbarians appear only in small numbers in the ancient era - it's often not until the end of the classical era that they reach their full strength.</Italian>
++	<Spanish>(AdvCiv) Don't be lulled if Barbarians appear only in small numbers in the ancient era - it's often not until the end of the classical era that they reach their full strength.</Spanish>
+ </TEXT>
+ 
+ <!-- Not news anymore: "The Courthouse, Jail, Palace and Castle increase the
+@@ -157,11 +157,11 @@
+ <!-- advc.300 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_1</Tag>
+-	<English>(AdvCiv) Don't worry about leaving snow and desert tiles unattended: barbarians can't appear there.</English>
+-	<French>(AdvCiv) Don't worry about leaving snow and desert tiles unattended: barbarians can't appear there.</French>
++	<English>(AdvCiv) Don't worry about leaving snow and desert tiles unattended: Barbarians can't appear there.</English>
++	<French>(AdvCiv) Don't worry about leaving snow and desert tiles unattended: Barbarians can't appear there.</French>
+ 	<German>(AdvCiv) Lassen Sie Schnee- und W�stenfelder ruhig unbeobachtet; Barbaren k�nnen dort nicht erscheinen.</German>
+-	<Italian>(AdvCiv) Don't worry about leaving snow and desert tiles unattended: barbarians can't appear there.</Italian>
+-	<Spanish>(AdvCiv) Don't worry about leaving snow and desert tiles unattended: barbarians can't appear there.</Spanish>
++	<Italian>(AdvCiv) Don't worry about leaving snow and desert tiles unattended: Barbarians can't appear there.</Italian>
++	<Spanish>(AdvCiv) Don't worry about leaving snow and desert tiles unattended: Barbarians can't appear there.</Spanish>
+ </TEXT>
+ 
+ <!-- advc.310 -->
+@@ -187,11 +187,11 @@
+ <!-- advc.312 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_4</Tag>
+-	<English>(AdvCiv) By fighting barbarians, your units can gain experience and [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] points. However, little experience and no points are earned if your units outclass theirs, and units at level 4 or higher have nothing to learn from barbarians.</English>
+-	<French>(AdvCiv) By fighting barbarians, your units can gain experience and [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] points. However, little experience and no points are earned if your units outclass theirs, and units at level 4 or higher have nothing to learn from barbarians.</French>
++	<English>(AdvCiv) By fighting Barbarians, your units can gain experience and [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] points. However, little experience and no points are earned if your units outclass theirs, and units at level 4 or higher have nothing to learn from Barbarians.</English>
++	<French>(AdvCiv) By fighting Barbarians, your units can gain experience and [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] points. However, little experience and no points are earned if your units outclass theirs, and units at level 4 or higher have nothing to learn from Barbarians.</French>
+ 	<German>(AdvCiv) Im Kampf gegen Barbaren k�nnen Ihre Einheiten Erfahrung und Generalspunkte sammeln. Wenn Ihre Einheiten aber weit �berlegen sind, sammeln sie keine Punkte und wenig Erfahrung, und Einheiten ab Stufe 4 k�nnen von Barbaren gar nichts weiter lernen.</German>
+-	<Italian>(AdvCiv) By fighting barbarians, your units can gain experience and [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] points. However, little experience and no points are earned if your units outclass theirs, and units at level 4 or higher have nothing to learn from barbarians.</Italian>
+-	<Spanish>(AdvCiv) By fighting barbarians, your units can gain experience and [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] points. However, little experience and no points are earned if your units outclass theirs, and units at level 4 or higher have nothing to learn from barbarians..</Spanish>
++	<Italian>(AdvCiv) By fighting Barbarians, your units can gain experience and [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] points. However, little experience and no points are earned if your units outclass theirs, and units at level 4 or higher have nothing to learn from Barbarians.</Italian>
++	<Spanish>(AdvCiv) By fighting Barbarians, your units can gain experience and [COLOR_HIGHLIGHT_TEXT]Great General[COLOR_REVERT] points. However, little experience and no points are earned if your units outclass theirs, and units at level 4 or higher have nothing to learn from Barbarians..</Spanish>
+ </TEXT>
+ 
+ <!-- advc.130m -->
+@@ -266,10 +266,10 @@
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_12</Tag>
+ 	<English>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by Barbarians. Barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</English>
+-	<French>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by barbarians. Barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</French>
++	<French>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by Barbarians. Barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</French>
+ 	<German>(K-Mod) Setzen Sie Ihre Fischer nicht dem Risiko aus, von Barbaren gepl�ndert und blockiert zu werden. Die Barbarenschiffe sind Ihren Schiffen nicht ganz ebenb�rtig, so dass h�ufig schon eine einzelne Galeere reicht, um die Barbaren abzuwehren.</German>
+-	<Italian>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by barbarians. Barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</Italian>
+-	<Spanish>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by barbarians. Barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</Spanish>
++	<Italian>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by Barbarians. Barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</Italian>
++	<Spanish>(K-Mod) Don't risk your fishermen getting pillaged and blockaded by Barbarians. Barbarian ships aren't an even match for yours - just a single galley may be enough to fend them off.</Spanish>
+ </TEXT>
+ 
+ <TEXT>
+@@ -343,11 +343,11 @@
+ <!-- advc.102 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_20</Tag>
+-	<English>(AdvCiv) Give the "Show friendly moves" option another chance. It takes up much less time now.</English>
+-	<French>(AdvCiv) Give the "Show friendly moves" option another chance. It takes up much less time now.</French>
+-	<German>(AdvCiv) Geben Sie der Option "Freundliche Bewegungen zeigen" noch eine Chance. Die Anzeige der Z�ge nimmt nicht mehr so viel Zeit in Anspruch.</German>
+-	<Italian>(AdvCiv) Give the "Show friendly moves" option another chance. It takes up much less time now.</Italian>
+-	<Spanish>(AdvCiv) Give the "Show friendly moves" option another chance. It takes up much less time now.</Spanish>
++	<English>(AdvCiv) The "Show Friendly Moves" option doesn't show all moves because that would take too long. E.g. the moves of Workers aren't shown.</English>
++	<French>(AdvCiv) The "Show Friendly Moves" option doesn't show all moves because that would take too long. E.g. the moves of Workers aren't shown.</French>
++	<German>(AdvCiv) Die Option "Freundliche Bewegungen zeigen" l�sst manche Einheiten aus, z.B. Bautrupps, damit die Animationen nicht zu viel Zeit in Anspruch nehmen.</German>
++	<Italian>(AdvCiv) The "Show Friendly Moves" option doesn't show all moves because that would take too long. E.g. the moves of Workers aren't shown.</Italian>
++	<Spanish>(AdvCiv) The "Show Friendly Moves" option doesn't show all moves because that would take too long. E.g. the moves of Workers aren't shown.</Spanish>
+ </TEXT>
+ 
+ <TEXT>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index e20934864..7abaac187 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -796,6 +796,14 @@
+ 		<Italian>Pan-Gaia: "Una terra", un enorme continente.</Italian>
+ 		<Spanish>Pan-gea ("una Tierra"), un solo continente enorme.</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MAP_SCRIPT_OASIS_DESCR</Tag>
++		<English>The desert region in the middle holds the strategic minerals. The fertile region in the north has less land (but more resources) than the south. Extra players recommended (ca. +25%%) because there is very little sea and much of the desert is habitable because of rivers.</English>
++		<French>La r&#233;gion d&#233;sertique au centre contient toutes les ressources min&#233;rales strat&#233;giques. Les fertiles r&#233;gions du nord sont moins grandes (mais contiennent plus de ressources) que celles du sud.</French>
++		<German>In der W&#252;stenregion in der Mitte der Karte finden sich wichtige strategische Mineralienvorkommen. In der fruchtbaren Region im Norden stehen weniger Landstriche (aber mehr Ressourcen) zur Verf&#252;gung als im S&#252;den. H�here Spielerzahl empfohlen (ca. +25%%), da das Meer kaum Raum einnimmt und die W�ste gro�teils bewohnbar ist.</German>
++		<Italian>La regione desertica nella zona centrale della mappa contiene le risorse strategiche minerarie. La regione fertile a nord dispone di meno terra ma di pi&#249; risorse di quella a sud.</Italian>
++		<Spanish>La regi&#243;n des&#233;rtica central contiene los minerales estrat&#233;gicos. La f&#233;rtil regi&#243;n septentrional tiene menos tierra, pero m&#225;s recursos, que la meridional.</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.137: Copy-pasted from Vanilla Civ4GameTextInfos.xml;
+ 		 recommendation added (only in English). -->
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index 1401a98e2..e740acff7 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -287,9 +287,9 @@ void BonusThirdPartiesAlert::doMsg(PlayerTypes fromId, int data,
+ 	if(isDebug) {
+ 		msgStr = (newQuantity > 0 ?
+ 				gDLL->getText("TXT_KEY_CIV4LERTS_NOW_EXPORTING",
+-				from.getName(), quantityStr.GetCString(), to.getName()) :
++				from.getNameKey(), quantityStr.GetCString(), to.getNameKey()) :
+ 				gDLL->getText("TXT_KEY_CIV4LERTS_NO_LONGER_EXPORTING",
+-				from.getName(), quantityStr.GetCString(), to.getName()));
++				from.getNameKey(), quantityStr.GetCString(), to.getNameKey()));
+ 	}
+ 	else {
+ 		if((newQuantity > 0) == (oldQuantity > 0))
+@@ -316,7 +316,7 @@ void BonusThirdPartiesAlert::doMsg(PlayerTypes fromId, int data,
+ 			msgStr = gDLL->getText(newQuantity > 0 ?
+ 					"TXT_KEY_CIV4LERTS_EXPORTING_STRATEGIC" :
+ 					"TXT_KEY_CIV4LERTS_NOT_EXPORTING_STRATEGIC",
+-					from.getName(), to.getName(), quantityStr.GetCString());
++					from.getNameKey(), to.getNameKey(), quantityStr.GetCString());
+ 		}
+ 		else {
+ 			int imports = to.getNumTradeBonusImports(fromId);
+@@ -326,7 +326,7 @@ void BonusThirdPartiesAlert::doMsg(PlayerTypes fromId, int data,
+ 			msgStr = gDLL->getText((newQuantity > 0 ?
+ 					"TXT_KEY_CIV4LERTS_EXPORTING_ANY" :
+ 					"TXT_KEY_CIV4LERTS_EXPORTING_NONE"),
+-					from.getName(), to.getName(), quantityStr.GetCString());
++					from.getNameKey(), to.getNameKey(), quantityStr.GetCString());
+ 		}
+ 	}
+ 	msg(msgStr);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index f408428e6..6720f6c3f 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3641,7 +3641,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 	bool bIsLimitedWonder = (iLimitedWonderLimit >= 0);
+ 	// <advc.131>
+ 	int totalBonusYieldMod = 0;
+-	int totalImprFreeSpecialists = 0; // </advc.131>
++	int totalImprFreeSpecialists = 0;
++	bool anySeaPlotYieldChange = false; // </advc.131>
+ 	// K-Mod. This new value, iPriorityFactor, is used to boost the value of productivity buildings without overvaluing productivity.
+ 	// The point is to get the AI to build productiviy buildings quickly, but not if they come with large negative side effects.
+ 	// I may use it for other adjustments in the future.
+@@ -3960,7 +3961,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			//iValue -= iCitValue * iWasteDelta;
+ 			// <advc.001h> Replacing the above; be more afraid of high iWasteDelta
+ 			if(iWasteDelta <= 0)
+-				iValue -= iCitValue * iWasteDelta;
++				iValue -= iCitValue * iWasteDelta; // </advc.001h>
+ 			else iValue -= iCitValue * ::round(std::pow((double)iWasteDelta, 1.3));
+ 			// some extra value if the change will help us grow (this is a positive change bias)
+ 			if (iWasteDelta < 0 && iHappinessLevel > 0)
+@@ -4324,12 +4325,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			if (iGreatPeopleRateModifier > 0)
+ 			{
+ 				int iGreatPeopleRate = getBaseGreatPeopleRate();
+-				const int kTargetGPRate = 10;
++				// advc.131: was 10 flat
++				const int kTargetGPRate = 5 + 2 * std::max(1, (int)kOwner.getCurrentEra());
+ 
+ 				// either not a wonder, or a wonder and our GP rate is at least the target rate
+ 				if (!bIsLimitedWonder || iGreatPeopleRate >= kTargetGPRate)
+ 				{
+-					iValue += ((iGreatPeopleRateModifier * iGreatPeopleRate) / 16);
++					iValue += ((iGreatPeopleRateModifier * iGreatPeopleRate) /
++							10); // advc.131: was 16
+ 				}
+ 				// otherwise, this is a limited wonder (aka National Epic), we _really_ do not want to build this here
+ 				// subtract from the value (if this wonder has a lot of other stuff, we still might build it)
+@@ -4678,7 +4681,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 							{
+ 								for (pLoopCity = kOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kOwner.nextCity(&iLoop))
+ 								{
+-									if (pLoopCity->canConstruct(eLoopBuilding, false, true) && pLoopCity->getProductionBuilding() != eLoopBuilding)
++									if (pLoopCity->getProductionBuilding() != eLoopBuilding &&
++										/*  advc.003 (comment): bVisible=true means: check only if the building
++											appears in the production list. In particular, prereq buildings aren't
++											checked, which is good. However, the national wonder limit also isn't
++											checked, which is bad.
++											Same problem a bit higher up in this function (K-Mod comment:
++											"This is a minor flaw in the AI.") */
++											pLoopCity->canConstruct(eLoopBuilding, false, true))
+ 										iHighestValue = std::max(pLoopCity->AI_buildingValue(eLoopBuilding, 0, 0, bConstCache, false), iHighestValue);
+ 								}
+ 
+@@ -4897,6 +4907,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				{
+ 					//iRawYieldValue += kBuilding.getSeaPlotYieldChange(iI) * AI_buildingSpecialYieldChangeValue(eBuilding, (YieldTypes)iI);
+ 					iRawYieldValue += kBuilding.getSeaPlotYieldChange(iI) * AI_buildingSeaYieldChangeWeight(eBuilding, iFoodDifference > 0 && iHappinessLevel > 0); // K-Mod
++					anySeaPlotYieldChange = true; // advc.131
+ 				}
+ 				if (kBuilding.getRiverPlotYieldChange(iI) > 0)
+ 				{
+@@ -5662,9 +5673,16 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			totalCommerceMod += kBuilding.getCommerceModifier(i);
+ 		if(totalCommerceMod < 40) {
+ 			int slotsLeft = getNumNationalWondersLeft();
+-			FAssert(slotsLeft > 0);
++			// Special treatment for Moai
++			if(slotsLeft == 2 && anySeaPlotYieldChange)
++				slotsLeft--;
+ 			double slotMod = std::min(1.0, 0.25 * (slotsLeft + 1));
+ 			iValue = ::round(iValue * slotMod);
++			FAssert(slotsLeft >= 0);
++			/*  0 is also bad, but can happen if canConstruct was only checked
++				with bTestVisible=true. */
++			if(slotsLeft == 0)
++				iValue = 0;
+ 		}
+ 	} // </advc.131>
+ 	// constructionValue cache
+@@ -10335,8 +10353,9 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 				// each successive great person costs more points. So the points are effectively worth less...
+ 				// (note: I haven't tried to match this value decrease with the actual cost increase,
+ 				// because the value of the great people changes as well.)
+-				iGPPValue *= 100;
+-				iGPPValue /= 90 + 7 * kOwner.getGreatPeopleCreated(); // it would be nice if we had a flavour modifier for this.
++				iGPPValue *= 138; // advc.131: was *=100
++				// advc.131: was 90+7*...
++				iGPPValue /= 90 + 9 * kOwner.getGreatPeopleCreated(); // it would be nice if we had a flavour modifier for this.
+ 			}
+ 
+ 			//iTempValue /= kOwner.AI_averageGreatPeopleMultiplier();
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 572e95d58..ef5d60825 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -383,10 +383,11 @@ void CvGame::regenerateMap()
+ 	CvMapGenerator::GetInstance().addGameElements();
+ 
+ 	gDLL->getEngineIFace()->RebuildAllPlots();
+-	// <advc.004j>
+-	if(isOption(GAMEOPTION_ADVANCED_START))
+-		setStartTurn(0); // Increased below by setInitialItems
+-	else setGameTurn(getStartTurn()); // <advc.004j>
++	// <advc.004j><advc.251>
++	setGameTurn(0);
++	setStartTurn(0);
++	setStartTurnYear();
++	// </advc.151><advc.004j>
+ 	CvEventReporter::getInstance().resetStatistics();
+ 
+ 	setInitialItems();
+@@ -1037,7 +1038,7 @@ void CvGame::assignStartingPlots()
+ 		if (pLoopPlot->isStartingPlot())
+ 			starting_plots.push_back(pLoopPlot);
+ 	}
+-	// Now, randomly the starting plots to each player.
++	// Now, randomly assign a starting plot to each player.
+ 	for (PlayerTypes i = (PlayerTypes)0; starting_plots.size() > 0 && i < MAX_CIV_PLAYERS; i=(PlayerTypes)(i+1))
+ 	{
+ 		CvPlayer& kLoopPlayer = GET_PLAYER(i);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3ccfd2ef2..211a10197 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11209,13 +11209,16 @@ bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
+ 			/*  Moved here from CvPlayer::handleDiploEvent b/c that handler
+ 				can't distinguish whether the AI accepts a human demand */
+ 			if(accept) {
+-				// ePlayer is human, but still let the proxy AI remember.
+-				GET_PLAYER(ePlayer).AI_rememberEvent(getID(), MEMORY_ACCEPT_DEMAND);
++				/*  ePlayer is human; could still let the proxy AI remember,
++					but that gets confusing in R&F games when a human demands
++					tribute from a civ and later takes control of that civ.
++					So don't do this after all: */
++				  //GET_PLAYER(ePlayer).AI_rememberEvent(getID(), MEMORY_ACCEPT_DEMAND);
+ 				AI_rememberEvent(ePlayer, MEMORY_MADE_DEMAND);
+ 			}
+ 			else {
+-				// Again, not important.
+-				GET_PLAYER(ePlayer).AI_rememberEvent(getID(), MEMORY_REJECTED_DEMAND);
++				// See above
++				  //GET_PLAYER(ePlayer).AI_rememberEvent(getID(), MEMORY_REJECTED_DEMAND);
+ 				/*  Here's where we don't increase MEMORY_MADE_DEMAND b/c the
+ 					demand isn't accepted. CvPlayer::handleDiploEvent deals
+ 					with the MADE_DEMAND_RECENT memory. */
+@@ -11866,8 +11869,8 @@ bool CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 		/*  <advc.001> If human asks for gold, then pGoldNode is NULL here,
+ 			and the AI won't ask e.g. for a tech in exchange */
+ 		else if(bGenerous && kPlayer.isHuman() && iGreaterVal > iSmallerVal &&
+-				pList->getLength() > 0 &&
+-				!CvDeal::isAnnual(pList->head()->m_data.m_eItemType))
++				(pList->getLength() <= 0 ||
++				!CvDeal::isAnnual(pList->head()->m_data.m_eItemType)))
+ 			bAddFinalItem = true; // </advc.001>
+ 	}
+ 	if(iGreaterVal > iSmallerVal) {
+@@ -11901,8 +11904,8 @@ bool CvPlayerAI::balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInvent
+ 		}
+ 		// <advc.001> See above at if(pGoldNode)...else
+ 		else if(bGenerous && kPlayer.isHuman() && iGreaterVal > iSmallerVal &&
+-				pList->getLength() > 0 &&
+-				CvDeal::isAnnual(pList->head()->m_data.m_eItemType))
++				(pList->getLength() <= 0 ||
++				CvDeal::isAnnual(pList->head()->m_data.m_eItemType)))
+ 			bAddFinalItem = true; // </advc.001>
+ 	} // <advc.036> A mix of the two K-Mod algorithms for item selection
+ 	if(iGreaterVal > iSmallerVal && final_item.first == NULL) {
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 036e037f0..c5db2a85d 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -634,6 +634,7 @@ void RiseFall::abandonPlans(PlayerTypes civId) {
+ 			c->AI_setEmphasize((EmphasizeTypes)i, false);
+ 		// Clear production queue
+ 		c->setProductionAutomated(false, true);	
++		c->setCitizensAutomated(true);
+ 	}
+ }
+ 
+@@ -1288,7 +1289,7 @@ int RiseFall::pessimisticDealVal(PlayerTypes aiCivId, int dealVal,
+ 		int itemVal = 0;
+ 		/*  What the AI thinks that the item should be worth to the human civ.
+ 			In most cases, there is no code for this, and then replVal has to
+-			be set based on itemVal (what the AI normally demands fot the item). */
++			be set based on itemVal (what the AI normally demands for the item). */
+ 		int replVal = -1;
+ 		int data = node->m_data.m_iData;
+ 		switch(node->m_data.m_eItemType) {
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index 76a220c17..eeed7f87e 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -329,7 +329,8 @@ double WarAndPeaceCache::goldPerProdBuildings() {
+ double WarAndPeaceCache::goldPerProdSites() {
+ 
+ 	CvPlayerAI const& owner = GET_PLAYER(ownerId);
+-	double sites = owner.AI_getNumCitySites();
++	double sites = std::max(0, owner.AI_getNumCitySites() -
++			owner.AI_getNumAIUnits(UNITAI_SETTLE));
+ 	CvPlayer const& barb = GET_PLAYER(BARBARIAN_PLAYER);
+ 	/*  Don't want to count faraway barb cities. From looking at some sample
+ 		numbers, a threshold of 30 might accomplish this. */
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 81f0c2c2b..44c7d9136 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -5096,7 +5096,7 @@ class StartingArea:
+ 			seaLevelAdj = 0.5
+ 		elif seaChg > 0:
+ 			seaLevelAdj = -0.5
+-		cull = max(0, int(round(len(self.plotList) * (0.25  + (gameMap.getWorldSize() - newWorldSubtr + seaLevelAdj) / (2.0 * civs)))))
++		cull = max(0, int(round(len(self.plotList) * (0.22  + (gameMap.getWorldSize() - newWorldSubtr + seaLevelAdj) / (2.0 * civs)))))
+ 		# </advc.021b>
+ 		for i in range(cull):
+ 			del self.plotList[0]
+
+diff --git a/links.txt b/links.txt
+new file mode 100644
+index 000000000..812078de1
+--- /dev/null
++++ b/links.txt
+@@ -0,0 +1,8 @@
++Download site and instructions for installation:
++	https://forums.civfanatics.com/resources/advanced-civ.26111
++Manual on GitHub:
++	https://github.com/f1rpo/AdvCiv/raw/master/manual.pdf
++Source code on GitHub:
++	https://github.com/f1rpo/AdvCiv
++Discussion thread on CivFanatics:
++	https://forums.civfanatics.com/threads/advanced-civ.614217
+\ No newline at end of file
+
+[PATCH OMITTED] file=a/manual_v0.91b.odt b/manual_v0.92rc.odt reason=binary/generated-file changedLines=0 bytes=230
+
+[PATCH OMITTED] file=a/manual_v0.91b.pdf b/manual_v0.92rc.pdf reason=binary/generated-file changedLines=0 bytes=230
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=11 omittedFiles=3 embeddedPatchBytes=24899

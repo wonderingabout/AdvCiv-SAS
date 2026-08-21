@@ -1,0 +1,648 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2762
+# Commit: 7d044e6e135bca4cbe0f5c14253bd2864b0b3dc0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 323bedf7100c0b52891900fd4279177c9ba070f1
+# Title: Some minor refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	0	CvGameCoreDLL/CvCity.cpp
+0	5	CvGameCoreDLL/CvCity.h
+2	38	CvGameCoreDLL/CvCityAI.cpp
+6	6	CvGameCoreDLL/CvCityAI.h
+95	75	CvGameCoreDLL/CvGameTextMgr.cpp
+4	27	CvGameCoreDLL/CvInfo_Terrain.cpp
+12	9	CvGameCoreDLL/CvInfo_Terrain.h
+1	1	CvGameCoreDLL/ScaledNum.h
+2	2	CvGameCoreDLL/ScaledNumTest.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 2e2d86414..0287f3e02 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11581,6 +11581,9 @@ public:
+ 	}
+ };
+ 
++/*	Fill the kVisible array with buildings that you want shown in city,
++	as well as the number of generics
++	This function is called whenever CvCity::setLayoutDirty() is called. */
+ void CvCity::getVisibleBuildings(std::list<BuildingTypes>& kChosenVisible,
+ 	int& iChosenNumGenerics)
+ {
+@@ -11663,6 +11666,9 @@ bool CvCity::isAllBuildingsVisible(TeamTypes eTeam, bool bDebug) const
+ 
+ // (advc: natGetDeterministicRandom deleted; should use 'hash' in CvGameCoreUtils instead.)
+ 
++/*	Fill the kEffectNames array with references to effects in CIV4EffectInfos.xml
++	to have a city play a given set of effects. This is called whenever the interface
++	updates the city billboard or when the zoom level changes. */
+ void CvCity::getVisibleEffects(ZoomLevelTypes eCurZoom,
+ 	std::vector<const TCHAR*>& kEffectNames)
+ {
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index e3c90003d..2c1ffe45f 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1183,14 +1183,9 @@ public:
+ 	}
+ 	DllExport OrderData getOrderData(int iIndex) const;
+ 
+-	// fill the kVisible array with buildings that you want shown in city, as well as the number of generics
+-	// This function is called whenever CvCity::setLayoutDirty() is called
+ 	DllExport void getVisibleBuildings(std::list<BuildingTypes>& kVisible, int& iNumGenerics);
+ 	bool isAllBuildingsVisible(TeamTypes eTeam, bool bDebug) const; // advc.045
+ 
+-	// Fill the kEffectNames array with references to effects in the CIV4EffectInfos.xml to have a
+-	// city play a given set of effects. This is called whenever the interface updates the city billboard
+-	// or when the zoom level changes
+ 	DllExport void getVisibleEffects(ZoomLevelTypes eCurrentZoom, std::vector<const TCHAR*>& kEffectNames);
+ 
+ 	// Billboard appearance controls
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index d4333d7f8..45332827c 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6801,42 +6801,6 @@ int CvCityAI::AI_culturePressureFactor() const
+ }
+ 
+ 
+-int CvCityAI::AI_getEmphasizeAvoidGrowthCount() const
+-{
+-	return m_iEmphasizeAvoidGrowthCount;
+-}
+-
+-
+-bool CvCityAI::AI_isEmphasizeAvoidGrowth() const
+-{
+-	return (AI_getEmphasizeAvoidGrowthCount() > 0);
+-}
+-
+-
+-int CvCityAI::AI_getEmphasizeGreatPeopleCount() const
+-{
+-	return m_iEmphasizeGreatPeopleCount;
+-}
+-
+-
+-bool CvCityAI::AI_isEmphasizeGreatPeople() const
+-{
+-	return (AI_getEmphasizeGreatPeopleCount() > 0);
+-}
+-
+-
+-bool CvCityAI::AI_isAssignWorkDirty() const
+-{
+-	return m_bAssignWorkDirty;
+-}
+-
+-
+-void CvCityAI::AI_setAssignWorkDirty(bool bNewValue)
+-{
+-	m_bAssignWorkDirty = bNewValue;
+-}
+-
+-
+ CvCityAI* CvCityAI::AI_getRouteToCity() const // advc.003u: return type was CvCity*
+ {
+ 	return AI_getCity(m_routeToCity);
+@@ -6933,13 +6897,13 @@ void CvCityAI::AI_setEmphasize(EmphasizeTypes eIndex, bool bNewValue)
+ 
+ 		if (GC.getInfo(eIndex).isAvoidGrowth())
+ 		{
+-			m_iEmphasizeAvoidGrowthCount += ((AI_isEmphasize(eIndex)) ? 1 : -1);
++			m_iEmphasizeAvoidGrowthCount += (AI_isEmphasize(eIndex) ? 1 : -1);
+ 			FAssert(AI_getEmphasizeAvoidGrowthCount() >= 0);
+ 		}
+ 
+ 		if (GC.getInfo(eIndex).isGreatPeople())
+ 		{
+-			m_iEmphasizeGreatPeopleCount += ((AI_isEmphasize(eIndex)) ? 1 : -1);
++			m_iEmphasizeGreatPeopleCount += (AI_isEmphasize(eIndex) ? 1 : -1);
+ 			FAssert(AI_getEmphasizeGreatPeopleCount() >= 0);
+ 		}
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 937e072ef..c0633bda9 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -87,14 +87,14 @@ public:
+ 
+ 	// advc: Moved from CvCity b/c it's part of the AI
+ 	int AI_culturePressureFactor() const; // K-Mod
+-	int AI_getEmphasizeAvoidGrowthCount() const;
+-	bool AI_isEmphasizeAvoidGrowth() const;
++	int AI_getEmphasizeAvoidGrowthCount() const { return m_iEmphasizeAvoidGrowthCount; }
++	bool AI_isEmphasizeAvoidGrowth() const { return (AI_getEmphasizeAvoidGrowthCount() > 0); }
+ 
+-	int AI_getEmphasizeGreatPeopleCount() const;
+-	bool AI_isEmphasizeGreatPeople() const;
++	int AI_getEmphasizeGreatPeopleCount() const { return m_iEmphasizeGreatPeopleCount; }
++	bool AI_isEmphasizeGreatPeople() const { return (AI_getEmphasizeGreatPeopleCount() > 0); }
+ 
+-	bool AI_isAssignWorkDirty() const;
+-	void AI_setAssignWorkDirty(bool bNewValue);
++	bool AI_isAssignWorkDirty() const { return m_bAssignWorkDirty; }
++	void AI_setAssignWorkDirty(bool bNewValue) { m_bAssignWorkDirty = bNewValue; }
+ 
+ 	//bool AI_isChooseProductionDirty() const; // advc.003u: Moved to CvCity
+ 	//void AI_setChooseProductionDirty(bool bNewValue);
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b50241dbe..f58643bbb 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -6843,8 +6843,6 @@ void CvGameTextMgr::setYieldValueString(CvWStringBuffer &szString, int iValue, b
+ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity)
+ {
+ 	PROFILE_FUNC();
+-
+-	int iI;
+ 	CvWString szTempBuffer;
+ 
+ 	szString.append(pCity->getName());
+@@ -6925,66 +6923,70 @@ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity)
+ 					pCity->getProductionNeeded()));
+ 		}
+ 	}
+-
+-	bool bFirst = true;
+-
+-	for (iI = 0; iI < NUM_COMMERCE_TYPES; ++iI)
+ 	{
+-		int iRate = pCity->getCommerceRateTimes100((CommerceTypes)iI);
++		bool bFirst = true;
++		FOR_EACH_ENUM(Commerce)
++		{
++			int iRate = pCity->getCommerceRateTimes100(eLoopCommerce);
++			if (iRate != 0)
++			{
++				szTempBuffer.Format(L"%d.%02d %c", iRate/100, iRate%100,
++						GC.getInfo(eLoopCommerce).getChar());
++				setListHelp(szString, NEWLINE, szTempBuffer, L", ", bFirst);
++				bFirst = false;
++			}
++		}
++		int iRate = pCity->getGreatPeopleRate();
+ 		if (iRate != 0)
+ 		{
+-			szTempBuffer.Format(L"%d.%02d %c", iRate/100, iRate%100, GC.getInfo((CommerceTypes)iI).getChar());
++			szTempBuffer.Format(L"%d%c", iRate, gDLL->getSymbolID(GREAT_PEOPLE_CHAR));
+ 			setListHelp(szString, NEWLINE, szTempBuffer, L", ", bFirst);
+ 			bFirst = false;
+ 		}
++		if (!bFirst)
++			szString.append(gDLL->getText("TXT_KEY_PER_TURN"));
+ 	}
+-
+-	int iRate = pCity->getGreatPeopleRate();
+-	if (iRate != 0)
+-	{
+-		szTempBuffer.Format(L"%d%c", iRate, gDLL->getSymbolID(GREAT_PEOPLE_CHAR));
+-		setListHelp(szString, NEWLINE, szTempBuffer, L", ", bFirst);
+-		bFirst = false;
+-	}
+-
+-	if (!bFirst)
+-	{
+-		szString.append(gDLL->getText("TXT_KEY_PER_TURN"));
+-	}
+-
+ 	szString.append(NEWLINE);
+ 	szString.append(gDLL->getText("INTERFACE_CITY_MAINTENANCE"));
+-	//int iMaintenance = pCity->getMaintenanceTimes100();
+-	int iMaintenance = pCity->getMaintenanceTimes100() * (100+GET_PLAYER(pCity->getOwner()).calculateInflationRate()) / 100; // K-Mod
+-	szString.append(CvWString::format(L" -%d.%02d %c", iMaintenance/100, iMaintenance%100, GC.getInfo(COMMERCE_GOLD).getChar()));
+-
+-	bFirst = true;
+-	for (iI = 0; iI < GC.getNumBuildingInfos(); ++iI)
++	int iMaintenance = pCity->getMaintenanceTimes100() *
++			(100+GET_PLAYER(pCity->getOwner()).calculateInflationRate()) / 100; // K-Mod
++	szString.append(CvWString::format(L" -%d.%02d %c", iMaintenance/100, iMaintenance%100,
++			GC.getInfo(COMMERCE_GOLD).getChar()));
+ 	{
+-		if (pCity->getNumRealBuilding((BuildingTypes)iI) > 0)
++		bool bFirst = true;
++		FOR_EACH_ENUM(Building)
+ 		{
+-			setListHelp(szString, NEWLINE, GC.getInfo((BuildingTypes)iI).getDescription(), L", ", bFirst);
+-			bFirst = false;
++			if (pCity->getNumRealBuilding(eLoopBuilding) > 0)
++			{
++				setListHelp(szString, NEWLINE,
++						GC.getInfo(eLoopBuilding).getDescription(), L", ", bFirst);
++				bFirst = false;
++			}
+ 		}
+ 	}
+-
+ 	if (pCity->getCultureLevel() != NO_CULTURELEVEL)
+ 	{
+-		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_CULTURE", pCity->getCulture(pCity->getOwner()), pCity->getCultureThreshold(), GC.getInfo(pCity->getCultureLevel()).getTextKeyWide()));
++		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_CULTURE",
++				pCity->getCulture(pCity->getOwner()),
++				pCity->getCultureThreshold(),
++				GC.getInfo(pCity->getCultureLevel()).getTextKeyWide()));
+ 	}
+-
+ 	if (pCity->getGreatPeopleProgress() > 0)
+ 	{
+-		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_GREAT_PEOPLE", pCity->getGreatPeopleProgress(), GET_PLAYER(pCity->getOwner()).greatPeopleThreshold(false)));
++		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_GREAT_PEOPLE",
++				pCity->getGreatPeopleProgress(),
++				GET_PLAYER(pCity->getOwner()).greatPeopleThreshold(false)));
+ 	}
+-
+-	int iNumUnits = pCity->getPlot().countNumAirUnits(GC.getGame().getActiveTeam());
+-	if (pCity->getAirUnitCapacity(GC.getGame().getActiveTeam()) > 0 && iNumUnits > 0)
+ 	{
+-		szString.append(NEWLINE);
+-		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_AIR_UNIT_CAPACITY", iNumUnits, pCity->getAirUnitCapacity(GC.getGame().getActiveTeam())));
++		TeamTypes const eActiveTeam = GC.getGame().getActiveTeam();
++		int const iUnits = pCity->getPlot().countNumAirUnits(eActiveTeam);
++		if (iUnits > 0 && pCity->getAirUnitCapacity(eActiveTeam) > 0)
++		{
++			szString.append(NEWLINE);
++			szString.append(gDLL->getText("TXT_KEY_CITY_BAR_AIR_UNIT_CAPACITY",
++					iUnits, pCity->getAirUnitCapacity(eActiveTeam)));
++		}
+ 	}
+-
+ 	szString.append(NEWLINE);
+ 
+ 	szString.append(gDLL->getText("TXT_KEY_CITY_BAR_SELECT", pCity->getNameKey()));
+@@ -16151,26 +16153,35 @@ void CvGameTextMgr::setImprovementHelp(CvWStringBuffer &szBuffer, ImprovementTyp
+ 	CvWString szTempBuffer;
+ 	CvWString szFirstBuffer;
+ 
+-	CvImprovementInfo& info = GC.getInfo(eImprovement);
+-	if (!bCivilopediaText)
++	CvImprovementInfo const& kImprov = GC.getInfo(eImprovement);
++	if (!bCivilopediaText) // advc (note): Redundantly implemented in Pedia
+ 	{
+-		szTempBuffer.Format( SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), info.getDescription());
++		szTempBuffer.Format( SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++				kImprov.getDescription());
+ 		szBuffer.append(szTempBuffer);
+ 
+-		setYieldChangeHelp(szBuffer, L", ", L"", L"", info.getYieldChangeArray(), false, false);
+-
+-		setYieldChangeHelp(szBuffer, L"", L"", gDLL->getText("TXT_KEY_MISC_WITH_IRRIGATION").c_str(), info.getIrrigatedYieldChangeArray());
+-		setYieldChangeHelp(szBuffer, L"", L"", gDLL->getText("TXT_KEY_MISC_ON_HILLS").c_str(), info.getHillsYieldChangeArray());
+-		setYieldChangeHelp(szBuffer, L"", L"", gDLL->getText("TXT_KEY_MISC_ALONG_RIVER").c_str(), info.getRiverSideYieldChangeArray());
+-
+-		for (int iTech = 0; iTech < GC.getNumTechInfos(); iTech++)
++		setYieldChangeHelp(szBuffer, L", ", L"", L"", kImprov.getYieldChangeArray(), false, false);
++
++		setYieldChangeHelp(szBuffer, L"", L"",
++				gDLL->getText("TXT_KEY_MISC_WITH_IRRIGATION").c_str(),
++				kImprov.getIrrigatedYieldChangeArray());
++		setYieldChangeHelp(szBuffer, L"", L"",
++				gDLL->getText("TXT_KEY_MISC_ON_HILLS").c_str(),
++				kImprov.getHillsYieldChangeArray());
++		setYieldChangeHelp(szBuffer, L"", L"",
++				gDLL->getText("TXT_KEY_MISC_ALONG_RIVER").c_str(),
++				kImprov.getRiverSideYieldChangeArray());
++		FOR_EACH_ENUM(Tech)
+ 		{
+-			for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
++			FOR_EACH_ENUM(Yield)
+ 			{
+-				if (info.getTechYieldChanges(iTech, iYield) != 0)
++				int iYieldChange = kImprov.getTechYieldChanges(eLoopTech, eLoopYield);
++				if (iYieldChange != 0)
+ 				{
+ 					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_WITH_TECH", info.getTechYieldChanges(iTech, iYield), GC.getInfo((YieldTypes)iYield).getChar(), GC.getInfo((TechTypes)iTech).getTextKeyWide()));
++					szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_WITH_TECH",
++							iYieldChange, GC.getInfo(eLoopYield).getChar(),
++							GC.getInfo(eLoopTech).getTextKeyWide()));
+ 				}
+ 			}
+ 		}
+@@ -16183,59 +16194,68 @@ void CvGameTextMgr::setImprovementHelp(CvWStringBuffer &szBuffer, ImprovementTyp
+ 				int iChange = GC.getInfo((CivicTypes)iCivic).getImprovementYieldChanges(eImprovement, iYield);
+ 				if (iChange != 0)
+ 				{
++		FOR_EACH_ENUM(Civic)
++		{
++			FOR_EACH_ENUM(Yield)
++			{
++				int iYieldChange = GC.getInfo(eLoopCivic).getImprovementYieldChanges(
++						eImprovement, eLoopYield);
++				if (iYieldChange != 0)
++				{
++					szBuffer.append(NEWLINE);
++					szBuffer.append(gDLL->getText("TXT_KEY_CIVIC_IMPROVEMENT_YIELD_CHANGE",
++							iYieldChange, GC.getInfo(eLoopYield).getChar()));
+ 					szTempBuffer.Format( SETCOLR L"%s" ENDCOLR ,
+ 							TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
+-							GC.getInfo((CivicTypes)iCivic).getDescription());
+-					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_CIVIC_IMPROVEMENT_YIELD_CHANGE", iChange, GC.getInfo((YieldTypes)iYield).getChar()));
++							GC.getInfo(eLoopCivic).getDescription());
+ 					szBuffer.append(szTempBuffer);
+ 				}
+ 			}
+ 		}
+ 	}
+ 
+-	if (info.isRequiresRiverSide())
++	if (kImprov.isRequiresRiverSide())
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_REQUIRES_RIVER"));
+ 	}
+-	if (info.isCarriesIrrigation())
++	if (kImprov.isCarriesIrrigation())
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_CARRIES_IRRIGATION"));
+ 	}
+ 	if (bCivilopediaText)
+ 	{
+-		if (info.isNoFreshWater())
++		if (kImprov.isNoFreshWater())
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_NO_BUILD_FRESH_WATER"));
+ 		}
+-		if (info.isWater())
++		if (kImprov.isWater())
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_BUILD_ONLY_WATER"));
+ 		}
+-		if (info.isRequiresFlatlands())
++		if (kImprov.isRequiresFlatlands())
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_ONLY_BUILD_FLATLANDS"));
+ 		}
+ 	}
+ 
+-	if (info.getImprovementUpgrade() != NO_IMPROVEMENT)
++	if (kImprov.getImprovementUpgrade() != NO_IMPROVEMENT)
+ 	{
+ 		int iTurns = GC.getGame().getImprovementUpgradeTime(eImprovement);
+ 
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_EVOLVES",
+-				GC.getInfo(info.getImprovementUpgrade()).getTextKeyWide(), iTurns));
++				GC.getInfo(kImprov.getImprovementUpgrade()).getTextKeyWide(), iTurns));
+ 	}
+ 
+ 	int iLast = -1;
+ 	for (int iBonus = 0; iBonus < GC.getNumBonusInfos(); iBonus++)
+ 	{
+-		int iRand = info.getImprovementBonusDiscoverRand(iBonus);
++		int iRand = kImprov.getImprovementBonusDiscoverRand(iBonus);
+ 		if (iRand > 0)
+ 		{
+ 			szFirstBuffer.Format(L"%s%s", NEWLINE, gDLL->getText("TXT_KEY_IMPROVEMENT_CHANCE_DISCOVER").c_str());
+@@ -16245,13 +16265,13 @@ void CvGameTextMgr::setImprovementHelp(CvWStringBuffer &szBuffer, ImprovementTyp
+ 		}
+ 	}
+ 
+-	if (info.getDefenseModifier() != 0)
++	if (kImprov.getDefenseModifier() != 0)
+ 	{
+ 		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_DEFENSE_MODIFIER", info.getDefenseModifier()));
++		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_DEFENSE_MODIFIER", kImprov.getDefenseModifier()));
+ 	}
+ 	{
+-		int iHappiness = info.getHappiness();
++		int iHappiness = kImprov.getHappiness();
+ 		if (iHappiness != 0)
+ 		{
+ 			szBuffer.append(NEWLINE);
+@@ -16263,7 +16283,7 @@ void CvGameTextMgr::setImprovementHelp(CvWStringBuffer &szBuffer, ImprovementTyp
+ 		}
+ 	}  // <advc.901>
+ 	{
+-		int iHealthPercent = info.get(CvImprovementInfo::HealthPercent);
++		int iHealthPercent = kImprov.get(CvImprovementInfo::HealthPercent);
+ 		if (iHealthPercent != 0)
+ 		{
+ 			szBuffer.append(NEWLINE);
+@@ -16277,13 +16297,13 @@ void CvGameTextMgr::setImprovementHelp(CvWStringBuffer &szBuffer, ImprovementTyp
+ 					gDLL->getSymbolID(UNHEALTHY_CHAR)));
+ 		}
+ 	} // </advc.901>
+-	if (info.isActsAsCity())
++	if (kImprov.isActsAsCity())
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_DEFENSE_MODIFIER_EXTRA"));
+ 	}
+-	int iGWFeatureProtection = info.get(CvImprovementInfo::GWFeatureProtection); // advc.055
+-	if (info.getFeatureGrowthProbability() > 0)
++	int iGWFeatureProtection = kImprov.get(CvImprovementInfo::GWFeatureProtection); // advc.055
++	if (kImprov.getFeatureGrowthProbability() > 0)
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_MORE_GROWTH"));
+@@ -16295,7 +16315,7 @@ void CvGameTextMgr::setImprovementHelp(CvWStringBuffer &szBuffer, ImprovementTyp
+ 			iGWFeatureProtection = 0; // Don't display again
+ 		} // </advc.055>
+ 	}
+-	else if (info.getFeatureGrowthProbability() < 0)
++	else if (kImprov.getFeatureGrowthProbability() < 0)
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_LESS_GROWTH"));
+@@ -16308,10 +16328,10 @@ void CvGameTextMgr::setImprovementHelp(CvWStringBuffer &szBuffer, ImprovementTyp
+ 	} // </advc.055>
+ 	if (bCivilopediaText)
+ 	{
+-		if (info.getPillageGold() > 0)
++		if (kImprov.getPillageGold() > 0)
+ 		{
+ 			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_PILLAGE_YIELDS", info.getPillageGold()));
++			szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_PILLAGE_YIELDS", kImprov.getPillageGold()));
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.cpp b/CvGameCoreDLL/CvInfo_Terrain.cpp
+index 70ce246d3..df7f1b2da 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.cpp
++++ b/CvGameCoreDLL/CvInfo_Terrain.cpp
+@@ -1063,55 +1063,30 @@ int CvImprovementInfo::getPrereqNatureYield(int i) const
+ 	return m_piPrereqNatureYield ? m_piPrereqNatureYield[i] : 0; // advc.003t
+ }
+ 
+-int* CvImprovementInfo::getPrereqNatureYieldArray()
+-{
+-	return m_piPrereqNatureYield;
+-}
+-
+ int CvImprovementInfo::getYieldChange(int i) const
+ {
+ 	FAssertBounds(0, NUM_YIELD_TYPES, i);
+ 	return m_piYieldChange ? m_piYieldChange[i] : 0; // advc.003t
+ }
+ 
+-int* CvImprovementInfo::getYieldChangeArray()
+-{
+-	return m_piYieldChange;
+-}
+-
+ int CvImprovementInfo::getRiverSideYieldChange(int i) const
+ {
+ 	FAssertBounds(0, NUM_YIELD_TYPES, i);
+ 	return m_piRiverSideYieldChange ? m_piRiverSideYieldChange[i] : 0; // advc.003t
+ }
+ 
+-int* CvImprovementInfo::getRiverSideYieldChangeArray()
+-{
+-	return m_piRiverSideYieldChange;
+-}
+-
+ int CvImprovementInfo::getHillsYieldChange(int i) const
+ {
+ 	FAssertBounds(0, NUM_YIELD_TYPES, i);
+ 	return m_piHillsYieldChange ? m_piHillsYieldChange[i] : 0; // advc.003t
+ }
+ 
+-int* CvImprovementInfo::getHillsYieldChangeArray()
+-{
+-	return m_piHillsYieldChange;
+-}
+-
+ int CvImprovementInfo::getIrrigatedYieldChange(int i) const
+ {
+ 	FAssertBounds(0, NUM_YIELD_TYPES, i);
+ 	return m_piIrrigatedChange ? m_piIrrigatedChange[i] : 0; // advc.003t
+ }
+ 
+-int* CvImprovementInfo::getIrrigatedYieldChangeArray()
+-{
+-	return m_piIrrigatedChange;
+-}
+-
+ bool CvImprovementInfo::getTerrainMakesValid(int i) const
+ {
+ 	FAssertBounds(0, GC.getNumTerrainInfos(), i);
+@@ -1131,8 +1106,9 @@ int CvImprovementInfo::getTechYieldChanges(int i, int j) const
+ 	return m_ppiTechYieldChanges[i][j];
+ }
+ 
+-int* CvImprovementInfo::getTechYieldChangesArray(int i) const
++int const* CvImprovementInfo::getTechYieldChangesArray(int i) const
+ {
++	FAssertBounds(0, GC.getNumTechInfos(), i); // advc
+ 	return m_ppiTechYieldChanges[i];
+ }
+ 
+@@ -1143,8 +1119,9 @@ int CvImprovementInfo::getRouteYieldChanges(int i, int j) const
+ 	return m_ppiRouteYieldChanges[i][j];
+ }
+ 
+-int* CvImprovementInfo::getRouteYieldChangesArray(int i) const
++int const* CvImprovementInfo::getRouteYieldChangesArray(int i) const
+ {
++	FAssertBounds(0, GC.getNumRouteInfos(), i); // advc
+ 	return m_ppiRouteYieldChanges[i];
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.h b/CvGameCoreDLL/CvInfo_Terrain.h
+index 3d80d8064..d6f484a61 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.h
++++ b/CvGameCoreDLL/CvInfo_Terrain.h
+@@ -412,18 +412,21 @@ public: /*  All the const functions are exposed to Python except those dealing w
+ 
+ 	int getWorldSoundscapeScriptId() const;
+ 
+-	// Array access:
++	// Array access: (advc.inl: whole-array getters constified, inlined)
+ 
+ 	int getPrereqNatureYield(int i) const;
+-	int* getPrereqNatureYieldArray();
++	int const* getPrereqNatureYieldArray() const { return m_piPrereqNatureYield; }
+ 	int getYieldChange(int i) const;
+-	int* getYieldChangeArray();
++	int const* getYieldChangeArray() const { return m_piYieldChange; }
+ 	int getRiverSideYieldChange(int i) const;
+-	int* getRiverSideYieldChangeArray();
++	int const* getRiverSideYieldChangeArray() const { return m_piRiverSideYieldChange; }
+ 	int getHillsYieldChange(int i) const;
+-	int* getHillsYieldChangeArray();
++	int const* getHillsYieldChangeArray() const { return m_piHillsYieldChange; }
+ 	int getIrrigatedYieldChange(int i) const;
+-	int* getIrrigatedYieldChangeArray(); // For Moose - CvWidgetData XXX
++	int const* getIrrigatedYieldChangeArray() const // For Moose - CvWidgetData XXX
++	{
++		return m_piIrrigatedChange;
++	}
+ 
+ 	bool getTerrainMakesValid(int i) const;
+ 	inline bool isAnyTerrainMakesValid() const { return (m_pbTerrainMakesValid != NULL); } // advc.003t
+@@ -431,10 +434,10 @@ public: /*  All the const functions are exposed to Python except those dealing w
+ 	inline bool isAnyFeatureMakesValid() const { return (m_pbFeatureMakesValid != NULL); } // advc.003t
+ 
+ 	int getTechYieldChanges(int i, int j) const;
+-	int* getTechYieldChangesArray(int i) /* advc: */ const;
++	int const* getTechYieldChangesArray(int i) const;
++
+ 	int getRouteYieldChanges(int i, int j) const;
+-	// For Moose - CvWidgetData XXX
+-	int* getRouteYieldChangesArray(int i) /* advc: */ const;
++	int const* getRouteYieldChangesArray(int i) const; // For Moose - CvWidgetData XXX
+ 
+ 	int getImprovementBonusYield(int iBonus, int iYield) const;
+ 	bool isImprovementBonusMakesValid(int i) const;
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index 66613e0fb..2a3a2a215 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -73,7 +73,7 @@ CvString ScaledNumBase<Dummy>::szBuf = "";
+ 	Conversion from percentage: macro 'per100' (also 'per1000', 'per10000')
+ 	'scaled' and 'uscaled' typedefs for default precision.
+ 
+-	In code that uses Hungarian notation, I propose the prefix 'r' for
++	In code that uses Systems Hungarian notation, I propose the prefix 'r' for
+ 	ScaledNum variables, or more generally for any types that represent
+ 	rational numbers without a floating point.
+
+diff --git a/CvGameCoreDLL/ScaledNumTest.cpp b/CvGameCoreDLL/ScaledNumTest.cpp
+index 8e21cdde8..f07dec2e8 100644
+--- a/CvGameCoreDLL/ScaledNumTest.cpp
++++ b/CvGameCoreDLL/ScaledNumTest.cpp
+@@ -134,7 +134,7 @@ void TestScaledNum()
+ 	//rEnum *= 3; // ! Failed runtime assertion due to MAXINT==0
+ 
+ 	// Ensure that even extremely high scale factors don't overflow on mulDiv
+-	uscaled rAlmostSqrtOfTwo = scaled(2).sqrt() - fixp(0.001);
++	uscaled rAlmostSqrtOfTwo = scaled(2).sqrt() - scaled::epsilon();
+ 	ScaledNum<MAX_INT,uint> r1 = rAlmostSqrtOfTwo;
+ 	ScaledNum<MAX_INT - 1,uint> r2 = rAlmostSqrtOfTwo;
+ 	FAssert(r2.MAX() == 2);
+@@ -411,7 +411,7 @@ void TestScaledNum()
+ 		}
+ 	}
+ 
+-	// Syntax test
++	// Syntax test (How easy is it to convert floating-point calculations to ScaledNum?)
+ 	/*	Based on some calculations in InvasionGraph::step. Out of context,
+ 		the excerpts used here and their names are nonsensical. */
+ 	scaled rOtherDist = 2;
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=23177

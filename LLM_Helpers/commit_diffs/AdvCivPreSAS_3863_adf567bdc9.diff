@@ -1,0 +1,101 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3863
+# Commit: adf567bdc90436aafa0e579730d93dde63c65dfa
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d4e91fec5256f3110e22a41a651cc8505abd5e3b
+# Title: Disable options for hiding Auto-Explore, Sea Patrol
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	4	Assets/Config/BUG Main Interface.xml
+5	2	Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+3	0	Assets/Python/Screens/CvMainInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index 69e72d4c6..7aa8b4abc 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -239,14 +239,15 @@
+ 			<option id="SimpleSelection" key="Simple Selection"
+ 					type="boolean" default="True"/>
+ 
++			<!-- (I don't think these two are needed after all) -->
+ 			<!-- advc.004k -->
+-			<option id="SeaPatrol" key="Sea Patrol"
++			<!--option id="SeaPatrol" key="Sea Patrol"
+ 					get="isShowSeaPatrol"
+-					type="boolean" default="True" dirtyBit="SelectionButtons"/>
++					type="boolean" default="True" dirtyBit="SelectionButtons"/-->
+ 			<!-- advc.004k -->
+-			<option id="AutoExplore" key="Auto Explore"
++			<!--option id="AutoExplore" key="Auto Explore"
+ 					get="isShowAutoExplore"
+-					type="boolean" default="True" dirtyBit="SelectionButtons"/>
++					type="boolean" default="True" dirtyBit="SelectionButtons"/-->
+ 			
+ 			<!-- advc.004z -->
+ 			<option id="ScoresInGlobeView" key="Scores in Globe View"
+
+diff --git a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+index 045e3b079..654427acf 100644
+--- a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+@@ -32,8 +32,8 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		# </advc.092>
+ 		#self.createAutoSavePanel(screen, center)
+ 		self.createInfoPanePanel(screen, center)
+-		# advc: Don't have space for this spacer anymore
+-		#self.addSpacer(screen, center, "GeneralC1")
++		# advc.004k (note): Should remove this spacer if the hide-command options are re-enabled
++		self.addSpacer(screen, center, "GeneralC1")
+ 		self.createActionsPanel(screen, center) # advc.004: Restored
+ 		
+ 		self.createSlidersPanel(screen, right) # advc.120c
+@@ -82,11 +82,14 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		# </advc.004>
+ 		# advc.154:
+ 		self.addTextDropdown(screen, panel, panel, "MainInterface__UnitCyclingButtons", True)
++		# (I don't think we need these options after all)
++		'''
+ 		# <advc.004k>
+ 		left, right = self.addTwoColumnLayout(screen, panel, "CommandCols")
+ 		self.addCheckbox(screen, left, "MainInterface__SeaPatrol")
+ 		self.addCheckbox(screen, right, "MainInterface__AutoExplore")
+ 		# </advc.004k>
++		'''
+ 		# advc.002m:
+ 		self.addTextDropdown(screen, panel, panel, "MainInterface__NukeMissionTime", True)
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index c228a63cb..4f773866b 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -3435,12 +3435,15 @@ class CvMainInterface:
+ 					actions = CyInterface().getActionsToShow()
+ 					for i in actions:
+ 						# <advc.004k>
++						# (I don't think these options are needed after all)
++						'''
+ 						if (gc.getActionInfo(i).getMissionType() == MissionTypes.MISSION_SEAPATROL and
+ 								not MainOpt.isShowSeaPatrol()):
+ 							continue
+ 						if (gc.getActionInfo(i).getAutomateType() == AutomateTypes.AUTOMATE_EXPLORE and
+ 								not MainOpt.isShowAutoExplore()):
+ 							continue
++						'''
+ 						# Show grouping commands before promotions, upgrades
+ 						if (not bGroupButtonsDone and
+ 								(gc.getActionInfo(i).getCommandType() == CommandTypes.COMMAND_PROMOTION or
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3349

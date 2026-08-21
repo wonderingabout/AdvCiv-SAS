@@ -1,0 +1,93 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4181
+# Commit: 2eddf22d1761aa426ebe581908a3143069ce542c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d56c85c87b1fd4e21e5b7b6334ff14b59b27a409
+# Title: Catch pathfinder failures caused by danger avoidance earlier
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+30	4	CvGameCoreDLL/CvSelectionGroup.cpp
+4	1	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index e9ab494d0..07d5a7920 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1353,7 +1353,36 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 					}
+ 				}
+ 			}
+-			else bDone = true;
++			else
++			{
++				bDone = true;
++				/*	<advc.pf> Failure to find a path here can be normal if the move
++					was scheduled on an earlier turn; it's probably also normal for
++					units ready to defend. If the unit doesn't get stuck in a loop
++					subsequently (separate assertion), it's probably fine anyway.
++					If it does get stuck, then this earlier assertion should help
++					diagnose the problem. It could then well be a rare issue with
++					a worker retreating from enemy units, caused by the use of
++					path data in GroupStepMetric::canStepThrough or ::cost.
++					Probably not worth trying to fix (if indeed very rare). */
++				if (missionData.iPushTurn >= GC.getGame().getGameTurn() &&
++					(!canFight() || (missionData.eFlags & MOVE_AVOID_DANGER)) &&
++					!hasMoved())
++				{
++				#ifdef FASSERT_ENABLE
++					// Ad-hoc cache to avoid repeating the assertion popup
++					static int iLastGroupID = FFreeList::INVALID_INDEX;
++					if (iLastGroupID != getID())
++					{
++						FErrorMsg("Danger-averse unit failed to move?");
++						iLastGroupID = getID();
++					}
++				#endif
++					if (AI_isControlled())
++						pushMission(MISSION_SKIP);
++				}
++				// </advc.pf>
++			}
+ 			break;
+ 
+ 		case MISSION_ROUTE_TO:
+@@ -2903,9 +2932,6 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, MovementFlags eFlags)
+ 			Also, I've changed it to use a different pathfinder,
+ 			to avoid clearing the path data - and to avoid OOS errors. */
+ 		kFinalPath.setGroup(*this, eFlags & ~MOVE_DECLARE_WAR);
+-		/*	advc.pf (note): If no path is found here for a worker retreating from
+-			enemy units, then the use of path data in GroupStepMetric::cost
+-			could be responsible. OK (with me) so long as it's very rare. */
+ 		if (!kFinalPath.generatePath(kDestPlot))
+ 			return false;
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index 2d0e94def..963e8b643 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -654,7 +654,10 @@ void KmodPathFinder<StepMetric,Node>::processChild(
+ 				then we might be able to enter via a shorter path and avoid ending
+ 				the turn in kChildPlot that way. I don't see a reasonably fast way
+ 				to address this rare problem. (And it's not really a problem
+-				with this base class but with GroupPathFinder.)*/
++				with this base class but with GroupPathFinder.) I guess we could
++				add a function isValidStep2 that gets checked only after
++				canStepThrough and move the danger checks into that function.
++				But there may be similar issues with the cost function. */
+ 			kChild.setState(PATHNODE_CLOSED);
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2935

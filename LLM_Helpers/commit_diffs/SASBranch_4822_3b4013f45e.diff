@@ -1,0 +1,1504 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4822
+# Commit: 3b4013f45ef24fd96286ddd34217bec290d326f6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a5a449bc70adb8a309dc8e5827417dfbe6014e58
+# Title: remove GERMAN_ASSEMBLY_PLANT, remove BUILDINGCLASS_OBSERVATORY, add new GERMAN_LONGHOUSE (based on granary), update tech tree and other changes anyways etc -...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Longhouse/longhouse.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/asian_building.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/asian_building_shadow.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/iroquoislh.nif
+11	20	Assets/XML/Art/CIV4ArtDefines_Building.xml
+0	23	Assets/XML/Audio/Audio2DScripts.xml
+0	7	Assets/XML/Audio/AudioDefines.xml
+0	12	Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+290	441	Assets/XML/Buildings/CIV4BuildingInfos.xml
+0	6	Assets/XML/Buildings/CIV4CityLSystem.xml
+12	16	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+11	8	Assets/XML/Technologies/CIV4TechInfos.xml
+10	7	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+9	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+2	2	Assets/XML/Units/CIV4PromotionInfos.xml
+5	0	README.md
+3	0	Settings/About this folder (AdvCiv-SAS).txt
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Longhouse/longhouse.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/asian_building.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/asian_building_shadow.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/iroquoislh.nif
+ create mode 100644 Settings/About this folder (AdvCiv-SAS).txt
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Longhouse/longhouse.dds b/Assets/Art/AdvCiv_SAS/Buildings/Longhouse/longhouse.dds
+new file mode 100644
+index 000000000..52c328be3
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Longhouse/longhouse.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/asian_building.dds b/Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/asian_building.dds
+new file mode 100644
+index 000000000..e62309533
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/asian_building.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/asian_building_shadow.dds b/Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/asian_building_shadow.dds
+new file mode 100644
+index 000000000..eac2cf97d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/asian_building_shadow.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/iroquoislh.nif b/Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/iroquoislh.nif
+new file mode 100644
+index 000000000..8adb3bdfb
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Longhouse/nif/iroquoislh.nif differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index 06b63d58a..0d8e3b145 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -158,6 +158,17 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Granary.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,4</Button>
+ 		</BuildingArtInfo>
++		<!-- custom: german_longhouse art animation import from the RI mod (seemingly scattered accross RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so had to import both and gather them all in one advciv-sas folder if i'm not mistaken anyways etc) see modding ressources example nif import info for details (screenshots and such for example mainly but anyways etc) anyways etc ; as for the button, import from RI mod's longhouse.dds in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Interface1.FPK and a part of the smokehouse1 structure's nif files (here only asian_building_shadow.dds it seems if i am not mistaken anyways etc) was scattered in RI_37_Structures9.FPK as well anyways etc, and modified/adjusted or not for AdvCiv-SAS anyways etc -->
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_GERMAN_LONGHOUSE</Type>
++			<LSystem>LSYSTEM_2x1</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>0.5</fScale>
++			<fInterfaceScale>4.0</fInterfaceScale>
++			<NIF>Art/AdvCiv_SAS/Buildings/Longhouse/nif/IroquoisLH.nif</NIF>
++			<KFM/>
++			<Button>Art/AdvCiv_SAS/Buildings/Longhouse/longhouse.dds</Button>
++		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_AQUEDUCT</Type>
+ 			<!-- the actual art for this aqueduct is controlled by ArtDefines_Misc.xml : ART_AQUEDUCT_SEGMENT/ART_AQUEDUCT_WALL/ART_AQUEDUCT_ENDPOINT -->
+@@ -320,16 +331,6 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Factory.dds,Art/Interface/Buttons/Buildings_Atlas.dds,7,2</Button>
+ 		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_GERMAN_ASSEMBLY_PLANT</Type>
+-			<LSystem>LSYSTEM_3x3</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>1.8</fScale>
+-			<fInterfaceScale>0.5</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/German_Assembly_Plant/German_Assembly_Plant.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Factory.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,6,2</Button>
+-		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_COAL_PLANT</Type>
+ 			<LSystem>LSYSTEM_3x2</LSystem>
+@@ -450,16 +451,6 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/University.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,4</Button>
+ 		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_OBSERVATORY</Type>
+-			<LSystem>LSYSTEM_1x1</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>1.33</fScale>
+-			<fInterfaceScale>0.83</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Observatory/Observatory.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Observatory.dds,Art/Interface/Buttons/Buildings_Atlas.dds,2,5</Button>
+-		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_FRENCH_SALON</Type>
+ 			<LSystem>LSYSTEM_2x1</LSystem>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 5ace4c2a0..63464ae26 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -8136,29 +8136,6 @@
+ 		<fMaxWetLevel>0.0</fMaxWetLevel>
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+-	<Script2DSound>
+-		<ScriptID>AS2D_BUILD_OBSERVATORY</ScriptID>
+-		<SoundID>SND_BUILD_OBSERVATORY</SoundID>
+-		<SoundType>GAME_INTERFACE</SoundType>
+-		<iMinVolume>90</iMinVolume>
+-		<iMaxVolume>90</iMaxVolume>
+-		<iPitchChangeDown>0</iPitchChangeDown>
+-		<iPitchChangeUp>0</iPitchChangeUp>
+-		<iMinLeftPan>-1</iMinLeftPan>
+-		<iMaxLeftPan>-1</iMaxLeftPan>
+-		<iMinRightPan>-1</iMinRightPan>
+-		<iMaxRightPan>-1</iMaxRightPan>
+-		<bLooping>0</bLooping>
+-		<iMinTimeDelay>0</iMinTimeDelay>
+-		<iMaxTimeDelay>0</iMaxTimeDelay>
+-		<bTaperForSoundtracks>0</bTaperForSoundtracks>
+-		<iLengthOfSound>0</iLengthOfSound>
+-		<fMinDryLevel>1.0</fMinDryLevel>
+-		<fMaxDryLevel>1.0</fMaxDryLevel>
+-		<fMinWetLevel>0.0</fMinWetLevel>
+-		<fMaxWetLevel>0.0</fMaxWetLevel>
+-		<iNotPlayPercent>0</iNotPlayPercent>
+-	</Script2DSound>
+ 	<Script2DSound>
+ 		<ScriptID>AS2D_BUILD_THEATRE</ScriptID>
+ 		<SoundID>SND_BUILD_THEATRE</SoundID>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 9df045360..e600ba106 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -3459,13 +3459,6 @@
+ 			<bIsCompressed>1</bIsCompressed>
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_BUILD_OBSERVATORY</SoundID>
+-			<Filename>Sounds/Buildings/Observatory</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+ 		<SoundData>
+ 			<SoundID>SND_BUILD_THEATRE</SoundID>
+ 			<Filename>Sounds/Buildings/Theatre</Filename>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingClassInfos.xml b/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+index 965e556b0..af99d559b 100644
+--- a/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingClassInfos.xml
+@@ -356,18 +356,6 @@
+ 			<DefaultBuilding>BUILDING_UNIVERSITY</DefaultBuilding>
+ 			<VictoryThresholds/>
+ 		</BuildingClassInfo>
+-		<BuildingClassInfo>
+-			<Type>BUILDINGCLASS_OBSERVATORY</Type>
+-			<Description>TXT_KEY_BUILDING_OBSERVATORY</Description>
+-			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+-			<iMaxTeamInstances>-1</iMaxTeamInstances>
+-			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
+-			<iExtraPlayerInstances>0</iExtraPlayerInstances>
+-			<bNoLimit>0</bNoLimit>
+-			<bMonument>0</bMonument>
+-			<DefaultBuilding>BUILDING_OBSERVATORY</DefaultBuilding>
+-			<VictoryThresholds/>
+-		</BuildingClassInfo>
+ 		<BuildingClassInfo>
+ 			<Type>BUILDINGCLASS_LABORATORY</Type>
+ 			<Description>TXT_KEY_BUILDING_LABORATORY</Description>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index dd8ffa2fc..ee931d18c 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -315,11 +315,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: palace, type: palace_barbarian (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<BuildingInfo> <!-- custom: class: palace, type: BARBARIAN_PALACE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_PALACE</BuildingClass>
+-			<Type>BUILDING_PALACE_BARBARIAN</Type>
++			<Type>BUILDING_BARBARIAN_PALACE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_PALACE_BARBARIAN</Description>
++			<Description>TXT_KEY_BUILDING_BARBARIAN_PALACE</Description>
+ 			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_BUILDING_PALACE_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+@@ -1217,11 +1217,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: walls, type: walls_barbarian (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<BuildingInfo> <!-- custom: class: walls, type: BARBARIAN_WALLS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_WALLS</BuildingClass>
+-			<Type>BUILDING_WALLS_BARBARIAN</Type>
++			<Type>BUILDING_BARBARIAN_WALLS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_WALLS_BARBARIAN</Description>
++			<Description>TXT_KEY_BUILDING_BARBARIAN_WALLS</Description>
+ 			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_BUILDING_WALLS_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+@@ -1990,11 +1990,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: castle, type: castle_barbarian (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<BuildingInfo> <!-- custom: class: castle, type: BARBARIAN_CASTLE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
+-			<Type>BUILDING_CASTLE_BARBARIAN</Type>
++			<Type>BUILDING_BARBARIAN_CASTLE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_CASTLE_BARBARIAN</Description>
++			<Description>TXT_KEY_BUILDING_BARBARIAN_CASTLE</Description>
+ 			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_BUILDING_CASTLE_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+@@ -2533,11 +2533,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: barracks, type: barracks_barbarian (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<BuildingInfo> <!-- custom: class: barracks, type: BARBARIAN_BARRACKS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
+-			<Type>BUILDING_BARRACKS_BARBARIAN</Type>
++			<Type>BUILDING_BARBARIAN_BARRACKS</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_BARRACKS_BARBARIAN</Description>
++			<Description>TXT_KEY_BUILDING_BARBARIAN_BARRACKS</Description>
+ 			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_BUILDING_BARRACKS_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+@@ -2571,7 +2571,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<PowerBonus>NONE</PowerBonus>
+ 			<FreeBonus>NONE</FreeBonus>
+ 			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<!-- custom: avoid circular dependency with freebuilding of barbarian palace (or palace_barbarian maybe rather but anyways etc), not sure it is needed or has a real influence or not, but better be safe here maybe, and is also if i am not mistaken or not or and other or and not but in all cases anyways etc anyways etc -->
++			<!-- custom: avoid circular dependency with freebuilding of barbarian palace (or BARBARIAN_PALACE maybe rather but anyways etc), not sure it is needed or has a real influence or not, but better be safe here maybe, and is also if i am not mistaken or not or and other or and not but in all cases anyways etc anyways etc -->
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+@@ -3470,7 +3470,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+ 			<iExperience>0</iExperience>
+ 			<iGlobalExperience>0</iGlobalExperience>
+-			<!-- reducing this as the granary is a bit too op early, making it a cheaper more gradual building, see code comment at iCost of this building for details, also not affecting civ-specific version of the granary, at least not all of them if there are more, to give more of an advantage to these civs with their civ-specific costly in terms of investment if i may say that it is their only civ-specific building so it better be strong and worth it else rework it, but anyways etc anyways etc anyways etc..., was 50 -->
++			<!-- custom: reducing this as the granary is a bit too op early, making it a cheaper more gradual building, see code comment at iCost of this building for details, also not affecting civ-specific version of the granary, at least not all of them if there are more, to give more of an advantage to these civs with their civ-specific costly in terms of investment if i may say that it is their only civ-specific building so it better be strong and worth it else rework it, but anyways etc anyways etc anyways etc..., was 50 -->
+ 			<iFoodKept>40</iFoodKept>
+ 			<iAirlift>0</iAirlift>
+ 			<iAirModifier>0</iAirModifier>
+@@ -3553,10 +3553,19 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
++			<!-- custom: important to get the granary early enough especially since it is so cheap/cheaper even if effect is a bit weaker, also indirectly helps military and production (slaving and hammer count) now, so give it quite similar flavors than than the incan terrace civ-specific granary anyways etc, was flavor growth 4 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>4</iFlavor>
++					<iFlavor>7</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>6</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -3565,11 +3574,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: granary, type: granary_barbarian (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<BuildingInfo> <!-- custom: class: granary, type: BARBARIAN_GRANARY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
+-			<Type>BUILDING_GRANARY_BARBARIAN</Type>
++			<Type>BUILDING_BARBARIAN_GRANARY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_GRANARY_BARBARIAN</Description>
++			<Description>TXT_KEY_BUILDING_BARBARIAN_GRANARY</Description>
+ 			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_BUILDING_GRANARY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+@@ -3735,11 +3744,20 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
++			<!-- custom: barbarians seemingly don't slave but i am not sure, still they grow quite fast so not as important for production maybe and their tiles are less developped too so less production benefit if i am not mistaken anyways etc, but still important for military to have the city grow fast with their civ-specific BARBARIAN_GRANARY anyways etc -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+ 					<iFlavor>10</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>6</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
++					<iFlavor>4</iFlavor>
++				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+@@ -3931,16 +3949,215 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>9</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>7</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
++					<iFlavor>5</iFlavor>
++				</Flavor>
++			</Flavors>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++		</BuildingInfo>
++		<!-- custom: new german civ-specific building, replaces the old assembly_plant now removed, for stronger early game anyways etc, rework based on this https://en.wikipedia.org/wiki/History_of_Germany#Prehistory and this https://en.wikipedia.org/wiki/Linear_Pottery_culture#Economy or/and other wikis or and not anyways (for example the introduction/generic wiki part of these or and other or and not but anyways etc...) and https://en.wikipedia.org/wiki/Neolithic_long_house or and other or and not anyways etc... etc anyways etc -->
++		<BuildingInfo> <!-- custom: class: granary, type: german_longhouse (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
++			<Type>BUILDING_GERMAN_LONGHOUSE</Type>
++			<SpecialBuildingType>NONE</SpecialBuildingType>
++			<Description>TXT_KEY_BUILDING_GERMAN_LONGHOUSE</Description>
++			<Civilopedia>TXT_KEY_BUILDING_GERMAN_LONGHOUSE_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_GROWTH</Advisor>
++			<ArtDefineTag>ART_DEF_BUILDING_GERMAN_LONGHOUSE</ArtDefineTag>
++			<MovieDefineTag>NONE</MovieDefineTag>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<bStateReligion>0</bStateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<FoundsCorporation>NONE</FoundsCorporation>
++			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
++			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
++			<VictoryPrereq>NONE</VictoryPrereq>
++			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
++			<MaxStartEra>NONE</MaxStartEra>
++			<ObsoleteTech>NONE</ObsoleteTech>
++			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not anywyas etc -->
++			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
++			<TechTypes/>
++			<Bonus>NONE</Bonus>
++			<PrereqBonuses/>
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
++					<iProductionTrait>100</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
++			<HappinessTraits/>
++			<NoBonus>NONE</NoBonus>
++			<PowerBonus>NONE</PowerBonus>
++			<FreeBonus>NONE</FreeBonus>
++			<iNumFreeBonuses>0</iNumFreeBonuses>
++			<FreeBuilding>NONE</FreeBuilding>
++			<FreePromotion>NONE</FreePromotion>
++			<CivicOption>NONE</CivicOption>
++			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
++			<iHurryAngerModifier>0</iHurryAngerModifier>
++			<bBorderObstacle>0</bBorderObstacle>
++			<bTeamShare>0</bTeamShare>
++			<bWater>0</bWater>
++			<bRiver>0</bRiver>
++			<bPower>0</bPower>
++			<bDirtyPower>0</bDirtyPower>
++			<bAreaCleanPower>0</bAreaCleanPower>
++			<DiploVoteType>NONE</DiploVoteType>
++			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
++			<bCapital>0</bCapital>
++			<bGovernmentCenter>0</bGovernmentCenter>
++			<bGoldenAge>0</bGoldenAge>
++			<bAllowsNukes>0</bAllowsNukes>
++			<bMapCentering>0</bMapCentering>
++			<bNoUnhappiness>0</bNoUnhappiness>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
++			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
++			<bNeverCapture>0</bNeverCapture>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bCenterInCity>0</bCenterInCity>
++			<!-- custom: the granary should be valuable to all players and war profiles (peaceful or warmonger alike could make great use of it, but do not overincrease it in case alternate strategies are better, trying this value then anyways etc), was 0 -->
++			<iAIWeight>25</iAIWeight>
++			<!-- custom: cost reduced to make gameplay more gradual, and this building more balanced with the slavery association, also as part of buffing slavery that is too weak see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\GameInfo\CIV4HurryInfo.xml for details, anyways etc, also cost was a bit too high for such an early game building, as compared to say the monument, maybe this is more balanced now in that regard, may be adjusted or not more or less or none or and other or and not or etc later anyways etc, was 60 -->
++			<iCost>55</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iConquestProb>66</iConquestProb>
++			<iCitiesPrereq>0</iCitiesPrereq>
++			<iTeamsPrereq>0</iTeamsPrereq>
++			<iLevelPrereq>0</iLevelPrereq>
++			<iMinLatitude>0</iMinLatitude>
++			<iMaxLatitude>90</iMaxLatitude>
++			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
++			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
++			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
++			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
++			<iAnarchyModifier>0</iAnarchyModifier>
++			<iGoldenAgeModifier>0</iGoldenAgeModifier>
++			<iGlobalHurryModifier>0</iGlobalHurryModifier>
++			<iExperience>0</iExperience>
++			<iGlobalExperience>0</iGlobalExperience>
++			<!-- custom: give more food storage than the average/generic granary anyways etc -->
++			<iFoodKept>50</iFoodKept>
++			<iAirlift>0</iAirlift>
++			<iAirModifier>0</iAirModifier>
++			<iAirUnitCapacity>0</iAirUnitCapacity>
++			<iNukeModifier>0</iNukeModifier>
++			<iNukeExplosionRand>0</iNukeExplosionRand>
++			<iFreeSpecialist>0</iFreeSpecialist>
++			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
++			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
++			<iMaintenanceModifier>0</iMaintenanceModifier>
++			<iWarWearinessModifier>0</iWarWearinessModifier>
++			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
++			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
++			<iHealRateChange>0</iHealRateChange>
++			<iHealth>0</iHealth>
++			<iAreaHealth>0</iAreaHealth>
++			<iGlobalHealth>0</iGlobalHealth>
++			<iHappiness>0</iHappiness>
++			<iAreaHappiness>0</iAreaHappiness>
++			<iGlobalHappiness>0</iGlobalHappiness>
++			<iStateReligionHappiness>0</iStateReligionHappiness>
++			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
++			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
++			<iSpaceProductionModifier>0</iSpaceProductionModifier>
++			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
++			<iTradeRoutes>0</iTradeRoutes>
++			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
++			<iTradeRouteModifier>0</iTradeRouteModifier>
++			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
++			<iGlobalPopulationChange>0</iGlobalPopulationChange>
++			<iFreeTechs>0</iFreeTechs>
++			<iDefense>0</iDefense>
++			<iBombardDefense>0</iBombardDefense>
++			<iAllCityDefense>0</iAllCityDefense>
++			<iEspionageDefense>0</iEspionageDefense>
++			<iAsset>3</iAsset>
++			<iPower>0</iPower>
++			<fVisibilityPriority>1.0</fVisibilityPriority>
++			<SeaPlotYieldChanges/>
++			<RiverPlotYieldChanges/>
++			<GlobalSeaPlotYieldChanges/>
++			<!-- custom: add +1 food to the new german longhouse, same/kind of how the baray does already anyways etc -->
++			<YieldChanges>
++				<iYield>1</iYield>
++				<iYield>0</iYield>
++				<iYield>0</iYield>
++			</YieldChanges>
++			<CommerceChanges/>
++			<ObsoleteSafeCommerceChanges/>
++			<CommerceChangeDoubleTimes/>
++			<CommerceModifiers/>
++			<GlobalCommerceModifiers/>
++			<SpecialistExtraCommerces/>
++			<StateReligionCommerces/>
++			<CommerceHappinesses/>
++			<ReligionChanges/>
++			<SpecialistCounts/>
++			<FreeSpecialistCounts/>
++			<CommerceFlexibles/>
++			<CommerceChangeOriginalOwners/>
++			<ConstructSound>AS2D_BUILD_GRANARY</ConstructSound>
++			<BonusHealthChanges>
++				<BonusHealthChange>
++					<BonusType>BONUS_MAIZE</BonusType>
++					<iHealthChange>1</iHealthChange>
++				</BonusHealthChange>
++				<BonusHealthChange>
++					<BonusType>BONUS_RICE</BonusType>
++					<iHealthChange>1</iHealthChange>
++				</BonusHealthChange>
++				<BonusHealthChange>
++					<BonusType>BONUS_WHEAT</BonusType>
++					<iHealthChange>1</iHealthChange>
++				</BonusHealthChange>
++			</BonusHealthChanges>
++			<BonusHappinessChanges/>
++			<BonusProductionModifiers/>
++			<UnitCombatFreeExperiences/>
++			<DomainFreeExperiences/>
++			<DomainProductionModifiers/>
++			<BuildingHappinessChanges/>
++			<PrereqBuildingClasses/>
++			<BuildingClassNeededs/>
++			<SpecialistYieldChanges/>
++			<BonusYieldModifiers/>
++			<ImprovementFreeSpecialists/>
++			<!-- custom: a bit less production than the incan_terrace but still quite important for production even though less / a bit less indeed but anyways etc anyways etc... -->
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>9</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
+ 					<iFlavor>6</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
++					<iFlavor>4</iFlavor>
++				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+@@ -5325,11 +5542,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: lighthouse, type: lighthouse_barbarian (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<BuildingInfo> <!-- custom: class: lighthouse, type: BARBARIAN_LIGHTHOUSE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
+-			<Type>BUILDING_LIGHTHOUSE_BARBARIAN</Type>
++			<Type>BUILDING_BARBARIAN_LIGHTHOUSE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_LIGHTHOUSE_BARBARIAN</Description>
++			<Description>TXT_KEY_BUILDING_BARBARIAN_LIGHTHOUSE</Description>
+ 			<Civilopedia>TXT_KEY_BUILDING_GENERIC_BARBARIAN_CUSTOM_SEE_FOR_DETAILS_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_BUILDING_LIGHTHOUSE_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+@@ -6695,199 +6912,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<iBombardDefense>0</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>4</iAsset>
+-			<!-- advc.131c: was 2 -->
+-			<iPower>0</iPower>
+-			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<SeaPlotYieldChanges/>
+-			<RiverPlotYieldChanges/>
+-			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
+-			<YieldModifiers>
+-				<iYield>0</iYield>
+-				<iYield>25</iYield>
+-				<iYield>0</iYield>
+-			</YieldModifiers>
+-			<CommerceChanges/>
+-			<ObsoleteSafeCommerceChanges/>
+-			<CommerceChangeDoubleTimes/>
+-			<CommerceModifiers/>
+-			<GlobalCommerceModifiers/>
+-			<SpecialistExtraCommerces/>
+-			<StateReligionCommerces/>
+-			<CommerceHappinesses/>
+-			<ReligionChanges/>
+-			<SpecialistCounts>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+-					<iSpecialistCount>1</iSpecialistCount>
+-				</SpecialistCount>
+-			</SpecialistCounts>
+-			<FreeSpecialistCounts/>
+-			<CommerceFlexibles/>
+-			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_FORGE</ConstructSound>
+-			<BonusHealthChanges/>
+-			<BonusHappinessChanges>
+-				<BonusHappinessChange>
+-					<BonusType>BONUS_GEMSTONES</BonusType>
+-					<iHappinessChange>1</iHappinessChange>
+-				</BonusHappinessChange>
+-				<BonusHappinessChange>
+-					<BonusType>BONUS_GOLD</BonusType>
+-					<iHappinessChange>1</iHappinessChange>
+-				</BonusHappinessChange>
+-				<BonusHappinessChange>
+-					<BonusType>BONUS_SILVER</BonusType>
+-					<iHappinessChange>1</iHappinessChange>
+-				</BonusHappinessChange>
+-			</BonusHappinessChanges>
+-			<BonusProductionModifiers/>
+-			<UnitCombatFreeExperiences/>
+-			<DomainFreeExperiences/>
+-			<DomainProductionModifiers/>
+-			<BuildingHappinessChanges/>
+-			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs/>
+-			<SpecialistYieldChanges/>
+-			<BonusYieldModifiers/>
+-			<ImprovementFreeSpecialists/>
+-			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>10</iFlavor>
+-				</Flavor>
+-			</Flavors>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: forge, type: mali_mint (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
+-			<Type>BUILDING_MALI_MINT</Type>
+-			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_MALI_MINT</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_MALI_FORGE_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_MALI_MINT_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_ECONOMY</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_MALI_MINT</ArtDefineTag>
+-			<MovieDefineTag>NONE</MovieDefineTag>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<bStateReligion>0</bStateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<FoundsCorporation>NONE</FoundsCorporation>
+-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+-			<VictoryPrereq>NONE</VictoryPrereq>
+-			<!-- advc.126: was ERA_RENAISSCANCE -->
+-			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
+-			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+-			<TechTypes/>
+-			<Bonus>NONE</Bonus>
+-			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
+-			<HappinessTraits/>
+-			<NoBonus>NONE</NoBonus>
+-			<PowerBonus>NONE</PowerBonus>
+-			<FreeBonus>NONE</FreeBonus>
+-			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>NONE</FreeBuilding>
+-			<FreePromotion>NONE</FreePromotion>
+-			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+-			<iHurryAngerModifier>0</iHurryAngerModifier>
+-			<bBorderObstacle>0</bBorderObstacle>
+-			<bTeamShare>0</bTeamShare>
+-			<bWater>0</bWater>
+-			<bRiver>0</bRiver>
+-			<bPower>0</bPower>
+-			<bDirtyPower>0</bDirtyPower>
+-			<bAreaCleanPower>0</bAreaCleanPower>
+-			<DiploVoteType>NONE</DiploVoteType>
+-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+-			<bCapital>0</bCapital>
+-			<bGovernmentCenter>0</bGovernmentCenter>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bAllowsNukes>0</bAllowsNukes>
+-			<bMapCentering>0</bMapCentering>
+-			<bNoUnhappiness>0</bNoUnhappiness>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>0</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bCenterInCity>0</bCenterInCity>
+-			<iAIWeight>0</iAIWeight>
+-			<iCost>115</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>66</iConquestProb>
+-			<iCitiesPrereq>0</iCitiesPrereq>
+-			<iTeamsPrereq>0</iTeamsPrereq>
+-			<iLevelPrereq>0</iLevelPrereq>
+-			<iMinLatitude>0</iMinLatitude>
+-			<iMaxLatitude>90</iMaxLatitude>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+-			<iAnarchyModifier>0</iAnarchyModifier>
+-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+-			<iExperience>0</iExperience>
+-			<iGlobalExperience>0</iGlobalExperience>
+-			<iFoodKept>0</iFoodKept>
+-			<iAirlift>0</iAirlift>
+-			<iAirModifier>0</iAirModifier>
+-			<iAirUnitCapacity>0</iAirUnitCapacity>
+-			<iNukeModifier>0</iNukeModifier>
+-			<iNukeExplosionRand>0</iNukeExplosionRand>
+-			<iFreeSpecialist>0</iFreeSpecialist>
+-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+-			<iMaintenanceModifier>0</iMaintenanceModifier>
+-			<iWarWearinessModifier>0</iWarWearinessModifier>
+-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+-			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>-1</iHealth>
+-			<iAreaHealth>0</iAreaHealth>
+-			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>0</iHappiness>
+-			<iAreaHappiness>0</iAreaHappiness>
+-			<iGlobalHappiness>0</iGlobalHappiness>
+-			<iStateReligionHappiness>0</iStateReligionHappiness>
+-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+-			<iTradeRoutes>0</iTradeRoutes>
+-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+-			<iTradeRouteModifier>0</iTradeRouteModifier>
+-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+-			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>0</iDefense>
+-			<iBombardDefense>0</iBombardDefense>
+-			<iAllCityDefense>0</iAllCityDefense>
+-			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>5</iAsset>
++			<iAsset>4</iAsset>
+ 			<!-- advc.131c: was 2 -->
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+@@ -6903,9 +6928,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<CommerceChanges/>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+-			<CommerceModifiers>
+-				<iCommerce>10</iCommerce>
+-			</CommerceModifiers>
++			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+ 			<StateReligionCommerces/>
+@@ -6949,11 +6972,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>5</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -6962,15 +6981,15 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: factory, type: factory (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
+-			<Type>BUILDING_FACTORY</Type>
++		<BuildingInfo> <!-- custom: class: forge, type: mali_mint (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
++			<Type>BUILDING_MALI_MINT</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_FACTORY</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_FACTORY_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_FACTORY_STRATEGY</Strategy>
++			<Description>TXT_KEY_BUILDING_MALI_MINT</Description>
++			<Civilopedia>TXT_KEY_BUILDING_MALI_FORGE_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_BUILDING_MALI_MINT_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_MALI_MINT</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -6982,16 +7001,17 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+ 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>ERA_FUTURE</FreeStartEra>
++			<!-- advc.126: was ERA_RENAISSCANCE -->
++			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
++			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits>
+ 				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
++					<ProductionTraitType>TRAIT_INDUSTRIOUS</ProductionTraitType>
+ 					<iProductionTrait>100</iProductionTrait>
+ 				</ProductionTrait>
+ 			</ProductionTraits>
+@@ -7028,7 +7048,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>250</iCost>
++			<iCost>115</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -7084,7 +7104,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<iBombardDefense>0</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>6</iAsset>
++			<iAsset>5</iAsset>
+ 			<!-- advc.131c: was 2 -->
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+@@ -7097,15 +7117,12 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 				<iYield>25</iYield>
+ 				<iYield>0</iYield>
+ 			</YieldModifiers>
+-			<PowerYieldModifiers>
+-				<iYield>0</iYield>
+-				<iYield>50</iYield>
+-				<iYield>0</iYield>
+-			</PowerYieldModifiers>
+ 			<CommerceChanges/>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+-			<CommerceModifiers/>
++			<CommerceModifiers>
++				<iCommerce>10</iCommerce>
++			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+ 			<StateReligionCommerces/>
+@@ -7114,24 +7131,28 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SpecialistCounts>
+ 				<SpecialistCount>
+ 					<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+-					<iSpecialistCount>2</iSpecialistCount>
++					<iSpecialistCount>1</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_FACTORY</ConstructSound>
+-			<BonusHealthChanges>
+-				<BonusHealthChange>
+-					<BonusType>BONUS_OIL</BonusType>
+-					<iHealthChange>-2</iHealthChange>
+-				</BonusHealthChange>
+-				<BonusHealthChange>
+-					<BonusType>BONUS_COAL</BonusType>
+-					<iHealthChange>-2</iHealthChange>
+-				</BonusHealthChange>
+-			</BonusHealthChanges>
+-			<BonusHappinessChanges/>
++			<ConstructSound>AS2D_BUILD_FORGE</ConstructSound>
++			<BonusHealthChanges/>
++			<BonusHappinessChanges>
++				<BonusHappinessChange>
++					<BonusType>BONUS_GEMSTONES</BonusType>
++					<iHappinessChange>1</iHappinessChange>
++				</BonusHappinessChange>
++				<BonusHappinessChange>
++					<BonusType>BONUS_GOLD</BonusType>
++					<iHappinessChange>1</iHappinessChange>
++				</BonusHappinessChange>
++				<BonusHappinessChange>
++					<BonusType>BONUS_SILVER</BonusType>
++					<iHappinessChange>1</iHappinessChange>
++				</BonusHappinessChange>
++			</BonusHappinessChanges>
+ 			<BonusProductionModifiers/>
+ 			<UnitCombatFreeExperiences/>
+ 			<DomainFreeExperiences/>
+@@ -7145,7 +7166,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>5</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GOLD</FlavorType>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -7154,15 +7179,15 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: factory, type: german_assembly_plant (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<BuildingInfo> <!-- custom: class: factory, type: factory (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
+-			<Type>BUILDING_GERMAN_ASSEMBLY_PLANT</Type>
++			<Type>BUILDING_FACTORY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_GERMAN_ASSEMBLY_PLANT</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_GERMAN_ASSEMBLY_PLANT_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_GERMAN_ASSEMBLY_PLANT_STRATEGY</Strategy>
++			<Description>TXT_KEY_BUILDING_FACTORY</Description>
++			<Civilopedia>TXT_KEY_BUILDING_FACTORY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_BUILDING_FACTORY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_GERMAN_ASSEMBLY_PLANT</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -7283,7 +7308,6 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+-			<!-- advc.200: was +2 production in K-Mod -->
+ 			<YieldChanges/>
+ 			<YieldModifiers>
+ 				<iYield>0</iYield>
+@@ -7307,7 +7331,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SpecialistCounts>
+ 				<SpecialistCount>
+ 					<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+-					<iSpecialistCount>4</iSpecialistCount>
++					<iSpecialistCount>2</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+@@ -7325,12 +7349,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 				</BonusHealthChange>
+ 			</BonusHealthChanges>
+ 			<BonusHappinessChanges/>
+-			<BonusProductionModifiers>
+-				<BonusProductionModifier>
+-					<BonusType>BONUS_COAL</BonusType>
+-					<iProductonModifier>50</iProductonModifier>
+-				</BonusProductionModifier>
+-			</BonusProductionModifiers>
++			<BonusProductionModifiers/>
+ 			<UnitCombatFreeExperiences/>
+ 			<DomainFreeExperiences/>
+ 			<DomainProductionModifiers/>
+@@ -10621,176 +10640,6 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: observatory, type: observatory (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<BuildingClass>BUILDINGCLASS_OBSERVATORY</BuildingClass>
+-			<Type>BUILDING_OBSERVATORY</Type>
+-			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_OBSERVATORY</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_OBSERVATORY_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_OBSERVATORY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_SCIENCE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_OBSERVATORY</ArtDefineTag>
+-			<MovieDefineTag>NONE</MovieDefineTag>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<bStateReligion>0</bStateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<FoundsCorporation>NONE</FoundsCorporation>
+-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+-			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>NONE</FreeStartEra>
+-			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+-			<TechTypes/>
+-			<Bonus>NONE</Bonus>
+-			<PrereqBonuses/>
+-			<ProductionTraits/>
+-			<HappinessTraits/>
+-			<NoBonus>NONE</NoBonus>
+-			<PowerBonus>NONE</PowerBonus>
+-			<FreeBonus>NONE</FreeBonus>
+-			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>NONE</FreeBuilding>
+-			<FreePromotion>NONE</FreePromotion>
+-			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+-			<iHurryAngerModifier>0</iHurryAngerModifier>
+-			<bBorderObstacle>0</bBorderObstacle>
+-			<bTeamShare>0</bTeamShare>
+-			<bWater>0</bWater>
+-			<bRiver>0</bRiver>
+-			<bPower>0</bPower>
+-			<bDirtyPower>0</bDirtyPower>
+-			<bAreaCleanPower>0</bAreaCleanPower>
+-			<DiploVoteType>NONE</DiploVoteType>
+-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+-			<bCapital>0</bCapital>
+-			<bGovernmentCenter>0</bGovernmentCenter>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bAllowsNukes>0</bAllowsNukes>
+-			<bMapCentering>0</bMapCentering>
+-			<bNoUnhappiness>0</bNoUnhappiness>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>0</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bCenterInCity>0</bCenterInCity>
+-			<iAIWeight>0</iAIWeight>
+-			<iCost>150</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>66</iConquestProb>
+-			<iCitiesPrereq>0</iCitiesPrereq>
+-			<iTeamsPrereq>0</iTeamsPrereq>
+-			<iLevelPrereq>0</iLevelPrereq>
+-			<iMinLatitude>0</iMinLatitude>
+-			<iMaxLatitude>90</iMaxLatitude>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+-			<iAnarchyModifier>0</iAnarchyModifier>
+-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+-			<iExperience>0</iExperience>
+-			<iGlobalExperience>0</iGlobalExperience>
+-			<iFoodKept>0</iFoodKept>
+-			<iAirlift>0</iAirlift>
+-			<iAirModifier>0</iAirModifier>
+-			<iAirUnitCapacity>0</iAirUnitCapacity>
+-			<iNukeModifier>0</iNukeModifier>
+-			<iNukeExplosionRand>0</iNukeExplosionRand>
+-			<iFreeSpecialist>0</iFreeSpecialist>
+-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+-			<iMaintenanceModifier>0</iMaintenanceModifier>
+-			<iWarWearinessModifier>0</iWarWearinessModifier>
+-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+-			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>0</iHealth>
+-			<iAreaHealth>0</iAreaHealth>
+-			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>0</iHappiness>
+-			<iAreaHappiness>0</iAreaHappiness>
+-			<iGlobalHappiness>0</iGlobalHappiness>
+-			<iStateReligionHappiness>0</iStateReligionHappiness>
+-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+-			<iTradeRoutes>0</iTradeRoutes>
+-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+-			<iTradeRouteModifier>0</iTradeRouteModifier>
+-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+-			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>0</iDefense>
+-			<iBombardDefense>0</iBombardDefense>
+-			<iAllCityDefense>0</iAllCityDefense>
+-			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>5</iAsset>
+-			<iPower>0</iPower>
+-			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<SeaPlotYieldChanges/>
+-			<RiverPlotYieldChanges/>
+-			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
+-			<CommerceChanges/>
+-			<ObsoleteSafeCommerceChanges/>
+-			<CommerceChangeDoubleTimes/>
+-			<CommerceModifiers>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>25</iCommerce>
+-			</CommerceModifiers>
+-			<GlobalCommerceModifiers/>
+-			<SpecialistExtraCommerces/>
+-			<StateReligionCommerces/>
+-			<CommerceHappinesses/>
+-			<ReligionChanges/>
+-			<SpecialistCounts>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+-					<iSpecialistCount>1</iSpecialistCount>
+-				</SpecialistCount>
+-			</SpecialistCounts>
+-			<FreeSpecialistCounts/>
+-			<CommerceFlexibles/>
+-			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_OBSERVATORY</ConstructSound>
+-			<BonusHealthChanges/>
+-			<BonusHappinessChanges/>
+-			<BonusProductionModifiers/>
+-			<UnitCombatFreeExperiences/>
+-			<DomainFreeExperiences/>
+-			<DomainProductionModifiers/>
+-			<BuildingHappinessChanges/>
+-			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs/>
+-			<SpecialistYieldChanges/>
+-			<BonusYieldModifiers/>
+-			<ImprovementFreeSpecialists/>
+-			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>10</iFlavor>
+-				</Flavor>
+-			</Flavors>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-		</BuildingInfo>
+ 		<BuildingInfo> <!-- custom: class: laboratory, type: laboratory (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_LABORATORY</BuildingClass>
+ 			<Type>BUILDING_LABORATORY</Type>
+@@ -10945,7 +10794,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<DomainProductionModifiers/>
+ 			<BuildingHappinessChanges/>
+ 			<PrereqBuildingClasses/>
+-			<!-- custom: observatory removed, now requires a university, may mesh also better with _OXFORD_UNIVERSITY like other monument type of buildings mesh with _STONEHEDGE maybe anyways etc, was BUILDINGCLASS_OBSERVATORY -->
++			<!-- custom: observatory class removed entirely, laboratory now requires instead a university, which (i.e. the university, not directly related info to the laboratory but to be exhaustive maybe or and other reason or and not but anyways etc...) may mesh also better with _OXFORD_UNIVERSITY being a more important key previous objective, like other monument type of buildings are also strongly linked to/with _STONEHEDGE anyways etc -->
+ 			<BuildingClassNeededs>
+ 				<BuildingClassNeeded>
+ 					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
+
+diff --git a/Assets/XML/Buildings/CIV4CityLSystem.xml b/Assets/XML/Buildings/CIV4CityLSystem.xml
+index 049d344ba..0baae9fa2 100644
+--- a/Assets/XML/Buildings/CIV4CityLSystem.xml
++++ b/Assets/XML/Buildings/CIV4CityLSystem.xml
+@@ -273,9 +273,6 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 		<ArtRef Name="building:BUILDING_GROCER">
+ 			<Scale>2.3</Scale>
+ 		</ArtRef>
+-		<ArtRef Name="building:BUILDING_OBSERVATORY">
+-			<Scale>1.33</Scale>
+-		</ArtRef>
+ 		<ArtRef Name="building:BUILDING_HEROIC_EPIC">
+ 			<Scale>1.4</Scale>
+ 		</ArtRef>
+@@ -1282,9 +1279,6 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 		<ArtRef Name="building:BUILDING_MILITARY_ACADEMY">
+ 			<Scale>2.0</Scale>
+ 		</ArtRef>
+-		<ArtRef Name="building:BUILDING_GERMAN_ASSEMBLY_PLANT">
+-			<Scale>2.0</Scale>
+-		</ArtRef>
+ 		<ArtRef Name="building:BUILDING_CHICHEN_ITZA">
+ 			<Scale>1.33</Scale>
+ 		</ArtRef>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index eca55439c..7795c296f 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1342,7 +1342,7 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_FISHING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -1547,8 +1547,8 @@
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
+-					<BuildingType>BUILDING_GERMAN_ASSEMBLY_PLANT</BuildingType>
++					<BuildingClassType>BUILDINGCLASS_GRANARY</BuildingClassType>
++					<BuildingType>BUILDING_GERMAN_LONGHOUSE</BuildingType>
+ 				</Building>
+ 			</Buildings>
+ 			<Units>
+@@ -1571,7 +1571,7 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+@@ -3711,11 +3711,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_AGRICULTURE</TechType>
++					<TechType>TECH_MYSTICISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_THE_WHEEL</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -4165,27 +4165,27 @@
+ 				<!-- custom: (for barbarians) see code comment at FreeBuildingClasses for details -->
+ 				<Building>
+ 					<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+-					<BuildingType>BUILDING_PALACE_BARBARIAN</BuildingType>
++					<BuildingType>BUILDING_BARBARIAN_PALACE</BuildingType>
+ 				</Building>
+ 				<Building>
+ 					<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
+-					<BuildingType>BUILDING_BARRACKS_BARBARIAN</BuildingType>
++					<BuildingType>BUILDING_BARBARIAN_BARRACKS</BuildingType>
+ 				</Building>
+ 				<Building>
+ 					<BuildingClassType>BUILDINGCLASS_GRANARY</BuildingClassType>
+-					<BuildingType>BUILDING_GRANARY_BARBARIAN</BuildingType>
++					<BuildingType>BUILDING_BARBARIAN_GRANARY</BuildingType>
+ 				</Building>
+ 				<Building>
+ 					<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
+-					<BuildingType>BUILDING_LIGHTHOUSE_BARBARIAN</BuildingType>
++					<BuildingType>BUILDING_BARBARIAN_LIGHTHOUSE</BuildingType>
+ 				</Building>
+ 				<Building>
+ 					<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
+-					<BuildingType>BUILDING_WALLS_BARBARIAN</BuildingType>
++					<BuildingType>BUILDING_BARBARIAN_WALLS</BuildingType>
+ 				</Building>
+ 				<Building>
+ 					<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
+-					<BuildingType>BUILDING_CASTLE_BARBARIAN</BuildingType>
++					<BuildingType>BUILDING_BARBARIAN_CASTLE</BuildingType>
+ 				</Building>
+ 				<!-- custom: inefficient to build an aqueduct for barbarians and not very realistic, let (barbarian) palace provide health directly, more efficient this wayso they can focus more on producing units anyways etc
+ 				Same for forge, provide military only small (relatively anyways etc) production bonus instead
+@@ -4323,10 +4323,6 @@
+ 					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
+ 					<BuildingType>NONE</BuildingType>
+ 				</Building>
+-				<Building>
+-					<BuildingClassType>BUILDINGCLASS_OBSERVATORY</BuildingClassType>
+-					<BuildingType>NONE</BuildingType>
+-				</Building>
+ 				<Building>
+ 					<BuildingClassType>BUILDINGCLASS_LABORATORY</BuildingClassType>
+ 					<BuildingType>NONE</BuildingType>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 400662dc8..38b6c682c 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -480,7 +480,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>4</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -729,7 +729,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>9</iGridX>
+-			<iGridY>12</iGridY>
++			<iGridY>10</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -2768,7 +2768,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>7</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -3227,10 +3227,13 @@
+ 					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+-			<OrPreReqs/>
++			<OrPreReqs>
++				<PrereqTech>TECH_MEDITATION</PrereqTech>
++				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
++			</OrPreReqs>
++			<!-- custom: astronomy quite strongly liinked to india's history if i am not mistaken anywyas etc in https://en.wikipedia.org/wiki/Indian_astronomy, approximate it by tech_meditation that happens in the late classical time now in our reworked tech tree if i am not mistaken anyways etc (even though is still todo as of now but anyways etc), heliocentrism also linked to aristarchus 's (greek astronomer around 250 BCE if i am not mistaken from this quick search anyways etc https://en.wikipedia.org/wiki/Heliocentrism), is also quite good from a balance standpoint to make these techs more useful than the usual education scientific method of our new tech tree reworked anyways etc -->
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_CALENDAR</PrereqTech>
+-				<PrereqTech>TECH_OPTICS</PrereqTech>
++				<PrereqTech>TECH_COMPASS</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_ASTRONOMY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_ASTRONOMY</Sound>
+@@ -3574,8 +3577,8 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>5</iGridX>
+-			<iGridY>7</iGridY>
++			<iGridX>9</iGridX>
++			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index edccdd9e9..74e1a0858 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -209,28 +209,27 @@
+ 
+ 
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUILDING_PALACE_BARBARIAN</Tag>
++		<Tag>TXT_KEY_BUILDING_BARBARIAN_PALACE</Tag>
+ 		<English>Palace (Barbarian)</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUILDING_BARRACKS_BARBARIAN</Tag>
++		<Tag>TXT_KEY_BUILDING_BARBARIAN_BARRACKS</Tag>
+ 		<English>Barracks (Barbarian)</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUILDING_GRANARY_BARBARIAN</Tag>
++		<Tag>TXT_KEY_BUILDING_BARBARIAN_GRANARY</Tag>
+ 		<English>Granary (Barbarian)</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUILDING_LIGHTHOUSE_BARBARIAN</Tag>
++		<Tag>TXT_KEY_BUILDING_BARBARIAN_LIGHTHOUSE</Tag>
+ 		<English>Lighthouse (Barbarian)</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUILDING_WALLS_BARBARIAN</Tag>
++		<Tag>TXT_KEY_BUILDING_BARBARIAN_WALLS</Tag>
+ 		<English>Walls (Barbarian)</English>
+ 	</TEXT>
+-
+ 	<TEXT>
+-		<Tag>TXT_KEY_BUILDING_CASTLE_BARBARIAN</Tag>
++		<Tag>TXT_KEY_BUILDING_BARBARIAN_CASTLE</Tag>
+ 		<English>Castle (Barbarian)</English>
+ 	</TEXT>
+ 
+@@ -320,6 +319,10 @@
+ 		<Tag>TXT_KEY_BUILDING_RUSSIAN_GORD</Tag>
+ 		<English>Gord</English>
+ 	</TEXT>
++		<TEXT>
++		<Tag>TXT_KEY_BUILDING_GERMAN_LONGHOUSE</Tag>
++		<English>Longhouse</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 781e4c6b7..1ea6fb4dc 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -388,6 +388,15 @@
+ 
+ 
+ 
++	<!-- custom: BUILDING_GERMAN_LONGHOUSE (russian empire's civ-specific), replaces the now removed BUILDING_GERMAN_ASSEMBLY_PLANT, see docs or and other or and not for details anyways etc ; as for the pedia entry, similarly imported from/based on https://en.wikipedia.org/wiki/History_of_Germany#Prehistory and https://en.wikipedia.org/wiki/Linear_Pottery_culture#Economy or/and other wikis or and not anyways etc (for example the introduction/generic wiki part of these or and other or and not but anyways etc...) and https://en.wikipedia.org/wiki/Neolithic_long_house or and other or and not anyways etc... and modified or not for advciv-sas anyways et, as for transliteration and similarly for transliteration in other advciv-sas entries, may be accurate or not even though i attempted to, best to visit wiki or and original sources if mentionned for original content or and maybe google or try to find origin from a few sample of texts maybe or not or yes or etc or and other or and not or etc o and other or and not or yes or other or etc anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_GERMAN_LONGHOUSE_PEDIA</Tag>
++		<English>[TAB]Between 12,900 and 11,700 years ago, north-central Germany was part of the Ahrensburg culture (named for Ahrensburg).[PARAGRAPH:1]The first groups of early farmers different from the indigenous hunter-gatherers to migrate into Europe came from a population in western Anatolia at the beginning of the Neolithic period between 10,000 and 8,000 years ago.[PARAGRAPH:1]Central Germany was one of the primary areas of the Linear Pottery culture (c. 5500 BC - c. 4500 BC), which was partially contemporary with the Erteb�lle culture (c. 5300 BC - c. 3950 BC) of Denmark and northern Germany. The construction of the Central European Neolithic circular enclosures falls in this time period with the best known and oldest being the Goseck circle, constructed c. 4900 BC. Afterwards, Germany was part of the R�ssen culture, Michelsberg culture and Funnelbeaker culture (c. 4600 BC - c. 2800 BC). The oldest traces for the use of wheel and wagon ever found are located at a northern German Funnelbeaker culture site and date to around 3400 BC.[PARAGRAPH:2]The Linear Pottery culture (LBK) is a major archaeological horizon of the European Neolithic period, flourishing c. 5500-4500 BC. Derived from the German Linearbandkeramik, it is also known as the Linear Band Ware, Linear Ware, Linear Ceramics or Incised Ware culture, falling within the Danubian I culture of V. Gordon Childe.[PARAGRAPH:1]Most cultural evidence has been found on the middle Danube, the upper and middle Elbe, and the upper and middle Rhine. It represents a major event in the initial spread of agriculture in Europe. The pottery consists of simple cups, bowls, vases, jugs without handles and, in a later phase, with pierced lugs, bases, and necks.[PARAGRAPH:1]The term "Linear Band Ware" derives from the pottery's decorative technique. The "Band Ware" or Bandkeramik part of it began as an innovation of the German archaeologist, Friedrich Klopfleisch (1831-1898). The earliest generally accepted name in English was the Danubian of V. Gordon Childe. Most names in English are attempts to translate Linearbandkeramik.[PARAGRAPH:1]Since Star?evo-K�r�s pottery was earlier than the LBK and was located in a contiguous food-producing region, the early investigators looked for precedents there. Much of the Star?evo-K�r�s pottery features decorative patterns composed of convolute bands of paint: spirals, converging bands, vertical bands, and so on. The LBK appears to imitate and often improve these convolutions with incised lines; hence the term, linear, to distinguish incised band ware from painted band ware.[PARAGRAPH:1]The name depends on specialized meanings of "linear" and "band", whether in English or in German. These words without the qualifiers do not describe the decoration. There are few bands going around the pottery and the lines are mainly not straight.[PARAGRAPH:1]The LBK people settled on fluvial terraces and in the proximity of rivers in regions with fertile loess. They raised a mix of crops and associated weeds in small plots, an economy that Gimbutas called a "garden type of civilization". The difference between a crop and a weed in LBK contexts is the frequency. Crop foods are: Triticum dicoccum, emmer wheat ; Triticum monococcum, einkorn wheat ; Pisum sativum, pea ; Lens culinaris, lentil[PARAGRAPH:1]Species that are found so rarely as to warrant classification as possible weeds are: Hordeum, barley ; Panicum miliaceum, broom corn millet ; Secale cereale rye ; Vicia ervilia, bitter vetch ; Vicia faba, broad or field bean[PARAGRAPH:1]The emmer and the einkorn were sometimes grown as maslin, or mixed crops. The lower-yield einkorn predominates over emmer, which has been attributed to its better resistance to heavy rain. Hemp (Cannabis sativum) and flax (Linum usitatissimum) gave the LBK people the raw material of rope and cloth, which they no doubt manufactured at home as a cottage industry. From poppies (Papaver somniferum), introduced later from the Mediterranean, they may have manufactured palliative medicine.[PARAGRAPH:1]The LBK people were stock-raisers as well, with cattle favoured, though goats and swine are also recorded. Like farmers today, they may have used the better grain for themselves and the lower grades for the animals. The dogs are present here too, but scantly. Substantial wild faunal remains are found. The LBK supplemented their diets by hunting deer and wild boar in the open forests of Europe as it was then.[PARAGRAPH:1]A 2020 study by the University of Kiel found that the fields in the Vr�ble settlement were being used as pastures to produce manure, which in turn increased crop yields. This intensive subsistence system may have contributed to higher productivity in Vr�ble and could have been a factor in the settlement's high population density and concentration.[PARAGRAPH:1]A 2022 study by the University of Bristol found dairy fat residues in pottery dating as early as 7,400 years ago. Researchers analyzed residues from over 4,300 vessels recovered from 70 LBK archaeological sites. Milk use was detected in about 65% of these Neolithic sites.[PARAGRAPH:2]The Neolithic long house was a long, narrow timber dwelling built by the Old Europeans in Europe beginning at least as early as the period 6000 to 5000 BC. They first appeared in central Europe in connection with the early Neolithic cultures such as the Linear Pottery culture or Cucuteni culture. This type of architecture represents the largest free-standing structure in the world in its era. Long houses are present across numerous regions and time periods in the archaeological record.[PARAGRAPH:1]The long house was a rectangular structure, 5.5 to 7 m (18 to 23 ft) wide, of variable length, around 20 m (66 ft) up to 45 m (148 ft). Outer walls were wattle and daub, sometimes alternating with split logs, with pitched, thatched roofs, supported by rows of poles, three across. The exterior walls would have been quite short beneath the large roof. They were solid and massive, oak posts being preferred. Clay for the daub was dug from pits near the house, which were then used for storage. Houses in the urban settlements had two stories, with up to three or even four floors on each story. Some Linear Pottery culture houses were occupied for as long as 30 years.[PARAGRAPH:1]Some houses were especially spacious, extra large for the period, as one of the largest houses in southeastern Europe is the "Big House" in the Slatina district of Sofia in Bulgaria equivalent to a modern detached house.[PARAGRAPH:1]Surviving evidence suggests these houses had no windows and only one doorway. The door was located at one end of the house. Internally, the house had one or two partitions creating up to three areas. Interpretations of the use of these areas vary. Working activities might be carried out in the better lit door end, the middle used for sleeping and eating and the end farthest from the door could have been used for grain storage. According to another view, the interior was divided in areas for sleeping, common life and a fenced enclosure at the back end for keeping animals.[PARAGRAPH:1]Twenty or thirty people could have lived in each house, with villages composed typically of five to eight houses. Exceptionally, nearly 30 longhouses in a fortified settlement (dating to 4300 BC, i.e., Late Linear Pottery culture) were revealed by excavations at Oslonki in Poland.</English>
++	</TEXT>
++
++
++
++
+ 	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT, also pedia entry from: https://en.wikipedia.org/wiki/Mounted_infantry#History and https://en.wikipedia.org/wiki/Camel_cavalry and https://en.wikipedia.org/wiki/War_elephant#:~:text=The%20practice%20of%20riding%20on,when%20they%20were%20in%20India. similarly, modified or not for advciv-sas anyways etc anyways etc anyways etc... -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_PEDIA</Tag>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 841ff3453..4b203af9e 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1436,7 +1436,7 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+ 			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+-			<TechPrereq>TECH_MEDICINE</TechPrereq>
++			<TechPrereq>TECH_POTTERY</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+@@ -1527,7 +1527,7 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
+ 			<PromotionPrereq>PROMOTION_MEDIC1</PromotionPrereq>
+ 			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+-			<TechPrereq>TECH_MEDICINE</TechPrereq>
++			<TechPrereq>TECH_WRITING</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+
+diff --git a/README.md b/README.md
+index 52487ccc8..539816930 100644
+--- a/README.md
++++ b/README.md
+@@ -208,6 +208,11 @@ Non-exhaustive, see docs for details, which includes but not only [README_Known_
+ - Seemingly fixed now, c where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders) for details
+ - Fixed a seemingly AdvCiv/Civ 4 bug of Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc), by replacing, in sevopediaunit py file, in placeRequires function/method (of this file anyways etc), `WidgetTypes.WIDGET_HELP_RELIGION` with `WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION`(,) as is done already by base advciv and successfully in sevopedia building, anyways etc anyways etc anyways etc, see [4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#4---now-fixed-sevopedia-units-placerequiress-religion-button-for-example-any-religious-missionary-unit-not-redirecting-to-sevopedia-religion-nothing-happens-on-click-anyways-etc) anyways etc
+ 
++## Not supported in AdvCiv-SAS
++
++- non-English translations: too tedious to translate them all, plus i'm fine with English being the only language in the game, hopefully fine or not too bad this way but anyways etc...
++- CustomDomAdv, which according to the txt inside it seems to relate to "only settings for the mod components Advanced Unit Naming and Customizable Domestic Advisor (both disabled by default through the BUG menu)" (see [/Settings/About%20this%20folder.txt](/Settings/About%20this%20folder.txt)). Since i don't use it or urgently need or use it, and is similarly like the translations a bit if not lot tedious or and maybe bit if not or lot or not but anyways is i would say anyways etc complicated, (then i am anyways etc) not supporting it at least as of now or for now or and always or and not, except when i can easily fix it but even then may or not support it, ideally would but very likely i may not or not entirely support it in AdvCiv-SAS, see also [/Settings/About%20this%20folder%20(AdvCiv-SAS).txt](/Settings/About%20this%20folder%20(AdvCiv-SAS).txt) for details if any more are in this file anyways etc
++
+ ## More details on previous mods changes (civ4 BTS, K-Mod)
+ 
+ (non-exhaustive and todo if done ideally or not or yes or and other or and not
+
+diff --git a/Settings/About this folder (AdvCiv-SAS).txt b/Settings/About this folder (AdvCiv-SAS).txt
+new file mode 100644
+index 000000000..f902bab05
+--- /dev/null
++++ b/Settings/About this folder (AdvCiv-SAS).txt	
+@@ -0,0 +1,3 @@
++I don't know how to modify this to remove or add buildings for example such as the new german_longhouse or the kingdom_of_benin_impluvium, nor how to cleanly remove old buildings such as the now removed buildingclass_observatory, so not supported in AdvCiv-SAS (i also don't use this option, hopefully fine or not too bad this way anyways etc.) anyways etc
++
++I'll only update it when i find it easy to do so, for example renaming an existing building to its new building tag name if i am not mistaken anyways etc, and even then is not guaranteed i would do, i may or may not do it even if easy, ideally would but not guaranteed maybe i would not at all or not entirely or would if easy and i want, but anyways etc hopefulyl clearer this wa even thogh may be confusing xd but what i mean is i may partially or not entirely or not maintain this at all when it is relating to our changes in AdvCiv-SAS, so may or not as i see fit and want but anyways etc anyways etc...
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index e61e8efdc..c63df3bc4 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -442,6 +442,8 @@ In this example the nif was in a .fpk, but i assume it would work similarly if f
+ 
+ Be careful to import all nif related files in the same folder in your mod (or in advciv-sas in this example anyways etc), i am not too technical nor knowledgeable about these but it seems to work/function well for this nif import, hopefully this is helpful too for those who want to try it or not or maybe is helpful or not or yes or etc or and other or and not but anyways etc anyways etc anyways etc...
+ 
++Note: be careful, in some mods/cases anyways etc the assets such as nif may be scattered across several different fkps, like in ri mod smokehouse1 's nif, scattered accross RI_37_Structures2.FPK (iroquoislh.nif and asian_building.dds) and RI_37_Structures9.FPK (asian_building_shadow.dds) so need to gather them all in one folder if not doing an FPK approach (we don't do FPKs in AdvCiv-SAS at least as of now, anyways etc, see screenshots in the drive link above for details/example anyways etc)
++
+ ## Files
+ 
+ Please see the files (mostly if not only images) [in the Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1Hx-bvRy7joM54S0Vnmva6HX1h8ZZ-LAh?usp=sharing)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index a3198cf17..b2e8d598d 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index c28b594f4..f3ab06f0b 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 475563838..cda41896c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 9858910aa..1a4efa0a8 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=22 omittedFiles=0 embeddedPatchBytes=79102

@@ -1,0 +1,332 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5269
+# Commit: 8d11a290789cf9d1e57bbb66b64b90c5557b487e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 20b6addfb7a7d4996092ddc37afb2610e18c2d04
+# Title: beautify the victory screen: add leader buttons/icons
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+101	12	Assets/Python/Screens/CvVictoryScreen.py
+4	0	README.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (4).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (4).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 60d30e42d..2aaca554f 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -145,6 +145,27 @@ class CvVictoryScreen:
+ 		self.ApolloTeamsChecked = set()
+ 		self.ApolloTeamCheckResult = {}
+ 
++		# <!-- custom: leader icon size for inline display, based on AdvCiv-SAS's approach in the Info Screen (claude opus 4.5). -->
++		self.iLeaderIconSize = 24
++
++	# <!-- custom: helper function to get leader icon image tag for a player (claude opus 4.5) -->
++	def getLeaderIconTag(self, iPlayer):
++		if iPlayer < 0 or iPlayer >= gc.getMAX_PLAYERS():
++			return u""
++		pPlayer = gc.getPlayer(iPlayer)
++		if not pPlayer.isAlive():
++			return u""
++		szLeaderButton = gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton()
++		return u"<img=%s size=%d></img>" % (szLeaderButton, self.iLeaderIconSize)
++
++	# <!-- custom: helper function to get player name with leader icon (claude opus 4.5) -->
++	def getPlayerNameWithIcon(self, iPlayer):
++		if iPlayer < 0 or iPlayer >= gc.getMAX_PLAYERS():
++			return u""
++		pPlayer = gc.getPlayer(iPlayer)
++		szLeaderIcon = self.getLeaderIconTag(iPlayer)
++		return u"%s %s" % (szLeaderIcon, pPlayer.getName())
++
+ 	def getScreen(self):
+ 		return CyGInterfaceScreen(self.SCREEN_NAME, self.screenId)
+ 
+@@ -289,7 +310,12 @@ class CvVictoryScreen:
+ 				if (gc.getGame().canHaveSecretaryGeneral(i) and -1 != gc.getGame().getSecretaryGeneral(i) and (gc.getGame().isDebugMode() or gc.getTeam(activePlayer.getTeam()).isHasMet(gc.getGame().getSecretaryGeneral(i)))):# K-Mod
+ 					iRow = screen.appendTableRow(szTable)
+ 					screen.setTableText(szTable, 0, iRow, gc.getVoteSourceInfo(i).getSecretaryGeneralText(), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-					screen.setTableText(szTable, 1, iRow, gc.getTeam(gc.getGame().getSecretaryGeneral(i)).getName(), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					# <!-- custom: add leader icon to secretary general name (claude opus 4.5) -->
++					iSecGenPlayer = self.getPlayerOnTeam(gc.getGame().getSecretaryGeneral(i))
++					szSecGenName = gc.getTeam(gc.getGame().getSecretaryGeneral(i)).getName()
++					if iSecGenPlayer >= 0:
++						szSecGenName = self.getPlayerNameWithIcon(iSecGenPlayer)
++					screen.setTableText(szTable, 1, iRow, szSecGenName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 				# K-Mod
+ 				# vote timing
+@@ -530,6 +556,10 @@ class CvVictoryScreen:
+ 			# player name
+ 			bKnown, szPlayerText = self.getPlayerStatusName(iMember)
+ 
++			# <!-- custom: add leader icon to player name (claude opus 4.5) -->
++			if bKnown:
++				szPlayerText = self.getPlayerNameWithIcon(iMember)
++
+ 			if (lMemberVotes > 0
+ 			and bKnown):
+ 				szPlayerText += localText.getText("TXT_KEY_VICTORY_SCREEN_PLAYER_VOTES", (lMemberVotes, iActiveVote), )
+@@ -693,9 +723,11 @@ class CvVictoryScreen:
+ 				print iSecretaryGeneralVote
+ 				for j in range(gc.getMAX_PLAYERS()):
+ 					if gc.getPlayer(j).isAlive() and not gc.getPlayer(j).isBarbarian() and gc.getTeam(iActiveTeam).isHasMet(gc.getPlayer(j).getTeam()):
+-						szPlayerText = gc.getPlayer(j).getName()
++						# <!-- custom: add leader icon to player name (claude opus 4.5) -->
++						szPlayerText = self.getPlayerNameWithIcon(j)
+ 						if (-1 != iSecretaryGeneralVote):
+ 							szPlayerText += localText.getText("TXT_KEY_VICTORY_SCREEN_PLAYER_VOTES", (gc.getPlayer(j).getVotes(iSecretaryGeneralVote, i), ))
++
+ 						if (gc.getGame().canHaveSecretaryGeneral(i) and gc.getGame().getSecretaryGeneral(i) == gc.getPlayer(j).getTeam()):
+ 							iRow = screen.appendTableRow(szTable)
+ 							screen.setTableText(szTable, 0, iRow, szPlayerText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -1155,8 +1187,12 @@ class CvVictoryScreen:
+ 					iUnknownRivals += 1
+ 				else:
+ 					knownRivalsNotMet.append(p)
++
+ 		for p in rivalsMet: # </advc.190c>
+-			screen.appendListBoxStringNoUpdate(szCivsTable, localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (p.getNameKey(), p.getCivilizationShortDescriptionKey())), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			# <!-- custom: add leader icon to player names in Other Players panel (claude opus 4.5) -->
++			szPlayerName = u"%s %s" % (self.getLeaderIconTag(p.getID()), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (p.getNameKey(), p.getCivilizationShortDescriptionKey())))
++			screen.appendListBoxStringNoUpdate(szCivsTable, szPlayerName, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 			screen.appendListBoxStringNoUpdate(szCivsTable, u"     (" + CyGameTextMgr().parseLeaderTraits(p.getLeaderType(), p.getCivilizationType(), True, False) + ")", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			screen.appendListBoxStringNoUpdate(szCivsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# <advc.190c>
+@@ -1166,12 +1202,16 @@ class CvVictoryScreen:
+ 			szCiv = gc.getCivilizationInfo(p.getCivilizationType()).getShortDescription(0)
+ 			szRivalInfo = localText.getText("TXT_KEY_RIVAL_NOT_MET", ())
+ 			szRivalInfo += ": "
++
+ 			if (not p.wasCivRandomlyChosen() and not p.wasLeaderRandomlyChosen()) or g.isDebugMode():
+-				szRivalInfo += localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (szLeader, szCiv))
++				# <!-- custom: add leader icon for rivals not met (claude opus 4.5) -->
++				szRivalInfo += u"%s %s" % (self.getLeaderIconTag(p.getID()), localText.getText("TXT_KEY_LEADER_CIV_DESCRIPTION", (szLeader, szCiv)))
+ 			elif not p.wasCivRandomlyChosen():
+ 				szRivalInfo += szCiv
+ 			else:
+-				szRivalInfo += szLeader
++				# <!-- custom: add leader icon when only leader is known (claude opus 4.5) -->
++				szRivalInfo += u"%s %s" % (self.getLeaderIconTag(p.getID()), szLeader)
++
+ 			screen.appendListBoxStringNoUpdate(szCivsTable, szRivalInfo, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			if not p.wasLeaderRandomlyChosen():
+ 				# (Not relevant for the trait string, but let's pass a proper argument anyway.)
+@@ -1348,7 +1388,12 @@ class CvVictoryScreen:
+ 					screen.setTableText(szTable, 3, iRow, (u"%d" % ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					if (iBestScoreTeam != -1):
+-						screen.setTableText(szTable, 4, iRow, gc.getTeam(iBestScoreTeam).getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						# <!-- custom: add leader icon (claude opus 4.5) -->
++						iBestPlayer = self.getPlayerOnTeam(iBestScoreTeam)
++						szBestName = gc.getTeam(iBestScoreTeam).getName() + ":"
++						if iBestPlayer >= 0:
++							szBestName = self.getPlayerNameWithIcon(iBestPlayer) + ":"
++						screen.setTableText(szTable, 4, iRow, szBestName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						screen.setTableText(szTable, 5, iRow, (u"%d" % bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					bEntriesFound = True
+@@ -1363,7 +1408,12 @@ class CvVictoryScreen:
+ 					screen.setTableText(szTable, 3, iRow, (u"%d" % ourScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					if (iBestScoreTeam != -1):
+-						screen.setTableText(szTable, 4, iRow, gc.getTeam(iBestScoreTeam).getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						# <!-- custom: add leader icon (claude opus 4.5) -->
++						iBestPlayer = self.getPlayerOnTeam(iBestScoreTeam)
++						szBestName = gc.getTeam(iBestScoreTeam).getName() + ":"
++						if iBestPlayer >= 0:
++							szBestName = self.getPlayerNameWithIcon(iBestPlayer) + ":"
++						screen.setTableText(szTable, 4, iRow, szBestName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						screen.setTableText(szTable, 5, iRow, (u"%d" % bestScore), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 					bEntriesFound = True
+@@ -1389,9 +1439,16 @@ class CvVictoryScreen:
+ 					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_POP", (gc.getGame().getAdjustedPopulationPercent(iLoopVC), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 3, iRow, (u"%.2f%%" % popPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 					if (iBestPopTeam != -1):
+-						screen.setTableText(szTable, 4, iRow, gc.getTeam(iBestPopTeam).getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						# <!-- custom: add leader icon (claude opus 4.5) -->
++						iBestPlayer = self.getPlayerOnTeam(iBestPopTeam)
++						szBestName = gc.getTeam(iBestPopTeam).getName() + ":"
++						if iBestPlayer >= 0:
++							szBestName = self.getPlayerNameWithIcon(iBestPlayer) + ":"
++						screen.setTableText(szTable, 4, iRow, szBestName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						screen.setTableText(szTable, 5, iRow, (u"%.2f%%" % (bestPop * 100 / totalPop)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 					bEntriesFound = True
+ 
+ 
+@@ -1400,9 +1457,16 @@ class CvVictoryScreen:
+ 					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_LAND", (gc.getGame().getAdjustedLandPercent(iLoopVC), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 3, iRow, (u"%.2f%%" % landPercent), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 					if (iBestLandTeam != -1):
+-						screen.setTableText(szTable, 4, iRow, gc.getTeam(iBestLandTeam).getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						# <!-- custom: add leader icon (claude opus 4.5) -->
++						iBestPlayer = self.getPlayerOnTeam(iBestLandTeam)
++						szBestName = gc.getTeam(iBestLandTeam).getName() + ":"
++						if iBestPlayer >= 0:
++							szBestName = self.getPlayerNameWithIcon(iBestPlayer) + ":"
++						screen.setTableText(szTable, 4, iRow, szBestName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						screen.setTableText(szTable, 5, iRow, (u"%.2f%%" % (bestLand * 100 / totalLand)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 					bEntriesFound = True
+ 
+ 				if (victory.getReligionPercent() > 0):
+@@ -1439,9 +1503,16 @@ class CvVictoryScreen:
+ 					screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_PERCENT_CULTURE", (iCulturePercent, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText(szTable, 3, iRow, unicode(ourCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 					if (iBestLandTeam != -1):
+-						screen.setTableText(szTable, 4, iRow, gc.getTeam(iBestCultureTeam).getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++						# <!-- custom: add leader icon (claude opus 4.5) -->
++						iBestPlayer = self.getPlayerOnTeam(iBestCultureTeam)
++						szBestName = gc.getTeam(iBestCultureTeam).getName() + ":"
++						if iBestPlayer >= 0:
++							szBestName = self.getPlayerNameWithIcon(iBestPlayer) + ":"
++						screen.setTableText(szTable, 4, iRow, szBestName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						screen.setTableText(szTable, 5, iRow, unicode(bestCulture), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 					bEntriesFound = True
+ 
+ 				iBestBuildingTeam = -1
+@@ -1464,9 +1535,16 @@ class CvVictoryScreen:
+ 						screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILDING", (szNumber, gc.getBuildingClassInfo(i).getTextKey())), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						screen.setTableText(szTable, 2, iRow, activePlayer.getTeam().getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						screen.setTableText(szTable, 3, iRow, activePlayer.getTeam().getBuildingClassCount(i), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 						if (iBestBuildingTeam != -1):
+-							screen.setTableText(szTable, 4, iRow, gc.getTeam(iBestBuildingTeam).getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++							# <!-- custom: add leader icon (claude opus 4.5) -->
++							iBestPlayer = self.getPlayerOnTeam(iBestBuildingTeam)
++							szBestName = gc.getTeam(iBestBuildingTeam).getName() + ":"
++							if iBestPlayer >= 0:
++								szBestName = self.getPlayerNameWithIcon(iBestPlayer) + ":"
++							screen.setTableText(szTable, 4, iRow, szBestName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 							screen.setTableText(szTable, 5, iRow, gc.getTeam(iBestBuildingTeam).getBuildingClassCount(i), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 						bEntriesFound = True
+ 
+ 				iBestProjectTeam = -1
+@@ -1592,7 +1670,12 @@ class CvVictoryScreen:
+ 								bSpaceshipFound = True
+ 
+ 							if (iBestProjectTeam != -1):
+-								screen.setTableText(szTable, 4, iRow, gc.getTeam(iBestProjectTeam).getName() + ":", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++								# <!-- custom: add leader icon (claude opus 4.5) -->
++								iBestPlayer = self.getPlayerOnTeam(iBestProjectTeam)
++								szBestName = gc.getTeam(iBestProjectTeam).getName() + ":"
++								if iBestPlayer >= 0:
++									szBestName = self.getPlayerNameWithIcon(iBestPlayer) + ":"
++								screen.setTableText(szTable, 4, iRow, szBestName, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 								screen.setTableText(szTable, 5, iRow, unicode(gc.getTeam(iBestProjectTeam).getProjectCount(i)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 							bEntriesFound = True
+@@ -1615,12 +1698,18 @@ class CvVictoryScreen:
+ 					for (iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass:
+ 						iRow = screen.appendTableRow(szTable)
+ 						screen.setTableText(szTable, 0, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_ELECTION", (gc.getBuildingClassInfo(iVoteBuildingClass).getTextKey(), )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 						if (iUNTeam != -1):
+ 							if bUnknown:
+ 								szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
+ 							else:
++								# <!-- custom: add leader icon (claude opus 4.5) -->
++								iUNPlayer = self.getPlayerOnTeam(iUNTeam)
+ 								szName = gc.getTeam(iUNTeam).getName()
++								if iUNPlayer >= 0:
++									szName = self.getPlayerNameWithIcon(iUNPlayer)
+ 							screen.setTableText(szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szName, )), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 						else:
+ 							screen.setTableText(szTable, 2, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 						bEntriesFound = True
+
+diff --git a/README.md b/README.md
+index a6235dac5..b3e98f57b 100644
+--- a/README.md
++++ b/README.md
+@@ -135,6 +135,10 @@ Some examples below:
+ <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (2).JPG" alt="0.516_info_screen (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (3).JPG" alt="0.516_info_screen (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.516_info_screen (4).JPG" alt="0.516_info_screen (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG" alt="0.517_victory_screen (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG" alt="0.517_victory_screen (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (3).JPG" alt="0.517_victory_screen (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (4).JPG" alt="0.517_victory_screen (4).JPG" width="250"></img>
+ 
+ See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index d48415a54..aaa1b4574 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -122,6 +122,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5259+) Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (leader buttons as text, emojis, etc.) following the AdvCiv-SAS's [Images as Buttons](/README.md#images-as-buttons) approach, or add other information (turn numbers in the Graph tab, etc.).
++- (Requires AdvCiv-SAS 5269+) Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): add leader buttons/icons.
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 9211a3a4d..5d904bac0 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -118,6 +118,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5259+) Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (leader buttons as text, emojis, etc.) following the AdvCiv-SAS's [Images as Buttons](/README.md#images-as-buttons) approach, or add other information (turn numbers in the Graph tab, etc.).
++- (Requires AdvCiv-SAS 5269+) Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): add leader buttons/icons.
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed).
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG
+new file mode 100644
+index 000000000..7487e149c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG
+new file mode 100644
+index 000000000..ed5f8a125
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (3).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (3).JPG
+new file mode 100644
+index 000000000..ec6b30a82
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (4).JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (4).JPG
+new file mode 100644
+index 000000000..76ac59d3b
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.517_victory_screen (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=28005

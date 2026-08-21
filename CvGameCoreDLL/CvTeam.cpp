@@ -18,6 +18,7 @@
 #include "CvDiploParameters.h"
 #include "CvPopupInfo.h"
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+#include "SASGameRecordLog.h" // <!-- custom: Structured team, war, and bulk map-revelation rows are logged separately from BBAI diagnostics. (GPT-5.5 + GPT-5.6-Sol) -->
 #include "CvBugOptions.h" // advc.071
 
 // advc.003u: Statics moved from CvTeamAI
@@ -43,6 +44,7 @@ std::queue<TeamTypes> CvTeam::defending_queue;
 std::queue<bool> CvTeam::newdiplo_queue;
 std::queue<WarPlanTypes> CvTeam::warplan_queue;
 std::queue<bool> CvTeam::primarydow_queue;
+std::queue<WarDeclarationCause> CvTeam::warcause_queue;
 bool CvTeam::bTriggeringWars = false;
 // </kekm.26>
 
@@ -217,6 +219,10 @@ void CvTeam::addTeam(TeamTypes eTeam)
 
 	int const iOriginalTeamSize = getNumMembers(); // K-Mod
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		CvPlayer const& kObs = GET_PLAYER((PlayerTypes)i);
@@ -231,7 +237,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
 						getName().GetCString(), GET_TEAM(eTeam).getName().GetCString()));
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer, "AS2D_THEIRALLIANCE",
 						MESSAGE_TYPE_MAJOR_EVENT, // advc.106b
-						NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+						NULL, eColorHighlightText,
 						// advc.127b:
 						getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 			}
@@ -242,7 +248,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			getReplayName().GetCString(), GET_TEAM(eTeam).getReplayName().GetCString()));
 	CvGame& kGame = GC.getGame();
 	kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
-			GC.getColorType("HIGHLIGHT_TEXT"));
+			eColorHighlightText);
 
 	// K-Mod note: the cancel deals code use to be here. I've moved it lower down.
 
@@ -274,13 +280,13 @@ void CvTeam::addTeam(TeamTypes eTeam)
 		{
 			//declareWar(...);
 			queueWar( // kekm.26
-					getID(), eOther, false, GET_TEAM(eTeam).AI_getWarPlan(eOther));
+					getID(), eOther, false, GET_TEAM(eTeam).AI_getWarPlan(eOther), true, WAR_DECLARATION_PERMANENT_ALLIANCE);
 		}
 		else if (isAtWar(eOther))
 		{
 			//GET_TEAM(eTeam).declareWar(...);
 			queueWar( // kekm.26
-					eTeam, eOther, false, AI().AI_getWarPlan(eOther));
+					eTeam, eOther, false, AI().AI_getWarPlan(eOther), true, WAR_DECLARATION_PERMANENT_ALLIANCE);
 		}
 	}
 	// <kekm.26>
@@ -289,9 +295,9 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	{
 		TeamTypes const eOther = apOther[i]->getID();
 		if (GET_TEAM(eTeam).isAtWar(eOther))
-			queueWar(eOther, getID(), false, WARPLAN_DOGPILE, false);
+			queueWar(eOther, getID(), false, WARPLAN_DOGPILE, false, WAR_DECLARATION_PERMANENT_ALLIANCE);
 		else if (isAtWar(eOther))
-			queueWar(eOther, eTeam, false, WARPLAN_DOGPILE, false);
+			queueWar(eOther, eTeam, false, WARPLAN_DOGPILE, false, WAR_DECLARATION_PERMANENT_ALLIANCE);
 	}
 	triggerWars();
 	// </kekm.26>
@@ -445,7 +451,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			{
 				setResearchProgress(eLoopTech,
 						getResearchProgress(eLoopTech) * iCostMultiplier / 100,
-						getLeaderID());
+						getLeaderID(), TECH_ACQUISITION_TEAM_MERGE);
 			}
 		}
 	} // K-Mod end
@@ -604,7 +610,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
 		{	// <kekm.26> "Preserve no tech brokering status."
 			setNoTradeTech(eLoopTech, (!isHasTech(eLoopTech) || isNoTradeTech(eLoopTech)) &&
 					GET_TEAM(eTeam).isNoTradeTech(eLoopTech)); // </kekm.26>
-			setHasTech(eLoopTech, true, NO_PLAYER, true, false);
+			setHasTech(eLoopTech, true, NO_PLAYER, true, false, false, TECH_ACQUISITION_TEAM_MERGE);
 		}
 	}
 	/*  <kekm.26> "Other direction also done here as other direction of shareItems
@@ -617,7 +623,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
 					(!GET_TEAM(eTeam).isHasTech(eLoopTech) ||
 					GET_TEAM(eTeam).isNoTradeTech(eLoopTech)) &&
 					isNoTradeTech(eLoopTech));
-			GET_TEAM(eTeam).setHasTech(eLoopTech, true, NO_PLAYER, true, false);
+			GET_TEAM(eTeam).setHasTech(eLoopTech, true, NO_PLAYER, true, false, false, TECH_ACQUISITION_TEAM_MERGE);
 		}
 	} // </kekm.26>
 
@@ -849,7 +855,7 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 			{
 				setResearchProgress(eTech,
 						kShareTeam.getResearchProgress(eTech) * getResearchCost(eTech) /
-						std::max(1, kShareTeam.getResearchCost(eTech)), getLeaderID());
+						std::max(1, kShareTeam.getResearchCost(eTech)), getLeaderID(), TECH_ACQUISITION_TEAM_MERGE);
 			}
 			//else kShareTeam.setResearchProgress(eTech, getResearchProgress(eTech) * kShareTeam.getResearchCost(eTech) / std::max(1, getResearchCost(eTech)), kShareTeam.getLeaderID());
 		}
@@ -1035,10 +1041,10 @@ bool CvTeam::canEventuallyDeclareWar(TeamTypes eTeam) const
 }
 
 // K-Mod note: I've shuffled things around a bit in this function.  // advc: refactored
-void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan,
-	bool bPrimaryDoW, // K-Mod
-	PlayerTypes eSponsor, // advc.100
-	bool bRandomEvent) // advc.106g
+// K-Mod <!-- custom: hoisted from multiline signature between `bPrimaryDoW` and `eSponsor` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.100 <!-- custom: hoisted from multiline signature between `eSponsor` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// <!-- custom: Added eCause to preserve the direct or cascading origin until SASGameRecord logs the declaration. (GPT-5.6-Sol) -->
+void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDoW, PlayerTypes eSponsor, bool bRandomEvent, WarDeclarationCause eCause) // advc.106g
 {
 	PROFILE_FUNC();
 	FAssert(eTarget != NO_TEAM);
@@ -1048,7 +1054,7 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
 			TEAMID(eSponsor) != eTarget)); // </advc.100>
 	if (isAtWar(eTarget))
 		return;
-	if (gTeamLogLevel >= 1) logBBAI("  Team %d (%S) declares war on team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget); // BETTER_BTS_AI_MOD (10/02/09, jdog5000): AI logging
+	if (gWarLogLevel >= 1) logBBAI("  Team %d (%S) declares war on team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget); // BETTER_BTS_AI_MOD (10/02/09, jdog5000): AI logging
 	CvTeam& kTarget = GET_TEAM(eTarget);
 	std::vector<CvPlayer*> kMembers; // advc: of either team
 	for (MemberIter it(getID()); it.hasNext(); ++it)
@@ -1076,6 +1082,8 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
 	setAtWar(eTarget, true);
 	kTarget.setAtWar(getID(), true);
 	m_abJustDeclaredWar.set(eTarget, true); // advc.162
+	// <!-- custom: The inherited EventReporter callback only knew that two teams entered war. Log at the declaration itself, before secondary wars are triggered, so the declarer, target, plan, sponsor, primary/cascade status, and preserved cause remain unambiguous. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordWarStarted(getID(), eTarget, eWarPlan, bPrimaryDoW, bNewDiplo, eSponsor, bRandomEvent, eCause);
 	// BETTER_BTS_AI_MOD (08/21/09, jdog5000, Efficiency): START
 	GC.getMap().invalidateBorderDangerCache(eTarget);
 	GC.getMap().invalidateBorderDangerCache(getID());
@@ -1155,13 +1163,13 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
 		{
 			//declareWar(kThirdTeam.getID(), bNewDiplo, AI_getWarPlan(eTeam), false);
 			// kekm.26:
-			queueWar(getID(), kThirdTeam.getID(), bNewDiplo, AI().AI_getWarPlan(eTarget), false);
+			queueWar(getID(), kThirdTeam.getID(), bNewDiplo, AI().AI_getWarPlan(eTarget), false, WAR_DECLARATION_VASSAL_ALIGNMENT);
 		}
 		else if (kThirdTeam.isVassal(getID()) || isVassal(kThirdTeam.getID()))
 		{
 			//kThirdTeam.declareWar(eTeam, bNewDiplo, WARPLAN_DOGPILE, false);
 			// kekm.26:
-			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false);
+			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false, WAR_DECLARATION_VASSAL_ALIGNMENT);
 		}
 	}
 	/*if (bPrimaryDoW) { // K-Mod. update attitude
@@ -1211,7 +1219,7 @@ void CvTeam::triggerDefensivePacts(TeamTypes eTarget, bool bNewDiplo, bool bPrim
 			FAssert(!kTarget.isAVassal() && !kThirdTeam.isAVassal());
 			//kThirdTeam.declareWar(getID(), bNewDiplo, WARPLAN_DOGPILE, false);
 			// kekm.26:
-			queueWar(kThirdTeam.getID(), getID(), bNewDiplo, WARPLAN_DOGPILE, false);
+			queueWar(kThirdTeam.getID(), getID(), bNewDiplo, WARPLAN_DOGPILE, false, WAR_DECLARATION_DEFENSIVE_PACT);
 			// <advc.104i>
 			bDefPactTriggered = true;
 			if(!isAVassal())
@@ -1225,7 +1233,7 @@ void CvTeam::triggerDefensivePacts(TeamTypes eTarget, bool bNewDiplo, bool bPrim
 		{	// For alliance option.  This teams pacts are canceled above if not using alliance option.
 			//kThirdTeam.declareWar(eTeam, bNewDiplo, WARPLAN_DOGPILE, false);
 			// kekm.26:
-			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false);
+			queueWar(kThirdTeam.getID(), eTarget, bNewDiplo, WARPLAN_DOGPILE, false, WAR_DECLARATION_DEFENSIVE_PACT);
 		}
 	}
 	if (iDPBehavior == 0)// kekm.3: || (iDPBehavior == 1 && bPrimaryDoW))
@@ -1239,11 +1247,11 @@ void CvTeam::triggerDefensivePacts(TeamTypes eTarget, bool bNewDiplo, bool bPrim
 }
 
 
-void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
-	TeamTypes eBroker, // advc.100b
-	bool bCapitulate, // advc.034
-	CLinkList<TradeData> const* pReparations, // advc.039
-	bool bRandomEvent) // advc.106g
+// advc: refactored <!-- custom: hoisted from multiline signature between `bBumpUnits` and `eBroker` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.100b <!-- custom: hoisted from multiline signature between `eBroker` and `bCapitulate` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.034 <!-- custom: hoisted from multiline signature between `bCapitulate` and `pReparations` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc.039 <!-- custom: hoisted from multiline signature between `pReparations` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits, TeamTypes eBroker, bool bCapitulate, CLinkList<TradeData> const* pReparations, bool bRandomEvent) // advc.106g
 {
 	FAssert(eTarget != NO_TEAM);
 	FAssert(eTarget != getID());
@@ -1293,6 +1301,8 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
 		kMembers[i]->updatePlotGroups();
 	for (size_t i = 0; i < kMembers.size(); i++)
 		kMembers[i]->updateTradeRoutes();
+	// <!-- custom: Base AdvCiv's AI_postMakePeace clears both teams' war-success values. Record the completed war and peace context after the war counts change but before that reset, so SASGameRecord can emit an accurate synthetic summary. (GPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordWarEnded(getID(), eTarget, AI().AI_getWarSuccess(eTarget).round(), kTarget.AI().AI_getWarSuccess(getID()).round(), bCapitulate, eBroker, bRandomEvent, pReparations != NULL);
 	// advc: AI code moved down a bit and then into a new function
 	AI().AI_postMakePeace(eTarget);
 	// advc.106o: Vassals now mentioned along with their master
@@ -1312,8 +1322,7 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits,  // advc: refactored
 }
 
 // advc: Cut from declareWar
-void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
-	PlayerTypes eSponsor, bool bRandomEvent)
+void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW, PlayerTypes eSponsor, bool bRandomEvent)
 {
 	CvWString szBuffer;
 	// <advc.100>
@@ -1325,6 +1334,11 @@ void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
 		szSponsorName = GET_PLAYER(eSponsor).getName();
 		cpSponsorName = szSponsorName.GetCString();
 	} // </advc.100>
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
+
 	// advc.106o:
 	bool const bMultiple = (TeamIter<MAJOR_CIV,VASSAL_OF>::count(getID()) > 0);
 	CvTeam const& kTarget = GET_TEAM(eTarget);
@@ -1379,7 +1393,7 @@ void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
 		} // </advc.100>
 		gDLL->UI().addMessage(kObs.getID(), bForce, -1, szBuffer,
 					(bPrimaryDoW ? szSound : NULL), // advc.002l
-					MESSAGE_TYPE_MAJOR_EVENT, NULL, GC.getColorType("WARNING_TEXT"),
+					MESSAGE_TYPE_MAJOR_EVENT, NULL, eColorWarningText,
 					// advc.127b:
 					getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 	}
@@ -1412,17 +1426,21 @@ void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW,
 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_WAR_VIA_EVENT"));
 	} // </advc.106g>
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
-			GC.getColorType("WARNING_TEXT"));
+			eColorWarningText);
 }
 
 // advc: Cut from makePeace
-void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
-	CLinkList<TradeData> const* pReparations, bool bRandomEvent)
+void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker, CLinkList<TradeData> const* pReparations, bool bRandomEvent)
 {
 	CvWString szBuffer;
 	CvTeam const& kTarget = GET_TEAM(eTarget);
 	// advc.106o:
 	bool const bMultiple = (TeamIter<MAJOR_CIV,VASSAL_OF>::count(getID()) > 0);
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
 		CvPlayer const& kObs = *it;
@@ -1452,14 +1470,14 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
 					szPeacemakers.c_str(), szTargets.c_str());
 		} // </advc.106o>
 		LPCTSTR szSound = NULL;
-		ColorTypes eColor = GC.getColorType("HIGHLIGHT_TEXT");
+		ColorTypes eColor = eColorHighlightText;
 		bool bForce = false;
 		bool bDebugCoords = true; // advc.127b
 		if (kObs.getTeam() == getID())
 		{
 			szSound = "AS2D_MAKEPEACE";
 			bForce = true;
-			
+
 		}
 		else if (kObs.getTeam() == eTarget)
 		{
@@ -1536,21 +1554,19 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker,
 		szBuffer.append(gDLL->getText("TXT_KEY_MISC_PEACE_VIA_EVENT"));
 	} // </advc.106g>
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
-			GC.getColorType("HIGHLIGHT_TEXT"));
+			eColorHighlightText);
 }
 
 /*	advc.106o: To be called on the observer, i.e. the recipient of a message about a
 	change in war peace status between eAgent and eTarget, initiated by eAgent. */
-void CvTeam::setWarPeacePartyStrings(TeamTypes eAgent, TeamTypes eTarget,
-	CvWString& szAgents, CvWString& szTargets, bool bReplay)
+void CvTeam::setWarPeacePartyStrings(TeamTypes eAgent, TeamTypes eTarget, CvWString& szAgents, CvWString& szTargets, bool bReplay)
 {
 	setWarPeacePartyStrings(eAgent, szAgents, bReplay, true);
 	setWarPeacePartyStrings(eTarget, szTargets, bReplay, false);
 }
 
 // advc.106o: Helper for the above
-void CvTeam::setWarPeacePartyStrings(TeamTypes eTeam, CvWString& szTeams, bool bReplay,
-	bool bCapitalize) // just for the pronoun "you"
+void CvTeam::setWarPeacePartyStrings(TeamTypes eTeam, CvWString& szTeams, bool bReplay, bool bCapitalize) // just for the pronoun "you"
 {
 	FAssert(szTeams.empty());
 	FAssert(!GET_TEAM(eTeam).isAVassal());
@@ -1601,14 +1617,17 @@ bool CvTeam::canContact(TeamTypes eTeam, bool bCheckWillingness) const
 }
 
 
-void CvTeam::meet(TeamTypes eTeam, bool bNewDiplo,
-	FirstContactData* pData) // advc.071: Just passing this along
+void CvTeam::meet(TeamTypes eTeam, bool bNewDiplo, FirstContactData* pData) // advc.071: Just passing this along
 {
 	if (isHasMet(eTeam))
 		return;
 	CvTeam& kTeam = GET_TEAM(eTeam);
 	CvPlot const* pAt = makeHasMet(eTeam, bNewDiplo, pData);
 	CvPlot const* pOtherAt = kTeam.makeHasMet(getID(), bNewDiplo, pData);
+	if (gGameRecordLogLevel >= 2 && isAlive() && kTeam.isAlive() && !isBarbarian() && !kTeam.isBarbarian())
+	{
+		logSASGameRecordTeamMet(getID(), eTeam, bNewDiplo, pData == NULL ? -1 : pData->x1, pData == NULL ? -1 : pData->y1, pData == NULL ? -1 : pData->x2, pData == NULL ? -1 : pData->y2, pAt, pOtherAt);
+	}
 	// <advc.120l> (Not in makeHasMet b/c all the has-met data needs to be set first)
 	if (pData != NULL &&
 		GC.IsGraphicsInitialized() && // No reminder while initializing a scenario
@@ -1958,8 +1977,7 @@ int CvTeam::getVassalCount(TeamTypes eObs) const
 }
 
 
-bool CvTeam::canVassalRevolt(TeamTypes eMaster,
-	bool bCheckLosses, int iExtraLand, int iExtraPop) const // advc.ctr
+bool CvTeam::canVassalRevolt(TeamTypes eMaster, bool bCheckLosses, int iExtraLand, int iExtraPop) const // advc.ctr
 {
 	FAssert(NO_TEAM != eMaster);
 
@@ -1992,13 +2010,21 @@ bool CvTeam::isLossesAllowRevolt(TeamTypes eMaster) const
 	CvTeam& kMaster = GET_TEAM(eMaster);
 	if (isVassal(eMaster))
 	{	// advc.112: Lower bound 10 added
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iVASSAL_REVOLT_OWN_LOSSES_FACTOR = GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR");
+
 		if (100 * std::max(10, getTotalLand(false)) < getVassalPower() *
-			GC.getDefineINT("VASSAL_REVOLT_OWN_LOSSES_FACTOR"))
+			iVASSAL_REVOLT_OWN_LOSSES_FACTOR)
 		{
 			return true;
 		}
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iVASSAL_REVOLT_MASTER_LOSSES_FACTOR = GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR");
+
 		if (100 * kMaster.getTotalLand() < getMasterPower() *
-			GC.getDefineINT("VASSAL_REVOLT_MASTER_LOSSES_FACTOR")) // advc (note): 0 in XML
+			iVASSAL_REVOLT_MASTER_LOSSES_FACTOR) // advc (note): 0 in XML
 		{
 			return true;
 		}
@@ -2173,9 +2199,8 @@ int CvTeam::getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain) const
 }
 
 
-int CvTeam::getResearchCost(TechTypes eTech,
-	bool bFreeBarbarianResearch, // advc.301: Replacing K-Mod's bGlobalModifiers
-	bool bTeamSizeModifiers) const // K-Mod
+// advc.301: Replacing K-Mod's bGlobalModifiers <!-- custom: hoisted from multiline signature between `bFreeBarbarianResearch` and `bTeamSizeModifiers` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvTeam::getResearchCost(TechTypes eTech, bool bFreeBarbarianResearch, bool bTeamSizeModifiers) const // K-Mod
 {
 	CvGame const& kGame = GC.getGame();
 	CvTechInfo const& kTech = GC.getInfo(eTech);
@@ -2265,7 +2290,9 @@ int CvTeam::getResearchCost(TechTypes eTech,
 	}
 	// <advc.251>
 	rCost *= scaled::max(rModifier, 0);
-	int iCost = rCost.roundToMultiple(isHuman() ? 5 : 1);
+	// <!-- custom: see known issue as of now 67 for details -->
+	//int iCost = rCost.roundToMultiple(isHuman() ? 5 : 1);
+	const int iCost = rCost.round();
 	// </advc.251>
 	return std::max(1, iCost);
 }
@@ -2418,11 +2445,17 @@ HandicapTypes CvTeam::getHandicapType() const
 	}
 	int const iDiv = it.nextIndex();
 	if (iDiv <= 0)
-		return (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP");
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const HandicapTypes eSTANDARD_HANDICAP = (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP");
+
+		return eSTANDARD_HANDICAP;
+	}
+
 	//FAssert((iGameHandicap / iDiv) >= 0);
-	// advc.250a: (also disabled the assertion above)
-	return (HandicapTypes)std::min(GC.getNumHandicapInfos() - 1,
-			(iGameHandicap / (10 * iDiv)));
+	// <!-- custom: iDifficulty is a score/rating in XML, not always enum index * 10. (ChatGPT-5.5) -->
+	// return (HandicapTypes)std::min(GC.getNumHandicapInfos() - 1, (iGameHandicap / (10 * iDiv))); // advc.250a: (also disabled the assertion above)
+	return handicapFromDifficulty(intdiv::round(iGameHandicap, iDiv));
 
 }
 
@@ -2510,9 +2543,13 @@ PlayerTypes CvTeam::getRandomMemberAlive(bool bHuman) const
 	int iValid = (bHuman ? PlayerIter<HUMAN,MEMBER_OF>::count(getID()) :
 			getAliveCount());
 	int iIndex = SyncRandNum(iValid);
+	// <!-- custom: Fix inherited AdvCiv practical 2945 bug: the random index is 0-based, while nextIndex() reports the next iterator position and also counts ineligible members. Compare against our own eligible-member index instead. See KI#207. (ChatGPT-5.6-Sol) -->
+	int iValidIndex = 0;
 	for (MemberIter itMember(getID()); itMember.hasNext(); ++itMember)
 	{
-		if ((!bHuman || itMember->isHuman()) && itMember.nextIndex() >= iIndex)
+		if (bHuman && !itMember->isHuman())
+			continue;
+		if (iValidIndex++ == iIndex)
 			return itMember->getID();
 	}
 	FErrorMsg("Team not alive?");
@@ -2871,8 +2908,7 @@ void CvTeam::changeExtraMoves(DomainTypes eIndex, int iChange)
 }
 
 // advc.071: Now returns the location of the meeting, if any.
-CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
-	FirstContactData* pData) // advc.071
+CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo, FirstContactData* pData) // advc.071
 {
 	if (isHasMet(eOther))
 		return NULL;
@@ -2927,7 +2963,7 @@ CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
 		}	
 	} // </advc.071>
 	if (isAlwaysWar() && getID() != eOther)
-		declareWar(eOther, false, NO_WARPLAN);
+		declareWar(eOther, false, NO_WARPLAN, true, NO_PLAYER, false, WAR_DECLARATION_ALWAYS_WAR);
 	else if (!isHuman() && bNewDiplo &&
 		GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode() &&
 		!isAtWar(eOther))
@@ -3212,13 +3248,18 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
 	m_abDefensivePact.set(eIndex, bNewValue);
 	if (isActive() || GET_TEAM(eIndex).isActive())
 		gDLL->UI().setDirty(Score_DIRTY_BIT, true);
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	CvTeam const& kOther = GET_TEAM(eIndex); // advc
 	if (bNewValue && !kOther.isDefensivePact(getID()))
 	{
 		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYERS_SIGN_DEFENSIVE_PACT",
 				getReplayName().GetCString(), kOther.getReplayName().GetCString());
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getLeaderID(), szBuffer, GC.getColorType("HIGHLIGHT_TEXT"));
+				getLeaderID(), szBuffer, eColorHighlightText);
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
 			CvPlayer& kObs = *it;
@@ -3227,7 +3268,7 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
 			{
 				gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 						"AS2D_THEIRALLIANCE", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-						GC.getColorType("HIGHLIGHT_TEXT"),
+						eColorHighlightText,
 						// advc.127b:
 						getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 			}
@@ -3239,7 +3280,7 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
 		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYERS_CANCEL_DEFENSIVE_PACT",
 				getReplayName().GetCString(), kOther.getReplayName().GetCString());
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getLeaderID(), szBuffer, GC.getColorType("HIGHLIGHT_TEXT"));
+				getLeaderID(), szBuffer, eColorHighlightText);
 		for (PlayerIter<MAJOR_CIV,NOT_SAME_TEAM_AS> it(getID()); it.hasNext(); ++it)
 		{
 			CvPlayer& kObs = *it;
@@ -3401,6 +3442,10 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 		immediately, there could be trouble. I don't think that can happen though. */
 	GC.getGame().updatePlotGroups();
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	if (isVassal(eMaster))
 	{
 		m_bCapitulated = bCapitulated;
@@ -3455,7 +3500,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 			{
 				//declareWar((TeamTypes)iI, false, WARPLAN_DOGPILE);
 				// kekm.26: "These wars declared by capitulated vassal don't trigger defensive pacts."
-				queueWar(getID(), eThirdParty, false, WARPLAN_DOGPILE, !bCapitulated);
+				queueWar(getID(), eThirdParty, false, WARPLAN_DOGPILE, !bCapitulated, WAR_DECLARATION_VASSAL_ALIGNMENT);
 			}
 			else if (isAtWar(eThirdParty))
 			{
@@ -3465,7 +3510,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 				{
 					//GET_TEAM(eMaster).declareWar((TeamTypes)iI, false, WARPLAN_DOGPILE);
 					// kekm.26:
-					queueWar(eMaster, eThirdParty, false, WARPLAN_DOGPILE);
+					queueWar(eMaster, eThirdParty, false, WARPLAN_DOGPILE, true, WAR_DECLARATION_VASSAL_ALIGNMENT);
 				}
 			}
 		}
@@ -3509,7 +3554,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 						getReplayName().c_str(), GET_TEAM(eMaster).getReplayName().c_str());
 			}
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szReplayMessage,
-					GC.getColorType("HIGHLIGHT_TEXT"));
+					eColorHighlightText);
 
 			for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 			{
@@ -3520,7 +3565,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 				{
 					gDLL->UI().addMessage(kObs.getID(), false, -1, szReplayMessage,
 							"AS2D_WELOVEKING", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-							GC.getColorType("HIGHLIGHT_TEXT"),
+							eColorHighlightText,
 							// advc.127b:
 							getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 				}
@@ -3549,7 +3594,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 			}
 
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-					getLeaderID(), szReplayMessage, GC.getColorType("HIGHLIGHT_TEXT"));
+					getLeaderID(), szReplayMessage, eColorHighlightText);
 
 			for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 			{
@@ -3566,7 +3611,7 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 				{
 					gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 							"AS2D_REVOLTSTART", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-							GC.getColorType("HIGHLIGHT_TEXT"),
+							eColorHighlightText,
 							// advc.127b:
 							getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 				}
@@ -3745,14 +3790,15 @@ void CvTeam::freeVassal(TeamTypes eVassal) const
 /*  <kekm.26> "Changed how multiple war declarations work. declareWar used to
 	nest war declarations, now they are queued to trigger defensive pacts and
 	everything else in the correct order." */
-void CvTeam::queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam,
-		bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW)
+// <!-- custom: Added eCause and a matching queue so a secondary declaration does not lose whether an alliance, defensive pact, vassal alignment, vote, or nuclear attack caused it. (GPT-5.6-Sol) -->
+void CvTeam::queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam, bool bNewDiplo, WarPlanTypes eWarPlan, bool bPrimaryDOW, WarDeclarationCause eCause)
 {
 	attacking_queue.push(eAttackingTeam);
 	defending_queue.push(eDefendingTeam);
 	newdiplo_queue.push(bNewDiplo);
 	warplan_queue.push(eWarPlan);
 	primarydow_queue.push(bPrimaryDOW);
+	warcause_queue.push(eCause);
 }
 
 void CvTeam::triggerWars(bool bForceUpdateAttitude)
@@ -3763,14 +3809,16 @@ void CvTeam::triggerWars(bool bForceUpdateAttitude)
 	else bTriggeringWars = true;
 	while (!attacking_queue.empty())
 	{
+		// <!-- custom: eCause follows the existing optional sponsor and random-event parameters. Pass their former NO_PLAYER/false defaults explicitly so adding the queued cause preserves gameplay exactly. (GPT-5.6-Sol) -->
 		GET_TEAM(attacking_queue.front()).declareWar(
 				defending_queue.front(), newdiplo_queue.front(),
-				warplan_queue.front(), primarydow_queue.front());
+				warplan_queue.front(), primarydow_queue.front(), NO_PLAYER, false, warcause_queue.front());
 		attacking_queue.pop();
 		defending_queue.pop();
 		newdiplo_queue.pop();
 		warplan_queue.pop();
 		primarydow_queue.pop();
+		warcause_queue.pop();
 		bWarsDeclared = true;
 	}
 	if (bWarsDeclared /* advc: */ || bForceUpdateAttitude)
@@ -3943,6 +3991,10 @@ void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange)
 			kAIMember.AI_makeProductionDirty();
 	}
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	if (GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode())
 	{
 		CvWString szBuffer = gDLL->getText( // <advc.008e>
@@ -3951,7 +4003,7 @@ void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange)
 				"TXT_KEY_MISC_COMPLETES_PROJECT", // </advc.008e>
 				getReplayName().GetCString(), kProject.getTextKeyWide());
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer,
-				GC.getColorType("HIGHLIGHT_TEXT"));
+				eColorHighlightText);
 
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
@@ -3963,7 +4015,7 @@ void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange)
 					getName().GetCString(), kProject.getTextKeyWide());
 			gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 					"AS2D_PROJECT_COMPLETED", MESSAGE_TYPE_MAJOR_EVENT, NULL,
-					GC.getColorType("HIGHLIGHT_TEXT"),
+					eColorHighlightText,
 					// advc.127b:
 					getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 		}
@@ -4050,7 +4102,8 @@ int CvTeam::getResearchProgress(TechTypes eIndex) const
 }
 
 
-void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer)
+// <!-- custom: Added eCause and pass it through research-progress helpers to setHasTech when this change completes the technology, preserving the action that actually crossed the threshold. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer, TechAcquisitionCause eCause)
 {
 	if(getResearchProgress(eIndex) == iNewValue)
 		return;
@@ -4082,7 +4135,7 @@ void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes eP
 		// <advc> Cleaner to subtract the overflow. Cf. comment in getResearchProgress.
 		m_aiResearchProgress.add(eIndex,
 				getResearchProgress(eIndex) - getResearchCost(eIndex)); // </advc>
-		setHasTech(eIndex, true, ePlayer, true, true, /* advc.121: */ true);
+		setHasTech(eIndex, true, ePlayer, true, true, /* advc.121: */ true, eCause);
 		/*if (!GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS) && !GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
 			setNoTradeTech(eIndex, true);*/ // BtS
 		// disabled by K-Mod. I don't know why this was here, and it conflicts with my changes to the order of the doTurn functions.
@@ -4090,12 +4143,12 @@ void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes eP
 }
 
 
-void CvTeam::changeResearchProgress(TechTypes eIndex, int iChange, PlayerTypes ePlayer)
+void CvTeam::changeResearchProgress(TechTypes eIndex, int iChange, PlayerTypes ePlayer, TechAcquisitionCause eCause)
 {
-	setResearchProgress(eIndex, getResearchProgress(eIndex) + iChange, ePlayer);
+	setResearchProgress(eIndex, getResearchProgress(eIndex) + iChange, ePlayer, eCause);
 }
 
-int CvTeam::changeResearchProgressPercent(TechTypes eIndex, int iPercent, PlayerTypes ePlayer)
+int CvTeam::changeResearchProgressPercent(TechTypes eIndex, int iPercent, PlayerTypes ePlayer, TechAcquisitionCause eCause)
 {
 	int iBeakers = 0;
 
@@ -4110,7 +4163,7 @@ int CvTeam::changeResearchProgressPercent(TechTypes eIndex, int iPercent, Player
 					iResearchCostPersent);
 		}
 
-		changeResearchProgress(eIndex, iBeakers, ePlayer);
+		changeResearchProgress(eIndex, iBeakers, ePlayer, eCause);
 	}
 
 	return iBeakers;
@@ -4231,6 +4284,11 @@ void CvTeam::resetVictoryProgress()
 {	// <advc.opt>
 	if (GC.getGame().getGameState() != GAMESTATE_ON)
 		return;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 	FOR_EACH_NON_DEFAULT_KEY(m_aiVictoryCountdown, Victory) // </advc.opt>
 	{
 		setVictoryCountdown(eLoopVictory, -1);
@@ -4259,7 +4317,7 @@ void CvTeam::resetVictoryProgress()
 			}
 		}
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getLeaderID(), szBuffer, GC.getColorType("HIGHLIGHT_TEXT"));
+				getLeaderID(), szBuffer, eColorHighlightText);
 	}
 }
 
@@ -4386,13 +4444,17 @@ bool CvTeam::isTechSplash() const
 	return true;
 }
 
-void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes eDiscoverPlayer,
-	bool bPartial)
+void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes eDiscoverPlayer, bool bPartial)
 {
 	bool bSound = ((!isTechSplash() ||
 			/*  advc.156: I think HotSeat doesn't play sounds along with messages,
 				but let's try. */
 			GC.getGame().isHotSeat()) && !bPartial);
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const ColorTypes eColorTechText = (ColorTypes)GC.getColorType("TECH_TEXT");
+
 	for (MemberIter it(getID()); it.hasNext(); ++it)
 	{
 		CvPlayer const& kPlayer = *it;
@@ -4411,14 +4473,14 @@ void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes
 		gDLL->UI().addMessage(kPlayer.getID(), false, -1, szBuffer,
 				szSound, // advc.156
 				MESSAGE_TYPE_MINOR_EVENT, // advc.106b
-				NULL, GC.getColorType("TECH_TEXT"));
+				NULL, eColorTechText);
 				// K-Mod. Play the quote sound always, the "MP" sound is boring.
 				//(bSound ? GC.getInfo(eIndex).getSound() : NULL)
 	}
 }
 
-void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
-	bool bFirst, bool bAnnounce, /* advc.121: */ bool bEndOfTurn)
+// <!-- custom: Added eCause and forward it to the event reporter so TECH_ACQUIRED records the explicit acquisition source without changing technology processing. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, /* advc.121: */ bool bEndOfTurn, TechAcquisitionCause eCause)
 {
 	PROFILE_FUNC();
 
@@ -4439,7 +4501,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 		m_aiTechCount.add(eTech, 1);
 		setResearchProgress(eTech, 0, ePlayer);
 		CvEventReporter::getInstance().techAcquired(eTech, getID(), ePlayer,
-				bAnnounce && 1 == m_aiTechCount.get(eTech));
+				bAnnounce && 1 == m_aiTechCount.get(eTech), eCause);
 
 		if (m_aiTechCount.get(eTech) == 1 && bAnnounce &&
 			kGame.isFinalInitialized() && !gDLL->GetWorldBuilderMode())
@@ -4469,7 +4531,13 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 		}
 
 		if (kTech.isMapVisible())
+		{
+			// <!-- custom: Map-visible technologies previously produced thousands of redundant coordinate entries. Suppress those per-plot hooks during this known bulk operation and record one exact full-map revelation row instead. (GPT-5.6-Sol) -->
+			bool const bLogFullMapRevelation = (gGameRecordLogLevel >= 2 && getID() < MAX_CIV_TEAMS && kGame.getElapsedGameTurns() > 0);
+			if (bLogFullMapRevelation) beginSASGameRecordFullMapRevelation(getID(), eTech);
 			GC.getMap().setRevealedPlots(getID(), true, true);
+			if (bLogFullMapRevelation) endSASGameRecordFullMapRevelation(getID(), eTech);
+		}
 
 		FOR_EACH_ENUM(SpecialBuilding)
 		{
@@ -4478,7 +4546,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 		}
 
 		// report event to Python, along with some other key state
-		CvEventReporter::getInstance().techAcquired(eTech, getID(), ePlayer, bAnnounce);
+		CvEventReporter::getInstance().techAcquired(eTech, getID(), ePlayer, bAnnounce, eCause);
 
 		bool bReligionFounded = false;
 		bool bFirstPerk = false; // advc: Reneamed from bFirstBonus
@@ -4570,13 +4638,21 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 		for (MemberAIIter it(getID()); it.hasNext(); ++it)
 		{
 			CvPlayerAI& kMember = *it;
-			if (kMember.isResearchingTech(eTech))
+			bool const bWasResearchingAcquiredTech = kMember.isResearchingTech(eTech);
+			if (bWasResearchingAcquiredTech)
 				kMember.popResearch(eTech);
+			// <!-- custom: A completed final queue target normally leaves currentResearch=- until the AI chooses again before its next research phase. Record that harmless cause so an end-of-round SASGameRecord snapshot is not mistaken for lost science. (GPT-5.6-Sol) -->
+			if (bWasResearchingAcquiredTech && !kMember.isHuman() && gPlayerLogLevel >= 2) logBBAI("    RESEARCH_QUEUE_AFTER_ACQUIRE turn=%d player=%d %S acquired=%S next=%S queueLength=%d", kGame.getGameTurn(), kMember.getID(), kMember.getCivilizationDescription(0), kTech.getDescription(), (kMember.getCurrentResearch() == NO_TECH ? L"-" : GC.getInfo(kMember.getCurrentResearch()).getDescription()), kMember.getLengthResearchQueue());
 			/*	notify the player they now have the tech,
 				if they want to make immediate changes */
 			kMember.AI_nowHasTech(eTech);
 			kMember.invalidateYieldRankCache();
 		}
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+		static const int iSHOW_FIRST_TO_DISCOVER_IN_REPLAY = GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY");
 
 		if (bFirst && bFirstToDiscover)
 		{
@@ -4611,14 +4687,15 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 					GET_PLAYER(ePlayer).chooseTech(kTech.getFirstFreeTechs(),
 							szBuffer.GetCString());
 				}
+
 				// advc.004: Announcement code moved into next block
 				// advc.106: Do it at the end instead
-				if (GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY") <= 0)
+				if (iSHOW_FIRST_TO_DISCOVER_IN_REPLAY <= 0)
 				{
 					szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH",
 							GET_PLAYER(ePlayer).getReplayName(), kTech.getTextKeyWide());
 					kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer,
-							GC.getColorType("HIGHLIGHT_TEXT"));
+							eColorHighlightText);
 				} // advc.106
 			} // <advc.004>
 			if (bAnnounceFirst) // Cut, pasted, refactored from above
@@ -4639,7 +4716,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 					gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 							(bMajor ? "AS2D_FIRSTTOTECH" : NULL),
 							(bMajor ? MESSAGE_TYPE_MAJOR_EVENT :
-							MESSAGE_TYPE_MINOR_EVENT), NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+							MESSAGE_TYPE_MINOR_EVENT), NULL, eColorHighlightText,
 							// advc.127b:
 							getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 				}
@@ -4652,12 +4729,13 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 					{
 						/*	K-Mod note: we just want to flag it for re-evaluation.
 							Clearing the queue is currently the only way to do that. */
+						// <!-- custom: This may leave currentResearch=- in the end-of-round summary, but the affected AI has already applied this round's science and chooses again before applying the next round's. Log the cause to verify that timing and expose any true missed research separately. (GPT-5.6-Sol) -->
+						if (gPlayerLogLevel >= 2) logBBAI("    RESEARCH_QUEUE_INVALIDATED_FIRST_PERK turn=%d player=%d %S competingTech=%S claimedByTeam=%d", kGame.getGameTurn(), itOther->getID(), itOther->getCivilizationDescription(0), kTech.getDescription(), getID());
 						itOther->clearResearchQueue();
 					}
 				}
 			}
 		}
-
 
 		if (bAnnounce && kGame.isFinalInitialized() &&
 			!gDLL->GetWorldBuilderMode()) // advc
@@ -4769,12 +4847,15 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
 			it->updateTechShare(eTech); // Share through "Internet" project
 		// <advc.106>
 		if (bFirst && bFirstToDiscover && // (Note: CvGame::initFreeState uses bFirst=false)
-			GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY") > 0)
+			iSHOW_FIRST_TO_DISCOVER_IN_REPLAY > 0)
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorAltHighlightText = (ColorTypes)GC.getColorType("ALT_HIGHLIGHT_TEXT");
+
 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH",
 					GET_PLAYER(ePlayer).getReplayName(), kTech.getTextKeyWide());
 			kGame.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer,
-					GC.getColorType("ALT_HIGHLIGHT_TEXT"));
+					eColorAltHighlightText);
 		} // </advc.106>
 	}
 
@@ -5031,8 +5112,8 @@ void CvTeam::changeEspionagePointsAgainstTeam(TeamTypes eIndex, int iChange)
 // advc.120d:
 bool CvTeam::canSeeTech(TeamTypes eOther) const
 {
-	/*	In part based on drawTechDeals in ExoticForeignAdvisor.py.
-		Exposed to Python via CvPlayer. Therefore has to pretty foolproof. */
+	/*	In part based on drawTechDeals in ForeignAdvisor.py.
+		Exposed to Python via CvPlayer. Therefore has to pretty foolproof.; <!-- custom: removed "Exotic" since it is now unified in a single file --> */
 	CvTeam const& kOther = GET_TEAM(eOther);
 	// Can see vassal tech through "we'd like you to research ..."
 	if (getID() == kOther.getID() || kOther.isVassal(getID()))
@@ -5275,7 +5356,7 @@ void CvTeam::doBarbarianResearch()
 			{
 				int const iPossibleCount = it.nextIndex();
 				setResearchProgress(eLoopTech, (getResearchCost(eLoopTech) * iCount) /
-						iPossibleCount, getLeaderID());
+						iPossibleCount, getLeaderID(), TECH_ACQUISITION_BARBARIAN_RESEARCH);
 			}
 		}
 	} // </kekm.28>
@@ -5353,12 +5434,11 @@ void CvTeam::doBarbarianResearch()
 				// <advc.301> No overflow
 				std::max(1, getResearchCost(eLoopTech)
 				- getResearchProgress(eLoopTech))).uround(), // </advc.301>
-				kBarbPlayer.getID()); // </K-Mod>
+				kBarbPlayer.getID(), TECH_ACQUISITION_BARBARIAN_RESEARCH); // </K-Mod>
 	}
 }
 
-void CvTeam::updateTechShare(TechTypes eTech,
-	int iOtherKnownThreshold) // advc.opt: Allow caller to handle this
+void CvTeam::updateTechShare(TechTypes eTech, int iOtherKnownThreshold) // advc.opt: Allow caller to handle this
 {
 	if (isHasTech(eTech) /* advc.opt: */ || !isAnyTechShare())
 		return;
@@ -5373,7 +5453,7 @@ void CvTeam::updateTechShare(TechTypes eTech,
 			iCount += itOther->getNumMembers(); // kekm.38: was +1
 		if (iCount >= iOtherKnownThreshold) // advc.opt: Moved into the loop
 		{
-			setHasTech(eTech, true, NO_PLAYER, true, true);
+			setHasTech(eTech, true, NO_PLAYER, true, true, false, TECH_ACQUISITION_TECH_SHARE);
 			if (GET_PLAYER(getLeaderID()).isSignificantDiscovery(eTech)) // advc.550e
 				setNoTradeTech(eTech, true); // kekm.31
 			return;
@@ -5486,11 +5566,20 @@ void CvTeam::testCircumnavigated()
 
 	GC.getGame().makeCircumnavigated();
 
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	// <!-- custom: code/performance optimization: hoist -->
+	static const int iCIRCUMNAVIGATE_FREE_MOVES = GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES");
+
 	//if (GC.getGame().getElapsedGameTurns() > 0)
 	if (GC.getGame().getElapsedGameTurns() > 1 && // K-Mod (due to changes in when CvTeam::doTurn is called)
-		GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES") != 0)
+		iCIRCUMNAVIGATE_FREE_MOVES != 0)
 	{
-		changeExtraMoves(DOMAIN_SEA, GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES"));
+		changeExtraMoves(DOMAIN_SEA, iCIRCUMNAVIGATE_FREE_MOVES);
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		// <!-- custom: code/performance optimization: hoist -->
+		static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
+
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
 			CvPlayer const& kObs = *it;
@@ -5498,7 +5587,7 @@ void CvTeam::testCircumnavigated()
 			if (getID() == kObs.getTeam())
 			{
 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_CIRC_GLOBE",
-						GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES"));
+						iCIRCUMNAVIGATE_FREE_MOVES);
 			}
 			else if (isHasMet(kObs.getTeam()) /* advc.127: */ || kObs.isSpectator())
 			{
@@ -5508,14 +5597,14 @@ void CvTeam::testCircumnavigated()
 			else szBuffer = gDLL->getText("TXT_KEY_MISC_UNKNOWN_CIRC_GLOBE");
 			gDLL->UI().addMessage(kObs.getID(), false, -1, szBuffer,
 					"AS2D_GLOBECIRCUMNAVIGATED", MESSAGE_TYPE_MAJOR_EVENT,
-					NULL, GC.getColorType("HIGHLIGHT_TEXT"),
+					NULL, eColorHighlightText,
 					// advc.127b:
 					getCapitalX(kObs.getTeam(), true), getCapitalY(kObs.getTeam(), true));
 		}
 		CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_SOMEONE_CIRC_GLOBE",
 				getReplayName().c_str()));
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
-				getLeaderID(), szBuffer, GC.getColorType("HIGHLIGHT_TEXT"));
+				getLeaderID(), szBuffer, eColorHighlightText);
 	}
 }
 
@@ -5563,8 +5652,7 @@ int CvTeam::getCapitalY(TeamTypes eObserver, bool bDebug) const
 	return pCapital->getY();
 } // </advc.127b>
 
-void CvTeam::processTech(TechTypes eTech, int iChange,
-	bool bEndOfTurn) // advc.121
+void CvTeam::processTech(TechTypes eTech, int iChange, bool bEndOfTurn) // advc.121
 {
 	PROFILE_FUNC();
 
@@ -5785,7 +5873,9 @@ void CvTeam::read(FDataStreamBase* pStream)
 {
 	reset(); // Init data before load
 
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
+
 	pStream->Read(&uiFlag);
 
 	pStream->Read(&m_iNumMembers);
@@ -5811,223 +5901,78 @@ void CvTeam::read(FDataStreamBase* pStream)
 	pStream->Read(&m_iMasterPower);
 	pStream->Read(&m_iEnemyWarWearinessModifier);
 	pStream->Read(&m_iRiverTradeCount);
+
 	// <advc.500c> (Older saves handled after techs are loaded)
-	if (uiFlag >= 18)
-		pStream->Read(&m_iNoFearForSafetyCount); // </advc.500c>
+	pStream->Read(&m_iNoFearForSafetyCount); // </advc.500c>
+
 	pStream->Read(&m_iEspionagePointsEver);
+
 	// <advc.003m>
-	if(uiFlag >= 5)
-	{
 		pStream->Read(&m_iMajorWarEnemies);
 		pStream->Read(&m_iMinorWarEnemies);
 		pStream->Read(&m_iVassalWarEnemies);
 		pStream->Read(&m_bMinorTeam);
-	}
-	else
-	{
-		updateMinorCiv(); // Need to do this before CvTeamAI::read
-		/*	All teams need to be loaded before war enemies can be counted.
-			Set negative counts in order to signal to CvGame::onAllGameDataRead
-			that finalizeInit needs to be called. */
-		m_iMajorWarEnemies = m_iMinorWarEnemies = m_iVassalWarEnemies = -1;
-	} // </advc.003m>
+	// </advc.003m>
 
 	pStream->Read(&m_bMapCentering);
 	pStream->Read(&m_bCapitulated);
-	// <advc.opt> (obsolete)
-	if (uiFlag >= 7 && uiFlag < 16)
-	{
-		bool bAnyVictoryCountdown; // (discard)
-		pStream->Read(&bAnyVictoryCountdown);
-	} // </advc.opt>
+
 	pStream->Read((int*)&m_eID);
 	FAssertEnumBounds(m_eID); // advc (sanity check)
-	if (uiFlag >= 16)
-	{
-		m_aiStolenVisibilityTimer.read(pStream);
-		m_aiWarWeariness.read(pStream);
-	}
-	else
-	{
-		m_aiStolenVisibilityTimer.readArray<int>(pStream);
-		m_aiWarWeariness.readArray<int>(pStream);
-	}
-	// <advc> (for kekm.38)
-	if (uiFlag >= 15)
-	{
-		if (uiFlag >= 16)
-			m_aiTechShareCount.read(pStream);
-		else m_aiTechShareCount.readArray<char>(pStream);
-	}
-	else
-	{	/*	Used to be stored for each possible team count, now player count.
-			And the iTechShare from XML is no longer treated as 1 less in the DLL. */
-		ArrayEnumMap<TeamTypes,int> aiTeamTechShareCount;
-		aiTeamTechShareCount.readArray<int>(pStream);
-		if (aiTeamTechShareCount.isAnyNonDefault())
-		{
-			for (int i = 0; i < std::min<int>(MAX_TEAMS, MAX_PLAYERS - 1); i++)
-			{
-				m_aiTechShareCount.set((PlayerTypes)(i + 1),
-						aiTeamTechShareCount.get((TeamTypes)i));
-			}
-		}
-	} // </advc>
-	if (uiFlag >= 16)
-	{
-		m_aiEspionagePointsAgainstTeam.read(pStream);
-		m_aiCounterespionageTurnsLeftAgainstTeam.read(pStream);
-		m_aiCounterespionageModAgainstTeam.read(pStream);
-		// <advc.130k> (Handle old saves in CvTeamAI) 
-		if (uiFlag >= 17)
-			m_aiTurnsAtPeace.read(pStream); // </advc.130k>
-		m_aiCommerceFlexibleCount.read(pStream);
-	}
-	else
-	{
-		m_aiEspionagePointsAgainstTeam.readArray<int>(pStream);
-		m_aiCounterespionageTurnsLeftAgainstTeam.readArray<int>(pStream);
-		m_aiCounterespionageModAgainstTeam.readArray<int>(pStream);
-		m_aiCommerceFlexibleCount.readArray<int>(pStream);
-	}
-	// <advc.120g> Prior to uiFlag=6, espionage was flexible from the beginning.
-	if(uiFlag < 6)
-		m_aiCommerceFlexibleCount.set(COMMERCE_ESPIONAGE, 1); // </advc.120g>
-	if (uiFlag >= 16)
-	{
-		m_aiExtraMoves.read(pStream);
-		m_aiForceTeamVoteEligibilityCount.read(pStream);
-	}
-	else
-	{
-		m_aiExtraMoves.readArray<int>(pStream);
-		m_aiForceTeamVoteEligibilityCount.readArray<int>(pStream);
-	}
+
+	m_aiStolenVisibilityTimer.read(pStream);
+	m_aiWarWeariness.read(pStream);
+
+
+	m_aiTechShareCount.read(pStream);
+	// </advc>
+
+	m_aiEspionagePointsAgainstTeam.read(pStream);
+	m_aiCounterespionageTurnsLeftAgainstTeam.read(pStream);
+	m_aiCounterespionageModAgainstTeam.read(pStream);
+	// <advc.130k> (Handle old saves in CvTeamAI) 
+
+	m_aiTurnsAtPeace.read(pStream); // </advc.130k>
+
+	m_aiCommerceFlexibleCount.read(pStream);
+
+	m_aiExtraMoves.read(pStream);
+	m_aiForceTeamVoteEligibilityCount.read(pStream);
+
 	// <advc.091>
-	if (uiFlag >= 12)
-	{
-		if (uiFlag >= 16)
-			m_aiHasMetTurn.read(pStream);
-		else m_aiHasMetTurn.readArray<int>(pStream);
-	}
-	else
-	{
-		ArrayEnumMap<TeamTypes,bool> abHasMet;
-		abHasMet.readArray<bool>(pStream);
-		CvGame const& kGame = GC.getGame();
-		int iGameTurn = kGame.getGameTurn();
-		int iStartTurn = kGame.getStartTurn();
-		FAssert(iGameTurn >= 0 && iStartTurn >= 0);
-		for (TeamIter<> itTeam; itTeam.hasNext(); ++itTeam)
-		{
-			TeamTypes eTeam = itTeam->getID();
-			if (abHasMet.get(eTeam))
-			{
-				m_aiHasMetTurn.set(eTeam,
-						eTeam == getID() ? iStartTurn : iGameTurn);
-			}
-		}
-	}
+	m_aiHasMetTurn.read(pStream);
+
 	// </advc.091>
-	/*if (uiFlag >= 1)
-		pStream->Read(MAX_TEAMS, m_abHasSeen);
-	else memcpy(m_abHasSeen, m_abHasMet, sizeof(*m_abHasSeen)*MAX_TEAMS);*/ // K-Mod
-	FAssert(uiFlag >= 1);
-	if (uiFlag >= 16)
-	{
-		m_abHasSeen.read(pStream);
-		m_abAtWar.read(pStream);
-	}
-	else
-	{
-		m_abHasSeen.readArray<bool>(pStream);
-		m_abAtWar.readArray<bool>(pStream);
-	}
+
+	m_abHasSeen.read(pStream);
+	m_abAtWar.read(pStream);
+
 	// <advc.162>
-	if (uiFlag >= 4)
-	{
-		if (uiFlag >= 16)
-			m_abJustDeclaredWar.read(pStream);
-		else m_abJustDeclaredWar.readArray<bool>(pStream);
-	} // </advc.162>
-	if (uiFlag >= 16)
-	{
-		m_abPermanentWarPeace.read(pStream);
-		m_abOpenBorders.read(pStream);
-	}
-	else
-	{
-		m_abPermanentWarPeace.readArray<bool>(pStream);
-		m_abOpenBorders.readArray<bool>(pStream);
-	}
+	m_abJustDeclaredWar.read(pStream);
+	// </advc.162>
+
+	m_abPermanentWarPeace.read(pStream);
+	m_abOpenBorders.read(pStream);
+
 	// <advc.034>
-	if(uiFlag >= 3)
-	{
-		if (uiFlag >= 9)
-		{
-			if (uiFlag >= 16)
-				m_abDisengage.read(pStream);
-			else m_abDisengage.readArray<bool>(pStream);
-		}
-		else // I had previously written only MAX_CIV_TEAMS values
-		{
-			bool abTmp[MAX_CIV_TEAMS];
-			pStream->Read(MAX_CIV_TEAMS, abTmp);
-			for (int i = 0; i < MAX_CIV_TEAMS; i++)
-				m_abDisengage.set((TeamTypes)i, abTmp[i]);
-		}
-	} // </advc.034>
-	if (uiFlag >= 16)
-	{
-		m_abDefensivePact.read(pStream);
-		m_abForcePeace.read(pStream);
-	}
-	else
-	{
-		m_abDefensivePact.readArray<bool>(pStream);
-		m_abForcePeace.readArray<bool>(pStream);
-	}
+	m_abDisengage.read(pStream);
+	// </advc.034>
+
+	m_abDefensivePact.read(pStream);
+	m_abForcePeace.read(pStream);
+
 	// <advc.opt>
-	if (uiFlag < 9)
-	{
-		ArrayEnumMap<TeamTypes,bool> dummy; // m_abVassal
-		dummy.readArray<bool>(pStream);
-	}
 	pStream->Read((int*)&m_eMaster);
-	if (uiFlag >= 2)
-		pStream->Read((int*)&m_eLeader);
-	if (uiFlag < 8)
-		updateLeaderID();
+	pStream->Read((int*)&m_eLeader);
 	// </advc.opt>
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 19)
-			m_abCanLaunch.read(pStream);
-		else LegacyArrayEnumMap<VictoryTypes,bool>::convert(m_abCanLaunch, pStream);
-		m_aiRouteChange.read(pStream);
-		m_aiProjectCount.read(pStream);
-	}
-	else
-	{
-		m_abCanLaunch.readArray<bool>(pStream);
-		m_aiRouteChange.readArray<int>(pStream);
-		m_aiProjectCount.readArray<int>(pStream);
-	}
-	if (uiFlag < 14)
-	{	// Reduced SDI interception chance in AdvCiv 1.0
-		ProjectTypes eSDI = (ProjectTypes)GC.getInfoTypeForString("PROJECT_SDI");
-		if (eSDI != NO_PROJECT)
-		{
-			int iSDICount = m_aiProjectCount.get(eSDI);
-			if (iSDICount > 0 && getNukeInterception() >= iSDICount * 75)
-			{
-				changeNukeInterception(iSDICount * -15);
-			}
-		}
-	}
-	if (uiFlag >= 16)
-		m_aiProjectDefaultArtTypes.read(pStream);
-	else m_aiProjectDefaultArtTypes.readArray<int>(pStream);
+
+	m_abCanLaunch.read(pStream);
+
+	m_aiRouteChange.read(pStream);
+	m_aiProjectCount.read(pStream);
+
+	m_aiProjectDefaultArtTypes.read(pStream);
+
 	// project art types
 	FOR_EACH_ENUM(Project)
 	{
@@ -6038,109 +5983,29 @@ void CvTeam::read(FDataStreamBase* pStream)
 			m_aaiProjectArtTypes[eLoopProject].push_back(iTmp);
 		}
 	}
-	if (uiFlag >= 16)
-	{
-		m_aiProjectMaking.read(pStream);
-		m_aiUnitClassCount.read(pStream);
-		m_aiBuildingClassCount.read(pStream);
-		m_aiObsoleteBuildingCount.read(pStream);
-		m_aiResearchProgress.read(pStream);
-		m_aiTechCount.read(pStream);
-		m_aiTerrainTradeCount.read(pStream);
-		m_aiVictoryCountdown.read(pStream);
-	}
-	else
-	{
-		m_aiProjectMaking.readArray<int>(pStream);
-		m_aiUnitClassCount.readArray<int>(pStream);
-		m_aiBuildingClassCount.readArray<int>(pStream);
-		m_aiObsoleteBuildingCount.readArray<int>(pStream);
-		m_aiResearchProgress.readArray<int>(pStream);
-		m_aiTechCount.readArray<int>(pStream);
-		m_aiTerrainTradeCount.readArray<int>(pStream);
-		m_aiVictoryCountdown.readArray<int>(pStream);
-	}
+
+	m_aiProjectMaking.read(pStream);
+	m_aiUnitClassCount.read(pStream);
+	m_aiBuildingClassCount.read(pStream);
+	m_aiObsoleteBuildingCount.read(pStream);
+	m_aiResearchProgress.read(pStream);
+	m_aiTechCount.read(pStream);
+	m_aiTerrainTradeCount.read(pStream);
+	m_aiVictoryCountdown.read(pStream);
+
 	// <advc.opt>
-	if (uiFlag == 10) // Fix a bug in AdvCiv 0.97
-	{
-		FOR_EACH_ENUM(Victory)
-		{	/*	Is 0 a legit value? Well, let's hope that it represents
-				"no countdown started" in this savegame. */
-			if (getVictoryCountdown(eLoopVictory) == 0)
-				m_aiVictoryCountdown.set(eLoopVictory, -1);
-		}
-	} // </advc.opt>
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 19)
-			m_abHasTech.read(pStream);
-		else LegacyArrayEnumMap<TechTypes,bool>::convert(m_abHasTech, pStream);
-	}
-	else m_abHasTech.readArray<bool>(pStream);
+
+	m_abHasTech.read(pStream);
+
 	// <advc.101>
-	if (uiFlag >= 10)
-		pStream->Read(&m_iTechCount);
-	else
-	{
-		FOR_EACH_ENUM(Tech)
-		{
-			if (m_abHasTech.get(eLoopTech))
-				m_iTechCount++;
-		}
-	} // </advc.101>
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 19)
-			m_abNoTradeTech.read(pStream);
-		else LegacyArrayEnumMap<TechTypes,bool>::convert(m_abNoTradeTech, pStream);
-		m_aaiImprovementYieldChange.read(pStream);
-	}
-	else
-	{
-		m_abNoTradeTech.readArray<bool>(pStream);
-		m_aaiImprovementYieldChange.readArray<int>(pStream);
-	}
-	if (uiFlag >= 16)
-	{
-		if (uiFlag >= 19)
-			m_abRevealedBonuses.read(pStream);
-		else LegacyArrayEnumMap<BonusTypes,bool>::convert(m_abRevealedBonuses, pStream);
-	}
-	else
-	{
-		int iSize;
-		pStream->Read(&iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			int iBonus;
-			pStream->Read(&iBonus);
-			m_abRevealedBonuses.insert(iBonus, true);
-		}
-	}
-	// <advc.500c> (Citizen assignment gets updated by CvGame::onAllGameDataRead)
-	if (uiFlag < 18)
-	{
-		TechTypes eNationalism = (TechTypes)GC.getInfoTypeForString("TECH_NATIONALISM");
-		if (eNationalism != NO_TECH && isHasTech(eNationalism))
-			m_iNoFearForSafetyCount = 1;
-	} // </advc.500c>
-	// <advc.183> Reveal any destroyed forts (so that aircraft can't rebase to them)
-	if (uiFlag < 13 && isAlive())
-	{
-		FOR_EACH_ENUM(PlotNum)
-		{
-			CvPlot& kPlot = GC.getMap().getPlotByIndex(eLoopPlotNum);
-			if (kPlot.isWater()) // to save time
-				continue;
-			ImprovementTypes eRevealedImprov = kPlot.getRevealedImprovementType(getID());
-			if (eRevealedImprov != NO_IMPROVEMENT &&
-				kPlot.getImprovementType() != eRevealedImprov &&
-				GC.getInfo(eRevealedImprov).isActsAsCity())
-			{
-				kPlot.setRevealedImprovementType(getID(), NO_IMPROVEMENT);
-			}
-		}
-	} // </advc.183>
+	pStream->Read(&m_iTechCount);
+	// </advc.101>
+
+	m_abNoTradeTech.read(pStream);
+
+	m_aaiImprovementYieldChange.read(pStream);
+
+	m_abRevealedBonuses.read(pStream);
 }
 
 // <advc.003m>  (for legacy savegames)
@@ -6158,26 +6023,11 @@ void CvTeam::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 	REPRO_TEST_BEGIN_WRITE(CvString::format("Team(%d)", getID()));
+
+	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
-	//uiFlag = 1; // K-Mod
-	//uiFlag = 2; // advc.opt: m_eLeader added
-	//uiFlag = 3; // advc.034
-	//uiFlag = 4; // advc.162
-	//uiFlag = 5; // advc.003m
-	//uiFlag = 6; // advc.120g
-	//uiFlag = 7; // advc.opt: m_bAnyVictoryCountdown
-	//uiFlag = 8; // advc.opt: change in updateLeaderID
-	//uiFlag = 9; // advc.opt: remove m_abVassal; advc.enum/ advc.034: write m_abDisengage[BARBARIAN_TEAM]
-	//uiFlag = 10; // advc.101: m_iTechCount
-	//uiFlag = 11; // advc.opt: fix m_aiVictoryCountdown bug
-	//uiFlag = 12; // advc.091
-	//uiFlag = 13; // advc.183
-	//uiFlag = 14; // advc.650
-	//uiFlag = 15; // advc (for kekm.38)
-	//uiFlag = 16; // advc.enum: new enum map save behavior
-	//uiFlag = 17; // advc.130k
-	//uiFlag = 18; // advc.500c
 	uiFlag = 19; // advc.enum: Bugfix in bool-valued ArrayEnumMap
+
 	pStream->Write(uiFlag);
 
 	pStream->Write(m_iNumMembers);
@@ -6228,7 +6078,7 @@ void CvTeam::write(FDataStreamBase* pStream)
 	m_aiForceTeamVoteEligibilityCount.write(pStream);
 
 	m_aiHasMetTurn.write(pStream); // advc.091
-	m_abHasSeen.write(pStream); // K-Mod. uiFlag >= 1
+	m_abHasSeen.write(pStream); // K-Mod.
 	m_abAtWar.write(pStream);
 	m_abJustDeclaredWar.write(pStream); // advc.162
 	m_abPermanentWarPeace.write(pStream);

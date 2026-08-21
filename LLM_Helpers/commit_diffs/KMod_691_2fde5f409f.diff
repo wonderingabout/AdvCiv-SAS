@@ -1,0 +1,145 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 691
+# Commit: 2fde5f409fa20ed99131d0192446041a0c6357c2
+# History segment: K-Mod history
+# Parent used for diff: be84f8ef8b462839eeb765d9ac12d823e57beb3d
+# Title: Changed the way culture processes are ended when a city's cultural borders expand. (The previous implementation, from the Unofficial Patch, could cause OOS p...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	44	CvGameCoreDLL/CvCity.cpp
+0	9	CvGameCoreDLL/CvCity.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 57c117a20..76c9b99a4 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -485,16 +485,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
+ 	m_bLayoutDirty = false;
+ 	m_bPlundered = false;
+ 
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                         denev & jdog5000     */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-	m_bPopProductionProcess = false;
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
+-
+ 	m_eOwner = eOwner;
+ 	m_ePreviousOwner = NO_PLAYER;
+ 	m_eOriginalOwner = eOwner;
+@@ -8353,36 +8343,14 @@ void CvCity::setCultureLevel(CultureLevelTypes eNewValue, bool bUpdatePlotGroups
+ 				CvEventReporter::getInstance().cultureExpansion(this, getOwnerINLINE());
+ 				
+ 				//Stop Build Culture
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                         denev & jdog5000     */
+-/*                                                                                              */
+-/* Bugfix, Odd behavior                                                                         */
+-/************************************************************************************************/
+-/* original BTS code
++				/* original BTS code
+ 				if (isProductionProcess())
+ 				{
+ 					if (GC.getProcessInfo(getProductionProcess()).getProductionToCommerceModifier(COMMERCE_CULTURE) > 0)
+ 					{
+ 						popOrder(0, false, true);						
+ 					}
+-				}
+-*/
+-				// For AI this is completely unnecessary.  Timing also appears to cause bug with overflow production, 
+-				// giving extra hammers innappropriately.
+-				if( isHuman() && !isProductionAutomated() )
+-				{
+-					if (isProductionProcess())
+-					{
+-						if (GC.getProcessInfo(getProductionProcess()).getProductionToCommerceModifier(COMMERCE_CULTURE) > 0)
+-						{
+-							//popOrder(0, false, true);
+-							m_bPopProductionProcess = true;
+-						}
+-					}
+-				}
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
++				} */ // K-Mod does this in a different way, to avoid an overflow bug. (And a different way to the Unofficial Patch, to avoid OOS)
+ 			}
+ 		}
+ 	}
+@@ -12051,6 +12019,14 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
+ 		if (canMaintain((ProcessTypes)iData1) || bForce)
+ 		{
+ 			bValid = true;
++			// K-Mod. For culture processes, use iData2 to flag the current culture level so that we know when to stop.
++			// We could do a similar thing with research processes and tech... but lets not.
++			if (isHuman() && GC.getProcessInfo((ProcessTypes)iData1).getProductionToCommerceModifier(COMMERCE_CULTURE) > 0)
++			{
++				FAssert(iData2 == -1);
++				iData2 = getCultureLevel();
++			}
++			// K-Mod end
+ 			if( gCityLogLevel >= 1 )
+ 				logBBAI("    City %S pushes production of process %S", getName().GetCString(), GC.getProcessInfo((ProcessTypes)iData1).getDescription() );
+ 		}
+@@ -13074,19 +13050,14 @@ void CvCity::doProduction(bool bAllowNoProduction)
+ 
+ 	if (isProductionProcess())
+ 	{
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                         denev & jdog5000     */
+-/*                                                                                              */
+-/* Bugfix, Odd behavior                                                                         */
+-/************************************************************************************************/
+-		if (m_bPopProductionProcess)
++		// K-Mod. End the culture process if our borders have expanded.
++		// (This function is called after "doResearch" etc.)
++		const OrderData& order = headOrderQueueNode()->m_data;
++		if (order.iData2 > 0 && GC.getProcessInfo((ProcessTypes)order.iData1).getProductionToCommerceModifier(COMMERCE_CULTURE) > 0 && getCultureLevel() > order.iData2)
+ 		{
+ 			popOrder(0, false, true);
+-			m_bPopProductionProcess = false;
+ 		}
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
++		// K-Mod end
+ 		return;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index cb4607592..fdf80d003 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1177,15 +1177,6 @@ protected:
+ 	bool m_bInfoDirty;
+ 	bool m_bLayoutDirty;
+ 	bool m_bPlundered;
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       12/07/09                         denev & jdog5000     */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-	bool m_bPopProductionProcess;
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
+ 
+ 	PlayerTypes m_eOwner;
+ 	PlayerTypes m_ePreviousOwner;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6428

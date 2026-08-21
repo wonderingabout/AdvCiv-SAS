@@ -1,0 +1,61 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3565
+# Commit: 4e4fcef932071b62ac73a63c835ae57bde29ad12
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9ea6e3aca02b051a9ca0f0c74a73694e55fed2b2
+# Title: Remove unused import from some map scripts
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	PrivateMaps/Hemispheres.py
+0	1	PrivateMaps/Mixed_Continents.py
+0	1	PrivateMaps/not_too_Big_or_Small.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Hemispheres.py b/PrivateMaps/Hemispheres.py
+index 4c0f758b3..d24501ec6 100644
+--- a/PrivateMaps/Hemispheres.py
++++ b/PrivateMaps/Hemispheres.py
+@@ -12,7 +12,6 @@
+ from CvPythonExtensions import *
+ import CvUtil
+ import CvMapGeneratorUtil
+-from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+
+diff --git a/PrivateMaps/Mixed_Continents.py b/PrivateMaps/Mixed_Continents.py
+index 0339c5ea1..d3c6f620b 100644
+--- a/PrivateMaps/Mixed_Continents.py
++++ b/PrivateMaps/Mixed_Continents.py
+@@ -35,7 +35,6 @@
+ from CvPythonExtensions import *
+ import CvUtil
+ import CvMapGeneratorUtil
+-from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+
+diff --git a/PrivateMaps/not_too_Big_or_Small.py b/PrivateMaps/not_too_Big_or_Small.py
+index 62f6b4e32..1bbf5e4b6 100644
+--- a/PrivateMaps/not_too_Big_or_Small.py
++++ b/PrivateMaps/not_too_Big_or_Small.py
+@@ -5,7 +5,6 @@
+ from CvPythonExtensions import *
+ import CvUtil
+ import CvMapGeneratorUtil
+-from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1269

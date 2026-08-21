@@ -1,0 +1,46 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2637
+# Commit: 9661bf97df10247b2903d767ba3d4e0f8791b943
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4ba820eb7673d8c1319080d5c9b6e760cfe006d6
+# Title: Ignore human vassal status when show Demographics
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	3	Assets/Python/Screens/CvInfoScreen.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index fbdcada62..a51e3212b 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -1568,9 +1568,14 @@ class CvInfoScreen:
+ 
+ 				#iNumActivePlayers += 1 # advc.077: Replaced below
+ 				pCurrPlayer = gc.getPlayer(iPlayerLoop)
+-				# <advc.077> Exclude civs that aren't rivals of the active player
+-				if iPlayerLoop != self.iActivePlayer and gc.getTeam(pCurrPlayer.getTeam()).getMasterTeam() == self.pActiveTeam.getMasterTeam():
+-					continue
++				# <advc.077> Exclude players that aren't rivals of the active player
++				if iPlayerLoop != self.iActivePlayer:
++					pCurrTeam = gc.getTeam(pCurrPlayer.getTeam())
++					if pCurrTeam.getID() == self.iActiveTeam:
++						continue
++					# If the active player is a vassal, then it'll probably want to break free. Therefore treat its master and other vassals of that master like rivals.
++					if not self.pActiveTeam.isAVassal() and pCurrTeam.getMasterTeam() == self.pActiveTeam.getMasterTeam():
++						continue
+ 				# </advc.077>
+ 				
+ 				#iValue = pCurrPlayer.calculateTotalCommerce()
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1167

@@ -1,0 +1,134 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3606
+# Commit: 33cb0a9d8a43af6b400411aab8fed673e7e5822c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 80a3843f486f07e1aee4c8d4a71999de1d735c44
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	10	CvGameCoreDLL/CvGame.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+4	3	CvGameCoreDLL/CvPlayerAI.h
+2	2	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 152cb6762..72be32344 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -3039,11 +3039,12 @@ void CvGame::update()
+ 
+ void CvGame::updateScore(bool bForce)
+ {
++	PROFILE_FUNC(); // advc.test (Just a little worried about the attitude updates)
+ 	if(!isScoreDirty() && !bForce)
+ 		return;
+ 	setScoreDirty(false);
+ 
+-	bool abPlayerScored[MAX_CIV_PLAYERS] = { false };
++	bool abPlayerScored[MAX_CIV_PLAYERS] = {};
+ 	std::vector<PlayerTypes> aeUpdateAttitude; // advc.001
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+@@ -3094,7 +3095,7 @@ void CvGame::updateScore(bool bForce)
+ 		}
+ 	} // </advc.001>
+ 
+-	bool abTeamScored[MAX_CIV_TEAMS] = { false };
++	bool abTeamScored[MAX_CIV_TEAMS] = {};
+ 	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 	{
+ 		int iBestScore = MIN_INT;
+@@ -5847,14 +5848,11 @@ void CvGame::setPlayerScore(PlayerTypes ePlayer, int iScore)
+ {
+ 	FAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+-
+-	if (getPlayerScore(ePlayer) != iScore)
+-	{
+-		m_aiPlayerScore[ePlayer] = iScore;
+-		FAssert(getPlayerScore(ePlayer) >= 0);
+-
+-		gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+-	}
++	if (getPlayerScore(ePlayer) == iScore)
++		return;
++	FAssert(iScore >= 0);
++	m_aiPlayerScore[ePlayer] = iScore;
++	gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 297912e95..e54e5219d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8311,12 +8311,12 @@ int CvPlayerAI::AI_getRankDifferenceAttitude(PlayerTypes ePlayer) const
+ 		return 0;
+ 	}
+ 	// Don't like them if we're still in the first era
+-	if(iResult > 0 && (getCurrentEra() <= kGame.getStartEra() ||
++	if (iResult > 0 && (getCurrentEra() <= kGame.getStartEra() ||
+ 		GET_PLAYER(ePlayer).AI_atVictoryStage3()))
+ 	{
+ 		return 0;
+ 	}
+-	if(iResult < 0 && AI_atVictoryStage3() && !GET_PLAYER(ePlayer).AI_atVictoryStage4())
++	if (iResult < 0 && AI_atVictoryStage3() && !GET_PLAYER(ePlayer).AI_atVictoryStage4())
+ 		return 0;
+ 	return iResult;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index a3b5fcef6..d49673f5a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -840,9 +840,10 @@ protected:
+ 	}
+ 	bool AI_proposeJointWar(PlayerTypes eHuman);
+ 	void AI_proposeWarTrade(PlayerTypes eAIPlayer); // </advc>
+-	// advc.130t:
+-	int AI_rivalPactAttitude(PlayerTypes ePlayer, bool bVassalPacts) const;
+-	scaled AI_expansionistHate(PlayerTypes ePlayer) const;
++
++	int AI_rivalPactAttitude(PlayerTypes ePlayer, bool bVassalPacts) const; // advc.130t
++	scaled AI_expansionistHate(PlayerTypes ePlayer) const; //advc.130w
++
+ 	bool AI_canBeAttackedBy(CvUnit const& u) const; // advc.315
+ 
+ 	// <advc.130p>
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 6be049749..d4da60693 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6940,7 +6940,7 @@ void CvPlot::doCultureDecay()
+ 	FOR_EACH_ENUM(Player)
+ 	{
+ 		int iCulture = getCulture(eLoopPlayer);
+-		if(iCulture <= 0)
++		if (iCulture <= 0)
+ 			continue;
+ 		int iDecayPerMill = iBaseDecayPerMill;
+ 		if(bInAnyRadius && !abInRadius[eLoopPlayer] &&
+@@ -6952,7 +6952,7 @@ void CvPlot::doCultureDecay()
+ 				rExclDecay += iExclDecay;
+ 			if(iMinDist <= 1)
+ 				rExclDecay += iExclDecay;
+-			if(iCulture < iMaxRadiusCulture)
++			if (iCulture < iMaxRadiusCulture)
+ 			{
+ 				// Gradually throttle decay when approaching the threshold
+ 				rExclDecay.mulDiv(iCulture, iMaxRadiusCulture);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3722

@@ -1,0 +1,118 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3252
+# Commit: cfc5ff9088ff7f8f9bbbe2e4a7d2d511ed4b1dfa
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7c7a919be92be803e36aef59e206d505521ce9b9
+# Title: Some misc. refactoring, comments.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	CvGameCoreDLL/CvPlayer.cpp
+8	7	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvPlot.cpp
+2	4	CvGameCoreDLL/Shelf.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c8868052e..7e57182d5 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -19691,7 +19691,9 @@ void CvPlayer::killAll(ButtonPopupTypes ePopupType, int iData1)
+ 		return;
+ 	}
+ 	/*	Not sure about this. Perhaps it should essentially be 0, but can be 1
+-		due to the EXE/DLL/async call sequence, or something. */
++		due to the EXE/DLL/async call sequence, or something.
++		Seems that 2 can also be correct when receiving 2 techs in 1 trade that
++		each enable a new civic. */
+ 	FAssert(m_iButtonPopupsRelaunching <= 1);
+ 	CvPopupQueue relaunchDisplayed;
+ 	CvPopupQueue relaunchQueued;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index bafc2b455..7eae4e3cc 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8230,12 +8230,12 @@ int CvPlayerAI::AI_getRivalTradeAttitude(PlayerTypes ePlayer) const
+ 		decay happens explicitly in AI_doCounter.) */
+ }
+ 
+-int CvPlayerAI::AI_getBonusTradeCounter(TeamTypes eTo) const {
+-
+-	int r = 0;
++int CvPlayerAI::AI_getBonusTradeCounter(TeamTypes eTo) const
++{
++	int iR = 0;
+ 	for (MemberIter it(eTo); it.hasNext(); ++it)
+-		r += AI_getBonusTradeCounter(it->getID());
+-	return r;
++		iR += AI_getBonusTradeCounter(it->getID());
++	return iR;
+ } // </advc.130p>
+ 
+ 
+@@ -18805,8 +18805,9 @@ void CvPlayerAI::AI_doCounter()
+ 							kPlayer.getBonusExport(eLoopBonus);
+ 					if (iAvail > 1)
+ 						rExportable += std::min(iAvail - 1, 3);
+-				} /* Mean of capBonuses and a multiple of exportable, but
+-					 no more than 1.33 times capBonuses. */
++				}
++				/*	Weighted mean of rCapitalBonuses and a multiple of rExportable,
++					but no more than 5/3 times rCapitalBonuses. */
+ 				scaled rWeight1 = (rCapitalBonuses + std::min(rCapitalBonuses * fixp(5/3.),
+ 						fixp(2.4) * std::max(rBonusVal, rExportable))) / 2;
+ 				scaled rWeight2(400, iAttitudeDiv);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index d6ce17131..d68cf8fbf 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2243,9 +2243,9 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible)
+ 		return false;
+ 	{
+ 		bool bPyOverride=false;
+-		bool r = GC.getPythonCaller()->canBuild(*this, eBuild, ePlayer, bPyOverride);
++		bool bCanBuild = GC.getPythonCaller()->canBuild(*this, eBuild, ePlayer, bPyOverride);
+ 		if (bPyOverride)
+-			return r;
++			return bCanBuild;
+ 	}
+ 	bool bValid = false;
+ 	ImprovementTypes const eImprovement = GC.getInfo(eBuild).getImprovement();
+
+diff --git a/CvGameCoreDLL/Shelf.cpp b/CvGameCoreDLL/Shelf.cpp
+index afe960ff0..0e940bae6 100644
+--- a/CvGameCoreDLL/Shelf.cpp
++++ b/CvGameCoreDLL/Shelf.cpp
+@@ -105,16 +105,14 @@ CvUnit* Shelf::randomBarbarianTransport() const
+ 	for (size_t i = 0; i < m_apPlots.size(); i++)
+ 	{
+ 		CvPlot const& p = *m_apPlots[i];
+-		if (p.isVisibleToCivTeam())
+-			continue;
+ 		FOR_EACH_UNIT_VAR_IN(pTransport, p)
+ 		{
+-			if (pTransport->getOwner() != BARBARIAN_PLAYER)
++			if (!pTransport->isBarbarian())
+ 				break;
+ 			// Load at most 2
+ 			int iCargo = std::min(2, GC.getInfo(pTransport->getUnitType()).getCargoSpace());
+ 			iCargo -= std::max(0, pTransport->getCargo());
+-			if (iCargo > 0)
++			if (iCargo > 0 && !p.isVisibleToCivTeam())
+ 				apValid.push_back(pTransport);
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3351

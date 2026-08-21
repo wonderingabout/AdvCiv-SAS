@@ -87,8 +87,7 @@ void RFChapterScore::atChapterStart(RFChapter const& rfc) {
 	initialRivals = rank_rivals.second;
 }
 
-std::pair<int,int> RFChapterScore::computeRank(bool storeCivScores,
-		bool ignoreVictStage) {
+std::pair<int,int> RFChapterScore::computeRank(bool storeCivScores, bool ignoreVictStage) {
 
 	if(chapter == NULL) {
 		FAssert(chapter != NULL);

@@ -1,0 +1,178 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2060
+# Commit: 3b372623ac437791e6e2869eb833855f4d7d41bd
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4bfcd016a463bf085f4ff3d8beeb90edeedca866
+# Title: Make some AdvCiv/K-Mod XML tags optional
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	5	Assets/XML/Terrain/CIV4TerrainSchema.xml
+9	9	Assets/XML/Units/CIV4UnitSchema.xml
+4	3	CvGameCoreDLL/CvInfo_Terrain.cpp
+3	3	CvGameCoreDLL/CvInfo_Unit.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Terrain/CIV4TerrainSchema.xml b/Assets/XML/Terrain/CIV4TerrainSchema.xml
+index f805f67cb..287bcc285 100644
+--- a/Assets/XML/Terrain/CIV4TerrainSchema.xml
++++ b/Assets/XML/Terrain/CIV4TerrainSchema.xml
+@@ -154,20 +154,21 @@
+ 		<element type="iSeeThrough"/>
+ 		<element type="iHealthPercent"/>
+ 		<element type="iDefense"/>
+-		<!-- advc.012 -->
+-		<element type="iRivalDefense"/>
++		<!-- advc.012 (set to 0 by default in the DLL) -->
++		<element type="iRivalDefense" minOccurs="0"/>
+ 		<element type="iAppearance"/>
+ 		<element type="iDisappearance"/>
+ 		<element type="iGrowth"/>
+ 		<element type="iTurnDamage"/>
+-		<element type="iWarmingDefense"/>
++		<!-- advc: Now optional; set to 0 by default in the DLL. -->
++		<element type="iWarmingDefense" minOccurs="0"/>
+ 		<element type="bNoCoast"/>
+ 		<element type="bNoRiver"/>
+ 		<element type="bNoAdjacent"/>
+ 		<element type="bRequiresFlatlands"/>
+ 		<element type="bRequiresRiver"/>
+-		<!-- advc.129b -->
+-		<element type="bRequiresRiverSide"/>
++		<!-- advc.129b (set to false by default in the DLL) -->
++		<element type="bRequiresRiverSide" minOccurs="0"/>
+ 		<element type="bAddsFreshWater"/>
+ 		<element type="bImpassable"/>
+ 		<element type="bNoCity"/>
+
+diff --git a/Assets/XML/Units/CIV4UnitSchema.xml b/Assets/XML/Units/CIV4UnitSchema.xml
+index 0bef62df5..9f3ee381d 100644
+--- a/Assets/XML/Units/CIV4UnitSchema.xml
++++ b/Assets/XML/Units/CIV4UnitSchema.xml
+@@ -547,10 +547,10 @@
+ 		<element type="bFood"/>
+ 		<element type="bNoBadGoodies"/>
+ 		<element type="bOnlyDefensive"/>
+-		<!-- advc.315a -->
+-		<element type="bOnlyAttackAnimals"/>
+-		<!-- advc.315b -->
+-		<element type="bOnlyAttackBarbarians"/>
++		<!-- advc.315a (set to false by default in the DLL) -->
++		<element type="bOnlyAttackAnimals" minOccurs="0"/>
++		<!-- advc.315b (set to false by default in the DLL) -->
++		<element type="bOnlyAttackBarbarians" minOccurs="0"/>
+ 		<element type="bNoCapture"/>
+ 		<element type="bQuickCombat"/>
+ 		<element type="bRivalTerritory"/>
+@@ -655,8 +655,8 @@
+ 		<element type="iCityAttack"/>
+ 		<element type="iCityDefense"/>
+ 		<element type="iAnimalCombat"/>
+-		<!-- advc.315c -->
+-		<element type="iBarbarianCombat"/>
++		<!-- advc.315c(set to 0 by default in the DLL) -->
++		<element type="iBarbarianCombat" minOccurs="0"/>
+ 		<element type="iHillsAttack"/>
+ 		<element type="iHillsDefense"/>
+ 		<element type="TerrainNatives"/>
+@@ -677,8 +677,8 @@
+ 		<element type="DomainCargo"/>
+ 		<element type="iCargo"/>
+ 		<element type="iConscription"/>
+-		<!-- advc.101: No longer used, except that 0 still means that a unit
+-			 can't suppress revolts. -->
++		<!-- advc.101 (note): No longer used, except that 0 still means that
++			 a unit can't suppress revolts. -->
+ 		<element type="iCultureGarrison"/>
+ 		<element type="iExtraCost"/>
+ 		<element type="iAsset"/>
+@@ -871,7 +871,7 @@
+ 		<element type="TechPrereq"/>
+ 		<element type="StateReligionPrereq"/>
+ 		<element type="bLeader"/>
+-		<!-- advc.164 -->
++		<!-- advc.164: -->
+ 		<element type="iBlitz"/>
+ 		<element type="bAmphib"/>
+ 		<element type="bRiver"/>
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.cpp b/CvGameCoreDLL/CvInfo_Terrain.cpp
+index 21adb2d8c..bb1d787a7 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.cpp
++++ b/CvGameCoreDLL/CvInfo_Terrain.cpp
+@@ -364,10 +364,11 @@ bool CvFeatureInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iHealthPercent, "iHealthPercent");
+ 	pXML->GetChildXmlValByName(&m_iDefenseModifier, "iDefense");
+ 	// advc.012:
+-	pXML->GetChildXmlValByName(&m_iRivalDefenseModifier, "iRivalDefense");
++	pXML->GetChildXmlValByName(&m_iRivalDefenseModifier, "iRivalDefense", 0);
+ 	pXML->GetChildXmlValByName(&m_iAdvancedStartRemoveCost, "iAdvancedStartRemoveCost");
+ 	pXML->GetChildXmlValByName(&m_iTurnDamage, "iTurnDamage");
+-	pXML->GetChildXmlValByName(&m_iWarmingDefense, "iWarmingDefense"); //GWMod new xml field M.A.
++	pXML->GetChildXmlValByName(&m_iWarmingDefense, "iWarmingDefense", // GWMod new xml field M.A.
++			0); // advc: Default value; now optional.
+ 	pXML->GetChildXmlValByName(&m_iAppearanceProbability, "iAppearance");
+ 	pXML->GetChildXmlValByName(&m_iDisappearanceProbability, "iDisappearance");
+ 	pXML->GetChildXmlValByName(&m_iGrowthProbability, "iGrowth");
+@@ -377,7 +378,7 @@ bool CvFeatureInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_bRequiresFlatlands, "bRequiresFlatlands");
+ 	pXML->GetChildXmlValByName(&m_bRequiresRiver, "bRequiresRiver");
+ 	// advc.129b:
+-	pXML->GetChildXmlValByName(&m_bRequiresRiverSide, "bRequiresRiverSide");
++	pXML->GetChildXmlValByName(&m_bRequiresRiverSide, "bRequiresRiverSide", false);
+ 	pXML->GetChildXmlValByName(&m_bAddsFreshWater, "bAddsFreshWater");
+ 	pXML->GetChildXmlValByName(&m_bImpassable, "bImpassable");
+ 	pXML->GetChildXmlValByName(&m_bNoCity, "bNoCity");
+
+diff --git a/CvGameCoreDLL/CvInfo_Unit.cpp b/CvGameCoreDLL/CvInfo_Unit.cpp
+index f5f95ccab..46b0359f3 100644
+--- a/CvGameCoreDLL/CvInfo_Unit.cpp
++++ b/CvGameCoreDLL/CvInfo_Unit.cpp
+@@ -1234,9 +1234,9 @@ bool CvUnitInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_bNoBadGoodies, "bNoBadGoodies");
+ 	pXML->GetChildXmlValByName(&m_bOnlyDefensive, "bOnlyDefensive");
+ 	// advc.315a:
+-	pXML->GetChildXmlValByName(&m_bOnlyAttackAnimals, "bOnlyAttackAnimals");
++	pXML->GetChildXmlValByName(&m_bOnlyAttackAnimals, "bOnlyAttackAnimals", false);
+ 	// advc.315b:
+-	pXML->GetChildXmlValByName(&m_bOnlyAttackBarbarians, "bOnlyAttackBarbarians");
++	pXML->GetChildXmlValByName(&m_bOnlyAttackBarbarians, "bOnlyAttackBarbarians", false);
+ 	pXML->GetChildXmlValByName(&m_bNoCapture, "bNoCapture");
+ 	pXML->GetChildXmlValByName(&m_bQuickCombat, "bQuickCombat");
+ 	pXML->GetChildXmlValByName(&m_bRivalTerritory, "bRivalTerritory");
+@@ -1473,7 +1473,7 @@ bool CvUnitInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iCityDefenseModifier, "iCityDefense");
+ 	pXML->GetChildXmlValByName(&m_iAnimalCombatModifier, "iAnimalCombat");
+ 	// advc.315c:
+-	pXML->GetChildXmlValByName(&m_iBarbarianCombatModifier, "iBarbarianCombat");
++	pXML->GetChildXmlValByName(&m_iBarbarianCombatModifier, "iBarbarianCombat", 0);
+ 	pXML->GetChildXmlValByName(&m_iHillsAttackModifier, "iHillsAttack");
+ 	pXML->GetChildXmlValByName(&m_iHillsDefenseModifier, "iHillsDefense");
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a2b78f5a9..7db743a6d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -25516,7 +25516,8 @@ int CvPlayerAI::AI_calculateUnitAIViability(UnitAITypes eUnitAI, DomainTypes eDo
+ 	FOR_EACH_ENUM(UnitClass)
+ 	{
+ 		UnitTypes eLoopUnit = GC.getInfo(eLoopUnitClass).getDefaultUnit();
+-		const CvUnitInfo& kUnitInfo = GC.getInfo(eLoopUnit);
++		// UNOFFICIAL_PATCH, 01/15/09, jdog5000 (Bugfix): was GC.getInfo(eLoopUnitClass)
++		CvUnitInfo const& kUnitInfo = GC.getInfo(eLoopUnit);
+ 		if (kUnitInfo.getDomainType() == eDomain)
+ 		{
+ 			TechTypes eTech = (TechTypes)kUnitInfo.getPrereqAndTech();
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6964

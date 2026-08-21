@@ -1,0 +1,141 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 775
+# Commit: 16c872779e2e5f65cd0427781dd89fa97e68f890
+# History segment: K-Mod history
+# Parent used for diff: 58f07a7ca679b884774766c07f178eedcec8f8df
+# Title: Moved hasSpaceshipArrived from CvPlayer to CvTeam.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	11	CvGameCoreDLL/CvPlayer.cpp
+18	1	CvGameCoreDLL/CvTeam.cpp
+3	2	CvGameCoreDLL/CvTeam.h
+1	0	CvGameCoreDLL/CyTeam.h
+1	0	CvGameCoreDLL/CyTeamInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 93acaffb2..cd7a01d7e 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -23209,17 +23209,8 @@ const CvArtInfoUnit* CvPlayer::getUnitArtInfo(UnitTypes eUnit, int iMeshGroup) c
+ 	return GC.getUnitInfo(eUnit).getArtInfo(iMeshGroup, eEra, eStyle);
+ }
+ 
++// K-Mod. I've moved the original code to a new function: CvTeam::hasSpaceshipArrived
+ bool CvPlayer::hasSpaceshipArrived() const
+ {
+-	VictoryTypes eSpaceVictory = GC.getGameINLINE().getSpaceVictory();
+-	if (eSpaceVictory != NO_VICTORY)
+-	{
+-		int iVictoryCountdown = GET_TEAM(getTeam()).getVictoryCountdown(eSpaceVictory);
+-		if (((GC.getGameINLINE().getGameState() == GAMESTATE_EXTENDED) && (iVictoryCountdown > 0)) || (iVictoryCountdown == 0))
+-		{
+-			return true;
+-		}
+-	}
+-
+-	return false;
++	return GET_TEAM(getTeam()).hasSpaceshipArrived();
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 07b0d3959..79c920130 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2676,7 +2676,7 @@ int CvTeam::getHasCorporationCount(CorporationTypes eCorporation) const
+ }
+ 
+ 
+-int CvTeam::countTotalCulture()
++int CvTeam::countTotalCulture() const
+ {
+ 	int iCount;
+ 	int iI;
+@@ -5252,6 +5252,23 @@ void CvTeam::resetVictoryProgress()
+ 	}
+ }
+ 
++// K-Mod, code mvoed from CvPlayer::hasSpaceshipArrived. (it makes more sense to be here)
++bool CvTeam::hasSpaceshipArrived() const
++{
++	VictoryTypes eSpaceVictory = GC.getGameINLINE().getSpaceVictory();
++	if (eSpaceVictory != NO_VICTORY)
++	{
++		int iVictoryCountdown = getVictoryCountdown(eSpaceVictory);
++		if (iVictoryCountdown == 0 || (iVictoryCountdown > 0 && GC.getGameINLINE().getGameState() == GAMESTATE_EXTENDED))
++		{
++			return true;
++		}
++	}
++
++	return false;
++}
++// K-Mod end
++
+ bool CvTeam::isParent(TeamTypes eTeam) const
+ {
+ 	FAssert(eTeam != NO_TEAM);
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 8e0f321eb..3305f18a1 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -105,7 +105,7 @@ public:
+ 	int getHasReligionCount(ReligionTypes eReligion) const;															// Exposed to Python
+ 	int getHasCorporationCount(CorporationTypes eCorporation) const;															// Exposed to Python
+ 
+-	int countTotalCulture();																											// Exposed to Python
++	int countTotalCulture() const; // Exposed to Python
+ 
+ 	int countNumUnitsByArea(CvArea* pArea) const;																				// Exposed to Python
+ 	int countNumCitiesByArea(CvArea* pArea) const;																			// Exposed to Python
+@@ -344,8 +344,9 @@ public:
+ 	void setCanLaunch(VictoryTypes eVictory, bool bCan);
+ 	int getLaunchSuccessRate(VictoryTypes eVictory) const;		// Exposed to Python
+ 	void resetVictoryProgress();
++	bool hasSpaceshipArrived() const; // K-Mod, Exposed to Python
+ 
+-	bool isParent(TeamTypes eTeam) const;		// Exposed to Python 
++	bool isParent(TeamTypes eTeam) const;
+ 
+ 	bool isHasTech(TechTypes eIndex) const;																																			// Exposed to Python
+ 	void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce);	// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CyTeam.h b/CvGameCoreDLL/CyTeam.h
+index e460531f3..135dfb8ca 100644
+--- a/CvGameCoreDLL/CyTeam.h
++++ b/CvGameCoreDLL/CyTeam.h
+@@ -201,6 +201,7 @@ public:
+ 	int getVictoryDelay(int /*VictoryTypes*/ eVictory);
+ 	bool canLaunch(int /*VictoryTypes*/ eVictory);
+ 	int getLaunchSuccessRate(int /*VictoryTypes*/ eVictory);
++	bool hasSpaceshipArrived() { return (m_pTeam ? m_pTeam->hasSpaceshipArrived() : false); } // K-Mod
+ 
+ 	int getEspionagePointsAgainstTeam(int /*TeamTypes*/ eIndex);
+ 	void setEspionagePointsAgainstTeam(int /*TeamTypes*/ eIndex, int iValue);
+
+diff --git a/CvGameCoreDLL/CyTeamInterface.cpp b/CvGameCoreDLL/CyTeamInterface.cpp
+index a97b7a318..635875cb6 100644
+--- a/CvGameCoreDLL/CyTeamInterface.cpp
++++ b/CvGameCoreDLL/CyTeamInterface.cpp
+@@ -194,6 +194,7 @@ void CyTeamPythonInterface()
+ 		.def("getVictoryDelay", &CyTeam::getVictoryDelay, "int (int /*VictoryTypes*/)")
+ 		.def("canLaunch", &CyTeam::canLaunch, "bool ()")
+ 		.def("getLaunchSuccessRate", &CyTeam::getLaunchSuccessRate, "int (int /*VictoryTypes*/)")
++		.def("hasSpaceshipArrived", &CyTeam::hasSpaceshipArrived, "bool ()") // K-Mod
+ 
+ 		.def("getEspionagePointsAgainstTeam", &CyTeam::getEspionagePointsAgainstTeam, "int (TeamTypes eIndex)")
+ 		.def("setEspionagePointsAgainstTeam", &CyTeam::setEspionagePointsAgainstTeam, "void (TeamTypes eIndex, int iValue)")
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=4533

@@ -1,0 +1,478 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 619
+# Commit: 3f2a9d600229c77a091cef9768d41ee5037b29c0
+# History segment: K-Mod history
+# Parent used for diff: 700a4d3475a777f4209b01114a0d46cdb80a6bd3
+# Title: Fixed some bugs in the border danger cache from the BBAI mod. These bugs caused the AI to think certain plots were in danger, indefinitely, regardless of whe...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	9	CvGameCoreDLL/CvDefines.h
+3	3	CvGameCoreDLL/CvMap.cpp
+1	1	CvGameCoreDLL/CvMap.h
+47	35	CvGameCoreDLL/CvPlayerAI.cpp
+47	44	CvGameCoreDLL/CvPlot.cpp
+8	8	CvGameCoreDLL/CvPlot.h
+4	4	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDefines.h b/CvGameCoreDLL/CvDefines.h
+index db672d341..48d44f0bc 100644
+--- a/CvGameCoreDLL/CvDefines.h
++++ b/CvGameCoreDLL/CvDefines.h
+@@ -144,15 +144,7 @@
+ #define PYEventModule					"CvEventInterface"
+ #define PYRandomEventModule					"CvRandomEventInterface"
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/21/09                                jdog5000      */
+-/*                                                                                              */
+-/* Efficiency                                                                                   */
+-/************************************************************************************************/
+-// Plot danger cache
+ #define DANGER_RANGE						(4)
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++#define BORDER_DANGER_RANGE					(2) // K-Mod
+ 
+ #endif	// CVDEFINES_H
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 6e0c240be..3d0307a9f 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -1263,13 +1263,13 @@ void CvMap::invalidateIsActivePlayerNoDangerCache()
+ 
+ 		if( pLoopPlot != NULL )
+ 		{
+-			pLoopPlot->setIsActivePlayerNoDangerCache(false);
++			pLoopPlot->setActivePlayerNoDangerCache(false);
+ 		}
+ 	}
+ }
+ 
+ 
+-void CvMap::invalidateIsTeamBorderCache(TeamTypes eTeam)
++void CvMap::invalidateBorderDangerCache(TeamTypes eTeam)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -1282,7 +1282,7 @@ void CvMap::invalidateIsTeamBorderCache(TeamTypes eTeam)
+ 
+ 		if( pLoopPlot != NULL )
+ 		{
+-			pLoopPlot->setIsTeamBorderCache(eTeam, false);
++			pLoopPlot->setBorderDangerCache(eTeam, false);
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 024d3ab14..732af5f77 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -268,7 +268,7 @@ public:
+ /************************************************************************************************/
+ 	// Plot danger cache
+ 	void invalidateIsActivePlayerNoDangerCache();
+-	void invalidateIsTeamBorderCache(TeamTypes eTeam);
++	void invalidateBorderDangerCache(TeamTypes eTeam);
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0ac552fe0..cff6d5598 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -25,26 +25,7 @@
+ #include "FAStarNode.h"
+ #include "CvEventReporter.h"
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+ #include "BetterBTSAI.h"
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/21/09                                jdog5000      */
+-/*                                                                                              */
+-/* Efficiency                                                                                   */
+-/************************************************************************************************/
+-// Plot danger cache
+-//#define DANGER_RANGE						(4)
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ #define GREATER_FOUND_RANGE			(5)
+ #define CIVIC_CHANGE_DELAY			(20) // was 25
+@@ -4077,6 +4058,10 @@ bool CvPlayerAI::AI_isCommercePlot(CvPlot* pPlot) const
+ // The border cache is done by team and works for all game types.  The border cache is reset for all
+ // plots when war or peace are declared, and reset over a limited range whenever a ownership over a plot
+ // changes.
++
++// K-Mod. The cache also needs to be reset when routes are destroyed, because distance 2 border danger only counts when there is a route.
++// (Actually, the cache doesn't need to be cleared when war is declared; because false negatives have no impact with this cache.)
++// (In general, I think this cache is a poorly planned idea. It's prone to subtle bugs if there are rule changes in seemingly independant parts of the games.)
+ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves) const
+ {
+ 	PROFILE_FUNC();
+@@ -4088,7 +4073,7 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves)
+ 
+ 	if( bTestMoves && isTurnActive() )
+ 	{
+-		if( (iRange <= DANGER_RANGE) && pPlot->isActivePlayerNoDangerCache() )
++		if( (iRange <= DANGER_RANGE) && pPlot->getActivePlayerNoDangerCache() )
+ 		{
+ 			return false;
+ 		}
+@@ -4096,14 +4081,15 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves)
+ 
+ 	TeamTypes eTeam = getTeam();
+ 	//bool bCheckBorder = (!isHuman() && !pPlot->isCity());
+-	// K-Mod. I don't want auto-workers on the frontline. Cities need to be excluded for some legacy AI code.
++	// K-Mod. I don't want auto-workers on the frontline. Cities need to be excluded for some legacy AI code. (cf. condition in AI_getPlotDanger)
+ 	bool bCheckBorder = !pPlot->isCity() && (!isHuman() || pPlot->plotCount(PUF_canDefend, -1, -1, getID(), NO_TEAM) == 0);
+ 	// K-Mod end
+ 
+ 	
+ 	if( bCheckBorder )
+ 	{
+-		if( (iRange >= DANGER_RANGE) && pPlot->isTeamBorderCache(eTeam) )
++		//if( (iRange >= DANGER_RANGE) && pPlot->isTeamBorderCache(eTeam) )
++		if (iRange >= BORDER_DANGER_RANGE && pPlot->getBorderDangerCache(eTeam)) // K-Mod. border danger doesn't count anything further than range 2.
+ 		{
+ 			return true;
+ 		}
+@@ -4132,23 +4118,48 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves)
+ 					{
+ 						if (atWar(pLoopPlot->getTeam(), eTeam))
+ 						{
+-							// Border cache is reversible, set for both team and enemy
++							/* original bbai code
++							// Border cache is reversible, set for both team and enemy.
+ 							if (iDistance == 1)
+ 							{
+-								pPlot->setIsTeamBorderCache(eTeam, true);
+-								pPlot->setIsTeamBorderCache(pLoopPlot->getTeam(), true);
+-								pLoopPlot->setIsTeamBorderCache(eTeam, true);
+-								pLoopPlot->setIsTeamBorderCache(pLoopPlot->getTeam(), true);
++								pPlot->setBorderDangerCache(eTeam, true);
++								pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++								pLoopPlot->setBorderDangerCache(eTeam, true);
++								pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+ 								return true;
+ 							}
+ 							else if ((iDistance == 2) && (pLoopPlot->isRoute()))
+ 							{
+-								pPlot->setIsTeamBorderCache(eTeam, true);
+-								pPlot->setIsTeamBorderCache(pLoopPlot->getTeam(), true);
+-								pLoopPlot->setIsTeamBorderCache(eTeam, true);
+-								pLoopPlot->setIsTeamBorderCache(pLoopPlot->getTeam(), true);
++								pPlot->setBorderDangerCache(eTeam, true);
++								pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++								pLoopPlot->setBorderDangerCache(eTeam, true);
++								pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++								return true;
++							} */
++							// K-Mod. reversible my arse.
++							if (iDistance == 1)
++							{
++								pPlot->setBorderDangerCache(eTeam, true);
++								pLoopPlot->setBorderDangerCache(eTeam, true); // pLoopPlot is in enemy territory, so this is fine.
++								if (pPlot->getTeam() == eTeam) // only set the cache for the pLoopPlot team if pPlot is owned by us! (ie. owned by their enemy)
++								{
++									pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++									pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++								}
++								return true;
++							}
++							else if (iDistance == 2 && pLoopPlot->isRoute())
++							{
++								pPlot->setBorderDangerCache(eTeam, true);
++								pLoopPlot->setBorderDangerCache(eTeam, true); // owned by our enemy
++								if (pPlot->isRoute() && pPlot->getTeam() == eTeam)
++								{
++									pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++									pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
++								}
+ 								return true;
+ 							}
++							// K-Mod end
+ 						}
+ 					}
+ 
+@@ -4211,7 +4222,7 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves)
+ 		{
+ 			if( !(GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)) && (GC.getGameINLINE().getNumGameTurnActive() == 1) )
+ 			{
+-				pPlot->setIsActivePlayerNoDangerCache(true);
++				pPlot->setActivePlayerNoDangerCache(true);
+ 			}
+ 		}
+ 	}
+@@ -4245,7 +4256,7 @@ int CvPlayerAI::AI_getPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves) con
+ 
+ 	if( bTestMoves && isTurnActive() )
+ 	{
+-		if( (iRange <= DANGER_RANGE) && pPlot->isActivePlayerNoDangerCache() )
++		if( (iRange <= DANGER_RANGE) && pPlot->getActivePlayerNoDangerCache() )
+ 		{
+ 			return 0;
+ 		}
+@@ -4329,9 +4340,10 @@ int CvPlayerAI::AI_getPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves) con
+ 	    {
+             iCount += iBorderDanger;
+ 	    } */
+-		// K-Mod. I don't want auto-workers on the frontline. So unless the plot is defended, or a water, count border danger for humans too.
++		// K-Mod. I don't want auto-workers on the frontline. So count border danger for humans too, unless the plot is defended.
+ 		// but on the other hand, I don't think two border tiles are really more dangerous than one border tile.
+-		if (!isHuman() || (!pPlot->isWater() && pPlot->plotCount(PUF_canDefend, -1, -1, getID(), NO_TEAM) == 0))
++		// (cf. condition used in AI_anyPlotDanger. Note that here we still count border danger in cities - because I want it for AI_cityThreat)
++		if (!isHuman() || pPlot->plotCount(PUF_canDefend, -1, -1, getID(), NO_TEAM) == 0)
+ 			iCount++;
+ 		// K-Mod end
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 8220a6b14..4652546ba 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -50,7 +50,7 @@ CvPlot::CvPlot()
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+ 	// Plot danger cache
+-	m_abIsTeamBorderCache = new bool[MAX_TEAMS];
++	m_abBorderDangerCache = new bool[MAX_TEAMS];
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -97,7 +97,7 @@ CvPlot::~CvPlot()
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+ 	// Plot danger cache
+-	SAFE_DELETE_ARRAY(m_abIsTeamBorderCache);
++	SAFE_DELETE_ARRAY(m_abBorderDangerCache);
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -235,11 +235,11 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+ 	// Plot danger cache
+-	m_bIsActivePlayerNoDangerCache = false;
++	m_bActivePlayerNoDangerCache = false;
+ 
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+-		m_abIsTeamBorderCache[iI] = false;
++		m_abBorderDangerCache[iI] = false;
+ 	}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -3151,36 +3151,39 @@ int CvPlot::calculatePathDistanceToPlot( TeamTypes eTeam, CvPlot* pTargetPlot )
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+ 	// Plot danger cache
+-bool CvPlot::isActivePlayerNoDangerCache() const
++bool CvPlot::getActivePlayerNoDangerCache() const
+ {
+-	return m_bIsActivePlayerNoDangerCache;
++	return m_bActivePlayerNoDangerCache;
+ }
+ 
+-bool CvPlot::isTeamBorderCache( TeamTypes eTeam ) const
++void CvPlot::setActivePlayerNoDangerCache( bool bNewValue )
+ {
+-	return m_abIsTeamBorderCache[eTeam];
++	m_bActivePlayerNoDangerCache = bNewValue;
+ }
+ 
+-void CvPlot::setIsActivePlayerNoDangerCache( bool bNewValue )
++// K-Mod. I've changed the purpose of this function - because this is the way it is always used...
++void CvPlot::invalidateBorderDangerCache()
+ {
+-	PROFILE_FUNC();
+-	m_bIsActivePlayerNoDangerCache = bNewValue;
+-}
+-
+-void CvPlot::setIsTeamBorderCache( TeamTypes eTeam, bool bNewValue )
+-{
+-	PROFILE_FUNC();
+-	m_abIsTeamBorderCache[eTeam] = bNewValue;
+-}
+-
+-void CvPlot::invalidateIsTeamBorderCache()
+-{
+-	PROFILE_FUNC();
+-
+-	for( int iI = 0; iI < MAX_TEAMS; iI++ )
++	/* for( int iI = 0; iI < MAX_TEAMS; iI++ )
++	{
++		m_abBorderDangerCache[iI] = false;
++	} */
++	for (int iDX = -BORDER_DANGER_RANGE; iDX <= BORDER_DANGER_RANGE; iDX++)
+ 	{
+-		m_abIsTeamBorderCache[iI] = false;
++		for (int iDY = -BORDER_DANGER_RANGE; iDY <= BORDER_DANGER_RANGE; iDY++)
++		{
++			CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++
++			if (pLoopPlot)
++			{
++				for (TeamTypes i = (TeamTypes)0; i < MAX_TEAMS; i = (TeamTypes)(i+1))
++				{
++					pLoopPlot->setBorderDangerCache(i, false);
++				}
++			}
++		}
+ 	}
++	//
+ }
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -5081,28 +5084,18 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 		}
+ 
+ 		
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/21/09                                jdog5000      */
+-/*                                                                                              */
+-/* Efficiency                                                                                   */
+-/************************************************************************************************/
+-		// Plot danger cache
+-		CvPlot* pLoopPlot;
+-		for (int iDX = -(DANGER_RANGE); iDX <= DANGER_RANGE; iDX++)
++		// BBAI / K-Mod. Plot danger cache.
++		for (int iDX = -BORDER_DANGER_RANGE; iDX <= BORDER_DANGER_RANGE; iDX++)
+ 		{
+-			for (int iDY = -(DANGER_RANGE); iDY <= (DANGER_RANGE); iDY++)
++			for (int iDY = -BORDER_DANGER_RANGE; iDY <= BORDER_DANGER_RANGE; iDY++)
+ 			{
+-				pLoopPlot	= plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
++				CvPlot* pLoopPlot = plotXY(getX_INLINE(), getY_INLINE(), iDX, iDY);
+ 
+-				if (pLoopPlot != NULL)
+-				{
+-					pLoopPlot->invalidateIsTeamBorderCache();
+-				}
++				if (pLoopPlot)
++					pLoopPlot->invalidateBorderDangerCache();
+ 			}
+ 		}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++		// BBAI / K-Mod end
+ 		
+ 		updateSymbols();
+ 	}
+@@ -5851,6 +5844,11 @@ void CvPlot::setRouteType(RouteTypes eNewValue, bool bUpdatePlotGroups)
+ 		{
+ 			CvEventReporter::getInstance().routeBuilt(getRouteType(), getX_INLINE(), getY_INLINE());
+ 		}
++
++		// K-Mod. Fixing a bug in the border danger cache from BBAI.
++		if (bOldRoute && !isRoute())
++			invalidateBorderDangerCache();
++		// K-Mod end
+ 	}
+ }
+ 
+@@ -9027,8 +9025,13 @@ void CvPlot::read(FDataStreamBase* pStream)
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+ 	// Plot danger cache
+-	m_bIsActivePlayerNoDangerCache = false;
+-	invalidateIsTeamBorderCache();
++	m_bActivePlayerNoDangerCache = false;
++	//invalidateBorderDangerCache();
++	// K-Mod. I've changed the purpose of invalidateBorderDangerCache. It is no longer appropriate for this.
++	for (int i = 0; i < MAX_TEAMS; i++)
++	{
++		m_abBorderDangerCache[i] = false;
++	}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 44dfbaa74..32bdfbedb 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -155,12 +155,12 @@ public:
+ /*                                                                                              */
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+-	// Plot danger cache
+-	bool isActivePlayerNoDangerCache() const;
+-	bool isTeamBorderCache( TeamTypes eTeam ) const;
+-	void setIsActivePlayerNoDangerCache( bool bNewValue );
+-	void setIsTeamBorderCache( TeamTypes eTeam, bool bNewValue );
+-	void invalidateIsTeamBorderCache();
++	// Plot danger cache (renamed and edited for K-Mod)
++	bool getActivePlayerNoDangerCache() const;
++	void setActivePlayerNoDangerCache( bool bNewValue );
++	inline bool getBorderDangerCache(TeamTypes eTeam) const { return m_abBorderDangerCache[eTeam]; }
++	inline void setBorderDangerCache(TeamTypes eTeam, bool bNewValue) { m_abBorderDangerCache[eTeam] = bNewValue; }
++	void invalidateBorderDangerCache();
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -575,8 +575,8 @@ protected:
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+ 	// Plot danger cache
+-	bool m_bIsActivePlayerNoDangerCache;
+-	bool* m_abIsTeamBorderCache;
++	bool m_bActivePlayerNoDangerCache;
++	bool* m_abBorderDangerCache;
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 84296ca45..dc625e867 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1337,8 +1337,8 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+ 		// Plot danger cache
+-		GC.getMapINLINE().invalidateIsTeamBorderCache(eTeam);
+-		GC.getMapINLINE().invalidateIsTeamBorderCache(getID());
++		GC.getMapINLINE().invalidateBorderDangerCache(eTeam);
++		GC.getMapINLINE().invalidateBorderDangerCache(getID());
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -1728,8 +1728,8 @@ void CvTeam::makePeace(TeamTypes eTeam, bool bBumpUnits)
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+ 		// Plot danger cache
+-		GC.getMapINLINE().invalidateIsTeamBorderCache(eTeam);
+-		GC.getMapINLINE().invalidateIsTeamBorderCache(getID());
++		GC.getMapINLINE().invalidateBorderDangerCache(eTeam);
++		GC.getMapINLINE().invalidateBorderDangerCache(getID());
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=22044

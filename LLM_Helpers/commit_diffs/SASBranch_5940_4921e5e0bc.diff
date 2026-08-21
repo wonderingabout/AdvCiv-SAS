@@ -1,0 +1,1384 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5940
+# Commit: 4921e5e0bcab3e3f28431331fa6766804a03ef41
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 472f610b8fe3f942fd9e042e2a2ddd4bbea063c9
+# Title: Refine AI settler first-city roaming site evaluation and fix seafood miscounted as usable when city is not coastal - Keep first-city roaming focused on escap...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	.github/workflows/README.md
+1	0	.github/workflows/build.yml
+215	0	.github/workflows/build/raw_getinfotype.py
+3	3	.github/workflows/build/tech_columns.py
+1	1	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+2	1	Assets/Python/Contrib/AIAutoPlay.py
+119	119	Assets/Python/EntryPoints/CvRandomEventInterface.py
+7	0	Assets/Python/SASUtils.py
+5	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+16	11	CvGameCoreDLL/CvUnitAI.cpp
+5	5	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+4	4	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 .github/workflows/build/raw_getinfotype.py
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 764e8eca5..2bec4e0b9 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -35,6 +35,7 @@ For example, this helped spot [map scripts that were previously unclassified in
+ - `build/civ_specific_asset_techs.py`: verifies civ-specific building and unit assets do not require a later starting tech-tree column (`iGridX`) or an earlier obsolete tech-tree column than the generic asset they replace; same-column parallel tech variation is allowed for flavor. For example, this helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27461191223/job/81175197986) and fix `BUILDING_AZTEC_SACRIFICIAL_ALTAR: building class BUILDINGCLASS_MONUMENT replacement uses later tech column than default BUILDING_MONUMENT: TECH_CALENDAR (GridX=2, GridY=11) after TECH_MYSTICISM (GridX=1, GridY=11)`, but `BUILDING_JAPAN_DOUJOU` (JAIL) requiring `TECH_MEDITATION` parallel (`iGridY=9`) to `TECH_CONSTITUTION` required by the generic `BUILDING_JAIL` is fine so it does not need a fix. Similarly for `BUILDING_EGYPTIAN_OBELISK: building class BUILDINGCLASS_MONUMENT replacement uses earlier ObsoleteTech column than default BUILDING_MONUMENT: TECH_BROADER_EDUCATION (GridX=10, GridY=11) before TECH_LIBERALISM (GridX=13, GridY=11)` being obsolete sooner and so weaker than the generic monument so fixed it (obsolete is now same `GridY` or later).
+ - `build/civ_specific_not_weaker.py`: verifies civ-specific unit/building replacements are not weaker than their generic class defaults. Unit replacements fail if their `iCombat` or `iPower` is lower than the default unit for the same `UnitClass`; building replacements fail if their `iPower` is lower than the default building for the same `BuildingClass`.
+ - `build/define_tag_refs.py`: verifies any SAS `DefineTextVal` token that looks like a known Civ4 XML tag (e.g. bonuses, techs, building classes, units, promotions) references a real XML `<Type>` value; successful matches are printed by default, and `--quiet` suppresses them.
++- `build/raw_getinfotype.py`: verifies runtime Python files do not add raw `getInfoTypeForString(...)` or `CvUtil.findInfoTypeNum(...)` lookups outside strict helper implementations and narrow legacy/dynamic exceptions. Use `getInfoTypeOrFail(...)` or `findInfoTypeNumOrFail(...)` for literal/static XML tag lookups so missing or renamed tags fail loudly. Python comments and string literals are ignored, so code-generation strings such as those in `savemap.py` are not flagged by this check. This allowed to [find](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27464773794/job/81185039717) this alternative lookup and that it needed an or fail handling too: now fixed.
+ - `build/define_int_bounds.py`: verifies `GlobalDefines_advciv_sas.xml` integer values stay within `[-100000, 100000]`, except the launch-guard sentinel checked separately by `build/launch_guard.py`.
+ - `build/opening_music.py`: verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed script, and if shuffle is enabled, at least one valid non-`NONE` shuffle script.
+ - `build/bbai_log.py`: verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`.
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index 63ce9aeb5..63fb14d80 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -29,6 +29,7 @@ jobs:
+       - run: python .github/workflows/build/civ_specific_asset_techs.py
+       - run: python .github/workflows/build/civ_specific_not_weaker.py
+       - run: python .github/workflows/build/define_tag_refs.py
++      - run: python .github/workflows/build/raw_getinfotype.py
+       - run: python .github/workflows/build/define_int_bounds.py
+       - run: python .github/workflows/build/opening_music.py
+       - run: python .github/workflows/build/bbai_log.py
+
+diff --git a/.github/workflows/build/raw_getinfotype.py b/.github/workflows/build/raw_getinfotype.py
+new file mode 100644
+index 000000000..81723e55a
+--- /dev/null
++++ b/.github/workflows/build/raw_getinfotype.py
+@@ -0,0 +1,215 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: literal/static XML tag lookups in runtime Python should fail loudly through
++# getInfoTypeOrFail(...) or findInfoTypeNumOrFail(...), not silently return -1.
++
++from pathlib import Path
++import argparse
++import re
++import sys
++import tokenize
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root
++
++
++RAW_GETINFOTYPE_NAME = "getInfoTypeForString"
++RAW_FINDINFOTYPE_NAME = "findInfoTypeNum"
++RAW_LOOKUP_NAMES = {RAW_GETINFOTYPE_NAME, RAW_FINDINFOTYPE_NAME}
++
++SCAN_RELATIVE_DIRS = (
++	Path("Assets/Python"),
++	Path("PrivateMaps"),
++)
++
++# These are repository/dev helper files, not Civ4 runtime gameplay files. They are not under
++# SCAN_RELATIVE_DIRS today, but keeping this guard makes the intent explicit if the scan grows.
++IGNORED_RELATIVE_DIRS = {
++	Path("LLM_Helpers"),
++}
++
++# Narrow runtime file exceptions where raw lookup is dynamic/legacy by design.
++# Do not add broad gameplay files here. Prefer converting literal/static callsites to the strict helpers.
++ALLOWED_RELATIVE_PATH_REASONS = {
++	Path("Assets/Python/BUG/AttitudeUtil.py"): {
++		RAW_GETINFOTYPE_NAME: "BUG config reads dynamic color tags and raises ConfigError on missing tags",
++	},
++	Path("Assets/Python/BUG/TechPrefs.py"): {
++		RAW_GETINFOTYPE_NAME: "BUG config reads dynamic tech preference tags",
++	},
++	Path("Assets/Python/pyWB/CvWBDesc.py"): {
++		RAW_GETINFOTYPE_NAME: "WorldBuilder save/load reads dynamic scenario strings",
++		RAW_FINDINFOTYPE_NAME: "WorldBuilder save/load reads dynamic scenario strings",
++	},
++}
++
++# Function-scope exceptions. These helpers are allowed to call the raw API/wrapper internally;
++# the rest of the file is still checked normally.
++ALLOWED_FUNCTION_REASONS = {
++	(Path("Assets/Python/SASUtils.py"), "getInfoTypeOrFail", RAW_GETINFOTYPE_NAME): "strict helper implementation",
++	(Path("Assets/Python/CvUtil.py"), "findInfoTypeNum", RAW_GETINFOTYPE_NAME): "legacy wrapper implementation",
++	(Path("Assets/Python/SASUtils.py"), "findInfoTypeNumOrFail", RAW_FINDINFOTYPE_NAME): "strict helper implementation",
++}
++
++# Contrib/savemap.py writes Python code text into generated map-script files. Token scanning ignores
++# Python STRING tokens, so those stringized getInfoTypeForString snippets are intentionally not flagged.
++
++TOP_LEVEL_DEF_RE = re.compile(r"^def\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(")
++TOP_LEVEL_BOUNDARY_RE = re.compile(r"^(def|class)\s+")
++
++
++class RawLookupHit:
++	def __init__(self, lookup_name: str, relative_path: Path, line_number: int, line_text: str):
++		self.lookup_name = lookup_name
++		self.relative_path = relative_path
++		self.line_number = line_number
++		self.line_text = line_text.strip()
++
++	def format(self) -> str:
++		return f"{self.relative_path}:{self.line_number}: {self.line_text}"
++
++
++def is_under(relative_path: Path, relative_dir: Path) -> bool:
++	return relative_path == relative_dir or relative_dir in relative_path.parents
++
++
++def iter_python_files(repo_root: Path) -> list[Path]:
++	paths: list[Path] = []
++
++	for relative_dir in SCAN_RELATIVE_DIRS:
++		root = repo_root / relative_dir
++		if not root.exists():
++			continue
++
++		for path in sorted(root.rglob("*.py")):
++			relative_path = path.relative_to(repo_root)
++			if any(is_under(relative_path, ignored_dir) for ignored_dir in IGNORED_RELATIVE_DIRS):
++				continue
++			paths.append(path)
++
++	return paths
++
++
++def get_top_level_function_ranges(path: Path) -> dict[str, tuple[int, int]]:
++	lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
++	starts: list[tuple[str, int]] = []
++
++	for index, line in enumerate(lines, start=1):
++		match = TOP_LEVEL_DEF_RE.match(line)
++		if match:
++			starts.append((match.group(1), index))
++
++	ranges: dict[str, tuple[int, int]] = {}
++	for function_index, (function_name, start_line) in enumerate(starts):
++		end_line = len(lines) + 1
++		for index in range(start_line + 1, len(lines) + 1):
++			line = lines[index - 1]
++			if TOP_LEVEL_BOUNDARY_RE.match(line):
++				end_line = index
++				break
++		ranges[function_name] = (start_line, end_line)
++
++	return ranges
++
++
++def is_in_allowed_function(relative_path: Path, function_ranges: dict[str, tuple[int, int]], hit: RawLookupHit) -> str | None:
++	for (allowed_path, function_name, lookup_name), reason in ALLOWED_FUNCTION_REASONS.items():
++		if relative_path != allowed_path or hit.lookup_name != lookup_name:
++			continue
++		range_tuple = function_ranges.get(function_name)
++		if not range_tuple:
++			continue
++		start_line, end_line = range_tuple
++		if start_line <= hit.line_number < end_line:
++			return reason
++	return None
++
++
++def find_raw_lookup_hits(repo_root: Path, path: Path) -> list[RawLookupHit]:
++	hits: list[RawLookupHit] = []
++	relative_path = path.relative_to(repo_root)
++	previous_significant_token = None
++
++	try:
++		with path.open("rb") as handle:
++			for token in tokenize.tokenize(handle.readline):
++				if token.type in {tokenize.ENCODING, tokenize.NL, tokenize.NEWLINE, tokenize.INDENT, tokenize.DEDENT}:
++					continue
++				if token.type == tokenize.NAME and token.string in RAW_LOOKUP_NAMES:
++					# Do not count the helper/wrapper definition itself, only raw lookup uses.
++					if not (previous_significant_token and previous_significant_token.type == tokenize.NAME and previous_significant_token.string == "def"):
++						hits.append(RawLookupHit(token.string, relative_path, token.start[0], token.line))
++				previous_significant_token = token
++	except tokenize.TokenError as exc:
++		raise RuntimeError(f"{relative_path}: Python tokenization failed: {exc}") from exc
++
++	return hits
++
++
++def get_path_exception_reason(relative_path: Path, lookup_name: str) -> str | None:
++	lookup_reasons = ALLOWED_RELATIVE_PATH_REASONS.get(relative_path)
++	if not lookup_reasons:
++		return None
++	return lookup_reasons.get(lookup_name)
++
++
++def failure_hint(lookup_name: str) -> str:
++	if lookup_name == RAW_GETINFOTYPE_NAME:
++		return "use getInfoTypeOrFail(...) for literal XML tag lookups, or add a narrow exception for dynamic/guarded legacy code"
++	if lookup_name == RAW_FINDINFOTYPE_NAME:
++		return "use findInfoTypeNumOrFail(...) for literal/static XML tag lookups, or add a narrow exception for dynamic/guarded legacy code"
++	return "use a strict fail-fast helper, or add a narrow exception for dynamic/guarded legacy code"
++
++
++def check_raw_infotype_lookups(repo_root: Path, show_ignored: bool) -> tuple[list[str], int, int]:
++	failures: list[str] = []
++	ignored_hits = 0
++	paths = iter_python_files(repo_root)
++
++	for path in paths:
++		relative_path = path.relative_to(repo_root)
++		hits = find_raw_lookup_hits(repo_root, path)
++		if not hits:
++			continue
++
++		function_ranges = get_top_level_function_ranges(path)
++		for hit in hits:
++			allowed_reason = is_in_allowed_function(relative_path, function_ranges, hit)
++			if allowed_reason is None:
++				allowed_reason = get_path_exception_reason(relative_path, hit.lookup_name)
++
++			if allowed_reason is not None:
++				ignored_hits += 1
++				if show_ignored:
++					print(f"IGNORED {hit.format()} ({allowed_reason})")
++				continue
++
++			failures.append(f"{hit.format()} -- {failure_hint(hit.lookup_name)}")
++
++	return failures, len(paths), ignored_hits
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check for raw info-type lookups in runtime Python files.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	parser.add_argument("--show-ignored", action="store_true", help="print allowed legacy/dynamic raw lookup hits")
++	args = parser.parse_args()
++
++	failures, checked_files, ignored_hits = check_raw_infotype_lookups(args.repo_root, args.show_ignored)
++
++	if failures:
++		print("FAIL raw info-type lookup usage")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print(f"PASS raw info-type lookup usage: checked {checked_files} Python files, ignored {ignored_hits} helper/dynamic hits")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/tech_columns.py b/.github/workflows/build/tech_columns.py
+index cae5f4222..ba7231370 100644
+--- a/.github/workflows/build/tech_columns.py
++++ b/.github/workflows/build/tech_columns.py
+@@ -130,18 +130,18 @@ def main() -> int:
+ 	try:
+ 		failures = check_tech_column_values(args.repo_root)
+ 	except RuntimeError as exc:
+-		print("FAIL tech columns")
++		print("FAIL tech column value consistency")
+ 		print(f"  - {exc}")
+ 		return 1
+ 
+ 	if failures:
+-		print("FAIL tech columns")
++		print("FAIL tech column value consistency")
+ 		for failure in failures:
+ 			print(f"  - {failure}")
+ 		print("  - Same iGridX means the techs are in the same tech-tree column; iGridY row differences are allowed, but core column values should normally match within that column.")
+ 		return 1
+ 
+-	print("PASS tech columns")
++	print("PASS tech column value consistency")
+ 	return 0
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 9067d1001..858846a9a 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -175,7 +175,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - When caching defines or XML variables, we need to init to `None` and cache explictly later when the variable is used or somewhere at call time. This is because empirically aggressive initialization at init is fragile and can cause crashes. For helper files, we use the `global` and if `None` pattern. Since this new pattern is a recent addition, we are not changing them all right now but rather as we go or implement new stuff. See [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior).
+ - It seems definebool does not exist in python, so use boolean comparison on int rather; e.g., `IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)`. Does not apply to C++ though that has defineBOOL.
+ - Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
+-- Prefer `getInfoTypeOrFail("TAG")` (from `SASUtils`) over raw `gc.getInfoTypeForString("TAG")` whenever possible so bad XML tags fail loudly and early; this helped catch incorrect direction-string usage in Planet Generator map (e.g., incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` failing instead of `DirectionTypes.DIRECTION_NORTH*` enum constants; or incorrect `getInfoTypeOrFail("PLOT_PEAK")` instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map)).
++- Prefer strict XML lookup helpers from `SASUtils` over raw lookups for static/literal tags: use `getInfoTypeOrFail("TAG")` instead of raw `gc.getInfoTypeForString("TAG")`, and use `findInfoTypeNumOrFail(gc.getXInfo, gc.getNumXInfos, "TAG")` instead of raw `CvUtil.findInfoTypeNum(...)`. This keeps missing or renamed XML tags loud instead of silently returning `-1`; it helped catch incorrect direction-string usage in Planet Generator map (e.g., `getInfoTypeOrFail("DIRECTION_NORTH")` instead of `DirectionTypes.DIRECTION_NORTH*`) and incorrect plot/terrain-style lookups (e.g., `getInfoTypeOrFail("PLOT_PEAK")` instead of `PlotTypes.PLOT_PEAK` in Peirce map). Dynamic/guarded legacy lookups can stay raw only when intentionally allowed by `.github/workflows/build/raw_getinfotype.py`.
+ - When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
+ - Use `from module import *` for helper modules to reduce import tedium and make future additions seamless.
+ - For map scripts, keep reusable helper modules outside `PrivateMaps` (e.g., in `Assets/Python/SAS_WorldSizeUtils.py`) when they define or might define names that Civ4 treats as map-script callbacks (`getGridSize`, `getNumPlotsPercent`, `getDescription`, etc.). The old playable `PrivateMaps/SAS_WorldSizes.py` helper leaked its compact `getGridSize` through `from SAS_WorldSizes import *`, making RandomScriptMap Huge generate empirically too small (`60 x 44`). Fix: moved helpers to `Assets/Python/SAS_WorldSizeUtils.py`; result: RandomScriptMap Huge returned to `120 x 84`. The playable sandbox wrapper is now `PrivateMaps/SAS_Simple_Flat_Grass.py`.
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/AIAutoPlay.py b/Assets/Python/Contrib/AIAutoPlay.py
+index 7daf14a1b..e0f5c90fe 100644
+--- a/Assets/Python/Contrib/AIAutoPlay.py
++++ b/Assets/Python/Contrib/AIAutoPlay.py
+@@ -16,6 +16,7 @@ import CvTopCivs
+ import CvUtil
+ import PyHelpers
+ import Popup as PyPopup
++from SASUtils import findInfoTypeNumOrFail
+ 
+ import ChangePlayer
+ import time # Erik (BM1)
+@@ -231,7 +232,7 @@ class AIAutoPlay :
+ 			popup.launch()
+ 
+ 			#gc.getActivePlayer().setNewPlayerAlive( True )
+-			iSettler = CvUtil.findInfoTypeNum(gc.getUnitInfo,gc.getNumUnitInfos(),'UNIT_SETTLER')
++			iSettler = findInfoTypeNumOrFail(gc.getUnitInfo,gc.getNumUnitInfos(),'UNIT_SETTLER')
+ 			gc.getActivePlayer().initUnit( iSettler, 0, 0, UnitAITypes.NO_UNITAI, DirectionTypes.DIRECTION_SOUTH )
+ 			#gc.getActivePlayer().setFoundedFirstCity( False )
+ 			gc.getActivePlayer().setIsHuman( True )
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index 191c07f9a..bcb77a74d 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -15,7 +15,7 @@
+ #
+ import CvUtil
+ from CvPythonExtensions import *
+-from SASUtils import getInfoTypeOrFail
++from SASUtils import findInfoTypeNumOrFail, getInfoTypeOrFail
+ from EventSigns import placeLandmark # K-Mod
+ from operator import itemgetter # K-Mod (used to avoid OOS when sorting)
+ 
+@@ -72,12 +72,12 @@ def canTriggerBlessedSea(argsList):
+ 		return false
+ 
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+-	if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_GALLEY')) == 0:
++	if player.getUnitClassCount(findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_GALLEY')) == 0:
+ 		# <!-- custom: caravel removed; comment out this line and unindent the block. (GPT-5.2-Codex (summarized)) -->
+ 		#if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CARAVEL')) == 0:
+ 		#	if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_GALLEON')) == 0:
+ 		#		return false
+-		if player.getUnitClassCount(CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_GALLEON')) == 0:
++		if player.getUnitClassCount(findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_GALLEON')) == 0:
+ 			return false
+ 
+ 	return true
+@@ -108,7 +108,7 @@ def applyBlessedSea2(argsList):
+ 
+ 	if (-1 != kTriggeredData.eReligion):
+ 		for i in range(gc.getNumBuildingInfos()):
+-			if (gc.getBuildingInfo(i).getSpecialBuildingType() == CvUtil.findInfoTypeNum(gc.getSpecialBuildingInfo,gc.getNumSpecialBuildingInfos(),'SPECIALBUILDING_TEMPLE')):
++			if (gc.getBuildingInfo(i).getSpecialBuildingType() == findInfoTypeNumOrFail(gc.getSpecialBuildingInfo,gc.getNumSpecialBuildingInfos(),'SPECIALBUILDING_TEMPLE')):
+ 				if (gc.getBuildingInfo(i).getReligionType() == kTriggeredData.eReligion):
+ 					iBuilding = i
+ 					break
+@@ -135,7 +135,7 @@ def canApplyBlessedSea2(argsList):
+ 
+ 	if (-1 != kTriggeredData.eReligion):
+ 		for i in range(gc.getNumBuildingInfos()):
+-			if (gc.getBuildingInfo(i).getSpecialBuildingType() == CvUtil.findInfoTypeNum(gc.getSpecialBuildingInfo,gc.getNumSpecialBuildingInfos(),'SPECIALBUILDING_TEMPLE')):
++			if (gc.getBuildingInfo(i).getSpecialBuildingType() == findInfoTypeNumOrFail(gc.getSpecialBuildingInfo,gc.getNumSpecialBuildingInfos(),'SPECIALBUILDING_TEMPLE')):
+ 				if (gc.getBuildingInfo(i).getReligionType() == kTriggeredData.eReligion):
+ 					iBuilding = i
+ 					break
+@@ -172,7 +172,7 @@ def getHelpHolyMountain1(argsList):
+ 
+ 	if (-1 != iReligion):
+ 		for i in range(gc.getNumBuildingInfos()):
+-			if (gc.getBuildingInfo(i).getSpecialBuildingType() == CvUtil.findInfoTypeNum(gc.getSpecialBuildingInfo, gc.getNumSpecialBuildingInfos(), 'SPECIALBUILDING_CATHEDRAL')):
++			if (gc.getBuildingInfo(i).getSpecialBuildingType() == findInfoTypeNumOrFail(gc.getSpecialBuildingInfo, gc.getNumSpecialBuildingInfos(), 'SPECIALBUILDING_CATHEDRAL')):
+ 				if (gc.getBuildingInfo(i).getReligionType() == iReligion):
+ 					iBuilding = i
+ 					break
+@@ -242,11 +242,11 @@ def canTriggerHolyMountainRevealed(argsList):
+ 
+ 	for i in range(gc.getNumBuildingInfos()):
+ 		if (gc.getBuildingInfo(i).getReligionType() == kOrigTriggeredData.eReligion):
+-			if (gc.getBuildingInfo(i).getSpecialBuildingType() == CvUtil.findInfoTypeNum(gc.getSpecialBuildingInfo,gc.getNumSpecialBuildingInfos(),'SPECIALBUILDING_CATHEDRAL')):
++			if (gc.getBuildingInfo(i).getSpecialBuildingType() == findInfoTypeNumOrFail(gc.getSpecialBuildingInfo,gc.getNumSpecialBuildingInfos(),'SPECIALBUILDING_CATHEDRAL')):
+ 				iNumPoints += 4 * player.countNumBuildings(i)
+-			elif (gc.getBuildingInfo(i).getSpecialBuildingType() == CvUtil.findInfoTypeNum(gc.getSpecialBuildingInfo,gc.getNumSpecialBuildingInfos(),'SPECIALBUILDING_TEMPLE')):
++			elif (gc.getBuildingInfo(i).getSpecialBuildingType() == findInfoTypeNumOrFail(gc.getSpecialBuildingInfo,gc.getNumSpecialBuildingInfos(),'SPECIALBUILDING_TEMPLE')):
+ 				iNumPoints += player.countNumBuildings(i)
+-			elif (gc.getBuildingInfo(i).getSpecialBuildingType() == CvUtil.findInfoTypeNum(gc.getSpecialBuildingInfo,gc.getNumSpecialBuildingInfos(),'SPECIALBUILDING_MONASTERY')):
++			elif (gc.getBuildingInfo(i).getSpecialBuildingType() == findInfoTypeNumOrFail(gc.getSpecialBuildingInfo,gc.getNumSpecialBuildingInfos(),'SPECIALBUILDING_MONASTERY')):
+ 				iNumPoints += player.countNumBuildings(i)
+ 
+ 	if iNumPoints < 2 * worldSizeTarget():
+@@ -394,7 +394,7 @@ def canTriggerSpicy(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iSpice = CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_SPICES')
++	iSpice = findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_SPICES')
+ 	iHappyBonuses = 0
+ 	bSpices = false
+ 	for i in range(gc.getNumBonusInfos()):
+@@ -422,7 +422,7 @@ def doSpicy2(argsList):
+ 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
+ 
+ 	if not plot.isNone():
+-		plot.setImprovementType(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_PLANTATION'))
++		plot.setImprovementType(findInfoTypeNumOrFail(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_PLANTATION'))
+ 
+ 	return 1
+ 
+@@ -430,7 +430,7 @@ def getHelpSpicy2(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 
+-	iPlantation = CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_PLANTATION')
++	iPlantation = findInfoTypeNumOrFail(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_PLANTATION')
+ 	szHelp = localText.getText("TXT_KEY_EVENT_IMPROVEMENT_GROWTH", ( gc.getImprovementInfo(iPlantation).getTextKey(), ))
+ 
+ 	return szHelp
+@@ -549,12 +549,12 @@ def canTriggerBrothersInNeed(argsList):
+ 		return false
+ 
+ 	listResources = []
+-	listResources.append(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_COPPER'))
+-	listResources.append(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_IRON'))
+-	listResources.append(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_HORSE'))
+-	listResources.append(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_ELEPHANTS'))
+-	listResources.append(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_OIL'))
+-	listResources.append(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_URANIUM'))
++	listResources.append(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_COPPER'))
++	listResources.append(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_IRON'))
++	listResources.append(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_HORSE'))
++	listResources.append(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_ELEPHANTS'))
++	listResources.append(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_OIL'))
++	listResources.append(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_URANIUM'))
+ 
+ 	bFound = false
+ 	for iResource in listResources: 
+@@ -752,7 +752,7 @@ def canTriggerMonsoonCity(argsList):
+ 	if city.isCoastal(gc.getMIN_WATER_SIZE_FOR_OCEAN()):
+ 		return false
+ 
+-	iJungleType = CvUtil.findInfoTypeNum(gc.getFeatureInfo, gc.getNumFeatureInfos(),'FEATURE_JUNGLE')
++	iJungleType = findInfoTypeNumOrFail(gc.getFeatureInfo, gc.getNumFeatureInfos(),'FEATURE_JUNGLE')
+ 
+ 	for iDX in range(-3, 4):
+ 		for iDY in range(-3, 4):
+@@ -804,10 +804,10 @@ def applyVolcano1(argsList):
+ 	## K-Mod: I don't think cottages and hamlets are big enough to leave "city ruins"
+ 	#listRuins.append(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_COTTAGE'))
+ 	#listRuins.append(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_HAMLET'))
+-	listRuins.append(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_VILLAGE'))
+-	listRuins.append(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_TOWN'))
++	listRuins.append(findInfoTypeNumOrFail(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_VILLAGE'))
++	listRuins.append(findInfoTypeNumOrFail(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_TOWN'))
+ 
+-	iRuins = CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_CITY_RUINS')
++	iRuins = findInfoTypeNumOrFail(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_CITY_RUINS')
+ 
+ 	for i in range(3):
+ 		if len(listPlots) > 0:
+@@ -878,8 +878,8 @@ def canTriggerDustbowlCont(argsList):
+ 	if (kOrigTriggeredData is None):
+ 		return false
+ 
+-	iFarmType = CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_FARM')
+-	iPlainsType = CvUtil.findInfoTypeNum(gc.getTerrainInfo,gc.getNumTerrainInfos(),'TERRAIN_PLAINS')
++	iFarmType = findInfoTypeNumOrFail(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_FARM')
++	iPlainsType = findInfoTypeNumOrFail(gc.getTerrainInfo,gc.getNumTerrainInfos(),'TERRAIN_PLAINS')
+ 
+ 	map = gc.getMap()
+ 	iBestValue = map.getGridWidth() + map.getGridHeight()
+@@ -943,7 +943,7 @@ def canApplySaltpeter(argsList):
+ 	if (plot is None):
+ 		return false
+ 
+-	iForest = CvUtil.findInfoTypeNum(gc.getFeatureInfo,gc.getNumFeatureInfos(),'FEATURE_FOREST')
++	iForest = findInfoTypeNumOrFail(gc.getFeatureInfo,gc.getNumFeatureInfos(),'FEATURE_FOREST')
+ 
+ 	iNumPlots = 0
+ 	for i in range(map.numPlots()):
+@@ -1064,7 +1064,7 @@ def canTriggerChampionUnit(argsList):
+ 	if unit.getExperience() < 3:
+ 		return false
+ 
+-	iLeadership = CvUtil.findInfoTypeNum(gc.getPromotionInfo,gc.getNumPromotionInfos(),'PROMOTION_LEADERSHIP')
++	iLeadership = findInfoTypeNumOrFail(gc.getPromotionInfo,gc.getNumPromotionInfos(),'PROMOTION_LEADERSHIP')
+ 	if unit.isHasPromotion(iLeadership):
+ 		return false
+ 
+@@ -1077,7 +1077,7 @@ def applyChampion(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	unit = player.getUnit(kTriggeredData.iUnitId)
+ 
+-	iLeadership = CvUtil.findInfoTypeNum(gc.getPromotionInfo,gc.getNumPromotionInfos(),'PROMOTION_LEADERSHIP')
++	iLeadership = findInfoTypeNumOrFail(gc.getPromotionInfo,gc.getNumPromotionInfos(),'PROMOTION_LEADERSHIP')
+ 
+ 	unit.setHasPromotion(iLeadership, true)
+ 
+@@ -1088,7 +1088,7 @@ def getHelpChampion(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	unit = player.getUnit(kTriggeredData.iUnitId)
+ 
+-	iLeadership = CvUtil.findInfoTypeNum(gc.getPromotionInfo,gc.getNumPromotionInfos(),'PROMOTION_LEADERSHIP')
++	iLeadership = findInfoTypeNumOrFail(gc.getPromotionInfo,gc.getNumPromotionInfos(),'PROMOTION_LEADERSHIP')
+ 
+ 	szHelp = localText.getText("TXT_KEY_EVENT_CHAMPION_HELP", (unit.getNameKey(), gc.getPromotionInfo(iLeadership).getTextKey()))
+ 
+@@ -1119,7 +1119,7 @@ def canTriggerGoldRush(argsList):
+ 
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iIndustrial = CvUtil.findInfoTypeNum(gc.getEraInfo,gc.getNumEraInfos(),'ERA_INDUSTRIAL')
++	iIndustrial = findInfoTypeNumOrFail(gc.getEraInfo,gc.getNumEraInfos(),'ERA_INDUSTRIAL')
+ 
+ 	if player.getCurrentEra() != iIndustrial:
+ 		return false
+@@ -1134,12 +1134,12 @@ def canTriggerInfluenza(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	team = gc.getTeam(player.getTeam())
+ 
+-	iIndustrial = CvUtil.findInfoTypeNum(gc.getEraInfo,gc.getNumEraInfos(),'ERA_INDUSTRIAL')
++	iIndustrial = findInfoTypeNumOrFail(gc.getEraInfo,gc.getNumEraInfos(),'ERA_INDUSTRIAL')
+ 
+ 	if player.getCurrentEra() <= iIndustrial:
+ 		return false
+ 
+-	iMedicine = CvUtil.findInfoTypeNum(gc.getTechInfo,gc.getNumTechInfos(),'TECH_MEDICINE')
++	iMedicine = findInfoTypeNumOrFail(gc.getTechInfo,gc.getNumTechInfos(),'TECH_MEDICINE')
+ 
+ 	if team.isHasTech(iMedicine):
+ 		return false
+@@ -1190,15 +1190,15 @@ def canTriggerSoloFlight(argsList):
+ 	kTriggeredData = argsList[0]
+ 
+ 	map = gc.getMap()	
+-	if map.getWorldSize() == CvUtil.findInfoTypeNum(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_DUEL'):
++	if map.getWorldSize() == findInfoTypeNumOrFail(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_DUEL'):
+ 		iMinLandmass  = 3
+-	elif map.getWorldSize() == CvUtil.findInfoTypeNum(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_TINY'):
++	elif map.getWorldSize() == findInfoTypeNumOrFail(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_TINY'):
+ 		iMinLandmass  = 4
+-	elif map.getWorldSize() == CvUtil.findInfoTypeNum(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_SMALL'):
++	elif map.getWorldSize() == findInfoTypeNumOrFail(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_SMALL'):
+ 		iMinLandmass  = 6
+-	elif map.getWorldSize() == CvUtil.findInfoTypeNum(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_STANDARD'):
++	elif map.getWorldSize() == findInfoTypeNumOrFail(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_STANDARD'):
+ 		iMinLandmass  = 8
+-	elif map.getWorldSize() == CvUtil.findInfoTypeNum(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_LARGE'):
++	elif map.getWorldSize() == findInfoTypeNumOrFail(gc.getWorldInfo, gc.getNumWorldInfos(), 'WORLDSIZE_LARGE'):
+ 		iMinLandmass  = 10
+ 	else:
+ 		iMinLandmass  = 12
+@@ -1237,7 +1237,7 @@ def canTriggerAntelope(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iDeer = CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_DEER')
++	iDeer = findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_DEER')
+ 	iHappyBonuses = 0
+ 	bDeer = false
+ 	for i in range(gc.getNumBonusInfos()):
+@@ -1265,7 +1265,7 @@ def doAntelope2(argsList):
+ 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
+ 
+ 	if not plot.isNone():
+-		plot.setImprovementType(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_CAMP'))
++		plot.setImprovementType(findInfoTypeNumOrFail(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_CAMP'))
+ 
+ 	return 1
+ 
+@@ -1273,7 +1273,7 @@ def getHelpAntelope2(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 
+-	iCamp = CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_CAMP')
++	iCamp = findInfoTypeNumOrFail(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_CAMP')
+ 	szHelp = localText.getText("TXT_KEY_EVENT_IMPROVEMENT_GROWTH", ( gc.getImprovementInfo(iCamp).getTextKey(), ))
+ 
+ 	return szHelp
+@@ -1285,7 +1285,7 @@ def canTriggerWhaleOfAThing(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iWhale = CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_WHALE')
++	iWhale = findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_WHALE')
+ 	iHappyBonuses = 0
+ 	bWhale = false
+ 	for i in range(gc.getNumBonusInfos()):
+@@ -1312,7 +1312,7 @@ def canTriggerHiyoSilver(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iSilver = CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_SILVER')
++	iSilver = findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_SILVER')
+ 	iHappyBonuses = 0
+ 	bSilver = false
+ 	for i in range(gc.getNumBonusInfos()):
+@@ -1339,7 +1339,7 @@ def canTriggerWiningMonks(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	if player.getNumAvailableBonuses(CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_GRAPES')) > 0:
++	if player.getNumAvailableBonuses(findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_GRAPES')) > 0:
+ 		return false
+ 
+ 	return true
+@@ -1352,7 +1352,7 @@ def doWiningMonks2(argsList):
+ 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
+ 
+ 	if not plot.isNone():
+-		plot.setImprovementType(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_FARM'))
++		plot.setImprovementType(findInfoTypeNumOrFail(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_FARM'))
+ 
+ 	return 1
+ 
+@@ -1360,7 +1360,7 @@ def getHelpWiningMonks2(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 
+-	iImp = CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_FARM')
++	iImp = findInfoTypeNumOrFail(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_FARM')
+ 	szHelp = localText.getText("TXT_KEY_EVENT_IMPROVEMENT_GROWTH", ( gc.getImprovementInfo(iImp).getTextKey(), ))
+ 
+ 	return szHelp
+@@ -1382,13 +1382,13 @@ def canTriggerAncientOlympics(argsList):
+ 
+ 	stateReligion = player.getStateReligion()
+ 
+-	if stateReligion == CvUtil.findInfoTypeNum(gc.getReligionInfo,gc.getNumReligionInfos(),'RELIGION_JUDAISM'):
++	if stateReligion == findInfoTypeNumOrFail(gc.getReligionInfo,gc.getNumReligionInfos(),'RELIGION_JUDAISM'):
+ 		return false
+ 
+-	if stateReligion == CvUtil.findInfoTypeNum(gc.getReligionInfo,gc.getNumReligionInfos(),'RELIGION_CHRISTIANITY'):
++	if stateReligion == findInfoTypeNumOrFail(gc.getReligionInfo,gc.getNumReligionInfos(),'RELIGION_CHRISTIANITY'):
+ 		return false
+ 
+-	if stateReligion == CvUtil.findInfoTypeNum(gc.getReligionInfo,gc.getNumReligionInfos(),'RELIGION_ISLAM'):
++	if stateReligion == findInfoTypeNumOrFail(gc.getReligionInfo,gc.getNumReligionInfos(),'RELIGION_ISLAM'):
+ 		return false
+ 
+ 	return true
+@@ -1466,7 +1466,7 @@ def canTriggerInterstate(argsList):
+ 	trigger = gc.getEventTriggerInfo(kTriggeredData.eTrigger)
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	if not player.isCivic(CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_WAGE_LABOR')):
++	if not player.isCivic(findInfoTypeNumOrFail(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_WAGE_LABOR')):
+ 		return false
+ 
+ 	return true
+@@ -1475,7 +1475,7 @@ def getHelpInterstate(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 
+-	szHelp = localText.getText("TXT_KEY_UNIT_MOVEMENT", (1, gc.getRouteInfo(CvUtil.findInfoTypeNum(gc.getRouteInfo,gc.getNumRouteInfos(),'ROUTE_ROAD')).getTextKey()))	
++	szHelp = localText.getText("TXT_KEY_UNIT_MOVEMENT", (1, gc.getRouteInfo(findInfoTypeNumOrFail(gc.getRouteInfo,gc.getNumRouteInfos(),'ROUTE_ROAD')).getTextKey()))
+ 
+ 	return szHelp
+ 
+@@ -1485,7 +1485,7 @@ def applyInterstate(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	team = gc.getTeam(player.getTeam())
+ 
+-	iRoad = CvUtil.findInfoTypeNum(gc.getRouteInfo,gc.getNumRouteInfos(),'ROUTE_ROAD')
++	iRoad = findInfoTypeNumOrFail(gc.getRouteInfo,gc.getNumRouteInfos(),'ROUTE_ROAD')
+ 
+ 	team.changeRouteChange(iRoad, -5)
+ 
+@@ -1506,7 +1506,7 @@ def canApplyEarthDay2(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+ 	# <!-- custom: replace the old CIVIC_ENVIRONMENTALISM with CIVIC_TRADE_BLOC. (GPT-5.2-Codex (summarized)) -->
+-	iCivic = CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_TRADE_BLOC')
++	iCivic = findInfoTypeNumOrFail(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_TRADE_BLOC')
+ 
+ 	for iPlayer in range(gc.getMAX_CIV_PLAYERS()):			
+ 		loopPlayer = gc.getPlayer(iPlayer)
+@@ -1527,8 +1527,8 @@ def applyEarthDay2(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+ 	# <!-- custom: replace the old CIVIC_ENVIRONMENTALISM with CIVIC_TRADE_BLOC. (GPT-5.2-Codex (summarized)) -->
+-	iCivic = CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_TRADE_BLOC')
+-	iCivicOption = CvUtil.findInfoTypeNum(gc.getCivicOptionInfo,gc.getNumCivicOptionInfos(),'CIVICOPTION_ECONOMY')
++	iCivic = findInfoTypeNumOrFail(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_TRADE_BLOC')
++	iCivicOption = findInfoTypeNumOrFail(gc.getCivicOptionInfo,gc.getNumCivicOptionInfos(),'CIVICOPTION_ECONOMY')
+ 
+ 	listPlayers = []
+ 	for iPlayer in range(gc.getMAX_CIV_PLAYERS()):			
+@@ -1813,7 +1813,7 @@ def canTriggerImpactCrater(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iUranium = CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_URANIUM')
++	iUranium = findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_URANIUM')
+ 	if player.getNumAvailableBonuses(iUranium) > 0:
+ 		return false
+ 
+@@ -1830,7 +1830,7 @@ def doImpactCrater2(argsList):
+ 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
+ 
+ 	if not plot.isNone():
+-		plot.setImprovementType(CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_MINE'))
++		plot.setImprovementType(findInfoTypeNumOrFail(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_MINE'))
+ 
+ 	return 1
+ 
+@@ -1838,7 +1838,7 @@ def getHelpImpactCrater2(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 
+-	iMine = CvUtil.findInfoTypeNum(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_MINE')
++	iMine = findInfoTypeNumOrFail(gc.getImprovementInfo,gc.getNumImprovementInfos(),'IMPROVEMENT_MINE')
+ 	szHelp = localText.getText("TXT_KEY_EVENT_IMPROVEMENT_GROWTH", ( gc.getImprovementInfo(iMine).getTextKey(), ))
+ 
+ 	return szHelp
+@@ -1965,7 +1965,7 @@ def applyTheHuns1(argsList):
+ 		return
+ 	plot = map.plotByIndex(listPlots[gc.getGame().getSorenRandNum(len(listPlots), "Hun event location")])
+ 	iNumUnits = numUnitsUprising(kTriggeredData.ePlayer) # advc.311
+-	iUnitType = CvUtil.findInfoTypeNum(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_HORSE_ARCHER')
++	iUnitType = findInfoTypeNumOrFail(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_HORSE_ARCHER')
+ 	barbPlayer = gc.getPlayer(gc.getBARBARIAN_PLAYER())
+ 	for i in range(iNumUnits):
+ 		barbPlayer.initUnit(iUnitType, plot.getX(), plot.getY(), UnitAITypes.UNITAI_ATTACK_CITY_LEMMING, DirectionTypes.DIRECTION_SOUTH)
+@@ -1995,7 +1995,7 @@ def applyTheVandals1(argsList):
+ 		return
+ 	plot = map.plotByIndex(listPlots[gc.getGame().getSorenRandNum(len(listPlots), "Vandal event location")])
+ 	iNumUnits = numUnitsUprising(kTriggeredData.ePlayer) # advc.311
+-	iUnitType = CvUtil.findInfoTypeNum(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_SWORDSMAN')
++	iUnitType = findInfoTypeNumOrFail(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_SWORDSMAN')
+ 	barbPlayer = gc.getPlayer(gc.getBARBARIAN_PLAYER())
+ 	for i in range(iNumUnits):
+ 		barbPlayer.initUnit(iUnitType, plot.getX(), plot.getY(), UnitAITypes.UNITAI_ATTACK_CITY_LEMMING, DirectionTypes.DIRECTION_SOUTH)
+@@ -2025,7 +2025,7 @@ def applyTheGoths1(argsList):
+ 		return
+ 	plot = map.plotByIndex(listPlots[gc.getGame().getSorenRandNum(len(listPlots), "Goth event location")])
+ 	iNumUnits = numUnitsUprising(kTriggeredData.ePlayer) # advc.311
+-	iUnitType = CvUtil.findInfoTypeNum(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_AXEMAN')
++	iUnitType = findInfoTypeNumOrFail(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_AXEMAN')
+ 	barbPlayer = gc.getPlayer(gc.getBARBARIAN_PLAYER())
+ 	for i in range(iNumUnits):
+ 		barbPlayer.initUnit(iUnitType, plot.getX(), plot.getY(), UnitAITypes.UNITAI_ATTACK_CITY_LEMMING, DirectionTypes.DIRECTION_SOUTH)
+@@ -2055,7 +2055,7 @@ def applyThePhilistines1(argsList):
+ 		return
+ 	plot = map.plotByIndex(listPlots[gc.getGame().getSorenRandNum(len(listPlots), "Philistine event location")])
+ 	iNumUnits = numUnitsUprising(kTriggeredData.ePlayer) # advc.311
+-	iUnitType = CvUtil.findInfoTypeNum(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_SPEARMAN')
++	iUnitType = findInfoTypeNumOrFail(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_SPEARMAN')
+ 	barbPlayer = gc.getPlayer(gc.getBARBARIAN_PLAYER())
+ 	for i in range(iNumUnits):
+ 		barbPlayer.initUnit(iUnitType, plot.getX(), plot.getY(), UnitAITypes.UNITAI_ATTACK_CITY_LEMMING, DirectionTypes.DIRECTION_SOUTH)
+@@ -2086,7 +2086,7 @@ def applyTheVedicAryans1(argsList):
+ 		return
+ 	plot = map.plotByIndex(listPlots[gc.getGame().getSorenRandNum(len(listPlots), "Vedic Aryan event location")])
+ 	iNumUnits = numUnitsUprising(kTriggeredData.ePlayer) # advc.311
+-	iUnitType = CvUtil.findInfoTypeNum(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_ARCHER')
++	iUnitType = findInfoTypeNumOrFail(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_ARCHER')
+ 	barbPlayer = gc.getPlayer(gc.getBARBARIAN_PLAYER())
+ 	for i in range(iNumUnits):
+ 		barbPlayer.initUnit(iUnitType, plot.getX(), plot.getY(), UnitAITypes.UNITAI_ATTACK_CITY_LEMMING, DirectionTypes.DIRECTION_SOUTH)
+@@ -2098,7 +2098,7 @@ def canTriggerSecurityTax(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iWalls = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_WALLS')
++	iWalls = findInfoTypeNumOrFail(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_WALLS')
+ 	if player.getNumCities() > player.getBuildingClassCount(iWalls):
+ 		return false
+ 
+@@ -2111,7 +2111,7 @@ def canTriggerLiteracy(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iLibrary = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_LIBRARY')
++	iLibrary = findInfoTypeNumOrFail(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_LIBRARY')
+ 	if player.getNumCities() > player.getBuildingClassCount(iLibrary):
+ 		return false
+ 
+@@ -2125,7 +2125,7 @@ def canTriggerTea(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+ 	# <!-- custom: replace the old CIVIC_MERCANTILISM with CIVIC_PROTECTIONISM. (GPT-5.2-Codex (summarized)) -->
+-	if player.isCivic(CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_PROTECTIONISM')):
++	if player.isCivic(findInfoTypeNumOrFail(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_PROTECTIONISM')):
+ 		return false
+ 
+ 	bCanTrade = false		
+@@ -2165,7 +2165,7 @@ def canTriggerHorseWhisperingDone(argsList):
+ 	trigger = gc.getEventTriggerInfo(kTriggeredData.eTrigger)
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iStable = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_STABLE')
++	iStable = findInfoTypeNumOrFail(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_STABLE')
+ 	if worldSizeTarget() > player.getBuildingClassCount(iStable):
+ 		return false
+ 
+@@ -2190,7 +2190,7 @@ def applyHorseWhisperingDone1(argsList):
+ 	map = gc.getMap()
+ 	plot = map.plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
+ 	iNumUnits = worldSizeTarget()
+-	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_HORSE_ARCHER')
++	iUnitClassType = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_HORSE_ARCHER')
+ 	iUnitType = gc.getCivilizationInfo(player.getCivilizationType()).getCivilizationUnits(iUnitClassType)
+ 
+ 	if iUnitType != -1:
+@@ -2240,7 +2240,7 @@ def canTriggerHarbormasterDone(argsList):
+ 	trigger = gc.getEventTriggerInfo(kTriggeredData.eTrigger)
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iHarbor = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_HARBOR')
++	iHarbor = findInfoTypeNumOrFail(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_HARBOR')
+ 	iHarborsRequired = worldSizeTarget()
+ 	if iHarborsRequired > player.getBuildingClassCount(iHarbor):
+ 		return false
+@@ -2277,7 +2277,7 @@ def canTriggerClassicLiteratureDone(argsList):
+ 	trigger = gc.getEventTriggerInfo(kTriggeredData.eTrigger)
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iLibrary = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_LIBRARY')
++	iLibrary = findInfoTypeNumOrFail(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_LIBRARY')
+ 	iBuildingsRequired = worldSizeTarget()
+ 	if iBuildingsRequired > player.getBuildingClassCount(iLibrary):
+ 		return false
+@@ -2297,7 +2297,7 @@ def canApplyClassicLiteratureDone2(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iEraAncient = CvUtil.findInfoTypeNum(gc.getEraInfo, gc.getNumEraInfos(), 'ERA_ANCIENT')
++	iEraAncient = findInfoTypeNumOrFail(gc.getEraInfo, gc.getNumEraInfos(), 'ERA_ANCIENT')
+ 
+ 	for iTech in range(gc.getNumTechInfos()):
+ 		if gc.getTechInfo(iTech).getEra() == iEraAncient and player.canResearch(iTech, false):
+@@ -2310,7 +2310,7 @@ def applyClassicLiteratureDone2(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iEraAncient = CvUtil.findInfoTypeNum(gc.getEraInfo, gc.getNumEraInfos(), 'ERA_ANCIENT')
++	iEraAncient = findInfoTypeNumOrFail(gc.getEraInfo, gc.getNumEraInfos(), 'ERA_ANCIENT')
+ 
+ 	listTechs = []
+ 	for iTech in range(gc.getNumTechInfos()):
+@@ -2326,8 +2326,8 @@ def getHelpClassicLiteratureDone3(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iSpecialist = CvUtil.findInfoTypeNum(gc.getSpecialistInfo, gc.getNumSpecialistInfos(), 'SPECIALIST_SCIENTIST', )
+-	iGreatLibrary = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_GREAT_LIBRARY')
++	iSpecialist = findInfoTypeNumOrFail(gc.getSpecialistInfo, gc.getNumSpecialistInfos(), 'SPECIALIST_SCIENTIST', )
++	iGreatLibrary = findInfoTypeNumOrFail(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_GREAT_LIBRARY')
+ 
+ 	szCityName = u""
+ 	(loopCity, iter) = player.firstCity(false)
+@@ -2347,7 +2347,7 @@ def canApplyClassicLiteratureDone3(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iGreatLibrary = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_GREAT_LIBRARY')
++	iGreatLibrary = findInfoTypeNumOrFail(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_GREAT_LIBRARY')
+ 
+ 	(loopCity, iter) = player.firstCity(false)
+ 	while(loopCity):
+@@ -2363,8 +2363,8 @@ def applyClassicLiteratureDone3(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iSpecialist = CvUtil.findInfoTypeNum(gc.getSpecialistInfo, gc.getNumSpecialistInfos(), 'SPECIALIST_SCIENTIST', )
+-	iGreatLibrary = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_GREAT_LIBRARY')
++	iSpecialist = findInfoTypeNumOrFail(gc.getSpecialistInfo, gc.getNumSpecialistInfos(), 'SPECIALIST_SCIENTIST', )
++	iGreatLibrary = findInfoTypeNumOrFail(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_GREAT_LIBRARY')
+ 
+ 	(loopCity, iter) = player.firstCity(false)
+ 	while(loopCity):
+@@ -2409,7 +2409,7 @@ def canTriggerMasterBlacksmithDone(argsList):
+ 	trigger = gc.getEventTriggerInfo(kTriggeredData.eTrigger)
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iForge = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_FORGE')
++	iForge = findInfoTypeNumOrFail(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_FORGE')
+ 	iBuildingsRequired = worldSizeTarget()
+ 	if iBuildingsRequired > player.getBuildingClassCount(iForge):
+ 		return false
+@@ -2430,7 +2430,7 @@ def canApplyMasterBlacksmithDone1(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iBonus = CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_COPPER')
++	iBonus = findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_COPPER')
+ 	city = player.getCity(kTriggeredData.iCityId)
+ 
+ 	if city is None:
+@@ -2464,7 +2464,7 @@ def applyMasterBlacksmithDone1(argsList):
+ 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
+ 	city = player.getCity(kTriggeredData.iCityId)
+ 
+-	iBonus = CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_COPPER')
++	iBonus = findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_COPPER')
+ 	plot.setBonusType(iBonus)
+ 
+ 	szBuffer = localText.getText("TXT_KEY_MISC_DISCOVERED_NEW_RESOURCE", (gc.getBonusInfo(iBonus).getTextKey(), city.getNameKey()))
+@@ -2505,7 +2505,7 @@ def canTriggerBestDefenseDone(argsList):
+ 	trigger = gc.getEventTriggerInfo(kTriggeredData.eTrigger)
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iCastle = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_CASTLE')
++	iCastle = findInfoTypeNumOrFail(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_CASTLE')
+ 	iBuildingsRequired = worldSizeTarget()
+ 	if iBuildingsRequired > player.getBuildingClassCount(iCastle):
+ 		return false
+@@ -2536,7 +2536,7 @@ def canApplyBestDefenseDone3(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iGreatWall = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_GREAT_WALL')
++	iGreatWall = findInfoTypeNumOrFail(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_GREAT_WALL')
+ 
+ 	(loopCity, iter) = player.firstCity(false)
+ 	while(loopCity):
+@@ -2562,7 +2562,7 @@ def getHelpSportsLeague1(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+ 	iRequired = worldSizeTarget()
+-	iBuilding = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_STATUE_OF_ZEUS')
++	iBuilding = findInfoTypeNumOrFail(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_STATUE_OF_ZEUS')
+ 
+ 	szHelp = localText.getText("TXT_KEY_EVENT_SPORTS_LEAGUE_HELP_1", (iRequired, gc.getBuildingInfo(iBuilding).getTextKey()))
+ 
+@@ -2573,7 +2573,7 @@ def canTriggerSportsLeagueDone(argsList):
+ 	trigger = gc.getEventTriggerInfo(kTriggeredData.eTrigger)
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iCastle = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_COLOSSEUM')
++	iCastle = findInfoTypeNumOrFail(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_COLOSSEUM')
+ 	iBuildingsRequired = worldSizeTarget()
+ 	if iBuildingsRequired > player.getBuildingClassCount(iCastle):
+ 		return false
+@@ -2585,7 +2585,7 @@ def canApplySportsLeagueDone3(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iZeus = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_STATUE_OF_ZEUS')
++	iZeus = findInfoTypeNumOrFail(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_STATUE_OF_ZEUS')
+ 
+ 	(loopCity, iter) = player.firstCity(false)
+ 	while(loopCity):
+@@ -2798,7 +2798,7 @@ def canTriggerEsteemedPlaywright(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+ 	# If source civ is operating this Civic, disallow the event to trigger.
+-	if player.isCivic(CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_SLAVERY')):
++	if player.isCivic(findInfoTypeNumOrFail(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_SLAVERY')):
+ 		return false
+ 
+ 	return true
+@@ -2829,7 +2829,7 @@ def canTriggerHighWarlord(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+ 	# If source civ is operating this Civic, disallow the event to trigger.
+-	if player.isCivic(CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_WAGE_LABOR')):
++	if player.isCivic(findInfoTypeNumOrFail(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_WAGE_LABOR')):
+ 		return false
+ 
+ 	return true
+@@ -2961,16 +2961,16 @@ def canTriggerGreed(argsList):
+ 		return false
+ 
+ 	listBonuses = []
+-	iOil = CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_OIL')
++	iOil = findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_OIL')
+ 	if 0 == player.getNumAvailableBonuses(iOil):
+ 		listBonuses.append(iOil)
+-	iIron = CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_IRON')
++	iIron = findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_IRON')
+ 	if 0 == player.getNumAvailableBonuses(iIron):
+ 		listBonuses.append(iIron)
+-	iHorse = CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_HORSE')
++	iHorse = findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_HORSE')
+ 	if 0 == player.getNumAvailableBonuses(iHorse):
+ 		listBonuses.append(iHorse)
+-	iCopper = CvUtil.findInfoTypeNum(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_COPPER')
++	iCopper = findInfoTypeNumOrFail(gc.getBonusInfo,gc.getNumBonusInfos(),'BONUS_COPPER')
+ 	if 0 == player.getNumAvailableBonuses(iCopper):
+ 		listBonuses.append(iCopper)
+ 
+@@ -3124,7 +3124,7 @@ def canTriggerWarChariotsDone(argsList):
+ 	trigger = gc.getEventTriggerInfo(kTriggeredData.eTrigger)
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	iNumUnits = worldSizeTarget() + 1
+-	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CHARIOT')
++	iUnitClassType = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CHARIOT')
+ 	if player.getUnitClassCount(iUnitClassType) < iNumUnits:
+ 		return false
+ 
+@@ -3151,7 +3151,7 @@ def canTriggerEliteSwordsDone(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+ 	iNumUnits = worldSizeTarget() + 1
+-	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_SWORDSMAN')
++	iUnitClassType = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_SWORDSMAN')
+ 	if player.getUnitClassCount(iUnitClassType) < iNumUnits:
+ 		return false
+ 
+@@ -3162,7 +3162,7 @@ def canApplyEliteSwordsDone2(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iCivic = CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_HEREDITARY_RULE')
++	iCivic = findInfoTypeNumOrFail(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_HEREDITARY_RULE')
+ 
+ 	if not player.isCivic(iCivic):
+ 		return false
+@@ -3193,7 +3193,7 @@ def getHelpWarships1(argsList):
+ 	kTriggeredData = argsList[1]
+ 
+ 	iNumUnits = worldSizeTarget()
+-	iBuilding = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_GREAT_LIGHTHOUSE')
++	iBuilding = findInfoTypeNumOrFail(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_GREAT_LIGHTHOUSE')
+ 	szHelp = localText.getText("TXT_KEY_EVENT_WARSHIPS_HELP_1", (iNumUnits, gc.getBuildingInfo(iBuilding).getTextKey()))
+ 
+ 	return szHelp
+@@ -3203,7 +3203,7 @@ def canTriggerWarshipsDone(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+ 	iNumUnits = worldSizeTarget()
+-	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_TRIREME')
++	iUnitClassType = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_TRIREME')
+ 
+ 	if player.getUnitClassCount(iUnitClassType) < iNumUnits:
+ 		return false
+@@ -3215,7 +3215,7 @@ def canApplyWarshipsDone2(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iBuilding = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_GREAT_LIGHTHOUSE')
++	iBuilding = findInfoTypeNumOrFail(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_GREAT_LIGHTHOUSE')
+ 	if player.getBuildingClassCount(gc.getBuildingInfo(iBuilding).getBuildingClassType()) == 0:
+ 		return false
+ 
+@@ -3228,7 +3228,7 @@ def getHelpGunsButter1(argsList):
+ 	kTriggeredData = argsList[1]
+ 
+ 	iNumUnits = worldSizeTarget() + 1
+-	iBuilding = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_TAJ_MAHAL')
++	iBuilding = findInfoTypeNumOrFail(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_TAJ_MAHAL')
+ 
+ 	szHelp = localText.getText("TXT_KEY_EVENT_GUNS_BUTTER_HELP_1", (iNumUnits, gc.getBuildingInfo(iBuilding).getTextKey()))
+ 
+@@ -3239,7 +3239,7 @@ def canTriggerGunsButterDone(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+ 	iNumUnits = worldSizeTarget() + 1
+-	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_MUSKETMAN')
++	iUnitClassType = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_MUSKETMAN')
+ 
+ 	if player.getUnitClassCount(iUnitClassType) < iNumUnits:
+ 		return false
+@@ -3251,7 +3251,7 @@ def canApplyGunsButterDone2(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iCivic = CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_VASSALAGE')
++	iCivic = findInfoTypeNumOrFail(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_VASSALAGE')
+ 
+ 	if not player.isCivic(iCivic):
+ 		return false
+@@ -3263,7 +3263,7 @@ def canApplyGunsButterDone3(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iBuilding = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_TAJ_MAHAL')
++	iBuilding = findInfoTypeNumOrFail(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_TAJ_MAHAL')
+ 	if player.getBuildingClassCount(gc.getBuildingInfo(iBuilding).getBuildingClassType()) == 0:
+ 		return false
+ 
+@@ -3285,7 +3285,7 @@ def getHelpNobleKnights1(argsList):
+ 	kTriggeredData = argsList[1]
+ 
+ 	iNumUnits = worldSizeTarget() + 1
+-	iBuilding = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_ORACLE')
++	iBuilding = findInfoTypeNumOrFail(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_ORACLE')
+ 
+ 	szHelp = localText.getText("TXT_KEY_EVENT_NOBLE_KNIGHTS_HELP_1", (iNumUnits, gc.getBuildingInfo(iBuilding).getTextKey()))
+ 
+@@ -3296,8 +3296,8 @@ def canTriggerNobleKnightsDone(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+ 	iNumUnits = worldSizeTarget() + 1
+-	iUnitHorseClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_HORSE_KNIGHT')
+-	iUnitCamelClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CAMEL_KNIGHT')
++	iUnitHorseClassType = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_HORSE_KNIGHT')
++	iUnitCamelClassType = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CAMEL_KNIGHT')
+ 
+ 	# <!-- custom: include camel knight units in this event. (GPT-5.2-Codex (summarized)) -->
+ 	#if player.getUnitClassCount(iUnitHorseClassType) < iNumUnits:
+@@ -3310,7 +3310,7 @@ def canTriggerNobleKnightsDone(argsList):
+ 	# advc.001 (see canTriggerCrusadeDone)
+ 	kActualTriggeredDataObject.eReligion = ReligionTypes(player.getStateReligion())
+ 
+-	iBuilding = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_ORACLE')
++	iBuilding = findInfoTypeNumOrFail(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_ORACLE')
+ 
+ 	(loopCity, iter) = player.firstCity(false)
+ 	while(loopCity):
+@@ -3329,7 +3329,7 @@ def canApplyNobleKnightsDone2(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iCivic = CvUtil.findInfoTypeNum(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_ORGANIZED_RELIGION')
++	iCivic = findInfoTypeNumOrFail(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_ORGANIZED_RELIGION')
+ 
+ 	if not player.isCivic(iCivic):
+ 		return false
+@@ -3356,15 +3356,15 @@ def getHelpOverwhelm1(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 
+-	iDestroyer = CvUtil.findInfoTypeNum(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_DESTROYER')
++	iDestroyer = findInfoTypeNumOrFail(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_DESTROYER')
+ 	iNumDestroyers = 4
+-	iBattleship = CvUtil.findInfoTypeNum(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_BATTLESHIP')
++	iBattleship = findInfoTypeNumOrFail(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_BATTLESHIP')
+ 	iNumBattleships = 2
+-	iCarrier = CvUtil.findInfoTypeNum(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_CARRIER')
++	iCarrier = findInfoTypeNumOrFail(gc.getUnitInfo, gc.getNumUnitInfos(), 'UNIT_CARRIER')
+ 	iNumCarriers = 3
+-	iFighter = CvUtil.findInfoTypeNum(gc.getSpecialUnitInfo, gc.getNumSpecialUnitInfos(), 'SPECIALUNIT_FIGHTER')
++	iFighter = findInfoTypeNumOrFail(gc.getSpecialUnitInfo, gc.getNumSpecialUnitInfos(), 'SPECIALUNIT_FIGHTER')
+ 	iNumFighters = 9
+-	iProject = CvUtil.findInfoTypeNum(gc.getProjectInfo, gc.getNumProjectInfos(), 'PROJECT_MANHATTAN_PROJECT')
++	iProject = findInfoTypeNumOrFail(gc.getProjectInfo, gc.getNumProjectInfos(), 'PROJECT_MANHATTAN_PROJECT')
+ 
+ 	szHelp = localText.getText("TXT_KEY_EVENT_OVERWHELM_HELP_1", (iNumDestroyers, gc.getUnitInfo(iDestroyer).getTextKey(), iNumBattleships, gc.getUnitInfo(iBattleship).getTextKey(), iNumCarriers, gc.getUnitInfo(iCarrier).getTextKey(), iNumFighters, gc.getSpecialUnitInfo(iFighter).getTextKey(), gc.getProjectInfo(iProject).getTextKey()))
+ 
+@@ -3374,22 +3374,22 @@ def canTriggerOverwhelmDone(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iDestroyer = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_DESTROYER')
++	iDestroyer = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_DESTROYER')
+ 	iNumDestroyers = 4
+ 	if player.getUnitClassCount(iDestroyer) < iNumDestroyers:
+ 		return false
+ 
+-	iBattleship = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_BATTLESHIP')
++	iBattleship = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_BATTLESHIP')
+ 	iNumBattleships = 2
+ 	if player.getUnitClassCount(iBattleship) < iNumBattleships:
+ 		return false
+ 
+-	iCarrier = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CARRIER')
++	iCarrier = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CARRIER')
+ 	iNumCarriers = 3
+ 	if player.getUnitClassCount(iCarrier) < iNumCarriers:
+ 		return false
+ 
+-	iFighter = CvUtil.findInfoTypeNum(gc.getSpecialUnitInfo, gc.getNumSpecialUnitInfos(), 'SPECIALUNIT_FIGHTER')
++	iFighter = findInfoTypeNumOrFail(gc.getSpecialUnitInfo, gc.getNumSpecialUnitInfos(), 'SPECIALUNIT_FIGHTER')
+ 	iNumFighters = 9
+ 	iNumPlayerFighters = 0
+ 	(loopUnit, iter) = player.firstUnit(false)
+@@ -3416,7 +3416,7 @@ def canApplyOverwhelmDone3(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iProject = CvUtil.findInfoTypeNum(gc.getProjectInfo, gc.getNumProjectInfos(), 'PROJECT_MANHATTAN_PROJECT')
++	iProject = findInfoTypeNumOrFail(gc.getProjectInfo, gc.getNumProjectInfos(), 'PROJECT_MANHATTAN_PROJECT')
+ 	if gc.getTeam(player.getTeam()).getProjectCount(iProject) == 0:
+ 		return false
+ 
+@@ -3724,7 +3724,7 @@ def doSpyDiscovered3(argsList):
+ 
+ 	plot = player.getCapitalCity().plot()
+ 	iNumUnits = player.getNumCities() / 4
+-	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_TANK')
++	iUnitClassType = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_TANK')
+ 	iUnitType = gc.getCivilizationInfo(player.getCivilizationType()).getCivilizationUnits(iUnitClassType)
+ 
+ 	if iUnitType != -1:
+@@ -3745,8 +3745,8 @@ def canTriggerNuclearProtest(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iICBMClass = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_ICBM')
+-	iTacNukeClass = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_TACTICAL_NUKE')
++	iICBMClass = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_ICBM')
++	iTacNukeClass = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_TACTICAL_NUKE')
+ 	if player.getUnitClassCount(iICBMClass) + player.getUnitClassCount(iTacNukeClass) < 10:
+ 		return false
+ 
+@@ -3756,8 +3756,8 @@ def doNuclearProtest1(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 
+-	iICBMClass = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_ICBM')
+-	iTacNukeClass = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_TACTICAL_NUKE')
++	iICBMClass = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_ICBM')
++	iTacNukeClass = findInfoTypeNumOrFail(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_TACTICAL_NUKE')
+ 
+ 	(loopUnit, iter) = player.firstUnit(false)
+ 	while (loopUnit):
+
+diff --git a/Assets/Python/SASUtils.py b/Assets/Python/SASUtils.py
+index 713f4eb0a..4d754edb2 100644
+--- a/Assets/Python/SASUtils.py
++++ b/Assets/Python/SASUtils.py
+@@ -174,6 +174,13 @@ def getInfoTypeOrFail(tag):
+ 		raise ValueError("Missing XML tag: '%s'" % tag)
+ 	return iType
+ 
++# <!-- custom: strict variant of CvUtil.findInfoTypeNum for older Python callsites that pass info getter/count functions instead of using gc.getInfoTypeForString directly. Keep missing static XML tags loud like getInfoTypeOrFail. (GPT-5.5) -->
++def findInfoTypeNumOrFail(infoGetter, numInfosGetter, tag):
++	iType = CvUtil.findInfoTypeNum(infoGetter, numInfosGetter, tag)
++	if iType == -1:
++		raise ValueError("Missing XML tag: '%s'" % tag)
++	return iType
++
+ # <!-- custom: shared helper to resolve NewConcept IDs by XML type (e.g. "CONCEPT_SAS_SCORE_TAB_COLUMNS" for the Score-tab Legend clickable Sevopedia/NewConcept entry). Returns -1 when missing so callers can skip optional links safely. (GPT-5.3-Codex) -->
+ def getNewConceptID(szConceptType):
+ 	for i in range(gc.getNumNewConceptInfos()):
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 7b9c70e00..108a0c4bf 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1016,7 +1016,11 @@ int AIFoundValue::evaluate()
+ 			// unlocks more tiles, whipping/specialists, and faster worker/settler development. Apply capital-only resource
+ 			// value percents and concrete river/fresh-water boosts so Karakorum/Beijing-like starts prefer nearby
+ 			// corn/fresh-water positions over slower commerce/hammer-resource positions. (GPT-5.5) -->
+-			const bool bStartingFoodBonus = (kSet.isStartingLoc() && (GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0 || aiBonusImprovementYield[YIELD_FOOD] > 0));
++			// <!-- custom: Raw XML food is not enough to classify a starting resource as food: AdvCiv-SAS Elephants have XML food
++			// but Camp adds no food, and seafood inside an inland BFC is not usable like coastal seafood. For capital-only
++			// food-resource scaling, use normal improved food on land and XML food only for water bonuses when the candidate
++			// city is coastal. This keeps AI_foundValue from treating inland fish or low-food bonuses like Pig + Corn. (GPT-5.5) -->
++			const bool bStartingFoodBonus = (kSet.isStartingLoc() && (p.isWater() ? bCoastal && GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0 : aiBonusImprovementYield[YIELD_FOOD] > 0));
+ 
+ 			if (!bBarbarian && // advc.303: Barbarians don't care about resource trade
+ 				// advc.031: Otherwise we can already trade the resource
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2828c4847..4781b5cbb 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -41,9 +41,10 @@ CvUnitAI::~CvUnitAI()
+ // grass hills, seafood, and useful low-food bonus tiles from making decent sites look bad, while still catching
+ // tundra/plains/peak-heavy sites. For the "good-enough food bonus" count, use the normal bonus improvement's food
+ // yield for land bonuses: in AdvCiv-SAS, Elephants have +1 XML food but Camp adds no food, so they should not satisfy
+-// the same first-city stop-roaming gate as Pig + Corn, whose improvements add strong food. Seafood keeps using XML
+-// food because water improvements are not in the land bonus-improvement helper. (GPT-5.5 + ChatGPT 5.5) Note: oasis
+-// is unworkable but food and commerce rich (as of now 3 food 2 commerce) so do not count as bad. -->
++// the same first-city stop-roaming gate as Pig + Corn, whose improvements add strong food. Seafood counts only for
++// coastal candidate cities; Karakorum moved to a tundra-heavy inland site partly because fish inside the BFC was counted
++// as a food bonus even though the city could not use it like a coastal seafood capital. (GPT-5.5 + ChatGPT 5.5) Note:
++// oasis is unworkable but food and commerce rich (as of now 3 food 2 commerce) so do not count as bad. -->
+ static void SAS_countBFCFoodBonusesAndBadPlots(CvPlot const& kCityPlot, TeamTypes eTeam, int& iFoodBonuses, int& iBadPlots)
+ {
+ 	iFoodBonuses = 0;
+@@ -59,7 +60,7 @@ static void SAS_countBFCFoodBonusesAndBadPlots(CvPlot const& kCityPlot, TeamType
+ 		if (eBonus != NO_BONUS)
+ 		{
+ 			const ImprovementTypes eBonusImprovement = CvUnitAI::getBonusSpecificLandImprovement(eBonus);
+-			const bool bFoodBonus = (pLoopPlot->isWater() ? GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0 : eBonusImprovement != NO_IMPROVEMENT && GC.getInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD) > 0);
++			const bool bFoodBonus = (pLoopPlot->isWater() ? kCityPlot.isCoastalLand(GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN)) && GC.getInfo(eBonus).getYieldChange(YIELD_FOOD) > 0 : eBonusImprovement != NO_IMPROVEMENT && GC.getInfo(eBonusImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD) > 0);
+ 			if (bFoodBonus)
+ 				iFoodBonuses++;
+ 		}
+@@ -3452,8 +3453,11 @@ bool CvUnitAI::AI_foundFirstCity()
+ 		int iBestPlotLowFoodPlots = 0;
+ 		if (pBestPlot != NULL)
+ 			SAS_countBFCFoodBonusesAndBadPlots(*pBestPlot, getTeam(), iBestPlotFoodBonuses, iBestPlotLowFoodPlots);
+-		const bool bBadCurrentFirstCity = (canFound(plot()) && iBadLowFoodPlotsThreshold > 0 && iCurrentLowFoodPlots >= iBadLowFoodPlotsThreshold);
+-		const bool bBadBestKnownFirstCity = (pBestPlot != NULL && iBadLowFoodPlotsThreshold > 0 && iBestPlotLowFoodPlots >= iBadLowFoodPlotsThreshold);
++		const bool bCurrentFirstCityStrongFood = (iGoodEnoughFoodBonuses > 0 && iCurrentFoodBonuses >= iGoodEnoughFoodBonuses);
++		const bool bBestKnownFirstCityStrongFood = (iGoodEnoughFoodBonuses > 0 && iBestPlotFoodBonuses >= iGoodEnoughFoodBonuses);
++		// <!-- custom: Maya started on a pig+maize+fresh-water BFC, but the bad-plot count alone marked it bad because it also had many plains/tundra/desert tiles; the settler then wandered into tundra and founded a much worse capital when the roam window expired. Enough real food bonuses make a first city strategically viable, so do not treat such starts as bad solely from low-food filler plots. (GPT-5.5) -->
++		const bool bBadCurrentFirstCity = (canFound(plot()) && iBadLowFoodPlotsThreshold > 0 && iCurrentLowFoodPlots >= iBadLowFoodPlotsThreshold && !bCurrentFirstCityStrongFood);
++		const bool bBadBestKnownFirstCity = (pBestPlot != NULL && iBadLowFoodPlotsThreshold > 0 && iBestPlotLowFoodPlots >= iBadLowFoodPlotsThreshold && !bBestKnownFirstCityStrongFood);
+ 		const bool bCurrentFirstCityGoodEnoughToStopRoaming = (pBestPlot == plot() || (bBadBestKnownFirstCity && (getPlot().isFreshWater() || (iGoodEnoughFoodBonuses > 0 && iCurrentFoodBonuses >= iGoodEnoughFoodBonuses))));
+ 		if (canFound(plot()) && !bBadCurrentFirstCity && bCurrentFirstCityGoodEnoughToStopRoaming)
+ 		{
+@@ -3474,10 +3478,10 @@ bool CvUnitAI::AI_foundFirstCity()
+ 				int iLoopFoodBonuses = 0;
+ 				int iLoopLowFoodPlots = 0;
+ 				SAS_countBFCFoodBonusesAndBadPlots(kLoopPlot, getTeam(), iLoopFoodBonuses, iLoopLowFoodPlots);
+-				const bool bBadLoopFirstCity = (iBadLowFoodPlotsThreshold > 0 && iLoopLowFoodPlots >= iBadLowFoodPlotsThreshold);
++				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
++				const bool bBadLoopFirstCity = (iBadLowFoodPlotsThreshold > 0 && iLoopLowFoodPlots >= iBadLowFoodPlotsThreshold && iLoopValue < iCurrentFirstCityValue);
+ 				if (bBadLoopFirstCity)
+ 					continue;
+-				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
+ 				int iLoopAdjustedValue = iLoopValue - 75 * iLoopPathTurns;
+ 				const bool bPostRoamOneStepRecheck = (kGame.getElapsedGameTurns() > 0 && !kOwner.AI_isPlotCitySite(getPlot()) && iLoopPathTurns == 1);
+ 				const int iCurrentWaterScore = (getPlot().isFreshWater() ? 1 : 0) + (getPlot().isRiver() ? 1 : 0);
+@@ -3534,10 +3538,11 @@ bool CvUnitAI::AI_foundFirstCity()
+ 				int iLoopFoodBonuses = 0;
+ 				int iLoopLowFoodPlots = 0;
+ 				SAS_countBFCFoodBonusesAndBadPlots(kLoopPlot, getTeam(), iLoopFoodBonuses, iLoopLowFoodPlots);
+-				const bool bBadLoopFirstCity = (iBadLowFoodPlotsThreshold > 0 && iLoopLowFoodPlots >= iBadLowFoodPlotsThreshold);
+-				if (bBadLoopFirstCity || (iGoodEnoughFoodBonuses > 0 && iLoopFoodBonuses < iGoodEnoughFoodBonuses && !kLoopPlot.isFreshWater()))
+-					continue;
+ 				const int iLoopValue = kOwner.AI_foundValue(kLoopPlot.getX(), kLoopPlot.getY(), -1, true);
++				// <!-- custom: While roaming away from a clearly bad first-capital BFC, do not let the same bad cached site re-enter the visible-good-enough pool merely because its stale city-site value ties the known best. Karakorum moved from 49,43 back to the original tundra-heavy 47,43 (13 bad BFC plots) instead of continuing toward the visible 51,41 river/pig site (1 bad BFC plot). Keep using AI_foundValue for ranking, but require very bad candidates to be strictly better than the known site before they can compete. (GPT-5.5) -->
++				const bool bBadLoopFirstCity = (iBadLowFoodPlotsThreshold > 0 && iLoopLowFoodPlots > iBadLowFoodPlotsThreshold && iLoopValue <= iBestKnownFirstCityValue);
++				if (bBadLoopFirstCity)
++					continue;
+ 				if (iLoopValue <= 0)
+ 					continue;
+ 				const int iLoopGoodEnoughValue = iLoopValue - 50 * iLoopPathTurns;
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 521ae2c16..a0b29d3f4 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -5369,13 +5369,13 @@ Follow-up fix after testing:
+ - Added more BBAI logging, including high-detail BFC diagnostics at unit log level 3, to show candidate coordinates, found values, adjusted values, path turns, revealed/unrevealed BFC counts, food bonuses, bad plots, and per-tile BFC yields/terrain/feature/bonus data. ChatGPT 5.5 reviewed the logs and helped identify the final narrow anti-bounce/tie-breaker cleanup. Implementation and changes with the help of GPT-5.5 on codex too thanks.
+ - Retesting preserved the good Karakorum result and fixed the London wasted-wandering case.
+ 
+-Update 2: Fix AI Settler first-city gate treating low-food resources as food bonuses
++Update 2: Fix AI Settler first-city gate and starting-site scoring treating low-food or unusable resources as food bonuses
+ 
+-- The first-city stop-roaming gate counted any resource with natural/XML food as a food bonus. In AdvCiv-SAS, Elephants have +1 natural food but their Camp improvement adds no food, so they were incorrectly treated like Pig/Corn-tier food resources, and so 3 Elephants may be > Pig + Corn site despite the latter (Pig + Corn) giving much more food when improved and the former (3 Elephants) barely any
+-- For land resources, count a first-city “good enough” food bonus only when the resource’s normal improvement adds food. Seafood still uses XML food because water improvements are outside the land bonus-improvement helper.
+-- This changed London settling to one tile east (now takes the Plains Cow/Cattle too, and Athens moving away from Coast for some reason to a green land site (that may be better))
++- The first-city stop-roaming gate and first-city resource scaling could count natural/XML food as a food bonus. In AdvCiv-SAS, Elephants have +1 natural food but their Camp improvement adds no food, so they were incorrectly treated like Pig/Corn-tier food resources; e.g., 3 Elephants could compete too strongly with a Pig + Corn site despite Pig + Corn giving much more food when improved. Inland seafood could also be counted even when the candidate city was not coastal and therefore could not use it like a coastal seafood capital.
++- For land resources, count first-city food only when the resource's normal improvement adds food. For water resources, count XML food only when the candidate city is coastal; water improvements are outside the land bonus-improvement helper, but inland seafood should not satisfy the first-city good-enough food gate or capital food-resource scaling.
++- This fixed the Karakorum case where the settler could move back toward the tundra-heavy cached start instead of continuing toward the stronger river/pig site, and kept the Maya recovery improved in testing.
+ 
+-Count land bonus
++Implementation:
+ 
+ Files changed:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 74509f21a..01fb7bac4 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -108,7 +108,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ 
+ - **Launch guard for SAS defines (startup/load/Sevopedia):** Added a strict define-integrity check using one **int sentinel** and one **string sentinel**, validated at pre-game start, game start, save load, Sevopedia creation, and Sevopedia show. If a value is missing or mismatched, Python raises a **fatal error** with `actual` vs `expected` values and guidance to launch from a Windows shortcut. The game will be **unplayable if the config is incorrect**. Change in: [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py). See also [Quick Install Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop).
+ - **Lazy init and cache SAS defines** (e.g., in advisors) to `None` and then to their actual value once if cache is `None`. This prevents and **empirically fixes**  direct caching in init, that empirically causes **python-like crashy behaviour** (i.e. similar behaviour to when python code is changed during runtime) on XML SAS define change of a value (instead of no effect and requiring a restart for the change to take effect). See for example [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)'s `initDefines` method. Possibly similar issues and crashes encountered when early caching sevopedia playground's background and cache. See [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior).
+-- **Fail-fast XML lookup hardening:** replaced almost all `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values. Notably allowed to detect and fix incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` instead of correct `DirectionTypes.DIRECTION_NORTH` (in Planet Generator map), or incorrect `getInfoTypeOrFail("PLOT_PEAK")` failing instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map).
++- **Fail-fast XML lookup hardening:** replaced almost all `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values. Notably allowed to detect and fix incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` instead of correct `DirectionTypes.DIRECTION_NORTH` (in Planet Generator map), or incorrect `getInfoTypeOrFail("PLOT_PEAK")` failing instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map). (Requires AdvCiv-SAS 5940+) Also added `findInfoTypeNumOrFail(...)` for older `CvUtil.findInfoTypeNum(...)` callsites that need getter/count function. Note: now also double-checked by a GitHub workflow check which now blocks new raw static/literal Python info-type lookups unless they are explicitly listed as dynamic/guarded legacy exceptions.
+ - **Static define-key audit:** added [`audit_define_keys.py`](/LLM_Helpers/audit_define_keys.py), which statically greps every literal `getDefine{BOOL,FLOAT,INT,STRING}("X")` call across Python and DLL and verifies `X` is declared in mod XML, base BTS XML, or vanilla Civ4 XML. Catches **per-key drift** (renamed/removed XML entries) before runtime. A runtime fail-loud wrapper isn't practical here because `getDefine*` returns `0`/`""` for both missing and legitimately zero/empty keys (unlike `getInfoTypeForString` which has a clean `-1` sentinel); a static grep is also **cheaper and simpler to maintain** than wrapping every call site. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - **Unused-text-key audit + cleanup:** added [`audit_unused_text_keys.py`](/LLM_Helpers/audit_unused_text_keys.py), which flags mod GameText `<Tag>TXT_KEY_*` entries referenced **nowhere** in the mod, base BTS, or vanilla Civ4 (Python + DLL + XML); dynamically-built (`"TXT_KEY_BUG_OPT_"+id`) and engine-derived (`_PEDIA/_HELP/...`) key families are routed to a separate review bucket to avoid false positives. Used it to **remove confirmed dead GameText entries** from [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml). See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - (Requires AdvCiv-SAS 5930+) **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `SAS_MAGIC_WORLDSIZE_*` constants matching `CIV4WorldInfo.xml` order, and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change). (Requires AdvCiv-SAS 5935+) This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)), and [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)). The checks also run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md).
+@@ -177,11 +177,11 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Who builds settlers:** only the **capital** can build settlers, and only at **pop ≥ 5** (unless a city is stuck at low growth, in which case building one can be allowed). This leverages food→hammer conversion efficiently and reduces early barbarian losses from small frontier cities producing settlers.
+ - **Avoid excessively watery capitals:** if fewer than **12** "good starter BFC tiles" (land + coastal bonus tiles, excluding the city tile), apply a strong penalty so the capital doesn’t start surrounded by mostly low-yield coast. Other cities may still take such sites later. See [KI#44](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but).
+ - **Additional tweaks:** value fresh water more (logic refactored/merged), value settling on **hill-plains** much more, and disable legacy "anti-crowd" biases so the choice stays yield-driven.
+-- (Requires AdvCiv-SAS 5921+) **First-city scoring**: value food bonuses, fresh-water city tiles, and river support more for the capital than for ordinary later city sites, because early capital growth snowballs into faster tile access, worker/settler production, whipping, and specialists. See [KI#144](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well).
++- (Requires AdvCiv-SAS 5940+) **First-city scoring**: value usable food bonuses, fresh-water city tiles, and river support more for the capital than for ordinary later city sites, because early capital growth snowballs into faster tile access, worker/settler production, whipping, and specialists. See [KI#144](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well).
+ - **Free window:** during the first ~75 turns at Normal speed (scaled by game speed), a "free to produce settler" period lets the capital grow before switching into chosen early strategy (offense, defense, etc.).
+ - **First city logic:** settlers consider a larger no-penalty scouting radius for founding the capital (`CvUnitAI::AI_foundFirstCity`), and no longer auto-reject non-coastal/non-river sites if a worse "preferred" site exists. It’ll just pick the **best** overall site. See [KI#43](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes).
+-- (Requires AdvCiv-SAS 5920+) **First-city roaming**: Since the first city is especially important, unlike later cities that can be more strategic or semi-decent resource grabs, starting settlers can now **roam briefly for a better first-city site when the current site is bad enough**. This uses a heuristic **BFC bad-plot count** so settlers can move away from clearly bad capital sites without making decent starts wander needlessly, like a human player would: settlers can now spend the bounded early window to **move to visible good-enough sites**, do **safe adjacent scouting for better information**, or **wait if no safe scouting step exists**. Bad plots include no-yield plots, bad water, no-bonus foodless hills (so not hill grassland for example as of now), and no-bonus low-food flat land, while seafood, useful bonus tiles, grass hills, high-yield plots, and workable water are preserved. Empirically, this is notably especially effective in moving away from bad tundra/plain no-bonus heavy starts for the first city.
+-- (Requires AdvCiv-SAS 5921+) **First-city recheck after scouting**: **instead of settling the first good-enough** capital site found **after leaving a very bad start**, the **settler now runs first-city evaluation again** on **nearby visible plots** including **now newly visible** ones first, like a human player would. Empirically, this helped choose even stronger nearby capital sites with more food bonuses and/or river support rather than stopping at the first merely-no-longer-bad site. As of now this applies only to the first city, because as of now only the first city is deemed most needing it critically, and later settlers usually know more of the local map so they would generally have a lower need to change route midway (may create other issues too maybe). See [KI#144](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well).
++- (Requires AdvCiv-SAS 5940+) **First-city roaming**: Since the first city is especially important, unlike later cities that can be more strategic or semi-decent resource grabs, starting settlers can now **roam briefly for a better first-city site when the current site is bad enough**. This uses a heuristic **BFC bad-plot count** so settlers can move away from clearly bad capital sites without making decent starts wander needlessly, like a human player would: settlers can now spend the bounded early window to **move to visible good-enough sites**, do **safe adjacent scouting for better information**, or **wait if no safe scouting step exists**. Bad plots include no-yield plots, bad water, no-bonus foodless hills (so not hill grassland for example as of now), and no-bonus low-food flat land, while usable/coastal seafood, useful bonus tiles, grass hills, high-yield plots, and workable water are preserved. Empirically, this is notably especially effective in moving away from bad tundra/plain no-bonus heavy starts for the first city.
++- (Requires AdvCiv-SAS 5940+) **First-city recheck after scouting**: **instead of settling the first good-enough** capital site found **after leaving a very bad start**, the **settler now runs first-city evaluation again** on **nearby visible plots** including **now newly visible** ones first, like a human player would. Empirically, this helped choose even stronger nearby capital sites with more usable food bonuses and/or river support rather than stopping at the first merely-no-longer-bad site. As of now this applies only to the first city, because as of now only the first city is deemed most needing it critically, and later settlers usually know more of the local map so they would generally have a lower need to change route midway (may create other issues too maybe). See [KI#144](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#144---fixed-base-advciv-issue-and-advciv-sas-settler-free-window-follow-up-ai-settlers-sometimes-do-not-move-away-from-a-high-bad-plot-count-start-eg-high-non-bonus-tundra-and-plains-they-now-scout-and-hunt-for-better-not-very-bad-sites-and-no-longer-stop-at-first-good-enough-site-but-instead-now-rerun-evaluate-city-site-again-on-newly-visible-plots-if-a-better-site-eg-more-foodriversfresh-water-exists-nearby-which-we-now-value-more-too-for-first-city-as-well).
+ - (Requires AdvCiv-SAS 5928+) **Naval-heavy-map coastal settling:** On naval-heavy (e.g., Archipelago) maps, settler AI site valuation now optionally add **extra valuation for coastal sites**, as of now especially for the **first city**. This helps early work boat, scouting/contact, trade, first galleys, Moai, or other water-focused buildings; e.g., Cuzco needed a high first-city coastal extra valuation to prefer a coastal Pig + Banana + 2-Sugar river site over a central 4-Sugar river grass site; and kept **moderate for other cities** than the capital after testing showed higher values could, for example, overpull Japan toward tundra coast instead of grass. See [KI#146](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#146---fixedenhanced-base-advciv-issue-of-ai-undervaluing-coastal-settling-on-naval-heavy-maps).
+ - **Parking addressed (early game):** Reduced cases of settlers idling in the capital despite safe/urgent expansion, by updating `CvUnitAI::AI_found` to found sooner when conditions allow. In autoplay samples, Spain shifted from **1 city @T100** to **~2 by T60–70** and **~3 by T80–90** (settler production varies somehow, but we move much sooner after we have it now). See [KI#68](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#68---tremendously-improved-ai-having-a-settler-parked-from-turn---45-to-turn-100-and-still-didnt-found-any-city-fixedaddressed-in-cvunitaiai_found).
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=12 omittedFiles=1 embeddedPatchBytes=94818

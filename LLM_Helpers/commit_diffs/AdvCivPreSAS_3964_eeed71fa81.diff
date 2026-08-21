@@ -1,0 +1,128 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3964
+# Commit: eeed71fa81cf669b38dd48db1d5ef780e1c4f9f1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f9962dd5591cc12d108013c3e0525bfb954c234b
+# Title: A little refactoring (BUG overflow help)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	23	CvGameCoreDLL/CvCity.cpp
+2	2	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 08e6a4e5f..35234c22e 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -2565,43 +2565,36 @@ int CvCity::computeOverflow(int iRawOverflow, int iProductionModifier,
+ 	OrderTypes eOrderType, int* piProductionGold, int* piLostProduction,
+ 	int iPopulationChange) const
+ {
+-	if(piProductionGold != NULL)
+-		*piProductionGold = 0;
+-	if(piLostProduction != NULL)
+-		*piLostProduction = 0;
++	LOCAL_REF(int, iProductionGold, piProductionGold, 0);
++	LOCAL_REF(int, iLostProduction, piLostProduction, 0);
+ 	/*  (BtS and the unofficial patch cap overflow before factoring out the modifiers.
+ 		However, they also apply generic production modifiers to the overflow once
+ 		work on the next order starts, which AdvCiv no longer does.) */
+ 	int iOverflow = unmodifyOverflow(iRawOverflow, iProductionModifier);
+ 	int iMaxOverflow = overflowCapacity(iProductionModifier, iPopulationChange);
+-	int iLostProduction = iOverflow - iMaxOverflow;
++	iLostProduction = iOverflow - iMaxOverflow;
+ 	iOverflow = std::min(iMaxOverflow, iOverflow);
+-	if(iLostProduction <= 0)
++	if (iLostProduction <= 0)
+ 		return iOverflow;
+-	if(piLostProduction != NULL)
+-		*piLostProduction = iLostProduction;
+-	if(piProductionGold != NULL)
+-		*piProductionGold = (iLostProduction * failGoldPercent(eOrderType)) / 100;
++	iProductionGold = (iLostProduction * failGoldPercent(eOrderType)) / 100;
+ 	return iOverflow;
+ } // </advc.064b>
+ 
+ // BUG - Hurry Overflow: (advc.064)
+ bool CvCity::hurryOverflow(HurryTypes eHurry, int* piProduction, int* piGold, bool bCountThisTurn) const
+ {
+-	if(piProduction != NULL)
+-		*piProduction = 0;
+-	if(piGold != NULL)
+-		*piGold = 0;
++	LOCAL_REF(int, iProduction, piProduction, 0);
++	LOCAL_REF(int, iGold, piGold, 0);
+ 
+-	if(!canHurry(eHurry))
++	if (!canHurry(eHurry))
+ 		return false;
+ 
+-	if(GC.getInfo(eHurry).getProductionPerPopulation() == 0)
++	if (GC.getInfo(eHurry).getProductionPerPopulation() == 0)
+ 		return true;
+ 
+ 	int iTotal, iCurrent, iModifier;
+ 	OrderTypes eOrder = NO_ORDER; // advc.064b
+-	if(isProductionUnit())
++	if (isProductionUnit())
+ 	{
+ 		UnitTypes eUnit = getProductionUnit();
+ 		iTotal = getProductionNeeded(eUnit);
+@@ -2609,7 +2602,7 @@ bool CvCity::hurryOverflow(HurryTypes eHurry, int* piProduction, int* piGold, bo
+ 		iModifier = getProductionModifier(eUnit);
+ 		eOrder = ORDER_TRAIN;
+ 	}
+-	else if(isProductionBuilding())
++	else if (isProductionBuilding())
+ 	{
+ 		BuildingTypes eBuilding = getProductionBuilding();
+ 		iTotal = getProductionNeeded(eBuilding);
+@@ -2634,11 +2627,8 @@ bool CvCity::hurryOverflow(HurryTypes eHurry, int* piProduction, int* piGold, bo
+ 				option. However: Feature production can no longer contribute to
+ 				overflow, so ignore that in any case. */
+ 			getCurrentProductionDifference(!bCountThisTurn, true, true, !bCountThisTurn);
+-	if (piProduction != NULL)
+-	{
+-		*piProduction = computeOverflow(iRawOverflow, iModifier, eOrder, piGold, NULL,
+-				-hurryPopulation(eHurry)); // </advc.064b>
+-	}
++	iProduction = computeOverflow(iRawOverflow, iModifier, eOrder, piGold, NULL,
++			-hurryPopulation(eHurry)); // </advc.064b>
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index db4c9a2b5..82563fe3f 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1368,7 +1368,7 @@ void CvCityAI::AI_chooseProduction()
+ 				{
+ 					if (AI_chooseUnit(UNITAI_ATTACK_CITY))
+ 					{
+-						if (gCityLogLevel >= 2) logBBAI("      City %S uses choose start city attack stack", getName().GetCString());
++						if (gCityLogLevel >= 2) logBBAI("      City %S chooses to start city attack stack", getName().GetCString());
+ 						return;
+ 					}
+ 				}
+@@ -1377,7 +1377,7 @@ void CvCityAI::AI_chooseProduction()
+ 				{
+ 					if (AI_chooseUnit(UNITAI_ATTACK))
+ 					{
+-						if (gCityLogLevel >= 2) logBBAI("      City %S uses choose add to city attack stack", getName().GetCString());
++						if (gCityLogLevel >= 2) logBBAI("      City %S chooses to add to city attack stack", getName().GetCString());
+ 						return;
+ 					}
+ 				}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4111

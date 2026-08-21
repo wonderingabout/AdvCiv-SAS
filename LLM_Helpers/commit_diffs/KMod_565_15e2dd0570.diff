@@ -1,0 +1,88 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 565
+# Commit: 15e2dd0570afa1741046b4bc4d1e8e3f50e0d722
+# History segment: K-Mod history
+# Parent used for diff: 5651864a37ab2a1d82a262e8321d7c5278e7e3ea
+# Title: Starting locations are now evaluated with the bEasyCulture flag. Fixed a couple of special cases which allowed AI groups to change their head unit AI type wi...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+11	4	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b24bec570..0e8507404 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2561,7 +2561,7 @@ CvPlayerAI::CvFoundSettings::CvFoundSettings(const CvPlayerAI& kPlayer, bool bSt
+ {
+ 	iMinRivalRange = -1;
+ 	iGreed = 120;
+-	bEasyCulture = false;
++	bEasyCulture = bStartingLoc;
+ 	bAmbitious = false;
+ 	bFinancial = false;
+ 	bDefensive = false;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 4fa98e157..910af2a24 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3430,7 +3430,10 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 	CvUnit* pLoopUnit;
+ 
+ 	pUnitNode = headUnitNode();
+-	CvSelectionGroup* pStaticGroup = 0; // K-Mod
++	// K-Mod. Some variables to help us regroup appropriately if not everyone can move.
++	CvSelectionGroup* pStaticGroup = 0;
++	UnitAITypes eHeadAI = getHeadUnitAI();
++	// K-Mod end
+ 
+ 	while (pUnitNode != NULL)
+ 	{
+@@ -3445,10 +3448,10 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 		else
+ 		{
+ 			// pLoopUnit->joinGroup(NULL, true);
+-			// K-Mod. all units left behind should stay in the same group.
++			// K-Mod. all units left behind should stay in the same group. (unless it would mean a change of group AI)
+ 			// (Note: it is important that units left behind are not in the original group.
+ 			// The later code assume that the original group has moved, and if it hasn't, there will be an infinite loop.)
+-			if (pStaticGroup)
++			if (pStaticGroup && (isHuman() || pStaticGroup->getHeadUnitAI() == eHeadAI))
+ 				pLoopUnit->joinGroup(pStaticGroup, true);
+ 			else
+ 			{
+@@ -4602,6 +4605,7 @@ CvSelectionGroup* CvSelectionGroup::splitGroup(int iSplitSize, CvUnit* pNewHeadU
+ void CvSelectionGroup::regroupSeparatedUnits()
+ {
+ 	const CvUnit* pHeadUnit = getHeadUnit();
++	UnitAITypes eHeadUnitAI = getHeadUnitAI(); // the AI doesn't like to stay grouped when the group's AI type had changed.
+ 	std::vector<CvSelectionGroup*> new_groups;
+ 
+ 	CLLNode<IDInfo>* pUnitNode = headUnitNode();
+@@ -4617,7 +4621,10 @@ void CvSelectionGroup::regroupSeparatedUnits()
+ 			{
+ 				if (pLoopUnit->plot() == new_groups[i]->plot())
+ 				{
+-					pLoopUnit->joinGroup(new_groups[i], true);
++					if (isHuman() || new_groups[i]->getHeadUnitAI() == eHeadUnitAI)
++						pLoopUnit->joinGroup(new_groups[i], true);
++					else
++						pLoopUnit->joinGroup(0, true);
+ 					bFoundGroup = true;
+ 				}
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2567

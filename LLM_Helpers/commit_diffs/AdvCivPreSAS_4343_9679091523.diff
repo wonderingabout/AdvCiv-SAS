@@ -1,0 +1,96 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4343
+# Commit: 96790915238bdaf7d1ef38658e69fe1035129687
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4ec04f6cccabe178809319439711a6fb81c58322
+# Title: Standalone bugfix for Tectonics' improperly disabled climate menu
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+27	5	PrivateMaps/Tectonics.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Tectonics.py b/PrivateMaps/Tectonics.py
+index e2f538135..1fa29ca1d 100644
+--- a/PrivateMaps/Tectonics.py
++++ b/PrivateMaps/Tectonics.py
+@@ -71,11 +71,12 @@
+ #      The number of plates could be more tunable.
+ #      I could also rewrite the whole rivers thing...
+ 
++# advc: Some imports were unused
+ from CvPythonExtensions import *
+-import CvUtil
++#import CvUtil
+ import CvMapGeneratorUtil
+-import Popup as PyPopup
+-from CvMapGeneratorUtil import TerrainGenerator
++#import Popup as PyPopup
++#from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ 
+ # advc.165:
+@@ -183,6 +184,8 @@ def generateTerrainTypes():
+ 	terrainTypes = terraingen.generateTerrain()
+ 	return terrainTypes
+ 
++# advc: Obsolete (probably since v3.7)
++'''
+ def addFeatures():
+ 	NiTextOut("Adding Features (from Python Continents) ...")
+ 	# advc.021a: was ...==5
+@@ -196,6 +199,7 @@ def addFeatures():
+ class NoIceFeatureGenerator(FeatureGenerator):
+ 	def addIceAtPlot(self, pPlot, iX, iY, lat):
+ 		return
++'''
+ 
+ class voronoiMap:
+ 	def __init__(self,landPlates,seaPlates,hotspotsF):
+@@ -1826,7 +1830,25 @@ def findStartingPlot(argsList):
+ 		return -10
+ 	return None
+ 
+-class MediterraneanFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
++# <advc.001> (from Taurus) The AdvCiv DLL ensures that map scripts without
++# a climate option use Temperate climate, but let's still include the
++# local bugfix - for portability.
++class TectonicsFeatureGenerator(FeatureGenerator):
++	def patch_getClimate(self, func, *args, **kwargs):
++		getClimate = self.map.getClimate
++		def getTemperateClimate(self):
++			return 0
++		self.map.getClimate = getTemperateClimate.__get__(self.map, type(self.map))
++		try:
++			getattr(FeatureGenerator, func)(self, *args, **kwargs)
++		finally:
++			self.map.getClimate = getClimate
++	def addIceAtPlot(self, pPlot, iX, iY, lat):
++		self.patch_getClimate('addIceAtPlot', pPlot, iX, iY, lat)
++	def addJunglesAtPlot(self, pPlot, iX, iY, lat):
++		self.patch_getClimate('addJunglesAtPlot', pPlot, iX, iY, lat)
++
++class MediterraneanFeatureGenerator(TectonicsFeatureGenerator): # </advc.001>
+ 	def getLatitudeAtPlot(self, iX, iY):
+ 		"returns 0.0 for tropical, up to 1.0 for polar"
+ 		# 25/90 to 65/90:
+@@ -1839,7 +1861,7 @@ def addFeatures():
+ 		featuregen.addFeatures()
+ 		return 0
+ 	else:
+-		featuregen = CvMapGeneratorUtil.FeatureGenerator()
++		featuregen = TectonicsFeatureGenerator() # advc.001 (was FeatureGenerator)
+ 		featuregen.addFeatures()
+ 		return 0
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2520

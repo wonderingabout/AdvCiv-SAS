@@ -1,0 +1,631 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1715
+# Commit: b3e8b89c938d797d951f75a51fe6800d91ff39b2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d6125a4c38c37aacda11dbd37d6752f90d21b0f8
+# Title: Comment tag for city trades changed to "advc.ctr"
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/GlobalDefines_advc.xml
+1	1	Assets/XML/Text/CIV4GameText_advc.xml
+13	13	CvGameCoreDLL/CvCity.cpp
+3	3	CvGameCoreDLL/CvCity.h
+1	1	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvCityAI.h
+4	4	CvGameCoreDLL/CvDeal.cpp
+1	1	CvGameCoreDLL/CvDeal.h
+1	1	CvGameCoreDLL/CvEnums.h
+2	2	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	1	CvGameCoreDLL/CvGameCoreUtils.h
+17	17	CvGameCoreDLL/CvPlayer.cpp
+2	2	CvGameCoreDLL/CvPlayer.h
+10	10	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.h
+2	2	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvPlot.h
+1	1	CvGameCoreDLL/CyEnumsInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 9f74ac042..bc6c0e828 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -851,7 +851,7 @@
+ 		<iDefineIntVal>25</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- [advc.122] To receive a city through trade, a civ needs to have at
++	<!-- advc.ctr: To receive a city through trade, a civ needs to have at
+ 		 least this percentage of tile culture in the city tile.
+ 		 0 for BtS behavior; recommended: 10. -->
+ 	<Define>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index d2a686acc..29971c996 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5626,7 +5626,7 @@
+ 		<Spanish>%d1 ciudades con cultura %s2_Level (%d3_Thresh [ICON_CULTURE])</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.122 -->
++	<!-- advc.ctr -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_CITY_CEDED_TO</Tag>
+ 		<English>%s1_Ldr has ceded %s2_City to %s3_Ldr.</English>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index e602d8300..786aebf3a 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -298,7 +298,7 @@ CvCity::~CvCity() // advc.003u: Merged with the deleted uninit function
+ 
+ 
+ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
+-	bool bUpdatePlotGroups, /* advc.122: */ int iOccupationTimer)
++	bool bUpdatePlotGroups, /* advc.ctr: */ int iOccupationTimer)
+ {
+ 	//reset(iID, eOwner, kPlot.getX(), kPlot.getY());
+ 	// <advc.003u> Reset merged into constructor
+@@ -314,7 +314,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
+ 	setName(kOwner.getNewCityName(), /* advc.106k: */ false, true);
+ 
+ 	setEverOwned(getOwner(), true);
+-	/*  advc.122: To prevent updateCultureLevel from bumping units in
++	/*  advc.ctr: To prevent updateCultureLevel from bumping units in
+ 		surrounding tiles after trading a city under occupation. Don't call
+ 		setOccupationTimer though -- don't need all those updates. */
+ 	m_iOccupationTimer = iOccupationTimer;
+@@ -989,7 +989,7 @@ void CvCity::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThresh
+ 
+ void CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl)
+ {
+-	bool bCede = false; // advc.122
++	bool bCede = false; // advc.ctr
+ 	switch (eTask)
+ 	{
+ 	case TASK_RAZE:
+@@ -999,17 +999,17 @@ void CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOption, bool
+ 	case TASK_DISBAND:
+ 		GET_PLAYER(getOwner()).disband(*this);
+ 		break;
+-	// <advc.122>
++	// <advc.ctr>
+ 	case TASK_CEDE: // Meaning (in this context): as part of a peace deal
+ 		bCede = true;
+-		// fall through // </advc.122>
++		// fall through // </advc.ctr>
+ 	case TASK_GIFT:
+ 		if (getLiberationPlayer(false) == iData1)
+-			liberate(false, /* advc.122: */ bCede);
++			liberate(false, /* advc.ctr: */ bCede);
+ 		else
+ 		{
+ 			GET_PLAYER((PlayerTypes)iData1).acquireCity(this, false, true, true,
+-					bCede); // advc.122
++					bCede); // advc.ctr
+ 		}
+ 		break;
+ 
+@@ -14785,7 +14785,7 @@ void CvCity::meetNewOwner(TeamTypes eOtherTeam, TeamTypes eNewOwner) const
+ } // </advc.071>
+ 
+ 
+-void CvCity::liberate(bool bConquest, /* advc.122: */ bool bPeaceDeal)
++void CvCity::liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal)
+ {
+ 	PlayerTypes ePlayer = getLiberationPlayer(bConquest);
+ 	if(ePlayer == NO_PLAYER)
+@@ -14828,7 +14828,7 @@ void CvCity::liberate(bool bConquest, /* advc.122: */ bool bPeaceDeal)
+ 			getX(), getY(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 
+ 	GET_PLAYER(ePlayer).acquireCity(this, false, true, true);
+-	if(!bPeaceDeal) // advc.122
++	if(!bPeaceDeal) // advc.ctr
+ 		GET_PLAYER(ePlayer).AI_rememberEvent(getOwner(), MEMORY_LIBERATED_CITIES); // advc.130j
+ 
+ 	if (kLiberationTeam.isVassal(getTeam()))
+@@ -14840,8 +14840,8 @@ void CvCity::liberate(bool bConquest, /* advc.122: */ bool bPeaceDeal)
+ 		kLiberationTeam.setMasterPower(kLiberationTeam.getMasterPower() + iNewMasterLand - iOldMasterLand);
+ 		kLiberationTeam.setVassalPower(kLiberationTeam.getVassalPower() + iNewVassalLand - iOldVassalLand);
+ 	}
+-	GET_PLAYER(ePlayer).AI_updateAttitudeCache(getOwner()); // advc.122
+-	// dlph.23: Commented out. setCulture now done by advc.122 in acquireCity.
++	GET_PLAYER(ePlayer).AI_updateAttitudeCache(getOwner()); // advc.ctr
++	// dlph.23: Commented out. setCulture now done by advc.ctr in acquireCity.
+ 	/*if (NULL != pPlot) {
+ 		CvCity* pCity = pPlot->getPlotCity();
+ 		if (NULL != pCity) {
+@@ -14859,7 +14859,7 @@ void CvCity::liberate(bool bConquest, /* advc.122: */ bool bPeaceDeal)
+ 	}*/
+ }
+ 
+-PlayerTypes CvCity::getLiberationPlayer(bool bConquest, /* advc.122: */ TeamTypes eWarTeam) const
++PlayerTypes CvCity::getLiberationPlayer(bool bConquest, /* advc.ctr: */ TeamTypes eWarTeam) const
+ {
+ 	if (isCapital())
+ 		return NO_PLAYER;
+@@ -14968,7 +14968,7 @@ PlayerTypes CvCity::getLiberationPlayer(bool bConquest, /* advc.122: */ TeamType
+ 			CvPlot* pLoopPlot = ::plotCity(getX(), getY(), iPlot);
+ 
+ 			if (NULL != pLoopPlot)
+-			{	// advc.122: was VisibleEnemyUnit; and eWarTeam added.
++			{	// advc.ctr: was VisibleEnemyUnit; and eWarTeam added.
+ 				if (pLoopPlot->isVisibleEnemyCityAttacker(eBestPlayer, eWarTeam))
+ 				{
+ 					return NO_PLAYER;
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index cd6c176aa..a90761e1d 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -949,8 +949,8 @@ public:
+ 	void setBuildingHealthChange(BuildingClassTypes eBuildingClass, int iChange);			// Exposed to Python
+ 
+ 	PlayerTypes getLiberationPlayer(bool bConquest,									   // Exposed to Python
+-			TeamTypes eWarTeam = NO_TEAM) const; // advc.122
+-	void liberate(bool bConquest, /* advc.122: */ bool bPeaceDeal = false);							   // Exposed to Python
++			TeamTypes eWarTeam = NO_TEAM) const; // advc.ctr
++	void liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal = false);							   // Exposed to Python
+ 	void meetNewOwner(TeamTypes eOtherTeam, TeamTypes eNewOwner) const; // advc.071
+ 
+ 	void changeNoBonusCount(BonusTypes eBonus, int iChange);						  // Exposed to Python
+@@ -994,7 +994,7 @@ protected:
+ 	/*  Subclasses need to call this; not called by base.
+ 		May also want to override it. </advc.003u> */
+ 	virtual void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bUpdatePlotGroups,
+-			int iOccupationTimer); // advc.122
++			int iOccupationTimer); // advc.ctr
+ 
+ 	// <advc> Moved here for quicker inspection in debugger
+ 	CvWString m_szName;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 35ece8c46..80154af27 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -70,7 +70,7 @@ CvCityAI::~CvCityAI()
+ 
+ // Instead of having CvCity::init call CvCityAI::AI_init
+ void CvCityAI::init(int iID, PlayerTypes eOwner, int iX, int iY,
+-	bool bBumpUnits, bool bUpdatePlotGroups, /* advc.122: */ int iOccupationTimer)
++	bool bBumpUnits, bool bUpdatePlotGroups, /* advc.ctr: */ int iOccupationTimer)
+ {
+ 	CvCity::init(iID, eOwner, iX, iY, bBumpUnits, bUpdatePlotGroups, iOccupationTimer);
+ 	//AI_reset(); // advc.003u: Merged into constructor
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index f01276fa3..c4b504ada 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -17,7 +17,7 @@ public:
+ 	~CvCityAI();
+ 	// advc.003u: Override replacing AI_init. Parameter list copied from CvCity::init.
+ 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bUpdatePlotGroups,
+-			int iOccupationTimer = 0); // advc.122
++			int iOccupationTimer = 0); // advc.ctr
+ 
+ 	void AI_doTurn();
+ 	void AI_assignWorkingPlots();
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index ecfb05605..2ef737b3c 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -246,7 +246,7 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 						(TeamTypes)pNode->m_data.m_iData);
+ 			} // </advc.104>
+ 			bool bSave = startTrade(pNode->m_data, getFirstPlayer(), getSecondPlayer(),
+-					bPeace); // advc.122
++					bPeace); // advc.ctr
+ 			bBumpUnits = bBumpUnits || pNode->m_data.m_eItemType == TRADE_PEACE; // K-Mod
+ 
+ 			if (bSave)
+@@ -277,7 +277,7 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 						(TeamTypes)pNode->m_data.m_iData);
+ 			} // </advc.104>
+ 			bool bSave = startTrade(pNode->m_data, getSecondPlayer(), getFirstPlayer(),
+-					bPeace); // advc.122
++					bPeace); // advc.ctr
+ 			bBumpUnits = bBumpUnits || pNode->m_data.m_eItemType == TRADE_PEACE; // K-Mod
+ 
+ 			if (bSave)
+@@ -763,7 +763,7 @@ void CvDeal::read(FDataStreamBase* pStream)
+ 
+ // Returns true if the trade should be saved...
+ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
+-	bool bPeace) // advc.122
++	bool bPeace) // advc.ctr
+ {
+ 	bool bSave = false;
+ 
+@@ -816,7 +816,7 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
+ 		if (pCity != NULL)
+ 		{
+ 			if (gTeamLogLevel >= 2) logBBAI("    Player %d (%S) gives a city due to TRADE_CITIES with %d (%S)", eFromPlayer, GET_PLAYER(eFromPlayer).getCivilizationDescription(0), eToPlayer, GET_PLAYER(eToPlayer).getCivilizationDescription(0));
+-			pCity->doTask(/* advc.122: */ bPeace ? TASK_CEDE :
++			pCity->doTask(/* advc.ctr: */ bPeace ? TASK_CEDE :
+ 					TASK_GIFT, eToPlayer);
+ 		}
+ 		break;
+
+diff --git a/CvGameCoreDLL/CvDeal.h b/CvGameCoreDLL/CvDeal.h
+index f9ffad097..667f8e3bf 100644
+--- a/CvGameCoreDLL/CvDeal.h
++++ b/CvGameCoreDLL/CvDeal.h
+@@ -121,7 +121,7 @@ public:
+ protected:
+ 
+ 	bool startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
+-			bool bPeace); // advc.122
++			bool bPeace); // advc.ctr
+ 	void endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam,
+ 			bool bUpdateAttitude = true, // advc.036
+ 			PlayerTypes eCancelPlayer = NO_PLAYER); // advc.130p
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 8a923e9e6..f43a27cbb 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1124,7 +1124,7 @@ enum TaskTypes				// Exposed to Python
+ 	TASK_RALLY_PLOT,
+ 	TASK_CLEAR_RALLY_PLOT,
+ 	TASK_LIBERATE,
+-	TASK_CEDE, // advc.122
++	TASK_CEDE, // advc.ctr
+ 
+ #ifdef _USRDLL
+ 	NUM_TASK_TYPES
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 0a97b2a89..e1b645976 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1490,7 +1490,7 @@ bool PUF_isEnemy(const CvUnit* pUnit, int iData1, int iData2)
+ 
+ 	return (iData2 ? eOtherTeam != eOurTeam : atWar(eOtherTeam, eOurTeam));
+ }
+-// <advc.122>
++// <advc.ctr>
+ bool PUF_isEnemyCityAttacker(const CvUnit* pUnit, int iData1, int iData2)
+ {
+ 	if(iData2 >= 0)
+@@ -1508,7 +1508,7 @@ bool PUF_isEnemyCityAttacker(const CvUnit* pUnit, int iData1, int iData2)
+ 			return false;
+ 	}
+ 	return PUF_isEnemy(pUnit, iData1, false);
+-} // </advc.122>
++} // </advc.ctr>
+ 
+ bool PUF_isVisible(const CvUnit* pUnit, int iData1, int iData2)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 5624fd31c..6f99878b6 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -220,7 +220,7 @@ bool PUF_isCombatTeam(const CvUnit* pUnit, int iData1, int iData2);
+ bool PUF_isOtherPlayer( const CvUnit* pUnit, int iData1, int iData2 = -1);
+ bool PUF_isOtherTeam( const CvUnit* pUnit, int iData1, int iData2 = -1);
+ bool PUF_isEnemy( const CvUnit* pUnit, int iData1, int iData2 = -1);
+-// advc.122:
++// advc.ctr:
+ bool PUF_isEnemyCityAttacker( const CvUnit* pUnit, int iData1, int iData2 = -1);
+ bool PUF_isVisible( const CvUnit* pUnit, int iData1, int iData2 = -1);
+ bool PUF_isVisibleDebug( const CvUnit* pUnit, int iData1, int iData2 = -1);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 848bfb1bd..20c098512 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1645,7 +1645,7 @@ CvPlotGroup* CvPlayer::initPlotGroup(CvPlot* pPlot)
+ 
+ 
+ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bUpdatePlotGroups,
+-	int iOccupationTimer) // advc.122
++	int iOccupationTimer) // advc.ctr
+ {
+ 	//PROFILE_FUNC(); // advc.003o
+ 	CvCityAI* pCity = m_cities->add(); // advc.003u: was = addCity()
+@@ -1656,7 +1656,7 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bUpdatePlotGrou
+ 	}
+ 	FAssertMsg(!GC.getMap().plot(iX, iY)->isCity(), "No city is expected at this plot when initializing new city");
+ 	pCity->init(pCity->getID(), getID(), iX, iY, bBumpUnits, bUpdatePlotGroups,
+-			iOccupationTimer); // advc.122
++			iOccupationTimer); // advc.ctr
+ 	/*  advc.104: Moved out of CvCity::init so that the new city is
+ 		already fully initialized */
+ 	setFoundedFirstCity(true);
+@@ -1665,7 +1665,7 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bUpdatePlotGrou
+ 
+ 
+ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool bUpdatePlotGroups,  // advc: style changes; comments (there was only one before)
+-	bool bPeaceDeal) // advc.122
++	bool bPeaceDeal) // advc.ctr
+ {
+ 	CvPlot& kCityPlot = *pOldCity->plot();
+ 	{	// Kill ICBMs
+@@ -1764,7 +1764,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 		}
+ 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szCapturedBy,
+ 				pOldCity->getX(), pOldCity->getY(), (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
+-	} // <advc.122> City-ceded announcement, replay msg
++	} // <advc.ctr> City-ceded announcement, replay msg
+ 	else if (bTrade &&  // CvCity::liberate handles liberation announcement and replay msg.
+ 		pOldCity->getLiberationPlayer(false) != getID())
+ 	{
+@@ -1796,7 +1796,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szHasCeded,
+ 				kCityPlot.getX(), kCityPlot.getY(), (ColorTypes)GC.getInfoTypeForString(
+ 				"COLOR_HIGHLIGHT_TEXT"));
+-	} // </advc.122>
++	} // </advc.ctr>
+ 
+ 	// Capture gold
+ 	int iCaptureGold = 0;
+@@ -1906,7 +1906,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 
+ 	if (bTrade) // Repercussions of cession: tile culture, war success (city culture: further down)
+ 	{
+-		// <advc.122>
++		// <advc.ctr>
+ 		for(int i = 0; i < NUM_CITY_PLOTS; i++)
+ 		{
+ 			CvPlot* pPlot = ::plotCity(kCityPlot.getX(), kCityPlot.getY(), i);
+@@ -1924,7 +1924,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 			pPlot->changeCulture(eOldOwner, -convertedCulture, false);
+ 			pPlot->changeCulture(getID(), convertedCulture, false);
+ 		}
+-		// BtS code replaced by the loop above // </advc.122>
++		// BtS code replaced by the loop above // </advc.ctr>
+ 		/*for (int iDX = -1; iDX <= 1; iDX++) {
+ 			for (int iDY = -1; iDY <= 1; iDY++) {
+ 				CvPlot* pLoopPlot = ::plotXY(kCityPlot.getX(), kCityPlot.getY(), iDX, iDY);
+@@ -1961,7 +1961,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 
+ 	// Create new city and assign data from temporary variables
+ 	CvCity* pNewCity = initCity(kCityPlot.getX(), kCityPlot.getY(), !bConquest, false,
+-			// advc.122: Moved (way) up
++			// advc.ctr: Moved (way) up
+ 			(bTrade && !bRecapture) ? iOccupationTimer : 0);
+ 	FAssert(pNewCity != NULL);
+ 	CvCityAI& kNewCity = pNewCity->AI(); // advc.003u
+@@ -2058,14 +2058,14 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 	if (bTrade)
+ 	{
+ 		//if (isHuman() || getTeam() == TEAMID(eOldOwner))
+-		// advc.122: Only copy the anger timers if a reset to 0 could be exploited
++		// advc.ctr: Only copy the anger timers if a reset to 0 could be exploited
+ 		if (isHuman() && (GET_TEAM(eOldOwner).isHuman() || TEAMID(eOldOwner) == getTeam()))
+ 		{
+ 			kNewCity.changeHurryAngerTimer(iHurryAngerTimer);
+ 			kNewCity.changeConscriptAngerTimer(iConscriptAngerTimer);
+ 			kNewCity.changeDefyResolutionAngerTimer(iDefyResolutionAngerTimer);
+ 		}
+-		/*if (!bRecapture) // advc.122: Moved up
++		/*if (!bRecapture) // advc.ctr: Moved up
+ 			kNewCity.changeOccupationTimer(iOccupationTimer);*/
+ 	}
+ 
+@@ -4009,7 +4009,7 @@ bool CvPlayer::canTradeWith(PlayerTypes eWhoTo) const
+ 	// advc: Team-level checks moved to new CvTeam function
+ 	if(!GET_TEAM(getTeam()).canTradeWith(TEAMID(eWhoTo)) && !canTradeNetworkWith(eWhoTo))
+ 		return false;
+-	// <advc.122>
++	// <advc.ctr>
+ 	CLinkList<TradeData> items;
+ 	// Speed is not an issue; canTradeWith is only called during human-AI diplo.
+ 	buildTradeTable(eWhoTo, items);
+@@ -4017,7 +4017,7 @@ bool CvPlayer::canTradeWith(PlayerTypes eWhoTo) const
+ 		return true;
+ 	items.clear();
+ 	GET_PLAYER(eWhoTo).buildTradeTable(getID(), items);
+-	return (items.getLength() > 0); // </advc.122>
++	return (items.getLength() > 0); // </advc.ctr>
+ }
+ 
+ 
+@@ -4083,9 +4083,9 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 			break;
+ 		}
+ 		CvCity const& kCity = *pCity;
+-		if (kCity.getLiberationPlayer(false, /* advc.122: */ getTeam()) == eWhoTo)
++		if (kCity.getLiberationPlayer(false, /* advc.ctr: */ getTeam()) == eWhoTo)
+ 			return true;
+-		// <advc.122>
++		// <advc.ctr>
+ 		if(kCity.isCapital() || !kCity.isRevealed(kToTeam.getID(), false))
+ 			break;
+ 		// Can't trade so long as the previous owner hasn't accepted the loss (let's ignore kCity.getOriginalOwner())
+@@ -4111,7 +4111,7 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 				// Tile culture, not city culture.
+ 				kCityPlot.getCulture(eWhoTo) > kCityPlot.getCulture(getID())))
+ 			return true;
+-		// </advc.122>
++		// </advc.ctr>
+ 		break;
+ 	}
+ 	case TRADE_GOLD:
+@@ -4225,7 +4225,7 @@ bool CvPlayer::canPossiblyTradeItem(PlayerTypes eWhoTo, TradeableItems eItemType
+ 	case TRADE_CITIES:
+ 		return (GET_PLAYER(eWhoTo).canReceiveTradeCity() &&
+ 				GC.getGame().getMaxCityElimination() <= 0 &&
+-				// advc.122: Can't buy cities from rival-capitulated vassals
++				// advc.ctr: Can't buy cities from rival-capitulated vassals
+ 				(!kOurTeam.isCapitulated() || kOurTeam.isVassal(kToTeam.getID())));
+ 	case TRADE_GOLD:
+ 	case TRADE_GOLD_PER_TURN:
+@@ -21930,7 +21930,7 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& o
+ 			if (!::atWar(getTeam(), GET_PLAYER(eOtherPlayer).getTeam())) // K-Mod
+ 			{
+ 				for (CLLNode<TradeData>* pNode = ourInventory.head(); pNode != NULL; pNode = ourInventory.next(pNode))
+-				{	// advc.122: Allow cities to be bought
++				{	// advc.ctr: Allow cities to be bought
+ 					/*if (pFirstOffer->m_data.m_eItemType == TRADE_CITIES || pNode->m_data.m_eItemType == TRADE_CITIES)
+ 						pNode->m_data.m_bHidden = true;
+ 					else*/
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 1f89c0ef6..3c8303a52 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -81,9 +81,9 @@ public:
+ 	CvPlotGroup* initPlotGroup(CvPlot* pPlot);
+ 
+ 	CvCity* initCity(int iX, int iY, bool bBumpUnits, bool bUpdatePlotGroups,																																// Exposed to Python
+-			int iOccupationTimer = 0); // advc.122
++			int iOccupationTimer = 0); // advc.ctr
+ 	void acquireCity(CvCity* pCity, bool bConquest, bool bTrade, bool bUpdatePlotGroups,																							// Exposed to Python
+-			bool bPeaceDeal = false); // advc.122
++			bool bPeaceDeal = false); // advc.ctr
+ 	void killCities();													// Exposed to Python
+ 	CvWString getNewCityName() const;																																								// Exposed to Python
+ 	void getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eCivilization) const;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index ea55403db..4a0cdfa58 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1658,10 +1658,10 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity)  // advc: style changes, advc.0
+ 				if(bRaze) logBBAI("  Razing enemy cultural victory city");
+ 			}
+ 		} // </advc.116>
+-	} // <advc.122>
++	} // <advc.ctr>
+ 	if(!isBarbarian() && !kCity.isHolyCity() && !kCity.isEverOwned(getID()) &&
+ 			!kCity.hasActiveWorldWonder() && AI_isAwfulSite(kCity))
+-		bRaze = true; // </advc.122>
++		bRaze = true; // </advc.ctr>
+ 
+ 	if(!bRaze)
+ 	{
+@@ -13245,16 +13245,16 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCityAI const& kCity, PlayerTypes ePlayer)
+ 	CvPlot const& p = *kCity.plot();
+ 	/*if(pCity->getLiberationPlayer(false) == ePlayer)
+ 		return NO_DENIAL;*/
+-	// advc.122: Not so fast
++	// advc.ctr: Not so fast
+ 	bool const bLib = kCity.getLiberationPlayer(false, getTeam()) == ePlayer;
+ 	if(!bLib && !kPlayer.isHuman() && kPlayer.getTeam() != getTeam() &&
+ 		!kCity.isEverOwned(ePlayer))
+ 	{
+-		// <advc.122> "We don't want to trade this" seems appropriate
++		// <advc.ctr> "We don't want to trade this" seems appropriate
+ 		if(GET_PLAYER(ePlayer).AI_isAwfulSite(kCity))
+-			return DENIAL_UNKNOWN; // </advc.122>
++			return DENIAL_UNKNOWN; // </advc.ctr>
+ 		if(kPlayer.getNumCities() > 3 &&
+-			/*  advc.122 (comment): Now covered by CvPlayer::canTradeItem,
++			/*  advc.ctr (comment): Now covered by CvPlayer::canTradeItem,
+ 				but threshold there can be disabled through XML. */
+ 			p.calculateCulturePercent(ePlayer) == 0)
+ 		{
+@@ -13275,7 +13275,7 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCityAI const& kCity, PlayerTypes ePlayer)
+ 			return DENIAL_TOO_MUCH;
+ 		return NO_DENIAL;
+ 	}*/
+-	// <advc.122> work in progress
++	// <advc.ctr> work in progress
+ 	CvPlot const& kCityPlot = *kCity.plot();
+ 	if(kCityPlot.getCulture(getID()) > kCityPlot.getCulture(ePlayer))
+ 		return DENIAL_NEVER; // Tbd.: This condition is too coarse
+@@ -13302,7 +13302,7 @@ return DENIAL_NEVER;
+ 			eTowardThem < ATTITUDE_FRIENDLY)
+ 		return DENIAL_ATTITUDE;
+ 	return NO_DENIAL;
+-	// </advc.122>
++	// </advc.ctr>
+ }
+ 
+ /*  advc (comment): This player pays for the embargo and ePlayer stops trading
+@@ -26720,7 +26720,7 @@ bool CvPlayerAI::AI_isAdjacentCitySite(CvPlot const& p, bool bCheckCenter) const
+ 	return false;
+ } // </advc.121>
+ 
+-/*  <advc.122> Says whether kCity is in a spot where probably no city belongs.
++/*  <advc.ctr> Says whether kCity is in a spot where probably no city belongs.
+ 	This player is the AI civ considering to obtain the city.
+ 	Some overlap with CvPlayerAI::AI_foundValue, but it's difficult to make
+ 	that function work for plots with an actual city. */
+@@ -26769,7 +26769,7 @@ bool CvPlayerAI::AI_isAwfulSite(CvCity const& kCity) const
+ 			decentTiles += 0.4;
+ 	}
+ 	return decentTiles < 6.99;
+-} // </advc.122>
++} // </advc.ctr>
+ 
+ // K-Mod
+ bool CvPlayerAI::AI_deduceCitySite(const CvCity* pCity) const
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 5f969859c..eebc51244 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -536,7 +536,7 @@ public:
+ 	CvPlot* AI_getCitySite(int iIndex) const;
+ 	// advc.117, advc.121:
+ 	bool AI_isAdjacentCitySite(CvPlot const& p, bool bCheckCenter) const;
+-	bool AI_isAwfulSite(CvCity const& kCity) const; // advc.122
++	bool AI_isAwfulSite(CvCity const& kCity) const; // advc.ctr
+ 	bool AI_deduceCitySite(const CvCity* pCity) const; // K-Mod
+ 	int AI_countPotentialForeignTradeCities(bool bCheckConnected = true, bool bCheckForeignTradePolicy = true, CvArea* pIgnoreArea = 0) const; // K-Mod
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 92466bd0d..9e6aac190 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3204,12 +3204,12 @@ bool CvPlot::isVisibleEnemyUnit(PlayerTypes ePlayer) const
+ {
+ 	return (plotCheck(PUF_isEnemy, ePlayer, false, NO_PLAYER, NO_TEAM, PUF_isVisible, ePlayer) != NULL);
+ }
+-// <advc.122>
++// <advc.ctr>
+ bool CvPlot::isVisibleEnemyCityAttacker(PlayerTypes eDefender, TeamTypes eAssumePeace) const
+ {
+ 	return (plotCheck(PUF_isEnemyCityAttacker, eDefender, eAssumePeace,
+ 			NO_PLAYER, NO_TEAM, PUF_isVisible, eDefender) != NULL);
+-} // </advc.122>
++} // </advc.ctr>
+ // K-Mod
+ bool CvPlot::isVisiblePotentialEnemyUnit(PlayerTypes ePlayer) const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index ea7ff8a20..8b09da6bc 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -233,7 +233,7 @@ public:
+ 	int getNumVisibleEnemyDefenders(const CvUnit* pUnit) const;																				// Exposed to Python
+ 	int getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const;															// Exposed to Python
+ 	DllExport bool isVisibleEnemyUnit(PlayerTypes ePlayer) const;																			// Exposed to Python
+-	// advc.122:
++	// advc.ctr:
+ 	bool isVisibleEnemyCityAttacker(PlayerTypes eDefender, TeamTypes eAssumePeace = NO_TEAM) const;
+ 	bool isVisiblePotentialEnemyUnit(PlayerTypes ePlayer) const; // K-Mod
+ 	DllExport int getNumVisibleUnits(PlayerTypes ePlayer) const;
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 0f588b108..5b12fdce0 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -814,7 +814,7 @@ void CyEnumsPythonInterface()
+ 		.value("TASK_RALLY_PLOT", TASK_RALLY_PLOT)
+ 		.value("TASK_CLEAR_RALLY_PLOT", TASK_CLEAR_RALLY_PLOT)
+ 		.value("TASK_LIBERATE", TASK_LIBERATE)
+-		.value("TASK_CEDE", TASK_CEDE) // advc.122
++		.value("TASK_CEDE", TASK_CEDE) // advc.ctr
+ 		.value("NUM_TASK_TYPES", NUM_TASK_TYPES)
+ 		;
+
+[PATCH COVERAGE]
+patchFiles=18 embeddedFiles=18 omittedFiles=0 embeddedPatchBytes=25472

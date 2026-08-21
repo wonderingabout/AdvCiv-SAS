@@ -1,0 +1,158 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3231
+# Commit: f395a264617f9c242a1399f7f68fa610692fa4c5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c57bc19ad89270ab095422ffac1226f0ae0b5722
+# Title: Tweak mechanism for throttling Barbarian placement
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+33	21	CvGameCoreDLL/CvGame.cpp
+4	3	CvGameCoreDLL/CvGame.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index f01632201..cceb2f507 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7558,7 +7558,7 @@ void CvGame::createBarbarianUnits()
+ 	if (bAnimals)
+ 		createAnimals();
+ 	// <advc.300>
+-	if(bAnimals)
++	if (bAnimals)
+ 		return;
+ 	CvHandicapInfo const& kGameHandicap = GC.getInfo(getHandicapType());
+ 	int iBaseTilesPerLandUnit = kGameHandicap.getUnownedTilesPerBarbarianUnit();
+@@ -7635,9 +7635,12 @@ void CvGame::createBarbarianUnits()
+ 				iNeededSea = 0;
+ 			// <advc.306> Keep spawning units on ships
+ 			if (iNeededSea <= 0 && iNeededLand <= 0 && a.getNumCivCities() > 0)
+-				createBarbarianUnits(1, a, shelves[i], true, true); // </advc.306>
+-			else iNeededLand -= createBarbarianUnits(iNeededSea, a, shelves[i],
+-					iNeededLand > 0); // advc.306
++				createBarbarianUnits(1, iShips, a, shelves[i], true, true); // </advc.306>
++			else
++			{
++				iNeededLand -= createBarbarianUnits(iNeededSea, iShips, a, shelves[i],
++						iNeededLand > 0); // advc.306
++			}
+ 		}
+ 		/*  Don't spawn Barbarian units on (or on shelves around) continents where
+ 			civs don't outnumber Barbarians */
+@@ -7645,7 +7648,7 @@ void CvGame::createBarbarianUnits()
+ 		int const iBarbarianCities = a.getCitiesPerPlayer(BARBARIAN_PLAYER);
+ 		FAssert(iBarbarianCities >= 0);
+ 		if (iCivCities > iBarbarianCities && bCreateBarbarians)
+-			createBarbarianUnits(iNeededLand, a, NULL);
++			createBarbarianUnits(iNeededLand, iLandUnits, a, NULL);
+ 		/*  Rest of the creation code: moved into functions numBarbariansToCreate and
+ 			createBarbarians */
+ 		// </advc.300>
+@@ -7858,8 +7861,8 @@ int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
+ 
+ /*	Returns the number of land units spawned (possibly in cargo).
+ 	The first half is new code. */
+-int CvGame::createBarbarianUnits(int iUnitsToCreate, CvArea& kArea, Shelf* pShelf,
+-	bool bCargoAllowed, bool bOnlyCargo) // </advc.300>
++int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent,
++	CvArea& kArea, Shelf* pShelf, bool bCargoAllowed, bool bOnlyCargo) // </advc.300>
+ {
+ 	/* <advc.306> Spawn cargo load before ships. Otherwise, the newly placed ship
+ 	   would always be an eligible target and too many ships would carry cargo. */
+@@ -7900,7 +7903,27 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, CvArea& kArea, Shelf* pShel
+ 
+ 	for (int i = 0; i < iUnitsToCreate; i++) 
+ 	{	// <advc.300>
+-		CvPlot* pPlot = randomBarbarianPlot(kArea, pShelf);
++		int iValid=0;
++		CvPlot* pPlot = randomBarbarianPlot(iValid, kArea, pShelf);
++		if (pPlot != NULL)
++		{
++			FAssert(iValid > 0);
++			// Skip creating the unit if too few valid tiles remain
++			int const iUnitsTarget = iUnitsPresent + 1; // About to create one more
++			if ((pShelf != NULL && iValid * 100 < pShelf->size()) ||
++				iUnitsTarget >= iValid)
++			{
++				pPlot = NULL;
++			}
++			else // Skip only probabilistically
++			{
++				scaled rSkipProb = scaled(iUnitsTarget, iValid);
++				// Especially don't want a constant stream of units from low-weight plots
++				rSkipProb *= scaled::max(1, 2 - per100(getBarbarianWeightMap().get(*pPlot)));
++				if (SyncRandSuccess(rSkipProb))
++					pPlot = NULL;
++			}
++		}
+ 		if (pPlot == NULL)
+ 			return iCreated;
+ 		UnitAITypes eUnitAI = UNITAI_ATTACK;
+@@ -7935,7 +7958,8 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, CvArea& kArea, Shelf* pShel
+ }
+ 
+ // <advc.300>
+-CvPlot* CvGame::randomBarbarianPlot(CvArea const& kArea, Shelf const* pShelf)
++CvPlot* CvGame::randomBarbarianPlot(/* out-param */int& iValid,
++	CvArea const& kArea, Shelf const* pShelf)
+ {
+ 	RandPlotFlags const eFlags = (RANDPLOT_NOT_VISIBLE_TO_CIV |
+ 			/*  Shelves already ensure this and one-tile islands
+@@ -7950,7 +7974,6 @@ CvPlot* CvGame::randomBarbarianPlot(CvArea const& kArea, Shelf const* pShelf)
+ 		CvPlot::isVisibleToCivTeam, CvMap::isCivUnitNearby. */
+ 	static int const iDist = GC.getDefineINT("MIN_BARBARIAN_STARTING_DISTANCE");
+ 	// <advc.304>
+-	int iValid = 0; // Sometimes don't pick a plot if there are few valid plots
+ 	CvPlot* pRandPlot = NULL;
+ 	if (pShelf == NULL)
+ 	{
+@@ -7961,17 +7984,6 @@ CvPlot* CvGame::randomBarbarianPlot(CvArea const& kArea, Shelf const* pShelf)
+ 	{
+ 		pRandPlot = pShelf->randomPlot(eFlags, iDist,
+ 				&iValid, &getBarbarianWeightMap());
+-		if (pRandPlot != NULL && iValid * 100 < pShelf->size())
+-			pRandPlot = NULL;
+-	}
+-	int const iFewValidThresh = 5; // (Should perhaps be based on a.getNumTiles()?)
+-	if (pRandPlot != NULL && iValid > 0 && iValid < iFewValidThresh)
+-	{
+-		scaled rSkipProb = 1 - scaled(1, 1 + iFewValidThresh - iValid);
+-		// Especially don't want a constant stream of units from low-weight plots
+-		rSkipProb *= scaled::max(1, 2 - per100(getBarbarianWeightMap().get(*pRandPlot)));
+-		if (SyncRandSuccess(rSkipProb))
+-			pRandPlot = NULL;
+ 	}
+ 	return pRandPlot; // </advc.304>
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 14e053c2e..b691ec9e6 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -1065,9 +1065,10 @@ protected:
+ 	void createBarbarianCity(bool bNoCivCities, int iProbModifierPercent = 100);
+ 	int numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned,
+ 			int iUnitsPresent, int iBarbarianCities = 0);
+-	int createBarbarianUnits(int iUnitsToCreate, CvArea& kArea, Shelf* pShelf = NULL,
+-			bool bCargoAllowed = false, bool bOnlyCargo = false);
+-	CvPlot* randomBarbarianPlot(CvArea const& kArea, Shelf const* pShelf = NULL);
++	int createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent, CvArea& kArea,
++			Shelf* pShelf = NULL, bool bCargoAllowed = false, bool bOnlyCargo = false);
++	CvPlot* randomBarbarianPlot(int& iValid, CvArea const& kArea,
++			Shelf const* pShelf = NULL);
+ 	bool killBarbarian(int iUnitsPresent, int iTiles, int iPop,
+ 			CvArea& kArea, Shelf* pShelf = NULL);
+ 	UnitTypes randomBarbarianUnit(UnitAITypes eUnitAI, CvArea const& kArea);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5944

@@ -1,0 +1,198 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4546
+# Commit: 8ea8599d50b75a69a577d81216915e05e0856a31
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fffe8392394bacf3c9cbdee9e5814989978ebe25
+# Title: rename clubman (warrior) to ancient maceman + minor fixes/tweaks/cleanup etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/XML/GlobalDefines_advc.xml
+5	5	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+5	5	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+8	9	Assets/XML/Units/CIV4UnitInfos.xml
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+4	4	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+4	4	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index d1b3a3923..27604d04b 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -572,9 +572,9 @@
+ 	now or change this now that all units have more strength, if it's about
+ 	relative strength with rivals or the "average" unit a civ can build, then
+ 	it would not need to be changed maybe(?), but if it's about total strength
+-	absolute of a unit, then all units are stronger and a clubman (warrior)
+-	maybe increase the sense of safeness a bit too much, leaving as is,
+-	maybe todo relook at this later or maybe not, about this i mean
++	absolute of a unit, then all units are stronger and an ancient maceman
++	(warrior) maybe increase the sense of safeness a bit too much, leaving as
++	is,	maybe todo relook at this later or maybe not, about this i mean
+ 	anyways at least or not i mean but anyways i mean anyways, thanks, -->
+ 	<Define>
+ 		<DefineName>DEMAND_BETTER_PROTECTION</DefineName>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 0b25055e9..c36edcf75 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -331,24 +331,24 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_WARRIOR</Tag>
+-		<English>Clubman</English>
++		<English>Ancient Maceman</English>
+ 		<French>
+-			<Text>Clubman</Text>
++			<Text>Ancient Maceman</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>0</Plural>
+ 		</French>
+ 		<German>
+-			<Text>Clubman</Text>
++			<Text>Ancient Maceman</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>0</Plural>
+ 		</German>
+ 		<Italian>
+-			<Text>Clubman</Text>
++			<Text>Ancient Maceman</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>0</Plural>
+ 		</Italian>
+ 		<Spanish>
+-			<Text>Clubman</Text>
++			<Text>Ancient Maceman</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>0</Plural>
+ 		</Spanish>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index 7ea1931be..7c1aa9c78 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -96,10 +96,10 @@ hopefully more readable now at least about this i mean anyways -->
+ 	at least i mean anyways-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_WARRIOR_PEDIA</Tag>
+-		<English>[TAB]The Clubman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</English>
+-		<French>[TAB]The Clubman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</French>
+-		<German>[TAB]The Clubman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</German>
+-		<Italian>[TAB]The Clubman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</Italian>
+-		<Spanish>[TAB]The Clubman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</Spanish>
++		<English>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</English>
++		<French>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</French>
++		<German>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</German>
++		<Italian>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</Italian>
++		<Spanish>[TAB]Sometimes called the "clubman" (as it wields a wooden club), the Ancient Maceman is a durable and quite fast Stone Age unit, so can be used to explore the map with less to fear from predators such as Lions and Bears.</Spanish>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 129a1933d..989f9e2e5 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -5,16 +5,15 @@
+ <!-- -->
+ <!-- Unit Infos -->
+ <!-- custom: multiply iPower by:
+-- 10 for standard military units for example (clubman (warrior)),
+-i don't know if this takes into account promotions and other
+-multipliers such as natural base stats, but maybe this helps the
++- 10 for standard military units for example (ancient maceman
++(warrior)), i don't know if this takes into account promotions and
++other multipliers such as natural base stats, but maybe this helps the
+ problem of suicidal war declarations in particular, idea i got from
+ realism invictus's commit https://sourceforge.net/p/civ4mods/code/5464/
+-(name/description) (without actually looking at their code, but i can take it from there,
+-about this i
+-mean anywyas, as is or not but i mean anyways, thanks, )
+-for example
+-10 strength x 10 multiplier = 100 iPower for the clubman
++(name/description) (without actually looking at their code, but i can
++take it from there, about this i mean anywyas, as is or not but i mean
++anyways, thanks, ), for example
++10 strength x 10 multiplier = 100 iPower for the ancient maceman
+ - 7 for cover military units or (more) specialized defenders, for
+ example for the archer, they will not directly attack cities, even
+ if they may participate in the assault but a bit of a threat, for ex
+@@ -40,7 +39,7 @@ strength may be misleading, for the calculation for example
+ 
+ As for iAsset, as this should not directly affect combat tactics
+ or choices (i think), increase it just by strength count, so that
+-it scales accurately, for example for the clubman:
++it scales accurately, for example for the ancient maceman:
+ 10 stregth = iAsset value of 10
+ for example for the archer
+ 6 strength = iAsset value of 6
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index 04915d9bd..d4ac174dd 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index 6126277b7..ac3ef8b6e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -28,7 +28,7 @@ Mapuche Ironwood Clubman or Nootka Clubman or/and a civ i implemented
+ 
+ - make immortal of persia melee seems more accurate but did not look in detail only quick about this i mean anwyays at least
+ 
+-- clubman (warrior renamed for less generic name maybe i mean anyways about this i mean anyways) has quite high animal bonus so maybe give less to javelin or unit type i implement of stone age? Etc
++- ancient maceman (warrior renamed for less generic name maybe i mean anyways about this i mean anyways) has quite high animal bonus so maybe give less to javelin or unit type i implement of stone age? Etc
+ 
+ - worker increases improvement speed at each era
+ - fast worker only for one era or 5 of them?
+@@ -67,7 +67,7 @@ maybe but i mean anyways
+ - each civ starts with 2-3 miliary unuits at the very least then maybe,
+ and then early unuits can be more expensive  (and later ones cheaper)
+ 
+-- a clubman can win against a legionary not too unrealistic for example,
++- an ancient maceman can win against a legionary not too unrealistic for example,
+ but not against a tank at all so adjusting that too
+ 
+ - change the mechanic that axeman is good against lances, it's ridiculous
+@@ -106,8 +106,8 @@ i mean anyways)but 90% less defense against all military units, can attack in st
+ 
+ - starting with 3 military units also solves the problem of early barbarians,
+ AIs less vulnerable to them, maybe i could buff barbarians now even, and now
+-units can be more expensive too with more gradual diff, clubman could win
+-against swordsman much more often realistic too i think
++units can be more expensive too with more gradual diff, the ancient maceman could
++win against swordsman much more often realistic too i think
+ 
+ - add melee_thief class maybe too?
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index ce652a403..44d914fb7 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -25,10 +25,10 @@ the jaguar warrior)
+ rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless
+ i think it is relevant (quite strongly))
+ - another element of attention is that military (at least early ones, now don't
+-have much strength difference between them. For example, a clubman (warrior) would
+-be 10 strength, and a swordsman only 15 strength, while an archer would be 6 strength
+-but with extra or/and other bonuses. In exchange of these adjustments, upgrade costs
+-are much cheaper todo, so you will not be able to build full warriors then upgrade
++have much strength difference between them. For example, an ancien maceman (warrior)
++would be 10 strength, and a swordsman only 15 strength, while an archer would be 6
++strength but with extra or/and other bonuses. In exchange of these adjustments, upgrade
++costs are much cheaper todo, so you will not be able to build full warriors then upgrade
+ them later while going full economy. Also, since units are so close in strength now,
+ at least early ones, terrain multipliers and promotions multipliers play an especially
+ big part. The power correction part has been entirely removed or rather negated, in
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=10247

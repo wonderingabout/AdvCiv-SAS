@@ -1,0 +1,1184 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5817
+# Commit: 814b748d66bafe8a671d32caeb5a6fa4fa44752f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a18e92afb73e4c025cd0b8062b6d32e5387a2c04
+# Title: Reduce minimap buttons horizontal interspacing (to accomodate for the added map annotations button) - add numTxt to iFeatureProductionModifier panel in Sevop...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	3	Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+0	8	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+30	134	Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+15	3	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+6	17	Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+1	3	Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+2	5	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+3	5	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	2	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+1	2	Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+1	2	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+1	2	Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+0	2	Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+1	3	Assets/Python/EntryPoints/CvEventInterface.py
+2	24	Assets/Python/Screens/CvDanQuayle.py
+7	15	Assets/Python/Screens/CvDawnOfMan.py
+4	7	Assets/Python/Screens/CvDomesticAdvisor.py
+2	4	Assets/Python/Screens/CvInfoScreen.py
+12	20	Assets/Python/Screens/CvMainInterface.py
+1	2	Assets/Python/Screens/CvReplayScreen.py
+34	56	Assets/Python/Screens/LayoutDict.py
+1	1	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+index 4c523d106..560e07311 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+@@ -170,15 +170,27 @@ class SevoPediaBuild:
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_FEATURE_PRODUCTION_PANEL", ()), "", False, True, self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.attachLabel(panelName, "", "  ")
+ 
+ 		techModifiers = self._getBuildFeatureProductionModifierTechs()
+ 		if len(techModifiers) <= 0:
+ 			draw_none_text(screen, self.top, self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION)
+ 			return
+ 
+-		for iTech, unused_iModifier in techModifiers:
+-			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
++		# <!-- custom: multilist instead of attachImageButton so each chop-production tech shows its +%% modifier as numTxt under the button, like Sevopedia Unit. (Claude code Opus 4.7) -->
++		rowListName = self.top.getNextWidgetName()
++		multiListX = self.X_FEATURE_PRODUCTION + MULTI_LIST_PANEL_OFFSET_X
++		multiListY = self.Y_FEATURE_PRODUCTION + MULTI_LIST_PANEL_OFFSET_Y
++		multiListW = self.W_FEATURE_PRODUCTION + MULTI_LIST_PANEL_ADDITIONAL_W
++		multiListH = self.H_FEATURE_PRODUCTION + MULTI_LIST_PANEL_ADDITIONAL_H
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		iButtonIndex = 0
++		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
++		for iTech, iModifier in techModifiers:
++			screen.appendMultiListButton(rowListName, gc.getTechInfo(iTech).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
++			numTxt = u"%+d%%" % iModifier
++			extraCorrectionX = get_extra_correction_x(numTxt)
++			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++			iButtonIndex += 1
+ 
+ 	def placeUnitsBuild(self):
+ 		screen = self.top.getScreen()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 7d1d4962d..1ca409a9a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -97,14 +97,6 @@ class SevoPediaCivic:
+ 		self.placeVotes()
+ 		self.placeHistory()
+ 
+-	# <!-- custom: in https://civ4bug.sourceforge.net/PythonAPI/AllClasses.html i have found this:
+-	# VOID addMultiListControlGFC (STRING szName, STRING helpText, INT iX, INT iY, INT iWidth, INT iHeight, INT numLists, INT defaultWidth, INT defaultHeight, TableStyle eStyle)
+-	# and in https://github.com/f1rpo/AdvCiv/blob/master/Assets/Python/Screens/CvMainInterface.py#L2050C1-L2053C38 i have found this:
+-	# 		self.screen.addMultiListControlGFC("BottomButtonList", u"",
+-	#			lRect.x(), lRect.y(), lRect.width(), lRect.height(),
+-	#			4, iButtonSize, iButtonSize, # numLists, defaultWidth, defaultHeight
+-	#			TableStyles.TABLE_STYLE_STANDARD)
+-	# if it helps us adapt/use the addMultiListControlGFC method -->
+ 	def placeFavorites(self):
+ 		xPanel = self.X_FAVORITES
+ 		yPanel = self.Y_FAVORITES
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+index 7e53f56c1..266e819a7 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEventTrigger.py
+@@ -20,16 +20,9 @@ class SevoPediaEventTrigger:
+ 	def __init__(self, main):
+ 		self.iTrigger = -1
+ 		self.top = main
+-		# <!-- custom: CvEventTriggerInfo.getPlotsType uses the DLL PlotTypes enum order.
+-		# Cache translated labels once per page object so rendering requirements does not
+-		# repeat translator lookups, while keeping the rare enum-order audit point obvious.
+-		# (GPT-5.5) -->
++		# <!-- custom: CvEventTriggerInfo.getPlotsType uses the DLL PlotTypes enum order. Cache translated labels once per page object so rendering requirements does not repeat translator lookups, while keeping the rare enum-order audit point obvious. (GPT-5.5) -->
+ 		self.PLOT_TYPE_LABELS = (localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_PEAK", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_HILLS", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_LAND", ()), localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_PLOT_OCEAN", ()))
+-		# <!-- custom: bHistoryExpanded name matches the generic expand/collapse dispatch
+-		# in SevoPediaMain (SAS_PEDIA_PYTHON_HISTORY_EXPAND → setHistoryExpanded). On this
+-		# page the expandable panel is actually Texts, not a Civilopedia/History panel —
+-		# but reusing the shared mechanism avoids adding a new python widget id just for
+-		# one page. (Claude code Opus 4.7) -->
++		# <!-- custom: bHistoryExpanded name matches the generic expand/collapse dispatch in SevoPediaMain (SAS_PEDIA_PYTHON_HISTORY_EXPAND → setHistoryExpanded). On this page the expandable panel is actually Texts, not a Civilopedia/History panel — but reusing the shared mechanism avoids adding a new python widget id just for one page. (Claude code Opus 4.7) -->
+ 		self.bHistoryExpanded = False
+ 
+ 		self.X_NAME = self.top.X_PEDIA_PAGE
+@@ -38,10 +31,7 @@ class SevoPediaEventTrigger:
+ 		self.H_NAME = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		iColGap = MEDIUM_MARGIN
+-		# <!-- custom: Obsolete-with shares the top row with Name and stays sized for 8
+-		# buttons because War Chariots is the longest current event trigger obsolete list,
+-		# with enough room for "or" connector numTxt. Requires Buttons gets the full row
+-		# below because it usually has more elements and is more likely to scroll. (GPT-5.5) -->
++		# <!-- custom: Obsolete-with shares the top row with Name and stays sized for 8 buttons because War Chariots is the longest current event trigger obsolete list, with enough room for "or" connector numTxt. Requires Buttons gets the full row below because it usually has more elements and is more likely to scroll. (GPT-5.5) -->
+ 		iObsoleteButtonW = get_multilist_panel_width_for_buttons(8, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+ 		self.W_NAME = self.W_PAGE - iColGap - iObsoleteButtonW
+ 
+@@ -77,11 +67,7 @@ class SevoPediaEventTrigger:
+ 		self.W_TEXTS = self.W_PAGE
+ 		self.H_TEXTS = 130
+ 
+-		# <!-- custom: no Civilopedia/History panel here — event triggers rarely set
+-		# <Civilopedia> in XML, so the bottom panel would nearly always show "None" and
+-		# just steals space from the Texts variants. The freed space is given to Texts
+-		# instead, and Events fills the remainder down to the page bottom.
+-		# (Claude code Opus 4.7) -->
++		# <!-- custom: no Civilopedia/History panel here — event triggers rarely set <Civilopedia> in XML, so the bottom panel would nearly always show "None" and just steals space from the Texts variants. The freed space is given to Texts instead, and Events fills the remainder down to the page bottom. (Claude code Opus 4.7) -->
+ 		self.X_EVENTS = self.X_NAME
+ 		self.Y_EVENTS = self.Y_TEXTS + self.H_TEXTS + SMALL_MARGIN
+ 		self.W_EVENTS = self.W_PAGE
+@@ -193,11 +179,7 @@ class SevoPediaEventTrigger:
+ 		info = self._getTriggerInfo()
+ 		lines = []
+ 		if info:
+-			# <!-- custom: only non-linkable numeric thresholds live here as text. All
+-			# linkable prereqs (direct techs, civic, obsolete techs, OtherPlayerHasTech,
+-			# required buildings/units/religions/corporations) are icon buttons in the
+-			# Requires-Buttons panel below, which avoids duplicating every asset name
+-			# as both an icon and a text line. (Claude code Opus 4.7) -->
++			# <!-- custom: only non-linkable numeric thresholds live here as text. All linkable prereqs (direct techs, civic, obsolete techs, OtherPlayerHasTech, required buildings/units/religions/corporations) are icon buttons in the Requires-Buttons panel below, which avoids duplicating every asset name as both an icon and a text line. (Claude code Opus 4.7) -->
+ 			if info.getMinPopulation() > 0:
+ 				lines.append(self.BULLET_PREFIX + localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_MIN_POP", ()) + u": %d" % info.getMinPopulation())
+ 			if info.getMaxPopulation() > 0:
+@@ -310,13 +292,7 @@ class SevoPediaEventTrigger:
+ 			szText = localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_NONE", ())
+ 		screen.addMultilineText(self.top.getNextWidgetName(), SASTextScale.labelText(szText), self.X_REQUIRES_TEXT + 14, self.Y_REQUIRES_TEXT + 34, self.W_REQUIRES_TEXT - 28, self.H_REQUIRES_TEXT - 44, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-	# <!-- custom: compose a per-event "what actually happens" bullet list. Covers the
+-	# common numeric/flag fields on CvEventInfo and inlines Civ4 commerce/yield/happy
+-	# icons so effect values read at a glance. If no known fields are populated we fall
+-	# back to probing for a Python callback (getPythonCallback) — only in that case do
+-	# we label the event "Scripted (Python callback)". Otherwise events that truly do
+-	# nothing directly get a plain "No direct effect" to avoid false "scripted" labels.
+-	# (Claude code Opus 4.7) -->
++	# <!-- custom: compose a per-event "what actually happens" bullet list. Covers the common numeric/flag fields on CvEventInfo and inlines Civ4 commerce/yield/happy icons so effect values read at a glance. If no known fields are populated we fall back to probing for a Python callback (getPythonCallback) — only in that case do we label the event "Scripted (Python callback)". Otherwise events that truly do nothing directly get a plain "No direct effect" to avoid false "scripted" labels. (Claude code Opus 4.7) -->
+ 	def _formatEventEffectSummary(self, iEvent):
+ 		eventInfo = gc.getEventInfo(iEvent)
+ 		if not eventInfo:
+@@ -325,10 +301,7 @@ class SevoPediaEventTrigger:
+ 		parts = []
+ 		# Commerce-ish numeric rewards/penalties with their icons.
+ 		if eventInfo.getGold() != 0:
+-			# <!-- custom: isGoldToPlayer flips the direction — if true, the gold is
+-			# gifted TO the other player (subtracted from you and handed over) rather
+-			# than just added to your treasury. Used by "bribe"/"gift" events.
+-			# (Claude code Opus 4.7) -->
++			# <!-- custom: isGoldToPlayer flips the direction — if true, the gold is gifted TO the other player (subtracted from you and handed over) rather than just added to your treasury. Used by "bribe"/"gift" events. (Claude code Opus 4.7) -->
+ 			if eventInfo.isGoldToPlayer():
+ 				szGoldKey = "TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GOLD_TO_PLAYER"
+ 			else:
+@@ -347,8 +320,7 @@ class SevoPediaEventTrigger:
+ 		if eventInfo.getHappyTurns() != 0:
+ 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_HAPPY_TURNS", ()) + u": %d %s" % (eventInfo.getHappyTurns(), self.HAPPY_CHAR))
+ 		if eventInfo.getHealth() != 0:
+-			# Health can be negative (unhealthy) or positive — use the sign of the value
+-			# to pick the appropriate Civ4 icon rather than having two separate fields.
++			# Health can be negative (unhealthy) or positive — use the sign of the value to pick the appropriate Civ4 icon rather than having two separate fields.
+ 			if eventInfo.getHealth() > 0:
+ 				szHealthChar = self.HEALTHY_CHAR
+ 			else:
+@@ -405,9 +377,7 @@ class SevoPediaEventTrigger:
+ 			iFlavorValue = eventInfo.getTechFlavorValue(iFlavor)
+ 			if iFlavorValue != 0:
+ 				szFlavor = gc.getFlavorTypes(iFlavor)
+-				# <!-- custom: trim the repeated "FLAVOR_" prefix because tech flavor lists
+-				# can contain many entries; saving horizontal space reduces wrapping/scrolling
+-				# and makes the event-effect bullet easier to scan. (GPT-5.5) -->
++				# <!-- custom: trim the repeated "FLAVOR_" prefix because tech flavor lists can contain many entries; saving horizontal space reduces wrapping/scrolling and makes the event-effect bullet easier to scan. (GPT-5.5) -->
+ 				if szFlavor.startswith("FLAVOR_"):
+ 					szFlavor = szFlavor[len("FLAVOR_"):]
+ 				listTechFlavors.append(szFlavor + u" %+d" % iFlavorValue)
+@@ -441,10 +411,7 @@ class SevoPediaEventTrigger:
+ 		if iFreeBuildingClass >= 0:
+ 			buildingClassInfo = gc.getBuildingClassInfo(iFreeBuildingClass)
+ 			if buildingClassInfo:
+-				# <!-- custom: getBuildingChange > 0 grants the building, < 0 destroys
+-				# it. Same field on CvEventInfo drives both directions — surface them
+-				# distinctly so destroyed buildings don't show up as "Free Building".
+-				# (Claude code Opus 4.7) -->
++				# <!-- custom: getBuildingChange > 0 grants the building, < 0 destroys it. Same field on CvEventInfo drives both directions — surface them distinctly so destroyed buildings don't show up as "Free Building". (Claude code Opus 4.7) -->
+ 				iBuildingChange = eventInfo.getBuildingChange()
+ 				szLinkedBC = make_pedia_link(buildingClassInfo.getDescription())
+ 				if iBuildingChange > 0:
+@@ -471,11 +438,7 @@ class SevoPediaEventTrigger:
+ 			if improvementInfo and eventInfo.getImprovementChange() != 0:
+ 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_IMPROVEMENT_CHANGE", ()) + u": " + make_pedia_link(improvementInfo.getDescription()))
+ 		elif eventInfo.getImprovementChange() != 0:
+-			# <!-- custom: Some events set iImprovementChange while ImprovementType is NONE.
+-			# Negative values remove whatever improvement is on the target plot; positive values
+-			# are surfaced as a raw flag because the DLL only applies them when a concrete
+-			# ImprovementType is provided. Showing this avoids false "No direct effect" cards.
+-			# (GPT-5.5) -->
++			# <!-- custom: Some events set iImprovementChange while ImprovementType is NONE. Negative values remove whatever improvement is on the target plot; positive values are surfaced as a raw flag because the DLL only applies them when a concrete ImprovementType is provided. Showing this avoids false "No direct effect" cards. (GPT-5.5) -->
+ 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CURRENT_IMPROVEMENT_CHANGE", ()) + u": %+d" % eventInfo.getImprovementChange())
+ 		iBonus = eventInfo.getBonus()
+ 		if iBonus >= 0:
+@@ -485,17 +448,14 @@ class SevoPediaEventTrigger:
+ 			if bonusInfo and eventInfo.getBonusChange() != 0:
+ 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_CHANGE", ()) + u": %+d " % eventInfo.getBonusChange() + make_pedia_link(bonusInfo.getDescription()))
+ 
+-		# <!-- custom: <BonusGift> — gifts a bonus resource to the other player in the
+-		# popup chain. Core effect for events like Brothers In Need (the "help with
+-		# Copper/Iron/Horses/..." choices). (Claude code Opus 4.7) -->
++		# <!-- custom: <BonusGift> — gifts a bonus resource to the other player in the popup chain. Core effect for events like Brothers In Need (the "help with Copper/Iron/Horses/..." choices). (Claude code Opus 4.7) -->
+ 		iBonusGift = eventInfo.getBonusGift()
+ 		if iBonusGift >= 0:
+ 			bonusGiftInfo = gc.getBonusInfo(iBonusGift)
+ 			if bonusGiftInfo:
+ 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_BONUS_GIFT", ()) + u": " + make_pedia_link(bonusGiftInfo.getDescription()))
+ 
+-		# <!-- custom: <RouteType> + <iRouteChange> — add/remove a road/railroad on the
+-		# target plot. (Claude code Opus 4.7) -->
++		# <!-- custom: <RouteType> + <iRouteChange> — add/remove a road/railroad on the target plot. (Claude code Opus 4.7) -->
+ 		iRoute = eventInfo.getRoute()
+ 		if iRoute >= 0 and eventInfo.getRouteChange() != 0:
+ 			routeInfo = gc.getRouteInfo(iRoute)
+@@ -504,23 +464,12 @@ class SevoPediaEventTrigger:
+ 		elif eventInfo.getRouteChange() != 0:
+ 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_CURRENT_ROUTE_CHANGE", ()) + u": %+d" % eventInfo.getRouteChange())
+ 
+-		# <!-- custom: <OtherPlayerPopup> signals that the *other* player in the chain
+-		# gets their own popup with response choices — the real consequences of this
+-		# branch are applied by whichever response they pick. Surfacing this so readers
+-		# know the choice has downstream effects even if no XML effect fires on this side.
+-		# (Claude code Opus 4.7) -->
++		# <!-- custom: <OtherPlayerPopup> signals that the *other* player in the chain gets their own popup with response choices — the real consequences of this branch are applied by whichever response they pick. Surfacing this so readers know the choice has downstream effects even if no XML effect fires on this side. (Claude code Opus 4.7) -->
+ 		szOtherPopup = eventInfo.getOtherPlayerPopup()
+ 		if szOtherPopup and len(str(szOtherPopup).strip()) > 0:
+ 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_OTHER_PLAYER_RESPONDS", ()))
+ 
+-		# <!-- custom: per-BuildingClass extras — <BuildingExtraHappies>, <...Healths>,
+-		# <BuildingExtraCommerces>, <BuildingExtraYields>. These are list-structs in XML
+-		# and are queried via scalar accessors that take a BuildingClass index (plus a
+-		# Commerce/Yield index for those two). Scanning all classes is the only way to
+-		# surface them since there's no getNum... method. This is what finally makes
+-		# events like Antimonarchists (Palace +3 happy, Cathedrals +2 gold each) show
+-		# their actual effect instead of falling through to "No direct effect".
+-		# (Claude code Opus 4.7) -->
++		# <!-- custom: per-BuildingClass extras — <BuildingExtraHappies>, <...Healths>, <BuildingExtraCommerces>, <BuildingExtraYields>. These are list-structs in XML and are queried via scalar accessors that take a BuildingClass index (plus a Commerce/Yield index for those two). Scanning all classes is the only way to surface them since there's no getNum... method. This is what finally makes events like Antimonarchists (Palace +3 happy, Cathedrals +2 gold each) show their actual effect instead of falling through to "No direct effect". (Claude code Opus 4.7) -->
+ 		iNumBuildingClass = gc.getNumBuildingClassInfos()
+ 		iNumCommerce = CommerceTypes.NUM_COMMERCE_TYPES
+ 		iNumYield = YieldTypes.NUM_YIELD_TYPES
+@@ -555,12 +504,7 @@ class SevoPediaEventTrigger:
+ 				if iVal != 0:
+ 					parts.append(szLinkedBCName + u": %+d %c" % (iVal, self.YIELD_CHARS[iY]))
+ 
+-		# <!-- custom: per-UnitClass and per-UnitCombat promotion grants. Same list-struct
+-		# pattern as the per-BuildingClass extras: the XML tags <UnitClassPromotions> and
+-		# <UnitCombatPromotions> are probed via scalar accessors that take the class/combat
+-		# index and return -1 for "no promotion". Catches events like Noble Knights Done_1
+-		# that grant PROMOTION_RETREAT1 to Knight and Camel Knight classes.
+-		# (Claude code Opus 4.7) -->
++		# <!-- custom: per-UnitClass and per-UnitCombat promotion grants. Same list-struct pattern as the per-BuildingClass extras: the XML tags <UnitClassPromotions> and <UnitCombatPromotions> are probed via scalar accessors that take the class/combat index and return -1 for "no promotion". Catches events like Noble Knights Done_1 that grant PROMOTION_RETREAT1 to Knight and Camel Knight classes. (Claude code Opus 4.7) -->
+ 		for iUC in range(gc.getNumUnitClassInfos()):
+ 			iPromo = eventInfo.getUnitClassPromotion(iUC)
+ 			if iPromo >= 0:
+@@ -576,9 +520,7 @@ class SevoPediaEventTrigger:
+ 				if combatInfo and promoInfo:
+ 					parts.append(self.STAR_CHAR + u" " + make_pedia_link(combatInfo.getDescription()) + u": " + make_pedia_link(promoInfo.getDescription()))
+ 
+-		# <!-- custom: <FreeSpecialistCounts> — grants N free specialists of a given type
+-		# in the target city (e.g. Noble Knights Done_3: +1 Great Priest). Probed per
+-		# Specialist index, same pattern as UnitClass above. (Claude code Opus 4.7) -->
++		# <!-- custom: <FreeSpecialistCounts> — grants N free specialists of a given type in the target city (e.g. Noble Knights Done_3: +1 Great Priest). Probed per Specialist index, same pattern as UnitClass above. (Claude code Opus 4.7) -->
+ 		for iSp in range(gc.getNumSpecialistInfos()):
+ 			iCount = eventInfo.getFreeSpecialistCount(iSp)
+ 			if iCount != 0:
+@@ -618,27 +560,19 @@ class SevoPediaEventTrigger:
+ 		if iMaxReligions >= 0:
+ 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_MAX_RELIGIONS", ()) + u": %d" % iMaxReligions)
+ 
+-		# <!-- custom: pillage gold range — from raided caravans / pillaged improvements.
+-		# Both fields populate together; show as a single range line.
+-		# (Claude code Opus 4.7) -->
++		# <!-- custom: pillage gold range — from raided caravans / pillaged improvements. Both fields populate together; show as a single range line. (Claude code Opus 4.7) -->
+ 		iMinPillage = eventInfo.getMinPillage()
+ 		iMaxPillage = eventInfo.getMaxPillage()
+ 		if iMinPillage != 0 or iMaxPillage != 0:
+ 			parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PILLAGE_GOLD", ()) + u": %d-%d %c" % (iMinPillage, iMaxPillage, self.COMMERCE_CHARS[CommerceTypes.COMMERCE_GOLD]))
+ 
+-		# <!-- custom: <PlotExtraYields> — permanent yield bonus on the target plot,
+-		# indexed by Yield type. Same list-struct probe pattern as the per-BuildingClass
+-		# extras. Useful for events like "The Volcano has fertilized this plot: +2 food".
+-		# (Claude code Opus 4.7) -->
++		# <!-- custom: <PlotExtraYields> — permanent yield bonus on the target plot, indexed by Yield type. Same list-struct probe pattern as the per-BuildingClass extras. Useful for events like "The Volcano has fertilized this plot: +2 food". (Claude code Opus 4.7) -->
+ 		for iY in range(YieldTypes.NUM_YIELD_TYPES):
+ 			iExtra = eventInfo.getPlotExtraYield(iY)
+ 			if iExtra != 0:
+ 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_PLOT_EXTRA_YIELD", ()) + u": %+d %c" % (iExtra, self.YIELD_CHARS[iY]))
+ 
+-		# <!-- custom: <AdditionalEvents> — follow-up events that may fire after this one,
+-		# each with a %chance and a turn delay. Probed per event index (same pattern as
+-		# the BuildingClass scan). Surfaces event chains like "This opens a quest that
+-		# will resolve in N turns". (Claude code Opus 4.7) -->
++		# <!-- custom: <AdditionalEvents> — follow-up events that may fire after this one, each with a %chance and a turn delay. Probed per event index (same pattern as the BuildingClass scan). Surfaces event chains like "This opens a quest that will resolve in N turns". (Claude code Opus 4.7) -->
+ 		for iOtherEvent in range(gc.getNumEventInfos()):
+ 			iChance = eventInfo.getAdditionalEventChance(iOtherEvent)
+ 			if iChance <= 0:
+@@ -655,11 +589,7 @@ class SevoPediaEventTrigger:
+ 			else:
+ 				parts.append(localText.getText("TXT_KEY_PEDIA_SAS_EVENT_EFFECT_ADDITIONAL_EVENT", ()) + u": %s (%d%%)" % (szOtherName, iChance))
+ 
+-		# <!-- custom: Surface event-chain cleanup and presentation/script text hooks too.
+-		# These are not always direct mechanical rewards, but they are populated CvEventInfo
+-		# effects/metadata and otherwise some cards misleadingly fall through to
+-		# "No direct effect". Keep labels explicit so readers know what kind of field it is.
+-		# (GPT-5.5) -->
++		# <!-- custom: Surface event-chain cleanup and presentation/script text hooks too. These are not always direct mechanical rewards, but they are populated CvEventInfo effects/metadata and otherwise some cards misleadingly fall through to "No direct effect". Keep labels explicit so readers know what kind of field it is. (GPT-5.5) -->
+ 		for iOtherEvent in range(gc.getNumEventInfos()):
+ 			iChance = eventInfo.getClearEventChance(iOtherEvent)
+ 			if iChance <= 0:
+@@ -702,28 +632,14 @@ class SevoPediaEventTrigger:
+ 		return localText.getText("TXT_KEY_PEDIA_SAS_EVENT_TRIGGER_UNKNOWN", ())
+ 
+ 	def setHistoryExpanded(self, bExpanded):
+-		# Renamed from bTextsExpanded at the method level only — the dispatch layer in
+-		# SevoPediaMain always calls setHistoryExpanded (it's the shared hook), and on
+-		# this page the expandable panel happens to be Texts.
++		# Renamed from bTextsExpanded at the method level only — the dispatch layer in SevoPediaMain always calls setHistoryExpanded (it's the shared hook), and on this page the expandable panel happens to be Texts.
+ 		self.bHistoryExpanded = bExpanded
+ 
+-	# <!-- custom: render the trigger's narrator text variants (from getNumTexts() /
+-	# getText(i), matching the XML <Texts><Text>...</Text></Texts> block). These are
+-	# the variants the engine picks from at runtime to introduce the event popup —
+-	# surfacing them here so Sevopedia readers see the same flavor context a player
+-	# gets when the trigger actually fires. Rendered through draw_expandable_text_panel
+-	# so very long / multi-variant Texts stay readable when they overflow the panel.
+-	# (Claude code Opus 4.7) -->
++	# <!-- custom: render the trigger's narrator text variants (from getNumTexts() / getText(i), matching the XML <Texts><Text>...</Text></Texts> block). These are the variants the engine picks from at runtime to introduce the event popup — surfacing them here so Sevopedia readers see the same flavor context a player gets when the trigger actually fires. Rendered through draw_expandable_text_panel so very long / multi-variant Texts stay readable when they overflow the panel. (Claude code Opus 4.7) -->
+ 	def placeTexts(self):
+ 		screen = self.top.getScreen()
+ 		info = self._getTriggerInfo()
+-		# <!-- custom: dedupe identical resolved text variants and append a "(xN)"
+-		# multiplier to each repeated entry. Many vanilla BtS triggers list the same
+-		# flavor string several times to weight the random roll (e.g. Joyous Wedding
+-		# repeats "A ??? industrial heiress..." 3 times); showing them as separate
+-		# bullets just wastes vertical space without telling the reader anything new.
+-		# First-seen insertion order is preserved so the bullet sequence still matches
+-		# the XML declaration order. (Claude code Opus 4.7) -->
++		# <!-- custom: dedupe identical resolved text variants and append a "(xN)" multiplier to each repeated entry. Many vanilla BtS triggers list the same flavor string several times to weight the random roll (e.g. Joyous Wedding repeats "A ??? industrial heiress..." 3 times); showing them as separate bullets just wastes vertical space without telling the reader anything new. First-seen insertion order is preserved so the bullet sequence still matches the XML declaration order. (Claude code Opus 4.7) -->
+ 		order = []
+ 		counts = {}
+ 		if info:
+@@ -793,8 +709,7 @@ class SevoPediaEventTrigger:
+ 		cardH = innerH
+ 
+ 		availableInnerH = cardH - (2 * cardInnerMargin) - panelGap
+-		# Summary panel needs enough room for a few bullet lines of effects — ~60 px
+-		# floor keeps it readable when the event name is long and pushes the split down.
++		# Summary panel needs enough room for a few bullet lines of effects — ~60 px floor keeps it readable when the event name is long and pushes the split down.
+ 		minSummaryPanelH = 60
+ 		namePanelH = 120
+ 		maxNamePanelH = availableInnerH - minSummaryPanelH
+@@ -848,14 +763,7 @@ class SevoPediaEventTrigger:
+ 		if not info:
+ 			return
+ 
+-		# <!-- custom: multilist layout (a la SevoPediaUnit.placeRequires) so each button
+-		# gets a consistent grid slot and we can place a numTxt under the ones that need
+-		# disambiguating. Only the OtherPlayerHasTech button carries a "Oth.P." numTxt —
+-		# direct AND-tech / OR-tech / civic / required-building/unit/religion/corporation
+-		# icons are self-identifying by art and don't need extra text. AND/OR separator
+-		# labels are dropped vs the previous inline flow; the distinction is rare in
+-		# vanilla triggers and keeping multilist discipline is worth the small loss.
+-		# (Claude code Opus 4.7) -->
++		# <!-- custom: multilist layout (a la SevoPediaUnit.placeRequires) so each button gets a consistent grid slot and we can place a numTxt under the ones that need disambiguating. Only the OtherPlayerHasTech button carries a "Oth.P." numTxt — direct AND-tech / OR-tech / civic / required-building/unit/religion/corporation icons are self-identifying by art and don't need extra text. AND/OR separator labels are dropped vs the previous inline flow; the distinction is rare in vanilla triggers and keeping multilist discipline is worth the small loss. (Claude code Opus 4.7) -->
+ 		rowListName = self.top.getNextWidgetName()
+ 		multiListX = self.X_REQUIRES_BUTTONS + MULTI_LIST_PANEL_OFFSET_X
+ 		multiListY = self.Y_REQUIRES_BUTTONS + MULTI_LIST_PANEL_OFFSET_Y
+@@ -867,11 +775,7 @@ class SevoPediaEventTrigger:
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 		szOrLabel = localText.getText("TXT_KEY_OR", ())
+ 
+-		# <!-- custom: OtherPlayerHasTech is emitted FIRST so its "Oth.P." numTxt lands
+-		# in the earliest grid slot. numTxt is placed at absolute coordinates (no grid
+-		# scroll support), so keeping the labeled button on the first row guarantees the
+-		# label stays visible even if later buttons wrap past the panel height.
+-		# (Claude code Opus 4.7) -->
++		# <!-- custom: OtherPlayerHasTech is emitted FIRST so its "Oth.P." numTxt lands in the earliest grid slot. numTxt is placed at absolute coordinates (no grid scroll support), so keeping the labeled button on the first row guarantees the label stays visible even if later buttons wrap past the panel height. (Claude code Opus 4.7) -->
+ 		iOtherTech = info.getOtherPlayerHasTech()
+ 		if iOtherTech >= 0:
+ 			otherTechInfo = gc.getTechInfo(iOtherTech)
+@@ -880,10 +784,7 @@ class SevoPediaEventTrigger:
+ 				add_multilist_numTxt_under_button(multiListX, multiListY, -3, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, u"Oth.P.", screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 				iButtonIndex += 1
+ 
+-		# <!-- custom: direct AND prereqs are intentionally shown as adjacent unlabeled
+-		# icons. Rendering "and" between every required icon makes dense panels noisy;
+-		# in Sevopedia icon rows, plain adjacency means all are required, while explicit
+-		# connector numTxt is reserved for real alternatives such as "A or B". (GPT-5.5) -->
++		# <!-- custom: direct AND prereqs are intentionally shown as adjacent unlabeled icons. Rendering "and" between every required icon makes dense panels noisy; in Sevopedia icon rows, plain adjacency means all are required, while explicit connector numTxt is reserved for real alternatives such as "A or B". (GPT-5.5) -->
+ 		seenAnd = {}
+ 		for i in range(info.getNumPrereqAndTechs()):
+ 			iTech = info.getPrereqAndTechs(i)
+@@ -895,9 +796,7 @@ class SevoPediaEventTrigger:
+ 				screen.appendMultiListButton(rowListName, techInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, -1, False)
+ 				iButtonIndex += 1
+ 
+-		# <!-- custom: direct OR prereq techs use connector numTxt between buttons, so
+-		# they read as "A or B" instead of labeling either icon as "or". Single OR
+-		# entries do not need a connector. (GPT-5.5) -->
++		# <!-- custom: direct OR prereq techs use connector numTxt between buttons, so they read as "A or B" instead of labeling either icon as "or". Single OR entries do not need a connector. (GPT-5.5) -->
+ 		seenOr = {}
+ 		orTechList = []
+ 		for i in range(info.getNumPrereqOrTechs()):
+@@ -1078,10 +977,7 @@ class SevoPediaEventTrigger:
+ 		multiListH = self.H_OBSOLETE_BUTTONS + MULTI_LIST_PANEL_ADDITIONAL_H
+ 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+-		# <!-- custom: obsolete techs are alternatives: any listed tech blocks the
+-		# trigger. Use connector numTxt between buttons instead of labeling each icon
+-		# as "or", so this reads as "A or B" and matches Requires OR prereqs.
+-		# (GPT-5.5) -->
++		# <!-- custom: obsolete techs are alternatives: any listed tech blocks the trigger. Use connector numTxt between buttons instead of labeling each icon as "or", so this reads as "A or B" and matches Requires OR prereqs. (GPT-5.5) -->
+ 		iButtonIndex = 0
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
+ 		szOrLabel = localText.getText("TXT_KEY_OR", ())
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 7fec81228..3db1bedbd 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -236,12 +236,24 @@ class SevoPediaFeature:
+ 
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_FEATURE_PRODUCTION_PANEL", ()), "", False, True, self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.attachLabel(panelName, "", "  ")
+ 		techModifiers = get_feature_production_modifier_techs()
+ 		removalBuildsWithProduction = self._getRemovalBuildsWithProduction()
+ 		if len(techModifiers) > 0 and len(removalBuildsWithProduction) > 0:
+-			for iTech, unused_iModifier in techModifiers:
+-				screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
++			# <!-- custom: multilist instead of attachImageButton so each chop-production tech shows its +%% modifier as numTxt under the button, like the modifier buttons in Sevopedia Unit. (Claude code Opus 4.7) -->
++			rowListName = self.top.getNextWidgetName()
++			multiListX = self.X_FEATURE_PRODUCTION + MULTI_LIST_PANEL_OFFSET_X
++			multiListY = self.Y_FEATURE_PRODUCTION + MULTI_LIST_PANEL_OFFSET_Y
++			multiListW = self.W_FEATURE_PRODUCTION + MULTI_LIST_PANEL_ADDITIONAL_W
++			multiListH = self.H_FEATURE_PRODUCTION + MULTI_LIST_PANEL_ADDITIONAL_H
++			screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, SEVOPEDIA_MULTILIST_NUM_LISTS_AUTO_CALCULATE, MULTILIST_BUTTON_SIZE, MULTILIST_BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++			iButtonIndex = 0
++			maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, MULTILIST_BUTTON_SIZE)
++			for iTech, iModifier in techModifiers:
++				screen.appendMultiListButton(rowListName, gc.getTechInfo(iTech).getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
++				numTxt = u"%+d%%" % iModifier
++				extraCorrectionX = get_extra_correction_x(numTxt)
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, MULTILIST_BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++				iButtonIndex += 1
+ 		else:
+ 			draw_none_text(screen, self.top, self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+index 1eeddbdd6..07a846115 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+@@ -149,16 +149,13 @@ class SevoPediaGameSpeedChart:
+ 
+ 	def _buildTableFromGameData(self):
+ 		# Central configuration (single source of truth)
+-
+ 		#
+ 		# row_specs drives:
+ 		# - which XML fields we display (and in what order)
+ 		# - which getter to call for each field (DLL GameSpeedInfo getters)
+ 		# - which icon (glyph/button) is shown in the left icon column
+ 		#
+-		# This intentionally replaces the older split setup:
+-		#   field_getters + field_order + icon_token_by_key + glyph_sort_code
+-		# so future edits only need to touch ONE list.
++		# This intentionally replaces the older split setup: field_getters + field_order + icon_token_by_key + glyph_sort_code so future edits only need to touch ONE list.
+ 		#
+ 		# Each entry:
+ 		#   (field_key, getter_name_or_None, icon_spec)
+@@ -204,24 +201,20 @@ class SevoPediaGameSpeedChart:
+ 			("TotalTurns",                  None,                            ("btn",   "hourglass")),
+ 		)
+ 
+-		# Derived rows have no getter (getter_name is None): values are computed from per-increment data,
+-		# not read from a single XML field. Mark them with '*' in the display label.
++		# Derived rows have no getter (getter_name is None): values are computed from per-increment data, not read from a single XML field. Mark them with '*' in the display label.
+ 		derived_field_keys = {}
+ 		for (k, getter_name, _icon_spec) in row_specs:
+ 			if getter_name is None:
+ 				derived_field_keys[k] = True
+ 
+ 		# Icon libraries
+-		# Each icon definition includes a "sort group" so sorting by the icon column is meaningful.
+-		# (The group is also embedded into an invisible tie-breaker so ordering is fully deterministic.)
++		# Each icon definition includes a "sort group" so sorting by the icon column is meaningful. (The group is also embedded into an invisible tie-breaker so ordering is fully deterministic.)
+ 		game = CyGame()
+ 
+ 		# Keep icon libraries lean: define only icons we actually use in this chart.
+ 		# If you add new row_specs icons later, extend the *_defs tuples below.
+ 		#
+-		# Sorting note: each icon gets a "sort group" used only when sorting by the icon column.
+-		# Groups are spaced by 10 so you can insert new icons between existing groups without
+-		# renumbering everything; only relative order matters.
++		# Sorting note: each icon gets a "sort group" used only when sorting by the icon column. Groups are spaced by 10 so you can insert new icons between existing groups without renumbering everything; only relative order matters.
+ 
+ 		btn_by_name = {}
+ 
+@@ -567,15 +560,11 @@ class SevoPediaGameSpeedChart:
+ 	def _format_calendar_segment(self, end_year, end_month, turns, month_inc, bEraFlip):
+ 		# Calendar cell format is intentionally compact:
+ 		#   "+<turns>*<rate><sep><endDate>"
+-		# We omit the segment start date entirely to save horizontal space.
+-		# (The start date is implied by the previous segment; for the first segment,
+-		#  players already know START_YEAR / can look it up in XML.)
++		# We omit the segment start date entirely to save horizontal space. (The start date is implied by the previous segment; for the first segment, players already know START_YEAR / can look it up in XML.)
+ 		#
+ 		# Era handling:
+ 		# - We omit "BC"/"AD" text entirely (BC is implied before the transition, AD after).
+-		# - We mark the *first* segment that reaches AD with "->" (instead of "=") so the
+-		#   BC->AD boundary is obvious without repeating era text in every cell.
+-		#   (This is also where years are shortest, so the marker doesn't bloat the row.)
++		# - We mark the *first* segment that reaches AD with "->" (instead of "=") so the BC->AD boundary is obvious without repeating era text in every cell. (This is also where years are shortest, so the marker doesn't bloat the row.)
+ 		#
+ 		# Month handling:
+ 		# - Month suffix is shown for m2..m12; m1 is hidden so January matches in-game year display.
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+index 96dd218d6..db0e4c5b5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+@@ -222,9 +222,7 @@ class SevoPediaHandicapChart:
+ 		# Goody huts: define the DISPLAYED grouped rows ONCE, then derive:
+ 		#   - which GOODY_* types we need to count
+ 		#   - which grouped rows we show in the chart
+-		#
+-		# Each group can contain any number of goody types (1, 2, 3+). Today we
+-		# mostly use pairs, but this structure keeps it flexible for future tweaks.
++		# Each group can contain any number of goody types (1, 2, 3+). Today we mostly use pairs, but this structure keeps it flexible for future tweaks.
+ 		goody_group_specs = (
+ 			# (label, goody_types_tuple, icon_token)
+ 			("Goody Gold (Low / High)", ("GOODY_LOW_GOLD", "GOODY_HIGH_GOLD"), "glyph:gold"),
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 2d15094b3..59ad8222a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -336,9 +336,7 @@ class SevoPediaLeader:
+ 		iSelectedEmojiSize = self.ATTITUDE_SELECTED_EMOJI_SIZE
+ 		iUnselectedEmojiSize = self.ATTITUDE_UNSELECTED_EMOJI_SIZE
+ 
+-		# <!-- custom: We tested the city-screen filter-style GFC checkbox DDS route here (similar to CvMainInterface building filter buttons),
+-		# but icon sizing could not be controlled independently enough in this attitude row. Keeping inline <img> gives reliable per-button size
+-		# control despite the minor known vertical lift side effect. (GPT-5.3-Codex) -->
++		# <!-- custom: We tested the city-screen filter-style GFC checkbox DDS route here (similar to CvMainInterface building filter buttons), but icon sizing could not be controlled independently enough in this attitude row. Keeping inline <img> gives reliable per-button size control despite the minor known vertical lift side effect. (GPT-5.3-Codex) -->
+ 		for iAttitude in attitudeOrder:
+ 			szWidget = self.ATTITUDE_BUTTON_WIDGET_BY_ATTITUDE[iAttitude]
+ 			if IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE:
+@@ -710,8 +708,7 @@ class SevoPediaLeader:
+ 			if inputClass.getData1() == SAS_PEDIA_PYTHON_LEADER_ERA:
+ 				return self.applyLeaderEra(inputClass.getData2())
+ 
+-		# <!-- custom: leaderhead hotkeys (animations/moods) are cosmetic; if they conflict with search,
+-		# consider removing or remapping here. (GPT-5.2-Codex) -->
++		# <!-- custom: leaderhead hotkeys (animations/moods) are cosmetic; if they conflict with search, consider removing or remapping here. (GPT-5.2-Codex) -->
+ 		if (inputClass.getNotifyCode() == NotifyCode.NOTIFY_CHARACTER):
+ 			if (inputClass.getData() == int(InputTypes.KB_0)):
+ 				self.top.getScreen().performLeaderheadAction(self.leaderWidget, LeaderheadAction.LEADERANIM_GREETING)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 3bc5a81b5..064474b69 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -467,8 +467,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# Recreate each time: simple + safe (mirrors the approach used in other mod(s)).
+ 		self.SAS_deleteSearchWidgets(screen)
+ 
+-		# <!-- custom: search bar sits in the top header, X aligned with the items column. Right edge stops `iSafetyToTitle` pixels short of the central "Sevopedia" title to leave room for the
+-		# CLEAR button and avoid visually colliding with the title. CLEAR is rendered OUTSIDE the panel as a screen-level setText widget; a setLabel inside the search panel parent does not reach handleInput in this engine, so the click never fires. (Claude code Opus 4.7) -->
++		# <!-- custom: search bar sits in the top header, X aligned with the items column. Right edge stops `iSafetyToTitle` pixels short of the central "Sevopedia" title to leave room for the CLEAR button and avoid visually colliding with the title. CLEAR is rendered OUTSIDE the panel as a screen-level setText widget; a setLabel inside the search panel parent does not reach handleInput in this engine, so the click never fires. (Claude code Opus 4.7) -->
+ 		iSafetyToTitle = 200
+ 		iClearGap = 8
+ 		iX = self.X_ITEMS
+@@ -1188,7 +1187,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			# <advc.002b> Prepend graphic only if there is room
+ 			szHeading = category[1]
+ 			# For English, 16 happens to be OK.
+-			# <!-- custom: allow room to fit more characters; our text "Concepts (Outdated)" doesn't fit otherwise. Not increasing this further to accomodate the -1 for other languages, as they are unlikely to use such long texts anyway, and i really need or want the extra space (that is not so useful in categories headers i think, but anyways), was 16 --> 
++			# <!-- custom: allow room to fit more characters; our text "Concepts (Outdated)" doesn't fit otherwise. Not increasing this further to accomodate the -1 for other languages, as they are unlikely to use such long texts anyway, and i really need or want the extra space (that is not so useful in categories headers i think), was 16 --> 
+ 			iThresh = 19
+ 			if gc.getGame().getCurrentLanguage() != 0:
+ 				# <!-- custom: was 15 -->
+@@ -1724,8 +1723,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				break
+ 		return ""
+ 
+-	# <!-- custom: Sevopedia Event Triggers category (grouped by earliest era, with the "Any era (no tech requirement)" bucket placed FIRST since those events fire from
+-	# turn 1). No native engine jump widget for triggers, so items route via WIDGET_PYTHON + SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY like Votes. Left-list button falls back to the first child event's icon when the trigger itself has no button art in XML. (Claude code Opus 4.7) -->
++	# <!-- custom: Sevopedia Event Triggers category (grouped by earliest era, with the "Any era (no tech requirement)" bucket placed FIRST since those events fire from turn 1). No native engine jump widget for triggers, so items route via WIDGET_PYTHON + SAS_PEDIA_PYTHON_EVENT_TRIGGER_ENTRY like Votes. Left-list button falls back to the first child event's icon when the trigger itself has no button art in XML. (Claude code Opus 4.7) -->
+ 	def placeEventTriggers(self):
+ 		self.list = self.getEventTriggerList()
+ 		self.placeItems(WidgetTypes.WIDGET_PYTHON, self.getEventTriggerInfoForList)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index e2498d39f..6193d39a8 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -97,8 +97,7 @@ class SevoPediaReligion:
+ 		self.placeMovie()
+ 		self.placeUnit()
+ 		self.placeRequires()
+-		# <!-- custom: no V.Source panel on Religion page: vote sources with religion-yield/religion-commerce effects are global systems
+-		# (UN/AP-level) and not specific to one religion entry, so showing them per-religion would be misleading. (GPT-5.3-Codex) -->
++		# <!-- custom: no V.Source panel on Religion page: vote sources with religion-yield/religion-commerce effects are global systems (UN/AP-level) and not specific to one religion entry, so showing them per-religion would be misleading. (GPT-5.3-Codex) -->
+ 		self.placeSpecial()
+ 		self.placeHistory()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+index 4f70210b5..6f81621c1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+@@ -181,8 +181,7 @@ class SevoPediaSpecialist:
+ 				for iBuilding in xrange(gc.getNumBuildingInfos()):
+ 					buildingInfo = gc.getBuildingInfo(iBuilding)
+ 					if buildingInfo.getVoteSourceType() == iVoteSource:
+-						# <!-- custom: jump to Votes (not Building) because this free specialist comes from VoteSourceInfo,
+-						# while the building button is only the host of that vote source. (GPT-5.3-Codex) -->
++						# <!-- custom: jump to Votes (not Building) because this free specialist comes from VoteSourceInfo, while the building button is only the host of that vote source. (GPT-5.3-Codex) -->
+ 						if iVoteTarget > -1:
+ 							attach_button_label_row(screen, self.top, panelName, buildingInfo.getButton(), WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_VOTE_ENTRY, iVoteTarget, "+1 Free (V.Sources)")
+ 						else:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 2b9b53648..f9428bfc5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -428,8 +428,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 			# No first-to-discover effects - display "None" text
+ 			draw_none_text(screen, self.top, self.X_FIRST_TO_DISCOVER, self.Y_FIRST_TO_DISCOVER, self.W_FIRST_TO_DISCOVER, self.H_FIRST_TO_DISCOVER)
+ 
+-	# <!-- custom: Tradeable panel showing if this tech can be traded. Shows "Yes" if tradeable,
+-	# or No Entry emoji icon if not tradeable. (Claude Opus 4.5) -->
++	# <!-- custom: Tradeable panel showing if this tech can be traded. Shows "Yes" if tradeable, or No Entry emoji icon if not tradeable. (Claude Opus 4.5) -->
+ 	def placeTradeable(self):
+ 		screen = self.top.getScreen()
+ 		techInfo = gc.getTechInfo(self.iTech)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py b/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+index 88aa0f4fa..b40bedf18 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+@@ -33,8 +33,7 @@ class SevoPediaVote:
+ 
+ 		self.W_SOURCE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+-		# <!-- custom: top row order is V.Source/Civic -> Vote Source Info -> Free.Sp,
+-		# while F.Civics is shown on the mid row to reflect vote-level scope. (GPT-5.4?) -->
++		# <!-- custom: top row order is V.Source/Civic -> Vote Source Info -> Free.Sp, while F.Civics is shown on the mid row to reflect vote-level scope. (GPT-5.4?) -->
+ 		self.X_SOURCE = self.X_RIGHT
+ 		self.Y_SOURCE = self.Y_VOTE_PANE
+ 		self.H_SOURCE = (self.H_VOTE_PANE - SMALL_MARGIN) / 2
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+index f1a423e7f..b06c90b92 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+@@ -162,11 +162,9 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader):
+ 	print("iFreedomAppreciation: %d" % info.getFreedomAppreciation())
+ 
+ 	# <!-- custom: then we skip these (for example in/from LEADER_DEFAULTS):
+-	#
+ 	# 		<FavoriteCivic>NONE</FavoriteCivic>
+ 	# 		<FavoriteReligion>NONE</FavoriteReligion>
+ 	# 		<Traits/>
+-	#
+ 	# as we don't need them/display them in ai personality panel; then resume at fields below: -->
+ 
+ 	print("\n\n==== FLAVORS ====")
+
+diff --git a/Assets/Python/EntryPoints/CvEventInterface.py b/Assets/Python/EntryPoints/CvEventInterface.py
+index 866b20064..408e51f33 100644
+--- a/Assets/Python/EntryPoints/CvEventInterface.py
++++ b/Assets/Python/EntryPoints/CvEventInterface.py
+@@ -43,9 +43,7 @@ def beginEvent(context, argsList = -1):
+ def initAfterReload():
+ 	# Initialize BUG and fires PythonReloaded event after reloading Python modules while game is still running.
+ 	#
+-	# The first time this module is loaded after the game launches, the global context is not yet ready,
+-	# and thus BUG cannot be initialized. When the Python modules are reloaded after being changed, however,
+-	# this will reinitialize BUG and the main interface.
++	# The first time this module is loaded after the game launches, the global context is not yet ready, and thus BUG cannot be initialized. When the Python modules are reloaded after being changed, however, this will reinitialize BUG and the main interface.
+ 	#
+ 	import BugInit
+ 	import BugPath
+
+diff --git a/Assets/Python/Screens/CvDanQuayle.py b/Assets/Python/Screens/CvDanQuayle.py
+index 6c22a4cdc..e2fe63340 100644
+--- a/Assets/Python/Screens/CvDanQuayle.py
++++ b/Assets/Python/Screens/CvDanQuayle.py
+@@ -62,26 +62,7 @@ class CvDanQuayle:
+ 		self.W_TEXT = 390
+ 		self.H_TEXT = 100
+ 		
+-		self.leaders = ["TXT_KEY_DQ_LEADER_NAME_1", 
+-						"TXT_KEY_DQ_LEADER_NAME_2",
+-						"TXT_KEY_DQ_LEADER_NAME_3",
+-						"TXT_KEY_DQ_LEADER_NAME_4",
+-						"TXT_KEY_DQ_LEADER_NAME_5",
+-						"TXT_KEY_DQ_LEADER_NAME_6",
+-						"TXT_KEY_DQ_LEADER_NAME_7",
+-						"TXT_KEY_DQ_LEADER_NAME_8",
+-						"TXT_KEY_DQ_LEADER_NAME_9",
+-						"TXT_KEY_DQ_LEADER_NAME_10",
+-						"TXT_KEY_DQ_LEADER_NAME_11",
+-						"TXT_KEY_DQ_LEADER_NAME_12",
+-						"TXT_KEY_DQ_LEADER_NAME_13",
+-						"TXT_KEY_DQ_LEADER_NAME_14",
+-						"TXT_KEY_DQ_LEADER_NAME_15",
+-						"TXT_KEY_DQ_LEADER_NAME_16",
+-						"TXT_KEY_DQ_LEADER_NAME_17",
+-						"TXT_KEY_DQ_LEADER_NAME_18",
+-						"TXT_KEY_DQ_LEADER_NAME_19",
+-						"TXT_KEY_DQ_LEADER_NAME_20"]
++		self.leaders = ["TXT_KEY_DQ_LEADER_NAME_1", "TXT_KEY_DQ_LEADER_NAME_2", "TXT_KEY_DQ_LEADER_NAME_3", "TXT_KEY_DQ_LEADER_NAME_4", "TXT_KEY_DQ_LEADER_NAME_5", "TXT_KEY_DQ_LEADER_NAME_6", "TXT_KEY_DQ_LEADER_NAME_7", "TXT_KEY_DQ_LEADER_NAME_8", "TXT_KEY_DQ_LEADER_NAME_9", "TXT_KEY_DQ_LEADER_NAME_10", "TXT_KEY_DQ_LEADER_NAME_11", "TXT_KEY_DQ_LEADER_NAME_12", "TXT_KEY_DQ_LEADER_NAME_13", "TXT_KEY_DQ_LEADER_NAME_14", "TXT_KEY_DQ_LEADER_NAME_15", "TXT_KEY_DQ_LEADER_NAME_16", "TXT_KEY_DQ_LEADER_NAME_17", "TXT_KEY_DQ_LEADER_NAME_18", "TXT_KEY_DQ_LEADER_NAME_19", "TXT_KEY_DQ_LEADER_NAME_20"]
+ 
+ 		self.nWidgetCount = 0
+ 		# <!-- custom: cached max-score denominator; five defines combined into one formula that never changes. (Claude code Sonnet 4.6) -->
+@@ -106,10 +87,7 @@ class CvDanQuayle:
+ 		self.X_EXIT = self.W_SCREEN - 30
+ 		self.Y_EXIT = self.H_SCREEN - 42
+ 
+-		# <!-- custom: Your Place in History layout pass:
+-		# use fullscreen bounds, keep right score/ranking column anchored, maximize left leaderhead vertically,
+-		# and place the "during this game ..." panel in the center gap. This avoids ranking-list scroll while
+-		# giving the NIF more lateral room and keeps text upscaling support from SAS font tags/helpers. (GPT-5.3-Codex) -->
++		# <!-- custom: Your Place in History layout pass: use fullscreen bounds, keep right score/ranking column anchored, maximize left leaderhead vertically, and place the "during this game ..." panel in the center gap. This avoids ranking-list scroll while giving the NIF more lateral room and keeps text upscaling support from SAS font tags/helpers. (GPT-5.3-Codex) -->
+ 		iLeftMargin = 45
+ 		iRightMargin = 45
+ 		iColumnGap = 25
+
+diff --git a/Assets/Python/Screens/CvDawnOfMan.py b/Assets/Python/Screens/CvDawnOfMan.py
+index 652029c83..c4cbd8a18 100644
+--- a/Assets/Python/Screens/CvDawnOfMan.py
++++ b/Assets/Python/Screens/CvDawnOfMan.py
+@@ -27,9 +27,7 @@ class CvDawnOfMan:
+ 		self.W_TECH = 425
+ 		self.H_TECH = 80
+ 
+-		# <!-- custom: widen Dawn of Man panel to reduce wrapping for longer civ unit/building lines at upscaled fonts,
+-		# then rebalance top vs bottom panel heights so the leader/info section has enough room without overgrowing
+-		# the lower blue panel. Text blocks use SAS label/title scaling helpers for readability consistency. (GPT-5.3-Codex) -->
++		# <!-- custom: widen Dawn of Man panel to reduce wrapping for longer civ unit/building lines at upscaled fonts, then rebalance top vs bottom panel heights so the leader/info section has enough room without overgrowing the lower blue panel. Text blocks use SAS label/title scaling helpers for readability consistency. (GPT-5.3-Codex) -->
+ 		self.W_MAIN_PANEL = 800 # Was 550
+ 		
+ 		self.H_MAIN_PANEL = 590
+@@ -102,8 +100,7 @@ class CvDawnOfMan:
+ 		
+ 		# Main
+ 		szMainPanel = "DawnOfManMainPanel"
+-		screen.addPanel( szMainPanel, "", "", true, true,
+-			self.X_MAIN_PANEL, self.Y_MAIN_PANEL, self.W_MAIN_PANEL, self.H_MAIN_PANEL, PanelStyles.PANEL_STYLE_MAIN )
++		screen.addPanel( szMainPanel, "", "", true, true, self.X_MAIN_PANEL, self.Y_MAIN_PANEL, self.W_MAIN_PANEL, self.H_MAIN_PANEL, PanelStyles.PANEL_STYLE_MAIN )
+ 		
+ 		# <advc.704>
+ 		riseFall = gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL)
+@@ -118,29 +115,24 @@ class CvDawnOfMan:
+ 		isLaterEraStart = (gc.getGame().getStartEra() > 0 or gc.getGame().getCurrentEra() > 0 or rfChapter > 0)
+ 		if not isLaterEraStart:
+ 			szHeaderPanel = "DawnOfManHeaderPanel"
+-			screen.addPanel( szHeaderPanel, "", "", true, false,
+-				self.X_HEADER_PANEL, self.Y_HEADER_PANEL, self.W_HEADER_PANEL, self.H_HEADER_PANEL, PanelStyles.PANEL_STYLE_DAWNTOP )
++			screen.addPanel( szHeaderPanel, "", "", true, false, self.X_HEADER_PANEL, self.Y_HEADER_PANEL, self.W_HEADER_PANEL, self.H_HEADER_PANEL, PanelStyles.PANEL_STYLE_DAWNTOP )
+ 		
+ 		# Bottom
+ 		szTextPanel = "DawnOfManTextPanel"
+-		screen.addPanel( szTextPanel, "", "", true, true,
+-			self.X_TEXT_PANEL, self.Y_TEXT_PANEL, self.W_TEXT_PANEL, self.H_TEXT_PANEL, PanelStyles.PANEL_STYLE_DAWNBOTTOM )
++		screen.addPanel( szTextPanel, "", "", true, true, self.X_TEXT_PANEL, self.Y_TEXT_PANEL, self.W_TEXT_PANEL, self.H_TEXT_PANEL, PanelStyles.PANEL_STYLE_DAWNBOTTOM )
+ 		
+ 		# Add contents
+ 		
+ 		# Leaderhead graphic
+ 		szLeaderPanel = "DawnOfManLeaderPanel"
+-		screen.addPanel( szLeaderPanel, "", "", true, false,
+-			self.X_LEADER_ICON - 3, self.Y_LEADER_ICON - 5, self.W_LEADER_ICON + 6, self.H_LEADER_ICON + 8, PanelStyles.PANEL_STYLE_DAWNTOP )
+-		screen.addLeaderheadGFC("LeaderHead", self.player.getLeaderType(), AttitudeTypes.ATTITUDE_PLEASED,
+-			self.X_LEADER_ICON + 5, self.Y_LEADER_ICON + 5, self.W_LEADER_ICON - 10, self.H_LEADER_ICON - 10, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.addPanel( szLeaderPanel, "", "", true, false, self.X_LEADER_ICON - 3, self.Y_LEADER_ICON - 5, self.W_LEADER_ICON + 6, self.H_LEADER_ICON + 8, PanelStyles.PANEL_STYLE_DAWNTOP )
++		screen.addLeaderheadGFC("LeaderHead", self.player.getLeaderType(), AttitudeTypes.ATTITUDE_PLEASED, self.X_LEADER_ICON + 5, self.Y_LEADER_ICON + 5, self.W_LEADER_ICON - 10, self.H_LEADER_ICON - 10, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		
+ 		# Info/"Stats" text
+ 		
+ 		szNameText = "<color=255,255,0,255>" + sasFontTagTitle.bold + gc.getLeaderHeadInfo(self.player.getLeaderType()).getDescription().upper() + SAS_FONT_TAG_CLOSE
+ 		szNameText += u"\n" + sasFontTagLabel + u"- " + self.player.getCivilizationDescription(0) + u" -" + SAS_FONT_TAG_CLOSE + u"\n"
+-		# <!-- custom: prepend each trait name with its TraitUtil font-symbol icon (e.g. happy char for Charismatic,
+-		# defense char for Protective) so the traits line in the Dawn of Man header reads without requiring pedia-jump wiring. Mirrors SevoPediaLeader trait-icon injection. (Claude code Sonnet 4.6) -->
++		# <!-- custom: prepend each trait name with its TraitUtil font-symbol icon (e.g. happy char for Charismatic, defense char for Protective) so the traits line in the Dawn of Man header reads without requiring pedia-jump wiring. Mirrors SevoPediaLeader trait-icon injection. (Claude code Sonnet 4.6) -->
+ 		szTraits = CyGameTextMgr().parseLeaderTraits(self.player.getLeaderType(), self.player.getCivilizationType(), True, False)
+ 		leaderInfo = gc.getLeaderHeadInfo(self.player.getLeaderType())
+ 		for iTrait in range(gc.getNumTraitInfos()):
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index d35fb4568..9de4ef29f 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -864,8 +864,7 @@ class CvDomesticAdvisor:
+ 		screen.setTableText( self.TABLE_OVERVIEW1, 0, i, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		# <advc.193>
+-		# <!-- custom: preserve base AdvCiv per-row font-tag caching (one tag reused for all cells in this row update),
+-		# but source size from LABEL (not BODY) in AdvCiv-SAS for readability. (GPT-5.3-Codex) -->
++		# <!-- custom: preserve base AdvCiv per-row font-tag caching (one tag reused for all cells in this row update), but source size from LABEL (not BODY) in AdvCiv-SAS for readability. (GPT-5.3-Codex) -->
+ 		iCellFontSize = getSASUIFontLabel()
+ 		# (Uses of these tags in the code below aren't tagged w/ comments)
+ 		szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
+@@ -879,11 +878,9 @@ class CvDomesticAdvisor:
+ 			szName += (u"%c" % CyGame().getSymbolID(FontSymbols.SILVER_STAR_CHAR))
+ 		
+ 		# City name...
+-		screen.setTableText( self.TABLE_OVERVIEW1, 1, i, szFontTagOpen + szName + szFontTagClose, "",
+-				#WidgetTypes.WIDGET_GENERAL, -1, -1,
+-				# advc.186b: BULL attaches this to the zoom button. I like it better on the city name b/c, that way, it doesn't obscure the button that the player may want to click.
+-				WidgetTypes.WIDGET_EXAMINE_CITY, pLoopCity.getOwner(), pLoopCity.getID(),
+-				CvUtil.FONT_LEFT_JUSTIFY )
++		#WidgetTypes.WIDGET_GENERAL, -1, -1,
++		# advc.186b: BULL attaches this to the zoom button. I like it better on the city name b/c, that way, it doesn't obscure the button that the player may want to click.
++		screen.setTableText( self.TABLE_OVERVIEW1, 1, i, szFontTagOpen + szName + szFontTagClose, "", WidgetTypes.WIDGET_EXAMINE_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Population
+ 		screen.setTableInt( self.TABLE_OVERVIEW1, 2, i, szFontTagOpen + unicode(pLoopCity.getPopulation()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index f350ad7be..acdf024d9 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -1126,8 +1126,7 @@ class CvInfoScreen:
+ 		iColResearch = 27
+ 		iColResearchPct = 28
+ 
+-		# <!-- custom: reserve right-side width for table scrollbar gutter in this always-expanded layout,
+-		# so text does not clip/overflow under it; this budget is absorbed by V/M width balancing. (GPT-5.3-Codex) -->
++		# <!-- custom: reserve right-side width for table scrollbar gutter in this always-expanded layout, so text does not clip/overflow under it; this budget is absorbed by V/M width balancing. (GPT-5.3-Codex) -->
+ 		iMaxRenderWidthReservePx = 14
+ 		iW = iTableW - iMaxRenderWidthReservePx
+ 		iIconW = 28
+@@ -1304,8 +1303,7 @@ class CvInfoScreen:
+ 			if ePlayer == eActivePlayer:
+ 				eScoreWidget = WidgetTypes.WIDGET_SCORE_BREAKDOWN
+ 			# <!-- custom: Score-tab sort fix: Civ4 table sorting is type-aware, and values inserted with setTableText sort lexicographically
+-			# (e.g. "96" before "413"), which broke PoT/C and other numeric columns. Use setTableInt for numeric fields so ordering is truly numeric,
+-			# while still keeping setTableText fallbacks where values are unknown/hidden so blanks remain blank instead of fake defaults. (GPT-5.3-Codex) -->
++			# (e.g. "96" before "413"), which broke PoT/C and other numeric columns. Use setTableInt for numeric fields so ordering is truly numeric, while still keeping setTableText fallbacks where values are unknown/hidden so blanks remain blank instead of fake defaults. (GPT-5.3-Codex) -->
+ 			SASTextScale.setTableIntLabel(screen, szTable, iColScore, iRow, str(iScore), "", eScoreWidget, ePlayer, 0, CvUtil.FONT_RIGHT_JUSTIFY)
+ 
+ 			iGameTurn = iActiveGameTurn
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index aa97623eb..a2a8fbacb 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -158,8 +158,7 @@ class CvMainInterface:
+ 			gRect("LowerRightCornerPanel").adjustSize(iPanelW - gRect("LowerRightCornerPanel").width(), 0)
+ 			gRect("LowerRightCorner").moveTo(iPanelX, gRect("LowerRightCorner").y())
+ 			gRect("LowerRightCorner").adjustSize(iPanelW - gRect("LowerRightCorner").width(), 0)
+-		# <!-- custom: center bottom panel should stop before right panel in city screen,
+-		# and extend slightly in map view to avoid a gap. (GPT-5.2-Codex) -->
++		# <!-- custom: center bottom panel should stop before right panel in city screen, and extend slightly in map view to avoid a gap. (GPT-5.2-Codex) -->
+ 		# <!-- custom: controls the city screen as intended (e.g. 150 successfully reduces it only in the city screen) -->
+ 		if bCityScreen:
+ 			iCenterMargin = 10
+@@ -593,7 +592,7 @@ class CvMainInterface:
+ 		self.iScoreScrollOffset = 0
+ 		# <!-- custom: always-expand scoreboard toggle; when True, expanded columns shown without hovering. (Claude code Sonnet 4.6) -->
+ 		self.bScoreAlwaysExpand = False
+-		# <!-- custom: scoreboard background style cycle (not just opacity: PanelStyles also include plain/colored panels e.g. blue/tan, not only opaque/translucent). Discrete PanelStyle levels in cycle order: 0 HUD_HELP (vanilla look), 1 SOLID (most opaque / darkest), 2 MAIN (plain panel), 3 MAIN_BLACK50 (dark translucent), 4 MAIN_BLACK25 (light translucent), 5 EMPTY (no visible bg, text over map). Reorder/extend freely; if you add or reorder styles here, update the matching SAS_SCOREBOARD_BG_DEFAULT_STYLE legend comment in GlobalDefines_advciv_sas.xml to keep them in sync. Starting level comes from the SAS_SCOREBOARD_BG_DEFAULT_STYLE define, resolved lazily (None until first use). Changes the panel background only. (Claude code Opus 4.7) -->
++		# <!-- custom: scoreboard background style cycle (not just opacity: PanelStyles also include plain/colored panels e.g. blue/tan, not only opaque/translucent). Discrete PanelStyle levels in cycle order. 0 HUD_HELP is vanilla look. If you add or reorder styles here, update the matching SAS_SCOREBOARD_BG_DEFAULT_STYLE legend comment in GlobalDefines_advciv_sas.xml to keep them in sync. Starting level comes from the SAS_SCOREBOARD_BG_DEFAULT_STYLE define. (Claude code Opus 4.7) -->
+ 		self.iScoreBgStyleLevel = None
+ 		self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE = None
+ 		self.aScoreBgStyleLevels = [PanelStyles.PANEL_STYLE_HUD_HELP, PanelStyles.PANEL_STYLE_SOLID, PanelStyles.PANEL_STYLE_MAIN, PanelStyles.PANEL_STYLE_MAIN_BLACK50, PanelStyles.PANEL_STYLE_MAIN_BLACK25, PanelStyles.PANEL_STYLE_EMPTY]
+@@ -738,8 +737,7 @@ class CvMainInterface:
+ 		g_NumProcessInfos = gc.getNumProcessInfos()
+ 		g_NumActionInfos = gc.getNumActionInfos()
+ 
+-		# advc.004z: Moved ResourceIcons from last position to second and swapped BareMap and Yields.
+-		# And moved this whole thing out of setMiniMapButtonVisibility, and storing some associated data too.
++		# advc.004z: Moved ResourceIcons from last position to second and swapped BareMap and Yields. And moved this whole thing out of setMiniMapButtonVisibility, and storing some associated data too.
+ 		self.aMiniMapMainButtons = [
+ 			MiniMapButton("UnitIcons", ControlTypes.CONTROL_UNIT_ICONS, "Button_HUDGlobeUnit_Style"),
+ 			MiniMapButton("ResourceIcons", ControlTypes.CONTROL_RESOURCE_ALL, "Button_HUDBtnResources_Style"),
+@@ -1675,17 +1673,15 @@ class CvMainInterface:
+ 		# <!-- custom: use the corporation-advisor icon for foreign diplomacy after moving the diplomatic-advisor icon to the turn log; thematically close enough for relationship/network management. (GPT-5.5) -->
+ 		self.setStyledButton("ForeignDiplomacyAdvisorButton", "Button_HUDAdvisorCorporation_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_FOREIGN_DIPLOMACY_SCREEN).getActionInfoIndex())
+ 		screen.hide("ForeignDiplomacyAdvisorButton")
+-		# <!-- custom: F4 (Foreign Trade slot) uses the HUD Globe Trade style: more directly evocative of "foreign trade" than the generic Finance icon. GlobeTrade was unused in CvMainInterface (only GlobeUnit is bound), and the Finance icon would otherwise read as plain treasury rather than international trade. (Claude code Opus 4.7) -->
++		# <!-- custom: F4 (Foreign Trade slot) uses the HUD Globe Trade style: more directly evocative of "foreign trade" than the generic Finance icon. The Finance icon would otherwise read as plain treasury rather than international trade. (Claude code Opus 4.7) -->
+ 		self.setStyledButton("ForeignAdvisorButton", "Button_HUDGlobeTrade_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_FOREIGN_SCREEN).getActionInfoIndex())
+ 		screen.hide("ForeignAdvisorButton")
+ 		self.setStyledButton("MilitaryAdvisorButton", "Button_HUDAdvisorMilitary_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_MILITARY_SCREEN).getActionInfoIndex())
+ 		screen.hide("MilitaryAdvisorButton")
+ 		self.setStyledButton("TechAdvisorButton", "Button_HUDAdvisorTechnology_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_TECH_CHOOSER).getActionInfoIndex())
+ 		screen.hide("TechAdvisorButton")
+-		# <!-- custom: World Advisor F7 button uses the HUD Globe Strategy style. Among the 11 HUDAdvisor styles every one is taken (Espionage by the legacy EspionageAdvisorButton, Corporation by the BUG options widget, etc.). The HUD theme also defines 5 Globe styles for minimap-layer toggles, of which only GlobeUnit is actually used in CvMainInterface — the other four (Strategy/Religion/Culture/Trade) are free. Strategy is picked because the art fits "world overview". (Claude code Opus 4.7) -->
+ 		self.setStyledButton("WorldAdvisorButton", "Button_HUDGlobeStrategy_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_WORLD_ADVISOR_SCREEN).getActionInfoIndex())
+ 		screen.hide("WorldAdvisorButton")
+-		# <!-- custom: Religion/Corporation advisor HUD buttons removed; those screens are planned to be merged as Policy tabs. (GPT-5.3-Codex) -->
+ 		self.setStyledButton("VictoryAdvisorButton", "Button_HUDAdvisorVictory_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_VICTORY_SCREEN).getActionInfoIndex())
+ 		screen.hide("VictoryAdvisorButton")
+ 		self.setStyledButton("InfoAdvisorButton", "Button_HUDAdvisorRecord_Style", WidgetTypes.WIDGET_ACTION, gc.getControlInfo(ControlTypes.CONTROL_INFO).getActionInfoIndex())
+@@ -4046,8 +4042,7 @@ class CvMainInterface:
+ 		pPlayer = gc.getPlayer(ePlayer)
+ 		iGold = pPlayer.getGold()
+ 		iGoldRate = pPlayer.calculateGoldRate()
+-		# advc.070 (comment): Only relevant for mod-mods I think,
+-		# so I'm not changing anything here.
++		# advc.070 (comment): Only relevant for mod-mods I think, so I'm not changing anything here.
+ 		if iGold < 0:
+ 			szText = BugUtil.getText("TXT_KEY_MISC_NEG_GOLD", iGold)
+ 			if iGoldRate != 0:
+@@ -5521,9 +5516,7 @@ class CvMainInterface:
+ 			# The discrepancy happens because pCity.getGreatPeopleRateModifier() in the Python API often only returns the building modifiers (like the National Epic), but ignores Traits (Philosophical) or Golden Ages. The C++ tooltip adds those up separately.
+ 			# Instead of trying to hunt down every single bonus source in Python (which is complex and prone to errors), we can reverse-engineer the correct modifier by comparing the Final Total (which the game gives us) against the Raw Base (which we calculated).
+ 			# If the game says you have 10 Total Points, and you counted 8 Raw Points, the modifier must be +25%. This method is 100% accurate because it is derived from the final result.
+-			# The Fix: "Reverse Engineering" the Modifier
+-			# Instead of asking the API for the modifier (which misses Golden Ages/Traits),
+-			# we calculate it: (Final / Raw) - 100%
++			# The Fix: "Reverse Engineering" the Modifier. Instead of asking the API for the modifier (which misses Golden Ages/Traits), we calculate it: (Final / Raw) - 100%
+ 			iModPercent = 0
+ 			if iTotalRaw > 0 and iTotalRate > iTotalRaw:
+ 				# We use integer math: (10 * 100) / 8 = 125. 125 - 100 = 25%
+@@ -5716,8 +5709,7 @@ class CvMainInterface:
+ 							szRightBuffer = BugUtil.colorText(szRightBuffer, "COLOR_CYAN")
+ # BUG - Production Started - end
+ # BUG - Production Decay - start
+-					# advc.094: BugDll.isPresent check removed; active player check added
+-					# (replacing a is-human check in the DLL).
++					# advc.094: BugDll.isPresent check removed; active player check added (replacing a is-human check in the DLL).
+ 					if (CityScreenOpt.isShowProductionDecayQueue() and pHeadSelectedCity.getOwner() == gc.getGame().getActivePlayer()):
+ 						eUnit = CyInterface().getOrderNodeData1(i)
+ 						if pHeadSelectedCity.getUnitProduction(eUnit) > 0:
+@@ -6066,8 +6058,7 @@ class CvMainInterface:
+ 			pass
+ 		screen.addPanel("ScoreBackground", u"", u"", True, False, 0, 0, 0, 0, eStyle)
+ 		self._eScoreBgStyleApplied = eStyle
+-	# advc.092: Reconciling redundant BtS code from updateScoreStrings
+-	# with BUG code from Scoreboard.draw.
++	# advc.092: Reconciling redundant BtS code from updateScoreStrings with BUG code from Scoreboard.draw.
+ 	def updateScoreBackgrSize(self, iTextWidth, iTextHeight):
+ 		iRMargin = gRect("Top").xRight() - gPoint("ScoreTextLowerRight").x()
+ 		# <!-- custom: fixed symmetric panel margin matching original (3*iBMargin/2 with iBMargin=VSPACE(6)) so text is always centered; no longer derived from iBMargin which blows up when iScoreBottom moves. (Claude code Sonnet 4.6) -->
+@@ -6746,10 +6737,11 @@ class CvMainInterface:
+ 		gSetSquare("GlobeToggle", "Top", iGlobeX, iGlobeY, gRect("GlobeToggle").size())
+ 		screen.moveItem("GlobeToggle", iGlobeX, iGlobeY, 0.0)
+ 
+-		iStep = gRect("MiniMapButton").size() + HSPACE(0)
++		# <!-- custom: adding the map-annotation button made the strip one wider, so its last button collided with the Globe toggle. There was a lot of unused dead space between buttons, so step by less than the full cell to tighten the strip enough to fit the extra button without colliding. (Claude code Opus 4.7); was HSPACE(0). Note: -HSPACE(5) is enough for pangea, but for some squarish maps like as of now BTG_Cross, minimap is horizontally shorter and toggle scoreboard button still collides with globe view button. However this is rare, and increasing the button horizontal inter-spacing reduction would make toggle scoreboard and globe view buttons too spaced in Pangea, plus they don't fully prevent colliding in BTG_Cross, even in BTG_Cross, globe view remains fairly accessible, so not increased further. -->
++		iStripButtonOverlapX = -HSPACE(5)
++		iStep = gRect("MiniMapButton").size() + iStripButtonOverlapX
+ 		#iBtnX = iGlobeX - len(aShow) * iStep - HSPACE(10)
+-		# advc.092: Better align left and leave any remaining space between the
+-		# Globe Toggle and the smaller minimap buttons
++		# advc.092: Better align left and leave any remaining space between the Globe Toggle and the smaller minimap buttons
+ 		iX = gRect("MiniMapPanel").x()
+ 		i = 0
+ 		for szButton in aShow:
+
+diff --git a/Assets/Python/Screens/CvReplayScreen.py b/Assets/Python/Screens/CvReplayScreen.py
+index 61a6e38cd..a0ba43dc9 100644
+--- a/Assets/Python/Screens/CvReplayScreen.py
++++ b/Assets/Python/Screens/CvReplayScreen.py
+@@ -360,8 +360,7 @@ class CvReplayScreen:
+ 		for iPlayer in range(self.replayInfo.getNumPlayers()):
+ 			screen.addGraphLayer(self.szGraph, iPlayer, self.replayInfo.getColor(iPlayer))
+ 
+-		# <!-- custom: Graph widget axis labels render raw text and do not parse <font=...> tags,
+-		# so draw SAS-scaled overlay labels instead and keep built-in graph labels empty. (GPT-5.3-Codex) -->
++		# <!-- custom: Graph widget axis labels render raw text and do not parse <font=...> tags, so draw SAS-scaled overlay labels instead and keep built-in graph labels empty. (GPT-5.3-Codex) -->
+ 		screen.setGraphLabelX(self.szGraph, u"")
+ 		screen.setGraphLabelY(self.szGraph, u"")
+ 		# <!-- custom: nudge Turns label lower and Score label higher and left for better visual separation from the graph edges. (Claude Code Sonnet 4.6) -->
+
+diff --git a/Assets/Python/Screens/LayoutDict.py b/Assets/Python/Screens/LayoutDict.py
+index a8a118144..d7fbc6280 100644
+--- a/Assets/Python/Screens/LayoutDict.py
++++ b/Assets/Python/Screens/LayoutDict.py
+@@ -1,46 +1,36 @@
+ # advc.092: New module. (Rectangular) layout data for widgets on the main screen,
+ # i.e. mostly for use by CvMainInterface and PLE; however, other modules may also
+ # want to align widgets with the main screen occasionally.
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: changes here are minor (e.g. collapsed multiline statements to single-line for grep/readability) -->
+ 
+ from RectLayout import *
+ from math import pow
+ 
+ def _isPrintLayoutKey(szKey):
+-	return (False and # Toggle to True to enable output
+-			# For long sequences of widgets, print only the first one or first few ...
+-			(not szKey.startswith("PlotListButton") or
+-			# Lower left unit button when numPlotListButtonsPerRow is 35
+-			# and numPlotListRows is 10. (9*35=315)
+-			szKey.startswith("PlotListButton315")) and
+-			(not szKey.startswith("AngryCitizen") or
+-			szKey.startswith("AngryCitizen0") or szKey.startswith("AngryCitizenChevron0")) and
+-			(not szKey.startswith("IncreaseSpecialist") or
+-			szKey.startswith("IncreaseSpecialist0")) and
+-			(not szKey.startswith("DecreaseSpecialist") or
+-			szKey.startswith("DecreaseSpecialist0")) and
+-			(not szKey.startswith("SpecialistDisabledButton") or
+-			szKey.startswith("SpecialistDisabledButton0")) and
+-			(not szKey.startswith("CitizenButton") or
+-			szKey.startswith("CitizenButton0")) and
+-			(not szKey.startswith("CitizenChevron") or
+-			szKey.startswith("CitizenChevron0")) and
+-			(not szKey.startswith("Stacker_FreeSpecialist") or
+-			szKey.startswith("Stacker_FreeSpecialist0")) and
+-			(not szKey.startswith("Stacker_AngryCitizen") or
+-			szKey.startswith("Stacker_AngryCitizen0")) and
+-			(not szKey.startswith("IncrCitizenBanner") or
+-			szKey.startswith("IncrCitizenBanner0")) and
+-			(not szKey.startswith("IncrCitizenButton") or
+-			szKey.startswith("IncrCitizenButton0")) and
+-			(not szKey.startswith("PromotionButton") or
+-			szKey.endswith("Button0")) and
+-			(not szKey.startswith("PLE_PROMO_BUTTONS_UNITINFO") or
+-			szKey.startswith("PLE_PROMO_BUTTONS_UNITINFO0")) and
+-			(not szKey.startswith("DecrCitizenButton") or
+-			szKey.startswith("DecrCitizenButton0")) and
+-			(not szKey.startswith("CityBonus") or
+-			szKey.endswith("_0"))
+-			)
++	return (
++		False and
++		# Toggle to True to enable output. For long sequences of widgets, print only the first one or first few ...
++		# Lower left unit button when numPlotListButtonsPerRow is 35 and numPlotListRows is 10. (9*35=315)
++		(not szKey.startswith("PlotListButton") or szKey.startswith("PlotListButton315")) and
++		(not szKey.startswith("AngryCitizen") or szKey.startswith("AngryCitizen0") or szKey.startswith("AngryCitizenChevron0")) and
++		(not szKey.startswith("IncreaseSpecialist") or szKey.startswith("IncreaseSpecialist0")) and
++		(not szKey.startswith("DecreaseSpecialist") or szKey.startswith("DecreaseSpecialist0")) and
++		(not szKey.startswith("SpecialistDisabledButton") or szKey.startswith("SpecialistDisabledButton0")) and
++		(not szKey.startswith("CitizenButton") or szKey.startswith("CitizenButton0")) and
++		(not szKey.startswith("CitizenChevron") or szKey.startswith("CitizenChevron0")) and
++		(not szKey.startswith("Stacker_FreeSpecialist") or szKey.startswith("Stacker_FreeSpecialist0")) and
++		(not szKey.startswith("Stacker_AngryCitizen") or szKey.startswith("Stacker_AngryCitizen0")) and
++		(not szKey.startswith("IncrCitizenBanner") or szKey.startswith("IncrCitizenBanner0")) and
++		(not szKey.startswith("IncrCitizenButton") or szKey.startswith("IncrCitizenButton0")) and
++		(not szKey.startswith("PromotionButton") or szKey.endswith("Button0")) and
++		(not szKey.startswith("PLE_PROMO_BUTTONS_UNITINFO") or szKey.startswith("PLE_PROMO_BUTTONS_UNITINFO0")) and
++		(not szKey.startswith("DecrCitizenButton") or szKey.startswith("DecrCitizenButton0")) and
++		(not szKey.startswith("CityBonus") or szKey.endswith("_0")))
+ 
+ def _iround(f):
+ 	return int(round(f))
+@@ -51,11 +41,9 @@ def gSetRectangle(szKeyName, lRect):
+ 	if _isPrintLayoutKey(szKeyName):
+ 		print(szKeyName + " " + str(lRect))
+ def gSetRect(szKeyName, szParentKey, fX, fY, fWidth, fHeight, bOffScreen = False):
+-	gSetRectangle(szKeyName, RectLayout(gRect(szParentKey),
+-			fX, fY, fWidth, fHeight, bOffScreen))
++	gSetRectangle(szKeyName, RectLayout(gRect(szParentKey), fX, fY, fWidth, fHeight, bOffScreen))
+ def gSetSquare(szKeyName, szParentKey, fX, fY, fSideLen, bOffScreen = False):
+-	gSetRectangle(szKeyName, SquareLayout(gRect(szParentKey),
+-			fX, fY, fSideLen, bOffScreen))
++	gSetRectangle(szKeyName, SquareLayout(gRect(szParentKey), fX, fY, fSideLen, bOffScreen))
+ def gRect(szKeyName):
+ 	return gRectLayoutDict[szKeyName]
+ def gIsRect(szKeyName):
+@@ -79,13 +67,9 @@ gHorizontalScaleFactor = 1.0
+ gVerticalScaleFactor = 1.0
+ gSquareButtonScaleFactor = 1.0
+ gSpaceScaleFactor = 1.0
+-# Sets the global variables above.
+-# All positional data that goes through the functions below will then
+-# be scaled accordingly.
+-def gSetScaleFactors(fHorizontal, fVertical, fSquare,
+-		# This one should be less than 1 b/c space in between widgets should
+-		# (if at all) be only slighty affected by the screen resolution.
+-		fSpace):
++# Sets the global variables above. All positional data that goes through the functions below will then be scaled accordingly.
++# fSpace: This one should be less than 1 b/c space in between widgets should (if at all) be only slighty affected by the screen resolution.
++def gSetScaleFactors(fHorizontal, fVertical, fSquare, fSpace):
+ 	global gHorizontalScaleFactor, gVerticalScaleFactor, gSquareButtonScaleFactor, gSpaceScaleFactor
+ 	gHorizontalScaleFactor = fHorizontal
+ 	gVerticalScaleFactor = fVertical
+@@ -99,8 +83,7 @@ def _dispropMagnMult(fMult, iDist, fExp):
+ 	return pow(fMult, fExp)
+ def _scaleWidgetLenToRes(fScaleMult, iLen, fExp):
+ 	if iLen <= 0:
+-		# Let's allow 0 for tiny lengths that should be
+-		# 0 when the resolution is small.
++		# Let's allow 0 for tiny lengths that should be 0 when the resolution is small.
+ 		assert iLen == 0
+ 		return _iround(fScaleMult - 1)
+ 	return _iround(iLen * _dispropMagnMult(fScaleMult, iLen, fExp))
+@@ -109,23 +92,18 @@ def _scaleSpaceToRes(fScaleMult, iSpacing, fExp):
+ 	if iSpacing == 0:
+ 		return max(0, _iround(fScaleMult - 1))
+ 	elif iSpacing < 0:
+-		# Negative space is overlap. Overlap should get smaller
+-		# on higher resolutions.
++		# Negative space is overlap. Overlap should get smaller on higher resolutions.
+ 		fScaleMult = 1 / fScaleMult
+ 	return _iround(iSpacing * _dispropMagnMult(fScaleMult, iSpacing, fExp))
+ # Short names b/c there will be lots of call sites.
+-# The optional fExp params allow a caller to exponentiate the resolution-based
+-# multipliers. Use fExp > 1 to increase the impact of screen resolution on a
+-# distance, use 0 < fExp < 1 to decrease the impact.
++# The optional fExp params allow a caller to exponentiate the resolution-based multipliers. Use fExp > 1 to increase the impact of screen resolution on a distance, use 0 < fExp < 1 to decrease the impact.
+ def HLEN(iWidth, fExp = 0):
+ 	return _scaleWidgetLenToRes(gHorizontalScaleFactor, iWidth, fExp)
+ def VLEN(iHeight, fExp = 0):
+ 	return _scaleWidgetLenToRes(gVerticalScaleFactor, iHeight, fExp)
+ def BTNSZ(iSize, fExp = 0):
+ 	return _scaleWidgetLenToRes(gSquareButtonScaleFactor, iSize, fExp)
+-# Negative arguments are assumed to be overlap, i.e. those will
+-# move closer to 0 on higher resolution. Callers should pass
+-# negative values only when there is overlap!
++# Negative arguments are assumed to be overlap, i.e. those will move closer to 0 on higher resolution. Callers should pass negative values only when there is overlap!
+ def HSPACE(iWidth, fExp = 0):
+ 	return _scaleSpaceToRes(gHorizontalScaleFactor, iWidth, fExp)
+ def VSPACE(iHeight, fExp = 0):
+
+diff --git a/README.md b/README.md
+index ca1f8fa7a..e74ff39c8 100644
+--- a/README.md
++++ b/README.md
+@@ -352,7 +352,7 @@ The new scroll up, scroll fast up, and scroll fastest buttons (same for scroll d
+ 
+ ##### Map annotations
+ 
+-A new toggle button to show or hide map annotations (Alt + S captions or Alt + X BFC marks) in map view has been added. The toggled state persists on save and load.
++A new toggle button to show or hide map annotations (Alt + S captions or Alt + X BFC marks) in map view has been added. The toggled state persists on save and load. See details in the Main Changes guide.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (1).JPG" alt="0.420_annotations (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (2).JPG" alt="0.420_annotations (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index fcdd002b5..f3205412b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -376,7 +376,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**. **Reduce commerce sliders fast increment** (`++ and --` optional buttons ("Min/Max Buttons in BUG Menu")) from **100 to 50** and make them **tunable**. Show **Era text default ON** (as of now on top left); **strip " Era" suffix** so text is now only e.g., `Renaissance` not `Renaissance Era` (would overflow during golden age when text is upscaled, plus it is unneeded). See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** ((Requires AdvCiv-SAS 5690+) with optional separate blue ribbon, bar Y position and bar height position fine-tuning tunables (e.g., helps remove needless scroll bar when there are not more than max rows, or keep display symetric or prettier)) and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). (Requires AdvCiv-SAS 5526+) Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Add **commerce sliders fast increment buttons** (`++ and --` optional buttons ("Min/Max Buttons in BUG Menu")) in city screen (matching the ones in map view) (not added in Finance Tab or Espionage Tab because these still have access to commerce sliders as of now at their right in map view). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5689+) Adjust **city camera** to the north (tunable) so extra rows can be shown without overflowing into bottom BFC plots in `CvGame::onCityScreenChange`. And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+-- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5726+) Added **help text box** (`DefaultHelpArea`) (on the left side) optional **width adjustment** (negative value shrinks it). Make **x and y positions** (resolution-scaled), and **width** (hard pixel; not resolution-scaled) of the **unit bar** (`PlotListPanel`) **adjustable**, and **fix horizontal overflow of unit bar into scoreboard** when unit bar is full and scoreboard is hovered on (or toggle lock scoreboard hover is ON) (see [KI#124](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)). (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**. (Requires AdvCiv-SAS 5723+) Added a **Toggle show annotations** (Alt + S **captions**, Alt + X **BFC marks**) button (next to the other buttons **above the Minimap**); the toggled state **persists on save and load**; reorganized buttons as part of this change (this takes the Event Log's former HUD icon former (it gets another one instead)). See [README.md (Map annotations)](/README.md#map-annotations). [KI#135](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#135---fixed-likely-base-advciv-issue-turn-status-text-collided-with-the-diplomacy-screen).
++- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5726+) Added **help text box** (`DefaultHelpArea`) (on the left side) optional **width adjustment** (negative value shrinks it). Make **x and y positions** (resolution-scaled), and **width** (hard pixel; not resolution-scaled) of the **unit bar** (`PlotListPanel`) **adjustable**, and **fix horizontal overflow of unit bar into scoreboard** when unit bar is full and scoreboard is hovered on (or toggle lock scoreboard hover is ON) (see [KI#124](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)). (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**. (Requires AdvCiv-SAS 5723+) Added a **Toggle show annotations** (Alt + S **captions**, Alt + X **BFC marks**) button (next to the other buttons **above the Minimap**); the toggled state **persists on save and load**; reorganized buttons as part of this change (this takes the Event Log's former HUD icon former (it gets another one instead)). To accomodate this new minimap button's width, **reduce minimap buttons horizontal interspacing** so **last minimap button doesn't collide horizontally with globe view** button (except for squarish maps like as of now BTG_Cross, where this is a fine trade-off, and still improved significantly with this adjustment). See [README.md (Map annotations)](/README.md#map-annotations). [KI#135](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#135---fixed-likely-base-advciv-issue-turn-status-text-collided-with-the-diplomacy-screen).
+ - (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+** (up, fast up, and fastest up) and **-** (down, fast down, and fastest down (e.g., 1 by 1, 5 by 5, or 50 by 50 (effectively max))) **scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Toggle lock scoreboard hover button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover). Note: in first turns of the game the lock button effectively has no effect since power ratios are not yet visible. Add a **Toggle Background Style button** (AdvCiv **default at each save load/new game kept**; tunable) (e.g., blue panel, black50, empty (transparent)). Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard).
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=23 omittedFiles=0 embeddedPatchBytes=95017

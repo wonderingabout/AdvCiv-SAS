@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 246
+# Commit: f77d3262666ddecaa0f70253d6c2b7c54af6db83
+# History segment: K-Mod history
+# Parent used for diff: d69e645b2c802f300e569bd4d83b7f924093a162
+# Title: Fixed an original BtS bug which did strange things when a unit was ordered to attack a tile which was already mid-battle (in simultaneous turn multiplayer)....
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	2	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 9b1df497a..6eb8cb9f9 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3505,7 +3505,8 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 
+ 	CvPlot* pDestPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+ 
+-	if (iFlags & MOVE_THROUGH_ENEMY)
++	//if (iFlags & MOVE_THROUGH_ENEMY)
++	if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK)) // K-Mod
+ 	{
+ 		if (generatePath(plot(), pDestPlot, iFlags))
+ 		{
+@@ -3525,7 +3526,8 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 	{
+ 		if ((getDomainType() == DOMAIN_AIR) || (stepDistance(getX(), getY(), pDestPlot->getX_INLINE(), pDestPlot->getY_INLINE()) == 1))
+ 		{
+-			if ((iFlags & MOVE_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (iFlags & MOVE_THROUGH_ENEMY) || (generatePath(plot(), pDestPlot, iFlags) && (getPathFirstPlot() == pDestPlot)))
++			//if ((iFlags & MOVE_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (iFlags & MOVE_THROUGH_ENEMY) || (generatePath(plot(), pDestPlot, iFlags) && (getPathFirstPlot() == pDestPlot)))
++			if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK | MOVE_DIRECT_ATTACK) || getDomainType() == DOMAIN_AIR || (generatePath(plot(), pDestPlot, iFlags) && getPathFirstPlot() == pDestPlot)) // K-Mod
+ 			{
+ 				int iAttackOdds;
+ 				CvUnit* pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, true, iAttackOdds);
+@@ -3595,6 +3597,7 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 							}
+ 						}
+ 
++						/* origianl bts code
+ 						if (getNumUnits() > 1)
+ 						{
+ 							if (pBestAttackUnit->plot()->isFighting() || pDestPlot->isFighting())
+@@ -3605,7 +3608,16 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 							{
+ 								pBestAttackUnit->attack(pDestPlot, bStack);
+ 							}
++						} */
++						// K-Mod. bug fix
++						if (pBestAttackUnit->plot()->isFighting() || pDestPlot->isFighting())
++						{
++							bFailedAlreadyFighting = true;
+ 						}
++						else if (getNumUnits() > 1)
++						{
++							pBestAttackUnit->attack(pDestPlot, bStack);
++						} // K-Mod end
+ 						else
+ 						{
+ 							pBestAttackUnit->attack(pDestPlot, false);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2308

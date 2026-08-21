@@ -1,0 +1,281 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5364
+# Commit: 53469ab2618d1c9ef6f4e8ad673f6eff7a2ef17d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0dcd8437fd9fda8191c6185028ca3b141cf962ac
+# Title: refactor/perf opt: do not re-sort in sevopedia groupings - # <!-- custom: For grouping helpers that accept a prebuilt baseList, SevoPediaMain already applies...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	10	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+6	54	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index d6457a20a..af037c877 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -58,6 +58,8 @@ import BugUtil
+ from _sevopedia_helpers import *
+ import _sevopedia_main_groupings as SAS_MainGroupings
+ 
++
++
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+@@ -878,7 +880,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def SAS_getUnitAvailabilityEra(self, iUnit, iNumUnitAndTechs, iNumBuildingAndTechs):
+ 		return SAS_MainGroupings.SAS_getUnitAvailabilityEra(iUnit, iNumUnitAndTechs, iNumBuildingAndTechs, gc)
+ 	def SAS_getUnitsGroupedByEra_fromBaseList(self, baseList):
+-		return SAS_MainGroupings.SAS_getUnitsGroupedByEra_fromBaseList(baseList, gc, self.isSortLists(), localText, self.SAS_getUnitAvailabilityEra)
++		return SAS_MainGroupings.SAS_getUnitsGroupedByEra_fromBaseList(baseList, gc, False, localText, self.SAS_getUnitAvailabilityEra)
+ 
+ 
+ 	# <!-- custom: similarly, in sevopedia units, group units by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
+@@ -992,7 +994,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	# <!-- custom: helper we can reuse for regular buildings, national wonders, world wonders, with the help of chatgpt 5.2 thanks -->
+ 	def SAS_getBuildingsGroupedByEra_fromBaseList(self, baseList):
+-		return SAS_MainGroupings.SAS_getBuildingsGroupedByEra_fromBaseList(baseList, gc, self.isSortLists(), localText, self.SAS_getBuildingAvailabilityEra)
++		return SAS_MainGroupings.SAS_getBuildingsGroupedByEra_fromBaseList(baseList, gc, False, localText, self.SAS_getBuildingAvailabilityEra)
+ 
+ 	def getBuildingList(self):
+ 		if self.SAS_cacheRegularBuildingsTuple is None:
+@@ -1057,7 +1059,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	# Helper we can reuse for project lists, with the help of chatgpt 5.2 thanks.
+ 	def SAS_getProjectsGroupedByEra_fromBaseList(self, baseList):
+-		return SAS_MainGroupings.SAS_getProjectsGroupedByEra_fromBaseList(baseList, gc, self.isSortLists(), localText, self.SAS_getProjectAvailabilityEra)
++		return SAS_MainGroupings.SAS_getProjectsGroupedByEra_fromBaseList(baseList, gc, False, localText, self.SAS_getProjectAvailabilityEra)
+ 
+ 	# <!-- custom: similarly, in sevopedia projects, group projects by era instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
+ 	def getProjectList(self):
+@@ -1094,7 +1096,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	def SAS_getTerrainsGroupedByLandWater_fromBaseList(self, baseList):
+ 		return SAS_MainGroupings.SAS_getTerrainsGroupedByLandWater_fromBaseList(
+-			baseList, gc, self.isSortLists(), self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS)
++			baseList, gc, False, self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS)
+ 
+ 
+ 	def getTerrainList(self):
+@@ -1120,7 +1122,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	def SAS_getFeaturesGroupedByLandWater_fromBaseList(self, baseList):
+ 		return SAS_MainGroupings.SAS_getFeaturesGroupedByLandWater_fromBaseList(
+-			baseList, gc, self.isSortLists(), self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS)
++			baseList, gc, False, self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS)
+ 
+ 
+ 	def getFeatureList(self):
+@@ -1142,7 +1144,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	def SAS_getBonusesGroupedByImprovement_fromBaseList(self, baseList):
+ 		return SAS_MainGroupings.SAS_getBonusesGroupedByImprovement_fromBaseList(
+-			baseList, gc, self.isSortLists())
++			baseList, gc, False)
+ 
+ 
+ 	def getBonusList(self):
+@@ -1173,7 +1175,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	def SAS_getImprovementsGroupedByTerrain_fromBaseList(self, baseList):
+ 		return SAS_MainGroupings.SAS_getImprovementsGroupedByTerrain_fromBaseList(
+-			baseList, gc, self.isSortLists())
++			baseList, gc, False)
+ 
+ 
+ 	def getImprovementList(self):
+@@ -1207,7 +1209,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	# - Water (Other): builds that create other water improvements (Offshore Platform)
+ 	def SAS_getBuildsGroupedByType_fromBaseList(self, baseList):
+ 		return SAS_MainGroupings.SAS_getBuildsGroupedByType_fromBaseList(
+-			baseList, gc, self.isSortLists())
++			baseList, gc, False)
+ 
+ 
+ 	def getBuildList(self):
+@@ -1349,7 +1351,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	# Helper we can reuse for religions.
+ 	def SAS_getReligionsGroupedByEra_fromBaseList(self, baseList):
+-		return SAS_MainGroupings.SAS_getReligionsGroupedByEra_fromBaseList(baseList, gc, self.isSortLists(), localText, self.SAS_getReligionAvailabilityEra)
++		return SAS_MainGroupings.SAS_getReligionsGroupedByEra_fromBaseList(baseList, gc, False, localText, self.SAS_getReligionAvailabilityEra)
+ 
+ 	# <!-- custom: similarly, in sevopedia religions, group religions by era (based on their founding tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
+ 	def getReligionList(self):
+@@ -1371,7 +1373,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def SAS_getCorporationAvailabilityEra(self, iCorporation, iNumBuildingAndTechs):
+ 		return SAS_MainGroupings.SAS_getCorporationAvailabilityEra(iCorporation, iNumBuildingAndTechs, gc)
+ 	def SAS_getCorporationsGroupedByEra_fromBaseList(self, baseList):
+-		return SAS_MainGroupings.SAS_getCorporationsGroupedByEra_fromBaseList(baseList, gc, self.isSortLists(), localText, self.SAS_getCorporationAvailabilityEra)
++		return SAS_MainGroupings.SAS_getCorporationsGroupedByEra_fromBaseList(baseList, gc, False, localText, self.SAS_getCorporationAvailabilityEra)
+ 
+ 	# <!-- custom: similarly, in sevopedia corporations, group corporations by era (based on founding building prereq tech era) instead of one long list. Code added with the help of chatgpt 5.2 thanks -->
+ 	def getCorporationList(self):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index 7dc6f1dfa..b7418783f 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -13,10 +13,16 @@
+ #   import _sevopedia_main_groupings as SAS_MainGroupings
+ #   ... then call SAS_MainGroupings.<func>(..., gc, self.isSortLists(), ...)
+ #
++# <!-- custom: For grouping helpers that accept a prebuilt baseList, SevoPediaMain already applies BUG 'Sort Lists' ordering once via getSortedList()/getUnfilteredSortedList().
++# These helpers therefore preserve the incoming order and do not re-sort, avoiding redundant work when list grouping is enabled. (ChatGPT-5.2 Thinking) -->
++
++
+ 
+ from CvPythonExtensions import *
+ from _sevopedia_helpers import SAS_isFeatureRemovable
+ 
++
++
+ def SAS_isFoodYieldImprovement(iImprovement, gc):
+ 	# Check if improvement provides food yields from any bonus.
+ 	info = gc.getImprovementInfo(iImprovement)
+@@ -118,11 +124,6 @@ def SAS_getTerrainsGroupedByLandWater_fromBaseList(baseList, gc, bSortLists, hig
+ 		else:
+ 			landFlat.append((szName, iTerrain))
+ 
+-	# Optional sorting if BUG Sort Lists is on
+-	if bSortLists:
+-		landFlat.sort()
+-		graphicalOnlyHigh.sort()
+-		water.sort()
+ 
+ 	# Emit headers + items in alphabetical order by header name
+ 	if graphicalOnlyHigh:
+@@ -192,11 +193,6 @@ def SAS_getFeaturesGroupedByLandWater_fromBaseList(baseList, gc, bSortLists, gra
+ 			else:
+ 				landOther.append((szName, iFeature))
+ 
+-	# Optional sorting if BUG Sort Lists is on
+-	if bSortLists:
+-		landRemovable.sort()
+-		landOther.sort()
+-		water.sort()
+ 
+ 	# Emit headers + items in alphabetical order by header name
+ 	if landOther:
+@@ -248,11 +244,6 @@ def SAS_getBonusesGroupedByImprovement_fromBaseList(baseList, gc, bSortLists):
+ 			groups[key] = tmp
+ 		tmp.append((szName, iBonus))
+ 
+-	# Optional sorting within each improvement-group (when BUG "Sort Lists" is ON)
+-	if bSortLists:
+-		for k in groups.keys():
+-			groups[k].sort()
+-		noImprovement.sort()
+ 
+ 	# Order headers:
+ 	#  - primarily by first improvement id (so this generally follows ImprovementInfos XML order),
+@@ -427,11 +418,6 @@ def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, gc, bSortLists):
+ 	waterOther.sort(key=lambda x: (x[0], x[1]))  # sort by (iEra, szName)
+ 	waterOther = [(item[1], item[2]) for item in waterOther]
+ 
+-	# Optional sorting if BUG Sort Lists is on
+-	# Keep special order for: landGrowth (chain), waterFood/waterOther (era)
+-	if bSortLists:
+-		landBonusCapable.sort()
+-		landOther.sort()
+ 
+ 	# Emit headers + items in alphabetical order by header name
+ 	if landBonusCapable:
+@@ -612,12 +598,6 @@ def SAS_getBuildsGroupedByType_fromBaseList(baseList, gc, bSortLists):
+ 	waterOther.sort(key=lambda x: (x[0], x[1]))  # sort by (iEra, szName)
+ 	waterOther = [(item[1], item[2]) for item in waterOther]
+ 
+-	# Optional sorting if BUG Sort Lists is on
+-	# Keep special order for: landGrowth (chain), landRoute/waterFood/waterOther (era)
+-	if bSortLists:
+-		landBonusCapable.sort()
+-		landOther.sort()
+-		landRemovable.sort()
+ 
+ 	# Emit headers + items in alphabetical order by header name
+ 	if landBonusCapable:
+@@ -853,10 +833,6 @@ def SAS_getTechsGroupedByEra(gc, bSortLists, localText=None):
+ 			groups[iEra] = []
+ 		groups[iEra].append((szName, iTech))
+ 
+-	# Optional sorting within each era group
+-	if bSortLists:
+-		for k in groups.keys():
+-			groups[k].sort()
+ 
+ 	# Emit era groups in order
+ 	for iEra in range(iNumEras):
+@@ -905,11 +881,6 @@ def SAS_getUnitsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localText=No
+ 				groups[iEra] = []
+ 			groups[iEra].append((szName, iUnit))
+ 
+-	# Optional sorting within each bucket
+-	if bSortLists:
+-		noTech.sort()
+-		for k in groups.keys():
+-			groups[k].sort()
+ 
+ 	# "No Tech Prerequisite" group first
+ 	if noTech:
+@@ -963,11 +934,6 @@ def SAS_getBuildingsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localTex
+ 				groups[iEra] = []
+ 			groups[iEra].append((szName, iBuilding))
+ 
+-	# Optional sorting within each bucket
+-	if bSortLists:
+-		noTech.sort()
+-		for k in groups.keys():
+-			groups[k].sort()
+ 
+ 	# "No Tech Prereq" group first
+ 	if noTech:
+@@ -1015,11 +981,6 @@ def SAS_getProjectsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localText
+ 				groups[iEra] = []
+ 			groups[iEra].append((szName, iProject))
+ 
+-	# Optional sorting within each bucket
+-	if bSortLists:
+-		noTech.sort()
+-		for k in groups.keys():
+-			groups[k].sort()
+ 
+ 	# "No Tech Prereq" group first
+ 	if noTech:
+@@ -1068,11 +1029,6 @@ def SAS_getReligionsGroupedByEra_fromBaseList(baseList, gc, bSortLists, localTex
+ 				groups[iEra] = []
+ 			groups[iEra].append((szName, iReligion))
+ 
+-	# Optional sorting within each bucket
+-	if bSortLists:
+-		noTech.sort()
+-		for k in groups.keys():
+-			groups[k].sort()
+ 
+ 	# "No Tech Prerequisite" group first
+ 	if noTech:
+@@ -1126,10 +1082,6 @@ def SAS_getCorporationsGroupedByEra_fromBaseList(baseList, gc, bSortLists, local
+ 				groups[iEra] = []
+ 			groups[iEra].append((szName, iCorporation))
+ 
+-	if bSortLists:
+-		noTech.sort()
+-		for k in groups.keys():
+-			groups[k].sort()
+ 
+ 	if noTech:
+ 		corpsList.append((lt.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=11279

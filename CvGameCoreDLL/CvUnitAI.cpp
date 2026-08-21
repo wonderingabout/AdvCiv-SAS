@@ -12,8 +12,12 @@
 #include "BarbarianWeightMap.h" // advc.304
 #include "CvInfo_Terrain.h"
 #include "CvInfo_GameOption.h"
+#include "CvInfo_Command.h" // <!-- custom: Settler parking diagnostics log MissionTypes by XML type. (ChatGPT-5.5) -->
 #include "CvInfo_Building.h" // advc.003x: Only needed for the special buildings that GP can construct
+#include "CvInfo_City.h" // <!-- custom: Great Artist decision diagnostics log specialist XML types. (GPT-5.5) -->
+#include "CitySiteEvaluator.h" // <!-- custom: First-settler scoring keeps starting weights without all-seeing evaluation and provides compact diagnostics. (GPT-5.5) -->
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+#include <queue> // <!-- custom: Needed by the least-cost owned-plot search for deterministic source-to-target Worker irrigation chains. (GPT-5.6-Sol) -->
 
 //#define FOUND_RANGE (7) // advc: unused
 
@@ -32,9 +36,1463 @@ CvUnitAI::~CvUnitAI()
 	//AI_uninit(); // Delete member pointers right here (but there are none)
 }
 
+// <!-- custom: Log retreat outcomes, notably for doomed cities, workers, and naval units, without broad unit logging for analysis/logging purposes. No behavior change. (GPT-5.5) -->
+static void logSASRetreatUnitResult(char const* szAction, CvUnitAI const& kUnit, CvCity const* pSourceCity, CvCity const* pTargetCity, CvPlot const* pEndTurnPlot, int iPathTurns, int iCurrentDanger, bool bDoomedCityEvacuation)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	logBBAI("    RETREAT_UNIT_RESULT action=%s turn=%d player=%d %S doomedCityEvacuation=%d sourceCity=%S sourceCityId=%d source=(%d,%d) unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d hp=%d/%d level=%d experience=%d targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) pathTurns=%d currentDanger=%d endTurnDanger=%d",
+		szAction, GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), bDoomedCityEvacuation, (pSourceCity == NULL ? L"-" : pSourceCity->getName().GetCString()), (pSourceCity == NULL ? -1 : pSourceCity->getID()), (pSourceCity == NULL ? -1 : pSourceCity->getX()), (pSourceCity == NULL ? -1 : pSourceCity->getY()),
+		kUnit.getID(), kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(),
+		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getID()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), iPathTurns, iCurrentDanger, (pEndTurnPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pEndTurnPlot)));
+}
+
+// <!-- custom: Log local-safety outcomes through the evacuation/retreat category. No behavior change. (GPT-5.5) -->
+static void logSASSafetyUnitResult(char const* szAction, CvUnitAI const& kUnit, CvPlot const* pTargetPlot, bool bIgnoredDanger, int iValue)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	logBBAI("    SAFETY_UNIT_RESULT action=%s turn=%d player=%d %S unitId=%d unit=%S unitAI=%d domain=%d groupId=%d groupUnits=%d source=(%d,%d) target=(%d,%d) hp=%d/%d level=%d experience=%d ignoredDanger=%d value=%d sourceDanger=%d targetDanger=%d",
+		szAction, GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), kUnit.getX(), kUnit.getY(), (pTargetPlot == NULL ? -1 : pTargetPlot->getX()), (pTargetPlot == NULL ? -1 : pTargetPlot->getY()), kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(), bIgnoredDanger, iValue, kOwner.AI_getPlotDanger(kUnit.getPlot()), (pTargetPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pTargetPlot)));
+}
+
+
+// <!-- custom: Settler parking diagnostics for expansion-security testing. These logs are deliberately diagnostic-only: they explain why a Settler stayed put, whether it had a target, whether danger was nearby, and whether the current city seemed to have spare escort candidates before any behavior change tries to make Settlers wait for escorts. (ChatGPT-5.5) -->
+struct SASSettlerParkingRecord
+{
+	int iLastTurn;
+	int iCreatedTurn;
+	int iX;
+	int iY;
+	int iTargetX;
+	int iTargetY;
+	int iParkedTurns;
+	SASSettlerParkingRecord() : iLastTurn(-1), iCreatedTurn(-1), iX(-1), iY(-1), iTargetX(-1), iTargetY(-1), iParkedTurns(0) {}
+};
+
+static std::map<int, SASSettlerParkingRecord> g_kSASSettlerParkingRecords;
+
+static const char* SAS_getUnitTypeName(UnitTypes eUnit)
+{
+	return (eUnit == NO_UNIT ? "-" : GC.getInfo(eUnit).getType());
+}
+
+static const char* SAS_getUnitAITypeName(UnitAITypes eUnitAI)
+{
+	return (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType());
+}
+
+static const char* SAS_getMissionTypeName(MissionTypes eMission)
+{
+	return (eMission == NO_MISSION ? "-" : GC.getInfo(eMission).getType());
+}
+
+static int SAS_updateSettlerParkedTurns(CvUnitAI const& kUnit, CvPlot const* pTargetPlot)
+{
+	int const iKey = 1000000 * kUnit.getOwner() + kUnit.getID();
+	SASSettlerParkingRecord& kRecord = g_kSASSettlerParkingRecords[iKey];
+	int const iTurn = GC.getGame().getGameTurn();
+	int const iTargetX = (pTargetPlot == NULL ? -1 : pTargetPlot->getX());
+	int const iTargetY = (pTargetPlot == NULL ? -1 : pTargetPlot->getY());
+	bool const bSameParkingState = (kRecord.iCreatedTurn == kUnit.getGameTurnCreated() && kRecord.iX == kUnit.getX() && kRecord.iY == kUnit.getY() && kRecord.iTargetX == iTargetX && kRecord.iTargetY == iTargetY);
+	if (!bSameParkingState)
+		kRecord.iParkedTurns = 1;
+	else if (kRecord.iLastTurn != iTurn)
+		kRecord.iParkedTurns++;
+	kRecord.iLastTurn = iTurn;
+	kRecord.iCreatedTurn = kUnit.getGameTurnCreated();
+	kRecord.iX = kUnit.getX();
+	kRecord.iY = kUnit.getY();
+	kRecord.iTargetX = iTargetX;
+	kRecord.iTargetY = iTargetY;
+	return kRecord.iParkedTurns;
+}
+
+static bool SAS_isSettlerDiagnosticUnit(CvUnit const& kUnit)
+{
+	return kUnit.AI_getUnitAIType() == UNITAI_SETTLE || kUnit.isFound();
+}
+
+static bool SAS_isWorkerDiagnosticUnit(CvUnit const& kUnit)
+{
+	UnitAITypes const eUnitAI = kUnit.AI_getUnitAIType();
+	return eUnitAI == UNITAI_WORKER || eUnitAI == UNITAI_WORKER_SEA || kUnit.workRate(true) > 0;
+}
+
+static void SAS_countSettlerGroupUnits(CvSelectionGroup const* pGroup, int& iGroupUnits, int& iGroupDefenders, int& iGroupHealthyDefenders, int& iGroupSettlers)
+{
+	iGroupUnits = 0;
+	iGroupDefenders = 0;
+	iGroupHealthyDefenders = 0;
+	iGroupSettlers = 0;
+	if (pGroup == NULL)
+		return;
+	FOR_EACH_UNIT_IN(pLoopUnit, *pGroup)
+	{
+		iGroupUnits++;
+		if (SAS_isSettlerDiagnosticUnit(*pLoopUnit))
+			iGroupSettlers++;
+		if (pLoopUnit->canDefend(pLoopUnit->plot()))
+		{
+			iGroupDefenders++;
+			if (pLoopUnit->getDamage() <= 25)
+				iGroupHealthyDefenders++;
+		}
+	}
+}
+
+struct SASSettlerCityEscortPool
+{
+	CvCityAI const* pCity;
+	int iCityUnits;
+	int iCityDefenders;
+	int iCityHealthyDefenders;
+	int iCityWoundedDefenders;
+	int iCitySettlers;
+	int iCityWorkers;
+	int iCityAttackers;
+	int iCityNeededDefenders;
+	int iCitySpareDefenders;
+	int iEscortCandidates;
+	CvUnit* pBestEscort;
+	CvString szUnitList;
+	SASSettlerCityEscortPool() : pCity(NULL), iCityUnits(0), iCityDefenders(0), iCityHealthyDefenders(0), iCityWoundedDefenders(0), iCitySettlers(0), iCityWorkers(0), iCityAttackers(0), iCityNeededDefenders(-1), iCitySpareDefenders(-1), iEscortCandidates(0), pBestEscort(NULL) {}
+};
+
+static void SAS_collectSettlerCityEscortPool(CvUnitAI const& kSettler, SASSettlerCityEscortPool& kPool)
+{
+	CvPlot const* pPlot = kSettler.plot();
+	if (pPlot == NULL || !pPlot->isCity() || pPlot->getOwner() != kSettler.getOwner())
+		return;
+	kPool.pCity = pPlot->AI_getPlotCity();
+	if (kPool.pCity == NULL)
+		return;
+	CvSelectionGroup const* pSettlerGroup = kSettler.getGroup();
+	int iLoggedUnits = 0;
+	for (CLLNode<IDInfo> const* pUnitNode = pPlot->headUnitNode(); pUnitNode != NULL; pUnitNode = pPlot->nextUnitNode(pUnitNode))
+	{
+		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+		if (pLoopUnit == NULL || pLoopUnit->getOwner() != kSettler.getOwner())
+			continue;
+		kPool.iCityUnits++;
+		bool const bCanDefend = pLoopUnit->canDefend(pPlot);
+		if (bCanDefend)
+		{
+			kPool.iCityDefenders++;
+			if (pLoopUnit->getDamage() <= 25)
+				kPool.iCityHealthyDefenders++;
+			else kPool.iCityWoundedDefenders++;
+		}
+		if (SAS_isSettlerDiagnosticUnit(*pLoopUnit))
+			kPool.iCitySettlers++;
+		if (SAS_isWorkerDiagnosticUnit(*pLoopUnit))
+			kPool.iCityWorkers++;
+		if (pLoopUnit->canAttack())
+			kPool.iCityAttackers++;
+		bool const bInSettlerGroup = (pSettlerGroup != NULL && pLoopUnit->getGroup() == pSettlerGroup);
+		if (bCanDefend && !bInSettlerGroup && pLoopUnit->getDamage() <= 50)
+		{
+			kPool.iEscortCandidates++;
+			if (kPool.pBestEscort == NULL || pLoopUnit->baseCombatStr() > kPool.pBestEscort->baseCombatStr() || (pLoopUnit->baseCombatStr() == kPool.pBestEscort->baseCombatStr() && pLoopUnit->getDamage() < kPool.pBestEscort->getDamage()))
+				kPool.pBestEscort = pLoopUnit;
+		}
+		if (gSettlerLogLevel >= 3 && iLoggedUnits < 10)
+		{
+			CvString szItem;
+			szItem.Format("%s#%d:%s:dmg%d:xp%d%s", SAS_getUnitTypeName(pLoopUnit->getUnitType()), pLoopUnit->getID(), SAS_getUnitAITypeName(pLoopUnit->AI_getUnitAIType()), pLoopUnit->getDamage(), pLoopUnit->getExperience(), bInSettlerGroup ? ":settlerGroup" : "");
+			if (!kPool.szUnitList.empty())
+				kPool.szUnitList += ",";
+			kPool.szUnitList += szItem;
+			iLoggedUnits++;
+		}
+	}
+	kPool.iCityNeededDefenders = kPool.pCity->AI_neededDefenders(true);
+	kPool.iCitySpareDefenders = kPool.iCityDefenders - kPool.iCityNeededDefenders;
+}
+
+static void SAS_countVisibleEnemiesNearPlot(CvPlot const& kCenter, PlayerTypes ePlayer, int iRange, int& iVisibleEnemies, int& iVisibleCombatEnemies, CvUnit const*& pNearestEnemy, int& iNearestEnemyDistance)
+{
+	iVisibleEnemies = 0;
+	iVisibleCombatEnemies = 0;
+	pNearestEnemy = NULL;
+	iNearestEnemyDistance = -1;
+	if (ePlayer == NO_PLAYER)
+		return;
+	TeamTypes const eTeam = GET_PLAYER(ePlayer).getTeam();
+	for (int iDX = -iRange; iDX <= iRange; iDX++)
+	{
+		for (int iDY = -iRange; iDY <= iRange; iDY++)
+		{
+			CvPlot const* pLoopPlot = plotXY(kCenter.getX(), kCenter.getY(), iDX, iDY);
+			if (pLoopPlot == NULL || !pLoopPlot->isVisible(eTeam, false))
+				continue;
+			for (CLLNode<IDInfo> const* pUnitNode = pLoopPlot->headUnitNode(); pUnitNode != NULL; pUnitNode = pLoopPlot->nextUnitNode(pUnitNode))
+			{
+				CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+				if (pLoopUnit == NULL || !pLoopUnit->isEnemy(eTeam, kCenter) || pLoopUnit->isInvisible(eTeam, false))
+					continue;
+				iVisibleEnemies++;
+				if (pLoopUnit->baseCombatStr() > 0 || pLoopUnit->canAttack())
+					iVisibleCombatEnemies++;
+				int const iDistance = plotDistance(kCenter.getX(), kCenter.getY(), pLoopPlot->getX(), pLoopPlot->getY());
+				if (iNearestEnemyDistance < 0 || iDistance < iNearestEnemyDistance)
+				{
+					iNearestEnemyDistance = iDistance;
+					pNearestEnemy = pLoopUnit;
+				}
+			}
+		}
+	}
+}
+
+static void SAS_findBestReachableSettlerSite(CvUnitAI& kSettler, MovementFlags eFlags, CvPlot const*& pBestSite, int& iBestValue, int& iBestPathTurns, CvPlot const*& pBestEndTurnPlot)
+{
+	pBestSite = NULL;
+	iBestValue = 0;
+	iBestPathTurns = -1;
+	pBestEndTurnPlot = NULL;
+	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
+	{
+		CvPlot& kSite = kOwner.AI_getCitySite(i);
+		if (!kSite.isArea(kSettler.getArea()) && !kSettler.canMoveAllTerrain())
+			continue;
+		int iPathTurns = -1;
+		if (!kSettler.generatePath(kSite, eFlags, true, &iPathTurns))
+			continue;
+		int const iValue = kSite.getFoundValue(kSettler.getOwner());
+		if (iValue > iBestValue)
+		{
+			iBestValue = iValue;
+			iBestPathTurns = iPathTurns;
+			pBestSite = &kSite;
+			pBestEndTurnPlot = &kSettler.getPathEndTurnPlot();
+		}
+	}
+}
+
+static void SAS_logSettlerParking(CvUnitAI& kSettler, char const* szReason, int iAreaBestFoundValue, int iOtherBestFoundValue, bool bDanger, MovementFlags eFlags)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+	CvSelectionGroupAI const* pGroup = kSettler.AI_getGroup();
+	CvPlot const* pPlot = kSettler.plot();
+	CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
+	CvPlot const* pBestSite = NULL;
+	CvPlot const* pBestEndTurnPlot = NULL;
+	int iBestReachableValue = 0;
+	int iBestReachablePathTurns = -1;
+	SAS_findBestReachableSettlerSite(kSettler, eFlags, pBestSite, iBestReachableValue, iBestReachablePathTurns, pBestEndTurnPlot);
+	CvPlot const* pTargetPlot = (pMissionPlot != NULL ? pMissionPlot : pBestSite);
+	int const iParkedTurns = SAS_updateSettlerParkedTurns(kSettler, pTargetPlot);
+	int iGroupUnits = 0;
+	int iGroupDefenders = 0;
+	int iGroupHealthyDefenders = 0;
+	int iGroupSettlers = 0;
+	SAS_countSettlerGroupUnits(kSettler.getGroup(), iGroupUnits, iGroupDefenders, iGroupHealthyDefenders, iGroupSettlers);
+	int iVisibleEnemies = 0;
+	int iVisibleCombatEnemies = 0;
+	int iNearestEnemyDistance = -1;
+	CvUnit const* pNearestEnemy = NULL;
+	if (pPlot != NULL)
+		SAS_countVisibleEnemiesNearPlot(*pPlot, kSettler.getOwner(), 2, iVisibleEnemies, iVisibleCombatEnemies, pNearestEnemy, iNearestEnemyDistance);
+	SASSettlerCityEscortPool kCityPool;
+	SAS_collectSettlerCityEscortPool(kSettler, kCityPool);
+	MissionTypes const eMission = (pGroup == NULL ? NO_MISSION : pGroup->getMissionType(0));
+	MissionAITypes const eMissionAI = (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType());
+	int const iMissionTargetValue = (pMissionPlot == NULL ? -1 : pMissionPlot->getFoundValue(kSettler.getOwner()));
+	logBBAI("    SETTLER_PARKED turn=%d player=%d %S reason=%s unitId=%d unit=%s unitAI=%s age=%d x=%d y=%d city=%S cityId=%d parkedTurns=%d mission=%s missionAI=%d missionTarget=(%d,%d) missionTargetValue=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d areaBestFoundValue=%d otherBestFoundValue=%d bestReachableValue=%d bestReachable=(%d,%d) bestReachablePathTurns=%d bestEndTurn=(%d,%d) dangerFlag=%d plotDanger=%d visibleEnemiesR2=%d visibleCombatEnemiesR2=%d nearestEnemyPlayer=%d nearestEnemyUnit=%s nearestEnemyDist=%d cityUnits=%d cityDefenders=%d cityHealthyDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d bestEscortId=%d bestEscortUnit=%s bestEscortAI=%s bestEscortDamage=%d",
+		GC.getGame().getGameTurn(), kSettler.getOwner(), kOwner.getCivilizationDescription(0), szReason, kSettler.getID(), SAS_getUnitTypeName(kSettler.getUnitType()), SAS_getUnitAITypeName(kSettler.AI_getUnitAIType()), GC.getGame().getGameTurn() - kSettler.getGameTurnCreated(), kSettler.getX(), kSettler.getY(), (kCityPool.pCity == NULL ? L"-" : kCityPool.pCity->getName().GetCString()), (kCityPool.pCity == NULL ? -1 : kCityPool.pCity->getID()), iParkedTurns, SAS_getMissionTypeName(eMission), eMissionAI, (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iMissionTargetValue, (pGroup == NULL ? -1 : pGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders, iGroupHealthyDefenders, (pGroup == NULL ? 0 : pGroup->canDefend()), iAreaBestFoundValue, iOtherBestFoundValue, iBestReachableValue, (pBestSite == NULL ? -1 : pBestSite->getX()), (pBestSite == NULL ? -1 : pBestSite->getY()), iBestReachablePathTurns, (pBestEndTurnPlot == NULL ? -1 : pBestEndTurnPlot->getX()), (pBestEndTurnPlot == NULL ? -1 : pBestEndTurnPlot->getY()), bDanger, (pPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pPlot)), iVisibleEnemies, iVisibleCombatEnemies, (pNearestEnemy == NULL ? -1 : pNearestEnemy->getOwner()), (pNearestEnemy == NULL ? "-" : SAS_getUnitTypeName(pNearestEnemy->getUnitType())), iNearestEnemyDistance, kCityPool.iCityUnits, kCityPool.iCityDefenders, kCityPool.iCityHealthyDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders, kCityPool.iEscortCandidates, (kCityPool.pBestEscort == NULL ? -1 : kCityPool.pBestEscort->getID()), (kCityPool.pBestEscort == NULL ? "-" : SAS_getUnitTypeName(kCityPool.pBestEscort->getUnitType())), (kCityPool.pBestEscort == NULL ? "-" : SAS_getUnitAITypeName(kCityPool.pBestEscort->AI_getUnitAIType())), (kCityPool.pBestEscort == NULL ? -1 : kCityPool.pBestEscort->getDamage()));
+	if (gSettlerLogLevel >= 3 && kCityPool.pCity != NULL)
+	{
+		logBBAI("    SETTLER_CITY_ESCORT_POOL turn=%d player=%d city=%S cityId=%d x=%d y=%d cityUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d neededDefenders=%d spareDefenders=%d settlers=%d workers=%d attackers=%d escortCandidates=%d units=%s",
+			GC.getGame().getGameTurn(), kSettler.getOwner(), kCityPool.pCity->getName().GetCString(), kCityPool.pCity->getID(), kCityPool.pCity->getX(), kCityPool.pCity->getY(), kCityPool.iCityUnits, kCityPool.iCityDefenders, kCityPool.iCityHealthyDefenders, kCityPool.iCityWoundedDefenders, kCityPool.iCityNeededDefenders, kCityPool.iCitySpareDefenders, kCityPool.iCitySettlers, kCityPool.iCityWorkers, kCityPool.iCityAttackers, kCityPool.iEscortCandidates, kCityPool.szUnitList.empty() ? "-" : kCityPool.szUnitList.GetCString());
+	}
+}
+
+// <!-- custom: Settler escort behavior uses the diagnostic city-unit pool to reassign one local healthy defender as escort before allowing exposed expansion. This is not a temporary loan: the unit joins the Settler group.
+// `AI_neededDefenders` can be conservative for this specific expansion choice; the practical rule is the tunable remaining-defenders value, e.g. at 2, a city with 3 healthy defenders can reassign 1 escort and keep 2. Delaying a guarded Settler can lose contested city sites and early growth snowball.
+// Save-file 450 BBAI testing showed this fixed the Nobamba-style exposed-founding failure without restoring the old reckless lone-Settler override. See KI#179. (ChatGPT-5.5) -->
+static bool SAS_tryAttachCityEscortToSettler(CvUnitAI& kSettler, int iAreaBestFoundValue, int iOtherBestFoundValue, bool bDanger, MovementFlags eMoveFlags)
+{
+	CvSelectionGroup* pSettlerGroup = kSettler.getGroup();
+	if (pSettlerGroup == NULL || pSettlerGroup->canDefend())
+		return false;
+	SASSettlerCityEscortPool kPool;
+	SAS_collectSettlerCityEscortPool(kSettler, kPool);
+	static const int iSAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT = GC.getDefineINT("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT");
+	if (kPool.pCity == NULL || kPool.pBestEscort == NULL || kPool.iCityHealthyDefenders <= iSAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT)
+		return false;
+	CvUnit* pEscort = kPool.pBestEscort;
+	int const iOldGroupUnits = pSettlerGroup->getNumUnits();
+	int const iOldEscortGroupId = (pEscort->getGroup() == NULL ? -1 : pEscort->getGroup()->getID());
+	int const iOldEscortGroupUnits = (pEscort->getGroup() == NULL ? 0 : pEscort->getGroup()->getNumUnits());
+	pEscort->joinGroup(pSettlerGroup);
+	if (gSettlerLogLevel >= 2)
+	{
+		logBBAI("    SETTLER_ATTACH_CITY_ESCORT turn=%d player=%d %S city=%S cityId=%d settlerId=%d escortId=%d escortUnit=%s escortAI=%s escortDamage=%d escortXP=%d oldSettlerGroupUnits=%d newSettlerGroupUnits=%d oldEscortGroupId=%d oldEscortGroupUnits=%d cityUnits=%d cityDefenders=%d cityNeededDefenders=%d citySpareDefenders=%d cityEscortCandidates=%d areaBestFoundValue=%d otherBestFoundValue=%d dangerFlag=%d",
+			GC.getGame().getGameTurn(), kSettler.getOwner(), GET_PLAYER(kSettler.getOwner()).getCivilizationDescription(0), kPool.pCity->getName().GetCString(), kPool.pCity->getID(), kSettler.getID(), pEscort->getID(), SAS_getUnitTypeName(pEscort->getUnitType()), SAS_getUnitAITypeName(pEscort->AI_getUnitAIType()), pEscort->getDamage(), pEscort->getExperience(), iOldGroupUnits, pSettlerGroup->getNumUnits(), iOldEscortGroupId, iOldEscortGroupUnits, kPool.iCityUnits, kPool.iCityDefenders, kPool.iCityNeededDefenders, kPool.iCitySpareDefenders, kPool.iEscortCandidates, iAreaBestFoundValue, iOtherBestFoundValue, bDanger);
+		SAS_logSettlerParking(kSettler, "ATTACHED_CITY_ESCORT", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+	}
+	return pSettlerGroup->canDefend();
+}
+
+// <!-- custom: Block direct found-in-place/follow paths too, because save-file 450 BBAI testing showed the dangerous Nobamba-style case could bypass ordinary movement by founding directly on the exposed site.
+// However, save-file 449 BBAI testing later showed an unescorted Settler waiting more than 100 turns on its danger-free target plot before founding Agra. Once the Settler is already exposed on a valid site, refusing to found does not protect it; require an escort here only when the site has actual plot danger. See KI#179. (GPT-5.6-Sol) -->
+static bool SAS_shouldBlockDangerousUnescortedFounding(CvUnitAI const& kSettler, CvPlot const& kTargetPlot)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+	CvSelectionGroup const* pGroup = kSettler.getGroup();
+	if (kOwner.getNumCities() <= 0 || pGroup == NULL || pGroup->canDefend() || kSettler.getInvisibleType() != NO_INVISIBLE)
+		return false;
+	return kTargetPlot.getOwner() != kSettler.getOwner() && kOwner.AI_isAnyPlotDanger(kTargetPlot);
+}
+
+// <!-- custom: Avoid direct founding on a merely valid current plot when the current city-site list already contains a clearly better reachable site. Save-file 450 BBAI testing showed Zulu city 3 founding weak tundra-heavy Nobamba at (10,47): the original target area had become much poorer and smaller after a nearby Barbarian city spawned, and the found-value logger already reported a much better reachable site.
+// Direct-found blocking alone made the Settler flip-flop between the poor current plot and its neighbor because path-discounted scoring kept pulling it back; use the same raw-value threshold in AI_found candidate selection so a very-near weak site does not beat a clearly stronger reachable site by path cost alone. Follow-up T130 testing then founded stronger Zulu cities and Shaka reached rank 2. See KI#180. (GPT-5.5) -->
+static bool SAS_isFoundValueClearlyBetter(int iCurrentFoundValue, int iBetterFoundValue)
+{
+	static const int iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF = GC.getDefineINT("SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF");
+	static const int iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF = GC.getDefineINT("SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF");
+	if (iCurrentFoundValue <= 0 || (iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF <= 0 && iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF <= 0))
+		return false;
+	int const iValueDiff = iBetterFoundValue - iCurrentFoundValue;
+	return iValueDiff >= iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_VALUE_DIFF && 100 * iValueDiff >= iCurrentFoundValue * iSAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF;
+}
+
+static bool SAS_shouldDelayFoundInPlaceForBetterReachableSite(CvUnitAI& kSettler, MovementFlags eMoveFlags, CvPlot const& kCurrentPlot, int iCurrentFoundValue, CvPlot const*& pBetterFoundPlot, int& iBetterFoundValue, int& iBetterPathTurns)
+{
+	pBetterFoundPlot = NULL;
+	iBetterFoundValue = 0;
+	iBetterPathTurns = -1;
+	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
+	{
+		CvPlot& kSite = kOwner.AI_getCitySite(i);
+		if (&kSite == &kCurrentPlot || !kSettler.canFound(&kSite) || (!kSite.isArea(kSettler.getArea()) && !kSettler.canMoveAllTerrain()) || kOwner.AI_isAnyPlotTargetMissionAI(kSite, MISSIONAI_FOUND, kSettler.getGroup()))
+			continue;
+		int iPathTurns = -1;
+		if (!kSettler.generatePath(kSite, eMoveFlags, true, &iPathTurns))
+			continue;
+		int const iValue = kSite.getFoundValue(kSettler.getOwner());
+		if (iValue > iBetterFoundValue)
+		{
+			pBetterFoundPlot = &kSite;
+			iBetterFoundValue = iValue;
+			iBetterPathTurns = iPathTurns;
+		}
+	}
+	if (pBetterFoundPlot == NULL)
+		return false;
+	return SAS_isFoundValueClearlyBetter(iCurrentFoundValue, iBetterFoundValue);
+}
+
+static void SAS_logSettlerMissionDecision(char const* szAction, CvUnitAI const& kSettler, CvPlot const* pTargetPlot, CvPlot const* pEndTurnPlot, int iFoundValue, int iPathTurns, char const* szReason)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+	CvSelectionGroupAI const* pGroup = kSettler.AI_getGroup();
+	int iGroupUnits = 0;
+	int iGroupDefenders = 0;
+	int iGroupHealthyDefenders = 0;
+	int iGroupSettlers = 0;
+	SAS_countSettlerGroupUnits(pGroup, iGroupUnits, iGroupDefenders, iGroupHealthyDefenders, iGroupSettlers);
+	logBBAI("    SETTLER_MISSION_DECISION turn=%d player=%d %S action=%s reason=%s unitId=%d x=%d y=%d target=(%d,%d) endTurn=(%d,%d) targetOwner=%d targetFoundValue=%d pathTurns=%d groupId=%d groupUnits=%d groupSettlers=%d groupDefenders=%d groupHealthyDefenders=%d groupCanDefend=%d plotDanger=%d targetDanger=%d missionAI=%d",
+		GC.getGame().getGameTurn(), kSettler.getOwner(), GET_PLAYER(kSettler.getOwner()).getCivilizationDescription(0), szAction, szReason, kSettler.getID(), kSettler.getX(), kSettler.getY(), (pTargetPlot == NULL ? -1 : pTargetPlot->getX()), (pTargetPlot == NULL ? -1 : pTargetPlot->getY()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getX()), (pEndTurnPlot == NULL ? -1 : pEndTurnPlot->getY()), (pTargetPlot == NULL ? NO_PLAYER : pTargetPlot->getOwner()), iFoundValue, iPathTurns, (pGroup == NULL ? -1 : pGroup->getID()), iGroupUnits, iGroupSettlers, iGroupDefenders, iGroupHealthyDefenders, (pGroup == NULL ? 0 : pGroup->canDefend()), kOwner.AI_getPlotDanger(kSettler.getPlot()), (pTargetPlot == NULL ? -1 : kOwner.AI_getPlotDanger(*pTargetPlot)), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()));
+}
+
+// <!-- custom: Record mission and movement context to diagnose units repeatedly returning to evacuating cities. No behavior change. (GPT-5.5) -->
+static void logSASEvacuationUnitDecision(char const* szMode, CvUnitAI const& kUnit, CvCityAI const& kCity, int iEvacProbPercent, bool bSelected)
+{
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
+	CvCityAI const* pMissionCity = (pMissionPlot == NULL ? NULL : pMissionPlot->AI_getPlotCity());
+	int const iGameTurn = GC.getGame().getGameTurn();
+	logBBAI("    EVACUATION_UNIT_DECISION turn=%d player=%d %S city=%S cityId=%d cityAcquiredTurn=%d cityOwnerTurns=%d unitId=%d unit=%S unitAI=%d domain=%d unitAge=%d groupId=%d groupUnits=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionCity=%S missionCityId=%d missionCityEvacuating=%d missionQueue=%d forceUpdate=%d hp=%d/%d level=%d experience=%d fortifyTurns=%d movesSpent=%d movesLeft=%d hasMoved=%d madeAttack=%d mode=%s evacProbPercent=%d selected=%d",
+		iGameTurn, kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kCity.getID(), kCity.getGameTurnAcquired(), iGameTurn - kCity.getGameTurnAcquired(),
+		kUnit.getID(), kUnit.getName(0).GetCString(), kUnit.AI_getUnitAIType(), kUnit.getDomainType(), iGameTurn - kUnit.getGameTurnCreated(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? 0 : pGroup->getNumUnits()), (pGroup == NULL ? NO_ACTIVITY : pGroup->getActivityType()), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()),
+		(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pMissionCity == NULL ? L"-" : pMissionCity->getName().GetCString()), (pMissionCity == NULL ? -1 : pMissionCity->getID()), (pMissionCity == NULL ? 0 : pMissionCity->AI_isEvacuating()), (pGroup == NULL ? -1 : pGroup->getLengthMissionQueue()), (pGroup == NULL ? 0 : pGroup->isForceUpdate()),
+		kUnit.currHitPoints(), kUnit.maxHitPoints(), kUnit.getLevel(), kUnit.getExperience(), kUnit.getFortifyTurns(), kUnit.getMoves(), kUnit.movesLeft(), kUnit.hasMoved(), kUnit.isMadeAttack(), szMode, iEvacProbPercent, bSelected);
+}
+
+// <!-- custom: Work Boat movement diagnostics; retreat/safety uses the evacuation category, while other tasks use worker-sea logging. No behavior change. See KI#157. (GPT-5.5) -->
+static void logSASWorkerSeaMoveDetail(char const* szReason, CvUnitAI const& kUnit)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(kUnit.getOwner());
+	CvPlot const& kPlot = kUnit.getPlot();
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
+	MissionAITypes const eMissionAI = (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType());
+	int const iMissionQueue = (pGroup == NULL ? -1 : pGroup->getLengthMissionQueue());
+	CvCity const* pCity = kPlot.getPlotCity();
+	CvCity const* pTargetWorkingCity = (pMissionPlot == NULL ? NULL : pMissionPlot->getWorkingCity());
+	BonusTypes const eBonus = kPlot.getNonObsoleteBonusType(kUnit.getTeam());
+	ImprovementTypes const eImprovement = kPlot.getImprovementType();
+	BonusTypes const eTargetBonus = (pMissionPlot == NULL ? NO_BONUS : pMissionPlot->getNonObsoleteBonusType(kUnit.getTeam()));
+	ImprovementTypes const eTargetImprovement = (pMissionPlot == NULL ? NO_IMPROVEMENT : pMissionPlot->getImprovementType());
+	CvWString const szCity = (pCity == NULL ? CvWString(L"-") : pCity->getName());
+	CvWString const szTargetWorkingCity = (pTargetWorkingCity == NULL ? CvWString(L"-") : pTargetWorkingCity->getName());
+	wchar const* szBonus = (eBonus == NO_BONUS ? L"-" : GC.getInfo(eBonus).getDescription());
+	wchar const* szImprovement = (eImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eImprovement).getDescription());
+	wchar const* szTargetBonus = (eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription());
+	wchar const* szTargetImprovement = (eTargetImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTargetImprovement).getDescription());
+	int const iTargetMissionAIsSkipSelf = (pMissionPlot == NULL ? 0 : kPlayer.AI_plotTargetMissionAIs(*pMissionPlot, MISSIONAI_BUILD, pGroup, 0, MAX_INT));
+	int const iTargetMissionAIsIncludingSelf = (pMissionPlot == NULL ? 0 : kPlayer.AI_plotTargetMissionAIs(*pMissionPlot, MISSIONAI_BUILD, NULL, 0, MAX_INT));
+	logBBAI("    WORKER_SEA_MOVE_DETAIL reason=%s turn=%d player=%d %S unitId=%d unit=%S plot=(%d,%d) area=%d owner=%d city=%S bonus=%S improvement=%S missionAI=%d missionPlot=(%d,%d) missionQueue=%d waterDanger=%d targetOwner=%d targetBonus=%S targetImprovement=%S targetWorkingCity=%S targetWorkingCityId=%d targetWaterDanger=%d targetMissionAIsSkipSelf=%d targetMissionAIsIncludingSelf=%d",
+		szReason, GC.getGame().getGameTurn(), kUnit.getOwner(), kPlayer.getCivilizationDescription(0), kUnit.getID(), kUnit.getName(0).GetCString(), kPlot.getX(), kPlot.getY(), kPlot.getArea().getID(), kPlot.getOwner(), szCity.GetCString(), szBonus, szImprovement, eMissionAI,
+		(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iMissionQueue, kPlayer.AI_isAnyWaterDanger(kPlot), (pMissionPlot == NULL ? NO_PLAYER : pMissionPlot->getOwner()), szTargetBonus, szTargetImprovement, szTargetWorkingCity.GetCString(), (pTargetWorkingCity == NULL ? -1 : pTargetWorkingCity->getID()), (pMissionPlot == NULL ? 0 : kPlayer.AI_isAnyWaterDanger(*pMissionPlot)), iTargetMissionAIsSkipSelf, iTargetMissionAIsIncludingSelf);
+}
+
+// <!-- custom: Great Person weights can favor Artists because of a valuable corporation-founding building, but the resulting Great Artist separately chooses among construction, settling, discovery, Golden Age, trade, and Great Work.
+// At culture log level 3, record that actual choice and all competing scores to reveal whether specialist weighting and eventual Great Artist use agree; keep this separate from broad unit logging. (ChatGPT-5.5 + GPT-5.5) -->
+static void logSASCultureGreatArtistDecision(char const* szAction, CvUnitAI const& kUnit, int iChoice, int iScoreThreshold, int iSlowValue, int iSlowBaseValue, int iSlowPathTurns, MissionAITypes ePreviousMissionAI, CvPlot const* pPreviousMissionPlot, int iDiscoverValue, int iGoldenAgeValue, int iTradeValue, int iCultureValue, CvCity const* pTargetCity, CvPlot const* pMovePlot, SpecialistTypes eSpecialist, BuildingTypes eBuilding)
+{
+	CvGame const& kGame = GC.getGame();
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	CorporationTypes const eCorporation = (eBuilding == NO_BUILDING ? NO_CORPORATION : GC.getInfo(eBuilding).getFoundsCorporation());
+	int const iAge = kGame.getGameTurn() - kUnit.getGameTurnCreated();
+	int const iAgeNormal = 100 * iAge / std::max(1, kGame.getSpeedPercent());
+	logBBAI("CULTURE_GREAT_ARTIST_DECISION action=%s turn=%d player=%d %S unitId=%d age=%d ageNormal=%d plot=(%d,%d) choice=%d threshold=%d slow=%d slowBase=%d slowPathTurns=%d previousMissionAI=%d previousMissionPlot=(%d,%d) discover=%d golden=%d trade=%d culture=%d targetCity=%S targetCityId=%d targetPlot=(%d,%d) movePlot=(%d,%d) specialist=%s building=%s corporation=%s missionAI=%d",
+			szAction, kGame.getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), iAge, iAgeNormal, kUnit.getX(), kUnit.getY(), iChoice, iScoreThreshold, iSlowValue, iSlowBaseValue, (iSlowPathTurns == MAX_INT ? -1 : iSlowPathTurns), ePreviousMissionAI, (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getX()), (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getY()), iDiscoverValue, iGoldenAgeValue, iTradeValue, iCultureValue,
+			(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getID()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), (pMovePlot == NULL ? -1 : pMovePlot->getX()), (pMovePlot == NULL ? -1 : pMovePlot->getY()),
+			(eSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSpecialist).getType()), (eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()), (eCorporation == NO_CORPORATION ? "NONE" : GC.getInfo(eCorporation).getType()), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()));
+}
+
+// <!-- custom: First-settler movement needs starting-capital weights, but AI_foundValue(..., true) also enables the all-seeing map-generation mode. Keep the weights while disabling omniscience so fogged BFC plots remain neutral; optionally collect a compact breakdown only from guarded level-3 diagnostics. (GPT-5.5) -->
+static int SAS_evaluateFirstCityFoundValue(CvPlayerAI const& kOwner, CvPlot const& kCityPlot, CvString* pszBreakdown = NULL)
+{
+	CitySiteEvaluator kEvaluator(kOwner, -1, true);
+	kEvaluator.setAllSeeing(false);
+	if (pszBreakdown != NULL)
+		return kEvaluator.evaluateWithBreakdown(kCityPlot, *pszBreakdown);
+	return kEvaluator.evaluate(kCityPlot);
+}
+
+// <!-- custom: Evaluate a first-city candidate's revealed non-home BFC with the shared potential-food score. Bonus-specific improvements count because unlike a generic Farm/Cottage choice they are the resource plot's intended development; water-bonus improvement food follows the shared Work Boat-access check (the candidate or another owned city borders the connected water area, or a connecting improvement already exists), and ocean-coastal candidates additionally assume the configured Harbor-class food building. Add one extra point for each citizen-unworkable plot: peaks and ice are not merely 0F but dead BFC slots, whereas an Oasis is citizen-workable and rich despite being worker-unimprovable. (GPT-5.5 + ChatGPT 5.5) -->
+static void SAS_evaluateFirstCityBFCFoodEnvironment(CvPlot const& kCityPlot, PlayerTypes ePlayer, TeamTypes eTeam, int& iFoodBonuses, int& iFoodEnvironmentScore, int* piCitizenUnworkablePlots = NULL)
+{
+	iFoodBonuses = 0;
+	iFoodEnvironmentScore = 0;
+	int iCitizenUnworkablePlots = 0;
+	bool const bOceanCoastal = kCityPlot.isCoastalLand(GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN));
+	int const iAssumedSeaPlotFoodChange = (bOceanCoastal ? CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(ePlayer) : 0);
+	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
+	{
+		if (iCityPlot == CITY_HOME_PLOT)
+			continue;
+		CvPlot const* pLoopPlot = plotCity(kCityPlot.getX(), kCityPlot.getY(), static_cast<CityPlotTypes>(iCityPlot));
+		if (pLoopPlot == NULL || !pLoopPlot->isRevealed(eTeam))
+			continue;
+		BonusTypes const eBonus = pLoopPlot->getBonusType(eTeam);
+		bool const bCanAssumeWaterBonusImprovement = pLoopPlot->SAS_canAssumeWaterBonusImprovement(eBonus, ePlayer, kCityPlot);
+		int const iPlotFoodScore = pLoopPlot->SAS_getLowFoodEnvironmentScore(eBonus, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement);
+		iFoodEnvironmentScore += iPlotFoodScore;
+		if (!pLoopPlot->hasYield())
+		{
+			++iCitizenUnworkablePlots;
+			++iFoodEnvironmentScore;
+		}
+		if (eBonus != NO_BONUS && iPlotFoodScore < 0 && bCanAssumeWaterBonusImprovement)
+			++iFoodBonuses;
+	}
+	if (piCitizenUnworkablePlots != NULL)
+		*piCitizenUnworkablePlots = iCitizenUnworkablePlots;
+}
+
+// <!-- custom: First-city roaming may need one more scouting step before founding a current visible-good-enough tile. Count unrevealed BFC plots separately from the food/bad-plot helper so the roam branch can avoid locking Karakorum at 49,43 while the pig/river area around 51,41 and 52,41 is still fogged. (GPT-5.5) -->
+static int SAS_countUnrevealedNonHomeBFCPlots(CvPlot const& kCityPlot, TeamTypes eTeam)
+{
+	int iUnrevealedPlots = 0;
+	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
+	{
+		if (iCityPlot == CITY_HOME_PLOT)
+			continue;
+		CvPlot const* pLoopPlot = plotCity(kCityPlot.getX(), kCityPlot.getY(), static_cast<CityPlotTypes>(iCityPlot));
+		if (pLoopPlot != NULL && !pLoopPlot->isRevealed(eTeam))
+			++iUnrevealedPlots;
+	}
+	return iUnrevealedPlots;
+}
+
+static int SAS_countRevealedNonHomeBFCPlots(CvPlot const& kCityPlot, TeamTypes eTeam)
+{
+	int iRevealedPlots = 0;
+	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
+	{
+		if (iCityPlot == CITY_HOME_PLOT)
+			continue;
+		CvPlot const* pLoopPlot = plotCity(kCityPlot.getX(), kCityPlot.getY(), static_cast<CityPlotTypes>(iCityPlot));
+		if (pLoopPlot != NULL && pLoopPlot->isRevealed(eTeam))
+			++iRevealedPlots;
+	}
+	return iRevealedPlots;
+}
+
+// <!-- custom: Post-capital Settlers normally found the best currently known city site, but save-file 450 showed uMgungundlovu choosing 18,40 over nearby 17,40 because the latter's BFC still hid Rice and other plots.
+// Compare average known value per revealed BFC plot rather than a flat value gap: a nearby site with stronger known average and more fogged plots is plausibly better, so move toward it as exploration rather than as MISSIONAI_FOUND and let next turn recalculate normally instead of auto-founding blindly. See KI#185. (GPT-5.5) -->
+static bool SAS_shouldScoutPromisingFoggedNearbyFoundSite(CvUnitAI& kSettler, MovementFlags eMoveFlags, CvPlot const& kSelectedSite, int iSelectedFoundValue, int iSelectedPathTurns, CvPlot const*& pScoutSite, CvPlot const*& pScoutEndTurnPlot, int& iScoutFoundValue, int& iScoutPathTurns, int& iSelectedRevealedBFC, int& iSelectedUnrevealedBFC, int& iScoutRevealedBFC, int& iScoutUnrevealedBFC)
+{
+	pScoutSite = NULL;
+	pScoutEndTurnPlot = NULL;
+	iScoutFoundValue = 0;
+	iScoutPathTurns = -1;
+	iSelectedRevealedBFC = SAS_countRevealedNonHomeBFCPlots(kSelectedSite, kSettler.getTeam());
+	iSelectedUnrevealedBFC = SAS_countUnrevealedNonHomeBFCPlots(kSelectedSite, kSettler.getTeam());
+	iScoutRevealedBFC = 0;
+	iScoutUnrevealedBFC = 0;
+	static const int iMinUnrevealedAdvantage = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_UNREVEALED_ADVANTAGE");
+	if (iMinUnrevealedAdvantage <= 0 || iSelectedFoundValue <= 0)
+		return false;
+	static const int iMinRevealedBFC = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_REVEALED_BFC");
+	static const int iMinAverageValuePercent = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_AVERAGE_VALUE_PERCENT");
+	static const int iMaxExtraPathTurns = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS_UNSCALED_GAMESPEED");
+	if (iSelectedRevealedBFC < iMinRevealedBFC)
+		return false;
+	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+	// <!-- custom: Adjacent promising-fog candidates can have cached getFoundValue=0 when they are not in the current city-site list, which hid 17,40 in save file 450. Evaluate them directly so this scout check compares real site values. See KI#185. (GPT-5.5) -->
+	CitySiteEvaluator kEvaluator(kOwner);
+	// <!-- custom: Treat adjacent promising-fog candidates as replacements for the selected site, not as extra tentative sites next to it; otherwise overlap with the selected 18,40 site makes the 17,40 comparison return 0 while the found-value logger correctly shows it as viable. See KI#185. (GPT-5.5) -->
+	kEvaluator.setDebug(true);
+	FOR_EACH_ADJ_PLOT(kSelectedSite)
+	{
+		if (pAdj == NULL || pAdj == &kSelectedSite)
+			continue;
+		if (!kSettler.canFound(pAdj) || (!pAdj->isArea(kSettler.getArea()) && !kSettler.canMoveAllTerrain()) || kOwner.AI_isAnyPlotTargetMissionAI(*pAdj, MISSIONAI_FOUND, kSettler.getGroup()))
+		{
+			if (gSettlerLogLevel >= 3) logBBAI("    Settler promising-fogged-site reject %d,%d reason=not-foundable-or-targeted", pAdj->getX(), pAdj->getY());
+			continue;
+		}
+		int iPathTurns = -1;
+		if (!kSettler.generatePath(*pAdj, eMoveFlags, true, &iPathTurns) || iPathTurns > iSelectedPathTurns + iMaxExtraPathTurns)
+		{
+			if (gSettlerLogLevel >= 3) logBBAI("    Settler promising-fogged-site reject %d,%d reason=path selectedPathTurns=%d pathTurns=%d maxExtra=%d", pAdj->getX(), pAdj->getY(), iSelectedPathTurns, iPathTurns, iMaxExtraPathTurns);
+			continue;
+		}
+		int const iRevealedBFC = SAS_countRevealedNonHomeBFCPlots(*pAdj, kSettler.getTeam());
+		int const iUnrevealedBFC = SAS_countUnrevealedNonHomeBFCPlots(*pAdj, kSettler.getTeam());
+		int const iFoundValue = kEvaluator.evaluate(*pAdj);
+		if (gSettlerLogLevel >= 3) logBBAI("    Settler promising-fogged-site candidate %d,%d selectedValue=%d value=%d selectedRevealedBFC=%d revealedBFC=%d selectedUnrevealedBFC=%d unrevealedBFC=%d selectedAvgX100=%d avgX100=%d selectedPathTurns=%d pathTurns=%d", pAdj->getX(), pAdj->getY(), iSelectedFoundValue, iFoundValue, iSelectedRevealedBFC, iRevealedBFC, iSelectedUnrevealedBFC, iUnrevealedBFC, (100 * iSelectedFoundValue) / iSelectedRevealedBFC, (iRevealedBFC <= 0 ? 0 : (100 * iFoundValue) / iRevealedBFC), iSelectedPathTurns, iPathTurns);
+		if (iRevealedBFC < iMinRevealedBFC || iUnrevealedBFC < iSelectedUnrevealedBFC + iMinUnrevealedAdvantage)
+			continue;
+		if (100 * iFoundValue * iSelectedRevealedBFC < iMinAverageValuePercent * iSelectedFoundValue * iRevealedBFC)
+			continue;
+		if (pScoutSite == NULL || iFoundValue * iScoutRevealedBFC > iScoutFoundValue * iRevealedBFC || (iFoundValue * iScoutRevealedBFC == iScoutFoundValue * iRevealedBFC && iUnrevealedBFC > iScoutUnrevealedBFC))
+		{
+			pScoutSite = pAdj;
+			pScoutEndTurnPlot = &kSettler.getPathEndTurnPlot();
+			iScoutFoundValue = iFoundValue;
+			iScoutPathTurns = iPathTurns;
+			iScoutRevealedBFC = iRevealedBFC;
+			iScoutUnrevealedBFC = iUnrevealedBFC;
+		}
+	}
+	return pScoutSite != NULL && pScoutEndTurnPlot != NULL;
+}
+
+// <!-- custom: Choose where a first-city scout should finish by charging each return turn against the site's current found value. Keep this separate from city-site valuation: the same site retains the same strategic value, but a nearly equal nearby capital can be more efficient than several turns of backtracking.
+// The early deadline can instead protect the best raw-value site, using travel cost only to break exact ties, so wandering cannot progressively replace it with weaker nearby sites.
+// Include the current plot so a strong site such as Aztec (34,24) in save file 431 is not omitted and abandoned for a weaker return target. Caller guards any logging. (GPT-5.5) -->
+static CvPlot* SAS_chooseFirstCityReturnPlot(CvUnitAI const& kSettler, CvPlayerAI const& kOwner, int iSearchRange, int iTravelValuePerTurn, bool bPrioritizeRawValue, int& iRawValue, int& iAdjustedValue, int& iPathTurns)
+{
+	CvPlot* pBestPlot = NULL;
+	iRawValue = -MAX_INT;
+	iAdjustedValue = -MAX_INT;
+	iPathTurns = -1;
+	for (SquareIter itPlot(kSettler.getPlot(), iSearchRange); itPlot.hasNext(); ++itPlot)
+	{
+		CvPlot& kLoopPlot = *itPlot;
+		if (!kLoopPlot.isRevealed(kSettler.getTeam()) || !kSettler.canFound(&kLoopPlot))
+			continue;
+		int iLoopPathTurns = 0;
+		if (!kSettler.at(kLoopPlot) && (!kSettler.generatePath(kLoopPlot, MOVE_SAFE_TERRITORY, false, &iLoopPathTurns, iSearchRange, true) || iLoopPathTurns > iSearchRange))
+			continue;
+		const int iLoopRawValue = SAS_evaluateFirstCityFoundValue(kOwner, kLoopPlot);
+		const int iLoopAdjustedValue = iLoopRawValue - iTravelValuePerTurn * iLoopPathTurns;
+		const bool bBetterSite = (bPrioritizeRawValue ? (iLoopRawValue > iRawValue || (iLoopRawValue == iRawValue && iLoopAdjustedValue > iAdjustedValue)) : iLoopAdjustedValue > iAdjustedValue);
+		if (bBetterSite)
+		{
+			pBestPlot = &kLoopPlot;
+			iRawValue = iLoopRawValue;
+			iAdjustedValue = iLoopAdjustedValue;
+			iPathTurns = iLoopPathTurns;
+		}
+	}
+	return pBestPlot;
+}
+
+// <!-- custom: High-detail diagnostics for fickle first-city starting-site choices. The BFC tile dump itself is generic, but this helper is first-city-specific as of now because it logs first-city found values, path turns, and the roam/scout/found context that chose the candidate.
+// At BBAI Settler log level 3, log the evaluated city plot plus every revealed BFC tile with coordinates, yields, terrain/feature, bonus, and fresh-water/river state, so Karakorum/Beijing-style first-city decisions are reviewable from BBAI.log without guessing from screenshots. (GPT-5.5) -->
+static void SAS_logFirstCityCandidateBFCDiagnostics(char const* szContext, CvPlot const& kCityPlot, PlayerTypes ePlayer, TeamTypes eTeam, int iFoundValue, int iAdjustedValue, int iPathTurns)
+{
+	int iFoodBonuses = 0;
+	int iFoodEnvironmentScore = 0;
+	int iCitizenUnworkablePlots = 0;
+	SAS_evaluateFirstCityBFCFoodEnvironment(kCityPlot, ePlayer, eTeam, iFoodBonuses, iFoodEnvironmentScore, &iCitizenUnworkablePlots);
+	int iRevealedNonHomeBFC = 0;
+	int iUnrevealedNonHomeBFC = 0;
+	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
+	{
+		if (iCityPlot == CITY_HOME_PLOT)
+			continue;
+		CvPlot const* pLoopPlot = plotCity(kCityPlot.getX(), kCityPlot.getY(), static_cast<CityPlotTypes>(iCityPlot));
+		if (pLoopPlot == NULL)
+			continue;
+		if (pLoopPlot->isRevealed(eTeam))
+			++iRevealedNonHomeBFC;
+		else ++iUnrevealedNonHomeBFC;
+	}
+	logBBAI("      %s first-city candidate player=%d %d,%d value=%d adjusted=%d pathTurns=%d canFound=%d freshWater=%d river=%d foodBonuses=%d foodEnvironmentScore=%d citizenUnworkablePlots=%d revealedNonHomeBFC=%d unrevealedNonHomeBFC=%d",
+			szContext, ePlayer, kCityPlot.getX(), kCityPlot.getY(), iFoundValue, iAdjustedValue, iPathTurns, kCityPlot.canFound(false, eTeam), kCityPlot.isFreshWater(), kCityPlot.isRiver(), iFoodBonuses, iFoodEnvironmentScore, iCitizenUnworkablePlots, iRevealedNonHomeBFC, iUnrevealedNonHomeBFC);
+	CvString szBreakdown;
+	const int iBreakdownValue = SAS_evaluateFirstCityFoundValue(GET_PLAYER(ePlayer), kCityPlot, &szBreakdown);
+	logBBAI("        FOUND_VALUE_BREAKDOWN selectionValue=%d recomputedValue=%d %s", iFoundValue, iBreakdownValue, szBreakdown.GetCString());
+	bool const bOceanCoastal = kCityPlot.isCoastalLand(GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN));
+	int const iAssumedSeaPlotFoodChange = (bOceanCoastal ? CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(ePlayer) : 0);
+	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
+	{
+		CvPlot const* pLoopPlot = plotCity(kCityPlot.getX(), kCityPlot.getY(), static_cast<CityPlotTypes>(iCityPlot));
+		if (pLoopPlot == NULL)
+			continue;
+		if (!pLoopPlot->isRevealed(eTeam))
+		{
+			logBBAI("        bfc[%d] %d,%d unrevealed", iCityPlot, pLoopPlot->getX(), pLoopPlot->getY());
+			continue;
+		}
+		BonusTypes const eBonus = pLoopPlot->getBonusType(eTeam);
+		TerrainTypes const eTerrain = pLoopPlot->getTerrainType();
+		FeatureTypes const eFeature = pLoopPlot->getFeatureType();
+		wchar const* szBonus = (eBonus == NO_BONUS ? L"-" : GC.getInfo(eBonus).getDescription());
+		wchar const* szTerrain = (eTerrain == NO_TERRAIN ? L"-" : GC.getInfo(eTerrain).getDescription());
+		wchar const* szFeature = (eFeature == NO_FEATURE ? L"-" : GC.getInfo(eFeature).getDescription());
+		bool const bCanAssumeWaterBonusImprovement = pLoopPlot->SAS_canAssumeWaterBonusImprovement(eBonus, ePlayer, kCityPlot);
+		logBBAI("        bfc[%d] %d,%d home=%d F/P/C=%d/%d/%d foodEnvironmentScore=%d hasYield=%d terrain=%S feature=%S bonus=%S water=%d hills=%d fresh=%d river=%d",
+				iCityPlot, pLoopPlot->getX(), pLoopPlot->getY(), iCityPlot == CITY_HOME_PLOT,
+				pLoopPlot->calculateNatureYield(YIELD_FOOD, eTeam, false),
+				pLoopPlot->calculateNatureYield(YIELD_PRODUCTION, eTeam, false),
+				pLoopPlot->calculateNatureYield(YIELD_COMMERCE, eTeam, false),
+				pLoopPlot->SAS_getLowFoodEnvironmentScore(eBonus, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement), pLoopPlot->hasYield(),
+				szTerrain, szFeature, szBonus, pLoopPlot->isWater(), pLoopPlot->isHills(), pLoopPlot->isFreshWater(), pLoopPlot->isRiver());
+	}
+}
+
+static bool SAS_isRemoteCapturedAttackCityTrap(CvCity const& kCity, PlayerTypes eOwner, int iGroupUnits, int iGroupMilitaryPercent, int* piOwnedCitiesSameArea = NULL, int* piOwnedCitiesWithin6 = NULL, int* piNearestOwnedCityDistanceSameArea = NULL, int* piNearestCoreCityDistanceSameArea = NULL)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(eOwner);
+	int iOwnedCitiesSameArea = 0;
+	int iOwnedCitiesWithin6 = 0;
+	int iNearestOwnedCityDistanceSameArea = MAX_INT;
+	int iNearestCoreCityDistanceSameArea = MAX_INT;
+	FOR_EACH_CITY(pLoopCity, kOwner)
+	{
+		if (pLoopCity == &kCity)
+			continue;
+		int const iDistance = ::plotDistance(kCity.plot(), pLoopCity->plot());
+		if (iDistance <= 6)
+			iOwnedCitiesWithin6++;
+		if (!pLoopCity->isArea(kCity.getArea()))
+			continue;
+		iOwnedCitiesSameArea++;
+		iNearestOwnedCityDistanceSameArea = std::min(iNearestOwnedCityDistanceSameArea, iDistance);
+		if (pLoopCity->getPreviousOwner() == NO_PLAYER || pLoopCity->getOriginalOwner() == eOwner)
+			iNearestCoreCityDistanceSameArea = std::min(iNearestCoreCityDistanceSameArea, iDistance);
+	}
+	if (iNearestOwnedCityDistanceSameArea == MAX_INT)
+		iNearestOwnedCityDistanceSameArea = -1;
+	if (iNearestCoreCityDistanceSameArea == MAX_INT)
+		iNearestCoreCityDistanceSameArea = -1;
+	if (piOwnedCitiesSameArea != NULL)
+		*piOwnedCitiesSameArea = iOwnedCitiesSameArea;
+	if (piOwnedCitiesWithin6 != NULL)
+		*piOwnedCitiesWithin6 = iOwnedCitiesWithin6;
+	if (piNearestOwnedCityDistanceSameArea != NULL)
+		*piNearestOwnedCityDistanceSameArea = iNearestOwnedCityDistanceSameArea;
+	if (piNearestCoreCityDistanceSameArea != NULL)
+		*piNearestCoreCityDistanceSameArea = iNearestCoreCityDistanceSameArea;
+	bool const bForeignCapturedCity = (kCity.getPreviousOwner() != NO_PLAYER && kCity.getOriginalOwner() != eOwner);
+	static int const iMinCoreDistance = GC.getDefineINT("SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE");
+	static int const iMinMilitaryPercent = GC.getDefineINT("SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_MILITARY_PERCENT");
+	static int const iMinStackUnits = GC.getDefineINT("SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_MIN_STACK_UNITS");
+	bool const bRemoteFromCore = (iMinCoreDistance <= 0 || iNearestCoreCityDistanceSameArea < 0 || iNearestCoreCityDistanceSameArea >= iMinCoreDistance);
+	bool const bLargeStack = ((iMinMilitaryPercent > 0 && iGroupMilitaryPercent >= iMinMilitaryPercent) || (iMinStackUnits > 0 && iGroupUnits >= iMinStackUnits));
+	return (bForeignCapturedCity && bRemoteFromCore && bLargeStack);
+}
+
+// <!-- custom: FOR_EACH_UNIT_IN exposes base CvUnit pointers, so accept CvUnit and obtain that iterated unit's own UnitAI through AI(). Using the attack-stack head's role for every member can miss valid upgrades in a mixed stack and incorrectly bypass waiting. See KI#217. (GPT-5.5 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+// 1>..\CvUnitAI.cpp(6075): error C2664: 'SAS_getBestUpgradeForLog' : cannot convert parameter 1 from 'const CvUnit' to 'const CvUnitAI &'
+// 1>          Reason: cannot convert from 'const CvUnit' to 'const CvUnitAI'
+// 1>          No constructor could take the source type, or constructor overload resolution was ambiguous
+// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
+// 1>  Stop.
+static UnitTypes SAS_getBestUpgradeForLog(CvUnit const& kUnit)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvArea* pArea = kUnit.area();
+	UnitAITypes const eUnitAI = kUnit.AI().AI_getUnitAIType();
+	int iBestValue = kOwner.AI_unitValue(kUnit.getUnitType(), eUnitAI, pArea) * 100;
+	UnitTypes eBestUnit = NO_UNIT;
+	CvCivilization const& kCiv = kOwner.getCivilization();
+	for (int i = kCiv.getNumUnits() - 1; i >= 0; i--)
+	{
+		UnitTypes const eLoopUnit = kCiv.unitAt(i);
+		int const iValue = 90 * kOwner.AI_unitValue(eLoopUnit, eUnitAI, pArea);
+		if (iValue > iBestValue && kUnit.canUpgrade(eLoopUnit, true))
+		{
+			iBestValue = iValue;
+			eBestUnit = eLoopUnit;
+		}
+	}
+	return eBestUnit;
+}
+
+// <!-- custom: BBAI save-file 450 testing showed Hannibal spending 16 turns mobilizing, travelling to, capturing, and razing distant population-5 Libyan; Shaka then settled the exact plot 10 turns later. Another ready army preparing a real war selected Scythian 10 path turns away, but Arabia razed it first. Such expeditions waste our army's tempo while removing Barbarian pressure and clearing land for a nearer rival.
+// Preserve quick raids and cities likely to benefit us long-term. Reject only a farther Barbarian city that the shared conquest/retention evaluation says we should not keep; this makes the nearer rival spend its own units, Settler, development time, and maintenance instead. See KI#186 and KI#188.5. (GPT-5.6-Sol) -->
+static bool SAS_isDistantDisposableBarbarianTarget(CvUnitAI& kUnit, CvCity const& kCity, MovementFlags eMoveFlags, int iMaxPathTurns, char const* szContext, int iKnownPathTurns = -1)
+{
+	if (!kCity.isBarbarian()) return false;
+	static int const iMaxDisposablePathTurns = std::max(0, GC.getDefineINT("SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS_UNSCALED_GAMESPEED"));
+	if (iMaxDisposablePathTurns <= 0) return false;
+	int iPathTurns = iKnownPathTurns;
+	bool const bPathable = (iKnownPathTurns >= 0 || kUnit.generatePath(kCity.getPlot(), eMoveFlags, true, &iPathTurns, iMaxPathTurns));
+	if (bPathable && iPathTurns <= iMaxDisposablePathTurns) return false;
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	bool const bLikelyToBenefitUsLongTerm = kOwner.AI_isSASCityLikelyToBenefitUsLongTerm(kCity);
+	bool const bReject = !bLikelyToBenefitUsLongTerm;
+	if (gUnitLogLevel >= 2 || gOverseasTransportLogLevel >= 2)
+	{
+		// <!-- custom: This evaluation can run for many armies every turn. Log only the first result and later keep/reject transitions for each player and Barbarian city; this reduced save-file 450's 4,679 repetitive prototype rows to 19 in the identical confirming run. (GPT-5.6-Sol) -->
+		static std::map<std::pair<int,int>,std::pair<int,bool> > aLastLoggedState;
+		std::pair<int,int> const key(kUnit.getOwner(), kCity.getID());
+		std::map<std::pair<int,int>,std::pair<int,bool> >::const_iterator const itLast = aLastLoggedState.find(key);
+		if (itLast == aLastLoggedState.end() || itLast->second.first != kCity.getGameTurnFounded() || itLast->second.second != bReject)
+		{
+			aLastLoggedState[key] = std::make_pair(kCity.getGameTurnFounded(), bReject);
+			logBBAI("    BARB_CITY_DISTANT_DISPOSABLE_EVAL turn=%d player=%d %S context=%s unitId=%d groupId=%d groupUnits=%d at=(%d,%d) target=%S target=(%d,%d) targetPop=%d pathTurns=%d maxDisposablePathTurns=%d likelyToBenefitUsLongTerm=%d reject=%d wars=%d anyWarPlan=%d",
+				GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szContext, kUnit.getID(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), kUnit.getX(), kUnit.getY(), kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), iPathTurns, iMaxDisposablePathTurns, bLikelyToBenefitUsLongTerm, bReject, GET_TEAM(kUnit.getTeam()).getNumWars(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan());
+		}
+	}
+	return bReject;
+}
+
+// <!-- custom: Apply the distant-disposable gate for behavioral callers; the opportunity diagnostic passes false so it can still report physically pathable cities without filtering or duplicating the decision log. (GPT-5.6-Sol) -->
+static CvCity* SAS_pickPathableBarbCityForAttackStack(CvUnitAI& kUnit, MovementFlags eMoveFlags, int iMaxPathTurns, bool bApplyDistantDisposableGate, int* piPathTurns = NULL, int* piTargetValue = NULL, int* piStepDistance = NULL, int* piDefenders = NULL, int* piValue = NULL, int* piCandidates = NULL, int* piPathableCandidates = NULL, CvCity const** ppBestOverallBarbCity = NULL, int* piBestOverallValue = NULL, int* piBestOverallTargetValue = NULL, int* piBestOverallStepDistance = NULL)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvCity const* pBestOverallBarbCity = NULL;
+	CvCity* pBestPathableBarbCity = NULL;
+	int iBestOverallValue = MIN_INT;
+	int iBestOverallStepDistance = -1;
+	int iBestOverallTargetValue = -1;
+	int iBestPathableValue = MIN_INT;
+	int iBestPathablePathTurns = -1;
+	int iBestPathableStepDistance = -1;
+	int iBestPathableDefenders = -1;
+	int iBestPathableTargetValue = -1;
+	int iCandidateCount = 0;
+	int iPathableCandidateCount = 0;
+	FOR_EACH_CITY(pBarbCity, GET_PLAYER(BARBARIAN_PLAYER))
+	{
+		if (!pBarbCity->isRevealed(kUnit.getTeam()) || !GET_TEAM(kUnit.getTeam()).AI_deduceCitySite(*pBarbCity))
+			continue;
+		iCandidateCount++;
+		int iPathTurns = -1;
+		bool const bPath = kUnit.generatePath(pBarbCity->getPlot(), eMoveFlags, true, &iPathTurns, iMaxPathTurns);
+		int const iStepDistance = stepDistance(kUnit.plot(), pBarbCity->plot());
+		int const iTargetValue = kOwner.AI_targetCityValue(*pBarbCity, false, true, NULL);
+		int const iOverallValue = iTargetValue * 100 - iStepDistance;
+		if (iOverallValue > iBestOverallValue)
+		{
+			iBestOverallValue = iOverallValue;
+			iBestOverallStepDistance = iStepDistance;
+			iBestOverallTargetValue = iTargetValue;
+			pBestOverallBarbCity = pBarbCity;
+		}
+		if (!bPath)
+			continue;
+		iPathableCandidateCount++;
+		// <!-- custom: Behavioral callers exclude a distant city we expect to raze before it can win this picker's ranking; the diagnostic caller passes false above to preserve its raw opportunity report. See KI#188.5. (GPT-5.6-Sol) -->
+		if (bApplyDistantDisposableGate && SAS_isDistantDisposableBarbarianTarget(kUnit, *pBarbCity, eMoveFlags, iMaxPathTurns, "pathable_barbarian_picker", iPathTurns))
+			continue;
+		int const iPathableValue = iTargetValue * 100 - 10 * iPathTurns - iStepDistance;
+		if (iPathableValue > iBestPathableValue)
+		{
+			iBestPathableValue = iPathableValue;
+			iBestPathablePathTurns = iPathTurns;
+			iBestPathableStepDistance = iStepDistance;
+			iBestPathableDefenders = pBarbCity->getPlot().plotCount(PUF_canDefend);
+			iBestPathableTargetValue = iTargetValue;
+			// <!-- custom: Note: pBestPathableBarbCity = pBarbCity; had the below compile error, fixed with the help of GPT-5.5 thanks -->
+			// 1>..\CvUnitAI.cpp(275): error C2440: '=' : cannot convert from 'const CvCity *' to 'CvCity *'
+			// 1>          Conversion loses qualifiers
+			// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
+			pBestPathableBarbCity = GET_PLAYER(BARBARIAN_PLAYER).AI_getCity(pBarbCity->getID());
+		}
+	}
+	if (piPathTurns != NULL)
+		*piPathTurns = iBestPathablePathTurns;
+	if (piTargetValue != NULL)
+		*piTargetValue = iBestPathableTargetValue;
+	if (piStepDistance != NULL)
+		*piStepDistance = iBestPathableStepDistance;
+	if (piDefenders != NULL)
+		*piDefenders = iBestPathableDefenders;
+	if (piValue != NULL)
+		*piValue = iBestPathableValue;
+	if (piCandidates != NULL)
+		*piCandidates = iCandidateCount;
+	if (piPathableCandidates != NULL)
+		*piPathableCandidates = iPathableCandidateCount;
+	if (ppBestOverallBarbCity != NULL)
+		*ppBestOverallBarbCity = pBestOverallBarbCity;
+	if (piBestOverallValue != NULL)
+		*piBestOverallValue = iBestOverallValue;
+	if (piBestOverallTargetValue != NULL)
+		*piBestOverallTargetValue = iBestOverallTargetValue;
+	if (piBestOverallStepDistance != NULL)
+		*piBestOverallStepDistance = iBestOverallStepDistance;
+	return pBestPathableBarbCity;
+}
+
+// <!-- custom: Count actual attack/city-capture capability instead of only UNITAI_ATTACK_CITY labels. Broad attacker types can still capture barbarian cities, while pure collateral/no-city-capture units should not make a stack look sufficient by themselves. (GPT-5.5 + ChatGPT-5.5) -->
+static void SAS_countGroupCityAttackCapability(CvSelectionGroup const& kGroup, int& iCanAttack, int& iCityCapture)
+{
+	iCanAttack = 0;
+	iCityCapture = 0;
+	FOR_EACH_UNIT_IN(pLoopUnit, kGroup)
+	{
+		if (!pLoopUnit->canAttack())
+			continue;
+		iCanAttack++;
+		if (!pLoopUnit->isNoCityCapture())
+			iCityCapture++;
+	}
+}
+
+// <!-- custom: Base AdvCiv rejects peaceful barbarian-city expeditions at 3 times the estimated barbarian garrison, but then treats that rejection as a need for more reinforcements. Keep its dynamic garrison-based intent while exposing the multiplier for tuning; the attackers-needed estimate remains the minimum useful expedition even when the estimates overlap. See KI#188. (GPT-5.6-Sol) -->
+static int SAS_getBarbarianCityExpeditionMaxUnits(int iBarbarianGarrison, int iBarbarianAttackersNeeded)
+{
+	static int const iGarrisonMultiplier = std::max(1, GC.getDefineINT("SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_GARRISON_MULTIPLIER"));
+	return std::max(std::max(1, iBarbarianAttackersNeeded), iGarrisonMultiplier * std::max(0, iBarbarianGarrison) - 1);
+}
+
+static int SAS_getTargetlessPeacetimeAttackCityRetainedUnits(CvPlayerAI const& kOwner)
+{
+	static int const iRetainedUnits = std::max(1, GC.getDefineINT("SAS_AI_TARGETLESS_PEACEFUL_ATTACK_CITY_GROUP_MIN_UNITS"));
+	return std::max(iRetainedUnits, kOwner.AI_neededCityAttackersVsBarbarians().ceil());
+}
+
+static int SAS_countPlotAttackCityGroupUnits(CvPlot const& kPlot, PlayerTypes eOwner)
+{
+	int iUnits = 0;
+	CvPlayerAI const& kOwner = GET_PLAYER(eOwner);
+	for (CLLNode<IDInfo> const* pUnitNode = kPlot.headUnitNode(); pUnitNode != NULL; pUnitNode = kPlot.nextUnitNode(pUnitNode))
+	{
+		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+		if (pLoopUnit == NULL || pLoopUnit->getOwner() != eOwner || pLoopUnit->isCargo()) continue;
+		CvUnitAI const* pLoopUnitAI = kOwner.AI_getUnit(pLoopUnit->getID());
+		CvSelectionGroupAI const* pLoopGroup = (pLoopUnitAI == NULL ? NULL : pLoopUnitAI->AI_getGroup());
+		CvUnitAI const* pLoopHead = (pLoopGroup == NULL ? NULL : pLoopGroup->AI_getHeadUnit());
+		if (pLoopHead != NULL && pLoopHead->AI_getUnitAIType() == UNITAI_ATTACK_CITY) iUnits++;
+	}
+	return iUnits;
+}
+
+// <!-- custom: BBAI testing found peaceful city-assault groups repeatedly waiting for reinforcements despite having no war plan, reachable rival city, or pathable Barbarian city. America's group grew from 6 units on turn 126 to 18 of 47 military units by turn 225 while still targetless and peaceful; after a short war it returned to peace with 21 of 51 units on turn 247. Retaining a useful nucleus is worthwhile, but repeatedly concentrating every suitable unit when no target exists is not.
+// The initial cure capped each group separately. Save-file 450 follow-up logging showed Holy Rome consequently parking 71 units in Mainz as 12 individually compliant groups whose largest group had 9 units. Enforce the retained limit across all city-assault-led groups on the same safe owned plot instead.
+// Detach units already assigned to other roles first, then convert excess UNITAI_ATTACK_CITY units that have positive general-attack value into UNITAI_ATTACK. Reassign an excess group head too when the plot already retains another city-assault nucleus. General attackers can defend and perform other duties during peace, while normal wartime grouping can organize them again when a real target appears. See KI#188.3 and KI#188.3.2. (GPT-5.6-Sol) -->
+static bool SAS_releaseTargetlessPeacetimeAttackCityExcess(CvUnitAI& kUnit, int iRetainedUnits)
+{
+	CvSelectionGroup* pGroup = kUnit.getGroup();
+	if (pGroup == NULL)
+		return false;
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	int const iAggregateBefore = SAS_countPlotAttackCityGroupUnits(kUnit.getPlot(), kUnit.getOwner());
+	int const iReleaseNeeded = std::max(0, iAggregateBefore - iRetainedUnits);
+	if (iReleaseNeeded <= 0)
+		return false;
+	int const iOriginalGroupId = pGroup->getID();
+	int const iOriginalGroupUnits = pGroup->getNumUnits();
+	std::vector<std::pair<int,int> > aReleaseCandidates;
+	FOR_EACH_UNITAI_IN(pLoopUnit, *pGroup)
+	{
+		if (pLoopUnit == &kUnit) continue;
+		if (pLoopUnit->AI_getUnitAIType() != UNITAI_ATTACK_CITY)
+		{
+			aReleaseCandidates.push_back(std::make_pair(MAX_INT, pLoopUnit->getID()));
+			continue;
+		}
+		int const iAttackValue = kOwner.AI_unitValue(pLoopUnit->getUnitType(), UNITAI_ATTACK, &kUnit.getArea());
+		if (iAttackValue <= 0) continue;
+		int const iAttackCityValue = kOwner.AI_unitValue(pLoopUnit->getUnitType(), UNITAI_ATTACK_CITY, &kUnit.getArea());
+		aReleaseCandidates.push_back(std::make_pair(100 * iAttackValue / std::max(1, iAttackCityValue), pLoopUnit->getID()));
+	}
+	std::sort(aReleaseCandidates.begin(), aReleaseCandidates.end(), std::greater<std::pair<int,int> >());
+	int iDetachedExistingRoles = 0;
+	int iReassignedAttackers = 0;
+	for (std::vector<std::pair<int,int> >::const_iterator it = aReleaseCandidates.begin(); it != aReleaseCandidates.end() && iDetachedExistingRoles + iReassignedAttackers < iReleaseNeeded; ++it)
+	{
+		CvUnitAI* pReleaseUnit = kOwner.AI_getUnit(it->second);
+		if (pReleaseUnit == NULL || pReleaseUnit->getGroup() != pGroup) continue;
+		if (pReleaseUnit->AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+		{
+			pReleaseUnit->AI_setUnitAIType(UNITAI_ATTACK);
+			iReassignedAttackers++;
+		}
+		else
+		{
+			pReleaseUnit->joinGroup(NULL);
+			iDetachedExistingRoles++;
+		}
+	}
+	bool bReassignedHead = false;
+	if (iDetachedExistingRoles + iReassignedAttackers < iReleaseNeeded && kUnit.AI_getUnitAIType() == UNITAI_ATTACK_CITY && kOwner.AI_unitValue(kUnit.getUnitType(), UNITAI_ATTACK, &kUnit.getArea()) > 0)
+	{
+		kUnit.AI_setUnitAIType(UNITAI_ATTACK);
+		iReassignedAttackers++;
+		bReassignedHead = true;
+	}
+	int const iReleasedUnits = iDetachedExistingRoles + iReassignedAttackers;
+	if (iReleasedUnits <= 0)
+		return false;
+	int const iAggregateAfter = SAS_countPlotAttackCityGroupUnits(kUnit.getPlot(), kUnit.getOwner());
+	if (gUnitLogLevel >= 2)
+	{
+		logBBAI("    ATTACK_CITY_TARGETLESS_PEACETIME_EXCESS_RELEASED turn=%d player=%d %S originalGroupId=%d originalGroupUnits=%d aggregateBefore=%d retainedLimit=%d releaseNeeded=%d candidates=%d detachedExistingRoles=%d reassignedAttackers=%d reassignedHead=%d aggregateAfter=%d unreleasedAggregateExcess=%d totalMilitary=%d",
+			GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), iOriginalGroupId, iOriginalGroupUnits, iAggregateBefore, iRetainedUnits, iReleaseNeeded, (int)aReleaseCandidates.size(), iDetachedExistingRoles, iReassignedAttackers, bReassignedHead, iAggregateAfter, std::max(0, iAggregateAfter - iRetainedUnits), kOwner.getNumMilitaryUnits());
+	}
+	kUnit.getGroup()->pushMission(MISSION_SKIP);
+	return true;
+}
+
+// <!-- custom: The barbarian-expedition fix showed that capable UNITAI_ATTACK units can remain fragmented when an area has no UNITAI_ATTACK_CITY leader. Before extending that behavior to wars against other civilizations, record whether the same organizational gap occurs during active or planned wars, whether a land target is pathable, and how much useful military strength is available.
+// This is called only after ordinary city-defense claims and immediate plot danger have already taken priority. Deduplicate by player, land area, and turn so multiple suitable attackers do not flood BBAI.log; behavior is unchanged. (GPT-5.6-Sol) -->
+static void SAS_logMissingWarCityExpeditionLeaderCandidate(CvUnitAI& kUnit, CvPlayerAI const& kOwner, CvTeamAI const& kTeam, int iAreaAttackCityUnits, int iNumWars, bool bAnyWarPlan, bool bSneakAttackReady, bool bTurtle)
+{
+	static std::map<std::pair<int,int>,int> aiLastLoggedTurn;
+	std::pair<int,int> const key(kUnit.getOwner(), kUnit.getArea().getID());
+	int const iGameTurn = GC.getGame().getGameTurn();
+	std::map<std::pair<int,int>,int>::const_iterator const itLastLogged = aiLastLoggedTurn.find(key);
+	if (itLastLogged != aiLastLoggedTurn.end() && itLastLogged->second == iGameTurn) return;
+	aiLastLoggedTurn[key] = iGameTurn;
+
+	int iAreaAttackUnits = 0;
+	int iAreaAttackCityCaptureCapable = 0;
+	int iAreaCityCaptureCapable = 0;
+	int iAreaAttackGroups = 0;
+	int iLargestAttackGroup = 0;
+	FOR_EACH_UNITAI(pLoopUnit, kOwner)
+	{
+		if (&pLoopUnit->getArea() != &kUnit.getArea()) continue;
+		if (pLoopUnit->AI_getUnitAIType() == UNITAI_ATTACK)
+		{
+			iAreaAttackUnits++;
+			if (pLoopUnit->canAttack() && !pLoopUnit->isNoCityCapture() && !pLoopUnit->getUnitInfo().isMostlyDefensive()) iAreaAttackCityCaptureCapable++;
+			if (pLoopUnit->isGroupHead())
+			{
+				iAreaAttackGroups++;
+				iLargestAttackGroup = std::max(iLargestAttackGroup, pLoopUnit->getGroup()->getNumUnits());
+			}
+		}
+		if (pLoopUnit->canAttack() && !pLoopUnit->isNoCityCapture() && !pLoopUnit->getUnitInfo().isMostlyDefensive()) iAreaCityCaptureCapable++;
+	}
+
+	CvCity const* pAreaTargetCity = kUnit.getArea().AI_getTargetCity(kUnit.getOwner());
+	CvCity const* pBestPathableTarget = NULL;
+	int iTargetCandidates = 0;
+	int iPathableTargets = 0;
+	int iBestPathTurns = MAX_INT;
+	int iBestStepDistance = MAX_INT;
+	int const iMaxTargetPathTurns = 20;
+	MovementFlags const eTargetPathFlags = (MOVE_AVOID_ENEMY_WEIGHT_2 | MOVE_DECLARE_WAR);
+	for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> itTarget(kUnit.getTeam()); itTarget.hasNext(); ++itTarget)
+	{
+		TeamTypes const eTargetTeam = itTarget->getTeam();
+		if (!kTeam.isAtWar(eTargetTeam) && kTeam.AI_getWarPlan(eTargetTeam) == NO_WARPLAN) continue;
+		FOR_EACH_CITY(pTargetCity, *itTarget)
+		{
+			if (!pTargetCity->isArea(kUnit.getArea()) || !kOwner.AI_deduceCitySite(*pTargetCity)) continue;
+			iTargetCandidates++;
+			int iPathTurns = MAX_INT;
+			if (!kUnit.generatePath(pTargetCity->getPlot(), eTargetPathFlags, true, &iPathTurns, iMaxTargetPathTurns)) continue;
+			iPathableTargets++;
+			int const iStepDistance = stepDistance(kUnit.getX(), kUnit.getY(), pTargetCity->getX(), pTargetCity->getY());
+			if (iPathTurns < iBestPathTurns || (iPathTurns == iBestPathTurns && iStepDistance < iBestStepDistance))
+			{
+				pBestPathableTarget = pTargetCity;
+				iBestPathTurns = iPathTurns;
+				iBestStepDistance = iStepDistance;
+			}
+		}
+	}
+
+	int const iTargetDefenders = (pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getPlot().plotCount(PUF_canDefend));
+	int const iTargetValue = (pBestPathableTarget == NULL ? -1 : kOwner.AI_targetCityValue(*pBestPathableTarget, false, true, NULL));
+	TeamTypes const eTargetTeam = (pBestPathableTarget == NULL ? NO_TEAM : pBestPathableTarget->getTeam());
+	WarPlanTypes const eTargetWarPlan = (eTargetTeam == NO_TEAM ? NO_WARPLAN : kTeam.AI_getWarPlan(eTargetTeam));
+	int const iAttackCityValue = kOwner.AI_unitValue(kUnit.getUnitType(), UNITAI_ATTACK_CITY, &kUnit.getArea());
+	int const iWarStackNeeded = kOwner.AI_neededCityAttackers(kUnit.getArea(), kUnit.AI_getBirthmark());
+	logBBAI("    ATTACK_CITY_WAR_MISSING_LEADER_CANDIDATE turn=%d player=%d %S area=%d unitId=%d unit=%S groupId=%d groupUnits=%d areaAttackUnits=%d areaAttackCityCaptureCapable=%d areaAttackCityUnits=%d totalAttackCityUnits=%d areaCityCaptureCapable=%d areaAttackGroups=%d largestAttackGroup=%d warStackNeeded=%d attackCityUnitValue=%d cityDefensePassed=1 currentDanger=0 wars=%d anyWarPlan=%d sneakAttackReady=%d turtle=%d areaAI=%d targetCandidates=%d pathableTargets=%d targetMaxPathTurns=%d areaTarget=%S areaTarget=(%d,%d) target=%S targetOwner=%d targetTeam=%d target=(%d,%d) targetPop=%d targetDefenders=%d targetValue=%d targetPathTurns=%d targetStepDistance=%d targetAtWar=%d targetWarPlan=%s",
+		iGameTurn, kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getArea().getID(), kUnit.getID(), kUnit.getName().GetCString(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), iAreaAttackUnits, iAreaAttackCityCaptureCapable, iAreaAttackCityUnits, kOwner.AI_totalUnitAIs(UNITAI_ATTACK_CITY), iAreaCityCaptureCapable, iAreaAttackGroups, iLargestAttackGroup, iWarStackNeeded, iAttackCityValue,
+		iNumWars, bAnyWarPlan, bSneakAttackReady, bTurtle, kUnit.getArea().getAreaAIType(kUnit.getTeam()), iTargetCandidates, iPathableTargets, iMaxTargetPathTurns,
+		(pAreaTargetCity == NULL ? L"-" : pAreaTargetCity->getName().GetCString()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getY()),
+		(pBestPathableTarget == NULL ? L"-" : pBestPathableTarget->getName().GetCString()), (pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getOwner()), eTargetTeam, (pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getX()), (pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getY()), (pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getPopulation()), iTargetDefenders, iTargetValue, (pBestPathableTarget == NULL ? -1 : iBestPathTurns), (pBestPathableTarget == NULL ? -1 : iBestStepDistance), (eTargetTeam == NO_TEAM ? 0 : kTeam.isAtWar(eTargetTeam)), getSASWarPlanType(eTargetWarPlan));
+}
+
+// <!-- custom: General attackers reach this after current-city, colony, airlift, and one-turn city-defense checks decline them; city-assault groups reach it when the existing parking diagnostic fires. Diagnose whether either a unit or large group could still reinforce an underdefended own city within ten turns, especially whether a faraway stack could split off one defender.
+// Count defenders already assigned to the city before treating the group as useful, and log each UnitAI-role/group-size combination at most once per player, land area, and turn. This is diagnostic only and does not redirect or split units. (GPT-5.6-Sol) -->
+static void SAS_logAttackDefenseReinforcementCandidate(CvUnitAI& kUnit, CvPlayerAI const& kOwner, CvTeamAI const& kTeam)
+{
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	if (pGroup == NULL || !pGroup->canDefend()) return;
+	CvArea const& kArea = kUnit.getArea();
+	PlayerTypes const eOwner = kUnit.getOwner();
+	int const iGroupUnits = pGroup->getNumUnits();
+	int const iGroupCategory = (iGroupUnits >= 4 ? 1 : 0);
+	int const iUnitAICategory = (kUnit.AI_getUnitAIType() == UNITAI_ATTACK_CITY ? 1 : 0);
+	static std::map<std::pair<int,int>,int> aiLastLoggedTurn;
+	std::pair<int,int> const key(eOwner, 4 * kArea.getID() + 2 * iUnitAICategory + iGroupCategory);
+	int const iGameTurn = GC.getGame().getGameTurn();
+	std::map<std::pair<int,int>,int>::const_iterator const itLastLogged = aiLastLoggedTurn.find(key);
+	if (itLastLogged != aiLastLoggedTurn.end() && itLastLogged->second == iGameTurn) return;
+
+	CvCityAI const* pBestCity = NULL;
+	int iBestValue = MIN_INT;
+	int iBestDefendersNeeded = -1;
+	int iBestDefendersHave = -1;
+	int iBestIncomingDefenders = -1;
+	int iBestRawShortfall = -1;
+	int iBestRemainingShortfall = -1;
+	int iBestPathTurns = -1;
+	int iBestStepDistance = -1;
+	int const iMaxPathTurns = 10;
+	FOR_EACH_CITYAI(pLoopCity, kOwner)
+	{
+		if (!pLoopCity->isArea(kArea)) continue;
+		int const iDefendersNeeded = pLoopCity->AI_neededDefenders(true);
+		int const iDefendersHave = pLoopCity->getPlot().plotCount(PUF_canDefendGroupHead, -1, -1, eOwner);
+		int const iIncomingDefenders = kOwner.AI_plotTargetMissionAIs(pLoopCity->getPlot(), MISSIONAI_GUARD_CITY, pGroup);
+		int const iRawShortfall = iDefendersNeeded - iDefendersHave;
+		int const iRemainingShortfall = iRawShortfall - iIncomingDefenders;
+		if (iRemainingShortfall <= 0) continue;
+		int iPathTurns = MAX_INT;
+		if (!kUnit.generatePath(pLoopCity->getPlot(), NO_MOVEMENT_FLAGS, true, &iPathTurns, iMaxPathTurns)) continue;
+		int const iStepDistance = stepDistance(kUnit.getX(), kUnit.getY(), pLoopCity->getX(), pLoopCity->getY());
+		int const iValue = 1000 * (pLoopCity->AI_isDanger() ? 1 : 0) + 100 * iRemainingShortfall + pLoopCity->getPopulation() - 10 * iPathTurns;
+		if (iValue <= iBestValue) continue;
+		pBestCity = pLoopCity;
+		iBestValue = iValue;
+		iBestDefendersNeeded = iDefendersNeeded;
+		iBestDefendersHave = iDefendersHave;
+		iBestIncomingDefenders = iIncomingDefenders;
+		iBestRawShortfall = iRawShortfall;
+		iBestRemainingShortfall = iRemainingShortfall;
+		iBestPathTurns = iPathTurns;
+		iBestStepDistance = iStepDistance;
+	}
+	if (pBestCity == NULL) return;
+
+	int iGroupDefenders = 0;
+	int iGroupHealthyDefenders = 0;
+	FOR_EACH_UNIT_IN(pLoopUnit, *pGroup)
+	{
+		if (!pLoopUnit->canDefend(pBestCity->plot())) continue;
+		iGroupDefenders++;
+		if (pLoopUnit->getDamage() <= 25) iGroupHealthyDefenders++;
+	}
+	if (iGroupDefenders <= 0) return;
+	aiLastLoggedTurn[key] = iGameTurn;
+	int const iTotalMilitary = kOwner.getNumMilitaryUnits();
+	CvCity const* pSourceCity = kUnit.getPlot().getPlotCity();
+	int const iTargetCityThreat = pBestCity->AI_cityThreat();
+	int const iTargetPlotDanger = kOwner.AI_getPlotDanger(pBestCity->getPlot(), 2);
+	bool const bSplitOnePossible = (iGroupUnits > 1 && iGroupDefenders > 0);
+	bool const bAllGroupDefendersNeeded = (iBestRemainingShortfall >= iGroupDefenders);
+	logBBAI("    ATTACK_DEFENSE_REINFORCEMENT_CANDIDATE turn=%d player=%d %S area=%d unitId=%d unit=%S unitAI=%d groupId=%d groupUnits=%d groupDefenders=%d groupHealthyDefenders=%d totalMilitary=%d groupMilitaryPercent=%d source=(%d,%d) sourceCity=%S sourceOwner=%d sourceDanger=%d existingDefenseLogicDidNotUseGroup=1 target=%S targetId=%d target=(%d,%d) targetPop=%d targetCapital=%d targetDanger=%d targetCityThreat=%d targetPlotDanger=%d targetEvacuating=%d defendersNeeded=%d defendersHave=%d incomingDefenders=%d rawShortfall=%d remainingShortfall=%d targetPathTurns=%d targetStepDistance=%d targetMaxPathTurns=%d splitOnePossible=%d allGroupDefendersNeeded=%d wars=%d anyWarPlan=%d areaAI=%d",
+		iGameTurn, eOwner, kOwner.getCivilizationDescription(0), kArea.getID(), kUnit.getID(), kUnit.getName().GetCString(), kUnit.AI_getUnitAIType(), pGroup->getID(), iGroupUnits, iGroupDefenders, iGroupHealthyDefenders, iTotalMilitary, 100 * iGroupUnits / std::max(1, iTotalMilitary), kUnit.getX(), kUnit.getY(), (pSourceCity == NULL ? L"-" : pSourceCity->getName().GetCString()), kUnit.getPlot().getOwner(), kOwner.AI_getPlotDanger(kUnit.getPlot()),
+		pBestCity->getName().GetCString(), pBestCity->getID(), pBestCity->getX(), pBestCity->getY(), pBestCity->getPopulation(), pBestCity->isCapital(), pBestCity->AI_isDanger(), iTargetCityThreat, iTargetPlotDanger, pBestCity->AI_isEvacuating(), iBestDefendersNeeded, iBestDefendersHave, iBestIncomingDefenders, iBestRawShortfall, iBestRemainingShortfall, iBestPathTurns, iBestStepDistance, iMaxPathTurns, bSplitOnePossible, bAllGroupDefendersNeeded, kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kArea.getAreaAIType(kUnit.getTeam()));
+}
+
+// <!-- custom: SASGameRecord testing found early armies with 9-14 UNITAI_ATTACK units but no UNITAI_ATTACK_CITY unit. Those units can capture cities, but K-Mod normally splits friendly-territory attack groups down to two and only occasionally sends them toward cities, so raw military strength cannot become a coordinated expedition without the missing organizational role.
+// After ordinary city-defense claims have had priority, convert one actually suitable floating attacker when the area has enough attackers and a pathable barbarian city. AI_setUnitAIType detaches that unit so it can become the attack-city group leader and recruit the remaining broad attacker roles through the normal grouping logic. See KI#188. (GPT-5.6-Sol) -->
+static bool SAS_createMissingBarbarianCityExpeditionLeader(CvUnitAI& kUnit)
+{
+	static bool const bEnabled = GC.getDefineBOOL("SAS_AI_BARBARIAN_CITY_EXPEDITION_CREATE_MISSING_LEADER_ENABLE");
+	if (!bEnabled || kUnit.isBarbarian() || kUnit.AI_getUnitAIType() != UNITAI_ATTACK || !kUnit.canAttack() || kUnit.isNoCityCapture() || kUnit.getUnitInfo().isMostlyDefensive())
+		return false;
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kUnit.getTeam());
+	int const iAreaAttackCityUnits = kOwner.AI_totalAreaUnitAIs(kUnit.getArea(), UNITAI_ATTACK_CITY);
+	int const iNumWars = kTeam.getNumWars();
+	bool const bSneakAttackReady = kTeam.AI_isSneakAttackReady();
+	bool const bTurtle = kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE);
+	if (gUnitLogLevel >= 2 && iAreaAttackCityUnits == 0)
+	{
+		bool const bAnyWarPlan = kTeam.AI_isAnyWarPlan();
+		if (iNumWars > 0 || bAnyWarPlan) SAS_logMissingWarCityExpeditionLeaderCandidate(kUnit, kOwner, kTeam, iAreaAttackCityUnits, iNumWars, bAnyWarPlan, bSneakAttackReady, bTurtle);
+	}
+	if (bTurtle || iNumWars > 0 || bSneakAttackReady || iAreaAttackCityUnits > 0)
+		return false;
+	int const iAttackersNeeded = kOwner.AI_neededCityAttackersVsBarbarians().ceil();
+	int const iAreaAttackUnits = kOwner.AI_totalAreaUnitAIs(kUnit.getArea(), UNITAI_ATTACK);
+	int const iAttackCityValue = kOwner.AI_unitValue(kUnit.getUnitType(), UNITAI_ATTACK_CITY, &kUnit.getArea());
+	if (iAreaAttackUnits < iAttackersNeeded || iAttackCityValue <= 0)
+		return false;
+	int iPathTurns = -1;
+	int iTargetValue = -1;
+	int iStepDistance = -1;
+	int iDefenders = -1;
+	int iValue = MIN_INT;
+	CvCity* pTargetCity = SAS_pickPathableBarbCityForAttackStack(kUnit, MOVE_AVOID_ENEMY_WEIGHT_2, 12, true, &iPathTurns, &iTargetValue, &iStepDistance, &iDefenders, &iValue);
+	if (pTargetCity == NULL)
+		return false;
+	if (gUnitLogLevel >= 2)
+	{
+		logBBAI("    ATTACK_CITY_BARBARIAN_EXPEDITION_LEADER_CREATED turn=%d player=%d %S unitId=%d unit=%S oldUnitAI=UNITAI_ATTACK newUnitAI=UNITAI_ATTACK_CITY areaAttackUnits=%d attackersNeeded=%d target=%S target=(%d,%d) pathTurns=%d stepDistance=%d defenders=%d targetValue=%d value=%d attackCityUnitValue=%d",
+			GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), kUnit.getName().GetCString(), iAreaAttackUnits, iAttackersNeeded,
+			pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iPathTurns, iStepDistance, iDefenders, iTargetValue, iValue, iAttackCityValue);
+	}
+	kUnit.AI_setUnitAIType(UNITAI_ATTACK_CITY);
+	return true;
+}
+
+// <!-- custom: Diagnostic for late-game weak barbarian cities surviving near strong AI players. PlayerAI already has a production-side barbarian-city score, but existing attack stacks can still sit or follow normal war targets; log nearby revealed barbarian city opportunities from the stack's actual movement context before changing behavior. (GPT-5.5 + ChatGPT-5.5) -->
+static void SAS_logAttackCityBarbOpportunity(CvUnitAI& kUnit, CvCity const* pTargetCity, bool bHuntBarbs, bool bReadyToAttack, bool bTargetTooStrong, MovementFlags eMoveFlags)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvSelectionGroup const* pGroup = kUnit.getGroup();
+	int iCanAttack = 0;
+	int iCityCapture = 0;
+	SAS_countGroupCityAttackCapability(*pGroup, iCanAttack, iCityCapture);
+	int const iAttackCityUnitAI = pGroup->countNumUnitAIType(UNITAI_ATTACK_CITY);
+	CvCity const* pBestOverallBarbCity = NULL;
+	int iBestOverallValue = MIN_INT;
+	int iBestOverallStepDistance = -1;
+	int iBestOverallTargetValue = -1;
+	int iBestPathablePathTurns = -1;
+	int iBestPathableStepDistance = -1;
+	int iBestPathableDefenders = -1;
+	int iBestPathableTargetValue = -1;
+	int iBestPathableValue = MIN_INT;
+	int iCandidateCount = 0;
+	int iPathableCandidateCount = 0;
+	CvCity* pBestPathableBarbCity = SAS_pickPathableBarbCityForAttackStack(kUnit, eMoveFlags, 20, false, &iBestPathablePathTurns, &iBestPathableTargetValue, &iBestPathableStepDistance, &iBestPathableDefenders, &iBestPathableValue, &iCandidateCount, &iPathableCandidateCount, &pBestOverallBarbCity, &iBestOverallValue, &iBestOverallTargetValue, &iBestOverallStepDistance);
+	if (pBestOverallBarbCity == NULL)
+		return;
+	int iTargetPathTurns = -1;
+	int const iPickedTargetValue = (pTargetCity == NULL ? -1 : kOwner.AI_targetCityValue(*pTargetCity, false, true, NULL));
+	int const iPickedTargetDefenders = (pTargetCity == NULL ? -1 : pTargetCity->getPlot().plotCount(PUF_canDefend));
+	if (pTargetCity != NULL)
+		kUnit.generatePath(pTargetCity->getPlot(), eMoveFlags, true, &iTargetPathTurns, 20);
+	logBBAI("    BARB_CITY_OPPORTUNITY turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d attackCityUnitAI=%d canAttack=%d cityCapture=%d at=(%d,%d) huntBarbs=%d ready=%d targetTooStrong=%d pickedTarget=%S pickedTarget=(%d,%d) pickedTargetOwner=%d pickedTargetPop=%d pickedTargetDefenders=%d pickedTargetValue=%d pickedBarb=%d pickedPathTurns=%d candidates=%d pathableCandidates=%d bestOverallBarb=%S bestOverallBarb=(%d,%d) bestOverallValue=%d bestOverallTargetValue=%d bestOverallStepDistance=%d bestPathableBarb=%S bestPathableBarb=(%d,%d) bestPathablePop=%d bestPathableDefenders=%d bestPathableValue=%d bestPathableTargetValue=%d bestPathablePathTurns=%d bestPathableStepDistance=%d areaAI=%d wars=%d anyWarPlan=%d financialTrouble=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), pGroup->getID(), pGroup->getNumUnits(), iAttackCityUnitAI, iCanAttack, iCityCapture, kUnit.getX(), kUnit.getY(), bHuntBarbs, bReadyToAttack, bTargetTooStrong,
+		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), (pTargetCity == NULL ? -1 : pTargetCity->getOwner()), (pTargetCity == NULL ? -1 : pTargetCity->getPopulation()), iPickedTargetDefenders, iPickedTargetValue, (pTargetCity != NULL && pTargetCity->isBarbarian()), iTargetPathTurns,
+		iCandidateCount, iPathableCandidateCount,
+		pBestOverallBarbCity->getName().GetCString(), pBestOverallBarbCity->getX(), pBestOverallBarbCity->getY(), iBestOverallValue, iBestOverallTargetValue, iBestOverallStepDistance,
+		(pBestPathableBarbCity == NULL ? L"-" : pBestPathableBarbCity->getName().GetCString()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getX()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getY()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getPopulation()), iBestPathableDefenders, iBestPathableValue, iBestPathableTargetValue, iBestPathablePathTurns, iBestPathableStepDistance, kUnit.getArea().getAreaAIType(kUnit.getTeam()), GET_TEAM(kUnit.getTeam()).getNumWars(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan(), kOwner.AI_isFinancialTrouble());
+}
+
+static void SAS_countPlotMilitaryConcentration(CvPlot const& kPlot, PlayerTypes eOwner, int& iMilitaryUnits, int& iGroups, int& iUpgradeUnits, int& iUpgradeGroups)
+{
+	iMilitaryUnits = 0;
+	iGroups = 0;
+	iUpgradeUnits = 0;
+	iUpgradeGroups = 0;
+	std::vector<int> aiGroupIds;
+	for (CLLNode<IDInfo> const* pUnitNode = kPlot.headUnitNode(); pUnitNode != NULL; pUnitNode = kPlot.nextUnitNode(pUnitNode))
+	{
+		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+		if (pLoopUnit == NULL || pLoopUnit->getOwner() != eOwner || !pLoopUnit->getUnitInfo().isMilitarySupport()) continue;
+		iMilitaryUnits++;
+		CvSelectionGroup const* pGroup = pLoopUnit->getGroup();
+		if (pGroup == NULL) continue;
+		bool bGroupAlreadyCounted = false;
+		for (size_t i = 0; i < aiGroupIds.size(); i++)
+		{
+			if (aiGroupIds[i] == pGroup->getID())
+			{
+				bGroupAlreadyCounted = true;
+				break;
+			}
+		}
+		if (!bGroupAlreadyCounted)
+		{
+			aiGroupIds.push_back(pGroup->getID());
+			iGroups++;
+			if (pGroup->AI().AI_getMissionAIType() == MISSIONAI_UPGRADE) iUpgradeGroups++;
+		}
+		if (pGroup->AI().AI_getMissionAIType() == MISSIONAI_UPGRADE) iUpgradeUnits++;
+	}
+}
+
+// <!-- custom: SASGameRecord showed peaceful UNITAI_ATTACK_CITY groups containing most of an AI's military even when ATTACK_CITY_PARKING had no row, which means the group either never entered AI_attackCityMove or returned before its explicit wait/final-skip branches.
+// Trace a single group with at least 16 units and 20% of the owner's military, or a group of at least 6 contributing to a peaceful owned-city concentration of at least 20 units and 30%. The second diagnostic case catches many medium groups gathering in one city without making any individual group look exceptional.
+// Record persistent activity/mission state, incoming joiners, upgrade missions, and selected early-return actions so the next run can identify the unlogged route before a grouping cure. These thresholds affect logging only. (GPT-5.6-Sol) -->
+static bool SAS_isLargeAttackCityStackDiagnostic(CvUnitAI const& kUnit)
+{
+	if (kUnit.AI_getUnitAIType() != UNITAI_ATTACK_CITY || kUnit.getGroup() == NULL)
+		return false;
+	int const iGroupUnits = kUnit.getGroup()->getNumUnits();
+	int const iTotalMilitary = GET_PLAYER(kUnit.getOwner()).getNumMilitaryUnits();
+	if (iGroupUnits >= 16 && 100 * iGroupUnits / std::max(1, iTotalMilitary) >= 20) return true;
+	CvCity const* pCity = kUnit.getPlot().getPlotCity();
+	if (iGroupUnits < 6 || pCity == NULL || pCity->getOwner() != kUnit.getOwner() || GET_TEAM(kUnit.getTeam()).getNumWars() > 0) return false;
+	int iCityMilitary = 0;
+	int iCityGroups = 0;
+	int iUpgradeUnits = 0;
+	int iUpgradeGroups = 0;
+	SAS_countPlotMilitaryConcentration(kUnit.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
+	return (iCityMilitary >= 20 && 100 * iCityMilitary / std::max(1, iTotalMilitary) >= 30);
+}
+
+static void SAS_logLargeAttackCityStackAction(CvUnitAI const& kUnit, char const* szAction, CvCity const* pTargetCity = NULL)
+{
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	if (pGroup == NULL)
+		return;
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kUnit.getTeam());
+	CvPlot const* pMissionPlot = pGroup->AI_getMissionAIPlot();
+	CvUnitAI const* pMissionUnit = pGroup->AI_getMissionAIUnit();
+	CvCity const* pAreaTargetCity = kUnit.getArea().AI_getTargetCity(kUnit.getOwner());
+	int iWarPlanTargets = 0;
+	TeamTypes eFirstWarPlanTarget = NO_TEAM;
+	WarPlanTypes eFirstWarPlan = NO_WARPLAN;
+	for (TeamIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itTarget(kUnit.getTeam()); itTarget.hasNext(); ++itTarget)
+	{
+		WarPlanTypes const eWarPlan = kTeam.AI_getWarPlan(itTarget->getID());
+		if (eWarPlan == NO_WARPLAN) continue;
+		iWarPlanTargets++;
+		if (eFirstWarPlanTarget != NO_TEAM) continue;
+		eFirstWarPlanTarget = itTarget->getID();
+		eFirstWarPlan = eWarPlan;
+	}
+	int iWounded = 0;
+	FOR_EACH_UNIT_IN(pLoopUnit, *pGroup)
+	{
+		if (pLoopUnit->getDamage() > 0) iWounded++;
+	}
+	int const iTotalMilitary = kOwner.getNumMilitaryUnits();
+	int const iIncomingJoiners = kOwner.AI_unitTargetMissionAIs(kUnit, MISSIONAI_GROUP);
+	int iCityMilitary = 0;
+	int iCityGroups = 0;
+	int iUpgradeUnits = 0;
+	int iUpgradeGroups = 0;
+	SAS_countPlotMilitaryConcentration(kUnit.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
+	logBBAI("    ATTACK_CITY_LARGE_STACK_ACTION turn=%d player=%d %S action=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d cityMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d wounded=%d at=(%d,%d) city=%S activity=%d mission=%s missionAI=%d missionPlot=(%d,%d) missionUnitOwner=%d missionUnitId=%d missionQueue=%d incomingJoiners=%d movesLeft=%d target=%S target=(%d,%d) areaTarget=%S areaTarget=(%d,%d) areaAI=%d wars=%d anyWarPlan=%d chosenWar=%d sneakAttackReady=%d warPlanTargets=%d firstWarPlanTarget=%d firstWarPlan=%s",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), pGroup->getID(), pGroup->getNumUnits(), iTotalMilitary, 100 * pGroup->getNumUnits() / std::max(1, iTotalMilitary),
+		iCityMilitary, 100 * iCityMilitary / std::max(1, iTotalMilitary), iCityGroups, iUpgradeUnits, iUpgradeGroups, iWounded,
+		kUnit.getX(), kUnit.getY(), (kUnit.getPlot().getPlotCity() == NULL ? L"-" : kUnit.getPlot().getPlotCity()->getName().GetCString()), pGroup->getActivityType(), SAS_getMissionTypeName(pGroup->getMissionType(0)), pGroup->AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pMissionUnit == NULL ? -1 : pMissionUnit->getOwner()), (pMissionUnit == NULL ? -1 : pMissionUnit->getID()), pGroup->getLengthMissionQueue(),
+		iIncomingJoiners, kUnit.movesLeft(), (pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()),
+		(pAreaTargetCity == NULL ? L"-" : pAreaTargetCity->getName().GetCString()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getY()), kUnit.getArea().getAreaAIType(kUnit.getTeam()), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kTeam.AI_isAnyChosenWar(), kTeam.AI_isSneakAttackReady(), iWarPlanTargets, eFirstWarPlanTarget, getSASWarPlanType(eFirstWarPlan));
+}
+
+// <!-- custom: Save-file 449 showed KI#188.3.2 shrinking a peaceful targetless city-assault group from 23 to 8 units while Ulundi still held 65-85% of Zulu's military across up to 40 groups and its only other city held 3 defenders.
+// At UNIT level 2, trace the next AI_attackMove decision of general-attack group heads in such a crowded city. Record whether city-defense demand, regrouping, upgrade travel, or another fallback keeps them there, along with the most underdefended alternative city and vassal status; this does not affect behavior. (GPT-5.6-Sol) -->
+static bool SAS_isCrowdedPeacefulCityAttackMoveDiagnostic(CvUnitAI const& kUnit)
+{
+	if (kUnit.getGroup() == NULL || kUnit.getGroup()->getHeadUnit() != &kUnit) return false;
+	CvCityAI const* pCity = kUnit.getPlot().AI_getPlotCity();
+	if (pCity == NULL || pCity->getOwner() != kUnit.getOwner()) return false;
+	CvTeamAI const& kTeam = GET_TEAM(kUnit.getTeam());
+	if (kTeam.getNumWars() > 0 || kTeam.AI_isAnyWarPlan()) return false;
+	int iCityMilitary = 0;
+	int iCityGroups = 0;
+	int iUpgradeUnits = 0;
+	int iUpgradeGroups = 0;
+	SAS_countPlotMilitaryConcentration(kUnit.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
+	int const iTotalMilitary = GET_PLAYER(kUnit.getOwner()).getNumMilitaryUnits();
+	return (iCityMilitary >= 20 && 100 * iCityMilitary / std::max(1, iTotalMilitary) >= 30);
+}
+
+static void SAS_logCrowdedPeacefulCityAttackMove(CvUnitAI const& kUnit, char const* szAction)
+{
+	CvCityAI const* pCity = kUnit.getPlot().AI_getPlotCity();
+	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
+	if (pCity == NULL || pGroup == NULL) return;
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kUnit.getTeam());
+	int iCityMilitary = 0;
+	int iCityGroups = 0;
+	int iUpgradeUnits = 0;
+	int iUpgradeGroups = 0;
+	SAS_countPlotMilitaryConcentration(kUnit.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
+	CvCityAI const* pAlternativeCity = NULL;
+	int iAlternativeHave = -1;
+	int iAlternativeNeed = -1;
+	int iAlternativeShortage = MIN_INT;
+	FOR_EACH_CITYAI(pLoopCity, kOwner)
+	{
+		if (pLoopCity == pCity || (!kUnit.isArea(pLoopCity->getArea()) && (!kUnit.canMoveImpassable() || !kUnit.canEnterArea(pLoopCity->getArea())))) continue;
+		int const iHave = pLoopCity->getPlot().plotCount(PUF_canDefendGroupHead, -1, -1, kUnit.getOwner());
+		int const iNeed = pLoopCity->AI_neededDefenders(true, /*bConstCache*/ true);
+		int const iShortage = iNeed - iHave;
+		if (pAlternativeCity != NULL && iShortage <= iAlternativeShortage) continue;
+		pAlternativeCity = pLoopCity;
+		iAlternativeHave = iHave;
+		iAlternativeNeed = iNeed;
+		iAlternativeShortage = iShortage;
+	}
+	int const iCurrentDefenders = pCity->getPlot().plotCount(PUF_canDefendGroupHead, -1, -1, kUnit.getOwner());
+	int const iCurrentNeededDefenders = pCity->AI_neededDefenders(true, /*bConstCache*/ true);
+	logBBAI("    ATTACK_CROWDED_PEACEFUL_CITY_MOVE turn=%d player=%d %S action=%s unitId=%d unitType=%d unitAI=%d groupId=%d groupUnits=%d incomingJoiners=%d city=%S city=(%d,%d) capital=%d cityMilitary=%d totalMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d "
+		"currentDefenders=%d currentMinDefenders=%d currentNeededDefenders=%d currentExcessDefenders=%d currentThreat=%d currentDanger=%d currentSafe=%d alternativeCity=%S alternative=(%d,%d) alternativeDistance=%d alternativeDefenders=%d alternativeNeededDefenders=%d alternativeShortage=%d alternativeThreat=%d alternativeDanger=%d "
+		"missionAI=%d missionQueue=%d activity=%d movesLeft=%d areaAI=%d vassal=%d capitulated=%d masterTeam=%d wars=%d anyWarPlan=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), kUnit.getUnitType(), kUnit.AI_getUnitAIType(), pGroup->getID(), pGroup->getNumUnits(), kOwner.AI_unitTargetMissionAIs(kUnit, MISSIONAI_GROUP), pCity->getName().GetCString(), pCity->getX(), pCity->getY(), pCity->isCapital(),
+		iCityMilitary, kOwner.getNumMilitaryUnits(), 100 * iCityMilitary / std::max(1, kOwner.getNumMilitaryUnits()), iCityGroups, iUpgradeUnits, iUpgradeGroups, iCurrentDefenders, pCity->AI_minDefenders(), iCurrentNeededDefenders, iCurrentDefenders - iCurrentNeededDefenders, pCity->AI_cityThreat(), pCity->AI_isDanger(), pCity->AI_isSafe(),
+		(pAlternativeCity == NULL ? L"-" : pAlternativeCity->getName().GetCString()), (pAlternativeCity == NULL ? -1 : pAlternativeCity->getX()), (pAlternativeCity == NULL ? -1 : pAlternativeCity->getY()), (pAlternativeCity == NULL ? -1 : plotDistance(kUnit.plot(), pAlternativeCity->plot())), iAlternativeHave, iAlternativeNeed, (pAlternativeCity == NULL ? -1 : iAlternativeShortage), (pAlternativeCity == NULL ? -1 : pAlternativeCity->AI_cityThreat()), (pAlternativeCity == NULL ? -1 : pAlternativeCity->AI_isDanger()), pGroup->AI_getMissionAIType(), pGroup->getLengthMissionQueue(), pGroup->getActivityType(), kUnit.movesLeft(), kUnit.getArea().getAreaAIType(kUnit.getTeam()), kTeam.isAVassal(), kTeam.isCapitulated(), kTeam.getMasterTeam(), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan());
+}
+
+// <!-- custom: A test had two large Carthaginian city-assault groups waiting in Hadrumetum during an overseas war plan while AI_load only removed one unit on two isolated turns. When the existing large-stack diagnostic sees an assault-loading failure, summarize each AI_findTransport filter and the fleet's cargo use so insufficient ships, reserved capacity, unsafe missions, and unreachable transports can be distinguished before changing behavior. This is diagnostic only and is called inside the Overseas-transport level-2 large-stack gate. (GPT-5.6-Sol) -->
+static void SAS_logAssaultTransportFailure(CvUnitAI& kUnit, MovementFlags eFlags, int iMaxPath)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	int iAssaultTransports = 0;
+	int iCargoCapacity = 0;
+	int iCargoUsed = 0;
+	int iGeographicallyEligible = 0;
+	int iGeographicCapacity = 0;
+	int iGeographicCargoUsed = 0;
+	int iCanLoadOnto = 0;
+	int iWithRawSpace = 0;
+	int iRawSpace = 0;
+	int iReservedSpace = 0;
+	int iWithUsableSpace = 0;
+	int iUsableSpace = 0;
+	int iSafeMissionTargets = 0;
+	int iPathable = 0;
+	MissionAITypes aeLoadMissionAI[] = { MISSIONAI_LOAD_ASSAULT, MISSIONAI_LOAD_SETTLER, MISSIONAI_LOAD_SPECIAL, MISSIONAI_ATTACK_SPY };
+	FOR_EACH_UNITAI(pTransport, kOwner)
+	{
+		if (pTransport->AI_getUnitAIType() != UNITAI_ASSAULT_SEA) continue;
+		iAssaultTransports++;
+		iCargoCapacity += pTransport->cargoSpace();
+		iCargoUsed += pTransport->getCargo();
+		if (pTransport->cargoSpace() <= 0 || (!kUnit.sameArea(*pTransport) && !pTransport->getPlot().isAdjacentToArea(kUnit.getArea()))) continue;
+		iGeographicallyEligible++;
+		iGeographicCapacity += pTransport->cargoSpace();
+		iGeographicCargoUsed += pTransport->getCargo();
+		if (!kUnit.canLoadOnto(*pTransport, pTransport->getPlot())) continue;
+		iCanLoadOnto++;
+		int const iTransportRawSpace = pTransport->cargoSpaceAvailable(kUnit.getSpecialUnitType(), kUnit.getDomainType());
+		if (iTransportRawSpace <= 0) continue;
+		iWithRawSpace++;
+		iRawSpace += iTransportRawSpace;
+		int const iTransportReservedSpace = kOwner.AI_unitTargetMissionAIs(*pTransport, aeLoadMissionAI, ARRAYSIZE(aeLoadMissionAI), kUnit.getGroup());
+		iReservedSpace += iTransportReservedSpace;
+		int const iTransportUsableSpace = iTransportRawSpace - iTransportReservedSpace;
+		if (iTransportUsableSpace <= 0) continue;
+		iWithUsableSpace++;
+		iUsableSpace += iTransportUsableSpace;
+		CvPlot const* pUnitTargetPlot = pTransport->AI_getGroup()->AI_getMissionAIPlot();
+		if (pUnitTargetPlot != NULL && pUnitTargetPlot->getTeam() != kUnit.getTeam() && pUnitTargetPlot->isOwned() && kUnit.AI_isPotentialEnemyOf(pUnitTargetPlot->getTeam(), *pUnitTargetPlot)) continue;
+		iSafeMissionTargets++;
+		if (kUnit.at(pTransport->getPlot()) || kUnit.generatePath(pTransport->getPlot(), eFlags, true, NULL, iMaxPath)) iPathable++;
+	}
+	logBBAI("    ATTACK_CITY_ASSAULT_TRANSPORT_FAIL turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d at=(%d,%d) area=%d areaAI=%d assaultTransports=%d cargoCapacity=%d cargoUsed=%d geographicallyEligible=%d geographicCapacity=%d geographicCargoUsed=%d canLoadOnto=%d withRawSpace=%d rawSpace=%d reservedSpace=%d withUsableSpace=%d usableSpace=%d safeMissionTargets=%d pathableWithin=%d maxPath=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), kUnit.getX(), kUnit.getY(), kUnit.getArea().getID(), kUnit.getArea().getAreaAIType(kUnit.getTeam()), iAssaultTransports, iCargoCapacity, iCargoUsed, iGeographicallyEligible, iGeographicCapacity, iGeographicCargoUsed, iCanLoadOnto, iWithRawSpace, iRawSpace, iReservedSpace, iWithUsableSpace, iUsableSpace, iSafeMissionTargets, iPathable, iMaxPath);
+}
+
+// <!-- custom: Diagnostic logging for suspected large army parking in remote conquered cities. Keep this narrow:
+// only large city-attack groups already sitting in an owned city are logged, and only when AI_attackCityMove decides
+// to skip/wait instead of leaving. This should let BBAI logs identify whether the stack is waiting for joiners,
+// waiting for upgrades, has no target, sees an over-strong target, or is otherwise falling through to skip before we
+// change behavior. The same remote captured-city test is used below to stop upgrade waits from freezing a ready stack
+// that has a valid target. Logs showed Boston-style false negatives when a nearby owned city was also a captured/front
+// city, so the behavior test is based on distance from core rather than any nearby owned city. See KI#155. (GPT-5.5 + ChatGPT-5.5) -->
+static void SAS_logAttackCityParking(CvUnitAI& kUnit, CvCity const* pTargetCity, char const* szReason, bool bReadyToAttack, bool bTargetTooStrong, bool bLandWar, bool bEnemyTerritory, int iJoiners, int iPathTurns, bool bTurtle, bool bHuntBarbs, bool bHuntOnlyBarbs, int iBarbarianGarrison, int iWarStackNeeded, int iMinStackSize)
+{
+	CvSelectionGroup const* pGroup = kUnit.getGroup();
+	CvCity const* pCurrentCity = kUnit.getPlot().getPlotCity();
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	int const iTotalMilitaryUnits = kOwner.getNumMilitaryUnits();
+	int const iGroupMilitaryPercent = 100 * pGroup->getNumUnits() / std::max(1, iTotalMilitaryUnits);
+	int iOwnedCitiesSameArea = 0;
+	int iOwnedCitiesWithin6 = 0;
+	int iNearestOwnedCityDistanceSameArea = MAX_INT;
+	int iNearestCoreCityDistanceSameArea = MAX_INT;
+	bool const bRemoteCapturedTrap = SAS_isRemoteCapturedAttackCityTrap(*pCurrentCity, kUnit.getOwner(), pGroup->getNumUnits(), iGroupMilitaryPercent, &iOwnedCitiesSameArea, &iOwnedCitiesWithin6, &iNearestOwnedCityDistanceSameArea, &iNearestCoreCityDistanceSameArea);
+	int iWoundedUnits = 0;
+	int iCanAttackUnits = 0;
+	int iCityCaptureUnits = 0;
+	int iQualifyingAttackUnits = 0;
+	int iQualifyingCityCaptureUnits = 0;
+	int iNoCombatLimitUnits = 0;
+	FOR_EACH_UNIT_IN(pLoopUnit, *pGroup)
+	{
+		if (pLoopUnit->getDamage() > 0)
+			iWoundedUnits++;
+		if (pLoopUnit->canAttack())
+		{
+			iCanAttackUnits++;
+			if (!pLoopUnit->isNoCityCapture()) iCityCaptureUnits++;
+			if (!pLoopUnit->getUnitInfo().isMostlyDefensive())
+			{
+				iQualifyingAttackUnits++;
+				if (!pLoopUnit->isNoCityCapture()) iQualifyingCityCaptureUnits++;
+				if (pLoopUnit->combatLimit() >= 100) iNoCombatLimitUnits++;
+			}
+		}
+	}
+	// <!-- custom: ATTACK_CITY_PARKING diagnostics need this as a whole-unit threshold. Directly assigning AI_neededCityAttackersVsBarbarians() caused compile error C2440 because it returns scaled; its ceiling is also the minimum whole number of units that can satisfy the readiness comparison. (GPT-5.6-Sol) -->
+	int const iBarbarianAttackersNeeded = (bHuntOnlyBarbs ? kOwner.AI_neededCityAttackersVsBarbarians().ceil() : -1);
+	char const* szReadinessReason = "ready";
+	if (!bReadyToAttack)
+	{
+		if (bTurtle) szReadinessReason = "turtle";
+		else if (bHuntOnlyBarbs && pGroup->getNumUnits() < iBarbarianAttackersNeeded) szReadinessReason = "barbarian_below_min";
+		else if (bHuntOnlyBarbs && pGroup->getNumUnits() > SAS_getBarbarianCityExpeditionMaxUnits(iBarbarianGarrison, iBarbarianAttackersNeeded)) szReadinessReason = "barbarian_above_max";
+		else if (!bHuntOnlyBarbs && pGroup->getNumUnits() < iWarStackNeeded) szReadinessReason = "war_below_needed";
+		else if (!bHuntOnlyBarbs && pGroup->getNumUnits() < iMinStackSize) szReadinessReason = "below_sas_min";
+		else szReadinessReason = "composition";
+	}
+	// <!-- custom: Large stacks logged ready=0 despite many apparent city-capturing units. Record the mutually exclusive readiness reason and the exact strategy, size, and composition inputs so barbarian-size rejection can be distinguished from turtle strategy, insufficient war-stack size, and the mostly-defensive/combat-limit filters before changing grouping behavior. This work remains inside the UNIT logging gate. (GPT-5.6-Sol) -->
+	logBBAI("    ATTACK_CITY_PARKING turn=%d player=%d %S reason=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d wounded=%d canAttack=%d cityCapture=%d city=%S city=(%d,%d) cityArea=%d captured=%d foreignCaptured=%d remoteCapturedTrap=%d connectedCapital=%d acquiredAge=%d previousOwner=%d originalOwner=%d ownedCitiesSameArea=%d ownedCitiesWithin6=%d nearestOwnedSameArea=%d nearestCoreSameArea=%d target=%S target=(%d,%d) targetArea=%d ready=%d readinessReason=%s turtle=%d alert1=%d huntBarbs=%d huntOnlyBarbs=%d sneakAttackReady=%d anyWarPlan=%d warStackNeeded=%d minStack=%d barbarianGarrison=%d barbarianAttackersNeeded=%d qualifyingAttack=%d qualifyingCityCapture=%d noCombatLimit=%d targetTooStrong=%d landWar=%d enemyTerritory=%d wars=%d joiners=%d pathTurns=%d missionAI=%d areaAI=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), szReason, kUnit.getID(), pGroup->getID(), pGroup->getNumUnits(), iTotalMilitaryUnits, iGroupMilitaryPercent, iWoundedUnits, iCanAttackUnits, iCityCaptureUnits,
+		pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pCurrentCity->getArea().getID(), pCurrentCity->getPreviousOwner() != NO_PLAYER, pCurrentCity->getPreviousOwner() != NO_PLAYER && pCurrentCity->getOriginalOwner() != kUnit.getOwner(), bRemoteCapturedTrap, pCurrentCity->isConnectedToCapital(kUnit.getOwner()), GC.getGame().getGameTurn() - pCurrentCity->getGameTurnAcquired(), pCurrentCity->getPreviousOwner(), pCurrentCity->getOriginalOwner(), iOwnedCitiesSameArea, iOwnedCitiesWithin6, iNearestOwnedCityDistanceSameArea, iNearestCoreCityDistanceSameArea,
+		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), (pTargetCity == NULL ? -1 : pTargetCity->getArea().getID()),
+		bReadyToAttack, szReadinessReason, bTurtle, kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1), bHuntBarbs, bHuntOnlyBarbs, GET_TEAM(kUnit.getTeam()).AI_isSneakAttackReady(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan(), iWarStackNeeded, iMinStackSize, iBarbarianGarrison, iBarbarianAttackersNeeded, iQualifyingAttackUnits, iQualifyingCityCaptureUnits, iNoCombatLimitUnits,
+		bTargetTooStrong, bLandWar, bEnemyTerritory, GET_TEAM(kUnit.getTeam()).getNumWars(), iJoiners, iPathTurns, kUnit.AI_getGroup()->AI_getMissionAIType(), kUnit.getArea().getAreaAIType(kUnit.getTeam()));
+	if (bRemoteCapturedTrap)
+	{
+		// <!-- custom: Diagnostic-only follow-up for KI#155: upgrade-wait remote traps are fixed, but logs still showed remote captured stacks parking for joiners or with no target. Add city defense pressure, area target, and nearest revealed enemy-city distances so the next log review can distinguish useful staging from a stranded army before changing behavior. (GPT-5.5 + ChatGPT-5.5) -->
+		CvCityAI const* pCurrentCityAI = GET_PLAYER(kUnit.getOwner()).AI_getCity(pCurrentCity->getID());
+		int const iCityThreat = (pCurrentCityAI == NULL ? -1 : pCurrentCityAI->AI_cityThreat());
+		int const iNeededDefenders = (pCurrentCityAI == NULL ? -1 : pCurrentCityAI->AI_neededDefenders(true));
+		int const iPresentDefenders = pCurrentCity->getPlot().getNumDefenders(kUnit.getOwner());
+		CvCity const* pAreaTargetCity = pCurrentCity->getArea().AI_getTargetCity(kUnit.getOwner());
+		CvCity const* pNearestEnemyCity = NULL;
+		CvCity const* pNearestEnemyCitySameArea = NULL;
+		int iNearestEnemyDistanceSameArea = -1;
+		int iNearestEnemyDistanceAnyArea = -1;
+		for (PlayerIter<ALIVE,ENEMY_OF> itEnemy(kUnit.getTeam()); itEnemy.hasNext(); ++itEnemy)
+		{
+			FOR_EACH_CITY(pEnemyCity, *itEnemy)
+			{
+				if (!pEnemyCity->isRevealed(kUnit.getTeam()))
+					continue;
+				int const iEnemyDistance = ::plotDistance(pCurrentCity->plot(), pEnemyCity->plot());
+				if (iNearestEnemyDistanceAnyArea < 0 || iEnemyDistance < iNearestEnemyDistanceAnyArea)
+				{
+					iNearestEnemyDistanceAnyArea = iEnemyDistance;
+					pNearestEnemyCity = pEnemyCity;
+				}
+				if (pEnemyCity->isArea(pCurrentCity->getArea()) && (iNearestEnemyDistanceSameArea < 0 || iEnemyDistance < iNearestEnemyDistanceSameArea))
+				{
+					iNearestEnemyDistanceSameArea = iEnemyDistance;
+					pNearestEnemyCitySameArea = pEnemyCity;
+				}
+			}
+		}
+		logBBAI("    ATTACK_CITY_REMOTE_PARKING_DETAIL turn=%d player=%d %S reason=%s noTarget=%d cityThreat=%d defenders=%d neededDefenders=%d cityPop=%d areaTarget=%S areaTarget=(%d,%d) nearestEnemyAny=%S nearestEnemyAny=(%d,%d) nearestEnemySameArea=%S nearestEnemySameArea=(%d,%d) nearestEnemyDistAny=%d nearestEnemyDistSameArea=%d nearestOwnedSameArea=%d nearestCoreSameArea=%d groupUnits=%d groupMilitaryPercent=%d canAttack=%d cityCapture=%d wounded=%d joiners=%d pathTurns=%d",
+			GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), szReason, pTargetCity == NULL, iCityThreat, iPresentDefenders, iNeededDefenders, pCurrentCity->getPopulation(),
+			(pAreaTargetCity == NULL ? L"-" : pAreaTargetCity->getName().GetCString()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getY()),
+			(pNearestEnemyCity == NULL ? L"-" : pNearestEnemyCity->getName().GetCString()), (pNearestEnemyCity == NULL ? -1 : pNearestEnemyCity->getX()), (pNearestEnemyCity == NULL ? -1 : pNearestEnemyCity->getY()),
+			(pNearestEnemyCitySameArea == NULL ? L"-" : pNearestEnemyCitySameArea->getName().GetCString()), (pNearestEnemyCitySameArea == NULL ? -1 : pNearestEnemyCitySameArea->getX()), (pNearestEnemyCitySameArea == NULL ? -1 : pNearestEnemyCitySameArea->getY()),
+			iNearestEnemyDistanceAnyArea, iNearestEnemyDistanceSameArea, iNearestOwnedCityDistanceSameArea, iNearestCoreCityDistanceSameArea, pGroup->getNumUnits(), iGroupMilitaryPercent, iCanAttackUnits, iCityCaptureUnits, iWoundedUnits, iJoiners, iPathTurns);
+	}
+	SAS_logAttackDefenseReinforcementCandidate(kUnit, kOwner, GET_TEAM(kUnit.getTeam()));
+}
+
 // Instead of having CvUnit::init call CvUnitAI::AI_init. finalizeInit split off.
-void CvUnitAI::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI,
-	PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection)
+void CvUnitAI::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection)
 {
 	CvUnit::init(iID, eUnit, eOwner, iX, iY, eFacingDirection);
 	m_eUnitAIType = eUnitAI;
@@ -67,9 +1525,13 @@ bool CvUnitAI::AI_update()
 	// <advc.128>
 	m_iSearchRangeRandPercent = syncRand().get(101, "SearchRangeRand",
 			getX() * 1000 + getY(), getID()); // </advc.128>
+
+	// <!-- custom: performance optimizations -->
+	CvPlot const& kPlot = getPlot();
+
 	if (getDomainType() == DOMAIN_LAND)
 	{
-		if (getPlot().isWater() && !canMoveAllTerrain())
+		if (kPlot.isWater() && !canMoveAllTerrain())
 		{
 			getGroup()->pushMission(MISSION_SKIP);
 			return false;
@@ -182,7 +1644,7 @@ bool CvUnitAI::AI_update()
 	}
 	// <advc.139>
 	UnitAITypes const eUnitAI = AI_getUnitAIType();
-	if (getPlot().isCity() && getPlot().getTeam() == getTeam() && !isBarbarian())
+	if (kPlot.isCity() && kPlot.getTeam() == getTeam() && !isBarbarian())
 	{
 		bool bEvacAI = false;
 		switch(eUnitAI)
@@ -207,14 +1669,90 @@ bool CvUnitAI::AI_update()
 				return false;
 		}
 	} // </advc.139>
+	// <!-- custom: Targeted emergency city reinforcements of several UnitAI types could immediately rejoin offensive groups and receive another assignment before reaching their city.
+	// Continue a still-useful targeted guard-city mission centrally before UnitAI-specific movement, without routing ordinary stationary garrisons through the emergency response. Evacuation above and the usual danger, shortage, incoming-unit, path, and feasibility checks still release obsolete or hopeless assignments. (GPT-5.6-Sol) -->
+	if (getDomainType() == DOMAIN_LAND && !isBarbarian() && AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY && AI_getGroup()->AI_getMissionAIPlot() != NULL && AI_guardCity(false, true, 3, MOVE_AVOID_ENEMY_WEIGHT_2, 0, /*bDangerOnly*/true, /*bFillShortfall*/true))
+		return false;
+
+	// <!-- custom: now that this seems mostly fixed, but check if accurate, disable this for later turns where barbarians should no longer be a threat, and total units of players higher making it even more costly for lesser purpose; i hope that cities are defended well enough by then to hopefully allow/permit this computation savig; also as a side effect if theoretically this would make AIs a bit reluctant to attack or somehow mess their offense tempo, hopefully this also helps that? Although we could lose the benefit of it better guarding cities possibly maybe, trying to disable it past a certain amount of turns for expected performance gains and perhaps indirectly other gains as well if no losses, chatgpt 5 said it's also fine, check if accurate to be sure -->
+	CvGame const& kGame = GC.getGame();
+	const int iMaxTurnDefendWeakerCitiesHarderNormal = 120;
+	const int iMaxTurnDefendWeakerCitiesHarderAdjusted = (iMaxTurnDefendWeakerCitiesHarderNormal * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent()) / 100;
+	if (kGame.getElapsedGameTurns() <= iMaxTurnDefendWeakerCitiesHarderAdjusted)
+	{
+		// <!-- custom: currently we have an issue as i assume is in base advciv +/- civ4 as well and originallythat barbarians capture cities too much early, however AI has plenty/enough units, but 4 are in capital, while 1 only is in city B, so if AI is not lucky with barbarians avoiding city B, its city would be captured, and capital is needlessly overly defended which is inefficient as well. Production seems fine, but movement of units should be fixed ideally. Tentative fix provided by chatgpt 5, based on the request i made to gemini 2.5 pro as well to weigh which would work better xdor refine based on each other's output, check if accurate, i refined i helped format the code comment too; see known issue as of now 49 for details -->
+		// 2) Add a tiny “push" at the very top of AI_cityDefenseMove
+		// --- push defenders out of overstocked cities (minimal & effective) ---
+		// <!-- custom: but update, tested previous change ingame, the issue still seemingly mostly persists, and in many cities i have noticed enough units are stationed but they are not necessarily defender unitai types or such, so asked chatgpt 5 about it which (who?) adjusted it as such thanks, check if accurate -->
+		// - Counts all defend-capable units, so surplus in capital is recognized even if they’re COUNTER/RESERVE/ATTACK.
+		// - The iExtraDefenders trick (+1 during early barbs) nudges the search to treat secondary cities as “wanting one more" without changing AI_minDefenders() globally.
+		// - Local search (iMaxPath=4) keeps it from yanking units across the empire. If it still clusters, try 6.
+		// --- Early, light-weight city-to-city garrison rebalance ----------
+		const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+		if (getDomainType() == DOMAIN_LAND && !isBarbarian() && !kOwner.isMinorCiv())
+		{
+			const UnitAITypes eAI = AI_getUnitAIType();
+			// <!-- custom: note: UNITAI_ATTACK_LEMMING not added as advised by chatgpt 5, we also don't use them in our mod anyway so maybe fine as such, below is reasoning it gave if helps, check if accurate and thanks chatgpt 5 for all help -->
+			// Include UNITAI_ATTACK_CITY_LEMMING in the exporter?
+			// I’d exclude it. Lemming units are for stack assaults and are deliberately “commit-to-attack" flavored; turning them into garrisons can stall offensives and create weird back-and-forth. If you ever want to relax that, do it behind a strict gate (early barb focus, no current war plan, path ≤ 3), but default should be not to use them as donors.
+			// <!-- custom: update: UNITAI_ATTACK_CITY_LEMMING ignored as it seems unreliable and AIs don't produce trebuchets when trying to make trebuchets ATTACK_CITY_LEMMING, so ignored here for simplicity and reliability, see also known issue as of now 53.3 for related info or details) (note: even if they didn't have, still, trebuchets have a very specific role (attacking cities) and are bad at anything else, yet here we only want a general all-purpose unit here to defend or attack against barbarians or early attackers with quite versatile units, which the trebuchet or other such units would likely not fit, so do not include them here. -->
+			const bool bMilAI =
+				(eAI == UNITAI_ATTACK ||
+				eAI == UNITAI_ATTACK_CITY ||
+				eAI == UNITAI_COLLATERAL ||
+				eAI == UNITAI_PILLAGE ||
+				eAI == UNITAI_RESERVE ||
+				eAI == UNITAI_COUNTER ||
+				eAI == UNITAI_CITY_DEFENSE ||
+				eAI == UNITAI_CITY_COUNTER ||
+				eAI == UNITAI_CITY_SPECIAL);
+
+			if (bMilAI)
+			{
+				CvCityAI const* pHere = kPlot.AI_getPlotCity();
+				if (pHere != NULL && pHere->getOwner() == getOwner())
+				{
+					// Count any unit that can defend, not just GUARD_CITY mission
+					const int iHave   = pHere->getPlot().plotCount(PUF_canDefendGroupHead, -1, -1, getOwner());
+					const int iMinHere = pHere->AI_minDefenders();
+
+					// <!-- custom: this seemingly works very well, all cities at least most i looked atproperly now have 2 defenders not 1 defender per new city anymore or so it seems in cities that had the issue, but we can probably enhance this, maybe make it a general rule as well, also we can actually count on capital to replenish its units faster, so make it give more units rather at trying to do so; update: not much change after increasing iExtraWant from 1 to 2, and to be honest i don't know too much or exactly what and hwo this does what it does xd, but results are not worse, perhaps slightly better with the window removed or capital check (as i said i want capitals in particular to pump and give units as they can replenish faster, hopefully this doesn't make capital cities too weak if ever applied but at least smaller cities are better guarded and less barbarian invasions it seems, but check if accurate as i don't know too much about these-->
+					// Early barbarian buffer: ask every non-capital for +1 (for shuffling only)
+					// int iBarbWindowTurns = 60 * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100; // ~60 @ Normal
+					// bool bEarlyBarbs = (!kGame.isOption(GAMEOPTION_NO_BARBARIANS) &&
+					// 					kGame.getGameTurn() < iBarbWindowTurns &&
+					// 					!pHere->isCapital());
+					// int iExtraWant = bEarlyBarbs ? 1 : 0;
+					const int iExtraWant = 2;
+
+					// Export one defender only if this city is above its own minimum
+					if (iHave > iMinHere)
+					{
+						if (AI_guardCity(/*bLeave*/false, /*bSearch*/true,
+										// <!-- custom: this seemed to do fine, but increasing it in case it helps, so even if distance is long, go there anyway -->
+										///*iMaxPath*/4,
+										/*iMaxPath*/6,
+										MOVE_SAFE_TERRITORY | MOVE_AVOID_ENEMY_WEIGHT_3,
+										/*iExtraDefenders*/ iExtraWant))
+						{
+							return false; // moved / split to help a short city
+						}
+					}
+				}
+			}
+		}
+		// ---------------------------------------------------------------------------
+	}
+
 	/*	<advc> A frequent breakpoint for debugging, and usually on the stack
 		when breaking elsewhere. */
 #ifdef _DEBUG
-	CvCity* pCityDbg = getPlot().getPlotCity();
+	CvCity* pCityDbg = kPlot.getPlotCity();
 	int iGroupSzDbg = getGroup()->getNumUnits();
 	char const* szTypeDbg = m_pUnitInfo->getType();
 #endif
 	// </advc>
+
 	switch (eUnitAI)
 	{
 	case UNITAI_UNKNOWN:
@@ -265,14 +1803,14 @@ bool CvUnitAI::AI_update()
 	case UNITAI_MISSIONARY:
 		AI_missionaryMove();
 		break;
-	case UNITAI_GENERAL:
+	case UNITAI_GREAT_GENERAL:
 		AI_generalMove();
 		break;
-	case UNITAI_PROPHET:
-	case UNITAI_ARTIST:
-	case UNITAI_SCIENTIST:
-	case UNITAI_MERCHANT:
-	case UNITAI_ENGINEER:
+	case UNITAI_GREAT_PROPHET:
+	case UNITAI_GREAT_ARTIST:
+	case UNITAI_GREAT_SCIENTIST:
+	case UNITAI_GREAT_MERCHANT:
+	case UNITAI_GREAT_ENGINEER:
 	// K-Mod
 	case UNITAI_GREAT_SPY:
 		//AI_greatSpyMove();
@@ -409,7 +1947,8 @@ bool CvUnitAI::AI_follow(bool bFirst)
 }
 
 // K-Mod. This function has been completely rewritten to improve efficiency and intelligence.
-void CvUnitAI::AI_upgrade()
+// <!-- custom: Optional max price lets AI upgrade-budget code keep normal emergency upgrades uncapped while preventing non-emergency upgrades from overshooting the remaining budget. Keep candidate iteration/random calls otherwise unchanged so the old choice logic is preserved for affordable upgrades. See KI#160. (ChatGPT-5.5 + GPT-5.5) -->
+bool CvUnitAI::AI_upgrade(int iMaxUpgradePrice)
 {
 	PROFILE_FUNC();
 
@@ -417,7 +1956,7 @@ void CvUnitAI::AI_upgrade()
 	FAssert(AI_getUnitAIType() != NO_UNITAI);
 
 	if (!isReadyForUpgrade())
-		return;
+		return false;
 
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	UnitAITypes const eUnitAI = AI_getUnitAIType();
@@ -448,7 +1987,8 @@ void CvUnitAI::AI_upgrade()
 				bFirst ? "AI Upgrade" : NULL);
 		bFirst = false; // </advc.007>
 		// (believe it or not, AI_unitValue is faster than canUpgrade.)
-		if (iValue > iBestValue && canUpgrade(eLoopUnit))
+		if (iValue > iBestValue && canUpgrade(eLoopUnit) &&
+			upgradePrice(eLoopUnit) <= iMaxUpgradePrice)
 		{
 			iBestValue = iValue;
 			eBestUnit = eLoopUnit;
@@ -476,7 +2016,9 @@ void CvUnitAI::AI_upgrade()
 						pGroup->getHeadUnit());
 			}
 		}
+		return true;
 	}
+	return false;
 }
 
 
@@ -593,12 +2135,12 @@ int CvUnitAI::AI_groupFirstVal() /* advc: */ const
 	case UNITAI_MISSIONARY:
 		return 10;
 
-	case UNITAI_PROPHET:
-	case UNITAI_ARTIST:
-	case UNITAI_SCIENTIST:
-	case UNITAI_GENERAL:
-	case UNITAI_MERCHANT:
-	case UNITAI_ENGINEER:
+	case UNITAI_GREAT_PROPHET:
+	case UNITAI_GREAT_ARTIST:
+	case UNITAI_GREAT_SCIENTIST:
+	case UNITAI_GREAT_GENERAL:
+	case UNITAI_GREAT_MERCHANT:
+	case UNITAI_GREAT_ENGINEER:
 	case UNITAI_GREAT_SPY: // K-Mod
 		return 11;
 
@@ -757,16 +2299,623 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
 	return range(iOdds, 1, 99);
 }
 
+// Define the Candidate<!-- custom: Plot--> struct outside the function so it can be used as a template argument.
+// A list of potential build candidate <!-- custom: plots -->.
+// A struct to store a candidate <!-- custom: plot --> with its value and the chosen BuildType.
+struct CandidatePlot
+{
+	int iValue;
+	CvPlot* pPlot;
+	CityPlotTypes ePlot;
+	BuildTypes eBuild;
+	// <!-- custom: Preserve a sufficiently valuable improvement selected before explicit feature removal so the same worker can collect feature production early and then finish the plot without another trip. (GPT-5.5) -->
+	BuildTypes eFollowupBuild;
+
+	bool operator>(const CandidatePlot& other) const
+	{
+		return iValue > other.iValue;
+	}
+};
+
+struct SASWorkerNoBonusBuildCandidate
+{
+	BuildTypes eBuild;
+	ImprovementTypes eImprovement;
+	int iBaseValue;
+};
+
+struct SASWorkerNoBonusBranchCache
+{
+	char const* szDefineNameLiteral;
+	CvString szDefineName;
+	std::vector<SASWorkerNoBonusBuildCandidate> aCandidates;
+};
+
+// <!-- custom: Start externalizing no-bonus worker build branch base values without rewriting the dynamic worker AI rules. The XML text define lists candidate builds as BUILD_TAG:value or NONE for an intentionally empty branch; this parser resolves each build once, stores its resulting improvement when there is one, drops non-positive entries, treats NONE like the existing SAS music/string sentinel, and caches the result. Existing terrain branches keep their food-pressure, workshop-timing, irrigation, and canBuild checks while making the old hardcoded base preferences tunable; converted picker branches can also let newly listed builds such as Watermills, Forest Preserves, or later route/feature builds compete. (GPT-5.5 + ChatGPT-5.5) -->
+static CvString SAS_trimWorkerNoBonusBranchToken(CvString szText)
+{
+	while (!szText.empty() && (szText[0] == ' ' || szText[0] == '\t' || szText[0] == '\r' || szText[0] == '\n'))
+		szText = szText.substr(1);
+	while (!szText.empty() && (szText[szText.length() - 1] == ' ' || szText[szText.length() - 1] == '\t' || szText[szText.length() - 1] == '\r' || szText[szText.length() - 1] == '\n'))
+		szText = szText.substr(0, szText.length() - 1);
+	return szText;
+}
+
+static bool SAS_isWorkerNoBonusBranchNoneToken(CvString const& szText)
+{
+	return (szText.empty() || szText.CompareNoCase("NONE") == 0);
+}
+
+static void SAS_initWorkerNoBonusBranchCandidates(std::vector<SASWorkerNoBonusBuildCandidate>& aCandidates, char const* szDefineName)
+{
+	aCandidates.clear();
+	char const* szDefineText = GC.getDefineSTRING(szDefineName);
+	FAssertMsg(szDefineText != NULL, szDefineName);
+	if (szDefineText == NULL)
+		return;
+	CvString szRemaining = SAS_trimWorkerNoBonusBranchToken(szDefineText);
+	if (SAS_isWorkerNoBonusBranchNoneToken(szRemaining))
+		return;
+	while (!szRemaining.empty())
+	{
+		int const iComma = szRemaining.find(',');
+		CvString const szRawEntry = (iComma < 0 ? szRemaining : szRemaining.substr(0, iComma));
+		szRemaining = (iComma < 0 ? CvString("") : szRemaining.substr(iComma + 1));
+		CvString const szEntry = SAS_trimWorkerNoBonusBranchToken(szRawEntry);
+		if (SAS_isWorkerNoBonusBranchNoneToken(szEntry))
+			continue;
+		int const iColon = szEntry.find(':');
+		FAssertMsg(iColon > 0, szEntry.c_str());
+		if (iColon <= 0)
+			continue;
+		CvString const szBuild = SAS_trimWorkerNoBonusBranchToken(szEntry.substr(0, iColon));
+		CvString const szValue = SAS_trimWorkerNoBonusBranchToken(szEntry.substr(iColon + 1));
+		int const iBaseValue = atoi(szValue.c_str());
+		if (iBaseValue <= 0)
+			continue;
+		BuildTypes const eBuild = (BuildTypes)GC.getInfoTypeForString(szBuild.c_str());
+		FAssertMsg(eBuild != NO_BUILD, szBuild.c_str());
+		if (eBuild == NO_BUILD)
+			continue;
+		SASWorkerNoBonusBuildCandidate kCandidate;
+		kCandidate.eBuild = eBuild;
+		kCandidate.eImprovement = GC.getInfo(eBuild).getImprovement();
+		kCandidate.iBaseValue = iBaseValue;
+		aCandidates.push_back(kCandidate);
+	}
+}
+
+static std::vector<SASWorkerNoBonusBuildCandidate> const& SAS_getWorkerNoBonusBranchCandidates(char const* szDefineName)
+{
+	static std::vector<SASWorkerNoBonusBranchCache> aCaches;
+	// <!-- custom: Current callers pass stable string literals; pointer matching avoids repeated CvString comparisons in the worker plot hot path. Keep the CvString copy as the authoritative key so equivalent future callers can still resolve correctly when their pointer differs. (GPT-5.5 + ChatGPT-5.5) -->
+	for (size_t i = 0; i < aCaches.size(); ++i)
+	{
+		if (aCaches[i].szDefineNameLiteral == szDefineName)
+			return aCaches[i].aCandidates;
+	}
+	for (size_t i = 0; i < aCaches.size(); ++i)
+	{
+		if (aCaches[i].szDefineName == szDefineName)
+			return aCaches[i].aCandidates;
+	}
+	SASWorkerNoBonusBranchCache kCache;
+	kCache.szDefineNameLiteral = szDefineName;
+	kCache.szDefineName = szDefineName;
+	SAS_initWorkerNoBonusBranchCandidates(kCache.aCandidates, szDefineName);
+	aCaches.push_back(kCache);
+	return aCaches[aCaches.size() - 1].aCandidates;
+}
+
+struct SASWorkerNoBonusBranch
+{
+	char const* szDefineName;
+	bool bHasCandidates;
+};
+
+static SASWorkerNoBonusBranch SAS_makeWorkerNoBonusBranch(char const* szDefineName)
+{
+	SASWorkerNoBonusBranch kBranch;
+	kBranch.szDefineName = szDefineName;
+	kBranch.bHasCandidates = !SAS_getWorkerNoBonusBranchCandidates(szDefineName).empty();
+	return kBranch;
+}
+
+struct SASWorkerNoBonusBranchSet
+{
+	SASWorkerNoBonusBranch kFlat;
+	SASWorkerNoBonusBranch kFlatLowFood;
+	SASWorkerNoBonusBranch kHill;
+	SASWorkerNoBonusBranch kHillLowFood;
+};
+
+static void SAS_initWorkerNoBonusBranchSet(SASWorkerNoBonusBranchSet& kSet, char const* szFlat, char const* szFlatLowFood, char const* szHill, char const* szHillLowFood)
+{
+	kSet.kFlat = SAS_makeWorkerNoBonusBranch(szFlat);
+	kSet.kFlatLowFood = SAS_makeWorkerNoBonusBranch(szFlatLowFood);
+	kSet.kHill = SAS_makeWorkerNoBonusBranch(szHill);
+	kSet.kHillLowFood = SAS_makeWorkerNoBonusBranch(szHillLowFood);
+}
+
+static SASWorkerNoBonusBranch const* SAS_getWorkerNoBonusBranch(SASWorkerNoBonusBranchSet const& kSet, bool bHill, bool bLowFood)
+{
+	SASWorkerNoBonusBranch const& kBranch = (bHill ? (bLowFood ? kSet.kHillLowFood : kSet.kHill) : (bLowFood ? kSet.kFlatLowFood : kSet.kFlat));
+	return (kBranch.bHasCandidates ? &kBranch : NULL);
+}
+
+struct SASWorkerNoBonusKnownBranches
+{
+	SASWorkerNoBonusBranchSet kFeatureFloodPlains;
+	SASWorkerNoBonusBranchSet kFeatureOasis;
+	SASWorkerNoBonusBranchSet kTerrainGrass;
+	SASWorkerNoBonusBranchSet kTerrainPlains;
+	SASWorkerNoBonusBranchSet kTerrainTundra;
+	SASWorkerNoBonusBranchSet kTerrainSnow;
+	SASWorkerNoBonusBranchSet kTerrainDesert;
+
+	SASWorkerNoBonusKnownBranches()
+	{
+		SAS_initWorkerNoBonusBranchSet(kFeatureFloodPlains, "SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_FLAT", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_HILL", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_FLOOD_PLAINS_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kFeatureOasis, "SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_FLAT", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_HILL", "SAS_WORKER_AI_BASE_BRANCH_FEATURE_OASIS_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainGrass, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_GRASS_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainPlains, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_PLAINS_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainTundra, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_TUNDRA_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainSnow, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_SNOW_HILL_LOW_FOOD");
+		SAS_initWorkerNoBonusBranchSet(kTerrainDesert, "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_FLAT", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_FLAT_LOW_FOOD", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_HILL", "SAS_WORKER_AI_BASE_BRANCH_TERRAIN_DESERT_HILL_LOW_FOOD");
+	}
+};
+
+// <!-- custom: Cache the known manual no-bonus worker branch sets once as small handles. The define names now include FEATURE_/TERRAIN_ plus the XML info suffix and FLAT/HILL context, so rare feature-on-hill cases such as a modded Oasis Hill can use the same selector without special C++ shape changes. Empty branches are cached as unavailable and fall through to the next terrain/feature path. (ChatGPT-5.5) -->
+static SASWorkerNoBonusKnownBranches const& SAS_getWorkerNoBonusKnownBranches()
+{
+	static SASWorkerNoBonusKnownBranches kBranches;
+	return kBranches;
+}
+
+static int SAS_getImprovementUpgradeChainLevel(ImprovementTypes eImprovement, ImprovementTypes eChainStart)
+{
+	if (eImprovement == NO_IMPROVEMENT || eChainStart == NO_IMPROVEMENT)
+		return 0;
+	ImprovementTypes eLoopImprovement = eChainStart;
+	for (int iLevel = 1; eLoopImprovement != NO_IMPROVEMENT && iLevel <= GC.getNumImprovementInfos(); ++iLevel)
+	{
+		if (eImprovement == eLoopImprovement)
+			return iLevel;
+		eLoopImprovement = GC.getInfo(eLoopImprovement).getImprovementUpgrade();
+	}
+	return 0;
+}
+
+struct SASWorkerImprovementListCache
+{
+	char const* szDefineNameLiteral;
+	CvString szDefineName;
+	std::vector<ImprovementTypes> aImprovements;
+};
+
+// <!-- custom: Parse comma-separated IMPROVEMENT_* define lists once for worker protection/holy-improvement rules. NONE follows the same sentinel convention as music and branch defines; invalid names are skipped after asserting, so modmods can tune protected improvement sets from XML without changing the worker AI logic. (ChatGPT-5.5) -->
+static void SAS_initWorkerImprovementList(std::vector<ImprovementTypes>& aImprovements, char const* szDefineName)
+{
+	aImprovements.clear();
+	char const* szDefineText = GC.getDefineSTRING(szDefineName);
+	FAssertMsg(szDefineText != NULL, szDefineName);
+	if (szDefineText == NULL)
+		return;
+	CvString szRemaining = SAS_trimWorkerNoBonusBranchToken(szDefineText);
+	if (SAS_isWorkerNoBonusBranchNoneToken(szRemaining))
+		return;
+	while (!szRemaining.empty())
+	{
+		int const iComma = szRemaining.find(',');
+		CvString const szRawEntry = (iComma < 0 ? szRemaining : szRemaining.substr(0, iComma));
+		szRemaining = (iComma < 0 ? CvString("") : szRemaining.substr(iComma + 1));
+		CvString const szEntry = SAS_trimWorkerNoBonusBranchToken(szRawEntry);
+		if (SAS_isWorkerNoBonusBranchNoneToken(szEntry))
+			continue;
+		ImprovementTypes const eImprovement = (ImprovementTypes)GC.getInfoTypeForString(szEntry.c_str());
+		FAssertMsg(eImprovement != NO_IMPROVEMENT, szEntry.c_str());
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+		aImprovements.push_back(eImprovement);
+	}
+}
+
+static std::vector<ImprovementTypes> const& SAS_getWorkerImprovementList(char const* szDefineName)
+{
+	static std::vector<SASWorkerImprovementListCache> aCaches;
+	for (size_t i = 0; i < aCaches.size(); ++i)
+	{
+		if (aCaches[i].szDefineNameLiteral == szDefineName)
+			return aCaches[i].aImprovements;
+	}
+	for (size_t i = 0; i < aCaches.size(); ++i)
+	{
+		if (aCaches[i].szDefineName == szDefineName)
+			return aCaches[i].aImprovements;
+	}
+	SASWorkerImprovementListCache kCache;
+	kCache.szDefineNameLiteral = szDefineName;
+	kCache.szDefineName = szDefineName;
+	SAS_initWorkerImprovementList(kCache.aImprovements, szDefineName);
+	aCaches.push_back(kCache);
+	return aCaches[aCaches.size() - 1].aImprovements;
+}
+
+static bool SAS_isWorkerImprovementInDefineList(char const* szDefineName, ImprovementTypes eImprovement)
+{
+	if (eImprovement == NO_IMPROVEMENT)
+		return false;
+	std::vector<ImprovementTypes> const& aImprovements = SAS_getWorkerImprovementList(szDefineName);
+	for (size_t i = 0; i < aImprovements.size(); ++i)
+	{
+		if (aImprovements[i] == eImprovement)
+			return true;
+	}
+	return false;
+}
+
+// <!-- custom: Return the XML upgrade-chain level of an improvement for any configured worker growth-improvement chain start. Default XML lists IMPROVEMENT_COTTAGE, which preserves Cottage/Hamlet/Village/Town behavior; modmods can add or replace starts for shorter/longer chains or hammer/commerce growth chains without hardcoding them here. (ChatGPT-5.5) -->
+static int SAS_getWorkerGrowthImprovementLevel(ImprovementTypes eImprovement)
+{
+	if (eImprovement == NO_IMPROVEMENT)
+		return 0;
+	std::vector<ImprovementTypes> const& aChainStarts = SAS_getWorkerImprovementList("SAS_WORKER_AI_GROWTH_IMPROVEMENT_CHAIN_START_NAMES");
+	int iBestLevel = 0;
+	for (size_t i = 0; i < aChainStarts.size(); ++i)
+		iBestLevel = std::max(iBestLevel, SAS_getImprovementUpgradeChainLevel(eImprovement, aChainStarts[i]));
+	return iBestLevel;
+}
+
+static int SAS_getWorkerRecoveredFoodCostImprovementValue(CvPlot const& kPlot, ImprovementTypes eImprovement, PlayerTypes ePlayer)
+{
+	if (eImprovement == NO_IMPROVEMENT || !SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_FOOD_COST_IMPROVEMENT_NAMES", eImprovement))
+		return 0;
+	int const iBaseFoodYieldChange = GC.getInfo(eImprovement).getYieldChange(YIELD_FOOD);
+	if (iBaseFoodYieldChange >= 0)
+		return 0;
+	int const iCurrentFoodYieldChange = kPlot.calculateImprovementYieldChange(eImprovement, YIELD_FOOD, ePlayer);
+	// <!-- custom: Only reward configured food-cost improvements after current plot/player rules make them food-neutral or better. Partial recovery, e.g. -2 food to -1 food, still costs food and should not receive this bonus. (ChatGPT-5.5 + GPT-5.5) -->
+	if (iCurrentFoodYieldChange < 0)
+		return 0;
+	int const iRecoveredFood = iCurrentFoodYieldChange - iBaseFoodYieldChange;
+	if (iRecoveredFood <= 0)
+		return 0;
+	static const int iSAS_WORKER_AI_FOOD_COST_IMPROVEMENT_VALUE_PER_FOOD_GAIN = GC.getDefineINT("SAS_WORKER_AI_FOOD_COST_IMPROVEMENT_VALUE_PER_FOOD_GAIN");
+	return iSAS_WORKER_AI_FOOD_COST_IMPROVEMENT_VALUE_PER_FOOD_GAIN * iRecoveredFood;
+}
+
+static bool SAS_isWorkerNoBonusIrrigationCarrierCandidate(CvPlot const& kPlot, ImprovementTypes eImprovement, TeamTypes eTeam)
+{
+	return (eImprovement != NO_IMPROVEMENT && GET_TEAM(eTeam).isIrrigation() && kPlot.canHavePotentialIrrigation() && GC.getInfo(eImprovement).isCarriesIrrigation());
+}
+
+static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlot, char const* szDefineName, bool bLowFoodBranch, int iAdjustedFoodDifference, int iLowFoodValuePerFood, int iFoodSupportValue, int iIrrigationBlockingPenalty, std::vector<int> const& aBuildValueAdjustments, BuildTypes& eBestBuild, int& iValue)
+{
+	std::vector<SASWorkerNoBonusBuildCandidate> const& aCandidates = SAS_getWorkerNoBonusBranchCandidates(szDefineName);
+	if (aCandidates.empty())
+	{
+		return false;
+	}
+	int iBestCandidateFoodYieldChange = MIN_INT;
+	int iBuildableCandidateCount = 0;
+	for (size_t i = 0; i < aCandidates.size(); ++i)
+	{
+		SASWorkerNoBonusBuildCandidate const& kCandidate = aCandidates[i];
+		if (!kUnit.canBuild(kPlot, kCandidate.eBuild))
+			continue;
+		iBuildableCandidateCount++;
+		if (kCandidate.eImprovement == NO_IMPROVEMENT)
+			continue;
+		iBestCandidateFoodYieldChange = std::max(iBestCandidateFoodYieldChange, kPlot.calculateImprovementYieldChange(kCandidate.eImprovement, YIELD_FOOD, kUnit.getOwner()));
+	}
+	if (iBuildableCandidateCount <= 0)
+		return false;
+	int const iLowFoodDeficitValue = (bLowFoodBranch ? iLowFoodValuePerFood * std::max(0, -iAdjustedFoodDifference) : 0);
+	int const iFoodPressureValue = iLowFoodDeficitValue + iFoodSupportValue;
+	bool const bHasPositiveFoodCandidate = (iBestCandidateFoodYieldChange > 0);
+	BuildTypes eBestCandidateBuild = NO_BUILD;
+	int iBestCandidateValue = MIN_INT;
+	for (size_t i = 0; i < aCandidates.size(); ++i)
+	{
+		SASWorkerNoBonusBuildCandidate const& kCandidate = aCandidates[i];
+		if (!kUnit.canBuild(kPlot, kCandidate.eBuild))
+			continue;
+		int iCandidateValue = kCandidate.iBaseValue;
+		iCandidateValue += SAS_getWorkerRecoveredFoodCostImprovementValue(kPlot, kCandidate.eImprovement, kUnit.getOwner());
+		// <!-- custom: Improvement-independent food pressure: when this city/plot wants food, reward whichever buildable no-bonus candidate gives the best food outcome on this exact plot, rather than hardcoding Farm or Windmill as the answer. (ChatGPT-5.5 + GPT-5.5) -->
+		if (iFoodPressureValue > 0 && bHasPositiveFoodCandidate && kCandidate.eImprovement != NO_IMPROVEMENT && kPlot.calculateImprovementYieldChange(kCandidate.eImprovement, YIELD_FOOD, kUnit.getOwner()) == iBestCandidateFoodYieldChange)
+			iCandidateValue += iFoodPressureValue;
+		// <!-- custom: Improvement-independent irrigation pressure: if this plot is useful as an irrigation carrier, penalize buildable candidates that do not carry irrigation instead of hardcoding only Cottage/Workshop as blockers. (ChatGPT-5.5 + GPT-5.5) -->
+		if (iIrrigationBlockingPenalty > 0 && !SAS_isWorkerNoBonusIrrigationCarrierCandidate(kPlot, kCandidate.eImprovement, kUnit.getTeam()))
+			iCandidateValue -= iIrrigationBlockingPenalty;
+		if ((int)kCandidate.eBuild >= 0 && (int)kCandidate.eBuild < (int)aBuildValueAdjustments.size())
+			iCandidateValue += aBuildValueAdjustments[kCandidate.eBuild];
+		if (iCandidateValue > iBestCandidateValue)
+		{
+			iBestCandidateValue = iCandidateValue;
+			eBestCandidateBuild = kCandidate.eBuild;
+		}
+	}
+	if (eBestCandidateBuild == NO_BUILD)
+		return false;
+	eBestBuild = eBestCandidateBuild;
+	iValue += iBestCandidateValue;
+	return true;
+}
+
+static bool SAS_pickWorkerNoBonusBranchBuild(CvUnitAI const& kUnit, CvPlot& kPlot, SASWorkerNoBonusBranch const& kBranch, bool bLowFoodBranch, int iAdjustedFoodDifference, int iLowFoodValuePerFood, int iFoodSupportValue, int iIrrigationBlockingPenalty, std::vector<int> const& aBuildValueAdjustments, BuildTypes& eBestBuild, int& iValue)
+{
+	if (!kBranch.bHasCandidates)
+		return false;
+	return SAS_pickWorkerNoBonusBranchBuild(kUnit, kPlot, kBranch.szDefineName, bLowFoodBranch, iAdjustedFoodDifference, iLowFoodValuePerFood, iFoodSupportValue, iIrrigationBlockingPenalty, aBuildValueAdjustments, eBestBuild, iValue);
+}
+
+struct SASWorkerIrrigationSearchNode
+{
+	int iCost;
+	int iSteps;
+	int iOverwritePenalty;
+	PlotNumTypes ePlot;
+	SASWorkerIrrigationSearchNode(int iCost, int iSteps, int iOverwritePenalty, PlotNumTypes ePlot) : iCost(iCost), iSteps(iSteps), iOverwritePenalty(iOverwritePenalty), ePlot(ePlot) {}
+	bool operator<(SASWorkerIrrigationSearchNode const& kOther) const { return iCost > kOther.iCost; }
+};
+
+struct SASWorkerIrrigationSearchDiagnostics
+{
+	int iVisitedStates;
+	int iDeepestRoute;
+	int iRouteLimitStops;
+	int iMapEdgeOrIgnoredRejects;
+	int iUnownedRejects;
+	int iForeignOwnedRejects;
+	int iDifferentAreaRejects;
+	int iWaterRejects;
+	int iHillRejects;
+	int iCityCarrierTraversals;
+	int iNoPotentialIrrigationRejects;
+	int iBonusRejects;
+	int iAutomationSafeRejects;
+	int iCannotBuildFarmRejects;
+	SASWorkerIrrigationSearchDiagnostics() : iVisitedStates(0), iDeepestRoute(0), iRouteLimitStops(0), iMapEdgeOrIgnoredRejects(0), iUnownedRejects(0), iForeignOwnedRejects(0), iDifferentAreaRejects(0), iWaterRejects(0), iHillRejects(0), iCityCarrierTraversals(0), iNoPotentialIrrigationRejects(0), iBonusRejects(0), iAutomationSafeRejects(0), iCannotBuildFarmRejects(0) {}
+};
+
+// <!-- custom: A no-route result is identical for every Worker evaluating the same city target during a turn. Keep the detailed diagnostic once per target instead of repeating thousands of rows without losing turn-by-turn state changes. (GPT-5.6-Sol) -->
+static bool SAS_shouldLogWorkerIrrigationRouteFailure(CvCityAI const& kCity, CvPlot const& kTargetPlot)
+{
+	static int iLoggedTurn = -1;
+	static std::set<std::pair<PlotNumTypes, PlotNumTypes> > aeLoggedTargets;
+	int const iCurrentTurn = GC.getGame().getGameTurn();
+	if (iLoggedTurn != iCurrentTurn)
+	{
+		iLoggedTurn = iCurrentTurn;
+		aeLoggedTargets.clear();
+	}
+	return aeLoggedTargets.insert(std::make_pair(kCity.plot()->plotNum(), kTargetPlot.plotNum())).second;
+}
+
+// <!-- custom: The former four-plot target-side irrigation hunt could select one connector and then forget the intended route, while existing bonus Farms were excluded entirely. Search an actual owned farmable route from the dry BFC target to currently available irrigation and return the least-cost source-side Farm that can be built now. Repeating this after each completed Farm advances the same water connection toward the target; route cost prefers short chains and avoids replacing valuable improvements. (GPT-5.6-Sol) -->
+static bool SAS_findWorkerIrrigationChainStep(CvUnitAI const& kUnit, CvPlot& kTargetPlot, CvPlot const* pIgnorePlot, BuildTypes eBuildFarm, ImprovementTypes eImprovementFarm, ImprovementTypes eImprovementWorkshop, int iMaxPlots, int iGrowthOverwritePenalty, int iWorkshopOverwritePenalty, int iOtherOverwritePenalty, CvPlot*& pStepPlot, int& iRoutePlots, int& iRouteOverwritePenalty, SASWorkerIrrigationSearchDiagnostics* pDiagnostics)
+{
+	pStepPlot = NULL;
+	iRoutePlots = 0;
+	iRouteOverwritePenalty = 0;
+	if (iMaxPlots <= 0)
+		return false;
+	CvMap const& kMap = GC.getMap();
+	int const iStatesPerPlot = iMaxPlots + 1;
+	int const iSearchStateCount = kMap.numPlots() * iStatesPerPlot;
+	// <!-- custom: Cost and route length are independent constraints. A cheaper long route to one plot previously discarded a costlier short route that could be the only one able to reach irrigation within SAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS. Keep one best cost per (plot, steps) state; the small route limit bounds memory, and generation stamps still initialize only reached states during repeated Worker-city evaluation. See KI#214. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	static std::vector<int> aiBestCost;
+	static std::vector<unsigned int> aiCostGeneration;
+	static unsigned int iSearchGeneration = 0;
+	if ((int)aiBestCost.size() != iSearchStateCount)
+	{
+		aiBestCost.assign(iSearchStateCount, MAX_INT);
+		aiCostGeneration.assign(iSearchStateCount, 0);
+		iSearchGeneration = 0;
+	}
+	iSearchGeneration++;
+	if (iSearchGeneration == 0)
+	{
+		std::fill(aiCostGeneration.begin(), aiCostGeneration.end(), 0);
+		iSearchGeneration = 1;
+	}
+	std::priority_queue<SASWorkerIrrigationSearchNode> kOpen;
+	int const iTargetState = kTargetPlot.plotNum() * iStatesPerPlot;
+	aiBestCost[iTargetState] = 0;
+	aiCostGeneration[iTargetState] = iSearchGeneration;
+	kOpen.push(SASWorkerIrrigationSearchNode(0, 0, 0, kTargetPlot.plotNum()));
+	while (!kOpen.empty())
+	{
+		SASWorkerIrrigationSearchNode const kNode = kOpen.top();
+		kOpen.pop();
+		int const iNodeState = kNode.ePlot * iStatesPerPlot + kNode.iSteps;
+		if (aiCostGeneration[iNodeState] != iSearchGeneration || kNode.iCost != aiBestCost[iNodeState])
+			continue;
+		CvPlot* pNodePlot = kMap.plotByIndex(kNode.ePlot);
+		if (pNodePlot == NULL)
+			continue;
+		if (pDiagnostics != NULL)
+		{
+			pDiagnostics->iVisitedStates++;
+			pDiagnostics->iDeepestRoute = std::max(pDiagnostics->iDeepestRoute, kNode.iSteps);
+		}
+		if (kNode.iSteps > 0 && pNodePlot != pIgnorePlot && pNodePlot->getImprovementType() != eImprovementFarm && pNodePlot->isIrrigationAvailable(true) && kUnit.canBuild(*pNodePlot, eBuildFarm))
+		{
+			pStepPlot = pNodePlot;
+			iRoutePlots = kNode.iSteps;
+			iRouteOverwritePenalty = kNode.iOverwritePenalty;
+			return true;
+		}
+		if (kNode.iSteps >= iMaxPlots)
+		{
+			if (pDiagnostics != NULL)
+				pDiagnostics->iRouteLimitStops++;
+			continue;
+		}
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(pNodePlot->getX(), pNodePlot->getY(), (DirectionTypes)iI);
+			if (pAdjacentPlot == NULL || pAdjacentPlot == pIgnorePlot)
+			{
+				if (pDiagnostics != NULL)
+					pDiagnostics->iMapEdgeOrIgnoredRejects++;
+				continue;
+			}
+			if (pAdjacentPlot->getOwner() != kUnit.getOwner())
+			{
+				if (pDiagnostics != NULL)
+				{
+					if (pAdjacentPlot->getOwner() == NO_PLAYER)
+						pDiagnostics->iUnownedRejects++;
+					else pDiagnostics->iForeignOwnedRejects++;
+				}
+				continue;
+			}
+			if (pAdjacentPlot->isWater())
+			{
+				if (pDiagnostics != NULL)
+					pDiagnostics->iWaterRejects++;
+				continue;
+			}
+			if (!pAdjacentPlot->isArea(kUnit.getArea()))
+			{
+				if (pDiagnostics != NULL)
+					pDiagnostics->iDifferentAreaRejects++;
+				continue;
+			}
+			if (pAdjacentPlot->isHills())
+			{
+				if (pDiagnostics != NULL)
+					pDiagnostics->iHillRejects++;
+				continue;
+			}
+			if (!pAdjacentPlot->canHavePotentialIrrigation())
+			{
+				if (pDiagnostics != NULL)
+					pDiagnostics->iNoPotentialIrrigationRejects++;
+				continue;
+			}
+			ImprovementTypes const eCurrentImprovement = pAdjacentPlot->getImprovementType();
+			// <!-- custom: CvPlot::isPotentialIrrigation treats an owned flat city as an irrigation carrier. Traverse it like an existing Farm instead of requiring the impossible BUILD_FARM on the city plot; hill cities were already rejected above because the engine does not carry irrigation through them. This fixed routes that the first deterministic prototype incorrectly stopped at cities. (GPT-5.6-Sol) -->
+			bool const bExistingIrrigationCarrier = (eCurrentImprovement == eImprovementFarm || pAdjacentPlot->isCity());
+			if (pDiagnostics != NULL && pAdjacentPlot->isCity())
+				pDiagnostics->iCityCarrierTraversals++;
+			if (!bExistingIrrigationCarrier)
+			{
+				if (pAdjacentPlot->getNonObsoleteBonusType(kUnit.getTeam()) != NO_BONUS)
+				{
+					if (pDiagnostics != NULL)
+						pDiagnostics->iBonusRejects++;
+					continue;
+				}
+				if (GET_PLAYER(kUnit.getOwner()).isAutomationSafe(*pAdjacentPlot))
+				{
+					if (pDiagnostics != NULL)
+						pDiagnostics->iAutomationSafeRejects++;
+					continue;
+				}
+				if (!kUnit.canBuild(*pAdjacentPlot, eBuildFarm))
+				{
+					if (pDiagnostics != NULL)
+						pDiagnostics->iCannotBuildFarmRejects++;
+					continue;
+				}
+			}
+			int const iGrowthLevel = SAS_getWorkerGrowthImprovementLevel(eCurrentImprovement);
+			int const iPlotOverwritePenalty = (
+				bExistingIrrigationCarrier || eCurrentImprovement == NO_IMPROVEMENT ? 0 :
+				eCurrentImprovement == eImprovementWorkshop ? iWorkshopOverwritePenalty :
+				iGrowthLevel > 0 ? iGrowthOverwritePenalty * iGrowthLevel :
+				iOtherOverwritePenalty
+			);
+			int const iNewSteps = kNode.iSteps + 1;
+			int const iNewCost = kNode.iCost + (kNode.iSteps <= 0 ? 0 : 350) + iPlotOverwritePenalty;
+			PlotNumTypes const eAdjacentPlot = pAdjacentPlot->plotNum();
+			int const iAdjacentState = eAdjacentPlot * iStatesPerPlot + iNewSteps;
+			if (aiCostGeneration[iAdjacentState] == iSearchGeneration && iNewCost >= aiBestCost[iAdjacentState])
+				continue;
+			aiBestCost[iAdjacentState] = iNewCost;
+			aiCostGeneration[iAdjacentState] = iSearchGeneration;
+			kOpen.push(SASWorkerIrrigationSearchNode(iNewCost, iNewSteps, kNode.iOverwritePenalty + iPlotOverwritePenalty, eAdjacentPlot));
+		}
+	}
+	return false;
+}
+
 // Returns true if the unit found a build for this city...
-bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
-	CvPlot** ppBestPlot, BuildTypes* peBestBuild,
-	CvPlot* pIgnorePlot, CvUnit* pUnit) const
+// <!-- custom: update: also disabled functionally CvCityAI::AI_getImprovementValue and CvUnitAI::AI_irrigateTerritory which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains or flatland grass or other unwanted interferences, see these functions (or whatever remains of them for details, as well as screenshots in known issue 30 for details), we now have greater if not total control over our AI workers or close to it, and this improves ai efficiency further -->
+// <!-- custom: rewrite to handle/optimize terrain improvement choice - don't build cottage on flatland plains if flatland grass tiles (much better candidates) are available. For bonuses, simplify logic to always improve them regardless of terrain (high-food bonuses first). Partially based on settling priorities code in CitySiteEvaluator.cpp. Credit: Gemini AI (original); ChatGPT 5 (polishing). (Claude code Sonnet 4.5 (summarized)) -->
+// This function determines the value of a specific improvement on a plot,
+// which is the core logic that guides AI worker actions.
+// This version is a rewrite to prioritize improvements based on terrain,
+// features, and yield potential, similar to city founding logic.
+// It aims to fix issues like building farms on valuable bonus tiles <!-- custom: like spices instead of a plantation (wait to improve it at all ideally) -->
+// and inefficiently clearing forests or improving low-yield tiles.
+bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, BuildTypes* peBestBuild, CvPlot* pIgnorePlot, CvUnit* pUnit, int* piBestValue, BuildTypes* peFollowupBuild) const
 {
 	PROFILE_FUNC();
 
-	int iBestValue = 0;
-	BuildTypes eBestBuild = NO_BUILD;
-	CvPlot* pBestPlot = NULL;
+	// <!-- custom: fix crash at turn 77 more properly now that we have identified the cause to be here since changing the code here triggers it, and guarding null and no build in caller avoids it, see code comment at callers of this function for details. Code provided by chatgpt 5 in an attempt to fix it more cleanly and ideally not have workers parked, check if accurate -->
+	// And no—you won’t be “back to square one" or re-introduce the crash as long as you add two tiny safety fixes:
+	if (ppBestPlot)  *ppBestPlot  = NULL;
+	if (peBestBuild) *peBestBuild = NO_BUILD;
+	if (piBestValue) *piBestValue = 0;
+	if (peFollowupBuild) *peFollowupBuild = NO_BUILD;
+	// ... PHASE 1 builds candidates ...
+
+	// <!-- custom: attempt to support terrains and feature(s) conditional logic -->
+	static const TerrainTypes eTerrainGrass = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_GRASS");
+	static const TerrainTypes eTerrainPlains = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_PLAINS");
+	static const TerrainTypes eTerrainDesert = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_DESERT");
+	static const TerrainTypes eTerrainTundra = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_TUNDRA");
+	static const TerrainTypes eTerrainSnow = (TerrainTypes)GC.getInfoTypeForString("TERRAIN_SNOW");
+
+	static const FeatureTypes eFeatureFloodPlains = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FLOOD_PLAINS");
+	static const FeatureTypes eFeatureOasis = (FeatureTypes)GC.getInfoTypeForString("FEATURE_OASIS");
+	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
+	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
+	// <!-- custom: untested but i assume/hope would work-function fine but check to be sure-->
+	static const FeatureTypes eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
+
+	// <!-- custom: Hardcoded BuildTypes for common feature removals and worker build candidates used by the custom AI_bestCityBuild worker logic. (GPT-5.5) -->
+    static const BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
+    static const BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
+	static const BuildTypes eBuildScrubFallout = (BuildTypes)GC.getInfoTypeForString("BUILD_SCRUB_FALLOUT");
+    static const BuildTypes eBuildFarm = (BuildTypes)GC.getInfoTypeForString("BUILD_FARM");
+    static const BuildTypes eBuildMine = (BuildTypes)GC.getInfoTypeForString("BUILD_MINE");
+    static const BuildTypes eBuildWorkshop = (BuildTypes)GC.getInfoTypeForString("BUILD_WORKSHOP");
+    static const BuildTypes eBuildWindmill = (BuildTypes)GC.getInfoTypeForString("BUILD_WINDMILL");
+
+	// <!-- custom: absolutely holy improvements without any condition at all (unlike semi-holy ones later that are absolute under some conditions only), not confounded with build, this checks improvements on plots, not builds for workers to build. They are useful to early exit if we don't want to overwrite current plot's improvement. This avoids oscillation very nicely. -->
+	static const ImprovementTypes eImprovementWorkshop = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_WORKSHOP");
+
+	// <!-- custom: semi-holy improvements as of now -->
+	static const ImprovementTypes eImprovementFarm = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FARM");
+	static const ImprovementTypes eImprovementCottage = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_COTTAGE");
+
+	static const int iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD = GC.getDefineINT("SAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD");
+	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION");
+	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE");
+	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT");
+	static const int iSAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT");
+	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION");
+	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT");
+	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT");
+	static const int iSAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD");
+	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION");
+	static const int iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE = GC.getDefineINT("SAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE");
+	static const int iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_APPLY_MIN_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_AI_OBJECTIVE_APPLY_MIN_VALUE");
+	static const int iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT");
+	static const int iSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD = GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD");
+	static const int iSAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE");
+	static const int iSAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE = GC.getDefineINT("SAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE");
+	static const bool bSAS_WORKER_AI_BONUS_FARM_FALLBACK_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_BONUS_FARM_FALLBACK_ENABLE");
+	static const EraTypes eSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_BUILD_TECH_ERA = (EraTypes)GC.getDefineINT("SAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_BUILD_TECH_ERA");
 
 	/*	K-Mod. hack: For the AI, I want to use the standard pathfinder, CvUnit::generatePath.
 		but this function is also used to give action recommendations for the player
@@ -787,73 +2936,892 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 		pathFinder.setGroup(*getGroup(), NO_MOVEMENT_FLAGS, 5, GC.getMOVE_DENOMINATOR());
 	} // K-Mod end
 
-	for (int iPass = 0; iPass < 2; iPass++)
-	{
-		// K-Mod: only workable tiles
-		for (WorkablePlotIter it(kCity); it.hasNext(); ++it)
-		{
-			CvPlot& kPlot = *it;
-			CityPlotTypes ePlot = it.currID();
-			if (&kPlot == pIgnorePlot || /*!AI_plotValid(kPlot)*/kPlot.isWater()) // advc.opt
-				continue;
-			if (GET_PLAYER(getOwner()).isAutomationSafe(kPlot))
-				continue;
-			int iValue = kCity.AI_getBestBuildValue(ePlot);
-			if (iValue <= iBestValue)
-				continue;
-			BuildTypes eBuild = kCity.AI_getBestBuild(ePlot);
-			if (eBuild == NO_BUILD || /* K-Mod: */ !canBuild(kPlot, eBuild))
-				continue;
-			if (iPass == 0)
-			{
-				iBestValue = iValue;
-				pBestPlot = &kPlot;
-				eBestBuild = eBuild;
-				continue;
-			}
-			//if (canBuild(pLoopPlot, eBuild))
-			if (kPlot.isVisibleEnemyUnit(this))
-				continue;
-			/*int iPathTurns;
-			if (generatePath(pLoopPlot, 0, true, &iPathTurns)) {
-				// XXX take advantage of range (warning... this could lead to some units doing nothing...)
-				int iMaxWorkers = 1;
-				if (getPathLastNode()->m_iData1 == 0)
-					iPathTurns++;
-				else if (iPathTurns <= 1)
-					iMaxWorkers = AI_calculatePlotWorkersNeeded(pLoopPlot, eBuild);
-				if (pUnit != NULL) {
-					if (pUnit->getPlot().isCity() && iPathTurns == 1 && getPathLastNode()->m_iData1 > 0)
-					iMaxWorkers += 10;
-				} }*/ // BtS
-			// K-Mod. basically the same thing, but using pathFinder.
-			if (!pathFinder.generatePath(kPlot))
-				continue;
-			int iPathTurns = pathFinder.getPathTurns() + (pathFinder.getFinalMoves() == 0 ? 1 : 0);
-			int iMaxWorkers = (iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(kPlot, eBuild));
-			if (pUnit != NULL && pUnit->getPlot().isCity() && iPathTurns == 1)
-				iMaxWorkers += 10;
-			// K-Mod end
-			if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, getGroup(),
-				/* <advc.opt> */ 0, iMaxWorkers /* </advc.opt> */) < iMaxWorkers)
-			{
-				//XXX this could be improved greatly by
-				//looking at the real build time and other factors
-				//when deciding whether to stack.
-				iValue /= iPathTurns;
+	// <!-- custom: rewrite this to fix fatal flaw of not returning any best plot if our selected best plot happens to be unpathable, plus other seemingly bugs as well -->
+	// <!-- custom: make sure AI workers always improve bonuses before anything else. This attempts to fix/address the "Boston screenshot" issue, where AI in a tundra environment mined two hill tiles and did not improve a nearby deer in city radius at all at turn 75, which would have helped the city grow, and even build the current worker city was building just as fast(see screenshot and doc at known issues readme as of now number 30).
+	// <!-- custom: rewrite addresses suboptimal behavior - old code pathfinding-recomputed best plot even after pass 1 computation. More efficient to compute decrementally from best candidate to worse until one is found, then early return, rather than compute all plots including ones that won't be best. New code is cleaner and easier to customize. Credit: Gemini AI. (Claude code Sonnet 4.5 (summarized)) -->
 
-				iBestValue = iValue;
-				pBestPlot = &kPlot;
-				eBestBuild = eBuild;
+	std::vector<CandidatePlot> candidatePlots;
+	std::vector<int> aNoBonusBuildValueAdjustments(GC.getNumBuildInfos(), 0);
+
+	// <!-- custom: note: performance/logic optimization: it seems faster to not check pathfinding at all and loop over all tiles rather than check pathfinding at same time as we check candidate plots (check if accurate) -->
+
+	// <!-- custom: moved up for perf opt -->
+	int const iCityHealthCalculatedDifference = kCity.goodHealth() - kCity.badHealth();
+	int const iCityPopulation = kCity.getPopulation();
+
+	int const iFoodConsumptionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
+
+	// <!-- custom: note: see also a slightly different implementation of this at variable iEffectiveFoodAfterBuiltHappy in as of now buildingvalue function in cvcityai.cpp file -->
+	// Specialists that actually cost population (and thus 'pull' 2 food each)
+	const int iNonFreeSpecialists = std::max(0, kCity.getSpecialistPopulation() - kCity.totalFreeSpecialists());
+	const int iAngryCitizens = kCity.angryPopulation();
+	const int iFoodConsumedBySpecialistOrAngryCitizens = (iFoodConsumptionPerPop * (iNonFreeSpecialists + iAngryCitizens));
+
+	const int iFoodSurplusCityHas = (kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption(/*bFoodProduction=*/false));
+	// That looks solid! You’re doing exactly what we wanted:
+	// take the ordinary surplus food - consumption(false) (which includes angry + specialists),
+	// then “give it back" by adding 2 * (non-free specialists + angry citizens) so the AI doesn’t panic-farm just because people are angry or parked in specialist slots.
+	const int iEstimatedCityFoodDifference = iFoodSurplusCityHas + iFoodConsumedBySpecialistOrAngryCitizens;
+
+	// <!-- custom: Use the shared potential-food score for citizen-workable, non-water, non-home BFC plots. This keeps worker terrain/resource classification aligned with settling logic while leaving water to sea buildings/work boats; food from bonus-specific improvements offsets poor terrain, and Grass Hills remain neutral environment quality while their food demand is still counted separately as mine-support pressure. (Claude code Opus 4.6 + GPT-5.5) -->
+	int iBFCLowFoodScore = 0;
+	// <!-- custom: count farms already being built in BFC to avoid over-farming.
+	// When multiple workers evaluate simultaneously, each one sees low food and picks farm.
+	// By pre-crediting the food from in-progress farms, subsequent workers see a higher
+	// effective surplus and choose cottages/workshops instead. (Claude code Opus 4.6) -->
+	int iFoodFromFarmsBeingBuiltInBFC = 0;
+	int iBFCMineFoodSupportPressure = 0;
+
+	for (WorkablePlotIter itBFC(kCity); itBFC.hasNext(); ++itBFC)
+	{
+		CvPlot& kBFCPlot = *itBFC;
+		if (kBFCPlot.isWater() || itBFC.currID() == CITY_HOME_PLOT)
+			continue;
+		int const iNatureFood = kBFCPlot.calculateNatureYield(YIELD_FOOD, getTeam());
+		BonusTypes const eBFCVisibleBonus = kBFCPlot.getBonusType(getTeam());
+		iBFCLowFoodScore += kBFCPlot.SAS_getLowFoodEnvironmentScore(eBFCVisibleBonus, 0, false);
+
+		// <!-- custom: Non-bonus farms can be the right support infrastructure in cities with many food-consuming hill mines. A +2 food farm can let the city work two grass hill mines (about 8 hammers), so count structural pressure from hills and especially low-food/strategic hill tiles rather than relying only on current surplus. This was visible in a mine-heavy Renaissance city where walls took too long despite strong hill mines. (GPT-5.5) -->
+		if (kBFCPlot.isHills())
+		{
+			int const iHillFoodDeficit = std::max(0, iFoodConsumptionPerPop - iNatureFood);
+			iBFCMineFoodSupportPressure += iHillFoodDeficit;
+			BonusTypes const eBFCBonus = kBFCPlot.getNonObsoleteBonusType(getTeam());
+			if (eBFCBonus != NO_BONUS)
+			{
+				iBFCMineFoodSupportPressure += std::min(3, std::max(0, GC.getBonusInfo(eBFCBonus).getAIObjective()) / 4);
+				iBFCMineFoodSupportPressure += std::max(0, GC.getBonusInfo(eBFCBonus).getYieldChange(YIELD_PRODUCTION));
 			}
 		}
-		if (iPass > 0 || eBestBuild == NO_BUILD)
+
+		if (kBFCPlot.getBuildProgress(eBuildFarm) > 0)
+			iFoodFromFarmsBeingBuiltInBFC += kBFCPlot.calculateImprovementYieldChange(eImprovementFarm, YIELD_FOOD, getOwner());
+	}
+
+	static const int iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH = GC.getDefineINT("SAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH");
+	static const bool bSAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE");
+	static const bool bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE");
+	static const int iSAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS = GC.getDefineINT("SAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS");
+	static const int iSAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD = GC.getDefineINT("SAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD");
+	static const int iSAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS = GC.getDefineINT("SAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_FLOOD_PLAINS = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_FLOOD_PLAINS");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_OASIS = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_OASIS");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_HILL = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_HILL");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_FLAT = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_FLAT");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_HILL = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_HILL");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_FLAT = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_FLAT");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_HILL = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_HILL");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_FLAT = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_FLAT");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_HILL = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_HILL");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_FLAT = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_FLAT");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_HILL = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_HILL");
+	static const int iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_FLAT = GC.getDefineINT("SAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_FLAT");
+	static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY");
+	static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_WORKSHOP_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_WORKSHOP_OVERWRITE_PENALTY");
+	static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY");
+	static const int iSAS_WORKER_AI_IRRIGATION_LOCAL_GROWTH_LEVEL_OVERWRITE_PENALTY = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_LOCAL_GROWTH_LEVEL_OVERWRITE_PENALTY");
+	SASWorkerNoBonusKnownBranches const& kWorkerBranches = SAS_getWorkerNoBonusKnownBranches();
+	bool const bCityLowFoodBFC = (iBFCLowFoodScore >= iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH);
+
+	// <!-- custom: base improvement yields ignore irrigation, tech and civic/owner modifiers. Use plot/player farm food from calculateImprovementYieldChange when pre-crediting in-progress farms, otherwise normal irrigated farms counted as 0 food and workers could still over-farm. (Claude code Opus 4.6 + GPT-5.5) -->
+	const int iAdjustedFoodDifference = iEstimatedCityFoodDifference + iFoodFromFarmsBeingBuiltInBFC;
+	int const iBFCStructuralFoodSupportPressure = iBFCLowFoodScore + iBFCMineFoodSupportPressure;
+	int const iCityFoodSupportPressure = iBFCStructuralFoodSupportPressure + (2 * std::max(0, iSAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS - iAdjustedFoodDifference));
+	bool const bCityStructuralFoodSupportNeed = (iBFCStructuralFoodSupportPressure >= iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH + 4);
+	bool const bCityHighFoodSupportNeed = (bCityLowFoodBFC || bCityStructuralFoodSupportNeed || iCityFoodSupportPressure >= iSAS_AI_BEST_CITY_BUILD_LOW_FOOD_BFC_CITY_THRESH + 4);
+
+	const int penaltyForOverwritingPlot = 300;
+
+	if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && GET_TEAM(getTeam()).isIrrigation())
+	{
+		static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS");
+		for (WorkablePlotIter itBFC(kCity, false); itBFC.hasNext(); ++itBFC)
+		{
+			CvPlot& kTargetPlot = *itBFC;
+			if (kTargetPlot.getOwner() != getOwner() || kTargetPlot.isWater() || kTargetPlot.isHills() || !kTargetPlot.canHavePotentialIrrigation())
+				continue;
+			BonusTypes const eTargetBonus = kTargetPlot.getNonObsoleteBonusType(getTeam());
+			bool const bTargetDryFarm = (kTargetPlot.getImprovementType() == eImprovementFarm && !kTargetPlot.isIrrigated() && !kTargetPlot.isIrrigationAvailable(true));
+			bool const bTargetLowFoodUnimproved = (eTargetBonus == NO_BONUS && bCityHighFoodSupportNeed && kTargetPlot.getImprovementType() == NO_IMPROVEMENT && !kTargetPlot.isIrrigationAvailable(true) && kTargetPlot.calculateNatureYield(YIELD_FOOD, getTeam()) < iFoodConsumptionPerPop && canBuild(kTargetPlot, eBuildFarm));
+			if (!bTargetDryFarm && !bTargetLowFoodUnimproved)
+				continue;
+			CvPlot* pChainStepPlot = NULL;
+			int iRoutePlots = 0;
+			int iRouteOverwritePenalty = 0;
+			SASWorkerIrrigationSearchDiagnostics kRouteDiagnostics;
+			SASWorkerIrrigationSearchDiagnostics* pRouteDiagnostics = (gWorkerLogLevel >= 3 ? &kRouteDiagnostics : NULL);
+			bool const bFoundChainStep = SAS_findWorkerIrrigationChainStep(*this, kTargetPlot, pIgnorePlot, eBuildFarm, eImprovementFarm, eImprovementWorkshop, iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS, iSAS_WORKER_AI_IRRIGATION_CHAIN_GROWTH_LEVEL_OVERWRITE_PENALTY, iSAS_WORKER_AI_IRRIGATION_CHAIN_WORKSHOP_OVERWRITE_PENALTY, iSAS_WORKER_AI_IRRIGATION_CHAIN_OTHER_IMPROVEMENT_OVERWRITE_PENALTY, pChainStepPlot, iRoutePlots, iRouteOverwritePenalty, pRouteDiagnostics);
+			int const iChainStepValue = (bFoundChainStep ? (bTargetDryFarm ? 11500 : 8500) - (350 * std::max(0, iRoutePlots - 1)) - iRouteOverwritePenalty : 0);
+			if (bFoundChainStep && iChainStepValue > 0)
+			{
+				CandidatePlot kChainStep;
+				kChainStep.iValue = iChainStepValue;
+				kChainStep.pPlot = pChainStepPlot;
+				kChainStep.ePlot = NO_CITYPLOT;
+				kChainStep.eBuild = eBuildFarm;
+				kChainStep.eFollowupBuild = NO_BUILD;
+				if (gWorkerLogLevel >= 3)
+					logBBAI("    IRRIGATION_CHAIN_STEP_SELECTED turn=%d player=%d %S workerId=%d city=%S step=(%d,%d) target=(%d,%d) targetBonus=%S dryFarm=%d routePlots=%d maxRoutePlots=%d overwritePenalty=%d value=%d foodPressure=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), kCity.getName().GetCString(), pChainStepPlot->getX(), pChainStepPlot->getY(), kTargetPlot.getX(), kTargetPlot.getY(), eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription(), bTargetDryFarm, iRoutePlots, iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS, iRouteOverwritePenalty, iChainStepValue, iCityFoodSupportPressure);
+				candidatePlots.push_back(kChainStep);
+			}
+			else if (gWorkerLogLevel >= 3 && SAS_shouldLogWorkerIrrigationRouteFailure(kCity, kTargetPlot))
+			{
+				logBBAI("    IRRIGATION_CHAIN_NO_USABLE_STEP turn=%d player=%d %S workerId=%d city=%S target=(%d,%d) targetBonus=%S dryFarm=%d routeFound=%d routePlots=%d overwritePenalty=%d value=%d foodPressure=%d maxRoutePlots=%d visitedStates=%d deepestRoute=%d routeLimitStops=%d rejects(edgeOrIgnored=%d unowned=%d foreign=%d area=%d water=%d hills=%d noPotential=%d bonuses=%d automationSafe=%d cannotBuildFarm=%d) cityCarrierTraversals=%d",
+					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), kCity.getName().GetCString(), kTargetPlot.getX(), kTargetPlot.getY(), eTargetBonus == NO_BONUS ? L"-" : GC.getInfo(eTargetBonus).getDescription(), bTargetDryFarm, bFoundChainStep, iRoutePlots, iRouteOverwritePenalty, iChainStepValue, iCityFoodSupportPressure, iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS,
+					kRouteDiagnostics.iVisitedStates, kRouteDiagnostics.iDeepestRoute, kRouteDiagnostics.iRouteLimitStops, kRouteDiagnostics.iMapEdgeOrIgnoredRejects, kRouteDiagnostics.iUnownedRejects, kRouteDiagnostics.iForeignOwnedRejects, kRouteDiagnostics.iDifferentAreaRejects, kRouteDiagnostics.iWaterRejects, kRouteDiagnostics.iHillRejects, kRouteDiagnostics.iNoPotentialIrrigationRejects, kRouteDiagnostics.iBonusRejects, kRouteDiagnostics.iAutomationSafeRejects, kRouteDiagnostics.iCannotBuildFarmRejects, kRouteDiagnostics.iCityCarrierTraversals);
+			}
+		}
+	}
+
+	// ===================================================
+	// PHASE 1: A single loop to find ALL valid candidate <!-- custom: plots --> and their values.
+	// ===================================================
+	for (WorkablePlotIter it(kCity); it.hasNext(); ++it)
+	{
+		CvPlot& kPlot = *it;
+		CityPlotTypes ePlot = it.currID();
+
+		if (&kPlot == pIgnorePlot || /*!AI_plotValid(kPlot)*/kPlot.isWater()) // advc.opt
+			continue;
+		if (GET_PLAYER(getOwner()).isAutomationSafe(kPlot))
 			continue;
 
-		FAssert(pBestPlot != NULL);
+		// <!-- custom: start from scratch with own logic (saves computation). Now iValue chooses which tiles to improve first, while bestBuild is independently handled by own helpers based on terrain, feature, bonuses, tech (canBuild), etc. Logic cleanly separated: which is best ideal build vs which tile to improve first. (Claude code Sonnet 4.5 (summarized)) -->
+		// int iValue = kCity.AI_getBestBuildValue(ePlot);
+		// <!-- custom: also to override seemingly higher `iValue <= 1` expected conditions in other functions, not sure they call this and use it, but just in cast start with higher values in case other functions expect them (check to be sure), start with a higher minimal value than this threshold, although ours should be so much higher than 1 for most good plots, but just in case to not be rejected there if we somehow have a good plot or not too bad one with negative value. -->
+		int iValue = 10;
+
+		// <!-- custom: AI does a lot of bad stuff, this is much better with our value tweaks (no more farms on plains but now too many farms on grassland, still i believe starting from scratch and ignoring any above instucitons from our code is best, so we'll determine best build ourselves here at least for what this part of the code is responsible for, test to do so) -->
+		// <!-- custom: move eBuild definition here in doing so -->
+		// BuildTypes const eBuild = kCity.AI_getBestBuild(ePlot);
+		BuildTypes eBestSupposedBuild = NO_BUILD;
+		BuildTypes eFeatureRemovalFollowupBuild = NO_BUILD;
+
+		TerrainTypes const eTerrain = kPlot.getTerrainType();
+		FeatureTypes const eFeature = kPlot.getFeatureType();
+
+		// === The "Value Hack" ===
+		// <!-- custom: Improving bonuses (if possible) --> on the plot is the highest priority.
+
+		BonusTypes eBonus = kPlot.getNonObsoleteBonusType(getTeam());
+
+		if (eBonus != NO_BONUS)
+		{
+			BuildTypes const eBonusSpecificBuild = kPlot.SAS_getBonusSpecificBuild(eBonus);
+			bool const bCanBuildBonusSpecificBeforeFeatureRemoval = (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && (eFeature == NO_FEATURE || !GC.getInfo(eBonusSpecificBuild).isFeatureRemove(eFeature)));
+			// <!-- custom: note : flexibly chop, instead of bonus flexible build, we'll choose same best plot again, but advantage is we can better respond, say to invasion, and finish chopping (getting production too and worker availability) if we need to interrupt it mid way, more efficient this way, frees also some move speed if flatland for mobile units -->
+			if (eFeature == eFeatureForest)
+			{
+				// <!-- custom: Try the XML-inferred bonus-specific build before removing Forest/Jungle only when that build preserves the current feature. This keeps feature-preserving bonus builds like Camp generic while preventing Mine/Plantation/etc. from skipping the explicit feature-removal step merely because canBuild can remove the feature as part of the build. (GPT-5.5 + ChatGPT-5.5) -->
+				if (bCanBuildBonusSpecificBeforeFeatureRemoval)
+				{
+					eBestSupposedBuild = eBonusSpecificBuild;
+					iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
+				}
+				// <!-- custom: also handle silver or other bonuses on forest as well; we need to remove the forest else the bonus specific branch will never be reached due to feature being forest or jungle and we'd be stuck here forever wondering if we chop or not-->
+				else
+				{
+					if (canBuild(kPlot, eBuildRemoveForest))
+					{
+						eBestSupposedBuild = eBuildRemoveForest;
+						if (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && GC.getInfo(eBonusSpecificBuild).getImprovement() != NO_IMPROVEMENT)
+							eFeatureRemovalFollowupBuild = eBonusSpecificBuild;
+						iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
+					}
+					else
+					{
+						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too -->
+						continue;
+					}
+				}
+			}
+			else if (eFeature == eFeatureJungle)
+			{
+				if (bCanBuildBonusSpecificBeforeFeatureRemoval)
+				{
+					eBestSupposedBuild = eBonusSpecificBuild;
+					iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
+				}
+				// <!-- custom: also handle gemstones or other bonuses on jungle as well; we need to remove the jungle else the bonus specific branch will never be reached due to feature being forest or jungle and we'd be stuck here forever wondering if we chop or not-->
+				else
+				{
+					if (canBuild(kPlot, eBuildRemoveJungle))
+					{
+						eBestSupposedBuild = eBuildRemoveJungle;
+						if (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && GC.getInfo(eBonusSpecificBuild).getImprovement() != NO_IMPROVEMENT)
+							eFeatureRemovalFollowupBuild = eBonusSpecificBuild;
+						iValue += iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE;
+					}
+					else
+					{
+						// <!-- custom: ignore the plot for now, we could "pre-chop", but really chop just in anticipation of the bonus specific improvement/build later, but this is inefficient, maybe there are other tiles to work first, even if they don't have a bonus, code is simpler this way too -->
+						continue;
+					}
+				}
+			}
+			// <!-- custom: computationally faster to put it at last feature (among features to remove/scrub i mean) even though it has highest value due to urgency to clean/remove/scrub this feature, but very few feature_fallout ever happen in the game and generally quite late, but we loop quite often over al tiles, so try to save computation and put this check last even though is the most important in iValue as of now -->
+			else if (eFeature == eFeatureFallout)
+			{
+				if (canBuild(kPlot, eBuildScrubFallout))
+				{
+					eBestSupposedBuild = eBuildScrubFallout;
+					if (eBonusSpecificBuild != NO_BUILD && canBuild(kPlot, eBonusSpecificBuild) && GC.getInfo(eBonusSpecificBuild).getImprovement() != NO_IMPROVEMENT)
+						eFeatureRemovalFollowupBuild = eBonusSpecificBuild;
+
+					// <!-- custom: more important than improving any bonus, and add some value so it is also more important than scrubing non-bonus fallout tiles (not sure it makes a difference since we want to clear all fallout anyway before improving any bonus but maybe the distinction helps if we change the code someday or someone does it or such) -->
+					iValue += iSAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE;
+				}
+				else
+				{
+					// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite" with another build.
+					continue;
+				}
+			}
+			// <!-- custom: if we know we can chop, no need to look for a costly specific build we won't do now since we want to chop explicitly/specifically if i may say in this casefirst. So else, only look for a bonus specific build if plot is already chopped, in other words if plot's feature is not forest nor jungle -->
+			else
+			{
+				// <!-- custom: find the bonus's bonus-specific build first -->
+				if (eBonusSpecificBuild == NO_BUILD)
+				{
+					// <!-- custom: up to modders to support this in their mod, here we assume bonus not in map means unknown bonus, do not improve at all, for ease of code mostly if i may say rather than put any random build in a messy and inefficient or ineffective way worked aorund patched in a bad way i'd say-->
+					continue;
+				}
+
+				ImprovementTypes eBonusSpecificImprovement = GC.getBuildInfo(eBonusSpecificBuild).getImprovement();
+
+				// === Blacklist: Early exit if bonus <!-- should not be improved -->
+				if (kPlot.getImprovementType() != NO_IMPROVEMENT)
+				{
+					//  is already improved correctly ===
+					if (kPlot.getImprovementType() == eBonusSpecificImprovement)
+					{
+						continue;
+					}
+				}
+
+				// <!-- custom: build these or almost always nothing else, leave banana tile empty until we have plantation, may be efficient in most cases for the AI to optimize build time usage rather than overwriting them inefficiently later, except some exceptions such as banana farms if irrigated on grass, but generally workers have probably better things (chop for hammer on remove, build cottage early, etc) to do that would not make it so worth it) so maybe fine as such, hopefully no more banana cottages on plains still though and such similar cases or such with this patch or new logic at least for this part of the code -->
+				// Fail-fast check: If we can build the bonus-specific improvement, then proceed with the high-value logic.
+				int const bonusFoodYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD);
+
+				if (canBuild(kPlot, eBonusSpecificBuild))
+				{
+					eBestSupposedBuild = eBonusSpecificBuild;
+
+					int const bonusCommerceYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_COMMERCE);
+					int const bonusProductionYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_PRODUCTION);
+
+					// <!-- custom: Bonus-specific build priorities now use SAS defines, preserving the old strong base bonus value and food/production/commerce ordering while making the weights tunable from XML. (GPT-5.5) -->
+					iValue += iSAS_WORKER_AI_BONUS_SPECIFIC_BUILD_BASE_VALUE;
+
+					// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maybe bit too), so multiply it even further than the base any unimproved bonus multiplier -->
+					// Give an even bigger multiplier if the bonus is a FOOD bonus.
+					if (bonusFoodYieldChange > 0)
+						iValue += iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_FOOD * bonusFoodYieldChange;
+					// <!-- custom: then also valorize hammer/production less, i'd prefer to improve iron before gold i mean, although this is debatable, handle as such, i hope in most cases it would make AI more efficient -->
+					if (bonusProductionYieldChange > 0)
+						iValue += iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_PRODUCTION * bonusProductionYieldChange;
+					// <!-- custom: if there is a lot of commerce, it may make sense to go for this one first maybe, but it needs to be a lot and more generally i would say -->
+					if (bonusCommerceYieldChange > 0)
+						iValue += iSAS_WORKER_AI_BONUS_YIELD_VALUE_PER_COMMERCE * bonusCommerceYieldChange;
+				}
+				// The bonus-specific improvement is not yet available and there was no feature to chop.
+				// <!-- custom: One exception to the general ignore rule below: a temporary Farm can be worthwhile on a high-food bonus if the real bonus-specific build unlocks late enough. Do not spend early worker turns on temporary farms when the real improvement is close, but avoid leaving strong food bonuses idle for many eras. (GPT-5.5) -->
+				else if (bSAS_WORKER_AI_BONUS_FARM_FALLBACK_ENABLE && canBuild(kPlot, eBuildFarm))
+				{
+					int const totalFarmBonusFoodYield = bonusFoodYieldChange + kPlot.calculateImprovementYieldChange(eImprovementFarm, YIELD_FOOD, getOwner());
+					TechTypes const eBonusSpecificBuildTech = GC.getInfo(eBonusSpecificBuild).getTechPrereq();
+					bool const bBonusSpecificBuildUnlocksLateEnough = (eBonusSpecificBuildTech != NO_TECH && GC.getInfo(eBonusSpecificBuildTech).getEra() >= eSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_BUILD_TECH_ERA);
+
+					if (bBonusSpecificBuildUnlocksLateEnough && ((eTerrain == eTerrainGrass) || (eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra)) && totalFarmBonusFoodYield >= iSAS_WORKER_AI_BONUS_FARM_FALLBACK_MIN_TOTAL_FOOD)
+					{
+						eBestSupposedBuild = eBuildFarm;
+
+						iValue += iSAS_WORKER_AI_BONUS_FARM_FALLBACK_VALUE;
+					}
+				}
+				// <!-- custom: else fall back to general rule: ignore until better conditions, we can't build bonus specific build nor the farm alternatively, ignore for now -->
+				else
+				{
+					continue;
+				}
+			}
+
+			// <!-- custom: i have noticed we improve bonuses in an order that is not optimal to us (e.g. stone before copper, wasting critical 5-10 turns that would have helped us a lot), so add logic to improve them first (if we can). To not hardcode it all, use <iAIObjective> xml field that we added to some bonuses as well. The critical ones are as of now copper, iron, horse, camel, aluminium. If we have the choice between 2 bonuses, one of which is in the <iAIObjective> valued ones, we should really try to improve it first rather (e.g. iron before stone no matter what); code provided by chatgpt 5, check if accurate -->
+			const int iAIObjectiveBonus = GC.getBonusInfo(eBonus).getAIObjective(); // e.g. 10 for iron
+
+			// <!-- custom: if current iValue is high enough, most likely it means that we are improving this bonus, if so, increase value if it's one of the iAIObjective bonuses -->
+			// <!-- custom: avoid 1 just in case it creates weird issues -->
+			if (iValue >= iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_APPLY_MIN_VALUE)
+			{
+				// <!-- custom: make sure we improve it first before anything else -->
+				iValue += iSAS_WORKER_AI_BONUS_AI_OBJECTIVE_VALUE_PER_POINT * iAIObjectiveBonus;
+			}
+		}
+
+		// <!-- custom: after bonus computation is handled, for bonus preference do not mind the terrain/feature, improve any terrain as long as it is a bonus with very great priority, else if our best would not be a bonus (no bonus or unreachable), then consider terrain or feature, prefer high food terrain most importantly: for example and in particular, do not build flatland plains cottage when there are flatland grass tiles available in city radius, this is a big waste of food yield and opportunity -->
+        // Logic to prioritize farms on high-food terrains like grassland and plains.
+		else
+		{
+			// <!-- custom: for non-bonus tiles, never destroy high value "sacred"/"holy" improvements or later game ones. Helps avoid oscillation (workers changing their mind and overwriting a tile repeatedly based on fleeting conditions, which is very inefficient). Helps AI focus on one improvement and stick to it. (Claude code Sonnet 4.5 (summarized))
+			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect -->
+			ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
+
+			// <!-- custom: Treat non-bonus farms as support infrastructure, not only emergency anti-starvation. In low-food or hill-heavy cities, a strong farm can unlock food-consuming mines, faster growth, or specialists. After chain irrigation, a farm can also carry water from a river/freshwater tile to a dry tile behind it; if this plot gets a cottage/workshop instead, that later dry farm may not be possible without wasting worker turns and, for cottages, growth time. Score farms against cottages/workshops using actual plot/player farm food and irrigation state, and taper the bonus once the city already has healthy surplus so this remains targeted support rather than broad irrigation spam. (GPT-5.5) -->
+			bool const bCanBuildFarm = canBuild(kPlot, eBuildFarm);
+			int const iFarmFoodYieldChange = (bCanBuildFarm ? kPlot.calculateImprovementYieldChange(eImprovementFarm, YIELD_FOOD, getOwner()) : 0);
+			bool const bFarmGetsStrongFood = (iFarmFoodYieldChange >= 2);
+			bool const bFarmGetsFood = (iFarmFoodYieldChange > 0);
+			bool const bFarmCanCarryIrrigation = (GET_TEAM(getTeam()).isIrrigation() && kPlot.canHavePotentialIrrigation() && kPlot.isIrrigationAvailable(true));
+			bool const bFarmGoodIrrigationTile = (bFarmCanCarryIrrigation || (kPlot.isFreshWater() && kPlot.canHavePotentialIrrigation()));
+			int iAdjacentDryFarmsIrrigatedByThisFarm = 0;
+			if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && !kPlot.isHills() && bCanBuildFarm && bFarmCanCarryIrrigation && kPlot.getBuildProgress(eBuildFarm) <= 0)
+			{
+				// <!-- custom: Hunt concrete chain-irrigation fixes, not abstract irrigation paths. In the Nippur 2014 AD test save, existing farms stayed dry because the missing water-carrying farm could be in another city's BFC and that plot had a cottage/workshop instead. If farming this exact plot would irrigate adjacent existing dry farms, value it enough to replace basic non-food improvements; skip dry farms already reachable or already being fixed by another in-progress farm so workers do not pile onto irrigation speculation. (GPT-5.5) -->
+				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					CvPlot* pAdjacentDryFarm = plotDirection(kPlot.getX(), kPlot.getY(), (DirectionTypes)iI);
+					if (pAdjacentDryFarm == NULL || pAdjacentDryFarm->getOwner() != getOwner() || pAdjacentDryFarm->getImprovementType() != eImprovementFarm || pAdjacentDryFarm->isIrrigated() || pAdjacentDryFarm->isIrrigationAvailable(true))
+						continue;
+					bool bAdjacentDryFarmAlreadyGettingIrrigation = false;
+					for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
+					{
+						CvPlot* pOtherPossibleSource = plotDirection(pAdjacentDryFarm->getX(), pAdjacentDryFarm->getY(), (DirectionTypes)iJ);
+						if (pOtherPossibleSource != NULL && pOtherPossibleSource != &kPlot && pOtherPossibleSource->getBuildProgress(eBuildFarm) > 0 && pOtherPossibleSource->canHavePotentialIrrigation() && pOtherPossibleSource->isIrrigationAvailable(true))
+						{
+							bAdjacentDryFarmAlreadyGettingIrrigation = true;
+							break;
+						}
+					}
+					if (!bAdjacentDryFarmAlreadyGettingIrrigation)
+						iAdjacentDryFarmsIrrigatedByThisFarm++;
+				}
+			}
+			bool const bFarmIrrigatesExistingDryFarm = (iAdjacentDryFarmsIrrigatedByThisFarm > 0);
+			bool const bFoodSupportFarmCandidate = (bSAS_WORKER_AI_FOOD_SUPPORT_FARM_VALUE_ENABLE && !kPlot.isHills() && bCanBuildFarm && bCityHighFoodSupportNeed && (bFarmGetsStrongFood || (bFarmGetsFood && bFarmGoodIrrigationTile) || (iAdjustedFoodDifference <= iSAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD && bFarmGetsFood)));
+			bool const bIrrigationChainFarmCandidate = (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && !kPlot.isHills() && bCanBuildFarm && bFarmIrrigatesExistingDryFarm);
+			bool const bSupportFarmCandidate = (bFoodSupportFarmCandidate || bIrrigationChainFarmCandidate);
+			int const iBasicCottageFoodSupportOverwriteBias = ((ePlotCurrentImprovement == eImprovementCottage && bSupportFarmCandidate) ? (kPlot.isBeingWorked() ? -100 : 150) : 0);
+			int const iDryFarmIrrigationChainValue = 1400 * iAdjacentDryFarmsIrrigatedByThisFarm;
+			int const iPlotGrowthLevel = SAS_getWorkerGrowthImprovementLevel(ePlotCurrentImprovement);
+			bool const bProtectedImprovementCanBeBrokenForIrrigation = SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_HOLY_IMPROVEMENT_NAMES_ALLOW_IRRIGATION_CHAIN_BREAK", ePlotCurrentImprovement);
+			bool const bNonProtectedImprovementCanBeBrokenForIrrigation = SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_NON_HOLY_IMPROVEMENT_NAMES_ALLOW_IRRIGATION_CHAIN_BREAK", ePlotCurrentImprovement);
+			// <!-- custom: If this exact farm would irrigate existing dry farms, unholy the blocker but rank candidates by damage: unimproved/workshop first, then configured growth-chain improvements by XML growth level. This local same-plot penalty is lower than the broader irrigation connector penalty because the farm itself may solve a food/irrigation problem for the city; canBuild and the generic branch picker still decide whether the final value is worth it. (GPT-5.5 + ChatGPT-5.5) -->
+			int const iDryFarmIrrigationOverwritePenalty = (
+				!bFarmIrrigatesExistingDryFarm ? 0 :
+				ePlotCurrentImprovement == eImprovementWorkshop ? 0 :
+				iPlotGrowthLevel > 0 ? iSAS_WORKER_AI_IRRIGATION_LOCAL_GROWTH_LEVEL_OVERWRITE_PENALTY * iPlotGrowthLevel :
+				0
+			);
+			int const iRawFoodSupportFarmValue = (bSupportFarmCandidate ? 350 + (250 * iFarmFoodYieldChange) + (bFarmGoodIrrigationTile ? 150 : 0) + (bCityStructuralFoodSupportNeed ? 150 : 0) + iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty + (iSAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS * std::max(0, -iAdjustedFoodDifference)) + iBasicCottageFoodSupportOverwriteBias : 0);
+			int const iFoodSupportFarmValue = std::max(iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty, iRawFoodSupportFarmValue - (iSAS_WORKER_AI_FOOD_SUPPORT_VALUE_PER_SURPLUS * std::max(0, iAdjustedFoodDifference - iSAS_WORKER_AI_FOOD_SUPPORT_TARGET_SURPLUS)));
+			bool const bAllowDryFarmIrrigationChainOverwrite = (
+				bFarmIrrigatesExistingDryFarm &&
+				(bProtectedImprovementCanBeBrokenForIrrigation || bNonProtectedImprovementCanBeBrokenForIrrigation)
+			);
+			bool const bAllowBasicCottageFoodSupportOverwrite = (ePlotCurrentImprovement == eImprovementCottage && bSupportFarmCandidate && (bAllowDryFarmIrrigationChainOverwrite || !kPlot.isBeingWorked() || bFarmGetsStrongFood || iAdjustedFoodDifference <= iSAS_WORKER_AI_FOOD_SUPPORT_ZERO_SURPLUS_THRESHOLD));
+			int const iNonFoodIrrigationPathPenalty = ((iFoodSupportFarmValue > 0 && bFarmGoodIrrigationTile) ? 75 : 0);
+			bool bFarmCarriesIrrigationToAdjacentFarm = false;
+			if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && ePlotCurrentImprovement == eImprovementFarm && kPlot.isIrrigated())
+			{
+				// <!-- custom: Once the chain farm exists, keep it semi-holy too. Otherwise a later cottage/workshop pass could remove the carrier farm and recreate the same dry-farm problem we just fixed. This is a cheap adjacent-farm guard rather than full irrigation-network analysis; it protects irrigated farms next to owned irrigated farms that do not have direct fresh water. (GPT-5.5) -->
+				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					CvPlot* pAdjacentFarm = plotDirection(kPlot.getX(), kPlot.getY(), (DirectionTypes)iI);
+					if (pAdjacentFarm != NULL && pAdjacentFarm->getOwner() == getOwner() && pAdjacentFarm->getImprovementType() == eImprovementFarm && pAdjacentFarm->isIrrigated() && !pAdjacentFarm->isFreshWater())
+					{
+						bFarmCarriesIrrigationToAdjacentFarm = true;
+						break;
+					}
+				}
+			}
+
+			// <!-- custom: first the absolutely holy improvements to never improve -->
+			if (SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_HOLY_IMPROVEMENT_NAMES_ALWAYS", ePlotCurrentImprovement) ||
+				(bProtectedImprovementCanBeBrokenForIrrigation && !bAllowDryFarmIrrigationChainOverwrite))
+			{
+				// This 'continue' will skip to the next build in the outer loop,
+				// preventing the AI from ever considering destroying a high-level non-bonus improvement.
+				continue;
+			}
+
+			// <!-- custom: with our reworked system, assume current improvement is always or often good for effiency and no reason not to, should often hopefully not be a too bad improvement, so give a general penalty to discourage overwriting a plot; do so only when all other plots, especially unupgraded ones that are good enough, have been handled first, not strict foribddance so workshops and such later game buildings can be built -->
+			if (kPlot.getImprovementType() != NO_IMPROVEMENT)
+			{
+				// <!-- custom: then the relatively improvements handled here as well, not absolutely holy, but always holy under/if some conditions / are met-->
+				bool const bLowFoodEnvironment = (kPlot.SAS_getLowFoodEnvironmentScore(kPlot.getBonusType(getTeam()), 0, false) > 0);
+				// <!-- custom: also the opposite, in high food environments (lots of grass, i have noticed workers inefficiently swapping cottage then farm on flatland grass for example), but if we built cottage once, it means environment was high enough food to being with at that time, else we would not have had done so, so assume that environment is still high food and it is just our current food difference that is fluctuating, either due to suboptimal or more produciton focused plot allocation, or if not irrigated enough or such, but for simplicity, assume our environment is still the same (high-food) and we should thus consider cottage to be absolutely holy under/within/if these conditions //are met as well-->
+
+				if ((bLowFoodEnvironment || bCityStructuralFoodSupportNeed || bFarmCarriesIrrigationToAdjacentFarm) && SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_LOW_FOOD", ePlotCurrentImprovement))
+				{
+					// <!-- custom: extra oscillation avoid cases, even with our system, for the better maybe, we respond dynamically to food surplus in city, in low-food environments, one has to win, it is likely will starve again, so if we built a farm once, do not cancel it ever again and consider it holy as well -->
+					continue;
+				}
+				// <!-- custom: high-food environments 's semi-holy improvement(s) -->
+				else if ((eFeature == eFeatureFloodPlains) && SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_FLOOD_PLAINS", ePlotCurrentImprovement))
+				{
+					// <!-- custom: extra oscillation avoid cases, see above for details -->
+					continue;
+				}
+				else if ((eTerrain == eTerrainGrass) && SAS_isWorkerImprovementInDefineList("SAS_WORKER_AI_SEMI_HOLY_IMPROVEMENT_NAMES_GRASS", ePlotCurrentImprovement) && !bAllowBasicCottageFoodSupportOverwrite)
+				{
+					// <!-- custom: extra oscillation avoid cases, see above for details -->
+					continue;
+				}	
+
+				// <!-- custom: check and be alert on whether we can build higher level improvements, ignoring less relevant ones like forest preserve, lumbermill, watermill, that are not too good i mean generally or for efficiency, focus on most efficent ones -->
+				bool const bCanBuildAssumedEfficientHigherLevelImprovements = (canBuild(kPlot, eBuildWorkshop) || canBuild(kPlot, eBuildWindmill));
+
+				if (!bCanBuildAssumedEfficientHigherLevelImprovements)
+				{
+					iValue -= 3 * penaltyForOverwritingPlot;
+					// <!-- note: adjusted in some other places where it is really better to replace it, such as plains farm that are meh (see there at plains checks for details), considering overwriting existing ones when/if all good tiles have been improved first -->
+				}
+				else
+				{
+					// <!-- custom: the higher level improvements are more attractive, still we'd want to improve unimproved tiles first that are good enough, and if none remain, with now a low threshold, consider overwriting plots, especially attractive ones -->
+					iValue -= penaltyForOverwritingPlot;
+				}
+			}
+
+			// <!-- custom: PHASE 1 - estimate plot value (i.e. priority for the next plot to improve first) and best build on said plot, for all plots in our loop -->
+
+			// <!-- custom: PHASE 1.1: general for non-bonus plots terrain/feature (not choppable ones) analysis -->
+			SASWorkerNoBonusBranch const* pNoBonusBranch = NULL;
+			bool bNoBonusLowFoodBranch = false;
+			// <!-- custom: Most no-bonus dynamic scoring is now improvement-independent inside the generic picker: low-food pressure rewards the buildable candidate with the best food yield, and irrigation pressure penalizes candidates that do not carry irrigation. Keep this small BuildTypes-indexed vector only for rare residual build-specific tweaks, e.g. the old Grass Hill Mine population adjustment. (ChatGPT-5.5 + GPT-5.5) -->
+			for (size_t iBuildAdjustment = 0; iBuildAdjustment < aNoBonusBuildValueAdjustments.size(); ++iBuildAdjustment)
+				aNoBonusBuildValueAdjustments[iBuildAdjustment] = 0;
+
+			// <!-- custom: Pass 3: choose no-bonus worker builds through the generic XML branch picker instead of terrain-local if/else build order. Terrain/feature code now selects the branch and adds context adjustments; the picker then lets all valid listed candidates compete after canBuild filtering. This keeps special food/workshop/irrigation heuristics while making XML base values the real ranking source. Flattened so feature override branches and terrain fallback branches share the same pipeline; each context is checked only while no usable branch has been found. (ChatGPT-5.5) -->
+			bool bNoBonusBranchSelected = false;
+
+			if (!bNoBonusBranchSelected && eFeatureFloodPlains != NO_FEATURE && eFeature == eFeatureFloodPlains)
+			{
+				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_FLOOD_PLAINS);
+				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kFeatureFloodPlains, kPlot.isHills(), bNoBonusLowFoodBranch);
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
+			}
+			if (!bNoBonusBranchSelected && eFeatureOasis != NO_FEATURE && eFeature == eFeatureOasis)
+			{
+				// <!-- custom: Oasis feature branches are optional XML overrides. They are NONE by default and fall through to terrain logic; if a modmod fills them, listed builds compete normally through canBuild. (ChatGPT-5.5) -->
+				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_OASIS);
+				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kFeatureOasis, kPlot.isHills(), bNoBonusLowFoodBranch);
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
+			}
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainGrass)
+			{
+				if (kPlot.isHills())
+				{
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_HILL);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainGrass, true, bNoBonusLowFoodBranch);
+					if (eBuildMine != NO_BUILD && (int)eBuildMine < (int)aNoBonusBuildValueAdjustments.size())
+						aNoBonusBuildValueAdjustments[eBuildMine] = (!bNoBonusLowFoodBranch ? -100 + (50 * std::min(3, iCityPopulation)) : 0);
+				}
+				else
+				{
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_GRASS_FLAT);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainGrass, false, bNoBonusLowFoodBranch);
+				}
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
+			}
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainPlains)
+			{
+				if (kPlot.isHills())
+				{
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_HILL);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainPlains, true, bNoBonusLowFoodBranch);
+				}
+				else
+				{
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_PLAINS_FLAT || bCityLowFoodBFC);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainPlains, false, bNoBonusLowFoodBranch);
+				}
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
+			}
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainTundra)
+			{
+				if (kPlot.isHills())
+				{
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_HILL);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainTundra, true, bNoBonusLowFoodBranch);
+				}
+				else
+				{
+					bNoBonusLowFoodBranch = (iAdjustedFoodDifference < iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_TUNDRA_FLAT || bCityLowFoodBFC);
+					pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainTundra, false, bNoBonusLowFoodBranch);
+				}
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
+			}
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainSnow)
+			{
+				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < (kPlot.isHills() ? iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_HILL : iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_SNOW_FLAT));
+				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainSnow, kPlot.isHills(), bNoBonusLowFoodBranch);
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
+			}
+			if (!bNoBonusBranchSelected && eTerrain == eTerrainDesert)
+			{
+				bNoBonusLowFoodBranch = (iAdjustedFoodDifference < (kPlot.isHills() ? iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_HILL : iSAS_WORKER_AI_FOOD_BRANCH_THRESHOLD_DESERT_FLAT));
+				pNoBonusBranch = SAS_getWorkerNoBonusBranch(kWorkerBranches.kTerrainDesert, kPlot.isHills(), bNoBonusLowFoodBranch);
+				bNoBonusBranchSelected = (pNoBonusBranch != NULL);
+			}
+
+			if (pNoBonusBranch != NULL && !SAS_pickWorkerNoBonusBranchBuild(*this, kPlot, *pNoBonusBranch, bNoBonusLowFoodBranch, iAdjustedFoodDifference, iSAS_WORKER_AI_LOW_FOOD_DEFICIT_VALUE_PER_FOOD, iFoodSupportFarmValue, iNonFoodIrrigationPathPenalty, aNoBonusBuildValueAdjustments, eBestSupposedBuild, iValue))
+			{
+				continue;
+			}
+			BuildTypes const ePreFeatureRemovalBuild = eBestSupposedBuild;
+			int const iPreFeatureRemovalBuildValue = iValue;
+
+			// <!-- custom: PHASE 1.2 - feature removal overlay for non-bonus plots. The normal no-bonus branch picker chooses ordinary improvements first; this overlay then lets Forest/Jungle/Fallout removal adjust or override that choice when the feature itself is the main worker problem. Detailed scoring rationale and default values live in GlobalDefines_advciv_sas.xml. (ChatGPT-5.5 temporary review + GPT-5.5 review) -->
+			if (eFeature == eFeatureForest)
+			{
+				if (canBuild(kPlot, eBuildRemoveForest))
+				{
+					// <!-- custom: Forest: do not blindly chop health-providing Forests in small/unhealthy cities. Small cities use the old negative scoring formula; the no-health-surplus relax check applies only inside the large-city branch, so its effective threshold is also gated by SAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
+					static const int iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION = GC.getDefineINT("SAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION");
+					if (iCityPopulation >= iSAS_WORKER_AI_FEATURE_FOREST_CHOP_LARGE_CITY_MIN_POPULATION)
+					{
+						if (iCityHealthCalculatedDifference >= 1)
+						{
+							eBestSupposedBuild = eBuildRemoveForest;
+							iValue += iSAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT * iCityHealthCalculatedDifference;
+						}
+						else if (iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION > 0 && iCityPopulation >= iSAS_AI_BEST_CITY_BUILD_FOREST_CHOP_RELAX_MIN_POPULATION)
+						{
+							eBestSupposedBuild = eBuildRemoveForest;
+							iValue -= iSAS_WORKER_AI_FEATURE_FOREST_CHOP_UNHEALTH_PENALTY_PER_POINT * (1 - iCityHealthCalculatedDifference);
+						}
+						else
+						{
+							continue;
+						}
+					}
+					else
+					{
+						eBestSupposedBuild = eBuildRemoveForest;
+						iValue += iSAS_WORKER_AI_FEATURE_FOREST_CHOP_SMALL_CITY_BASE_VALUE + (iSAS_WORKER_AI_FEATURE_FOREST_CHOP_HEALTH_VALUE_PER_POINT * iCityHealthCalculatedDifference);
+					}
+				}
+				else if (eBestSupposedBuild == NO_BUILD)
+				{
+					continue;
+				}
+			}
+			else if (eFeature == eFeatureJungle)
+			{
+				if (canBuild(kPlot, eBuildRemoveJungle))
+				{
+					// <!-- custom: Jungle: usually clear because it blocks normal improvements and adds unhealth; XML-tunable population and health-pressure scoring only controls priority among possible worker jobs. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
+					if (iCityPopulation >= iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION)
+					{
+						eBestSupposedBuild = eBuildRemoveJungle;
+						int const iJungleLargeCityPopulationPressure = iCityPopulation - std::max(0, iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION - 1);
+						iValue += iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT * (iJungleLargeCityPopulationPressure - iCityHealthCalculatedDifference);
+					}
+					else
+					{
+						eBestSupposedBuild = eBuildRemoveJungle;
+						iValue += std::max(0, iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT * (-1 * iCityHealthCalculatedDifference));
+					}
+				}
+				else if (eBestSupposedBuild == NO_BUILD)
+				{
+					continue;
+				}
+			}
+			else if (eFeature == eFeatureFallout)
+			{
+				// <!-- custom: Fallout: scrub before ordinary non-bonus worker builds; if scrubbing is unavailable, skip the plot so workers do not improve through Fallout. (ChatGPT-5.5 + ChatGPT-5.5 temporary review + GPT-5.5 review) -->
+				if (canBuild(kPlot, eBuildScrubFallout))
+				{
+					eBestSupposedBuild = eBuildScrubFallout;
+					iValue += iSAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE;
+				}
+				else
+				{
+					continue;
+				}
+			}
+			if (eBestSupposedBuild != ePreFeatureRemovalBuild && ePreFeatureRemovalBuild != NO_BUILD && iPreFeatureRemovalBuildValue >= iSAS_WORKER_AI_FEATURE_REMOVAL_FOLLOWUP_MIN_VALUE && GC.getInfo(ePreFeatureRemovalBuild).getImprovement() != NO_IMPROVEMENT && canBuild(kPlot, ePreFeatureRemovalBuild))
+				eFeatureRemovalFollowupBuild = ePreFeatureRemovalBuild;
+
+			// else: no special feature handling; KEEP the eBestSupposedBuild chosen above
+			// <!-- custom: modify this if you implement new terrains/features/builds in your mod and want AI workers to support them with custom priorities. Unknown builds (not set up here) would be NO_BUILD and rejected later in plot loop. Add modifications wherever relevant (likely phase 1) for AI workers to use them in city tiles. (Claude code Sonnet 4.5 (summarized)) -->
+			// <!-- custom: note: in theory this new system should handle oscillation tremendously better, considering "sacred" higher level improvements, while being responsive to food or health or such conditions to overwrite or adjust future builds if needed -->
+		}
+
+		// <!-- custom: PHASE 1.3 - common logic again (both bonus and non-bonus plots again) no more adjusting the best build to build for this loop plot, now only final adjustments before storing plot information -->
+
+		// <!-- custom: check here after all builds adjustments if final settled on build is still none, then forget this plot -->
+		if (eBestSupposedBuild == NO_BUILD)
+		{
+			continue;
+		}
+		if (!canBuild(kPlot, eBestSupposedBuild))
+		{
+			continue;
+		}
+
+		// <!-- custom: Protect completed irrigation-chain Farms and directly irrigatable Farms selected for cities with high food need from non-Farm replacement builds.
+		// The deterministic route search above selects each new source-side connector when it can carry irrigation; keeping the old four-tile possible-bridge reservation would preserve unrelated plots that are not on its chosen route. (GPT-5.6-Sol) -->
+		ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
+		ImprovementTypes const eSupposedImprovement = GC.getInfo(eBestSupposedBuild).getImprovement();
+		if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && GET_TEAM(getTeam()).isIrrigation() && eBonus == NO_BONUS && eSupposedImprovement != NO_IMPROVEMENT && eSupposedImprovement != eImprovementFarm && !kPlot.isWater() && !kPlot.isHills() && !kPlot.isCity() && kPlot.canHavePotentialIrrigation())
+		{
+			bool bReserveForIrrigationFarm = (ePlotCurrentImprovement == eImprovementFarm);
+			if (!bReserveForIrrigationFarm && bCityHighFoodSupportNeed && canBuild(kPlot, eBuildFarm) && (kPlot.isFreshWater() || kPlot.isIrrigationAvailable(true)))
+				bReserveForIrrigationFarm = true;
+			if (bReserveForIrrigationFarm)
+			{
+				// <!-- custom: this fires 20k+ times so log level 3 -->
+				if (gWorkerLogLevel >= 3)
+				{
+					wchar const* szCurrentImprovement = (ePlotCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(ePlotCurrentImprovement).getDescription());
+					logBBAI("    %S worker skips non-farm build on future irrigation-farm plot for city %S: plot=(%d,%d) build=%S improvement=%S currentImprovement=%S", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), kPlot.getX(), kPlot.getY(), GC.getInfo(eBestSupposedBuild).getDescription(), GC.getInfo(eSupposedImprovement).getDescription(), szCurrentImprovement);
+				}
+				continue;
+			}
+		}
+
+		// <!-- custom: BBAI logs showed repeated non-bonus improvement oscillation such as Farm -> Cottage -> Farm and Mine -> Windmill -> Mine after food-support thresholds flipped back and forth. Before the configured era, cities are often small and health/happiness-capped, so extra food can be inefficient and early cottages still have time to mature.
+		// Later, cities are usually larger, health sources and specialist yields are stronger, and newly rebuilt cottages/growth improvements have less time to pay back. Block replacements that reduce plot food; this targets the observed food-direction reversals and also catches Cottage -> Workshop while workshops still cost food, without blocking equal-food retools, food-restoration changes such as Cottage -> Farm, or cleanup of City Ruins/obsolete Camps. (ChatGPT-5.5 + GPT-5.5); plus if we needed food once we are likely to prefer food again so prefer food anyway -->
+		// <!-- custom: In the tested BBAI log, old Mali plots that had repeated Farm -> Cottage -> Farm -> Cottage -> Farm loops now reached Farm again and then skipped later Farm -> Cottage attempts from about T128/T130 onward, stopping the repeated later loop. (ChatGPT-5.5 + GPT-5.5) -->
+		static const int iSAS_AI_WORKER_BLOCK_LOWER_FOOD_REPLACEMENT_MIN_ERA = GC.getDefineINT("SAS_AI_WORKER_BLOCK_LOWER_FOOD_REPLACEMENT_MIN_ERA");
+		if (GET_PLAYER(getOwner()).getCurrentEra() >= iSAS_AI_WORKER_BLOCK_LOWER_FOOD_REPLACEMENT_MIN_ERA && eBonus == NO_BONUS && ePlotCurrentImprovement != NO_IMPROVEMENT && ePlotCurrentImprovement != GC.getRUINS_IMPROVEMENT() && eSupposedImprovement != NO_IMPROVEMENT && ePlotCurrentImprovement != eSupposedImprovement)
+		{
+			int const iCurrentImprovementFood = kPlot.calculateImprovementYieldChange(ePlotCurrentImprovement, YIELD_FOOD, getOwner());
+			int const iSupposedImprovementFood = kPlot.calculateImprovementYieldChange(eSupposedImprovement, YIELD_FOOD, getOwner());
+			int const iReplacementFoodDelta = iSupposedImprovementFood - iCurrentImprovementFood;
+			if (iReplacementFoodDelta < 0)
+			{
+				if (gWorkerLogLevel >= 3)
+				{
+					logBBAI("    %S worker skips lower-food replacement for city %S: turn=%d plot=(%d,%d) current=%S food=%d proposed=%S food=%d replacementFoodDelta=%d build=%S value=%d",
+						GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), GC.getGame().getGameTurn(), kPlot.getX(), kPlot.getY(), GC.getInfo(ePlotCurrentImprovement).getDescription(), iCurrentImprovementFood, GC.getInfo(eSupposedImprovement).getDescription(), iSupposedImprovementFood, iReplacementFoodDelta, GC.getInfo(eBestSupposedBuild).getDescription(), iValue);
+				}
+				continue;
+			}
+		}
+
+		// <!-- custom: apply final penalties here, to account for edge cases where they are not relevant (badly needing a farm in a city full of flatland plains for example, then we may strongly consider overwriting, use bOverwriteCurrentImprovementHasPenalty to determine that). We could have applied it at first then cancel it for edge cases but is redundant and inefficient so do here rather i mean as seems ideal or more ideal if it is a word or way to say it-->
+
+		// <!-- custom: valorization for river tiles, we get one extra commerce, prioritize there if everything else is equal otherwise; but less than the penalty for overwriting as it should still be better to not overwrite just because there is a river; a river is otherwise sueful/valuable in this case at least if i may say i meanif all other conditions being equal, we can build there if i may say -->
+		if (kPlot.isRiver())
+		{
+			iValue += 100;
+		}
+
+		// Store this candidate <!-- custom: plot -->. We will check pathfinding <!-- custom: and other conditions (such as enemy on plot maybe) --> later <!-- custom: for efficiency, as there is no need to check this on tiles we would not select as best anyways, as gemini ai did thanks i mean, it is faster to just sort them all without looking too deep, then process them later, than spend computation to look at a tile we won't use later -->
+		CandidatePlot candidatePlot;
+		candidatePlot.iValue = iValue;
+		candidatePlot.pPlot = &kPlot;
+		candidatePlot.ePlot = ePlot;
+		candidatePlot.eBuild = eBestSupposedBuild;
+		candidatePlot.eFollowupBuild = eFeatureRemovalFollowupBuild;
+
+		candidatePlots.push_back(candidatePlot);
+	}
+
+	// <!-- custom: If this city still has ordinary unimproved BFC plots with valid improvement builds,
+	// do those before normal replacement builds on already-improved non-bonus plots. This keeps workers from
+	// spending turns on Mine<->Windmill or Cottage<->Farm churn while useful blank city tiles remain.
+	// Exceptions remain for bonus fixes and concrete irrigation-chain farm work, both of which can be more urgent
+	// than filling ordinary blank plots. (ChatGPT-5.5) -->
+	bool bHasUnimprovedBFCImprovementCandidate = false;
+	for (size_t i = 0; i < candidatePlots.size(); ++i)
+	{
+		CvPlot* pCandidatePlot = candidatePlots[i].pPlot;
+		BuildTypes eCandidateBuild = candidatePlots[i].eBuild;
+		if (pCandidatePlot == NULL || eCandidateBuild == NO_BUILD || candidatePlots[i].ePlot == NO_CITYPLOT)
+			continue;
+		if (pCandidatePlot->getImprovementType() == NO_IMPROVEMENT &&
+			GC.getInfo(eCandidateBuild).getImprovement() != NO_IMPROVEMENT)
+		{
+			bHasUnimprovedBFCImprovementCandidate = true;
+			break;
+		}
+	}
+
+	// <!-- custom: Diagnostic logging for remaining large-city blank-plot cases.
+	// This logs the candidate layer, not only the final chosen mission. It helps distinguish:
+	// city not selected, blank BFC plot not considered, blank plot considered but losing, replacement skipped,
+	// path failure, or plot reservation. Keep this temporary while testing Beijing-style unimproved large-city cases. (ChatGPT-5.5) -->
+	if (gWorkerLogLevel >= 3 && iCityPopulation >= 6)
+	{
+		int iUnimprovedImprovementCandidates = 0;
+		int iReplacementImprovementCandidates = 0;
+		int iBonusCandidates = 0;
+		int iTopUnimprovedValue = MIN_INT;
+		int iTopReplacementValue = MIN_INT;
+		CvPlot* pTopUnimprovedPlot = NULL;
+		CvPlot* pTopReplacementPlot = NULL;
+		BuildTypes eTopUnimprovedBuild = NO_BUILD;
+		BuildTypes eTopReplacementBuild = NO_BUILD;
+		ImprovementTypes eTopUnimprovedImprovement = NO_IMPROVEMENT;
+		ImprovementTypes eTopReplacementCurrentImprovement = NO_IMPROVEMENT;
+		ImprovementTypes eTopReplacementImprovement = NO_IMPROVEMENT;
+
+		for (size_t i = 0; i < candidatePlots.size(); ++i)
+		{
+			CvPlot* pCandidatePlot = candidatePlots[i].pPlot;
+			BuildTypes eCandidateBuild = candidatePlots[i].eBuild;
+			if (pCandidatePlot == NULL || eCandidateBuild == NO_BUILD)
+				continue;
+			ImprovementTypes const eCurrentImprovement = pCandidatePlot->getImprovementType();
+			ImprovementTypes const eCandidateImprovement = GC.getInfo(eCandidateBuild).getImprovement();
+			// <!-- custom: A worker chopped a worked Grass Hill near Cologne and then left without improving it. Log every unimproved BFC candidate in large cities so testing can show whether the follow-up Mine was generated and how its value compared with competing work. No behavior change. (GPT-5.5) -->
+			if (candidatePlots[i].ePlot != NO_CITYPLOT && eCurrentImprovement == NO_IMPROVEMENT)
+			{
+				TerrainTypes const eCandidateTerrain = pCandidatePlot->getTerrainType();
+				FeatureTypes const eCandidateFeature = pCandidatePlot->getFeatureType();
+				wchar const* szCandidateTerrain = (eCandidateTerrain == NO_TERRAIN ? L"-" : GC.getInfo(eCandidateTerrain).getDescription());
+				wchar const* szCandidateFeature = (eCandidateFeature == NO_FEATURE ? L"-" : GC.getInfo(eCandidateFeature).getDescription());
+				wchar const* szCandidateImprovement = (eCandidateImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCandidateImprovement).getDescription());
+				logBBAI("    WORKER_CITY_BUILD_CANDIDATE player=%d %S city=%S pop=%d plot=(%d,%d) cityPlot=%d worked=%d terrain=%S feature=%S hills=%d yields=(%d,%d,%d) build=%S improvement=%S value=%d",
+					getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), iCityPopulation, pCandidatePlot->getX(), pCandidatePlot->getY(), candidatePlots[i].ePlot, kCity.isWorkingPlot(*pCandidatePlot), szCandidateTerrain, szCandidateFeature, pCandidatePlot->isHills(),
+					pCandidatePlot->getYield(YIELD_FOOD), pCandidatePlot->getYield(YIELD_PRODUCTION), pCandidatePlot->getYield(YIELD_COMMERCE), GC.getInfo(eCandidateBuild).getDescription(), szCandidateImprovement, candidatePlots[i].iValue);
+			}
+			if (pCandidatePlot->getNonObsoleteBonusType(getTeam()) != NO_BONUS)
+				iBonusCandidates++;
+			if (candidatePlots[i].ePlot != NO_CITYPLOT && eCurrentImprovement == NO_IMPROVEMENT && eCandidateImprovement != NO_IMPROVEMENT)
+			{
+				iUnimprovedImprovementCandidates++;
+				if (candidatePlots[i].iValue > iTopUnimprovedValue)
+				{
+					iTopUnimprovedValue = candidatePlots[i].iValue;
+					pTopUnimprovedPlot = pCandidatePlot;
+					eTopUnimprovedBuild = eCandidateBuild;
+					eTopUnimprovedImprovement = eCandidateImprovement;
+				}
+			}
+			if (eCurrentImprovement != NO_IMPROVEMENT && eCandidateImprovement != NO_IMPROVEMENT && eCurrentImprovement != eCandidateImprovement)
+			{
+				iReplacementImprovementCandidates++;
+				if (candidatePlots[i].iValue > iTopReplacementValue)
+				{
+					iTopReplacementValue = candidatePlots[i].iValue;
+					pTopReplacementPlot = pCandidatePlot;
+					eTopReplacementBuild = eCandidateBuild;
+					eTopReplacementCurrentImprovement = eCurrentImprovement;
+					eTopReplacementImprovement = eCandidateImprovement;
+				}
+			}
+		}
+
+		wchar const* szTopUnimprovedBuild = (eTopUnimprovedBuild == NO_BUILD ? L"-" : GC.getInfo(eTopUnimprovedBuild).getDescription());
+		wchar const* szTopUnimprovedImprovement = (eTopUnimprovedImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTopUnimprovedImprovement).getDescription());
+		wchar const* szTopReplacementBuild = (eTopReplacementBuild == NO_BUILD ? L"-" : GC.getInfo(eTopReplacementBuild).getDescription());
+		wchar const* szTopReplacementCurrentImprovement = (eTopReplacementCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTopReplacementCurrentImprovement).getDescription());
+		wchar const* szTopReplacementImprovement = (eTopReplacementImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTopReplacementImprovement).getDescription());
+		logBBAI("    %S worker city-build scan: city=%S pop=%d candidates=%d unimprovedBuilds=%d replacementBuilds=%d bonusCandidates=%d hasBlank=%d topBlank=(%d,%d) build=%S improvement=%S value=%d topReplacement=(%d,%d) build=%S current=%S improvement=%S value=%d",
+			GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), iCityPopulation, (int)candidatePlots.size(), iUnimprovedImprovementCandidates, iReplacementImprovementCandidates, iBonusCandidates, bHasUnimprovedBFCImprovementCandidate,
+			(pTopUnimprovedPlot == NULL ? -1 : pTopUnimprovedPlot->getX()), (pTopUnimprovedPlot == NULL ? -1 : pTopUnimprovedPlot->getY()), szTopUnimprovedBuild, szTopUnimprovedImprovement, (pTopUnimprovedPlot == NULL ? 0 : iTopUnimprovedValue),
+			(pTopReplacementPlot == NULL ? -1 : pTopReplacementPlot->getX()), (pTopReplacementPlot == NULL ? -1 : pTopReplacementPlot->getY()), szTopReplacementBuild, szTopReplacementCurrentImprovement, szTopReplacementImprovement, (pTopReplacementPlot == NULL ? 0 : iTopReplacementValue));
+	}
+
+	// ===================================================
+	// PHASE 2: Sort the candidate <!-- custom: plots --> and find the first pathable one.
+	// ===================================================
+	std::sort(candidatePlots.begin(), candidatePlots.end(), std::greater<CandidatePlot>());
+
+	CvPlot* pBestPlot = NULL;
+	BuildTypes eBestBuild = NO_BUILD;
+	BuildTypes eBestFollowupBuild = NO_BUILD;
+	int iBestValue = 0;
+	bool bFound = false;
+	int const iRange = 0;
+	// <!-- custom: pathable/reservable blank-BFC work should be tried before ordinary replacement churn, but raw blank candidates alone are not enough.
+	// Logs showed Ankara skipping a Mine->Windmill replacement because a blank BFC farm candidate existed, then finding no pathable city-build candidate anyway.
+	// Only suppress replacements when this worker has at least one reachable and unreserved unimproved BFC improvement candidate.
+	// In a full-game log test, replacement-skip lines dropped from 1130 to 121 and accepted city-build scans rose from 24.9% to 41.5%, while overwrite churn only changed from 347 to 360. (ChatGPT-5.5 + GPT-5.5) -->
+	bool bHasPathableUnimprovedBFCImprovementCandidate = false;
+	if (bHasUnimprovedBFCImprovementCandidate)
+	{
+		for (size_t i = 0; i < candidatePlots.size(); ++i)
+		{
+			CvPlot* pCandidatePlot = candidatePlots[i].pPlot;
+			BuildTypes eCandidateBuild = candidatePlots[i].eBuild;
+			if (pCandidatePlot == NULL || eCandidateBuild == NO_BUILD || candidatePlots[i].ePlot == NO_CITYPLOT)
+				continue;
+			if (pCandidatePlot->getImprovementType() != NO_IMPROVEMENT || GC.getInfo(eCandidateBuild).getImprovement() == NO_IMPROVEMENT)
+				continue;
+			if (pCandidatePlot->isVisibleEnemyUnit(this) || !pathFinder.generatePath(*pCandidatePlot))
+				continue;
+			int const iMaxWorkers = 1;
+			int const iReservedPlot = GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pCandidatePlot, MISSIONAI_BUILD, getGroup(), iRange, iMaxWorkers);
+			if (iReservedPlot < iMaxWorkers)
+			{
+				bHasPathableUnimprovedBFCImprovementCandidate = true;
+				break;
+			}
+		}
+	}
+
+	int iDiagnosticVisibleEnemyRejects = 0;
+	int iDiagnosticNoPathRejects = 0;
+	int iDiagnosticPathableCandidates = 0;
+	int iDiagnosticReservedRejects = 0;
+	int iDiagnosticReplacementSkipRejects = 0;
+
+	// Loop through all candidate <!-- custom: plots -->
+	for (size_t i = 0; i < candidatePlots.size(); ++i)
+	{
+		// Note: do not assign *ppBestPlot/*peBestBuild inside the loop. Only set the locals there.
+		CvPlot* pB = candidatePlots[i].pPlot;
+		BuildTypes eB = candidatePlots[i].eBuild;
+
+		FAssert(pB != NULL);
+		// <!-- custom: we don't test this assertion??? Most likely is where our crash at turn 77 happens again as chatgpt 5 provided, see code comments related to AI_bestCityBuild crashes at turn 77 for details, and check if accurate -->
+        // <-- when you accept:
+		if (pB == NULL)
+		{
+			continue;
+		}
+		if (eB == NO_BUILD)
+		{
+			continue;
+		}
+		// <!-- custom: and of the additions to fix crash at turn 77 -->
+
+		if (bHasPathableUnimprovedBFCImprovementCandidate)
+		{
+			ImprovementTypes const eCurrentImprovement = pB->getImprovementType();
+			ImprovementTypes const eCandidateImprovement = GC.getInfo(eB).getImprovement();
+			BonusTypes const eCandidateBonus = pB->getNonObsoleteBonusType(getTeam());
+			bool const bIrrigationFarmReplacement = (
+				bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE &&
+				eCandidateImprovement == eImprovementFarm &&
+				GET_TEAM(getTeam()).isIrrigation() &&
+				!pB->isWater() && !pB->isHills() && !pB->isCity() &&
+				pB->canHavePotentialIrrigation() &&
+				(pB->isFreshWater() || pB->isIrrigationAvailable(true)));
+			bool const bNormalReplacementWhileBlankBFCRemains = (
+				eCurrentImprovement != NO_IMPROVEMENT &&
+				eCandidateImprovement != NO_IMPROVEMENT &&
+				eCurrentImprovement != eCandidateImprovement &&
+				eCandidateBonus == NO_BONUS &&
+				!bIrrigationFarmReplacement);
+			if (bNormalReplacementWhileBlankBFCRemains)
+			{
+				iDiagnosticReplacementSkipRejects++;
+				if (gWorkerLogLevel >= 2)
+				{
+					logBBAI("    %S worker skips replacement while unimproved BFC plot remains for city %S: plot=(%d,%d) build=%S current=%S candidate=%S value=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), pB->getX(), pB->getY(), GC.getInfo(eB).getDescription(), GC.getInfo(eCurrentImprovement).getDescription(), GC.getInfo(eCandidateImprovement).getDescription(), candidatePlots[i].iValue);
+				}
+				continue;
+			}
+		}
+
+		// Check pathfinding <!-- custom: and other conditions such as worker safety militarily and any other if any -->.
+		if (pB->isVisibleEnemyUnit(this))
+		{
+			iDiagnosticVisibleEnemyRejects++;
+			continue;
+		}
+
 		/*int iPathTurns;
-		if (generatePath(pBestPlot, 0, true, &iPathTurns) && canBuild(pBestPlot, eBestBuild) &&
-				!pBestPlot->isVisibleEnemyUnit(this)) {
+		if (generatePath(pB, 0, true, &iPathTurns) && canBuild(pB, eB) &&
+				!pB->isVisibleEnemyUnit(this)) {
 			int iMaxWorkers = 1;
 			if (pUnit != NULL) {
 				if (pUnit->getPlot().isCity())
@@ -862,36 +3830,100 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
 			if (getPathLastNode()->m_iData1 == 0)
 				iPathTurns++;
 			else if (iPathTurns <= 1)
-				iMaxWorkers = AI_calculatePlotWorkersNeeded(pBestPlot, eBestBuild);
+				iMaxWorkers = AI_calculatePlotWorkersNeeded(pB, eB);
 		} */ // BtS
 		// K-Mod. basically the same thing, but using pathFinder.
-		if (pathFinder.generatePath(*pBestPlot))
+		if (pathFinder.generatePath(*pB))
 		{
-			int iPathTurns = pathFinder.getPathTurns() +
-					(pathFinder.getFinalMoves() == 0 ? 1 : 0);
-			int iMaxWorkers = iPathTurns > 1 ? 1 :
-					AI_calculatePlotWorkersNeeded(*pBestPlot, eBestBuild);
-			if (pUnit != NULL && pUnit->getPlot().isCity() && iPathTurns == 1)
-				iMaxWorkers += 10;
-		// K-Mod end
-			int iWorkerCount = GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
-					*pBestPlot, MISSIONAI_BUILD, getGroup());
-			if (iWorkerCount < iMaxWorkers)
-				break; //Good to go.
+			iDiagnosticPathableCandidates++;
+			// <!-- custom: max one worker per tile, should be much more efficient in most cases, minimal gain in spending a lot of move speed to go in one tile this move speed could be used to start much faster on other tiles, especially if it's to inefficiently move to high move cost tile like unroaded hill or forest; however in some cases this may be slower, than say improve a bonus to a farm or pasture with 2 available workers, but i hope that in most cases this is statistically more beneficial for the AI than not to focus one worker on one tile, the type of improvement may also be improtant to tweak as well, ideally start with the improvement not a road on food bonuses (even if just 1 food) but not handled here if we ever handle it; is maybe also computationally faster as a side effect to execute this code maybe (but check to be sure as this is just a guess and i don't know too much about these but i assume so), it also nicely simplifies code as gemini ai suggested. -->
+			//int iPathTurns = pathFinder.getPathTurns() + (pathFinder.getFinalMoves() == 0 ? 1 : 0);
+			// int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(*pB, eB);
+			// if (pUnit != NULL && pUnit->getPlot().isCity() && iPathTurns == 1)
+			// 	iMaxWorkers += 10;
+			//
+			// if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pB, MISSIONAI_BUILD, getGroup(),
+			// 	/* <advc.opt> */ 0, iMaxWorkers /* </advc.opt> */) < iMaxWorkers)
+
+			// <!-- custom: chatgpt 5 explanation of this code to help me make sense of this, check to be sure it is accurate or not accurate, hopefully informative as well for me or and others or not or yes or etc-->
+			// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
+			// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
+			// With iRange = 0, it only counts groups whose target is exactly the same tile.
+			// → Perfect for “one-per-tile"; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
+			// If you set iRange = 1 or 2, you create a “soft exclusion bubble" around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
+			// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore -->
+			int const iMaxWorkers = 1;
+			int const iReservedPlot = GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pB, MISSIONAI_BUILD, getGroup(), iRange, iMaxWorkers);
+			if (iReservedPlot < iMaxWorkers)
+			{
+				// This is a valid, pathable, and <!-- custom: current highest (in our loop) value --> available candidate <!-- custom: plot -->. We found it!
+				// <-- when you accept:
+				// ACCEPT the candidate: set locals (NOT out-params), mark found, and break
+				pBestPlot  = pB;
+				eBestBuild = eB;
+				eBestFollowupBuild = candidatePlots[i].eFollowupBuild;
+				iBestValue = candidatePlots[i].iValue;
+				bFound     = true;
+				if (gWorkerLogLevel >= 2 && iCityPopulation >= 6)
+				{
+					int const iDiagnosticPathTurns = pathFinder.getPathTurns();
+					ImprovementTypes const eCurrentImprovement = pB->getImprovementType();
+					ImprovementTypes const eCandidateImprovement = GC.getInfo(eB).getImprovement();
+					wchar const* szCurrentImprovement = (eCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCurrentImprovement).getDescription());
+					wchar const* szCandidateImprovement = (eCandidateImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eCandidateImprovement).getDescription());
+					logBBAI("    %S worker accepts city-build candidate for city %S: plot=(%d,%d) build=%S current=%S improvement=%S value=%d pathTurns=%d reserved=%d/%d",
+						GET_PLAYER(getOwner()).getCivilizationDescription(0), kCity.getName().GetCString(), pB->getX(), pB->getY(), GC.getInfo(eB).getDescription(), szCurrentImprovement, szCandidateImprovement, candidatePlots[i].iValue, iDiagnosticPathTurns, iReservedPlot, iMaxWorkers);
+				}
+				if (gWorkerLogLevel >= 2 && candidatePlots[i].ePlot == NO_CITYPLOT && eB == eBuildFarm)
+					logBBAI("    %S worker chooses irrigation-chain step at (%d,%d), value=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pB->getX(), pB->getY(), candidatePlots[i].iValue);
+				break;
+			}
+			iDiagnosticReservedRejects++;
 		}
-		eBestBuild = NO_BUILD;
-		iBestValue = 0;
+		else
+		{
+			iDiagnosticNoPathRejects++;
+		}
 	}
 
-	if (eBestBuild != NO_BUILD)
+	// ===================================================
+	// FINAL: Return the result.
+	// ===================================================
+	// <!-- custom: we get a crash at turn 77 when disabling food checks on non-bonus non-hill grass plots in an attempt to solve/debug other oscillation issues, but we did have a crash in AI_nextCityToImprove caller of AI_bestCityBuild function when checking if it was not false, which didn't happen if guarded before by the old AI_getBestBuild (see code comment at caller for details), which is very suspicious of us doing something wrong here after or before our refactor, as chatgpt 5 pointed based on code samples i provided it to and my vague guess about that too hehe. Based on chatgpt 5 feedback and review of code samples, adding this instead, check if accurate -->
+	// if (eBestBuild != NO_BUILD)
+	// {
+	// 	FAssert(pBestPlot != NULL);
+	// 	if (ppBestPlot != NULL)
+	// 		*ppBestPlot = pBestPlot;
+	// 	if (peBestBuild != NULL)
+	// 		*peBestBuild = eBestBuild;
+	// }
+
+	// return (eBestBuild != NO_BUILD);
+
+	// Ensure outputs are consistent no matter how we exit
+	if (!bFound && gWorkerLogLevel >= 3 && iCityPopulation >= 6 && !candidatePlots.empty())
 	{
-		FAssert(NULL != pBestPlot);
-		if (ppBestPlot != NULL)
-			*ppBestPlot = pBestPlot;
-		if (peBestBuild != NULL)
-			*peBestBuild = eBestBuild;
+		CvPlot* pTopCandidatePlot = candidatePlots[0].pPlot;
+		BuildTypes const eTopCandidateBuild = candidatePlots[0].eBuild;
+		ImprovementTypes const eTopCandidateCurrentImprovement = (pTopCandidatePlot == NULL ? NO_IMPROVEMENT : pTopCandidatePlot->getImprovementType());
+		ImprovementTypes const eTopCandidateImprovement = (eTopCandidateBuild == NO_BUILD ? NO_IMPROVEMENT : GC.getInfo(eTopCandidateBuild).getImprovement());
+		wchar const* szTopCandidateBuild = (eTopCandidateBuild == NO_BUILD ? L"-" : GC.getInfo(eTopCandidateBuild).getDescription());
+		wchar const* szTopCandidateCurrentImprovement = (eTopCandidateCurrentImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTopCandidateCurrentImprovement).getDescription());
+		wchar const* szTopCandidateImprovement = (eTopCandidateImprovement == NO_IMPROVEMENT ? L"-" : GC.getInfo(eTopCandidateImprovement).getDescription());
+		// <!-- custom: The old worker no-path log spammed harmless cases with 0 raw candidates, hiding real failures. Log only raw-candidate failures, with worker/city/top-candidate context and rejection counters, so BBAI reviews can tell whether pathing, reservations, enemies, or replacement-skip policy blocked all work without changing behavior. Reservation-only failures are often normal worker coordination, so the tag says "no accepted" rather than implying no candidate was pathable. (ChatGPT-5.5 + GPT-5.5) -->
+		logBBAI("    WORKER_NO_ACCEPTED_CITY_BUILD turn=%d player=%d %S workerId=%d unit=%S worker=(%d,%d) workerArea=%d city=%S city=(%d,%d) cityArea=%d pop=%d rawCandidates=%d pathable=%d noPath=%d visibleEnemy=%d reserved=%d replacementSkip=%d hasBlank=%d pathableBlank=%d top=(%d,%d) topArea=%d topBuild=%S topCurrent=%S topImprovement=%S topValue=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), getX(), getY(), getPlot().getArea().getID(),
+			kCity.getName().GetCString(), kCity.getX(), kCity.getY(), kCity.getPlot().getArea().getID(), iCityPopulation, (int)candidatePlots.size(), iDiagnosticPathableCandidates,
+			iDiagnosticNoPathRejects, iDiagnosticVisibleEnemyRejects, iDiagnosticReservedRejects, iDiagnosticReplacementSkipRejects, bHasUnimprovedBFCImprovementCandidate, bHasPathableUnimprovedBFCImprovementCandidate,
+			(pTopCandidatePlot == NULL ? -1 : pTopCandidatePlot->getX()), (pTopCandidatePlot == NULL ? -1 : pTopCandidatePlot->getY()), (pTopCandidatePlot == NULL ? -1 : pTopCandidatePlot->getArea().getID()),
+			szTopCandidateBuild, szTopCandidateCurrentImprovement, szTopCandidateImprovement, candidatePlots[0].iValue);
 	}
-	return (eBestBuild != NO_BUILD);
+	if (ppBestPlot)  *ppBestPlot  = bFound ? pBestPlot  : NULL;
+	if (peBestBuild) *peBestBuild = bFound ? eBestBuild : NO_BUILD;
+	if (piBestValue) *piBestValue = bFound ? iBestValue : 0;
+	if (peFollowupBuild) *peFollowupBuild = bFound ? eBestFollowupBuild : NO_BUILD;
+	return bFound;
 }
 
 
@@ -1024,9 +4056,7 @@ void CvUnitAI::AI_setUnitAIType(UnitAITypes eNewValue)
 /*  advc.159: Like CvUnit::currEffectiveStr, but takes into account first strikes,
 	collateral damage and that combat odds increase superlinearly with combat strength.
 	The scale is arbitrary, i.e. one should only compare the returned values with each other. */
-int CvUnitAI::AI_currEffectiveStr(CvPlot const* pPlot, CvUnit const* pOther,
-	bool bCountCollateral, int iBaseCollateral, bool bCheckCanAttack,
-	int iCurrentHP, bool bAssumePromotion) const // advc.139
+int CvUnitAI::AI_currEffectiveStr(CvPlot const* pPlot, CvUnit const* pOther, bool bCountCollateral, int iBaseCollateral, bool bCheckCanAttack, int iCurrentHP, bool bAssumePromotion) const // advc.139
 {
 	PROFILE_FUNC(); // Called frequently but not extremely so; fine as it is.
 	int iCombatStrengthPercent = currEffectiveStr(pPlot, pOther, NULL, iCurrentHP);
@@ -1201,8 +4231,8 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
 }
 
 // Lead From Behind, by UncutDragon, edited for K-Mod
-void CvUnitAI::LFBgetBetterAttacker(CvUnitAI** ppAttacker, // advc.003u: param was CvUnit**
-	CvPlot const* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue)
+// advc.003u: param was CvUnit** <!-- custom: hoisted from multiline signature between `ppAttacker` and `pPlot` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+void CvUnitAI::LFBgetBetterAttacker(CvUnitAI** ppAttacker, CvPlot const* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue)
 {
 	CvUnit const* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwner(), this,
 			!bPotentialEnemy, bPotentialEnemy);
@@ -1359,6 +4389,20 @@ void CvUnitAI::AI_animalMove()
 }
 
 
+bool CvUnitAI::AI_scrapSettlerWithNoValidSite(bool bDanger, MovementFlags eMoveFlags)
+{
+	FAssertMsg(!isHuman() && AI_getUnitAIType() == UNITAI_SETTLE, "No-valid-site cleanup is only valid for an AI Settler");
+	static const bool bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE");
+	if (isHuman() || AI_getUnitAIType() != UNITAI_SETTLE || bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE || getPlot().isFighting()) return false;
+	// <!-- custom: SAS protects Settlers from costly produce/scrap loops, but save files 449 and 450 exposed the inherited no-valid-site cleanup silently failing for up to 262 turns while each Settler kept two useful military escorts trapped. This named operation applies only after AI_settleMove has proven that an AI Settler older than 20 turns has no valid site and no pending transport pickup.
+	// Log the still-attached group for diagnosis, then detach the Settler so delayed deletion cannot hold its escorts. Use the shared successful-scrap body without weakening normal SAS protection. (GPT-5.6-Sol) -->
+	if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "SCRAP_NO_VALID_CITY_SITE", 0, 0, bDanger, eMoveFlags);
+	if (getGroup()->getNumUnits() > 1) joinGroup(NULL);
+	scrapInternal();
+	return true;
+}
+
+
 void CvUnitAI::AI_settleMove()
 {
 	PROFILE_FUNC();
@@ -1389,7 +4433,10 @@ void CvUnitAI::AI_settleMove()
 		{	// flee
 			joinGroup(NULL);
 			if(AI_retreatToCity())
+			{
+				if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "RETREAT_TO_CITY_DANGER", 0, 0, bDanger, eMoveFlags);
 				return;
+			}
 			/*if(AI_safety())
 				return;
 			getGroup()->pushMission(MISSION_SKIP);*/ // BtS
@@ -1409,9 +4456,30 @@ void CvUnitAI::AI_settleMove()
 		{
 			if (at(kSite) && canFound(plot()))
 			{
-				if (gUnitLogLevel >= 2) logBBAI("    Settler founding in place since it's at a city site %d, %d", getX(), getY());
-				getGroup()->pushMission(MISSION_FOUND);
-				return;
+				static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
+				if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockDangerousUnescortedFounding(*this, getPlot()))
+				{
+					if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "DANGEROUS_NO_ESCORT");
+				}
+				else
+				{
+					CvPlot const* pBetterFoundPlot = NULL;
+					int iBetterFoundValue = 0;
+					int iBetterPathTurns = -1;
+					int const iCurrentFoundValue = getPlot().getFoundValue(getOwner());
+					if (SAS_shouldDelayFoundInPlaceForBetterReachableSite(*this, eMoveFlags, getPlot(), iCurrentFoundValue, pBetterFoundPlot, iBetterFoundValue, iBetterPathTurns))
+					{
+						if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("DELAY_FOUND_IN_PLACE_BETTER_SITE", *this, pBetterFoundPlot, &getPathEndTurnPlot(), iBetterFoundValue, iBetterPathTurns, "BETTER_REACHABLE_SITE");
+						continue;
+					}
+					if (gSettlerLogLevel >= 2)
+					{
+						logBBAI("    Settler founding in place since it's at a city site %d, %d", getX(), getY());
+						SAS_logSettlerMissionDecision("PUSH_FOUND_IN_PLACE", *this, &getPlot(), &getPlot(), iCurrentFoundValue, 0, "AI_SETTLE_MOVE_AT_SITE");
+					}
+					getGroup()->pushMission(MISSION_FOUND);
+					return;
+				}
 			}
 			// K-Mod. If we are already heading to this site, then keep going.
 			// (disabled. This is no longer required - I hope.)
@@ -1420,7 +4488,7 @@ void CvUnitAI::AI_settleMove()
 				if (pMissionPlot == pCitySitePlot && getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND) {
 					// safety check. (cf. conditions in AI_found)
 					if (getGroup()->canDefend() || kOwner.AI_plotTargetMissionAIs(pMissionPlot, MISSIONAI_GUARD_CITY) > 0) {
-						if (gUnitLogLevel >= 2) logBBAI("    Settler continuing mission to %d, %d", pCitySitePlot->getX(), pCitySitePlot->getY());
+						if (gSettlerLogLevel >= 2) logBBAI("    Settler continuing mission to %d, %d", pCitySitePlot->getX(), pCitySitePlot->getY());
 						CvPlot& kEndTurnPlot = getPathEndTurnPlot();
 						pushGroupMoveTo(kEndTurnPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pCitySitePlot);
 						return;
@@ -1452,15 +4520,18 @@ void CvUnitAI::AI_settleMove()
 		if (GC.getGame().getGameTurn() - getGameTurnCreated() > 20)
 		{
 			if (getTransportUnit() != NULL)
-				getTransportUnit()->unloadAll();
+			{
+				// <!-- custom: Unload only this no-site Settler; unloading the whole transport can eject unrelated cargo. See KI#215. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				unload();
+			}
 			if (getTransportUnit() == NULL)
 			{
 				// BETTER_BTS_AI_MOD, Unit AI, 11/30/08, jdog5000: guard added
 				if (!kOwner.AI_isAnyUnitTargetMissionAI(*getGroup()->getHeadUnit(), MISSIONAI_PICKUP))
 				{
 					//FErrorMsg("advc.test: Just to see how frequently the AI scraps settlers"); // hardly ever
-					scrap(); //may seem wasteful, but settlers confuse the AI.
-					return;
+					// <!-- custom: Use the explicit SAS exception because generic Settler scrap protection intentionally rejects this inherited cleanup. (GPT-5.6-Sol) -->
+					if (AI_scrapSettlerWithNoValidSite(bDanger, eMoveFlags)) return; //may seem wasteful, but settlers confuse the AI.
 				}
 			}
 		}
@@ -1490,7 +4561,7 @@ void CvUnitAI::AI_settleMove()
 
 	/*if ((iAreaBestFoundValue > 0) && getPlot().isBestAdjacentFound(getOwner())) {
 		if (canFound(plot())) {
-			if (gUnitLogLevel >= 2) logBBAI("    Settler founding in place due to best adjacent found");
+			if (gSettlerLogLevel >= 2) logBBAI("    Settler founding in place due to best adjacent found");
 			getGroup()->pushMission(MISSION_FOUND);
 			return;
 		}
@@ -1502,10 +4573,9 @@ void CvUnitAI::AI_settleMove()
 	} */ /* BtS - disabled by K-Mod. Let them risk moving an undefended settler..
 			there are other checks in place to help them. */
 
-	if (getPlot().isCity() && getPlot().getOwner() == getOwner() &&
-		bDanger && GC.getGame().getMaxCityElimination() > 0 &&
-		getGroup()->getNumUnits() < 3)
+	if (getPlot().isCity() && getPlot().getOwner() == getOwner() && bDanger && GC.getGame().getMaxCityElimination() > 0 && getGroup()->getNumUnits() < 3)
 	{
+		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_CITY_DANGER_MAX_CITY_ELIMINATION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
 		getGroup()->pushMission(MISSION_SKIP);
 		return;
 	}
@@ -1513,6 +4583,33 @@ void CvUnitAI::AI_settleMove()
 	{
 		if (AI_found(eMoveFlags))
 			return;
+	}
+	// <!-- custom: Let AI_found make the actual city-site decision first; only park or retreat an unescorted Settler after all currently allowed found missions have been rejected. Save-file 450 follow-up logs showed this keeps guarded city founding moving while cities that cannot keep enough healthy defenders after giving one to the Settler wait instead of sending lone exposed Settlers. See KI#179. (ChatGPT-5.5) -->
+	static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
+	if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && kOwner.getNumCities() > 0 && getGroup() != NULL && !getGroup()->canDefend() && getInvisibleType() == NO_INVISIBLE)
+	{
+		if (getPlot().isCity() && getPlot().getOwner() == getOwner() && iAreaBestFoundValue > 0)
+		{
+			if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_CITY_NO_SPARE_ESCORT_FOR_EXPOSED_SITE", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+			getGroup()->pushMission(MISSION_SKIP);
+			return;
+		}
+		if (getPlot().getOwner() != getOwner() || bDanger)
+		{
+			if (AI_retreatToCity())
+			{
+				if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "RETREAT_UNESCORTED_EXPOSED_SETTLER", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+				return;
+			}
+			if (AI_safety())
+			{
+				if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "SAFETY_UNESCORTED_EXPOSED_SETTLER", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+				return;
+			}
+			if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_UNESCORTED_EXPOSED_SETTLER", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
+			getGroup()->pushMission(MISSION_SKIP);
+			return;
+		}
 	}
 	// <advc.040>
 	if(bMoveToCoast && AI_moveSettlerToCoast())
@@ -1574,13 +4671,23 @@ void CvUnitAI::AI_settleMove()
 	} // K-Mod end
 
 	if(AI_retreatToCity())
+	{
+		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "RETREAT_TO_CITY_NO_FOUND_ACTION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
 		return;
+	}
 	// K-Mod
 	if (AI_handleStranded())
+	{
+		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "HANDLE_STRANDED_NO_FOUND_ACTION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
 		return;
+	}
 	// K-Mod end
 	if (AI_safety())
+	{
+		if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "SAFETY_NO_FOUND_ACTION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
 		return;
+	}
+	if (gSettlerLogLevel >= 2) SAS_logSettlerParking(*this, "WAIT_NO_SETTLER_ACTION", iAreaBestFoundValue, iOtherBestFoundValue, bDanger, eMoveFlags);
 	getGroup()->pushMission(MISSION_SKIP);
 }
 
@@ -1591,21 +4698,43 @@ bool CvUnitAI::AI_foundFirstCity()
 	// <advc>
 	CvGame const& kGame = GC.getGame();
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
-	CvGameSpeedInfo const& kSpeed = GC.getInfo(kGame.getGameSpeedType());
+	// <!-- custom: we don't use kSpeed and game speed percent as noted by chatgpt 5 thanks hehe, can comment them out now -->
+	// CvGameSpeedInfo const& kSpeed = GC.getInfo(kGame.getGameSpeedType());
 	/*  Earlier exploreMove may have revealed more tiles. Don't set bStartingLoc;
 		that setting rules out e.g. plots with a goody hut or at the edge of a
 		flat map. I've added some getNumCities()<=0 checks to AI_foundValue. */
 	kOwner.AI_updateFoundValues(false); // </advc>
-	int iGameSpeedPercent = (2 * kSpeed.getTrainPercent()
-			+ kSpeed.getConstructPercent() + kSpeed.getResearchPercent()) / 4;
-	int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
+	// int iGameSpeedPercent = (2 * kSpeed.getTrainPercent()
+	// 		+ kSpeed.getConstructPercent() + kSpeed.getResearchPercent()) / 4;
+
+	// <!-- custom: give AIs more time to pick best capital spot. Sometimes they start in bad spots when much better ones are available; no hurry to settle immediately. Lower quality starts may be fine for 3rd city but not for capital, which is key to winning. Same on all maps (capital is important even at fastest speed). Credit: ChatGPT 5; Claude AI. (Claude code Sonnet 4.5 (summarized)) -->
+	// int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
+	static const int iMaxTurnsToFound = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_UNSCALED_GAMESPEED_TO_FOUND");
+	const bool bLogSettlerAILevel2 = (gSettlerLogLevel >= 2);
+	const bool bLogSettlerAILevel3 = (gSettlerLogLevel >= 3);
+	CvPlot* pFirstCityScoutOrigin = (AI_getGroup()->AI_getMissionAIType() == MISSIONAI_EXPLORE ? AI_getGroup()->AI_getMissionAIPlot() : NULL);
+	const bool bContinuingFirstCityScout = (pFirstCityScoutOrigin != NULL && pFirstCityScoutOrigin != plot());
+	const int iFirstCityScoutOriginValue = (bContinuingFirstCityScout ? SAS_evaluateFirstCityFoundValue(kOwner, *pFirstCityScoutOrigin) : -MAX_INT);
+
 	if(!kGame.isScenario() && // advc: Let the creator of the scenario decide where the AI settles
-		canMove() && !kOwner.AI_isPlotCitySite(getPlot()) &&
-		kGame.getElapsedGameTurns() <= iMaxFoundTurn)
+		canMove() &&
+		kGame.getElapsedGameTurns() <= iMaxTurnsToFound)
 	{
 		CvPlot* pBestPlot = NULL;
-		int iBestValue = 0;
-		int iBestFoundTurn = 0;
+
+		int iBestValue = 0; // raw found value of the chosen site (for logs)
+		// <!-- custom: expand this logic chatgpt 5 suggested / had the idea, that in case the base value is somehow really low but the only good one, check if accurate-->
+		// (Nice-to-have) Initialize iBestWeightedValue = -1 so a site with score 0 can still win if nothing else is reachable.
+		int iBestWeightedValue = -99999; // weighted score = raw * weight (0..100)
+		int iBestTurnToFound = 0;
+		// <!-- custom: Karakorum founded in-place in plains/tundra while nearby high-food sites existed. Log the starting settler's top three reachable first-city candidates so we can see whether site valuation or the movement window caused the decision. (GPT-5.5) -->
+		// <!-- custom: enhance and add logging for first-city found logic: add scouting, moving away from high bad plot count starts, and running again an evaluate city site scoring when a site is no longer bad instead of settling right away; also add logging. See KI#144. -->
+		int aiTopWeightedValue[3] = {-99999, -99999, -99999};
+		int aiTopValue[3] = {0, 0, 0};
+		int aiTopTurnToFound[3] = {-1, -1, -1};
+		int aiTopX[3] = {-1, -1, -1};
+		int aiTopY[3] = {-1, -1, -1};
+
 		for (int iCitySite = 0; iCitySite < kOwner.AI_getNumCitySites(); iCitySite++)
 		{
 			CvPlot& kSite = kOwner.AI_getCitySite(iCitySite);
@@ -1614,62 +4743,429 @@ bool CvUnitAI::AI_foundFirstCity()
 			{
 				continue;
 			}
+
 			//int iPlotValue = kOwner.AI_foundValue(pCitySite->getX(), pCitySite->getY());
-			int iPlotValue = kSite.getFoundValue(kOwner.getID());
-			if(iPlotValue <= iBestValue)
+			// <!-- custom: First-city roaming/recheck uses fresh starting-weight evaluation without all-seeing, but the cached city-site value could disagree massively after scouting. China and London were pulled back to old cached winners despite nearby first-city scoring, so compare first-city sites with the same fresh scoring used by the new branches. (GPT-5.5) -->
+			int const iPlotValue = SAS_evaluateFirstCityFoundValue(kOwner, kSite);
+
+			// (Optional, nice speed-up) Add an upper-bound prune before pathfinding: if even with weight=100 a site can’t beat the current best, skip generatePath:
+			if (iPlotValue * 100 <= iBestWeightedValue)  // max weight is 100
+			{
 				continue;
+			}
+
 			//Can this unit reach the plot this turn? (getPathLastNode()->m_iData2 == 1)
 			//Will this unit still have movement points left to found the city the same turn? (getPathLastNode()->m_iData1 > 0))
 			if (generatePath(kSite))
 			{
-				int iFoundTurn = kGame.getElapsedGameTurns() +
-						/*getPathLastNode()->m_iData2 -
-						(getPathLastNode()->m_iData1 > 0 ? 1 : 0);*/
-						// advc: Adapted to K-Mod pathfinder
-						getPathFinder().getPathTurns() -
-						(getPathFinder().getFinalMoves() > 0 ? 1 : 0);
-				if (iFoundTurn <= iMaxFoundTurn)
+				// CLAUDE: Calculate <!-- custom: found turn --> for THIS SPECIFIC PLOT
+				// Now we can ask the pathfinder about the path it just calculated:
+				// int const iFoundTurn = kGame.getElapsedGameTurns() +
+				// 		/*getPathLastNode()->m_iData2 -
+				// 		(getPathLastNode()->m_iData1 > 0 ? 1 : 0);*/
+				// 		// advc: Adapted to K-Mod pathfinder
+				// 		getPathFinder().getPathTurns() -
+				// 		(getPathFinder().getFinalMoves() > 0 ? 1 : 0);
+				// <!-- custom: refactoring idea i got based on chatgpt 5's feedback, for clarity, check if accurate -->
+				int const pathTurnsFromNow = getPathFinder().getPathTurns() - (getPathFinder().getFinalMoves() > 0 ? 1 : 0);
+				int const iFoundTurn = kGame.getElapsedGameTurns() + pathTurnsFromNow;
+
+				// CLAUDE: Calculate weight for THIS SPECIFIC PLOT based on its turns to found
+				int const iTurnsBeyondMaxToFound = std::max(0, iFoundTurn - iMaxTurnsToFound);
+
+				int iTurnWeight;
+
+				// <!-- custom: until we have spent the number of turns allowed, no penalty to get a better plot, then sharp emergency rather, so we don't discard better sites just because they are far; also note: >, not >= to strictly allow 5 entire turns before any penalty is applied; give AI the best chances to win and overcome a bad start on tundra, coast only, etc; removed old advciv / kmod flat penalty per turn code for cleanliness and readability -->
+				if (iTurnsBeyondMaxToFound == 0)
 				{
-					iPlotValue *= 100; //more precision
-					/*  the slower the game speed, the less penality the plotvalue
-						gets for long walks towards it.
-						On normal it's -18% per turn */
-					/*  advc: 18% seems a bit much; try 15%. K-Mod found values
-						aren't quite on the same scale as BBAI. */
-					iPlotValue *= 100 - std::min(100, ((1500/
-							std::max(1, iGameSpeedPercent)) * iFoundTurn));
-					iPlotValue /= 100;
-					if (iPlotValue > iBestValue)
+					iTurnWeight = 100;
+				}
+				else if (iTurnsBeyondMaxToFound == 1)
+				{
+					iTurnWeight = 50; 
+				}
+				// <!-- custom: else, see claude ai's explanation below and it is not too i mean, check if accurate -->
+				// CLAUDE: Since we already filtered out plots that take too long above,
+				// iTurnWeight should never be 0 here
+				// CLAUDE: Skip plots that would take too long, matching original logic
+				else
+				{
+					continue;
+				}
+
+				// <!-- custom: note: no division here, the whole point of weighting is not doing a divison, just at the end remember to store the raw value and not weighted one and should be all good -->
+				int const iWeightedPlotValue = (iTurnWeight * iPlotValue);
+				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("city-site", kSite, getOwner(), getTeam(), iPlotValue, iWeightedPlotValue, pathTurnsFromNow);
+
+				if (bLogSettlerAILevel2)
+				{
+					for (int iTop = 0; iTop < 3; ++iTop)
 					{
-						iBestValue = iPlotValue;
-						iBestFoundTurn = iFoundTurn;
-						pBestPlot = &kSite;
+						if (iWeightedPlotValue > aiTopWeightedValue[iTop])
+						{
+							for (int iMove = 2; iMove > iTop; --iMove)
+							{
+								aiTopWeightedValue[iMove] = aiTopWeightedValue[iMove - 1];
+								aiTopValue[iMove] = aiTopValue[iMove - 1];
+								aiTopTurnToFound[iMove] = aiTopTurnToFound[iMove - 1];
+								aiTopX[iMove] = aiTopX[iMove - 1];
+								aiTopY[iMove] = aiTopY[iMove - 1];
+							}
+							aiTopWeightedValue[iTop] = iWeightedPlotValue;
+							aiTopValue[iTop] = iPlotValue;
+							aiTopTurnToFound[iTop] = iFoundTurn;
+							aiTopX[iTop] = kSite.getX();
+							aiTopY[iTop] = kSite.getY();
+							break;
+						}
 					}
+				}
+
+				if (iWeightedPlotValue <= iBestWeightedValue)
+				{
+					continue;
+				}
+				else
+				{
+					iBestWeightedValue = iWeightedPlotValue;
+					iBestTurnToFound = iFoundTurn;
+					// CLAUDE: Store the raw value of THIS plot, not some other variable
+					iBestValue = iPlotValue;
+					pBestPlot = &kSite;
 				}
 			}
 		}
-		if (pBestPlot != NULL)
+
+		if (bLogSettlerAILevel2)
 		{
-			//Don't give up coast or river, don't settle on bonus with food
-			/*if ((getPlot().isRiver() && !pBestPlot->isRiver())
-				|| (getPlot().isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && !pBestPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
-				|| (pBestPlot->getBonusType(NO_TEAM) != NO_BONUS && pBestPlot->calculateNatureYield(YIELD_FOOD, getTeam(), true) > 0))*/
-			// advc: I think AI_foundValue can handle the other stuff
-			if (getPlot().isFreshWater() && !pBestPlot->isFreshWater())
-				pBestPlot = NULL;
+			logBBAI("    First-city candidates for %S player %d settler at %d,%d; citySites=%d, best weighted %d, current plot city site=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), kOwner.AI_getNumCitySites(), iBestWeightedValue, kOwner.AI_isPlotCitySite(getPlot()));
+			for (int iTop = 0; iTop < 3; ++iTop)
+			{
+				if (aiTopWeightedValue[iTop] <= -99999)
+					continue;
+				logBBAI("      #%d site %d,%d raw %d weighted %d foundTurn %d", iTop + 1, aiTopX[iTop], aiTopY[iTop], aiTopValue[iTop], aiTopWeightedValue[iTop], aiTopTurnToFound[iTop]);
+			}
+
+			// <!-- custom: The cached city-site list can contain only the current plot, which made the Karakorum log uninformative. Under logging only, scan nearby plots directly with AI_foundValue so we can see whether promising high-food plots score highly but fail city-site generation/pathing, or whether the valuation itself still underrates them. (GPT-5.5) -->
+			int aiLocalValue[3] = {-1, -1, -1};
+			int aiLocalTurns[3] = {-1, -1, -1};
+			int aiLocalX[3] = {-1, -1, -1};
+			int aiLocalY[3] = {-1, -1, -1};
+			for (SquareIter itPlot(*this, iMaxTurnsToFound, false); itPlot.hasNext(); ++itPlot)
+			{
+				CvPlot& kLoopPlot = *itPlot;
+				if (!kLoopPlot.isRevealed(getTeam()))
+					continue;
+				const int iLoopValue = SAS_evaluateFirstCityFoundValue(kOwner, kLoopPlot);
+				if (iLoopValue <= 0)
+					continue;
+				int iLoopFoundTurn = -1;
+				if (generatePath(kLoopPlot))
+				{
+					iLoopFoundTurn = kGame.getElapsedGameTurns() + getPathFinder().getPathTurns() - (getPathFinder().getFinalMoves() > 0 ? 1 : 0);
+				}
+				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("nearby-raw", kLoopPlot, getOwner(), getTeam(), iLoopValue, iLoopValue, iLoopFoundTurn < 0 ? -1 : iLoopFoundTurn - kGame.getElapsedGameTurns());
+				for (int iTop = 0; iTop < 3; ++iTop)
+				{
+					if (iLoopValue > aiLocalValue[iTop])
+					{
+						for (int iMove = 2; iMove > iTop; --iMove)
+						{
+							aiLocalValue[iMove] = aiLocalValue[iMove - 1];
+							aiLocalTurns[iMove] = aiLocalTurns[iMove - 1];
+							aiLocalX[iMove] = aiLocalX[iMove - 1];
+							aiLocalY[iMove] = aiLocalY[iMove - 1];
+						}
+						aiLocalValue[iTop] = iLoopValue;
+						aiLocalTurns[iTop] = iLoopFoundTurn;
+						aiLocalX[iTop] = kLoopPlot.getX();
+						aiLocalY[iTop] = kLoopPlot.getY();
+						break;
+					}
+				}
+			}
+			logBBAI("    First-city nearby raw found values for %S player %d within %d plots:", kOwner.getCivilizationDescription(0), getOwner(), iMaxTurnsToFound);
+			for (int iTop = 0; iTop < 3; ++iTop)
+			{
+				if (aiLocalValue[iTop] < 0)
+					continue;
+				logBBAI("      local #%d plot %d,%d raw %d foundTurn %d", iTop + 1, aiLocalX[iTop], aiLocalY[iTop], aiLocalValue[iTop], aiLocalTurns[iTop]);
+			}
 		}
+
+		const int iBestKnownFirstCityValue = (pBestPlot == NULL ? SAS_evaluateFirstCityFoundValue(kOwner, getPlot()) : iBestValue);
+		static const int iGoodEnoughFoodBonuses = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_GOOD_ENOUGH_FOOD_BONUSES");
+		static const int iBadFoodEnvironmentScoreThreshold = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_BAD_FOOD_ENVIRONMENT_SCORE");
+		int iCurrentFoodBonuses = 0;
+		int iCurrentFoodEnvironmentScore = 0;
+		int iCurrentCitizenUnworkablePlots = 0;
+		if (canFound(plot()))
+			SAS_evaluateFirstCityBFCFoodEnvironment(getPlot(), getOwner(), getTeam(), iCurrentFoodBonuses, iCurrentFoodEnvironmentScore, &iCurrentCitizenUnworkablePlots);
+		int iBestPlotFoodBonuses = 0;
+		int iBestPlotFoodEnvironmentScore = 0;
+		int iBestPlotCitizenUnworkablePlots = 0;
 		if (pBestPlot != NULL)
+			SAS_evaluateFirstCityBFCFoodEnvironment(*pBestPlot, getOwner(), getTeam(), iBestPlotFoodBonuses, iBestPlotFoodEnvironmentScore, &iBestPlotCitizenUnworkablePlots);
+		const bool bCurrentFirstCityStrongFood = (iGoodEnoughFoodBonuses > 0 && iCurrentFoodBonuses >= iGoodEnoughFoodBonuses);
+		const bool bBestKnownFirstCityStrongFood = (iGoodEnoughFoodBonuses > 0 && iBestPlotFoodBonuses >= iGoodEnoughFoodBonuses);
+		// <!-- custom: Maya started on a Pig+Maize+fresh-water BFC, but the old bad-plot count marked it bad because it also had many plains/tundra/desert tiles; the settler then wandered into tundra and founded a much worse capital when the roam window expired. Food from bonus-specific improvements now directly offsets low-food filler in the shared score, while this strong-food gate remains a conservative stop-roaming safeguard. (GPT-5.5) -->
+		const bool bBadCurrentFirstCity = (canFound(plot()) && iBadFoodEnvironmentScoreThreshold > 0 && iCurrentFoodEnvironmentScore >= iBadFoodEnvironmentScoreThreshold && !bCurrentFirstCityStrongFood);
+		const bool bBadBestKnownFirstCity = (pBestPlot != NULL && iBadFoodEnvironmentScoreThreshold > 0 && iBestPlotFoodEnvironmentScore >= iBadFoodEnvironmentScoreThreshold && !bBestKnownFirstCityStrongFood);
+		const bool bCurrentFirstCityGoodEnoughToStopRoaming = (pBestPlot == plot() || (bBadBestKnownFirstCity && (getPlot().isFreshWater() || (iGoodEnoughFoodBonuses > 0 && iCurrentFoodBonuses >= iGoodEnoughFoodBonuses))));
+		const bool bCurrentImprovesScoutOrigin = (bContinuingFirstCityScout && canFound(plot()) && SAS_evaluateFirstCityFoundValue(kOwner, getPlot()) > iFirstCityScoutOriginValue);
+		if (canFound(plot()) && !bBadCurrentFirstCity && bCurrentFirstCityGoodEnoughToStopRoaming && (!bContinuingFirstCityScout || bCurrentImprovesScoutOrigin))
 		{
-			if (gUnitLogLevel >= 2) logBBAI("    Settler not founding in place but moving %d, %d to nearby city site at %d, %d (%d turns away) with value %d)", (pBestPlot->getX() - getX()), (pBestPlot->getY() - getY()), pBestPlot->getX(), pBestPlot->getY(), iBestFoundTurn, iBestValue);
+			const int iCurrentFirstCityValue = SAS_evaluateFirstCityFoundValue(kOwner, getPlot());
+			CvPlot* pBetterGoodEnoughFirstCityPlot = NULL;
+			int iBetterGoodEnoughFirstCityValue = iCurrentFirstCityValue;
+			int iBetterGoodEnoughFirstCityTurn = -1;
+			const int iRemainingFirstCityTurns = std::max(0, iMaxTurnsToFound - kGame.getElapsedGameTurns());
+			const int iGoodEnoughRecheckRange = std::min(2, iRemainingFirstCityTurns);
+			for (SquareIter itGoodEnough(*this, iGoodEnoughRecheckRange, false); iGoodEnoughRecheckRange > 0 && itGoodEnough.hasNext(); ++itGoodEnough)
+			{
+				CvPlot& kLoopPlot = *itGoodEnough;
+				if (!kLoopPlot.isRevealed(getTeam()) || !canFound(&kLoopPlot))
+					continue;
+				int iLoopPathTurns = 0;
+				if (!at(kLoopPlot) && (!generatePath(kLoopPlot, MOVE_SAFE_TERRITORY, true, &iLoopPathTurns, iGoodEnoughRecheckRange) || iLoopPathTurns > iGoodEnoughRecheckRange))
+					continue;
+				const int iLoopValue = SAS_evaluateFirstCityFoundValue(kOwner, kLoopPlot);
+				// <!-- custom: Food environment and bonus counts temporarily decide whether more scouting is warranted, but no longer veto or rerank candidates after Berlin's higher-value (33,13) site was excluded in the Berlin test (save file 442). Rank sites only by complete found value and the existing movement cost; that value already includes yields, resources, fresh water, and BFC quality. (GPT-5.5) -->
+				const int iLoopAdjustedValue = iLoopValue - 75 * iLoopPathTurns;
+				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("good-enough-recheck", kLoopPlot, getOwner(), getTeam(), iLoopValue, iLoopAdjustedValue, iLoopPathTurns);
+				if (iLoopAdjustedValue > iBetterGoodEnoughFirstCityValue)
+				{
+					pBetterGoodEnoughFirstCityPlot = &kLoopPlot;
+					iBetterGoodEnoughFirstCityValue = iLoopAdjustedValue;
+					iBetterGoodEnoughFirstCityTurn = kGame.getElapsedGameTurns() + iLoopPathTurns;
+				}
+			}
+			if (pBetterGoodEnoughFirstCityPlot != NULL && !at(*pBetterGoodEnoughFirstCityPlot))
+			{
+				// <!-- custom: First-city roaming is for clearly bad BFCs, not merely imperfect capitals. But if the current plot is heuristic-good-enough, still re-run first-city found-value scoring on nearby visible candidates before founding; this keeps the gate situational and lets one-tile Karakorum/Beijing-style improvements win without hard-requiring food bonuses or fresh water. (GPT-5.5) -->
+				if (bLogSettlerAILevel2) logBBAI("    Settler moving from heuristic-good-enough first-city site for %S player %d from %d,%d to nearby better site %d,%d; currentValue=%d adjustedValue=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBetterGoodEnoughFirstCityPlot->getX(), pBetterGoodEnoughFirstCityPlot->getY(), iCurrentFirstCityValue, iBetterGoodEnoughFirstCityValue, iBetterGoodEnoughFirstCityTurn, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+				if (bLogSettlerAILevel3)
+				{
+					const int iBetterRawValue = SAS_evaluateFirstCityFoundValue(kOwner, *pBetterGoodEnoughFirstCityPlot);
+					SAS_logFirstCityCandidateBFCDiagnostics("chosen-good-enough-recheck", *pBetterGoodEnoughFirstCityPlot, getOwner(), getTeam(), iBetterRawValue, iBetterGoodEnoughFirstCityValue, iBetterGoodEnoughFirstCityTurn - kGame.getElapsedGameTurns());
+				}
+				pushGroupMoveTo(*pBetterGoodEnoughFirstCityPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBetterGoodEnoughFirstCityPlot);
+				return true;
+			}
+			// <!-- custom: First-city roaming is for clearly bad BFCs, not merely imperfect capitals. London had no food bonus but was still a decent river-path site with enough workable land; the previous value-threshold gate made it wander in circles before founding the same place. If nearby first-city scoring does not find a better visible reachable plot, stop roaming and found. (GPT-5.5) -->
+			if (bLogSettlerAILevel2) logBBAI("    Settler founding heuristic-good-enough first-city site for %S player %d at %d,%d during roam; foodBonuses=%d foodEnvironmentScore=%d citizenUnworkablePlots=%d badFoodEnvironmentThreshold=%d freshWater=%d value=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iCurrentFoodBonuses, iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, getPlot().isFreshWater(), iCurrentFirstCityValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+			if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-found-good-enough", getPlot(), getOwner(), getTeam(), iCurrentFirstCityValue, iCurrentFirstCityValue, 0);
+			getGroup()->pushMission(MISSION_FOUND);
+			return true;
+		}
+		// <!-- custom: AdvCiv-SAS adds a first-city information-gathering path: when the current plot or cached best plot is clearly bad by BFC shape, use the bounded early window to seek visible good-enough sites, scout safely, or wait if no safe scouting step exists. Karakorum's cached best plot stayed the bad tundra/plains site after one scouting step, so blocking scouting whenever pBestPlot was elsewhere made the settler return there. London, by contrast, is not low-food-heavy, so it now settles normally instead of scouting from a decent site. (GPT-5.5) -->
+		const bool bWaitForBetterCapitalInformation = ((bBadCurrentFirstCity || bBadBestKnownFirstCity || (bContinuingFirstCityScout && !bCurrentImprovesScoutOrigin)) && kGame.getElapsedGameTurns() < iMaxTurnsToFound);
+		if (bWaitForBetterCapitalInformation)
+		{
+			// <!-- custom: Karakorum founded in place after only two waits because a worse second city-site candidate appeared, disabling the earlier sole-candidate gate. Then, after one scouting step, the normal first-city code sent the settler back to the old still-bad candidate. This new branch spends the bounded roam window on visible good-enough sites or safe adjacent scouting steps; after the window expires, found normally instead of waiting forever. (GPT-5.5) -->
+			CvPlot* pGoodEnoughFirstCityPlot = NULL;
+			int iGoodEnoughFirstCityValue = -MAX_INT;
+			int iGoodEnoughFirstCityTurn = -1;
+			const int iRemainingFirstCityTurns = std::max(0, iMaxTurnsToFound - kGame.getElapsedGameTurns());
+			for (SquareIter itGoodEnough(*this, std::max(1, iRemainingFirstCityTurns)); itGoodEnough.hasNext(); ++itGoodEnough)
+			{
+				CvPlot& kLoopPlot = *itGoodEnough;
+				if (!kLoopPlot.isRevealed(getTeam()) || !canFound(&kLoopPlot))
+					continue;
+				int iLoopPathTurns = 0;
+				if (!at(kLoopPlot) && (!generatePath(kLoopPlot, MOVE_SAFE_TERRITORY, true, &iLoopPathTurns, std::max(1, iRemainingFirstCityTurns)) || iLoopPathTurns > iRemainingFirstCityTurns))
+					continue;
+				const int iLoopValue = SAS_evaluateFirstCityFoundValue(kOwner, kLoopPlot);
+				// <!-- custom: Scouting is an information-gathering state, not a second food/bonus ranking system. Require every recovery target to have a fully revealed BFC; during an ongoing scout, also require its complete found value to beat the remembered origin. Karakorum otherwise committed to partially fogged 49,43 before its scout mission began, then explored southeast while the stronger river-grass area around 52,40 remained unrevealed (save file 360). Berlin's fully revealed 33,13 correctly beat its 35,11 scouting origin through normal found value (save file 442). (GPT-5.5) -->
+				if (SAS_countUnrevealedNonHomeBFCPlots(kLoopPlot, getTeam()) > 0 || (bContinuingFirstCityScout && iLoopValue <= iFirstCityScoutOriginValue))
+					continue;
+				if (iLoopValue <= 0)
+					continue;
+				const int iLoopGoodEnoughValue = 100 * iLoopValue - iLoopPathTurns;
+				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("visible-good-enough", kLoopPlot, getOwner(), getTeam(), iLoopValue, iLoopGoodEnoughValue, iLoopPathTurns);
+				if (pGoodEnoughFirstCityPlot == NULL || iLoopGoodEnoughValue > iGoodEnoughFirstCityValue)
+				{
+					pGoodEnoughFirstCityPlot = &kLoopPlot;
+					iGoodEnoughFirstCityValue = iLoopGoodEnoughValue;
+					iGoodEnoughFirstCityTurn = kGame.getElapsedGameTurns() + iLoopPathTurns;
+				}
+			}
+			if (pGoodEnoughFirstCityPlot != NULL && at(*pGoodEnoughFirstCityPlot) && iRemainingFirstCityTurns > 0)
+			{
+				const int iGoodEnoughUnrevealedBFC = SAS_countUnrevealedNonHomeBFCPlots(*pGoodEnoughFirstCityPlot, getTeam());
+				if (((!bContinuingFirstCityScout || !bCurrentImprovesScoutOrigin) && bBadCurrentFirstCity) || iGoodEnoughUnrevealedBFC > 0)
+				{
+					// <!-- custom: Do not found the current recovery tile while it remains classified as bad or part of its BFC is still fogged during the bounded first-city roam window. In the Berlin test (save file 442), the fully revealed (35,11) site otherwise founded immediately while the stronger (33,13) candidate remained undervalued by six unrevealed plots. In the Karakorum test, 49,43 looked best from known tiles and immediately founded, blocking the existing scout-step branch from revealing the stronger pig/river area toward 51,41/52,41. Fully revealed non-bad Cuzco at 42,44 still founds immediately.
+					// Why this fixed the two cases (different save files/maps): Based on BBAI Logging analysis:
+					// - Cuzco (save file 431) was mostly a stale cached-site / ping-pong issue. Including the current plot in the visible scan let it stop on the good nearby site instead of eventually falling back to the cached tundra site.
+					// - Karakoum (save file 360) needed the opposite: when it reached a tempting current site, it still had unrevealed BFC plots nearby, so the new guard prevented premature founding and let the existing scout logic continue. The later log now shows the Scandinavian settler finding/founding the stronger 50,12 site, with Grapes, Sheep, flood plains, and skipped unrevealed plots in the valuation area before Nidaros is founded there. (ChatGPT-5.5 + GPT-5.5) -->
+					if (bLogSettlerAILevel2) logBBAI("    Settler delaying current first-city site for %S player %d at %d,%d to scout; value=%d badCurrent=%d unrevealedBFC=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue, bBadCurrentFirstCity, iGoodEnoughUnrevealedBFC, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					pGoodEnoughFirstCityPlot = NULL;
+				}
+			}
+			if (pGoodEnoughFirstCityPlot != NULL)
+			{
+				if (at(*pGoodEnoughFirstCityPlot))
+				{
+					if (bLogSettlerAILevel2) logBBAI("    Settler founding visible good-enough first-city site for %S player %d at %d,%d during roam; value=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iGoodEnoughFirstCityValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					if (bLogSettlerAILevel3)
+					{
+						const int iGoodEnoughRawValue = SAS_evaluateFirstCityFoundValue(kOwner, *pGoodEnoughFirstCityPlot);
+						SAS_logFirstCityCandidateBFCDiagnostics("chosen-found-visible-good-enough", *pGoodEnoughFirstCityPlot, getOwner(), getTeam(), iGoodEnoughRawValue, iGoodEnoughFirstCityValue, 0);
+					}
+					getGroup()->pushMission(MISSION_FOUND);
+				}
+				else
+				{
+					if (bLogSettlerAILevel2) logBBAI("    Settler moving to visible good-enough first-city site for %S player %d from %d,%d to %d,%d during roam; value=%d foundTurn=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pGoodEnoughFirstCityPlot->getX(), pGoodEnoughFirstCityPlot->getY(), iGoodEnoughFirstCityValue, iGoodEnoughFirstCityTurn, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					if (bLogSettlerAILevel3)
+					{
+						const int iGoodEnoughRawValue = SAS_evaluateFirstCityFoundValue(kOwner, *pGoodEnoughFirstCityPlot);
+						SAS_logFirstCityCandidateBFCDiagnostics("chosen-move-visible-good-enough", *pGoodEnoughFirstCityPlot, getOwner(), getTeam(), iGoodEnoughRawValue, iGoodEnoughFirstCityValue, iGoodEnoughFirstCityTurn - kGame.getElapsedGameTurns());
+					}
+					pushGroupMoveTo(*pGoodEnoughFirstCityPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pGoodEnoughFirstCityPlot);
+				}
+				return true;
+			}
+			static const int iFirstCityReturnTravelValuePerTurn = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_VALUE_PER_TURN");
+			int iBestEarlyReturnRawValue = -MAX_INT;
+			int iBestEarlyReturnAdjustedValue = -MAX_INT;
+			int iBestEarlyReturnPathTurns = -1;
+			CvPlot* pBestEarlyReturnPlot = SAS_chooseFirstCityReturnPlot(*this, kOwner, iMaxTurnsToFound, iFirstCityReturnTravelValuePerTurn, true, iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestEarlyReturnPathTurns);
+			const bool bRawBestIsAbandonedScoutOrigin = (pBestEarlyReturnPlot != NULL && pBestEarlyReturnPlot == pFirstCityScoutOrigin);
+			if (bRawBestIsAbandonedScoutOrigin)
+				pBestEarlyReturnPlot = SAS_chooseFirstCityReturnPlot(*this, kOwner, iMaxTurnsToFound, iFirstCityReturnTravelValuePerTurn, false, iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestEarlyReturnPathTurns);
+			// <!-- custom: The configured maximum should bound the whole capital search, not only outbound exploration. In save file 431, Cuzco previously scouted through turn 7 and then spent three more turns returning to (38,44); in save file 360, Karakorum similarly returned four turns to (50,40). Commit when one more scouting turn plus the best raw-value known return would exceed the deadline; travel cost only breaks an exact raw-value tie here.
+			// A later save-file-442 Berlin test wandered from (35,10) to (39,19), where travel adjustment made nearby (41,18), raw value 3640, beat the stronger newly discovered (33,13), raw value 3961, because the latter was now five return turns away. Protecting a newly discovered raw-value winner makes the settler turn back before its own wandering can replace the best site; BBAI retesting fixed Berlin by founding at (33,13) on turn 7 instead of (41,18).
+			// Save-file-431 follow-up testing showed why the remembered scout origin is different: Cuzco deliberately left poor (41,46), but its fully revealed raw value 3488 later beat still-partly-fogged nearby (38,44) at 3355 and pulled the settler back. When the raw winner is the abandoned scout origin, keep travel-adjusted selection so nearby exploration can finish instead of undoing it. Final three-map BBAI retesting preserved Berlin at (33,13) and Karakorum at (50,40), and restored Cuzco to (38,44).
+			// At exact equality, commit only when already at the best site: this lets Aztec found strong (34,24) in save file 431 instead of taking a pointless last step. Queue FOUND behind a return move so arrival cannot restart scouting as happened in an earlier attempted return guard. (GPT-5.5) -->
+			const int iFirstCityScoutAndReturnTurn = kGame.getElapsedGameTurns() + 1 + iBestEarlyReturnPathTurns;
+			if (pBestEarlyReturnPlot != NULL && (iFirstCityScoutAndReturnTurn > iMaxTurnsToFound || (iFirstCityScoutAndReturnTurn == iMaxTurnsToFound && at(*pBestEarlyReturnPlot))))
+			{
+				if (at(*pBestEarlyReturnPlot))
+				{
+					if (bLogSettlerAILevel2) logBBAI("    Settler ending first-city scouting for %S player %d at best %s site %d,%d before deadline; rawValue=%d adjustedValue=%d pathTurns=0 elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), (bRawBestIsAbandonedScoutOrigin ? "travel-adjusted" : "raw-value"), getX(), getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					getGroup()->pushMission(MISSION_FOUND);
+				}
+				else
+				{
+					if (bLogSettlerAILevel2) logBBAI("    Settler ending first-city scouting for %S player %d and committing return from %d,%d to best %s site %d,%d before deadline; rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), (bRawBestIsAbandonedScoutOrigin ? "travel-adjusted" : "raw-value"), pBestEarlyReturnPlot->getX(), pBestEarlyReturnPlot->getY(), iBestEarlyReturnRawValue, iBestEarlyReturnAdjustedValue, iBestEarlyReturnPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+					pushGroupMoveTo(*pBestEarlyReturnPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBestEarlyReturnPlot);
+					getGroup()->pushMission(MISSION_FOUND, -1, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_FOUND, pBestEarlyReturnPlot);
+				}
+				return true;
+			}
+			CvPlot* pBestExploreStep = NULL;
+			int iBestExploreValue = 0;
+			MovementFlags const eFirstCityExploreFlags = (MOVE_NO_ENEMY_TERRITORY | MOVE_AVOID_DANGER);
+			FOR_EACH_ADJ_PLOT(getPlot())
+			{
+				if (!AI_plotValid(*pAdj) || pAdj->isVisibleEnemyUnit(this))
+					continue;
+				int iPathTurns;
+				if (!generatePath(*pAdj, eFirstCityExploreFlags, true, &iPathTurns, 1) || iPathTurns > 1)
+					continue;
+				CvPlot& kEndTurnPlot = getPathEndTurnPlot();
+				if (at(kEndTurnPlot))
+					continue;
+				int iExploreValue = 0;
+				if (!kEndTurnPlot.isRevealed(getTeam()))
+					iExploreValue += 5000;
+				const int iFirstCityExploreRevealRange = visibilityRange() + 1;
+				for (SquareIter itReveal(kEndTurnPlot, iFirstCityExploreRevealRange, false); itReveal.hasNext(); ++itReveal)
+				{
+					if (!(*itReveal).isRevealed(getTeam()))
+						iExploreValue += 1000 / std::max(1, stepDistance(kEndTurnPlot.getX(), kEndTurnPlot.getY(), (*itReveal).getX(), (*itReveal).getY()));
+				}
+				const int iEndTurnFoundValue = SAS_evaluateFirstCityFoundValue(kOwner, kEndTurnPlot);
+				iExploreValue += std::max(0, iEndTurnFoundValue - iBestValue);
+				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("explore-step-end", kEndTurnPlot, getOwner(), getTeam(), iEndTurnFoundValue, iExploreValue, iPathTurns);
+				if (iExploreValue > iBestExploreValue)
+				{
+					iBestExploreValue = iExploreValue;
+					pBestExploreStep = &kEndTurnPlot;
+				}
+			}
+			if (pBestExploreStep != NULL)
+			{
+				if (bLogSettlerAILevel2) logBBAI("    Settler scouting before food-poor first-city candidate for %S player %d from %d,%d to %d,%d; value=%d scoutOrigin=(%d,%d) scoutOriginValue=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d exploreValue=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestExploreStep->getX(), pBestExploreStep->getY(), iBestKnownFirstCityValue, (bContinuingFirstCityScout ? pFirstCityScoutOrigin->getX() : getX()), (bContinuingFirstCityScout ? pFirstCityScoutOrigin->getY() : getY()), (bContinuingFirstCityScout ? iFirstCityScoutOriginValue : SAS_evaluateFirstCityFoundValue(kOwner, getPlot())), iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBestPlotFoodEnvironmentScore, iBestPlotCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, iBestExploreValue, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+				CvPlot* pScoutOrigin = (bContinuingFirstCityScout ? pFirstCityScoutOrigin : &getPlot());
+				pushGroupMoveTo(*pBestExploreStep, eFirstCityExploreFlags, false, false, MISSIONAI_EXPLORE, pScoutOrigin);
+				return true;
+			}
+			if (bLogSettlerAILevel2) logBBAI("    Settler waiting before food-poor first-city candidate for %S player %d at %d,%d; no safe adjacent scouting step found; value=%d currentFoodEnvironmentScore=%d currentCitizenUnworkable=%d bestFoodEnvironmentScore=%d bestCitizenUnworkable=%d badFoodEnvironmentThreshold=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), iBestKnownFirstCityValue, iCurrentFoodEnvironmentScore, iCurrentCitizenUnworkablePlots, iBestPlotFoodEnvironmentScore, iBestPlotCitizenUnworkablePlots, iBadFoodEnvironmentScoreThreshold, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+			getGroup()->pushMission(MISSION_SKIP);
+			return true;
+		}
+
+		// <!-- custom: fresh water or river is not mandatory if the site is otherwise great, we'd miss some locally best sites, let aifoundvalue or whichever function(s) is(are) responsible for this pick river or such if locally best or such, just do not discard nice sites just because of not certain to be always best preferences (what if the river loses us a food bonus for example, let evaluate or other such functions ponder these if they can indeed) -->
+		// if (pBestPlot != NULL)
+		// {
+		// 	//Don't give up coast or river, don't settle on bonus with food
+		// 	/*if ((getPlot().isRiver() && !pBestPlot->isRiver())
+		// 		|| (getPlot().isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && !pBestPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+		// 		|| (pBestPlot->getBonusType(NO_BONUS && pBestPlot->calculateNatureYield(YIELD_FOOD, getTeam(), true) > 0))*/
+		// 	// advc: I think AI_foundValue can handle the other stuff
+		// 	if (getPlot().isFreshWater() && !pBestPlot->isFreshWater())
+		// 		pBestPlot = NULL;
+		// }
+
+		if (canFound(plot()) && !bBadCurrentFirstCity && pBestPlot != NULL && pBestPlot != plot())
+		{
+			const int iCurrentFirstCityValue = SAS_evaluateFirstCityFoundValue(kOwner, getPlot());
+			const int iBestPathTurnsFromNow = std::max(0, iBestTurnToFound - kGame.getElapsedGameTurns());
+			// <!-- custom: A first-city local recheck can move to a good nearby plot that is not in the cached city-site list. On the next update, the cached city-site branch could pull the settler back, making China/London-style starts spend extra turns orbiting acceptable nearby sites. If the current foundable plot is not bad and is competitive after the same small movement penalty used by nearby rechecks, found instead of bouncing. (GPT-5.5 + ChatGPT 5.5) -->
+			if (iCurrentFirstCityValue >= iBestValue - 75 * iBestPathTurnsFromNow)
+			{
+				if (bLogSettlerAILevel2) logBBAI("    Settler founding current competitive first-city site for %S player %d at %d,%d instead of returning to cached site %d,%d; currentValue=%d bestValue=%d bestPathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestPlot->getX(), pBestPlot->getY(), iCurrentFirstCityValue, iBestValue, iBestPathTurnsFromNow, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+				if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-found-current-over-cached", getPlot(), getOwner(), getTeam(), iCurrentFirstCityValue, iCurrentFirstCityValue, 0);
+				getGroup()->pushMission(MISSION_FOUND);
+				return true;
+			}
+		}
+
+		if (pBestPlot != NULL && pBestPlot != plot())
+		{
+			// CLAUDE: iBestValue is already set correctly above, no need to reassign
+
+			if (bLogSettlerAILevel2) logBBAI("    Settler not founding in place but moving %d, %d to nearby city site at %d, %d (%d turns away) with value %d)", (pBestPlot->getX() - getX()), (pBestPlot->getY() - getY()), pBestPlot->getX(), pBestPlot->getY(), iBestTurnToFound, iBestValue);
+			if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-move-best", *pBestPlot, getOwner(), getTeam(), iBestValue, iBestValue, iBestTurnToFound - kGame.getElapsedGameTurns());
 			pushGroupMoveTo(*pBestPlot, MOVE_SAFE_TERRITORY, false, false,
 					MISSIONAI_FOUND, pBestPlot);
 			return true;
 		}
+		else if (bLogSettlerAILevel2 && pBestPlot == plot())
+		{
+			logBBAI("    Settler current plot remains best first-city candidate for %S player %d at %d,%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY());
+		}
 	}
 	// Afforess & Fuyu: END
+	// <!-- custom: Safety fallback after the bounded scouting window: if an active first-city scout still has not founded, rescan revealed reachable sites and return to the best travel-adjusted one instead of founding blindly under the settler. This fixed the save file 360 Karakorum scout ending on weak (52,45) while a much stronger revealed site remained behind it. (GPT-5.5) -->
+	if (!kGame.isScenario() && canMove() && bContinuingFirstCityScout && kGame.getElapsedGameTurns() >= iMaxTurnsToFound)
+	{
+		static const int iFirstCityReturnTravelValuePerTurn = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_VALUE_PER_TURN");
+		int iBestPostScoutRawValue = -MAX_INT;
+		int iBestPostScoutAdjustedValue = -MAX_INT;
+		int iBestPostScoutPathTurns = -1;
+		CvPlot* pBestPostScoutPlot = SAS_chooseFirstCityReturnPlot(*this, kOwner, iMaxTurnsToFound, iFirstCityReturnTravelValuePerTurn, false, iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns);
+		// <!-- custom: First-city scouting previously ended by blindly founding under the settler. In the Karakorum test, the seven-turn scout ended on 52,45 (value 1907) despite revealed 49,43 scoring 6806. Once scouting ends, reconsider all revealed reachable sites by complete found value with the tunable return-travel cost, then return to the best known site before founding (save file 360). (GPT-5.5) -->
+		if (pBestPostScoutPlot != NULL && !at(*pBestPostScoutPlot))
+		{
+			if (bLogSettlerAILevel2) logBBAI("    Settler finished first-city scouting for %S player %d at %d,%d and is returning to best known site %d,%d; rawValue=%d adjustedValue=%d pathTurns=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), pBestPostScoutPlot->getX(), pBestPostScoutPlot->getY(), iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns, kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+			if (bLogSettlerAILevel3) SAS_logFirstCityCandidateBFCDiagnostics("chosen-post-scout-return", *pBestPostScoutPlot, getOwner(), getTeam(), iBestPostScoutRawValue, iBestPostScoutAdjustedValue, iBestPostScoutPathTurns);
+			pushGroupMoveTo(*pBestPostScoutPlot, MOVE_SAFE_TERRITORY, false, false, MISSIONAI_FOUND, pBestPostScoutPlot);
+			getGroup()->pushMission(MISSION_FOUND, -1, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_FOUND, pBestPostScoutPlot);
+			return true;
+		}
+	}
 	if (canFound(plot()))
 	{
-		if (gUnitLogLevel >= 2) logBBAI("    Settler founding in place");
+		if (bLogSettlerAILevel2) logBBAI("    Settler founding in place for %S player %d at %d,%d; scenario=%d canMove=%d current plot city site=%d elapsed=%d maxFirstCityTurns=%d", kOwner.getCivilizationDescription(0), getOwner(), getX(), getY(), kGame.isScenario(), canMove(), kOwner.AI_isPlotCitySite(getPlot()), kGame.getElapsedGameTurns(), iMaxTurnsToFound);
+		if (bLogSettlerAILevel3)
+		{
+			const int iFinalFoundValue = SAS_evaluateFirstCityFoundValue(kOwner, getPlot());
+			SAS_logFirstCityCandidateBFCDiagnostics("chosen-found-fallback", getPlot(), getOwner(), getTeam(), iFinalFoundValue, iFinalFoundValue, 0);
+		}
 		getGroup()->pushMission(MISSION_FOUND);
 		return true;
 	}
@@ -1687,6 +5183,38 @@ CvCityAI* CvUnitAI::AI_getCityToImprove() const
 	return pCity;
 }
 
+
+// <!-- custom: helper provided by chatgpt o3 to count tiles as part of fine tuning next city to improve based on the number of tiles already improved in a city (see below in CvUnitAI::AI_workerMove for details) -->
+// <!-- custom: update: according to claude sonnet 4.5 and then according to chatgpt 5 as well after feeding it its explanation, there was an issue with our approach, so fixed as below with chatgpt 5's rationale in comments, check if accurate -->
+// B) Make the tile-count tolerant of overlap
+// Change countImprovedTiles to count any improved tile in the BFC (not only those assigned to the city):
+// (Your current version filters by getWorkingCity()==pCity; remove that.)
+static int countImprovedTiles(CvCity const* pCity)
+{
+    int iCount = 0;
+    for (int i = 0; i < NUM_CITY_PLOTS; ++i)
+    {
+		CvPlot* pPlot = plotCity(pCity->getX(), pCity->getY(),
+								static_cast<CityPlotTypes>(i));  // ← cast added <!-- custom: to fix compile error, added by chatgpt 3-o as well thanks to my prompt too(error: "
+								// 1>..\CvUnitAI.cpp(2582): error C2664: 'plotCity' : cannot convert parameter 3 from 'int' to 'CityPlotTypes'
+								// 1>          Conversion to enumeration type requires an explicit cast (static_cast, C-style cast or function-style cast)
+								// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
+								// 1>  Stop.
+								// ") -->
+        if (pPlot == NULL)
+		{
+            continue;
+		}
+
+        // Count any improvement in the city radius.
+        const ImprovementTypes eImp = pPlot->getImprovementType();
+        if (eImp != NO_IMPROVEMENT)
+		{
+            ++iCount;
+        }
+    }
+    return iCount;
+}
 
 void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 {
@@ -1721,17 +5249,49 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	bool bCanRetreat = true; // advc.opt: Try only once (uses of this variable not marked with comments)
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 
-	// XXX could be trouble...
-	if (getPlot().getOwner() != getOwner())
+	// <!-- custom: Worker assignments appeared repeatedly in BBAI logging without the worker reaching the selected plot. Record the worker's existing mission and movement state when its AI is called so mission cancellation, danger, and reassignment can be correlated by unit ID. No behavior change. (GPT-5.5) -->
+	if (gWorkerLogLevel >= 3)
 	{
-		if (AI_retreatToCity())
-			return;
-		bCanRetreat = false;
+		CvSelectionGroupAI const* pGroup = AI_getGroup();
+		CvPlot const* pMissionPlot = (pGroup == NULL ? NULL : pGroup->AI_getMissionAIPlot());
+		logBBAI("    WORKER_MOVE_ENTRY turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d movesSpent=%d movesLeft=%d currentDanger=%d threatened=%d",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), (pGroup == NULL ? -1 : pGroup->getID()), (pGroup == NULL ? NO_ACTIVITY : pGroup->getActivityType()), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pGroup == NULL ? -1 : pGroup->getLengthMissionQueue()), getMoves(), movesLeft(), kOwner.AI_getPlotDanger(getPlot()), kOwner.AI_isPlotThreatened(plot(), 1));
 	}
+
+	// <!-- custom: cache this since we seem to check it many times, -->
+	const bool bWeOwnThisPlot = (getPlot().getOwner() == getOwner());
+
+	// <!-- custom: in rare cases workers get parked in cities with MISSIONAI_RETREAT + ACTIVITY_HOLD. Fix to unstick these "retreaters" at start of turn. See known issue 50 for details and screenshots. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+	// two small patches that fix it
+	// 2) Unstick “retreaters" at the start of the turn
+	// Right at the top of AI_workerMove (after you build kOwner), add:
+	// Unstick previous retreats: if we’re in our land and not threatened, wake up.
+	// <!-- custom: update: we still have some workers that are on hold when cities could be improved, add an additional HOLD wake up as well if i understood it correctly as recommended by chatgpt 5, check if accurate, in autoplay they do appear to be on HOLD activity though it seems if i remember it correctly-->
+	// Wake safe retreaters (expand your existing un-sticker):
+	// You already clear MISSIONAI_RETREAT when safe. Do the same if the group is just on HOLD, even if its MissionAI isn’t RETREAT.
+	const bool bWorkerSleeping = (getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT || getGroup()->getActivityType() == ACTIVITY_HOLD);
+	if (bWorkerSleeping && bWeOwnThisPlot && !kOwner.AI_isPlotThreatened(plot(), 1)) // adjacent only
+	{
+		if (gWorkerLogLevel >= 3)
+			logBBAI("    WORKER_PARKING_RECOVERY phase=entry turn=%d player=%d %S workerId=%d worker=(%d,%d) activity=%d missionAI=%d action=wake-safe-owned-plot", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getActivityType(), getGroup()->AI().AI_getMissionAIType());
+		getGroup()->setActivityType(ACTIVITY_AWAKE);
+		getGroup()->AI().AI_setMissionAI(NO_MISSIONAI, NULL, NULL);
+		// fall through to normal worker logic
+	}
+
+	// <!-- custom: this may cause unintended retreats or interfere with our own logic; commented out to prevent issues. Credit: ChatGPT 5 recommendation. (Claude code Sonnet 4.5 (summarized)) -->
+	// // XXX could be trouble...
+	// if (!bWeOwnThisPlot)
+	// {
+	// 	if (AI_retreatToCity())
+	// 		return;
+	// 	bCanRetreat = false;
+	// }
 
 	if (!isHuman())
 	{
-		if (getPlot().getOwner() == getOwner())
+		if (bWeOwnThisPlot)
 		{
 			if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, UNITAI_SETTLE,
 				2, -1, -1, 0, MOVE_SAFE_TERRITORY))
@@ -1741,18 +5301,109 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		}
 	}
 
+	// <!-- custom: make workers less jumpy to retreat as chatgpt 5 says (thanks to my prompts and adjustments or not or yes or etcbut thanks for help too), i don't understand too much these, but it seems that we get false danger positives and due to that never improve tiles, some cities are entirely unimproved at turn 175 in jungle, trying to address that and perhaps also make workers more efficient. I think that early most units are slow so it's fine, and later in game, when most people have mobile units, the value of workers should be less so fine if they are stolen if i may say in this case; also using this as an opportunity to make workers more responsive and not stay in city when they could do something else, as questionned by the "XXX" comment-->
+	// Why not comment the retreat out entirely?
+	// If you remove it, workers will often stand on roads two tiles from barb axes and get sniped. Your target check won’t stop that. The small tweaks above keep almost all the safety, with far fewer “false retreats," especially around jungle rings.
+	// if (bCanRetreat && !getGroup()->canDefend())
+	// {
+	// 	if (kOwner.AI_isPlotThreatened(plot(), 2))
+	// 	{
+	// 		// XXX maybe not do this??? could be working productively somewhere else...
+	// 		if (AI_retreatToCity())
+	// 			return;
+	// 		bCanRetreat = false;
+	// 	}
+	// }
+	// Simple, readable "redirect instead of retreat" logic
+	// ----------------------------------------------------
+
+	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
+
 	if (bCanRetreat && !getGroup()->canDefend())
 	{
-		if (kOwner.AI_isPlotThreatened(plot(), 2))
+    /* Retreat logic policy change:
+       --------------------------------------
+       Old code:
+         - Threat radius was 2 tiles in *all* situations.
+           (Meaning: if any enemy unit was within 2 tiles — about a small city radius —
+            we would consider the worker threatened and run for safety.)
+         - Any threat → immediately retreat to the nearest city.
+         - Result: workers often abandoned tasks too early, leaving some cities
+           (especially jungle ones) unimproved for a long time.
+
+       Current code:
+         - Inside our cultural borders: ignore broad threat-radius noise, but still react when the worker's current plot is already dangerous.
+         - Outside borders: use smaller radius = 1 (only adjacent tiles count as dangerous).
+           → This greatly reduces “false positives" from slow or harmless enemy units
+             far away but still inside the old radius 2 bubble.
+         - If threatened, FIRST try to redirect to a different, safer city
+           that still needs improvements, instead of retreating straight home.
+         - Only fall back to “retreat to city" if no safe redirection is possible.
+         - This keeps workers productive more often while still avoiding capture
+           in genuinely dangerous situations outside borders.
+    */
+
+		const int iCurrentDanger = kOwner.AI_getPlotDanger(getPlot());
+		// <!-- custom: Save-file-450 worker diagnostics showed 40 Worker deaths by the comparable t200/t201 run.
+		// 1) Treat current plot danger as real danger even inside owned culture, while still ignoring broad inside-border threat-radius noise. This was necessary but did not improve behavior by itself: threatened Workers entered the danger branch, but the branch still redirected through city-improvement logic first.
+		// 2) Handle current plot danger before city-improvement redirection; otherwise a Zulu Worker at (14,45) with currentDanger=1 selected the same plot to keep building and died to a Barbarian Archer. This made that Worker retreat on turn 59 instead, removed the old t60 (14,45) death, and worker deaths fell from 40 to 17 in the next comparable t200 run. The remaining issue was retreat sometimes ending on a still-dangerous plot. (GPT-5.5) -->
+		const bool bCurrentPlotDanger = (iCurrentDanger > 0);
+		bool bThreatened = bCurrentPlotDanger;
+		if (!bThreatened && plot()->getOwner() != getOwner())
+			bThreatened = kOwner.AI_isPlotThreatened(plot(), 1); // adjacent counts outside borders
+
+		if (bThreatened)
 		{
-			// XXX maybe not do this??? could be working productively somewhere else...
-			if (AI_retreatToCity())
+			if (bCurrentPlotDanger)
+			{
+				if (AI_retreatToCity()) return;
+				// <!-- custom: Retesting AI_safety before AI_retreatToCity regressed the save-file-450 worker-death test from 17 to 31 deaths by t200. In the original Zulu case, AI_safety chose action=wait on (14,45) with targetDanger=1 on turns 59-61, then the Worker died there. Keep city retreat first for now; if retreat ends on a dangerous plot, that needs a narrower follow-up than calling generic AI_safety first. (GPT-5.5) -->
+				if (AI_safety()) return;
+				if (gWorkerLogLevel >= 2) logBBAI("    WORKER_DANGER_NO_ESCAPE turn=%d player=%d %S workerId=%d worker=(%d,%d) currentDanger=%d threatened=%d action=skip-no-build", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iCurrentDanger, kOwner.AI_isPlotThreatened(plot(), 1));
+				getGroup()->pushMission(MISSION_SKIP);
 				return;
-			bCanRetreat = false;
+			}
+
+			bool bNearTarget = false;
+
+			CvPlot* pTarget = AI_getGroup()->AI_getMissionAIPlot();
+			if (pTarget != NULL)
+			{
+				GroupPathFinder& pf = CvSelectionGroup::pathFinder();
+				if (pf.generatePath(*pTarget))
+				{
+					int iNearTurns = 1;
+
+					// Commit from a bit farther if target is high-impact (jungle clear or bonus)
+					if ((pTarget->getFeatureType() == eFeatureJungle) ||
+						(pTarget->getNonObsoleteBonusType(getTeam()) != NO_BONUS))
+					{
+						iNearTurns = 2;
+					}
+
+					if (pf.getPathTurns() <= iNearTurns)
+						bNearTarget = true;
+				}
+			}
+
+			if (!bNearTarget)
+			{
+				// <!-- custom: exclude barbarians as their cities are very far and i don't think it would work well to have workers roaming, perhaps and even if or maybe even especially if escorted xd (not sure barbarian cities would be defended correctly nor invasion stacks strong enough due to escorting task splitting them) -->
+				if (!kOwner.isBarbarian())
+				{
+					CvCityAI* pCurrentCity = AI_getCityToImprove();
+					if (AI_nextCityToImprove(pCurrentCity)) return;
+					if (AI_nextCityToImprove(NULL)) return;
+				}
+
+				if (AI_retreatToCity()) return;
+			}
+
+			bCanRetreat = false; // don’t loop retreat logic this turn
 		}
 	}
 
-	if (bCanRoute && getPlot().getOwner() == getOwner()) // XXX team???
+	if (bCanRoute && bWeOwnThisPlot) // XXX team???
 	{
 		BonusTypes eNonObsoleteBonus = getPlot().getNonObsoleteBonusType(getTeam());
 		if (eNonObsoleteBonus != NO_BONUS)
@@ -1793,48 +5444,137 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 
 	CvCityAI const* pCity = AI_getCityToImprove(); // advc.113b: Moved into auxiliary function
 
-	/*if (pCity != NULL) {
-		bool bMoreBuilds = false;
-		for (WorkingPlotIter it(getPlot(), false); it.hasNext(); ++it) {
-			if (it->getImprovementType() == NO_IMPROVEMENT &&
-					pCity->AI_getBestBuildValue(it.currID()) > 0) {
-				ImprovementTypes eImprovement = (ImprovementTypes)GC.getInfo((BuildTypes)
-						pCity->AI_getBestBuild(iI)).getImprovement();
-				if (eImprovement != NO_IMPROVEMENT) {
-					bMoreBuilds = true;
-					break;
-		} } }
-		if (bMoreBuilds) {
-			if (AI_improveCity(*pCity))
-				return;
-	} }*/
-	if (pCity != NULL)
+	// if (pCity != NULL) {
+	// 	bool bMoreBuilds = false;
+	// 	for (WorkingPlotIter it(getPlot(), false); it.hasNext(); ++it) {
+	// 		if (it->getImprovementType() == NO_IMPROVEMENT &&
+	// 				pCity->AI_getBestBuildValue(it.currID()) > 0) {
+	// 			ImprovementTypes eImprovement = (ImprovementTypes)GC.getInfo((BuildTypes)
+	// 					pCity->AI_getBestBuild(iI)).getImprovement();
+	// 			if (eImprovement != NO_IMPROVEMENT) {
+	// 				bMoreBuilds = true;
+	// 				break;
+	// 	} } }
+	// 	if (bMoreBuilds) {
+	// 		if (AI_improveCity(*pCity))
+	// 			return;
+	// } }
+	// <!-- custom: exclude barbarians as their cities can be very far apart and no point connecting them for barbarian player -->
+	if (pCity != NULL && !isBarbarian())
 	{
-		int const iNeed = pCity->AI_getWorkersNeeded();
-		int const iHave = pCity->AI_getWorkersHave();
-		/* bts code
-		if (iNeed > 0 && (getPlot().isCity() || iNeed < (1 + iHave * 2) / 3)) */
-		/*  K-Mod. Is it just me, or did they get this backwards?
-			Note: this worker is currently at pCity, and so it's probably counted in AI_getWorkersHave. */
-		//if (iNeed > 0 && (getPlot().isCity() || iHave - 1 <= (1 + iNeed * 2) / 3))
-		/*  <advc.113> The above makes the worker leave its city even if the remaining
-			workers will only be 2/3 of what's needed, e.g. when iHave=iNeed=3.
-			I think the intention was, on the contrary, to let more workers improve
-			a city than are needed. iHave=3, iNeed=2 seems like the only relevant
-			example. (Note that iNeed will eventually decrease when too many workers
-			improve a city.)
-			The bigger issue is that the K-Mod (and BtS) code won't let a worker
-			leave when iHave=2, iNeed=1, which happens all the time. Also, I
-			don't think newly trained workers (isCity) should unconditionally stay.
-			It would be nice if CvCityAI::AI_updateWorkersNeededHere used
-			times-100 precision, but it rounds values in several places, so that's
-			difficult to change. */
-		if (iNeed > 0 && ((getPlot().isCity() && iHave - 1 < 2 * iNeed) ||
-			iHave - 1 < (1 + iNeed * 4) / 3)) // </advc.113>
+		// <!-- custom: move to city B sooner if city A is improved enough. AI workers now more efficient, but core cities get overly improved while edge cities underdeveloped. Workers keep improving city A even though we'll never allocate all 15+ tiles, while city B needs help urgently. See known issue 39 for details and screenshots. (Claude code Sonnet 4.5 (summarized)) -->
+		/*  BEFORE the iNeed/iHave block, short-circuit if city A is already fine  */
+		// <!-- custom: adjust as you see fit: 1, 2, 3 plots, etc. So for example iBufferForAllCities 1 would mean that if city pop is 6, when our total improved tiles count in all city if i'm not mistaken is >= 6 + 1 = 7 plots, we have improved city A enough, move to city B that may need improvements more urgently, especially if City A won't grow further, no point in improving too many tiles in city A while ignoring city B that would much need otherwise to have its tiles improve rather -->
+		// <!-- custom: accounting for specialists and the need to develop other cities soon and sooner, which we still don't do soon enough as of now, reduce buffer from 1 to 0 as a test to see what happens -->
+		// <!-- custom: add an extra tolerance and leeway for small cities, indeed they can be expected to grow fast, so stay longer in these even if we have a few more plots than our current pop (e.g. if city pop is 2, continue improving tiles until we have >= 0 + 2 pop + 2 extra tiles = 4 plots improved in city radius), hopefully this also helps if cities share tiles and in case they are counted as belonging to city B when in fact it is worked by city A (just a guess/theory but hopefully this helps too) -->
+		const int iCityPopulation = pCity->getPopulation();
+		// <!-- custom: make the extra plot count a bit larger to account for (no pun) plot overlapping between cities, so if city A and city B share 2 plots, and these were improved in city A, we don't want the AI worker to think "hey, city B already has 2 tiles improved and its pop is 1, not too much more to do if threshold plots ot improve vs city population is reached, so make it a bit larger to account for that, as of now here 3 (see below at iBufferForAllCities) rather than say 2." -->
+		const int iBufferExtraForSmallCities = (iCityPopulation <= 4 ? 3 : 0);
+		// <!-- custom: note: even for big cities, the extra is not 0, to help reduce oscillation, so workers would stay a bit longer in city (if pop is 7 they'd stay until 8 plots are improved, so city A is ready for its next citizen, and when workers are in city B, they can stay longer as city A already has a few more/extra improvements to grow, even if not no big deal it is already developped, but don't overimprove city A, as city B is more urgent, but just a little bit extra in city A to avoid the back and forth / oscillation as discussed with chatgpt 5 with the idea i got hehe, so in short improve big cities a bit more than needed so we can comeback to them later and they'll still grow fine for a while, but don't overimprove, so that we move sooner to city B that is smaller and much needing early improvements, which we currently don't do or not enough (small cities take too logn to be improved by AI workers as of now), and when we are in city B, improve a lot more plots than needed as it will grow fast, and do not leave city B until a few extra plots have been developped (if city pop 1, dont leave until 4 plots are improved for example, then don't come back for a while if i'm not mistkane and)) -->
+		const int iBufferForAllCities = 2;
+		// <!-- custom: keep the anti-overimprove city-skip rule focused on the case it was meant to solve:
+		// small or early cities that already have enough improved plots while another city needs worker turns more.
+		// Do not use this rule to declare medium/large cities "done"; they still benefit from improved BFC options
+		// for food/hammer rotation, and logs/screenshots showed size-12 cities with strong blank plots left unimproved while
+		// workers elsewhere oscillated Mine<->Windmill or Cottage<->Farm. (ChatGPT-5.5) -->
+		static const int iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION = GC.getDefineINT("SAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION");
+		if (iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION > 0 &&
+			iCityPopulation <= iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION &&
+			(countImprovedTiles(pCity) >= (iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities)))
 		{
-			if (AI_improveCity(*pCity))
-				return;
+			// <!-- custom: Keep the early-leave rule from making a worker abandon useful work it is already standing on.
+			// The small-city shortcut is good when it prevents over-improving city A while city B/C needs help, but BBAI
+			// tests showed a bad edge case: a worker on an owned, workable, unimproved BFC forest could decide the small
+			// city was already improved enough, route/leave toward another city, and leave the local forest/chop/improvement
+			// unfinished. With this define enabled, the shortcut is bypassed only when the current plot is this same city's
+			// non-home workable BFC plot and AI_bestCityBuild selects it as the current best local build. This preserves the
+			// broader city-rotation behavior while preventing the "stand on useful local work, road it, then walk away" pattern
+			// without hardcoding a separate build-priority list that could drift from worker valuation. (ChatGPT-5.5 + GPT-5.5) -->
+			// <!-- custom: empricially fixed Beijing and Persepolis having unimproved forests (but roaded only sometimes or not at all) by T200, and reduced it in other cities, so looks like a very nice change worth keeping (also based on diagnostic logging (now removed for concision and so code is lighter and as is unneeded now it seems)) -->
+			static const int iSAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT = GC.getDefineINT("SAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT");
+			bool bKeepCurrentUnimprovedBFCPlot = false;
+			BuildTypes eKeepCurrentBuild = NO_BUILD;
+			if (iSAS_AI_WORKER_OVERIMPROVE_SKIP_KEEP_CURRENT_UNIMPROVED_BFC_PLOT > 0)
+			{
+				CvPlot const& kWorkerPlot = getPlot();
+				CityPlotTypes const eWorkerCityPlot = pCity->getCityPlotIndex(kWorkerPlot);
+				CvCityAI const* pWorkingCity = kWorkerPlot.AI_getWorkingCity();
+				if (eWorkerCityPlot != NO_CITYPLOT && eWorkerCityPlot != CITY_HOME_PLOT && pWorkingCity == pCity &&
+					kWorkerPlot.getOwner() == getOwner() && !kWorkerPlot.isWater() && !kWorkerPlot.isCity() &&
+					!GET_PLAYER(getOwner()).isAutomationSafe(kWorkerPlot))
+				{
+					CvPlot* pBestCurrentCityPlot = NULL;
+					BuildTypes eBestCurrentCityBuild = NO_BUILD;
+					if (AI_bestCityBuild(*pCity, &pBestCurrentCityPlot, &eBestCurrentCityBuild, NULL, this) &&
+						pBestCurrentCityPlot == &kWorkerPlot && eBestCurrentCityBuild != NO_BUILD)
+					{
+						bKeepCurrentUnimprovedBFCPlot = true;
+						eKeepCurrentBuild = eBestCurrentCityBuild;
+					}
+				}
+			}
+			if (bKeepCurrentUnimprovedBFCPlot)
+			{
+				if (gWorkerLogLevel >= 2)
+				{
+					CvPlot const& kWorkerPlot = getPlot();
+					logBBAI("    %S worker stays in small improved-enough city %S to handle current useful BFC plot: pop=%d improved=%d target=%d maxPop=%d plot=(%d,%d) build=%S", GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), iCityPopulation, countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities, iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION, kWorkerPlot.getX(), kWorkerPlot.getY(), GC.getInfo(eKeepCurrentBuild).getDescription());
+				}
+			}
+			else
+			{
+				if (gWorkerLogLevel >= 2)
+				{
+					logBBAI("    %S worker leaves small improved-enough city %S: pop=%d improved=%d target=%d maxPop=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pCity->getName().GetCString(), iCityPopulation, countImprovedTiles(pCity), iCityPopulation + iBufferForAllCities + iBufferExtraForSmallCities, iSAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION);
+				}
+				if (AI_nextCityToImprove(pCity))   // go pick city B right now
+					return;
+				// If we couldn't find a better city, work here anyway
+			}
 		}
+
+		// <!-- custom: as for this code we don't need it, we now have our own logic to decide if worker should go to city B or back to city A or to city C, make them more dynamic, so smaller cities get max chance to be improved, even if it means a bit back and forth, currently small cities take too long to be improved, we don't want workers to stay too long in a city when others could be waiting; in very short, don't give workers too many reasons to stay in same city; delaying improving other cities :), improve city B or other cities, then come back later to city A if/when needed -->
+		// int const iNeed = pCity->AI_getWorkersNeeded();
+		// int const iHave = pCity->AI_getWorkersHave();
+		// /* bts code
+		// if (iNeed > 0 && (getPlot().isCity() || iNeed < (1 + iHave * 2) / 3)) */
+		// /*  K-Mod. Is it just me, or did they get this backwards?
+		// 	Note: this worker is currently at pCity, and so it's probably counted in AI_getWorkersHave. */
+		// //if (iNeed > 0 && (getPlot().isCity() || iHave - 1 <= (1 + iNeed * 2) / 3))
+		// /*  <advc.113> The above makes the worker leave its city even if the remaining
+		// 	workers will only be 2/3 of what's needed, e.g. when iHave=iNeed=3.
+		// 	I think the intention was, on the contrary, to let more workers improve
+		// 	a city than are needed. iHave=3, iNeed=2 seems like the only relevant
+		// 	example. (Note that iNeed will eventually decrease when too many workers
+		// 	improve a city.)
+		// 	The bigger issue is that the K-Mod (and BtS) code won't let a worker
+		// 	leave when iHave=2, iNeed=1, which happens all the time. Also, I
+		// 	don't think newly trained workers (isCity) should unconditionally stay.
+		// 	It would be nice if CvCityAI::AI_updateWorkersNeededHere used
+		// 	times-100 precision, but it rounds values in several places, so that's
+		// 	difficult to change. */
+		// if (iNeed > 0 && ((getPlot().isCity() && iHave - 1 < 2 * iNeed) ||
+		// 	iHave - 1 < (1 + iNeed * 4) / 3)) // </advc.113>
+		// {
+		// 	if (AI_improveCity(*pCity))
+		// 		return;
+		// }
+
+		// <!-- custom: attempt to reduce worker parking when cities are underimproved, solution recommended by claude sonnet 4.5, check if accurate -->
+		// But you also commented out the local need check:
+		// ⚠️ This might be a problem. The original code had workers actually do work in their city before considering leaving. You removed this and replaced it with just a "should I leave?" check, but if the worker decides NOT to leave, it skips the "do work here" part entirely and falls through to less efficient functions.
+		// Option 1: Add fallback after your city-switch check
+		// Always try to improve current city if we have one
+		// <!-- custom: chatgpt 5's comment about this change/addition as well -->
+		// C) Only use “self city" as selection, let actual work be decided by AI_improveCity
+		// Keep your current structure where AI_workerMove tries AI_improveCity(*pCity) after city switching. That path is already present and safe; just avoid having AI_nextCityToImprove return “true" with a self target that isn’t actionable (Fix A handles that). Your current call sites do return immediately on “success," so ensuring “success" means “we actually queued missions" is the key.
+		// <!-- custom: when i asked it again if a change was needed regarding C it said this to explain it i mean, check if accurate -->
+		// Short answer: you’re good — with A and B in place, you don’t need to change anything for option C.
+		// - Your current AI_workerMove still early-returns when AI_nextCityToImprove(pCity) succeeds. That’s fine now that A/B make sure we don’t “succeed" on a no-op self-city target; we’ll only return early when we actually queued a move/build to another city.
+		// - The local-work path still runs when no switch happens: after the first switch attempt, you fall through and try AI_improveCity(*pCity) and AI_improveLocalPlot(...), so the worker won’t park if it stayed in place.
+		// <!-- custom: Compare the current city's best job with all other cities before committing to local work. This prevents a worker in a developed city from repeatedly building low-value unused improvements while another city has valuable worked plots waiting. (GPT-5.5) -->
+		if (AI_nextCityToImprove(pCity))
+			return;
 	}
 
 	/*if (AI_improveLocalPlot(2, pCity))
@@ -1844,7 +5584,11 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	//if (GC.getGame().getSorenRandNum(5, "AI Worker build Fort with Priority"))
 	/*	advc.001: The above tests !=0. Why should a Fort be given priority
 		80% of the time? */
-	if (SyncRandSuccess100(20))
+	// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, see the Main Changes Guide or some similar or related or other docs in our mod for update status rather than here. -->
+	// <!-- custom: Late-game AI workers still built forts outside BFC-focused worker logic. The active source appears to be the airbase branch below: once the AI has paradrop/air/missile units, AI_fortTerritory can choose outside-BFC fort-airbase plots even though BFC plots are already mostly protected by AdvCiv-SAS worker build logic. These forts usually spend worker turns for meagre defensive/airbase/canal benefits, can block future irrigation-chain paths, and cities usually serve aircraft better. Default-disable the old branch through the corresponding SAS define rather than just lowering its odds; if a future caller reaches AI_fortTerritory while the define is disabled, that function logs the attempted path. (GPT-5.5) -->
+	//if (SyncRandSuccess100(20))
+	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_AI_WORKER_FORT_AIRBASE_ENABLE");
+	if (bAllowFortAirbaseWorkers && SyncRandSuccess100(10)) // Only 10% chance to even try Fort logic
 	{
 		//bool bCanal = ((100 * getArea().getNumCities()) / std::max(1, GC.getGame().getNumCities()) < 85);
 		/*	K-Mod. The current AI for canals doesn't work anyway;
@@ -1899,9 +5643,16 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	// <advc.300> None of the stuff below seems relevant for Barbarian workers
 	if (isBarbarian())
 	{
-		if (!bCanRetreat || !AI_retreatToCity(false, true))
+		// <!-- custom: In the save-file-442 BBAI run, two Barbarian Workers with no accepted local job repeatedly called AI_retreatToCity while already inside safe owned Chehalis. This recreated MISSIONAI_RETREAT + HOLD with no queued mission every turn from about turns 126-152, so the existing wake-up only repeated the loop.
+		// Do not retreat from a safe owned city to itself; Skip for one turn so the Worker wakes and can reconsider if useful work appears later, or scrap it when AI scrapping is allowed. See KI#175. (GPT-5.5) -->
+		bool const bAlreadyInSafeOwnedCity = (getPlot().isCity() && getPlot().getOwner() == getOwner() && !kOwner.AI_isPlotThreatened(plot(), 1));
+		if (!bCanRetreat || bAlreadyInSafeOwnedCity || !AI_retreatToCity(false, true))
 		{
-			if (SyncRandOneChanceIn(6))
+			bool const bScrapRoll = SyncRandOneChanceIn(6);
+			bool const bScrapIdleBarbarianWorker = (bScrapRoll && canScrap());
+			if (gWorkerLogLevel >= 3 && bAlreadyInSafeOwnedCity)
+				logBBAI("    WORKER_NO_PRODUCTIVE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d workingCity=%S reason=already-in-safe-owned-city action=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getID(), (pCity == NULL ? L"-" : pCity->getName().GetCString()), (bScrapIdleBarbarianWorker ? "scrap" : "skip-turn"));
+			if (bScrapIdleBarbarianWorker)
 				scrap(); // Don't let it stand around indefinitely
 			else getGroup()->pushMission(MISSION_SKIP);
 		}
@@ -1934,10 +5685,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	{
 		//bool bCanal = ((100 * getArea().getNumCities()) / std::max(1, GC.getGame().getNumCities()) < 85);
 		bool const bCanal = false; // K-Mod. The current AI for canals doesn't work anyway; so lets skip it to save time.
-		bool bAirbase = false;
-		bAirbase = (kOwner.AI_totalUnitAIs(UNITAI_PARADROP) ||
-				kOwner.AI_totalUnitAIs(UNITAI_ATTACK_AIR) ||
-				kOwner.AI_totalUnitAIs(UNITAI_MISSILE_AIR));
+		bool const bAirbase = (bAllowFortAirbaseWorkers && (kOwner.AI_totalUnitAIs(UNITAI_PARADROP) || kOwner.AI_totalUnitAIs(UNITAI_ATTACK_AIR) || kOwner.AI_totalUnitAIs(UNITAI_MISSILE_AIR))); // <!-- custom: Gate the second worker fallback through the corresponding SAS define too; see the earlier fort-airbase comment in this function. (GPT-5.5) -->
 		if (bCanal || bAirbase)
 		{
 			if (AI_fortTerritory(bCanal, bAirbase))
@@ -1969,6 +5717,10 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				into transports.) */
 			int const iAreaWorkers = kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER);
 			int const iAreaCities = getArea().getCitiesPerPlayer(getOwner());
+			// <!-- custom: The collision rule excluded the only Worker in an owned area, so a Worker that had finished developing a secondary island could never request transport home.
+			// Zero calculated demand now identifies that completed area. Let its lone Worker seek a Settler transport deterministically, while retaining the old probabilistic redistribution elsewhere. See KI#192. (GPT-5.6-Sol) -->
+			bool const bEvacuateCompletedArea = (iAreaCities > 0 && iNeededWorkersInArea <= 0 && iAreaWorkers > 0);
+			int const iWorkerArea = ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea ? getArea().getID() : -1);
 			rLoadProb = scaled(3 * iAreaWorkers - 2 * iAreaCities, 24);
 			if (pCity != NULL)
 			{
@@ -1976,7 +5728,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				if (iLocalMissing > 0)
 					rLoadProb /= 1 + iLocalMissing;
 			}
-			if (iAreaCities <= 0 ||
+			if (iAreaCities <= 0 || bEvacuateCompletedArea ||
 				(iMissingWorkersInArea <= 0 && iAreaWorkers > 1 &&
 				SyncRandSuccess(rLoadProb)))
 			{ // </advc.113>
@@ -1987,14 +5739,17 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 					UNITAI_WORKER, // Fill up boats which already have workers
 					-1, -1, -1, -1, MOVE_SAFE_TERRITORY))
 				{
+					if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_EXISTING_WORKER_TRANSPORT" : "REQUEST_EXISTING_WORKER_TRANSPORT");
 					return;
 				}
 				// Avoid filling a galley which has just a settler in it, reduce chances for other ships
 				if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, NO_UNITAI,
 					-1, 2, -1, -1, MOVE_SAFE_TERRITORY))
 				{
+					if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=%s", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea, isCargo() ? "BOARD_AVAILABLE_TRANSPORT" : "REQUEST_AVAILABLE_TRANSPORT");
 					return;
 				} // BETTER_BTS_AI_MOD: END
+				if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bEvacuateCompletedArea) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaCities=%d areaWorkers=%d areaWorkersNeeded=%d result=NO_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), iWorkerArea, iAreaCities, iAreaWorkers, iNeededWorkersInArea);
 				rLoadProb = 0; // advc.113: OK to scrap
 			}
 		}
@@ -2046,7 +5801,23 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 				kOwner.calculateUnitCost() > 0)
 			{	// <advc.113>
 				if (pCity == NULL || pCity->AI_getWorkersNeeded() < pCity->AI_getWorkersHave() + 1)
-				{	/*  Scrap eventually b/c the worker could be stuck in this area,
+				{	
+					// <!-- custom: i had added this code in an attempt to address known issue 52, now seemingly sovled or tremendously improved but check docs there to be sure, still this code may be useful maybe although i didn't test it too much if at all, so kept enabled, disable it / comment-out / remove if you have no use for it or don't deem it relevant, -->
+					// Never scrap if safe / new / still useful
+					if (plot() != NULL && plot()->getOwner() == getOwner()) return;            // inside borders
+					if (GC.getGame().getGameTurn() - getGameTurnCreated() < 10) return;        // young unit
+					if (AI_getCityToImprove() != NULL) return;                                  // we have demand
+
+					// <!-- custom: Also avoid worker self-scrapping when the area does not exceed worker need or the shared AdvCiv-SAS minimum worker floor. (GPT-5.5) -->
+					if (GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER) <=
+						std::max(GET_PLAYER(getOwner()).AI_neededWorkers(getArea()),
+						GET_PLAYER(getOwner()).AI_getSASMinimumAreaWorkers(getArea())))
+					{
+						return;
+					}
+					// <!-- custom: end of new code change -->
+
+					/*  Scrap eventually b/c the worker could be stuck in this area,
 						but there's no hurry. */
 					scaled rScrapProb(iTotalHave, std::max(1, iTotalThresh));
 					rScrapProb -= 1;
@@ -2068,8 +5839,31 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		}
 	}
 
-	if (bCanRetreat && AI_retreatToCity(false, true))
-		return;
+	// <!-- custom: in rare cases workers get parked in cities with MISSIONAI_RETREAT + ACTIVITY_HOLD. Fix to unstick these "retreaters" at start of turn. See known issue 50 for details and screenshots. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+	// yep — the screenshot tells the story:
+
+	// left debug list shows several Workers with MISSIONAI_RETREAT, HOLD.
+	// they’re inside your borders (Persepolis) and just… park.
+	// that’s your “parking" culprit: once a worker gets a RETREAT mission it often sits on HOLD for many turns unless something explicitly clears that state.
+
+	// why it’s happening even after your earlier tweak
+	// You already softened the early retreat check (outside borders only, radius=1).
+	// But near the end of AI_workerMove there’s still this unconditional fallback:
+	// That call runs even inside borders, and AI_retreatToCity sets the group to
+	// MISSIONAI_RETREAT + ACTIVITY_HOLD. In mid-game with 1–2 wars, the internal threat
+	// heuristics will happily keep flagging tiles as “unsafe", so workers pile into the
+	// nearest city and stay on HOLD. That matches your screenshot exactly.
+	// two small patches that fix it
+	// 1) Don’t retreat inside borders (final fallback)
+	// Change the late fallback to only run outside borders:
+	// if (bCanRetreat && AI_retreatToCity(false, true))
+	// 	return;
+	if (bCanRetreat && plot()->getOwner() != getOwner())
+	{
+		if (AI_retreatToCity(false, true)) return;
+	}
+	// (If you still want some retreat inside borders, gate it by a very hard condition,
+	// e.g. same-tile danger — but that’s basically capture anyway, so I’d skip it.)
 
 	/*if (AI_retreatToCity())
 		return; */ // disabled by K-Mod (redundant)
@@ -2082,6 +5876,46 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	if (AI_safety())
 		return;
 
+	// <!-- custom: tentative safety if workers are still on HOLD or such, try to manually reset them so they do something, anything, as recommended by chatgpt 5 (check if accurate); note: refresh the value to another bWorkerSleeping2 variable in case it changed since then -->
+	// Bottom-of-function failsafe (“do something, anything")
+	// At the very end of AI_workerMove (just before returning with no action), add:
+	const bool bWorkerSleeping2 = (
+		(getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT) ||
+		(getGroup()->getActivityType() == ACTIVITY_HOLD)
+	);
+	if (bWorkerSleeping2 && bWeOwnThisPlot)
+	{
+		if (gWorkerLogLevel >= 3)
+			logBBAI("    WORKER_PARKING_RECOVERY phase=fallback turn=%d player=%d %S workerId=%d worker=(%d,%d) activity=%d missionAI=%d action=wake-and-retry-city-work", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getActivityType(), getGroup()->AI().AI_getMissionAIType());
+		getGroup()->setActivityType(ACTIVITY_AWAKE);
+		getGroup()->AI().AI_setMissionAI(NO_MISSIONAI, NULL, NULL);
+
+		CvCityAI* pCityToImprove = AI_getCityToImprove();
+		if (pCityToImprove != NULL && AI_improveCity(*pCityToImprove))
+		{
+			return;
+		}
+		if (AI_nextCityToImprove(NULL))
+		{
+			return;
+		}
+	}
+	// Put the failsafe before the final MISSION_SKIP
+	// <!-- custom: then after i asked it why only to understand/guess xdthat our fallback would not be reached or fail due to the skip or such, it added this info, check if accurate -->
+	// yep — your intuition is right.
+	// pushMission(MISSION_SKIP) queues a “do nothing this turn" for the group (effectively HOLD/skip-turn).
+	// Once you’ve queued that, any logic after it is either not reached (if you return;) or will be overwritten by the queued skip (the group will still execute the skip you just pushed).
+	// So if you put your wake-up + reassignment after MISSION_SKIP, it neuters the sanity checks. They must run before any skip is pushed.
+
+	// <!-- custom: A final Skip is normal when every useful Worker path fails, but repeated Skips by the same unit reveal genuine idle/parking behavior. Log the remaining demand, city context, safety, and group state immediately before the Skip so repeated cases can be diagnosed without changing behavior. (GPT-5.5) -->
+	if (gWorkerLogLevel >= 3)
+	{
+		CvPlot const* pMissionPlot = AI_getGroup()->AI_getMissionAIPlot();
+		logBBAI("    WORKER_NO_PRODUCTIVE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d workingCity=%S areaWorkersNeeded=%d areaWorkersMissing=%d canRoute=%d ownPlot=%d danger=%d threatened=%d activity=%d missionAI=%d missionTarget=(%d,%d) missionQueue=%d action=skip-turn",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getID(), (pCity == NULL ? L"-" : pCity->getName().GetCString()), iNeededWorkersInArea, iMissingWorkersInArea, bCanRoute, bWeOwnThisPlot,
+			kOwner.AI_getPlotDanger(getPlot()), kOwner.AI_isPlotThreatened(plot(), 1), getGroup()->getActivityType(), AI_getGroup()->AI_getMissionAIType(),
+			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getGroup()->getLengthMissionQueue());
+	}
 	getGroup()->pushMission(MISSION_SKIP);
 }
 
@@ -2297,6 +6131,8 @@ void CvUnitAI::AI_attackMove()
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
 	bool const bDanger = (kOwner.AI_isAnyPlotDanger(getPlot(), 3));
 	bool const bLandWar = kOwner.AI_isLandWar(getArea()); // K-Mod
+	bool const bLogCrowdedPeacefulCityMove = (gUnitLogLevel >= 2 && SAS_isCrowdedPeacefulCityAttackMoveDiagnostic(*this));
+	if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "entry");
 
 	// K-Mod note. We'll split the group up later if we need to. (bbai group splitting code deleted.)
 	FAssert(getGroup()->countNumUnitAIType(UNITAI_ATTACK_CITY) == 0); // K-Mod. (I'm pretty sure this can't happen.)
@@ -2325,9 +6161,9 @@ void CvUnitAI::AI_attackMove()
 		// Guard a city we're in if it needs it
 		if (AI_guardCity(true))
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_guard_current_city_if_needed");
 			return;
 		}
-
 		/* if (!getPlot().isOwned()) {
 			// Group with settler after naval drop
 			if (AI_groupMergeRange(UNITAI_SETTLE, 2, true, false, false))
@@ -2346,6 +6182,7 @@ void CvUnitAI::AI_attackMove()
 					AI_guardCityMinDefender(true) :
 					AI_guardCity(true, true, 3)) // </K-Mod>
 				{
+					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_guard_colony");
 					return;
 				}
 			}
@@ -2353,6 +6190,7 @@ void CvUnitAI::AI_attackMove()
 
 		if (AI_heal(30, 1))
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_heal_30");
 			return;
 		}
 
@@ -2369,16 +6207,42 @@ void CvUnitAI::AI_attackMove()
 		if (AI_omniGroup(UNITAI_SETTLE, 2, -1, false, NO_MOVEMENT_FLAGS,
 			3, false, false, false, false, false))
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_group_with_settler");
 			return;
 		} // K-Mod end
 
 		if (AI_guardCityAirlift())
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_guard_city_airlift");
 			return;
 		}
 
 		if (AI_guardCity(false, true, 1))
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_guard_city_within_1");
+			return;
+		}
+		// <!-- custom: A backstab could leave endangered cities short of defenders while general attackers continued an expedition abroad.
+		// In a defensive land area, first let the whole group counter a reachable invader; otherwise detach enough suitable defenders to fill a realistic shortage within three turns.
+		// Safe cities and hopeless defenses do not interrupt the expedition. (GPT-5.6-Sol) -->
+		bool const bLogDefensePriority = (gUnitLogLevel >= 2);
+		int const iDefenseSourceX = (bLogDefensePriority ? getX() : -1);
+		int const iDefenseSourceY = (bLogDefensePriority ? getY() : -1);
+		if (!isBarbarian() && getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE && AI_defendTerritory(65, NO_MOVEMENT_FLAGS, 3, true))
+		{
+			if (bLogDefensePriority) logBBAI("    ATTACK_DEFENSE_PRIORITY_ACTION turn=%d player=%d %S action=counter_invader_whole_group unitAI=%d groupId=%d groupUnits=%d source=(%d,%d) areaAI=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), AI_getUnitAIType(), getGroup()->getID(), getGroup()->getNumUnits(), iDefenseSourceX, iDefenseSourceY, getArea().getAreaAIType(getTeam()));
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_counter_invader");
+			return;
+		}
+		if (!isBarbarian() && AI_guardCity(false, true, 3, NO_MOVEMENT_FLAGS, 0, /*bDangerOnly*/true, /*bFillShortfall*/true))
+		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_reinforce_endangered_city");
+			return;
+		}
+		if (gUnitLogLevel >= 2 && !bDanger && getGroup()->canDefend()) SAS_logAttackDefenseReinforcementCandidate(*this, kOwner, GET_TEAM(getTeam()));
+		if (!bDanger && SAS_createMissingBarbarianCityExpeditionLeader(*this))
+		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_create_barbarian_expedition_leader");
 			return;
 		}
 
@@ -2390,8 +6254,7 @@ void CvUnitAI::AI_attackMove()
 		// K-Mod
 		if (isEnemy(getPlot()))
 		{
-			if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, NO_MOVEMENT_FLAGS,
-				2, true, false))
+			if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, NO_MOVEMENT_FLAGS, 2, true, false))
 			{
 				return;
 			}
@@ -2405,6 +6268,7 @@ void CvUnitAI::AI_attackMove()
 			{
 				if (AI_offensiveAirlift())
 				{
+					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_offensive_airlift");
 					return;
 				}
 			}
@@ -2435,6 +6299,7 @@ void CvUnitAI::AI_attackMove()
 		// K-Mod (moved from below, and replacing the disabled stuff above)
 		if (AI_anyAttack(1, 70))
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_immediate_attack");
 			return;
 		}
 		// K-Mod end
@@ -2443,6 +6308,7 @@ void CvUnitAI::AI_attackMove()
 		{
 			if (AI_guardCity(false, false))
 			{
+				if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_guard_current_city");
 				return;
 			}
 		}
@@ -2483,6 +6349,7 @@ void CvUnitAI::AI_attackMove()
 
 				if (kOwner.AI_isAnyUnitTargetMissionAI(*this, MISSIONAI_GROUP))
 				{
+					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_wait_for_incoming_group");
 					getGroup()->pushMission(MISSION_SKIP);
 					return;
 				}
@@ -2505,6 +6372,7 @@ void CvUnitAI::AI_attackMove()
 
 		if (AI_goody(3))
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_goody");
 			return;
 		}
 
@@ -2565,6 +6433,7 @@ void CvUnitAI::AI_attackMove()
 		{
 			if (AI_heal())
 			{
+				if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_heal");
 				return;
 			}
 		}
@@ -2577,35 +6446,33 @@ void CvUnitAI::AI_attackMove()
 		{
 			// BBAI TODO: If we're fast, maybe shadow an attack city stack and pillage off of it
 
+			AreaAITypes const eAreaAIType = getArea().getAreaAIType(getTeam());
 			bool bIgnoreFaster = false;
 			if (kOwner.AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ))
 			{
-				if (getArea().getAreaAIType(getTeam()) != AREAAI_ASSAULT)
+				if (eAreaAIType != AREAAI_ASSAULT)
 				{
 					bIgnoreFaster = true;
 				}
 			}
-
 			//if (AI_group(UNITAI_ATTACK_CITY, 1, 1, -1, bIgnoreFaster, true, true, 5))
 			// K-Mod
-			bool bAttackCity = (bLandWar &&
-					(getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE ||
-					(AI_getBirthmark() + GC.getGame().getGameTurn() / 8) % 5 <= 1));
+			bool const bAttackCity = (bLandWar && (eAreaAIType == AREAAI_OFFENSIVE || (AI_getBirthmark() + GC.getGame().getGameTurn() / 8) % 5 <= 1));
 			if (bAttackCity)
 			{
 				// strong merge strategy
-				if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, NO_MOVEMENT_FLAGS,
-					5, true, getGroup()->getNumUnits() < 2, bIgnoreFaster, false, false))
+				if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, NO_MOVEMENT_FLAGS, 5, true, getGroup()->getNumUnits() < 2, bIgnoreFaster, false, false))
 				{
+					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_group_with_attack_city_strong");
 					return;
 				}
 			}
 			else
 			{
 				// weak merge strategy
-				if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, 2, true, NO_MOVEMENT_FLAGS,
-					5, true, false, bIgnoreFaster, false, false))
+				if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, 2, true, NO_MOVEMENT_FLAGS, 5, true, false, bIgnoreFaster, false, false))
 				{
+					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_group_with_attack_city_weak");
 					return;
 				}
 			}
@@ -2615,6 +6482,7 @@ void CvUnitAI::AI_attackMove()
 			if (AI_omniGroup(UNITAI_ATTACK, 2, -1, false, NO_MOVEMENT_FLAGS,
 				4, true, true, true, true, false))
 			{
+				if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_group_with_attack");
 				return;
 			}
 
@@ -2631,6 +6499,7 @@ void CvUnitAI::AI_attackMove()
 			if (AI_omniGroup(UNITAI_ATTACK, 1, 1, false, NO_MOVEMENT_FLAGS,
 				1, true, true, false, false, false))
 			{
+				if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_group_with_single_attack");
 				return;
 			}
 
@@ -2640,7 +6509,10 @@ void CvUnitAI::AI_attackMove()
 				/*  advc.001t (Tbd.?): Maybe check CvSelectionGroupAI::AI_isDeclareWar
 					and pass MOVE_DECLARE_WAR if true */
 				if (AI_goToTargetCity(NO_MOVEMENT_FLAGS, 12))
+				{
+					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_move_to_target_city");
 					return;
+				}
 			}
 			// K-Mod end
 		}
@@ -2664,6 +6536,7 @@ void CvUnitAI::AI_attackMove()
 
 		if (AI_guardCity(false, true, 3))
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_guard_city_within_3");
 			return;
 		}
 
@@ -2683,11 +6556,13 @@ void CvUnitAI::AI_attackMove()
 					{
 						if (AI_exploreRange(3))
 						{
+							if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_explore_range");
 							return;
 						}
 
 						if (AI_explore())
 						{
+							if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_explore");
 							return;
 						}
 					}
@@ -2698,11 +6573,13 @@ void CvUnitAI::AI_attackMove()
 		//if (AI_protect(35, NO_MOVEMENT_FLAGS, 5))
 		if (AI_defendTerritory(45, NO_MOVEMENT_FLAGS, 7)) // K-Mod
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_defend_territory");
 			return;
 		}
 
 		if (AI_offensiveAirlift())
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_late_offensive_airlift");
 			return;
 		}
 
@@ -2712,6 +6589,7 @@ void CvUnitAI::AI_attackMove()
 			{
 				if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, 1, -1, -1, 1, MOVE_SAFE_TERRITORY, 4))
 				{
+					if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_load_assault_transport");
 					return;
 				}
 
@@ -2728,6 +6606,7 @@ void CvUnitAI::AI_attackMove()
 		// K-Mod
 		if (getGroup()->getNumUnits() >= 4 && getPlot().getTeam() == getTeam())
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_split_large_attack_group");
 			CvSelectionGroup* pRemainderGroup=NULL;
 			CvSelectionGroup* pSplitGroup = getGroup()->splitGroup(2, 0, &pRemainderGroup);
 			if (pSplitGroup != NULL)
@@ -2745,17 +6624,22 @@ void CvUnitAI::AI_attackMove()
 
 		if (AI_defend())
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_defend");
 			return;
 		}
 
 		if (AI_travelToUpgradeCity())
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_upgrade_city");
 			return;
 		}
 
 		// K-Mod
 		if (AI_handleStranded())
+		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_handle_stranded");
 			return;
+		}
 		// K-Mod end
 
 		/* if (!bDanger && !isHuman() && getPlot().isCoastalLand() && kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_PICKUP) > 0) {
@@ -2766,20 +6650,25 @@ void CvUnitAI::AI_attackMove()
 
 		if (AI_patrol())
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_patrol");
 			return;
 		}
 
 		if (AI_retreatToCity())
 		{
+			// <!-- custom: AI_retreatToCity also returns true when it simply waits in the current safe owned city, so keep that distinct in this diagnostic label. (GPT-5.6-Sol) -->
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_retreat_to_or_wait_in_city");
 			return;
 		}
 
 		if (AI_safety())
 		{
+			if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "return_safety");
 			return;
 		}
 	}
 
+	if (bLogCrowdedPeacefulCityMove) SAS_logCrowdedPeacefulCityAttackMove(*this, "final_skip");
 	getGroup()->pushMission(MISSION_SKIP);
 }
 
@@ -2914,6 +6803,12 @@ void CvUnitAI::AI_attackCityMove()
 
 	AreaAITypes const eAreaAI = getArea().getAreaAIType(getTeam());
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
+	CvTeamAI const& kTeam = GET_TEAM(getTeam());
+	bool const bAnyWarPlan = kTeam.AI_isAnyWarPlan();
+	bool const bLargeAttackCityStackDiagnostic = ((gUnitLogLevel >= 2 || gOverseasTransportLogLevel >= 2) && SAS_isLargeAttackCityStackDiagnostic(*this));
+	bool const bLogLargeAttackCityStack = (gUnitLogLevel >= 2 && bLargeAttackCityStackDiagnostic);
+	bool const bLogAssaultTransportFailure = (gOverseasTransportLogLevel >= 2 && bLargeAttackCityStackDiagnostic);
+	if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "entry");
 	//bool bLandWar = !isBarbarian() && ((eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) || (eAreaAIType == AREAAI_MASSING));
 	bool const bLandWar = (isBarbarian() ?
 			// advc: moved up
@@ -2926,6 +6821,7 @@ void CvUnitAI::AI_attackCityMove()
 	bool const bIgnoreFaster = (kOwner.AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ) &&
 			!bAssault && getArea().getCitiesPerPlayer(getOwner()) > 0);
 	bool const bInCity = getPlot().isCity();
+	bool const bLogAttackCityParking = (gUnitLogLevel >= 2 && bInCity && getPlot().getOwner() == getOwner() && getPlot().getPlotCity() != NULL && getGroup()->getNumUnits() >= 6);
 
 	if (bInCity && /* cdtw.9: */ getPlot().getTeam() == getTeam())
 	{
@@ -2935,10 +6831,16 @@ void CvUnitAI::AI_attackCityMove()
 			return;
 		}*/ // <advc.299>
 		if (AI_singleUnitHeal(0, 0))
-			return; // </advc.299>
+		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_single_unit_heal");
+			return;
+		} // </advc.299>
 		// <advc.114e> (from MNAI)
 		if (AI_leaveAttack(1, 70, 150))
-			return; // </advc.114e>
+		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_leave_attack");
+			return;
+		} // </advc.114e>
 		/*if (bIgnoreFaster) {
 			// BBAI TODO: split out slow units ... will need to test to make sure this doesn't cause loops
 		}*/
@@ -2949,22 +6851,36 @@ void CvUnitAI::AI_attackCityMove()
 			CvSelectionGroupAI* pOldGroup = AI_getGroup();
 			pOldGroup->AI_separateNonAI(UNITAI_ATTACK_CITY);
 			if (pOldGroup != getGroup())
+			{
+				if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_separate_non_attack_city");
 				return;
+			}
 		}
 		// note. this will eject a unit to defend the city rather than using the whole group
 		if (AI_guardCity(false))
+		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_guard_city");
 			return;
+		}
 		//if ((eAreaAIType == AREAAI_ASSAULT) || (eAreaAIType == AREAAI_ASSAULT_ASSIST))
 		if (bAssault) // K-Mod
 		{
 			if (AI_offensiveAirlift())
+			{
+				if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_offensive_airlift");
 				return;
+			}
 		}
 	}
-
 	bool const bEnemyTerritory = isEnemy(getPlot()); // advc: renamed from "bAtWar"
 
 	bool bHuntBarbs = false;
+	bool bHuntOnlyBarbs = false;
+	int iBarbarianGarrison = -1;
+	int iBarbarianAttackersNeeded = -1;
+	int iBarbarianExpeditionMaxUnits = -1;
+	int iWarStackNeeded = (isBarbarian() ? 3 : -1);
+	int iMinStackSize = -1;
 	bool bReadyToAttack = false;
 	if (isBarbarian())
 		bReadyToAttack = (getGroup()->getNumUnits() >= 3);
@@ -2972,28 +6888,28 @@ void CvUnitAI::AI_attackCityMove()
 	else if (!bTurtle)
 	{
 		int const iGroupSz = getGroup()->getNumUnits();
-		int iBarbarianGarrison = kOwner.AI_estimateBarbarianGarrisonSize();
-		if ((eAreaAI != AREAAI_DEFENSIVE && eAreaAI != AREAAI_OFFENSIVE && !bAlert1) ||
-			iBarbarianGarrison < 2 * kOwner.AI_getCurrEraFactor())
-		{
-			bHuntBarbs = true;
-		}
+		iWarStackNeeded = AI_stackOfDoomExtra();
+		static int const iSASMinStackSize = GC.getDefineINT("SAS_MIN_ATTACK_CITY_STACK_UNITS");
+		iMinStackSize = iSASMinStackSize;
+		iBarbarianGarrison = kOwner.AI_estimateBarbarianGarrisonSize();
+		if ((eAreaAI != AREAAI_DEFENSIVE && eAreaAI != AREAAI_OFFENSIVE && !bAlert1) || iBarbarianGarrison < 2 * kOwner.AI_getCurrEraFactor()) bHuntBarbs = true;
 		//bReadyToAttack = (iGroupSz >= (bHuntBarbs ? 3 : AI_stackOfDoomExtra())); // BtS
 		/*  Don't yet know if we'll actually target a Barbarian city, so it's hard to
 			decide on the proper size of the attack stack. But if there is nothing else
 			to attack, it's easy. */
-		bool bHuntOnlyBarbs = (bHuntBarbs &&
-				!GET_TEAM(getTeam()).AI_isSneakAttackReady() &&
-				GET_TEAM(getTeam()).getNumWars() <= 0);
-		if (!bHuntOnlyBarbs && iGroupSz >= AI_stackOfDoomExtra())
-			bReadyToAttack = true;
-		else if (bHuntOnlyBarbs &&
-			iGroupSz >= kOwner.AI_neededCityAttackersVsBarbarians() &&
-			// Don't send a giant stack. (Tbd.: Should perhaps split the group up then.)
-			iGroupSz < 3 * iBarbarianGarrison)
+		// <!-- custom: Base AdvCiv treated the preparation period before sneak-attack readiness as Barbarian-only even when a real war plan already existed.
+		// In save file 450, Hannibal consequently prepared to attack nearby Willem at 54% of his power while a city-assault group still targeted Barbarian Scythian about 10 turns away; Arabia captured and razed Scythian first.
+		// Require no war plan so the group instead uses real-war readiness and remains available for the planned campaign. See KI#188.4. (GPT-5.6-Sol) -->
+		bHuntOnlyBarbs = (bHuntBarbs && !bAnyWarPlan && !kTeam.AI_isSneakAttackReady() && kTeam.getNumWars() <= 0);
+		if (bHuntOnlyBarbs)
 		{
-			bReadyToAttack = true;
+			iBarbarianAttackersNeeded = kOwner.AI_neededCityAttackersVsBarbarians().ceil();
+			iBarbarianExpeditionMaxUnits = SAS_getBarbarianCityExpeditionMaxUnits(iBarbarianGarrison, iBarbarianAttackersNeeded);
 		}
+		// <!-- custom: simple sanity check - require minimum stack size before considering "ready to attack". Prevents premature wars where small stacks advance then retreat ("weird back and forth"). See KI#104 (Claude code Opus 4.5) -->
+		if (!bHuntOnlyBarbs && iGroupSz >= iWarStackNeeded && iGroupSz >= iMinStackSize) bReadyToAttack = true;
+		// Don't send a giant stack. (Tbd.: Should perhaps split the group up then.)
+		else if (bHuntOnlyBarbs && iGroupSz >= iBarbarianAttackersNeeded && iGroupSz <= iBarbarianExpeditionMaxUnits) bReadyToAttack = true;
 	} // </advc.300>
 
 	if (bReadyToAttack)
@@ -3026,6 +6942,53 @@ void CvUnitAI::AI_attackCityMove()
 		}
 	}
 
+	int iBarbarianCanAttackUnits = 0;
+	int iBarbarianCityCaptureUnits = 0;
+	int iBarbarianExpeditionGroupsAfter = 0;
+	bool const bOversizedBarbarianExpedition = (bHuntOnlyBarbs && getGroup()->getNumUnits() > iBarbarianExpeditionMaxUnits);
+	if (bOversizedBarbarianExpedition)
+	{
+		SAS_countGroupCityAttackCapability(*getGroup(), iBarbarianCanAttackUnits, iBarbarianCityCaptureUnits);
+		iBarbarianExpeditionGroupsAfter = (getGroup()->getNumUnits() + iBarbarianExpeditionMaxUnits - 1) / iBarbarianExpeditionMaxUnits;
+	}
+	int const iCityCaptureUnitsPerExpedition = (bOversizedBarbarianExpedition ? std::min(3, iBarbarianExpeditionMaxUnits / 2 + 1) : 0);
+	bool const bCanFormUsefulBarbarianExpedition = (bOversizedBarbarianExpedition && iBarbarianCanAttackUnits >= iBarbarianExpeditionGroupsAfter * iBarbarianAttackersNeeded && iBarbarianCityCaptureUnits >= iBarbarianExpeditionGroupsAfter * iCityCaptureUnitsPerExpedition);
+	if (bOversizedBarbarianExpedition && !bCanFormUsefulBarbarianExpedition && gUnitLogLevel >= 2)
+	{
+		logBBAI("    ATTACK_CITY_BARBARIAN_OVERSIZE_SPLIT_SKIP turn=%d player=%d %S reason=insufficient_capability groupId=%d groupUnits=%d canAttack=%d cityCapture=%d groupsPlanned=%d expeditionMax=%d attackersRequired=%d cityCaptureRequired=%d barbarianGarrison=%d barbarianAttackersNeeded=%d",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getGroup()->getID(), getGroup()->getNumUnits(), iBarbarianCanAttackUnits, iBarbarianCityCaptureUnits, iBarbarianExpeditionGroupsAfter, iBarbarianExpeditionMaxUnits,
+			iBarbarianExpeditionGroupsAfter * iBarbarianAttackersNeeded, iBarbarianExpeditionGroupsAfter * iCityCaptureUnitsPerExpedition, iBarbarianGarrison, iBarbarianAttackersNeeded);
+	}
+	if (bCanFormUsefulBarbarianExpedition)
+	{
+		// <!-- custom: BBAI logging showed the unfinished base AdvCiv giant-stack guard creating a feedback loop: exceeding the barbarian maximum made a stack not ready, the generic not-ready path requested more joiners, and peaceful/prewar groups grew to 65-82% of an empire's military before finally moving when war began.
+		// Partition the army into independently useful expeditions instead. Actual attack and city-capture capability rather than UNITAI_ATTACK_CITY labels ensures that broad attacker roles count before splitting; splitGroup then preserves proportional UnitAI/unit-type composition.
+		// This lets enough units act now and leaves the other groups free for different barbarian targets, defense, or later war rather than concentrating maintenance and opportunity cost in one inflexible stack. See KI#188. (GPT-5.6-Sol) -->
+		int const iOriginalGroupId = getGroup()->getID();
+		int const iOriginalGroupUnits = getGroup()->getNumUnits();
+		int const iIncomingJoiners = kOwner.AI_unitTargetMissionAIs(*this, MISSIONAI_GROUP);
+		CvSelectionGroup* pRemainderGroup = getGroup();
+		int iSplitCount = 0;
+		while (pRemainderGroup != NULL && pRemainderGroup->getNumUnits() > iBarbarianExpeditionMaxUnits)
+		{
+			CvSelectionGroup* pNextRemainderGroup = NULL;
+			CvSelectionGroup* pSplitGroup = pRemainderGroup->splitGroup(iBarbarianExpeditionMaxUnits, NULL, &pNextRemainderGroup);
+			if (pSplitGroup == NULL || pSplitGroup == pRemainderGroup)
+				break;
+			pSplitGroup->pushMission(MISSION_SKIP);
+			pRemainderGroup = pNextRemainderGroup;
+			iSplitCount++;
+		}
+		if (pRemainderGroup != NULL) pRemainderGroup->pushMission(MISSION_SKIP);
+		if (gUnitLogLevel >= 2)
+		{
+			logBBAI("    ATTACK_CITY_BARBARIAN_OVERSIZE_SPLIT turn=%d player=%d %S originalGroupId=%d originalGroupUnits=%d canAttack=%d cityCapture=%d groupsAfter=%d expeditionMax=%d remainderGroupId=%d remainderUnits=%d barbarianGarrison=%d barbarianAttackersNeeded=%d incomingJoiners=%d warStackNeeded=%d anyWarPlan=%d",
+				GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), iOriginalGroupId, iOriginalGroupUnits, iBarbarianCanAttackUnits, iBarbarianCityCaptureUnits, iSplitCount + 1, iBarbarianExpeditionMaxUnits,
+				(pRemainderGroup == NULL ? -1 : pRemainderGroup->getID()), (pRemainderGroup == NULL ? -1 : pRemainderGroup->getNumUnits()), iBarbarianGarrison, iBarbarianAttackersNeeded, iIncomingJoiners, iWarStackNeeded, GET_TEAM(getTeam()).AI_isAnyWarPlan());
+		}
+		return;
+	}
+
 	/*	K-Mod. Try to be consistent in our usage of move flags,
 		so that we don't cause unnecessary pathfinder resets.
 		advc (note): There are a couple of exceptions where NO_MOVEMENT_FLAGS
@@ -3042,11 +7005,24 @@ void CvUnitAI::AI_attackCityMove()
 	}
 
 	//if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 0, true, true, bIgnoreFaster))
-	if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags,
-		0, true, false, bIgnoreFaster))
+	if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 0, true, false, bIgnoreFaster))
 	{
+		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_omni_group_same_plot");
 		return;
 	}
+
+	// <!-- custom: Ready city-assault stacks previously chose another enemy city before K-Mod's defensive-area checks, even after a backstab endangered an underdefended city at home.
+	// Counter a reachable invader or detach enough defenders for a realistic three-turn rescue before selecting the next offensive target. The rest of a foreign expedition can continue. (GPT-5.6-Sol) -->
+	bool const bLogDefensePriority = (gUnitLogLevel >= 2);
+	int const iDefenseSourceX = (bLogDefensePriority ? getX() : -1);
+	int const iDefenseSourceY = (bLogDefensePriority ? getY() : -1);
+	if (!isBarbarian() && eAreaAI == AREAAI_DEFENSIVE && AI_defendTerritory(65, MOVE_AVOID_ENEMY_WEIGHT_2, 3, true))
+	{
+		if (bLogDefensePriority) logBBAI("    ATTACK_DEFENSE_PRIORITY_ACTION turn=%d player=%d %S action=counter_invader_whole_group unitAI=%d groupId=%d groupUnits=%d source=(%d,%d) areaAI=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), AI_getUnitAIType(), getGroup()->getID(), getGroup()->getNumUnits(), iDefenseSourceX, iDefenseSourceY, eAreaAI);
+		return;
+	}
+	if (!isBarbarian() && AI_guardCity(false, true, 3, MOVE_AVOID_ENEMY_WEIGHT_2, 0, /*bDangerOnly*/true, /*bFillShortfall*/true))
+		return;
 
 	CvCity* pTargetCity = NULL;
 	if (isBarbarian())
@@ -3060,25 +7036,41 @@ void CvUnitAI::AI_attackCityMove()
 			(!bInCity && getGroup()->getNumUnits() > 1))
 		{
 			pTargetCity = AI_pickTargetCity(eMoveFlags, MAX_INT, bHuntBarbs);
+			// <!-- custom: If normal selection chose a distant Barbarian city we expect to raze, retry without Barbarian candidates so a real war target can replace it; without one, later targetless logic keeps the army available for defense or future opportunities. See KI#188.5. (GPT-5.6-Sol) -->
+			if (pTargetCity != NULL && SAS_isDistantDisposableBarbarianTarget(*this, *pTargetCity, eMoveFlags, MAX_INT, "normal_target_picker"))
+			{
+				pTargetCity = AI_pickTargetCity(eMoveFlags, MAX_INT, false);
+			}
 		}
 	}
+	// <!-- custom: Base AdvCiv/K-Mod reinforcement waits otherwise return before a targetless peaceful army can release its excess units. Only wait for more joiners when the group has selected a city or has a real war plan; otherwise continue to the safe release below. See KI#188.3. (GPT-5.6-Sol) -->
+	bool const bHasTargetOrWarPlan = (pTargetCity != NULL || bAnyWarPlan);
+	static bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL("SAS_AI_SPACE_VICTORY_DENIAL_CAPITAL_RUSH_ENABLE");
+	VictoryTypes const eSpaceVictory = GC.getGame().getSpaceVictory();
+	bool const bLaunchedSpaceCapitalTarget = (bSpaceVictoryDenialCapitalRushEnable && eSpaceVictory != NO_VICTORY && pTargetCity != NULL && pTargetCity->isCapital());
+	int const iSpaceCapitalCountdown = (bLaunchedSpaceCapitalTarget ? GET_TEAM(pTargetCity->getTeam()).getVictoryCountdown(eSpaceVictory) : -1);
+	int iSpaceCapitalPathTurns = -1;
+	bool const bSpaceCapitalEmergency = (iSpaceCapitalCountdown >= 0 && generatePath(pTargetCity->getPlot(), eMoveFlags, true, &iSpaceCapitalPathTurns) && iSpaceCapitalPathTurns <= iSpaceCapitalCountdown);
+	bool const bSpaceCapitalMustAttackNow = (bSpaceCapitalEmergency && iSpaceCapitalPathTurns >= iSpaceCapitalCountdown);
 
 	/*	K-Mod. This is used to prevent the AI from oscillating
 		between moving to attack moving to pillage. */
 	bool bTargetTooStrong = false;
 	// advc.114c: Moved up. Target strength ratio for city attack.
 	int iAttackRatio = -1;
+	// <!-- custom: A save-file 450 army reached Delhi but repeatedly declined both its adjacent assault and further movement. Preserve K-Mod's immediate and projected readiness values for the launched-capital diagnostic below so testing can identify which assessment disagreed. (GPT-5.6-Sol) -->
+	int iSpaceCapitalImmediateCompare = -1;
+	int iSpaceCapitalPostBombardCompare = -1;
+	int iSpaceCapitalAttackRatioSkipBombard = -1;
+	int iSpaceCapitalBombardTurns = -1;
 
 	int iStepDistToTarget = MAX_INT;
 	// K-Mod note.: I've rearranged some parts of the code below, sometimes without comment.
 	if (pTargetCity != NULL)
 	{
-		int iComparePostBombard =
-				/*	advc.159: Avoid overflow when applying the modifier below.
-					Will only get compared with attack ratio percentages, which
-					should be 3-digit numbers. So 10k is a huge ceiling. */
-				std::min(10000,
-				AI_getGroup()->AI_compareStacks(pTargetCity->plot(), true));
+		/* advc.159: Avoid overflow when applying the modifier below. Will only get compared with attack ratio percentages, which should be 3-digit numbers. So 10k is a huge ceiling. */
+		int const iCompareNow = std::min(10000, AI_getGroup()->AI_compareStacks(pTargetCity->plot(), true));
+		int iComparePostBombard = iCompareNow;
 		int iBombardTurns = AI_getGroup()->AI_getBombardTurns(pTargetCity);
 		// K-Mod note: AI_compareStacks will try to use the AI memory if it can't see.
 		{
@@ -3136,10 +7128,20 @@ void CvUnitAI::AI_attackCityMove()
 		} // K-Mod end
 
 		bTargetTooStrong = (iComparePostBombard < iAttackRatio);
+		if (bSpaceCapitalEmergency)
+		{
+			iSpaceCapitalImmediateCompare = iCompareNow;
+			if (gWarLogLevel >= 2)
+			{
+				iSpaceCapitalPostBombardCompare = iComparePostBombard;
+				iSpaceCapitalAttackRatioSkipBombard = iAttackRatioSkipBombard;
+				iSpaceCapitalBombardTurns = iBombardTurns;
+			}
+		}
 		if (iStepDistToTarget <= 2)
 		{	// K-Mod. I've rearranged and rewritten most of this block - removing the bbai code.
 
-			if (bTargetTooStrong)
+			if (bTargetTooStrong && !bSpaceCapitalEmergency)
 			{
 				if (AI_stackVsStack(2, iAttackRatio, 80, eMoveFlags))
 					return;
@@ -3154,8 +7156,7 @@ void CvUnitAI::AI_attackCityMove()
 				if (4 * iOurOffense < 3 * iEnemyOffense)
 				{
 					// including smaller groups
-					if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags,
-						3, true, false, bIgnoreFaster, false, /*bBiggerOnly=*/false))
+					if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 3, true, false, bIgnoreFaster, false, /*bBiggerOnly=*/false))
 					{
 						return;
 					}
@@ -3185,8 +7186,7 @@ void CvUnitAI::AI_attackCityMove()
 				}
 				else
 				{
-					if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags,
-						3, true, false, bIgnoreFaster)) // bigger groups only
+					if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 3, true, false, bIgnoreFaster)) // bigger groups only
 					{
 						return;
 					}
@@ -3197,8 +7197,7 @@ void CvUnitAI::AI_attackCityMove()
 						return;
 					}
 
-					if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 3,
-						true, false, bIgnoreFaster, false, /*bBiggerOnly=*/false)) // any size
+					if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 3, true, false, bIgnoreFaster, false, /*bBiggerOnly=*/false)) // any size
 					{
 						return;
 					}
@@ -3209,7 +7208,7 @@ void CvUnitAI::AI_attackCityMove()
 			{
 				/*	Consider getting into a better position for attack.
 					only if we don't already have overwhelming force */
-				if (iComparePostBombard < GC.getDefineINT(
+				if (!bSpaceCapitalMustAttackNow && iComparePostBombard < GC.getDefineINT(
 					CvGlobals::BBAI_SKIP_BOMBARD_BASE_STACK_RATIO) &&
 					(iComparePostBombard < iAttackRatioSkipBombard ||
 					2 * pTargetCity->getDefenseDamage() < GC.getMAX_CITY_DEFENSE_DAMAGE() ||
@@ -3233,7 +7232,7 @@ void CvUnitAI::AI_attackCityMove()
 						return;
 				}
 				// we're satisfied with our position already. But we still want to consider bombarding.
-				else if (iComparePostBombard >= iAttackRatio && AI_bombardCity())
+				else if (!bSpaceCapitalMustAttackNow && iComparePostBombard >= iAttackRatio && AI_bombardCity())
 					return;
 
 				if (iComparePostBombard >= iAttackRatio)
@@ -3251,6 +7250,39 @@ void CvUnitAI::AI_attackCityMove()
 			}
 		}
 	}
+	// <!-- custom: BBAI save-file 450 testing showed the launched-capital override selecting Cahokia from countdown 12 onward, but ordinary K-Mod execution spent the available turns on opportunistic attacks, regrouping and healing. A 22-unit army reached two path turns from Cahokia, became fully wounded fighting elsewhere, retreated to heal and failed to stop the Space victory.
+	// Once a launched capital is reachable within its countdown, preserve the adjacent bombard/attack checks above but otherwise move toward it immediately. If its immediate strength remains below the normal attack threshold after those checks, an army within one path turn holds to heal and receive reinforcements, avoiding an adjacent stall caused by K-Mod's higher projected post-bombard ratio; it forces an unfavorable final assault only when no countdown slack remains. Generic recovery or secondary opportunities can resume if the capital falls and resets the spaceship. See KI#190. (GPT-5.6-Sol) -->
+	if (bSpaceCapitalEmergency)
+	{
+		int const iSourceX = getX();
+		int const iSourceY = getY();
+		bool const bSpaceCapitalImmediatelyReady = (iSpaceCapitalImmediateCompare >= iAttackRatio);
+		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_READINESS turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d stepDistance=%d immediateCompare=%d postBombardCompare=%d attackRatio=%d skipBombardRatio=%d targetTooStrong=%d bombardTurns=%d canBombard=%d defenseDamage=%d maxDefenseDamage=%d defenseModifier=%d",
+			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns, iStepDistToTarget, iSpaceCapitalImmediateCompare, iSpaceCapitalPostBombardCompare, iAttackRatio, iSpaceCapitalAttackRatioSkipBombard, bTargetTooStrong, iSpaceCapitalBombardTurns, getGroup()->canBombard(getPlot()), pTargetCity->getDefenseDamage(), GC.getMAX_CITY_DEFENSE_DAMAGE(), pTargetCity->getDefenseModifier(false));
+		if (iStepDistToTarget == 1 && bSpaceCapitalMustAttackNow)
+		{
+			if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=force_final_assault",
+				GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
+			if (AI_stackAttackCity(1))
+				return;
+		}
+		if (iSpaceCapitalPathTurns <= 1 && !bSpaceCapitalImmediatelyReady && !bSpaceCapitalMustAttackNow)
+		{
+			if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=hold_within_one_turn_for_recovery_or_reinforcements",
+				GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
+			getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS, false, false, MISSIONAI_ASSAULT, pTargetCity->plot());
+			return;
+		}
+		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=direct_move_or_attack",
+			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
+		if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
+			return;
+		if (gWarLogLevel >= 2) logBBAI("WAR_SPACE_CAPITAL_RUSH_EXECUTE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) capitalPlayer=%d capital=%S capital=(%d,%d) countdown=%d pathTurns=%d action=direct_move_or_attack_failed",
+			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), iSourceX, iSourceY, pTargetCity->getOwner(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), iSpaceCapitalCountdown, iSpaceCapitalPathTurns);
+	}
+	if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "checkpoint_after_target", pTargetCity);
+	if ((gUnitLogLevel >= 2 || gPlayerLogLevel >= 2) && !isBarbarian() && getGroup()->getNumUnits() >= 3)
+		SAS_logAttackCityBarbOpportunity(*this, pTargetCity, bHuntBarbs, bReadyToAttack, bTargetTooStrong, eMoveFlags);
 
 	/*	K-Mod. Lets have some slightly smarter stack vs. stack AI.
 		it would be nice to have some personality effection here...
@@ -3287,8 +7319,10 @@ void CvUnitAI::AI_attackCityMove()
 		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI,
 			-1, -1, -1, -1, eMoveFlags, /*iMaxPath=*/6)) // was 4
 		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_load_assault", pTargetCity);
 			return;
 		}
+		if (bLogAssaultTransportFailure) SAS_logAssaultTransportFailure(*this, eMoveFlags, 6);
 	} // K-Mod end
 	{
 		int iMaxGroupPath = 2;
@@ -3317,14 +7351,17 @@ void CvUnitAI::AI_attackCityMove()
 			}
 		} // </advc.083>
 		//if (AI_groupMergeRange(UNITAI_ATTACK_CITY, iMaxGroupPath, true, true, bIgnoreFaster))
-		if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, iMaxGroupPath,
-			true, false, bIgnoreFaster))
+		if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, iMaxGroupPath, true, false, bIgnoreFaster))
 		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_omni_group_staging_range", pTargetCity);
 			return;
 		}
 	}
 	if (AI_heal(30, 1))
+	{
+		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_heal_30", pTargetCity);
 		return;
+	}
 
 	/*if (collateralDamage() > 0 && getPlot().getOwner() == getOwner()) {
 		if (AI_anyAttack(1, 45, eMoveFlags, 3, false, false))
@@ -3339,7 +7376,10 @@ void CvUnitAI::AI_attackCityMove()
 	/*	K-Mod (changed to allow cities, and to only use a single unit,
 		but it is still a questionable move) */
 	if (AI_anyAttack(1, 60, eMoveFlags | MOVE_SINGLE_ATTACK))
+	{
+		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_opportunistic_attack", pTargetCity);
 		return;
+	}
 
 	// K-Mod - replacing some stuff I moved / removed from the BBAI code
 	if (pTargetCity != NULL && bTargetTooStrong &&
@@ -3437,11 +7477,11 @@ void CvUnitAI::AI_attackCityMove()
 				iMaxWaitTurns = (iPathTurns+1) / 3;
 			}
 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
-			int iJoiners = (iMaxWaitTurns > 0 ? kOwner.AI_unitTargetMissionAIs(
-					*this, &eMissionAIType, 1, getGroup(), iMaxWaitTurns) : 0);
+			int iJoiners = (iMaxWaitTurns > 0 ? kOwner.AI_unitTargetMissionAIs(*this, &eMissionAIType, 1, getGroup(), iMaxWaitTurns) : 0);
 
-			if (iJoiners * range(iPathTurns-1, 2, 5) > getGroup()->getNumUnits())
+			if (bHasTargetOrWarPlan && iJoiners * range(iPathTurns-1, 2, 5) > getGroup()->getNumUnits())
 			{	// (the mission is just for debug feedback)
+				if (bLogAttackCityParking) SAS_logAttackCityParking(*this, pTargetCity, "wait_joiners_ready", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iJoiners, iPathTurns, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
 				getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
 						false, false, MISSIONAI_GROUP);
 				return;
@@ -3463,40 +7503,50 @@ void CvUnitAI::AI_attackCityMove()
 			}
 			else if (!isBarbarian() && eAreaAI == AREAAI_DEFENSIVE)
 			{
+				// <!-- custom: Run K-Mod's three-turn invader check before target selection so ready stacks also respond. Preserve the old location below as disabled reference. (GPT-5.6-Sol) -->
 				// Use smaller attack city stacks on defense
 				// K-Mod
-				if (AI_defendTerritory(65, eMoveFlags, 3))
-					return;
+				//if (AI_defendTerritory(65, eMoveFlags, 3))
+				//	return;
 				// K-Mod end
 				if (AI_guardCity(false, true, 3, eMoveFlags))
 					return;
 			}
 
 			int iTargetCount = kOwner.AI_unitTargetMissionAIs(*this, MISSIONAI_GROUP);
-			if (iTargetCount * 5 > getGroup()->getNumUnits())
+			if (bHasTargetOrWarPlan && iTargetCount * 5 > getGroup()->getNumUnits())
 			{
 				MissionAITypes eMissionAIType = MISSIONAI_GROUP;
-				int iJoiners = kOwner.AI_unitTargetMissionAIs(
-						*this, &eMissionAIType, 1, getGroup(), 2);
+				int iJoiners = kOwner.AI_unitTargetMissionAIs(*this, &eMissionAIType, 1, getGroup(), 2);
 				if (iJoiners * 5 > getGroup()->getNumUnits())
 				{	// K-Mod (for debug feedback)
+					if (bLogAttackCityParking) SAS_logAttackCityParking(*this, pTargetCity, "wait_joiners_not_ready", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iJoiners, -1, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
 					getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
 							false, false, MISSIONAI_GROUP);
 					return;
 				}
 				if (AI_moveToStagingCity())
+				{
+					if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_move_to_staging_city", pTargetCity);
 					return;
+				}
 			}
 		}
 	}
 
 	if (AI_heal(50, 3))
+	{
+		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_heal_50", pTargetCity);
 		return;
+	}
 
 	if (!bEnemyTerritory)
 	{
 		if (AI_heal())
+		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_heal_any", pTargetCity);
 			return;
+		}
 		if (getGroup()->getNumUnits() == 1 && getTeam() != getPlot().getTeam())
 		{
 			if (AI_retreatToCity())
@@ -3507,12 +7557,14 @@ void CvUnitAI::AI_attackCityMove()
 	if (!bReadyToAttack && !noDefensiveBonus())
 	{
 		if (AI_guardCity(false, false, MAX_INT, eMoveFlags))
+		{
+			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_guard_city_not_ready", pTargetCity);
 			return;
+		}
 	}
 
 	if (bReadyToAttack /* advc.083: */ && !bTargetTooStrong)
-	{	// advc.opt: Moved into the bReadyToAttack branch
-		bool bAnyWarPlan = GET_TEAM(getTeam()).AI_isAnyWarPlan();
+	{
 		/* BBAI code
 		if (isBarbarian()) {
 			if (AI_goToTargetCity(eMoveFlags, 12))
@@ -3530,7 +7582,10 @@ void CvUnitAI::AI_attackCityMove()
 		{
 			// target city has already been calculated.
 			if (pTargetCity != NULL && AI_goToTargetCity(eMoveFlags, 12, pTargetCity))
+			{
+				if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_move_to_barbarian_target", pTargetCity);
 				return;
+			}
 			// <advc.300>
 			int iSearchRange = 3;
 			if (getArea().getAreaAIType(getTeam()) == AREAAI_ASSAULT)
@@ -3549,6 +7604,9 @@ void CvUnitAI::AI_attackCityMove()
 				// Check if stack has units which can upgrade
 				int iNeedUpgradeCount = 0;
 				CvSelectionGroup const& kGroup = *getGroup();
+				CvCity const* pCurrentCity = getPlot().getPlotCity();
+				int const iGroupMilitaryPercent = 100 * kGroup.getNumUnits() / std::max(1, kOwner.getNumMilitaryUnits());
+				bool const bSkipUpgradeWaitForRemoteCapturedTrap = (pCurrentCity != NULL && pTargetCity != NULL && bReadyToAttack && !bTargetTooStrong && SAS_isRemoteCapturedAttackCityTrap(*pCurrentCity, getOwner(), kGroup.getNumUnits(), iGroupMilitaryPercent));
 				FOR_EACH_UNIT_IN(pLoopUnit, kGroup)
 				{
 					if (pLoopUnit->getUpgradeCity(false) == NULL)
@@ -3556,6 +7614,61 @@ void CvUnitAI::AI_attackCityMove()
 					iNeedUpgradeCount++;
 					if (5 * iNeedUpgradeCount > kGroup.getNumUnits()) // was 8*
 					{
+						if (bSkipUpgradeWaitForRemoteCapturedTrap)
+						{
+							// <!-- custom: BBAI logs showed remote captured-city attack stacks with valid targets and enough strength parking for many turns because the upgrade-wait rule fired. If such a stack is already ready and the target is not too strong, keep the offensive moving instead of freezing most of the army far from the core. See KI#155. (GPT-5.5 + ChatGPT-5.5) -->
+							if (gUnitLogLevel >= 2)
+							{
+								logBBAI("    ATTACK_CITY_REMOTE_UPGRADE_BYPASS turn=%d player=%d %S city=%S city=(%d,%d) target=%S target=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d",
+									GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(), kGroup.getNumUnits(), iGroupMilitaryPercent, iNeedUpgradeCount);
+							}
+							break;
+						}
+						// <!-- custom: After fixing the remote captured-city case, BBAI logs still showed very large ready attack stacks waiting many turns for hypothetical upgrades, usually with 0 units able to upgrade now. If a stack is already important, ready, and close to a valid target, attack instead of freezing the advantage: enemies may catch up while we wait, and attacking can spend obsolete units so they no longer need upgrades or future upkeep while captured cities improve economy, unit support, and growth. See KI#156. (ChatGPT-5.5 + GPT-5.5) -->
+						int iCanUpgradeNowUnits = 0;
+						FOR_EACH_UNIT_IN(pUpgradeLogUnit, kGroup)
+						{
+							if (pUpgradeLogUnit->getUpgradeCity(false) == NULL)
+								continue;
+							UnitTypes const eBestUpgradeForLog = SAS_getBestUpgradeForLog(*pUpgradeLogUnit);
+							if (eBestUpgradeForLog == NO_UNIT)
+								continue;
+							if (pUpgradeLogUnit->canUpgrade(eBestUpgradeForLog))
+								iCanUpgradeNowUnits++;
+						}
+						int iTargetPathTurns = -1;
+						generatePath(pTargetCity->getPlot(), eMoveFlags, true, &iTargetPathTurns);
+						static const bool bSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE = (GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE") > 0);
+						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS"));
+						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT"));
+						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS_UNSCALED_GAMESPEED = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS_UNSCALED_GAMESPEED"));
+						bool const bSkipUpgradeWaitForReadyAttack = (bSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE && bReadyToAttack && !bTargetTooStrong && iCanUpgradeNowUnits <= 0 && (kGroup.getNumUnits() >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS || iGroupMilitaryPercent >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT) && iTargetPathTurns >= 0 && iTargetPathTurns <= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS_UNSCALED_GAMESPEED);
+						if (bLogAttackCityParking)
+						{
+							if (!bSkipUpgradeWaitForReadyAttack) SAS_logAttackCityParking(*this, pTargetCity, "wait_upgrade", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNeedUpgradeCount, iTargetPathTurns, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
+							int iEstimatedUpgradeCost = 0;
+							int iBestUpgradePriceMax = 0;
+							FOR_EACH_UNIT_IN(pUpgradeLogUnit, kGroup)
+							{
+								if (pUpgradeLogUnit->getUpgradeCity(false) == NULL)
+									continue;
+								UnitTypes const eBestUpgradeForLog = SAS_getBestUpgradeForLog(*pUpgradeLogUnit);
+								if (eBestUpgradeForLog == NO_UNIT)
+									continue;
+								int const iUpgradePrice = pUpgradeLogUnit->upgradePrice(eBestUpgradeForLog);
+								iEstimatedUpgradeCost += iUpgradePrice;
+								iBestUpgradePriceMax = std::max(iBestUpgradePriceMax, iUpgradePrice);
+							}
+							logBBAI("    ATTACK_CITY_UPGRADE_WAIT_DETAIL turn=%d player=%d %S city=%S city=(%d,%d) target=%S target=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d canUpgradeNowUnits=%d estimatedUpgradeCost=%d maxSingleUpgradeCost=%d gold=%d goldRate=%d upgradeBudgetTarget=%d goldTarget=%d financialTrouble=%d targetPathTurns=%d ready=%d targetTooStrong=%d remoteCapturedTrap=%d skipReadyAttack=%d",
+								GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(), kGroup.getNumUnits(), iGroupMilitaryPercent, iNeedUpgradeCount, iCanUpgradeNowUnits, iEstimatedUpgradeCost, iBestUpgradePriceMax, kOwner.getGold(), kOwner.calculateGoldRate(), kOwner.AI_goldTarget(true), kOwner.AI_goldTarget(false), kOwner.AI_isFinancialTrouble(), iTargetPathTurns, bReadyToAttack, bTargetTooStrong, bSkipUpgradeWaitForRemoteCapturedTrap, bSkipUpgradeWaitForReadyAttack);
+							if (bSkipUpgradeWaitForReadyAttack)
+							{
+								logBBAI("    ATTACK_CITY_UPGRADE_WAIT_BYPASS turn=%d player=%d %S city=%S city=(%d,%d) target=%S target=(%d,%d) groupId=%d groupUnits=%d groupMilitaryPercent=%d upgradeUnits=%d canUpgradeNowUnits=%d estimatedUpgradeCost=%d gold=%d targetPathTurns=%d",
+									GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pTargetCity->getName().GetCString(), pTargetCity->getX(), pTargetCity->getY(), kGroup.getID(), kGroup.getNumUnits(), iGroupMilitaryPercent, iNeedUpgradeCount, iCanUpgradeNowUnits, iEstimatedUpgradeCost, kOwner.getGold(), iTargetPathTurns);
+							}
+						}
+						if (bSkipUpgradeWaitForReadyAttack)
+							break;
 						getGroup()->pushMission(MISSION_SKIP);
 						return;
 					}
@@ -3590,12 +7703,28 @@ void CvUnitAI::AI_attackCityMove()
 					if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI,
 						-1, -1, -1, -1, eMoveFlags, iLoadTurns, iMaxTransportTurns))
 					{
+						if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_load_for_target", pTargetCity);
 						return;
 					}
 				}
+				// <!-- custom: fixes "weird back and forth" issue after fixing known issue 62 (not evacuating all units from doomed city). Stack evacuates nicely then tries to attack much stronger enemy stack, only to retreat without attacking after seeing enemy is too strong - very inefficient and risky. Doesn't appear if playing 2+ autoplay turns in a row (but does with 1 autoplay turn). While maybe no longer necessary, kept as harmless sanity check since saw plenty such cases. See known issue 63 for details. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+				// Gate the “walk toward target city" step
+				// In CvUnitAI::AI_attackCityMove() there’s a late “We have to walk." block that always tries to move closer, even if we’ve already computed that the target is too strong
+				// That’s the whole change. When the city is “too strong," the stack won’t step into the 1–2 tile danger ring; it will fall through to the rest of the logic (merge, bombard if possible, pillage/choke, retreat or stage), rather than yo-yoing and bleeding units.
+				//
 				// We have to walk.
-				if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
-					return;
+				// if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
+				// 	return;
+				//
+				// Do NOT close distance if the target is still too strong (prevents bounce).
+				if (!bTargetTooStrong)
+				{
+					if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
+					{
+						if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_move_to_target", pTargetCity);
+						return;
+					}
+				}
 
 				if (bAnyWarPlan)
 				{
@@ -3649,6 +7778,69 @@ void CvUnitAI::AI_attackCityMove()
 			}
 			// K-Mod end
 		}
+		if (!isBarbarian() && pTargetCity == NULL)
+		{
+			int iCanAttack = 0;
+			int iCityCapture = 0;
+			SAS_countGroupCityAttackCapability(*getGroup(), iCanAttack, iCityCapture);
+			bool const bLogBarbFallback = (gUnitLogLevel >= 2 || gPlayerLogLevel >= 2);
+			if (GET_TEAM(getTeam()).getNumWars() > 0)
+			{
+				if (bLogBarbFallback)
+				{
+					logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_SKIP turn=%d player=%d %S reason=active_war unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
+						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY());
+				}
+			}
+			else if (iCityCapture < 2)
+			{
+				if (bLogBarbFallback)
+				{
+					logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_SKIP turn=%d player=%d %S reason=too_few_city_capture unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
+						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY());
+				}
+			}
+			else
+			{
+				// <!-- custom: BBAI logs showed ready city-attack stacks with no picked target and no active war while pathable weak barbarian cities still existed; the useful cases often had a preparation war plan but no current target. Do not override normal targets or active wars, but if there is no target at all, use the same pathable barbarian-city picker as the diagnostic log so idle attack stacks can clean up barb cities. Barbarian cities are usually weak, have little/no diplomatic or war cost, and can add population, land, resources, unit support, and future growth instead of letting nearby rivals claim them later; capturing a close/profitable barb city also avoids spending a settler and slowing city growth or other projects. K-Mod disabled AI_goToTargetBarbCity, so explicitly pass the picked barbarian city through AI_goToTargetCity. See KI#158. (GPT-5.5 + ChatGPT-5.5) -->
+				if (bLogBarbFallback)
+				{
+					logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_TRY turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d)",
+						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY());
+				}
+				int iFallbackPickedPathTurns = -1;
+				int iFallbackPickedTargetValue = -1;
+				int iFallbackPickedStepDistance = -1;
+				int iFallbackPickedDefenders = -1;
+				int iFallbackPickedValue = MIN_INT;
+				// <!-- custom: note: if (AI_goToTargetBarbCity(12)) caused a compile error, fixed with the help of GPT-5.5 thanks -->
+				// 1>..\CvUnitAI.cpp(6341): error C3861: 'AI_goToTargetBarbCity': identifier not found, even with argument-dependent lookup
+				// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
+				CvCity* pBarbTargetCity = SAS_pickPathableBarbCityForAttackStack(*this, eMoveFlags, 12, true, &iFallbackPickedPathTurns, &iFallbackPickedTargetValue, &iFallbackPickedStepDistance, &iFallbackPickedDefenders, &iFallbackPickedValue);
+				if (pBarbTargetCity != NULL && pBarbTargetCity->isBarbarian() && AI_goToTargetCity(eMoveFlags, 12, pBarbTargetCity))
+				{
+					if (bLogBarbFallback)
+					{
+						logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_SUCCESS turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d) target=%S target=(%d,%d) pathTurns=%d targetValue=%d value=%d stepDistance=%d defenders=%d",
+							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY(),
+							pBarbTargetCity->getName().GetCString(), pBarbTargetCity->getX(), pBarbTargetCity->getY(), iFallbackPickedPathTurns, iFallbackPickedTargetValue, iFallbackPickedValue, iFallbackPickedStepDistance, iFallbackPickedDefenders);
+					}
+					return;
+				}
+				if (bLogBarbFallback)
+				{
+					logBBAI("    BARB_CITY_NO_TARGET_FALLBACK_FAIL turn=%d player=%d %S unitId=%d groupId=%d groupUnits=%d canAttack=%d cityCapture=%d anyWarPlan=%d at=(%d,%d) fallbackPickedTarget=%S fallbackPickedTarget=(%d,%d) fallbackPickedOwner=%d fallbackPickedBarb=%d fallbackPickedPathTurns=%d fallbackPickedValue=%d fallbackPickedTargetValue=%d fallbackPickedStepDistance=%d fallbackPickedDefenders=%d",
+						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getGroup()->getID(), getGroup()->getNumUnits(), iCanAttack, iCityCapture, bAnyWarPlan, getX(), getY(),
+						(pBarbTargetCity == NULL ? L"-" : pBarbTargetCity->getName().GetCString()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getX()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getY()), (pBarbTargetCity == NULL ? -1 : pBarbTargetCity->getOwner()), (pBarbTargetCity != NULL && pBarbTargetCity->isBarbarian()), iFallbackPickedPathTurns, iFallbackPickedValue, iFallbackPickedTargetValue, iFallbackPickedStepDistance, iFallbackPickedDefenders);
+				}
+				// <!-- custom: Base AdvCiv/K-Mod could keep city-assault armies assembled indefinitely after both normal and Barbarian target selection failed. At peace with no war plan, cap their aggregate units on the same safe owned plot; preserve one useful nucleus and avoid fragmenting armies in foreign territory or immediate danger. See KI#188.3.2. (GPT-5.6-Sol) -->
+				if (!bAnyWarPlan && kTeam.getNumWars() <= 0 && getPlot().getOwner() == getOwner() && kOwner.AI_getPlotDanger(getPlot()) <= 0)
+				{
+					int const iRetainedUnits = SAS_getTargetlessPeacetimeAttackCityRetainedUnits(kOwner);
+					if (SAS_releaseTargetlessPeacetimeAttackCityExcess(*this, iRetainedUnits)) return;
+				}
+			}
+		}
 	}
 	else
 	{
@@ -3665,13 +7857,13 @@ void CvUnitAI::AI_attackCityMove()
 		}*/ // BtS
 		// K-Mod
 		int iTargetCount = kOwner.AI_unitTargetMissionAIs(*this, MISSIONAI_GROUP);
-		if (6 * iTargetCount > getGroup()->getNumUnits())
+		if (bHasTargetOrWarPlan && 6 * iTargetCount > getGroup()->getNumUnits())
 		{
 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
-			int iNearbyJoiners = kOwner.AI_unitTargetMissionAIs(
-					*this, &eMissionAIType, 1, getGroup(), 2);
+			int iNearbyJoiners = kOwner.AI_unitTargetMissionAIs(*this, &eMissionAIType, 1, getGroup(), 2);
 			if (4*iNearbyJoiners > getGroup()->getNumUnits())
 			{
+				if (bLogAttackCityParking) SAS_logAttackCityParking(*this, pTargetCity, "wait_nearby_joiners", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNearbyJoiners, -1, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
 				getGroup()->pushMission(MISSION_SKIP);
 				return;
 			}
@@ -3686,8 +7878,7 @@ void CvUnitAI::AI_attackCityMove()
 			/*	BBAI TODO: Some sense of minimum stack size?
 				Can have big stack moving 10 turns to merge with tiny stacks */
 			//if (AI_group(UNITAI_ATTACK_CITY, -1, -1, -1, bIgnoreFaster, true, true, /*iMaxPath*/ 10, /*bAllowRegrouping*/ true))
-			if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 10,
-				true, getGroup()->getNumUnits() < 2, bIgnoreFaster, true, true))
+			if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, 10, true, getGroup()->getNumUnits() < 2, bIgnoreFaster, true, true))
 			{
 				return;
 			}
@@ -3695,9 +7886,7 @@ void CvUnitAI::AI_attackCityMove()
 		else
 		{
 			//if (AI_group(UNITAI_ATTACK_CITY, AI_stackOfDoomExtra() * 2, -1, -1, bIgnoreFaster, true, true, /*iMaxPath*/ 10, /*bAllowRegrouping*/ false))
-			if (AI_omniGroup(UNITAI_ATTACK_CITY, AI_stackOfDoomExtra() * 2,
-				-1, true, eMoveFlags, 10,
-				true, getGroup()->getNumUnits() < 2, bIgnoreFaster, false, true))
+			if (AI_omniGroup(UNITAI_ATTACK_CITY, AI_stackOfDoomExtra() * 2, -1, true, eMoveFlags, 10, true, getGroup()->getNumUnits() < 2, bIgnoreFaster, false, true))
 			{
 				return;
 			}
@@ -3744,6 +7933,7 @@ void CvUnitAI::AI_attackCityMove()
 	// K-Mod end
 	if (AI_safety())
 		return;
+	if (bLogAttackCityParking) SAS_logAttackCityParking(*this, pTargetCity, "final_skip", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, -1, -1, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
 	getGroup()->pushMission(MISSION_SKIP);
 }
 
@@ -4964,59 +9154,103 @@ void CvUnitAI::AI_generalMove()
 {
 	PROFILE_FUNC();
 
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	if (gGreatGeneralLogLevel >= 2) logBBAI("    GREAT_GENERAL_MOVE turn=%d player=%d %S generalId=%d general=(%d,%d) area=%d areaAI=%d action=start", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), getArea().getAreaAIType(getTeam()));
+
+	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT");
+	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA");
+	static const EraTypes eERA_FUTURE = (EraTypes)GC.getInfoTypeForString("ERA_FUTURE");
+	FAssertMsg((eERA_FUTURE != NO_ERA), "Era key missing; check CIV4EraInfos.xml");
+	bool const bSASPreferMilitaryInstructorFirst = (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA >= 0 && (iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA >= eERA_FUTURE || kOwner.getCurrentEra() <= iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA));
+	// <!-- custom: SAS previously still tried the first Military Academy before its preferred Military Instructor use. Make Instructor-first behavior era-tunable as a SAS balance policy; if joining is unavailable, retain the existing Academy/attachment/retreat fallback chain rather than wasting or indefinitely parking the General. The upstream Great-General safety problems corrected below are documented separately in KI#204. (ChatGPT-5.6-Sol) -->
+	if (bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=preferred-first era=%d preferThroughEra=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, kOwner.getCurrentEra(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA);
+		return;
+	}
+
+	// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
+	// 2. Modify AI_generalMove() - Prioritize Joining <!-- custom: legacy SAS order was after the first academy; the era preference above can now move this before it. (ChatGPT-5.6-Sol) -->
+	// “Try to construct a Military Academy if our empire currently has fewer than X academies."
+	if (AI_construct(1))
+	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=1", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+		return;
+	}
+
+	// NEW: Try joining FIRST <!-- custom: legacy fallback order when Instructor-first preference is disabled; before and instead of any great general leader, but after we have our academy (if we can). (ChatGPT-5.6-Sol) --> (allow multiple instructors per city)
+	// “Try to settle as Military Instructor if our empire currently has fewer than X already settled."
+	if (!bSASPreferMilitaryInstructorFirst && AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=first", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT);
+		return;
+	}
+
 	std::vector<UnitAITypes> aeUnitAITypes;
 	bool const bOffenseWar = (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE);
+	static const int iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE = GC.getDefineINT("SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE");
+	static const int iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING = GC.getDefineINT("SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING");
 
 	if (GET_PLAYER(getOwner()).AI_isAnyPlotDanger(getPlot(), 2))
 	{
 		aeUnitAITypes.clear();
 		aeUnitAITypes.push_back(UNITAI_ATTACK);
 		aeUnitAITypes.push_back(UNITAI_COUNTER);
-		if (AI_lead(aeUnitAITypes))
+		// <!-- custom: BBAI save-file 450 testing showed the inherited plot-danger Great General unit-attachment branch attaching to a low-value Longbowman after AI_join rejected all cities for safety/path reasons. Keep this path XML-tunable, but default the gate high enough that Military Academy or Military Instructor remains the normal AdvCiv-SAS Great General use. (GPT-5.5) -->
+		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING))
 		{
+			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=plotDanger roles=ATTACK,COUNTER", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 			return;
 		}
 	}
 
-	if (AI_construct(1))
-	{
-		return;
-	}
+    if (AI_construct(1))
+    {
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=1 stage=second", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+        return;
+    }
 
-	if (AI_join(1))
-	{
-		return;
-	}
+    // Try joining again
+    if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+    {
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=second", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT);
+        return;
+    }
 	// BETTER_BTS_AI_MOD, Unit AI, 05/14/10, jdog5000: START
 	if (bOffenseWar && (AI_getBirthmark() % 2 == 0))
 	{
 		aeUnitAITypes.clear();
 		aeUnitAITypes.push_back(UNITAI_ATTACK_CITY);
-		if (AI_lead(aeUnitAITypes))
+		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING))
 		{
+			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK_CITY", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 			return;
 		}
 
 		aeUnitAITypes.clear();
 		aeUnitAITypes.push_back(UNITAI_ATTACK);
-		if (AI_lead(aeUnitAITypes))
+		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING))
 		{
+			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 			return;
 		}
 	} // BETTER_BTS_AI_MOD: END
 
 	if (AI_join(2))
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=2 stage=legacy1", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
 	if (AI_construct(2))
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=2", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
 	if (AI_join(4))
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=4 stage=legacy2", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
@@ -5024,17 +9258,20 @@ void CvUnitAI::AI_generalMove()
 	{
 		if (AI_construct())
 		{
+			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=construct limit=unbounded random=1in3", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 			return;
 		}
 	}
 
 	if (AI_join())
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=unbounded stage=legacy3", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
 	if (AI_retreatToCity())
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=retreat", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
@@ -5045,9 +9282,11 @@ void CvUnitAI::AI_generalMove()
 
 	if (AI_safety())
 	{
+		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=safety", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 		return;
 	}
 
+	if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=skip", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
 	getGroup()->pushMission(MISSION_SKIP);
 }
 
@@ -5057,6 +9296,19 @@ void CvUnitAI::AI_generalMove()
 void CvUnitAI::AI_greatPersonMove()
 {
 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+	bool const bLogCultureGreatArtistDecision = (gCultureLogLevel >= 3 && AI_getUnitAIType() == UNITAI_GREAT_ARTIST);
+	bool const bLogUnitGreatPersonDecision = (gUnitLogLevel > 2);
+	MissionAITypes ePreviousMissionAI = NO_MISSIONAI;
+	CvPlot const* pPreviousMissionPlot = NULL;
+	if (bLogCultureGreatArtistDecision)
+	{
+		CvSelectionGroupAI const* pGroup = AI_getGroup();
+		if (pGroup != NULL)
+		{
+			ePreviousMissionAI = pGroup->AI_getMissionAIType();
+			pPreviousMissionPlot = pGroup->AI_getMissionAIPlot();
+		}
+	}
 
 	enum
 	{
@@ -5075,8 +9327,12 @@ void CvUnitAI::AI_greatPersonMove()
 	CvCity const* pBestCity = NULL; // advc.001 (from SAS)
 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 	BuildingTypes eBestBuilding = NO_BUILDING;
+	MissionAITypes eBestSlowMissionAI = NO_MISSIONAI;
 	int iBestValue = 1;
-	int iBestPathTurns = MAX_INT; // just used as a tie-breaker.
+	// <!-- custom: K-Mod initialized the nearest-path tie-breaker but updated it only for hurry-building candidates, not Join or direct Construct candidates. This could let a later, farther city replace an equally valuable nearer target; preserve the selected path length for every slow action. Great Artist logging also records it and the previous mission state after a save file 428 Artist crossed the Walata-Tadmekka corridor for six turns while changing Join/corporation targets. See KI#168. (GPT-5.5) -->
+	int iBestPathTurns = MAX_INT;
+	int iPreviousSlowTargetValue = -1;
+	int iPreviousSlowTargetPathTurns = -1;
 	MovementFlags const eMoveFlags = (alwaysInvisible() ?
 			NO_MOVEMENT_FLAGS : MOVE_NO_ENEMY_TERRITORY);
 	bool bCanHurry = (getUnitInfo().getBaseHurry() > 0 ||
@@ -5099,15 +9355,20 @@ void CvUnitAI::AI_greatPersonMove()
 			{
 				// Note, specialistValue is roughly 400x the commerce it provides. So /= 4 to make it 100x.
 				int iValue = pLoopCity->AI_permanentSpecialistValue(eLoopSpecialist)/4;
+				if (bLogCultureGreatArtistDecision && ePreviousMissionAI == MISSIONAI_JOIN_CITY && pPreviousMissionPlot == &pLoopCity->getPlot() && iValue > iPreviousSlowTargetValue)
+				{
+					iPreviousSlowTargetValue = iValue;
+					iPreviousSlowTargetPathTurns = iPathTurns;
+				}
 				if (iValue > iBestValue || (iValue == iBestValue && iPathTurns < iBestPathTurns))
 				{
 					iBestValue = iValue;
+					iBestPathTurns = iPathTurns;
 					pBestPlot = &getPathEndTurnPlot();
-					// <advc.001> (from SAS)
 					pBestCity = pLoopCity;
-					iBestPathTurns = iPathTurns; // </advc.001>
 					eBestSpecialist = eLoopSpecialist;
 					eBestBuilding = NO_BUILDING;
+					eBestSlowMissionAI = MISSIONAI_JOIN_CITY;
 				}
 			}
 		}
@@ -5123,15 +9384,20 @@ void CvUnitAI::AI_greatPersonMove()
 				// Note, building value is roughly 4x the value of the commerce it provides.
 				// so we * 25 to match the scale of specialist value.
 				int iValue = pLoopCity->AI_buildingValue(eBuilding) * 25;
+				if (bLogCultureGreatArtistDecision && ePreviousMissionAI == MISSIONAI_CONSTRUCT && pPreviousMissionPlot == &pLoopCity->getPlot() && iValue > iPreviousSlowTargetValue)
+				{
+					iPreviousSlowTargetValue = iValue;
+					iPreviousSlowTargetPathTurns = iPathTurns;
+				}
 				if (iValue > iBestValue || (iValue == iBestValue && iPathTurns < iBestPathTurns))
 				{
 					iBestValue = iValue;
+					iBestPathTurns = iPathTurns;
 					pBestPlot = &getPathEndTurnPlot();
-					// <advc.001> (from SAS)
 					pBestCity = pLoopCity;
-					iBestPathTurns = iPathTurns; // </advc.001>
 					eBestBuilding = eBuilding;
 					eBestSpecialist = NO_SPECIALIST;
+					eBestSlowMissionAI = MISSIONAI_CONSTRUCT;
 				}
 				continue;
 			}
@@ -5169,15 +9435,21 @@ void CvUnitAI::AI_greatPersonMove()
 					iValue /= 12 + std::min(30, pLoopCity->getProductionTurnsLeft(
 							iCost, iProgress, iProductionRate, iProductionRate));
 				}
+				if (bLogCultureGreatArtistDecision && ePreviousMissionAI == MISSIONAI_HURRY && pPreviousMissionPlot == &pLoopCity->getPlot() && iValue > iPreviousSlowTargetValue)
+				{
+					iPreviousSlowTargetValue = iValue;
+					iPreviousSlowTargetPathTurns = iPathTurns;
+				}
 
 				if (iValue > iBestValue || (iValue == iBestValue && iPathTurns < iBestPathTurns))
 				{
 					iBestValue = iValue;
 					pBestPlot = &getPathEndTurnPlot();
-					pBestCity = pLoopCity; // advc.001 (from SAS)
+					pBestCity = pLoopCity;
 					iBestPathTurns = iPathTurns;
 					eBestBuilding = eBuilding;
 					eBestSpecialist = NO_SPECIALIST;
+					eBestSlowMissionAI = MISSIONAI_HURRY;
 				}
 			}
 		}
@@ -5226,6 +9498,8 @@ void CvUnitAI::AI_greatPersonMove()
 	}
 
 	CvGame const& kGame = GC.getGame();
+	int const iGreatPersonAge = kGame.getGameTurn() - getGameTurnCreated();
+	int const iGreatPersonAgeNormal = 100 * iGreatPersonAge / std::max(1, kGame.getSpeedPercent());
 	/*	SlowValue is meant to be a rough estimation of how much value we'll get
 		from doing the best join / build mission. To give this estimate,
 		I'm going to do a rough personality-based calculation of how many turns
@@ -5296,6 +9570,11 @@ void CvUnitAI::AI_greatPersonMove()
 		iSlowValue /= 100;
 		missions.push_back(std::pair<int, int>(iSlowValue, GP_SLOW));
 	}
+	// <!-- custom: A save file 428 Great Artist made a marginal Walata -> Kumbi Saleh -> Walata corporation-target reversal, but slow movement stored no final mission target. Record the previous target's current comparable value/path beside the new best target before adding any switching threshold. Diagnostic only. (GPT-5.5) -->
+	if (bLogCultureGreatArtistDecision)
+		logBBAI("CULTURE_GREAT_ARTIST_SLOW_TARGET turn=%d player=%d unitId=%d previousMissionAI=%d previousMissionPlot=(%d,%d) previousValue=%d previousPathTurns=%d bestValue=%d bestPathTurns=%d bestMissionAI=%d bestCity=%S bestCityId=%d bestCityPlot=(%d,%d) specialist=%s building=%s",
+				kGame.getGameTurn(), getOwner(), getID(), ePreviousMissionAI, (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getX()), (pPreviousMissionPlot == NULL ? -1 : pPreviousMissionPlot->getY()), iPreviousSlowTargetValue, iPreviousSlowTargetPathTurns, iBestValue, (iBestPathTurns == MAX_INT ? -1 : iBestPathTurns),
+				eBestSlowMissionAI, (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getID()), (pBestCity == NULL ? -1 : pBestCity->getX()), (pBestCity == NULL ? -1 : pBestCity->getY()), (eBestSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eBestSpecialist).getType()), (eBestBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBestBuilding).getType()));
 
 	// Trade mission
 	CvPlot* pBestTradePlot;
@@ -5347,17 +9626,18 @@ void CvUnitAI::AI_greatPersonMove()
 			if (canDiscover(plot()))
 			{
 				getGroup()->pushMission(MISSION_DISCOVER);
-				if (gUnitLogLevel > 2) logBBAI("    %S chooses 'discover' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), GC.getInfo(eDiscoverTech).getDescription(), getName(0).GetCString(), rDiscoverValue.round(), iChoice);
+				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("DISCOVER", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
+				if (bLogUnitGreatPersonDecision) logBBAI("    %S chooses 'discover' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), GC.getInfo(eDiscoverTech).getDescription(), getName(0).GetCString(), rDiscoverValue.round(), iChoice);
 				return;
 			}
 			break;
 
 		case GP_TRADE:
 			{
-				MissionAITypes eOldMission = AI_getGroup()->AI_getMissionAIType(); // just used for the log message below
 				if (AI_doTradeMission(pBestTradePlot))
 				{
-					if (gUnitLogLevel > 2) logBBAI("    %S %s 'trade mission' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), eOldMission == MISSIONAI_TRADE?"continues" :"chooses", getName(0).GetCString(), iTradeValue, iChoice);
+					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("TRADE_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestTradePlot == NULL ? NULL : pBestTradePlot->getPlotCity()), pBestTradePlot, NO_SPECIALIST, NO_BUILDING);
+					if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'trade mission' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == MISSIONAI_TRADE?"continues" :"chooses", getName(0).GetCString(), iTradeValue, iChoice);
 					return;
 				}
 				break;
@@ -5365,10 +9645,11 @@ void CvUnitAI::AI_greatPersonMove()
 
 		case GP_CULTURE:
 			{
-				MissionAITypes eOldMission = AI_getGroup()->AI_getMissionAIType(); // just used for the log message below
 				if (AI_doGreatWork(pBestCulturePlot))
 				{
-					if (gUnitLogLevel > 2) logBBAI("    %S %s 'great work' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), eOldMission == MISSIONAI_TRADE?"continues" :"chooses", getName(0).GetCString(), iCultureValue, iChoice);
+					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GREAT_WORK_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestCulturePlot == NULL ? NULL : pBestCulturePlot->getPlotCity()), pBestCulturePlot, NO_SPECIALIST, NO_BUILDING);
+					// <!-- custom: fixed an inherited logging typo: Great Work continuation now checks MISSIONAI_GREAT_WORK, not MISSIONAI_TRADE (GPT-5.5); See KI#167. -->
+					if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'great work' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GREAT_WORK?"continues" :"chooses", getName(0).GetCString(), iCultureValue, iChoice);
 					return;
 				}
 				break;
@@ -5377,7 +9658,8 @@ void CvUnitAI::AI_greatPersonMove()
 		case GP_GOLDENAGE:
 			if (AI_goldenAge())
 			{
-				if (gUnitLogLevel > 2) logBBAI("    %S chooses 'golden age' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iGoldenAgeValue, iChoice);
+				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GOLDEN_AGE", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
+				if (bLogUnitGreatPersonDecision) logBBAI("    %S chooses 'golden age' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iGoldenAgeValue, iChoice);
 				return;
 			}
 			else if (kOwner.AI_totalUnitAIs(AI_getUnitAIType()) < 2)
@@ -5401,11 +9683,22 @@ void CvUnitAI::AI_greatPersonMove()
 
 				if (iMinTurns != MAX_INT)
 				{
-					int iRelativeWaitTime = iMinTurns + (kGame.getGameTurn() - getGameTurnCreated());
-					iRelativeWaitTime *= 100;
-					iRelativeWaitTime /= kGame.getSpeedPercent();
-					// lets say 1% per turn.
-					iScoreThreshold = std::max(iScoreThreshold, it->first * (100 - iRelativeWaitTime) / 100);
+					// <!-- custom: BBAI logs showed some Great People held for 29-32 turns because Golden Age partner reservation kept blocking weaker but useful actions. After the XML cap, stop raising the wait threshold for that reason and let the existing sorted mission list pick the best non-Golden action. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
+					static const int iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED = GC.getDefineINT("SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED");
+					if (iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED <= 0 || iGreatPersonAgeNormal <= iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED)
+					{
+						int iRelativeWaitTime = iMinTurns + iGreatPersonAge;
+						iRelativeWaitTime *= 100;
+						iRelativeWaitTime /= kGame.getSpeedPercent();
+						// lets say 1% per turn.
+						iScoreThreshold = std::max(iScoreThreshold, it->first * (100 - iRelativeWaitTime) / 100);
+					}
+					else if (bLogUnitGreatPersonDecision)
+					{
+						logBBAI("    GP_GOLDEN_WAIT_CAP turn=%d player=%d %S unitId=%d unit=%S age=%d ageNormal=%d capNormal=%d golden=%d threshold=%d",
+								kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+								iGreatPersonAge, iGreatPersonAgeNormal, iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED, it->first, iScoreThreshold);
+					}
 				}
 			}
 			break;
@@ -5416,28 +9709,37 @@ void CvUnitAI::AI_greatPersonMove()
 				break;
 			if (eBestSpecialist != NO_SPECIALIST)
 			{
-				if (gUnitLogLevel > 2) logBBAI("    %S %s 'join' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == MISSIONAI_JOIN_CITY?"continues" :"chooses", getName(0).GetCString(), iSlowValue, iChoice);
+				FAssert(eBestSlowMissionAI == MISSIONAI_JOIN_CITY);
+				FAssert(pBestCity != NULL);
+				if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'join' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == MISSIONAI_JOIN_CITY?"continues" :"chooses", getName(0).GetCString(), iSlowValue, iChoice);
 				if (at(*pBestPlot))
 				{
 					getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
+					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("JOIN", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, NO_BUILDING);
 					return;
 				}
 				else
 				{
-					pushGroupMoveTo(*pBestPlot, eMoveFlags, false, false, MISSIONAI_JOIN_CITY);
+					// <!-- custom: Slow Great Person movement stored the mission type but omitted its final city, leaving no target continuity data. Keep the same end-turn movement while recording the intended city through the existing mission-AI target field. See KI#169. (GPT-5.5) -->
+					pushGroupMoveTo(*pBestPlot, eMoveFlags, false, false, MISSIONAI_JOIN_CITY, &pBestCity->getPlot());
+					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("MOVE_TO_JOIN", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, NO_BUILDING);
 					return;
 				}
 			}
 			if (eBestBuilding != NO_BUILDING)
 			{
-				MissionAITypes eMissionAI = canConstruct(
-						pBestCity->plot(), // advc.001: was pBestPlot
-						eBestBuilding) ? MISSIONAI_CONSTRUCT : MISSIONAI_HURRY;
-				if (gUnitLogLevel > 2) logBBAI("    %S %s 'build' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == eMissionAI?"continues" :"chooses", GC.getInfo(eBestBuilding).getDescription(), getName(0).GetCString(), iSlowValue, iChoice);
+				FAssert(eBestSlowMissionAI == MISSIONAI_CONSTRUCT || eBestSlowMissionAI == MISSIONAI_HURRY);
+				FAssert(pBestCity != NULL);
+				// <!-- custom: Base AdvCiv inferred Construct versus Hurry from the end-turn movement waypoint instead of the selected final-city action. A direct corporation Construct therefore traveled as MISSIONAI_HURRY, and its persisted target could not be valued as the previous Construct target on the next turn. Retaining the candidate's actual action fixed the mission classification. See KI#170. (GPT-5.5) -->
+				MissionAITypes const eMissionAI = eBestSlowMissionAI;
+				if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'build' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == eMissionAI?"continues" :"chooses", GC.getInfo(eBestBuilding).getDescription(), getName(0).GetCString(), iSlowValue, iChoice);
 				if (at(*pBestPlot))
 				{
 					if (eMissionAI == MISSIONAI_CONSTRUCT)
+					{
 						getGroup()->pushMission(MISSION_CONSTRUCT, eBestBuilding);
+						if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("CONSTRUCT", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
+					}
 					else
 					{
 						// switch and hurry.
@@ -5445,7 +9747,10 @@ void CvUnitAI::AI_greatPersonMove()
 						if (pCity->getProductionBuilding() != eBestBuilding)
 							pCity->pushOrder(ORDER_CONSTRUCT, eBestBuilding);
 						if (pCity->getProductionBuilding() == eBestBuilding && canHurry(plot()))
+						{
 							getGroup()->pushMission(MISSION_HURRY);
+							if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("HURRY", *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
+						}
 						else
 						{
 							FErrorMsg("great person cannot hurry what it intended to hurry.");
@@ -5456,7 +9761,9 @@ void CvUnitAI::AI_greatPersonMove()
 				}
 				else
 				{
-					pushGroupMoveTo(*pBestPlot, eMoveFlags, false, false, eMissionAI);
+					// <!-- custom: pBestPlot is the end-turn waypoint; store the final city separately so multi-turn Construct/Hurry movement preserves its intended target. See KI#169. (GPT-5.5) -->
+					pushGroupMoveTo(*pBestPlot, eMoveFlags, false, false, eMissionAI, &pBestCity->getPlot());
+					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision((eMissionAI == MISSIONAI_CONSTRUCT ? "MOVE_TO_CONSTRUCT" : "MOVE_TO_HURRY"), *this, iChoice, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
 					return;
 				}
 			}
@@ -5490,9 +9797,19 @@ void CvUnitAI::AI_greatPersonMove()
 	if (GET_PLAYER(getOwner()).AI_isAnyPlotDanger(getPlot(), 2)) // K-Mod (there are good reasons for saving a great person)
 	{
 		if (AI_discover())
+		{
+			if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("DANGER_DISCOVER", *this, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
 			return;
+		}
 	}
-	if (gUnitLogLevel > 2) logBBAI("    %S chooses 'wait' with their %S (value: %d, dead time: %d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iScoreThreshold, kGame.getGameTurn() - getGameTurnCreated());
+	if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("NO_MISSION_SELECTED", *this, -1, iScoreThreshold, iSlowValue, iBestValue, iBestPathTurns, ePreviousMissionAI, pPreviousMissionPlot, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, eBestBuilding);
+	if (bLogUnitGreatPersonDecision)
+	{
+		// <!-- custom: Great People sometimes logged repeated waits, but the old line lacked turn, unit id, plot, mission state, and the candidate values needed to tell whether the unit was truly stuck or waiting for a better action. Keep this diagnostic gated behind the existing unit log level for reviewing wait decisions. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
+		logBBAI("    GP_WAIT turn=%d player=%d %S unitId=%d unit=%S type=%S plot=(%d,%d) age=%d ageNormal=%d threshold=%d slow=%d discover=%d golden=%d trade=%d culture=%d missionAI=%d",
+				kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), GC.getInfo(getUnitType()).getDescription(),
+				getX(), getY(), iGreatPersonAge, iGreatPersonAgeNormal, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, AI_getGroup()->AI_getMissionAIType());
+	}
 	if (AI_retreatToCity())
 		return;
 	// K-Mod
@@ -5977,6 +10294,7 @@ void CvUnitAI::AI_workerSeaMove()
 		{
 			if (AI_retreatToCity())
 			{
+				if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("danger retreat to city", *this);
 				return;
 			}
 		}
@@ -5990,6 +10308,7 @@ void CvUnitAI::AI_workerSeaMove()
 
 	if (AI_improveBonus())
 	{
+		if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("improve bonus", *this);
 		return;
 	}
 
@@ -6001,6 +10320,7 @@ void CvUnitAI::AI_workerSeaMove()
 			if (getPlot().getOwner() == getOwner() || !getPlot().isOwned())
 			{
 				getGroup()->pushMission(MISSION_SKIP);
+				if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip on bonus", *this);
 				return;
 			}
 		}
@@ -6012,44 +10332,52 @@ void CvUnitAI::AI_workerSeaMove()
 				if (isRevealedValidDomain(*pAdj)) // advc
 				{
 					getGroup()->pushMission(MISSION_SKIP);
+					if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("human automated skip adjacent bonus", *this);
 					return;
 				}
 			}
 		}
 	}
-	if (!isHuman() && AI_getUnitAIType() == UNITAI_WORKER_SEA)
-	{
-		CvCityAI const* pCity = getPlot().AI_getPlotCity();
-		if (pCity != NULL && pCity->getOwner() == getOwner())
-		{
-			if (pCity->AI_neededSeaWorkers() == 0)
-			{
-				if (GC.getGame().getElapsedGameTurns() > 10 &&
-					GET_PLAYER(getOwner()).calculateUnitCost() > 0)
-				{
-					scrap();
-					return;
-				}
-			}
-			else
-			{	// Probably ice-locked since we can't perform any actions
-				scrap();
-				return;
-			}
-		}
-	}
+	// <!-- custom: fixes never-ending one-turn workboat loop lasting 50+ turns in many cities (see known issue 23). This really ruins the game for AI (seemingly only affects AI, not human cities). AI stuck in perpetual never-ending unit loop. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+	// <!-- custom: update: actually, as discussed with chatgpt 5, i think it's really maybe better to not scrap, we waste hammers doing so, but instead telling the AI not to produce these workboats if it judges it has enough-->
+	// <!-- custom: it seems the needed vs existing workboats (sea workers) logic is (seemingly but looks fine although i didn't check) handled fine already in CvCityAI::AI_chooseProduction so no change needed there, don't worry about scrapping, and so just let AIs produce the unit as they want, and then when produced, they would assess if they want one again, don't scrap a yet to be produced unit that tries to be produced again next turn endlessly or almost (few dozen turns oftentimes or such), if i understood enough of this bug correctly -->
+	// <!-- custom: update 3: there is still some issue is still a bit present/persistent, but it is tremendously better, as the workboat now completes its production in 2-3 turns in autoplay, incredibly better than 30-40 turns, but it seems there is something else preventing the production at turn 1 of completion but check to be sure -->
+	// if (!isHuman() && AI_getUnitAIType() == UNITAI_WORKER_SEA)
+	// {
+	// 	CvCityAI const* pCity = getPlot().AI_getPlotCity();
+	// 	if (pCity != NULL && pCity->getOwner() == getOwner())
+	// 	{
+	// 		if (pCity->AI_neededSeaWorkers() == 0)
+	// 		{
+	// 			if (GC.getGame().getElapsedGameTurns() > 10 &&
+	// 				GET_PLAYER(getOwner()).calculateUnitCost() > 0)
+	// 			{
+	// 				scrap();
+	// 				return;
+	// 			}
+	// 		}
+	// 		else
+	// 		{	// Probably ice-locked since we can't perform any actions
+	// 			scrap();
+	// 			return;
+	// 		}
+	// 	}
+	// }
 
 	if (AI_retreatToCity())
 	{
+		if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("retreat to city", *this);
 		return;
 	}
 
 	if (AI_safety())
 	{
+		if (gEvacuationLogLevel >= 3) logSASWorkerSeaMoveDetail("safety", *this);
 		return;
 	}
 
 	getGroup()->pushMission(MISSION_SKIP);
+	if (gWorkerSeaLogLevel >= 2) logSASWorkerSeaMoveDetail("skip no action", *this);
 }
 
 
@@ -7088,6 +11416,25 @@ void CvUnitAI::AI_assaultSeaMove()
 	//bLandWar = !bBarbarian && ((eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) || (eAreaAIType == AREAAI_MASSING));
 	bool bLandWar = !bBarbarian && kOwner.AI_isLandWar(getArea()); // K-Mod
 	bool const bInPort = GET_TEAM(getTeam()).isBase(getPlot()); // advc (was bCity)
+	// <!-- custom: Save file 450 showed a nearby profitable Barbarian island remaining untouched for almost 100 turns after an assault transport became available.
+	// Log the transport's load thresholds and pickup/launch decisions to distinguish insufficient cargo capacity from units failing to board or a loaded fleet rejecting every target.
+	// Distinguish raw local unit totals from units actually available on the transport plot and cargo already assigned to this transport. Keep all added state computation inside the Overseas-transport level-2 gate. (GPT-5.6-Sol) -->
+	bool const bLogAssaultSea = (gOverseasTransportLogLevel >= 2);
+	if (bLogAssaultSea)
+	{
+		CvPlot const* pMissionPlot = AI_getGroup()->AI_getMissionAIPlot();
+		CvArea const* pUnitWaterArea = getPlot().waterArea(true);
+		MissionAITypes eLoadAssault = MISSIONAI_LOAD_ASSAULT;
+		int const iIncomingCargo1 = kOwner.AI_unitTargetMissionAIs(*this, &eLoadAssault, 1, getGroup(), 1);
+		int const iIncomingCargo3 = kOwner.AI_unitTargetMissionAIs(*this, &eLoadAssault, 1, getGroup(), 3);
+		int const iIncomingCargo7 = kOwner.AI_unitTargetMissionAIs(*this, &eLoadAssault, 1, getGroup(), 7);
+		logBBAI("    ASSAULT_SEA_MOVE_STATE turn=%d player=%d %S unitId=%d unit=%S unitAge=%d groupId=%d groupUnits=%d transports=%d cargo=%d cargoSpace=%d empty=%d full=%d escorts=%d at=(%d,%d) city=%S landArea=%d waterArea=%d areaAI=%d inPort=%d landWar=%d noWarPlans=%d missionAI=%d missionTarget=(%d,%d) reinforcementThreshold=%d invasionThreshold=%d plotAttackCity=%d plotAttack=%d plotCounter=%d plotAvailableAttackCity=%d plotAvailableAttack=%d plotAvailableCounter=%d incomingCargo1=%d incomingCargo3=%d incomingCargo7=%d areaAttackCity=%d areaAttack=%d totalAssaultTransports=%d",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(), GC.getGame().getGameTurn() - getGameTurnCreated(), getGroup()->getID(), getGroup()->getNumUnits(), getGroup()->countNumUnitAIType(UNITAI_ASSAULT_SEA), iCargo, getGroup()->getCargoSpace(), bEmpty, bFull, iEscorts,
+			getX(), getY(), (getPlot().getPlotCity() == NULL ? L"-" : getPlot().getPlotCity()->getName().GetCString()), getArea().getID(), (pUnitWaterArea == NULL ? -1 : pUnitWaterArea->getID()), eAreaAIType, bInPort, bLandWar, bNoWarPlans, AI_getGroup()->AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iTargetReinforcementSize, iTargetInvasionSize,
+			getPlot().plotCount(PUF_isUnitAIType, UNITAI_ATTACK_CITY, -1, getOwner()), getPlot().plotCount(PUF_isUnitAIType, UNITAI_ATTACK, -1, getOwner()), getPlot().plotCount(PUF_isUnitAIType, UNITAI_COUNTER, -1, getOwner()),
+			getPlot().plotCount(PUF_isAvailableUnitAITypeGroupie, UNITAI_ATTACK_CITY, -1, getOwner(), NO_TEAM, PUF_isFiniteRange), getPlot().plotCount(PUF_isAvailableUnitAITypeGroupie, UNITAI_ATTACK, -1, getOwner(), NO_TEAM, PUF_isFiniteRange), getPlot().plotCount(PUF_isAvailableUnitAITypeGroupie, UNITAI_COUNTER, -1, getOwner(), NO_TEAM, PUF_isFiniteRange), iIncomingCargo1, iIncomingCargo3, iIncomingCargo7,
+			kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK_CITY), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK), kOwner.AI_totalUnitAIs(UNITAI_ASSAULT_SEA));
+	}
 
 	// Plot danger case handled above
 
@@ -7521,6 +11868,19 @@ void CvUnitAI::AI_assaultSeaMove()
 				} // </advc.082>
 			}
 		}
+		// <!-- custom: Save-file 450 transport diagnostics showed reinforcement/invasion thresholds of 13/26 blocking a Galley whose full capacity was only 3, even when nearby Barbarian cities reached zero defenders.
+		// Keep the broad thresholds for assembling normal invasions, but let the existing target-specific strength evaluation launch any smaller military cargo that can already take a real target. Existing safety, escort, and imminent-loading waits above still run first. See KI#193. (GPT-5.6-Sol) -->
+		static bool const bOpportunisticTargetEnable = GC.getDefineBOOL("SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_TARGET_ENABLE");
+		if (bOpportunisticTargetEnable && iCargo > 0 && iCargo < iTargetReinforcementSize)
+		{
+			FAssert(getGroup()->hasCargo());
+			if (AI_assaultSeaTransport(bNoWarPlans))
+			{
+				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=opportunistic_target_below_threshold cargo=%d reinforcementThreshold=%d noWarPlans=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize, bNoWarPlans);
+				return;
+			}
+			if (gOverseasTransportLogLevel >= 3) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_opportunistic_target_below_threshold cargo=%d reinforcementThreshold=%d noWarPlans=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize, bNoWarPlans);
+		}
 		if (bNoWarPlans && iCargo >= iTargetReinforcementSize)
 		{
 			AI_getGroup()->AI_separateEmptyTransports();
@@ -7532,11 +11892,18 @@ void CvUnitAI::AI_assaultSeaMove()
 			}
 			FAssert(getGroup()->hasCargo());
 			if (AI_assaultSeaReinforce(true))
+			{
+				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=reinforce_without_war_plan cargo=%d threshold=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize);
 				return;
+			}
 
 			FAssert(getGroup()->hasCargo());
 			if (AI_assaultSeaTransport(true))
+			{
+				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=attack_barbarian_without_war_plan cargo=%d threshold=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize);
 				return;
+			}
+			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_reinforcement_or_barbarian_target cargo=%d threshold=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize);
 		}
 	}  // <advc.046>
 	bool bHasCargo = getGroup()->hasCargo(); // Moved up
@@ -7545,9 +11912,9 @@ void CvUnitAI::AI_assaultSeaMove()
 		when no naval attack is planned (!bAttack). */
 	bool const bGoodCity = (getPlot().isCity() && getPlot().getTeam() == getTeam() &&
 			GET_TEAM(getTeam()).AI_isPrimaryArea(getPlot().getArea()));
-	if((bGoodCity || !bHasCargo) && !bAttack &&
-		AI_pickupStranded())
+	if ((bGoodCity || !bHasCargo) && !bAttack && AI_pickupStranded())
 	{
+		if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 		return;
 	} // </advc.046>
 	if ((bFull || bReinforce) && !bAttack)
@@ -7568,28 +11935,53 @@ void CvUnitAI::AI_assaultSeaMove()
 	{
 		bool bHasOneLoad = (getGroup()->getCargo() >= cargoSpace());
 		if (AI_pickup(UNITAI_ATTACK_CITY, !bHasCargo, bHasOneLoad ? 3 : 7))
+		{
+			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack_city cargo=%d cargoSpace=%d pathLimit=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(), bHasOneLoad ? 3 : 7);
 			return;
+		}
 		if (AI_pickup(UNITAI_ATTACK, !bHasCargo, bHasOneLoad ? 3 : 7))
+		{
+			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack cargo=%d cargoSpace=%d pathLimit=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(), bHasOneLoad ? 3 : 7);
 			return;
+		}
 		if (AI_pickup(UNITAI_COUNTER, !bHasCargo, bHasOneLoad ? 3 : 7))
+		{
+			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_counter cargo=%d cargoSpace=%d pathLimit=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(), bHasOneLoad ? 3 : 7);
 			return;
+		}
 		if (AI_pickup(UNITAI_ATTACK_CITY, !bHasCargo))
+		{
+			if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_attack_city_unlimited_path cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 			return;
+		}
 		if (!bHasCargo)
 		{
 			if(AI_pickupStranded(UNITAI_ATTACK_CITY))
+			{
+				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_attack_city cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 				return;
+			}
 			if(AI_pickupStranded(UNITAI_ATTACK))
+			{
+				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_attack cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 				return;
+			}
 			if(AI_pickupStranded(UNITAI_COUNTER))
+			{
+				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_stranded_counter cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 				return;
+			}
 			if (getGroup()->countNumUnitAIType(AI_getUnitAIType()) == 1)
 			{
 				// Try picking up anything
 				if(AI_pickupStranded())
+				{
+					if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=pickup_any_stranded cargo=%d cargoSpace=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace());
 					return;
+				}
 			}
 		}
+		if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_pickup_found cargo=%d cargoSpace=%d attackCityArea=%d attackArea=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, getGroup()->getCargoSpace(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK_CITY), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_ATTACK));
 	}
 
 	//if (bInPort && bLandWar && getGroup()->hasCargo())
@@ -9026,15 +13418,394 @@ void CvUnitAI::AI_cityAutomated()
 // XXX make sure we include any new UnitAITypes...
 int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 {
-	if (GC.getInfo(ePromotion).isLeader())
+	// <!-- custom: very nice optimization with the help of chatgpt 5 -->
+	// Promotion scoring: hoist GC.getInfo(ePromotion) once per loop
+	// In AI_promotionValue you read from GC.getInfo(ePromotion) many times (amphib, river, enemyRoute, blitz, etc.). Grab a single const CvPromotionInfo& kProm = GC.getInfo(ePromotion); and reuse it. This loop runs a lot (every promotion decision), so it’s a free speedup.
+	const CvPromotionInfo& kPromo = GC.getInfo(ePromotion);
+
+	if (kPromo.isLeader())
 	{
 		// Don't consume the leader as a regular promotion
 		return 0;
 	}
+
+	// <!-- custom: moved up here, and refactored to remove the countless as in very very numerous repeated lookups in this same function, which seem very inefficient or suboptimal, hopefully cleaner and better for perfomance or clarity or such maybe too-->
+	UnitAITypes const eAI = AI_getUnitAIType();
+	UnitCombatTypes const eUnitCombat = getUnitCombatType();
+
+	// <!-- custom: cache once since we reuse it as is done in other parts of this as of now .cpp file -->
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+
+	static const bool bSAS_AI_PROMOTION_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_PROMOTION_VALUE_OPTIMIZE");
+
+	if (bSAS_AI_PROMOTION_VALUE_OPTIMIZE && (ePromotion != NO_PROMOTION))
+	{
+		// <!-- custom: similarly to AI specialists in CvCityAI::AI_jobChangeValue, block some promotions for AI as they're too weak (e.g. Woodsman ineffective in cities even with mod buff) or too situational to be reliably good. Helps AI pick better promotions without killing versatility. Better promotion choice especially important early game where any small advantage may give edge for successful invasion/defense. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+		// <!-- custom: note: as of now this mostly, except for some strict unitais where it seems beneficial to do so, doesn't incentivize anything, only forbids some promotions, otherwise mostly (minus these exceptions) keeping AI choices the same; hopefully this leads to saner and more effective AI promotion choices, while patching the core issues of flawed to sometimes very flawed AI promotion choices while keeping at least as of now otherwise most of the base advciv behaviour that we attempt to enhance with these rules-->
+		// === HARD BLOCK: promos that can’t possibly help this unit right now ===
+		// decisively low, far from overflow/underflow
+		static const int AI_PROMOTION_FORBIDDEN = GC.getDefineINT("SAS_AI_PROMOTION_VALUE_AI_PROMOTION_FORBIDDEN");
+		// <!-- custom: always pick these first if in this specific case especially relevant-->
+		static const int AI_PROMOTION_ALWAYS_PICK_FIRST = GC.getDefineINT("SAS_AI_PROMOTION_VALUE_AI_PROMOTION_ALWAYS_PICK_FIRST");
+
+		static const PromotionTypes ePromotionAmphibious = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_AMPHIBIOUS", true);
+
+		// <!-- custom: first, disable these entirely (i.e. for all AI units), as they are too unlikely to be good most times for the AI that would not use them effectively most times or these are weak and not effective enough -->
+		// <!-- custom: note: medic_ambulatory still allowed as can be quite versatile so no reason to kill versatility too hard, but for an individual unit not too good i would say (more efficient to fight and die than los XP healing i would say or so it seems) -->
+		if (ePromotion == ePromotionAmphibious)
+		{
+			return AI_PROMOTION_FORBIDDEN;
+		}
+
+		static const PromotionTypes ePromotionSentry = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_SENTRY", true);
+
+		// <!-- custom: note: for some reason woodsman and medic are super popular among AI units as a promotion, yet these are among if not the most inefficient ones in war; this is one of the core promotions motivating this change, so making sure only most effective and very rarely most likely fit with these can choose them/these for AI players, also thanks to the ideas or information/feedback of chatgpt 5 on top of ideas i had gotten too before-->
+		static const PromotionTypes ePromotionWoodsman1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_WOODSMAN1",  true);
+		static const PromotionTypes ePromotionWoodsman2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_WOODSMAN2", true);
+		static const PromotionTypes ePromotionWoodsman3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_WOODSMAN3", true);
+
+		static const PromotionTypes ePromotionMedic1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MEDIC1",  true);
+		static const PromotionTypes ePromotionMedic2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MEDIC2", true);
+		static const PromotionTypes ePromotionMedic3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MEDIC3", true);
+		static const PromotionTypes ePromotionMedic4 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MEDIC4", true);
+
+		static const PromotionTypes ePromotionLogistics = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_LOGISTICS", true);
+
+		// <!-- custom: most likely not going to be useful or reliably so except for recon units; mounted units for example could get combat or anything more effective or likely to be vs this so try to avoid "bad" choices or not too often/reliably ""good""/effective ones for AI players-->
+		if ((ePromotion == ePromotionSentry) ||
+			(ePromotion == ePromotionWoodsman1) ||
+			(ePromotion == ePromotionWoodsman2) ||
+			(ePromotion == ePromotionWoodsman3) ||
+			(ePromotion == ePromotionMedic1) ||
+			(ePromotion == ePromotionMedic2) ||
+			(ePromotion == ePromotionMedic3) ||
+			(ePromotion == ePromotionMedic4) ||
+			(ePromotion == ePromotionLogistics))
+		{
+			static const UnitCombatTypes eUnitCombatRecon = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
+			const bool bUnitCombatRecon = (eUnitCombat == eUnitCombatRecon);
+
+			const bool bSentryAndSuchEfficientUnitAI = (
+				(eAI == UNITAI_EXPLORE) ||
+				(eAI == UNITAI_SPY) ||
+				(eAI == UNITAI_EXPLORE_SEA) ||
+				(eAI == UNITAI_SPY_SEA) ||
+				(eAI == UNITAI_PIRATE_SEA)
+			);
+
+			// <!-- custom: actually, medic promotions, and combat, could be a surprisingly useful use for explore units :o Noticed and recommended by chatgpt 5 thanks hehe for woodsman (i noticed it too but forgot, tunnel vision to disable it as it is so inefficient otherwise xd), but even a scout being medic_ambulatory makes a lot of sense actually -->
+			if (!bUnitCombatRecon)
+			{
+				if (!bSentryAndSuchEfficientUnitAI)
+				{
+					return AI_PROMOTION_FORBIDDEN;
+				}
+			}
+			// <!-- custom: in case scouts or explorers have attack_city or such, not totally impossible maybe or with future changes maybe, and also to distinguish these 2 otherwise redundant branches as noted by chatgpt 5 thanks i meanbut as i said to it i like / i'd prefer to distinguish these 2 if i may say as clearer for me to distinguish these edge cases and also to reason about what our code does, of recon units combat type vs specific sentry efficient unitais, and to better be ready to cover any future change we'd make to this in this case i mean if any-->
+			else
+			{
+				if (!bSentryAndSuchEfficientUnitAI)
+				{
+					return AI_PROMOTION_FORBIDDEN;
+				}
+			}
+		}
+
+		const bool bStrictAttackCityLandUnitAI = (
+			(eAI == UNITAI_ATTACK_CITY) ||
+			// <!-- custom: note: as of now seemingly unused or disabled for AIs but just in case or to be exhaustive -->
+			(eAI == UNITAI_ATTACK_CITY_LEMMING)
+		);
+		const bool bMostlyOffensiveLandUnitAI = (
+			(eAI == UNITAI_ATTACK)
+		);
+
+		static const PromotionTypes ePromotionCityRaider1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_RAIDER1", true);
+		static const PromotionTypes ePromotionCityRaider2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_RAIDER2", true);
+		static const PromotionTypes ePromotionCityRaider3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_RAIDER3", true);
+
+		static const PromotionTypes ePromotionCombat1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COMBAT1", true);
+		static const PromotionTypes ePromotionCombat2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COMBAT2", true);
+		static const PromotionTypes ePromotionCombat3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COMBAT3", true);
+		static const PromotionTypes ePromotionCombat4 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COMBAT4", true);
+		static const PromotionTypes ePromotionCombat5 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COMBAT5", true);
+		static const PromotionTypes ePromotionCombat6 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COMBAT6", true);
+
+		static const PromotionTypes ePromotionRetreat1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RETREAT1", true);
+		static const PromotionTypes ePromotionRetreat2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_RETREAT2", true);
+
+		// Situation read
+		// <!-- custom: note: sometimes AI_isFocusWar is used with, sometimes without in cvcityai.cpp, going for the larger one and chatgpt 5 suggests to do as such despite not knowing all our code but should be fine, and maybe we handle more cases this way, check if accurate -->
+		// bool const bWarPlan = kOwner.AI_isFocusWar();
+
+		// <!-- custom: and the `AI().` "prefix" i mean thing we added before in other file still does not fix the compile error in this file, so using an existing pattern to check danger in this file -->
+		// <!-- custom: we have a crash in the first few turns after implementing this pCity code, maybe this is because don't have a city yet but try to promote anyway? Add this guard as a nice sanity check as well as chatgpt 5 recommended as well after reviewing it as well -->
+		CvCityAI const* pCity = getPlot().AI_getPlotCity();
+		bool const bDanger = ((pCity != NULL) && pCity->AI_isDanger());	// method lives on CvCityAI <!-- custom: see as of now above code comment for details -->
+		// <!-- custom: it seems to me guessedly more reliable than the old AI_isLandWar check, chatgpt 5 advises for this as well when looking at the function's code when i asked it about it, check if accurate -->
+		const bool bAtWar = (GET_TEAM(getTeam()).getNumWars() > 0);
+		const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+		const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+		// Practical use in your siege gate
+		// Don’t use iEnemyPowPct<=90 to mean “we’re stronger" when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
+		// This way:
+		// - In peacetime, you won’t accidentally treat “0" as “we totally dominate" and overbuild siege.
+		static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
+		//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
+		// <!-- custom: modified version i guessedly made without checking relevant function's code, hopefully more accurate but check to be sure as is just a guess from me-->
+		const bool bEnemyWeakNotZero = ((iEnemyPowerPercent > 0) && (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD));
+
+		// <!-- custom: if we are strict city offense units / unitais but anywayse city, city raider would be the best or among to go for first and foremost at least in most cases for AIs -->
+		if (bStrictAttackCityLandUnitAI || bMostlyOffensiveLandUnitAI)
+		{
+			// <!-- custom: update: except if we are weaker than our rivals or in danger or such, then city raider won't help us and we'd be most likely be defending our cities rather, so attempt a more versatile promotion instead like combat promotions or such first-->
+			const bool bDangerousToGoWithFullOffensePromotions = (
+				bDanger ||
+				// Gate CR suppression to real war (recommended)
+				// This can suppress City Raider in peacetime just because someone’s power spiked. Safer:
+				(bAtWar && bEnemyStrong)
+			);
+
+			if (bDangerousToGoWithFullOffensePromotions)
+			{
+				if (ePromotion == ePromotionCombat1)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 8000;
+				}
+				else if (ePromotion == ePromotionCombat2)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 7000;
+				}
+				else if (ePromotion == ePromotionCombat3)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 6000;
+				}
+				else if (ePromotion == ePromotionCombat4)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 5000;
+				}
+				else if (ePromotion == ePromotionCombat5)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 4000;
+				}
+				else if (ePromotion == ePromotionCombat6)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 3000;
+				}
+				// <!-- custom: consider Retreat promotions as versatile offensive/defensive promotion for city attacker UNITAIs, with caution in case City Raider is better. Credit: ChatGPT 5 (idea and enhancement). (Claude code Sonnet 4.5 (summarized)) -->
+				// If you want retreat only when losing a real war, gate it like this:
+				if (bAtWar && bEnemyStrong)
+				{
+					if (ePromotion == ePromotionRetreat1)
+					{
+						return AI_PROMOTION_ALWAYS_PICK_FIRST + 2900;
+					}
+					else if (ePromotion == ePromotionRetreat2)
+					{
+						return AI_PROMOTION_ALWAYS_PICK_FIRST + 2800;
+					}
+				}
+			}
+
+			const bool bShouldAttack = (
+				(bAtWar && bEnemyWeakNotZero)
+			);
+
+			if (bStrictAttackCityLandUnitAI ||
+			(bMostlyOffensiveLandUnitAI && bShouldAttack))
+			{
+				if (ePromotion == ePromotionCityRaider1)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 2000;
+				}
+				else if (ePromotion == ePromotionCityRaider2)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST + 1000;
+				}
+				else if (ePromotion == ePromotionCityRaider3)
+				{
+					return AI_PROMOTION_ALWAYS_PICK_FIRST;
+				}
+			}
+		}
+
+		static const PromotionTypes ePromotionCityGarrison1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_GARRISON1", true);
+		static const PromotionTypes ePromotionCityGarrison2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_GARRISON2", true);
+		static const PromotionTypes ePromotionCityGarrison3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_GARRISON3", true);
+
+		static const PromotionTypes ePromotionHillsMaster1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_HILLS_MASTER1", true);
+		static const PromotionTypes ePromotionHillsMaster2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_HILLS_MASTER2", true);
+		static const PromotionTypes ePromotionHillsMaster3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_HILLS_MASTER3", true);
+
+		static const PromotionTypes ePromotionCounterMelee = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COUNTER_MELEE", true);
+		static const PromotionTypes ePromotionCounterMounted = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COUNTER_MOUNTED", true);
+		static const PromotionTypes ePromotionCounterSiege = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COUNTER_SIEGE", true);
+		static const PromotionTypes ePromotionCounterTank = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COUNTER_TANK", true);
+
+		// <!-- custom: note: counter and city_counter are seemingly hybrids according to chatgpt 5, i.e. used both for defense and offense so not included either the offensive block nor in the defensive one, as too aggressive promotion restricitions may hurt the unit as pointed by chatgpt 5, check if accurate, hopefully helps the AI without hurting it xd -->
+		const bool bCommonOffenseLandUnitAI = (
+			// <!-- custom: note: as of now seemingly unused or disabled for AIs but just in case or to be exhaustive -->
+			(eAI == UNITAI_COLLATERAL) ||
+			(eAI == UNITAI_PARADROP) ||
+			bMostlyOffensiveLandUnitAI
+		);
+
+		// <!-- custom: the less strict rules such as not pick hills master still stand, for example if all city raider of the strict rules are already picked; so include strict offense unitais in the general offense unitai rules -->
+		const bool bOffenseLandUnitAI = (bStrictAttackCityLandUnitAI || bCommonOffenseLandUnitAI);
+
+		const bool bOffenseNavalUnitAI = (
+			(eAI == UNITAI_ATTACK_SEA)
+		);
+
+		const bool bOffenseUnitAI = (bOffenseLandUnitAI || bOffenseNavalUnitAI);
+
+		// <!-- custom: promotion_city_garrison1 and such unlikely to be too useful or reliably useful for offensive unitAIs, so disable them for effiency -->
+		if ((ePromotion == ePromotionCityGarrison1) ||
+			(ePromotion == ePromotionCityGarrison2) ||
+			(ePromotion == ePromotionCityGarrison3) ||
+			(ePromotion == ePromotionHillsMaster1) ||
+			(ePromotion == ePromotionHillsMaster2) ||
+			(ePromotion == ePromotionHillsMaster3) ||
+			// <!-- custom: as explained to chatgpt 5 while thinking about it, counter promotions are too "niche" as it described about another thing, and after upgrading units AI would have no need for some of these as well, so mostly if not entirely disable these for efficiency of promotion choices i would say-->
+			(ePromotion == ePromotionCounterMelee) ||
+			(ePromotion == ePromotionCounterMounted) ||
+			(ePromotion == ePromotionCounterSiege) ||
+			(ePromotion == ePromotionCounterTank))
+		{
+			if (bOffenseUnitAI)
+			{
+				return AI_PROMOTION_FORBIDDEN;
+			}
+		}
+
+		const bool bStrictDefenseLandUnitAI = (
+			(eAI == UNITAI_CITY_DEFENSE) ||
+			(eAI == UNITAI_CITY_SPECIAL)
+		);
+		// <!-- custom: if we are strict or strongly most likely to be city defenders units / unitais, city garrison would be the best or among to go for first and foremost at least in most cases for AIs -->
+		// <!-- custom: note: reserve (and reserve_sea) similarly excluded from this due to being hybrids frequently flipped from defense to offense according to the doc i had compiled as in recorded/saved at the time xd, as well as chatgpt 5's info after i asked it about it and after it did a web search too, so removing / not having strict nor less strict defensive rules for these then, check if accurate -->
+		if (bStrictDefenseLandUnitAI)
+		{
+			if (ePromotion == ePromotionCityGarrison1)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 2000;
+			}
+			else if (ePromotion == ePromotionCityGarrison2)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 1000;
+			}
+			else if (ePromotion == ePromotionCityGarrison3)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST;
+			}
+		}
+
+		const bool bMostlyDefensiveLandUnitAI = (
+			(eAI == UNITAI_RESERVE)
+		);
+
+		const bool bDefenseLandUnitAI = (bStrictDefenseLandUnitAI || bMostlyDefensiveLandUnitAI);
+
+		// <!-- custom: sea no pun but typo or mistake.. i mean see the note about reserve_sea not included here as it is a sort of hybrid it seems and being too strict about it may hurt it -->
+		const bool bDefenseNavalUnitAI = (
+			(eAI == UNITAI_ESCORT_SEA)
+		);
+
+		const bool bDefenseUnitAI = (bDefenseLandUnitAI || bDefenseNavalUnitAI);
+
+		static const PromotionTypes ePromotionBlitzkrieg = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_BLITZKRIEG", true);
+		static const PromotionTypes ePromotionMobilityCost = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MOBILITY_COST", true);
+		static const PromotionTypes ePromotionMobilityRange = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_MOBILITY_RANGE", true);
+
+		static const PromotionTypes ePromotionCounterArcher = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COUNTER_ARCHER", true);
+
+		static const PromotionTypes ePromotionCityBombardDamage = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CITY_BOMBARD_DAMAGE", true);
+
+		// <!-- custom: according to chatgpt 5 and confirmed by it after it did a web search, check if accurate, collateral damage is not applied for defensive units (e.g. a catapult defending a city, attacked by a swordsman, then the swordsman's stack doesn't receive "splash" damage to other units in the stack, but this is only when the catapult attacks, check if accurate as i don't know for sure and only guessed so, but maybe chatgpt 5 is indeed correct, just check to be sure i mean; so as for defensive units, disabling these since it won't be useful being on the receiving end of an attack -->
+		static const PromotionTypes ePromotionCollateralDamage1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COLLATERAL_DAMAGE1", true);
+		static const PromotionTypes ePromotionCollateralDamage2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COLLATERAL_DAMAGE2", true);
+		static const PromotionTypes ePromotionCollateralDamage3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COLLATERAL_DAMAGE3", true);
+		static const PromotionTypes ePromotionCollateralDamage4 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COLLATERAL_DAMAGE4", true);
+		static const PromotionTypes ePromotionCollateralDamage5 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_COLLATERAL_DAMAGE5", true);
+
+		static const PromotionTypes ePromotionNavigator = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_NAVIGATOR", true);
+
+		// <!-- custom: quite/kind of similar reasoning than was done for offensive units, but now using a different logic: defenders need to be bulky/tanky, no need for mobility, no need for offense promotions. See also code comment above about collateral damage not applying when in defense (i.e. being attacked), check if accurate as well, hopefully helps AI better pick promotions while keeping versatility enough otherwise-->
+		if ((ePromotion == ePromotionBlitzkrieg) ||
+			(ePromotion == ePromotionMobilityCost) ||
+			(ePromotion == ePromotionMobilityRange) ||
+			(ePromotion == ePromotionCityRaider1) ||
+			(ePromotion == ePromotionCityRaider2) ||
+			(ePromotion == ePromotionCityRaider3) ||
+			(ePromotion == ePromotionCityBombardDamage) ||
+			(ePromotion == ePromotionCollateralDamage1) ||
+			(ePromotion == ePromotionCollateralDamage2) ||
+			(ePromotion == ePromotionCollateralDamage3) ||
+			(ePromotion == ePromotionCollateralDamage4) ||
+			(ePromotion == ePromotionCollateralDamage5) ||
+			(ePromotion == ePromotionCounterArcher))
+		{
+			if (bDefenseUnitAI)
+			{
+				return AI_PROMOTION_FORBIDDEN;
+			}
+		}
+		// <!-- custom: retreat promotions are useful for,
+		// on land:
+		// 	- non defense unitais (versatile attack/defense utility)
+		// on sea:
+		// 	- non defense unitais (versatile attack/defense utility)
+		//	- defense unitais as well (naval defensive units can move, they are not as often parked to cities)
+		// so forbid retreat promotions only for defense land unitais, and otherwise allow for versatility and thanks to chatgpt 5's related review which gave me this idea -->
+		if (bStrictDefenseLandUnitAI || bMostlyDefensiveLandUnitAI)
+		{
+			if ((ePromotion == ePromotionRetreat1) ||
+				(ePromotion == ePromotionRetreat2))
+			{
+				return AI_PROMOTION_FORBIDDEN;
+			}
+		}
+
+		// <!-- custom: for naval unitais, combat promotions are often the best choice, followed by navigator -->
+		if (bOffenseNavalUnitAI || bDefenseNavalUnitAI)
+		{
+			// <!-- custom: navigator is useful for naval defense unitais as recommended by chatgpt 5 but check to be sure-->
+			if (ePromotion == ePromotionCombat1)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 5000;
+			}
+			else if (ePromotion == ePromotionCombat2)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 4000;
+			}
+			else if (ePromotion == ePromotionCombat3)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 3000;
+			}
+			else if (ePromotion == ePromotionCombat4)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 2000;
+			}
+			else if (ePromotion == ePromotionCombat5)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST + 1000;
+			}
+			else if (ePromotion == ePromotionCombat6)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST;
+			}
+			else if (ePromotion == ePromotionNavigator)
+			{
+				return AI_PROMOTION_ALWAYS_PICK_FIRST - 1000;
+			}
+		}
+	}
+
 	int iValue = 0;
-	//if (GC.getInfo(ePromotion).isBlitz())
+	//if (kPromo.isBlitz())
 	// <advc.164>
-	int iBlitz = GC.getInfo(ePromotion).getBlitz();
+	int iBlitz = kPromo.getBlitz();
 	if(iBlitz != 0)
 	{
 		if(iBlitz < 0)
@@ -9043,8 +13814,8 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 				(getDropRange() > 0 ? 1 : 0));
 		if(iExtraAttacks > 0) // </advc.164>
 		{
-			if ((AI_getUnitAIType() == UNITAI_RESERVE  && baseMoves() > 1) ||
-				AI_getUnitAIType() == UNITAI_PARADROP)
+			if ((eAI == UNITAI_RESERVE  && baseMoves() > 1) ||
+				eAI == UNITAI_PARADROP)
 			{
 				//iValue += 10;
 				iValue += 8 * iExtraAttacks; // advc.164
@@ -9057,140 +13828,140 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		}
 	}
 
-	if (GC.getInfo(ePromotion).isAmphib())
+	if (kPromo.isAmphib())
 	{
-		if (AI_getUnitAIType() == UNITAI_ATTACK ||
-			AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+		if (eAI == UNITAI_ATTACK ||
+			eAI == UNITAI_ATTACK_CITY)
 		{
 			iValue += 5;
 		}
 		else iValue++;
 	}
 
-	if (GC.getInfo(ePromotion).isRiver())
+	if (kPromo.isRiver())
 	{
-		if (AI_getUnitAIType() == UNITAI_ATTACK ||
-			AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+		if (eAI == UNITAI_ATTACK ||
+			eAI == UNITAI_ATTACK_CITY)
 		{
 			iValue += 5;
 		}
 		else iValue++;
 	}
 
-	if (GC.getInfo(ePromotion).isEnemyRoute())
+	if (kPromo.isEnemyRoute())
 	{
-		if (AI_getUnitAIType() == UNITAI_PILLAGE)
+		if (eAI == UNITAI_PILLAGE)
 			iValue += 40;
-		else if (AI_getUnitAIType() == UNITAI_ATTACK ||
-			AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+		else if (eAI == UNITAI_ATTACK ||
+			eAI == UNITAI_ATTACK_CITY)
 		{
 			iValue += 20;
 		}
-		else if (AI_getUnitAIType() == UNITAI_PARADROP)
+		else if (eAI == UNITAI_PARADROP)
 			iValue += 10;
 		else iValue += 4;
 	}
 
-	if (GC.getInfo(ePromotion).isAlwaysHeal())
+	if (kPromo.isAlwaysHeal())
 	{
-		if (AI_getUnitAIType() == UNITAI_ATTACK ||
-			AI_getUnitAIType() == UNITAI_ATTACK_CITY ||
-			AI_getUnitAIType() == UNITAI_PILLAGE ||
-			AI_getUnitAIType() == UNITAI_COUNTER ||
-			AI_getUnitAIType() == UNITAI_ATTACK_SEA ||
-			AI_getUnitAIType() == UNITAI_PIRATE_SEA ||
-			AI_getUnitAIType() == UNITAI_ESCORT_SEA ||
-			AI_getUnitAIType() == UNITAI_PARADROP)
+		if (eAI == UNITAI_ATTACK ||
+			eAI == UNITAI_ATTACK_CITY ||
+			eAI == UNITAI_PILLAGE ||
+			eAI == UNITAI_COUNTER ||
+			eAI == UNITAI_ATTACK_SEA ||
+			eAI == UNITAI_PIRATE_SEA ||
+			eAI == UNITAI_ESCORT_SEA ||
+			eAI == UNITAI_PARADROP)
 		{
 			iValue += 10;
 		}
 		else iValue += 8;
 	}
 
-	if (GC.getInfo(ePromotion).isHillsDoubleMove())
+	if (kPromo.isHillsDoubleMove())
 	{
-		if (AI_getUnitAIType() == UNITAI_EXPLORE)
+		if (eAI == UNITAI_EXPLORE)
 			iValue += 20;
 		else iValue += 10;
 	}
 
-	if (GC.getInfo(ePromotion).isImmuneToFirstStrikes() &&
+	if (kPromo.isImmuneToFirstStrikes() &&
 		!immuneToFirstStrikes())
 	{
-		if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+		if (eAI == UNITAI_ATTACK_CITY)
 			iValue += 12;
-		else if (AI_getUnitAIType() == UNITAI_ATTACK)
+		else if (eAI == UNITAI_ATTACK)
 			iValue += 8;
 		else iValue += 4;
 	}
 
 	int iExtra = 0;
 	int iTemp;
-	iTemp = GC.getInfo(ePromotion).getVisibilityChange();
-	if (AI_getUnitAIType() == UNITAI_EXPLORE_SEA ||
-		AI_getUnitAIType() == UNITAI_EXPLORE)
+	iTemp = kPromo.getVisibilityChange();
+	if (eAI == UNITAI_EXPLORE_SEA ||
+		eAI == UNITAI_EXPLORE)
 	{
 		iValue += (iTemp * 40);
 	}
-	else if (AI_getUnitAIType() == UNITAI_PIRATE_SEA)
+	else if (eAI == UNITAI_PIRATE_SEA)
 		iValue += (iTemp * 20);
 
-	iTemp = GC.getInfo(ePromotion).getMovesChange();
-	if (AI_getUnitAIType() == UNITAI_ATTACK_SEA ||
-		AI_getUnitAIType() == UNITAI_PIRATE_SEA ||
-		AI_getUnitAIType() == UNITAI_RESERVE_SEA ||
-		AI_getUnitAIType() == UNITAI_ESCORT_SEA ||
-		AI_getUnitAIType() == UNITAI_EXPLORE_SEA ||
-		AI_getUnitAIType() == UNITAI_ASSAULT_SEA ||
-		AI_getUnitAIType() == UNITAI_SETTLER_SEA ||
-		AI_getUnitAIType() == UNITAI_PILLAGE ||
-		AI_getUnitAIType() == UNITAI_ATTACK ||
-		AI_getUnitAIType() == UNITAI_PARADROP)
+	iTemp = kPromo.getMovesChange();
+	if (eAI == UNITAI_ATTACK_SEA ||
+		eAI == UNITAI_PIRATE_SEA ||
+		eAI == UNITAI_RESERVE_SEA ||
+		eAI == UNITAI_ESCORT_SEA ||
+		eAI == UNITAI_EXPLORE_SEA ||
+		eAI == UNITAI_ASSAULT_SEA ||
+		eAI == UNITAI_SETTLER_SEA ||
+		eAI == UNITAI_PILLAGE ||
+		eAI == UNITAI_ATTACK ||
+		eAI == UNITAI_PARADROP)
 	{
 		iValue += (iTemp * 20);
 	}
 	else iValue += (iTemp * 4);
 
-	iTemp = GC.getInfo(ePromotion).getMoveDiscountChange();
-	if (AI_getUnitAIType() == UNITAI_PILLAGE)
+	iTemp = kPromo.getMoveDiscountChange();
+	if (eAI == UNITAI_PILLAGE)
 		iValue += (iTemp * 10);
 	else iValue += (iTemp * 2);
 
-	iTemp = GC.getInfo(ePromotion).getAirRangeChange();
-	if (AI_getUnitAIType() == UNITAI_ATTACK_AIR ||
-		AI_getUnitAIType() == UNITAI_CARRIER_AIR)
+	iTemp = kPromo.getAirRangeChange();
+	if (eAI == UNITAI_ATTACK_AIR ||
+		eAI == UNITAI_CARRIER_AIR)
 	{
 		iValue += (iTemp * 20);
 	}
-	else if (AI_getUnitAIType() == UNITAI_DEFENSE_AIR)
+	else if (eAI == UNITAI_DEFENSE_AIR)
 		iValue += (iTemp * 10);
 
-	iTemp = GC.getInfo(ePromotion).getInterceptChange();
-	if (AI_getUnitAIType() == UNITAI_DEFENSE_AIR)
+	iTemp = kPromo.getInterceptChange();
+	if (eAI == UNITAI_DEFENSE_AIR)
 		iValue += (iTemp * 3);
-	else if (AI_getUnitAIType() == UNITAI_CITY_SPECIAL ||
-		AI_getUnitAIType() == UNITAI_CARRIER_AIR)
+	else if (eAI == UNITAI_CITY_SPECIAL ||
+		eAI == UNITAI_CARRIER_AIR)
 	{
 		iValue += (iTemp * 2);
 	}
 	else iValue += (iTemp / 10);
 
-	iTemp = GC.getInfo(ePromotion).getEvasionChange();
-	if (AI_getUnitAIType() == UNITAI_ATTACK_AIR ||
-		AI_getUnitAIType() == UNITAI_CARRIER_AIR)
+	iTemp = kPromo.getEvasionChange();
+	if (eAI == UNITAI_ATTACK_AIR ||
+		eAI == UNITAI_CARRIER_AIR)
 	{
 		iValue += (iTemp * 3);
 	}
 	else iValue += (iTemp / 10);
 
-	iTemp = GC.getInfo(ePromotion).getFirstStrikesChange() * 2;
-	iTemp += GC.getInfo(ePromotion).getChanceFirstStrikesChange();
-	if (AI_getUnitAIType() == UNITAI_RESERVE ||
-		AI_getUnitAIType() == UNITAI_COUNTER ||
-		AI_getUnitAIType() == UNITAI_CITY_DEFENSE ||
-		AI_getUnitAIType() == UNITAI_CITY_COUNTER ||
-		AI_getUnitAIType() == UNITAI_CITY_SPECIAL ||
-		AI_getUnitAIType() == UNITAI_ATTACK)
+	iTemp = kPromo.getFirstStrikesChange() * 2;
+	iTemp += kPromo.getChanceFirstStrikesChange();
+	if (eAI == UNITAI_RESERVE ||
+		eAI == UNITAI_COUNTER ||
+		eAI == UNITAI_CITY_DEFENSE ||
+		eAI == UNITAI_CITY_COUNTER ||
+		eAI == UNITAI_CITY_SPECIAL ||
+		eAI == UNITAI_ATTACK)
 	{
 		iTemp *= 8;
 		iExtra = getExtraChanceFirstStrikes() + getExtraFirstStrikes() * 2;
@@ -9200,19 +13971,19 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	else iValue += (iTemp * 5);
 
-	iTemp = GC.getInfo(ePromotion).getWithdrawalChange();
+	iTemp = kPromo.getWithdrawalChange();
 	if (iTemp != 0)
 	{
 		iExtra = (getUnitInfo().getWithdrawalProbability() + (getExtraWithdrawal() * 4));
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+		if (eAI == UNITAI_ATTACK_CITY)
 		{
 			iValue += (iTemp * 4) / 3;
 		}
-		else if (AI_getUnitAIType() == UNITAI_COLLATERAL ||
-			AI_getUnitAIType() == UNITAI_RESERVE ||
-			AI_getUnitAIType() == UNITAI_RESERVE_SEA ||
+		else if (eAI == UNITAI_COLLATERAL ||
+			eAI == UNITAI_RESERVE ||
+			eAI == UNITAI_RESERVE_SEA ||
 			getLeaderUnitType() != NO_UNIT)
 		{
 			iValue += iTemp * 1;
@@ -9220,46 +13991,46 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		else iValue += (iTemp / 4);
 	}
 
-	iTemp = GC.getInfo(ePromotion).getCollateralDamageChange();
+	iTemp = kPromo.getCollateralDamageChange();
 	if (iTemp != 0)
 	{
 		iExtra = (getExtraCollateralDamage());//collateral has no strong synergy (not like retreat)
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
 
-		if (AI_getUnitAIType() == UNITAI_COLLATERAL)
+		if (eAI == UNITAI_COLLATERAL)
 			iValue += (iTemp * 1);
-		else if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+		else if (eAI == UNITAI_ATTACK_CITY)
 			iValue += ((iTemp * 2) / 3);
 		else iValue += (iTemp / 8);
 	}
 
-	iTemp = GC.getInfo(ePromotion).getBombardRateChange();
-	if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+	iTemp = kPromo.getBombardRateChange();
+	if (eAI == UNITAI_ATTACK_CITY)
 	{
 		iValue += (iTemp * 2);
 	}
 	else iValue += (iTemp / 8);
 	// BETTER_BTS_AI_MOD, Unit AI, 04/26/10, jdog5000: START
-	iTemp = GC.getInfo(ePromotion).getEnemyHealChange();
-	if (AI_getUnitAIType() == UNITAI_ATTACK ||
-		AI_getUnitAIType() == UNITAI_PILLAGE ||
-		AI_getUnitAIType() == UNITAI_ATTACK_SEA ||
-		AI_getUnitAIType() == UNITAI_PARADROP ||
-		AI_getUnitAIType() == UNITAI_PIRATE_SEA)
+	iTemp = kPromo.getEnemyHealChange();
+	if (eAI == UNITAI_ATTACK ||
+		eAI == UNITAI_PILLAGE ||
+		eAI == UNITAI_ATTACK_SEA ||
+		eAI == UNITAI_PARADROP ||
+		eAI == UNITAI_PIRATE_SEA)
 	// BETTER_BTS_AI_MOD: END
 	{
 		iValue += (iTemp / 4);
 	}
 	else iValue += (iTemp / 8);
 
-	iTemp = GC.getInfo(ePromotion).getNeutralHealChange();
+	iTemp = kPromo.getNeutralHealChange();
 	iValue += (iTemp / 8);
 
-	iTemp = GC.getInfo(ePromotion).getFriendlyHealChange();
-	if ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
-		  (AI_getUnitAIType() == UNITAI_CITY_COUNTER) ||
-		  (AI_getUnitAIType() == UNITAI_CITY_SPECIAL))
+	iTemp = kPromo.getFriendlyHealChange();
+	if ((eAI == UNITAI_CITY_DEFENSE) ||
+		  (eAI == UNITAI_CITY_COUNTER) ||
+		  (eAI == UNITAI_CITY_SPECIAL))
 	{
 		iValue += (iTemp / 4);
 	}
@@ -9267,16 +14038,16 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 	// BBAI / K-Mod
 	if (getDamage() > 0 || ((AI_getBirthmark() % 8 == 0) &&
-		(AI_getUnitAIType() == UNITAI_COUNTER ||
-		AI_getUnitAIType() == UNITAI_PILLAGE ||
-		AI_getUnitAIType() == UNITAI_ATTACK_CITY ||
-		AI_getUnitAIType() == UNITAI_RESERVE ||
-		AI_getUnitAIType() == UNITAI_PIRATE_SEA ||
-		AI_getUnitAIType() == UNITAI_RESERVE_SEA ||
-		AI_getUnitAIType() == UNITAI_ASSAULT_SEA)))
+		(eAI == UNITAI_COUNTER ||
+		eAI == UNITAI_PILLAGE ||
+		eAI == UNITAI_ATTACK_CITY ||
+		eAI == UNITAI_RESERVE ||
+		eAI == UNITAI_PIRATE_SEA ||
+		eAI == UNITAI_RESERVE_SEA ||
+		eAI == UNITAI_ASSAULT_SEA)))
 	{
 	// BBAI / K-Mod
-		iTemp = GC.getInfo(ePromotion).getSameTileHealChange() + getSameTileHeal();
+		iTemp = kPromo.getSameTileHealChange() + getSameTileHeal();
 		iExtra = getSameTileHeal();
 
 		iTemp *= (100 + iExtra * 5);
@@ -9289,7 +14060,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			else iValue += (iTemp / 8);
 		}
 
-		iTemp = GC.getInfo(ePromotion).getAdjacentTileHealChange();
+		iTemp = kPromo.getAdjacentTileHealChange();
 		iExtra = getAdjacentTileHeal();
 		iTemp *= (100 + iExtra * 5);
 		iTemp /= 100;
@@ -9301,7 +14072,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	// try to use Warlords to create super-medic units
-	if (GC.getInfo(ePromotion).getAdjacentTileHealChange() > 0 || GC.getInfo(ePromotion).getSameTileHealChange() > 0)
+	if (kPromo.getAdjacentTileHealChange() > 0 || kPromo.getSameTileHealChange() > 0)
 	{
 		/*PromotionTypes eLeader = NO_PROMOTION;
 		for (iI = 0; iI < GC.getNumPromotionInfos(); iI++) {
@@ -9309,7 +14080,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 				eLeader = (PromotionTypes)iI;
 		}
 		if (isHasPromotion(eLeader) && eLeader != NO_PROMOTION) {
-			iValue += GC.getInfo(ePromotion).getAdjacentTileHealChange() + GC.getInfo(ePromotion).getSameTileHealChange();
+			iValue += kPromo.getAdjacentTileHealChange() + kPromo.getSameTileHealChange();
 		}*/ // BtS
 		// K-Mod, I've changed the way we work out if we are a leader or not.
 		// The original method would break if there was more than one "leader" promotion)
@@ -9317,15 +14088,14 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		{
 			if (GC.getInfo((PromotionTypes)iI).isLeader() && isHasPromotion((PromotionTypes)iI))
 			{
-				iValue += GC.getInfo(ePromotion).getAdjacentTileHealChange() + GC.getInfo(ePromotion).getSameTileHealChange();
+				iValue += kPromo.getAdjacentTileHealChange() + kPromo.getSameTileHealChange();
 				break;
 			}
 		}
 		// K-Mod end
 	}
 
-	iTemp = GC.getInfo(ePromotion).getCombatPercent();
-	UnitAITypes const eAI = AI_getUnitAIType();
+	iTemp = kPromo.getCombatPercent();
 	// kmodx: Removed redundant clauses
 	if (eAI == UNITAI_ATTACK || eAI == UNITAI_COUNTER ||
 		eAI == UNITAI_CITY_COUNTER || eAI == UNITAI_ATTACK_SEA ||
@@ -9338,7 +14108,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	}
 	else iValue += (iTemp * 1);
 
-	iTemp = GC.getInfo(ePromotion).getCityAttackPercent();
+	iTemp = kPromo.getCityAttackPercent();
 	if (iTemp != 0)
 	{
 		if (getUnitInfo().getUnitAIType(UNITAI_ATTACK) || getUnitInfo().getUnitAIType(UNITAI_ATTACK_CITY) || getUnitInfo().getUnitAIType(UNITAI_ATTACK_CITY_LEMMING))
@@ -9346,7 +14116,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			iExtra = (getUnitInfo().getCityAttackModifier() + (getExtraCityAttackPercent() * 2));
 			iTemp *= (100 + iExtra);
 			iTemp /= 100;
-			if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+			if (eAI == UNITAI_ATTACK_CITY)
 			{
 				iValue += (iTemp * 1);
 			}
@@ -9354,11 +14124,11 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		}
 	}
 
-	iTemp = GC.getInfo(ePromotion).getCityDefensePercent();
+	iTemp = kPromo.getCityDefensePercent();
 	if (iTemp != 0)
 	{
-		if ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
-			  (AI_getUnitAIType() == UNITAI_CITY_SPECIAL))
+		if ((eAI == UNITAI_CITY_DEFENSE) ||
+			  (eAI == UNITAI_CITY_SPECIAL))
 		{
 			iExtra = getUnitInfo().getCityDefenseModifier() + (getExtraCityDefensePercent() * 2);
 			iValue += ((iTemp * (100 + iExtra)) / 100);
@@ -9366,32 +14136,32 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		else iValue += (iTemp / 4);
 	}
 
-	iTemp = GC.getInfo(ePromotion).getHillsAttackPercent();
+	iTemp = kPromo.getHillsAttackPercent();
 	if (iTemp != 0)
 	{
 		iExtra = getExtraHillsAttackPercent();
 		iTemp *= (100 + iExtra * 2);
 		iTemp /= 100;
-		if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
-			(AI_getUnitAIType() == UNITAI_COUNTER))
+		if ((eAI == UNITAI_ATTACK) ||
+			(eAI == UNITAI_COUNTER))
 		{
 			iValue += (iTemp / 4);
 		}
 		else iValue += (iTemp / 16);
 	}
 
-	iTemp = GC.getInfo(ePromotion).getHillsDefensePercent();
+	iTemp = kPromo.getHillsDefensePercent();
 	if (iTemp != 0)
 	{
 		iExtra = (getUnitInfo().getHillsDefenseModifier() + (getExtraHillsDefensePercent() * 2));
 		iTemp *= (100 + iExtra);
 		iTemp /= 100;
-		if (AI_getUnitAIType() == UNITAI_CITY_DEFENSE)
+		if (eAI == UNITAI_CITY_DEFENSE)
 		{
 			if (getPlot().isCity() && getPlot().isHills())
 				iValue += (iTemp * 4) / 3;
 		}
-		else if (AI_getUnitAIType() == UNITAI_COUNTER)
+		else if (eAI == UNITAI_COUNTER)
 		{
 			if (getPlot().isHills())
 				iValue += (iTemp / 4);
@@ -9400,84 +14170,84 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 		else iValue += (iTemp / 16);
 	}
 	// advc.099e: Commented out
-	/*iTemp = GC.getInfo(ePromotion).getRevoltProtection();
-	if ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ||
-		(AI_getUnitAIType() == UNITAI_CITY_COUNTER) ||
-		(AI_getUnitAIType() == UNITAI_CITY_SPECIAL)) {
+	/*iTemp = kPromo.getRevoltProtection();
+	if ((eAI == UNITAI_CITY_DEFENSE) ||
+		(eAI == UNITAI_CITY_COUNTER) ||
+		(eAI == UNITAI_CITY_SPECIAL)) {
 		if (iTemp > 0) {
 			PlayerTypes eOwner = getPlot().calculateCulturalOwner();
-			if (eOwner != NO_PLAYER && GET_PLAYER(eOwner).getTeam() != GET_PLAYER(getOwner()).getTeam())
+			if (eOwner != NO_PLAYER && GET_PLAYER(eOwner).getTeam() != kOwner.getTeam())
 				iValue += (iTemp / 2);
 		}
 	}*/
 
-	iTemp = GC.getInfo(ePromotion).getCollateralDamageProtection();
-	if (AI_getUnitAIType() == UNITAI_CITY_DEFENSE ||
-		AI_getUnitAIType() == UNITAI_CITY_COUNTER ||
-		AI_getUnitAIType() == UNITAI_CITY_SPECIAL)
+	iTemp = kPromo.getCollateralDamageProtection();
+	if (eAI == UNITAI_CITY_DEFENSE ||
+		eAI == UNITAI_CITY_COUNTER ||
+		eAI == UNITAI_CITY_SPECIAL)
 	{
 		iValue += (iTemp / 3);
 	}
-	else if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
-		(AI_getUnitAIType() == UNITAI_COUNTER))
+	else if ((eAI == UNITAI_ATTACK) ||
+		(eAI == UNITAI_COUNTER))
 	{
 		iValue += (iTemp / 4);
 	}
 	else iValue += (iTemp / 8);
 
-	iTemp = GC.getInfo(ePromotion).getPillageChange();
-	if (AI_getUnitAIType() == UNITAI_PILLAGE ||
-		AI_getUnitAIType() == UNITAI_ATTACK_SEA ||
-		AI_getUnitAIType() == UNITAI_PIRATE_SEA)
+	iTemp = kPromo.getPillageChange();
+	if (eAI == UNITAI_PILLAGE ||
+		eAI == UNITAI_ATTACK_SEA ||
+		eAI == UNITAI_PIRATE_SEA)
 	{
 		iValue += (iTemp / 4);
 	}
 	else iValue += (iTemp / 16);
 
-	iTemp = GC.getInfo(ePromotion).getUpgradeDiscount();
+	iTemp = kPromo.getUpgradeDiscount();
 	iValue += (iTemp / 16);
 
-	iTemp = GC.getInfo(ePromotion).getExperiencePercent();
-	if (AI_getUnitAIType() == UNITAI_ATTACK ||
-		AI_getUnitAIType() == UNITAI_ATTACK_SEA ||
-		AI_getUnitAIType() == UNITAI_PIRATE_SEA ||
-		AI_getUnitAIType() == UNITAI_RESERVE_SEA ||
-		AI_getUnitAIType() == UNITAI_ESCORT_SEA ||
-		AI_getUnitAIType() == UNITAI_CARRIER_SEA ||
-		AI_getUnitAIType() == UNITAI_MISSILE_CARRIER_SEA)
+	iTemp = kPromo.getExperiencePercent();
+	if (eAI == UNITAI_ATTACK ||
+		eAI == UNITAI_ATTACK_SEA ||
+		eAI == UNITAI_PIRATE_SEA ||
+		eAI == UNITAI_RESERVE_SEA ||
+		eAI == UNITAI_ESCORT_SEA ||
+		eAI == UNITAI_CARRIER_SEA ||
+		eAI == UNITAI_MISSILE_CARRIER_SEA)
 	{
 		iValue += (iTemp * 1);
 	}
 	else iValue += (iTemp / 2);
 
-	iTemp = GC.getInfo(ePromotion).getKamikazePercent();
-	if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+	iTemp = kPromo.getKamikazePercent();
+	if (eAI == UNITAI_ATTACK_CITY)
 		iValue += (iTemp / 16);
 	else iValue += (iTemp / 64);
 
 	FOR_EACH_ENUM(Terrain)
 	{
-		iTemp = GC.getInfo(ePromotion).getTerrainAttackPercent(eLoopTerrain);
+		iTemp = kPromo.getTerrainAttackPercent(eLoopTerrain);
 		if (iTemp != 0)
 		{
 			iExtra = getExtraTerrainAttackPercent(eLoopTerrain);
 			iTemp *= (100 + iExtra * 2);
 			iTemp /= 100;
-			if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
-				(AI_getUnitAIType() == UNITAI_COUNTER))
+			if ((eAI == UNITAI_ATTACK) ||
+				(eAI == UNITAI_COUNTER))
 			{
 				iValue += (iTemp / 4);
 			}
 			else iValue += (iTemp / 16);
 		}
 
-		iTemp = GC.getInfo(ePromotion).getTerrainDefensePercent(eLoopTerrain);
+		iTemp = kPromo.getTerrainDefensePercent(eLoopTerrain);
 		if (iTemp != 0)
 		{
 			iExtra =  getExtraTerrainDefensePercent(eLoopTerrain);
 			iTemp *= (100 + iExtra);
 			iTemp /= 100;
-			if (AI_getUnitAIType() == UNITAI_COUNTER)
+			if (eAI == UNITAI_COUNTER)
 			{
 				if (getPlot().getTerrainType() == eLoopTerrain)
 					iValue += (iTemp / 4);
@@ -9486,12 +14256,12 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			else iValue += (iTemp / 16);
 		}
 
-		if (GC.getInfo(ePromotion).getTerrainDoubleMove(eLoopTerrain))
+		if (kPromo.getTerrainDoubleMove(eLoopTerrain))
 		{
-			if (AI_getUnitAIType() == UNITAI_EXPLORE)
+			if (eAI == UNITAI_EXPLORE)
 				iValue += 20;
-			else if (AI_getUnitAIType() == UNITAI_ATTACK ||
-				AI_getUnitAIType() == UNITAI_PILLAGE)
+			else if (eAI == UNITAI_ATTACK ||
+				eAI == UNITAI_PILLAGE)
 			{
 				iValue += 10;
 			}
@@ -9501,21 +14271,21 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 	FOR_EACH_ENUM(Feature)
 	{
-		iTemp = GC.getInfo(ePromotion).getFeatureAttackPercent(eLoopFeature);
+		iTemp = kPromo.getFeatureAttackPercent(eLoopFeature);
 		if (iTemp != 0)
 		{
 			iExtra = getExtraFeatureAttackPercent(eLoopFeature);
 			iTemp *= (100 + iExtra * 2);
 			iTemp /= 100;
-			if ((AI_getUnitAIType() == UNITAI_ATTACK) ||
-				(AI_getUnitAIType() == UNITAI_COUNTER))
+			if ((eAI == UNITAI_ATTACK) ||
+				(eAI == UNITAI_COUNTER))
 			{
 				iValue += (iTemp / 4);
 			}
 			else iValue += (iTemp / 16);
 		}
 
-		iTemp = GC.getInfo(ePromotion).getFeatureDefensePercent(eLoopFeature);
+		iTemp = kPromo.getFeatureDefensePercent(eLoopFeature);
 		if (iTemp != 0)
 		{
 			iExtra = getExtraFeatureDefensePercent(eLoopFeature);
@@ -9524,7 +14294,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 			if (!noDefensiveBonus())
 			{
-				if (AI_getUnitAIType() == UNITAI_COUNTER)
+				if (eAI == UNITAI_COUNTER)
 				{
 					if (getPlot().getFeatureType() == eLoopFeature)
 						iValue += (iTemp / 4);
@@ -9534,12 +14304,12 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			}
 		}
 
-		if (GC.getInfo(ePromotion).getFeatureDoubleMove(eLoopFeature))
+		if (kPromo.getFeatureDoubleMove(eLoopFeature))
 		{
-			if (AI_getUnitAIType() == UNITAI_EXPLORE)
+			if (eAI == UNITAI_EXPLORE)
 				iValue += 20;
-			else if (AI_getUnitAIType() == UNITAI_ATTACK ||
-				AI_getUnitAIType() == UNITAI_PILLAGE)
+			else if (eAI == UNITAI_ATTACK ||
+				eAI == UNITAI_PILLAGE)
 			{
 				iValue += 10;
 			}
@@ -9552,16 +14322,16 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 
 	FOR_EACH_ENUM(UnitCombat)
 	{
-		if (eLoopUnitCombat == getUnitCombatType())
+		if (eLoopUnitCombat == eUnitCombat)
 			iSameCombat += unitCombatModifier(eLoopUnitCombat);
 		else iOtherCombat += unitCombatModifier(eLoopUnitCombat);
 	}
 	FOR_EACH_ENUM(UnitCombat)
 	{
-		iTemp = GC.getInfo(ePromotion).getUnitCombatModifierPercent(eLoopUnitCombat);
+		iTemp = kPromo.getUnitCombatModifierPercent(eLoopUnitCombat);
 		int iCombatWeight = 0;
 		//Fighting their own kind
-		if (eLoopUnitCombat== getUnitCombatType())
+		if (eLoopUnitCombat== eUnitCombat)
 		{
 			if (iSameCombat >= iOtherCombat)
 				iCombatWeight = 70;//"axeman takes formation"
@@ -9575,16 +14345,16 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 			else iCombatWeight = 30;
 		}
 
-		iCombatWeight *= GET_PLAYER(getOwner()).AI_getUnitCombatWeight(eLoopUnitCombat);
+		iCombatWeight *= kOwner.AI_getUnitCombatWeight(eLoopUnitCombat);
 		iCombatWeight /= 100;
 
-		if (AI_getUnitAIType() == UNITAI_COUNTER ||
-			AI_getUnitAIType() == UNITAI_CITY_COUNTER)
+		if (eAI == UNITAI_COUNTER ||
+			eAI == UNITAI_CITY_COUNTER)
 		{
 			iValue += (iTemp * iCombatWeight) / 50;
 		}
-		else if (AI_getUnitAIType() == UNITAI_ATTACK ||
-				AI_getUnitAIType() == UNITAI_RESERVE)
+		else if (eAI == UNITAI_ATTACK ||
+				eAI == UNITAI_RESERVE)
 		{
 			iValue += (iTemp * iCombatWeight) / 100;
 		}
@@ -9594,12 +14364,12 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 	FOR_EACH_ENUM(Domain)
 	{
 		//WTF? why float and cast to int?
-		//iTemp = (int)((GC.getInfo(ePromotion).getDomainModifierPercent(eLoopDomain) + getExtraDomainModifier(eLoopDomain) * 100.0f);
-		iTemp = GC.getInfo(ePromotion).getDomainModifierPercent(eLoopDomain);
-		if (AI_getUnitAIType() == UNITAI_COUNTER)
+		//iTemp = (int)((kPromo.getDomainModifierPercent(eLoopDomain) + getExtraDomainModifier(eLoopDomain) * 100.0f);
+		iTemp = kPromo.getDomainModifierPercent(eLoopDomain);
+		if (eAI == UNITAI_COUNTER)
 			iValue += (iTemp * 1);
-		else if (AI_getUnitAIType() == UNITAI_ATTACK ||
-			AI_getUnitAIType() == UNITAI_RESERVE)
+		else if (eAI == UNITAI_ATTACK ||
+			eAI == UNITAI_RESERVE)
 		{
 			iValue += (iTemp / 2);
 		}
@@ -9611,8 +14381,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
 }
 
 
-bool CvUnitAI::AI_shadow(UnitAITypes eUnitAI, int iMax, int iMaxRatio,
-	bool bWithCargoOnly, bool bOutsideCityOnly, int iMaxPath)
+bool CvUnitAI::AI_shadow(UnitAITypes eUnitAI, int iMax, int iMaxRatio, bool bWithCargoOnly, bool bOutsideCityOnly, int iMaxPath)
 {
 	PROFILE_FUNC();
 
@@ -9683,10 +14452,7 @@ bool CvUnitAI::AI_shadow(UnitAITypes eUnitAI, int iMax, int iMaxRatio,
 }
 
 // K-Mod. One group function to rule them all.
-bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI,
-	bool bStackOfDoom, MovementFlags eFlags, int iMaxPath, bool bMergeGroups, bool bSafeOnly,
-	bool bIgnoreFaster, bool bIgnoreOwnUnitType, bool bBiggerOnly, int iMinUnitAI,
-	bool bWithCargoOnly, bool bIgnoreBusyTransports)
+bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI, bool bStackOfDoom, MovementFlags eFlags, int iMaxPath, bool bMergeGroups, bool bSafeOnly, bool bIgnoreFaster, bool bIgnoreOwnUnitType, bool bBiggerOnly, int iMinUnitAI, bool bWithCargoOnly, bool bIgnoreBusyTransports)
 {
 	PROFILE_FUNC();
 
@@ -9704,6 +14470,36 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 		return false;
 	}
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	int iEffectiveMaxGroup = iMaxGroup;
+	bool bEffectiveStackOfDoom = bStackOfDoom;
+	int iTargetlessPeacetimeAggregateMax = -1;
+	// <!-- custom: BBAI diagnostics found 166 grouping decisions that bypassed the peaceful barbarian-expedition cap: 113 from UNITAI_COUNTER, 48 from other UNITAI_ATTACK_CITY groups, and 5 from UNITAI_CITY_DEFENSE. Enforce the cap centrally whenever any UnitAI groups with an attack-city expedition, rather than relying on every present and future caller to duplicate it.
+	// Later testing found targetless peaceful groups repeatedly attracting reinforcements for more than 120 turns. With no war plan, limit each group to the larger of the separately tunable peaceful city-assault nucleus and estimated Barbarian requirement.
+	// Save-file 450 follow-up testing found that independently compliant groups could still park 71 units together, and the first aggregate release cure repeatedly detached the same reinforcements after they joined. On safe owned plots, prevent a merge that would exceed the aggregate limit; retain the release path as a safety net for units grouped through other code.
+	// AI_omniGroup intentionally excludes the caller's head unit from iMaxGroup, so subtract one from the actual group cap. Active war, sneak-attack, and turtle contexts retain the caller's normal group limit and stack-of-doom allowance. See KI#188, KI#188.3, and KI#188.3.2. (GPT-5.6-Sol) -->
+	if (eUnitAI == UNITAI_ATTACK_CITY && !isBarbarian() && bMergeGroups)
+	{
+		CvTeamAI const& kTeam = GET_TEAM(getTeam());
+		if (!kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE) && !kTeam.AI_isSneakAttackReady() && kTeam.getNumWars() <= 0)
+		{
+			int iActualGroupMax = -1;
+			if (!kTeam.AI_isAnyWarPlan())
+			{
+				iTargetlessPeacetimeAggregateMax = SAS_getTargetlessPeacetimeAttackCityRetainedUnits(kOwner);
+				iActualGroupMax = iTargetlessPeacetimeAggregateMax;
+			}
+			else
+			{
+				int const iBarbarianGarrison = kOwner.AI_estimateBarbarianGarrisonSize();
+				AreaAITypes const eAreaAI = getArea().getAreaAIType(getTeam());
+				bool const bHuntBarbs = ((eAreaAI != AREAAI_DEFENSIVE && eAreaAI != AREAAI_OFFENSIVE && !kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1)) || iBarbarianGarrison < 2 * kOwner.AI_getCurrEraFactor());
+				if (bHuntBarbs) iActualGroupMax = SAS_getBarbarianCityExpeditionMaxUnits(iBarbarianGarrison, kOwner.AI_neededCityAttackersVsBarbarians().ceil());
+			}
+			int const iOmniGroupMax = std::max(0, iActualGroupMax - 1);
+			if (iActualGroupMax > 0 && (iEffectiveMaxGroup < 0 || iOmniGroupMax < iEffectiveMaxGroup)) iEffectiveMaxGroup = iOmniGroupMax;
+			if (iActualGroupMax > 0) bEffectiveStackOfDoom = false;
+		}
+	}
 	/*	<advc.057> Except for assault groups, the head unit should have the
 		most restrictive impassable types. */
 	int const iOurGroupFirstVal = AI_groupFirstVal();
@@ -9762,19 +14558,23 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 			(iMaxOwnUnitAI == -1 ||
 			(bMergeGroups ? std::max(0, getGroup()->countNumUnitAIType(AI_getUnitAIType()) - 1) : 0) +
 			pLoopGroup->countNumUnitAIType(AI_getUnitAIType()) <=
-			iMaxOwnUnitAI + (bStackOfDoom ? AI_stackOfDoomExtra() : 0))
+			iMaxOwnUnitAI + (bEffectiveStackOfDoom ? AI_stackOfDoomExtra() : 0))
 			&&
-			(iMaxGroup == -1 || (bMergeGroups ? getGroup()->getNumUnits() - 1 : 0) +
+			(iEffectiveMaxGroup == -1 || (bMergeGroups ? getGroup()->getNumUnits() - 1 : 0) +
 			pLoopGroup->getNumUnits() +
 			kOwner.AI_unitTargetMissionAIs(*pLoopUnit, MISSIONAI_GROUP, getGroup()) <=
-			iMaxGroup + (bStackOfDoom ? AI_stackOfDoomExtra() : 0))
+			iEffectiveMaxGroup + (bEffectiveStackOfDoom ? AI_stackOfDoomExtra() : 0))
 			&&
-			(pLoopGroup->AI_getMissionAIType() != MISSIONAI_GUARD_CITY ||
-			!pLoopGroup->getPlot().isCity() ||
-			pLoopGroup->getPlot().plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_CITY, -1, getOwner()) >
-			pLoopGroup->getPlot().AI_getPlotCity()->AI_minDefenders())
+			(pLoopGroup->AI_getMissionAIType() != MISSIONAI_GUARD_CITY || !pLoopGroup->getPlot().isCity() || pLoopGroup->getPlot().plotCount(PUF_isMissionAIType, MISSIONAI_GUARD_CITY, -1, getOwner()) > pLoopGroup->getPlot().AI_getPlotCity()->AI_minDefenders())
 			)
 		{
+			if (iTargetlessPeacetimeAggregateMax > 0 && kLoopPlot.getOwner() == getOwner() && kOwner.AI_getPlotDanger(kLoopPlot) <= 0)
+			{
+				CvUnitAI const* pOurHead = AI_getGroup()->AI_getHeadUnit();
+				bool const bOurGroupAlreadyCounted = (at(kLoopPlot) && pOurHead != NULL && pOurHead->AI_getUnitAIType() == UNITAI_ATTACK_CITY);
+				int const iResultingAggregate = SAS_countPlotAttackCityGroupUnits(kLoopPlot, getOwner()) + (bOurGroupAlreadyCounted ? 0 : getGroup()->getNumUnits());
+				if (iResultingAggregate > iTargetlessPeacetimeAggregateMax) continue;
+			}
 			FAssert(!kLoopPlot.isVisibleEnemyUnit(this));
 			//if (iOurMaxImpassableCount > 0 || AI_getUnitAIType() == UNITAI_ASSAULT_SEA) { ...
 			{	// <advc.057> Check their impassable count even if ours is 0
@@ -9849,12 +14649,8 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
 } // K-Mod end
 
 // Returns true if a group was joined or a mission was pushed...
-bool CvUnitAI::AI_group(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI,
-	int iMinUnitAI, bool bIgnoreFaster, bool bIgnoreOwnUnitType, bool bStackOfDoom,
-	int iMaxPath, bool bAllowRegrouping,
-	/*  BETTER_BTS_AI_MOD, Unit AI, 02/22/10, jdog5000:
-		Added new options to aid transport grouping */
-	bool bWithCargoOnly, bool bInCityOnly, MissionAITypes eIgnoreMissionAIType)
+// BETTER_BTS_AI_MOD, Unit AI, 02/22/10, jdog5000: Added new options to aid transport grouping <!-- custom: hoisted from multiline signature between `bAllowRegrouping` and `bWithCargoOnly` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_group(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI, int iMinUnitAI, bool bIgnoreFaster, bool bIgnoreOwnUnitType, bool bStackOfDoom, int iMaxPath, bool bAllowRegrouping, bool bWithCargoOnly, bool bInCityOnly, MissionAITypes eIgnoreMissionAIType)
 {
 	// K-Mod. I've completely gutted this function. It's now basically just a wrapper for AI_omniGroup.
 	// This is part of the process of phasing the function out.
@@ -9904,9 +14700,7 @@ bool CvUnitAI::AI_groupMergeRange(UnitAITypes eUnitAI, int iMaxRange, bool bBigg
 	Look for the nearest suitable transport. Return a pointer to the transport unit.
 	(the bulk of this function was moved straight out of AI_load.
 	I've fixed it up a bit, but I didn't write most of it.) */
-CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, MovementFlags eFlags,
-	int iMaxPath, UnitAITypes ePassengerAI, int iMinCargo, int iMinCargoSpace,
-	int iMaxCargoSpace, int iMaxCargoOurUnitAI)
+CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, MovementFlags eFlags, int iMaxPath, UnitAITypes ePassengerAI, int iMinCargo, int iMinCargoSpace, int iMaxCargoSpace, int iMaxCargoOurUnitAI)
 {
 	PROFILE_FUNC(); // advc.opt
 	/*if (getDomainType() == DOMAIN_LAND && !canMoveAllTerrain()) {
@@ -9938,6 +14732,23 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, MovementFlags eFlags,
 		UnitAITypes eTransportAI = pTransport->AI_getUnitAIType();
 		if (eUnitAI != NO_UNITAI && eTransportAI != eUnitAI)
 			continue;
+		// <!-- custom: After a Settler transport left an unnecessary Worker on its origin landmass, general Worker logic repeatedly loaded it onto the same transport again.
+		// Reject that reload while the transport still targets another landmass with no unmet Worker demand.
+		// Move the existing target-plot lookup here so the later legacy transport check can reuse it. (GPT-5.6-Sol) -->
+		CvPlot const* pUnitTargetPlot = pTransport->AI_getGroup()->AI_getMissionAIPlot();
+		if (AI_getUnitAIType() == UNITAI_WORKER && eTransportAI == UNITAI_SETTLER_SEA &&
+			pTransport->AI_getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND &&
+			pUnitTargetPlot != NULL && !pUnitTargetPlot->isArea(getArea()))
+		{
+			CvArea const& kDestinationArea = pUnitTargetPlot->getArea();
+			int const iWorkersNeeded = kOwner.AI_neededWorkers(kDestinationArea);
+			int const iWorkersExisting = kOwner.AI_totalAreaUnitAIs(kDestinationArea, UNITAI_WORKER);
+			if (iWorkersExisting >= iWorkersNeeded)
+			{
+				if (gOverseasTransportLogLevel >= 2) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=REJECT_RELOAD transportId=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), pTransport->getID(), kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
+				continue;
+			}
+		}
 
 		int iCargoSpaceAvailable = pTransport->cargoSpaceAvailable(
 				getSpecialUnitType(), getDomainType());
@@ -9973,7 +14784,6 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, MovementFlags eFlags,
 						continue;
 					} // </advc.046>
 					//if (!pLoopUnit->getPlot().isVisibleEnemyUnit(this)) { // advc.opt: It's our unit; enemies can't coexist.
-					CvPlot* pUnitTargetPlot = pTransport->AI_getGroup()->AI_getMissionAIPlot();
 					if (pUnitTargetPlot == NULL || pUnitTargetPlot->getTeam() == getTeam() ||
 						(!pUnitTargetPlot->isOwned() ||
 						!AI_isPotentialEnemyOf(pUnitTargetPlot->getTeam(), *pUnitTargetPlot)))
@@ -10001,13 +14811,9 @@ CvUnit* CvUnitAI::AI_findTransport(UnitAITypes eUnitAI, MovementFlags eFlags,
 } // K-Mod end
 
 // Returns true if we loaded onto a transport or a mission was pushed...
-bool CvUnitAI::AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI,
-	UnitAITypes eTransportedUnitAI, int iMinCargo, int iMinCargoSpace,
-	int iMaxCargoSpace, int iMaxCargoOurUnitAI, MovementFlags eFlags, 
-	int iMaxPath,
-	/*  BETTER_BTS_AI_MOD, War tactics AI, Unit AI, 04/18/10, jdog5000
-		(and various changes in the body) */  // advc: Restructured (untangled) the body a bit
-	int iMaxTransportPath)
+// BETTER_BTS_AI_MOD, War tactics AI, Unit AI, 04/18/10, jdog5000 (and various changes in the body) <!-- custom: hoisted from multiline signature between `iMaxPath` and `iMaxTransportPath` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// advc: Restructured (untangled) the body a bit <!-- custom: hoisted from multiline signature between `iMaxPath` and `iMaxTransportPath` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI, UnitAITypes eTransportedUnitAI, int iMinCargo, int iMinCargoSpace, int iMaxCargoSpace, int iMaxCargoOurUnitAI, MovementFlags eFlags, int iMaxPath, int iMaxTransportPath)
 {
 	PROFILE_FUNC();
 
@@ -10258,7 +15064,12 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
 				iDefendersHave--;
 			}
 			// K-Mod end
-			int iDefendersNeed = pLoopCity->AI_minDefenders();
+
+			// <!-- custom: barbarians capture cities too early in base AdvCiv +/- Civ4. AI has plenty units but concentrates them poorly (4 in capital, 1 in city B), so city B gets captured while capital is overly defended. Production is fine but unit movement needs fixing. See known issue 49 for details. Credit: ChatGPT 5; Gemini 2.5 Pro. (Claude code Sonnet 4.5 (summarized)) -->
+			// int iDefendersNeed = pLoopCity->AI_minDefenders();
+			// 1) Make the search ask for what the city really needs
+			// That one-liner lets the existing “pull" logic target cities that are under their true need (incl. barb/danger effects), not just under the bare min.
+			const int iDefendersNeed = pLoopCity->AI_neededDefenders(true);
 
 			if (iDefendersHave < iDefendersNeed)
 			{
@@ -10289,6 +15100,15 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
 							iValue += pLoopCity->isOccupation() ? 8 : 0;
 							iValue -= iPathTurns;
 							// K-Mod end
+
+							// <!-- custom: i don't know too much about these, but open review chatgpt 5 says it's nice to keep after all our other changes related to the issue we had, so kept as is; see known issue as of now 49 for details -->
+							// 3) Optional (nice-to-have) cherry on top
+							// If you want to be extra robust with almost no extra code, add a small priority boost in the search:
+							// Inside AI_guardCityMinDefender(bSearch) where iValue is computed, add:
+							// This just breaks ties the right way. It’s safe and tiny.
+							bool const bEmpty = (iDefendersHave == 0);
+							if (bEmpty)                  iValue += 100;  // empty city first
+							if (pLoopCity->AI_isDanger()) iValue += 50;  // threatened cities next
 
 							if (iValue > iBestValue)
 							{
@@ -10323,12 +15143,14 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
 	and duplicated code and double-counting mistakes...
 	I've deleted the bulk of the old code, and rewritten it
 	to be much much simpler - and also better. */
-bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFlags eFlags,
-	// <advc.300> Go up to this much beyond defensive needs if no city needs defenders
-	int iExtraDefenders)
+// <advc.300> Go up to this much beyond defensive needs if no city needs defenders <!-- custom: hoisted from multiline signature between `eFlags` and `iExtraDefenders` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+// <!-- custom: Added bDangerOnly and bFillShortfall so threatened-city responses can ignore routine shortages and detach enough defenders without changing ordinary guard assignments. (GPT-5.6-Sol) -->
+bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFlags eFlags, int iExtraDefenders, bool bDangerOnly, bool bFillShortfall)
 {
 	// Only affects the city search
 	FAssert(iExtraDefenders >= 0 && bSearch || iExtraDefenders == 0); // </advc.300>
+	FAssert(!bDangerOnly || bSearch);
+	FAssert(!bFillShortfall || bDangerOnly);
 
 	PROFILE_FUNC();
 
@@ -10337,11 +15159,18 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 
 	CvPlot const* pEndTurnPlot = NULL;
 	CvPlot const* pBestGuardPlot = NULL;
+	int iBestDefendersNeeded = -1;
+	int iBestDefendersHave = -1;
+	int iBestIncomingDefenders = -1;
+	int iBestDefendersWant = -1;
+	int iBestPathTurns = -1;
 
 	CvPlot const& kPlot = getPlot();
+	CvPlot* pSourcePlot = plot();
+	CvPlot const* pExistingGuardMissionPlot = (AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY ? AI_getGroup()->AI_getMissionAIPlot() : NULL);
 	CvCityAI const* pCity = kPlot.AI_getPlotCity();
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
-	if (pCity != NULL && pCity->getOwner() == getOwner())
+	if (pCity != NULL && pCity->getOwner() == getOwner() && (!bDangerOnly || pCity->AI_isDanger()))
 	{
 		int iExtra = -1; // additional defenders needed.
 		if (!bLeave || pCity->AI_isDanger())
@@ -10370,6 +15199,11 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 			bSearch = false;
 			pEndTurnPlot = &kPlot;
 			pBestGuardPlot = &kPlot;
+			iBestDefendersNeeded = pCity->AI_neededDefenders();
+			iBestDefendersHave = iHave;
+			iBestIncomingDefenders = 0;
+			iBestDefendersWant = iNeed - iHave;
+			iBestPathTurns = 0;
 		}
 	}
 
@@ -10379,6 +15213,8 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 		//bool const bMoveAllTerrain = getGroup()->canMoveAllTerrain(); // advc
 		FOR_EACH_CITYAI(pLoopCity, kOwner)
 		{
+			if (bDangerOnly && !pLoopCity->AI_isDanger())
+				continue;
 			/*if (!AI_plotValid(pLoopCity->plot()))
 				continue;*/
 			// advc.opt: This function is only called for land units; the BBAI check suffices.
@@ -10406,15 +15242,17 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 				within 3 tiles of the city. If this stack is farther away than that,
 				it'll probably not arrive in time to save the city, but it might,
 				or could quickly retake the city. */
-			int const iDefendersWant = iDefendersNeeded - iDefendersHave
-					+ iExtraDefenders; // advc.300
+			int const iIncomingDefenders = (bDangerOnly ? kOwner.AI_plotTargetMissionAIs(pLoopCity->getPlot(), MISSIONAI_GUARD_CITY, getGroup()) : 0);
+			int const iDefendersWant = iDefendersNeeded - iDefendersHave + iExtraDefenders - iIncomingDefenders; // advc.300
 			bool const bMoreNeeded = (iDefendersNeeded > iDefendersHave); // advc.300
 			if (iDefendersWant <= 0) // No functional change from BtS
 				continue;
-			if (pLoopCity->AI_isEvacuating() &&
-				iDefendersWant > fixp(0.75) * getGroup()->getNumUnits())
+			if (!bFillShortfall && pLoopCity->AI_isEvacuating())
 			{
-				continue;
+				bool const bRejectEvacuatingCity = (iDefendersWant > fixp(0.75) * getGroup()->getNumUnits());
+				if (gEvacuationLogLevel >= 3) logBBAI("    EVACUATION_REENTRY_GUARD_CHECK result=%s turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) groupId=%d groupUnits=%d defendersNeeded=%d defendersHave=%d defendersWant=%d extraDefenders=%d", (bRejectEvacuatingCity ? "reject" : "allow"), GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), getX(), getY(), pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(), getGroup()->getID(), getGroup()->getNumUnits(), iDefendersNeeded, iDefendersHave, iDefendersWant, iExtraDefenders);
+				if (bRejectEvacuatingCity)
+					continue;
 			} // </advc.139>
 			/*if (pLoopCity->getPlot().isVisibleEnemyUnit(this)) // advc.opt: It's our city
 				continue;*/
@@ -10435,6 +15273,16 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 			}
 			if (iPathTurns > iMaxPath)
 				continue;
+			// <!-- custom: Threat-only expedition recalls must not feed nearly an entire group into a defense whose stated shortage it cannot fill.
+			// The existing evacuation rule inspired the same three-quarter feasibility gate for every new endangered-city assignment. Already-targeted reinforcements must continue their collective rescue instead of each resulting singleton rejecting the remaining shortage. (GPT-5.6-Sol) -->
+			int const iGroupUnits = getGroup()->getNumUnits();
+			if (bFillShortfall && pExistingGuardMissionPlot != pLoopCity->plot() && ((iGroupUnits == 1 && iDefendersWant > 1) || (iGroupUnits > 1 && iDefendersWant > fixp(0.75) * iGroupUnits)))
+			{
+				if (gUnitLogLevel >= 2) logBBAI("    ATTACK_DEFENSE_PRIORITY_REJECT turn=%d player=%d %S reason=shortage_too_large unitAI=%d groupId=%d groupUnits=%d source=(%d,%d) target=%S target=(%d,%d) defendersNeeded=%d defendersHave=%d incomingDefenders=%d remainingShortfall=%d pathTurns=%d pathLimit=%d evacuating=%d",
+					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), AI_getUnitAIType(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(),
+					pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iDefendersNeeded, iDefendersHave, iIncomingDefenders, iDefendersWant, iPathTurns, iMaxPath, pLoopCity->AI_isEvacuating());
+				continue;
+			}
 
 			int iValue = //1000 *
 					(bMoreNeeded ? 1000 : 500) * // advc.300
@@ -10445,8 +15293,13 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 				iBestValue = iValue;
 				pEndTurnPlot = &getPathEndTurnPlot();
 				pBestGuardPlot = pLoopCity->plot();
+				iBestDefendersNeeded = iDefendersNeeded;
+				iBestDefendersHave = iDefendersHave;
+				iBestIncomingDefenders = iIncomingDefenders;
+				iBestDefendersWant = iDefendersWant;
+				iBestPathTurns = iPathTurns;
 				FAssert(!atPlot(pEndTurnPlot));
-				if (iMaxPath == 1 || iBestValue >= 500)
+				if (iMaxPath == 1 || (!bDangerOnly && iBestValue >= 500))
 					break; // we found a good city. No need to waste any more time looking.
 			}
 		}
@@ -10455,32 +15308,52 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 	if (pEndTurnPlot == NULL || pBestGuardPlot == NULL)
 		return false;
 
-	CvSelectionGroup* pOldGroup = getGroup();
-	CvUnit* pEjectedUnit = AI_getGroup()->AI_ejectBestDefender(plot());
-	if (pEjectedUnit == NULL)
+	CvCityAI const* pBestGuardCityForEvacuationLog = pBestGuardPlot->AI_getPlotCity();
+	bool const bContinuingGuardCity = (pExistingGuardMissionPlot == pBestGuardPlot);
+	if (gEvacuationLogLevel >= 3 && pBestGuardCityForEvacuationLog != NULL && pBestGuardCityForEvacuationLog->AI_isEvacuating()) logBBAI("    EVACUATION_REENTRY_GUARD_RESULT turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) endTurn=(%d,%d) groupId=%d groupUnits=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), getX(), getY(), pBestGuardCityForEvacuationLog->getName().GetCString(), pBestGuardCityForEvacuationLog->getID(), pBestGuardCityForEvacuationLog->getX(), pBestGuardCityForEvacuationLog->getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY(), getGroup()->getID(), getGroup()->getNumUnits());
+	// <!-- custom: The old code stored CvSelectionGroup only for its final comparison. Filling a shortage calls AI_ejectBestDefender repeatedly, so retain AI_getGroup's AI type while preserving the same group pointer. (GPT-5.6-Sol) -->
+	CvSelectionGroupAI* pOldGroup = AI_getGroup();
+	int const iOriginalGroupId = pOldGroup->getID();
+	int const iOriginalGroupUnits = pOldGroup->getNumUnits();
+	int const iDefendersToSend = (bFillShortfall ? std::min(iBestDefendersWant, std::max(1, iOriginalGroupUnits - 1)) : 1);
+	bool bThisUnitEjected = false;
+	bool bCurrentUnitCommitted = false;
+	for (int i = 0; i < iDefendersToSend; i++)
 	{
-		FErrorMsg("AI_ejectBestDefender failed to choose a candidate for AI_guardCity.");
-		pEjectedUnit = this;
-		if (getGroup()->getNumUnits() > 0)
-			joinGroup(NULL);
+		CvUnit* pEjectedUnit = pOldGroup->AI_ejectBestDefender(pSourcePlot);
+		if (pEjectedUnit == NULL)
+		{
+			FErrorMsg("AI_ejectBestDefender failed to choose a candidate for AI_guardCity.");
+			pEjectedUnit = this;
+			if (getGroup()->getNumUnits() > 0)
+				joinGroup(NULL);
+		}
+		FAssert(pEjectedUnit != NULL);
+		bThisUnitEjected = (bThisUnitEjected || pEjectedUnit == this);
+		bCurrentUnitCommitted = (bCurrentUnitCommitted || pEjectedUnit->getGroup() == pOldGroup || pEjectedUnit == this);
+		// If the unit is not suited for defense, do not use MISSIONAI_GUARD_CITY.
+		// <!-- custom: The explicit threatened-city response can use mobile attackers as emergency reinforcements despite their lack of defensive bonuses.
+		// Retain MISSIONAI_GUARD_CITY so they continue toward the city and other groups count them as incoming instead of duplicating the same assignment. Preserve the old behavior for ordinary guard calls. (GPT-5.6-Sol) -->
+		MissionAITypes const eMissionAI = (bDangerOnly || !pEjectedUnit->noDefensiveBonus() ? MISSIONAI_GUARD_CITY : NO_MISSIONAI);
+		if (bDangerOnly && gUnitLogLevel >= 2) logBBAI("    ATTACK_DEFENSE_PRIORITY_DETACHED_UNIT turn=%d player=%d %S continuingGuardCity=%d originalGroupId=%d unitId=%d unit=%S unitType=%s unitAI=%s noDefensiveBonus=%d missionAI=%d guardCityMission=%d source=(%d,%d) endTurn=(%d,%d) target=%S target=(%d,%d)",
+			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), bContinuingGuardCity, iOriginalGroupId, pEjectedUnit->getID(), pEjectedUnit->getName(0).GetCString(), SAS_getUnitTypeName(pEjectedUnit->getUnitType()), SAS_getUnitAITypeName(pEjectedUnit->AI_getUnitAIType()), pEjectedUnit->noDefensiveBonus(), eMissionAI, (eMissionAI == MISSIONAI_GUARD_CITY), pSourcePlot->getX(), pSourcePlot->getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY(),
+			(pBestGuardCityForEvacuationLog == NULL ? L"-" : pBestGuardCityForEvacuationLog->getName().GetCString()), pBestGuardPlot->getX(), pBestGuardPlot->getY());
+		if (pEjectedUnit->at(*pBestGuardPlot))
+		{
+			// <!-- custom: Keep the explicit city target for emergency defenders after arrival so central continuation protects them until the danger or shortage ends. Ordinary guard calls retain their targetless K-Mod mission. (GPT-5.6-Sol) -->
+			pEjectedUnit->getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS, false, false, eMissionAI, (bDangerOnly ? pBestGuardPlot : NULL));
+		}
+		else
+		{
+			FAssert(bSearch);
+			FAssert(!pEjectedUnit->at(*pEndTurnPlot));
+			pEjectedUnit->pushGroupMoveTo(*pEndTurnPlot, eFlags, false, false, eMissionAI, pBestGuardPlot);
+		}
 	}
-	FAssert(pEjectedUnit != NULL);
-	// If the unit is not suited for defense, do not use MISSIONAI_GUARD_CITY.
-	MissionAITypes eMissionAI = (pEjectedUnit->noDefensiveBonus() ?
-			NO_MISSIONAI : MISSIONAI_GUARD_CITY);
-	if (at(*pBestGuardPlot))
-	{
-		pEjectedUnit->getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
-				false, false, eMissionAI, 0);
-	}
-	else
-	{
-		FAssert(bSearch);
-		FAssert(!at(*pEndTurnPlot));
-		pEjectedUnit->pushGroupMoveTo(*pEndTurnPlot, eFlags, false, false,
-				eMissionAI, pBestGuardPlot);
-	}
-	return (pEjectedUnit->getGroup() == pOldGroup || pEjectedUnit == this);
+	if (bDangerOnly && gUnitLogLevel >= 2) logBBAI("    ATTACK_DEFENSE_PRIORITY_ACTION turn=%d player=%d %S action=%s unitAI=%d originalGroupId=%d originalGroupUnits=%d defendersDetached=%d remainingGroupUnits=%d source=(%d,%d) target=%S target=(%d,%d) defendersNeeded=%d defendersHave=%d incomingDefenders=%d remainingShortfall=%d pathTurns=%d pathLimit=%d evacuating=%d",
+		GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), (bContinuingGuardCity ? "continue_guard_city" : (bThisUnitEjected ? "redirect_group_head" : "split_defenders_continue_expedition")), AI_getUnitAIType(), iOriginalGroupId, iOriginalGroupUnits, iDefendersToSend, pOldGroup->getNumUnits(), pSourcePlot->getX(), pSourcePlot->getY(),
+		(pBestGuardCityForEvacuationLog == NULL ? L"-" : pBestGuardCityForEvacuationLog->getName().GetCString()), pBestGuardPlot->getX(), pBestGuardPlot->getY(), iBestDefendersNeeded, iBestDefendersHave, iBestIncomingDefenders, iBestDefendersWant, iBestPathTurns, iMaxPath, (pBestGuardCityForEvacuationLog == NULL ? 0 : pBestGuardCityForEvacuationLog->AI_isEvacuating()));
+	return bCurrentUnitCommitted;
 }
 
 
@@ -10527,6 +15400,8 @@ bool CvUnitAI::AI_guardCityAirlift()
 
 	if (pBestPlot != NULL)
 	{
+		CvCityAI const* pBestAirliftCityForEvacuationLog = pBestPlot->AI_getPlotCity();
+		if (gEvacuationLogLevel >= 3 && pBestAirliftCityForEvacuationLog != NULL && pBestAirliftCityForEvacuationLog->AI_isEvacuating()) logBBAI("    EVACUATION_REENTRY_GUARD_AIRLIFT turn=%d player=%d %S unitId=%d unit=%S unitAI=%d sourceCity=%S sourceCityId=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) hp=%d/%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), pCity->getName().GetCString(), pCity->getID(), pCity->getX(), pCity->getY(), pBestAirliftCityForEvacuationLog->getName().GetCString(), pBestAirliftCityForEvacuationLog->getID(), pBestAirliftCityForEvacuationLog->getX(), pBestAirliftCityForEvacuationLog->getY(), currHitPoints(), maxHitPoints());
 		getGroup()->pushMission(MISSION_AIRLIFT, pBestPlot->getX(), pBestPlot->getY());
 		return true;
 	}
@@ -10556,8 +15431,7 @@ bool CvUnitAI::AI_guardCoast(bool bPrimaryOnly, MovementFlags eFlags, int iMaxPa
 		FOR_EACH_ADJ_PLOT(pLoopCity->getPlot())
 		{
 			if (pAdj->isWater() &&
-				pAdj->getArea().getNumTiles() >=
-				GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN))
+				pAdj->getArea().getNumTiles() >= GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN))
 			{
 				iCoastPlots++;
 			}
@@ -10738,8 +15612,7 @@ bool CvUnitAI::AI_guardBonus(int iMinValue)
 }
 
 // advc.028b:
-void CvUnitAI::AI_getGuardedPlots(CvPlot const& kFrom,
-	std::vector<CvPlot*>& kResult) const
+void CvUnitAI::AI_getGuardedPlots(CvPlot const& kFrom, std::vector<CvPlot*>& kResult) const
 {
 	for (SquareIter itGuardPlot(kFrom,
 		canSeaPatrol(&kFrom) ? GC.getMAX_SEA_PATROL_RANGE() : 0);
@@ -12045,7 +16918,7 @@ bool CvUnitAI::AI_discover(bool bThisTurnOnly, bool bFirstResearchOnly)
 }
 
 
-bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
+bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrengthScore, int iMinHealing)
 {
 	PROFILE_FUNC();
 
@@ -12115,14 +16988,33 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
 						iCombatStrength /= std::max(1, iMaxGlobal);
 					}
 				}
+				int iHealing = pLoopUnit->getSameTileHeal() + pLoopUnit->getAdjacentTileHeal();
+				// <!-- custom: Optional thresholds stop weak non-healer units from becoming Great General unit-attachment targets just because AI_join could not safely join a city this turn. (GPT-5.5) -->
+				bool const bBelowMinStrength = (iMinStrengthScore > 0 && iCombatStrength < iMinStrengthScore);
+				bool const bBelowMinHealing = (iMinHealing <= 0 || iHealing < iMinHealing);
+				if (bBelowMinStrength && bBelowMinHealing)
+				{
+					if (gGreatGeneralLogLevel >= 3)
+					{
+						CvWString szUnitAI; getUnitAIString(szUnitAI, pLoopUnit->AI_getUnitAIType());
+						logBBAI("      GREAT_GENERAL_LEAD_REJECTED turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d strengthScore=%d minStrengthScore=%d healing=%d minHealing=%d reason=below-great-general-unit-attachment-threshold",
+								GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pLoopUnit->getID(), pLoopUnit->getName(0).GetCString(), GC.getInfo(pLoopUnit->getUnitType()).getType(), szUnitAI.GetCString(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getLevel(), pLoopUnit->getExperience(), pLoopUnit->baseCombatStr(), pLoopUnit->currCombatStr(NULL, NULL), pLoopUnit->combatLimit(), iCombatStrength, iMinStrengthScore, iHealing, iMinHealing);
+					}
+					continue;
+				}
 				if (iCombatStrength > iBestStrength)
 				{
 					iBestStrength = iCombatStrength;
 					pBestStrUnit = pLoopUnit;
 					pBestStrPlot = &getPathEndTurnPlot();
 				}
+				if (gGreatGeneralLogLevel >= 3)
+				{
+					CvWString szUnitAI; getUnitAIString(szUnitAI, pLoopUnit->AI_getUnitAIType());
+					logBBAI("      GREAT_GENERAL_LEAD_CANDIDATE turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d strengthScore=%d healing=%d pathEnd=(%d,%d)",
+							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pLoopUnit->getID(), pLoopUnit->getName(0).GetCString(), GC.getInfo(pLoopUnit->getUnitType()).getType(), szUnitAI.GetCString(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getLevel(), pLoopUnit->getExperience(), pLoopUnit->baseCombatStr(), pLoopUnit->currCombatStr(NULL, NULL), pLoopUnit->combatLimit(), iCombatStrength, iHealing, getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY());
+				}
 				// or the unit with the best healing ability
-				int iHealing = pLoopUnit->getSameTileHeal() + pLoopUnit->getAdjacentTileHeal();
 				if (iHealing > iBestHealing)
 				{
 					iBestHealing = iHealing;
@@ -12148,28 +17040,49 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
 	{
 		if (at(*pBestPlot) && pBestUnit != NULL)
 		{
-			if (gUnitLogLevel > 2)
+			if (gGreatGeneralLogLevel >= 1)
 			{
 				CvWString szString; getUnitAIString(szString, pBestUnit->AI_getUnitAIType());
-				logBBAI("      Great general %d for %S chooses to lead %S with UNITAI %S", getID(), kOwner.getCivilizationDescription(0), pBestUnit->getName(0).GetCString(), szString.GetCString());
+				logBBAI("      GREAT_GENERAL_LEAD_CHOSEN turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d reason=%s",
+						GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pBestUnit->getID(), pBestUnit->getName(0).GetCString(), GC.getInfo(pBestUnit->getUnitType()).getType(), szString.GetCString(), pBestUnit->getX(), pBestUnit->getY(), pBestUnit->getLevel(), pBestUnit->getExperience(), pBestUnit->baseCombatStr(), pBestUnit->currCombatStr(NULL, NULL), pBestUnit->combatLimit(), (pBestUnit == pBestHealUnit ? "healing" : "strength"));
 			}
 			getGroup()->pushMission(MISSION_LEAD, pBestUnit->getID());
 			return true;
 		}
 		else
 		{
+			if (gGreatGeneralLogLevel >= 2 && pBestUnit != NULL)
+				logBBAI("      GREAT_GENERAL_LEAD_MOVE turn=%d player=%d %S generalId=%d targetUnitId=%d targetUnit=%S target=(%d,%d) pathEnd=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pBestUnit->getID(), pBestUnit->getName(0).GetCString(), pBestUnit->getX(), pBestUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
 			pushGroupMoveTo(*pBestPlot, MOVE_AVOID_ENEMY_WEIGHT_3);
 			return true;
 		}
 	}
 	// BETTER_BTS_AI_MOD: END
 
+	if (gGreatGeneralLogLevel >= 2)
+		logBBAI("      GREAT_GENERAL_LEAD_NO_CANDIDATE turn=%d player=%d %S generalId=%d roles=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), (int)aeUnitAITypes.size());
 	return false;
 }
 
 // iMaxCounts = 1 would mean join a city if there's no existing joined GP of that type.
 /*  advc (note): This function has been replaced by K-Mod's AI_greatPersonMove for
 	all GP except GG. Should probably also use the K-Mod code for GG. (Tbd.) */
+// <!-- custom: When AI_join rejects every city, AI_generalMove can fall through to Great General unit attachment. Log each rejected city so bad attachments can be traced to safety, pathing, specialist, or max-count gates instead of only seeing the later AI_lead result. (GPT-5.5) -->
+static void logSASGreatGeneralJoinCityRejected(CvUnitAI const& kGeneral, CvCityAI const& kCity, char const* szReason, int iMaxCount, int iCurrentCount, CvPlot const* pPathEnd = NULL)
+{
+	const int iFoodSurplus = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption();
+	const int iHappySurplus = kCity.happyLevel() - kCity.unhappyLevel(0);
+	const int iHealthSurplus = kCity.goodHealth() - kCity.badHealth();
+	const int iDefenders = kCity.getPlot().getNumDefenders(kGeneral.getOwner());
+	CvPlayerAI const& kOwner = GET_PLAYER(kGeneral.getOwner());
+	logBBAI("      GREAT_GENERAL_JOIN_REJECTED turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) reason=%s maxCount=%d currentCount=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d currentPlotDangerR2=%d citySafe=%d cityDangerR2=%d freeXP=%d militaryProductionModifier=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d) pathEndDangerR2=%d",
+			GC.getGame().getGameTurn(), kGeneral.getOwner(), kOwner.getCivilizationDescription(0), kGeneral.getID(),
+			kCity.getName().GetCString(), kCity.getID(), kCity.getX(), kCity.getY(), szReason, iMaxCount, iCurrentCount,
+			kCity.findYieldRateRank(YIELD_PRODUCTION), kCity.getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), iDefenders, kCity.AI_neededDefenders(true),
+			kOwner.AI_getPlotDanger(kGeneral.getPlot(), 2), kCity.AI_isSafe(), kOwner.AI_getPlotDanger(*kCity.plot(), 2), kCity.getFreeExperience(), kCity.getMilitaryProductionModifier(), kCity.getProductionName(), kCity.getProductionTurnsLeft(),
+			pPathEnd == NULL ? -1 : pPathEnd->getX(), pPathEnd == NULL ? -1 : pPathEnd->getY(), pPathEnd == NULL ? -1 : kOwner.AI_getPlotDanger(*pPathEnd, 2));
+}
+
 bool CvUnitAI::AI_join(int iMaxCount)
 {
 	PROFILE_FUNC();
@@ -12178,23 +17091,45 @@ bool CvUnitAI::AI_join(int iMaxCount)
 	CvPlot* pBestPlot = NULL;
 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
 	int iCount = 0;
-	FOR_EACH_CITYAI(pLoopCity, GET_PLAYER(getOwner()))
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	// <!-- custom: Base AdvCiv's Great-General AI_join relies on MOVE_SAFE_TERRITORY, but that path flag only restricts ownership/revelation and does not make the end-turn plot tactically safe.
+	// Add enemy-avoidance and compare the actual end-turn danger. If the General is already trapped in danger (commonly after spawning in a besieged city), allow a nonzero-danger move only when it is strictly safer than staying; otherwise a safety rule could pin the General inside the doomed city it is meant to escape. See KI#204. (ChatGPT-5.6-Sol) -->
+	MovementFlags const eSASGreatGeneralMoveFlags = (MovementFlags)(MOVE_SAFE_TERRITORY | MOVE_AVOID_ENEMY_WEIGHT_3);
+	int const iSASCurrentPlotDangerR2 = kOwner.AI_getPlotDanger(getPlot(), 2);
+	FOR_EACH_CITYAI(pLoopCity, kOwner)
 	{
 		// BETTER_BTS_AI_MOD, Unit AI, Efficiency, 08/19/09, jdog5000: START
 		// BBAI efficiency: check same area
 		if (!AI_canEnterByLand(pLoopCity->getArea()) // advc.030 (replacing same-area check)
 			/*|| AI_plotValid(pLoopCity->plot())*/) // advc.opt: Mostly redundant
 		{
+			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "cannot-enter-by-land", iMaxCount, iCount);
 			continue;
 		}
 		//if (pLoopCity->getPlot().isVisibleEnemyUnit(this))
 		if (!pLoopCity->AI_isSafe()) // advc.139: Replacing the above
+		{
+			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "city-not-safe", iMaxCount, iCount);
 			continue;
-		if (!generatePath(pLoopCity->getPlot(), MOVE_SAFE_TERRITORY, true))
+		}
+		if (!generatePath(pLoopCity->getPlot(), eSASGreatGeneralMoveFlags, true))
+		{
+			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "no-safe-path", iMaxCount, iCount);
 			continue;
+		}
+		CvPlot const& kPathEnd = getPathEndTurnPlot();
+		int const iSASPathEndDangerR2 = kOwner.AI_getPlotDanger(kPathEnd, 2);
+		if (!at(kPathEnd) && iSASPathEndDangerR2 > 0 && (iSASCurrentPlotDangerR2 <= 0 || iSASPathEndDangerR2 >= iSASCurrentPlotDangerR2))
+		{
+			if (gGreatGeneralLogLevel >= 3) logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "dangerous-path-end-not-safer", iMaxCount, iCount, &kPathEnd);
+			continue;
+		}
 		// BETTER_BTS_AI_MOD: END
 		FOR_EACH_ENUM(Specialist)
 		{
+			// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
+			// 3. Optional: Remove the stacking check in AI_join()
+			// <!-- custom: but since we pass now an extremely high for this purpose value of iMaxCount in as of now SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT, then it's fine to allow this gating for flexibility and in case players want to customize it as they prefer in sas defines. As of now, value of 999 is so high this will never be reached during a game and so effectively it will be always ignored and allowed to stack military instructors in same city, so no change is needed here it seems -->
 			bool bDoesJoin = false;
 			if (getUnitInfo().getGreatPeoples(eLoopSpecialist))
 				bDoesJoin = true;
@@ -12202,15 +17137,33 @@ bool CvUnitAI::AI_join(int iMaxCount)
 			{
 				iCount += pLoopCity->getSpecialistCount(eLoopSpecialist);
 				if (iCount >= iMaxCount)
+				{
+					if (gGreatGeneralLogLevel >= 2) logBBAI("      GREAT_GENERAL_JOIN_MAXCOUNT_REACHED turn=%d player=%d %S generalId=%d specialist=%s maxCount=%d currentCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), GC.getInfo(eLoopSpecialist).getType(), iMaxCount, iCount);
 					return false;
+				}
 			}
 			if (canJoin(pLoopCity->plot(), eLoopSpecialist))
 			{
 				// BETTER_BTS_AI_MOD, Unit AI, Efficiency, 08/20/09, jdog5000: was AI_getPlotDanger
-				if (!GET_PLAYER(getOwner()).AI_isAnyPlotDanger(*pLoopCity->plot(), 2))
+				// <!-- custom: If the General is already in an AI_isSafe city, allow immediate Instructor joining despite radius-2 danger.
+				// Joining consumes it immediately just like AI_construct can immediately build a Military Academy there, so the local danger gate should protect travel/arrival rather than force an Academy fallback solely because enemies are nearby. See KI#204. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (at(pLoopCity->getPlot()) || !kOwner.AI_isAnyPlotDanger(*pLoopCity->plot(), 2))
 				{
 					//iValue = pLoopCity->AI_specialistValue(eLoopSpecialist, pLoopCity->AI_avoidGrowth(), false);
 					int iValue = pLoopCity->AI_permanentSpecialistValue(eLoopSpecialist); // K-Mod
+					if (gGreatGeneralLogLevel >= 3)
+					{
+						const int iFoodSurplus = pLoopCity->getYieldRate(YIELD_FOOD) - pLoopCity->foodConsumption();
+						const int iHappySurplus = pLoopCity->happyLevel() - pLoopCity->unhappyLevel(0);
+						const int iHealthSurplus = pLoopCity->goodHealth() - pLoopCity->badHealth();
+						const int iDefenders = pLoopCity->getPlot().getNumDefenders(getOwner());
+						logBBAI("      GREAT_GENERAL_JOIN_CANDIDATE turn=%d player=%d %S generalId=%d city=%S cityId=%d city=(%d,%d) specialist=%s value=%d productionRank=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d production=%d commerce=%d defenders=%d neededDefenders=%d freeXP=%d militaryProductionModifier=%d existingSpecialists=%d maxCount=%d productionItem=%S productionTurns=%d pathEnd=(%d,%d) currentPlotDangerR2=%d pathEndDangerR2=%d",
+								GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(),
+								pLoopCity->getName().GetCString(), pLoopCity->getID(), pLoopCity->getX(), pLoopCity->getY(), GC.getInfo(eLoopSpecialist).getType(), iValue,
+								pLoopCity->findYieldRateRank(YIELD_PRODUCTION), pLoopCity->getPopulation(), iFoodSurplus, iHappySurplus, iHealthSurplus, pLoopCity->getYieldRate(YIELD_FOOD), pLoopCity->getYieldRate(YIELD_PRODUCTION), pLoopCity->getYieldRate(YIELD_COMMERCE), iDefenders, pLoopCity->AI_neededDefenders(true),
+								pLoopCity->getFreeExperience(), pLoopCity->getMilitaryProductionModifier(), pLoopCity->getSpecialistCount(eLoopSpecialist), iMaxCount, pLoopCity->getProductionName(), pLoopCity->getProductionTurnsLeft(),
+								getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY(), iSASCurrentPlotDangerR2, kOwner.AI_getPlotDanger(getPathEndTurnPlot(), 2));
+					}
 					if (iValue > iBestValue)
 					{
 						iBestValue = iValue;
@@ -12218,7 +17171,11 @@ bool CvUnitAI::AI_join(int iMaxCount)
 						eBestSpecialist = eLoopSpecialist;
 					}
 				}
+				else if (gGreatGeneralLogLevel >= 3)
+					logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "city-plot-danger-radius2", iMaxCount, iCount);
 			}
+			else if (bDoesJoin && gGreatGeneralLogLevel >= 3)
+				logSASGreatGeneralJoinCityRejected(*this, *pLoopCity, "cannot-join-specialist", iMaxCount, iCount);
 		}
 	}
 
@@ -12226,17 +17183,21 @@ bool CvUnitAI::AI_join(int iMaxCount)
 	{
 		if (at(*pBestPlot))
 		{
+			if (gGreatGeneralLogLevel >= 1) logBBAI("      GREAT_GENERAL_JOIN_CHOSEN turn=%d player=%d %S generalId=%d specialist=%s value=%d cityPlot=(%d,%d) maxCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), GC.getInfo(eBestSpecialist).getType(), iBestValue, pBestPlot->getX(), pBestPlot->getY(), iMaxCount);
 			getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
 			return true;
 		}
 		else
 		{
 			// BETTER_BTS_AI_MOD, Unit AI, 03/09/09, jdog5000:
-			pushGroupMoveTo(*pBestPlot, MOVE_SAFE_TERRITORY);
+			if (gGreatGeneralLogLevel >= 2) logBBAI("      GREAT_GENERAL_JOIN_MOVE turn=%d player=%d %S generalId=%d specialist=%s value=%d pathEnd=(%d,%d) maxCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), GC.getInfo(eBestSpecialist).getType(), iBestValue, pBestPlot->getX(), pBestPlot->getY(), iMaxCount);
+			pushGroupMoveTo(*pBestPlot, eSASGreatGeneralMoveFlags);
 			return true;
 		}
 	}
 
+	if (gGreatGeneralLogLevel >= 2)
+		logBBAI("      GREAT_GENERAL_JOIN_NO_CANDIDATE turn=%d player=%d %S generalId=%d maxCount=%d currentCount=%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), iMaxCount, iCount);
 	return false;
 }
 
@@ -12249,16 +17210,20 @@ bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThr
 	if (!getUnitInfo().isAnyBuildings())
 		return false; // </advc.003t>
 	int iBestValue = 0;
-	CvPlot* pBestPlot = NULL;
+	CvPlot const* pBestPlot = NULL;
 	CvPlot* pBestConstructPlot = NULL;
 	BuildingTypes eBestBuilding = NO_BUILDING;
 	int iCount = 0;
-	FOR_EACH_CITYAI(pLoopCity, GET_PLAYER(getOwner()))
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	// <!-- custom: Apply the same Great-General travel safety as AI_join. Base AdvCiv used MOVE_NO_ENEMY_TERRITORY here and did not inspect the actual end-turn danger, so a defenseless General could still route onto an exposed plot. See KI#204. (ChatGPT-5.6-Sol) -->
+	MovementFlags const eSASGreatGeneralMoveFlags = (MovementFlags)(MOVE_SAFE_TERRITORY | MOVE_AVOID_ENEMY_WEIGHT_3);
+	int const iSASCurrentPlotDangerR2 = kOwner.AI_getPlotDanger(getPlot(), 2);
+	FOR_EACH_CITYAI(pLoopCity, kOwner)
 	{
 		if (!AI_canEnterByLand(pLoopCity->getArea()) || // advc.030 (replacing same-area check)
 			//!AI_plotValid(pLoopCity->plot()) || // advc.opt: Mostly redundant
 			//pLoopCity->getPlot().isVisibleEnemyUnit(this))
-			pLoopCity->AI_isSafe()) // advc.139: Replacing the above
+			!pLoopCity->AI_isSafe()) // advc.139: Replacing the above; <!-- custom: Base AdvCiv had this test inverted as pLoopCity->AI_isSafe(), which skipped safe cities and left unsafe cities eligible for Military Academy targeting. Correct it to match AI_join's intended safety test. See KI#204. (ChatGPT-5.6-Sol) -->
 		{
 			continue;
 		}
@@ -12282,14 +17247,18 @@ bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThr
 				kCiv.buildingClassAt(i)) < iMaxSingleBuildingCount)
 			{
 				if (canConstruct(pLoopCity->plot(), eBuilding) &&
-					generatePath(pLoopCity->getPlot(), MOVE_NO_ENEMY_TERRITORY, true)) // K-Mod
+					generatePath(pLoopCity->getPlot(), eSASGreatGeneralMoveFlags, true)) // K-Mod; <!-- custom: use the KI#204 Great-General safety flags instead of only avoiding enemy-owned territory. (ChatGPT-5.6-Sol) -->
 				{
+					CvPlot const& kPathEnd = getPathEndTurnPlot();
+					int const iSASPathEndDangerR2 = kOwner.AI_getPlotDanger(kPathEnd, 2);
+					if (!at(kPathEnd) && iSASPathEndDangerR2 > 0 && (iSASCurrentPlotDangerR2 <= 0 || iSASPathEndDangerR2 >= iSASCurrentPlotDangerR2))
+						continue;
 					int iValue = pLoopCity->AI_buildingValue(eBuilding);
 
 					if (iValue > iThreshold && iValue > iBestValue)
 					{
 						iBestValue = iValue;
-						pBestPlot = &getPathEndTurnPlot();
+						pBestPlot = &kPathEnd;
 						pBestConstructPlot = pLoopCity->plot();
 						eBestBuilding = eBuilding;
 					}
@@ -12308,7 +17277,7 @@ bool CvUnitAI::AI_construct(int iMaxCount, int iMaxSingleBuildingCount, int iThr
 		else
 		{
 			// BETTER_BTS_AI_MOD, Unit AI, 03/09/09, jdog5000:
-			pushGroupMoveTo(*pBestPlot, MOVE_NO_ENEMY_TERRITORY, false, false,
+			pushGroupMoveTo(*pBestPlot, eSASGreatGeneralMoveFlags, false, false,
 					MISSIONAI_CONSTRUCT, pBestConstructPlot);
 			return true;
 		}
@@ -12958,6 +17927,7 @@ bool CvUnitAI::AI_safety()
 
 	if (pBestPlot != NULL)
 	{
+		if (gEvacuationLogLevel >= 3) logSASSafetyUnitResult(at(*pBestPlot) ? "wait" : "move", *this, pBestPlot, bIgnoreDanger, iBestValue);
 		if (at(*pBestPlot))
 		{
 			getGroup()->pushMission(MISSION_SKIP);
@@ -12971,6 +17941,7 @@ bool CvUnitAI::AI_safety()
 		}
 	}
 
+	if (gEvacuationLogLevel >= 3) logSASSafetyUnitResult("fail-no-plot", *this, NULL, bIgnoreDanger, iBestValue);
 	return false;
 }
 
@@ -13381,8 +18352,7 @@ bool CvUnitAI::AI_exploreRange(int iRange)
 
 /*	BETTER_BTS_AI_MOD, 03/29/10, jdog5000 (War tactics AI, Efficiency):
 	Returns target city. K-Mod: heavily edited */
-CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns,
-	bool bHuntBarbs)
+CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, bool bHuntBarbs)
 {
 	PROFILE_FUNC();
 
@@ -13391,6 +18361,27 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns,
 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam()); // advc
 	// K-Mod
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	// <!-- custom: Capturing the current capital resets spaceship projects only during an active launch countdown; before launch, the completed projects survive capital relocation. BBAI save-file 450 testing confirmed that a hard pre-launch override made armies chase England's successive capitals while its spaceship progress remained intact.
+	// When enabled, keep one separately ranked reachable capital objective after launch, when its capture can actually stop the imminent Space victory. Base AdvCiv's ordinary pre-launch capital preference remains unchanged, and its existing enough-offence-en-route check can leave additional armies available for other targets. See KI#190. (GPT-5.6-Sol) -->
+	static bool const bSpaceVictoryDenialCapitalRushEnable = GC.getDefineBOOL("SAS_AI_SPACE_VICTORY_DENIAL_CAPITAL_RUSH_ENABLE");
+	VictoryTypes const eSpaceVictory = GC.getGame().getSpaceVictory();
+	bool const bSpaceCapitalRush = (bSpaceVictoryDenialCapitalRushEnable && eSpaceVictory != NO_VICTORY && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
+	bool const bLogSpaceTargetChoice = (gWarLogLevel >= 2 && !isHuman() && !isBarbarian() && AI_getUnitAIType() == UNITAI_ATTACK_CITY);
+	bool bLogSpaceTargetChosen = false;
+	CvCity* pBestSpaceCapital = NULL;
+	int iBestSpaceCapitalCountdown = -1;
+	int iBestSpaceCapitalPartsPercent = -1;
+	int iBestSpaceCapitalBaseValue = -1;
+	int iBestSpaceCapitalValue = -1;
+	int iBestSpaceCapitalPathTurns = -1;
+	int iBestSpaceCapitalEnemyDefence = -1;
+	int iBestSpaceCapitalOffenceEnRoute = -1;
+	int iBestSpaceCapitalTotalOffence = -1;
+	int iBestBaseValue = -1;
+	int iBestPathTurns = -1;
+	int iBestEnemyDefence = -1;
+	int iBestOffenceEnRoute = -1;
+	int iBestTotalOffence = -1;
 	int iOurOffence = -1; // We calculate this for the first city only.
 	CvUnit* pBestTransport = NULL;
 	/*	iLoadTurns < 0 implies we should look for a transport;
@@ -13413,11 +18404,23 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns,
 		{
 			continue;
 		}
+		// <!-- custom: A Space-capital emergency exists only against a team this group is already fighting; capturing a capital before launch instead preserves the team-wide spaceship parts. See KI#190. (GPT-5.6-Sol) -->
+		int iSpaceStage = -1;
+		bool const bAtWarWithTarget = kOurTeam.isAtWar(kTargetPlayer.getTeam());
+		if (bLogSpaceTargetChoice && bAtWarWithTarget)
+			iSpaceStage = getSASTeamSpaceVictoryStage(kTargetPlayer.getTeam());
+		bool const bLogSpaceThreatTarget = (bLogSpaceTargetChoice && bAtWarWithTarget && (iSpaceStage >= 4 || isSASTeamStage3SpaceVictoryThreat(kTargetPlayer.getTeam())));
+		int const iSpaceCountdown = (bSpaceCapitalRush && bAtWarWithTarget ? GET_TEAM(kTargetPlayer.getTeam()).getVictoryCountdown(eSpaceVictory) : -1);
+		bool const bSpaceCapitalRushTarget = (iSpaceCountdown >= 0);
+		if (bLogSpaceThreatTarget)
+			bLogSpaceTargetChosen = true;
 		FOR_EACH_CITY_VAR(pLoopCity, kTargetPlayer)
 		{
 			if (!pLoopCity->isArea(getArea()))
 				//|| !AI_plotValid(pLoopCity->plot()) // advc.opt: area check suffices
 			{
+				if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=other_area spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+					GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
 				continue;
 			}
 			if (!AI_mayAttack(kTargetPlayer.getTeam(), pLoopCity->getPlot()))
@@ -13478,7 +18481,11 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns,
 				}
 
 				if (iPathTurns >= iMaxPathTurns)
+				{
+					if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=no_path_within_limit maxPathTurns=%d landPath=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+						GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iMaxPathTurns, bLandPath, getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
 					continue;
+				}
 				/*	If city is visible and our force already in position
 					is dominantly powerful or we have a huge force
 					already on the way, pick a different target */
@@ -13502,7 +18509,11 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns,
 								GC.getDefineINT(CvGlobals::BBAI_SKIP_BOMBARD_MIN_STACK_RATIO)) /
 								std::max(1, GC.getMAX_CITY_DEFENSE_DAMAGE());
 						if (100 * iOffenceEnRoute > iAttackRatio * iEnemyDefence)
+						{
+							if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S capital=(%d,%d) reason=enough_offence_en_route pathTurns=%d enemyDefence=%d offenceEnRoute=%d attackRatio=%d spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d",
+								GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), iPathTurns, iEnemyDefence, iOffenceEnRoute, iAttackRatio, getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown());
 							continue;
+						}
 					}
 				}
 				if (iOurOffence == -1)
@@ -13516,10 +18527,9 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns,
 				FAssert(iOurOffence > 0);
 				int iTotalOffence = iOurOffence + iOffenceEnRoute;
 
-				int iValue = 0;
-				if (AI_getUnitAIType() == UNITAI_ATTACK_CITY) //lemming?
-					iValue = kOwner.AI_targetCityValue(*pLoopCity, false, false);
-				else iValue = kOwner.AI_targetCityValue(*pLoopCity, true, true);
+				int const iBaseValue = (AI_getUnitAIType() == UNITAI_ATTACK_CITY ? // lemming?
+					kOwner.AI_targetCityValue(*pLoopCity, false, false) : kOwner.AI_targetCityValue(*pLoopCity, true, true));
+				int iValue = iBaseValue;
 				// adjust value based on defensive bonuses
 				{
 					int iMod = std::min(8, AI_getGroup()->AI_getBombardTurns(pLoopCity)) *
@@ -13625,10 +18635,49 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns,
 				// (already taken into account.)
 
 				iValue /= 8 + SQR(iPathTurns); // was 4+
+				if (bLogSpaceThreatTarget && pLoopCity->isCapital()) logBBAI("WAR_SPACE_CAPITAL_TARGET_CANDIDATE turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) targetPlayer=%d capital=%S capital=(%d,%d) spaceStage=%d spaceshipParts=%d spaceshipPartsPercent=%d countdown=%d baseValue=%d finalValue=%d pathTurns=%d landPath=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d mainAreaTarget=%d",
+					GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), pLoopCity->getX(), pLoopCity->getY(), getSASTeamSpaceVictoryStage(pLoopCity->getTeam()), getSASTeamSpaceshipPartsBuilt(pLoopCity->getTeam()), getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam()), GET_TEAM(pLoopCity->getTeam()).AI_getLowestVictoryCountdown(), iBaseValue, iValue, iPathTurns, bLandPath, iEnemyDefence, iOurOffence, iOffenceEnRoute, iTotalOffence, pLoopCity == pTargetCity);
+				// <!-- custom: Ordinary city value can favor an easy non-capital even though only the current capital can cancel an active launch countdown.
+				// Rank reachable launched-spaceship capitals separately by deadline, completion, travel time, and then ordinary value so the best emergency target can override ordinary selection below. See KI#190. (GPT-5.6-Sol) -->
+				if (bSpaceCapitalRushTarget && pLoopCity->isCapital())
+				{
+					int const iSpaceshipPartsPercent = getSASTeamSpaceshipPartsPercent(pLoopCity->getTeam());
+					bool const bCanArriveBeforeVictory = (iPathTurns <= iSpaceCountdown);
+					bool const bMoreUrgent = (pBestSpaceCapital == NULL ||
+						iSpaceCountdown < iBestSpaceCapitalCountdown ||
+						(iSpaceCountdown == iBestSpaceCapitalCountdown && iSpaceshipPartsPercent > iBestSpaceCapitalPartsPercent) ||
+						(iSpaceCountdown == iBestSpaceCapitalCountdown && iSpaceshipPartsPercent == iBestSpaceCapitalPartsPercent && iPathTurns < iBestSpaceCapitalPathTurns) ||
+						(iSpaceCountdown == iBestSpaceCapitalCountdown && iSpaceshipPartsPercent == iBestSpaceCapitalPartsPercent && iPathTurns == iBestSpaceCapitalPathTurns && iValue > iBestSpaceCapitalValue));
+					if (bCanArriveBeforeVictory && bMoreUrgent)
+					{
+						pBestSpaceCapital = pLoopCity;
+						iBestSpaceCapitalCountdown = iSpaceCountdown;
+						iBestSpaceCapitalPartsPercent = iSpaceshipPartsPercent;
+						iBestSpaceCapitalValue = iValue;
+						iBestSpaceCapitalPathTurns = iPathTurns;
+						if (bLogSpaceTargetChoice)
+						{
+							iBestSpaceCapitalBaseValue = iBaseValue;
+							iBestSpaceCapitalEnemyDefence = iEnemyDefence;
+							iBestSpaceCapitalOffenceEnRoute = iOffenceEnRoute;
+							iBestSpaceCapitalTotalOffence = iTotalOffence;
+						}
+					}
+					else if (!bCanArriveBeforeVictory && bLogSpaceTargetChoice) logBBAI("WAR_SPACE_CAPITAL_RUSH_SKIP turn=%d player=%d groupId=%d groupUnits=%d targetPlayer=%d capital=%S countdown=%d pathTurns=%d reason=cannot_arrive_before_victory",
+						GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), pLoopCity->getOwner(), pLoopCity->getName().GetCString(), iSpaceCountdown, iPathTurns);
+				}
 				if (iValue > iBestValue)
 				{
 					iBestValue = iValue;
 					pBestCity = pLoopCity;
+					if (bLogSpaceTargetChoice)
+					{
+						iBestBaseValue = iBaseValue;
+						iBestPathTurns = iPathTurns;
+						iBestEnemyDefence = iEnemyDefence;
+						iBestOffenceEnRoute = iOffenceEnRoute;
+						iBestTotalOffence = iTotalOffence;
+					}
 				}
 			} // end if revealed.
 			/*	K-Mod. If no city in the area is revealed,
@@ -13643,14 +18692,30 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns,
 			// K-Mod end
 		}
 	}
+	if (pBestSpaceCapital != NULL)
+	{
+		if (bLogSpaceTargetChoice) logBBAI("WAR_SPACE_CAPITAL_RUSH_TARGET turn=%d player=%d groupId=%d groupUnits=%d ordinaryPlayer=%d ordinaryCity=%S ordinaryValue=%d capitalPlayer=%d capital=%S capitalValue=%d countdown=%d spaceshipPartsPercent=%d pathTurns=%d action=%s",
+			GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), (pBestCity == NULL ? -1 : pBestCity->getOwner()), (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), iBestValue, pBestSpaceCapital->getOwner(), pBestSpaceCapital->getName().GetCString(), iBestSpaceCapitalValue, iBestSpaceCapitalCountdown, iBestSpaceCapitalPartsPercent, iBestSpaceCapitalPathTurns, (pBestCity == pBestSpaceCapital ? "already_selected" : "override_ordinary_target"));
+		pBestCity = pBestSpaceCapital;
+		iBestValue = iBestSpaceCapitalValue;
+		if (bLogSpaceTargetChoice)
+		{
+			iBestBaseValue = iBestSpaceCapitalBaseValue;
+			iBestPathTurns = iBestSpaceCapitalPathTurns;
+			iBestEnemyDefence = iBestSpaceCapitalEnemyDefence;
+			iBestOffenceEnRoute = iBestSpaceCapitalOffenceEnRoute;
+			iBestTotalOffence = iBestSpaceCapitalTotalOffence;
+		}
+	}
+	if (bLogSpaceTargetChosen) logBBAI("WAR_SPACE_TARGET_CHOSEN turn=%d player=%d groupId=%d groupUnits=%d source=(%d,%d) chosenPlayer=%d chosenCity=%S chosen=(%d,%d) chosenCapital=%d chosenSpaceStage=%d chosenSpaceshipParts=%d chosenSpaceshipPartsPercent=%d chosenCountdown=%d baseValue=%d finalValue=%d pathTurns=%d scoredEnemyDefence=%d ourOffence=%d offenceEnRoute=%d totalOffence=%d",
+		GC.getGame().getGameTurn(), getOwner(), getGroup()->getID(), getGroup()->getNumUnits(), getX(), getY(), (pBestCity == NULL ? -1 : pBestCity->getOwner()), (pBestCity == NULL ? L"-" : pBestCity->getName().GetCString()), (pBestCity == NULL ? -1 : pBestCity->getX()), (pBestCity == NULL ? -1 : pBestCity->getY()), (pBestCity != NULL && pBestCity->isCapital()), (pBestCity == NULL ? -1 : getSASTeamSpaceVictoryStage(pBestCity->getTeam())), (pBestCity == NULL ? -1 : getSASTeamSpaceshipPartsBuilt(pBestCity->getTeam())), (pBestCity == NULL ? -1 : getSASTeamSpaceshipPartsPercent(pBestCity->getTeam())), (pBestCity == NULL ? -1 : GET_TEAM(pBestCity->getTeam()).AI_getLowestVictoryCountdown()), iBestBaseValue, iBestValue, iBestPathTurns, iBestEnemyDefence, iOurOffence, iBestOffenceEnRoute, iBestTotalOffence);
 
 	return pBestCity;
 }
 
 /*	BETTER_BTS_AI_MOD, 03/29/10, jdog5000 (War tactics AI, Efficiency):
 	(K-Mod has apparently merged BBAI's AI_goToTargetBarbCity into this) */
-bool CvUnitAI::AI_goToTargetCity(MovementFlags eFlags, int iMaxPathTurns,
-	CvCity* pTargetCity)
+bool CvUnitAI::AI_goToTargetCity(MovementFlags eFlags, int iMaxPathTurns, CvCity* pTargetCity)
 {
 	PROFILE_FUNC();
 
@@ -13790,8 +18855,7 @@ bool CvUnitAI::AI_goToTargetCity(MovementFlags eFlags, int iMaxPathTurns,
 	return true;
 }
 
-bool CvUnitAI::AI_pillageAroundCity(CvCity* pTargetCity, int iBonusValueThreshold,
-	MovementFlags eFlags, int iMaxPathTurns)
+bool CvUnitAI::AI_pillageAroundCity(CvCity* pTargetCity, int iBonusValueThreshold, MovementFlags eFlags, int iMaxPathTurns)
 {
 	PROFILE_FUNC();
 	// K-Mod
@@ -13953,9 +19017,8 @@ bool CvUnitAI::AI_bombardCity()
 }
 
 // This function has been been heavily edited for K-Mod.
-bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold,
-	// advc (comment): No caller uses eFlags anymore (not since K-Mod 1.15)
-	MovementFlags eFlags, bool bFollow)
+// advc (comment): No caller uses eFlags anymore (not since K-Mod 1.15) <!-- custom: hoisted from multiline signature between `iOddsThreshold` and `eFlags` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold, MovementFlags eFlags, bool bFollow)
 {
 	PROFILE_FUNC();
 
@@ -14025,8 +19088,7 @@ bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold,
 	(it started getting messy, so I deleted most of the old code)
 	bFollow implies AI_follow conditions - ie. not everyone in the group can move,
 	and this unit might not be the group leader. */
-bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, MovementFlags eFlags,
-	int iMinStack, bool bAllowCities, bool bFollow)
+bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, MovementFlags eFlags, int iMinStack, bool bAllowCities, bool bFollow)
 {
 	PROFILE_FUNC();
 
@@ -14412,45 +19474,61 @@ bool CvUnitAI::AI_defensiveCollateral(int iThreshold, int iSearchRange)
 // advc.139:
 bool CvUnitAI::AI_evacuateCity()
 {
-	if(!getPlot().AI_getPlotCity()->AI_isEvacuating())
+	CvCityAI const& kCity = *getPlot().AI_getPlotCity();
+	if(!kCity.AI_isEvacuating())
 		return false;
-	scaled rEvacProb = 1;
-	/*  Units that don't receive def. modifiers should always evacuate.
-		AI_defensiveCollateral can still happen, but not when the threat ratio is
-		this high. */
-	if (getUnitInfo().getCombat() > 0 && !getUnitInfo().isNoDefensiveBonus())
+
+	static const bool bSAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE = GC.getDefineBOOL("SAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE");
+	if (bSAS_AI_EVACUATE_CITY_ALL_LAND_UNITS_WHEN_DOOMED_ENABLE)
 	{
-		rEvacProb = fixp(0.8);
-		rEvacProb -= scaled(currHitPoints(), std::max(1, maxHitPoints()));
-		int iDefenseMod = fortifyModifier() +
-				getPlot().defenseModifier(getTeam(),
-				GC.getGame().getCurrentEra() >= CvEraInfo::AI_getAgeOfGuns()) +
-				cityDefenseModifier() +
-				(getPlot().isHills() ? hillsDefenseModifier() : 0);
-		if (AI_getUnitAIType() == UNITAI_CITY_DEFENSE)
-			iDefenseMod = std::max(iDefenseMod, 100);
-		rEvacProb -= per100(iDefenseMod);
-		/*	Don't leave too many units behind. 3 or 4 can be a headache for
-			enemy siege units, 6 or 7 are too many to sacrifice. */
-		if (rEvacProb < 1)
-		{
-			int iStayingBehind = 0;
-			FOR_EACH_UNIT_IN(pLoopUnit, getPlot())
-			{
-				CvSelectionGroup const& kGroup = *pLoopUnit->getGroup();
-				if (&kGroup == getGroup())
-					continue;
-				if (!kGroup.isForceUpdate()) // i.e. if AI_update already called
-					iStayingBehind++;
-			}
-			if (iStayingBehind > 2)
-				rEvacProb += scaled(iStayingBehind + getGroup()->getNumUnits() - 3, 6);
-		}
-	}
-	/*  retreatToCity isn't perfect for this; selects the city based on plot danger.
-		Hopefully sufficient most of the time. */
-	if (SyncRandSuccess(rEvacProb))
+		// <!-- custom: if we have determined city is doomed, evacuate each and any single unit, splitting forces is worse than staying with all units or leaving with all units. Leaving with all units is the best since city will fall or has been determined to anyway, so do not care about anything else and simply evacuate all (it may drag the game a bit longer but is best for the AI and its competitiveness), see known issue as of now 62 for details and issue this attempts to fix -->
+		// <!-- custom: important note!! You need at least 2 autoplay turns IN ONE GO (sorry for caps but it's to insist), not just 2 turn buffer, but really playing at least 2 autoplay turns in one go. If we play instead from 2 turns before 1 autplay turn, then get the hand back and replay again 1 autoplay turn, units don't retreat, however if we do it 2 autoplay turns in one go then it works (rather than 1 autoplay turn then 1 autoplay turn again which doesn't), so make sure to test some behaviours at least 2 turns before and at least with 2 if not more autoplay turns -->
+		if (gEvacuationLogLevel >= 2) logSASEvacuationUnitDecision("always", *this, kCity, 100, true);
 		return AI_retreatToCity();
+	}
+	// <!-- custom: not recommended as should be weaker for the AI, kept for legacy or player customization choice -->
+	else
+	{
+		scaled rEvacProb = 1;
+		/*  Units that don't receive def. modifiers should always evacuate.
+			AI_defensiveCollateral can still happen, but not when the threat ratio is
+			this high. */
+		if (getUnitInfo().getCombat() > 0 && !getUnitInfo().isNoDefensiveBonus())
+		{
+			rEvacProb = fixp(0.8);
+			rEvacProb -= scaled(currHitPoints(), std::max(1, maxHitPoints()));
+			int iDefenseMod = fortifyModifier() +
+					getPlot().defenseModifier(getTeam(),
+					GC.getGame().getCurrentEra() >= CvEraInfo::AI_getAgeOfGuns()) +
+					cityDefenseModifier() +
+					(getPlot().isHills() ? hillsDefenseModifier() : 0);
+			if (AI_getUnitAIType() == UNITAI_CITY_DEFENSE)
+				iDefenseMod = std::max(iDefenseMod, 100);
+			rEvacProb -= per100(iDefenseMod);
+			/*	Don't leave too many units behind. 3 or 4 can be a headache for
+				enemy siege units, 6 or 7 are too many to sacrifice. */
+			if (rEvacProb < 1)
+			{
+				int iStayingBehind = 0;
+				FOR_EACH_UNIT_IN(pLoopUnit, getPlot())
+				{
+					CvSelectionGroup const& kGroup = *pLoopUnit->getGroup();
+					if (&kGroup == getGroup())
+						continue;
+					if (!kGroup.isForceUpdate()) // i.e. if AI_update already called
+						iStayingBehind++;
+				}
+				if (iStayingBehind > 2)
+					rEvacProb += scaled(iStayingBehind + getGroup()->getNumUnits() - 3, 6);
+			}
+		}
+		/*  retreatToCity isn't perfect for this; selects the city based on plot danger.
+			Hopefully sufficient most of the time. */
+		bool const bEvacuate = SyncRandSuccess(rEvacProb);
+		if (gEvacuationLogLevel >= 2) logSASEvacuationUnitDecision("legacy", *this, kCity, rEvacProb.getPercent(), bEvacuate);
+		if (bEvacuate)
+			return AI_retreatToCity();
+	}
 	return false;
 }
 
@@ -14459,8 +19537,7 @@ bool CvUnitAI::AI_evacuateCity()
 /*	bLocal is just to help with the efficiency of this function for short-range checks.
 	It means that we should look only in nearby plots.
 	the default (bLocal == false) is to look at every plot on the map! */
-bool CvUnitAI::AI_defendTerritory(int iThreshold, MovementFlags eFlags,
-	int iMaxPathTurns, bool bLocal)
+bool CvUnitAI::AI_defendTerritory(int iThreshold, MovementFlags eFlags, int iMaxPathTurns, bool bLocal)
 {
 	PROFILE_FUNC();
 
@@ -14563,8 +19640,7 @@ bool CvUnitAI::AI_defendTerritory(int iThreshold, MovementFlags eFlags,
 	note: iSearchRange is /not/ the number of turns.
 	It is the number of steps. iSearchRange < 1 means 'automatic'
 	Only 1-turn moves are considered here. */
-bool CvUnitAI::AI_stackVsStack(int iSearchRange, int iAttackThreshold, int iRiskThreshold,
-	MovementFlags eFlags)
+bool CvUnitAI::AI_stackVsStack(int iSearchRange, int iAttackThreshold, int iRiskThreshold, MovementFlags eFlags)
 {
 	PROFILE_FUNC();
 
@@ -15343,26 +20419,59 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 //		...
 //	}
 
+	// <!-- custom: also cache these as is done in this file in other functions since we reuse them -->
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	CvGame const& kGame = GC.getGame();
+
 	CvPlot* pBestPlot = NULL;
 	CvPlot* pBestFoundPlot = NULL;
 	int iBestFoundValue = 0;
-	bool const bRandomize = (!isHuman() && GC.getGame().isScenario()); // advc.052
-	bool const bSafe = (getGroup()->canDefend() ||
-			getInvisibleType() != NO_INVISIBLE); // advc.057b
-	for (int i = 0; i < GET_PLAYER(getOwner()).AI_getNumCitySites(); i++)
+	int iBestPathTurns = -1;
+	bool const bRandomize = (!isHuman() && kGame.isScenario()); // advc.052
+
+	// <!-- custom: Try to form a defended Settler group before evaluating city-site missions. Save-file 450 BBAI testing showed cities with enough remaining healthy defenders can reassign one defender as escort, while cities below that threshold wait rather than send exposed lone Settlers. See KI#179. (ChatGPT-5.5) -->
+	static const bool bSAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE");
+	if (bSAS_AI_SETTLER_ATTACH_CITY_ESCORT_OPTIMIZE && kOwner.getNumCities() > 0 && getPlot().isCity() && getPlot().getOwner() == getOwner() && getGroup() != NULL && !getGroup()->canDefend() && getInvisibleType() == NO_INVISIBLE)
 	{
-		CvPlot& kSite = GET_PLAYER(getOwner()).AI_getCitySite(i);
+		SAS_tryAttachCityEscortToSettler(*this, 0, 0, kOwner.AI_isAnyPlotDanger(getPlot()), eFlags);
+	}
+
+	// <!-- custom: Remove the old AdvCiv-SAS empirical early-city bSafe override; exposed expansion now depends on a defended group, an existing guard-city mission, or a local escort attached above. Save-file 450 BBAI testing showed the old override could produce an empty Nobamba razed by Barbarians; follow-up logs showed guarded founding instead. See KI#179. (ChatGPT-5.5) -->
+	bool const bSafe = (getGroup()->canDefend() || getInvisibleType() != NO_INVISIBLE); // advc.057b
+	// <!-- custom: Precompute the best reachable raw city-site value before path-discounted selection. Without this, blocking direct founding on weak (10,47) made the Zulu Settler step away, then `AI_found` immediately chose (10,47) again because it was only one turn away; filtering later candidates against this raw-value winner fixed that flip-flop. See KI#180. (GPT-5.5) -->
+	CvPlot const* pBestReachableRawFoundPlot = NULL;
+	int iBestReachableRawFoundValue = 0;
+	int iBestReachableRawPathTurns = -1;
+	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
+	{
+		CvPlot& kSite = kOwner.AI_getCitySite(i);
+		if ((AI_canEnterByLand(kSite.getArea()) || canMoveAllTerrain()) && canFound(&kSite) && !kOwner.AI_isAnyPlotTargetMissionAI(kSite, MISSIONAI_FOUND, getGroup()))
+		{
+			int iPathTurns = -1;
+			if (generatePath(kSite, eFlags, true, &iPathTurns) && (!kSite.isVisible(getTeam()) || !kSite.isVisibleEnemyUnit(this) || (iPathTurns > 1 && bSafe)))
+			{
+				int const iRawValue = kSite.getFoundValue(getOwner());
+				if (iRawValue > iBestReachableRawFoundValue)
+				{
+					pBestReachableRawFoundPlot = &kSite;
+					iBestReachableRawFoundValue = iRawValue;
+					iBestReachableRawPathTurns = iPathTurns;
+				}
+			}
+		}
+	}
+	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
+	{
+		CvPlot& kSite = kOwner.AI_getCitySite(i);
 		if (AI_canEnterByLand(kSite.getArea()) || // advc.030 (replacing same-area check)
 			// BETTER_BTS_AI_MOD, Settler AI, 10/23/09, jdog5000:
 			canMoveAllTerrain())
 		{
 			if (canFound(&kSite) &&
-				!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
+				!kOwner.AI_isAnyPlotTargetMissionAI(
 				kSite, MISSIONAI_FOUND, getGroup()))
 			{
-				if (bSafe ||
-					GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
-					kSite, MISSIONAI_GUARD_CITY))
+				if (bSafe || kOwner.AI_isAnyPlotTargetMissionAI(kSite, MISSIONAI_GUARD_CITY))
 				{
 					int iPathTurns;
 					if (generatePath(kSite, eFlags, true, &iPathTurns))
@@ -15380,6 +20489,22 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 										scaled::hash(m_iBirthmark);
 								iValue = (iValue * rRandMult).round();
 							} // </advc.052>
+							if (pBestReachableRawFoundPlot != NULL && pBestReachableRawFoundPlot != &kSite && SAS_isFoundValueClearlyBetter(kSite.getFoundValue(getOwner()), iBestReachableRawFoundValue))
+							{
+								if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("SKIP_PATH_NEAR_SITE_BETTER_RAW_SITE", *this, pBestReachableRawFoundPlot, &getPathEndTurnPlot(), iBestReachableRawFoundValue, iBestReachableRawPathTurns, "BETTER_REACHABLE_SITE");
+								continue;
+							}
+							if (at(kSite))
+							{
+								CvPlot const* pBetterFoundPlot = NULL;
+								int iBetterFoundValue = 0;
+								int iBetterPathTurns = -1;
+								if (SAS_shouldDelayFoundInPlaceForBetterReachableSite(*this, eFlags, kSite, kSite.getFoundValue(getOwner()), pBetterFoundPlot, iBetterFoundValue, iBetterPathTurns))
+								{
+									if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("SKIP_AI_FOUND_CURRENT_SITE_BETTER_SITE", *this, pBetterFoundPlot, &getPathEndTurnPlot(), iBetterFoundValue, iBetterPathTurns, "BETTER_REACHABLE_SITE");
+									continue;
+								}
+							}
 							iValue *= 1000;
 							//iValue /= (iPathTurns + 1);
 							iValue /= iPathTurns + (bSafe ? 4 : 1); // K-Mod
@@ -15388,6 +20513,7 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 								iBestFoundValue = iValue;
 								pBestPlot = &getPathEndTurnPlot();
 								pBestFoundPlot = &kSite;
+								iBestPathTurns = iPathTurns;
 							}
 						}
 					}
@@ -15397,16 +20523,65 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
 	}
 	if (pBestPlot == NULL || pBestFoundPlot == NULL)
 		return false;
+
+	// <!-- custom: Promising-fog scouting can reveal that the Settler's current plot is now better than the cached target, as in save file 450 where the group reached 17,40 and revealed it as better than stale 18,40.
+	// Evaluate the current plot as a replacement site before moving away, otherwise the Settler can scout correctly and still found the old weaker target. See KI#185. (GPT-5.5) -->
+	if (!at(*pBestFoundPlot) && canFound(plot()) && !kOwner.AI_isAnyPlotTargetMissionAI(getPlot(), MISSIONAI_FOUND, getGroup()))
+	{
+		CitySiteEvaluator kCurrentPlotEvaluator(kOwner);
+		kCurrentPlotEvaluator.setDebug(true);
+		int const iCurrentFoundValue = kCurrentPlotEvaluator.evaluate(getPlot());
+		int const iSelectedFoundValue = pBestFoundPlot->getFoundValue(getOwner());
+		if (iCurrentFoundValue > iSelectedFoundValue)
+		{
+			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("FOUND_CURRENT_SITE_BETTER_THAN_SELECTED_TARGET", *this, &getPlot(), &getPlot(), iCurrentFoundValue, 0, "CURRENT_SITE_NOW_BETTER");
+			pBestPlot = &getPlot();
+			pBestFoundPlot = &getPlot();
+			iBestPathTurns = 0;
+		}
+	}
+
+	// <!-- custom: After choosing the best currently known target, allow a short MISSIONAI_EXPLORE detour to a nearby fogged alternative that has stronger known average value but lower total value only because fewer BFC plots are revealed.
+	// This keeps normal post-capital founding decisive while fixing the save-file 450 uMgungundlovu case where 17,40 needed one more local scout before outranking stale 18,40. See KI#185. (GPT-5.5) -->
+	CvPlot const* pFogScoutSite = NULL;
+	CvPlot const* pFogScoutEndTurnPlot = NULL;
+	int iFogScoutFoundValue = 0;
+	int iFogScoutPathTurns = -1;
+	int iSelectedRevealedBFC = 0;
+	int iSelectedUnrevealedBFC = 0;
+	int iFogScoutRevealedBFC = 0;
+	int iFogScoutUnrevealedBFC = 0;
+	if (SAS_shouldScoutPromisingFoggedNearbyFoundSite(*this, eFlags, *pBestFoundPlot, pBestFoundPlot->getFoundValue(getOwner()), iBestPathTurns, pFogScoutSite, pFogScoutEndTurnPlot, iFogScoutFoundValue, iFogScoutPathTurns, iSelectedRevealedBFC, iSelectedUnrevealedBFC, iFogScoutRevealedBFC, iFogScoutUnrevealedBFC))
+	{
+		if (gSettlerLogLevel >= 2)
+		{
+			logBBAI("    Settler scouting promising nearby fogged city site for %S player %d from target %d,%d to %d,%d; selectedValue=%d scoutValue=%d selectedRevealedBFC=%d scoutRevealedBFC=%d selectedUnrevealedBFC=%d scoutUnrevealedBFC=%d selectedAvgX100=%d scoutAvgX100=%d selectedPathTurns=%d scoutPathTurns=%d",
+				kOwner.getCivilizationDescription(0), getOwner(), pBestFoundPlot->getX(), pBestFoundPlot->getY(), pFogScoutSite->getX(), pFogScoutSite->getY(), pBestFoundPlot->getFoundValue(getOwner()), iFogScoutFoundValue, iSelectedRevealedBFC, iFogScoutRevealedBFC, iSelectedUnrevealedBFC, iFogScoutUnrevealedBFC, (100 * pBestFoundPlot->getFoundValue(getOwner())) / iSelectedRevealedBFC, (100 * iFogScoutFoundValue) / iFogScoutRevealedBFC, iBestPathTurns, iFogScoutPathTurns);
+			SAS_logSettlerMissionDecision("PUSH_SCOUT_PROMISING_FOGGED_SITE", *this, pFogScoutSite, pFogScoutEndTurnPlot, iFogScoutFoundValue, iFogScoutPathTurns, "PROMISING_FOGGED_NEAR_SITE");
+		}
+		pushGroupMoveTo(*pFogScoutEndTurnPlot, eFlags, false, false, MISSIONAI_EXPLORE, pFogScoutSite);
+		return true;
+	}
+
+	// <!-- custom: Normal found-at-target path after the current-site and promising-fog safeguards above had a chance to override stale or under-scouted targets. (GPT-5.5) -->
 	if (at(*pBestFoundPlot))
 	{
-		if (gUnitLogLevel >= 2) logBBAI("    Settler founding at site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
+		if (gSettlerLogLevel >= 2)
+		{
+			logBBAI("    Settler founding at site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
+			SAS_logSettlerMissionDecision("PUSH_FOUND", *this, pBestFoundPlot, pBestFoundPlot, pBestFoundPlot->getFoundValue(getOwner()), 0, "AI_FOUND_AT_SITE");
+		}
 		getGroup()->pushMission(MISSION_FOUND, -1, -1, NO_MOVEMENT_FLAGS,
 				false, false, MISSIONAI_FOUND, pBestFoundPlot);
 		return true;
 	}
 	else
 	{
-		if (gUnitLogLevel >= 2)logBBAI("    Settler heading for site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
+		if (gSettlerLogLevel >= 2)
+		{
+			logBBAI("    Settler heading for site %d, %d", pBestFoundPlot->getX(), pBestFoundPlot->getY());
+			SAS_logSettlerMissionDecision("PUSH_MOVE_TO_FOUND", *this, pBestFoundPlot, pBestPlot, pBestFoundPlot->getFoundValue(getOwner()), iBestPathTurns, "AI_FOUND_MOVE");
+		}
 		pushGroupMoveTo(*pBestPlot, eFlags, false, false,
 				MISSIONAI_FOUND, pBestFoundPlot);
 		return true;
@@ -15427,7 +20602,26 @@ bool CvUnitAI::AI_foundFollow()
 	if (canFound(plot()) && atPlot(AI_getGroup()->AI_getMissionAIPlot()) &&
 		AI_getGroup()->AI_getMissionAIType() == MISSIONAI_FOUND)
 	{
-		if (gUnitLogLevel >= 2) logBBAI("    Settler founding at plot %d, %d (follow)", getX(), getY());
+		static const bool bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE = GC.getDefineBOOL("SAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE");
+		if (bSAS_AI_SETTLER_REQUIRE_ESCORT_FOR_EXPOSED_FOUNDING_OPTIMIZE && SAS_shouldBlockDangerousUnescortedFounding(*this, getPlot()))
+		{
+			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("BLOCK_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), getPlot().getFoundValue(getOwner()), 0, "DANGEROUS_NO_ESCORT");
+			return false;
+		}
+		CvPlot const* pBetterFoundPlot = NULL;
+		int iBetterFoundValue = 0;
+		int iBetterPathTurns = -1;
+		int const iCurrentFoundValue = getPlot().getFoundValue(getOwner());
+		if (SAS_shouldDelayFoundInPlaceForBetterReachableSite(*this, NO_MOVEMENT_FLAGS, getPlot(), iCurrentFoundValue, pBetterFoundPlot, iBetterFoundValue, iBetterPathTurns))
+		{
+			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("DELAY_FOLLOW_FOUND_BETTER_SITE", *this, pBetterFoundPlot, &getPathEndTurnPlot(), iBetterFoundValue, iBetterPathTurns, "BETTER_REACHABLE_SITE");
+			return false;
+		}
+		if (gSettlerLogLevel >= 2)
+		{
+			logBBAI("    Settler founding at plot %d, %d (follow)", getX(), getY());
+			SAS_logSettlerMissionDecision("PUSH_FOLLOW_FOUND", *this, &getPlot(), &getPlot(), iCurrentFoundValue, 0, "AI_FOUND_FOLLOW");
+		}
 		getGroup()->pushMission(MISSION_FOUND);
 		return true;
 	}
@@ -15438,8 +20632,8 @@ bool CvUnitAI::AI_foundFollow()
 namespace
 {
 	// K-Mod. helper function for AI_assaultSeaTransport. (just to avoid code duplication)
-	int estimateAndCacheCityDefence(CvPlayerAI& kPlayer, CvCityAI const* pCity, // advc.003u: was CvCity*
-		std::map<CvCityAI const*, int>& city_defence_cache)
+	// advc.003u: was CvCity* <!-- custom: hoisted from multiline signature between `pCity` and `city_defence_cache` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	int estimateAndCacheCityDefence(CvPlayerAI& kPlayer, CvCityAI const* pCity, std::map<CvCityAI const*, int>& city_defence_cache)
 	{
 		// calculate the city's defences, or read from the cache if we've already done it.
 		std::map<CvCityAI const*,int>::iterator city_it = city_defence_cache.find(pCity);
@@ -15471,8 +20665,7 @@ namespace
 }
 
 // This function has been mostly rewritten for K-Mod.
-bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal,
-	int iMaxAreaCities) // advc.082
+bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal, int iMaxAreaCities) // advc.082
 {
 	PROFILE_FUNC();
 
@@ -15671,6 +20864,10 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal,
 
 		if (pCity != NULL)
 		{
+			// <!-- custom: Naval assaults previously bypassed the shared distant-disposable Barbarian-city gate, so an opportunistic launch could revive the KI#188.5 charity cleanup that land armies reject.
+			// Apply the same long-term-benefit test using the already-computed sea path to the city or its landing plot. See KI#193. (GPT-5.6-Sol) -->
+			if (SAS_isDistantDisposableBarbarianTarget(*this, *pCity, eFlags, MAX_INT, "assault_sea_transport", iPathTurns))
+				continue;
 			int iDefenceStrength = estimateAndCacheCityDefence(kOwner, pCity, city_defence_cache);
 			FAssert(AI_isPotentialEnemyOf(pCity->getTeam(), kPlot));
 			iBaseValue += kOwner.AI_targetCityValue(*pCity, false, false); // maybe false, true?
@@ -16160,8 +21357,7 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
 }
 
 // K-Mod. General function for moving assault groups - to reduce code duplication.
-bool CvUnitAI::AI_transportGoTo(CvPlot const& kEndTurnPlot, CvPlot const& kTargetPlot,
-	MovementFlags eFlags, MissionAITypes eMissionAI)
+bool CvUnitAI::AI_transportGoTo(CvPlot const& kEndTurnPlot, CvPlot const& kTargetPlot, MovementFlags eFlags, MissionAITypes eMissionAI)
 {
 	FAssert(!kEndTurnPlot.isImpassable());
 	CvPlot const* pNewEndTurnPlot = &kEndTurnPlot; // advc (Take param by reference)
@@ -16376,16 +21572,20 @@ bool CvUnitAI::AI_settlerSeaTransport()
 		{
 			FAssert(!pBestPlot->isImpassable());
 
+			// <!-- custom: At the destination, retain an unnecessary Worker aboard; before either move, leave it on the origin landmass. (GPT-5.6-Sol) -->
 			if (pBestPlot == pBestFoundPlot || stepDistance(pBestPlot, pBestFoundPlot) == 1)
 			{
 				if (at(*pBestFoundPlot))
 				{
-					unloadAll(); // XXX is this dangerous (not pushing a mission...) XXX air units?
+					// <!-- custom: Base AdvCiv unloaded all cargo here; preserve the old call below for reference. The destination-aware helper still unloads the Settler and defenders but retains an unnecessary Worker aboard for another destination. (GPT-5.6-Sol) -->
+					// unloadAll(); // XXX is this dangerous (not pushing a mission...) XXX air units?
+					AI_unloadSettlerCargoForDestination(pBestFoundPlot->getArea(), true);
 					getGroup()->setActivityType(ACTIVITY_AWAKE); // K-Mod
 					return true;
 				}
 				else
 				{
+					AI_unloadSettlerCargoForDestination(pBestFoundPlot->getArea(), false);
 					pushGroupMoveTo(*pBestFoundPlot, NO_MOVEMENT_FLAGS, false, false,
 							MISSIONAI_FOUND, pBestFoundPlot);
 					return true;
@@ -16393,6 +21593,7 @@ bool CvUnitAI::AI_settlerSeaTransport()
 			}
 			else
 			{
+				AI_unloadSettlerCargoForDestination(pBestFoundPlot->getArea(), false);
 				pushGroupMoveTo(*pBestPlot, NO_MOVEMENT_FLAGS, false, false,
 						MISSIONAI_FOUND, pBestFoundPlot);
 				return true;
@@ -16450,18 +21651,22 @@ bool CvUnitAI::AI_settlerSeaTransport()
 	{
 		FAssert(!pBestPlot->isImpassable());
 
+		// <!-- custom: At the destination, retain an unnecessary Worker aboard; before either move, leave it on the origin landmass. (GPT-5.6-Sol) -->
 		if (pBestPlot == pBestFoundPlot ||
 			stepDistance(pBestPlot->getX(), pBestPlot->getY(),
 			pBestFoundPlot->getX(), pBestFoundPlot->getY()) == 1)
 		{
 			if (at(*pBestFoundPlot))
 			{
-				unloadAll(); // XXX is this dangerous (not pushing a mission...) XXX air units?
+				// <!-- custom: Base AdvCiv unloaded all cargo here; preserve the old call below for reference. The destination-aware helper still unloads the Settler and defenders but retains an unnecessary Worker aboard for another destination. (GPT-5.6-Sol) -->
+				// unloadAll(); // XXX is this dangerous (not pushing a mission...) XXX air units?
+				AI_unloadSettlerCargoForDestination(pBestFoundPlot->getArea(), true);
 				getGroup()->setActivityType(ACTIVITY_AWAKE); // K-Mod
 				return true;
 			}
 			else
 			{
+				AI_unloadSettlerCargoForDestination(pBestFoundPlot->getArea(), false);
 				pushGroupMoveTo(*pBestFoundPlot, NO_MOVEMENT_FLAGS, false, false,
 						MISSIONAI_FOUND, pBestFoundPlot);
 				return true;
@@ -16469,12 +21674,70 @@ bool CvUnitAI::AI_settlerSeaTransport()
 		}
 		else
 		{
+			AI_unloadSettlerCargoForDestination(pBestFoundPlot->getArea(), false);
 			pushGroupMoveTo(*pBestPlot, NO_MOVEMENT_FLAGS, false, false,
 					MISSIONAI_FOUND, pBestFoundPlot);
 			return true;
 		}
 	}
 	return false;
+}
+
+// <!-- custom: New destination-aware cargo helper because Base AdvCiv Settler transports unloaded accompanying Workers even when the destination landmass had no Worker demand. In save file 450, a Worker accompanied the Settler to Thapsus's island and remained idle there for 93 turns because none of its plots could be improved.
+// At the beginning of a founding voyage, leave Workers beyond the destination's exact deficit in the origin city. At the destination, unload only that deficit and retain any excess aboard for reuse elsewhere. Unload the Settler and defenders normally. See KI#192. (GPT-5.6-Sol) -->
+void CvUnitAI::AI_unloadSettlerCargoForDestination(CvArea const& kDestinationArea, bool bAtDestination)
+{
+	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	int const iWorkersNeeded = kOwner.AI_neededWorkers(kDestinationArea);
+	std::vector<CvUnit*> aCargoUnits;
+	getCargoUnits(aCargoUnits);
+	// <!-- custom: Cargo Workers may already be included in the destination-area count when the transport reaches its city. Count them separately so the exact shortage below can exclude them. (GPT-5.6-Sol) -->
+	int iCargoWorkers = 0;
+	for (size_t i = 0; i < aCargoUnits.size(); i++)
+	{
+		if (aCargoUnits[i]->AI_getUnitAIType() == UNITAI_WORKER)
+			iCargoWorkers++;
+	}
+	int iWorkersExisting = kOwner.AI_totalAreaUnitAIs(kDestinationArea, UNITAI_WORKER);
+	if (bAtDestination && getPlot().isArea(kDestinationArea))
+		iWorkersExisting = std::max(0, iWorkersExisting - iCargoWorkers);
+	int iWorkersStillNeeded = std::max(0, iWorkersNeeded - iWorkersExisting);
+	// <!-- custom: An underway founding voyage can be reconsidered in an intermediate friendly city. Only its initial non-FOUND assignment may leave excess Workers behind, so they cannot be dumped on that unrelated landmass. (GPT-5.6-Sol) -->
+	bool const bMayLeaveAtOrigin = (!bAtDestination && getPlot().isCity() && getPlot().getOwner() == getOwner() && AI_getGroup()->AI_getMissionAIType() != MISSIONAI_FOUND);
+	int iWorkersLeftAboardOrAtHome = 0;
+	for (size_t i = 0; i < aCargoUnits.size(); i++)
+	{
+		CvUnit* pCargo = aCargoUnits[i];
+		bool const bWorker = (pCargo->AI_getUnitAIType() == UNITAI_WORKER);
+		if (!bWorker)
+		{
+			if (bAtDestination)
+				pCargo->unload();
+			continue;
+		}
+		if (bAtDestination)
+		{
+			if (iWorkersStillNeeded > 0)
+			{
+				pCargo->unload();
+				if (pCargo->getTransportUnit() == NULL)
+					iWorkersStillNeeded--;
+			}
+			else iWorkersLeftAboardOrAtHome++;
+		}
+		else if (bMayLeaveAtOrigin)
+		{
+			if (iWorkersStillNeeded > 0)
+				iWorkersStillNeeded--;
+			else
+			{
+				pCargo->unload();
+				if (pCargo->getTransportUnit() == NULL)
+					iWorkersLeftAboardOrAtHome++;
+			}
+		}
+	}
+	if (gOverseasTransportLogLevel >= 2 && iWorkersLeftAboardOrAtHome > 0) logBBAI("SETTLER_WORKER_DESTINATION turn=%d player=%d unitId=%d result=%s workers=%d destinationArea=%d destinationTiles=%d workersNeeded=%d workersExisting=%d", GC.getGame().getGameTurn(), getOwner(), getID(), bAtDestination ? "RETAIN_ABOARD" : "LEAVE_AT_HOME", iWorkersLeftAboardOrAtHome, kDestinationArea.getID(), kDestinationArea.getNumTiles(), iWorkersNeeded, iWorkersExisting);
 }
 
 /*  advc: Renamed. This function is currently only used by UNITAI_SETTLER_SEA,
@@ -16522,10 +21785,6 @@ bool CvUnitAI::AI_ferryWorkers()
 		if (iValue <= 0)
 			continue;
 
-		int iPathTurns;
-		if (!generatePath(pLoopCity->getPlot(), NO_MOVEMENT_FLAGS, true, &iPathTurns))
-			continue;
-
 		int iAreaHave = kOwner.AI_totalAreaUnitAIs(pLoopCity->getArea(), UNITAI_WORKER);
 		// <advc.113> Don't count the workers in cargo as available
 		if (!getPlot().isWater() && pLoopCity->isArea(getArea()))
@@ -16533,7 +21792,16 @@ bool CvUnitAI::AI_ferryWorkers()
 			iAreaHave -= (2 * iWorkers) / 3;
 			FAssert(iAreaHave >= 0);
 		} // </advc.113>
-		iValue += std::max(0, kOwner.AI_neededWorkers(pLoopCity->getArea()) - iAreaHave);
+		// <!-- custom: Base AdvCiv's city demand could keep selecting the same small island after its landmass already had enough Workers.
+		// In the confirming run, ferrying accumulated 5 Workers on Sardis's two-tile landmass and 2 on Ergili's three-tile landmass. Treat landmass demand as a hard capacity and reject full destinations before running pathfinding. (GPT-5.6-Sol) -->
+		int const iAreaNeeded = kOwner.AI_neededWorkers(pLoopCity->getArea());
+		if (iAreaHave >= iAreaNeeded)
+			continue;
+		int iPathTurns;
+		if (!generatePath(pLoopCity->getPlot(), NO_MOVEMENT_FLAGS, true, &iPathTurns))
+			continue;
+
+		iValue += iAreaNeeded - iAreaHave;
 		iValue *= 1000;
 		iValue /= 4 + iPathTurns;
 		if (atPlot(pLoopCity->plot()))
@@ -17206,9 +22474,8 @@ bool CvUnitAI::AI_connectPlot(CvPlot const& kPlot, int iRange) // advc: 1st para
 }
 
 // advc: Cut from AI_improveCity to reduce code duplication
-bool CvUnitAI::AI_shouldRouteWhileImproving(CvPlot const& kDest,
-	MovementFlags& eFlags, // in-out param
-	CvCity const* pDestCity) const
+// in-out param <!-- custom: hoisted from multiline signature between `eFlags` and `pDestCity` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_shouldRouteWhileImproving(CvPlot const& kDest, MovementFlags& eFlags, CvCity const* pDestCity) const
 {
 	bool bRoute = false;
 	if (pDestCity != NULL && getPlot().getWorkingCity() != pDestCity /*||
@@ -17237,8 +22504,7 @@ bool CvUnitAI::AI_shouldRouteWhileImproving(CvPlot const& kDest,
 }
 
 // advc.pf: Don't route through foreign territory
-bool CvUnitAI::AI_canRouteThroughSafeTerritory(CvPlot const& kDest,
-	MovementFlags& eFlags) const // in-out param
+bool CvUnitAI::AI_canRouteThroughSafeTerritory(CvPlot const& kDest, MovementFlags& eFlags) const // in-out param
 {
 	PROFILE_FUNC(); // (Should be just a few calls per turn or a few dozen)
 	bool bRoute = true;
@@ -17261,10 +22527,18 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 
 	CvPlot* pBestPlot=NULL;
 	BuildTypes eBestBuild=NO_BUILD;
-	if (!AI_bestCityBuild(kCity, &pBestPlot, &eBestBuild, NULL, this))
+	BuildTypes eFollowupBuild=NO_BUILD;
+
+	// <!-- custom: this is one of the only 2 functions where our entirely rewritten and greatly worker efficiency optimizedAI_bestCityBuild function is ever called. I tried to implement roading on bonuses but we had more and more issues due to pushing missions or crashes, that even after i fixed them, made it so that worker efficiency was worse than before (many worker per tiles, roading in city tiles, etc.). So i reverted to latest known stable which was before the roading on bonuses changes, in how i did so. I kept the safeties we added as part of past changes though as they are nice to have. This is why below code mentions things like crash at turn 77 or such, i didn't reedit all code comments but they refer to old code we don't use anymore that was causing such crashes, and i thought the safeties are nice to keep for those that seem otherwise harmless, in how i did so -->
+	if (!AI_bestCityBuild(kCity, &pBestPlot, &eBestBuild, NULL, this, NULL, &eFollowupBuild))
 		return false; // advc
 	FAssert(pBestPlot != NULL);
 	FAssertEnumBounds(eBestBuild);
+
+	// <!-- custom: chatgpt 5 explained in its thoughts we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, i don't know exactly which if it's this caller or the other caller, but leaving it as such since we don't crash anymore at turn 77 -->
+	if (pBestPlot == NULL || eBestBuild == NO_BUILD)
+		return false;  // belt-and-suspenders
+
 	MovementFlags eFlags = NO_MOVEMENT_FLAGS; // advc.pf
 	// <advc> Moved into helper function
 	MissionTypes eMission = (AI_shouldRouteWhileImproving(*pBestPlot, eFlags, &kCity) ?
@@ -17273,17 +22547,18 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity)
 			pBestPlot->getX(), pBestPlot->getY(),
 			eFlags, false, false,
 			MISSIONAI_BUILD, pBestPlot);
-	eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
+	// <!-- custom: AI_bestCityBuild already selected and scored the exact build; postprocessing could replace Chop with an unrelated Road and separate the executed job from its evaluation. (GPT-5.5) -->
 	getGroup()->pushMission(MISSION_BUILD,
 			eBestBuild, -1,
 			eFlags, /*(getGroup()->getLengthMissionQueue() > 0)*/ true, // K-Mod
 			false, MISSIONAI_BUILD, pBestPlot);
+	if (eFollowupBuild != NO_BUILD)
+		getGroup()->pushMission(MISSION_BUILD, eFollowupBuild, -1, eFlags, true, false, MISSIONAI_BUILD, pBestPlot);
 	return true;
 }
 
 
-bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity,
-	int iMissingWorkersInArea) // advc.117
+bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, int iMissingWorkersInArea) // advc.117
 {
 	PROFILE_FUNC();
 
@@ -17366,18 +22641,34 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity,
 		int iPathTurns;
 		if (generatePath(p, NO_MOVEMENT_FLAGS, true, &iPathTurns))
 		{
-			int iMaxWorkers = 1;
 			if (at(p))
 			{
 				iValue *= 3;
 				iValue /= 2;
 			}
 			else if (getPathFinder().getFinalMoves() == 0)
+			{
 				iPathTurns++;
-			else if (iPathTurns <= 1)
-				iMaxWorkers = AI_calculatePlotWorkersNeeded(p, pCity->AI_getBestBuild(ePlot));
-			if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(p, MISSIONAI_BUILD, getGroup(),
-				/*<advc.opt>*/0, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers)
+			}
+			// <!-- custom: switch to strict 1 worker per tile for simplicity and efficiency -->
+			// else if (iPathTurns <= 1)
+			// {
+			// 	iMaxWorkers = AI_calculatePlotWorkersNeeded(p, pCity->AI_getBestBuild(ePlot));
+			// }
+			// if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(p, MISSIONAI_BUILD, getGroup(),
+			// 	/*<advc.opt>*/0, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers)
+			//
+			// <!-- custom: chatgpt 5 explanation of this code to help me make sense of this, check to be sure it is accurate or not accurate, hopefully informative as well for me or and others or not or yes or etc-->
+			// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
+			// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
+			// With iRange = 0, it only counts groups whose target is exactly the same tile.
+			// → Perfect for “one-per-tile"; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
+			// If you set iRange = 1 or 2, you create a “soft exclusion bubble" around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
+			int const iRange = 0;
+			// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore -->
+			int const iMaxWorkers = 1;
+			 if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(p, MISSIONAI_BUILD, getGroup(),
+			 	/*<advc.opt>*/iRange, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers)
 			{
 				iValue *= 1000;
 				iValue /= 1 + iPathTurns;
@@ -17428,73 +22719,178 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	PROFILE_FUNC();
 	FAssert(getDomainType() == DOMAIN_LAND); // advc
 
-	int iBestValue = 0;
+	// <!-- custom: now unused, see below for details -->
+	// int iBestValue = 0;
 	BuildTypes eBestBuild = NO_BUILD;
+	BuildTypes eBestFollowupBuild = NO_BUILD;
 	CvPlot* pBestPlot = NULL;
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 	//bool const bMoveAllTerrain = getGroup()->canMoveAllTerrain(); // advc
-	FOR_EACH_CITYAI(pLoopCity, kOwner)
-	{
-		if (pLoopCity == pCity)
-			continue;
-		// BETTER_BTS_AI_MOD, Worker AI, Efficiency, 02/22/10, jdog5000: START
-		// BBAI efficiency: check area for land units before path generation
-		// advc.opt: This function is only called for land units
-		if (/*getDomainType() == DOMAIN_LAND &&*/ !pLoopCity->isArea(getArea()) /*&&
-			!bMoveAllTerrain*/)
+
+	// <!-- custom: with AI worker move optimization (going to city B/C sooner instead of overimproving city A), workers now go back to city A since they consider it improved enough. Strong indication something else prevents going to city C (unimproved at turn 105-175). Making this much more lax since we handle worker oscillation in our own way. Old code prevented workers from ever going to city C - AI behaved badly, staying forever in city A. Results after fix: tremendous improvement - city C now fully improved and size 2 at turn 105, with 5+ tiles chopped/improved (jungle chopping gives production in our mod), instead of staying parked in city A. Jungle cities get first improvements much earlier. See known issue 41 with screenshots for details. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+	// FOR_EACH_CITYAI(pLoopCity, kOwner)
+	// {
+	// 	if (pLoopCity == pCity)
+	// 		continue;
+	// 	// BETTER_BTS_AI_MOD, Worker AI, Efficiency, 02/22/10, jdog5000: START
+	// 	// BBAI efficiency: check area for land units before path generation
+	// 	// advc.opt: This function is only called for land units
+	// 	if (/*getDomainType() == DOMAIN_LAND &&*/ !pLoopCity->isArea(getArea()) /*&&
+	// 		!bMoveAllTerrain*/)
+	// 	{
+	// 		continue;
+	// 	}
+	// 	//iValue = pLoopCity->AI_totalBestBuildValue(area());
+	// 	int iWorkersNeeded = pLoopCity->AI_getWorkersNeeded();
+	// 	// <advc.113>
+	// 	if (iWorkersNeeded <= 0)
+	// 		continue;
+	// 	/*  Don't want cities to produce that many workers, but don't be as strict
+	// 		when it comes to worker movement. */
+	// 	iWorkersNeeded++; // </advc.113>
+	// 	int iWorkersHave = pLoopCity->AI_getWorkersHave();
+	// 	int iValue = std::max(0, iWorkersNeeded - iWorkersHave) * 100;
+	// 	iValue += iWorkersNeeded * 10;
+	// 	iValue *= iWorkersNeeded + 1;
+	// 	iValue /= iWorkersHave + 1;
+	// 	if (iValue <= 0)
+	// 		continue;
+
+	// 	CvPlot* pPlot = NULL;
+	// 	BuildTypes eBuild = NO_BUILD;
+	// 	if (/* advc.opt: */ pLoopCity->AI_getBestBuild(NO_CITYPLOT) == NO_BUILD ||
+	// 		!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
+	// 	{
+	// 		continue;
+	// 	}
+	// 	FAssert(pPlot != NULL && eBuild != NO_BUILD);
+	// 	//if (!AI_plotValid(pPlot)) continue; // advc.opt: Area check suffices
+
+	// 	iValue *= 1000;
+	// 	if (pLoopCity->isCapital())
+	// 		iValue = (iValue * 170) / 100; // advc.113: Was *2, which seems a bit much.
+	// 	if (iValue <= iBestValue)
+	// 		continue;
+
+	// 	int iPathTurns;
+	// 	if (!generatePath(*pPlot, NO_MOVEMENT_FLAGS, true, &iPathTurns))
+	// 		continue;
+
+	// 	iValue /= (iPathTurns + 1);
+	// 	if (iValue > iBestValue)
+	// 	{
+	// 		iBestValue = iValue;
+	// 		eBestBuild = eBuild;
+	// 		pBestPlot = pPlot;
+	// 		//FAssert(!atPlot(pBestPlot) || NULL == pCity || pCity->AI_getWorkersNeeded() == 0 || pCity->AI_getWorkersHave() > pCity->AI_getWorkersNeeded() + 1);
+	// 	}
+	// 	// BETTER_BTS_AI_MOD: END
+	// }
+
+    // Simple path-finder handle (same one K-Mod uses in this fn)
+    GroupPathFinder& pf = CvSelectionGroup::pathFinder();
+    pf.setGroup(*getGroup(), NO_MOVEMENT_FLAGS);
+
+	// <!-- custom: Compare every city's best available job instead of stopping at the first viable city. (GPT-5.5) -->
+    int bestScore = MIN_INT;
+
+	bool const bLogWorkerCityTargetLevel = (gWorkerLogLevel >= 3);
+
+    FOR_EACH_CITYAI(pLoopCity, kOwner)
+    {
+        // land workers stick to same land area (keeps it sane)
+        if (!pLoopCity->isArea(getArea()))
+            continue;
+		bool const bLogWorkerCityTarget = (bLogWorkerCityTargetLevel && pLoopCity->getPopulation() >= 6);
+
+        // Ask the per-city logic for its single best target plot + build
+        CvPlot* pPlot = NULL;
+        BuildTypes eBuild = NO_BUILD;
+		BuildTypes eFollowupBuild = NO_BUILD;
+		int iBuildValue = 0;
+		// <!-- custom: Legacy context: calling only our rewritten AI_bestCityBuild initially exposed crashes around turns 77/156, so its callers and outputs retain explicit null/NO_BUILD guards. This version no longer depends on old AI_getBestBuild filtering, which had hidden valid custom worker jobs; attempted bonus-roading additions were reverted after making workers less efficient. (GPT-5.5) -->
+        // <!-- custom: AI_getBestBuild is disabled for land improvements; relying on it here made workers ignore cities whose custom AI_bestCityBuild still had work. In the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; letting AI_bestCityBuild decide fixed the in-game case. (GPT-5.5) -->
+        if (!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this, &iBuildValue, &eFollowupBuild))
+        {
+			if (bLogWorkerCityTarget)
+				logBBAI("    %S worker city-target scan: city=%S pop=%d no AI_bestCityBuild candidate", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation());
+            continue; // nothing useful to do in this city right now
+        }
+        FAssert(pPlot != NULL && eBuild != NO_BUILD);
+		// <!-- custom: chatgpt 5 explained in its thoughts we don't check these asserts in a release build, i don't know too much about these but i use a release build, and adding these fixes it as well as checking it in other callers, so left as such -->
+		if (pPlot == NULL || eBuild == NO_BUILD)
 		{
+			if (bLogWorkerCityTarget)
+				logBBAI("    %S worker city-target scan: city=%S pop=%d invalid AI_bestCityBuild output plot=%d build=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot != NULL, (int)eBuild);
 			continue;
 		}
-		//iValue = pLoopCity->AI_totalBestBuildValue(area());
-		int iWorkersNeeded = pLoopCity->AI_getWorkersNeeded();
-		// <advc.113>
-		if (iWorkersNeeded <= 0)
-			continue;
-		/*  Don't want cities to produce that many workers, but don't be as strict
-			when it comes to worker movement. */
-		iWorkersNeeded++; // </advc.113>
-		int iWorkersHave = pLoopCity->AI_getWorkersHave();
-		int iValue = std::max(0, iWorkersNeeded - iWorkersHave) * 100;
-		iValue += iWorkersNeeded * 10;
-		iValue *= iWorkersNeeded + 1;
-		iValue /= iWorkersHave + 1;
-		if (iValue <= 0)
-			continue;
+		// <!-- custom: old hard reject mentioned in known issues (for those that mention this hard reject) 55, 56, 57, 58, 59, 60, we reverted all these changes due to worker efficiency being worse and it being too hard or tedious to fix, so we shouldn't have crashes anymore, but if ever need consider uncommenting this, although very suboptimal as it rejects everything based on chatgpt 5's explanation and what i understood of it, but it often helped temporarily fix crashes until i could pinpoint and do a more selective or proper fix, so kept commented out rather than removed in case it helps debug code someday or such. Crashes should now be unlikely to happen as i reverted our changes and reliance on old base advciv code like the AI_getBestBuild check in this function too not just our rewritten function's check, even if bit less efficient like roading bonsues a bit later or such, is not worth all the issues we get later trying to improve it at least not easy to do so so left as such, hopefully efficient enough-->
+		// if (pBestPlot == NULL || eBestBuild == NO_BUILD)
+		// 	continue;
 
-		CvPlot* pPlot = NULL;
-		BuildTypes eBuild = NO_BUILD;
-		if (/* advc.opt: */ pLoopCity->AI_getBestBuild(NO_CITYPLOT) == NO_BUILD ||
-			!AI_bestCityBuild(*pLoopCity, &pPlot, &eBuild, NULL, this))
-		{
-			continue;
+        // Don’t dogpile a tile already targeted by someone else
+        const int iMaxWorkers = 1;
+        int const iReservedCityTargetPlot = GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pPlot, MISSIONAI_BUILD,
+                getGroup(), /*iRange*/0, /*iMaxCount*/iMaxWorkers);
+        if (iReservedCityTargetPlot >= iMaxWorkers)
+        {
+			if (bLogWorkerCityTarget)
+				logBBAI("    %S worker city-target scan: city=%S pop=%d rejected reserved plot=(%d,%d) build=%S reserved=%d/%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription(), iReservedCityTargetPlot, iMaxWorkers);
+            continue;
+        }
+
+        // Must be pathable (use MOVE_SAFE_TERRITORY bias for routes if possible)
+        if (!pf.generatePath(*pPlot))
+        {
+			if (bLogWorkerCityTarget)
+				logBBAI("    %S worker city-target scan: city=%S pop=%d rejected no path plot=(%d,%d) build=%S", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), pPlot->getX(), pPlot->getY(), GC.getInfo(eBuild).getDescription());
+            continue;
 		}
-		FAssert(pPlot != NULL && eBuild != NO_BUILD);
-		//if (!AI_plotValid(pPlot)) continue; // advc.opt: Area check suffices
 
-		iValue *= 1000;
-		if (pLoopCity->isCapital())
-			iValue = (iValue * 170) / 100; // advc.113: Was *2, which seems a bit much.
-		if (iValue <= iBestValue)
-			continue;
+		// <!-- custom: Workers heavily improved unused Dortmund tundra while Cologne/Chengdu lacked valuable Grass Hill Mines until very late. Rank work across all cities by the shared per-plot build value, scaled proportionally only while a city lacks enough completed or already-assigned improvements for its population; counting assigned workers prevents dogpiling while preserving one-worker-per-plot reservations. This avoids both the old high-population penalty and arbitrary additive/working-plot bonuses, while leaving candidate valuation responsible for Food-vs-Production tradeoffs. Distance remains a modest efficiency cost. (GPT-5.5) -->
+		static const int iPathTurnValuePenalty = GC.getDefineINT("SAS_AI_WORKER_CITY_JOB_PATH_TURN_VALUE_PENALTY");
+		bool const bWorkedPlot = pLoopCity->isWorkingPlot(*pPlot);
+		int const iImprovedPlots = countImprovedTiles(pLoopCity);
+		int const iAssignedWorkers = std::max(0, pLoopCity->AI_getWorkersHave() - (pLoopCity == pCity ? 1 : 0));
+		int const iEffectiveImprovedPlots = iImprovedPlots + iAssignedWorkers;
+		int const iReadinessPercent = std::max(100, 100 * (pLoopCity->getPopulation() + 1) / (iEffectiveImprovedPlots + 1));
+        int score = iBuildValue * iReadinessPercent / 100;
+        int const pathTurns = pf.getPathTurns();
+        score -= iPathTurnValuePenalty * pathTurns;
 
-		int iPathTurns;
-		if (!generatePath(*pPlot, NO_MOVEMENT_FLAGS, true, &iPathTurns))
-			continue;
-
-		iValue /= (iPathTurns + 1);
-		if (iValue > iBestValue)
-		{
-			iBestValue = iValue;
-			eBestBuild = eBuild;
-			pBestPlot = pPlot;
-			//FAssert(!atPlot(pBestPlot) || NULL == pCity || pCity->AI_getWorkersNeeded() == 0 || pCity->AI_getWorkersHave() > pCity->AI_getWorkersNeeded() + 1);
+        // If this target is on a bonus, fold in <iAIObjective>
+        BonusTypes eB = pPlot->getNonObsoleteBonusType(getTeam());
+        if (eB != NO_BONUS)
+        {
+            const int obj = GC.getBonusInfo(eB).getAIObjective(); // XML dial
+            if (obj > 0)
+            {
+				// <!-- custom: note: if we already have it, no need to rush to it ideally, but maybe fine as a simplification to go for them first, we could trade it, or lose our copy of it, etc. Valuable to have first and to simplify accurately enough -->
+				score += (obj * 25000);
+			}
 		}
-		// BETTER_BTS_AI_MOD: END
+
+        if (bLogWorkerCityTarget)
+        {
+			BonusTypes const eDiagnosticBonus = pPlot->getNonObsoleteBonusType(getTeam());
+			wchar const* szDiagnosticBonus = (eDiagnosticBonus == NO_BONUS ? L"-" : GC.getInfo(eDiagnosticBonus).getDescription());
+			wchar const* szDiagnosticFollowup = (eFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eFollowupBuild).getDescription());
+			logBBAI("    %S worker city-target candidate: city=%S pop=%d improved=%d assignedWorkers=%d effectiveImproved=%d readinessPercent=%d plot=(%d,%d) worked=%d build=%S followup=%S buildValue=%d bonus=%S pathTurns=%d score=%d bestBefore=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), pLoopCity->getName().GetCString(), pLoopCity->getPopulation(), iImprovedPlots, iAssignedWorkers, iEffectiveImprovedPlots, iReadinessPercent, pPlot->getX(), pPlot->getY(), bWorkedPlot, GC.getInfo(eBuild).getDescription(), szDiagnosticFollowup, iBuildValue, szDiagnosticBonus, pf.getPathTurns(), score, bestScore);
+		}
+        if (score > bestScore)
+        {
+            bestScore = score;
+            eBestBuild = eBuild;
+			eBestFollowupBuild = eFollowupBuild;
+            pBestPlot  = pPlot;
+        }
+
 	}
 
-	if (pBestPlot == NULL)
-		return false;
-	FAssertEnumBounds(eBestBuild);
+	// <!-- custom: turn 156 rare crash; proper guard added below. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+	// if (pBestPlot == NULL)
+	// 	return false;
+	// FAssertEnumBounds(eBestBuild);
 	// advc.113b: Now handled by AI_workerMove
 	/*if (getPlot().getWorkingCity() != NULL)
 		getPlot().getWorkingCity()->AI_changeWorkersHave(-1);
@@ -17502,6 +22898,27 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 	if (NULL != pBestPlot->getWorkingCity())
 		pBestPlot->getWorkingCity()->AI_changeWorkersHave(+1);*/
 
+	if (pBestPlot == NULL || eBestBuild == NO_BUILD)
+		return false;
+
+	// <!-- custom: i want to see if just the first new guard is enough and not the second new guard, if you have an error consider enabling the 2nd guard -->
+	// re-validate in case something changed just now
+	// if (!canBuild(*pBestPlot, eBestBuild))
+	// 	return false;
+	FAssertEnumBounds(eBestBuild);
+	if (gWorkerLogLevel >= 2)
+	{
+		CvCity const* pChosenWorkingCity = pBestPlot->getWorkingCity();
+		wchar const* szFollowupBuild = (eBestFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eBestFollowupBuild).getDescription());
+		logBBAI("    %S worker city-job chosen: from=(%d,%d) targetCity=%S plot=(%d,%d) build=%S followup=%S currentCity=%d bestScore=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), getX(), getY(), (pChosenWorkingCity == NULL ? L"-" : pChosenWorkingCity->getName().GetCString()), pBestPlot->getX(), pBestPlot->getY(), GC.getInfo(eBestBuild).getDescription(), szFollowupBuild, (pChosenWorkingCity == pCity), bestScore);
+	}
+
+	// <!-- custom: this tentative fix doesn't fix crash at turn 95 so disabled -->
+	// // 1) Re-validate legality of the planned build now
+	// if (!canBuild(*pBestPlot, eBestBuild))
+	// 	return false; // something changed; replan next turn
+
+	// <!-- custom: reverted the roading and such logic and crash fixes here as well as said above in code comments too as workers were not efficient and not worth the hassle, see above for details -->
 	// <advc.121>
 	MissionTypes eMission = MISSION_MOVE_TO;
 	if (!getPlot().isSamePlotGroup(*pBestPlot, getOwner()) || !getPlot().isRoute() ||
@@ -17514,11 +22931,23 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
 			pBestPlot->getX(), pBestPlot->getY(),
 			eMission == MISSION_ROUTE_TO ? MOVE_SAFE_TERRITORY : NO_MOVEMENT_FLAGS, // advc.pf
 			false, false, MISSIONAI_BUILD, pBestPlot);
-	eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
+	// <!-- custom: AI_bestCityBuild already evaluates the city, plot, feature removal, and exact build together. Chengdu selected Chop Forest at (29,11) on turn 106, but postprocessing it through AI_betterPlotBuild replaced the scored and reserved job with Road; execute the selected build unchanged so worker assignment remains consistent with its full evaluation. (GPT-5.5) -->
 	getGroup()->pushMission(MISSION_BUILD,
 			eBestBuild, -1, NO_MOVEMENT_FLAGS,
 			//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pBestPlot);
 			true, false, MISSIONAI_BUILD, pBestPlot); // K-Mod
+	// <!-- custom: AI_bestCityBuild deliberately chooses standalone feature removal so Forest/Jungle production arrives sooner, but previously forgot the valuable Mine/Farm/Cottage/etc. it had selected underneath. Continue into that evaluator-selected improvement when supplied; low-value no-bonus follow-ups are filtered by XML, while mission legality is checked again when the queued build executes. (GPT-5.5) -->
+	if (eBestFollowupBuild != NO_BUILD)
+	{
+		getGroup()->pushMission(MISSION_BUILD, eBestFollowupBuild, -1, NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pBestPlot);
+	}
+	// <!-- custom: Pair the chosen city job with the exact worker, movement mode, and resulting queue so repeated selections can be distinguished from separate workers and traced through mission execution. No behavior change. (GPT-5.5) -->
+	if (gWorkerLogLevel >= 3)
+	{
+		wchar const* szFollowupBuild = (eBestFollowupBuild == NO_BUILD ? L"-" : GC.getInfo(eBestFollowupBuild).getDescription());
+		logBBAI("    WORKER_CITY_ASSIGNMENT turn=%d player=%d %S workerId=%d worker=(%d,%d) groupId=%d target=(%d,%d) moveMission=%d build=%S followup=%S missionAI=%d missionQueue=%d movesSpent=%d movesLeft=%d",
+			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getX(), getY(), getGroup()->getID(), pBestPlot->getX(), pBestPlot->getY(), eMission, GC.getInfo(eBestBuild).getDescription(), szFollowupBuild, AI_getGroup()->AI_getMissionAIType(), getGroup()->getLengthMissionQueue(), getMoves(), movesLeft());
+	}
 	return true;
 }
 
@@ -17563,131 +22992,142 @@ bool CvUnitAI::AI_nextCityToImproveAirlift()
 }
 
 
+// <!-- custom: we handle these ourselves now in CvUnitAI::AI_bestCityBuild, please do not override and interfere with our preferred ideal tiles like often cottages on flood plains or grass, no farm on plains spices (exceptions managed there as well), we as of now don't strictly handle irrigation, but we want to remove unwanted interferences, this ruins good city radiuses with needless farms just because a tile, any unimproved tile, can be irrigated, according to what i understand of claude ai's explanation, and otherwise we have almost total control and improved it nicely. So testing commenting-out this function entirely to see what happens, as advised by claude ai, we already choose and improve cities based on terrain and such, even if as of now we don't handle irrigation, it is not a concern big enough to override nice and ultimate or at least very efficient yield and terrain optimization we added, so testing to disable functionally this to see -->
 bool CvUnitAI::AI_irrigateTerritory()
 {
-	PROFILE_FUNC();
-	// <advc.300>
-	if (isBarbarian())
-		return false; // </advc.300>
-	// Erik <OPT1> Cache the viable subset of builds so that we don't have to loop through all of them
-	std::vector<BuildTypes> irrigationCarryingBuilds;
-	FOR_EACH_ENUM(Build)
-	{
-		if (GC.getInfo(eLoopBuild).getImprovement() != NO_IMPROVEMENT)
-		{
-			ImprovementTypes eImprovement = GC.getInfo(eLoopBuild).getImprovement();
-			if (GC.getInfo(eImprovement).isCarriesIrrigation())
-				irrigationCarryingBuilds.push_back(eLoopBuild);
-		}
-	} // </OPT1>
+	// PROFILE_FUNC();
+	// // <advc.300>
+	// if (isBarbarian())
+	// 	return false; // </advc.300>
+	// // Erik <OPT1> Cache the viable subset of builds so that we don't have to loop through all of them
+	// std::vector<BuildTypes> irrigationCarryingBuilds;
+	// FOR_EACH_ENUM(Build)
+	// {
+	// 	if (GC.getInfo(eLoopBuild).getImprovement() != NO_IMPROVEMENT)
+	// 	{
+	// 		ImprovementTypes eImprovement = GC.getInfo(eLoopBuild).getImprovement();
+	// 		if (GC.getInfo(eImprovement).isCarriesIrrigation())
+	// 			irrigationCarryingBuilds.push_back(eLoopBuild);
+	// 	}
+	// } // </OPT1>
 
-	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
-	int const iGwEventTally = GC.getGame().getGwEventTally();
+	// CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+	// int const iGwEventTally = GC.getGame().getGwEventTally();
 
-	CvPlot const* pBestPlot = NULL;
-	BuildTypes eBestBuild = NO_BUILD;
-	int iBestValue = 0;
-	// advc.pf: Mainly to avoid placing routes along the way through foreign borders
-	MovementFlags const eFlags = MOVE_SAFE_TERRITORY;
-	for (int i = 0; i < GC.getMap().numPlots(); i++)
-	{
-		CvPlot const& kLoopPlot = GC.getMap().getPlotByIndex(i);
-		if (!kLoopPlot.isArea(getArea()))
-			continue;
+	// CvPlot const* pBestPlot = NULL;
+	// BuildTypes eBestBuild = NO_BUILD;
+	// int iBestValue = 0;
+	// // advc.pf: Mainly to avoid placing routes along the way through foreign borders
+	// MovementFlags const eFlags = MOVE_SAFE_TERRITORY;
+	// for (int i = 0; i < GC.getMap().numPlots(); i++)
+	// {
+	// 	CvPlot const& kLoopPlot = GC.getMap().getPlotByIndex(i);
+	// 	if (!kLoopPlot.isArea(getArea()))
+	// 		continue;
 
-		if (/*!AI_plotValid(&kLoopPlot) ||*/ // advc.opt: The area check is enough
-			kLoopPlot.getOwner() != kOwner.getID() || // XXX team???
-			kLoopPlot.getWorkingCity() != NULL)
-		{
-			continue;
-		}
-		ImprovementTypes const eCurrentImprov = kLoopPlot.getImprovementType();
-		if (eCurrentImprov != NO_IMPROVEMENT)
-		{
-			if (kOwner.isAutomationSafe(kLoopPlot))
-				continue;
-			if (GC.getInfo(eCurrentImprov).isCarriesIrrigation())
-				continue;
-			BonusTypes const eBonus = kLoopPlot.getNonObsoleteBonusType(getTeam());
-			if (eBonus != NO_BONUS &&
-				// !(GC.getInfo(eImprovement).isImprovementBonusTrade(eBonus)))
-				kOwner.doesImprovementConnectBonus(eCurrentImprov, eBonus)) // K-Mod
-			{
-				continue;
-			}
-		}
-		if (!kLoopPlot.isIrrigationAvailable(true))
-			continue;
+	// 	if (/*!AI_plotValid(&kLoopPlot) ||*/ // advc.opt: The area check is enough
+	// 		kLoopPlot.getOwner() != kOwner.getID() || // XXX team???
+	// 		kLoopPlot.getWorkingCity() != NULL)
+	// 	{
+	// 		continue;
+	// 	}
+	// 	ImprovementTypes const eCurrentImprov = kLoopPlot.getImprovementType();
+	// 	if (eCurrentImprov != NO_IMPROVEMENT)
+	// 	{
+	// 		if (kOwner.isAutomationSafe(kLoopPlot))
+	// 			continue;
+	// 		if (GC.getInfo(eCurrentImprov).isCarriesIrrigation())
+	// 			continue;
+	// 		BonusTypes const eBonus = kLoopPlot.getNonObsoleteBonusType(getTeam());
+	// 		if (eBonus != NO_BONUS &&
+	// 			// !(GC.getInfo(eImprovement).isImprovementBonusTrade(eBonus)))
+	// 			kOwner.doesImprovementConnectBonus(eCurrentImprov, eBonus)) // K-Mod
+	// 		{
+	// 			continue;
+	// 		}
+	// 	}
+	// 	if (!kLoopPlot.isIrrigationAvailable(true))
+	// 		continue;
 
-		int iBestTempBuildValue = MAX_INT;
-		BuildTypes eBestTempBuild = NO_BUILD;
-		for (size_t iJ = 0; iJ < irrigationCarryingBuilds.size(); iJ++)
-		{
-			const BuildTypes eBuild = irrigationCarryingBuilds[iJ];
-			if (!canBuild(kLoopPlot, eBuild))
-				continue;
-			/*  <advc.121> Was 10000/(...getTime()+1). Same problem as in
-				AI_improveBonus (see there). */
-			int iValue = GC.getInfo(eBuild).getTime();
-			// XXX feature production???
-			if (iValue < iBestTempBuildValue)
-			{
-				iBestTempBuildValue = iValue;
-				eBestTempBuild = eBuild;
-			}
-		}
-		if (eBestTempBuild == NO_BUILD)
-			continue;
+	// 	int iBestTempBuildValue = MAX_INT;
+	// 	BuildTypes eBestTempBuild = NO_BUILD;
+	// 	for (size_t iJ = 0; iJ < irrigationCarryingBuilds.size(); iJ++)
+	// 	{
+	// 		const BuildTypes eBuild = irrigationCarryingBuilds[iJ];
+	// 		if (!canBuild(kLoopPlot, eBuild))
+	// 			continue;
+	// 		/*  <advc.121> Was 10000/(...getTime()+1). Same problem as in
+	// 			AI_improveBonus (see there). */
+	// 		int iValue = GC.getInfo(eBuild).getTime();
+	// 		// XXX feature production???
+	// 		if (iValue < iBestTempBuildValue)
+	// 		{
+	// 			iBestTempBuildValue = iValue;
+	// 			eBestTempBuild = eBuild;
+	// 		}
+	// 	}
+	// 	if (eBestTempBuild == NO_BUILD)
+	// 		continue;
 
-		FeatureTypes const eFeature = kLoopPlot.getFeatureType();
-		if (eFeature != NO_FEATURE && GC.getInfo(eBestTempBuild).isFeatureRemove(eFeature))
-		{
-			CvFeatureInfo const& kFeatureInfo = GC.getInfo(kLoopPlot.getFeatureType());
-			// K-Mod:
-			if ((iGwEventTally >= 0 && kFeatureInfo.getWarmingDefense() > 0) ||
-				(kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS) &&
-				kFeatureInfo.getYieldChange(YIELD_PRODUCTION) > 0))
-			{
-				continue;
-			}
-		}
+	// 	FeatureTypes const eFeature = kLoopPlot.getFeatureType();
+	// 	if (eFeature != NO_FEATURE && GC.getInfo(eBestTempBuild).isFeatureRemove(eFeature))
+	// 	{
+	// 		CvFeatureInfo const& kFeatureInfo = GC.getInfo(kLoopPlot.getFeatureType());
+	// 		// K-Mod:
+	// 		if ((iGwEventTally >= 0 && kFeatureInfo.getWarmingDefense() > 0) ||
+	// 			(kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS) &&
+	// 			kFeatureInfo.getYieldChange(YIELD_PRODUCTION) > 0))
+	// 		{
+	// 			continue;
+	// 		}
+	// 	}
 
-		if (kLoopPlot.isVisibleEnemyUnit(this) ||
-			kOwner.AI_isAnyPlotTargetMissionAI(kLoopPlot, MISSIONAI_BUILD, getGroup(), 1))
-		{
-			continue;
-		}
-		int iPathTurns; // XXX should this actually be at the top of the loop? (with saved paths and all...)
-		if (generatePath(kLoopPlot, eFlags, true, &iPathTurns))
-		{
-			const int iValue = 10000 - iPathTurns; // advc.opt: Instead of dividing by iPathTurns+1
-			if (iValue > iBestValue)
-			{
-				iBestValue = iValue;
-				eBestBuild = eBestTempBuild;
-				pBestPlot = &kLoopPlot;
-			}
-		}
-	}
+	// 	if (kLoopPlot.isVisibleEnemyUnit(this) ||
+	// 		kOwner.AI_isAnyPlotTargetMissionAI(kLoopPlot, MISSIONAI_BUILD, getGroup(), 1))
+	// 	{
+	// 		continue;
+	// 	}
+	// 	int iPathTurns; // XXX should this actually be at the top of the loop? (with saved paths and all...)
+	// 	if (generatePath(kLoopPlot, eFlags, true, &iPathTurns))
+	// 	{
+	// 		const int iValue = 10000 - iPathTurns; // advc.opt: Instead of dividing by iPathTurns+1
+	// 		if (iValue > iBestValue)
+	// 		{
+	// 			iBestValue = iValue;
+	// 			eBestBuild = eBestTempBuild;
+	// 			pBestPlot = &kLoopPlot;
+	// 		}
+	// 	}
+	// }
 
-	if (pBestPlot == NULL)
-		return false;
+	// if (pBestPlot == NULL)
+	// 	return false;
 
-	FAssertBounds(NO_BUILD, GC.getNumBuildInfos(), eBestBuild);
-	getGroup()->pushMission(MISSION_ROUTE_TO,
-			pBestPlot->getX(), pBestPlot->getY(), eFlags, false,
-			false, MISSIONAI_BUILD, pBestPlot);
-	getGroup()->pushMission(MISSION_BUILD,
-			eBestBuild, -1, eFlags,
-			true, // K-Mod: was (getGroup()->getLengthMissionQueue() > 0)
-			false, MISSIONAI_BUILD, pBestPlot);
-	return true;
+	// FAssertBounds(NO_BUILD, GC.getNumBuildInfos(), eBestBuild);
+	// getGroup()->pushMission(MISSION_ROUTE_TO,
+	// 		pBestPlot->getX(), pBestPlot->getY(), eFlags, false,
+	// 		false, MISSIONAI_BUILD, pBestPlot);
+	// getGroup()->pushMission(MISSION_BUILD,
+	// 		eBestBuild, -1, eFlags,
+	// 		true, // K-Mod: was (getGroup()->getLengthMissionQueue() > 0)
+	// 		false, MISSIONAI_BUILD, pBestPlot);
+	// return true;
+	return false;
 }
 
 
 bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
 {
 	PROFILE_FUNC();
+
+	// <!-- custom: Keep AI fort construction disabled at the fort helper too when the corresponding SAS define is 0, not only at the worker-move callers. Late-game outside-BFC fort-airbase selection reappeared after more workers were available; if another path calls this helper while the define is disabled, log the attempted source instead of silently building forts that spend worker turns for weak practical value or block irrigation chains. (GPT-5.5) -->
+	static const bool bAllowFortAirbaseWorkers = GC.getDefineBOOL("SAS_AI_WORKER_FORT_AIRBASE_ENABLE");
+	if (!bAllowFortAirbaseWorkers && (bCanal || bAirbase))
+	{
+		if (gWorkerLogLevel >= 2)
+			logBBAI("    %S worker skips disabled fort-territory path: canal=%d airbase=%d", GET_PLAYER(getOwner()).getCivilizationDescription(0), bCanal, bAirbase);
+		return false;
+	}
 
 	/*	K-Mod. This function currently only handles canals and airbases.
 		So if we want neither, just abort. */
@@ -17797,9 +23237,10 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
 	return false;
 }
 
+// <!-- custom: i have noticed that commenting out this function entirely in the inner body i mean in this caseand returning always and only false, we'd fix farm spices issue, however we'd lose the roading bonuses ability we had; i didn't see an easy way to selectively do this with AIs like chatgpt o3, so kept as is and tolerating occasional suboptimal improvements for the sake of having many nice ones often (we now mostly handle improving bonuses ourselves in CvUnitAI::AI_bestCityBuild in a way that should be much more efficient); update: i have tried and now added in `CvUnitAI::AI_improveBonus`to replace the ebuild code here with our bonus specific finding and algorithm code, but it seems issue persisted, so to not needlessly conflict with what this code could do, leave it as is although not optimal but maybe fine or yes or other or etc-->
 //bool CvUnitAI::AI_improveBonus(int iMinValue, CvPlot** ppBestPlot, BuildTypes* peBestBuild, int* piBestValue)
-bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anyway.)
-	int iMissingWorkersInArea) // advc.121
+// K-Mod. (all that junk wasn't being used anyway.) <!-- custom: hoisted from multiline signature before `iMissingWorkersInArea` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 {
 	PROFILE_FUNC();
 
@@ -17810,6 +23251,7 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 	CvPlot const* pBestPlot = NULL;
 	int iBestValue = 0;
 	bool bCanRoute = canBuildRoute();
+	static const int iSAS_WORKER_AI_IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT");
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot const& kPlot = GC.getMap().getPlotByIndex(iI);
@@ -17837,7 +23279,8 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 			continue;
 
 		bool bConnected = kPlot.isConnectedToCapital(getOwner());
-		if(kPlot.getWorkingCity() == NULL && !bConnected && !bCanRoute)
+		// <!-- custom: Work Boats can connect sea bonuses through the bonus improvement itself. Do not reject owned outside-BFC seafood merely because the plot has no working city and the unit cannot build routes; AI_neededSeaWorkers counts those targets, so rejecting them here can create a produce-boat / target-still-unimproved loop. Later checks still require AI_canConnectBonus, canBuild, pathing, and target reservation. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->
+		if(kPlot.getWorkingCity() == NULL && !bConnected && !bCanRoute && getDomainType() != DOMAIN_SEA)
 			continue;
 
 		// <advc.300> Barbarian workers shouldn't improve bonuses around remote cities
@@ -17863,6 +23306,9 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 		// K-Mod. Simpler, and better.
 		bool bDoImprove = true;
 		ImprovementTypes eImprovement = kPlot.getImprovementType();
+		// <!-- custom: Sea workers should not spend themselves on a bonus that already has a connecting sea improvement. This guards stale Work Boats after another boat solved the target; unresolved repeated Work Boat production now appears more related to net loss/attrition than idle production. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->
+		if (getDomainType() == DOMAIN_SEA && eImprovement != NO_IMPROVEMENT && kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
+			continue;
 		CvCityAI const* pWorkingCity = kPlot.AI_getWorkingCity();
 		BuildTypes eBestTempBuild = NO_BUILD;
 		if (eImprovement != NO_IMPROVEMENT &&
@@ -17877,9 +23323,15 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 		}
 		else if (pWorkingCity != NULL)
 		{
-			// Let "best build" handle improvement replacements near cities.
-			BuildTypes eBuild = pWorkingCity->AI_getBestBuild(
-					pWorkingCity->getCityPlotIndex(kPlot));
+			// <!-- custom: Land city best-build data is intentionally disabled, so do not gate damaged BFC bonuses on AI_getBestBuild. In the Niani 2027 AD autoplay sample, a roaded but unimproved Pig stayed unimproved while nearby workers were on HOLD; using our bonus-specific land-build table fixed the in-game case so altered/pillaged BFC bonuses are re-improved promptly. (GPT-5.5) -->
+			BuildTypes eBuild = NO_BUILD;
+			if (getDomainType() == DOMAIN_LAND && !kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus))
+				eBuild = kPlot.SAS_getBonusSpecificBuild(eNonObsoleteBonus);
+			if (eBuild == NO_BUILD)
+			{
+				// Let "best build" handle improvement replacements near cities for non-land-worker cases.
+				eBuild = pWorkingCity->AI_getBestBuild(pWorkingCity->getCityPlotIndex(kPlot));
+			}
 			if (eBuild != NO_BUILD && kOwner.doesImprovementConnectBonus(
 				GC.getInfo(eBuild).getImprovement(), eNonObsoleteBonus) &&
 				canBuild(kPlot, eBuild))
@@ -17933,23 +23385,41 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
 					!kPlot.isFeature() ? true :
 					GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()));
 		}
-		iValue += std::max(0, 100 * GC.getInfo(eNonObsoleteBonus).getAIObjective());
+		// <!-- custom: improve iron before stone -->
+		// iValue += std::max(0, 100 * GC.getInfo(eNonObsoleteBonus).getAIObjective());
+		iValue += std::max(0, iSAS_WORKER_AI_IMPROVE_BONUS_AI_OBJECTIVE_VALUE_PER_POINT * GC.getInfo(eNonObsoleteBonus).getAIObjective());
+
 
 		if(kOwner.getNumTradeableBonuses(eNonObsoleteBonus) == 0)
 			iValue *= 2;
 
-		int iMaxWorkers = 1;
-		if (eBestTempBuild != NO_BUILD && !GC.getInfo(eBestTempBuild).isKill())
-		{ //allow teaming.
-			iMaxWorkers = AI_calculatePlotWorkersNeeded(kPlot, eBestTempBuild);
-			if (getPathFinder().getFinalMoves() == 0)
-			{
-				iMaxWorkers = std::min((iMaxWorkers + 1) / 2,
-						1 + kOwner.AI_baseBonusVal(eNonObsoleteBonus) / 20);
-			}
-		}
+		// <!-- custom: switch to strict 1 worker per tile for simplicity and efficiency -->
+		// int iMaxWorkers = 1;
+		// if (eBestTempBuild != NO_BUILD && !GC.getInfo(eBestTempBuild).isKill())
+		// { //allow teaming.
+		// 	iMaxWorkers = AI_calculatePlotWorkersNeeded(kPlot, eBestTempBuild);
+		// 	if (getPathFinder().getFinalMoves() == 0)
+		// 	{
+		// 		iMaxWorkers = std::min((iMaxWorkers + 1) / 2,
+		// 				1 + kOwner.AI_baseBonusVal(eNonObsoleteBonus) / 20);
+		// 	}
+		// }
+		// if (kOwner.AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, getGroup(),
+		// 	/*<advc.opt>*/0, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers &&
+		// 	(!bDoImprove || kPlot.getBuildTurnsLeft(eBestTempBuild,
+		// 	/* advc.251: */ kOwner.getID(), 0, 0) > iPathTurns * 2 - 1))
+		//
+		// <!-- custom: chatgpt 5 explanation of this code to help me make sense of this, check to be sure it is accurate or not accurate, hopefully informative as well for me or and others or not or yes or etc-->
+		// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
+		// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
+		// With iRange = 0, it only counts groups whose target is exactly the same tile.
+		// → Perfect for “one-per-tile"; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
+		// If you set iRange = 1 or 2, you create a “soft exclusion bubble" around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
+		int const iRange = 0;
+		// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore -->
+		int const iMaxWorkers = 1;
 		if (kOwner.AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, getGroup(),
-			/*<advc.opt>*/0, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers &&
+			/*<advc.opt>*/iRange, iMaxWorkers/*</advc.opt>*/) < iMaxWorkers &&
 			(!bDoImprove || kPlot.getBuildTurnsLeft(eBestTempBuild,
 			/* advc.251: */ kOwner.getID(), 0, 0) > iPathTurns * 2 - 1))
 		{
@@ -18080,145 +23550,210 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
 
 		return true;
 	}
-	else if (canBuildRoute())
-	{
-		if (AI_connectPlot(kPlot))
-			return true;
-	}
+	// <!-- custom: tentative fix 2 with the help of claude ai to further improve the issue of bonuses not connected soon enough, despite our refactor in CvUnitAI::AI_betterPlotBuild helping otherwise worker AI efficiency (see below for details); result is it seems a bit better, we road gold sooner in one autoplay in same map i ran, even if it gets swapped by mine immediately, but then switches back to road successfully. And we finally roadthe corn in khmer city that was long not roaded, although we do it quite late at turn 66, but we still do it, i didn't check in detail if we'd eventually road it in older dlls version of this fix or related previous ones that had bigger issues regarding this, but this seems like an improvement with this latest fix, so although i am not too sure what this does, leaving it as such as it seems to help, my core goal and concern is ai is linked to bonuses sooner and asap, while keeping its efficiency from numerous refactors and reworks on ai worker effiency, which seems to be done quite well -->
+	// else if (canBuildRoute())
+	// {
+	// 	if (AI_connectPlot(kPlot))
+	// 		return true;
+	// }
 
-	return false;
+	// return false;
+    else
+    {
+        // When called with NO_BUILD, prioritize roading improved bonuses FIRST
+        BonusTypes eBonus = kPlot.getNonObsoleteBonusType(getTeam());
+        if (eBonus != NO_BONUS && 
+            kPlot.getImprovementType() != NO_IMPROVEMENT &&
+            !kPlot.isRoute() &&
+            canBuildRoute())
+        {
+            // This is an improved bonus without a road - high priority!
+            FOR_EACH_ENUM(Build)
+            {
+                if (GC.getInfo(eLoopBuild).getRoute() != NO_ROUTE &&
+                    canBuild(kPlot, eLoopBuild))
+                {
+                    if (!at(kPlot))
+                    {
+                        pushGroupMoveTo(kPlot, NO_MOVEMENT_FLAGS, false, false,
+                                MISSIONAI_BUILD, &kPlot);
+                    }
+                    getGroup()->pushMission(MISSION_BUILD, eLoopBuild, -1, NO_MOVEMENT_FLAGS,
+                            true, false, MISSIONAI_BUILD, &kPlot);
+                    return true;
+                }
+            }
+        }
 
+        // Then fall back to your existing AI_connectPlot logic
+        if (canBuildRoute())
+        {
+            if (AI_connectPlot(kPlot))
+                return true;
+        }
+    }
+
+    return false;
 }
 
 BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) // advc: param was CvPlot*
 {
+	// <!-- custom: rewrite and simplify this function's logic, with gemini ai's help thanks, so that we never override the best build, if i understood it correctly, in particular with roads but not only in very select few cases, otherwise always build best build first: deprioritize routes, we want the improvement first (pasture, farm, etc.) on our bonuses before roading, gives the yield slightly sooner, especially valuable for food bonuses but maybe not only (may help production as well although the need to have a route for say iron would be higher, but even then in the end it would need to be mined (for iron for example), then in that case better mine at first, we also allow only one AI worker per build now in advciv-sas to try to make AI more efficient (see changes at CvUnitAI::AI_bestCityBuild for details)); so consider route later after other more important improvements have been built, we may lose some mobility but hopefully get yields sooner or more reliably, i believe higher level players may more often than not not route as is more efficient but is just my opinion/intuition of it based of my memories of when i played at monarch/emperor hehe, every worker turn counts, try to save them, and move speed is not so critical early, but yields are, then later, it would be all roaded, hopefully makes AI stronger this way at least in most cases; tweak hinted by gemini ai telling me to change something around here although i didn't look at all, i hope this code i did doesn't break anything as it is conservative yet hopefully effective (trade movement for sooner yields in short) -->
+
+	// <!-- custom: new function code here -->
+	// This function is a simplified and refactored version of the original.
+	// It determines if a worker should perform a different, more urgent
+	// build task on a plot than the one it was originally assigned.
+	// This simplified version only overrides the original build for two specific,
+	// high-priority cases:
+	// 1. To clear a feature if a planned improvement requires it.
+	// 2. To build a road if the plot bridges two separate road networks.
+
+	// <!-- custom: not sure it is needed to add fallout as such but just to be safe, get any build we can, as fallout doesn't have as of now a build_remove_fallout, get build through say build_farm if it can remove fallout (anything is good as long as we remove fallout, but if our preivous build was already made with that in mind (removing fallout if we selected a workshop in another function for example, then kOriginalBuildInfo.isFeatureRemove(eFeature) would be true and we wouldn't reach this code at all anyway so this is really a safeguad of a safeguard xd and in case other functions call this somehow (i ddin't check))) -->
+	// <!-- custom: for feature remove builds, this is a safeguard for cases where somehow we may have missed the specific build to remove feature (if any exists); note: advantage of hardcoding these especially for forest and jungle is we don't say get a farm that maybe can remove a jungle when we wanted to build a workshop instead after chopping, requires a bit more maintenance but hopefully this stay consistent enough and is computationally efficient, also when caller is one of our refactored functions such as CvUnitAI::AI_bestCityBuild, they already process extensively best build in many conditions including chopping, so this is a safeguard and in case other functions call this (didn't check too much if at all). -->
+	// <!-- custom: fix on refactored version: while we now improve bonuses much more efficiently, and not needlessly road them first and other things, so very nice early yields, and bonuses improved much sooner in the game, so very very nice yields too, we now however have bonuses sometimes unroaded, for quite a long time often. Trying to do the best of both, improving bonuses sooner, but also roading them sooner as well, and not roading everything execessively/needlessly or too soon as well (the former function was quite crazy about roading based on the ai that helped me refactor it and all's reaction to the code xd if i remember it correctly); code provided by claude ai; with this version it seems we are on a good track, as we road more bonuses or sooner (at turn 60 almost all are roaded in capital city it seems (vs most but not marbe with o3's fix, and i assume worse or same before o3's fix even) in the autoplay same map i ran, but we'd still like to road even sooner ideally -->
+
 	FAssert(eBuild != NO_BUILD);
-	bool bBuildRoute = false;
-	bool bClearFeature = false;
-	FeatureTypes eFeature = kPlot.getFeatureType();
 
-	CvBuildInfo& kOriginalBuildInfo = GC.getInfo(eBuild);
-	if (kOriginalBuildInfo.getRoute() != NO_ROUTE)
+	// <!-- custom: even if we reverted the changes causing such crash now, i kept this safety in case it helps and doesn't break anything, consider disabling it if workers behave weirdly or it seems suboptimal to keep, based on chatgpt 5's review thanks -->
+	// <!-- custom: was added in an attempt to fix crash at turn 95, in the end it didn't help fix but since doesn't seem to break anything may as well keep it just to be safe, hopefully it doesn't break anything, also code is by chatgpt 5, check if accurate and see related crash we attempted to fix info in known issue as of now 58 for details -->
+	// Hard guard – don't trust callers in Release
+	if (eBuild == NO_BUILD)
+		return NO_BUILD;
+	if (eBuild < 0 || eBuild >= GC.getNumBuildInfos())
+		return NO_BUILD;
+
+	static const FeatureTypes eFeatureForest = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FOREST");
+	static const FeatureTypes eFeatureJungle = (FeatureTypes)GC.getInfoTypeForString("FEATURE_JUNGLE");
+	static const FeatureTypes eFeatureFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
+
+	// Hardcoded BuildTypes for common feature removals for efficiency.
+	static const BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
+	static const BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
+	static const BuildTypes eBuildScrubFallout = (BuildTypes)GC.getInfoTypeForString("BUILD_SCRUB_FALLOUT");
+
+	FeatureTypes const eFeature = kPlot.getFeatureType();
+	CvBuildInfo const& kOriginalBuildInfo = GC.getInfo(eBuild);
+
+	// If the original build is a route or the plot already has a route,
+	// we don't need to override it.
+	if (kOriginalBuildInfo.getRoute() != NO_ROUTE || kPlot.isRoute()) {
 		return eBuild;
-	//int iWorkersNeeded // advc: It's more like a prediction of how many workers will attend to the task
-	int iTargetWorkers = AI_calculatePlotWorkersNeeded(kPlot, eBuild);
-
-	//if (pPlot->getBonusType() == NO_BONUS)
-	// BETTER_BTS_AI_MOD, Bugfix, 7/31/08, jdog5000:
-	if (kPlot.getNonObsoleteBonusType(getTeam()) == NO_BONUS)
-	{
-		CvCityAI const* pTargetCity =  kPlot.AI_getWorkingCity();
-		if (pTargetCity != NULL)
-		{
-			int iCityWorkers = pTargetCity->AI_getWorkersHave();
-			/*  <advc.113b> Count the current worker if it isn't already included
-				(Previously, the caller took care of that by calling
-				CvCity::AI_changeWorkersHave beforehand.) */
-			if (AI_getCityToImprove() != pTargetCity)
-				iCityWorkers++; // </advc.113b>
-			iTargetWorkers = std::max(1, std::min(iTargetWorkers, iCityWorkers));
-		}
 	}
-	if (eFeature != NO_FEATURE)
+
+	// <!-- custom: note: this is used several times in our code; one such cases is when we want to road a bonus in a city radius (from CvUnitAI::AI_bestCityBuild function i assume). In that case, the new bSentinelRoad in CvUnitAI::AI_improveCity takes over so we can move to the tile, build the chosen build_road in CvUnitAI::AI_bestCityBuild, and then road to nearest path to trade network if i understood it correctly based on chatgpt 5's explanation and what i understood of this in general too hehe, but check if accurate and; so in such a case we now override this code. However, do not remove it or comment-out, as it can (maybe, check if accurate) still be useful for example if we have a bonus in cultural borders but not in the BFC of any city, then CvUnitAI::AI_bestCityBuild function would not pick these up yet we still need the road, and in such other cases perhaps, so fall back to these -->
+	// IMPROVED LOGIC: Road improved bonuses that aren't connected yet
+	BonusTypes eBonus = kPlot.getNonObsoleteBonusType(getTeam());
+	if (eBonus != NO_BONUS && 
+		kPlot.getImprovementType() != NO_IMPROVEMENT &&
+		!kPlot.isRoute() &&
+		canBuildRoute())
 	{
-		CvFeatureInfo& kFeatureInfo = GC.getInfo(eFeature);
-		if (kOriginalBuildInfo.isFeatureRemove(eFeature))
+		// Check if this improved bonus needs a road for trade connection
+		// Most bonuses need roads unless the improvement itself provides connection
+		bool bNeedsRoad = true;
+
+		// Only some improvements (like camps, fishing boats) connect bonuses without roads
+		if (GET_PLAYER(getOwner()).doesImprovementConnectBonus(kPlot.getImprovementType(), eBonus))
 		{
-			if (kOriginalBuildInfo.getImprovement() == NO_IMPROVEMENT ||
-					(!kPlot.isBeingWorked() ||
-					kFeatureInfo.getYieldChange(YIELD_FOOD) +
-					kFeatureInfo.getYieldChange(YIELD_PRODUCTION) <= 0))
-				bClearFeature = true;
+			bNeedsRoad = false;
 		}
-		if (kFeatureInfo.getMovementCost() > 1 && iTargetWorkers > 1)
-			bBuildRoute = true;
-	}
-	//if (pPlot->getBonusType() != NO_BONUS)
-	// BETTER_BTS_AI_MOD, Bugfix, 7/31/08, jdog5000: START
-	if (kPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS)
-		bBuildRoute = true;
-	else if (kPlot.isHills())
-	{
-		if (GC.getDefineINT(CvGlobals::HILLS_EXTRA_MOVEMENT) > 0 && iTargetWorkers > 1)
-			bBuildRoute = true;
-	} // BETTER_BTS_AI_MOD: END
 
-	if (kPlot.isRoute())
-		bBuildRoute = false;
-
-	int const NO_PLOTGROUP = FFreeList::INVALID_INDEX; // advc
-	BuildTypes eBestBuild = NO_BUILD;
-	int iBestValue = 0;
-	FOR_EACH_ENUM(Build)
-	{
-		CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
-		RouteTypes eRoute = kLoopBuild.getRoute();
-		if ((bBuildRoute && eRoute != NO_ROUTE) ||
-			(bClearFeature && kLoopBuild.isFeatureRemove(eFeature)))
+		// If bonus needs road for connection, prioritize building it
+		if (bNeedsRoad)
 		{
-			if (!canBuild(kPlot, eLoopBuild))
-				continue;
-
-			int iValue = 10000;
-			if (bBuildRoute && eRoute != NO_ROUTE)
+			FOR_EACH_ENUM(Build)
 			{
-				iValue *= (1 + GC.getInfo(eRoute).getValue());
-				iValue /= 2;
-				//if (pPlot->getBonusType() != NO_BONUS)
-				// BETTER_BTS_AI_MOD, Bugfix, 7/31/08, jdog5000:
-				if (kPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS)
-					iValue *= 2;
-
-				if (kPlot.getWorkingCity() != NULL)
+				if (GC.getInfo(eLoopBuild).getRoute() != NO_ROUTE &&
+					canBuild(kPlot, eLoopBuild))
 				{
-					iValue *= 2 + iTargetWorkers +
-							((kPlot.isHills() && iTargetWorkers > 1) ?
-							2 * GC.getDefineINT(CvGlobals::HILLS_EXTRA_MOVEMENT) : 0);
-					iValue /= 3;
+					return eLoopBuild;   // Build road on improved bonus
 				}
-				ImprovementTypes const eImprovement = kOriginalBuildInfo.getImprovement();
-				if (eImprovement != NO_IMPROVEMENT)
-				{
-					CvImprovementInfo const& kImprov = GC.getInfo(eImprovement);
-					int iRouteMultiplier =
-							100 * kImprov.getRouteYieldChanges(eRoute, YIELD_FOOD) +
-							100 * kImprov.getRouteYieldChanges(eRoute, YIELD_PRODUCTION) +
-							 60 * kImprov.getRouteYieldChanges(eRoute, YIELD_COMMERCE);
-					iValue *= 100 + iRouteMultiplier;
-					iValue /= 100;
-				}
-				int iPlotGroupId = NO_PLOTGROUP;
-				FOR_EACH_ADJ_PLOT(kPlot)
-				{
-					if (!kPlot.isRiver() && !pAdj->isRoute())
-						continue;
-
-					CvPlotGroup* pAdjPlotGroup = pAdj->getPlotGroup(getOwner());
-					if (pAdjPlotGroup == NULL || pAdjPlotGroup->getID() == NO_PLOTGROUP)
-						continue;
-
-					if (pAdjPlotGroup->getID() != iPlotGroupId &&
-						// advc.001: Based on Mongoose Mod changelog (12-14 Dec 2012)
-						iPlotGroupId != NO_PLOTGROUP)
-					{
-						//This plot bridges plot groups, so route it.
-						iValue *= 4;
-						break;
-					}
-					else iPlotGroupId = pAdjPlotGroup->getID();
-				}
-			}
-			iValue /= kLoopBuild.getTime() + 1;
-			if (iValue > iBestValue)
-			{
-				iBestValue = iValue;
-				eBestBuild = eLoopBuild;
 			}
 		}
 	}
-	if (eBestBuild == NO_BUILD)
+
+	// --- High-Priority Override 1: Clear Feature ---
+	// Check if the originally planned improvement requires a feature to be removed first
+	if (!kOriginalBuildInfo.isFeatureRemove(eFeature))
+	{
+		if (eFeature == eFeatureForest)
+		{
+			if (canBuild(kPlot, eBuildRemoveForest))
+			{
+				return eBuildRemoveForest;
+			}
+		}
+		else if (eFeature == eFeatureJungle)
+		{
+			if (canBuild(kPlot, eBuildRemoveJungle))
+			{
+				return eBuildRemoveJungle;
+			}
+		}
+		else if (eFeature == eFeatureFallout)
+		{
+			if (canBuild(kPlot, eBuildScrubFallout))
+			{
+				return eBuildScrubFallout;
+			}
+		}
+	}
+
+	// --- High-Priority Override 2: Bridge Plot Groups ---
+	// Check if the plot is a critical link between two unconnected road networks
+
+	// NEW LOGIC: Check if the original build is a local bonus improvement.
+	// If so, we should prioritize that over bridging plot groups.
+	if (kOriginalBuildInfo.getImprovement() != NO_IMPROVEMENT && 
+		kPlot.getNonObsoleteBonusType(getTeam()) != NO_BONUS)
+	{
+		// The original plan is a bonus improvement. Don't override it with a road.
 		return eBuild;
-	return eBestBuild;
+	}
+
+	int const NO_PLOTGROUP = FFreeList::INVALID_INDEX;
+	int iPlotGroupId = NO_PLOTGROUP;
+	bool bBridgesPlotGroups = false;
+
+	FOR_EACH_ADJ_PLOT(kPlot)
+	{
+		// Care about adjacent plots that have a route OR a river
+		if (!pAdj->isRoute() && !pAdj->isRiver())
+			continue;
+
+		CvPlotGroup* pAdjPlotGroup = pAdj->getPlotGroup(getOwner());
+		if (pAdjPlotGroup == NULL || pAdjPlotGroup->getID() == NO_PLOTGROUP)
+			continue;
+
+		// If we find an adjacent plot that is part of a different plot group
+		// than the first one we found, this plot is a bridge
+		if (iPlotGroupId != NO_PLOTGROUP && pAdjPlotGroup->getID() != iPlotGroupId)
+		{
+			bBridgesPlotGroups = true;
+			break;
+		}
+		iPlotGroupId = pAdjPlotGroup->getID();
+	}
+
+	if (bBridgesPlotGroups)
+	{
+		// If the plot is a bridge, find and return a route-building task
+		FOR_EACH_ENUM(Build)
+		{
+			CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
+			if (kLoopBuild.getRoute() != NO_ROUTE)
+			{
+				if (canBuild(kPlot, eLoopBuild))
+				{
+					return eLoopBuild;
+				}
+			}
+		}
+	}
+
+	// If no high-priority override was found, return the original build
+	return eBuild;
 }
 
 
@@ -18454,14 +23989,80 @@ bool CvUnitAI::AI_routeTerritory(bool bImprovementOnly)
 }
 
 
+// <!-- custom: Save file 450 showed a peaceful AI keeping 75-78 military units in one non-capital city before its capital fell immediately when war began. Most upgrades also occurred in that city.
+// At UNIT level 2, trace upgrade travel and waiting when the destination already contains at least 20 military units and 30% of the owner's army. Record the candidate, affordability, economic eligibility, estimated upgrade budget, upgrade-pass context, and surrounding concentration so inherited upgrade-city routing can be distinguished from useful staging; this does not affect behavior. (GPT-5.6-Sol) -->
+static bool SAS_isCrowdedUpgradeCityDiagnostic(CvUnitAI const& kUnit, CvCity const& kUpgradeCity)
+{
+	if (kUnit.getGroup() == NULL || kUnit.getGroup()->getHeadUnit() != &kUnit) return false;
+	int iCityMilitary = 0;
+	int iCityGroups = 0;
+	int iUpgradeUnits = 0;
+	int iUpgradeGroups = 0;
+	SAS_countPlotMilitaryConcentration(kUpgradeCity.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
+	int const iTotalMilitary = GET_PLAYER(kUnit.getOwner()).getNumMilitaryUnits();
+	return (iCityMilitary >= 20 && 100 * iCityMilitary / std::max(1, iTotalMilitary) >= 30);
+}
+
+static void SAS_logCrowdedUpgradeCityAction(CvUnitAI const& kUnit, CvCity const& kUpgradeCity, UnitTypes eBestUpgrade, char const* szAction, int iPathTurns = -1)
+{
+	int iCityMilitary = 0;
+	int iCityGroups = 0;
+	int iUpgradeUnits = 0;
+	int iUpgradeGroups = 0;
+	SAS_countPlotMilitaryConcentration(kUpgradeCity.getPlot(), kUnit.getOwner(), iCityMilitary, iCityGroups, iUpgradeUnits, iUpgradeGroups);
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+	CvTeamAI const& kTeam = GET_TEAM(kUnit.getTeam());
+	bool const bHasUpgradeCandidate = (eBestUpgrade != NO_UNIT);
+	int const iUpgradePrice = (bHasUpgradeCandidate ? kUnit.upgradePrice(eBestUpgrade) : -1);
+	bool const bCanUpgradeNow = (bHasUpgradeCandidate && kUnit.canUpgrade(eBestUpgrade));
+	bool const bUpgradeTravelEligible = (bHasUpgradeCandidate && kUnit.canUpgrade(eBestUpgrade, false, /*bUpgradeCityKnown*/ true));
+	int const iCurrentValue = kOwner.AI_unitValue(kUnit.getUnitType(), kUnit.AI_getUnitAIType(), kUnit.area());
+	int const iUpgradeValue = (bHasUpgradeCandidate ? kOwner.AI_unitValue(eBestUpgrade, kUnit.AI_getUnitAIType(), kUnit.area()) : -1);
+	bool const bFocusWar = kOwner.AI_isFocusWar();
+	int const iUpgradeGoldTarget = kOwner.AI_goldTarget(true);
+	int const iEstimatedUpgradeBudget = std::max(1, bFocusWar ? std::min(kOwner.getGold(), iUpgradeGoldTarget) : std::min(iUpgradeGoldTarget, kOwner.getGold() * iUpgradeGoldTarget / std::max(1, kOwner.AI_goldTarget(false))));
+	CvPlot const& kUnitPlot = kUnit.getPlot();
+	bool const bImpassableUnit = kOwner.AI_isAnyImpassable(kUnit.getUnitType());
+	bool const bBestCityDefender = (kUnitPlot.isCity() && kUnitPlot.getBestDefender(kUnit.getOwner()) == &kUnit);
+	bool const bPlotDanger = kOwner.AI_isAnyPlotDanger(kUnitPlot, 1, false);
+	bool const bTransportOrEscort = ((kUnit.cargoSpace() > 0 && kUnit.specialCargo() == NO_SPECIALUNIT) || kUnit.AI_getUnitAIType() == UNITAI_ESCORT_SEA);
+	bool const bNormalPassEnabled = (!kOwner.AI_isFinancialTrouble() || bFocusWar);
+	logBBAI("    UPGRADE_CITY_CONCENTRATION turn=%d player=%d %S action=%s unitId=%d unitType=%d unitAI=%d groupId=%d groupUnits=%d groupMissionAI=%d groupActivity=%d "
+		"from=(%d,%d) upgradeCity=%S upgradeCity=(%d,%d) pathTurns=%d unitCreatedTurn=%d unitAge=%d exp=%d level=%d damage=%d movesLeft=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), kUnit.getUnitType(), kUnit.AI_getUnitAIType(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), kUnit.getGroup()->AI().AI_getMissionAIType(), kUnit.getGroup()->getActivityType(),
+		kUnit.getX(), kUnit.getY(), kUpgradeCity.getName().GetCString(), kUpgradeCity.getX(), kUpgradeCity.getY(), iPathTurns, kUnit.getGameTurnCreated(), GC.getGame().getGameTurn() - kUnit.getGameTurnCreated(), kUnit.getExperience(), kUnit.getLevel(), kUnit.getDamage(), kUnit.movesLeft());
+	logBBAI("    UPGRADE_CITY_CANDIDATE turn=%d player=%d unitId=%d fromType=%d upgradeType=%d currentValue=%d upgradeValue=%d upgradePrice=%d gold=%d hasEnoughGold=%d canUpgradeNow=%d upgradeTravelEligible=%d readyForUpgrade=%d "
+		"goldRate=%d upgradeGoldTarget=%d totalGoldTarget=%d estimatedUpgradeBudget=%d fitsEstimatedBudget=%d goldToUpgradeAll=%d focusWar=%d financialTrouble=%d "
+		"impassableUnit=%d bestCityDefender=%d plotDanger=%d transportOrEscort=%d normalPassEnabled=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getID(), kUnit.getUnitType(), eBestUpgrade, iCurrentValue, iUpgradeValue, iUpgradePrice, kOwner.getGold(), bHasUpgradeCandidate && kOwner.getGold() >= iUpgradePrice, bCanUpgradeNow, bUpgradeTravelEligible, kUnit.isReadyForUpgrade(),
+		kOwner.calculateGoldRate(), iUpgradeGoldTarget, kOwner.AI_goldTarget(false), iEstimatedUpgradeBudget, bHasUpgradeCandidate && iUpgradePrice <= iEstimatedUpgradeBudget, kOwner.AI_getGoldToUpgradeAllUnits(), bFocusWar, kOwner.AI_isFinancialTrouble(),
+		bImpassableUnit, bBestCityDefender, bPlotDanger, bTransportOrEscort, bNormalPassEnabled);
+	logBBAI("    UPGRADE_CITY_CONTEXT turn=%d player=%d unitId=%d cityMilitary=%d totalMilitary=%d cityMilitaryPercent=%d cityGroups=%d cityUpgradeUnits=%d cityUpgradeGroups=%d "
+		"cityDefenders=%d capital=%d wars=%d anyWarPlan=%d areaAI=%d",
+		GC.getGame().getGameTurn(), kUnit.getOwner(), kUnit.getID(), iCityMilitary, kOwner.getNumMilitaryUnits(), 100 * iCityMilitary / std::max(1, kOwner.getNumMilitaryUnits()), iCityGroups, iUpgradeUnits, iUpgradeGroups,
+		kUpgradeCity.getPlot().getNumDefenders(kUnit.getOwner()), kUpgradeCity.isCapital(), kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kUnit.getArea().getAreaAIType(kUnit.getTeam()));
+}
+
 bool CvUnitAI::AI_travelToUpgradeCity()
 {
 	PROFILE_FUNC();
 
 	// is there a city which can upgrade us?
-	CvCity* pUpgradeCity = getUpgradeCity(/*bSearch*/ true);
+	UnitTypes eUpgradeUnit = NO_UNIT;
+	CvCity* pUpgradeCity = getUpgradeCity(/*bSearch*/ true, &eUpgradeUnit);
 	if (pUpgradeCity == NULL)
 		return false; // advc
+	FAssert(eUpgradeUnit != NO_UNIT);
+	bool const bLogCrowdedUpgradeCity = (gUnitLogLevel >= 2 && SAS_isCrowdedUpgradeCityDiagnostic(*this, *pUpgradeCity));
+	// <!-- custom: Base/K-Mod upgrade-city routing deliberately ignored affordability, and later AdvCiv-SAS economic-return gates could reject an otherwise affordable upgrade without invalidating that destination.
+	// Save-file 450 diagnostics recorded 1,053 crowded-city waits: 631 had enough gold but failed the real upgrade gates, 372 lacked gold, and the same units were repeatedly sent there or forced to skip their turns there for up to 63 turns.
+	// When eligibility can be evaluated safely because the unit can move in owned territory, require the exact upgrade selected above to pass the real checks; otherwise let the unit's normal role use it until the upgrade becomes genuinely available.
+	// Preserve foreign-territory travel because canUpgrade is false there for positional rather than economic reasons. See KI#188.3.3. (GPT-5.6-Sol) -->
+	if (isReadyForUpgrade() && !canUpgrade(eUpgradeUnit, false, /*bUpgradeCityKnown*/ true))
+	{
+		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, at(pUpgradeCity->getPlot()) ? "release_rejected_upgrade" : "reject_upgrade_travel");
+		return false;
+	}
 
 	// cache some stuff
 	bool bSeaUnit = (getDomainType() == DOMAIN_SEA);
@@ -18475,12 +24076,14 @@ bool CvUnitAI::AI_travelToUpgradeCity()
 		{
 			return false;
 		}
+		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "wait_in_upgrade_city", 0);
 		getGroup()->pushMission(MISSION_SKIP);
 		return true;
 	}
 
 	if (DOMAIN_AIR == getDomainType())
 	{
+		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "move_air_unit");
 		pushGroupMoveTo(pUpgradeCity->getPlot());
 		return true;
 	}
@@ -18502,6 +24105,7 @@ bool CvUnitAI::AI_travelToUpgradeCity()
 	if (pUpgradeCityEndTurnPlot != NULL && pClosestCity != NULL &&
 		(pClosestCity == pUpgradeCity || iUpgradeCityPathTurns < 4))
 	{
+		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "move_near_upgrade_city", iUpgradeCityPathTurns);
 		pushGroupMoveTo(*pUpgradeCityEndTurnPlot);
 		return true;
 	}
@@ -18515,12 +24119,14 @@ bool CvUnitAI::AI_travelToUpgradeCity()
 			// can we do the airlift this turn?
 			if (canAirliftAt(pClosestCity->plot(), pUpgradeCity->getX(), pUpgradeCity->getY()))
 			{
+				if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "airlift_to_upgrade_city", iUpgradeCityPathTurns);
 				getGroup()->pushMission(MISSION_AIRLIFT, pUpgradeCity->getX(), pUpgradeCity->getY());
 				return true;
 			}
 			// wait to do it next turn
 			else
 			{
+				if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "wait_for_airlift", iUpgradeCityPathTurns);
 				getGroup()->pushMission(MISSION_SKIP);
 				return true;
 			}
@@ -18534,6 +24140,7 @@ bool CvUnitAI::AI_travelToUpgradeCity()
 		if (bCanPathToClosestCity &&
 			(!bCanPathToUpgradeCity || iClosestCityPathTurns < iUpgradeCityPathTurns))
 		{
+			if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "move_to_airlift_city", iUpgradeCityPathTurns);
 			pushGroupMoveTo(getPathEndTurnPlot(), NO_MOVEMENT_FLAGS, false, false,
 					MISSIONAI_UPGRADE);
 			return true;
@@ -18543,6 +24150,7 @@ bool CvUnitAI::AI_travelToUpgradeCity()
 	// did not have better airlift choice, go ahead and path to the upgrade city
 	if (pUpgradeCityEndTurnPlot != NULL)
 	{
+		if (bLogCrowdedUpgradeCity) SAS_logCrowdedUpgradeCityAction(*this, *pUpgradeCity, eUpgradeUnit, "move_to_upgrade_city", iUpgradeCityPathTurns);
 		pushGroupMoveTo(*pUpgradeCityEndTurnPlot, NO_MOVEMENT_FLAGS, false, false,
 				MISSIONAI_UPGRADE);
 		return true;
@@ -18562,6 +24170,9 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 			GET_PLAYER(getOwner()).AI_getPlotDanger(getPlot())); 
 
 	CvCityAI const* pCity = getPlot().AI_getPlotCity();
+	bool const bEvac = (pCity != NULL && pCity->AI_isEvacuating());
+	int const iEvacuationLogLevel = gEvacuationLogLevel;
+	bool const bLogRetreatResult = (iEvacuationLogLevel >= 3 || (bEvac && iEvacuationLogLevel >= 2));
 	if (iCurrentDanger <= 0 && pCity != NULL &&
 		pCity->getOwner() == getOwner())
 	{
@@ -18569,6 +24180,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 		{
 			if (!bPrioritiseAirlift || pCity->getMaxAirlift() > 0)
 			{	//if (!pCity->getPlot().isVisibleEnemyUnit(this)) {
+				if (bLogRetreatResult) logSASRetreatUnitResult("wait-safe-city", *this, pCity, pCity, &getPlot(), 0, iCurrentDanger, bEvac);
 				getGroup()->pushMission(MISSION_SKIP);
 				return true;
 			}
@@ -18587,9 +24199,9 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 	CvPlot* pBestPlot = NULL;
 	int iShortestPath = MAX_INT;
 	// <advc.139>
-	bool bEvac = (pCity != NULL && pCity->AI_isEvacuating());
 	bool bSafe = (pCity != NULL && pCity->AI_isSafe());
 	// </advc.139>
+	CvCityAI const* pBestRetreatCityForLog = NULL;
 	// <advc>
 	int iPass = 0; // Used after the loop
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // </advc>
@@ -18605,6 +24217,10 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 			if (bPrimary && !kOwner.AI_isPrimaryArea(pLoopCity->getArea()))
 				continue;
 			if (bNeedsAirlift && pLoopCity->getMaxAirlift() == 0)
+				continue;
+			// <!-- custom: Base AdvCiv lets a threatened defenseless unit treat its current city as a retreat candidate. Its zero-turn path then always beats every real escape city and AI_retreatToCity returns MISSION_SKIP, even when another city is reachable.
+			// Exclude that non-retreat candidate while searching; if no alternative exists, the unchanged fallback below can still keep the unit in its current city. This notably explains free Great Generals remaining in besieged birth cities after SAS suppresses weak emergency attachments. See KI#204. (ChatGPT-5.6-Sol) -->
+			if (pLoopCity == pCity && iCurrentDanger > 0 && !getGroup()->canDefend())
 				continue;
 			// <advc.139>
 			/*  When evacuating, exclude other cities that also evacuate
@@ -18653,6 +24269,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 					{
 						iShortestPath = iPathTurns;
 						pBestPlot = &getPathEndTurnPlot();
+						if (bLogRetreatResult) pBestRetreatCityForLog = pLoopCity;
 					}
 				}
 			}
@@ -18667,6 +24284,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 
 	if (pBestPlot != NULL)
 	{
+		if (bLogRetreatResult) logSASRetreatUnitResult(at(*pBestPlot) ? "wait" : "retreat", *this, pCity, pBestRetreatCityForLog, pBestPlot, iShortestPath, iCurrentDanger, bEvac);
 		if (at(*pBestPlot))
 		{
 			getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
@@ -18701,15 +24319,18 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 					per100(GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent());
 			if (SyncRandSuccess(rScrapOdds))
 			{
+				if (bLogRetreatResult) logSASRetreatUnitResult("scrap", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);
 				scrap();
 				return true;
 			}
 		} // </advc.010>
+		if (bLogRetreatResult) logSASRetreatUnitResult("stay-no-safe-city", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);
 		getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
 				false, false, MISSIONAI_RETREAT);
 		return true;
 	}
 
+	if (bLogRetreatResult) logSASRetreatUnitResult("fail-no-city", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);
 	return false;
 }
 
@@ -18738,6 +24359,9 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 		return false;
 
 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+	// <!-- custom: AI_workerMove reaches this function only after every productive local Worker action has failed. Base AdvCiv considered a unit able to reach one of its owner's cities non-stranded, so a Worker on a completed owned island never advertised itself to the existing naval rescue system.
+	// Treat zero-demand Workers as stranded here, but preserve the earlier Settler-plus-city-site exception because that Worker can soon serve the new city. Empty Settler transports can then collect the Worker through AI_pickupStranded without interrupting an active settlement mission. See KI#192. (GPT-5.6-Sol) -->
+	bool const bCompletedAreaWorker = (AI_getUnitAIType() == UNITAI_WORKER && getArea().getCitiesPerPlayer(getOwner()) > 0 && kOwner.AI_neededWorkers(getArea()) <= 0);
 
 	// return false if the group is not stranded.
 	int iDummy=-1;
@@ -18753,12 +24377,12 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 		/*  advc.046: Don't see what good ownership of a teammate will do.
 			Really need a path to one of our own cities. But, to save time,
 			let's check (though rival borders could block the path): */
-		if (getPlot().getOwner() == getOwner() &&
+		if (!bCompletedAreaWorker && getPlot().getOwner() == getOwner() &&
 			getArea().getCitiesPerPlayer(getOwner()) > 0)
 		{
 			return false;
 		}
-		if (AI_getGroup()->AI_isHasPathToAreaPlayerCity(getOwner(), eFlags))
+		if (!bCompletedAreaWorker && AI_getGroup()->AI_isHasPathToAreaPlayerCity(getOwner(), eFlags))
 			return false;
 		if ((canFight() || isSpy()) &&
 			AI_getGroup()->AI_isHasPathToAreaEnemyCity(true, eFlags))
@@ -18820,6 +24444,7 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 
 		if (pMissionPlot != NULL)
 		{
+			if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=MOVE_TO_PICKUP_COAST target=(%d,%d)", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER), pMissionPlot->getX(), pMissionPlot->getY());
 			pushGroupMoveTo(*pEndTurnPlot, eFlags, false, false,
 					MISSIONAI_STRANDED, pMissionPlot);
 			return true;
@@ -18838,22 +24463,25 @@ bool CvUnitAI::AI_handleStranded(MovementFlags eFlags)
 			/*	ok. there is something we can load into - but lets use the
 				(slow) official function to actually issue the load command. */
 			if (AI_load(NO_UNITAI, NO_MISSIONAI, NO_UNITAI, -1, -1, -1, -1, eFlags, 1))
+			{
+				if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=BOARD_NEARBY_TRANSPORT", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
 				return true;
+			}
 			else // if that didn't do it, nothing will
 				break;
 		}
 	}
 
 	// raise the 'stranded' flag, and wait to be rescued.
+	if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && bCompletedAreaWorker) logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=WAIT_FOR_PICKUP", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(), getArea().getID(), kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_WORKER));
 	getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
 			false, false, MISSIONAI_STRANDED, plot());
 	return true;
 }
 
 
-bool CvUnitAI::AI_pickup(UnitAITypes eUnitAI,
-	// BETTER_BTS_AI_MOD, Naval AI, 01/15/09, jdog5000:
-	bool bCountProduction, int iMaxPath)
+// BETTER_BTS_AI_MOD, Naval AI, 01/15/09, jdog5000: <!-- custom: hoisted from multiline signature between `eUnitAI` and `bCountProduction` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvUnitAI::AI_pickup(UnitAITypes eUnitAI, bool bCountProduction, int iMaxPath)
 {
 	PROFILE_FUNC();
 
@@ -19050,6 +24678,11 @@ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
 
 		if (eUnitAI != NO_UNITAI && pHeadUnit->AI_getUnitAIType() != eUnitAI)
 			continue;
+		// <!-- custom: The first confirming completed-area evacuation run sometimes dispatched two empty Settler transports to the same individual Worker.
+		// Preserve Base AdvCiv's capacity-based coordination for ordinary stranded groups, but one transport assignment is sufficient for a zero-demand Worker group. Other completed-area Workers advertise their own groups separately. (GPT-5.6-Sol) -->
+		bool const bCompletedAreaWorker = (pHeadUnit->AI_getUnitAIType() == UNITAI_WORKER && pHeadUnit->getArea().getCitiesPerPlayer(getOwner()) > 0 && kPlayer.AI_neededWorkers(pHeadUnit->getArea()) <= 0);
+		if (bCompletedAreaWorker && kPlayer.AI_isAnyUnitTargetMissionAI(*pHeadUnit, MISSIONAI_PICKUP, getGroup()))
+			continue;
 
 		//pLoopPlot = pHeadUnit->plot();
 		CvPlot* pPickupPlot = pLoopGroup->AI_getMissionAIPlot(); // K-Mod
@@ -19126,6 +24759,11 @@ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
 		if(getGroup()->hasCargo())
 			return false;
 	} // </advc.046>
+	if ((gWorkerLogLevel >= 3 || gOverseasTransportLogLevel >= 3) && pBestUnit->AI_getUnitAIType() == UNITAI_WORKER &&
+		GET_PLAYER(pBestUnit->getOwner()).AI_neededWorkers(pBestUnit->getArea()) <= 0)
+	{
+		logBBAI("    WORKER_COMPLETED_AREA_EVACUATION turn=%d player=%d %S workerId=%d worker=(%d,%d) area=%d areaWorkers=%d areaWorkersNeeded=0 result=TRANSPORT_DISPATCHED transportId=%d transport=(%d,%d) pickupEndTurn=(%d,%d)", GC.getGame().getGameTurn(), pBestUnit->getOwner(), GET_PLAYER(pBestUnit->getOwner()).getCivilizationDescription(0), pBestUnit->getID(), pBestUnit->getX(), pBestUnit->getY(), pBestUnit->getArea().getID(), GET_PLAYER(pBestUnit->getOwner()).AI_totalAreaUnitAIs(pBestUnit->getArea(), UNITAI_WORKER), getID(), getX(), getY(), pEndTurnPlot->getX(), pEndTurnPlot->getY());
+	}
 	if (at(*pEndTurnPlot))
 	{
 		getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
@@ -20398,8 +26036,7 @@ bool CvUnitAI::AI_nuke()
 /*	K-Mod: Return the value of the best nuke target in the range specified,
 	and set pBestTarget to be the specific target plot. The return value is
 	roughly in units of production. */
-int CvUnitAI::AI_nukeValue(CvPlot const& kCenterPlot, int iSearchRange,
-	CvPlot const*& pBestTarget, int iCivilianTargetWeight) const
+int CvUnitAI::AI_nukeValue(CvPlot const& kCenterPlot, int iSearchRange, CvPlot const*& pBestTarget, int iCivilianTargetWeight) const
 {
 	PROFILE_FUNC();
 
@@ -21094,13 +26731,25 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(int& iData) const
 	{
 		int iTargetTotal = GET_TEAM(eTargetTeam).getEspionagePointsEver();
 		int iOurTotal = GET_TEAM(getTeam()).getEspionagePointsEver();
-		iBaseIntercept += (GC.getDefineINT("ESPIONAGE_INTERCEPT_SPENDING_MAX") * iTargetTotal) /
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iESPIONAGE_INTERCEPT_SPENDING_MAX = GC.getDefineINT("ESPIONAGE_INTERCEPT_SPENDING_MAX");
+
+		iBaseIntercept += (iESPIONAGE_INTERCEPT_SPENDING_MAX * iTargetTotal) /
 				std::max(1, iTargetTotal + iOurTotal);
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION = GC.getDefineINT("ESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION");
+
 		if (GET_TEAM(eTargetTeam).getCounterespionageModAgainstTeam(getTeam()) > 0)
-			iBaseIntercept += GC.getDefineINT("ESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION");
+			iBaseIntercept += iESPIONAGE_INTERCEPT_COUNTERESPIONAGE_MISSION;
 	}
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iESPIONAGE_SPY_MISSION_ESCAPE_MOD = GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD");
+
 	int const iEscapeCost = 2 * iSpyValue * iBaseIntercept *
-			(100 + GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD")) / 10000;
+			(100 + iESPIONAGE_SPY_MISSION_ESCAPE_MOD) / 10000;
 
 	// One espionage mission loop to rule them all.
 	FOR_EACH_ENUM2(EspionageMission, eMission)
@@ -21118,7 +26767,7 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(int& iData) const
 		int iOverhead = iEscapeCost + iSpyValue * iBaseIntercept *
 				(100 + kMission.getDifficultyMod()) / 10000;
 		bool bFirst = true; // advc.007
-		for (iTestData-- ; iTestData >= 0; iTestData--)
+		for (iTestData--; iTestData >= 0; iTestData--)
 		{
 			int iCost = kOwner.getEspionageMissionCost(
 					eMission, eTargetPlayer, &kSpyPlot, iTestData, this);
@@ -21347,8 +26996,7 @@ bool CvUnitAI::AI_followBombard()
 
 /*  <advc.033> Counts units in kPlot that this unit could attack and returns
 	the defender count and total unit count as a pair (iDefenders,iUnits). */
-std::pair<int,int> CvUnitAI::AI_countPiracyTargets(CvPlot const& kPlot,
-	bool bStopIfAnyTarget) const
+std::pair<int,int> CvUnitAI::AI_countPiracyTargets(CvPlot const& kPlot, bool bStopIfAnyTarget) const
 {
 	std::pair<int,int> iiDefTotal(0, 0);
 	if(!isAlwaysHostile(kPlot))
@@ -21541,32 +27189,34 @@ int CvUnitAI::AI_connectBonusCost(CvPlot const& p, BuildTypes eBuild, int iMissi
 
 	// Ad-hoc heuristic for Fort building:  (overlaps with AI_getPlotDefendersNeeded; fixme?)
 	ImprovementTypes const eImpr = GC.getInfo(eBuild).getImprovement();
-	CvImprovementInfo const& kImpr = GC.getInfo(eImpr);
-	int iDefenseValue = kImpr.getDefenseModifier();
-	// The AI isn't going to station units on an island without cities
-	if(p.getArea().getCitiesPerPlayer(getOwner()) <= 0 ||  /* <advc.035> */
-		GET_PLAYER(getOwner()).AI_isPlotContestedByRival(p))
-	{
-		iDefenseValue = 0;
-	} // </advc.035>
+	// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, see the Main Changes Guide or some similar or related or other docs in our mod for update status rather than here. -->
+	// CvImprovementInfo const& kImpr = GC.getInfo(eImpr);
+	// int iDefenseValue = kImpr.getDefenseModifier();
+	// // The AI isn't going to station units on an island without cities
+	// if(p.getArea().getCitiesPerPlayer(getOwner()) <= 0 ||  /* <advc.035> */
+	// 	GET_PLAYER(getOwner()).AI_isPlotContestedByRival(p))
+	// {
+	// 	iDefenseValue = 0;
+	// } // </advc.035>
+	// <!-- custom: No!!! De!!! prioritize fucking forts xd, similar to other places, these are just so inefficient to build for minimal gains, only build if absolutely necessary, should statistically benefit the AI more and make it be more efficient and not ruin its yields or worker time, so commenting out most of this function's code, returing iCost instead of r, quite similarly than done as in other places, and as explained as well in the other code comment(s) in this function -->
 	/*  Prioritize Forts on tiles with high natural defense and on important
 		resources that may later be guarded. */
-	if(iDefenseValue > 0)
-	{
-		iDefenseValue += p.defenseModifier(getTeam(), true);
-		BonusTypes eBonus = p.getBonusType(getTeam());
-		if(eBonus == NO_BONUS)
-		{
-			FAssert(eBonus != NO_BONUS);
-			return -1;
-		}
-		/*  bonusVal is usually just a single digit; small double digit if it's
-			an important strategic resource. */
-		iDefenseValue += GET_PLAYER(getOwner()).AI_bonusVal(eBonus, 0);
-		/*  (Not much of a point in checking p.isAdjacentToPlayer for all rivals.
-			This function is only called for unworkable tiles, which are usually
-			near a border.) */
-	}
+	// if(iDefenseValue > 0)
+	// {
+	// 	iDefenseValue += p.defenseModifier(getTeam(), true);
+	// 	BonusTypes eBonus = p.getBonusType(getTeam());
+	// 	if(eBonus == NO_BONUS)
+	// 	{
+	// 		FAssert(eBonus != NO_BONUS);
+	// 		return -1;
+	// 	}
+	// 	/*  bonusVal is usually just a single digit; small double digit if it's
+	// 		an important strategic resource. */
+	// 	iDefenseValue += GET_PLAYER(getOwner()).AI_bonusVal(eBonus, 0);
+	// 	/*  (Not much of a point in checking p.isAdjacentToPlayer for all rivals.
+	// 		This function is only called for unworkable tiles, which are usually
+	// 		near a border.) */
+	// }
 	int iCost = GC.getInfo(eBuild).getTime();
 	// No cost for leaving an existing improvement alone
 	if(eImpr == p.getImprovementType())
@@ -21576,24 +27226,25 @@ int CvUnitAI::AI_connectBonusCost(CvPlot const& p, BuildTypes eBuild, int iMissi
 	// Halve the cost when there's nothing to do
 	if(iMissingWorkersInArea == 0)
 		iMultiplier = 1;
-	// Account for having to replace a Fort later
-	if(kImpr.isActsAsCity() && GET_PLAYER(getOwner()).AI_isAdjacentCitySite(p, true))
-		iMultiplier++;
-	iCost *= iMultiplier;
-	iCost /= 2;
-	int const iDefenseWeight = 20;
-	int r = iCost - iDefenseWeight * iDefenseValue;
-	if(kImpr.isActsAsCity() && (p.isConnectSea() ||
-		/*  If no cities in area, only a Fort will connect the bonus.
-			(Unless workable, see advc.124, but p isn't workable.) */
-		GET_TEAM(getTeam()).countNumCitiesByArea(p.getArea()) <= 0))
-	{
-		/*  That means, eBuild is a very good build. But note that the build time
-			component of iCost is on a times-100 scale, so -1000 doesn't guarantee
-			that a Fort is built. */
-		r -= 1000;
-	}
-	return r;
+	// // Account for having to replace a Fort later
+	// if(kImpr.isActsAsCity() && GET_PLAYER(getOwner()).AI_isAdjacentCitySite(p, true))
+	// 	iMultiplier++;
+	// iCost *= iMultiplier;
+	// iCost /= 2;
+	// int const iDefenseWeight = 20;
+	// int r = iCost - iDefenseWeight * iDefenseValue;
+	// if(kImpr.isActsAsCity() && (p.isConnectSea() ||
+	// 	/*  If no cities in area, only a Fort will connect the bonus.
+	// 		(Unless workable, see advc.124, but p isn't workable.) */
+	// 	GET_TEAM(getTeam()).countNumCitiesByArea(p.getArea()) <= 0))
+	// {
+	// 	/*  That means, eBuild is a very good build. But note that the build time
+	// 		component of iCost is on a times-100 scale, so -1000 doesn't guarantee
+	// 		that a Fort is built. */
+	// 	r -= 1000;
+	// }
+	// return r;
+	return iCost;
 	// XXX feature production???
 	/*  As for the Firaxis comment above:
 		Feature production is handled elsewhere (see advc.117). That said, once
@@ -21889,6 +27540,8 @@ bool CvUnitAI::AI_moveIntoCity(int iRange)
 
 	if (pBestPlot != NULL)
 	{
+		CvCityAI const* pBestCityForEvacuationLog = pBestPlot->AI_getPlotCity();
+		if (gEvacuationLogLevel >= 3 && pBestCityForEvacuationLog != NULL && pBestCityForEvacuationLog->AI_isEvacuating()) logBBAI("    EVACUATION_REENTRY_HEAL_CITY turn=%d player=%d %S unitId=%d unit=%S unitAI=%d source=(%d,%d) targetCity=%S targetCityId=%d target=(%d,%d) groupId=%d groupUnits=%d hp=%d/%d", GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(), AI_getUnitAIType(), getX(), getY(), pBestCityForEvacuationLog->getName().GetCString(), pBestCityForEvacuationLog->getID(), pBestCityForEvacuationLog->getX(), pBestCityForEvacuationLog->getY(), getGroup()->getID(), getGroup()->getNumUnits(), currHitPoints(), maxHitPoints());
 		pushGroupMoveTo(*pBestPlot);
 		return true;
 	}

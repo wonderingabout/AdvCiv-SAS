@@ -1,0 +1,330 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2691
+# Commit: 195785f015f5e71cffa4b6c52e2307ad8cc08a94
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2b22f4b62d5db25708430af02f6fa1f87e9797f7
+# Title: Show implied peace treaties on the trade table
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	4	Assets/Python/CvDiplomacy.py
+38	41	CvGameCoreDLL/CvDeal.cpp
+111	9	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvDiplomacy.py b/Assets/Python/CvDiplomacy.py
+index 0ce0f08a2..2ddd26837 100644
+--- a/Assets/Python/CvDiplomacy.py
++++ b/Assets/Python/CvDiplomacy.py
+@@ -173,7 +173,11 @@ class CvDiplomacy:
+ 					self.addUserComment("USER_DIPLOCOMMENT_OFFER_PEACE", -1, -1)
+ 	
+ 			# If one of us has something on the table
+-			if (self.diploScreen.ourOfferEmpty() == 0 or self.diploScreen.theirOfferEmpty() == 0):
++			# <advc.ctr>
++			bOurOfferEmpty = self.diploScreen.ourOfferEmpty()
++			bTheirOfferEmpty = self.diploScreen.theirOfferEmpty()
++			# </advc.ctr>
++			if not bOurOfferEmpty or not bTheirOfferEmpty:
+ 	
+ 				# If the offer is from the AI
+ 				if (self.diploScreen.isAIOffer()):
+@@ -184,9 +188,16 @@ class CvDiplomacy:
+ 
+ 				# Otherwise this is a player offer to the AI
+ 				else:
+-
++					# <advc.ctr>
++					# Treat offer as empty if it's only a peace treaty at peacetime. Since such peace treaties are always appended at the end of the offer list (by CvPlayder::updateTradeList), it's sufficient to check iIndex=0. (I'm not sure if any other position can be safely checked as the interface of CyDiplomacy doesn't have getters for the list lengths.)
++					if not self.diploScreen.atWar():
++						if not bOurOfferEmpty and self.diploScreen.getPlayerTradeOffer(0).ItemType == TradeableItems.TRADE_PEACE_TREATY:
++							bOurOfferEmpty = True
++						if not bTheirOfferEmpty and self.diploScreen.getTheirTradeOffer(0).ItemType == TradeableItems.TRADE_PEACE_TREATY:
++							bTheirOfferEmpty = True
++					# </advc.ctr>
+ 					# This is a two way deal
+-					if (self.diploScreen.ourOfferEmpty() == 0 and self.diploScreen.theirOfferEmpty() == 0):
++					if not bOurOfferEmpty and not bTheirOfferEmpty:
+ 					
+ 						# Insert the propose trade button
+ 						self.addUserComment("USER_DIPLOCOMMENT_PROPOSE", -1, -1)
+@@ -197,7 +208,7 @@ class CvDiplomacy:
+ 								self.addUserComment("USER_DIPLOCOMMENT_COMPLETE_DEAL", -1, -1)
+ 
+ 					# Otherwise they have something on the table and we dont
+-					elif (self.diploScreen.theirOfferEmpty() == 0):
++					elif not bTheirOfferEmpty:
+ 
+ 						# If we are at war, demand the items for peace or ask what they want
+ 						if (self.diploScreen.atWar()):
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 392d4e821..eca2af76a 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -145,49 +145,44 @@ void CvDeal::addTradeItems(
+ {
+ 	if (isVassalTrade(kFirstList) && isVassalTrade(kSecondList))
+ 		return;
+-	// <advc.130p>
+-	TeamTypes eWarTradeTarget = NO_TEAM;
+-	TeamTypes ePeaceTradeTarget = NO_TEAM; // </advc.130p>
+-	bool bPeaceTreaty = false; // advc.ctr
+-
+-	FOR_EACH_TRADE_ITEM_VAR(kFirstList)
+-	{	// <advc.130p>
+-		if(pItem->m_eItemType == TRADE_WAR)
+-			eWarTradeTarget = (TeamTypes)pItem->m_iData;
+-		else if(pItem->m_eItemType == TRADE_PEACE)
+-			ePeaceTradeTarget = (TeamTypes)pItem->m_iData;
+-		// </advc.130p>  <advc.104m> (cf. CvPlayer::buildTradeTable)
+-		if (pItem->m_eItemType == TRADE_PEACE_TREATY)
+-		{
+-			pItem->m_bHidden = false;
+-			bPeaceTreaty = true;
+-		} // </advc.104m>
+-		if (bCheckAllowed &&
+-			!GET_PLAYER(getFirstPlayer()).canTradeItem(getSecondPlayer(), *pItem))
++	if (bCheckAllowed) // advc.opt (moved up)
++	{
++		FOR_EACH_TRADE_ITEM_VAR(kFirstList)
+ 		{
+-			return;
++			if (!GET_PLAYER(getFirstPlayer()).canTradeItem(getSecondPlayer(), *pItem))
++				return;
+ 		}
+-	}
+-
+-	FOR_EACH_TRADE_ITEM_VAR(kSecondList)
+-	{	// <advc.130p>
+-		if(pItem->m_eItemType == TRADE_WAR)
+-			eWarTradeTarget = (TeamTypes)pItem->m_iData;
+-		else if(pItem->m_eItemType == TRADE_PEACE)
+-			ePeaceTradeTarget = (TeamTypes)pItem->m_iData;
+-		// </advc.130p>  <advc.104m>
+-		if (pItem->m_eItemType == TRADE_PEACE_TREATY)
++		FOR_EACH_TRADE_ITEM_VAR(kSecondList)
+ 		{
+-			pItem->m_bHidden = false;
+-			bPeaceTreaty = true;
+-		} // </advc.104m>
+-		if (bCheckAllowed &&
+-			!GET_PLAYER(getSecondPlayer()).canTradeItem(getFirstPlayer(), *pItem))
+-		{
+-			return;
++			if (!GET_PLAYER(getSecondPlayer()).canTradeItem(getFirstPlayer(), *pItem))
++				return;
+ 		}
+ 	}
+-
++	// <advc.130p>
++	TeamTypes eWarTradeTarget = NO_TEAM;
++	TeamTypes ePeaceTradeTarget = NO_TEAM; // </advc.130p>
++	bool bPeaceTreaty = false; // advc.ctr
++	bool bPeaceTreatyFromTrade = false; // advc.ctr
++	// <advc>
++	CLinkList<TradeData>* apLists[] = { &kFirstList, &kSecondList };
++	for (int i = 0; i < 2; i++)
++	{
++		FOR_EACH_TRADE_ITEM_VAR(*apLists[i])
++		{	// <advc.130p>
++			if(pItem->m_eItemType == TRADE_WAR)
++				eWarTradeTarget = (TeamTypes)pItem->m_iData;
++			else if(pItem->m_eItemType == TRADE_PEACE)
++				ePeaceTradeTarget = (TeamTypes)pItem->m_iData;
++			// </advc.130p>  <advc.104m> (cf. CvPlayer::buildTradeTable)
++			if (pItem->m_eItemType == TRADE_PEACE_TREATY)
++			{
++				pItem->m_bHidden = false;
++				bPeaceTreaty = true;
++				if (pItem->m_iData > 0) // Set in CvPlayer::updateTradeList
++					bPeaceTreatyFromTrade = true;
++			} // </advc.104m>
++		}
++	} // </advc>
+ 	TeamTypes eFirstTeam = GET_PLAYER(getFirstPlayer()).getTeam();
+ 	TeamTypes eSecondTeam = GET_PLAYER(getSecondPlayer()).getTeam();
+ 	bool bBumpUnits = false; // K-Mod
+@@ -196,17 +191,19 @@ void CvDeal::addTradeItems(
+ 		no longer at war. */
+ 	bool const bMakingPeace = ::atWar(eFirstTeam, eSecondTeam);
+ 	bool bUpdateAttitude = false;
++	// advc.ctr:
++	bool const bAIRequest = (bPeaceTreaty && !bPeaceTreatyFromTrade && !bMakingPeace);
+ 	/*  Calls to changePeacetimeTradeValue moved into a new function
+ 		(also for advc.ctr) */
+ 	if (GET_PLAYER(getSecondPlayer()).AI_processTradeValue(kFirstList, getFirstPlayer(),
+ 		kSecondList.getLength() <= 0, bMakingPeace, ePeaceTradeTarget, eWarTradeTarget,
+-		bPeaceTreaty && !bMakingPeace)) // advc.ctr
++		bAIRequest)) // advc.ctr
+ 	{
+ 		bUpdateAttitude = true;
+ 	}
+ 	if (GET_PLAYER(getFirstPlayer()).AI_processTradeValue(kSecondList, getSecondPlayer(),
+ 		kFirstList.getLength() <= 0, bMakingPeace, ePeaceTradeTarget, eWarTradeTarget,
+-		bPeaceTreaty && !bMakingPeace)) // advc.ctr
++		bAIRequest)) // advc.ctr
+ 	{
+ 		bUpdateAttitude = true;
+ 	}
+@@ -550,7 +547,7 @@ bool CvDeal::isDisengage() const
+ 			getFirstList().head()->m_data.m_eItemType == TRADE_DISENGAGE);
+ }
+ 
+-// advc.130p: Replaced by code in recordTradeValue
++// advc.130p: Replaced by code in CvPlayerAI::AI_processTradeValue
+ /*bool CvDeal::isPeaceDealBetweenOthers(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* pSecondList) const {
+ //... }*/
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index f96230935..ec01431b5 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4090,17 +4090,15 @@ DenialTypes CvPlayer::getTradeDenial(PlayerTypes eWhoTo, TradeData item) const
+ 			return DENIAL_MYSTERY;
+ 		// K-Mod end
+ 		return kOurTeam.AI_permanentAllianceTrade(TEAMID(eWhoTo));
+-
+-	case TRADE_PEACE_TREATY:
++	/*	advc.ctr: Disabled. I don't think this case can occur in K-Mod
++		(future-proofing?), but it can get in the way of implied peace treaties,
++		which the AI evaluates more properly under the trade item that mandates
++		the peace treaty. */
++	/*case TRADE_PEACE_TREATY:
+ 		// K-Mod
+ 		if (kOurTeam.AI_refusePeace(TEAMID(eWhoTo)))
+-			return DENIAL_VICTORY;
+-		// K-Mod end
+-		break;
+-	/*  <advc.034> Can't be traded voluntarily anyway, but NO_DENIAL suppresses
+-		explanation text in CvDLLWidgetData::parseTradeItem */
+-	case TRADE_DISENGAGE:
+-		return NO_DENIAL; // <advc.034>
++			return DENIAL_VICTORY; // K-Mod end
++		break;*/
+ 	}
+ 
+ 	return NO_DENIAL;
+@@ -18679,6 +18677,110 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
+ 			}
+ 		}
+ 	}
++	/*	<advc.ctr> Add PEACE_TREATY items to offers that imply a peace treaty.
++		Note that this is only done to inform the human player. There is code
++		elsewhere for signing the peace treaty upon implementation of the deal.
++		For deals that involve a human, the game will end up attemping to
++		implement the peace treaty twice. No harm in that.
++		I don't know if updateTradeList gets called for all AI trades;
++		don't want to rely on it. */
++	if ((GC.getGame().getActivePlayer() != getID() &&
++		GC.getGame().getActivePlayer() != eOtherPlayer) ||
++		GET_TEAM(eOtherPlayer).isAtWar(getTeam()))
++	{
++		return;
++	}
++	TradeableItems eForcePeaceItemType = NO_TRADE_ITEM;
++	TradeableItems aeForcePeace[] = { TRADE_CITIES, /* advc.146: */ TRADE_WAR };
++	int const iForcePeaceSz = sizeof(aeForcePeace) / sizeof(TradeableItems);
++	/*	When a player tries to deselect a peace treaty, the trade screen will
++		remove it (temporarily) only from one player's side. Therefore need
++		to check each player individually for an offered peace treaty. */
++	bool abPeaceTreatyFound[] = { false, false };
++	CLinkList<TradeData> const* apOffers[] = { &kOurOffer, &kTheirOffer };
++	for (int i = 0; i < 2; i++)
++	{
++		FOR_EACH_TRADE_ITEM(*apOffers[i])
++		{
++			if (pItem->m_eItemType == TRADE_PEACE_TREATY)
++			{
++				FAssert(!abPeaceTreatyFound[i]);
++				abPeaceTreatyFound[i] = true;
++			}
++			else FAssert(!CvDeal::isEndWar(pItem->m_eItemType))
++			for (int j = 0; j < iForcePeaceSz; j++)
++			{
++				if (pItem->m_eItemType == aeForcePeace[j])
++				{
++					// No peace treaty through liberation
++					if (pItem->m_eItemType == TRADE_CITIES)
++					{
++						CvCity const* pCity = GET_PLAYER(
++								i == 0 ? getID() : eOtherPlayer).
++								getCity(pItem->m_iData);
++						if (pCity == NULL || pCity->getLiberationPlayer() == getID())
++							continue;
++					}
++					eForcePeaceItemType = pItem->m_eItemType;
++				}
++			}
++		}
++	}
++	bool bPeaceTreatyNeeded = (eForcePeaceItemType != NO_TRADE_ITEM);
++	if (!abPeaceTreatyFound[0] && !abPeaceTreatyFound[1] && !bPeaceTreatyNeeded)
++		return;
++	/*	kOurOffer and kTheirOffer are most likely not really const objects.
++		Perhaps call-by-const-reference could've gotten replaced with call-by-value
++		when the EXE was compiled, but tests show that this hasn't happened. */
++	CLinkList<TradeData>* apOffersVar[] =
++	{
++		const_cast<CLinkList<TradeData>*>(&kOurOffer),
++		const_cast<CLinkList<TradeData>*>(&kTheirOffer)
++	};
++	/*	Always remove any peacetime peace treaties. Re-append if necessary.
++		So that they're always at the bottom of the offer lists.
++		That's important for CvDiplomacy.determineResponses in Python. */
++	for (int i = 0; i < 2; i++)
++	{
++		if (!abPeaceTreatyFound[i])
++			continue;
++		for (CLLNode<TradeData>* pNode = apOffersVar[i]->head();
++			pNode != NULL; pNode = apOffersVar[i]->next(pNode))
++		{
++			if (pNode->m_data.m_eItemType == TRADE_PEACE_TREATY)
++			{
++				apOffersVar[i]->deleteNode(pNode);
++				break; // There should be at most one
++			}
++		}
++	}
++	if (bPeaceTreatyNeeded)
++	{
++		for (int i = 0; i < 2; i++)
++		{
++			TradeData item(TRADE_PEACE_TREATY);
++			if (canTradeItem(eOtherPlayer, item) &&
++				GET_PLAYER(eOtherPlayer).canTradeItem(getID(), item))
++			{
++				item.m_bOffering = true;
++				/*	So that we can later (when processing trade values) tell
++					whether the deal is the result of an AI request.
++					(If it comes through here, then there's no AI request.) */
++				item.m_iData = eForcePeaceItemType;
++				apOffersVar[i]->insertAtEnd(item);
++				if (i == 0)
++				{
++					/*	Update offering status in inventory
++						(though probably unnecessary) */
++					FOR_EACH_TRADE_ITEM_VAR(kOurInventory)
++					{
++						if (pItem->m_eItemType == TRADE_PEACE_TREATY)
++							pItem->m_bOffering = true;
++					}
++				}
++			}
++		}
++	} // </advc.ctr>
+ }
+ 
+ /*	K-Mod: Find each item from the offer list in the inventory list -
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=11479

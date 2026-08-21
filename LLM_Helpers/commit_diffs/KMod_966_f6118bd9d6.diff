@@ -1,0 +1,67 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 966
+# Commit: f6118bd9d63921478741123e3dbd5114e2b2fa11
+# History segment: K-Mod history
+# Parent used for diff: 393b02bf903d479bf56f6dd31f34e43d31acc911
+# Title: Tweaked the AI evaluation of space-race techs.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	4	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 50912fc62..81ad14be0 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5519,13 +5519,15 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 	bool bEnablesProjectWonder = false;
+ 	for (int iJ = 0; iJ < GC.getNumProjectInfos(); iJ++)
+ 	{
+-		if (GC.getProjectInfo((ProjectTypes)iJ).getTechPrereq() == eTech)
++		const CvProjectInfo& kProjectInfo = GC.getProjectInfo((ProjectTypes)iJ); // K-Mod
++
++		if (kProjectInfo.getTechPrereq() == eTech)
+ 		{
+ 			iValue += 1000;
+ 
+-			if( (VictoryTypes)GC.getProjectInfo((ProjectTypes)iJ).getVictoryPrereq() != NO_VICTORY )
++			if( (VictoryTypes)kProjectInfo.getVictoryPrereq() != NO_VICTORY )
+ 			{
+-				if( !(GC.getProjectInfo((ProjectTypes)iJ).isSpaceship()) )
++				if( !(kProjectInfo.isSpaceship()) )
+ 				{
+ 					// Apollo
+ 					iValue += (AI_isDoVictoryStrategy(AI_VICTORY_SPACE2) ? 2000 : 100);
+@@ -5533,12 +5535,18 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 				else
+ 				{
+ 					// Space ship parts (changed by K-Mod)
++					// Note: ideally this would take into account the production cost of each item,
++					//       and the total number / production of a completed space-ship, and a
++					//       bunch of other things. But I think this is good enough for now.
+ 					if (AI_isDoVictoryStrategy(AI_VICTORY_SPACE2))
+ 					{
+ 						iValue += 1000;
+ 						if (AI_isDoVictoryStrategy(AI_VICTORY_SPACE3))
+ 						{
+-							iValue += 1000; // (additional)
++							iValue += 800; // (additional)
++							iValue += kProjectInfo.getMaxTeamInstances() > 0
++								? kProjectInfo.getMaxTeamInstances() * 200
++								: 400;
+ 						}
+ 					}
+ 				}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1767

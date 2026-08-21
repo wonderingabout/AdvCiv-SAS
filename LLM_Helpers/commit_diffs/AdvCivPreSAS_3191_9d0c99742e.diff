@@ -1,0 +1,271 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3191
+# Commit: 9d0c99742e7caef08441152678b053b421208e9e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 31bc0c51ddcc5e482f3d8d7da6da6f44fa4bb58c
+# Title: Don't show unit action recommendations during AI Auto Play
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	7	CvGameCoreDLL/CvCity.cpp
+6	3	CvGameCoreDLL/CvCityAI.cpp
+2	1	CvGameCoreDLL/CvGameInterface.cpp
+2	12	CvGameCoreDLL/CvPlayer.cpp
+10	1	CvGameCoreDLL/CvPlayer.h
+2	3	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvSelectionGroup.cpp
+5	3	CvGameCoreDLL/CvUnit.cpp
+5	5	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index aedb81781..468766e0f 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -9770,13 +9770,10 @@ void CvCity::popOrder(int iNum, bool bFinish,
+ 		}
+ 		if (pRallyPlot != NULL/* advc.001b: */ && pUnit->at(getPlot()))
+ 			pUnit->getGroup()->pushMission(MISSION_MOVE_TO, pRallyPlot->getX(), pRallyPlot->getY());
+-		if (isHuman())
+-		{
+-			if (kOwner.isOption(PLAYEROPTION_START_AUTOMATED))
+-				pUnit->automate(AUTOMATE_BUILD);
+-			if (kOwner.isOption(PLAYEROPTION_MISSIONARIES_AUTOMATED))
+-				pUnit->automate(AUTOMATE_RELIGION);
+-		}
++		if (kOwner.isHumanOption(PLAYEROPTION_START_AUTOMATED))
++			pUnit->automate(AUTOMATE_BUILD);
++		if (kOwner.isHumanOption(PLAYEROPTION_MISSIONARIES_AUTOMATED))
++			pUnit->automate(AUTOMATE_RELIGION);
+ 		CvEventReporter::getInstance().unitBuilt(this, pUnit);
+ 		if (gCityLogLevel >= 1) // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ 		{
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 565ba70c2..72a5da619 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7706,7 +7706,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 				if (GC.getInfo(kPlot.getFeatureType()).getYieldChange(YIELD_PRODUCTION) > 0 &&
+ 					eNonObsoleteBonus == NO_BONUS)
+ 				{
+-					if (kOwner.isOption(PLAYEROPTION_LEAVE_FORESTS))
++					if (kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS))
+ 						bValid = false;
+ 					else if (healthRate() < 0 &&
+ 						GC.getInfo(kPlot.getFeatureType()).getHealthPercent() > 0)
+@@ -8040,8 +8040,11 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 				}
+ 			}
+ 		}
+-		if (kOwner.isOption(PLAYEROPTION_SAFE_AUTOMATION) /* advc.001: */ && rValue.isPositive())
++		if (kOwner.isHumanOption(PLAYEROPTION_SAFE_AUTOMATION) &&
++			rValue.isPositive()) // advc.001
++		{
+ 			rValue /= 4; // Greatly prefer builds which are legal.
++		}
+ 	}
+ 	// K-Mod. Feature value. (moved from the 'no improvement' block above.)
+ 	if (kPlot.isFeature() && eBestTempBuild != NO_BUILD &&
+@@ -11366,7 +11369,7 @@ void CvCityAI::AI_bestPlotBuild(CvPlot const& kPlot, int* piBestValue, BuildType
+ 	/*	Chop - maybe integrate this better with the other feature-clear code
+ 		though the logic is kinda different */
+ 	if (bChop && eBonus == NO_BONUS && kPlot.isFeature() &&
+-		!kPlot.isImproved() && !kOwner.isOption(PLAYEROPTION_LEAVE_FORESTS))
++		!kPlot.isImproved() && !kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS))
+ 	{
+ 		FOR_EACH_ENUM(Build)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 5d890a9e6..2f0ef7234 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -247,7 +247,8 @@ void CvGame::updateColoredPlots()
+ 		}
+ 	}
+ 
+-	if (!GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS))
++	if (!GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) ||
++		!GET_PLAYER(getActivePlayer()).isHuman()) // advc.127
+ 	{
+ 		CvUnitAI const& kRecommendUnit = pHeadSelectedUnit->AI(); // advc.003u
+ 		if (kRecommendUnit.AI_getUnitAIType() == UNITAI_WORKER ||
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 976cd7b3a..f6a0275de 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9808,17 +9808,6 @@ void CvPlayer::setFeatAccomplished(FeatTypes eFeat, bool bNewValue)
+ }
+ 
+ 
+-bool CvPlayer::isOption(PlayerOptionTypes eOption) const
+-{
+-	/*  <advc.127> AI Auto-Play should probably disable player options temporarily,
+-		but I don't think it does and this looks like a quick way to fix the problem.
+-		AI players can't have options. Tagging advc.001. */
+-	if (!isHuman())
+-		return false; // </advc.127>
+-	return m_abOptions.get(eOption);
+-}
+-
+-
+ void CvPlayer::setOption(PlayerOptionTypes eOption, bool bNewValue)
+ {
+ 	m_abOptions.set(eOption, bNewValue);
+@@ -9841,7 +9830,8 @@ void CvPlayer::setOption(PlayerOptionTypes eOption, bool bNewValue)
+ 	isAutomationSafe down with an optional parameter. */
+ bool CvPlayer::isAutomationSafe(CvPlot const& kPlot) const
+ {
+-	return (isOption(PLAYEROPTION_SAFE_AUTOMATION) && kPlot.isImproved() &&
++	return (kPlot.isImproved() &&
++			isHumanOption(PLAYEROPTION_SAFE_AUTOMATION) &&
+ 			kPlot.getImprovementType() != GC.getRUINS_IMPROVEMENT());
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 14fd5caa9..3a837e76b 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -975,7 +975,16 @@ public:
+ 	bool isFeatAccomplished(FeatTypes eFeat) const;																	// Exposed to Python
+ 	void setFeatAccomplished(FeatTypes eFeat, bool bNewValue);														// Exposed to Python
+ 
+-	DllExport bool isOption(PlayerOptionTypes eOption) const;														// Exposed to Python
++	DllExport bool isOption(PlayerOptionTypes eOption) const														// Exposed to Python
++	{
++		return m_abOptions.get(eOption);
++	}
++	/*	advc.127, advc.001: For fixing bugs with automation options being applied
++		during AI Auto Play */
++	bool isHumanOption(PlayerOptionTypes eOption) const
++	{
++		return (isHuman() && isOption(eOption));
++	}
+ 	DllExport void setOption(PlayerOptionTypes eOption, bool bNewValue);											// Exposed to Python
+ 
+ 	bool isAutomationSafe(CvPlot const& kPlot) const; // advc
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c5f09fc5f..125251c17 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -470,9 +470,8 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 	PROFILE_FUNC();
+ 
+ 	//if (!isHuman() || isOption(PLAYEROPTION_AUTO_PROMOTION))
+-	// <advc.mnai> Do non-human civ promotions after upgrades
+-	if ((isHuman() && isOption(PLAYEROPTION_AUTO_PROMOTION)) ||
+-		isBarbarian()) // </advc.mnai>
++	// advc.mnai: Do non-human civ promotions after upgrades
++	if (isHumanOption(PLAYEROPTION_AUTO_PROMOTION) || isBarbarian())
+ 	{
+ 		FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
+ 			pLoopUnit->AI_promote();
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index be4a9b7ce..f8221af4e 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2670,8 +2670,8 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, MovementFlags eFlags,
+ 			if (GC.getPythonCaller()->doCombat(*this, *pDestPlot))
+ 				break;
+ 			// advc.004c: Don't always treat air attacks like stack attacks
+-			bool bStack = (isHuman() && (/*getDomainType() == DOMAIN_AIR ||*/
+-					GET_PLAYER(getOwner()).isOption(PLAYEROPTION_STACK_ATTACK)));
++			bool bStack = //getDomainType() == DOMAIN_AIR ||
++					GET_PLAYER(getOwner()).isHumanOption(PLAYEROPTION_STACK_ATTACK);
+ 			bFailedAlreadyFighting = false;
+ 			if (getNumUnits() > 1)
+ 			{	/*if (pBestAttackUnit->getPlot().isFighting() || pDestPlot->isFighting())
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index a49cf8753..161a01bca 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1673,7 +1673,7 @@ bool CvUnit::suppressStackAttackSound(CvUnit const& kDefender) const
+ 		return false;
+ 	CvSelectionGroup const* pAttackGroup = gDLL->UI().getSelectionList();
+ 	if (pAttackGroup == NULL ||
+-		!GET_PLAYER(getOwner()).isOption(PLAYEROPTION_STACK_ATTACK))
++		!GET_PLAYER(getOwner()).isHumanOption(PLAYEROPTION_STACK_ATTACK))
+ 	{
+ 		return false;
+ 	}
+@@ -1701,9 +1701,11 @@ void CvUnit::checkRemoveSelectionAfterAttack()
+ 
+ bool CvUnit::isActionRecommended(int iAction)
+ {
+-	if(getOwner() != GC.getGame().getActivePlayer())
++	if (getOwner() != GC.getGame().getActivePlayer() ||
++		!isHuman()) // advc.127
++	{
+ 		return false;
+-
++	}
+ 	/*  <advc.002e> This needs to be done in some CvUnit function that gets called
+ 		by the EXE after read, after isPromotionReady and late enough for IsSelected
+ 		to work. (E.g. setupGraphical and shouldShowEnemyGlow are too early.) */
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ad3a5a9ff..a0d23d512 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -16901,7 +16901,7 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, // adv
+ 		CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+ 		if (!p.isCityRadius() && p.getWorkingCity() == NULL &&
+ 			!isBarbarian() && iMissingWorkersInArea <= 0 &&
+-			!kOwner.isOption(PLAYEROPTION_LEAVE_FORESTS) &&
++			!kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS) &&
+ 			kOwner.getGwPercentAnger() <= 0 &&
+ 			!p.isImproved() && p.isFeature() &&
+ 			!kOwner.AI_isAdjacentCitySite(p, false)) // Don't chop near planned cities
+@@ -17261,7 +17261,7 @@ bool CvUnitAI::AI_irrigateTerritory()  // advc: refactored
+ 			CvFeatureInfo const& kFeatureInfo = GC.getInfo(kLoopPlot.getFeatureType());
+ 			// K-Mod:
+ 			if ((iGwEventTally >= 0 && kFeatureInfo.getWarmingDefense() > 0) ||
+-				(kOwner.isOption(PLAYEROPTION_LEAVE_FORESTS) &&
++				(kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS) &&
+ 				kFeatureInfo.getYieldChange(YIELD_PRODUCTION) > 0))
+ 			{
+ 				continue;
+@@ -17367,7 +17367,7 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
+ 			if(!kPlot.isVisibleEnemyUnit(this))
+ 			{
+ 				bool bValid = true;
+-				if (GET_PLAYER(getOwner()).isOption(PLAYEROPTION_LEAVE_FORESTS) &&
++				if (GET_PLAYER(getOwner()).isHumanOption(PLAYEROPTION_LEAVE_FORESTS) &&
+ 					kPlot.isFeature() &&
+ 					GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()) &&
+ 					GC.getInfo(kPlot.getFeatureType()).getYieldChange(YIELD_PRODUCTION) > 0)
+@@ -17481,7 +17481,7 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
+ 		CvCityAI const* pWorkingCity = kPlot.AI_getWorkingCity();
+ 		BuildTypes eBestTempBuild = NO_BUILD;
+ 		if (eImprovement != NO_IMPROVEMENT &&
+-			((kOwner.isOption(PLAYEROPTION_SAFE_AUTOMATION) &&
++			((kOwner.isHumanOption(PLAYEROPTION_SAFE_AUTOMATION) &&
+ 			eImprovement != GC.getRUINS_IMPROVEMENT()) ||
+ 			(kOwner.doesImprovementConnectBonus(eImprovement, eNonObsoleteBonus) &&
+ 			/*  advc.121: This should give replacement of Fort with another
+@@ -21207,7 +21207,7 @@ bool CvUnitAI::AI_canConnectBonus(CvPlot const& p, BuildTypes eBuild) const
+ 		return false;
+ 	if(p.isFeature() &&
+ 		GC.getInfo(eBuild).isFeatureRemove(p.getFeatureType()) &&
+-		kOwner.isOption(PLAYEROPTION_LEAVE_FORESTS))
++		kOwner.isHumanOption(PLAYEROPTION_LEAVE_FORESTS))
+ 	{
+ 		return false;
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=10427

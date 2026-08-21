@@ -1,0 +1,44 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4624
+# Commit: 79e6a90410ff867b859e3dcfcc4e934203cdffc1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4255127d71f3c872aa5c2f61b5b1db92c1eee48e
+# Title: minor fix/change docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	_1_AdvCiv-SAS/Music_Civ4_Mod/Sounds/Sounds_listing
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Music_Civ4_Mod/Sounds/Sounds_listing b/_1_AdvCiv-SAS/Music_Civ4_Mod/Sounds/Sounds_listing
+index 550325a95..e66acf364 100644
+--- a/_1_AdvCiv-SAS/Music_Civ4_Mod/Sounds/Sounds_listing
++++ b/_1_AdvCiv-SAS/Music_Civ4_Mod/Sounds/Sounds_listing
+@@ -1,5 +1,5 @@
+-promotion up:
+-- medic/march: harp https://www.youtube.com/watch?v=-wpL091Z7K0 or harp 2 https://www.youtube.com/watch?v=IelwVLr6T9I
++promotions up:
++- medic/march: harp https://www.youtube.com/watch?v=-wpL091Z7K0
+ - naval: ship bell https://www.youtube.com/watch?v=nBlOblwqce4 or ship bell 2 https://www.youtube.com/watch?v=vvMK6ThY1Ss (cut at last sound until end) or/and fog horn https://www.youtube.com/shorts/vkh6kLnMGsA
+ - siege promo up: boom/explosion soft sound https://www.youtube.com/watch?v=UUU8w5cV0xQ
+ - mounted horse a bit loud https://www.youtube.com/watch?v=8H299dMuZ8M or/and gallop https://www.youtube.com/shorts/gd6XuhYbv1g or whispering https://www.youtube.com/watch?v=69L9NMP47CU
+@@ -14,6 +14,6 @@ promotion up:
+ - camel: https://www.youtube.com/shorts/fh41rEfVfDA
+ - elephant: https://www.youtube.com/watch?v=Y1Y47Rz9r40
+ - gun (single shot maybe or multi): https://www.youtube.com/watch?v=L44qI6vPJaw
+-- gun bomber https://www.youtube.com/watch?v=cyIMrDRki4c or 
++- gun bomber https://www.youtube.com/watch?v=cyIMrDRki4c
+ - gun sniper https://www.youtube.com/shorts/ff-rtjpmNBU
+ - explorer: default or some other sound?
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1425

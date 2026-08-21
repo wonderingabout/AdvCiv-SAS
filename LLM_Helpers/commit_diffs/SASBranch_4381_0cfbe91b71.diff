@@ -1,0 +1,196 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4381
+# Commit: 0cfbe91b71956d4b28dcf3a728c52d90690e0251
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9dbf3edafe2da24c4275df7fc6f7fb9d9acf3d08
+# Title: Merge branch 'bugfixes_from_Oxidized'
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+56	30	PrivateMaps/PerfectMongoose.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index b6780c0b4..e2b968519 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -2,7 +2,8 @@
+ ## advc.021b: Latest changes to PerfectWorld in MongooseMod (v3.3) ported back
+ ## to the latest standalone version of the script (v3.2) and enhanced and
+ ## customized for the AdvCiv mod. The AdvCiv changes are marked with
+-## "advc" comments, "advc.001" for bugfixes, "advc.027" for the integration of
++## "advc" comments, "advc.001" for bugfixes, "advc.oxi" for getCirclePoints
++## bugfixes adopted from CFC user Oxidized, "advc.027" for the integration of
+ ## AdvCiv's starting position algorithm. 
+ ## Also corrected some debug output that used "FairWeather" as the map name.
+ ## Version history up to v3.3 moved to the end of the file.
+@@ -1166,31 +1167,49 @@ class FloatMap:
+ 
+ 
+ 	def GetAverageInHex(self, x, y, radius):
+-		list = pb.getCirclePoints(x, y, radius)
++		# advc.oxi: Was getCirclePoints
++		list = pb.getFilledCirclePoints(x, y, radius)
+ 		avg = 0.0
++		count = 0 # advc.oxi
+ 		for n in range(len(list)):
+ 			hex = list[n]
+ 			i = self.GetIndex(hex.x, hex.y)
+-			avg = avg + self.data[i]
+-		avg = avg / len(list)
++			# <advc.oxi>
++			if i == -1:
++				continue
++			count += 1 # </advc.oxi>
++			avg += self.data[i]
++		# <advc.oxi>
++		if count == 0:
++			return 0.0
++		#avg = avg / len(list)
++		avg /= count # </advc.oxi>
+ 		return avg
+ 
+-
++	# advc.oxi: Similar changes as in GetAverageInHex
+ 	def GetStdDevInHex(self, x, y, radius):
+-		list = pb.getCirclePoints(x, y, radius)
++		list = pb.getFilledCirclePoints(x, y, radius)
+ 		avg = 0.0
++		count = 0
+ 		for n in range(len(list)):
+ 			hex = list[n]
+ 			i = self.GetIndex(hex.x, hex.y)
+-			avg = avg + self.data[i]
+-		avg = avg / len(list)
++			if i == -1:
++				continue
++			count += 1
++			avg += self.data[i]
++		if count == 0:
++			return 0.0
++		avg /= count
+ 		deviation = 0.0
+ 		for n in range(len(list)):
+ 			hex = list[n]
+ 			i = self.GetIndex(hex.x, hex.y)
++			if i == -1:
++				continue
+ 			sqr = self.data[i] - avg
+-			deviation = deviation + (sqr * sqr)
+-		deviation = math.sqrt(deviation / len(list))
++			deviation += sqr * sqr
++		deviation = math.sqrt(deviation / count)
+ 		return deviation
+ 
+ 
+@@ -1199,6 +1218,7 @@ class FloatMap:
+ 		for y in range(self.height):
+ 			for x in range(self.width):
+ 				i = self.GetIndex(x, y)
++				if i == -1: continue # advc.oxi
+ 				dataCopy[i] = self.GetAverageInHex(x, y, radius)
+ 		self.data = dataCopy
+ 
+@@ -1208,6 +1228,7 @@ class FloatMap:
+ 		for y in range(self.height):
+ 			for x in range(self.width):
+ 				i = self.GetIndex(x, y)
++				if i == -1: continue # advc.oxi
+ 				dataCopy[i] = self.GetStdDevInHex(x, y, radius)
+ 		self.data = dataCopy
+ 
+@@ -3665,7 +3686,7 @@ class PangaeaBreaker:
+ 		x, y = self.getHighestCentrality(biggestContinentID)
+ 		return x, y
+ 
+-
++	# advc (note): All three unused. Unclear if circle points past map edges handled correctly.
+ 	def isChokePoint(self, x, y, biggestContinentID):
+ 		circlePoints = self.getCirclePoints(x, y, mc.minimumMeteorSize)
+ 		waterOpposite = False
+@@ -3688,8 +3709,6 @@ class PangaeaBreaker:
+ 			if percent >= mc.minimumLandInChoke:
+ 				return True
+ 		return False
+-
+-
+ 	def getLandPercentInCircle(self, circlePoints, biggestContinentID):
+ 		land  = 0
+ 		water = 0
+@@ -3707,8 +3726,6 @@ class PangaeaBreaker:
+ 			water += waterLine
+ 		percent = float(land) / float(land + water)
+ 		return percent
+-
+-
+ 	def countCraterLine(self, x1, x2, y, biggestContinentID):
+ 		land  = 0
+ 		water = 0
+@@ -3791,11 +3808,11 @@ class PangaeaBreaker:
+ 
+ 
+ 	def getCirclePoints(self, xCenter, yCenter, radius):
+-		circlePointList = list()
++		circlePoints = set() # advc.oxi: was list
+ 		x = 0
+ 		y = radius
+ 		p = 1 - radius
+-		self.addCirclePoints(xCenter, yCenter, x, y, circlePointList)
++		self.addCirclePoints(xCenter, yCenter, x, y, circlePoints)
+ 		while (x < y):
+ 			x += 1
+ 			if p < 0:
+@@ -3803,19 +3820,28 @@ class PangaeaBreaker:
+ 			else:
+ 				y -= 1
+ 				p += 2 * (x - y) + 1
+-			self.addCirclePoints(xCenter, yCenter, x, y, circlePointList)
+-		return circlePointList
+-
+-
+-	def addCirclePoints(self, xCenter, yCenter, x, y, circlePointList):
+-		circlePointList.append(CirclePoint(xCenter + x, yCenter + y))
+-		circlePointList.append(CirclePoint(xCenter - x, yCenter + y))
+-		circlePointList.append(CirclePoint(xCenter + x, yCenter - y))
+-		circlePointList.append(CirclePoint(xCenter - x, yCenter - y))
+-		circlePointList.append(CirclePoint(xCenter + y, yCenter + x))
+-		circlePointList.append(CirclePoint(xCenter - y, yCenter + x))
+-		circlePointList.append(CirclePoint(xCenter + y, yCenter - x))
+-		circlePointList.append(CirclePoint(xCenter - y, yCenter - x))
++			self.addCirclePoints(xCenter, yCenter, x, y, circlePoints)
++		return list(circlePoints) # advc.oxi
++
++	# advc.oxi: Had been circlePointsList.append, leading to duplicates.
++	def addCirclePoints(self, xCenter, yCenter, x, y, circlePoints):
++		circlePoints.add(CirclePoint(xCenter + x, yCenter + y))
++		circlePoints.add(CirclePoint(xCenter - x, yCenter + y))
++		circlePoints.add(CirclePoint(xCenter + x, yCenter - y))
++		circlePoints.add(CirclePoint(xCenter - x, yCenter - y))
++		circlePoints.add(CirclePoint(xCenter + y, yCenter + x))
++		circlePoints.add(CirclePoint(xCenter - y, yCenter + x))
++		circlePoints.add(CirclePoint(xCenter + y, yCenter - x))
++		circlePoints.add(CirclePoint(xCenter - y, yCenter - x))
++
++	# advc.oxi: New method to replace some erroneous uses of getCirclePoints
++	def getFilledCirclePoints(self, xCenter, yCenter, radius):
++		points = []
++		for dy in range(-radius, radius + 1):
++			dx = int(math.sqrt(radius * radius - dy * dy))
++			for x in range(xCenter - dx, xCenter + dx + 1):
++				points.append(CirclePoint(x, yCenter + dy))
++		return points
+ 
+ 
+ 	def createDistanceMap(self):
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=5842

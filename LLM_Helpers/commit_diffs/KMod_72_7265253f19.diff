@@ -1,0 +1,70 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 72
+# Commit: 7265253f19630d7f64a9e8e0e8737d76b8dbcdf9
+# History segment: K-Mod history
+# Parent used for diff: 2290fd8e2aa0666c97c78cf06b4f08cdc568b51b
+# Title: Updated the changelog. This is version 0.97.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+33	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/changelog.txt b/changelog.txt
+index 63f6eea68..0352cee4f 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,8 +1,40 @@
+-This is K-Mod version 0.96.
++This is K-Mod version 0.97.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+ 
++v0.97 changelist
++
++NOTE: This patch changes the save file format. K-Mod saves from previous versions will not work with this version.
++
+++ Increased cost of The Great Lighthouse, from 200 to 300.
+++ Increased Environmentalism upkeep from medium to high.
+++ Made some minor changes to some corporation stats.
+++ Global warming events are now slightly more biased towards cold tiles.
+++ Decreased event message stagger time.
+++ GwPercentAnger, average culture press, and building value are now all cached. [no effect on gameplay, but it may make the game run slightly faster.]
+++ Changed the way Lead From Behind works. [Previous, LFB was so overly-protective of high-value units that it would not allow warlord-defenders to actually defend.]
++
++AI changes:
+++ Adjusted the AI's criteria for drafting.
+++ Adjusted spy building decision making.
+++ Adjusted espionage mission evaluation.
+++ Added new strategies for espionage points targeting.
+++ Tweaked city site evaluation.
+++ Fixed some problems in the AI's culture pressure response.
+++ In most cases, the AI will no longer choose low productivity cities to build floating defenders.
+++ The AI now correctly estimates no pollution change from population-pollution reduction in cities that are already at 100% reduction.
+++ The AI will no longer try to 'save up' culture wonders unless it is aiming for a cultural victory.
+++ For health and happiness in civic evaluation, the AI now distinguishes between switching into a bonus and out of a bonus.
+++ Commerce multipliers from civics are now valued in a more reasonable way.
+++ The AI will no longer try to save the Moai Statues for a city that already has high productivity.
+++ Added some new strategies to help the AI catch-up if it falls behind in tech.
+++ Tweaked the conditions and effects of the AI's "crush" strategy.
+++ Rewrote the AI's city evaluation of specialists.
+++ Rewrote parts of the AI's evaluation of corporation HQ, effect on cities, and civics. [It will now choose its HQ cities more wisely.]
++
++--
++
+ v0.96 changelist
+ 
+ + (This patch only has AI changes. There are no balance changes or new features.)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2462

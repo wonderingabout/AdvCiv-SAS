@@ -1,0 +1,261 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4201
+# Commit: 19d3d43a8c420ab1fa972f50952bfc76d034e2d5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d564f198d973d925afc185e4695d178db7d81243
+# Title: Minor refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	13	CvGameCoreDLL/CvPlayerAI.cpp
+4	10	CvGameCoreDLL/CvSelectionGroup.cpp
+2	2	CvGameCoreDLL/CvSelectionGroup.h
+1	1	CvGameCoreDLL/CvUnit.cpp
+14	13	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 200b2ef97..674ade734 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3454,7 +3454,7 @@ int CvPlayerAI::AI_getPlotDanger(/* BtS parameters: */ CvPlot const& kPlot, int
+ 	// advc.opt: Since the SafeRangeCache is disabled, let's not waste any time with this.
+ 
+ 	TeamTypes const eTeam = getTeam();
+-	int r = 0;
++	int iR = 0;
+ 	bCheckBorder = (bCheckBorder &&
+ 			// advc: Cities were excluded in AI_getAnyPlotDanger, but not in AI_getPlotDanger.
+ 			// K-Mod: "Cities need to be excluded for some legacy AI code"
+@@ -3477,7 +3477,7 @@ int CvPlayerAI::AI_getPlotDanger(/* BtS parameters: */ CvPlot const& kPlot, int
+ 			// <advc>
+ 			if (iLimit == 1)
+ 				return 1;
+-			r++; // As in K-Mod, border danger can add at most 1 to the danger count.
++			iR++; // As in K-Mod, border danger can add at most 1 to the danger count.
+ 			// (K-Mod: "I don't think two border tiles are really more dangerous than one border tile.")
+ 			bCheckBorder = false; // </advc>
+ 		}
+@@ -3537,8 +3537,8 @@ int CvPlayerAI::AI_getPlotDanger(/* BtS parameters: */ CvPlot const& kPlot, int
+ 								kPlot.setBorderDangerCache(eActualLoopTeam, true);
+ 							}
+ 						}  // <advc>
+-						r++;
+-						if (r >= iLimit)
++						iR++;
++						if (iR >= iLimit)
+ 							return iLimit;
+ 						// Count at most 1 for border danger
+ 						bCheckBorder = false; 
+@@ -3548,8 +3548,8 @@ int CvPlayerAI::AI_getPlotDanger(/* BtS parameters: */ CvPlot const& kPlot, int
+ 			if (p.isUnit()) // Redundant but fast (inlined)
+ 			{
+ 				// Code moved into auxiliary function
+-				r += AI_countDangerousUnits(p, kPlot, bTestMoves, iLimit, eAttackPlayer);
+-				if (r >= iLimit)
++				iR += AI_countDangerousUnits(p, kPlot, bTestMoves, iLimit, eAttackPlayer);
++				if (iR >= iLimit)
+ 					return iLimit;
+ 			} // </advc>
+ 		}
+@@ -3557,7 +3557,7 @@ int CvPlayerAI::AI_getPlotDanger(/* BtS parameters: */ CvPlot const& kPlot, int
+ 			but is this really ever going to be a problem? */
+ 		/*else if (p.isUnit() && kPlotArea.canBeEntered(p.getArea()))
+ 		{
+-			r += AI_countDangerousUnits(p, kPlot, bTestMoves, 1, eAttackPlayer);
++			iR += AI_countDangerousUnits(p, kPlot, bTestMoves, 1, eAttackPlayer);
+ 			// ... (copy from above)
+ 		}*/ // </advc.030>
+ 	}
+@@ -3577,7 +3577,7 @@ int CvPlayerAI::AI_getPlotDanger(/* BtS parameters: */ CvPlot const& kPlot, int
+ 		of what iRange is and then reports that the plot is safe for any iRange <= DANGER_RANGE. */
+ 	/*if (isSafeRangeCacheValid() && iRange > kPlot.getActivePlayerSafeRangeCache())
+ 		kPlot.setActivePlayerSafeRangeCache(iRange);*/ // advc.opt: SafeRangeCache is disabled
+-	return std::min(r, iLimit); // advc.104: May have counted past the limit
++	return std::min(iR, iLimit); // advc.104: May have counted past the limit
+ }
+ 
+ // advc: from AI_getAnyPlotDanger
+@@ -7512,8 +7512,8 @@ bool CvPlayerAI::AI_demandRebukedSneak(PlayerTypes ePlayer) const
+ 		//if (GET_TEAM(getTeam()).getPower(true) > GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getDefensivePower(getTeam()))
+ 		/*	K-Mod. Don't start a war if we're already busy;
+ 			and use AI_startWarVal to evaluate, rather than just power.
+-			The 50 value is arbitrary. zero would probably be fine.
+-			50 war rating is also arbitrary, but zero would be too low! */
++			The 50 start-war value is arbitrary. zero would probably be fine.
++			50 war rating is also arbitrary, but, here, zero would be too low! */
+ 		CvTeamAI const& kTeam = GET_TEAM(getTeam());
+ 		if (kTeam.AI_getWarPlan(GET_PLAYER(ePlayer).getTeam()) == NO_WARPLAN  &&
+ 			(!kTeam.AI_isAnyWarPlan() || kTeam.AI_getWarSuccessRating() > 50) &&
+@@ -8553,9 +8553,8 @@ int CvPlayerAI::AI_getRankDifferenceAttitude(PlayerTypes ePlayer) const
+ 		iBase = kPers.getWorseRankDifferenceAttitudeChange();
+ 		if (iBase != 0) // save time
+ 		{
+-			/*  Want multiplier to be 1 when the rank difference is 35% of
+-				CivPlayersEverAlive, and near 0 when greater than 50% of
+-				CivPlayersEverAlive. */
++			/*  Want multiplier to be 1 when the rank difference is 35% of its
++				maximum, and near 0 when greater than 50% of its maximum. */
+ 			rMultiplier = 1 -
+ 					(2 * iRankDifference - fixp(0.35) * iMaxRankDifference).abs() /
+ 					iMaxRankDifference;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index d19ca6f7c..4f83c106c 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3148,11 +3148,8 @@ void CvSelectionGroup::setTransportUnit(CvUnit* pTransportUnit,
+ 			// loop over all the units, finding one to load
+ 			FOR_EACH_UNIT_VAR_IN(pLoopUnit, *this)
+ 			{
+-				if (pLoopUnit == NULL)
+-				{
+-					FAssertMsg(pLoopUnit != NULL, "Can this happen?"); // advc.test
+-					continue;
+-				}
++				/*if (pLoopUnit == NULL)
++					continue; */ // advc: Don't think this can (or should) happen
+ 				/*	just in case implementation of setTransportUnit changes,
+ 					check to make sure this unit is not already loaded */
+ 				if (pLoopUnit->getTransportUnit() != pTransportUnit)
+@@ -3175,11 +3172,8 @@ void CvSelectionGroup::setTransportUnit(CvUnit* pTransportUnit,
+ 	{
+ 		FOR_EACH_UNIT_VAR_IN(pLoopUnit, *this)
+ 		{
+-			if (pLoopUnit == NULL)
+-			{
+-				FAssertMsg(pLoopUnit != NULL, "Can this happen?"); // advc.test
+-				continue;
+-			}
++			/*if (pLoopUnit == NULL)
++				continue; */ // advc: Don't think this can (or should) happen
+ 			pLoopUnit->setTransportUnit(NULL); // unload unit
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 6dc44d205..015dd3e5c 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -284,8 +284,8 @@ public:
+ 	int getMissionData1(int iNode) const;																														// Exposed to Python
+ 	int getMissionData2(int iNode) const;																														// Exposed to Python
+ 	// <advc.003u>
+-	/*	Was bool CvSelectionGroupAI::AI_isControlled. Makes at least as much sense
+-		at the base class, and non-virtual will be faster (frequently called). */
++	/*	Was CvSelectionGroupAI::AI_isControlled. Makes at least as much sense at
++		the base class, and non-virtual will be faster (frequently called). */
+ 	bool isAIControlled() const { return (!isHuman() || isAutomated()); }
+ 	CvSelectionGroupAI& AI()
+ 	{	//return *static_cast<CvSelectionGroupAI*>(const_cast<CvSelectionGroup*>(this));
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 45422f82a..afb08bb7b 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -8478,7 +8478,7 @@ bool CvUnit::isBeforeUnitCycle(CvUnit const& kOther) const
+ }
+ 
+ 
+-bool CvUnit::canJoinGroup(const CvPlot* pPlot, CvSelectionGroup const* pSelectionGroup) const // advc: const pSelectionGroup
++bool CvUnit::canJoinGroup(const CvPlot* pPlot, CvSelectionGroup const* pSelectionGroup) const
+ {
+ 	// do not allow someone to join a group that is about to be split apart
+ 	// this prevents a case of a never-ending turn
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 870b2855c..b9d2643db 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1227,7 +1227,7 @@ void CvUnitAI::LFBgetBetterAttacker(CvUnitAI** ppAttacker, // advc.003u: param w
+ /*  K-Mod - test if we should declare war before moving to the target plot.
+ 	(originally, DOW were made inside the unit movement mechanics.
+ 	To me, that seems like a really dumb idea.) */
+-bool CvUnitAI::AI_considerDOW(CvPlot const& kPlot) // advc: param was CvPlot*
++bool CvUnitAI::AI_considerDOW(CvPlot const& kPlot)
+ {
+ 	CvTeamAI& kOurTeam = GET_TEAM(getTeam());
+ 	TeamTypes ePlotTeam = kPlot.getTeam();
+@@ -9652,8 +9652,9 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ 		if (!AI_allowGroup(*pLoopUnit, eUnitAI))
+ 			continue;
+ 
+-		// K-Mod. I've restructed this wad of conditions so that it is easier for me to read. // advc: Made a few more edits - parts of it were still off-screen ...
+-		/*	((removed ((heaps) of parentheses) (etc)).)
++		/*	K-Mod. I've restructed this wad of conditions so that it is easier for me to read.
++				advc: Made a few more edits - parts of it were still off-screen ...
++			((removed ((heaps) of parentheses) (etc)).)
+ 			also, I've rearranged the order to be slightly faster for failed checks.
+ 			Note: the iMaxGroups & OwnUnitAI check is apparently off-by-one.
+ 			This is for backwards compatibility for the original code. */
+@@ -21597,17 +21598,17 @@ bool CvUnitAI::AI_plotValid(CvPlot const* pPlot) /* advc: */ const
+ int CvUnitAI::AI_opportuneOdds(int iActualOdds, CvUnit const& kDefender) const
+ {
+ 	int const iOdds = iActualOdds; // abbreviate
+-	int r = iOdds;
++	int iR = iOdds;
+ 	// adjust the values based on the relative production cost of the units.
+ 	{
+ 		int iOurCost = getUnitInfo().getProductionCost();
+ 		int iTheirCost = kDefender.getUnitInfo().getProductionCost();
+ 		if (iOurCost > 0 && iTheirCost > 0 && iOurCost != iTheirCost)
+ 		{
+-			//r += iOdds * (100 - iOdds) * 2 * iTheirCost / (iOurCost + iTheirCost) / 100;
+-			//r -= iOdds * (100 - iOdds) * 2 * iOurCost / (iOurCost + iTheirCost) / 100;
++			//iR += iOdds * (100 - iOdds) * 2 * iTheirCost / (iOurCost + iTheirCost) / 100;
++			//iR -= iOdds * (100 - iOdds) * 2 * iOurCost / (iOurCost + iTheirCost) / 100;
+ 			int x = iOdds * (100 - iOdds) * 2 / (iOurCost + iTheirCost + 20);
+-			r += x * (iTheirCost - iOurCost) / 100;
++			iR += x * (iTheirCost - iOurCost) / 100;
+ 		}
+ 	}
+ 	// similarly, adjust based on the LFB value (slightly diluted)
+@@ -21621,7 +21622,7 @@ int CvUnitAI::AI_opportuneOdds(int iActualOdds, CvUnit const& kDefender) const
+ 		int iTheirValue = kDefender.LFBgetRelativeValueRating() + iDilution;
+ 
+ 		int x = iOdds * (100 - iOdds) * 2 / std::max(1, iOurValue + iTheirValue);
+-		r += x * (iTheirValue - iOurValue) / 100;
++		iR += x * (iTheirValue - iOurValue) / 100;
+ 	}
+ 
+ 	CvPlot const& kDefenderPlot = *kDefender.plot();
+@@ -21629,22 +21630,22 @@ int CvUnitAI::AI_opportuneOdds(int iActualOdds, CvUnit const& kDefender) const
+ 	// adjust down if the enemy is on a defensive tile - we'd prefer to attack them on open ground.
+ 	if (!kDefender.noDefensiveBonus())
+ 	{
+-		r -= (100 - iOdds) * kDefenderPlot.defenseModifier(kDefender.getTeam(), false,
++		iR -= (100 - iOdds) * kDefenderPlot.defenseModifier(kDefender.getTeam(), false,
+ 			getTeam()) // advc.012
+ 			/ (getDomainType() == DOMAIN_SEA ? 100 : 300);
+ 	}
+ 
+ 	// adjust the odds up if the enemy is wounded. We want to attack them now before they heal.
+-	r += iOdds * (100 - iOdds) * kDefender.getDamage() / (100 * kDefender.maxHitPoints());
++	iR += iOdds * (100 - iOdds) * kDefender.getDamage() / (100 * kDefender.maxHitPoints());
+ 	// adjust the odds down if our attacker is wounded - but only if healing is viable.
+ 	if (isHurt() && healRate() > 10)
+-		r -= iOdds * (100 - iOdds) * getDamage() / (100 * maxHitPoints());
++		iR -= iOdds * (100 - iOdds) * getDamage() / (100 * maxHitPoints());
+ 
+ 	// We're extra keen to take cites when we can...
+ 	if (kDefenderPlot.isCity() && AI_countEnemyDefenders(kDefenderPlot) == 1)
+-		r += (100 - iOdds) / 3;
++		iR += (100 - iOdds) / 3;
+ 
+-	return r;
++	return iR;
+ }
+ 
+ // K-Mod. A simple hash of the unit's birthmark.
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=11244

@@ -1,0 +1,384 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5806
+# Commit: cb4670d2622018a82ef705f93a6eb13d35321e9c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c19464996c96dcb78a6161032f9f41d50f3f0c70
+# Title: add LLM_Helpers/audit_define_keys.py
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+73	0	LLM_Helpers/README.md
+247	0	LLM_Helpers/audit_define_keys.py
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 LLM_Helpers/audit_define_keys.py
+
+[PATCHES]
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index 2932f7774..63086752d 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -1,5 +1,7 @@
+ # External helper tools
+ 
++Primary audience: coding agents (Claude Code, Codex, etc.) invoking these scripts on the user's behalf. Prefer agent-spec bullets over prose; show example output where it clarifies the contract.
++
+ This folder contains external helper scripts, mostly Python 3, for tasks outside Civ4's embedded Python runtime. These scripts are meant for LLM-assisted workflows, balancing workflows, code review, refactoring support, report generation, and other tooling.
+ 
+ Important distinction:
+@@ -167,6 +169,77 @@ python LLM_Helpers\autotune_speed_from_xml.py --speed slow --summary-steps 100 -
+ python LLM_Helpers\autotune_speed_from_xml.py --speed slow --autoloop --iterations 8000 --seed 1
+ ```
+ 
++## Static audit helpers
++
++### `audit_define_keys.py`
++
++- Report-only. Does not modify source.
++- Audits literal `getDefine{BOOL,FLOAT,INT,STRING}("X")` across both Python and DLL source:
++  - `Assets/Python/**/*.py`
++  - `CvGameCoreDLL/**/*.{cpp,h}` (skip with `--no-dll`)
++- Checks each used key against `<DefineName>` declarations from:
++  - mod `Assets/XML/*.xml`
++  - base BTS `*.xml` (auto: `<mod-root>/../../Assets/XML/`, override `--bts-xml-dir`)
++  - vanilla Civ4 `*.xml` (auto: `<mod-root>/../../../Assets/XML/`, override `--vanilla-xml-dir`)
++  - any `--extra-xml <file-or-dir>` (repeatable)
++- Variable-arg calls (`gc.getDefineINT(szVar)`, `GC.getDefineINT(SOME_MACRO)`) counted only, not audited.
++- Use this instead of a runtime `getDefineINTOrFail` wrapper: no clean missing sentinel (returns `0`/`""` for both missing and legit zero/empty). `SASDefineGuard.verify_or_raise()` handles the wholesale "defines didn't load" case; this script handles per-key drift.
++- Exit 1 on drift, 0 otherwise. Writes timestamped report to `LLM_Helpers/outputs/` by default.
++
++```powershell
++python LLM_Helpers\audit_define_keys.py
++python LLM_Helpers\audit_define_keys.py --show-callsites
++python LLM_Helpers\audit_define_keys.py --no-dll
++python LLM_Helpers\audit_define_keys.py --no-output-file
++python LLM_Helpers\audit_define_keys.py --extra-xml <path>
++```
++
++Each XML scope is scanned recursively (`rglob *.xml`), but the report only lists files that actually contributed at least one `<DefineName>`. This keeps the audit boundary auditable without dumping hundreds of unrelated entity XMLs (Buildings, Units, etc.).
++
++Example output (clean run, exit 0):
++
++```text
++mod XML files (scanned 155, contributed): 9
++  - Assets\XML\AI_Variables_GlobalDefines.xml
++  - Assets\XML\BBAI_Game_Options_GlobalDefines.xml
++  - Assets\XML\GlobalDefines_advc.xml
++  - Assets\XML\GlobalDefines_advciv_sas.xml
++  - Assets\XML\GlobalDefines_devel.xml
++  - Assets\XML\GlobalDefinesAlt.xml
++  - Assets\XML\LeadFromBehind_GlobalDefines.xml
++  - Assets\XML\PythonCallbackDefines.xml
++  - Assets\XML\TechDiffusion_GlobalDefines.xml
++BTS XML files (scanned 121, contributed): 2
++  - <bts>\Assets\XML\GlobalDefines.xml
++  - <bts>\Assets\XML\PythonCallbackDefines.xml
++vanilla XML files (scanned 129, contributed): 2
++  - <civ4>\Assets\XML\GlobalDefines.xml
++  - <civ4>\Assets\XML\GlobalDefinesAlt.xml
++extra XML files (scanned 0, contributed): 0
++mod XML defines:               697
++BTS XML defines:               430
++vanilla XML defines:           295
++extra XML defines:             0
++distinct literal keys (py):    134
++distinct literal keys (dll):   658
++variable-arg calls (skipped):  491
++
++OK: every literal getDefine{BOOL,FLOAT,INT,STRING} key is declared somewhere.
++wrote LLM_Helpers\outputs\20260515T201121Z_audit_define_keys_ok.txt
++```
++
++Drift output (exit 1) groups undeclared keys by source, optionally with `--show-callsites`:
++
++```text
++DRIFT: 2 key(s) used but not declared in any scanned XML:
++  [python]
++    SAS_RENAMED_KEY
++      - Assets\Python\Screens\CvFoo.py
++  [dll_cpp]
++    SAS_REMOVED_KEY
++      - CvGameCoreDLL\CvBar.cpp
++```
++
+ ## Workflow rule for timeline tuning
+ 
+ - Always run one full 5% bird-view (`Normal` vs current target speed) before sharing a draft.
+
+diff --git a/LLM_Helpers/audit_define_keys.py b/LLM_Helpers/audit_define_keys.py
+new file mode 100644
+index 000000000..3b761edfb
+--- /dev/null
++++ b/LLM_Helpers/audit_define_keys.py
+@@ -0,0 +1,247 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Static drift check for getDefineBOOL/FLOAT/INT/STRING keys used anywhere
++# in the mod (Python + DLL) against every place defines can be declared
++# (mod XML + base BTS XML + vanilla Civ4 XML + any extras).
++#
++# Variants covered: getDefineBOOL, getDefineFLOAT, getDefineINT, getDefineSTRING.
++# All use <DefineName> in XML regardless of value type. (DLL also has
++# getDefineINTExternal, which is a method definition, not a call site -- the
++# regex requires an immediate '(' so it does not match those.)
++#
++# Civ4 getDefine* return type-default (0 / 0.0 / false / "") for both missing
++# AND legitimately zero/empty keys, so a runtime fail-loud wrapper has no
++# clean sentinel (unlike getInfoTypeForString which has -1).
++# SASDefineGuard.verify_or_raise covers the wholesale "defines didn't load"
++# case at launch; this script covers the remaining "specific key got
++# renamed/removed" drift case statically.
++#
++# Behavior:
++#   - Greps literal getDefine{BOOL,FLOAT,INT,STRING}("X") in
++#     Assets/Python/**/*.py AND CvGameCoreDLL/**/*.{cpp,h}.
++#   - Checks each "X" against <DefineName> tags from:
++#       mod      Assets/XML/*.xml
++#       BTS      <bts-xml-dir>/*.xml   (auto: ../../Assets/XML/ from mod root)
++#       vanilla  <vanilla-xml-dir>/*.xml (auto: ../../../Assets/XML/)
++#       extras   --extra-xml <path> (repeatable; file or dir)
++#   - Variable-arg calls (getDefineINT(szVar)) are counted but not audited.
++#   - Exit 1 if drift found, 0 otherwise.
++#   - Writes a timestamped report to LLM_Helpers/outputs/ unless --no-output-file.
++
++import argparse
++import os
++import re
++import sys
++from datetime import datetime, timezone
++from pathlib import Path
++
++DEFINE_BLOCK_RE = re.compile(r"<Define>(.*?)</Define>", re.DOTALL)
++DEFINE_NAME_RE = re.compile(r"<DefineName>([A-Z0-9_]+)</DefineName>")
++LITERAL_CALL_RE = re.compile(r'getDefine(?:BOOL|FLOAT|INT|STRING)\(\s*"([A-Z0-9_]+)"\s*\)')
++VARIABLE_CALL_RE = re.compile(r'getDefine(?:BOOL|FLOAT|INT|STRING)\(\s*[^"\s]')
++
++
++def extract_defined_keys(xml_paths):
++    """Return (set of declared keys, list of files that contributed at least one)."""
++    keys = set()
++    contributing = []
++    for path in xml_paths:
++        try:
++            text = path.read_text(encoding="utf-8", errors="replace")
++        except OSError as exc:
++            print(f"warn: cannot read {path}: {exc}", file=sys.stderr)
++            continue
++        # <!-- custom: require <DefineName> to be inside a <Define>...</Define> block so a stray <DefineName>FOO</DefineName> dropped into an unrelated XML (e.g. CIV4UnitInfos.xml) is not falsely treated as declared. The Civ4 engine only loads defines from <Define> blocks anyway. Caveat: <DefineName> inside an XML comment <!-- ... --> is still counted; zero such cases exist across current mod+BTS+vanilla XML. (Claude code Opus 4.7) -->
++        found = []
++        for block in DEFINE_BLOCK_RE.findall(text):
++            found.extend(DEFINE_NAME_RE.findall(block))
++        if found:
++            keys.update(found)
++            contributing.append(path)
++    return keys, contributing
++
++
++def collect_xml_files(path):
++    """Accept a file or a dir; return list of *.xml files found."""
++    if path is None:
++        return []
++    p = Path(path)
++    if not p.exists():
++        return []
++    if p.is_file():
++        return [p]
++    return sorted(p.rglob("*.xml"))
++
++
++def scan_sources(roots_and_patterns):
++    """roots_and_patterns: list of (root_path, glob_pattern) tuples.
++    Returns (usage dict[key -> list of source files], variable_call_count)."""
++    usage = {}
++    variable_calls = 0
++    for root, pattern in roots_and_patterns:
++        if not root.is_dir():
++            continue
++        for src_path in root.rglob(pattern):
++            try:
++                text = src_path.read_text(encoding="utf-8", errors="replace")
++            except OSError:
++                continue
++            for key in LITERAL_CALL_RE.findall(text):
++                usage.setdefault(key, []).append(src_path)
++            variable_calls += len(VARIABLE_CALL_RE.findall(text))
++    return usage, variable_calls
++
++
++def _rel(path, anchor):
++    try:
++        return str(Path(path).relative_to(anchor))
++    except ValueError:
++        return str(path)
++
++
++def build_report(stats, xml_groups, missing_by_source, usage, mod_root, show_callsites):
++    """xml_groups: list of (label, count, [Path, ...]) tuples."""
++    lines = []
++    for label, count, files in xml_groups:
++        lines.append(f"{label:30s} {count}")
++        for f in files:
++            lines.append(f"  - {_rel(f, mod_root)}")
++    for label, value in stats:
++        lines.append(f"{label:30s} {value}")
++    lines.append("")
++    if not missing_by_source:
++        lines.append("OK: every literal getDefine{BOOL,FLOAT,INT,STRING} key is declared somewhere.")
++        return "\n".join(lines) + "\n"
++    total = sum(len(keys) for keys in missing_by_source.values())
++    lines.append(f"DRIFT: {total} key(s) used but not declared in any scanned XML:")
++    for source_label, keys in missing_by_source.items():
++        if not keys:
++            continue
++        lines.append(f"  [{source_label}]")
++        for key in keys:
++            lines.append(f"    {key}")
++            if show_callsites:
++                for p in usage[key]:
++                    try:
++                        rel = p.relative_to(mod_root)
++                    except ValueError:
++                        rel = p
++                    lines.append(f"      - {rel}")
++    return "\n".join(lines) + "\n"
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__,
++                                     formatter_class=argparse.RawDescriptionHelpFormatter)
++    parser.add_argument("--mod-root", type=Path, default=Path.cwd(),
++                        help="mod root (default: CWD)")
++    parser.add_argument("--bts-xml-dir", type=Path, default=None,
++                        help="dir holding base BTS *.xml (default: <mod-root>/../../Assets/XML/)")
++    parser.add_argument("--vanilla-xml-dir", type=Path, default=None,
++                        help="dir holding vanilla Civ4 *.xml (default: <mod-root>/../../../Assets/XML/)")
++    parser.add_argument("--dll-root", type=Path, default=None,
++                        help="dir to scan for .cpp/.h literal calls (default: <mod-root>/CvGameCoreDLL/)")
++    parser.add_argument("--extra-xml", action="append", default=[],
++                        help="additional XML file or dir to treat as authoritative; repeatable")
++    parser.add_argument("--no-dll", action="store_true",
++                        help="skip DLL scan")
++    parser.add_argument("--show-callsites", action="store_true",
++                        help="list files that use each missing key")
++    parser.add_argument("--output-dir", default=os.path.join("LLM_Helpers", "outputs"),
++                        help="dir to write timestamped report (default: LLM_Helpers/outputs)")
++    parser.add_argument("--no-output-file", action="store_true",
++                        help="print to stdout only; do not write a report file")
++    args = parser.parse_args()
++
++    mod_root = args.mod_root.resolve()
++    mod_xml_dir = mod_root / "Assets" / "XML"
++    py_root = mod_root / "Assets" / "Python"
++    dll_root = (args.dll_root or (mod_root / "CvGameCoreDLL")).resolve()
++    bts_xml_dir = (args.bts_xml_dir or (mod_root / ".." / ".." / "Assets" / "XML")).resolve()
++    vanilla_xml_dir = (args.vanilla_xml_dir or (mod_root / ".." / ".." / ".." / "Assets" / "XML")).resolve()
++
++    if not mod_xml_dir.is_dir() or not py_root.is_dir():
++        print(f"error: expected {mod_xml_dir} and {py_root} to exist", file=sys.stderr)
++        return 2
++
++    mod_xml_files = sorted(mod_xml_dir.rglob("*.xml"))
++    bts_xml_files = collect_xml_files(bts_xml_dir)
++    vanilla_xml_files = collect_xml_files(vanilla_xml_dir)
++    extra_xml_files = []
++    for entry in args.extra_xml:
++        extra_xml_files.extend(collect_xml_files(entry))
++
++    defined_mod, mod_contrib = extract_defined_keys(mod_xml_files)
++    defined_bts, bts_contrib = extract_defined_keys(bts_xml_files)
++    defined_vanilla, vanilla_contrib = extract_defined_keys(vanilla_xml_files)
++    defined_extra, extra_contrib = extract_defined_keys(extra_xml_files)
++    defined_all = defined_mod | defined_bts | defined_vanilla | defined_extra
++
++    if not defined_bts:
++        print(f"warn: no BTS *.xml found at {bts_xml_dir}", file=sys.stderr)
++    if not defined_vanilla:
++        print(f"warn: no vanilla *.xml found at {vanilla_xml_dir}", file=sys.stderr)
++
++    source_specs = [("python", py_root, "*.py")]
++    if not args.no_dll:
++        source_specs.append(("dll_cpp", dll_root, "*.cpp"))
++        source_specs.append(("dll_h", dll_root, "*.h"))
++
++    usage_total = {}
++    variable_total = 0
++    usage_by_source = {label: ({}, 0) for label, _, _ in source_specs}
++    for label, root, pattern in source_specs:
++        usage, var_count = scan_sources([(root, pattern)])
++        usage_by_source[label] = (usage, var_count)
++        for key, paths in usage.items():
++            usage_total.setdefault(key, []).extend(paths)
++        variable_total += var_count
++
++    missing_by_source = {}
++    for label, (usage, _) in usage_by_source.items():
++        keys = sorted(k for k in usage if k not in defined_all)
++        if keys:
++            missing_by_source[label] = keys
++
++    xml_groups = [
++        (f"mod XML files (scanned {len(mod_xml_files)}, contributed):", len(mod_contrib), mod_contrib),
++        (f"BTS XML files (scanned {len(bts_xml_files)}, contributed):", len(bts_contrib), bts_contrib),
++        (f"vanilla XML files (scanned {len(vanilla_xml_files)}, contributed):", len(vanilla_contrib), vanilla_contrib),
++        (f"extra XML files (scanned {len(extra_xml_files)}, contributed):", len(extra_contrib), extra_contrib),
++    ]
++    stats = [
++        ("mod XML defines:", len(defined_mod)),
++        ("BTS XML defines:", len(defined_bts)),
++        ("vanilla XML defines:", len(defined_vanilla)),
++        ("extra XML defines:", len(defined_extra)),
++        ("distinct literal keys (py):", len(usage_by_source.get("python", ({}, 0))[0])),
++        ("distinct literal keys (dll):",
++         len(usage_by_source.get("dll_cpp", ({}, 0))[0])
++         + len(usage_by_source.get("dll_h", ({}, 0))[0])),
++        ("variable-arg calls (skipped):", variable_total),
++    ]
++
++    report = build_report(stats, xml_groups, missing_by_source, usage_total, mod_root, args.show_callsites)
++    sys.stdout.write(report)
++
++    if not args.no_output_file:
++        out_dir = (mod_root / args.output_dir).resolve()
++        out_dir.mkdir(parents=True, exist_ok=True)
++        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
++        status = "drift" if missing_by_source else "ok"
++        out_path = out_dir / f"{stamp}_audit_define_keys_{status}.txt"
++        out_path.write_text(report, encoding="utf-8")
++        try:
++            rel = out_path.relative_to(mod_root)
++        except ValueError:
++            rel = out_path
++        print(f"wrote {rel}")
++
++    return 1 if missing_by_source else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index c4bb0642c..a6953afe8 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -108,6 +108,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Launch guard for SAS defines (startup/load/Sevopedia):** Added a strict define-integrity check using one **int sentinel** and one **string sentinel**, validated at pre-game start, game start, save load, Sevopedia creation, and Sevopedia show. If a value is missing or mismatched, Python raises a **fatal error** with `actual` vs `expected` values and guidance to launch from a Windows shortcut. The game will be **unplayable if the config is incorrect**. Change in: [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py). See also [Quick Install Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop).
+ - (Requires AdvCiv-SAS 5770+) **Lazy init and cache SAS defines** (e.g., in advisors) to `None` and then to their actual value once if cache is `None`. This prevents and **empricially fixes**  direct caching in init, that empirically causes **python-like crashy behaviour** (i.e. similar behaviour to when python code is changed during runtime) on XML SAS define change of a value (instead of no effect and requiring a restart for the change to take effect). See for example [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)'s `initDefines` method. Possibly similar issues and crashes encountered when early caching sevopedia playground's background and cache. See [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior).
+ - **Fail-fast XML lookup hardening:** replaced `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values. Notably allowed to detect and fix incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` instead of correct `DirectionTypes.DIRECTION_NORTH` (in Planet Generator map), or incorrect `getInfoTypeOrFail("PLOT_PEAK")` failing instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map).
++- (Requires AdvCiv-SAS 5806+) **Static define-key audit:** added [`audit_define_keys.py`](/LLM_Helpers/audit_define_keys.py), which statically greps every literal `getDefine{BOOL,FLOAT,INT,STRING}("X")` call across Python and DLL and verifies `X` is declared in mod XML, base BTS XML, or vanilla Civ4 XML. Catches **per-key drift** (renamed/removed XML entries) before runtime. A runtime fail-loud wrapper isn't practical here because `getDefine*` returns `0`/`""` for both missing and legitimately zero/empty keys (unlike `getInfoTypeForString` which has a clean `-1` sentinel); a static grep is also **cheaper and simpler to maintain** than wrapping every call site. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - (Requires AdvCiv-SAS 5515+) **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+ - (Requires AdvCiv-SAS 5516+) **Remove screen-dependent geometry computation** from `__init__` in advisors because this advisor object is created before a reliable screen context exists; doing layout in `interfaceScreen` **ensures correct values for the current resolution**. Keeping **only screen-independent edge constants** in `__init__` ensures **no redundant recomputation** is made again in `interfaceScreen`, and **catches loud screen-dependent errors** in `__init__`.
+ - **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=20763

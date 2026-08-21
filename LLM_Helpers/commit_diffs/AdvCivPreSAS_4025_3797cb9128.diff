@@ -1,0 +1,126 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4025
+# Commit: 3797cb91281f20caa7b8713f8a623b4f22b87592
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4648d7ded020e566be822c40b5945164e021a251
+# Title: Tweak diplo penalty for having capitulated vassals
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	CvGameCoreDLL/CvGame.cpp
+13	4	CvGameCoreDLL/CvPlayerAI.cpp
+13	0	CvGameCoreDLL/CvTeam.cpp
+1	0	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index b3f6d3376..74cee1285 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9152,7 +9152,8 @@ void CvGame::write(FDataStreamBase* pStream)
+ 		advc.130n: fave civic based on displayed leader type. */
+ 	//uiFlag = 24;
+ 	//uiFlag = 25; // advc.130n (bugfix)
+-	uiFlag = 26; // advc.130w: Cache for expansionist hate
++	//uiFlag = 26; // advc.130w: Cache for expansionist hate
++	uiFlag = 27; // advc.130w: RivalVassalAttitude tweak
+ 	pStream->Write(uiFlag);
+ 	REPRO_TEST_BEGIN_WRITE("Game pt1");
+ 	pStream->Write(m_iElapsedGameTurns);
+@@ -9379,7 +9380,7 @@ void CvGame::onAllGameDataRead()
+ 		bAttitudeUpdated = true;
+ 	} // </advc.130w>
+ 	// <advc.130n>, advc.148, advc.130r, advc.130x, advc.130c, advc.130w
+-	if (m_uiSaveFlag < 26 ||
++	if (m_uiSaveFlag < 27 ||
+ 		// <advc.127> Save created during AI Auto Play
+ 		(m_iAIAutoPlay != 0 && !isNetworkMultiPlayer()))
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a59d40b51..8a464f698 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8149,19 +8149,28 @@ int CvPlayerAI::AI_getRivalVassalAttitude(PlayerTypes ePlayer) const
+ 	CvGame const& kGame = GC.getGame();
+ 	int iEverAlive = kGame.getCivTeamsEverAlive();
+ 	scaled rAvgCities(kGame.getNumCities(), iEverAlive);
+-	scaled rTotalVassalSzFactor;
++	scaled rCapitulatedScore;
+ 	for (TeamIter<CIV_ALIVE,VASSAL_OF> itVassal(TEAMID(ePlayer));
+ 		itVassal.hasNext(); ++itVassal)
+ 	{
+ 		if (itVassal->isCapitulated())
+ 		{
+-			rTotalVassalSzFactor += scaled::clamp(
+-					fixp(2.5) * itVassal->getNumCities() / rAvgCities,
++			scaled rSizeScore = scaled::clamp(
++					fixp(2.25) * itVassal->getNumCities() / rAvgCities,
+ 					fixp(0.5), fixp(1.5));
++			int iCapitulationTurn = itVassal->getCapitulationTurn();
++			FAssertBounds(kGame.getStartTurn(), kGame.getGameTurn() + 1, iCapitulationTurn);
++			int iTurnsThresh = (std::max(30, GC.getInfo(kGame.getGameSpeedType()).get(
++					CvGameSpeedInfo::AIMemoryRandPercent)) * 3) / 4;
++			// Time component goes from 1.6 to 0 over the course of 75 turns
++			scaled rTimeComponent(16 * (iTurnsThresh
++					- (kGame.getGameTurn() - iCapitulationTurn)),
++					10 * iTurnsThresh);
++			rCapitulatedScore += (rTimeComponent + rSizeScore) / 2;
+ 		}
+ 	}
+ 	return AI_rivalPactAttitude(ePlayer, true) // advc.130t
+-			- (m_arExpansionistHate.get(ePlayer) * 5 * rTotalVassalSzFactor /
++			- (m_arExpansionistHate.get(ePlayer) * 5 * rCapitulatedScore /
+ 			scaled(iEverAlive).sqrt()).round();
+ 	// BtS formula:
+ 	/*if(GET_TEAM(ePlayer).getVassalCount(getTeam()) > 0)
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 9af8fadf4..6e84f688a 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -3755,6 +3755,19 @@ void CvTeam::triggerWars(bool bForceUpdateAttitude)
+ 	bTriggeringWars = false;
+ } // </kekm.26>
+ 
++// advc.130w: (Don't feel like caching this info right now)
++int CvTeam::getCapitulationTurn() const
++{
++	if (!isCapitulated())
++		return -1;
++	FOR_EACH_DEAL(pDeal)
++	{
++		if (pDeal->isVassalDeal() && pDeal->isBetween(getID(), getMasterTeam()))
++			return GC.getGame().getGameTurn() - pDeal->getAge();
++	}
++	return -1;
++}
++
+ 
+ void CvTeam::changeRouteChange(RouteTypes eIndex, int iChange)
+ {
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 0bf48926c..483b9b786 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -369,6 +369,7 @@ public:
+ 	{
+ 		return (isCapitulated() && isVassal(eMaster));
+ 	} // </advc>
++	int getCapitulationTurn() const; // advc.130w
+ 	int getRouteChange(RouteTypes eIndex) const																// Exposed to Python
+ 	{
+ 		return m_aiRouteChange.get(eIndex);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3736

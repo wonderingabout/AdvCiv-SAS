@@ -1,0 +1,113 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4487
+# Commit: 64486bdcf8d5b73328306dcb5f36980e424845e1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 42f90a98a9843cebbdd2254c08174bd7b2152daa
+# Title: reduce padding from X + 8 to X + 7 Sevopedia history panels or the equivalent of these such as text panel that is similar functionnally.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+1	1	Assets/XML/Units/CIV4UnitInfos.xml
+-	-	_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+0	1	_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Music eras credits.txt
+ delete mode 100644 _1_AdvCiv-SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index ec66800a3..a16eff8e3 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -268,7 +268,7 @@ class SevoPediaBuilding:
+ 		# that (if i am not mistaken that the other method doesn't allow that?
+ 		# About this i mean anyways i mean anyways -->
+ 		#screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 8, self.Y_HISTORY_PANE + 11, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 7, self.Y_HISTORY_PANE + 11, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 75c8c70b4..9f6c24bc3 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -155,7 +155,7 @@ class SevoPediaCivic:
+ 		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
+ 		# </advc.004y>
+ 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(textName, szText, self.X_TEXT + 8 , self.Y_TEXT + 11, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 11, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 	def handleInput (self, inputClass):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index c51f71119..13f4d4eb3 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -272,7 +272,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		# too, restoring it and adding/restoring/modifying padding at the same
+ 		# time about this at least i mean anyways
+ 		#screen.addMultilineText(szQuoteTextWidget, szText, self.X_QUOTE_PANE + 15, self.Y_QUOTE_PANE + 15, self.W_QUOTE_PANE - (15 * 2), self.H_QUOTE_PANE - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(szQuoteTextWidget, szText, self.X_QUOTE_PANE + 10, self.Y_QUOTE_PANE + 12, self.W_QUOTE_PANE - (15 * 2), self.H_QUOTE_PANE - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(szQuoteTextWidget, szText, self.X_QUOTE_PANE + 9, self.Y_QUOTE_PANE + 12, self.W_QUOTE_PANE - (15 * 2), self.H_QUOTE_PANE - (15 * 2), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# <advc.004y> Now that the quote isn't on top anymore, we can keep it simple:
+ 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 9a8c45e1f..8f4807f85 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -294,7 +294,7 @@ class SevoPediaUnit:
+ 		# <!-- custom: i don't need the "History:", is redundant with background
+ 		# that is already about the unit's background -->
+ 		#screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 8 , self.Y_HISTORY_PANE + 11, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 7 , self.Y_HISTORY_PANE + 11, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 	def placePromotions(self):
+ 		screen = self.top.getScreen()
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index dc5cf26ea..17c114803 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -11320,7 +11320,7 @@
+ 			<iFirstStrikes>1</iFirstStrikes>
+ 			<iChanceFirstStrikes>1</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+-			<iEvasionProbability>10</iEvasionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
+ 			<iWithdrawalProb>50</iWithdrawalProb>
+ 			<iCollateralDamage>10</iCollateralDamage>
+ 			<iCollateralDamageLimit>25</iCollateralDamageLimit>
+
+diff --git a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus b/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+deleted file mode 100644
+index 298397022..000000000
+Binary files a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Music eras credits.txt b/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Music eras credits.txt
+index ff54e3d93..27ca33f3c 100644
+--- a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Music eras credits.txt	
++++ b/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Music eras credits.txt	
+@@ -3,7 +3,6 @@ Downloaded thanks to yt-dlp
+ Prehistoric Age
+ 
+ Prehistoric Age 1 - Ancient Music – Cavemen [j5xo5yGX3UY] 
+-Prehistoric Age 2 - Art of Primitive Sound - Musical Instruments From Prehistory： The Paleolithic [Ttnb4ZlHv2s].opus cut at 4:04
+ 
+ Stone Age
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=6175

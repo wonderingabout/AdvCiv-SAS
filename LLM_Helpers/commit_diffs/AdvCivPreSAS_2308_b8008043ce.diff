@@ -1,0 +1,279 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2308
+# Commit: b8008043ced4247347b68e736a2031d747e7d1cd
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ea088b8057ef71c629f9d5e0aa61d1f882e710b4
+# Title: Some misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	6	CvGameCoreDLL/CvGame.cpp
+2	2	CvGameCoreDLL/CvInitCore.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+33	25	CvGameCoreDLL/CvUnit.cpp
+1	2	CvGameCoreDLL/CvUnitAI.cpp
+8	13	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index a827ec517..4614daaac 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1457,16 +1457,17 @@ void CvGame::normalizeAddRiver()  // advc: style changes
+ 		else CvMapGenerator::GetInstance().addRiver(pStartingPlot);
+ 
+ 		// add floodplains to any desert tiles the new river passes through
+-		for (int iJ = 0; iJ < m.numPlots(); iJ++)
++		for (int i = 0; i < kMap.numPlots(); i++)
+ 		{
+-			CvPlot& kPlot = m.getPlotByIndex(iJ);
+-			for (int iK = 0; iK < GC.getNumFeatureInfos(); iK++)
++			CvPlot& kPlot = kMap.getPlotByIndex(i);
++			// advc.108: Can't hurt to randomize the order
++			FOR_EACH_ENUM_RAND(Feature, getMapRand())
+ 			{
+-				FeatureTypes eLoopFeature = (FeatureTypes)iK;
+ 				if (!GC.getInfo(eLoopFeature).isRequiresRiver() ||
+-						!kPlot.canHaveFeature(eLoopFeature))
++					!kPlot.canHaveFeature(eLoopFeature))
++				{
+ 					continue;
+-
++				}
+ 				if (GC.getInfo(eLoopFeature).getAppearanceProbability() == 10000)
+ 				{
+ 					if (kPlot.getBonusType() != NO_BONUS)
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 9ac4a4914..f9a2c6398 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -917,7 +917,7 @@ void CvInitCore::setVictories(int iVictories, bool const* abVictories)
+ {
+ 	SAFE_DELETE_ARRAY(m_abVictories);
+ 	m_iNumVictories = 0;
+-	if (iVictories)
++	if (iVictories > 0)
+ 	{
+ 		m_iNumVictories = iVictories;
+ 		m_abVictories = new bool[m_iNumVictories];
+@@ -935,9 +935,9 @@ void CvInitCore::setVictory(VictoryTypes eVictory, bool bVictory)
+ 
+ bool CvInitCore::getVictory(VictoryTypes eVictory) const
+ {
++	FAssertBounds(0, m_iNumVictories, eVictory);
+ 	if (checkBounds(eVictory, 0, m_iNumVictories))
+ 		return m_abVictories[eVictory];
+-	else FAssertBounds(0, m_iNumVictories, eVictory);
+ 	return false;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 5d59f518f..3ff41b91d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9635,7 +9635,7 @@ void CvPlayer::setAlive(bool bNewValue)  // advc: some style changes
+ {
+ 	if(isAlive() == bNewValue)
+ 		return;
+-	/*	<advc.003m> Moved up b/c once the team's AliveCount is set to 0,
++	/*	<advc.003m> Moved up b/c, once the team's AliveCount is set to 0,
+ 		at-war status is lost. Need that for lifting blockades.
+ 		Also seems generally safer to destroy a player's components
+ 		before killing the player itself. Therefore I've also moved up
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index bcc3c75b3..3319a6a6a 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -152,64 +152,69 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
+ 	getPlot().updateCenterUnit();
+ 	getPlot().setFlagDirty(true);
+ 
+-	CvGame& g = GC.getGame();
++	CvGame& kGame = GC.getGame();
+ 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+-	int iCreated = g.getUnitCreatedCount(getUnitType()); // advc: was called "iUnitName"
++	int iCreated = kGame.getUnitCreatedCount(getUnitType()); // advc: was called "iUnitName"
+ 	int iNumNames = m_pUnitInfo->getNumUnitNames();
+ 	if (iCreated < iNumNames)
+ 	{	// <advc.005b>
+ 		/*  Skip every iStep'th name on average. Basic assumption: About half of
+ 			the names are used in a long (space-race) game with 7 civs; therefore, skip every
+ 			iStep=2 then. Adjust this to the (current) number of civs. */
+-		int iAlive = g.countCivPlayersAlive();
+-		if(iAlive <= 0) {
++		int iAlive = kGame.countCivPlayersAlive();
++		if(iAlive <= 0)
++		{
+ 			FAssert(iAlive > 0);
+ 			iAlive = 7;
+ 		}
+ 		int const iStep = std::max(1, ::round(14.0 / iAlive));
+ 		// This gives iRand an expected value of step
+-		int iRand = g.getSorenRandNum(2 * iStep + 1, "advc.005b");
+-		/*  The index of the most recently used name isn't available; instead,
++		int iRand = kGame.getSorenRandNum(2 * iStep + 1, "advc.005b");
++		/*	The index of the most recently used name isn't available; instead,
+ 			take iStep times the number of previously used names in order to
+ 			pick up roughly where we left off. */
+ 		int iOffset = iStep * iCreated + iRand;
+ 		// That's +8 in Medieval, +16 in Renaissance and +24 in Industrial or later.
+-		iOffset += std::min(24, 8 * std::max(0, g.getStartEra() - 1));
++		iOffset += std::min(24, 8 * std::max(0, kGame.getStartEra() - 1));
+ 		bool bNameSet = false;
+-		// If we run out of names, search backward
+-		if(iOffset >= iNumNames) {
++		// If we run out of names, search backward.
++		if(iOffset >= iNumNames)
++		{
+ 			/*  The first couple are still somewhat random, but then just
+ 				pick them chronologically. */
+-			for(int i = iNumNames - 1 - iRand; i >= 0; i--) {
++			for(int i = iNumNames - 1 - iRand; i >= 0; i--)
++			{
+ 				CvWString szName = gDLL->getText(m_pUnitInfo->getUnitNames(i));
+ 				// Copied from below
+-				if(!g.isGreatPersonBorn(szName)) {
++				if(!kGame.isGreatPersonBorn(szName))
++				{
+ 					setName(szName);
+ 					bNameSet = true;
+-					g.addGreatPersonBornName(szName);
++					kGame.addGreatPersonBornName(szName);
+ 					break;
+ 				}
+-			} // Otherwise, search forward
++			} // Otherwise, search forward.
+ 		}
+-		if(!bNameSet) { // </advc.005b>
++		if(!bNameSet) // </advc.005b>
++		{ 
+ 			for (int i = 0; i < iNumNames; i++)
+ 			{
+ 				int iIndex = (i + iOffset) % iNumNames;
+ 				CvWString szName = gDLL->getText(m_pUnitInfo->getUnitNames(iIndex));
+-				if (!g.isGreatPersonBorn(szName))
++				if (!kGame.isGreatPersonBorn(szName))
+ 				{
+ 					setName(szName);
+-					g.addGreatPersonBornName(szName);
++					kGame.addGreatPersonBornName(szName);
+ 					break;
+ 				}
+ 			}
+ 		}
+ 	}
+ 
+-	setGameTurnCreated(g.getGameTurn());
+-	g.incrementUnitCreatedCount(getUnitType());
++	setGameTurnCreated(kGame.getGameTurn());
++	kGame.incrementUnitCreatedCount(getUnitType());
+ 	UnitClassTypes eUnitClass = getUnitClassType();
+-	g.incrementUnitClassCreatedCount(eUnitClass);
++	kGame.incrementUnitClassCreatedCount(eUnitClass);
+ 	GET_TEAM(getTeam()).changeUnitClassCount(eUnitClass, 1);
+ 	kOwner.changeUnitClassCount(eUnitClass, 1);
+ 	kOwner.changeExtraUnitCost(m_pUnitInfo->getExtraCost());
+@@ -281,12 +286,15 @@ void CvUnit::finalizeInit() // advc.003u: Body cut from init
+ 	{
+ 		if (baseCombatStr() > 0)
+ 		{
+-			if (g.getBestLandUnit() == NO_UNIT || baseCombatStr() > g.getBestLandUnitCombat())
+-				g.setBestLandUnit(getUnitType());
++			if (kGame.getBestLandUnit() == NO_UNIT || baseCombatStr() >
++				kGame.getBestLandUnitCombat())
++			{
++				kGame.setBestLandUnit(getUnitType());
++			}
+ 		}
+ 	}
+ 
+-	if (kOwner.getID() == g.getActivePlayer())
++	if (kOwner.getID() == kGame.getActivePlayer())
+ 		gDLL->UI().setDirty(GameData_DIRTY_BIT, true);
+ 
+ 	if (m_pUnitInfo->isWorldUnit())
+@@ -3019,9 +3027,9 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) /* advc: */ const
+ 	}
+ 
+ 	// <advc.705>
+-	CvGame const& g = GC.getGame();
+-	if(g.isOption(GAMEOPTION_RISE_FALL) && isHuman() &&
+-		g.getRiseFall().isCooperationRestricted(kRecipient.getID()))
++	CvGame const& kGame = GC.getGame();
++	if(kGame.isOption(GAMEOPTION_RISE_FALL) && isHuman() &&
++		kGame.getRiseFall().isCooperationRestricted(kRecipient.getID()))
+ 	{
+ 		return false;
+ 	} // </advc.705>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 5abff003e..649ad0dcd 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -19567,8 +19567,7 @@ int CvUnitAI::AI_exploreAirPlotValue(CvPlot const* pPlot)
+ 	int iValue = 1;
+ 
+ 	if (!pPlot->isOwned() ||
+-		// advc.029:
+-		!kOurTeam.isFriendlyTerritory(pPlot->getTeam()))
++		!kOurTeam.isFriendlyTerritory(pPlot->getTeam())) // advc.029
+ 	{
+ 		iValue++;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 55d588e6d..851850c93 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -616,17 +616,13 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
+ 	LoadGlobalClassInfo(GC.m_paImprovementInfo, "CIV4ImprovementInfos", "Terrain", "Civ4ImprovementInfos/ImprovementInfos/ImprovementInfo", true, &CvDLLUtilityIFaceBase::createImprovementInfoCacheObject);
+ 	LoadGlobalClassInfo(GC.m_paBuildingClassInfo, "CIV4BuildingClassInfos", "Buildings", "Civ4BuildingClassInfos/BuildingClassInfos/BuildingClassInfo", false);
+ 	LoadGlobalClassInfo(GC.m_paBuildingInfo, "CIV4BuildingInfos", "Buildings", "Civ4BuildingInfos/BuildingInfos/BuildingInfo", false, &CvDLLUtilityIFaceBase::createBuildingInfoCacheObject);
+-	for (int i=0; i < GC.getNumBuildingClassInfos(); ++i)
+-	{
+-		GC.getInfo((BuildingClassTypes)i).readPass3();
+-	}
++	FOR_EACH_ENUM(BuildingClass)
++		GC.getInfo(eLoopBuildingClass).readPass3();
+ 	LoadGlobalClassInfo(GC.m_paSpecialUnitInfo, "CIV4SpecialUnitInfos", "Units", "Civ4SpecialUnitInfos/SpecialUnitInfos/SpecialUnitInfo", false);
+ 	LoadGlobalClassInfo(GC.m_paProjectInfo, "CIV4ProjectInfo", "GameInfo", "Civ4ProjectInfo/ProjectInfos/ProjectInfo", true);
+ 	LoadGlobalClassInfo(GC.m_paCivicInfo, "CIV4CivicInfos", "GameInfo", "Civ4CivicInfos/CivicInfos/CivicInfo", false, &CvDLLUtilityIFaceBase::createCivicInfoCacheObject);
+-	for (int i=0; i < GC.getNumVoteSourceInfos(); ++i)
+-	{
+-		GC.getInfo((VoteSourceTypes)i).readPass3();
+-	}
++	FOR_EACH_ENUM(VoteSource)
++		GC.getInfo(eLoopVoteSource).readPass3();
+ 	LoadGlobalClassInfo(GC.m_paLeaderHeadInfo, "CIV4LeaderHeadInfos", "Civilizations", "Civ4LeaderHeadInfos/LeaderHeadInfos/LeaderHeadInfo", false, &CvDLLUtilityIFaceBase::createLeaderHeadInfoCacheObject);
+ 	LoadGlobalClassInfo(GC.m_paColorInfo, "CIV4ColorVals", "Interface", "Civ4ColorVals/ColorVals/ColorVal", false);
+ 	LoadGlobalClassInfo(GC.m_paPlayerColorInfo, "CIV4PlayerColorInfos", "Interface", "Civ4PlayerColorInfos/PlayerColorInfos/PlayerColorInfo", false);
+@@ -635,11 +631,10 @@ bool CvXMLLoadUtility::LoadPreMenuGlobals()
+ 	LoadGlobalClassInfo(GC.m_paBuildInfo, "CIV4BuildInfos", "Units", "Civ4BuildInfos/BuildInfos/BuildInfo", false);
+ 	// <advc.003w>
+ 	FOR_EACH_ENUM(Bonus)
+-		GC.getInfo(eLoopBonus).updateCache(eLoopBonus); // </advc.003w>	LoadGlobalClassInfo(GC.m_paUnitInfo, "CIV4UnitInfos", "Units", "Civ4UnitInfos/UnitInfos/UnitInfo", false, &CvDLLUtilityIFaceBase::createUnitInfoCacheObject);
+-	for (int i=0; i < GC.getNumUnitClassInfos(); ++i)
+-	{
+-		GC.getInfo((UnitClassTypes)i).readPass3();
+-	}
++		GC.getInfo(eLoopBonus).updateCache(eLoopBonus); // </advc.003w>
++	LoadGlobalClassInfo(GC.m_paUnitInfo, "CIV4UnitInfos", "Units", "Civ4UnitInfos/UnitInfos/UnitInfo", false, &CvDLLUtilityIFaceBase::createUnitInfoCacheObject);
++	FOR_EACH_ENUM(UnitClass)
++		GC.getInfo(eLoopUnitClass).readPass3();
+ 	LoadGlobalClassInfo(GC.m_paUnitArtStyleInfo, "CIV4UnitArtStyleTypeInfos", "Civilizations", "Civ4UnitArtStyleTypeInfos/UnitArtStyleTypeInfos/UnitArtStyleTypeInfo", false);
+ 	LoadGlobalClassInfo(GC.m_paCivilizationInfo, "CIV4CivilizationInfos", "Civilizations", "Civ4CivilizationInfos/CivilizationInfos/CivilizationInfo", true, &CvDLLUtilityIFaceBase::createCivilizationInfoCacheObject);
+ 	LoadGlobalClassInfo(GC.m_paHintInfo, "CIV4Hints", "GameInfo", "Civ4Hints/HintInfos/HintInfo", false);
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=11082

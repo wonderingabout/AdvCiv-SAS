@@ -1,0 +1,480 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4786
+# Commit: c61f80654dc2ee8076ea955bcee9a379f8a1c106
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4f46914bea789724dd31a57a2660295991cf3e35
+# Title: replace PROJECT_THE_INTERNET 's button (RFC DOC mod's import), rename _HORSEBACK_RIDING to MOUNTED_INFANTRY, replace MOUNTED_INFANTRY's button (COM mod impor...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Atlases/COM_mod_mem_buildings_atlas.dds
+-	-	Assets/Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds
+1	1	Assets/Python/EntryPoints/CvRandomEventInterface.py
+4	4	Assets/XML/Audio/Audio2DScripts.xml
+2	2	Assets/XML/Audio/AudioDefines.xml
+2	2	Assets/XML/Buildings/CIV4BuildingInfos.xml
+9	9	Assets/XML/Events/CIV4EventTriggerInfos.xml
+5	1	Assets/XML/GameInfo/CIV4ProjectInfo.xml
+13	9	Assets/XML/Technologies/CIV4TechInfos.xml
+6	1	Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+5	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+8	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+12	12	Assets/XML/Units/CIV4UnitInfos.xml
+2	2	README.md
+ create mode 100644 Assets/Art/AdvCiv_SAS/Atlases/COM_mod_mem_buildings_atlas.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Atlases/COM_mod_mem_buildings_atlas.dds b/Assets/Art/AdvCiv_SAS/Atlases/COM_mod_mem_buildings_atlas.dds
+new file mode 100644
+index 000000000..6b6c48e18
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Atlases/COM_mod_mem_buildings_atlas.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds b/Assets/Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds
+new file mode 100644
+index 000000000..95cefbf0a
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds differ
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index 1041c95bf..5cdc5d44e 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -1996,7 +1996,7 @@ def canTriggerUprising(playerId, techReqTag1, techReqTag2, counterUnitClassTag):
+ 
+ def canTriggerTheHuns(argsList):
+ 	# advc.311: Moved into new function
+-	return canTriggerUprising(argsList[0].ePlayer, 'TECH_HORSEBACK_RIDING', 'TECH_IRON_WORKING', 'UNITCLASS_SPEARMAN')
++	return canTriggerUprising(argsList[0].ePlayer, 'TECH_MOUNTED_INFANTRY', 'TECH_IRON_WORKING', 'UNITCLASS_SPEARMAN')
+ 
+ def getHelpTheHuns1(argsList):
+ 	iEvent = argsList[0]
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index e37c7d88f..0adefacbc 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -13174,8 +13174,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_HORSERIDING</ScriptID>
+-		<SoundID>SND_TECH_HORSERIDING</SoundID>
++		<ScriptID>AS2D_TECH_MOUNTED_INFANTRY</ScriptID>
++		<SoundID>SND_TECH_MOUNTED_INFANTRY</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -15290,8 +15290,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_HORSERIDING</ScriptID>
+-		<SoundID>SND_TECH_MP_HORSERIDING</SoundID>
++		<ScriptID>AS2D_TECH_MP_MOUNTED_INFANTRY</ScriptID>
++		<SoundID>SND_TECH_MP_MOUNTED_INFANTRY</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 0d75bbade..cff3efd5b 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8759,7 +8759,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_HORSERIDING</SoundID>
++			<SoundID>SND_TECH_MOUNTED_INFANTRY</SoundID>
+ 			<Filename>Sounds/Tech/Tech_HorsebackRiding</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -9403,7 +9403,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_HORSERIDING</SoundID>
++			<SoundID>SND_TECH_MP_MOUNTED_INFANTRY</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_HorsebackRiding</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 88de5b419..c738e112f 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -2540,7 +2540,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+-			<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -2707,7 +2707,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
+-			<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index c01855498..467e63aa4 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -3380,7 +3380,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -3466,7 +3466,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -3638,7 +3638,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -3752,7 +3752,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -3838,7 +3838,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WRITING</PrereqTech>
+ 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+@@ -8998,7 +8998,7 @@
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+ 			<ObsoleteTechs>
+@@ -14156,7 +14156,7 @@
+ 				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_MATHEMATICS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
+-				<ObsoleteTech>TECH_HORSEBACK_RIDING</ObsoleteTech>
++				<ObsoleteTech>TECH_MOUNTED_INFANTRY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_IRON_WORKING</ObsoleteTech>
+ 				<ObsoleteTech>TECH_METAL_CASTING</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -14249,7 +14249,7 @@
+ 				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_MATHEMATICS</ObsoleteTech>
+ 				<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
+-				<ObsoleteTech>TECH_HORSEBACK_RIDING</ObsoleteTech>
++				<ObsoleteTech>TECH_MOUNTED_INFANTRY</ObsoleteTech>
+ 				<ObsoleteTech>TECH_IRON_WORKING</ObsoleteTech>
+ 				<ObsoleteTech>TECH_METAL_CASTING</ObsoleteTech>
+ 			</ObsoleteTechs>
+@@ -14854,7 +14854,7 @@
+ 			<OrPreReqs/>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_GUILDS</PrereqTech>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 			</AndPreReqs>
+ 			<ObsoleteTechs>
+ 				<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
+
+diff --git a/Assets/XML/GameInfo/CIV4ProjectInfo.xml b/Assets/XML/GameInfo/CIV4ProjectInfo.xml
+index 068838957..1c05b0b47 100644
+--- a/Assets/XML/GameInfo/CIV4ProjectInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ProjectInfo.xml
+@@ -39,6 +39,10 @@
+ 			<CreateSound/>
+ 			<MovieDefineTag>ART_DEF_MOVIE_MANHATTAN_PROJECT</MovieDefineTag>
+ 		</ProjectInfo>
++		<!-- custom: button import from RFC DOC mod, their/this/the atlas we imported from is now copied in our mod as well in button path below, thanks a lot anyways etc, as for button in our xml anyways etc, was:
++		<Button>,Art/Interface/Buttons/Buildings/Internet.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,4</Button>
++		anyways etc...
++		-->
+ 		<ProjectInfo>
+ 			<Type>PROJECT_THE_INTERNET</Type>
+ 			<Description>TXT_KEY_PROJECT_THE_INTERNET</Description>
+@@ -56,7 +60,7 @@
+ 			<EveryoneSpecialBuilding>NONE</EveryoneSpecialBuilding>
+ 			<bSpaceship>0</bSpaceship>
+ 			<bAllowsNukes>0</bAllowsNukes>
+-			<Button>,Art/Interface/Buttons/Buildings/Internet.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,4</Button>
++			<Button>,Art/Interface/Buttons/Buildings/Internet.dds,Art/AdvCiv_SAS/Atlases/RFC_DOC_mod_buildings_atlas.dds,1,4</Button>
+ 			<PrereqProjects/>
+ 			<VictoryThresholds/>
+ 			<VictoryMinThresholds/>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 9bce73c01..de7d9ab18 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -4833,12 +4833,16 @@
+ 			<SoundMP>AS2D_TECH_MP_BRONZEWORK</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Bronze Working.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,9</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_HORSEBACK_RIDING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Type>TECH_HORSEBACK_RIDING</Type>
+-			<Description>TXT_KEY_TECH_HORSEBACK_RIDING</Description>
+-			<Civilopedia>TXT_KEY_TECH_HORSEBACK_RIDING_PEDIA</Civilopedia>
++		<!-- custom: button import from COM mod, their/this/the atlas we imported from is now copied in our mod as well in button path below, thanks a lot anyways etc, as for button in our xml anyways etc, was:
++		<Button>,Art/Interface/Buttons/TechTree/Horseback Riding.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,4</Button>
++		anyways etc...
++		-->
++		<TechInfo> <!-- custom: type: TECH_MOUNTED_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_MOUNTED_INFANTRY</Type>
++			<Description>TXT_KEY_TECH_MOUNTED_INFANTRY</Description>
++			<Civilopedia>TXT_KEY_TECH_MOUNTED_INFANTRY_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_HORSEBACK_RIDING_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+@@ -4908,10 +4912,10 @@
+ 				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs/>
+-			<Quote>TXT_KEY_TECH_HORSEBACK_RIDING_QUOTE</Quote>
+-			<Sound>AS2D_TECH_HORSERIDING</Sound>
+-			<SoundMP>AS2D_TECH_MP_HORSERIDING</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Horseback Riding.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,4</Button>
++			<Quote>TXT_KEY_TECH_MOUNTED_INFANTRY_QUOTE</Quote>
++			<Sound>AS2D_TECH_MOUNTED_INFANTRY</Sound>
++			<SoundMP>AS2D_TECH_MP_MOUNTED_INFANTRY</SoundMP>
++			<Button>,Art/Interface/Buttons/TechTree/Horseback Riding.dds,Art/AdvCiv_SAS/Atlases/COM_mod_mem_buildings_atlas.dds,8,3</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_IRON_WORKING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_IRON_WORKING</Type>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+index 81b3bdeb5..1c5e836be 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+@@ -197,7 +197,12 @@
+ 
+ 
+ 
+-	<!-- custom: rename _UTOPIA to _COMMUNISM, this asset is a part that is extracted from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml -->
++	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_INFANTRY, this asset is a part that is extracted from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_MOUNTED_INFANTRY_QUOTE</Tag>
++		<English>"If you speak the truth, have a foot in the stirrup." - Turkish proverb</English>
++	</TEXT>
++	<!-- custom: rename _UTOPIA to _COMMUNISM, similarly extarcted anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_COMMUNISM_QUOTE</Tag>
+ 		<English>"When I give food to the poor, they call me a saint. When I ask why the poor have no food, they call me a communist." - Dom Helder Camara</English>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 2aa3d8e08..b4067a50f 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -552,6 +552,11 @@
+ 
+ 
+ 
++	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_INFANTRY anyways etc anyways etc anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_MOUNTED_INFANTRY</Tag>
++		<English>Mounted Infantry</English>
++	</TEXT>
+ 	<!-- custom: rename _UTOPIA to _COMMUNISM anyways etc anyways etc anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_COMMUNISM</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 239b812cc..9a5756fed 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -386,6 +386,14 @@
+ 
+ 
+ 
++	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_INFANTRY, also pedia entry from: https://en.wikipedia.org/wiki/Mounted_infantry#History and https://en.wikipedia.org/wiki/Camel_cavalry and https://en.wikipedia.org/wiki/War_elephant#:~:text=The%20practice%20of%20riding%20on,when%20they%20were%20in%20India. similarly, modified or not for advciv-sas anyways etc anyways etc anyways etc... -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_MOUNTED_INFANTRY_PEDIA</Tag>
++		<English>[TAB]The origins of mounted infantry go back to at least the beginnings of organised warfare. With the weight of ancient bronze armor, the opposing champions would travel to battle on chariots before dismounting to fight. With the evolution of hoplite warfare, some hoplites would travel to battle on horseback, before dismounting to take their place in the phalanx. The early pre-Marian Roman military had units consisting of infantrymen clinging to the saddles of the cavalry to take them to battle and then dismounting to fight. Gallic and Germanic warbands were reported to use double-riders, with a second warrior joining a horseman only for a short distance before dismounting to fight on foot.[citation needed] The Han dynasty also extensively used mounted infantry in their campaigns against the Xiongnu confederation. During many of the Han campaigns, the vast majority of the army rode on horseback; either as mounted cavalry or mounted infantry who fought dismounted.[PARAGRAPH:1]Camel cavalry, or camelry (French: m�haristes, pronounced [mea_ist]), is a generic designation for armed forces using camels as a means of transportation. Sometimes warriors or soldiers of this type also fought from camel-back with spears, bows, or firearms.[PARAGRAPH:1]Camel cavalry was a common element in desert warfare throughout history in the Middle East, due in part to the animals' high level of adaptability. They were better suited to working and surviving in arid environments than the horses of conventional cavalry. The smell of the camel, according to Herodotus, alarmed and disoriented horses, making camels an effective anti-cavalry weapon of the Achaemenid Persians in the Battle of Thymbra.[PARAGRAPH:1]The Arabs, during their campaigns in the deserts of Mesopotamia and Syria against the Byzantines and Sassanids, used camels to enhance their mobility, marking a stark contrast to their enemies, especially in the desert environment. The Carolingians under Charlemagne also used horses as transport for the bulk of their army, and special care was taken to ensure the health, fodder, and availability of horses on-campaign. Other notable infantry to use horses to enhance their mobility include the Genoese crossbowmen, and Viking raiders who would gather all the horses they could find in the vicinity of their landings.[PARAGRAPH:1]War elephants played a critical role in several key battles in antiquity, especially in ancient India. While seeing limited and periodic use in Ancient China, they became a permanent fixture in armies of historical kingdoms in Southeast Asia. During classical antiquity they were also used in ancient Persia and in the Mediterranean world within armies of Macedon, Hellenistic Greek states, the Roman Republic and later Empire, and Ancient Carthage in North Africa. In some regions they maintained a firm presence on the battlefield throughout the Medieval era. However, their use declined with the spread of firearms and other gunpowder weaponry in early modern warfare. After this, war elephants became restricted to non-combat engineering and labour roles, as well as being used for minor ceremonial uses.[PARAGRAPH:2]Dragoons originally were mounted infantry, who were trained in horse riding as well as infantry fighting skills. However, usage altered over time and during the 18th century, dragoons evolved into conventional light cavalry units and personnel. Dragoon regiments were established in most European armies during the late 17th century and early 18th century.[PARAGRAPH:1]The name is possibly derived from a type of firearm (called a dragon) carried by dragoons of the French Army. There is no distinction between the words dragon and dragoon in French.[PARAGRAPH:1]The title has been retained in modern times by a number of armoured or ceremonial mounted regiments.[PARAGRAPH:2]With the invention of accurate and quick firing repeating pistols and rifles in the mid-19th century, cavalry started to become increasingly vulnerable. Many armies started to use troops which could either fight on horseback or on foot as circumstances dictated. Fighting on horseback with swords and lances would allow rapid movement without cover from enemy fire, whilst fighting on foot with pistols and rifles allowed them to make use of cover and to form defensive lines.[PARAGRAPH:1]The first mounted infantry units were raised during the Mexican-American War (as the Regiment of Mounted Riflemen, but redesignated Third Cavalry Regiment in 1861), and others followed, for example in Australia in the 1880s. Terms such as "mounted rifles" or "Light Horse" were often used.[PARAGRAPH:1]The French Foreign Legion used mule-mounted companies from the 1880s. Each mule was shared by two legionnaires, who took turns in riding it. This arrangement allowed faster and more prolonged marches that could cover 60 mi (97 km) in one day.[PARAGRAPH:1]In the Western Theater of the American Civil War, several infantry regiments were converted to mounted infantry and armed with repeating rifles. The Lightning Brigade at the Battle of Chickamauga was an example of these Union mounted infantry units.[PARAGRAPH:1]In the British Army, infantry units in some parts of the British Empire had a mounted platoon for scouting and skirmishing. In addition, many locally raised units such as the Ceylon Mounted Rifles, Cape Mounted Rifles, Natal Carbineers, and Marshall's Horse fought as mounted infantry.[PARAGRAPH:1]In the Second Boer War, the British copied the Boers and raised large forces of their own mounted infantry. Among various ad hoc formations, the Imperial Yeomanry was raised from volunteers in Britain between 1900 and 1901. Many of the contingents from Australia, Canada, and New Zealand (e.g. the Australian Light Horse and the Canadian Mounted Rifles) were MI (mounted infantry), as well as locally raised irregulars like the Imperial Light Horse and South African Light Horse. As artillery was of limited use against scattered Boer guerrilla bands later in the war, the mounted personnel of Royal Artillery units were formed into Royal Artillery Mounted Rifles.[PARAGRAPH:1]As part of the lessons learned from that war, British regular cavalry regiments were armed with the same rifle as the infantry and became well-trained in dismounted tactics. A version of the standard infantry rifle, the shorter-barreled LEC or "Lee-Enfield Cavalry Carbine Mark I" had been introduced in 1896.[PARAGRAPH:2]Napoleon employed a camel corps for the French invasion of Egypt and Syria. During the late 19th and much of the 20th centuries, camel troops were used for desert policing and patrol work in the British, French, German, Spanish, and Italian colonial armies. Descendants of such units still form part of the modern Moroccan and Egyptian armies and the paramilitary Indian Border Security Force.[PARAGRAPH:1]The British-officered Egyptian Camel Corps played a significant role in the 1898 Battle of Omdurman; one of the few occasions during this period when this class of mounted troops took part in substantial numbers in a set-piece battle. The Ottoman Army maintained camel companies as part of its Yemen and Hejaz Corps, both before and during World War I.[PARAGRAPH:1]The Italians used Dubat camel troops in Italian Somaliland, mainly for frontier patrol during the 1920s and 1930s. These Dubats participated in the Italian conquest of the Ogaden in 1935-1936 during the Second Italo-Ethiopian War.[PARAGRAPH:1]Colonial authorities in the Spanish protectorate in Morocco used locally recruited camel troops in the northern part of the protectorate, mainly for frontier patrol work from the 1930s until 1956. Forming part of the Tropas Nomades del Sahara, these camel-mounted units had a limited local role in the Spanish Civil War during 1936-1939.[PARAGRAPH:1]The Jordanian Desert Patrol still uses camels.[PARAGRAPH:1]Bikaner State (now Bikaner, Rajasthan) maintained a unit called the Bikaner Camel Corps that fought in China during the Boxer Rebellion in 1900, in Somaliland from 1902 to 1904 during the Somaliland Campaign, in Egypt during the Middle Eastern theatre of World War I in 1915 where they destroyed the Turkish forces during the Raid on the Suez Canal with a camel cavalry charge and in the Mediterranean and Middle East theatre of World War II.[PARAGRAPH:1]The auxiliary defense forces of the Kingdom of Jaisalmer, which had by then become a part of India, also established a camel-mounted defense battalion in 1948. They were used for transportation purposes during the Indo-Pakistani War of 1947-1948. Both the camelry units were handed over to the Indian Army's Grenadiers Regiment during the 1951 merger of the local Rajasthani armies with the Grenadiers. They were incorporated into the regiment as its 13th battalion. The Grenadiers used them for both transportation and fighting during the Indo-Pakistani War of 1965 where they prevented Pakistani forces from infiltrating and capturing territory intended to be used as negotiating chips in the Bikaner and Jaisalmer sectors both before and after the ceasefire. Major Jai Singh carried out a camel-mounted raid inside the Pakistani post of Ghoriwala. Another camel-assisted Indian attack at Tanot led to the deaths of 102 Pakistani soldiers, including two officers, and successfully regained a large amount of Indian territory. Many Indian Army camels were also given to the Border Security Force (BSF) upon its conception in the aftermath of the 1965 war.[PARAGRAPH:1]In 1966, the Grenadiers added another camelry battalion, the 17th battalion led by Lieutenant Colonel KS Harihar Singh.In 1967, a camel artillery regiment, the 185 Light Regiment (Pack), was also raised. The 185 Light Regiment (Pack) gave away its camels to the Border Security Force in 1971 on the insistence of Major General J. F. R. Jacob, the then-commander of the army's Eastern Command and a major advocate for mobile warfare who found camels to be too old fashioned for modern military use and had them replaced with gun-towing vehicles, however the 13th and 17th Grenadier battalions and the Border Security Force continued to use camels for infantry purposes. In the same year, camels were once again used in the Indo-Pakistani War of 1971 by both the grenadiers as well as the BSF, who fought alongside the army in the Eastern Theatre. The 13 and the 17th camel-mounted Grenadier battalions fought in the Bikaner and Gadra sectors where they captured a significant amount of territory. Five BSF camels were killed in the Battle of Longewala, one of the most significant battles of the war. The Indian Army finally stopped using camels in 1975. A local officer rejected a subsequent attempt to convert the 13th Grenadiers battalion and the 24th Rajput battalions into camel-mounted units.[PARAGRAPH:1]Camels are still used by the Border Security Force for patrolling the remote areas of the Thar Desert lying along the India-Pakistan border in Rajasthan. Camels are purchased between ages five and six and trained at the Camel Training Centre at the BSF Frontier Headquarters at Jodhpur. They serve for 15-16 years and are retired from service at the age of 21. The camels used by the BSF are from three different breeds. The Jaisalmeris and the Bikaneris are used for border patrol, while the Nachnas are used for ceremonial duties. The BSF is also known for the yearly participation of its camel contingent in the Delhi Parade for the occasion of the Indian Republic Day since 1976. Inspector General KS Rathore is credited with enhancing the band's capabilities during his years as an inspector general from 1986 to 1989. The camel contingent has two groups, one consisting of camels ridden by border guards and the other being Border Security Force Camel Band, consisting of camels walking along with musicians who march on foot. Both of these elements perform together during the march of the camel contingent. The contingent generally consists of 90 camels.[PARAGRAPH:1]During the 2011 Egyptian revolution on February 2 , 2011 pro government Baltagiya riding camels and horses using swords and machetes attacked protesters in Tahrir Square in a medieval-like cavalry charge, it the last record use of camel cavalry in an attack.[PARAGRAPH:1][PARAGRAPH:2]Many European armies also used bicycle infantry in a similar way that mounted infantry used horses. However they were handicapped by the need for proper roads.[PARAGRAPH:1]The Australian 4th Light Horse Brigade which took part in the cavalry charge in the Battle of Beersheba (1917) during World War I are labelled as mounted infantry brigade in popular media; however, they were in fact mounted rifles as were the New Zealand Mounted Rifles Brigade which also took part in this battle. Mounted rifles regiments lack the mass of a mounted infantry battalions, as a light horse brigade could only muster as many rifles in the line as a single battalion. Consequently, their employment reflected this lack of mass, with the tactics seeking to harness greater mobility and fire to overcome opposition, rather than echeloned mass attacks.[PARAGRAPH:1]Mounted infantry began to disappear with the shift from horses to motor vehicles in the 1920s and 1930s. Germany deployed a few horse-mounted infantry units on the Russian Front during the Second World War, and cyclist units on both fronts as well, and both Germany and Britain (which had used cyclist battalions in the First World War) experimented with motorcycle battalions. Germany also utilized organic horse and bicycle mounted troops within infantry formations throughout World War Two, although bicycle use increased as Germany retreated into its own territory. Japan deployed cyclists to great effect in its 1941 to 1942 campaign in Malaya and drive on Singapore during World War II. A horsed cavalry regiment of the Philippine Scouts assisted in the defense of the Philippines at the onset of World War II. The 10th Mountain Division of the U.S. Army also maintained a mounted reconnaissance troop throughout World War Two, which saw service in Italy and Austria during the war.[PARAGRAPH:1]Countries with entrenched military traditions, such as Switzerland, retained horse-mounted troops well into the Cold War, while Sweden kept much of its infantry on bicycles during the snow-free months.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: rename _UTOPIA to _COMMUNISM, also pedia entry from: https://en.wikipedia.org/wiki/Communism similarly, anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_COMMUNISM_PEDIA</Tag>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 5ce3f1689..099653e3e 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -13504,7 +13504,7 @@ then adjust maybe anyways):
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_ARCHERY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -13701,7 +13701,7 @@ then adjust maybe anyways):
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_ARCHERY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -13904,7 +13904,7 @@ then adjust maybe anyways):
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++			<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_ARCHERY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -14099,7 +14099,7 @@ then adjust maybe anyways):
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -14292,7 +14292,7 @@ then adjust maybe anyways):
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>TECH_ARCHERY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -14480,7 +14480,7 @@ then adjust maybe anyways):
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_GUILDS</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -14687,7 +14687,7 @@ then adjust maybe anyways):
+ 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+ 			<BonusType>BONUS_HORSE</BonusType>
+@@ -14889,7 +14889,7 @@ then adjust maybe anyways):
+ 			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+ 			<BonusType>BONUS_HORSE</BonusType>
+@@ -15081,7 +15081,7 @@ then adjust maybe anyways):
+ 			<PrereqTech>TECH_RIFLING</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+ 			<BonusType>BONUS_HORSE</BonusType>
+@@ -15273,7 +15273,7 @@ then adjust maybe anyways):
+ 			<PrereqTech>TECH_RIFLING</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+ 			<BonusType>BONUS_HORSE</BonusType>
+@@ -15461,7 +15461,7 @@ then adjust maybe anyways):
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -15651,7 +15651,7 @@ then adjust maybe anyways):
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_INFANTRY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+
+diff --git a/README.md b/README.md
+index 996f1456d..76d283537 100644
+--- a/README.md
++++ b/README.md
+@@ -213,8 +213,7 @@ guaranteed though, but if need please refer to it if needed.
+ 
+ # Credits
+ 
+-- AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my
+-exchanges/experiences during these times
++- AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my exchanges/experiences during these times
+ - Cavemen2Cosmosn (also know as C2C): i took quite a lot of content from there, thanks
+ - Realism Invictus (also know as RI): i took quite a bit content from there, thanks,
+ - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
+@@ -223,6 +222,7 @@ too too, thanks,
+ - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
+ - Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is anyways etc (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them anyways etc)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too i mean anyways etc, thanks, anyways etc, thanks,
+ - RFC Dawn Of Civilization (which i refer to as RFC DOC sometimes hopefully accurate anyways etc), while this mod is not my favourite somehow, i must admit they have some very nice content, in particular the Sevopedia categories i could take entirely for/in AdvCiv-SAS without barely any modification needed (for example the Sevopedia Terrain Page), thanks a lot!
++- Chronicles Of Mankind (which i may refer to as COM sometimes if not always or not anyways etc), thanks a lot, for example i took some buttons from one of their atlas (like for the riding tech renamed now anyways etc), thanks a lot! Anyways etc, thanks,
+ - Doto mod (same name i think is short enough and cool as in abbreviated in a way i like enough or and other or and not anyways etc anyways etc anyways etc), which we took one or a few things from, for example the C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Doto\Assets\modules_old\ExtraBonus\ExtraBonus_CIV4BuildingInfos.xml infos which should or may help us that i added in our [CIV4BuildingInfos.xml](Assets/XML/Buildings/CIV4BuildingInfos.xml) with some additional code comments or not or and other or and not anyways etc, thanks too, anyways etc(,) anyways etc(...)(,) anyways etc.. anyways etc, thanks,
+ - Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
+ which surprised me a lot in a way that pleased me. So far i have not touched the deeper code
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=36073

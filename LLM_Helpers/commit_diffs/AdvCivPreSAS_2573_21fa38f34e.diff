@@ -1,0 +1,870 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2573
+# Commit: 21fa38f34efd3a0a64ab584b5ed19a837dd7044f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 84fe6d9512d2c6586170fcdf916118f27fe7d463
+# Title: Refactor CvDLLEntity for a little more type safety
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCity.h
+34	41	CvGameCoreDLL/CvDLLEntity.cpp
+55	32	CvGameCoreDLL/CvDLLEntity.h
+24	23	CvGameCoreDLL/CvDLLEntityIFaceBase.h
+18	24	CvGameCoreDLL/CvDLLFlagEntityIFaceBase.h
+95	35	CvGameCoreDLL/CvDLLSymbolIFaceBase.h
+2	2	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameInterface.cpp
+3	3	CvGameCoreDLL/CvPlayer.cpp
+4	4	CvGameCoreDLL/CvPlot.cpp
+11	11	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 2df97915e..8b4112734 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -20,7 +20,7 @@
+ 
+ CvCity::CvCity() // advc.003u: Merged with the deleted reset function
+ {
+-	CvDLLEntity::createCityEntity(this); // create and attach entity to city
++	createEntity(this); // create and attach entity to city
+ 
+ 	m_iID = 0;
+ 	m_iX = INVALID_PLOT_COORD;
+@@ -142,8 +142,8 @@ CvCity::CvCity() // advc.003u: Merged with the deleted reset function
+ 
+ CvCity::~CvCity() // advc.003u: Merged with the deleted uninit function
+ {
+-	CvDLLEntity::removeEntity(); // remove entity from engine
+-	CvDLLEntity::destroyEntity(); // delete CvCityEntity and detach from us
++	removeEntity(); // remove entity from engine
++	destroyEntity(); // delete CvCityEntity and detach from us
+ 
+ 	m_orderQueue.clear();
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 2fc12634e..5752809ed 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -16,7 +16,7 @@ class CvCityAI; // advc.003u
+ class CvCivilization; // advc.003w
+ 
+ 
+-class CvCity : public CvDLLEntity
++class CvCity : public CvDLLCityEntity
+ {
+ public:
+ 	virtual ~CvCity();
+
+diff --git a/CvGameCoreDLL/CvDLLEntity.cpp b/CvGameCoreDLL/CvDLLEntity.cpp
+index 27b8bbba0..6794abe1d 100644
+--- a/CvGameCoreDLL/CvDLLEntity.cpp
++++ b/CvGameCoreDLL/CvDLLEntity.cpp
+@@ -1,92 +1,85 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLEntity.h"
+ 
+-CvDLLEntity::CvDLLEntity() : m_pEntity(NULL)
+-{
+-
+-}
+ 
+-CvDLLEntity::~CvDLLEntity()
+-{
+-
+-}
+-
+-void CvDLLEntity::removeEntity()
++void CvDLLEntity::setup()
+ {
+-	gDLL->getEntityIFace()->removeEntity(getEntity());
++	gDLL->getEntityIFace()->setup(getGenericEntity());
+ }
+ 
+-void CvDLLEntity::setup()
++void CvDLLEntity::destroyEntity()
+ {
+-	gDLL->getEntityIFace()->setup(getEntity());
++	gDLL->getEntityIFace()->destroyEntity(m_pEntity);
+ }
+ 
+-void CvDLLEntity::setVisible(bool bVis)
++void CvDLLEntity::removeEntity()
+ {
+-	gDLL->getEntityIFace()->setVisible(getEntity(), bVis);
++	gDLL->getEntityIFace()->removeEntity(getGenericEntity());
+ }
+ 
+-void CvDLLEntity::createCityEntity(CvCity* pCity)
++void CvDLLEntity::setVisible(bool b)
+ {
+-	gDLL->getEntityIFace()->createCityEntity(pCity);
++	gDLL->getEntityIFace()->setVisible(getGenericEntity(), b);
+ }
+ 
+-void CvDLLEntity::createUnitEntity(CvUnit* pUnit)
++void CvDLLEntity::setEntity(CvEntity* pEntity)
+ {
+-	gDLL->getEntityIFace()->createUnitEntity(pUnit);
++	m_pEntity = pEntity;
+ }
+ 
+-void CvDLLEntity::destroyEntity()
++void CvDLLEntity::PlayAnimation(AnimationTypes eAnim, float fSpeed, bool bQueue,
++	int iLayer, float fStartPct, float fEndPct)
+ {
+-	gDLL->getEntityIFace()->destroyEntity(m_pEntity);
++	gDLL->getEntityIFace()->PlayAnimation(getGenericEntity(), eAnim, fSpeed, bQueue,
++			iLayer, fStartPct, fEndPct);
+ }
+ 
+-bool CvDLLEntity::IsSelected() const
++void CvDLLEntity::StopAnimation(AnimationTypes eAnim)
+ {
+-	return gDLL->getEntityIFace()->IsSelected(getEntity());
++	gDLL->getEntityIFace()->StopAnimation(getGenericEntity(), eAnim);
+ }
+ 
+-void CvDLLEntity::PlayAnimation(AnimationTypes eAnim, float fSpeed, bool bQueue, int iLayer, float fStartPct, float fEndPct)
++void CvDLLCityEntity::createEntity(CvCity* pCity)
+ {
+-	gDLL->getEntityIFace()->PlayAnimation(getEntity(), eAnim, fSpeed, bQueue, iLayer, fStartPct, fEndPct);
++	gDLL->getEntityIFace()->createCityEntity(pCity);
+ }
+ 
+-void CvDLLEntity::StopAnimation(AnimationTypes eAnim)
++void CvDLLUnitEntity::createEntity(CvUnit* pUnit)
+ {
+-	gDLL->getEntityIFace()->StopAnimation(getEntity(), eAnim);
++	gDLL->getEntityIFace()->createUnitEntity(pUnit);
+ }
+ 
+-void CvDLLEntity::MoveTo(const CvPlot * pkPlot)
++void CvDLLUnitEntity::MoveTo(CvPlot const* pPlot)
+ {
+-	gDLL->getEntityIFace()->MoveTo(getUnitEntity(), pkPlot);
++	gDLL->getEntityIFace()->MoveTo(getEntity(), pPlot);
+ }
+ 
+-void CvDLLEntity::QueueMove(const CvPlot * pkPlot)
++void CvDLLUnitEntity::QueueMove(CvPlot const* pPlot)
+ {
+-	gDLL->getEntityIFace()->QueueMove(getUnitEntity(), pkPlot);
++	gDLL->getEntityIFace()->QueueMove(getEntity(), pPlot);
+ }
+ 
+-void CvDLLEntity::ExecuteMove(float fTimeToExecute, bool bCombat)
++void CvDLLUnitEntity::ExecuteMove(float fTimeToExecute, bool bCombat)
+ {
+-	gDLL->getEntityIFace()->ExecuteMove(getUnitEntity(), fTimeToExecute, bCombat);
++	gDLL->getEntityIFace()->ExecuteMove(getEntity(), fTimeToExecute, bCombat);
+ }
+ 
+-void CvDLLEntity::SetPosition(const CvPlot * pkPlot)
++void CvDLLUnitEntity::SetPosition(CvPlot const* pPlot)
+ {
+-	gDLL->getEntityIFace()->SetPosition(getUnitEntity(), pkPlot);
++	gDLL->getEntityIFace()->SetPosition(getEntity(), pPlot);
+ }
+ 
+-void CvDLLEntity::NotifyEntity(MissionTypes eMission)
++void CvDLLUnitEntity::NotifyEntity(MissionTypes eMission)
+ {
+-	gDLL->getEntityIFace()->NotifyEntity(getUnitEntity(), eMission);
++	gDLL->getEntityIFace()->NotifyEntity(getEntity(), eMission);
+ }
+ 
+-void CvDLLEntity::SetSiegeTower(bool show)
++void CvDLLUnitEntity::SetSiegeTower(bool bShow)
+ {
+-	gDLL->getEntityIFace()->SetSiegeTower(getUnitEntity(), show);
++	gDLL->getEntityIFace()->SetSiegeTower(getEntity(), bShow);
+ }
+ 
+-bool CvDLLEntity::GetSiegeTower()
++bool CvDLLUnitEntity::GetSiegeTower()
+ {
+-	return gDLL->getEntityIFace()->GetSiegeTower(getUnitEntity());
++	return gDLL->getEntityIFace()->GetSiegeTower(getEntity());
+ }
+
+diff --git a/CvGameCoreDLL/CvDLLEntity.h b/CvGameCoreDLL/CvDLLEntity.h
+index 6385243a9..cf9cea734 100644
+--- a/CvGameCoreDLL/CvDLLEntity.h
++++ b/CvGameCoreDLL/CvDLLEntity.h
+@@ -3,60 +3,83 @@
+ #ifndef CvDLLEntity_h
+ #define CvDLLEntity_h
+ 
+-//
+ // Class which represents an entity object in the DLL.
+ // Implements common entity functions by making calls to CvDLLEntityIFaceBase
+-//
++
++// [advc: These are instructions for devs with access to the full source]
+ // To expose new entity functions:
+ // 1. Add the pure virtual function prototype to CvDLLEntityIFaceBase.h
+ // 2. Add the function prototype and implementation to CvDLLEntityIFace.[cpp,h]
+ // 3. Add a wrapper function (for convenience) to this file and implement it in the corresponding cpp
+-//
+ 
+-class CvCityEntity;
++/*	advc (note): These three are defined in the EXE.
++	CvFlagEntity and CvSymbol are apparently also derived from CvEntity. */
+ class CvEntity;
++class CvCityEntity;
+ class CvUnitEntity;
++
+ class CvCity;
+ class CvUnit;
++
+ class CvPlot;
+ 
+-class CvDLLEntity
+-		: private boost::noncopyable // advc.003e
++
++class CvDLLEntity /* advc.003e: */ : private boost::noncopyable
+ {
+ public:
+-	CvDLLEntity();
+-	virtual ~CvDLLEntity();
+-
+-	CvEntity* getEntity() { return m_pEntity;	}
+-	const CvEntity* getEntity() const { return m_pEntity;	}
+-	CvUnitEntity* getUnitEntity() { return (CvUnitEntity*)m_pEntity;	}
+-	CvCityEntity* getCityEntity() { return (CvCityEntity*)m_pEntity;	}
+-	const CvUnitEntity* getUnitEntity() const { return (CvUnitEntity*)m_pEntity;	}
+-	const CvCityEntity* getCityEntity() const { return (CvCityEntity*)m_pEntity;	}
++	CvDLLEntity() : m_pEntity(NULL) {}
++	virtual ~CvDLLEntity() {}
+ 
+-	void setEntity(CvEntity* pG) { m_pEntity = pG;	}
+-
+-	void removeEntity();
+ 	virtual void setup();
+-	void setVisible(bool);
+-	void createCityEntity(CvCity*);
+-	void createUnitEntity(CvUnit*);
++	
+ 	void destroyEntity();
++	void removeEntity();
++	void setVisible(bool b);
++	void setEntity(CvEntity* pEntity);
+ 
+-	DllExport bool IsSelected() const;
+-	void PlayAnimation(AnimationTypes eAnim, float fSpeed = 1.0f, bool bQueue = false, int iLayer = 0,
+-		float fStartPct = 0.0f, float fEndPct = 1.0f);
++	DllExport bool IsSelected() const // advc.inl
++	{
++		return gDLL->getEntityIFace()->IsSelected(getGenericEntity());
++	}
++
++	void PlayAnimation(AnimationTypes eAnim, float fSpeed = 1.0f, bool bQueue = false,
++			int iLayer = 0, float fStartPct = 0.0f, float fEndPct = 1.0f);
+ 	void StopAnimation(AnimationTypes eAnim);
+-	void MoveTo(const CvPlot * pkPlot);
+-	void QueueMove(const CvPlot * pkPlot);
+-	void ExecuteMove(float fTimeToExecute, bool bCombat);
+-	void SetPosition(const CvPlot * pkPlot);
+-	void NotifyEntity(MissionTypes eMission);
+-	void SetSiegeTower(bool show);
+-	bool GetSiegeTower();
+ 
+ protected:
+ 	CvEntity* m_pEntity;
++// <advc>
++	CvEntity* getGenericEntity() { return m_pEntity; }
++	CvEntity const* getGenericEntity() const { return m_pEntity; }
+ };
+ 
+-#endif	// CvDLLEntity_h
++/*	Derived classes for more type safety and shorter function names. Without definitions
++	of the classes derived from CvEntity (in the EXE), the compiler can't know
++	that they're related; so reinterpret casts will have to occur at some point,
++	even if template parameters were introduced.*/
++
++class CvDLLCityEntity : public CvDLLEntity
++{
++public:
++	void createEntity(CvCity* pCity);
++	CvCityEntity* getEntity() { return reinterpret_cast<CvCityEntity*>(m_pEntity); }
++	CvCityEntity const* getEntity() const { return reinterpret_cast<CvCityEntity*>(m_pEntity); }
++};
++
++class CvDLLUnitEntity : public CvDLLEntity
++{
++public:
++	void createEntity(CvUnit* pUnit);
++	CvUnitEntity* getEntity() { return reinterpret_cast<CvUnitEntity*>(m_pEntity); }
++	CvUnitEntity const* getEntity() const { return reinterpret_cast<CvUnitEntity*>(m_pEntity); }
++
++	void MoveTo(CvPlot const* pPlot);
++	void QueueMove(CvPlot const* pPlot);
++	void ExecuteMove(float fTimeToExecute, bool bCombat);
++	void SetPosition(CvPlot const* pPlot);
++	void NotifyEntity(MissionTypes eMission);
++	void SetSiegeTower(bool bShow);
++	bool GetSiegeTower();
++}; // </advc>
++
++#endif
+
+diff --git a/CvGameCoreDLL/CvDLLEntityIFaceBase.h b/CvGameCoreDLL/CvDLLEntityIFaceBase.h
+index 9ef9fca8e..e666a1f7e 100644
+--- a/CvGameCoreDLL/CvDLLEntityIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLEntityIFaceBase.h
+@@ -5,9 +5,9 @@
+ 
+ //#pragma warning(disable:100) // advc.make: Moved to PragmaWarnings.h
+ 
+-//
++
+ // abstract class containing entity-related functions that the DLL needs
+-//
++
+ class CvEntity;
+ class CvUnitEntity;
+ class CvCity;
+@@ -19,33 +19,34 @@ class CvRiver;
+ class CvDLLEntityIFaceBase
+ {
+ public:
+-	virtual void removeEntity(CvEntity*)  { FErrorMsg("can't get here"); }
+-	virtual void addEntity(CvEntity*, uint uiEntAddFlags)  { FErrorMsg("can't get here"); }
+-	virtual void setup(CvEntity*)  { FErrorMsg("can't get here"); }
+-	virtual void setVisible(CvEntity*, bool)  { FErrorMsg("can't get here"); }
+-	virtual void createCityEntity(CvCity*)  { FErrorMsg("can't get here"); }
+-	virtual void createUnitEntity(CvUnit*)  { FErrorMsg("can't get here"); }
+-	virtual void destroyEntity(CvEntity*&, bool bSafeDelete=true)  { FErrorMsg("can't get here"); }
+-	virtual void updatePosition(CvEntity *gameEntity)  { FErrorMsg("can't get here"); }
+-	virtual void setupFloodPlains(CvRiver *river) { FErrorMsg("can't get here"); }
+-
+-	virtual bool IsSelected(const CvEntity*)  const { return false; }
+-	virtual void PlayAnimation(CvEntity*, AnimationTypes eAnim, float fSpeed = 1.0f, bool bQueue = false, int iLayer = 0, float fStartPct = 0.0f, float fEndPct = 1.0f)  { FErrorMsg("can't get here"); }
+-	virtual void StopAnimation(CvEntity*, AnimationTypes eAnim)  { FErrorMsg("can't get here"); }
++	virtual void removeEntity(CvEntity*) { FErrorMsg("can't get here"); }
++	virtual void addEntity(CvEntity*, uint uiEntAddFlags) { FErrorMsg("can't get here"); }
++	virtual void setup(CvEntity*) { FErrorMsg("can't get here"); }
++	virtual void setVisible(CvEntity*, bool) { FErrorMsg("can't get here"); }
++	virtual void createCityEntity(CvCity*) { FErrorMsg("can't get here"); }
++	virtual void createUnitEntity(CvUnit*) { FErrorMsg("can't get here"); }
++	virtual void destroyEntity(CvEntity*&, bool bSafeDelete=true) { FErrorMsg("can't get here"); }
++	virtual void updatePosition(CvEntity* pGameEntity) { FErrorMsg("can't get here"); }
++	virtual void setupFloodPlains(CvRiver* pRiver) { FErrorMsg("can't get here"); }
++
++	virtual bool IsSelected(const CvEntity*) const { return false; }
++	virtual void PlayAnimation(CvEntity*, AnimationTypes eAnim, float fSpeed = 1.0f, bool bQueue = false,
++			int iLayer = 0, float fStartPct = 0.0f, float fEndPct = 1.0f) { FErrorMsg("can't get here"); }
++	virtual void StopAnimation(CvEntity*, AnimationTypes eAnim) { FErrorMsg("can't get here"); }
+ 	virtual void StopAnimation(CvEntity *) { FErrorMsg("can't get here");}
+ 	virtual void NotifyEntity(CvUnitEntity*, MissionTypes eMission) { FErrorMsg("can't get here"); }
+-	virtual void MoveTo(CvUnitEntity*, const CvPlot * pkPlot)  { FErrorMsg("can't get here"); }
+-	virtual void QueueMove(CvUnitEntity*, const CvPlot * pkPlot)  { FErrorMsg("can't get here"); }
+-	virtual void ExecuteMove(CvUnitEntity*, float fTimeToExecute, bool bCombat)  { FErrorMsg("can't get here"); }
+-	virtual void SetPosition(CvUnitEntity* pEntity, const CvPlot * pkPlot)  { FErrorMsg("can't get here"); }
+-	virtual void AddMission(const CvMissionDefinition* pDefinition) { FErrorMsg("can't get here"); };
++	virtual void MoveTo(CvUnitEntity*, CvPlot const* pkPlot) { FErrorMsg("can't get here"); }
++	virtual void QueueMove(CvUnitEntity*, CvPlot const* pkPlot) { FErrorMsg("can't get here"); }
++	virtual void ExecuteMove(CvUnitEntity*, float fTimeToExecute, bool bCombat) { FErrorMsg("can't get here"); }
++	virtual void SetPosition(CvUnitEntity* pEntity, CvPlot const* pkPlot) { FErrorMsg("can't get here"); }
++	virtual void AddMission(CvMissionDefinition const* pDefinition) { FErrorMsg("can't get here"); };
+ 	virtual void RemoveUnitFromBattle(CvUnit* pUnit) { FErrorMsg("can't get here"); };
+-	virtual void showPromotionGlow(CvUnitEntity* pEntity, bool show) { FErrorMsg("can't get here"); };
++	virtual void showPromotionGlow(CvUnitEntity* pEntity, bool bShow) { FErrorMsg("can't get here"); };
+ 	virtual void updateEnemyGlow(CvUnitEntity* pEntity) { FErrorMsg("can't get here"); };
+ 	virtual void updatePromotionLayers(CvUnitEntity* pEntity) { FErrorMsg("can't get here"); };
+ 	virtual void updateGraphicEra(CvUnitEntity* pEntity, EraTypes eOldEra = NO_ERA) { FErrorMsg("can't get here"); };
+-	virtual void SetSiegeTower(CvUnitEntity *pEntity, bool show) { FErrorMsg("can't get here"); };
++	virtual void SetSiegeTower(CvUnitEntity *pEntity, bool bShow) { FErrorMsg("can't get here"); };
+ 	virtual bool GetSiegeTower(CvUnitEntity *pEntity) { FErrorMsg("can't get here"); return false; };
+ };
+ 
+-#endif	// CvDLLEntityIFaceBase_h
++#endif
+
+diff --git a/CvGameCoreDLL/CvDLLFlagEntityIFaceBase.h b/CvGameCoreDLL/CvDLLFlagEntityIFaceBase.h
+index d7b2d6278..5a0ac7e9d 100644
+--- a/CvGameCoreDLL/CvDLLFlagEntityIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLFlagEntityIFaceBase.h
+@@ -1,15 +1,8 @@
+-//  $Header: //depot/main/Civilization4/CvGameCoreDLL/CvDLLFlagEntityIFaceBase.h#3 $
+-//------------------------------------------------------------------------------------------------
+-//
+-//  ***************** CIV4 GAME ENGINE   ********************
+-//
+-//! \file		CvDLLFlagEntityIFaceBase.h
+-//! \author		Bart Muzzin -- 4-12-2005
+-//! \brief		DLL Stub interface for CvFlagEntity
+-//
+-//------------------------------------------------------------------------------------------------
+-//  Copyright (c) 2005 Firaxis Games, Inc. All rights reserved.
+-//------------------------------------------------------------------------------------------------
++/*	$Header: //depot/main/Civilization4/CvGameCoreDLL/CvDLLFlagEntityIFaceBase.h#3 $
++	***************** CIV4 GAME ENGINE   ********************
++	author: Bart Muzzin -- 4-12-2005
++	DLL Stub interface for CvFlagEntity
++	Copyright (c) 2005 Firaxis Games, Inc. All rights reserved. */
+ 
+ #pragma once
+ #ifndef CvDLLFlagEntityIFaceBase_H
+@@ -17,28 +10,29 @@
+ 
+ #include "CvDLLEntityIFaceBase.h"
+ #include "CvDLLUtilityIFaceBase.h"
+-#include "CvGlobals.h"	// for gDLL
+ 
+ class CvPlot;
+ class CvFlagEntity;
+ 
+-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-//  CLASS:      CvDLLFlagEntityIFaceBase
+-//!  \brief		abstract interface for CvFlagEntity functions used by DLL
+-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++
++// abstract interface for CvFlagEntity functions used by DLL
+ class CvDLLFlagEntityIFaceBase : public CvDLLEntityIFaceBase
+ {
+ 	public:
+ 
+ 		virtual CvFlagEntity* create(PlayerTypes ePlayer) = 0;
+ 
+-		virtual PlayerTypes getPlayer(CvFlagEntity * pkFlag) const = 0;
+-		virtual CvPlot* getPlot(CvFlagEntity * pkFlag) const = 0;
+-		virtual void setPlot(CvFlagEntity * pkFlag, CvPlot * pkPlot, bool bOffset) = 0;
+-		virtual void updateUnitInfo(CvFlagEntity * pkFlag, const CvPlot * pkPlot, bool bOffset) = 0;
+-		virtual void updateGraphicEra(CvFlagEntity *pkFlag) = 0;
+-		virtual void setVisible(CvFlagEntity* pEnt, bool bVis) { gDLL->getEntityIFace()->setVisible((CvEntity*)pEnt, bVis); }
++		virtual PlayerTypes getPlayer(CvFlagEntity* pFlag) const = 0;
++		virtual CvPlot* getPlot(CvFlagEntity* pFlag) const = 0;
++		virtual void setPlot(CvFlagEntity* pkFlag, CvPlot* pPlot, bool bOffset) = 0;
++		virtual void updateUnitInfo(CvFlagEntity* pFlag, CvPlot const* pkPlot, bool bOffset) = 0;
++		virtual void updateGraphicEra(CvFlagEntity* pFlag) = 0;
++		virtual void setVisible(CvFlagEntity* pEnt, bool bVis)
++		{	/*	advc (note): Without the CvFlagEntity definition, the compiler can't know
++				that it's derived from CvEntity. */
++			gDLL->getEntityIFace()->setVisible(reinterpret_cast<CvEntity*>(pEnt), bVis);
++		}
+ 		virtual void destroy(CvFlagEntity*& pImp, bool bSafeDelete=true) = 0;
+ };
+ 
+-#endif // CvDLLFlagEntityIFaceBase_H
++#endif
+
+diff --git a/CvGameCoreDLL/CvDLLSymbolIFaceBase.h b/CvGameCoreDLL/CvDLLSymbolIFaceBase.h
+index 1230f7dd0..e4c0dc33f 100644
+--- a/CvGameCoreDLL/CvDLLSymbolIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLSymbolIFaceBase.h
+@@ -3,16 +3,14 @@
+ #ifndef CvDLLSymbolIFaceBase_h
+ #define CvDLLSymbolIFaceBase_h
+ 
+-
+ #include "CvDLLUtilityIFaceBase.h"
+-#include "CvGlobals.h"	// for gDLL
+ 
+-//
+-// abstract interface for CvSymbol functions used by DLL
+-//
++// abstract interfaces for CvSymbol functions used by DLL
+ 
+-class CvSymbol;
+ class CvPlot;
++/*	advc (note): These are apparently defined in the EXE,
++	CvSymbol being the common base class, and CvRiver derived from CvRoute. */
++class CvSymbol;
+ class CvRoute;
+ class CvFeature;
+ class CvRiver;
+@@ -20,9 +18,9 @@ class CvRiver;
+ class CvDLLSymbolIFaceBase
+ {
+ public:
+-	virtual void init(CvSymbol* , int iID, int iOffset, int iType, CvPlot* pPlot) = 0;
++	virtual void init(CvSymbol*, int iID, int iOffset, int iType, CvPlot* pPlot) = 0;
+ 	virtual CvSymbol* createSymbol() = 0;
+-	virtual void destroy(CvSymbol*&, bool bSafeDelete=true) = 0;
++	virtual void destroy(CvSymbol*&, bool bSafeDelete = true) = 0;
+ 	virtual void setAlpha(CvSymbol*, float fAlpha) = 0;
+ 	virtual void setScale(CvSymbol*, float fScale) = 0;
+ 	virtual void Hide(CvSymbol*, bool bHide) = 0;
+@@ -30,7 +28,7 @@ public:
+ 	virtual void updatePosition(CvSymbol*) = 0;
+ 	virtual int getID(CvSymbol*) = 0;
+ 	virtual SymbolTypes getSymbol(CvSymbol* pSym) = 0;
+-	virtual void setTypeYield(CvSymbol *, int iType, int count) =0;
++	virtual void setTypeYield(CvSymbol *, int iType, int count) = 0;
+ };
+ 
+ class CvDLLFeatureIFaceBase
+@@ -38,51 +36,113 @@ class CvDLLFeatureIFaceBase
+ public:
+ 	virtual CvFeature* createFeature() = 0;
+ 	virtual void init(CvFeature*, int iID, int iOffset, int iType, CvPlot* pPlot) = 0;
+-	virtual FeatureTypes getFeature(CvFeature* pObj) = 0;
+-	virtual void setDummyVisibility(CvFeature *feature, const char *dummyTag, bool show) = 0;
+-	virtual void addDummyModel(CvFeature *feature, const char *dummyTag, const char *modelTag) = 0;
+-	virtual void setDummyTexture(CvFeature *feature, const char *dummyTag, const char *textureTag) = 0;
+-	virtual CvString pickDummyTag(CvFeature *feature, int mouseX, int mouseY) = 0;
+-	virtual void resetModel(CvFeature *feature) = 0;
++	virtual FeatureTypes getFeature(CvFeature* pFeature) = 0;
++	virtual void setDummyVisibility(CvFeature* pFeature, char const* szDummyTag, bool bShow) = 0;
++	virtual void addDummyModel(CvFeature* pFeature, char const* szDummyTag, char const* szModelTag) = 0;
++	virtual void setDummyTexture(CvFeature* pFeature, char const* szDummyTag, char const* textureTag) = 0;
++	virtual CvString pickDummyTag(CvFeature* pFeature, int iMouseX, int iMouseY) = 0;
++	virtual void resetModel(CvFeature* pFeature) = 0;
+ 
+-	// derived methods
+-	virtual void destroy(CvFeature*& pObj, bool bSafeDelete=true) { gDLL->getSymbolIFace()->destroy((CvSymbol*&)pObj, bSafeDelete); }
+-	virtual void Hide(CvFeature* pObj, bool bHide) { gDLL->getSymbolIFace()->Hide((CvSymbol*)pObj, bHide); }
+-	virtual bool IsHidden(CvFeature* pObj) { return gDLL->getSymbolIFace()->IsHidden((CvSymbol*)pObj); }
+-	virtual void updatePosition(CvFeature* pObj) { gDLL->getSymbolIFace()->updatePosition((CvSymbol*)pObj); }
++	/*	derived methods
++		advc (note): I guess they correspond to CSymbol functions that CvFeature overrides */
++	virtual void destroy(CvFeature*& pFeature, bool bSafeDelete = true)
++	{
++		CvSymbol* pSymbol = base(pFeature); // advc
++		gDLL->getSymbolIFace()->destroy(pSymbol, bSafeDelete);
++		// <advc> This is apparently the point of the reference to a pointer
++		if (pSymbol == NULL)
++			pFeature = NULL; // </advc>
++	}
++	virtual void Hide(CvFeature* pFeature, bool bHide)
++	{
++		gDLL->getSymbolIFace()->Hide(base(pFeature), bHide);
++	}
++	virtual bool IsHidden(CvFeature* pFeature)
++	{
++		return gDLL->getSymbolIFace()->IsHidden(base(pFeature));
++	}
++	virtual void updatePosition(CvFeature* pFeature)
++	{
++		gDLL->getSymbolIFace()->updatePosition(base(pFeature));
++	}
++private:
++	// advc: Put the (up-)casts in one place
++	static __forceinline CvSymbol* base(CvFeature* pFeature)
++	{
++		return reinterpret_cast<CvSymbol*>(pFeature);
++	}
+ };
+ 
+ class CvDLLRouteIFaceBase
+ {
+ public:
+ 	virtual CvRoute* createRoute() = 0;
+-	virtual void init(CvRoute*, int iID, int iOffset, int iType, CvPlot* pPlot) = 0;
+-	virtual RouteTypes getRoute(CvRoute* pObj) = 0;
++	virtual void init(CvRoute* pRoute, int iID, int iOffset, int iType, CvPlot* pPlot) = 0;
++	virtual RouteTypes getRoute(CvRoute* pRoute) = 0;
+ 
+ 	// derived methods
+-	virtual void destroy(CvRoute*& pObj, bool bSafeDelete=true)
++	virtual void destroy(CvRoute*& pRoute, bool bSafeDelete = true)
+ 	{
+ 		PROFILE_FUNC(); // advc
+-		gDLL->getSymbolIFace()->destroy((CvSymbol*&)pObj, bSafeDelete);
++		CvSymbol* pSymbol = base(pRoute); // advc
++		gDLL->getSymbolIFace()->destroy(pSymbol, bSafeDelete);
++		if (pSymbol == NULL) // advc
++			pRoute = NULL; // advc>
++	}
++	virtual void Hide(CvRoute* pRoute, bool bHide)
++	{
++		gDLL->getSymbolIFace()->Hide(base(pRoute), bHide);
++	}
++	virtual bool IsHidden(CvRoute* pRoute)
++	{
++		return gDLL->getSymbolIFace()->IsHidden(base(pRoute));
++	}
++	virtual void updatePosition(CvRoute* pRoute)
++	{
++		gDLL->getSymbolIFace()->updatePosition(base(pRoute));
+ 	}
+-	virtual void Hide(CvRoute* pObj, bool bHide) { gDLL->getSymbolIFace()->Hide((CvSymbol*)pObj, bHide); }
+-	virtual bool IsHidden(CvRoute* pObj) { return gDLL->getSymbolIFace()->IsHidden((CvSymbol*)pObj); }
+-	virtual void updatePosition(CvRoute* pObj) { gDLL->getSymbolIFace()->updatePosition((CvSymbol*)pObj); }
+-	virtual int getConnectionMask(CvRoute* pObj) = 0;
+-	virtual void updateGraphicEra(CvRoute *pObj) = 0;
++	virtual int getConnectionMask(CvRoute* pRoute) = 0;
++	virtual void updateGraphicEra(CvRoute* pRoute) = 0;
++	// <advc>
++private:
++	static __forceinline CvSymbol* base(CvRoute* pRoute)
++	{
++		return reinterpret_cast<CvSymbol*>(pRoute);
++	} // </advc>
+ };
+ 
+ class CvDLLRiverIFaceBase
+ {
+ public:
+ 	virtual CvRiver* createRiver() = 0;
+-	virtual void init(CvRiver*, int iID, int iOffset, int iType, CvPlot* pPlot) = 0;
++	virtual void init(CvRiver* pRiver, int iID, int iOffset, int iType, CvPlot* pPlot) = 0;
+ 
+ 	// derived methods
+-	virtual void destroy(CvRiver*& pObj, bool bSafeDelete=true) { gDLL->getRouteIFace()->destroy((CvRoute*&)pObj, bSafeDelete); }
+-	virtual void Hide(CvRiver* pObj, bool bHide) { gDLL->getRouteIFace()->Hide((CvRoute*)pObj, bHide); }
+-	virtual bool IsHidden(CvRiver* pObj) { return gDLL->getRouteIFace()->IsHidden((CvRoute*)pObj); }
+-	virtual void updatePosition(CvRiver* pObj) { gDLL->getRouteIFace()->updatePosition((CvRoute*)pObj); }
++	virtual void destroy(CvRiver*& pRiver, bool bSafeDelete=true)
++	{
++		CvRoute* pRoute = base(pRiver); // advc
++		gDLL->getRouteIFace()->destroy(pRoute, bSafeDelete);
++		if (pRoute == NULL) // advc
++			pRiver = NULL; // advc
++	}
++	virtual void Hide(CvRiver* pRiver, bool bHide)
++	{
++		gDLL->getRouteIFace()->Hide(base(pRiver), bHide);
++	}
++	virtual bool IsHidden(CvRiver* pRiver)
++	{
++		return gDLL->getRouteIFace()->IsHidden(base(pRiver));
++	}
++	virtual void updatePosition(CvRiver* pRiver)
++	{
++		gDLL->getRouteIFace()->updatePosition(base(pRiver));
++	}
++	// <advc>
++private:
++	static __forceinline CvRoute* base(CvRiver* pRiver)
++	{
++		return reinterpret_cast<CvRoute*>(pRiver);
++	} // </advc>
+ };
+ 
+-#endif	// CvDLLSymbolIFaceBase_h
++#endif
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 3b6c7995e..3dd526fc9 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -3172,7 +3172,7 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt) cons
+ 		CvPlayer const& kOwner = GET_PLAYER(pUnit->getOwner());
+ 		FOR_EACH_UNIT_VAR(u, kOwner)
+ 		{
+-			gDLL->getEntityIFace()->showPromotionGlow(u->getUnitEntity(),
++			gDLL->getEntityIFace()->showPromotionGlow(u->getEntity(),
+ 					u->atPlot(pUnit->plot()) && u->isPromotionReady());
+ 		}
+ 	} // </advc.002e>
+@@ -5507,7 +5507,7 @@ void CvGame::updateUnitEnemyGlow()
+ 		if (!kPlayer.isAlive())
+ 			continue; // advc.opt
+ 		FOR_EACH_UNIT_VAR(pLoopUnit, kPlayer)
+-			gDLL->getEntityIFace()->updateEnemyGlow(pLoopUnit->getUnitEntity());
++			gDLL->getEntityIFace()->updateEnemyGlow(pLoopUnit->getEntity());
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 3e42c4d95..1c8051027 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -617,7 +617,7 @@ void CvGame::cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers)
+ 		{
+ 			CvPlayer const& kOwner = GET_PLAYER(pCycleUnit->getOwner());
+ 			FOR_EACH_UNIT_VAR(u, kOwner)
+-				gDLL->getEntityIFace()->showPromotionGlow(u->getUnitEntity(), false);
++				gDLL->getEntityIFace()->showPromotionGlow(u->getEntity(), false);
+ 		} // </advc.002e>
+ 	} // K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index edaf1d3f2..32e346b29 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9154,7 +9154,7 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue)
+ 
+ 	//update unit eras
+ 	FOR_EACH_UNIT_VAR(pLoopUnit, *this)
+-		gDLL->getEntityIFace()->updateGraphicEra(pLoopUnit->getUnitEntity(), eOldEra);
++		gDLL->getEntityIFace()->updateGraphicEra(pLoopUnit->getEntity(), eOldEra);
+ 
+ 	//update main interface flag
+ 	gDLL->UI().setDirty(Flag_DIRTY_BIT, true);
+@@ -13617,7 +13617,7 @@ void CvPlayer::doWarnings()
+ 	FOR_EACH_UNIT_VAR(pLoopUnit, *this)
+ 	{
+ 		//update glow
+-		gDLL->getEntityIFace()->updateEnemyGlow(pLoopUnit->getUnitEntity());
++		gDLL->getEntityIFace()->updateEnemyGlow(pLoopUnit->getEntity());
+ 	}
+ 
+ 	//update enemy units close to your territory
+@@ -16604,7 +16604,7 @@ void CvPlayer::showForeignPromoGlow(bool b)
+ 			continue;
+ 		FOR_EACH_UNIT_VAR(u, *itOther)
+ 		{
+-			gDLL->getEntityIFace()->showPromotionGlow(u->getUnitEntity(),
++			gDLL->getEntityIFace()->showPromotionGlow(u->getEntity(),
+ 					u->isPromotionReady() && b);
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 9a580544b..0840afe3a 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6258,7 +6258,7 @@ void CvPlot::updateFeatureSymbol(bool bForce)
+ 		gDLL->getFeatureIFace()->init(m_pFeatureSymbol, 0, 0, eFeature, this);
+ 		updateFeatureSymbolVisibility();
+ 	} //update position and contours:
+-	else gDLL->getEntityIFace()->updatePosition((CvEntity*)m_pFeatureSymbol);
++	else gDLL->getFeatureIFace()->updatePosition(m_pFeatureSymbol);
+ }
+ 
+ 
+@@ -6305,7 +6305,7 @@ void CvPlot::updateRouteSymbol(bool bForce, bool bAdjacent)
+ 		gDLL->getRouteIFace()->init(m_pRouteSymbol, 0, 0, eRoute, this);
+ 		setLayoutDirty(true);
+ 	} //update position and contours:
+-	else gDLL->getEntityIFace()->updatePosition((CvEntity*)m_pRouteSymbol);
++	else gDLL->getRouteIFace()->updatePosition(m_pRouteSymbol);
+ }
+ 
+ 
+@@ -6376,14 +6376,14 @@ void CvPlot::updateRiverSymbol(bool bForce, bool bAdjacent)
+ 			pAdjacentPlot = plotDirection(getX(), getY(), (DirectionTypes)i);
+ 			if(pAdjacentPlot != NULL && pAdjacentPlot->m_pRiverSymbol != NULL)
+ 			{	//update position and contours:
+-				gDLL->getEntityIFace()->updatePosition((CvEntity*)pAdjacentPlot->m_pRiverSymbol);
++				gDLL->getRiverIFace()->updatePosition(pAdjacentPlot->m_pRiverSymbol);
+ 			}
+ 		}
+ 		// update the symbol
+ 		setLayoutDirty(true);
+ 	}
+ 	//recontour rivers - update position and contours
+-	gDLL->getEntityIFace()->updatePosition((CvEntity*)m_pRiverSymbol);
++	gDLL->getRiverIFace()->updatePosition(m_pRiverSymbol);
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 9063cf893..67130bd75 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -22,7 +22,7 @@
+ 
+ CvUnit::CvUnit() // advc.003u: Body cut from the deleted reset function
+ {
+-	CvDLLEntity::createUnitEntity(this);
++	createEntity(this);
+ 
+ 	m_iID = 0;
+ 	m_iGroupID = FFreeList::INVALID_INDEX;
+@@ -129,7 +129,7 @@ CvUnit::~CvUnit()
+ void CvUnit::reloadEntity()
+ {
+ 	uninitEntity();
+-	CvDLLEntity::createUnitEntity(this); // create and attach entity to unit
++	createEntity(this); // create and attach entity to unit
+ 	setupGraphical();
+ }
+ 
+@@ -140,9 +140,9 @@ void CvUnit::uninitEntity()
+ 	if (!gDLL->GetDone() && GC.IsGraphicsInitialized())
+ 	{
+ 		gDLL->getEntityIFace()->RemoveUnitFromBattle(this);
+-		CvDLLEntity::removeEntity(); // remove entity from engine
++		removeEntity(); // remove entity from engine
+ 	}
+-	CvDLLEntity::destroyEntity(); // delete CvUnitEntity and detach from us
++	destroyEntity(); // delete CvUnitEntity and detach from us
+ }
+ 
+ 
+@@ -618,7 +618,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 
+ void CvUnit::NotifyEntity(MissionTypes eMission)
+ {
+-	gDLL->getEntityIFace()->NotifyEntity(getUnitEntity(), eMission);
++	gDLL->getEntityIFace()->NotifyEntity(getEntity(), eMission);
+ }
+ 
+ 
+@@ -1732,7 +1732,7 @@ bool CvUnit::isActionRecommended(int iAction)
+ 			if(pUnit != NULL)
+ 			{
+ 				bool bGlow = pUnit->isPromotionReady();
+-				gDLL->getEntityIFace()->showPromotionGlow(pUnit->getUnitEntity(), bGlow);
++				gDLL->getEntityIFace()->showPromotionGlow(pUnit->getEntity(), bGlow);
+ 			}
+ 		}
+ 	} // </advc.002e>
+@@ -8606,7 +8606,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
+ 	}
+ 	//update glow
+ 	if (pNewPlot != NULL)
+-		gDLL->getEntityIFace()->updateEnemyGlow(getUnitEntity());
++		gDLL->getEntityIFace()->updateEnemyGlow(getEntity());
+ 
+ 	// report event to Python, along with some other key state
+ 	CvEventReporter::getInstance().unitSetXY(pNewPlot, this);
+@@ -9363,7 +9363,7 @@ void CvUnit::setPromotionReady(bool bNewValue)
+ 	}
+ 
+ 	if(BUGOption::isEnabled("PLE__ShowPromotionGlow", false)) // advc.002e:
+-		gDLL->getEntityIFace()->showPromotionGlow(getUnitEntity(), bNewValue);
++		gDLL->getEntityIFace()->showPromotionGlow(getEntity(), bNewValue);
+ 
+ 	if(IsSelected())
+ 		gDLL->UI().setDirty(SelectionButtons_DIRTY_BIT, true);
+@@ -9581,7 +9581,7 @@ void CvUnit::setCombatUnit(CvUnit* pCombatUnit, bool bAttacking)
+ 				&& pCombatUnit->getPlot().getPlotCity()->getBuildingDefense() > 0
+ 				&& cityAttackModifier() >= GC.getDefineINT("MIN_CITY_ATTACK_MODIFIER_FOR_SIEGE_TOWER"))*/ // BtS
+ 			if (showSiegeTower(pCombatUnit)) // K-Mod
+-				CvDLLEntity::SetSiegeTower(true);
++				SetSiegeTower(true);
+ 		}
+ 
+ 		FAssert(getCombatUnit() == NULL);
+@@ -9606,7 +9606,7 @@ void CvUnit::setCombatUnit(CvUnit* pCombatUnit, bool bAttacking)
+ 			if (plot() == gDLL->UI().getSelectionPlot())
+ 				gDLL->UI().setDirty(PlotListButtons_DIRTY_BIT, true);
+ 
+-			CvDLLEntity::SetSiegeTower(false);
++			SetSiegeTower(false);
+ 		}
+ 	}
+ 
+@@ -10021,7 +10021,7 @@ void CvUnit::setHasPromotion(PromotionTypes ePromotion, bool bNewValue)
+ 	}
+ 
+ 	//update graphics
+-	gDLL->getEntityIFace()->updatePromotionLayers(getUnitEntity());
++	gDLL->getEntityIFace()->updatePromotionLayers(getEntity());
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 50ac2bd52..0047283ae 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -15,7 +15,7 @@ class CvUnitAI; // advc.003u
+ struct CombatDetails;
+ 
+ // (advc.inl: Inlined many getters. Only getX, getY and getOwner were inlined in K-Mod/BtS.)
+-class CvUnit : public CvDLLEntity
++class CvUnit : public CvDLLUnitEntity
+ {
+ public:
+ 	virtual ~CvUnit();
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=32658

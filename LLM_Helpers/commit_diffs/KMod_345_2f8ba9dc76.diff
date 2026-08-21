@@ -1,0 +1,150 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 345
+# Commit: 2f8ba9dc76726821ed74affc44471c9ebb031333
+# History segment: K-Mod history
+# Parent used for diff: ef44b17e94c9cf467d814c1ce4e1479d53361ca9
+# Title: Fixed /another/ mistake in AI_attackCityMove, where I got my strength modifiers the wrong way around. Tweaked the 'weak defence' modifier in AI_pickTargetCity.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	15	CvGameCoreDLL/CvCityAI.cpp
+6	6	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 52efdadc4..3a965f4e0 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9696,7 +9696,7 @@ void CvCityAI::AI_juggleCitizens()
+ 		if (std::max(iUnworkedPlotValue, iUnworkedSpecValue) > std::min(iWorkedPlotValue, iWorkedSpecValue))
+ 		{
+ 			// check to see if we're trying to remove the same job we most recently assigned
+-			if (iWorkedPlotValue < iWorkedSpecValue ? iWorkedPlot == iLatestPlot : eWorkedSpecialist == eLatestSpecialist)
++			if (iWorkedPlotValue <= iWorkedSpecValue ? iWorkedPlot == iLatestPlot : eWorkedSpecialist == eLatestSpecialist)
+ 			{
+ 				// ... that suggests we should break now to avoid getting into an endless loop.
+ 
+@@ -9708,7 +9708,7 @@ void CvCityAI::AI_juggleCitizens()
+ 				// That's usually a fair assumption, but it can sometimes cause loops.
+ 				// The upshot is that we should try to break on the high-food tile.
+ 				bDone = true;
+-				int iCurrentFood = iWorkedPlotValue < iWorkedSpecValue
++				int iCurrentFood = iWorkedPlotValue <= iWorkedSpecValue
+ 					? getCityIndexPlot(iWorkedPlot)->getYield(YIELD_FOOD)
+ 					: GET_PLAYER(getOwnerINLINE()).specialistYield(eWorkedSpecialist, YIELD_FOOD);
+ 				int iNextFood = iUnworkedPlotValue > iUnworkedSpecValue
+@@ -9719,18 +9719,6 @@ void CvCityAI::AI_juggleCitizens()
+ 				// otherwise, take the new job and then we're done. (bDone == true)
+ 			}
+ 
+-			// remember which job we are assigning, to use in the above check on the next cycle.
+-			if (iUnworkedPlotValue > iUnworkedSpecValue)
+-			{
+-				iLatestPlot = iUnworkedPlot;
+-				eLatestSpecialist  = NO_SPECIALIST;
+-			}
+-			else
+-			{
+-				iLatestPlot = -1;
+-				eLatestSpecialist = eUnworkedSpecialist;
+-			}
+-
+ 			// remove lowest value job
+ 			if (iWorkedPlotValue <= iWorkedSpecValue)
+ 			{
+@@ -9744,15 +9732,22 @@ void CvCityAI::AI_juggleCitizens()
+ 			}
+ 
+ 			// assign highest value job
++			// remember which job we are assigning, to use in the above check on the next cycle.
+ 			if (iUnworkedPlotValue > iUnworkedSpecValue)
+ 			{
+ 				FAssert(iUnworkedPlot != -1);
+ 				setWorkingPlot(iUnworkedPlot, true);
++
++				iLatestPlot = iUnworkedPlot;
++				eLatestSpecialist  = NO_SPECIALIST;
+ 			}
+ 			else
+ 			{
+ 				FAssert(eUnworkedSpecialist != NO_SPECIALIST);
+ 				changeSpecialistCount(eUnworkedSpecialist, 1);
++
++				iLatestPlot = -1;
++				eLatestSpecialist = eUnworkedSpecialist;
+ 			}
+ 		}
+ 		else
+@@ -10233,7 +10228,8 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 				} */ // Disabled by K-Mod. I don't see the point of this.
+ 				//Slavery Override
+ 				//if (bCanPopRush && (iHappinessLevel > 0))
+-				if (bCanPopRush && getHurryAngerTimer() == 0 && iHappinessLevel >= (getPopulation()%2 == 0 ? 1 : 0)) // K-Mod
++				if (bCanPopRush && getHurryAngerTimer() <= std::max(6-getPopulation(), 0)
++					&& iHappinessLevel >= (getPopulation()%2 == 0 ? 1 : 0)) // K-Mod
+ 				{
+ 					//iSlaveryValue = 30 * 14 * std::max(0, aiYields[YIELD_FOOD] - ((iHealthLevel < 0) ? 1 : 0));
+ 					// K-Mod. Rescaled values. "30" represents GC.getHurryInfo(eHurry).getProductionPerPopulation()
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 46800aea4..2e29523e3 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2952,7 +2952,7 @@ void CvUnitAI::AI_attackCityMove()
+ 				int iEnemyOffense = GET_PLAYER(getOwnerINLINE()).AI_getEnemyPlotStrength(pTargetCity->plot(),2,false,false); */
+ 				// K-Mod. NOTE: this stuff needs some work anyway. The AI needs to learn when to give up and go home.
+ 				FAssert(getDomainType() == DOMAIN_LAND);
+-				int iOurOffense = kOwner.AI_localAttackStrength(plot(), getTeam(), DOMAIN_LAND, 1);
++				int iOurOffense = kOwner.AI_localAttackStrength(plot(), getTeam(), DOMAIN_LAND, 1, false);
+ 				int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2, false);
+ 				// K-Mod end
+ 
+@@ -2987,7 +2987,7 @@ void CvUnitAI::AI_attackCityMove()
+ 						// K-Mod - only move into attack position if we have a chance.
+ 						// without this check, the AI can get stuck alternating between this, and pillage.
+ 						// I've tried to roughly take into account how much our ratio would improve by removing a river penalty.
+-						if (canBombard(plot()) || (100 + (plot()->isRiverCrossing(directionXY(plot(), pTargetCity->plot()))?GC.getRIVER_ATTACK_MODIFIER()/2 : 0)) * iComparePostBombard >= 100 * iAttackRatio)
++						if (canBombard(plot()) || 150 * iComparePostBombard >= (150 + (plot()->isRiverCrossing(directionXY(plot(), pTargetCity->plot()))?GC.getRIVER_ATTACK_MODIFIER() : 0)) * iAttackRatio)
+ 						{
+ 						// K-Mod end
+ 							// Move to good tile to attack from unless we're way more powerful
+@@ -3007,15 +3007,15 @@ void CvUnitAI::AI_attackCityMove()
+ 					//stack attack
+ 					if (getGroup()->getNumUnits() > 1)
+ 					{ 
+-						//if (AI_stackAttackCity(1, iAttackRatio, true))
+-						if (AI_stackAttackCity(iAttackRatio)) // K-Mod
++						if (AI_stackAttackCity(iAttackRatio))
+ 						{
+ 							return;
+ 						}
+ 					}
+ 
+ 					// If not strong enough alone, merge if another stack is nearby
+-					if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 2, true, true, bIgnoreFaster))
++					//if (AI_groupMergeRange(UNITAI_ATTACK_CITY, 2, true, true, bIgnoreFaster))
++					if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, 2, true, false, bIgnoreFaster, false, false))
+ 					{
+ 						return;
+ 					}
+@@ -15143,7 +15143,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBar
+ 									int iEnemyDefence = -1; // used later.
+ 									if (pLoopCity->isVisible(getTeam(), false))
+ 									{
+-										iEnemyDefence = GET_PLAYER(getOwnerINLINE()).AI_localDefenceStrength(pLoopCity->plot(), NO_TEAM, DOMAIN_LAND, 2);
++										iEnemyDefence = GET_PLAYER(getOwnerINLINE()).AI_localDefenceStrength(pLoopCity->plot(), NO_TEAM, DOMAIN_LAND, iPathTurns > 1 ? 2 : 0);
+ 
+ 										if (iPathTurns > 2)
+ 										{
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6000

@@ -1,0 +1,356 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 341
+# Commit: 25752c0b71e7cefde7af227f8b6f6a2328ba89a5
+# History segment: K-Mod history
+# Parent used for diff: 6cc6fe0e4eba2a0384f178d75a179e7f5926ea4b
+# Title: Removed the bulk of AI_group and AI_groupMergeRange - replaced with calls to AI_omniGroup.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	265	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 181c84356..f3f4eb3d8 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -10723,7 +10723,11 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ {
+ 	PROFILE_FUNC();
+ 
+-	FAssert(!isCargo());
++	if (isCargo())
++		return false;
++
++	if (!AI_canGroupWithAIType(eUnitAI))
++		return false;
+ 
+ 	if (getDomainType() == DOMAIN_LAND && !canMoveAllTerrain())
+ 	{
+@@ -10733,11 +10737,6 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ 		}
+ 	}
+ 
+-	if (!AI_canGroupWithAIType(eUnitAI))
+-	{
+-		return false;
+-	}
+-
+ 	int iOurImpassableCount = 0;
+ 	CLLNode<IDInfo>* pUnitNode = getGroup()->headUnitNode();
+ 	while (pUnitNode != NULL)
+@@ -10861,19 +10860,12 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ // Returns true if a group was joined or a mission was pushed...
+ bool CvUnitAI::AI_group(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI, int iMinUnitAI, bool bIgnoreFaster, bool bIgnoreOwnUnitType, bool bStackOfDoom, int iMaxPath, bool bAllowRegrouping, bool bWithCargoOnly, bool bInCityOnly, MissionAITypes eIgnoreMissionAIType)
+ {
+-	PROFILE_FUNC();
+-
+-	CvUnit* pLoopUnit;
+-	CvUnit* pBestUnit;
+-	int iPathTurns;
+-	int iBestValue;
+-	int iLoop;
++	// K-Mod. I've completely gutted this function. It's now basically just a wrapper for AI_omniGroup.
++	// This is part of the process of phasing the function out.
+ 
+-	// if we are on a transport, then do not regroup
+-	if (isCargo())
+-	{
+-		return false;
+-	}
++	// unsupported features:
++	FAssert(!bInCityOnly);
++	// .. and now the function.
+ 
+ 	if (!bAllowRegrouping)
+ 	{
+@@ -10883,158 +10875,7 @@ bool CvUnitAI::AI_group(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI, i
+ 		}
+ 	}
+ 
+-	if ((getDomainType() == DOMAIN_LAND) && !canMoveAllTerrain())
+-	{
+-		if (area()->getNumAIUnits(getOwnerINLINE(), eUnitAI) == 0)
+-		{
+-			return false;
+-		}
+-	}
+-
+-	if (!AI_canGroupWithAIType(eUnitAI))
+-	{
+-		return false;
+-	}
+-
+-	int iOurImpassableCount = 0;
+-	CLLNode<IDInfo>* pUnitNode = getGroup()->headUnitNode();
+-	while (pUnitNode != NULL)
+-	{
+-		CvUnit* pImpassUnit = ::getUnit(pUnitNode->m_data);
+-		pUnitNode = getGroup()->nextUnitNode(pUnitNode);
+-
+-		iOurImpassableCount = std::max(iOurImpassableCount, GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(pImpassUnit->getUnitType()));
+-	}
+-
+-	iBestValue = MAX_INT;
+-	pBestUnit = NULL;
+-
+-	// Loop over groups, ai_allowgroup blocks non-head units anyway
+-	CvSelectionGroup* pLoopGroup = NULL;
+-	for(pLoopGroup = GET_PLAYER(getOwnerINLINE()).firstSelectionGroup(&iLoop); pLoopGroup != NULL; pLoopGroup = GET_PLAYER(getOwnerINLINE()).nextSelectionGroup(&iLoop))
+-	{
+-		pLoopUnit = pLoopGroup->getHeadUnit();
+-		if( pLoopUnit == NULL )
+-		{
+-			continue;
+-		}
+-
+-		CvPlot* pPlot = pLoopUnit->plot();
+-		if (AI_plotValid(pPlot))
+-		{
+-			//if (iMaxPath > 0 || pPlot == plot())
+-			if ((iMaxPath > 0 || pPlot == plot()) && (getDomainType() != DOMAIN_LAND || canMoveAllTerrain() || pPlot->area() == area())) // K-Mod
+-			{
+-				if (!isEnemy(pPlot->getTeam()))
+-				{
+-					if (AI_allowGroup(pLoopUnit, eUnitAI))
+-					{
+-						if ((iMaxGroup == -1) || ((pLoopGroup->getNumUnits() + GET_PLAYER(getOwnerINLINE()).AI_unitTargetMissionAIs(pLoopUnit, MISSIONAI_GROUP, getGroup())) <= (iMaxGroup + ((bStackOfDoom) ? AI_stackOfDoomExtra() : 0))))
+-						{
+-							if ((iMaxOwnUnitAI == -1) || (pLoopGroup->countNumUnitAIType(AI_getUnitAIType()) <= (iMaxOwnUnitAI + ((bStackOfDoom) ? AI_stackOfDoomExtra() : 0))))
+-							{
+-								if ((iMinUnitAI == -1) || (pLoopGroup->countNumUnitAIType(eUnitAI) >= iMinUnitAI))
+-								{
+-									if (!bIgnoreFaster || (pLoopGroup->baseMoves() <= baseMoves()))
+-									{
+-										if (!bIgnoreOwnUnitType || (pLoopUnit->getUnitType() != getUnitType()))
+-										{
+-											if (!bWithCargoOnly || pLoopUnit->getGroup()->hasCargo())
+-											{
+-												if( !bInCityOnly || pLoopUnit->plot()->isCity() )
+-												{
+-													if( (eIgnoreMissionAIType == NO_MISSIONAI) || (eIgnoreMissionAIType != pLoopUnit->getGroup()->AI_getMissionAIType()) )
+-													{
+-														if (!(pPlot->isVisibleEnemyUnit(this)))
+-														{
+-															if( iOurImpassableCount > 0 || AI_getUnitAIType() == UNITAI_ASSAULT_SEA )
+-															{
+-																int iTheirImpassableCount = 0;
+-																pUnitNode = pLoopGroup->headUnitNode();
+-																while (pUnitNode != NULL)
+-																{
+-																	CvUnit* pImpassUnit = ::getUnit(pUnitNode->m_data);
+-																	pUnitNode = pLoopGroup->nextUnitNode(pUnitNode);
+-
+-																	iTheirImpassableCount = std::max(iTheirImpassableCount, GET_PLAYER(getOwnerINLINE()).AI_unitImpassableCount(pImpassUnit->getUnitType()));
+-																}
+-
+-																if( iOurImpassableCount != iTheirImpassableCount )
+-																{
+-																	continue;
+-																}
+-															}
+-
+-															if (generatePath(pPlot, 0, true, &iPathTurns))
+-															{
+-																if (iPathTurns <= iMaxPath)
+-																{
+-																	/* original code
+-																	iValue = 1000 * (iPathTurns + 1);
+-																	iValue *= 4 + pLoopGroup->getCargo();
+-																	iValue /= pLoopGroup->getNumUnits();
+-																	*/
+-																	// K-Mod
+-																	int iCost = 100 * (iPathTurns * iPathTurns + 1);
+-																	iCost *= 4 + pLoopGroup->getCargo();
+-																	iCost /= 2 + pLoopGroup->getNumUnits();
+-																	/*int iSizeMod = 10*std::max(getGroup()->getNumUnits(), pLoopGroup->getNumUnits());
+-																	iSizeMod /= std::min(getGroup()->getNumUnits(), pLoopGroup->getNumUnits());
+-																	iCost *= iSizeMod * iSizeMod;
+-																	iCost /= 1000; */
+-																	// K-Mod end
+-
+-																	if (iCost < iBestValue)
+-																	{
+-																		iBestValue = iCost;
+-																		pBestUnit = pLoopUnit;
+-																	}
+-																}
+-															}
+-														}
+-													}
+-												}
+-											}
+-										}
+-									}
+-								}
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-	
+-	if (pBestUnit != NULL)
+-	{
+-		/* original bts code
+-		if (atPlot(pBestUnit->plot()))
+-		{
+-			joinGroup(pBestUnit->getGroup());
+-			return true;
+-		}
+-		else
+-		{
+-			getGroup()->pushMission(MISSION_MOVE_TO_UNIT, pBestUnit->getOwnerINLINE(), pBestUnit->getID(), 0, false, false, MISSIONAI_GROUP, NULL, pBestUnit);
+-			return true;
+-		} */
+-		// K-Mod. If we reach the target this turn-slice, then group right away.
+-		if (!atPlot(pBestUnit->plot()))
+-		{
+-			//if (getGroup()->getNumUnits() > 1)
+-			//	joinGroup(NULL); // the other units won't be joining anyway. Might as well leave them behind.
+-			getGroup()->pushMission(MISSION_MOVE_TO_UNIT, pBestUnit->getOwnerINLINE(), pBestUnit->getID(), 0, false, false, MISSIONAI_GROUP, NULL, pBestUnit);
+-		}
+-		if (atPlot(pBestUnit->plot()))
+-		{
+-			joinGroup(pBestUnit->getGroup());
+-		}
+-		return true;
+-		// K-Mod end
+-	}
+-
+-	return false;
++	return AI_omniGroup(eUnitAI, iMaxGroup, iMaxOwnUnitAI, bStackOfDoom, iMaxPath, true, true, bIgnoreFaster, bIgnoreOwnUnitType, false, iMinUnitAI, bWithCargoOnly, eIgnoreMissionAIType);
+ }
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -11042,10 +10883,9 @@ bool CvUnitAI::AI_group(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitAI, i
+ 
+ bool CvUnitAI::AI_groupMergeRange(UnitAITypes eUnitAI, int iMaxRange, bool bBiggerOnly, bool bAllowRegrouping, bool bIgnoreFaster)
+ {
+-	PROFILE_FUNC();
+-
++	// K-Mod. I've completely gutted this function. It's now basically just a wrapper for AI_omniGroup.
++	// This is part of the process of phasing the function out.
+ 
+- 	// if we are on a transport, then do not regroup
+ 	if (isCargo())
+ 	{
+ 		return false;
+@@ -11059,99 +10899,12 @@ bool CvUnitAI::AI_groupMergeRange(UnitAITypes eUnitAI, int iMaxRange, bool bBigg
+ 		}
+ 	}
+ 
+-	if ((getDomainType() == DOMAIN_LAND) && !canMoveAllTerrain())
+-	{
+-		if (area()->getNumAIUnits(getOwnerINLINE(), eUnitAI) == 0)
+-		{
+-			return false;
+-		}
+-	}
+-	
+-	if (!AI_canGroupWithAIType(eUnitAI))
+-	{
+-		return false;
+-	}
+-	
+-	// cached values
+-	CvPlot* pPlot = plot();
+-	CvSelectionGroup* pGroup = getGroup();
+-	
+-	// best match
+-	CvUnit* pBestUnit = NULL;
+-	int iBestValue = MAX_INT;
+-	// iterate over plots at each range
+-	for (int iDX = -(iMaxRange); iDX <= iMaxRange; iDX++)
+-	{
+-		for (int iDY = -(iMaxRange); iDY <= iMaxRange; iDY++)
+-		{
+-			CvPlot* pLoopPlot = plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
+-			
+-			if (pLoopPlot != NULL && pLoopPlot->getArea() == pPlot->getArea())
+-			{
+-				CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode();
+-				while (pUnitNode != NULL)
+-				{
+-					CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+-					
+-					CvSelectionGroup* pLoopGroup = pLoopUnit->getGroup();
+-
+-					if (AI_allowGroup(pLoopUnit, eUnitAI))
+-					{
+-						if (!bIgnoreFaster || (pLoopUnit->getGroup()->baseMoves() <= baseMoves()))
+-						{
+-							if (!bBiggerOnly || (pLoopGroup->getNumUnits() >= pGroup->getNumUnits()))
+-							{
+-								int iPathTurns;
+-								if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+-								{
+-									if (iPathTurns <= (iMaxRange + 2))
+-									{
+-										int iValue = 1000 * (iPathTurns + 1);
+-										iValue /= pLoopGroup->getNumUnits();
+-
+-										if (iValue < iBestValue)
+-										{
+-											iBestValue = iValue;
+-											pBestUnit = pLoopUnit;
+-										}
+-									}
+-								}
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-	if (pBestUnit != NULL)
+-	{
+-		/* original bts code
+-		if (atPlot(pBestUnit->plot()))
+-		{
+-			pGroup->mergeIntoGroup(pBestUnit->getGroup()); 
+-			return true;
+-		}
+-		else
+-		{
+-			pGroup->pushMission(MISSION_MOVE_TO_UNIT, pBestUnit->getOwnerINLINE(), pBestUnit->getID(), 0, false, false, MISSIONAI_GROUP, NULL, pBestUnit);
+-			return true;
+-		} */
+-		// K-Mod. If we reach the target this turn-slice, then group right away.
+-		if (!atPlot(pBestUnit->plot()))
+-		{
+-			pGroup->pushMission(MISSION_MOVE_TO_UNIT, pBestUnit->getOwnerINLINE(), pBestUnit->getID(), 0, false, false, MISSIONAI_GROUP, NULL, pBestUnit);
+-		}
+-		if (atPlot(pBestUnit->plot()))
+-		{
+-			pGroup->mergeIntoGroup(pBestUnit->getGroup());
+-		}
+-		return true;
+-		// K-Mod end
+-	}
++	// approximate max path based on range.
++	int iMaxPath = 1;
++	while (AI_searchRange(iMaxPath) < iMaxRange)
++		iMaxPath++;
+ 
+-	return false;
++	return AI_omniGroup(eUnitAI, -1, -1, false, iMaxPath, true, false, bIgnoreFaster, false, bBiggerOnly);
+ }
+ 
+ /************************************************************************************************/
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=10960

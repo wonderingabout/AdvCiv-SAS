@@ -1,0 +1,68 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 601
+# Commit: 6a3f10d302d8bfab2cf08b59035a97574d14a7ff
+# History segment: K-Mod history
+# Parent used for diff: ff7c6f5b3dae5b39f17b751bc73bf0773f26efe8
+# Title: Made some further changes to AI_techValue for overseas trade and for faster road movement.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	3	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a9942bd5a..67e3ae112 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5007,7 +5007,14 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 
+ 	for (int iJ = 0; iJ < GC.getNumRouteInfos(); iJ++)
+ 	{
+-		iValue += -(GC.getRouteInfo((RouteTypes)iJ).getTechMovementChange(eTech) * 100);
++		//iValue += -(GC.getRouteInfo((RouteTypes)iJ).getTechMovementChange(eTech) * 100);
++		// K-Mod. Still bogus, but a bit more nuanced.
++		int iCityTarget = GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities();
++		int iTemp = 30 * std::min(iCityCount - iCoastalCities/2, iCityTarget*3/2) / std::max(1, iCityTarget);
++		iTemp += bCapitalAlone ? 0 : 20;
++		iTemp += kTeam.getAnyWarPlanCount(true) ? 30 : 0;
++		iValue -= GC.getRouteInfo((RouteTypes)iJ).getTechMovementChange(eTech) * iTemp;
++		// K-Mod end
+ 	}
+ 
+ 	for (int iJ = 0; iJ < NUM_DOMAIN_TYPES; iJ++)
+@@ -5036,7 +5043,13 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 				if (pCapitalCity != NULL)
+ 				{
+ 					//iValue += (countPotentialForeignTradeCities(pCapitalCity->area()) * 100);
+-					iValue += std::min(iCityCount*2, AI_countPotentialForeignTradeCities(false, AI_getFlavorValue(FLAVOR_GOLD) == 0, pCapitalCity->area())) * 70; // K-Mod
++					// K-Mod. The values in AI_techValue are mostly quite arbitrary, but as a general rule of thumb, they should not be proportial to civ-size.
++					// Besides, the original value here was way too big.
++					int iUnusedRoutes = std::max(0, iCityCount*3 - AI_countPotentialForeignTradeCities(true, AI_getFlavorValue(FLAVOR_GOLD) == 0));
++					int iNewTrade = AI_countPotentialForeignTradeCities(false, AI_getFlavorValue(FLAVOR_GOLD) == 0, pCapitalCity->area());
++
++					iValue += (std::min(iUnusedRoutes, iNewTrade) * 700  + std::min(iNewTrade, iCityCount*3) * 300) / std::max(1, iCityCount);
++					// K-Mod end
+ 				}
+ 
+ 				if (iCoastalCities > 0)
+@@ -5909,7 +5922,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 				if (iRaceModifier > 30 && iRaceModifier < 100 && AI_getFlavorValue(FLAVOR_SCIENCE) > 0) // save the free tech if we have no competition!
+ 					iValue += iRoll * (iRaceModifier-20) / 400; // this is potentially big.
+ 
+-				int iTempValue = 500 + (bCapitalAlone ? 100 : 0); // value regardless of race or random.
++				int iTempValue = (iRaceModifier >= 0 ? 700 : 350) + (bCapitalAlone ? 100 : 0); // some value regardless of race or random.
+ 
+ 				iTempValue += bAsync ? GC.getASyncRand().get(6000, "AI Research Free Tech ASYNC") : GC.getGameINLINE().getSorenRandNum(6000, "AI Research Free Tech");
+ 				iValue += iTempValue * kTechInfo.getFirstFreeTechs();
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2796

@@ -1,0 +1,178 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5731
+# Commit: 8c54cb851764ae1cdfcc8dea8f6c465e7657a4f0
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ea371803fca2149711341e0e90c8a2b0b0a7a13e
+# Title: grey BACK, NEXT, and CLEAR sevopedia buttons if they are inactive - minor remove improvement bullet in sevopedia build (redundant with result panel)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	3	Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+35	10	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+20	1	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+index 6e186b858..1c22b811d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+@@ -313,9 +313,8 @@ class SevoPediaBuild:
+ 		szSpecialText = u""
+ 
+ 		bullet = localText.getText("[ICON_BULLET]", ())
+-		iImprovement = buildInfo.getImprovement()
+-		if iImprovement > -1:
+-			szSpecialText += u"%s%s: %s" % (bullet, localText.getText("TXT_KEY_PEDIA_BUILD_IMPROVEMENT", ()), gc.getImprovementInfo(iImprovement).getDescription())
++		# <!-- custom: do not repeat the created Improvement here because the Result panel already shows it with a Pedia link.
++		# Keep Route below because Sevopedia has no Route category/page to link to, so the text bullet still adds information. (GPT-5.5) -->
+ 
+ 		iRoute = buildInfo.getRoute()
+ 		if iRoute > -1:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index d97cd02dc..c63d732cd 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -769,16 +769,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			self.SAS_setItemsWidth(self.SAS_getLeaderItemsWidthByCurrentUIFont())
+ 		else:
+ 			self.SAS_setItemsWidth(self.SAS_W_ITEMS_BASE)
+-		# <!-- custom: after adding Leader AIP-specific footer positions for BACK/NEXT/EXIT, reapply the generic Sevopedia footer positions here first; otherwise those AIP positions carry over to every category, which we don't want. (GPT-5.3-Codex) -->
+-		screen.setText(self.BACK_ID, "Background", self.BACK_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_BACK, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
+-		screen.setText(self.NEXT_ID, "Background", self.NEXT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
+-		screen.setText(self.SAS_CLEAR_ID, "Background", self.SAS_CLEAR_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_CLEAR, self.SAS_Y_CLEAR, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
+-		if iCategory == SevoScreenEnums.PEDIA_LEADERS:
+-			# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; move BACK/NEXT/EXIT to the left footer so controls remain clickable. (GPT-5.3-Codex) -->
+-			screen.setText(self.BACK_ID, "Background", self.BACK_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_BACK_LEADERS, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
+-			screen.setText(self.NEXT_ID, "Background", self.NEXT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_NEXT_LEADERS, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
+-			screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_EXIT_LEADERS, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
++		self.SAS_setFooterNavigationTexts(screen, iCategory)
+ 		if not self.isContentsShowing():
+ 			BugUtil.debug("Drawing category list")
+ 			self.placeCategories(iCategory)
+@@ -858,6 +849,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.NEXT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper())
+ 		self.SAS_CLEAR_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SAS_CLEAR", ()).upper())
+ 		self.EXIT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT",    ()).upper())
++		# <!-- custom: build grey labels for global footer controls that stay visible but may be inactive. Page-specific
++		# Legend links still appear only when applicable: no Legend means no page legend, not an inactive global command. See KI#126. (GPT-5.5) -->
++		eLightGrey = gc.getInfoTypeForString("COLOR_LIGHT_GREY")
++		self.BACK_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK", ()).upper(), eLightGrey))
++		self.NEXT_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper(), eLightGrey))
++		self.SAS_CLEAR_TEXT_DISABLED = SASTextScale.titleText(localText.changeTextColor(localText.getText("TXT_KEY_PEDIA_SAS_CLEAR", ()).upper(), eLightGrey))
+ 		
+ 		self.TOC_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper())
+ 		self.INDEX_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_INDEX",  ()).upper())
+@@ -928,6 +925,33 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		screen.setText(self.HEAD_ID, "Background", self.HEAD_TEXT, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
+ 		# <!-- custom: Note: removed generic footer setText from this common-widgets block because it became redundant/no longer relevant here; footer link placement is now handled in showContents where category-specific behavior (Leader AIP overflow exception) is applied. (GPT-5.3-Codex) -->
+ 
++	def SAS_setFooterNavigationTexts(self, screen, iCategory):
++		bCanBack = (len(self.pediaHistory) > 1)
++		bCanForward = (len(self.pediaFuture) > 0)
++		bCanClear = (bCanBack or bCanForward)
++		if bCanBack:
++			szBackText = self.BACK_TEXT
++		else:
++			szBackText = self.BACK_TEXT_DISABLED
++		if bCanForward:
++			szNextText = self.NEXT_TEXT
++		else:
++			szNextText = self.NEXT_TEXT_DISABLED
++		if bCanClear:
++			szClearText = self.SAS_CLEAR_TEXT
++		else:
++			szClearText = self.SAS_CLEAR_TEXT_DISABLED
++		# <!-- custom: keep footer controls stable but grey Back/Next/Clear when they have no effect. (GPT-5.5) -->
++		screen.setText(self.BACK_ID, "Background", szBackText, CvUtil.FONT_LEFT_JUSTIFY, self.X_BACK, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
++		screen.setText(self.NEXT_ID, "Background", szNextText, CvUtil.FONT_LEFT_JUSTIFY, self.X_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
++		screen.setText(self.SAS_CLEAR_ID, "Background", szClearText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_CLEAR, self.SAS_Y_CLEAR, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
++		if iCategory == SevoScreenEnums.PEDIA_LEADERS:
++			# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; move BACK/NEXT/EXIT to the left footer so controls remain clickable. (GPT-5.3-Codex) -->
++			screen.setText(self.BACK_ID, "Background", szBackText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_BACK_LEADERS, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
++			screen.setText(self.NEXT_ID, "Background", szNextText, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_NEXT_LEADERS, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
++			screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_EXIT_LEADERS, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
++
+ 
+ 
+ 	def placeCategories(self, iCategory=None):
+@@ -2214,6 +2238,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			self.pediaHistory = [(self.iCategory, self.iItem)]
+ 		else:
+ 			self.pediaHistory = []
++		self.SAS_setFooterNavigationTexts(self.getScreen(), self.iCategory)
+ 		return 1
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 4689bf8fd..954147ced 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -161,6 +161,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4)  
+ [124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)  
+ [125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#125---fixed-base-advciv-issue-sevopedia-backnext-history-is-lost-on-exit)  
++[126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#126---fixed-sevopedia-footer-navigation-controls-looked-active-even-when-they-had-no-effect)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4622,7 +4623,7 @@ File changed:
+ 
+ ## 123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4
+ 
+-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1WUooo99uQ9KuXa9mrXvt_74s-R4DL0br?usp=sharing).
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1I6QRzBWnLw9u0kduHIBBsXiQ7DTxBxqR?usp=sharing).
+ 
+ Observed issue:
+ 
+@@ -4706,3 +4707,21 @@ Fix:
+ File changed:
+ 
+ - [Assets/Python/Contrib/Sevopedia/SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py)
++
++## 126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1VRXC3ke-rHgnlevnY7BIazvHDCTcseU6?usp=sharing) (only after fix because any sevopedia screenshot would show the non-greyed former behaviour).
++
++Observed issue:
++
++- Sevopedia footer controls such as `Back`, `Next`, and `Clear` could look active even when clicking them would do nothing.
++- This is independent of session-persistent history, but became especially confusing there: after exiting and reopening Sevopedia in the same session, `Back` and `Next` could remain visible while having no current navigation effect.
++
++Fix:
++
++- `Back`, `Next`, and `Clear` remain in stable footer positions, but their text is greyed out when the corresponding action has no effect.
++- Contextual page links such as `Legend` keep their existing behavior: they are hidden when the page has no legend, because that means the page-specific link does not apply rather than a global command being temporarily inactive.
++
++File changed:
++
++- [Assets/Python/Contrib/Sevopedia/SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 217006f72..840f74cc3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -303,7 +303,8 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Search Bar**: shared by several Sevopedia pages; it allows to **search** for entries using the **keyboard**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: search bar](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages).
+ - **Keyboard Navigation**: allows to **browse Sevopedia categories** using the keyboard in the list pages (e.g. In the Units Category: Axeman, Swordsman, Worker) or tree pages (e.g. Units Tree and Promotion Tree categories) using the **keyboard UP/DOWN arrow keys**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: keyboard (UP/DOWN) navigation](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
+ - (Requires AdvCiv-SAS 5678+) **Fix empty pages** in Sevopedia **category opening flow:** opening a category now jumps **directly to the first real entry (if any)** instead of landing on a **blank header/spacer** row first; this makes **navigation easier** and avoids **needless and disruptive BACK/NEXT history pollution**. See [KI#119](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#119---fixed-sevopedia-category-opening-on-blank-placeholder-rows-item--1-and-polluting-backnext-history).
+-- (Requires AdvCiv-SAS 5729+) **Fix BACK/NEXT history lost on sevopedia exit** (e.g., to revisit AI Personality Panel pages during a game, or other categories previously visited): now persists during the entire **gaming session**. Added a **CLEAR** button to clear history. See [KI#125](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#125---fixed-base-advciv-issue-sevopedia-backnext-history-is-lost-on-exit).
++- (Requires AdvCiv-SAS 5729+) **Fix BACK/NEXT navigation history being lost on sevopedia exit** (e.g., to revisit AI Personality Panel pages during a game, or other categories previously visited): now **persists** during the entire **gaming session**. Added a **CLEAR** button to clear history. See [KI#125](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#125---fixed-base-advciv-issue-sevopedia-backnext-history-is-lost-on-exit).
++- (Requires AdvCiv-SAS 5731+) Make **BACK**, **NEXT**, and **CLEAR** **greyed** when they have **no effect** (e.g., clicking NEXT when current page is already last visited, or BACK on first page visited since last clear). This was especially confusing before the navigation history persistence fix, when after reopening sevopedia after last sevopedia exit, BACK and NEXT button would be there but produce no effect at all (previous history was lost) (buttons are greyed now making such absence of effect clear). Note: Legend link is not greyed but instead is hidden if a category has no legend link (if there is a legend it is always active, and if there is none is it never active, so no need for a grey button). See [KI#126](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#126---fixed-sevopedia-footer-navigation-controls-looked-active-even-when-they-had-no-effect).
+ - **Entries Grouping**: Depending on the Sevopedia Page, Sevopedia lists are now grouped: **by Civic Type** (e.g. Government, Economy) in Sevopedia Civics; **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era)); **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist; **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig) in Sevopedia Bonus; **by Land/Water** (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) sometimes with additional subgroups. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py) and [_sevopedia_main_groupings.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py).
+ - the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=15424

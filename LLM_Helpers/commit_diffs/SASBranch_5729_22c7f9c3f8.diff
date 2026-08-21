@@ -1,0 +1,206 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5729
+# Commit: 22c7f9c3f86cf50c487115f06ef4d3867b8ed62a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c0087237931dd4875d8c8c3df33d57031ce3267a
+# Title: Fix base advciv issue of BACK/NEXT history being lost on sevopedia exit; add a CLEAR button
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	3	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+5	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+18	1	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index c12a92d3c..d97cd02dc 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -94,6 +94,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.INDEX_ID		= "PediaMainIndex"
+ 		self.BACK_ID		= "PediaMainBack"
+ 		self.NEXT_ID		= "PediaMainForward"
++		self.SAS_CLEAR_ID = "PediaMainClear"
+ 		self.EXIT_ID		= "PediaMainExit"
+ 		self.CATEGORY_LIST_ID	= "PediaMainCategoryList"
+ 		self.ITEM_LIST_ID	= "PediaMainItemList"
+@@ -222,6 +223,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.Y_BACK = Y_FOOTER_CONTROLS
+ 		self.X_NEXT = 133 + (self.W_SCREEN // 2) # advc.004y: was 645
+ 		self.Y_NEXT = Y_FOOTER_CONTROLS
++		# <!-- custom: place Clear near the Legend footer link, opposite Exit and visually separate from Back/Next. (GPT-5.5) -->
++		self.SAS_X_CLEAR = self.X_TOC + 120
++		self.SAS_Y_CLEAR = Y_FOOTER_CONTROLS
+ 		self.X_EXIT = self.W_SCREEN - 30 # advc.004y: was 994
+ 		self.Y_EXIT = Y_FOOTER_CONTROLS
+ 		# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; keep BACK/NEXT left of the AIP area so those footer controls stay clickable. (GPT-5.3-Codex) -->
+@@ -606,13 +610,14 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		if self.SAS_lastPediaJump is not None:
+ 			current = self.SAS_lastPediaJump
+ 		elif self.pediaHistory:
+-			current = self.pediaHistory.pop()
++			current = self.pediaHistory[-1]
+ 		else:
+ 			# <!-- custom: default to the first row in SAS_CATEGORY_DEFS, so the opening category always
+ 			# matches the current category order instead of being hardcoded to Techs. (GPT-5.2-Codex) -->
+ 			current = (SevoScreenEnums.PEDIA_MAIN, self.SAS_CATEGORY_DEFS[0][0])
+-		self.pediaFuture = []
+-		self.pediaHistory = []
++		# <!-- custom: keep Back/Next history across closing and reopening Sevopedia during the same game session.
++		# This lets players inspect several entries (e.g. Leader AIP pages), exit to the map, reopen Sevopedia,
++		# and still use Back/Next instead of rebuilding the same navigation chain. See KI#125. (GPT-5.5) -->
+ 		self.pediaJump(current[0], current[1], False, True)
+ 
+ 
+@@ -767,6 +772,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# <!-- custom: after adding Leader AIP-specific footer positions for BACK/NEXT/EXIT, reapply the generic Sevopedia footer positions here first; otherwise those AIP positions carry over to every category, which we don't want. (GPT-5.3-Codex) -->
+ 		screen.setText(self.BACK_ID, "Background", self.BACK_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_BACK, self.Y_BACK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_BACK, 1, -1)
+ 		screen.setText(self.NEXT_ID, "Background", self.NEXT_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_NEXT, self.Y_NEXT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_FORWARD, 1, -1)
++		screen.setText(self.SAS_CLEAR_ID, "Background", self.SAS_CLEAR_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.SAS_X_CLEAR, self.SAS_Y_CLEAR, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1)
+ 		if iCategory == SevoScreenEnums.PEDIA_LEADERS:
+ 			# <!-- custom: in Sevopedia Leader, AI panel text can overflow into the footer zone; move BACK/NEXT/EXIT to the left footer so controls remain clickable. (GPT-5.3-Codex) -->
+@@ -784,6 +790,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				screen.setText(self.INDEX_ID, "Background", self.INDEX_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_INDEX, self.Y_INDEX, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
+ 			screen.show(self.BACK_ID)
+ 			screen.show(self.NEXT_ID)
++			screen.show(self.SAS_CLEAR_ID)
+ 
+ 		if not self.isContentsShowing() or self.iCategory != iCategory or bForce:
+ 			BugUtil.debug("Drawing item list %d" % iCategory)
+@@ -830,6 +837,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		screen.setText(self.INDEX_ID, "Background", self.INDEX_ACTIVE_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_INDEX, self.Y_INDEX, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL,      -1, -1)
+ 		screen.hide(self.BACK_ID)
+ 		screen.hide(self.NEXT_ID)
++		screen.hide(self.SAS_CLEAR_ID)
+ 		self.pediaIndex.interfaceScreen()
+ 		self.tab = self.TAB_INDEX
+ 	
+@@ -848,6 +856,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.HEAD_TEXT = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_CIVILOPEDIA_TITLE",      ())         + SAS_FONT_TAG_CLOSE
+ 		self.BACK_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_BACK",    ()).upper())
+ 		self.NEXT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_FORWARD", ()).upper())
++		self.SAS_CLEAR_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SAS_CLEAR", ()).upper())
+ 		self.EXIT_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT",    ()).upper())
+ 		
+ 		self.TOC_TEXT = SASTextScale.titleText(localText.getText("TXT_KEY_PEDIA_SCREEN_CONTENTS", ()).upper())
+@@ -2197,6 +2206,16 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			self.pediaJump(current[0], current[1], False, True)
+ 		return 1
+ 
++	def SAS_clearNavigation(self):
++		self.pediaFuture = []
++		if self.SAS_lastPediaJump is not None:
++			self.pediaHistory = [self.SAS_lastPediaJump]
++		elif self.iCategory != -1:
++			self.pediaHistory = [(self.iCategory, self.iItem)]
++		else:
++			self.pediaHistory = []
++		return 1
++
+ 
+ 
+ 	def link(self, szLink):
+@@ -2252,6 +2271,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		# <!-- custom: clear button click (chatgpt 5.2 + claude opus 4.5) -->
+ 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED:
++			if inputClass.getFunctionName() == self.SAS_CLEAR_ID:
++				# <!-- custom: manual reset for session-persistent Sevopedia Back/Next history; keeps the current page only
++				# so players can recover a clean navigation chain without closing the game. (GPT-5.5) -->
++				return self.SAS_clearNavigation()
+ 			if inputClass.getFunctionName() == self.SAS_SEARCH_CLEAR_ID:
+ 				if self.SAS_isSearchActive():
+ 					self.SAS_szSearchString = u""
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 972332c86..43a60b60d 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -4367,4 +4367,9 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_SAS_EVENT_EFFECT_GRAPHICAL_ONLY</Tag>
+ 		<English>Graphical Only</English>
+ 	</TEXT>
++	<!-- custom: footer Clear button to reset session-persistent Sevopedia Back/Next history without closing the game. (GPT-5.5) -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_CLEAR</Tag>
++		<English>Clear</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 530f19431..7a103ad27 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -160,6 +160,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [122 - (Fixed) While adding Sevopedia EventTriggerInfo missing getters, found and fixed 3 DLL Python-binding bugs](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#122---fixed-while-adding-sevopedia-eventtriggerinfo-missing-getters-found-and-fixed-3-dll-python-binding-bugs)  
+ [123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4)  
+ [124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)  
++[125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#125---fixed-base-advciv-issue-sevopedia-backnext-history-is-lost-on-exit)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4674,7 +4675,7 @@ Observed issue:
+ 
+ - A full row of the unit bar (any row count, even just one) extends behind the scoreboard when the scoreboard is hovered/expanded to its widest.
+ 
+-Not tested in base AdvCiv only in AdvCiv-SAS, but it likely happens there too.
++Not tested in base AdvCiv, only in AdvCiv-SAS, but it likely happens there too.
+ 
+ Fix:
+ 
+@@ -4689,3 +4690,19 @@ File changed:
+ 
+ - [Assets/Python/Screens/CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py)
+ - [Assets/XML/GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml)
++
++## 125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit
++
++Observed issue:
++
++- Closing Sevopedia cleared its Back/Next navigation history.
++- This made it tedious to revisit previously browsed pages after returning to the map, especially when comparing several Leader AIP pages or other related Civilopedia entries.
++
++Fix:
++
++- Sevopedia now keeps Back/Next history for the current game session after exiting and reopening.
++- Added a footer `Clear` button to reset the session navigation chain while keeping the current page as the new history root.
++
++File changed:
++
++- [Assets/Python/Contrib/Sevopedia/SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index b29c527f4..4979b6d77 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -303,6 +303,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Search Bar**: shared by several Sevopedia pages; it allows to **search** for entries using the **keyboard**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: search bar](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages).
+ - **Keyboard Navigation**: allows to **browse Sevopedia categories** using the keyboard in the list pages (e.g. In the Units Category: Axeman, Swordsman, Worker) or tree pages (e.g. Units Tree and Promotion Tree categories) using the **keyboard UP/DOWN arrow keys**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: keyboard (UP/DOWN) navigation](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
+ - (Requires AdvCiv-SAS 5678+) **Fix empty pages** in Sevopedia **category opening flow:** opening a category now jumps **directly to the first real entry (if any)** instead of landing on a **blank header/spacer** row first; this makes **navigation easier** and avoids **needless and disruptive BACK/NEXT history pollution**. See [KI#119](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#119---fixed-sevopedia-category-opening-on-blank-placeholder-rows-item--1-and-polluting-backnext-history).
++- (Requires AdvCiv-SAS 5729+) **Fix BACK/NEXT history lost on sevopedia exit** (e.g., to revisit AI Personality Panel pages during a game, or other categories previously visited): now persists during the entire **gaming session**. Added a **CLEAR** button to clear history. See [KI#125](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#125---fixed-base-advciv-issue-sevopedia-backnext-history-is-lost-on-exit).
+ - **Entries Grouping**: Depending on the Sevopedia Page, Sevopedia lists are now grouped: **by Civic Type** (e.g. Government, Economy) in Sevopedia Civics; **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era)); **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist; **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig) in Sevopedia Bonus; **by Land/Water** (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) sometimes with additional subgroups. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py) and [_sevopedia_main_groupings.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py).
+ - the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
+@@ -358,7 +359,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**. Show **Era text default ON** (as of now on top left); **strip " Era" suffix** so text is now only e.g., `Renaissance` not `Renaissance Era` (would overflow during golden age when text is upscaled, plus it is unneeded). See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** ((Requires AdvCiv-SAS 5690+) with optional separate blue ribbon, bar Y position and bar height position fine-tuning tunables (e.g., helps remove needless scroll bar when there are not more than max rows, or keep display symetric or prettier)) and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). (Requires AdvCiv-SAS 5526+) Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5689+) Adjust **city camera** to the north (tunable) so extra rows can be shown without overflowing into bottom BFC plots in `CvGame::onCityScreenChange`. And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+-- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5726+) Added **help text box** (`DefaultHelpArea`) (on the left side) optionally **width adjustment** (negative value shrinks it). Make **x and y positions** (resolution-scaled), and **width** (hard pixel; not resoution-scaled) of the **unit bar** (`PlotListPanel`) **adjustable**, and **fix horizontal overflow of unit bar into scoreboard** when unit bar is full (see [KI#124](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)). (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**. (Requires AdvCiv-SAS 5723+) Added a **Toggle show annotations** (Alt + S **captions**, Alt + X **BFC marks**) button (next to the other buttons **above the Minimap**); the toggled state **persists on save and load**; reorganized buttons as part of this change (this takes the Event Log's former HUD icon former (it gets another one instead)). See [README.md (Map annotations)](/README.md#map-annotations).
++- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5726+) Added **help text box** (`DefaultHelpArea`) (on the left side) optional **width adjustment** (negative value shrinks it). Make **x and y positions** (resolution-scaled), and **width** (hard pixel; not resolution-scaled) of the **unit bar** (`PlotListPanel`) **adjustable**, and **fix horizontal overflow of unit bar into scoreboard** when unit bar is full and scoreboard is hovered on (or toggle lock scoreboard hover is ON) (see [KI#124](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)). (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**. (Requires AdvCiv-SAS 5723+) Added a **Toggle show annotations** (Alt + S **captions**, Alt + X **BFC marks**) button (next to the other buttons **above the Minimap**); the toggled state **persists on save and load**; reorganized buttons as part of this change (this takes the Event Log's former HUD icon former (it gets another one instead)). See [README.md (Map annotations)](/README.md#map-annotations).
+ - (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+ (up) and - (down) scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Lock scoreboard hover toggle button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover). Note: in first turns of the game this effectively has no effect since power ratios are not yet visible. Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard).
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=22189

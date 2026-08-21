@@ -1,0 +1,291 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3764
+# Commit: ce9e7257679a77a36b9915da6e56b618a84f1533
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a356a71d075883047e0e37a4e6505d4bbf0e8aa2
+# Title: Refactor: function for updating all AI attitude caches
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	22	CvGameCoreDLL/CvGame.cpp
+12	19	CvGameCoreDLL/CvPlayer.cpp
+14	4	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.h
+5	12	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 840fe17eb..0e6b9628f 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2920,20 +2920,12 @@ void CvGame::updateScore(bool bForce)
+ 			GET_PLAYER(eBestPlayer).updateHistory(PLAYER_HISTORY_SCORE, getGameTurn());
+ 		// </advc.004s>
+ 	}
+-	/*for (size_t i = 0; i < updateAttitude.size(); i++)
+-		GET_PLAYER(updateAttitude[i]).AI_updateAttitude();*/
+-	// <advc.001>
+-	/*	The above isn't enough; the attitudes of those outside updateAttitude
+-		toward those inside could also change. */
++	/*for (size_t i = 0; i < aeUpdateAttitude.size(); i++)
++		GET_PLAYER(aeUpdateAttitude[i]).AI_updateAttitude();*/
++	/*	<advc.001> The above isn't enough; the attitudes of those outside
++		aeUpdateAttitude toward those inside could also change. */
+ 	if (!aeUpdateAttitude.empty())
+-	{
+-		FOR_EACH_ENUM(Player)
+-		{
+-			CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+-			if (kLoopPlayer.isAlive() && kLoopPlayer.isMajorCiv())
+-				kLoopPlayer.AI_updateAttitude();
+-		}
+-	} // </advc.001>
++		CvPlayerAI::AI_updateAttitudes(); // </advc.001>
+ 
+ 	EagerEnumMap<TeamTypes,bool> abTeamScored;
+ 	FOR_EACH_ENUM(CivTeam)
+@@ -6193,12 +6185,11 @@ void CvGame::doDeals()
+ 	{
+ 		pLoopDeal->doTurn();
+ 	}
+-	/*	<advc.130p> K-Mod had only done this update for players involved in any deals
++	/*	advc.130p: K-Mod had only done this update for players involved in any deals
+ 		(through an std::set), but third parties might disapprove of the deal.
+ 		(I think this was a minor oversight in K-Mod - but matters more in AdvCiv
+ 		b/c of changes to trade values of annual deals.) */
+-	for (PlayerAIIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
+-		itPlayer->AI_updateAttitude(); // </advc.130p>
++	CvPlayerAI::AI_updateAttitudes();
+ }
+ 
+ // advc.055: For doGlobalWarming (needs to have external linkage)
+@@ -9239,8 +9230,7 @@ void CvGame::onAllGameDataRead()
+ 		(m_iAIAutoPlay != 0 && !isNetworkMultiPlayer()))
+ 	{
+ 		m_iAIAutoPlay = 0; // </advc.127>
+-		for (PlayerAIIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
+-			itPlayer->AI_updateAttitude();
++		CvPlayerAI::AI_updateAttitudes();
+ 	} // </advc.130n>
+ 	// <advc.130r>
+ 	else if (m_uiSaveFlag < 20)
+@@ -9505,7 +9495,7 @@ void CvGame::changeHumanPlayer(PlayerTypes eNewHuman,
+ 	bool bSetTurnActive) // advc
+ {
+ 	PlayerTypes const eCurHuman = getActivePlayer();
+-	/*	<advc.001> For BUG dot map update, Civ4lerts (when switching to
++	/*	<advc.001> For BUG dot map update and Civ4lerts (when switching to
+ 		a colonial vassal). */
+ 	CyArgsList pyArgs;
+ 	pyArgs.add(eCurHuman);
+@@ -9653,15 +9643,16 @@ int CvGame::freeCityCultureFromTrait(TraitTypes eTrait) const
+ 
+ void CvGame::doUpdateCacheOnTurn()
+ {
+-	// advc.enum: Shrine data now cached by CvCity
++	// (advc.enum: Shrine data now cached by CvCity)
+ 
+ 	// reset cultural victories
++	/*	K-Mod (tbd.): Move this somewhere else;
++		doesn't need to be updated every turn! */
+ 	m_iNumCultureVictoryCities = 0;
+ 	FOR_EACH_ENUM(Victory)
+ 	{
+ 		if (!isVictoryValid(eLoopVictory))
+ 			continue;
+-
+ 		CvVictoryInfo const& kVictoryInfo = GC.getInfo(eLoopVictory);
+ 		if (kVictoryInfo.getCityCulture() > 0)
+ 		{
+@@ -9674,7 +9665,7 @@ void CvGame::doUpdateCacheOnTurn()
+ 			}
+ 		}
+ 	}
+-	// K-Mod. (todo: move all of that stuff above somewhere else. That doesn't need to be updated every turn!)
++	// K-Mod.
+ 	if (isFinalInitialized()) // advc.pf: Else pathfinder may not have been created yet
+ 		CvSelectionGroup::resetPath(); // (one of the few manual resets we need)
+ 	m_aiActivePlayerCycledGroups.clear();
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 61e208c25..8eced103d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -8647,7 +8647,7 @@ uint CvPlayer::getTotalTimePlayed() const
+ 
+ void CvPlayer::setAlive(bool bNewValue)
+ {
+-	if(isAlive() == bNewValue)
++	if (isAlive() == bNewValue)
+ 		return;
+ 	/*	<advc.003m> Moved up b/c, once the team's AliveCount is set to 0,
+ 		at-war status is lost. Need that for lifting blockades.
+@@ -8673,7 +8673,7 @@ void CvPlayer::setAlive(bool bNewValue)
+ 	{
+ 		GC.getAgents().playerRevived(getID());
+ 		// <advc.104r> (UWAI data gets deleted upon death)
+-		if(getUWAI().isEnabled())
++		if (getUWAI().isEnabled())
+ 			getUWAI().processNewPlayerInGame(getID()); // </advc.104r>
+ 	}
+ 	// </advc.agent>
+@@ -8697,26 +8697,19 @@ void CvPlayer::setAlive(bool bNewValue)
+ 			setTurnActive(true);
+ 		}
+ 		gDLL->openSlot(getID());
+-		if(!isBarbarian()) // advc.003n
+-		{	// K-Mod. Attitude cache
+-			for (PlayerTypes i = (PlayerTypes)0; i < MAX_CIV_PLAYERS; i=(PlayerTypes)(i+1))
+-			{
+-				/*GET_PLAYER(i).AI_updateAttitude(getID());
+-				AI().AI_updateAttitude(i);*/
+-				/*  advc.001: E.g. AI_getRankDifferenceAttitude can change between
+-					any two civs. */
+-				if (GET_PLAYER(i).isAlive() && /* advc.003n: */ !GET_PLAYER(i).isMinorCiv())
+-					GET_PLAYER(i).AI_updateAttitude();
+-			} // K-Mod end
++		if (!isBarbarian()) // advc.003n
++		{
++			/*  advc.001: K-Mod had only updated attitudes of and toward this player,
++				but e.g. AI_getRankDifferenceAttitude can change b/w any two players. */
++			CvPlayerAI::AI_updateAttitudes();
+ 		}
+ 	}
+ 	else
+-	{
+-		// <advc.001> CvTeam::makePeace does this, but here they missed it.
+-		for(int i = 0; i < MAX_CIV_PLAYERS; i++)
++	{	// <advc.001> CvTeam::makePeace does this, but here they've missed it.
++		FOR_EACH_ENUM(CivPlayer)
+ 		{
+-			CvPlayer& kWarEnemy = GET_PLAYER((PlayerTypes)i);
+-			if(kWarEnemy.isAlive() && kWarEnemy.getID() != getID() &&
++			CvPlayer& kWarEnemy = GET_PLAYER((PlayerTypes)eLoopCivPlayer);
++			if (kWarEnemy.isAlive() && kWarEnemy.getID() != getID() &&
+ 				!kWarEnemy.isMinorCiv() && GET_TEAM(kWarEnemy.getTeam()).isAtWar(getTeam()))
+ 			{
+ 				kWarEnemy.updateWarWearinessPercentAnger();
+@@ -8764,7 +8757,7 @@ void CvPlayer::setAlive(bool bNewValue)
+ 
+ 	kGame.setScoreDirty(true);
+ 	// <advc.700>
+-	if(kGame.isOption(GAMEOPTION_RISE_FALL))
++	if (kGame.isOption(GAMEOPTION_RISE_FALL))
+ 		kGame.getRiseFall().reportElimination(getID()); // </advc.700>
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a98a2ea2c..143d3373a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -33,6 +33,17 @@ bool CvPlayerAI::areStaticsInitialized()
+ 	return CvPlayer::areStaticsInitialized(); // advc.003u
+ }
+ 
++// advc: Update all attitude caches
++void CvPlayerAI::AI_updateAttitudes()
++{
++	FOR_EACH_ENUM(Player) // (PlayerAIIter might not be ready yet)
++	{
++		CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
++		if (kLoopPlayer.isAlive() && kLoopPlayer.isMajorCiv())
++			kLoopPlayer.AI_updateAttitude();
++	}
++}
++
+ 
+ DllExport CvPlayerAI& CvPlayerAI::getPlayerNonInl(PlayerTypes ePlayer)
+ {
+@@ -29279,11 +29290,10 @@ int CvPlayerAI::AI_getContactDelay(ContactTypes eContact) const
+ void CvPlayerAI::AI_setHuman(bool b)
+ {
+ 	// Some of the first-impression modifiers don't apply to human players
++	CvPlayerAI::AI_updateAttitudes();
++	// <advc.115b>, advc.115f
+ 	for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
+-	{
+-		it->AI_updateAttitude();
+-		it->AI_updateVictoryWeights(); // advc.115b, advc.115f
+-	}
++		it->AI_updateVictoryWeights(); // </advc.115b>
+ 	if (b)
+ 		return;
+ 	/*	<advc.057> Enforce invariant: AI group head has maximal impassable count.
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 9bc0e004e..5eb072388 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -35,6 +35,7 @@ public:
+ 	// Only for the EXE:
+ 	DllExport static CvPlayerAI& getPlayerNonInl(PlayerTypes ePlayer);
+ 	DllExport static bool areStaticsInitialized();
++	static void AI_updateAttitudes(); // advc
+ 	// <advc> Moved from CvDefines
+ 	static int const DANGER_RANGE = 4;
+ 	static int const BORDER_DANGER_RANGE = 2; // </advc>
+@@ -206,7 +207,7 @@ public:
+ 	bool AI_demandRebukedWar(PlayerTypes ePlayer) const;
+ 	bool AI_hasTradedWithTeam(TeamTypes eTeam) const;
+ 
+-	void AI_updateAttitude(); // K-Mod (for all players)
++	void AI_updateAttitude(); // K-Mod (toward all other players)
+ 	void AI_updateAttitude(PlayerTypes ePlayer,		// K-Mod
+ 			bool bUpdateWorstEnemy = true); // advc.130e
+ 	void AI_changeCachedAttitude(PlayerTypes ePlayer, int iChange); // K-Mod
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index ae571f9ad..4f68ab1b7 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -3212,10 +3212,7 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
+ 	} // </advc.106f>
+ 	// K-Mod. update attitude
+ 	if (GC.getGame().isFinalInitialized())
+-	{
+-		for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
+-			it->AI_updateAttitude();
+-	} // K-Mod end
++		CvPlayerAI::AI_updateAttitudes(); // K-Mod end
+ }
+ 
+ 
+@@ -3708,10 +3705,10 @@ void CvTeam::queueWar(TeamTypes eAttackingTeam, TeamTypes eDefendingTeam,
+ void CvTeam::triggerWars(bool bForceUpdateAttitude)
+ {
+ 	bool bWarsDeclared = false;
+-	if(bTriggeringWars)
++	if (bTriggeringWars)
+ 		return;
+ 	else bTriggeringWars = true;
+-	while(!attacking_queue.empty())
++	while (!attacking_queue.empty())
+ 	{
+ 		GET_TEAM(attacking_queue.front()).declareWar(
+ 				defending_queue.front(), newdiplo_queue.front(),
+@@ -3723,12 +3720,8 @@ void CvTeam::triggerWars(bool bForceUpdateAttitude)
+ 		primarydow_queue.pop();
+ 		bWarsDeclared = true;
+ 	}
+-	if(bWarsDeclared /* advc: */ || bForceUpdateAttitude)
+-	{
+-		// from declareWar (K-Mod code)
+-		for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
+-			it->AI_updateAttitude();
+-	}
++	if (bWarsDeclared /* advc: */ || bForceUpdateAttitude)
++		CvPlayerAI::AI_updateAttitudes(); // K-Mod
+ 	bTriggeringWars = false;
+ } // </kekm.26>
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=9679

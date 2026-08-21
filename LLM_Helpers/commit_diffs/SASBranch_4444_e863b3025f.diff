@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4444
+# Commit: e863b3025f014bacad5ed6cf12189a268cf0b8f5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 073a6f57a4187e876308d3342bf7f90065367c99
+# Title: update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+index 8f3c40d17..ee44d8ca0 100644
+--- a/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+@@ -98,6 +98,9 @@ AdvCiv, it will be more cautious to start wars, but will hesitate less when it
+ very fast (10 000 per turn, so around turn 40 at normal speed you should already be
+ around 3000 BC), then the year number and gameplay pace does not slow as much (at
+ least i tried to make it so, that each end game turn doesn't take ages)
++- overall not too much clutter, i don't want too many things, but i want (about) the things i
++have/add, (i want) to go in depth (very) in them rather, so quite lightweight and hopefully
++easy to digest and get used to it, but deep that you'd want to play it more, maybe, ideally
+ - AIs get no free techs now, todo, they should perform well enough, and receive other
+ types of bonuses, that they don't need techs for free, it won't feel anymore like they
+ are playing a different kind of game hopefully, also less of a grind at higher difficulties
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1111

@@ -1,0 +1,1306 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4843
+# Commit: 6c9b298a5e32333c283060feb796ebcac68f76c7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d89b0f1bf4d6025bcc0654ade225bbd85c61931e
+# Title: replace GERMAN_PANZER with GERMAN_HUSSAR (cuirassier based anyways etc), add kingdom of benin assets and unit effect and other changes anyways etc anyways et...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia (camel archer).dds
+-	-	Assets/Art/AdvCiv_SAS/Units/German_Hussar/Hussar.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cannonier_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cannonier_gloss.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cutlass_01.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cutlass_01_glos.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/pistol_01.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_gloss.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_horse_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/button_isikhulu.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/crossbowwoodseastasian_64_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/crossbowwoodseastasiangloss_64_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinocrossbowman2.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinomedpadarmorvest1_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinomedpadarmorvest1gloss_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/malayaxe_64.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/malayaxegloss_64.dds
+4	4	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+7	7	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+61	44	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+2	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+0	16	Assets/XML/Misc/CIV4EffectInfos.xml
+7	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+17	10	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+151	145	Assets/XML/Units/CIV4UnitInfos.xml
+4	4	README.md
+4	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+40	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
+0	48	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia (camel archer).dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/German_Hussar/Hussar.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cannonier_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cannonier_gloss.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cutlass_01.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cutlass_01_glos.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/pistol_01.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_gloss.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_horse_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/button_isikhulu.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/crossbowwoodseastasian_64_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/crossbowwoodseastasiangloss_64_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinocrossbowman2.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinomedpadarmorvest1_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinomedpadarmorvest1gloss_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/malayaxe_64.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/malayaxegloss_64.dds
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
+ delete mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia (camel archer).dds b/Assets/Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia (camel archer).dds
+new file mode 100644
+index 000000000..92b8704c1
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia (camel archer).dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/German_Hussar/Hussar.dds b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/Hussar.dds
+new file mode 100644
+index 000000000..2604145b6
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/Hussar.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cannonier_128.dds b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cannonier_128.dds
+new file mode 100644
+index 000000000..7d17ce363
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cannonier_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cannonier_gloss.dds b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cannonier_gloss.dds
+new file mode 100644
+index 000000000..af7316d63
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cannonier_gloss.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cutlass_01.dds b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cutlass_01.dds
+new file mode 100644
+index 000000000..5a56ad9e9
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cutlass_01.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cutlass_01_glos.dds b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cutlass_01_glos.dds
+new file mode 100644
+index 000000000..bfa054170
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/cutlass_01_glos.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif
+new file mode 100644
+index 000000000..6e0f7aa3f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/pistol_01.dds b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/pistol_01.dds
+new file mode 100644
+index 000000000..77fa7c36a
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/pistol_01.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_128.dds b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_128.dds
+new file mode 100644
+index 000000000..30157606e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_gloss.dds b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_gloss.dds
+new file mode 100644
+index 000000000..19b20d3db
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_gloss.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_horse_128.dds b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_horse_128.dds
+new file mode 100644
+index 000000000..cc552def6
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/German_Hussar/nif/russiancossack_horse_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/button_isikhulu.dds b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/button_isikhulu.dds
+new file mode 100644
+index 000000000..c3f40de4c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/button_isikhulu.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/crossbowwoodseastasian_64_128.dds b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/crossbowwoodseastasian_64_128.dds
+new file mode 100644
+index 000000000..df6b73a49
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/crossbowwoodseastasian_64_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/crossbowwoodseastasiangloss_64_128.dds b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/crossbowwoodseastasiangloss_64_128.dds
+new file mode 100644
+index 000000000..1a72c38c3
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/crossbowwoodseastasiangloss_64_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinocrossbowman2.nif b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinocrossbowman2.nif
+new file mode 100644
+index 000000000..097b125e8
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinocrossbowman2.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinomedpadarmorvest1_128.dds b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinomedpadarmorvest1_128.dds
+new file mode 100644
+index 000000000..8388403b3
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinomedpadarmorvest1_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinomedpadarmorvest1gloss_128.dds b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinomedpadarmorvest1gloss_128.dds
+new file mode 100644
+index 000000000..cc6578a79
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/filipinomedpadarmorvest1gloss_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/malayaxe_64.dds b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/malayaxe_64.dds
+new file mode 100644
+index 000000000..47fc77efe
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/malayaxe_64.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/malayaxegloss_64.dds b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/malayaxegloss_64.dds
+new file mode 100644
+index 000000000..711929c52
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/malayaxegloss_64.dds differ
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index eca4b1ca4..9aaa3e02a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -77,8 +77,8 @@ if IS_DEBUG_LEADER:
+ 
+ 
+ 
+-# <!-- custom: read at end of this function at the return's code comment of when and why we call this cache precomputing as a function in sevopedia leader anyways etc -->
+-def precomputeCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
++# <!-- custom: read at end of this function at the return's code comment of when and why we call the sevopedia cache precomputing as a function from sevopedia main anyways etc -->
++def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
+ 
+ 	def check_required_newly_exposed_python_getters_gc_leader_exist():
+ 		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or/and modder aware of this if they are missing anyways etc, see also sevopedia_helpers py file debug output code comments for details too ifi may say anwyays etc anyways etc anyways etc... ; raise an error if any of these are missing to raise awareness if i may say on these... hehe or not hehe or yes hehe but in all cases hehe or etc anyways etc... hehe or not or yes hehe but anyways etc... hehe (this is getting quite funny hehe or ont or yes hehe but in all cases anyways etc... hopefully helpful or not or yes all this code comment i mea maybe this joke or soemthign too ro not or yes or other or etc but anyways etc anyways etc anyways etc...) -->
+@@ -1322,9 +1322,9 @@ def precomputeCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
+ 	# === AI Panel's Categor<!-- custom: ies anyways etc--> ===
+ 	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories(localText, IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS)
+ 
+-	# <!-- custom: final return. Note this this caching, while/even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we don't cache needlessly in case we never access sevopedia leader at all during entire gaming session (i.e. i mean until game is exited i mean anyways etc), but also before any leader is selected for display as this would slow display of said leader, especially if we'd have to cache at every leader slection which would be ridiculously and needlessly expensive computaitnally anyways etc. So the return to this SevoPediaLeader 's precomputeCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession function, if it is changed, needs to also be changed in a similar way in SevoPediaMain 's placeLeaders, hopefully clearer or and helpful but anyways etc anyways etc anyways etc -->
++	# <!-- custom: final return. Note that this caching, while/even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we don't cache needlessly in case we never access sevopedia leader at all during entire gaming session (i.e. i mean until game is exited i mean anyways etc), but also before any leader is selected for display as this would slow display of said leader, especially if we'd have to cache at every leader slection which would be ridiculously and needlessly expensive computaitnally anyways etc. So the return to this SevoPediaLeader 's getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession function, if it is changed, needs to also be changed in a similar way in SevoPediaMain 's placeLeaders, hopefully clearer or and helpful but anyways etc anyways etc anyways etc -->
+ 	# <!-- custom: also print the debug line below regardless of debug flag status, we really want to know this info and it is short, anyways etc -->
+-	print("[DEBUG] Sevopedia Leader cache prebuilt by Sevopedia Leader's precomputeCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited)")
++	print("[DEBUG] Sevopedia Leader cache prebuilt by Sevopedia Leader's getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited)")
+ 
+ 	return LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 671475b69..6de617ad1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -75,7 +75,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.UPGRADES_GRAPH_ID	= "PediaMainUpgradesGraph"
+ 
+ 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt/becomingthrough's explanation anyways etc-->
+-		self.B_SEVOPEDIALEADER_CACHE_PREBUILT = False
++		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
+ 
+ 		self.H_SCREEN = 768
+ 		self.W_SCREEN = 1024
+@@ -661,12 +661,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.list = self.getLeaderList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, gc.getLeaderHeadInfo)
+ 
+-		# <!-- custom: prebuild the sevopedia leader cache only when we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think but anyways etc. After asking chatgpt/becomingthrough, it advised me to do this here anyways etc ; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail anyways etc) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe anyways etc -->
+-		if not self.B_SEVOPEDIALEADER_CACHE_PREBUILT:
+-			SevoPediaLeader.LEADERS_INFO_CACHED, SevoPediaLeader.AI_RIGHT_CATEGORIES, SevoPediaLeader.AI_MIDDLE_CATEGORIES, SevoPediaLeader.AI_LEFT_CATEGORIES = SevoPediaLeader.precomputeCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
+-			# <!-- custom: do not rebuilt if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored anyways etc, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case anyways etc), but still before any leader is selected if i am not mistaken too anyways etc -->
+-			self.B_SEVOPEDIALEADER_CACHE_PREBUILT = True
+-			print("[DEBUG] Sevopedia Leader cache prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.B_SEVOPEDIALEADER_CACHE_PREBUILT=%s)." % self.B_SEVOPEDIALEADER_CACHE_PREBUILT)
++		# <!-- custom: prebuild the sevopedia leader cache only when=after anyways etc we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think but anyways etc. After asking chatgpt/becomingthrough, it advised me to do this here anyways etc ; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail anyways etc) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe anyways etc -->
++		if not self.IS_SEVOPEDIALEADER_CACHE_PREBUILT:
++			SevoPediaLeader.LEADERS_INFO_CACHED, SevoPediaLeader.AI_RIGHT_CATEGORIES, SevoPediaLeader.AI_MIDDLE_CATEGORIES, SevoPediaLeader.AI_LEFT_CATEGORIES = SevoPediaLeader.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
++			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored anyways etc, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case anyways etc), but still before any leader is selected if i am not mistaken too anyways etc -->
++			self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = True
++			print("[DEBUG] Sevopedia Leader cache prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_SEVOPEDIALEADER_CACHE_PREBUILT=%s)." % str(self.IS_SEVOPEDIALEADER_CACHE_PREBUILT))
+ 	
+ 	def getLeaderList(self):
+ 		# <advc.004y>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index b19ea9949..60a0d9f51 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -1361,6 +1361,31 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: kingdom of benin's disciplined crossbowman (civ-specific unit as of now anyways etc) 's button from HR mod's isikhulu (unique unit as per HR naming but anyways etc anyways etc anyways etc), nif from ri mod's ART_DEF_UNIT_CROSSBOWMAN_FILIPINO (crossbowman (tagalog)) anyways etc ; kfm is base civ4 one as often seems to be the case if i am not mistaken and if i am not mistaken too but anyways etc anyways etc anyways etc -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Type>
++			<Button>Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/button_isikhulu.dds</Button>
++			<fScale>0.44</fScale>
++			<fInterfaceScale>1.1</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/FilipinoCrossbowman2.nif</NIF>
++			<KFM>Art/Units/Crossbowman/Crossbowman.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/KoB_Disciplined_Crossbowman/nif/FilipinoCrossbowman2.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CHARIOT</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Chariot.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,7</Button>
+@@ -1471,10 +1496,10 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<!-- custom: now CAMEL_ARCHER is a generic unit not civ-specific to any civ (all civs can built it anyways etc), art nif import from ri mod's ART_DEF_UNIT_ARABIA_CAMELARCHER (asset files in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Units_Arabia.FPK" anyways etc... button from PakBuild i had extracted since i found it here no need to search again in all fpks one by one anyways etc. Note: the XML is unfortunately or not unfortunately but anyways etc in all cases if i may say maybe or not or yes or etc anyways etc incredibly messy as i said before or now rather maybe in readme and such but anyways etc, at least i found the assets i need/want) (note: the .kfm is base civ4 one of arabian old camel archer anyways etc so can't find it in the ri mod anyways etc) -->
++		<!-- custom: now CAMEL_ARCHER is a generic unit not civ-specific to any civ (all civs can built it anyways etc), art nif import from ri mod's ART_DEF_UNIT_ARABIA_CAMELARCHER (asset files in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Units_Arabia.FPK" anyways etc... button is now the base civ4 camel archer's one for clarity/consistency with the other camel generic (i.e. non-civ-specific unit) buttons anyways etc, and instead arabian civ-specific unit has a new button instead see there for details anyways etc. (note: the .kfm is base civ4 one of arabian old camel archer anyways etc so can't find it in the ri mod anyways etc) -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CAMEL_ARCHER</Type>
+-			<Button>Art/AdvCiv_SAS/Units/Camel_Archer/camel_archer.dds</Button>
++			<Button>,Art/Interface/Buttons/Units/CamelArcher.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,8</Button>
+ 			<fScale>0.39</fScale>
+ 			<fInterfaceScale>0.8</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+@@ -1570,9 +1595,10 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: button import from ri mod (quickly found thanks to pakbuild all unpacked in one folder anyways etc anyways etc anyways etc) -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_ARABIA_HAJJAN</Type>
+-			<Button>,Art/Interface/Buttons/Units/CamelArcher.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,8</Button>
++			<Button>Art/AdvCiv_SAS/Units/Arabia_Hajjan/medium_cavalry_arabia (camel archer).dds</Button>
+ 			<!-- advc.002j: was 0.39 -->
+ 			<fScale>0.38</fScale>
+ 			<fInterfaceScale>0.8</fInterfaceScale>
+@@ -1595,6 +1621,31 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_CUIRASSIER</Type>
++			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,11</Button>
++			<fScale>0.42</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/Units/Cuirassier/Cuirassier.nif</NIF>
++			<KFM>Art/Units/Cuirassier/Cuirassier.kfm</KFM>
++			<SHADERNIF>Art/Units/Cuirassier/Cuirassier_FX.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
++				<ShadowAttachNode>HorseBip Spine1</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._UNIQUE_UNIT -->
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_SPANISH_CONQUISTADOR</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Conquistador.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,6</Button>
+@@ -1619,19 +1670,20 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", art import from RFC DOC mod's very very nice fpk really anyways etc, art based originally on base advciv's +/- civ4 art def of the cuirassier as the old panzer one seems to have many at least some extra fields we may not need for the hussar so basing on the base cuirassier instead even for art def, then importing/basing the hussar one on RFC DOC mod's one (ART_DEF_UNIT_HUSSAR) as well on top of it if i may say anyways etc, some assets liek kfm or such being base civ4 ones if i am not mistaken anyways etc -->
+ 		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_CUIRASSIER</Type>
+-			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,11</Button>
++			<Type>ART_DEF_UNIT_GERMAN_HUSSAR</Type>
++			<Button>Art/AdvCiv_SAS/Units/German_Hussar/Hussar.dds</Button>
+ 			<fScale>0.42</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Cuirassier/Cuirassier.nif</NIF>
+-			<KFM>Art/Units/Cuirassier/Cuirassier.kfm</KFM>
+-			<SHADERNIF>Art/Units/Cuirassier/Cuirassier_FX.nif</SHADERNIF>
++			<NIF>Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif</NIF>
++			<KFM>Art/Units/Unique/Russia/Cossack/RussianCossack.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif</SHADERNIF>
+ 			<ShadowDef>
+ 				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>HorseBip Spine1</ShadowAttachNode>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+ 				<fShadowScale>1.0</fShadowScale>
+ 			</ShadowDef>
+ 			<fBattleDistance>0.35</fBattleDistance>
+@@ -1803,41 +1855,6 @@
+ 			<SelectionSound>AS3D_UN_TANK_FORT</SelectionSound>
+ 			<ActionSound>AS3D_UN_TANK_FORT</ActionSound>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_GERMAN_PANZER</Type>
+-			<Button>,Art/Interface/Buttons/Units/Panzer.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,11</Button>
+-			<fScale>0.47</fScale>
+-			<fInterfaceScale>0.9</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Unique/German/Panzer/Panzer.nif</NIF>
+-			<KFM>Art/Units/Unique/German/Panzer/Panzer.kfm</KFM>
+-			<SHADERNIF>Art/Units/Unique/German/Panzer/Panzer_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/PanzerShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<iDamageStates>4</iDamageStates>
+-			<TrailDefinition>
+-				<Texture>Art/Shared/tanktread.dds</Texture>
+-				<fWidth>0.7</fWidth>
+-				<fLength>180.0</fLength>
+-				<fTaper>0.0</fTaper>
+-				<fFadeStartTime>0.2</fFadeStartTime>
+-				<fFadeFalloff>0.35</fFadeFalloff>
+-			</TrailDefinition>
+-			<fBattleDistance>0.5</fBattleDistance>
+-			<fRangedDeathTime>0.12</fRangedDeathTime>
+-			<bActAsRanged>1</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop>LOOPSTEP_TANK</AudioRunTypeLoop>
+-				<AudioRunTypeEnd>ENDSTEP_TANK</AudioRunTypeEnd>
+-			</AudioRunSounds>
+-			<SelectionSound>AS3D_UN_TANK_FORT</SelectionSound>
+-			<ActionSound>AS3D_UN_TANK_FORT</ActionSound>
+-		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_MODERN_ARMOR</Type>
+ 			<Button>,Art/Interface/Buttons/Units/ModernArmor.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,1,11</Button>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index d981eafab..745e1cc60 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1553,8 +1553,8 @@
+ 			</Buildings>
+ 			<Units>
+ 				<Unit>
+-					<UnitClassType>UNITCLASS_TANK</UnitClassType>
+-					<UnitType>UNIT_GERMAN_PANZER</UnitType>
++					<UnitClassType>UNITCLASS_CUIRASSIER</UnitClassType>
++					<UnitType>UNIT_GERMAN_HUSSAR</UnitType>
+ 				</Unit>
+ 			</Units>
+ 			<FreeUnitClasses>
+
+diff --git a/Assets/XML/Misc/CIV4EffectInfos.xml b/Assets/XML/Misc/CIV4EffectInfos.xml
+index 6228f8e20..c56e68995 100644
+--- a/Assets/XML/Misc/CIV4EffectInfos.xml
++++ b/Assets/XML/Misc/CIV4EffectInfos.xml
+@@ -939,14 +939,6 @@
+ 			<Path>Art/Effects/explosion_on_vehicle/fx_explosion_on_vehicle_01.nif</Path>
+ 			<bIsProjectile>0</bIsProjectile>
+ 		</EffectInfo>
+-		<EffectInfo>
+-			<Type>EFFECT_PANZER_DEATH_EXPLOSION</Type>
+-			<Description>Large Explosion for the death of a tank</Description>
+-			<fScale>0.1</fScale>
+-			<fUpdateRate>1.0</fUpdateRate>
+-			<Path>Art/Effects/Unit_Explosion_Oil/fx_UNIT_oil_death_explosion.nif</Path>
+-			<bIsProjectile>0</bIsProjectile>
+-		</EffectInfo>
+ 		<EffectInfo>
+ 			<Type>EFFECT_ARTILLERY_HIT_SMALL01</Type>
+ 			<Description>Variation 01 for Artillery</Description>
+@@ -1640,14 +1632,6 @@
+ 			<Path>Art/Units/Submarine/SubmarineTorpedo.nif</Path>
+ 			<bIsProjectile>1</bIsProjectile>
+ 		</EffectInfo>
+-		<EffectInfo>
+-			<Type>EFFECT_WEAPON_PANZER_FIRE</Type>
+-			<Description>Panzer Tank Cannon Fire </Description>
+-			<fScale>.05</fScale>
+-			<fUpdateRate>2.5</fUpdateRate>
+-			<Path>Art/Effects/weapon_cannonfire_modern/fx_weapon_cannonfire_modern.nif</Path>
+-			<bIsProjectile>0</bIsProjectile>
+-		</EffectInfo>
+ 		<EffectInfo>
+ 			<Type>EFFECT_WEAPON_CANNON_FIRE</Type>
+ 			<Description>Cannon Fire</Description>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index cc8054080..0d44995fd 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -371,6 +371,13 @@
+ 
+ 
+ 
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GERMAN_HUSSAR</Tag>
++		<English>Hussar</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index d81085e68..4296e7585 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -168,7 +168,14 @@
+ 	<!-- custom: based on the disciplined crossbow (kingdom of benin)'s entry (to match the format of this other civ unit (than the chinese civ unit)) and adjusted from there to fit the Chinese civ unit. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_CHINA_CHOKONU_PEDIA</Tag>
+-		<English>[TAB]A crossbow is a ranged weapon using an elastic launching device consisting of a bow-like assembly called a prod, mounted horizontally on a main frame called a tiller, which is hand-held in a similar fashion to the stock of a long gun. Crossbows shoot arrow-like projectiles called bolts or quarrels. A person who shoots crossbow is called a crossbowman, an arbalister or an arbalist (after the arbalest, a European crossbow variant used during the 12th century).[PARAGRAPH:1]On top of the usual info that can be found on the [LINK=UNIT_CROSSBOWMAN]Crossbowman's page[\LINK], the repeating crossbow, also known as the repeater crossbow, and the Zhuge crossbow, also romanized Chu-ko-nu, due to its association with the Three Kingdoms-era strategist Zhuge Liang (181-234 AD), is a crossbow invented during the Warring States period in China that combined the bow spanning, bolt placing, and shooting actions into one motion.[PARAGRAPH:1]The earliest archaeological evidence of the repeating crossbow is found in the state of Chu, but it uses a pistol grip that is different from the later and more commonly known Ming dynasty (1368-1644) design.[PARAGRAPH:1]Although the repeating crossbow was in use throughout most of Chinese history until the late Qing dynasty (1644-1911), it was generally regarded as a non-military weapon suited for women, defending households against robbers.</English>
++		<English>[TAB]The repeating crossbow, also known as the repeater crossbow, and the Zhuge crossbow, also romanized Chu-ko-nu, due to its association with the Three Kingdoms-era strategist Zhuge Liang (181-234 AD), is a crossbow invented during the Warring States period in China that combined the bow spanning, bolt placing, and shooting actions into one motion.[PARAGRAPH:1]The earliest archaeological evidence of the repeating crossbow is found in the state of Chu, but it uses a pistol grip that is different from the later and more commonly known Ming dynasty (1368-1644) design.[PARAGRAPH:1]Although the repeating crossbow was in use throughout most of Chinese history until the late Qing dynasty (1644-1911), it was generally regarded as a non-military weapon suited for women, defending households against robbers.</English>
++	</TEXT>
++
++
++
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN_PEDIA</Tag>
++		<English>[TAB]Military operations in the Kingdom Of Benin relied on a well trained disciplined force. Formations were broken down into sub-units under designated commanders. Foreign observers often commented favorably on Benin's discipline and organization as "better disciplined than any other Guinea nation", contrasting them with the slacker troops from the Gold Coast.[PARAGRAPH:1]Before the coming of the gun, guilds of blacksmiths were charged with war production-particularly swords and iron spearheads. In addition, crossbowmen formed a specialized unit of the Benin army. Archers and crossbowmen were trained in target and field archery.Benin's tactics were well organized, with preliminary plans weighed by the Oba and his sub-commanders. Logistics were organized to support missions from the usual porter forces, water transport via canoe, and requisitioning from localities the army passed through. Movement of troops via canoes was critically important in the lagoons, creeks and rivers of the Niger Delta, a key area of Benin's domination.</English>
+ 	</TEXT>
+ 
+ 
+@@ -190,7 +197,7 @@
+ 
+ 
+ 
+-	<!-- custom: rename "ARABIA_CAMELARCHER" to "ARABIA_HAJJAN", entry from (adust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Units.xml 's TXT_KEY_UNIT_ARABIA_CAMELARCHER_PEDIA anyways etc and adjusted/enhanced on for AdvCiv-SAS anyways etc; as for the unit name, one of the sources for example anyways etc: https://en.wiktionary.org/wiki/hajjan but with a more distinctive name anyways etc -->
++	<!-- custom: rename "ARABIA_CAMELARCHER" to "ARABIA_HAJJAN", entry from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Units.xml 's TXT_KEY_UNIT_ARABIA_CAMELARCHER_PEDIA anyways etc and adjusted/enhanced on for AdvCiv-SAS anyways etc; as for the unit name, one of the sources for example anyways etc: https://en.wiktionary.org/wiki/hajjan but with a more distinctive name anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_ARABIA_HAJJAN_PEDIA</Tag>
+ 		<English>[TAB]In the Arabian Peninsula, cavalrymen ride on either horse or camel. While horses are somewhat easier to train than camels, camels are the obvious choice for forces operating in the deep desert. Arab tribesmen such as the Bedouin have always been fearsome warriors, and their prowess with bow and arrow (and later, rifle) from atop a mount has become the stuff of legend.[PARAGRAPH:1]In the arabic language, hajjan (plural hajjans or hajjaneh) is a synonym of cameleer, a camel-mounted soldier.</English>
+@@ -198,6 +205,14 @@
+ 
+ 
+ 
++	<!-- custom: based on https://en.wikipedia.org/wiki/Hussar anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_GERMAN_HUSSAR_PEDIA</Tag>
++		<English>[TAB]A hussar was a member of a class of light cavalry, originally from the Kingdom of Hungary during the 15th and 16th centuries. The title and distinctive dress of these horsemen were subsequently widely adopted by light cavalry regiments in European armies during the late 17th and 18th centuries. By the 19th century, hussars were wearing jackets decorated with braid plus shako or busby fur hats and had developed a romanticized image of being dashing and adventurous.[PARAGRAPH:1]Historically, the term derives from the cavalry of late medieval Hungary, under Matthias Corvinus, with mainly Serb warriors.[PARAGRAPH:2]Initially the first units of Polish Hussars in the Kingdom of Poland were formed around 1500. The Polish heavy hussars of the Polish-Lithuanian Commonwealth were far more manoeuvrable than the heavily armoured lancers previously employed. The hussars proved vital to the Polish-Lithuanian victories at the Orsza (1514), the Obertyn (1531) and the Battle of Vienna (1683).[PARAGRAPH:2]Hussars throughout Europe followed a different line of development than the Polish hussars. During the early decades of the 17th century, hussars in Hungary ceased to wear metal body armour; and, by 1640, most were light cavalry. It was hussars of this "light" pattern, rather than the Polish heavy hussar, that were later copied across Europe. These light hussars were ideal for reconnaissance and raiding sources of fodder and provisions in advance of the army.[PARAGRAPH:1]In battle, they were used in such light cavalry roles as harassing enemy skirmishers, overrunning artillery positions, and pursuing fleeing troops. In many countries, the hussars and bosniaks actually retained their original Asiatic uniforms. In the late 17th and 18th centuries, many Hungarian hussars sought employment in other Central and Western European countries and became the core of similar light cavalry formations created there. Following their example, hussar regiments were introduced into at least twelve European armies by 1800.[PARAGRAPH:1]Bavaria raised its first hussar regiment in 1688 and a second one in about 1700. Prussia followed suit in 1721 when Frederick the Great used hussar units extensively during the War of the Austrian Succession.[PARAGRAPH:1]France established a number of hussar regiments from 1692 onward, recruiting originally from Hungary and Germany, then subsequently from German-speaking frontier regions within France itself. The first hussar regiment in the French army was the Hussars-Royaux (Royal Hussars), raised from Hungarian deserters in 1692.[PARAGRAPH:2]During and after R�k�czi's War of Independence, many Hungarians served in the Habsburg army. Located in garrisons far away from Hungary, some deserted from the Austrian army and joined that of Prussia. The value of the Hungarian hussars as light cavalry was recognised and, in 1721, two Hussaren Corps were organised in the Prussian Army.[PARAGRAPH:1]Frederick II (later called "The Great") recognised the value of hussars as light cavalry and encouraged their recruitment. In 1741, he established a further five regiments, largely from Polish deserters. Three more regiments were raised for Prussian service in 1744 and another in 1758. While the hussars were increasingly drawn from Prussian and other German cavalrymen, they continued to wear the traditional Hungarian uniform, richly decorated with braid and gold trim.[PARAGRAPH:1]Possibly due to a daring and impudent surprise raid on his capital, Berlin, by the hussars of Hungarian general Andr�s Hadik, Frederick also recognised the national characteristics of his Hungarian recruits and, in 1759, issued a royal order which warned the Prussian officers never to offend the self-esteem of his hussars with insults and abuse. At the same time, he exempted the hussars from the usual disciplinary measures of the Prussian Army, such as physical punishments including cudgeling.[PARAGRAPH:1]Frederick used his hussars for reconnaissance duties and for surprise attacks against the enemy's flanks and rear. A hussar regiment under the command of Colonel Sigismund Dabasi-Hal�sz helped win the Battle of Hohenfriedberg at Striegau on May 4, 1745, by attacking the Austrian combat formation on its flank and capturing all of its artillery.[PARAGRAPH:1]The effectiveness of the hussars in Frederick's army can be judged by the number of promotions and decorations awarded to their officers. Recipients included the Hungarian generals Pal Werner and Ferenc K?szeghy, who received the highest Prussian military order, the "Pour le M�rite"; General Tivadar Ruesh was awarded the title of baron; Mih�ly Sz�kely was promoted from the rank of captain to general after less than fifteen years of service.[PARAGRAPH:1]While Hungarian hussars served in the opposing armies of Frederick and Maria Theresa, there were no known instances of fratricidal clashes between them.[PARAGRAPH:1][PARAGRAPH:1]</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: rename "_PERIA_IMMORTAL" to "_PERSIA_IMMORTAL", and/plus anyways etc unit reworked, now based on the swordsman at least as of now anyways etc, entry from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_Units.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_PERSIA_IMMORTAL_PEDIA</Tag>
+@@ -413,14 +428,6 @@
+ 
+ 
+ 
+-
+-	<TEXT>
+-		<Tag>TXT_KEY_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN_PEDIA</Tag>
+-		<English>[TAB]A crossbow is a ranged weapon using an elastic launching device consisting of a bow-like assembly called a prod, mounted horizontally on a main frame called a tiller, which is hand-held in a similar fashion to the stock of a long gun. Crossbows shoot arrow-like projectiles called bolts or quarrels. A person who shoots crossbow is called a crossbowman, an arbalister or an arbalist (after the arbalest, a European crossbow variant used during the 12th century).[PARAGRAPH:1]On top of the usual info that can be found on the [LINK=UNIT_CROSSBOWMAN]Crossbowman's page[\LINK], military operations in the Kingdom Of Benin relied on a well trained disciplined force. Formations were broken down into sub-units under designated commanders. Foreign observers often commented favorably on Benin's discipline and organization as "better disciplined than any other Guinea nation", contrasting them with the slacker troops from the Gold Coast.[PARAGRAPH:1]Before the coming of the gun, guilds of blacksmiths were charged with war production-particularly swords and iron spearheads. In addition, crossbowmen formed a specialized unit of the Benin army. Archers and crossbowmen were trained in target and field archery.Benin's tactics were well organized, with preliminary plans weighed by the Oba and his sub-commanders. Logistics were organized to support missions from the usual porter forces, water transport via canoe, and requisitioning from localities the army passed through. Movement of troops via canoes was critically important in the lagoons, creeks and rivers of the Niger Delta, a key area of Benin's domination.</English>
+-	</TEXT>
+-
+-
+-
+ 	<!-- custom: BUILDING_RUSSIAN_GORD (russian empire's civ-specific), replaces the now removed BUILDING_RUSSIAN_RESEARCH_INSTITUTE, see docs or and other or and not for details anyways etc ; as for the pedia entry, similarly imported from/based on https://en.wikipedia.org/wiki/Gord_(archaeology) and modified or not for advciv-sas anyways et, as for transliteration and similarly for transliteration in other advciv-sas entries, may be accurate or not even though i attempted to, best to visit wiki or and original sources if mentionned for original content or and maybe google or try to find origin from a few sample of texts maybe or not or yes or etc or and other or and not or etc o and other or and not or yes or other or etc anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_RUSSIAN_GORD_PEDIA</Tag>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 63c3adfc2..0dabd8090 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -12744,7 +12744,6 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<!-- custom: first commit this then test if it works, to save the data first, will edit/tweak later todo -->
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_CROSSBOWMAN, type: UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_CROSSBOWMAN</Class>
+ 			<Type>UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Type>
+@@ -12929,7 +12928,7 @@
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_CROSSBOWMAN</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+@@ -12938,7 +12937,13 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: according/from what i understand of the (wiki? didn't recheck since anyways etc) description of it, it seems they are organized and such, so maybe logistics reflects quite well this, adding it anyways etc -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_LOGISTICS</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -15267,7 +15272,7 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_DIVINE_RIGHT</PrereqTech>
++			<PrereqTech>TECH_FEUDALISM</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -15283,7 +15288,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>90</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -15384,16 +15389,12 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: according to quick read somewhere anyways etc, it seems camel units would scare horse units resulting in a stalemate, it also seems they are generally more useful and efficient units than horse units at least in the desert, trying to give promotions that show/reflect this (and in this case specifically for the arabian camel unit else we would need to balance horse units similarly or give them some other kind of boost or rework anyways etc) while being balanced and as i want it too for advciv-sas but or not but or yes but anyways etc but or not but or etc anywyas etc anyways etc anyways etc -->
++			<!-- custom: according to quick read somewhere anyways etc, it seems camel units would scare horse units resulting in a stalemate, it also seems they are generally more useful and efficient units than horse units at least in the desert, trying to give promotions that show/reflect this (and in this case specifically for the arabian camel unit else we would need to balance horse units similarly or give them some other kind of boost or rework anyways etc) while being balanced and as i want it too for advciv-sas but or not but or yes but anyways etc but or not but or etc anyways etc anyways etc anyways etc -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+ 					<PromotionType>PROMOTION_DRILL1</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+ 			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+@@ -15808,10 +15809,10 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<!-- custom: add new unit CAMEL_CUIRASSIER camel version of the CUIRASSIER anyways etc -->
+-		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_CUIRASSIER, type: UNIT_CAMEL_CUIRASSIER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_CAMEL_CUIRASSIER</Class>
+-			<Type>UNIT_CAMEL_CUIRASSIER</Type>
++		<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", based on the "CUIRASSIER" and tweaked from there anyways etc, one of the main reasons is to have civ-specific units earlier so they are more imapctful anyways etc anyways etc anyways etc -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_CUIRASSIER, type: UNIT_GERMAN_HUSSAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_CUIRASSIER</Class>
++			<Type>UNIT_GERMAN_HUSSAR</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -15820,8 +15821,8 @@
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_CAMEL_CUIRASSIER</Description>
+-			<Civilopedia>TXT_KEY_UNIT_CAMEL_CUIRASSIER_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_GERMAN_HUSSAR</Description>
++			<Civilopedia>TXT_KEY_UNIT_GERMAN_HUSSAR_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -15910,7 +15911,7 @@
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>BONUS_CAMEL</BonusType>
++			<BonusType>BONUS_HORSE</BonusType>
+ 			<PrereqBonuses>
+ 				<BonusType>BONUS_IRON</BonusType>
+ 				<BonusType>NONE</BonusType>
+@@ -15966,27 +15967,8 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: make camel units better/stronger in desert and similar terrain +/- features anyways etc -->
+-			<TerrainAttacks>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
+-				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
+-				</TerrainAttack>
+-			</TerrainAttacks>
+-			<TerrainDefenses>	
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
+-				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
+-				</TerrainDefense>	
+-			</TerrainDefenses>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+@@ -16013,7 +15995,7 @@
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_CAMEL_CUIRASSIER</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_GERMAN_HUSSAR</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -16022,13 +16004,20 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: they seem at least originally a lighter/harass unit type, give them greater mobility with this promotion i mean anyways etc -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_FLANKING1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_CAVALRY, type: UNIT_CAVALRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_CAVALRY</Class>
+-			<Type>UNIT_CAVALRY</Type>
++		<!-- custom: add new unit CAMEL_CUIRASSIER camel version of the CUIRASSIER anyways etc -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_CUIRASSIER, type: UNIT_CAMEL_CUIRASSIER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_CAMEL_CUIRASSIER</Class>
++			<Type>UNIT_CAMEL_CUIRASSIER</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -16037,9 +16026,9 @@
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_CAVALRY</Description>
+-			<Civilopedia>TXT_KEY_UNIT_CAVALRY_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_CAVALRY_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_CAMEL_CUIRASSIER</Description>
++			<Civilopedia>TXT_KEY_UNIT_CAMEL_CUIRASSIER_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -16061,7 +16050,7 @@
+ 			<bFound>0</bFound>
+ 			<bGoldenAge>0</bGoldenAge>
+ 			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bFirstStrikeImmune>1</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>1</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+ 			<bCanMoveImpassable>0</bCanMoveImpassable>
+@@ -16075,7 +16064,12 @@
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades/>
++			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_CAVALRY</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+@@ -16116,19 +16110,24 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
++			<PrereqTech>TECH_RIFLING</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>BONUS_HORSE</BonusType>
+-			<PrereqBonuses/>
++			<BonusType>BONUS_CAMEL</BonusType>
++			<PrereqBonuses>
++				<BonusType>BONUS_IRON</BonusType>
++				<BonusType>NONE</BonusType>
++				<BonusType>NONE</BonusType>
++				<BonusType>NONE</BonusType>
++			</PrereqBonuses>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 120 -->
+-			<iCost>130</iCost>
++			<!-- custom: was 100 -->
++			<iCost>110</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -16152,7 +16151,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>15</iCombat>
++			<iCombat>12</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -16162,10 +16161,10 @@
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>30</iWithdrawalProb>
++			<iWithdrawalProb>15</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>7</iCollateralDamageMaxUnits>
++			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+@@ -16173,16 +16172,30 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++			<!-- custom: make camel units better/stronger in desert and similar terrain +/- features anyways etc -->
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainAttack>50</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>	
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainDefense>50</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>	
++			</TerrainDefenses>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+-			<UnitClassAttackMods>
+-				<UnitClassAttackMod>
+-					<UnitClassType>UNITCLASS_CANNON</UnitClassType>
+-					<iUnitClassMod>50</iUnitClassMod>
+-				</UnitClassAttackMod>
+-			</UnitClassAttackMods>
++			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+@@ -16194,10 +16207,10 @@
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<iCultureGarrison>8</iCultureGarrison>
++			<iCultureGarrison>7</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+-			<iPower>15</iPower>
++			<iPower>12</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -16206,7 +16219,7 @@
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_CAVALRY</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_CAMEL_CUIRASSIER</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -16219,9 +16232,9 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_CAVALRY, type: UNIT_RUSSIA_COSSACK (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_CAVALRY, type: UNIT_CAVALRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_CAVALRY</Class>
+-			<Type>UNIT_RUSSIA_COSSACK</Type>
++			<Type>UNIT_CAVALRY</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -16230,9 +16243,9 @@
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_RUSSIA_COSSACK</Description>
+-			<Civilopedia>TXT_KEY_UNIT_RUSSIA_COSSACK_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_RUSSIA_COSSACK_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_CAVALRY</Description>
++			<Civilopedia>TXT_KEY_UNIT_CAVALRY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_CAVALRY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -16377,12 +16390,7 @@
+ 				</UnitClassAttackMod>
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -16404,7 +16412,7 @@
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_RUSSIA_COSSACK</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_CAVALRY</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -16417,20 +16425,20 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_TANK, type: UNIT_TANK (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_TANK</Class>
+-			<Type>UNIT_TANK</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_CAVALRY, type: UNIT_RUSSIA_COSSACK (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_CAVALRY</Class>
++			<Type>UNIT_RUSSIA_COSSACK</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_ARMOR</Combat>
++			<Combat>UNITCOMBAT_MOUNTED</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_TANK</Description>
+-			<Civilopedia>TXT_KEY_UNIT_TANK_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_TANK_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_RUSSIA_COSSACK</Description>
++			<Civilopedia>TXT_KEY_UNIT_RUSSIA_COSSACK_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_RUSSIA_COSSACK_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -16462,30 +16470,34 @@
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqBonuses>0</bPrereqBonuses>
+ 			<bPrereqReligion>0</bPrereqReligion>
+-			<bMechanized>1</bMechanized>
++			<bMechanized>0</bMechanized>
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_MODERN_ARMOR</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-			</UnitClassUpgrades>
++			<UnitClassUpgrades/>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+-			<FlankingStrikes/>
++			<FlankingStrikes>
++				<FlankingStrike>
++					<FlankingStrikeUnitClass>UNITCLASS_CATAPULT</FlankingStrikeUnitClass>
++					<iFlankingStrength>100</iFlankingStrength>
++				</FlankingStrike>
++				<FlankingStrike>
++					<FlankingStrikeUnitClass>UNITCLASS_TREBUCHET</FlankingStrikeUnitClass>
++					<iFlankingStrength>100</iFlankingStrength>
++				</FlankingStrike>
++				<FlankingStrike>
++					<FlankingStrikeUnitClass>UNITCLASS_CANNON</FlankingStrikeUnitClass>
++					<iFlankingStrength>100</iFlankingStrength>
++				</FlankingStrike>
++			</FlankingStrikes>
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -16503,18 +16515,19 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
++			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech></PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>BONUS_OIL</BonusType>
++			<BonusType>BONUS_HORSE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>180</iCost>
++			<!-- custom: was 120 -->
++			<iCost>130</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -16538,7 +16551,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>28</iCombat>
++			<iCombat>15</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -16548,10 +16561,10 @@
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
++			<iWithdrawalProb>30</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>5</iCollateralDamageMaxUnits>
++			<iCollateralDamageMaxUnits>7</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+@@ -16563,9 +16576,19 @@
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+-			<UnitClassAttackMods/>
++			<UnitClassAttackMods>
++				<UnitClassAttackMod>
++					<UnitClassType>UNITCLASS_CANNON</UnitClassType>
++					<iUnitClassMod>50</iUnitClassMod>
++				</UnitClassAttackMod>
++			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -16575,39 +16598,34 @@
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<iCultureGarrison>12</iCultureGarrison>
++			<iCultureGarrison>8</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>5</iAsset>
+-			<iPower>30</iPower>
++			<iAsset>3</iAsset>
++			<iPower>15</iPower>
+ 			<UnitMeshGroups>
+-				<iGroupSize>1</iGroupSize>
++				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+ 				<fPadTime>1</fPadTime>
+-				<iMeleeWaveSize>1</iMeleeWaveSize>
+-				<iRangedWaveSize>1</iRangedWaveSize>
++				<iMeleeWaveSize>3</iMeleeWaveSize>
++				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+-					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_TANK</EarlyArtDefineTag>
++					<iRequired>3</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_RUSSIA_COSSACK</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
++			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_BLITZKRIEG</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_TANK, type: UNIT_GERMAN_PANZER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_TANK, type: UNIT_TANK (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_TANK</Class>
+-			<Type>UNIT_GERMAN_PANZER</Type>
++			<Type>UNIT_TANK</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -16616,9 +16634,9 @@
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_GERMAN_PANZER</Description>
+-			<Civilopedia>TXT_KEY_UNIT_GERMAN_PANZER_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_GERMAN_PANZER_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_TANK</Description>
++			<Civilopedia>TXT_KEY_UNIT_TANK_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_TANK_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -16693,7 +16711,7 @@
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech></PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -16732,9 +16750,7 @@
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+-			<!-- advc.907f: was 0 in BtS, 1 in K-Mod -->
+-			<iFirstStrikes>2</iFirstStrikes>
+-			<!-- advc.907f: was 0 in BtS, 1 in K-Mod -->
++			<iFirstStrikes>0</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+@@ -16755,12 +16771,7 @@
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -16782,7 +16793,7 @@
+ 				<iRangedWaveSize>1</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>1</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_GERMAN_PANZER</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_TANK</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_MACHINE</FormationType>
+@@ -16796,11 +16807,6 @@
+ 					<PromotionType>PROMOTION_BLITZKRIEG</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+-				<!-- advc.907f -->
+-				<!--FreePromotion>
+-					<PromotionType>PROMOTION_FLANKING1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion-->
+ 			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+
+diff --git a/README.md b/README.md
+index ec8e01f01..82d5eea26 100644
+--- a/README.md
++++ b/README.md
+@@ -130,13 +130,13 @@ More specificially about the [flatten_leaders_data_to_csv](/flatten_leaders_data
+ 
+ (note: base advciv leaders_data .csv table with its .md legend are in in our mod path in [/_0_Common_Docs/AdvCiv%20Base%20Doc/](/_0_Common_Docs/AdvCiv%20Base%20Doc/) directly if you want too anyways etc, see also instructions on how to generate it for other mods instructions are in the readme python scripts link above in this paragraph for details if link is still here anyways etc)
+ 
+-## Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
++## Less Generic-neutral unit names or/and combat types (todo and non-exhaustive)
+ 
+-See the [README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md) for details.
++See the [README_Less_Generic_Neutral_Unit_Names.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md) for details.
+ 
+ ## AI-generated images
+ 
+-One of the unexpected things that popped up while doing it and is/found to be very pleasant but anyways, is the visual art of images, i want AI generated (by ChatGPT) ones as they can be very nice.
++One of the unexpected things that popped up while exploring unit naming in/for anyways etc advciv-sas anyways etc and is/found to be very pleasant but anyways, is the visual art of images, i want AI generated (by ChatGPT) ones as they can be very nice.
+ 
+ I have uploaded mine (or rather ChatGPT's creation with my prompts and feebackbut anyways) [in the AI-generated images's Google Drive](https://drive.google.com/drive/folders/1WTQqrstpKywyHF9TjmvBy4edo8Jh1pYm?usp=sharing) (click on the images below to view them in full size).
+ 
+@@ -161,7 +161,7 @@ People or/and modders are free to reuse them as long as you mention me and chatg
+ 
+ I'll start with units, as there are a few i wanted to replace or create new ones for AdvCiv-SAS's new units first, and will see how it goes based on that. Just to be extra clear, i may not do all unit images, i may or not as i prefer or not or do or not or other or not anyways. It's a bit tedious but result is very pleasant when it works/functions well. Will i think do at least for ground medieval and pre-medieval units as i need/want these for my new units in AdvCiv-SAS, except for that may use existing ones though at least at first if not always, may do or not as i prefer or not or see or not, you are welcome to give feeback, else i continue or not to do what i want or not if i do or not, i hope this is helpful or pleasant though, but anyways, 
+ 
+-I am not doing the ingame art though, just the buttons, unless i would unexpectedly so, it should most likely be asummed i would not. I intend to add women in some of these units. Not for equalitarism or anything, just because i think it would be cool and accurate, it would be mostly lightweight weapons for accuracy, not following any specified pattern or ratios, as i prefer, hopefully helpful maybe and interesting maybe as a whole but anyways etc...
++I am not doing the ingame art though, just the buttons, unless i would unexpectedly so, it should most likely be assumed i would not. I intend to add women in some of these units at least if the opportunity arises and it seems relvant and/or accurate anyways etc. Not for equalitarism or anything, just because i think it would be cool and accurate, it would be mostly lightweight weapons for accuracy as women are generally more agile, (some) bow units and maybe some light melee/sword units for example maybe, not following any specified pattern or ratios, as i prefer. Doing any more than this would be forcing my narrative and not being historically accurate, as let's be real, the tremendous majority of warfare from little or quite little or lot or bit or etc anyways etc has been fought by men/male soldiers anyways etc for better or worse (dying xd is not fun.. but anyways etc, especially for someone else as is sadly often the case in wars (forced and such anyways etc, very cruel world but anyways etc)). But on the battlefield men rule especially heavy units in advciv-sas, some battle axe warrior if we add such a name would be super cool, it would almost make it seem like there is a purpose to fighting/dying and all this pointless struggle in the short lifespan instead of cooperating between species (edit: or leaving each other alone but better not start overediting everything but anwyays etc...). But it is most likely no one's fault, as ressources are scarce and space limited, species can't help but to compete if they can't reach a mutual agreement as is often the case, me vs flies for example anyways etc.. If anything it is nature that should be blamed for such awful design, but since nature is impersonal and just is, this is just the base tragedy where we at least i can try to derive meaning and pleasure from, after accepting it or at least trying best to lcukly have the chance to avoid it, but anyways not too much of a personal rambling, what i mean is everyone copes as they want, in the end life is harsh, and i believe all meaning we derive can ultimately only be in the frame of such an awareness, else we are miserable or delusional. I was fine when i was deluded about this reality of the world, now seeing it plainly is harder, but to go back to advciv-sas (because there is soemthing unavoidable and fundamentally unfair about the reality of it, i can only thank any luck i have and preserve it, and then hopefulyl amplify it maybe if i want too, and protect it also from aggressors, share it to those i want or and enjoy to with anyways etc (isn't it the same thing, but anyways etc)). Not sure if i should keep this personal reflection here, if i feel to delete it soemday maybe i should, but for now i wanted to say it, so let's keep it for some while at least and see how i feel about it later anyways etc. Maybe indeed empathy can be derived from the awareness and feel of this pain, but it's the easy path isn't it? Doesn't this mean we would be cruel assholes if we are fortunate enough? Isn't there an innate part in it as well? Like, some people kind despite harsh realities (quite easy to imagine), then or still humble if "happy" after it or happy from the get go whatever that means. But i wouldn't want to start classifying individuals. Only how they'd relate to me as part of the explanation. If i try to keep my own resentment in check, it is only in moments where i understand the pain of others that i feel closer to them and resent them less. I used to relate closer to others as part of what i think now is codependency, but there is maybe nothing wrong with it, if it means i bond more intensely than others, i probably still do, i like and embrace this part of myself, talking about me i mean really but anyways etc. But sometimes i may need to keep it in check to not fall in "unhealthy" patterns whatever that means, even if i may not seem like the part. And finally not trying to be or seem perfect, only doing what i deem the best and what i want to however selfish, or what i deem most optimal or whatever i do or not. All this rambling that i liked and like in present to do maybe. And these reflections anyways etc, would mean i am starting to see myself as part of the world, but it is still hard, for many reasons, one of which, is how to comprehend the concept of death where and when it is hard to relate even to the concept of life and feeling alive, when it feels like life slips through my hands. But is probably a very common feeling no one is sharing. But i do feel i have my own harships despite the own things i like about myself. But i like it overall and feel it's maybe my place, if i had a wish, i just wish others would be able to see or value more my quirkness, but then i would not be quirk anymore xd unless in utopia, well maybe i also need to learn how to view other's "normalness" (not trying to be elitist but anyways etc..) which quite frankly if i may say i am very unaware of and struggle to identify, which is part and most likely why i ahve such issues. But i have no reason or intention especially to be like them, i like who i am, i only want to be at peace with what i can do in life and why. Well, it is too long of a rambling and is starting to get miserable, i do feel like i am quite at my place, but i wish to interact more with people with a similar background or experience as me, and i am sure there are many, but maybe not interacting is part of the experience, but i am sure there many, then it's only a matter of luck as is most often the case in life, but there is determinism in life too, so doesn't it mean luck is ultimately not relevant in many cases outcome would end up being same? While true, we can do something about our luck, but i am not making any promise, disclaimer, is just my opinion not claiming it to be any truth but i consider it to be my true feelings, so follow read or not at your own discretion/risk anyways etc, with that said i should delete this later maybe in next commits or sooner or later whenver i want, but glad i did, with little typos too woohoo but focus and not grow resentful and do what i want mostly for that and mostly even more becuase is how i am at least speaking for myself anyways etc anyways etc anyways etc
+ 
+ ## .dds (button) size comparison analysis
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+index 2494f21a5..393aa34e5 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+@@ -89,6 +89,10 @@ I am very happy that the AI Personality panel is coded in a way that i find is v
+ 
+ For example, we store almost all data as cached precomputed tuples, and if there are strings it is almost only byte strings not unicode strings. At leader selection, there is barely anything left to do except unpack and display as is fully computed display with their label, normalized value, and scale. We also do not cache at module load, and we do not cache at all if we never click at the Leaders category in sevopedia, but we also cache before any leader is selected, and once we have the sevopedia leader variables we need cached, we don't recache even if sevopedia is closed or a save file loaded during the entire game session (i.e. until game is exited).
+ 
++The little extra bonus is for example at least is the one that comes to my mind only anyways etc we build the cache in Sevopedia Main's placeLeaders only after the item list is built (i.e. all leaders ist is loaded in items list), therefore no visual hang theoritecally (or theoritically? May have to check if i want but anyways etc...) of having a small theoretical lag (didn't test but i assume maybe caching may generate a micro lag that would be visible for the user on Leaders category's click), but/however after list is loaded, there is some delay until the user clicks on/selects desired leader to display, so this is perfect time to smoothly cache silently without it being visible in terms of performance because nothing else is changing, if such a lag even exists as i didn't check or test but i assume and find this design mroe plasant, is idea i also got while contemplating a tiny bit this code and chatgpt/becomingthrough's repleis i mean very quick contemplate while thinking, so and but or etc i am very happy of this aprt of the result too if i may say but anyways etc anyways etc anyways etc hopefully pleasant for players too ro nto or yes or other or etc anyways etc
++
++Using a function call gives us also more control than hardcoded code in sevopedia leader and i really like this part as well so we know when and why we build it and can selectively not do so as needed or and wanted, i really like this design efficient and smart even though shold not be of me to say and perhaps can still be improved, but i believe it is quite efficient as it is in general, even though it could still be improved though, i like as it is as of now as well anyways etc anyways etc.
++
+ Because of these and perhaps other related or other things or not, i believe this is a very very efficient design. Please look at sevopedia leader's code for details and the tiny bits in this case anyways etc in sevopedia main as well for the time where we cache and the flag to not recache anyways etc.
+ 
+ Note: technically should be in modding ressources but fits also here as well so duplicated this entry of the doc with a link there to this anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
+new file mode 100644
+index 000000000..b19e77514
+--- /dev/null
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
+@@ -0,0 +1,40 @@
++# Less Generic-neutral unit names or/and combat types (todo and non-exhaustive)
++
++As this will be expanded later, moving this part of the README to a specific file or/and also to not clutter main README.md anyways etc, hopefully helpful or not or maybe yes or not or yes or and other or and not anyways etc.
++
++I think some unit names are very lousy, for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. But, if want to do it (more maybe at least if i may say anyways etc) properly, i have some cool unit names in mind. Not sure it would be implemented, but ideally or/and maybe, here are some ideas i have (non-exhaustive or maybe is or not or yes or etc anyways etc but to keep them in mind in this case anyways etc anyways etc).
++
++## Less generic or inaccurate unit names or/and combat types (todo and non-exhaustive)
++
++I found these possibly more epic and badass (i think but anyways) names after a quick bit of research or intutiion/idea of mien or and such or that i saw somewhere or something similar anyways etc, so using this instead, see below, anyways.
++
++Some other units also have a more problematic name, as they are very inaccurate. For example a Knight is a title if i am not mistaken, not any medieval horse. Some medieval horse warriors/fighters were not knights probably (did not check, anyways). The teutonic knight (around germany) for example may have been a foot unit maybe for example? (need to check, anyways is just my initial notes on it abridged and without sources so i can share it and get it out of my mind, (and also because i like, but anyways), but anyways,). Similarly cavalry could be in any era if i'm not mistaken but need to check too or/and more, anyways:
++
++- Spearman: Lancer (Light, Medium, Heavy), similar reasoning maybe at a different era instead not sure anyways etc
++- Axeman: Battle Axe Warrior
++- Swordsman: Swordsfighter (Light, Medium, Heavy) or use it if we add an ealier or later sword unit at a different era, or maybe Swordsmaster instead anyways etc
++- Maceman: Mace Warrior? Keep Maceman here? (But would be inconsistent then or not immersive if others don't have man too, anyways, also mace warrior is quite cool too i think, but anyways)
++
++- Longbowman: Longbow? Longbow Soldier? Similar reasoning anyways etc
++- Crossbowman: Crossbow? Crossbow Soldier? Similar reasoning anyways etc
++- Rifleman: Rifle Soldier?
++
++- Chariot: Charioteer? War Chariot?
++- War chariot: Elite charioteer?
++
++- Knight: Horse Lancer Knight (Medieval)
++- Horse Swordsfighter Knight
++- Camel Lancer Knight
++- Camel Swordsfighter Knight
++
++- Cavalry: Napoleonian Flank Cavalry (Offense) + Royal Guard Cavalry (Defense)
++
++Maybe will add new units that are knight units, more expensive and stronger version of the regular ones, such as camel knight lancer stronger than camel knight, elite troops maybe but could be replaced by exp system and less linked to history, anyways, will see, may or not, will see or not, etc or not etc, anyways, For example:
++
++- Camel Lancer
++- Horse Swordsfighter
++- (note i don't think there were knights horse archers but i don't know, may or not them as a result plus don't want to complicate (needlessly?) the unit tree, will see what i do or not or will see or not etc or not, anyways,)
++
++Not exhaustive or maybe is or not but or/and todo, anyways
++
++May also apply to civ units or/and Buildings or not will see or not etc or not, anyways,
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md
+deleted file mode 100644
+index 8be2ba467..000000000
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md
++++ /dev/null
+@@ -1,48 +0,0 @@
+-# Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
+-
+-As this will be expanded later, moving this part of the README to a specific file or/and also to not clutter main README.md anyways etc, hopefully helpful or not or maybe yes or not or yes or and other or and not anyways etc.
+-
+-## Sex-neutral unit names or/and combat types (todo and non-exhaustive)
+-
+-Yet to be done, but i want (more at least) sex-neutral terms for units. Tbh i don't care much if at all (but is maybe nice, anyways), but i intend to implement some women units, especially light units where i think women make more sense (less strength required and they are more agile perhaps too, anyways). I also think they (some of them at least anyways) were very lousy (names), for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. Also, unless the unit was strongly masculine, i see no reason to use weaponman specifically, anyways.
+-
+-Back to the topic of sex-neutral units,So "Swordsman" does not make sense anymore for that, see [Less generic or inaccurate unit names or/and combat types (todo)](#less-generic-or-inaccurate-unit-names-orand-combat-types-todo) for details.
+-
+-This is a todo, so will not start listing sources, will do it in a proper notes file if i have to (or/and want to) and link to it (may abridge this section and move most of it there maybe then if i do it, anyways), but i want to at least share my ideas, maybe some will like them or want to think about them at least maybe.
+-
+-Making some of them more badass at the same time, i think see mostly if not only anyways [Less generic or inaccurate unit names or/and combat types (todo)](#less-generic-or-inaccurate-unit-names-orand-combat-types-todo)
+-
+-So far i am thinking of (non-exhaustive, no source or explanation provided, it will be in docs else too tedious to do here anyways):
+-
+-- Swordsman: Swordsfighter (Light, Medium, Heavy)
+-- Spearman: Lancer (Light, Medium, Heavy)
+-- Longbowman: Longbow? Longbow Soldier?
+-- Crossbowman: Crossbow? Crossbow Soldier?
+-- Rifleman: Rifle Soldier?
+-
+-## Less generic or inaccurate unit names or/and combat types (todo and non-exhaustive)
+-
+-For some i don't mind if they are masculine, indeed an axe is heavier and more brutal of a weapon (todo check though), so makes more sense for a man to wield it. Not that no women ever did or would want to, but less likely, so may keep man here. But i found a more epic and badass (i think but anyways) name after a quick bit of research so using this instead, see below, anyways.
+-
+-Some other units have a more problematic name, as they are very inaccurate. For example a Knight is a title if i am not mistaken, not any medieval horse. Some medieval horse warriors/fighters were not knights probably (did not check, anyways). The teutonic knight (around germany) for example may have been a foot unit maybe for example? (need to check, anyways is just my initial notes on it abridged and without sources so i can share it and get it out of my mind, (and also because i like, but anyways), but anyways,). Similarly cavalry could be in any era if i'm not mistaken but need to check too or/and more, anyways:
+-
+-- Axeman: Battle Axe Warrior
+-- Maceman: Mace Warrior? Keep Maceman here? (But would be inconsistent then or not immersive if others don't have man too, anyways, also mace warrior is quite cool too i think, but anyways)
+-
+-- Knight: Horse Lancer Knight (Medieval)
+-- Horse Swordsfighter Knight
+-- Camel Lancer Knight
+-- Camel Swordsfighter Knight
+-- Cavalry: Napoleonian Flank Cavalry (Offense) + Royal Guard Cavalry (Defense)
+-- Chariot: Charioteer? War Chariot?
+-- War chariot: Elite charioteer?
+-
+-Maybe will add new units that are knight units, more expensive and stronger version of the regular ones, such as camel knight lancer stronger than camel knight, elite troops maybe but could be replaced by exp system and less linked to history, anyways, will see, may or not, will see or not, etc or not etc, anyways, For example:
+-
+-- Camel Lancer
+-- Horse Swordsfighter
+-- (note i don't think there were knights horse archers but i don't know, may or not them as a result plus don't want to complicate (needlessly?) the unit tree, will see what i do or not or will see or not etc or not, anyways,)
+-
+-Not exhaustive or maybe is or not but or/and todo, anyways
+-
+-May also apply to civ units or/and Buildings or not will see or not etc or not, anyways,
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=31 embeddedFiles=31 omittedFiles=0 embeddedPatchBytes=89244

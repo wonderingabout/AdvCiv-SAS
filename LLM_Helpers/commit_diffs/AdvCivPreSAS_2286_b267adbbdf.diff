@@ -1,0 +1,730 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2286
+# Commit: b267adbbdf15067ac605215dfeafc7ab464f6ab1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 420f788cb98ec86ea976568514fbdd2f4f5f4d8f
+# Title: Move recent-DoW memory data into LeaderHead XML
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+29	427	CvGameCoreDLL/CvInfo_Civilization.cpp
+84	80	CvGameCoreDLL/CvInfo_Civilization.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 442861181..0a878a45b 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -451,6 +451,11 @@
+ 					<MemoryType>MEMORY_INDEPENDENCE</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.104i -->
++				<MemoryDecay>
++					<MemoryType>MEMORY_DECLARED_WAR_RECENT</MemoryType>
++					<iMemoryRand>11</iMemoryRand>
++				</MemoryDecay>
+ 				<!-- advc.130r END -->
+ 				<!-- advc.144: was 200 -->
+ 				<MemoryDecay>
+@@ -679,6 +684,11 @@
+ 					<MemoryType>MEMORY_INDEPENDENCE</MemoryType>
+ 					<iMemoryAttitudePercent>100</iMemoryAttitudePercent>
+ 				</MemoryAttitudePercent>
++				<!-- advc.104i -->
++				<MemoryAttitudePercent>
++					<MemoryType>MEMORY_DECLARED_WAR_RECENT</MemoryType>
++					<iMemoryAttitudePercent>0</iMemoryAttitudePercent>
++				</MemoryAttitudePercent>
+ 			</MemoryAttitudePercents>
+ 			<NoWarAttitudeProbs>
+ 				<NoWarAttitudeProb>
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.cpp b/CvGameCoreDLL/CvInfo_Civilization.cpp
+index c22207352..e2062e05b 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.cpp
++++ b/CvGameCoreDLL/CvInfo_Civilization.cpp
+@@ -513,35 +513,38 @@ m_piDiploWarMusicScriptIds(NULL)
+ {}
+ 
+ // <advc.xmldefault>
+-#define ALLOCCOPY_INT(pDst, pSrc, iSize) \
+-	if (pSrc != NULL) \
+-	{ \
+-		pDst = new int[iSize]; \
+-		memcpy(pDst, pSrc, iSize * sizeof(int)); \
+-	}
+-#define ALLOCCOPY_BOOL(pDst, pSrc, iSize) \
+-	if (pSrc != NULL) \
+-	{ \
+-		pDst = new bool[iSize]; \
+-		memcpy(pDst, pSrc, iSize * sizeof(bool)); \
++namespace
++{
++	template<typename T>
++	void allocCopy(T*& pDst, T* pSrc, int iSize)
++	{
++		if (pSrc != NULL)
++		{
++			pDst = new T[iSize];
++			memcpy(pDst, pSrc, iSize * sizeof(T));
++		}
+ 	}
++}
+ 
+ CvLeaderHeadInfo::CvLeaderHeadInfo(CvLeaderHeadInfo const& kOther)
+ {
+-	memcpy(this, &kOther, sizeof(CvLeaderHeadInfo));
+-	ALLOCCOPY_BOOL(m_pbTraits, kOther.m_pbTraits, GC.getNumTraitInfos());
+-	ALLOCCOPY_INT(m_piFlavorValue, kOther.m_piFlavorValue, GC.getNumFlavorTypes());
+-	ALLOCCOPY_INT(m_piContactRand, kOther.m_piContactRand, NUM_CONTACT_TYPES);
+-	ALLOCCOPY_INT(m_piContactDelay, kOther.m_piContactDelay, NUM_CONTACT_TYPES);
+-	ALLOCCOPY_INT(m_piMemoryDecayRand, kOther.m_piMemoryDecayRand, NUM_MEMORY_TYPES);
+-	ALLOCCOPY_INT(m_piMemoryAttitudePercent, kOther.m_piMemoryAttitudePercent, NUM_MEMORY_TYPES);
+-	ALLOCCOPY_INT(m_piNoWarAttitudeProb, kOther.m_piNoWarAttitudeProb, NUM_ATTITUDE_TYPES);
+-	ALLOCCOPY_INT(m_piUnitAIWeightModifier, kOther.m_piUnitAIWeightModifier, NUM_UNITAI_TYPES);
+-	ALLOCCOPY_INT(m_piImprovementWeightModifier, kOther.m_piImprovementWeightModifier, GC.getNumImprovementInfos());
+-	ALLOCCOPY_INT(m_piDiploPeaceIntroMusicScriptIds, kOther.m_piDiploPeaceIntroMusicScriptIds, GC.getNumEraInfos());
+-	ALLOCCOPY_INT(m_piDiploPeaceMusicScriptIds, kOther.m_piDiploPeaceMusicScriptIds, GC.getNumEraInfos());
+-	ALLOCCOPY_INT(m_piDiploWarIntroMusicScriptIds, kOther.m_piDiploWarIntroMusicScriptIds, GC.getNumEraInfos());
+-	ALLOCCOPY_INT(m_piDiploWarMusicScriptIds, kOther.m_piDiploWarMusicScriptIds, GC.getNumEraInfos());
++	/*	Better not to memcpy the base class.
++		m_iWonderConstructRand is the first data member of CvLeaderHeadInfo. */
++	memcpy(&m_iWonderConstructRand, &kOther.m_iWonderConstructRand,
++			sizeof(CvLeaderHeadInfo) - sizeof(CvInfoBase));
++	allocCopy(m_pbTraits, kOther.m_pbTraits, GC.getNumTraitInfos());
++	allocCopy(m_piFlavorValue, kOther.m_piFlavorValue, GC.getNumFlavorTypes());
++	allocCopy(m_piContactRand, kOther.m_piContactRand, NUM_CONTACT_TYPES);
++	allocCopy(m_piContactDelay, kOther.m_piContactDelay, NUM_CONTACT_TYPES);
++	allocCopy(m_piMemoryDecayRand, kOther.m_piMemoryDecayRand, NUM_MEMORY_TYPES);
++	allocCopy(m_piMemoryAttitudePercent, kOther.m_piMemoryAttitudePercent, NUM_MEMORY_TYPES);
++	allocCopy(m_piNoWarAttitudeProb, kOther.m_piNoWarAttitudeProb, NUM_ATTITUDE_TYPES);
++	allocCopy(m_piUnitAIWeightModifier, kOther.m_piUnitAIWeightModifier, NUM_UNITAI_TYPES);
++	allocCopy(m_piImprovementWeightModifier, kOther.m_piImprovementWeightModifier, GC.getNumImprovementInfos());
++	allocCopy(m_piDiploPeaceIntroMusicScriptIds, kOther.m_piDiploPeaceIntroMusicScriptIds, GC.getNumEraInfos());
++	allocCopy(m_piDiploPeaceMusicScriptIds, kOther.m_piDiploPeaceMusicScriptIds, GC.getNumEraInfos());
++	allocCopy(m_piDiploWarIntroMusicScriptIds, kOther.m_piDiploWarIntroMusicScriptIds, GC.getNumEraInfos());
++	allocCopy(m_piDiploWarMusicScriptIds, kOther.m_piDiploWarMusicScriptIds, GC.getNumEraInfos());
+ } // </advc.xmldefault>
+ 
+ CvLeaderHeadInfo::~CvLeaderHeadInfo()
+@@ -571,401 +574,6 @@ const TCHAR* CvLeaderHeadInfo::getButton() const
+ 	else return NULL;
+ }
+ 
+-int CvLeaderHeadInfo::getWonderConstructRand() const
+-{
+-	return m_iWonderConstructRand;
+-}
+-
+-int CvLeaderHeadInfo::getBaseAttitude() const
+-{
+-	return m_iBaseAttitude;
+-}
+-
+-int CvLeaderHeadInfo::getBasePeaceWeight() const
+-{
+-	return m_iBasePeaceWeight;
+-}
+-
+-int CvLeaderHeadInfo::getPeaceWeightRand() const
+-{
+-	return m_iPeaceWeightRand;
+-}
+-
+-int CvLeaderHeadInfo::getWarmongerRespect() const
+-{
+-	return m_iWarmongerRespect;
+-}
+-
+-int CvLeaderHeadInfo::getEspionageWeight() const
+-{
+-	return m_iEspionageWeight;
+-}
+-
+-int CvLeaderHeadInfo::getRefuseToTalkWarThreshold() const
+-{
+-	return m_iRefuseToTalkWarThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getNoTechTradeThreshold() const
+-{
+-	return m_iNoTechTradeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getTechTradeKnownPercent() const
+-{
+-	return m_iTechTradeKnownPercent;
+-}
+-
+-int CvLeaderHeadInfo::getMaxGoldTradePercent() const
+-{
+-	return m_iMaxGoldTradePercent;
+-}
+-
+-int CvLeaderHeadInfo::getMaxGoldPerTurnTradePercent() const
+-{
+-	return m_iMaxGoldPerTurnTradePercent;
+-}
+-// BETTER_BTS_AI_MOD, Victory Strategy AI, 03/21/10, jdog5000: START
+-int CvLeaderHeadInfo::getCultureVictoryWeight() const
+-{
+-	return m_iCultureVictoryWeight;
+-}
+-
+-int CvLeaderHeadInfo::getSpaceVictoryWeight() const
+-{
+-	return m_iSpaceVictoryWeight;
+-}
+-
+-int CvLeaderHeadInfo::getConquestVictoryWeight() const
+-{
+-	return m_iConquestVictoryWeight;
+-}
+-
+-int CvLeaderHeadInfo::getDominationVictoryWeight() const
+-{
+-	return m_iDominationVictoryWeight;
+-}
+-
+-int CvLeaderHeadInfo::getDiplomacyVictoryWeight() const
+-{
+-	return m_iDiplomacyVictoryWeight;
+-}
+-// BETTER_BTS_AI_MOD: END
+-int CvLeaderHeadInfo::getMaxWarRand() const
+-{
+-	return m_iMaxWarRand;
+-}
+-
+-int CvLeaderHeadInfo::getMaxWarNearbyPowerRatio() const
+-{
+-	return m_iMaxWarNearbyPowerRatio;
+-}
+-
+-int CvLeaderHeadInfo::getMaxWarDistantPowerRatio() const
+-{
+-	return m_iMaxWarDistantPowerRatio;
+-}
+-
+-int CvLeaderHeadInfo::getMaxWarMinAdjacentLandPercent() const
+-{
+-	return m_iMaxWarMinAdjacentLandPercent;
+-}
+-
+-int CvLeaderHeadInfo::getLimitedWarRand() const
+-{
+-	return m_iLimitedWarRand;
+-}
+-
+-int CvLeaderHeadInfo::getLimitedWarPowerRatio() const
+-{
+-	return m_iLimitedWarPowerRatio;
+-}
+-
+-int CvLeaderHeadInfo::getDogpileWarRand() const
+-{
+-	return m_iDogpileWarRand;
+-}
+-
+-int CvLeaderHeadInfo::getMakePeaceRand() const
+-{
+-	return m_iMakePeaceRand;
+-}
+-
+-int CvLeaderHeadInfo::getDeclareWarTradeRand() const
+-{
+-	return m_iDeclareWarTradeRand;
+-}
+-
+-int CvLeaderHeadInfo::getDemandRebukedSneakProb() const
+-{
+-	return m_iDemandRebukedSneakProb;
+-}
+-
+-int CvLeaderHeadInfo::getDemandRebukedWarProb() const
+-{
+-	return m_iDemandRebukedWarProb;
+-}
+-
+-int CvLeaderHeadInfo::getRazeCityProb() const
+-{
+-	return m_iRazeCityProb;
+-}
+-
+-int CvLeaderHeadInfo::getBaseAttackOddsChange() const
+-{
+-	return m_iBaseAttackOddsChange;
+-}
+-
+-int CvLeaderHeadInfo::getAttackOddsChangeRand() const
+-{
+-	return m_iAttackOddsChangeRand;
+-}
+-
+-int CvLeaderHeadInfo::getWorseRankDifferenceAttitudeChange() const
+-{
+-	return m_iWorseRankDifferenceAttitudeChange;
+-}
+-
+-int CvLeaderHeadInfo::getBetterRankDifferenceAttitudeChange() const
+-{
+-	return m_iBetterRankDifferenceAttitudeChange;
+-}
+-
+-int CvLeaderHeadInfo::getCloseBordersAttitudeChange() const
+-{
+-	return m_iCloseBordersAttitudeChange;
+-}
+-
+-int CvLeaderHeadInfo::getLostWarAttitudeChange() const
+-{
+-	return m_iLostWarAttitudeChange;
+-}
+-
+-int CvLeaderHeadInfo::getAtWarAttitudeDivisor() const
+-{
+-	return m_iAtWarAttitudeDivisor;
+-}
+-
+-int CvLeaderHeadInfo::getAtWarAttitudeChangeLimit() const
+-{
+-	return m_iAtWarAttitudeChangeLimit;
+-}
+-
+-int CvLeaderHeadInfo::getAtPeaceAttitudeDivisor() const
+-{
+-	return m_iAtPeaceAttitudeDivisor;
+-}
+-
+-int CvLeaderHeadInfo::getAtPeaceAttitudeChangeLimit() const
+-{
+-	return m_iAtPeaceAttitudeChangeLimit;
+-}
+-
+-int CvLeaderHeadInfo::getSameReligionAttitudeChange() const
+-{
+-	return m_iSameReligionAttitudeChange;
+-}
+-
+-int CvLeaderHeadInfo::getSameReligionAttitudeDivisor() const
+-{
+-	return m_iSameReligionAttitudeDivisor;
+-}
+-
+-int CvLeaderHeadInfo::getSameReligionAttitudeChangeLimit() const
+-{
+-	return m_iSameReligionAttitudeChangeLimit;
+-}
+-
+-int CvLeaderHeadInfo::getDifferentReligionAttitudeChange() const
+-{
+-	return m_iDifferentReligionAttitudeChange;
+-}
+-
+-int CvLeaderHeadInfo::getDifferentReligionAttitudeDivisor() const
+-{
+-	return m_iDifferentReligionAttitudeDivisor;
+-}
+-
+-int CvLeaderHeadInfo::getDifferentReligionAttitudeChangeLimit() const
+-{
+-	return m_iDifferentReligionAttitudeChangeLimit;
+-}
+-
+-int CvLeaderHeadInfo::getBonusTradeAttitudeDivisor() const
+-{
+-	return m_iBonusTradeAttitudeDivisor;
+-}
+-
+-int CvLeaderHeadInfo::getBonusTradeAttitudeChangeLimit() const
+-{
+-	return m_iBonusTradeAttitudeChangeLimit;
+-}
+-
+-int CvLeaderHeadInfo::getOpenBordersAttitudeDivisor() const
+-{
+-	return m_iOpenBordersAttitudeDivisor;
+-}
+-
+-int CvLeaderHeadInfo::getOpenBordersAttitudeChangeLimit() const
+-{
+-	return m_iOpenBordersAttitudeChangeLimit;
+-}
+-
+-int CvLeaderHeadInfo::getDefensivePactAttitudeDivisor() const
+-{
+-	return m_iDefensivePactAttitudeDivisor;
+-}
+-
+-int CvLeaderHeadInfo::getDefensivePactAttitudeChangeLimit() const
+-{
+-	return m_iDefensivePactAttitudeChangeLimit;
+-}
+-
+-int CvLeaderHeadInfo::getShareWarAttitudeChange() const
+-{
+-	return m_iShareWarAttitudeChange;
+-}
+-
+-int CvLeaderHeadInfo::getShareWarAttitudeDivisor() const
+-{
+-	return m_iShareWarAttitudeDivisor;
+-}
+-
+-int CvLeaderHeadInfo::getShareWarAttitudeChangeLimit() const
+-{
+-	return m_iShareWarAttitudeChangeLimit;
+-}
+-
+-int CvLeaderHeadInfo::getFavoriteCivicAttitudeChange() const
+-{
+-	return m_iFavoriteCivicAttitudeChange;
+-}
+-
+-int CvLeaderHeadInfo::getFavoriteCivicAttitudeDivisor() const
+-{
+-	return m_iFavoriteCivicAttitudeDivisor;
+-}
+-
+-int CvLeaderHeadInfo::getFavoriteCivicAttitudeChangeLimit() const
+-{
+-	return m_iFavoriteCivicAttitudeChangeLimit;
+-}
+-
+-int CvLeaderHeadInfo::getDemandTributeAttitudeThreshold() const
+-{
+-	return m_iDemandTributeAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getNoGiveHelpAttitudeThreshold() const
+-{
+-	return m_iNoGiveHelpAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getTechRefuseAttitudeThreshold() const
+-{
+-	return m_iTechRefuseAttitudeThreshold;
+-}
+-// <advc.ctr>
+-int CvLeaderHeadInfo::getCityRefuseAttitudeThreshold() const
+-{
+-	return m_iCityRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getNativeCityRefuseAttitudeThreshold() const
+-{
+-	return m_iNativeCityRefuseAttitudeThreshold;
+-} // </advc.ctr>
+-
+-int CvLeaderHeadInfo::getStrategicBonusRefuseAttitudeThreshold() const
+-{
+-	return m_iStrategicBonusRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getHappinessBonusRefuseAttitudeThreshold() const
+-{
+-	return m_iHappinessBonusRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getHealthBonusRefuseAttitudeThreshold() const
+-{
+-	return m_iHealthBonusRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getMapRefuseAttitudeThreshold() const
+-{
+-	return m_iMapRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getDeclareWarRefuseAttitudeThreshold() const
+-{
+-	return m_iDeclareWarRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getDeclareWarThemRefuseAttitudeThreshold() const
+-{
+-	return m_iDeclareWarThemRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getStopTradingRefuseAttitudeThreshold() const
+-{
+-	return m_iStopTradingRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getStopTradingThemRefuseAttitudeThreshold() const
+-{
+-	return m_iStopTradingThemRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getAdoptCivicRefuseAttitudeThreshold() const
+-{
+-	return m_iAdoptCivicRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getConvertReligionRefuseAttitudeThreshold() const
+-{
+-	return m_iConvertReligionRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getOpenBordersRefuseAttitudeThreshold() const
+-{
+-	return m_iOpenBordersRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getDefensivePactRefuseAttitudeThreshold() const
+-{
+-	return m_iDefensivePactRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getPermanentAllianceRefuseAttitudeThreshold() const
+-{
+-	return m_iPermanentAllianceRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getVassalRefuseAttitudeThreshold() const
+-{
+-	return m_iVassalRefuseAttitudeThreshold;
+-}
+-
+-int CvLeaderHeadInfo::getVassalPowerModifier() const
+-{
+-	return m_iVassalPowerModifier;
+-}
+-
+-int CvLeaderHeadInfo::getFavoriteCivic() const
+-{
+-	return m_iFavoriteCivic;
+-}
+-
+-int CvLeaderHeadInfo::getFavoriteReligion() const
+-{
+-	return m_iFavoriteReligion;
+-}
+-
+-int CvLeaderHeadInfo::getFreedomAppreciation() const
+-{
+-	return m_iFreedomAppreciation;
+-}
+-
+ const TCHAR* CvLeaderHeadInfo::getArtDefineTag() const
+ {
+ 	return m_szArtDefineTag;
+@@ -1003,13 +611,7 @@ int CvLeaderHeadInfo::getContactDelay(int i) const
+ int CvLeaderHeadInfo::getMemoryDecayRand(int i) const
+ {
+ 	FAssertBounds(0, NUM_MEMORY_TYPES, i);
+-	// <advc.104i>
+-	if(m_piMemoryDecayRand == NULL)
+-		return -1;
+-	// The "clean" approach would be to set this 52 times in LeaderHead XML
+-	if(i == MEMORY_DECLARED_WAR_RECENT && m_piMemoryDecayRand[i] == 0)
+-		return 11;
+-	return m_piMemoryDecayRand[i]; // </advc.104i>
++	return m_piMemoryDecayRand ? m_piMemoryDecayRand[i] : -1;
+ }
+ 
+ int CvLeaderHeadInfo::getMemoryAttitudePercent(int i) const
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.h b/CvGameCoreDLL/CvInfo_Civilization.h
+index 41c08501e..11a5208de 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.h
++++ b/CvGameCoreDLL/CvInfo_Civilization.h
+@@ -111,93 +111,95 @@ class CvLeaderHeadInfo : public CvInfoBase
+ {
+ friend class UWAI; // advc.104x (for applyPersonalityWeight)
+ public: // advc: All the const functions are exposed to Python except those added by mods
++		// advc.inl: Inlined all non-array getters
+ 	CvLeaderHeadInfo();
+ 	CvLeaderHeadInfo(CvLeaderHeadInfo const& kOther); // advc.xmldefault
+ 	~CvLeaderHeadInfo();
+ 
+-	int getWonderConstructRand() const;
+-	int getBaseAttitude() const;
+-	int getBasePeaceWeight() const;
+-	int getPeaceWeightRand() const;
+-	int getWarmongerRespect() const;
+-	int getEspionageWeight() const;
+-	int getRefuseToTalkWarThreshold() const;
+-	int getNoTechTradeThreshold() const;
+-	int getTechTradeKnownPercent() const;
+-	int getMaxGoldTradePercent() const;
+-	int getMaxGoldPerTurnTradePercent() const;
++	int getWonderConstructRand() const { return m_iWonderConstructRand; }
++	int getBaseAttitude() const { return m_iBaseAttitude; }
++	int getBasePeaceWeight() const { return m_iBasePeaceWeight; }
++	int getPeaceWeightRand() const { return m_iPeaceWeightRand; }
++	int getWarmongerRespect() const { return m_iWarmongerRespect; }
++	int getEspionageWeight() const { return m_iEspionageWeight; }
++	int getRefuseToTalkWarThreshold() const { return m_iRefuseToTalkWarThreshold; }
++	int getNoTechTradeThreshold() const { return m_iNoTechTradeThreshold; }
++	int getTechTradeKnownPercent() const { return m_iTechTradeKnownPercent; }
++	int getMaxGoldTradePercent() const { return m_iMaxGoldTradePercent; }
++	int getMaxGoldPerTurnTradePercent() const { return m_iMaxGoldPerTurnTradePercent; }
+ 	// BETTER_BTS_AI_MOD, Victory Strategy AI, 03/21/10, jdog5000: START
+-	int getCultureVictoryWeight() const;
+-	int getSpaceVictoryWeight() const;
+-	int getConquestVictoryWeight() const;
+-	int getDominationVictoryWeight() const;
+-	int getDiplomacyVictoryWeight() const;
++	int getCultureVictoryWeight() const { return m_iCultureVictoryWeight; }
++	int getSpaceVictoryWeight() const { return m_iSpaceVictoryWeight; }
++	int getConquestVictoryWeight() const { return m_iConquestVictoryWeight; }
++	int getDominationVictoryWeight() const { return m_iDominationVictoryWeight; }
++	int getDiplomacyVictoryWeight() const { return m_iDiplomacyVictoryWeight; }
+ 	// BETTER_BTS_AI_MOD: END
+-	int getMaxWarRand() const;
+-	int getMaxWarNearbyPowerRatio() const;
+-	int getMaxWarDistantPowerRatio() const;
+-	int getMaxWarMinAdjacentLandPercent() const;
+-	int getLimitedWarRand() const;
+-	int getLimitedWarPowerRatio() const;
+-	int getDogpileWarRand() const;
+-	int getMakePeaceRand() const;
+-	int getDeclareWarTradeRand() const;
+-	int getDemandRebukedSneakProb() const;
+-	int getDemandRebukedWarProb() const;
+-	int getRazeCityProb() const;
+-	inline int getBuildUnitProb() const { return m_iBuildUnitProb; } // advc.inl
+-	int getBaseAttackOddsChange() const;
+-	int getAttackOddsChangeRand() const;
+-	int getWorseRankDifferenceAttitudeChange() const;
+-	int getBetterRankDifferenceAttitudeChange() const;
+-	int getCloseBordersAttitudeChange() const;
+-	int getLostWarAttitudeChange() const;
+-	int getAtWarAttitudeDivisor() const;
+-	int getAtWarAttitudeChangeLimit() const;
+-	int getAtPeaceAttitudeDivisor() const;
+-	int getAtPeaceAttitudeChangeLimit() const;
+-	int getSameReligionAttitudeChange() const;
+-	int getSameReligionAttitudeDivisor() const;
+-	int getSameReligionAttitudeChangeLimit() const;
+-	int getDifferentReligionAttitudeChange() const;
+-	int getDifferentReligionAttitudeDivisor() const;
+-	int getDifferentReligionAttitudeChangeLimit() const;
+-	int getBonusTradeAttitudeDivisor() const;
+-	int getBonusTradeAttitudeChangeLimit() const;
+-	int getOpenBordersAttitudeDivisor() const;
+-	int getOpenBordersAttitudeChangeLimit() const;
+-	int getDefensivePactAttitudeDivisor() const;
+-	int getDefensivePactAttitudeChangeLimit() const;
+-	int getShareWarAttitudeChange() const;
+-	int getShareWarAttitudeDivisor() const;
+-	int getShareWarAttitudeChangeLimit() const;
+-	int getFavoriteCivicAttitudeChange() const;
+-	int getFavoriteCivicAttitudeDivisor() const;
+-	int getFavoriteCivicAttitudeChangeLimit() const;
+-	int getDemandTributeAttitudeThreshold() const;
+-	int getNoGiveHelpAttitudeThreshold() const;
+-	int getTechRefuseAttitudeThreshold() const;
++	int getMaxWarRand() const { return m_iMaxWarRand; }
++	int getMaxWarNearbyPowerRatio() const { return m_iMaxWarNearbyPowerRatio; }
++	int getMaxWarDistantPowerRatio() const { return m_iMaxWarDistantPowerRatio; }
++	int getMaxWarMinAdjacentLandPercent() const { return m_iMaxWarMinAdjacentLandPercent; }
++	int getLimitedWarRand() const { return m_iLimitedWarRand; }
++	int getLimitedWarPowerRatio() const { return m_iLimitedWarPowerRatio; }
++	int getDogpileWarRand() const { return m_iDogpileWarRand; }
++	int getMakePeaceRand() const { return m_iMakePeaceRand; }
++	int getDeclareWarTradeRand() const { return m_iDeclareWarTradeRand; }
++	int getDemandRebukedSneakProb() const { return m_iDemandRebukedSneakProb; }
++	int getDemandRebukedWarProb() const { return m_iDemandRebukedWarProb; }
++	int getRazeCityProb() const { return m_iRazeCityProb; }
++	inline int getBuildUnitProb() const { return m_iBuildUnitProb; }
++	int getBaseAttackOddsChange() const { return m_iBaseAttackOddsChange; }
++	int getAttackOddsChangeRand() const { return m_iAttackOddsChangeRand; }
++	int getWorseRankDifferenceAttitudeChange() const { return m_iWorseRankDifferenceAttitudeChange; }
++	int getBetterRankDifferenceAttitudeChange() const { return m_iBetterRankDifferenceAttitudeChange; }
++	int getCloseBordersAttitudeChange() const { return m_iCloseBordersAttitudeChange; }
++	int getLostWarAttitudeChange() const { return m_iLostWarAttitudeChange; }
++	int getAtWarAttitudeDivisor() const { return m_iAtWarAttitudeDivisor; }
++	int getAtWarAttitudeChangeLimit() const { return m_iAtWarAttitudeChangeLimit; }
++	int getAtPeaceAttitudeDivisor() const { return m_iAtPeaceAttitudeDivisor; }
++	int getAtPeaceAttitudeChangeLimit() const { return m_iAtPeaceAttitudeChangeLimit; }
++	int getSameReligionAttitudeChange() const { return m_iSameReligionAttitudeChange; }
++	int getSameReligionAttitudeDivisor() const { return m_iSameReligionAttitudeDivisor; }
++	int getSameReligionAttitudeChangeLimit() const { return m_iSameReligionAttitudeChangeLimit; }
++	int getDifferentReligionAttitudeChange() const { return m_iDifferentReligionAttitudeChange; }
++	int getDifferentReligionAttitudeDivisor() const { return m_iDifferentReligionAttitudeDivisor; }
++	int getDifferentReligionAttitudeChangeLimit() const { return m_iDifferentReligionAttitudeChangeLimit; }
++	int getBonusTradeAttitudeDivisor() const { return m_iBonusTradeAttitudeDivisor; }
++	int getBonusTradeAttitudeChangeLimit() const { return m_iBonusTradeAttitudeChangeLimit; }
++	int getOpenBordersAttitudeDivisor() const { return m_iOpenBordersAttitudeDivisor; }
++	int getOpenBordersAttitudeChangeLimit() const { return m_iOpenBordersAttitudeChangeLimit; }
++	int getDefensivePactAttitudeDivisor() const { return m_iDefensivePactAttitudeDivisor; }
++	int getDefensivePactAttitudeChangeLimit() const { return m_iDefensivePactAttitudeChangeLimit; }
++	int getShareWarAttitudeChange() const { return m_iShareWarAttitudeChange; }
++	int getShareWarAttitudeDivisor() const { return m_iShareWarAttitudeDivisor; }
++	int getShareWarAttitudeChangeLimit() const { return m_iShareWarAttitudeChangeLimit; }
++	int getFavoriteCivicAttitudeChange() const { return m_iFavoriteCivicAttitudeChange; }
++	int getFavoriteCivicAttitudeDivisor() const { return m_iFavoriteCivicAttitudeDivisor; }
++	int getFavoriteCivicAttitudeChangeLimit() const { return m_iFavoriteCivicAttitudeChangeLimit; }
++	int getDemandTributeAttitudeThreshold() const { return m_iDemandTributeAttitudeThreshold; }
++	int getNoGiveHelpAttitudeThreshold() const { return m_iNoGiveHelpAttitudeThreshold; }
++	int getTechRefuseAttitudeThreshold() const { return m_iTechRefuseAttitudeThreshold; }
+ 	// <advc.ctr>
+-	int getCityRefuseAttitudeThreshold() const;
+-	int getNativeCityRefuseAttitudeThreshold() const; // </advc.ctr>
+-	int getStrategicBonusRefuseAttitudeThreshold() const;
+-	int getHappinessBonusRefuseAttitudeThreshold() const;
+-	int getHealthBonusRefuseAttitudeThreshold() const;
+-	int getMapRefuseAttitudeThreshold() const;
+-	int getDeclareWarRefuseAttitudeThreshold() const;
+-	int getDeclareWarThemRefuseAttitudeThreshold() const;
+-	int getStopTradingRefuseAttitudeThreshold() const;
+-	int getStopTradingThemRefuseAttitudeThreshold() const;
+-	int getAdoptCivicRefuseAttitudeThreshold() const;
+-	int getConvertReligionRefuseAttitudeThreshold() const;
+-	int getOpenBordersRefuseAttitudeThreshold() const;
+-	int getDefensivePactRefuseAttitudeThreshold() const;
+-	int getPermanentAllianceRefuseAttitudeThreshold() const;
+-	int getVassalRefuseAttitudeThreshold() const;
+-	int getVassalPowerModifier() const;
+-	int getFavoriteCivic() const;
+-	int getFavoriteReligion() const;
+-	int getFreedomAppreciation() const;
++	int getCityRefuseAttitudeThreshold() const { return m_iCityRefuseAttitudeThreshold; }
++	int getNativeCityRefuseAttitudeThreshold() const { return m_iNativeCityRefuseAttitudeThreshold; }
++	// </advc.ctr>
++	int getStrategicBonusRefuseAttitudeThreshold() const { return m_iStrategicBonusRefuseAttitudeThreshold; }
++	int getHappinessBonusRefuseAttitudeThreshold() const { return m_iHappinessBonusRefuseAttitudeThreshold; }
++	int getHealthBonusRefuseAttitudeThreshold() const { return m_iHealthBonusRefuseAttitudeThreshold; }
++	int getMapRefuseAttitudeThreshold() const { return m_iMapRefuseAttitudeThreshold; }
++	int getDeclareWarRefuseAttitudeThreshold() const { return m_iDeclareWarRefuseAttitudeThreshold; }
++	int getDeclareWarThemRefuseAttitudeThreshold() const { return m_iDeclareWarThemRefuseAttitudeThreshold; }
++	int getStopTradingRefuseAttitudeThreshold() const { return m_iStopTradingRefuseAttitudeThreshold; }
++	int getStopTradingThemRefuseAttitudeThreshold() const { return m_iStopTradingThemRefuseAttitudeThreshold; }
++	int getAdoptCivicRefuseAttitudeThreshold() const { return m_iAdoptCivicRefuseAttitudeThreshold; }
++	int getConvertReligionRefuseAttitudeThreshold() const { return m_iConvertReligionRefuseAttitudeThreshold; }
++	int getOpenBordersRefuseAttitudeThreshold() const { return m_iOpenBordersRefuseAttitudeThreshold; }
++	int getDefensivePactRefuseAttitudeThreshold() const { return m_iDefensivePactRefuseAttitudeThreshold; }
++	int getPermanentAllianceRefuseAttitudeThreshold() const { return m_iPermanentAllianceRefuseAttitudeThreshold; }
++	int getVassalRefuseAttitudeThreshold() const { return m_iVassalRefuseAttitudeThreshold; }
++	int getVassalPowerModifier() const { return m_iVassalPowerModifier; }
++	int getFavoriteCivic() const { return m_iFavoriteCivic; }
++	int getFavoriteReligion() const { return m_iFavoriteReligion; }
++	int getFreedomAppreciation() const { return m_iFreedomAppreciation; }
+ 	int getLoveOfPeace() const { return m_iLoveOfPeace; } // advc.104
+ 
+ 	const TCHAR* getArtDefineTag() const;
+@@ -231,6 +233,8 @@ public: // advc: All the const functions are exposed to Python except those adde
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
+ protected:
++	/*	advc.xmldefault (note): The copy-ctor relies on m_iWonderConstructRand
++		being the first data member */
+ 	int m_iWonderConstructRand;
+ 	int m_iBaseAttitude;
+ 	int m_iBasePeaceWeight;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=25446

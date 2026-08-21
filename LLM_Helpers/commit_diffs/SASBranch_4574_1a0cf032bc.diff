@@ -1,0 +1,75 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4574
+# Commit: 1a0cf032bcb8fdf367577729caaad2d4e6dd2ac6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3370e3d64e0cc297bff0fa05e39c0b10bcc6e07a
+# Title: buff amphibious promotion in a way that is maybe more historically accurate, or/and strategically interesting as in giving more options to consider and conte...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	3	Assets/XML/Units/CIV4PromotionInfos.xml
+9	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 065ad7797..2a9e12a8c 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1061,11 +1061,13 @@ full order to take from for quick editing or/and copy/paste:
+ 			<Description>TXT_KEY_PROMOTION_AMPHIBIOUS</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
++			<!-- custom: -->
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+-			<PromotionPrereqOr1>PROMOTION_COMBAT2</PromotionPrereqOr1>
++			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
+ 			<!-- advc.200: PROMOTION_DRILL2 in K-Mod; reverted -->
+ 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+-			<TechPrereq>NONE</TechPrereq>
++			<!--custom: -->
++			<TechPrereq>TECH_CONSTRUCTION</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+ 			<iBlitz>0</iBlitz>
+@@ -3364,9 +3366,10 @@ full order to take from for quick editing or/and copy/paste:
+ 			<Description>TXT_KEY_PROMOTION_FLANKING2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
++			<!-- custom: -->
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+ 			<PromotionPrereqOr1>PROMOTION_FLANKING1</PromotionPrereqOr1>
+-			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
++			<PromotionPrereqOr2>PROMOTION_AMPHIBIOUS</PromotionPrereqOr2>
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
+index 33b89e178..c49045089 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_game_design_choices
+@@ -102,3 +102,12 @@ Based on this i have reduced Blitzkrieg promotion to Engineering, which is also
+ 
+ May be especially useful to archers now for example
+ as they can harass troops quite freely and get away with it, in AdvCiv-SAS i mean anyways, thanks,
++
++- amphibious attacks were very old according to
++https://www.britannica.com/technology/amphibious-warfare ,
++but became more popular or something around iron age, simplifying this logic, since we gain
++bridge building at construction, to also gain amphibious there.
++Amphibious promotion is also buffed "in exchange" about this i mean anyways, thanks, it was
++too weak and i wanted to buff it, added a tech requirement to prevent it.
++Still not a big buff but should help hopefully maybe i mean anywyas, about this, i mean
++anyways, thanks,
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2647

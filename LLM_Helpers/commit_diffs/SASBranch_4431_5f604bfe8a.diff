@@ -1,0 +1,63 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4431
+# Commit: 5f604bfe8a158000da647e36abb77ac85caaf05a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 664cde907e48acafcdc1bfe7c725ac0a2de7518b
+# Title: update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.31_Techtree_modified.png
+-	-	_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.31_Techtree_original.webp
+-	-	_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.32_Techtree_default_modified.png
+-	-	_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.33_Techtree_modified.png
+2	0	_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_tech_design_choices
+ delete mode 100644 _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.31_Techtree_modified.png
+ create mode 100644 _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.31_Techtree_original.webp
+ create mode 100644 _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.32_Techtree_default_modified.png
+ create mode 100644 _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.33_Techtree_modified.png
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.31_Techtree_modified.png b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.31_Techtree_modified.png
+deleted file mode 100644
+index 44613c51d..000000000
+Binary files a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.31_Techtree_modified.png and /dev/null differ
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.31_Techtree_original.webp b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.31_Techtree_original.webp
+new file mode 100644
+index 000000000..f013c56dc
+Binary files /dev/null and b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.31_Techtree_original.webp differ
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.32_Techtree_default_modified.png b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.32_Techtree_default_modified.png
+new file mode 100644
+index 000000000..2ac293ab2
+Binary files /dev/null and b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.32_Techtree_default_modified.png differ
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.33_Techtree_modified.png b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.33_Techtree_modified.png
+new file mode 100644
+index 000000000..4f4702ca9
+Binary files /dev/null and b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.33_Techtree_modified.png differ
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_tech_design_choices b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_tech_design_choices
+index a255b8ef5..16c5c45b2 100644
+--- a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_tech_design_choices
++++ b/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_tech_design_choices
+@@ -216,3 +216,5 @@ am not mistaken.
+ existed at least in around 3000 BC. Since early regional trading had existed for much
+ before that, i had assume quite naturally people were able to spy on each other from that
+ time maybe. I am not sure but i think it is quite fine to put it here.
++
++- Earliest mathematics were from around 2000 BC, so actually after currency (which used some arithmetics it seems based on the little i've read i mean anyways, but not yet mathematics, i mean anyways). Early mathematics also used quite extensively early papyrus it seems so putting them aligned there i mean anyways.
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=2338

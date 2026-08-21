@@ -1,0 +1,63 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4358
+# Commit: dd243872ff1e7052c150056d89e71af83441ab87
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 27bde47c8a56cf5a7736e0882e446775a2aeca5d
+# Title: Fix regression in UWAI eval of border disputes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	CvGameCoreDLL/ArithmeticUtils.h
+2	3	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ArithmeticUtils.h b/CvGameCoreDLL/ArithmeticUtils.h
+index 66235315e..1cf8e6e86 100644
+--- a/CvGameCoreDLL/ArithmeticUtils.h
++++ b/CvGameCoreDLL/ArithmeticUtils.h
+@@ -210,6 +210,11 @@ namespace fmath
+ 		int r = (int)(d + 0.5 * iMultiple);
+ 		return r - r % iMultiple;
+ 	}
++	inline double log2(double d) // as in C++11
++	{
++		static const double dLn2 = std::log(2);
++		return std::log(d) / dLn2;
++	}
+ }
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 0a671ecc5..c298ee79a 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2089,14 +2089,13 @@ void BorderDisputes::evaluate()
+ 		// advc.003g: Tbd.: Write a fixed-point logarithm function
+ 		double dOurCultureMultiplier = iOurPlotCulturePercent / 100.0;
+ 		/*	E.g. dOurCultureModifier=1 if 0% culture;
+-			5% -> 0.92; 10% -> 0.67; 20% -> 0.42; 50% -> 0.08.
++			5% -> 0.92; 10% -> 0.67; 20% -> 0.42; 50% -> 0.09.
+ 			If we already have a lot of culture in the city, then it's probably
+ 			not the city causing us to lose border tiles. */
+ 		if (dOurCultureMultiplier > 0.04)
+ 		{
+ 			dOurCultureMultiplier = std::max(0.0,
+-					1 - 0.25 * std::log(25 * dOurCultureMultiplier) /
+-					0.301/*std::log(2.0)*/); // binary log
++					1 - 0.25 * fmath::log2(25 * dOurCultureMultiplier);
+ 		}
+ 		else dOurCultureMultiplier = 1;
+ 		scaled rOurCultureModifier = scaled::fromDouble(dOurCultureMultiplier);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1462

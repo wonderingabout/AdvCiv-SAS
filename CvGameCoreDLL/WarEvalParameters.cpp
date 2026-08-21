@@ -5,10 +5,7 @@
 #include "AgentIterator.h"
 
 
-WarEvalParameters::WarEvalParameters(TeamTypes eAgent,
-	TeamTypes eTarget, UWAIReport& kReport,
-	bool bIgnoreDistraction, PlayerTypes eSponsor,
-	TeamTypes eCapitulationTeam)
+WarEvalParameters::WarEvalParameters(TeamTypes eAgent, TeamTypes eTarget, UWAIReport& kReport, bool bIgnoreDistraction, PlayerTypes eSponsor, TeamTypes eCapitulationTeam)
 :	m_eAgent(eAgent), m_eTarget(eTarget), m_kReport(kReport),
 	m_eSponsor(eSponsor), m_eCapitulationTeam(eCapitulationTeam),
 	m_bIgnoreDistraction(bIgnoreDistraction),

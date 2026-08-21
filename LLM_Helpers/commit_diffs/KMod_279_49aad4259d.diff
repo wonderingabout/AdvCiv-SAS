@@ -1,0 +1,293 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 279
+# Commit: 49aad4259d6581edd06f6273c280e0c0a04716c9
+# History segment: K-Mod history
+# Parent used for diff: c4a190421848dd16bcdc5dcdc76735a6952dd42c
+# Title: Made some changes to diplomacy. The AI will now check that _both players_ are willing to talk to one another before they set up a trade. (previously the chec...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvEnums.h
+6	0	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+53	44	CvGameCoreDLL/CvPlayerAI.cpp
+8	3	CvGameCoreDLL/CvTeam.cpp
+2	1	CvGameCoreDLL/CvTeam.h
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 1c7c890b9..1d59c3302 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1475,6 +1475,7 @@ enum MissionAITypes		// Exposed to Python
+ 	MISSIONAI_HEAL,
+ 	MISSIONAI_RETREAT,
+ 	MISSIONAI_PATROL,
++	MISSIONAI_GOLDEN_AGE, // ie. waiting for more golden age units.
+ 	? MISSIONAI_LAND_ASSAULT,
+ 	? MISSIONAI_SEA_ASSAULT,
+ 	*/
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index ea92cc79b..782c681c3 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4454,6 +4454,12 @@ bool CvPlayer::canContact(PlayerTypes ePlayer) const
+ 	return true;
+ }
+ 
++// K-Mod
++bool CvPlayer::canContactAndTalk(PlayerTypes ePlayer) const
++{
++	return canContact(ePlayer) && AI_isWillingToTalk(ePlayer) && GET_PLAYER(ePlayer).AI_isWillingToTalk(getID());
++}
++// K-Mod end
+ 
+ void CvPlayer::contact(PlayerTypes ePlayer)
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 987b535cb..f64c2e49b 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -202,6 +202,7 @@ public:
+ 	int countPotentialForeignTradeCitiesConnected() const;																								// Exposed to Python
+ 
+ 	DllExport bool canContact(PlayerTypes ePlayer) const;																									// Exposed to Python
++	DllExport bool canContactAndTalk(PlayerTypes ePlayer) const; // K-Mod. this checks willingness to talk on both sides
+ 	void contact(PlayerTypes ePlayer);																															// Exposed to Python
+ 	DllExport void handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer, int iData1, int iData2);
+ 	bool canTradeWith(PlayerTypes eWhoTo) const;																													// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 7c961cc83..6201fc639 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -792,7 +792,7 @@ void CvPlayerAI::AI_doPeace()
+ 		{
+ 			if (iI != getID())
+ 			{
+-				if (canContact((PlayerTypes)iI) && AI_isWillingToTalk((PlayerTypes)iI))
++				if (canContactAndTalk((PlayerTypes)iI))
+ 				{
+ 					if (!(GET_TEAM(getTeam()).isHuman()) && (GET_PLAYER((PlayerTypes)iI).isHuman() || !(GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isHuman())))
+ 					{
+@@ -1001,7 +1001,7 @@ void CvPlayerAI::AI_doPeace()
+ 													}
+ 
+ 													//if ((GET_PLAYER((PlayerTypes)iI).isHuman()) ? (iOurValue >= iTheirValue) : ((iOurValue > ((iTheirValue * 3) / 5)) && (iTheirValue > ((iOurValue * 3) / 5))))
+-													if ((GET_PLAYER((PlayerTypes)iI).isHuman()) ? (iOurValue >= 4*iTheirValue/5) : ((iOurValue > ((iTheirValue * 3) / 5)) && (iTheirValue > ((iOurValue * 3) / 5))))
++													if ((GET_PLAYER((PlayerTypes)iI).isHuman() ? iOurValue >= 4*iTheirValue/5 : iOurValue > iTheirValue*3/5) && iTheirValue > iOurValue*3/5) // K-Mod
+ 													{
+ 														ourList.clear();
+ 														theirList.clear();
+@@ -6805,7 +6805,7 @@ DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const
+ 	return (DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_GREETINGS");
+ }
+ 
+-
++// return true if we are willing to talk to ePlayer
+ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ {
+ 	FAssertMsg(getPersonalityType() != NO_LEADER, "getPersonalityType() is not expected to be equal with NO_LEADER");
+@@ -6826,12 +6826,16 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ 	{
+ 		return false;
+ 	} */ // disabled by K-Mod
++	// K-Mod
++	if (isHuman())
++		return true; // humans will speak to anyone, apparently.
++	// K-Mod end
+ 
+ 	if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
+ 	{
+ 		// K-Mod
+-		if (kOurTeam.isHuman() && !isHuman())
+-			return false;
++		if (kOurTeam.isHuman()) // ie. we are an AI player, but our team is human
++			return false; // let the human speak for us.
+ 
+ 		if (kOurTeam.AI_refusePeace(GET_PLAYER(ePlayer).getTeam()))
+ 		{
+@@ -14999,66 +15003,71 @@ void CvPlayerAI::AI_doDiplo()
+ 
+ 										if (bCancelDeal)
+ 										{
+-											if (canContact((PlayerTypes)iI) && AI_isWillingToTalk((PlayerTypes)iI))
++											if (GET_PLAYER((PlayerTypes)iI).isHuman() && canContactAndTalk((PlayerTypes)iI))
+ 											{
+-												if (GET_PLAYER((PlayerTypes)iI).isHuman())
+-												{
+-													ourList.clear();
+-													theirList.clear();
++												ourList.clear();
++												theirList.clear();
++												bool bVassalDeal = pLoopDeal->isVassalDeal(); // K-Mod
+ 
+-													for (pNode = pLoopDeal->headFirstTradesNode(); (pNode != NULL); pNode = pLoopDeal->nextFirstTradesNode(pNode))
++												for (pNode = pLoopDeal->headFirstTradesNode(); (pNode != NULL); pNode = pLoopDeal->nextFirstTradesNode(pNode))
++												{
++													if (pLoopDeal->getFirstPlayer() == getID())
+ 													{
+-														if (pLoopDeal->getFirstPlayer() == getID())
+-														{
+-															ourList.insertAtEnd(pNode->m_data);
+-														}
+-														else
+-														{
+-															theirList.insertAtEnd(pNode->m_data);
+-														}
++														ourList.insertAtEnd(pNode->m_data);
+ 													}
+-
+-													for (pNode = pLoopDeal->headSecondTradesNode(); (pNode != NULL); pNode = pLoopDeal->nextSecondTradesNode(pNode))
++													else
+ 													{
+-														if (pLoopDeal->getSecondPlayer() == getID())
+-														{
+-															ourList.insertAtEnd(pNode->m_data);
+-														}
+-														else
+-														{
+-															theirList.insertAtEnd(pNode->m_data);
+-														}
++														theirList.insertAtEnd(pNode->m_data);
+ 													}
++												}
+ 
+-													pDiplo = new CvDiploParameters(getID());
+-													FAssertMsg(pDiplo != NULL, "pDiplo must be valid");
+-
+-													if (pLoopDeal->isVassalDeal())
++												for (pNode = pLoopDeal->headSecondTradesNode(); (pNode != NULL); pNode = pLoopDeal->nextSecondTradesNode(pNode))
++												{
++													if (pLoopDeal->getSecondPlayer() == getID())
+ 													{
+-														pDiplo->setDiploComment((DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_NO_VASSAL"));
+-														pDiplo->setAIContact(true);
+-														gDLL->beginDiplomacy(pDiplo, ((PlayerTypes)iI));
++														ourList.insertAtEnd(pNode->m_data);
+ 													}
+ 													else
+ 													{
+-														pDiplo->setDiploComment((DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_CANCEL_DEAL"));
+-														pDiplo->setAIContact(true);
+-														pDiplo->setOurOfferList(theirList);
+-														pDiplo->setTheirOfferList(ourList);
+-														gDLL->beginDiplomacy(pDiplo, (PlayerTypes)iI);
++														theirList.insertAtEnd(pNode->m_data);
+ 													}
+-													abContacted[GET_PLAYER((PlayerTypes)iI).getTeam()] = true;
+ 												}
++												pLoopDeal->kill(); // K-Mod. Kill the old deal first.
++
++												pDiplo = new CvDiploParameters(getID());
++												FAssertMsg(pDiplo != NULL, "pDiplo must be valid");
++
++												//if (pLoopDeal->isVassalDeal())
++												if (bVassalDeal)
++												{
++													pDiplo->setDiploComment((DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_NO_VASSAL"));
++													pDiplo->setAIContact(true);
++													gDLL->beginDiplomacy(pDiplo, ((PlayerTypes)iI));
++												}
++												else
++												{
++													pDiplo->setDiploComment((DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_CANCEL_DEAL"));
++													pDiplo->setAIContact(true);
++													pDiplo->setOurOfferList(theirList);
++													pDiplo->setTheirOfferList(ourList);
++													gDLL->beginDiplomacy(pDiplo, (PlayerTypes)iI);
++												}
++												abContacted[GET_PLAYER((PlayerTypes)iI).getTeam()] = true;
+ 											}
++											// K-Mod.
++											else
++												pLoopDeal->kill();
++											// K-Mod end
+ 
+-											pLoopDeal->kill(); // XXX test this for AI...
++											//pLoopDeal->kill(); // XXX test this for AI...
++											// K-Mod. I've rearranged stuff so that we can kill the deal before a diplomacy window.
+ 										}
+ 									}
+ 								}
+ 							}
+ 						}
+ 
+-						if (canContact((PlayerTypes)iI) && AI_isWillingToTalk((PlayerTypes)iI))
++						if (canContactAndTalk((PlayerTypes)iI))
+ 						{
+ 							if (GET_PLAYER((PlayerTypes)iI).getTeam() == getTeam() || GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isVassal(getTeam()))
+ 							{
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index dbed62fa0..56501f1b2 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1870,8 +1870,10 @@ void CvTeam::makePeace(TeamTypes eTeam, bool bBumpUnits)
+ 	}
+ }
+ 
+-
+-bool CvTeam::canContact(TeamTypes eTeam) const
++// K-Mod. I've added bCheckWillingness.
++// note. I would have done this the same way in CvPlayer::canContact
++// but unfortunately, changing the signiture of that function causes the game to crash - because it's a dll export.
++bool CvTeam::canContact(TeamTypes eTeam, bool bCheckWillingness) const
+ {
+ 	int iI, iJ;
+ 
+@@ -1887,7 +1889,10 @@ bool CvTeam::canContact(TeamTypes eTeam) const
+ 					{
+ 						if (GET_PLAYER((PlayerTypes)iJ).getTeam() == eTeam)
+ 						{
+-							if (GET_PLAYER((PlayerTypes)iI).canContact((PlayerTypes)iJ))
++							//if (GET_PLAYER((PlayerTypes)iI).canContact((PlayerTypes)iJ))
++							if (bCheckWillingness
++								? GET_PLAYER((PlayerTypes)iI).canContactAndTalk((PlayerTypes)iJ)
++								: GET_PLAYER((PlayerTypes)iI).canContact((PlayerTypes)iJ))
+ 							{
+ 								return true;
+ 							}
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index d92ae1027..f6a570bf4 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -60,7 +60,8 @@ public:
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 	DllExport void makePeace(TeamTypes eTeam, bool bBumpUnits = true);																		// Exposed to Python
+-	bool canContact(TeamTypes eTeam) const;																							// Exposed to Python
++	//bool canContact(TeamTypes eTeam) const; // Exposed to Python
++	bool canContact(TeamTypes eTeam, bool bCheckWillingness = false) const; // K-Mod, Exposed to Python
+ 	void meet(TeamTypes eTeam, bool bNewDiplo);																		// Exposed to Python
+ 	void signOpenBorders(TeamTypes eTeam);																				// Exposed to Python
+ 	void signDefensivePact(TeamTypes eTeam);																			// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 20e2b2c5c..243728a38 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4764,7 +4764,7 @@ void CvTeamAI::AI_doWar()
+ 					{
+ 						if (!(GET_TEAM((TeamTypes)iI).isHuman()))
+ 						{
+-							if (canContact((TeamTypes)iI))
++							if (canContact((TeamTypes)iI, true))
+ 							{
+ 								FAssert(!(GET_TEAM((TeamTypes)iI).isMinorCiv()));
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=10978

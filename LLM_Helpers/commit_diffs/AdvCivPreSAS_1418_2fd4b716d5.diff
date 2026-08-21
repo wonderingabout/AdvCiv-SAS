@@ -1,0 +1,128 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1418
+# Commit: 2fd4b716d53c5ed1cd6c701b90bd10e43ca5b850
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1d028c49a410215621d9da2442d5830a305e601d
+# Title: Option for end-turn message added
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	0	Assets/Config/BUG Main Interface.xml
+2	0	Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+3	1	Assets/Python/Screens/CvMainInterface.py
+18	0	Assets/xml/Text/BUG Main Interface Options.xml
+0	12	Assets/xml/Text/CIV4GameText_advc.xml
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index 8bb40f907..e3394accd 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -40,6 +40,12 @@
+ 					get="getMessageLimit">
+ 			</list>
+ 			
++			<!-- advc.002n: New option. This part of the main interface gets
++				 constantly updated; no dirty-bit needed. -->
++			<option id="EndTurnMessage" key="End Turn Message" 
++					type="boolean" default="False" 
++					get="isShowEndTurnMessage"/>
++
+ 			<!-- Gold Rate Warning -->
+ 			<!--option id="GoldRateWarning" key="Gold Rate Warning" 
+ 					type="boolean" default="False"
+
+diff --git a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+index a8d2f892f..f7c55d568 100644
+--- a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+@@ -122,4 +122,6 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, panel, "MainInterface__AutoOpenEventLog")
+ 		self.addTextDropdown(screen, panel, panel, "MainInterface__MessageLimit", True)
+ 		# </advc.106b>
++		# advc.002n:
++		self.addCheckbox(screen, panel, "MainInterface__EndTurnMessage")
+ 		self.addCheckbox(screen, panel, "MainInterface__CityArrows")
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index ecc27dbb6..b87584508 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1135,8 +1135,10 @@ class CvMainInterface:
+ # BUG - Reminders - start
+ 					if ( ReminderEventManager.g_turnReminderTexts ):
+ 						acOutput = u"%s" % ReminderEventManager.g_turnReminderTexts
+-					else:
++					elif MainOpt.isShowEndTurnMessage(): # advc.002n
+ 						acOutput = localText.getText("SYSTEM_END_TURN", ())
++					# advc.002n: So that toggling the option immediately hides the message
++					else: acOutput = ""
+ # BUG - Reminders - end
+ 					#screen.modifyLabel( "EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY )
+ 					screen.setEndTurnState( "EndTurnText", acOutput )
+
+diff --git a/Assets/xml/Text/BUG Main Interface Options.xml b/Assets/xml/Text/BUG Main Interface Options.xml
+index 228865eee..fbe46ec7d 100644
+--- a/Assets/xml/Text/BUG Main Interface Options.xml	
++++ b/Assets/xml/Text/BUG Main Interface Options.xml	
+@@ -80,6 +80,24 @@
+ 		<Spanish>The Event Log is opened when the number of new messages exceeds this limit.</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.002b -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__ENDTURNMESSAGE_TEXT</Tag>
++		<English>End-Turn Message</English>
++		<French>End-Turn Message</French>
++		<German>Nachricht am Rundenende</German>
++		<Italian>End-Turn Message</Italian>
++		<Spanish>End-Turn Message</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__ENDTURNMESSAGE_HOVER</Tag>
++		<English>When checked, a flashing message "Press ENTER to end turn" is shown once all units and cities have been given orders (as in BtS). Otherwise, the "End Turn" button still blinks as it does in BtS, but no message is shown.</English>
++		<French>When checked, a flashing message "Press ENTER to end turn" is shown once all units and cities have been given orders (as in BtS). Otherwise, the "End Turn" button still blinks as it does in BtS, but no message is shown.</French>
++		<German>Blinkanzeige "Runde beenden mit EINGABETASTE" (wie in BtS), sobald alle Einheiten und St�dte Befehle erhalten haben. Die rote Rundenende-Schaltfl�che blinkt auch wenn diese Option nicht angekreuzt ist.</German>
++		<Italian>When checked, a flashing message "Press ENTER to end turn" is shown once all units and cities have been given orders (as in BtS). Otherwise, the "End Turn" button still blinks as it does in BtS, but no message is shown.</Italian>
++		<Spanish>When checked, a flashing message "Press ENTER to end turn" is shown once all units and cities have been given orders (as in BtS). Otherwise, the "End Turn" button still blinks as it does in BtS, but no message is shown.</Spanish>
++	</TEXT>
++	
+ 	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GOLDRATEWARNING_TEXT</Tag>
+ 		<English>Gold Rate Warning</English>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index b156840f7..249481103 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -4403,18 +4403,6 @@
+ 		<Spanish>Ninguno (provoca una elecci�n anticipada)</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.002n: Can restore the flashing end-turn message by deleting this
+-		 text key. (The game will then use the original one in
+-		 Civ4GameTextInfos.xml.)  -->
+-	<TEXT>
+-		<Tag>SYSTEM_END_TURN</Tag>
+-		<English></English>
+-		<French></French>
+-		<German></German>
+-		<Italian></Italian>
+-		<Spanish></Spanish>
+-	</TEXT>
+-
+ 	<!-- advc.054: Originally in CIV4GameText_Misc1.xml. Text in parentheses
+ 		 added. -->
+ 	<TEXT>
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=4932

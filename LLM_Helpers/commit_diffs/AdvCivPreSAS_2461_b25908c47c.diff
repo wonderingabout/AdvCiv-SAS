@@ -1,0 +1,200 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2461
+# Commit: b25908c47cbf940931a5666fdbb6a8c3aaf27619
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a26b04a2f0c26ff02bb9f3253a2c327570d153dd
+# Title: Fix crash upon capitulated vassal breaking free
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+23	11	CvGameCoreDLL/CvCity.cpp
+7	3	CvGameCoreDLL/CvCity.h
+4	1	CvGameCoreDLL/CvTeam.cpp
+5	1	CvGameCoreDLL/CyCity.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 40652317c..b5e9cb4b9 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1319,8 +1319,10 @@ void CvCity::verifyProduction()
+ 	if(isProduction()) // Only want to address invalid orders here; no production is OK.
+ 	{
+ 		/*  This doesn't check all preconditions, just the ones that could change
+-			throughout a (human) turn. */
+-		checkCanContinueProduction();
++			throughout a (human) turn. Don't want the AI to choose a new order
++			b/c it might be another civ's turn, and, in that case,
++			CvPlayerAI::AI_chooseProduction isn't guaranteed to work correctly. */
++		checkCanContinueProduction(true, HUMAN_CHOOSE);
+ 	}
+ }
+ 
+@@ -9662,7 +9664,8 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave,
+ }
+ 
+ 
+-void CvCity::popOrder(int iNum, bool bFinish, bool bChoose,  // advc: style changes
++void CvCity::popOrder(int iNum, bool bFinish,
++	ChooseProductionPlayers eChoose, // advc.064d (was bool bChoose)
+ 	bool bEndOfTurn) // advc.001x
+ {
+ 	wchar szBuffer[1024];
+@@ -9964,7 +9967,10 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose,  // advc: style chan
+ 	}
+ 
+ 	bool bMessage = false;
+-	if (bChoose && getOrderQueueLength() == 0)
++	if (getOrderQueueLength() == 0 &&
++		// <advc.064d>
++		(eChoose == ALL_CHOOSE ||
++		(eChoose != NONE_CHOOSE && (eChoose == HUMAN_CHOOSE) == isHuman()))) // </advc.064d>
+ 	{
+ 		if (!isHuman() || isProductionAutomated())
+ 			AI().AI_chooseProduction();
+@@ -10542,7 +10548,8 @@ void CvCity::upgradeProduction()
+ }
+ 
+ // advc.064d: Cut from doCheckProduction
+-bool CvCity::checkCanContinueProduction(bool bCheckUpgrade)
++bool CvCity::checkCanContinueProduction(bool bCheckUpgrade,
++	ChooseProductionPlayers eChoose)
+ {
+ 	bool r = true;
+ 	for (int i = getOrderQueueLength() - 1; i >= 0; i--)
+@@ -10553,9 +10560,9 @@ bool CvCity::checkCanContinueProduction(bool bCheckUpgrade)
+ 			if (bCheckUpgrade)
+ 			{
+ 				upgradeProduction();
+-				return checkCanContinueProduction(false);
++				return checkCanContinueProduction(false, eChoose);
+ 			}
+-			popOrder(i, false, true);
++			popOrder(i, false, eChoose);
+ 			r = false;
+ 		}
+ 	}  // <advc.004x> Relaunch choose-production popups
+@@ -10591,7 +10598,7 @@ void CvCity::doProduction(bool bAllowNoProduction)
+ 			getProductionToCommerceModifier(COMMERCE_CULTURE) > 0 &&
+ 			getCultureLevel() > order.iData2)
+ 		{
+-			popOrder(0, false, true);
++			popOrder(0, false, ALL_CHOOSE);
+ 		}
+ 		// K-Mod end
+ 		return;
+@@ -10610,7 +10617,7 @@ void CvCity::doProduction(bool bAllowNoProduction)
+ 		changeFeatureProduction(-iFeatureProductionUsed); // advc.064b
+ 
+ 		if (getProduction() >= getProductionNeeded())
+-			popOrder(0, true, true);
++			popOrder(0, true, ALL_CHOOSE);
+ 	}
+ 	else
+ 	{
+@@ -12792,7 +12799,12 @@ void CvCity::cheat(bool bCtrl, bool bAlt, bool bShift)
+ 			changeCulture(getOwner(), 10, true, true);
+ 		else if (bShift)
+ 			changePopulation(1);
+-		else popOrder(0, true, /* advc.001x: */ false, false);
++		else
++		{
++			popOrder(0, true,
++					NONE_CHOOSE, // advc.001x
++					false);
++		}
+ 	}
+ }
+ 
+@@ -13055,7 +13067,7 @@ void CvCity::failProduction(int iOrderData, int iInvestedProduction, bool bProje
+ 		if (od != NULL && od->eOrderType == eOrderType && od->iData1 == iOrderData)
+ 		{
+ 			FAssert(!canContinueProduction(*od));
+-			popOrder(i, false, true);
++			popOrder(i, false, HUMAN_CHOOSE);
+ 		}
+ 	}
+ 	int iGoldPercent = failGoldPercent(eOrderType);
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index d8d5b8d52..f00ea78e3 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1151,7 +1151,8 @@ public:
+ 	// K-Mod. (the old version is still exposed to Python)
+ 	void pushOrder(OrderTypes eOrder, int iData1, int iData2 = -1, bool bSave = false,
+ 			bool bPop = false, int iPosition = 0, bool bForce = false);
+-	void popOrder(int iNum, bool bFinish = false, bool bChoose = false,												// Exposed to Python
++	enum ChooseProductionPlayers { NONE_CHOOSE, HUMAN_CHOOSE, AI_CHOOSE, ALL_CHOOSE }; // advc.064d
++	void popOrder(int iNum, bool bFinish = false, ChooseProductionPlayers eChoose = NONE_CHOOSE,							// Exposed to Python
+ 			bool bEndOfTurn = true); // advc.001x
+ 	void startHeadOrder();
+ 	void stopHeadOrder();
+@@ -1472,8 +1473,11 @@ protected:
+ 	void doGrowth();
+ 	void doCulture();
+ 	bool doCheckProduction();
+-	void upgradeProduction(); // advc.064d
+-	bool checkCanContinueProduction(bool bCheckUpgrade = true); // advc.064d
++	// <advc.064d>
++	void upgradeProduction();
++	bool checkCanContinueProduction(bool bCheckUpgrade = true,
++			ChooseProductionPlayers eChoose = ALL_CHOOSE);
++	// </advc.064d>
+ 	void doProduction(bool bAllowNoProduction);
+ 	void doDecay();
+ 	void doReligion();
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index a497e4469..adb47f562 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -3142,7 +3142,7 @@ int CvTeam::turnsOfForcedPeaceRemaining(TeamTypes eOther) const
+ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
+ {
+ 	FAssertMsg(!bNewValue || !GET_TEAM(eMaster).isAVassal(), "can't become a vassal of a vassal");
+-	bool bWasCapitulated = isCapitulated(); // advc.130v
++	bool const bWasCapitulated = isCapitulated(); // advc.130v
+ 	/*  <advc> If this function is used for turning capitulated into
+ 		voluntary vassals at some point, then the code for processing this change
+ 		will have to be placed before this clause, or will also have to check if
+@@ -3227,6 +3227,9 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
+ 			kLoopPlot.updateCulture(true, false);
+ 	}
+ 
++	/*	advc.064d (note): m_bCapitulated hasn't been set yet. If the
++		plot group update causes an AI city to choose new production
++		immediately, there could be trouble. I don't think that can happen though. */
+ 	GC.getGame().updatePlotGroups();
+ 
+ 	if (isVassal(eMaster))
+
+diff --git a/CvGameCoreDLL/CyCity.cpp b/CvGameCoreDLL/CyCity.cpp
+index 75e8c13b3..c2a73794f 100644
+--- a/CvGameCoreDLL/CyCity.cpp
++++ b/CvGameCoreDLL/CyCity.cpp
+@@ -2185,7 +2185,11 @@ void CyCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
+ void CyCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ {
+ 	if (m_pCity)
+-		m_pCity->popOrder(iNum, bFinish, bChoose);
++	{
++		m_pCity->popOrder(iNum, bFinish, //bChoose
++				// advc.064d:
++				bChoose ? CvCity::ALL_CHOOSE : CvCity::NONE_CHOOSE);
++	}
+ }
+ 
+ int CyCity::getOrderQueueLength()
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=6483

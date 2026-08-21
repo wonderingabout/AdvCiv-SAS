@@ -1,0 +1,253 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1636
+# Commit: d77c39aeadf1661bb9f9ab75542b17ded9525955
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4990fc779bd219295ad116ef2518d97427e15ede
+# Title: Refactored CvGame::getPlotUnits
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	6	CvGameCoreDLL/CvGame.h
+37	109	CvGameCoreDLL/CvGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 342ee1d30..1d544a467 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -58,8 +58,14 @@ public:
+ 	void autoSave(bool bInitial = false); // advc.106l
+ 	DllExport void testExtendedGame();
+ 
+-	DllExport CvUnit* getPlotUnit(const CvPlot* pPlot, int iIndex) const;
+-	DllExport void getPlotUnits(const CvPlot *pPlot, std::vector<CvUnit*>& plotUnits) const;
++	DllExport CvUnit* getPlotUnit(const CvPlot* pPlot, int iIndex) const
++	{
++		return getPlotUnits(pPlot, NULL, iIndex); // advc.003
++	}
++	DllExport void getPlotUnits(const CvPlot *pPlot, std::vector<CvUnit*>& plotUnits) const
++	{
++		getPlotUnits(pPlot, &plotUnits, -1); // advc.003
++	}
+ 
+ 	DllExport void cycleCities(bool bForward = true, bool bAdd = false) const;																				// Exposed to Python
+ 	void cycleSelectionGroups(bool bClear, bool bForward = true, bool bWorkers = false);								// Exposed to Python
+@@ -861,12 +867,12 @@ protected:
+ 
+ 	void testAlive();
+ 	void testVictory();
++	void showEndGameSequence();
+ 	int FPChecksum() const; // advc.003g
+ 	void handleUpdateTimer(UpdateTimerTypes eTimerType); // advc.003r
+ 
+ 	void processVote(const VoteTriggeredData& kData, int iChange);
+ 	
+-	int getTeamClosenessScore(int** aaiDistances, int* aiStartingLocs);
+ 	void normalizeStartingPlotLocations();
+ 	void normalizeAddRiver();
+ 	void normalizeRemovePeaks();
+@@ -883,12 +889,11 @@ protected:
+ 			bool bCheckCanPlace, bool bIgnoreLatitude) const; // </advc.003>
+ 	// advc.108:
+ 	bool isPowerfulStartingBonus(CvPlot const& kStartPlot, PlayerTypes eStartPlayer) const;
+-
+-	void showEndGameSequence();
+-
+ 	CvPlot* normalizeFindLakePlot(PlayerTypes ePlayer);
+ 
++	int getTeamClosenessScore(int** aaiDistances, int* aiStartingLocs);
+ 	void doUpdateCacheOnTurn();
++	CvUnit* getPlotUnits(CvPlot const* pPlot, std::vector<CvUnit*>* pPlotUnits, int iIndex = -1) const; // advc.003
+ };
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 2a708be5e..689531696 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -492,135 +492,63 @@ void CvGame::updateTestEndTurn()  // advc.003: nested else branches replaced w/
+ 	gDLL->getInterfaceIFace()->setEndTurnCounter(3); // XXX
+ }
+ 
+-CvUnit* CvGame::getPlotUnit(const CvPlot* pPlot, int iIndex) const
++// advc.003: Merge of two BtS functions that had largely the same body
++CvUnit* CvGame::getPlotUnits(CvPlot const* pPlot, std::vector<CvUnit*>* pPlotUnits, int iIndex) const
+ {
+ 	PROFILE_FUNC();
+ 
++	FAssert((iIndex == -1) != (pPlotUnits == NULL));
++
++	if (pPlotUnits != NULL)
++		pPlotUnits->clear();
++
+ 	if(pPlot == NULL)
+ 		return NULL;
+ 
+ 	int iCount = 0;
+-	PlayerTypes activePlayer = getActivePlayer();
+-	TeamTypes activeTeam = getActiveTeam();
+-	CLLNode<IDInfo>* pUnitNode1;
+-	CLLNode<IDInfo>* pUnitNode2;
+-	CvUnit* pLoopUnit1;
+-	CvUnit* pLoopUnit2;
++	PlayerTypes eActivePlayer = getActivePlayer();
++	TeamTypes eActiveTeam = getActiveTeam();
+ 	for (int iPass = 0; iPass < 2; iPass++)
+ 	{
+-		pUnitNode1 = pPlot->headUnitNode();
+-
+-		while (pUnitNode1 != NULL)
++		for (CLLNode<IDInfo>* pUnitNode = pPlot->headUnitNode(); pUnitNode != NULL;
++			pUnitNode = pPlot->nextUnitNode(pUnitNode))
+ 		{
+-			pLoopUnit1 = ::getUnit(pUnitNode1->m_data);
+-			pUnitNode1 = pPlot->nextUnitNode(pUnitNode1);
+-
+-			if (!(pLoopUnit1->isInvisible(activeTeam, true)))
+-			{
+-				if (!(pLoopUnit1->isCargo()))
+-				{
+-					if ((pLoopUnit1->getOwner() == activePlayer) == (iPass == 0))
+-					{
+-						if (iCount == iIndex)
+-						{
+-							return pLoopUnit1;
+-						}
+-
+-						iCount++;
+-
+-						//if ((pLoopUnit1->getTeam() == activeTeam) || isDebugMode())
+-						{
+-							if (pLoopUnit1->hasCargo())
+-							{
+-								pUnitNode2 = pPlot->headUnitNode();
++			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++			if ((pLoopUnit->getOwner() == eActivePlayer) != (iPass == 0))
++				continue;
++			if (pLoopUnit->isInvisible(eActiveTeam, true) || pLoopUnit->isCargo())
++				continue;
+ 
+-								while (pUnitNode2 != NULL)
+-								{
+-									pLoopUnit2 = ::getUnit(pUnitNode2->m_data);
+-									pUnitNode2 = pPlot->nextUnitNode(pUnitNode2);
+-
+-									if (!(pLoopUnit2->isInvisible(activeTeam, true)))
+-									{
+-										if (pLoopUnit2->getTransportUnit() == pLoopUnit1)
+-										{
+-											if (iCount == iIndex)
+-											{
+-												return pLoopUnit2;
+-											}
+-
+-											iCount++;
+-										}
+-									}
+-								}
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
++			if (iCount == iIndex)
++				return pLoopUnit;
+ 
+-	return NULL;
+-}
++			iCount++;
++			if (pPlotUnits != NULL)
++				pPlotUnits->push_back(pLoopUnit);
++			//if (pLoopUnit1->getTeam() == activeTeam || isDebugMode()) {
++			if (!pLoopUnit->hasCargo())
++				continue;
+ 
+-void CvGame::getPlotUnits(const CvPlot *pPlot, std::vector<CvUnit *> &plotUnits) const
+-{
+-	PROFILE_FUNC();
+-
+-	plotUnits.erase(plotUnits.begin(), plotUnits.end());
+-
+-	if(pPlot == NULL)
+-		return;
+-
+-	CLLNode<IDInfo>* pUnitNode1;
+-	CLLNode<IDInfo>* pUnitNode2;
+-	CvUnit* pLoopUnit1;
+-	CvUnit* pLoopUnit2;
+-	PlayerTypes activePlayer = getActivePlayer();
+-	TeamTypes activeTeam = getActiveTeam();
+-	for (int iPass = 0; iPass < 2; iPass++)
+-	{
+-		pUnitNode1 = pPlot->headUnitNode();
+-
+-		while (pUnitNode1 != NULL)
+-		{
+-			pLoopUnit1 = ::getUnit(pUnitNode1->m_data);
+-			pUnitNode1 = pPlot->nextUnitNode(pUnitNode1);
+-
+-			if (!(pLoopUnit1->isInvisible(activeTeam, true)))
++			for (CLLNode<IDInfo>* pCargoUnitNode = pPlot->headUnitNode(); pCargoUnitNode != NULL;
++				pCargoUnitNode = pPlot->nextUnitNode(pCargoUnitNode))
+ 			{
+-				if (!(pLoopUnit1->isCargo()))
+-				{
+-					if ((pLoopUnit1->getOwner() == activePlayer) == (iPass == 0))
+-					{
+-						plotUnits.push_back(pLoopUnit1);
++				CvUnit* pCargoUnit = ::getUnit(pCargoUnitNode->m_data);
++				if (pCargoUnit->isInvisible(eActiveTeam, true))
++					continue;
+ 
+-						//if ((pLoopUnit1->getTeam() == activeTeam) || isDebugMode())
+-						{
+-							if (pLoopUnit1->hasCargo())
+-							{
+-								pUnitNode2 = pPlot->headUnitNode();
++				if (pCargoUnit->getTransportUnit() == pLoopUnit)
++				{
++					if (iCount == iIndex)
++						return pCargoUnit;
+ 
+-								while (pUnitNode2 != NULL)
+-								{
+-									pLoopUnit2 = ::getUnit(pUnitNode2->m_data);
+-									pUnitNode2 = pPlot->nextUnitNode(pUnitNode2);
+-
+-									if (!(pLoopUnit2->isInvisible(activeTeam, true)))
+-									{
+-										if (pLoopUnit2->getTransportUnit() == pLoopUnit1)
+-										{
+-											plotUnits.push_back(pLoopUnit2);
+-										}
+-									}
+-								}
+-							}
+-						}
+-					}
++					iCount++;
++					if (pPlotUnits != NULL)
++						pPlotUnits->push_back(pCargoUnit);
+ 				}
+ 			}
+ 		}
+ 	}
++	return NULL;
+ }
+ 
+ void CvGame::cycleCities(bool bForward, bool bAdd) const
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6806

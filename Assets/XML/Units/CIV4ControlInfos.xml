@@ -624,41 +624,12 @@
 			<bCtrlDownAlt>0</bCtrlDownAlt>
 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
 		</ControlInfo>
-		<ControlInfo>
-			<Type>CONTROL_RELIGION_SCREEN</Type>
-			<Description>TXT_KEY_ACTION_SHOW_RELIGION_SCREEN</Description>
-			<Help/>
-			<HotKey>KB_F7</HotKey>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>0</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-			<HotKeyAlt/>
-			<bAltDownAlt>0</bAltDownAlt>
-			<bShiftDownAlt>0</bShiftDownAlt>
-			<bCtrlDownAlt>0</bCtrlDownAlt>
-			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
-		</ControlInfo>
-		<ControlInfo>
-			<Type>CONTROL_CORPORATION_SCREEN</Type>
-			<Description>TXT_KEY_ACTION_SHOW_CORPORATION_SCREEN</Description>
-			<Help/>
-			<HotKey>KB_F7</HotKey>
-			<bAltDown>0</bAltDown>
-			<bShiftDown>1</bShiftDown>
-			<bCtrlDown>0</bCtrlDown>
-			<iHotKeyPriority>0</iHotKeyPriority>
-			<HotKeyAlt/>
-			<bAltDownAlt>0</bAltDownAlt>
-			<bShiftDownAlt>0</bShiftDownAlt>
-			<bCtrlDownAlt>0</bCtrlDownAlt>
-			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
-		</ControlInfo>
+		<!-- custom: advisor hotkeys updated for Foreign split: Policy = F2, Foreign Diplomacy = F3, Foreign Trade = F4. (GPT-5.3-Codex) -->
 		<ControlInfo>
 			<Type>CONTROL_CIVICS_SCREEN</Type>
 			<Description>TXT_KEY_ACTION_SHOW_CIVICS_SCREEN</Description>
 			<Help/>
-			<HotKey>KB_F3</HotKey>
+			<HotKey>KB_F2</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
@@ -671,7 +642,7 @@
 		</ControlInfo>
 		<ControlInfo>
 			<Type>CONTROL_FOREIGN_SCREEN</Type>
-			<Description>TXT_KEY_FOREIGN_ADVISOR_TITLE</Description>
+			<Description>TXT_KEY_FOREIGN_TRADE_ADVISOR_TITLE</Description>
 			<Help/>
 			<HotKey>KB_F4</HotKey>
 			<bAltDown>0</bAltDown>
@@ -685,10 +656,10 @@
 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
 		</ControlInfo>
 		<ControlInfo>
-			<Type>CONTROL_FINANCIAL_SCREEN</Type>
-			<Description>TXT_KEY_FINANCIAL_ADVISOR_TITLE</Description>
+			<Type>CONTROL_FOREIGN_DIPLOMACY_SCREEN</Type>
+			<Description>TXT_KEY_FOREIGN_ADVISOR_TITLE</Description>
 			<Help/>
-			<HotKey>KB_F2</HotKey>
+			<HotKey>KB_F3</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
@@ -719,6 +690,22 @@
 			<Description>TXT_KEY_TECH_CHOOSER_TITLE</Description>
 			<Help/>
 			<HotKey>KB_F6</HotKey>
+			<bAltDown>0</bAltDown>
+			<bShiftDown>0</bShiftDown>
+			<bCtrlDown>0</bCtrlDown>
+			<iHotKeyPriority>0</iHotKeyPriority>
+			<HotKeyAlt/>
+			<bAltDownAlt>0</bAltDownAlt>
+			<bShiftDownAlt>0</bShiftDownAlt>
+			<bCtrlDownAlt>0</bCtrlDownAlt>
+			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
+		</ControlInfo>
+		<!-- custom: F7 is available after Religion/Corporation were integrated into Policy Advisor. (GPT-5.5) -->
+		<ControlInfo>
+			<Type>CONTROL_WORLD_ADVISOR_SCREEN</Type>
+			<Description>TXT_KEY_WORLD_ADVISOR_TITLE</Description>
+			<Help/>
+			<HotKey>KB_F7</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
@@ -789,11 +776,12 @@
 			<bCtrlDownAlt>0</bCtrlDownAlt>
 			<iHotKeyPriorityAlt>0</iHotKeyPriorityAlt>
 		</ControlInfo>
+		<!-- custom: hotkeys swapped: Info Screen = F8, Victory Screen = F9. (GPT-5.3-Codex) -->
 		<ControlInfo>
 			<Type>CONTROL_VICTORY_SCREEN</Type>
 			<Description>TXT_KEY_VICTORY_SCREEN_TITLE</Description>
 			<Help/>
-			<HotKey>KB_F8</HotKey>
+			<HotKey>KB_F9</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>
@@ -808,7 +796,7 @@
 			<Type>CONTROL_INFO</Type>
 			<Description>TXT_KEY_INFO_SCREEN</Description>
 			<Help/>
-			<HotKey>KB_F9</HotKey>
+			<HotKey>KB_F8</HotKey>
 			<bAltDown>0</bAltDown>
 			<bShiftDown>0</bShiftDown>
 			<bCtrlDown>0</bCtrlDown>

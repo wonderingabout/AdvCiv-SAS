@@ -1,0 +1,433 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2586
+# Commit: af381c128439d7b7e27a25579bb8c54ae4d73960
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 995dd5760d2ccbe3048e62c8c1e46ba93fbc0201
+# Title: Some minor cleanup
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	CvGameCoreDLL/CvCity.cpp
+9	7	CvGameCoreDLL/CvDLLFAStarIFaceBase.h
+1	1	CvGameCoreDLL/CvDLLSymbolIFaceBase.h
+3	4	CvGameCoreDLL/CvGlobals.h
+1	1	CvGameCoreDLL/CvMap.cpp
+1	2	CvGameCoreDLL/CvPlayerAI.cpp
+19	10	CvGameCoreDLL/CvSelectionGroup.cpp
+2	2	CvGameCoreDLL/CvSelectionGroup.h
+5	5	CvGameCoreDLL/CvUnitAI.cpp
+20	18	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+1	1	CvGameCoreDLL/FAStarFunc.cpp
+1	1	CvGameCoreDLL/FAssert.h
+10	0	CvGameCoreDLL/PragmaWarnings.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 8b4112734..261564309 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5488,9 +5488,8 @@ void CvCity::updateExtraBuildingHappiness()
+ 
+ /*  BETTER_BTS_AI_MOD, City AI, 02/24/10, EmperorFool: START
+ 	(BUG - Building Additional Happiness) */
+-namespace // advc: These were declared as global functions in the header
++namespace // advc: These had been declared as global functions in the header
+ {
+-	// advc: Turn these two into CvCity members for now as they're only used by CvCity
+ 	// Adds iValue to iGood if it is positive or its negative to iBad if it is negative.
+ 	void addGoodOrBad(int iValue, int& iGood, int& iBad)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvDLLFAStarIFaceBase.h b/CvGameCoreDLL/CvDLLFAStarIFaceBase.h
+index 871bc82b0..46a22a176 100644
+--- a/CvGameCoreDLL/CvDLLFAStarIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLFAStarIFaceBase.h
+@@ -3,9 +3,7 @@
+ #ifndef CvDLLFAStarIFaceBase_h
+ #define CvDLLFAStarIFaceBase_h
+ 
+-//
+ // abstract interface for FAStar functions used by DLL
+-//
+ 
+ class FAStar;
+ class FAStarNode;
+@@ -20,10 +18,14 @@ class CvDLLFAStarIFaceBase
+ public:
+ 	virtual FAStar* create() = 0;
+ 	virtual void destroy(FAStar*& ptr, bool bSafeDelete=true) = 0;
+-	virtual bool GeneratePath(FAStar*, int iXstart, int iYstart, int iXdest, int iYdest, bool bCardinalOnly = false, int iInfo = 0, bool bReuse = false) = 0;
+-	virtual void Initialize(FAStar*, int iColumns, int iRows, bool bWrapX, bool bWrapY, FAPointFunc DestValidFunc, FAHeuristic HeuristicFunc, FAStarFunc CostFunc, FAStarFunc ValidFunc, FAStarFunc NotifyChildFunc, FAStarFunc NotifyListFunc, void *pData) = 0;
+-	virtual void SetData(FAStar*, const void* pData) = 0;
+-	virtual FAStarNode *GetLastNode(FAStar*) = 0;
++	virtual bool GeneratePath(FAStar*, int iStartX, int iStartY, int iDestX, int iDestY,
++			bool bCardinalOnly = false, int iInfo = 0, bool bReuse = false) = 0;
++	virtual void Initialize(FAStar*, int iColumns, int iRows, bool bWrapX, bool bWrapY,
++			FAPointFunc DestValidFunc, FAHeuristic HeuristicFunc, FAStarFunc CostFunc,
++			FAStarFunc ValidFunc, FAStarFunc NotifyChildFunc, FAStarFunc NotifyListFunc,
++			void* pData) = 0;
++	virtual void SetData(FAStar*, void const* pData) = 0;
++	virtual FAStarNode* GetLastNode(FAStar*) = 0;
+ 	virtual bool IsPathStart(FAStar*, int iX, int iY) = 0;
+ 	virtual bool IsPathDest(FAStar*, int iX, int iY) = 0;
+ 	virtual int GetStartX(FAStar*) = 0;
+@@ -34,4 +36,4 @@ public:
+ 	virtual void ForceReset(FAStar*) = 0;
+ };
+ 
+-#endif	// CvDLLFAStarIFaceBase_h
++#endif
+
+diff --git a/CvGameCoreDLL/CvDLLSymbolIFaceBase.h b/CvGameCoreDLL/CvDLLSymbolIFaceBase.h
+index e4c0dc33f..325ac031b 100644
+--- a/CvGameCoreDLL/CvDLLSymbolIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLSymbolIFaceBase.h
+@@ -44,7 +44,7 @@ public:
+ 	virtual void resetModel(CvFeature* pFeature) = 0;
+ 
+ 	/*	derived methods
+-		advc (note): I guess they correspond to CSymbol functions that CvFeature overrides */
++		advc (note): I guess they correspond to CvSymbol functions that CvFeature overrides */
+ 	virtual void destroy(CvFeature*& pFeature, bool bSafeDelete = true)
+ 	{
+ 		CvSymbol* pSymbol = base(pFeature); // advc
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index a9532b795..216b36aa7 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -6,10 +6,9 @@
+ #pragma warning(push)
+ #pragma warning(disable: 68) // </advc>
+ 
+-//
+-// 'global' vars for Civ IV.  singleton class.
+-// All globals and global types should be contained in this class
+-//
++/*	'global' vars for Civ IV.  singleton class.
++	All globals and global types should be contained in this class. */
++
+ #pragma region ForwardDeclarations
+ class FProfiler;
+ class CvDLLUtilityIFaceBase;
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 2fafa5744..817658160 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -157,7 +157,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
+ 	m_areas.removeAll();
+ }
+ 
+-// Initializes all data that is not serialized but needs to be initialized after loading.
++// Initializes all data that is not serialized but needs to be initialized after loading
+ void CvMap::setup()
+ {
+ 	PROFILE_FUNC();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1ce15435d..781e7bbe8 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4174,8 +4174,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	int iCityTarget = GC.getInfo(GC.getMap().getWorldSize()).getTargetNumCities();
+ 	/*	advc.007b: The RNGs write to separate log files now, so the same log messages
+ 		can be used for both w/o creating confusion. Though I'm not sure if randomness
+-		should be used at all when recommending tech (bAsync). Could derive a class
+-		ZeroRand that always returns 0 and instantiate it here. */
++		should be used at all when recommending tech (bAsync). */
+ 	CvRandom& kRand = (bAsync ? GC.getASyncRand() : GC.getGame().getSRand());
+ 	// <k146>
+ 	int iRandomFactor = 0; // Amount of random value in the answer.
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 48e12ddd1..af2c1a2e2 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -220,8 +220,8 @@ void CvSelectionGroup::doTurn()
+ 			((eActivityType == ACTIVITY_HEAL || eActivityType == ACTIVITY_SENTRY) &&
+ 			isHuman() && sentryAlert()); // </advc.004l>
+ 	if (eActivityType == ACTIVITY_HOLD ||
+-		(eActivityType == ACTIVITY_HEAL && (AI_isControlled() || !bHurt
+-		|| (bSentryAlert && pHeadUnit->canSentryHeal(plot())) // advc.004l
++		(eActivityType == ACTIVITY_HEAL && (AI_isControlled() || !bHurt ||
++		(bSentryAlert && pHeadUnit->canSentryHeal(plot())) // advc.004l
+ 		)) ||
+ 		(eActivityType == ACTIVITY_SENTRY && bSentryAlert))
+ 	{
+@@ -2942,11 +2942,16 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 				/*pLoopUnit->joinGroup(NULL, true);
+ 				pLoopUnit->ExecuteMove(((float)(GC.getInfo(MISSION_MOVE_TO).getTime() * gDLL->getMillisecsPerTurn())) / 1000.0f, false);*/ // BtS
+ 
+-				// K-Mod. all units left behind should stay in the same group. (unless it would mean a change of group AI)
+-				// (Note: it is important that units left behind are not in the original group.
+-				// The later code assumes that the original group has moved, and if it hasn't, there will be an infinite loop.)
+-				if (pStaticGroup != NULL && (isHuman() || pStaticGroup->getHeadUnitAIType() == eHeadAI))
++				/*	K-Mod. all units left behind should stay in the same group.
++					(unless it would mean a change of group AI)
++					(Note: it is important that units left behind are not in the original group.
++					The later code assumes that the original group has moved,
++					and if it hasn't, there will be an infinite loop.) */
++				if (pStaticGroup != NULL && (isHuman() ||
++					pStaticGroup->getHeadUnitAIType() == eHeadAI))
++				{
+ 					pLoopUnit->joinGroup(pStaticGroup, true);
++				}
+ 				else
+ 				{
+ 					pLoopUnit->joinGroup(NULL, true);
+@@ -2954,8 +2959,10 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 				}
+ 				//
+ 			}
+-			// K-Mod. If the unit is no longer in the original group; then display it's movement animation now.
+-			// (this replaces the ExecuteMove line commented out in the above block, and it also handles the case of loading units onto boats.)
++			/*	K-Mod. If the unit is no longer in the original group;
++				then display it's movement animation now.
++				(this replaces the ExecuteMove line commented out in the above block,
++				and it also handles the case of loading units onto boats.) */
+ 			if (pLoopUnit->getGroupID() != getID())
+ 			{
+ 				pLoopUnit->ExecuteMove(((float)(GC.getInfo(MISSION_MOVE_TO).getTime() *
+@@ -2973,9 +2980,11 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
+ 			PlayerTypes const eGroupOwner = getOwner();
+ 			PlayerTypes const eFromOwner = kFrom.getOwner();
+ 			PlayerTypes const eToOwner = pPlot->getOwner();
+-			if (eFromOwner != NO_PLAYER && GET_TEAM(eFromOwner).isAtWar(TEAMID(eGroupOwner)))
++			if (eFromOwner != NO_PLAYER &&
++				GET_TEAM(eFromOwner).isAtWar(TEAMID(eGroupOwner)))
+ 				GET_PLAYER(eFromOwner).AI_humanEnemyStackMovedInTerritory(kFrom, *pPlot);
+-			if (eToOwner != NO_PLAYER && GET_TEAM(eToOwner).isAtWar(TEAMID(eGroupOwner)) &&
++			if (eToOwner != NO_PLAYER &&
++				GET_TEAM(eToOwner).isAtWar(TEAMID(eGroupOwner)) &&
+ 				eToOwner != eFromOwner)
+ 			{
+ 				GET_PLAYER(eToOwner).AI_humanEnemyStackMovedInTerritory(kFrom, *pPlot);
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 5ab2e2f8e..5764caf08 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -285,14 +285,14 @@ protected:
+ 		The game also crashes if I add int[30] to CvSelectionGroupAI. */
+ 
+ 	/*	... I see that BBAI ignored the warning. They added some stuff below.
+-		(advc: That was the BBAI StrandedCache, removed by K-Mod.)
++		[advc: That was the BBAI StrandedCache, removed by K-Mod.]
+ 		Removing the BBAI bools from below does not change the size 80.
+ 		Neither does removing the BBAI virtual functions.
+ 		but adding another int increases the size to 84. Which is a shame,
+ 		because I really want to add one more int...
+ 		Although a single int doesn't cause a startup crash,
+ 		I'd rather not risk instability. */
+-	/*	advc.003k: I have a workaround for this. See nested class 'Data' below.
++	/*	advc.003k: See nested class 'Data' below for a workaround.
+ 		(Not right here b/c it's safer to keep the members in their original order.) */
+ 
+ 	int m_iID;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 3e7ccab9a..587cffc5f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -13089,7 +13089,7 @@ bool CvUnitAI::AI_exploreRange(int iRange) // advc: style changes
+ 	int const iSearchRange = AI_searchRange(iRange);
+ 	for (SquareIter it(*this, iSearchRange, false); it.hasNext(); ++it)
+ 	{
+-		PROFILE("AI_exploreRange 1");
++		PROFILE("AI_exploreRange loop");
+ 
+ 		CvPlot& p = *it;
+ 		if (!AI_plotValid(p))
+@@ -13119,7 +13119,7 @@ bool CvUnitAI::AI_exploreRange(int iRange) // advc: style changes
+ 
+ 		FOR_EACH_ENUM(Direction)
+ 		{
+-			PROFILE("AI_exploreRange 2");
++			PROFILE("AI_exploreRange adjacent");
+ 			CvPlot* pAdjacentPlot = plotDirection(p.getX(), p.getY(),
+ 					eLoopDirection);
+ 			if (pAdjacentPlot == NULL)
+@@ -13134,7 +13134,7 @@ bool CvUnitAI::AI_exploreRange(int iRange) // advc: style changes
+ 		if (p.isVisibleEnemyUnit(this))
+ 			continue;
+ 		{
+-			PROFILE("AI_exploreRange 3");
++			PROFILE("AI_exploreRange AnyPlotTargetMissionAI");
+ 			if (kOwner.AI_isAnyPlotTargetMissionAI(
+ 				p, MISSIONAI_EXPLORE, getGroup(), 3))
+ 			{
+@@ -13143,7 +13143,7 @@ bool CvUnitAI::AI_exploreRange(int iRange) // advc: style changes
+ 		}
+ 		int iPathTurns;
+ 		{
+-			PROFILE("AI_exploreRange 4");
++			PROFILE("AI_exploreRange Path");
+ 			if (!generatePath(&p,
+ 				MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns, iRange))
+ 			{
+@@ -13199,7 +13199,7 @@ bool CvUnitAI::AI_exploreRange(int iRange) // advc: style changes
+ 
+ 	if (pBestPlot != NULL && pBestExplorePlot != NULL)
+ 	{
+-		PROFILE("AI_exploreRange 5");
++		PROFILE("AI_exploreRange push");
+ 
+ 		FAssert(!atPlot(pBestPlot));
+ 		getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX(), pBestPlot->getY(),
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 4f4d3af16..22ee75479 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -20,12 +20,14 @@
+ // read the global defines from a specific file
+ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObject* cache)
+ {
++	#if ENABLE_XML_FILE_CACHE
+ 	// advc: Handle successful read upfront
+ 	if (gDLL->cacheRead(cache, szXMLFileName)) // src data file name
+ 	{
+ 		logMsg("Read GlobalDefines from cache");
+ 		return true;
+ 	}
++	#endif
+ 	// load normally
+ 	if (!CreateFXml())
+ 		return false;
+@@ -126,15 +128,15 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 			}
+ 
+ 			#if ENABLE_XML_FILE_CACHE
+-				// write global defines info to cache
+-				bool bOk = gDLL->cacheWrite(cache);
+-				if (!bOk)
+-				{
+-					char	szMessage[1024];
+-					sprintf(szMessage, "Failed writing to global defines cache.\nCurrent XML file is: %s", GC.getCurrentXMLFile().GetCString());
+-					gDLL->MessageBox(szMessage, "XML Caching Error");
+-				}
+-				else logMsg("Wrote GlobalDefines to cache");
++			// write global defines info to cache
++			bool bOk = gDLL->cacheWrite(cache);
++			if (!bOk)
++			{
++				char	szMessage[1024];
++				sprintf(szMessage, "Failed writing to global defines cache.\nCurrent XML file is: %s", GC.getCurrentXMLFile().GetCString());
++				gDLL->MessageBox(szMessage, "XML Caching Error");
++			}
++			else logMsg("Wrote GlobalDefines to cache");
+ 			#endif
+ 		}
+ 	}
+@@ -434,14 +436,16 @@ bool CvXMLLoadUtility::SetGlobalArtDefines()
+ // Handles all Global Text Infos
+ bool CvXMLLoadUtility::LoadGlobalText()
+ {
++	#if ENABLE_XML_FILE_CACHE
+ 	CvCacheObject* cache = gDLL->createGlobalTextCacheObject("GlobalText.dat");	// cache file name
+ 	// advc: Handle successful read upfront
+-	if (gDLL->cacheRead(cache)) {
++	if (gDLL->cacheRead(cache))
++	{
+ 		logMsg("Read GlobalText from cache");
+ 		gDLL->destroyCache(cache);
+ 		return true;
+ 	}
+-
++	#endif
+ 	if (!CreateFXml())
+ 		return false;
+ 
+@@ -543,10 +547,8 @@ bool CvXMLLoadUtility::LoadGlobalText()
+ 		}
+ 		if (bOk)
+ 			logMsg("Wrote GlobalText to cache");
+-	#endif
+-
+ 	gDLL->destroyCache(cache);
+-
++	#endif
+ 	return true;
+ }
+ 
+@@ -1461,8 +1463,8 @@ void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
+ 		}
+ 	#if ENABLE_XML_FILE_CACHE
+ 	}
+-		if (pArgFunction != NULL)
+-			gDLL->destroyCache(pCache);
++	if (pArgFunction != NULL)
++		gDLL->destroyCache(pCache);
+ 	#endif
+ }
+ 
+@@ -1535,8 +1537,8 @@ void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInf
+ 		}
+ 	#if ENABLE_XML_FILE_CACHE
+ 	}
+-		if (pArgFunction != NULL)
+-			gDLL->destroyCache(pCache);
++	if (pArgFunction != NULL)
++		gDLL->destroyCache(pCache);
+ 	#endif
+ }
+
+diff --git a/CvGameCoreDLL/FAStarFunc.cpp b/CvGameCoreDLL/FAStarFunc.cpp
+index 40e7682b3..f0a6cc0e0 100644
+--- a/CvGameCoreDLL/FAStarFunc.cpp
++++ b/CvGameCoreDLL/FAStarFunc.cpp
+@@ -892,7 +892,7 @@ BOOL teamStepValid_advc(FAStarNode* parent, FAStarNode* node,
+ 		return TRUE;
+ 	if(GET_TEAM(ePlotTeam).getMasterTeam() == GET_TEAM(eTargetTeam).getMasterTeam())
+ 		return TRUE;
+-	CvTeamAI const& kTeam = GET_TEAM(eTeam);
++	CvTeam const& kTeam = GET_TEAM(eTeam);
+ 	if(kTeam.canPeacefullyEnter(ePlotTeam))
+ 		return TRUE;
+ 	// A war plan isn't enough; war against eTargetTeam could supplant that plan.
+
+diff --git a/CvGameCoreDLL/FAssert.h b/CvGameCoreDLL/FAssert.h
+index 8b87d1793..bdbaabcc6 100644
+--- a/CvGameCoreDLL/FAssert.h
++++ b/CvGameCoreDLL/FAssert.h
+@@ -12,7 +12,7 @@
+ #ifdef FASSERT_ENABLE
+ /*  advc.make: Inlining functions with assertions could be a bad choice. Let's
+ 	at least not force-inline. */
+-#define __forceinline inline
++#define __forceinline __inline
+ 
+ #ifdef WIN32
+
+diff --git a/CvGameCoreDLL/PragmaWarnings.h b/CvGameCoreDLL/PragmaWarnings.h
+index 35bb8b52e..b807c6b74 100644
+--- a/CvGameCoreDLL/PragmaWarnings.h
++++ b/CvGameCoreDLL/PragmaWarnings.h
+@@ -72,4 +72,14 @@
+ 	#pragma warning(disable: 189)
+ #endif
+ 
++
++/*	The 'suppress' warning specifier was introduced in MSVC05. I guess this is the
++	best that we can do:
++	^Nope, in header files, this crashes fastdep.exe. Will have to spell it out. */
++/*#define PRAGMA_SUPPRESS_START(iWarningType) \
++	__pragma(warning(push)) \
++	__pragma(warning(disable: iWarningType))
++#define PRAGMA_SUPPRESS_END \
++	__pragma(warning(pop))*/
++
+ #endif
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=15867

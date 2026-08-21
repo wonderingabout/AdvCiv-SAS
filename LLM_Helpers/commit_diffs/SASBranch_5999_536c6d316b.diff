@@ -1,0 +1,143 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5999
+# Commit: 536c6d316b79df11218a7ffaccdca8375842d3b7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 520df2a23aa4f328108e4760b50d4cb42a7065e8
+# Title: Enhance Espionage Tab leader icons being too small and unneeded char and beautify
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	44	Assets/Python/Screens/CvForeignAdvisor.py
+-	-	_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index e93f3eafd..97d324168 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -324,22 +324,24 @@ class CvForeignAdvisor:
+ 		self.ESP_MISSIONS_HEIGHT_DENOMINATOR = 3
+ 		self.ESP_MISSION_BUTTON_TOP_GAP = 10
+ 		self.ESP_MISSION_BUTTON_HEIGHT = 30
+-		self.ESP_ROW_X_NAME = 55
+-		self.ESP_ROW_X_WEIGHT = 58
++		self.ESP_ROW_LEADER_ICON_SIZE = 44
++		self.ESP_ROW_X_LEADER_ICON = 8
++		self.ESP_ROW_X_NAME = 58
++		self.ESP_ROW_X_WEIGHT = 98
+ 		self.ESP_ROW_X_RIGHT_MIN = 205
+ 		self.ESP_ROW_X_RIGHT_OFFSET = 120
+ 		self.ESP_ROW_Y_TOP = -15
+ 		self.ESP_ROW_Y_BOTTOM = 2
+ 		self.ESP_ROW_Y_WEIGHT = 9
+ 		self.ESP_ROW_Y_BUTTON = 16
+-		self.ESP_ROW_Y_ICON = -3
+-		self.ESP_ROW_X_BUTTON_PLUS = 21
+-		self.ESP_ROW_X_BUTTON_MINUS = 37
+-		# <!-- custom: With many met players, the old two-line Espionage target rows made +/- buttons, weight, EPs, and +per-turn text hard to see/click. Use compact single-line rows instead of pagination so all targets remain in one scroll list. Compact rows deliberately omit the repeated espionage commerce glyph, the per-row "Weight:" label, and the repeated cost label; these are obvious from context and would be better as a true header only if we ever need one. For now, no header keeps the display simpler; compact column anchors use the spare row width so weight, EPs, and per-turn text have clearer separation. (GPT-5.5-Thinking + GPT-5.5?) -->
++		self.ESP_ROW_Y_LEADER_ICON = 0
++		self.ESP_ROW_X_BUTTON_PLUS = 58
++		self.ESP_ROW_X_BUTTON_MINUS = 76
++		# <!-- custom: With many met players, the old two-line Espionage target rows made +/- buttons, weight, EPs, and +per-turn text hard to see/click. Use compact single-line rows instead of pagination so all targets remain in one scroll list. Both layouts omit the repeated espionage commerce glyph; standard rows use that space for a larger leader portrait and move +/- beside it, while compact rows enlarge the portrait within the existing row. Compact rows also omit the per-row "Weight:" and cost labels because their meaning is clear from context; the wider column anchors keep weight, EPs, and per-turn text separated. (GPT-5.5-Thinking + GPT-5.5? + GPT-5.5) -->
+ 		self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD = None
+-		self.ESP_COMPACT_LEADER_ICON_SIZE = 24
++		self.ESP_COMPACT_LEADER_ICON_SIZE = 28
+ 		self.ESP_COMPACT_BUTTON_SIZE = 20
+-		self.ESP_COMPACT_ROW_X_ICON = 8
++		self.ESP_COMPACT_ROW_X_ICON = 4
+ 		self.ESP_COMPACT_ROW_X_BUTTON_PLUS = 34
+ 		self.ESP_COMPACT_ROW_X_BUTTON_MINUS = 56
+ 		self.ESP_COMPACT_ROW_X_NAME = 82
+@@ -2642,7 +2644,7 @@ class CvForeignAdvisor:
+ 				if bCompactLeaderRows:
+ 					screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.ESP_COMPACT_ROW_X_ICON, 2, self.ESP_COMPACT_LEADER_ICON_SIZE, self.ESP_COMPACT_LEADER_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
+ 				else:
+-					screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, iX +21, iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
++					screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.ESP_ROW_X_LEADER_ICON, self.ESP_ROW_Y_LEADER_ICON, self.ESP_ROW_LEADER_ICON_SIZE, self.ESP_ROW_LEADER_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
+ 				if (self.ESP_iTargetPlayer == iPlayerID):
+ 					screen.setState(szName, true)
+ 
+@@ -2681,14 +2683,6 @@ class CvForeignAdvisor:
+ 				else:
+ 					screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+-				if not bCompactLeaderRows:
+-					szName = "SpendingIcon%d" %(iPlayerID)
+-					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+-						szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+-					else:
+-						szText = u""
+-					screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-
+ 				iSize = 16
+ 				self.ESP_iIncreaseButtonID = 555
+ 				szName = "IncreaseButton%d" %(iPlayerID)
+@@ -2804,15 +2798,6 @@ class CvForeignAdvisor:
+ 				else:
+ 					screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+-				szName = "SpendingIcon%d" %(iPlayerID)
+-				screen.deleteWidget(szName)
+-				if not bCompactLeaderRows:
+-					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+-						szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+-					else:
+-						szText = u""
+-					screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-
+ 			# Is there any other players which have been met?
+ 			if (self.ESP_iTargetPlayer != -1):
+ 
+@@ -3068,15 +3053,6 @@ class CvForeignAdvisor:
+ 					else:
+ 						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+-					if not bCompactLeaderRows:
+-						if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+-							szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+-						else:
+-							szText = u""
+-						attach = "LeaderContainer%d" % (iPlayerID)
+-						iY = 15
+-						screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-
+ 					CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
+ 
+ 				##### Decrease Button #####
+@@ -3103,15 +3079,6 @@ class CvForeignAdvisor:
+ 						else:
+ 							screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+-						if not bCompactLeaderRows:
+-							if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+-								szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+-							else:
+-								szText = u""
+-							attach = "LeaderContainer%d" % (iPlayerID)
+-							iY = 15
+-							screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-
+ 						CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
+ 
+ 		return 0
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG
+index dff6e6b48..5dbc10be2 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG
+index ef8a441b1..e71403dfd 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=8056

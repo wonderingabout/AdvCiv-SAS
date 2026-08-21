@@ -1,0 +1,172 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5209
+# Commit: a2ec040e6b66cf0f1678843aece59cb7e4d7e214
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6845f686e115b24168d71223c2a74eab65dca428
+# Title: enlarge the Bottom-Left and Bottom-Right panels - Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarg...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	4	Assets/Python/Screens/CvMainInterface.py
+4	3	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.401_city_screen.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.402_city_screen.JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (4).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.401_city_screen.JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.402_city_screen.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 91ebf95cd..793269a61 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -444,7 +444,9 @@ class CvMainInterface:
+ # BUG - field of view slider - end
+ 
+ 		# <!-- custom: use more space on the sides for the side panels rather than city plots that we don't need to show really beyond BFC. Done with the help of gemini 3 pro thanks but anyways etc. -->
+-		self.SIDE_PANELS_WIDTH = 297
++		# <!-- custom: enlarge beyond the current inner edge of the bottom panels so we can display the bonus panels entirely (currently with even column display there is some text overlapping onto another which is not ideal anyways etc. Ideally would increase said panel's width as well, but not sure how easy it is, starting from first place needing the change anyways etc.)
++		# self.SIDE_PANELS_WIDTH = 297
++		self.SIDE_PANELS_WIDTH = 341
+ 
+ 		# <!-- custom: fetch the define once may be computaitonally cheaper (i think but not sure anyways etc.) -->
+ 		# <!-- custom: initialize cheaply once. -->
+@@ -573,12 +575,19 @@ class CvMainInterface:
+ 		# While we're at it; this one gets treated similarly.
+ 		gSetSquare("GlobeToggle", "Top", 0, 0, BTNSZ(36))
+ 		self.setMiniMapRects()
++
++		# <!-- custom: enlarge the bottom panels now that we increased self.SIDE_PANELS_WIDTH to fit more info, so that the bottom panel is aligned with the enlarged side panels (that have bonuses, etc.), as chatgpt 5.2 confirmed thanks a lot anyways etc. Note: somehow width is slightly too low and not enough with just self.SIDE_PANELS_WIDTH, so adding some extra manual adjustment anyways etc. Doing it this way i could confirm chatgpt 5.2's explanation seems correct (check if accurate) anyways etc. -->
++		# also ensure CenterBottomPanel starts to the right of CityLeftPanel (needs +8 because LowerLeftCorner trims -8).
++		iEstimatedBottomPanelsExtraWidth = 8
++		iEstimatedBottomPanelsWidth = self.SIDE_PANELS_WIDTH + iEstimatedBottomPanelsExtraWidth
+ 		gSetRect("LowerLeftCornerPanel", "Top",
+ 				RectLayout.LEFT, RectLayout.BOTTOM,
+-				HLEN(304), gRect("MiniMapPanel").height() + 17)
++				# HLEN(304), gRect("MiniMapPanel").height() + 17)
++				HLEN(iEstimatedBottomPanelsWidth), gRect("MiniMapPanel").height() + 17)
+ 		gSetRect("LowerRightCornerPanel", "Top",
+ 				RectLayout.RIGHT, RectLayout.BOTTOM,
+ 				gRect("LowerLeftCornerPanel").width(), gRect("LowerLeftCornerPanel").height())
++
+ 		gSetRect("LowerLeftCornerBackgr", "LowerLeftCornerPanel",
+ 				0, 4,
+ 				RectLayout.MAX, RectLayout.MAX)
+@@ -1083,10 +1092,11 @@ class CvMainInterface:
+ 					gRect("CommerceSliderBtns3").xRight() + HSPACE(3), iY))
+ 
+ 			# <!-- custom after we have changed our width (as of now dynamically adjusted and wider, in self.SIDE_PANELS_WIDTH), we need to anchor the commerce values to the right like the yields in trade routes and buildings nicely already were, but not the commerce values in the commerce panel. Done with the help of chatgpt 5.1 (or was it 5.2? Not sure as version changed just at end of prompt in chatgpt website ui but anyways etc. thanks anyways etc.) thanks and also my own ideas as AIs had quite the trouble to find this but chatgpt 5.1 (or was it 5.2?) pointed this point thanks which i then found more precisely how it could fix. Make it so it is dynamic even if we change side width later and account for margins empirically anyways etc. -->
+-			iEstimatedCommerceMargins = 16
++			# iEstimatedCommerceRightMargin = 16
++			iEstimatedCommerceRightMargin = 20
+ 			iEstimatedLeftSideSize = 152
+ 			# iCommercePanelHorizontalSpacingToTheRight = 70
+-			iCommercePanelHorizontalSpacingToTheRight = self.SIDE_PANELS_WIDTH - iEstimatedLeftSideSize - iEstimatedCommerceMargins
++			iCommercePanelHorizontalSpacingToTheRight = self.SIDE_PANELS_WIDTH - iEstimatedLeftSideSize - iEstimatedCommerceRightMargin
+ 			gSetPoint("CityPercentText" + str(i), PointLayout(
+ 					# (The horizontal spacing here seems pretty arbitrary)
+ 					gRect("CommerceSliderBtns3").xRight() + HSPACE(iCommercePanelHorizontalSpacingToTheRight, 3), iY))
+
+diff --git a/README.md b/README.md
+index f5a771008..5580666d8 100644
+--- a/README.md
++++ b/README.md
+@@ -154,9 +154,10 @@ Added some missing info such as the great person "+n (ICON)" information in any
+ 
+ Additionally, also added a new specialists breakdown as of now on bottom-right. Also added an option to add one or several extra rows (tunable) in the production chooser bar. These all help reduce tedious hovering and provide useful info at a glance anyways etc.
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG" alt="0.400_city_screen.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.401_city_screen.JPG" alt="0.401_city_screen.JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.402_city_screen.JPG" alt="0.402_city_screen.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (1).JPG" alt="0.400_city_screen (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (2).JPG" alt="0.400_city_screen (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (3).JPG" alt="0.400_city_screen (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (4).JPG" alt="0.400_city_screen (4).JPG" width="250"></img>
+ 
+ ### Untradeable techs (bTrade) display information
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index e0e72fe82..bbc6e0ce0 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -114,7 +114,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5162+ to 5190+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and of the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-- (Requires AdvCiv-SAS 5180+ to 5184+) Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
++- (Requires AdvCiv-SAS 5180+ to 5184+) Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. (Requires AdvCiv-SAS 5209+) Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - (Requires AdvCiv-SAS 5191+) Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed) (Note 2: may be disabled at turn 0, see [KI#85](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well)).
+ 
+ ### UI (Sevopedia reworks & related)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index bdd46aa12..14f456639 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -110,7 +110,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5162+ to 5190+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), and of the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-- (Requires AdvCiv-SAS 5180+ to 5184+) Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
++- (Requires AdvCiv-SAS 5180+ to 5184+) Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. (Requires AdvCiv-SAS 5209+) Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - (Requires AdvCiv-SAS 5191+) Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#customizable-technology-advisor-width). Note: to see the **BUG's Tech Bulbing Indicators**, see [BUG Menu Recommended Options](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md#relevant-bug-menu-options--enable-if-needed) (Note 2: may be disabled at turn 0, see [KI#85](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well)).
+ 
+ ### UI (Sevopedia reworks & related)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (1).JPG b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (1).JPG
+new file mode 100644
+index 000000000..caeb280c3
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (2).JPG b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (2).JPG
+new file mode 100644
+index 000000000..d4ea256ba
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (3).JPG b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (3).JPG
+new file mode 100644
+index 000000000..5035ee4b8
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (4).JPG b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (4).JPG
+new file mode 100644
+index 000000000..942880e2f
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG
+deleted file mode 100644
+index 961a21a5b..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.400_city_screen.JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.401_city_screen.JPG b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.401_city_screen.JPG
+deleted file mode 100644
+index 0b4a660a7..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.401_city_screen.JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.402_city_screen.JPG b/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.402_city_screen.JPG
+deleted file mode 100644
+index a0d147ac8..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/other_ui_reworks/0.402_city_screen.JPG and /dev/null differ
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=18883

@@ -40,7 +40,7 @@ public:
 	int getCurrentSpinBoxValue(int iIndex = 0) const;												// Exposed to Python
 	int getSpinBoxSize() const;
 	void setButtonClicked(int iValue, int iGroup = 0); // set the button clicked
-	
+
 	int getButtonClicked(int iGroup = 0) const; // get the button ID								// Exposed to Python
 	int getButtonSize() const;
 

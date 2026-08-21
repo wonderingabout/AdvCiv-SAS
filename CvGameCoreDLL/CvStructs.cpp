@@ -329,8 +329,7 @@ void CvMissionDefinition::setPlot(const CvPlot *plot)
 }
 
 // advc: Body cut from CvUnit::nuke
-NukeMissionDef::NukeMissionDef(CvPlot const& kPlot, CvUnit& kNuke, bool bIntercept,
-	int iBaseTime) // advc.002m
+NukeMissionDef::NukeMissionDef(CvPlot const& kPlot, CvUnit& kNuke, bool bIntercept, int iBaseTime) // advc.002m
 {
 	setMissionTime(iBaseTime * gDLL->getSecsPerTurn());
 	setMissionType(MISSION_NUKE);
@@ -576,8 +575,7 @@ PBGameSetupData::PBGameSetupData()
 }
 
 // advc.071:
-FirstContactData::FirstContactData(CvPlot const* pAt1, CvPlot const* pAt2,
-	CvUnit const* pUnit1, CvUnit const* pUnit2)
+FirstContactData::FirstContactData(CvPlot const* pAt1, CvPlot const* pAt2, CvUnit const* pUnit1, CvUnit const* pUnit2)
 {
 	/*  Don't need to worry here about which unit is where and who sees whom - can
 		figure that out when we know which teams are meeting. */

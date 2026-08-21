@@ -1,0 +1,186 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5150
+# Commit: 01ad9451d2eb3b3767f36f18ffde21045d8f768a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9281726c41a85c5ae08b4cc68c4a9d0497ebf3e3
+# Title: recon units are now national units (2 max), tech tree changes, adjust anti cheap classical and medieval gates for more aggression anyways etc - lean more tow...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	Assets/XML/GlobalDefines_advciv_sas.xml
+9	6	Assets/XML/Technologies/CIV4TechInfos.xml
+8	4	Assets/XML/Units/CIV4UnitClassInfos.xml
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 15cc7d573..e22ffc098 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -716,24 +716,24 @@
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: wider excess for later eras but don't overdo it anyways etc -->
+-	<!-- custom: e.g. 2 cities multiplier and 3 num cities and 4 extra: (2 * 3) + 4 = 6 + 4 = 10 of this unit max which is reasonable, any more won't help too much, build something else instead anyways etc -->
++	<!-- custom: e.g. 2 cities multiplier and 3 num cities and 4 extra: (2 * 3) + 2 = 6 + 2 = 8 of this unit max which is reasonable, any more won't help too much, build something else instead anyways etc -->
+ 	<Define>
+ 		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_CLASSICAL_TIER</DefineName>
+ 		<iDefineIntVal>2</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_CLASSICAL_TIER</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>2</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: e.g. if we have 5 cities, limit for example for longbowmen at medieval is 4 cities multiplier * 5 cities + 8 extra = 4 * 5 + 8 = 20 + 6 = 28 units max which is sane, anymore won't help and will only cripple us, build something else instead, ideally stronger units, else capitalize and try to move further in techs anyways etc -->
++	<!-- custom: e.g. if we have 5 cities, limit for example for longbowmen at medieval is 3 cities multiplier * 5 cities + 8 extra = 3 * 5 + 8 = 15 + 8 = 23 units max which is sane, anymore won't help and will only cripple us, build something else instead, ideally stronger units, else capitalize and try to move further in techs anyways etc -->
+ 	<!-- custom: sometimes we have nothing better at all to build (no bonus, etc.), and longbow window is quite long, sometimes fine to overproduce and in autoplay sometimes the best move for AI to rush someone with these if i'm not mistaken but anyways etc, so don't trim it too hard if i'm not mistaken but anyways etc -->
+ 	<Define>
+ 		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_CITIES_MULTIPLIER_MEDIEVAL_TIER</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_EXTRA_ALLOWED_MEDIEVAL_TIER</DefineName>
+-		<iDefineIntVal>10</iDefineIntVal>
++		<iDefineIntVal>8</iDefineIntVal>
+ 	</Define>
+ 	<!-- Renaissance+ land cheap tier caps.
+ 	     Default: 0 ⇒ "never build these anymore in Renaissance+." -->
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 24c9f6664..adf69e361 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -732,6 +732,10 @@
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+ 					<iFlavor>2</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>2</iFlavor>
++				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+ 					<iFlavor>6</iFlavor>
+@@ -773,8 +777,7 @@
+ 			<iAsset>24</iAsset>
+ 			<iPower>0</iPower>
+ 			<bRepeat>0</bRepeat>
+-			<!-- custom: was 1 -->
+-			<bTrade>0</bTrade>
++			<bTrade>1</bTrade>
+ 			<bDisable>0</bDisable>
+ 			<bGoodyTech>0</bGoodyTech>
+ 			<bExtraWaterSeeFrom>0</bExtraWaterSeeFrom>
+@@ -5905,7 +5908,9 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_PHYSICS</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs/>
++			<AndPreReqs>
++				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
++			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_STEAM_POWER_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_STEAMPOWER</Sound>
+ 			<SoundMP>AS2D_TECH_MP_STEAMPOWER</SoundMP>
+@@ -6423,9 +6428,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_DEMOCRACY</PrereqTech>
+-			</AndPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_REFRIGERATION_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_REFRIGERATION</Sound>
+ 			<SoundMP>AS2D_TECH_MP_REFRIGERATION</SoundMP>
+
+diff --git a/Assets/XML/Units/CIV4UnitClassInfos.xml b/Assets/XML/Units/CIV4UnitClassInfos.xml
+index 92a284da4..5de5ed322 100644
+--- a/Assets/XML/Units/CIV4UnitClassInfos.xml
++++ b/Assets/XML/Units/CIV4UnitClassInfos.xml
+@@ -67,7 +67,8 @@
+ 			<Description>TXT_KEY_UNIT_SCOUT</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+-			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
++			<!-- custom: was -1 -->
++			<iMaxPlayerInstances>2</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+ 			<DefaultUnit>UNIT_SCOUT</DefaultUnit>
+ 		</UnitClassInfo>
+@@ -76,7 +77,8 @@
+ 			<Description>TXT_KEY_UNIT_EXPLORER</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+-			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
++			<!-- custom: was -1 -->
++			<iMaxPlayerInstances>2</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+ 			<DefaultUnit>UNIT_EXPLORER</DefaultUnit>
+ 		</UnitClassInfo>
+@@ -85,7 +87,8 @@
+ 			<Description>TXT_KEY_UNIT_AIRSHIP</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+-			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
++			<!-- custom: was -1 -->
++			<iMaxPlayerInstances>2</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+ 			<DefaultUnit>UNIT_AIRSHIP</DefaultUnit>
+ 		</UnitClassInfo>
+@@ -94,7 +97,8 @@
+ 			<Description>TXT_KEY_UNIT_ROBOTIC_RECON_DRONE</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+-			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
++			<!-- custom: was -1 -->
++			<iMaxPlayerInstances>2</iMaxPlayerInstances>
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+ 			<DefaultUnit>UNIT_ROBOTIC_RECON_DRONE</DefaultUnit>
+ 		</UnitClassInfo>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 87eec926e..be870d540 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -429,6 +429,7 @@ Note: please see note here as well in this custom main changes guide about the .
+ 
+ - increased DOW_UNIT_CAPTURE_CHANCE from 0 to 50, this means even at the turn where war is declared, chance to capture workers is 50%, no reason to explicitly discourage capturing workers as suprise attacks and opportunistic/efficient attacks as well are an important and natural component of war i think, would help and reward AIs and the human player for behaving as such. It would be the same, otherwise, than having a no capture city at first turn, or such unrealistic limitations i would say. I find best at least in advciv-sas to set this to same number as BASE_UNIT_CAPTURE_CHANCE (as of now and in base advciv as of now too is 50 meaning 50% capture chance if i am not mistaken anyways etc). So now the worker capture chance in all turns is also extended to being the same capture chance at the turn where/when war is declared too, not 0 anymore at this turn anyways etc.
+ - the settler is now a national unit: only one allowed per player. This helps AI efficiency a lot (no more building 2 settlers at same time, or one when one already exists (hammer +/- food (used as produciton too for the settler if i am not mistaken but anyways etc) saved while the existing settler unit travels too if i am not mistaken but anyways etc)), but also adds a layer of strategy for all players, as targetting settlers is worth more, also the timing of when to build settlers, whether to slave or not (see slaving changes, that is now buffed in the general or such changes in this readme as well for extra info or details anyways etc) and at which timing and in which city. All these become more important to manage, as well as better escorting settlers too. Since AI has as of now handicap advantages at higher difficulties, it shouldn't be as affected but still greatly benefit in most cases from the increased effiency, as the amount of hammer saved or optimized now could be used to build many things, and if unfortunately as of now its settler is destroyed, then no big deal it can build a new one, as well as prepare for war better or build something else instead of building too many settlers. There may be other related changes in the way to approach settlers strategically thanks to or with this change, but i believe it's interesting also not too sure but looks very good or/and interesting to me. See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player) for details and extra info (although most should be here but maybe screenshots or such extra info if any there, hopefully helpful or not or yes or etc but anyways etc)
++- (Requires AdvCiv-SAS 5150+) scouts, explorers, airships, and robotic drones are now national units (max 2 each per player) so that AIs don't overproduce them, have a more efficient economy, and also to add a bit more strategy to when to build scouts anyways etc.
+ 
+ ### Military and some civilian units related info (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index ab6778153..40446aa0e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -413,7 +413,8 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ ### Civilian Units
+ 
+ - `DOW_UNIT_CAPTURE_CHANCE` **0 → 50**: workers can be captured **on the turn war is declared**, same as other turns. Aligns with the base capture chance and rewards opportunistic warfare.
+-- **Settler** is a **national unit (1 max)** per empire. This prevents AI from building two at once or building a new one while an existing settler is travelling, improves hammer/food efficiency, and raises the stakes on timing/escorts. See [KI#37](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player).
++- **Settler** is now a **national unit** (**max 1 per player**). This prevents AI from building two at once or building a new one while an existing settler is travelling, improves hammer/food efficiency, and raises the stakes on timing/escorts. See [KI#37](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player).
++- (Requires AdvCiv-SAS 5150+) **Scouts**, **Explorers**, **Airships**, and **Robotic Recon Drones** are now **national units** (**max 2 each per player**): reduces AI scout overproduction, keeps unit maintenance more efficient, and makes early scouting choices a bit more strategic.
+ 
+ ### Military & related units (non-exhaustive)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 863e75d8c..d7fe2096c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=12139

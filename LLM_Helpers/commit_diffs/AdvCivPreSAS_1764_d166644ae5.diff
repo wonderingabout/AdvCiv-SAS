@@ -1,0 +1,5016 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1764
+# Commit: d166644ae54c501cb441eebf322e201fb5020ddf
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 11dc71688cc225bff7decf4d2f197017598373f5
+# Title: Merge WtP changes to EnumMap; use EnumMap for CvPlot.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+72	0	CvGameCoreDLL/BitUtil.h
+15	18	CvGameCoreDLL/CvArea.cpp
+9	10	CvGameCoreDLL/CvArea.h
+5	4	CvGameCoreDLL/CvCity.cpp
+23	41	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvCityAI.h
+2	2	CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+21	32	CvGameCoreDLL/CvDLLWidgetData.cpp
+4	3	CvGameCoreDLL/CvDeal.cpp
+1	0	CvGameCoreDLL/CvEventReporter.cpp
+1	0	CvGameCoreDLL/CvGame.cpp
+3	3	CvGameCoreDLL/CvGameCoreDLL.h
+8	9	CvGameCoreDLL/CvGameCoreUtils.cpp
+14	7	CvGameCoreDLL/CvGameCoreUtils.h
+3	7	CvGameCoreDLL/CvGameInterface.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+16	4	CvGameCoreDLL/CvInfoEnums.h
+40	42	CvGameCoreDLL/CvPlayer.cpp
+13	12	CvGameCoreDLL/CvPlayerAI.cpp
+266	616	CvGameCoreDLL/CvPlot.cpp
+111	69	CvGameCoreDLL/CvPlot.h
+14	27	CvGameCoreDLL/CvTeam.cpp
+10	16	CvGameCoreDLL/CvTeamAI.cpp
+14	11	CvGameCoreDLL/CvUnit.cpp
+20	19	CvGameCoreDLL/CvUnitAI.cpp
+0	5	CvGameCoreDLL/CyArea.cpp
+0	1	CvGameCoreDLL/CyArea.h
+2	1	CvGameCoreDLL/CyAreaInterface.cpp
+6	4	CvGameCoreDLL/CyPlot.cpp
+2	2	CvGameCoreDLL/CyPlot.h
+655	203	CvGameCoreDLL/EnumMap.h
+27	7	CvGameCoreDLL/EnumMap2D.h
+3	2	CvGameCoreDLL/WarAndPeaceCache.cpp
+ create mode 100644 CvGameCoreDLL/BitUtil.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/BitUtil.h b/CvGameCoreDLL/BitUtil.h
+new file mode 100644
+index 000000000..46164ac32
+--- /dev/null
++++ b/CvGameCoreDLL/BitUtil.h
+@@ -0,0 +1,72 @@
++#pragma once
++
++#ifndef BIT_UTIL_H
++#define BIT_UTIL_H
++
++/*  advc.enum: Helper functions for bitwise operations. Copied from the
++	"We the People" mod (all code by Nightinggale), which keeps these functions
++	directly in CvGameCoreDLL.h. I need them only for EnumMap for now. EnumMap
++	gets included in CvGameCoreDLL.h, but I don't want the functions in the
++	global namespace (for now); so I've put them into a different namespace.
++	Removed the static keyword (all functions were static). */
++
++namespace BitUtil
++{
++	template <typename T>
++	inline bool HasBit(const T x, const int y)
++	{
++		return (x & ((T)1U << y)) != 0;
++	}
++
++	template <typename T>
++	inline T SetBit(T &x, const int y)
++	{
++		return x = (T)(x | ((T)1U << y));
++	}
++
++	// use one of the previous functions instead of hardcoding bValue
++	// this function is only for cases where a bit can be turned both on and off
++	template <typename T>
++	inline T SetBit(T &x, const int y, const bool bValue)
++	{
++		if (bValue)
++		{
++			return x = (T)(x | ((T)1U << y));
++		}
++		else
++		{
++			return x = (T)(x & ~((T)1U << y));
++		}
++	}
++// advc: The rest are unused for now
++#if 0
++	template <typename T>
++	inline T ClrBit(T &x, const int y)
++	{
++		return x = (T)(x & ~((T)1U << y));
++	}
++
++	// use both has and get prefix as both fits and remembering both appears to be a pain
++	template <typename T>
++	inline T GetBits(T &x, const int iIndex, const int iNumBits)
++	{
++		return (x >> iIndex) & (((T)1u << iNumBits) - 1);
++	}
++
++	template <typename T>
++	inline T HasBits(T &x, const int iIndex, const int iNumBits)
++	{
++		return GetBits(x, iIndex, iNumBits);
++	}
++
++	template <typename T>
++	inline T SetBits(T &x, const int iIndex, const int iNumBits, const T iValue)
++	{
++		x &= ~(((1 << iNumBits) - 1) << iIndex);
++		x |= (iValue & ((1 << iNumBits) - 1)) << iIndex;
++		return x;
++	}
++#endif
++};
++
++#endif
+
+diff --git a/CvGameCoreDLL/CvArea.cpp b/CvGameCoreDLL/CvArea.cpp
+index 9abaf3818..733cfd12f 100644
+--- a/CvGameCoreDLL/CvArea.cpp
++++ b/CvGameCoreDLL/CvArea.cpp
+@@ -53,7 +53,6 @@ void CvArea::reset(int iID, bool bWater, bool bConstructorCall)
+ 	m_bWater = bWater;
+ 
+ 	m_aiUnitsPerPlayer.reset();
+-	m_aiAnimalsPerPlayer.reset();
+ 	m_aiCitiesPerPlayer.reset();
+ 	m_aiPopulationPerPlayer.reset();
+ 	m_aiBuildingGoodHealth.reset();
+@@ -375,19 +374,6 @@ void CvArea::changeUnitsPerPlayer(PlayerTypes eIndex, int iChange)
+ }
+ 
+ 
+-int CvArea::getAnimalsPerPlayer(PlayerTypes eIndex) const
+-{
+-	return m_aiAnimalsPerPlayer.get(eIndex);
+-}
+-
+-
+-void CvArea::changeAnimalsPerPlayer(PlayerTypes eIndex, int iChange)
+-{
+-	m_aiAnimalsPerPlayer.add(eIndex, iChange);
+-	FAssert(getAnimalsPerPlayer(eIndex) >= 0);
+-}
+-
+-
+ int CvArea::getCitiesPerPlayer(PlayerTypes eIndex, /* <advc.030b> */ bool bCheckAdjacentCoast) const
+ {
+ 	/*  Perhaps this parameter isn't really needed, but this function gets called
+@@ -752,7 +738,16 @@ void CvArea::read(FDataStreamBase* pStream)
+ 		m_iRepresentativeAreaId = m_iID;
+ 	} // </advc.030>
+ 	m_aiUnitsPerPlayer.Read(pStream);
+-	m_aiAnimalsPerPlayer.Read(pStream);
++	// <advc>
++	if (uiFlag < 2)
++	{
++		// Discard AnimalsPerPlayer
++		for (int i = 0; i < MAX_PLAYERS; i++)
++		{
++			int iTmp;
++			pStream->Read(&iTmp);
++		}
++	} // </advc>
+ 	m_aiCitiesPerPlayer.Read(pStream);
+ 	m_aiPopulationPerPlayer.Read(pStream);
+ 	m_aiBuildingGoodHealth.Read(pStream);
+@@ -773,7 +768,7 @@ void CvArea::read(FDataStreamBase* pStream)
+ 		pStream->Read(&m_aTargetCities[i].iID);
+ 	}
+ 
+-	m_aaiYieldRateModifier.Read(pStream);
++	m_aaiYieldRateModifier.Read(pStream, uiFlag < 2);
+ 	m_aaiNumTrainAIUnits.Read(pStream);
+ 	m_aaiNumAIUnits.Read(pStream);
+ 	m_aiBonuses.Read(pStream);
+@@ -783,8 +778,10 @@ void CvArea::read(FDataStreamBase* pStream)
+ 
+ void CvArea::write(FDataStreamBase* pStream)
+ {
++	PROFILE_FUNC(); // advc
+ 	uint uiFlag=0;
+ 	uiFlag = 1; // advc.030
++	uiFlag = 2; // advc: Remove m_aiAnimalsPerPlayer, advc.enum: write m_aaiYieldRateModifier as short
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iID);
+@@ -803,7 +800,7 @@ void CvArea::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iRepresentativeAreaId);
+ 	// </advc.030>
+ 	m_aiUnitsPerPlayer.Write(pStream);
+-	m_aiAnimalsPerPlayer.Write(pStream);
++	//m_aiAnimalsPerPlayer.Write(pStream); // advc: removed
+ 	m_aiCitiesPerPlayer.Write(pStream);
+ 	m_aiPopulationPerPlayer.Write(pStream);
+ 	m_aiBuildingGoodHealth.Write(pStream);
+@@ -824,7 +821,7 @@ void CvArea::write(FDataStreamBase* pStream)
+ 		pStream->Write(m_aTargetCities[i].iID);
+ 	}
+ 
+-	m_aaiYieldRateModifier.Write(pStream);
++	m_aaiYieldRateModifier.Write(pStream, false);
+ 	m_aaiNumTrainAIUnits.Write(pStream);
+ 	m_aaiNumAIUnits.Write(pStream);
+ 	m_aiBonuses.Write(pStream);
+
+diff --git a/CvGameCoreDLL/CvArea.h b/CvGameCoreDLL/CvArea.h
+index 3188c11c1..aa01106aa 100644
+--- a/CvGameCoreDLL/CvArea.h
++++ b/CvGameCoreDLL/CvArea.h
+@@ -56,9 +56,9 @@ public:
+ 
+ 	int getUnitsPerPlayer(PlayerTypes eIndex) const;													// Exposed to Python
+ 	void changeUnitsPerPlayer(PlayerTypes eIndex, int iChange);
+-
+-	int getAnimalsPerPlayer(PlayerTypes eIndex) const;												// Exposed to Python
+-	void changeAnimalsPerPlayer(PlayerTypes eIndex, int iChange);
++	// advc: Unused; removed.
++	/*int getAnimalsPerPlayer(PlayerTypes eIndex) const;												// Exposed to Python
++	void changeAnimalsPerPlayer(PlayerTypes eIndex, int iChange);*/
+ 
+ 	int getCitiesPerPlayer(PlayerTypes eIndex,													// Exposed to Python
+ 			bool bCheckAdjacentCoast = false) const; // advc.030b
+@@ -137,9 +137,8 @@ protected:
+ 	// <advc.030>
+ 	bool m_bLake;
+ 	int m_iRepresentativeAreaId;
+-	// </advc.030>  // <advc.enum>
++	// </advc.030>  // <advc.enum> Tbd.: Use <...,short> for all of these?
+ 	EnumMap<PlayerTypes,int> m_aiUnitsPerPlayer;
+-	EnumMap<PlayerTypes,int> m_aiAnimalsPerPlayer;
+ 	EnumMap<PlayerTypes,int> m_aiCitiesPerPlayer;
+ 	EnumMap<PlayerTypes,int> m_aiPopulationPerPlayer;
+ 	EnumMap<PlayerTypes,int> m_aiBuildingGoodHealth;
+@@ -153,11 +152,11 @@ protected:
+ 	EnumMap<TeamTypes,int> m_aiCleanPowerCount;
+ 	EnumMap<TeamTypes,int> m_aiBorderObstacleCount;
+ 	EnumMap<TeamTypes,AreaAITypes> m_aeAreaAIType;
+-	EnumMap<BonusTypes, int> m_aiBonuses;
+-	EnumMap<ImprovementTypes, int> m_aiImprovements;
+-	EnumMap2D<PlayerTypes, YieldTypes, short> m_aaiYieldRateModifier;
+-	EnumMap2D<PlayerTypes, UnitAITypes, int> m_aaiNumTrainAIUnits;
+-	EnumMap2D<PlayerTypes, UnitAITypes, int> m_aaiNumAIUnits; // </advc.enum>
++	EnumMap<BonusTypes,int> m_aiBonuses;
++	EnumMap<ImprovementTypes,int> m_aiImprovements;
++	EnumMap2D<PlayerTypes,YieldTypes,short> m_aaiYieldRateModifier;
++	EnumMap2D<PlayerTypes,UnitAITypes,int> m_aaiNumTrainAIUnits;
++	EnumMap2D<PlayerTypes,UnitAITypes,int> m_aaiNumAIUnits; // </advc.enum>
+ 
+ 	IDInfo* m_aTargetCities;
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index e9bee5621..c6efe2f2f 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -7772,11 +7772,11 @@ void CvCity::setCultureLevel(CultureLevelTypes eNewValue, bool bUpdatePlotGroups
+ 					if (iCultureRange <= eOldValue)
+ 					{
+ 						FAssert(iCultureRange <= GC.getNumCultureLevelInfos());
+-
+ 						CvPlot* pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
+ 						if (pLoopPlot != NULL)
+ 						{
+-							pLoopPlot->changeCultureRangeCities(getOwner(), iCultureRange, -1, bUpdatePlotGroups);
++							pLoopPlot->changeCultureRangeCities(getOwner(),
++									(CultureLevelTypes)iCultureRange, -1, bUpdatePlotGroups);
+ 						}
+ 					}
+ 				}
+@@ -7798,10 +7798,10 @@ void CvCity::setCultureLevel(CultureLevelTypes eNewValue, bool bUpdatePlotGroups
+ 						FAssert(iCultureRange <= GC.getNumCultureLevelInfos());
+ 
+ 						CvPlot* pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
+-
+ 						if (pLoopPlot != NULL)
+ 						{
+-							pLoopPlot->changeCultureRangeCities(getOwner(), iCultureRange, 1, bUpdatePlotGroups);
++							pLoopPlot->changeCultureRangeCities(getOwner(),
++									(CultureLevelTypes)iCultureRange, 1, bUpdatePlotGroups);
+ 						}
+ 					}
+ 				}
+@@ -13327,6 +13327,7 @@ void CvCity::read(FDataStreamBase* pStream)
+ 
+ void CvCity::write(FDataStreamBase* pStream)
+ {
++	PROFILE_FUNC(); // advc
+ 	int iI;
+ 	uint uiFlag = 1; // flag for expansion
+ 	uiFlag = 2; // advc.004x
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b25a1483a..eb3f4c758 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9455,31 +9455,27 @@ int CvCityAI::AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel, int iNewAng
+ 	}
+ 
+ 	return iCost;
+-}
+-// K-Mod end
++} // K-Mod end
+ 
+-bool CvCityAI::AI_potentialPlot(short* piYields) const
++/*  advc.enum: Param was a pointer to a CvPlot member array of yields.
++	Replaced all uses of that param with kPlot.getYield(YieldTypes), which,
++	due to inlining, should be just as fast. */ 
++bool CvCityAI::AI_potentialPlot(CvPlot const& kPlot) const
+ {
+-	int iNetFood = piYields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION();
+-
++	int iNetFood = kPlot.getYield(YIELD_FOOD) - GC.getFOOD_CONSUMPTION_PER_POPULATION();
+ 	if (iNetFood < 0)
+ 	{
+- 		if (piYields[YIELD_FOOD] == 0)
++ 		if (kPlot.getYield(YIELD_FOOD) == 0)
+ 		{
+-			if (piYields[YIELD_PRODUCTION] + piYields[YIELD_COMMERCE] < 2)
+-			{
++			if (kPlot.getYield(YIELD_PRODUCTION) + kPlot.getYield(YIELD_COMMERCE) < 2)
+ 				return false;
+-			}
+ 		}
+ 		else
+ 		{
+-			if (piYields[YIELD_PRODUCTION] + piYields[YIELD_COMMERCE] == 0)
+-			{
++			if (kPlot.getYield(YIELD_PRODUCTION) + kPlot.getYield(YIELD_COMMERCE) == 0)
+ 				return false;
+-			}
+ 		}
+ 	}
+-
+ 	return true;
+ }
+ 
+@@ -9488,40 +9484,30 @@ bool CvCityAI::AI_foodAvailable(int iExtra) const
+ {
+ 	PROFILE_FUNC();
+ 
+-	int iI;
+ 	int iFoodCount = 0;
+-	bool abPlotAvailable[NUM_CITY_PLOTS] = { false };
+ 
+-	for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++	bool abPlotAvailable[NUM_CITY_PLOTS] = { false };
++	for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 	{
+ 		CvPlot* pLoopPlot = getCityIndexPlot(iI);
+-
+-		if (pLoopPlot != NULL)
+-		{
+-			if (iI == CITY_HOME_PLOT)
+-			{
+-				iFoodCount += pLoopPlot->getYield(YIELD_FOOD);
+-			}
+-			else if ((pLoopPlot->getWorkingCity() == this) && AI_potentialPlot(pLoopPlot->getYield()))
+-			{
+-				abPlotAvailable[iI] = true;
+-			}
+-		}
++		if (pLoopPlot == NULL)
++			continue;
++		if (iI == CITY_HOME_PLOT)
++			iFoodCount += pLoopPlot->getYield(YIELD_FOOD);
++		else if (pLoopPlot->getWorkingCity() == this && AI_potentialPlot(*pLoopPlot))
++			abPlotAvailable[iI] = true;
+ 	}
+ 
+ 	int iPopulation = (getPopulation() + iExtra);
+-
+ 	while (iPopulation > 0)
+ 	{
+-		int iBestValue = 0;
+ 		int iBestPlot = CITY_HOME_PLOT;
+-
+-		for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++		int iBestValue = 0;
++		for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 		{
+ 			if (abPlotAvailable[iI])
+ 			{
+ 				int iValue = getCityIndexPlot(iI)->getYield(YIELD_FOOD);
+-
+ 				if (iValue > iBestValue)
+ 				{
+ 					iBestValue = iValue;
+@@ -9535,23 +9521,19 @@ bool CvCityAI::AI_foodAvailable(int iExtra) const
+ 			iFoodCount += iBestValue;
+ 			abPlotAvailable[iBestPlot] = false;
+ 		}
+-		else
+-		{
+-			break;
+-		}
++		else break;
+ 
+ 		iPopulation--;
+ 	}
+ 
+-	for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
++	FOR_EACH_ENUM(Specialist)
+ 	{
+-		iFoodCount += (GC.getInfo((SpecialistTypes)iI).getYieldChange(YIELD_FOOD) * getFreeSpecialistCount((SpecialistTypes)iI));
++		iFoodCount += (GC.getInfo(eLoopSpecialist).getYieldChange(YIELD_FOOD) *
++				getFreeSpecialistCount(eLoopSpecialist));
+ 	}
+ 
+ 	if (iFoodCount < foodConsumption(false, iExtra))
+-	{
+ 		return false;
+-	}
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index d9179cbf6..d6e3e1fbe 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -213,7 +213,7 @@ protected:
+ 	void AI_juggleCitizens();
+ 	int AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel = 0, int iNewAnger = 0, int iAngerTimer = 0); // K-Mod
+ 
+-	bool AI_potentialPlot(short* piYields) const;
++	bool AI_potentialPlot(CvPlot const& kPlot) const; // advc.enum: param was 'short* piYields'
+ 	bool AI_foodAvailable(int iExtra = 0) const;
+ 	//int AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false, bool bIgnoreStarvation = false, bool bWorkerOptimization = false) const;
+ 	//int AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false, bool bIgnoreStarvation = false) const;
+
+diff --git a/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h b/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+index e546d358e..f4b204068 100644
+--- a/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+@@ -62,7 +62,7 @@ public:
+ 	virtual int getSymbolID(int iSymbol) = 0;
+ 	virtual CLLNode<IDInfo>* deleteSelectionListNode(CLLNode<IDInfo>* pNode) = 0;
+ 	virtual CLLNode<IDInfo>* nextSelectionListNode(CLLNode<IDInfo>* pNode) = 0;
+-	// <advc.003s> Work around for missing const qualifiers
++	// <advc.003s> Workaround for missing const qualifiers
+ 	inline CLLNode<IDInfo> const* nextSelectionListNode(CLLNode<IDInfo> const* pNode) const
+ 	{
+ 		return const_cast<CvDLLInterfaceIFaceBase*>(this)->nextSelectionListNode(const_cast<CLLNode<IDInfo>*>(pNode));
+@@ -78,7 +78,7 @@ public:
+ 	virtual CvCity* getHeadSelectedCity() = 0;
+ 	virtual bool isCitySelection() = 0;
+ 	virtual CLLNode<IDInfo>* nextSelectedCitiesNode(CLLNode<IDInfo>* pNode) = 0;
+-	// <advc> Work around for missing const qualifiers
++	// <advc> Workaround for missing const qualifiers
+ 	inline CLLNode<IDInfo> const* nextSelectedCitiesNode(CLLNode<IDInfo> const* pNode) const
+ 	{
+ 		return const_cast<CvDLLInterfaceIFaceBase*>(this)->nextSelectedCitiesNode(const_cast<CLLNode<IDInfo>*>(pNode));
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 1869747f4..5437ee4fc 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1596,13 +1596,10 @@ void CvDLLWidgetData::doSelected(CvWidgetDataStruct &widgetDataStruct)
+ void CvDLLWidgetData::doGotoTurnEvent(CvWidgetDataStruct &widgetDataStruct)
+ {
+ 	CvPlot* pPlot = GC.getMap().plot(widgetDataStruct.m_iData1, widgetDataStruct.m_iData2);
+-
+-	if (NULL != pPlot && !gDLL->getEngineIFace()->isCameraLocked())
++	if (pPlot != NULL && !gDLL->getEngineIFace()->isCameraLocked())
+ 	{
+-		if (pPlot->isRevealed(GC.getGame().getActiveTeam(), false))
+-		{
++		if (pPlot->isRevealed(GC.getGame().getActiveTeam()))
+ 			gDLL->getEngineIFace()->cameraLookAt(pPlot->getPoint());
+-		}
+ 	}
+ }
+ 
+@@ -1611,10 +1608,8 @@ void CvDLLWidgetData::doMenu()
+ 	if (!gDLL->isGameInitializing())
+ 	{
+ 		CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_MAIN_MENU);
+-		if (NULL != pInfo)
+-		{
++		if (pInfo != NULL)
+ 			gDLL->getInterfaceIFace()->addPopup(pInfo, NO_PLAYER, true);
+-		}
+ 	}
+ }
+ 
+@@ -1623,10 +1618,8 @@ void CvDLLWidgetData::doLaunch(CvWidgetDataStruct &widgetDataStruct)
+ 	if (GET_TEAM(GC.getGame().getActiveTeam()).canLaunch((VictoryTypes)widgetDataStruct.m_iData1) && GC.getGame().testVictory((VictoryTypes)widgetDataStruct.m_iData1, GC.getGame().getActiveTeam()))
+ 	{
+ 		CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_LAUNCH, widgetDataStruct.m_iData1);
+-		if (NULL != pInfo)
+-		{
++		if (pInfo != NULL)
+ 			gDLL->getInterfaceIFace()->addPopup(pInfo);
+-		}
+ 	}
+ }
+ 
+@@ -1638,31 +1631,27 @@ void CvDLLWidgetData::parsePlotListHelp(CvWidgetDataStruct &widgetDataStruct, Cv
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvUnit* pUnit;
+-
+ 	int iUnitIndex = widgetDataStruct.m_iData1 + gDLL->getInterfaceIFace()->getPlotListColumn() - gDLL->getInterfaceIFace()->getPlotListOffset();
+ 
+ 	CvPlot *selectionPlot = gDLL->getInterfaceIFace()->getSelectionPlot();
+-	pUnit = gDLL->getInterfaceIFace()->getInterfacePlotUnit(selectionPlot, iUnitIndex);
++	CvUnit* pUnit = gDLL->getInterfaceIFace()->getInterfacePlotUnit(selectionPlot, iUnitIndex);
++	if (pUnit == NULL)
++		return;
+ 
+-	if (pUnit != NULL)
++	GAMETEXT.setUnitHelp(szBuffer, pUnit,
++			// <advc.069>
++			false, false, false, // defaults
++			pUnit->getOwner() == GC.getGame().getActivePlayer());
++			// </advc.069>
++	if (pUnit->plot()->plotCount(PUF_isUnitType, pUnit->getUnitType(), -1, pUnit->getOwner()) > 1)
+ 	{
+-		GAMETEXT.setUnitHelp(szBuffer, pUnit,
+-				// <advc.069>
+-				false, false, false, // defaults
+-				pUnit->getOwner() == GC.getGame().getActivePlayer());
+-				// </advc.069>
+-		if (pUnit->plot()->plotCount(PUF_isUnitType, pUnit->getUnitType(), -1, pUnit->getOwner()) > 1)
+-		{
+-			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_MISC_CTRL_SELECT", GC.getInfo(pUnit->getUnitType()).getTextKeyWide()));
+-		}
+-
+-		if (pUnit->plot()->plotCount(NULL, -1, -1, pUnit->getOwner()) > 1)
+-		{
+-			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_MISC_ALT_SELECT"));
+-		}
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_CTRL_SELECT", GC.getInfo(pUnit->getUnitType()).getTextKeyWide()));
++	}
++	if (pUnit->plot()->plotCount(NULL, -1, -1, pUnit->getOwner()) > 1)
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_ALT_SELECT"));
+ 	}
+ }
+ 
+@@ -6134,7 +6123,7 @@ CvWString CvDLLWidgetData::getNetFeatureHealthText(CvPlot const& kCityPlot,
+ 			continue;
+ 		CvPlot* pPlot = plotCity(kCityPlot.getX(), kCityPlot.getY(), i);
+ 		if(pPlot == NULL) continue; CvPlot const& p = *pPlot;
+-		if(p.getFeatureType() == NO_FEATURE || !p.isRevealed(TEAMID(eOwner), false))
++		if(p.getFeatureType() == NO_FEATURE || !p.isRevealed(TEAMID(eOwner)))
+ 			continue;
+ 		int iHealthPercent = GC.getInfo(p.getFeatureType()).getHealthPercent();
+ 		if(iHealthPercent > 0)
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index fda9d6fd1..fb49f4f8c 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -740,6 +740,7 @@ int CvDeal::getLengthSecondTrades() const
+ 
+ void CvDeal::write(FDataStreamBase* pStream)
+ {
++	PROFILE_FUNC(); // advc
+ 	uint uiFlag=0;
+ 	pStream->Write(uiFlag);
+ 
+@@ -853,10 +854,10 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
+ 		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+ 		{
+ 			CvPlot* pLoopPlot = GC.getMap().plotByIndex(iI);
+-
+-			if (pLoopPlot->isRevealed(GET_PLAYER(eFromPlayer).getTeam(), false))
++			if (pLoopPlot->isRevealed(GET_PLAYER(eFromPlayer).getTeam()))
+ 			{
+-				pLoopPlot->setRevealed(GET_PLAYER(eToPlayer).getTeam(), true, false, GET_PLAYER(eFromPlayer).getTeam(), false);
++				pLoopPlot->setRevealed(GET_PLAYER(eToPlayer).getTeam(), true,
++						false, GET_PLAYER(eFromPlayer).getTeam(), false);
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index 00af95fe5..8bfcd1fe3 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -552,6 +552,7 @@ void CvEventReporter::readStatistics(FDataStreamBase* pStream)
+ }
+ void CvEventReporter::writeStatistics(FDataStreamBase* pStream)
+ {
++	PROFILE_FUNC(); // advc
+ 	m_kStatistics.write(pStream);
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 87efc87aa..f5f76b13c 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9171,6 +9171,7 @@ void CvGame::read(FDataStreamBase* pStream)
+ 
+ void CvGame::write(FDataStreamBase* pStream)
+ {
++	PROFILE_FUNC(); // advc
+ 	int iI;
+ 
+ 	uint uiFlag=1;
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index efb1fe3c3..5db17a1d5 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -263,7 +263,7 @@ namespace python = boost::python;
+ // advc.make: Removed most of these. (Don't know what the comment above means.)
+ #include "CvGameCoreUtils.h"
+ #include "CvGlobals.h"
+-#include "EnumMap2D.h" // advc.enum: includes EnumMap.h
++#include "EnumMap2D.h" // advc.enum: Includes EnumMap.h, which includes BitUtil.h.
+ #include "CvPythonCaller.h" // advc.003y
+ #include "CvDLLLogger.h" // advc.003t
+ #include "FProfiler.h"
+@@ -278,7 +278,7 @@ namespace python = boost::python;
+ #include "CvInfo_RandomEvent.h" // </advc.003x>
+ /*  advc.make: These I had removed (not _that_ frequently included),
+ 	but decided to add them back. */
+-#include "CyGlobalContext.h" // includes CvArtFileMgr.h
++#include "CyGlobalContext.h" // Includes CvArtFileMgr.h
+ #include "CyCity.h"
+ #include "CvDLLEntityIFaceBase.h"
+ // advc.make: New additions
+@@ -286,7 +286,7 @@ namespace python = boost::python;
+ #include "CvDLLFAStarIFaceBase.h"
+ #include "CvDLLEngineIFaceBase.h"
+ #include "CvInitCore.h"
+-#include "CvEventReporter.h" // includes CvStatistics.h and CvDllPythonEvents.h
++#include "CvEventReporter.h" // Includes CvStatistics.h and CvDllPythonEvents.h
+ #include "CyArgsList.h"
+ #include "CyPlot.h"
+ #include "CyUnit.h"
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 06cbe8e88..06396a050 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1790,7 +1790,7 @@ int pathDestValid(int iToX, int iToY, const void* pointer, FAStar* finder)
+ 		// BETTER_BTS_AI_MOD: END
+ 	}
+ 
+-	if (bAIControl || kToPlot.isRevealed(pSelectionGroup->getHeadTeam(), false))
++	if (bAIControl || kToPlot.isRevealed(pSelectionGroup->getHeadTeam()))
+ 	{
+ 		if (pSelectionGroup->isAmphibPlot(&kToPlot))
+ 		{
+@@ -1873,14 +1873,14 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 	// </advc.035>
+ 	// K-Mod
+ 	int iExploreModifier = 3; // (in thirds)
+-	if (!kToPlot.isRevealed(eTeam, false))
++	if (!kToPlot.isRevealed(eTeam))
+ 	{
+ 		if (pSelectionGroup->getAutomateType() == AUTOMATE_EXPLORE ||
+ 			(!pSelectionGroup->isHuman() && (pSelectionGroup->getHeadUnitAIType() == UNITAI_EXPLORE || pSelectionGroup->getHeadUnitAIType() == UNITAI_EXPLORE_SEA)))
+ 		{
+ 			iExploreModifier = 2; // lower cost to encourage exploring unrevealed areas
+ 		}
+-		else if (!kFromPlot.isRevealed(eTeam, false))
++		else if (!kFromPlot.isRevealed(eTeam))
+ 		{
+ 			iExploreModifier = 4; // higher cost to discourage pathfinding deep into the unknown
+ 		}
+@@ -2007,7 +2007,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 
+ 	// end symmetry breaking.
+ 
+-	if (!kToPlot.isRevealed(eTeam, false))
++	if (!kToPlot.isRevealed(eTeam))
+ 		return iWorstCost;
+ 
+ 	// the cost of battle...
+@@ -2232,13 +2232,13 @@ int pathValid_source(FAStarNode* parent, CvSelectionGroup* pSelectionGroup, int
+ 		if (kFromPlot.isOwned() && kFromPlot.getTeam() != pSelectionGroup->getHeadTeam())
+ 			return FALSE;
+ 
+-		if (!kFromPlot.isRevealed(pSelectionGroup->getHeadTeam(), false))
++		if (!kFromPlot.isRevealed(pSelectionGroup->getHeadTeam()))
+ 			return FALSE;
+ 	}
+ 	// <advc.049> No new AI routes in human territory (but upgrade to railroad OK)
+ 	if(iFlags & MOVE_ROUTE_TO)
+ 	{
+-		if(kFromPlot.getRevealedRouteType(pSelectionGroup->getHeadTeam(), false) == NO_ROUTE &&
++		if(kFromPlot.getRevealedRouteType(pSelectionGroup->getHeadTeam()) == NO_ROUTE &&
+ 			!pSelectionGroup->isHuman())
+ 		{
+ 			PlayerTypes eOwner = kFromPlot.getOwner();
+@@ -2269,10 +2269,9 @@ int pathValid_source(FAStarNode* parent, CvSelectionGroup* pSelectionGroup, int
+ 		}
+ 	}
+ 
+-	if (bAIControl || kFromPlot.isRevealed(pSelectionGroup->getHeadTeam(), false))
++	if (bAIControl || kFromPlot.isRevealed(pSelectionGroup->getHeadTeam()))
+ 	{
+-		if (iFlags & (MOVE_THROUGH_ENEMY
+-				| MOVE_ATTACK_STACK)) // K-Mod
++		if (iFlags & (MOVE_THROUGH_ENEMY /* K-Mod: */ | MOVE_ATTACK_STACK))
+ 		{
+ 			if (!pSelectionGroup->canMoveOrAttackInto(kFromPlot,
+ 					// K-Mod:
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index c53d3faf4..ce8e1c675 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -67,7 +67,8 @@ bool needsArticle(BuildingTypes eBuilding);
+ bool needsArticle(ProjectTypes eProject);
+ // </advc.008e>
+ // <advc.130h>
+-template<typename T> void removeDuplicates(std::vector<T>& v) {
++template<typename T> void removeDuplicates(std::vector<T>& v)
++{
+ 	std::set<T> aeTmp(v.begin(), v.end());
+ 	v.assign(aeTmp.begin(), aeTmp.end());
+ } // </advc.130h>
+@@ -102,8 +103,8 @@ inline float range(float fNum, float fLow, float fHigh)
+ 
+ /*  <advc.003g> Don't want to work with float in places where memory usage isn't a
+ 	concern. */
+-inline double dRange(double d, double low, double high) {
+-
++inline double dRange(double d, double low, double high)
++{
+ 	if(d < low)
+ 		return low;
+ 	if(d > high)
+@@ -112,8 +113,8 @@ inline double dRange(double d, double low, double high) {
+ } // </advc.003g>
+ 
+ // advc: Body cut from CvUnitAI::AI_sacrificeValue. (K-Mod had used long -> int.)
+-inline int longLongToInt(long long x) {
+-
++inline int longLongToInt(long long x)
++{
+ 	FAssert(x < MAX_INT);
+ 	//return std::min((long)MAX_INT, iValue); // K-Mod
+ 	/*  Erik (BUG1): We cannot change the signature [of AI_sacrificeValue] due to
+@@ -126,12 +127,18 @@ inline int longLongToInt(long long x) {
+ 	return static_cast<int>(std::min<long long>(MAX_INT, x));
+ }
+ 
+-inline short intToShort(int x) {
+-
++inline short intToShort(int x)
++{
+ 	FAssert(x < MAX_SHORT);
+ 	return static_cast<short>(std::min<int>(MAX_SHORT, x));
+ }
+ 
++inline char intToChar(int x)
++{
++	FAssert(x < MAX_CHAR);
++	return static_cast<char>(std::min<char>(MAX_CHAR, x));
++}
++
+ // (advc.make: Distance functions moved into CvMap.h)
+ 
+ CvPlot* plotCity(int iX, int iY, int iIndex);																			// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index a33642625..53d01f023 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -129,7 +129,7 @@ void CvGame::updateColoredPlots()
+ 							"COLOR_HIGHLIGHT_TEXT")).getColor(), PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
+ 				}
+ 
+-				if (pLoopPlot->isRevealed(getActiveTeam(), false))
++				if (pLoopPlot->isRevealed(getActiveTeam()))
+ 				{
+ 					NiColorA color(GC.getInfo((ColorTypes)GC.getInfoTypeForString(
+ 							"COLOR_WHITE")).getColor());
+@@ -394,7 +394,7 @@ void CvGame::updateBlockadedPlots()
+ 	for (int i = 0; i < GC.getMap().numPlots(); ++i)
+ 	{
+ 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(i);
+-		if (pLoopPlot->getBlockadedCount(getActiveTeam()) > 0 && pLoopPlot->isRevealed(getActiveTeam(), false))
++		if (pLoopPlot->getBlockadedCount(getActiveTeam()) > 0 && pLoopPlot->isRevealed(getActiveTeam()))
+ 		{
+ 			NiColorA color(GC.getInfo((ColorTypes)GC.getInfoTypeForString("COLOR_BLACK")).getColor());
+ 			color.a = 0.35f;
+@@ -2489,15 +2489,11 @@ void CvGame::initSelection() const
+ 
+ bool CvGame::canDoPing(CvPlot* pPlot, PlayerTypes ePlayer) const
+ {
+-	if (pPlot == NULL || !pPlot->isRevealed(getActiveTeam(), false))
+-	{
++	if (pPlot == NULL || !pPlot->isRevealed(getActiveTeam()))
+ 		return false;
+-	}
+ 
+ 	if (GET_PLAYER(ePlayer).getTeam() != getActiveTeam())
+-	{
+ 		return false;
+-	}
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 4d90d4f15..bdbeb4795 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -6059,7 +6059,7 @@ void CvGameTextMgr::setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot c
+ 				// advc.001n: Might cache FoundValue
+ 				&& !GC.getGame().isNetworkMultiPlayer())
+ 		{ // <advc.007> Moved up, and skip unrevealed.
+-			bool bRevealed = kPlot.isRevealed(kLoopPlayer.getTeam(), false);
++			bool bRevealed = kPlot.isRevealed(kLoopPlayer.getTeam());
+ 			if(!bRevealed)
+ 				continue; // </advc.007>
+ 			int iActualFoundValue = kPlot.getFoundValue(ePlayer, /* advc.052: */ true);
+
+diff --git a/CvGameCoreDLL/CvInfoEnums.h b/CvGameCoreDLL/CvInfoEnums.h
+index e91af17f4..01f110f87 100644
+--- a/CvGameCoreDLL/CvInfoEnums.h
++++ b/CvGameCoreDLL/CvInfoEnums.h
+@@ -6,7 +6,7 @@
+ /*  advc.enum: New header; mostly for macros dealing with CvInfo classes and their
+ 	associated enum types. */
+ 
+-/*  operator++ functions copied from "We the People" (original author: Nightinggale).
++/*  Increment/decrement functions copied from "We the People" (original author: Nightinggale).
+ 	For iterating over an enum when FOR_EACH_ENUM isn't applicable. Also used by EnumMap. */
+ template <class T>
+ static inline T& operator++(T& c)
+@@ -14,7 +14,6 @@ static inline T& operator++(T& c)
+ 	c = static_cast<T>(c + 1);
+ 	return c;
+ }
+-
+ template <class T>
+ static inline T operator++(T& c, int)
+ {
+@@ -22,6 +21,19 @@ static inline T operator++(T& c, int)
+ 	c = static_cast<T>(c + 1);
+ 	return cache;
+ }
++template <class T>
++static inline T& operator--(T& c)
++{
++	c = static_cast<T>(c - 1);
++	return c;
++}
++template <class T>
++static inline T operator--(T& c, int)
++{
++	T cache = c;
++	c = static_cast<T>(c - 1);
++	return cache;
++}
+ 
+ #define FOR_EACH_ENUM(TypeName) \
+ 	for (TypeName##Types eLoop##TypeName = (TypeName##Types)0; \
+@@ -44,8 +56,8 @@ static inline T operator++(T& c, int)
+ 	DO(SeaLevel, SEALEVEL) \
+ 	DO(Terrain, TERRAIN) \
+ 	DO(Feature, FEATURE) \
+-	DO(TurnTimer, TURNTIMER) \
+ 	DO(Improvement, IMPROVEMENT) \
++	DO(TurnTimer, TURNTIMER) \
+ 	DO(Handicap, HANDICAP) \
+ 	DO(GameSpeed, GAMESPEED) \
+ 	DO(Era, ERA) \
+@@ -81,7 +93,7 @@ static inline T operator++(T& c, int)
+ 	DO(Effect, EFFECT) \
+ 	DO(Attachable, ATTACHABLE) \
+ 	DO(Build, BUILD) \
+-	/* both exported */ \
++	/* getInfo function and getNumInfos function exported */ \
+ 	DO(PlayerColor, PLAYERCOLOR) \
+ 	DO(Bonus, BONUS) \
+ 	DO(Civilization, CIVILIZATION) \
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 8d8095b05..6738c96e1 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4944,7 +4944,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit,
+ 				for (int iDY = -(iOffset); iDY <= iOffset; iDY++)
+ 				{
+ 					CvPlot* pLoopPlot = plotXY(pPlot->getX(), pPlot->getY(), iDX, iDY);
+-					if(pLoopPlot == NULL || pLoopPlot->isRevealed(getTeam(), false))
++					if(pLoopPlot == NULL || pLoopPlot->isRevealed(getTeam()))
+ 						continue; // advc
+ 					int iValue = (1 + g.getSorenRandNum(10000, "Goody Map"));
+ 					iValue *= plotDistance(pPlot->getX(), pPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+@@ -8985,7 +8985,6 @@ int CvPlayer::getWarWearinessPercentAnger() const
+ void CvPlayer::updateWarWearinessPercentAnger()
+ {
+ 	int iNewWarWearinessPercentAnger = 0;
+-
+ 	if (!isBarbarian() && !isMinorCiv())
+ 	{
+ 		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+@@ -9001,13 +9000,10 @@ void CvPlayer::updateWarWearinessPercentAnger()
+ 			}
+ 		}
+ 	}
+-
+ 	iNewWarWearinessPercentAnger = getModifiedWarWearinessPercentAnger(iNewWarWearinessPercentAnger);
+-
+ 	if (getWarWearinessPercentAnger() != iNewWarWearinessPercentAnger)
+ 	{
+ 		m_iWarWearinessPercentAnger = iNewWarWearinessPercentAnger;
+-
+ 		AI_makeAssignWorkDirty();
+ 	}
+ }
+@@ -10419,7 +10415,8 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue)
+ 
+ 			if (pLoopPlot->getRevealedImprovementType(GC.getGame().getActiveTeam(), true) != NO_IMPROVEMENT)
+ 			{
+-				if ((pLoopPlot->getOwner() == getID()) || (!(pLoopPlot->isOwned()) && (getID() == GC.getGame().getActivePlayer())))
++				if (pLoopPlot->getOwner() == getID() || (!pLoopPlot->isOwned() &&
++					getID() == GC.getGame().getActivePlayer()))
+ 				{
+ 					pLoopPlot->setLayoutDirty(true);
+ 				}
+@@ -13704,7 +13701,7 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
+ 		if (NULL == pPlot)
+ 			return -1;
+ 
+-		if (!pPlot->isRevealed(getTeam(), false))
++		if (!pPlot->isRevealed(getTeam()))
+ 			return -1;
+ 	}
+ 
+@@ -16086,13 +16083,13 @@ int CvPlayer::getAdvancedStartVisibilityCost(bool bAdd, CvPlot const* pPlot) con
+ 	{
+ 		if(bAdd)
+ 		{
+-			if(pPlot->isRevealed(getTeam(), false))
++			if(pPlot->isRevealed(getTeam()))
+ 				return -1;
+ 			if(!pPlot->isAdjacentRevealed(getTeam(),
+ 					GC.getGame().getStartEra() < 4)) // advc.250c
+ 				return -1;
+ 		}
+-		else if (!pPlot->isRevealed(getTeam(), false))
++		else if (!pPlot->isRevealed(getTeam()))
+ 			return -1;
+ 	}
+ 
+@@ -16104,16 +16101,13 @@ int CvPlayer::getAdvancedStartVisibilityCost(bool bAdd, CvPlot const* pPlot) con
+ 		{
+ 			CvPlot* pPlot = GC.getMap().plotByIndex(iPlotLoop);
+ 
+-			if (pPlot->isRevealed(getTeam(), false))
+-			{
++			if (pPlot->isRevealed(getTeam()))
+ 				++iNumVisiblePlots;
+-			}
+ 		}
+ 
+ 		if (!bAdd)
+-		{
+ 			--iNumVisiblePlots;
+-		}
++
+ 		iNumVisiblePlots -= NUM_CITY_PLOTS; // advc.210c
+ 		if (iNumVisiblePlots > 0)
+ 		{
+@@ -16904,6 +16898,7 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ // save object to a stream
+ void CvPlayer::write(FDataStreamBase* pStream)
+ {
++	PROFILE_FUNC(); // advc
+ 	int iI;
+ 
+ 	uint uiFlag = 4;
+@@ -17606,7 +17601,7 @@ void CvPlayer::setTriggerFired(const EventTriggeredData& kTriggeredData, bool bO
+ 					bool bShowPlot = kTrigger.isShowPlot();
+ 					if (bShowPlot && kLoopPlayer.getTeam() != getTeam())
+ 					{
+-						if (pPlot == NULL || !pPlot->isRevealed(kLoopPlayer.getTeam(), false))
++						if (pPlot == NULL || !pPlot->isRevealed(kLoopPlayer.getTeam(), /* advc.106: */ true))
+ 							bShowPlot = false;
+ 					}
+ 					if (bShowPlot)
+@@ -17632,7 +17627,7 @@ void CvPlayer::setTriggerFired(const EventTriggeredData& kTriggeredData, bool bO
+ 		}
+ 		else if (!kTriggeredData.m_szText.empty())
+ 		{
+-			if (kTrigger.isShowPlot() && NULL != pPlot && pPlot->isRevealed(getTeam(), false))
++			if (kTrigger.isShowPlot() && NULL != pPlot && pPlot->isRevealed(getTeam(), /* advc.106: */ true))
+ 			{
+ 				gDLL->getInterfaceIFace()->addMessage(getID(), false,
+ 						GC.getEVENT_MESSAGE_TIME(), kTriggeredData.m_szText,
+@@ -19003,33 +18998,36 @@ void CvPlayer::applyEvent(EventTypes eEvent, int iEventTriggeredId, bool bUpdate
+ 		for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
+ 		{
+ 			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
++			if (!kLoopPlayer.isAlive())
++				continue;
+ 
+-			if (kLoopPlayer.isAlive())
++			if (GET_TEAM(kLoopPlayer.getTeam()).isHasMet(getTeam()) &&
++				(NO_PLAYER == pTriggeredData->m_eOtherPlayer ||
++				GET_TEAM(GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam()).isHasMet(getTeam())))
+ 			{
+-				if (GET_TEAM(kLoopPlayer.getTeam()).isHasMet(getTeam()) && (NO_PLAYER == pTriggeredData->m_eOtherPlayer || GET_TEAM(GET_PLAYER(pTriggeredData->m_eOtherPlayer).getTeam()).isHasMet(getTeam())))
++				bool bShowPlot = GC.getInfo(pTriggeredData->m_eTrigger).isShowPlot();
++				if (bShowPlot)
+ 				{
+-					bool bShowPlot = GC.getInfo(pTriggeredData->m_eTrigger).isShowPlot();
+-
+-					if (bShowPlot)
++					if (kLoopPlayer.getTeam() != getTeam())
+ 					{
+-						if (kLoopPlayer.getTeam() != getTeam())
+-						{
+-							if (NULL == pPlot || !pPlot->isRevealed(kLoopPlayer.getTeam(), false))
+-							{
+-								bShowPlot = false;
+-							}
+-						}
+-					}
+-
+-					if (bShowPlot)
+-					{
+-						gDLL->getInterfaceIFace()->addMessage((PlayerTypes)iPlayer, false, GC.getEVENT_MESSAGE_TIME(), szGlobalText, "AS2D_CIVIC_ADOPT", MESSAGE_TYPE_MINOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), pTriggeredData->m_iPlotX, pTriggeredData->m_iPlotY, true, true);
+-					}
+-					else
+-					{
+-						gDLL->getInterfaceIFace()->addMessage((PlayerTypes)iPlayer, false, GC.getEVENT_MESSAGE_TIME(), szGlobalText, "AS2D_CIVIC_ADOPT", MESSAGE_TYPE_MINOR_EVENT);
++						if (NULL == pPlot || !pPlot->isRevealed(kLoopPlayer.getTeam()))
++							bShowPlot = false;
+ 					}
+ 				}
++				if (bShowPlot)
++				{
++					gDLL->getInterfaceIFace()->addMessage((PlayerTypes)iPlayer,
++							false, GC.getEVENT_MESSAGE_TIME(), szGlobalText,
++							"AS2D_CIVIC_ADOPT", MESSAGE_TYPE_MINOR_EVENT, NULL,
++							(ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"),
++							pTriggeredData->m_iPlotX, pTriggeredData->m_iPlotY, true, true);
++				}
++				else
++				{
++					gDLL->getInterfaceIFace()->addMessage((PlayerTypes)iPlayer,
++							false, GC.getEVENT_MESSAGE_TIME(), szGlobalText,
++							"AS2D_CIVIC_ADOPT", MESSAGE_TYPE_MINOR_EVENT);
++				}
+ 			}
+ 		}
+ 		// advc.106g: Don't show (most) random events in replays
+@@ -20125,7 +20123,7 @@ bool CvPlayer::splitEmpire(CvArea& kArea) // advc: was iAreaId; and some other s
+ 			aCultures.push_back(std::make_pair(iPlot, iCulture));
+ 		}
+ 
+-		if (pLoopPlot->isRevealed(getTeam(), false))
++		if (pLoopPlot->isRevealed(getTeam()))
+ 			pLoopPlot->setRevealed(TEAMID(eNewPlayer), true, false, getTeam(), false);
+ 	}
+ 	std::vector<CvCity*> apAcquiredCities; // advc.104r
+@@ -20156,7 +20154,7 @@ bool CvPlayer::splitEmpire(CvArea& kArea) // advc: was iAreaId; and some other s
+ 
+ 		for (int iTeam = 0; iTeam < MAX_TEAMS; ++iTeam)
+ 		{
+-			if (pPlot->getRevealedOwner((TeamTypes)iTeam, false) == getID())
++			if (pPlot->getRevealedOwner((TeamTypes)iTeam) == getID())
+ 				pPlot->setRevealedOwner((TeamTypes)iTeam, eNewPlayer);
+ 		}
+ 	}
+@@ -22364,10 +22362,10 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption, std
+ 		} // <advc.004z>
+ 		ImprovementTypes eImpr = NO_IMPROVEMENT;
+ 		if(!bOfInterest && eOption == SHOW_ALL_RESOURCES &&
+-				isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) &&
+-				getBugOptionBOOL("MainInterface__TribalVillageIcons", true))
++			isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) &&
++			getBugOptionBOOL("MainInterface__TribalVillageIcons", true))
+ 		{
+-			eImpr = pLoopPlot->getRevealedImprovementType(getTeam(), false);
++			eImpr = pLoopPlot->getRevealedImprovementType(getTeam());
+ 			bOfInterest = (eImpr != NO_IMPROVEMENT && GC.getInfo(eImpr).
+ 					isGoody());
+ 		} // </advc.004z>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3a2c0701c..788fda3fd 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1003,7 +1003,7 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)  // advc: refactored
+ 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
+ 	{
+ 		CvPlot& kLoopPlot = *GC.getMap().plotByIndex(iI);
+-		if(!kLoopPlot.isRevealed(getTeam(), false))
++		if(!kLoopPlot.isRevealed(getTeam()))
+ 			//&& !AI_isPrimaryArea(kLoopPlot.area()))
+ 		/*  K-Mod: Clear out any junk found values.
+ 			(I've seen legacy AI code which makes use of the found values of unrevealed plots.
+@@ -2955,7 +2955,7 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 				iBadTile += 2;
+ 				continue;
+ 			}
+-			if(!kSet.bAllSeeing && !pLoopPlot->isRevealed(getTeam(), false))
++			if(!kSet.bAllSeeing && !pLoopPlot->isRevealed(getTeam()))
+ 			{
+ 				iUnrev++; // advc.040
+ 				continue;
+@@ -3034,7 +3034,7 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 			// <advc.303>
+ 			if(isBarbarian() && !::isInnerRing(pLoopPlot, &kPlot))
+ 				continue; // </advc.303>
+-			if(pLoopPlot == NULL || (!kSet.bAllSeeing && !pLoopPlot->isRevealed(getTeam(), false)))
++			if(pLoopPlot == NULL || (!kSet.bAllSeeing && !pLoopPlot->isRevealed(getTeam())))
+ 				continue;
+ 			if(pLoopPlot->isOwned()
+ 					// <advc.031>
+@@ -3114,7 +3114,7 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 		} /* advc.031: Moved up. If we can't see the tile, we don't really know
+ 			 if it's already taken by a rival. (Will find out when our Settler
+ 			 gets there.) */
+-		if(!kSet.bAllSeeing && !pLoopPlot->isRevealed(getTeam(), false))
++		if(!kSet.bAllSeeing && !pLoopPlot->isRevealed(getTeam()))
+ 			continue;
+ 		// <advc.031>
+ 		bool const bCityRadius = pLoopPlot->isCityRadius();
+@@ -4963,13 +4963,13 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot const& kPlot, int iRange, bool bTest
+ 						return true;
+ 					}
+ 					else if (iDistance == 2 && pLoopPlot->//isRoute()
+-						getRevealedRouteType(eTeam, false) != NO_ROUTE) // advc.001i
++						getRevealedRouteType(eTeam) != NO_ROUTE) // advc.001i
+ 					{
+ 						kPlot.setBorderDangerCache(eTeam, true);
+ 						pLoopPlot->setBorderDangerCache(eTeam, true); // owned by our enemy
+ 						if (kPlot.//isRoute()
+ 								// advc.001i:
+-								getRevealedRouteType(pLoopPlot->getTeam(), false) != NO_ROUTE
++								getRevealedRouteType(pLoopPlot->getTeam()) != NO_ROUTE
+ 								&& kPlot.getTeam() == eTeam)
+ 						{
+ 							pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+@@ -5115,7 +5115,7 @@ int CvPlayerAI::AI_getPlotDanger(CvPlot const& kPlot, int iRange, bool bTestMove
+ 					}
+ 					else if (iDistance == 2 && pLoopPlot->//isRoute()
+ 							// advc.001i:
+-							getRevealedRouteType(getTeam(), false) != NO_ROUTE)
++							getRevealedRouteType(getTeam()) != NO_ROUTE)
+ 						iBorderDanger++;
+ 				}
+ 			}
+@@ -8885,7 +8885,7 @@ void CvPlayerAI::AI_updateCityAttitude(CvPlot const& kCityPlot)
+ 	{
+ 		CvPlayerAI& kOtherCiv = GET_PLAYER((PlayerTypes)i);
+ 		if(kOtherCiv.isAlive() && kOtherCiv.getID() != getID() && !kOtherCiv.isMinorCiv() &&
+-				kCityPlot.isRevealed(kOtherCiv.getTeam(), false) &&
++				kCityPlot.isRevealed(kOtherCiv.getTeam()) &&
+ 				GET_TEAM(kOtherCiv.getTeam()).isHasMet(getTeam()))
+ 			kOtherCiv.AI_updateAttitudeCache(getID());
+ 	}
+@@ -15172,7 +15172,7 @@ int CvPlayerAI::AI_countOwnedBonuses(BonusTypes eBonus) const
+ 			if (pLoopPlot->getBonusType(getTeam()) == eBonus)
+ 				iCount++;
+ 		}
+-		else if (bAdvancedStart && pLoopPlot->isRevealed(getTeam(), false))
++		else if (bAdvancedStart && pLoopPlot->isRevealed(getTeam()))
+ 		{
+ 			if (pLoopPlot->getBonusType(getTeam()) == eBonus)
+ 				iCount++;
+@@ -21846,6 +21846,7 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ // save object to a stream
+ void CvPlayerAI::write(FDataStreamBase* pStream)
+ {
++	PROFILE_FUNC(); // advc
+ 	CvPlayer::write(pStream);
+ 
+ 	uint uiFlag=7;
+@@ -26350,7 +26351,7 @@ void CvPlayerAI::AI_doAdvancedStart(bool bNoExit)
+ 		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+ 		{
+ 			CvPlot* pLoopPlot = GC.getMap().plotByIndex(iI);
+-			if (pLoopPlot->isRevealed(getTeam(), false))
++			if (pLoopPlot->isRevealed(getTeam()))
+ 			{
+ 				if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
+ 				{
+@@ -26605,7 +26606,7 @@ void CvPlayerAI::AI_recalculateFoundValues(int iX, int iY, int iInnerRadius, int
+ 					pLoopPlot->setFoundValue(getID(), 0);
+ 				continue;
+ 			}
+-			if (pLoopPlot != NULL && pLoopPlot->isRevealed(getTeam(), false))
++			if (pLoopPlot != NULL && pLoopPlot->isRevealed(getTeam()))
+ 			{
+ 				short iValue = GC.getPythonCaller()->AI_foundValue(getID(), *pLoopPlot);
+ 				if (iValue == -1)
+@@ -26695,7 +26696,7 @@ void CvPlayerAI::AI_updateCitySites(int iMinFoundValueThreshold, int iMaxSites)
+ 		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)  // advc: some style changes
+ 		{
+ 			CvPlot const& kPlot = *GC.getMap().plotByIndex(iI);
+-			if (!kPlot.isRevealed(getTeam(), false))
++			if (!kPlot.isRevealed(getTeam()))
+ 				continue;
+ 
+ 			int iValue = kPlot.getFoundValue(getID(), /* advc.052: */ true);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index a0bf5ad1c..d07558205 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -18,31 +18,15 @@
+ #define STANDARD_MINIMAP_ALPHA		(0.75f) // advc.002a: was 0.6
+ bool CvPlot::m_bAllFog = false; // advc.706
+ int CvPlot::iMaxVisibilityRangeCache; // advc.003h
++#define NO_BUILD_IN_PROGRESS (-2) // advc.011
+ 
+ 
+ CvPlot::CvPlot() // advc: Merged with the deleted reset function
+ {
+-	m_aiYield = new short[NUM_YIELD_TYPES]();
+ 	// BETTER_BTS_AI_MOD, Efficiency (plot danger cache), 08/21/09, jdog5000: START
+-	m_abBorderDangerCache = new bool[MAX_TEAMS]();
+ 	m_iActivePlayerSafeRangeCache = -1;
+ 	// BETTER_BTS_AI_MOD: END
+-	// The other arrays are initialized lazily ...
+-	m_aiCulture = NULL;
+-	m_aiFoundValue = NULL;
+-	m_aiPlayerCityRadiusCount = NULL;
+-	m_aiPlotGroup = NULL;
+-	m_aiVisibilityCount = NULL;
+-	m_aiStolenVisibilityCount = NULL;
+-	m_aiBlockadedCount = NULL;
+-	m_aiRevealedOwner = NULL;
+-	m_abRiverCrossing = NULL;
+-	m_abRevealed = NULL;
+-	m_aeRevealedImprovementType = NULL;
+-	m_aeRevealedRouteType = NULL;
+-	m_paiBuildProgress = NULL;
+-	m_apaiCultureRangeCities = NULL;
+-	m_apaiInvisibleVisibilityCount = NULL;
++
+ 	m_pFeatureSymbol = NULL;
+ 	m_pPlotBuilder = NULL;
+ 	m_pRouteSymbol = NULL;
+@@ -61,13 +45,13 @@ CvPlot::CvPlot() // advc: Merged with the deleted reset function
+ 	m_iImprovementDuration = 0;
+ 	m_iUpgradeProgress = 0;
+ 	m_iForceUnownedTimer = 0;
++	m_iTurnsBuildsInterrupted = NO_BUILD_IN_PROGRESS; // advc.011
+ 	m_iCityRadiusCount = 0;
+ 	m_iRiverID = -1;
+ 	m_iMinOriginalStartDist = -1;
+ 	m_iReconCount = 0;
+ 	m_iRiverCrossingCount = 0;
+ 	m_iLatitude = -1; // advc.tsl
+-	m_iTurnsBuildsInterrupted = -2; // advc.011: Meaning none in progress
+ 	m_iTotalCulture = 0; // advc.opt
+ 
+ 	m_bStartingPlot = false;
+@@ -110,40 +94,7 @@ CvPlot::~CvPlot() // advc: Merged with the deleted uninit function
+ 	m_pCenterUnit = NULL;
+ 
+ 	deleteAllSymbols();
+-
+-	SAFE_DELETE_ARRAY(m_aiCulture);
+-	SAFE_DELETE_ARRAY(m_aiFoundValue);
+-	SAFE_DELETE_ARRAY(m_aiPlayerCityRadiusCount);
+-	SAFE_DELETE_ARRAY(m_aiPlotGroup);
+-	SAFE_DELETE_ARRAY(m_aiVisibilityCount);
+-	SAFE_DELETE_ARRAY(m_aiStolenVisibilityCount);
+-	SAFE_DELETE_ARRAY(m_aiBlockadedCount);
+-	SAFE_DELETE_ARRAY(m_aiRevealedOwner);
+-	SAFE_DELETE_ARRAY(m_abRiverCrossing);
+-	SAFE_DELETE_ARRAY(m_abRevealed);
+-	SAFE_DELETE_ARRAY(m_aeRevealedImprovementType);
+-	SAFE_DELETE_ARRAY(m_aeRevealedRouteType);
+-	SAFE_DELETE_ARRAY(m_paiBuildProgress);
+-
+-	if (m_apaiCultureRangeCities != NULL)
+-	{
+-		for (int i = 0; i < MAX_PLAYERS; i++)
+-			SAFE_DELETE_ARRAY(m_apaiCultureRangeCities[i]);
+-		SAFE_DELETE_ARRAY(m_apaiCultureRangeCities);
+-	}
+-
+-	if (m_apaiInvisibleVisibilityCount != NULL)
+-	{
+-		for (int i = 0; i < MAX_TEAMS; i++)
+-			SAFE_DELETE_ARRAY(m_apaiInvisibleVisibilityCount[i]);
+-		SAFE_DELETE_ARRAY(m_apaiInvisibleVisibilityCount);
+-	}
+-
+ 	m_units.clear();
+-
+-	SAFE_DELETE_ARRAY(m_aiYield);
+-	// BETTER_BTS_AI_MOD, Efficiency (plot danger cache), 08/21/09, jdog5000:
+-	SAFE_DELETE_ARRAY(m_abBorderDangerCache);
+ }
+ 
+ 
+@@ -419,7 +370,7 @@ void CvPlot::updateFog()
+ 
+ 	FAssert(GC.getGame().getActiveTeam() != NO_TEAM);
+ 
+-	if (isRevealed(GC.getGame().getActiveTeam(), false))
++	if (isRevealed(GC.getGame().getActiveTeam()))
+ 	{
+ 		if (gDLL->getInterfaceIFace()->isBareMapMode())
+ 			gDLL->getEngineIFace()->LightenVisibility(getFOWIndex());
+@@ -2261,7 +2212,7 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
+ 		iModifier += GC.getDefineINT(CvGlobals::HILLS_EXTRA_DEFENSE);
+ 	ImprovementTypes eImprovement;
+ 	if (bHelp)
+-		eImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam(), false);
++		eImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam());
+ 	else eImprovement = getImprovementType();
+ 
+ 	if (eImprovement != NO_IMPROVEMENT)
+@@ -2305,7 +2256,7 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot,
+ 	if ( /* advc.001i: The K-Mod condition is OK, but now that the pathfinder passes
+ 			bAssumeRevealed=false, it's cleaner to check that too. */
+ 		!bAssumeRevealed &&
+-		!isRevealed(pUnit->getTeam(), false))
++		!isRevealed(pUnit->getTeam()))
+ 	{
+ 		/*if (!pFromPlot->isRevealed(pUnit->getTeam(), false))
+ 			return pUnit->maxMoves();
+@@ -2356,10 +2307,10 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot,
+ 		!pFromPlot->isRiverCrossing(directionXY(pFromPlot, this))))
+ 	{	// <advc.001i>
+ 		RouteTypes eFromRoute = (bAssumeRevealed ? pFromPlot->getRouteType() :
+-				pFromPlot->getRevealedRouteType(pUnit->getTeam(), false));
++				pFromPlot->getRevealedRouteType(pUnit->getTeam()));
+ 		CvRouteInfo const& kFromRoute = GC.getInfo(eFromRoute);
+ 		RouteTypes eToRoute = (bAssumeRevealed ? getRouteType() :
+-				getRevealedRouteType(pUnit->getTeam(), false));
++				getRevealedRouteType(pUnit->getTeam()));
+ 		CvRouteInfo const& kToRoute = GC.getInfo(eToRoute);
+ 		iRouteCost = std::max(
+ 				kFromRoute.getMovementCost() +
+@@ -2448,12 +2399,10 @@ bool CvPlot::isAdjacentTeam(TeamTypes eTeam, bool bLandOnly) const
+ 
+ bool CvPlot::isWithinCultureRange(PlayerTypes ePlayer) const
+ {
+-	for (int iI = 0; iI < GC.getNumCultureLevelInfos(); ++iI)
++	FOR_EACH_ENUM(CultureLevel)
+ 	{
+-		if (isCultureRangeCity(ePlayer, iI))
+-		{
++		if (isCultureRangeCity(ePlayer, eLoopCultureLevel))
+ 			return true;
+-		}
+ 	}
+ 
+ 	return false;
+@@ -2463,8 +2412,8 @@ bool CvPlot::isWithinCultureRange(PlayerTypes ePlayer) const
+ int CvPlot::getNumCultureRangeCities(PlayerTypes ePlayer) const
+ {
+ 	int iCount = 0;
+-	for (int iI = 0; iI < GC.getNumCultureLevelInfos(); ++iI)
+-		iCount += getCultureRangeCities(ePlayer, iI);
++	FOR_EACH_ENUM(CultureLevel)
++		iCount += getCultureRangeCities(ePlayer, eLoopCultureLevel);
+ 	return iCount;
+ }
+ 
+@@ -2868,18 +2817,12 @@ bool CvPlot::isRevealedBarbarian() const
+ bool CvPlot::isVisible(TeamTypes eTeam, bool bDebug) const
+ {
+ 	if (bDebug && GC.getGame().isDebugMode())
+-	{
+ 		return true;
+-	}
+-	else
+-	{
+-		if (eTeam == NO_TEAM)
+-		{
+-			return false;
+-		}
+ 
+-		return ((getVisibilityCount(eTeam) > 0) || (getStolenVisibilityCount(eTeam) > 0));
+-	}
++	if (eTeam == NO_TEAM)
++		return false;
++
++	return (getVisibilityCount(eTeam) > 0 || getStolenVisibilityCount(eTeam) > 0);
+ }
+ 
+ // <advc.300>
+@@ -3050,7 +2993,8 @@ bool CvPlot::isRevealedGoody(TeamTypes eTeam) const
+ 	if (GET_TEAM(eTeam).isBarbarian())
+ 		return false;
+ 
+-	return ((getRevealedImprovementType(eTeam, false) == NO_IMPROVEMENT) ? false : GC.getInfo(getRevealedImprovementType(eTeam, false)).isGoody());
++	return ((getRevealedImprovementType(eTeam) == NO_IMPROVEMENT) ? false :
++		GC.getInfo(getRevealedImprovementType(eTeam)).isGoody());
+ }
+ 
+ 
+@@ -3073,9 +3017,9 @@ bool CvPlot::isCity(bool bCheckImprovement, TeamTypes eForTeam) const
+ 			GC.getInfo(getImprovementType()).isOutsideBorders()) ||
+ 			(GET_TEAM(eForTeam).isFriendlyTerritory(getTeam())
+ 			// <advc.124>
+-			&& getRevealedImprovementType(eForTeam, false) != NO_IMPROVEMENT &&
+-			GC.getInfo(getRevealedImprovementType(eForTeam, false)).
+-			isActsAsCity())) // </advc.124>
++			&& getRevealedImprovementType(eForTeam) != NO_IMPROVEMENT &&
++			GC.getInfo(getRevealedImprovementType(eForTeam)).isActsAsCity()))
++			// </advc.124>
+ 		{
+ 			return true;
+ 		}
+@@ -3299,7 +3243,7 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit,
+ 	//if (isRoute())
+ 	// <advc.001i> Replacing the above
+ 	RouteTypes eRoute = (bAssumeRevealed ? getRouteType() :
+-			getRevealedRouteType(pUnit->getTeam(), false));
++			getRevealedRouteType(pUnit->getTeam()));
+ 	if(eRoute != NO_ROUTE) // </advc.001i>
+ 	{
+ 		if ((!pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute())
+@@ -3349,7 +3293,7 @@ bool CvPlot::isNetworkTerrain(TeamTypes eTeam) const
+ 
+ bool CvPlot::isBonusNetwork(TeamTypes eTeam) const
+ {
+-	if (isRoute() /* advc.124: */ && getRevealedRouteType(eTeam, false) != NO_ROUTE)
++	if (isRoute() /* advc.124: */ && getRevealedRouteType(eTeam) != NO_ROUTE)
+ 		return true;
+ 
+ 	if (isRiverNetwork(eTeam))
+@@ -3380,7 +3324,7 @@ bool CvPlot::isTradeNetwork(TeamTypes eTeam) const
+ 		return false;
+ 
+ 	//if (!isOwned()) { // advc.124 (commented out)
+-	if (!isRevealed(eTeam, false))
++	if (!isRevealed(eTeam))
+ 		return false;
+ 
+ 	return isBonusNetwork(eTeam);
+@@ -3403,13 +3347,13 @@ bool CvPlot::isTradeNetworkConnected(CvPlot const& kOther, TeamTypes eTeam) cons
+ 		return false;
+ 
+ 	//if (!isOwned()) { // advc.124 (commented out)
+-	if (!isRevealed(eTeam, false) || !kOther.isRevealed(eTeam, false))
++	if (!isRevealed(eTeam) || !kOther.isRevealed(eTeam))
+ 		return false;
+ 
+-	if (isRoute() /* advc.124: */ && getRevealedRouteType(eTeam, false) != NO_ROUTE)
++	if (isRoute() /* advc.124: */ && getRevealedRouteType(eTeam) != NO_ROUTE)
+ 	{
+ 		if (kOther.isRoute()
+-				&& kOther.getRevealedRouteType(eTeam, false) != NO_ROUTE) // advc.124
++				&& kOther.getRevealedRouteType(eTeam) != NO_ROUTE) // advc.124
+ 			return true;
+ 	}
+ 
+@@ -3527,6 +3471,11 @@ bool CvPlot::at(int iX, int iY) const
+ // <advc.tsl>
+ void CvPlot::setLatitude(int iLatitude)
+ {
++	if (iLatitude < 0 || iLatitude > 90)
++	{
++		FAssertMsg(false, "Latitude should be in the interval [0,90]");
++		iLatitude = range(iLatitude, 0, 90);
++	}
+ 	m_iLatitude = iLatitude;
+ } // </advc.tsl>
+ 
+@@ -3543,7 +3492,7 @@ int CvPlot::getLatitude() const
+ }
+ 
+ // advc.tsl: was getLatitude()
+-int CvPlot::calculateLatitude() const
++char CvPlot::calculateLatitude() const
+ {
+ 	/* orginal bts code
+ 	int iLatitude;
+@@ -3560,7 +3509,7 @@ int CvPlot::calculateLatitude() const
+ 	else fLatitude = ((getX() * 1.0) / (GC.getMap().getGridWidth()-1));
+ 	fLatitude = fLatitude * (GC.getMap().getTopLatitude() - GC.getMap().getBottomLatitude());
+ 	iLatitude = (int)(fLatitude + 0.5);
+-	return abs((iLatitude + GC.getMap().getBottomLatitude()));
++	return intToChar(std::min(abs((iLatitude + GC.getMap().getBottomLatitude())), 90));
+ 	// UNOFFICIAL_PATCH: END
+ }
+ 
+@@ -4213,7 +4162,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, bool bCheckUnits, bool bUpdatePlotG
+ 		{
+ 			CvPlayer const& kObs = GET_PLAYER((PlayerTypes)i);
+ 			if(!kObs.isAlive() || kObs.isMinorCiv() || kObs.getID() == getOwner() ||
+-					kObs.getID() == eNewValue || (!isRevealed(kObs.getTeam(), false) &&
++					kObs.getID() == eNewValue || (!isRevealed(kObs.getTeam()) &&
+ 					!kObs.isSpectator())) // advc.127
+ 				continue;
+ 			ColorTypes eColor = (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE");
+@@ -4906,7 +4855,7 @@ BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam, bool bCheckConnected
+ 		// between when the improvement is changed and the revealed improvement type is updated...
+ 		// therefore when eTeam == ePlotTeam, we use the real improvement, not the revealed one.
+ 		ImprovementTypes eImprovement = (eTeam == NO_TEAM || eTeam == ePlotTeam ?
+-				getImprovementType() : getRevealedImprovementType(eTeam, false));
++				getImprovementType() : getRevealedImprovementType(eTeam));
+ 
+ 		FAssert(ePlotTeam != eTeam || eImprovement == getImprovementType());
+ 
+@@ -5372,19 +5321,6 @@ bool CvPlot::isHabitable(bool bIgnoreSea) const {
+ }
+ 
+ 
+-short* CvPlot::getYield()
+-{
+-	return m_aiYield;
+-}
+-
+-
+-int CvPlot::getYield(YieldTypes eIndex) const
+-{
+-	FASSERT_BOUNDS(0, NUM_YIELD_TYPES, eIndex, "CvPlot::getYield");
+-	return m_aiYield[eIndex];
+-}
+-
+-
+ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnoreFeature) const
+ {
+ 	if (isImpassable())
+@@ -5514,7 +5450,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
+ } // BETTER_BTS_AI_MOD: END
+ 
+ 
+-int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay) const
++char CvPlot::calculateYield(YieldTypes eYield, bool bDisplay) const
+ {
+ 	if (bDisplay && GC.getGame().isDebugMode())
+ 		return getYield(eYield);
+@@ -5531,9 +5467,9 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay) const
+ 	RouteTypes eRoute;
+ 	if (bDisplay)
+ 	{
+-		ePlayer = getRevealedOwner(GC.getGame().getActiveTeam(), false);
+-		eImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam(), false);
+-		eRoute = getRevealedRouteType(GC.getGame().getActiveTeam(), false);
++		ePlayer = getRevealedOwner(GC.getGame().getActiveTeam());
++		eImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam());
++		eRoute = getRevealedRouteType(GC.getGame().getActiveTeam());
+ 		if (ePlayer == NO_PLAYER)
+ 			ePlayer = GC.getGame().getActivePlayer();
+ 	}
+@@ -5618,7 +5554,8 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay) const
+ 		}
+ 	}
+ 
+-	return std::max(0, iYield);
++	iYield = std::max(0, iYield);
++	return intToChar(iYield); // advc.enum
+ }
+ 
+ 
+@@ -5643,12 +5580,12 @@ void CvPlot::updateYield()
+ 	for (int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+ 	{
+ 		YieldTypes eYield = (YieldTypes)iI;
+-		int iNewYield = calculateYield(eYield);
++		char iNewYield = calculateYield(eYield);
+ 		if (getYield(eYield) == iNewYield)
+ 			continue; // advc
+ 
+-		int iOldYield = getYield(eYield);
+-		m_aiYield[iI] = iNewYield;
++		char iOldYield = getYield(eYield);
++		m_aiYield.set(eYield, iNewYield);
+ 		FAssert(getYield(eYield) >= 0);
+ 
+ 		CvCity* pWorkingCity = getWorkingCity();
+@@ -5666,15 +5603,6 @@ void CvPlot::updateYield()
+ }
+ 
+ 
+-int CvPlot::getCulture(PlayerTypes eIndex) const
+-{
+-	FASSERT_BOUNDS(0, MAX_PLAYERS, eIndex, "CvPlot::getCulture");
+-	if (NULL == m_aiCulture)
+-		return 0;
+-	return m_aiCulture[eIndex];
+-}
+-
+-
+ int CvPlot::countTotalCulture() const
+ {
+ 	int iTotal = 0;
+@@ -5687,12 +5615,6 @@ int CvPlot::countTotalCulture() const
+ 	return iTotal;
+ }
+ 
+-// <advc.opt>
+-int CvPlot::getTotalCulture() const
+-{
+-	return m_iTotalCulture;
+-} // </advc.opt>
+-
+ 
+ TeamTypes CvPlot::findHighestCultureTeam() const
+ {
+@@ -5761,15 +5683,10 @@ void CvPlot::setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate, bool bU
+ 
+ 	if(getCulture(eIndex) == iNewValue)
+ 		return;
+-
+-	if(m_aiCulture == NULL)
+-	{	// <advc.opt>
+-		m_aiCulture = new int[MAX_PLAYERS](); // value-initialize
+-		m_iTotalCulture = 0;
+-	}
++	 // <advc.opt>
+ 	if(GET_PLAYER(eIndex).isEverAlive())
+-		m_iTotalCulture += iNewValue - m_aiCulture[eIndex]; // </advc.opt>
+-	m_aiCulture[eIndex] = iNewValue;
++		m_iTotalCulture += iNewValue - m_aiCulture.get(eIndex); // </advc.opt>
++	m_aiCulture.set(eIndex, iNewValue);
+ 	FAssert(getCulture(eIndex) >= 0);
+ 
+ 	if(bUpdate)
+@@ -5792,21 +5709,18 @@ int CvPlot::getFoundValue(PlayerTypes eIndex, /* advc.052: */ bool bRandomize) c
+ {
+ 	FASSERT_BOUNDS(0, MAX_PLAYERS, eIndex, "CvPlot::getFoundValue");
+ 
+-	if (NULL == m_aiFoundValue)
+-		return 0;
+-
+-	if (m_aiFoundValue[eIndex] == -1)
++	if (m_aiFoundValue.get(eIndex) == -1)
+ 	{
+ 		short iValue = GC.getPythonCaller()->AI_foundValue(eIndex, *this);
+ 		if (iValue == -1)
+-			m_aiFoundValue[eIndex] = GET_PLAYER(eIndex).AI_foundValue(getX(), getY(), -1, true);
++			m_aiFoundValue.set(eIndex, GET_PLAYER(eIndex).AI_foundValue(getX(), getY(), -1, true));
+ 
+-		if (m_aiFoundValue[eIndex] > area()->getBestFoundValue(eIndex))
+-			area()->setBestFoundValue(eIndex, m_aiFoundValue[eIndex]);
++		if (m_aiFoundValue.get(eIndex) > area()->getBestFoundValue(eIndex))
++			area()->setBestFoundValue(eIndex, m_aiFoundValue.get(eIndex));
+ 	}
+ 	//return m_aiFoundValue[eIndex];
+ 	// <advc.052>
+-	int r = m_aiFoundValue[eIndex];
++	int r = m_aiFoundValue.get(eIndex);
+ 	if(bRandomize && !GET_PLAYER(eIndex).isHuman() && GC.getGame().isScenario())
+ 	{	// Randomly change the value by +/- 1.5%
+ 		double const plusMinus = 0.015;
+@@ -5829,15 +5743,14 @@ int CvPlot::getFoundValue(PlayerTypes eIndex, /* advc.052: */ bool bRandomize) c
+ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
+ {
+ 	CvPlayerAI::CvFoundSettings kFoundSet(GET_PLAYER(eIndex), false); // K-Mod
+-	int iPlotValue = GET_PLAYER(eIndex).AI_foundValue_bulk(getX(), getY(),
+-			kFoundSet);
++	int iPlotValue = GET_PLAYER(eIndex).AI_foundValue_bulk(getX(), getY(), kFoundSet);
+ 	if (iPlotValue == 0)
+ 		return false;
+ 
+ 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+ 	{
+ 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), (DirectionTypes)iI);
+-		if (pAdjacentPlot != NULL && pAdjacentPlot->isRevealed(TEAMID(eIndex), false))
++		if (pAdjacentPlot != NULL && pAdjacentPlot->isRevealed(TEAMID(eIndex)))
+ 		{
+ 			//if (pAdjacentPlot->getFoundValue(eIndex) >= getFoundValue(eIndex))
+ 			if (GET_PLAYER(eIndex).AI_foundValue_bulk(pAdjacentPlot->getX(),
+@@ -5851,53 +5764,20 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
+ 
+ void CvPlot::setFoundValue(PlayerTypes eIndex, short iNewValue)
+ {
+-	FASSERT_BOUNDS(0, MAX_PLAYERS, eIndex, "CvPlot::setFoundValue");
+-	FAssert(iNewValue >= -1);
+-
+-	if (m_aiFoundValue == NULL && iNewValue != 0)
+-		m_aiFoundValue = new short[MAX_PLAYERS](); // advc: value-initialize
+-
+-	if (m_aiFoundValue != NULL)
+-		m_aiFoundValue[eIndex] = iNewValue;
+-}
+-
+-
+-int CvPlot::getPlayerCityRadiusCount(PlayerTypes eIndex) const
+-{
+-	FASSERT_BOUNDS(0, MAX_PLAYERS, eIndex, "CvPlot::getPlayerCityRadiusCount");
+-	if(m_aiPlayerCityRadiusCount == NULL)
+-		return 0;
+-	return m_aiPlayerCityRadiusCount[eIndex];
+-}
+-
+-
+-bool CvPlot::isPlayerCityRadius(PlayerTypes eIndex) const
+-{
+-	return (getPlayerCityRadiusCount(eIndex) > 0);
++	m_aiFoundValue.set(eIndex, iNewValue);
+ }
+ 
+ 
+ void CvPlot::changePlayerCityRadiusCount(PlayerTypes eIndex, int iChange)
+ {
+-	FASSERT_BOUNDS(0, MAX_PLAYERS, eIndex, "CvPlot::changePlayerCityRadiusCount");
+-
+-	if (iChange == 0)
+-		return;
+-
+-	if(NULL == m_aiPlayerCityRadiusCount)
+-		m_aiPlayerCityRadiusCount = new char[MAX_PLAYERS](); // advc: value-initialize
+-
+-	m_aiPlayerCityRadiusCount[eIndex] += iChange;
++	m_aiPlayerCityRadiusCount.add(eIndex, iChange);
+ 	FAssert(getPlayerCityRadiusCount(eIndex) >= 0);
+ }
+ 
+ 
+ CvPlotGroup* CvPlot::getPlotGroup(PlayerTypes ePlayer) const
+ {
+-	FASSERT_BOUNDS(0, MAX_PLAYERS, ePlayer, "CvPlot::getPlotGroup");
+-	if (m_aiPlotGroup == NULL)
+-		return GET_PLAYER(ePlayer).getPlotGroup(FFreeList::INVALID_INDEX);
+-	return GET_PLAYER(ePlayer).getPlotGroup(m_aiPlotGroup[ePlayer]);
++	return GET_PLAYER(ePlayer).getPlotGroup(m_aiPlotGroup.get(ePlayer));
+ }
+ 
+ 
+@@ -5915,54 +5795,26 @@ void CvPlot::setPlotGroup(PlayerTypes ePlayer, CvPlotGroup* pNewValue)
+ 	if(pOldPlotGroup == pNewValue)
+ 		return;
+ 
+-	if (NULL ==  m_aiPlotGroup)
+-	{
+-		m_aiPlotGroup = new int[MAX_PLAYERS];
+-		for (int iI = 0; iI < MAX_PLAYERS; ++iI)
+-		{
+-			m_aiPlotGroup[iI] = FFreeList::INVALID_INDEX;
+-		}
+-	}
+-
+ 	CvCity* pCity = getPlotCity();
+ 	if (ePlayer == getOwner())
+ 		updatePlotGroupBonus(false);
+ 
+-	if (pOldPlotGroup != NULL)
++	if (pOldPlotGroup != NULL && pCity != NULL && pCity->getOwner() == ePlayer)
+ 	{
+-		if (pCity != NULL)
+-		{
+-			if (pCity->getOwner() == ePlayer)
+-			{
+-				FAssertMsg(GC.getNumBonusInfos() > 0, "GC.getNumBonusInfos() is not greater than zero but an array is being allocated in CvPlot::setPlotGroup");
+-				for (int iI = 0; iI < GC.getNumBonusInfos(); ++iI)
+-				{
+-					pCity->changeNumBonuses((BonusTypes)iI,
+-							-(pOldPlotGroup->getNumBonuses((BonusTypes)iI)));
+-				}
+-			}
+-		}
++		FOR_EACH_ENUM(Bonus)
++			pCity->changeNumBonuses(eLoopBonus, -pOldPlotGroup->getNumBonuses(eLoopBonus));
+ 	}
+ 
+ 	if (pNewValue == NULL)
+-		m_aiPlotGroup[ePlayer] = FFreeList::INVALID_INDEX;
+-	else m_aiPlotGroup[ePlayer] = pNewValue->getID();
++		m_aiPlotGroup.set(ePlayer, FFreeList::INVALID_INDEX);
++	else m_aiPlotGroup.set(ePlayer, pNewValue->getID());
+ 
+-	if (getPlotGroup(ePlayer) != NULL)
++	if (getPlotGroup(ePlayer) != NULL && pCity != NULL && pCity->getOwner() == ePlayer)
+ 	{
+-		if (pCity != NULL)
+-		{
+-			if (pCity->getOwner() == ePlayer)
+-			{
+-				FAssertMsg(GC.getNumBonusInfos() > 0, "GC.getNumBonusInfos() is not greater than zero but an array is being allocated in CvPlot::setPlotGroup");
+-				for (int iI = 0; iI < GC.getNumBonusInfos(); ++iI)
+-				{
+-					pCity->changeNumBonuses((BonusTypes)iI,
+-							getPlotGroup(ePlayer)->getNumBonuses((BonusTypes)iI));
+-				}
+-			}
+-		}
++		FOR_EACH_ENUM(Bonus)
++			pCity->changeNumBonuses(eLoopBonus, getPlotGroup(ePlayer)->getNumBonuses(eLoopBonus));
+ 	}
++
+ 	if (ePlayer == getOwner())
+ 		updatePlotGroupBonus(true);
+ }
+@@ -6062,36 +5914,22 @@ void CvPlot::updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate)
+ }
+ 
+ 
+-int CvPlot::getVisibilityCount(TeamTypes eTeam) const
+-{
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::getVisibilityCount");
+-	if (m_aiVisibilityCount == NULL)
+-		return 0;
+-	return m_aiVisibilityCount[eTeam];
+-}
+-
+-
+ void CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bUpdatePlotGroups,
+ 	CvUnit const* pUnit) // advc.071
+ {
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::changeVisibilityCount");
+-
+ 	if(iChange == 0)
+ 		return;
+ 
+-	if(m_aiVisibilityCount == NULL)
+-		m_aiVisibilityCount = new short[MAX_TEAMS]();
+-
+ 	bool bOldVisible = isVisible(eTeam, false);
+ 
+-	m_aiVisibilityCount[eTeam] += iChange;
++	m_aiVisibilityCount.add(eTeam, iChange);
+ 	//FAssert(getVisibilityCount(eTeam) >= 0);
+ 	/*  <advc.006> Had some problems here with the Earth1000AD scenario (as the
+ 		initial cities were being placed). The problems remain unresolved. */
+ 	if(getVisibilityCount(eTeam) < 0)
+ 	{
+-		FAssert(m_aiVisibilityCount[eTeam] >= 0);
+-		m_aiVisibilityCount[eTeam] = 0;
++		FAssert(m_aiVisibilityCount.get(eTeam) >= 0);
++		m_aiVisibilityCount.set(eTeam, 0);
+ 	} // </advc.006>
+ 
+ 	if (eSeeInvisible != NO_INVISIBLE)
+@@ -6164,28 +6002,14 @@ void CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes
+ }
+ 
+ 
+-int CvPlot::getStolenVisibilityCount(TeamTypes eTeam) const
+-{
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::getStolenVisibilityCount");
+-	if (NULL == m_aiStolenVisibilityCount)
+-		return 0;
+-	return m_aiStolenVisibilityCount[eTeam];
+-}
+-
+-
+ void CvPlot::changeStolenVisibilityCount(TeamTypes eTeam, int iChange)
+ {
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::changeStolenVisibilityCount");
+-
+ 	if(iChange == 0)
+ 		return;
+ 
+-	if (NULL == m_aiStolenVisibilityCount)
+-		m_aiStolenVisibilityCount = new short[MAX_TEAMS](); // advc: value-initialize
+-
+ 	bool bOldVisible = isVisible(eTeam, false);
+ 
+-	m_aiStolenVisibilityCount[eTeam] += iChange;
++	m_aiStolenVisibilityCount.add(eTeam, iChange);
+ 	FAssert(getStolenVisibilityCount(eTeam) >= 0);
+ 
+ 	if (bOldVisible != isVisible(eTeam, false))
+@@ -6207,32 +6031,20 @@ void CvPlot::changeStolenVisibilityCount(TeamTypes eTeam, int iChange)
+ }
+ 
+ 
+-int CvPlot::getBlockadedCount(TeamTypes eTeam) const
+-{
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::getBlockadedCount");
+-	if (m_aiBlockadedCount == NULL)
+-		return 0;
+-	return m_aiBlockadedCount[eTeam];
+-}
+-
+ void CvPlot::changeBlockadedCount(TeamTypes eTeam, int iChange)
+ {
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::changeBlockadedCount");
+-
+ 	if (iChange == 0)
+-		return; // advc
+-
+-	if (NULL == m_aiBlockadedCount)
+-		m_aiBlockadedCount = new short[MAX_TEAMS](); // advc: value-initialize
++		return;
+ 
+-	m_aiBlockadedCount[eTeam] += iChange;
+-	FAssert(getBlockadedCount(eTeam) >= 0
++	m_aiBlockadedCount.add(eTeam, iChange);
+ 	// BETTER_BTS_AI_MOD, Bugfix, 06/01/09, jdog5000: START
+-			|| isWater());
+ 	// Hack so that never get negative blockade counts as a result of fixing issue causing
+ 	// rare permanent blockades.
+ 	if (getBlockadedCount(eTeam) < 0)
+-		m_aiBlockadedCount[eTeam] = 0;
++	{
++		FAssert(isWater());
++		m_aiBlockadedCount.set(eTeam, 0);
++	}
+ 	// BETTER_BTS_AI_MOD: END
+ 	CvCity* pWorkingCity = getWorkingCity();
+ 	if (pWorkingCity != NULL)
+@@ -6245,41 +6057,28 @@ PlayerTypes CvPlot::getRevealedOwner(TeamTypes eTeam, bool bDebug) const
+ 	if (bDebug && GC.getGame().isDebugMode())
+ 		return getOwner();
+ 
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::getRevealedOwner");
+-
+-	if (NULL == m_aiRevealedOwner)
+-		return NO_PLAYER;
+-	return (PlayerTypes)m_aiRevealedOwner[eTeam];
++	return getRevealedOwner(eTeam); // advc.003f: Call inline version
+ }
+ 
+ 
+ TeamTypes CvPlot::getRevealedTeam(TeamTypes eTeam, bool bDebug) const
+ {
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::getRevealedTeam");
+ 	PlayerTypes eRevealedOwner = getRevealedOwner(eTeam, bDebug);
+ 	if (eRevealedOwner != NO_PLAYER)
+ 		return TEAMID(eRevealedOwner);
+-	else return NO_TEAM;
++	return NO_TEAM;
+ }
+ 
+ 
+ void CvPlot::setRevealedOwner(TeamTypes eTeam, PlayerTypes eNewValue)
+ {
+-	if (getRevealedOwner(eTeam, false) == eNewValue)
+-		return; // advc
++	if (getRevealedOwner(eTeam) == eNewValue)
++		return;
+ 
+-	if (NULL == m_aiRevealedOwner)
+-	{
+-		m_aiRevealedOwner = new char[MAX_TEAMS];
+-		for (int iI = 0; iI < MAX_TEAMS; ++iI)
+-			m_aiRevealedOwner[iI] = -1;
+-	}
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::setRevealedOwner");
+-	m_aiRevealedOwner[eTeam] = eNewValue;
++	m_aiRevealedOwner.set(eTeam, eNewValue);
+ 	// K-Mod
+ 	if (eNewValue != NO_PLAYER)
+-		GET_TEAM(eTeam).makeHasSeen(TEAMID(eNewValue));
+-	// K-Mod end
++		GET_TEAM(eTeam).makeHasSeen(TEAMID(eNewValue)); // K-Mod end
+ 	if (eTeam == GC.getGame().getActiveTeam())
+ 	{
+ 		updateMinimapColor();
+@@ -6289,7 +6088,6 @@ void CvPlot::setRevealedOwner(TeamTypes eTeam, PlayerTypes eNewValue)
+ 			gDLL->getEngineIFace()->SetDirty(CultureBorders_DIRTY_BIT, true);
+ 		}
+ 	}
+-	FAssert(m_aiRevealedOwner == NULL || m_aiRevealedOwner[eTeam] == eNewValue);
+ }
+ 
+ 
+@@ -6320,10 +6118,9 @@ void CvPlot::updateRevealedOwner(TeamTypes eTeam)
+ 
+ bool CvPlot::isRiverCrossing(DirectionTypes eIndex) const
+ {
+-	if (eIndex == NO_DIRECTION || m_abRiverCrossing == NULL)
++	if (eIndex == NO_DIRECTION)
+ 		return false;
+-	FASSERT_BOUNDS(0, NUM_DIRECTION_TYPES, eIndex, "CvPlot::isRiverCrossing");
+-	return m_abRiverCrossing[eIndex];
++	return m_abRiverCrossing.get(eIndex);
+ }
+ 
+ 
+@@ -6333,7 +6130,7 @@ void CvPlot::updateRiverCrossing(DirectionTypes eIndex)
+ 
+ 	CvPlot* pCornerPlot = NULL;
+ 	bool bValid = false;
+-	CvPlot* pPlot = plotDirection(getX(), getY(), eIndex);
++	CvPlot* pPlot = ::plotDirection(getX(), getY(), eIndex);
+ 	if ((pPlot == NULL || !pPlot->isWater()) && !isWater())
+ 	{
+ 		switch (eIndex)
+@@ -6424,15 +6221,7 @@ void CvPlot::updateRiverCrossing(DirectionTypes eIndex)
+ 
+ 	if (isRiverCrossing(eIndex) != bValid)
+ 	{
+-		if (NULL == m_abRiverCrossing)
+-		{
+-			m_abRiverCrossing = new bool[NUM_DIRECTION_TYPES];
+-			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+-			{
+-				m_abRiverCrossing[iI] = false;
+-			}
+-		}
+-		m_abRiverCrossing[eIndex] = bValid;
++		m_abRiverCrossing.set(eIndex, bValid);
+ 		changeRiverCrossingCount(isRiverCrossing(eIndex) ? 1 : -1);
+ 	}
+ }
+@@ -6447,16 +6236,10 @@ void CvPlot::updateRiverCrossing()
+ 
+ bool CvPlot::isRevealed(TeamTypes eTeam, bool bDebug) const
+ {
+-	// advc.006: Disabled b/c this function is called extremely often
+-	//FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::isRevealed");
+-
+ 	if (bDebug && GC.getGame().isDebugMode())
+ 		return true;
+ 
+-	if (m_abRevealed == NULL)
+-		return false;
+-
+-	return m_abRevealed[eTeam];
++	return isRevealed(eTeam); // advc.003f: Call inline version
+ }
+ 
+ 
+@@ -6465,22 +6248,19 @@ void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
+ 	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::setRevealed");
+ 
+ 	CvCity* pCity = getPlotCity();
+-	bool bOldValue = isRevealed(eTeam, false); // advc.124
++	bool bOldValue = isRevealed(eTeam); // advc.124
+ 	if (bOldValue != bNewValue)
+ 	{
+-		if (m_abRevealed == NULL)
+-			m_abRevealed = new bool[MAX_TEAMS](); // advc: value-initialize
+-
+-		m_abRevealed[eTeam] = bNewValue;
++		m_abRevealed.set(eTeam, bNewValue);
+ 
+ 		if (area())
+-			area()->changeNumRevealedTiles(eTeam, isRevealed(eTeam, false) ? 1 : -1);
++			area()->changeNumRevealedTiles(eTeam, isRevealed(eTeam) ? 1 : -1);
+ 	} // <advc.124> Need to update plot group if any revealed info changes
+ 	if (bUpdatePlotGroup &&
+ 		(bOldValue != bNewValue ||
+-		getRevealedOwner(eTeam, false) != getOwner() ||
+-		getRevealedImprovementType(eTeam, false) != getImprovementType() ||
+-		getRevealedRouteType(eTeam, false) != getRouteType() ||
++		getRevealedOwner(eTeam) != getOwner() ||
++		getRevealedImprovementType(eTeam) != getImprovementType() ||
++		getRevealedRouteType(eTeam) != getRouteType() ||
+ 		(pCity != NULL && !pCity->isRevealed(eTeam, false)))) // </advc.124>
+ 	{
+ 		for (int iI = 0; iI < MAX_PLAYERS; ++iI)
+@@ -6515,7 +6295,7 @@ void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
+ 		return;
+ 
+ 
+-	if (!isRevealed(eTeam, false))
++	if (!isRevealed(eTeam))
+ 	{
+ 		setRevealedOwner(eTeam, NO_PLAYER);
+ 		setRevealedImprovementType(eTeam, NO_IMPROVEMENT);
+@@ -6537,14 +6317,14 @@ void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
+ 	}
+ 	else
+ 	{
+-		if (getRevealedOwner(eFromTeam, false) == getOwner())
+-			setRevealedOwner(eTeam, getRevealedOwner(eFromTeam, false));
++		if (getRevealedOwner(eFromTeam) == getOwner())
++			setRevealedOwner(eTeam, getRevealedOwner(eFromTeam));
+ 
+-		if (getRevealedImprovementType(eFromTeam, false) == getImprovementType())
+-			setRevealedImprovementType(eTeam, getRevealedImprovementType(eFromTeam, false));
++		if (getRevealedImprovementType(eFromTeam) == getImprovementType())
++			setRevealedImprovementType(eTeam, getRevealedImprovementType(eFromTeam));
+ 
+-		if (getRevealedRouteType(eFromTeam, false) == getRouteType())
+-			setRevealedRouteType(eTeam, getRevealedRouteType(eFromTeam, false));
++		if (getRevealedRouteType(eFromTeam) == getRouteType())
++			setRevealedRouteType(eTeam, getRevealedRouteType(eFromTeam));
+ 
+ 		if (pCity != NULL && pCity->isRevealed(eFromTeam, false))
+ 			pCity->setRevealed(eTeam, true);
+@@ -6558,7 +6338,7 @@ bool CvPlot::isAdjacentRevealed(TeamTypes eTeam, /* advc.205c: */ bool bSkipOcea
+ 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), (DirectionTypes)iI);
+ 		if (pAdjacentPlot == NULL)
+ 			continue;
+-		if (pAdjacentPlot->isRevealed(eTeam, false) /* <advc.250c> */ && (!bSkipOcean ||
++		if (pAdjacentPlot->isRevealed(eTeam) /* <advc.250c> */ && (!bSkipOcean ||
+ 				pAdjacentPlot->getTerrainType() != GC.getWATER_TERRAIN(false))) // </advc.250c>
+ 			return true;
+ 	}
+@@ -6572,7 +6352,7 @@ bool CvPlot::isAdjacentNonrevealed(TeamTypes eTeam) const
+ 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), (DirectionTypes)iI);
+ 		if (pAdjacentPlot != NULL)
+ 		{
+-			if (!pAdjacentPlot->isRevealed(eTeam, false))
++			if (!pAdjacentPlot->isRevealed(eTeam))
+ 				return true;
+ 		}
+ 	}
+@@ -6585,28 +6365,16 @@ ImprovementTypes CvPlot::getRevealedImprovementType(TeamTypes eTeam, bool bDebug
+ 	if (bDebug && GC.getGame().isDebugMode())
+ 		return getImprovementType();
+ 
+-	if (m_aeRevealedImprovementType == NULL)
+-		return NO_IMPROVEMENT;
+-
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::getRevealedImprovementType");
+-	return (ImprovementTypes)m_aeRevealedImprovementType[eTeam];
+-
++	return getRevealedImprovementType(eTeam); // advc.003f: Call inline version
+ }
+ 
+ 
+ void CvPlot::setRevealedImprovementType(TeamTypes eTeam, ImprovementTypes eNewValue)
+ {
+-	if (getRevealedImprovementType(eTeam, false) == eNewValue)
+-		return; // advc
++	if (getRevealedImprovementType(eTeam) == eNewValue)
++		return;
+ 
+-	if (m_aeRevealedImprovementType == NULL)
+-	{
+-		m_aeRevealedImprovementType = new short[MAX_TEAMS];
+-		for (int iI = 0; iI < MAX_TEAMS; ++iI)
+-			m_aeRevealedImprovementType[iI] = NO_IMPROVEMENT;
+-	}
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::setRevealedImprovementType");
+-	m_aeRevealedImprovementType[eTeam] = eNewValue;
++	m_aeRevealedImprovementType.set(eTeam, eNewValue);
+ 
+ 	if (eTeam == GC.getGame().getActiveTeam())
+ 	{
+@@ -6622,11 +6390,7 @@ RouteTypes CvPlot::getRevealedRouteType(TeamTypes eTeam, bool bDebug) const
+ 	if (bDebug && GC.getGame().isDebugMode())
+ 		return getRouteType();
+ 
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::getRevealedRouteType");
+-
+-	if (m_aeRevealedRouteType == NULL)
+-		return NO_ROUTE;
+-	return (RouteTypes)m_aeRevealedRouteType[eTeam];
++	return getRevealedRouteType(eTeam); // advc.003f: Call inline version
+ }
+ 
+ 
+@@ -6634,19 +6398,10 @@ void CvPlot::setRevealedRouteType(TeamTypes eTeam, RouteTypes eNewValue)
+ {
+ 	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::setRevealedRouteType");
+ 
+-	if (getRevealedRouteType(eTeam, false) == eNewValue)
++	if (getRevealedRouteType(eTeam) == eNewValue)
+ 		return;
+ 
+-	if (NULL == m_aeRevealedRouteType)
+-	{
+-		m_aeRevealedRouteType = new short[MAX_TEAMS];
+-		for (int iI = 0; iI < MAX_TEAMS; ++iI)
+-		{
+-			m_aeRevealedRouteType[iI] = NO_ROUTE;
+-		}
+-	}
+-
+-	m_aeRevealedRouteType[eTeam] = eNewValue;
++	m_aeRevealedRouteType.set(eTeam, eNewValue);
+ 
+ 	if (eTeam == GC.getGame().getActiveTeam())
+ 	{
+@@ -6655,15 +6410,6 @@ void CvPlot::setRevealedRouteType(TeamTypes eTeam, RouteTypes eNewValue)
+ 	}
+ }
+ 
+-
+-int CvPlot::getBuildProgress(BuildTypes eBuild) const
+-{
+-	if (m_paiBuildProgress == NULL)
+-		return 0;
+-	return m_paiBuildProgress[eBuild];
+-}
+-
+-
+ // Returns true if build finished...
+ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange,
+ 	/*TeamTypes eTeam*/ /* advc.251: */ PlayerTypes ePlayer)
+@@ -6675,10 +6421,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange,
+ 
+ 	TeamTypes eTeam = TEAMID(ePlayer); // advc.251
+ 
+-	if (m_paiBuildProgress == NULL)
+-		m_paiBuildProgress = new short[GC.getNumBuildInfos()](); // advc: value-initialize
+-
+-	m_paiBuildProgress[eBuild] += iChange;
++	m_aiBuildProgress.add(eBuild, iChange);
+ 	FAssert(getBuildProgress(eBuild) >= 0);
+ 
+ 	/*  advc.011: Meaning that the interruption timer is reset,
+@@ -6688,7 +6431,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange,
+ 	if(getBuildProgress(eBuild) < getBuildTime(eBuild, /* advc.251: */ ePlayer))
+ 		return false;
+ 
+-	m_paiBuildProgress[eBuild] = 0;
++	m_aiBuildProgress.set(eBuild, 0);
+ 	CvBuildInfo const& kBuild = GC.getInfo(eBuild);
+ 
+ 	if (kBuild.getImprovement() != NO_IMPROVEMENT)
+@@ -6729,39 +6472,35 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange,
+ bool CvPlot::decayBuildProgress(bool bTest)
+ {
+ 	PROFILE_FUNC();
+-	int iDelay = GC.getDefineINT(CvGlobals::DELAY_UNTIL_BUILD_DECAY);
+-	if(bTest && m_iTurnsBuildsInterrupted > -2 &&
++	int const iDelay = GC.getDefineINT(CvGlobals::DELAY_UNTIL_BUILD_DECAY);
++	if(bTest && m_iTurnsBuildsInterrupted > NO_BUILD_IN_PROGRESS &&
+ 			m_iTurnsBuildsInterrupted + 1 < iDelay)
+ 		return false;
+ 	else
+ 	{
+-		if(m_iTurnsBuildsInterrupted > -2 && m_iTurnsBuildsInterrupted < iDelay)
++		if(m_iTurnsBuildsInterrupted > NO_BUILD_IN_PROGRESS && m_iTurnsBuildsInterrupted < iDelay)
+ 			m_iTurnsBuildsInterrupted++;
+ 		if(m_iTurnsBuildsInterrupted < iDelay)
+ 			return false;
+ 	}
+ 	bool r = false;
+ 	bool bAnyInProgress = false;
+-	if(m_paiBuildProgress != NULL)
++	FOR_EACH_ENUM(Build)
+ 	{
+-		for(int i = 0; i < GC.getNumBuildInfos(); i++)
++		if(m_aiBuildProgress.get(eLoopBuild) <= 0)
++			continue;
++		if(!bTest)
++			m_aiBuildProgress.add(eLoopBuild, -1);
++		r = true;
++		if(m_aiBuildProgress.get(eLoopBuild) > 0)
+ 		{
+-			if(m_paiBuildProgress[i] > 0)
+-			{
+-				if(!bTest)
+-					m_paiBuildProgress[i]--;
+-				r = true;
+-				if(m_paiBuildProgress[i] > 0)
+-				{
+-					bAnyInProgress = true;
+-					break;
+-				}
+-			}
++			bAnyInProgress = true;
++			break;
+ 		}
+ 	}
+ 	// Suspend decay (just for better performance)
+ 	if(!bAnyInProgress && !bTest)
+-		m_iTurnsBuildsInterrupted = -2;
++		m_iTurnsBuildsInterrupted = NO_BUILD_IN_PROGRESS;
+ 	return r;
+ } // </advc.011>
+ 
+@@ -7079,95 +6818,38 @@ void CvPlot::setCenterUnit(CvUnit* pNewValue)
+ }
+ 
+ 
+-int CvPlot::getCultureRangeCities(PlayerTypes eOwnerIndex, int iRangeIndex) const
++int CvPlot::getCultureRangeCities(PlayerTypes eOwnerIndex, CultureLevelTypes eRangeIndex) const
+ {
+-	FASSERT_BOUNDS(0, MAX_PLAYERS, eOwnerIndex, "CvPlot::getCultureRangeCities");
+-	FASSERT_BOUNDS(0, GC.getNumCultureLevelInfos(), iRangeIndex, "CvPlot::getCultureRangeCities");
+-	if (m_apaiCultureRangeCities == NULL)
+-		return 0;
+-	if (m_apaiCultureRangeCities[eOwnerIndex] == NULL)
+-		return 0;
+-	return m_apaiCultureRangeCities[eOwnerIndex][iRangeIndex];
++	return m_aaiCultureRangeCities.get(eOwnerIndex, eRangeIndex);
+ }
+ 
+ 
+-bool CvPlot::isCultureRangeCity(PlayerTypes eOwnerIndex, int iRangeIndex) const
++bool CvPlot::isCultureRangeCity(PlayerTypes eOwnerIndex, CultureLevelTypes eRangeIndex) const
+ {
+-	return (getCultureRangeCities(eOwnerIndex, iRangeIndex) > 0);
++	return (getCultureRangeCities(eOwnerIndex, eRangeIndex) > 0);
+ }
+ 
+ 
+-void CvPlot::changeCultureRangeCities(PlayerTypes eOwnerIndex, int iRangeIndex, int iChange, bool bUpdatePlotGroups)
++void CvPlot::changeCultureRangeCities(PlayerTypes eOwnerIndex, CultureLevelTypes eRangeIndex,
++	int iChange, bool bUpdatePlotGroups)
+ {
+-	FASSERT_BOUNDS(0, MAX_PLAYERS, eOwnerIndex, "CvPlot::changeCultureRangeCities");
+-	FASSERT_BOUNDS(0, GC.getNumCultureLevelInfos(), iRangeIndex, "CvPlot::changeCultureRangeCities");
+-
+ 	if(iChange == 0)
+ 		return;
+ 
+-	bool bOldCultureRangeCities = isCultureRangeCity(eOwnerIndex, iRangeIndex);
+-	if (NULL == m_apaiCultureRangeCities)
+-	{
+-		m_apaiCultureRangeCities = new char*[MAX_PLAYERS];
+-		for (int iI = 0; iI < MAX_PLAYERS; ++iI)
+-		{
+-			m_apaiCultureRangeCities[iI] = NULL;
+-		}
+-	}
+-	if (NULL == m_apaiCultureRangeCities[eOwnerIndex])
+-	{
+-		m_apaiCultureRangeCities[eOwnerIndex] = new char[GC.getNumCultureLevelInfos()];
+-		for (int iI = 0; iI < GC.getNumCultureLevelInfos(); ++iI)
+-		{
+-			m_apaiCultureRangeCities[eOwnerIndex][iI] = 0;
+-		}
+-	}
+-	m_apaiCultureRangeCities[eOwnerIndex][iRangeIndex] += iChange;
+-	if (bOldCultureRangeCities != isCultureRangeCity(eOwnerIndex, iRangeIndex))
+-	{
++	bool bOldCultureRangeCities = isCultureRangeCity(eOwnerIndex, eRangeIndex);
++	m_aaiCultureRangeCities.add(eOwnerIndex, eRangeIndex, iChange);
++	if (bOldCultureRangeCities != isCultureRangeCity(eOwnerIndex, eRangeIndex))
+ 		updateCulture(true, bUpdatePlotGroups);
+-	}
+-}
+-
+-
+-int CvPlot::getInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible) const
+-{
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::getInvisibleVisibilityCount");
+-	FASSERT_BOUNDS(0, GC.getNumInvisibleInfos(), eInvisible, "CvPlot::getInvisibleVisibilityCount");
+-	if (m_apaiInvisibleVisibilityCount == NULL || m_apaiInvisibleVisibilityCount[eTeam] == NULL)
+-		return 0;
+-	return m_apaiInvisibleVisibilityCount[eTeam][eInvisible];
+-}
+-
+-
+-bool CvPlot::isInvisibleVisible(TeamTypes eTeam, InvisibleTypes eInvisible)	const
+-{
+-	return (getInvisibleVisibilityCount(eTeam, eInvisible) > 0);
+ }
+ 
+ 
+ void CvPlot::changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible, int iChange)
+ {
+-	FASSERT_BOUNDS(0, MAX_TEAMS, eTeam, "CvPlot::changeInvisibleVisibilityCount");
+-	FASSERT_BOUNDS(0, GC.getNumInvisibleInfos(), eInvisible, "CvPlot::changeInvisibleVisibilityCount");
+-
+ 	if(iChange == 0)
+ 		return;
+ 
+ 	bool bOldInvisibleVisible = isInvisibleVisible(eTeam, eInvisible);
+-	if (m_apaiInvisibleVisibilityCount == NULL)
+-	{
+-		m_apaiInvisibleVisibilityCount = new short*[MAX_TEAMS];
+-		for (int iI = 0; iI < MAX_TEAMS; ++iI)
+-		{
+-			m_apaiInvisibleVisibilityCount[iI] = NULL;
+-		}
+-	}
+-	if (m_apaiInvisibleVisibilityCount[eTeam]== NULL)
+-	{
+-		m_apaiInvisibleVisibilityCount[eTeam] = new short[GC.getNumInvisibleInfos()](); // advc: value-initialize
+-	}
+-	m_apaiInvisibleVisibilityCount[eTeam][eInvisible] += iChange;
++	m_aaiInvisibleVisibilityCount.add(eTeam, eInvisible, iChange);
+ 	if (bOldInvisibleVisible != isInvisibleVisible(eTeam, eInvisible))
+ 	{
+ 		if (eTeam == GC.getGame().getActiveTeam())
+@@ -7524,7 +7206,8 @@ void CvPlot::processArea(CvArea* pArea, int iChange)  // advc: style changes
+ 			pArea->changeNumStartingPlots(iChange);
+ 		pArea->changePower(ePlayer, getUnitPower(ePlayer) * iChange);
+ 		pArea->changeUnitsPerPlayer(ePlayer, plotCount(PUF_isPlayer, ePlayer) * iChange);
+-		pArea->changeAnimalsPerPlayer(ePlayer, plotCount(PUF_isAnimal, -1, -1, ePlayer) * iChange);
++		// advc: No longer kept track of
++		//pArea->changeAnimalsPerPlayer(ePlayer, plotCount(PUF_isAnimal, -1, -1, ePlayer) * iChange);
+ 		for (int j = 0; j < NUM_UNITAI_TYPES; j++)
+ 		{
+ 			UnitAITypes eUnitAI = (UnitAITypes)j;
+@@ -7534,7 +7217,7 @@ void CvPlot::processArea(CvArea* pArea, int iChange)  // advc: style changes
+ 	}
+ 	for (int iI = 0; iI < MAX_TEAMS; ++iI)
+ 	{
+-		if (isRevealed((TeamTypes)iI, false))
++		if (isRevealed((TeamTypes)iI))
+ 			pArea->changeNumRevealedTiles((TeamTypes)iI, iChange);
+ 	}
+ 
+@@ -7629,7 +7312,6 @@ ColorTypes CvPlot::plotMinimapColor()
+ // read object from a stream. used during load.
+ void CvPlot::read(FDataStreamBase* pStream)
+ {
+-	int iI;
+ 	bool bVal;
+ 	char cCount;
+ 	int iCount;
+@@ -7647,14 +7329,34 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iImprovementDuration);
+ 	pStream->Read(&m_iUpgradeProgress);
+ 	pStream->Read(&m_iForceUnownedTimer);
+-	pStream->Read(&m_iCityRadiusCount);
++	// <advc.opt>
++	if (uiFlag < 5)
++	{
++		short sTmp; pStream->Read(&sTmp);
++		m_iCityRadiusCount = intToChar(sTmp);
++	}
++	else pStream->Read(&m_iCityRadiusCount); // </advc.opt>
+ 	pStream->Read(&m_iRiverID);
+ 	pStream->Read(&m_iMinOriginalStartDist);
+ 	pStream->Read(&m_iReconCount);
+-	pStream->Read(&m_iRiverCrossingCount);
++	// <advc.opt>
++	if (uiFlag < 5)
++	{
++		short sTmp; pStream->Read(&sTmp);
++		m_iRiverCrossingCount = intToChar(sTmp);
++	}
++	else pStream->Read(&m_iRiverCrossingCount); // </advc.opt>
+ 	// <advc.tsl>
+ 	if(uiFlag >= 3)
+-		pStream->Read(&m_iLatitude);
++	{
++		if (uiFlag < 5)
++		{
++			short sTmp;
++			pStream->Read(&sTmp);
++			m_iLatitude = intToChar(sTmp);
++		}
++		else pStream->Read(&m_iLatitude);
++	}
+ 	else m_iLatitude = calculateLatitude(); // </advc.tsl>
+ 
+ 	pStream->Read(&bVal);
+@@ -7675,12 +7377,39 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 	// m_bLayoutStateWorked not saved
+ 
+ 	pStream->Read(&m_eOwner);
+-	pStream->Read(&m_ePlotType);
+-	pStream->Read(&m_eTerrainType);
+-	pStream->Read(&m_eFeatureType);
++	// <advc.opt>
++	if (uiFlag < 5)
++	{
++		short sTmp;
++		pStream->Read(&sTmp);
++		m_ePlotType = intToChar(sTmp);
++		pStream->Read(&sTmp);
++		m_eTerrainType = intToChar(sTmp);
++		pStream->Read(&sTmp);
++		m_eFeatureType = intToChar(sTmp);
++	}
++	else
++	{ // </advc.opt>
++		pStream->Read(&m_ePlotType);
++		pStream->Read(&m_eTerrainType);
++		pStream->Read(&m_eFeatureType);
++	}
+ 	pStream->Read(&m_eBonusType);
+-	pStream->Read(&m_eImprovementType);
+-	pStream->Read(&m_eRouteType);
++	// <advc.opt>
++	if (uiFlag < 5)
++	{
++		short sTmp;
++		pStream->Read(&sTmp);
++		m_eImprovementType = intToChar(sTmp);
++	}
++	else pStream->Read(&m_eImprovementType);
++	if (uiFlag < 5)
++	{
++		short sTmp;
++		pStream->Read(&sTmp);
++		m_eRouteType = intToChar(sTmp);
++	}
++	else pStream->Read(&m_eRouteType); // </advc.opt>
+ 	pStream->Read(&m_eRiverNSDirection);
+ 	pStream->Read(&m_eRiverWEDirection);
+ 	// <advc.035>
+@@ -7696,142 +7425,81 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 	pStream->Read((int*)&m_workingCityOverride.eOwner);
+ 	pStream->Read(&m_workingCityOverride.iID);
+ 
+-	pStream->Read(NUM_YIELD_TYPES, m_aiYield);
++	m_aiYield.Read(pStream, false, uiFlag < 5);
+ 
+ 	// BETTER_BTS_AI_MOD, Efficiency (plot danger cache), 08/21/09, jdog5000: START
+ 	// K-Mod. I've changed the purpose of invalidateBorderDangerCache. It is no longer appropriate for this.
+ 	//m_iActivePlayerNoBorderDangerCache = false;
+ 	//invalidateBorderDangerCache();
+-	m_iActivePlayerSafeRangeCache = -1;
+-	for (int i = 0; i < MAX_TEAMS; i++)
+-		m_abBorderDangerCache[i] = false;
+ 	// BETTER_BTS_AI_MOD: END
+-
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_aiCulture = new int[cCount];
+-		pStream->Read(cCount, m_aiCulture);
+-	}
++		m_aiCulture.Read(pStream);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_aiFoundValue = new short[cCount];
+-		pStream->Read(cCount, m_aiFoundValue);
+-	}
++		m_aiFoundValue.Read(pStream, false);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_aiPlayerCityRadiusCount = new char[cCount];
+-		pStream->Read(cCount, m_aiPlayerCityRadiusCount);
+-	}
+-
++		m_aiPlayerCityRadiusCount.Read(pStream, false);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_aiPlotGroup = new int[cCount];
+-		pStream->Read(cCount, m_aiPlotGroup);
+-	}
++		m_aiPlotGroup.Read(pStream);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_aiVisibilityCount = new short[cCount];
+-		pStream->Read(cCount, m_aiVisibilityCount);
+-	}
++		m_aiVisibilityCount.Read(pStream, false);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_aiStolenVisibilityCount = new short[cCount];
+-		pStream->Read(cCount, m_aiStolenVisibilityCount);
+-	}
++		m_aiStolenVisibilityCount.Read(pStream, false);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_aiBlockadedCount = new short[cCount];
+-		pStream->Read(cCount, m_aiBlockadedCount);
+-	}
++		m_aiBlockadedCount.Read(pStream, false);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_aiRevealedOwner = new char[cCount];
+-		pStream->Read(cCount, m_aiRevealedOwner);
+-	}
++		m_aiRevealedOwner.Read(pStream, false);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_abRiverCrossing = new bool[cCount];
+-		pStream->Read(cCount, m_abRiverCrossing);
+-	}
++		m_abRiverCrossing.Read(pStream);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_abRevealed = new bool[cCount];
+-		pStream->Read(cCount, m_abRevealed);
+-	}
++		m_abRevealed.Read(pStream);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_aeRevealedImprovementType = new short[cCount];
+-		pStream->Read(cCount, m_aeRevealedImprovementType);
+-	}
++		m_aeRevealedImprovementType.Read(pStream, false, uiFlag < 5);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_aeRevealedRouteType = new short[cCount];
+-		pStream->Read(cCount, m_aeRevealedRouteType);
+-	}
++		m_aeRevealedRouteType.Read(pStream, false, uiFlag < 5);
+ 
+ 	m_szScriptData = pStream->ReadString();
+ 
+ 	pStream->Read(&iCount);
+ 	if (iCount > 0)
++		m_aiBuildProgress.Read(pStream, false);
++	// <advc.011>
++	if (uiFlag < 5)
+ 	{
+-		m_paiBuildProgress = new short[iCount];
+-		pStream->Read(iCount, m_paiBuildProgress);
++		int iTmp; pStream->Read(&iTmp);
++		m_iTurnsBuildsInterrupted = ::intToShort(iTmp);
+ 	}
+-	pStream->Read(&m_iTurnsBuildsInterrupted); // advc.011
++	else pStream->Read(&m_iTurnsBuildsInterrupted); // </advc.011>
+ 	pStream->ReadString(m_szMostRecentCityName); // advc.005c
+ 	// <advc.opt>
+ 	if(uiFlag >= 2)
+ 		pStream->Read(&m_iTotalCulture);
+-	else if(m_aiCulture != NULL)
++	else if(m_aiCulture.isAllocated()) // just to save time
+ 	{	//m_iTotalCulture = countTotalCulture();
+ 		/*  countTotalCulture checks CvPlayer::isEverAlive, but CvPlayer objects
+ 			aren't loaded yet. I'm pretty sure though that the isEverAlive check
+ 			can't make a difference in this case. */
+ 		for(int i = 0; i < MAX_PLAYERS; i++)
+-			m_iTotalCulture += m_aiCulture[i];
++			m_iTotalCulture += m_aiCulture.get((PlayerTypes)i);
+ 	} // </advc.opt>
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_apaiCultureRangeCities = new char*[cCount];
+-		for (iI = 0; iI < cCount; ++iI)
+-		{
+-			pStream->Read(&iCount);
+-			if (iCount > 0)
+-			{
+-				m_apaiCultureRangeCities[iI] = new char[iCount];
+-				pStream->Read(iCount, m_apaiCultureRangeCities[iI]);
+-			}
+-			else m_apaiCultureRangeCities[iI] = NULL;
+-		}
+-	}
++		m_aaiCultureRangeCities.Read(pStream, false, true);
+ 	pStream->Read(&cCount);
+ 	if (cCount > 0)
+-	{
+-		m_apaiInvisibleVisibilityCount = new short*[cCount];
+-		for (iI = 0; iI < cCount; ++iI)
+-		{
+-			pStream->Read(&iCount);
+-			if (iCount > 0)
+-			{
+-				m_apaiInvisibleVisibilityCount[iI] = new short[iCount];
+-				pStream->Read(iCount, m_apaiInvisibleVisibilityCount[iI]);
+-			}
+-			else m_apaiInvisibleVisibilityCount[iI] = NULL;
+-		}
+-	}
++		m_aaiInvisibleVisibilityCount.Read(pStream, false, true);
++
+ 	m_units.Read(pStream);
+ }
+ 
+@@ -7839,11 +7507,13 @@ void CvPlot::read(FDataStreamBase* pStream)
+ // used during save
+ void CvPlot::write(FDataStreamBase* pStream)
+ {
++	PROFILE_FUNC(); // advc
+ 	uint uiFlag=0;
+ 	uiFlag = 1; // advc.035
+ 	uiFlag = 2; // advc.opt
+ 	uiFlag = 3; // advc.tsl
+ 	uiFlag = 4; // advc.opt: m_bHills removed
++	uiFlag = 5; // advc.opt, advc.011, advc.enum: some int or short members turned into short or char
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iX);
+@@ -7889,138 +7559,118 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_workingCityOverride.eOwner);
+ 	pStream->Write(m_workingCityOverride.iID);
+ 
+-	pStream->Write(NUM_YIELD_TYPES, m_aiYield);
+-
+-	if (m_aiCulture == NULL)
++	m_aiYield.Write(pStream, false);
++	if (!m_aiCulture.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)MAX_PLAYERS);
+-		pStream->Write(MAX_PLAYERS, m_aiCulture);
++		pStream->Write((char)m_aiCulture.getLength());
++		m_aiCulture.Write(pStream);
+ 	}
+-	if (m_aiFoundValue == NULL)
++	if (!m_aiFoundValue.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)MAX_PLAYERS);
+-		pStream->Write(MAX_PLAYERS, m_aiFoundValue);
++		pStream->Write((char)m_aiFoundValue.getLength());
++		m_aiFoundValue.Write(pStream, false);
+ 	}
+-	if (m_aiPlayerCityRadiusCount == NULL)
++	if (!m_aiPlayerCityRadiusCount.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)MAX_PLAYERS);
+-		pStream->Write(MAX_PLAYERS, m_aiPlayerCityRadiusCount);
++		pStream->Write((char)m_aiPlayerCityRadiusCount.getLength());
++		m_aiPlayerCityRadiusCount.Write(pStream, false);
+ 	}
+-	if (m_aiPlotGroup == NULL)
++	if (!m_aiPlotGroup.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)MAX_PLAYERS);
+-		pStream->Write(MAX_PLAYERS, m_aiPlotGroup);
++		pStream->Write((char)m_aiPlotGroup.getLength());
++		m_aiPlotGroup.Write(pStream);
+ 	}
+-	if (m_aiVisibilityCount == NULL)
++	if (!m_aiVisibilityCount.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)MAX_TEAMS);
+-		pStream->Write(MAX_TEAMS, m_aiVisibilityCount);
++		pStream->Write((char)m_aiVisibilityCount.getLength());
++		m_aiVisibilityCount.Write(pStream, false);
+ 	}
+-	if (m_aiStolenVisibilityCount == NULL)
++	if (!m_aiStolenVisibilityCount.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)MAX_TEAMS);
+-		pStream->Write(MAX_TEAMS, m_aiStolenVisibilityCount);
++		pStream->Write((char)m_aiStolenVisibilityCount.getLength());
++		m_aiStolenVisibilityCount.Write(pStream, false);
+ 	}
+-	if (m_aiBlockadedCount == NULL)
++	if (!m_aiBlockadedCount.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)MAX_TEAMS);
+-		pStream->Write(MAX_TEAMS, m_aiBlockadedCount);
++		pStream->Write((char)m_aiBlockadedCount.getLength());
++		m_aiBlockadedCount.Write(pStream, false);
+ 	}
+-	if (m_aiRevealedOwner == NULL)
++	if (!m_aiRevealedOwner.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)MAX_TEAMS);
+-		pStream->Write(MAX_TEAMS, m_aiRevealedOwner);
++		pStream->Write((char)m_aiRevealedOwner.getLength());
++		m_aiRevealedOwner.Write(pStream, false);
+ 	}
+-	if (m_abRiverCrossing == NULL)
++	if (!m_abRiverCrossing.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)NUM_DIRECTION_TYPES);
+-		pStream->Write(NUM_DIRECTION_TYPES, m_abRiverCrossing);
++		pStream->Write((char)m_abRiverCrossing.getLength());
++		m_abRiverCrossing.Write(pStream);
+ 	}
+-	if (m_abRevealed == NULL)
++	if (!m_abRevealed.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)MAX_TEAMS);
+-		pStream->Write(MAX_TEAMS, m_abRevealed);
++		pStream->Write((char)m_abRevealed.getLength());
++		m_abRevealed.Write(pStream);
+ 	}
+-	if (m_aeRevealedImprovementType == NULL)
++	if (!m_aeRevealedImprovementType.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)MAX_TEAMS);
+-		pStream->Write(MAX_TEAMS, m_aeRevealedImprovementType);
++		pStream->Write((char)m_aeRevealedImprovementType.getLength());
++		m_aeRevealedImprovementType.Write(pStream, false);
+ 	}
+-	if (m_aeRevealedRouteType == NULL)
++	if (!m_aeRevealedRouteType.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)MAX_TEAMS);
+-		pStream->Write(MAX_TEAMS, m_aeRevealedRouteType);
++		pStream->Write((char)m_aeRevealedRouteType.getLength());
++		m_aeRevealedRouteType.Write(pStream, false);
+ 	}
+ 
+ 	pStream->WriteString(m_szScriptData);
+ 
+-	if (m_paiBuildProgress == NULL)
++	if (!m_aiBuildProgress.hasContent())
+ 		pStream->Write((int)0);
+ 	else
+ 	{
+-		pStream->Write((int)GC.getNumBuildInfos());
+-		pStream->Write(GC.getNumBuildInfos(), m_paiBuildProgress);
++		pStream->Write((int)m_aiBuildProgress.getLength());
++		m_aiBuildProgress.Write(pStream, false);
+ 	}
+ 	pStream->Write(m_iTurnsBuildsInterrupted); // advc.011
+ 	pStream->WriteString(m_szMostRecentCityName); // advc.005c
+ 	pStream->Write(m_iTotalCulture); // advc.opt
+ 
+-	if (m_apaiCultureRangeCities == NULL)
++	if (!m_aaiCultureRangeCities.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)MAX_PLAYERS);
+-		for (int i = 0; i < MAX_PLAYERS; i++)
+-		{
+-			if (m_apaiCultureRangeCities[i] == NULL)
+-				pStream->Write((int)0);
+-			else
+-			{
+-				pStream->Write((int)GC.getNumCultureLevelInfos());
+-				pStream->Write(GC.getNumCultureLevelInfos(), m_apaiCultureRangeCities[i]);
+-			}
+-		}
++		pStream->Write((char)m_aaiCultureRangeCities.Length());
++		m_aaiCultureRangeCities.Write(pStream, false, true);
+ 	}
+-
+-	if (m_apaiInvisibleVisibilityCount == NULL)
++	if (!m_aaiInvisibleVisibilityCount.hasContent())
+ 		pStream->Write((char)0);
+ 	else
+ 	{
+-		pStream->Write((char)MAX_TEAMS);
+-		for (int i = 0; i < MAX_TEAMS; i++)
+-		{
+-			if (m_apaiInvisibleVisibilityCount[i] == NULL)
+-				pStream->Write((int)0);
+-			else
+-			{
+-				pStream->Write((int)GC.getNumInvisibleInfos());
+-				pStream->Write(GC.getNumInvisibleInfos(), m_apaiInvisibleVisibilityCount[i]);
+-			}
+-		}
++		pStream->Write((char)m_aaiInvisibleVisibilityCount.Length());
++		m_aaiInvisibleVisibilityCount.Write(pStream, false, true);
+ 	}
+ 
+ 	m_units.Write(pStream);
+@@ -8118,7 +7768,7 @@ void CvPlot::getVisibleBonusState(BonusTypes& eType, bool& bImproved, bool& bWor
+ 
+ 	if (GC.getGame().isDebugMode())
+ 		eType = getBonusType();
+-	else if (isRevealed(GC.getGame().getActiveTeam(), false))
++	else if (isRevealed(GC.getGame().getActiveTeam()))
+ 		eType = getBonusType(GC.getGame().getActiveTeam());
+ 
+ 	if (eType != NO_BONUS) // improved and worked states ...
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 5f93d3aef..8d85ed469 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -184,8 +184,8 @@ public:
+ 	// Plot danger cache (rewritten for K-Mod to fix bugs and improvement performance)
+ 	inline int getActivePlayerSafeRangeCache() const { return m_iActivePlayerSafeRangeCache; }
+ 	inline void setActivePlayerSafeRangeCache(int range) const { m_iActivePlayerSafeRangeCache = range; } // advc: const
+-	inline bool getBorderDangerCache(TeamTypes eTeam) const { return m_abBorderDangerCache[eTeam]; }
+-	inline void setBorderDangerCache(TeamTypes eTeam, bool bNewValue) const { m_abBorderDangerCache[eTeam] = bNewValue; } // advc: const
++	inline bool getBorderDangerCache(TeamTypes eTeam) const { return m_abBorderDangerCache.get(eTeam); }
++	inline void setBorderDangerCache(TeamTypes eTeam, bool bNewValue) const { m_abBorderDangerCache.set(eTeam, bNewValue); } // advc: const
+ 	void invalidateBorderDangerCache();
+ 	// BETTER_BTS_AI_MOD: END
+ 	PlayerTypes calculateCulturalOwner(
+@@ -418,24 +418,27 @@ public:
+ 	void changeRiverCrossingCount(int iChange);
+ 
+ 	bool isHabitable(bool bIgnoreSea = false) const; // advc.300
+-	short* getYield();
+-	DllExport int getYield(YieldTypes eIndex) const;																										// Exposed to Python
++	//short* getYield() { return m_aiYield; } // advc.enum: now an EnumMap
++	// advc.003f: inline
++	DllExport inline int getYield(YieldTypes eIndex) const																										// Exposed to Python
++	{
++		return m_aiYield.get(eIndex);
++	}
+ 	int calculateNatureYield(YieldTypes eIndex, TeamTypes eTeam, bool bIgnoreFeature = false) const;		// Exposed to Python
+ 	int calculateBestNatureYield(YieldTypes eIndex, TeamTypes eTeam) const;															// Exposed to Python
+ 	int calculateTotalBestNatureYield(TeamTypes eTeam) const;																						// Exposed to Python
+ 	// BETTER_BTS_AI_MOD, City AI, 10/06/09, jdog5000:
+ 	int calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bOptimal = false, bool bBestRoute = false) const;	// Exposed to Python
+-
+-	int calculateYield(YieldTypes eIndex, bool bDisplay = false) const;												// Exposed to Python
++	// advc.enum: Return type changed to char (was int)
++	char calculateYield(YieldTypes eIndex, bool bDisplay = false) const;												// Exposed to Python
+ 	bool hasYield() const;																																		// Exposed to Python
+ 	void updateYield();
+ 	// int calculateMaxYield(YieldTypes eYield) const; // disabled by K-Mod
+ 	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade) const;
+ 
+-	int getCulture(PlayerTypes eIndex) const;																									// Exposed to Python
+-		// advc.opt: Replaced by getTotalCulture
+-		private: int countTotalCulture() const; public:
+-	int getTotalCulture() const;
++	// advc.003f: inline
++	inline int getCulture(PlayerTypes eIndex) const { return m_aiCulture.get(eIndex); }															// Exposed to Python
++	inline int getTotalCulture() const { return m_iTotalCulture; } // advc.opt
+ 	int countFriendlyCulture(TeamTypes eTeam) const;
+ 	TeamTypes findHighestCultureTeam() const;																														// Exposed to Python
+ 	PlayerTypes findHighestCulturePlayer(
+@@ -453,11 +456,18 @@ public:
+ 	int getFoundValue(PlayerTypes eIndex,												// Exposed to Python
+ 			bool bRandomize = false) const; // advc.052
+ 	bool isBestAdjacentFound(PlayerTypes eIndex);										// Exposed to Python
+-	void setFoundValue(PlayerTypes eIndex, short iNewValue);
+ 	// K-Mod: I've changed iNewValue to be 'short' instead of 'int', so that it matches the cache.
++	void setFoundValue(PlayerTypes eIndex, short iNewValue);
+ 	
+-	int getPlayerCityRadiusCount(PlayerTypes eIndex) const;																							// Exposed to Python
+-	bool isPlayerCityRadius(PlayerTypes eIndex) const;																									// Exposed to Python
++	// advc.003f: 2x inline
++	inline int getPlayerCityRadiusCount(PlayerTypes eIndex) const																							// Exposed to Python
++	{
++		return m_aiPlayerCityRadiusCount.get(eIndex);
++	}
++	inline bool isPlayerCityRadius(PlayerTypes eIndex) const																									// Exposed to Python
++	{
++		return (getPlayerCityRadiusCount(eIndex) > 0);
++	}
+ 	void changePlayerCityRadiusCount(PlayerTypes eIndex, int iChange);
+ 
+ 	CvPlotGroup* getPlotGroup(PlayerTypes ePlayer) const;
+@@ -466,18 +476,30 @@ public:
+ 	void updatePlotGroup();
+ 	void updatePlotGroup(PlayerTypes ePlayer, bool bRecalculate = true);
+ 
+-	int getVisibilityCount(TeamTypes eTeam) const;																											// Exposed to Python
++	// advc.003f: inline
++	inline int getVisibilityCount(TeamTypes eTeam) const { return m_aiVisibilityCount.get(eTeam); }																				// Exposed to Python
+ 	void changeVisibilityCount(TeamTypes eTeam, int iChange,												// Exposed to Python
+ 			InvisibleTypes eSeeInvisible, bool bUpdatePlotGroups,
+ 			CvUnit const* pUnit = NULL); // advc.071
+-
+-	int getStolenVisibilityCount(TeamTypes eTeam) const;																								// Exposed to Python
++	// advc.003f: inline
++	inline int getStolenVisibilityCount(TeamTypes eTeam) const																								// Exposed to Python
++	{
++		return m_aiStolenVisibilityCount.get(eTeam);
++	}
+ 	void changeStolenVisibilityCount(TeamTypes eTeam, int iChange);
+-
+-	int getBlockadedCount(TeamTypes eTeam) const;																								// Exposed to Python
++	// advc.003f: inline
++	inline int getBlockadedCount(TeamTypes eTeam) const																								// Exposed to Python
++	{
++		return m_aiBlockadedCount.get(eTeam);
++	}
+ 	void changeBlockadedCount(TeamTypes eTeam, int iChange);
+ 
+ 	DllExport PlayerTypes getRevealedOwner(TeamTypes eTeam, bool bDebug) const;													// Exposed to Python
++	// <advc.003f> Faster implementation for non-UI code
++	inline PlayerTypes getRevealedOwner(TeamTypes eTeam) const
++	{
++		return m_aiRevealedOwner.get(eTeam);
++	} // </advc.003f>
+ 	TeamTypes getRevealedTeam(TeamTypes eTeam, bool bDebug) const;														// Exposed to Python
+ 	void setRevealedOwner(TeamTypes eTeam, PlayerTypes eNewValue);
+ 	void updateRevealedOwner(TeamTypes eTeam);
+@@ -487,6 +509,11 @@ public:
+ 	void updateRiverCrossing();
+ 
+ 	DllExport bool isRevealed(TeamTypes eTeam, bool bDebug) const;																								// Exposed to Python
++	// <advc.003f> Faster implementation for non-UI code
++	inline bool isRevealed(TeamTypes eTeam) const
++	{
++		return m_abRevealed.get(eTeam);
++	} // </advc.003f>
+ 	void setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly,									// Exposed to Python
+ 			TeamTypes eFromTeam, bool bUpdatePlotGroup);
+ 	bool isAdjacentRevealed(TeamTypes eTeam,																// Exposed to Python
+@@ -494,12 +521,24 @@ public:
+ 	bool isAdjacentNonrevealed(TeamTypes eTeam) const;																				// Exposed to Python
+ 
+ 	ImprovementTypes getRevealedImprovementType(TeamTypes eTeam, bool bDebug) const;					// Exposed to Python
++	// <advc.003f> Faster implementation for non-UI code
++	inline ImprovementTypes getRevealedImprovementType(TeamTypes eTeam) const
++	{
++		return m_aeRevealedImprovementType.get(eTeam);
++	} // </advc.003f>
+ 	void setRevealedImprovementType(TeamTypes eTeam, ImprovementTypes eNewValue);
+-
+ 	RouteTypes getRevealedRouteType(TeamTypes eTeam, bool bDebug) const;											// Exposed to Python
++	// <advc.003f> Faster implementation for non-UI code
++	inline RouteTypes getRevealedRouteType(TeamTypes eTeam) const
++	{
++		return m_aeRevealedRouteType.get(eTeam);
++	} // </advc.003f>
+ 	void setRevealedRouteType(TeamTypes eTeam, RouteTypes eNewValue);
+-
+-	int getBuildProgress(BuildTypes eBuild) const;																											// Exposed to Python
++	// advc.003f: inline
++	inline int getBuildProgress(BuildTypes eBuild) const																											// Exposed to Python
++	{
++		return m_aiBuildProgress.get(eBuild);
++	}
+ 	bool changeBuildProgress(BuildTypes eBuild, int iChange,									// Exposed to Python
+ 			//TeamTypes eTeam = NO_TEAM
+ 			PlayerTypes ePlayer); // advc.251
+@@ -536,13 +575,20 @@ public:
+ 	DllExport CvUnit* getCenterUnit() const;
+ 	DllExport CvUnit* getDebugCenterUnit() const;
+ 	void setCenterUnit(CvUnit* pNewValue);
+-
+-	int getCultureRangeCities(PlayerTypes eOwnerIndex, int iRangeIndex) const;														// Exposed to Python
+-	bool isCultureRangeCity(PlayerTypes eOwnerIndex, int iRangeIndex) const;															// Exposed to Python
+-	void changeCultureRangeCities(PlayerTypes eOwnerIndex, int iRangeIndex, int iChange, bool bUpdatePlotGroups);
+-
+-	int getInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible) const;										// Exposed to Python
+-	bool isInvisibleVisible(TeamTypes eTeam, InvisibleTypes eInvisible) const;														// Exposed to Python
++	// advc.enum: 2nd param was int iRangeIndex
++	int getCultureRangeCities(PlayerTypes eOwnerIndex, CultureLevelTypes eRangeIndex) const;														// Exposed to Python
++	bool isCultureRangeCity(PlayerTypes eOwnerIndex, CultureLevelTypes eRangeIndex) const;															// Exposed to Python
++	void changeCultureRangeCities(PlayerTypes eOwnerIndex, CultureLevelTypes eRangeIndex,
++			int iChange, bool bUpdatePlotGroups);
++	// advc.003f: 2x inline
++	inline int getInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible) const										// Exposed to Python
++	{
++		return m_aaiInvisibleVisibilityCount.get(eTeam, eInvisible);
++	}
++	inline bool isInvisibleVisible(TeamTypes eTeam, InvisibleTypes eInvisible) const														// Exposed to Python
++	{
++		return (getInvisibleVisibilityCount(eTeam, eInvisible) > 0);
++	}
+ 	void changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible, int iChange);					// Exposed to Python
+ 
+ 	int getNumUnits() const;																																		// Exposed to Python
+@@ -609,17 +655,20 @@ protected:
+ 	short m_iY;
+ 	int m_iArea;
+ 	mutable CvArea *m_pPlotArea;
++	int m_iRiverID;
++	int m_iTotalCulture; // advc.opt
+ 	short m_iFeatureVariety;
+ 	short m_iOwnershipDuration;
+ 	short m_iImprovementDuration;
+ 	short m_iUpgradeProgress;
+ 	short m_iForceUnownedTimer;
+-	short m_iCityRadiusCount;
+-	int m_iRiverID;
++	short m_iTurnsBuildsInterrupted; // advc.011
+ 	short m_iMinOriginalStartDist;
+ 	short m_iReconCount;
+-	short m_iRiverCrossingCount;
+-	short m_iLatitude; // advc.tsl
++	char m_iLatitude; // advc.tsl
++	// advc.opt: These two were short int
++	char m_iCityRadiusCount;
++	char m_iRiverCrossingCount;
+ 
+ 	bool m_bStartingPlot:1;
+ 	bool m_bNOfRiver:1;
+@@ -632,46 +681,44 @@ protected:
+ 	bool m_bLayoutStateWorked:1;
+ 
+ 	char /*PlayerTypes*/ m_eOwner;
+-	short /*PlotTypes*/ m_ePlotType;
+-	short /*TerrainTypes*/ m_eTerrainType;
+-	short /*FeatureTypes*/ m_eFeatureType;
++	// advc.opt: These five were short int
++	char /*PlotTypes*/ m_ePlotType;
++	char /*TerrainTypes*/ m_eTerrainType;
++	char /*FeatureTypes*/ m_eFeatureType;
++	char /*RouteTypes*/ m_eRouteType;
++	char /*ImprovementTypes*/ m_eImprovementType;
+ 	short /*BonusTypes*/ m_eBonusType;	
+-	short /*ImprovementTypes*/ m_eImprovementType;
+-	short /*RouteTypes*/ m_eRouteType;
+ 	char /*CardinalDirectionTypes*/ m_eRiverNSDirection;
+ 	char /*CardinalDirectionTypes*/ m_eRiverWEDirection;
+ 	char /*PlayerTypes*/ m_eSecondOwner; // advc.035
+ 	IDInfo m_plotCity;
+ 	IDInfo m_workingCity;
+ 	IDInfo m_workingCityOverride;
++
++	CvWString m_szMostRecentCityName; // advc.005c
++	char const* m_szScriptData; // advc: const
+ 	// BETTER_BTS_AI_MOD, Efficiency (plot danger cache), 08/21/09, jdog5000: START
+ 	//bool m_bActivePlayerNoDangerCache;
+ 	mutable int m_iActivePlayerSafeRangeCache; // K-Mod (the bbai implementation was flawed)
+-	mutable bool* m_abBorderDangerCache;
++	mutable EnumMap<TeamTypes,bool> m_abBorderDangerCache;
+ 	// BETTER_BTS_AI_MOD: END  // advc: 2x mutable
+ 
+-	short* m_aiYield;
+-	int* m_aiCulture;
+-	short* m_aiFoundValue;
+-	char* m_aiPlayerCityRadiusCount;
+-	int* m_aiPlotGroup;			// IDs - keep as int
+-	short* m_aiVisibilityCount;
+-	short* m_aiStolenVisibilityCount;
+-	short* m_aiBlockadedCount;
+-	char* m_aiRevealedOwner;
+-
+-	bool* m_abRiverCrossing;	// bit vector
+-	bool* m_abRevealed;
+-
+-	short* /*ImprovementTypes*/ m_aeRevealedImprovementType;
+-	short* /*RouteTypes*/ m_aeRevealedRouteType;
+-
+-	char* m_szScriptData;
+-
+-	short* m_paiBuildProgress;
+-	int m_iTurnsBuildsInterrupted; // advc.011
+-	CvWString m_szMostRecentCityName; // advc.005c
+-	int m_iTotalCulture; // advc.opt
++	EnumMap<YieldTypes,char> m_aiYield;
++	EnumMap<PlayerTypes,int> m_aiCulture;
++	EnumMapDefault<PlayerTypes,int,FFreeList::INVALID_INDEX> m_aiPlotGroup;
++	mutable EnumMap<PlayerTypes,short> m_aiFoundValue; // advc: mutable
++	EnumMap<PlayerTypes,char> m_aiPlayerCityRadiusCount;
++	EnumMap<TeamTypes,short> m_aiVisibilityCount;
++	EnumMap<TeamTypes,short> m_aiStolenVisibilityCount;
++	EnumMap<TeamTypes,short> m_aiBlockadedCount;
++	EnumMap<TeamTypes,PlayerTypes> m_aiRevealedOwner;
++	EnumMap<TeamTypes,ImprovementTypes> m_aeRevealedImprovementType;
++	EnumMap<TeamTypes,RouteTypes> m_aeRevealedRouteType;
++	EnumMap<TeamTypes,bool> m_abRevealed;
++	EnumMap<DirectionTypes,bool> m_abRiverCrossing;
++	EnumMap<BuildTypes,short> m_aiBuildProgress;
++	EnumMap2D<PlayerTypes,CultureLevelTypes,char> m_aaiCultureRangeCities;
++	EnumMap2D<TeamTypes,InvisibleTypes,short> m_aaiInvisibleVisibilityCount;
+ 
+ 	CvFeature* m_pFeatureSymbol;
+ 	CvRoute* m_pRouteSymbol;
+@@ -679,23 +726,20 @@ protected:
+ 	CvFlagEntity* m_pFlagSymbol;
+ 	CvFlagEntity* m_pFlagSymbolOffset;
+ 	CvUnit* m_pCenterUnit;
+-
+-	CvPlotBuilder* m_pPlotBuilder;		// builds bonuses and improvements
+-
+-	char** m_apaiCultureRangeCities;
+-	short** m_apaiInvisibleVisibilityCount;
++	CvPlotBuilder* m_pPlotBuilder; // builds bonus resources and improvements
+ 
+ 	CLinkList<IDInfo> m_units;
+-
+ 	std::vector<CvSymbol*> m_symbols;
+ 
+ 	static bool m_bAllFog; // advc.706
++	static int iMaxVisibilityRangeCache; // advc.003h
+ 
+ 	void doFeature();
+ 	void doCulture();
+ 
++	int countTotalCulture() const; // advc.opt: Was public; replaced by getTotalCulture.
+ 	void processArea(CvArea* pArea, int iChange);
+-	int calculateLatitude() const; // advc.tsl
++	char calculateLatitude() const; // advc.tsl
+ 	void doImprovementUpgrade();
+ 	// <advc.099b>
+ 	void doCultureDecay();
+@@ -703,8 +747,6 @@ protected:
+ 	// </advc.099b>
+ 	ColorTypes plotMinimapColor();
+ 
+-	static int iMaxVisibilityRangeCache; // advc.003h
+-
+ 	// added so under cheat mode we can access protected stuff
+ 	friend class CvGameTextMgr;
+ };
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 5dffc8898..bfa34bcb0 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -732,7 +732,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 			p.changeInvisibleVisibilityCount(getID(), eInv, p.getInvisibleVisibilityCount(eTeam, eInv));
+ 		}
+ 
+-		if (p.isRevealed(eTeam, false))
++		if (p.isRevealed(eTeam))
+ 			p.setRevealed(getID(), true, false, eTeam, false);
+ 	}
+ 
+@@ -5797,7 +5797,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 				if ((eRevealedTeam != getID() && eRevealedTeam != NO_TEAM &&
+ 						eRevealedTeam != BARBARIAN_TEAM &&
+ 						!GET_TEAM(eRevealedTeam).isVassal(getID())) ||
+-						!kLoopPlot.isRevealed(getID(), false)) // </advc.004r>
++						!kLoopPlot.isRevealed(getID())) // </advc.004r>
+ 					continue; // advc
+ 				BonusTypes eBonus = kLoopPlot.getBonusType();
+ 				if (eBonus == NO_BONUS)
+@@ -6474,60 +6474,46 @@ void CvTeam::updatePlotGroupBonus(TechTypes eTech, bool bAdd)
+ 
+ void CvTeam::testCircumnavigated()
+ {
+-	CvWString szBuffer;
+-	int iX, iY;
+-
+ 	if (isBarbarian())
+-	{
+ 		return;
+-	}
+ 
+ 	if (!GC.getGame().circumnavigationAvailable())
+-	{
+ 		return;
+-	}
++
+ 	CvMap const& kMap = GC.getMap(); // advc
+ 	if (kMap.isWrapX())
+ 	{
+-		for (iX = 0; iX < kMap.getGridWidth(); iX++)
++		for (int iX = 0; iX < kMap.getGridWidth(); iX++)
+ 		{
+ 			bool bFoundVisible = false;
+-
+-			for (iY = 0; iY < kMap.getGridHeight(); iY++)
++			for (int iY = 0; iY < kMap.getGridHeight(); iY++)
+ 			{
+-				if (kMap.getPlot(iX, iY).isRevealed(getID(), false))
++				if (kMap.getPlot(iX, iY).isRevealed(getID()))
+ 				{
+ 					bFoundVisible = true;
+ 					break;
+ 				}
+ 			}
+-
+ 			if (!bFoundVisible)
+-			{
+ 				return;
+-			}
+ 		}
+ 	}
+ 
+ 	if (kMap.isWrapY())
+ 	{
+-		for (iY = 0; iY < kMap.getGridHeight(); iY++)
++		for (int iY = 0; iY < kMap.getGridHeight(); iY++)
+ 		{
+ 			bool bFoundVisible = false;
+-
+-			for (iX = 0; iX < kMap.getGridWidth(); iX++)
++			for (int iX = 0; iX < kMap.getGridWidth(); iX++)
+ 			{
+-				if (kMap.getPlot(iX, iY).isRevealed(getID(), false))
++				if (kMap.getPlot(iX, iY).isRevealed(getID()))
+ 				{
+ 					bFoundVisible = true;
+ 					break;
+ 				}
+ 			}
+-
+ 			if (!bFoundVisible)
+-			{
+ 				return;
+-			}
+ 		}
+ 	}
+ 
+@@ -6539,12 +6525,12 @@ void CvTeam::testCircumnavigated()
+ 		if (GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES") != 0)
+ 		{
+ 			changeExtraMoves(DOMAIN_SEA, GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES"));
+-
+ 			for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 			{
+ 				CvPlayer const& kObs = GET_PLAYER((PlayerTypes)iI);
+ 				if (!kObs.isAlive())
+ 					continue;
++				CvWString szBuffer;
+ 				if (getID() == kObs.getTeam())
+ 				{
+ 					szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_CIRC_GLOBE",
+@@ -6565,9 +6551,9 @@ void CvTeam::testCircumnavigated()
+ 						getCapitalX(kObs.getTeam(), true),
+ 						getCapitalY(kObs.getTeam(), true)); // </advc.127b>
+ 			}
+-
+-			szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_CIRC_GLOBE", getReplayName().GetCString());
+-			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++			CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_SOMEONE_CIRC_GLOBE", getReplayName().GetCString()));
++			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(),
++					szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 		}
+ 	}
+ }
+@@ -7010,6 +6996,7 @@ void CvTeam::read(FDataStreamBase* pStream)
+ 
+ void CvTeam::write(FDataStreamBase* pStream)
+ {
++	PROFILE_FUNC(); // advc
+ 	int iI;
+ 
+ 	uint uiFlag = 1;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index f74b60242..87ef861e1 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -363,7 +363,7 @@ bool CvTeamAI::AI_deduceCitySite(const CvCity* pCity) const
+ 
+ 			CvPlot* pLoopPlot = plotXY(pCity->getX(), pCity->getY(), iDX, iDY);
+ 
+-			if (pLoopPlot && pLoopPlot->getRevealedOwner(getID(), false) == pCity->getOwner())
++			if (pLoopPlot && pLoopPlot->getRevealedOwner(getID()) == pCity->getOwner())
+ 			{
+ 				// if multiple cities have their plot in their range, then that will make it harder to deduce the precise city location.
+ 				iPoints += 1 + std::max(0, iLevel - iDist - pLoopPlot->getNumCultureRangeCities(pCity->getOwner())+1);
+@@ -1483,7 +1483,8 @@ int CvTeamAI::AI_warSpoilsValue(TeamTypes eTarget, WarPlanTypes eWarPlan,
+ 			for (int j = 1; j < NUM_CITY_PLOTS; j++) // don't count city plot
+ 			{
+ 				CvPlot* pLoopPlot = pLoopCity->getCityIndexPlot(j);
+-				if (!pLoopPlot || !pLoopPlot->isRevealed(getID(), false) || pLoopPlot->getWorkingCity() != pLoopCity)
++				if (!pLoopPlot || !pLoopPlot->isRevealed(getID()) ||
++						pLoopPlot->getWorkingCity() != pLoopCity)
+ 					continue;
+ 
+ 				if (pLoopPlot->isWater() && !(bCoastal && pLoopPlot->calculateNatureYield(YIELD_FOOD, getID()) >= GC.getFOOD_CONSUMPTION_PER_POPULATION()))
+@@ -1581,10 +1582,9 @@ int CvTeamAI::AI_warSpoilsValue(TeamTypes eTarget, WarPlanTypes eWarPlan,
+ 			BonusTypes eBonus = pLoopPlot->getNonObsoleteBonusType(getID());
+ 			if (eBonus != NO_BONUS)
+ 			{
+-				if (pLoopPlot->isRevealed(getID(), false) && AI_isPrimaryArea(pLoopPlot->area()))
++				if (pLoopPlot->isRevealed(getID()) && AI_isPrimaryArea(pLoopPlot->area()))
+ 					bonuses[eBonus] += bTotalWar ? 60 : 20;
+-				else
+-					bonuses[eBonus] += bTotalWar ? 20 : 0;
++				else bonuses[eBonus] += bTotalWar ? 20 : 0;
+ 			}
+ 		}
+ 	}
+@@ -2430,17 +2430,11 @@ int CvTeamAI::AI_mapTradeVal(TeamTypes eTeam) const
+ 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+ 	{
+ 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(iI);
+-
+-		if (!(pLoopPlot->isRevealed(getID(), false)) && pLoopPlot->isRevealed(eTeam, false))
++		if (!pLoopPlot->isRevealed(getID(), false) && pLoopPlot->isRevealed(eTeam))
+ 		{
+ 			if (pLoopPlot->isWater())
+-			{
+ 				iValue++;
+-			}
+-			else
+-			{
+-				iValue += 5;
+-			}
++			else iValue += 5;
+ 		}
+ 	}
+ 
+@@ -2450,9 +2444,8 @@ int CvTeamAI::AI_mapTradeVal(TeamTypes eTeam) const
+ 		iValue *= 2; // </advc.136a>
+ 
+ 	if (GET_TEAM(eTeam).isVassal(getID()))
+-	{
+ 		iValue /= 2;
+-	}
++
+ 	return AI_roundTradeVal(iValue); // advc.104k
+ }
+ 
+@@ -4336,7 +4329,7 @@ DenialTypes CvTeamAI::AI_openBordersTrade(TeamTypes eTeam) const  // advc: some
+ 	for(int i = 0; i < GC.getMap().numPlots(); i++)
+ 	{
+ 		CvPlot const& kPlot = *GC.getMap().plotByIndex(i);
+-		if(kPlot.getTeam() == eTeam && kPlot.isRevealed(getID(), false) && !kPlot.isWater())
++		if(kPlot.getTeam() == eTeam && kPlot.isRevealed(getID()) && !kPlot.isWater())
+ 		{
+ 			bTheirLandRevealed = true;
+ 			break;
+@@ -5281,6 +5274,7 @@ void CvTeamAI::read(FDataStreamBase* pStream)
+ 
+ void CvTeamAI::write(FDataStreamBase* pStream)
+ {
++	PROFILE_FUNC(); // advc
+ 	CvTeam::write(pStream);
+ 
+ 	uint uiFlag=1;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index ba5140512..3a39b2052 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1949,7 +1949,7 @@ void CvUnit::updateFoundingBorder(bool bForceClear) const
+ 	if(pGoToPlot == NULL)
+ 		pCenter = plot();
+ 	else pCenter = pGoToPlot;
+-	if(pCenter == NULL || !pCenter->isRevealed(TEAMID(getOwner()), false) ||
++	if(pCenter == NULL || !pCenter->isRevealed(TEAMID(getOwner())) ||
+ 			(!atPlot(pCenter) && !canMoveInto(*pCenter)) || !canFound(pCenter))
+ 		return;
+ 	ColorTypes eColor = (ColorTypes)GC.getInfo(GET_PLAYER(getOwner()).
+@@ -2340,7 +2340,8 @@ bool CvUnit::willRevealByMove(const CvPlot* pPlot) const
+ 			CvPlot* pLoopPlot = ::plotXY(pPlot->getX(), pPlot->getY(), i, j);
+ 			if (NULL != pLoopPlot)
+ 			{
+-				if (!pLoopPlot->isRevealed(getTeam(), false) && pPlot->canSeePlot(pLoopPlot, getTeam(), visibilityRange(), NO_DIRECTION))
++				if (!pLoopPlot->isRevealed(getTeam()) && pPlot->canSeePlot(
++					pLoopPlot, getTeam(), visibilityRange(), NO_DIRECTION))
+ 				{
+ 					return true;
+ 				}
+@@ -2935,7 +2936,7 @@ bool CvUnit::jumpToNearestValidPlot(bool bGroup, bool bForceMove)
+ 					if (getDomainType() != DOMAIN_AIR ||
+ 							kLoopPlot.isFriendlyCity(*this, true))
+ 					{
+-						if (kLoopPlot.isRevealed(getTeam(), false))
++						if (kLoopPlot.isRevealed(getTeam()))
+ 						{
+ 							int iValue = (::plotDistance(plot(), &kLoopPlot) * 2);
+ 							// K-mod, 2/jan/11, karadoc - bForceMove functionality
+@@ -4283,7 +4284,7 @@ bool CvUnit::canAirBombAt(const CvPlot* pPlot, int iX, int iY) const
+ 			return false;*/
+ 		// K-Mod. Don't allow the player to bomb improvements that they don't know exist.
+ 		ImprovementTypes eActualImprovement = pTargetPlot->getImprovementType();
+-		ImprovementTypes eRevealedImprovement = pTargetPlot->getRevealedImprovementType(getTeam(), false);
++		ImprovementTypes eRevealedImprovement = pTargetPlot->getRevealedImprovementType(getTeam());
+ 
+ 		if (eActualImprovement == NO_IMPROVEMENT || eRevealedImprovement == NO_IMPROVEMENT)
+ 			return false;
+@@ -4673,7 +4674,7 @@ bool CvUnit::canPlunder(const CvPlot* pPlot, bool bTestVisible) const
+ 	if (!pPlot->isValidDomainForAction(*this))
+ 		return false;
+ 	// <advc.033>
+-	if(!pPlot->isRevealed(getTeam(), false) ||
++	if(!pPlot->isRevealed(getTeam()) ||
+ 			(pPlot != plot() && !canMoveInto(*pPlot) && !canMoveInto(*pPlot, true)))
+ 		return false; // </advc.033>
+ 	// advc:
+@@ -7580,8 +7581,10 @@ bool CvUnit::canBeAttackedBy(PlayerTypes eAttackingPlayer,
+ 		if (bTestCanAttack && !pAttacker->canAttack(*this))
+ 			return false;
+ 		/*  Previously, only the air combat limit was checked here. If either limit
+-			isn't reached, then some form of attack is possible. (A land or sea unit
+-			with range attack ability could have a regular attack ability in addition.) */
++			isn't reached, then some form of attack is possible. (For units that have
++			both a ranged attack and regular attack ability, the mode of attack
++			would have to be known in order to check the proper damage limit here.
++			So such units aren't supported.) */
+ 		int const iDamage = getDamage();
+ 		if (iDamage >= pAttacker->combatLimit() && iDamage >= pAttacker->airCombatLimit())
+ 			return false;
+@@ -8711,8 +8714,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
+ 		if (AI_getUnitAIType() != NO_UNITAI)
+ 			pOldPlot->area()->changeNumAIUnits(getOwner(), AI_getUnitAIType(), -1);
+ 
+-		if (isAnimal())
+-			pOldPlot->area()->changeAnimalsPerPlayer(getOwner(), -1);
++		/*if (isAnimal()) // advc: No longer tracked
++			pOldPlot->area()->changeAnimalsPerPlayer(getOwner(), -1);*/
+ 
+ 		if (pOldPlot->getTeam() != getTeam() && (pOldPlot->getTeam() == NO_TEAM ||
+ 			!GET_TEAM(pOldPlot->getTeam()).isVassal(getTeam())))
+@@ -8831,8 +8834,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
+ 		if (AI_getUnitAIType() != NO_UNITAI)
+ 			pNewPlot->area()->changeNumAIUnits(getOwner(), AI_getUnitAIType(), 1);
+ 
+-		if (isAnimal())
+-			pNewPlot->area()->changeAnimalsPerPlayer(getOwner(), 1);
++		/*if (isAnimal()) // advc: No longer tracked
++			pNewPlot->area()->changeAnimalsPerPlayer(getOwner(), 1);*/
+ 
+ 		if (pNewPlot->getTeam() != getTeam() && (pNewPlot->getTeam() == NO_TEAM || !GET_TEAM(pNewPlot->getTeam()).isVassal(getTeam())))
+ 			GET_PLAYER(getOwner()).changeNumOutsideUnits(1);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a2aced23c..96825e5ea 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -13198,7 +13198,7 @@ bool CvUnitAI::AI_explore()  // advc: style changes
+ 				continue;
+ 		}
+ 
+-		if (!pLoopPlot->isRevealed(getTeam(), false))
++		if (!pLoopPlot->isRevealed(getTeam()))
+ 			iValue += 10000;
+ 
+ 		for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++) // XXX is this too slow?
+@@ -13210,7 +13210,7 @@ bool CvUnitAI::AI_explore()  // advc: style changes
+ 			if (pAdjacentPlot == NULL)
+ 				continue;
+ 
+-			if (!pAdjacentPlot->isRevealed(getTeam(), false))
++			if (!pAdjacentPlot->isRevealed(getTeam()))
+ 				iValue += 1000;
+ 
+ 			/* original bts code
+@@ -13221,8 +13221,8 @@ bool CvUnitAI::AI_explore()  // advc: style changes
+ 			// K-Mod. Not only is the original code cheating, it also doesn't help us meet anyone!
+ 			// The goal here is to try to meet teams which we have already seen through map trading.
+ 			if (bNoContact &&
+-					// note: revealed owner can be set before the plot is actually revealed.
+-					pAdjacentPlot->getRevealedOwner(kTeam.getID(), false) != NO_PLAYER)
++				// note: revealed owner can be set before the plot is actually revealed.
++				pAdjacentPlot->getRevealedOwner(kTeam.getID()) != NO_PLAYER)
+ 			{
+ 				if (!kTeam.isHasMet(pAdjacentPlot->getRevealedTeam(kTeam.getID(), false)))
+ 					iValue += 100;
+@@ -13298,11 +13298,11 @@ bool CvUnitAI::AI_exploreRange(int iRange) // advc: style changes
+ 			if (pLoopPlot->isRevealedGoody(getTeam()))
+ 				iValue += 100000;
+ 
+-			if (!pLoopPlot->isRevealed(getTeam(), false))
++			if (!pLoopPlot->isRevealed(getTeam()))
+ 				iValue += 10000;
+ 
+ 			// K-Mod. Try to meet teams that we have seen through map trading
+-			if (pLoopPlot->getRevealedOwner(kTeam.getID(), false) != NO_PLAYER &&
++			if (pLoopPlot->getRevealedOwner(kTeam.getID()) != NO_PLAYER &&
+ 					!kTeam.isHasMet(pLoopPlot->getRevealedTeam(kTeam.getID(), false)))
+ 				iValue += 1000;
+ 			// K-Mod end
+@@ -13316,7 +13316,7 @@ bool CvUnitAI::AI_exploreRange(int iRange) // advc: style changes
+ 				if (pAdjacentPlot == NULL)
+ 					continue;
+ 
+-				if (!pAdjacentPlot->isRevealed(getTeam(), false))
++				if (!pAdjacentPlot->isRevealed(getTeam()))
+ 					iValue += 1000;
+ 			}
+ 
+@@ -14701,7 +14701,7 @@ bool CvUnitAI::AI_pirateBlockade()
+ 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(iI);
+ 		// advc: Reduce indentation
+ 		if(!AI_plotValid(pLoopPlot) ||
+-				!pLoopPlot->isRevealed(getTeam(), false) || // advc.opt
++				!pLoopPlot->isRevealed(getTeam()) || // advc.opt
+ 				pLoopPlot->isVisibleEnemyUnit(this) || !canPlunder(pLoopPlot) ||
+ 				//GC.getGame().getSorenRandNum(4, "AI Pirate Blockade") != 0 ||
+ 				/*  advc.033: Replacing the above. Should make Privateers a bit
+@@ -15481,7 +15481,7 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal)
+ 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+ 	{
+ 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(iI);
+-		if (!pLoopPlot->isRevealed(getTeam(), false))
++		if (!pLoopPlot->isRevealed(getTeam()))
+ 			continue;
+ 		if (!pLoopPlot->isOwned())
+ 			continue;
+@@ -16324,7 +16324,8 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ 		//if (pLoopPlot->isCoastalLand())
+ 		// K-Mod. Only consider areas we have explored, and only land if we know there is something we want to settle.
+ 		int iAreaBest; // (currently unused)
+-		if (pLoopPlot->isCoastalLand() && pLoopPlot->isRevealed(getTeam(), false) && GET_PLAYER(getOwner()).AI_getNumAreaCitySites(pLoopPlot->getArea(), iAreaBest) > 0)
++		if (pLoopPlot->isCoastalLand() && pLoopPlot->isRevealed(getTeam()) &&
++			GET_PLAYER(getOwner()).AI_getNumAreaCitySites(pLoopPlot->getArea(), iAreaBest) > 0)
+ 		// K-Mod end
+ 		{
+ 			int iValue = pLoopPlot->getFoundValue(getOwner());
+@@ -16855,7 +16856,7 @@ bool CvUnitAI::AI_specialSeaTransportSpy()
+ 	for (int i = 0; i < GC.getMap().numPlots(); i++)
+ 	{
+ 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(i);
+-		PlayerTypes ePlotOwner = pLoopPlot->getRevealedOwner(getTeam(), false);
++		PlayerTypes ePlotOwner = pLoopPlot->getRevealedOwner(getTeam());
+ 
+ 		// only consider coast plots, owned by civ teams, with base value greater than the current best
+ 		if (ePlotOwner == NO_PLAYER || ePlotOwner >= MAX_CIV_PLAYERS ||
+@@ -19152,7 +19153,7 @@ int CvUnitAI::AI_airOffenseBaseValue(CvPlot* pPlot)
+ 			{
+ 				if (pLoopPlot->area() == pPlot->area() && pLoopPlot->isOwned())
+ 				{	// <advc.001i>
+-					if(!pLoopPlot->isRevealed(getTeam(), false))
++					if(!pLoopPlot->isRevealed(getTeam()))
+ 						continue; // </advc.001i>
+ 					int iDistance = stepDistance(pPlot->getX(), pPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+ 					if(pLoopPlot->getTeam() != getTeam() &&
+@@ -19171,7 +19172,7 @@ int CvUnitAI::AI_airOffenseBaseValue(CvPlot* pPlot)
+ 							}
+ 							else if (iDistance == 2 && pLoopPlot->//isRoute()
+ 									// advc.001i:
+-									getRevealedRouteType(getTeam(), false))
++									getRevealedRouteType(getTeam()))
+ 								iBorderDanger += 2;
+ 						}
+ 					}
+@@ -20624,7 +20625,7 @@ bool CvUnitAI::AI_reconSpy(int iRange)  // advc: loops flattened
+ 				if (pAdjacentPlot == NULL)
+ 					continue;
+ 
+-				if (!pAdjacentPlot->isRevealed(getTeam(), false))
++				if (!pAdjacentPlot->isRevealed(getTeam()))
+ 					iValue += 500;
+ 				else if (!pAdjacentPlot->isVisible(getTeam(), false))
+ 					iValue += 200;
+@@ -21434,7 +21435,7 @@ int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ 	int iBonusValue = 0;
+ 	BonusTypes eNonObsoleteBonus = pPlot->isRevealed(
+ 			// K-Mod:
+-			getTeam(), false) ? pPlot->getNonObsoleteBonusType(pPlot->getTeam(), true) : NO_BONUS;
++			getTeam()) ? pPlot->getNonObsoleteBonusType(pPlot->getTeam(), true) : NO_BONUS;
+ 	if (eNonObsoleteBonus != NO_BONUS)
+ 	{
+ 		//iBonusValue = (GET_PLAYER(pPlot->getOwner()).AI_bonusVal(eNonObsoleteBonus));
+@@ -21456,7 +21457,7 @@ int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ 	if (getDomainType() != DOMAIN_AIR)
+ 	{
+ 		if (pPlot->//isRoute()
+-			getRevealedRouteType(getTeam(), false) != NO_ROUTE) // advc.001i
++			getRevealedRouteType(getTeam()) != NO_ROUTE) // advc.001i
+ 		{
+ 			iValue++;
+ 			if (eNonObsoleteBonus != NO_BONUS)
+@@ -21479,7 +21480,7 @@ int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ 
+ 					//if (!pAdjacentPlot->isRoute())
+ 					// advc.001i:
+-					if(pAdjacentPlot->getRevealedRouteType(getTeam(), false) == NO_ROUTE)
++					if(pAdjacentPlot->getRevealedRouteType(getTeam()) == NO_ROUTE)
+ 					{
+ 						if (!pAdjacentPlot->isWater() &&
+ 								!pAdjacentPlot->isImpassable())
+@@ -21495,7 +21496,7 @@ int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ 	else eImprovement = pPlot->getRevealedImprovementType(getTeam(), false);*/
+ 	ImprovementTypes eImprovement = pPlot->getImprovementDuration() > 20 ?
+ 			pPlot->getImprovementType() :
+-			pPlot->getRevealedImprovementType(getTeam(), false);
++			pPlot->getRevealedImprovementType(getTeam());
+ 	if (eImprovement != NO_IMPROVEMENT)
+ 	{
+ 		if (pPlot->getWorkingCity() != NULL)
+@@ -21588,7 +21589,7 @@ int CvUnitAI::AI_nukeValue(CvPlot* pCenterPlot, int iSearchRange, CvPlot*& pBest
+ 						bool bEnemy = isEnemy(pLoopPlot->getTeam(), pLoopPlot);
+ 						FAssert(bEnemy || pLoopPlot->getTeam() == getTeam()); // it is owned, and we aren't allowed to nuke neutrals; so it is either enemy or ours.
+ 
+-						ImprovementTypes eImprovement = pLoopPlot->getRevealedImprovementType(getTeam(), false);
++						ImprovementTypes eImprovement = pLoopPlot->getRevealedImprovementType(getTeam());
+ 						BonusTypes eBonus = pLoopPlot->getNonObsoleteBonusType(getTeam());
+ 						const CvPlayerAI& kPlotOwner = GET_PLAYER(pLoopPlot->getOwner());
+
+diff --git a/CvGameCoreDLL/CyArea.cpp b/CvGameCoreDLL/CyArea.cpp
+index 2c0d2b130..e8e0ba6ef 100644
+--- a/CvGameCoreDLL/CyArea.cpp
++++ b/CvGameCoreDLL/CyArea.cpp
+@@ -94,11 +94,6 @@ int CyArea::getUnitsPerPlayer(int /*PlayerTypes*/ eIndex)
+ 	return m_pArea ? m_pArea->getUnitsPerPlayer((PlayerTypes) eIndex) : -1;
+ }
+ 
+-int CyArea::getAnimalsPerPlayer(int /*PlayerTypes*/ eIndex)
+-{
+-	return m_pArea ? m_pArea->getAnimalsPerPlayer((PlayerTypes) eIndex) : -1;
+-}
+-
+ int CyArea::getCitiesPerPlayer(int /*PlayerTypes*/ eIndex)
+ {
+ 	return m_pArea ? m_pArea->getCitiesPerPlayer((PlayerTypes) eIndex) : -1;
+
+diff --git a/CvGameCoreDLL/CyArea.h b/CvGameCoreDLL/CyArea.h
+index e261c480a..775831f7f 100644
+--- a/CvGameCoreDLL/CyArea.h
++++ b/CvGameCoreDLL/CyArea.h
+@@ -36,7 +36,6 @@ public:
+ 	bool isWater();
+ 
+ 	int getUnitsPerPlayer(int /*PlayerTypes*/ eIndex);
+-	int getAnimalsPerPlayer(int /*PlayerTypes*/ eIndex);
+ 	int getCitiesPerPlayer(int /*PlayerTypes*/ eIndex);
+ 	int getPopulationPerPlayer(int /*PlayerTypes*/ eIndex);
+ 	int getBuildingGoodHealth(int /*PlayerTypes*/ eIndex);
+
+diff --git a/CvGameCoreDLL/CyAreaInterface.cpp b/CvGameCoreDLL/CyAreaInterface.cpp
+index 68de424d2..b9b617e2e 100644
+--- a/CvGameCoreDLL/CyAreaInterface.cpp
++++ b/CvGameCoreDLL/CyAreaInterface.cpp
+@@ -29,7 +29,8 @@ void CyAreaPythonInterface()
+ 		.def("isWater", &CyArea::isWater, "bool () - Returns whether or not this area is water")
+ 
+ 		.def("getUnitsPerPlayer", &CyArea::getUnitsPerPlayer, "int (int (PlayerTypes) iIndex) - Returns the number of units in this area for this player")
+-		.def("getAnimalsPerPlayer", &CyArea::getAnimalsPerPlayer, "int (int (PlayerTypes) iIndex) - Returns the number of animal units in this area for this player")
++		// advc: Was unused. CvArea no longer keeps track of animal counts.
++		//.def("getAnimalsPerPlayer", &CyArea::getAnimalsPerPlayer, "int (int (PlayerTypes) iIndex) - Returns the number of animal units in this area for this player")
+ 		.def("getCitiesPerPlayer", &CyArea::getCitiesPerPlayer, "int (int (PlayerTypes) iIndex) - Returns the number of cities in this area for this player")
+ 		.def("getPopulationPerPlayer", &CyArea::getPopulationPerPlayer, "int (int (PlayerTypes) iIndex) - Returns the total population of this area for this player")
+ 		.def("getBuildingGoodHealth", &CyArea::getBuildingGoodHealth, "int (int (PlayerTypes) iIndex) - Returns ?")
+
+diff --git a/CvGameCoreDLL/CyPlot.cpp b/CvGameCoreDLL/CyPlot.cpp
+index 5ba0e4a58..72497c9b4 100644
+--- a/CvGameCoreDLL/CyPlot.cpp
++++ b/CvGameCoreDLL/CyPlot.cpp
+@@ -993,14 +993,16 @@ bool CyPlot::changeBuildProgress(int /*BuildTypes*/ eBuild, int iChange, int /*P
+ 			(PlayerTypes)ePlayer) : false;
+ }
+ 
+-int CyPlot::getCultureRangeCities(int /*PlayerTypes*/ eOwnerIndex, int iRangeIndex)
++int CyPlot::getCultureRangeCities(int eOwnerIndex, int eRangeIndex)
+ {
+-	return m_pPlot ? m_pPlot->getCultureRangeCities((PlayerTypes) eOwnerIndex, iRangeIndex) : -1;
++	return m_pPlot ? m_pPlot->getCultureRangeCities((PlayerTypes)eOwnerIndex,
++			(CultureLevelTypes)eRangeIndex) : -1;
+ }
+ 
+-bool CyPlot::isCultureRangeCity(int /*PlayerTypes*/ eOwnerIndex, int iRangeIndex)
++bool CyPlot::isCultureRangeCity(int eOwnerIndex, int eRangeIndex)
+ {
+-	return m_pPlot ? m_pPlot->isCultureRangeCity((PlayerTypes) eOwnerIndex, iRangeIndex) : false;
++	return m_pPlot ? m_pPlot->isCultureRangeCity((PlayerTypes) eOwnerIndex,
++		(CultureLevelTypes)eRangeIndex) : false;
+ }
+ 
+ int CyPlot::getInvisibleVisibilityCount(int /*TeamTypes*/ eTeam, int /*InvisibleTypes*/ eInvisible)
+
+diff --git a/CvGameCoreDLL/CyPlot.h b/CvGameCoreDLL/CyPlot.h
+index 7c6e2b8d2..182c63196 100644
+--- a/CvGameCoreDLL/CyPlot.h
++++ b/CvGameCoreDLL/CyPlot.h
+@@ -249,8 +249,8 @@ public:
+ 	// advc.251: Last param now ePlayer
+ 	bool changeBuildProgress(int /*BuildTypes*/ eBuild, int iChange, int /*PlayerTypes*/ ePlayer);
+ 
+-	int getCultureRangeCities(int /*PlayerTypes*/ eOwnerIndex, int iRangeIndex);
+-	bool isCultureRangeCity(int /*PlayerTypes*/ eOwnerIndex, int iRangeIndex);
++	int getCultureRangeCities(int /*PlayerTypes*/ eOwnerIndex, /*CultureLevelTypes*/int eRangeIndex);
++	bool isCultureRangeCity(int /*PlayerTypes*/ eOwnerIndex, /*CultureLevelTypes*/int eRangeIndex);
+ 
+ 	int getInvisibleVisibilityCount(int /*TeamTypes*/ eTeam, int /*InvisibleTypes*/ eInvisible);
+ 	bool isInvisibleVisible(int /*TeamTypes*/ eTeam, int /*InvisibleTypes*/ eInvisible);
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 564d47bf2..1c8821d9f 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -1,62 +1,75 @@
+ /*  advc.enum: From the "We the People" (WtP) mod for Civ4Col, original author: Nightinggale,
+-	who is still working on the EnumMap classes. This version is from 13 Oct 2019.
++	who is still working on the EnumMap classes. This version is from 18 Oct 2019.
+ 	I have -for now- omitted the WtP serialization functions, and uncoupled the
+ 	code from the Perl-generated enums that WtP uses. Instead of defining
+ 	ArrayLength functions, the getEnumLength functions that AdvCiv defines in
+ 	CvEnums.h and CvGlobals.h are used.
++	Removed some inline keywords and downgraded some __forceinline to inline.
++	In particular, I don't use an inline keyword when there is any conditional branching.
++	(Could experiment with this some more once the class is complete and used everywhere.)
+ 	Formatting: linebreaks added before scope resolution operators. */
+ 
+ #ifndef ENUM_MAP_H
+ #define ENUM_MAP_H
+ #pragma once
+ 
++#include "BitUtil.h" // advc.enum: For bitwise operations; WtP uses CvGameCoreDLL.h for that.
++
+ // advc: Moved up; (VS2010) IntelliSense needs it here.
+ template <class T> struct EnumMapGetDefault {};
+ 
+ 
+-//
+ // EnumMap is a special case of map where there is a <key,value> pair for each key in an enum.
+ // docs.oracle.com/en/java/javase/13/docs/api/java.base/java/util/EnumMap.html
+ //
+ // Put in civ4 terms, it's an array with a fixed length and automated memory management.
+-// The length is either the length of an xml file (like UnitTypes) or a fixed value (like MAX_PLAYERS)
++// Memory is allocated using a lazy approach and occationally freed as well if it doesn't matter outside the class.
++// This means, like say std::vector, it can be used without considering memory allocations at all and it can't leak.
+ //
+ // The array is set up with template parameters as this allows "arguments" to the default constructor.
+ // Often an array of arrays can only use the default constructor for the inner array, making flexible default
+ // constructors important.
+ //
+-// In most cases only the first two parameters need to be set. The last two only benefit from non-default values
+-// in very special cases.
+-//
+-// Template parameters:
+-//    IndexType: the type, which is used for index and array size.
+-//       For instance PlayerTypes means get will require a PlayerTypes argument and the array size is MAX_PLAYERS.
++// Strict with types in arguments and assert checks (both compile and runtime) in order to catch bugs.
++// Highly optimized for performance (particularly with hardcoded xml lengths) and low memory usage.
+ //
+-//    T: the data stored in the array. This is usually of the int family, but it can also be enums.
++// Example usage:
++// EnumMap<YieldTypes,bool>
++// EnumMap<BuildingTypes,int>
++// EnumMap<TeamTypes, PlayerTypes>
+ //
+-//    DEFAULT: (optional) sets the value the array will init to
+-//      If not mentioned, the value will be set by which type T is. 0 for int family and -1 (NO_) for enums
+-//      Note: using default and calling setAll() is preferred. See below.
+-//
+-//    T_SUBSET: (optional) Sets the range of the array if a subset is needed.
+-//      If you have an IndexType with a length of 100, but you only need 70-75, setting a nondefault here,
+-//      can make the array contain 6 items, which is then accessed with indexes 70-75
+-//      Default value will use IndexType, meaning it goes from 0 to 
+-//	[advc: LengthType is mostly unused in the code I've merged; used more in WtP for serialization.]
+-//
+-// Try to keep the different types of parameters to a minimum. Each time a new set is used, a new set is compiled.
+-// Example:
+-//   EnumMap<PlayerTypes, int> A;
+-//   EnumMap<PlayerTypes, int, 1> B;
+-// This will create two different functions, compile and include both into the DLL file.
+-//   EnumMap<PlayerTypes, int> A;
+-//   EnumMap<PlayerTypes, int> B;
+-//   B.setAll(1);
+-// Same result, but since they now share the same parameters, the compiler will only make one set, which they will both call.
+-// It's not a major issue to make multiple, partly because most calls are inline anyway, but it should be mentioned.
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET = IndexType,
+-		 class LengthType = IndexType, int SIZE = EnumMapGetDefault<T>::SIZE,
+-		 int SIZE_OF_T = EnumMapGetDefault<T>::SIZE_OF_T>
++// See the end of the file for (often unneeded) additionaly features, like disabling type checks and altering default values.
++// DEFAULT is 0, except if the second parameter is an enum, in which case the default is -1 (like NO_PLAYER)
++
++enum
++{
++	ENUMMAP_SIZE_NATIVE,
++	ENUMMAP_SIZE_1_BYTE,
++	ENUMMAP_SIZE_2_BYTE,
++	ENUMMAP_SIZE_BOOL,
++
++	// max bytes used by class instance
++	// used for determining if an array should be inside the class instance instead of a pointer.
++	// this saves memory I/O, but with the tradeoff of making the instance bigger, which is not always wanted.
++	// This is particularly useful if the array is no bigger than a pointer, like a char array of length 3-4.
++	//
++	// Note: the compiler will use 4 byte alignment, meaning this works best if set to a multiple of 4
++	ENUMMAP_MAX_BYTES = 4,
++
++	// set how many bits can be inlined in the class itself
++	// if a bool array has <= this number of bits, then, instead of allocating memory elsewhere,
++	// the data will be placed in the class itself
++	ENUMMAP_MAX_INLINE_BOOL = 64,
++
++	// bitmasks to get the bits, which gives the indexes to store 8 or 32 bit.
++	// modulo is slow at runtime, binary AND is fast. They give the same result in this case.
++	// Maybe the compiler will optimize to a binary and, but explicitly writing it means we are certain it will optimize.
++	// In fact this way it's "optimized" even in debug builds.
++	//ENUMMAP_BITMASK_8_BIT = 7, // advc: unused for now
++	ENUMMAP_BITMASK_32_BIT = 0x1F,
++};
++
++template<class IndexType, class T, int DEFAULT, class T_SUBSET = IndexType, class LengthType = IndexType>
+ class EnumMapBase
+ {
+ public:
+@@ -97,45 +110,75 @@ public:
+ 	// memory allocation and freeing
+ 	void reset();
+ 	void setAll(T eValue);
+-private:
+-	void allocate();
+ 
+-public:
+-	void Read(/* advc: */ FDataStreamBase* pStream);
+-	void Write(/* advc: */ FDataStreamBase* pStream) const;
++	void Read(/* advc: */ FDataStreamBase* pStream, bool bAsInt = true, bool bAsShort = false);
++	void Write(/* advc: */ FDataStreamBase* pStream, bool bAsInt = true) const;
++
++	////
++	//// End of functions
++	//// There is no need to keep reading this class declaration unless you are interested in the internal implementation
++	////
++private: // Compile-time constants (advc: private)
++	static const int SIZE = EnumMapGetDefault<T>::SIZE;
++	static const int SIZE_OF_T = EnumMapGetDefault<T>::SIZE_OF_T;
++	// advc: Renamed from LENGTH; can't guarantee a length for types loaded from XML.
++	static const int MAX_LENGTH = EnumMapGetDefault<LengthType>::MAX_LENGTH;
+ 
++	static const bool bINLINE_NATIVE = (SIZE == ENUMMAP_SIZE_NATIVE && (MAX_LENGTH * SIZE_OF_T) <= ENUMMAP_MAX_BYTES);
++	static const int NUM_NATIVE_BLOCKS = (bINLINE_NATIVE ? MAX_LENGTH : 1);
++
++	static const bool bINLINE_1_BYTE = (SIZE == ENUMMAP_SIZE_1_BYTE && (MAX_LENGTH * SIZE_OF_T) <= ENUMMAP_MAX_BYTES);
++	static const int NUM_1_BYTE_BLOCKS = (bINLINE_1_BYTE ? MAX_LENGTH : 1);
++
++	static const bool bINLINE_2_BYTE = (SIZE == ENUMMAP_SIZE_2_BYTE && (MAX_LENGTH * SIZE_OF_T) <= ENUMMAP_MAX_BYTES);
++	static const int NUM_2_BYTE_BLOCKS = (bINLINE_2_BYTE ? MAX_LENGTH : 1);
++
++	static const bool bINLINE_BOOL = (SIZE == ENUMMAP_SIZE_BOOL && MAX_LENGTH <= ENUMMAP_MAX_INLINE_BOOL);
++	static const int NUM_BOOL_BLOCKS = bINLINE_BOOL ? (MAX_LENGTH + 31) / 32 : 1;
++	static const unsigned int BOOL_BLOCK_DEFAULT = DEFAULT ? MAX_UNSIGNED_INT : 0;
++
++	static const bool bINLINE = (bINLINE_NATIVE || bINLINE_1_BYTE || bINLINE_2_BYTE || bINLINE_BOOL);
++
++public:
+ 	// operator overload
+ 	EnumMapBase& operator=(const EnumMapBase &rhs);
+ 	
+-	template<class T2, int DEFAULT2, int SIZE2, int SIZE_OF_T2>
+-	EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>&
+-			operator= (const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET,
+-			LengthType, SIZE2, SIZE_OF_T2> &rhs);
+-	template<class T2, int DEFAULT2, int SIZE2, int SIZE_OF_T2>
+-	EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>&
+-			operator+= (const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET,
+-			LengthType, SIZE2, SIZE_OF_T2> &rhs);
+-	template<class T2, int DEFAULT2, int SIZE2, int SIZE_OF_T2>
+-	EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>&
+-			operator-= (const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET,
+-			LengthType, SIZE2, SIZE_OF_T2> &rhs);
+-	template<class T2, int DEFAULT2, int SIZE2, int SIZE_OF_T2>
+-	bool operator == (const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET,
+-			LengthType, SIZE2, SIZE_OF_T2> &rhs) const;
+-	template<class T2, int DEFAULT2, int SIZE2, int SIZE_OF_T2>
+-	bool operator != (const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET,
+-			LengthType, SIZE2, SIZE_OF_T2> &rhs) const;
++	template<class T2, int DEFAULT2>
++	EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>&
++			operator=(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType> &rhs);
++	template<class T2, int DEFAULT2>
++	EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>&
++			operator+=(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType> &rhs);
++	template<class T2, int DEFAULT2>
++	EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>&
++			operator-=(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType> &rhs);
++	template<class T2, int DEFAULT2>
++	bool operator==(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType> &rhs) const;
++	template<class T2, int DEFAULT2>
++	bool operator!=(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType> &rhs) const;
+ 	
+ 
+ private:
+ 
++	// the actual memory in this class
++    // since it's a union, the goal is to keep all of them to 4 bytes
++    // the exception is when bINLINE is set and is allowed to use more than 4 bytes
++    // an example of this is <PlayerTypes, bool> has a bool for each player, hence 8 bytes
+ 	union
+ 	{
+-		T     * m_pArrayFull;
+-		short * m_pArrayShort;
+-		char  * m_pArrayChar;
++		T* m_pArrayFull;
++		short* m_pArrayShort;
++		char* m_pArrayChar;
++		unsigned int* m_pArrayBool;
++
++		T m_InlineNative[NUM_NATIVE_BLOCKS];
++		char m_Inline_1_byte[NUM_1_BYTE_BLOCKS];
++		short m_Inline_2_byte[NUM_2_BYTE_BLOCKS];
++    	unsigned int m_InlineBoolArray[NUM_BOOL_BLOCKS];
+ 	};
+ 
++	// the code will technically still work if this fails, but it will waste memory
++	BOOST_STATIC_ASSERT(sizeof(T) <= 4 || bINLINE_NATIVE);
+ 	enum
+ 	{
+ 		SAVE_ARRAY_MULTI_BYTE,
+@@ -157,6 +200,286 @@ private:
+ 			last = (IndexType)0;
+ 		}
+ 	};
++
++	// bool helpers
++	int getBoolArrayBlock(int iIndex) const
++	{
++		if (bINLINE_BOOL && NUM_BOOL_BLOCKS == 1)
++		{
++			// hardcode only using first block in arrays hardcoded to only use one block
++			// with a bit of luck the compiler can optimize the array code away completely
++			FAssert(iIndex < 32);
++			return 0;
++		}
++		else return iIndex / 32;
++	}
++	// advc: This one had no inline keyword
++	__forceinline int getBoolArrayIndexInBlock(int iIndex) const
++	{
++		return iIndex & ENUMMAP_BITMASK_32_BIT;
++	}
++
++	////
++	//// Specialized functions
++	////
++	//// The idea is that the "outside world" calls a non-template function,
++	//// which then calls a template function for the same purpose.
++	//// This allows the outside world to stay simple (get/set etc) while at the same time
++	//// allowing specialized functions for each.
++	//// This makes it easier for the compiler to optimize and allows more code.
++	//// The key difference is that before the compiler would compile for all cases and then hopefully
++	//// discard unused cases. Now it only compiles the specialized case matching the class templates in question.
++	//// This allows code, which calls overloaded functions, which doesn't support all cases of all template classes.
++	////
++	//// Written inside the class declaration due to a C++ limitation.
++	//// According to the standard, partial specialized functions aren't allowed and
++	//// specialized functions can't be used for unspecialized template classes.
++	//// However written inside the class declaration, the compiler treats the class as specialized,
++	//// hence allowing specialized functions
++	////
++
++	// declarations
++	// to avoid being mixed with what the outside world calls, all of them are private and have a _ prefix
++
++	template <bool bInline, int iSize>
++	T _get(int iIndex) const;
++
++	template <bool bInline, int iSize>
++	void _set(int iIndex, T eValue);
++
++	template <bool bInline, int iSize>
++	void _allocate(T eValue = (T)DEFAULT);
++
++	template <bool bInline, int iSize>
++	void _setAll(T val);
++
++	template <bool bInline>
++	int _getNumBoolBlocks() const;
++
++	template <int iSize>
++	void _Read(/* advc: */ FDataStreamBase* pStream, bool bAsInt = true, bool bAsShort = false);
++
++	template <int iSize>
++	void _Write(/* advc: */ FDataStreamBase* pStream, bool bAsInt = true) const;
++
++	//
++	// The actual specialized impletation of the functions
++	//
++
++	// get  (advc: were all force-inlined)
++	template<>
++	T _get<false, ENUMMAP_SIZE_NATIVE>(int iIndex) const
++	{
++		return (T)(m_pArrayFull ? m_pArrayFull[iIndex] : DEFAULT);
++	}
++	template<>
++	T _get<false, ENUMMAP_SIZE_1_BYTE>(int iIndex) const
++	{
++		return (T)(m_pArrayChar ? m_pArrayChar[iIndex] : DEFAULT);
++	}
++	template<>
++	T _get<false, ENUMMAP_SIZE_2_BYTE>(int iIndex) const
++	{
++		return (T)(m_pArrayShort ? m_pArrayShort[iIndex] : DEFAULT);
++	}
++	template<>
++	T _get<false, ENUMMAP_SIZE_BOOL>(int iIndex) const
++	{
++		return m_pArrayBool ? BitUtil::HasBit(m_pArrayBool[getBoolArrayBlock(iIndex)], getBoolArrayIndexInBlock(iIndex)) : DEFAULT;
++	}
++	template<>
++	__forceinline T _get<true, ENUMMAP_SIZE_NATIVE>(int iIndex) const
++	{
++		return m_InlineNative[iIndex];
++	}
++	template<>
++	__forceinline T _get<true, ENUMMAP_SIZE_1_BYTE>(int iIndex) const
++	{
++		return (T)m_Inline_1_byte[iIndex];
++	}
++	template<>
++	__forceinline T _get<true, ENUMMAP_SIZE_2_BYTE>(int iIndex) const
++	{
++		return (T)m_Inline_2_byte[iIndex];
++	}
++	template<>
++	inline T _get<true, ENUMMAP_SIZE_BOOL>(int iIndex) const
++	{
++		return BitUtil::HasBit(m_InlineBoolArray[getBoolArrayBlock(iIndex)], getBoolArrayIndexInBlock(iIndex));
++	}
++
++	// set
++	template<>
++	__forceinline void _set<false, ENUMMAP_SIZE_NATIVE>(int iIndex, T eValue)
++	{
++		m_pArrayFull[iIndex] = eValue;
++	}
++	template<>
++	__forceinline void _set<false, ENUMMAP_SIZE_1_BYTE>(int iIndex, T eValue)
++	{
++		m_pArrayChar[iIndex] = eValue;
++	}
++	template<>
++	__forceinline void _set<false, ENUMMAP_SIZE_2_BYTE>(int iIndex, T eValue)
++	{
++		m_pArrayShort[iIndex] = eValue;
++	}
++	template<>
++	inline void _set<false, ENUMMAP_SIZE_BOOL>(int iIndex, T eValue)
++	{
++		BitUtil::SetBit(m_pArrayBool[getBoolArrayBlock(iIndex)], getBoolArrayIndexInBlock(iIndex), eValue ? 1 : 0);
++	}
++	template<>
++	__forceinline void _set<true, ENUMMAP_SIZE_NATIVE>(int iIndex, T eValue)
++	{
++		m_InlineNative[iIndex] = eValue;
++	}
++	template<>
++	__forceinline void _set<true, ENUMMAP_SIZE_1_BYTE>(int iIndex, T eValue)
++	{
++		m_Inline_1_byte[iIndex] = eValue;
++	}
++	template<>
++	__forceinline void _set<true, ENUMMAP_SIZE_2_BYTE>(int iIndex, T eValue)
++	{
++		m_Inline_2_byte[iIndex] = eValue;
++	}
++	template<>
++	inline void _set<true, ENUMMAP_SIZE_BOOL>(int iIndex, T eValue)
++	{
++		BitUtil::SetBit(m_InlineBoolArray[getBoolArrayBlock(iIndex)], getBoolArrayIndexInBlock(iIndex), eValue ? 1 : 0);
++	}
++
++	// setAll
++	template<>
++	__forceinline void _setAll<false, ENUMMAP_SIZE_NATIVE>(T eValue)
++	{
++		std::fill_n(m_pArrayFull, numElements(), eValue);
++	}
++	template<>
++	__forceinline void _setAll<false, ENUMMAP_SIZE_1_BYTE>(T eValue)
++	{
++		std::fill_n(m_pArrayChar, numElements(), eValue);
++	}
++	template<>
++	__forceinline void _setAll<false, ENUMMAP_SIZE_2_BYTE>(T eValue)
++	{
++		std::fill_n(m_pArrayShort, numElements(), eValue);
++	}
++	template<>
++	__forceinline void _setAll<false, ENUMMAP_SIZE_BOOL>(T eValue)
++	{
++		// advc: <bInline> param appears to have been missing
++		std::fill_n(m_pArrayBool, _getNumBoolBlocks<bINLINE_BOOL>(), eValue ? MAX_UNSIGNED_INT : 0);
++	}
++	template<>
++	__forceinline void _setAll<true, ENUMMAP_SIZE_NATIVE>(T eValue)
++	{
++		std::fill_n(&m_InlineNative[0], numElements(), eValue);
++	}
++	template<>
++	__forceinline void _setAll<true, ENUMMAP_SIZE_1_BYTE>(T eValue)
++	{
++		std::fill_n(&m_Inline_1_byte[0], numElements(), eValue);
++	}
++	template<>
++	__forceinline void _setAll<true, ENUMMAP_SIZE_2_BYTE>(T eValue)
++	{
++		std::fill_n(&m_Inline_2_byte[0], numElements(), eValue);
++	}
++	template<>
++	__forceinline void _setAll<true, ENUMMAP_SIZE_BOOL>(T eValue)
++	{
++		// advc: <bInline> param appears to have been missing
++		std::fill_n(&m_InlineBoolArray[0], _getNumBoolBlocks<bINLINE>(), eValue ? MAX_UNSIGNED_INT : 0);
++	}
++
++	// allocate
++	template<>
++	void _allocate<false, ENUMMAP_SIZE_NATIVE>(T eValue)
++	{
++		FAssert(m_pArrayFull == NULL);
++		m_pArrayFull = new T[numElements()];
++		_setAll<bINLINE, SIZE>(eValue);
++	}
++	template<>
++	void _allocate<false, ENUMMAP_SIZE_1_BYTE>(T eValue)
++	{
++		FAssert(m_pArrayChar == NULL);
++		m_pArrayChar = new char[numElements()];
++		_setAll<bINLINE, SIZE>(eValue);
++	}
++	template<>
++	void _allocate<false, ENUMMAP_SIZE_2_BYTE>(T eValue)
++	{
++		FAssert(m_pArrayShort == NULL);
++		m_pArrayShort = new short[numElements()];
++		_setAll<bINLINE, SIZE>(eValue);
++	}
++	template<>
++	void _allocate<false, ENUMMAP_SIZE_BOOL>(T eValue)
++	{
++		FAssert(m_pArrayBool == NULL);
++		m_pArrayBool = new unsigned int[_getNumBoolBlocks<bINLINE>()];
++		_setAll<bINLINE, SIZE>(eValue);
++	}
++	template<>
++	void _allocate<true, ENUMMAP_SIZE_NATIVE>(T eValue)
++	{
++		FAssertMsg(false, "EnumMap::_allocate shouldn't be called for classes with inline memory");
++	}
++	template<>
++	void _allocate<true, ENUMMAP_SIZE_1_BYTE>(T eValue)
++	{
++		FAssertMsg(false, "EnumMap::_allocate shouldn't be called for classes with inline memory");
++	}
++	template<>
++	void _allocate<true, ENUMMAP_SIZE_2_BYTE>(T eValue)
++	{
++		FAssertMsg(false, "EnumMap::_allocate shouldn't be called for classes with inline memory");
++	}
++	template<>
++	void _allocate<true, ENUMMAP_SIZE_BOOL>(T eValue)
++	{
++		FAssertMsg(false, "EnumMap::_allocate shouldn't be called for classes with inline memory");
++	}
++
++	////
++	//// bool specialization
++	////
++
++	template <>
++	__forceinline int _getNumBoolBlocks<false>() const
++	{
++		return (numElements() + 31) / 32;
++	}
++
++	template <>
++	__forceinline int _getNumBoolBlocks<true>() const
++	{
++		return NUM_BOOL_BLOCKS;
++	}
++
++	template<>
++	void _Read<ENUMMAP_SIZE_BOOL>(/* <advc> */ FDataStreamBase* pStream, bool bAsInt, bool bAsShort)
++	{
++		// (ignore bAsInt, bAsShort)
++		for (IndexType eIndex = First(); eIndex < getLength(); ++eIndex)
++		{
++			bool bTmp;
++			pStream->Read(&bTmp);
++			set(eIndex, bTmp);
++		}
++	} 
++	
++	template<>
++	void _Write<ENUMMAP_SIZE_BOOL>(/* <advc> */ FDataStreamBase* pStream, bool bAsInt) const
++	{
++		// (ignore bAsInt)
++		for (IndexType eIndex = First(); eIndex < getLength(); ++eIndex)
++			pStream->Write(get(eIndex));
++		// </advc>
++	}
+ };
+ 
+ //
+@@ -176,46 +499,53 @@ private:
+ //
+ 
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++inline EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::EnumMapBase() : m_pArrayFull(NULL)
+ {
+-	FAssertMsg(sizeof(*this) == 4, "EnumMap is supposed to only contain a pointer");
++	// bools can only default to 0 or 1
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL || DEFAULT == 0 || DEFAULT == 1);
++	FAssertMsg(bINLINE_BOOL || sizeof(*this) == 4, "EnumMap is supposed to only contain a pointer");
+ 	FAssertMsg(getLength() >= 0 && getLength() <= getEnumLength((LengthType)0, false), "Custom length out of range");
+ 	FAssertMsg(First() >= 0 && First() <= getLength(), "Custom length out of range");
++
++	if (bINLINE)
++	{
++		this->setAll((T)DEFAULT);
++	}
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++inline EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::~EnumMapBase()
+ {
+ 	reset();
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-__forceinline T EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++__forceinline T EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::getDefault() const
+ {
+ 	return (T)DEFAULT;
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-__forceinline IndexType EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++__forceinline IndexType EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::First() const
+ {
+ 	//return ArrayStart((T_SUBSET)0);
+ 	return (T_SUBSET)0; // advc: Get rid of the ArrayStart function
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-__forceinline IndexType EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++__forceinline IndexType EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::getLength() const
+ {
+ 	return getEnumLength((T_SUBSET)0, false);
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-__forceinline IndexType EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++__forceinline IndexType EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::numElements() const
+ {
+ 	// apparently subtracting two IndexTypes results in int, not IndexType
+@@ -223,46 +553,37 @@ __forceinline IndexType EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType,
+ }
+ 
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline T EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++__forceinline T EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::get(IndexType eIndex) const
+ {
+ 	FAssert(eIndex >= First() && eIndex < getLength());
+-
+-	switch (SIZE)
+-	{
+-	case 1:  return (T)(m_pArrayChar  ? m_pArrayChar [eIndex - First()] : DEFAULT);
+-	case 2:  return (T)(m_pArrayShort ? m_pArrayShort[eIndex - First()] : DEFAULT);
+-	default: return (T)(m_pArrayFull  ? m_pArrayFull [eIndex - First()] : DEFAULT);
+-	}
++	return _get<bINLINE, SIZE>(eIndex - First());
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++// advc: was inline
++void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::set(IndexType eIndex, T eValue)
+ {
+ 	FAssert(eIndex >= First() && eIndex < getLength());
+-	if (m_pArrayFull == NULL)
++	if (!bINLINE && m_pArrayFull == NULL)
+ 	{
+ 		if (eValue == DEFAULT) 
+ 		{
+ 			return;
+ 		}
+-		allocate();
+-	}
+-
+-	switch (SIZE)
+-	{
+-	case 1:  m_pArrayChar [eIndex - First()] = (char )eValue; break;
+-	case 2:  m_pArrayShort[eIndex - First()] = (short)eValue; break;
+-	default: m_pArrayFull [eIndex - First()] =        eValue; break;
++		_allocate<bINLINE_BOOL, SIZE>();
+ 	}
++	_set<bINLINE, SIZE>(eIndex - First(), eValue);
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++// advc: was inline
++void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::add(IndexType eIndex, T eValue)
+ {
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
+ 	FAssert(eIndex >= First() && eIndex < getLength());
+ 	if (eValue != 0)
+ 	{
+@@ -270,28 +591,33 @@ inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_
+ 	}
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
++// advc: was inline
+ ::safeSet(IndexType eIndex, T eValue)
+ {
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
+ 	if (eIndex >= First() && eIndex < getLength())
+ 	{
+ 		set(eIndex, eValue);
+ 	}
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
++// advc: was inline
+ ::safeAdd(IndexType eIndex, T eValue)
+ {
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
+ 	if (eIndex >= First() && eIndex < getLength())
+ 	{
+ 		add(eIndex, eValue);
+ 	}
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++// advc: inline removed
++void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::addAll(T eValue)
+ {
+ 	if (eValue != 0)
+@@ -303,38 +629,71 @@ inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_
+ 	}
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++inline bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::isAllocated() const
+ {
+-	return m_pArrayFull != NULL;
++	return bINLINE || m_pArrayFull != NULL;
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++// advc: inline removed
++bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::hasContent() const
+ {
+-	if (m_pArrayFull != NULL)
++	if (bINLINE_BOOL)
+ 	{
+-		for (IndexType eIndex = (IndexType)0; eIndex < numElements(); ++eIndex)
+-		{
+-			if (get(eIndex) != DEFAULT)
++		for (int i = 0; i < NUM_BOOL_BLOCKS; ++i)
++		{	// advc: was m_pArrayBool (bug? work in progress?)
++			if (m_InlineBoolArray[i] != BOOL_BLOCK_DEFAULT)
+ 			{
+ 				return true;
+ 			}
+ 		}
++		return false;
++	}
++	if (bINLINE || m_pArrayFull != NULL)
++	{
++		if (SIZE == ENUMMAP_SIZE_BOOL)
++		{
++			FAssertMsg(m_pArrayBool != NULL, "reset not called?"); // advc
++			const int iNumBlocks = _getNumBoolBlocks<bINLINE_BOOL>();
++			for (int i = 0; i < iNumBlocks; ++i)
++			{	// advc: was m_pArrayBool
++				if (m_InlineBoolArray[i] != BOOL_BLOCK_DEFAULT)
++				{
++					return true;
++				}
++			}
++		}
++		else
++		{
++			for (IndexType eIndex = (IndexType)0; eIndex < numElements(); ++eIndex)
++			{
++				if (get(eIndex) != DEFAULT)
++				{
++					return true;
++				}
++			}
++		}
+ 		// now we cheat and alter data despite being const.
+ 		// We just detected all data to be of the default value, meaning the array is not used.
+ 		// Release the data to save memory. It won't change how the outside world view the EnumMap.
+-		(const_cast <EnumMapBase*> (this))->reset();
++		if (!bINLINE)
++		{
++			(const_cast <EnumMapBase*> (this))->reset();
++		}
+ 	}
+ 	return false;
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline T EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++// advc: inline removed
++T EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::getMin() const
+ {
++	BOOST_STATIC_ASSERT(false); // implementation isn't generic yet
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
+ 	if (m_pArray == NULL)
+ 	{
+ 		return DEFAULT;
+@@ -342,10 +701,13 @@ inline T EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_
+ 	return (T)(*std::min_element(m_pArray, m_pArray + numElements()));
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline T EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++// advc: inline removed
++T EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::getMax() const
+ {
++	BOOST_STATIC_ASSERT(false); // implementation isn't generic yet
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
+ 	if (m_pArray == NULL)
+ 	{
+ 		return DEFAULT;
+@@ -353,10 +715,11 @@ inline T EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_
+ 	return (T)(*std::max_element(m_pArray, m_pArray + numElements()));
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::keepMin(IndexType eIndex, T eValue)
+ {
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
+ 	FAssert(eIndex >= First() && eIndex < getLength());
+ 	if (get(eIndex) > eValue)
+ 	{
+@@ -364,10 +727,12 @@ inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_
+ 	}
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++// advc: inline removed
++void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::keepMax(IndexType eIndex, T eValue)
+ {
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
+ 	FAssert(eIndex >= First() && eIndex < getLength());
+ 	if (get(eIndex) < eValue)
+ 	{
+@@ -375,96 +740,140 @@ inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_
+ 	}
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++// advc: inline removed
++void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::reset()
+ {
+-	// doesn't matter which one we free. They all point to the same memory address, which is what matters here.
+-	SAFE_DELETE_ARRAY(m_pArrayFull);
++	if (bINLINE)
++	{
++		// can't free inlined memory. Set it all to default instead
++		setAll((T)DEFAULT);
++	}
++	else
++	{
++		// doesn't matter which one we free. They all point to the same memory address, which is what matters here.
++		SAFE_DELETE_ARRAY(m_pArrayFull);
++	}
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++// advc: inline removed
++void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::setAll(T eValue)
+ {
+-	if (m_pArrayChar == NULL)
++	if (!bINLINE && m_pArrayChar == NULL)
+ 	{
+ 		if (eValue == DEFAULT)
+ 		{
+ 			return;
+ 		}
+-		m_pArrayChar = new char[numElements() * SIZE_OF_T];
+-	}
+-
+-	if (SIZE_OF_T == 1 || eValue == 0)
+-	{
+-		memset(m_pArrayFull, eValue, numElements() * SIZE_OF_T);
+-	}
+-	else if (SIZE == 2)
+-	{
+-		std::fill_n(m_pArrayShort, numElements(), eValue);
++		_allocate<bINLINE, SIZE>(eValue);
+ 	}
+ 	else
+ 	{
+-		std::fill_n(m_pArrayFull, numElements(), eValue);
++		_setAll<bINLINE, SIZE>(eValue);
+ 	}
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
+-::allocate()
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
++::Read(/* <advc> */ FDataStreamBase* pStream, bool bAsInt, bool bAsShort)
+ {
+-	FAssert(m_pArrayChar == NULL);
+-
+-	m_pArrayChar = new char[numElements() * SIZE_OF_T];
++	_Read<SIZE>(pStream, bAsInt, bAsShort); // </advc>
++}
+ 
+-	// memset is a whole lot faster. However it only works on bytes.
+-	// Optimize for the default case where default is 0.
+-	int const iElements = numElements(); // advc
+-	if (SIZE_OF_T == 1 || DEFAULT == 0)
+-	{
+-		memset(m_pArrayFull, DEFAULT, iElements * SIZE_OF_T);
+-	}
+-	else if (SIZE == 2)
+-	{
+-		std::fill_n(m_pArrayShort, iElements, (T)DEFAULT);
+-	}
+-	else
+-	{
+-		std::fill_n(m_pArrayFull, iElements, (T)DEFAULT);
+-	}
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
++::Write(/* <advc> */ FDataStreamBase* pStream, bool bAsInt) const
++{
++	_Write<SIZE>(pStream, bAsInt); // </advc>
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
+-::Read(/* <advc> */ FDataStreamBase* pStream)
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++template<int SIZE2>
++// advc: inline removed
++void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
++::_Read(/* advc: */ FDataStreamBase* pStream, bool bAsInt, bool bAsShort)
+ {
++	BOOST_STATIC_ASSERT(SIZE == SIZE2);
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
++	// <advc>
++	if (!bAsInt)
++	{
++		if (!bAsShort && (SIZE == ENUMMAP_SIZE_1_BYTE || (SIZE == ENUMMAP_SIZE_NATIVE &&
++			sizeof(T) == 1)))
++		{
++			for (IndexType eIndex = First(); eIndex < getLength(); ++eIndex)
++			{
++				char cTmp;
++				pStream->Read(&cTmp);
++				set(eIndex, static_cast<T>(cTmp));
++			}
++			return;
++		}
++		if (bAsShort || SIZE == ENUMMAP_SIZE_2_BYTE || (SIZE == ENUMMAP_SIZE_NATIVE &&
++			sizeof(T) == 2))
++		{
++			for (IndexType eIndex = First(); eIndex < getLength(); ++eIndex)
++			{
++				short sTmp;
++				pStream->Read(&sTmp);
++				set(eIndex, static_cast<T>(sTmp));
++			}
++			return;
++		}
++	}
+ 	for (IndexType eIndex = First(); eIndex < getLength(); ++eIndex)
+ 	{
+ 		int iTmp;
+ 		pStream->Read(&iTmp);
+ 		set(eIndex, static_cast<T>(iTmp));
+-	} // </advc>
++	} // <advc>
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
+-::Write(/* <advc> */ FDataStreamBase* pStream) const
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++template<int SIZE2>
++// advc: inline removed
++void EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
++::_Write(/* advc: */ FDataStreamBase* pStream, bool bAsInt) const
+ {
++	BOOST_STATIC_ASSERT(SIZE == SIZE2);
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
++	// <advc>
++	if (!bAsInt)
++	{
++		if (SIZE == ENUMMAP_SIZE_1_BYTE || (SIZE == ENUMMAP_SIZE_NATIVE &&
++			sizeof(T) == 1))
++		{
++			for (IndexType eIndex = First(); eIndex < getLength(); ++eIndex)
++				pStream->Write(static_cast<char>(get(eIndex)));
++			return;
++		}
++		if (SIZE == ENUMMAP_SIZE_2_BYTE || (SIZE == ENUMMAP_SIZE_NATIVE &&
++			sizeof(T) == 2))
++		{
++			for (IndexType eIndex = First(); eIndex < getLength(); ++eIndex)
++				pStream->Write(static_cast<short>(get(eIndex)));
++			return;
++		}
++	}
+ 	for (IndexType eIndex = First(); eIndex < getLength(); ++eIndex)
+ 		pStream->Write(static_cast<int>(get(eIndex))); // </advc>
+ }
+ 
+-
+ //
+ // operator overloads
+ //
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-inline EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>&
+-EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>::
+-operator=(const EnumMapBase &rhs)
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++// advc: inline removed
++EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>&
++EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
++::operator=(const EnumMapBase &rhs)
+ {
++	BOOST_STATIC_ASSERT(false); // implementation isn't generic yet
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
+ 	if (rhs.isAllocated())
+ 	{
+ 		if (m_pArrayFull == NULL) allocate();
+@@ -478,12 +887,15 @@ operator=(const EnumMapBase &rhs)
+ 	return *this;
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-template<class T2, int DEFAULT2, int SIZE2, int SIZE_OF_T2>
+-inline EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>&
+-EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
+-::operator=(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType, SIZE2, SIZE_OF_T2> &rhs)
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++template<class T2, int DEFAULT2>
++// advc: inline removed
++EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>&
++EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
++::operator=(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType> &rhs)
+ {
++	BOOST_STATIC_ASSERT(false); // implementation isn't generic yet
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
+ 	if (rhs.isAllocated())
+ 	{
+ 		for (IndexType eIndex = First(); eIndex < getLength(); ++eIndex)
+@@ -499,12 +911,15 @@ EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
+ 	return *this;
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-template<class T2, int DEFAULT2, int SIZE2, int SIZE_OF_T2>
+-inline EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>&
+-EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
+-::operator+=(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType, SIZE2, SIZE_OF_T2> &rhs)
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++template<class T2, int DEFAULT2>
++// advc: inline removed
++EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>&
++EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
++::operator+=(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType> &rhs)
+ {
++	BOOST_STATIC_ASSERT(false); // implementation isn't generic yet
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
+ 	if (rhs.isAllocated())
+ 	{
+ 		for (IndexType eIndex = First(); eIndex < getLength(); ++eIndex)
+@@ -520,12 +935,15 @@ EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
+ 	return *this;
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-template<class T2, int DEFAULT2, int SIZE2, int SIZE_OF_T2>
+-inline EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>&
+-EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
+-::operator-=(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType, SIZE2, SIZE_OF_T2> &rhs)
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++template<class T2, int DEFAULT2>
++// advc: inline removed
++EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>&
++EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
++::operator-=(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType> &rhs)
+ {
++	BOOST_STATIC_ASSERT(false); // implementation isn't generic yet
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
+ 	if (rhs.isAllocated())
+ 	{
+ 		for (IndexType eIndex = First(); eIndex < getLength(); ++eIndex)
+@@ -541,11 +959,14 @@ EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
+ 	return *this;
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-template<class T2, int DEFAULT2, int SIZE2, int SIZE_OF_T2>
+-inline bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
+-::operator==(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType, SIZE2, SIZE_OF_T2> &rhs) const
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++template<class T2, int DEFAULT2>
++// advc: inline removed
++bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
++::operator==(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType> &rhs) const
+ {
++	BOOST_STATIC_ASSERT(false); // implementation isn't generic yet
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
+ 	if (!rhs.isAllocated() && !isAllocated())
+ 	{
+ 		return DEFAULT == DEFAULT2;
+@@ -566,11 +987,14 @@ inline bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_
+ 	return true;
+ }
+ 
+-template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType, int SIZE, int SIZE_OF_T>
+-template<class T2, int DEFAULT2, int SIZE2, int SIZE_OF_T2>
+-inline bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_OF_T>
+-::operator!=(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType, SIZE2, SIZE_OF_T2> &rhs) const
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++template<class T2, int DEFAULT2>
++// advc: inline removed
++bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
++::operator!=(const EnumMapBase<IndexType, T2, DEFAULT2, T_SUBSET, LengthType> &rhs) const
+ {
++	BOOST_STATIC_ASSERT(false); // implementation isn't generic yet
++	BOOST_STATIC_ASSERT(SIZE != ENUMMAP_SIZE_BOOL);
+ 	if (!rhs.isAllocated() && !isAllocated())
+ 	{
+ 		return DEFAULT != DEFAULT2;
+@@ -599,11 +1023,17 @@ inline bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType, SIZE, SIZE_
+ //
+ //
+ 
++__forceinline bool ArrayDefault(bool var) { return 0; } \
++template <> struct EnumMapGetDefault<bool> \
++{ \
++enum { DEFAULT_VALUE = 0, SIZE = ENUMMAP_SIZE_BOOL, SIZE_OF_T = sizeof(char) }; \
++};
++
+ #define SET_ARRAY_DEFAULT( X ) \
+ __forceinline X ArrayDefault( X var) { return 0; } \
+ template <> struct EnumMapGetDefault<X> \
+ { \
+-	enum { value = 0, SIZE = 0, SIZE_OF_T = sizeof(X) }; \
++	enum { DEFAULT_VALUE = 0, SIZE = ENUMMAP_SIZE_NATIVE, SIZE_OF_T = sizeof(X) }; \
+ };
+ 
+ SET_ARRAY_DEFAULT(int);
+@@ -613,20 +1043,24 @@ SET_ARRAY_DEFAULT(unsigned int);
+ SET_ARRAY_DEFAULT(unsigned short);
+ SET_ARRAY_DEFAULT(byte);
+ 
+-/*  advc: VAR_SIZE param removed. Since NUM_TYPES is known at compile-time,
+-	SIZE can be derived from that. JITarrayType accessor, ArrayStart and ArrayLength
+-	functions removed. Renamed the macro from SET_ARRAY_XML_ENUM to SET_XML_ENUM_SIZE.
++/*  advc: COMPILE_NUM_TYPES param removed; use NUM_ENUM_TYPES macro instead.
++	JITarrayType accessor, ArrayStart and ArrayLength functions removed.
++	Renamed the macro from SET_ARRAY_XML_ENUM to SET_XML_ENUM_SIZE.
+ 	And some minor changes for compatibility with the DO_FOR_EACH... macro. */
+ #define SET_XML_ENUM_SIZE(Name, INFIX) \
+ 	template <> struct EnumMapGetDefault<Name##Types> \
+ { \
+-	enum { value = -1, SIZE = (NUM_ENUM_TYPES(INFIX) <= MAX_CHAR ? 1 : 2), SIZE_OF_T = SIZE }; \
++	enum { \
++		DEFAULT_VALUE = -1, \
++		SIZE = NUM_ENUM_TYPES(INFIX) > MAX_CHAR ? ENUMMAP_SIZE_2_BYTE : ENUMMAP_SIZE_1_BYTE, \
++		SIZE_OF_T = SIZE, \
++		MAX_LENGTH = NUM_ENUM_TYPES(INFIX), \
++	}; \
+ };
+ 
+ // Byte size is set in enums
+ // If the length isn't known at compile time, 2 is assumed.
+ // Setting the byte size means say PlayerTypes will use 1 byte instead of 4. Works because MAX_PLAYERS <= 0x7F
+-
+ // <advc>
+ DO_FOR_EACH_STATIC_INFO_TYPE(SET_XML_ENUM_SIZE)
+ SET_XML_ENUM_SIZE(AreaAI, AREAAI)
+@@ -634,19 +1068,28 @@ SET_XML_ENUM_SIZE(AreaAI, AREAAI)
+ #define SET_XML_ENUM_SIZE1(Name, Dummy) \
+ 	template <> struct EnumMapGetDefault<Name##Types> \
+ 	{ \
+-		enum { value = -1, SIZE = 1, SIZE_OF_T = SIZE }; \
++		enum \
++		{ \
++			DEFAULT_VALUE = -1, SIZE = ENUMMAP_SIZE_1_BYTE, SIZE_OF_T = SIZE, \
++			MAX_LENGTH = MAX_CHAR \
++		}; \
+ 	};
+ 	DO_FOR_EACH_SMALL_DYN_INFO_TYPE(SET_XML_ENUM_SIZE1)
+-	// These are dynamic but have some static values; not included in the list above.
++	// Not included in the list above:
+ 	SET_XML_ENUM_SIZE1(WorldSize, Dummy)
+ 	SET_XML_ENUM_SIZE1(Flavor, Dummy)
++	SET_XML_ENUM_SIZE1(Direction, Dummy)
+ 
+ /*  2 being the default apparently does not mean that these can be omitted
+ 	(Tbd.: There should be some way to get rid of SET_XML_ENUM_SIZE2.) */
+ #define SET_XML_ENUM_SIZE2(Name, Dummy) \
+ 	template <> struct EnumMapGetDefault<Name##Types> \
+ 	{ \
+-		enum { value = -1, SIZE = 2, SIZE_OF_T = SIZE }; \
++		enum \
++		{ \
++			DEFAULT_VALUE = -1, SIZE = ENUMMAP_SIZE_2_BYTE, SIZE_OF_T = SIZE, \
++			MAX_LENGTH = MAX_SHORT \
++		}; \
+ 	};
+ 	DO_FOR_EACH_BIG_DYN_INFO_TYPE(SET_XML_ENUM_SIZE2)
+ 
+@@ -656,7 +1099,16 @@ SET_XML_ENUM_SIZE(AreaAI, AREAAI)
+ 	by adding a dummy call parameter. The getEnumLength functions in CvEnums.h
+ 	also have that parameter - but, there, it's optional. */
+ #define SET_NONXML_ENUM_LENGTH(TypeName, eLength) \
+-	__forceinline TypeName getEnumLength(TypeName, bool bAllowForEach) { return eLength; }
++	__forceinline TypeName getEnumLength(TypeName, bool bAllowForEach) { return eLength; } \
++	template <> struct EnumMapGetDefault<TypeName> \
++	{ \
++		enum { \
++			DEFAULT_VALUE = -1, \
++			SIZE = eLength > MAX_CHAR ? ENUMMAP_SIZE_2_BYTE : ENUMMAP_SIZE_1_BYTE, \
++			SIZE_OF_T = SIZE, \
++			MAX_LENGTH = eLength, \
++		}; \
++	};
+ /*  Don't want to set these in CvEnums.h or anywhere in the global namespace b/c
+ 	the FOR_EACH_ENUM macro shouldn't be used for them */
+ SET_NONXML_ENUM_LENGTH(PlayerTypes, (PlayerTypes)MAX_PLAYERS)
+@@ -689,7 +1141,7 @@ template<class IndexType, class T, int DEFAULT>
+ class EnumMapDefault : public EnumMapBase <IndexType, T, DEFAULT> {};
+ 
+ template<class IndexType, class T>
+-class EnumMap : public EnumMapBase <IndexType, T, EnumMapGetDefault<T>::value> {};
++class EnumMap : public EnumMapBase <IndexType, T, EnumMapGetDefault<T>::DEFAULT_VALUE> {};
+ 
+ template<class IndexType, class T, int DEFAULT = 0>
+ class EnumMapInt : public EnumMapBase <int, T, DEFAULT, IndexType, IndexType> {};
+
+diff --git a/CvGameCoreDLL/EnumMap2D.h b/CvGameCoreDLL/EnumMap2D.h
+index 3d20cd7d4..8704816d3 100644
+--- a/CvGameCoreDLL/EnumMap2D.h
++++ b/CvGameCoreDLL/EnumMap2D.h
+@@ -25,8 +25,8 @@ public:
+ 
+ 	void reset();
+ 
+-	void Read(/* <advc> */ FDataStreamBase* pStream);
+-	void Write(/* <advc> */ FDataStreamBase* pStream) const;
++	void Read(/* <advc> */ FDataStreamBase* pStream, bool bAsInt = true, bool bLazy = false);
++	void Write(/* <advc> */ FDataStreamBase* pStream, bool bAsInt = true, bool bLazy = false) const;
+ 
+ private:
+ 	void allocate();
+@@ -158,29 +158,49 @@ inline void EnumMap2DDefault<OuterArrayType, InnerArrayType, T, DEFAULT>
+ 
+ template<class OuterArrayType, class InnerArrayType, class T, int DEFAULT>
+ inline void EnumMap2DDefault<OuterArrayType, InnerArrayType, T, DEFAULT>
+-::Read(/* <advc> */ FDataStreamBase* pStream)
++::Read(/* <advc> */ FDataStreamBase* pStream, bool bAsInt, bool bLazy)
+ {
+ 	if (m_pOuterArray == NULL)
+ 		allocate();
+ 	for (OuterArrayType eArray = First(); eArray < Length(); ++eArray)
+-		m_pOuterArray[eArray].Read(pStream);
++	{
++		if (bLazy)
++		{
++			int iCount;
++			pStream->Read(&iCount);
++			if (iCount <= 0)
++				continue;
++		}
++		m_pOuterArray[eArray].Read(pStream, bAsInt);
++	}
+ 	hasContent(); // </advc>
+ }
+ 
+ 
+ template<class OuterArrayType, class InnerArrayType, class T, int DEFAULT>
+ inline void EnumMap2DDefault<OuterArrayType, InnerArrayType, T, DEFAULT>
+-::Write(/* <advc> */ FDataStreamBase* pStream) const
++::Write(/* <advc> */ FDataStreamBase* pStream, bool bAsInt, bool bLazy) const
+ {
+ 	if (m_pOuterArray == NULL)
+ 		const_cast<EnumMap2DDefault*>(this)->allocate();
+ 	for (OuterArrayType eArray = First(); eArray < Length(); ++eArray)
+-		m_pOuterArray[eArray].Write(pStream);
++	{
++		if (bLazy)
++		{
++			if(!m_pOuterArray[eArray].hasContent())
++			{
++				pStream->Write(0);
++				continue;
++			}
++			else pStream->Write(static_cast<int>(m_pOuterArray[eArray].getLength()));
++		}
++		m_pOuterArray[eArray].Write(pStream, bAsInt);
++	}
+ 	hasContent(); // </advc>
+ }
+ 
+ 
+ template<class OuterArrayType, class InnerArrayType, class T>
+-class EnumMap2D : public EnumMap2DDefault < OuterArrayType, InnerArrayType, T, EnumMapGetDefault<T>::value > {};
++class EnumMap2D : public EnumMap2DDefault < OuterArrayType, InnerArrayType, T, EnumMapGetDefault<T>::DEFAULT_VALUE > {};
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index 84bd6ca68..021cd1841 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -107,6 +107,7 @@ void WarAndPeaceCache::clear(bool beforeUpdate) {
+ // Called when saving
+ void WarAndPeaceCache::write(FDataStreamBase* stream) {
+ 
++	PROFILE_FUNC();
+ 	int savegameVersion = 1;
+ 	savegameVersion = 2; // advc.035
+ 	savegameVersion = 3; // hireAgainst added
+@@ -1504,7 +1505,7 @@ void WarAndPeaceCache::City::read(FDataStreamBase* stream) {
+ 		CvPlot* cityPlot = GC.getMap().plotByIndex(plotIndex);
+ 		if(cityPlot == NULL)
+ 			canDeduce = false;
+-		else canDeduce = cityPlot->isRevealed(TEAMID(cacheOwnerId), false);
++		else canDeduce = cityPlot->isRevealed(TEAMID(cacheOwnerId));
+ 	}
+ }
+ 
+@@ -1892,7 +1893,7 @@ void WarAndPeaceCache::City::updateAssetScore() {
+ 		// Fall back on city tile for cultureModifier if p unrevealed
+ 		CvPlot const* cultureTestPlot = fc[0];
+ 		double baseTileScore = 1.0 / 3; // i.e. 1/6 of a resource tile
+-		if(p.isRevealed(t.getID(), false)) {
++		if(p.isRevealed(t.getID())) {
+ 			// getBonusType ensures that we can see the resource
+ 			if(p.getNonObsoleteBonusType(t.getID()) != NO_BONUS) {
+ 				// It's OK if we can't use it yet
+
+[PATCH COVERAGE]
+patchFiles=33 embeddedFiles=33 omittedFiles=0 embeddedPatchBytes=185305

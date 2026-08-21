@@ -1,0 +1,733 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5460
+# Commit: d185fc9208c9235fd1a7df285ef33b565bfcbdc4
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3aaba123416958356e921b1f43f0df3b590c56a7
+# Title: add SAS_Large_Facing_Islands.py (AdvCiv-SAS original map)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Maps/SAS_Large_Facing_Islands/FLAT_SAS_Large_Facing_Islands.dds
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+27	0	Assets/XML/Interface/CIV4WorldPickerInfos.xml
+486	0	PrivateMaps/SAS_Large_Facing_Islands.py
+13	3	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Maps/SAS_Large_Facing_Islands/FLAT_SAS_Large_Facing_Islands.dds
+ create mode 100644 PrivateMaps/SAS_Large_Facing_Islands.py
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/SAS_Large_Facing_Islands/FLAT_SAS_Large_Facing_Islands.dds b/Assets/Art/AdvCiv_SAS/Maps/SAS_Large_Facing_Islands/FLAT_SAS_Large_Facing_Islands.dds
+new file mode 100644
+index 000000000..4199c97ba
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Maps/SAS_Large_Facing_Islands/FLAT_SAS_Large_Facing_Islands.dds differ
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index cfa00bbc7..19a8abc09 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -311,7 +311,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY</DefineName>
+-		<DefineTextVal>Archipelago,Equal_Islands_V2_beta,Islands,PerfectMongoose,Tilted_Axis</DefineTextVal>
++		<DefineTextVal>Archipelago,Equal_Islands_V2_beta,Islands,PerfectMongoose,SAS_Large_Facing_Islands,Tilted_Axis</DefineTextVal>
+ 	</Define>
+
+diff --git a/Assets/XML/Interface/CIV4WorldPickerInfos.xml b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+index 6966690de..680d87edc 100644
+--- a/Assets/XML/Interface/CIV4WorldPickerInfos.xml
++++ b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+@@ -751,6 +751,33 @@
+ 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+ 			</WaterLevelGloss>
+ 		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>SAS_Large_Facing_Islands</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/SAS_Large_Facing_Islands/FLAT_SAS_Large_Facing_Islands.dds</WaterLevelDecalPath>
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
+ 		<WorldPickerInfo>
+ 			<MapName>SAS_Longworld</MapName>
+ 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+
+diff --git a/PrivateMaps/SAS_Large_Facing_Islands.py b/PrivateMaps/SAS_Large_Facing_Islands.py
+new file mode 100644
+index 000000000..555e9aaee
+--- /dev/null
++++ b/PrivateMaps/SAS_Large_Facing_Islands.py
+@@ -0,0 +1,486 @@
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# FILE: SAS_Large_Facing_Islands.py
++# PURPOSE: Facing-islands competitive map with fixed island size across all world sizes.
++#
++# AUTHORS: wonderingabout & GPT-5.3-Codex
++
++from CvPythonExtensions import *
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++from SAS_WorldSizes import *
++from SASUtils import getInfoTypeOrFail
++
++gc = CyGlobalContext()
++_sas_layout_cache = None
++_sas_start_assignments = {}
++
++
++def getVersion():
++	return "1.00"
++
++
++def getDescription():
++	return "Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough). Island size stays the same on all world sizes and is fairly large. North-South and East-West bands can optionally be set to Coast or Ocean. Supports world sizes up to SAS48. The world revolves horizontally (WrapX on). Inspired by Empire Earth (1) Large Islands, with some ideas adapted from our SAS_Longworld map."
++
++
++def isAdvancedMap():
++	# <!-- custom: Show this map in Simple Game; it has one practical option and stable generation path. (GPT-5.3-Codex) -->
++	return 0
++
++
++def getNumCustomMapOptions():
++	return 2
++
++
++def getNumHiddenCustomMapOptions():
++	return 0
++
++
++def getCustomMapOptionName(argsList):
++	[iOption] = argsList
++	option_names = {
++		0: u"North-South Bands",
++		1: u"East-West Bands"
++	}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return u"North-South Bands"
++	return option_names[iOption]
++
++
++def getNumCustomMapOptionValues(argsList):
++	[iOption] = argsList
++	option_values = {
++		0: 2,
++		1: 2
++	}
++	if not option_values.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return 2
++	return option_values[iOption]
++
++
++def getCustomMapOptionDescAt(argsList):
++	[iOption, iSelection] = argsList
++	# <!-- custom: Use explicit N-S / E-W labels for value text to stay self-explanatory in our UI rework context,
++	# especially when players discuss Simple Game screenshots where option headers are not always visible. (GPT-5.3-Codex) -->
++	selection_names = {
++		0: {
++			0: u"N-S Coast Bands",
++			1: u"N-S Ocean Bands (Recommended)"
++		},
++		1: {
++			0: u"E-W Coast Bands (Recommended)",
++			1: u"E-W Ocean Bands"
++		}
++	}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return u"N-S Ocean Bands (Recommended)"
++	if not selection_names[iOption].has_key(iSelection):
++		return u"N-S Ocean Bands (Recommended)"
++	return selection_names[iOption][iSelection]
++
++
++def getCustomMapOptionDefault(argsList):
++	[iOption] = argsList
++	option_defaults = {
++		0: 1,
++		1: 0
++	}
++	if not option_defaults.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return 0
++	return option_defaults[iOption]
++
++
++def isRandomCustomMapOption(argsList):
++	[iOption] = argsList
++	option_random = {
++		0: false,
++		1: false
++	}
++	if not option_random.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return false
++	return option_random[iOption]
++
++
++def getWrapX():
++	return True
++
++
++def getWrapY():
++	return False
++
++
++def getTopLatitude():
++	return 70
++
++
++def getBottomLatitude():
++	return -70
++
++
++def minStartingDistanceModifier():
++	# <!-- custom: Dense high-player island layouts need a very low floor to avoid start-placement failures on SAS sizes. (GPT-5.3-Codex) -->
++	return -95
++
++
++def _world_profile(eWorldSize):
++	# <!-- custom: world-size-only scaling: island footprint stays identical; only island count increases with world size. (GPT-5.3-Codex) -->
++	profiles = {
++		0:  (1, 1),   # ARENA
++		1:  (1, 2),   # DUEL
++		2:  (1, 3),   # TINY
++		3:  (1, 4),   # SMALL
++		4:  (2, 4),   # STANDARD
++		5:  (2, 6),   # LARGE
++		6:  (2, 8),   # HUGE
++		7:  (2, 12),  # SAS24
++		8:  (2, 16),  # SAS32
++		9:  (2, 20),  # SAS40
++		10: (2, 24)   # SAS48
++	}
++	iWorld = int(eWorldSize)
++	if profiles.has_key(iWorld):
++		return profiles[iWorld]
++	return profiles[10]
++
++
++def _get_ew_connector_mode():
++	# 0 = Coast bands, 1 = Ocean bands
++	return _get_option_value(1, 0, 2)
++
++
++def _get_ns_connector_mode():
++	# 0 = Coast bands, 1 = Ocean bands
++	return _get_option_value(0, 1, 2)
++
++
++def _get_option_value(iOption, iDefault, iNumValues):
++	map_obj = CyMap()
++	iValue = iDefault
++	try:
++		if iOption >= getNumCustomMapOptions():
++			sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++			return iDefault
++		iValue = map_obj.getCustomMapOption(iOption)
++	except:
++		return iDefault
++	if iValue < 0 or iValue >= iNumValues:
++		return iDefault
++	return iValue
++
++
++def _shape_constants():
++	# <!-- custom: Fixed island footprint for all world sizes; tuned larger so each start island can host roughly 5 cities instead of 2-3. (GPT-5.3-Codex) -->
++	iIslandWidth = 10
++	iIslandHeight = 10
++	# <!-- custom: Wider side separation keeps island interactions tactical and avoids immediate coast-to-coast crowding. (GPT-5.3-Codex) -->
++	iSideGap = 8
++	# <!-- custom: Keep rows near map edges for the "back against the wall" identity. (GPT-5.3-Codex) -->
++	iEdgeMarginX = 3
++	iEdgeMarginY = 1
++	return (iIslandWidth, iIslandHeight, iSideGap, iEdgeMarginX, iEdgeMarginY)
++
++
++def getGridSize(argsList):
++	if argsList[0] == -1:
++		return []
++
++	[eWorldSize] = argsList
++	(iRows, iCols) = _world_profile(eWorldSize)
++	(iIslandWidth, iIslandHeight, iSideGap, iEdgeMarginX, iEdgeMarginY) = _shape_constants()
++	# <!-- custom: Keep north-south spacing equal to east-west spacing for consistent geometry across axes. (GPT-5.3-Codex) -->
++	iCenterGap = iSideGap
++
++	# <!-- custom: keep wrap-edge island spacing equal to interior spacing (iSideGap), so edge-facing lanes are not tighter than middle lanes. (GPT-5.3-Codex) -->
++	iWidth = iCols * iIslandWidth + (iCols - 1) * iSideGap + iSideGap
++	iHeight = iRows * iIslandHeight + (iRows - 1) * iCenterGap + 2 * iEdgeMarginY
++	# <!-- custom: Civ4 expects grid cells here; the EXE expands by 4x into actual plot dimensions. (GPT-5.3-Codex) -->
++	return ((iWidth + 3) / 4, (iHeight + 3) / 4)
++
++
++def _build_layout():
++	global _sas_layout_cache
++	if _sas_layout_cache is not None:
++		return _sas_layout_cache
++
++	map_obj = CyMap()
++	iW = map_obj.getGridWidth()
++	iH = map_obj.getGridHeight()
++	(iRows, iCols) = _world_profile(map_obj.getWorldSize())
++	(iIslandWidth, iIslandHeight, iSideGap, iEdgeMarginX, iEdgeMarginY) = _shape_constants()
++	iCenterGap = iSideGap
++
++	iTotalIslandWidth = iCols * iIslandWidth + (iCols - 1) * iSideGap
++	iStartX = max(iEdgeMarginX, (iW - iTotalIslandWidth) / 2)
++
++	islands = []
++	start_slots = []
++	row_y0 = []
++	if iRows <= 1:
++		row_y0.append(iEdgeMarginY)
++	else:
++		# <!-- custom: Anchor first row to top edge and last row to bottom edge; any rounding slack is absorbed in the center corridor. (GPT-5.3-Codex) -->
++		iTopY0 = iEdgeMarginY
++		iBottomY0 = max(iTopY0 + iIslandHeight + iCenterGap, iH - iEdgeMarginY - iIslandHeight)
++		row_y0.append(iTopY0)
++		row_y0.append(iBottomY0)
++		if iRows > 2:
++			iSpan = max(1, iBottomY0 - iTopY0)
++			for k in range(1, iRows - 1):
++				row_y0.append(iTopY0 + (k * iSpan) / (iRows - 1))
++			row_y0 = sorted(row_y0)
++
++	for r in range(iRows):
++		iY0 = row_y0[r]
++		iY1 = iY0 + iIslandHeight - 1
++		iYCenter = (iY0 + iY1) / 2
++		for c in range(iCols):
++			iX0 = iStartX + c * (iIslandWidth + iSideGap)
++			iX1 = iX0 + iIslandWidth - 1
++			iXCenter = (iX0 + iX1) / 2
++			islands.append((r, c, iX0, iX1, iY0, iY1, iXCenter, iYCenter))
++			# <!-- custom: Use center-of-island starts for maximum opener stability and fair city placement odds on all rows. (GPT-5.3-Codex) -->
++			start_slots.append((iXCenter, iYCenter))
++
++	_sas_layout_cache = {
++		"islands": islands,
++		"slots": start_slots,
++		"rows": iRows,
++		"cols": iCols
++	}
++	return _sas_layout_cache
++
++
++def beforeGeneration():
++	global _sas_layout_cache, _sas_start_assignments
++	_sas_layout_cache = None
++	_sas_start_assignments = {}
++	_build_layout()
++
++
++def _is_island_land(iLX, iLY, iW, iH):
++	fCX = (iW - 1) / 2.0
++	fCY = (iH - 1) / 2.0
++	fDX = (float(iLX) - fCX) / max(1.0, fCX)
++	fDY = (float(iLY) - fCY) / max(1.0, fCY)
++	return (fDX * fDX + fDY * fDY) <= 1.05
++
++
++def generatePlotTypes():
++	NiTextOut("Setting Plot Types (Python SAS_Large_Facing_Islands) ...")
++	layout = _build_layout()
++	map_obj = CyMap()
++	iW = map_obj.getGridWidth()
++	iH = map_obj.getGridHeight()
++	dice = gc.getGame().getMapRand()
++	plot_types = [PlotTypes.PLOT_OCEAN] * (iW * iH)
++
++	for (_, _, iX0, iX1, iY0, iY1, _, _) in layout["islands"]:
++		iIslandW = iX1 - iX0 + 1
++		iIslandH = iY1 - iY0 + 1
++		for x in range(iX0, iX1 + 1):
++			for y in range(iY0, iY1 + 1):
++				if _is_island_land(x - iX0, y - iY0, iIslandW, iIslandH):
++					plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_LAND
++
++	# Keep terrain texture light and predictable on starts.
++	for i in range(iW * iH):
++		if plot_types[i] != PlotTypes.PLOT_LAND:
++			continue
++		iRoll = dice.get(20, "SAS_Large_Facing_Islands hills")
++		if iRoll <= 2:
++			plot_types[i] = PlotTypes.PLOT_HILLS
++
++	return plot_types
++
++
++def _is_valid_start_plot(pPlot):
++	return pPlot is not None and not pPlot.isWater() and not pPlot.isImpassable()
++
++
++def findStartingPlot(argsList):
++	global _sas_start_assignments
++	[playerID] = argsList
++	layout = _build_layout()
++	map_obj = CyMap()
++
++	lPlayers = []
++	for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
++		if gc.getPlayer(iPlayer).isAlive():
++			lPlayers.append(iPlayer)
++	if len(lPlayers) == 0:
++		CyPythonMgr().allowDefaultImpl()
++		return
++	lPlayers.sort()
++
++	if playerID not in lPlayers:
++		CyPythonMgr().allowDefaultImpl()
++		return
++
++	if _sas_start_assignments.has_key(playerID):
++		return _sas_start_assignments[playerID]
++
++	iIndex = lPlayers.index(playerID)
++	if iIndex >= len(layout["slots"]):
++		CyPythonMgr().allowDefaultImpl()
++		return
++
++	(iX, iY) = layout["slots"][iIndex]
++	pSlot = map_obj.plot(iX, iY)
++	if _is_valid_start_plot(pSlot):
++		iPlotNum = map_obj.plotNum(iX, iY)
++		_sas_start_assignments[playerID] = iPlotNum
++		return iPlotNum
++
++	# Fallback within the same island first.
++	(_, _, iX0, iX1, iY0, iY1, _, _) = layout["islands"][iIndex]
++	for y in range(iY0, iY1 + 1):
++		for x in range(iX0, iX1 + 1):
++			pTry = map_obj.plot(x, y)
++			if _is_valid_start_plot(pTry):
++				iNum = map_obj.plotNum(x, y)
++				_sas_start_assignments[playerID] = iNum
++				return iNum
++
++	CyPythonMgr().allowDefaultImpl()
++	return
++
++
++def generateTerrainTypes():
++	NiTextOut("Generating Terrain (Python SAS_Large_Facing_Islands) ...")
++	terrain_gen = TerrainGenerator()
++	terrain_types = terrain_gen.generateTerrain()
++	_apply_horizontal_coast_lanes(terrain_types)
++	_apply_vertical_coast_lanes(terrain_types)
++	return terrain_types
++
++
++def addFeatures():
++	NiTextOut("Adding Features (Python SAS_Large_Facing_Islands) ...")
++	feature_gen = FeatureGenerator()
++	feature_gen.addFeatures()
++	return 0
++
++
++def _apply_horizontal_coast_lanes(terrain_types):
++	layout = _build_layout()
++	map_obj = CyMap()
++	iW = map_obj.getGridWidth()
++	iH = map_obj.getGridHeight()
++	iConnectorMode = _get_ew_connector_mode()
++	# <!-- custom: Optional horizontal connector type; ocean-band mode keeps lanes as ocean (no early coast linkage). (GPT-5.3-Codex) -->
++	if iConnectorMode == 1:
++		return
++
++	eCoast = getInfoTypeOrFail("TERRAIN_COAST")
++
++	# <!-- custom: Build tapered coast corridors between horizontal neighbors so lane thickness feels natural:
++	# 3 near island edges, then 2, then 1 at the center, mirrored back to 2 and 3. (GPT-5.3-Codex) -->
++	for r in range(layout["rows"]):
++		row_islands = []
++		for info in layout["islands"]:
++			if info[0] == r:
++				row_islands.append(info)
++		if len(row_islands) == 0:
++			continue
++
++		row_islands.sort(key=lambda t: t[2])
++		iYCenter = row_islands[0][7]
++
++		for i in range(len(row_islands)):
++			iLeft = row_islands[i]
++			iRight = row_islands[(i + 1) % len(row_islands)]
++			iLeftX1 = iLeft[3]
++			iRightX0 = iRight[2]
++
++			if i < len(row_islands) - 1:
++				gap_x = range(iLeftX1 + 1, iRightX0)
++			else:
++				# wrap-edge gap between last and first island
++				gap_x = list(range(iLeftX1 + 1, iW)) + list(range(0, iRightX0))
++
++			iGapLen = len(gap_x)
++			if iGapLen <= 0:
++				continue
++			# <!-- custom: Use proportional taper bands so 3/2/1 widths remain visible on large gaps
++			# instead of collapsing to a near-constant 1-tile lane. (GPT-5.3-Codex) -->
++			iBand3 = max(1, iGapLen / 6)
++			iBand2 = max(iBand3 + 1, iGapLen / 3)
++			for iPos in range(iGapLen):
++				x = gap_x[iPos]
++				iEdgeDist = min(iPos, iGapLen - 1 - iPos)
++				if iEdgeDist < iBand3:
++					lane_rows = [iYCenter - 1, iYCenter, iYCenter + 1]
++				elif iEdgeDist < iBand2:
++					lane_rows = [iYCenter - 1, iYCenter]
++				else:
++					lane_rows = [iYCenter]
++				for y in lane_rows:
++					if y < 0 or y >= iH:
++						continue
++					iPlot = map_obj.plotNum(x, y)
++					pPlot = map_obj.plotByIndex(iPlot)
++					if pPlot.isWater():
++						terrain_types[iPlot] = eCoast
++
++
++def _apply_vertical_coast_lanes(terrain_types):
++	layout = _build_layout()
++	map_obj = CyMap()
++	iW = map_obj.getGridWidth()
++	iH = map_obj.getGridHeight()
++	iConnectorMode = _get_ns_connector_mode()
++	# <!-- custom: Optional vertical connector type; ocean-band mode keeps inter-row lanes as ocean. (GPT-5.3-Codex) -->
++	if iConnectorMode == 1:
++		return
++
++	eCoast = getInfoTypeOrFail("TERRAIN_COAST")
++
++	# <!-- custom: Mirror the same tapered profile used on east-west lanes, now for north-south facing lanes:
++	# 3 near island edges, then 2, then 1 in the center, then back to 2 and 3. (GPT-5.3-Codex) -->
++	for c in range(layout["cols"]):
++		col_islands = []
++		for info in layout["islands"]:
++			if info[1] == c:
++				col_islands.append(info)
++		if len(col_islands) <= 1:
++			continue
++		col_islands.sort(key=lambda t: t[4])
++
++		for i in range(len(col_islands) - 1):
++			iTop = col_islands[i]
++			iBottom = col_islands[i + 1]
++			iTopY1 = iTop[5]
++			iBottomY0 = iBottom[4]
++			iXCenter = iTop[6]
++			gap_y = range(iTopY1 + 1, iBottomY0)
++			iGapLen = len(gap_y)
++			if iGapLen <= 0:
++				continue
++
++			iBand3 = max(1, iGapLen / 6)
++			iBand2 = max(iBand3 + 1, iGapLen / 3)
++			for iPos in range(iGapLen):
++				y = gap_y[iPos]
++				iEdgeDist = min(iPos, iGapLen - 1 - iPos)
++				if iEdgeDist < iBand3:
++					lane_cols = [iXCenter - 1, iXCenter, iXCenter + 1]
++				elif iEdgeDist < iBand2:
++					lane_cols = [iXCenter - 1, iXCenter]
++				else:
++					lane_cols = [iXCenter]
++
++				for x in lane_cols:
++					if x < 0 or x >= iW or y < 0 or y >= iH:
++						continue
++					iPlot = map_obj.plotNum(x, y)
++					pPlot = map_obj.plotByIndex(iPlot)
++					if pPlot.isWater():
++						terrain_types[iPlot] = eCoast
+
+diff --git a/README.md b/README.md
+index 6841bfef0..75c03b0ba 100644
+--- a/README.md
++++ b/README.md
+@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
+ 
+ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
+ 
+-New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Longworld`, `SAS_Spiky_Avenues`).
++New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Spiky_Avenues`).
+ 
+ Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+ 
+@@ -58,7 +58,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[How to use](/README.md#how-to-use)  
+ &emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)  
+ [Mapscripts](/README.md#mapscripts)  
+-&emsp;[AdvCiv-SAS original mapscripts (e.g., SAS_Longworld, SAS_Spiky_Avenues)](/README.md#advciv-sas-original-mapscripts-eg-sas_longworld-sas_spiky_avenues)  
++&emsp;[AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Spiky_Avenues)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_spiky_avenues)  
+ &emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)  
+ &emsp;[New .dds for maps in Simple Game](/README.md#new-dds-for-maps-in-simple-game)  
+ [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)  
+@@ -533,7 +533,7 @@ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1
+ 
+ ## Mapscripts
+ 
+-### AdvCiv-SAS original mapscripts (e.g., SAS_Longworld, SAS_Spiky_Avenues)
++### AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Spiky_Avenues)
+ 
+ #### SAS_Longworld
+ 
+@@ -557,6 +557,16 @@ Similarly we also added our new original SAS_Spiky_Avenues mapscript with the he
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG" alt="0.3203_maps_sas_spiky_avenues (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG" alt="0.3203_maps_sas_spiky_avenues (3).JPG" width="250"></img>
+ 
++#### SAS_Large_Facing_Islands
++
++Our latest addition with the help of GPT-5.3-Codex, and some ideas from GPT-5.2-Thinking thanks.
++
++>Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough). Island size stays the same on all world sizes and is fairly large. North-South and East-West bands can optionally be set to Coast or Ocean. Supports world sizes up to SAS48. The world revolves horizontally (WrapX on). Inspired by Empire Earth (1) Large Islands, with some ideas adapted from our SAS_Longworld map.
++
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (1).JPG" alt="0.3204_maps_sas_large_facing_islands (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG" alt="0.3204_maps_sas_large_facing_islands (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG" alt="0.3204_maps_sas_large_facing_islands (3).JPG" width="250"></img>
++
+ ### New Maps (e.g., BTG_Cross, BTG_Lagoon)
+ 
+ We have also added new maps, for example the (based on the Beyond the Game 2.43 mod's version of it, and adjusted for AdvCiv-SAS with the help of GPT-5.3-Codex: supports max players, SAS48 world size, removed unused options in AdvCiv-SAS, etc.)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 681c6c854..44c426af9 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -356,7 +356,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5446+) **Order maps alphabetically** in **Simple Game** or **Custom Game** (by adding missing map scripts in **PrivateMaps**).
+ - (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential or unbalanced; they are remain playable via the **Custom Game** menu: [Big_and_Small.py](/PrivateMaps/Big_and_Small.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Earth2.py](/PrivateMaps/Earth2.py), [Hemispheres.py](/PrivateMaps/Hemispheres.py), [Lakes.py](/PrivateMaps/Lakes.py) (has too few lakes), [Mixed_Continents.py](/PrivateMaps/Mixed_Continents.py), [Oasis.py](/PrivateMaps/Oasis.py), [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
+ - (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps so it is more illustrative or accurate than a dark or incorrect globe map. See [Readme.md (New .dds for maps in Simple Game)](/README.md#new-dds-for-maps-in-simple-game) and [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+-- (Requires AdvCiv-SAS 5455+) **Add** a new AdvCiv-SAS original map: [SAS_Longworld](/PrivateMaps/SAS_Longworld.py): A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified. Similarly also **add** [SAS_Spiky_Avenues.py](/PrivateMaps/SAS_Spiky_Avenues.py) (Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets). See [Readme.md (AdvCiv-SAS original mapscripts)](/README.md#advciv-sas-original-mapscripts-eg-sas_longworld-sas_spiky_avenues).
++- (Requires AdvCiv-SAS 5455+) **Add** new AdvCiv-SAS original maps: [SAS_Longworld](/PrivateMaps/SAS_Longworld.py): A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified, similarly also [SAS_Spiky_Avenues.py](/PrivateMaps/SAS_Spiky_Avenues.py) (Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets), and [SAS_Large_Facing_Islands.py](/PrivateMaps/SAS_Large_Facing_Islands.py) (Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough)). See [Readme.md (AdvCiv-SAS original mapscripts)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_spiky_avenues).
+ - (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) map (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, **change some options** (e.g., allow Desert as Default), and expose the map in both **Simple Game** and **Custom Game** lists. (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Grid.py](/PrivateMaps/BTG_Grid.py), [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
+ - (Requires AdvCiv-SAS 5449+) **Add and adapt** [Planet_Generator_0_68.py](/PrivateMaps/Planet_Generator_0_68.py) (from [CFC](https://forums.civfanatics.com/resources/planet-generator-0-68.1817/)): keeps its core behavior (unpredictable continent shapes with balanced continent sizes) while applying AdvCiv-SAS map compatibility changes, notably **world-size percentage scaling**, **removed unneeded options** (map-size override and redundant resources choice), and **bug fixes** (including robust direction handling). Expose the map in both **Simple Game** and **Custom Game** lists. Similarly add [Equal_Islands_V2_beta.py](/PrivateMaps/Equal_Islands_V2_beta.py) (from [CFC](https://forums.civfanatics.com/resources/equal-islands-v2-beta.19405/)), [Water.py](/PrivateMaps/Water.py) (from [CFC](https://forums.civfanatics.com/resources/water.15334/)) (actually has many lakes unlike [Lakes.py](/PrivateMaps/Lakes.py); also **adjusted city spacing** that **was too wide**).
+ - (Requires AdvCiv-SAS 5445+) Make other maps **also appear in Simple Game**: [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Ring.py](/PrivateMaps/Ring.py), [Wheel.py](/PrivateMaps/Wheel.py)
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+index 0aaf6e72f..57f734e04 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG
+index 29c4362d1..66dfc9ef8 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG
+index 8ba0bfa4f..1012dd944 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG
+index 714ec4325..b16d7a868 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG
+index cf24e48fa..e1806aa10 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG
+index 9f6a1ac1c..679e910fe 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG
+index 374d7cf42..4422d2d7e 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG
+index 9d4aeecdb..e92b733a5 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG
+index dd3c74f08..4cc19bd5d 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG
+index 8edace6af..a4eefcae4 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG
+index cf04bdc0f..401b0d925 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG
+index 3f8cebf76..f2cbfc61e 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG
+index aee854c61..ccc35462b 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG
+index c671daecb..f13096163 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (1).JPG
+new file mode 100644
+index 000000000..7e9272aa8
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG
+new file mode 100644
+index 000000000..5e578cb10
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG
+new file mode 100644
+index 000000000..b78152b7b
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=23 omittedFiles=0 embeddedPatchBytes=33309

@@ -1,0 +1,68 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2688
+# Commit: 0a4512223794a090bdefdfd594d8bf0e6e8c1688
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 32ef6b5cadcc897ba9d7cbf6734a28d13fbcb287
+# Title: Fix overflow in AI capitulation check
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	8	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 8598db050..fa3c46494 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2377,10 +2377,12 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 			iNumNonVassals++;
+ 		}
+ 	}
++	// The default precision looks a bit precarious here wrt. overflow
++	typedef ScaledNum<128> scaled128_t;
+ 	// advc.112: Probably not much of an improvement over using the mean
+-	scaled rMedianPow = stats::median(arPowerValues);
+-	scaled rAveragePower(iTotalPower, std::max(1, iNumNonVassals));
+-	scaled rMasterPower = kMasterTeam.getPower(false);
++	scaled128_t rMedianPow = stats::median(arPowerValues);
++	scaled128_t rAveragePower(iTotalPower, std::max(1, iNumNonVassals));
++	scaled128_t rMasterPower = kMasterTeam.getPower(false);
+ 	// <advc.112>
+ 	if(bFaraway ||
+ 		(getNumWars() <= 0 && AI_teamCloseness(eMasterTeam, -1, false, true) <= 0))
+@@ -2437,7 +2439,7 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 		iPersonalityModifier /= 2;
+ 		iPersonalityModifier -= 10;
+ 	} // </advc.112>
+-	scaled rVassalPower = per100(iOurPower * (iPowerMultiplier + iPersonalityModifier /
++	scaled128_t rVassalPower = per100(iOurPower * (iPowerMultiplier + iPersonalityModifier /
+ 			std::max(1, itMember.nextIndex())));
+ 	if (bWar)
+ 	{
+@@ -2553,11 +2555,10 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 			{
+ 				return DENIAL_POWER_YOUR_ENEMIES;
+ 			}
+-			rAveragePower = (2 * rAveragePower * iEnemyPower) /
+-					std::max(1, iEnemyPower + iOurPower);
++			scaled128_t rMult(2 * iEnemyPower, std::max(1, iEnemyPower + iOurPower));
++			rAveragePower *= rMult;
+ 			// advc.112: The same threat adjustment for the median
+-			rMedianPow = (2 * rMedianPow * iEnemyPower) /
+-					std::max(1, iEnemyPower + iOurPower);
++			rMedianPow *= rMult;
+ 			//iAttitudeModifier += (3 * kEnemy.getPower(true)) / std::max(1, getPower(true)) - 2;
+ 			/*  advc.112: Commented out K-Mod's replacement as well.
+ 				Attitude is handled later. */
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2094

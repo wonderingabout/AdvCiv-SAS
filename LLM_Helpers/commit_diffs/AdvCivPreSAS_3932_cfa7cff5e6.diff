@@ -1,0 +1,152 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3932
+# Commit: cfa7cff5e6b121da66976048e357a6a80f274f0c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7b96b021829bb34fe139ee489e4a2be0529071fe
+# Title: XML tag for per-tech adjustment to Barbarian diffusion
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	Assets/XML/Technologies/CIV4TechInfos.xml
+7	0	Assets/XML/Technologies/CIV4TechnologiesSchema.xml
+19	2	CvGameCoreDLL/CvInfo_Tech.h
+17	12	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 5f3d7addf..5cdab6487 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -2245,6 +2245,8 @@
+ 			<!-- advc.131b -->
+ 			<iAIWeight>-100</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
++			<!-- advc.301 -->
++			<iBarbarianFreeTechModifier>-50</iBarbarianFreeTechModifier>
+ 			<iCost>100</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -4804,6 +4806,8 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
++			<!-- advc.301 -->
++			<iBarbarianFreeTechModifier>50</iBarbarianFreeTechModifier>
+ 			<iCost>250</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/Assets/XML/Technologies/CIV4TechnologiesSchema.xml b/Assets/XML/Technologies/CIV4TechnologiesSchema.xml
+index 77dd20b29..9a38b6cdc 100644
+--- a/Assets/XML/Technologies/CIV4TechnologiesSchema.xml
++++ b/Assets/XML/Technologies/CIV4TechnologiesSchema.xml
+@@ -12,6 +12,11 @@
+ 	<ElementType name="Advisor" content="textOnly"/>
+ 	<ElementType name="iAIWeight" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAITradeModifier" content="textOnly" dt:type="int"/>
++	<!-- advc.301: Adjustment to the speed of diffusion to the Barbarians.
++		 Treated as a percentage to which 100 is added and then used as a
++		 multiplier. -100 will prevent diffusion entirely, e.g. 50 speeds up
++		 diffusion by 50%. -->
++	<ElementType name="iBarbarianFreeTechModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iCost" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAdvancedStartCost" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAdvancedStartCostIncrease" content="textOnly" dt:type="int"/>
+@@ -114,6 +119,8 @@
+ 		<element type="Advisor"/>
+ 		<element type="iAIWeight"/>
+ 		<element type="iAITradeModifier"/>
++		<!-- advc.301 -->
++		<element type="iBarbarianFreeTechModifier" minOccurs="0"/>
+ 		<element type="iCost"/>
+ 		<element type="iAdvancedStartCost"/>
+ 		<element type="iAdvancedStartCostIncrease"/>
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.h b/CvGameCoreDLL/CvInfo_Tech.h
+index e4604529d..a30f343e5 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.h
++++ b/CvGameCoreDLL/CvInfo_Tech.h
+@@ -4,9 +4,26 @@
+ #define CV_INFO_TECH_H
+ 
+ // advc.003x: Cut from CvInfos.h. Just CvTechInfo b/c I want to precompile this one.
+-class CvTechInfo : public CvInfoBase
++class CvTechInfo : /* <advc.tag> */ public CvXMLInfo
+ {
+-	typedef CvInfoBase base_t;
++	typedef CvXMLInfo base_t;
++protected:
++	void addElements(ElementList& kElements) const
++	{
++		base_t::addElements(kElements);
++		kElements.addInt(BarbarianFreeTechModifier, "BarbarianFreeTechModifier"); // advc.301
++	}
++public:
++	enum IntElementTypes
++	{
++		BarbarianFreeTechModifier = base_t::NUM_INT_ELEMENT_TYPES, // advc.301
++		NUM_INT_ELEMENT_TYPES
++	};
++	int get(IntElementTypes e) const
++	{
++		return base_t::get(static_cast<base_t::IntElementTypes>(e));
++	}
++	// </advc.tag>
+ 	friend class CvXMLLoadUtility;
+ public: // advc: All the const functions are exposed to Python except those added by mods
+ 	CvTechInfo();
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 5ed8c8a3f..58ef88cf2 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -5211,20 +5211,25 @@ void CvTeam::doBarbarianResearch()
+ 					one or two civs. */
+ 				if (bNoBarbCities)
+ 					iCount = std::max(iCount, (2 * iHasTech) / 3);
+-				static int const iBARBARIAN_FREE_TECH_PERCENT = GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT"); // advc.opt
+-				int iTechPercent = iBARBARIAN_FREE_TECH_PERCENT;
+-				// <advc.301> For slightly earlier Archers, earlier Horse Archers.
+-				if (GC.getInfo(eLoopTech).getFlavorValue(FLAVOR_MILITARY) > 7)
+-					iTechPercent++; // </advc.301>
++				static scaled const rBARBARIAN_FREE_TECH_PERCENT = // advc.opt
++						per100(GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT")); // advc.301
++				scaled rTechPercent = rBARBARIAN_FREE_TECH_PERCENT *
++						// <advc.301>
++						(1 + per100(GC.getInfo(eLoopTech).get(
++						CvTechInfo::BarbarianFreeTechModifier)));
++				if (rTechPercent <= 0)
++					continue; // </advc.301>
+ 				//changeResearchProgress(eLoopTech, (getResearchCost(eLoopTech) * ((iTechPercent * iCount) / iPossible)) / 100, getLeaderID());
+-				/*	K-Mod. Adjust research rate for game-speed & start-era -
++				/*	<K-Mod> Adjust research rate for game-speed & start-era -
+ 					but _not_ world-size. And fix the rounding error. */
+-				int iBaseCost = (getResearchCost(eLoopTech, false) *
+-						GC.getInfo(GC.getMap().getWorldSize()).getResearchPercent()) / 100;
+-				changeResearchProgress(eLoopTech, std::max(1,
+-						(iBaseCost * iTechPercent * iCount) /
+-						(100 * iPossible)), kBarbPlayer.getID());
+-				// K-Mod end
++				scaled rBaseCost = per100(getResearchCost(eLoopTech, false) *
++						GC.getInfo(GC.getMap().getWorldSize()).getResearchPercent());
++				changeResearchProgress(eLoopTech, scaled::clamp(
++						(rBaseCost * rTechPercent * iCount) / iPossible, 1,
++						// <advc.301> No overflow
++						std::max(1, getResearchCost(eLoopTech)
++						- getResearchProgress(eLoopTech))).uround(), // </advc.301>
++						kBarbPlayer.getID()); // </K-Mod>
+ 			}
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5415

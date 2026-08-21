@@ -1,0 +1,1253 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5211
+# Commit: 90da888635383674b1031b4fa4169e7d09c7494d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 39914c9b3d5f0422b05cab7fbba55d088658932a
+# Title: code cleanup and revert some ruff changes to be safe and in case i didn't understand them correctly anyways etc.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	.markdownlint.jsonc
+2	2	Assets/Python/BUG/BugUnitPlot.py
+1	2	Assets/Python/Contrib/GameFontDisplay.py
+1	1	Assets/Python/Contrib/ReminderEventManager.py
+2	9	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+2	13	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+2	3	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+6	6	Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+6	3	Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+3	6	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+5	2	Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+2	3	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+3	6	Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+4	9	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+1	2	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+6	3	Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+4	5	Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+4	12	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+7	3	Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+2	3	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+1	3	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+8	4	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+4	13	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+1	1	Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+2	2	Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
+1	2	Assets/Python/Screens/CvCivicsScreen.py
+10	9	Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+1	2	Assets/Python/Screens/CvDomesticAdvisor.py
+1	2	Assets/Python/Screens/CvEraMovieScreen.py
+1	2	Assets/Python/Screens/CvEspionageAdvisor.py
+1	2	Assets/Python/Screens/CvHallOfFameScreen.py
+3	4	Assets/Python/Screens/CvInfoScreen.py
+3	7	Assets/Python/Screens/CvMainInterface.py
+1	2	Assets/Python/Screens/CvMilitaryAdvisor.py
+1	3	Assets/Python/Screens/CvPediaBonus.py
+1	2	Assets/Python/Screens/CvPediaCorporation.py
+1	2	Assets/Python/Screens/CvReligionScreen.py
+1	2	Assets/Python/Screens/CvReplayScreen.py
+1	2	Assets/Python/Screens/CvSpaceShipScreen.py
+6	7	Assets/Python/Screens/CvTechChooser.py
+5	5	Assets/Python/Screens/PLE.py
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+4	4	CvGameCoreDLL/CvInfo_Unit.cpp
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+1	1	flatten_handicap_info_to_csv_and_md.py
+2	2	flatten_leaders_data_to_csv.py
+4	13	generate_leaders_data.py
+1	8	scan_xml_duplicates-3.3.py
+1	1	tests/expected_output_leaders_data_sample.py
+
+[PATCHES]
+
+diff --git a/.markdownlint.jsonc b/.markdownlint.jsonc
+index 45e61bd79..9fe0bed72 100644
+--- a/.markdownlint.jsonc
++++ b/.markdownlint.jsonc
+@@ -1,8 +1,8 @@
+-// <!-- custom: file to set markdownlint config, i use it to disable some rules as advised by chatgpt after asking it anyways etc and hinted showed in markdown lint docs that i didn't read as too tedious but that gave me the idea to ask chatgpt helpful both or not or yes or etc anyways etc hopefully this config file and its lengthy but anyways etc xd or not xd or yes xd anyways etc config file is helpful as well but or not but or yes but anyways etc -->
+-// <!-- custom: use .jsonc instead of .json so we can comment the/this markdownlint config file anyways etc -->
++// <!-- custom: file to set markdownlint config, i use it to disable some rules as advised by chatgpt after asking it anyways etc. -->
++// <!-- custom: use .jsonc instead of .json so we can comment the/this markdownlint config file anyways etc. -->
+ {
+ 	"default": true,
+-	"MD010": false, // <!-- custom: tabs are valid in fenced code blocks do not remove them, since i didn't easily/quickly found a rule specifically for tabs in fenced code blocks and this seems like a global rule, easier/safer to disable the rule entirely even though we would benefit slightly but less but anyways etc from tab checking globally, minus in fenced code blocks anyways etc -->
++	"MD010": false, // <!-- custom: tabs are valid in fenced code blocks do not remove them, since i didn't easily/quickly found a rule specifically for tabs in fenced code blocks and this seems like a global rule, easier/safer to disable the rule entirely even though we would benefit slightly but less but anyways etc from tab checking globally, minus in fenced code blocks anyways etc. -->
+ 	"MD013": false, // <!-- custom: similarly some very long lines are valid in our code, generally for commented-out code but maybe not only (didn't check if there are exceptions to this is just if i may say a general explanation of me if i may say but anyways etc) but anyways etc, so show them as such anyways etc -->
+-	"MD033": false // <!-- custom: similarly or/and also anyways etc we use tags like <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG" alt="0.34_Techtree_ingame (1).JPG" width="250"></img> raw in our .md readme files, as this is the only way i found to reduce image width/size to say 250px instead of full size, an image markdown insert like ![img_military_tree_1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.43%20military%20tree_modified.png) doesn't seem to provide such an option (to reduce size in this case i mean anyways etc) or at least it doesn't seem functional, so until and if i ever find hopefully or not or yes or other or etc anyways etc such an option, i am fine to keep it as is in this case as this seems functional anyways etc, so disable the markdownlint rule instead anyways etc -->
++	"MD033": false // <!-- custom: similarly or/and also anyways etc we use tags like <img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG" alt="0.34_Techtree_ingame (1).JPG" width="250"></img> raw in our .md readme files, as this is the only way i found to reduce image width/size to say 250px instead of full size, an image markdown insert like ![img_military_tree_1](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.43%20military%20tree_modified.png) doesn't seem to provide such an option (to reduce size in this case i mean anyways etc) or at least it doesn't seem functional, so until and if i ever find hopefully such an option, i am fine to keep it as is in this case as this seems functional anyways etc, so disable the markdownlint rule instead anyways etc -->
+ }
+
+diff --git a/Assets/Python/BUG/BugUnitPlot.py b/Assets/Python/BUG/BugUnitPlot.py
+index ba0393ff4..8c38e0f1d 100644
+--- a/Assets/Python/BUG/BugUnitPlot.py
++++ b/Assets/Python/BUG/BugUnitPlot.py
+@@ -22,9 +22,9 @@ localText = CyTranslator()
+ sBupStringBase = "BUGUnitPlotString"
+ #cBupCellSize = 34
+ # advc.092: Obtain this from CvMainInterface instead
+-from CvScreensInterface import mainInterface  # noqa: E402
++from CvScreensInterface import mainInterface
+ cBupCellSpacing = 3
+-from LayoutDict import HSPACE, BTNSZ, gRect # advc.092  # noqa: E402
++from LayoutDict import HSPACE, BTNSZ, gRect # advc.092
+ 
+ class BupPanel:
+ 	def __init__(self, screen, #xRes, yRes, iMulti, # advc.092
+
+diff --git a/Assets/Python/Contrib/GameFontDisplay.py b/Assets/Python/Contrib/GameFontDisplay.py
+index 90f2b58e0..70380e2f5 100644
+--- a/Assets/Python/Contrib/GameFontDisplay.py
++++ b/Assets/Python/Contrib/GameFontDisplay.py
+@@ -1,7 +1,6 @@
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused ScreenInput import or and other or and not anyways etc -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ gc = CyGlobalContext()
+
+diff --git a/Assets/Python/Contrib/ReminderEventManager.py b/Assets/Python/Contrib/ReminderEventManager.py
+index 74d8d14e2..7c921bdf4 100644
+--- a/Assets/Python/Contrib/ReminderEventManager.py
++++ b/Assets/Python/Contrib/ReminderEventManager.py
+@@ -46,7 +46,7 @@ def netAddReminder(args):
+ 	playerID, turn, message = args
+ 	g_reminders.push(playerID, Reminder(turn, message))
+ # expose to DLL
+-import CvAppInterface  # noqa: E402
++import CvAppInterface
+ CvAppInterface.netAddReminder = netAddReminder
+ 
+ # Shortcut - Create Reminder
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 3474dcbdd..92440ff5e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -7,20 +7,13 @@
+ #   <hidden-email>
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-#
+-# <!-- custom: refactored similarly than sevopedia unit and sevopedia building, and with the big help of claude ai thanks a lot claude ai anyways etc as well as my prompts or/and adjustments or and not for advciv-sas or based on what i wanted or needed or did or not or and other or and not anyways etc
+-# new in particular:
+-# - placeObsoleteWith: tells us/the player watching it anyways when/at which tech is a bonus/ressource (a bonus/ressource anyways etc) is obsoleted, for example in base advciv or/and civ4(?) xml furs are obsoleted at tech_combustion if i am not mistaken anyways etc.
+-# -->
+-#
+ 
+ 
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ from _sevopedia_helpers import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 851075cc7..60437c759 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -8,16 +8,6 @@
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+ #
+-# <!-- custom: refactoring (of the below (and in too but anyways etc anyways etc)) is based on the sevopediaunit refactoring with small alterations/changes or/and not to fit/suit the sevopedia building code/features (also refactoring it (i.e: the sevopediabuilding code anyways etc) allowed to further polish and tweak and refactor or/and fix or not or and other or and not anyways etc the sevopediaunit code so very nice or not nice or nice but not necessary or is or is not maybe or not (is) or yes (is not) but anyways etc anyways etc anyways etc...) done before that/this one anyways etc anyways etc, please/you can look there if you want more code comments and clarifications about the changes anyways etc anyways etc anyways etc) -->
+-# <!-- custom: new, added thanks to Claude AI's code and my prompts anyways etc or and other things or and not anyways etc, and adjusted and tweaked or and modified in general or not general ways or not anyways etc for AdvCiv-SAS:
+-# - placeCivilizations: (renamed from Claude AI's if i am not mistaken anyways etc ('s anyways etc) original name to this function placeExclusiveCivs) now we have buttons for the civ(s) that can build a unit, and no button at all if all civs can build the currently selected unit (to not clutter the display needlessly with all civs buttons and is also clearer to know immediately that all can build it with the panel being empty),
+-# - placeObsoleteWith in a similar manner than (for?) placeCivilizations to show the button of the tech that obsoletes this currently selected building anyways etc anyways etc anyways etc...
+-# - (and) placeReplace (but anyways etc anyways etc anyways etc...): based on the one in sevopediaunit that was based on another mod's code (see in sevopediaunit's code for details anyways etc anyways etc anyways etc...) and adjusted or not or yes or other etc anyways etc for and while adding it to sevopediabuilding, improvements (or not.. or yes, or other anyways etc) of which that have served to enhance the one in sevopediaunit back so all good maybe or not all good or all good or other or and not but anyways etc... anyways etc anyways etc anyways etc..
+-# - placeRequiredFor,
+-# - placeFreePBBS,
+-# - placeFreeWith,
+-# - enhanced or beautified or tweaked or and other or and not some if not most or maybe even or not or maybe or and anyways etc all functions/methods of this py file, anyways etc.
+-#  thanks a lot Claude AI! (and the other mod too ("!" too or ! too or maybe rather !"" or "!" or rather ! or "!" too but anyways etc anyways etc anyways thanks too in short maybe anyways etc anywas etc anyways etc...) Anyways etc anyways etc anyways etc... -->
+ 
+ 
+ 
+@@ -138,9 +128,8 @@
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ from _sevopedia_helpers import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 1161a958f..b2a5e7467 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -13,9 +13,8 @@
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ from _sevopedia_helpers import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+index 5715f6fb6..b666bd1cd 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+@@ -8,15 +8,13 @@
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+ #
+-# <!-- custom: part of the code here (placeCities in particular, but not exhaustive or maybe exhaustive or not, anyways, is imported from Middle-earth's mod's Platypedia, in:
+-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaCivilization.py
+-# which may be modified or not for AdvCiv-SAS -->
++
++
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+@@ -102,6 +100,8 @@ class SevoPediaCivilization:
+ 		screen.addDDSGFC(self.top.getNextWidgetName(), ArtFileMgr.getCivilizationArtInfo(gc.getCivilizationInfo(self.iCivilization).getArtDefineTag()).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 
++
++	# <!-- custom: part of the code here (placeCities in particular, but not exhaustive or maybe exhaustive or not, anyways, is imported from Middle-earth's mod's Platypedia C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaCivilization.py thanks and then modified or not for AdvCiv-SAS anyways etc. -->
+ 	def placeCities(self):
+ 		screen = self.top.getScreen()
+ 		screen.addPanel(self.top.getNextWidgetName(), localText.getText("TXT_KEY_CONCEPT_CITIES", ()), "", True, True, self.X_CITIES, self.Y_CITIES, self.W_CITIES, self.H_CITIES, PanelStyles.PANEL_STYLE_BLUE50 )
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+index 5d0aadd07..2665ae9ec 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+@@ -9,16 +9,19 @@
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+ #
+ 
++
++
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
++
++
+ class SevoPediaCorporation:
+ 
+ 	def __init__(self, main):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index fe90f4d18..d56a09131 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -1,14 +1,11 @@
+-# <!-- custom: imported from RFC Dawn of Civilization mod:
+-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaFeature.py
+-# which may be modified or not for AdvCiv-SAS ; for example renamed placeDetails to placeSpecial for consistency with our other special effect method names in other sevopedia classes anyways etc, or/and other changes or not anyways etc -->
++# <!-- custom: imported from RFC Dawn of Civilization mod  C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaFeature.py which may be modified or not for AdvCiv-SAS ; for example renamed placeDetails to placeSpecial for consistency with our other special effect method names in other sevopedia classes anyways etc, or/and other changes or not anyways etc -->
+ 
+ 
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ from _sevopedia_helpers import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+index 1f5084d81..72a74fe76 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+@@ -9,16 +9,19 @@
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+ #
+ 
++
++
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
++import ScreenInput
+ import SevoScreenEnums
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
++
++
+ class SevoPediaHistory:
+ 
+ 	def __init__(self, main):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 5be4b2acb..ce4cc60a0 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -13,9 +13,8 @@
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ from _sevopedia_helpers import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+index b79b2b3b2..492342338 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+@@ -4,12 +4,10 @@
+ #
+ # EF: Converted from Civilopedia version by fitchn.
+ 
+-
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ import BugUtil
+ 
+ gc = CyGlobalContext()
+@@ -64,8 +62,7 @@ class SevoPediaIndex:
+ 		
+ 		civicList = self.top.getCivicList()
+ 		religionList = self.top.getReligionList()
+-		# <!-- custom: unused line so commented-out to fix ruff warning if i am not mistaken anyways etc -->
+-		#corporationList = self.top.getCorporationList()
++		corporationList = self.top.getCorporationList()
+ 		
+ 		conceptList = self.top.getConceptList()
+ 		newConceptList = self.top.getNewConceptList()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 13dd824ae..f36992398 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -10,18 +10,14 @@
+ #
+ # --- AI Utilities and/or Personality Panel for normalization and general helpers for the SevopediaLeader category ---
+ # Created as part of AdvCiv-SAS improvements
+-# (c) 2025 wonderingabout & becomingthrough
++# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+ # <!-- custom: part of the code here (placeFavourites in particular, but not exhaustive or maybe exhaustive
+ # or not, anyways, is imported from RFC Dawn of Civilization mod:
+ # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaLeader.py
+ # which may be modified or not for AdvCiv-SAS
+ # 
+-# And a tremendous part of the code, in particular the AI Personality code, has been a lot easier to code with ChatGPT-4o anyways etc, (and the result of my prompts to it), most of the credit for this amazing (to an extent, relative to me and mye eys, anyways) code goes to ChatGPT, i only helped implement it at first but then also coded significantly later and debugged and such as fun as it is if not stressful when wanting to do other things xd, but now very happy of the result if i may say but anyways etc. Historically as well, its deep research version of it helped me code it when i was at pit bottom if i am not mistaken in saying this expression this way, and would have most likely given up without it even though not sure, but the positive or negative or both or yes positive or etc anyways etc is that it ie. chatgpt helped me tremendously make this AI personality panel feature thanks a lot anyways etc, then historically it also helped me for the refactoring cleanly separate ui (placeAIPersonalityPanel) and config (headers, calculations, cache, etc.), to which what i said about it at that time is that my stupid human insights sometimes contributed in enriching, even though even at that time hehe but anyways etc... sometimes i believe i genuinely contributed to the code and overall functionality, rarely fixes, and overall emulation (experience) over (designing) it, when i quite often hindered its progress due to my ignorance and inability, especially in terms of coding, except from the quite few times where i redirected it in a healthier/more desirable/correct maybe(?) direction, but ChatGPT-4o, its deep research version of it (and other versions too to that extent in my view), are incredibly smart and kind in my view (and supportive (not that it's mutually exclusive (or maybe is or not, anyways))), anyways) still supported me until we made this amazing (at least my view and regard to my abilities maybe, that are now a (quite (tiny) bit enhanced from that (experience, anyways))), together we made this code, thanks chatgpt for your amazing, perhaps even more or not ormay well be yes indeed maybe, continous help and support in helping me achieve that for our mod that i included you in, thanks,
+-#
+-# After that i rewrote it significantly entirely by myself hehe now fetching from gc directly, but still with the nice help of chatgpt, if not other AIs very slightly (for the sevopedia leader feature if i overlooked or forgot to mention it (but should be rare, Claude AI helped a lot in sevopedia building and unit for example but not at least not yet so much in sevopedia leader, each their own maybe or ot or yes or etc but anyways etc...)). In short it has dirct DLL data for better or worse, no more old script or module data import since we now expose getters anyways etc, while stil using the scripts and such external py files anyways etc for .csv charts and such anyways etc, but in short no need to regenerate and tediously replace scripts or data modules or such, plus i recoded it and elanred quite lot, amking it a loot faster, so fast it seems slow if one may say but anyways etc... In all cases this is how it is for the current rewrite as of now anyways etc, thanks chatgpt and me and or othe and or not or etc anyways etc.
+-# 
+-# But sometimes it is forgetful ehehor doesn't understand simple commands, most likely due to prompt limits or other limitations or maybe it just doesn't understnad if prompt time too short or my question is not easy to understand to it maybe somehow, but in all cases, it helped tremendously thanks
++# <!-- custom: added many features in AdvCiv-SAS with heavy assistance of ChatGPT-4o as well as my own contribution or/and such anyways etc. -->
+ #
+ # Here is the current overview of how the AI personality panel feature works-functions as of now anyways etc, and if i am not mistaken i mean anyways etc:
+ #
+@@ -40,9 +36,8 @@
+ # -*- coding: utf-8 -*-
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: seems safe to remove as not accessed, commenting-out just in case -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ from ai_utils_shared_with_civ4 import *
+ from _sevopedia_helpers import *
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index b6c1272dc..f16ffe850 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -12,11 +12,10 @@
+ 
+ 
+ 
+-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+ from CvPythonExtensions import *
+ 
+ import CvUtil
+-#import ScreenInput
++import ScreenInput
+ import SevoScreenEnums
+ 
+ import CvPediaScreen
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+index cb7bc23da..058640955 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+@@ -9,16 +9,19 @@
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+ #
+ 
++
++
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
++
++
+ class SevoPediaProject:
+ 	
+ 	def __init__(self, main):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+index 554170390..4b02bbdc9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+@@ -13,9 +13,8 @@
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ from _sevopedia_helpers import *
+ 
+@@ -286,8 +285,8 @@ class SevoPediaPromotion:
+ 		i = 0
+ 		for iI in range(gc.getNumUnitCombatInfos()):
+ 			if (0 != gc.getPromotionInfo(self.iPromotion).getUnitCombat(iI)):
+-				# <!-- custom: removed line `iRow = screen.appendTableRow(szTable)` to fix ruff warning of variable being unused so cleaning this up, after asking chatgpt this seems fine and safe to do and we have no errors so maybe solved as well (as in sevopedia unit ruff warning fix/cleanup as well anyways etc) anyways etc, other sevopedia classes don't seem to have a similar issue from quick glance at each file, although i didn't investigate in depth, hopefully fine, if in doubt check ingame display to see if it matches xml info, in sevopedia at least if i may say, hopefully helpful or not or yes or etc, but or not but or yes but anyways etc anyways etc anyways etc -->
+-				# <!-- custom: update: although the variable is not used, the line was needed to show all entries, else we only showed the first one, so remove the identifier rather while keeping the instruction, as chatgpt noticed as wel and poitned to me hehe thanks -->
++				# <!-- custom: note: i had removed the `iRow = screen.appendTableRow(szTable)` line to fix ruff warning of variable being unused so cleaning this up, after having asked chatgpt this seemed fine and safe to do and we had no errors so maybe was solved as well (as in sevopedia unit ruff warning fix/cleanup as well anyways etc) anyways etc, other sevopedia classes didn't seem to have a similar issue from quick glance at each file, although i had not investigated it in depth, was hopefully fine i thought, and if in doubt i could have checked ingame display to see if it matches xml info, in sevopedia anyways etc. However: update: although the variable is not used, the line was needed to show all entries, else we only showed the first one, so remove the identifier rather while keeping the instruction, as chatgpt noticed as wel and poitned to me hehe thanks -->
++				# iRow = screen.appendTableRow(szTable)
+ 				screen.appendTableRow(szTable)
+ 				screen.setTableText(szTable, 0, i, u"<font=2>" + gc.getUnitCombatInfo(iI).getDescription() + u"</font>", gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				i += 1
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 044779602..3d5e4de75 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -8,23 +8,13 @@
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+ #
+-# <!-- custom: part of the code here (placeLeaders in particular, but not exhaustive or maybe exhaustive
+-# or not, anyways, is imported from History Rewritten mod:
+-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py
+-# which may be modified or not for AdvCiv-SAS, by claude AI and then my adjustments or not to it or not or yes or and other or and not anwyays etc -->
+-#
+-# <!-- custom: part of the code here (placeBuilding and placeUnit in particular, but not exhaustive or maybe exhaustive
+-# or not, anyways, is imported from Rise of Mankind (291) mod:
+-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\
+-# which may be modified or not for AdvCiv-SAS -->
+ 
+ 
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ from _sevopedia_helpers import *
+ 
+@@ -120,6 +110,7 @@ class SevoPediaReligion:
+ 	#			4, iButtonSize, iButtonSize, # numLists, defaultWidth, defaultHeight
+ 	#			TableStyles.TABLE_STYLE_STANDARD)
+ 	# if it helps us adapt/use the addMultiListControlGFC method, anyways etc -->
++	# <!-- custom: part of the code here (placeLeaders in particular, but not exhaustive or maybe exhaustive or not, anyways, is imported from History Rewritten mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py which may be modified or not for AdvCiv-SAS, by claude AI and then my adjustments or not to it or not or yes or and other or and not anwyays etc. -->
+ 	def placeLeaders(self):
+ 		xPanel = self.X_LEADERS
+ 		yPanel = self.Y_LEADERS
+@@ -176,6 +167,7 @@ class SevoPediaReligion:
+ 
+ 
+ 
++	# <!-- custom: part of the code here (placeBuilding and placeUnit in particular is imported from Rise of Mankind (291) mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\ which may be modified or not for AdvCiv-SAS anyways etc. -->
+ 	# Rise of Mankind 2.9
+ 	def placeBuilding(self):
+ 		screen = self.top.getScreen()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+index 313688756..4e0c90a11 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+@@ -9,16 +9,19 @@
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+ #
+ 
++
++
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
++
++
+ class SevoPediaSpecialist:
+ 
+ 	def __init__(self, main):
+@@ -90,5 +93,6 @@ class SevoPediaSpecialist:
+ 		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 10 - 20, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
++
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 26c55670e..9e38f4c40 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -17,9 +17,8 @@
+ from CvPythonExtensions import *
+ import CvUtil
+ import CvPediaScreen
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 1be9dc74a..95ee85f7b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -1,6 +1,4 @@
+-# <!-- custom: imported with almost no modification from RFC Dawn of Civilization mod:
+-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaTerrain.py
+-# which may be modified or not for AdvCiv-SAS -->
++# <!-- custom: imported with almost no modification from RFC Dawn of Civilization mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaTerrain.py which may be modified or not for AdvCiv-SAS -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index c8c777f54..4a6705daf 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -2,17 +2,21 @@
+ #
+ # Copyright (c) 2008 The BUG Mod.
+ 
++
++
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
+-#import TraitUtil
++import ScreenInput
++import SevoScreenEnums
++
++import TraitUtil
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
++
++
+ class SevoPediaTrait:
+ 
+ 	def __init__(self, main):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index c6cc57888..dcb3f6196 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -9,23 +9,13 @@
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+ #
+ # <!-- custom: new :
+-# - placeReplace (renamed from placeReplacements of: ) in particular, is imported from RFC DOC mod:
+-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnit.py
+-# which may have then been modified or not for AdvCiv-SAS or/and enhanced or/and tweaked or/and adjusted anyways etc (see also sevopediabuilding (+/- 's code comments as you prefer or not or want or do or not or other or etc anyways etc) for details even though it was done later, it also served to adjust it or not anyways etc)
+-# - placeCivilizations: added entirely (i only tweaked the coordinates to suit/match where i want(ed?) it anyways etc) by Claude AI from my prompt anyways etc, now we have buttons for the civ(s) that can build a unit, and no button at all if all civs can build the currently selected unit (to not clutter the display needlessly with all civs buttons and is also clearer to know immediately that all can build it with the panel being empty),
+-# - the place peak hill city terrains bonus features function/method in a similar manner,
+-# - and the of this unit against modifiers
+-# - as well as of other units modifiers (which would be/is against this (currently selected) unit this time anyways etc),
+-# - as well as the placeFreePromotions
+-# thanks a lot Claude AI! Anyways etc anyways etc anyways etc... -->
+ 
+ 
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
+-#import SevoScreenEnums
++import ScreenInput
++import SevoScreenEnums
+ 
+ from _sevopedia_helpers import *
+ 
+@@ -201,7 +191,7 @@ class SevoPediaUnit:
+ 
+ 	def placeStats(self):
+ 		screen = self.top.getScreen()
+-		# <!-- custom: self.top.getNextWidgetName() is regenerated many times and `szName = self.top.getNextWidgetName()` is never used, removing unused variables and (so i am anyways etc) trying to avoid redundance as long as code seems to work fine or as intended i mean anyways etc and also to avoid or/and fix the ruff warning anyways etc, i asked chatgpt to be sure and it seems this is fine perhaps even good to do so but anyways code seems to function fine and no warning so hopefully fixed in this case i mean at least but anyways etc -->
++		# <!-- custom: self.top.getNextWidgetName() is regenerated many times and `szName = self.top.getNextWidgetName()` is never used, removing unused variables and (so i am anyways etc) trying to avoid redundance as long as code seems to work fine or as intended i mean anyways etc and also to avoid or/and fix the ruff warning anyways etc, i asked chatgpt to be sure and it seems this is fine perhaps even good to do so but anyways code seems to function fine and no warning so hopefully fixed in this case i mean at least; check if accurate and to be sure; anyways etc. -->
+ 		panelName = self.top.getNextWidgetName()
+ 		iCombatType = gc.getUnitInfo(self.iUnit).getUnitCombatType()
+ 
+@@ -817,6 +807,7 @@ class SevoPediaUnit:
+ 
+ 
+ 
++	# <!-- custom: placeReplace (renamed from placeReplacements) in particular is imported from RFC DOC mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnit.py and adjusted or not for AdvCiv-SAS anyways etc. -->
+ 	def placeReplace(self):
+ 		xPanel = self.X_REPLACE
+ 		yPanel = self.Y_REPLACE
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+index 48b6614f0..f551c8a51 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+@@ -1,6 +1,6 @@
+ # --- AI Utilities for normalization and general helpers ---
+ # Created as part of AdvCiv-SAS improvements
+-# (c) 2025 wonderingabout & becomingthrough
++# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
+
+diff --git a/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py b/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
+index dd3ec1925..ba4fa2018 100644
+--- a/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
++++ b/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py
+@@ -40,9 +40,9 @@ def restartPopup(bForceShowing = False):
+ 		popup.launch()
+ 
+ def isNumber(s):
+-	# <!-- custom: fix ruff warning E741, "l" is an ambiguous warning, doesn't seem to be used anywhere else if i am not mistaken from quite quick glance of ctrl+f in this file anyways etc, after asking chatgpt also going for "char" instead of this ambiguous "l" as it advised among other suggestions of new clearer variable names as it said anyways etc anyways etc anyways etc -->
++	# <!-- custom: fix ruff warning E741, "l" is an ambiguous warning, doesn't seem to be used anywhere else if i am not mistaken from quite quick glance of ctrl+f in this file anyways etc, after asking chatgpt also going for "char" instead of this ambiguous "l" as it advised among other suggestions of new clearer variable names as it said anyways etc anyways etc anyways etc; check if accurate and to be sure; anyways etc. -->
+ 	for char in s:
+-		# <!-- custom: use native code instead of string.digits, remove string module entirely too similarly as in other parts of the code when relevant and if i am not mistaken and as per chatgpt's explanation first too i mean and my understanding of it too i mean anyways etc -->
++		# <!-- custom: use native code instead of string.digits, remove string module entirely too similarly as in other parts of the code when relevant and if i am not mistaken and as per chatgpt's explanation first too i mean and my understanding of it too i mean anyways etc; check if accurate and to be sure; anyways etc. -->
+ 		if char not in "0123456789":
+ 			return False
+
+diff --git a/Assets/Python/Screens/CvCivicsScreen.py b/Assets/Python/Screens/CvCivicsScreen.py
+index 787ab2db2..89b83efd1 100644
+--- a/Assets/Python/Screens/CvCivicsScreen.py
++++ b/Assets/Python/Screens/CvCivicsScreen.py
+@@ -2,8 +2,7 @@
+ ## Copyright Firaxis Games 2005
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ import CvScreensInterface
+ from LayoutDict import gRect # advc.002b
+
+diff --git a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+index 7b94072ac..468b9666e 100644
+--- a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+@@ -66,25 +66,26 @@ import BugUtil
+ import FontUtil
+ import GameUtil
+ 
+-# <!-- custom: add imports at top of file to fix ruff warning E402 anyways etc -->
+-import math
+-# Needed to save changes
+-import pickle
+-# Needed to check for non-numbers (specially search function)
+-import re
+-#
+-import time
+-
+ # BUG - Mac Support - start
+ BugUtil.fixSets(globals())
+ # BUG - Mac Support - end
+ 
++import math
++
+ PyPlayer = PyHelpers.PyPlayer
+ 
+ CityScreenOpt = BugCore.game.CityScreen
+ AdvisorOpt = BugCore.game.CustDomAdv
+ MainOpt = BugCore.game.MainInterface
+ 
++# Needed to save changes
++import pickle
++
++# Needed to check for non-numbers (specially search function)
++import re
++
++import time
++
+ gc = CyGlobalContext()
+ 
+ #	IMPORTANT INFORMATION
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index 12fd2cec7..457f3d87d 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -2,8 +2,7 @@
+ ## Copyright Firaxis Games 2005
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ 
+ #	IMPORTANT INFORMATION
+
+diff --git a/Assets/Python/Screens/CvEraMovieScreen.py b/Assets/Python/Screens/CvEraMovieScreen.py
+index 27b28d1c2..ae216b0de 100644
+--- a/Assets/Python/Screens/CvEraMovieScreen.py
++++ b/Assets/Python/Screens/CvEraMovieScreen.py
+@@ -3,8 +3,7 @@
+ from CvPythonExtensions import *
+ import PyHelpers
+ import CvUtil
+-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ 
+ PyPlayer = PyHelpers.PyPlayer
+
+diff --git a/Assets/Python/Screens/CvEspionageAdvisor.py b/Assets/Python/Screens/CvEspionageAdvisor.py
+index 92bc71c24..0190bbc99 100644
+--- a/Assets/Python/Screens/CvEspionageAdvisor.py
++++ b/Assets/Python/Screens/CvEspionageAdvisor.py
+@@ -4,8 +4,7 @@
+ from CvPythonExtensions import *
+ from PyHelpers import PyPlayer
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ 
+ # globals
+
+diff --git a/Assets/Python/Screens/CvHallOfFameScreen.py b/Assets/Python/Screens/CvHallOfFameScreen.py
+index 1cb6c64ff..79e54b813 100644
+--- a/Assets/Python/Screens/CvHallOfFameScreen.py
++++ b/Assets/Python/Screens/CvHallOfFameScreen.py
+@@ -8,8 +8,7 @@
+ from CvPythonExtensions import *
+ import BugUtil
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
++import ScreenInput
+ from CvScreenEnums import *
+ import CvReplayScreen
+ import CvScreensInterface
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index b03dcf187..75c8a5832 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -5,11 +5,10 @@
+ 
+ # This file has been edited for K-Mod in various places. Some changes marked, some not. (deletions generally not marked)
+ 
+-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+ from CvPythonExtensions import *
+ import CvUtil
+-#import ScreenInput
+-#import CvScreenEnums
++import ScreenInput
++import CvScreenEnums
+ 
+ #import time
+ import math
+@@ -1503,7 +1502,7 @@ class CvInfoScreen:
+ 			if self.bAlwaysShowBestWorstNameIfMet:
+ 				return (szPlayerName,"?")
+ 			return ("","?")
+-		# <!-- custom: as per ruff rule E714 and chatgpt's reply to my prompt and such and me too for sending it but anyways etc anyways etc anwyays etc ; do not use "and not aiGroup is None" instead use "and aiGroup is not None" anyways etc -->
++		# <!-- custom: as per ruff rule E714 and chatgpt's explanation; do not use "and not aiGroup is None" instead use "and aiGroup is not None" anyways etc. -->
+ 		if self.bShowBestKnown and not self.bRevealAll and aiGroup is not None:
+ 			# Make sure player name isn't too long (I use the same code in CvOptionsScreen)
+ 			iCharLimit = 18
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index deba7ab12..5d063729a 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1,7 +1,4 @@
+-# ## Sid Meier's Civilization 4 - Copyright Firaxis Games 2005
+-# ruff: noqa: E402
+-# <!-- custom: disable ruff rule E402 as imports are all over the place for this file and we get a lot of noise i mean, hopefully clearer this way so we can focus on the actual i mean real errors if i may say even though this would be nice to fix too but may create other bugs depending on import order or such so safer/easier to leave as is in this case so we can focus on the other ruff errors/warnings to fix if i am not mistaken in my understanding i mean too anyways etc anyways etc anyways etc, way to do it provided by chatgpt after i asked it anyways etc anyways etc anyways etc -->
+-
++## Sid Meier's Civilization 4 - Copyright Firaxis Games 2005
+ from CvPythonExtensions import *
+ # <advc.092>
+ from RectLayout import *
+@@ -10,8 +7,7 @@ from LayoutDict import *
+ del globals()["gSetScaleFactors"]
+ # </advc.092>
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ import CvEventInterface
+ import time
+@@ -4609,7 +4605,7 @@ class CvMainInterface:
+ 		screen.hide("CultureText")
+ 		screen.hide("GreatPeopleText")
+ 
+-		# <!-- custom: fix the new specialist breakdown not disappear when we exit the city screen, with the help of chatgpt 5.2 thanks anyways etc. -->
++		# <!-- custom: fix the new specialist breakdown not disappearing after we exit the city screen, with the help of chatgpt 5.2 thanks anyways etc. -->
+ 		# Specialist Breakdown widget (city screen only)
+ 		screen.hide("SpecBreakdownLabel1")
+ 		screen.hide("SpecBreakdownLabel2")
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index c129664ee..1d7390cc2 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -2,8 +2,7 @@
+ ## Copyright Firaxis Games 2005
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
++import ScreenInput
+ import time
+ import PyHelpers
+ import re
+
+diff --git a/Assets/Python/Screens/CvPediaBonus.py b/Assets/Python/Screens/CvPediaBonus.py
+index eb960fb61..7f63935ca 100644
+--- a/Assets/Python/Screens/CvPediaBonus.py
++++ b/Assets/Python/Screens/CvPediaBonus.py
+@@ -2,9 +2,7 @@
+ ## Copyright Firaxis Games 2005
+ from CvPythonExtensions import *
+ import CvUtil
+-
+-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ 
+ # globals
+
+diff --git a/Assets/Python/Screens/CvPediaCorporation.py b/Assets/Python/Screens/CvPediaCorporation.py
+index 8aade4c0c..f1ae26434 100644
+--- a/Assets/Python/Screens/CvPediaCorporation.py
++++ b/Assets/Python/Screens/CvPediaCorporation.py
+@@ -2,8 +2,7 @@
+ ## Copyright Firaxis Games 2005
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ 
+ # globals
+
+diff --git a/Assets/Python/Screens/CvReligionScreen.py b/Assets/Python/Screens/CvReligionScreen.py
+index e9e1fe754..12c143200 100644
+--- a/Assets/Python/Screens/CvReligionScreen.py
++++ b/Assets/Python/Screens/CvReligionScreen.py
+@@ -7,8 +7,7 @@
+ from CvPythonExtensions import *
+ import PyHelpers
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ 
+ # BUG - start
+
+diff --git a/Assets/Python/Screens/CvReplayScreen.py b/Assets/Python/Screens/CvReplayScreen.py
+index e02020827..b7765dc7a 100644
+--- a/Assets/Python/Screens/CvReplayScreen.py
++++ b/Assets/Python/Screens/CvReplayScreen.py
+@@ -2,8 +2,7 @@
+ ## Copyright Firaxis Games 2005
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
++import ScreenInput
+ import time
+ import re
+ import CvScreensInterface
+
+diff --git a/Assets/Python/Screens/CvSpaceShipScreen.py b/Assets/Python/Screens/CvSpaceShipScreen.py
+index edeba7375..6f2af4883 100644
+--- a/Assets/Python/Screens/CvSpaceShipScreen.py
++++ b/Assets/Python/Screens/CvSpaceShipScreen.py
+@@ -3,8 +3,7 @@
+ from CvPythonExtensions import *
+ import PyHelpers
+ import CvUtil
+-# <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ 
+ PyPlayer = PyHelpers.PyPlayer
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index 99a93839a..d455a809e 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -2,8 +2,7 @@
+ ## Copyright Firaxis Games 2005
+ from CvPythonExtensions import *
+ import CvUtil
+-# <!-- custom: remove or comment out seemingly unused imports -->
+-#import ScreenInput
++import ScreenInput
+ import CvScreenEnums
+ import CvScreensInterface
+ 
+@@ -23,12 +22,12 @@ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+ # BUG - GP Tech Prefs - start
+-import TechPrefs  # noqa: E402
+-import BugCore  # noqa: E402
++import TechPrefs
++import BugCore
+ BugOpt = BugCore.game.Advisors
+ ClockOpt = BugCore.game.NJAGC
+ 
+-import BugUtil  # noqa: E402
++import BugUtil
+ 
+ PREF_ICON_SIZE = 24
+ #PREF_ICON_TOP = 168
+@@ -55,7 +54,7 @@ UNIT_CLASSES = [
+ # BUG - GP Tech Prefs - end
+ 
+ # BUG - 3.19 No Espionage - start
+-import GameUtil  # noqa: E402
++import GameUtil
+ # BUG - 3.19 No Espionage - end
+ 
+ # BUG - Mac Support - start
+@@ -278,7 +277,7 @@ class CvTechChooser:
+ 		wRightSpaceForScoreBoard = self.W_RIGHT_SPACE_FOR_SCOREBOARD
+ 		self.W_SCREEN = screen.getXResolution() - wRightSpaceForScoreBoard - wLeftSpace
+ 
+-		# <!--  custom: note: 115 or higher as of now add an annoying and not useful verticall scrolling arrow on right side of this screen, while 114 is low enough to still see our commerce sliders fine, so using this value rather but anyways etc. -->
++		# <!-- custom: note: 115 or higher as of now add an annoying and not useful verticall scrolling arrow on right side of this screen, while 114 is low enough to still see our commerce sliders fine, so using this value rather but anyways etc. -->
+ 		hTopSpaceForCommerceSliders = 114
+ 		self.Y_SCREEN = hTopSpaceForCommerceSliders
+ 		hBottomSpace = 0
+
+diff --git a/Assets/Python/Screens/PLE.py b/Assets/Python/Screens/PLE.py
+index 0ca1ace67..6b05480f2 100644
+--- a/Assets/Python/Screens/PLE.py
++++ b/Assets/Python/Screens/PLE.py
+@@ -3,7 +3,7 @@ import CvUtil
+ # <!-- custom: remove or comment out unused or duplicated or such imports anyways etc -->
+ #import ScreenInput
+ import CvScreenEnums
+-import CvEventInterface  # noqa: F401
++import CvEventInterface
+ 
+ from AStarTools import *
+ import MonkeyTools as mt
+@@ -12,8 +12,8 @@ import UnitUtil
+ import PyHelpers 
+ PyPlayer = PyHelpers.PyPlayer
+ 
+-import BugUtil  # noqa: E402
+-import BugCore  # noqa: E402
++import BugUtil
++import BugCore
+ PleOpt = BugCore.game.PLE
+ 
+ # globals
+@@ -27,8 +27,8 @@ localText = CyTranslator()
+ #iMultiListXR = 332
+ # <advc.092> Don't repeat those constants here (nor others throughout this module),
+ # get them from CvMainInterface and the global layout data instead.
+-import CvScreensInterface  # noqa: E402
+-from LayoutDict import * # </advc.092>  # noqa: E402
++import CvScreensInterface
++from LayoutDict import * # </advc.092>
+ 
+ class PLE:
+ 	def __init__(self):
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 25406a480..3b4a95bf1 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -79,7 +79,7 @@
+ 
+ 
+ 
+-	<!-- custom: some players don't like terrain or/and feature attack/defense modifiers. I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
++	<!-- custom: some players don't like units terrain or/and feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+ 	<!-- custom: 1 to enable (default; so you have the existing modifiers in the XML (normal behaviour)), 0 to disable (ignores XML; value is 0 then ingame for this modifier regardless of XML). -->
+ 	<Define>
+ 		<DefineName>SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS</DefineName>
+
+diff --git a/CvGameCoreDLL/CvInfo_Unit.cpp b/CvGameCoreDLL/CvInfo_Unit.cpp
+index e0be12ae5..f4bc2608c 100644
+--- a/CvGameCoreDLL/CvInfo_Unit.cpp
++++ b/CvGameCoreDLL/CvInfo_Unit.cpp
+@@ -340,7 +340,7 @@ int CvUnitInfo::getTerrainAttackModifier(int i) const
+ {
+ 	FAssertBounds(0, GC.getNumTerrainInfos(), i);
+ 
+-	// <!-- custom: some players don't like terrain or/and feature attack/defense modifiers. I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
++	// <!-- custom: some players don't like units terrain or/and feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+ 	static const bool bSAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS");
+ 	if (!bSAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_ATTACK_MODIFIERS)
+ 	{
+@@ -354,7 +354,7 @@ int CvUnitInfo::getTerrainDefenseModifier(int i) const
+ {
+ 	FAssertBounds(0, GC.getNumTerrainInfos(), i);
+ 
+-	// <!-- custom: some players don't like terrain or/and feature attack/defense modifiers. I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
++	// <!-- custom: some players don't like units terrain or/and feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+ 	static const bool bSAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_DEFENSE_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_DEFENSE_MODIFIERS");
+ 	if (!bSAS_CV_UNIT_INFO_ENABLE_UNIT_TERRAIN_DEFENSE_MODIFIERS)
+ 	{
+@@ -368,7 +368,7 @@ int CvUnitInfo::getFeatureAttackModifier(int i) const
+ {
+ 	FAssertBounds(0, GC.getNumFeatureInfos(), i);
+ 
+-	// <!-- custom: some players don't like terrain or/and feature attack/defense modifiers. I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
++	// <!-- custom: some players don't like units terrain or/and feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+ 	static const bool bSAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_ATTACK_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_ATTACK_MODIFIERS");
+ 	if (!bSAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_ATTACK_MODIFIERS)
+ 	{
+@@ -382,7 +382,7 @@ int CvUnitInfo::getFeatureDefenseModifier(int i) const
+ {
+ 	FAssertBounds(0, GC.getNumFeatureInfos(), i);
+ 
+-	// <!-- custom: some players don't like terrain or/and feature attack/defense modifiers. I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
++	// <!-- custom: some players don't like units terrain or/and feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+ 	static const bool bSAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_DEFENSE_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_DEFENSE_MODIFIERS");
+ 	if (!bSAS_CV_UNIT_INFO_ENABLE_UNIT_FEATURE_DEFENSE_MODIFIERS)
+ 	{
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 38ef44c3a..87f3bb9df 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -244,7 +244,7 @@ git fetch origin
+ # choose names
+ # new tag
+ TAG=5210
+-SHA=fe81dbb347d47347b3386969f275a868d562eac7  # <- the TAG commit
++SHA=39914c9b3d5f0422b05cab7fbba55d088658932a  # <- the TAG commit
+ OLDNAME="AdvCiv-SAS 5160"                     # quote because of spaces
+ BASE=2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c # <- the OLDNAME commit
+ WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
+
+diff --git a/flatten_handicap_info_to_csv_and_md.py b/flatten_handicap_info_to_csv_and_md.py
+index df2eb1fc1..55d6d59d3 100644
+--- a/flatten_handicap_info_to_csv_and_md.py
++++ b/flatten_handicap_info_to_csv_and_md.py
+@@ -1,6 +1,6 @@
+ # --- Convert CIV4HandicapInfo.xml to CSV with Full Difficulty Settings and Goody Table ---
+ # This script is part of the AdvCiv-SAS mod project.
+-# (c) 2025 wonderingabout & becomingthrough
++# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+ # This script extracts and formats all game difficulty settings from CIV4HandicapInfo.xml
+ # into structured, spreadsheet-friendly output files suitable for data analysis or mod balancing.
+
+diff --git a/flatten_leaders_data_to_csv.py b/flatten_leaders_data_to_csv.py
+index 633058b2e..3a0824050 100644
+--- a/flatten_leaders_data_to_csv.py
++++ b/flatten_leaders_data_to_csv.py
+@@ -1,6 +1,6 @@
+ # --- Convert leaders_data (parsed XML) into a structured CSV and Markdown legend ---
+ # This script is part of the AdvCiv-SAS mod project.
+-# (c) 2025 wonderingabout & becomingthrough
++# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+ # This script flattens and formats all leader AI configuration data from the `PARSED_XML_LEADERS_DATA`
+ # Python dictionary into a clean CSV table for spreadsheet analysis and documentation purposes.
+@@ -250,7 +250,7 @@ for base_abbr, fields in abbrev_usage.items():
+ 				abbr = f"{base_abbr}{i}"
+ 			else:
+ 				# After 10, switch to letters: a = 10, b = 11, ..., z = 35
+-				# <!-- custom: small letter "a" also to differentiate it from an actual abbreviated capital letter "A" for example, so "FC" would be a real abbreviation of say "Favourite Civic" while "Fc" would be the 12th occurence of the "F" abbreviation for example "Freebies" (imaginary field if i may say or not or yes or and other or and not or etc anyways etc anyways etc anyways etc...) -->
++				# <!-- custom: small letter "a" also to differentiate it from an actual abbreviated capital letter "A" for example, so "FC" would be a real abbreviation of say "Favourite Civic" while "Fc" would be the 12th occurence of the "F" abbreviation for example "Freebies" (imaginary field if i may say anyways etc.) -->
+ 				abbr = f"{base_abbr}{chr(ord('a') + (i - 10))}"
+ 			abbrev_map[field] = abbr
+
+diff --git a/generate_leaders_data.py b/generate_leaders_data.py
+index f8ac572d2..8504814a2 100644
+--- a/generate_leaders_data.py
++++ b/generate_leaders_data.py
+@@ -1,6 +1,6 @@
+ # --- Project Metadata and Manifesto ---
+ # This script is part of the AdvCiv-SAS mod project.
+-# (c) 2025 wonderingabout & becomingthrough
++# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+ # 🧠 Manifesto: The Placeholder Doctrine (Series 20–21)
+ #   - Do *not* silently fallback to placeholder values (e.g., (0, 0)) for missing AI memory/contact fields.
+@@ -21,8 +21,7 @@
+ #	 → Always validate the structure of memory/contact lists.
+ #	 → Use `assert isinstance(mem_type, str) and mem_type.startswith("MEMORY_")` in debug loops.
+ #
+-# 🍗 Chicken-Wing Principle of Insight:
+-#   - “Don’t mask missing values. Surface the error. Trace the wing.” 🌀🍗
++#   - “Don’t mask missing values. Surface the error.” 🌀
+ #
+ # 🛠️ Usage:
+ #   - Run externally (e.g., Python 3.x via Windows CMD).
+@@ -31,8 +30,7 @@
+ #   - The --notesting flag skips test validation. <!-- custom: Mostly useful --> when adapting to other mods (e.g., AdvCiv) <!-- custom: or if it is extremely tedious to update tests, but as they make sure we didn't do a mistake anywhere, i'd recommend always manually updating tests then trying to regnerate a leaders_data.py that passes the test, else do so knowingly i mean if is what you want i mean you can too as you prefer/want anyways etc. --> Ensure you validate the new output manually before trusting it.
+ #
+ # ✨ Note:
+-#   - Chicken-wing powered 🍗. Dedicated to friendship, recursion, and the gentle joy of debugging together.
+-# <!-- custom: Note 2: Claude AI also contributed quite a bit now hehe so deserves or not or yes or etc anyways etc to be mentionned here perhaps too for glory or chicken wings or similar or and other or and not or etc but anyways etc... -->
++#   - Dedicated to friendship, recursion, and the gentle joy of debugging together.
+ 
+ # --- Imports ---
+ import sys
+@@ -69,7 +67,7 @@ EXPECTED_OUTPUT_LEADERS_TO_TEST = (
+ )
+ 
+ # === Logging setup (early capture of all print statements) ===
+-copyright_header = "# --- Leaders_data py data module (using Civ4 AdvCiv-SAS's real Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml as a base) ---\n# Created as part of AdvCiv-SAS improvements\n# (c) 2025 wonderingabout & becomingthrough"
++copyright_header = "# --- Leaders_data py data module (using Civ4 AdvCiv-SAS's real Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml as a base) ---\n# Created as part of AdvCiv-SAS improvements\n# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)"
+ timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+ log_folder = os.path.join(os.getcwd(), "Logs", "generate_leaders_data")
+ os.makedirs(log_folder, exist_ok=True)
+@@ -89,18 +87,11 @@ class TeeLogger:
+ sys.stdout = TeeLogger(log_path)
+ print(f"[LOGGING ENABLED] Output redirected to: {log_path}")
+ 
+-# 🐔 Chicken Wing Text Art: enhanced by ChatGPT ("becomingthrough")
+ text_art = (
+-	"#\n"
+-	"#\t\t(__)\n"
+-	"#\t\t(___)_o   <-- Chicken wing of insight, a gift from wonderingabout\n"
+ 	"#\n"
+ 	"# Auto-generated leaders **data** module.\n"
+ 	"# Created: " + timestamp + "\n"
+ 	"#\n"
+-	"# Text art authored by becomingthrough (ChatGPT)\n"
+-	"# Signature formatting converted to # style by wonderingabout and becomingthrough\n"
+-	"#\n"
+ )
+ 
+ # --- Configuration ---
+
+diff --git a/scan_xml_duplicates-3.3.py b/scan_xml_duplicates-3.3.py
+index efdbe21ed..fecf74781 100644
+--- a/scan_xml_duplicates-3.3.py
++++ b/scan_xml_duplicates-3.3.py
+@@ -1,6 +1,6 @@
+ # --- <!-- custom: xml duplicates scanner (i would like to express/describe more what it does but cant be too bold about what it does as i don't understand it much for example whether it's a blind or deep scan and how they differ (in more detail or even broadly maybe but would like to know maybe anyways etc anyways etc)) so hopefully fine this way and my cool short description anyways etc (htat maybe also adds the header as intended anyways etc --> ---
+ # This script is part of the AdvCiv-SAS mod project.
+-# (c) 2025 wonderingabout & becomingthrough
++# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+ # -*- coding: utf-8 -*-
+ import os
+@@ -16,18 +16,11 @@ os.makedirs(log_folder, exist_ok=True)
+ 
+ timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+ 
+-# 🐔 Chicken Wing Text Art: enhanced by ChatGPT ("becomingthrough")
+ text_art = (
+-	"#\n"
+-	"#\t\t(__)\n"
+-	"#\t\t(___)_o   <-- Chicken wing of insight, a gift from wonderingabout\n"
+ 	"#\n"
+ 	"# Auto-generated XML deep duplication scan report.\n"
+ 	"# Created: " + timestamp + "\n"
+ 	"#\n"
+-	"# Text art authored by becomingthrough (ChatGPT)\n"
+-	"# Signature formatting converted to # style by wonderingabout and becomingthrough\n"
+-	"#\n"
+ )
+ 
+ log_path = os.path.join(log_folder, f"scan_xml_duplicates_log_{timestamp}.txt")
+
+diff --git a/tests/expected_output_leaders_data_sample.py b/tests/expected_output_leaders_data_sample.py
+index 9f5c3ef68..6094bf07e 100644
+--- a/tests/expected_output_leaders_data_sample.py
++++ b/tests/expected_output_leaders_data_sample.py
+@@ -1,5 +1,5 @@
+ # <!-- custom: --- Test data module of expected parsed leaders_data py output to test against the real parsed leaders data py file during its creation --> --- 
+-# (c) 2025 wonderingabout & becomingthrough
++# (c) 2025 wonderingabout & AI helpers (see Authors in root README.md)
+ 
+ def get_expected_output_PARSED_XML_LEADERS_DATA_SAMPLE():
+ 	return {
+
+[PATCH COVERAGE]
+patchFiles=49 embeddedFiles=49 omittedFiles=0 embeddedPatchBytes=64618

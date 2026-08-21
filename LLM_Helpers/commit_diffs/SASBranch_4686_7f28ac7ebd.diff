@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4686
+# Commit: 7f28ac7ebd63c4178b1440e78db64f607ef6602f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 18a12dbfa4aaea57a588b16684663020a8c465ac
+# Title: fix google drive link (may view latest rpeview there too, anyways) i have just noticed link was broken, my bad, fixed, anyways, thanks,
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	README.md
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index 8f64501c2..c6e471018 100644
+--- a/README.md
++++ b/README.md
+@@ -130,7 +130,7 @@ I added quite a bit of documentation, pictures, and other elements about this Ad
+ [here](/_1_AdvCiv-SAS/)
+ 
+ Additionally, A preview of the changes (screenshots), can be found on this google drive: 
+-[here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
++[here](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
+ 
+ If you want to know more about the project, how i ordered the tree tech historically, why i decided
+ on balance changes and such, please visit these pages (as well).
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=678

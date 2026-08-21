@@ -1,0 +1,231 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3875
+# Commit: 6f122025d55818b926cf7049c28f6090c326c3a0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2b044408dcb8b6fd6974f5ebb7501251c510917c
+# Title: Optional threshold for SHow Friendly Moves
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	Assets/Config/BUG Main Interface.xml
+4	1	Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+19	2	Assets/XML/Text/BUG Main Interface Options.xml
+2	1	Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
+43	18	CvGameCoreDLL/CvSelectionGroup.cpp
+1	0	CvGameCoreDLL/CvSelectionGroup.h
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index 7aa8b4abc..4f155acee 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -143,6 +143,11 @@
+ 				<choice id="Custom"/>
+ 			</list>
+ 
++			<!-- advc.102b: -->
++			<list   id="ShowFriendlyMovesThresh" key="Show Friendly Moves Thresh" 
++					type="int" default="0" listType="int" 
++					values="1, 2, 3, 4, 5, 6, 7, 8"/>
++
+ 			<!-- advc.002a: -->
+ 			<list   id="MinimapWaterColor" key="Minimap Water Color" 
+ 					type="int" default="1" listType="string"
+
+diff --git a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+index efcd9866f..5f07b12ad 100644
+--- a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+@@ -88,8 +88,11 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, right, "MainInterface__FieldOfView_Remember", True)
+ 		# advc.004m:
+ 		self.addTextDropdown(screen, right, right, "MainInterface__DefaultCamDistance")
++		# advc.102b:
++		self.addTextDropdown(screen, right, right, "MainInterface__ShowFriendlyMovesThresh")
+ 		# <advc.002a>
+-		self.addSpacer(screen, right, "SpacerRight1")
++		# advc.102b: No room for this anymore
++		#self.addSpacer(screen, right, "SpacerRight1")
+ 		self.addLabel(screen, right, "Minimap", "Minimap:")
+ 		self.addTextDropdown(screen, right, right, "MainInterface__MinimapWaterColor")
+ 		self.addCheckbox(screen, right, "MainInterface__UnitsOnMinimap")
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 10102a807..69831c1ff 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -350,6 +350,23 @@
+ 		<German>Auto|Nah|Mittel|Weit|XML-Wert</German>
+ 	</TEXT>
+ 
++	<!-- advc.102b: (Would've preferred
++		 "Ignore Friendly Stacks &lt;"
++		 but labels can't include angle brackets, and "smaller than" or even
++		 "smaller" is too long.) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SHOWFRIENDLYMOVESTHRESH_TEXT</Tag>
++		<English>Friendly Moves Threshold</English>
++		<German>Zeige Freundliche Bew. ab</German>
++	</TEXT>
++	<!-- (Would be nice to mention that transports are assumed to be full when
++		 counting units, but the text is already quite long.) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SHOWFRIENDLYMOVESTHRESH_HOVER</Tag>
++		<English>When a unit owned by a non-hostile civ has moved, and that civ has fewer units in the destination tile than this threshold, then the [COLOR_HIGHLIGHT_TEXT]Show Friendly Moves[COLOR_REVERT] option (Ctrl+O screen) ignores the move. As the moving unit is included in the count, a threshold of [COLOR_HIGHLIGHT_TEXT]1[COLOR_REVERT] corresponds to the BtS behavior of showing all moves - except that AdvCiv always excludes worker moves and some other uninteresting moves. The threshold has no effect when [COLOR_HIGHLIGHT_TEXT]Show Friendly Moves[COLOR_REVERT] isn't enabled.</English>
++		<German>Schwelle f�r die BtS-Option [COLOR_HIGHLIGHT_TEXT]Freundliche Bewegungen zeigen[COLOR_REVERT] (Strg+O). Wenn eine nicht-feindliche Zivilisation eine Einheit bewegt und diese Zivilisation im Ziel-Feld dann weniger Einheiten Einheiten besitzt als der Schwellwert, dann wird diese Bewegung nicht per Kamerasprung angezeigt. Da die bewegte Einheit mitz�hlt, bedeutet eine Schwelle von [COLOR_HIGHLIGHT_TEXT]1[COLOR_REVERT], dass alle Bewegungen angezeigt werden, wie in BtS - abgesehen davon, dass AdvCiv bestimmte, wahrscheinlich uninteressante Bewegungen nie anzeigt, insbesondere Bautrupp-Bewegungen.</German>
++	</TEXT>
++
+ 	<!-- advc.002a: -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__MINIMAP_TEXT</Tag>
+@@ -383,8 +400,8 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__UNITSONMINIMAP_HOVER</Tag>
+-		<English>If checked, units outside their owners' borders are shown as colored blips on the main screen minimap.</English>
+-		<German>Zeigt Einheiten, die sich au�erhalb ihres Territoriums befinden, als Farbkleckse auf der Mini-Karte (Hauptbildschirm) an.</German>
++		<English>If checked, units outside their owners' borders are shown as colored blips on the main screen minimap (as in BtS).</English>
++		<German>Zeigt Einheiten, die sich au�erhalb ihres Territoriums befinden, als Farbkleckse auf der Mini-Karte (Hauptbildschirm) an - wie in BtS.</German>
+ 	</TEXT>
+ 
+ 	<!-- advc.savem: -->
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml b/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
+index df4f9b727..8e4942d96 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
+@@ -388,7 +388,8 @@
+ 		 visible tile into the Fog of War, the unit may already be gone when
+ 		 the camera jumps to the visible tile.)" (and remove the "or leave").
+ 		 Too long, and I guess most players will figure that out on their own.
+-		 -->
++		 Could also mention that the show-moves options are ignored in games
++		 with simultaneous turns. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLAYER_OPTION_SHOW_ENEMY_MOVES_HELP</Tag>
+ 		<English>Movement animations are shown for hostile units when they enter or leave a visible tile.</English>
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 0b2297d14..90e0e2b40 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -339,36 +339,52 @@ bool CvSelectionGroup::showMoves(/* advc.102: */ CvPlot const& kFromPlot) const
+ 	static bool const bShowShips = GC.getDefineBOOL("SHOW_FRIENDLY_SEA_MOVES");
+ 	// Also refers to Executives; those have the same Unit AI.
+ 	static bool const bShowMissionaries = GC.getDefineBOOL("SHOW_FRIENDLY_MISSIONARY_MOVES");
+-	// </advc.102>
+-	for (PlayerIter<HUMAN> it; it.hasNext(); ++it)
++	CvPlot const& kToPlot = getPlot();
++	PlayerTypes const eFromOwner = kFromPlot.getOwner();
++	PlayerTypes const eToOwner = kToPlot.getOwner();
++	PlayerTypes const eGroupOwner = getOwner();
++	DomainTypes const eGroupDomain = getDomainType();
++	bool const bAwayFromHome = (eGroupOwner != eToOwner ||
++			eGroupOwner != eFromOwner);
++	bool const bWaterPatrol = (getDomainType() == DOMAIN_SEA &&
++			AI().AI_getMissionAIType() == MISSIONAI_PATROL);
++	// </advc.102>  <advc.102b>
++	int const iFriendlyStackThresh = BUGOption::getValue(
++			"MainInterface__ShowFriendlyMovesThresh", 0); // </advc.102b>
++	for (PlayerIter<HUMAN> itHuman; itHuman.hasNext(); ++itHuman)
+ 	{
+-		CvPlayer& kLoopPlayer = *it;
+ 		CvUnit const* pHeadUnit = getHeadUnit();
+ 		if(pHeadUnit == NULL)
+ 			continue;
+-		if (pHeadUnit->isEnemy(kLoopPlayer.getTeam()))
++		if (pHeadUnit->isEnemy(itHuman->getTeam()))
+ 		{
+-			if (kLoopPlayer.isOption(PLAYEROPTION_SHOW_ENEMY_MOVES))
++			if (itHuman->isOption(PLAYEROPTION_SHOW_ENEMY_MOVES))
+ 				return true;
+ 			continue;
+ 		}
+-		if(!kLoopPlayer.isOption(PLAYEROPTION_SHOW_FRIENDLY_MOVES))
++		if(!itHuman->isOption(PLAYEROPTION_SHOW_FRIENDLY_MOVES))
+ 			continue;
++		// <advc.102b>
++		if (std::max(1, /*	kToPlot may not be visible at all,
++							but the move still gets animated. */
++			kToPlot.plotCount(PUF_isVisible, itHuman->getID(), -1, eGroupOwner)) <
++			iFriendlyStackThresh)
++		{
++			if (eGroupDomain != DOMAIN_SEA || // just to save time
++				getCargoSpace() <= 1)
++			{
++				continue;
++			}
++		} // </advc.102b>
+ 		// <advc.102> Hide uninteresting friendly moves
+-		PlayerTypes eGroupOwner = m_eOwner;
+-		TeamTypes eObs = kLoopPlayer.getTeam();
+-		CvPlot const& kToPlot = *plot();
+-		PlayerTypes eFromOwner = kFromPlot.getOwner();
+-		PlayerTypes eToOwner = kToPlot.getOwner();
+-		bool bAwayFromHome = (eGroupOwner != eToOwner || eGroupOwner != eFromOwner);
+-		bool bInSpectatorsBorders = ((eFromOwner != NO_PLAYER &&
++		TeamTypes const eObs = itHuman->getTeam();
++		bool const bInSpectatorsBorders = ((eFromOwner != NO_PLAYER &&
+ 				eObs == TEAMID(eFromOwner)) || (eToOwner != NO_PLAYER &&
+ 				eObs == TEAMID(eToOwner)));
+-		bool bEnteringOrLeaving = (getPlot().isVisible(eObs) != kFromPlot.isVisible(eObs));
+-		bool bSeaPatrol = (getDomainType() == DOMAIN_SEA &&
+-				AI().AI_getMissionAIType() == MISSIONAI_PATROL);
++		bool const bEnteringOrLeaving = (getPlot().isVisible(eObs) !=
++				kFromPlot.isVisible(eObs));
+ 		// Just to avoid cycling through the units
+-		if(bInSpectatorsBorders && (bEnteringOrLeaving || !bSeaPatrol))
++		if(bInSpectatorsBorders && (bEnteringOrLeaving || !bWaterPatrol))
+ 			return true;
+ 		if(bShowWorkers && bShowShips && bShowMissionaries)
+ 			return true;
+@@ -387,7 +403,7 @@ bool CvSelectionGroup::showMoves(/* advc.102: */ CvPlot const& kFromPlot) const
+ 			bool bWorker = (u.AI_getUnitAIType() == UNITAI_WORKER ||
+ 					u.AI_getUnitAIType() == UNITAI_WORKER_SEA);
+ 			bool bNonTransportShip = (bSeaUnit && !u.isHuman() &&
+-					(u.cargoSpace() <= 1 || bSeaPatrol));
++					(u.cargoSpace() <= 1 || bWaterPatrol));
+ 			bool bMissionary = (u.AI_getUnitAIType() == UNITAI_MISSIONARY);
+ 			if(!bMissionary && bAwayFromHome && (!bSeaUnit ||
+ 				!bNonTransportShip || bShowShips || bEnteringOrLeaving))
+@@ -2207,6 +2223,15 @@ int CvSelectionGroup::getCargo() const
+ 	return iCargoCount;
+ }
+ 
++// advc.102b: Cargo capacity, whether used or not.
++int CvSelectionGroup::getCargoSpace() const
++{
++	int iSpace = 0;
++	FOR_EACH_UNIT_IN(pUnit, *this)
++		iSpace += pUnit->cargoSpace();
++	return iSpace;
++}
++
+ // K-Mod:
+ int CvSelectionGroup::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo,
+ 	DomainTypes eDomainCargo) const
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index bc2becdf1..44283c5f0 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -98,6 +98,7 @@ public:
+ 	bool isFull() const;																																											// Exposed to Python
+ 	bool hasCargo() const;																																										// Exposed to Python
+ 	int getCargo() const;
++	int getCargoSpace() const; // advc.102b
+ 	int cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo = NO_SPECIALUNIT, DomainTypes eDomainCargo = NO_DOMAIN) const; // K-Mod
+ 	DllExport bool canAllMove()																																				// Exposed to Python
+ 	// <advc> Need a const version fo this
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=10259

@@ -5,7 +5,6 @@
 	 or overwritten, and some related settings for change advc.002m.
 	 I've marked the overwritten ones with a "redefine" comment. -->
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
-
 	<Define> <!-- redefine -->
 		<DefineName>INITIAL_GOLD_PER_UNIT</DefineName>
 		<iDefineIntVal>100</iDefineIntVal> <!-- this is now percent cost, so I've changed it from 1 to 100 -->
@@ -214,5 +213,4 @@
 		<DefineName>TRUNCATE_ANIMATION_TURNS</DefineName>
 		<iDefineIntVal>14</iDefineIntVal>
 	</Define>
-	
 </Civ4Defines>

@@ -1,0 +1,76 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 254
+# Commit: 29d9bdd4b5d79b68bacefefb75514340e3979bda
+# History segment: K-Mod history
+# Parent used for diff: a7ba76d7353565124bb75cf142aafe26098179a7
+# Title: Updated the changelog. This is version 1.04.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	CvGameCoreDLL/CvTeamAI.cpp
+25	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index a73075f21..a2936c3b0 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2201,7 +2201,6 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier) c
+ 
+ 	if (!isAtWar(eTeam))
+ 	{
+-		FAssertMsg(false, "surrender trade while not at war"); // K-Mod. I just want to know if this can even happen! (surrendering while not at war)
+ 		if (!GET_TEAM(eTeam).isParent(getID()))
+ 		{
+ 			if (AI_getWorstEnemy() == eTeam)
+
+diff --git a/changelog.txt b/changelog.txt
+index f39c69345..8801944c2 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,8 +1,32 @@
+-This is K-Mod version 1.03.
++This is K-Mod version 1.04.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+ 
++v1.04 changelist
++
+++ In the diplomacy screen, pressing "Lets stop this fighting..." will now bring up the trade screen with the AI's suggested peace terms. (Originally, it just made peace instantly without any trades - it was a horrible button.)
+++ Added a notification message for when a religion is removed from a city.
+++ Adjusted some of the action recommendations for human players. (ie. the blue circles for recommended improvements and city locations.)
++
+++ Adjusted the diplomatic behaviour of AI players who are allied with human players. In particular, the AI will no longer refuse to talk to other humans.
+++ Made some more changes ("improvements") to the automatic city citizen allocation system - particularly for the AI.
+++ Restructured and simplified the air unit AI, so that now it will be faster - and probably a bit smarter too. (untested)
+++ Fixed and reactivated the attack sections of AI_follow - the main benefit of this is that AI attack stacks will now be able to make better use of the blitz ability of tanks.
+++ Corrected the code which was meant to stop AIs from making peace when aiming for conquest victory. (The first attempt was wrong - it basically did nothing.)
+++ Gave the AI some basic ability to target poorly defended cities. (I have some ideas to futher improve this in the next version.)
+++ Changed some of the trigger conditions and effects of the AI's "big espionage" strategy.
+++ Made many minor changes to various AI value weights and decision thresholds and so on.
++
+++ Rewrote the pathCost function used by the pathfinding. This fixes several pathfinding problems & bugs. Most notably, the new code allows the AI to choose a path with involves fighting through enemy units that are in the way; the new code does not take into account movement costs or defensive bonuses for tiles that have not been revealed (this makes the AI cheat less, but it also removes an exploit which allowed human players to determin the positions of islands, roads, etc.).
+++ Fixed a potential OOS bug in the K-Mod convert-for-crush code.
+++ Fixed a bug in my new volcano event which allowed it to increase the soil fertility of water.
+++ (hopefully) Fixed an original BtS bug which did strange things when a unit was ordered to attack a tile which was already mid-battle in simultaneous turn multiplayer. (untested)
+++ Fixed a bug in the unofficial patch which causes players to miss out on free techs if they load the autosave from the turn the tech is meant to be awarded. (before this fix, the player got accused of cheating instead of getting their free tech.)
+++ Blocked some more python callbacks (for speed).
++
++--
++
+ v1.03 changelist
+ 
+ + Changed the mechanics of the natural spread of religions. With the new system, only the religion with the highest 'grip' gets a chance to spread to a city - but religions may still spread even if the city already has religion. Also, if an existing religion in the city has a lower grip than the new religion, there is a chance that the existing religion will be removed. "grip" is a measure of how strong the religion is in a particular city. It is calculated based on several factors, including proximity to the holy city, the number of religious buildings in the city, the year the religion was founded, and so on. The new system is a fairly significant change, but it isn't one you should have to worry about if you don't want to.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4271

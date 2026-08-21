@@ -1,0 +1,135 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4063
+# Commit: 4fb246b37ddff683c5924d4350ef26ab45358fac
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d14c744a6f5d5df77c6ba991cc3fb6289db7d6f8
+# Title: Fix auto-moves not getting triggered by unit cycle wrap
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGame.h
+5	4	CvGameCoreDLL/CvGameInterface.cpp
+17	6	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlayer.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index cd8b26a26..62b304a5f 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -98,7 +98,7 @@ public:
+ 	DllExport void cycleCities(bool bForward = true, bool bAdd = false) const;							// Exposed to Python
+ 	// <advc.154>
+ 	CvSelectionGroup* getNextGroupInCycle(bool bForward, bool bWorkers,
+-			bool& bWrap, CvUnit*& pCycleUnit) const;
++			bool& bWrap, CvUnit*& pCycleUnit, std::set<int>* pCycledGroups = NULL) const;
+ 	CvUnit* getCycleButtonUnit(bool bForward, bool bWorkers) const; // </advc.154>						// Exposed to Python
+ 	void cycleSelectionGroups(bool bClear,																// Exposed to Python
+ 			bool bForward = true, bool bWorkers = false);
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index e24c6ab12..741a79fe0 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -562,7 +562,8 @@ void CvGame::cycleCities(bool bForward, bool bAdd) const
+ 
+ // advc.154: Extracted the const part out of cycleSelectionGroups
+ CvSelectionGroup* CvGame::getNextGroupInCycle(bool bForward, bool bWorkers,
+-	bool& bWrap, CvUnit*& pCycleUnit) const // out-params
++	bool& bWrap, CvUnit*& pCycleUnit, // out-params
++	std::set<int>* pCycledGroups) const
+ {
+ 	bWrap = false;
+ 	pCycleUnit = gDLL->UI().getHeadSelectedUnit();
+@@ -572,7 +573,7 @@ CvSelectionGroup* CvGame::getNextGroupInCycle(bool bForward, bool bWorkers,
+ 		if (pCycleUnit->getOwner() != getActivePlayer())
+ 			pCycleUnit = NULL;
+ 		pGroup = GET_PLAYER(getActivePlayer()).getNextGroupInCycle(
+-				pCycleUnit, bForward, bWorkers, &bWrap);
++				pCycleUnit, bForward, bWorkers, &bWrap, pCycledGroups);
+ 	}
+ 	else
+ 	{
+@@ -624,9 +625,9 @@ void CvGame::cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers)
+ {
+ 	bool bWrap=false;
+ 	CvUnit* pCycleUnit=NULL;
+-	// advc.154: Moved into a const function
++	// <advc.154> Moved into a const function ...
+ 	CvSelectionGroup* pNextSelectionGroup = getNextGroupInCycle(
+-			bForward, bWorkers, bWrap, pCycleUnit);
++			bForward, bWorkers, bWrap, pCycleUnit); // </advc.154>
+ 	if (gDLL->UI().getHeadSelectedUnit() != NULL)
+ 	{
+ 		GET_PLAYER(getActivePlayer()).cycleSelectionGroups(
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 2613fc1cb..da2f13fa1 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2348,12 +2348,22 @@ void CvPlayer::killUnits()
+ 
+ // advc.154: Cut from cycleSelectionGroups except for the non-const parts
+ CvSelectionGroup* CvPlayer::getNextGroupInCycle(CvUnit* pUnit, bool bForward,
+-	bool bWorkers, bool* pbWrap) const
++	bool bWorkers, bool* pbWrap,
++	std::set<int>* pCycledGroups) const
+ {
+ 	FAssert(isActive() && isHuman());
+ 	LOCAL_REF(bool, bWrap, pbWrap, false); // K-Mod
+-	// advc.154: Copy the set
+-	std::set<int> kCycledGroups = GC.getGame().getActivePlayerCycledGroups(); // K-Mod
++	//std::set<int>& kCycledGroups = GC.getGame().getActivePlayerCycledGroups(); // K-Mod
++	// <advc.154>
++	std::set<int> kCycledGroupsCopy;
++	if (pCycledGroups == NULL)
++	{
++		// Don't want to mark groups as cycled; therefore make a copy.
++		kCycledGroupsCopy = GC.getGame().getActivePlayerCycledGroups();
++	}
++	std::set<int>& kCycledGroups = (pCycledGroups == NULL ?
++			kCycledGroupsCopy : *pCycledGroups);
++	// </advc.154>
+ 	CLLNode<int>* pSelectionGroupNode = headGroupCycleNode();
+ 	if (pUnit != NULL)
+ 	{
+@@ -2459,9 +2469,10 @@ CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward,
+ 			pSelectionGroupNode = nextGroupCycleNode(pSelectionGroupNode);
+ 		}
+ 	}
+-	// advc.154: Moved into new const function
+-	CvSelectionGroup* pGroup = getNextGroupInCycle(pUnit, bForward, bWorkers, pbWrap);
+-	if (pbWrap != NULL && pbWrap)
++	// <advc.154> Moved into new const function
++	CvSelectionGroup* pGroup = getNextGroupInCycle(pUnit, bForward,
++			bWorkers, pbWrap, &kCycledGroups); // </advc.154>
++	if (pbWrap != NULL && *pbWrap)
+ 		kCycledGroups.clear(); // </K-Mod>
+ 	return pGroup;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index aaf0fb6ef..216cc2566 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -103,7 +103,8 @@ public:
+ 	void killUnits();																								// Exposed to Python
+ 	// <advc.154>
+ 	CvSelectionGroup* getNextGroupInCycle(CvUnit* pUnit, bool bForward,
+-			bool bWorkers, bool* pbWrap) const; // </advc.154>
++			bool bWorkers, bool* pbWrap,
++			std::set<int>* pCycledGroup = NULL) const; // </advc.154>
+ 	CvSelectionGroup* cycleSelectionGroups(CvUnit* pUnit, bool bForward,
+ 			bool bWorkers, bool* pbWrap);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=4611

@@ -1,0 +1,466 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5723
+# Commit: 5e3ef99bf4b158a5b6266ed68a8075d720200c99
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7de906fcdd9d0a11d7a274d6d417be5bf507a905
+# Title: add toggle show map annotations button (persists on save and reload)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px_black.dds
+-	-	Assets/Art/AdvCiv_SAS/Emojis/Pencil/270f_64px.dds
+39	1	Assets/Python/Contrib/CvStrategyOverlay.py
+1	1	Assets/Python/SASTextScale.py
+144	9	Assets/Python/Screens/CvMainInterface.py
+16	0	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+13	5	README.md
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (1).JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (2).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px_black.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/Pencil/270f_64px.dds
+ create mode 100644 _1_AdvCiv-SAS/Images/ui_other/0.420_annotations (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/ui_other/0.420_annotations (2).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px.dds
+new file mode 100644
+index 000000000..a5ddf1138
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px_black.dds b/Assets/Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px_black.dds
+new file mode 100644
+index 000000000..264e64c5b
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px_black.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/Pencil/270f_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Pencil/270f_64px.dds
+new file mode 100644
+index 000000000..cd7d004ca
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/Pencil/270f_64px.dds differ
+
+diff --git a/Assets/Python/Contrib/CvStrategyOverlay.py b/Assets/Python/Contrib/CvStrategyOverlay.py
+index 74609e440..c4c3abd3e 100644
+--- a/Assets/Python/Contrib/CvStrategyOverlay.py
++++ b/Assets/Python/Contrib/CvStrategyOverlay.py
+@@ -27,6 +27,10 @@ StratLayerOpt = BugCore.game.StrategyOverlay
+ 
+ g_layers = {}
+ 
++SAS_ANNOTATION_SAVE_MOD_ID = "StrategyOverlay"
++SAS_ANNOTATIONS_HIDDEN_SAVE_ID = "SASAnnotationsHidden"
++SAS_HIDDEN_ANNOTATION_SIGNS_SAVE_ID = "SASHiddenAnnotationSigns"
++
+ def init(paletteWidth=3, paletteColors=None):
+ 	global COLOR_KEYS, PALETTE_WIDTH
+ 	
+@@ -71,12 +75,46 @@ def onLoad(argsList):
+ 	def callRead(layer):
+ 		layer.read()
+ 	callEachLayer(callRead)
++	def restoreAnnotationVisibilityFromSave():
++		bAnnotationsHidden = SdToolKit.sdGetGlobal(SAS_ANNOTATION_SAVE_MOD_ID, SAS_ANNOTATIONS_HIDDEN_SAVE_ID)
++		try:
++			import CvScreensInterface
++			if bAnnotationsHidden:
++				# <!-- custom: reload hidden-annotation state from save data. In-game testing confirmed this fixes hide annotations -> save -> reload: the previous implementation made hidden captions reappear immediately on save while BFC drawings stayed hidden, then reloading that save showed only the BFC annotations and lost the caption annotations. (GPT-5.5) -->
++				aHiddenSigns = SdToolKit.sdGetGlobal(SAS_ANNOTATION_SAVE_MOD_ID, SAS_HIDDEN_ANNOTATION_SIGNS_SAVE_ID)
++				CvScreensInterface.mainInterface.loadHiddenMapAnnotationSigns(aHiddenSigns)
++				StratLayerOpt.setShowDotMap(False)
++				getDotMap().hide()
++				getDotMap().clearCityLayers()
++			else:
++				# <!-- custom: absence of the hidden-annotations save flag means this save was written with annotations visible. In-game testing found that hiding annotations in the current session before loading such a save left the runtime DotMap option false, so reload showed captions only until toggling off/on; reset visible state here so BFC annotations redraw immediately. (GPT-5.5) -->
++				CvScreensInterface.mainInterface.loadVisibleMapAnnotations()
++				StratLayerOpt.setShowDotMap(True)
++				getDotMap().show()
++		except:
++			BugUtil.warn("CvStrategyOverlay.onLoad failed to restore map annotation visibility")
++	BugUtil.deferCall(restoreAnnotationVisibilityFromSave)
+ 	# <advc.001> (Bugfix by EmperorFool; r2228)
+ 	def redraw():
+-		getDotMap().redrawCities()
++		if StratLayerOpt.isShowDotMap():
++			getDotMap().redrawCities()
++		else:
++			getDotMap().clearCityLayers()
+ 	BugUtil.deferCall(redraw) # </advc.001>
+ 
+ def onPreSave(argsList):
++	try:
++		import CvScreensInterface
++		# <!-- custom: persist the hidden annotation state and cached signs instead of re-adding signs before save. In-game testing showed restore-before-save made hidden captions appear immediately on save while BFC drawings stayed hidden, then reloading that save showed only BFC annotations and lost the caption annotations; storing the cache keeps hidden annotations hidden and lets the toggle restore captions after reload. (GPT-5.5) -->
++		if CvScreensInterface.mainInterface.isMapAnnotationsHiddenForSave():
++			SdToolKit.sdSetGlobal(SAS_ANNOTATION_SAVE_MOD_ID, SAS_ANNOTATIONS_HIDDEN_SAVE_ID, True)
++			aHiddenSigns = CvScreensInterface.mainInterface.getHiddenMapAnnotationSignsForSave()
++			SdToolKit.sdSetGlobal(SAS_ANNOTATION_SAVE_MOD_ID, SAS_HIDDEN_ANNOTATION_SIGNS_SAVE_ID, aHiddenSigns)
++		else:
++			SdToolKit.sdDelGlobal(SAS_ANNOTATION_SAVE_MOD_ID, SAS_ANNOTATIONS_HIDDEN_SAVE_ID)
++			SdToolKit.sdDelGlobal(SAS_ANNOTATION_SAVE_MOD_ID, SAS_HIDDEN_ANNOTATION_SIGNS_SAVE_ID)
++	except:
++		BugUtil.warn("CvStrategyOverlay.onPreSave failed to persist hidden map annotation signs")
+ 	def callWrite(layer):
+ 		layer.write()
+ 	callEachLayer(callWrite)
+
+diff --git a/Assets/Python/SASTextScale.py b/Assets/Python/SASTextScale.py
+index 9df725828..69c991278 100644
+--- a/Assets/Python/SASTextScale.py
++++ b/Assets/Python/SASTextScale.py
+@@ -63,7 +63,7 @@ def labelText(szText):
+ 
+ 
+ def imageText(szButton, iSize, szText=None):
+-	# <!-- custom: table headers use inline <img> text instead of separate hoverable/clickable image widgets because separate header icons do not sort with the table column. Centralizing this keeps advisor icon headers consistent. Long_Comments_py.txt #17. (GPT-5.5) -->
++	# <!-- custom: table headers use inline <img> text instead of separate hoverable/clickable image widgets because separate header icons do not easily sort with the table column. Centralizing this keeps advisor icon headers consistent. Long_Comments_py.txt #17. (GPT-5.5) -->
+ 	szImage = u"<img=%s size=%d></img>" % (unicode(szButton), iSize)
+ 	if szText is None or szText == "":
+ 		return szImage
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index a44aeecb6..740ca6634 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -58,11 +58,13 @@ import WidgetUtil
+ WIDGET_SCORE_SCROLL_UP     = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP")
+ WIDGET_SCORE_SCROLL_DOWN   = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN")
+ WIDGET_SCORE_EXPAND_TOGGLE = WidgetUtil.createWidget("WIDGET_SCORE_EXPAND_TOGGLE")
++WIDGET_ANNOTATIONS_TOGGLE  = WidgetUtil.createWidget("WIDGET_ANNOTATIONS_TOGGLE")
+ def _scoreHelp(szText):
+ 	return lambda *_: SAS_FONT_TAG_HOVER + szText + SAS_FONT_TAG_CLOSE
+ WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP,     _scoreHelp(u"Scroll scoreboard up"))
+ WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN,   _scoreHelp(u"Scroll scoreboard down"))
+ WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_EXPAND_TOGGLE, _scoreHelp(u"Toggle lock scoreboard hover"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_ANNOTATIONS_TOGGLE,  _scoreHelp(u"Toggle show map annotations"))
+ # <advc.090>
+ import math
+ def floor(f):
+@@ -699,6 +701,9 @@ class CvMainInterface:
+ 		self.iScoreScrollOffset = 0
+ 		# <!-- custom: always-expand scoreboard toggle; when True, expanded columns shown without hovering. (Claude code Sonnet 4.6) -->
+ 		self.bScoreAlwaysExpand = False
++		# <!-- custom: main-map annotation visibility toggle; signs/landmarks have no Python visibility flag, so hide caches them and removes engine billboards until restored. (GPT-5.5) -->
++		self.bAnnotationsVisible = True
++		self.aHiddenAnnotationSigns = []
+ 
+ 
+ 
+@@ -780,6 +785,9 @@ class CvMainInterface:
+ 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
+ 		# <!-- custom: lock emoji path for the always-expand scoreboard toggle. (Claude code Sonnet 4.6) -->
+ 		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
++		# <!-- custom: use the black version rather because the red version of the cross mark is too distracting visually; also use on off dds emojis because actually implementing the yellow border halo effect is tedious and this works more than well enough for this need (pencil luckily coincidentally perfectly overlaps with half of the cross mark) -->
++		self.szAnnotationsToggleOffPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_CROSS_MARK_BLACK").getPath()
++		self.szAnnotationsToggleOnPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PENCIL").getPath()
+ 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
+ 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
+ 		self.szBuildFilterTooltipRegular = "TXT_KEY_BUILDING_FILTER_REGULAR"
+@@ -858,6 +866,7 @@ class CvMainInterface:
+ 			MiniMapButton("Grid", ControlTypes.CONTROL_GRID, "Button_HUDBtnGrid_Style"),
+ 			MiniMapButton("Yields", ControlTypes.CONTROL_YIELDS, "Button_HUDBtnTileAssets_Style"),
+ 			MiniMapButton("BareMap", ControlTypes.CONTROL_BARE_MAP, "Button_HUDBtnClearMap_Style"),
++			MiniMapButton("AnnotationsVisible", None, None, self.szAnnotationsToggleOffPath, self.szAnnotationsToggleOnPath),
+ 			MiniMapButton("ScoresVisible", ControlTypes.CONTROL_SCORES, "Button_HUDBtnRank_Style")
+ 		]
+ 
+@@ -7966,8 +7975,14 @@ class CvMainInterface:
+ 		iX = gRect("MiniMapPanel").x()
+ 		i = 0
+ 		for szButton in aShow:
+-			screen.moveItem(szButton, iX, iY, 0.0)
++			if szButton == "AnnotationsVisible":
++				iAnnotationInset = self.annotationToggleInset()
++				screen.moveItem(szButton, iX + iAnnotationInset, iY + iAnnotationInset, 0.0)
++			else:
++				screen.moveItem(szButton, iX, iY, 0.0)
+ 			screen.moveToFront(szButton)
++			if szButton == "AnnotationsVisible":
++				screen.setState(szButton, self.bAnnotationsVisible)
+ 			screen.show(szButton)
+ 			iX += iStep
+ 			i += 1
+@@ -7997,13 +8012,23 @@ class CvMainInterface:
+ 		lRect = gRect("MiniMapButton")
+ 		# advc: Replacing a lot of redundant code
+ 		for btn in self.aMiniMapMainButtons:
+-			screen.addCheckBoxGFC(btn.szName, "", "",
+-					# advc (note): Same preliminary position for all of them
+-					lRect.x(), lRect.y(), lRect.size(), lRect.size(),
+-					WidgetTypes.WIDGET_ACTION,
+-					gc.getControlInfo(btn.eControl).getActionInfoIndex(), -1,
+-					ButtonStyles.BUTTON_STYLE_LABEL)
+-			screen.setStyle(btn.szName, btn.szStyle)
++			# <!-- custom: annotations toggle is not a BtS ControlInfo action, so use a custom widget and temporary SAS emoji art. (GPT-5.5) -->
++			if btn.eControl is None:
++				iAnnotationInset = self.annotationToggleInset()
++				screen.addCheckBoxGFC(btn.szName,
++						btn.szTexturePath, btn.szTextureHLPath,
++						lRect.x() + iAnnotationInset, lRect.y() + iAnnotationInset,
++						lRect.size() - 2 * iAnnotationInset, lRect.size() - 2 * iAnnotationInset,
++						WIDGET_ANNOTATIONS_TOGGLE, -1, -1,
++						ButtonStyles.BUTTON_STYLE_IMAGE)
++			else:
++				screen.addCheckBoxGFC(btn.szName, "", "",
++						# advc (note): Same preliminary position for all of them
++						lRect.x(), lRect.y(), lRect.size(), lRect.size(),
++						WidgetTypes.WIDGET_ACTION,
++						gc.getControlInfo(btn.eControl).getActionInfoIndex(), -1,
++						ButtonStyles.BUTTON_STYLE_LABEL)
++				screen.setStyle(btn.szName, btn.szStyle)
+ 			screen.setState(btn.szName, False)
+ 			screen.hide(btn.szName)
+ 
+@@ -8019,6 +8044,10 @@ class CvMainInterface:
+ 		screen.hide("GlobeToggle")
+ 	# <!-- custom: note: old CityOrgArea code removed since we don't put religions and corporations in the right side panel anymore -->
+ 
++	def annotationToggleInset(self):
++		# <!-- custom: custom emoji DDS fills its full checkbox and can spill visually into the minimap; keep the slot size but inset this one icon slightly. (GPT-5.5) -->
++		return max(1, gRect("MiniMapButton").size() / 12)
++
+ 	def update(self, fDelta):
+ 		return
+ 
+@@ -8078,6 +8107,106 @@ class CvMainInterface:
+ 			self.PLE.hideInfoPane()
+ 		return 0
+ 
++	# <!-- custom: map-annotation toggle helpers for the new minimap button: hide/show dotmap overlays and cached sign/landmark billboards together. (GPT-5.5) -->
++	def toggleMapAnnotations(self):
++		self.bAnnotationsVisible = not self.bAnnotationsVisible
++		if self.bAnnotationsVisible:
++			self.showMapAnnotations()
++		else:
++			self.hideMapAnnotations()
++		self.screen.setState("AnnotationsVisible", self.bAnnotationsVisible)
++
++	def hideMapAnnotations(self):
++		self.hideMapAnnotationSigns()
++		try:
++			import CvStrategyOverlay
++			# <!-- custom: reuse DotMap because we both call its normal hide() and then force-clear its visual layers. In-game testing showed drawings can be visible while DotMap.visible is already false; without clearCityLayers(), the first toggle hides signs but leaves Alt+X BFC drawings until toggled again. (GPT-5.5) -->
++			kDotMap = CvStrategyOverlay.getDotMap()
++			kDotMap.hide()
++			kDotMap.clearCityLayers()
++			CvStrategyOverlay.StratLayerOpt.setShowDotMap(False)
++		except:
++			BugUtil.warn("CvMainInterface.hideMapAnnotations failed to hide dotmap overlay")
++
++	def showMapAnnotations(self):
++		self.showMapAnnotationSigns()
++		try:
++			import CvStrategyOverlay
++			CvStrategyOverlay.StratLayerOpt.setShowDotMap(True)
++			CvStrategyOverlay.getDotMap().show()
++		except:
++			BugUtil.warn("CvMainInterface.showMapAnnotations failed to show dotmap overlay")
++
++	# <!-- custom: save/load support for hidden annotations. Empirically, the previous save hook re-added hidden captions during save, so captions appeared immediately while BFC drawings stayed hidden; reloading that save then showed only BFC annotations and lost the caption annotations. Persisting this cache keeps the hidden state stable and lets the toggle restore captions later. (GPT-5.5) -->
++	def isMapAnnotationsHiddenForSave(self):
++		return not self.bAnnotationsVisible
++
++	def getHiddenMapAnnotationSignsForSave(self):
++		if not self.bAnnotationsVisible and self.aHiddenAnnotationSigns:
++			return self.aHiddenAnnotationSigns
++		return []
++
++	def loadHiddenMapAnnotationSigns(self, aHiddenAnnotationSigns):
++		if aHiddenAnnotationSigns is None:
++			aHiddenAnnotationSigns = []
++		self.aHiddenAnnotationSigns = aHiddenAnnotationSigns
++		self.bAnnotationsVisible = False
++		try:
++			self.screen.setState("AnnotationsVisible", self.bAnnotationsVisible)
++		except:
++			BugUtil.warn("CvMainInterface.loadHiddenMapAnnotationSigns could not update the annotation toggle button state")
++
++	def loadVisibleMapAnnotations(self):
++		self.aHiddenAnnotationSigns = []
++		self.bAnnotationsVisible = True
++		try:
++			self.screen.setState("AnnotationsVisible", self.bAnnotationsVisible)
++		except:
++			BugUtil.warn("CvMainInterface.loadVisibleMapAnnotations could not update the annotation toggle button state")
++
++	def hideMapAnnotationSigns(self):
++		kEngine = CyEngine()
++		self.aHiddenAnnotationSigns = []
++		for iSign in range(kEngine.getNumSigns()):
++			kSign = kEngine.getSignByIndex(iSign)
++			kPlot = kSign.getPlot()
++			if kPlot and not kPlot.isNone():
++				self.aHiddenAnnotationSigns.append((
++						kPlot.getX(), kPlot.getY(),
++						int(kSign.getPlayerType()), kSign.getCaption()))
++		for iX, iY, ePlayer, szCaption in self.aHiddenAnnotationSigns:
++			kPlot = gc.getMap().plot(iX, iY)
++			if ePlayer == -1:
++				kEngine.removeLandmark(kPlot)
++			else:
++				kEngine.removeSign(kPlot, ePlayer)
++
++	def showMapAnnotationSigns(self):
++		kEngine = CyEngine()
++		for iX, iY, ePlayer, szCaption in self.aHiddenAnnotationSigns:
++			kPlot = gc.getMap().plot(iX, iY)
++			if isinstance(szCaption, unicode):
++				# <!-- custom: this fixes the below error with the help of GPT-5.5 thanks -->
++				# Traceback (most recent call last):
++				#
++				# File "CvScreensInterface", line 961, in handleInput
++				# File "CvMainInterface", line 8203, in handleInput
++				# File "CvMainInterface", line 8101, in toggleMapAnnotations
++				# File "CvMainInterface", line 8116, in showMapAnnotations
++				# File "CvMainInterface", line 8154, in showMapAnnotationSigns
++				# ArgumentError: Python argument types in
++				# 	CyEngine.addSign(CyEngine, CyPlot, CvPythonExtensions.PlayerTypes, unicode)
++				# did not match C++ signature:
++				# 	addSign(class CyEngine {lvalue}, class CyPlot *, int, char const *)
++				# ERR: Python function handleInput failed, module CvScreensInterface
++				#
++				szCaption = szCaption.encode('latin_1')
++			if ePlayer == -1:
++				kEngine.addLandmark(kPlot, szCaption)
++			else:
++				kEngine.addSign(kPlot, ePlayer, szCaption)
++		self.aHiddenAnnotationSigns = []
++
+ 	# Will handle the input for this screen...
+ 	def handleInput (self, inputClass):
+ #		BugUtil.debugInput(inputClass)
+@@ -8123,6 +8252,9 @@ class CvMainInterface:
+ 					self.bScoreAlwaysExpand = not self.bScoreAlwaysExpand
+ 					self.updateScoreStrings()
+ 					return 1
++				elif fn == "AnnotationsVisible":
++					self.toggleMapAnnotations()
++					return 1
+ 				elif fn.startswith("BuildFilter"):
+ 					iNewFilter = inputClass.getData1()
+ 					if iNewFilter != self.iBuildingFilter:
+@@ -8256,7 +8388,10 @@ class CvMainInterface:
+ 
+ # advc:
+ class MiniMapButton:
+-	def __init__(self, szName, eControl, szStyle):
++	def __init__(self, szName, eControl, szStyle, szTexturePath = None, szTextureHLPath = None):
+ 		self.szName = szName
+ 		self.eControl = eControl
+ 		self.szStyle = szStyle
++		# <!-- custom: add texture paths for Python-only minimap buttons such as the annotation toggle, which has no native ControlInfo action/style art path. (GPT-5.5) -->
++		self.szTexturePath = szTexturePath
++		self.szTextureHLPath = szTextureHLPath
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index 5e51779d1..28e60a9e3 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -1883,6 +1883,22 @@ Created as part of AdvCiv-SAS improvements
+ 			<Type>SAS_EMOJI_FAST_DOWN_BUTTON</Type>
+ 			<Path>Art/AdvCiv_SAS/Emojis/Fast_Down_Button/23ec_64px.dds</Path>
+ 		</InterfaceArtInfo>
++		<!-- ❌ emoji from emojiterra (red (base) version: Noto Color Emoji 17.0)-->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_CROSS_MARK</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- ❌ emoji from emojiterra (black version: Google
++Noto Emoji 17.0) -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_CROSS_MARK_BLACK</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Cross_Mark/274c_64px_black.dds</Path>
++		</InterfaceArtInfo>
++		<!-- ✏️ emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_PENCIL</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Pencil/270f_64px.dds</Path>
++		</InterfaceArtInfo>
+ 		<!-- custom: extracted from GameFont.tga with the very nice help of Game Font Editor (V0.6) for Civ 4 by Asaf. We found the higher quality icons (21x20) in ri mod, and used them instead because base civ4 only had GameFont_75.tga (16x16) icons (see also KI#117). We added them as dds here because we couldn't insert them in sevopedia leader attitude buttons easily. Also reduced to 20x20 else the dds does not display ingame. -->
+ 		<InterfaceArtInfo>
+ 			<Type>SAS_EMOJI_ATTITUDE_FURIOUS</Type>
+
+diff --git a/README.md b/README.md
+index eb37e306c..764cdf4f3 100644
+--- a/README.md
++++ b/README.md
+@@ -44,8 +44,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[Miscallenous screens](/README.md#miscallenous-screens)  
+ &emsp;[Main interface rework](/README.md#city-screen-rework)  
+ &emsp;&emsp;[City Screen rework](/README.md#city-screen-rework)  
+-&emsp;&emsp;[Map view rework](/README.md#city-screen-rework)  
+-&emsp;[Scoreboard](/README.md#scoreboard)  
++&emsp;&emsp;[Map view rework (e.g., Scoreboard Toggle and Scroll buttons, Map Annotations Toggle button)](/README.md#map-view-rework-eg-scoreboard-toggle-and-scroll-buttons-map-annotations-toggle-button)  
+ [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
+ &emsp;[Some lower level Sevopedia reworks (e.g., Item grouping, Search Bar, Keyboard UP/DOWN navigation, Index as category, Movies (with audio support), Music with ~1750 audio scripts that can be listened to in Sevopedia), Expanded Text Panels, Expanded Content (Non-text; e.g., Animation) Panels, Expanded leaderhead Panel](/README.md#some-lower-level-sevopedia-reworks-eg-item-grouping-search-bar-keyboard-updown-navigation-index-as-category-movies-with-audio-support-music-with-1750-audio-scripts-that-can-be-listened-to-in-sevopedia-expanded-text-panels-expanded-content-non-text-eg-animation-panels-expanded-leaderhead-panel)  
+ &emsp;[Other new categories](/README.md#other-new-categories)  
+@@ -298,18 +297,27 @@ The city screen has been heavily reworked, beautified, and enhanced, for example
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG" alt="0.400_city_screen (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG" alt="0.400_city_screen (3).JPG" width="250"></img>
+ 
+-#### Map view rework
++#### Map view rework (e.g., Scoreboard Toggle and Scroll buttons, Map Annotations Toggle button)
+ 
+ Outside the city screen, UI has been reworked too: moved away the flag from production buttons bars (was needless and cumbersome there: better show more buttons instead: moved optionally to top panel as detailed in main changes guide), added buttons for unit stack and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
+ 
+-### Scoreboard
++Besides these and other changes in the main changes guide or code only, a notable change is the new toggle or scroll buttons in map view.
+ 
+-New features have been added: scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
++##### Scoreboard
++
++New scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button features have been added.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG" alt="0.410_scoreboard (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG" alt="0.410_scoreboard (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (3).JPG" alt="0.410_scoreboard (3).JPG" width="250"></img>
+ 
++##### Map annotations
++
++A new toggle button to show or hide map annotations (Alt + S captions or Alt + X BFC marks) in map view has been added. The toggled state persists on save and load.
++
++<img src="./_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (1).JPG" alt="0.420_annotations (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (2).JPG" alt="0.420_annotations (2).JPG" width="250"></img>
++
+ ## UI (Main Sevopedia reworks)
+ 
+ Note: for more screenshots and documentation of the Sevopedia reworks in AdvCiv-SAS, see [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 76f4f2b83..bd52caa53 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -358,9 +358,9 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**. Show **Era text default ON** (as of now on top left); **strip " Era" suffix** so text is now only e.g., `Renaissance` not `Renaissance Era` (would overflow during golden age when text is upscaled, plus it is unneeded). See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** ((Requires AdvCiv-SAS 5690+) with optional separate blue ribbon, bar Y position and bar height position fine-tuning tunables (e.g., helps remove needless scroll bar when there are not more than max rows, or keep display symetric or prettier)) and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). (Requires AdvCiv-SAS 5526+) Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5689+) Adjust **city camera** to the north (tunable) so extra rows can be shown without overflowing into bottom BFC plots in `CvGame::onCityScreenChange`. And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+-- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**.
++- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**. (Requires AdvCiv-SAS 5723+) Added a **Toggle show annotations** (Alt + S **captions**, Alt + X **BFC marks**) button (next to the other buttons **above the Minimap**); the toggled state **persists on save and load**. See [README.md (Map annotations)](/README.md#map-annotations).
++- (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+ (up) and - (down) scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Lock scoreboard hover toggle button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover). Note: in first turns of the game this effectively has no effect since power ratios are not yet visible. Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard).
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+-- (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+ (up) and - (down) scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Lock scoreboard hover toggle button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover). Note: in first turns of the game this effectively has no effect since power ratios are not yet visible. Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard)
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ 
+ ## General changes
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (1).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (1).JPG
+new file mode 100644
+index 000000000..a2607b152
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (2).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (2).JPG
+new file mode 100644
+index 000000000..1def274cb
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/ui_other/0.420_annotations (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=31652

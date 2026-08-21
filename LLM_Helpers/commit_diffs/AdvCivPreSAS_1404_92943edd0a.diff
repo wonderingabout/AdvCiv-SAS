@@ -1,0 +1,182 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1404
+# Commit: 92943edd0a8b54a839c84c9f9f24b8ea83255b3e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: aba82dd97182435b92397679c35ca903988e90d6
+# Title: Support added for ArtStyle-specific unit button graphics
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	Assets/Python/BUG/BugUnitPlot.py
+7	1	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+7	1	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+14	2	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+7	1	Assets/Python/Contrib/UnitUpgradesGraph.py
+3	1	Assets/Python/Screens/CvMainInterface.py
+3	1	Assets/Python/Screens/PLE.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugUnitPlot.py b/Assets/Python/BUG/BugUnitPlot.py
+index 1e4b109d3..8f83fca13 100644
+--- a/Assets/Python/BUG/BugUnitPlot.py
++++ b/Assets/Python/BUG/BugUnitPlot.py
+@@ -326,7 +326,9 @@ class BupPanel:
+ 			self.screen.setState(szCell, BupUnit.isSelected)
+ 
+ 	def _drawUnitIcon(self, BupUnit, iIndex, szCell):
+-		self.screen.changeImageButton(szCell, gc.getUnitInfo(BupUnit.UnitType).getButton())
++		#self.screen.changeImageButton(szCell, gc.getUnitInfo(BupUnit.UnitType).getButton())
++		# advc.003l: Replacing the above
++		self.screen.changeImageButton(szCell, gc.getPlayer(BupUnit.Owner).getUnitButton(BupUnit.UnitType))
+ 		self.screen.enable(szCell, BupUnit.Owner == gc.getGame().getActivePlayer())
+ 		self.screen.show(szCell)
+ #		self.screen.setState(szCell, BupUnit.isSelected)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index b6f06d5a2..2c6105e9c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -218,6 +218,7 @@ class SevoPediaBonus:
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_ALLOWS", ()), "", False, True, self.X_ALLOWS_PANE, self.Y_ALLOWS_PANE, self.W_ALLOWS_PANE, self.H_ALLOWS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		screen.attachLabel(panelName, "", "  ")
++		iActivePlayer = gc.getGame().getActivePlayer() # advc.003l
+ 		for eLoopUnit in range(gc.getNumUnitInfos()):
+ 			bFound = False
+ 			if (eLoopUnit >= 0):
+@@ -230,7 +231,12 @@ class SevoPediaBonus:
+ 							bFound = True
+ 						j += 1
+ 			if bFound:
+-				screen.attachImageButton( panelName, "", gc.getUnitInfo(eLoopUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False )
++				szButton = gc.getUnitInfo(eLoopUnit).getButton()
++				# <advc.003l>
++				if iActivePlayer >= 0:
++					szButton = gc.getPlayer(iActivePlayer).getUnitButton(eLoopUnit)
++				# </advc.003l>
++				screen.attachImageButton( panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False )
+ 
+ 		for eLoopBuilding in range(gc.getNumBuildingInfos()):
+ 			bFound = False
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index cb45dc6ed..28887e807 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -183,10 +183,16 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_UNITS_ENABLED", ()), "", False, True, self.X_UNIT_PANE, self.Y_UNIT_PANE, self.W_UNIT_PANE, self.H_UNIT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
++		iActivePlayer = gc.getGame().getActivePlayer() # advc.003l
+ 		for eLoopUnit in range(gc.getNumUnitInfos()):
+ 			if (eLoopUnit != -1):
+ 				if (isTechRequiredForUnit(self.iTech, eLoopUnit)):
+-					screen.attachImageButton(panelName, "", gc.getUnitInfo(eLoopUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False)
++					szButton = gc.getUnitInfo(eLoopUnit).getButton()
++					# <advc.003l>
++					if iActivePlayer >= 0:
++						szButton = gc.getPlayer(iActivePlayer).getUnitButton(eLoopUnit)
++					# </advc.003l>
++					screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 4614b2d9e..eb09a9bd8 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -85,7 +85,13 @@ class SevoPediaUnit:
+ 
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_UNIT_PANE, self.Y_UNIT_PANE, self.W_UNIT_PANE, self.H_UNIT_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
+-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getUnitInfo(self.iUnit).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		szButton = gc.getUnitInfo(self.iUnit).getButton()
++		# <advc.003l>
++		iActivePlayer = gc.getGame().getActivePlayer()
++		if iActivePlayer >= 0:
++			szButton = gc.getPlayer(iActivePlayer).getUnitButton(self.iUnit)
++		# </advc.003l>
++		screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		screen.addUnitGraphicGFC(self.top.getNextWidgetName(), self.iUnit, self.X_UNIT_ANIMATION, self.Y_UNIT_ANIMATION, self.W_UNIT_ANIMATION, self.H_UNIT_ANIMATION, WidgetTypes.WIDGET_GENERAL, -1, -1, self.X_ROTATION_UNIT_ANIMATION, self.Z_ROTATION_UNIT_ANIMATION, self.SCALE_ANIMATION, True)
+ 
+ 		self.placeStats()
+@@ -187,13 +193,19 @@ class SevoPediaUnit:
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_UPGRADES_TO", ()), "", False, True, self.X_UPGRADES_TO_PANE, self.Y_UPGRADES_TO_PANE, self.W_UPGRADES_TO_PANE, self.H_UPGRADES_TO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
++		iActivePlayer = gc.getGame().getActivePlayer() # advc.003l
+ 		for k in range(gc.getNumUnitClassInfos()):
+ 			if self.top.iActivePlayer == -1:
+ 				eLoopUnit = gc.getUnitClassInfo(k).getDefaultUnitIndex()
+ 			else:
+ 				eLoopUnit = gc.getCivilizationInfo(gc.getGame().getActiveCivilizationType()).getCivilizationUnits(k)
+ 			if (eLoopUnit >= 0 and gc.getUnitInfo(self.iUnit).getUpgradeUnitClass(k)):
+-				screen.attachImageButton(panelName, "", gc.getUnitInfo(eLoopUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False)
++				szButton = gc.getUnitInfo(eLoopUnit).getButton()
++				# <advc.003l>
++				if iActivePlayer >= 0:
++					szButton = gc.getPlayer(iActivePlayer).getUnitButton(eLoopUnit)
++				# </advc.003l>
++				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False)
+
+diff --git a/Assets/Python/Contrib/UnitUpgradesGraph.py b/Assets/Python/Contrib/UnitUpgradesGraph.py
+index 0170dd4bc..a1d26018b 100644
+--- a/Assets/Python/Contrib/UnitUpgradesGraph.py
++++ b/Assets/Python/Contrib/UnitUpgradesGraph.py
+@@ -132,7 +132,13 @@ class UnitUpgradesGraph:
+ 					self.addUpgradePath(graph, unitA, unitB)
+ 
+ 	def placeOnScreen(self, screen, unit, xPos, yPos):
+-		screen.setImageButtonAt(self.pediaScreen.getNextWidgetName(), self.upgradesList, gc.getUnitInfo(unit).getButton(), xPos, yPos, self.buttonSize, self.buttonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, unit, 1)
++		szButton = gc.getUnitInfo(unit).getButton()
++		# <advc.003l>
++		iActivePlayer = gc.getGame().getActivePlayer()
++		if iActivePlayer >= 0:
++			szButton = gc.getPlayer(iActivePlayer).getUnitButton(unit)
++		# </advc.003l>
++		screen.setImageButtonAt(self.pediaScreen.getNextWidgetName(), self.upgradesList, szButton, xPos, yPos, self.buttonSize, self.buttonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, unit, 1)
+ 			
+ 	def unitToString(self, unit):
+ 		return gc.getUnitInfo(unit).getDescription() + ":%d"%(unit, )
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 4e54eac5d..e82480563 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1942,7 +1942,9 @@ class CvMainInterface:
+ 							szFileName = ArtFileMgr.getInterfaceArtInfo("OVERLAY_NOMOVE").getPath()
+ 
+ 						szString = "PlotListButton" + str(iCount)
+-						screen.changeImageButton( szString, gc.getUnitInfo(pLoopUnit.getUnitType()).getButton() )
++						#screen.changeImageButton( szString, gc.getUnitInfo(pLoopUnit.getUnitType()).getButton() )
++						# advc.003l: Replacing the above
++						screen.changeImageButton( szString, gc.getPlayer(pLoopUnit.getOwner()).getUnitButton(pLoopUnit.getUnitType()))
+ 						if ( pLoopUnit.getOwner() == gc.getGame().getActivePlayer() ):
+ 							bEnable = True
+ 						else:
+
+diff --git a/Assets/Python/Screens/PLE.py b/Assets/Python/Screens/PLE.py
+index e81b051a4..8094b5ba0 100644
+--- a/Assets/Python/Screens/PLE.py
++++ b/Assets/Python/Screens/PLE.py
+@@ -1391,7 +1391,9 @@ class PLE:
+ 		szString = self.PLOT_LIST_BUTTON_NAME + str(iCount)
+ 
+ 		# set unit button image
+-		screen.changeImageButton( szString, gc.getUnitInfo(pLoopUnit.getUnitType()).getButton() )
++		#screen.changeImageButton( szString, gc.getUnitInfo(pLoopUnit.getUnitType()).getButton() )
++		# advc.003l: Replacing the above
++		screen.changeImageButton( szString, gc.getPlayer(pLoopUnit.getOwner()).getUnitButton(pLoopUnit.getUnitType()))
+ 
+ 		# check if it is an player unit or not
+ 		if ( pLoopUnit.getOwner() == gc.getGame().getActivePlayer() ):
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=9255

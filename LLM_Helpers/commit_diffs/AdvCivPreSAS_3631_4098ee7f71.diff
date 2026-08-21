@@ -1,0 +1,128 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3631
+# Commit: 4098ee7f717dfdba708b129bcae71361512f2675
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 345e9c32cdcbe5fef3de31e105d15788abb9e124
+# Title: Tweak distribution of goody hut outcomes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	12	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index a83fef6cb..73adc197f 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -580,7 +580,8 @@
+ 			<Goodies>
+ 				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
+ 				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
+-				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<!-- advc.314: was HIGH_GOLD -->
++				<GoodyType>GOODY_TECH</GoodyType>
+ 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+ 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+ 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+@@ -707,12 +708,12 @@
+ 			<iAIAttitudeChangePercent>40</iAIAttitudeChangePercent>
+ 			<Goodies>
+ 				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
+-				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<!-- advc.314: was HIGH_GOLD -->
++				<GoodyType>GOODY_TECH</GoodyType>
++				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+ 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+ 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+ 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+-				<!-- advc.314: was LOW_GOLD -->
+-				<GoodyType>GOODY_TECH</GoodyType>
+ 				<GoodyType>GOODY_MAP</GoodyType>
+ 				<GoodyType>GOODY_MAP</GoodyType>
+ 				<GoodyType>GOODY_WARRIOR</GoodyType>
+@@ -723,6 +724,8 @@
+ 				<GoodyType>GOODY_HEALING</GoodyType>
+ 				<GoodyType>GOODY_TECH</GoodyType>
+ 				<GoodyType>GOODY_TECH</GoodyType>
++				<!-- advc.314: One more -->
++				<GoodyType>GOODY_TECH</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+@@ -860,7 +863,8 @@
+ 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+-				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<!-- advc.314: Was BARBARIANS_STRONG -->
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 			</Goodies>
+ 			<FreeTechs/>
+@@ -996,13 +1000,14 @@
+ 			<!-- advc.148 -->
+ 			<iAIAttitudeChangePercent>60</iAIAttitudeChangePercent>
+ 			<Goodies>
+-				<GoodyType>GOODY_HIGH_GOLD</GoodyType>
++				<!-- advc.314: was HIGH_GOLD -->
++				<GoodyType>GOODY_TECH</GoodyType>
++				<!-- advc.314: One fewer -->
++				<!--GoodyType>GOODY_LOW_GOLD</GoodyType-->
+ 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+ 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+ 				<GoodyType>GOODY_LOW_GOLD</GoodyType>
+ 				<GoodyType>GOODY_LOW_GOLD</GoodyType>		
+-				<!-- advc.314: was LOW_GOLD -->
+-				<GoodyType>GOODY_TECH</GoodyType>
+ 				<GoodyType>GOODY_MAP</GoodyType>
+ 				<GoodyType>GOODY_MAP</GoodyType>
+ 				<GoodyType>GOODY_WARRIOR</GoodyType>
+@@ -1016,7 +1021,8 @@
+ 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+-				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<!-- advc.314: One fewer -->
++				<!--GoodyType>GOODY_BARBARIANS_STRONG</GoodyType-->
+ 			</Goodies>
+ 			<FreeTechs/>
+ 			<AIFreeTechs>
+@@ -1178,7 +1184,8 @@
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+-				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<!-- advc.314: One fewer -->
++				<!--GoodyType>GOODY_BARBARIANS_STRONG</GoodyType-->
+ 			</Goodies>
+ 			<FreeTechs/>
+ 			<AIFreeTechs>
+@@ -1341,12 +1348,14 @@
+ 				<GoodyType>GOODY_TECH</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
++				<!-- advc.314: was STRONG -->
++				<GoodyType>GOODY_BARBARIANS_WEAK</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+ 				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+-				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
+-				<GoodyType>GOODY_BARBARIANS_STRONG</GoodyType>
++				<!-- advc.314: One fewer -->
++				<!--GoodyType>GOODY_BARBARIANS_STRONG</GoodyType-->
+ 			</Goodies>
+ 			<FreeTechs/>
+ 			<AIFreeTechs>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4118

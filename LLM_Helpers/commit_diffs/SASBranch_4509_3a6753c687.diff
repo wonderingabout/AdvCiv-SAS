@@ -1,0 +1,78 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4509
+# Commit: 3a6753c687f6d55dd12d7e63a0240a9f93387494
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 77c55bf3555eb17797770dc54950525363685799
+# Title: move the buildings panel (Ressources) under the units panel, make it larger like the units panel (step 2) so much more beautiful, efficient, and functionnal!...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	5	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 151fa21b9..716a0ad0f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -64,16 +64,28 @@ class SevoPediaBonus:
+ 		self.Y_REQUIRES = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + 10
+ 		self.H_REQUIRES = 110
+ 
+-		self.X_BUILDINGS = self.X_BONUS_ANIMATION
+-		self.W_BUILDINGS = self.W_BONUS_ANIMATION
+-		self.Y_BUILDINGS = self.Y_REQUIRES
+-		self.H_BUILDINGS = self.H_REQUIRES
++		# <!-- custom: todo add self.X_ENABLES and similar i mean anyways, thanks, -->
+ 
+ 		self.X_ALLOWS_PANE = self.X_BONUS_PANE
+ 		self.W_ALLOWS_PANE = self.top.R_PEDIA_PAGE - self.X_ALLOWS_PANE
+ 		self.Y_ALLOWS_PANE = self.Y_REQUIRES + self.H_REQUIRES + 10
+ 		self.H_ALLOWS_PANE = 110
+ 
++		# <!-- custom: put the buildings panel under the units (allows) panel
++		# so easier to refer to it directly, now, i mean anyways i mean anyways,
++		# at least about this i mean anyways i mean anyways, thanks,
++		# it will also be identical in dimensions (or very close) so we will
++		# not need to change much (coordinates or other things) this way,
++		# at least about this, i mean, anyways, i mean anyways, maybe,
++		# i mean anyways, or not, i mean anyways, thanks, -->
++		self.X_BUILDINGS = self.X_ALLOWS_PANE
++		self.W_BUILDINGS = self.W_ALLOWS_PANE 
++		self.Y_BUILDINGS = self.Y_ALLOWS_PANE
++		self.H_BUILDINGS = self.H_ALLOWS_PANE
++
++		# <!--custom: not changing the existing math since it was already done,
++		# but ideally should base this on the buildings panel now just above it
++		# i mean anywyas, thanks,
+ 		self.X_HISTORY_PANE = self.X_ALLOWS_PANE
+ 		self.W_HISTORY_PANE = self.W_ALLOWS_PANE
+ 		self.Y_HISTORY_PANE = self.Y_ALLOWS_PANE + self.H_ALLOWS_PANE + 10
+@@ -256,7 +268,15 @@ class SevoPediaBonus:
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		# advc.004y: txt key was TXT_KEY_PEDIA_CATEGORY_BUILDING
+-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_BUILDING_PROJECT", ()), "", False, True, self.X_BUILDINGS, self.Y_BUILDINGS, self.W_BUILDINGS, self.H_BUILDINGS, PanelStyles.PANEL_STYLE_BLUE50 )
++		# <!-- custom: starting the buildings panel from a lower (Y)
++		# position, with the horizontal position (X), width of the panel (W),
++		# height of the panel (H) are not changed, same as the allows (units)
++		# panel.
++		# Now the buildings panel will be larger as the units panel, useful
++		# for ressources like marble that could not fit all, plus now we have
++		# room to create a new Enables panel i mean anyways, at least in this
++		# case i mean anyways, thanks,
++		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_BUILDING_PROJECT", ()), "", False, True, self.X_BUILDINGS, self.Y_BUILDINGS + 120, self.W_BUILDINGS, self.H_BUILDINGS, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		screen.attachLabel(panelName, "", "  ")
+ 		# advc.905b: Moved this loop from placeAllows, which only deals with units now.
+ 		for eLoopBuilding in range(gc.getNumBuildingInfos()):
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3120

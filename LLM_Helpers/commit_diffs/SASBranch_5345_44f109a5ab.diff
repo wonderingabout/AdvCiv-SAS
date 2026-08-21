@@ -1,0 +1,520 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5345
+# Commit: 44f109a5ab5e5df45059217c1538803ad66f232c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7fa2d16180485baab50f6196b4d48eafbe7c9c24
+# Title: replace old Base AdvCiv CONCEPT_TRAIT with WIDGET_PYTHON links, add links from Sevopedia Leader to Sevopedia Traits - Removed the old clunky Base AdvCiv's `C...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+8	1	Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+62	29	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+5	7	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+3	52	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+5	1	CvGameCoreDLL/CvGameTextMgr.cpp
+5	3	README.md
+3	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+15	3	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+index ef9a28956..becc55074 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py
+@@ -225,6 +225,7 @@ class SevoPediaIndex:
+ 		nColumns = 3
+ 		self.tableName = self.top.getNextWidgetName()
+ 		self.SAS_rowToBuild = {}
++		self.SAS_rowToTrait = {}  # <!-- custom: row-to-trait mapping for WIDGET_PYTHON trait handling. (Claude Opus 4.5) -->
+ 		self.iTableWidgetId = int(self.tableName.replace(self.top.WIDGET_ID, ""))
+ 		iTableY = self.Y_INDEX + self.SAS_INDEX_SEARCH_H + 4
+ 		iTableH = self.H_INDEX - (iTableY - self.Y_INDEX)
+@@ -317,8 +318,10 @@ class SevoPediaIndex:
+ 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCivilizationInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+ 			elif (type == "Leader"):
+ 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getLeaderHeadInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
++			# <!-- custom: Trait rows use WIDGET_GENERAL and row-to-trait mapping like Builds. (Claude Opus 4.5) -->
+ 			elif (type == "Trait"):
+-				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getConceptInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iData1, CvUtil.FONT_LEFT_JUSTIFY)
++				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getTraitInfo(iData1).getButton(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				self.SAS_rowToTrait[iRow] = iData1
+ 			
+ 			elif (type == "Civic"):
+ 				screen.setTableText(self.tableName, iColumn, iRow, sText, gc.getCivicInfo(iData1).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iData1, iData2, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -389,4 +392,8 @@ class SevoPediaIndex:
+ 				iBuild = self.SAS_rowToBuild.get(iRow, None)
+ 				if iBuild is not None:
+ 					return self.top.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iBuild, True, False)
++				# <!-- custom: Handle trait clicks via row mapping. (Claude Opus 4.5) -->
++				iTrait = self.SAS_rowToTrait.get(iRow, None)
++				if iTrait is not None:
++					return self.top.pediaJump(SevoScreenEnums.PEDIA_TRAITS, iTrait, True, False)
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 8a9f8164f..f3df3c669 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -9,8 +9,6 @@
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose, EmperorFool
+ # see ReadMe [advc: BUG help file] for details
+ #
+-# advc.004y: Restored traits
+-#
+ # AI, UI, or other modifications
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+@@ -42,7 +40,7 @@ import SevoPediaBuild
+ import SevoPediaCivic
+ import SevoPediaCivilization
+ import SevoPediaLeader
+-import SevoPediaTrait # advc.004y: Restored
++import SevoPediaTrait
+ import SevoPediaSpecialist
+ import SevoPediaHistory
+ import SevoPediaProject
+@@ -98,7 +96,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_SEARCH_DEFAULT_TEXT = u"Type to filter..."
+ 		self.SAS_SEARCH_H = 32
+ 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
++		# <!-- custom: WIDGET_PYTHON magic IDs for custom Sevopedia categories. These allow Builds and Traits to have
++		# their own dedicated pages without requiring new widget types in the DLL. The ID is passed as data1, and the
++		# actual item ID (build/trait index) as data2. Handled in placeItems(), handleInput(), and SevoPediaIndex. -->
+ 		self.SAS_PEDIA_PYTHON_BUILD = 6798
++		self.SAS_PEDIA_PYTHON_TRAIT = 6799  # <!-- custom: (Claude Opus 4.5) -->
+ 
+ 		self.H_SCREEN = 768
+ 		self.W_SCREEN = 1024
+@@ -591,8 +593,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def determineNewConceptSubCategory(self, iItem):
+ 		info = gc.getNewConceptInfo(iItem)
+ 		BugUtil.debug("NewConcept item %d is %s" % (iItem, info.getDescription()))
+-		if (self.isTraitInfo(info)):
+-			return SevoScreenEnums.PEDIA_TRAITS
++		# <!-- custom: Removed isTraitInfo check - CONCEPT_TRAIT_* entries deleted from XML since Traits now use
++		# WIDGET_PYTHON 6799 approach. (Claude Opus 4.5) -->
+ 		if (self.isShortcutInfo(info)):
+ 			return SevoScreenEnums.PEDIA_SHORTCUTS
+ 		return SevoScreenEnums.PEDIA_BTS_CONCEPTS
+@@ -733,6 +735,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			("getNumBuildInfos", "getBuildInfo", SevoScreenEnums.PEDIA_BUILDS),
+ 			("getNumCivilizationInfos", "getCivilizationInfo", SevoScreenEnums.PEDIA_CIVS),
+ 			("getNumLeaderHeadInfos", "getLeaderHeadInfo", SevoScreenEnums.PEDIA_LEADERS),
++			# <!-- custom: Add traits to link matching so clicking <link=literal>TraitName</link> in Sevopedia Leader
++			# (or anywhere else) navigates to the Sevopedia Traits page. The DLL wraps trait names in <link=literal>
++			# tags (see CvGameTextMgr.cpp parseTraits), and this entry tells the link() method to search TraitInfo
++			# for a match and jump to PEDIA_TRAITS. Without this, clicking trait links had no effect. (Claude Opus 4.5) -->
++			("getNumTraitInfos", "getTraitInfo", SevoScreenEnums.PEDIA_TRAITS),
+ 			("getNumCivicInfos", "getCivicInfo", SevoScreenEnums.PEDIA_CIVICS),
+ 			("getNumReligionInfos", "getReligionInfo", SevoScreenEnums.PEDIA_RELIGIONS),
+ 			("getNumCorporationInfos", "getCorporationInfo", SevoScreenEnums.PEDIA_CORPORATIONS),
+@@ -1791,34 +1798,38 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		return r # </advc.004y>
+ 
+ 
++	# <!-- custom: Sevopedia Traits rework - Previously traits used a hacky CONCEPT_TRAIT_* wrapper approach where
++	# trait entries were stored as NewConcept entries and required extracting the actual TraitInfo via string parsing.
++	# Now traits use WIDGET_PYTHON 6799 approach (like Builds with 6798), reading directly from CIV4TraitInfos.xml.
++	# This is cleaner, allows proper linking from Sevopedia Leader, and the CONCEPT_TRAIT_* XML entries are deleted.
++	# See also: SevoPediaIndex.py (row mapping), SevoPediaTrait.py (receives trait ID directly), and
++	# CvGameTextMgr.cpp parseTraits (DLL adds <link=literal> for clickable trait links). (Claude Opus 4.5) -->
+ 	def placeTraits(self):
+ 		self.list = self.getTraitList()
+-		self.placeItems(WidgetTypes.WIDGET_PEDIA_DESCRIPTION, self.getTraitInfo)
++		self.placeItems(WidgetTypes.WIDGET_PYTHON, gc.getTraitInfo)
+ 
+ 	def getTraitList(self):
+-		return self.getSortedList(gc.getNumNewConceptInfos(), self.getTraitInfo, True, False) # advc.004y: bCheckGraphicalOnly = False
++		return self.getSortedList(gc.getNumTraitInfos(), self.getTraitInfo, True, False) # advc.004y: bCheckGraphicalOnly = False
+ 
+ 	def getTraitInfo(self, id):
+-		info = gc.getNewConceptInfo(id)
+-		if self.isTraitInfo(info):
+-			
+-			class TraitInfo:
+-				def __init__(self, conceptInfo):
+-					self.conceptInfo = conceptInfo
+-					sKey = conceptInfo.getType()
+-					sKey = sKey[sKey.find("TRAIT_"):]
+-					self.eTrait = gc.getInfoTypeForString(sKey)
+-					self.traitInfo = gc.getTraitInfo(self.eTrait)
+-				def getDescription(self):
+-					return u"%c %s" % (TraitUtil.getIcon(self.eTrait), self.traitInfo.getDescription())
+-				def getButton(self):
+-					return self.traitInfo.getButton()
+-			
+-			return TraitInfo(info)
+-		return None
+-	
+-	def isTraitInfo(self, info):
+-		return info.getType().find("_TRAIT_") != -1
++		info = gc.getTraitInfo(id)
++		if info is None:
++			return None
++		# Wrap to add icon to description like original implementation
++		class TraitInfoWrapper:
++			def __init__(self, traitInfo, eTrait):
++				self.traitInfo = traitInfo
++				self.eTrait = eTrait
++			def getDescription(self):
++				return u"%c %s" % (TraitUtil.getIcon(self.eTrait), self.traitInfo.getDescription())
++			def getButton(self):
++				return self.traitInfo.getButton()
++			def isGraphicalOnly(self):
++				return False  # Traits are never graphical-only
++		return TraitInfoWrapper(info, id)
++
++	# <!-- custom: Removed isTraitInfo() - no longer needed since CONCEPT_TRAIT_* entries deleted from XML.
++	# Traits now use WIDGET_PYTHON 6799 approach. (Claude Opus 4.5) -->
+ 
+ 	def placeCivics(self):
+ 		self.list = self.getCivicList()
+@@ -2058,7 +2069,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	def getNewConceptInfo(self, id):
+ 		info = gc.getNewConceptInfo(id)
+-		if not self.isShortcutInfo(info) and not self.isTraitInfo(info):
++		# <!-- custom: Removed isTraitInfo check - CONCEPT_TRAIT_* entries deleted from XML since Traits now use
++		# WIDGET_PYTHON 6799 approach. (Claude Opus 4.5) -->
++		if not self.isShortcutInfo(info):
+ 			return info
+ 		return None
+ 
+@@ -2224,12 +2237,20 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 					data1 = self.SAS_PEDIA_PYTHON_BUILD
+ 					bSAS_hasCustomData2 = True
+ 
++			# <!-- custom: Handle traits with WIDGET_PYTHON like Builds. (Claude Opus 4.5) -->
++			if info == gc.getTraitInfo:
++				widgetPlaceItems = WidgetTypes.WIDGET_PYTHON
++				if data1 != -1:
++					data2 = data1
++					data1 = self.SAS_PEDIA_PYTHON_TRAIT
++					bSAS_hasCustomData2 = True
++
+ 			if info == gc.getConceptInfo:
+ 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT
+ 				# <!-- custom: we cannot change to data1 here as we changed it in this scope so need to properly use item[1] rather as chatgpt 5.2 recommends and that indeed lead to an issue ingame of displaying always same sevopedia concept's text. To be safe, not changing it in other places as well unless we need to -->
+ 				data2 = item[1]
+ 
+-			elif info == self.getNewConceptInfo or info == self.getShortcutInfo or info == self.getTraitInfo: # advc
++			elif info == self.getNewConceptInfo or info == self.getShortcutInfo: # advc (removed self.getTraitInfo - now uses WIDGET_PYTHON)
+ 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW
+ 				data2 = item[1]
+ 
+@@ -2378,6 +2399,15 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 					item = self.list[iListIdx]
+ 					if item[1] != -1:
+ 						return self.pediaJump(SevoScreenEnums.PEDIA_BUILDS, item[1], True, False)
++			# <!-- custom: Handle trait item list clicks like Builds. Without this, clicking trait entries in the
++			# Traits category had no effect (though Index linking worked fine). (Claude Opus 4.5) -->
++			if inputClass.getFunctionName() == self.ITEM_LIST_ID and self.iCategory == SevoScreenEnums.PEDIA_TRAITS:
++				iRow = inputClass.getData()
++				iListIdx = self.SAS_rowToListIdx.get(iRow, None)
++				if iListIdx is not None:
++					item = self.list[iListIdx]
++					if item[1] != -1:
++						return self.pediaJump(SevoScreenEnums.PEDIA_TRAITS, item[1], True, False)
+ 
+ 		# Existing TOC/INDEX buttons.
+ 		if self.SAS_USE_BOTTOM_TABS:
+@@ -2393,6 +2423,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			iData2 = inputClass.getData2()
+ 			if iData1 == self.SAS_PEDIA_PYTHON_BUILD:
+ 				return self.pediaJump(SevoScreenEnums.PEDIA_BUILDS, iData2, True, False)
++			# <!-- custom: Handle trait clicks with WIDGET_PYTHON. (Claude Opus 4.5) -->
++			if iData1 == self.SAS_PEDIA_PYTHON_TRAIT:
++				return self.pediaJump(SevoScreenEnums.PEDIA_TRAITS, iData2, True, False)
+ 
+ 		return 0
+ 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index 82c813ae4..15bed4a99 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -60,13 +60,10 @@ class SevoPediaTrait:
+ 
+ 
+ 
+-	def interfaceScreen(self, iConcept):
++	# <!-- custom: Updated to receive trait ID directly via WIDGET_PYTHON approach (no longer concept-based). (Claude Opus 4.5) -->
++	def interfaceScreen(self, iTrait):
+ 		self.iLeader = -1
+-		self.iConcept = iConcept
+-		info = gc.getNewConceptInfo(iConcept)
+-		sKey = info.getType()
+-		sKey = sKey[sKey.find("TRAIT_"):]
+-		self.iTrait = gc.getInfoTypeForString(sKey)
++		self.iTrait = iTrait
+ 		# advc.004y: Commented out. No made-up trait icons.
+ 		#screen = self.top.getScreen()
+ 		#screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_MAIN_PANE, self.Y_MAIN_PANE, self.W_MAIN_PANE, self.H_MAIN_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+@@ -150,7 +147,8 @@ class SevoPediaTrait:
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel( panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50 )
+-		szText = gc.getNewConceptInfo(self.iConcept).getCivilopedia()
++		# <!-- custom: Get text from TraitInfo directly (no longer concept-based). (Claude Opus 4.5) -->
++		szText = gc.getTraitInfo(self.iTrait).getCivilopedia()
+ 		# advc.004y: Don't display the text key if text not found
+ 		if not szText.endswith("PEDIA"):
+ 			screen.attachMultilineText( panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index 407f31a39..73d428159 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -66,57 +66,8 @@
+ 			<Description>TXT_KEY_SHORTCUTS_MP</Description>
+ 			<Civilopedia>TXT_KEY_SHORTCUTS_MP_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
+-		<!-- advc.004y: Trait categories restored -->
+-		<NewConceptInfo>
+-			<Type>CONCEPT_TRAIT_AGGRESSIVE</Type>
+-			<Description>TXT_KEY_TRAIT_AGGRESSIVE</Description>
+-			<Civilopedia>TXT_KEY_TRAIT_AGGRESSIVE_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_TRAIT_CHARISMATIC</Type>
+-			<Description>TXT_KEY_TRAIT_CHARISMATIC</Description>
+-			<Civilopedia>TXT_KEY_TRAIT_CHARISMATIC_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_TRAIT_CREATIVE</Type>
+-			<Description>TXT_KEY_TRAIT_CREATIVE</Description>
+-			<Civilopedia>TXT_KEY_TRAIT_CREATIVE_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<!-- custom: removed CONCEPT_TRAIT_EXPANSIVE as the trait is now as of nowremoved in our mod-->
+-		<NewConceptInfo>
+-			<Type>CONCEPT_TRAIT_FINANCIAL</Type>
+-			<Description>TXT_KEY_TRAIT_FINANCIAL</Description>
+-			<Civilopedia>TXT_KEY_TRAIT_FINANCIAL_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_TRAIT_IMPERIALIST</Type>
+-			<Description>TXT_KEY_TRAIT_IMPERIALIST</Description>
+-			<Civilopedia>TXT_KEY_TRAIT_IMPERIALIST_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_TRAIT_INDUSTRIOUS</Type>
+-			<Description>TXT_KEY_TRAIT_INDUSTRIOUS</Description>
+-			<Civilopedia>TXT_KEY_TRAIT_INDUSTRIOUS_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_TRAIT_ORGANIZED</Type>
+-			<Description>TXT_KEY_TRAIT_ORGANIZED</Description>
+-			<Civilopedia>TXT_KEY_TRAIT_ORGANIZED_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_TRAIT_PHILOSOPHICAL</Type>
+-			<Description>TXT_KEY_TRAIT_PHILOSOPHICAL</Description>
+-			<Civilopedia>TXT_KEY_TRAIT_PHILOSOPHICAL_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_TRAIT_PROTECTIVE</Type>
+-			<Description>TXT_KEY_TRAIT_PROTECTIVE</Description>
+-			<Civilopedia>TXT_KEY_TRAIT_PROTECTIVE_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_TRAIT_SPIRITUAL</Type>
+-			<Description>TXT_KEY_TRAIT_SPIRITUAL</Description>
+-			<Civilopedia>TXT_KEY_TRAIT_SPIRITUAL_PEDIA</Civilopedia>
+-		</NewConceptInfo>
++		<!-- custom: Removed all CONCEPT_TRAIT_* entries. Sevopedia Traits category now uses WIDGET_PYTHON 6799
++			 approach (like Builds) which reads trait data directly from CIV4TraitInfos.xml via gc.getTraitInfo().
++			 The old concept-based workaround is no longer needed. (Claude Opus 4.5) -->
+ 	</NewConceptInfos>
+ </Civ4NewConceptInfos>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index f573d23ca..26529381c 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5991,7 +5991,11 @@ void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait
+ 			szTempBuffer.Format(L"%s", szText.GetCString());
+ 		else
+ 		{
+-			szTempBuffer.Format(NEWLINE SETCOLR L"%s" ENDCOLR,
++			// <!-- custom: Wrap trait name in <link=literal> so clicking it opens Sevopedia Traits page.
++			// The link() method in SevoPediaMain.py searches SAS_linkMatchDefs (which includes getTraitInfo)
++			// to find a matching trait and jump to PEDIA_TRAITS. This enables clickable trait names in
++			// Sevopedia Leader and anywhere else parseTraits is used. (Claude Opus 4.5) -->
++			szTempBuffer.Format(NEWLINE SETCOLR L"<link=literal>%s</link>" ENDCOLR,
+ 					TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"), szText.GetCString());
+ 		}
+ 		szHelpString.append(szTempBuffer);
+
+diff --git a/README.md b/README.md
+index f09b20a40..cf0e5b61c 100644
+--- a/README.md
++++ b/README.md
+@@ -38,7 +38,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ [UI (Main Sevopedia reworks)](/README.md#ui-main-sevopedia-reworks)  
+ &emsp;[Some lower level Sevopedia reworks (Search Bar, Keyboard UP/DOWN navigation, Index as category, etc.)](/README.md#some-lower-level-sevopedia-reworks-search-bar-keyboard-updown-navigation-index-as-category-etc)  
+ &emsp;[Other new categories](/README.md#other-new-categories)  
+-&emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds)](/README.md#widget-python-6798-to-link-eg-for-builds)  
++&emsp;&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/README.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
+ &emsp;&emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/README.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
+ &emsp;[Some higher level reworks (e.g. AI Personality Panel)](/README.md#some-higher-level-reworks-eg-ai-personality-panel)  
+ &emsp;[Some other sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
+@@ -240,12 +240,14 @@ See [example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Rework
+ 
+ ### Other new categories
+ 
+-#### Widget Python 6798 to link (e.g. for Builds)
++#### Widget Python 6798 to link (e.g. for Builds, for Traits)
+ 
+ Based on the Very nice Middle-earth's (C2C mod does it too it seems) approach in its Platypedia thanks a lot! We have found that it is possible to link to build entries using `WIDGET_PYTHON` (no DLL change required it seems) and some id like `6798` or such. As a result, builds are linkable: clicking on the entries in the Builds category opens the corresponding page. Also, clicking on the link from e.g. the Sevopedia Improvements' Remove panel's button (e.g. of "Remove Jungle") successfully redirects to the new Sevopedia Builds' category's corresponding entry (e.g. the "Remove Jungle" entry in Sevopedia Builds category)!
+ 
+ Added a new Sevopedia Builds Category listing these distinctly from improvements (see [Sevopedia Reworks: example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm)), with the big and nice help of GPT-5.2-Codex; thanks a lot!
+ 
++We also used this approach to replace the old clunky base advciv's `CONCEPT_TRAIT` with now instead the `WIDGET_PYTHON` (with an id as of now of `6799`), which preserves linking and allowed us to delete old XML clutter.
++
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (1).JPG" alt="0.721_sevopedia_builds (1).JPG" width="250"></img>
+ 
+ #### Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)
+@@ -260,7 +262,6 @@ They notably feature additional fields that do not are not direct XML info field
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.626_sevopedia_game_speeds_chart (2).JPG" alt="0.626_sevopedia_game_speeds_chart (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.627_sevopedia_world_sizes_chart.JPG" alt="0.627_sevopedia_world_sizes_chart.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.628_sevopedia_eras_chart (1).JPG" alt="0.628_sevopedia_eras_chart (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.721_sevopedia_builds (1).JPG" alt="0.721_sevopedia_builds (1).JPG" width="250"></img>
+ 
+ ### Some higher level reworks (e.g. AI Personality Panel)
+ 
+@@ -273,6 +274,7 @@ As always, ChatGPT is a key co-author and main code contributor and with the hel
+ Here is below a sample of the example screenshots showing the AI Personality panel feature in sevopedialeader, as well as samples showing other sevopedia reworks that are part of AdvCiv-SAS.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG" alt="0.624_sevopedia_traits (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.630_sevopedia_units_chart (1).JPG" alt="0.630_sevopedia_units_chart (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (1).JPG" alt="0.700_sevopedia_terrains (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (1).JPG" alt="0.640_sevopedia_features (1).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 48dab332c..fd097c767 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -264,7 +264,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - Added Images as Buttons, to easily insert **emojis** or other **images as buttons** or **plain text**, without having to tediously implement them as characters. See [Images as buttons](/README.md#images-as-buttons).
+ - Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ - removed the **Strategy Text** in Choose Production and Choose Research (“Sid’s tips”) popups, as well as in the Civic Revolution popup (“Would you like to start a revolution?”), and in Sevopedia; these blurbs were often outdated or tedious to maintain.
+-- (Requires AdvCiv-SAS 5335+) **Worker builds** that **remove a feature** now **redirect to the corresponding new Sevopedia Builds** page. Applies to any caller (e.g. **Technology Advisor**, **Sevopedia Tech**, **Sevopedia Builds** itself) using the `WIDGET_PYTHON` `6278` approach. See [Sevopedia Reworks: example 0.40 builds](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm). See also [KI#97](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-remove-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page).
++- (Requires AdvCiv-SAS 5335+) **Worker builds** that **remove a feature** now **redirect to the corresponding new Sevopedia Builds** page. Applies to any caller (e.g. **Technology Advisor**, **Sevopedia Tech**, **Sevopedia Builds** itself) using the `WIDGET_PYTHON` `6278` approach. See [Sevopedia Reworks: example 0.40 builds](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm) and [Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits). See also [KI#97](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-remove-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page).
++- (Requires AdvCiv-SAS 5335+) Removed the old clunky Base AdvCiv's `CONCEPT_TRAIT` XML clutter. Now using using the more efficient `WIDGET_PYTHON` similarly instead.
+ 
+ ### UI (In-game)
+ 
+@@ -295,7 +296,7 @@ Note: New panels added or modified mostly not mentionned here for concision. See
+ - (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+ - (Requires AdvCiv-SAS 5340+) Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Scrub Fallout"**, **"Build a Road"**, **"Build a Railroad"**, **"Create a Farm"**) distinct from the Sevopedia Improvements and a dedicated Builds page. Also added them to **Sevopedia Index** as **clickable entires with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm).
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+-- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons. See for legend: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5312+) Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between traits** for readability: change in [CyGameTextMgr.cpp](/CvGameCoreDLL/CyGameTextMgr.cpp).
++- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons. See for legend: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5312+) Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry** : change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp).
+ - (Requires AdvCiv-SAS 5333+) Sevopedia — Techs: Add a new **Obsoletes panel** showing **Buttons (i.e. icons) of obsolete assets**, with an updated **thinner RedX art**. Also **beautified** with a new **Enables** panel enriched with **more information** (Civics, Promotions, Bonuses, various effects such as "Centers World Map", "Can Adjust Commerce Rate", etc.), and a **new First to Discover** panel (Founds Religion, Receives a Great Person, Receives a Free Tech). See [Sevopedia reworks (Techs)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-10-techs-category).
+ - (Requires AdvCiv-SAS 5331+) Sevopedia — Specialists: new **Extra Slots** (showing slot, free slots, unlimited specialists) and **Extra Yields** panel showing detailed yield information per asset for each specialist.
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index c37766566..db6ca7859 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -16,7 +16,7 @@ Note 2: in below sample examples, click the images to view them full size.
+ &emsp;[example 0.2: added keyboard arrow (UP/DOWN) navigation support. Used in several sevopedia pages](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages)  
+ &emsp;[example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-03-index-as-category)  
+ [Other new categories](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#other-new-categories)  
+-&emsp;[Widget Python 6798 to link (e.g. for Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds)  
++&emsp;[Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits)  
+ &emsp;&emsp;[example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm")](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-eg-remove-jungle-build-road-create-a-farm)  
+ &emsp;[Charts (e.g. Handicap Chart, Game Speed Chart, World Sizes Chart, Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#charts-eg-handicap-chart-game-speed-chart-world-sizes-chart-eras-chart)  
+ &emsp;&emsp;[example 0.5: Handicap Chart category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-05-handicap-chart-category)  
+@@ -40,6 +40,7 @@ Note 2: in below sample examples, click the images to view them full size.
+ &emsp;[example 13: civics category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-13-civics-category)  
+ &emsp;[example 14: projects category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-14-projects-category)  
+ &emsp;[example 15: specialists category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-specialists-category)  
++&emsp;[example 16: traits category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-traits-category)  
+ 
+ ## Some Lower Level Changes or new features
+ 
+@@ -103,12 +104,14 @@ Then, to make those Index Builds entries fully clickable and stable, we kept the
+ 
+ ## Other new categories
+ 
+-### Widget Python 6798 to link (e.g. for Builds)
++### Widget Python 6798 to link (e.g. for Builds, for Traits)
+ 
+ Based on the Very nice Middle-earth's (C2C mod does it too it seems) approach in its Platypedia thanks a lot! We have found that it is possible to link to build entries using `WIDGET_PYTHON` (no DLL change required it seems) and some id like `6798` or such.
+ 
+ As a result, builds are linkable: clicking on the entries in the Builds category opens the corresponding page. Also, clicking on the link from e.g. the Sevopedia Improvements' Remove panel's button (e.g. of "Remove Jungle") successfully redirects to the Builds page corresponding entry (e.g. the "Remove Jungle" entry in Sevopedia Builds category)! Added with the big and nice help of GPT-5.2-Codex thanks a lot!
+ 
++We then also used this approach to replace the old clunky base advciv's `CONCEPT_TRAIT` with now instead the `WIDGET_PYTHON` (with an id as of now of `6799`), which preserves linking and allowed us to delete old XML clutter. See also [example 16: traits category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-traits-category).
++
+ #### example 0.40 builds (e.g. "Remove Jungle", "Build Road", "Create a Farm")
+ 
+ Added a new Builds category under Improvements and a dedicated Builds page with Requires, Results, Removes Features, and Build Info panels (build time/cost/consumes unit), plus history text (GPT-5.2-Codex). It uses the new `WIDGET_PYTHON` approach and as of now does not require a DLL compile! Added with the very nice help of GPT-5.2-Codex thanks a lot!
+@@ -180,7 +183,9 @@ note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead
+ 
+ Also, Trait icons (chars) are now displayed before trait names in the leader's Traits section, making it easier to identify traits at a glance (similar to the Traits category). Added with the help of GPT-Codex-5.2 thanks.
+ 
+-Free promotion's unit combats are in the same line instead of taking too much vertical space; and add a blank line between traits for readability. Change in [CyGameTextMgr.cpp](/CvGameCoreDLL/CyGameTextMgr.cpp) with the help of GPT-Codex-5.2 thanks.
++Free promotion's unit combats are in the same line instead of taking too much vertical space; and add a blank line between traits for readability. Change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) with the help of GPT-Codex-5.2 thanks.
++
++More recently, we also added linking from the traits panel's textual description like "Aggressive", "Protective", to the corresponding Traits entry in Sevopedia Traits. Change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp) with the help of GPT-Codex-5.2 thanks.
+ 
+ <img src="../Images/sevopedia/0.620_sevopedia_leaders (1).JPG" alt="0.620_sevopedia_leaders (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.620_sevopedia_leaders (2).JPG" alt="0.620_sevopedia_leaders (2).JPG" width="250"></img>
+@@ -395,3 +400,10 @@ Then, more recently, i added new Extra Slots and Extra Yields panel based on the
+ <img src="../Images/sevopedia/0.760_sevopedia_specialists (1).JPG" alt="0.760_sevopedia_specialists (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.760_sevopedia_specialists (2).JPG" alt="0.760_sevopedia_specialists (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.760_sevopedia_specialists (3).JPG" alt="0.760_sevopedia_specialists (3).JPG" width="250"></img>
++
++### example 16: traits category
++
++Initially rework was minimal there with only increasing the size of the special panel to see more effects, but more recently this page can also receive links from sevopedia leader: see [Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits) and [example 1: leaders category (AI Personality and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-1-leaders-category-ai-personality-and-other-changes).
++
++<img src="../Images/sevopedia/0.624_sevopedia_traits (1).JPG" alt="0.624_sevopedia_traits (1).JPG" width="250"></img>
++<img src="../Images/sevopedia/0.624_sevopedia_traits (2).JPG" alt="0.624_sevopedia_traits (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+index a3f546ddf..a66843478 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG
+index 066bc1d25..8741f56bc 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG
+index 0c3335de9..f1ddb821f 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG
+new file mode 100644
+index 000000000..7cd174989
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG
+new file mode 100644
+index 000000000..1d67e5e49
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia/0.624_sevopedia_traits (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=13 omittedFiles=1 embeddedPatchBytes=36150

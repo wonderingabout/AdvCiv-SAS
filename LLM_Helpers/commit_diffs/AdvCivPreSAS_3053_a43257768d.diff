@@ -1,0 +1,670 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3053
+# Commit: a43257768de3bce1fef693be8053faa523fd19ae
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0e04fd7f799d19ad61430cf8a4a684c7626e0756
+# Title: Remove CvInfoEnumMap2D
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	7	CvGameCoreDLL/CvCity.cpp
+4	13	CvGameCoreDLL/CvCityAI.cpp
+15	46	CvGameCoreDLL/CvGameTextMgr.cpp
+3	3	CvGameCoreDLL/CvInfo_Building.cpp
+1	2	CvGameCoreDLL/CvInfo_Building.h
+0	306	CvGameCoreDLL/CvInfo_EnumMap.h
+4	4	CvGameCoreDLL/CvPlayer.cpp
+0	3	CvGameCoreDLL/CvXMLLoadUtility.h
+2	63	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index ef3dcc64c..05c13dcc2 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -6848,13 +6848,7 @@ int CvCity::getAdditionalYieldRateModifierByBuilding(YieldTypes eYield,
+ 	{
+ 		if (hasBonus(perBonusVal.first))
+ 			iExtraModifier += perBonusVal.second[eYield];
+-	}//advc.tmp: decide which one to keep
+-	/*FOR_EACH_NON_DEFAULT_INFO_PAIR(kBuilding.getBonusYieldModifier(eYield), Bonus, short)
+-	{
+-		if (hasBonus(perBonusVal.first))
+-			iExtraModifier += perBonusVal.second;
+-	}*/
+-
++	}
+ 	return iExtraModifier;
+ }
+ // BUG - Building Additional Yield - end
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6662357b6..6795f7fb7 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4923,17 +4923,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 								27; // was 12
+ 						iTotalBonusYieldMod += iBonusYieldMod; // advc.131
+ 					}
+-				}//advc.tmp: decide which one to keep
+-				/*FOR_EACH_NON_DEFAULT_INFO_PAIR(kBuilding.getBonusYieldModifier(
+-					eLoopYield), Bonus, short)
+-				{
+-					if (hasBonus(perBonusVal.first))
+-					{
+-						iTempValue += (perBonusVal.second * iBaseRate) /
+-								27; // was 12
+-						iTotalBonusYieldMod += perBonusVal.second; // advc.131
+-					}
+-				}*/
++				}
+ 
+ 				/*	if this is a limited wonder, and we are not in the top 4
+ 					of this category, subtract the value - we do _not_ want this here
+@@ -4989,9 +4979,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				iRawYieldValue /= 100;
+ 				iTempValue += iRawYieldValue;
+ 				FOR_EACH_NON_DEFAULT_INFO_PAIR(kBuilding.
+-					getSpecialistYieldChange(eLoopYield), Specialist, char)
++					getSpecialistYieldChange(), Specialist, YieldChangeMap)
+ 				{
+-					iTempValue += (perSpecialistVal.second * iTotalPopulation) / 5;
++					iTempValue += (perSpecialistVal.second[eLoopYield] *
++							iTotalPopulation) / 5;
+ 				}
+ 				iTempValue += kBuilding.getGlobalSeaPlotYieldChange(eLoopYield) *
+ 						kOwner.countNumCoastalCities() * 8;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index fbaed1b79..cfc505321 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -10789,25 +10789,19 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 	}
+ 	/*	<advc.opt> Yield arrays - replacing optimization from UNOFFICIAL_PATCH
+ 		(06/27/10, Afforess & jdog5000) */
+-	FOR_EACH_ENUM(Yield)
+-	{
+-		if (!kBuilding.getSpecialistYieldChange(eLoopYield).isAnyNonDefault())
+-			continue;
+-		FOR_EACH_NON_DEFAULT_INFO_PAIR(kBuilding.
+-			getSpecialistYieldChange(eLoopYield), Specialist, int)
+-		{
+-			SpecialistTypes const eLoopSpecialist = perSpecialistVal.first;
+-			// <advc.001>
+-			CvWString szSpecialistLink;
+-			setSpecialistLink(szSpecialistLink, eLoopSpecialist, true);
+-			// </advc.001>
+-			szFirstBuffer = gDLL->getText("TXT_KEY_BUILDING_FROM_IN_ALL_CITIES",
+-					//GC.getInfo(eLoopSpecialist).getTextKeyWide()
+-					szSpecialistLink.c_str()); // advc.001
+-			setYieldChangeHelp(szBuffer, L"", L"", szFirstBuffer,
+-					kBuilding.getSpecialistYieldChangeArray(eLoopSpecialist));
+-		}
+-		break;
++	FOR_EACH_NON_DEFAULT_INFO_PAIR(kBuilding.
++		getSpecialistYieldChange(), Specialist, YieldChangeMap)
++	{
++		SpecialistTypes const eLoopSpecialist = perSpecialistVal.first;
++		// <advc.001>
++		CvWString szSpecialistLink;
++		setSpecialistLink(szSpecialistLink, eLoopSpecialist, true);
++		// </advc.001>
++		szFirstBuffer = gDLL->getText("TXT_KEY_BUILDING_FROM_IN_ALL_CITIES",
++				//GC.getInfo(eLoopSpecialist).getTextKeyWide()
++				szSpecialistLink.c_str()); // advc.001
++		setYieldChangeHelp(szBuffer, L"", L"", szFirstBuffer,
++				perSpecialistVal.second);
+ 	}
+ 	FOR_EACH_NON_DEFAULT_INFO_PAIR(kBuilding.
+ 		getBonusYieldModifier(), Bonus, YieldPercentMap)
+@@ -10817,21 +10811,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 				GC.getInfo(eLoopBonus).getTextKeyWide());
+ 		setYieldChangeHelp(szBuffer, L"", L"", szFirstBuffer,
+ 				perBonusVal.second, true);
+-	}//advc.tmp: decide which one to keep
+-	/*FOR_EACH_ENUM(Yield)
+-	{
+-		if (!kBuilding.getBonusYieldModifier(eLoopYield).isAnyNonDefault())
+-			continue;
+-		FOR_EACH_NON_DEFAULT_INFO_PAIR(kBuilding.
+-			getBonusYieldModifier(eLoopYield), Bonus, int)
+-		{
+-			BonusTypes const eLoopBonus = perBonusVal.first;
+-			szFirstBuffer = gDLL->getText("TXT_KEY_BUILDING_WITH_BONUS",
+-					GC.getInfo(eLoopBonus).getTextKeyWide());
+-			setYieldChangeHelp(szBuffer, L"", L"", szFirstBuffer,
+-					kBuilding.getBonusYieldModifierArray(eLoopBonus), true);
+-		}
+-	}*/ // </advc.opt>
++	} // </advc.opt>
+ 
+ 	FOR_EACH_NON_DEFAULT_INFO_PAIR(kBuilding.
+ 		getReligionChange(), Religion, int)
+@@ -13559,18 +13539,7 @@ void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 					setYieldChangeHelp(szBuffer, szStart, L"", L"", yieldMap, true);
+ 					break;
+ 				}
+-			}//advc.tmp: decide which one to keep
+-			/*FOR_EACH_ENUM(Yield)
+-			{
+-				if(kBuilding.getBonusYieldModifier(eBonus, eLoopYield) != 0)
+-				{
+-					CvWString szStart(kBuilding.getDescription());
+-					szStart.append(L": ");
+-					setYieldChangeHelp(szBuffer, szStart, L"", L"",
+-							kBuilding.getBonusYieldModifierArray(eBonus), true);
+-					break;
+-				}
+-			}*/
++			}
+ 		}
+ 		// Only construction effects remain
+ 		if(!bCanEverConstruct)
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.cpp b/CvGameCoreDLL/CvInfo_Building.cpp
+index bbbfa33eb..66646008e 100644
+--- a/CvGameCoreDLL/CvInfo_Building.cpp
++++ b/CvGameCoreDLL/CvInfo_Building.cpp
+@@ -420,7 +420,7 @@ void CvBuildingInfo::read(FDataStreamBase* stream)
+ 	CommerceFlexible().read(stream);
+ 	CommerceChangeOriginalOwner().read(stream);
+ 	BuildingClassNeededInCity().read(stream);
+-	SpecialistYieldChange().read(stream);
++	SpecialistYieldChange().readEncode<YieldChangeMap>(stream);
+ 	BonusYieldModifier().readEncoded<YieldPercentMap>(stream);
+ 	// </advc.003t>
+ }
+@@ -597,7 +597,7 @@ void CvBuildingInfo::write(FDataStreamBase* stream)
+ 	CommerceFlexible().write(stream);
+ 	CommerceChangeOriginalOwner().write(stream);
+ 	BuildingClassNeededInCity().write(stream);
+-	SpecialistYieldChange().write(stream);
++	SpecialistYieldChange().writeEncoded<YieldChangeMap>(stream);
+ 	BonusYieldModifier().writeEncoded<YieldPercentMap>(stream);
+ 	// </advc.003t>
+ }
+@@ -819,7 +819,7 @@ bool CvBuildingInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->SetVariableListTagPair(PrereqNumOfBuildingClass(), "PrereqBuildingClasses");
+ 	pXML->SetVariableListTagPair(BuildingClassNeededInCity(), "BuildingClassNeededs");
+ 
+-	pXML->SetVariable2DYieldList(SpecialistYieldChange(),
++	pXML->SetVariableListTagYield<YieldChangeMap>(SpecialistYieldChange(),
+ 			"SpecialistYieldChange", "SpecialistType", "YieldChanges");
+ 	pXML->SetVariableListTagYield<YieldPercentMap>(BonusYieldModifier(),
+ 			"BonusYieldModifier", "BonusType", "YieldModifiers");
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.h b/CvGameCoreDLL/CvInfo_Building.h
+index f003a74a6..383e826ce 100644
+--- a/CvGameCoreDLL/CvInfo_Building.h
++++ b/CvGameCoreDLL/CvInfo_Building.h
+@@ -304,8 +304,7 @@ public: /*	All the const functions are exposed to Python. advc.inl: Inlined most
+ 	DEF_INFO_ENUM_MAP_BOOL(CommerceChangeOriginalOwner, Commerce, ArrayEnumMap);
+ 	DEF_INFO_ENUM_MAP_BOOL(BuildingClassNeededInCity, BuildingClass, ListEnumMap);
+ 	// (Replacing optimizations by UNOFFICIAL_PATCH, 06/27/10, Afforess & jdog5000)
+-	DEF_INFO_ENUM_MAP2D(SpecialistYieldChange, Specialist, Yield, char, ListEnumMap);
+-	//DEF_INFO_ENUM_MAP2D(BonusYieldModifier, Bonus, Yield, short, ListEnumMap);
++	DEF_INFO_ENUM2SHORT_MAP(SpecialistYieldChange, Specialist, Yield, YieldChangeMap, ListEnumMap);
+ 	DEF_INFO_ENUM2SHORT_MAP(BonusYieldModifier, Bonus, Yield, YieldPercentMap, ListEnumMap);
+ 	// <advc.003w> for convenience
+ 	inline bool isWorldWonder() const
+
+diff --git a/CvGameCoreDLL/CvInfo_EnumMap.h b/CvGameCoreDLL/CvInfo_EnumMap.h
+index 2dfb9687c..e39b31122 100644
+--- a/CvGameCoreDLL/CvInfo_EnumMap.h
++++ b/CvGameCoreDLL/CvInfo_EnumMap.h
+@@ -109,62 +109,6 @@ for (std::pair<UnitCombatTypes,int> perUnitCombatVal =
+ 		return m_map##TagName.get(e##EnumPrefix); \
+ 	}
+ 
+-/*	Similar deal for the 2D case.
+-	NB: The enum types should be in the order in that they get used at the call locations
+-	in BtS code, i.e. the smaller type last. Internally, CvInfoEnumMap2D will switch
+-	them around (and allocate one 1D-map for each possible value of the smaller type). */
+-#define DEF_INFO_ENUM_MAP2D_HELPER(TagName, FirstEnumPrefix, SecondEnumPrefix, ValueType, \
+-		InfoMapTempl, iDefault, getterPrefix, PyValueType) \
+-	/* for the for-each macro */ \
+-	InfoMapTempl##_t<FirstEnumPrefix##Types,ValueType,iDefault> const& getterPrefix##TagName( \
+-	SecondEnumPrefix##Types e##SecondEnumPrefix) const \
+-	{ \
+-		return m_map2d##TagName.getMap(e##SecondEnumPrefix); \
+-	} \
+-	private: \
+-	/* for XML loading */ \
+-	CvInfoEnumMap2D<SecondEnumPrefix##Types, InfoMapTempl##_t, FirstEnumPrefix##Types, \
+-		ValueType, iDefault>& TagName() \
+-	{ \
+-		return m_map2d##TagName; \
+-	} \
+-	/* data member */ \
+-	CvInfoEnumMap2D<SecondEnumPrefix##Types, \
+-			InfoMapTempl##_t, FirstEnumPrefix##Types, ValueType, iDefault> \
+-			m_map2d##TagName; \
+-	/* Python wrapper */ \
+-	PY_WRAP_2D(PyValueType, getterPrefix##TagName, FirstEnumPrefix, SecondEnumPrefix); \
+-	public: \
+-	/* (key1,key2)-to-value getter */ \
+-	ValueType getterPrefix##TagName( \
+-		FirstEnumPrefix##Types e##FirstEnumPrefix, \
+-		SecondEnumPrefix##Types e##SecondEnumPrefix \
+-		) const \
+-	{ \
+-		return m_map2d##TagName.get(e##FirstEnumPrefix, e##SecondEnumPrefix); \
+-	} \
+-	/* int array getter for game text yield and commerce help */ \
+-	int const* get##TagName##Array(FirstEnumPrefix##Types e##FirstEnumPrefix) const \
+-	{ \
+-		return m_map2d##TagName.getIntArray(e##FirstEnumPrefix); \
+-	}
+-#define DEF_INFO_ENUM_MAP2D_DEFAULT(TagName, FirstEnumPrefix, SecondEnumPrefix, \
+-		ValueType, InfoMapTempl, vDefault) \
+-	DEF_INFO_ENUM_MAP2D_HELPER(TagName, FirstEnumPrefix, SecondEnumPrefix, \
+-			ValueType, InfoMapTempl, vDefault, get, int)
+-#define DEF_INFO_ENUM_MAP2D(TagName, FirstEnumPrefix, SecondEnumPrefix, \
+-		ValueType, InfoMapTempl) \
+-	DEF_INFO_ENUM_MAP2D_DEFAULT(TagName, FirstEnumPrefix, SecondEnumPrefix, \
+-			ValueType, InfoMapTempl, 0)
+-#define DEF_INFO_ENUM_MAP2D_BOOL_DEFAULT(TagName, FirstEnumPrefix, SecondEnumPrefix, \
+-		InfoMapTempl, vDefault) \
+-	DEF_INFO_ENUM_MAP2D_HELPER(TagName, FirstEnumPrefix, SecondEnumPrefix, \
+-			bool, InfoMapTempl, vDefault, is, bool)
+-#define DEF_INFO_ENUM_MAP2D_BOOL(TagName, FirstEnumPrefix, SecondEnumPrefix, \
+-		InfoMapTempl) \
+-	DEF_INFO_ENUM_MAP2D_BOOL_DEFAULT(TagName, FirstEnumPrefix, SecondEnumPrefix, \
+-			InfoMapTempl, 0)
+-
+ // Mappings to short (yield or commerce) maps
+ #define DEF_INFO_ENUM2SHORT_MAP(TagName, LongEnumPrefix, ShortEnumPrefix, \
+ 		ShortMapType, InfoMapTempl) \
+@@ -854,256 +798,6 @@ protected:
+ 	}
+ };
+ 
+-// For XML loading. Adding 4 byte to derived classes for the vtable pointer.
+-template<typename V>
+-class CvInfoMap2D
+-{
+-public:
+-	virtual void insert(int iFirstKey, int iSecondKey, V vValue)=0;
+-	virtual void finalizeInsertions() {}
+-	virtual V getDefault() const=0;
+-};
+-
+-/*	When it comes to template-templates, our MSVC03 compiler has a problem
+-	with the DEFAULT non-type param having the type of the V type param
+-	declared in the same template param list.
+-	Using int for DEFAULT param works around this (I've done so in ScaledNum.h too),
+-	but I do want DEFAULT to have type V wherever possible, so that
+-	e.g. DEFAULT=200 will cause a compilation error when V=char. So I'm going to
+-	define wrapper classes with int DEFAULT only for the sake of the
+-	CvInfoEnumMap2D template-template. */
+-#define INT_WRAP(M) \
+-	template<typename E, typename V, int iDEFAULT = 0> \
+-	class M##_t : public M<E, V, static_cast<V>(iDEFAULT)> \
+-	{ \
+-	public: \
+-		M##_t() {} \
+-		/* Empty instances are only needed by the 2D map; */ \
+-		/* insofar it's convenient that we have these wrappers. */ \
+-		M##_t(bool bEmpty) \
+-		{ \
+-			finalizeInsertions(); \
+-		} \
+-	}
+-
+-INT_WRAP(ListEnumMap);
+-INT_WRAP(ArrayEnumMap);
+-INT_WRAP(ListAndArrayEnumMap);
+-
+-#undef INT_WRAP
+-
+-template<
+-	typename E1,
+-	template<typename, typename, int> class M,
+-	typename E2, typename V, int iDEFAULT = 0>
+-class CvInfoEnumMap2D : public CvInfoMap2D<V>
+-{
+-	M<E2,V,iDEFAULT>* m_maps;
+-	static V const vDEFAULT = static_cast<V>(iDEFAULT);
+-
+-public:
+-	CvInfoEnumMap2D() : m_maps(NULL) {}
+-
+-	~CvInfoEnumMap2D()
+-	{
+-		uninit();
+-		getIntArray(static_cast<E2>(0), true);
+-	}
+-
+-	V getDefault() const // override
+-	{
+-		return vDEFAULT;
+-	}
+-
+-	void finalizeInsertions() // override
+-	{
+-		if (isAllocated())
+-		{
+-			for (int i = 0; i < numMaps(); i++)
+-			{
+-				m_maps[i].finalizeInsertions();
+-			}
+-		}
+-	}
+-
+-	void insert(int iFirstKey, int iSecondKey, V vValue) // override
+-	{
+-		if (vValue == vDEFAULT)
+-			return;
+-		if (!isAllocated())
+-			allocateMaps();
+-		m_maps[iFirstKey].insert(iSecondKey, vValue);
+-	}
+-
+-	// BtS convention is to put the smaller type (number of maps) in the 2nd argument
+-	V get(E2 eSecondKey, E1 eFirstKey) const
+-	{
+-		if (!isAllocated())
+-			return vDEFAULT;
+-		FAssertEnumBounds(eFirstKey);
+-		FAssertEnumBounds(eSecondKey);
+-		return m_maps[eFirstKey].get(eSecondKey);
+-	}
+-
+-	M<E2,V,iDEFAULT> const& getMap(E1 eFirstKey) const
+-	{
+-		if (!isAllocated())
+-		{
+-			static M<E2,V,iDEFAULT> emptyMap(true);
+-			return emptyMap;
+-		}
+-		FAssertEnumBounds(eFirstKey);
+-		return m_maps[eFirstKey];
+-	}
+-
+-	bool isAnyNonDefault() const
+-	{
+-		return isAllocated();
+-	}
+-
+-	int const* getIntArray(E2 eSecondKey, bool bFree = false) const
+-	{
+-		/*	Not terribly efficent b/c we're storing
+-			a small array of big maps, whereas BtS was storing
+-			a large array of small arrays.
+-			No big matter - it's only for game text, it's still not slow,
+-			and the static memory gets allocated only once per class.
+-			The memory management is a hack job. The caller doesn't need to
+-			bother with it though; the callee will clean it up in the destructor.
+-			The time during which arrays for two different eSecondKeys are used
+-			mustn't overlap - b/c it'll be the same array. */
+-		static int* aeiValsPerSecondKey = NULL;
+-		if (bFree)
+-		{
+-			SAFE_DELETE_ARRAY(aeiValsPerSecondKey);
+-			return NULL;
+-		}
+-		if (aeiValsPerSecondKey == NULL)
+-			aeiValsPerSecondKey = new int[numMaps()];
+-		if (!isAllocated())
+-			std::fill_n(aeiValsPerSecondKey, numMaps(), static_cast<int>(vDEFAULT));
+-		else
+-		{
+-			for (int i = 0; i < numMaps(); i++)
+-				aeiValsPerSecondKey[i] = static_cast<int>(m_maps[i].getUnsafe(eSecondKey));
+-		}
+-		return aeiValsPerSecondKey;
+-	}
+-
+-	// <advc.003i> See comments in CvInfoMap
+-	void write(FDataStreamBase* pStream) const
+-	{
+-		// Same inefficient format as used by BtS
+-		if (!isAllocated())
+-		{
+-			for (int i = 0; i < numMaps() * numKeysPerMap(); i++)
+-				writeVal<V>(vDEFAULT, pStream);
+-			return;
+-		}
+-		for (int i = 0; i < numKeysPerMap(); i++)
+-		{
+-			for (int j = 0; j < numMaps(); j++)
+-			{
+-				writeVal<V>(m_maps[j].getUnsafe(static_cast<E2>(i)), pStream);
+-			}
+-		}
+-	}
+-
+-	void read(FDataStreamBase* pStream)
+-	{
+-		for (int i = 0; i < numKeysPerMap(); i++)
+-		{
+-			for (int j = 0; j < numMaps(); j++)
+-			{
+-				insert(j, i, readNextVal<V>(pStream));
+-			}
+-		}
+-	} // </advc.003i>
+-
+-	// <advc.xmldefault> (Not tested)
+-	CvInfoEnumMap2D(CvInfoEnumMap2D const& kOther)
+-	{
+-		assign(kOther);
+-	}
+-
+-	CvInfoEnumMap2D& operator=(CvInfoEnumMap2D const& kOther)
+-	{
+-		assign(kOther);
+-		return *this;
+-	}
+-
+-private:
+-	void assign(CvInfoEnumMap2D const& kOther)
+-	{
+-		if (isAllocated() && !kOther.isAllocated())
+-		{
+-			uninit();
+-			return;
+-		}
+-		if (!isAllocated() && kOther.isAllocated())
+-			allocateMaps();
+-		for (int i = 0; i < numMaps(); i++)
+-		{
+-			m_maps[i] = kOther.m_maps[i];
+-		}
+-	} // </advc.xmldefault>
+-
+-	void uninit()
+-	{
+-		SAFE_DELETE_ARRAY(m_maps);
+-	}
+-
+-	__forceinline E1 numKeysPerMap() const
+-	{
+-		return getEnumLength(static_cast<E1>(0));
+-	}
+-
+-	__forceinline E2 numMaps() const
+-	{
+-		return getEnumLength(static_cast<E2>(0));
+-	}
+-
+-	__forceinline bool isAllocated() const
+-	{
+-		return (m_maps != NULL);
+-	}
+-
+-	void allocateMaps()
+-	{
+-		FAssert(!isAllocated());
+-		m_maps = new M<E2,V,iDEFAULT>[numMaps()];
+-	}
+-	// <advc.003i> See comments in CvInfoMap
+-protected:
+-	template<typename T>
+-	void writeVal(T tValue, FDataStreamBase* pStream) const
+-	{
+-		pStream->Write((int)tValue);
+-	}
+-	template<>
+-	void writeVal<bool>(bool bValue, FDataStreamBase* pStream) const
+-	{
+-		pStream->Write(bValue);
+-	}
+-	template<typename T>
+-	T readNextVal(FDataStreamBase* pStream) const
+-	{
+-		int iValue;
+-		pStream->Read(&iValue);
+-		if (sizeof(T) == 1)
+-			return static_cast<T>(toChar(iValue));
+-		if (sizeof(T) == 2)
+-			return static_cast<T>(toShort(iValue));
+-		return static_cast<T>(iValue);
+-	}
+-	template<>
+-	bool readNextVal<bool>(FDataStreamBase* pStream) const
+-	{
+-		bool bValue;
+-		pStream->Read(&bValue);
+-		return bValue;
+-	} // </advc.003i>
+-};
+ 
+ #pragma pack(push, 1)
+ // Similar to the WtP EnumMap with bINLINE_1_BYTE (V=char) or bINLINE_2_BYTE (V=short)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3e2382482..440d82b9d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5634,13 +5634,13 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, CvArea& kAr
+ 					 perBuildingClassVal.second * iChange);
+ 		}
+ 	}
+-	FOR_EACH_ENUM(Yield)
++	FOR_EACH_NON_DEFAULT_INFO_PAIR(GC.getInfo(eBuilding).
++		getSpecialistYieldChange(), Specialist, YieldChangeMap)
+ 	{
+-		FOR_EACH_NON_DEFAULT_INFO_PAIR(GC.getInfo(eBuilding).
+-			getSpecialistYieldChange(eLoopYield), Specialist, int)
++		FOR_EACH_ENUM(Yield)
+ 		{
+ 			changeSpecialistExtraYield(perSpecialistVal.first, eLoopYield,
+-					perSpecialistVal.second * iChange);
++					perSpecialistVal.second[eLoopYield] * iChange);
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.h b/CvGameCoreDLL/CvXMLLoadUtility.h
+index dc3cd9172..ae375065d 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.h
++++ b/CvGameCoreDLL/CvXMLLoadUtility.h
+@@ -169,9 +169,6 @@ public:
+ 	template<typename INT>
+ 	void SetVariableListPerYield(CvInfoMap<INT>& kMap, TCHAR const* szRootTagName);
+ 	void SetVariableListPerCommerce(CvInfoMap<bool>& kMap, TCHAR const* szRootTagName);
+-	template<typename INT>
+-	void SetVariable2DYieldList(CvInfoMap2D<INT>& kMap, TCHAR const* szTagName,
+-			TCHAR const* szKeyTagName, TCHAR const* szYieldTagName);
+ 	template<class YieldMap_t, typename V>
+ 	void SetVariableListTagYield(CvInfoMap<V>& kMap, TCHAR const* szTagName,
+ 			TCHAR const* szKeyTagName, TCHAR const* szYieldTagName);
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index b8063887a..3fc6d610a 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -1868,70 +1868,8 @@ void CvXMLLoadUtility::SetVariableListPerCommerce(CvInfoMap<bool>& kMap, TCHAR c
+ 	kMap.finalizeInsertions();
+ }
+ 
+-/*	Load mapping from pairs of enums to integral values.
++/*	Load mapping from an enum key to a list of yields.
+ 	Based on BtS code repeated in the CvInfo classes, e.g. CvInfo_Building. */
+-template<typename INT>
+-void CvXMLLoadUtility::SetVariable2DYieldList(CvInfoMap2D<INT>& kMap,
+-	TCHAR const* szTagName, TCHAR const* szKeyTagName, TCHAR const* szYieldTagName)
+-{
+-	CvString szRootTagName(szTagName);
+-	szRootTagName.append("s"); // plural
+-	if (!gDLL->getXMLIFace()->SetToChildByTagName(GetXML(), szRootTagName.GetCString()))
+-	{
+-		kMap.finalizeInsertions();
+-		return;
+-	}
+-	int const iNumChildren = gDLL->getXMLIFace()->GetNumChildren(GetXML());
+-	if (gDLL->getXMLIFace()->SetToChildByTagName(GetXML(), szTagName))
+-	{
+-		int* aiYieldChanges = new int[NUM_YIELD_TYPES];
+-		int iDefault = kMap.getDefault();
+-		for (int i = 0; i < iNumChildren; i++)
+-		{
+-			CvString szTextVal;
+-			GetChildXmlValByName(szTextVal, szKeyTagName);
+-			int iFirstKey = FindInInfoClass(szTextVal);
+-			if (iFirstKey >= 0)
+-			{
+-				if (gDLL->getXMLIFace()->SetToChildByTagName(GetXML(), szYieldTagName))
+-				{
+-					std::fill_n(aiYieldChanges, NUM_YIELD_TYPES, iDefault);
+-					int iValuesSet = SetYields(&aiYieldChanges);
+-					if (iValuesSet > 0)
+-					{
+-						FOR_EACH_ENUM(Yield)
+-						{
+-							int iValue = aiYieldChanges[eLoopYield];
+-							INT nValue;
+-							if (sizeof(INT) == 1)
+-								nValue = static_cast<INT>(toChar(iValue));
+-							else if (sizeof(INT) == 2)
+-								nValue = static_cast<INT>(toShort(iValue));
+-							else nValue = static_cast<INT>(iValue);
+-							/*	CvInfoMap2D uses the smaller type (Yield)
+-								as the first key and the larger type as the second */
+-							kMap.insert(eLoopYield, iFirstKey, nValue);
+-						}
+-					}
+-					gDLL->getXMLIFace()->SetToParent(GetXML());
+-				}
+-			}
+-			if (!gDLL->getXMLIFace()->NextSibling(GetXML()))
+-				break;
+-		}
+-		delete[] aiYieldChanges;
+-		gDLL->getXMLIFace()->SetToParent(GetXML());
+-	}
+-	gDLL->getXMLIFace()->SetToParent(GetXML());
+-	kMap.finalizeInsertions();
+-}
+-
+-#define THREE_STRINGS TCHAR const*, TCHAR const*, TCHAR const*
+-template void CvXMLLoadUtility::SetVariable2DYieldList(CvInfoMap2D<int>&, THREE_STRINGS);
+-template void CvXMLLoadUtility::SetVariable2DYieldList(CvInfoMap2D<short>&, THREE_STRINGS);
+-template void CvXMLLoadUtility::SetVariable2DYieldList(CvInfoMap2D<char>&, THREE_STRINGS);
+-
+-// advc.tmp: Copy-pasted from above except for the positive-iValuesSet block and handling of default val (fixme)
+ template<class YieldMap_t, typename V>
+ void CvXMLLoadUtility::SetVariableListTagYield(CvInfoMap<V>& kMap,
+ 	TCHAR const* szTagName, TCHAR const* szKeyTagName, TCHAR const* szYieldTagName)
+@@ -1978,6 +1916,7 @@ void CvXMLLoadUtility::SetVariableListTagYield(CvInfoMap<V>& kMap,
+ 	gDLL->getXMLIFace()->SetToParent(GetXML());
+ 	kMap.finalizeInsertions();
+ }
++#define THREE_STRINGS TCHAR const*, TCHAR const*, TCHAR const*
+ template void CvXMLLoadUtility::SetVariableListTagYield<YieldChangeMap>(
+ 		CvInfoMap<YieldChangeMap::enc_t>&, THREE_STRINGS);
+ template void CvXMLLoadUtility::SetVariableListTagYield<YieldPercentMap>(
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=22301

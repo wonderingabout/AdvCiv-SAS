@@ -1,0 +1,356 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3000
+# Commit: 63477cec3fd52c882ef69b1e61e7c9213fa05df2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 49c6726fccf0a6d2f27e7203ad0fbc01d7d78af7
+# Title: Show turns to starvation on city bar
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	Assets/Config/BUG City Screen.xml
+5	3	Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+3	1	Assets/Python/Screens/CvMainInterface.py
+6	7	Assets/XML/Text/BUG_CIV4GameText.xml
+5	3	Assets/XML/Text/BULL City Bar Options.xml
+3	2	Assets/XML/Text/BULL_CIV4GameText.xml
+19	20	Assets/XML/Text/CIV4GameText_advc.xml
+12	7	CvGameCoreDLL/CvCity.cpp
+18	16	CvGameCoreDLL/CvGameTextMgr.cpp
+7	1	CvGameCoreDLL/CyCity.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG City Screen.xml b/Assets/Config/BUG City Screen.xml
+index 99f7d001a..f1ecf7c77 100644
+--- a/Assets/Config/BUG City Screen.xml	
++++ b/Assets/Config/BUG City Screen.xml	
+@@ -43,9 +43,10 @@
+ 			<option id="ClickMapToExit" key="Click Map To Exit" 
+ 					type="boolean" default="False"/>
+ 			
+-			<!-- FoodAssist by EmperorFool -->
++			<!-- FoodAssist by EmperorFool
++				 advc.004: default was False in K-Mod -->
+ 			<option id="FoodAssist" key="FoodAssist" 
+-					type="boolean" default="False" 
++					type="boolean" default="True" 
+ 					get="isShowFoodAssist" dirtyBit="CityScreen"/>
+ 			
+ 			<!-- WhipAssist by EmperorFool, Dresden -->
+
+diff --git a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+index 0f63312de..5f3f86154 100644
+--- a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+@@ -1257,7 +1257,8 @@ class CvCustomizableDomesticAdvisor:
+  		nFood = city.foodDifference (True)
+ 
+ 		# If this is a food production (i.e., worker or settler)
+-		if (self.isFoodProduction(city.getProductionName())):
++		# advc.189: 0 food also means no growth
++		if self.isFoodProduction(city.getProductionName()) or nFood == 0:
+ 			# We need to indicate there's no growth manually
+ 			szReturn = u"-"
+ 		else:
+@@ -1266,10 +1267,11 @@ class CvCustomizableDomesticAdvisor:
+ 
+ 		# Not enough food, so calculate how many turns until we starve.
+ 		# We put this here because we still starve if building a food production
+-		if nFood < 0:
++		# advc.189: Not needed anymore; getFoodTurnsLeft returns starvation turns (as a negative number).
++		#if nFood < 0:
+ 			# Use floor divide (//) because we want the number it'll drop below 0
+ 			# (that's also the reason for the additional 1)
+-			szReturn = unicode ((city.getFood()+1) // nFood)
++		#	szReturn = unicode ((city.getFood()+1) // nFood)
+ 
+ 		return szReturn
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 38e0c17f0..486862796 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -3744,7 +3744,9 @@ class CvMainInterface:
+ 							szBuffer = localText.getText("INTERFACE_CITY_GROWING", (pHeadSelectedCity.getFoodTurnsLeft(), ))
+ 					elif (iFoodDifference < 0):
+ 						if (CityScreenOpt.isShowFoodAssist()):
+-							iTurnsToStarve = pHeadSelectedCity.getFood() / -iFoodDifference + 1
++							#iTurnsToStarve = pHeadSelectedCity.getFood() / -iFoodDifference + 1
++							# advc.189: The DLL can compute this now
++							iTurnsToStarve = -pHeadSelectedCity.getFoodTurnsLeft()
+ 							if iTurnsToStarve > 1:
+ 								szBuffer = localText.getText("INTERFACE_CITY_SHRINKING", (iTurnsToStarve, ))
+ 							else:
+
+diff --git a/Assets/XML/Text/BUG_CIV4GameText.xml b/Assets/XML/Text/BUG_CIV4GameText.xml
+index 6d891bdf0..cd873c20e 100644
+--- a/Assets/XML/Text/BUG_CIV4GameText.xml
++++ b/Assets/XML/Text/BUG_CIV4GameText.xml
+@@ -394,16 +394,15 @@
+ 	
+ 	<!-- advc.004: The whole string was colored yellow, which draws too much
+ 		 attention (as yellow isn't normally used in this way by the game).
+-		 The red/ white coloring is also not great, but the best I can come up
+-		 with.
++		 The red coloring is also not great, but the best I can come up with.
+ 		 German was "Schrumpfen". -->
+ 	<TEXT>
+ 		<Tag>INTERFACE_CITY_SHRINKING</Tag>
+-		<English>[COLOR_WARNING_TEXT]Shrinking[COLOR_REVERT] (%d1 [NUM1:Turn:Turns])</English>
+-		<French>[COLOR_WARNING_TEXT]R�tr�cissement[COLOR_REVERT] (%d1 [NUM1:tour:tours])</French>
+-		<German>[COLOR_WARNING_TEXT]R�ckgang[COLOR_REVERT] (%d1 [NUM1:Runde:Runden])[COLOR_REVERT]</German>
+-		<Italian>[COLOR_WARNING_TEXT]Riduzione[COLOR_REVERT] (%d1 [NUM1:Turno:Turni])[COLOR_REVERT]</Italian>
+-		<Spanish>[COLOR_WARNING_TEXT]Reducci�n[COLOR_REVERT] (%d1 [NUM1:turno:turnos])[COLOR_REVERT]</Spanish>
++		<English>[COLOR_WARNING_TEXT]Shrinking (%d1 [NUM1:Turn:Turns])[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXT]R�tr�cissement (%d1 [NUM1:tour:tours][COLOR_REVERT])</French>
++		<German>[COLOR_WARNING_TEXT]R�ckgang (%d1 [NUM1:Runde:Runden])[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Riduzione (%d1 [NUM1:Turno:Turni])[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]Reducci�n (%d1 [NUM1:turno:turnos])[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/BULL City Bar Options.xml b/Assets/XML/Text/BULL City Bar Options.xml
+index 682fbdca9..dd4717f53 100644
+--- a/Assets/XML/Text/BULL City Bar Options.xml	
++++ b/Assets/XML/Text/BULL City Bar Options.xml	
+@@ -22,7 +22,8 @@
+ 		<Italian>Quando � selezionato, aggiunge una icona aeroportuale alle citt� che hanno un Aeroporto.</Italian>
+ 		<Spanish>Muestra un icono de aeropuerto sobre las barras de ciudad que tengan un aeropuerto.</Spanish>
+ 	</TEXT-->
+-	<TEXT>
++	<!-- advc.189: Don't need an option for this -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__STARVATIONTURNS_TEXT</Tag>
+ 		<English>Turns to Starvation</English>
+ 		<German>Runden bis Hungersnot</German>
+@@ -94,7 +95,8 @@
+ 		<Spanish>Muestra la cantidad de poblaci�n enfadada ([ICON_ANGRYPOP]) debido al reclutamiento y el n�mero de turnos restantes de la misma.</Spanish>
+ 	</TEXT>
+ 
+-	<TEXT>
++	<!-- advc.189: Partially merged, non-optional, no intention to merge fully. -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__FOODASSIST_TEXT</Tag>
+ 		<English>Growth Detail</English>
+ 		<German>Wachstum</German>
+@@ -107,7 +109,7 @@
+ 		<German>Zeigt detailliertere Informationen �ber das Wachstum einer Stadt an (Zunahme, Abnahme, Hungersnot, Stagnation).</German>
+ 		<Italian>Quando � selezionato, mostra pi� dettagli sulla crescita (crescita, decrescita, carestia, stagnazione).</Italian>
+ 		<Spanish>Si se activa, muestra informaci�n detallada sobre el crecimiento (creciendo, reduci�ndose, hambruna, detenido).</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__BASEVALUES_TEXT</Tag>
+ 		<English>Base Values</English>
+
+diff --git a/Assets/XML/Text/BULL_CIV4GameText.xml b/Assets/XML/Text/BULL_CIV4GameText.xml
+index 1f311a350..136fd6bd5 100644
+--- a/Assets/XML/Text/BULL_CIV4GameText.xml
++++ b/Assets/XML/Text/BULL_CIV4GameText.xml
+@@ -17,7 +17,8 @@
+ 	</TEXT>
+ 	
+ 	<!-- Food Assist -->
+-	<TEXT>
++	<!-- advc.189: Handled through (less verbose) text in Civ4GameText_advc.xml -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_CITY_BAR_FOOD_GROW</Tag>
+ 		<English>[NEWLINE]%d1 [ICON_FOOD]/Turn[NEWLINE]Growing: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:Turn:Turns])</English>
+ 		<French>[NEWLINE]%d1 [ICON_FOOD]/tour[NEWLINE]Croissance : %d2/%d3 [ICON_FOOD] (%d4 [NUM4:tour:tours])</French>
+@@ -48,7 +49,7 @@
+ 		<German>[NEWLINE]%d1 [ICON_BAD_FOOD]/Runde[NEWLINE][COLOR_WARNING_TEXT]HUNGERSNOT: %d2/%d3 [ICON_FOOD][COLOR_REVERT]</German>
+ 		<Italian>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turno[NEWLINE][COLOR_WARNING_TEXT]CARESTIA: %d2/%d3 [ICON_FOOD][COLOR_REVERT]</Italian>
+ 		<Spanish>[NEWLINE]%d1 [ICON_BAD_FOOD]/turno[NEWLINE][COLOR_WARNING_TEXT]&#161;HAMBRUNA: %d2/%d3 [ICON_FOOD][COLOR_REVERT]</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 	
+ 	<!-- Base Production -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index dcf935396..0fa55428c 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -6474,38 +6474,37 @@
+ 		<Spanish>[ICON_BULLET]%D1_Change %F2_YieldIcon con [NUM3:el:la:los:las] %s3_RouteName</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.004 -->
++	<!-- advc.189 -->
+ 	<!-- Replacing key in Civ4GameTextInfos.xml.
+ 		 Don't refer to the food store as "growth" b/c that's a bit misleading
+-		 when growth is stagnating. -->
++		 when growth is stagnating. Also remove the spaces before yield icons. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CITY_BAR_GROWTH</Tag>
+-		<English>[NEWLINE]%d1/%d2 [ICON_FOOD]</English>
+-		<French>[NEWLINE]%d1/%d2 [ICON_FOOD]</French>
+-		<German>[NEWLINE]%d1/%d2 [ICON_FOOD]</German>
+-		<Italian>[NEWLINE]%d1/%d2 [ICON_FOOD]</Italian>
+-		<Spanish>[NEWLINE]%d1/%d2 [ICON_FOOD]</Spanish>
++		<English>[NEWLINE]%d1/%d2[ICON_FOOD]</English>
++		<French>[NEWLINE]%d1/%d2[ICON_FOOD]</French>
++		<German>[NEWLINE]%d1/%d2[ICON_FOOD]</German>
++		<Italian>[NEWLINE]%d1/%d2[ICON_FOOD]</Italian>
++		<Spanish>[NEWLINE]%d1/%d2[ICON_FOOD]</Spanish>
+ 	</TEXT>
+ 	<!-- Replacing TXT_KEY_CITY_BAR_FOOD_GROWTH; Don't like the word "growth"
+ 		 here either. The idea is, apparently, to mirror the text for production,
+-		 which names the production order and then shows the turns remaining.
+-		 FIS unchanged. -->
++		 which names the production order and then shows the turns remaining. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CITY_BAR_FOOD_GROWTH</Tag>
+-		<English>[NEWLINE]%d1 [ICON_FOOD]/Turn[NEWLINE]%d2/%d3 [ICON_FOOD] (%d4 [NUM4:Turn:Turns])</English>
+-		<French>[NEWLINE]%d1 [ICON_FOOD]/tour[NEWLINE]Croissance : %d2/%d3 [ICON_FOOD] (%d4 [NUM4:tour:tours])</French>
+-		<German>[NEWLINE]%d1 [ICON_FOOD]/Runde[ICON_FOOD]%d2/%d3 (%d4 [NUM4:Turn:Turns])</German>
+-		<Italian>[NEWLINE]%d1 [ICON_FOOD]/Turno[NEWLINE]Crescita: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turni])</Italian>
+-		<Spanish>[NEWLINE]%d1 [ICON_FOOD]/turno[NEWLINE]Crecimiento: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turnos])</Spanish>
++		<English>[NEWLINE]%d1[ICON_FOOD]/Turn[NEWLINE]%d2/%d3[ICON_FOOD] (%d4 [NUM4:Turn:Turns])</English>
++		<French>[NEWLINE]%d1[ICON_FOOD]/tour[NEWLINE]%d2/%d3[ICON_FOOD] (%d4 [NUM4:tour:tours])</French>
++		<German>[NEWLINE]%d1[ICON_FOOD]/Runde[NEWLINE]%d2/%d3[ICON_FOOD] (%d4 [NUM4:Turn:Turns])</German>
++		<Italian>[NEWLINE]%d1[ICON_FOOD]/Turno[NEWLINE]%d2/%d3[ICON_FOOD] (%d4 [NUM4:turno:turni])</Italian>
++		<Spanish>[NEWLINE]%d1[ICON_FOOD]/turno[NEWLINE]%d2/%d3[ICON_FOOD] (%d4 [NUM4:turno:turnos])</Spanish>
+ 	</TEXT>
+-	<!-- As above, but with bad food. (No need for text color in addition.) -->
++	<!-- As above, but with bad food. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CITY_BAR_STARVATION</Tag>
+-		<English>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turn[NEWLINE]%d2/%d3 [ICON_FOOD] (%d4 [NUM4:Turn:Turns]) </English>
+-		<French>[NEWLINE]%d1 [ICON_BAD_FOOD]/tour[NEWLINE]Croissance : %d2/%d3 [ICON_FOOD] (%d4 [NUM4:tour:tours])</French>
+-		<German>[NEWLINE]%d1 [ICON_BAD_FOOD]/Runde[NEWLINE]%d2/%d3 [ICON_FOOD] (%d4 [NUM4:Turn:Turns])</German>
+-		<Italian>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turno[NEWLINE]Crescita: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turni])</Italian>
+-		<Spanish>[NEWLINE]%d1 [ICON_BAD_FOOD]/turno[NEWLINE]Crecimiento: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turnos])</Spanish>
++		<English>[NEWLINE]%d1[ICON_BAD_FOOD]/Turn[NEWLINE]%d2/%d3[ICON_FOOD] ([COLOR_WARNING_TEXT]%d4[COLOR_REVERT] [NUM4:Turn:Turns]) </English>
++		<French>[NEWLINE]%d1[ICON_BAD_FOOD]/tour[NEWLINE]%d2/%d3[ICON_FOOD] ([COLOR_WARNING_TEXT]%d4[COLOR_REVERT] [NUM4:tour:tours])</French>
++		<German>[NEWLINE]%d1[ICON_BAD_FOOD]/Runde[NEWLINE]%d2/%d3[ICON_FOOD] ([COLOR_WARNING_TEXT]%d4[COLOR_REVERT] [NUM4:Turn:Turns])</German>
++		<Italian>[NEWLINE]%d1[ICON_BAD_FOOD]/Turno[NEWLINE]%d2/%d3[ICON_FOOD] ([COLOR_WARNING_TEXT]%d4[COLOR_REVERT] [NUM4:turno:turni])</Italian>
++		<Spanish>[NEWLINE]%d1[ICON_BAD_FOOD]/turno[NEWLINE]%d2/%d3[ICON_FOOD] ([COLOR_WARNING_TEXT]%d4[COLOR_REVERT] [NUM4:turno:turnos])</Spanish>
+ 	</TEXT>
+ 
+ 	<!-- advc.002f: Based on INTERFACE_CITY_GROWING (Civ4GameTextInfos.xml) and
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index d15b4b00f..aaf4807e1 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1569,13 +1569,18 @@ bool CvCity::canJoin() const
+ 
+ int CvCity::getFoodTurnsLeft() const
+ {
+-	int iFoodLeft = (growthThreshold() - getFood());
+-	if (foodDifference() <= 0)
+-		return iFoodLeft;
+-
+-	int iTurnsLeft = (iFoodLeft / foodDifference());
+-	if (iTurnsLeft * foodDifference() < iFoodLeft)
+-		iTurnsLeft++;
++	int const iFoodDiff = foodDifference(); // advc.opt
++	// <advc.189>
++	if (iFoodDiff == 0)
++		return MAX_INT;
++	if (iFoodDiff < 0) // Turns to starvation
++	{
++		int iFoodLeft = getFood();
++		int iTurnsLeft = intdiv::uceil(iFoodLeft, -iFoodDiff);
++		return std::min(-1, -iTurnsLeft);
++	} // </advc.189>
++	int iFoodLeft = growthThreshold() - getFood();
++	int iTurnsLeft = intdiv::uceil(iFoodLeft, iFoodDiff);
+ 	return std::max(1, iTurnsLeft);
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index ffc3bc63e..0df345ddb 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5286,20 +5286,21 @@ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity)
+ 		else
+ 		{
+ 			szString.append(gDLL->getText(
+-					iFoodDifference < 0 ? "TXT_KEY_CITY_BAR_STARVATION" : // advc.004
++					// advc.189: Not merging BULL Food Assist - this tweak should suffice
++					iFoodDifference < 0 ? "TXT_KEY_CITY_BAR_STARVATION" :
+ 					"TXT_KEY_CITY_BAR_FOOD_GROWTH",
+-					iFoodDifference < 0 ? -iFoodDifference : // advc.004
+-					iFoodDifference, pCity->getFood(),
+-					pCity->growthThreshold(), pCity->getFoodTurnsLeft()));
++					iFoodDifference < 0 ? -iFoodDifference : // advc.189
++					iFoodDifference, kCity.getFood(), kCity.growthThreshold(),
++					abs(kCity.getFoodTurnsLeft()))); // advc.189: abs
+ 		}
+ 		// <advc.002f>
+ 		if (bAvoidGrowth)
+ 		{
+-			szTempBuffer += gDLL->getText("TXT_KEY_CITY_BAR_AVOID_GROWTH");
+-			if (pCity->getFoodTurnsLeft() == 1)
++			szTempBuffer = gDLL->getText("TXT_KEY_CITY_BAR_AVOID_GROWTH");
++			if (kCity.getFoodTurnsLeft() == 1)
+ 			{
+ 				szTempBuffer.Format(SETCOLR L"%s" ENDCOLR,
+-						TEXT_COLOR("COLOR_WARNING_TEXT"), szTempBuffer.GetCString());
++						TEXT_COLOR("COLOR_WARNING_TEXT"), szTempBuffer.c_str());
+ 			}
+ 			szString.append(L" - ");
+ 			szString.append(szTempBuffer);
+@@ -17426,18 +17427,19 @@ void CvGameTextMgr::buildCityBillboardIconString( CvWStringBuffer& szBuffer, CvC
+ void CvGameTextMgr::buildCityBillboardCityNameString(CvWStringBuffer& szBuffer, CvCity* pCity)
+ {
+ 	szBuffer.assign(pCity->getName());
+-	if (pCity->canBeSelected())
++	if (pCity->canBeSelected() &&
++		gDLL->getGraphicOption(GRAPHICOPTION_CITY_DETAIL) /*&&
++		pCity->foodDifference() > 0*/) // advc.189
+ 	{
+-		if (gDLL->getGraphicOption(GRAPHICOPTION_CITY_DETAIL))
++		int iTurns = pCity->getFoodTurnsLeft();
++		if (abs(iTurns) > 1 || !pCity->AI().AI_isEmphasizeAvoidGrowth())
+ 		{
+-			if (pCity->foodDifference() > 0)
++			if (iTurns < MAX_INT)
+ 			{
+-				int iTurns = pCity->getFoodTurnsLeft();
+-				if (iTurns > 1 || !pCity->AI().AI_isEmphasizeAvoidGrowth())
+-				{
+-					if (iTurns < MAX_INT)
+-						szBuffer.append(CvWString::format(L" (%d)", iTurns));
+-				}
++				szBuffer.append(CvWString::format(L" (%d)",
++						/*	advc.189: Absolute value. Red color would be nice,
++							but not possible here. */
++						abs(iTurns)));
+ 			}
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CyCity.cpp b/CvGameCoreDLL/CyCity.cpp
+index b2b40bbdb..3ea079a20 100644
+--- a/CvGameCoreDLL/CyCity.cpp
++++ b/CvGameCoreDLL/CyCity.cpp
+@@ -168,7 +168,13 @@ bool CyCity::canJoin()
+ 
+ int CyCity::getFoodTurnsLeft()
+ {
+-	return m_pCity ? m_pCity->getFoodTurnsLeft() : 0;
++	if (m_pCity == NULL)
++		return 0;
++	// <advc.189>
++	int iR = m_pCity->getFoodTurnsLeft();
++	if (iR == MAX_INT)
++		return 0; // </advc.189>
++	return iR;
+ }
+ 
+ bool CyCity::isProduction()
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=15227

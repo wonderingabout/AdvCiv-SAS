@@ -1,0 +1,275 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3956
+# Commit: da462d23f0ad8790d7a8dc36bf6a311a54f81b0d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d5194c95ebac90a82f0758f101ecc140f7c9a8db
+# Title: Adjust unit expenses to speed, map size
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	5	Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+8	3	Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+13	0	Assets/XML/GameInfo/CIV4WorldInfo.xml
+25	5	CvGameCoreDLL/CvInfo_GameOption.h
+14	3	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+index 095585ca3..00d65971d 100644
+--- a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
++++ b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+@@ -80,6 +80,8 @@
+ 		<element type="iBuildingClassPrereqModifier"/>
+ 		<element type="iMaxConscriptModifier"/>
+ 		<element type="iWarWearinessModifier"/>
++		<!-- advc.252: Set to 100 by default in the DLL -->
++		<element type="iUnitCostPercent" minOccurs="0"/>
+ 		<element type="iGridWidth"/>
+ 		<element type="iGridHeight"/>
+ 		<element type="iTerrainGrainChange"/>
+@@ -323,16 +325,18 @@
+ 	<ElementType name="iStartingLocPercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iFreeUnits" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iUnitCostPercent" content="textOnly" dt:type="int"/>
+-	<!-- advc.251: Modifier for worker build time; rounds down to
+-		 a multiple of 50 time units -->
++	<!-- advc.251: start -->
++	<!-- Modifier for worker build time; rounds down to a multiple of
++		 50 time units. -->
+ 	<ElementType name="iBuildTimePercent" content="textOnly" dt:type="int"/>
+-	<!-- advc.251: Modifier for base threshold for city growth -->
++	<!-- Modifier for base threshold for city growth -->
+ 	<ElementType name="iBaseGrowthThresholdPercent" content="textOnly" dt:type="int"/>
+-	<!-- advc.251: Modifier for Great Person thresholds -->
++	<!-- Modifier for Great Person thresholds -->
+ 	<ElementType name="iGPThresholdPercent" content="textOnly" dt:type="int"/>
+-	<!-- advc.251: Modifier for (human and AI) culture level thresholds
++	<!-- Modifier for (human and AI) culture level thresholds
+ 		 (only "Developing" and above) -->
+ 	<ElementType name="iCultureLevelPercent" content="textOnly" dt:type="int"/>
++	<!-- advc.251: end -->
+ 	<ElementType name="iMaxNumCitiesMaintenance" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iMaxColonyMaintenance" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iCivicUpkeepPercent" content="textOnly" dt:type="int"/>
+@@ -345,6 +349,8 @@
+ 	<ElementType name="iHurryPercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iHurryConscriptAngerPercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iInflationPercent" content="textOnly" dt:type="int"/>
++	<!-- advc.252 -->
++	<ElementType name="iExtraFreeOutsideUnits" content="textOnly" dt:type="int"/>
+ 	<!-- advc.101 -->
+ 	<ElementType name="iForeignCultureStrength" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iHealthBonus" content="textOnly" dt:type="int"/>
+@@ -956,6 +962,12 @@
+ 		<element type="iHurryConscriptAngerPercent"/>
+ 		<element type="iInflationPercent"/>
+ 		<element type="iInflationOffset"/>
++		<!-- advc.252: start -->
++		<!-- Set to 100 by default in the DLL -->
++		<element type="iUnitCostPercent" minOccurs="0"/>
++		<!-- Set to 0 by default in the DLL -->
++		<element type="iExtraFreeOutsideUnits" minOccurs="0"/>
++		<!-- advc.252: end -->
+ 		<element type="iVictoryDelayPercent"/>
+ 		<!-- advc: New game speed modifiers ...
+ 			 Set to 100 in the DLL by default. -->
+
+diff --git a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+index 1bb2c4cfe..08224546f 100644
+--- a/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
++++ b/Assets/XML/GameInfo/CIV4GameSpeedInfo.xml
+@@ -36,12 +36,17 @@
+ 			<!-- advc.252: was 33 -->
+ 			<iHurryPercent>40</iHurryPercent>
+ 			<iHurryConscriptAngerPercent>250</iHurryConscriptAngerPercent>
+-			<!-- advc.252: was 10 -->
++			<!-- advc.252: start -->
++			<!-- was 10 -->
+ 			<iInflationPercent>12</iInflationPercent>
+-			<!-- advc.252: was -270 -->
++			<!-- was -270 -->
+ 			<iInflationOffset>-225</iInflationOffset>
+-			<!-- advc.252: was 300 -->
++			<!-- Reduce unit expenses ... -->
++			<iUnitCostPercent>85</iUnitCostPercent>
++			<iExtraFreeOutsideUnits>1</iExtraFreeOutsideUnits>
++			<!-- was 300 -->
+ 			<iVictoryDelayPercent>200</iVictoryDelayPercent>
++			<!-- advc.252: end -->
+ 			<!-- advc.130r: start -->
+ 			<iAIMemoryRandPercent>200</iAIMemoryRandPercent>
+ 			<iAIContactRandPercent>167</iAIContactRandPercent>
+
+diff --git a/Assets/XML/GameInfo/CIV4WorldInfo.xml b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+index 0bde183dd..5d1cfc936 100644
+--- a/Assets/XML/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+@@ -20,6 +20,8 @@
+ 			<iMaxConscriptModifier>-30</iMaxConscriptModifier>
+ 			<!-- advc.140: was 37 -->
+ 			<iWarWearinessModifier>30</iWarWearinessModifier>
++			<!-- advc.252 -->
++			<iUnitCostPercent>109</iUnitCostPercent>
+ 			<!-- advc.137: was 10x6 -->
+ 			<iGridWidth>18</iGridWidth>
+ 			<iGridHeight>13</iGridHeight>
+@@ -53,6 +55,8 @@
+ 			<iMaxConscriptModifier>-15</iMaxConscriptModifier>
+ 			<!-- advc.140: was 30 -->
+ 			<iWarWearinessModifier>20</iWarWearinessModifier>
++			<!-- advc.252 -->
++			<iUnitCostPercent>106</iUnitCostPercent>
+ 			<!-- advc.137: was 13x8 -->
+ 			<iGridWidth>23</iGridWidth>
+ 			<iGridHeight>17</iGridHeight>
+@@ -84,6 +88,8 @@
+ 			<iMaxConscriptModifier>0</iMaxConscriptModifier>
+ 			<!-- advc.140: was 10 -->
+ 			<iWarWearinessModifier>12</iWarWearinessModifier>
++			<!-- advc.252 -->
++			<iUnitCostPercent>103</iUnitCostPercent>
+ 			<!-- advc.137: was 16x10 -->
+ 			<iGridWidth>30</iGridWidth>
+ 			<iGridHeight>22</iGridHeight>
+@@ -121,6 +127,8 @@
+ 			<iMaxConscriptModifier>15</iMaxConscriptModifier>
+ 			<!-- advc.140: was -10 -->
+ 			<iWarWearinessModifier>0</iWarWearinessModifier>
++			<!-- advc.252 -->
++			<iUnitCostPercent>100</iUnitCostPercent>
+ 			<!-- advc.137: was 21x13 -->
+ 			<iGridWidth>39</iGridWidth>
+ 			<iGridHeight>28</iGridHeight>
+@@ -154,6 +162,8 @@
+ 			<iMaxConscriptModifier>30</iMaxConscriptModifier>
+ 			<!-- advc.140: was -30 -->
+ 			<iWarWearinessModifier>-13</iWarWearinessModifier>
++			<!-- advc.252 -->
++			<iUnitCostPercent>97</iUnitCostPercent>
+ 			<!-- advc.137: was 26x16 -->
+ 			<iGridWidth>47</iGridWidth>
+ 			<iGridHeight>34</iGridHeight>
+@@ -188,6 +198,8 @@
+ 			<iMaxConscriptModifier>45</iMaxConscriptModifier>
+ 			<!-- advc.140: was -50 -->
+ 			<iWarWearinessModifier>-25</iWarWearinessModifier>
++			<!-- advc.252 -->
++			<iUnitCostPercent>94</iUnitCostPercent>
+ 			<!-- advc.137: was 32x20 -->
+ 			<iGridWidth>60</iGridWidth>
+ 			<iGridHeight>42</iGridHeight>
+@@ -219,6 +231,7 @@
+ 			<iBuildingClassPrereqModifier>75</iBuildingClassPrereqModifier>
+ 			<iMaxConscriptModifier>50</iMaxConscriptModifier>
+ 			<iWarWearinessModifier>-25</iWarWearinessModifier>
++			<iUnitCostPercent>91</iUnitCostPercent>
+ 			<iGridWidth>73</iGridWidth>
+ 			<iGridHeight>51</iGridHeight>
+ 			<iTerrainGrainChange>3</iTerrainGrainChange>
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index a8b356394..b608c99e1 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -252,6 +252,8 @@ protected:
+ 		// <advc.252>
+ 		kElements.addInt(EventRollSidesPercent, "EventRollSidesPercent", 100);
+ 		kElements.addInt(VoteIntervalPercent, "VoteIntervalPercent", 100);
++		kElements.addInt(UnitCostPercent, "UnitCostPercent", 100);
++		kElements.addInt(ExtraFreeOutsideUnits, "ExtraFreeOutsideUnits", 100);
+ 		// </advc.252>
+ 	}
+ public:
+@@ -265,7 +267,9 @@ public:
+ 		ReligionSpreadDivPercent, // advc.173
+ 		// <advc.252>
+ 		EventRollSidesPercent,
+-		VoteIntervalPercent, // </advc.252>
++		VoteIntervalPercent,
++		UnitCostPercent,
++		ExtraFreeOutsideUnits, // </advc.252>
+ 		NUM_INT_ELEMENT_TYPES
+ 	};
+ 	int get(IntElementTypes e) const
+@@ -619,12 +623,28 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //  class : CvWorldInfo
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-class CvWorldInfo : public CvInfoBase
++class CvWorldInfo : /* <advc.tag> */ public CvXMLInfo
+ {
+-	typedef CvInfoBase base_t;
+-public: // All the const functions are exposed to Python
+-	CvWorldInfo();
++	typedef CvXMLInfo base_t;
++protected:
++	void addElements(ElementList& kElements) const
++	{
++		base_t::addElements(kElements);
++		kElements.addInt(UnitCostPercent, "UnitCostPercent", 100); // advc.252
++	}
++public:
++	enum IntElementTypes
++	{
++		UnitCostPercent = CvXMLInfo::NUM_INT_ELEMENT_TYPES, // advc.252
++		NUM_INT_ELEMENT_TYPES
++	};
++	int get(IntElementTypes e) const
++	{
++		return base_t::get(static_cast<base_t::IntElementTypes>(e));
++	} // </advc.tag>
+  
++	CvWorldInfo();
++	// All the const functions are exposed to Python ...
+ 	DllExport int getDefaultPlayers() const { return m_iDefaultPlayers; }
+ 	int getUnitNameModifier() const;
+ 	int getTargetNumCities() const { return m_iTargetNumCities; }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index e7fedbdd1..e6439ceee 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6005,7 +6005,14 @@ int CvPlayer::getUnitCostMultiplier() const
+ 		/*iMultiplier *= std::max(0, ((GC.getInfo(GC.getGame().getHandicapType()).getAIPerEraModifier() * getCurrentEra()) + 100));
+ 		iMultiplier /= 100;*/
+ 	}
+-
++	// <advc.252>
++	iMultiplier *= GC.getInfo(GC.getGame().getGameSpeedType()).get(
++			CvGameSpeedInfo::UnitCostPercent);
++	iMultiplier /= 100;
++	iMultiplier *= GC.getInfo(GC.getMap().getWorldSize()).get(
++			CvWorldInfo::UnitCostPercent);
++	iMultiplier /= 100;
++	// </advc.252>
+ 	return iMultiplier;
+ }
+ 
+@@ -6100,9 +6107,13 @@ int CvPlayer::calculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost,
+ 	static int iINITIAL_FREE_OUTSIDE_UNITS = GC.getDefineINT("INITIAL_FREE_OUTSIDE_UNITS"); // advc.opt
+ 	static int iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = GC.getDefineINT("INITIAL_OUTSIDE_UNIT_GOLD_PERCENT"); // advc.opt
+ 
++	int iFreeOutsideUnits = iINITIAL_FREE_OUTSIDE_UNITS +
++			// <advc.252>
++			GC.getInfo(GC.getGame().getGameSpeedType()).get(
++			CvGameSpeedInfo::ExtraFreeOutsideUnits); // </advc.252>
+ 	iPaidUnits = std::max(0, getNumOutsideUnits()
+-		+ iExtraOutsideUnits // advc.004b
+-		- iINITIAL_FREE_OUTSIDE_UNITS);
++			+ iExtraOutsideUnits // advc.004b
++			- iFreeOutsideUnits);
+ 
+ 	iBaseSupplyCost = iPaidUnits * iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT;
+ 	iBaseSupplyCost /= 100;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=10073

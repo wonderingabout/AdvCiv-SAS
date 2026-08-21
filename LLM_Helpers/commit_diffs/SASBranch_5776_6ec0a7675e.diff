@@ -1,0 +1,208 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5776
+# Commit: 6ec0a7675e4999cb24e089a0c46a1be231e79bef
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 967e1fb7b75e7c36e883ccf7614c6e2ece51e734
+# Title: Fix Military Advisor Units-tab minimap disappeared after switching tabs. See KI#129.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+48	8	Assets/Python/Screens/CvMilitaryAdvisor.py
+28	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 4fd83b446..0bea71f1a 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -41,6 +41,7 @@ class CvMilitaryAdvisor:
+ 		self.ATTACHED_WIDGET_ID = "MilitaryAdvisorAttachedWidget" # no need to explicitly delete these
+ 		self.LEADER_BUTTON_ID = "MilitaryAdvisorLeaderButton"
+ 		self.UNIT_PANEL_ID = "MilitaryAdvisorUnitPanel"
++		self.MAP_PANEL_ID = "MilitaryAdvisorMapPanel"
+ 		self.UNIT_BUTTON_ID = "MilitaryAdvisorUnitButton"
+ 		self.UNIT_BUTTON_LABEL_ID = "MilitaryAdvisorUnitButtonLabel"
+ 		self.LEADER_PANEL_ID = "MilitaryAdvisorLeaderPanel"
+@@ -84,6 +85,7 @@ class CvMilitaryAdvisor:
+ 		self.selectedPlayerList = []
+ 		self.selectedGroupList = []
+ 		self.selectedUnitList = []
++		self.bMinimapInitDone = False
+ 		self.iLanguageLoaded = -1
+ 
+ 		# <!-- custom: expand/layout elements (e.g., great general bar) to use the new screen size. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+@@ -253,6 +255,33 @@ class CvMilitaryAdvisor:
+ 		screen = self.getScreen()
+ 		screen.hideScreen()
+ 
++	def deleteAllWidgets(self):
++		screen = self.getScreen()
++		iCount = self.nWidgetCount
++		self.nWidgetCount = 0
++		while self.nWidgetCount < iCount:
++			screen.deleteWidget(self.getNextWidgetName())
++		self.nWidgetCount = 0
++		# <!-- custom: For in-place Military Advisor tab redraws, delete page-owned widgets only; keep the screen shell and minimap frame alive because the Units-tab minimap stopped rendering correctly after hide/show tab switches. Pattern follows CvBUGMilitaryAdvisor's in-place tab rebuild. See KI#129. (GPT-5.5) -->
++		for szWidget in (
++			self.UNIT_PANEL_ID,
++			self.UNIT_BUTTON_ID,
++			self.UNIT_BUTTON_LABEL_ID,
++			self.LEADER_PANEL_ID,
++			self.UNIT_LIST_ID,
++			self.GREAT_GENERAL_BAR_ID,
++			self.GREAT_GENERAL_LABEL_ID,
++			self.DEBUG_DROPDOWN_ID,
++			self.BATTLE_TABLE_ID,
++			self.BATTLE_LOG_BUTTON_ID,
++			self.COMPOSITION_UNITS_TABLE_ID,
++			self.COMPOSITION_PROMOTIONS_TABLE_ID,
++			self.COMPOSITION_COMBATS_TABLE_ID,
++		):
++			screen.deleteWidget(szWidget)
++		for iPlayer in range(gc.getMAX_PLAYERS()):
++			screen.deleteWidget(self.getLeaderButton(iPlayer))
++										
+ 	# Screen construction function
+ 	def interfaceScreen(self):
+ 							
+@@ -266,6 +295,7 @@ class CvMilitaryAdvisor:
+ 		self.initDefines()
+ 		self.initText()
+ 		self.updateRuntimeLayout(screen)
++		self.bMinimapInitDone = False
+ 
+ 		self.nWidgetCount = 0
+ 
+@@ -284,6 +314,16 @@ class CvMilitaryAdvisor:
+ 		# Header...
+ 		self.szHeader = self.getNextWidgetName()
+ 		screen.setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		self.drawActivePage()
++
++	def redrawContents(self):
++		self.deleteAllWidgets()
++		self.szHeader = self.getNextWidgetName()
++		self.getScreen().setText(self.szHeader, "Background", self.TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		self.drawActivePage()
++
++	def drawActivePage(self):
++		screen = self.getScreen()
+ 		self.drawTabs()
+ 
+ 		if self.iActivePage == self.PAGE_BATTLES:
+@@ -304,18 +344,20 @@ class CvMilitaryAdvisor:
+ 			self.W_MAP = (self.H_MAP_MAX * CyMap().getGridWidth()) / CyMap().getGridHeight()
+ 			self.H_MAP = self.H_MAP_MAX
+ 		self.W_GREAT_GENERAL_BAR = self.W_MAP
+-		screen.addPanel("", u"", "", False, False, self.X_MAP, self.Y_MAP, self.W_MAP, self.H_MAP, PanelStyles.PANEL_STYLE_MAIN)
+-		screen.initMinimap(self.X_MAP + self.MAP_MARGIN, self.X_MAP + self.W_MAP - self.MAP_MARGIN, self.Y_MAP + self.MAP_MARGIN, self.Y_MAP + self.H_MAP - self.MAP_MARGIN, self.Z_CONTROLS)
++		# <!-- custom: Redraw Military Advisor tab contents in-place instead of hideScreen()+interfaceScreen() on tab switches; otherwise the Units-tab minimap would stop rendering after returning from Battles/Composition. Initialize the map frame/minimap once per real advisor opening, then refresh/re-front it when returning to Units. See KI#129. (GPT-5.5) -->
++		if not self.bMinimapInitDone:
++			screen.addPanel(self.MAP_PANEL_ID, u"", "", False, False, self.X_MAP, self.Y_MAP, self.W_MAP, self.H_MAP, PanelStyles.PANEL_STYLE_MAIN)
++			screen.initMinimap(self.X_MAP + self.MAP_MARGIN, self.X_MAP + self.W_MAP - self.MAP_MARGIN, self.Y_MAP + self.MAP_MARGIN, self.Y_MAP + self.H_MAP - self.MAP_MARGIN, self.Z_CONTROLS)
++			self.bMinimapInitDone = True
+ 		screen.updateMinimapSection(False, False)
+-
+ 		screen.updateMinimapColorFromMap(MinimapModeTypes.MINIMAPMODE_TERRITORY, 0.6)
+-
+ 		screen.setMinimapMode(MinimapModeTypes.MINIMAPMODE_MILITARY)
+ 		
+ 		iOldMode = CyInterface().getShowInterface()
+ 		CyInterface().setShowInterface(InterfaceVisibility.INTERFACE_MINIMAP_ONLY)
+ 		screen.updateMinimapVisibility()
+ 		CyInterface().setShowInterface(iOldMode)
++		screen.bringMinimapToFront()
+ 	
+ 		self.unitsList = [(0, 0, [], 0)] * gc.getNumUnitInfos()
+ 		self.selectedUnitList = []
+@@ -857,8 +899,7 @@ class CvMilitaryAdvisor:
+ 	def handleInput (self, inputClass):
+ 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_LISTBOX_ITEM_SELECTED and inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID:
+ 			self.iActivePlayer = getAdvisorDebugDropdownSelectedPlayer(self.getScreen(), self.DEBUG_DROPDOWN_ID)
+-			self.hideScreen()
+-			self.interfaceScreen()
++			self.redrawContents()
+ 			return 1
+ 		if inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getFunctionName() == self.BATTLE_LOG_BUTTON_ID:
+ 			self.dbgLogBattleHistory()
+@@ -873,8 +914,7 @@ class CvMilitaryAdvisor:
+ 			iPage = inputClass.getData1()
+ 			if iPage in self.PAGE_IDS and iPage != self.iActivePage:
+ 				self.iActivePage = iPage
+-				self.hideScreen()
+-				self.interfaceScreen()
++				self.redrawContents()
+ 				return 1
+ 		if ( inputClass.getNotifyCode() == NotifyCode.NOTIFY_CLICKED and inputClass.getFunctionName() == self.UNIT_BUTTON_ID) :
+ 			self.bUnitDetails = not self.bUnitDetails
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 1bf05c5c8..b8f8766fc 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -164,6 +164,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#126---fixed-sevopedia-footer-navigation-controls-looked-active-even-when-they-had-no-effect)  
+ [127 - (Worked around) DLL max players / Worldsize default players mismatch causing very sparse games, and players not being notified of it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#127---worked-around-dll-max-players--worldsize-default-players-mismatch-causing-very-sparse-games-and-players-not-being-notified-of-it)  
+ [128 - (Seemingly fixed / worked around) Runtime UI define/style changes could produce crashy Python-like behavior](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior)  
++[129 - (Fixed) Military Advisor Units-tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-units-tab-minimap-disappeared-after-switching-tabs)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4768,3 +4769,30 @@ Files changed:
+ 
+ - [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
+ - [Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py)
++
++## 129 - (Fixed) Military Advisor Units-tab minimap disappeared after switching tabs
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1GKzU-m50WLj0CUBHCJPxTPbHfrJ33izg?usp=sharing).
++
++Observed issue:
++
++- In the (base) Military Advisor, after we added new tabs (Battles and Composition, and named "Units" (tab) the original advisor screen view), the Units tab minimap initially displayed correctly when opening the advisor.
++- After switching from Units to another Military Advisor tab (Battles or Composition) and then back to Units, the minimap area no longer rendered correctly.
++- Earlier attempts changed the symptom but did not fully fix it: `bringMinimapToFront()` alone did not restore the minimap; deleting/recreating several widgets could still leave a blank/blue map area; trying to reuse the minimap after `hideScreen()`/`interfaceScreen()` avoided some covering but could show the advisor background instead of the minimap.
++- Exiting the Military Advisor and reopening it restored the minimap.
++- The BUG Military Advisor variant did not show this issue when switching between its tabs.
++
++Fix:
++
++- Military Advisor tab switches now redraw the advisor contents in place instead of calling `hideScreen()` and then `interfaceScreen()` again.
++- The redraw deletes page-owned widgets only, while leaving the screen shell and minimap frame alive.
++- The Units tab initializes the minimap once per real advisor opening, then refreshes/re-fronts it when returning to Units.
++
++Notes:
++
++- The exact native/root cause was hard to pinpoint, so this entry describes the observed behavior and the empirically fixed redraw pattern rather than claiming a precise engine cause.
++- The fix follows the practical shape of the BUG Military Advisor, which keeps its screen alive during tab changes and rebuilds tab contents in place.
++
++File changed:
++
++- [Assets/Python/Screens/CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 7fa03a502..2de79e6b5 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -360,7 +360,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. (Requires AdvCiv-SAS 5530+) Note: **icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440). Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported.  See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4).
+ - (Requires AdvCiv-SAS 5771+) Added a new **Battles tab** in the Military Advisor, showing as a **sortable table** the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode): **Turn**, **Year**, **Result** (Won, Lost, Retreat) as emoji, **Estimated Odds %** (simple starting effective strength comparison, not exact Civ4 combat odds), **Role** (Are we the attacker?) as emoji, **base Strength** (XML), **start effective Strength** (including modifiers at that battle), **end effective Strength**, **max effective Strength**, **XP before combat** (yellow if Great-General-led), **Our Unit**, **Their Unit** (unit name in yellow if Great-General-led), **same** strength/XP columns for their unit, **Civ icon**, **Player icon**, **Player ID** (to cover the same leader picked by several leaders (custom games, etc.)), **Captured Unit type**, **Captured Unit icon**, **Hill or Peak icon**, **Terrain icon**, **Feature icon**, **Click Plot icon** (**on click camera is moved to this plot** (as the wonder tabs' (Info Screen) text does), with distinct art for normal plot, defended city, and captured city battles). Icons are **hoverable to sevopedia** (or have a camera effect). **Text color** is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red). Implemented a **legend link**, and **LOG Button** (as the Timeline tab). Examples of LOG: `163 | 760 AD | Lost | 43 | A | 6 | 6.04 |  | 7.20 | 8 | 0 | Camel Archer | Longbowman | 5 | 0 | 4 | 8.10 | 5.04 | 9.00 | 9 | 0 |  |  | TERRAIN_GRASS |  | 54 | 30`, `133 | 10 BC | Won | 64 | A | 3 | 3.30 | 1.81 | 3.30 | 2 | 0 | Trireme | Galley | 1 | 0 | 2 | 1.84 |  | 2.20 | 48 | 0 |  |  | TERRAIN_COAST |  | 32 | 10`. Main files changed: [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py), [CvEventManager.py](/Assets/Python/CvEventManager.py), [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py), [CvUnit.cpp](/CvGameCoreDLL/CvUnit.cpp), [CvDllPythonEvents.cpp](/CvGameCoreDLL/CvDllPythonEvents.cpp), [CvDllPythonEvents.h](/CvGameCoreDLL/CvDllPythonEvents.h), [CvEventReporter.cpp](/CvGameCoreDLL/CvEventReporter.cpp), [CvEventReporter.h](/CvGameCoreDLL/CvEventReporter.h).
+-- (Requires AdvCiv-SAS 5775+) Added a new **Composition Tab**, as a set of **sortable tables** for **Current** (unlike saved data in the Statistics Tab in the Info Screen) **Units** (non-civilian, including Animal (including Barbarian in debug mode)), **Promotions**, and **Unit Combats** **counts**, default-**sorted from most to least** for no tedium (as done in the Statistics Tab).
++- (Requires AdvCiv-SAS 5775+) Added a new **Composition Tab**, as a set of **sortable tables** for **Current** (unlike saved data in the Statistics Tab in the Info Screen) **Units** (non-civilian, including Animal (including Barbarian in debug mode)), **Promotions**, and **Unit Combats** **counts**, default-**sorted from most to least** for no tedium (as done in the Statistics Tab). See also [KI#129](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-units-tab-minimap-disappeared-after-switching-tabs).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set an **alternative lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor, and an **alternative top space space** for **advisor buttons** (in map view) because this alternative right space may cover these advisor buttons. **Boldened title** for consistency. (Requires AdvCiv-SAS 5520+) See also [KI#114](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked). (Requires AdvCiv-SAS 5691+) **When opening** Technology Advisor, **right-align scoreboard leader text** so it is easier to read (because text is often not visible due to advisor width expansion). **On Technology Advisor close**, it **reverts back** to usual alignment.
+ - **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+ - (Requires AdvCiv-SAS 5718+) New **World Advisor**: shows **detailed BFC, suburbs, and territory geography** information as **sortable tables**. BFC tabs show **counts per city (rows) and per field (columns)**, and have a **click to enter city button** (similar to the Info Screen's Wonders tab). The BFC1 tab shows mostly **plot type** (Peak, Hill, Water, Land) and other information (**River, Lake, Coastal Land, sortable City found year and population**) and **Terrains/Features** information; the BFC2 tab shows mostly **Bonuses** and **Improvements** with other information (**Routes**). The Territory tab shows a **condensed count summary** with 4 tables of the former BFC tabs, with a BFC, suburbs (i.e. plots outside BFC), and **total columns** for each field (rows), **total fields (rows)** for each table, **hover support** and **pedia redirect on click** (if a corresponding pedia page exists), and a legend link. Note: totals are not the strict sum of all rows as some may overlap (e.g., river and hill). The **environment tab** is now part of the World advisor (better thematic fit).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=17093

@@ -1,0 +1,1592 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5019
+# Commit: 1733842bddfae289b0ae519b24449004264dd346
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4e081236e169fc2c938107f77e29a41d3e8a2836
+# Title: split unitcombat_melee units into unitcombat_melee_polearm and unitcombat_melee_shock, other balance or related or not changes or not anyways etc, update DLL...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Melee_Polearm/sidesteppromotion1.dds
+-	-	Assets/CvGameCoreDLL.dll
+-	-	Assets/CvGameCoreDLL_48_civs_dll.dll
+23	5	Assets/Python/CvAdvisorUtils.py
+12	3	Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+5	1	Assets/XML/Civilizations/CIV4TraitInfos.xml
+16	3	Assets/XML/Events/CIV4EventInfos.xml
+12	0	Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+5	1	Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt
+121	25	Assets/XML/Units/CIV4PromotionInfos.xml
+169	123	Assets/XML/Units/CIV4UnitInfos.xml
+2	1	CvGameCoreDLL/CvEnums.h
+2	1	CvGameCoreDLL/CyEnumsInterface.cpp
+8	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+9	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Melee_Polearm/sidesteppromotion1.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Melee_Polearm/sidesteppromotion1.dds b/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Melee_Polearm/sidesteppromotion1.dds
+new file mode 100644
+index 000000000..0f44bb58d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Unit_Combat_Types/Melee_Polearm/sidesteppromotion1.dds differ
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_48_civs_dll.dll b/Assets/CvGameCoreDLL_48_civs_dll.dll reason=binary/generated-file changedLines=0 bytes=224
+
+diff --git a/Assets/Python/CvAdvisorUtils.py b/Assets/Python/CvAdvisorUtils.py
+index cc27f7500..6a47cd9bd 100644
+--- a/Assets/Python/CvAdvisorUtils.py
++++ b/Assets/Python/CvAdvisorUtils.py
+@@ -153,18 +153,36 @@ def unitBuiltFeats(pCity, pUnit):
+ 				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_MORE", ()), "")
+ 				popupInfo.addPopup(pCity.getOwner())
+ 		
+-	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE)):
++	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM)):
+ 
+-		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MELEE")):
++		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MELEE_POLEARM")):
+ 		
+-			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE, True)
++			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM, True)
+ 			
+ 			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
+ 				popupInfo = CyPopupInfo()
+ 				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
+-				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MELEE)
++				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MELEE_POLEARM)
+ 				popupInfo.setData2(pCity.getID())
+-				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_MELEE", (pUnit.getNameKey(), pCity.getNameKey(), )))
++				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_MELEE_POLEARM", (pUnit.getNameKey(), pCity.getNameKey(), )))
++				popupInfo.setOnClickedPythonCallback("featAccomplishedOnClickedCallback")
++				popupInfo.setOnFocusPythonCallback("featAccomplishedOnFocusCallback")
++				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_OK", ()), "")
++				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_MORE", ()), "")
++				popupInfo.addPopup(pCity.getOwner())
++
++	if (not gc.getPlayer(pCity.getOwner()).isFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK)):
++
++		if (pUnit.getUnitCombatType() == gc.getInfoTypeForString("UNITCOMBAT_MELEE_SHOCK")):
++		
++			gc.getPlayer(pCity.getOwner()).setFeatAccomplished(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK, True)
++			
++			if (featPopup(pCity.getOwner()) and (gc.getGame().getStartYear() == gc.getDefineINT("START_YEAR"))):
++				popupInfo = CyPopupInfo()
++				popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_PYTHON)
++				popupInfo.setData1(FeatTypes.FEAT_UNITCOMBAT_MELEE_SHOCK)
++				popupInfo.setData2(pCity.getID())
++				popupInfo.setText(localText.getText("TXT_KEY_FEAT_UNITCOMBAT_MELEE_SHOCK", (pUnit.getNameKey(), pCity.getNameKey(), )))
+ 				popupInfo.setOnClickedPythonCallback("featAccomplishedOnClickedCallback")
+ 				popupInfo.setOnFocusPythonCallback("featAccomplishedOnFocusCallback")
+ 				popupInfo.addPythonButton(localText.getText("TXT_KEY_FEAT_ACCOMPLISHED_OK", ()), "")
+
+diff --git a/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml b/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+index d7a14e605..f59202365 100644
+--- a/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+@@ -43,7 +43,7 @@ or/and modify existing ones, for example, archery units would become:
+ 
+ 
+ 
+-		<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc ; as for the button art import anyways etc from ri mod anyways etc -->
++		<!-- custom: split mounted units into MOUNTED_MELEE and MOUNTED_RANGED so pikemen are not strong against cuiassiers or horse archers and such anyways etc; as for the button art import anyways etc from ri mod anyways etc -->
+ 		<UnitCombatInfo>
+ 			<Type>UNITCOMBAT_MOUNTED_MELEE</Type>
+ 			<Description>TXT_KEY_UNITCOMBAT_MOUNTED_MELEE</Description>
+@@ -57,11 +57,20 @@ or/and modify existing ones, for example, archery units would become:
+ 
+ 
+ 
++		<!-- custom: split melee units into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK so knight units are not strong against pikemen, and chariots are not strong against spearmen or/and such anyways etc; button import from c2c mod anyways etc -->
+ 		<UnitCombatInfo>
+-			<Type>UNITCOMBAT_MELEE</Type>
+-			<Description>TXT_KEY_UNITCOMBAT_MELEE</Description>
++			<Type>UNITCOMBAT_MELEE_POLEARM</Type>
++			<Description>TXT_KEY_UNITCOMBAT_MELEE_POLEARM</Description>
++			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Melee_Polearm/sidesteppromotion1.dds</Button>
++		</UnitCombatInfo>
++		<UnitCombatInfo>
++			<Type>UNITCOMBAT_MELEE_SHOCK</Type>
++			<Description>TXT_KEY_UNITCOMBAT_MELEE_SHOCK</Description>
+ 			<Button>,Art/Interface/Buttons/Promotions/Shock.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,5</Button>
+ 		</UnitCombatInfo>
++
++
++
+ 		<UnitCombatInfo>
+ 			<Type>UNITCOMBAT_SIEGE</Type>
+ 			<Description>TXT_KEY_UNITCOMBAT_SIEGE</Description>
+
+diff --git a/Assets/XML/Civilizations/CIV4TraitInfos.xml b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+index e94bb9d2f..47f4b7536 100644
+--- a/Assets/XML/Civilizations/CIV4TraitInfos.xml
++++ b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+@@ -64,7 +64,11 @@
+ 			</FreePromotions>
+ 			<FreePromotionUnitCombats>
+ 				<FreePromotionUnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
++				</FreePromotionUnitCombat>
++				<FreePromotionUnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bFreePromotionUnitCombat>1</bFreePromotionUnitCombat>
+ 				</FreePromotionUnitCombat>
+ 				<FreePromotionUnitCombat>
+
+diff --git a/Assets/XML/Events/CIV4EventInfos.xml b/Assets/XML/Events/CIV4EventInfos.xml
+index 7ce0a214e..cf2f77667 100644
+--- a/Assets/XML/Events/CIV4EventInfos.xml
++++ b/Assets/XML/Events/CIV4EventInfos.xml
+@@ -12540,7 +12540,11 @@
+ 			<UnitName/>
+ 			<UnitCombatPromotions>
+ 				<UnitCombatPromotion>
+-					<UnitCombat>UNITCOMBAT_MELEE</UnitCombat>
++					<UnitCombat>UNITCOMBAT_MELEE_POLEARM</UnitCombat>
++					<UnitPromotion>PROMOTION_COUNTER_ARCHER</UnitPromotion>
++				</UnitCombatPromotion>
++				<UnitCombatPromotion>
++					<UnitCombat>UNITCOMBAT_MELEE_SHOCK</UnitCombat>
+ 					<UnitPromotion>PROMOTION_COUNTER_ARCHER</UnitPromotion>
+ 				</UnitCombatPromotion>
+ 			</UnitCombatPromotions>
+@@ -17577,7 +17581,11 @@
+ 			<UnitName/>
+ 			<UnitCombatPromotions>
+ 				<UnitCombatPromotion>
+-					<UnitCombat>UNITCOMBAT_MELEE</UnitCombat>
++					<UnitCombat>UNITCOMBAT_MELEE_POLEARM</UnitCombat>
++					<UnitPromotion>PROMOTION_CITY_GARRISON1</UnitPromotion>
++				</UnitCombatPromotion>
++				<UnitCombatPromotion>
++					<UnitCombat>UNITCOMBAT_MELEE_SHOCK</UnitCombat>
+ 					<UnitPromotion>PROMOTION_CITY_GARRISON1</UnitPromotion>
+ 				</UnitCombatPromotion>
+ 			</UnitCombatPromotions>
+@@ -22232,9 +22240,14 @@
+ 			<iUnitImmobileTurns>0</iUnitImmobileTurns>
+ 			<UnitPromotion/>
+ 			<UnitName/>
++			<!-- custom: seems polearm is also relevant for this event at a glance at the text description if i may say but anyways etc so put both polearm and shock melee combat types if i am not mistaken but check to be sure if want to be sure in this case i mean but anyways etc -->
+ 			<UnitCombatPromotions>
+ 				<UnitCombatPromotion>
+-					<UnitCombat>UNITCOMBAT_MELEE</UnitCombat>
++					<UnitCombat>UNITCOMBAT_MELEE_POLEARM</UnitCombat>
++					<UnitPromotion>PROMOTION_FIRST_STRIKE1</UnitPromotion>
++				</UnitCombatPromotion>
++				<UnitCombatPromotion>
++					<UnitCombat>UNITCOMBAT_MELEE_SHOCK</UnitCombat>
+ 					<UnitPromotion>PROMOTION_FIRST_STRIKE1</UnitPromotion>
+ 				</UnitCombatPromotion>
+ 			</UnitCombatPromotions>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Objects_Custom.xml b/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+index 9bb22637c..613c6bcfe 100644
+--- a/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+@@ -44,6 +44,18 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
+ 
+ 
+ 
++	<!-- custom: split melee units into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNITCOMBAT_MELEE_POLEARM</Tag>
++		<English>Melee (Polearm)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNITCOMBAT_MELEE_SHOCK</Tag>
++		<English>Melee (Shock)</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: disambiguate Ice Terrain vs Ice Feature, hopefully clearer with these 2 separate terms, see RFC DOC custom's XML files,
+ 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\RFC_DOC_Civilopedia_Lengthy_Custom.xml
+ 	at the TXT_KEY_TERRAIN_ICE_PEDIA and TXT_KEY_FEATURE_ICE_PEDIA entries (code comments) for details. -->
+
+diff --git a/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt b/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt
+index 9bac4d06f..e5c271a4a 100644
+--- a/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt
++++ b/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt
+@@ -35,7 +35,11 @@ custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it g
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 1abd07e36..34ac06af4 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -98,7 +98,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -213,7 +217,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -328,7 +336,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -440,7 +452,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -548,7 +564,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -659,7 +679,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -774,7 +798,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+@@ -927,7 +955,11 @@
+ 			<FeatureDefenses/>
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -948,7 +980,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1491,7 +1527,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1586,7 +1626,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1681,7 +1725,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1776,7 +1824,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -1874,7 +1926,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -2515,7 +2571,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -2590,7 +2650,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -2668,7 +2732,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -2891,7 +2959,7 @@
+ 			<FeatureDefenses/>
+ 			<!-- custom: since more units have access to this promotion now, make it a bit weaker,
+ 			not only for balance, also because defenders can be good against all invaders, not only
+-			a specific type, i think it's more realistic this way, was UNITCOMBAT_MELEE 10 -->
++			a specific type, i think it's more realistic this way, was UNITCOMBAT_MELEE_POLEARM 10 and UNITCOMBAT_MELEE_SHOCK 10 anyways etc -->
+ 			<UnitCombatMods/>
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+@@ -3009,7 +3077,11 @@
+ 				</UnitCombat>
+ 				<!-- custom: not exactly collateral but close enough maybe? same for sword light, imagine they can throw shurikens or knifes or something from a distance (then maybe run away), i also like that it is consistent with the other light units having collateral damage -->
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<!-- custom: restricted to MOUNTED_RANGED units not all mounted units anyways etc -->
+@@ -3129,7 +3201,11 @@
+ 				</UnitCombat>
+ 				<!-- custom: not exactly collateral but close enough maybe? same for sword light, imagine they can throw shurikens or knifes or something from a distance (then maybe run away), i also like that it is consistent with the other light units having collateral damage -->
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<!-- custom: restricted to MOUNTED_RANGED units not all mounted units anyways etc -->
+@@ -3511,7 +3587,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -3612,7 +3692,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -3714,7 +3798,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -3816,7 +3904,11 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -4439,7 +4531,11 @@
+ 				</UnitCombat>
+ 				<!-- custom: weird that melee is not here, adding it as well if i am not mistaken in doing so and assessing i'd want to do so, but should be so still at least i want so in this case if i'm not mistaken, but anyways etc anyways etc anyways etc -->
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 22917f51e..91e6e6ee2 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -5414,7 +5414,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- custom: see code comment at UnitAIs anyways etc, trying to not make them too aggressive and maybe keep defensive role to some extent while still not staying parked in cities ideally if i'm not mistaken but anyways etc, was UNITAI_ATTACK -->
+ 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+@@ -5625,7 +5625,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+@@ -5793,11 +5793,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: split UNITCOMBAT_MELEE into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK, for axeman units at least for the generic axeman, seems relevant to have/keep anyways etc both effects, but no reason to make axes especially good against swords, if anything i read the opposite online or something, but no need to make it too drastic. Focus should be on making Axes strong vs polearm, as for swords, it's fine if they have a more or less even match up, probably more balanced as such as well, axemen still have the advantage of being cheaper, available earlier (and also as of now requiring less bonuses as copper only is fine for axes as of now unlike for swords if i am not mistaken but anyways etc), and slightly stronger with this multiplier (5 * 1.25 = 6.25 vs 6 for swords outside city if i am not mistaken but anyways etc, which seems more balanced and sensical as well anyways etc). Chatgpt 5 also agrees or/and helped me find this hehe thanks i mean too hehe toto but anyways etc, check if accurate anyways etc. Also, this is good because bronze axemen were ridiculously strong vs later melee units if not the maceman that also had btw a ridiculous melee all units which was way too op or not balanced anyways etc, so all in all seems like a great change but check if accurate anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+@@ -5840,7 +5845,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+@@ -6007,11 +6012,15 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: was UNITCOMBAT_MELEE 25 -->
++			<!-- custom: see code comment at the generic swordsman for details, was UNITCOMBAT_MELEE_POLEARM 25 and UNITCOMBAT_MELEE_SHOCK 25 anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>75</iUnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -6054,7 +6063,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+@@ -6234,12 +6243,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: was UNITCOMBAT_MELEE 100 -->
++			<!-- custom: see code comment at the generic swordsman for details, was UNITCOMBAT_MELEE_POLEARM 100 and UNITCOMBAT_MELEE_SHOCK 100 anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+@@ -6288,7 +6301,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+@@ -6459,9 +6472,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: see code comment at the generic swordsman for details anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -6512,7 +6530,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- advc.131: was UNITAI_ATTACK -->
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+@@ -6694,7 +6712,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- custom: was UNITAI_ATTACK -->
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+@@ -6908,7 +6926,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- advc.131: was UNITAI_ATTACK -->
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+@@ -7129,7 +7147,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<!-- custom: was UNITCOMBAT_MELEE for the generic swordsman we based in on anyways etc, but it is shown or/and at least seems to be holding a spear if i may say and if i am not mistaken but anyways etc, so make it melee polearm combat type rather. This is good/cool if i may say but anyways etc too but anyways etc because the persia_immortal, although affected as of now by the unit_axeman melee shock combat modifier as of now but anyways etc, still it also has its own effects so is in fact stronger than melee shock units, which makes sense since it has a spear if i am not mistaken but anyways etc; note: not made a spearman because is bronze age based which is too old, stats would be weaker to accomodate that, so defeats targeted era/tech/stats purpose anyways etc -->
++			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+@@ -7322,12 +7341,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_MEDIC1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -7337,7 +7351,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- custom: hopefully a bit more versatile and the AI would pick them more but this is just a vague guess check if accurate, i also didn't read below advciv rationale but anyways etc, was UNITAI_ATTACK_CITY -->
+ 			<!-- advc.131: was UNITAI_ATTACK -->
+@@ -7513,7 +7527,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<!-- custom: considering its higher base stats than the spearman, make modifiers lower if i am not mistaken in my thinking and to keep unit swordsman like (raider) focused with this being an extra perk for accuracy or balance or/and such, check if accurate anyways etc; see also code comment at the generic axeman for details and additional/related info anyways etc, was empty in the generic swordsman anyways etc; "a cheap foot unit that happens to have a lance" if i may say so not too op modifiers but sitll significant edge plus cost reduction to help too, hopefully balanced as such anyways etc -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>10</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
++					<iUnitCombatMod>10</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -7561,7 +7585,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+@@ -7714,11 +7738,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: more relevant to make macemen units stronger than / counter the melee polearm units rather and be mildly stronger than other melee shock units if any anyways etc, see code comment at the generic axeman for details and additional/related info anyways etc, was UNITCOMBAT_MELEE_POLEARM 50 and UNITCOMBAT_MELEE_SHOCK 50 anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+@@ -7761,7 +7790,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+@@ -7932,9 +7961,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: see code comment at the generic maceman for details and additional/related info anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -7985,7 +8019,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_SHOCK</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- K-Mod: was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+@@ -8166,11 +8200,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: see code comment at the generic maceman for details and additional/related info anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+@@ -8184,8 +8223,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>6</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
++			<!-- custom: was 9 -->
+ 			<!-- advc.104e: was 10 -->
+-			<iPower>9</iPower>
++			<iPower>10</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -8218,7 +8258,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- custom: use them as defenders rather if i'm not mistaken anyways etc, was UNITAI_ATTACK -->
+ 			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
+@@ -8273,7 +8313,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: better suited for defensive role for AI players, but less efficient than longbowmen as of now to do so in most cases but anyways etc, so give them a more minor defensive role anyways etc -->
++			<!-- custom: good defense units as long as axes don't attack us, consider them as well for this role anyways etc, but it's risky because medieval macemen would have a much easier time vs us later vs if we were longbows instead, so although tempting do not assign it (unless unit is somehow stronger which is not the case here at least not for the generic spear if i may say but anyways etc) -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+@@ -8389,11 +8429,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<!-- custom: was UNITCOMBAT_MOUNTED_MELEE 100 and UNITCOMBAT_MOUNTED_RANGED 100 (was the equivalent of this in base advciv i mean anyways etc); i guess this is good against as of now generic war elephants in particular anyways etc, plus they are the counterpart of the axeman so nice too i'd say anyways etc -->
++			<!-- custom: also give small melee shock edge, after all they have longer range, will have some edge vs swords this way without making it op, but still lose to axes as of now, chatgpt 5 approves this change and helped me balance it, check if accurate anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
++					<iUnitCombatMod>10</iUnitCombatMod>
++				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+@@ -8436,7 +8481,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- custom: now more suited as a versatile/offense unit (but not raider as still too weak as in not specialized enough or strong for that, just not for raiding as it lacks bit strength but maybe fine and possibly fit for this purpose but check to be sure anyways etc), was UNITAI_COUNTER -->
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+@@ -8496,7 +8541,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: now more suited at being a more versatile unit, but not raider as bit too weak for that and may mislead AI fighting into low odds if i am not mistaken, but maybe unitai_attack encourages it enough indirectly hopefully but anyways etc -->
++			<!-- custom: now more suited at being a more versatile unit, but not raider as bit too weak for that and may mislead AI fighting into low odds if i am not mistaken, but maybe unitai_attack encourages it enough indirectly hopefully but anyways etc; also it is strong enough to apply for reserve role as well if i am not mistaken but anyways etc -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+@@ -8510,6 +8555,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -8616,12 +8665,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: as of now same as the generic spearman to keep identity/role or such if i may say but anyways etc -->
++			<!-- custom: give an extra melee edge to match the shaka aggressive profile if i may say but anyways etc, see code comment at the generic spearman for details or/and related info but anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+@@ -8636,7 +8689,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+ 			<!-- custom: was 4 -->
+-			<iPower>5</iPower>
++			<iPower>6</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -8655,12 +8708,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<!-- custom: was PROMOTION_MOBILITY_COST -->
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -8670,7 +8718,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- custom: make it a more versatile unit (quite good at offense, but a bit better at defense if i am not mistaken anyways etc), was UNITAI_ATTACK -->
+ 			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+@@ -8843,6 +8891,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<!-- custom: was UNITCOMBAT_MOUNTED 100 (in base advciv anyways etc) -->
++			<!-- custom: see code comment at the generic spearman for details or/and related info but anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+@@ -8852,6 +8901,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
++					<iUnitCombatMod>10</iUnitCombatMod>
++				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+@@ -8866,7 +8919,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+ 			<!-- custom: was 4 -->
+-			<iPower>5</iPower>
++			<iPower>6</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -8900,7 +8953,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- custom: was UNITAI_ATTACK -->
+ 			<!-- K-Mod: was UNITAI_COUNTER -->
+@@ -8957,7 +9010,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: they have a more offensive attack focus now, but are good at defense against most units and hammer efficient for that role as well vs longbows as of now in particular if i am not mistaken but anyways etc, so allow defense but not as default unitai though if i'm not mistaken but anyways etc, so keep some/most of these roles as well anyways etc -->
++			<!-- custom: they have a more offensive attack focus now, but are good at defense against most units and hammer efficient for that role as well vs longbows as of now in particular if i am not mistaken but anyways etc, but don't allow city_defense itself but most defense roles otherwise if i'm not mistaken anyways etc -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -8975,10 +9028,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -9085,13 +9134,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<!-- custom: same as the generic spearman anyways etc; since mounted units seldom/rarely but anyways etc defend cities, this is not op in combination with as of now city attack modifiers i think but anyways etc; note: give them an offensive melee effect anyways etc so alexander can use them as such (maybe pericles too who knows but anyways etc), but i added it as a combat modifier anyways etc rather than free promotion anyways etc else may stack with the pikeman effect at/after but anyways etc upgrade and be bit too op, so better as such, and hoplite is as of now strong enough already if i'm not mistaken anyways etc -->
++			<!-- custom: see code comment at the generic spearman for details or/and related info but anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -9107,6 +9157,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>4</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
++			<!-- custom: generic spearman (although it was based on axeman in base advciv if i am not mistaken but anyways etc) in base advciv was 4 anyways etc -->
+ 			<iPower>6</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+@@ -9135,7 +9186,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<!-- custom: better as a defender generally i would say anyways etc -->
+ 			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
+@@ -9205,6 +9256,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -9306,13 +9361,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<!-- custom: was "MOUNTED" 100 -->
++			<!-- custom: This way (melee shock bonus), axes from bronze age (and to a lesser extent the older and cheaper iron age swords anyways etc) no longer beat or match pikes which was nonsensical, especially considering cost difference anyways etc; see also code comment at the generic spearman for details or/and related info but anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -9357,10 +9413,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MELEE</Combat>
++			<Combat>UNITCOMBAT_MELEE_POLEARM</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<!-- custom: better as a defender generally i would say anyways etc -->
+-			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
++			<!-- custom: strong enough to be a versatile unit, nice and effective defender suits it most though so hopefully the below fits if i am not mistaken but anyways etc; hopefully our cities are defended enough as such anyways etc (i hope xd but i don't know for sure check to be sure but anyways etc) -->
++			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+ 			<Description>TXT_KEY_UNIT_HOLY_ROMAN_LANDSKNECHT</Description>
+@@ -9466,8 +9522,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 60 -->
+-			<iCost>85</iCost>
++			<!-- custom: note: unit is stronger than base pike, but also symbolizes it being a mercenary and requiring higher costs perhaps, make them strong enough to justify it for flavor or maybe here rather if i may say in this case but anyways etc accuracy anyways etc; but since as of now maces are already cheaper, don't overdo it anyways etc, was 60 -->
++			<iCost>80</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -9492,7 +9548,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+ 			<!-- custom: was 6 -->
+-			<iCombat>7</iCombat>
++			<iCombat>8</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -9551,13 +9607,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<!-- custom: was "MOUNTED" 100 and UNITCOMBAT_MELEE 100 -->
++			<!-- custom: see code comment at the generic pikeman for details or/and related info but anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -9574,7 +9631,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+ 			<!-- custom: was 6 -->
+-			<iPower>11</iPower>
++			<iPower>10</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -9592,16 +9649,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: from what i've read it seems they were very good at using many war formations. I had also intended to make them extra good against mounted units, was empty -->
++			<!-- custom: from what i've read it seems they were very good at using many war formations. I had also intended to make them extra good against mounted units, but 2 free promotions is a bit too op, move it to combat modifiers rather (although there are no units later so keep strongest but also most relevant i think if i'm not mistaken from what i remember of it in this case i mean but anyways etc here anyways etc), was empty -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+ 					<PromotionType>PROMOTION_COUNTER_MOUNTED</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_COUNTER_MELEE</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+ 			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+@@ -10550,10 +10603,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: was UNITCOMBAT_MELEE 50 in base advciv code anyways etc -->
++			<!-- custom: was UNITCOMBAT_MELEE_POLEARM 50 and UNITCOMBAT_MELEE_SHOCK 50 for the generic longbow anyways etc -->
++			<!-- custom: melee shock units are naked more or less, polearm can take cover in simplified terms if i am not mistaken but anyways etc, but they don't necessarily gain an advantage, simplify it by it being a stalemate vs these and so it's not op; as for shock make them weaker as was if i'm not mistaken but anyways etc; see also related comment at the generic spearman or/and such other related comments if i'm not mistaken but anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -10756,9 +10810,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: see related comment at the babylon longbow, which as of now essential is more or less an ancient crossbow in terms of stats if i'm not mistaken but anyways etc; let's assume crossbows don't crack pikes, just a guess of mine but check if accurate anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -10975,9 +11030,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: see related comment at the generic crossbow -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -11193,9 +11249,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: see related comment at the generic crossbow -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -11528,7 +11585,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 80 -->
+-			<iCost>100</iCost>
++			<iCost>110</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -14934,10 +14991,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</UnitClassAttackMod>
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
++			<!-- custom: rebalance chariot units so they are also bit good vs melee shock (due to their mounted pike i'd guess) and considering they are otherwise a bit too weak for that role at this and later stage of the game anyways etc -->
++			<!-- custom: see related comments at the generic spearman and/or such other related comments if i am not mistaken but anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -15176,10 +15234,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</UnitClassAttackMod>
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
++			<!-- custom: rebalance chariot units so they are also bit good vs melee shock (due to their mounted pike i'd guess) and considering they are otherwise a bit too weak for that role at this and later stage of the game anyways etc -->
++			<!-- custom: see related comments at the generic spearman and/or such other related comments if i am not mistaken but anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -15566,7 +15625,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+ 			<!-- custom: was 20 -->
+-			<iWithdrawalProb>0</iWithdrawalProb>
++			<iWithdrawalProb>15</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+@@ -15625,13 +15684,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</UnitClassAttackMod>
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: was UNITCOMBAT_MELEE 50 -->
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<!-- custom: this is a skirmisher unit historically according to chatgpt 5 (check if accurate although seems to be but i don't know and also didn't check so i'd say to check if you want to be sure in this case i mean but anyways etc), so removing this anyways etc, was UNITCOMBAT_MELEE_POLEARM 50 and UNITCOMBAT_MELEE_SHOCK 50 anyways etc -->
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -15644,8 +15698,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>5</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+-			<!-- custom: was 6 -->
+-			<iPower>8</iPower>
++			<iPower>7</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -15663,8 +15716,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: was PROMOTION_RETREAT1 -->
+-			<FreePromotions/>
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_RETREAT1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -15859,9 +15916,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+ 			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
++			<!-- custom: above comment to delete or update later anyways etc -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -16698,7 +16756,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
++			<!-- custom: was 0 -->
++			<iWithdrawalProb>10</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+@@ -16734,13 +16793,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -16884,7 +16937,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 90 -->
+-			<iCost>105</iCost>
++			<iCost>110</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -16918,7 +16971,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
++			<!-- custom: was 0 -->
++			<iWithdrawalProb>10</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+@@ -16980,13 +17034,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -17164,7 +17212,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
++			<!-- custom: was 0 -->
++			<iWithdrawalProb>10</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+@@ -17211,13 +17260,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -17837,7 +17880,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>15</iWithdrawalProb>
++			<!-- custom: was 15 -->
++			<iWithdrawalProb>30</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+@@ -17875,12 +17919,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<!-- custom: was UNITCOMBAT_MELEE 50, which is very nonsensical in civ4 terms since barely any medieval challenging enough remains at this time, we should focus on other effects instead to make this civ-specific unit strong enough if i'm not mistaken in my thinking but anyways etc -->
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -17912,7 +17952,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: was empty -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_AMPHIBIOUS</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 03632b09a..d643b162a 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1272,7 +1272,8 @@ ENUM_START(Feat, FEAT)
+ 	FEAT_UNITCOMBAT_ARCHER_CROSSBOW,
+ 	FEAT_UNITCOMBAT_MOUNTED_MELEE,
+ 	FEAT_UNITCOMBAT_MOUNTED_RANGED,
+-	FEAT_UNITCOMBAT_MELEE,
++	FEAT_UNITCOMBAT_MELEE_POLEARM,
++	FEAT_UNITCOMBAT_MELEE_SHOCK,
+ 	FEAT_UNITCOMBAT_SIEGE,
+ 	FEAT_UNITCOMBAT_GUN,
+ 	FEAT_UNITCOMBAT_ARMOR,
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 6f1fa749d..bb3bc8795 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -1496,7 +1496,8 @@ void CyEnumsPythonInterface()
+ 		.value("FEAT_UNITCOMBAT_ARCHER_CROSSBOW", FEAT_UNITCOMBAT_ARCHER_CROSSBOW)
+ 		.value("FEAT_UNITCOMBAT_MOUNTED_MELEE", FEAT_UNITCOMBAT_MOUNTED_MELEE)
+ 		.value("FEAT_UNITCOMBAT_MOUNTED_RANGED", FEAT_UNITCOMBAT_MOUNTED_RANGED)
+-		.value("FEAT_UNITCOMBAT_MELEE", FEAT_UNITCOMBAT_MELEE)
++		.value("FEAT_UNITCOMBAT_MELEE_POLEARM", FEAT_UNITCOMBAT_MELEE_POLEARM)
++		.value("FEAT_UNITCOMBAT_MELEE_SHOCK", FEAT_UNITCOMBAT_MELEE_SHOCK)
+ 		.value("FEAT_UNITCOMBAT_SIEGE", FEAT_UNITCOMBAT_SIEGE)
+ 		.value("FEAT_UNITCOMBAT_GUN", FEAT_UNITCOMBAT_GUN)
+ 		.value("FEAT_UNITCOMBAT_ARMOR", FEAT_UNITCOMBAT_ARMOR)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 42e2deb07..612068930 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -14,6 +14,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#renaming-non-exhaustive)  
+ &emsp;[Sevopedia reworks and other related changes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#sevopedia-reworks-and-other-related-changes)  
+ &emsp;[UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#ui--in-game)  
++&emsp;[Performance optimizations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#performance-optimizations)  
+ &emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#48-civs-dll)  
+ &emsp;[AI general behaviour (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#ai-general-behaviour-non-exhaustive-see-global-defines-and-ai-variables-and-such-xml-files-for-details)  
+ &emsp;&emsp;[Bonuses (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#bonuses-ai)  
+@@ -111,6 +112,10 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc.
+ - removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are oftentimes outdated or/and tedious to maintain anyways etc.
+ 
++## Performance optimizations
++
++- various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc.
++
+ ## 48 Civs DLL
+ 
+ - a 48 Civs DLL is also provided and available for use in AdvCiv-SAS, tested to run fine xd, see the [main README.md's 48 Civs DLL](/README.md#48-civs-dll) section for details anyways etc.
+@@ -133,7 +138,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ #### Settlers (AI)
+ 
+ - (Seemingly fixed) AIs settling too much and too often on bonuses, especially food bonuses (!!!) and metals and other high production bonuses or also commerce bonuses to a lesser extent. This should now be avoided by the AI unless otherwise locally profitable to settle on (for example there are 2 or such other bonuses nearby or/and some very valuable combination of terrains/features or/and other things we value). Added thanks to chatgpt's help and feedback, as well as my prompts and adjustments too or and such and its help too but anyways etc anyways etc anyways etc, see for details [README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---seemingly-fixed-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-or-also-commerce-bonuses-to-a-lesser-extent](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---seemingly-fixed-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-or-also-commerce-bonuses-to-a-lesser-extent) anyways etc (if not solved, then hopefully should happen much less now if i am not mistaken but anyways etc, check to be sure i mean too but anyways etc). As for the results, i didn't test it too much, but from the few dozen or such autoplays i looked at, it seems AI never (if not, then almost never) settles on bonuses anymore which is very nice, except some cases where it is extremely profitable to do so (like having many water bonuses or land bonuses in city radius or/and many high value (grass, flood plains, etc) tiles in city radius as a result). This was before i refactored this code i added, should now be even better, but check to be sure, anyways etc.
+-- about water bonuses/ressources in particular, quite often it seems they are in range of city settle/found/plant spot but ignored by AI settling/founding/planting its city instead but anyways etc a non-coastal location, attempt to fix/address this as well by making the penalty in that case much stronger, as of now increased from -165 to -400 (seems to have been -800 in k-mod if i am not mistaken but anyways etc, see [CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or/and updated value anyways etc), hopefully helps the AI consider more often water ressources or at least not ignore them when they are in range of their city sites considerations if i may say in this case at least maybe but anyways etc anyways etc anyways etc
++- about water bonuses/ressources in particular, quite often it seems they are in range of city settle/found/plant spot but ignored by AI settling/founding/planting its city instead but anyways etc a non-coastal location, attempt to fix/address this as well by making the penalty in that case much stronger, as of now increased from -165 to -400 (seems to have been -800 in k-mod if i am not mistaken but anyways etc, see [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) where it is tunable btw too but anyways etc for details or/and updated value anyways etc), hopefully helps the AI consider more often water ressources or at least not ignore them when they are in range of their city sites considerations if i may say in this case at least maybe but anyways etc anyways etc anyways etc
+ - even for non bonus water ressources, also told the AI to now prioritize settling on coast when food environment is low (many tundra or/and plains or/and desert or/and snow (or/and peak although i assume is not counted but to be safe anyways etc)) (the "Corinth screenshot"), which should make AI settling significantly stronger instead of otherwise starving at very low pop, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot) for details anyways etc
+ - (Attemptingly fixed/addressed) tell AI settlers which (non-home and non-bonus tiles) terrains and features environments are best to settle near (for example good if a lot of grass or flood plains in city radius, bad if desert or plains in city radius). As for local tile to settle on (bHome) optimization as well: hate to settle on hill grass or flood plains, love to settle on hill plains or tundra or desert ; overridden only if locally plot is otherwise really good (e.g. allows to have 2 bonuses or such so ideal spot but we have to settle on flood plains for it for example or some other good tile anyways etc), hopefully AI settles much better its cities and is stronger as a result, but check to be sure as i didn't test it since refactor i did which already improved this a lot at that time if i'm not mistaken but anyways etc. And in some local cases, it may be good to override these (e.g. a city spot has few plains but 2 food bonuses, or for example settling on flatland grass but with a lot of flood plains and other flatland grass, etc). See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#26---attemptingly-fixedaddressed-tell-ai-settlers-which-non-home-and-non-bonus-tiles-terrains-and-features-environments-are-best-to-settle-near-for-example-good-if-a-lot-of-grass-or-flood-plains-in-city-radius-bad-if-desert-or-plains-in-city-radius-as-for-local-tile-to-settle-on-bhome-optimization-as-well-hate-to-settle-on-hill-grass-or-flood-plains-love-to-settle-on-hill-plains-or-tundra-or-desert--overridden-only-if-locally-plot-is-otherwise-really-good-eg-allows-to-have-2-bonuses-or-such-so-ideal-spot-but-we-have-to-settle-on-flood-plains-for-it-for-example-or-some-other-good-tile-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#26---attemptingly-fixedaddressed-tell-ai-settlers-which-non-home-and-non-bonus-tiles-terrains-and-features-environments-are-best-to-settle-near-for-example-good-if-a-lot-of-grass-or-flood-plains-in-city-radius-bad-if-desert-or-plains-in-city-radius-as-for-local-tile-to-settle-on-bhome-optimization-as-well-hate-to-settle-on-hill-grass-or-flood-plains-love-to-settle-on-hill-plains-or-tundra-or-desert--overridden-only-if-locally-plot-is-otherwise-really-good-eg-allows-to-have-2-bonuses-or-such-so-ideal-spot-but-we-have-to-settle-on-flood-plains-for-it-for-example-or-some-other-good-tile-anyways-etc) for details.
+ - Since then enhanced to better detect very bad tiles so that if we have enough of them in our candidate BFC, we significantly devalue the site there if i may say but anyways etc. See [26.2 - (Enhanced) AI settlers not devaluing very bad non home tiles (peak, ice cap, non hill desert without a bonus, non hill snow without a bonus) if we have enough of them in BFC](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#262---enhanced-ai-settlers-not-devaluing-very-bad-non-home-tiles-peak-ice-cap-non-hill-desert-without-a-bonus-non-hill-snow-without-a-bonus-if-we-have-enough-of-them-in-bfc) with screenshots and example of how we choose a better site thanks to this; note: snow is ice sheet anyways etc; note 2: this is also the first setting to introduce our new [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) where you can tune of these values as of now, see there for details as well, anyways etc.
+@@ -228,7 +233,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - we love the king chance is restored unlike in AdvCiv, i think it's a cool mechanic and also pleasant for the player, maybe realistic too, so if it can happen all good (feels good in civ3 for example at least from/in my experience playing it)
+ - set `iResearchPercent` from 117/100/87 (wtf it's not even symetrical. But anyways etc.) to 100 at all sea levels (high, low, medium). I really don't see why we should differentiate. If you love a map, you gotta commit to it (else don't play it?) if i may say anyways etc. Even if tech pace is bit slower due to more water, it's just gonna be how it is, no reason to mess up the whole balance just to accomodate this, and i am not even sure in most cases it would make a big difference anyway, at least one worth the hassle to do this, but anyways etc.
+ - rescale `iResearchPercent` for world sizes from 95/98/102/115/137/150 to 85/90/95/100/110/120, as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc. Also can we agree "standard" is the standard research rate, not 115, not 135, but 100??? And balance costs in xml tech info if we need to. So very stupid. But anyways etc. And now tech_mathematics costs 250 at worldsize_standard, not 285, as intended! Yay! But anyways etc... And tech_alien_life costs 16000 not 18400, as intended too! At least as of now, Yay!! But anyways etc...
+-- remove the very annoying base advciv rounding to 5 code for units, buildings, projects (in `CvPlayer::getProductionNeeded` functions if i'm not mistaken anyways etc), so that for example anyways etc a swordsman 42 hammer costs 42 not 40, and a 43 hammer costs 43 not 45. Was extremely annoying!! Also so that for example an ancient maceman 18 hammer costs 18 not 20! So much better if i may say and allows finer balance as well, anyways etc!! Fixes the mismatch between sevopedia displaying +/- having (?) correct XML vs tech advisor and city production not. What was even more annoying is that it applied only to the human player, so even if all handicap settings were somehow the same, AI would pay 42 (as per XML) at noble (no handicap as of now if i'm not mistaken anyways etc) while the human player would pay 40 (or 43 vs 45), it is messed up xd and i don't care about any visual clarity or beautification, if anything i find it more confusing and frustrating (i can't set the price/cost i want from/in XML ingame!!! Anyways etc...), so glad this is fixed (by me!! And chatgpt 5 toothat helped me thanks anyways etc) but anyways etc. Also applied to similar codes in `CvPlayer::greatPeopleThreshold` and `CvPlayer::getNewCityProductionValue` and `CvTeam::getResearchCost` so that hopefully we get correct costs for the human player too as well anyways etc. Also (redundant word but anyways etc (but why not in this case i mean but anyways etc anyways etc)...), having a per 1 hammer grain is nice for balance (e.g. 40 or 41 or 42 or 43 or 44 or 45, not 40 else 45 else go home xd if i may say but anyways etc), which is think is nice (super nice!!! Actually, but anyways etc if i may say anyways etc...). See for details [67 - (Fixed/Enhanced) An ancient maceman 18 hammer costs 20 hammer ingame, and a swordsman 42 hammer costs 40 while a swordsman 43 hammer costs 45 which is a mess. Fixed by removing per 5 rounding in CvPlayer::getProductionNeeded and other related functions/issues anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc).
++- remove the very annoying base advciv rounding to 5 code for units, buildings, projects (in `CvPlayer::getProductionNeeded` functions if i'm not mistaken anyways etc), so that for example anyways etc a swordsman 42 hammer costs 42 not 40, and a 43 hammer costs 43 not 45. Was extremely annoying!! Also so that for example an ancient maceman 18 hammer costs 18 not 20! So much better if i may say and allows finer balance as well, anyways etc!! Fixes the mismatch between sevopedia displaying +/- having (?) correct XML vs tech advisor and city production not. What was even more annoying is that it applied only to the human player, so even if all handicap settings were somehow the same, AI would pay 42 (as per XML) at noble (no handicap as of now if i'm not mistaken anyways etc) while the human player would pay 40 (or 43 vs 45), it is messed up xd and i don't care about any visual clarity or beautification, if anything i find it more confusing and frustrating (i can't set the price/cost i want from/in XML ingame!!! Anyways etc...), so glad this is fixed (by me!! And chatgpt 5 too that helped me thanks anyways etc) but anyways etc. Also applied to similar codes in `CvPlayer::greatPeopleThreshold` and `CvPlayer::getNewCityProductionValue` and `CvTeam::getResearchCost` so that hopefully we get correct costs for the human player too as well anyways etc. Also (redundant word but anyways etc (but why not in this case i mean but anyways etc anyways etc)...), having a per 1 hammer grain is nice for balance (e.g. 40 or 41 or 42 or 43 or 44 or 45, not 40 else 45 else go home xd if i may say but anyways etc), which is think is nice (super nice!!! Actually, but anyways etc if i may say anyways etc...). See for details [67 - (Fixed/Enhanced) An ancient maceman 18 hammer costs 20 hammer ingame, and a swordsman 42 hammer costs 40 while a swordsman 43 hammer costs 45 which is a mess. Fixed by removing per 5 rounding in CvPlayer::getProductionNeeded and other related functions/issues anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc).
+ 
+ ### Handicap i.e. difficulty settings (non-exhaustive, see the .csv comparison tables locally (libreoffice, etc.) or on github (recommended) provided, or/and sevopedia, or/and xml for details)
+ 
+@@ -380,6 +385,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ ### Military and some civilian units related info (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - Unit combat types refers to unit categories/types, for example in Civ4 BTS/base AdvCiv these were for example archery units, recon units (scout, explorer, (now also added the airship, see below anyways etc)), melee units (spearman, axeman, swordsman, maceman, pikeman, etc.), etc. There are many new unit combat types, still a todo as of now but some have been implemented already (not sure will be done further or/and immediately nor soon if at all, may or may not anyways etc), see the sevopedia entry "Unit Combat Types" for details. This allows to give specific bonuses to specific combat types. For example, there are now new combat types of units (and modified existing ones too), for example the archers combat type is now subdivided instead into new archers (bow, short), archers (long), and archers (crossbow) if one wants to give specific combat modifiers based on these types more specifically if i may say anyways etc (i.e. modifier vs crossbows but not vs longbowmen, or vs short bows and longbows but not vs crossbows or a different modifier i mean anyways etc) ; as of now if i am not mistaken though there should not be much if at all differences between how these units are handled so this is as of now only a functional difference if i may say but ideally one may want to add differences between them maybe, for example crossbows defending first or such against units, but not implemented in advciv-sas as of now if i am not mistaken (didn't check but i don't remember such a change or type of change if i am not mistaken anyways etc).
++- in particular, split unitcombat_melee units into unitcombat_melee_polearm (i.e. using a lance (melee but from some distance), e.g. spearman, pikeman, etc if any more anyways etc) and unitcombat_melee_shock (i.e. close range / contact / brawl anyways etc, e.g. ancient maceman, axeman, swordsman, maceman, etc if any more anyways etc). For example, after this change, axemen now are still good against polearm units (they crush spears xd anyways etc) but they are now barely stronger than swords (just a bit as of now anyways etc). This fixes the issue of bronze units like the axeman being stronger than medieval pikes which was non-sensical considering the age (in this case i mean but anyways etc) and cost difference anyways etc, or if not this one of any unit we'd want to add or rework. Also, some civ-specific variants like as of now the persia_immortal (swordsman based) are now correctly typed as melee_polearm since they are holding a lance, which means their modifier vs melee_shock makes them bit stronger than other swords (which makes sense since they have a lance and fight from a distance vs them anyways etc), while their overall kit remains good enough to withstand well enough axes as we intend too anyways etc. Also allows for more fine tuning for example with the as of now babylonian bowman, or the generic crossbow, now being strong specifically against melee_shock and not vs melee_polearm (in other words crossbows and such are useless against pikes (since they are armor as in heavy defensive generally units or/and use a metaphorical or real shield but anyways etc) as we intend anyways etc). See sevopedia or/and xml for details anyways etc.
+ - some units are now in another combat type, for example as of now the mechanized_infantry is now in armored units, not in gun units anymore.
+ - This also changes warfare tactics and such for some other unit combat where i made such small or not modifications in this case but anyways etc anyways etc, for example mounted units are now split into mounted melee and mounted range units, so for example pikemen as of now are strong against mounted melee (like the horse knight) but not against the mounted ranged (such as the horse archer or cuirassier for example anyways etc). Also note that some civ-specific units are not in same combat type than their generic "parent" if i may say anyways etc, for example the ballista elephant is mounted ranged vs the war elephant being mounted melee if i may say anyways etc. I have tweaked a bit the advantages of most of the mounted melee units to buff them relatively a bit as they would be a bit weaker otherwise if i am not mistaken anyways etc as of now at least anyways etc, also there are other small or not differences anyways etc such as the defend order or such too if i am not mistaken. Also for example the anti tank infantry and the gunship would now be strong against mechanized infantry if i am not mistaken for example too as of now at least it would be so if i am not mistaken anyways etc. The airship is now a recon unit, not an air unit anymore, meant to be a defensive more effective recon unit than the explorer (also note: the airship as of now cannot see submarines anymore unlike later recon unit(s), see sevopedia unit chart and sevopedia unit of the corresponding units for details), see sevopedia unit for updated values anyways etc.
+ - new camel units related to the BONUS_CAMEL changes, as an alternative mount to the horse. Also reworked the arabian empire's civ-specific unit as well
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+index 3825c1c4d..33d8b9060 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+@@ -58,7 +58,7 @@ See [/README.md#version-number](/README.md#version-number)
+ 
+ ## Upgrading/Downgrading version of the mod
+ 
+-If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer version, or a downgrade to an older version, process is the same anyways etc), delete the entire mod folder and put instead your new version of AdvCiv-SAS (does not affect savegames that are not located in this mod folder anyway if i'm not mistaken anyways etc) (or/and make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case anyways etc, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it but do as you prefer i mean hopefully helpful anyways etc)).
++If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer version, or a downgrade to an older version, process is the same anyways etc), delete the entire mod folder and put instead your new version of AdvCiv-SAS (does not delete savegames that are not located in this mod folder anyway if i'm not mistaken anyways etc) (or/and make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case anyways etc, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it but do as you prefer i mean hopefully helpful anyways etc)).
+ 
+ ## If you have trouble downloading/installing/using/upgrading/downgrading the mod
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index ed9a23b63..7072527d8 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -12,6 +12,7 @@ This guide highlights key differences between AdvCiv-SAS and AdvCiv 1.12. It’s
+ &emsp;[Renaming (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#renaming-non-exhaustive)  
+ &emsp;[Sevopedia reworks & related UI](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#sevopedia-reworks--related-ui)  
+ &emsp;[UI / In-game](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#ui--in-game)  
++&emsp;[Performance Optimizations](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#performance-optimizations)  
+ &emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#48-civs-dll)  
+ &emsp;[AI — General behaviour (non-exhaustive; see XML/Defines for full detail)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#ai--general-behaviour-non-exhaustive-see-xmldefines-for-full-detail)  
+ &emsp;&emsp;[General changes (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#general-changes-ai)  
+@@ -102,6 +103,10 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#settlers-ai).
+ - removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
+ 
++### Performance Optimizations
++
++- **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring; cached hot values via `static const`/hoisting; normalized inconsistent asset names) plus feature-level caching (AI Personality Panel). See (examples; not exhaustive): [KI#21.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), [KI#18](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
++
+ ### 48 Civs DLL
+ 
+ - **48 Civs DLL**: also provided and available for use in AdvCiv-SAS, **tested to run**. See the main [README.md → 48 Civs DLL](/README.md#48-civs-dll) for details.
+@@ -123,11 +128,11 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ #### Settlers (AI)
+ 
+-- Avoid settling on bonuses (especially food/metal/high-production/commerce) unless the immediate overall site value clearly justifies it. See [KI#25](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---seemingly-fixed-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-or-also-commerce-bonuses-to-a-lesser-extent).
+-- **Respect water bonuses:** if a coast bonus would be in BFC but the site is non-coastal, apply a stronger penalty so we don’t “count” unusable sea resources. Penalty moved from **-165 → -400** (K-Mod used ~-800). See [code ref](/CvGameCoreDLL/CitySiteEvaluator.cpp).
++- Avoid settling on bonuses (especially food/metal/high-production/commerce) unless the immediate overall site value clearly justifies it. See [KI#25](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---seemingly-fixed-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-or-also-commerce-bonuses-to-a-lesser-extent). Thresholds are tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). See [KI#26.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#262---enhanced-ai-settlers-not-devaluing-very-bad-non-home-tiles-peak-ice-cap-non-hill-desert-without-a-bonus-non-hill-snow-without-a-bonus-if-we-have-enough-of-them-in-bfc).
++- **Respect water bonuses:** if a coast bonus would be in BFC but the site is non-coastal, apply a stronger penalty so we don’t “count” unusable sea resources. Penalty moved from **-165 → -400** (K-Mod used ~-800).
+ - **Low-food environments** (tundra/plains/desert/snow/peak counted for safety): even without water bonuses, **prefer coastal sites** so the city can actually grow instead of being stuck at very low pop. See [KI#32](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#32---now-seemingly-fixed-prioritize-settling-on-coast-when-food-environment-is-low-many-tundra-orand-plains-orand-desert-orand-snow-orand-peak-although-i-assume-is-not-counted-but-to-be-safe-anyways-etc-the-corinth-screenshot).
+ - **Environment heuristics (non-bonus tiles):** favor sites with lots of grassland/flood plains; penalize plains/desert BFCs. For the tile you settle on, prefer hill-plains/tundra/desert; avoid settling on hill-grass/flood plains unless doing so unlocks a clearly superior multi-bonus BFC. See [KI#26](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#26---seemingly-fixed-for-the-plot-of-the-settled-city-only-in-general-the-ai-should-aim-to-settle-on-a-hill-and-avoid-settling-on-flatland-grassland-or-flood-plains-where-possible-or-during-the-first-city---city-1-when-there-is-no-good-site-yet-to-take).
+-- **Settler site eval — devalue BFCs with many *very bad* tiles**: If a candidate city’s BFC contains enough **Peak**, **Ice Cap**, **non-hill Desert (without a bonus)**, or **non-hill Snow (i.e. Ice Sheet) (without a bonus)** tiles, the site is **significantly devalued** (not auto-rejected). Thresholds are tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). See [KI#26.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#262---enhanced-ai-settlers-not-devaluing-very-bad-non-home-tiles-peak-ice-cap-non-hill-desert-without-a-bonus-non-hill-snow-without-a-bonus-if-we-have-enough-of-them-in-bfc).
++- **Settler site eval — devalue BFCs with many *very bad* tiles**: If a candidate city’s BFC contains enough **Peak**, **Ice Cap**, **non-hill Desert (without a bonus)**, or **non-hill Snow (i.e. Ice Sheet) (without a bonus)** tiles, the site is **significantly devalued** (not auto-rejected).
+ - **Health tolerance:** don’t reject good jungle sites just for early unhealth. Allow a threshold (more strict for capital, looser later), and consider forest health offsets and flood plains exceptions. Jungle can be chopped later; value the site’s potential, not just immediate health. (Threshold examples: ~≤350 “healthpercent” for capitals; ~≤450 for later cities.)
+ - **Spacing:** remove old long-distance penalties that forced tight clusters. Cities are evaluated by distance to the nearest city (not the capital), with penalties only for “too close” or “way too far,” strongest early and fading as the empire grows.
+ - **Settler evaluation — midgame desert/bonus bias fix**: Disabled the buggy `AIFoundValue::adjustToCivSurroundings` that, from about **turn 51+**, made settlers overvalue founding **on desert bonus tiles** (e.g., **Camel**) or **inside** desert belts. Replaced it with a very small inline pass in its only caller, `AIFoundValue::evaluate`. Observed effect: no longer plants directly on Camel/desert; instead settles **around** large deserts. **Since the spacing change above**, also tightened distance-to-civs and culture-pressure checks to **hard-reject** sites that are **too far** or **heavily pressed** (instead of just penalizing). See [KI#54](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#54---fixed-major-base-advciv---civ4-in-aifoundvalueadjusttocivsurroundings-causing-ai-settlers-to-value-midgame-turn-50-for-example-here-anways-etc-settling-on-camel-desert-worked-around-and-disabled-this-function-entirely-now-inline-a-very-simplified-version-of-it-inline-in-its-only-caller).
+@@ -364,6 +369,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ ### Military & related units (non-exhaustive)
+ 
+ - **Unit Combat Types** expanded/refined (e.g., archers split into short/long/crossbow; mounted split into mounted-melee vs mounted-ranged). Lets counters be more specific (e.g., pikes vs mounted-melee but not vs mounted-ranged). Some civ UUs shift types accordingly (e.g., **Ballista Elephant** is mounted-ranged while **War Elephant** is mounted-melee). **Airship** becomes **Recon** (no longer sees subs; later recon can).
++- **Melee Unit Combat Type split (rework + balance change):** `UNITCOMBAT_MELEE` is now split into `UNITCOMBAT_MELEE_POLEARM` (melee units that attack from some distance with a lance-like weapon; e.g. Spearmen, Pikemen) and `UNITCOMBAT_MELEE_SHOCK` (close-contact/brawl; e.g. Axemen, Swordsmen, Macemen). For example, after this change, axes still counter polearms but are only slightly stronger than swords; pikemen are no longer worse than axemen which was very odd considering cost and tech requirements difference. Civ-specific variants such as the Babylonian Bowman, or simply the generic Crossbow, now only apply vs. `UNITCOMBAT_MELEE_SHOCK` (i.e., weak vs pikes). **General idea:** Axeman > Spearman; Crossbow > Axeman/Swordsman/Maceman; Pikeman ≈ Axeman; Maceman > Pikeman. Civ variants retagged to match gear (e.g., Persia Immortal → polearm). See Sevopedia/XML.
+ - **Reassignments:** e.g., **Mechanized Infantry** counts as **Armored** (not “Gun”) for counter logic.
+ - **City defenses** affect all units, including gunpowder and later. See `bIgnoreBuildingDefense` in `CIV4UnitInfos.xml`.
+ - **Collateral** values normalized (fixed cases like **Stealth Bomber** having higher base collateral than its limit). Most units now show a **collateral damage limit** (starting at 0 for many). **Collateral promotions 1/2** are broadly available where eligible. Info shown in Sevopedia (Unit chart/Special Abilities) and unit hover panels.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+index 04122429e..9c4194daa 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+index a5e26ffbd..e7b48e7dc 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG
+index bdeabb0ad..59b3b4c21 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=17 omittedFiles=2 embeddedPatchBytes=108325

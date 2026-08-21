@@ -1,0 +1,157 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5363
+# Commit: 0dcd8437fd9fda8191c6185028ca3b141cf962ac
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b1773e07c6c53310fa6eff924813a4f6f5b3adf3
+# Title: move getBuildingType and getBuildingSortedList away from SevoPediaBuilding to SevoPediaMain - "moved away from SevoPediaBuilding as they are unused there and...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	28	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+24	7	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	1	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index cad756f94..b0cb11558 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -1196,33 +1196,5 @@ class SevoPediaBuilding:
+ 
+ 
+ 
+-	def getBuildingType(self, iBuilding):
+-		if isWorldWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType()):
+-			return 2
+-		elif isNationalWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType()):
+-			return 1
+-		else:
+-			return 0
+-
+-
+-
+-	def getBuildingSortedList(self, iBuildingType):
+-		list1 = []
+-		numInfos = 0
+-		for iBuilding in range(gc.getNumBuildingInfos()):
+-			if self.getBuildingType(iBuilding) == iBuildingType:
+-				list1.append(iBuilding)
+-				numInfos += 1
+-		list2 = [(0,0)] * numInfos
+-		i = 0
+-		for iBuilding in list1:
+-			list2[i] = (gc.getBuildingInfo(iBuilding).getDescription(), iBuilding)
+-			i += 1
+-		if self.top.isSortLists():
+-			list2.sort()
+-		return list2
+-
+-
+-
+ 	def handleInput (self, inputClass):
+ 		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 27482d8ce..d6457a20a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -605,7 +605,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			return
+ 
+ 		if (iCategory == SevoScreenEnums.PEDIA_BUILDINGS):
+-			iCategory += self.pediaBuilding.getBuildingType(iItem)
++			iCategory += self.getBuildingType(iItem)
+ 		elif (iCategory == SevoScreenEnums.PEDIA_BTS_CONCEPTS):
+ 			iCategory = self.determineNewConceptSubCategory(iItem)
+ 			BugUtil.debug("Switching to category %d" % iCategory)
+@@ -968,6 +968,24 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.list = self.getBuildingList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingInfo)
+ 
++	# <!-- custom: moved away from SevoPediaBuilding as they are unused there and cleaner to centralize logic here, with the help of ChatGPT-5.2 Thinking thanks -->
++	def getBuildingType(self, iBuilding):
++		if isWorldWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType()):
++			return 2
++		elif isNationalWonderClass(gc.getBuildingInfo(iBuilding).getBuildingClassType()):
++			return 1
++		else:
++			return 0
++
++	def getBuildingSortedList(self, iBuildingType):
++		list2 = []
++		for iBuilding in range(gc.getNumBuildingInfos()):
++			if self.getBuildingType(iBuilding) == iBuildingType:
++				list2.append((gc.getBuildingInfo(iBuilding).getDescription(), iBuilding))
++		if self.isSortLists():
++			list2.sort()
++		return list2
++
+ 	# Compute the "availability era" for a building, factoring in tech prereqs, special building tech, and religion founding tech.
+ 	def SAS_getBuildingAvailabilityEra(self, iBuilding, iNumAndTechs):
+ 		return SAS_MainGroupings.SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs, gc)
+@@ -976,10 +994,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def SAS_getBuildingsGroupedByEra_fromBaseList(self, baseList):
+ 		return SAS_MainGroupings.SAS_getBuildingsGroupedByEra_fromBaseList(baseList, gc, self.isSortLists(), localText, self.SAS_getBuildingAvailabilityEra)
+ 
+-
+ 	def getBuildingList(self):
+ 		if self.SAS_cacheRegularBuildingsTuple is None:
+-			baseList = self.pediaBuilding.getBuildingSortedList(0)
++			baseList = self.getBuildingSortedList(0)
+ 			if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
+ 				self.SAS_cacheRegularBuildingsTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
+ 			else:
+@@ -995,12 +1012,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def getNationalWonderList(self):
+ 		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
+ 			if self.SAS_cacheNationalWondersTuple is None:
+-				baseList = self.pediaBuilding.getBuildingSortedList(1)
++				baseList = self.getBuildingSortedList(1)
+ 				self.SAS_cacheNationalWondersTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
+ 			return self.SAS_cacheNationalWondersTuple
+ 		else:
+ 			if self.SAS_cacheNationalWondersTuple is None:
+-				self.SAS_cacheNationalWondersTuple = tuple(self.pediaBuilding.getBuildingSortedList(1))
++				self.SAS_cacheNationalWondersTuple = tuple(self.getBuildingSortedList(1))
+ 			return self.SAS_cacheNationalWondersTuple
+ 
+ 
+@@ -1012,12 +1029,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def getWorldWonderList(self):
+ 		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
+ 			if self.SAS_cacheWorldWondersTuple is None:
+-				baseList = self.pediaBuilding.getBuildingSortedList(2)
++				baseList = self.getBuildingSortedList(2)
+ 				self.SAS_cacheWorldWondersTuple = tuple(self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList))
+ 			return self.SAS_cacheWorldWondersTuple
+ 		else:
+ 			if self.SAS_cacheWorldWondersTuple is None:
+-				self.SAS_cacheWorldWondersTuple = tuple(self.pediaBuilding.getBuildingSortedList(2))
++				self.SAS_cacheWorldWondersTuple = tuple(self.getBuildingSortedList(2))
+ 			return self.SAS_cacheWorldWondersTuple
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index 3afde77ac..7dc6f1dfa 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -18,7 +18,7 @@ from CvPythonExtensions import *
+ from _sevopedia_helpers import SAS_isFeatureRemovable
+ 
+ def SAS_isFoodYieldImprovement(iImprovement, gc):
+-	"""Check if improvement provides food yields from any bonus."""
++	# Check if improvement provides food yields from any bonus.
+ 	info = gc.getImprovementInfo(iImprovement)
+ 	if not info or info.isGraphicalOnly():
+ 		return False
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5807

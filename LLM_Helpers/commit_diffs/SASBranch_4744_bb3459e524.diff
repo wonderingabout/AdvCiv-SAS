@@ -1,0 +1,340 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4744
+# Commit: bb3459e524e3d1d82462f60ed84d82b1812affcf
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 72338fcc2b403a8993a3ee910333d6a573978a0d
+# Title: add placeCities panel in sevopedia civilization (import from Middle-Earth mod's Platypedia) their code is very very amazing too, wish i could import more if...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+44	15	Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+2	0	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+25	8	README.md
+4	4	README_Python_Scripts.md
+-	-	_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (1).PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (2).PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (3).PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_1.PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_2.PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_3.PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2.PNG
+-	-	_1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2_cmd_view.PNG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (1).PNG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (2).PNG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (3).PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_1.PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_2.PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_3.PNG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2.PNG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2_cmd_view.PNG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+index a39329c01..9e05f5370 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+@@ -8,6 +8,11 @@
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+ #
++# <!-- custom: part of the code here (placeCities in particular, but not exhaustive or maybe exhaustive
++# or not, anyways, is imported from Middle-Earth's mod's Platypedia, in:
++# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth\Assets\Python\Screens\PlatyPedia\PlatyPediaCivilization.py
++# which may be modified or not for AdvCiv-SAS
++# -->
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+@@ -24,20 +29,30 @@ class SevoPediaCivilization:
+ 		self.iCivilization = -1
+ 		self.top = main
+ 
++		self.MEDIUM_MARGIN = 15
++
+ 		self.X_MAIN_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_MAIN_PANE = self.top.Y_PEDIA_PAGE
+ 
+ 		self.Y_TECH = self.Y_MAIN_PANE
+ 		self.H_TECH = 110
+ 
+-		self.Y_LEADER = self.Y_TECH + self.H_TECH + 10
+-		self.H_LEADER = 110
++		self.Y_LEADER = self.Y_TECH + self.H_TECH + self.MEDIUM_MARGIN  - 5
++		self.H_LEADER = self.H_TECH
+ 
+ 		self.H_MAIN_PANE = self.Y_LEADER + self.H_LEADER - self.Y_MAIN_PANE
+ 		self.W_MAIN_PANE = self.H_MAIN_PANE
+ 
+-		self.X_TECH = self.X_MAIN_PANE + self.W_MAIN_PANE + 10
+-		self.W_TECH = self.top.R_PEDIA_PAGE - self.X_TECH
++		self.Y_TEXT = self.Y_MAIN_PANE + self.H_MAIN_PANE + self.MEDIUM_MARGIN
++		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
++
++		self.W_CITIES = 295
++		self.H_CITIES = self.H_MAIN_PANE + self.MEDIUM_MARGIN + self.H_TEXT
++		self.X_CITIES = self.top.R_PEDIA_PAGE - self.W_CITIES
++		self.Y_CITIES = self.Y_MAIN_PANE
++
++		self.X_TECH = self.X_MAIN_PANE + self.W_MAIN_PANE + self.MEDIUM_MARGIN
++		self.W_TECH = (self.top.R_PEDIA_PAGE - self.X_TECH - self.W_CITIES - (2 * self.MEDIUM_MARGIN)) / 2
+ 
+ 		self.X_LEADER = self.X_TECH
+ 		self.W_LEADER = self.W_TECH
+@@ -48,24 +63,22 @@ class SevoPediaCivilization:
+ 		self.Y_ICON = self.Y_MAIN_PANE + (self.H_MAIN_PANE - self.H_ICON) / 2
+ 		self.ICON_SIZE = 64
+ 
+-		self.X_BUILDING = self.X_MAIN_PANE
+-		self.Y_BUILDING = self.Y_LEADER + self.H_LEADER + 10
++		self.X_BUILDING = self.X_TECH + self.W_TECH + self.MEDIUM_MARGIN
++		self.Y_BUILDING = self.Y_TECH
+ 		# <advc.004y> was 130
+-		self.W_BUILDING = self.W_MAIN_PANE
++		self.W_BUILDING = self.W_TECH
+ 		# This would split the space evenly between UU and UB
+ 		#self.W_BUILDING = (self.top.R_PEDIA_PAGE - self.X_BUILDING - 10) // 2
+ 		# </advc.004y>
+-		self.H_BUILDING = 110
++		self.H_BUILDING = self.H_TECH
+ 
+-		self.X_UNIT = self.X_BUILDING + self.W_BUILDING + 10
+-		self.Y_UNIT = self.Y_BUILDING
+-		self.W_UNIT = self.top.R_PEDIA_PAGE - self.X_UNIT
+-		self.H_UNIT = 110
++		self.X_UNIT = self.X_BUILDING
++		self.Y_UNIT = self.Y_LEADER
++		self.W_UNIT = self.W_TECH
++		self.H_UNIT = self.H_TECH
+ 
+ 		self.X_TEXT = self.X_MAIN_PANE
+-		self.Y_TEXT = self.Y_BUILDING + self.H_BUILDING + 10
+-		self.W_TEXT = self.top.R_PEDIA_PAGE - self.X_TEXT
+-		self.H_TEXT = self.top.B_PEDIA_PAGE - self.Y_TEXT
++		self.W_TEXT = self.W_MAIN_PANE + self.MEDIUM_MARGIN + self.W_LEADER + self.MEDIUM_MARGIN + self.W_UNIT
+ 
+ 
+ 
+@@ -77,6 +90,7 @@ class SevoPediaCivilization:
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
+ 		screen.addDDSGFC(self.top.getNextWidgetName(), ArtFileMgr.getCivilizationArtInfo(gc.getCivilizationInfo(self.iCivilization).getArtDefineTag()).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
++		self.placeCities()
+ 		self.placeTech()
+ 		self.placeBuilding()
+ 		self.placeUnit()
+@@ -85,6 +99,21 @@ class SevoPediaCivilization:
+ 
+ 
+ 
++	def placeCities(self):
++		screen = self.top.getScreen()
++		screen.addPanel(self.top.getNextWidgetName(), CyTranslator().getText("TXT_KEY_CONCEPT_CITIES", ()), "", True, True, self.X_CITIES, self.Y_CITIES, self.W_CITIES, self.H_CITIES, PanelStyles.PANEL_STYLE_BLUE50 )
++		Info = gc.getCivilizationInfo(self.iCivilization)
++		szText = ""
++		for i in xrange(Info.getNumCityNames()):
++			if i == 0:
++				szText += CyTranslator().getText("[ICON_STAR]", ())
++			else:
++				szText += "\n" + CyTranslator().getText("[ICON_BULLET]", ())
++			szText += CyTranslator().getText(Info.getCityNames(i), ())
++		screen.addMultilineText(self.top.getNextWidgetName(), szText, self.X_CITIES + 10, self.Y_CITIES + 30, self.W_CITIES, self.H_CITIES - 30, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
+ 	def placeTech(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index ed369ca4a..ef00b9477 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -12,11 +12,13 @@
+ # or not, anyways, is imported from History Rewritten mod:
+ # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py
+ # which may be modified or not for AdvCiv-SAS
++# -->
+ #
+ # <!-- custom: part of the code here (placeBuilding and placeUnit in particular, but not exhaustive or maybe exhaustive
+ # or not, anyways, is imported from Rise of Mankind (291) mod:
+ # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Rise of Mankind\
+ # which may be modified or not for AdvCiv-SAS
++# -->
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+
+diff --git a/README.md b/README.md
+index 2ffeb7ce4..4d20a9bdf 100644
+--- a/README.md
++++ b/README.md
+@@ -83,19 +83,27 @@ Here is an example below of how it looks ingame in the sevopedia leader category
+ 
+ #### Other sevopedia category examples
+ 
+-example 1: Unit Chart (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8, click to view these images full size:
++##### example 1: Unit Chart
++
++(Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8, click to view these images full size:
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.63_sevopedia_unit_chart.JPG" width="250"></img>
+ 
+-example 2: features category of the sevopedia, based on rfc doc's and slightly tweaked or not, thanks a lot
++##### example 2: features category
++
++based on rfc doc's and slightly tweaked or not, thanks a lot
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.64_sevopedia_features_jungle_panel.JPG" width="250"></img>
+ 
+-example 3: ressources category, mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
++##### example 3: ressources category
++
++mostly my own modding and first attemps at deciphering civ4's python, not inordinate if i may say quite fairly, but i like it this end result a lot, may further improve or not, the feedback always helps me, but sometimes the negative ones hurts me more, however sometimes the negative ones lead to better future outcomes, so i am thankful of it when it is done in sincerity and consideration maybe, something like this, even though maybe unpleasant at first, but this is not always, sometimes it's just painful and best avoided i think at least for me anyways, some other times it's painful but leads to better/good results in the future maybe, not guaranteed and just my personal opinion not responsible of what you reader make of it with you or/and others or not make of it, was sharing my advice or rather opinion maybe, each are free or not etc, anyways. As for this page or/and other pages or/and not, may tweak it further or not as i see fit, anyways
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.65_sevopedia_ressources_copper_panel.JPG" width="250"></img>
+ 
+-example 4: new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too anyways etc) and Units (based on ROM 291's code too) in Sevopedia Religion category:
++##### example 4: religion category
++
++new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too anyways etc) and Units (based on ROM 291's code too) panels in Sevopedia Religion category:
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG" width="250"></img>
+@@ -106,6 +114,14 @@ example 4: new Leaders (based on History Rewritten's code) and Buildings (based
+ 
+ looks quite very great hehe (at least i think so) anyways etc...
+ 
++##### example 5: civilization category
++
++new Cities (based on Middle-Earth mod's (very amazing!!!!!! (Not that others are not or maybe bit less or maybe not ((,) i.e) in other others ways or not or/and other or not anyways etc) But anyways etc) Platypedia's code) panel anyways etc ; then reordered the existing panels too for a nice display at least i think (but) anyways etc and enjoy hehe if you want (i mean anyways...) but anyways etc:
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (3).JPG" width="250"></img>
++
+ ## Sex-neutral unit names or/and combat types (todo and non-exhaustive)
+ 
+ Yet to be done, but i want (more at least) sex-neutral terms for units. Tbh i don't care much if at all (but is maybe nice, anyways), but i intend to implement some women units, especially light units where i think women make more sense (less strength required and they are more agile perhaps too, anyways). I also think they (some of them at least anyways) were very lousy (names), for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. Also, unless the unit was strongly masculine, i see no reason to use weaponman specifically, anyways.
+@@ -177,11 +193,11 @@ Hopefully helpful and interesting.
+ 
+ ## csv: Leaders_data flat to csv conversion and its view on github for example
+ 
+-There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script](/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [viewable on github too](/leaders_data_to_csv_ai_flat_example_of_output.csv), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below (please follow the link just before in this sentence to/if you want to view it yourself else do as you please or/and want or/and other or/and not anwyays etc)
++There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script](/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_1.PNG" width="150"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_2.PNG" width="150"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_3.PNG" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
+ 
+ ## Project Goals and global view on gameplay changes
+ 
+@@ -345,6 +361,7 @@ exchanges/experiences during these times
+ - Realism Invictus (also know as RI): i took quite a bit content from there, thanks,
+ - Fall from Heaven II (also know as FFH2): i took quite a bit of content from there, thanks
+ too too, thanks,
++- Middle-earth (that i may call ME sometimes): i took (the) quite a bit (that i) could from their very amazing really Platypedia, wish i could take more but not sure i can or/and will, ideally yes but not guaranteed, may also not, at least i linked(=mentionned) their name hopefully (little if not lot helpful anyways etc), thanks a big big lot, but to match other comments too anyways etc even though not a specific requirement for me (but) anyways etc anyways etc, thanks a lot, etc anyways anyways etc, thanks,
+ - History Rewritten (also know as HR): i took quite a bit of content from there too, thanks,
+ - Rise of Mankind (291) (i don't know their other name but maybe is fine to call them as is anyways etc (i also sometimes call them/their/this mod "ROM 291" (/ ROM 291) if accurate enough or some similar name i call them anyways etc)): a lot of very amazing code like religion leaders code, religion units code, many leaders, i don't know which exactly i'll take from, but very nice, thanks a lot! or to match other texts thanks too i mean anyways etc, thanks, anyways etc, thanks,
+ - RFC Dawn Of Civilization (which i refer to as RFC DOC sometimes hopefully accurate anyways etc), while this mod is not my favourite somehow, i must admit they have some very nice content, in particular the Sevopedia categories i could take entirely for/in AdvCiv-SAS without barely any modification needed (for example the Sevopedia Terrain Page), thanks a lot!
+
+diff --git a/README_Python_Scripts.md b/README_Python_Scripts.md
+index 561fa0996..ae6b92261 100644
+--- a/README_Python_Scripts.md
++++ b/README_Python_Scripts.md
+@@ -307,7 +307,7 @@ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Bey
+ ```
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__leader_data_script_1.PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2.PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2_cmd_view.PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__leader_data_libre_office_view_1.PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/csv_output_example__leader_data_libre_office_view_2.PNG" width="250"></img>
+ 
+@@ -315,8 +315,8 @@ See also some general info about it (such as the GitHub view of it that is quite
+ 
+ For convenience and exhaustiveness, such display/view on the Github website is also provided here, but please/you can anyways etc (also) (anyways etc) visit the ((AdvCiv-SAS) Project's) main README.md's csv section linked above for details.
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_1.PNG" width="150"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_2.PNG" width="150"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_3.PNG" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
+ 
+ Then you can sort it, enhance it, adjust row length and such, but the base idea is here, hopefully helpful, anyways.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG
+new file mode 100644
+index 000000000..759d8afc1
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (2).JPG
+new file mode 100644
+index 000000000..e9c1fc966
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (3).JPG
+new file mode 100644
+index 000000000..c68c1a65d
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (1).PNG b/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (1).PNG
+new file mode 100644
+index 000000000..b5bd62a64
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (1).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (2).PNG b/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (2).PNG
+new file mode 100644
+index 000000000..c0c1d4e2f
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (2).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (3).PNG b/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (3).PNG
+new file mode 100644
+index 000000000..dcaaa8fd0
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github (3).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_1.PNG b/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_1.PNG
+deleted file mode 100644
+index a3c17db31..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_1.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_2.PNG b/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_2.PNG
+deleted file mode 100644
+index d711262f8..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_2.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_3.PNG b/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_3.PNG
+deleted file mode 100644
+index 7ec51ecb7..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/csv_flat_leaders_data_view_example_on_github_3.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2.PNG b/_1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2.PNG
+deleted file mode 100644
+index 8b35c090d..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2.PNG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2_cmd_view.PNG b/_1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2_cmd_view.PNG
+new file mode 100644
+index 000000000..31b0c24bc
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/csv_output_example__leaders_data_2_cmd_view.PNG differ
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=21896

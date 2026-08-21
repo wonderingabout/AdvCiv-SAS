@@ -1,0 +1,113 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2572
+# Commit: 20ae8dd109018354ce506e5ca96bc80b7358cd9b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 09361cdab5cd73db8cfd943cbde8bb069e69c5ba
+# Title: ScaledNum: Fix out-of-bounds error in exponentiation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	6	CvGameCoreDLL/FixedPointPowTables.h
+6	5	CvGameCoreDLL/ScaledNum.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/FixedPointPowTables.h b/CvGameCoreDLL/FixedPointPowTables.h
+index 1c823aa2f..bf1151b57 100644
+--- a/CvGameCoreDLL/FixedPointPowTables.h
++++ b/CvGameCoreDLL/FixedPointPowTables.h
+@@ -7,17 +7,18 @@
+ 
+ namespace FixedPointPowTables
+ {
+-	// ((2^(i/128)) - 1)*256 for i=0..127
+-	// (The -1 is for efficiency. No non-negative power of 2 is less than 1.)
+-	static unsigned char const powersOfTwoNormalized_256[128] = {
+-		0,   1,   3,   4,   6,   7,   8,  10,
++	/*	((2^(i/128)) - 1)*256 for i=0..127 and
++		255 for i=128 (special case to accommodate rounding errors in ScaledNum::pow).
++		The -1 is for memory efficiency. No non-negative power of 2 is less than 1. */
++	static unsigned char const powersOfTwoNormalized_256[129] = {
++		0,   1,   3,   4,   6,   7,   8,   10,
+ 		11,  13,  14,  16,  17,  19,  20,  22,
+ 		23,  25,  26,  28,  29,  31,  32,  34,
+ 		36,  37,  39,  40,  42,  44,  45,  47,
+ 		48,  50,  52,  53,  55,  57,  58,  60,
+ 		62,  64,  65,  67,  69,  71,  72,  74,
+ 		76,  78,  80,  81,  83,  85,  87,  89,
+-		91,  93,  94,  96,  98, 100, 102, 104,
++		91,  93,  94,  96,  98,  100, 102, 104,
+ 		106, 108, 110, 112, 114, 116, 118, 120,
+ 		122, 124, 126, 128, 130, 132, 135, 137,
+ 		139, 141, 143, 145, 147, 150, 152, 154,
+@@ -25,7 +26,7 @@ namespace FixedPointPowTables
+ 		175, 177, 179, 182, 184, 186, 189, 191,
+ 		194, 196, 198, 201, 203, 206, 208, 211,
+ 		214, 216, 219, 221, 224, 226, 229, 232,
+-		234, 237, 240, 242, 245, 248, 250, 253
++		234, 237, 240, 242, 245, 248, 250, 253, 255
+ 	};
+ 
+ 	// ((i/64)^(j/128) * 256)-1 for i=1..63, j=1..127
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index 0bd842bbf..e00aa88b7 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -737,7 +737,8 @@ private:
+ 		}
+ 		/*	Recall that: If x=y+z, then b^x=(b^y)*(b^z).
+ 						 If b=a*c, then b^x=(a^x)*(c^x). */
+-		// Split rExp into the sum of an integer and a (scaled) fraction between 0 and 1
++		/*	Split rExp into the sum of an integer and a (scaled) fraction between 0 and 1.
++			(Due to rounding, the fractional part can take the value 1.) */
+ 		// Running example: 5.2^2.1 at SCALE 1024, i.e. (5325/1024)^(2150/1024)
+ 		IntType nExpInt = rExp.m_i / SCALE; // 2 in the example
+ 		// Use uint in all local ScaledNum variables for more accurate rounding
+@@ -748,7 +749,7 @@ private:
+ 		IntType nBaseDiv = 1;
+ 		// Look up approximate result of 2^rExpFrac in precomputed table
+ 		#ifdef SCALED_NUM_EXTRA_ASSERTS
+-			FAssertBounds(0, 128, rExpFrac.m_i);
++			FAssertBounds(0, 129, rExpFrac.m_i);
+ 		#endif
+ 		ScaledNum<256,uint> rPowOfTwo; // Ex.: Array position [13] is 19, so rPowOfTwo=19/256
+ 		rPowOfTwo.m_i = FixedPointPowTables::powersOfTwoNormalized_256[rExpFrac.m_i];
+@@ -915,7 +916,7 @@ ScaledNum_T ScaledNum_T::operator-() const
+ {
+ 	BOOST_STATIC_ASSERT(bSIGNED);
+ 	#ifdef SCALED_NUM_EXTRA_ASSERTS
+-		FAssertMsg(m_i != MININT, "MININT can't be inverted");
++		FAssertMsg(m_i != INTMIN, "INTMIN can't be inverted");
+ 	#endif
+ 	ScaledNum_T r;
+ 	r.m_i = -m_i;
+@@ -1018,7 +1019,7 @@ ScaledNum_T& ScaledNum_T::operator+=(ScaledNum rOther)
+ {
+ 	#ifdef SCALED_NUM_EXTRA_ASSERTS
+ 		FAssert(rOther <= 0 || m_i <= INTMAX - rOther.m_i);
+-		FAssert(rOther >= 0 || m_i >= INTMIN + rOther.m_i);
++		FAssert(rOther >= 0 || m_i >= INTMIN - rOther.m_i);
+ 	#endif
+ 	m_i += rOther.m_i;
+ 	return *this;
+@@ -1030,7 +1031,7 @@ ScaledNum_T& ScaledNum_T::operator-=(ScaledNum rOther)
+ {
+ 	#ifdef SCALED_NUM_EXTRA_ASSERTS
+ 		FAssert(rOther >= 0 || m_i <= INTMAX + rOther.m_i);
+-		FAssert(rOther <= 0 || m_i >= INTMIN - rOther.m_i);
++		FAssert(rOther <= 0 || m_i >= INTMIN + rOther.m_i);
+ 	#endif
+ 	m_i -= rOther.m_i;
+ 	return *this;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3681

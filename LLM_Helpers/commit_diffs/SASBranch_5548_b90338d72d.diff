@@ -1,0 +1,145 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5548
+# Commit: b90338d72d9024d7769d04ae189ae27f7f8a746a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b825de154f85760802a3ef4844bf2b97c9e6d9c4
+# Title: upscale buildings
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	11	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 1a1f66655..176e4815a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -21,6 +21,7 @@ from CvPythonExtensions import *
+ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
++from SASFontUtils import *
+ 
+ from _sevopedia_helpers import *
+ 
+@@ -145,6 +146,12 @@ class SevoPediaBuilding:
+ 		self.W_HISTORY = self.W_BUILDING_ANIMATION
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
++	def _bodyText(self, szText):
++		return SAS_FONT_TAG_BODY + unicode(szText) + SAS_FONT_TAG_CLOSE
++
++	def _labelText(self, szText):
++		return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE
++
+ 
+ 
+ 	def interfaceScreen(self, iBuilding):
+@@ -181,7 +188,7 @@ class SevoPediaBuilding:
+ 
+ 
+ 	def fillStatsCell(self, screen, label, xLabel, y):
+-		labelText = u"<font=4>%s</font>" % label
++		labelText = self._labelText(label)
+ 		screen.setText(self.top.getNextWidgetName(), "", labelText, CvUtil.FONT_LEFT_JUSTIFY, xLabel, y, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 
+@@ -608,7 +615,7 @@ class SevoPediaBuilding:
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.addMultilineText(textName, self._bodyText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -635,7 +642,7 @@ class SevoPediaBuilding:
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
+-			screen.addMultilineText(textName, szText, self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.addMultilineText(textName, self._bodyText(szText), self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 	# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas -->  
+@@ -746,7 +753,7 @@ class SevoPediaBuilding:
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.addMultilineText(textName, self._bodyText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -785,7 +792,7 @@ class SevoPediaBuilding:
+ 			yPanelCenter = self.Y_OBSOLETE_WITH + (self.H_OBSOLETE_WITH / 2)
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER", ())
+-			screen.addMultilineText(textName, szText, self.X_OBSOLETE_WITH + 7, yPanelCenter, self.W_OBSOLETE_WITH - 14, self.H_OBSOLETE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.addMultilineText(textName, self._bodyText(szText), self.X_OBSOLETE_WITH + 7, yPanelCenter, self.W_OBSOLETE_WITH - 14, self.H_OBSOLETE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -882,7 +889,7 @@ class SevoPediaBuilding:
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.addMultilineText(textName, self._bodyText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -1002,7 +1009,7 @@ class SevoPediaBuilding:
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.addMultilineText(textName, self._bodyText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -1053,7 +1060,7 @@ class SevoPediaBuilding:
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoButtonFound, ())
+ 			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.addMultilineText(textName, self._bodyText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -1089,7 +1096,7 @@ class SevoPediaBuilding:
+ 			yPanelCenter = self.Y_CIVILIZATIONS + (self.H_CIVILIZATIONS / 2)
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText("TXT_KEY_PEDIA_CIVILIZATIONS_NO_BUTTON_FOUND", ())
+-			screen.addMultilineText(textName, szText, self.X_CIVILIZATIONS + 7, yPanelCenter, self.W_CIVILIZATIONS - 14, self.H_CIVILIZATIONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.addMultilineText(textName, self._bodyText(szText), self.X_CIVILIZATIONS + 7, yPanelCenter, self.W_CIVILIZATIONS - 14, self.H_CIVILIZATIONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -1115,7 +1122,7 @@ class SevoPediaBuilding:
+ 		if conquestProbText:
+ 			szSpecialText += "\n%s" % conquestProbText
+ 
+-		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(listName, self._bodyText(szSpecialText), self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -1141,7 +1148,7 @@ class SevoPediaBuilding:
+ 		#szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
+ 		szText += gc.getBuildingInfo(self.iBuilding).getCivilopedia()
+ 		# <!-- custom: but here we also restore/add padding -->
+-		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(textName, self._bodyText(szText), self.X_HISTORY + 7, self.Y_HISTORY + 10 + self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER, self.W_HISTORY - 30, self.H_HISTORY - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=7096

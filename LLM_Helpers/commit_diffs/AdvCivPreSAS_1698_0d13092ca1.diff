@@ -1,0 +1,29 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1698
+# Commit: 0d13092ca15b1ecf7711fbca0d4f07eb7f952182
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 720fd3fe0e3a1c1825bd1279f7107f3ab022f7db
+# Title: Rename Continents_and_Islands to Mixed_Continents
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	0	PrivateMaps/{Continents_and_Islands.py => Mixed_Continents.py}
+ rename PrivateMaps/{Continents_and_Islands.py => Mixed_Continents.py} (100%)
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Continents_and_Islands.py b/PrivateMaps/Mixed_Continents.py
+similarity index 100%
+rename from PrivateMaps/Continents_and_Islands.py
+rename to PrivateMaps/Mixed_Continents.py
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=198

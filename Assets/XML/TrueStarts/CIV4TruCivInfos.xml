@@ -597,8 +597,8 @@
 			<GeoRegion>ARTSTYLE_MIDDLE_EAST</GeoRegion>
 		</TruCivInfo>
 		<TruCivInfo>
-			<Type>TRU_VIKING</Type>
-			<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
+			<Type>TRU_SCANDINAVIA</Type>
+			<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
 			<!-- Moved south by 3 degrees to account for the Gulf stream -->
 			<iLatitudeTimes10>604</iLatitudeTimes10>
 			<iLongitudeTimes10>104</iLongitudeTimes10>

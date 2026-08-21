@@ -1,0 +1,460 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1649
+# Commit: f789125ccae4d4cd7501c03c602a5ede8466de14
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 553b1a0f8d92b00f09f64f2ee1ecb4d696ebe43e
+# Title: Some getID functions inlined; add CvDLLLogger to .vcxproj.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	5	CvGameCoreDLL/CvArea.h
+0	19	CvGameCoreDLL/CvCity.cpp
+7	5	CvGameCoreDLL/CvCity.h
+0	6	CvGameCoreDLL/CvDeal.cpp
+4	4	CvGameCoreDLL/CvDeal.h
+2	0	CvGameCoreDLL/CvPlayer.h
+0	6	CvGameCoreDLL/CvPlotGroup.cpp
+3	2	CvGameCoreDLL/CvPlotGroup.h
+1	1	CvGameCoreDLL/CvPythonCaller.cpp
+0	6	CvGameCoreDLL/CvSelectionGroup.cpp
+2	3	CvGameCoreDLL/CvSelectionGroup.h
+2	1	CvGameCoreDLL/CvTeam.h
+0	31	CvGameCoreDLL/CvUnit.cpp
+10	10	CvGameCoreDLL/CvUnit.h
+2	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvArea.h b/CvGameCoreDLL/CvArea.h
+index a92009083..1721140b3 100644
+--- a/CvGameCoreDLL/CvArea.h
++++ b/CvGameCoreDLL/CvArea.h
+@@ -5,19 +5,18 @@
+ #ifndef CIV4_AREA_H
+ #define CIV4_AREA_H
+ 
+-
+ class CvCity;
+ class CvPlot;
+ 
++
+ class CvArea
+ {
+-
+ public:
+ 
+-  CvArea();
+-  virtual ~CvArea();
++	CvArea();
++	virtual ~CvArea();
+ 
+-  void init(int iID, bool bWater);
++	void init(int iID, bool bWater);
+ 	void uninit();
+ 	void reset(int iID = 0, bool bWater = false, bool bConstructorCall = false);
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 44654ebb2..9dce3b964 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5172,25 +5172,6 @@ int CvCity::getCorporationCount() const
+ }
+ 
+ 
+-int CvCity::getID() const
+-{
+-	return m_iID;
+-}
+-
+-
+-int CvCity::getIndex() const
+-{
+-	return (getID() & FLTA_INDEX_MASK);
+-}
+-
+-
+-IDInfo CvCity::getIDInfo() const
+-{
+-	IDInfo city(getOwner(), getID());
+-	return city;
+-}
+-
+-
+ void CvCity::setID(int iID)
+ {
+ 	m_iID = iID;
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index c9eb0a4c0..6df9fe7b8 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -15,9 +15,11 @@ class CvArtInfoBuilding;
+ class CvCityAI; // advc.003u
+ class CvCivilization; // advc.003w
+ 
++
+ class CvCity : public CvDLLEntity
+ {
+ public:
++
+ 	CvCity();
+ 	virtual ~CvCity();
+ 
+@@ -26,7 +28,6 @@ public:
+ 	void uninit();
+ 	void reset(int iID = 0, PlayerTypes eOwner = NO_PLAYER, int iX = 0, int iY = 0, bool bConstructorCall = false);
+ 	void setupGraphical();
+-
+ 	void kill(bool bUpdatePlotGroups);																								// Exposed to Python
+ 
+ 	void doTurn();
+@@ -262,10 +263,11 @@ public:
+ 
+ 	int getReligionCount() const;																						// Exposed to Python
+ 	int getCorporationCount() const;																						// Exposed to Python
+-
+-	DllExport int getID() const;																			// Exposed to Python
+-	int getIndex() const;
+-	DllExport IDInfo getIDInfo() const;
++	// <advc.003f> inline
++	DllExport inline int getID() const { return m_iID; }													// Exposed to Python
++	inline int getIndex() const { return (getID() & FLTA_INDEX_MASK); }
++	DllExport inline IDInfo getIDInfo() const { return IDInfo(getOwner(), getID()); }
++	// </advc.003f>
+ 	void setID(int iID);
+ 	int plotNum() const; // advc.104
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 7b639d429..ff194bd47 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -516,12 +516,6 @@ bool CvDeal::isDisengage() const {
+ /*bool CvDeal::isPeaceDealBetweenOthers(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* pSecondList) const {
+ //... }*/
+ 
+-int CvDeal::getID() const
+-{
+-	return m_iID;
+-}
+-
+-
+ void CvDeal::setID(int iID)
+ {
+ 	m_iID = iID;
+
+diff --git a/CvGameCoreDLL/CvDeal.h b/CvGameCoreDLL/CvDeal.h
+index d5854c194..6c754bb2f 100644
+--- a/CvGameCoreDLL/CvDeal.h
++++ b/CvGameCoreDLL/CvDeal.h
+@@ -5,13 +5,13 @@
+ #ifndef CIV4_DEAL_H
+ #define CIV4_DEAL_H
+ 
++
+ class CvDeal
+ {
+-
+ public:
+ 
+ 	CvDeal();
+-	virtual ~CvDeal();
++	~CvDeal();
+ 
+ 	void init(int iID, PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);
+ 	void uninit();
+@@ -26,7 +26,6 @@ public:
+ 	void addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* pSecondList, bool bCheckAllowed);
+ 
+ 	void doTurn();
+-
+ 	void verify();
+ 
+ 	bool isPeaceDeal() const;
+@@ -38,7 +37,8 @@ public:
+ 		need a function that checks if this deal is a tribute deal between a vassal and a master. */
+ 	bool isVassalTributeDeal() const;
+ 	bool isDisengage() const; // advc.034
+-	DllExport int getID() const;
++
++	DllExport inline int getID() const { return m_iID; } // advc.003f: inline
+ 	void setID(int iID);
+ 
+ 	int getInitialGameTurn() const;
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index f076f55b7..1e01eab05 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -30,9 +30,11 @@ typedef std::vector< std::pair<UnitCombatTypes, PromotionTypes> > UnitCombatProm
+ typedef std::vector< std::pair<UnitClassTypes, PromotionTypes> > UnitClassPromotionArray;
+ typedef std::vector< std::pair<CivilizationTypes, LeaderHeadTypes> > CivLeaderArray;
+ 
++
+ class CvPlayer /* advc.003e: */ : private boost::noncopyable
+ {
+ public:
++
+ 	CvPlayer();
+ 	virtual ~CvPlayer();
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.cpp b/CvGameCoreDLL/CvPlotGroup.cpp
+index acef64b1f..1339d39ea 100644
+--- a/CvGameCoreDLL/CvPlotGroup.cpp
++++ b/CvGameCoreDLL/CvPlotGroup.cpp
+@@ -177,12 +177,6 @@ void CvPlotGroup::recalculatePlots()
+ }
+ 
+ 
+-int CvPlotGroup::getID() const
+-{
+-	return m_iID;
+-}
+-
+-
+ void CvPlotGroup::setID(int iID)
+ {
+ 	m_iID = iID;
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.h b/CvGameCoreDLL/CvPlotGroup.h
+index 4ac02c9d1..9e753c985 100644
+--- a/CvGameCoreDLL/CvPlotGroup.h
++++ b/CvGameCoreDLL/CvPlotGroup.h
+@@ -9,10 +9,11 @@
+ 
+ class CvPlot;
+ 
++
+ class CvPlotGroup
+ {
+-
+ public:
++
+ 	CvPlotGroup();
+ 	virtual ~CvPlotGroup();
+ 
+@@ -24,7 +25,7 @@ public:
+ 	void removePlot(CvPlot* pPlot);
+ 	void recalculatePlots();
+ 
+-	int getID() const;
++	inline int getID() const { return m_iID; } // advc.003f
+ 	void setID(int iID);
+ 
+ 	/*PlayerTypes getOwner() const;
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.cpp b/CvGameCoreDLL/CvPythonCaller.cpp
+index c43edf179..6a74418cb 100644
+--- a/CvGameCoreDLL/CvPythonCaller.cpp
++++ b/CvGameCoreDLL/CvPythonCaller.cpp
+@@ -1078,7 +1078,7 @@ bool CvPythonCaller::doCombat(CvSelectionGroup const& kGroup, CvPlot const& kPlo
+ 	if (!isUse(DO_COMBAT))
+ 		return false;
+ 	ARGSLIST(false);
+-		CySelectionGroup* pyGroup = new CySelectionGroup(kGroup);
++	CySelectionGroup* pyGroup = new CySelectionGroup(kGroup);
+ 	argsList.add(m_python.makePythonObject(pyGroup));
+ 	CyPlot* pyPlot = new CyPlot(kPlot);
+ 	argsList.add(m_python.makePythonObject(pyPlot));
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 1b71a581b..3994a26c9 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3916,12 +3916,6 @@ bool CvSelectionGroup::canDoMission(int iMission, int iData1, int iData2,
+ }
+ // K-Mod end
+ 
+-int CvSelectionGroup::getID() const
+-{
+-	return m_iID;
+-}
+-
+-
+ void CvSelectionGroup::setID(int iID)
+ {
+ 	m_iID = iID;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index f5c7ef27d..75b4f76bb 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -12,9 +12,9 @@ class CvPlot;
+ class CvArea;
+ class FAStarNode;
+ 
++
+ class CvSelectionGroup
+ {
+-
+ public:
+ 
+ 	CvSelectionGroup();
+@@ -23,7 +23,6 @@ public:
+ 	DllExport void init(int iID, PlayerTypes eOwner);
+ 	DllExport void uninit();
+ 	DllExport void reset(int iID = 0, PlayerTypes eOwner = NO_PLAYER, bool bConstructorCall = false);
+-
+ 	void kill();
+ 
+ 	void doTurn();
+@@ -154,7 +153,7 @@ public:
+ 			bool bTestVisible, bool bCheckMoves) /* advc.002i: */ const;
+ 	// K-Mod end
+ 
+-	int getID() const;																																												// Exposed to Python
++	inline int getID() const { return m_iID; } // advc.003f: inline																																// Exposed to Python
+ 	void setID(int iID);
+ 
+ 	int getMissionTimer() const;
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index a484d24d6..ed5c6d683 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -9,10 +9,11 @@
+ 
+ class CvArea;
+ 
++
+ class CvTeam /* advc.003e: */ : private boost::noncopyable
+ {
+-
+ public:
++
+ 	CvTeam();
+ 	virtual ~CvTeam();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index e225fd24c..3651c2878 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -9393,43 +9393,12 @@ int CvUnit::getUnitAICargo(UnitAITypes eUnitAI) const
+ }
+ 
+ 
+-int CvUnit::getID() const
+-{
+-	return m_iID;
+-}
+-
+-
+-int CvUnit::getIndex() const
+-{
+-	return (getID() & FLTA_INDEX_MASK);
+-}
+-
+-
+-IDInfo CvUnit::getIDInfo() const
+-{
+-	IDInfo unit(getOwner(), getID());
+-	return unit;
+-}
+-
+-
+ void CvUnit::setID(int iID)
+ {
+ 	m_iID = iID;
+ }
+ 
+ 
+-int CvUnit::getGroupID() const
+-{
+-	return m_iGroupID;
+-}
+-
+-
+-bool CvUnit::isInGroup() const
+-{
+-	return(getGroupID() != FFreeList::INVALID_INDEX);
+-}
+-
+-
+ bool CvUnit::isGroupHead() const // XXX is this used???
+ {
+ 	return (getGroup()->getHeadUnit() == this);
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 012942cee..dc4dff574 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -13,15 +13,14 @@ class CvPlot;
+ class CvArea;
+ class CvUnitInfo;
+ class CvSelectionGroup;
+-//class FAStarNode;
+ class CvArtInfoUnit;
+ class KmodPathFinder;
+ class CvUnitAI; // advc.003u
+-struct CombatDetails;										// Exposed to Python
++struct CombatDetails;
++
+ 
+ class CvUnit : public CvDLLEntity
+ {
+-
+ public:
+ 
+ 	void setupGraphical();
+@@ -387,14 +386,15 @@ public:
+ 	//bool canCargoAllMove() const; // disabled by K-Mod (was exposed to Python)
+ 	bool canCargoEnterArea(TeamTypes eTeam, const CvArea* pArea, bool bIgnoreRightOfPassage) const;
+ 	int getUnitAICargo(UnitAITypes eUnitAI) const;																		// Exposed to Python
+-
+-	DllExport int getID() const;																											// Exposed to Python
+-	int getIndex() const;
+-	DllExport IDInfo getIDInfo() const;
++	// <advc.003f> inline
++	DllExport inline int getID() const { return m_iID; }																					// Exposed to Python
++	int getIndex() const { return (getID() & FLTA_INDEX_MASK); }
++	DllExport IDInfo getIDInfo() const { return IDInfo(getOwner(), getID()); }
++	// </advc.003f>
+ 	void setID(int iID);
+ 
+-	int getGroupID() const;																														// Exposed to Python
+-	bool isInGroup() const;																														// Exposed to Python
++	int getGroupID() const { return m_iGroupID; }	// advc.003f: inline																	// Exposed to Python
++	bool isInGroup() const { return(getGroupID() != FFreeList::INVALID_INDEX); } // advc.003f: inline																														// Exposed to Python
+ 	bool isGroupHead() const;																								// Exposed to Python
+ 	DllExport CvSelectionGroup* getGroup() const;																			// Exposed to Python
+ 	bool canJoinGroup(const CvPlot* pPlot, CvSelectionGroup* pSelectionGroup) const;
+@@ -909,7 +909,7 @@ private:
+ };
+ 
+ // advc.003: Moved from the beginning of the file
+-struct CombatDetails
++struct CombatDetails											// Exposed to Python
+ {
+ 	int iExtraCombatPercent;
+ 	int iAnimalCombatModifierTA;
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 3dd6b25a7..37d085a68 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -51,6 +51,7 @@
+     <ClCompile Include="..\CvDLLButtonPopup.cpp" />
+     <ClCompile Include="..\CvDLLEntity.cpp" />
+     <ClCompile Include="..\CvDLLInterfaceIBase.cpp" />
++    <ClCompile Include="..\CvDLLLogger.cpp" />
+     <ClCompile Include="..\CvDLLPython.cpp" />
+     <ClCompile Include="..\CvDllPythonEvents.cpp" />
+     <ClCompile Include="..\CvDllTranslator.cpp" />
+@@ -205,6 +206,7 @@
+     <ClInclude Include="..\CvDLLFlagEntityIFaceBase.h" />
+     <ClInclude Include="..\CvDLLIniParserIFaceBase.h" />
+     <ClInclude Include="..\CvDLLInterfaceIFaceBase.h" />
++    <ClInclude Include="..\CvDLLLogger.h" />
+     <ClInclude Include="..\CvDLLPlotBuilderIFaceBase.h" />
+     <ClInclude Include="..\CvDllPythonEvents.h" />
+     <ClInclude Include="..\CvDLLPythonIFaceBase.h" />
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=11317

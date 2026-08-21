@@ -18,12 +18,8 @@ class CvDLLFAStarIFaceBase
 public:
 	virtual FAStar* create() = 0;
 	virtual void destroy(FAStar*& ptr, bool bSafeDelete=true) = 0;
-	virtual bool GeneratePath(FAStar*, int iStartX, int iStartY, int iDestX, int iDestY,
-			bool bCardinalOnly = false, int iInfo = 0, bool bReuse = false) = 0;
-	virtual void Initialize(FAStar*, int iColumns, int iRows, bool bWrapX, bool bWrapY,
-			FAPointFunc DestValidFunc, FAHeuristic HeuristicFunc, FAStarFunc CostFunc,
-			FAStarFunc ValidFunc, FAStarFunc NotifyChildFunc, FAStarFunc NotifyListFunc,
-			void* pData) = 0;
+	virtual bool GeneratePath(FAStar*, int iStartX, int iStartY, int iDestX, int iDestY, bool bCardinalOnly = false, int iInfo = 0, bool bReuse = false) = 0;
+	virtual void Initialize(FAStar*, int iColumns, int iRows, bool bWrapX, bool bWrapY, FAPointFunc DestValidFunc, FAHeuristic HeuristicFunc, FAStarFunc CostFunc, FAStarFunc ValidFunc, FAStarFunc NotifyChildFunc, FAStarFunc NotifyListFunc, void* pData) = 0;
 	virtual void SetData(FAStar*, void const* pData) = 0;
 	virtual FAStarNode* GetLastNode(FAStar*) = 0;
 	virtual bool IsPathStart(FAStar*, int iX, int iY) = 0;

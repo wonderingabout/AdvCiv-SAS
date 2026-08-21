@@ -1,0 +1,479 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3667
+# Commit: b074d5985136b2be59092f6ac819f61b8393ad29
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 619de41cd0f19817acb18e89020e6b4fde8b992e
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCity.cpp
+2	1	CvGameCoreDLL/CvCityAI.cpp
+6	6	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+21	22	CvGameCoreDLL/CvGameTextMgr.cpp
+2	2	CvGameCoreDLL/CvInfo_Command.cpp
+8	17	CvGameCoreDLL/CvInfo_Organization.cpp
+6	6	CvGameCoreDLL/CvInfo_Organization.h
+3	4	CvGameCoreDLL/CvPlayer.cpp
+19	18	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 5e54f3535..20c246e1c 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3352,7 +3352,7 @@ bool CvCity::isHeadquarters(CorporationTypes eCorp) const
+ void CvCity::setHeadquarters(CorporationTypes eCorp)
+ {
+ 	GC.getGame().setHeadquarters(eCorp, this, /* advc.106e: */ false);
+-	UnitClassTypes eFreeClass = (UnitClassTypes)GC.getInfo(eCorp).getFreeUnitClass();
++	UnitClassTypes eFreeClass = GC.getInfo(eCorp).getFreeUnitClass();
+ 	if (eFreeClass != NO_UNITCLASS)
+ 	{
+ 		UnitTypes eFreeUnit = getCivilization().getUnit(eFreeClass);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index f92a56c99..eaf9bc09c 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -869,7 +869,8 @@ void CvCityAI::AI_chooseProduction()
+ 			bCloseToNewTech = true;
+ 	} // </advc.113>
+ 	// K-Mod 10/sep/10: iLandBonuses moved up
+-	int iLandBonuses = AI_countNumImprovableBonuses(true,//kPlayer.getCurrentResearch()
++	int const iLandBonuses = AI_countNumImprovableBonuses(true,
++			//kPlayer.getCurrentResearch()
+ 			bCloseToNewTech ? eCurrentResearch : NO_TECH); // advc.113
+ 
+ 	bool bChooseWorker = false;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index a6d3c5035..89efedc82 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1551,7 +1551,7 @@ void CvGame::applyStartingLocHandicaps(
+ 	The Agent type can be either CvPlayer or CvTeam. The agents have to be
+ 	alive and non-Barbarian. kResult should be empty before the call. */
+ template<class Agent>
+-CvGame::sortByStartingLocHandicap(
++void CvGame::sortByStartingLocHandicap(
+ 	std::vector<std::pair<Agent*,int> > const& kStartingLocPercentPerAgent,
+ 	std::vector<Agent*>& kResult)
+ {
+@@ -7237,7 +7237,7 @@ void CvGame::doHolyCity()
+ 				somehow. Inspired by Mongoose SDK ReligionMod. */
+ 			for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+ 			{
+-				if (!itTeam->isHasTech((TechTypes)GC.getInfo(eReligion).getTechPrereq()) ||
++				if (!itTeam->isHasTech(GC.getInfo(eReligion).getTechPrereq()) ||
+ 					itTeam->getNumCities() <= 0)
+ 				{
+ 					continue;
+@@ -7373,7 +7373,7 @@ void CvGame::doHeadquarters()
+ 			{
+ 				// advc (note): This is as far as execution gets in AdvCiv/BtS
+ 				if (kCorp.getTechPrereq() == NO_TECH ||
+-					!itTeam->isHasTech((TechTypes)kCorp.getTechPrereq()))
++					!itTeam->isHasTech(kCorp.getTechPrereq()))
+ 				{
+ 					continue;
+ 				}
+@@ -10309,17 +10309,17 @@ void CvGame::changeShrineBuilding(BuildingTypes eBuilding,
+ 
+ }
+ 
+-bool CvGame::culturalVictoryValid() /* advc: */ const
++bool CvGame::culturalVictoryValid() const
+ {
+ 	return (m_iNumCultureVictoryCities > 0);
+ }
+ 
+-int CvGame::culturalVictoryNumCultureCities() /* advc: */ const
++int CvGame::culturalVictoryNumCultureCities() const
+ {
+ 	return m_iNumCultureVictoryCities;
+ }
+ 
+-CultureLevelTypes CvGame::culturalVictoryCultureLevel() /* advc: */  const
++CultureLevelTypes CvGame::culturalVictoryCultureLevel() const
+ {
+ 	if (m_iNumCultureVictoryCities > 0)
+ 		return m_eCultureVictoryCultureLevel;
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index ddaf4f4bb..3f10a7eb7 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -1103,7 +1103,7 @@ protected:
+ 			bool bOnlyWithinArea = false, scaled rInertia = 0); // advc.027
+ 	void applyStartingLocHandicaps(/* advc.027: */ NormalizationTarget const* pStartValues);
+ 	template<class Agent>
+-	sortByStartingLocHandicap(
++	void sortByStartingLocHandicap(
+ 			std::vector<std::pair<Agent*,int> > const& kStartingLocPercentPerAgent,
+ 			std::vector<Agent*>& kResult); // </advc.108b>
+ 	int getTeamClosenessScore( // <advc>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index a14b1e953..f6c294e9d 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -13999,10 +13999,11 @@ void CvGameTextMgr::setReligionHelp(CvWStringBuffer &szBuffer, ReligionTypes eRe
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_RELIGION_FOUNDED_FIRST",
+-					GC.getInfo((TechTypes)kReligion.getTechPrereq()).getTextKeyWide()));
++					GC.getInfo(kReligion.getTechPrereq()).getTextKeyWide()));
+ 		}
+ 	}
+-	UnitClassTypes eFreeUnitClass = (UnitClassTypes)kReligion.getFreeUnitClass(); // advc
++
++	UnitClassTypes eFreeUnitClass = kReligion.getFreeUnitClass(); // advc
+ 	if (eFreeUnitClass != NO_UNITCLASS)
+ 	{
+ 		UnitTypes eFreeUnit = (getActivePlayer() != NO_PLAYER ?
+@@ -14057,7 +14058,7 @@ void CvGameTextMgr::setReligionHelpCity(CvWStringBuffer &szBuffer, ReligionTypes
+ 			if (GC.getInfo(eReligion).getTechPrereq() != NO_TECH)
+ 			{
+ 				szBuffer.append(gDLL->getText("TXT_KEY_RELIGION_FOUNDED_FIRST",
+-						GC.getInfo((TechTypes)GC.getInfo(eReligion).getTechPrereq()).
++						GC.getInfo(GC.getInfo(eReligion).getTechPrereq()).
+ 						getTextKeyWide()));
+ 			}
+ 		}
+@@ -14282,8 +14283,7 @@ void CvGameTextMgr::setCorporationHelp(CvWStringBuffer &szBuffer,
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_CORPORATION_FOUNDED_FIRST",
+-					GC.getInfo((TechTypes)kCorporation.getTechPrereq()).
+-					getTextKeyWide()));
++					GC.getInfo(kCorporation.getTechPrereq()).getTextKeyWide()));
+ 		}
+ 	}
+ 	szBuffer.append(NEWLINE);
+@@ -14304,20 +14304,21 @@ void CvGameTextMgr::setCorporationHelp(CvWStringBuffer &szBuffer,
+ 		szBuffer.append(gDLL->getText("TXT_KEY_CORPORATION_BONUS_PRODUCED",
+ 				GC.getInfo(kCorporation.getBonusProduced()).getChar()));
+ 	}
+-	UnitClassTypes eFreeUnitClass = (UnitClassTypes)kCorporation.getFreeUnitClass(); // advc
+-	if (eFreeUnitClass != NO_UNITCLASS)
+ 	{
+-		UnitTypes eFreeUnit = (getActivePlayer() != NO_PLAYER ? 
+-				GC.getGame().getActiveCivilization()->getUnit(eFreeUnitClass) :
+-				GC.getInfo(eFreeUnitClass).getDefaultUnit());
+-		if (eFreeUnit != NO_UNIT)
++		UnitClassTypes const eFreeUnitClass = kCorporation.getFreeUnitClass();
++		if (eFreeUnitClass != NO_UNITCLASS)
+ 		{
+-			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_RELIGION_FOUNDER_RECEIVES",
+-					GC.getInfo(eFreeUnit).getTextKeyWide()));
++			UnitTypes eFreeUnit = (getActivePlayer() != NO_PLAYER ? 
++					GC.getGame().getActiveCivilization()->getUnit(eFreeUnitClass) :
++					GC.getInfo(eFreeUnitClass).getDefaultUnit());
++			if (eFreeUnit != NO_UNIT)
++			{
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_RELIGION_FOUNDER_RECEIVES",
++						GC.getInfo(eFreeUnit).getTextKeyWide()));
++			}
+ 		}
+ 	}
+-
+ 	std::vector<CorporationTypes> aCompetingCorps;
+ 	bFirst = true;
+ 	FOR_EACH_ENUM2(Corporation, eLoopCorp)
+@@ -14365,19 +14366,17 @@ void CvGameTextMgr::setCorporationHelpCity(CvWStringBuffer &szBuffer,
+ 				TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), kCorporation.getDescription()));
+ 		szBuffer.append(NEWLINE);
+ 
+-		if (!GC.getGame().isCorporationFounded(eCorporation))
++		if (!GC.getGame().isCorporationFounded(eCorporation) &&
++			GC.getInfo(eCorporation).getTechPrereq() != NO_TECH)
+ 		{
+-			if (GC.getInfo(eCorporation).getTechPrereq() != NO_TECH)
+-			{
+-				szBuffer.append(gDLL->getText("TXT_KEY_CORPORATION_FOUNDED_FIRST",
+-						GC.getInfo((TechTypes)(kCorporation.getTechPrereq())).getTextKeyWide()));
+-			}
++			szBuffer.append(gDLL->getText("TXT_KEY_CORPORATION_FOUNDED_FIRST",
++					GC.getInfo(kCorporation.getTechPrereq()).getTextKeyWide()));
+ 		}
+ 	}
+ 
+ 	if (!bForceCorporation)
+ 	{
+-		if (!(pCity->isHasCorporation(eCorporation)))
++		if (!pCity->isHasCorporation(eCorporation))
+ 			return;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvInfo_Command.cpp b/CvGameCoreDLL/CvInfo_Command.cpp
+index 5237931c5..ee5b588ad 100644
+--- a/CvGameCoreDLL/CvInfo_Command.cpp
++++ b/CvGameCoreDLL/CvInfo_Command.cpp
+@@ -153,9 +153,9 @@ int CvActionInfo::getMissionType() const
+ 	case ACTIONSUBTYPE_BUILD:
+ 		return (MissionTypes)GC.getInfo((BuildTypes)m_iOriginalIndex).getMissionType();
+ 	case ACTIONSUBTYPE_RELIGION:
+-		return (MissionTypes)GC.getInfo((ReligionTypes)m_iOriginalIndex).getMissionType();
++		return GC.getInfo((ReligionTypes)m_iOriginalIndex).getMissionType();
+ 	case ACTIONSUBTYPE_CORPORATION:
+-		return (MissionTypes)GC.getInfo((CorporationTypes)m_iOriginalIndex).getMissionType();
++		return GC.getInfo((CorporationTypes)m_iOriginalIndex).getMissionType();
+ 	case ACTIONSUBTYPE_SPECIALIST:
+ 		return (MissionTypes)GC.getInfo((SpecialistTypes)m_iOriginalIndex).getMissionType();
+ 	case ACTIONSUBTYPE_BUILDING:
+
+diff --git a/CvGameCoreDLL/CvInfo_Organization.cpp b/CvGameCoreDLL/CvInfo_Organization.cpp
+index 06ada908d..ca23f315e 100644
+--- a/CvGameCoreDLL/CvInfo_Organization.cpp
++++ b/CvGameCoreDLL/CvInfo_Organization.cpp
+@@ -6,10 +6,10 @@
+ 
+ CvOrganizationInfo::CvOrganizationInfo() :
+ m_wcSymbol(0),
+-m_iTechPrereq(NO_TECH),
+-m_iFreeUnitClass(NO_UNITCLASS),
+-m_iSpreadFactor(0),
+-m_iMissionType(NO_MISSION)
++m_eTechPrereq(NO_TECH),
++m_eFreeUnitClass(NO_UNITCLASS),
++m_eMissionType(NO_MISSION),
++m_iSpreadFactor(0)
+ {}
+ 
+ wchar CvOrganizationInfo::getChar() const
+@@ -22,19 +22,10 @@ void CvOrganizationInfo::setChar(wchar wc)
+ 	m_wcSymbol = wc;
+ }
+ 
+-int CvOrganizationInfo::getFreeUnitClass() const
+-{
+-	return m_iFreeUnitClass;
+-}
+-
+-int CvOrganizationInfo::getMissionType() const
+-{
+-	return m_iMissionType;
+-}
+-
+ void CvOrganizationInfo::setMissionType(int iNewType)
+ {
+-	m_iMissionType = iNewType;
++	m_eMissionType = (MissionTypes)iNewType;
++	FAssertEnumBounds(m_eMissionType); // advc
+ }
+ 
+ const TCHAR* CvOrganizationInfo::getMovieFile() const
+@@ -57,8 +48,8 @@ bool CvOrganizationInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!base_t::read(pXML))
+ 		return false;
+ 
+-	pXML->SetInfoIDFromChildXmlVal(m_iTechPrereq, "TechPrereq");
+-	pXML->SetInfoIDFromChildXmlVal(m_iFreeUnitClass, "FreeUnitClass");
++	pXML->SetInfoIDFromChildXmlVal((int&)m_eTechPrereq, "TechPrereq");
++	pXML->SetInfoIDFromChildXmlVal((int&)m_eFreeUnitClass, "FreeUnitClass");
+ 
+ 	pXML->GetChildXmlValByName(&m_iSpreadFactor, "iSpreadFactor");
+
+diff --git a/CvGameCoreDLL/CvInfo_Organization.h b/CvGameCoreDLL/CvInfo_Organization.h
+index a503e752b..4db3e0e9e 100644
+--- a/CvGameCoreDLL/CvInfo_Organization.h
++++ b/CvGameCoreDLL/CvInfo_Organization.h
+@@ -16,10 +16,10 @@ public: // All the const functions are exposed to Python
+ 
+ 	wchar getChar() const; // advc: return wchar (not int)
+ 	void setChar(/* advc: */ wchar wc);
+-	int getTechPrereq() const { return m_iTechPrereq; }
+-	int getFreeUnitClass() const;
++	TechTypes getTechPrereq() const { return m_eTechPrereq; }
++	UnitClassTypes getFreeUnitClass() const { return m_eFreeUnitClass; }
+ 	int getSpreadFactor() const { return m_iSpreadFactor; }
+-	int getMissionType() const;
++	MissionTypes getMissionType() const { return m_eMissionType; }
+ 	void setMissionType(int iNewType);
+ 
+ 	const TCHAR* getMovieFile() const;
+@@ -30,10 +30,10 @@ public: // All the const functions are exposed to Python
+ 
+ protected:
+ 	wchar m_wcSymbol; // advc
+-	int m_iTechPrereq;
+-	int m_iFreeUnitClass;
++	TechTypes m_eTechPrereq;
++	UnitClassTypes m_eFreeUnitClass;
++	MissionTypes m_eMissionType;
+ 	int m_iSpreadFactor;
+-	int m_iMissionType;
+ 
+ 	CvString m_szMovieFile;
+ 	CvString m_szMovieSound;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index e6108962a..4ee4afda9 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6928,7 +6928,7 @@ void CvPlayer::foundReligion(ReligionTypes eReligion, ReligionTypes eSlotReligio
+ 	kGame.setReligionSlotTaken(eSlotReligion, true);
+ 
+ 	bool const bStarting = (kSlotReligion.getTechPrereq() == NO_TECH ||
+-			GC.getInfo((TechTypes)kSlotReligion.getTechPrereq()).getEra() < kGame.getStartEra());
++			GC.getInfo(kSlotReligion.getTechPrereq()).getEra() < kGame.getStartEra());
+ 
+ 	int iBestValue = 0;
+ 	CvCity* pBestCity = NULL;
+@@ -6957,7 +6957,7 @@ void CvPlayer::foundReligion(ReligionTypes eReligion, ReligionTypes eSlotReligio
+ 	kGame.setHolyCity(eReligion, pBestCity, true);
+ 	if (bAward && kSlotReligion.getNumFreeUnits() > 0)
+ 	{
+-		UnitTypes eFreeUnit = getCivilization().getUnit((UnitClassTypes)
++		UnitTypes eFreeUnit = getCivilization().getUnit(
+ 				GC.getInfo(eReligion).getFreeUnitClass());
+ 		if (eFreeUnit != NO_UNIT)
+ 		{
+@@ -7010,8 +7010,7 @@ void CvPlayer::foundCorporation(CorporationTypes eCorporation)
+ 
+ 	CvCorporationInfo const& kCorp = GC.getInfo(eCorporation);
+ 	bool const bStarting = (kCorp.getTechPrereq() == NO_TECH ||
+-			GC.getInfo((TechTypes)kCorp.getTechPrereq()).getEra() <
+-			GC.getGame().getStartEra());
++			GC.getInfo(kCorp.getTechPrereq()).getEra() < GC.getGame().getStartEra());
+ 
+ 	int iBestValue = 0;
+ 	CvCity* pBestCity = NULL;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b9b1a62da..2e2c1ab63 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4158,9 +4158,9 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
+ 
+ 	// Initial threshold
+ 	FAssert(techs_to_depth.size() > 1);
++	// Note: this works even if depth=0 isn't big enough.
+ 	int iThreshold = techs[std::min(iMaxPathLength-1,
+ 			(int)techs.size()-1)].first;
+-	// Note: this works even if depth=0 isn't big enough.
+ 	// advc.550: 0.8 in K-Mod 1.46. AdvCiv had used 0.62 until version 0.99.
+ 	scaled const rDepthRate = fixp(2/3.);
+ 
+@@ -4310,7 +4310,6 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
+ 							if (techs[j].first <
+ 								techs[tech_paths.back().second[k]].first)
+ 							{
+-
+ 								// Note: we'll need to recalculate the total value.
+ 								tech_paths.back().second.insert(
+ 										tech_paths.back().second.begin()+k, j);
+@@ -4873,7 +4872,8 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 
+ 					// TODO: multiply by average commerce multiplier?
+ 
+-					// 4 for upgrading local to foreign. 2 for upgrading to overseas. Divide by 3 if we don't have coastal cities.
++					/*	4 for upgrading local to foreign. 2 for upgrading to overseas.
++						Divide by 3 if we don't have coastal cities. */
+ 					iValue += (std::min(iLocalRoutes, iNewForeignRoutes) * 16 +
+ 							std::min(iNewOverseasRoutes, iCityCount * 3) * 8) /
+ 							(iCoastalCities > 0 ? 1 : 3);
+@@ -5325,7 +5325,6 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 		// </k146>
+ 	}
+ 
+-
+ 	/* ------------------ Building Value  ------------------ */
+ 	bool bEnablesWonder/* advc.001n:*/=false;
+ 	iValue += AI_techBuildingValue(eTech, bAsync || !bRandomize, bEnablesWonder);
+@@ -5617,7 +5616,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 			int iAvailableReligions = 0; // K-Mod
+ 			FOR_EACH_ENUM(Religion)
+ 			{
+-				TechTypes eReligionTech = (TechTypes)GC.getInfo(eLoopReligion).getTechPrereq();
++				TechTypes eReligionTech = GC.getInfo(eLoopReligion).getTechPrereq();
+ 				/*if (kTeam.isHasTech(eReligionTech)) {
+ 					if (!(GC.getGame().isReligionSlotTaken((ReligionTypes)iJ)))
+ 						iPotentialReligions++;
+@@ -5672,7 +5671,6 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 				if (AI_atVictoryStage(AI_VICTORY_CULTURE1))
+ 				{
+ 					iReligionValue += 50; // k146: was 100
+-
+ 					if (countHolyCities() < 1)
+ 					{
+ 						//iReligionValue += 200;
+@@ -5680,8 +5678,11 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 						iReligionValue += (iCityCount > 1 ? 100 : 0);
+ 					}
+ 				}
+-				else iReligionValue /= 1 + countHolyCities() + (iPotentialReligions > 0 ? 1 : 0);
+-
++				else
++				{
++					iReligionValue /= 1 + countHolyCities() +
++							(iPotentialReligions > 0 ? 1 : 0);
++				}
+ 				if (countTotalHasReligion() == 0 && iPotentialReligions == 0)
+ 				{
+ 					bool bNeighbouringReligions = false;
+@@ -19076,10 +19077,9 @@ void CvPlayerAI::AI_doMilitary()
+ 
+ void CvPlayerAI::AI_doResearch()
+ {
+-	FAssertMsg(!isHuman(), "isHuman did not return false as expected");
+-
+-	//if (getCurrentResearch() == NO_TECH)
+-	if (getCurrentResearch() == NO_TECH && isResearch() && !isAnarchy()) // K-Mod
++	FAssert(!isHuman());
++	if (getCurrentResearch() == NO_TECH &&
++		isResearch() && !isAnarchy()) // K-Mod
+ 	{
+ 		AI_chooseResearch();
+ 		//AI_forceUpdateStrategies(); //to account for current research.
+@@ -28188,10 +28188,11 @@ ReligionTypes CvPlayerAI::AI_chooseReligion()
+ 		//aeReligions.push_back(eLoopReligion); // BtS
+ 		// <advc.171>
+ 		int iValue = 0;
+-		TechTypes eLoopTech = (TechTypes)GC.getInfo(eLoopReligion).getTechPrereq();
+-		if(eLoopTech != NO_TECH)
++		TechTypes eLoopTech = GC.getInfo(eLoopReligion).getTechPrereq();
++		if (eLoopTech != NO_TECH)
+ 			iValue = GC.getInfo(eLoopTech).getResearchCost();
+-		if(iValue < iSmallest) {
++		if (iValue < iSmallest)
++		{
+ 			eBestReligion = eLoopReligion;
+ 			iSmallest = iValue;
+ 		}
+@@ -28382,7 +28383,7 @@ int CvPlayerAI::AI_getPlotCanalValue(CvPlot const& kPlot) const // advc: param w
+ }
+ 
+ /*	This returns approximately to the sum
+-	of the percentage values of each unit
++	of the percentage values of each city
+ 	(there is no need to scale the output by iHappy)
+ 	100 * iHappy means a high value. */
+ int CvPlayerAI::AI_getHappinessWeight(int iHappy, int iExtraPop, bool bPercent) const
+@@ -28595,8 +28596,8 @@ bool CvPlayerAI::AI_isFirstTech(TechTypes eTech) const
+ 	}
+ 	if (GC.getGame().countKnownTechNumTeams(eTech) == 0)
+ 	{
+-		if ((getTechFreeUnit(eTech) != NO_UNIT) ||
+-			(GC.getInfo(eTech).getFirstFreeTechs() > 0))
++		if (getTechFreeUnit(eTech) != NO_UNIT ||
++			GC.getInfo(eTech).getFirstFreeTechs() > 0)
+ 		{
+ 			return true;
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=17500

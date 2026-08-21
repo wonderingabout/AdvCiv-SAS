@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 497
+# Commit: 91d6c5341833369ef189ec7fa3ce77b4f5154864
+# History segment: K-Mod history
+# Parent used for diff: f6af0ca82b1e86277b5d54d98c334088baf9df85
+# Title: Fixed a problem which prevented the end-of-turn message from displaying if the player had all their units automated.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	7	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameInterface.cpp
+2	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index c4b397020..e3039c0ae 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -5978,13 +5978,6 @@ void CvGame::doTurn()
+ 	{
+ 		changeAIAutoPlay(-1);
+ 
+-		// K-Mod
+-		if (gDLL->getChtLvl() > 0 && gDLL->altKey() && gDLL->shiftKey() && gDLL->ctrlKey())
+-		{
+-			setAIAutoPlay(0);
+-		}
+-		// K-Mod end
+-
+ 		if (getAIAutoPlay() == 0)
+ 		{
+ 			reviveActivePlayer();
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 15329bed8..cde57d04e 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -502,7 +502,7 @@ void CvGame::updateTestEndTurn()
+ 					}
+ 					else
+ 					{
+-						if (GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_WAIT_END_TURN) || !(gDLL->getInterfaceIFace()->isHasMovedUnit()) || isHotSeat() || isPbem())
++						if (GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_WAIT_END_TURN) || !gDLL->getInterfaceIFace()->isHasMovedUnit() || isHotSeat() || isPbem())
+ 						{
+ 							gDLL->getInterfaceIFace()->setEndTurnMessage(true);
+ 						}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 0f2608381..229df83eb 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3830,7 +3830,8 @@ bool CvPlayer::hasReadyUnit(bool bAny) const
+ 
+ 	for(pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
+ 	{
+-		if (pLoopSelectionGroup->readyToMove(bAny))
++		//if (pLoopSelectionGroup->readyToMove(bAny))
++		if (pLoopSelectionGroup->readyToMove(bAny) && !pLoopSelectionGroup->isAutomated()) // K-Mod
+ 		{
+ 			return true;
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1696

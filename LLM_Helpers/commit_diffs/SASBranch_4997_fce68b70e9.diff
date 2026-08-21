@@ -1,0 +1,376 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4997
+# Commit: fce68b70e9161e7428339b593c29c3817ec79fe7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1b88522f9c3a7dfd3df304393a2d553891278ebe
+# Title: (Fixed and greatly enhanced) AI valuing for example pig (+1 health) at the same value than maize (+1 health and +1 health from granary = in total + 2 health,...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	CvGameCoreDLL/CvCityAI.cpp
+123	0	CvGameCoreDLL/CvPlayerAI.cpp
+64	0	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+25	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 1e5ebe1f9..9fc075e0c 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1745,7 +1745,7 @@ void CvCityAI::AI_chooseProduction()
+ 		const int iFreeTurns = iBaseFreeTurns * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
+ 		const bool bFreeSettlerEarlyWindow = (kGame.getElapsedGameTurns() < iFreeTurns);
+ 
+-		// <!-- custom: only capital can produce settler as of now, but in case we change it, safer to put these at common tree/logic (i.e. with non capital cities too anyways etc) ; note: it is intended that this applies regardless of free window, as even in first 75 or so turns (see below for updated value if any but anyways etc), we want to grow first still before producing settlers, see below for reasons, that include more efficient food is production due to higher pop, as well as stronger miltiary or such so less barbarian captures than with a bunch of 1 size cities thinly/weakly guarded at turn 50-75 then recaptured at turn 75-100 by a rival :( So take a bit slower growth for higher efifciency and see below for detials anyways etc -->
++		// <!-- custom: only capital can produce settler as of now, but in case we change it, safer to put these at common tree/logic (i.e. with non capital cities too anyways etc) ; note: it is intended that this applies regardless of free window, as even in first 75 or so turns (see below for updated value if any but anyways etc), we want to grow first still before producing settlers, see below for reasons, that include more efficient food is production due to higher pop, as well as stronger miltiary or such so less barbarian captures than with a bunch of 1 size cities thinly/weakly guarded at turn 50-75 then recaptured at turn 75-100 by a rival :( So take a bit slower growth for higher efifciency and see below for details anyways etc -->
+ 		if (iCityPopulation <= 4)
+ 		{
+ 			// <!-- custom: keep growing as in same old code that was now deleted, i start to understand maybe how they felt writing it, but it was way too permissive or and inaccurate or ineffective or not enough i think, i hope AI is more competitive with this one but there could be a better way ofc but i hope this is not too bad and better than previous one too i think as well if i am not mistaken but.. open to feedback xd, in this code at least not that i would necessarily reply though if i may say but open about being wrong or mistaken in this case i mean but anyways etc... (t.l.d.r don't contact me but i can be wrong xd but anyways etc) -->
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 35f327cc3..4ac43f91d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12157,6 +12157,129 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 		if(bExtraHappyOrHealth && iChange < 0)
+ 			rOurVal /= fixp(0.75);
+ 	}
++
++	// <!-- custom: a long standing issue in base advciv that still happens as of now is AI valuing for example pig the same as wheat, even though pig +1 health but wheat gives +2 health (+1 health and also +1 health with a granary which is almost always built), leading to the human player massively exploiting it or being able to and coasting through the early game as a result. Tone this down so AIs have a better understanding of the value of bonuses, by considering the building that increases effects (e.g. +1 health with granary) is always built as soon as we unlock the tech for it (in our mod for example tech_agriculture for building granary), also making sure our building is not obsolete though. Tone this toning down if i may say but anyways etc for bonuses that have increased effects with coastal buildings, as in many cases most cities won't be coastal, so use 1.5 times value to represent that in a simplified manner. Code provided by chatgpt 5, check if accurate anyways etc. Also see known issue as of now 66 for details anyways etc -->
++	// <!-- custom: note: since it seems bonuses losing value (like copper over time is already handled during the game, and according to chatgpt 5 elsewhere, simplifying our code and not wasting needless computation just for our pre-checks here by not checking it; check (no pun but anyways etc) if accurate but anyways etc). -->
++	// Notes & answers
++	// - Fairness (no bullying): The multiplier applies only to the buyer’s evaluation (this function belongs to the buyer), and only when the buyer’s team has the enabling tech. So if we don’t have Agriculture yet, Maize stays valued like +1 health.
++	// - Coastal coverage: Using 0.5 is your requested “good-enough” heuristic. If you later want map-type nuance, bump it slightly on water maps.
++	// - Grocer effects: Covered automatically: if Grocer has BonusHealthChanges for Banana and BonusHappinessChanges for Sugar/Grapes, once we have the Grocer tech those add +1 each to iExtra, so value scales up.
++	// - Obsolete tech: Yes, when a building obsoletes, its bonus-driven effects are disabled; the guard above ensures we don’t count them.
++	// - Performance: One pass over the building list per valuation (no city loops, no pathing). That’s cheap and happens far less often than per-turn city code.
++	//
++	// With this in, you’ll see:
++	// - Maize/Wheat/Rice jump from ~2 gpt to ~3–4 gpt as soon as the buyer has Agriculture (Granary).
++	// - Fish/Crab/Clam rise to ~3 gpt after Seafaring/Harbor (1.5× effect).
++	// - Banana/Sugar/Grapes rise after Grocer tech.
++	//
++	// It’s simple, robust, and it lines resource prices up with actual empire impact without micromanaging current builds.
++	//
++	// --- Tech-gated building synergy for this bonus (simple & fast) ---
++	if (rOurVal.isPositive())
++	{
++		scaled rBoost = 1; // multiply our per-city value by this at the end
++
++		// <!-- custom: among special buildings, as for temples and monasteries, they can be built in many cities, fairly cheaply, and of many religions, however it would be computationally heavy and tedious to check all and every time just for bonus price. Use an approximation of which should most often be reliable enough; if some xml changes were to make these have a lot of bonus-related effects then we'd value these bonuses in trade more as we want, anyways etc -->
++		// yep — easiest way: give two tiny budgets and spend them when we see religion-gated buildings.
++		// Temples: total coverage capped at 0.5 (≈ one dominant religion’s temples).
++		// Monasteries: total coverage capped at 0.5.
++		// Cathedrals still skipped.
++		// Heuristics: at most ~1 religion's temples worth (0.5), and
++		// at most ~1 religion's monasteries worth (0.5)
++		// Track whether this bonus is enhanced by a temple/monastery anywhere
++		int iTempleExtraMax = 0;     // best (health+happy) from any temple
++		int iMonasteryExtraMax = 0;  // best (health+happy) from any monastery
++		// --- once-per-DLL-run cached lookups for the special-building “kinds” we care about
++		static const SpecialBuildingTypes SB_TEMPLE = (SpecialBuildingTypes)GC.getInfoTypeForString("SPECIALBUILDING_TEMPLE", true);
++		static const SpecialBuildingTypes SB_MONASTERY = (SpecialBuildingTypes)GC.getInfoTypeForString("SPECIALBUILDING_MONASTERY", true);
++		static const SpecialBuildingTypes SB_CATHEDRAL = (SpecialBuildingTypes)GC.getInfoTypeForString("SPECIALBUILDING_CATHEDRAL", true);
++
++		FOR_EACH_ENUM(BuildingClass)
++		{
++			const CvBuildingClassInfo& kCls = GC.getInfo(eLoopBuildingClass);
++
++			// <!-- custom: to not cause overvaluing, exclude building classes that are rare (not built in many cities) such as world wonders, national wonders, and cathedrals (handled below since they are not limited but just rarely built due to their cost and restrictions (in XML iMaxGlobalInstances and such are -1 so not limited if i'm not mistaken so need to handle it in another way if i'm not mistaken anyways etc)) as of now which are the only ones i can think of. This is because our nice change caused incense to be a bit overpriced due to effect with buddhist stupa and pagan cathedral which are buildings we rarely build, so no need to value bonuses too much more just because of these. So to simplify, just ignore these cases if i may say but anyways etc; we also save some computation nicely too if i may say by early exiting if i may say but anyways etc -->
++			// Skip world wonders, national wonders (player-limited)
++			// Skip world wonders, team wonders, national wonders
++			if (kCls.isLimited())
++				continue;
++
++			// <!-- custom: e.g. if justinian player gains happiness from horse bonus if he builds his civ-specific stable as of now if i'm not mistaken that it is the case as of now for example but anyways etc, then we have more leverage vs him and he badly needs our bonus more if i may say but anyways etc.. Is sad but is business i mean and maybe just how it is, anyways etc; so on our end make sure we maximize and squeeze the best from him so he can get this bonus. Ugly and terrible but is business i mean and hopefully AI playing smarter anyways etc -->
++			// Use the building the BUYER can actually build for this class
++			BuildingTypes eB = (BuildingTypes)GC.getInfo(getCivilizationType()).getCivilizationBuildings(eLoopBuildingClass);
++			if (eB == NO_BUILDING)
++				eB = kCls.getDefaultBuilding();
++			if (eB == NO_BUILDING)
++				continue; // safety
++
++			const CvBuildingInfo& kB = GC.getInfo(eB);
++
++			// <!-- custom: also exclude cathedrals as said/explained above if i may say but anyways etc -->
++			// Your XML shows cathedrals/temples aren’t class-limited (player instance = −1), so they slip past isLimited(). If you want to exclude religious “chain” buildings from bumping resource prices, just skip by SpecialBuilding type:
++			SpecialBuildingTypes const eSB = kB.getSpecialBuildingType();
++			// Skip cathedrals so they don’t overprice incense (guard if not defined in XML)
++			if (SB_CATHEDRAL != NO_SPECIALBUILDING && eSB == SB_CATHEDRAL)
++			{
++				continue; // don't let cathedrals buildings overprice incense, etc.
++			}
++
++			// Must have the building's enabling tech (if any)
++			TechTypes const eReq = (TechTypes)kB.getPrereqAndTech();
++			if (eReq != NO_TECH && !GET_TEAM(getTeam()).isHasTech(eReq))
++				continue;
++
++			// If the building is obsolete for us, ignore its extra effects
++			TechTypes const eObs = (TechTypes)kB.getObsoleteTech();
++			if (eObs != NO_TECH && GET_TEAM(getTeam()).isHasTech(eObs))
++				continue;
++
++			// How much extra this building adds for THIS bonus (health + happy)
++			int iExtra = 0;
++			iExtra += kB.getBonusHealthChanges(eBonus);
++			iExtra += kB.getBonusHappinessChanges(eBonus);
++			if (iExtra <= 0)
++				continue;
++
++			// Record best temple / monastery bonus and always continue (don’t add normal coverage); budget 0.5 each later
++			if (SB_TEMPLE != NO_SPECIALBUILDING && eSB == SB_TEMPLE)
++			{
++				iTempleExtraMax = std::max(iTempleExtraMax, iExtra);
++				continue; // always continue; don't add normal coverage for temples
++			}
++			if (SB_MONASTERY != NO_SPECIALBUILDING && eSB == SB_MONASTERY)
++			{
++				iMonasteryExtraMax = std::max(iMonasteryExtraMax, iExtra);
++				continue; // same here
++			}
++			
++			// Non-religious buildings: normal coverage (coastal ~ half the cities)
++			// Coastal-only buildings only affect a subset of cities; treat as 50% coverage
++			scaled const rCoverage = (kB.isWater() ? fixp(0.5) : fixp(1));
++			// Each extra “pip” multiplies value (granary grain +1 ⇒ +1.0, harbor seafood +1 ⇒ +0.5)
++			rBoost += rCoverage * iExtra;
++		}
++
++		// Spend the tiny fixed “religion budgets”
++		if (iTempleExtraMax > 0)
++		{
++			rBoost += fixp(0.5) * iTempleExtraMax;
++		}
++		if (iMonasteryExtraMax > 0)
++		{
++			rBoost += fixp(0.5) * iMonasteryExtraMax;
++		}
++
++		rOurVal *= rBoost;
++		// <!-- custom: finally, redivide everything by 2, so that now our bonuses have a hierarchy reflecting effective value/price instead of pig and maize at same price, but divide by 2 else maize becomes way too valuable (10+ gold at turn 100 in some cases). Thus, maize keeps about same price as before, but the pig that the human could sell too expensively is now cheaper so the human player can't abuse it anymore, nor can AI vs AI trades be unfavourable to clueless AIs (trading maize vs pig or equivalent kind of trade of trading away their maize for very low gpt or buying pig for very high gpt which would be bad for them anyways etc) -->
++		// final damping: halve across the board
++		// (keeps boosted foods like Maize roughly where they were,
++		// but pushes low-impact stuff like Pig down)
++		// rOurVal *= fixp(0.5);
++		// <!-- custom: 0.5 leads to a bit too low prices upon testing, increase it a bit but not too much so prices are not ridiculously high nor too low anyways etc -->
++		rOurVal *= fixp(0.75);
++	}
++	// (existing code continues...)
++
+ 	rOurVal *= getNumCities(); // bonusVal is per city
+ 	/*  Don't pay fully b/c trade doesn't give us permanent access to the
+ 		resource, and b/c it tends to be (and should be) a buyer's market. */
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 2c7747635..bc5300d18 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -32,6 +32,7 @@ Instead of:
+ &emsp;[add media assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#add-media-assets)  
+ &emsp;[write git commit message gradually as you do changes before committing them, and keep notes of ideas anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#write-git-commit-message-gradually-as-you-do-changes-before-committing-them-and-keep-notes-of-ideas-anyways-etc)  
+ &emsp;[full git log with anonymized email in a .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#full-git-log-with-anonymized-email-in-a-txt)  
++&emsp;[how to create/edit git tags at specific commits with a tag message](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-createedit-git-tags-at-specific-commits-with-a-tag-message)  
+ &emsp;[manual(s) and docs in .txt](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#manuals-and-docs-in-txt)  
+ &emsp;&emsp;[advciv id changes manual.txt results](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#advciv-id-changes-manualtxt-results)  
+ &emsp;[Sources about XML AI Attributes and their meaning](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#sources-about-xml-ai-attributes-and-their-meaning)  
+@@ -171,6 +172,69 @@ For example for AdvCiv-SAS, i put this file (that i ideally should/try to update
+ 
+ note: it should be possible to create erase in one command the old git log but for now at least anyways etc i prefer to manually copy paste, even though risk is low thanks to git commit versioning and having a github backup or such other files or not anyways etc, still for now doing as such but this command may be optimized/enhanced perhaps rather by having it copy it there directly and overwrite old file, which should be quite safe considering it is a rarely used and not actively written on file only a log if i may say as chatgpt would recommend to me about other topics or files when evaluating safety of a change or/and discuss it suggest it with me in this case i mean but anyways etc if i may say or talking about it with it but anyways etc.
+ 
++### how to create/edit git tags at specific commits with a tag message
++
++Thanks to the help of chatgpt 5, and me noticing how based on past experience or/and such or current observation in this case i mean but anyways etc, what i mean is [git/github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) can be very useful to manage versions, provide download links, possibly also use as compare points to remember which commit they were at precisely and fast without needing to remember it yourself, anyways etc.
++
++For example, AdvCiv-SAS 4986 is available at the [4986 git/github tag](https://github.com/wonderingabout/AdvCiv-SAS/releases/tag/4986)
++
++#### simple version(s Anyways etc)
++
++Here is how to do it with the help of chatgpt 5, which i adjusted a bit at some parts in this case i mean but anyways etc (check if accurate too, and make backups of your git repo before trying this just in case even though seems to function fine but is to be safe i mean in this case i mean but anyways etc) (for example i run this from git bash on windows):
++
++If the tag doesn’t exist yet:
++
++```cmd
++git fetch origin
++git tag -a 4986 8d6bf6e0f61004e415aa3584e906fdb77275c1f8 \
++  -m "AdvCiv-SAS 4986" \
++  -m "Changelog from base AdvCiv 1.12 to version 4986 is here: https://github.com/wonderingabout/AdvCiv-SAS/compare/96790915238bdaf7d1ef38658e69fe1035129687...8d6bf6e0f61004e415aa3584e906fdb77275c1f8"
++git push origin 4986
++```
++
++If the tag exists but points to the wrong commit:
++
++```cmd
++git fetch origin
++git tag -fa 4986 8d6bf6e0f61004e415aa3584e906fdb77275c1f8 \
++  -m "AdvCiv-SAS 4986" \
++  -m "Changelog from base AdvCiv 1.12 to version 4986 is here: https://github.com/wonderingabout/AdvCiv-SAS/compare/96790915238bdaf7d1ef38658e69fe1035129687...8d6bf6e0f61004e415aa3584e906fdb77275c1f8"
++git push --force origin 4986
++```
++
++#### More advanced version to also set the date of the tag to last commit and not time of tagging, plus using shell variables so less tedious anyways etc
++
++A more advanced version would allow to better control the date we set to the tag. For example, i committed version 4986 as of now more or less 2 weeks ago, however if i create a tag now as above, i generally get the tag dated to now, which doesn't reflect the date when 4986 was made that i would want to show as date of the tag as well, not "now".
++
++To do that, with bit of back and forth wit chatgpt 5 and trial and error (but check if accurate), i have found this very nice version that allows to do that (be bit more careful using it as i don't know if it will always be functionnal (the simple one too but this one in particular xd as it's more technical and might change in the future or apply differently to your use case or something so check if accurate and make a backup of your repo maybe/ideally if i may say just in case but anyways etc))
++
++```cmd
++git fetch origin
++
++# choose names
++# new tag
++TAG=4986
++SHA=8d6bf6e0f61004e415aa3584e906fdb77275c1f8   # <- the 4986 commit
++OLDNAME="base AdvCiv 1.12"                     # quote because of spaces
++BASE=96790915238bdaf7d1ef38658e69fe1035129687
++WHEN=$(git show -s --format=%cI "$SHA")        # or %aI if you prefer author date
++
++# replace the tag locally with correct date + message
++GIT_COMMITTER_DATE="$WHEN" GIT_AUTHOR_DATE="$WHEN" \
++git tag -fa "$TAG" "$SHA" \
++  -m "AdvCiv-SAS $TAG" \
++  -m "Commit history from $OLDNAME to $TAG viewable at https://github.com/wonderingabout/AdvCiv-SAS/commits/tech-rework/?since=2025-03-22&until=2025-09-05 or at https://github.com/wonderingabout/AdvCiv-SAS/compare/$BASE...$SHA"
++
++# force-push because we’re updating an existing remote tag object
++git push --force origin "$TAG"
++# if you’re not correcting an existing remote tag:
++# if not force pushing then before you'd need to rather do instead if i'm not mistaken anyways etc git tag -a (note: i commented it here rather than above else the `\` char followed by a command line breaks the date that is shown as now instead of the date we set in this command, as nicely found by chatgpt 5 and i tested it too to seem to be so but anyways etc (but check if accurate anyways etc)) anyways etc, so i put all comments here for reliability and clarity anyways etc
++# and then next line you could do (no force push if new tag that did not existing before if i'm not mistaken but anyways etc): 
++# git push origin "$TAG"
++```
++
++Result ([for example for tag version 4986 here](https://github.com/wonderingabout/AdvCiv-SAS/releases/tag/4986) as linked before but added here again if i may say in this case i mean but anyways etc for exhaustiveness but anyways etc) is great, now our tag is shown "2 weeks ago" (date of the commit of version 4986), and not "now" anymore (date of when i am tagging it as of now today anyways etc) as we wanted, but again check if accurate and make a backup of your repo just in case, hopefully helpful anyways etc.
++
+ ### manual(s) and docs in .txt
+ 
+ Similarly, i have found it very useful to keep a .txt copy of the docs i use, in particular technical ones, and such as the [AdvCiv base docs](/_0_Common_Docs/AdvCiv%20(Base)%20Doc) in particular the [manual in .txt](/_0_Common_Docs/AdvCiv%20(Base)%20Doc/manual.txt)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 2f2f04d5e..ef1128a07 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -92,6 +92,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [63 - (Possibly prevented and possibly fixed) Weird / very inefficient back and forth of going to attack a city stack, and then going back after seeing enemy stack is too strong. I don't know if this change fixes it since the issue was solved without it (2+ autoplay turns were needed at least it seems not 1), but maybe this change in CvUnitAI::AI_attackCityMove helps a lot but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but-anyways-etc)  
+ [64 - (Greatly enhanced) AI not razing faraway cities at captures - now we raze them if we are in the early game and they are not close enough, thanks to changes and tweaks in CvPlayerAI::AI_conquerCity anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc)  
+ [65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc)  
++[66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early anyways etc) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd if i may say but anyways etc, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now if i may say but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -1516,7 +1517,7 @@ CITY_DEFENSE, CITY_SPECIAL
+ 
+ ### Results of known issue 47 changes
+ 
+-As can be seen in existing screenshots between 2423 and 2451, AI is now much more effective, or at least significantly more effective at picking promotions: attackers often have city_raider promotion or some other offensive related or compatible in this case but anyways etc promotions if relevant in this case i mean but anyways etc, defenders more often go for city_garrison which is aobut best in unitai_city_defense, but some offensive longbowmen go for combat or such which is fine as ai uses the to attack and it's decent still as a defensive promotion if attacked by an enemy before this unit leaves its city.
++As can be seen in existing screenshots between 2423 and 2451, AI is now much more effective, or at least significantly more effective at picking promotions: attackers often have city_raider promotion or some other offensive related or compatible in this case but anyways etc promotions if relevant in this case i mean but anyways etc, defenders more often go for city_garrison which is about best in unitai_city_defense, but some offensive longbowmen go for combat or such which is fine as ai uses the to attack and it's decent still as a defensive promotion if attacked by an enemy before this unit leaves its city.
+ 
+ Versatility is quite preserved as well with a variety or enough of promotions.
+ 
+@@ -2218,7 +2219,7 @@ And yay no crash!!
+ 
+ Considering i recompiled it several times including after polishing code comments and still no crash at t200, and considering it always crashed when starting from this autoplay save file (in drive link anyways etc) and doing exactly 100 turns (doing 50 turns then resuming didn't seem to reliably if at all cause the issue although i didn't dig too much to be sure, do 100 tursn from here if you want to investigate it so from turn 100 to turn 200 to trigger the crash at turn 156 in like 10+ runs i did or something similar if less if i may say we would always crash so i would consider it reproducible from this save file with this number of autoplay turns if i'm not mistaken but anyways etc), i'd consider the issue solved since i tested it a few times with a few recompiled versions of this change, no issue to turn 200.
+ 
+-I am very happy of this result and of us (i.e. me or/and maybe players xd but anyways etc) being able to keep AI worker efficiency and also solve what i think is/was now but anyways etc an old base advciv +/- civ4 crash (likely due to tinkering with pointers or such or who knows what but anyways etc), that was hidden by the betterplotbuild assignment as explained in known issue as of now 55 i guess or something similar or perhaps it is related to how we rewrote bestcitybuild function but less likely, but i don't know too much aobut these, ask chatgpt 5 to be sure! Or some other AI (or/and but anyways etc), and check if accurate too if i may say! But anyways etc.
++I am very happy of this result and of us (i.e. me or/and maybe players xd but anyways etc) being able to keep AI worker efficiency and also solve what i think is/was now but anyways etc an old base advciv +/- civ4 crash (likely due to tinkering with pointers or such or who knows what but anyways etc), that was hidden by the betterplotbuild assignment as explained in known issue as of now 55 i guess or something similar or perhaps it is related to how we rewrote bestcitybuild function but less likely, but i don't know too much about these, ask chatgpt 5 to be sure! Or some other AI (or/and but anyways etc), and check if accurate too if i may say! But anyways etc.
+ 
+ See also: [58 - (Fixed/Enhanced) Reproducible crash at turn 95 in another map, related to the else block in CvUnitAI::AI_nextCityToImprove, by rewriting the else block based on the (more? But anyways etc) code at CvUnitAI::AI_connectPlot anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#58---fixedenhanced-reproducible-crash-at-turn-95-in-another-map-related-to-the-else-block-in-cvunitaiai_nextcitytoimprove-by-rewriting-the-else-block-based-on-the-more-but-anyways-etc-code-at-cvunitaiai_connectplot-anyways-etc)
+ 
+@@ -2546,3 +2547,25 @@ Chatgpt 5 analyzed the event log as such (put run 2 only for concision anyways e
+ It seems not important anymore or urgent to fix the cause (religious dogpile) as it adds some game variety, and more importantly in this game hatshepsut ai captured rome ai (surprisingly historically accurate xd although is a random generated map and although i don't know too much this timeline's real history but i know they were invovled with each other on some level if i am not mistaken but anyways etc) so their holy pagan city synergized nicely with hatshepsut ai's paganism as well, so may be fine to leave as such i don't know for sure, however i had the issue in base advciv of strongest ai switching religion then making an enemy of everyone stupidly so may need some tweaking possibly even though i don't know where but i could use this save file as a base for that maybe if i may say but anyways etc (however is not guaranteed i may or may not do so anyways etc).
+ 
+ As for this change of seemingly much better but anyways etc "emergency peace" prechecks, AI should be much stronger as well thanks to these hopefully and possibly be better at keeping its lead while still keeping the ability to bully the weak (i.e. many weak players) in multi wars for its interest (e.g. shortly before turn 200 hastsheput ai goes at it again if i may say but anyways etc and declares war on pacal 2 ai who was dying anyway if i may say but anyways etc and who is nearby so nice gain for her and safe as well in this case i mean but anyways etc).
++
++## 66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early anyways etc) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd if i may say but anyways etc, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now if i may say but anyways etc
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/13hSTVD9mOWRkaCnS3Z21s-8tbYaBr3Sf?usp=sharing).
++
++This is another nice AI improvement and a critical as in annoying if i may say but anyways etc issue base AdvCiv +/- civ4 AI had, that was that it was way too easy to abuse its early trading, because it gave the same gold per turn for for example pig (that gives only +1 health) than for for example maize or wheat (that give almost always +2 health since almost all cities have a granary very early in the game anyways etc), so wheat should be more or less double the price of pig, not same price (e.g. it should be 4 gpt for maize/wheat vs 2 gpt for pig/cattle).
++
++Thanks to these changes, AI should have a much stronger opening and midgame, not only in human vs AI trade where the human can no longer run away, but also in AI vs AI trade that now lead if i'm not mistaken but anyways etc to fairer trades (AI actually gets value from its maize vs another AI and doesn't throw it away for something cheap like cow or something ideally but anyways etc). This is not always applied in some cases it seems, but most often is.
++
++Note: there are several nuances to this, not all detailed (see code for the changes in as of now `CvPlayerAI::AI_bonusTradeVal` for details anyways etc), but mostly:
++
++- not applied to wonders so we save computation plus they are not built in all cities so even if a wonder gains effects from bonuses, it's only in one city more or less and simpler to handle as such
++- not applied to cathedrals as it is a rare building
++- simplified for temples and monasteries as not that many religions are in a game, and even if that would be the case, generally AIs woudn't build 7 temples in all cities so fine to handle as such to simplify if i'm not mistaken but anyways etc.
++- applied less strictly to coastal buildings, as not all cities are coastal even in water heavy maps, but some may be so give a little extra value for the bonus in trade but not as much
++- as a part of applying these changes, bonuses now value slightly less than before, to nerf a bit the too easy trading, and also make maize not become too expensive especially early on.
++
++All in all, in ingame testing, we get reasonable, not too cheap nor too expensive anymore prices, that seem to scale well enough into midgame (since we only added a pre-check as we usually do xd but anyways etc and didn't rewrite all hehe if i may say but anyways etc).
++
++Hopefully AI should be stronger, or perhaps human weaker if i may say but anyways etc, however it may also make trading more strategic, since some bonuses are more expensive now like maize, while others should be cheaper like pig, possibly iron too if it doesn't provide building specific extra effects (like +1 happy or +1 health for example), which is maybe fine as iron is not strictly mandatory although nice to have, and the human player could have gotten a bit too much value out of it maybe. I tried to make it so price is not too low, but didn't want to exclude it either to see how it would be, maybe it would be fine as such, but anyways etc.
++
++Also, code added with the help of chatgpt 5, check if accurate and thanks a lot chatgpt 5 if i may say but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 5ff3976d7..7e8ed6a7c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -127,7 +127,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ #### Units in general (AI)
+ 
+-- generalized and beyond tremedously improved scrapping logic, now generalized to almost all if not all unitAIs (see known issue 52 in military (AI) section for details anyways etc), in `CvUnit::canScrap()`. What this means is we now don't destroy our units and then rebuild them because we now think we don't have enough, causing us to be stuck in endless very inefficient loops. This is adjusted by unitAI types and now also has a matching logic that handles which unit to allow the production order of, with overproduction quotas in `CvCityAI::AI_chooseUnit`, based on conditions such as war and such, for example we don't want explore units or settlers at war or danger, but we definitely want land units then. As for naval units, if map is naval heavy (e.g. archipelago, etc), we want quite a bit more of these, less if not (e.g. pangea, continents, etc.), and still regardless of map type, we don't want these at war or danger so max is lower if not 0 then at production stage, but as for scrapping, don't scrap existing ones. Workers having a decaying logic for max units so we scrap excess as they are less relevant later if helps (i don't know if they cost maintenance xd but hopefully maybe helps (check if accurate) anyways etc) quite conservatively. This fixes issue of AI in some cases dying in pangea in particular while overproducing despite our previous changes, in some cases still (most likely due to code that short circuited our previous changes or/and our changes not being effective or relevant enough maybe but anyways etc). AI is much more competitive/stronger now, and in same save file quickly shifted/adjuted but anyways etc its production to land units and survival mode when in excess naval units artifically from this desperate already too late save file, so hopefully starting from an earlier time mistake would not have been made in this case i mean but anyways etc. See for details [53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or/and of more importantly building galleons and privateers in droves and excess if i may say but anyways etc, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-anyways-etc-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-anyways-etc-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers-anyways-etc). Hopefully we also handle with this possible other silent issues that may have happened like for the workboats infinite loop (see known issue as of now 23 for details) or such other unknown issues possibly preemptively fixed but anyways etc, which hopefully help AI a lot not proceed with nonsensical or/and poorly coordinated logic it is fed/told but anyways etc.
++- generalized and beyond tremedously improved scrapping logic, now generalized to almost all if not all unitAIs (see known issue 52 in military (AI) section for details anyways etc), in `CvUnit::canScrap()`. What this means is we now don't destroy our units and then rebuild them because we now think we don't have enough, causing us to be stuck in endless very inefficient loops. This is adjusted by unitAI types and now also has a matching logic that handles which unit to allow the production order of, with overproduction quotas in `CvCityAI::AI_chooseUnit`, based on conditions such as war and such, for example we don't want explore units or settlers at war or danger, but we definitely want land units then. As for naval units, if map is naval heavy (e.g. archipelago, etc), we want quite a bit more of these, less if not (e.g. pangea, continents, etc.), and still regardless of map type, we don't want these at war or danger so max is lower if not 0 then at production stage, but as for scrapping, don't scrap existing ones. Workers having a decaying logic for max units so we scrap excess as they are less relevant later if helps (i don't know if they cost maintenance xd but hopefully maybe helps (check if accurate) anyways etc) quite conservatively. This fixes issue of AI in some cases dying in pangea in particular while overproducing despite our previous changes, in some cases still (most likely due to code that short circuited our previous changes or/and our changes not being effective or relevant enough maybe but anyways etc). AI is much more competitive/stronger now, and in same save file quickly shifted/adjuted but anyways etc its production to land units and survival mode when in excess naval units artifically from this desperate already too late save file, so hopefully starting from an earlier time mistake would not have been made in this case i mean but anyways etc. See for details [53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or/and of more importantly building galleons and privateers in droves and excess if i may say but anyways etc, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-anyways-etc-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-anyways-etc-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers-anyways-etc). Hopefully we also handle with this possible other silent issues that may have happened like for the workboats infinite loop (see [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late) for details) (sometimes dozens of turns, and not a rare bug) or such other unknown issues possibly preemptively fixed but anyways etc, which hopefully help AI a lot not proceed with nonsensical or/and poorly coordinated logic it is fed/told but anyways etc.
+ 
+ #### Settlers (AI)
+ 
+@@ -187,6 +187,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ #### Diplomacy (AI)
+ 
+ - Seemingly tremendously improved multi-war threat management by adding sanity "emergency peace" pre-checks in `UWAI::Team::considerPeace` in `UWAIAgent.cpp`, so that AI makes peace if it fights too many wars or not that many but against a combined strong enough total enemy power ratio (vs ours as base anyways etc). This should make AI much stronger as it did in the sample testing where at turn 150 Hatshepsut AI who was strongest leader in the game at this stage could keep its lead until turn 200 thanks to our changes and make targeted campaigns in this sample i mean but anyways etc, instead of being badly dogpiled on and actually dying before turn 200 before our changes. Hopefully these are lax enough that plenty wars still happen, but the focus is on AI survivability and efficiency, not entertainment xd if i may say in this case i mean but anyways etc, see [65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc) for details anyways etc.
++- Fixed and greatly enhanced issue of AI overvaluing low effect bonuses such as pig (gives only +1 health) that it would value at same price than some higher effect bonuses such as maize (+2 health effectively (+1, then +1 from granary we almost always have)), by adding a pre-check in `CvPlayerAI::AI_bonusTradeVal` so that as soon as our trading partner if i may say but anyways etc has the tech, then we assume said party also has granaries in all cities and thus would gain +2 health from maize, then price accordingly. Therefore bonuses are not valued too high too soon (until tech is unlocked, accounts for obsolte buildings too such as as of now the byzantine empire's civ-specific stable giving happiness from horse, that would be cancelled when said building is obsoleted if i'm not mistaken but anyways etc). Does not account wonders and cathedrals to simplify (not present in enough cities to matter), and slightly accounts for temples and monasteries to simplify as well if they were to have such bonus effects. As a result of these changes, AI should undersatnd much better the value for example of its maize or wheat or grapes (from grocer if i'm not mistaken anyways etc), and value it more in trade in gold per turn, while pig or cattle or such should be valued less, so it should no longer be possible to cheese it if i may say but anyways etc and trade suepr aggressively junk or low-value bonuses if i may say but anyways etc for high gpt or other bonuses as easily as was (was quite broken tbh but anyways etc) or such anyways etc. Hopefully leads to stronger AI trading, and fairer AI vs AI trade as well so they don't throw away their nice bonuses to lower value ones even to other AIs. Some bonuses like iron as a result would also be valued less now as they don't have happiness or health from buildings from example, but hopefully its value should still be high enough, and it's maybe fine as such as there are other paths than having iron maybe at least early (else the human player may trade it too easily or something maybe (i am not sure about this change change but maybe it will work out well in overall diplomacy and allow for more startegy rather thna easy trade abuse/exploit anyways etc)). Note: coastal bonuses have a more moderate version of this as we assume many cities are not coastal so they would not gain the building related bonus's extra effect quite often. We count it as such even in water heavy maps (treated the same to simplify anyways etc), so fish would be worth more than pig (with as of now harbor but anyways etc) but less than maize or wheat for example anyways etc. See [66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early anyways etc) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd if i may say but anyways etc, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now if i may say but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc) for details anyways etc.
+ 
+ #### Military (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+index ded3b09a6..86f9864e3 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+@@ -16,7 +16,7 @@ It should work fine with the Steam one too, but given the choice again i may hav
+ 
+ You can download the latest stable version from the [CFC Modpacks downloads page (link in intro of main readme)](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) (or clone / download zip from github if you know how as you prefer) this AdvCiv-SAS mod.
+ 
+-Alternatively, or if the former fails, you can also view and download AdvCiv-SAS stable versions (with a message showing changes since last version in git history format for each version) at the [github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) page.
++Alternatively, or if the former fails, you can also view and download AdvCiv-SAS stable versions (also with links there to changes since last version in git history format for each version) at the [github tags](https://github.com/wonderingabout/AdvCiv-SAS/tags) page.
+ 
+ ### Development version
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 531efb97a..273d24992 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -118,7 +118,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ #### Units in general (AI)
+ 
+-- **Scrapping & UnitAI production quotas (generalized)**: Reworked scrapping across (almost) all `UnitAI` types to stop destroy→rebuild loops. Paired with per-`UnitAI` **max/quotas** in `CvCityAI::AI_chooseUnit` and scrapping guards in `CvUnit::canScrap`. Policy examples: during **war/danger**, suppress explorers/settlers and redirect output to land units; on **naval-heavy** maps (archipelago) allow higher naval quotas, **land-heavy** maps (pangaea/continents) lower; in war/danger, naval production quotas drop (sometimes to **0**) but **existing** ships aren’t auto-scrapped; **workers** use a **decaying max** so late-game excess can be scrapped conservatively. Fixes the “naval dementia” case (mass privateers/galleons while land cities fall). See [KI#53](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-anyways-etc-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-anyways-etc-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers-anyways-etc) (complements [KI#52](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc)).
++- **Scrapping & UnitAI production quotas (generalized)**: Reworked scrapping across (almost) all `UnitAI` types to stop destroy→rebuild loops. Paired with per-`UnitAI` **max/quotas** in `CvCityAI::AI_chooseUnit` and scrapping guards in `CvUnit::canScrap`. Policy examples: during **war/danger**, suppress explorers/settlers and redirect output to land units; on **naval-heavy** maps (archipelago) allow higher naval quotas, **land-heavy** maps (pangaea/continents) lower; in war/danger, naval production quotas drop (sometimes to **0**) but **existing** ships aren’t auto-scrapped; **workers** use a **decaying max** so late-game excess can be scrapped conservatively. Fixes the “naval dementia” case (mass privateers/galleons while land cities fall). See [KI#53](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-anyways-etc-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-anyways-etc-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers-anyways-etc) (complements [KI#52](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc)). **Guardrail impact:** likely also covers hidden loops such as the **workboat infinite loop**; see [KI#23](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late).
+ 
+ #### Settlers (AI)
+ 
+@@ -175,6 +175,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ #### Diplomacy (AI)
+ 
+ - **Multi-war threat management — “emergency peace” pre-checks**: In `UWAI::Team::considerPeace` (`UWAIAgent.cpp`), add sanity checks to **seek peace** when either (a) the team is fighting **too many simultaneous wars** or (b) the enemies’ **combined power ratio** vs. us is high enough. Goal: **survivability and focus** (fewer dogpiles, more targeted campaigns) while keeping thresholds lax so plenty of wars still occur. In a sample run, Hatshepsut, strongest at ~turn 150, kept the lead to ~turn 200 with these checks (previously died before 200). See **[KI#65](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc)**.
++- **Fair bonus trade pricing (building-effect aware).** In `CvPlayerAI::AI_bonusTradeVal`, add a quick pre-check that scales a bonus’s trade value by how many **citywide building effects it actually unlocks with current techs** (granary/market/grocer/harbor/temple/monastery, etc.). Wonders/cathedrals ignored; less pronounced for coastal-building effects, as we assume to simplify many cities aren’t coastal and thus wouldn’t benefit. **Practical result (examples):** Maize/Wheat/Grapes are priced noticeably higher than Pigs/Cows; Molluscs beat low-impact foods; Iron is valued slightly less than before when it has no building bonuses (should still be valuable for units). **Effect:** shuts down early GPT farming, makes AI↔AI swaps fairer, and strengthens AI openings/midgame. See **[KI#66](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc)**.
+ 
+ #### Military (AI)
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=56817

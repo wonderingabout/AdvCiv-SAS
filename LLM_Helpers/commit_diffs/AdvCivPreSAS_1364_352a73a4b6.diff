@@ -1,0 +1,836 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1364
+# Commit: 352a73a4b6ab44aa473e2d79f69f20174fb71b8d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 20a48bbe1590699f79702bdf57c7059faf35cae6
+# Title: Minor changes to AI war preparations and AI espionage
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	Assets/Python/Screens/CvEspionageAdvisor.py
+1	0	CvGameCoreDLL/ArmamentForecast.cpp
+1	1	CvGameCoreDLL/CvCity.cpp
+12	6	CvGameCoreDLL/CvCityAI.cpp
+135	97	CvGameCoreDLL/CvPlayerAI.cpp
+53	24	CvGameCoreDLL/CvTeamAI.cpp
+17	12	CvGameCoreDLL/CvUnitAI.cpp
+35	3	CvGameCoreDLL/WarAndPeaceAI.cpp
+2	1	CvGameCoreDLL/WarAndPeaceAI.h
+-	-	manual_0.93b.odt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvEspionageAdvisor.py b/Assets/Python/Screens/CvEspionageAdvisor.py
+index 6864d3dee..31bcf9a17 100644
+--- a/Assets/Python/Screens/CvEspionageAdvisor.py
++++ b/Assets/Python/Screens/CvEspionageAdvisor.py
+@@ -628,15 +628,17 @@ class CvEspionageAdvisor:
+ 		'Calls function mapped in EspionageAdvisorInputMap'
+ 
+ 		screen = self.getScreen()
+-		pActivePlayer = gc.getPlayer(self.iActivePlayer)
+ 
+ 		##### Debug Dropdown #####
+ 		if (CyGame().isDebugMode()):
+ 			if (inputClass.getFunctionName() == self.DEBUG_DROPDOWN_ID):
+ 				iIndex = screen.getSelectedPullDownID(self.DEBUG_DROPDOWN_ID)
+ 				self.iActivePlayer = screen.getPullDownData(self.DEBUG_DROPDOWN_ID, iIndex)
++				self.iTargetPlayer = -1 # advc.001
+ 				self.drawContents()
+ 				CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
++		# advc.001: Moved from above the Debug menu
++		pActivePlayer = gc.getPlayer(self.iActivePlayer)
+ 
+ 		if (self.iTargetPlayer != -1):
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 9bb5866bc..4dacb6d0a 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -299,6 +299,7 @@ void ArmamentForecast::predictArmament(int turnsBuildUp, double perTurnProductio
+ 		double additionalProduction, Intensity intensity, bool defensive,
+ 		bool navalArmament) {
+ 
++	PROFILE_FUNC();
+ 	CvPlayerAI const& civ = GET_PLAYER(civId);
+ 	if(!defensive) {
+ 		/*  Space and culture victory tend to overrule military build-up (even when
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 0593b549e..921dd9444 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -2065,7 +2065,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
+ 		}
+ 	}
+ 	/*  <advc.041> Don't allow any ships to be trained at lakes, except
+-		Workboat if there are resources in the lake. */
++		Work Boat if there are resources in the lake. */
+ 	CvUnitInfo& u = GC.getUnitInfo(eUnit);
+ 	if(u.getDomainType() == DOMAIN_SEA && !isCoastal() &&
+ 			(!u.isPrereqBonuses() || (u.isPrereqBonuses() && !isPrereqBonusSea())))
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 3d40064a9..855cab6dd 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -653,7 +653,10 @@ void CvCityAI::AI_chooseProduction()
+ 	bool bLandWar = kPlayer.AI_isLandWar(pArea); // K-Mod
+ 	bool bDefenseWar = (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
+ 	bool bAssaultAssist = (pArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT_ASSIST);
+-	bool bTotalWar = GET_TEAM(getTeam()).getWarPlanCount(WARPLAN_TOTAL, true); // K-Mod
++	bool bTotalWar = GET_TEAM(getTeam()).getWarPlanCount(WARPLAN_TOTAL) // K-Mod
++			// <advc.104s>
++			+ (getWPAI.isEnabled() ? GET_TEAM(getTeam()).
++			getWarPlanCount(WARPLAN_PREPARING_TOTAL) : 0); // </advc.104s>
+ 	bool bAssault = bAssaultAssist || (pArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT) || (pArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT_MASSING);
+ 	bool bPrimaryArea = kPlayer.AI_isPrimaryArea(pArea);
+ 	bool bFinancialTrouble = kPlayer.AI_isFinancialTrouble();
+@@ -986,7 +989,7 @@ void CvCityAI::AI_chooseProduction()
+ 			{
+ 				if (iExistingSeaWorkers == 0)
+ 				{
+-					// Build workboat first since it doesn't stop growth
++					// Build Work Boat first since it doesn't stop growth
+ 					if (AI_chooseUnit(UNITAI_WORKER_SEA))
+ 					{
+ 						if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose worker sea 1a", getName().GetCString());
+@@ -1688,10 +1691,13 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 		if (iNumSpies < iNeededSpies)
+ 		{
+-			int iOdds = (kPlayer.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) ||
+-				GET_PLAYER(getOwnerINLINE()).isFocusWar(area()) // advc.105
+-				//GET_TEAM(getTeam()).getAnyWarPlanCount(true)
+-				) ?45 : 35;
++			int iOdds = (kPlayer.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY)
++					//|| GET_TEAM(getTeam()).getAnyWarPlanCount(true)
++					// advc.105: If anything
++					//|| GET_PLAYER(getOwnerINLINE()).isFocusWar(area())
++					/*  advc.120 ... but actually, I don't think training spies
++						for war is a good idea at all. */
++				) ? 45 : 35;
+ 			iOdds *= 50 + std::max(iProjectValue, iBestBuildingValue);
+ 			iOdds /= 20 + 2 * std::max(iProjectValue, iBestBuildingValue);
+ 			iOdds *= iNeededSpies;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index fd45565a7..533400fed 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2754,14 +2754,17 @@ void CvPlayerAI::AI_updateCommerceWeights()
+ 	// Espionage weight
+ 	//
+ 	{	// <k146>
+-		int iWeightThreshold = 0; // For human players, what amount of espionage weight indicates that we care about a civ?
++		/*  For human players, what amount of espionage weight indicates that we
++			care about a civ? */
++		int iWeightThreshold = 0;
+ 		if (isHuman())
+ 		{
+ 			int iTotalWeight = 0;
+ 			int iTeamCount = 0;
+ 			for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 			{
+-				if (GET_TEAM(getTeam()).isHasMet((TeamTypes)iTeam) && GET_TEAM((TeamTypes)iTeam).isAlive())
++				if (GET_TEAM(getTeam()).isHasMet((TeamTypes)iTeam) &&
++						GET_TEAM((TeamTypes)iTeam).isAlive())
+ 				{
+ 					iTotalWeight += getEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam);
+ 					iTeamCount++;
+@@ -2770,7 +2773,9 @@ void CvPlayerAI::AI_updateCommerceWeights()
+ 
+ 			if (iTeamCount > 0)
+ 			{
+-				iWeightThreshold = iTotalWeight / (iTeamCount +  8); // pretty arbitrary. But as an example, 90 points on 1 player out of 10 -> threshold is 5.
++				/*  pretty arbitrary. But as an example, 90 points on 1 player out
++					of 10 -> threshold is 5. */
++				iWeightThreshold = iTotalWeight / (iTeamCount + 8);
+ 			}
+ 		} // </k146>
+ 
+@@ -2782,62 +2787,72 @@ void CvPlayerAI::AI_updateCommerceWeights()
+ 		int iTeamCount = 0;
+ 		int iLocalTeamCount = 0;
+ 		int iTotalUnspent = 0;
+-		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
++		// <advc.003>
++		int const iGameTurn = GC.getGameINLINE().getGameTurn();
++		CvTeamAI& kOurTeam = GET_TEAM(getTeam());
++		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 		{
+-			CvTeamAI& kLoopTeam = GET_TEAM((TeamTypes)iTeam);
+-
+-			if (kLoopTeam.isAlive() && iTeam != getTeam() && GET_TEAM(getTeam()).isHasMet((TeamTypes)iTeam) && !kLoopTeam.isVassal(getTeam()) && !GET_TEAM(getTeam()).isVassal((TeamTypes)iTeam))
+-			{
+-				iAllTeamTotalPoints += kLoopTeam.getEspionagePointsEver();
+-				iTeamCount++;
+-
+-				int iTheirPoints = kLoopTeam.getEspionagePointsAgainstTeam(getTeam());
+-				int iOurPoints = GET_TEAM(getTeam()).getEspionagePointsAgainstTeam((TeamTypes)iTeam);
+-				iTotalUnspent += iOurPoints;
+-				int iAttitude = range(GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam), -12, 12);
+-				iTheirPoints -= (iTheirPoints*iAttitude)/(2*12);
+-
+-				if (iTheirPoints > iOurPoints && (!isHuman() ||
+-						getEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam) >
+-						iWeightThreshold)) // k146
++			TeamTypes eLoopTeam = (TeamTypes)iI; 
++			CvTeamAI& kLoopTeam = GET_TEAM(eLoopTeam);
++			if (!kLoopTeam.isAlive() || eLoopTeam == getTeam() || !kOurTeam.isHasMet(eLoopTeam) ||
++					kLoopTeam.isVassal(getTeam()) || kOurTeam.isVassal(eLoopTeam))
++				continue; // </advc.003>
++			iAllTeamTotalPoints += kLoopTeam.getEspionagePointsEver();
++			iTeamCount++;
++
++			int iTheirPoints = kLoopTeam.getEspionagePointsAgainstTeam(getTeam());
++			int iOurPoints = kOurTeam.getEspionagePointsAgainstTeam(eLoopTeam);
++			iTotalUnspent += iOurPoints;
++			int iAttitude = ::range(kOurTeam.AI_getAttitudeVal(eLoopTeam),
++					-12, 12);
++			iTheirPoints -= (iTheirPoints*iAttitude)/(2*12);
++
++			if (iTheirPoints > iOurPoints && (!isHuman() ||
++					getEspionageSpendingWeightAgainstTeam(eLoopTeam) >
++					iWeightThreshold)) // k146
++			{
++				iEspBehindWeight += 1;
++				if (kLoopTeam.AI_getAttitude(getTeam()) <= ATTITUDE_CAUTIOUS
++						&& kOurTeam.AI_hasCitiesInPrimaryArea(eLoopTeam)
++						// advc.120: Don't worry so much about espionage while at war
++						&& !kOurTeam.isAtWar(eLoopTeam))
+ 				{
+ 					iEspBehindWeight += 1;
+-					if (kLoopTeam.AI_getAttitude(getTeam()) <= ATTITUDE_CAUTIOUS
+-						&& GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam)
+-						// advc.120: Don't worry so much about espionage while at war
+-						&& !GET_TEAM(getTeam()).isAtWar(kLoopTeam.getID()))
+-					{
+-						iEspBehindWeight += 1;
+-					}
+ 				}
+-				if (GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam))
++			}
++			if (kOurTeam.AI_hasCitiesInPrimaryArea(eLoopTeam))
++			{
++				iLocalTeamCount++;
++				if (kOurTeam.AI_getAttitude(eLoopTeam) <= ATTITUDE_ANNOYED ||
++						kOurTeam.AI_getWarPlan(eLoopTeam) != NO_WARPLAN)
+ 				{
+-					iLocalTeamCount++;
+-					if (GET_TEAM(getTeam()).AI_getAttitude((TeamTypes)iTeam) <= ATTITUDE_ANNOYED
+-						|| GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN)
+-					{
+-						iEspAttackWeight += 1;
+-					}
+-					if (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) && GET_PLAYER(kLoopTeam.getLeaderID()).getTechScore() > getTechScore())
+-					{
+-						iEspAttackWeight += 1;
+-					}
++					iEspAttackWeight += 1;
++				}
++				if (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) &&
++						GET_PLAYER(kLoopTeam.getLeaderID()).getTechScore() > getTechScore())
++				{
++					iEspAttackWeight += 1;
+ 				}
+ 			}
+ 		}
+ 		if (iTeamCount == 0)
+ 		{
+-			iWeight /= 10; // can't put points on anyone - but accumulating "total points ever" is still better than nothing.
++			/*  can't put points on anyone - but accumulating "total points ever" is
++				still better than nothing. */
++			iWeight /= 10;
+ 		}
+ 		else
+ 		{
++			int const iOurPtsEver = kOurTeam.getEspionagePointsEver(); // advc.003
+ 			iAllTeamTotalPoints /= std::max(1, iTeamCount); // Get the average total points
+-			iWeight *= std::min(GET_TEAM(getTeam()).getEspionagePointsEver() + 3*iAllTeamTotalPoints + 16*GC.getGame().getGameTurn(), 5*iAllTeamTotalPoints);
++			iWeight *= std::min(iOurPtsEver + 3*iAllTeamTotalPoints + 16*iGameTurn,
++					5*iAllTeamTotalPoints);
+ 			iWeight /= std::max(1, 4 * iAllTeamTotalPoints);
+ 			// lower weight if we have spent less than a third of our total points
+ 			if (getCommercePercent(COMMERCE_ESPIONAGE) == 0) // ...only if we aren't explicitly trying to get espionage.
+ 			{
+-				iWeight *= 100 - 270*std::max(iTotalUnspent - std::max(2*GET_TEAM(getTeam()).getEspionagePointsEver()/3, 8*GC.getGame().getGameTurn()), 0)/std::max(1, GET_TEAM(getTeam()).getEspionagePointsEver());
++				iWeight *= 100 - 270*std::max(iTotalUnspent -
++						std::max(2*iOurPtsEver/3, 8*iGameTurn), 0)/std::max(1,iOurPtsEver);
+ 				iWeight /= 100;
+ 			}
+ 			//
+@@ -2848,13 +2863,16 @@ void CvPlayerAI::AI_updateCommerceWeights()
+ 			}
+ 			iWeight *= 2*(iEspBehindWeight+iEspAttackWeight) + 3*iTeamCount/4 + 2;
+ 
+-			iWeight *= isHuman() ? 100 : GC.getLeaderHeadInfo(getPersonalityType()).getEspionageWeight();
++			iWeight *= isHuman() ? 100 : GC.getLeaderHeadInfo(getPersonalityType()).
++					getEspionageWeight();
+ 			iWeight /= (iLocalTeamCount + iTeamCount)/2 + 2;
+ 			iWeight /= 100;
+ 
+-			if (AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) || (isHuman() && getCommercePercent(COMMERCE_ESPIONAGE) >= 60))
++			if (AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) ||
++					(isHuman() && getCommercePercent(COMMERCE_ESPIONAGE) >= 60))
+ 			{
+-				iWeight = std::max(iWeight, GC.getCommerceInfo(COMMERCE_RESEARCH).getAIWeightPercent());
++				iWeight = std::max(iWeight, GC.getCommerceInfo(COMMERCE_RESEARCH).
++						getAIWeightPercent());
+ 			}
+ 			else
+ 			{
+@@ -9006,9 +9024,10 @@ void CvPlayerAI::AI_chooseResearch()
+ 
+ 		if (eBestTech == NO_TECH)
+ 		{	// <k146>
+-			int iResearchDepth = (isHuman() || isBarbarian() || AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) || AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY))
+-				? 1
+-				: 3;
++			int iResearchDepth = (isHuman() || isBarbarian() ||
++					AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) ||
++					AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY))
++				? 1 : 3;
+ 			eBestTech = AI_bestTech(iResearchDepth); // </k146>
+ 		}
+ 
+@@ -15449,7 +15468,7 @@ void CvPlayerAI::AI_updateNeededExplorers() {
+ // Body cut and pasted from AI_neededExplorers
+ int CvPlayerAI::AI_neededExplorersBulk(CvArea const* pArea) const {
+ 
+-	// <advc.305> Be sure not to build Workboats for exploration
++	// <advc.305> Be sure not to build Work Boats for exploration
+ 	if(isBarbarian())
+ 		return 0; // </advc.305>
+ 
+@@ -19526,8 +19545,10 @@ void CvPlayerAI::AI_doCommerce()
+ 		}
+ 	}
+ 
+-	// K-Mod - evaluate potential espionage missions to determine espionage weights, even if espionage isn't flexible. (loosely based on bbai)
+-	if (!GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE) && kTeam.getHasMetCivCount(true) > 0 && (isCommerceFlexible(COMMERCE_ESPIONAGE) || getCommerceRate(COMMERCE_ESPIONAGE) > 0))
++	/*  K-Mod - evaluate potential espionage missions to determine espionage weights,
++		even if espionage isn't flexible. (loosely based on bbai) */
++	if (!GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE) &&
++			kTeam.getHasMetCivCount(true) > 0 && (isCommerceFlexible(COMMERCE_ESPIONAGE) || getCommerceRate(COMMERCE_ESPIONAGE) > 0))
+ 	{
+ 		int iEspionageTargetRate = 0;
+ 		std::vector<int> aiTarget(MAX_CIV_TEAMS, 0);
+@@ -19536,6 +19557,7 @@ void CvPlayerAI::AI_doCommerce()
+ 		int iMinModifier = INT_MAX;
+ 		int iApproxTechCost = 0;
+ 		TeamTypes eMinModTeam = NO_TEAM;
++		std::set<TeamTypes> potentialTechTargets; // advc.120b
+ 		bool bFocusEspionage = AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) &&
+ 				!isFocusWar(); // advc.105
+ 				//kTeam.getAnyWarPlanCount(true) == 0;
+@@ -19654,40 +19676,39 @@ void CvPlayerAI::AI_doCommerce()
+ 							{
+ 								cityModifiers.push_back(getEspionageMissionCostModifier(NO_ESPIONAGEMISSION, (PlayerTypes)iPlayer, pLoopCity->plot()));
+ 							}
++						} // <advc.003>
++						if (cityModifiers.empty())
++							continue; // </advc.003>
++						// Get the average of the lowest 3 cities.
++						int iSampleSize = std::min(3, (int)cityModifiers.size());
++						std::partial_sort(cityModifiers.begin(), cityModifiers.begin()+iSampleSize, cityModifiers.end());
++						int iModifier = 0;
++						for (std::vector<int>::iterator it = cityModifiers.begin(); it != cityModifiers.begin()+iSampleSize; ++it)
++						{
++							iModifier += *it;
+ 						}
+-						if (cityModifiers.size() > 0)
++						iModifier /= iSampleSize;
++							
++						// do they have any techs we can steal?
++						bool bValid = false;
++						for (int iT = 0; iT < GC.getNumTechInfos(); iT++)
+ 						{
+-							// Get the average of the lowest 3 cities.
+-							int iSampleSize = std::min(3, (int)cityModifiers.size());
+-							std::partial_sort(cityModifiers.begin(), cityModifiers.begin()+iSampleSize, cityModifiers.end());
+-							int iModifier = 0;
+-							for (std::vector<int>::iterator it = cityModifiers.begin(); it != cityModifiers.begin()+iSampleSize; ++it)
++							if (canStealTech((PlayerTypes)iPlayer, (TechTypes)iT))
+ 							{
+-								iModifier += *it;
++								bValid = iApproxTechCost > 0; // don't set it true unless there are at least 2 stealable techs.
++								// get a (very rough) approximation of how much it will cost to steal a tech.
++								iApproxTechCost = (kTeam.getResearchCost((TechTypes)iT) + iApproxTechCost) / (iApproxTechCost != 0 ? 2 : 1);
++								break;
+ 							}
+-							iModifier /= iSampleSize;
+-
+-							if (iModifier < iMinModifier ||
+-								(iModifier == iMinModifier && iAttitude < kTeam.AI_getAttitudeVal(eMinModTeam)))
+-							{
+-								// do they have any techs we can steal?
+-								bool bValid = false;
+-								for (int iT = 0; iT < GC.getNumTechInfos(); iT++)
+-								{
+-									if (canStealTech((PlayerTypes)iPlayer, (TechTypes)iT))
+-									{
+-										bValid = iApproxTechCost > 0; // don't set it true unless there are at least 2 stealable techs.
+-										// get a (very rough) approximation of how much it will cost to steal a tech.
+-										iApproxTechCost = (kTeam.getResearchCost((TechTypes)iT) + iApproxTechCost) / (iApproxTechCost != 0 ? 2 : 1);
+-										break;
+-									}
+-								}
+-								if (bValid)
+-								{
+-									iMinModifier = iModifier;
+-									eMinModTeam = (TeamTypes)iTeam;
+-								}
++						}
++						if (bValid)
++						{	// advc.120b: This used to be checked before bValid
++							if (iModifier < iMinModifier || (iModifier == iMinModifier &&
++									iAttitude < kTeam.AI_getAttitudeVal(eMinModTeam))) {
++								iMinModifier = iModifier;
++								eMinModTeam = (TeamTypes)iTeam;
+ 							}
++							potentialTechTargets.insert((TeamTypes)iTeam); // advc.120b
+ 						}
+ 					}
+ 				}
+@@ -19729,7 +19750,12 @@ void CvPlayerAI::AI_doCommerce()
+ 				// This is the espionage cost modifier for stealing techs.
+ 
+ 				// lets say "cheap" means 75% of the research cost.
+-				bCheapTechSteal = ((AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) ? 8000 : 7500) * AI_averageCommerceMultiplier(COMMERCE_ESPIONAGE) / std::max(1, iMinModifier) > AI_averageCommerceMultiplier(COMMERCE_RESEARCH)*calculateResearchModifier(getCurrentResearch()));
++				bCheapTechSteal = (
++						(AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) ? 8000 : 7500) *
++						AI_averageCommerceMultiplier(COMMERCE_ESPIONAGE) /
++						std::max(1, iMinModifier) >
++						AI_averageCommerceMultiplier(COMMERCE_RESEARCH)*
++						calculateResearchModifier(getCurrentResearch()));
+ 				if (bCheapTechSteal)
+ 				{
+ 					aiTarget[eMinModTeam] += iApproxTechCost / 10;
+@@ -19742,33 +19768,44 @@ void CvPlayerAI::AI_doCommerce()
+ 
+ 
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+-		{
+-			if (aiTarget[iTeam] > 0)
++		{	// <advc.003b>
++			TeamTypes eTeam = (TeamTypes)iTeam;
++			if(!GET_TEAM(eTeam).isAlive()) {
++				aiWeight[eTeam] = 0;
++				setEspionageSpendingWeightAgainstTeam(eTeam, aiWeight[eTeam]);
++				continue;
++			} // </advc.003b>
++			if (aiTarget[eTeam] > 0)
+ 			{
+-				//aiWeight[iTeam] += (150*aiTarget[iTeam])/std::max(4,iEspionageTargetRate);
+-				aiWeight[iTeam] += (100*aiTarget[iTeam])/std::max(4,iEspionageTargetRate);
++				//aiWeight[eTeam] += (150*aiTarget[eTeam])/std::max(4,iEspionageTargetRate);
++				aiWeight[eTeam] += (100*aiTarget[eTeam])/std::max(4,iEspionageTargetRate);
+ 			}
+-			else if (aiTarget[iTeam] < 0)
++			else if (aiTarget[eTeam] < 0)
+ 			{
+-				if (iTeam != eMinModTeam &&
+-					(!AI_isMaliciousEspionageTarget(GET_TEAM((TeamTypes)iTeam).getLeaderID()) || !kTeam.AI_hasCitiesInPrimaryArea((TeamTypes)iTeam)))
+-					aiWeight[iTeam] = 0;
++				if (eTeam != eMinModTeam &&
++						(!AI_isMaliciousEspionageTarget(GET_TEAM(eTeam).getLeaderID()) ||
++						!kTeam.AI_hasCitiesInPrimaryArea(eTeam)))
++					aiWeight[eTeam] = 0;
+ 			}
+-			if (iTeam == eMinModTeam)
++			if (eTeam == eMinModTeam)
+ 			{
+-				aiWeight[iTeam] = std::max(1, aiWeight[iTeam]);
+-				aiWeight[iTeam] *= 3;
+-				aiWeight[iTeam] /= 2;
++				aiWeight[eTeam] = std::max(1, aiWeight[eTeam]);
++				aiWeight[eTeam] *= 3;
++				aiWeight[eTeam] /= 2;
+ 			}
+ 			else if (eMinModTeam != NO_TEAM && bCheapTechSteal)
+ 			{
+-				aiWeight[iTeam] /= 2; // we want to focus hard on the best target
++				aiWeight[eTeam] /= 2; // we want to focus hard on the best target
++				// <advc.120b>
++				if(AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) &&
++						potentialTechTargets.count(eTeam) <= 0)
++					aiWeight[eTeam] /= 2; // </advc.120b>
+ 			}
+-			// note. bounds checks are done the set weight function
+-			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, aiWeight[iTeam]);
++			// note. bounds checks are done in the set-weight function
++			setEspionageSpendingWeightAgainstTeam(eTeam, aiWeight[eTeam]);
+ 			// one last ad-hoc correction to the target espionage rate...
+-			if (aiWeight[iTeam] <= 0 && aiTarget[iTeam] > 0)
+-				iEspionageTargetRate -= aiTarget[iTeam];
++			if (aiWeight[eTeam] <= 0 && aiTarget[eTeam] > 0)
++				iEspionageTargetRate -= aiTarget[eTeam];
+ 		}
+ 		// K-Mod end
+ 
+@@ -21781,6 +21818,7 @@ bool CvPlayerAI::askHelp(PlayerTypes humanId) {
+ 				eBestReceiveTech = (TechTypes)i;
+ 			}
+ 		}
++FAssert(eBestReceiveTech == NULL); // advc.tmp: Throw the random choice loop out once it's certain that it isn't needed
+ 	}
+ 	if(eBestReceiveTech == NO_TECH)
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 0b9633a3d..9231f937b 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -499,6 +499,8 @@ bool CvTeamAI::AI_hasSharedPrimaryArea(TeamTypes eTeam) const
+ }
+ // K-Mod end
+ 
++/*  advc.104s (comment): If UWAI is enabled, AI_doWar may (in rare cases) adjust the
++	result of this calculation through WarAndPeaceAI::Team::alignAreaAI. */
+ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal) const
+ {
+ 	PROFILE_FUNC();
+@@ -513,14 +515,18 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 	if (isBarbarian())
+ 	{
+ 		if ((pArea->getNumCities() - pArea->getCitiesPerPlayer(BARBARIAN_PLAYER)) == 0
+-			// advc.300: (New World) barbs relatively peaceable unless outnumbered.
++			// advc.300: (New World) Barbs relatively peaceable unless outnumbered
+ 			|| pArea->countCivCities() < pArea->getCitiesPerPlayer(BARBARIAN_PLAYER)
+ 			)
+ 		{
+ 			return AREAAI_ASSAULT;
+ 		}
+ 
+-		if ((countNumAIUnitsByArea(pArea, UNITAI_ATTACK) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_CITY) + countNumAIUnitsByArea(pArea, UNITAI_PILLAGE) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_AIR)) > (((AI_countMilitaryWeight(pArea) * 20) / 100) + 1))
++		if (countNumAIUnitsByArea(pArea, UNITAI_ATTACK) +
++				countNumAIUnitsByArea(pArea, UNITAI_ATTACK_CITY) +
++				countNumAIUnitsByArea(pArea, UNITAI_PILLAGE) +
++				countNumAIUnitsByArea(pArea, UNITAI_ATTACK_AIR) >
++				1 + (AI_countMilitaryWeight(pArea) * 20) / 100)
+ 		{
+ 			return AREAAI_OFFENSIVE; // XXX does this ever happen?
+ 			/*  advc.003: Does this ever NOT happen? Only once a continent
+@@ -557,13 +563,14 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 					bRecentAttack = true;
+ 				}
+ 
+-				//if ((GET_TEAM((TeamTypes)iI).countNumCitiesByArea(pArea) > 0) || (GET_TEAM((TeamTypes)iI).countNumUnitsByArea(pArea) > 4))
+-				/*  advc.104s: Replacing the above. isLandTarget checks if there's
+-					a city, and also if there's a path. As for the NumUnits
+-					condition: Setting AreaAI to ASSAULT won't stop the AI from
+-					fighting these units, but the focus should be on naval assault
+-					when there are no reachable enemy cities.
+-					Speed shouldn't be an issue; only updated once a turn. */
++				/*if ((GET_TEAM((TeamTypes)iI).countNumCitiesByArea(pArea) > 0) ||
++						(GET_TEAM((TeamTypes)iI).countNumUnitsByArea(pArea) > 4)) */
++			/*  advc.104s: Replacing the above. isLandTarget checks if there's
++				a city, and also if there's a path. As for the NumUnits
++				condition: Setting AreaAI to ASSAULT won't stop the AI from
++				fighting these units, but the focus should be on naval assault
++				when there are no reachable enemy cities.
++				Speed shouldn't be an issue; only updated once a turn. */
+ 				if(AI_isLandTarget((TeamTypes)iI))
+ 				{
+ 					bTargets = true;
+@@ -572,7 +579,9 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 					{
+ 						bChosenTargets = true;
+ 
+-						if ((isAtWar((TeamTypes)iI)) ? (AI_getAtWarCounter((TeamTypes)iI) < 10) : AI_isSneakAttackReady((TeamTypes)iI))
++						if ((isAtWar((TeamTypes)iI)) ?
++								(AI_getAtWarCounter((TeamTypes)iI) < 10) :
++								AI_isSneakAttackReady((TeamTypes)iI))
+ 						{
+ 							bDeclaredTargets = true;
+ 						}
+@@ -604,7 +613,8 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 				|| !bRecentAttack) // advc.107
+ 				? 100 : 70); // advc.107: Was 100 : 50
+ 			iEnemyPower *= 100;
+-			// it would be nice to put some personality modifiers into this. But this is a Team function. :(
++			/*  it would be nice to put some personality modifiers into this.
++				But this is a Team function. :( */
+ 			if (iPower < iEnemyPower)
+ 			{
+ 				return AREAAI_DEFENSIVE;
+@@ -622,9 +632,11 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 	{
+ 		/* BBAI code. -- This code has two major problems.
+ 		* Firstly, it makes offense more likely when we are in more wars.
+-		* Secondly, it chooses offense based on how many offense units we have -- but offense units are built for offense areas!
++		* Secondly, it chooses offense based on how many offense units we have --
++		* but offense units are built for offense areas!
+ 		*
+-		// AI_countMilitaryWeight is based on this team's pop and cities ... if this team is the biggest, it will over estimate needed units
++		// AI_countMilitaryWeight is based on this team's pop and cities ...
++		// if this team is the biggest, it will over estimate needed units
+ 		int iMilitaryWeight = AI_countMilitaryWeight(pArea);
+ 		int iCount = 1;
+ 
+@@ -632,11 +644,13 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 		{
+ 			if( iJ != getID() && GET_TEAM((TeamTypes)iJ).isAlive() )
+ 			{
+-				if( !(GET_TEAM((TeamTypes)iJ).isBarbarian() || GET_TEAM((TeamTypes)iJ).isMinorCiv()) )
++				if( !(GET_TEAM((TeamTypes)iJ).isBarbarian() ||
++						GET_TEAM((TeamTypes)iJ).isMinorCiv()) )
+ 				{
+ 					if( AI_getWarPlan((TeamTypes)iJ) != NO_WARPLAN )
+ 					{
+-						iMilitaryWeight += GET_TEAM((TeamTypes)iJ).AI_countMilitaryWeight(pArea);
++						iMilitaryWeight += GET_TEAM((TeamTypes)iJ).
++								AI_countMilitaryWeight(pArea);
+ 						iCount++;
+ 
+ 						if( GET_TEAM((TeamTypes)iJ).isAVassal() )
+@@ -647,7 +661,8 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 								{
+ 									if( GET_TEAM((TeamTypes)iJ).isVassal((TeamTypes)iK) )
+ 									{
+-										iMilitaryWeight += GET_TEAM((TeamTypes)iK).AI_countMilitaryWeight(pArea);
++										iMilitaryWeight += GET_TEAM((TeamTypes)iK).
++												AI_countMilitaryWeight(pArea);
+ 									}
+ 								}
+ 							}
+@@ -658,15 +673,22 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 		}
+ 
+ 		iMilitaryWeight /= iCount;
+-		if ((countNumAIUnitsByArea(pArea, UNITAI_ATTACK) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_CITY) + countNumAIUnitsByArea(pArea, UNITAI_PILLAGE) + countNumAIUnitsByArea(pArea, UNITAI_ATTACK_AIR)) > (((iMilitaryWeight * iOffensiveThreshold) / 100) + 1))
++		if ((countNumAIUnitsByArea(pArea, UNITAI_ATTACK) +
++				countNumAIUnitsByArea(pArea, UNITAI_ATTACK_CITY) +
++				countNumAIUnitsByArea(pArea, UNITAI_PILLAGE) +
++				countNumAIUnitsByArea(pArea, UNITAI_ATTACK_AIR)) >
++				(((iMilitaryWeight * iOffensiveThreshold) / 100) + 1))
+ 		{
+ 			return AREAAI_OFFENSIVE;
+ 		}
+ 		*/
+-		// K-Mod. I'm not sure how best to do this yet. Let me just try a rough idea for now.
+-		// I'm using AI_countMilitaryWeight; but what I really want is "border terriory which needs defending"
+-		int iOurRelativeStrength = 100 * countPowerByArea(pArea) / (AI_countMilitaryWeight(pArea) + 20);
+-		iOurRelativeStrength *= 100 + (bDeclaredTargets ? 30 : 0) + (bPreparingTotal ? -20 : 0) + iWarSuccessRating/2;
++		/*  K-Mod. I'm not sure how best to do this yet. Let me just try a rough
++			idea for now. I'm using AI_countMilitaryWeight; but what I really
++			want is "border territory which needs defending" */
++		int iOurRelativeStrength = 100 * countPowerByArea(pArea) /
++				(AI_countMilitaryWeight(pArea) + 20);
++		iOurRelativeStrength *= 100 + (bDeclaredTargets ? 30 : 0) +
++				(bPreparingTotal ? -20 : 0) + iWarSuccessRating/2;
+ 		iOurRelativeStrength /= 100;
+ 		int iEnemyRelativeStrength = 0;
+ 		bool bEnemyCities = false;
+@@ -677,7 +699,10 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 			if (iJ != getID() && kLoopTeam.isAlive() && AI_getWarPlan((TeamTypes)iJ) != NO_WARPLAN)
+ 			{
+ 				int iPower = 100 * kLoopTeam.countPowerByArea(pArea);
+-				int iCommitment = (bPreparingTotal ? 30 : 20) + kLoopTeam.AI_countMilitaryWeight(pArea) * ((isAtWar((TeamTypes)iJ) ? 1 : 2) + kLoopTeam.getAtWarCount(true, true)) / 2;
++				int iCommitment = (bPreparingTotal ? 30 : 20) + 
++						kLoopTeam.AI_countMilitaryWeight(pArea) *
++						((isAtWar((TeamTypes)iJ) ? 1 : 2) +
++						kLoopTeam.getAtWarCount(true, true)) / 2;
+ 				iPower /= iCommitment;
+ 				iEnemyRelativeStrength += iPower;
+ 				if (kLoopTeam.countNumCitiesByArea(pArea) > 0)
+@@ -699,7 +724,8 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 			{
+ 				if (kPlayer.getTeam() == getID())
+ 				{
+-					if (kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER) || kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR))
++					if (kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER) ||
++							kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR))
+ 					{
+ 						if (pArea->getCitiesPerPlayer((PlayerTypes)iPlayer) > 0)
+ 						{
+@@ -738,7 +764,10 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 	{
+ 		if (iAreaCities > (getNumMembers() * 3))
+ 		{
+-			if (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) || GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_WAR) || (countPowerByArea(pArea) > ((countEnemyPowerByArea(pArea) * 3) / 2)))
++			if (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ||
++					GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_WAR) ||
++					(countPowerByArea(pArea) >
++					((countEnemyPowerByArea(pArea) * 3) / 2)))
+ 			{
+ 				return AREAAI_MASSING;
+ 			}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index eeefe53b9..6ca31558f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3232,7 +3232,7 @@ void CvUnitAI::AI_attackCityMove()
+ 	// K-Mod. Lets have some slightly smarter stack vs. stack AI.
+ 	// it would be nice to have some personality effection here...
+ 	// eg. protective leaders have a lower risk threshold.   -- Maybe later.
+-	// Note. This stackVsStack stuff use to be a bit lower, after the group and the heal stuff.
++	// Note. This stackVsStack stuff used to be a bit lower, after the group and the heal stuff.
+ 	if (getGroup()->getNumUnits() > 1)
+ 	{
+ 		if (bAtWar) // recall that "bAtWar" just means we are in enemy territory.
+@@ -3260,9 +3260,10 @@ void CvUnitAI::AI_attackCityMove()
+ 				return;
+ 		}
+ 	}
+-	//
+-	// K-Mod. The loading of units for assault needs to be before the following omnigroup - otherwise the units may leave the boat to join their friends.
+-	if (bAssault && (!pTargetCity || pTargetCity->area() != area()))
++
++	/*  K-Mod. The loading of units for assault needs to be before the following
++		omnigroup - otherwise the units may leave the boat to join their friends. */
++	if (bAssault && (pTargetCity == NULL || pTargetCity->area() != area()))
+ 	{
+ 		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI, -1, -1, -1, -1, iMoveFlags, 6)) // was 4 max-turns
+ 		{
+@@ -3346,7 +3347,8 @@ void CvUnitAI::AI_attackCityMove()
+ 			}
+ 			if (generatePath(pMissionPlot, iMoveFlags, true, 0, 6))
+ 			{
+-				// the max path turns is arbitrary, but it should be at least as big as the pillage sections higher up.
++				/*  the max path turns is arbitrary, but it should be at least as
++					big as the pillage sections higher up. */
+ 				CvPlot* pEndTurnPlot = getPathEndTurnPlot();
+ 				FAssert(!atPlot(pEndTurnPlot));
+ 				// warning: this command may attack something. We haven't checked!
+@@ -3575,11 +3577,14 @@ void CvUnitAI::AI_attackCityMove()
+ 				// See if we can get there faster by boat..
+ 				if (iPathTurns > 5)// && !pTargetCity->isBarbarian())
+ 				{
+-					// note: if the only land path to our target happens to go through a tough line of defence...
+-					// we probably want to take the boat even if our iPathTurns is low.
+-					// Here's one way to account for that:
+-					// iPathTurns = std::max(iPathTurns, getPathLastNode()->m_iTotalCost / (2000*GC.getMOVE_DENOMINATOR()));
+-					// Unfortunately, that "2000"... well I think you know what the problem is. So maybe next time.
++				/*  note: if the only land path to our target happens to go
++					through a tough line of defence...
++					we probably want to take the boat even if our iPathTurns is
++					low. Here's one way to account for that:
++					iPathTurns = std::max(iPathTurns, getPathLastNode()->
++					m_iTotalCost / (2000*GC.getMOVE_DENOMINATOR()));
++					Unfortunately, that "2000"... well I think you know what the
++					problem is. So maybe next time. */
+ 					int iLoadTurns = std::max(3, iPathTurns/3 - 1); // k146
+ 					int iMaxTransportTurns = iPathTurns - iLoadTurns - 2;
+ 
+@@ -6258,8 +6263,8 @@ void CvUnitAI::AI_spyMove()
+ 		int iTotalPoints = 0;
+ 
+ 		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY))
+-		{
+-			iScale += 50 * kOwner.getCurrentEra() * (kOwner.getCurrentEra()+1);
++		{	// advc.120b: was 50*
++			iScale += 80 * kOwner.getCurrentEra() * (kOwner.getCurrentEra()+1);
+ 		}
+ 
+ 		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 6462adb57..5e900abfd 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -380,11 +380,13 @@ vector<PlayerTypes>& WarAndPeaceAI::Team::teamMembers() {
+ }
+ 
+ struct PlanData {
+-	PlanData(int u, TeamTypes id, int t) : u(u), id(id), t(t) {}
++	PlanData(int u, TeamTypes id, int t, bool isNaval) :
++		u(u), id(id), t(t), isNaval(isNaval) {}
+ 	bool operator<(PlanData const& o) { return u < o.u; }
+ 	int u;
+ 	TeamTypes id;
+ 	int t;
++	bool isNaval;
+ };
+ bool WarAndPeaceAI::Team::reviewWarPlans() {
+ 
+@@ -417,8 +419,9 @@ bool WarAndPeaceAI::Team::reviewWarPlans() {
+ 			WarEvalParameters params(agentId, targetId, *report);
+ 			WarEvaluator eval(params);
+ 			int u = eval.evaluate(wp);
+-			// evaluate sets preparation time on params
+-			plans.push_back(PlanData(u, targetId, params.getPreparationTime()));
++			// 'evaluate' sets preparation time and isNaval in params
++			plans.push_back(PlanData(u, targetId, params.getPreparationTime(),
++					params.isNaval()));
+ 			/*  Skip scheming when in a very bad war. Very unlikely that another war
+ 				could help then. And I worry that, in rare situations, when the
+ 				outcome of a war is close, but potentially disastrous, that an
+@@ -437,11 +440,40 @@ bool WarAndPeaceAI::Team::reviewWarPlans() {
+ 							report->teamName(plans[i].id));
+ 				break;
+ 			}
++			/*  As CvTeamAI::AI_updateAreaStrategies is called before
++				CvTeamAI::AI_doWar, this is going to be the last word on AreaAI.
++				Leave Area AI alone though if we're not even sure about the war
++				(low utility). */
++			else if(plans[i].u > 5)
++				alignAreaAI(plans[i].isNaval);
+ 		}
+ 	} while(planChanged);
+ 	return r;
+ }
+ 
++void WarAndPeaceAI::Team::alignAreaAI(bool isNaval) {
++
++	/*  CvTeamAI::AI_calculateAreaAIType errs on the side of land war
++		(it decides based on WarAndPeaceAI::Team::isLandTarget), so if
++		isNaval is false, no action should be needed. */
++	if(!isNaval)
++		return;
++	for(size_t i = 0; i < members.size(); i++) {
++		CvPlayerAI const& member = GET_PLAYER(members[i]);
++		CvCity* capital = member.getCapitalCity();
++		if(capital == NULL)
++			continue;
++		CvArea& a = *capital->area();
++		AreaAITypes oldAAI = a.getAreaAIType(agentId);
++		AreaAITypes newAAI = oldAAI;
++		if(oldAAI == AREAAI_MASSING)
++			newAAI = AREAAI_ASSAULT_MASSING;
++		else if(oldAAI == AREAAI_OFFENSIVE)
++			newAAI = AREAAI_ASSAULT;
++		a.setAreaAIType(agentId, newAAI);
++	}
++}
++
+ bool WarAndPeaceAI::Team::reviewPlan(TeamTypes targetId, int u, int prepTime) {
+ 
+ 	CvTeamAI& agent = GET_TEAM(agentId);
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.h b/CvGameCoreDLL/WarAndPeaceAI.h
+index eb62f94ce..40259fb4c 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.h
++++ b/CvGameCoreDLL/WarAndPeaceAI.h
+@@ -44,7 +44,7 @@ public:
+ 	void cacheXML(); // Can't do this in constructor b/c not yet loaded
+ 	double aspectWeight(int xmlId) const;
+ 	static int const preparationTimeLimited = 8;
+-	static int const preparationTimeLimitedNaval = 12;
++	static int const preparationTimeLimitedNaval = 10;
+ 	static int const preparationTimeTotal = 15;
+ 	static int const preparationTimeTotalNaval = 20;
+ 	// Modifier for all AI payments for peace
+@@ -167,6 +167,7 @@ public:
+ 		/*  Review plan vs. targetId. Returns true if plan continues unchanged,
+ 			false if any change (abandoned, peace made, target changed). */
+ 		bool reviewPlan(TeamTypes targetId, int u, int prepTime);
++		void alignAreaAI(bool isNaval);
+ 		int peaceThreshold(TeamTypes targetId) const;
+ 		// All these return true if the war plan remains unchanged, false otherwise
+ 		  bool considerPeace(TeamTypes targetId, int u);
+
+[PATCH OMITTED] file=a/manual_0.93b.odt b/manual_0.93b.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=9 omittedFiles=1 embeddedPatchBytes=36523

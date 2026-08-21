@@ -1,0 +1,226 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4144
+# Commit: 9ca2e10ced01a2ed8977b018ad7e46495ca4c212
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0ec33167dfe366d19692f4c463ba10127b6714e8
+# Title: Some minor misc. refactoring, mostly comments.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+3	3	CvGameCoreDLL/AdvCiv4lerts.cpp
+6	6	CvGameCoreDLL/AdvCiv4lerts.h
+1	1	CvGameCoreDLL/AgentIterator.h
+2	1	CvGameCoreDLL/AgentIteratorTest.cpp
+1	1	CvGameCoreDLL/ArithmeticTraits.h
+1	1	CvGameCoreDLL/ArithmeticUtils.h
+1	1	CvGameCoreDLL/BitUtil.h
+1	1	CvGameCoreDLL/CityPlotIterator.h
+20	16	CvGameCoreDLL/CitySiteEvaluator.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index 4bf246c28..29118ebd5 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -22,7 +22,7 @@ AdvCiv4lert::AdvCiv4lert(PlayerTypes eOwner) : m_eOwner(eOwner)
+ }
+ 
+ 
+-void AdvCiv4lert::showMessage(CvWString szMsg, LPCSTR szIcon, int iX, int iY,
++void AdvCiv4lert::showMessage(CvWString szMsg, char const* szIcon, int iX, int iY,
+ 	ColorTypes eColor) const
+ {
+ 	if (m_bSilent)
+@@ -50,8 +50,8 @@ void AdvCiv4lert::check(bool bSilent)
+ {
+ 	if (m_eOwner == NO_PLAYER || (!m_bDebug && !GET_PLAYER(m_eOwner).isHuman()))
+ 	{
+-		/*	Normally no need to check during Auto Play. Wouldn't hurt, except
+-			that the checks aren't super fast. */
++		/*	Normally no need to check during Auto Play. Wouldn't hurt
++			except that the checks aren't super fast. */
+ 		return;
+ 	}
+ 	bool const bWasSilent = m_bSilent;
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.h b/CvGameCoreDLL/AdvCiv4lerts.h
+index 112a4e3ff..30849d784 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.h
++++ b/CvGameCoreDLL/AdvCiv4lerts.h
+@@ -3,21 +3,21 @@
+ #ifndef ADVCIV4LERTS_H
+ #define ADVCIV4LERTS_H
+ 
+-/*	advc.210: I can't write this in Python, so I'm having Civ4lerts.py call
+-	this class. Will need to make changes in Civ4lerts.py, Civ4lerts.xml,
+-	BugAlertsOptionsTab.py, CvPlayer.cpp and some file for game text
+-	(like CIV4GameText_advc.xml) to add more alerts. */
++/*	advc.210: I don't want to implement alerts in Python, so I'm having
++	Civ4lerts.py call this class. Will need to make changes in Civ4lerts.py,
++	Civ4lerts.xml, BugAlertsOptionsTab.py, CvPlayer.cpp and some file for
++	game text (like CIV4GameText_advc.xml) to add more alerts. */
+ class AdvCiv4lert
+ {
+ public:
+ 	AdvCiv4lert(PlayerTypes eOwner);
+ 	virtual ~AdvCiv4lert() {}
+-	// Silent calls are for initializing data after loading a savegame
++	// (Silent calls are for initializing data after loading a savegame)
+ 	void check(bool bSilent);
+ 
+ protected:
+ 	virtual void check()=0;
+-	void showMessage(CvWString szMsg, LPCSTR szIcon = NULL, int iX = -1, int iY = -1,
++	void showMessage(CvWString szMsg, char const* szIcon = NULL, int iX = -1, int iY = -1,
+ 			ColorTypes eColor = NO_COLOR) const;
+ 	PlayerTypes m_eOwner;
+ 	bool m_bSilent;
+
+diff --git a/CvGameCoreDLL/AgentIterator.h b/CvGameCoreDLL/AgentIterator.h
+index 840305da6..eaea93a17 100644
+--- a/CvGameCoreDLL/AgentIterator.h
++++ b/CvGameCoreDLL/AgentIterator.h
+@@ -172,7 +172,7 @@ protected:
+ 		m_iPos = 0;
+ 		// Cache the cache size (std::vector computes it as 'end' minus 'begin')
+ 		m_iCacheSize = static_cast<short>(m_pCache->size());
+-		m_pNext = NULL; //generateNext(); // Leave this up to the ctor of Derived
++		m_pNext = NULL; //= generateNext() (No, leave this up to the ctor of Derived.)
+ 	}
+ 
+ 	AgentIterator& operator++()
+
+diff --git a/CvGameCoreDLL/AgentIteratorTest.cpp b/CvGameCoreDLL/AgentIteratorTest.cpp
+index 75a012011..807a0a40c 100644
+--- a/CvGameCoreDLL/AgentIteratorTest.cpp
++++ b/CvGameCoreDLL/AgentIteratorTest.cpp
+@@ -1,4 +1,5 @@
+-// advc.agent: Test code for the AgentIterator class
++/*	advc.agent: Test code for the AgentIterator class.
++	Only speed tests (profiling) at this point. */
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvAgents.h"
+
+diff --git a/CvGameCoreDLL/ArithmeticTraits.h b/CvGameCoreDLL/ArithmeticTraits.h
+index 45277e260..49f33ec07 100644
+--- a/CvGameCoreDLL/ArithmeticTraits.h
++++ b/CvGameCoreDLL/ArithmeticTraits.h
+@@ -35,7 +35,7 @@ template<class T>
+ struct arithm_traits<T, false, true, false>
+ {
+ 	static bool const is_arithmetic = true;
+-	/*	min and max are for asserting bounds. 'none' is often a sensible value,
++	/*	min and max are for asserting bounds. 'none' is often a valid value,
+ 		'len' usually isn't. */
+ 	static int const min = std::min(enum_traits<T>::none, enum_traits<T>::first);
+ 	static int const max = enum_traits<T>::len - 1;
+
+diff --git a/CvGameCoreDLL/ArithmeticUtils.h b/CvGameCoreDLL/ArithmeticUtils.h
+index c8792d948..ffca7da10 100644
+--- a/CvGameCoreDLL/ArithmeticUtils.h
++++ b/CvGameCoreDLL/ArithmeticUtils.h
+@@ -21,7 +21,7 @@ namespace intdiv
+ 	// The "u" functions are only for nonnegative numbers ...
+ 	inline int uround(int iDividend, int iDivisor)
+ 	{
+-		FAssert((iDividend ^ iDivisor) >= 0); // Both negative is OK
++		FAssert((iDividend ^ iDivisor) >= 0); // Both negative is actually OK
+ 		return (iDividend + iDivisor / 2) / iDivisor;
+ 	}
+
+diff --git a/CvGameCoreDLL/BitUtil.h b/CvGameCoreDLL/BitUtil.h
+index 00cc33a9e..2549f8f6f 100644
+--- a/CvGameCoreDLL/BitUtil.h
++++ b/CvGameCoreDLL/BitUtil.h
+@@ -6,7 +6,7 @@
+ /*  advc.enum: Helper functions for bitwise operations. Copied from the
+ 	"We the People" mod (WtP) in 2020 (all code by Nightinggale).
+ 	WtP used to keep these functions in the global namespace (in CvGameCoreDLL.h);
+-	the current WtP code wraps them into a "BoolToken" struct. */
++	newer WtP code wraps them into a "BoolToken" struct. */
+ 
+ namespace BitUtil
+ {
+
+diff --git a/CvGameCoreDLL/CityPlotIterator.h b/CvGameCoreDLL/CityPlotIterator.h
+index e62f1efec..397d7d904 100644
+--- a/CvGameCoreDLL/CityPlotIterator.h
++++ b/CvGameCoreDLL/CityPlotIterator.h
+@@ -186,7 +186,7 @@ class CityPlotIter : public CityPlotIterator<>
+ {
+ public:
+ 	CityPlotIter(CvCity const& kCity, bool bIncludeHomePlot = true) :
+-		 CityPlotIterator<>(kCity, bIncludeHomePlot) {}
++		CityPlotIterator<>(kCity, bIncludeHomePlot) {}
+ 
+ 	CityPlotIter(CvPlot const& kCenter, bool bIncludeHomePlot = true) :
+ 		CityPlotIterator<>(kCenter, bIncludeHomePlot) {}
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index adb973608..82c8528ad 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -534,27 +534,31 @@ short AIFoundValue::evaluate()
+ 						bRemovableFeature, eBonus != NO_BONUS);
+ 			}
+ 			// <advc.031>
+-			FOR_EACH_ENUM(Yield)
++			if (!kSet.isStartingLoc()) // Don't factor traits into starting sites
+ 			{
+-				if (kSet.isStartingLoc()) // Don't factor traits into starting sites
+-					continue;
++				FOR_EACH_ENUM(Yield)
+ 				{
+-					int iThresh = kPlayer.getExtraYieldThreshold(eLoopYield);
+-					if (iThresh > 0 &&
+-						aiNatureYield[eLoopYield] >= iThresh)
++					
+ 					{
+-						aiNatureYield[eLoopYield] += GC.getDefineINT(CvGlobals::EXTRA_YIELD);
++						int iThresh = kPlayer.getExtraYieldThreshold(eLoopYield);
++						if (iThresh > 0 &&
++							aiNatureYield[eLoopYield] >= iThresh)
++						{
++							aiNatureYield[eLoopYield] += GC.getDefineINT(
++									CvGlobals::EXTRA_YIELD);
++						}
+ 					}
+-				}
+-				// <advc.908a>
+-				{
+-					int iThresh = kPlayer.getExtraYieldNaturalThreshold(eLoopYield);
+-					if (iThresh > 0 &&
+-						aiNatureYield[eLoopYield] + 1 >= iThresh)
++					// <advc.908a>
+ 					{
+-						aiNatureYield[eLoopYield] += GC.getDefineINT(CvGlobals::EXTRA_YIELD);
+-					}
+-				} // </advc.908a>
++						int iThresh = kPlayer.getExtraYieldNaturalThreshold(eLoopYield);
++						if (iThresh > 0 &&
++							aiNatureYield[eLoopYield] + 1 >= iThresh)
++						{
++							aiNatureYield[eLoopYield] += GC.getDefineINT(
++									CvGlobals::EXTRA_YIELD);
++						}
++					} // </advc.908a>
++				}
+ 			} // </advc.031>
+ 			// K-Mod. add non-home plot production to BaseProduction.
+ 			if (!bShare)
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=9 omittedFiles=1 embeddedPatchBytes=7230

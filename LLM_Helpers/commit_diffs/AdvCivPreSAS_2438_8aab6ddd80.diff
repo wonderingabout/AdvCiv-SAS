@@ -1,0 +1,57 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2438
+# Commit: 8aab6ddd80272abaf81e271207f05fc1d43d3690
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fe5a2ac56b2be1b508749c5815e2c60c3e396302
+# Title: Fix recently introduced freeze on city conquest
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	9	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index ded64be56..3e14b3fc1 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1723,19 +1723,19 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 	} // </kekm.23>
+ 
+ 	// Destruction of buildings
+-	FOR_EACH_ENUM2(Building, eBuilding)
++	FOR_EACH_ENUM(Building)
+ 	{
+-		if (aiNumRealBuilding.get(eBuilding) <= 0)
++		if (aiNumRealBuilding.get(eLoopBuilding) <= 0)
+ 			continue;
+-
+-		CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+-		BuildingClassTypes eBuildingClass = kBuilding.getBuildingClassType();
+-		// Can't acquire another civ's unique building
+-		if (!kBuilding.isWorldWonder()) // So that Barbarians can capture wonders
+-			eBuilding = getCivilization().getBuilding(eBuildingClass);
++		BuildingClassTypes eBuildingClass = GC.getInfo(eLoopBuilding).
++				getBuildingClassType();
++		/*	Can't acquire another civ's unique building.
++			Wonders exception allows Barbarians to capture wonders. */
++		BuildingTypes const eBuilding = (GC.getInfo(eLoopBuilding).isWorldWonder() ?
++				eLoopBuilding : getCivilization().getBuilding(eBuildingClass));
+ 		if (eBuilding == NO_BUILDING)
+ 			continue;
+-
++		CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+ 		// Can acquire never-capture buildings only through city trade
+ 		if (!bTrade && kBuilding.isNeverCapture())
+ 			continue;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1419

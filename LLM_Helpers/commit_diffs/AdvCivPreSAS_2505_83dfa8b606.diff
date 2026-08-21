@@ -1,0 +1,48 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2505
+# Commit: 83dfa8b606e1b3d5827e7e6c409a5eb105060e76
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9cf6ea6683a7c9289137166d2ad3dc938ad3f29a
+# Title: Fix attacker selection in combat odds display
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	5	CvGameCoreDLL/CvSelectionGroupAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index a4b704f4c..f3d1929ae 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -413,13 +413,14 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
+ 			}
+ 			/*  if non-human, prefer the last unit that has the best value
+ 				(so as to avoid splitting the group) */
+-			if (iValue > iBestValue || (!bHuman && iValue > 0 && iValue == iBestValue)
+-				/*  <advc.048> For human, use sacrifice value to break ties in order
+-					to match the choice made in the !bMaxSurvival branch above
++			if (iValue > iBestValue ||
++				(!bHuman && iValue > 0 && iValue == iBestValue) ||
++				/*  <advc.048> For human, use sacrifice value to break ties
++					in order to match the choice made in the !bMaxSurvival branch above
+ 					and the bSacrifice branch below. */
+-				|| (bHuman && iValue < iOddsThresh && iValue == iBestValue &&
++				(bHuman && iValue == iBestValue &&
+ 				(pBestUnit == NULL || kLoopUnit.AI_sacrificeValue(pPlot) >
+-				kLoopUnit.AI_sacrificeValue(pPlot)))) // </advc.048>
++				pBestUnit->AI_sacrificeValue(pPlot)))) // </advc.048>
+ 			{
+ 				iBestValue = iValue;
+ 				iBestOdds = iOdds;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1253

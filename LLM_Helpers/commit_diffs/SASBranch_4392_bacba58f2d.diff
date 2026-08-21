@@ -1,0 +1,115 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4392
+# Commit: bacba58f2d13f1b9d8d0a0e41b4c7e6dbe255e75
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5ffc184c4022be1b17a0d9828756057f57dc09fd
+# Title: Remove some excess angle brackets in game text files
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/XML/Text/ActualQuotesText_BtS.xml
+1	1	Assets/XML/Text/BUG Main Interface Options.xml
+1	1	Assets/XML/Text/BUG_CIV4GameText.xml
+1	1	Assets/XML/Text/CIV4GameText_advc.xml
+1	1	Assets/XML/Text/CIV4GameText_advc_rf.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/ActualQuotesText_BtS.xml b/Assets/XML/Text/ActualQuotesText_BtS.xml
+index 8feacab31..062c1f2a8 100644
+--- a/Assets/XML/Text/ActualQuotesText_BtS.xml
++++ b/Assets/XML/Text/ActualQuotesText_BtS.xml
+@@ -238,7 +238,7 @@
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_DE_GAULLE_1</Tag>
+ 		<English>I, [OUR_NAME], welcome you and the [CT_CIV_ADJ] people. Nothing great will ever be achieved without great men. And men are great only if they are determined to be so. Are you determined to find greatness alongside [OUR_CIV_SHORT]?</English>
+-		<French>>Moi, [OUR_NAME], d�tenteur du plus grand nez de l'histoire humaine, je vous souhaite la bienvenue chez les [OUR_CIV_SHORT:3] !</French>
++		<French>Moi, [OUR_NAME], d�tenteur du plus grand nez de l'histoire humaine, je vous souhaite la bienvenue chez les [OUR_CIV_SHORT:3] !</French>
+ 		<German>Ich, [OUR_NAME], ausgestattet mit einem der gr��ten und sch�nsten Riechkolben der Menschheitsgeschichte, hei�e Euch im Namen des glorreichen Volkes von [OUR_CIV_SHORT] willkommen!</German>
+ 		<Italian>Io, [OUR_NAME], possessore di uno dei pi� grandi e dei migliori nasi della storia, ti do il benvenuto presso [OUR_CIV_SHORT]!</Italian>
+ 		<Spanish>Yo, [OUR_NAME], poseedor de una de las m�s bellas narices de la historia de la Humanidad, os doy la bienvenida a la gloriosa tierra de [OUR_CIV_SHORT]!</Spanish>
+@@ -246,7 +246,7 @@
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_DE_GAULLE_2</Tag>
+ 		<English>Monseigneur [CT_NAME]? I am [OUR_NAME], leader of [OUR_CIV_SHORT]. A leader must aim high, see big, judge widely, thus setting himself apart form the ordinary people who debate in narrow confines. Don't you agree?</English>
+-		<French>>Moi, [OUR_NAME], d�tenteur du plus grand nez de l'histoire humaine, je vous souhaite la bienvenue chez les [OUR_CIV_SHORT:3] !</French>
++		<French>Moi, [OUR_NAME], d�tenteur du plus grand nez de l'histoire humaine, je vous souhaite la bienvenue chez les [OUR_CIV_SHORT:3] !</French>
+ 		<German>Ich, [OUR_NAME], ausgestattet mit einem der gr��ten und sch�nsten Riechkolben der Menschheitsgeschichte, hei�e Euch im Namen des glorreichen Volkes von [OUR_CIV_SHORT] willkommen!</German>
+ 		<Italian>Io, [OUR_NAME], possessore di uno dei pi� grandi e dei migliori nasi della storia, ti do il benvenuto presso [OUR_CIV_SHORT]!</Italian>
+ 		<Spanish>Yo, [OUR_NAME], poseedor de una de las m�s bellas narices de la historia de la Humanidad, os doy la bienvenida a la gloriosa tierra de [OUR_CIV_SHORT]!</Spanish>
+@@ -262,7 +262,7 @@
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_NO_PEACE_LEADER_DE_GAULLE_1</Tag>
+ 		<English>[OUR_CIV_SHORT] cannot be [OUR_CIV_SHORT] without greatness. The war continues, for Glory gives herself only to those who dream of her.</English>
+-		<French>>Certainement pas ! L'honneur des [OUR_CIV_SHORT:3] exige que cette guerre continue jusqu'� ce que vous soyez r�duits en bouillie.</French>
++		<French>Certainement pas ! L'honneur des [OUR_CIV_SHORT:3] exige que cette guerre continue jusqu'� ce que vous soyez r�duits en bouillie.</French>
+ 		<German>Keinesfalls! Es geb�hrt der Ehre des Volkes von [OUR_CIV_SHORT], dass dieser Krieg fortgef�hrt wird, bis Ihr alle im Staub liegt!</German>
+ 		<Italian>Certo che no! L'onore di [OUR_CIV_SHORT] vuole che questa guerra continui fino a quando non sarai ridotto in pezzi molto piccoli.</Italian>
+ 		<Spanish>�Por supuesto que no! El honor de [OUR_CIV_SHORT] exige que la guerra contin�e hasta que os hayamos hecho pat� de foie.</Spanish>
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 4cf858eec..397e9ab75 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -144,7 +144,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__GOLDRATEBROKECOLOR_HOVER</Tag>
+ 		<English>Text color to use when a negative per-turn income exceeds the gold reserves in the treasury</English>
+-		<German>Textfarbe bei negativem Einkommen, das den Goldvorrat �bersteigt.</German>>
++		<German>Textfarbe bei negativem Einkommen, das den Goldvorrat �bersteigt.</German>
+ 	</TEXT>
+ 	
+ 	<!-- advc.004: German shortened (was the longest heading in its column) -->
+
+diff --git a/Assets/XML/Text/BUG_CIV4GameText.xml b/Assets/XML/Text/BUG_CIV4GameText.xml
+index 14baf4c3f..31cb96a5f 100644
+--- a/Assets/XML/Text/BUG_CIV4GameText.xml
++++ b/Assets/XML/Text/BUG_CIV4GameText.xml
+@@ -27,7 +27,7 @@
+ 	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_CREATED_BY_HEADER</Tag>
+-		<English>Created by The BUG Mod.</English>>
++		<English>Created by The BUG Mod.</English>
+ 		<German>Erstellt durch die BUG Mod.</German>
+ 		<Italian>Creato dal BUG Mod.</Italian>
+ 		<Spanish>Creado por el BUG Mod.</Spanish>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index a2f5b3cbd..8013ed13f 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -6789,7 +6789,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_POPUP_ELECTION_FORCE_WAR_VS_YOU</Tag>
+ 		<English>Force the full members to declare war on you(!!) (Requires %d1_ReqNum of %d2_TotNum Total Votes)</English>
+-		<French>>Force les membres permanents � vous (!) d�clarer la guerre (%d1_ReqNum vote(s) sur %d2_TotNum requis)</French>
++		<French>Force les membres permanents � vous (!) d�clarer la guerre (%d1_ReqNum vote(s) sur %d2_TotNum requis)</French>
+ 		<German>Zwingt die Vollmitglieder Ihnen(!) den Krieg zu erkl�ren. (Erfordert %d1_ReqNum on insgesamt %d2_TotNum Stimmen.)</German>
+ 		<Italian>Costringe i membri a pieno titolo a dichiarare guerra a te(!!) (Richiede %d1_ReqNum su %d2_TotNum voti totali)</Italian>
+ 		<Spanish>Obliga a los miembros de pleno derecho a declararos la guerra(!!) (Requiere %d1_ReqNum de %d2_TotNum votos totales)</Spanish>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_rf.xml b/Assets/XML/Text/CIV4GameText_advc_rf.xml
+index b20a7498c..5186f7f73 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_rf.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_rf.xml
+@@ -386,7 +386,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_YOU_AT_WAR</Tag>
+ 		<English>You're at war with %s1_Civ!</English>
+-		<German>Wir befinden uns im Krieg mit %s1_Civ!</German>>
++		<German>Wir befinden uns im Krieg mit %s1_Civ!</German>
+ 	</TEXT>
+ 	<!-- Translations: TXT_KEY_QUEST_MESSAGE_LOG in CIV4GameText_BTS.xml.
+ 		 fr. Qu&#234;tes, it. Imprese, sp. Misiones -->
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6455

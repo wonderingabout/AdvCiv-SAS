@@ -1,0 +1,389 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5597
+# Commit: 270b91c183d6924c8e503e683250beb645285d61
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 81f966e9299c9c41bd90d332b120617cd45777c8
+# Title: standardize y_title spacing + minor
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	Assets/Python/SASUtils.py
+1	1	Assets/Python/Screens/CvCivicsScreen.py
+1	1	Assets/Python/Screens/CvForeignAdvisor.py
+1	1	Assets/Python/Screens/CvInfoScreen.py
+1	1	Assets/Python/Screens/CvVictoryScreen.py
+0	6	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+0	10	Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+0	1	Assets/XML/Buildings/CIV4PlotLSystem.xml
+0	25	Assets/XML/GameInfo/CIV4CultureLevelInfo.xml
+6	7	Assets/XML/GameInfo/CIV4WorldInfo.xml
+0	6	Long_Comments/Long_Comments_XML.txt
+2	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/SASUtils.py b/Assets/Python/SASUtils.py
+index 8b082c1b7..6d919b38c 100644
+--- a/Assets/Python/SASUtils.py
++++ b/Assets/Python/SASUtils.py
+@@ -17,6 +17,8 @@ SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD = 420
+ SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR = 32
+ SAS_ADVISOR_BOTTOM_SPACE = 0
+ 
++# <!-- custom: shared advisor title Y is screen-independent and unified for migrated advisors to reduce per-file noise; older per-screen values were close (e.g. 8/12), so use one midpoint default (10). Keep screen-dependent anchors computed at runtime. (GPT-5.3-Codex) -->
++SAS_ADVISOR_TITLE_Y = 10
+ # <!-- custom: shared offsets/divisors for runtime screen-dependent anchor formulas (title/exit/link/footer) derived from each advisor's current panel width/height in interfaceScreen. (GPT-5.3-Codex) -->
+ SAS_ADVISOR_TITLE_X_DIVISOR = 2
+ SAS_ADVISOR_EXIT_X_OFFSET = 30
+
+diff --git a/Assets/Python/Screens/CvCivicsScreen.py b/Assets/Python/Screens/CvCivicsScreen.py
+index 6afa373de..6d7ba6b23 100644
+--- a/Assets/Python/Screens/CvCivicsScreen.py
++++ b/Assets/Python/Screens/CvCivicsScreen.py
+@@ -52,7 +52,7 @@ class CvCivicsScreen:
+ 
+ 		self.Y_SCREEN = 396
+ 		self.Z_SCREEN = -6.1
+-		self.Y_TITLE = 8		
++		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
+ 		self.Z_TEXT = self.Z_SCREEN - 0.2
+ 
+ 		self.CivicsScreenInputMap = {
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index af8051b40..5854b1d28 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -98,7 +98,7 @@ class CvForeignAdvisor:
+ 		self.W_RIGHT_SPACE_FOR_SCOREBOARD = SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD
+ 		self.H_TOP_SPACE_FOR_TECH_BAR = SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR
+ 		self.H_BOTTOM_SPACE = SAS_ADVISOR_BOTTOM_SPACE
+-		self.Y_TITLE = 8
++		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
+ 		self.X_LEADER = 80
+ 		self.Y_LEADER = 115
+ 		self.H_LEADER = 64
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 2645640ea..372084a03 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -448,7 +448,7 @@ class CvInfoScreen:
+ 		# <!-- custom: compute Info Screen geometry at runtime from the current resolution; this matches Foreign Advisor's pattern and avoids stale init-time layout. (GPT-5.3-Codex) -->
+ 		self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(screen, self.W_LEFT_SPACE_FOR_COMMERCE_SLIDERS, self.W_RIGHT_SPACE_FOR_SCOREBOARD, self.H_TOP_SPACE_FOR_TECH_BAR, self.H_BOTTOM_SPACE)
+ 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, self.Y_LINK, _ = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
+-		self.Y_TITLE = 8
++		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
+ 
+ 		# <!-- custom: originally was only used by the graph tab, now used by other tabs as well, moved up for clarity and in case we use it in other tabs. -->
+ 		# <!-- custom: note: old tabs' dimensions and some related code comments removed for readability. -->
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index a095be63a..2d12e9341 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -85,7 +85,7 @@ class CvVictoryScreen:
+ 		self.Z_CONTROLS = self.Z_BACKGROUND - 0.2
+ 		self.DZ = -0.2
+ 
+-		self.Y_TITLE = 12
++		self.Y_TITLE = SAS_ADVISOR_TITLE_Y
+ 
+ 		self.X_AREA = 10
+ 		self.Y_AREA = 60
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index bb46dee7a..a25135b7b 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -1721,8 +1721,6 @@ Created as part of AdvCiv-SAS improvements
+ 			<Path>Art/BUG/Null.dds</Path>
+ 		</InterfaceArtInfo>
+ 
+-
+-
+ 		<!-- custom: some civ4 buttons -->
+ 		<InterfaceArtInfo>
+ 			<Type>SAS_CITIES_LANDSCAPE</Type>
+@@ -1733,16 +1731,12 @@ Created as part of AdvCiv-SAS improvements
+ 			<Path>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11</Path>
+ 		</InterfaceArtInfo>
+ 
+-
+-
+ 		<!-- custom: new Draft button as part of the city screen rework, ai-generated with the help of Nano Banana Pro (Gemini 3 Pro) thanks -->
+ 		<InterfaceArtInfo>
+ 			<Type>INTERFACE_CITY_SCREEN_DRAFT</Type>
+ 			<Path>Art/AdvCiv_SAS/Interface/Draft/Gemini_Generated_Image_bb4mzkbb4mzkbb4m_draft_64px.dds</Path>
+ 		</InterfaceArtInfo>
+ 
+-
+-
+ 		<!-- custom: emoji icons as dds; Long_Comments_XML.txt #150 -->
+ 		<!-- 🕊️ emoji from emojiterra -->
+ 		<InterfaceArtInfo>
+
+diff --git a/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml b/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+index 53ac2e7bd..aa97e20a8 100644
+--- a/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4UnitCombatInfos.xml
+@@ -17,8 +17,6 @@ Created as part of AdvCiv-SAS improvements
+ 			<Button>,Art/Interface/Buttons/Promotions/Recon_Units.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,7</Button>
+ 		</UnitCombatInfo>
+ 
+-
+-
+ 		<!-- custom: archer combat types -->
+ 		<UnitCombatInfo>
+ 			<Type>UNITCOMBAT_ARCHER_BOW_SHORT</Type>
+@@ -38,8 +36,6 @@ Created as part of AdvCiv-SAS improvements
+ 			<Button>Art/AdvCiv_SAS/Unit_Combat_Types/Archers_Crossbow/arrowbarrage1promotion.dds</Button>
+ 		</UnitCombatInfo>
+ 
+-
+-
+ 		<UnitCombatInfo>
+ 			<Type>UNITCOMBAT_MOUNTED_MELEE</Type>
+ 			<Description>TXT_KEY_UNITCOMBAT_MOUNTED_MELEE</Description>
+@@ -51,8 +47,6 @@ Created as part of AdvCiv-SAS improvements
+ 			<Button>,Art/Interface/Buttons/Promotions/Formation.dds,Art/Interface/Buttons/Promotions_Atlas.dds,1,2</Button>
+ 		</UnitCombatInfo>
+ 
+-
+-
+ 		<!-- custom: split melee units into UNITCOMBAT_MELEE_POLEARM and UNITCOMBAT_MELEE_SHOCK so knight units are not strong against pikemen, and chariots are not strong against spearmen or such; button import from c2c mod -->
+ 		<UnitCombatInfo>
+ 			<Type>UNITCOMBAT_MELEE_POLEARM</Type>
+@@ -65,8 +59,6 @@ Created as part of AdvCiv-SAS improvements
+ 			<Button>,Art/Interface/Buttons/Promotions/Shock.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,5</Button>
+ 		</UnitCombatInfo>
+ 
+-
+-
+ 		<UnitCombatInfo>
+ 			<Type>UNITCOMBAT_SIEGE</Type>
+ 			<Description>TXT_KEY_UNITCOMBAT_SIEGE</Description>
+@@ -94,8 +86,6 @@ Created as part of AdvCiv-SAS improvements
+ 			<Button>,Art/Interface/Buttons/Promotions/Naval_Units.dds,Art/Interface/Buttons/Promotions_Atlas.dds,3,7</Button>
+ 		</UnitCombatInfo>
+ 
+-
+-
+ 		<!-- custom: art import from COM mod's rom_promotion_atlas2.dds atlas (their UNITCOMBAT_BOMBERS button that i extracted from the atlas with Paint.NET as we don't need all the atlas) -->
+ 		<UnitCombatInfo>
+ 			<Type>UNITCOMBAT_AIR_BOMBER</Type>
+
+diff --git a/Assets/XML/Buildings/CIV4PlotLSystem.xml b/Assets/XML/Buildings/CIV4PlotLSystem.xml
+index 75770dd3b..b42e723e9 100644
+--- a/Assets/XML/Buildings/CIV4PlotLSystem.xml
++++ b/Assets/XML/Buildings/CIV4PlotLSystem.xml
+@@ -1108,7 +1108,6 @@
+ 			<Rotate>90</Rotate>
+ 		</ArtRef>
+ 
+-
+ 		<ArtRef Name="art:building">
+ 			<Attribute Class="Era">ERA_MODERN,ERA_FUTURE</Attribute>
+ 			<Attribute Class="Scalar">NIF:Art/Structures/Cities/mod_eu.nif::2x1_01</Attribute>
+
+diff --git a/Assets/XML/GameInfo/CIV4CultureLevelInfo.xml b/Assets/XML/GameInfo/CIV4CultureLevelInfo.xml
+index 424667f41..a8a8d6cf0 100644
+--- a/Assets/XML/GameInfo/CIV4CultureLevelInfo.xml
++++ b/Assets/XML/GameInfo/CIV4CultureLevelInfo.xml
+@@ -7,9 +7,6 @@
+ <!-- custom: added new game speeds with the help of chatgpt5. thanks, and the compact display is super more readable thanks a lot! -->
+ <Civ4CultureLevelInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<CultureLevelInfos>
+-
+-
+-
+ 		<CultureLevelInfo>
+ 			<Type>CULTURELEVEL_NONE</Type>
+ 			<Description>TXT_KEY_CULTURELEVEL_NONE</Description>
+@@ -25,9 +22,6 @@
+ 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>0</iThreshold></SpeedThreshold>
+ 			</SpeedThresholds>
+ 		</CultureLevelInfo>
+-
+-
+-
+ 		<CultureLevelInfo>
+ 			<Type>CULTURELEVEL_POOR</Type>
+ 			<Description>TXT_KEY_CULTURELEVEL_POOR</Description>
+@@ -43,9 +37,6 @@
+ 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>0</iThreshold></SpeedThreshold>
+ 			</SpeedThresholds>
+ 		</CultureLevelInfo>
+-
+-
+-
+ 		<CultureLevelInfo>
+ 			<Type>CULTURELEVEL_FLEDGLING</Type>
+ 			<Description>TXT_KEY_CULTURELEVEL_FLEDGLING</Description>
+@@ -61,9 +52,6 @@
+ 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>40</iThreshold></SpeedThreshold>
+ 			</SpeedThresholds>
+ 		</CultureLevelInfo>
+-
+-
+-
+ 		<CultureLevelInfo>
+ 			<Type>CULTURELEVEL_DEVELOPING</Type>
+ 			<Description>TXT_KEY_CULTURELEVEL_DEVELOPING</Description>
+@@ -79,9 +67,6 @@
+ 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>400</iThreshold></SpeedThreshold>
+ 			</SpeedThresholds>
+ 		</CultureLevelInfo>
+-
+-
+-
+ 		<CultureLevelInfo>
+ 			<Type>CULTURELEVEL_REFINED</Type>
+ 			<Description>TXT_KEY_CULTURELEVEL_REFINED</Description>
+@@ -96,11 +81,7 @@
+ 				<SpeedThreshold><GameSpeedType>GAMESPEED_SLOW</GameSpeedType><iThreshold>1500</iThreshold></SpeedThreshold>
+ 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>2000</iThreshold></SpeedThreshold>
+ 			</SpeedThresholds>
+-
+ 		</CultureLevelInfo>
+-
+-
+-
+ 		<CultureLevelInfo>
+ 			<Type>CULTURELEVEL_INFLUENTIAL</Type>
+ 			<Description>TXT_KEY_CULTURELEVEL_INFLUENTIAL</Description>
+@@ -116,9 +97,6 @@
+ 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>20000</iThreshold></SpeedThreshold>
+ 			</SpeedThresholds>
+ 		</CultureLevelInfo>
+-
+-
+-
+ 		<!-- advc.251: Quick was 25k, Normal 50k, Epic 75k, Marathon 150k.
+ 			 Marathon corresponds to a ca. 225% adjustment. -->
+ 		<CultureLevelInfo>
+@@ -136,8 +114,5 @@
+ 				<SpeedThreshold><GameSpeedType>GAMESPEED_VERY_SLOW</GameSpeedType><iThreshold>180000</iThreshold></SpeedThreshold>
+ 			</SpeedThresholds>
+ 		</CultureLevelInfo>
+-
+-
+-
+ 	</CultureLevelInfos>
+ </Civ4CultureLevelInfo>
+
+diff --git a/Assets/XML/GameInfo/CIV4WorldInfo.xml b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+index ade3790fa..f8afc3515 100644
+--- a/Assets/XML/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+@@ -54,7 +54,7 @@
+ 			<iGridHeight>13</iGridHeight>
+ 			<iTerrainGrainChange>-1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>-1</iFeatureGrainChange>
+-			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid. All the other research rates are beyond retarded too, was 95 -->
++			<!-- custom: use "standard" as the research rate, was 95 -->
+ 			<!-- advc.910: was 100 -->
+ 			<iResearchPercent>85</iResearchPercent>
+ 			<!-- advc.140: was 80 -->
+@@ -90,7 +90,7 @@
+ 			<iGridHeight>17</iGridHeight>
+ 			<iTerrainGrainChange>-1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>-1</iFeatureGrainChange>
+-			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid. All the other research rates are beyond retarded too, was 98 -->
++			<!-- custom: use "standard" as the research rate, was 98 -->
+ 			<!-- advc.910: was 110 -->
+ 			<iResearchPercent>90</iResearchPercent>
+ 			<!-- advc.140: was 70 -->
+@@ -124,7 +124,7 @@
+ 			<iGridHeight>22</iGridHeight>
+ 			<iTerrainGrainChange>0</iTerrainGrainChange>
+ 			<iFeatureGrainChange>0</iFeatureGrainChange>
+-			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid. All the other research rates are beyond retarded too, was 102 -->
++			<!-- custom: use "standard" as the research rate, was 102 -->
+ 			<!-- advc.910: was 120 -->
+ 			<iResearchPercent>95</iResearchPercent>
+ 			<!-- advc.140: was 60 -->
+@@ -164,7 +164,7 @@
+ 			<iGridHeight>28</iGridHeight>
+ 			<iTerrainGrainChange>0</iTerrainGrainChange>
+ 			<iFeatureGrainChange>0</iFeatureGrainChange>
+-			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, was 115 -->
++			<!-- custom: use "standard" as the research rate, was 115 -->
+ 			<!-- advc.910: was 130 -->
+ 			<iResearchPercent>100</iResearchPercent>
+ 			<!-- advc.140: was 50 -->
+@@ -200,7 +200,7 @@
+ 			<iGridHeight>34</iGridHeight>
+ 			<iTerrainGrainChange>1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>1</iFeatureGrainChange>
+-			<!-- custom: reduced as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land. Also can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid. All the other research rates are beyond retarded too, was 137 -->
++			<!-- custom: reduced as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land. Also use "standard" as the research rate, was 137 -->
+ 			<!-- advc.910: was 140 -->
+ 			<iResearchPercent>105</iResearchPercent>
+ 			<iTradeProfitPercent>40</iTradeProfitPercent>
+@@ -239,7 +239,7 @@
+ 			<iTerrainGrainChange>2</iTerrainGrainChange>
+ 			<!-- advc.129: was 1 -->
+ 			<iFeatureGrainChange>2</iFeatureGrainChange>
+-			<!-- custom: reduced as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land. Also can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid. All the other research rates are beyond retarded too, was 150 -->
++			<!-- custom: see code comment at WORLDSIZE_LARGE, was 150 -->
+ 			<iResearchPercent>110</iResearchPercent>
+ 			<!-- advc.140: was 30 -->
+ 			<iTradeProfitPercent>33</iTradeProfitPercent>
+@@ -252,7 +252,6 @@
+ 			<!-- advc.250c: was 120 -->
+ 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+ 		</WorldInfo>
+-
+ 		<WorldInfo>
+ 			<Type>WORLDSIZE_SAS24</Type>
+ 			<Description>TXT_KEY_WORLD_SAS24</Description>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 7ed8ddef9..e414bd788 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -1996,8 +1996,6 @@ now.
+ ----- Comment #94 -----
+ long code comment in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Audio\AudioDefines.xml causes(d) a crash before game can fully start, recorded in C:\Users\PC\Documents\My Games\beyond the sword\Logs\audio.log :
+ 
+-
+-
+ [8213.390] Audio Manager: Loading Audio Defines file XML\Audio\AudioDefines.xml...
+ [8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string SND_BUILD_PAGAN Art/AdvCiv_SAS/Religions/Paganism/Baalism DYNAMIC_RES 1 1 of TagId 8
+ [8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string Generic of TagId 8
+@@ -2009,12 +2007,8 @@ long code comment in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's C
+ [8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string GENERAL 1.0 0.0 0.0 1.0 0.0 FOREST of TagId 8
+ [8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string TXT_KEY_OPTION_SOUND_SYSTEM_CONFIG of TagId 8
+ 
+-
+-
+ so moving these (code comments) below in this now .txt file
+ 
+-
+-
+ 		<!-- custom: was (after renaming religion from confucianism/confucian(ist was it?) to paganism/pagan):
+ 		<SoundData>
+ 			<SoundID>SND_BUILD_PAGAN</SoundID>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 579f56542..dc12027da 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -4447,3 +4447,5 @@ Fix:
+ 
+ - Added a dedicated key without the first placeholder: `TXT_KEY_SAS_VOTE_REQ_ONLY`.
+ - Updated `CvVictoryScreen.py` to use that key directly for the Resolutions "requires votes" line.
++
++Note: although this is fixed, the Members tab also has an extra spacing at the start of lines that start with a star chars but as of now left as such since i couldn't easily find how to fix it.
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=16095

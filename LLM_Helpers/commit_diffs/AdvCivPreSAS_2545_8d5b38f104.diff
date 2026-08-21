@@ -1,0 +1,1874 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2545
+# Commit: 8d5b38f104b1213bd20c3c0aa4561864b8eb2ba6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 57a150e98c219fd3236ef368887dbdd5607191f2
+# Title: Clean up CvDefines.h
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	2	CvGameCoreDLL/AIStrategies.h
+2	4	CvGameCoreDLL/BitUtil.h
+20	18	CvGameCoreDLL/CvDLLButtonPopup.cpp
+14	10	CvGameCoreDLL/CvDLLWidgetData.cpp
+75	95	CvGameCoreDLL/CvDefines.h
+29	11	CvGameCoreDLL/CvEnums.h
+16	17	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+4	2	CvGameCoreDLL/CvGameCoreDLL.h
+2	2	CvGameCoreDLL/CvGlobals.cpp
+3	3	CvGameCoreDLL/CvInfo_Base.cpp
+5	3	CvGameCoreDLL/CvInfo_Base.h
+1	1	CvGameCoreDLL/CvInfo_Building.cpp
+1	1	CvGameCoreDLL/CvInfo_Building.h
+1	1	CvGameCoreDLL/CvInfo_Civics.cpp
+1	1	CvGameCoreDLL/CvInfo_Civics.h
+5	5	CvGameCoreDLL/CvInfo_Civilization.cpp
+6	6	CvGameCoreDLL/CvInfo_Civilization.h
+2	2	CvGameCoreDLL/CvInfo_GameOption.cpp
+1	1	CvGameCoreDLL/CvInfo_GameOption.h
+1	1	CvGameCoreDLL/CvInfo_Misc.cpp
+2	2	CvGameCoreDLL/CvInfo_Misc.h
+2	2	CvGameCoreDLL/CvInfo_RandomEvent.cpp
+2	2	CvGameCoreDLL/CvInfo_RandomEvent.h
+1	1	CvGameCoreDLL/CvInfo_Tech.cpp
+1	1	CvGameCoreDLL/CvInfo_Tech.h
+3	3	CvGameCoreDLL/CvInfo_Terrain.cpp
+3	3	CvGameCoreDLL/CvInfo_Terrain.h
+2	2	CvGameCoreDLL/CvInfo_Unit.cpp
+2	2	CvGameCoreDLL/CvInfo_Unit.h
+22	16	CvGameCoreDLL/CvMap.cpp
+4	3	CvGameCoreDLL/CvMap.h
+16	14	CvGameCoreDLL/CvPlayer.cpp
+12	1	CvGameCoreDLL/CvPlayer.h
+3	0	CvGameCoreDLL/CvPlayerAI.h
+5	4	CvGameCoreDLL/CvPlot.cpp
+19	0	CvGameCoreDLL/CvPlot.h
+1	1	CvGameCoreDLL/CvReplayInfo.cpp
+3	2	CvGameCoreDLL/CvUnitAI.cpp
+82	68	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+1	11	CvGameCoreDLL/CyEnumsInterface.cpp
+2	1	CvGameCoreDLL/CyMap.cpp
+6	11	CvGameCoreDLL/CyPlayer.cpp
+1	1	CvGameCoreDLL/CyPlayer.h
+11	0	CvGameCoreDLL/CyPlayerInterface2.cpp
+16	0	CvGameCoreDLL/CyPlotInterface1.cpp
+13	9	CvGameCoreDLL/EnumMap.h
+0	1	CvGameCoreDLL/EnumMapTest.cpp
+2	2	CvGameCoreDLL/RiseFall.cpp
+6	6	CvGameCoreDLL/Shelf.cpp
+2	1	CvGameCoreDLL/Shelf.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AIStrategies.h b/CvGameCoreDLL/AIStrategies.h
+index 8ae63aaad..de835bcbb 100644
+--- a/CvGameCoreDLL/AIStrategies.h
++++ b/CvGameCoreDLL/AIStrategies.h
+@@ -3,8 +3,6 @@
+ #ifndef AI_STRATEGIES_H // advc: Renamed this file from AI_Defines.h
+ #define AI_STRATEGIES_H
+ 
+-#include "BitUtil.h" // advc.enum
+-
+ // BETTER_BTS_AI_MOD, 03/08/10, jdog5000: START
+ // Could increase this value now that player closeness is fixed
+ #define DEFAULT_PLAYER_CLOSENESS 7
+
+diff --git a/CvGameCoreDLL/BitUtil.h b/CvGameCoreDLL/BitUtil.h
+index 66998f920..c308429e1 100644
+--- a/CvGameCoreDLL/BitUtil.h
++++ b/CvGameCoreDLL/BitUtil.h
+@@ -5,12 +5,10 @@
+ 
+ /*  advc.enum: Helper functions for bitwise operations. Copied from the
+ 	"We the People" mod (all code by Nightinggale), which keeps these functions
+-	directly in CvGameCoreDLL.h. I need them only for EnumMap for now. EnumMap
+-	gets included in CvGameCoreDLL.h, but I don't want the functions in the
+-	global namespace (for now); so I've put them into a different namespace.
++	directly in CvGameCoreDLL.h.
+ 	Removed the static keyword (all functions were static). */
+ 
+-namespace BitUtil
++namespace BitUtil // advc: Don't want these in the global namespace (for now)
+ {
+ 	template <typename T>
+ 	inline bool HasBit(const T x, const int y)
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 4ee7314d8..0082d0f20 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -20,25 +20,27 @@
+ 
+ CvDLLButtonPopup* CvDLLButtonPopup::m_pInst = NULL;
+ 
+-// K-Mod. In the original code, arbitrary integers are used to express the options of the in-game main menu.
+-// I found it confusing, and I know that such use of 'magic numbers' is prone to mistakes - especially since I intended to add a new option into the middle...
+-// I've created this enum set to make sure there is no confusion as to what each item number is.
+-static enum MainMenuOptions
++namespace
+ {
+-	MM_EXIT_TO_DESKTOP = 0,
+-	MM_EXIT_TO_MAIN_MENU,
+-	MM_RETIRE,
+-	MM_REGENERATE_MAP,
+-	MM_LOAD_GAME,
+-	MM_SAVE_GAME,
+-	MM_OPTIONS,
+-	MM_BUG_OPTIONS, // new in K-Mod
+-	MM_ENTER_WB,
+-	MM_GAME_DETAILS,
+-	MM_PLAYER_DETAILS,
+-	MM_CANCEL,
+-};
+-// K-Mod end
++	/*	K-Mod: In the original code, arbitrary integers are used
++		to express the options of the in-game main menu. */
++	enum MainMenuOptions
++	{
++		MM_EXIT_TO_DESKTOP = 0,
++		MM_EXIT_TO_MAIN_MENU,
++		MM_RETIRE,
++		MM_REGENERATE_MAP,
++		MM_LOAD_GAME,
++		MM_SAVE_GAME,
++		MM_OPTIONS,
++		MM_BUG_OPTIONS, // new in K-Mod
++		MM_ENTER_WB,
++		MM_GAME_DETAILS,
++		MM_PLAYER_DETAILS,
++		MM_CANCEL,
++	};
++}
++
+ 
+ CvDLLButtonPopup& CvDLLButtonPopup::getInstance()
+ {
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index ed678be17..d38dc192b 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -5995,31 +5995,35 @@ void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataSt
+ 
+ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+-	int iFlags = (int)widgetDataStruct.m_iData1;
++	CvPlayer::PollutionTypes eFlags = (CvPlayer::PollutionTypes)widgetDataStruct.m_iData1;
+ 
+ 	szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION")+":");
+ 
+-	if (iFlags & POLLUTION_POPULATION)
++	if (eFlags & CvPlayer::POLLUTION_POPULATION)
+ 	{
+ 		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POPULATION", GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT")));
++		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POPULATION",
++				GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT")));
+ 	}
+-	if (iFlags & POLLUTION_BUILDINGS)
++	if (eFlags & CvPlayer::POLLUTION_BUILDINGS)
+ 	{
+ 		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BUILDINGS", GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT")));
++		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BUILDINGS",
++				GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT")));
+ 	}
+-	if (iFlags & POLLUTION_BONUSES)
++	if (eFlags & CvPlayer::POLLUTION_BONUSES)
+ 	{
+ 		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BONUSES", GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT")));
++		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BONUSES",
++				GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT")));
+ 	}
+-	if (iFlags & POLLUTION_POWER)
++	if (eFlags & CvPlayer::POLLUTION_POWER)
+ 	{
+ 		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POWER", GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT")));
++		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POWER",
++				GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT")));
+ 	}
+-} // K-Mod end
++} // </K-Mod>
+ 
+ // <advc.ctr>
+ bool CvDLLWidgetData::parseCityTradeHelp(CvWidgetDataStruct const& kWidget, CvCity*& pCity,
+
+diff --git a/CvGameCoreDLL/CvDefines.h b/CvGameCoreDLL/CvDefines.h
+index e54f322a3..a4d142ce9 100644
+--- a/CvGameCoreDLL/CvDefines.h
++++ b/CvGameCoreDLL/CvDefines.h
+@@ -3,9 +3,20 @@
+ #ifndef CVDEFINES_H
+ #define CVDEFINES_H
+ 
++/*	advc.enum: MAX_CIV_PLAYERS, MAX_PLAYERS etc.
++	and city plot constants moved to CvEnums.h */
++/*	advc: K-Mod pollution flags moved to CvPlayer.h.
++	RANDPLOT flags moved to the end of CvPlot.h.
++	(Border) danger range moved to CvPlayerAI.h. */
+ 
+ // The following #defines should not be moddable...
++/*	advc: Which is to say, I think, that the defines have been compiled into
++	the EXE and changing them will either have no effect or result in
++	inconsistencies between EXE and DLL. Of course this doesn't apply
++	to defines added by mods. Imo mods should only add defines here
++	when it's important to group them with the original defines for context. */
+ 
++// advc.enum (tbd.): Use OVERRIDE_BITMASK_OPERATORS to turn this into an enum
+ #define MOVE_IGNORE_DANGER									(0x00000001)
+ #define MOVE_SAFE_TERRITORY									(0x00000002)
+ #define MOVE_NO_ENEMY_TERRITORY								(0x00000004)
+@@ -19,113 +30,87 @@
+ #define MOVE_AVOID_ENEMY_WEIGHT_2							(0x00000080)
+ #define MOVE_AVOID_ENEMY_WEIGHT_3							(0x00000100)
+ // BETTER_BTS_AI_MOD: END
+-#define MOVE_ATTACK_STACK									(0x00000200) // K-Mod.. allow the path to fight through enemy defences, but prefer not to.
+-#define MOVE_SINGLE_ATTACK									(0x00000400) // K-Mod. only attack with one unit, not the whole stack
+-#define MOVE_NO_ATTACK										(0x00000800) // K-Mod. used to prevent humans from accidentally attacking unseen units
+-#define MOVE_HAS_STEPPED									(0x00001000) // K-Mod. used to signal that at least one step has been taken for this move command
+-#define MOVE_ASSUME_VISIBLE									(0x00002000) // K-Mod. With this flag, the pathfinder will plan around enemy units even if they are not visible. (Note: AI units do this regardless of the flag.)
++// <K-Mod>
++// allow the path to fight through enemy defences, but prefer not to.
++#define MOVE_ATTACK_STACK									(0x00000200)
++// only attack with one unit, not the whole stack
++#define MOVE_SINGLE_ATTACK									(0x00000400)
++// to prevent humans from accidentally attacking unseen units
++#define MOVE_NO_ATTACK										(0x00000800)
++// to signal that at least one step has been taken for this move command
++#define MOVE_HAS_STEPPED									(0x00001000)
++/*	With this flag, the pathfinder will plan around enemy units
++	even if they are not visible. (Note: AI units do this regardless of the flag.) */
++#define MOVE_ASSUME_VISIBLE									(0x00002000)
++// </K-Mod>
+ #define MOVE_ROUTE_TO										(0x00004000) // advc.pf
+ 
+-/*  K-Mod, 18/dec/10, karadoc
+-	global warming pollution flags for use in the CvPlayer::calculateGwPollution function */
+-#define POLLUTION_POPULATION	1
+-#define POLLUTION_BUILDINGS		2
+-#define POLLUTION_BONUSES		4
+-#define POLLUTION_POWER			8
+-#define POLLUTION_ALL			15
+-// K-Mod end
+-
+-#define RANDPLOT_LAND													(0x00000001)
+-#define RANDPLOT_UNOWNED											(0x00000002)
+-#define RANDPLOT_ADJACENT_UNOWNED							(0x00000004)
+-#define RANDPLOT_ADJACENT_LAND								(0x00000008)
+-#define RANDPLOT_PASSABLE											(0x00000010)
+-#define RANDPLOT_NOT_VISIBLE_TO_CIV						(0x00000020)
+-#define RANDPLOT_NOT_CITY											(0x00000040)
+-// <advc.300>
+-#define RANDPLOT_HABITABLE (0x00000080)
+-#define RANDPLOT_WATERSOURCE (0x00000100) // </advc.300>
+-
+-#ifdef _USRDLL
+-// K-Mod (note): default is 18, some people like 48. They are not compatible.
+-/*  advc.056: Scenario (WB) files are now compatible so long as the player ids in the WB file
+-	don't exceed MAX_CIV_PLAYERS in the DLL. Savegames are still incompatible. */
+-#define MAX_CIV_PLAYERS												(18)
+-#else
+-#define MAX_CIV_PLAYERS												(CvGlobals::getInstance().getMaxCivPlayers())
+-#endif
+-
+-#define MAX_CIV_TEAMS													(MAX_CIV_PLAYERS)
+-#define MAX_PLAYERS														(MAX_CIV_PLAYERS + 1)
+-#define MAX_TEAMS															(MAX_PLAYERS)
+-#define BARBARIAN_PLAYER											((PlayerTypes)MAX_CIV_PLAYERS)
+-#define BARBARIAN_TEAM												((TeamTypes)MAX_CIV_TEAMS)
+-
+-// Char Count limit for edit boxes
++/*	Char Count limit for edit boxes ...
++	advc (note): The DLL uses only some of these and only in CvDLLButtonPopup,
++	but I expect that the EXE uses some or all, so I'm keeping the definitions here. */
+ #define PREFERRED_EDIT_CHAR_COUNT							(15)
+ #define MAX_GAMENAME_CHAR_COUNT								(32)
+ #define MAX_PLAYERINFO_CHAR_COUNT							(32)
+-#define MAX_PLAYEREMAIL_CHAR_COUNT						(64)
++#define MAX_PLAYEREMAIL_CHAR_COUNT							(64)
+ #define MAX_PASSWORD_CHAR_COUNT								(32)
+ #define MAX_GSLOGIN_CHAR_COUNT								(17)
+ #define MAX_GSEMAIL_CHAR_COUNT								(50)
+ #define MAX_GSPASSWORD_CHAR_COUNT							(30)
+-#define MAX_CHAT_CHAR_COUNT										(256)
++#define MAX_CHAT_CHAR_COUNT									(256)
+ #define MAX_ADDRESS_CHAR_COUNT								(64)
+ 
+-#define INVALID_PLOT_COORD										(-(MAX_INT))	// don't use -1 since that is a valid wrap coordinate
+-#define DIRECTION_RADIUS											(1)
+-#define DIRECTION_DIAMETER										((DIRECTION_RADIUS * 2) + 1)
+-// advc.enum: Moved to CvEnums.h
+-/*#define NUM_CITY_PLOTS (21)
+-#define CITY_HOME_PLOT    (0)
+-#define CITY_PLOTS_RADIUS (2)
+-#define CITY_PLOTS_DIAMETER	((CITY_PLOTS_RADIUS*2) + 1)*/
+-
+-#define GAME_NAME															("Game")
++#define INVALID_PLOT_COORD									(-MAX_INT) // NB: -1 is a valid wrap coordinate
++#define DIRECTION_RADIUS									(1)
++#define DIRECTION_DIAMETER									(DIRECTION_RADIUS * 2 + 1)
++
++#ifndef _USRDLL // advc: Unused (at least in the DLL); should probably keep it that way.
++	#define GAME_NAME ("Game")
++	#define Z_ORDER_LAYER									(-0.1f)
++	#define Z_ORDER_LEVEL									(-0.3f)
++
++	#define CIV4_GUID										"civ4bts"
++	#define CIV4_PRODUCT_ID									11081
++	#define CIV4_NAMESPACE_ID								17
++	#define CIV4_NAMESPACE_EXT								"-tk"
++
++	#define USER_CHANNEL_PREFIX								"#civ4buser!"
++	// Version Verification files and folders
++	#ifdef _DEBUG
++		#define CIV4_EXE_FILE								".\\Civ4BeyondSword_DEBUG.exe"
++		#define CIV4_DLL_FILE								".\\Assets\\CvGameCoreDLL_DEBUG.dll"
++	#else
++		#define CIV4_EXE_FILE								".\\Civ4BeyondSword.exe"
++		#define CIV4_DLL_FILE								".\\Assets\\CvGameCoreDLL.dll"
++	#endif
++	#define CIV4_SHADERS									".\\Shaders\\FXO"
++	#define CIV4_ASSETS_PYTHON								".\\Assets\\Python"
++	#define CIV4_ASSETS_XML									".\\Assets\\XML"
++#endif
++// advc (note): These four are also unused in the DLL, but might be useful(?).
++#define MAX_PLAYER_NAME_LEN									(64)
++#define MAX_VOTE_CHOICES									(8)
++#define VOTE_TIMEOUT										(600000) // 10 minute vote timeout - temporary
++#define ANIMATION_DEFAULT									(1) // Default idle animation
+ 
++#define MAP_TRANSFER_EXT									"_t"
+ #define LANDSCAPE_FOW_RESOLUTION							(4)
+ 
+-#define Z_ORDER_LAYER													(-0.1f)
+-#define Z_ORDER_LEVEL													(-0.3f)
+-
+-#define CIV4_GUID															"civ4bts"
+-#define CIV4_PRODUCT_ID												11081
+-#define CIV4_NAMESPACE_ID											17
+-#define CIV4_NAMESPACE_EXT										"-tk"
+-
+-#define MAP_TRANSFER_EXT											"_t"
+-
+-#define USER_CHANNEL_PREFIX										"#civ4buser!"
+-
+-#define SETCOLR																L"<color=%d,%d,%d,%d>"
+-#define ENDCOLR																L"</color>"
+-#define NEWLINE																L"\n"
+-#define SEPARATOR															L"\n-----------------------"
++#define SETCOLR												L"<color=%d,%d,%d,%d>"
++#define ENDCOLR												L"</color>"
++#define NEWLINE												L"\n"
++#define SEPARATOR											L"\n-----------------------"
+ // BUG - start
+-#define DOUBLE_SEPARATOR													L"\n======================="
++#define DOUBLE_SEPARATOR									L"\n======================="
+ // BUG - end
+-#define TEXT_COLOR(szColor)										((int)(GC.getInfo((ColorTypes)GC.getInfoTypeForString(szColor)).getColor().r * 255)), ((int)(GC.getInfo((ColorTypes)GC.getInfoTypeForString(szColor)).getColor().g * 255)), ((int)(GC.getInfo((ColorTypes)GC.getInfoTypeForString(szColor)).getColor().b * 255)), ((int)(GC.getInfo((ColorTypes)GC.getInfoTypeForString(szColor)).getColor().a * 255))
++#define TEXT_COLOR(szColor) \
++		(int)GC.getInfo((ColorTypes)GC.getInfoTypeForString(szColor)).getColor().r * 255, \
++		(int)GC.getInfo((ColorTypes)GC.getInfoTypeForString(szColor)).getColor().g * 255, \
++		(int)GC.getInfo((ColorTypes)GC.getInfoTypeForString(szColor)).getColor().b * 255, \
++		(int)GC.getInfo((ColorTypes)GC.getInfoTypeForString(szColor)).getColor().a * 255
+ // advc:  (uses of this macro aren't tagged with "advc")
+-#define PLAYER_TEXT_COLOR(kPlayer)								kPlayer.getPlayerTextColorR(), kPlayer.getPlayerTextColorG(), kPlayer.getPlayerTextColorB(), kPlayer.getPlayerTextColorA()
+-
+-// Version Verification files and folders
+-#ifdef _DEBUG
+-#define CIV4_EXE_FILE													".\\Civ4BeyondSword_DEBUG.exe"
+-#define CIV4_DLL_FILE													".\\Assets\\CvGameCoreDLL_DEBUG.dll"
+-#else
+-#define CIV4_EXE_FILE													".\\Civ4BeyondSword.exe"
+-#define CIV4_DLL_FILE													".\\Assets\\CvGameCoreDLL.dll"
+-#endif
+-#define CIV4_SHADERS													".\\Shaders\\FXO"
+-#define CIV4_ASSETS_PYTHON										".\\Assets\\Python"
+-#define CIV4_ASSETS_XML												".\\Assets\\XML"
+-
+-#define MAX_PLAYER_NAME_LEN										(64)
+-#define MAX_VOTE_CHOICES											(8)
+-#define VOTE_TIMEOUT													(600000)	// 10 minute vote timeout - temporary
+-
+-#define ANIMATION_DEFAULT											(1)			// Default idle animation
++#define PLAYER_TEXT_COLOR(kPlayer) \
++		kPlayer.getPlayerTextColorR(), kPlayer.getPlayerTextColorG(), \
++		kPlayer.getPlayerTextColorB(), kPlayer.getPlayerTextColorA()
+ 
+ // python module names
+ #define PYDebugToolModule			"CvDebugInterface"
+@@ -144,9 +129,4 @@
+ #define PYEventModule				"CvEventInterface"
+ #define PYRandomEventModule			"CvRandomEventInterface"
+ 
+-#define DANGER_RANGE						(4)
+-#define BORDER_DANGER_RANGE					(2) // K-Mod
+-
+-#define SERIALIZE_CVINFOS 0 // advc.003i
+-
+ #endif	// CVDEFINES_H
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 6caa136e6..6ef1a4759 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -6,9 +6,37 @@
+ /*  advc (note): All enums in this file are -probably- exposed to Python through
+ 	CyEnumsInterface.cpp -- unless a comment states otherwise */
+ // <advc.enum>
+-#include "CvDefines.h"
+ #include "CvInfoEnums.h"
+ 
++/*	Player limits: Moved from CvDefines into the Enum types.
++	(Can always turn MAX_CIV_PLAYERS back into a preprocessor define
++	if that helps in making the player limits more flexible.) */
++//#ifdef _USRDLL
++//	#define MAX_CIV_PLAYERS ((PlayerTypes)18)
++//#else
++//	#define MAX_CIV_PLAYERS ((PlayerTypes)CvGlobals::getInstance().getMaxCivPlayers())
++//#endif
++enum PlayerTypes
++{
++	NO_PLAYER = -1,
++	FIRST_PLAYER, // When an arbitrary player id is needed
++	// K-Mod (note): default is 18, some people like 48. They are not compatible.
++	/*  advc.056 (note): Scenario (WB) files are now compatible so long
++		as the player ids in the WB file don't exceed MAX_CIV_PLAYERS in the DLL.
++		Savegames are still incompatible. */
++	MAX_CIV_PLAYERS = 18,
++	BARBARIAN_PLAYER = MAX_CIV_PLAYERS,
++	MAX_PLAYERS = MAX_CIV_PLAYERS + 1
++};
++enum TeamTypes
++{
++	NO_TEAM = -1,
++	FIRST_TEAM = 0,
++	MAX_CIV_TEAMS = MAX_CIV_PLAYERS,
++	BARBARIAN_TEAM = MAX_CIV_TEAMS,
++	MAX_TEAMS
++};
++
+ // This generates most of the enums with associated XML data
+ DO_FOR_EACH_DYN_INFO_TYPE(MAKE_INFO_ENUM)
+ 
+@@ -1654,16 +1682,6 @@ enum FontSymbols
+ #endif
+ };
+ 
+-enum TeamTypes
+-{
+-	NO_TEAM = -1
+-};
+-
+-enum PlayerTypes
+-{
+-	NO_PLAYER = -1
+-};
+-
+ enum CustomMapOptionTypes
+ {
+ 	NO_CUSTOM_MAPOPTION = -1
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index dca7f3b85..430e3045c 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7792,15 +7792,15 @@ int CvGame::createBarbarianUnits(int n, CvArea& a, Shelf* pShelf, bool bCargoAll
+ }
+ 
+ // <advc.300>
+-CvPlot* CvGame::randomBarbarianPlot(CvArea const& a, Shelf* shelf) const
++CvPlot* CvGame::randomBarbarianPlot(CvArea const& a, Shelf const* pShelf)
+ {
+-	int restrictionFlags = RANDPLOT_NOT_VISIBLE_TO_CIV |
++	RandPlotTypes const ePredicates = (RANDPLOT_NOT_VISIBLE_TO_CIV |
+ 			/*  Shelves already ensure this and one-tile islands
+ 				can't spawn Barbarians anyway. */
+ 			//RANDPLOT_ADJACENT_LAND |
+ 			RANDPLOT_PASSABLE |
+-			RANDPLOT_HABITABLE | // New flag
+-			RANDPLOT_UNOWNED;
++			RANDPLOT_HABITABLE | // new
++			RANDPLOT_UNOWNED);
+ 	/*  Added the "unowned" flag to prevent spawning in Barbarian land.
+ 		Could otherwise happen now b/c the visible flag and dist. restriction
+ 		no longer apply to Barbarians previously spawned; see
+@@ -7808,24 +7808,23 @@ CvPlot* CvGame::randomBarbarianPlot(CvArea const& a, Shelf* shelf) const
+ 	static int const iDist = GC.getDefineINT("MIN_BARBARIAN_STARTING_DISTANCE");
+ 	// <advc.304> Sometimes don't pick a plot if there are few legal plots
+ 	int iLegal = 0;
+-	CvPlot* r = NULL;
+-	if (shelf == NULL)
+-		r = GC.getMap().syncRandPlot(restrictionFlags, &a, iDist, -1, &iLegal);
++	CvPlot* pRandPlot = NULL;
++	if (pShelf == NULL)
++		pRandPlot = GC.getMap().syncRandPlot(ePredicates, &a, iDist, -1, &iLegal);
+ 	else
+ 	{
+-		r = shelf->randomPlot(restrictionFlags, iDist, &iLegal);
+-		if(r != NULL && iLegal * 100 < shelf->size())
+-			r = NULL;
++		pRandPlot = pShelf->randomPlot(ePredicates, iDist, &iLegal);
++		if(pRandPlot != NULL && iLegal * 100 < pShelf->size())
++			pRandPlot = NULL;
+ 	}
+-	if (r != NULL)
++	if (pRandPlot != NULL && iLegal > 0 && iLegal < 4)
+ 	{
+-		double prSkip = 0;
+-		if(iLegal > 0 && iLegal < 4)
+-			prSkip = 1 - 1.0 / (5 - iLegal); // Tbd.: Should perhaps be based on a.getNumTiles()
+-		if(::bernoulliSuccess(prSkip, "advc.304"))
+-			r = NULL;
++		// Tbd.: Should perhaps be based on a.getNumTiles()
++		scaled rSkipProb = 1 - scaled(1, 5 - iLegal);
++		if(rSkipProb.bernoulliSuccess(getSRand(), "randomBarbarianPlot"))
++		pRandPlot = NULL;
+ 	}
+-	return r; // </advc.304>
++	return pRandPlot; // </advc.304>
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 734b7275f..2268c9374 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -1027,7 +1027,7 @@ protected:
+ 			int iUnitsPresent, int iBarbarianCities = 0);
+ 	int createBarbarianUnits(int n, CvArea& a, Shelf* shelf, bool bCargoAllowed = false,
+ 			bool bOnlyCargo = false);
+-	CvPlot* randomBarbarianPlot(CvArea const& a, Shelf* shelf) const;
++	CvPlot* randomBarbarianPlot(CvArea const& a, Shelf const* pShelf);
+ 	bool killBarbarian(int iPresent, int iTiles, int iPop, CvArea& a, Shelf* shelf);
+ 	UnitTypes randomBarbarianUnit(UnitAITypes eUnitAI, CvArea const& a);
+ 	// </advc.300>
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 91c8fa306..ee1b0b0fe 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -94,7 +94,8 @@ __forceinline float MaxFloat() { return DWtoF(0x7f7fffff); }
+ #include "FDataStreamBase.h"
+ #include "FFreeListTrashArray.h" // advc.003s: includes FreeListTraversal.h
+ #include "CvString.h"
+-#include "CvEnums.h" // includes CvDefines.h, CvInfoEnum.h
++#include "CvDefines.h"
++#include "CvEnums.h" // includes CvInfoEnum.h
+ /*  advc: Smaller numbers may already crash the EXE; the DLL assumes in some places
+ 	that player ids fit in a single byte. */
+ BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+@@ -106,7 +107,8 @@ BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+ #include "CvGameCoreUtils.h"
+ #include "ScaledNum.h"
+ #include "CvGlobals.h"
+-#include "EnumMap2D.h" // advc.enum: Includes EnumMap.h, which includes BitUtil.h.
++#include "BitUtil.h" // advc.enum: For EnumMap, but will have other uses too.
++#include "EnumMap2D.h" // advc.enum: Includes EnumMap.h
+ #include "CvPythonCaller.h" // advc.003y
+ #include "CvDLLLogger.h" // advc.003t
+ #include "FProfiler.h"
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 8e07e6bbf..cab24ba8b 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -1054,7 +1054,7 @@ namespace // advc
+ 	template <class T>
+ 	bool readInfoArray(FDataStreamBase* pStream, std::vector<T*>& array, const char* szClassName)
+ 	{
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 		//addToInfosVectors(&array); // advc.enum (no longer used)
+ 		int iSize;
+ 		pStream->Read(&iSize);
+@@ -1088,7 +1088,7 @@ namespace // advc
+ 	template <class T>
+ 	bool writeInfoArray(FDataStreamBase* pStream,  std::vector<T*>& array)
+ 	{
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 		int iSize = sizeof(T);
+ 		pStream->Write(iSize);
+ 		pStream->Write(array.size());
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.cpp b/CvGameCoreDLL/CvInfo_Base.cpp
+index dd57462b9..fe16a807c 100644
+--- a/CvGameCoreDLL/CvInfo_Base.cpp
++++ b/CvGameCoreDLL/CvInfo_Base.cpp
+@@ -12,7 +12,7 @@ CvInfoBase::CvInfoBase(CvInfoBase const& kOther)
+ 	FErrorMsg("Copy-ctor not implemented");
+ }
+ 
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvInfoBase::read(FDataStreamBase* pStream)
+ {
+ 	reset();
+@@ -223,7 +223,7 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ 
+ 	return true;
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvHotkeyInfo::read(FDataStreamBase* pStream)
+ {
+ 	CvXMLInfo::read(pStream); // advc.tag
+@@ -487,7 +487,7 @@ bool CvXMLInfo::read(CvXMLLoadUtility* pXML)
+ 	return true;
+ }
+ 
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvXMLInfo::read(FDataStreamBase* pStream)
+ {
+ 	CvInfoBase::read(pStream);
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index 90369a24a..7c6bdd1c6 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -8,6 +8,8 @@
+ /*  advc.003x: Cut from CvInfos.h; to be precompiled.
+ 	CvInfoBase, CvScalableInfo, CvHotkeyInfo */
+ 
++#define ENABLE_XML_FILE_CACHE 0 // advc.003i
++
+ class CvXMLLoadUtility;
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+@@ -53,7 +55,7 @@ public: // All the const functions are exposed to Python
+ 	wchar const* getStrategy() const;
+ 
+ 	bool isMatchForLink(std::wstring szLink, bool bKeysOnly) const;
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+ 	#endif
+@@ -136,7 +138,7 @@ public:
+ 		return m_abData[e];
+ 	}
+ 	bool read(CvXMLLoadUtility* pXML);
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase* pStream);
+ 	void write(FDataStreamBase* pStream);
+ 	#endif
+@@ -223,7 +225,7 @@ public:
+ 	} // </advc.tag>
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+ 	#endif
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.cpp b/CvGameCoreDLL/CvInfo_Building.cpp
+index 8ea7cef65..2bccca371 100644
+--- a/CvGameCoreDLL/CvInfo_Building.cpp
++++ b/CvGameCoreDLL/CvInfo_Building.cpp
+@@ -593,7 +593,7 @@ bool CvBuildingInfo::nameNeedsArticle() const
+ 		an article should be used. */
+ 	return (szText.compare(L".") != 0);
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvBuildingInfo::read(FDataStreamBase* stream)
+ {
+ 	CvHotkeyInfo::read(stream);
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.h b/CvGameCoreDLL/CvInfo_Building.h
+index d17ac6cd0..45b4cb7a1 100644
+--- a/CvGameCoreDLL/CvInfo_Building.h
++++ b/CvGameCoreDLL/CvInfo_Building.h
+@@ -367,7 +367,7 @@ public: /*	All the const functions are exposed to Python. advc.inl: Inlined most
+ 
+ 	bool nameNeedsArticle() const; // advc.008e
+ 
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase*);
+ 	void write(FDataStreamBase*);
+ 	#endif
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.cpp b/CvGameCoreDLL/CvInfo_Civics.cpp
+index 9eca55f24..a313f8215 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.cpp
++++ b/CvGameCoreDLL/CvInfo_Civics.cpp
+@@ -205,7 +205,7 @@ int CvCivicInfo::getImprovementYieldChanges(int i, int j) const
+ 	FAssertBounds(0, NUM_YIELD_TYPES, j);
+ 	return m_ppiImprovementYieldChanges[i][j];
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvCivicInfo::read(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::read(stream);
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.h b/CvGameCoreDLL/CvInfo_Civics.h
+index dc2979e8a..37ae7ca30 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.h
++++ b/CvGameCoreDLL/CvInfo_Civics.h
+@@ -97,7 +97,7 @@ public: // The const functions are exposed to Python except those (to be) added
+ 	bool isSpecialistValid(int i) const;
+ 
+ 	int getImprovementYieldChanges(int i, int j) const;
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase* stream);
+ 	void write(FDataStreamBase* stream);
+ 	#endif
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.cpp b/CvGameCoreDLL/CvInfo_Civilization.cpp
+index 7638b1e88..7e9328f59 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.cpp
++++ b/CvGameCoreDLL/CvInfo_Civilization.cpp
+@@ -201,7 +201,7 @@ std::string CvCivilizationInfo::getCityNames(int i) const
+ 	return m_paszCityNames[i];
+ }
+ 
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvCivilizationInfo::read(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::read(stream);
+@@ -661,7 +661,7 @@ const TCHAR* CvLeaderHeadInfo::getLeaderHead() const
+ 
+ 	return NULL;
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvLeaderHeadInfo::read(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::read(stream);
+@@ -1390,7 +1390,7 @@ void CvDiplomacyResponse::setDiplomacyText(int i, CvString szText)
+ 	FAssertBounds(0, getNumDiplomacyText(), i);
+ 	m_paszDiplomacyText[i] = szText;
+ }
+-/*#if SERIALIZE_CVINFOS
++/*#if ENABLE_XML_FILE_CACHE
+ void CvDiplomacyResponse::read(FDataStreamBase* stream)
+ {
+ 	uint uiFlag=0;
+@@ -1504,8 +1504,8 @@ const TCHAR* CvDiplomacyInfo::getDiplomacyText(int i, int j) const
+ 	FAssertBounds(0, getNumDiplomacyText(i), j);
+ 	return m_pResponses[i]->getDiplomacyText(j);
+ }
+-/*#if SERIALIZE_CVINFOS
+-void CvDiplomacyInfo::read(FDataStreamBase* stream)
++//#if ENABLE_XML_FILE_CACHE
++/*void CvDiplomacyInfo::read(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::read(stream);
+ 	uint uiFlag=0;
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.h b/CvGameCoreDLL/CvInfo_Civilization.h
+index 064cf82db..97bdac48d 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.h
++++ b/CvGameCoreDLL/CvInfo_Civilization.h
+@@ -65,7 +65,7 @@ public: // advc: All the const functions are exposed to Python
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+ 	bool readPass2(CvXMLLoadUtility* pXML);
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase* stream);
+ 	void write(FDataStreamBase* stream);
+ 	#endif
+@@ -224,7 +224,7 @@ public: // advc: All the const functions are exposed to Python except those adde
+ 	DllExport const CvArtInfoLeaderhead* getArtInfo() const;
+ 	const TCHAR* getLeaderHead() const;
+ 	const TCHAR* getButton() const;
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase* stream);
+ 	void write(FDataStreamBase* stream);
+ 	#endif
+@@ -434,8 +434,8 @@ public: // advc: All the const functions are exposed to Python (some const quali
+ 	const CvString* getDiplomacyText() const;
+ 	void setDiplomacyText(int i, CvString szText);
+ 	// advc.003i: I don't think these were actually included in the XML cache
+-	/*#if SERIALIZE_CVINFOS
+-	void read(FDataStreamBase* stream);
++	//#if ENABLE_XML_FILE_CACHE
++	/*void read(FDataStreamBase* stream);
+ 	void write(FDataStreamBase* stream);*/
+ 	//#endif
+ 	bool read(CvXMLLoadUtility* pXML);
+@@ -473,8 +473,8 @@ public: // advc: All the const functions are exposed to Python
+ 
+ 	const TCHAR* getDiplomacyText(int i, int j) const;
+ 	// advc.003i: I don't think these were actually included in the XML cache
+-	/*#if SERIALIZE_CVINFOS
+-	void read(FDataStreamBase* stream);
++	//#if ENABLE_XML_FILE_CACHE
++	/*void read(FDataStreamBase* stream);
+ 	void write(FDataStreamBase* stream);*/
+ 	//#endif
+ 	bool read(CvXMLLoadUtility* pXML);
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.cpp b/CvGameCoreDLL/CvInfo_GameOption.cpp
+index 43b86e207..c9342fc3f 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.cpp
++++ b/CvGameCoreDLL/CvInfo_GameOption.cpp
+@@ -981,7 +981,7 @@ bool CvHandicapInfo::isAIFreeTechs(int i) const // advc.003t: Return type was in
+ 	FAssertBounds(0, GC.getNumTechInfos(), i);
+ 	return (m_pbAIFreeTechs != NULL ? m_pbAIFreeTechs[i] : false);
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvHandicapInfo::read(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::read(stream);
+@@ -1539,7 +1539,7 @@ wchar const* CvSeaLevelInfo::getDescriptionInternal(uint uiForm) const
+ 		/*	This distinguishes Custom Game from Play Now.
+ 			(Play Now doesn't have enough room for a recommendation,
+ 			and doesn't allow player counts to be adjusted.) */
+-		kInitCore.getSlotStatus((PlayerTypes)0) == SS_OPEN)
++		kInitCore.getSlotStatus(FIRST_PLAYER) == SS_OPEN)
+ 	{
+ 		CvWString szTag;
+ 		if (m_iSeaLevelChange < 0)
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index 35edaf185..782e7e6f8 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -376,7 +376,7 @@ public: // The const functions are exposed to Python except functions added by m
+ 	// advc.003t: Return type was int for these two
+ 	bool isFreeTechs(int i) const;
+ 	bool isAIFreeTechs(int i) const;
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase* stream);
+ 	void write(FDataStreamBase* stream);
+ 	#endif
+
+diff --git a/CvGameCoreDLL/CvInfo_Misc.cpp b/CvGameCoreDLL/CvInfo_Misc.cpp
+index 5cffd4ab9..d03226ff6 100644
+--- a/CvGameCoreDLL/CvInfo_Misc.cpp
++++ b/CvGameCoreDLL/CvInfo_Misc.cpp
+@@ -1310,7 +1310,7 @@ const TCHAR* CvDiplomacyTextInfo::getDiplomacyText(int i, int j) const
+ 	FAssertBounds(0, getNumDiplomacyText(i), j);
+ 	return m_pResponses[i].m_paszDiplomacyText[j];
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvDiplomacyTextInfo::Response::read(FDataStreamBase* stream)
+ {
+ 	stream->Read(&m_iNumDiplomacyText);
+
+diff --git a/CvGameCoreDLL/CvInfo_Misc.h b/CvGameCoreDLL/CvInfo_Misc.h
+index a36caa70e..9868825db 100644
+--- a/CvGameCoreDLL/CvInfo_Misc.h
++++ b/CvGameCoreDLL/CvInfo_Misc.h
+@@ -524,7 +524,7 @@ public:
+ 			SAFE_DELETE_ARRAY(m_pbDiplomacyPowerTypes);
+ 			SAFE_DELETE_ARRAY(m_paszDiplomacyText);
+ 		}
+-		#if SERIALIZE_CVINFOS
++		#if ENABLE_XML_FILE_CACHE
+ 		void read(FDataStreamBase* stream);
+ 		void write(FDataStreamBase* stream);
+ 		#endif
+@@ -554,7 +554,7 @@ public:
+ 	int getNumDiplomacyText(int i) const;
+ 	const TCHAR* getDiplomacyText(int i, int j) const;
+ 
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase* stream);
+ 	void write(FDataStreamBase* stream);
+ 	#endif
+
+diff --git a/CvGameCoreDLL/CvInfo_RandomEvent.cpp b/CvGameCoreDLL/CvInfo_RandomEvent.cpp
+index dbf28124d..60e32d396 100644
+--- a/CvGameCoreDLL/CvInfo_RandomEvent.cpp
++++ b/CvGameCoreDLL/CvInfo_RandomEvent.cpp
+@@ -519,7 +519,7 @@ const wchar* CvEventInfo::getOtherPlayerPopup() const
+ {
+ 	return m_szOtherPlayerPopup;
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvEventInfo::read(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::read(stream);
+@@ -1529,7 +1529,7 @@ const char* CvEventTriggerInfo::getPythonCanDoUnit() const
+ {
+ 	return m_szPythonCanDoUnit;
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvEventTriggerInfo::read(FDataStreamBase* stream)
+ {
+ 	CvWString szElement;
+
+diff --git a/CvGameCoreDLL/CvInfo_RandomEvent.h b/CvGameCoreDLL/CvInfo_RandomEvent.h
+index ed5261666..87124b621 100644
+--- a/CvGameCoreDLL/CvInfo_RandomEvent.h
++++ b/CvGameCoreDLL/CvInfo_RandomEvent.h
+@@ -102,7 +102,7 @@ public: // All the const functions returning primitive types are exposed to Pyth
+ 	const wchar* getQuestFailTextKey() const;
+ 	const wchar* getOtherPlayerPopup() const;
+ 	const wchar* getLocalInfoTextKey() const;
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase* );
+ 	void write(FDataStreamBase* );
+ 	#endif
+@@ -292,7 +292,7 @@ public: // All the const functions returning primitive types are exposed to Pyth
+ 	const char* getPythonCanDo() const;
+ 	const char* getPythonCanDoCity() const;
+ 	const char* getPythonCanDoUnit() const;
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase* );
+ 	void write(FDataStreamBase* );
+ 	#endif
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.cpp b/CvGameCoreDLL/CvInfo_Tech.cpp
+index 298f64007..706192129 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.cpp
++++ b/CvGameCoreDLL/CvInfo_Tech.cpp
+@@ -143,7 +143,7 @@ bool CvTechInfo::isTerrainTrade(int i) const
+ 	FAssertBounds(0, GC.getNumTerrainInfos(), i); // advc: check bounds
+ 	return m_pbTerrainTrade ? m_pbTerrainTrade[i] : false;
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvTechInfo::read(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::read(stream);
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.h b/CvGameCoreDLL/CvInfo_Tech.h
+index 1442075fc..4ba2883b9 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.h
++++ b/CvGameCoreDLL/CvInfo_Tech.h
+@@ -72,7 +72,7 @@ public: // advc: All the const functions are exposed to Python except those adde
+ 	bool isTerrainTrade(int i) const;
+ 	inline bool isAnyTerrainTrade() const { return (m_pbTerrainTrade != NULL); } // advc.003t
+ 
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase* );
+ 	void write(FDataStreamBase* );
+ 	#endif
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.cpp b/CvGameCoreDLL/CvInfo_Terrain.cpp
+index c1a4b06f4..70ce246d3 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.cpp
++++ b/CvGameCoreDLL/CvInfo_Terrain.cpp
+@@ -615,7 +615,7 @@ const TCHAR* CvBonusInfo::getButton() const
+ 
+ 	return NULL;
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvBonusInfo::read(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::read(stream);
+@@ -1213,7 +1213,7 @@ void CvArtInfoImprovement::setShaderNIF(const TCHAR* szDesc)
+ {
+ 	m_szShaderNIF = szDesc;
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvImprovementInfo::read(FDataStreamBase* stream)
+ {
+ 	CvXMLInfo::read(stream); // advc.tag
+@@ -1533,7 +1533,7 @@ int CvImprovementBonusInfo::getYieldChange(int i) const
+ 	FAssertBounds(0, NUM_YIELD_TYPES, i);
+ 	return m_piYieldChange ? m_piYieldChange[i] : 0; // advc.003t
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvImprovementBonusInfo::read(FDataStreamBase* stream)
+ {
+ 	CvInfoBase::read(stream);
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.h b/CvGameCoreDLL/CvInfo_Terrain.h
+index 7aba537ee..3d80d8064 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.h
++++ b/CvGameCoreDLL/CvInfo_Terrain.h
+@@ -245,7 +245,7 @@ public: // All the const functions are exposed to Python
+ 
+ 	const TCHAR* getButton() const;
+ 	DllExport const CvArtInfoBonus* getArtInfo() const;
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase* stream);
+ 	void write(FDataStreamBase* stream);
+ 	#endif
+@@ -449,7 +449,7 @@ public: /*  All the const functions are exposed to Python except those dealing w
+ 
+ 	const TCHAR* getButton() const;
+ 	DllExport const CvArtInfoImprovement* getArtInfo() const;
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase* stream);
+ 	void write(FDataStreamBase* stream);
+ 	#endif
+@@ -522,7 +522,7 @@ public: // The const functions are exposed to Python
+ 	bool isBonusTrade() const;
+ 	int getYieldChange(int i) const;
+ 
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase* stream);
+ 	void write(FDataStreamBase* stream);
+ 	#endif
+
+diff --git a/CvGameCoreDLL/CvInfo_Unit.cpp b/CvGameCoreDLL/CvInfo_Unit.cpp
+index 9f14cde18..323331c45 100644
+--- a/CvGameCoreDLL/CvInfo_Unit.cpp
++++ b/CvGameCoreDLL/CvInfo_Unit.cpp
+@@ -736,7 +736,7 @@ const CvArtInfoUnit* CvUnitInfo::getArtInfo(int i, EraTypes eEra, UnitArtStyleTy
+ 		return ARTFILEMGR.getUnitArtInfo(getMiddleArtDefineTag(i, eStyle));
+ 	return ARTFILEMGR.getUnitArtInfo(getEarlyArtDefineTag(i, eStyle));
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvUnitInfo::read(FDataStreamBase* stream)
+ {
+ 	CvHotkeyInfo::read(stream);
+@@ -2125,7 +2125,7 @@ bool CvPromotionInfo::getUnitCombat(int i) const
+ 	FAssertBounds(0, GC.getNumUnitCombatInfos(), i);
+ 	return m_pbUnitCombat ? m_pbUnitCombat[i] : false;
+ }
+-#if SERIALIZE_CVINFOS
++#if ENABLE_XML_FILE_CACHE
+ void CvPromotionInfo::read(FDataStreamBase* stream)
+ {
+ 	CvHotkeyInfo::read(stream);
+
+diff --git a/CvGameCoreDLL/CvInfo_Unit.h b/CvGameCoreDLL/CvInfo_Unit.h
+index 1b38d3477..2eef996b2 100644
+--- a/CvGameCoreDLL/CvInfo_Unit.h
++++ b/CvGameCoreDLL/CvInfo_Unit.h
+@@ -312,7 +312,7 @@ public: /*  All const functions are exposed to Python except some related to art
+ 	void updateArtDefineButton();
+ 
+ 	const CvArtInfoUnit* getArtInfo(int i, EraTypes eEra, UnitArtStyleTypes eStyle) const;
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase*);
+ 	void write(FDataStreamBase*);
+ 	#endif
+@@ -624,7 +624,7 @@ public: // All the const functions are exposed to Python
+ 	bool getTerrainDoubleMove(int i) const;
+ 	bool getFeatureDoubleMove(int i) const;
+ 	bool getUnitCombat(int i) const;
+-	#if SERIALIZE_CVINFOS
++	#if ENABLE_XML_FILE_CACHE
+ 	void read(FDataStreamBase* stream);
+ 	void write(FDataStreamBase* stream);
+ 	#endif
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 9007d135d..5a229388c 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -466,7 +466,7 @@ void CvMap::combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvP
+ }
+ 
+ 
+-CvPlot* CvMap::syncRandPlot(int iFlags, CvArea const* pArea,
++CvPlot* CvMap::syncRandPlot(RandPlotTypes ePredicates, CvArea const* pArea,
+ 	int iMinCivUnitDistance, // advc.300: Renamed from iMinUnitDistance
+ 	int iTimeout,
+ 	int* piValidCount) // advc.304: Number of valid tiles
+@@ -484,7 +484,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, CvArea const* pArea,
+ 		for(int i = 0; i < numPlots(); i++)
+ 		{
+ 			CvPlot& kPlot = getPlotByIndex(i);
+-			if (isValidRandPlot(kPlot, iFlags, pArea, iMinCivUnitDistance))
++			if (isValidRandPlot(kPlot, ePredicates, pArea, iMinCivUnitDistance))
+ 				apValidPlots.push_back(&kPlot);
+ 		}
+ 		int iValid = (int)apValidPlots.size();
+@@ -503,7 +503,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, CvArea const* pArea,
+ 		CvPlot& kTestPlot = getPlot(
+ 				GC.getGame().getSorenRandNum(getGridWidth(), "Rand Plot Width"),
+ 				GC.getGame().getSorenRandNum(getGridHeight(), "Rand Plot Height"));
+-		if (isValidRandPlot(kTestPlot, iFlags, pArea, iMinCivUnitDistance))
++		if (isValidRandPlot(kTestPlot, ePredicates, pArea, iMinCivUnitDistance))
+ 		{	/*  <advc.304> Not useful, but want to make sure it doesn't stay
+ 				uninitialized. 1 since we found only 1 valid plot. */
+ 			if(piValidCount != NULL)
+@@ -517,34 +517,40 @@ CvPlot* CvMap::syncRandPlot(int iFlags, CvArea const* pArea,
+ }
+ 
+ // advc: Body cut from syncRandPlot
+-bool CvMap::isValidRandPlot(CvPlot const& kPlot, int iFlags, CvArea const* pArea,
+-		int iMinCivUnitDistance) const
++bool CvMap::isValidRandPlot(CvPlot const& kPlot, RandPlotTypes ePredicates,
++	CvArea const* pArea, int iMinCivUnitDistance) const
+ {
+ 	if (pArea != NULL && !kPlot.isArea(*pArea))
+ 		return false;
+ 	/*  advc.300: Code moved into new function isCivUnitNearby;
+ 		Barbarians in surrounding plots are now ignored. */
+-	if(iMinCivUnitDistance >= 0 && (kPlot.isUnit() || kPlot.isCivUnitNearby(iMinCivUnitDistance)))
++	if(iMinCivUnitDistance >= 0 && (kPlot.isUnit() ||
++		kPlot.isCivUnitNearby(iMinCivUnitDistance)))
++	{
+ 		return false;
+-	if ((iFlags & RANDPLOT_LAND) && kPlot.isWater())
++	}
++	if ((ePredicates & RANDPLOT_LAND) && kPlot.isWater())
+ 		return false;
+-	if ((iFlags & RANDPLOT_UNOWNED) && kPlot.isOwned())
++	if ((ePredicates & RANDPLOT_UNOWNED) && kPlot.isOwned())
+ 		return false;
+-	if ((iFlags & RANDPLOT_ADJACENT_UNOWNED) && kPlot.isAdjacentOwned())
++	if ((ePredicates & RANDPLOT_ADJACENT_UNOWNED) && kPlot.isAdjacentOwned())
+ 		return false;
+-	if ((iFlags & RANDPLOT_ADJACENT_LAND) && !kPlot.isAdjacentToLand())
++	if ((ePredicates & RANDPLOT_ADJACENT_LAND) && !kPlot.isAdjacentToLand())
+ 		return false;
+-	if ((iFlags & RANDPLOT_PASSABLE) && kPlot.isImpassable())
++	if ((ePredicates & RANDPLOT_PASSABLE) && kPlot.isImpassable())
+ 		return false;
+-	if ((iFlags & RANDPLOT_NOT_VISIBLE_TO_CIV) && kPlot.isVisibleToCivTeam())
++	if ((ePredicates & RANDPLOT_NOT_VISIBLE_TO_CIV) && kPlot.isVisibleToCivTeam())
+ 		return false;
+-	if ((iFlags & RANDPLOT_NOT_CITY) && kPlot.isCity())
++	if ((ePredicates & RANDPLOT_NOT_CITY) && kPlot.isCity())
+ 		return false;
+ 	// <advc.300>
+-	if((iFlags & RANDPLOT_HABITABLE) && kPlot.getYield(YIELD_FOOD) <= 0)
++	if((ePredicates & RANDPLOT_HABITABLE) && kPlot.getYield(YIELD_FOOD) <= 0)
++		return false;
++	if((ePredicates & RANDPLOT_WATERSOURCE) && !kPlot.isFreshWater() &&
++		kPlot.getYield(YIELD_FOOD) <= 0)
++	{
+ 		return false;
+-	if((iFlags & RANDPLOT_WATERSOURCE) && !kPlot.isFreshWater() && kPlot.getYield(YIELD_FOOD) <= 0)
+-		return false; // </advc.300>
++	} // </advc.300>
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index eaa72eab5..4986fb1c9 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -284,12 +284,13 @@ public: // advc: made several functions const
+ 	void combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvPlotGroup* pPlotGroup2,
+ 			bool bVerifyProduction = true); // advc.064d
+ 
+-	CvPlot* syncRandPlot(int iFlags = 0, CvArea const* pArea = NULL, // advc: was iArea								// Exposed to Python
++	CvPlot* syncRandPlot(RandPlotTypes ePredicates = RANDPLOT_ANY,									// Exposed to Python
++			CvArea const* pArea = NULL, // advc: was iArea
+ 			int iMinCivUnitDistance = -1,
+ 			int iTimeout = -1, int* piValidCount = NULL); // advc.304 (default timeout was 100)
+ 	// <advc>
+-	bool isValidRandPlot(CvPlot const& kPlot, int iFlags, CvArea const* pArea,
+-			int iMinCivUnitDistance) const; // </advc>
++	bool isValidRandPlot(CvPlot const& kPlot, RandPlotTypes ePredicates,
++			CvArea const* pArea, int iMinCivUnitDistance) const; // </advc>
+ 
+ 	DllExport CvCity* findCity(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, bool bSameArea = true, bool bCoastalOnly = false, TeamTypes eTeamAtWarWith = NO_TEAM, DirectionTypes eDirection = NO_DIRECTION, CvCity* pSkipCity = NULL)	// Exposed to Python
+ 	{	// <advc.004r>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 5764d90dd..0101027b5 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5826,27 +5826,29 @@ int CvPlayer::calculateTotalCityUnhealthiness() const
+ 	return iTotalUnhealthiness;
+ }
+ 
+-/*	K-Mod: calculate the pollution output of a civ.
+-	iTypes is a bit-field whose members are POLLUTION_POPULTION, _BUILDINGS, _BONUS, _POWER. (and _ALL) */
+-int CvPlayer::calculatePollution(int iTypes) const
++// K-Mod: calculate the pollution output of a civ
++int CvPlayer::calculatePollution(PollutionTypes ePollution) const
+ {
+ 	int iTotal = 0;
+-
+-	int iBuildingWeight = ((iTypes & POLLUTION_BUILDINGS) == 0)?0 :GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT");
+-	int iBonusWeight = ((iTypes & POLLUTION_BONUSES) == 0)?0 :GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT");
+-	int iPowerWeight = ((iTypes & POLLUTION_POWER) == 0)?0 :GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT");
+-	int iPopWeight = ((iTypes & POLLUTION_POPULATION) == 0)?0 :GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT");
++	int iBuildingWeight = 0, iBonusWeight = 0, iPowerWeight = 0, iPopWeight = 0;
++	if (ePollution & POLLUTION_BUILDINGS)
++		iBuildingWeight = GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT");
++	if (ePollution & POLLUTION_BONUSES)
++		iBonusWeight = GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT");
++	if (ePollution & POLLUTION_POWER)
++		iPowerWeight = GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT");
++	if (ePollution & POLLUTION_POPULATION)
++		iPopWeight = GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT");
+ 
+ 	FOR_EACH_CITY(pCity, *this)
+ 	{
+-		// note: "bad health" values are negative, except for population! (crazy, but true. Who writes this junk?)
++		// note: "bad health" values are negative, except for population!
+ 		iTotal -=
+-			(pCity->totalBadBuildingHealth() * iBuildingWeight)
+-			+ (pCity->getBonusBadHealth() * iBonusWeight)
+-			+ (pCity->getPowerBadHealth() * iPowerWeight)
+-			- (pCity->unhealthyPopulation() * iPopWeight);
++				(pCity->totalBadBuildingHealth() * iBuildingWeight)
++				+ (pCity->getBonusBadHealth() * iBonusWeight)
++				+ (pCity->getPowerBadHealth() * iPowerWeight)
++				- (pCity->unhealthyPopulation() * iPopWeight);
+ 	}
+-
+ 	return iTotal;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 931e6d962..d844e86f3 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -302,7 +302,15 @@ public:
+ 	int calculateTotalCityHealthiness() const;																		// Exposed to Python
+ 	int calculateTotalCityUnhealthiness() const;																	// Exposed to Python
+ 
+-	int calculatePollution(int iTypes = POLLUTION_ALL) const; // K-Mod, Exposed to Python
++	/*	K-Mod, 18/dec/10: global warming pollution flags
++		advc.enum: Moved from CvDefines, turned into an enum. */
++	enum PollutionTypes // Exposed to Python
++	{
++		POLLUTION_POPULATION = (1 << 0), POLLUTION_BUILDINGS = (1 << 1),
++		POLLUTION_BONUSES = (1 << 2), POLLUTION_POWER = (1 << 3),
++		POLLUTION_ALL = (1 << 4) - 1
++	};
++	int calculatePollution(PollutionTypes ePollution = POLLUTION_ALL) const; // K-Mod, Exposed to Python
+ 	int getGwPercentAnger() const { return m_iGwPercentAnger; } // K-Mod, Exposed to Python
+ 	void setGwPercentAnger(int iNewValue); // K-Mod
+ 
+@@ -1783,4 +1791,7 @@ CvCity* getCityExternal(IDInfo city); // exported through .def file
+ CvUnit* getUnitExternal(IDInfo unit); // exported through .def file
+ // </advc.opt>
+ 
++// advc.enum: For calculatePollution. (Needs to be outside the class definition.)
++OVERRIDE_BITMASK_OPERATORS(CvPlayer::PollutionTypes)
++
+ #endif
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index bf8b15a85..d00bed1bb 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -30,6 +30,9 @@ public:
+ 	// Only for the EXE:
+ 	DllExport static CvPlayerAI& getPlayerNonInl(PlayerTypes ePlayer);
+ 	DllExport static bool areStaticsInitialized();
++	// <advc> Moved from CvDefines
++	static int const DANGER_RANGE = 4;
++	static int const BORDER_DANGER_RANGE = 2; // </advc>
+ 
+ 	explicit CvPlayerAI(PlayerTypes eID);
+ 	~CvPlayerAI();
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index ccd17cd5a..7dc108f56 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2588,18 +2588,19 @@ int CvPlot::calculatePathDistanceToPlot(TeamTypes eTeam, CvPlot const& kTargetPl
+ }
+ // BETTER_BTS_AI_MOD: END
+ 
+-// K-Mod. (rewrite of a bbai function)
+-// I've changed the purpose of this function - because this is the way it is always used.
++/*	K-Mod (rewrite of a bbai function)
++	I've changed the purpose of this function - because this is the way it is always used. */
+ void CvPlot::invalidateBorderDangerCache()
+ {
+-	for (SquareIter itPlot(*this, BORDER_DANGER_RANGE); itPlot.hasNext(); ++itPlot)
++	for (SquareIter itPlot(*this, CvPlayerAI::BORDER_DANGER_RANGE);
++		itPlot.hasNext(); ++itPlot)
+ 	{
+ 		for (TeamIter<> itTeam; itTeam.hasNext(); ++itTeam)
+ 		{
+ 			itPlot->setBorderDangerCache(itTeam->getID(), false);
+ 		}
+ 	}
+-} // K-Mod end
++}
+ 
+ 
+ PlayerTypes CvPlot::calculateCulturalOwner(/* advc.099c: */ bool bIgnoreCultureRange,
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 3a9d12905..4a6b4859e 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -845,4 +845,23 @@ protected:
+ // advc.opt: It's fine to change the size, but might want to double check if it can be avoided.
+ BOOST_STATIC_ASSERT(MAX_CIV_PLAYERS > 18 || sizeof(CvPlot) <= 212);
+ 
++/*	advc.enum: For functions that choose random plots.
++	Moved from CvDefines, turned into an enum. */
++enum RandPlotTypes
++{
++	RANDPLOT_ANY = 0,
++	RANDPLOT_LAND =						(1 << 0),
++	RANDPLOT_UNOWNED =					(1 << 1),
++	RANDPLOT_ADJACENT_UNOWNED =			(1 << 2),
++	RANDPLOT_ADJACENT_LAND =			(1 << 3),
++	RANDPLOT_PASSABLE =					(1 << 4),
++	RANDPLOT_NOT_VISIBLE_TO_CIV =		(1 << 5),
++	RANDPLOT_NOT_CITY =					(1 << 6),
++	// <advc.300>
++	RANDPLOT_HABITABLE =				(1 << 7),
++	RANDPLOT_WATERSOURCE =				(1 << 8),
++	// </advc.300>
++};
++OVERRIDE_BITMASK_OPERATORS(RandPlotTypes)
++
+ #endif
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index cee9189f5..82e85da76 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -155,7 +155,7 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 	EnumMap<PlayerTypes,PlayerTypes> aePlayerIndices; // advc.enum
+ 	/*	advc (note): This loop remaps player IDs so that players never alive are skipped.
+ 		Not sure if this is really needed. */
+-	PlayerTypes eNewIndex = (PlayerTypes)0;
++	PlayerTypes eNewIndex = FIRST_PLAYER;
+ 	for (int i = 0; i < MAX_PLAYERS; i++)
+ 	{
+ 		CvPlayer const& kLoopPlayer = GET_PLAYER((PlayerTypes)i);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 6d2f9a81d..0f77d8a56 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -6353,7 +6353,8 @@ void CvUnitAI::AI_reserveSeaMove()
+ 
+ 	/*  <advc.017b> Defend bonus if it's threatened, otherwise, consider a bunch of
+ 		other activities first. (K-Mod's AI_guardBonus(15) moved down instead.) */
+-	if(kOwner.AI_isAnyWaterDanger(getPlot(), std::min(maxMoves(), DANGER_RANGE)) &&
++	if(kOwner.AI_isAnyWaterDanger(
++		getPlot(), std::min(maxMoves(), CvPlayerAI::DANGER_RANGE)) &&
+ 		AI_guardBonus(10))
+ 	{
+ 		return;
+@@ -19779,7 +19780,7 @@ bool CvUnitAI::AI_nukeRange(int iRange)
+ 	PROFILE_FUNC();
+ 
+ 	int iThresholdValue = 60 + std::max(0, 3 * getUnitInfo().getProductionCost());
+-	if (!GET_PLAYER(getOwner()).AI_isAnyPlotDanger(getPlot(), DANGER_RANGE))
++	if (!GET_PLAYER(getOwner()).AI_isAnyPlotDanger(getPlot(), CvPlayerAI::DANGER_RANGE))
+ 		iThresholdValue = iThresholdValue * 3/2;
+ 
+ 	CvPlot* pTargetPlot = 0;
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 92f9f8466..0b3328cb2 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -126,15 +126,17 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 					break;
+ 			}
+ 
+-			// write global defines info to cache
+-			// advc.003i: Disabled
+-			/*bool bOk = gDLL->cacheWrite(cache);
+-			if (!bOk) {
+-				char	szMessage[1024];
+-				sprintf(szMessage, "Failed writing to global defines cache.\nCurrent XML file is: %s", GC.getCurrentXMLFile().GetCString());
+-				gDLL->MessageBox(szMessage, "XML Caching Error");
+-			}
+-			else logMsg("Wrote GlobalDefines to cache");*/
++			#if ENABLE_XML_FILE_CACHE
++				// write global defines info to cache
++				bool bOk = gDLL->cacheWrite(cache);
++				if (!bOk)
++				{
++					char	szMessage[1024];
++					sprintf(szMessage, "Failed writing to global defines cache.\nCurrent XML file is: %s", GC.getCurrentXMLFile().GetCString());
++					gDLL->MessageBox(szMessage, "XML Caching Error");
++				}
++				else logMsg("Wrote GlobalDefines to cache");
++			#endif
+ 		}
+ 	}
+ 	gDLL->getXMLIFace()->DestroyFXml(m_pFXml);
+@@ -531,16 +533,18 @@ bool CvXMLLoadUtility::LoadGlobalText()
+ 
+ 	DestroyFXml();
+ 
+-	// write global text info to cache
+-	// advc.003i: Disabled
+-	/*bool bOk = gDLL->cacheWrite(cache);
+-	if (!bOk) {
+-		char	szMessage[1024];
+-		sprintf(szMessage, "Failed writing to Global Text cache.\nCurrent XML file is: %s", GC.getCurrentXMLFile().GetCString());
+-		gDLL->MessageBox(szMessage, "XML Caching Error");
+-	}
+-	if (bOk)
+-		logMsg("Wrote GlobalText to cache");*/
++	#if ENABLE_XML_FILE_CACHE
++		// write global text info to cache
++		bool bOk = gDLL->cacheWrite(cache);
++		if (!bOk)
++		{
++			char	szMessage[1024];
++			sprintf(szMessage, "Failed writing to Global Text cache.\nCurrent XML file is: %s", GC.getCurrentXMLFile().GetCString());
++			gDLL->MessageBox(szMessage, "XML Caching Error");
++		}
++		if (bOk)
++			logMsg("Wrote GlobalText to cache");
++	#endif
+ 
+ 	gDLL->destroyCache(cache);
+ 
+@@ -1349,23 +1353,23 @@ void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
+ 	const char* szXmlPath, bool bTwoPass,
+ 	CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (const TCHAR*))
+ {
+-	pArgFunction = NULL; // advc.003i: Disable XML cache
+ 	bool bLoaded = false;
+ 	bool bWriteCache = true;
+ 	CvCacheObject* pCache = NULL;
+ 	//GC.addToInfosVectors(aInfos); // advc.enum (no longer needed)
+-
+-	if (pArgFunction != NULL)
+-	{
+-		pCache = (gDLL->*pArgFunction)(CvString::format("%s.dat", szFileRoot));	// cache file name
+-
+-		if (gDLL->cacheRead(pCache, CvString::format("xml\\\\%s\\\\%s.xml", szFileDirectory, szFileRoot)))
++	#if ENABLE_XML_FILE_CACHE
++		if (pArgFunction != NULL)
+ 		{
+-			logMsg("Read %s from cache", szFileDirectory);
+-			bLoaded = true;
+-			bWriteCache = false;
++			pCache = (gDLL->*pArgFunction)(CvString::format("%s.dat", szFileRoot));	// cache file name
++
++			if (gDLL->cacheRead(pCache, CvString::format("xml\\\\%s\\\\%s.xml", szFileDirectory, szFileRoot)))
++			{
++				logMsg("Read %s from cache", szFileDirectory);
++				bLoaded = true;
++				bWriteCache = false;
++			}
+ 		}
+-	}
++	#endif
+ 	if (!bLoaded)
+ 	{
+ 		bLoaded = LoadCivXml(m_pFXml, CvString::format("xml\\%s/%s.xml", szFileDirectory, szFileRoot));
+@@ -1439,41 +1443,47 @@ void CvXMLLoadUtility::LoadGlobalClassInfo(std::vector<T*>& aInfos,
+ 					}
+ 				}
+ 			} // </advc.rh>
+-			// advc.003i: Disabled
+-			/*if (NULL != pArgFunction && bWriteCache) {
+-				// write info to cache
+-				bool bOk = gDLL->cacheWrite(pCache);
+-				if (!bOk) {
+-					char szMessage[1024];
+-					sprintf(szMessage, "Failed writing to %s cache.\nCurrent XML file is: %s", szFileDirectory, GC.getCurrentXMLFile().GetCString());
+-					gDLL->MessageBox(szMessage, "XML Caching Error");
++			#if ENABLE_XML_FILE_CACHE
++				if (NULL != pArgFunction && bWriteCache)
++				{
++					// write info to cache
++					bool bOk = gDLL->cacheWrite(pCache);
++					if (!bOk)
++					{
++						char szMessage[1024];
++						sprintf(szMessage, "Failed writing to %s cache.\nCurrent XML file is: %s", szFileDirectory, GC.getCurrentXMLFile().GetCString());
++						gDLL->MessageBox(szMessage, "XML Caching Error");
++					}
++					if (bOk)
++						logMsg("Wrote %s to cache", szFileDirectory);
+ 				}
+-				if (bOk)
+-					logMsg("Wrote %s to cache", szFileDirectory);
+-			}*/
++			#endif
+ 		}
+ 	}
+-	if (pArgFunction != NULL)
+-		gDLL->destroyCache(pCache);
++	#if ENABLE_XML_FILE_CACHE
++		if (pArgFunction != NULL)
++			gDLL->destroyCache(pCache);
++	#endif
+ }
+ 
+ 
+ void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos, const char* szFileRoot, const char* szFileDirectory, const char* szXmlPath, CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (const TCHAR*))
+ {
+ 	bool bLoaded = false;
+-	bool bWriteCache = true;
+-	CvCacheObject* pCache = NULL;
+-
+-	if (pArgFunction != NULL)
+-	{
+-		pCache = (gDLL->*pArgFunction)(CvString::format("%s.dat", szFileRoot));	// cache file name
+-		if (gDLL->cacheRead(pCache, CvString::format("xml\\\\%s\\\\%s.xml", szFileDirectory, szFileRoot)))
++	#if ENABLE_XML_FILE_CACHE
++		bool bWriteCache = true;
++		CvCacheObject* pCache = NULL;
++		if (pArgFunction != NULL)
+ 		{
+-			logMsg("Read %s from cache", szFileDirectory);
+-			bLoaded = true;
+-			bWriteCache = false;
++			pCache = (gDLL->*pArgFunction)(CvString::format("%s.dat", szFileRoot));	// cache file name
++			if (gDLL->cacheRead(pCache, CvString::format("xml\\\\%s\\\\%s.xml", szFileDirectory, szFileRoot)))
++			{
++				logMsg("Read %s from cache", szFileDirectory);
++				bLoaded = true;
++				bWriteCache = false;
++			}
+ 		}
+-	}
++	#endif
+ 
+ 	if (!bLoaded)
+ 	{
+@@ -1504,23 +1514,27 @@ void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInf
+ 					else SetDiplomacyInfo(DiploInfos, szXmlPath);
+ 				}
+ 			}
+-			// advc.003i: Disabled
+-			/*if (NULL != pArgFunction && bWriteCache) {
+-				// write info to cache
+-				bool bOk = gDLL->cacheWrite(pCache);
+-				if (!bOk) {
+-					char szMessage[1024];
+-					sprintf(szMessage, "Failed writing to %s cache.\nCurrent XML file is: %s", szFileDirectory, GC.getCurrentXMLFile().GetCString());
+-					gDLL->MessageBox(szMessage, "XML Caching Error");
++			#if ENABLE_XML_FILE_CACHE
++				if (NULL != pArgFunction && bWriteCache)
++				{
++					// write info to cache
++					bool bOk = gDLL->cacheWrite(pCache);
++					if (!bOk)
++					{
++						char szMessage[1024];
++						sprintf(szMessage, "Failed writing to %s cache.\nCurrent XML file is: %s", szFileDirectory, GC.getCurrentXMLFile().GetCString());
++						gDLL->MessageBox(szMessage, "XML Caching Error");
++					}
++					if (bOk)
++						logMsg("Wrote %s to cache", szFileDirectory);
+ 				}
+-				if (bOk)
+-					logMsg("Wrote %s to cache", szFileDirectory);
+-			}*/
++			#endif
+ 		}
+ 	}
+-
+-	if (pArgFunction != NULL)
+-		gDLL->destroyCache(pCache);
++	#if ENABLE_XML_FILE_CACHE
++		if (pArgFunction != NULL)
++			gDLL->destroyCache(pCache);
++	#endif
+ }
+ 
+ // helper sort predicate
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index b0b704786..63a898335 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -392,7 +392,7 @@ void CyEnumsPythonInterface()
+ 		.value("WIDGET_GLOBELAYER_OPTION", WIDGET_GLOBELAYER_OPTION)
+ 		.value("WIDGET_GLOBELAYER_TOGGLE", WIDGET_GLOBELAYER_TOGGLE)
+ 		// K-Mod widgets
+-		// Environmental advisor
++		// Environmental advisor  (advc.enum: Pollution flags moved to CyPlayerInterface2.cpp)
+ 		.value("WIDGET_HELP_POLLUTION_OFFSETS", WIDGET_HELP_POLLUTION_OFFSETS)
+ 		.value("WIDGET_HELP_POLLUTION_SOURCE", WIDGET_HELP_POLLUTION_SOURCE)
+ 		.value("WIDGET_HELP_SUSTAINABILITY_THRESHOLD", WIDGET_HELP_SUSTAINABILITY_THRESHOLD)
+@@ -427,17 +427,7 @@ void CyEnumsPythonInterface()
+ 		.value("WIDGET_CITY_TRADE", WIDGET_CITY_TRADE) // advc.ctr
+ 		.value("NUM_WIDGET_TYPES", NUM_WIDGET_TYPES)
+ 		;
+-	/*  K-Mod, 5/jan/11, karadoc
+-		pollution flags */
+-	python::enum_<int>("PollutionTypes")
+-		.value("POLLUTION_POPULATION", POLLUTION_POPULATION)
+-		.value("POLLUTION_BUILDINGS", POLLUTION_BUILDINGS)
+-		.value("POLLUTION_BONUSES", POLLUTION_BONUSES)
+-		.value("POLLUTION_POWER", POLLUTION_POWER)
+ 
+-		.value("POLLUTION_ALL", POLLUTION_ALL)
+-		;
+-	// K-Mod end
+ 	python::enum_<ButtonPopupTypes>("ButtonPopupTypes")
+ 		.value("BUTTONPOPUP_TEXT", BUTTONPOPUP_TEXT)
+ 		.value("BUTTONPOPUP_MAIN_MENU", BUTTONPOPUP_MAIN_MENU)
+
+diff --git a/CvGameCoreDLL/CyMap.cpp b/CvGameCoreDLL/CyMap.cpp
+index 53a39ce93..9298d50b8 100644
+--- a/CvGameCoreDLL/CyMap.cpp
++++ b/CvGameCoreDLL/CyMap.cpp
+@@ -34,7 +34,8 @@ CyPlot* CyMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
+ {
+ 	// advc: No longer takes an area id
+ 	CvArea* pArea = m_kMap.getArea(iArea);
+-	return new CyPlot(m_kMap.syncRandPlot(iFlags, pArea, iMinUnitDistance, iTimeout));
++	return new CyPlot(m_kMap.syncRandPlot(/* advc.enum: */(RandPlotTypes)iFlags,
++			pArea, iMinUnitDistance, iTimeout));
+ }
+ 
+ CyCity* CyMap::findCity(int iX, int iY, int /*PlayerTypes*/ eOwner, int /*TeamTypes*/ eTeam, bool bSameArea, bool bCoastalOnly,
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index cbdd557c1..50885032d 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -557,22 +557,17 @@ int CyPlayer::calculateResearchModifier(int /*TechTypes*/ eTech)
+ {
+ 	return m_pPlayer ? m_pPlayer->calculateResearchModifier((TechTypes)eTech) : -1;
+ }
+-
+-/*
+-** K-Mod, 18/dec/10, karadoc
+-*/
+-int CyPlayer::calculatePollution(int iTypes) const
++// <K-Mod> 18/dec/10
++int CyPlayer::calculatePollution(int iPollution) const
+ {
+-	return m_pPlayer ? m_pPlayer->calculatePollution(iTypes) : 0;
++	return m_pPlayer ? m_pPlayer->calculatePollution(
++			(CvPlayer::PollutionTypes)iPollution) : -1; // advc.enum
+ }
+ 
+ int CyPlayer::getGwPercentAnger() const
+ {
+-	return m_pPlayer ? m_pPlayer->getGwPercentAnger() : 0;
+-}
+-/*
+-** K-Mod end
+-*/
++	return m_pPlayer ? m_pPlayer->getGwPercentAnger() : /* advc: */ -1;
++} // </K-Mod>
+ 
+ /* int CyPlayer::calculateBaseNetResearch()
+ {
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index 503b815c7..799ea8acb 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -147,7 +147,7 @@ public:
+ 	int calculateTotalCommerce();
+ 	int calculateResearchRate(int /*TechTypes*/ eTech);
+ 	int calculateResearchModifier(int /*TechTypes*/ eTech);
+-	int calculatePollution(int iTypes) const; // K-Mod
++	int calculatePollution(int iPollution) const; // K-Mod
+ 	int getGwPercentAnger() const; // K-Mod
+ 	// int calculateBaseNetResearch();
+ 	bool isResearch();
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface2.cpp b/CvGameCoreDLL/CyPlayerInterface2.cpp
+index a4b967f5d..f880fe64c 100644
+--- a/CvGameCoreDLL/CyPlayerInterface2.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface2.cpp
+@@ -1,5 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyPlayer.h"
++#include "CvPlayer.h" // advc.enum: for PollutionTypes
+ #include "CySelectionGroup.h"
+ #include "CyArea.h"
+ 
+@@ -69,4 +70,14 @@ void CyPlayerPythonInterface2(python::class_<CyPlayer>& x)
+ 		.def("wasLeaderRandomlyChosen", &CyPlayer::wasLeaderRandomlyChosen, "bool ()")
+ 		// </advc.190c>
+ 		;
++
++	/*	K-Mod, 5/jan/11: pollution flags (advc.enum: Moved from CyEnumsInterface
++		b/c it's no longer a global type within the DLL) */
++	python::enum_<int>("PollutionTypes")
++		.value("POLLUTION_POPULATION", CvPlayer::POLLUTION_POPULATION)
++		.value("POLLUTION_BUILDINGS", CvPlayer::POLLUTION_BUILDINGS)
++		.value("POLLUTION_BONUSES", CvPlayer::POLLUTION_BONUSES)
++		.value("POLLUTION_POWER", CvPlayer::POLLUTION_POWER)
++		.value("POLLUTION_ALL", CvPlayer::POLLUTION_ALL)
++		;
+ }
+
+diff --git a/CvGameCoreDLL/CyPlotInterface1.cpp b/CvGameCoreDLL/CyPlotInterface1.cpp
+index 7babbd64d..9f5df66d8 100644
+--- a/CvGameCoreDLL/CyPlotInterface1.cpp
++++ b/CvGameCoreDLL/CyPlotInterface1.cpp
+@@ -253,4 +253,20 @@ void CyPlotPythonInterface1(python::class_<CyPlot>& x)
+ 		.def("getScriptData", &CyPlot::getScriptData, "str () - Get stored custom data")
+ 		.def("setScriptData", &CyPlot::setScriptData, "void (str) - Set stored custom data")
+ 	;
++
++	// advc.enum: For CyMap::syncRandPlot
++	python::enum_<int>("RandPlotTypes")
++		.value("RANDPLOT_ANY", RANDPLOT_ANY)
++		.value("RANDPLOT_LAND", RANDPLOT_LAND)
++		.value("RANDPLOT_UNOWNED", RANDPLOT_UNOWNED)
++		.value("RANDPLOT_ADJACENT_UNOWNED", RANDPLOT_ADJACENT_UNOWNED)
++		.value("RANDPLOT_ADJACENT_LAND", RANDPLOT_ADJACENT_LAND)
++		.value("RANDPLOT_PASSABLE", RANDPLOT_PASSABLE)
++		.value("RANDPLOT_ADJACENT_LAND", RANDPLOT_ADJACENT_LAND)
++		.value("RANDPLOT_NOT_VISIBLE_TO_CIV", RANDPLOT_NOT_VISIBLE_TO_CIV)
++		/* <advc.300> */
++		.value("RANDPLOT_HABITABLE", RANDPLOT_HABITABLE)
++		.value("RANDPLOT_WATERSOURCE", RANDPLOT_WATERSOURCE)
++		/* </advc.300> */
++		;
+ }
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 9a99c7a6d..a974c605c 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -6,15 +6,15 @@
+ 	CvEnums.h and CvGlobals.h are used.
+ 	Formatting: linebreaks added before scope resolution operators.
+ 	advc.fract: Disabled the INLINE_NATIVE representation for "small" enum types
+-	in order to allow T=ScaledNum. (As suggested to me by Nightinggale.) */
++	in order to allow T=ScaledNum. (As suggested to me by Nightinggale.)
++	Functions for bitwise operations moved into BitUtil.h (included in PCH);
++	WtP defines them directly in the PCH. */
+ 
+ #pragma once
+ 
+ #ifndef ENUM_MAP_H
+ #define ENUM_MAP_H
+ 
+-#include "BitUtil.h" // advc.enum: For bitwise operations; WtP uses CvGameCoreDLL.h for that.
+-
+ // advc: Moved up; (VS2010) IntelliSense needs it here.
+ template <class T> struct EnumMapGetDefault {};
+ 
+@@ -1241,14 +1241,18 @@ template<> struct EnumMapGetDefault<PlotNumTypes> {
+ 	};
+ /*  Don't want to set these in CvEnums.h or anywhere in the global namespace b/c
+ 	the FOR_EACH_ENUM macro shouldn't be used for them */
+-SET_NONXML_ENUM_LENGTH(PlayerTypes, (PlayerTypes)MAX_PLAYERS)
+-SET_NONXML_ENUM_LENGTH(TeamTypes, (TeamTypes)MAX_TEAMS)
++SET_NONXML_ENUM_LENGTH(PlayerTypes, MAX_PLAYERS)
++SET_NONXML_ENUM_LENGTH(TeamTypes, MAX_TEAMS)
+ 
+ // For enum maps that exclude the Barbarians
+-enum CivPlayerTypes {};
+-enum CivTeamTypes {};
+-SET_NONXML_ENUM_LENGTH(CivPlayerTypes, (CivPlayerTypes)MAX_CIV_PLAYERS)
+-SET_NONXML_ENUM_LENGTH(CivTeamTypes, (CivTeamTypes)MAX_CIV_TEAMS)
++enum CivPlayerTypes {
++	NUM_CIV_PLAYER_TYPES = MAX_CIV_PLAYERS
++};
++enum CivTeamTypes {
++	NUM_CIV_TEAM_TYPES = MAX_CIV_TEAMS,
++};
++SET_NONXML_ENUM_LENGTH(CivPlayerTypes, NUM_CIV_PLAYER_TYPES)
++SET_NONXML_ENUM_LENGTH(CivTeamTypes, NUM_CIV_TEAM_TYPES)
+ 
+ // Not to be used outside of this header
+ #undef SET_XML_ENUM_SIZE
+
+diff --git a/CvGameCoreDLL/EnumMapTest.cpp b/CvGameCoreDLL/EnumMapTest.cpp
+index 1a758d0de..bfbbbd4d9 100644
+--- a/CvGameCoreDLL/EnumMapTest.cpp
++++ b/CvGameCoreDLL/EnumMapTest.cpp
+@@ -51,7 +51,6 @@ void TestEnumMap()
+ 	{
+ 		EnumMap<RouteTypes, PlayerTypes> test;
+ 		RouteTypes var = static_cast<RouteTypes>(0);
+-		PlayerTypes FIRST_PLAYER = (PlayerTypes)0; // advc
+ 
+ 		FAssert(test.get(var) == NO_PLAYER);
+ 		FAssert(!test.hasContent());
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index f993c5ee2..863c8bc3e 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -335,7 +335,7 @@ void RiseFall::atTurnEnd(PlayerTypes civId) {
+ 				interludeCountdown = -1;
+ 				/*  Don't start a chapter across a game turn (i.e. during the
+ 					barbs' turn). Switching to civ 0 is handled by atGameTurnStart. */
+-				if(nextCivId != (PlayerTypes)0)
++				if(nextCivId != FIRST_PLAYER)
+ 					currentCh.start();
+ 			}
+ 			else if(!currentCh.isScored()) { /*  If scored, then defeat happened
+@@ -880,7 +880,7 @@ void RiseFall::prepareForExtendedGame() {
+ 		}
+ 		TeamTypes winnerId = g.getWinner();
+ 		if(winnerId == NO_TEAM) // Can this be?
+-			winnerId = (TeamTypes)0;
++			winnerId = FIRST_TEAM;
+ 		// Try to avoid giving the player control of the winner b/c it's confusing
+ 		PlayerTypes haltId = nextCivAlive(GET_TEAM(winnerId).getLeaderID());
+ 		if(haltId == NO_PLAYER)
+
+diff --git a/CvGameCoreDLL/Shelf.cpp b/CvGameCoreDLL/Shelf.cpp
+index 926efee19..bcfe5a500 100644
+--- a/CvGameCoreDLL/Shelf.cpp
++++ b/CvGameCoreDLL/Shelf.cpp
+@@ -16,7 +16,7 @@ void Shelf::add(CvPlot* plot)
+ }
+ 
+ 
+-CvPlot* Shelf::randomPlot(int restrictionFlags, int unitDistance, int* legalCount) const
++CvPlot* Shelf::randomPlot(RandPlotTypes restrictions, int unitDistance, int* legalCount) const
+ {
+ 	/*  Based on CvMap::syncRandPlot, but shelves are (normally) so small
+ 		that random sampling isn't efficient. Instead, compute the legal
+@@ -27,12 +27,12 @@ CvPlot* Shelf::randomPlot(int restrictionFlags, int unitDistance, int* legalCoun
+ 		CvPlot* plot = plots[i];
+ 		bool isLegal =
+ 		 plot != NULL &&
+-		 !(RANDPLOT_LAND & restrictionFlags) &&
+-		 (!(RANDPLOT_UNOWNED & restrictionFlags) || !plot->isOwned()) &&
+-		 (!(RANDPLOT_ADJACENT_UNOWNED & restrictionFlags) || !plot->isAdjacentOwned()) &&
+-		 (!(RANDPLOT_NOT_VISIBLE_TO_CIV & restrictionFlags) || !plot->isVisibleToCivTeam()) &&
++		 !(RANDPLOT_LAND & restrictions) &&
++		 (!(RANDPLOT_UNOWNED & restrictions) || !plot->isOwned()) &&
++		 (!(RANDPLOT_ADJACENT_UNOWNED & restrictions) || !plot->isAdjacentOwned()) &&
++		 (!(RANDPLOT_NOT_VISIBLE_TO_CIV & restrictions) || !plot->isVisibleToCivTeam()) &&
+ 		 // In case a mod enables sea cities:
+-		 (!(RANDPLOT_NOT_CITY) || !plot->isCity()) &&
++		 (!(RANDPLOT_NOT_CITY & restrictions) || !plot->isCity()) &&
+ 		 (!plot->isCivUnitNearby(unitDistance)) &&
+ 		 !plot->isUnit();
+ 		/*  RANDPLOT_PASSIBLE, RANDPLOT_ADJACENT_LAND, RANDPLOT_HABITABLE:
+
+diff --git a/CvGameCoreDLL/Shelf.h b/CvGameCoreDLL/Shelf.h
+index 79f6a6e14..3639866e1 100644
+--- a/CvGameCoreDLL/Shelf.h
++++ b/CvGameCoreDLL/Shelf.h
+@@ -5,6 +5,7 @@
+ 
+ class CvPlot;
+ class CvUnit;
++enum RandPlotTypes;
+ 
+ /* <advc.300> New class representing a continental shelf, akin to a CvArea
+    (but I don't want to inherit from that class). Used for spawning
+@@ -14,7 +15,7 @@ class Shelf {
+ public:
+ 
+ 	void add(CvPlot* plot);
+-	CvPlot* randomPlot(int restrictionFlags, int unitDistance,
++	CvPlot* randomPlot(RandPlotTypes restrictions, int unitDistance,
+ 			int* legalCount = NULL) const;
+ 	int size() const;
+ 	int countUnownedPlots() const;
+
+[PATCH COVERAGE]
+patchFiles=51 embeddedFiles=51 omittedFiles=0 embeddedPatchBytes=69060

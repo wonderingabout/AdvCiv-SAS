@@ -1,0 +1,330 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3309
+# Commit: a8192ca7faab182fa7dfa589c097c83a23f07509
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a5b47253ec1aec527c48dd3ce6d9dc3871ecc088
+# Title: Fix timing of attitude cache update during turn sequence
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	CvGameCoreDLL/CvDeal.cpp
+6	13	CvGameCoreDLL/CvGame.cpp
+28	11	CvGameCoreDLL/CvPlayerAI.cpp
+6	3	CvGameCoreDLL/CvPlayerAI.h
+21	12	CvGameCoreDLL/CvTeamAI.cpp
+8	5	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index e6ffffc07..e46f0b528 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -387,12 +387,12 @@ void CvDeal::doTurn()
+ 			if (getLengthSecond() > 0)
+ 			{
+ 				GET_PLAYER(getSecondPlayer()).AI_processPeacetimeTradeValue(
+-						getFirstPlayer(), iValue);
++						getFirstPlayer(), iValue, /* advc.130p: */ false);
+ 			}
+ 			else
+ 			{
+ 				GET_PLAYER(getSecondPlayer()).AI_processPeacetimeGrantValue(
+-						getFirstPlayer(), iValue);
++						getFirstPlayer(), iValue, /* advc.130p: */ false);
+ 			}
+ 		}
+ 		/*	K-Mod note: for balance reasons this function should probably
+@@ -400,7 +400,8 @@ void CvDeal::doTurn()
+ 			rather than at the turn boundary of the game itself.
+ 			-- Unfortunately, the game currently doesn't work like this.
+ 			Also, note that we do not update attitudes of particular players here,
+-			but instead update all of them at the game turn boundary. */
++			but instead update all of them at the game turn boundary
++			[advc: i.e. in CvGame::doDeals]. */
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index ba5469fca..639250858 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6665,23 +6665,16 @@ void CvGame::doDeals()
+ {
+ 	verifyDeals();
+ 
+-	std::set<PlayerTypes> trade_players; // K-Mod. List of players involved in trades.
+ 	FOR_EACH_DEAL_VAR(pLoopDeal)
+ 	{
+-		// K-Mod
+-		trade_players.insert(pLoopDeal->getFirstPlayer());
+-		trade_players.insert(pLoopDeal->getSecondPlayer());
+-		// K-Mod end
+ 		pLoopDeal->doTurn();
+ 	}
+-
+-	// K-Mod. Update the attitude cache for all trade players
+-	for (std::set<PlayerTypes>::iterator it = trade_players.begin(); it != trade_players.end(); ++it)
+-	{
+-		FAssert(*it != NO_PLAYER);
+-		GET_PLAYER(*it).AI_updateAttitude();
+-	}
+-	// K-Mod end
++	/*	<advc.130p> K-Mod had only done this update for players involved in any deals
++		(through an std::set), but third parties might disapprove of the deal.
++		(I think this was a minor oversight in K-Mod - but matters more in AdvCiv
++		b/c of changes to trade values of annual deals.) */
++	for (PlayerAIIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
++		itPlayer->AI_updateAttitude(); // </advc.130p>
+ }
+ 
+ // advc.055: For doGlobalWarming (needs to have external linkage)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index ded385f66..fcec3545f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -420,7 +420,7 @@ void CvPlayerAI::AI_doTurnPost()
+ {
+ 	PROFILE_FUNC();
+ 
+-	if (isHuman() || isMinorCiv())
++	if (isMinorCiv())
+ 		return;
+ 
+ 	if (isBarbarian())
+@@ -428,6 +428,18 @@ void CvPlayerAI::AI_doTurnPost()
+ 		AI_foldDeals(); // advc.036
+ 		return;
+ 	}
++	/*	<advc.001> The K-Mod update in CvTeamAI::AI_doTurnPost is not sufficient
++		b/c player turns happen after the team turn. The update of diplo counters
++		can also affect the attitude toward this player. */
++	for (PlayerAIIter<MAJOR_CIV> itOther; itOther.hasNext(); ++itOther)
++	{
++		if (itOther->getID() != getID())
++			itOther->AI_updateAttitude(getID());
++	}
++	if (isHuman())
++		return;
++	AI_updateAttitude();
++	// </advc.001>
+ 
+ 	AI_doDiplo();
+ 	/*  UNOFFICIAL_PATCH, Bugfix, 06/16/09, jdog5000:
+@@ -8126,7 +8138,7 @@ int CvPlayerAI::AI_getTradeAttitude(PlayerTypes ePlayer) const
+ 	r += scaled::max(0, rTradeValDiff);
+ 	if (r > 0)
+ 		r = fixp(11.5) * r.pow(fixp(2/3.)); // Diminishing returns
+-	r *= GET_TEAM(ePlayer).AI_recentlyMetMultiplier(getTeam());
++	r *= GET_TEAM(getTeam()).AI_recentlyMetMultiplier(TEAMID(ePlayer));
+ 	r /= AI_peacetimeTradeValDivisor(false);
+ 	r.clamp(0, PEACETIME_TRADE_RELATIONS_LIMIT);
+ 	return r.round();
+@@ -8217,7 +8229,7 @@ int CvPlayerAI::AI_getRivalTradeAttitude(PlayerTypes ePlayer) const
+ 		rDualDealCounter += scaled::min(rVassalDealCounter, 10);
+ 		// </advc.130v>
+ 	}
+-	r *= GET_TEAM(ePlayer).AI_recentlyMetMultiplier(getTeam());
++	r *= GET_TEAM(getTeam()).AI_recentlyMetMultiplier(TEAMID(ePlayer));
+ 	r += 75 * rDualDealCounter;
+ 	r /= AI_peacetimeTradeValDivisor(true);
+ 	r.clamp(0, PEACETIME_TRADE_RELATIONS_LIMIT);
+@@ -18107,20 +18119,25 @@ int CvPlayerAI::AI_getPeacetimeGrantValue(PlayerTypes eIndex) const
+ 
+ // <advc.130p>
+ // Merged (and renamed) AI_changePeacetimeTradeValue and AI_changePeacetimeGrantValue
+-void CvPlayerAI::AI_processPeacetimeTradeValue(PlayerTypes eIndex, int iChange)
++void CvPlayerAI::AI_processPeacetimeTradeValue(PlayerTypes eIndex, int iChange,
++	bool bUpdateAttitude)
+ {
+-	AI_processPeacetimeValue(eIndex, iChange, false);
++	AI_processPeacetimeValue(eIndex, iChange, false,
++			false, NO_TEAM, NO_TEAM, bUpdateAttitude);
+ }
+ 
+ 
+-void CvPlayerAI::AI_processPeacetimeGrantValue(PlayerTypes eIndex, int iChange)
++void CvPlayerAI::AI_processPeacetimeGrantValue(PlayerTypes eIndex, int iChange,
++	bool bUpdateAttitude)
+ {
+-	AI_processPeacetimeValue(eIndex, iChange, true);
++	AI_processPeacetimeValue(eIndex, iChange, true,
++			false, NO_TEAM, NO_TEAM, bUpdateAttitude);
+ }
+ 
+ // Based on the old AI_changePeacetimeGrantValue
+ void CvPlayerAI::AI_processPeacetimeValue(PlayerTypes eFromPlayer, int iChange,
+-	bool bGrant, bool bPeace, TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget)
++	bool bGrant, bool bPeace, TeamTypes ePeaceTradeTarget, TeamTypes eWarTradeTarget,
++	bool bUpdateAttitude)
+ {
+ 	PROFILE_FUNC();
+ 	FAssertBounds(0, MAX_CIV_PLAYERS, eFromPlayer); // advc.003n
+@@ -18195,17 +18212,17 @@ void CvPlayerAI::AI_processPeacetimeValue(PlayerTypes eFromPlayer, int iChange,
+ 		{
+ 			rEnemyIncrease /= 2;
+ 			kThirdParty.AI_changeEnemyPeacetimeTradeValue(TEAMID(eFromMaster),
+-					rEnemyIncrease.round());
++					rEnemyIncrease.round(), bUpdateAttitude);
+ 		} // </advc.130v>
+ 		if(bGrant)
+ 		{
+ 			kThirdParty.AI_changeEnemyPeacetimeGrantValue(TEAMID(eFromPlayer),
+-					rEnemyIncrease.round());
++					rEnemyIncrease.round(), bUpdateAttitude);
+ 		}
+ 		else
+ 		{
+ 			kThirdParty.AI_changeEnemyPeacetimeTradeValue(TEAMID(eFromPlayer),
+-					rEnemyIncrease.round());
++					rEnemyIncrease.round(), bUpdateAttitude);
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 48fb93ded..24fbd7d3e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -504,13 +504,16 @@ public:
+ 		should be changed. */
+ 	void AI_processPeacetimeValue(PlayerTypes eFromPlayer, int iChange,
+ 			bool bGrant, bool bPeace = false, TeamTypes ePeaceTradeTarget = NO_TEAM,
+-			TeamTypes eWarTradeTarget = NO_TEAM); // </advc.130p>
++			TeamTypes eWarTradeTarget = NO_TEAM, bool bUpdateAttitude = true);
++	// </advc.130p>
+ 	int AI_getPeacetimeTradeValue(PlayerTypes eIndex) const;
+ 	// advc.130p: Renamed from changePeacetimeTradeValue
+-	void AI_processPeacetimeTradeValue(PlayerTypes eIndex, int iChange);
++	void AI_processPeacetimeTradeValue(PlayerTypes eIndex, int iChange,
++			bool bUpdateAttitude = true); // advc.130p
+ 	int AI_getPeacetimeGrantValue(PlayerTypes eIndex) const;
+ 	// advc.130p: Renamed from changePeacetimeTradeValue
+-	void AI_processPeacetimeGrantValue(PlayerTypes eIndex, int iChange);
++	void AI_processPeacetimeGrantValue(PlayerTypes eIndex, int iChange,
++			bool bUpdateAttitude = true); // advc.130p
+ 	// <advc.130k> To make exponential decay more convenient
+ 	void AI_setSameReligionCounter(PlayerTypes eIndex, int iValue);
+ 	void AI_setDifferentReligionCounter(PlayerTypes eIndex, int iValue);
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 36a84eab8..f686869b3 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4465,18 +4465,21 @@ void CvTeamAI::AI_setSharedWarSuccess(TeamTypes eWarAlly, int iWS)
+ } // </advc.130m>
+ 
+ 
+-void CvTeamAI::AI_setEnemyPeacetimeTradeValue(TeamTypes eIndex, int iNewValue)
++void CvTeamAI::AI_setEnemyPeacetimeTradeValue(TeamTypes eIndex, int iNewValue,
++	bool bUpdateAttitude) // advc.130p
+ {
+ 	m_aiEnemyPeacetimeTradeValue.set(eIndex, iNewValue);
+ 	FAssert(AI_getEnemyPeacetimeTradeValue(eIndex) >= 0);
+-	// K-Mod: update attitude (advc: call helper function)
+-	AI_updateAttitude(eIndex, /* advc.130e: */ false);
++	if (bUpdateAttitude) // advc.130p
++		AI_updateAttitude(eIndex, /* advc.130e: */ false); // K-Mod
+ }
+ 
+ 
+-void CvTeamAI::AI_changeEnemyPeacetimeTradeValue(TeamTypes eIndex, int iChange)
++void CvTeamAI::AI_changeEnemyPeacetimeTradeValue(TeamTypes eIndex, int iChange,
++	bool bUpdateAttitude) // advc.130p
+ {
+-	AI_setEnemyPeacetimeTradeValue(eIndex, (AI_getEnemyPeacetimeTradeValue(eIndex) + iChange));
++	AI_setEnemyPeacetimeTradeValue(eIndex, AI_getEnemyPeacetimeTradeValue(eIndex) + iChange,
++			bUpdateAttitude); // advc.130p
+ }
+ 
+ // <advc.130p>, advc.130m To keep the rate consistent between TeamAI and PlayerAI
+@@ -4499,18 +4502,21 @@ scaled CvTeamAI::AI_recentlyMetMultiplier(TeamTypes eOther) const
+ } // </advc.130p>
+ 
+ 
+-void CvTeamAI::AI_setEnemyPeacetimeGrantValue(TeamTypes eIndex, int iNewValue)
++void CvTeamAI::AI_setEnemyPeacetimeGrantValue(TeamTypes eIndex, int iNewValue,
++	bool bUpdateAttitude) // advc.130p
+ {
+ 	m_aiEnemyPeacetimeGrantValue.set(eIndex, iNewValue);
+ 	FAssert(AI_getEnemyPeacetimeGrantValue(eIndex) >= 0);
+-	// K-Mod: update attitude (advc: call helper function)
+-	AI_updateAttitude(eIndex, /* advc.130e: */ false);
++	if (bUpdateAttitude) // advc.130p
++		AI_updateAttitude(eIndex, /* advc.130e: */ false); // K-Mod
+ }
+ 
+ 
+-void CvTeamAI::AI_changeEnemyPeacetimeGrantValue(TeamTypes eIndex, int iChange)
++void CvTeamAI::AI_changeEnemyPeacetimeGrantValue(TeamTypes eIndex, int iChange,
++	bool bUpdateAttitude) // advc.130p
+ {
+-	AI_setEnemyPeacetimeGrantValue(eIndex, AI_getEnemyPeacetimeGrantValue(eIndex) + iChange);
++	AI_setEnemyPeacetimeGrantValue(eIndex, AI_getEnemyPeacetimeGrantValue(eIndex) + iChange,
++			bUpdateAttitude); // advc.130p
+ }
+ 
+ // advc.003u: Moved from CvTeam
+@@ -5635,6 +5641,7 @@ int CvTeamAI::AI_randomCounterChange(int iUpperCap, scaled rProb) const
+ 
+ void CvTeamAI::AI_doCounter()
+ {
++	// advc (note): Attitude isn't updated here. Should be soon enough in AI_doTurnPost.
+ 	for (TeamIter<ALIVE> it(getID()); it.hasNext(); ++it)
+ 	{
+ 		// <advc.130k>
+@@ -5690,9 +5697,11 @@ void CvTeamAI::AI_doCounter()
+ 				(AI_getSharedWarSuccess(eOther) * rDecayFactor).floor());
+ 		// </advc.130m>  <advc.130p>
+ 		AI_setEnemyPeacetimeGrantValue(eOther,
+-				(AI_getEnemyPeacetimeGrantValue(eOther) * rDecayFactor).floor());
++				(AI_getEnemyPeacetimeGrantValue(eOther) * rDecayFactor).floor(),
++				false);
+ 		AI_setEnemyPeacetimeTradeValue(eOther,
+-				(AI_getEnemyPeacetimeTradeValue(eOther) * rDecayFactor).floor());
++				(AI_getEnemyPeacetimeTradeValue(eOther) * rDecayFactor).floor(),
++				false);
+ 		// </advc.130p>
+ 		// <advc.130r>
+ 		{	// Double decay rate for war success
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 46f297dd8..ccd940e86 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -262,15 +262,18 @@ public:
+ 	{
+ 		return m_aiEnemyPeacetimeTradeValue.get(eIndex);
+ 	}
+-	void AI_setEnemyPeacetimeTradeValue(TeamTypes eIndex, int iNewValue);
+-	void AI_changeEnemyPeacetimeTradeValue(TeamTypes eIndex, int iChange);
+-
++	void AI_setEnemyPeacetimeTradeValue(TeamTypes eIndex, int iNewValue,
++			bool bUpdateAttitude = true); // advc.130p
++	void AI_changeEnemyPeacetimeTradeValue(TeamTypes eIndex, int iChange,
++			bool bUpdateAttitude = true); // advc.130p
+ 	int AI_getEnemyPeacetimeGrantValue(TeamTypes eIndex) const
+ 	{
+ 		return m_aiEnemyPeacetimeGrantValue.get(eIndex);
+ 	}
+-	void AI_setEnemyPeacetimeGrantValue(TeamTypes eIndex, int iNewValue);
+-	void AI_changeEnemyPeacetimeGrantValue(TeamTypes eIndex, int iChange);
++	void AI_setEnemyPeacetimeGrantValue(TeamTypes eIndex, int iNewValue,
++			bool bUpdateAttitude = true); // advc.130p
++	void AI_changeEnemyPeacetimeGrantValue(TeamTypes eIndex, int iChange,
++			bool bUpdateAttitude = true); // advc.130p
+ 
+ 	// advc: countEnemy... functions moved from CvTeam
+ 	int AI_countEnemyPowerByArea(CvArea const& kArea) const;												// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=12009

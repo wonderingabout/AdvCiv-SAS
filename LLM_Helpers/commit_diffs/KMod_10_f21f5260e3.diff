@@ -1,0 +1,1966 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 10
+# Commit: f21f5260e3dababdb845017a28d2f8c54f3521d3
+# History segment: K-Mod history
+# Parent used for diff: af4590d5633dcd000254c7771762d51596455b28
+# Title: (assets for main change) - Fixed several bugs in GW unhappiness. - Global warming will now bump units before turning a tile into ocean. - Made some balance c...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+41	20	Assets/Python/Screens/EconomicsAdvisor.py
+1631	0	Assets/xml/Terrain/CIV4ImprovementInfos.xml
+0	76	Assets/xml/Text/GlobalWarmingTextInfos.xml
+9	9	Assets/xml/buildings/CIV4BuildingInfos.xml
+ create mode 100644 Assets/xml/Terrain/CIV4ImprovementInfos.xml
+ delete mode 100644 Assets/xml/Text/GlobalWarmingTextInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/EconomicsAdvisor.py b/Assets/Python/Screens/EconomicsAdvisor.py
+index 2c98a93f6..e4d5f5976 100644
+--- a/Assets/Python/Screens/EconomicsAdvisor.py
++++ b/Assets/Python/Screens/EconomicsAdvisor.py
+@@ -514,10 +514,13 @@ class EconomicsAdvisor:
+ 		szTopPanel = self.getNextWidgetName()
+ 		screen.addPanel(szTopPanel, u"", "", True, True, self.X_LEFT_PANEL, self.Y_TOP_PANEL, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.X_LEFT_PANEL, self.H_TOP_PANEL, PanelStyles.PANEL_STYLE_MAIN )
+ 
+-		# calculate expected number events per turn
+-		fWarmingPercent = float(CyGame().getGlobalWarmingRolls() * gc.getDefineINT("GLOBAL_WARMING_PROB")) * 10.0
++		# calculate expected number events per turn. Prob is out of 1000, so we divide by 1000 and multiply by 100 to get percent.
++		#fWarmingPercent = float(game.getGlobalWarmingRolls() * gc.getDefineINT("GLOBAL_WARMING_PROB")) / 10.0
+ 		
+-		szText = u"GLOBAL WARMING SEVERITY LEVEL: %.1f%%" % fWarmingPercent
++		# calculate the 'severity rating' as used in the GW unhappiness calculation
++		iSeverityRating = 100-100000/(1000+(gc.getDefineINT("GLOBAL_WARMING_PROB") * game.getGlobalWarmingIndex() / (CyMap().getLandPlots())))
++		
++		szText = u"GLOBAL WARMING SEVERITY RATING: %d%%" % iSeverityRating
+ 		screen.setLabel(self.getNextWidgetName(), szTopPanel, u"<font=4>" + szText + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, (self.X_LEFT_PANEL + self.PANE_WIDTH + self.X_RIGHT_PANEL)/2, self.Y_TOP_PANEL + self.H_TOP_PANEL/2 - self.Y_SPACING/2, self.Z_CONTROLS + self.DZ, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		szLeftPanel = self.getNextWidgetName()
+@@ -539,9 +542,9 @@ class EconomicsAdvisor:
+ 		iBuildings = player.calculatePollution(2)
+ 		iResources = player.calculatePollution(4)
+ 		iPower = player.calculatePollution(8)
+-		iTotalPollution = player.calculatePollution(15)
++		iLocalPollution = player.calculatePollution(15)
+ 		
+-		iTotalDefence = game.calculateGwLandDefence(self.iActiveLeader)
++		iLocalDefence = game.calculateGwLandDefence(self.iActiveLeader)
+ 		
+ 		yLocation += 1.5*self.Y_SPACING
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Pollution:" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEFT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+@@ -569,16 +572,16 @@ class EconomicsAdvisor:
+ 
+ 		yLocation += self.Y_SPACING
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Total" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEFT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iTotalPollution) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_LEFT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iLocalPollution) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_LEFT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 			
+ 		yLocation += 1.5 * self.Y_SPACING
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Total Offsets" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEFT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(-iTotalDefence) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_LEFT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(-iLocalDefence) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_LEFT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		
+ 		yLocation += 1.5 * self.Y_SPACING
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Total Impact" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEFT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iTotalPollution - iTotalDefence) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_LEFT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iLocalPollution - iLocalDefence) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_LEFT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		yLocation += 1.5 * self.Y_SPACING
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Local Sustainability Threshold" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEFT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+@@ -588,23 +591,23 @@ class EconomicsAdvisor:
+ 		# Middle panel: Global
+ 		yLocation  = self.Y_LOCATION
+ 		
+-		iTotalPollution = game.calculateGlobalPollution()
++		iGlobalPollution = game.calculateGlobalPollution()
+ 		# Note, the following code is inefficient. We already have the pollution from the active player, but we're recalculating it now.
+ 		#for i in range(gc.getMAX_PLAYERS()):
+ 		#	loopPlayer = gc.getPlayer(i)
+ 		#	if (loopPlayer.isAlive()):
+-		#		iTotalPollution += loopPlayer.calculatePollution(15)
++		#		iLocalPollution += loopPlayer.calculatePollution(15)
+ 		
+-		iTotalDefence = game.calculateGwLandDefence(PlayerTypes.NO_PLAYER)
++		iGlobalDefence = game.calculateGwLandDefence(PlayerTypes.NO_PLAYER)
+ 		iThreshold = game.calculateGwSustainabilityThreshold(PlayerTypes.NO_PLAYER)
+ 
+ 		yLocation += 1.5 * self.Y_SPACING
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Total Pollution" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_MIDDLE_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iTotalPollution) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_MIDDLE_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iGlobalPollution) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_MIDDLE_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		
+ 		yLocation += 1.5 * self.Y_SPACING
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Total Offsets" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_MIDDLE_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(-iTotalDefence) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_MIDDLE_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(-iGlobalDefence) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_MIDDLE_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		yLocation += 1.5 * self.Y_SPACING
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Sustainability Threshold" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_MIDDLE_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+@@ -612,14 +615,32 @@ class EconomicsAdvisor:
+ 
+ 		yLocation += 1.5 * self.Y_SPACING
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Change Rate of GW Index" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_MIDDLE_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(max(0, iTotalPollution-iTotalDefence-iThreshold)) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_MIDDLE_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(max(0, iGlobalPollution-iGlobalDefence-iThreshold)) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_MIDDLE_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++
++		## testing
++		#iResponsibility = (100*iLocalPollution*iThreshold) / (game.calculateGwSustainabilityThreshold(self.iActiveLeader) * iGlobalPollution)
++		iResponsibility = 100*iLocalPollution
++		iResponsibility /= max(1, game.calculateGwSustainabilityThreshold(self.iActiveLeader))
++		iResponsibility *= iThreshold
++		iResponsibility /= max(1, iGlobalPollution)
++		#iGwUnhappiness = gc.getDefineINT("GLOBAL_WARMING_BASE_UNHAPPINESS") * iSeverityRating * iResponsibility
++		#iGwUnhappiness = (iGwUnhappiness + (10000/2)) / 10000
++		
++		yLocation += 1.5 * self.Y_SPACING
++		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Our Relative Contribution" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_MIDDLE_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iResponsibility) + "%</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_MIDDLE_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++
++		#yLocation += 1.5 * self.Y_SPACING
++		#screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Unhappiness" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_MIDDLE_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		#screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iGwUnhappiness) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_MIDDLE_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		##
+ 		
+ 		# Right panel: Impact
+ 		yLocation = self.Y_LOCATION
+ 
+-		iGlobalWarmingIndex = CyGame().getGlobalWarmingIndex()
+-		iGlobalWarmingRolls = CyGame().getGlobalWarmingRolls()
+-		iGwEventTally = CyGame().getGwEventTally()
++		iGlobalWarmingIndex = game.getGlobalWarmingIndex()
++		iGlobalWarmingRolls = game.getGlobalWarmingRolls()
++		iGwEventTally = game.getGwEventTally()
+ 
+ 		#screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iGlobalWarmingIndex) + "("+unicode(iGlobalWarmingRolls)+")" + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		
+@@ -628,15 +649,15 @@ class EconomicsAdvisor:
+ 		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iGlobalWarmingIndex) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		yLocation += 1.5 * self.Y_SPACING
+-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Potential Events per Turn" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iGlobalWarmingRolls) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		fExpectedEvents = 1.0 * iGlobalWarmingRolls * gc.getDefineINT("GLOBAL_WARMING_PROB") / 1000.0
++		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Expected Events per Turn" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + u"%0.1f" % fExpectedEvents + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		if (iGwEventTally >= 0):
+ 			yLocation += 1.5 * self.Y_SPACING
+ 			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Event Tally" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iGwEventTally) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+-
+ 		return 0
+
+diff --git a/Assets/xml/Terrain/CIV4ImprovementInfos.xml b/Assets/xml/Terrain/CIV4ImprovementInfos.xml
+new file mode 100644
+index 000000000..75d660b0f
+--- /dev/null
++++ b/Assets/xml/Terrain/CIV4ImprovementInfos.xml
+@@ -0,0 +1,1631 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by Soren Johnson (Firaxis Games) -->
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Improvement -->
++<Civ4ImprovementInfos xmlns="x-schema:CIV4TerrainSchema.xml">
++	<ImprovementInfos>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_LAND_WORKED</Type>
++			<Description>TXT_KEY_IMPROVEMENT_LAND_WORKED</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_LAND_WORKED_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_LAND_WORKED</ArtDefineTag>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>-1</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>-1</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>0</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<WorldSoundscapeAudioScript/>
++			<bGraphicalOnly>1</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_WATER_WORKED</Type>
++			<Description>TXT_KEY_IMPROVEMENT_WATER_WORKED</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_WATER_WORKED_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_WATER_WORKED</ArtDefineTag>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>-1</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>-1</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>0</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<WorldSoundscapeAudioScript/>
++			<bGraphicalOnly>1</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_CITY_RUINS</Type>
++			<Description>TXT_KEY_IMPROVEMENT_CITY_RUINS</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_CITY_RUINS_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_CITY_RUINS</ArtDefineTag>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>-1</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>-1</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>0</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<WorldSoundscapeAudioScript/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_GOODY_HUT</Type>
++			<Description>TXT_KEY_IMPROVEMENT_GOODY_HUT</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_GOODY_HUT_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_GOODY_HUT</ArtDefineTag>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>1</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>-1</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>40</iTilesPerGoody>
++			<iGoodyRange>3</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>-1</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>0</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++			</TerrainMakesValids>
++			<FeatureMakesValids>
++				<FeatureMakesValid>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<bMakesValid>1</bMakesValid>
++				</FeatureMakesValid>
++				<FeatureMakesValid>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<bMakesValid>1</bMakesValid>
++				</FeatureMakesValid>
++			</FeatureMakesValids>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<WorldSoundscapeAudioScript>ASSS_FOREST_SELECT_AMB</WorldSoundscapeAudioScript>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_FARM</Type>
++			<Description>TXT_KEY_IMPROVEMENT_FARM</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_FARM_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_FARM</ArtDefineTag>
++			<PrereqNatureYields>
++				<iYield>1</iYield>
++				<iYield>0</iYield>
++				<iYield>0</iYield>
++			</PrereqNatureYields>
++			<IrrigatedYieldChange>
++				<iYield>1</iYield>
++				<iYield>0</iYield>
++				<iYield>0</iYield>
++			</IrrigatedYieldChange>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>1</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>1</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>1</bRequiresIrrigation>
++			<bCarriesIrrigation>1</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<bUseLSystem>1</bUseLSystem>
++			<iAdvancedStartCost>30</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>5</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++			</TerrainMakesValids>
++			<FeatureMakesValids/>
++			<BonusTypeStructs>
++				<BonusTypeStruct>
++					<BonusType>BONUS_CORN</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>2</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_RICE</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>1</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_WHEAT</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>2</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++			</BonusTypeStructs>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges>
++				<TechYieldChange>
++					<PrereqTech>TECH_BIOLOGY</PrereqTech>
++					<TechYields>
++						<iYield>1</iYield>
++						<iYield>0</iYield>
++						<iYield>0</iYield>
++					</TechYields>
++				</TechYieldChange>
++			</TechYieldChanges>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_FISHING_BOATS</Type>
++			<Description>TXT_KEY_IMPROVEMENT_FISHING_BOATS</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_FISHING_BOATS_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_FISHING_BOATS</ArtDefineTag>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>1</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>30</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>5</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<BonusTypeStructs>
++				<BonusTypeStruct>
++					<BonusType>BONUS_CLAM</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>2</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_CRAB</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>2</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_FISH</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>3</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++			</BonusTypeStructs>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_WHALING_BOATS</Type>
++			<Description>TXT_KEY_IMPROVEMENT_WHALING_BOATS</Description>
++			<Civilopedia>TXT_KEY_WHALING_BOATS_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_WHALING_BOATS</ArtDefineTag>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>1</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>30</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>5</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<BonusTypeStructs>
++				<BonusTypeStruct>
++					<BonusType>BONUS_WHALE</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++						<iYieldChange>2</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++			</BonusTypeStructs>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_MINE</Type>
++			<Description>TXT_KEY_IMPROVEMENT_MINE</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_MINE_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_MINE</ArtDefineTag>
++			<YieldChanges>
++				<iYieldChange>0</iYieldChange>
++				<iYieldChange>2</iYieldChange>
++				<iYieldChange>0</iYieldChange>
++			</YieldChanges>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>1</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>24</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>10</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>10</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<BonusTypeStructs>
++				<BonusTypeStruct>
++					<BonusType>BONUS_ALUMINUM</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>10000</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_COAL</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>10000</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_COPPER</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>10000</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_GEMS</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>10000</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>-1</iYieldChange>
++						<iYieldChange>5</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_GOLD</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>10000</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>-1</iYieldChange>
++						<iYieldChange>6</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_IRON</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>10000</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_SILVER</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>10000</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>-1</iYieldChange>
++						<iYieldChange>4</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_URANIUM</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>10000</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>3</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++			</BonusTypeStructs>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges>
++				<RouteYieldChange>
++					<RouteType>ROUTE_RAILROAD</RouteType>
++					<RouteYields>
++						<iYield>0</iYield>
++						<iYield>1</iYield>
++						<iYield>0</iYield>
++					</RouteYields>
++				</RouteYieldChange>
++			</RouteYieldChanges>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_WORKSHOP</Type>
++			<Description>TXT_KEY_IMPROVEMENT_WORKSHOP</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_WORKSHOP_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_WORKSHOP</ArtDefineTag>
++			<PrereqNatureYields>
++				<iYield>1</iYield>
++				<iYield>0</iYield>
++				<iYield>0</iYield>
++			</PrereqNatureYields>
++			<YieldChanges>
++				<iYieldChange>-1</iYieldChange>
++				<iYieldChange>1</iYieldChange>
++				<iYieldChange>0</iYieldChange>
++			</YieldChanges>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>1</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>1</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>36</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>5</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++			</TerrainMakesValids>
++			<FeatureMakesValids/>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges>
++				<TechYieldChange>
++					<PrereqTech>TECH_GUILDS</PrereqTech>
++					<TechYields>
++						<iYield>0</iYield>
++						<iYield>1</iYield>
++						<iYield>0</iYield>
++					</TechYields>
++				</TechYieldChange>
++				<TechYieldChange>
++					<PrereqTech>TECH_CHEMISTRY</PrereqTech>
++					<TechYields>
++						<iYield>0</iYield>
++						<iYield>1</iYield>
++						<iYield>0</iYield>
++					</TechYields>
++				</TechYieldChange>
++			</TechYieldChanges>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_LUMBERMILL</Type>
++			<Description>TXT_KEY_IMPROVEMENT_LUMBERMILL</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_LUMBERMILL_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_LUMBERMILL</ArtDefineTag>
++			<YieldChanges>
++				<iYieldChange>0</iYieldChange>
++				<iYieldChange>1</iYieldChange>
++				<iYieldChange>0</iYieldChange>
++			</YieldChanges>
++			<RiverSideYieldChange>
++				<iYield>0</iYield>
++				<iYield>0</iYield>
++				<iYield>1</iYield>
++			</RiverSideYieldChange>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>1</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>48</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>5</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids>
++				<FeatureMakesValid>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<bMakesValid>1</bMakesValid>
++				</FeatureMakesValid>
++			</FeatureMakesValids>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges>
++				<RouteYieldChange>
++					<RouteType>ROUTE_RAILROAD</RouteType>
++					<RouteYields>
++						<iYield>0</iYield>
++						<iYield>1</iYield>
++						<iYield>0</iYield>
++					</RouteYields>
++				</RouteYieldChange>
++			</RouteYieldChanges>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_WINDMILL</Type>
++			<Description>TXT_KEY_IMPROVEMENT_WINDMILL</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_WINDMILL_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_WINDMILL</ArtDefineTag>
++			<YieldChanges>
++				<iYieldChange>1</iYieldChange>
++				<iYieldChange>0</iYieldChange>
++				<iYieldChange>1</iYieldChange>
++			</YieldChanges>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>1</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>30</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>5</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges>
++				<TechYieldChange>
++					<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
++					<TechYields>
++						<iYield>0</iYield>
++						<iYield>1</iYield>
++						<iYield>0</iYield>
++					</TechYields>
++				</TechYieldChange>
++				<TechYieldChange>
++					<PrereqTech>TECH_ELECTRICITY</PrereqTech>
++					<TechYields>
++						<iYield>0</iYield>
++						<iYield>0</iYield>
++						<iYield>1</iYield>
++					</TechYields>
++				</TechYieldChange>
++			</TechYieldChanges>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_WATERMILL</Type>
++			<Description>TXT_KEY_IMPROVEMENT_WATERMILL</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_WATERMILL_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_WATERMILL</ArtDefineTag>
++			<YieldChanges>
++				<iYieldChange>0</iYieldChange>
++				<iYieldChange>1</iYieldChange>
++				<iYieldChange>0</iYieldChange>
++			</YieldChanges>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>1</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>1</bRequiresFlatlands>
++			<bRequiresRiverSide>1</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>48</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>5</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges>
++				<TechYieldChange>
++					<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
++					<TechYields>
++						<iYield>0</iYield>
++						<iYield>1</iYield>
++						<iYield>0</iYield>
++					</TechYields>
++				</TechYieldChange>
++				<TechYieldChange>
++					<PrereqTech>TECH_ELECTRICITY</PrereqTech>
++					<TechYields>
++						<iYield>0</iYield>
++						<iYield>0</iYield>
++						<iYield>2</iYield>
++					</TechYields>
++				</TechYieldChange>
++			</TechYieldChanges>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_PLANTATION</Type>
++			<Description>TXT_KEY_IMPROVEMENT_PLANTATION</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_PLANTATION_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_PLANTATION</ArtDefineTag>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<bUseLSystem>1</bUseLSystem>
++			<iAdvancedStartCost>30</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>5</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<BonusTypeStructs>
++				<BonusTypeStruct>
++					<BonusType>BONUS_BANANA</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>2</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_DYE</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>4</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_INCENSE</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>5</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_SILK</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>3</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_SPICES</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>1</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>2</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_SUGAR</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>1</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++			</BonusTypeStructs>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_QUARRY</Type>
++			<Description>TXT_KEY_IMPROVEMENT_QUARRY</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_QUARRY_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_QUARRY</ArtDefineTag>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>36</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>10</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>5</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<BonusTypeStructs>
++				<BonusTypeStruct>
++					<BonusType>BONUS_MARBLE</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++						<iYieldChange>2</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_STONE</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>2</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++			</BonusTypeStructs>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges>
++				<RouteYieldChange>
++					<RouteType>ROUTE_RAILROAD</RouteType>
++					<RouteYields>
++						<iYield>0</iYield>
++						<iYield>1</iYield>
++						<iYield>0</iYield>
++					</RouteYields>
++				</RouteYieldChange>
++			</RouteYieldChanges>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_PASTURE</Type>
++			<Description>TXT_KEY_IMPROVEMENT_PASTURE</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_PASTURE_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_PASTURE</ArtDefineTag>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>24</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>5</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<BonusTypeStructs>
++				<BonusTypeStruct>
++					<BonusType>BONUS_COW</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>1</iYieldChange>
++						<iYieldChange>2</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_HORSE</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>2</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_PIG</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>3</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_SHEEP</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>2</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++			</BonusTypeStructs>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_CAMP</Type>
++			<Description>TXT_KEY_IMPROVEMENT_CAMP</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_CAMP_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_CAMP</ArtDefineTag>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>24</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>5</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<BonusTypeStructs>
++				<BonusTypeStruct>
++					<BonusType>BONUS_DEER</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>2</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_FUR</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>3</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++				<BonusTypeStruct>
++					<BonusType>BONUS_IVORY</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++			</BonusTypeStructs>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_WELL</Type>
++			<Description>TXT_KEY_IMPROVEMENT_WELL</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_WELL_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_WELL</ArtDefineTag>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>60</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>10</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>10</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<BonusTypeStructs>
++				<BonusTypeStruct>
++					<BonusType>BONUS_OIL</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>2</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++			</BonusTypeStructs>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_OFFSHORE_PLATFORM</Type>
++			<Description>TXT_KEY_IMPROVEMENT_OFFSHORE_PLATFORM</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_OFFSHORE_PLATFORM_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_OFFSHORE_PLATFORM</ArtDefineTag>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>1</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<iAdvancedStartCost>30</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>10</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>10</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<BonusTypeStructs>
++				<BonusTypeStruct>
++					<BonusType>BONUS_OIL</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>2</iYieldChange>
++						<iYieldChange>1</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++			</BonusTypeStructs>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_WINERY</Type>
++			<Description>TXT_KEY_IMPROVEMENT_WINERY</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_WINERY_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_WINERY</ArtDefineTag>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<bUseLSystem>1</bUseLSystem>
++			<iAdvancedStartCost>30</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>10</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids/>
++			<BonusTypeStructs>
++				<BonusTypeStruct>
++					<BonusType>BONUS_WINE</BonusType>
++					<bBonusMakesValid>1</bBonusMakesValid>
++					<bBonusTrade>1</bBonusTrade>
++					<iDiscoverRand>0</iDiscoverRand>
++					<YieldChanges>
++						<iYieldChange>1</iYieldChange>
++						<iYieldChange>0</iYieldChange>
++						<iYieldChange>2</iYieldChange>
++					</YieldChanges>
++				</BonusTypeStruct>
++			</BonusTypeStructs>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_COTTAGE</Type>
++			<Description>TXT_KEY_IMPROVEMENT_COTTAGE</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_COTTAGE_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_COTTAGE</ArtDefineTag>
++			<PrereqNatureYields>
++				<iYield>1</iYield>
++				<iYield>0</iYield>
++				<iYield>0</iYield>
++			</PrereqNatureYields>
++			<YieldChanges>
++				<iYieldChange>0</iYieldChange>
++				<iYieldChange>0</iYieldChange>
++				<iYieldChange>1</iYieldChange>
++			</YieldChanges>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>1</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<bUseLSystem>1</bUseLSystem>
++			<iAdvancedStartCost>24</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>10</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>10</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++			</TerrainMakesValids>
++			<FeatureMakesValids/>
++			<ImprovementPillage/>
++			<ImprovementUpgrade>IMPROVEMENT_HAMLET</ImprovementUpgrade>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_HAMLET</Type>
++			<Description>TXT_KEY_IMPROVEMENT_HAMLET</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_HAMLET_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_HAMLET</ArtDefineTag>
++			<YieldChanges>
++				<iYieldChange>0</iYieldChange>
++				<iYieldChange>0</iYieldChange>
++				<iYieldChange>2</iYieldChange>
++			</YieldChanges>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>1</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<bUseLSystem>1</bUseLSystem>
++			<iAdvancedStartCost>-1</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>20</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>15</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++			</TerrainMakesValids>
++			<FeatureMakesValids/>
++			<ImprovementPillage>IMPROVEMENT_COTTAGE</ImprovementPillage>
++			<ImprovementUpgrade>IMPROVEMENT_VILLAGE</ImprovementUpgrade>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_VILLAGE</Type>
++			<Description>TXT_KEY_IMPROVEMENT_VILLAGE</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_VILLAGE_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_VILLAGE</ArtDefineTag>
++			<YieldChanges>
++				<iYieldChange>0</iYieldChange>
++				<iYieldChange>0</iYieldChange>
++				<iYieldChange>3</iYieldChange>
++			</YieldChanges>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>1</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<bUseLSystem>1</bUseLSystem>
++			<iAdvancedStartCost>-1</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>40</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>20</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++			</TerrainMakesValids>
++			<FeatureMakesValids/>
++			<ImprovementPillage>IMPROVEMENT_HAMLET</ImprovementPillage>
++			<ImprovementUpgrade>IMPROVEMENT_TOWN</ImprovementUpgrade>
++			<TechYieldChanges>
++				<TechYieldChange>
++					<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
++					<TechYields>
++						<iYield>0</iYield>
++						<iYield>0</iYield>
++						<iYield>1</iYield>
++					</TechYields>
++				</TechYieldChange>
++			</TechYieldChanges>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_TOWN</Type>
++			<Description>TXT_KEY_IMPROVEMENT_TOWN</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_TOWN_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_TOWN</ArtDefineTag>
++			<YieldChanges>
++				<iYieldChange>0</iYieldChange>
++				<iYieldChange>0</iYieldChange>
++				<iYieldChange>4</iYieldChange>
++			</YieldChanges>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>1</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<bUseLSystem>1</bUseLSystem>
++			<iAdvancedStartCost>-1</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>5</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>25</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++			</TerrainMakesValids>
++			<FeatureMakesValids/>
++			<ImprovementPillage>IMPROVEMENT_VILLAGE</ImprovementPillage>
++			<ImprovementUpgrade/>
++			<TechYieldChanges>
++				<TechYieldChange>
++					<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
++					<TechYields>
++						<iYield>0</iYield>
++						<iYield>0</iYield>
++						<iYield>1</iYield>
++					</TechYields>
++				</TechYieldChange>
++			</TechYieldChanges>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_FORT</Type>
++			<Description>TXT_KEY_IMPROVEMENT_FORT</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_FORT_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_FORT</ArtDefineTag>
++			<YieldChanges/>
++			<bActsAsCity>1</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>0</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<bUseLSystem>1</bUseLSystem>
++			<iAdvancedStartCost>60</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>0</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>20</iAirBombDefense>
++			<iDefenseModifier>25</iDefenseModifier>
++			<iHappiness>0</iHappiness>
++			<iPillageGold>0</iPillageGold>
++			<bOutsideBorders>1</bOutsideBorders>
++			<TerrainMakesValids>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++				<TerrainMakesValid>
++					<TerrainType>TERRAIN_SNOW</TerrainType>
++					<bMakesValid>1</bMakesValid>
++				</TerrainMakesValid>
++			</TerrainMakesValids>
++			<FeatureMakesValids/>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++		<ImprovementInfo>
++			<Type>IMPROVEMENT_FOREST_PRESERVE</Type>
++			<Description>TXT_KEY_IMPROVEMENT_FOREST_PRESERVE</Description>
++			<Civilopedia>TXT_KEY_IMPROVEMENT_FOREST_PRESERVE_PEDIA</Civilopedia>
++			<ArtDefineTag>ART_DEF_IMPROVEMENT_FOREST_PRESERVE</ArtDefineTag>
++			<YieldChanges/>
++			<RiverSideYieldChange>
++				<iYield>0</iYield>
++				<iYield>0</iYield>
++				<iYield>1</iYield>
++			</RiverSideYieldChange>
++			<bActsAsCity>0</bActsAsCity>
++			<bHillsMakesValid>0</bHillsMakesValid>
++			<bFreshWaterMakesValid>0</bFreshWaterMakesValid>
++			<bRiverSideMakesValid>0</bRiverSideMakesValid>
++			<bNoFreshWater>0</bNoFreshWater>
++			<bRequiresFlatlands>0</bRequiresFlatlands>
++			<bRequiresRiverSide>0</bRequiresRiverSide>
++			<bRequiresIrrigation>0</bRequiresIrrigation>
++			<bCarriesIrrigation>0</bCarriesIrrigation>
++			<bRequiresFeature>1</bRequiresFeature>
++			<bWater>0</bWater>
++			<bGoody>0</bGoody>
++			<bPermanent>0</bPermanent>
++			<bUseLSystem>1</bUseLSystem>
++			<iAdvancedStartCost>48</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iTilesPerGoody>0</iTilesPerGoody>
++			<iGoodyRange>0</iGoodyRange>
++			<iFeatureGrowth>64</iFeatureGrowth>
++			<iUpgradeTime>0</iUpgradeTime>
++			<iAirBombDefense>20</iAirBombDefense>
++			<iDefenseModifier>0</iDefenseModifier>
++			<iHappiness>1</iHappiness>
++			<iPillageGold>0</iPillageGold>
++			<bOutsideBorders>0</bOutsideBorders>
++			<TerrainMakesValids/>
++			<FeatureMakesValids>
++				<FeatureMakesValid>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<bMakesValid>1</bMakesValid>
++				</FeatureMakesValid>
++				<FeatureMakesValid>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<bMakesValid>1</bMakesValid>
++				</FeatureMakesValid>
++			</FeatureMakesValids>
++			<ImprovementPillage/>
++			<ImprovementUpgrade/>
++			<TechYieldChanges/>
++			<RouteYieldChanges/>
++			<bGraphicalOnly>0</bGraphicalOnly>
++		</ImprovementInfo>
++	</ImprovementInfos>
++</Civ4ImprovementInfos>
+
+diff --git a/Assets/xml/Text/GlobalWarmingTextInfos.xml b/Assets/xml/Text/GlobalWarmingTextInfos.xml
+deleted file mode 100644
+index f73319963..000000000
+--- a/Assets/xml/Text/GlobalWarmingTextInfos.xml
++++ /dev/null
+@@ -1,76 +0,0 @@
+-<?xml version="1.0" encoding="ISO-8859-1"?>
+-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by XMLSPY 2004 Professional Ed. Release 2, Installed Multi + SMP for 3 users (Firaxis Games) -->
+-<!-- Sid Meier's Civilization 4 -->
+-<!-- Copyright Firaxis Games 2005 -->
+-<!-- -->
+-<!-- Game Text Infos -->
+-<Civ4GameText xmlns="http://www.firaxis.com">
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_NUCLEAR_WINTER_NEAR_CITY</Tag>
+-		<English>Radioactive dust fills the skies near %s1_CityName!</English>
+-		<French>*Hiver nucl�aire* Alerte ! R&#233;chauffement plan&#233;taire pr&#232;s de %s1_CityName !</French>
+-		<German>*Kernwinter* Nahe der Stadt %s1_CityName zeigen sich Auswirkungen der globalen Erw&#228;rmung!</German>
+-		<Italian>*Inverno nucleare* Gli effetti del riscaldamento globale colpiscono %s1_CityName!</Italian>
+-		<Spanish>*Invierno nuclear* El calentamiento global causa efecto cerca de %s1_CityName.</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_GAME_OPTION_RISING_SEAS</Tag>
+-		<English>Rising Seas</English>
+-		<French>Mers Er Hausse</French>
+-		<German>Steigende Meere</German>
+-		<Italian>Mari Aumentanti</Italian>
+-		<Spanish>Mares De Levantamiento</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_GAME_OPTION_RISING_SEAS_HELP</Tag>
+-		<English>Global warming can raise sea level.</English>
+-		<French>Le rechauffement global peut soulever le niveau de la mer.</French>
+-		<German>Die globale Erwarmung kann Meeresspiegel anheben.</German>
+-		<Italian>Il riscaldamento globale puo sollevare il livello del mare.</Italian>
+-		<Spanish>El calentamiento del planeta puede levantar nivel del mar.</Spanish>
+-	</TEXT>
+-	<!-- K-Mod text [[ unused tags]]
+-	<TEXT>
+-		<Tag>TXT_KEY_DOMESTIC_ADVISOR_CITY</Tag>
+-		<English>Cities</English>
+-		<French>Villes</French>
+-		<German>St�dte</German>
+-		<Italian>Citt�</Italian>
+-		<Spanish>Ciudades</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_DOMESTIC_ADVISOR_ENVIRONMENT</Tag>
+-		<English>Environment</English>
+-		<French>Environnement</French>
+-		<German>Umwelt</German>
+-		<Italian>Ambiente</Italian>
+-		<Spanish>Medio Ambiente</Spanish>
+-	</TEXT>
+-	[end of unused tags] -->
+-	<TEXT>
+-		<Tag>TXT_KEY_ENVIRONMENTAL_ADVISOR_TITLE</Tag>
+-		<English>Environmental Advisor</English>
+-		<French>Environnement</French>
+-		<German>Umwelt</German>
+-		<Italian>Ambiente</Italian>
+-		<Spanish>Medio Ambiente</Spanish>
+-	</TEXT>
+-	<!-- TODO: get translations for the following keys. -->
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_GLOBAL_WARMING_ACTIVE</Tag>
+-		<English>Worldwide pollution has reached the sustainability threshold.</English>
+-		<French>Worldwide pollution has reached the sustainability threshold.</French>
+-		<German>Worldwide pollution has reached the sustainability threshold.</German>
+-		<Italian>Worldwide pollution has reached the sustainability threshold.</Italian>
+-		<Spanish>Worldwide pollution has reached the sustainability threshold.</Spanish>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_POPUP_ENVIRONMENTAL_ADVISOR</Tag>
+-		<English>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. We have appointed an environmental advisor to provide you with further information. (See the economics screen; F2)</English>
+-		<French>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. We have appointed an environmental advisor to provide you with further information. (See the economics screen; F2)</French>
+-		<German>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. We have appointed an environmental advisor to provide you with further information. (See the economics screen; F2)</German>
+-		<Italian>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. We have appointed an environmental advisor to provide you with further information. (See the economics screen; F2)</Italian>
+-		<Spanish>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. We have appointed an environmental advisor to provide you with further information. (See the economics screen; F2)</Spanish>
+-	</TEXT>	
+-	<!-- K-Mod end -->	
+-</Civ4GameText>
+
+diff --git a/Assets/xml/buildings/CIV4BuildingInfos.xml b/Assets/xml/buildings/CIV4BuildingInfos.xml
+index 8a35515e0..617e3a916 100644
+--- a/Assets/xml/buildings/CIV4BuildingInfos.xml
++++ b/Assets/xml/buildings/CIV4BuildingInfos.xml
+@@ -23792,7 +23792,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_RADIO</PrereqTech>
++			<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25257,7 +25257,7 @@
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+ 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+-			<iGlobalSpaceProductionModifier>50</iGlobalSpaceProductionModifier>
++			<iGlobalSpaceProductionModifier>100</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+ 			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
+@@ -26958,7 +26958,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
++			<PrereqTech>TECH_MEDICINE</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -27136,7 +27136,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_MEDICINE</PrereqTech>
++			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -27314,7 +27314,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_PLASTICS</PrereqTech>
++			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -27492,7 +27492,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_COMBUSTION</PrereqTech>
++			<PrereqTech>TECH_STEEL</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -28026,9 +28026,9 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
++			<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_CORPORATION</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -28203,7 +28203,7 @@
+ 			<VictoryPrereq>VICTORY_DIPLOMATIC</VictoryPrereq>
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
+-			<ObsoleteTech>TECH_RADIO</ObsoleteTech>
++			<ObsoleteTech>TECH_MASS_MEDIA</ObsoleteTech>
+ 			<PrereqTech>TECH_THEOLOGY</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=80826

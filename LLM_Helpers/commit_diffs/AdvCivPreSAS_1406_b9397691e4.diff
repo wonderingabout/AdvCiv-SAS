@@ -1,0 +1,2223 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1406
+# Commit: b9397691e4d045403bce7d920fa14b401c8c4448
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 08c4a24a42a6ce25a4076848a3334de7fa9006c5
+# Title: AI contacts human players to sue for peace or capitulate
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+56	28	Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+1	1	Assets/xml/Text/CIV4GameText_advc.008d.xml
+2	11	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvDeal.cpp
+7	1	CvGameCoreDLL/CvDiploParameters.cpp
+5	3	CvGameCoreDLL/CvEnums.h
+16	41	CvGameCoreDLL/CvGame.cpp
+3	9	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	2	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvGlobals.cpp
+158	81	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlayer.h
+222	200	CvGameCoreDLL/CvPlayerAI.cpp
+17	7	CvGameCoreDLL/CvPlayerAI.h
+11	8	CvGameCoreDLL/CvTeam.cpp
+8	4	CvGameCoreDLL/CvTeam.h
+140	79	CvGameCoreDLL/WarAndPeaceAI.cpp
+-	-	manual_0.94d.odt
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+index 745a44607..d3af11f47 100644
+--- a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -1002,8 +1002,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>12</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -1662,8 +1663,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -2314,8 +2316,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -3025,8 +3028,9 @@
+ 					<iContactDelay>20</iContactDelay>
+ 				</ContactDelay>
+ 				<ContactDelay>
++					<!-- advc.134a: was 10 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactDelay>10</iContactDelay>
++					<iContactDelay>15</iContactDelay>
+ 				</ContactDelay>
+ 				<ContactDelay>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -4259,8 +4263,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -4903,8 +4908,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -6854,8 +6860,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -8159,8 +8166,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -9455,8 +9463,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -9513,8 +9522,9 @@
+ 					<iContactDelay>20</iContactDelay>
+ 				</ContactDelay>
+ 				<ContactDelay>
++					<!-- advc.134a: was 10 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactDelay>10</iContactDelay>
++					<iContactDelay>5</iContactDelay>
+ 				</ContactDelay>
+ 				<ContactDelay>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -11363,8 +11373,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -12656,8 +12667,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>12</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -13312,8 +13324,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>12</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -14626,8 +14639,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>12</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -17225,8 +17239,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -17873,8 +17888,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -18517,8 +18533,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>12</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -21755,8 +21772,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>12</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -23059,8 +23077,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -23720,8 +23739,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -24370,8 +24390,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -26330,8 +26351,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -27679,8 +27701,9 @@
+ 					<iContactDelay>20</iContactDelay>
+ 				</ContactDelay>
+ 				<ContactDelay>
++					<!-- advc.134a: was 10 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactDelay>10</iContactDelay>
++					<iContactDelay>15</iContactDelay>
+ 				</ContactDelay>
+ 				<ContactDelay>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -29579,8 +29602,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -30283,8 +30307,9 @@
+ 					<iContactDelay>20</iContactDelay>
+ 				</ContactDelay>
+ 				<ContactDelay>
++					<!-- advc.134a: was 10 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactDelay>10</iContactDelay>
++					<iContactDelay>15</iContactDelay>
+ 				</ContactDelay>
+ 				<ContactDelay>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -31522,8 +31547,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -32176,8 +32202,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+@@ -33498,8 +33525,9 @@
+ 					<iContactRand>80</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
++					<!-- advc.134a: was 20 -->
+ 					<ContactType>CONTACT_PEACE_TREATY</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>15</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_TRADE_TECH</ContactType>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index 5fd6432b2..eabca8d1e 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -269,7 +269,7 @@
+ 	<Spanish>(K-Mod) Don't panic if the city screen shows a positive revolt probability: Cities don't flip to a new owner until the third revolt.</Spanish>
+ </TEXT>
+ 
+-<!-- advc.026 -->
++<!-- advc.026, advc.134a -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_11</Tag>
+ 	<English>(K-Mod) If a rival proposes a trade, it could be a one-time offer - don't negotiate without considering the initial proposal. You can consult the advisor screens before you decide.</English>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6c2c8e939..a8c919c02 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2790,7 +2790,6 @@ void CvCityAI::AI_chooseProduction()
+ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAITypes* peBestUnitAI)
+ {
+ 	CvArea* pWaterArea;
+-	int aiUnitAIVal[NUM_UNITAI_TYPES];
+ 	UnitTypes eUnit;
+ 	UnitTypes eBestUnit;
+ 	bool bWarPlan;
+@@ -2849,10 +2848,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 		iCoastalCities = kOwner.countNumCoastalCitiesByArea(pWaterArea);
+ 	}
+ 
+-	for (iI = 0; iI < NUM_UNITAI_TYPES; iI++)
+-	{
+-		aiUnitAIVal[iI] = 0;
+-	}
++	int aiUnitAIVal[NUM_UNITAI_TYPES] = { 0 };
+ 
+ 	if (!bFinancialTrouble && ((bPrimaryArea) ? (kOwner.findBestFoundValue() > 0) : (area()->getBestFoundValue(getOwnerINLINE()) > 0)))
+ 	{
+@@ -9874,14 +9870,9 @@ bool CvCityAI::AI_foodAvailable(int iExtra) const
+ {
+ 	PROFILE_FUNC();
+ 
+-	bool abPlotAvailable[NUM_CITY_PLOTS];
+ 	int iI;
+ 	int iFoodCount = 0;
+-
+-	for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
+-	{
+-		abPlotAvailable[iI] = false;
+-	}
++	bool abPlotAvailable[NUM_CITY_PLOTS] = { false };
+ 
+ 	for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index e8f6dcd4a..435b31583 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -196,7 +196,7 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 	/*  <advc.130p> MakePeace calls moved down. Want to count trade value (partially)
+ 		for peace deals, and I don't think AI_dealValue will work correctly when no
+ 		longer at war. */
+-	bool const bPeace = atWar(eFirstTeam, eSecondTeam);
++	bool const bPeace = ::atWar(eFirstTeam, eSecondTeam);
+ 	bool bUpd = false;
+ 	/*  Calls to changePeacetimeTradeValue moved into a subroutine to avoid
+ 		code duplication */
+@@ -974,7 +974,7 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
+ 			// <advc.104i> Similar to code in CvTeam::makeUnwillingToTalk
+ 			if(attacked.AI_getMemoryCount(eFromPlayer, MEMORY_DECLARED_WAR_RECENT) <= 0)
+ 				attacked.AI_changeMemoryCount(eFromPlayer, MEMORY_DECLARED_WAR_RECENT, 1);
+-			if(TEAMREF(eToPlayer).isAtWar(attacked.getTeam()) && attacked.
++			if(::atWar(TEAMID(eToPlayer), attacked.getTeam()) && attacked.
+ 					AI_getMemoryCount(eToPlayer, MEMORY_DECLARED_WAR_RECENT) <= 0)
+ 				attacked.AI_changeMemoryCount(eToPlayer, MEMORY_DECLARED_WAR_RECENT, 1);
+ 			// </advc.104i>
+
+diff --git a/CvGameCoreDLL/CvDiploParameters.cpp b/CvGameCoreDLL/CvDiploParameters.cpp
+index 217eaee8c..8fb2ce1e4 100644
+--- a/CvGameCoreDLL/CvDiploParameters.cpp
++++ b/CvGameCoreDLL/CvDiploParameters.cpp
+@@ -28,7 +28,13 @@ void CvDiploParameters::setWhoTalkingTo(PlayerTypes eWhoTalkingTo)
+ }
+ 
+ PlayerTypes CvDiploParameters::getWhoTalkingTo() const
+-{
++{	/*  <advc.134a> When checking a peace offer, the EXE calls this function
++		shortly before an (erroneous) at-war check. Tell the recipient of the offer
++		to feign peace. */
++	CvTeam& kActiveTeam = GET_TEAM(GC.getGameINLINE().getActiveTeam());
++	if(kActiveTeam.isPeaceOfferStage(1, TEAMID(m_eWhoTalkingTo)))
++		kActiveTeam.advancePeaceOfferStage(TEAMID(m_eWhoTalkingTo));
++	// </advc.134a>
+ 	return m_eWhoTalkingTo;
+ }
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index fa192fe5c..eea55c371 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1872,9 +1872,11 @@ enum TradeableItems						// Exposed to Python
+ 	TRADE_PEACE_TREATY,
+ 
+ #ifdef _USRDLL
+-	NUM_BASIC_ITEMS,
+-
+-	TRADE_TECHNOLOGIES = NUM_BASIC_ITEMS,
++	/*NUM_BASIC_ITEMS,
++	TRADE_TECHNOLOGIES = NUM_BASIC_ITEMS,*/
++	// advc.003: Switch this so that TRADE_TECHNOLOGIES is shown in Visual Studio
++	TRADE_TECHNOLOGIES,
++	NUM_BASIC_ITEMS = TRADE_TECHNOLOGIES,
+ #else
+ 	TRADE_TECHNOLOGIES,
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 3602f8820..d6d03498b 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2592,36 +2592,24 @@ void CvGame::update()
+ 
+ void CvGame::updateScore(bool bForce)
+ {
+-	bool abPlayerScored[MAX_CIV_PLAYERS];
+-	bool abTeamScored[MAX_CIV_TEAMS];
+-	int iScore;
+-	int iBestScore;
+-	PlayerTypes eBestPlayer;
+-	TeamTypes eBestTeam;
+ 	int iI, iJ, iK;
+ 
+-	if (!isScoreDirty() && !bForce)
+-	{
++	if(!isScoreDirty() && !bForce)
+ 		return;
+-	}
+-
+ 	setScoreDirty(false);
+ 
+-	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+-	{
+-		abPlayerScored[iI] = false;
+-	}
++	bool abPlayerScored[MAX_CIV_PLAYERS] = { false };
+ 	std::vector<PlayerTypes> updateAttitude; // advc.001
+ 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+-		iBestScore = MIN_INT;
+-		eBestPlayer = NO_PLAYER;
++		int iBestScore = MIN_INT;
++		PlayerTypes eBestPlayer = NO_PLAYER;
+ 
+ 		for (iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
+ 		{
+ 			if (!abPlayerScored[iJ])
+ 			{
+-				iScore = GET_PLAYER((PlayerTypes)iJ).calculateScore(false);
++				int iScore = GET_PLAYER((PlayerTypes)iJ).calculateScore(false);
+ 
+ 				if (iScore >= iBestScore)
+ 				{
+@@ -2655,21 +2643,18 @@ void CvGame::updateScore(bool bForce)
+ 				civ.AI_updateAttitudeCache();
+ 		}
+ 	} // </advc.001>
+-	for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+-	{
+-		abTeamScored[iI] = false;
+-	}
+ 
++	bool abTeamScored[MAX_CIV_TEAMS] = { false };
+ 	for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 	{
+-		iBestScore = MIN_INT;
+-		eBestTeam = NO_TEAM;
++		int iBestScore = MIN_INT;
++		TeamTypes eBestTeam = NO_TEAM;
+ 
+ 		for (iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
+ 		{
+ 			if (!abTeamScored[iJ])
+ 			{
+-				iScore = 0;
++				int iScore = 0;
+ 
+ 				for (iK = 0; iK < MAX_CIV_PLAYERS; iK++)
+ 				{
+@@ -2699,9 +2684,7 @@ void CvGame::updatePlotGroups()
+ {
+ 	PROFILE_FUNC();
+ 
+-	int iI;
+-
+-	for (iI = 0; iI < MAX_PLAYERS; iI++)
++	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 		{
+@@ -2713,9 +2696,7 @@ void CvGame::updatePlotGroups()
+ 
+ void CvGame::updateBuildingCommerce()
+ {
+-	int iI;
+-
+-	for (iI = 0; iI < MAX_PLAYERS; iI++)
++	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 		{
+@@ -2727,9 +2708,7 @@ void CvGame::updateBuildingCommerce()
+ 
+ void CvGame::updateCitySight(bool bIncrement)
+ {
+-	int iI;
+-
+-	for (iI = 0; iI < MAX_PLAYERS; iI++)
++	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 		{
+@@ -2743,9 +2722,7 @@ void CvGame::updateCitySight(bool bIncrement)
+ 
+ void CvGame::updateTradeRoutes()
+ {
+-	int iI;
+-
+-	for (iI = 0; iI < MAX_PLAYERS; iI++)
++	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 		{
+@@ -2771,8 +2748,8 @@ void CvGame::updateGwPercentAnger()
+ 		iGlobalPollution = calculateGlobalPollution();
+ 		iGwSeverityRating = calculateGwSeverityRating();
+ 		iGlobalDefence = calculateGwLandDefence(NO_PLAYER);
+-	}
+-
++	} // advc.003: Ensure initialization
++	else iGlobalPollution = iGwSeverityRating = iGlobalDefence = -1;
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+ 		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
+@@ -2802,14 +2779,12 @@ void CvGame::updateGwPercentAnger()
+ 
+ void CvGame::testExtendedGame()
+ {
+-	int iI;
+-
+ 	if (getGameState() != GAMESTATE_OVER)
+ 	{
+ 		return;
+ 	}
+ 
+-	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 		{
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index aa72f74af..4233d0f09 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -344,17 +344,11 @@ float directionAngle( DirectionTypes eDirection )
+ 
+ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
+ {
+-	if ((eTeamA == NO_TEAM) || (eTeamB == NO_TEAM))
+-	{
++	if(eTeamA == NO_TEAM || eTeamB == NO_TEAM)
+ 		return false;
+-	}
+-
+-	// advc.134a: Prudent assertions, but they're in the way
+-//	FAssert(GET_TEAM(eTeamA).isAtWar(eTeamB) == GET_TEAM(eTeamB).isAtWar(eTeamA));
+-//	FAssert((eTeamA != eTeamB) || !(GET_TEAM(eTeamA).isAtWar(eTeamB)));
+ 
+-	// advc.134a: Switched roles make things easier
+-	return GET_TEAM(eTeamB).isAtWar(eTeamA);
++	// advc.134a: Use internal function. (And removed some assertions.)
++	return GET_TEAM(eTeamA).isAtWarInternal(eTeamB);
+ }
+ 
+ bool isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam)
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index ca942047c..fbe0bcd6b 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -16423,6 +16423,7 @@ void CvGameTextMgr::parseLeaderHeadHelp(CvWStringBuffer &szBuffer, PlayerTypes e
+ 			&& GC.altKey())
+ 	{
+ 		szBuffer.append(CvWString::format(SETCOLR SEPARATOR NEWLINE, TEXT_COLOR("COLOR_LIGHT_GREY")));
++		szBuffer.append(CvWString::format(L"id=%d\n", eThisPlayer)); // advc.007
+ 		CvPlayerAI::CvFoundSettings kFoundSet(kPlayer, false);
+ 
+ 		bool bFirst = true;
+@@ -16487,8 +16488,7 @@ void CvGameTextMgr::parseLeaderHeadHelp(CvWStringBuffer &szBuffer, PlayerTypes e
+ 			getOtherRelationsString(szBuffer, eThisPlayer, eOtherPlayer);
+ 		}
+ 	}
+-	else
+-		getWarWearinessString(szBuffer, eThisPlayer, NO_PLAYER); // total war weariness
++	else getWarWearinessString(szBuffer, eThisPlayer, NO_PLAYER); // total war weariness
+ }
+ 
+ // <advc.152>
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 54ebda4b4..0dfbf01e8 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -3723,7 +3723,7 @@ bool CvGlobals::isCachingDone() const {
+ //
+ 
+ int CvGlobals::getInfoTypeForString(const char* szType, bool hideAssert) const
+-	{
++{
+ 	FAssertMsg(szType, "null info type string");
+ 	InfosMap::const_iterator it = m_infosMap.find(szType);
+ 	if (it!=m_infosMap.end())
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 547ea557d..f4d0867ce 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4569,18 +4569,16 @@ bool CvPlayer::canContact(PlayerTypes ePlayer) const
+ 		return false;
+ 	}
+ 
+-	if (getTeam() != GET_PLAYER(ePlayer).getTeam())
++	if (getTeam() != TEAMID(ePlayer))
+ 	{
+-		if (!(GET_TEAM(getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam())))
++		if (!GET_TEAM(getTeam()).isHasMet(TEAMID(ePlayer)))
+ 		{
+ 			return false;
+ 		}
+ 
+-		/* advc.134a: Switched the two conditions; no functional change
+-		   (except when expecting an AI peace offer) */
+-		if (!(GET_TEAM(getTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam())))
++		if (::atWar(getTeam(), TEAMID(ePlayer)))
+ 		{
+-			if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
++			if (!GET_TEAM(getTeam()).canChangeWarPeace(TEAMID(ePlayer)))
+ 			{
+ 				return false;
+ 			}
+@@ -4974,13 +4972,13 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 	switch (item.m_eItemType)
+ 	{
+ 	case TRADE_TECHNOLOGIES:
+-		if (!(GC.getGameINLINE().isOption(GAMEOPTION_NO_TECH_TRADING)))
++		if (!GC.getGameINLINE().isOption(GAMEOPTION_NO_TECH_TRADING))
+ 		{
+-			if (GC.getTechInfo((TechTypes)(item.m_iData)).isTrade())
++			if (GC.getTechInfo((TechTypes)item.m_iData).isTrade())
+ 			{
+-				if (ourTeam.isHasTech((TechTypes)(item.m_iData)) && !(ourTeam.isNoTradeTech((TechTypes)(item.m_iData))))
++				if (ourTeam.isHasTech((TechTypes)item.m_iData) && !ourTeam.isNoTradeTech((TechTypes)(item.m_iData)))
+ 				{
+-					if (!theirTeam.isHasTech((TechTypes)(item.m_iData)))
++					if (!theirTeam.isHasTech((TechTypes)item.m_iData))
+ 					{
+ 						//if (GET_PLAYER(eWhoTo).isHuman() || (GET_PLAYER(eWhoTo).getCurrentResearch() != item.m_iData))
+ 						{
+@@ -5046,8 +5044,9 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 			};
+ 			for(int i = 0; i < iNumPrevOwners; i++) {
+ 				if(aePrevOwners[i] != NO_PLAYER &&
+-						TEAMREF(aePrevOwners[i]).isAtWar(getTeam()) &&
+-						!TEAMREF(aePrevOwners[i]).isAtWar(TEAMID(eWhoTo))) {
++						// advc.134a: Avoid calling CvTeam::isAtWar in canTradeItem
++						::atWar(TEAMID(aePrevOwners[i]), getTeam()) &&
++						!::atWar(TEAMID(aePrevOwners[i]),TEAMID(eWhoTo))) {
+ 					bValid = false;
+ 					break;
+ 				}
+@@ -5056,7 +5055,8 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 				break;
+ 			CvPlot const& cityPlot = *pCityTraded->plot();
+ 			// Can't trade an endangered city to a third party
+-			if(!TEAMREF(eWhoTo).isAtWar(getTeam()) && cityPlot.isVisibleEnemyCityAttacker(getID()))
++			if(!::atWar(TEAMID(eWhoTo), getTeam()) && // advc.134a: Not: CvTeam::isAtWar
++					cityPlot.isVisibleEnemyCityAttacker(getID()))
+ 				break;
+ 			if(cityPlot.calculateCulturePercent(eWhoTo) < GC.getCITY_TRADE_CULTURE_THRESH())
+ 				break;
+@@ -5115,13 +5115,13 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 			if (kMasterTeam.isVassalStateTrading()) // the master must possess the tech
+ 			{
+ 				if (!kVassalTeam.isAVassal() && !kMasterTeam.isAVassal() && getTeam() != GET_PLAYER(eWhoTo).getTeam())
+-				{
+-					if ((kMasterTeam.isAtWar(getTeam()) || item.m_iData == 1) && item.m_eItemType == TRADE_SURRENDER)
++				{	// advc.134a: Avoid calling CvTeam::isAtWar in canTradeItem
++					bool bWar = ::atWar(kMasterTeam.getID(), getTeam());
++					if ((bWar || item.m_iData == 1) && item.m_eItemType == TRADE_SURRENDER)
+ 					{
+ 						return true;
+ 					}
+-
+-					if (!kMasterTeam.isAtWar(getTeam()) && item.m_eItemType == TRADE_VASSAL)
++					if (!bWar && item.m_eItemType == TRADE_VASSAL)
+ 					{
+ 						return true;
+ 					}
+@@ -5131,13 +5131,14 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 		break;
+ 
+ 	case TRADE_PEACE:
+-		if (!(ourTeam.isHuman()))
++		if (!ourTeam.isHuman())
+ 		{
+-			if (!(ourTeam.isAVassal()))
++			if (!ourTeam.isAVassal())
+ 			{
+-				if (ourTeam.isHasMet((TeamTypes)(item.m_iData)) && theirTeam.isHasMet((TeamTypes)(item.m_iData)))
++				if (ourTeam.isHasMet((TeamTypes)item.m_iData) &&
++						theirTeam.isHasMet((TeamTypes)item.m_iData))
+ 				{
+-					if (atWar(getTeam(), ((TeamTypes)(item.m_iData))))
++					if (::atWar(getTeam(), (TeamTypes)item.m_iData))
+ 					{
+ 						return true;
+ 					}
+@@ -5147,19 +5148,20 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 		break;
+ 
+ 	case TRADE_WAR:
+-		if (!(ourTeam.isHuman()))
++		if (!ourTeam.isHuman())
+ 		{
+-			if (!(ourTeam.isAVassal()))
++			if (!ourTeam.isAVassal())
+ 			{
+ 				if (!GET_TEAM((TeamTypes)item.m_iData).isAVassal())
+ 				{
+-					if (ourTeam.isHasMet((TeamTypes)item.m_iData) && theirTeam.isHasMet((TeamTypes)item.m_iData))
++					if (ourTeam.isHasMet((TeamTypes)item.m_iData) && 
++							theirTeam.isHasMet((TeamTypes)item.m_iData))
+ 					{
+ 						if (ourTeam.canDeclareWar((TeamTypes)item.m_iData))
+ 						{
+ 							//return true;
+-							// advc.100: Replacing the line above
+-							return !ourTeam.isAtWar(theirTeam.getID());
++							// advc.100: Replacing the line above (advc.134a: Don't call CvTeam::isAtWar)
++							return !::atWar(ourTeam.getID(), theirTeam.getID());
+ 						}
+ 					}
+ 				}
+@@ -5213,7 +5215,7 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 					   checked here already, plus some clauses that I've
+ 					   added there. */ || (
+ 					(TEAMREF(getID()).isVassal(theirTeam.getID()) ||
+-			        atWar(getTeam(), theirTeam.getID()))
++			        ::atWar(getTeam(), theirTeam.getID()))
+ 					&& GET_PLAYER(eWhoTo).canForceCivics(getID(),
+ 					(CivicTypes)(item.m_iData))
+ 					) // </advc.132>
+@@ -5251,7 +5253,7 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 			if (GET_PLAYER(eWhoTo).getStateReligion() == ((ReligionTypes)item.m_iData)
+ 				    /* <advc.132> Same thing as for civics above. */ || (
+ 					(TEAMREF(getID()).isVassal(theirTeam.getID()) ||
+-			        atWar(getTeam(), theirTeam.getID()))
++			        ::atWar(getTeam(), theirTeam.getID()))
+ 					&& GET_PLAYER(eWhoTo).canForceReligion(getID(),
+ 					(ReligionTypes)item.m_iData)
+ 					) // </advc.132>
+@@ -5268,7 +5270,7 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 	case TRADE_OPEN_BORDERS:
+ 		if (getTeam() != theirTeam.getID())
+ 		{
+-			if (!atWar(getTeam(), theirTeam.getID()))
++			if (!::atWar(getTeam(), theirTeam.getID()))
+ 			{
+ 				if (!ourTeam.isOpenBorders(theirTeam.getID()))
+ 				{
+@@ -5286,7 +5288,7 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 		{
+ 			if (getTeam() != theirTeam.getID() && !theirTeam.isVassal(getTeam()))
+ 			{
+-				if (!atWar(getTeam(), theirTeam.getID()))
++				if (!::atWar(getTeam(), theirTeam.getID()))
+ 				{
+ 					if (!ourTeam.isDefensivePact(theirTeam.getID()))
+ 					{
+@@ -5321,7 +5323,7 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 		{
+ 			if (getTeam() != theirTeam.getID() && !theirTeam.isVassal(getTeam()))
+ 			{
+-				if (!atWar(getTeam(), theirTeam.getID()))
++				if (!::atWar(getTeam(), theirTeam.getID()))
+ 				{
+ 					if (ourTeam.isPermanentAllianceTrading() || theirTeam.isPermanentAllianceTrading())
+ 					{
+@@ -11778,53 +11780,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 				CyArgsList pyArgs;
+ 				pyArgs.add(GC.getGame().getTurnSlice());
+ 				CvEventReporter::getInstance().genericEvent("gameUpdate", pyArgs.makeFunctionArgs());
+-				/*  <advc.001e> EXE fails to double-check worst enemy (can change
+-					in between sending and receiving). */
+-				for(CvDiploQueue::iterator it = m_listDiplomacy.begin();
+-						it != m_listDiplomacy.end(); ++it) {
+-					CvDiploParameters* pDiplo = *it;
+-					// Can be NULL!
+-					CLLNode<TradeData>* tdn = pDiplo->getOurOfferList().head();
+-					if(pDiplo->getDiploComment() == GC.getInfoTypeForString(
+-							"AI_DIPLOCOMMENT_STOP_TRADING") &&
+-							pDiplo->getData() != TEAMREF(pDiplo->getWhoTalkingTo()).
+-							AI_getWorstEnemy()) {
+-						/*  Have to delete it here b/c the EXE will no longer
+-							have a pointer to it */
+-						delete pDiplo;
+-						m_listDiplomacy.remove(pDiplo);
+-						break;
+-					}
+-					// AI may send offer for DP and then receive a DoW
+-					else if(tdn != NULL && tdn->m_data.m_eItemType ==
+-							TRADE_DEFENSIVE_PACT &&
+-							!GET_TEAM(getTeam()).allWarsShared(
+-							TEAMID(pDiplo->getWhoTalkingTo()))) {
+-						delete pDiplo;
+-						m_listDiplomacy.remove(pDiplo);
+-						break;
+-					} // </advc.001e>
+-				}
+-				/*  <advc.134a> The EXE also gets the checks for peace (and surrender)
+-					wrong. Note that these checks are done while displaying the
+-					diplo popup (or right before), so it doesn't help to reinsert
+-					the offer into m_listDiplomacy. */
+-				if(!getWPAI.isEnabled()) { // Don't try to fix it when UWAI enabled
+-					for(CvDiploQueue::iterator it = m_listDiplomacy.begin();
+-							it != m_listDiplomacy.end(); ++it) {
+-						CvDiploParameters* pDiplo = *it;
+-						if(pDiplo->getDiploComment() != GC.getInfoTypeForString(
+-							/*  Surrender uses that comment too, but I've disabled
+-								surrender offers in CvPlayerAI::AI_doPeace, so that
+-								isn't a problem. */
+-								"AI_DIPLOCOMMENT_OFFER_PEACE"))
+-							continue;
+-						PlayerTypes fromId = pDiplo->getWhoTalkingTo();
+-						FAssert(GET_PLAYER(fromId).AI_willOfferPeace(getID()));
+-						GET_TEAM(getTeam()).advancePeaceOfferStage(TEAMID(fromId));
+-						break; // This implementation works for 1 peace offer per turn
+-					}
+-				}
++				validateOffers(); // advc.001e
+ 				postProcessBeginTurnEvents();
+ 			}
+ 		  } // advc.706
+@@ -18797,9 +18753,13 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 
+ 	pStream->Read(&m_iPopRushHurryCount);
+ 	pStream->Read(&m_iInflationModifier);
+-	// <advc.003>
++	CvGame& g = GC.getGameINLINE();
++	// <advc.134a>
++	if(isBarbarian()) // I.e. when (pretty much?) everything has been loaded
++		GET_PLAYER(g.getActivePlayer()).validateOffers();
++	// </advc.134a>
+ 	if(!isAlive())
+-		return; // </advc.003>
++		return; // advc.003
+ 	// <advc.210>
+ 	warTradeAlert.init(getID()); // advc.210a
+ 	revoltAlert.init(getID()); // advc.210b
+@@ -18807,7 +18767,6 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	// </advc.210>
+ 	/*  <advc.706> Loading into retirement. Can't do this in RiseFall::read b/c
+ 		CvPlayer::reset has to be through first. */
+-	CvGame& g = GC.getGameINLINE();
+ 	if(g.isOption(GAMEOPTION_RISE_FALL) && g.getRiseFall().hasRetired())
+ 		g.getRiseFall().retire(); // </advc.706>
+ 	// <advc.908a>
+@@ -21424,6 +21383,124 @@ void CvPlayer::doEvents()
+ 	}
+ }
+ 
++/*  advc.001e: The EXE is supposed to double-check all AI-to-human offers at the
++	start of the human turn, i.e. just before displaying them. This function
++	addresses errors and omissions in the EXE code. */
++void CvPlayer::validateOffers() {
++
++	bool bDone = false;
++	while(!bDone && !m_listDiplomacy.empty()) {
++		for(CvDiploQueue::iterator it = m_listDiplomacy.begin(); it != m_listDiplomacy.end(); ++it) {
++			CvDiploParameters* pDiplo = *it;
++			CLLNode<TradeData>* tdn = pDiplo->getOurOfferList().head(); // Can be NULL!
++			// Worst enemy may have changed
++			if(pDiplo->getDiploComment() == GC.getInfoTypeForString("AI_DIPLOCOMMENT_STOP_TRADING") &&
++					pDiplo->getData() != TEAMREF(pDiplo->getWhoTalkingTo()).AI_getWorstEnemy()) {
++				CvPlayerAI& who = GET_PLAYER(pDiplo->getWhoTalkingTo());
++				/*  Recipient hasn't been contacted after all. Ideally, this should
++					also be done for any contact attempts that the EXE cancels, but
++					it's difficult to identify these here. */
++				who.AI_changeContactTimer(getID(), CONTACT_STOP_TRADING,
++						-who.AI_getContactTimer(getID(), CONTACT_STOP_TRADING));
++				// Have to delete it here b/c the EXE will no longer have a pointer to it
++				m_listDiplomacy.remove(pDiplo);
++				delete pDiplo;
++				bDone = false;
++				break;
++			}
++			// AI may send offer for DP and then receive a DoW
++			else if(tdn != NULL && tdn->m_data.m_eItemType == TRADE_DEFENSIVE_PACT &&
++					!GET_TEAM(getTeam()).allWarsShared(TEAMID(pDiplo->getWhoTalkingTo()))) {
++				CvPlayerAI& who = GET_PLAYER(pDiplo->getWhoTalkingTo());
++				who.AI_changeContactTimer(getID(), CONTACT_DEFENSIVE_PACT,
++						-who.AI_getContactTimer(getID(), CONTACT_DEFENSIVE_PACT));
++				m_listDiplomacy.remove(pDiplo);
++				delete pDiplo;
++				bDone = false;
++				break;
++			}
++			bDone = true;
++		}
++	}
++	/*  <advc.134a> The EXE discards all offers for peace and surrender. Since this
++		is done right before displaying the diplo popup, it doesn't help to reinsert
++		the offer into m_listDiplomacy -- need to prevent the removal by the EXE. */
++	std::vector<CvDiploParameters*> apInvalid;
++	int iValidPeaceOffers = 0;
++	for(CvDiploQueue::iterator it = m_listDiplomacy.begin(); it != m_listDiplomacy.end(); ++it) {
++		CvDiploParameters* pDiplo = *it;
++		if(pDiplo->getDiploComment() != GC.getInfoTypeForString(
++				"AI_DIPLOCOMMENT_OFFER_PEACE"))
++			continue;
++		/*  Make sure that this isn't a peace offer that the EXE will discard for
++			valid reasons. I.e. check everything that the EXE checks.
++			(Based on tracing DLL calls in the debugger.) */
++		PlayerTypes eWho = pDiplo->getWhoTalkingTo();
++		CvPlayer const& who = GET_PLAYER(eWho);
++		// This is what the EXE seems to get wrong
++		if(!::atWar(getTeam(), who.getTeam())) {
++			apInvalid.push_back(pDiplo);
++			continue;
++		}
++		if(!canContact(eWho) || !who.canContact(getID())) {
++			apInvalid.push_back(pDiplo);
++			continue;
++		}
++		CLLNode<TradeData>* pNode = NULL;
++		bool bCapitulate = false;
++		bool bValid = true;
++		for(pNode = pDiplo->getOurOfferList().head(); pNode != NULL;
++				pNode = pDiplo->getOurOfferList().next(pNode)) {
++			/*  Also test trade denial (although the EXE doesn't do that);
++				important for capitulation. */
++			if(!canTradeItem(eWho, pNode->m_data, true)) {
++				bValid = false;
++				break;
++			}
++			if(pNode->m_data.m_eItemType == TRADE_SURRENDER)
++				bCapitulate = true;
++		}
++		if(!bValid) {
++			apInvalid.push_back(pDiplo);
++			continue;
++		}
++		for(pNode = pDiplo->getTheirOfferList().head(); pNode != NULL;
++				pNode = pDiplo->getTheirOfferList().next(pNode)) {
++			if(!who.canTradeItem(getID(), pNode->m_data, true)) {
++				bValid = false;
++				break;
++			}
++			if(pNode->m_data.m_eItemType == TRADE_SURRENDER)
++				bCapitulate = true;
++		}
++		if(!bValid) {
++			apInvalid.push_back(pDiplo);
++			continue;
++		}
++		/*  Finally, check if the offer still makes sense for eWho.
++			(Sth. the EXE doesn't check.) */
++		if(!bCapitulate && !GET_PLAYER(eWho).AI_upholdPeaceOffer(getID(), *pDiplo)) {
++			apInvalid.push_back(pDiplo);
++			continue;
++		}
++		if(iValidPeaceOffers == 0) {
++			/*  advancePeaceOfferStage supports only one peace offer per turn
++				(this could be amended) */
++			GET_TEAM(getTeam()).advancePeaceOfferStage(TEAMID(eWho));
++			iValidPeaceOffers++;
++		}
++		else apInvalid.push_back(pDiplo);
++	}
++	for(size_t i = 0; i < apInvalid.size(); i++) {
++		CvPlayerAI& who = GET_PLAYER(apInvalid[i]->getWhoTalkingTo());
++		who.AI_changeContactTimer(getID(), CONTACT_PEACE_TREATY,
++				-who.AI_getContactTimer(getID(), CONTACT_PEACE_TREATY));
++		m_listDiplomacy.remove(apInvalid[i]);
++		delete apInvalid[i];
++	}
++	// </advc.134a>
++}
++
+ // <advc.011>
+ void CvPlayer::decayBuildProgress() {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 57a2e9cfb..0dc77db0a 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1109,7 +1109,6 @@ public:
+ 	void verifyUnitStacksValid();
+ 	UnitTypes getTechFreeUnit(TechTypes eTech) const;
+ 	
+-	void setOfferingPeace(TeamTypes aiTeam); // advc.134a
+ 	void checkAlert(int alertId, bool bSilent); // advc.210
+ 	// advc.104, advc.038, advc.132; exposed to Python.
+ 	double estimateYieldRate(YieldTypes yield, int iSamples = 5) const;
+@@ -1221,6 +1220,7 @@ public:
+ 	virtual int AI_getExtraGoldTarget() const = 0;
+ 	virtual void AI_setExtraGoldTarget(int iNewValue) = 0;
+ 	virtual int AI_maxGoldPerTurnTrade(PlayerTypes ePlayer) const = 0;
++	// advc.003: The EXE calls this (when a human player adds AI gold to the trade table)
+ 	virtual int AI_maxGoldTrade(PlayerTypes ePlayer) const = 0;
+ 
+ protected:
+@@ -1459,6 +1459,7 @@ protected:
+ 	void doEspionagePoints();
+ 	void doWarnings();
+ 	void doEvents();
++	void validateOffers(); // advc.001e
+ 	void decayBuildProgress(); // advc.011
+ 	void showForeignPromoGlow(bool b); // advc.002e
+ 	// <advc.314>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5a0a59f29..d08a89d8c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -820,102 +820,75 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 	// I can't help but think there is a more natural solution to this problem...
+ }
+ 
+-
++// advc.003: Hardly any original code left. Note that UWAI doesn't call this function.
+ void CvPlayerAI::AI_doPeace()
+ {
+ 	PROFILE_FUNC();
+ 
+-	CLinkList<TradeData> ourList;
+-	CLinkList<TradeData> theirList;
+-	bool abContacted[MAX_TEAMS];
+-	TradeData item;
+-	int iOurValue;
+-	int iTheirValue;
+-	int iI;
+-
+ 	FAssert(!isHuman());
+ 	FAssert(!isMinorCiv());
+ 	FAssert(!isBarbarian());
+ 
+-	for (iI = 0; iI < MAX_TEAMS; iI++)
+-	{
+-		abContacted[iI] = false;
+-	}
+-
+-	/*  <advc.003> Moved checks into new function willOfferPeace for advc.134a,
+-		then realized I don't need that function after all. Doesn't hurt though,
+-		and I'm using it for an assertion in CvPlayer::setTurnActive now. */
+-	for(iI = 0; iI < MAX_CIV_PLAYERS; iI++) {
++	TradeData item;
++	bool abContacted[MAX_TEAMS] = { false };
++	for(int iI = 0; iI < MAX_CIV_PLAYERS; iI++) {
+ 		PlayerTypes civId = (PlayerTypes)iI;
+ 		CvPlayerAI const& civ = GET_PLAYER(civId);
+-		if(AI_getContactTimer(civId, CONTACT_PEACE_TREATY) != 0)
++		if(AI_getContactTimer(civId, CONTACT_PEACE_TREATY) > 0)
++			continue;
++		if(civ.isHuman() && abContacted[TEAMID(civId)])
++			continue;
++		if(!AI_willOfferPeace(civId)) // advc.003: Moved checks into new function
+ 			continue;
+-		if(!AI_willOfferPeace(civId))
+-			continue; // </advc.003>
+-		bool bOffered = false;
+-		setTradeItem(&item, TRADE_SURRENDER);
+-
+-		if (canTradeItem(civId, item, true))
+-		{
+-			ourList.clear();
+-			theirList.clear();
+-
+-			ourList.insertAtEnd(item);
+-
+-			bOffered = true;
+ 
+-			if (civ.isHuman())
+-			{
+-				/*  <advc.134a> Can't get this diplo popup through the EXE,
+-					so better not to send it at all. */
+-				bOffered = false;
+-				//FAssertMsg(false, "AI sends surrender popup, but the EXE won't show it");
+-				// Commented out: </advc.134a>
+-				/*if (!(abContacted[TEAMID(civId)]))
+-				{
+-					AI_changeContactTimer(civId, CONTACT_PEACE_TREATY,
+-							GC.getLeaderHeadInfo(getPersonalityType()).
+-							getContactDelay(CONTACT_PEACE_TREATY));
+-					pDiplo = new CvDiploParameters(getID());
+-					FAssert(pDiplo != NULL);
+-					pDiplo->setDiploComment((DiploCommentTypes)
+-							GC.getInfoTypeForString("AI_DIPLOCOMMENT_OFFER_PEACE"));
+-					pDiplo->setAIContact(true);
+-					pDiplo->setOurOfferList(theirList);
+-					pDiplo->setTheirOfferList(ourList);
+-					gDLL->beginDiplomacy(pDiplo, civId);
+-					abContacted[TEAMID(civId)] = true;
+-				}*/
+-			}
+-			else
+-			{
+-				GC.getGameINLINE().implementDeal(getID(), civId, &ourList, &theirList);
+-			}
++		setTradeItem(&item, TRADE_SURRENDER);
++		if(canTradeItem(civId, item, true)) { // advc: This checks TradeDenial!
++			// advc.104h: Moved into new function
++			AI_offerCapitulation(civId);
++			return;
+ 		}
+-
+-		if(bOffered) return; // advc.003
+-		// advc.003 (comment): Non-capitulation peace offered with a 10 or 5% probability
++		// advc (comment): Peace offered with a 5-10% probability
+ 		if(GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(
+-				getPersonalityType()).getContactRand(CONTACT_PEACE_TREATY)
+-				/ 2, // advc.134a: Make it 10-20% b/c the other conditions are so narrow
++				getPersonalityType()).getContactRand(CONTACT_PEACE_TREATY),
+ 				"AI Diplo Peace Treaty") != 0)
+-			return;
++			continue;
++
+ 		setTradeItem(&item, TRADE_PEACE_TREATY);
+-		if(!canTradeItem(civId, item, true) || !civ.canTradeItem(getID(), item, true))
+-			return; // advc.003
+-		iOurValue =  GET_TEAM(getTeam()).AI_endWarVal(TEAMID(civId));
+-		iTheirValue = TEAMREF(civId).AI_endWarVal(getTeam());
+-		// advc.134a: Human discount
++		// advc: Replacing two canTradeItem calls
++		if(getTradeDenial(civId, item) != NO_DENIAL ||
++				civ.getTradeDenial(getID(), item) != NO_DENIAL)
++			continue;
++		int iOurValue = GET_TEAM(getTeam()).AI_endWarVal(TEAMID(civId));
++		int iTheirValue = TEAMREF(civId).AI_endWarVal(getTeam());
++		// <advc.134a> Human discount
+ 		if(civ.isHuman()) {
+-			// advc.003: Moved up
+-			if(abContacted[TEAMID(civId)]) return;
+-			iOurValue = ::round(1.2 * iOurValue);
+-		}
++			double const discountFactor = 1.2;
++			if(iOurValue > 0)
++				iOurValue = ::round(iOurValue * discountFactor);
++			else iOurValue = ::round(iOurValue / discountFactor);
++		} // </advc.134a>
+ 		// advc.104h:
+ 		abContacted[TEAMID(civId)] = AI_negotiatePeace(civId, iTheirValue, iOurValue);
+ 	}
+ }
+ 
++// <advc.134a>
++bool CvPlayerAI::AI_upholdPeaceOffer(PlayerTypes humanId,
++		CvDiploParameters const& kOffer) {
++
++	int iOurBenefit = AI_dealVal(humanId, &kOffer.getTheirOfferList());
++	int iTheirBenefit = GET_PLAYER(humanId).AI_dealVal(getID(), &kOffer.getOurOfferList());
++	if(getWPAI.isEnabled()) {
++		/*  Need some padding b/c WarAndPeaceAI::Team::endWarVal is always 0
++			for at least one side. */
++		int iPadding = ::round(warAndPeaceAI().utilityToTradeVal(5));
++		iOurBenefit += iPadding;
++		iTheirBenefit += iPadding;
++	}
++	// Neither uphold highly generous offers, nor terrible ones.
++	return (2 * iOurBenefit >= iTheirBenefit && 2 * iTheirBenefit > iOurBenefit);
++} // </advc.134a>
++
+ /*  <advc.104h> Cut and pasted (and heavily refactored) from doPeace b/c UWAI needs
+ 	this subroutine. While decisions of war and peace are made by teams, an
+ 	individual member of the team has to pay for peace (or receive payment);
+@@ -923,11 +896,6 @@ void CvPlayerAI::AI_doPeace()
+ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes civId, int iTheirBenefit, int iOurBenefit) {
+ 
+ 	CvPlayerAI& civ = GET_PLAYER(civId);
+-	/*  I've called the parameters "Benefit" to make clear who receives which part,
+-		but in the body, I'm using iTheirValue for the stuff they receive and
+-		iOurValue for what we receive, as in the original BtS code. */
+-	int iTheirValue = iTheirBenefit;
+-	int iOurValue = iOurBenefit;
+ 	TechTypes eBestReceiveTech = NO_TECH;
+ 	TechTypes eBestGiveTech = NO_TECH;
+ 	int iReceiveGold = 0;
+@@ -935,52 +903,70 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes civId, int iTheirBenefit, int iOu
+ 	CvCity* pBestReceiveCity = NULL;
+ 	CvCity* pBestGiveCity = NULL;
+ 	
+-	if(iTheirValue > iOurValue) // They need to give us sth.
+-		iOurValue += AI_negotiatePeace(getID(), civId, iTheirValue - iOurValue,
++	if(iTheirBenefit > iOurBenefit) // They need to give us sth.
++		iOurBenefit += AI_negotiatePeace(getID(), civId, iTheirBenefit - iOurBenefit,
+ 				&iReceiveGold, &eBestReceiveTech, &pBestReceiveCity);
+-	else if(iOurValue > iTheirValue) // We need to give them sth.
+-		iTheirValue += AI_negotiatePeace(civId, getID(), iOurValue - iTheirValue,
++	else if(iOurBenefit > iTheirBenefit) // We need to give them sth.
++		iTheirBenefit += AI_negotiatePeace(civId, getID(), iOurBenefit - iTheirBenefit,
+ 				&iGiveGold, &eBestGiveTech, &pBestGiveCity);
+-	// <advc.134a> The bugfix doesn't work if the AI pays the human
+-	if(civ.isHuman() && (eBestGiveTech != NO_TECH || iGiveGold != 0
+-			|| pBestGiveCity != NULL))
+-		return false; // </advc.134a>
+ 	/*  K-Mod: "ratio of endWar values has to be somewhat evened out by reparations
+ 		for peace to happen" */
+-	if(iTheirValue < iOurValue*3/5 ||
+-			(civ.isHuman() && iOurValue < iTheirValue*4/5) ||
+-			(!civ.isHuman() && iOurValue < iTheirValue*3/5))
++	/*if(iTheirBenefit < iOurBenefit*3/5 ||
++			(civ.isHuman() && iOurBenefit < iTheirBenefit*4/5) ||
++			(!civ.isHuman() && iOurBenefit < iTheirBenefit*3/5))
++		return false; */
++	// <advc.134a> Handle low human benefit separately (after filling the lists)
++	if((!civ.isHuman() && 5 * iTheirBenefit < 3 * iOurBenefit) ||
++			5 * iOurBenefit < (civ.isHuman() ? 4 : 3) * iTheirBenefit)
+ 		return false;
+-	CLinkList<TradeData> ourList;
+-	CLinkList<TradeData> theirList;
++	// </advc.134a>
++	CLinkList<TradeData> weGive;
++	CLinkList<TradeData> theyGive;
+ 	TradeData item;
+ 	setTradeItem(&item, TRADE_PEACE_TREATY);
+-	ourList.insertAtEnd(item);
+-	theirList.insertAtEnd(item);
++	weGive.insertAtEnd(item);
++	theyGive.insertAtEnd(item);
+ 	if(eBestGiveTech != NO_TECH) {
+ 		setTradeItem(&item, TRADE_TECHNOLOGIES, eBestGiveTech);
+-		ourList.insertAtEnd(item);
++		weGive.insertAtEnd(item);
+ 	}
+ 	if(eBestReceiveTech != NO_TECH) {
+ 		setTradeItem(&item, TRADE_TECHNOLOGIES, eBestReceiveTech);
+-		theirList.insertAtEnd(item);
++		theyGive.insertAtEnd(item);
+ 	}
+ 	if(iGiveGold != 0) {
+ 		setTradeItem(&item, TRADE_GOLD, iGiveGold);
+-		ourList.insertAtEnd(item);
++		weGive.insertAtEnd(item);
+ 	}
+ 	if(iReceiveGold != 0) {
+ 		setTradeItem(&item, TRADE_GOLD, iReceiveGold);
+-		theirList.insertAtEnd(item);
++		theyGive.insertAtEnd(item);
+ 	}
+ 	if(pBestGiveCity != NULL) {
+ 		setTradeItem(&item, TRADE_CITIES, pBestGiveCity->getID());
+-		ourList.insertAtEnd(item);
++		weGive.insertAtEnd(item);
+ 	}
+ 	if(pBestReceiveCity != NULL) {
+ 		setTradeItem(&item, TRADE_CITIES, pBestReceiveCity->getID());
+-		theirList.insertAtEnd(item);
+-	}
++		theyGive.insertAtEnd(item);
++	}
++	// <advc.134a>
++	if(civ.isHuman() && iTheirBenefit < iOurBenefit) {
++		/*  Really can't make an attractive offer w/o considering all tradeable items,
++			including map and gpt. */
++		// Remove gold from the proposal to allow AI_counterPropose to set a different amount
++		for(CLLNode<TradeData>* pNode = weGive.head(); pNode != NULL; pNode = weGive.next(pNode)) {
++			if(pNode->m_data.m_eItemType == TRADE_GOLD) {
++				weGive.deleteNode(pNode);
++				break;
++			}
++		}
++		civ.AI_counterPropose(getID(), weGive, theyGive, true, false);
++		iOurBenefit = AI_dealVal(civId, &theyGive);
++		iTheirBenefit = civ.AI_dealVal(getID(), &weGive);
++		if(5 * iTheirBenefit < 3 * iOurBenefit)
++			return false;
++	} // </advc.134a>
+ 	if(civ.isHuman()) {
+ 		AI_changeContactTimer(civId, CONTACT_PEACE_TREATY,
+ 				GC.getLeaderHeadInfo(getPersonalityType()).
+@@ -989,20 +975,17 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes civId, int iTheirBenefit, int iOu
+ 		FAssert(pDiplo != NULL);
+ 		pDiplo->setDiploComment((DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_OFFER_PEACE"));
+ 		pDiplo->setAIContact(true);
+-		pDiplo->setOurOfferList(theirList);
+-		pDiplo->setTheirOfferList(ourList);
++		pDiplo->setOurOfferList(theyGive);
++		pDiplo->setTheirOfferList(weGive);
+ 		gDLL->beginDiplomacy(pDiplo, civId);
+-//advc.test, advc.134a:
+-FAssertMsg(getWPAI.isEnabled(), "AI sent peace offer; if it doesn't appear, it could be b/c of a change in circumstances, but more likely advc.134a isn't working as intended");
+-/*  Note: The diplo msg gets through w/o problems if the OfferLists are left empty.
+-	The diplo comment will still say to "end the bloodshed", and if the player
+-	accepts, a peace treaty is signed.
+-	But it's no use if the AI can't offer reparations. */
+-	}
+-	else GC.getGameINLINE().implementDeal(getID(), civId, &ourList, &theirList);
++		//advc.test, advc.134a:
++		FAssertMsg(false, "AI sent peace offer; if it doesn't appear, it could be b/c of a change in circumstances, or advc.134a isn't working as intended");
++	}
++	else GC.getGameINLINE().implementDeal(getID(), civId, &weGive, &theyGive);
+ 	return true;
+ }
+ 
++
+ // Auxiliary function to reduce the amount of duplicate or dual code
+ int CvPlayerAI::AI_negotiatePeace(PlayerTypes receiverId, PlayerTypes giverId,
+ 		int delta, int* iGold, TechTypes* eBestTech, CvCity** pBestCity) {
+@@ -1011,15 +994,15 @@ int CvPlayerAI::AI_negotiatePeace(PlayerTypes receiverId, PlayerTypes giverId,
+ 	CvPlayerAI& receiver = GET_PLAYER(receiverId);
+ 	CvPlayerAI& giver = GET_PLAYER(giverId);
+ 	TradeData item;
+-	// <advc.134a> Let human pay gold if peace vals are similar.
+-	if(giver.isHuman() && delta <= giver.AI_maxGoldTrade(receiverId) &&
++	// <advc.104h> Pay gold if peace vals are similar. (Tbd.: gold per turn)
++	if(delta <= giver.AI_maxGoldTrade(receiverId, true /* advc.134a */ ) &&
+ 			delta < 100 * giver.getCurrentEra()) {
+ 		setTradeItem(&item, TRADE_GOLD, delta);
+ 		if(giver.canTradeItem(receiverId, item, true)) {
+ 			*iGold = delta;
+ 			return delta;
+ 		}
+-	} // </advc.134a>
++	} // </advc.104h>
+ 	int iBestValue = INT_MIN;
+ 	for(int j = 0; j < GC.getNumTechInfos(); j++) {
+ 		setTradeItem(&item, TRADE_TECHNOLOGIES, j);
+@@ -1054,8 +1037,9 @@ int CvPlayerAI::AI_negotiatePeace(PlayerTypes receiverId, PlayerTypes giverId,
+ 	// K-Mod note: ideally we'd use AI_goldTradeValuePercent()
+ 	// to work out the gold's value gained by the receiver and the gold's value lost by the giver.
+ 	// Instead, we just pretend that the receiver gets 1 point per gold, and the giver loses nothing.
+-	// (effectly a value of 2)
+-	int tradeGold = std::min(delta - r, giver.AI_maxGoldTrade(receiverId));
++	// (effectively a value of 2)
++	int tradeGold = std::min(delta - r, giver.AI_maxGoldTrade(receiverId,
++			true)); // advc.134a
+ 	if(tradeGold > 0) {
+ 		setTradeItem(&item, TRADE_GOLD, tradeGold);
+ 		if(giver.canTradeItem(receiverId, item, true)) {
+@@ -1087,8 +1071,34 @@ int CvPlayerAI::AI_negotiatePeace(PlayerTypes receiverId, PlayerTypes giverId,
+ 			r += receiver.AI_cityTradeVal(*pBestCity);
+ 	}
+ 	return r;
+-} // </advc.104h>
++}
++
++void CvPlayerAI::AI_offerCapitulation(PlayerTypes civId) {
+ 
++	CLinkList<TradeData> ourList;
++	CLinkList<TradeData> theirList;
++	TradeData item;
++	setTradeItem(&item, TRADE_SURRENDER);
++	ourList.insertAtEnd(item);
++	if(!GET_PLAYER(civId).isHuman()) {
++		GC.getGameINLINE().implementDeal(getID(), civId, &ourList, &theirList);
++		return;
++	}
++	AI_changeContactTimer(civId, CONTACT_PEACE_TREATY,
++			// advc.134a: Double the delay
++			2 * GC.getLeaderHeadInfo(getPersonalityType()).
++			getContactDelay(CONTACT_PEACE_TREATY));
++	CvDiploParameters* pDiplo = new CvDiploParameters(getID());
++	pDiplo->setDiploComment((DiploCommentTypes)
++			GC.getInfoTypeForString("AI_DIPLOCOMMENT_OFFER_PEACE"));
++	pDiplo->setAIContact(true);
++	pDiplo->setOurOfferList(theirList);
++	pDiplo->setTheirOfferList(ourList);
++	gDLL->beginDiplomacy(pDiplo, civId);
++	//advc.test, advc.134a:
++	FAssertMsg(false, "AI sent capitulation offer; if it doesn't appear, it could be b/c of a change in circumstances, or advc.134a isn't working as intended");
++}
++// </advc.104h>
+ // <advc.003>
+ bool CvPlayerAI::AI_willOfferPeace(PlayerTypes toId) const {
+ 
+@@ -1102,8 +1112,11 @@ bool CvPlayerAI::AI_willOfferPeace(PlayerTypes toId) const {
+ 			(!to.isHuman() && (TEAMREF(toId)).isHuman()) ||
+ 			// they're human and we're not the team leader
+ 			(to.isHuman() && ourTeam.getLeaderID() != getID()) ||
+-			// war less than 10 turns old.
+-			ourTeam.AI_getAtWarCounter(TEAMID(toId)) <= 10)
++			// war too recent
++			ourTeam.AI_getAtWarCounter(TEAMID(toId)) <= 10
++			/*  advc.134a: Allow earlier peace in later eras
++				(only relevant if UWAI disabled) */
++			- getCurrentEra() + 1)
+ 		return false;
+ 	return true;
+ } // </advc.003>
+@@ -9595,7 +9608,7 @@ int CvPlayerAI::AI_getWarAttitude(PlayerTypes ePlayer,
+ {
+ 	int iAttitude = 0;
+ 
+-	if(!atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
++	if(!::atWar(getTeam(), TEAMID(ePlayer)))
+ 		return 0; // advc.003
+ 	// advc.130g: Was hardcoded as iAttitude-=3; no functional change.
+ 	iAttitude += GC.getDefineINT("AT_WAR_ATTITUDE_CHANGE");
+@@ -11194,10 +11207,13 @@ int CvPlayerAI::AI_dealVal(PlayerTypes ePlayer, const CLinkList<TradeData>* pLis
+ 
+ 	if (atWar(getTeam(), GET_PLAYER(ePlayer).getTeam()))
+ 	{	// <advc.104i>
+-		if(getWPAI.isEnabled() && (isHuman() || GET_PLAYER(ePlayer).isHuman()))
+-			iValue += GET_TEAM(getTeam()).warAndPeaceAI().endWarVal(TEAMID(ePlayer));
++		if(getWPAI.isEnabled()) {
++			if(isHuman() || GET_PLAYER(ePlayer).isHuman())
++				iValue += GET_TEAM(getTeam()).warAndPeaceAI().endWarVal(TEAMID(ePlayer));
++			else FAssert(false); // AI-AI peace is handled only by WarAndPeaceAI
++		}
+ 		else // </advc.104>
+-		iValue += GET_TEAM(getTeam()).AI_endWarVal(GET_PLAYER(ePlayer).getTeam());
++			iValue += GET_TEAM(getTeam()).AI_endWarVal(GET_PLAYER(ePlayer).getTeam());
+ 	}
+ 
+ 	// advc.104o: Can't be hired for more than one war at a time
+@@ -12386,7 +12402,53 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInv
+ 		FAssert(iSmallerVal >= iGreaterVal);
+ 	}
+ 	return false; // advc.036
+-} // </advc.003>
++}
++
++/*  This function is for AI-initiated trades. The caller has placed some items
++	in kTheyGive and/or kWeGive - these have to be included -, and this function
++	tries to sweeten the deal for whichever side needs it (or both).
++	Based on K-Mod code in AI_doDiplo; karadoc's comment cut and pasted from there
++	(can't say I really understand the final note):
++	"unfortunately, the API is pretty clumsy for setting up this counter proposal.
++	 please just bear with me. (Note: this would be faster if we just built the lists
++	 directly, but by using the existing API, we are kind of future-proofing)" */
++bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
++		CLinkList<TradeData>& kTheyGive,
++		CLinkList<TradeData>& kWeGive,
++		bool bTheyMayGiveMore, bool bWeMayGiveMore) const {
++
++	PROFILE_FUNC();
++	FAssert(ePlayer != getID());
++	FAssertMsg(bTheyMayGiveMore || !bWeMayGiveMore, "Probably better to call "
++			"AI_counterPropose on ePlayer then");
++	FAssert(bTheyMayGiveMore || bWeMayGiveMore);
++	CLinkList<TradeData> ourInventory, theirInventory, ourCounter, theirCounter;
++	if(bTheyMayGiveMore) {
++		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
++		// "all tradeable items"
++		kPlayer.buildTradeTable(getID(), theirInventory);
++		// "K-Mod function - set m_bOffering on each item offered"
++		kPlayer.markTradeOffers(theirInventory, kTheyGive);
++		// "hide what should be excluded"
++		kPlayer.updateTradeList(getID(), theirInventory, kTheyGive, kWeGive);
++	}
++	if(bWeMayGiveMore) {
++		buildTradeTable(ePlayer, ourInventory);
++		markTradeOffers(ourInventory, kWeGive);
++		updateTradeList(ePlayer, ourInventory, kWeGive, kTheyGive);
++	}
++	if(AI_counterPropose(ePlayer, &kTheyGive, &kWeGive,
++			&theirInventory, &ourInventory,
++			&theirCounter, &ourCounter)) {
++		FAssert(bWeMayGiveMore || ourCounter.getLength() == 0);
++		FAssert(bTheyMayGiveMore || theirCounter.getLength() == 0);
++		kWeGive.concatenate(ourCounter);
++		kTheyGive.concatenate(theirCounter);
++		return true;
++	}
++	return false;
++}
++// </advc.003>
+ 
+ // K-Mod. Minimum percentage of trade value that this player will accept.
+ // ie. Accept trades if 100 * value_for_us >= residual * value_for_them .
+@@ -12501,24 +12563,32 @@ bool CvPlayerAI::AI_checkResourceLimits(CLinkList<TradeData> const& weGive,
+ } // </advc.036>
+ 
+ 
+-int CvPlayerAI::AI_maxGoldTrade(PlayerTypes ePlayer) const
++int CvPlayerAI::AI_maxGoldTrade(PlayerTypes ePlayer,
++		bool bTeamTrade) const // advc.134a
+ {
+ 	PROFILE_FUNC();
+-
+-	int iMaxGold;
+-
+ 	FAssert(ePlayer != getID());
++	int iTreasury = getGold(); // advc.003
++	if(bTeamTrade && !isHuman() && GET_PLAYER(ePlayer).isHuman()) {
++		/*  <advc.134a> AI peace offers to humans (and any other trades offered
++			to humans during a team turn) need to anticipate the gold spent during
++			the AI player turn; otherwise, the AI may not have enough gold when
++			the offer is checked (by the EXE) at the start of the human turn.
++			Can't know for sure how much will be spent. */
++		iTreasury /= 2;
++		iTreasury += std::min(0, (3 * getGoldPerTurn()) / 2);
++		iTreasury = std::max(0, iTreasury);
++	} // </advc.134a>
+ 	// <advc.104w>
+ 	if(getWPAI.isEnabled() && TEAMREF(ePlayer).isAtWar(getTeam())) {
+-		int r = std::max(0, getGold());
++		int r = std::max(0, iTreasury);
+ 		// Don't tell them exactly how much we can afford
+ 		return r - (r % (2 * GC.getDIPLOMACY_VALUE_REMAINDER()));
+ 	} // </advc.104w>
+ 	if (isHuman() || (GET_PLAYER(ePlayer).getTeam() == getTeam()))
+ 	{
+-		iMaxGold = getGold();
+ 		// <advc.003>
+-		return std::max(0, iMaxGold);
++		return std::max(0, iTreasury);
+ 	}
+ 	/*else
+ 	{*/ // </advc.003>
+@@ -12537,7 +12607,7 @@ int CvPlayerAI::AI_maxGoldTrade(PlayerTypes ePlayer) const
+ 	
+ 	// K-Mod. Similar, but with more personality, and with better handling of situations where the AI has lots of spare gold.
+ 	int iTradePercent = GC.getLeaderHeadInfo(getPersonalityType()).getMaxGoldTradePercent();
+-	iMaxGold = getTotalPopulation();
++	int iMaxGold = getTotalPopulation();
+ 
+ 	iMaxGold *= (GET_TEAM(getTeam()).AI_getHasMetCounter(GET_PLAYER(ePlayer).getTeam()) + 10);
+ 
+@@ -12554,14 +12624,14 @@ int CvPlayerAI::AI_maxGoldTrade(PlayerTypes ePlayer) const
+ 	{
+ 		PROFILE("AI_maxGoldTrade: gold rate adjustment");
+ 		int iTarget = AI_goldTarget();
+-		if (getGold() < iTarget)
++		if (iTreasury < iTarget)
+ 		{
+-			iGoldRate -= (iTarget - getGold())/3;
++			iGoldRate -= (iTarget - iTreasury)/3;
+ 			iGoldRate = std::max(0, iGoldRate);
+ 		}
+ 		else
+ 		{
+-			iMaxGold += (getGold() - iTarget) * iTradePercent / 100;
++			iMaxGold += (iTreasury - iTarget) * iTradePercent / 100;
+ 		}
+ 		iMaxGold += iGoldRate * 2 * iTradePercent / 100;
+ 	}
+@@ -12576,7 +12646,7 @@ int CvPlayerAI::AI_maxGoldTrade(PlayerTypes ePlayer) const
+ 	iMaxGold = AI_adjustTradeGoldToDiplo(iMaxGold, ePlayer);
+ 	// Moved from above the gold rate adjustment
+ 	iMaxGold -= AI_getGoldTradedTo(ePlayer); // </advc.036>
+-	iMaxGold = range(iMaxGold, 0, getGold());
++	iMaxGold = range(iMaxGold, 0, iTreasury);
+ 	// <advc.550f>
+ 	if(GET_PLAYER(ePlayer).isHuman() && GET_TEAM(getTeam()).isTechTrading() ||
+ 			TEAMREF(ePlayer).isTechTrading()) {
+@@ -20507,26 +20577,18 @@ void CvPlayerAI::AI_doDiplo()
+ {
+ 	PROFILE_FUNC();
+ 	CvDiploParameters* pDiplo;
+-	/*CLLNode<TradeData>* pNode; // advc.003: Moved into doDeals
+-	CvDeal* pLoopDeal;*/
+ 	CvCity* pLoopCity;
+ 	CvPlot* pLoopPlot;
+ 	CLinkList<TradeData> ourList;
+ 	CLinkList<TradeData> theirList;
+-	bool abContacted[MAX_TEAMS];
+ 	TradeData item;
+-	// advc.133: Moved into proposeResourceTrade
+-	//BonusTypes eBestReceiveBonus;
+ 	BonusTypes eBestGiveBonus;
+ 	TechTypes eBestReceiveTech;
+ 	TechTypes eBestGiveTech;
+ 	TeamTypes eBestTeam;
+-	//bool bCancelDeal; // advc.003: Moved into checkCancel
+ 	int iReceiveGold;
+ 	int iGiveGold;
+ 	int iGold;
+-	//int iGoldData;
+-	//int iGoldWeight;
+ 	int iGoldValuePercent;
+ 	int iCount;
+ 	int iPossibleCount;
+@@ -20536,33 +20598,26 @@ void CvPlayerAI::AI_doDiplo()
+ 	int iTheirValue;
+ 	int iPass;
+ 	int iLoop;
+-	//int iI, iJ;
+ 
+ 	FAssert(!isHuman());
+ 	FAssert(!isMinorCiv());
+ 	FAssert(!isBarbarian());
+ 
+ 	// allow python to handle it
+-	if (GC.getUSE_AI_DO_DIPLO_CALLBACK()) // K-Mod. block unused python callbacks
+-	{
++	if(GC.getUSE_AI_DO_DIPLO_CALLBACK()) { // K-Mod. block unused python callbacks
+ 		CyArgsList argsList;
+ 		argsList.add(getID());
+ 		long lResult=0;
+ 		gDLL->getPythonIFace()->callFunction(PYGameModule, "AI_doDiplo", argsList.makeFunctionArgs(), &lResult);
+-		if (lResult == 1)
+-		{
++		if(lResult == 1)
+ 			return;
+-		}
+ 	}
+ 	iGoldValuePercent = AI_goldTradeValuePercent();
+-
+-	for (int iI = 0; iI < MAX_TEAMS; iI++)
+-	{
+-		abContacted[iI] = false;
+-	} // <advc.003> Replaced everywhere
++	// <advc.003> Replaced everywhere
+ 	CvGame& g = GC.getGame();
+ 	CvTeamAI const& ourTeam = GET_TEAM(getTeam()); // </advc.003>
+ 	// <advc.024>
++	bool abContacted[MAX_TEAMS] = { false };
+ 	int contacts[MAX_CIV_PLAYERS];
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 		contacts[i] = i;
+@@ -20991,8 +21046,7 @@ void CvPlayerAI::AI_doDiplo()
+ 							//GET_PLAYER((PlayerTypes)iI).
+ 							getPersonalityType()).getNoGiveHelpAttitudeThreshold())
+ 					{
+-						if (AI_getContactTimer(civId, CONTACT_GIVE_HELP) == 0 ||
+-								!civ.isHuman()) // advc.130z
++						if (AI_getContactTimer(civId, CONTACT_GIVE_HELP) == 0)
+ 						{	// <advc.130z>
+ 							int iRandMax = GC.getLeaderHeadInfo(getPersonalityType()).
+ 									getContactRand(CONTACT_GIVE_HELP);
+@@ -21357,26 +21411,14 @@ void CvPlayerAI::AI_doDiplo()
+ 									(double)iOurValue > 0.5 ||
+ 									::bernoulliSuccess(0.36, "advc.550b")))
+ 									// </advc.550b>
+-							{	// advc.003b: Pushed this directive down into CvPlayer::buildTradeTable and CvPlayerAI::AI_counterPropose_bulk
++							{	// advc.003b: Pushed this down into CvPlayer::buildTradeTable and CvPlayerAI::AI_counterPropose
+ 								//PROFILE("AI_doDiplo self-counter-propose");
+ 								// let the other team counter-propose (even if the other team is a human player)
+-								// unfortunately, the API is pretty clumsy for setting up this counter proposal.
+-								// please just bear with me.
+-								// (Note: this would be faster if we just built the lists directly, but by using the existing API, we are kind of future-proofing)
+-								CLinkList<TradeData> ourInventory, theirInventory, ourCounter, theirCounter;
+-								buildTradeTable(civId, ourInventory); // all tradeable items
+-								markTradeOffers(ourInventory, ourList); // K-Mod function - set m_bOffering on each item offered
+-								updateTradeList(civId, ourInventory, ourList, theirList); // hide what should be excluded
+-								civ.buildTradeTable(getID(), theirInventory); // same for the other player
+-								civ.markTradeOffers(theirInventory, theirList);
+-								civ.updateTradeList(getID(), theirInventory, theirList, ourList);
+-
+-								// Note: AI_counterPropose tends to favour the caller, which in this case is the other player.
+-								// ie. we asked for the trade, but they set the final terms. (unless the original deal is accepted)
+-								if (civ.AI_counterPropose(getID(), &ourList, &theirList, &ourInventory, &theirInventory, &ourCounter, &theirCounter))
++								/*  Note: AI_counterPropose tends to favour the caller, which in this case is the other player.
++									ie. we asked for the trade, but they set the final terms. (unless the original deal is accepted) */
++								// advc.003: K-Mod code moved into new function
++								if(civ.AI_counterPropose(getID(), ourList, theirList, true, true))
+ 								{
+-									ourList.concatenate(ourCounter);
+-									theirList.concatenate(theirCounter);
+ 									bDeal = true;
+ 									// K-Mod note: the following log call will miss the second name if it is a non-standard name (for example, a human player name).
+ 									// This is a problem in the way the getName function is implimented. Unfortunately, the heart of the problem is in the signature of
+@@ -21983,40 +22025,20 @@ bool CvPlayerAI::AI_proposeResourceTrade(PlayerTypes civId) {
+ 		theirList.clear();
+ 		setTradeItem(&item, TRADE_RESOURCES, eBestGiveBonus);
+ 		ourList.insertAtEnd(item);
+-		/*  Code (K-Mod) copied from the tech trade block above.
+-			Can't move this stuff into AI_counterPropose b/c
+-			the lists need to be allocated here. */
+-		CLinkList<TradeData> ourInventory, theirInventory, ourCounter, theirCounter;
+-		// Leave our inventory empty; we're not giving anything else.
+-		civ.buildTradeTable(getID(), theirInventory);
+-		civ.markTradeOffers(theirInventory, theirList);
+-		civ.updateTradeList(getID(), theirInventory, theirList, ourList);
+-		if(AI_counterPropose(civId, &theirList, &ourList,
+-				&theirInventory, &ourInventory,
+-				&theirCounter, &ourCounter)) {
+-			theirList.concatenate(theirCounter);
++		if(AI_counterPropose(civId, theirList, ourList, true, false))
+ 			bDeal = true;
+-		}
+ 	}
+ 	if(!bDeal && eBestReceiveBonus != NO_BONUS) {
+ 		ourList.clear();
+ 		theirList.clear();
+ 		setTradeItem(&item, TRADE_RESOURCES, eBestReceiveBonus);
+ 		theirList.insertAtEnd(item);
+-		CLinkList<TradeData> ourInventory, theirInventory, ourCounter, theirCounter;
+-		// Leave their inventory empty
+-		buildTradeTable(civId, ourInventory);
+-		markTradeOffers(ourInventory, ourList);
+-		updateTradeList(civId, ourInventory, ourList, theirList);
+-		if(civ.AI_counterPropose(getID(), &ourList, &theirList,
+-				&ourInventory, &theirInventory,
+-				&ourCounter, &theirCounter)) {
+-			ourList.concatenate(ourCounter);
++		if(civ.AI_counterPropose(getID(), ourList, theirList, true, false))
+ 			bDeal = true;
+-		}
+ 	}
+ 	if(!bDeal)
+-		return false; // </advc.036>
++		return false;
++	// </advc.036>
+ 	if(civ.isHuman()) {
+ 		AI_changeContactTimer(civId, CONTACT_TRADE_BONUS, GC.getLeaderHeadInfo(getPersonalityType()).getContactDelay(CONTACT_TRADE_BONUS));
+ 		CvDiploParameters* pDiplo = new CvDiploParameters(getID());
+@@ -22236,8 +22258,8 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes humanId, int tributeType) {
+ 	// <advc.104m> Don't ask for too little
+ 	// Unless difficulty is low
+ 	if(GC.getHandicapInfo(human.getHandicapType()).getDifficulty() > 25) {
+-		int dealVal = AI_dealVal(humanId, &theirList, false, 1, true);
+-		if(dealVal < 50 * std::pow(2.0, getCurrentEra()))
++		int iDealVal = AI_dealVal(humanId, &theirList, false, 1, true);
++		if(iDealVal < 50 * std::pow(2.0, getCurrentEra()))
+ 			return false;
+ 	} // </advc.104m>
+ 	AI_changeContactTimer(humanId, CONTACT_DEMAND_TRIBUTE,
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index b688ed6d1..438cc5b28 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -49,6 +49,8 @@ public:
+ 	void AI_doTurnUnitsPost();
+ 
+ 	void AI_doPeace();
++	// advc.134a:
++	bool AI_upholdPeaceOffer(PlayerTypes humanId, CvDiploParameters const& kOffer);
+ 
+ 	void AI_updateFoundValues(bool bStartingLoc = false);
+ 	void AI_updateAreaTargets();
+@@ -248,9 +250,12 @@ public:
+ 				pOurInventory, pTheirCounter, pOurCounter, 1);
+ 	}
+ 	int AI_tradeAcceptabilityThreshold(PlayerTypes eTrader) const; // K-Mod
+-	// advc.003 (comment): These two are exposed to Python
+-	int AI_maxGoldTrade(PlayerTypes ePlayer) const;
+-	int AI_maxGoldPerTurnTrade(PlayerTypes ePlayer) const;
++	int AI_maxGoldTrade(PlayerTypes ePlayer) const {									// Exposed to Python
++		// <advc.134a> Can't add a param b/c the EXE calls this virtual function 
++		return AI_maxGoldTrade(ePlayer, false);
++	}
++	int AI_maxGoldTrade(PlayerTypes ePlayer, bool bTeamTrade) const; // </advc.134a>
++	int AI_maxGoldPerTurnTrade(PlayerTypes ePlayer) const;								// Exposed to Python
+ 	int AI_goldPerTurnTradeVal(int iGoldPerTurn) const;
+ 	int AI_bonusVal(BonusTypes eBonus, int iChange,
+ 			bool bAssumeEnabled = false, // K-Mod
+@@ -558,10 +563,12 @@ public:
+ 
+ 	// <advc.104>
+ 	WarAndPeaceAI::Civ& warAndPeaceAI();
+-	WarAndPeaceAI::Civ const& warAndPeaceAI() const;
+-	// </advc.104>
+-	// advc.104h: Returns true if peace deal implemented (or offered to human)
++	WarAndPeaceAI::Civ const& warAndPeaceAI() const; // </advc.104>
++	// <advc.104h>
++	// Returns true if peace deal implemented (or offered to human)
+ 	bool AI_negotiatePeace(PlayerTypes civId, int iTheirBenefit, int iOurBenefit);
++	void AI_offerCapitulation(PlayerTypes civId);
++	// </advc.104h>
+ 	bool AI_willOfferPeace(PlayerTypes toId) const; // advc.003
+ 	// advc.130h:
+ 	bool AI_disapprovesOfDoW(TeamTypes aggressorId, TeamTypes victimId) const;
+@@ -706,13 +713,16 @@ protected:
+ 	// <advc.104h>
+ 	int AI_negotiatePeace(PlayerTypes receiverId, PlayerTypes giverId, int iDelta,
+ 			int* iGold, TechTypes* eBestTech, CvCity** pBestCity); // </advc.104h>
+-	// <advc.705> Replacement for AI_counterPropose
++	// <advc.705> Replacement for the pure virtual AI_counterPropose
+ 	bool AI_counterPropose(PlayerTypes ePlayer,
+ 			const CLinkList<TradeData>* pTheirList, const CLinkList<TradeData>* pOurList,
+ 			CLinkList<TradeData>* pTheirInventory, CLinkList<TradeData>* pOurInventory,
+ 			CLinkList<TradeData>* pTheirCounter, CLinkList<TradeData>* pOurCounter,
+ 			double leniency) const; // </advc.705>
+ 	// <advc.003>
++	// Variant that writes the proposal into pTheirList and pOurList
++	bool AI_counterPropose(PlayerTypes ePlayer, CLinkList<TradeData>& kTheyGive,
++			CLinkList<TradeData>& kWeGive, bool bTheyMayGiveMore, bool bWeMayGiveMore) const;
+ 	bool AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const* pInventory,
+ 			PlayerTypes ePlayer, int& iGreaterVal, int& iSmallerVal,
+ 			CLinkList<TradeData>* pCounter,
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 73f2ece81..4e0d77760 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1209,6 +1209,8 @@ void CvTeam::doTurn()
+ 	PROFILE("CvTeam::doTurn()")
+ 
+ 	FAssert(isAlive());
++	// advc.134a:
++	FAssert(m_iPeaceOfferStage == 0 && m_eOfferingPeace == NO_TEAM);
+ 
+ 	AI_doTurnPre();
+ 	// <advc.162>
+@@ -1432,7 +1434,7 @@ bool CvTeam::canChangeWarPeace(TeamTypes eTeam, bool bAllowVassal) const
+ 		}
+ 	}
+ 	// <advc.104> Don't want to have to check this separately in the UWAI code
+-	if(isAtWar(eTeam) && GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_WAR) &&
++	if(GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_WAR) && isAtWar(eTeam) &&
+ 			(isHuman() || GET_TEAM(eTeam).isHuman()))
+ 		return false; // </advc.104>
+ 	return true;
+@@ -4582,15 +4584,11 @@ bool CvTeam::isAtWar(TeamTypes eIndex) const
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+-	/*  <advc.134a> Double-checking whether the teams are still at war is important
+-		-- don't show peace offer when no longer at war --, but the EXE gets it
+-		wrong, and discards the diplo popup if at war. Therefore, feign peace if
+-		we know that the EXE is about to check a peace offer. */
+-	if(m_iPeaceOfferStage == 1 && m_eOfferingPeace == eIndex) {
++	/*  <advc.134a> Feign peace if we know that the EXE is about to check a
++		peace offer (b/c being at war shouldn't prevent AI-to-human peace offers). */
++	if(m_iPeaceOfferStage == 2 && m_eOfferingPeace == eIndex) {
+ 		const_cast<CvTeam*>(this)->m_iPeaceOfferStage = 0;
+ 		const_cast<CvTeam*>(this)->m_eOfferingPeace = NO_TEAM;
+-		// advc.104: Don't try to get UWAI peace offers through
+-		if(!getWPAI.isEnabled() || GC.getGameINLINE().isNetworkMultiPlayer())
+ 			return false;
+ 	} // </advc.134a>
+ 	return m_abAtWar[eIndex];
+@@ -4602,6 +4600,11 @@ void CvTeam::advancePeaceOfferStage(TeamTypes aiTeam) {
+ 	if(aiTeam != NO_TEAM)
+ 		m_eOfferingPeace = aiTeam;
+ 	m_iPeaceOfferStage++;
++}
++
++bool CvTeam::isPeaceOfferStage(int iStage, TeamTypes eOffering) const {
++
++	return (eOffering == m_eOfferingPeace && iStage == m_iPeaceOfferStage);
+ } // </advc.134a>
+ 
+ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 47b23b6d8..e45834f77 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -279,6 +279,10 @@ public:
+ 	// K-Mod end
+ 
+ 	DllExport bool isAtWar(TeamTypes eIndex) const;																			// Exposed to Python
++	// <advc.134a> Alias that the EXE can't (directly) call
++	inline bool isAtWarInternal(TeamTypes eIndex) const {
++		return m_abAtWar[eIndex];
++	} // </advc.134a>
+ 	void setAtWar(TeamTypes eIndex, bool bNewValue);
+ 	bool hasJustDeclaredWar(TeamTypes eIndex) const; // advc.162
+ 
+@@ -378,11 +382,10 @@ public:
+ 	/* advc.004a: A hack that allows other classes to pretend that a team knows
+ 	   a tech for some computation. Should be toggled back afterwards. */
+ 	void setHasTechTemporarily(TechTypes tt, bool b);
+-	/* advc.134a: (Looks like a finite state machine isn't needed after all;
+-		i.e. would work with just OfferingPeace set to either the team whose
+-		peace offer is incoming or NO_TEAM otherwise.) */
++	// <advc.134a>
+ 	void advancePeaceOfferStage(TeamTypes aiTeam = NO_TEAM);
+-
++	bool isPeaceOfferStage(int iStage, TeamTypes eOffering) const;
++	// </advc.134a>
+ 	bool isNoTradeTech(TechTypes eIndex) const;																														// Exposed to Python
+ 	void setNoTradeTech(TechTypes eIndex, bool bNewValue);																					// Exposed to Python
+ 
+@@ -438,6 +441,7 @@ public:
+ 	CvCity* getLeaderCapital() const;
+ 	// </advc.127b>
+ 	void makeUnwillingToTalk(TeamTypes otherId); // advc.104i
++
+ 	virtual void AI_init() = 0;
+ 	virtual void AI_reset(bool bConstructor) = 0;
+ 	virtual void AI_doTurnPre() = 0;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 71b86d477..4cabe7397 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -664,116 +664,172 @@ bool WarAndPeaceAI::Team::considerPeace(TeamTypes targetId, int u) {
+ 		return true;
+ 	CvTeamAI& target = GET_TEAM(targetId);
+ 	double peaceThresh = peaceThreshold(targetId);
+-	report->log("Threshold for seeking peace: %d", ::round(peaceThresh));
+ 	bool human = target.isHuman();
++	if(human) /* They might pay us for peace (whereas, for AI-AI deals, the side
++				 that expects to be paid waits for the other side to sue for peace). */
++		peaceThresh += 10;
++	report->log("Threshold for seeking peace: %d", ::round(peaceThresh));
+ 	if(u >= peaceThresh) {
+ 		/*  Peace so we can free our hands for a different war.
+ 			(The "distraction" war utility aspect also deals with this,
+ 			but it's normally not enough to get the AI to stop a successful
+ 			war before starting one that looks even more worthwhile.) */
+-		if(!human) {
+-			for(size_t i = 0; i < getWPAI._properTeams.size(); i++) {
+-				TeamTypes otherId = getWPAI._properTeams[i];
+-				if(GET_TEAM(otherId).isAVassal() ||
+-						!agent.AI_isSneakAttackReady(otherId))
+-					continue;
+-				report->log("Considering peace with %s to focus on"
+-						" imminent war against %s; evaluating two-front war:",
+-						report->teamName(targetId), report->teamName(otherId));
+-				WarEvalParameters params(agentId, otherId, *report, true);
+-				params.addExtraTarget(targetId);
+-				/*  We're sure that we want to attack otherId. Only consider
+-					peace with the ExtraTarget. */
+-				params.setNotConsideringPeace();
+-				WarEvaluator eval(params);
+-				/*  Check both limited and total war instead of agent
+-					.AI_getWarPlan(otherId) in order to avoid a preference for
+-					the two-front case on account of greater military build-up. */
+-				int uLim = eval.evaluate(WARPLAN_LIMITED, 0) -
+-						GC.getUWAI_MULTI_WAR_RELUCTANCE();
+-				int uTot = eval.evaluate(WARPLAN_TOTAL, 0) -
+-						GC.getUWAI_MULTI_WAR_RELUCTANCE();
+-				u = std::min(uLim, uTot);
+-				// Tbd.: If the war plan against otherId is TOTAL
+-				report->log("Utility of a two-front war compared with a war "
+-						"only against %s: %d", report->teamName(otherId), u);
+-				break; // Only one war can be imminent at a time
+-			}
++		for(size_t i = 0; i < getWPAI._properTeams.size(); i++) {
++			TeamTypes otherId = getWPAI._properTeams[i];
++			if(GET_TEAM(otherId).isAVassal() ||
++					!agent.AI_isSneakAttackReady(otherId))
++				continue;
++			report->log("Considering peace with %s to focus on"
++					" imminent war against %s; evaluating two-front war:",
++					report->teamName(targetId), report->teamName(otherId));
++			WarEvalParameters params(agentId, otherId, *report, true);
++			params.addExtraTarget(targetId);
++			/*  We're sure that we want to attack otherId. Only consider
++				peace with the ExtraTarget. */
++			params.setNotConsideringPeace();
++			WarEvaluator eval(params);
++			/*  Check both limited and total war instead of agent
++				.AI_getWarPlan(otherId) in order to avoid a preference for
++				the two-front case on account of greater military build-up. */
++			int uLim = eval.evaluate(WARPLAN_LIMITED, 0) -
++					GC.getUWAI_MULTI_WAR_RELUCTANCE();
++			int uTot = eval.evaluate(WARPLAN_TOTAL, 0) -
++					GC.getUWAI_MULTI_WAR_RELUCTANCE();
++			u = std::min(uLim, uTot);
++			// Tbd.: If the war plan against otherId is TOTAL
++			report->log("Utility of a two-front war compared with a war "
++					"only against %s: %d", report->teamName(otherId), u);
++			break; // Only one war can be imminent at a time
+ 		}
+ 		if(u >= peaceThresh) {
+ 			report->log("No peace sought b/c war utility is above the peace threshold");
+ 			return true;
+ 		}
+ 	}
+-	if(human) // Don't try to ask human for peace
+-		report->log("Can't ask human for peace (bug in EXE)");
++	// We refuse to talk for 1 turn
++	if(agent.AI_getAtWarCounter(targetId) <= 1) {
++		report->log("Too early to consider peace");
++		return true;
++	}
+ 	CvPlayerAI& targetLeader = GET_PLAYER(target.getLeaderID());
+ 	CvPlayerAI& agentLeader = GET_PLAYER(agent.getLeaderID());
+-	// We refuse to talk for 1 turn
+-	if(!human && agent.AI_getAtWarCounter(targetId) <= 1 ||
+-			!agentLeader.canContactAndTalk(targetLeader.getID())) {
++	if(!agentLeader.canContactAndTalk(targetLeader.getID())) {
+ 		report->log("Can't talk to %s about peace",
+ 				report->leaderName(targetLeader.getID()));
+ 		return true; // Can't contact them for capitulation either
+ 	}
+-	if(!human) {
+-		double pr = std::sqrt(peaceThresh - u) * 0.03;
++	double prPeace = 0;
++	bool bOfferPeace = true;
++	int theirReluct = INT_MIN; // Costly, don't compute this sooner than necessary.
++	if(human) {
++		int contactDelay = agentLeader.AI_getContactTimer(target.getLeaderID(),
++				CONTACT_PEACE_TREATY);
++		if(contactDelay > 0) {
++			report->log("No peace with human sought b/c of contact delay: %d",
++					contactDelay);
++			prPeace = 0; // Don't return; capitulation always needs to be checked.
++			bOfferPeace = false;
++		}
++		else {
++			// 5 to 10%
++			prPeace = 1.0 / std::max(1, GC.getLeaderHeadInfo(agentLeader.
++					getPersonalityType()).getContactRand(CONTACT_PEACE_TREATY));
++			// Adjust probability based on whether peace looks like win-win or zero-sum
++			theirReluct = target.warAndPeaceAI().reluctanceToPeace(agentId, false);
++			double winWinFactor = (theirReluct + u) / -15.0;
++			if(winWinFactor < 0) {
++				winWinFactor = std::min(-1 * winWinFactor, 2.5);
++				winWinFactor = 1 / winWinFactor;
++			}
++			else winWinFactor = std::min(winWinFactor, 2.5);
++			/*  Tbd.: (5*2.5)% seems a bit much for leaders that should be reluctant
++				to sue for peace. Exponentiate prPeace? Subtract a percentage point
++				or two before applying the winWinFactor? */
++			prPeace *= winWinFactor;
++			report->log("Win-win factor: %d percent", ::round(winWinFactor * 100));
++		}
++	}
++	else prPeace = std::sqrt(peaceThresh - u) * 0.03;
++	if(bOfferPeace) {
+ 		report->log("Probability for peace negotiation: %d percent",
+-				::round(pr * 100));
+-		if(::bernoulliSuccess(1 - pr, "advc.104 (peace)")) {
++				::round(prPeace * 100));
++		if(::bernoulliSuccess(1 - prPeace, "advc.104 (peace)")) {
+ 			report->log("Peace negotiation randomly skipped");
+-			return true; // Don't consider capitulation w/o having tried peace negot.
++			if(!human) {
++				// Don't consider capitulation to AI w/o having tried peace negotiation
++				return true;
++			}
++			bOfferPeace = false;
+ 		}
+ 	}
+-	int theirReluct = target.warAndPeaceAI().reluctanceToPeace(agentId, false);
++	if(theirReluct == INT_MIN)
++		theirReluct = target.warAndPeaceAI().reluctanceToPeace(agentId, false);
+ 	report->log("Their reluctance to peace: %d", theirReluct);
+-	if(theirReluct <= maxReparations && !human) {
+-		// Base the reparations they demand on their economy
+-		int tradeVal = ::round(target.warAndPeaceAI().utilityToTradeVal(
+-				std::max(0, theirReluct)));
+-		/*  Reduce the trade value b/c the war isn't completely off the table;
+-			could continue after 10 turns. */
+-		tradeVal = ::round(tradeVal * WarAndPeaceAI::reparationsAIPercent / 100.0);
+-		report->log("Trying to offer reparations with a trade value of %d",
+-				tradeVal);
+-		bool r = true;
+-		if(!inBackgr)
+-			r = !agentLeader.AI_negotiatePeace(targetLeader.getID(), 0, tradeVal);
+-		report->log("Peace negotiation %s", (r ? "failed" : "succeeded"));
+-		return r;
+-	}
+-	else if(!human)
+-		report->log("No peace negotiation attempted; they're too reluctant");
++	if(bOfferPeace) {
++		if(theirReluct <= maxReparations) {
++			int tradeVal = 0;
++			int demandVal = 0; // (Demand only from humans)
++			if(human) {
++				tradeVal = endWarVal(targetId) - target.warAndPeaceAI().endWarVal(agentId);
++				// A bit higher than the K-Mod discounts (advc.134a)
++				double discountFactor = 1.3;
++				if(tradeVal < 0) {
++					demandVal = -tradeVal;
++					// Offer a square deal when it's close
++					if(demandVal < utilityToTradeVal(4.25, targetLeader.getID()))
++						demandVal = 0;
++					else demandVal = ::round(demandVal / discountFactor);
++					report->log("Seeking reparations with a trade value of %d", demandVal);
++					tradeVal = 0;
++				}
++				else tradeVal = ::round(discountFactor * tradeVal);
++			}
++			else {
++				// Base the reparations they demand on their economy
++				tradeVal = ::round(target.warAndPeaceAI().utilityToTradeVal(
++						std::max(0, theirReluct)));
++				/*  Reduce the trade value b/c the war isn't completely off the table;
++					could continue after 10 turns. */
++				tradeVal = ::round(tradeVal * WarAndPeaceAI::reparationsAIPercent / 100.0);
++			}
++			if(tradeVal > 0 || demandVal == 0)
++				report->log("Trying to offer reparations with a trade value of %d", tradeVal);
++			bool r = true;
++			if(!inBackgr)
++				r = !agentLeader.AI_negotiatePeace(targetLeader.getID(), demandVal, tradeVal);
++			if(human) {
++				if(r)
++					report->log("Failed to find a peace offer");
++				else report->log("Peace offer sent");
++			}
++			else report->log("Peace negotiation %s", (r ? "failed" : "succeeded"));
++			return r;
++		}
++		else report->log("No peace negotiation attempted; they're too reluctant");
++	}
+ 	if(considerCapitulation(targetId, u, theirReluct))
+ 		return true; // No surrender
+ 	int cities = agent.getNumCities();
+ 	/*  Otherwise, considerCapitulation guarantees that surrender (to AI)
+ 		is possible; before we do it, one last attempt to find help: */
+ 	if(cities > 1 && !tryFindingMaster(targetId))
+-		return false; // Have become a vassal, or awaiting human response
++		return false; // Have become a vassal, or awaiting human response.
+ 	// Liberate any colonies (to leave sth. behind, or just to spite the enemy)
+-	for(size_t i = 0; i < members.size(); i++)
+-		GET_PLAYER(members[i]).AI_doSplit(true);
++	if(!inBackgr) {
++		for(size_t i = 0; i < members.size(); i++)
++			GET_PLAYER(members[i]).AI_doSplit(true);
++	}
+ 	if(agent.getNumCities() != cities) {
+ 		report->log("Empire split");
+-		return false; // Leads to re-evaluation of war plans; may yet capitulate
++		return false; // Leads to re-evaluation of war plans; may yet capitulate.
+ 	}
+-	// Human: Only return after tryFindingMaster and AI_doSplit
+-	if(human) {
+-		report->log("Ready to capitulate to human (can't contact b/c of bug in EXE)");
+-		return true;
+-	}
+-	report->log("Implementing capitulation to %s",
++	report->log("%s capitulation to %s", human ? "Offering" : "Implementing",
+ 			report->leaderName(target.getLeaderID()));
+-	if(!inBackgr) { // Based on CvPlayerAI::AI_doPeace
+-		TradeData item;
+-		::setTradeItem(&item, TRADE_SURRENDER);
+-		CLinkList<TradeData> ourList, theirList;
+-		ourList.insertAtEnd(item);
+-		GC.getGameINLINE().implementDeal(agent.getLeaderID(), target.getLeaderID(),
+-				&ourList, &theirList);
++	if(!inBackgr) {
++		agentLeader.AI_offerCapitulation(target.getLeaderID());
++		return false;
+ 	}
+-	return false;
++	return true;
+ }
+ 
+ bool WarAndPeaceAI::Team::considerCapitulation(TeamTypes masterId, int ourWarUtility,
+@@ -1153,7 +1209,7 @@ int WarAndPeaceAI::Team::peaceThreshold(TeamTypes targetId) const {
+ 		return 0;
+ 	CvTeamAI const& target = GET_TEAM(targetId);
+ 	double r = -7.5; // To give it time
+-	// Give it more time then; also more bitterness I guess
++	// Give it more time then; also more bitterness I guess.
+ 	if(agent.AI_getWarPlan(targetId) == WARPLAN_TOTAL)
+ 		r -= 5;
+ 	// If they're attacked or att. recent (they could switch to total war eventually)
+@@ -1165,8 +1221,13 @@ int WarAndPeaceAI::Team::peaceThreshold(TeamTypes targetId) const {
+ 				2 * target.AI_getWarSuccess(agentId)) /
+ 				(0.5 * GC.getWAR_SUCCESS_CITY_CAPTURING()) +
+ 				agent.AI_getAtWarCounter(targetId));
+-	// Never set the threshold above 0
+-	return ::round(std::min(0.0, r));
++	int rounded = ::round(r);
++	if(!target.isHuman()) {
++		/* Never set the threshold above 0 for inter-AI peace
++			(let _them_ sue for peace instead) */
++		rounded = std::min(0, rounded);
++	}
++	return rounded;
+ }
+ 
+ int WarAndPeaceAI::Team::uJointWar(TeamTypes targetId, TeamTypes allyId) const {
+@@ -1230,7 +1291,7 @@ int WarAndPeaceAI::Team::tradeValJointWar(TeamTypes targetId,
+ int WarAndPeaceAI::Team::reluctanceToPeace(TeamTypes otherId,
+ 		bool nonNegative) const {
+ 
+-	int r = -uEndWar(otherId) - peaceThreshold(otherId);
++	int r = -uEndWar(otherId) - std::min(0, peaceThreshold(otherId));
+ 	if(nonNegative)
+ 		return std::max(0, r);
+ 	return r;
+
+[PATCH OMITTED] file=a/manual_0.94d.odt b/manual_0.94d.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=17 omittedFiles=2 embeddedPatchBytes=85205

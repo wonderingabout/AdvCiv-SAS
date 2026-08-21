@@ -1,0 +1,572 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1249
+# Commit: d0a60f8b901af1ea7a2f9df482ac874505de2f49
+# History segment: K-Mod history
+# Parent used for diff: fa1dc9eafd46bf776082534363d94f18b0ded465
+# Title: Improved German language text. (by Zholef)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/xml/Text/BUG Advisors Options.xml
+8	2	Assets/xml/Text/BUG Main Interface Options.xml
+1	1	Assets/xml/Text/BUG_CIV4GameText.xml
+2	2	Assets/xml/Text/CIV4GameText_UnofficialPatch.xml
+31	28	Assets/xml/Text/Civ4GameText_K-Mod.xml
+3	0	Assets/xml/Text/EventSigns_CIV4GameText.xml
+25	18	Assets/xml/Text/K-Mod hints.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/BUG Advisors Options.xml b/Assets/xml/Text/BUG Advisors Options.xml
+index 04524cf85..90bda9445 100644
+--- a/Assets/xml/Text/BUG Advisors Options.xml	
++++ b/Assets/xml/Text/BUG Advisors Options.xml	
+@@ -335,7 +335,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__NONZEROSTATSONLY_TEXT</Tag>
+ 		<English>Non-Zero Stats Only</English>
+ 		<French>Non-Zero Stats Only</French>
+-		<German>Non-Zero Stats Only</German>
++		<German>Nur Nicht-Nullwerte</German>
+ 		<Italian>Solo statistiche maggiori di zero</Italian>
+ 		<Spanish>Solo estad�sticas que no sean cero</Spanish>
+ 	</TEXT>
+@@ -343,7 +343,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__NONZEROSTATSONLY_HOVER</Tag>
+ 		<English>When checked, only non-zero entries are displayed in the Stats tab.</English>
+ 		<French>When checked, only non-zero entries are displayed in the Stats tab.</French>
+-		<German>When checked, only non-zero entries are displayed in the Stats tab.</German>
++		<German>Wenn aktiviert, werden im Statistiken-Reiter nur von Null verschiedene Werte angezeigt.</German>
+ 		<Italian>Quando � selezionato, solo le statistiche maggiori di zero sono mostrate nella tabella Statistiche.</Italian>
+ 		<Spanish>Activada, s�lo las entradas que no sean cero son mostradas en la pesta�a 'Estad�sticas'.</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/BUG Main Interface Options.xml b/Assets/xml/Text/BUG Main Interface Options.xml
+index da39aa39c..3ef954933 100644
+--- a/Assets/xml/Text/BUG Main Interface Options.xml	
++++ b/Assets/xml/Text/BUG Main Interface Options.xml	
+@@ -334,7 +334,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__RAPIDUNITCYCLING_TEXT</Tag>
+ 		<English>Rapid Unit Cycling</English>
+ 		<French>Rapid Unit Cycling</French>
+-		<German>Rapid Unit Cycling</German>
++		<German>Schneller Einheitenwechsel</German>
+ 		<Italian>Cicla rapidamente tra le unit�</Italian>
+ 		<Spanish>Circulaci�n de unidades r�pida</Spanish>
+ 	</TEXT>
+@@ -342,18 +342,24 @@
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__RAPIDUNITCYCLING_HOVER</Tag>
+ 		<English>When checked, automatic unit selection happens instantly rather than with a delay.</English>
+ 		<French>When checked, automatic unit selection happens instantly rather than with a delay.</French>
+-		<German>When checked, automatic unit selection happens instantly rather than with a delay.</German>
++		<German>L�sst den automatischen Einheitenwechsel ohne Verz�gerung passieren.</German>
+ 		<Italian>Quando � selezionato, la selezione automatica tra le unit� � istantanea anzich� con ritardo.</Italian>
+ 		<Spanish>Activada, la selecci�n de unidades autom�tica ocurre instant�neamente m�s que con un retardo.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SIMPLESELECTION_TEXT</Tag>
+ 		<English>Simple [Shift] Unit Selection</English>
++		<French>Simple [Shift] Unit Selection</French>
++		<German>Einfache [Umschalt]-Einheitenauswahl</German>
++		<Italian>Simple [Shift] Unit Selection</Italian>
+ 		<Spanish>Selecci�n de unidades simple [May�s]</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SIMPLESELECTION_HOVER</Tag>
+ 		<English>When checked, selecting units with the [Shift] key will only ever add a single unit at a time.</English>
++		<French>When checked, selecting units with the [Shift] key will only ever add a single unit at a time.</French>
++		<German>Beim Einheitenausw�hlen unter Gedr�ckthalten der [Umschalt]-Taste wird immer nur eine Einheit zus�tzlich ausgew�hlt.</German>
++		<Italian>When checked, selecting units with the [Shift] key will only ever add a single unit at a time.</Italian>
+ 		<Spanish>Activada, seleccionando unidades con la tecla [May�s] s�lo a�adir una unidad cada vez.</Spanish>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/BUG_CIV4GameText.xml b/Assets/xml/Text/BUG_CIV4GameText.xml
+index 790630160..fe01cc9ba 100644
+--- a/Assets/xml/Text/BUG_CIV4GameText.xml
++++ b/Assets/xml/Text/BUG_CIV4GameText.xml
+@@ -778,7 +778,7 @@
+ 		<Tag>TXT_KEY_MILITARY_SITREP_WORST</Tag>
+ 		<English>Worst</English>
+ 		<French>Worst</French>
+-		<German>Worst</German>
++		<German></German><!-- This is supposed to stay empty. -->
+ 		<Italian>Peggior</Italian>
+ 		<Spanish>Peor</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/CIV4GameText_UnofficialPatch.xml b/Assets/xml/Text/CIV4GameText_UnofficialPatch.xml
+index 03094f0db..571032975 100644
+--- a/Assets/xml/Text/CIV4GameText_UnofficialPatch.xml
++++ b/Assets/xml/Text/CIV4GameText_UnofficialPatch.xml
+@@ -9,7 +9,7 @@
+ 		<Tag>TXT_KEY_TERRAIN_TURN_DAMAGE</Tag>
+ 		<English>[NEWLINE][ICON_BULLET]%D1%% damage/turn</English>
+ 		<French>[NEWLINE][ICON_BULLET]%D1%% dommage/tour</French>
+-		<German>[NEWLINE][ICON_BULLET]%D1%% schaden/runde</German>
++		<German>[NEWLINE][ICON_BULLET]%D1%% Schaden/Runde</German>
+ 		<Italian>[NEWLINE][ICON_BULLET]%D1%% danni/turno</Italian>
+ 		<Spanish>[NEWLINE][ICON_BULLET]%D1%% da&#241;o/turno</Spanish>
+ 	</TEXT>
+@@ -17,7 +17,7 @@
+ 		<Tag>TXT_KEY_TERRAIN_TURN_HEALING</Tag>
+ 		<English>[NEWLINE][ICON_BULLET]%D1%% healing/turn</English>
+ 		<French>[NEWLINE][ICON_BULLET]%D1%% soigner/tour</French>
+-		<German>[NEWLINE][ICON_BULLET]%D1%% heilen/runde</German>
++		<German>[NEWLINE][ICON_BULLET]%D1%% Heilung/Runde</German>
+ 		<Italian>[NEWLINE][ICON_BULLET]%D1%% cura/turno</Italian>
+ 		<Spanish>[NEWLINE][ICON_BULLET]%D1%% cura/turno</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/Civ4GameText_K-Mod.xml b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+index 8c5879a0d..1b17e343f 100644
+--- a/Assets/xml/Text/Civ4GameText_K-Mod.xml
++++ b/Assets/xml/Text/Civ4GameText_K-Mod.xml
+@@ -20,7 +20,7 @@
+ 		<Tag>TXT_KEY_BONUS_ON_PLOT</Tag>
+ 		<English>[SPACE]on plot</English>
+ 		<French>[SPACE]sur le case</French>
+-		<German>[SPACE]auf gel�ndefeld</German>
++		<German>[SPACE]auf Gel�ndefeld</German>
+ 		<Italian>[SPACE]su casella</Italian>
+ 		<Spanish>[SPACE]en la casilla</Spanish>
+ 	</TEXT>
+@@ -248,7 +248,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_DOMESTIC</Tag>
+ 		<English>Domestic</English>
+ 		<French>Domestic</French>
+-		<German>Domestic</German>
++		<German>Inland</German>
+ 		<Italian>Domestic</Italian>
+ 		<Spanish>Nacional</Spanish>
+ 	</TEXT>
+@@ -256,7 +256,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_GLOBAL</Tag>
+ 		<English>Global</English>
+ 		<French>Global</French>
+-		<German>Global</German>
++		<German>Weltweit</German>
+ 		<Italian>Global</Italian>
+ 		<Spanish>Global</Spanish>
+ 	</TEXT>
+@@ -264,7 +264,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_EFFECTS</Tag>
+ 		<English>Effects</English>
+ 		<French>Effects</French>
+-		<German>Effects</German>
++		<German>Effekte</German>
+ 		<Italian>Effects</Italian>
+ 		<Spanish>Efectos</Spanish>
+ 	</TEXT>
+@@ -272,7 +272,7 @@
+ 		<Tag>TXT_KEY_TOTAL</Tag>
+ 		<English>Total</English>
+ 		<French>Total</French>
+-		<German>Total</German>
++		<German>Insgesamt</German>
+ 		<Italian>Total</Italian>
+ 		<Spanish>Total</Spanish>
+ 	</TEXT>
+@@ -280,7 +280,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_TOTAL_IMPACT</Tag>
+ 		<English>Total Impact</English>
+ 		<French>Total Impact</French>
+-		<German>Total Impact</German>
++		<German>Gesamteinfluss</German>
+ 		<Italian>Total Impact</Italian>
+ 		<Spanish>Impacto total</Spanish>
+ 	</TEXT>
+@@ -288,7 +288,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_THRESHOLD</Tag>
+ 		<English>Sustainability Threshold</English>
+ 		<French>Sustainability Threshold</French>
+-		<German>Sustainability Threshold</German>
++		<German>Nachhaltigkeitsgrenzwert</German>
+ 		<Italian>Il limite di sostenibilit�</Italian>
+ 		<Spanish>L�mite de sostenibilidad</Spanish>
+ 	</TEXT>
+@@ -296,7 +296,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_LOCAL_THRESHOLD</Tag>
+ 		<English>Local Sustainability Threshold</English>
+ 		<French>Local Sustainability Threshold</French>
+-		<German>Local Sustainability Threshold</German>
++		<German>Lokaler Nachhaltigkeitsgrenzwert</German>
+ 		<Italian>Local Sustainability Threshold</Italian>
+ 		<Spanish>L�mite de sostenibilidad local</Spanish>
+ 	</TEXT>
+@@ -304,7 +304,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_TOTAL_POLLUTION</Tag>
+ 		<English>Total Pollution</English>
+ 		<French>Total Pollution</French>
+-		<German>Total Pollution</German>
++		<German>Gesamtverschmutzung</German>
+ 		<Italian>Total Pollution</Italian>
+ 		<Spanish>Poluci�n total</Spanish>
+ 	</TEXT>
+@@ -312,7 +312,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_TOTAL_OFFSETS</Tag>
+ 		<English>Total Offsets</English>
+ 		<French>Total Offsets</French>
+-		<German>Total Offsets</German>
++		<German>Gesamtausgleich</German>
+ 		<Italian>Total Offsets</Italian>
+ 		<Spanish>Compensaciones totales</Spanish>
+ 	</TEXT>
+@@ -320,7 +320,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_GW_CHANGE_RATE</Tag>
+ 		<English>Change Rate of GW Index</English>
+ 		<French>Change Rate of GW Index</French>
+-		<German>Change Rate of GW Index</German>
++		<German>�nderungsrate des Erderw�rmungsindexes</German>
+ 		<Italian>Change Rate of GW Index</Italian>
+ 		<Spanish>Cambio en el �ndice del CG</Spanish>
+ 	</TEXT>
+@@ -328,7 +328,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_RELATIVE_CONTRIBUTION</Tag>
+ 		<English>Our Relative Contribution</English>
+ 		<French>Our Relative Contribution</French>
+-		<German>Our Relative Contribution</German>
++		<German>Unser relativer Beitrag</German>
+ 		<Italian>Our Relative Contribution</Italian>
+ 		<Spanish>Nuestra contribuci�n relativa</Spanish>
+ 	</TEXT>
+@@ -336,7 +336,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_GW_INDEX</Tag>
+ 		<English>Global Warming Index</English>
+ 		<French>Global Warming Index</French>
+-		<German>Global Warming Index</German>
++		<German>Erderw�rmungsindex</German>
+ 		<Italian>Global Warming Index</Italian>
+ 		<Spanish>�ndice del calentamiento global</Spanish>
+ 	</TEXT>
+@@ -344,7 +344,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_EXPECTED_EVENTS</Tag>
+ 		<English>Expected Events per Turn</English>
+ 		<French>Expected Events per Turn</French>
+-		<German>Expected Events per Turn</German>
++		<German>Erwartete Ereignisse pro Runde</German>
+ 		<Italian>Expected Events per Turn</Italian>
+ 		<Spanish>Eventos esperados por turno</Spanish>
+ 	</TEXT>
+@@ -352,7 +352,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_EVENT_TALLY</Tag>
+ 		<English>Event Tally</English>
+ 		<French>Event Tally</French>
+-		<German>Event Tally</German>
++		<German>Ereignisz�hler</German>
+ 		<Italian>Event Tally</Italian>
+ 		<Spanish>Registro de eventos</Spanish>
+ 	</TEXT>
+@@ -360,7 +360,7 @@
+ 		<Tag>TXT_KEY_ENVIRONMENT_LOCAL_ANGER_LEVEL</Tag>
+ 		<English>Local Anger Level</English>
+ 		<French>Local Anger Level</French>
+-		<German>Local Anger Level</German>
++		<German>Lokales Unmutsniveau</German>
+ 		<Italian>Local Anger Level</Italian>
+ 		<Spanish>Nivel de enfado local</Spanish>
+ 	</TEXT>
+@@ -368,7 +368,7 @@
+ 		<Tag>TXT_KEY_CHANCES</Tag>
+ 		<English>Chances</English>
+ 		<French>Chances</French>
+-		<German>Chances</German>
++		<German>Wahrscheinlichkeiten</German>
+ 		<Italian>Chances</Italian>
+ 		<Spanish>Probabilidades</Spanish>
+ 	</TEXT>
+@@ -377,7 +377,7 @@
+ 		<Tag>TXT_KEY_GW_INDEX_HELP</Tag>
+ 		<English>Total accumulated pollution above the sustainability threshold.</English>
+ 		<French>Total accumulated pollution above the sustainability threshold.</French>
+-		<German>Total accumulated pollution above the sustainability threshold.</German>
++		<German>Gesamtverschmutzung oberhalb des Nachhaltigkeitsgrenzwertes</German>
+ 		<Italian>Inquinamento accumulato totale prima di oltrepassare il limite di sostenibilit�.</Italian>
+ 		<Spanish>Poluci�n acumulada total por encima del l�mite de sostenibilidad</Spanish>
+ 	</TEXT>
+@@ -385,7 +385,7 @@
+ 		<Tag>TXT_KEY_GW_UNHAPPY_HELP</Tag>
+ 		<English>[ICON_UNHAPPY] due to global warming.</English>
+ 		<French>[ICON_UNHAPPY] due to global warming.</French>
+-		<German>[ICON_UNHAPPY] due to global warming.</German>
++		<German>[ICON_UNHAPPY] aufgrund der Erderw�rmung.</German>
+ 		<Italian>[ICON_UNHAPPY] a causa del riscaldamento globale.</Italian>
+ 		<Spanish>[ICON_UNHAPPY] debido al calentamiento global.</Spanish>
+ 	</TEXT>
+@@ -393,7 +393,7 @@
+ 		<Tag>TXT_KEY_SUSTAINABILITY_THRESHOLD_HELP</Tag>
+ 		<English>The maximum rate of pollution that can be safely absorbed by the environment.</English>
+ 		<French>The maximum rate of pollution that can be safely absorbed by the environment.</French>
+-		<German>The maximum rate of pollution that can be safely absorbed by the environment.</German>
++		<German>H�chste Verschmutzungsrate, die gefahrlos von der Umwelt absorbiert werden kann.</German>
+ 		<Italian>Il massimo livello di inquinamento che pu� essere assorbito dall'ambiente senza problemi.</Italian>
+ 		<Spanish>La tasa m�xima de poluci�n que puede ser absorbida con seguridad por el entorno.</Spanish>
+ 	</TEXT>
+@@ -401,7 +401,7 @@
+ 		<Tag>TXT_KEY_GW_RELATIVE_CONTRIBUTION_HELP</Tag>
+ 		<English>Our pollution rate relative to the global average.</English>
+ 		<French>Our pollution rate relative to the global average.</French>
+-		<German>Our pollution rate relative to the global average.</German>
++		<German>Unsere Verschmutzungsrate im Vergleich zum globalen Durchschnitt</German>
+ 		<Italian>Il nostro livello di inquinamento relativo alla media globale.</Italian>
+ 		<Spanish>Nuestra tasa de poluci�n relativa a la media global.</Spanish>
+ 	</TEXT>
+@@ -409,7 +409,7 @@
+ 		<Tag>TXT_KEY_GW_SEVERITY_RATING</Tag>
+ 		<English>Global warming severity rating</English>
+ 		<French>�valuation globale s�v�rit� du r�chauffement</French>
+-		<German>Schweregrad der globalen Erw�rmung</German>
++		<German>Schweregrad der Erderw�rmung</German>
+ 		<Italian>Riscaldamento globale livello di gravit�</Italian>
+ 		<Spanish>Grado de gravedad del calentamiento global</Spanish>
+ 	</TEXT>
+@@ -418,7 +418,7 @@
+ 		<Tag>TXT_KEY_POLLUTION_OFFSETS_HELP</Tag>
+ 		<English>Effective pollution reductions:</English>
+ 		<French>Effective pollution reductions:</French>
+-		<German>Effective pollution reductions:</German>
++		<German>Effektive Gegenma�nahmen:</German>
+ 		<Italian>Riduzioni effettive inquinamento:</Italian>
+ 		<Spanish>Reducciones de poluci�n efectivas:</Spanish>
+ 	</TEXT>
+@@ -476,7 +476,7 @@
+ 		<Tag>TXT_KEY_ANGER_GLOBAL_WARMING</Tag>
+ 		<English>+%d1_Change[ICON_UNHAPPY]: "Save the planet!"</English>
+ 		<French>+%d1_Change[ICON_UNHAPPY]: "Save the planet!"</French>
+-		<German>+%d1_Change[ICON_UNHAPPY]: "Save the planet!"</German>
++		<German>+%d1_Change[ICON_UNHAPPY]: "Rettet die Erde!"</German>
+ 		<Italian>+%d1_Change[ICON_UNHAPPY]: "Salvare il pianeta!"</Italian>
+ 		<Spanish>+%d1_Change[ICON_UNHAPPY]: "�Salvad el planeta!"</Spanish>
+ 	</TEXT>
+@@ -493,7 +493,7 @@
+ 		<Tag>TXT_KEY_MISC_GLOBAL_WARMING_ACTIVE</Tag>
+ 		<English>Worldwide pollution has reached the sustainability threshold.</English>
+ 		<French>Worldwide pollution has reached the sustainability threshold.</French>
+-		<German>Worldwide pollution has reached the sustainability threshold.</German>
++		<German>Weltweite Umweltverschmutzung hat den Nachhaltigkeitsgrenzwert �berschritten.</German>
+ 		<Italian>L'inquinamento mondiale ha raggiunto il limite di sostenibilit�.</Italian>
+ 		<Spanish>La poluci�n mundial ha alcanzado el l�mite de sostenibilidad.</Spanish>
+ 	</TEXT>
+@@ -501,7 +501,7 @@
+ 		<Tag>TXT_KEY_POPUP_ENVIRONMENTAL_ADVISOR</Tag>
+ 		<English>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. See the Economics Advisor for further information.</English>
+ 		<French>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. See the Economics Advisor for further information.</French>
+-		<German>Our scientists have theorized that if worldwide pollution output continues to increase, we may be faced with irreversible climate change. See the Economics Advisor for further information.</German>
++		<German>Unsere Wissenschaftler haben errechnet, dass falls die weltweite Umweltverschmutzung weiter ansteigt, wir m�glicherweise mit unumkehrbarem Klimawandel rechnen m�ssen. Mehr Informationen im Wirtschaftsbericht.</German>
+ 		<Italian>I nostri scenziati hanno teorizzato che se l'inquinamento mondiale continua a crescere, dovremmo fronteggiare cambiamenti climatici irreversibili. Consulta il Consigliere Finanziario per maggiori informazioni.</Italian>
+ 		<Spanish>Nuestros cient�ficos han teorizado que si la producci�n de poluci�n mundial continua aumentando, debemos enfrentarnos a un cambio clim�tico irreversible. Mira el Consejero Econ�mico para informaci�n adicional.</Spanish>
+ 	</TEXT>
+@@ -518,6 +518,9 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_DISORGANIZED</Tag>
+ 		<English>Disorganized</English>
++		<French>Disorganized</French>
++		<German>Unorganisiert</German>
++		<Italian>Disorganized</Italian>
+ 		<Spanish>Desorganizado</Spanish>
+ 	</TEXT>
+ 
+@@ -588,7 +591,7 @@
+ 		<Tag>USER_DIPLO_WARPLAN_1</Tag>
+ 		<English>Join us in preparing for war...</English>
+ 		<French>Rejoignez-nous dans la pr�paration de la guerre...</French>
+-		<German>Begleiten Sie uns bei der Vorbereitung f�r den Krieg...</German>
++		<German>Bereiten Sie sich vor, auf Krieg...</German>
+ 		<Italian>Unitevi a noi nella preparazione per la guerra...</Italian>
+ 		<Spanish>�nase a nosotros en la preparaci�n para la guerra...</Spanish>
+ 	</TEXT>
+@@ -604,7 +607,7 @@
+ 		<Tag>AI_DIPLO_WARPLAN_CANCEL_1</Tag>
+ 		<English>OK, we'll cancel our war preparations.</English>
+ 		<French>D'accord, nous allons annuler notre pr�paratifs de guerre.</French>
+-		<German>Okay, wir k�ndigen unsere Kriegsvorbereitungen.</German>
++		<German>Gut, wir beenden unsere Kriegsvorbereitungen.</German>
+ 		<Italian>Ok, provvederemo ad annullare i nostri preparativi di guerra.</Italian>
+ 		<Spanish>Bueno, no cancelaremos nuestros preparativos para la guerra.</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/EventSigns_CIV4GameText.xml b/Assets/xml/Text/EventSigns_CIV4GameText.xml
+index f2a241888..d5c0ac342 100644
+--- a/Assets/xml/Text/EventSigns_CIV4GameText.xml
++++ b/Assets/xml/Text/EventSigns_CIV4GameText.xml
+@@ -173,6 +173,9 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SIGN_EVENT_VOLCANO_1</Tag>
+ 		<English>volcanic ash</English>
++		<French>volcanic ash</French>
++		<German>vulkanische Asche</German>
++		<Italian>volcanic ash</Italian>
+ 		<Spanish>cenizas volc�nicas</Spanish>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index 73d0f056a..6edfeb39e 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -19,7 +19,7 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_1</Tag>
+ 	<English>An aqueduct or a hospital will increase a city's health, but public transport or a recycling center will reduce its pollution...</English>
+ 	<French>An aqueduct or a hospital will increase a city's health, but public transport or a recycling center will reduce its pollution...</French>
+-	<German>An aqueduct or a hospital will increase a city's health, but public transport or a recycling center will reduce its pollution...</German>
++	<German>Aquedukte und Krankenh�user erh�hen Gesundheit, aber �ffentliche Verkehrsmittel und Recyclinganlagen verringern Umweltverschmutzung...</German>
+ 	<Italian>Un acquedotto o un ospedale aumentano la salute della citt�, ma il trasporto pubblico o il centro riciclaggio ne riducono l'inquinamento...</Italian>
+ 	<Spanish>Un acueducto o un hospital aumentar� la salud de una ciudad, pero el transporte p�blico o un centro de reciclaje reduce su poluci�n...</Spanish>
+ </TEXT>
+@@ -27,7 +27,7 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_2</Tag>
+ 	<English>The cultural influence of each city extends beyond its border. If you are being culturally pressured by another civilization, consider getting more culture in all nearby cities; not just the cities being pressed.</English>
+ 	<French>The cultural influence of each city extends beyond its border. If you are being culturally pressured by another civilization, consider getting more culture in all nearby cities; not just the cities being pressed.</French>
+-	<German>The cultural influence of each city extends beyond its border. If you are being culturally pressured by another civilization, consider getting more culture in all nearby cities; not just the cities being pressed.</German>
++	<German>Der kulturelle Einfluss einer Stadt erstreckt sich �ber ihre Grenzen hinaus. Unter kulturellem Druck bietet es sich daher an, auch in benachbarten St�dten mehr Kultur zu produzieren, nicht nur in den betroffenen St�dten.</German>
+ 	<Italian>L'influenza culturale di ogni citt� si estende oltre i suoi bordi. Se sei pressato culturalmente da un'altra civilt� prendi in considerazione di aumentare l'output culturale delle citt� vicine e non solo di quella pressata.</Italian>
+ 	<Spanish>La influencia clultural de cada ciudad se extiende m�s alla de su frontera. Si est�s siendo presionado culturalmente por otra civilizaci�n, considera adquirir m�s cultura en todas las ciudades cercanas; no solo en las ciudades que est�n siendo presionadas.</Spanish>
+ </TEXT>
+@@ -35,7 +35,7 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_3</Tag>
+ 	<English>Forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to reduce the effects of global warming.</English>
+ 	<French>Forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to reduce the effects of global warming.</French>
+-	<German>Forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to reduce the effects of global warming.</German>
++	<German>W�lder und Dschungel helfen die Umweltverschmutzung Ihrer Zivilisation auszugleichen. Ziehen Sie in Betracht, sie zu erhalten, um dem Klimawandel entgegenzuwirken.</German>
+ 	<Italian>Foreste e giungle aiutano a contrastare l'inquinamento causato dalla tua civilit�. Se non hai necessit� di abbatterle, considera di mantenerle per ridurre gli effetti del riscaldamento globale.</Italian>
+ 	<Spanish>Los bosques y las selvas ayudan a compensar la poluci�n causada por tu civilizaci�n. Si no necesitas talarlos, consid�raros para reducir los efectos del calentamiento global.</Spanish>
+ </TEXT>
+@@ -43,15 +43,15 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_4</Tag>
+ 	<English>If a rival civilization becomes fixated on world domination - beware! They may decide to attack you even if they appear friendly.</English>
+ 	<French>If a rival civilization becomes fixated on world domination - beware! They may decide to attack you even if they appear friendly.</French>
+-	<German>If a rival civilization becomes fixated on world domination - beware! They may decide to attack you even if they appear friendly.</German>
++	<German>Wenn eine rivalisierende Zivilisation sich auf Weltherrschaft fixiert - vorsicht! Sie k�nnten sich entscheiden, Sie anzugreifen, selbst wenn sie freundlich erscheinen.</German>
+ 	<Italian>Se una civilt� rivale punta a dominare il mondo - attenzione! Potrebbe decidere di attacacrti anche se appare amichevole.</Italian>
+ 	<Spanish>Si un rival se ha obsesionado en la dominaci�n mundial - �ten cuidado! Pueden decidir atacarte incluso si parecen amistosos.</Spanish>
+ </TEXT>
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_5</Tag>
+-	<English>Factories and Assembly Lines create extra pollution with coal and oil. If aren't using your fossil fuels, consider removing access to them so that your people will be healthier.</English>
+-	<French>Factories and Assembly Lines create extra pollution with coal and oil. If aren't using your fossil fuels, consider removing access to them so that your people will be healthier.</French>
+-	<German>Factories and Assembly Lines create extra pollution with coal and oil. If aren't using your fossil fuels, consider removing access to them so that your people will be healthier.</German>
++	<English>Factories and Assembly Lines create extra pollution with coal and oil. If you aren't using your fossil fuels, consider removing access to them so that your people will be healthier.</English>
++	<French>Factories and Assembly Lines create extra pollution with coal and oil. If you aren't using your fossil fuels, consider removing access to them so that your people will be healthier.</French>
++	<German>Fabriken und Industriegebiete erzeugen zus�tzliche Verschmutzung mit Kohle und �l. Ben�tigen Sie ihre fossilen Brennstoffe nicht, ziehen Sie in Betracht, den Zugang zu ihnen abzuschneiden, damit Ihre Bev�lkerung ges�nder wird.</German>
+ 	<Italian>Fabbriche e Linee di produzione causano ulteriore inquinamento con carbone e petrolio. Se non usi combustibili fossili, considera di rimuoverne l'accesso per aumentare la salute di cittadini.</Italian>
+ 	<Spanish>Las f�bricas y cadenas de montaje pueden producir poluci�n extra con carb�n y petr�leo. Si no est�s usando combustibles f�siles, considera quitar el acceso a ellos para que tu gente sea m�s saludable.</Spanish>
+ </TEXT>
+@@ -59,7 +59,7 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_6</Tag>
+ 	<English>Units with the "leadership" warlord promotion greatly reduce the chance of cultural revolts in their city.</English>
+ 	<French>Units with the "leadership" warlord promotion greatly reduce the chance of cultural revolts in their city.</French>
+-	<German>Units with the "leadership" warlord promotion greatly reduce the chance of cultural revolts in their city.</German>
++	<German>Einheiten mit der "Kriegsherr"-Bef�rderung in St�dten verringern sehr die Wahrscheinlichkeit von kulturbedingten Revolten.</German>
+ 	<Italian>Le unit� con la promozione "Leadership" (Grande Generale richiesto) riducono maggiormente le probabilit� di rivolta di una citt�.</Italian>
+ 	<Spanish>Las unidades con el ascendo de caudillo "liderazgo" reduce enormemente la probabilidad de rebeliones culturales en su ciudad.</Spanish>
+ </TEXT>
+@@ -67,7 +67,7 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_7</Tag>
+ 	<English>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. More experience points are given to bigger groups.</English>
+ 	<French>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. More experience points are given to bigger groups.</French>
+-	<German>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. More experience points are given to bigger groups.</German>
++	<German>Wenn ein Gro�er General sich dazu entschlie�t, eine Einheit als Kriegsherr zu f�hren, teilt er einmalig einige Erfahrungspunkte mit allen Einheiten der Gruppe.  Gr��ere Gruppen erhalten dabei mehr Punkte als kleine.</German>
+ 	<Italian>Quando un Grande Generale decide di unirsi ad un unit� come Grande Condottiero, distribuisce in immediato aumento di esperienza con tutte le unit� sulla stessa casella. Maggiore lo stack, maggiore l'esperienza.</Italian>
+ 	<Spanish>Cuando un Gran General elige liderar una unidad como un caudillo, comparte un aumento inmediato de experiencia a todas las unidades en el grupo. M�s puntos de experiencia son dados a grupos m�s grandes.</Spanish>
+ </TEXT>
+@@ -75,7 +75,7 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_8</Tag>
+ 	<English>Hold down the [ALT] key and point to a building or specialist to see the net effect it would have in the current city.</English>
+ 	<French>Hold down the [ALT] key and point to a building or specialist to see the net effect it would have in the current city.</French>
+-	<German>Hold down the [ALT] key and point to a building or specialist to see the net effect it would have in the current city.</German>
++	<German>Halte [Alt] gedr�ckt und zeige auf ein Geb�ude oder einen Spezialisten um zu sehen, welchen netto Effekt es oder er in der akt�llen Stadt h�tte.</German>
+ 	<Italian>Hold down the [ALT] key and point to a building or specialist to see the net effect it would have in the current city.</Italian>
+ 	<Spanish>Mant�n la tecla [ALT] presionada y apunta a un edificio o especialista para ver el efecto si estuviera en la ciudad actual.</Spanish>
+ </TEXT>
+@@ -83,7 +83,7 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_9</Tag>
+ 	<English>As religions grow older, they become slightly less likely to spread.</English>
+ 	<French>As religions grow older, they become slightly less likely to spread.</French>
+-	<German>As religions grow older, they become slightly less likely to spread.</German>
++	<German>�ltere Religionen verbreiten sich ein kleines bisschen langsamer.</German>
+ 	<Italian>As religions grow older, they become slightly less likely to spread.</Italian>
+ 	<Spanish>Cuando las religiones envejecen, se vuelven un poco menos probable de propagarse.</Spanish>
+ </TEXT>
+@@ -91,7 +91,7 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_10</Tag>
+ 	<English>If a foreign leader is Pleased with you, they will not mind being asked for a small gift.</English>
+ 	<French>If a foreign leader is Pleased with you, they will not mind being asked for a small gift.</French>
+-	<German>If a foreign leader is Pleased with you, they will not mind being asked for a small gift.</German>
++	<German>Zufriedene Anf�hrer anderer Zivilisationen st�rt es nicht, wenn man sie um etwas bittet.</German>
+ 	<Italian>If a foreign leader is Pleased with you, they will not mind being asked for a small gift.</Italian>
+ 	<Spanish>Si un leader extranjero est� Amable contigo, no se opondr�n a ser preguntados por un peque�o regalo.</Spanish>
+ </TEXT>
+@@ -99,7 +99,7 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_11</Tag>
+ 	<English>Units led by a warlord can be upgraded for free, and they do not lose their experience points.</English>
+ 	<French>Units led by a warlord can be upgraded for free, and they do not lose their experience points.</French>
+-	<German>Units led by a warlord can be upgraded for free, and they do not lose their experience points.</German>
++	<German>Von Kriegsherren angef�hrte Einheiten k�nnen umsonst modernisiert werden und verlieren dabei auch keine Erfahrungspunkte.</German>
+ 	<Italian>Units led by a warlord can be upgraded for free, and they do not lose their experience points.</Italian>
+ 	<Spanish>Las unidades lideradas por un caudillo pueden ser modernizadas gratis, y no perder�n sus putnos de experiencia.</Spanish>
+ </TEXT>
+@@ -107,7 +107,7 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_12</Tag>
+ 	<English>When a stack of units is attacked, the unit with the best chance of winning will usually defend first - but rookie units will attempt to protect experienced veterans and medics.</English>
+ 	<French>When a stack of units is attacked, the unit with the best chance of winning will usually defend first - but rookie units will attempt to protect experienced veterans and medics.</French>
+-	<German>When a stack of units is attacked, the unit with the best chance of winning will usually defend first - but rookie units will attempt to protect experienced veterans and medics.</German>
++	<German>Wenn ein Einheitenstapel angegriffen wird, verteidigt normalerweise die Einheit mit der besten Siegeschance zuerst - aber gr�ne Einheiten werden versuchen erfahrene Veteranen und �rzte zu besch�tzen.</German>
+ 	<Italian>When a stack of units is attacked, the unit with the best chance of winning will usually defend first - but rookie units will attempt to protect experienced veterans and medics.</Italian>
+ 	<Spanish>Cuando una pila de unidades es atacada, la unidad con mejor oprtunidad de ganar ser� normalmente la que defienda primero - pero las unidades novatas intentar�n proteger veteranos experimentados y m�dicos.</Spanish>
+ </TEXT>
+@@ -115,16 +115,16 @@
+ 	<Tag>TXT_KEY_KMOD_HINT_13</Tag>
+ 	<English>In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</English>
+ 	<French>In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</French>
+-	<German>In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</German>
++	<German>In der Bauauftragsliste einer Stadt k�nnen [Strg] und [Umschalt] benutzt werden um Eintr�ge hoch und runter zu bewegen; und [Alt] um Eintr�ge endlos bauen zu lassen.</German>
+ 	<Italian>In the city build queue, use [CTRL] and [SHIFT] to move items up and down; and [ALT] to toggle whether or not items should repeat.</Italian>
+ 	<Spanish>En la cola de construcci�n, usa [CTRL] y [MAY�S] para mover objetos arriba y abajo; y [ALT] para alternar si los objetos deben repetirse o no.</Spanish>
+ </TEXT>
+-<!-- replacement text for the inaccurate barbarian tip (changed english only)-->
++<!-- replacement text for the inaccurate barbarian tip (changed english and german only)-->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_12</Tag>
+ 	<English>Barbarians will not spawn within two steps of any player's units. With careful positioning of scouts you can completely block barbarian raiding parties from forming in your area.</English>
+ 	<French>Les barbares peuvent appara&#238;tre sur toutes les cases recouvertes par le brouillard de guerre. Vous ne saurez donc jamais ce qu'il y a sur celles qui sont invisibles, m&#234;me si vous avez d&#233;j&#224; v&#233;rifi&#233; au tour pr&#233;c&#233;dent !</French>
+-	<German>Barbaren k&#246;nnen auf allen vom Nebel des Krieges verh&#252;llten Gel&#228;ndefeldern lauern. Gehen Sie also nie davon aus, dass ein Feld, das Sie nicht sehen k&#246;nnen, sicher ist ... auch wenn Sie es in der vorherigen Runde &#252;berpr&#252;ft haben!</German>
++	<German>Barbarische Einheiten entstehen nicht auf Gel�ndefeldern, die zwei oder weniger Schritte von Einheiten anderer Spieler entfernt sind. Ein paar gut platzierte Einheiten k�nnen so oft ganze Bereiche von Barbaren frei halten.</German>
+ 	<Italian>I Barbari possono apparire in un qualsiasi spazio oscurato dalla nebbia di guerra. Non essere mai certo che uno spazio non visibile sia sicuro, anche se hai controllato durante il turno precedente!</Italian>
+ 	<Spanish>Los b�rbaros no reaparecer�n en dos pasos de cualquiera de las unidades. Con el posicionamiento cuidadoso de batidores puedes bloquear completamente grupos de pillaje que se formen en tu �rea.</Spanish>
+ </TEXT>
+@@ -133,17 +133,24 @@
+ 	<Tag>TXT_KEY_HINT_INTERFACE_6</Tag>
+ 	<English>Double clicking on a stack of units will wake them all up.</English>
+ 	<French>Double clicking on a stack of units will wake them all up.</French>
+-	<German>Double clicking on a stack of units will wake them all up.</German>
++	<German>Ein Doppelklick auf einen Einheitenstapel weckt sie alle auf.</German>
+ 	<Italian>Double clicking on a stack of units will wake them all up.</Italian>
+ 	<Spanish>Doble click en una pila de unidades las despertar� a todas.</Spanish>
+ </TEXT>
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_14</Tag>
+ 	<English>Hold the 'X' key when issuing a command to temporarily suppress automatic unit cycling.</English>
++	<French>Hold the 'X' key when issuing a command to temporarily suppress automatic unit cycling.</French>
++	<German>Halte 'X' gedr�ckt um den automatischen Einheitenwechsel zu unterdr�cken.</German>
++	<Italian>Hold the 'X' key when issuing a command to temporarily suppress automatic unit cycling.</Italian>
+ 	<Spanish>Mantener la tecla 'X' presionada cuando das una �rden para suprimir temporalmente el ciclo de unidades.</Spanish>
+ </TEXT>
+ <TEXT>
+ 	<Tag>TXT_KEY_KMOD_HINT_15</Tag>
+ 	<English>Commerce sliders and espionage weights can be set to max/min quickly by right clicking their +/- buttons.</English>
++	<French>Commerce sliders and espionage weights can be set to max/min quickly by right clicking their +/- buttons.</French>
++	<German>Die Handelsraten und Spinonagegewichtungen k�nnen durch einen Rechtsklick auf die Plus- oder Minuskn�pfe schnell maximiert beziehungsweise minimiert werden.</German>
++	<Italian>Commerce sliders and espionage weights can be set to max/min quickly by right clicking their +/- buttons.</Italian>
++	<Spanish>Commerce sliders and espionage weights can be set to max/min quickly by right clicking their +/- buttons.</Spanish>
+ </TEXT>
+ </Civ4GameText>
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=36165

@@ -1,0 +1,236 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5992
+# Commit: 2c4d36768cc681b6796472cde0214217b0ec8bf7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b07682a2d1b7406f77723507d6890db5baaa92ad
+# Title: Reduce empire-wide K-Mod AI specialist pressure from local Join City culture outside cultural victory, especially for Artists (since this specialist gives mo...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+17	7	CvGameCoreDLL/CvCityAI.cpp
+2	1	CvGameCoreDLL/CvCityAI.h
+47	3	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 8179ccc60..0125ed92a 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1141,6 +1141,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_GREAT_PERSON_WEIGHT_CORPORATION_FOUNDER_EXCESS_PERCENT</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
++	<!-- custom: BBAI logs showed that one city's high Join City culture value could raise the corresponding Great Person weight throughout an empire that was not pursuing cultural victory, including wartime empires assigning many Artists. Outside any cultural-victory stage, preserve this percent of the culture component only when calculating recurring Great Person weights. 100 restores old behavior; 50 halves that culture component; 0 ignores it. Other Join City value, actual Great Person actions, and cultural-victory strategies retain full value. (GPT-5.5 + ChatGPT-5.5 review) -->
++	<Define>
++		<DefineName>SAS_AI_GREAT_PERSON_WEIGHT_JOIN_CITY_CULTURE_NON_VICTORY_PERCENT</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Base AdvCiv can park ready city-attack stacks because enough units have upgrade potential, even when no unit can actually upgrade now. Allow important ready stacks with close targets to skip that wait: attacking can use the existing military advantage before enemies catch up, spend obsolete units so they no longer need upgrades or future upkeep, and capture cities that increase economy, unit support, and growth. See KI#156. (ChatGPT-5.5 + GPT-5.5); also if we wait our units risk becoming obsolete later so better use them now while they are strong and available. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 563b1d4da..a636388be 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -448,7 +448,8 @@ int CvCityAI::AI_specialistValue(SpecialistTypes eSpecialist, bool bRemove, bool
+ 
+ // K-Mod. The value of a long-term specialist, for use in calculating great person value, and value of free specialists from buildings.
+ // value is roughly 4 * 100 * commerce
+-int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
++// <!-- custom: Add optional piYieldValue and paiCommerceValues for BBAI logging purposes. (GPT-5.5 + ChatGPT-5.5) -->
++int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist, int* piYieldValue, int* paiCommerceValues) const
+ {
+ 	const CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+ 
+@@ -457,6 +458,13 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
+ 	const int iFoodValue = 11;
+ 
+ 	int iValue = 0;
++	if (piYieldValue != NULL)
++		*piYieldValue = 0;
++	if (paiCommerceValues != NULL)
++	{
++		FOR_EACH_ENUM(Commerce)
++			paiCommerceValues[eLoopCommerce] = 0;
++	}
+ 
+ 	// AI_getYieldMultipliers takes a little bit of time, so lets only do it if we need to.
+ 	bool bHasYield = false;
+@@ -474,12 +482,12 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
+ 		int iFoodX, iProdX, iComX, iUnused;
+ 		AI_getYieldMultipliers(iFoodX, iProdX, iComX, iUnused);
+ 		// I'm going to dilute the yield value multipliers, because they are ultimately less stable than commerce multipliers.
+-		iValue += iFoodValue * kPlayer.specialistYield(eSpecialist, YIELD_FOOD) *
+-				AI_yieldMultiplier(YIELD_FOOD) * (100+iFoodX) / 200;
+-		iValue += iProdValue * kPlayer.specialistYield(eSpecialist, YIELD_PRODUCTION) *
+-				AI_yieldMultiplier(YIELD_PRODUCTION) * (100+iProdX) / 200;
+-		iValue += iCommerceValue * kPlayer.specialistYield(eSpecialist, YIELD_COMMERCE) *
+-				AI_yieldMultiplier(YIELD_COMMERCE) * (100+iComX) / 200;
++		int iYieldValue = iFoodValue * kPlayer.specialistYield(eSpecialist, YIELD_FOOD) * AI_yieldMultiplier(YIELD_FOOD) * (100+iFoodX) / 200;
++		iYieldValue += iProdValue * kPlayer.specialistYield(eSpecialist, YIELD_PRODUCTION) * AI_yieldMultiplier(YIELD_PRODUCTION) * (100+iProdX) / 200;
++		iYieldValue += iCommerceValue * kPlayer.specialistYield(eSpecialist, YIELD_COMMERCE) * AI_yieldMultiplier(YIELD_COMMERCE) * (100+iComX) / 200;
++		iValue += iYieldValue;
++		if (piYieldValue != NULL)
++			*piYieldValue = iYieldValue;
+ 	}
+ 
+ 	FOR_EACH_ENUM(Commerce)
+@@ -492,6 +500,8 @@ int CvCityAI::AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const
+ 			iTemp *= kPlayer.AI_commerceWeight(eLoopCommerce, this);
+ 			iTemp /= 100;
+ 			iValue += iTemp;
++			if (paiCommerceValues != NULL)
++				paiCommerceValues[eLoopCommerce] = iTemp;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 3e940bc06..83fef0c00 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -23,7 +23,8 @@ public:
+ 	//bool AI_ignoreGrowth(); // advc.003j: K-Mod's replacement is also no longer used
+ 	//int AI_specialistValue(SpecialistTypes eSpecialist, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false) const;
+ 	int AI_specialistValue(SpecialistTypes eSpecialist, bool bRemove, bool bIgnoreFood = false, int iGrowthValue = -1) const; // K-Mod
+-	int AI_permanentSpecialistValue(SpecialistTypes eSpecialist) const; // K-Mod
++	// <!-- custom: Optional component outputs let log-gated Great Person weight diagnostics explain a winning Join City value without duplicating this valuation. (GPT-5.5 + ChatGPT-5.5) -->
++	int AI_permanentSpecialistValue(SpecialistTypes eSpecialist, int* piYieldValue = NULL, int* paiCommerceValues = NULL) const; // K-Mod
+ 	void AI_chooseProduction();
+ 	bool SAS_AI_findBestFallbackUnit(UnitTypes& ePickUnit, UnitAITypes& ePickUnitAI, bool bOffenseDefaultUnitAIsOnly, bool bDefenseDefaultUnitAIsOnly, int iMaxCost, bool bAllowSiege, bool bAllowTrebuchetsLike, int iCapNonTrebuchetsLikeSiegesAll, int iCapTrebsLike, int iSiegesAllNonTrebuchetsLike, int iSiegesAllTrebuchetsLike, UnitTypes eSkipUnit, bool bAllowOverallFallback, bool bAllowCheapestFallback) const;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1442cce98..0ba6f3a0f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -28172,11 +28172,19 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 	// <!-- custom: Corporation-founding buildings are one-shot Great Person actions, but K-Mod feeds their full building value into recurring Great Person point weights.
+ 	// Keep the corporation founder preference, but damp only the excess above the best settled-specialist value so ordinary specialist assignment is not dominated by one future corporation founder. (ChatGPT-5.5 + GPT-5.5 review) -->
+ 	static int const iSASCorporationFounderExcessPercent = range(GC.getDefineINT("SAS_AI_GREAT_PERSON_WEIGHT_CORPORATION_FOUNDER_EXCESS_PERCENT"), 0, 100);
++	// <!-- custom: BBAI logs showed that the best city's Join City culture component could dominate empire-wide Great Person weights even at culture stage 0 and during war.
++	// Outside a cultural-victory strategy, damp only that culture component for recurring GP generation; preserve all other Join City value and actual GP action valuation. (GPT-5.5 + ChatGPT-5.5 review) -->
++	static int const iSASJoinCityCultureNonVictoryPercent = range(GC.getDefineINT("SAS_AI_GREAT_PERSON_WEIGHT_JOIN_CITY_CULTURE_NON_VICTORY_PERCENT"), 0, 100);
++	bool const bAICultureVictory = AI_atVictoryStage(AI_VICTORY_CULTURE1);
++	bool const bDampenJoinCityCulture = (!bAICultureVictory && iSASJoinCityCultureNonVictoryPercent < 100);
+ 	std::map<UnitClassTypes, int> sasSettledGreatPersonValues;
++	std::map<UnitClassTypes, int> sasSettledGreatPersonOriginalValues;
+ 	std::map<UnitClassTypes, int> sasBuildingGreatPersonOriginalValues;
+ 	std::map<UnitClassTypes, int> sasBuildingGreatPersonValues;
+ 	std::map<UnitClassTypes, SpecialistTypes> sasSettledGreatPersonSources;
+ 	std::map<UnitClassTypes, BuildingTypes> sasBuildingGreatPersonSources;
++	std::map<UnitClassTypes, CvCityAI const*> sasSettledGreatPersonCities;
++	std::map<UnitClassTypes, std::vector<int> > sasSettledGreatPersonValueComponents;
+ 
+ 	// // <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+ 	// // <!-- custom: code/performance optimization: hoist -->
+@@ -28216,7 +28224,12 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 
+ 		int iValue = 0;
+ 		int iBestSettledValue = 0;
++		int iBestSettledOriginalValue = 0;
+ 		SpecialistTypes eBestSettledSpecialist = NO_SPECIALIST;
++		CvCityAI const* pBestSettledCity = NULL;
++		int iBestSettledYieldValue = 0;
++		int aiBestSettledCommerceValues[NUM_COMMERCE_TYPES] = {0};
++		int iBestSettledOtherValue = 0;
+ 		// value of joining a city as a super-specialist
+ 		FOR_EACH_ENUM2(Specialist, eSuperSpecialist)
+ 		{
+@@ -28226,12 +28239,27 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 			{
+ 				/*	Note, specialistValue is roughly 400x the commerce it provides.
+ 					So /= 4 to make it 100x. */
+-				int iTempValue = pLoopCity->AI_permanentSpecialistValue(eSuperSpecialist) / 4;
++				int iTempYieldValue;
++				int aiTempCommerceValues[NUM_COMMERCE_TYPES];
++				int const iTempOriginalValue = pLoopCity->AI_permanentSpecialistValue(eSuperSpecialist, (bLogCultureGreatPersonWeights ? &iTempYieldValue : NULL), (bLogCultureGreatPersonWeights || bDampenJoinCityCulture ? aiTempCommerceValues : NULL)) / 4;
++				int const iTempCultureValue = (bDampenJoinCityCulture ? aiTempCommerceValues[COMMERCE_CULTURE] / 4 : 0);
++				int const iTempValue = (bDampenJoinCityCulture ? iTempOriginalValue - iTempCultureValue + iTempCultureValue * iSASJoinCityCultureNonVictoryPercent / 100 : iTempOriginalValue);
+ 				if (iTempValue > iBestSettledValue)
+ 				{
+ 					iBestSettledValue = iTempValue;
+ 					if (bLogCultureGreatPersonWeights)
++					{
++						iBestSettledOriginalValue = iTempOriginalValue;
+ 						eBestSettledSpecialist = eSuperSpecialist;
++						pBestSettledCity = pLoopCity;
++						iBestSettledYieldValue = iTempYieldValue / 4;
++						iBestSettledOtherValue = iTempOriginalValue - iBestSettledYieldValue;
++						FOR_EACH_ENUM(Commerce)
++						{
++							aiBestSettledCommerceValues[eLoopCommerce] = aiTempCommerceValues[eLoopCommerce] / 4;
++							iBestSettledOtherValue -= aiBestSettledCommerceValues[eLoopCommerce];
++						}
++					}
+ 				}
+ 				iValue = std::max(iValue, iTempValue);
+ 			}
+@@ -28299,10 +28327,18 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 		if (bLogCultureGreatPersonWeights)
+ 		{
+ 			sasSettledGreatPersonValues[eGreatPersonClass] = iBestSettledValue;
++			sasSettledGreatPersonOriginalValues[eGreatPersonClass] = iBestSettledOriginalValue;
+ 			sasBuildingGreatPersonOriginalValues[eGreatPersonClass] = iBestBuildingOriginalValue;
+ 			sasBuildingGreatPersonValues[eGreatPersonClass] = iBestBuildingValue;
+ 			sasSettledGreatPersonSources[eGreatPersonClass] = eBestSettledSpecialist;
+ 			sasBuildingGreatPersonSources[eGreatPersonClass] = eBestBuilding;
++			sasSettledGreatPersonCities[eGreatPersonClass] = pBestSettledCity;
++			std::vector<int>& aSettledValueComponents = sasSettledGreatPersonValueComponents[eGreatPersonClass];
++			aSettledValueComponents.assign(NUM_COMMERCE_TYPES + 2, 0);
++			aSettledValueComponents[0] = iBestSettledYieldValue;
++			FOR_EACH_ENUM(Commerce)
++				aSettledValueComponents[1 + eLoopCommerce] = aiBestSettledCommerceValues[eLoopCommerce];
++			aSettledValueComponents[NUM_COMMERCE_TYPES + 1] = iBestSettledOtherValue;
+ 		}
+ 	}
+ 
+@@ -28353,9 +28389,17 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 			CvUnitInfo const& kGreatPerson = GC.getInfo(eGreatPerson);
+ 			SpecialistTypes const eSettledSpecialist = sasSettledGreatPersonSources[eGreatPersonClass];
+ 			BuildingTypes const eBuilding = sasBuildingGreatPersonSources[eGreatPersonClass];
+-			logBBAI("CULTURE_GREAT_PERSON_WEIGHT turn=%d player=%d %S greatPersonClass=%s greatPerson=%s settledSource=%s settledValue=%d buildingSource=%s buildingOriginalValue=%d buildingValue=%d rawValue=%d meanValue=%d normalizationMin=%d normalizedWeight=%d existingGreatPeople=%d cultureStage=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d focusWar=%d",
++			CvCityAI const* pSettledCity = sasSettledGreatPersonCities[eGreatPersonClass];
++			std::vector<int> const& aSettledValueComponents = sasSettledGreatPersonValueComponents[eGreatPersonClass];
++			int const iSettledCultureValue = aSettledValueComponents[1 + COMMERCE_CULTURE];
++			int const iSettledCulturePercent = (bAICultureVictory ? 100 : iSASJoinCityCultureNonVictoryPercent);
++			int const iSettledCultureEffectiveValue = iSettledCultureValue * iSettledCulturePercent / 100;
++			logBBAI("CULTURE_GREAT_PERSON_WEIGHT turn=%d player=%d %S greatPersonClass=%s greatPerson=%s settledSource=%s settledOriginalValue=%d settledValue=%d settledCity=%S settledCityId=%d settledYieldValue=%d settledGoldValue=%d settledResearchValue=%d settledCultureValue=%d settledCulturePercent=%d settledCultureEffectiveValue=%d settledEspionageValue=%d settledOtherValue=%d buildingSource=%s buildingOriginalValue=%d buildingValue=%d rawValue=%d meanValue=%d normalizationMin=%d normalizedWeight=%d existingGreatPeople=%d cultureStage=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d focusWar=%d",
+ 					GC.getGame().getGameTurn(), getID(), getCivilizationShortDescription(), GC.getInfo(eGreatPersonClass).getType(), kGreatPerson.getType(),
+-					(eSettledSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSettledSpecialist).getType()), sasSettledGreatPersonValues[eGreatPersonClass],
++					(eSettledSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSettledSpecialist).getType()), sasSettledGreatPersonOriginalValues[eGreatPersonClass], sasSettledGreatPersonValues[eGreatPersonClass],
++					(pSettledCity == NULL ? L"NONE" : pSettledCity->getName().GetCString()), (pSettledCity == NULL ? -1 : pSettledCity->getID()),
++					aSettledValueComponents[0], aSettledValueComponents[1 + COMMERCE_GOLD], aSettledValueComponents[1 + COMMERCE_RESEARCH],
++					iSettledCultureValue, iSettledCulturePercent, iSettledCultureEffectiveValue, aSettledValueComponents[1 + COMMERCE_ESPIONAGE], aSettledValueComponents[NUM_COMMERCE_TYPES + 1],
+ 					(eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()), sasBuildingGreatPersonOriginalValues[eGreatPersonClass], sasBuildingGreatPersonValues[eGreatPersonClass],
+ 					iRawValue, iMean, iMin, iValue, AI_totalUnitAIs(kGreatPerson.getDefaultUnitAIType()),
+ 					iCultureStage, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage, AI_isFocusWar());
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index eca0ddea9..ac9e7aa1c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -207,6 +207,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ - (Requires AdvCiv-SAS 5987+) Update: existing specialists **can still switch to a better specialist type** because doing so **does not reduce worked population or growth**. BBAI culture diagnostics exposed this when Barcelona had 8 existing Priests/Merchants but the growth guard forbade considering any switch between specialist types; normal valuation can now compare them and choose another type (e.g. Artist, Engineer, Scientist) when better.
+ - (Requires AdvCiv-SAS 5990+) **Reassign existing AI specialists to a better plot or specialist type:** K-Mod's quick initial estimate could leave a city population member assigned as a specialist even when K-Mod's existing full city-aware comparison rated an available plot or another specialist type higher. The AI now applies that full comparison through an additional pass that can reassign the specialist to the better plot or specialist type (an assignable free-specialist slot (counted by `totalFreeSpecialists()`), which does not use a population member, may change to a better allowed type; fixed-type free specialists (`getFreeSpecialistCount(type)`) remain unchanged, and explicitly AI/DLL-forced specialist assignments are not changed by this pass). This pass only reassigns existing specialists; it never removes a population member from a worked city plot to create a new specialist, preserving the AdvCiv-SAS growth-first safeguards against excessive specialist assignment, and every change must still pass the full city-aware valuation and starvation checks. Compared with the preceding BBAI run without this additional reassignment pass, both measured through turn 402, the new run made 1,963 approved reassignments (918 to plots and 1,045 between specialist types) and reduced remaining logged specialist-origin misses from 2,601 to 0. As a directional sanity check within the new run rather than a before/after comparison, this pass made 201 reassignments from Artist to another job and 46 reassignments to Artist.
+ - (Requires AdvCiv-SAS 5991+) **Reduce one-time corporation-founder pressure on recurring specialist selection:** Before founding a corporation, K-Mod repeatedly used the full value of its headquarters when deciding how strongly cities should favor specialist jobs that generate the required Great Person type. This helps produce the one founder, but a very valuable headquarters could make the AI assign too many of those specialists while waiting for that single Great Person (e.g., if at war but with many artist assignments). The AI now keeps the full value of eventually using the generated Great Person's Join City action, but counts only 50% (by default, tunable) of the corporation's additional value over Join City toward specialist selection. This reduces excessive pre-founder specialist pressure while retaining an incentive to produce the founder, and makes other specialist types or worked plots more competitive without forbidding the required Great Person type. This applies to every Great Person type that can found a corporation, not only Great Artists. Once generated, the Great Person still evaluates founding the corporation at full value. Behavior after the corporation is founded is unchanged. In the BBAI test, this reduced Corporation 7's contribution to Great Artist selection from 31,987 to 18,089; the corporation remained valuable enough that Rome still generated the required Great Artist on turn 297 and founded it on turn 298.
++- (Requires AdvCiv-SAS 5992+) **Reduce empire-wide specialist pressure from one city's local Join City culture value, especially for Artists (as this specialist gives most culture):** K-Mod uses the best value of having a Great Person Join City anywhere in the empire when weighting every specialist that can generate that Great Person type. BBAI logging showed that one city's high local culture value could therefore make Artists look unusually valuable throughout an empire that was not pursuing cultural victory, including during war: at culture stage 0 with war as its focus, Egypt had 8-9 Artists in Thebes and 7 in Memphis while high Join City culture values elsewhere set its empire-wide Great Artist weight. Outside cultural-victory stages, the AI now counts only 50% of the Join City culture component by default (tunable) when calculating recurring Great Person weights, making other specialist types or worked plots more competitive; all other Join City components keep their full value. The rule checks every Great Person type and reduces any culture its Join City specialist provides, but Great Artists are affected most because their joined specialist provides much more culture. Actual Great Person actions still use full value, and cultural-victory stages 1-4 retain 100% of the culture component. Across directionally comparable but diverging BBAI autoplays, the maximum normalized Great Artist weight fell from 163 to 132 and entries above 130 fell from 111 to 11; the new run still included Join City, Discover, Golden Age, Great Work, and corporation-founding uses of Great Artists.
+ - Exception to the sanity guards rule, and AI enhancement: if a city hasn’t expanded to its **BFC** yet, auto-assign exactly **one Artist** to pop borders, then stop once secured. Implemented in `CvCity::AI_doTurn`.
+ 
+ #### Civics (AI)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=20217

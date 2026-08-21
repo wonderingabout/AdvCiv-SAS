@@ -8,15 +8,13 @@
 class CvUnit;
 
 // advc: Renamed from "getCombatOdds"
-int calculateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender, // Exposed to Python
-		bool bHideFreeWins = true); // advc.048c
+int calculateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender, bool bHideFreeWins = true); // advc.048c; Exposed to Python
 
 // <advc>
 namespace combat_odds
 {
 class Combatant;
-void initCombatants(CvUnit const& kAttacker, CvUnit const& kDefender,
-		Combatant& att, Combatant& def, bool bHideFreeWins);
+void initCombatants(CvUnit const& kAttacker, CvUnit const& kDefender, Combatant& att, Combatant& def, bool bHideFreeWins);
 class Combatant // Replacing local iAttacker..., iDefender... variables
 {
 public:
@@ -29,10 +27,7 @@ public:
 		FAssert(iOdds >= 0);
 		m_iOdds = iOdds;
 	}
-	void setHitsToWin(int iHitsToWin)
-	{
-		m_iHitsToWin = iHitsToWin;
-	}
+	void setHitsToWin(int iHitsToWin) { m_iHitsToWin = iHitsToWin; }
 	// (advc: Moved this comment from BtS's getCombatOdds)
 	// the integer math breaks down when #FS > 656 (with a die size of 1000)
 	void setFirstStrikes(int iCertainFS, int iFSChances)
@@ -40,14 +35,8 @@ public:
 		m_iCertainFS = iCertainFS;
 		m_iFSChances = iFSChances;
 	}
-	void setStrength(int iStrength)
-	{
-		m_iStrength = iStrength;
-	}
-	void setDamagePerRound(int iDamagePerRound)
-	{
-		m_iDamagePerRound = iDamagePerRound;
-	}
+	void setStrength(int iStrength) { m_iStrength = iStrength; }
+	void setDamagePerRound(int iDamagePerRound) { m_iDamagePerRound = iDamagePerRound; }
 	// Per-round odds of landing a hit
 	int odds() const { return m_iOdds; }
 	// Hits that this combatant needs to land for victory
@@ -72,8 +61,7 @@ private:
 	int m_iDamagePerRound;
 };
 // From CvGameTextMgr.cpp (ACO helper function)
-float getCombatOddsSpecific(CvUnit const& kAttacker, CvUnit const& kDefender,
-		int iHitsByDef, int iHitsByAtt);
+float getCombatOddsSpecific(CvUnit const& kAttacker, CvUnit const& kDefender, int iHitsByDef, int iHitsByAtt);
 } // </advc>
 
 __int64 getBinomialCoefficient(int iN, int iK);

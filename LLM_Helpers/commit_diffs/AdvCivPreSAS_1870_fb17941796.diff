@@ -1,0 +1,583 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1870
+# Commit: fb1794179682ba78647f63ea54fe6b2870b6a08c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4d0dc0f4fa1e90103f76e6134d4d267659d10c67
+# Title: Change culture garrison strength formula; add tooltip.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	9	Assets/XML/GlobalDefines_advc.xml
+55	16	Assets/XML/Text/CIV4GameText_advc.xml
+6	6	Assets/XML/Units/CIV4UnitInfos.xml
+2	0	Assets/XML/Units/CIV4UnitSchema.xml
+33	39	CvGameCoreDLL/CvCity.cpp
+2	1	CvGameCoreDLL/CvCity.h
+29	9	CvGameCoreDLL/CvDLLWidgetData.cpp
+29	6	CvGameCoreDLL/CvGameTextMgr.cpp
+19	0	CvGameCoreDLL/CvUnit.cpp
+1	0	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 331b14034..bea7e7796 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -141,16 +141,25 @@
+         <iDefineIntVal>300</iDefineIntVal>
+     </Define>
+ 
+-	<!-- These three are from the original GlobalDefines.
+-
+-		 [advc.101]  Value increased to 200 (recommended) in an effort to
+-		 restore the original BtS revolt probabilities without undoing K-Mod's
+-		 overhaul of the culture system. This essentially doubles the strength
+-		 of foreign culture. Original value: 100 -->
++	<!-- advc.101: When computing revolt probabilities, the foreign culture
++		 strength is raised to this exponent and then multiplied by the
++		 factor below. Both are percentages, i.e. the DLL divides them by 100.
++		 This adjustment has become necessary after I made culture garrison
++		 strength values essentially equal to combat strength, which increases
++		 much more steeply over the course of a game than the iCultureGarrison
++		 values in XML. Recommended: 135, 35.
++		 Changing the factor will increase or decrease foreign culture strength
++		 over the entire game; the exponent affects especially the late game. -->
++	<Define>
++        <DefineName>FOREIGN_CULTURE_STRENGTH_EXPONENT</DefineName>
++        <iDefineIntVal>135</iDefineIntVal>
++    </Define>
+ 	<Define>
+-		<DefineName>REVOLT_TOTAL_CULTURE_MODIFIER</DefineName>
+-		<iDefineIntVal>200</iDefineIntVal>
+-	</Define>
++		<DefineName>FOREIGN_CULTURE_STRENGTH_FACTOR</DefineName>
++		<iDefineIntVal>35</iDefineIntVal>
++    </Define>
++
++	<!-- These two are from the original GlobalDefines. -->
+ 	<!-- [advc.099c] Was 100, meaning that foreign culture strength is doubled
+ 		 if the foreign state religion is in the city. Now also applies when the
+ 		 owner of the foreign culture is eliminated and there is a "suppressed"
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 4ed2bea92..c7d3a4c02 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -77,11 +77,11 @@
+ 		 BtS keys are located in CIV4GameTextInfos.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_PRIOR_REVOLTS</Tag>
+-		<English>Prior revolts: %s1_Num</English>
+-		<French>R&#233;voltes pr&#233;c&#233;dentes: %s1_Num</French>
+-		<German>Bisherige Revolten: %s1_Num</German>
+-		<Italian>Rivolti precedenti: %s1_Num</Italian>
+-		<Spanish>Rebeliones anteriores: %s1_Num</Spanish>
++		<English>Prior revolts: %d1</English>
++		<French>R&#233;voltes pr&#233;c&#233;dentes: %d1</French>
++		<German>Bisherige Revolten: %d1</German>
++		<Italian>Rivolti precedenti: %d1</Italian>
++		<Spanish>Rebeliones anteriores: %d1</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_PRIOR</Tag>
+@@ -109,21 +109,60 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_NO_REVOLT_IN_OCCUPATION</Tag>
+-		<English>(%s1_Chance%% once occupation or war ends)</English>
+-		<French>(%s1_Chance%% quand l'occupation ou la guerre finira)</French>
+-		<German>(%s1_Chance%% wenn Besatzung oder Krieg endet)</German>
+-		<Italian>(%s1_Chance%% quando finisce l'occupazione o la guerra)</Italian>
+-		<Spanish>(%s1_Chance%% cuando termine la ocupaci�n o la guerra) </Spanish>
++		<English>%s1_Chance%% once occupation or war ends</English>
++		<French>%s1_Chance%% quand l'occupation ou la guerre finira</French>
++		<German>%s1_Chance%% wenn Besatzung oder Krieg endet</German>
++		<Italian>%s1_Chance%% quando finisce l'occupazione o la guerra</Italian>
++		<Spanish>%s1_Chance%% cuando termine la ocupaci�n o la guerra</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_NO_BARB_REVOLT_IN_OCCUPATION</Tag>
+-		<English>(%s1_Chance%% once occupation ends)</English>
+-		<French>(%s1_Chance%% quand l'occupation finira)</French>
+-		<German>(%s1_Chance%% wenn Besatzung endet)</German>
+-		<Italian>(%s1_Chance%% quando finisce l'occupazione)</Italian>
+-		<Spanish>(%s1_Chance%% cuando termine la ocupaci�n)</Spanish>
++		<English>%s1_Chance%% once occupation ends</English>
++		<French>%s1_Chance%% quand l'occupation finira</French>
++		<German>%s1_Chance%% wenn Besatzung endet</German>
++		<Italian>%s1_Chance%% quando finisce l'occupazione</Italian>
++		<Spanish>%s1_Chance%% cuando termine la ocupaci�n</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_REVOLT_PR_BREAKDOWN</Tag>
++		<English>=[TAB]((%d2 culture pressure[NEWLINE][TAB]- %d1 garrison strength)[NEWLINE][TAB]/ %d3) * %d4%% base chance</English>
++		<French>=[TAB]((%d2 pressure [ICON_CULTURE][NEWLINE][TAB]- %d1 garrison [ICON_STRENGTH])[NEWLINE][TAB]/ %d3) * %d4%% base chance</French>
++		<German>=[TAB]((%d2 Kulturdruck[NEWLINE][TAB]- %d1 Garnisonsst�rke)[NEWLINE][TAB]/ %d3) * %d4%% Basischance</German>
++		<Italian>=[TAB]((%d2 pressure [ICON_CULTURE][NEWLINE][TAB]- %d1 garrison [ICON_STRENGTH]h)[NEWLINE][TAB]/ %d3) * %d4%% base chance</Italian>
++		<Spanish>=[TAB]((%d2 pressure [ICON_CULTURE][NEWLINE][TAB]- %d1 garrison [ICON_STRENGTH])[NEWLINE][TAB]/ %d3) * %d4%% base chance</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GARRISON_STRENGTH_NEEDED</Tag>
++		<English>Need %D1 garrison [ICON_STRENGTH] to suppress</English>
++		<French>Need %D1 garrison [ICON_STRENGTH] to suppress</French>
++		<German>Unterdr�ckung erfordert %D1 Garnisons-[ICON_STRENGTH]</German>
++		<Italian>Need %D1 garrison [ICON_STRENGTH] to suppress</Italian>
++		<Spanish>Need %D1 garrison [ICON_STRENGTH] to suppress</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GARRISON_STRENGTH_NEEDED_SHORT</Tag>
++		<English>(%D1[ICON_STRENGTH] to suppress)</English>
++		<French>(%D1[ICON_STRENGTH] pour 0%%)</French>
++		<German>(%D1[ICON_STRENGTH] f�r 0%%)</German>
++		<Italian>(%D1[ICON_STRENGTH] per 0%%)</Italian>
++		<Spanish>(%D1[ICON_STRENGTH] por 0%%)</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GARRISON_STRENGTH_EXCESS</Tag>
++		<English>May revolt if &gt; %d1 garrison [ICON_STRENGTH] are relocated</English>
++		<French>May revolt if &gt; %d1 garrison [ICON_STRENGTH] are relocated</French>
++		<German>Revolte m�gl. bei Abzug von &gt; %d1 Garnisons-[ICON_STRENGTH]</German>
++		<Italian>May revolt if &gt; %d1 garrison [ICON_STRENGTH] are relocated</Italian>
++		<Spanish>May revolt if &gt; %d1 garrison [ICON_STRENGTH] are relocated</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_GARRISON_STRENGTH_EXCESS_SHORT</Tag>
++		<English>City may revolt if &gt; %d1[ICON_STRENGTH] are removed</English>
++		<French>City may revolt if &gt; %d1[ICON_STRENGTH] are removed</French>
++		<German>Revolte m�gl. bei Abzug von &gt; %d1[ICON_STRENGTH]</German>
++		<Italian>City may revolt if &gt; %d1[ICON_STRENGTH] are removed</Italian>
++		<Spanish>City may revolt if &gt; %d1[ICON_STRENGTH] are removed</Spanish>
+ 	</TEXT>
+-
+ 
+ 	<!-- advc.101: Originally in CIV4GameTextInfos.xml. Adding the
+ 		 pre-revolt owner of the city. -->
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index ddae18546..85561869a 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -16198,7 +16198,7 @@
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<!-- advc.101: was 4 -->
++			<!-- advc.101: was 4 (unused since AdvCiv 0.97) -->
+ 			<iCultureGarrison>2</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+@@ -16396,7 +16396,7 @@
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<!-- advc.101: was 4 -->
++			<!-- advc.101: was 4 (unused since AdvCiv 0.97) -->
+ 			<iCultureGarrison>2</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+@@ -16590,7 +16590,7 @@
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<!-- advc.101: was 2 -->
++			<!-- advc.101: was 2 (unused since AdvCiv 0.97) -->
+ 			<iCultureGarrison>2</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+@@ -16780,7 +16780,7 @@
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<!-- advc.101: was 7 -->
++			<!-- advc.101: was 7 (unused since AdvCiv 0.97) -->
+ 			<iCultureGarrison>4</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+@@ -17176,7 +17176,7 @@
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<!-- advc.101: was 10 -->
++			<!-- advc.101: was 10 (unused since AdvCiv 0.97) -->
+ 			<iCultureGarrison>5</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>4</iAsset>
+@@ -17369,7 +17369,7 @@
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<!-- advc.101: was 12 -->
++			<!-- advc.101: was 12 (unused since AdvCiv 0.97) -->
+ 			<iCultureGarrison>6</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>5</iAsset>
+
+diff --git a/Assets/XML/Units/CIV4UnitSchema.xml b/Assets/XML/Units/CIV4UnitSchema.xml
+index f7dba579d..3162d243c 100644
+--- a/Assets/XML/Units/CIV4UnitSchema.xml
++++ b/Assets/XML/Units/CIV4UnitSchema.xml
+@@ -677,6 +677,8 @@
+ 		<element type="DomainCargo"/>
+ 		<element type="iCargo"/>
+ 		<element type="iConscription"/>
++		<!-- advc.101: No longer used, except that 0 still means that a unit
++			 can't suppress revolts. -->
+ 		<element type="iCultureGarrison"/>
+ 		<element type="iExtraCost"/>
+ 		<element type="iAsset"/>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 0d3481978..f4e6722ea 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3862,7 +3862,7 @@ int CvCity::getNoMilitaryPercentAnger() const
+ 		return iAnger;  // <advc.500b>
+ 	}
+ 	double targetGarrStr = getPopulation() / 2.0;
+-	double actualGarrStr = garrisonStrength(targetGarrStr);
++	double actualGarrStr = defensiveGarrison(targetGarrStr);
+ 	if(actualGarrStr >= targetGarrStr)
+ 		return 0;
+ 	/* Currently (as per vanilla) 334, meaning 33.4% of the population get angry.
+@@ -4640,9 +4640,8 @@ int CvCity::cultureStrength(PlayerTypes ePlayer) const
+ 	// <advc.opt>
+ 	static int const iREVOLT_OFFENSE_STATE_RELIGION_MODIFIER = GC.getDefineINT("REVOLT_OFFENSE_STATE_RELIGION_MODIFIER");
+ 	static int const iREVOLT_DEFENSE_STATE_RELIGION_MODIFIER = GC.getDefineINT("REVOLT_DEFENSE_STATE_RELIGION_MODIFIER");
+-	static int const iREVOLT_TOTAL_CULTURE_MODIFIER = GC.getDefineINT("REVOLT_TOTAL_CULTURE_MODIFIER"); // </advc.opt>
+-	/*  100 in BtS XML; I've increased it to 200 to keep pace with K-Mod's
+-		changes to culture spread */
++	static int const iREVOLT_TOTAL_CULTURE_MODIFIER = GC.getDefineINT("REVOLT_TOTAL_CULTURE_MODIFIER"); // 100
++	// </advc.opt>
+ 	grievanceModifier += -1 + (iREVOLT_TOTAL_CULTURE_MODIFIER / 100.0);
+ 	CvPlayer const& kRevoltPlayer = GET_PLAYER(ePlayer);
+ 	if(bReligionSuppressed || (kRevoltPlayer.isAlive() &&
+@@ -4681,7 +4680,14 @@ int CvCity::cultureStrength(PlayerTypes ePlayer) const
+ 	if(grievanceModifier < 0)
+ 		grievanceModifier /= 2;
+ 	strength *= (1 + std::max(-1.0, grievanceModifier));
+-	return ::round(strength);
++	/*	Culture strength too low in the late game - or garrison strength too high, but
++		garrison strength is what players can directly control; needs to be simple, linear. */
++	static double const FOREIGN_CULTURE_STRENGTH_EXPONENT =
++			GC.getDefineINT("FOREIGN_CULTURE_STRENGTH_EXPONENT") / 100.0;
++	static double const FOREIGN_CULTURE_STRENGTH_FACTOR =
++			GC.getDefineINT("FOREIGN_CULTURE_STRENGTH_FACTOR") / 100.0;
++	return ::round(FOREIGN_CULTURE_STRENGTH_FACTOR *
++			std::pow(strength, FOREIGN_CULTURE_STRENGTH_EXPONENT));
+ 	// </advc.101>
+ }
+ 
+@@ -4692,34 +4698,18 @@ int CvCity::cultureGarrison(PlayerTypes ePlayer) const
+ 		BtS enforces this in CvPlot::doCulture (now renamed to CvPlot::doRevolts).
+ 		Easier to do it here. */
+ 	if(isBarbarian())
+-		return 0; // </advc.101>
++		return 0;
+ 
+-	int iGarrison = 1;
++	int iGarrison = 0; // was 1  </advc.101>
+ 	for(CLLNode<IDInfo> const* pUnitNode = plot()->headUnitNode(); pUnitNode != NULL;
+ 		pUnitNode = plot()->nextUnitNode(pUnitNode))
+ 	{
+-		CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-		int iGarrisonLoop = pLoopUnit->getUnitInfo().getCultureGarrisonValue();
+-		// <advc.101>
+-		if (iGarrisonLoop <= 0)
+-			continue;
+-		/*  Culture garrison values increase a bit too slowly over the
+-			course of the game. Easier to adjust that here than through XML.
+-			Note that this exponentiation is partly canceled out by exponentiation
+-			of the current game era in CvCity::cultureStrength. */
+-		iGarrisonLoop = ::round(std::pow(iGarrisonLoop * 2 / 3.0, 1.4)); // </advc.101>
+-		// <advc.023>
+-		iGarrisonLoop *= pLoopUnit->maxHitPoints() - pLoopUnit->getDamage();
+-		iGarrisonLoop /= 100;
+-		iGarrison += iGarrisonLoop;
+-	}
+-	// Commented out: </advc.023>
++		// advc.101: Handled by new function
++		iGarrison += ::getUnit(pUnitNode->m_data)->garrisonStrength();
++	}
+ 	/*if (atWar(GET_PLAYER(ePlayer).getTeam(), getTeam()))
+-		iGarrison *= 2; */
+-	// <advc.101> Exponentiate again to give strength in numbers a superlinear effect
+-	if (iGarrison > 0)
+-		iGarrison = ::round(std::pow((double)iGarrison, 1.2)); // </advc.101>
+-	return iGarrison;
++		iGarrison *= 2;*/ // advc.023: commented out
++	return iGarrison / 100; // advc.101: iGarrison now has times-100 precision
+ }
+ 
+ // <advc.099c>
+@@ -9395,8 +9385,8 @@ double CvCity::revoltProbability(bool bIgnoreWar,
+ 	} // </advc.023>
+ 	int iCityStrength = cultureStrength(eCulturalOwner);
+ 	int iGarrison =
+-		(bIgnoreGarrison ? 0 : // advc.023
+-		cultureGarrison(eCulturalOwner));
++			(bIgnoreGarrison ? 0 : // advc.023
++			cultureGarrison(eCulturalOwner));
+ 	if(iCityStrength <= iGarrison)
+ 		return 0;
+ 	/*  About the two revolt tests: I guess the first one checks if the city tries
+@@ -9553,8 +9543,18 @@ void CvCity::changeNumRevolts(PlayerTypes eIndex, int iChange)
+ 
+ double CvCity::getRevoltTestProbability() const // advc.101: Changed return type
+ {
+-	int iBestModifier = 0;
++	int iProtection = getRevoltProtection(); // advc.101: Moved into new function
++	static int const iREVOLT_TEST_PROB = GC.getDefineINT("REVOLT_TEST_PROB"); // advc.opt
++	return std::min(1.0, // advc.101: Upper bound used to be handled by the caller
++			((iREVOLT_TEST_PROB * (100 - iProtection)) / 100.0)
++			// advc.101: was .getVictoryDelayPercent() in K-Mod
++			/ GC.getInfo(GC.getGame().getGameSpeedType()).getGoldenAgePercent());
++}
+ 
++// advc.101: Cut from getRevoltTestProbability
++int CvCity::getRevoltProtection() const
++{
++	int iBestModifier = 0;
+ 	for (CLLNode<IDInfo> const* pUnitNode = plot()->headUnitNode(); pUnitNode != NULL;
+ 		pUnitNode = plot()->nextUnitNode(pUnitNode))
+ 	{
+@@ -9562,13 +9562,7 @@ double CvCity::getRevoltTestProbability() const // advc.101: Changed return type
+ 		if (pLoopUnit->getRevoltProtection() > iBestModifier)
+ 			iBestModifier = pLoopUnit->getRevoltProtection();
+ 	}
+-	iBestModifier = range(iBestModifier, 0, 100);
+-
+-	static int const iREVOLT_TEST_PROB = GC.getDefineINT("REVOLT_TEST_PROB"); // advc.opt
+-	return std::min(1.0, // advc.101: Upper bound used to be handled by the caller
+-			((iREVOLT_TEST_PROB * (100 - iBestModifier)) / 100.0)
+-			// advc.101: was .getVictoryDelayPercent() in K-Mod
+-			/ GC.getInfo(GC.getGame().getGameSpeedType()).getGoldenAgePercent());
++	return range(iBestModifier, 0, 100);
+ }
+ 
+ bool CvCity::isEverOwned(PlayerTypes eIndex) const
+@@ -15171,7 +15165,7 @@ int CvCity::calculateColonyMaintenanceTimes100(CvPlot const& kCityPlot,
+ }
+ 
+ // <advc.500b> (The parameter is important for performance)
+-double CvCity::garrisonStrength(double stopCountingAt) const
++double CvCity::defensiveGarrison(double stopCountingAt) const
+ {
+ 	/*  Time is now acceptable, but still not negligible (slightly above 1%).
+ 		Probably b/c of the allUpgradesAvailable check. Should simply
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 345232b02..3bb68522a 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -767,6 +767,7 @@ public:
+ 	int getNumRevolts() const; // advc.099c: To the current cultural owner
+ 	void changeNumRevolts(PlayerTypes eIndex, int iChange);
+ 	double getRevoltTestProbability() const; // advc.101: Now between 0 and 1
++	int getRevoltProtection() const; // advc.101
+ 
+ 	bool isTradeRoute(PlayerTypes eIndex) const;																	// Exposed to Python
+ 	void setTradeRoute(PlayerTypes eIndex, bool bNewValue);
+@@ -1224,7 +1225,7 @@ protected:
+ 	bool canHurryBuilding(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const;
+ 
+ 	void updateBuildingDefense(); // advc.004c
+-	double garrisonStrength(double stopCountingAt = -1) const; // advc.500b
++	double defensiveGarrison(double stopCountingAt = -1) const; // advc.500b
+ 	//int calculateMaintenanceDistance() const;
+ 	// advc.004b: Replacing the above (which was public, but is only used internally)
+ 	static int calculateMaintenanceDistance(CvPlot const* cityPlot, PlayerTypes owner);
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 67cf77487..586eac817 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -4884,10 +4884,12 @@ void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
+ 				iCulturePercent, PLAYER_TEXT_COLOR(kPlayer), kPlayer.getCivilizationAdjective());
+ 		szBuffer.append(szTempBuffer);
+ 	}
+-	PlayerTypes eCulturalOwner = c.calculateCulturalOwner(); // advc.099c
+-	// <advc.101> <advc.023>
+-	double prDecr = c.probabilityOccupationDecrement();
+-	double prDisplay = c.revoltProbability(true, false, true);
++	PlayerTypes const eCulturalOwner = c.calculateCulturalOwner(); // advc.099c
++	// <advc.101><advc.023>
++	double const prDecr = c.probabilityOccupationDecrement();
++	double const prDisplay = c.revoltProbability(true, false, true);
++	int const iCultureStr = c.cultureStrength(eCulturalOwner);
++	int const iGarrisonStr = c.cultureGarrison(eCulturalOwner);
+ 	if(prDisplay > 0)
+ 	{
+ 		double truePr = c.revoltProbability() * (1 - prDecr);
+@@ -4906,14 +4908,25 @@ void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
+ 			else szBuffer.append(gDLL->getText("TXT_KEY_NO_REVOLT_IN_OCCUPATION",
+ 						szTempBuffer));
+ 		} // </advc.023>
+-		// <advc.101> Warn about flipping
+-		swprintf(szTempBuffer, L"%d", c.getNumRevolts(eCulturalOwner));
++		// <advc.101>
+ 		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_MISC_PRIOR_REVOLTS", szTempBuffer));
++		// Partial breakdown of the probability - not so helpful after all
++		/*int const iCultureStrength = c.cultureStrength(eCulturalOwner);
++		szBuffer.append(gDLL->getText("TXT_KEY_REVOLT_PR_BREAKDOWN",
++				c.cultureGarrison(eCulturalOwner),
++				// Can't break this down further - too complicated
++				iCultureStrength, iCultureStrength,
++				::round(100 * c.getRevoltTestProbability())));
++		// Also show c.getRevoltProtection()? */
++		szBuffer.append(gDLL->getText("TXT_KEY_GARRISON_STRENGTH_NEEDED",
++				iCultureStr - iGarrisonStr));
++		// Warn about flipping
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_MISC_PRIOR_REVOLTS", c.getNumRevolts(eCulturalOwner)));
+ 		if(truePr > 0 && c.canCultureFlip(eCulturalOwner))
+ 		{
+ 			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_MISC_FLIP_WARNING", szTempBuffer));
++			szBuffer.append(gDLL->getText("TXT_KEY_MISC_FLIP_WARNING"));
+ 		}
+ 	}
+ 	if(c.isOccupation()) // </advc.101>
+@@ -4934,7 +4947,14 @@ void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
+ 			szBuffer.append(gDLL->getText("TXT_KEY_TIMER_DECREASE_CHANCE",
+ 					prDecrPercent));
+ 		}
+-	} // </advc.023>
++	} // </advc.023>  // <advc.101>
++	else if(prDisplay <= 0 && eCulturalOwner != c.getOwner() &&
++		iGarrisonStr >= iCultureStr)
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_GARRISON_STRENGTH_EXCESS",
++				iGarrisonStr - iCultureStr));		
++	} // </advc.101>
+ }
+ 
+ void CvDLLWidgetData::parseHappinessHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 3487947a7..be5341139 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4406,10 +4406,14 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 			if(pPlot->isCity())
+ 			{
+ 				CvCity const& c = *pPlot->getPlotCity();
++				bool const bActiveOwned = (c.getOwner() == eActivePlayer);
+ 				double prRevolt = c.revoltProbability();
+ 				// <advc.023>
+-				double prDecrement = c.probabilityOccupationDecrement();
++				double const prDecrement = c.probabilityOccupationDecrement();
+ 				prRevolt *= 1 - prDecrement; // </advc.023>
++				PlayerTypes const eCulturalOwner = (bActiveOwned ? c.calculateCulturalOwner() : NO_PLAYER);
++				int const iGarrisonStr = (bActiveOwned ? c.cultureGarrison(eCulturalOwner) : -1);
++				int const iCultureStr = (bActiveOwned ? c.cultureStrength(eCulturalOwner) : -1);
+ 				if(prRevolt > 0)
+ 				{
+ 					/*  CvCity::revoltProbability rounds probabilities that are too
+@@ -4422,18 +4426,24 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 					swprintf(floatBuffer, L"%.1f", (float)(100 * prRevolt));
+ 					szString.append(gDLL->getText("TXT_KEY_MISC_CHANCE_OF_REVOLT",
+ 							floatBuffer));
+-					int iPriorRevolts = c.getNumRevolts();
++					if (bActiveOwned)
++					{
++						FAssert(iCultureStr > iGarrisonStr);
++						int iGarrisonStrNeeded = std::max(1, iCultureStr - iGarrisonStr);
++						szString.append(L"  ");
++						szString.append(gDLL->getText("TXT_KEY_GARRISON_STRENGTH_NEEDED_SHORT",
++								iGarrisonStrNeeded));
++					}
++					int const iPriorRevolts = c.getNumRevolts();
+ 					if(c.canCultureFlip())
+ 					{
+-						szString.append(L" (");
++						szString.append(NEWLINE);
+ 						szString.append(gDLL->getText("TXT_KEY_MISC_WILL_FLIP"));
+-						szString.append(L")");
+ 					}
+ 					else if(iPriorRevolts > 0)
+ 					{
+-						szString.append(L" (");
++						szString.append(NEWLINE);
+ 						szString.append(gDLL->getText("TXT_KEY_MISC_PRIOR", iPriorRevolts));
+-						szString.append(L")");
+ 					}
+ 					szString.append(NEWLINE);
+ 				} // <advc.023>
+@@ -4445,6 +4455,19 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 							floatBuffer));
+ 					szString.append(NEWLINE);
+ 				} // </advc.023>
++				else if (prRevolt <= 0 && bActiveOwned &&
++					eCulturalOwner != c.getOwner() && iGarrisonStr >= iCultureStr)
++				{
++					// Show it only when a local unit is selected? Eh ...
++					/*CvUnit* pSelectedUnit = gDLL->getInterfaceIFace()->getHeadSelectedUnit();
++					if (pSelectedUnit != NULL && pSelectedUnit->at(*pPlot))*/
++					{
++						int iSafeToRemove = (iGarrisonStr - iCultureStr);
++						szString.append(gDLL->getText("TXT_KEY_GARRISON_STRENGTH_EXCESS_SHORT",
++								iSafeToRemove));
++						szString.append(NEWLINE);
++					}
++				}
+ 			} // </advc.101>
+ 			// <advc.099g> Put the players w/ tile culture in a container first
+ 			std::vector<std::pair<int,PlayerTypes> > aieCulturePerPlayer;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 36b69e150..67e6df936 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -6853,6 +6853,25 @@ bool CvUnit::isMilitaryHappiness() const
+ 			GET_TEAM(getTeam()).getMasterTeam()); // </advc.001o>
+ }
+ 
++/*	<advc.101> Replacing iCultureGarrison in XML, which increases too slowly
++	over the course of the game. Note that CvCity::cultureStrength now also
++	increases faster than in BtS. */
++int CvUnit::garrisonStrength() const
++{
++	if (getDomainType() != DOMAIN_LAND || !canFight() ||
++		m_pUnitInfo->getCultureGarrisonValue() <= 0)
++	{
++		return 0;
++	}
++	int r = baseCombatStr();
++	int iModifier = (combatLimit() >= 100 ? 100 : 50);
++	iModifier += cityDefenseModifier() + getExtraCombatPercent();
++	// <advc.023>
++	iModifier *= currHitPoints();
++	iModifier /= 100; // </advc.023>
++	return r * iModifier;
++} // </advc.101>
++
+ 
+ bool CvUnit::isInvestigate() const
+ {
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 6dee09edd..25d6947a6 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -272,6 +272,7 @@ public:
+ 	bool isNoUnitCapture() const; // advc.315b
+ 	bool isRivalTerritory() const;																				// Exposed to Python
+ 	bool isMilitaryHappiness() const;																			// Exposed to Python
++	int garrisonStrength() const; // advc.101
+ 	bool isInvestigate() const;																						// Exposed to Python
+ 	bool isCounterSpy() const;																						// Exposed to Python
+ 	bool isSpy() const;
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=24520

@@ -1,0 +1,114 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4783
+# Commit: 5ebda9e22533e9b91a5a2ff4729e7cb38bbcdea6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 88eb21f702032d8821b07c0aceb7dcb919bf72b6
+# Title: tech_tree (simplified swapped version of it anyways etc) adjustments
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/XML/GameInfo/CIV4CivicInfos.xml
+2	1	Assets/XML/GameInfo/CIV4ReligionInfo.xml
+1	1	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md
+11	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/{0.30b_v18_tech_tree_mini_temp.png => 0.30b_tech_tree_mini_temp.png}
+ rename _1_AdvCiv-SAS/Images_In_General/misc_0.x/{0.30b_v18_tech_tree_mini_temp.png => 0.30b_tech_tree_mini_temp.png} (51%)
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index 5cdba72cc..a9c137d49 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -772,7 +772,8 @@
+ 			<Civilopedia>TXT_KEY_CIVIC_SLAVERY_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_CIVIC_SLAVERY_STRATEGY</Strategy>
+ 			<Button>,Art/Interface/Buttons/Civics/Slavery.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,8,2</Button>
+-			<TechPrereq>TECH_AGRICULTURE</TechPrereq>
++			<!-- custom: similarly than(/as? but anyways etc...) for religion_paganism (see there for details too anyways etc...), since we have no tech before tech_agriculture in our current tech tree, use a later tech instead, tech_the_wheel seems a quite good fit with the idea of ancient wheel tractign slaves like maybe in egypt and such intuitively as sad as may have been for them though but maybe accurate or intuitive and balanced for gameplaya s sad as it is or may have been rathe ror is too but anyways etc anyways etc anyways etc... -->
++			<TechPrereq>TECH_THE_WHEEL</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<Upkeep>UPKEEP_MEDIUM</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+
+diff --git a/Assets/XML/GameInfo/CIV4ReligionInfo.xml b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+index 472eb630d..fffedda44 100644
+--- a/Assets/XML/GameInfo/CIV4ReligionInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+@@ -26,7 +26,8 @@
+ 			<Description>TXT_KEY_RELIGION_PAGANISM</Description>
+ 			<Adjective>TXT_KEY_RELIGION_PAGANISM_ADJECTIVE</Adjective>
+ 			<Civilopedia>TXT_KEY_RELIGION_PAGANISM_PEDIA</Civilopedia>
+-			<TechPrereq>TECH_MYSTICISM</TechPrereq>
++			<!-- custom: ideally we'd want it to be tech_mysticism assuming we have one or a few techs before it (i.e. before (tech_)mysticism (but anyways etc...) but anyways etc..), but using tech_polytheism instead so some civ can compete for it rather than a random one seemingly getting it at start if many start with mysticism if i am not mistaken anyways etc -->
++			<TechPrereq>TECH_POLYTHEISM</TechPrereq>
+ 			<FreeUnitClass>UNITCLASS_PAGAN_MISSIONARY</FreeUnitClass>
+ 			<iFreeUnits>1</iFreeUnits>
+ 			<iSpreadFactor>100</iSpreadFactor>
+
+diff --git a/README.md b/README.md
+index b3c19bd84..f31330b31 100644
+--- a/README.md
++++ b/README.md
+@@ -168,7 +168,7 @@ See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_App
+ 
+ ## Main (bugs) fixed from base AdvCiv code
+ 
+-Non exhaustive, see docs for details, which includes but not only [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) anyways etc thanks anyways etc
++Non-exhaustive, see docs for details, which includes but not only [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) anyways etc thanks anyways etc
+ 
+ - Fixed AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob erroneously duplicated if i am not mistaken, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#2---now-fixed-gandhis-base-leaderheadinfos-xml-had-nowarattitudeprob-pleased110pleased115-duplicated-instead-of-as-i-suspect-it-should-be-anyways-etc-pleased110friendly115) for details
+ - Seemingly fixed now, c where barbarians would build and often complete wonders, now that they are economically competitive and strong enough to support/be able to do it vs other civs using builUnitProb 100 and tested successfully in a few/several 100-200 turns approximately autoplay, no wonder ever again at least in these runs unlike before this fix and despite other approaches, including old AdvCiv or/and base Civ4 code not working (to do that) that was cleaned up. Now that this behaviour is fixed, i'll maybe tweak/tone it down a bit now to allow some normal buildings like the barabarian lighthouse being built again or more often, see the [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-barbarians-cities-building-wonders) for details
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md
+index 70a7b614b..3119cf8ce 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md
+@@ -12,7 +12,7 @@ This is a todo, so will not start listing sources, will do it in a proper notes
+ 
+ Making some of them more badass at the same time, i think see mostly if not only anyways [Less generic or inaccurate unit names or/and combat types (todo)](#less-generic-or-inaccurate-unit-names-orand-combat-types-todo)
+ 
+-So far i am thinking of (non exhaustive, no source or explanation provided, it will be in docs else too tedious to do here anyways):
++So far i am thinking of (non-exhaustive, no source or explanation provided, it will be in docs else too tedious to do here anyways):
+ 
+ - Swordsman: Swordsfighter (Light, Medium, Heavy)
+ - Spearman: Lancer (Light, Medium, Heavy)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt
+index b724dfd52..34b75ca28 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt
+@@ -100,3 +100,14 @@ minimally exhaustive full early tech rework/inversions/+/- additions or not or y
+ - invert physics and magnetism (not did much research too i mean i did not anyways etc ideally would but maybe would not and or reevaluate this for the big tech tree i mean but anyways etc...)
+ - move radio to the empty space to the left (didnt do any research at all on it anyways etc) hopefully accurate enough even tohugh bit random but anyways etc and but maybe is or maybe is not or maybe is or yes not yes not or yes or other or not or other or other or etc anyways etc...
+ - add tech globalization replaces steel anyways etc, hopefully enough for this hack tech tree, looks quite cool and nice would need to balance it now, then add camel and gunpowder maybe too as new bonuses/ressources in another commit maybe or and maybe also other changes etc or not but anyways etc phewww hehe, anwyays etc :) but it does look nice from my memory of it but anywyas etc... resting a bit then doing next or rather maybe rest of it or not or yes or not or yes or etc or and othe ror and not (but) (or not but or yes but) but anyways etc...
++
++- move pottery away from tech tree temporarily
++- put agriculture instead at empty spot
++- then put animal husbandry at the empty spot of (where) agriculture (was) anyways etc
++- then put the wheel at the empty spot after animal husbandry
++- then put pottery after agriculture
++
++- move horseback riding temporarily away from tech tree
++- put construction at empty spot where horseback riding was anyways etc
++- put guilds at empty spot after writing, where construction was anyways etc
++- put horseback riding back (no pun but anyways etc...) after guilds, so very nice with all these changes too anyways etc, horseback riding (todo rename later to mounted riding or similar anyways etc) after guilds, chariots much further than the wheel so they have their own time to shine in intuitive tech tree view too if i am not mistaken or forgetting something or not if i may say or not or etc but anyways etc, construction much sooner as in our tech tree idealized or rather or both maybe finalized but anyways etc anyways etc anyways etc..., and guilds sooner in tech too, other changes very nice too (such as pottery being aligned (in same column) than the wheel) (or and other nice changes or and not or yes or etc but anyways etc) but anyways etc anyways etc anyways etc..., horseback riding aligned (in same column) as iron working even though not same tree path but about same historical time path is very nice too etc at least to me but anyways maybe to others or not or yes too ro not too or yes oto or nto but anyways etc anyways etc anyways etc... hopefulyl helpful or enjoyable or not not or yes yes or etc etc but anyways etc anyways etc anyways etc... i like these changes but anyways etc... anyways etc anyways etc...
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_v18_tech_tree_mini_temp.png b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_tech_tree_mini_temp.png
+similarity index 51%
+rename from _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_v18_tech_tree_mini_temp.png
+rename to _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_tech_tree_mini_temp.png
+index 28fc6ae9e..91cd60633 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_v18_tech_tree_mini_temp.png and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_tech_tree_mini_temp.png differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=9357

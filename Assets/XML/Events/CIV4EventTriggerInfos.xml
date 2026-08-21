@@ -189,11 +189,10 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
-				<ObsoleteTech>TECH_PLASTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -284,14 +283,15 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: was TECH_ARCHERY (now removed) -->
 			<OrPreReqs>
-				<PrereqTech>TECH_ARCHERY</PrereqTech>
+				<PrereqTech>TECH_HUNTING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
+			<!-- custom: TECH_STEEL was replaced with TECH_MARINE_TECHNOLOGY; use TECH_ENVIRONMENTALISM as the later substitute after Ecology's removal. (GPT-5.6-Sol) -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>1</bRecurring>
@@ -378,10 +378,11 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: replaced TECH_PRIESTHOOD (now removed), replaced with TECH_MONARCHY -->
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
+				<PrereqTech>TECH_MONARCHY</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -554,10 +555,10 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MACHINERY</ObsoleteTech>
 				<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
-				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
+				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -787,8 +788,8 @@
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_HINDU_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_CATHEDRAL</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_CONFUCIAN_CATHEDRAL</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_TAOIST_CATHEDRAL</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_PAGAN_CATHEDRAL</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
 			<iNumBuildingsGlobal>10</iNumBuildingsGlobal>
@@ -910,11 +911,10 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
-				<ObsoleteTech>TECH_PLASTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
+				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -1091,10 +1091,11 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: replaced TECH_PRIESTHOOD removed, replaced with TECH_MONARCHY -->
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
+				<PrereqTech>TECH_MONARCHY</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -1249,9 +1250,9 @@
 			<BonusesRequired/>
 			<RoutesRequired/>
 			<ReligionsRequired>
+				<ReligionType>RELIGION_PAGANISM</ReligionType>
 				<ReligionType>RELIGION_BUDDHISM</ReligionType>
-				<ReligionType>RELIGION_CONFUCIANISM</ReligionType>
-				<ReligionType>RELIGION_TAOISM</ReligionType>
+				<ReligionType>RELIGION_DAOISM</ReligionType>
 			</ReligionsRequired>
 			<iNumReligions>1</iNumReligions>
 			<CorporationsRequired/>
@@ -1513,7 +1514,7 @@
 			<BonusesRequired>
 				<BonusType>BONUS_WHEAT</BonusType>
 				<BonusType>BONUS_RICE</BonusType>
-				<BonusType>BONUS_CORN</BonusType>
+				<BonusType>BONUS_MAIZE</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>
@@ -1608,7 +1609,7 @@
 			<BonusesRequired>
 				<BonusType>BONUS_WHEAT</BonusType>
 				<BonusType>BONUS_RICE</BonusType>
-				<BonusType>BONUS_CORN</BonusType>
+				<BonusType>BONUS_MAIZE</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>
@@ -2911,7 +2912,6 @@
 				<ImprovementType>IMPROVEMENT_WORKSHOP</ImprovementType>
 				<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
 				<ImprovementType>IMPROVEMENT_WELL</ImprovementType>
-				<ImprovementType>IMPROVEMENT_WINERY</ImprovementType>
 				<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 				<ImprovementType>IMPROVEMENT_WATERMILL</ImprovementType>
 				<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
@@ -2934,10 +2934,11 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: replaced TECH_PRIESTHOOD removed, replaced with TECH_MONARCHY -->
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
+				<PrereqTech>TECH_MONARCHY</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -3104,7 +3105,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_MUSIC</PrereqTech>
+				<PrereqTech>TECH_ROMANTICISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -3381,7 +3382,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -3467,7 +3468,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -3551,7 +3552,6 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_THEOLOGY</PrereqTech>
 				<PrereqTech>TECH_LITERATURE</PrereqTech>
 				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
@@ -3639,7 +3639,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -3721,7 +3721,6 @@
 				<ImprovementType>IMPROVEMENT_WORKSHOP</ImprovementType>
 				<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
 				<ImprovementType>IMPROVEMENT_WELL</ImprovementType>
-				<ImprovementType>IMPROVEMENT_WINERY</ImprovementType>
 				<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 				<ImprovementType>IMPROVEMENT_WATERMILL</ImprovementType>
 				<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
@@ -3754,7 +3753,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -3840,7 +3839,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_WRITING</PrereqTech>
 				<PrereqTech>TECH_MONOTHEISM</PrereqTech>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -4250,7 +4249,7 @@
 				<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_CLAM</BonusType>
+				<BonusType>BONUS_MOLLUSCS</BonusType>
 			</BonusesRequired>
 			<RoutesRequired/>
 			<ReligionsRequired/>
@@ -5366,7 +5365,7 @@
 				<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_COW</BonusType>
+				<BonusType>BONUS_CATTLE</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>
@@ -5523,8 +5522,6 @@
 				<UnitClass>UNITCLASS_DESTROYER</UnitClass>
 				<UnitClass>UNITCLASS_BATTLESHIP</UnitClass>
 				<UnitClass>UNITCLASS_MISSILE_CRUISER</UnitClass>
-				<UnitClass>UNITCLASS_STEALTH_DESTROYER</UnitClass>
-				<UnitClass>UNITCLASS_SUBMARINE</UnitClass>
 				<UnitClass>UNITCLASS_ATTACK_SUBMARINE</UnitClass>
 				<UnitClass>UNITCLASS_CARRIER</UnitClass>
 				<UnitClass>UNITCLASS_TRANSPORT</UnitClass>
@@ -5980,14 +5977,15 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: was TECH_ARCHERY (now removed) -->
 			<OrPreReqs>
-				<PrereqTech>TECH_ARCHERY</PrereqTech>
+				<PrereqTech>TECH_MASONRY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -6077,10 +6075,10 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs/>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -6165,7 +6163,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -6373,7 +6371,7 @@
 			<iWeight>200</iWeight>
 			<bProbabilityUnitMultiply>0</bProbabilityUnitMultiply>
 			<bProbabilityBuildingMultiply>0</bProbabilityBuildingMultiply>
-			<Civic>CIVIC_EMANCIPATION</Civic>
+			<Civic>CIVIC_WAGE_LABOR</Civic>
 			<iMinTreasury>0</iMinTreasury>
 			<iMinPopulation>0</iMinPopulation>
 			<iMaxPopulation>0</iMaxPopulation>
@@ -7099,7 +7097,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_SAILING</PrereqTech>
+				<PrereqTech>TECH_SEAFARING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -7247,11 +7245,11 @@
 			<BuildingsRequired>
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_CHRISTIAN_MONASTERY</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_CONFUCIAN_MONASTERY</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_PAGAN_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_HINDU_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_JEWISH_MONASTERY</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_TAOIST_MONASTERY</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_DAOIST_MONASTERY</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
 			<iNumBuildingsGlobal>0</iNumBuildingsGlobal>
@@ -7388,7 +7386,8 @@
 			<bPickOtherPlayerCity>0</bPickOtherPlayerCity>
 			<bShowPlot>1</bShowPlot>
 			<iCityFoodWeight>0</iCityFoodWeight>
-			<PythonCanDo>canTriggerIndependentFilms</PythonCanDo>
+			<!-- custom: similarly remove this old bonus_movies code as well, was <PythonCanDo>canTriggerIndependentFilms</PythonCanDo> -->
+			<PythonCanDo/>
 			<PythonCanDoCity/>
 			<PythonCanDoUnit/>
 			<PythonCallback/>
@@ -7459,10 +7458,10 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MACHINERY</ObsoleteTech>
 				<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
-				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
+				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -7543,8 +7542,9 @@
 				<Event>EVENT_ANCIENTOLYMPICS_2</Event>
 			</PrereqEvents>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: replace with a more relevant tech tree tech as TECH_SCIENTIFIC_METHOD (now removed) has been moved in tech tree -->
 			<OrPreReqs>
-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
+				<PrereqTech>TECH_LIBERALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -7666,7 +7666,7 @@
 			<iWeight>100</iWeight>
 			<bProbabilityUnitMultiply>0</bProbabilityUnitMultiply>
 			<bProbabilityBuildingMultiply>0</bProbabilityBuildingMultiply>
-			<Civic>CIVIC_ENVIRONMENTALISM</Civic>
+			<Civic>CIVIC_TRADE_BLOC</Civic>
 			<iMinTreasury>0</iMinTreasury>
 			<iMinPopulation>0</iMinPopulation>
 			<iMaxPopulation>0</iMaxPopulation>
@@ -7883,7 +7883,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -7971,10 +7971,10 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MACHINERY</ObsoleteTech>
 				<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
-				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
+				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -8057,10 +8057,11 @@
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace with a substitute, here TECH_MILITARY_SCIENCE -->
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
+				<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -8146,7 +8147,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -8233,7 +8234,7 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -8314,17 +8315,17 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitute here TECH_CHEMISTRY -->
 			<AndPreReqs>
-				<PrereqTech>TECH_RIFLING</PrereqTech>
-				<PrereqTech>TECH_STEEL</PrereqTech>
+				<PrereqTech>TECH_FIREARMS</PrereqTech>
+				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
-				<ObsoleteTech>TECH_PLASTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -8576,10 +8577,10 @@
 				<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it wth a substitute here TECH_MILITARY_SCIENCE, also remove TECH_SCIENTIFIC_METHOD (now removed) here and ideally in places where it is not relevant anymore with reworked tech tree -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_MILITARY_SCIENCE</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -8666,7 +8667,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -8755,8 +8756,9 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: Keep this arts-related event at the later Aesthetics step rather than moving it with the restored Drama identity. (GPT-5.6-Sol) -->
 			<OrPreReqs>
-				<PrereqTech>TECH_DRAMA</PrereqTech>
+				<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -9002,13 +9004,13 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9100,10 +9102,10 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event, also remove TECH_SCIENTIFIC_METHOD (now removed) as it has been moved in tech tree, use another closer or more relevant tech in our reworked tech tree -->
 			<OrPreReqs>
 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
-				<PrereqTech>TECH_STEEL</PrereqTech>
-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
+				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
 				<PrereqTech>TECH_ARTILLERY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
@@ -9370,7 +9372,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9456,7 +9458,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9542,7 +9544,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9628,7 +9630,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9714,7 +9716,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9774,8 +9776,8 @@
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_HINDU_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_JEWISH_TEMPLE</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_CONFUCIAN_TEMPLE</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_TAOIST_TEMPLE</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_PAGAN_TEMPLE</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_DAOIST_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_CHRISTIAN_TEMPLE</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_TEMPLE</BuildingClass>
 			</BuildingsRequired>
@@ -9900,17 +9902,15 @@
 				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 				<PrereqTech>TECH_MONARCHY</PrereqTech>
-				<PrereqTech>TECH_ALPHABET</PrereqTech>
 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 				<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
 				<PrereqTech>TECH_AESTHETICS</PrereqTech>
-				<PrereqTech>TECH_THEOLOGY</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -9994,7 +9994,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
-				<PrereqTech>TECH_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			</OrPreReqs>
@@ -10147,8 +10147,8 @@
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_HINDU_CATHEDRAL</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_CATHEDRAL</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_CONFUCIAN_CATHEDRAL</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_TAOIST_CATHEDRAL</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_PAGAN_CATHEDRAL</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
 			<iNumBuildingsGlobal>0</iNumBuildingsGlobal>
@@ -10431,8 +10431,9 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, remove it from this event, but since it was the only tech, use TECH_COMBUSTION as a substitute -->
 			<OrPreReqs>
-				<PrereqTech>TECH_STEEL</PrereqTech>
+				<PrereqTech>TECH_COMBUSTION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -10600,7 +10601,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_ECOLOGY</PrereqTech>
+				<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -10668,7 +10669,7 @@
 				<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_COW</BonusType>
+				<BonusType>BONUS_CATTLE</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>
@@ -10772,8 +10773,9 @@
 			</Events>
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
+			<!-- custom: use a closer tech instead in our reworked tech tree, was TECH_SCIENTIFIC_METHOD (now removed) -->
 			<OrPreReqs>
-				<PrereqTech>TECH_SCIENTIFIC_METHOD</PrereqTech>
+				<PrereqTech>TECH_ECONOMICS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -11023,7 +11025,7 @@
 				<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_GEMS</BonusType>
+				<BonusType>BONUS_GEMSTONES</BonusType>
 			</BonusesRequired>
 			<RoutesRequired>
 				<RouteType>ROUTE_ROAD</RouteType>
@@ -11131,7 +11133,7 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_REFRIGERATION</PrereqTech>
+				<PrereqTech>TECH_ENVIRONMENTALISM</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -11219,7 +11221,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -11311,7 +11313,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -11391,13 +11393,13 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
-				<PrereqTech>TECH_COMPASS</PrereqTech>
+				<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
+			<!-- custom: note: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, still relevant here so replaced here as well -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_MARINE_TECHNOLOGY</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -11485,10 +11487,10 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs/>
+			<!-- custom: note: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, still relevant here so replaced here as well -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_MARINE_TECHNOLOGY</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -11573,7 +11575,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -11665,7 +11667,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -11751,7 +11753,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -11843,7 +11845,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -11926,9 +11928,10 @@
 				<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
+			<!-- custom: changed to another/account for tech to accommodate reworked tech tree -->
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_ECONOMICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -12015,8 +12018,8 @@
 			<OrPreReqs/>
 			<AndPreReqs/>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 				<ObsoleteTech>TECH_ECONOMICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -12100,11 +12103,10 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
-				<ObsoleteTech>TECH_PLASTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
+				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -12191,11 +12193,10 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
-				<ObsoleteTech>TECH_PLASTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
+				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -12442,7 +12443,7 @@
 			<OrPreReqs/>
 			<AndPreReqs/>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -12609,10 +12610,10 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs/>
+			<!-- custom: TECH_STEEL replaced with TECH_MARINE_TECHNOLOGY, replace it with a substitue that seems relevant in tech grid position. -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-				<ObsoleteTech>TECH_STEEL</ObsoleteTech>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_BIOLOGY</ObsoleteTech>
 				<ObsoleteTech>TECH_ARTILLERY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
@@ -12670,11 +12671,11 @@
 			<BuildingsRequired>
 				<BuildingClass>BUILDINGCLASS_BUDDHIST_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_CHRISTIAN_MONASTERY</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_CONFUCIAN_MONASTERY</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_PAGAN_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_HINDU_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_ISLAMIC_MONASTERY</BuildingClass>
 				<BuildingClass>BUILDINGCLASS_JEWISH_MONASTERY</BuildingClass>
-				<BuildingClass>BUILDINGCLASS_TAOIST_MONASTERY</BuildingClass>
+				<BuildingClass>BUILDINGCLASS_DAOIST_MONASTERY</BuildingClass>
 			</BuildingsRequired>
 			<iNumBuildings>1</iNumBuildings>
 			<iNumBuildingsGlobal>0</iNumBuildingsGlobal>
@@ -12703,7 +12704,7 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
-				<PrereqTech>TECH_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
@@ -12795,11 +12796,10 @@
 			<AndPreReqs/>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_RADIO</ObsoleteTech>
-				<ObsoleteTech>TECH_REFRIGERATION</ObsoleteTech>
-				<ObsoleteTech>TECH_PLASTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_ENVIRONMENTALISM</ObsoleteTech>
+				<ObsoleteTech>TECH_DEPOPULATION</ObsoleteTech>
 				<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
 				<ObsoleteTech>TECH_ADVANCED_FLIGHT</ObsoleteTech>
-				<ObsoleteTech>TECH_ECOLOGY</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -13259,10 +13259,10 @@
 			<MinDifficulty>NONE</MinDifficulty>
 			<iAngry>0</iAngry>
 			<iUnhealthy>0</iUnhealthy>
+			<!-- custom: caravel removed, remove UNITCLASS_CARAVEL from here too -->
 			<UnitsRequired>
 				<UnitClass>UNITCLASS_GALLEY</UnitClass>
 				<UnitClass>UNITCLASS_TRIREME</UnitClass>
-				<UnitClass>UNITCLASS_CARAVEL</UnitClass>
 				<UnitClass>UNITCLASS_GALLEON</UnitClass>
 				<UnitClass>UNITCLASS_PRIVATEER</UnitClass>
 				<UnitClass>UNITCLASS_FRIGATE</UnitClass>
@@ -13270,10 +13270,8 @@
 				<UnitClass>UNITCLASS_IRONCLAD</UnitClass>
 				<UnitClass>UNITCLASS_TRANSPORT</UnitClass>
 				<UnitClass>UNITCLASS_DESTROYER</UnitClass>
-				<UnitClass>UNITCLASS_STEALTH_DESTROYER</UnitClass>
 				<UnitClass>UNITCLASS_BATTLESHIP</UnitClass>
 				<UnitClass>UNITCLASS_MISSILE_CRUISER</UnitClass>
-				<UnitClass>UNITCLASS_SUBMARINE</UnitClass>
 				<UnitClass>UNITCLASS_ATTACK_SUBMARINE</UnitClass>
 				<UnitClass>UNITCLASS_CARRIER</UnitClass>
 			</UnitsRequired>
@@ -13431,7 +13429,7 @@
 			<iWeight>-2</iWeight>
 			<bProbabilityUnitMultiply>0</bProbabilityUnitMultiply>
 			<bProbabilityBuildingMultiply>0</bProbabilityBuildingMultiply>
-			<Civic>CIVIC_EMANCIPATION</Civic>
+			<Civic>CIVIC_WAGE_LABOR</Civic>
 			<iMinTreasury>0</iMinTreasury>
 			<iMinPopulation>0</iMinPopulation>
 			<iMaxPopulation>0</iMaxPopulation>
@@ -13561,10 +13559,10 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_MACHINERY</PrereqTech>
 				<PrereqTech>TECH_FEUDALISM</PrereqTech>
-				<PrereqTech>TECH_MUSIC</PrereqTech>
+				<PrereqTech>TECH_ROMANTICISM</PrereqTech>
 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-				<PrereqTech>TECH_THEOLOGY</PrereqTech>
+				<PrereqTech>TECH_AESTHETICS</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs/>
@@ -13650,7 +13648,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
-				<PrereqTech>TECH_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			</OrPreReqs>
@@ -13737,7 +13735,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
-				<PrereqTech>TECH_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			</OrPreReqs>
@@ -13824,7 +13822,7 @@
 			<OrPreReqs>
 				<PrereqTech>TECH_NATIONALISM</PrereqTech>
 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
-				<PrereqTech>TECH_EDUCATION</PrereqTech>
+				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			</OrPreReqs>
@@ -14155,14 +14153,14 @@
 				<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			</OrPreReqs>
 			<AndPreReqs/>
+			<!-- custom: remove TECH_ALPHABET as it has been removed from our tech tree (replaced in fact with TECH_NATURALISM but it is much later so tech requirements would not apply similarly to the previous TECH_ALPHABET so replace with a substitute or remove entirely TECH_ALPHABET) -->
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MONARCHY</ObsoleteTech>
 				<ObsoleteTech>TECH_LITERATURE</ObsoleteTech>
 				<ObsoleteTech>TECH_CODE_OF_LAWS</ObsoleteTech>
 				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 				<ObsoleteTech>TECH_MATHEMATICS</ObsoleteTech>
-				<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
-				<ObsoleteTech>TECH_HORSEBACK_RIDING</ObsoleteTech>
+				<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
 				<ObsoleteTech>TECH_IRON_WORKING</ObsoleteTech>
 				<ObsoleteTech>TECH_METAL_CASTING</ObsoleteTech>
 			</ObsoleteTechs>
@@ -14254,8 +14252,7 @@
 				<ObsoleteTech>TECH_CODE_OF_LAWS</ObsoleteTech>
 				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 				<ObsoleteTech>TECH_MATHEMATICS</ObsoleteTech>
-				<ObsoleteTech>TECH_ALPHABET</ObsoleteTech>
-				<ObsoleteTech>TECH_HORSEBACK_RIDING</ObsoleteTech>
+				<ObsoleteTech>TECH_MOUNTED_COMBAT</ObsoleteTech>
 				<ObsoleteTech>TECH_IRON_WORKING</ObsoleteTech>
 				<ObsoleteTech>TECH_METAL_CASTING</ObsoleteTech>
 			</ObsoleteTechs>
@@ -14341,10 +14338,10 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MACHINERY</ObsoleteTech>
 				<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
-				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
+				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -14431,10 +14428,10 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MACHINERY</ObsoleteTech>
 				<ObsoleteTech>TECH_FEUDALISM</ObsoleteTech>
-				<ObsoleteTech>TECH_MUSIC</ObsoleteTech>
+				<ObsoleteTech>TECH_ROMANTICISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PHILOSOPHY</ObsoleteTech>
 				<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-				<ObsoleteTech>TECH_THEOLOGY</ObsoleteTech>
+				<ObsoleteTech>TECH_AESTHETICS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -14513,13 +14510,13 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs>
-				<PrereqTech>TECH_SAILING</PrereqTech>
+				<PrereqTech>TECH_SEAFARING</PrereqTech>
 				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -14608,7 +14605,7 @@
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_NATIONALISM</ObsoleteTech>
 				<ObsoleteTech>TECH_PRINTING_PRESS</ObsoleteTech>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 				<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
 				<ObsoleteTech>TECH_GUNPOWDER</ObsoleteTech>
 			</ObsoleteTechs>
@@ -14692,8 +14689,8 @@
 			</OrPreReqs>
 			<AndPreReqs/>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -14779,8 +14776,8 @@
 			<OrPreReqs/>
 			<AndPreReqs/>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -14859,13 +14856,13 @@
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
 			<AndPreReqs>
-				<PrereqTech>TECH_GUILDS</PrereqTech>
-				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+				<PrereqTech>TECH_CHIVALRY</PrereqTech>
+				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MILITARY_TRADITION</ObsoleteTech>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -14951,8 +14948,8 @@
 			<OrPreReqs/>
 			<AndPreReqs/>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_RIFLING</ObsoleteTech>
-				<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
+				<ObsoleteTech>TECH_FIREARMS</ObsoleteTech>
+				<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -15035,7 +15032,7 @@
 				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_ROBOTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_ROBOT_RIGHTS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -15858,7 +15855,7 @@
 				<PrereqTech>TECH_POLYTHEISM</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -15943,8 +15940,9 @@
 			<AndPreReqs>
 				<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			</AndPreReqs>
+			<!-- custom: replace TECH_SCIENTIFIC_METHOD (now removed) now that it has a reworked position in tech tree with TECH_THEORY_OF_EVOLUTION -->
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+				<ObsoleteTech>TECH_THEORY_OF_EVOLUTION</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -16200,7 +16198,7 @@
 				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_ROBOTICS</ObsoleteTech>
+				<ObsoleteTech>TECH_ROBOT_RIGHTS</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -16537,8 +16535,9 @@
 			<PrereqEvents/>
 			<bPrereqEventPlot>0</bPrereqEventPlot>
 			<OrPreReqs/>
+			<!-- custom: TECH_PAPER replaced with TECH_THEORY_OF_EVOLUTION, use another relevant tech or around this tech time of previous tech instead in our reworked tech tree -->
 			<AndPreReqs>
-				<PrereqTech>TECH_PAPER</PrereqTech>
+				<PrereqTech>TECH_FEUDALISM</PrereqTech>
 			</AndPreReqs>
 			<ObsoleteTechs>
 				<ObsoleteTech>TECH_MASS_MEDIA</ObsoleteTech>
@@ -16805,7 +16804,7 @@
 			<OrPreReqs/>
 			<AndPreReqs/>
 			<ObsoleteTechs>
-				<ObsoleteTech>TECH_EDUCATION</ObsoleteTech>
+				<ObsoleteTech>TECH_BROADER_EDUCATION</ObsoleteTech>
 			</ObsoleteTechs>
 			<bRecurring>0</bRecurring>
 			<bTeam>0</bTeam>
@@ -16955,7 +16954,7 @@
 				<ImprovementType>NONE</ImprovementType>
 			</ImprovementsRequired>
 			<BonusesRequired>
-				<BonusType>BONUS_COW</BonusType>
+				<BonusType>BONUS_CATTLE</BonusType>
 				<BonusType>BONUS_PIG</BonusType>
 				<BonusType>BONUS_HORSE</BonusType>
 				<BonusType>BONUS_SHEEP</BonusType>

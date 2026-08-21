@@ -1,0 +1,203 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5248
+# Commit: 7b0f94bf009b78d5b193ef671742dcbc04efcc17
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6c67df16f99479500a820d34dddd4f4fe569bc8e
+# Title: whitelist headers and their spacers (functional even with groupings disabled in defines) with the help of chatgpt 5.2 and claude opus 4.5 for initial impleme...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+79	13	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	0	README.md
+3	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index f16576d09..7a582dcdc 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -211,6 +211,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# <!-- custom: debounce for type-to-filter to prevent double keypress even when key-up events are interleaved (chatgpt 5.2 + claude opus 4.5) -->
+ 		# Note: BtS/AdvCiv can fire NOTIFY_CHARACTER twice per press for letters/digits, and the 2nd event can arrive after another key when typing fast.
+ 		self.SAS_keyDebounceByKey = {}
++
++		# <!-- custom: map original list indices to displayed rows when filtering so selection/highlight stays correct (chatgpt 5.2 + claude opus 4.5) -->
++		self.SAS_listIdxToRow = None
+ 		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+ 
+ 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
+@@ -431,11 +434,16 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			self.iItem = iItem
+ 			for i, item in enumerate(self.list):
+ 				if (item[1] == iItem):
+-					BugUtil.debug("Selecting %dth item %d" % (i, iItem))
+-					#screen.setSelectedListBoxStringGFC(self.ITEM_LIST_ID, i)
+-					screen.selectRow(self.ITEM_LIST_ID, i, True)
+-					self.iItemIndex = i
++					# <!-- custom: when filtering, select the displayed row, not the original list index (chatgpt 5.2 + claude opus 4.5) -->
++					iRowToSelect = i
++					if self.SAS_isSearchActive() and (self.SAS_listIdxToRow is not None):
++						iRowToSelect = self.SAS_listIdxToRow.get(i, i)
++					BugUtil.debug("Selecting %dth item %d (row %d)" % (i, iItem, iRowToSelect))
++					#screen.setSelectedListBoxStringGFC(self.ITEM_LIST_ID, iRowToSelect)
++					screen.selectRow(self.ITEM_LIST_ID, iRowToSelect, True)
++					self.iItemIndex = iRowToSelect
+ 					#break
++					# <!-- custom: End - when filtering, select the displayed row, not the original list index (chatgpt 5.2 + claude opus 4.5) -->
+ 
+ 		#self.iCategory = iCategory
+ 		BugUtil.debug("Drawing screen %d item %d" % (iCategory, iItem))
+@@ -1969,20 +1977,78 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# <!-- custom: get filter string for type-to-filter (chatgpt 5.2 + claude opus 4.5) -->
+ 		szFilter = self.SAS_szSearchString.strip().lower()
+ 		bFiltering = (len(szFilter) > 0)
+-		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
++
++		# <!-- custom: when filtering, keep headers and separators only for groups that contain at least one match (chatgpt 5.2 + claude opus 4.5) -->
++		# Implementation note:
++		# - self.list may contain header/separator rows encoded as ("Title", -1) or ("", -1).
++		# - When filtering, we precompute which original list indices should be shown.
++		# - We also build SAS_listIdxToRow so pediaJump can select the correct displayed row.
++		setShowListIdx = None
++		self.SAS_listIdxToRow = None
++		if bFiltering:
++			setShowListIdx = set()
++
++			# Identify header rows (non-empty title with data1 == -1)
++			listHeaderIdx = []
++			for iListIdx, it in enumerate(self.list):
++				if it[1] == -1:
++					szTitle = it[0]
++					if (szTitle is not None) and (len(szTitle.strip()) > 0):
++						listHeaderIdx.append(iListIdx)
++
++			# If there are no headers in this list, fall back to the simple behavior.
++			if len(listHeaderIdx) == 0:
++				for iListIdx, it in enumerate(self.list):
++					if it[1] != -1:
++						szName = it[0]
++						if (szName is not None) and (szFilter in szName.lower()):
++							setShowListIdx.add(iListIdx)
++			else:
++				listShownHeaderIdx = []
++				for iH, iHeaderIdx in enumerate(listHeaderIdx):
++					if (iH + 1) < len(listHeaderIdx):
++						iNextHeaderIdx = listHeaderIdx[iH + 1]
++					else:
++						iNextHeaderIdx = len(self.list)
++					bSectionHasMatch = False
++					# Scan items in this header section for matches.
++					for j in range(iHeaderIdx + 1, iNextHeaderIdx):
++						it = self.list[j]
++						if it[1] != -1:
++							szName = it[0]
++							if (szName is not None) and (szFilter in szName.lower()):
++								bSectionHasMatch = True
++								setShowListIdx.add(j)
++					if bSectionHasMatch:
++						listShownHeaderIdx.append(iHeaderIdx)
++						setShowListIdx.add(iHeaderIdx)
++
++				# Include a blank separator ("", -1) before each shown header, except the first shown section.
++				for iK in range(1, len(listShownHeaderIdx)):
++					iHeaderIdx = listShownHeaderIdx[iK]
++					iSpacerIdx = iHeaderIdx - 1
++					if iSpacerIdx >= 0:
++						it = self.list[iSpacerIdx]
++						if it[1] == -1:
++							szTitle = it[0]
++							if (szTitle is None) or (len(szTitle.strip()) == 0):
++								setShowListIdx.add(iSpacerIdx)
++
++			# Build list-index -> displayed-row mapping for correct highlighting in pediaJump.
++			self.SAS_listIdxToRow = {}
+ 
+ 		i = 0
+-		for item in self.list:
++		for idx, item in enumerate(self.list):
+ 			data1 = item[1] # advc.001: Moved up
+ 
+-			# <!-- custom: type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+-			# <!-- custom: if filtering, skip headers/spacers and non-matching items (chatgpt 5.2 + claude opus 4.5) -->
++			# <!-- custom: if filtering, skip rows not selected by our header-aware filter (chatgpt 5.2 + claude opus 4.5) -->
+ 			if bFiltering:
+-				if data1 == -1:
+-					continue
+-				szName = item[0]
+-				if (szName is None) or (szFilter not in szName.lower()):
++				if idx not in setShowListIdx:
+ 					continue
++
++			# <!-- custom: record mapping from original list index to displayed row index (chatgpt 5.2 + claude opus 4.5) -->
++			if self.SAS_listIdxToRow is not None:
++				self.SAS_listIdxToRow[idx] = i
+ 			# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+ 
+ 			# <!-- custom: make a common initial variable so we can tweak it in specific elif or such blocks as we see fit and keep common logic at the end anyways etc; using a long name to avoid weird python scope inheritance issues to unrelated scopes if i'm not mistaken anyways etc. -->
+@@ -2210,7 +2276,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			return 1
+ 		
+ 		return 0
+-		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) --># <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
++		# <!-- custom: End - type-to-filter search bar for the left item list (in the same style as done in other mod(s)) (chatgpt 5.2 + claude opus 4.5) -->
+
+diff --git a/README.md b/README.md
+index f7fa4863b..fc557ccb3 100644
+--- a/README.md
++++ b/README.md
+@@ -216,6 +216,7 @@ The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (1).JPG" alt="0.610_sevopedia_searchbar_example (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG" alt="0.610_sevopedia_searchbar_example (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG" alt="0.610_sevopedia_searchbar_example (3).JPG" width="250"></img>
+ 
+ See for details: [Sevopedia_reworks: search bar](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-0-added-a-search-bar-used-in-several-sevopedia-pages).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 2e74265bf..6a65765e5 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -34,12 +34,14 @@ In AdvCiv-SAS 5247, with the help of claude opus 4.5 and chatgpt 5.2, we introdu
+ 
+ The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). It minimally modifies a base AdvCiv 1.12 Sevopedia Main, and so it should be compatible with most mods (but check to be sure as i don't know too much about these). Seemingly fully functional ingame.
+ 
+-- commit: []().
++- 1st commit: : It minimally modifies a base AdvCiv 1.12 Sevopedia Main, and so it should be compatible with most mods (but check to be sure as i don't know too much about these). Seemingly fully functional ingame: []().
++- 2nd commit: now preserves headers and spacers, and seemingly functions just as well if groupings (headers + their spacers) are disabled, as in `SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA` for instance. See screenshot provided showing this being supported successfully in this sample: []().
+ 
+ See individual sevopedia screenshots to see its general appearence. As for how the search bar is used in AdvCiv-SAS, here are some example cases:
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (1).JPG" alt="0.610_sevopedia_searchbar_example (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG" alt="0.610_sevopedia_searchbar_example (2).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG" alt="0.610_sevopedia_searchbar_example (3).JPG" width="250"></img>
+ 
+ ## example 1: more AI Personality examples (in leaders category)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (1).JPG
+index 637d33be8..42abd8230 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG
+index 57380b6d1..ab1629594 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG
+new file mode 100644
+index 000000000..896324742
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.610_sevopedia_searchbar_example (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=11470

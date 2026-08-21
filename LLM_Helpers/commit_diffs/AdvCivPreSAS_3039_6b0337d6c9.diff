@@ -1,0 +1,126 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3039
+# Commit: 6b0337d6c9f1857e11966b5f5f44841fa9b46288
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 23545fcd6e3d7fa058369536d1bf9a721ba0e054
+# Title: A bit of misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	13	CvGameCoreDLL/CvCityAI.cpp
+3	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 3c278f798..b26ee1d09 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1446,8 +1446,10 @@ void CvCityAI::AI_chooseProduction()
+ 			(bFinancialTrouble && iUnitSpending > iMaxUnitSpending)); // </advc>
+ 	//minimal defense.
+ 	//if (!bUnitExempt && iPlotCityDefenderCount < (AI_minDefenders() + iPlotSettlerCount))
+-	// K-Mod.. take into account any defenders that are on their way. (recall that in AI_guardCityMinDefender, defenders can be shuffled around)
+-	// (I'm doing the min defender check twice for efficiency - so that we don't count targetmissionAIs when we don't need to)
++	/*	K-Mod.. take into account any defenders that are on their way.
++		(recall that in AI_guardCityMinDefender, defenders can be shuffled around)
++		(I'm doing the min defender check twice for efficiency -
++		so that we don't count targetmissionAIs when we don't need to) */
+ 	if (!bSpendingExempt &&
+ 		iPlotCityDefenderCount < iMinDefenders &&
+ 		iPlotCityDefenderCount < iMinDefenders - kPlayer.AI_plotTargetMissionAIs(getPlot(), MISSIONAI_GUARD_CITY))
+@@ -1677,7 +1679,7 @@ void CvCityAI::AI_chooseProduction()
+ 	}*/ // BtS
+ 
+ 	//opportunistic wonder build
+-	if (!bDanger && (!hasActiveWorldWonder() || (kPlayer.getNumCities() > 3)))
++	if (!bDanger && (!hasActiveWorldWonder() || kPlayer.getNumCities() > 3))
+ 	{
+ 		// For civ at war, don't build wonders if losing
+ 		if (!bTotalWar && (!bLandWar || iWarSuccessRating > 0)) // was -30
+@@ -2880,7 +2882,8 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	}
+ 
+ 	// XXX this should account for air and heli units too...
+-	// K-Mod. Human players don't choose the AI type of the units they build. Therefore we shouldn't use the unit AI counts to decide what to build next.
++	/*	K-Mod. Human players don't choose the AI type of the units they build.
++		Therefore we shouldn't use the unit AI counts to decide what to build next. */
+ 	if (isHuman())
+ 	{
+ 		aiUnitAIVal[UNITAI_SETTLE] = 0;
+@@ -5935,13 +5938,15 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
+ 
+ 		// give a small chance of building global projects, regardless of strategy, just for a bit of variety.
+ 		if ((kLoopProject.getEveryoneSpecialUnit() != NO_SPECIALUNIT) ||
+-			  (kLoopProject.getEveryoneSpecialBuilding() != NO_SPECIALBUILDING) ||
+-			  kLoopProject.isAllowsNukes())
++			(kLoopProject.getEveryoneSpecialBuilding() != NO_SPECIALBUILDING) ||
++			kLoopProject.isAllowsNukes())
+ 		{	// <advc.001n>
+ 			if ((bAsync ?
+-					GC.getASyncRand().get(100, "Project Everyone ASYNC") : // </advc.001n>
+-					GC.getGame().getSorenRandNum(100, "Project Everyone")) == 0)
++				GC.getASyncRand().get(100, "Project Everyone ASYNC") : // </advc.001n>
++				GC.getGame().getSorenRandNum(100, "Project Everyone")) == 0)
++			{
+ 				iValue++;
++			}
+ 		}
+ 
+ 		if (iValue <= 0)
+@@ -6037,16 +6042,15 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
+ // However, note that most projects don't actually give commerce per turn - so the evaluation is quite rough.
+ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
+ {
+-	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+-	const CvTeamAI& kTeam = GET_TEAM(kOwner.getTeam());
+-	const CvProjectInfo& kProject = GC.getInfo(eProject);
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++	CvTeamAI const& kTeam = GET_TEAM(kOwner.getTeam());
++	CvProjectInfo const& kProject = GC.getInfo(eProject);
+ 
+ 	int iValue = 0;
+ 
+ 	if (kProject.getTechShare() > 0)
+ 	{
+-		if (kProject.getTechShare() <
+-			GET_TEAM(getTeam()).getHasMetCivCount(true) &&
++		if (kProject.getTechShare() < kTeam.getHasMetCivCount(true) &&
+ 			!kOwner.AI_avoidScience())
+ 		{
+ 			TechTypes eSampleTech = kOwner.getCurrentResearch();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a6ffa7c85..b5c878a86 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -20727,7 +20727,9 @@ void CvPlayerAI::AI_proposeWarTrade(PlayerTypes eHireling)
+ 			CvCity const* pBestCity = NULL;
+ 			int iBestFitness = MIN_INT;
+ 			/*	Akin to code in AI_balanceDeal, but this here is less strict
+-				with cities that are more useful to us than to them. */
++				with cities that are more useful to us than to them.
++				Based on AI Auto Play tests, it's still very rare that a deal
++				(city ceded in exchange for help in a war) is struck. */
+ 			FOR_EACH_CITYAI(pCity, *this)
+ 			{
+ 				if (!canTradeItem(eHireling,
+@@ -20740,7 +20742,6 @@ void CvPlayerAI::AI_proposeWarTrade(PlayerTypes eHireling)
+ 				if (iAcquireVal <= 0) // Hireling insisting on liberation
+ 					continue;
+ 				int iFitness = iAcquireVal - iKeepVal;
+-				FErrorMsg("Just for testing the condition below; hasn't been true in tests so far."); // advc.test
+ 				if (iFitness > iBestFitness && (iKeepVal <= 0 ||
+ 					scaled(iAcquireVal, iKeepVal) - 1 > per100(iWSRating)))
+ 				{
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5001

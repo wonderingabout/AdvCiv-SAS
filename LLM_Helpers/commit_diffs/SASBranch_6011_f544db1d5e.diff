@@ -1,0 +1,342 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6011
+# Commit: f544db1d5e89f248d23b853b573ae8697f62bf1f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 419b449728d0033bee5a2a948cebd870d6bec4a8
+# Title: Create a new BBAI log for each new/loaded game, log some game settings information and currently active BBAI log levels, to simplify repeated testing; exampl...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+116	19	CvGameCoreDLL/BBAILog.cpp
+3	0	CvGameCoreDLL/BBAILog.h
+3	0	CvGameCoreDLL/CvEventReporter.cpp
+4	0	CvGameCoreDLL/CvGame.cpp
+13	1	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 5f35cd2fe..19bb518ba 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1338,7 +1338,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: If BBAI logging is enabled, write each Civ4 launch/session to a new UTC-timestamped file such as BBAI_20260608T065231Z.log instead of repeatedly appending to BBAI.log. This avoids manually clearing BBAI.log before restarting Civ4, prevents one massive mixed log from accumulating across many test runs, and makes the relevant log easier to identify or upload for review. Set to 0 to preserve the old fixed Base AdvCiv BBAI.log filenaming behavior. (ChatGPT-5.5) -->
++	<!-- custom: If BBAI logging is enabled, write each new game and loaded save to a new UTC-timestamped file instead of repeatedly appending to BBAI.log. Filenames use a shared chronological sequence such as BBAI_20260608T065231Z_new1.log followed by BBAI_20260608T065415Z_load2.log, and begin with the currently active BBAI log settings, turn/year, map/game settings, player counts, and RNG-state identification because Civ4 does not expose the source save filename. This avoids restarting Civ4 between save tests and makes each run easier to identify or upload. Set to 0 to preserve the old fixed Base AdvCiv BBAI.log behavior. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/BBAILog.cpp b/CvGameCoreDLL/BBAILog.cpp
+index fb672c421..9b70bb565 100644
+--- a/CvGameCoreDLL/BBAILog.cpp
++++ b/CvGameCoreDLL/BBAILog.cpp
+@@ -3,6 +3,8 @@
+ // <advc.133>
+ #include "CvGameTextMgr.h"
+ #include "CvGamePlay.h" // </advc.133>
++#include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
++#include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
+ // <!-- custom: Added for UTC session timestamps in timestamped BBAI log filenames. (ChatGPT-5.5) -->
+ #include <time.h>
+ 
+@@ -115,31 +117,45 @@ int getSASBBAIScoreLogInterval()
+ 	return iInterval;
+ }
+ 
+-static CvString getSASBBAILogSessionTimestamp()
++static CvString createSASBBAILogTimestamp()
+ {
+-	static CvString szTimestamp;
+-	if (szTimestamp.empty())
++	CvString szTimestamp;
++	char szBuffer[32];
++	time_t kNow;
++	time(&kNow);
++	struct tm* pUtcTime = gmtime(&kNow);
++	if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
+ 	{
+-		char szBuffer[32];
+-		time_t kNow;
+-		time(&kNow);
+-		struct tm* pUtcTime = gmtime(&kNow);
+-		if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
+-		{
+-			szTimestamp = szBuffer;
+-		}
+-		else
+-		{
+-			szTimestamp = "unknown_time";
+-		}
++		szTimestamp = szBuffer;
++	}
++	else
++	{
++		szTimestamp = "unknown_time";
+ 	}
+ 	return szTimestamp;
+ }
+ 
+-static CvString getSASBBAILogName()
++static CvString g_szSASBBAILogTimestamp;
++static int g_iSASBBAILogSequence = 0;
++static CvString g_szSASBBAILogContext;
++
++static CvString getSASBBAILogTimestamp()
++{
++	if (g_szSASBBAILogTimestamp.empty())
++		g_szSASBBAILogTimestamp = createSASBBAILogTimestamp();
++	return g_szSASBBAILogTimestamp;
++}
++
++static bool isSASBBAILogTimestampedFilenameEnabled()
+ {
+-	// <!-- custom: This function is only reached after BBAI logging is enabled. If enabled, each Civ4 launch/session writes to a new UTC-timestamped file such as BBAI_20260608T065231Z.log instead of repeatedly appending to BBAI.log. This avoids manually clearing BBAI.log before restarting Civ4, prevents one massive mixed log from accumulating across many test runs, and makes the relevant log easier to identify or upload for review. (ChatGPT-5.5) -->
+ 	static const bool bUseTimestampedFilename = (GC.getDefineINT("SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME") > 0);
++	return bUseTimestampedFilename;
++}
++
++static CvString getSASBBAILogName()
++{
++	// <!-- custom: When timestamped filenames are enabled, use a new file for every new game and loaded save. The new/load context and shared chronological sequence keep files distinct and show their order even when multiple new/load actions occur within the same UTC second. (GPT-5.5) -->
++	const bool bUseTimestampedFilename = isSASBBAILogTimestampedFilenameEnabled();
+ 	CvString szLogName;
+ 	// <advc.007>
+ 	if (GC.getGame().isNetworkMultiPlayer())
+@@ -147,7 +163,9 @@ static CvString getSASBBAILogName()
+ 		// For OOS debugging on one PC
+ 		if (bUseTimestampedFilename)
+ 		{
+-			szLogName.Format("BBAI%d_%s.log", (int)GC.getGame().getActivePlayer(), getSASBBAILogSessionTimestamp().GetCString());
++			if (!g_szSASBBAILogContext.empty())
++				szLogName.Format("BBAI%d_%s_%s.log", (int)GC.getGame().getActivePlayer(), getSASBBAILogTimestamp().GetCString(), g_szSASBBAILogContext.GetCString());
++			else szLogName.Format("BBAI%d_%s.log", (int)GC.getGame().getActivePlayer(), getSASBBAILogTimestamp().GetCString());
+ 		}
+ 		else
+ 		{
+@@ -158,7 +176,9 @@ static CvString getSASBBAILogName()
+ 	{
+ 		if (bUseTimestampedFilename)
+ 		{
+-			szLogName.Format("BBAI_%s.log", getSASBBAILogSessionTimestamp().GetCString());
++			if (!g_szSASBBAILogContext.empty())
++				szLogName.Format("BBAI_%s_%s.log", getSASBBAILogTimestamp().GetCString(), g_szSASBBAILogContext.GetCString());
++			else szLogName.Format("BBAI_%s.log", getSASBBAILogTimestamp().GetCString());
+ 		}
+ 		else
+ 		{
+@@ -168,6 +188,83 @@ static CvString getSASBBAILogName()
+ 	return szLogName;
+ }
+ 
++static void rollSASBBAILog(const char* szContext)
++{
++	if (isSASBBAILogTimestampedFilenameEnabled())
++	{
++		g_szSASBBAILogTimestamp = createSASBBAILogTimestamp();
++		g_iSASBBAILogSequence++;
++		g_szSASBBAILogContext.Format("%s%d", szContext, g_iSASBBAILogSequence);
++	}
++}
++
++static void logSASBBAIGameState(const char* szEvent)
++{
++	CvGame& kGame = GC.getGame();
++	CvInitCore const& kInitCore = GC.getInitCore();
++	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
++	const char* szActiveCivilization = "-";
++	const char* szActiveHandicap = "-";
++	if (eActivePlayer != NO_PLAYER)
++	{
++		CvPlayer const& kActivePlayer = GET_PLAYER(eActivePlayer);
++		if (kActivePlayer.getCivilizationType() != NO_CIVILIZATION)
++			szActiveCivilization = GC.getInfo(kActivePlayer.getCivilizationType()).getType();
++		if (kActivePlayer.getHandicapType() != NO_HANDICAP)
++			szActiveHandicap = GC.getInfo(kActivePlayer.getHandicapType()).getType();
++	}
++	CvString szGameOptions;
++	FOR_EACH_ENUM(GameOption)
++	{
++		if (!kGame.isOption(eLoopGameOption))
++			continue;
++		if (!szGameOptions.empty())
++			szGameOptions += ",";
++		szGameOptions += GC.getInfo(eLoopGameOption).getType();
++	}
++	if (szGameOptions.empty())
++		szGameOptions = "-";
++	const CvString szLogName = getSASBBAILogName();
++	logBBAI("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
++			szEvent, getSASBBAILogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
++	logBBAI("BBAI_GAME_SETTINGS mapScript=%S map=%dx%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s options=%s",
++			kInitCore.getMapScriptName().GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), szGameOptions.GetCString());
++	logBBAI("BBAI_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
++}
++
++// <!-- custom: Record the effective logging profile in each new/load file so test runs with different category levels are not compared as if they contained the same diagnostics. (GPT-5.5) -->
++static void logSASBBAILogSettings()
++{
++	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
++			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAICityLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
++}
++
++// <!-- custom: Roll over before new-game initialization can emit map-generation or starting-position diagnostics. The complete metadata is logged later from CvEventReporter::gameStart, once the generated game state exists. (GPT-5.5) -->
++void startSASBBAILogForNewGame()
++{
++	if (!isSASBBAILogEnabled())
++		return;
++	rollSASBBAILog("new");
++	logBBAI("BBAI_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASBBAILogTimestamp().GetCString(), getSASBBAILogName().GetCString());
++	logSASBBAILogSettings();
++}
++
++void logSASBBAINewGameStarted()
++{
++	if (isSASBBAILogEnabled())
++		logSASBBAIGameState("BBAI_NEW_GAME_STARTED");
++}
++
++// <!-- custom: Civ4 does not expose the source save filename to the DLL or Python OnLoad event. Start a distinct BBAI file after all save data is read and identify the loaded state through UTC, turn/year, map/game settings, player counts, and read-only RNG states instead. This removes the need to restart Civ4 between repeated save-file tests. (GPT-5.5) -->
++void startSASBBAILogForLoadedSave()
++{
++	if (!isSASBBAILogEnabled())
++		return;
++	rollSASBBAILog("load");
++	logSASBBAIGameState("BBAI_SAVE_LOADED");
++	logSASBBAILogSettings();
++}
++
+ void logBBAI(TCHAR* format, ... )
+ {
+ 	static const bool bEnabled = isSASBBAILogEnabled();
+
+diff --git a/CvGameCoreDLL/BBAILog.h b/CvGameCoreDLL/BBAILog.h
+index 5763414c7..563dfbd22 100644
+--- a/CvGameCoreDLL/BBAILog.h
++++ b/CvGameCoreDLL/BBAILog.h
+@@ -28,6 +28,9 @@ int getSASBBAIFoundLogLevel();
+ int getSASBBAIDealCancelLogLevel();
+ int getSASBBAICultureLogLevel();
+ int getSASBBAIScoreLogInterval();
++void startSASBBAILogForNewGame(); // <!-- custom: Roll to a new BBAI file before new-game map generation can log. (GPT-5.5) -->
++void logSASBBAINewGameStarted(); // <!-- custom: Log complete new-game identification after map and player initialization. (GPT-5.5) -->
++void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded save after its complete game state is read. (GPT-5.5) -->
+ 
+ #define gLogBBAI isSASBBAILogEnabled() // advc.007: So that BBAI logging can be checked in FAssert
+ #define gPlayerLogLevel getSASBBAIPlayerLogLevel()
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index 9a7295864..0158797a3 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -3,6 +3,7 @@
+ #include "CvGame.h"
+ #include "CvPlayer.h"
+ #include "CvDLLPythonIFaceBase.h" // advc
++#include "BBAILog.h" // <!-- custom: Needed to complete the new-game BBAI identity header from gameStart. (GPT-5.5) -->
+ 
+ //
+ // static, singleton accessor
+@@ -87,6 +88,8 @@ void CvEventReporter::unInit()
+ 
+ void CvEventReporter::gameStart()
+ {
++	// <!-- custom: Complete the new-game BBAI identity header after map generation and player initialization. (GPT-5.5) -->
++	logSASBBAINewGameStarted();
+ 	m_kPythonEventMgr.reportGameStart();
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index f86e47d1a..b41eac5f3 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -61,6 +61,8 @@ void CvGame::init(HandicapTypes eHandicap)
+ 	CvInitCore& ic = GC.getInitCore();
+ 
+ 	reset(eHandicap); // Reset serialized data
++	// <!-- custom: Start a distinct BBAI file before map generation so a new game begun after save-file tests does not continue writing to the last loaded-save log. (GPT-5.5) -->
++	startSASBBAILogForNewGame();
+ 
+ 	// Init containers ...
+ 
+@@ -9361,6 +9363,8 @@ void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
+ 	read functions have been called. */
+ void CvGame::onAllGameDataRead()
+ {
++	// <!-- custom: Start a distinct timestamped BBAI log now that the complete loaded game state is available, before load-finalization code can emit AI diagnostics. (GPT-5.5) -->
++	startSASBBAILogForLoadedSave();
+ 	// <advc.opt> Savegame compatibility (uiFlag<4)
+ 	if (m_iCivPlayersEverAlive == 0)
+ 		m_iCivPlayersEverAlive = countCivPlayersEverAlive();
+
+diff --git a/README.md b/README.md
+index 7d6ab98a6..2856a804d 100644
+--- a/README.md
++++ b/README.md
+@@ -16,7 +16,7 @@ New mechanics as well, including but not only new Game Speeds (`Nitro`, `Turbo`,
+ 
+ Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
+ 
+-Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate. Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now gives us an agentic-token-free analysis (e.g., Codex, Claude Code) (also good to give us a different point of view/review if needed). Note: now optionally default written as a new file with a time stamp (e.g., `BBAI_20260608T065231Z.log` instead of expanding launch/session the existing `BBAI.log` which was very tedious to cleanup everytime or identify/store/read/review/upload).
++Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate. Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now gives us an agentic-token-free analysis (e.g., Codex, Claude Code) (also good to give us a different point of view/review if needed). Note: they are now optionally written to a new timestamped file for each new game or loaded save (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins with lines showing the new/load time, currently active BBAI log levels, and some game settings to help doing that.
+ 
+ All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
+ 
+@@ -77,6 +77,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ [Long Comments Archive](/README.md#long-comments-archive)  
+ [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
+ [Python scripts](/README.md#python-scripts)  
++[BBAI logging head example](/README.md#bbai-logging-head-example)  
+ [CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)  
+ [Known issues that may or may not be fixed, in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4)  
+ ["Temporary" crashes](/README.md#temporary-crashes)  
+@@ -899,6 +900,17 @@ The separate GitHub Actions [`python24-compile.yml`](/.github/workflows/python24
+ <img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.281_break_test_ternary_example.PNG" alt="0.281_break_test_ternary_example.PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/misc_0.x/0.282_py_2.4_successfully_broken.PNG" alt="0.282_py_2.4_successfully_broken.PNG" width="250"></img>
+ 
++## BBAI logging head example
++
++For example, following AdvCiv-SAS changes, BBAI head of a log looks like this (from `"C:\Users\PC\Documents\My Games\beyond the sword\Logs\BBAI_20260705T081853Z_load1.log"`):
++
++```log
++BBAI_SAVE_LOADED utc=20260705T081853Z logFile=BBAI_20260705T081853Z_load1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_MAYA activeHandicap=HANDICAP_MONARCH playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
++BBAI_GAME_SETTINGS mapScript=Pangaea map=78x56 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_MONARCH options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
++BBAI_GAME_RNG mapRandState=1166186091 syncRandState=1475793926
++BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=3 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL=100
++```
++
+ ## CuCuGS
+ 
+ Recently, i've successfully replicated f1rpo's original CuCuGS-PoC approach that adds a custom custom game screen that we can customize despite it being seemingly otherwise unaccessible via DLL or python modding.[Claude code (VS Code extension)](/README.md#claude-code-vs-code-extension) heavily helped achieving that.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index e95fe16cc..5a6cda8c9 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -152,7 +152,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints.
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+ - **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis (also good to give us a different point of view/review if needed).
+-- (Requires AdvCiv-SAS 5925+) **BBAI log files timestamped name**: Optionally log BBAI to a **new file each time** Civ4 launch/session with a **new UTC-timestamp** in filename such as (e.g., `BBAI_20260608T065231Z.log`) instead of repeatedly appending to `BBAI.log`. This **avoids previous tedious manual clearing** `BBAI.log` before restarting Civ4, prevents one **massive mixed log from accumulating** across many test runs, and makes the **relevant log easier to identify, store, or upload** for review.
++- (Requires AdvCiv-SAS 5925+) **Timestamped BBAI log files:** Optionally log each new game and loaded save to a **new UTC-timestamped file** (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins notably with the new/load time, currently active BBAI log levels, turn/year, map and game settings, player counts, and RNG states, avoiding mixed logs and the need to restart Civ4 between repeated save-file tests. See also [README.md (BBAI logging head example)](/README.md#bbai-logging-head-example).
+ - (Requires AdvCiv-SAS 5962+) **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - (Requires AdvCiv-SAS 5980+) **Culture-victory BBAI diagnostics:** added a new dedicated `SAS_BBAI_CULTURE_LOG_LEVEL` notably for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs. It records for example culture-stage reasons, current/projected Legendary-city countdowns and rival ranking, competing victory progress, actual culture-slider decisions, per-city weights and production, and culture contributed by production processes and assigned specialists.
+ - (Requires AdvCiv-SAS 5988+) **Citizen-allocation BBAI diagnostics:** added a dedicated `SAS_BBAI_CITIZEN_LOG_LEVEL` notably for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked. At the highest level, it also reports suspicious worked/unworked plot pairs under a simple food-first yield check.
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=23225

@@ -1,0 +1,68 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2751
+# Commit: 674f019680ed00478ca013ec0d45f81533b83e14
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6c46b01700461078e95de17bc4095d5508a63367
+# Title: UWAI: Fix crash in games that start with free cities
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/CvPlayerAI.cpp
+4	2	CvGameCoreDLL/UWAICache.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3a1f0189e..f2cf027b2 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -23422,9 +23422,12 @@ void CvPlayerAI::AI_updateVictoryStageHash()
+ 	m_eVictoryStageHash = AI_DEFAULT_VICTORY_STAGE;
+ 	//m_iVictoryStrategyHashCacheTurn = GC.getGame().getGameTurn();
+ 
+-	if (!hasCapital())
++	if (!hasCapital() ||
++		// advc.115: Can't estimate yield rates on turn 0
++		GC.getGame().getElapsedGameTurns() <= 0)
++	{
+ 		return;
+-
++	}
+ 	//bool bStartedOtherLevel3 = false;
+ 	bool bStartedOtherLevel4 = false;
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 78c60b985..e62f35227 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -246,7 +246,9 @@ void UWAICache::update() {
+ 	updateTotalAssetScore();
+ 	updateTargetMissionCounts();
+ 	updateTypicalUnits();
+-	updateThreatRatings();
++	bool const playerHistAvailable = (GC.getGame().getElapsedGameTurns() > 0);
++	if(playerHistAvailable) // Can't do yield estimates on the first turn
++		updateThreatRatings();
+ 	updateVassalScores();
+ 	updateAdjacentLand();
+ 	updateLostTilesAtWar(); // advc.035
+@@ -256,7 +258,7 @@ void UWAICache::update() {
+ 	updateCanScrub();
+ 
+ 	// Any values used by war evaluation need to be updated before this!
+-	if(GC.getGame().getElapsedGameTurns() > 0) { /* On turn 0, the
++	if(playerHistAvailable) { /* Apart from the yield estimation problem, the
+ 			other civs' caches aren't up to date, which can cause problems
+ 			in scenarios. */
+ 		updateWarUtility();
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1579

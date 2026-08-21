@@ -1,0 +1,161 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1294
+# Commit: ba3c48ce79bd2f3b680c0db0a255ae445751743e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1d110e1369c10da4f6d9a008104e9f47b1f7c231
+# Title: Fixed some typos in the manual (only in the changelog part).
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+27	22	CvGameCoreDLL/CvGameTextMgr.cpp
+9	7	CvGameCoreDLL/CvPlayerAI.cpp
+-	-	manual.odt
+-	-	manual.pdf
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 5bad3b806..3f4490cc3 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9259,37 +9259,42 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool
+ 				szBuffer.append(ENDCOLR);
+ 			}
+ 		}
+-	}
+-	// advc.004y:
++	} // advc.004y: Commented out
+ 	//if (!bCivilopediaText && GC.getGameINLINE().getActivePlayer() != NO_PLAYER)
++	if (pCity == NULL)
+ 	{
+-		if (pCity == NULL)
+-		{
++		if(GC.getUnitInfo(eUnit).getProductionCost() > 0) { // advc.004y
+ 			szTempBuffer.Format(L"%s%d%c", NEWLINE,
+ 					// <advc.004y>
+ 					(GC.getGameINLINE().getActivePlayer() == NO_PLAYER ?
+ 					GC.getUnitInfo(eUnit).getProductionCost() : // </advc.004y>
+-					GET_PLAYER(ePlayer).getProductionNeeded(eUnit)), GC.getYieldInfo(YIELD_PRODUCTION).getChar());
++					GET_PLAYER(ePlayer).getProductionNeeded(eUnit)),
++					GC.getYieldInfo(YIELD_PRODUCTION).getChar());
++			szBuffer.append(szTempBuffer);
++		}
++	}
++	else
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_TURNS",
++				pCity->getProductionTurnsLeft(eUnit,
++				((GC.ctrlKey() || !(GC.shiftKey())) ? 0 :
++				pCity->getOrderQueueLength())),
++				pCity->getProductionNeeded(eUnit),
++				GC.getYieldInfo(YIELD_PRODUCTION).getChar()));
++		iProduction = pCity->getUnitProduction(eUnit);
++		if (iProduction > 0)
++		{
++			szTempBuffer.Format(L" - %d/%d%c", iProduction,
++					pCity->getProductionNeeded(eUnit),
++					GC.getYieldInfo(YIELD_PRODUCTION).getChar());
+ 			szBuffer.append(szTempBuffer);
+ 		}
+ 		else
+ 		{
+-
+-			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_TURNS", pCity->getProductionTurnsLeft(eUnit, ((GC.ctrlKey() || !(GC.shiftKey())) ? 0 : pCity->getOrderQueueLength())), pCity->getProductionNeeded(eUnit), GC.getYieldInfo(YIELD_PRODUCTION).getChar()));
+-
+-			iProduction = pCity->getUnitProduction(eUnit);
+-
+-			if (iProduction > 0)
+-			{
+-				szTempBuffer.Format(L" - %d/%d%c", iProduction, pCity->getProductionNeeded(eUnit), GC.getYieldInfo(YIELD_PRODUCTION).getChar());
+-				szBuffer.append(szTempBuffer);
+-			}
+-			else
+-			{
+-				szTempBuffer.Format(L" - %d%c", pCity->getProductionNeeded(eUnit), GC.getYieldInfo(YIELD_PRODUCTION).getChar());
+-				szBuffer.append(szTempBuffer);
+-			}
++			szTempBuffer.Format(L" - %d%c", pCity->getProductionNeeded(eUnit),
++					GC.getYieldInfo(YIELD_PRODUCTION).getChar());
++			szBuffer.append(szTempBuffer);
+ 		}
+ 	}
+ 
+@@ -9680,7 +9685,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 	if (NO_BUILDING != eDefaultBuilding && eDefaultBuilding != eBuilding
+ 			&& !inBuildingList) // advc.004w
+ 	{
+-		for (iI  = 0; iI < GC.getNumCivilizationInfos(); ++iI)
++		for (int iI  = 0; iI < GC.getNumCivilizationInfos(); ++iI)
+ 		{
+ 			BuildingTypes eUniqueBuilding = (BuildingTypes)GC.getCivilizationInfo((CivilizationTypes)iI).getCivilizationBuildings(bct);
+ 			if (eUniqueBuilding == eBuilding)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 211a10197..c2a4123cc 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3254,14 +3254,18 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 				so this is about snow. Perhaps snow river should be
+ 				just 1 bad tile(?). Bonus check added (Incense). */
+ 				pLoopPlot->getBonusType() == NO_BONUS &&
+-				(pLoopPlot->calculateBestNatureYield(YIELD_FOOD, getTeam()) == 0 || pLoopPlot->calculateTotalBestNatureYield(getTeam()) <= 1))
++				(pLoopPlot->calculateBestNatureYield(YIELD_FOOD, getTeam()) == 0 ||
++				pLoopPlot->calculateTotalBestNatureYield(getTeam()) <= 1))
+ 			{	// <advc.031>
+ 				iBadTile++; /*  Snow hills had previously not been counted as bad,
+-				but they are. Worthless even unless the city is deperate for
++				but they are. Worthless even unless the city is desperate for
+ 				production or has plenty of food. */
+-				if(!pLoopPlot->isHills() || (baseProduction >= 10 &&
++				/*if(!pLoopPlot->isHills() || (baseProduction >= 10 &&
+ 						iSpecialFoodPlus - iSpecialFoodMinus < 5))
+-					iBadTile++; // </advc.031>
++					iBadTile++;*/
++				/*  But we can't tell here whether that's the case
++					(baseProduction and special food haven't been computed) */
++				iBadTile++; // </advc.031>
+ 			}
+ 			else if (pLoopPlot->isWater() && pLoopPlot->calculateBestNatureYield(YIELD_FOOD, getTeam()) <= 1)
+ 			{	/* <advc.031> Removed the bIsCoastal check from the
+@@ -3297,7 +3301,6 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 	if(revDecentLand < 4)
+ 		firstColony = false; // </advc.040>
+ 	iBadTile /= 2;
+-
+ 	if (!kSet.bStartingLoc)
+ 	{
+ 		if ((iBadTile > (NUM_CITY_PLOTS / 2)) || (pArea->getNumTiles() <= 2)
+@@ -3803,7 +3806,6 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 
+ 					//iValue += (iBonusValue + 10);
+ 					iResourceValue += iBonusValue; // K-Mod
+-
+ 					if (iI != CITY_HOME_PLOT)
+ 					{
+ 						if (eBonusImprovement != NO_IMPROVEMENT)
+@@ -13281,7 +13283,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes ePlayer,
+ 			(valueForUs >= tradeValThresh +
+ 			/*  bonusVal gives every city equal weight, but early on,
+ 				it's mostly about the capital, which can grow fast. */
+-			std::min(2, getNumCities() / 2)) :
++			std::min(2, (getNumCities() - 1) / 2)) :
+ 			(3 * valueForUs >= 2 * valueForThem ||
+ 			valueForThem - valueForUs < tradeValThresh ||
+ 			valueForUs > tradeValThresh + 2))
+
+[PATCH OMITTED] file=a/manual.odt b/manual.odt reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH OMITTED] file=a/manual.pdf b/manual.pdf reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=2 omittedFiles=2 embeddedPatchBytes=5570

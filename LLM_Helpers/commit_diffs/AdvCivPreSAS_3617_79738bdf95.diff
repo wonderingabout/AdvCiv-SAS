@@ -1,0 +1,45 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3617
+# Commit: 79738bdf9545ed1e06f217ee581f6e5ccdbef1b1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 03f2a564827127bc9f32cfa85362ab42aad6f7ec
+# Title: Force scenarios to give non-minor civs a capital
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	CvGameCoreDLL/CvGameAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameAI.cpp b/CvGameCoreDLL/CvGameAI.cpp
+index 9d76ad9d7..d2f24db3f 100644
+--- a/CvGameCoreDLL/CvGameAI.cpp
++++ b/CvGameCoreDLL/CvGameAI.cpp
+@@ -52,6 +52,16 @@ void CvGameAI::AI_initScenario()
+ 			c->AI_assignWorkingPlots();
+ 		}
+ 	}
++	/*	BtS seems to tolerate major civs w/o capitals (e.g. Italy in Lokolus's
++		Earth1862AD scenario), but UWAI can't work with that. */
++	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
++	{
++		if (it->getNumCities() > 1 && !it->hasCapital())
++		{
++			FErrorMsg("Major civ player w/o a capital");
++			it->findNewCapital();
++		}
++	}
+ 	if (getUWAI().isEnabled() || getUWAI().isEnabled(true))
+ 	{
+ 		for (TeamAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=711

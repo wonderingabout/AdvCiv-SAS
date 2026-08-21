@@ -1,0 +1,243 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2723
+# Commit: 97f40e51e5ae695d87c17af40b4c0e2e64bbe030
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5fd578dc7c68587a0904f5b3ceffd0f6f9feffd5
+# Title: Some minor refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	18	CvGameCoreDLL/CvCity.cpp
+13	14	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+1	3	CvGameCoreDLL/CvPlot.cpp
+11	7	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/StartingPositionIteration.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index a15c13646..9f2b71af3 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -7670,18 +7670,15 @@ void CvCity::updateCorporation()
+ 
+ void CvCity::updateCorporationBonus()  // advc: style changes
+ {
+-	std::vector<int> aiExtraCorpProducedBonuses;
+-	std::vector<int> aiLastCorpProducedBonuses;
+-	std::vector<bool> abHadBonuses;
+-
++	EnumMap<BonusTypes,int> aiLastCorpProducedBonuses;
++	EnumMap<BonusTypes,bool> abHadBonuses;
+ 	FOR_EACH_ENUM(Bonus)
+ 	{
+-		abHadBonuses.push_back(hasBonus(eLoopBonus));
+-		m_aiNumCorpProducedBonuses.set(eLoopBonus, 0);
+-		aiLastCorpProducedBonuses.push_back(getNumBonuses(eLoopBonus));
+-		aiExtraCorpProducedBonuses.push_back(0);
++		abHadBonuses.set(eLoopBonus, hasBonus(eLoopBonus));
++		aiLastCorpProducedBonuses.set(eLoopBonus, getNumBonuses(eLoopBonus));
+ 	}
+-
++	m_aiNumCorpProducedBonuses.reset();
++	EnumMap<BonusTypes,int> aiExtraCorpProducedBonuses;
+ 	CvTeam const& kTeam = GET_TEAM(getTeam());
+ 	for (int iIter = 0; iIter < GC.getNumCorporationInfos(); iIter++)
+ 	{
+@@ -7699,32 +7696,35 @@ void CvCity::updateCorporationBonus()  // advc: style changes
+ 			{
+ 				for (int i = 0; i < GC.getNUM_CORPORATION_PREREQ_BONUSES(); i++)
+ 				{
+-					BonusTypes eBonusConsumed = (BonusTypes)GC.getInfo(eLoopCorporation).getPrereqBonus(i);
++					BonusTypes eBonusConsumed = (BonusTypes)
++							GC.getInfo(eLoopCorporation).getPrereqBonus(i);
+ 					if (eBonusConsumed != NO_BONUS)
+-						aiExtraCorpProducedBonuses[eBonusProduced] += aiLastCorpProducedBonuses[eBonusConsumed];
++					{
++						aiExtraCorpProducedBonuses.add(eBonusProduced,
++								aiLastCorpProducedBonuses.get(eBonusConsumed));
++					}
+ 				}
+ 			}
+ 		}
+ 		bool bChanged = false;
+ 		FOR_EACH_ENUM2(Bonus, e)
+ 		{
+-			if (aiExtraCorpProducedBonuses[e] != 0)
++			if (aiExtraCorpProducedBonuses.get(e) != 0)
+ 			{
+-				m_aiNumCorpProducedBonuses.add(e, aiExtraCorpProducedBonuses[e]);
++				m_aiNumCorpProducedBonuses.add(e, aiExtraCorpProducedBonuses.get(e));
+ 				bChanged = true;
+ 			}
+-			aiLastCorpProducedBonuses[e] = aiExtraCorpProducedBonuses[e];
+-			aiExtraCorpProducedBonuses[e] = 0;
++			aiLastCorpProducedBonuses.set(e, aiExtraCorpProducedBonuses.get(e));
+ 		}
++		aiExtraCorpProducedBonuses.reset();
+ 		if (!bChanged)
+ 			break;
+-
+-		FAssertMsg(iIter < GC.getNumCorporationInfos() - 1, "Corporation cyclical resource dependency");
++		FAssertMsg(iIter < GC.getNumCorporationInfos() - 1, "cyclical resource dependency");
+ 	}
+ 
+ 	FOR_EACH_ENUM(Bonus)
+ 	{
+-		if (abHadBonuses[eLoopBonus] != hasBonus(eLoopBonus))
++		if (abHadBonuses.get(eLoopBonus) != hasBonus(eLoopBonus))
+ 		{
+ 			if (hasBonus(eLoopBonus))
+ 				processBonus(eLoopBonus, 1);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 282daf6b1..4318848a8 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6602,21 +6602,20 @@ int CvCityAI::AI_neededCultureDefenders() const
+ 
+ 	int const iPop = getPopulation();
+ 	bool const bWillFlip = canCultureFlip(eCulturalOwner);
+-	double targetPr = std::max(0.0, 0.05 - iPop / 1000.0);
++	scaled rTargetProb = scaled::max(0, 50 - iPop) / 1000;
+ 	if (bWillFlip)
+-		targetPr = 0;
++		rTargetProb = 0;
+ 	else if (getNumRevolts(eCulturalOwner) > 0)
+-		targetPr /= 4;
++		rTargetProb /= 4;
+ 	int const iCultureStr = cultureStrength(eCulturalOwner);
+-	/*	Based on the formula in CvCity::revoltProbability
+-		Tbd.: Use scaled instead of double*/
+-	double targetGarrisonStr = iCultureStr - iCultureStr * targetPr /
+-			std::max(0.01, getRevoltTestProbability());
+-
+-	double const dAIEraFactor = kOwner.AI_getCurrEraFactor().getDouble();
+-	double r = ::ceil(targetGarrisonStr /
+-			std::max((dAIEraFactor + 0.5) * (dAIEraFactor < 3.5 ? 3 : 4), 3.0));
+-	if (r > std::max<double>(iPop, 3 + dAIEraFactor))
++	// Based on the formula in CvCity::revoltProbability
++	scaled rTargetGarrisonStr = iCultureStr - iCultureStr * rTargetProb /
++			scaled::max(per100(1), scaled::fromDouble(getRevoltTestProbability()));
++
++	scaled const rAIEraFactor = kOwner.AI_getCurrEraFactor();
++	scaled r = rTargetGarrisonStr / scaled::max(3,
++			(rAIEraFactor + fixp(0.5)) * (rAIEraFactor < fixp(3.5) ? 3 : 4));
++	if (r > scaled::max(iPop, 3 + rAIEraFactor))
+ 		return 0; // Not worth it
+ 	if (isOccupation())
+ 		r++;
+@@ -6630,10 +6629,10 @@ int CvCityAI::AI_neededCultureDefenders() const
+ 		{
+ 			int iWSRating = range(GET_TEAM(kOwner.getTeam()).
+ 					AI_getWarSuccessRating(), -100, 100);
+-			r *= 0.75 + iWSRating / 400.0;
++			r *= fixp(0.75) + scaled(iWSRating, 400);
+ 		}
+ 	}
+-	return ::round(r);
++	return r.round();
+ }
+ 
+ // This function has been completely rewritten for K-Mod. (The original code has been deleted.)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 43efa2221..eabe14a7b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -18727,7 +18727,7 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
+ 				FAssert(!abPeaceTreatyFound[i]);
+ 				abPeaceTreatyFound[i] = true;
+ 			}
+-			else FAssert(!CvDeal::isEndWar(pItem->m_eItemType))
++			else FAssert(!CvDeal::isEndWar(pItem->m_eItemType));
+ 			for (int j = 0; j < iForcePeaceSz; j++)
+ 			{
+ 				if (pItem->m_eItemType == aeForcePeace[j])
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 0243f8fb2..fa7c81ce9 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -7284,9 +7284,7 @@ bool CvPlot::isLayoutDirty() const
+ 
+ bool CvPlot::isLayoutStateDifferent() const
+ {
+-	bool bSame = true;
+-	bSame &= (m_bLayoutStateWorked == isBeingWorked()); // is worked
+-	return !bSame; // done
++	return (m_bLayoutStateWorked != isBeingWorked());
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 241a43bed..b5387b283 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -10214,9 +10214,11 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
+ 			int iDelta = iDefendersNeeded - iDefendersHave;
+ 			if(iDelta <= 0)
+ 				continue; // No functional change from BtS
+-			if(pLoopCity->AI_isEvacuating() && iDelta > ::round(0.75 * getGroup()->getNumUnits()))
++			if(pLoopCity->AI_isEvacuating() &&
++				iDelta > fixp(0.75) * getGroup()->getNumUnits())
++			{
+ 				continue;
+-			// </advc.139>
++			} // </advc.139>
+ 			/*if (pLoopCity->getPlot().isVisibleEnemyUnit(this)) // advc.opt: It's our city
+ 				continue;*/
+ 
+@@ -13688,10 +13690,12 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, MovementFlags eFlags
+ 	}
+ 
+ 	int const iSearchRange = (bFollow ? 1 : AI_searchRange(iRange));
+-	// advc.128: Within this range, the AI is able see to units on hidden tiles
+-	int const iSearchRangeRand = std::max(1, ::round((iSearchRange * m_iSearchRangeRandPercent) / 100.0));
++	// <advc.128> Within this range, the AI is able see to units on hidden tiles.
++	int const iSearchRangeRand = std::max(1,
++			ROUND_DIVIDE(iSearchRange * m_iSearchRangeRandPercent, 100)); // </advc.128>
+ 	bool const bDeclareWar = (eFlags & MOVE_DECLARE_WAR);
+-	CvPlot* pBestPlot = NULL; // advc (note): Maximizing iOddsThreshold
++	CvPlot* pBestPlot = NULL;
++	int iBestOdds = iOddsThreshold - 1; // advc
+ 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
+ 	for (SquareIter it(*this, iSearchRange, false); it.hasNext(); ++it)
+ 	{
+@@ -13733,9 +13737,9 @@ bool CvUnitAI::AI_anyAttack(int iRange, int iOddsThreshold, MovementFlags eFlags
+ 			// 101 for cities, because that's a better thing to capture.
+ 			int iOdds = (iEnemyDefenders == 0 ? (p.isCity() ? 101 : 100) :
+ 					AI_getGroup()->AI_getWeightedOdds(&p, false));
+-			if (iOdds >= iOddsThreshold)
++			if (iOdds > iBestOdds)
+ 			{
+-				iOddsThreshold = iOdds;
++				iBestOdds = iOdds;
+ 				pBestPlot = &(bFollow ? p : getPathEndTurnPlot());
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index 5e89975b1..1f08f9153 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -2046,7 +2046,7 @@ int StartingPositionIteration::teamValue(PlayerTypes eSitePlayer, TeamTypes eFor
+ 			{
+ 				CvPlot const& kOtherSite = *GET_PLAYER(
+ 						m_sitesPerTeam[eLoopTeam][k]).getStartingPlot();
+-				FAssert(&kOtherSite != &kSite)
++				FAssert(&kOtherSite != &kSite);
+ 				short iCloseness = m_pPathDists->getLongDist() -
+ 						m_pPathDists->d(kSite, kOtherSite);
+ 				if (iCloseness > 0)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=8468

@@ -1,0 +1,366 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5488
+# Commit: 18f539500575701707e7958877d3402f296fa943
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c76f21df5904a89a37f81c7e9a813abb01f8dc88
+# Title: reskin tech_drama as tech_paper (quotes missing)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	10	.editorconfig
+0	1	.gitattributes
+2	4	Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+4	4	Assets/XML/Audio/Audio2DScripts.xml
+2	2	Assets/XML/Audio/AudioDefines.xml
+4	4	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/Events/CIV4EventTriggerInfos.xml
+1	1	Assets/XML/GameInfo/CIV4ProcessInfo.xml
+1	1	Assets/XML/GameInfo/CIV4ReligionInfo.xml
+9	9	Assets/XML/Technologies/CIV4TechInfos.xml
+10	2	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+8	3	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	1	Long_Comments/Long_Comments_XML.txt
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ delete mode 100644 .editorconfig
+
+[PATCHES]
+
+diff --git a/.editorconfig b/.editorconfig
+deleted file mode 100644
+index f8cd2dbc9..000000000
+--- a/.editorconfig
++++ /dev/null
+@@ -1,10 +0,0 @@
+-root = true
+-
+-[*]
+-charset = utf-8
+-end_of_line = crlf
+-insert_final_newline = true
+-
+-[Assets/XML/Text/AdvCiv-SAS*.xml]
+-# <!-- custom: force ISO-8859-1 (latin1) for AdvCiv-SAS text XML files to avoid VS Code UTF-8 rewrites corrupting accented strings (e.g. "La Tène Smithy" becoming "La T�ne Smithy"). Note: not yet checked whether VS Code may revert this later. (GPT-5.3-Codex) -->
+-charset = latin1
+
+diff --git a/.gitattributes b/.gitattributes
+index d378f033c..6f25eb271 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -39,7 +39,6 @@
+ /.vscode/             export-ignore
+ /.markdownlint.jsonc  export-ignore
+ /ruff.toml            export-ignore
+-.editorconfig         export-ignore
+ 
+ # <!-- custom: LLM helpers are not needed in released archives of the mod -->
+ /LLM_Helpers/         export-ignore
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Bonus.xml b/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+index 8ab850f23..c4a5e62d3 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+@@ -299,9 +299,7 @@
+ 			<Button>,Art/Interface/Buttons/WorldBuilder/Sheep.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,14</Button>
+ 			<FontButtonIndex>18</FontButtonIndex>
+ 		</BonusArtInfo>
+-		<!-- custom: import silk button from HR mod, old default/base advciv one was:
+-			<Button>,Art/Interface/Buttons/WorldBuilder/Wheat.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,16</Button>
+-		-->
++		<!-- custom: import silk button from HR mod -->
+ 		<BonusArtInfo>
+ 			<Type>ART_DEF_BONUS_WHEAT</Type>
+ 			<fScale>1.0</fScale>
+@@ -329,7 +327,7 @@
+ 			<Button>,Art/Interface/Buttons/WorldBuilder/Music.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,16</Button>
+ 			<FontButtonIndex>33</FontButtonIndex>
+ 		</BonusArtInfo>
+-		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL, nif and button import from rfc doc mod's ART_DEF_BONUS_CAMEL and adjusted or not for advciv-sas -->
++		<!-- custom: replace BONUS_MOVIES with BONUS_CAMEL, nif and button import from rfc doc mod's ART_DEF_BONUS_CAMEL -->
+ 		<BonusArtInfo>
+ 			<Type>ART_DEF_BONUS_CAMEL</Type>
+ 			<fScale>1.2</fScale>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index d1b0d2811..b408aa040 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -12461,8 +12461,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_DRAMA</ScriptID>
+-		<SoundID>SND_TECH_DRAMA</SoundID>
++		<ScriptID>AS2D_TECH_PAPER</ScriptID>
++		<SoundID>SND_TECH_PAPER</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -14577,8 +14577,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_DRAMA</ScriptID>
+-		<SoundID>SND_TECH_MP_DRAMA</SoundID>
++		<ScriptID>AS2D_TECH_MP_PAPER</ScriptID>
++		<SoundID>SND_TECH_MP_PAPER</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 97a32f1b6..fd1651f65 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8529,7 +8529,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_DRAMA</SoundID>
++			<SoundID>SND_TECH_PAPER</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Drama</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -9173,7 +9173,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_DRAMA</SoundID>
++			<SoundID>SND_TECH_MP_PAPER</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Drama</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 56dbf920f..af13cf6ba 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -11184,7 +11184,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_DRAMA -->
++			<!-- custom: was (now removed) TECH_DRAMA -->
+ 			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -11378,7 +11378,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_DRAMA -->
++			<!-- custom: was (now removed) TECH_DRAMA -->
+ 			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+@@ -18833,7 +18833,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: see code comment at the pagan_shrine, was NONE -->
+-			<PrereqTech>TECH_DRAMA</PrereqTech>
++			<PrereqTech>TECH_PAPER</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25340,7 +25340,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_DRAMA -->
++			<!-- custom: was (now removed) TECH_DRAMA -->
+ 			<PrereqTech>TECH_AESTHETICS</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index 644663c5d..2ae23304d 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -8757,7 +8757,7 @@
+ 			</Events>
+ 			<PrereqEvents/>
+ 			<bPrereqEventPlot>0</bPrereqEventPlot>
+-			<!-- custom: was TECH_DRAMA -->
++			<!-- custom: was (now removed) TECH_DRAMA -->
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_AESTHETICS</PrereqTech>
+ 			</OrPreReqs>
+
+diff --git a/Assets/XML/GameInfo/CIV4ProcessInfo.xml b/Assets/XML/GameInfo/CIV4ProcessInfo.xml
+index b48eea2d8..403e0d30f 100644
+--- a/Assets/XML/GameInfo/CIV4ProcessInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ProcessInfo.xml
+@@ -35,7 +35,7 @@
+ 			<Type>PROCESS_CULTURE</Type>
+ 			<Description>TXT_KEY_PROCESS_CULTURE</Description>
+ 			<Strategy>TXT_KEY_PROCESS_CULTURE_STRATEGY</Strategy>
+-			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #22; plus changed again since TECH_DRAMA is now removed -->
++			<!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #22 -->
+ 			<TechPrereq>TECH_AESTHETICS</TechPrereq>
+ 			<ProductionToCommerceModifiers>
+ 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+
+diff --git a/Assets/XML/GameInfo/CIV4ReligionInfo.xml b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+index 61a74d80d..dd47efe72 100644
+--- a/Assets/XML/GameInfo/CIV4ReligionInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+@@ -109,7 +109,7 @@
+ 			<Adjective>TXT_KEY_RELIGION_DAOISM_ADJECTIVE</Adjective>
+ 			<Civilopedia>TXT_KEY_RELIGION_DAOISM_PEDIA</Civilopedia>
+ 			<!-- custom: was TECH_PHILOSOPHY -->
+-			<TechPrereq>TECH_DRAMA</TechPrereq>
++			<TechPrereq>TECH_PAPER</TechPrereq>
+ 			<FreeUnitClass>UNITCLASS_DAOIST_MISSIONARY</FreeUnitClass>
+ 			<iFreeUnits>1</iFreeUnits>
+ 			<iSpreadFactor>100</iSpreadFactor>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index b18c25dcf..a4f76d544 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -616,10 +616,10 @@
+ 			<SoundMP>AS2D_TECH_MP_CODE_OF_LAWS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Code of Laws.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,2</Button>
+ 		</TechInfo>
+-		<TechInfo> <!-- custom: type: TECH_DRAMA -->
+-			<Type>TECH_DRAMA</Type>
+-			<Description>TXT_KEY_TECH_DRAMA</Description>
+-			<Civilopedia>TXT_KEY_TECH_DRAMA_PEDIA</Civilopedia>
++		<TechInfo> <!-- custom: type: TECH_PAPER -->
++			<Type>TECH_PAPER</Type>
++			<Description>TXT_KEY_TECH_PAPER</Description>
++			<Civilopedia>TXT_KEY_TECH_PAPER_PEDIA</Civilopedia>
+ 			<Help/>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_CULTURE</Advisor>
+@@ -684,10 +684,10 @@
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+ 			</AndPreReqs>
+-			<Quote>TXT_KEY_TECH_DRAMA_QUOTE</Quote>
+-			<Sound>AS2D_TECH_DRAMA</Sound>
+-			<SoundMP>AS2D_TECH_MP_DRAMA</SoundMP>
+-			<Button>,Art/Interface/Buttons/TechTree/Drama.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,3</Button>
++			<Quote>TXT_KEY_TECH_PAPER_QUOTE</Quote>
++			<Sound>AS2D_TECH_PAPER</Sound>
++			<SoundMP>AS2D_TECH_MP_PAPER</SoundMP>
++			<Button>,Art/Interface/Buttons/TechTree/Paper.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,6</Button>
+ 		</TechInfo>
+ 		<TechInfo> <!-- custom: type: TECH_FEUDALISM -->
+ 			<Type>TECH_FEUDALISM</Type>
+@@ -3058,7 +3058,7 @@
+ 				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_DRAMA</PrereqTech>
++				<PrereqTech>TECH_PAPER</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_BROADER_EDUCATION_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_BROADER_EDUCATION</Sound>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 4c66d7645..1a2b4c421 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -903,7 +903,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM : Reuses civ4's CIVIC_ENVIRONMENTALISM's button and TECH_REFRIGERATION's quote + a modern later tech so industrial goes faster and to thematically cover this part of history as well (plus modern was quite most importantly while industrial was too slow); pedia entry similarly from https://en.wikipedia.org/wiki/Environmentalism -->
++	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM: Reuses civ4's CIVIC_ENVIRONMENTALISM's button and TECH_REFRIGERATION's quote + a modern later tech so industrial goes faster and to thematically cover this part of history as well (plus modern was quite most importantly while industrial was too slow); pedia entry similarly from https://en.wikipedia.org/wiki/Environmentalism -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM_PEDIA</Tag>
+ 		<English>[TAB]Environmentalism is a broad philosophy, ideology, and social movement about supporting life, habitats, and surroundings. While environmentalism focuses on the environmental and nature-related aspects of green ideology and politics, ecologism combines the ideology of social ecology and environmentalism. Ecologism is a term more commonly used in continental European languages, while environmentalism is more commonly used in English, but the words have slightly different connotations.[PARAGRAPH:1]Environmentalism advocates the preservation, restoration and improvement of the natural environment and critical earth system elements or processes such as the climate, and may be referred to as a movement to control pollution or protect plant and animal diversity. For this reason, concepts such as a land ethics, environmental ethics, biodiversity, ecology, and the biophilia hypothesis figure predominantly. The environmentalist movement encompasses various approaches to addressing environmental issues, including free market environmentalism, evangelical environmentalism, and the environmental conservation movement.[PARAGRAPH:1]At its crux, environmentalism is an attempt to balance relations between humans and the various natural systems on which they depend in such a way that all the components are accorded a proper degree of sustainability. The exact measures and outcomes of this balance is controversial and there are many different ways for environmental concerns to be expressed in practice. Environmentalism and environmental concerns are often represented by the colour green, but this association has been appropriated by the marketing industries for the tactic known as greenwashing.[PARAGRAPH:1]Environmentalism is opposed by anti-environmentalism, which says that the Earth is less fragile than some environmentalists maintain, and portrays environmentalism as overreacting to the human contribution to climate change or opposing human advancement.</English>
+@@ -911,7 +911,15 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-    	<TEXT>
++	<!-- custom: replace TECH_DRAMA with TECH_PAPER; pedia entry based on https://en.wikipedia.org/wiki/History_of_paper -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_PAPER_PEDIA</Tag>
++		<English>[TAB]Paper is a thin nonwoven material traditionally made from a combination of milled plant and textile fibres. The first paper-like plant-based writing sheet was papyrus in Egypt, but the first true papermaking process was documented in China during the Eastern Han period (25-220 AD), traditionally attributed to the court official Cai Lun. This plant-puree conglomerate produced by pulp mills and paper mills was used for writing, drawing, and money. During the 8th century, Chinese paper making spread to the Islamic world, replacing papyrus. By the 11th century, papermaking was brought to Europe, where it replaced animal-skin-based parchment and wood panels. By the 13th century, papermaking was refined with paper mills using waterwheels in Spain. Later improvements to the papermaking process came in 19th century Europe with the invention of wood-based papers.[PARAGRAPH:1]Although there were precursors such as papyrus in the Mediterranean world and amate in the pre-Columbian Americas, these are not considered true paper. Nor is true parchment considered paper: used principally for writing, parchment is heavily prepared animal skin that predates paper and possibly papyrus. In the 20th century with the advent of plastic manufacture, some plastic "paper" was introduced, as well as paper-plastic laminates, paper-metal laminates, and papers infused or coated with different substances to produce special properties.</English>
++	</TEXT>
++
++
++
++    <TEXT>
+ 		<Tag>TXT_KEY_TERRAIN_COAST_PEDIA</Tag>
+ 		<English>[TAB]The coastline is where the land meets the sea or ocean. A precise line that can be called a coastline cannot be determined due to the dynamic nature of tides. The term "coastal zone" can be used instead, which is a spatial zone where interaction of the sea and land processes occurs. Both the terms coast and coastal are often used to describe a geographic location or region; for example, New Zealand's West Coast, or the East and West Coasts of the United States.</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 847993a63..bf72beaa8 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -1502,16 +1502,21 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_TECH_BROADER_EDUCATION</Tag>
+ 		<English>Broader Education</English>
+ 	</TEXT>
+-	<!-- custom: replace "TECH_MUSIC_THEORY" (old "TECH_MUSIC") with "TECH_ROMANTICISM", with chatgpt 5.2's help/recommendation and my own help too xd i mean. -->
++	<!-- custom: replace "TECH_MUSIC_THEORY" (old "TECH_MUSIC") with "TECH_ROMANTICISM", with the help of chatgpt 5.2 thanks -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_ROMANTICISM</Tag>
+ 		<English>Romanticism</English>
+ 	</TEXT>
+-	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM. -->
++	<!-- custom: replace TECH_REFRIGERATION with TECH_ENVIRONMENTALISM -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_ENVIRONMENTALISM</Tag>
+ 		<English>Environmentalism</English>
+ 	</TEXT>
++	<!-- custom: replace TECH_DRAMA with TECH_PAPER -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_PAPER</Tag>
++		<English>Paper</English>
++	</TEXT>
+ 
+ 
+ 
+@@ -3569,7 +3574,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_CELTIC_LA_TENE_SMITHY</Tag>
+-		<English>La T�ne Smithy</English>
++		<English>La Tene Smithy</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET</Tag>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 943255b82..303c25458 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -261,7 +261,7 @@ And i didn't want to recompile so i asked it as such too, and it confirmed i mea
+ 
+ ===== \Assets\XML\GameInfo\CIV4ProcessInfo.xml =====
+ ----- Comment #22 -----
+-<!-- custom: polytheism now instead of drama, maybe is more accurate/realistic to have it sooner on top of maybe helping calm revolts sooner? or more diverse strategies possible now? Trying this as it may fit better in AdvCiv-SAS. Note: not putting it in start tech else AIs build culture in their capital which is inefficient, rather than retweak all if even feasable in xml which i doubt but maybe i don't know, it seems easier to remove the culture goalpsot a bit later, at polytheism, maybe more balanced this way too as culture is a bit too easy to have at MYSTICISM maybe, plus since our tech tree rework is simplified, mysticism is a starting tech we don't have a tech(s) before it so maybe all around better or and more balanced or and more suitable or and more desirable for us in advciv-sas at least is how i'd want to try it set it; after more consideration and testing, move PROCESS_CULTURE back to TECH_MUSIC_THEORY, AI is a bit too bad or too inefficient maybe at using it too early, make it available later but also soon enough as we want/wanted. Update: back to drama since we have removed the now old TECH_MUSIC_THEORY, and since AIs handle this sometimes bad in the early game. This tech prereq change helps culture techs being stronger by condensing their effects and make them more "bulky". -->
++<!-- custom: polytheism now instead of drama, maybe is more accurate/realistic to have it sooner on top of maybe helping calm revolts sooner? or more diverse strategies possible now? Trying this as it may fit better in AdvCiv-SAS. Note: not putting it in start tech else AIs build culture in their capital which is inefficient, rather than retweak all if even feasable in xml which i doubt but maybe i don't know, it seems easier to remove the culture goalpsot a bit later, at polytheism, maybe more balanced this way too as culture is a bit too easy to have at MYSTICISM maybe, plus since our tech tree rework is simplified, mysticism is a starting tech we don't have a tech(s) before it so maybe all around better or and more balanced or and more suitable or and more desirable for us in advciv-sas at least is how i'd want to try it set it; after more consideration and testing, move PROCESS_CULTURE back to TECH_MUSIC_THEORY, AI is a bit too bad or too inefficient maybe at using it too early, make it available later but also soon enough as we want/wanted. Update: back to drama since we have removed the now old TECH_MUSIC_THEORY, and since AIs handle this sometimes bad in the early game. This tech prereq change helps culture techs being stronger by condensing their effects and make them more "bulky"; Since then, changed again since TECH_DRAMA is now removed -->
+ 
+ ===== \Assets\XML\GameInfo\CIV4WorldInfo.xml =====
+ ----- Comment #23 -----
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d80235834..4e67986be 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -112,7 +112,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+ - Make **paths absolute** in **.gitignore** to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
+-- (Requires AdvCiv-SAS 5465+) Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints. See also `.editorconfig`.
++- (Requires AdvCiv-SAS 5465+) Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints.
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+ 
+ ### 48 Civs DLL
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=21177

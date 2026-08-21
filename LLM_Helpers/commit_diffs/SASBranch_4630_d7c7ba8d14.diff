@@ -1,0 +1,136 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4630
+# Commit: d7c7ba8d142bf36430ab5c99609e7293cffc06d8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 42569d376250a64a5ca05308a527bc686ab47729
+# Title: add robotic era music links (docs only), remove actual music files archive is lighter now, plus until we implement them if we do, may also do on a separate r...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	"_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus"
+-	-	_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus
+-	-	_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus
+-	-	_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus
+-	-	_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus
+23	0	_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/{Music eras credits.txt => Music eras listing-credits.txt}
+-	-	_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus
+1	1	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+ delete mode 100644 "_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus"
+ delete mode 100644 _1_AdvCiv-SAS/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus
+ delete mode 100644 _1_AdvCiv-SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus
+ delete mode 100644 _1_AdvCiv-SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus
+ delete mode 100644 _1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus
+ rename _1_AdvCiv-SAS/Music_Civ4_Mod/Eras/{Music eras credits.txt => Music eras listing-credits.txt} (61%)
+ delete mode 100644 _1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus
+
+[PATCHES]
+
+diff --git "a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus" "b/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus"
+deleted file mode 100644
+index 7cd59ec30..000000000
+Binary files "a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus" and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus b/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus
+deleted file mode 100644
+index 84c37a93b..000000000
+Binary files a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus b/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus
+deleted file mode 100644
+index 6e128f979..000000000
+Binary files a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus b/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus
+deleted file mode 100644
+index 4493d94c2..000000000
+Binary files a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus b/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus
+deleted file mode 100644
+index c9c4d5ad4..000000000
+Binary files a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Music eras credits.txt b/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Music eras listing-credits.txt
+similarity index 61%
+rename from _1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Music eras credits.txt
+rename to _1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Music eras listing-credits.txt
+index 27ca33f3c..f96697d0a 100644
+--- a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Music eras credits.txt	
++++ b/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Music eras listing-credits.txt	
+@@ -4,6 +4,8 @@ Prehistoric Age
+ 
+ Prehistoric Age 1 - Ancient Music – Cavemen [j5xo5yGX3UY] 
+ 
++
++
+ Stone Age 
+ 
+ 1 - Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg]
+@@ -13,6 +15,7 @@ Stone Age
+ 4 - Stone Age 5 - African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa from 32:40 to 35:56 (fade a few seconds sooner)
+ 
+ 
++
+ Bronze Age
+ 
+ Bronze Age 1 - PHARAOH ｜ Deep Ancient Egyptian Music ｜ Middle Eastern Background Music ｜ Beautiful Duduk & Darbuka [1rSStqL267c] (cut around 7:02 few seconds sooner with fade time)
+@@ -21,6 +24,8 @@ Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs] (cut from 0:14 to
+ Bronze Age 3 - African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa from 21:02 to 24:15 (fade time a few seconds sooner)
+ Bronze Age 4 - 
+ 
++
++
+ Iron Age
+ 
+ Medieval Era
+@@ -28,3 +33,21 @@ Medieval Era
+ Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].
+ 
+ 
++
++Renaissance Era
++Some classical music? But i would want from all eras, and not
++necessarily the too famous ones, also not necessary to change all
++musics maybe will see (but remove those i dislike maybe to allow
++myself to be a bit nasty anyways)
++
++
++Robotic Era
++I want some dystopian/depressive/sad(not necessarily depressive type) music here, but not only,
++some may be copyrighted, hopefully they (authors) would not mind ideally, anyways,
++
++Robotic Era 1 - A Girl's Melancholy | Speed Grapher OST https://www.youtube.com/watch?v=iGgnq1Lv2BY
++Robotic Era 2 - Bitter Victory | Speed Grapher OST https://www.youtube.com/watch?v=pVaC3AinQY0
++Robotic Era 3 - Sorrow | Speed Grapher OST https://www.youtube.com/watch?v=gpQA0HFAldg
++Robotic Era 4 - Fyze - Alone (may actually take many from that playlist?) https://www.youtube.com/watch?v=4zeUOUo09Hs&t=713s
++
++
+
+diff --git a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus b/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus
+deleted file mode 100644
+index 0ecf3a522..000000000
+Binary files a/_1_AdvCiv-SAS/Music_Civ4_Mod/Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index 7506ed6cf..09b698c6b 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -10,7 +10,7 @@ todo cleanup extensive comments and move them to a longer changes guide notes
+ ## Sevopedia AdvCiv-SAS Entry
+ 
+ Some of the changes in AdvCiv-SAS (coming from AdvCiv) are also listed in the
+-Sevopedia Entry (non-eshaustive), please visit it there (the screenshot below
++Sevopedia Entry (non-exhaustive), please visit it there (the screenshot below
+ (click to view it full size) may not be updated, it is to give a preview/general
+ idea):
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=5494

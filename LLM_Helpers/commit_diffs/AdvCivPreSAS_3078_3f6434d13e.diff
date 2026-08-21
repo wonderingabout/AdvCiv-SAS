@@ -1,0 +1,92 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3078
+# Commit: 3f6434d13e6187697dd666ad9d966ba6a5339cd6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b6bc96db36c4ab164966e01ffaf7347eb90f25f2
+# Title: XML switch for showing rival building models on map
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	0	Assets/XML/GlobalDefines_advc.xml
+5	0	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvGlobals.h
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 164baafa7..6598e643b 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1182,4 +1182,16 @@
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.045: A value of 1 means that 3D models of all buildings in
++		 revealed rival cities are shown on the main map (as in BtS) and that
++		 the UI in general treats such buildings as open information.
++		 A value of 0 (recommended) treats rival buildings as secret unless
++		 the active (human) player has a unit in the city tile or the building
++		 can be inferred from tile yields (e.g. Lighthouse) or city
++		 defense modifier (e.g. Walls). -->
++	<Define>
++		<DefineName>TREAT_REVEALED_BUILDINGS_AS_VISIBLE</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 05c13dcc2..872d126b1 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11714,6 +11714,11 @@ bool CvCity::isAllBuildingsVisible(TeamTypes eTeam, bool bDebug) const
+ {
+ 	if (bDebug && GC.getGame().isDebugMode())
+ 		return true;
++	if (GC.getDefineBOOL(CvGlobals::TREAT_REVEALED_BUILDINGS_AS_VISIBLE) &&
++		isRevealed(eTeam, bDebug))
++	{
++		return true;
++	}
+ 	return (getTeam() == eTeam || getPlot().isInvestigate(eTeam) ||
+ 			getPlot().plotCheck(NULL, -1, -1, NO_PLAYER, eTeam) > 0 != NULL);
+ }
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 6a5e5665c..876ce7448 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -454,6 +454,7 @@ public:
+ 		/* <advc.ctr> */ \
+ 		DO(CITY_TRADE_CULTURE_THRESH) \
+ 		DO(NATIVE_CITY_CULTURE_THRESH) /* </advc.ctr> */ \
++		DO(TREAT_REVEALED_BUILDINGS_AS_VISIBLE) /* advc.045 */ \
+ 		/* <advc.opt> */ \
+ 		DO(DIPLOMACY_VALUE_REMAINDER) \
+ 		DO(PEACE_TREATY_LENGTH) \
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 19213cc5a..bc45f3964 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3088,7 +3088,7 @@ scaled CvPlayerAI::AI_assetVal(CvCityAI const& c, bool bConquest) const
+ 	{
+ 		/*	Due to advc.045, the AI can't really know the buildings in a human city;
+ 			but using NumBuildings is a pretty coarse estimate of building utility anyway. */
+-		/*if (bOwn && c.isHuman())
++		/*if (bOwn && c.isHuman() && !c.isAllBuildingsVisible(getTeam(), false))
+ 			...; else */
+ 		 // (Note: Includes obsolete buildings, double counts wonders.)
+ 		r += fixp(2.25) * c.getNumBuildings();
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=2573

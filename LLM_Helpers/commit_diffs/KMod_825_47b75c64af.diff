@@ -1,0 +1,140 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 825
+# Commit: 47b75c64afbbe6ad3280ce3a52f6f65b4881cf1e
+# History segment: K-Mod history
+# Parent used for diff: 1acc3942d453d47477cfd81c14fe6cb412ab3af8
+# Title: Cleaned up some minor problems in the use of the pathfinders.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.h
+1	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+3	0	CvGameCoreDLL/CvUnit.cpp
+0	6	CvGameCoreDLL/CySelectionGroup.cpp
+0	1	CvGameCoreDLL/CySelectionGroup.h
+0	1	CvGameCoreDLL/CySelectionGroupInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index ffff6b36c..cee9f283d 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -4384,11 +4384,11 @@ bool CvSelectionGroup::generatePath( const CvPlot* pFromPlot, const CvPlot* pToP
+ 	return bSuccess;
+ }
+ 
+-void CvSelectionGroup::resetPath() const
++/* void CvSelectionGroup::resetPath() const
+ {
+ 	//path_finder.Reset(); // note. the K-Mod finder doesn't need resetting in all the same places.
+ 	gDLL->getFAStarIFace()->ForceReset(&GC.getPathFinder());
+-}
++} */
+ 
+ 
+ void CvSelectionGroup::clearUnits()
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index d64101af8..6d418a713 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -172,7 +172,7 @@ public:
+ 	CvPlot* getPathFirstPlot() const;																																		// Exposed to Python
+ 	CvPlot* getPathEndTurnPlot() const;																																	// Exposed to Python
+ 	bool generatePath(const CvPlot* pFromPlot, const CvPlot* pToPlot, int iFlags = 0, bool bReuse = false, int* piPathTurns = NULL, int iMaxPath = -1) const; // Exposed to Python (K-mod added iMaxPath)
+-	void resetPath() const;					// Exposed to Python
++	// void resetPath() const; // disabled by K-mod. Use path_finder.Reset instead. (was exposed to Python)
+ 
+ 	DllExport void clearUnits();
+ 	DllExport bool addUnit(CvUnit* pUnit, bool bMinimalChange);
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 2837fe532..be3651fe3 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -280,7 +280,7 @@ bool CvSelectionGroupAI::AI_update()
+ 					pEntityNode = nextUnitNode(pEntityNode);
+ 
+ 					if (bFirst)
+-						resetPath();
++						path_finder.Reset();
+ 
+ 					if (pLoopUnit->canMove())
+ 					{
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index d4adb6bd0..2b58f258a 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7025,11 +7025,14 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
+ 
+ 	testPromotionReady();
+ 
++	CvSelectionGroup::path_finder.Reset(); // K-Mod. (This currently isn't important, because the AI doesn't use promotions mid-turn anyway.)
++
+ 	if (IsSelected())
+ 	{
+ 		gDLL->getInterfaceIFace()->playGeneralSound(GC.getPromotionInfo(ePromotion).getSound());
+ 
+ 		gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
++		gDLL->getFAStarIFace()->ForceReset(&GC.getPathFinder()); // K-Mod.
+ 	}
+ 	else
+ 	{
+
+diff --git a/CvGameCoreDLL/CySelectionGroup.cpp b/CvGameCoreDLL/CySelectionGroup.cpp
+index 58c1679e4..a7602270a 100644
+--- a/CvGameCoreDLL/CySelectionGroup.cpp
++++ b/CvGameCoreDLL/CySelectionGroup.cpp
+@@ -274,12 +274,6 @@ bool CySelectionGroup::generatePath(CyPlot* pFromPlot, CyPlot* pToPlot, int iFla
+ 	return m_pSelectionGroup ? m_pSelectionGroup->generatePath(pFromPlot->getPlot(), pToPlot->getPlot(), iFlags, bReuse, piPathTurns) : false;
+ }
+ 
+-void CySelectionGroup::resetPath()
+-{
+-	if (m_pSelectionGroup)
+-		m_pSelectionGroup->resetPath();
+-}
+-
+ int CySelectionGroup::getNumUnits()
+ {
+ 	return m_pSelectionGroup ? m_pSelectionGroup->getNumUnits() : -1;
+
+diff --git a/CvGameCoreDLL/CySelectionGroup.h b/CvGameCoreDLL/CySelectionGroup.h
+index 9560a1b0b..1db839ebe 100644
+--- a/CvGameCoreDLL/CySelectionGroup.h
++++ b/CvGameCoreDLL/CySelectionGroup.h
+@@ -85,7 +85,6 @@ public:
+ 	CyPlot* getPathFirstPlot();
+ 	CyPlot* getPathEndTurnPlot();
+ 	bool generatePath(CyPlot* pFromPlot, CyPlot* pToPlot, int iFlags, bool bReuse, int* piPathTurns);
+-	void resetPath();
+ 	int getNumUnits();
+ 	void clearMissionQueue();
+ 	int getLengthMissionQueue();
+
+diff --git a/CvGameCoreDLL/CySelectionGroupInterface.cpp b/CvGameCoreDLL/CySelectionGroupInterface.cpp
+index 7c2a88986..2574e1045 100644
+--- a/CvGameCoreDLL/CySelectionGroupInterface.cpp
++++ b/CvGameCoreDLL/CySelectionGroupInterface.cpp
+@@ -81,7 +81,6 @@ void CySelectionGroupInterface()
+ 		.def("getPathFirstPlot", &CySelectionGroup::getPathFirstPlot, python::return_value_policy<python::manage_new_object>(), "CyPlot* ()")
+ 		.def("getPathEndTurnPlot", &CySelectionGroup::getPathEndTurnPlot, python::return_value_policy<python::manage_new_object>(), "CyPlot* ()")
+ 		.def("generatePath", &CySelectionGroup::generatePath, "bool (CyPlot* pFromPlot, CyPlot* pToPlot, int iFlags, bool bReuse, int* piPathTurns)")
+-		.def("resetPath", &CySelectionGroup::resetPath, "void ()")
+ 
+ 		.def("getNumUnits", &CySelectionGroup::getNumUnits, "int ()")			// JS Help!
+ 		.def("clearMissionQueue", &CySelectionGroup::clearMissionQueue, "void ()")
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=4662

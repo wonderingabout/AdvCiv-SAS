@@ -1,0 +1,1036 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3823
+# Commit: 4d0c34fb2a0c78bdc44f9ea81027c62e178483d9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c53aa719cb83f2ba5557c0ded208a982292c449c
+# Title: Misc. refactoring, comment changes.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	Assets/Config/BUG City Screen.xml
+3	6	Assets/Python/Screens/CvHallOfFameScreen.py
+3	4	Assets/Python/Screens/CvMainInterface.py
+2	1	Assets/Python/Screens/CvReligionScreen.py
+1	4	Assets/XML/Text/BUG Main Interface Options.xml
+4	8	Assets/XML/Text/CIV4GameText_advc.xml
+2	2	CvGameCoreDLL/CvCity.cpp
+2	2	CvGameCoreDLL/CvCityAI.cpp
+1	3	CvGameCoreDLL/CvDLLButtonPopup.h
+2	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+3	3	CvGameCoreDLL/CvEventReporter.cpp
+1	1	CvGameCoreDLL/CvEventReporter.h
+6	7	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGameCoreDLL.h
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+0	6	CvGameCoreDLL/CvGlobals.cpp
+2	1	CvGameCoreDLL/CvGlobals.h
+3	11	CvGameCoreDLL/CvInitCore.cpp
+7	4	CvGameCoreDLL/CvInitCore.h
+2	2	CvGameCoreDLL/CvPlayer.cpp
+4	4	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlot.cpp
+3	3	CvGameCoreDLL/CvReplayInfo.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.cpp
+5	2	CvGameCoreDLL/CvString.cpp
+16	15	CvGameCoreDLL/CvString.h
+2	2	CvGameCoreDLL/CvStructs.cpp
+64	66	CvGameCoreDLL/CvTeam.cpp
+3	3	CvGameCoreDLL/CvUnit.cpp
+4	1	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/FAssert.cpp
+1	1	CvGameCoreDLL/InvasionGraph.cpp
+1	1	CvGameCoreDLL/UWAIAgent.cpp
+2	2	PrivateMaps/PerfectMongoose.py
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG City Screen.xml b/Assets/Config/BUG City Screen.xml
+index 929077c0c..cf9111f35 100644
+--- a/Assets/Config/BUG City Screen.xml	
++++ b/Assets/Config/BUG City Screen.xml	
+@@ -107,7 +107,9 @@
+ 			
+ 			<!-- Specialist Stacker by TheLopez -->
+ 			<!-- Specialist Chevrons by Ruff_Hi -->
+-			<!-- advc.004: "Default" renamed to "BtS" -->
++			<!-- advc.004: "Default" renamed to "BtS".
++				 Caveat: The order of the choices - specifically Stacker being
++				 at position 1 - is hardcoded in the DLL -->
+ 			<list   id="Specialists" key="City Specialists" 
+ 					type="int" default="2" listType="string" 
+ 					values="BtS|Stacker|Chevron"
+
+diff --git a/Assets/Python/Screens/CvHallOfFameScreen.py b/Assets/Python/Screens/CvHallOfFameScreen.py
+index 7589df9c8..9183aa9b8 100644
+--- a/Assets/Python/Screens/CvHallOfFameScreen.py
++++ b/Assets/Python/Screens/CvHallOfFameScreen.py
+@@ -255,7 +255,8 @@ class CvHallOfFameScreen:
+ 		screen.addTableControlGFC(self.TABLE_ID, 10, 2, 2 * self.DROPDOWN_SPACING_Y + self.DROPDOWN_Y, 1018, 545, True, True, 16, 16, TableStyles.TABLE_STYLE_STANDARD);
+ 		screen.enableSelect(self.TABLE_ID, False)
+ 		screen.enableSort(self.TABLE_ID)
+-		# <advc.106i> Don't show replay button column when game has just ended (replays are disabled then)
++		# <advc.106i> Don't show replay button column when game has just ended;
++		# replays don't work at that point. (Why is that? Issue introduced by AdvCiv? Oh well ...)
+ 		bAllowReplay = (gc.getGame().getGameState() != GameStateTypes.GAMESTATE_OVER)
+ 		iColumn = 0 # Replacing hardcoded column numbers
+ 		if bAllowReplay:
+@@ -317,25 +318,21 @@ class CvHallOfFameScreen:
+ 				elif self.iSortBy == SORT_BY_GAME_SCORE:
+ 					iValue = -replayInfo.getFinalScore()
+ 				# <advc.106i>  (also legacy support for advc.250a)
+-				szHandicap = ""
+ 				iHandicap = replayInfo.getDifficulty()
+ 				if iHandicap >= 0 and iHandicap < gc.getNumHandicapInfos():
+ 					szHandicap = gc.getHandicapInfo(iHandicap).getDescription()
+ 				else:
+ 					szHandicap = szUnknown
+-				szWorldSize = ""
+ 				iWorldSize = replayInfo.getWorldSize()
+ 				if iWorldSize >= 0 and iWorldSize < gc.getNumWorldInfos():
+ 					szWorldSize = gc.getWorldInfo(iWorldSize).getDescription()
+ 				else:
+ 					szWorldSize = szUnknown
+-				szStartEra = ""
+ 				iStartEra = replayInfo.getEra()
+ 				if iStartEra >= 0 and iStartEra < gc.getNumEraInfos():
+ 					szStartEra = gc.getEraInfo(iStartEra).getDescription()
+ 				else:
+ 					szStartEra = szUnknown
+-				szSpeed = ""
+ 				iSpeed = replayInfo.getGameSpeed()
+ 				if iSpeed >= 0 and iSpeed < gc.getNumGameSpeedInfos():
+ 					szSpeed = gc.getGameSpeedInfo(iSpeed).getDescription()
+@@ -413,7 +410,7 @@ class CvHallOfFameScreen:
+ 		while msgNum >= 0:
+ 			msg = replay.getReplayMessageText(msgNum)
+ 			if count > 25: # advc.opt: was 100
+-				BugUtil.debug("no victory message in first 100; skipping")
++				BugUtil.debug("no victory message found; skipping")
+ 				break
+ 			matches = reWinText.match(msg)
+ 			if matches:
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 49335906a..0c97ffd6c 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -5045,7 +5045,7 @@ class CvMainInterface:
+ 		'''
+ 		aCityBldgs = sorted(aCityBldgs, key=lambda iBuilding:
+ 				# AdvCiv returns -32768 for free buildings. Let's just treat
+-				# all stange year numbers as 10000, which will move them
++				# all strange year numbers as 10000, which will move them
+ 				# to the end of the list. The and/or is a hack for a
+ 				# conditional expression (properly added in Python 2.5).
+ 				(abs(pHeadSelectedCity.getBuildingOriginalTime(iBuilding)) >= 10000 and 10000
+@@ -6766,8 +6766,7 @@ class CvMainInterface:
+ 
+ 		# Hide the layer options ... all of them
+ 		for i in range(20):
+-			szName = "GlobeLayerOption" + str(i)
+-			screen.hide(szName)
++			screen.hide("GlobeLayerOption" + str(i))
+ 
+ 		# Setup the GlobeLayer panel
+ 		#iNumLayers = kGLM.getNumLayers() # advc: unused
+@@ -6805,7 +6804,7 @@ class CvMainInterface:
+ 				kGLM.getLayer(iCurrentLayerID).getNumOptions() > 0 and
+ 				# Could instead set NumOptions to 0 in CvGame::getGlobeLayers
+ 				# but then the resource layer wouldn't update properly
+-				# when ResourceIconOptions is toggled in the BUG menu.
++				# when ResourceIconOptions is toggled on the BUG menu.
+ 				(not bResourceLayer or MainOpt.isResourceIconOptions())):
+ 			# </advc.004z>
+ 			bHasOptions = True
+
+diff --git a/Assets/Python/Screens/CvReligionScreen.py b/Assets/Python/Screens/CvReligionScreen.py
+index 54e14faab..63e402952 100644
+--- a/Assets/Python/Screens/CvReligionScreen.py
++++ b/Assets/Python/Screens/CvReligionScreen.py
+@@ -193,7 +193,8 @@ class CvReligionScreen:
+ 			self.W_RELIGION_AREA = 934
+ 			self.H_RELIGION_AREA = 175
+ 			# self.RELIGIONS = ReligionUtil.getAllReligions() + (ReligionUtil.getNumReligions(),)
+-			self.RELIGIONS = range(gc.getNumReligionInfos()) # K-Mod. (the original BUG code simply doesn't run.)
++			# K-Mod. the original BUG code simply doesn't run. (advc, note: Also fixed in BUG 4.5.)
++			self.RELIGIONS = range(gc.getNumReligionInfos())
+ 
+ 		# Make the scrollable area for the religions list...
+ 		screen.addPanel(self.RELIGION_PANEL_ID, "", "", False, True, self.X_RELIGION_AREA, self.Y_RELIGION_AREA, self.W_RELIGION_AREA, self.H_RELIGION_AREA+5, PanelStyles.PANEL_STYLE_MAIN)
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 59e51bc7a..c06888595 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -330,10 +330,7 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__CAMERA_TEXT</Tag>
+ 		<English>Camera</English>
+-		<French>Camera</French>
+-		<German>Camera</German>
+-		<Italian>Camera</Italian>
+-		<Spanish>Camera</Spanish>
++		<German>Kamera</German>
+ 	</TEXT>
+ 	<!-- Sadly has to be abbreviated in order to make room for advc.002f
+ 		 in the center column -->
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index b3db345ef..0ef3d7ab6 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -616,18 +616,15 @@
+ 		 so I'm disabling them here. -->
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_AUTOSAVING</Tag>
+-		<English></English><French></French><German></German>
+-		<Italian></Italian><Spanish></Spanish>
++		<English></English>
+ 	</TEXT>
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_QUICK_SAVING</Tag>
+-		<English></English><French></French><German></German>
+-		<Italian></Italian><Spanish></Spanish>
++		<English></English>
+ 	</TEXT>
+ 	<TEXT> <!-- redefine -->
+ 		<Tag>TXT_KEY_SAVING_GAME</Tag>
+-		<English></English><French></French><German></German>
+-		<Italian></Italian><Spanish></Spanish>
++		<English></English>
+ 	</TEXT>
+ 	<!-- Copied from CIV4GameText_Misc1.xml and appended a "2" to the name. -->
+ 	<TEXT>
+@@ -1099,8 +1096,7 @@
+ 		<Spanish>Nueva l&#237;nea</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.004: Originally in CIV4GameTextInfos.xml; info about right-click
+-		 shorthand added. -->
++	<!-- advc.004: To be appended to TXT_KEY_MISC_*CREASE_RATE_HINT -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_INCREASE_RATE_HINT</Tag>
+ 		<English>. (Right-click to set to 100%.)</English>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index fc41f5b68..ce83e7be2 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4172,7 +4172,7 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
+ 	}
+ 	else
+ 	{
+-		/*  Religion offense might still make sense even when ePlayer is defated, but
++		/*  Religion offense might still make sense even when ePlayer is defeated, but
+ 			can't expect the owner to memorize the state religions of defeated players.
+ 			Instead, count some religion offense also when the owner's state religion
+ 			is absent and at least one religion is in the city. This makes (some) sense
+@@ -6925,7 +6925,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eYield, int iExtra) const
+ void CvCity::setBaseYieldRate(YieldTypes eYield, int iNewValue)
+ {
+ 	if (getBaseYieldRate(eYield) == iNewValue)
+-		return; // advc
++		return;
+ 
+ 	FAssert(iNewValue >= 0);
+ 	//FAssert((iNewValue * 100) / 100 >= 0); // advc: ??
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index c8c7e3fe2..b13f9aa75 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7808,12 +7808,12 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 		FOR_EACH_ENUM(Build)
+ 		{
+ 			if (GC.getInfo(eLoopBuild).getImprovement() != eImprovement)
+-				continue; // advc
++				continue;
+ 			if (kOwner.canBuild(kPlot, eLoopBuild, false))
+ 			{
+ 				int iValue = 10000;
+ 				iValue /= (GC.getInfo(eLoopBuild).getTime() + 1);
+-				// XXX feature production???  // advc: I think the chop decision (AI_updateBestBuild) will handle that
++				// XXX feature production???  // (advc: I think the chop decision in AI_updateBestBuild will handle that)
+ 				if (iValue > iBestTempBuildValue)
+ 				{
+ 					iBestTempBuildValue = iValue;
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.h b/CvGameCoreDLL/CvDLLButtonPopup.h
+index 02245986b..bd88ad3cb 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.h
++++ b/CvGameCoreDLL/CvDLLButtonPopup.h
+@@ -1,7 +1,5 @@
+ #pragma once
+ 
+-// CvDLLButtonPopup.h
+-
+ #ifndef CIV4_DLL_BUTTON_POPUP_H
+ #define CIV4_DLL_BUTTON_POPUP_H
+ 
+@@ -16,7 +14,7 @@ public:
+ 	virtual ~CvDLLButtonPopup();
+ 	DllExport static CvDLLButtonPopup& getInstance();
+ 	DllExport static void freeInstance();
+-	// advc.003i (caveat): The EXE calls these virtual functions; hence the virtual destructor also needs to be left alone.
++	// advc (caveat): The EXE calls these virtual functions; hence the virtual destructor also needs to be left alone.
+ 	virtual void OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, CvPopupInfo &info);
+ 	virtual void OnAltExecute(CvPopup& popup, const PopupReturn& popupReturn, CvPopupInfo &info);
+ 	virtual void OnFocus(CvPopup* pPopup, CvPopupInfo &info);
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 49cba2ff5..14f73de8e 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3338,7 +3338,8 @@ void CvDLLWidgetData::parseAngryCitizenHelp(CvWidgetDataStruct &widgetDataStruct
+ }
+ 
+ 
+-void CvDLLWidgetData::parseChangeSpecialistHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)  // advc: style changes
++void CvDLLWidgetData::parseChangeSpecialistHelp(
++	CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+ 	CvCity* pHeadSelectedCity = gDLL->UI().getHeadSelectedCity();
+ 	if (pHeadSelectedCity == NULL)
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index b13f5585a..6f01dc711 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -19,6 +19,9 @@ void CvEventReporter::resetStatistics()
+ 	m_kStatistics.reset();
+ }
+ 
++// advc.106l: Explicit constructor added, so I can initialize my booleans.
++CvEventReporter::CvEventReporter() : m_bPreAutoSave(false), m_bPreQuickSave(false) {}
++
+ // advc.003y: Just pass the call along
+ void CvEventReporter::initPythonCallbackGuards()
+ {
+@@ -566,6 +569,3 @@ void CvEventReporter::writeStatistics(FDataStreamBase* pStream)
+ 	m_kStatistics.write(pStream);
+ 	REPRO_TEST_FINAL_WRITE();
+ }
+-
+-// advc.106l: Explicit constructor added, so I can initialize my booleans.
+-CvEventReporter::CvEventReporter() : m_bPreAutoSave(false), m_bPreQuickSave(false) {}
+
+diff --git a/CvGameCoreDLL/CvEventReporter.h b/CvGameCoreDLL/CvEventReporter.h
+index aaea7f748..f6c04fa0e 100644
+--- a/CvGameCoreDLL/CvEventReporter.h
++++ b/CvGameCoreDLL/CvEventReporter.h
+@@ -26,8 +26,8 @@ class CvEventReporter
+ 	/*  advc.make: Want to precompile this header, so CvPlayer.h can't be included.
+ 		I've instead added a public CvEventReporter::getPlayerRecord function. */
+ 	//friend const CvPlayerRecord* CvPlayer::getPlayerRecord() const; // K-Mod. Allow direct read-only access to player stats
++	CvEventReporter(); // advc.106l
+ public:
+-	CvEventReporter(); // advc.106l: Should perhaps be private, but that might break sth. in the EXE.
+ 	DllExport static CvEventReporter& getInstance();		// singleton accessor
+ 	DllExport void resetStatistics();
+ 	void initPythonCallbackGuards(); //n advc.003y
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index e476285dd..5fae06a9a 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2854,7 +2854,8 @@ void CvGame::update()
+ 		updateTurnTimer();
+ 		AI().AI_updateAssignWork();
+ 		testAlive();
+-		if (getAIAutoPlay() == 0 && !gDLL->GetAutorun() && GAMESTATE_EXTENDED != getGameState())
++		if (getAIAutoPlay() == 0 && !gDLL->GetAutorun() &&
++			getGameState() != GAMESTATE_EXTENDED)
+ 		{
+ 			if (countHumanPlayersAlive() == 0 &&
+ 				!isOption(GAMEOPTION_RISE_FALL)) // advc.707
+@@ -5067,9 +5068,7 @@ void CvGame::toggleDebugMode()
+ void CvGame::updateDebugModeCache()
+ {
+ 	//if ((gDLL->getChtLvl() > 0) || (gDLL->GetWorldBuilderMode()))
+-	/*	advc.135c: Replacing the above (should perhaps just remove the check
+-		b/c toggleDebugMode already checks isDebugToolsAllowed) */
+-	if (isDebugToolsAllowed(false))
++	if (isDebugToolsAllowed(false)) // advc.135c
+ 		m_bDebugModeCache = m_bDebugMode;
+ 	else m_bDebugModeCache = false;
+ }
+@@ -5091,7 +5090,7 @@ bool CvGame::isDebugToolsAllowed(bool bWB) const
+ 	}
+ 	if (bWB)
+ 	{
+-		// Cut and pasted from canDoControl (CvGameInterface.cpp)
++		// Cut from canDoControl (CvGameInterface.cpp)
+ 		return GC.getInitCore().getAdminPassword().empty();
+ 	}
+ 	return gDLL->getChtLvl() > 0;
+@@ -5127,7 +5126,7 @@ bool CvGame::isSimultaneousTeamTurns() const
+ 	return true;
+ }
+ 
+-
++// advc (note): Not called when loading a savegame from the opening menu
+ void CvGame::setFinalInitialized(bool bNewValue)
+ {
+ 	PROFILE_FUNC();
+@@ -10090,7 +10089,7 @@ void CvGame::doVoteResults()
+ 								getReplayName(), 0, 0);
+ 					}
+ 					else if (kVote.isAssignCity() && !szTargetCityName.empty() &&
+-							subdata.eOtherPlayer != NO_PLAYER)
++						subdata.eOtherPlayer != NO_PLAYER)
+ 					{
+ 						szResolution = gDLL->getText("TXT_KEY_POPUP_ELECTION_ASSIGN_CITY",
+ 								GET_PLAYER(subdata.ePlayer).getCivilizationAdjectiveKey(),
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 10ebca927..584da6bc4 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -26,7 +26,7 @@
+ //#undef max
+ //#undef min
+ #include <MMSystem.h>
+-#if defined _DEBUG && !defined USE_MEMMANAGER
++#ifdef _DEBUG
+ 	#define USE_MEMMANAGER
+ 	#include <crtdbg.h>
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 4743cbeec..441531cb5 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -17180,7 +17180,7 @@ void CvGameTextMgr::setCommerceHelp(CvWStringBuffer &szBuffer, CvCity const& kCi
+ 
+ 	// <advc.004p>
+ 	int iBaseCommerceRate = 0;
+-	CvWString szRate = "";
++	CvWString szRate;
+ 	if (kOwner.getCommercePercent(eCommerce) > 0) // </advc.004p>
+ 	{
+ 		setYieldHelp(szBuffer, kCity, YIELD_COMMERCE);
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 28942da0d..dcb76a59d 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -953,12 +953,6 @@ void CvGlobals::setTypesEnum(const char* szType, int iEnum)
+ 	m_typesMap[szType] = iEnum;
+ }
+ 
+-// advc.003c:
+-bool CvGlobals::isCachingDone() const
+-{
+-	return m_aiGlobalDefinesCache != NULL;
+-}
+-
+ // advc.106i:
+ void CvGlobals::setHoFScreenUp(bool b)
+ {
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index ac0366959..d0f732ce1 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -399,6 +399,7 @@ public:
+ 	// advc: Need a const version
+ 	FVariableSystem const* getDefinesVarSystem() const { return m_VarSystem; }
+ 	void cacheGlobals();
++	bool isCachingDone() const { return (m_aiGlobalDefinesCache != NULL); } // advc.003c
+ 
+ 	// ***** EXPOSED TO PYTHON *****
+ 	DllExport int getDefineINT(char const* szName) const
+@@ -797,7 +798,7 @@ public:
+ 	int getNUM_COMMERCE_TYPES() const;*/ // advc
+ 
+ 	void deleteInfoArrays();
+-	bool isCachingDone() const; // advc.003c
++
+ 	void setHoFScreenUp(bool b); // advc.106i
+ 
+ protected:
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index c4d6ba23a..44cbf4213 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -189,7 +189,7 @@ bool CvInitCore::getPbem() const
+ }
+ 
+ 
+-bool CvInitCore::getSlotVacant(PlayerTypes eID) const  // advc: refactored
++bool CvInitCore::getSlotVacant(PlayerTypes eID) const
+ {
+ 	FAssertBounds(0, MAX_CIV_PLAYERS, eID);
+ 	SlotStatus eStatus = getSlotStatus(eID);
+@@ -439,9 +439,7 @@ void CvInitCore::resetGame(/* advc.enum: */ bool bBeforeRead)
+ 	} // </advc.003c>
+ 	// Map-specific custom parameters
+ 	clearCustomMapOptions();
+-	/*  advc: Unused as far as I can tell, but still better to ensure that it
+-		gets initialized. */
+-	m_iNumHiddenCustomMapOptions = 0;
++	m_iNumHiddenCustomMapOptions = 0; // advc: ensure initialization
+ 	// Data-defined victory conditions
+ 	//refreshVictories();
+ 	/*	<advc> Unrolling that function should make it easier to use an EnumMap instead
+@@ -1063,14 +1061,8 @@ void CvInitCore::setType(GameType eType)
+ 	for (int i = 0; i < ARRAYSIZE(aeHideMP); i++)
+ 	{
+ 		CvGameOptionInfo& kOption = GC.getInfo(aeHideMP[i]);
+-		if (eType == GAME_MP_SCENARIO || eType == GAME_MP_NEW || eType == GAME_MP_LOAD ||
+-			eType == GAME_HOTSEAT_SCENARIO || eType == GAME_HOTSEAT_NEW ||
+-			eType == GAME_PBEM_LOAD || eType == GAME_PBEM_NEW ||
+-			eType == GAME_PBEM_SCENARIO)
+-		{
++		if (getGameMultiplayer())
+ 			kOption.setVisible(false);
+-		}
+-		// Otherwise as set in XML
+ 		else kOption.setVisible(kOption.getVisibleXML());
+ 	} // </advc.054>
+ 	/*	<advc.tsl> Disable in network games b/c it can't apply just to civs
+
+diff --git a/CvGameCoreDLL/CvInitCore.h b/CvGameCoreDLL/CvInitCore.h
+index 6c771cef0..667b98df2 100644
+--- a/CvGameCoreDLL/CvInitCore.h
++++ b/CvGameCoreDLL/CvInitCore.h
+@@ -65,7 +65,10 @@ public:
+ 	DllExport void resetPlayer(PlayerTypes eID, CvInitCore* pSource, bool bClear = true, bool bSaveSlotInfo = false);
+ 
+ 
+-	// Member access ...
++	/*	Member access ... (advc.003k, note: The non-exported getters aren't called
++		by the EXE but were originally exported and have, apparently, been
++		inline-expanded. I.e. the EXE will access the respective members directly
++		through a memory offset.) */
+ 
+ 	const CvWString& getGameName() const { return m_szGameName; }
+ 	DllExport void setGameName(const CvWString& szGameName);
+@@ -276,9 +279,9 @@ public:
+ 
+ protected:
+ 	/* advc.003k (caveat): It's not safe to add data members to this class
+-		nor to reorder the existing data members. At least not in the upper half
+-		of the member declarations; after the declaration of m_eMode, it seems
+-		to be OK to add and rearrange stuff. Weird. */
++		nor to reorder the existing data members, probably due to inlined
++		getter functions. After the declaration of m_eMode, it seems to be OK
++		to add and rearrange stuff. */
+ 	// CORE GAME INIT DATA ...
+ 
+ 	// Game type
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 54075668c..310f18cf8 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2540,7 +2540,7 @@ const wchar* CvPlayer::getName(uint uiForm) const
+ 		return GC.getInfo(getLeaderType()).getDescription(uiForm);
+ 	}
+ 	// <advc.106i>
+-	if(m_bSavingReplay)
++	if (m_bSavingReplay)
+ 	{
+ 		CvWString const szKey = "TXT_KEY_REPLAY_PREFIX";
+ 		CvWString szPrefix = gDLL->getText(szKey);
+@@ -13786,7 +13786,7 @@ void CvPlayer::doWarnings()
+ 			}
+ 		}
+ 	} // <advc.002e>
+-	if(GC.IsGraphicsInitialized())
++	if (GC.IsGraphicsInitialized())
+ 		showForeignPromoGlow(true); // </advc.002e>
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b692a8171..e2e22a529 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3609,7 +3609,7 @@ int CvPlayerAI::AI_countDangerousUnits(CvPlot const& kAttackerPlot, CvPlot const
+ 			if (bTestMoves)
+ 			{
+ 				int const iDistance = stepDistance(&kAttackerPlot, &kDefenderPlot);
+-				// <advc.128> Take the time to compute a path in important cases
++				// <advc.004l> Take the time to compute a path in important cases
+ 				if (iDistance <= 3 && (isHuman() ||
+ 					// Prevent sneak attacks by human Woodsmen and Guerilla
+ 					(kUnit.isHuman() && kAttackerPlot.isVisible(eTeam) &&
+@@ -3621,7 +3621,7 @@ int CvPlayerAI::AI_countDangerousUnits(CvPlot const& kAttackerPlot, CvPlot const
+ 						continue;
+ 					}
+ 				}
+-				else // </advc.128>
++				else // </advc.004l>
+ 				{
+ 					int iAttackerRange = kUnit.baseMoves();
+ 					if (kAttackerPlot.isValidRoute(&kUnit, /* advc.001i: */ false))
+@@ -20224,7 +20224,7 @@ bool CvPlayerAI::AI_doDeals(PlayerTypes eOther)
+ 	std::vector<CvDeal*> apHumanDealsToCancel; // </advc.133>
+ 	FOR_EACH_DEAL_VAR(pLoopDeal)
+ 	{
+-		if(!pLoopDeal->isBetween(getID(), eOther) || // advc: Ensure this upfront
++		if (!pLoopDeal->isBetween(getID(), eOther) || // advc: Ensure this upfront
+ 			!pLoopDeal->isCancelable(getID()))
+ 		{
+ 			continue;
+@@ -20235,7 +20235,7 @@ bool CvPlayerAI::AI_doDeals(PlayerTypes eOther)
+ 		/*  Cancellation checks moved into a new function
+ 			to reduce code duplication */
+ 		CancelCode eCancel = AI_checkCancel(*pLoopDeal, eOther);
+-		if(eCancel == NO_CANCEL)
++		if (eCancel == NO_CANCEL)
+ 		{
+ 			aapDealsPerPlayer[eOther].push_back(pLoopDeal);
+ 			continue;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index b8f95a6e3..6240800b5 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6879,7 +6879,7 @@ void CvPlot::doFeature()
+ 					if (pCity != NULL &&
+ 						/*	advc.106: K-Mod had added an isVisible check,
+ 							but features aren't affected by fog of war. */
+-						isRevealed(TEAMID(pCity->getOwner())))
++						isRevealed(pCity->getTeam()))
+ 					{
+ 						// Tell the owner of this city.
+ 						CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_FEATURE_GROWN_NEAR_CITY",
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index f03ef9e1a..14cf42258 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -520,11 +520,11 @@ void CvReplayInfo::clearReplayMessageMap()
+ 	}
+ 	m_listReplayMessages.clear();
+ }
+-// <advc> To reduce code duplication
++// advc: To reduce code duplication
+ bool CvReplayInfo::isReplayMsgValid(uint i) const
+ {
+ 	return (i < m_listReplayMessages.size() && m_listReplayMessages[i] != NULL);
+-} // </advc>
++}
+ 
+ int CvReplayInfo::getReplayMessageTurn(uint i) const
+ {
+@@ -680,7 +680,7 @@ int CvReplayInfo::getMinimapSize() const
+ const char* CvReplayInfo::getModName() const
+ {	/*  <advc.106i> Pretend to the EXE that every replay is an AdvCiv replay.
+ 		(Let CvReplayInfo::read decide which ones to show in HoF.) */
+-	if(STORE_REPLAYS_AS_BTS || GC.getDefineINT("HOF_DISPLAY_BTS_REPLAYS") > 0 ||
++	if (STORE_REPLAYS_AS_BTS || GC.getDefineINT("HOF_DISPLAY_BTS_REPLAYS") > 0 ||
+ 		GC.getDefineINT("HOF_DISPLAY_OTHER_MOD_REPLAYS") > 0 ||
+ 		/*  It seems that some earlier version of AdvCiv has written an empty string
+ 			as the mod name. (I don't remember if this was on purpose.) */
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index ae62d4f01..32aab5b1b 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1220,7 +1220,7 @@ void CvSelectionGroup::startMission()
+ 			{
+ 				deleteMissionQueueNode(headMissionQueueNode());
+ 				// K-Mod
+-				if (headMissionQueueNode())
++				if (headMissionQueueNode() != NULL)
+ 					activateHeadMission();
+ 				// K-Mod end
+ 				if (isActiveOwned() && IsSelected())
+
+diff --git a/CvGameCoreDLL/CvString.cpp b/CvGameCoreDLL/CvString.cpp
+index 45eb4b9ce..82fc6fd9a 100644
+--- a/CvGameCoreDLL/CvString.cpp
++++ b/CvGameCoreDLL/CvString.cpp
+@@ -3,6 +3,9 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvString.h"
+ 
++/*	advc: New implementation file for function definitions moved from CvString.h.
++	Note, however, that these definitions were compiled into th EXE along with
++	the rest of the header. */
+ 
+ void CvWString::Copy(const char* s)
+ {
+@@ -142,7 +145,7 @@ bool CvString::formatv(std::string & out, const char * fmt, va_list args)
+ 	if (success)
+ 		out = pbuf;
+ 	else
+-		out = "";
++		out.clear(); // K-Mod
+ 
+ 	if (pbuf!=buf)
+ 		delete [] pbuf;
+@@ -182,7 +185,7 @@ bool CvWString::formatv(std::wstring & out, const wchar * fmt, va_list args)
+ 	if (success)
+ 		out = pbuf;
+ 	else
+-		out = L"";
++		out.clear(); // K-Mod
+ 
+ 	if (pbuf!=buf)
+ 		delete [] pbuf;
+
+diff --git a/CvGameCoreDLL/CvString.h b/CvGameCoreDLL/CvString.h
+index 2710d6480..080c0f2a3 100644
+--- a/CvGameCoreDLL/CvString.h
++++ b/CvGameCoreDLL/CvString.h
+@@ -1,20 +1,15 @@
+ #pragma once
+-
+ #ifndef CvString_h
+ #define CvString_h
+ 
+ #include <string>
+ 
+-//
+ // simple string classes, based on stl, but with a few helpers
+-//
+-// DON'T add any data members or virtual functions to these classes, so they stay the same size as their stl counterparts
+-//
+ // Mustafa Thamer
+ // Firaxis Games, copyright 2005
+ //
+ /*	advc (note): There's a revised version of this class by lesslol in the MNAI-U mod;
+-	could be more efficient. */
++	could be more efficient. C2C has also made some changes. */
+ 
+ // wide string
+ class CvWString : public std::wstring
+@@ -27,11 +22,11 @@ public:
+ 	CvWString(const wchar* s) { if (s) *this = s; }
+ //	CvWString(const __wchar_t* s) { if (s) *this = s; }
+ 	CvWString(const std::wstring& s) { assign(s.c_str()); }
+-//#ifndef _USRDLL
++#ifndef _USRDLL
+ 	// FString conversion, if not in the DLL
+-//	CvWString(const FStringA& s) { Copy(s.GetCString()); }
+-//	CvWString(const FStringW& s) { assign(s.GetCString()); }
+-//#endif // advc (the EXE doesn't even use these)
++	CvWString(const FStringA& s) { Copy(s.GetCString()); }
++	CvWString(const FStringW& s) { assign(s.GetCString()); }
++#endif
+ 	~CvWString() {}
+ 
+ 	void Copy(const char* s); // advc: Definition moved into implementation file
+@@ -50,11 +45,11 @@ public:
+ 	const CvWString& operator=( const std::wstring& s) { assign(s.c_str());	return *this; }
+ 	const CvWString& operator=( const std::string& w) { Copy(w.c_str());	return *this; }
+ 	const CvWString& operator=( const CvWString& w) { assign(w.c_str());	return *this; }
+-//#ifndef _USRDLL
++#ifndef _USRDLL
+ 	// FString conversion, if not in the DLL
+-//	const CvWString& operator=( const FStringW& s) { assign(s.GetCString());	return *this; }
+-//	const CvWString& operator=( const FStringA& w) { Copy(w.GetCString());	return *this; }
+-//#endif // advc (the EXE doesn't even use these)
++	const CvWString& operator=( const FStringW& s) { assign(s.GetCString());	return *this; }
++	const CvWString& operator=( const FStringA& w) { Copy(w.GetCString());	return *this; }
++#endif
+ 	const CvWString& operator=( const char* w) { Copy(w);	return *this; }
+ 
+ 	void Format(LPCWSTR lpszFormat, ...);
+@@ -200,7 +195,13 @@ public:
+ 	static CvString format(const char * fmt, ...);
+ 	static std::string formatv(const char * fmt, va_list args);
+ };
+-
++// DON'T add any data members or virtual functions to these classes,
++// so they stay the same size as their stl counterparts
++/*	<advc.003k> This is also advisable b/c this header has been compiled into
++	the EXE and its classes are used in the interfaces between EXE and DLL */
++BOOST_STATIC_ASSERT(sizeof(CvWString) == sizeof(std::wstring));
++BOOST_STATIC_ASSERT(sizeof(CvString) == sizeof(std::string));
++BOOST_STATIC_ASSERT(sizeof(CvWStringBuffer) == 12); // </advc.003k>
+ 
+ // INLINES
+ // Don't move these into a cpp file, since I don't want CvString to be part of the DLL, MT
+
+diff --git a/CvGameCoreDLL/CvStructs.cpp b/CvGameCoreDLL/CvStructs.cpp
+index 74f70bca2..821428c51 100644
+--- a/CvGameCoreDLL/CvStructs.cpp
++++ b/CvGameCoreDLL/CvStructs.cpp
+@@ -574,7 +574,7 @@ PBGameSetupData::PBGameSetupData()
+ 	}
+ }
+ 
+-// <advc.071>
++// advc.071:
+ FirstContactData::FirstContactData(CvPlot const* pAt1, CvPlot const* pAt2,
+ 	CvUnit const* pUnit1, CvUnit const* pUnit2)
+ {
+@@ -601,4 +601,4 @@ FirstContactData::FirstContactData(CvPlot const* pAt1, CvPlot const* pAt2,
+ 		u2.eOwner = pUnit2->getOwner();
+ 		u2.iID = pUnit2->getID();
+ 	}
+-} // </advc.071>
++}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 4f68ab1b7..3617ad315 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2919,77 +2919,75 @@ void CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo,
+ 		}
+ 	}
+ 	// <advc.071>
+-	if(bShowMessage)
++	if (!bShowMessage)
++		return;
++	FirstContactData fcData = *pData;
++	CvPlot const* pAt1 = GC.getMap().plot(fcData.x1, fcData.y1);
++	CvPlot const* pAt2 = GC.getMap().plot(fcData.x2, fcData.y2);
++	CvUnit const* pUnit1 = ::getUnit(fcData.u1);
++	CvUnit const* pUnit2 = ::getUnit(fcData.u2);
++	CvUnit const* pUnitMet = NULL;
++	CvPlot const* pAt = NULL;
++	PlayerTypes ePlayerMet = NO_PLAYER;
++	if (pUnit1 != NULL && pUnit1->getTeam() == eOther)
++	{
++		ePlayerMet = pUnit1->getOwner();
++		if (pUnit1->getPlot().isVisible(getID()))
++			pUnitMet = pUnit1;
++	}
++	if (pUnit2 != NULL && pUnit2->getTeam() == eOther)
+ 	{
+-		FirstContactData fcData = *pData;
+-		CvMap const& m = GC.getMap();
+-		CvPlot const* pAt1 = m.plot(fcData.x1, fcData.y1);
+-		CvPlot const* pAt2 = m.plot(fcData.x2, fcData.y2);
+-		CvUnit const* pUnit1 = ::getUnit(fcData.u1);
+-		CvUnit const* pUnit2 = ::getUnit(fcData.u2);
+-		CvUnit const* pUnitMet = NULL;
+-		CvPlot const* pAt = NULL;
+-		PlayerTypes ePlayerMet = NO_PLAYER;
+-		if (pUnit1 != NULL && pUnit1->getTeam() == eOther)
+-		{
+-			ePlayerMet = pUnit1->getOwner();
+-			if (pUnit1->getPlot().isVisible(getID()))
+-				pUnitMet = pUnit1;
+-		}
+-		if (pUnit2 != NULL && pUnit2->getTeam() == eOther)
+-		{
+-			if (ePlayerMet == NO_PLAYER)
+-				ePlayerMet = pUnit2->getOwner();
+-			if (pUnit2->getPlot().isVisible(getID()))
+-				pUnitMet = pUnit2;
+-		}
+-		if (pAt1 != NULL && pAt1->isOwned() && pAt1->getTeam() == eOther)
+-		{
+-			if (pAt1->isVisible(getID()))
+-				pAt = pAt1;
+-			if (ePlayerMet == NO_PLAYER)
+-				ePlayerMet = pAt1->getOwner();
+-		}
+-		if (pAt2 != NULL && pAt2->isOwned() && pAt2->getTeam() == eOther)
+-		{
+-			if (pAt2->isVisible(getID()))
+-				pAt = pAt2;
+-			if (ePlayerMet == NO_PLAYER)
+-				ePlayerMet = pAt2->getOwner();
+-		}
+ 		if (ePlayerMet == NO_PLAYER)
+-			ePlayerMet = GET_TEAM(eOther).getLeaderID();
+-		if (pUnitMet != NULL && pUnitMet->getPlot().isVisible(getID()))
+-			pAt = pUnitMet->plot();
+-		if (pAt == NULL) // We can't see any of their tiles or units, but they see ours.
+-		{
+-			if (pAt1 != NULL && pAt1->isOwned() && pAt1->getTeam() == getID())
+-				pAt = pAt1;
+-			else if (pAt2 != NULL && pAt2->isOwned() && pAt2->getTeam() == getID())
+-				pAt = pAt2;
+-			else if (pUnit1 != NULL && pUnit1->getTeam() == getID())
+-			{
+-				//pUnitMet = pUnit1; // Better not to show our own unit's icon
+-				pAt = pUnit1->plot();
+-			}
+-			else if (pUnit2 != NULL && pUnit2->getTeam() == getID())
+-			{
+-				//pUnitMet = pUnit2;
+-				pAt = pUnit2->plot();
+-			}
++			ePlayerMet = pUnit2->getOwner();
++		if (pUnit2->getPlot().isVisible(getID()))
++			pUnitMet = pUnit2;
++	}
++	if (pAt1 != NULL && pAt1->isOwned() && pAt1->getTeam() == eOther)
++	{
++		if (pAt1->isVisible(getID()))
++			pAt = pAt1;
++		if (ePlayerMet == NO_PLAYER)
++			ePlayerMet = pAt1->getOwner();
++	}
++	if (pAt2 != NULL && pAt2->isOwned() && pAt2->getTeam() == eOther)
++	{
++		if (pAt2->isVisible(getID()))
++			pAt = pAt2;
++		if (ePlayerMet == NO_PLAYER)
++			ePlayerMet = pAt2->getOwner();
++	}
++	if (ePlayerMet == NO_PLAYER)
++		ePlayerMet = GET_TEAM(eOther).getLeaderID();
++	if (pUnitMet != NULL && pUnitMet->getPlot().isVisible(getID()))
++		pAt = pUnitMet->plot();
++	if (pAt == NULL) // We can't see any of their tiles or units, but they see ours.
++	{
++		if (pAt1 != NULL && pAt1->isOwned() && pAt1->getTeam() == getID())
++			pAt = pAt1;
++		else if (pAt2 != NULL && pAt2->isOwned() && pAt2->getTeam() == getID())
++			pAt = pAt2;
++		else if (pUnit1 != NULL && pUnit1->getTeam() == getID())
++		{
++			//pUnitMet = pUnit1; // Better not to show our own unit's icon
++			pAt = pUnit1->plot();
+ 		}
+-		CvWString szMsg = gDLL->getText("TXT_KEY_MISC_TEAM_MET",
+-				GET_PLAYER(ePlayerMet).getCivilizationAdjectiveKey());
+-		ColorTypes ePlayerColor = GET_PLAYER(ePlayerMet).getPlayerTextColor();
+-		LPCSTR icon = (pUnitMet == NULL ? GC.getInfo(GET_PLAYER(ePlayerMet).
+-				getLeaderType()).getButton() : pUnitMet->getButton());
+-		for (PlayerIter<HUMAN,MEMBER_OF> it(getID()); it.hasNext(); ++it)
++		else if (pUnit2 != NULL && pUnit2->getTeam() == getID())
+ 		{
+-			gDLL->UI().addMessage(it->getID(), false, -1, szMsg, NULL,
+-					MESSAGE_TYPE_MINOR_EVENT, icon, ePlayerColor,
+-					pAt == NULL ? -1 : pAt->getX(), pAt == NULL ? -1 : pAt->getY(),
+-					pAt != NULL, pAt != NULL);
++			//pUnitMet = pUnit2;
++			pAt = pUnit2->plot();
+ 		}
++	}
++	CvWString szMsg = gDLL->getText("TXT_KEY_MISC_TEAM_MET",
++			GET_PLAYER(ePlayerMet).getCivilizationAdjectiveKey());
++	ColorTypes ePlayerColor = GET_PLAYER(ePlayerMet).getPlayerTextColor();
++	LPCSTR icon = (pUnitMet == NULL ? GC.getInfo(GET_PLAYER(ePlayerMet).
++			getLeaderType()).getButton() : pUnitMet->getButton());
++	for (PlayerIter<HUMAN,MEMBER_OF> it(getID()); it.hasNext(); ++it)
++	{
++		gDLL->UI().addMessage(it->getID(), false, -1, szMsg, NULL,
++				MESSAGE_TYPE_MINOR_EVENT, icon, ePlayerColor,
++				pAt == NULL ? -1 : pAt->getX(), pAt == NULL ? -1 : pAt->getY(),
++				pAt != NULL, pAt != NULL);
+ 	} // </advc.071>
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 534d0b5f5..85772577b 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -5582,7 +5582,7 @@ bool CvUnit::discover()
+ }
+ 
+ 
+-int CvUnit::getMaxHurryProduction(CvCity const* pCity) const // advc: const CvCity*
++int CvUnit::getMaxHurryProduction(CvCity const* pCity) const
+ {
+ 	int iProduction = m_pUnitInfo->getBaseHurry() +
+ 			m_pUnitInfo->getHurryMultiplier() * pCity->getPopulation();
+@@ -7343,12 +7343,12 @@ bool CvUnit::canSiege(TeamTypes eTeam) const
+ 	return true;
+ }
+ 
+-// <kekm.8> "Added function for checking whether a unit is a combat unit."
++// kekm.8: "Added function for checking whether a unit is a combat unit."
+ bool CvUnit::canCombat() const
+ {
+ 	// avdc: Check m_pUnitInfo->isMilitaryProduction() instead?
+ 	return (baseCombatStr() > 0 || airBaseCombatStr() > 0 || isNuke());
+-} // </kekm.8>
++}
+ 
+ 
+ bool CvUnit::canAttack() const
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 4998372f6..1a6dbb2af 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -9702,7 +9702,10 @@ bool CvUnitAI::AI_omniGroup(UnitAITypes eUnitAI, int iMaxGroup, int iMaxOwnUnitA
+ 	if (!atPlot(pBestUnit->plot()))
+ 	{
+ 		if (!bMergeGroups && getGroup()->getNumUnits() > 1)
+-			joinGroup(NULL); // might as well leave our current group behind, since they won't be merging anyway.
++		{	/*	might as well leave our current group behind
++				since they won't be merging anyway. */
++			joinGroup(NULL);
++		}
+ 		getGroup()->pushMission(MISSION_MOVE_TO_UNIT, pBestUnit->getOwner(),
+ 				pBestUnit->getID(), eFlags, false, false, MISSIONAI_GROUP, NULL, pBestUnit);
+ 	}
+
+diff --git a/CvGameCoreDLL/FAssert.cpp b/CvGameCoreDLL/FAssert.cpp
+index 35ebbf8ca..94766df2c 100644
+--- a/CvGameCoreDLL/FAssert.cpp
++++ b/CvGameCoreDLL/FAssert.cpp
+@@ -47,7 +47,7 @@ namespace
+ #define IDC_ABORT                       1004
+ #define IDC_ASSERTION_TEXT              1005
+ #define IDC_COPY_TO_CLIPBOARD           1006
+-#define IDC_STOP                        1007 // advc.106l
++#define IDC_STOP                        1007 // advc.006l
+ 
+ 	INT_PTR CALLBACK AssertDlgProc(HWND hDlg, UINT msg,WPARAM wParam, LPARAM lParam)
+ 	{
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index d482f782a..11118ec91 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -2209,7 +2209,7 @@ void InvasionGraph::simulateComponent(Node& kStart)
+ 	{
+ 	#if !DISABLE_UWAI_REPORT
+ 		m_kReport.log("*Cycle*");
+-		std::string szMsg = "";
++		std::string szMsg;
+ 		for (size_t i = 0; i < aCycle.size(); i++)
+ 		{
+ 			szMsg += m_kReport.leaderName(aCycle[i]->getPlayer());
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 93fc585f7..060f8af55 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -100,7 +100,7 @@ void UWAI::Team::doWar()
+ 	if (!getUWAI().isReady())
+ 		return;
+ 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
+-	if (!kAgent.isAlive() || kAgent.isBarbarian() || kAgent.isMinorCiv())
++	if (!kAgent.isAlive() || !kAgent.isMajorCiv())
+ 		return;
+ 	FAssertMsg(!kAgent.isAVassal() || kAgent.getNumWars() > 0 ||
+ 			kAgent.AI_getNumWarPlans(WARPLAN_DOGPILE) +
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 189903ae2..d1be58953 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -27,7 +27,7 @@
+ ## PerfectWorld_v2.06.py (for Civ4)
+ ##
+ ## Copyright 2007-2010 Rich Marinaccio aka Cephalo
+-## Used with Permission
++## Used [by Kenny Welch] with Permission
+ ##
+ ##############################################################################
+ ##
+@@ -3366,7 +3366,7 @@ class TerrainMap:
+ 		peakMap = []
+ 		for i in range(em.length):
+ 			hillMap.append(0.0)
+-			peakMap.append(0.0) #</advc>
++			peakMap.append(0.0) # </advc>
+ 		#zero out water tiles so percent is percent of land
+ 		for y in range(mc.height):
+ 			for x in range(mc.width):
+
+[PATCH COVERAGE]
+patchFiles=34 embeddedFiles=34 omittedFiles=0 embeddedPatchBytes=37636

@@ -1,0 +1,64 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 976
+# Commit: bfbab9414884c493210a3cd32a011ebe17494ce1
+# History segment: K-Mod history
+# Parent used for diff: 32e5855b33c598b37267f2b4b73263a389b37927
+# Title: Adjusted some tech era rate modifiers.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/xml/GameInfo/CIV4EraInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4EraInfos.xml b/Assets/xml/GameInfo/CIV4EraInfos.xml
+index aac82ba07..61f799818 100644
+--- a/Assets/xml/GameInfo/CIV4EraInfos.xml
++++ b/Assets/xml/GameInfo/CIV4EraInfos.xml
+@@ -161,7 +161,7 @@
+ 			<iCreatePercent>100</iCreatePercent>
+ 			<iResearchPercent>80</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 4 -->
+-			<iTechCostModifier>4</iTechCostModifier>
++			<iTechCostModifier>6</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>100</iBuildPercent>
+ 			<iImprovementPercent>100</iImprovementPercent>
+@@ -232,7 +232,7 @@
+ 			<iCreatePercent>90</iCreatePercent>
+ 			<iResearchPercent>70</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 9 -->
+-			<iTechCostModifier>9</iTechCostModifier>
++			<iTechCostModifier>12</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>90</iBuildPercent>
+ 			<iImprovementPercent>90</iImprovementPercent>
+@@ -302,7 +302,7 @@
+ 			<iCreatePercent>80</iCreatePercent>
+ 			<iResearchPercent>60</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 14 -->
+-			<iTechCostModifier>14</iTechCostModifier>
++			<iTechCostModifier>16</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>80</iBuildPercent>
+ 			<iImprovementPercent>80</iImprovementPercent>
+@@ -369,7 +369,7 @@
+ 			<iCreatePercent>70</iCreatePercent>
+ 			<iResearchPercent>50</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 18 -->
+-			<iTechCostModifier>18</iTechCostModifier>
++			<iTechCostModifier>20</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>70</iBuildPercent>
+ 			<iImprovementPercent>70</iImprovementPercent>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1794

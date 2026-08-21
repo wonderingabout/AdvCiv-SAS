@@ -1,0 +1,457 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4567
+# Commit: d0db3d4aeede69567e2eaddc031520729bb90679
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c34e6fc09785ea241badd8e322357037f97e0787
+# Title: rename to clearer promotion names: for example Counter-Archer, Counter-Siege, COunter-Tank, etc. Also combat promotions are given access to to siege units.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+149	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+40	35	Assets/XML/Units/CIV4PromotionInfos.xml
+5	1	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index c36edcf75..bfcb89d6d 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -353,4 +353,153 @@
+ 			<Plural>0</Plural>
+ 		</Spanish>
+ 	</TEXT>
++
++	<!-- custom: clear counter unit promotion names-->
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_AMBUSH</Tag>
++		<English>Counter-Tank</English>
++		<French>
++			<Text>Counter-Tank</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Counter-Tank</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Counter-Tank</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Counter-Tank</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_CHARGE</Tag>
++		<English>Counter-Siege</English>
++		<French>
++			<Text>Counter-Siege</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Counter-Siege</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Counter-Siege</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Counter-Siege</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_COVER</Tag>
++		<English>Counter-Archer</English>
++		<French>
++			<Text>Counter-Archer</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Counter-Archer</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Counter-Archer</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Counter-Archer</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	<!-- custom: rename or/and create subtypes for each melee type maybe or maybe not
++	and put them all in same promotion easier? Or partly simply by having counter
++	melee sword, or counter sword? Todo -->
++	</TEXT>
++		<TEXT>
++		<Tag>TXT_KEY_PROMOTION_SHOCK</Tag>
++		<English>Counter-Melee</English>
++		<French>
++			<Text>Counter-Melee</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Counter-Melee</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Counter-Melee</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Counter-Melee</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_PINCH</Tag>
++		<English>Counter-Gun</English>
++		<French>
++			<Text>Counter-Gun</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Counter-Gun</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Counter-Gun</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Counter-Gun</Text>
++			<Gender>Counter-Gun</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_FORMATION</Tag>
++		<English>Counter-Mounted</English>
++		<French>
++			<Text>Counter-Mounted</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Counter-Mounted</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</German>
++		<Italian>
++			<Text>Counter-Mounted</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Counter-Mounted</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 03425217e..b829c0e7b 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -54,9 +54,10 @@
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
++			<!-- custom: alphabetical/sevopedia order, add siege units -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -64,23 +65,23 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -88,7 +89,7 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+@@ -153,9 +154,10 @@
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
++			<!-- custom: alphabetical/sevopedia order, add siege units -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -163,23 +165,23 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -187,7 +189,7 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+@@ -252,9 +254,10 @@
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
++			<!-- custom: alphabetical/sevopedia order, add siege units -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -262,23 +265,23 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -286,7 +289,7 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+@@ -351,9 +354,10 @@
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
++			<!-- custom: alphabetical/sevopedia order, add siege units -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -361,23 +365,23 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -385,7 +389,7 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+@@ -450,9 +454,10 @@
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
++			<!-- custom: alphabetical/sevopedia order, add siege units -->
+ 			<UnitCombats>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_AIR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -460,23 +465,23 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+@@ -484,7 +489,7 @@
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+ 			</UnitCombats>
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index 182710507..a079c6003 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -40,7 +40,11 @@ Defenders may have a chance to prevail while being behind in tech but it will be
+ - explore units can attack: but their strength should be quite low
+ - military units are versatile: swordsmen can defend, archers can attack,
+ maybe even workers too
+-- unit promotions are reworked or/and rebalanced: woodsman for example is buffed
++- unit promotions are reworked or/and rebalanced: woodsman for example is buffed,
++some are rebalanced or nerfed, and other some promotions have also their requirements
++changed, for example todo
++- unit promotions have clearer names now too: for example Counter-Archer,
++counter Siege, Counter-Tank.
+ - military units are reworked: for example the holy roman empire special unit,
+ to better accomodate its history and stats, can be built starting from a different
+ tech, in particular the settler is now not freely available but requires agriculture
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=13449

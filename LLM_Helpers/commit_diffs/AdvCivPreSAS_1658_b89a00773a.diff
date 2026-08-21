@@ -1,0 +1,134 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1658
+# Commit: b89a00773a076809fa926c1cb7f4b96f54f64e28
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4cf124540a758a3d9ac76d043ad4238fd891a04e
+# Title: Don't use std::sort on std::pair with a pointer component
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	8	CvGameCoreDLL/CvGame.cpp
+8	2	CvGameCoreDLL/CvPlot.cpp
+1	0	CvGameCoreDLL/CvPlot.h
+2	2	CvGameCoreDLL/WarAndPeaceCache.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 5df24aa71..fbe01630b 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1205,13 +1205,17 @@ void CvGame::assignStartingPlots()
+ 			}
+ 		}
+ 	}
+-	std::vector<std::pair<int,CvPlot*> > startPlots;
+-	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++	/*  The second component is the starting plot - but don't want std::sort to use
++		an address as a tiebreaker, hence not <int,CvPlot*>. */
++	std::vector<std::pair<int,int> > startPlots;
++	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
++	{
+ 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
+ 		if(!kPlayer.isAlive())
+ 			continue;
+ 		CvPlot* p = kPlayer.getStartingPlot();
+-		if(p == NULL) {
++		if(p == NULL)
++		{
+ 			FAssertMsg(p != NULL, "Player has no starting plot");
+ 			kPlayer.setStartingPlot(kPlayer.findStartingPlot(), true);
+ 		}
+@@ -1223,17 +1227,18 @@ void CvGame::assignStartingPlots()
+ 		int iValue = kPlayer.AI_foundValue(p->getX(), p->getY(), -1, true);
+ 		FAssertMsg(iValue > 0, "Bad starting position");
+ 		// minus iValue for descending order
+-		startPlots.push_back(std::make_pair(-iValue, p));
++		startPlots.push_back(std::make_pair(-iValue, p->getMapIndex()));
+ 	}
+ 	FAssert(startPlots.size() == playerOrder.size());
+ 	std::sort(startPlots.begin(), startPlots.end());
+-	for(size_t i = 0; i < playerOrder.size(); i++) {
+-		if(playerOrder[i] == NO_PLAYER) {
++	for(size_t i = 0; i < playerOrder.size(); i++)
++	{
++		if(playerOrder[i] == NO_PLAYER)
++		{
+ 			FAssert(playerOrder[i] != NO_PLAYER);
+ 			continue;
+ 		}
+-		GET_PLAYER(playerOrder[i]).setStartingPlot(
+-				startPlots[i].second, true);
++		GET_PLAYER(playerOrder[i]).setStartingPlot(GC.getMap().plotByIndex(startPlots[i].second), true);
+ 	} // </advc.108b>
+ }
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 5116c0e5e..65622014d 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4010,11 +4010,17 @@ bool CvPlot::at(int iX, int iY) const
+ }
+ 
+ // <advc.tsl>
+-void CvPlot::setLatitude(int iLatitude) {
+-
++void CvPlot::setLatitude(int iLatitude)
++{
+ 	m_iLatitude = iLatitude;
+ } // </advc.tsl>
+ 
++// <advc.003>
++int CvPlot::getMapIndex() const
++{
++	return GC.getMap().plotNum(getX(), getY());
++} // </advc.003>
++
+ 
+ int CvPlot::getLatitude() const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 8bead7d74..adb8dde38 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -267,6 +267,7 @@ public:
+ 	int getYExternal() const; // advc.003f: Exported through .def file																					// Exposed to Python
+ 	inline int getY() const { return m_iY; } // advc.003f: Renamed from getY_INLINE
+ 	bool at(int iX, int iY) const;																																		// Exposed to Python
++	int getMapIndex() const; // advc.003
+ 	int getLatitude() const;																																					// Exposed to Python
+ 	void setLatitude(int iLatitude); // advc.tsl	(exposed to Python)
+ 	int getFOWIndex() const;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index d542aeb8c..9e09ffb18 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -375,13 +375,13 @@ double WarAndPeaceCache::goldPerProdSites() {
+ 
+ 	PROFILE_FUNC();
+ 	CvPlayerAI const& owner = GET_PLAYER(ownerId);
+-	std::vector<double> foundVals;
++	std::vector<int> foundVals;
+ 	for(int i = 0; i < owner.AI_getNumCitySites(); i++) {
+ 		CvPlot* site = owner.AI_getCitySite(i);
+ 		if(site != NULL)
+ 			foundVals.push_back(site->getFoundValue(owner.getID()));
+ 	}
+-	std::sort(foundVals.begin(), foundVals.end(), std::greater<double>());
++	std::sort(foundVals.begin(), foundVals.end(), std::greater<int>());
+ 	int const sitesMax = 5;
+ 	double weights[sitesMax] = { 1, 0.8, 0.6, 0.4, 0.2 };
+ 	double sites = 0;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3799

@@ -1,0 +1,416 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6105
+# Commit: 724500d4a0ac6604f0df2e817629981a09e42ec9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a84d4747204a99de6214942f94a80e7c2360745f
+# Title: Add ReplayInfo calendar, player-color, and final-score context to SASGameRecord; include selected screenshots and compression in light source ZIP
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+16	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	0	CvGameCoreDLL/CvGameCoreUtils.h
+41	4	CvGameCoreDLL/SASGameRecordLog.cpp
+12	9	LLM_Helpers/README.md
+46	8	LLM_Helpers/make_light_source_zip.py
+2	2	README.md
+3	3	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 78af9c3a9..bd2a3d43c 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -58,8 +58,9 @@ Our AdvCiv-SAS documentation is mostly located here:
+ - root README.md: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\README.md"
+ - Docs folder: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Docs"
+ - Screenshots for a lot of AdvCiv-SAS elements ingame including but not only Sevopedia, Advisors, etc. They are fairly updated too if it helps: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_1_AdvCiv-SAS\Images"
++- Screenshots can help development/review by showing what the mod UI/gameplay screens actually look like, not only source/docs. Codex and similar local agentic tools can read these screenshot folders directly on the user's computer; external/ZIP-only LLMs such as ChatGPT depend on what the compact light source ZIP includes, so [make_light_source_zip.py](/LLM_Helpers/make_light_source_zip.py) also includes selected useful screenshot folders (advisors, main menu, Sevopedia, common UI).
+ 
+-May help to find key documentation, additionally to doing a grep or such, indexes like `# advc.004y: Restored (comment out to remove traits)` refer to and provide key information about a change (grep the tag e.g. `004y` in the manual).
++For finding key documentation, use grep/search as needed; documentation indexes like `# advc.004y: Restored (comment out to remove traits)` can also point to important details about a change. After finding an index entry, grep the tag itself (e.g. `004y`) in the manual or related docs.
+ 
+ Compile errors (e.g., for a "Release" build) at:
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 159b2daa8..b00181e5c 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -459,6 +459,22 @@ char const* getSASGameMode(GameMode eMode)
+ 	}
+ }
+ 
++char const* getSASCalendarType(CalendarTypes eCalendar)
++{
++	switch (eCalendar)
++	{
++	case NO_CALENDAR: return "NO_CALENDAR";
++	case CALENDAR_DEFAULT: return "CALENDAR_DEFAULT";
++	case CALENDAR_BI_YEARLY: return "CALENDAR_BI_YEARLY";
++	case CALENDAR_YEARS: return "CALENDAR_YEARS";
++	case CALENDAR_TURNS: return "CALENDAR_TURNS";
++	case CALENDAR_SEASONS: return "CALENDAR_SEASONS";
++	case CALENDAR_MONTHS: return "CALENDAR_MONTHS";
++	case CALENDAR_WEEKS: return "CALENDAR_WEEKS";
++	default: return "UNKNOWN_CALENDAR";
++	}
++}
++
+ char const* getSASWarDeclarationCause(WarDeclarationCause eCause)
+ {
+ 	switch (eCause)
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index bf0e47237..8e302157f 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -119,6 +119,7 @@ char const* getSASTradeItemType(TradeableItems eItem); // <!-- custom: Shared ra
+ char const* getSASWarPlanType(WarPlanTypes eWarPlan); // <!-- custom: Shared raw enum-token text for WarPlanTypes because static enum values have no CvInfo type strings; use user-facing text helpers for translated/prose labels. (GPT-5.5) -->
+ char const* getSASGameType(GameType eType); // <!-- custom: Shared raw enum-token text for game/session diagnostics because GameType has no CvInfo type strings. (GPT-5.6-Sol) -->
+ char const* getSASGameMode(GameMode eMode); // <!-- custom: Shared raw enum-token text for game/session diagnostics because GameMode has no CvInfo type strings. (GPT-5.6-Sol) -->
++char const* getSASCalendarType(CalendarTypes eCalendar); // <!-- custom: Shared raw enum-token text for calendar context because CalendarTypes has no CvInfo type strings. (GPT-5.6-Sol) -->
+ char const* getSASWarDeclarationCause(WarDeclarationCause eCause); // <!-- custom: Shared stable labels for war-declaration origins so SASGameRecord and any later BBAI diagnostics do not duplicate the switch. (GPT-5.6-Sol) -->
+ char const* getSASTechAcquisitionCause(TechAcquisitionCause eCause); // <!-- custom: Shared stable labels for technology-acquisition origins so callers pass semantic context instead of GameRecord guessing from ambiguous flags. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
+ char const* getSASMemoryType(MemoryTypes eMemory); // <!-- custom: Shared raw enum-token text for diplomatic memories because static enum values have no CvInfo type strings. (GPT-5.6-Sol) -->
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index 828511736..b884f548c 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -19,6 +19,7 @@
+ #include "CvInfo_Civilization.h" // <!-- custom: Needed to attribute player-wide extra happiness/health to traits instead of leaving effects from loaded-mod rules under an opaque `extra` label. (GPT-5.6-Sol) -->
+ #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
+ #include "CvInfo_Misc.h" // <!-- custom: Needed to log enabled graphics-option type names; CvGlobals only forward-declares CvGraphicOptionInfo. (GPT-5.6-Sol) -->
++#include "CvInfo_Symbol.h" // <!-- custom: Needed to log actual assigned player-color and primary-color context; CvGlobals only forward-declares their info classes. (GPT-5.6-Sol) -->
+ #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
+ #include "CvSelectionGroup.h" // <!-- custom: Needed to inspect worker/settler mission queues in game-record rows. (ChatGPT-5.5) -->
+ #include "CvSelectionGroupAI.h" // <!-- custom: Needed for large city-group mission targets and MissionAI state; the base group header only forward-declares CvSelectionGroupAI. (GPT-5.6-Sol) -->
+@@ -430,8 +431,11 @@ static void logSASGameRecordGameState(const char* szRowType)
+ 	logSASGameRecord("GAME_RECORD_SESSION_CONTEXT gameType=%s gameMode=%s newGame=%d savedGame=%d scenario=%d gameMultiplayer=%d networkMultiplayer=%d hotseat=%d pbem=%d pitboss=%d simultaneousTeamTurns=%d mpOptions=%s",
+ 			getSASGameType(kInitCore.getType()), getSASGameMode(kInitCore.getMode()), kInitCore.getNewGame(), kInitCore.getSavedGame(), kGame.isScenario(), kInitCore.getGameMultiplayer(), kGame.isNetworkMultiPlayer(), kGame.isHotSeat(), kGame.isPbem(), kGame.isPitboss(), kGame.isSimultaneousTeamTurns(), szMPOptions.GetCString());
+ 	// <!-- custom: Enabled victories and their fixed turn/score limits determine which later victory-progress and AI-strategy rows are relevant. Record this compact setup context instead of requiring external XML or save inspection. (GPT-5.6-Sol) -->
+-	logSASGameRecord("GAME_RECORD_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s maxTurns=%d targetScore=%d victories=%s options=%s",
+-			getSASGameRecordQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());
++	// <!-- custom: Calendar, starting turn and starting year complete the time scale for scenarios and nonstandard calendars; ReplayInfo preserves the same context. (GPT-5.6-Sol) -->
++	logSASGameRecord("GAME_RECORD_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s calendar=%s startTurn=%d startYear=%d gameHandicap=%s maxTurns=%d targetScore=%d victories=%s options=%s",
++			getSASGameRecordQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(),
++			GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(),
++			getSASCalendarType(kGame.getCalendar()), kGame.getStartTurn(), kGame.getStartYear(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());
+ 	// <!-- custom: Display settings can affect measured autoplay wall time. Record the compact Civ4 context once, after graphics initialization, rather than copying unrelated CivilizationIV.ini settings. (GPT-5.6-Sol) -->
+ 	logSASGameRecordDisplayContext();
+ 	// <!-- custom: A Civ4 custom DLL is a Win32 binary even when Wine or Proton runs it on another host OS.
+@@ -1865,6 +1869,26 @@ static void logSASGameRecordPlayerSetup(PlayerTypes ePlayer)
+ 	const bool bCurrentlyHumanControlled = kPlayer.isHuman();
+ 	const bool bAutoplayControlled = kPlayer.isHumanDisabled();
+ 	const bool bHumanSlot = (bCurrentlyHumanControlled || bAutoplayControlled);
++	PlayerColorTypes const ePlayerColor = kPlayer.getPlayerColor();
++	char const* szPlayerColor = "-";
++	char const* szPrimaryColor = "-";
++	int iPrimaryRed = -1;
++	int iPrimaryGreen = -1;
++	int iPrimaryBlue = -1;
++	if (ePlayerColor != NO_PLAYERCOLOR)
++	{
++		CvPlayerColorInfo const& kPlayerColor = GC.getInfo(ePlayerColor);
++		ColorTypes const ePrimaryColor = kPlayerColor.getColorTypePrimary();
++		szPlayerColor = kPlayerColor.getType();
++		if (ePrimaryColor != NO_COLOR)
++		{
++			NiColorA const& kPrimaryColor = GC.getInfo(ePrimaryColor).getColor();
++			szPrimaryColor = GC.getInfo(ePrimaryColor).getType();
++			iPrimaryRed = (int)(255 * kPrimaryColor.r);
++			iPrimaryGreen = (int)(255 * kPrimaryColor.g);
++			iPrimaryBlue = (int)(255 * kPrimaryColor.b);
++		}
++	}
+ 	CvString szTraits;
+ 	FOR_EACH_ENUM(Trait)
+ 	{
+@@ -1875,8 +1899,11 @@ static void logSASGameRecordPlayerSetup(PlayerTypes ePlayer)
+ 		szTraits += GC.getInfo(eLoopTrait).getType();
+ 	}
+ 	// <!-- custom: Leader traits and favorites are fixed but materially explain AI behavior and economic results. Record them once per setup/load rather than repeating them in periodic player or policy snapshots. (GPT-5.6-Sol) -->
+-	logSASGameRecord("GAME_RECORD_PLAYER_SETUP turn=%d player=%d team=%d alive=%d everAlive=%d human=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d slotStatus=%d playerName=%S civType=%s civName=%S civShortName=%S leaderType=%s leaderName=%S traits=%s favoriteCivic=%s favoriteReligion=%s handicap=%s",
+-			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), kPlayer.isEverAlive(), bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kInitCore.getSlotStatus(ePlayer), getSASGameRecordQuoted(kPlayer.getName(0)).GetCString(), szCivType, getSASGameRecordQuoted(kPlayer.getCivilizationDescription(0)).GetCString(), getSASGameRecordQuoted(kPlayer.getCivilizationShortDescription(0)).GetCString(), szLeaderType, getSASGameRecordQuoted(szLeaderName).GetCString(), getSASGameRecordOrDash(szTraits).GetCString(), getSASGameRecordCivicType(kPlayer.getFavoriteCivic()), getSASGameRecordReligionType(kPlayer.getFavoriteReligion()), kPlayer.getHandicapType() == NO_HANDICAP ? "-" : GC.getInfo(kPlayer.getHandicapType()).getType());
++	// <!-- custom: Log the assigned PlayerColor rather than the civilization default because Civ4 can reassign duplicates. The primary ColorInfo and RGB values help connect text records to maps and screenshots without requiring the source XML. (GPT-5.6-Sol) -->
++	logSASGameRecord("GAME_RECORD_PLAYER_SETUP turn=%d player=%d team=%d alive=%d everAlive=%d human=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d slotStatus=%d playerName=%S civType=%s civName=%S civShortName=%S leaderType=%s leaderName=%S playerColor=%s primaryColor=%s primaryColorRGB=%d,%d,%d traits=%s favoriteCivic=%s favoriteReligion=%s handicap=%s",
++			GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), kPlayer.isEverAlive(), bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kInitCore.getSlotStatus(ePlayer),
++			getSASGameRecordQuoted(kPlayer.getName(0)).GetCString(), szCivType, getSASGameRecordQuoted(kPlayer.getCivilizationDescription(0)).GetCString(), getSASGameRecordQuoted(kPlayer.getCivilizationShortDescription(0)).GetCString(), szLeaderType, getSASGameRecordQuoted(szLeaderName).GetCString(),
++			szPlayerColor, szPrimaryColor, iPrimaryRed, iPrimaryGreen, iPrimaryBlue, getSASGameRecordOrDash(szTraits).GetCString(), getSASGameRecordCivicType(kPlayer.getFavoriteCivic()), getSASGameRecordReligionType(kPlayer.getFavoriteReligion()), kPlayer.getHandicapType() == NO_HANDICAP ? "-" : GC.getInfo(kPlayer.getHandicapType()).getType());
+ }
+ 
+ static void logSASGameRecordAttitudeLegend()
+@@ -5021,6 +5048,16 @@ void logSASGameRecordVictory(TeamTypes eWinner, VictoryTypes eVictory)
+ 	// <!-- custom: Victory can be reported before the ordinary end-turn hook. Flush this turn's buffered map history first so the final snapshot does not precede its last plot changes or map revelation. (GPT-5.6-Sol) -->
+ 	if (gGameRecordLogLevel >= 2) flushSASGameRecordTurnChanges(GC.getGame().getGameTurn());
+ 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=VICTORY team=%d victory=%s", GC.getGame().getGameTurn(), eWinner, eVictory == NO_VICTORY ? "-" : GC.getInfo(eVictory).getType());
++	// <!-- custom: ReplayInfo preserves only the selected player's final and normalized scores. Record both for every civilization once at victory so benchmark review can compare the complete final field without reconstructing Civ4's final-score formula. (GPT-5.6-Sol) -->
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	{
++		PlayerTypes const ePlayer = (PlayerTypes)iI;
++		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
++		if (!kPlayer.isEverAlive())
++			continue;
++		bool const bWinner = (kPlayer.getTeam() == eWinner);
++		logSASGameRecord("GAME_RECORD_FINAL_SCORE turn=%d player=%d team=%d alive=%d winner=%d score=%d normalizedScore=%d", GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), kPlayer.isAlive(), bWinner, kPlayer.calculateScore(), kPlayer.calculateScore(true, bWinner));
++	}
+ 	// <!-- custom: A victory can end the run with wars still active; preserve their observed results without falsely marking them as completed wars. (GPT-5.6-Sol) -->
+ 	if (gGameRecordLogLevel >= 2)
+ 	{
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index f9953ee33..38b0af0d3 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -904,10 +904,12 @@ In short: this script is kept as a historical and practical discovery helper, wh
+ ### `make_light_source_zip.py`
+ 
+ - Creates a timestamped light source ZIP for a Civ4 mod, mainly for compact local/LLM/code-agent review handoffs.
+-- Uses repo-relative archive paths and `ZIP_STORED` / no compression. ZIP is intentionally used instead of 7z because 7z uploads caused errors before, while ZIP is currently an as of now seemingly easily compatible format for ChatGPT/code-agent review.
++- Uses repo-relative archive paths and `ZIP_DEFLATED` compression by default. ZIP is intentionally used instead of 7z because 7z uploads caused errors before, while ZIP is currently an as of now seemingly easily compatible format for ChatGPT/code-agent review. Use `--compression-level 0` for the old `ZIP_STORED` / no-compression behavior.
++- Compression applies to the whole archive, not only images: JPG/PNG screenshots are already compressed and shrink little, while XML/Python/docs shrink a lot, so whole-ZIP compression is the useful default once selected screenshot folders are included.
++- Prints final ZIP size and write duration by default. Use `--no-duration` if stable/deterministic-looking command output is preferred.
+ - Default output directory is the mod root. Use `--output-dir` for Downloads or another handoff folder.
+ - Output filename defaults to `<detected-mod-folder-name>_light_source_<timestamp>.zip`, with `UnspecifiedModName` as a fallback. Use `--mod-name` or `--prefix` only for unusual/manual labels.
+-- Includes small source/data/docs folders useful for review: root lone files, selected [Assets](/Assets/) folders, root helper/doc/config folders including [LLM_Helpers](/LLM_Helpers/) itself, top-level [CvGameCoreDLL](/CvGameCoreDLL/) files, top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB, the exact `CvGameCoreDLL/Project/temp_files` folder and any files currently inside it, plus [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/) and [_1_AdvCiv-SAS/git_logs](/_1_AdvCiv-SAS/git_logs/).
++- Includes small source/data/docs folders useful for review: root lone files, selected [Assets](/Assets/) folders, root helper/doc/config folders including [LLM_Helpers](/LLM_Helpers/) itself, top-level [CvGameCoreDLL](/CvGameCoreDLL/) files, top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB, the exact `CvGameCoreDLL/Project/temp_files` folder and any files currently inside it, plus [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/), [_1_AdvCiv-SAS/git_logs](/_1_AdvCiv-SAS/git_logs/), and selected screenshot folders useful for LLM/UI review: [_1_AdvCiv-SAS/Images/advisors](/_1_AdvCiv-SAS/Images/advisors/), [_1_AdvCiv-SAS/Images/main_menu](/_1_AdvCiv-SAS/Images/main_menu/), [_1_AdvCiv-SAS/Images/sevopedia](/_1_AdvCiv-SAS/Images/sevopedia/), and [_1_AdvCiv-SAS/Images/ui_other](/_1_AdvCiv-SAS/Images/ui_other/). Screenshots are useful because they show what the mod actually looks like in advisors, Sevopedia, the main menu, and common UI. Local agentic tools can inspect these folders directly, while external/ZIP-only LLMs depend on the archive contents; including every image folder currently adds 50+ MB and roughly doubles the archive, so only these key folders are included.
+ - Missing optional folders are skipped with warnings, so the helper can also be run on base AdvCiv or partial comparison folders.
+ - Skips generated/helper outputs such as `LLM_Helpers/outputs`, Python cache files, previous light-source ZIPs, heavy/binary `.dll` and `.fpk`, non-useful compact-review `.tga`, original `manual.pdf`/`manual.odt`, `Assets/res/Cursors`, and large/temporary DLL project artifacts such as `.sdf` or project files over 1 MB.
+ - Does not globally exclude common image files such as `.jpg` or `.png`; small previews can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image folders by not adding those folders to the include lists instead.
+@@ -925,15 +927,16 @@ cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Be
+ Example of output (Git Bash):
+ 
+ ```text
+-Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-
+-SAS
++Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
+ Mod name:  AdvCiv-SAS
+ Prefix:    AdvCiv-SAS_light_source
+-Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260620T124720.zip
+-Files:     944
+-Size:      43,264,448 bytes before ZIP container overhead
+-Mode:      ZIP_STORED / no compression
+-Wrote:     944 file(s)
++Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260811T105205.zip
++Files:     1135
++Size:      92,519,037 bytes before ZIP container overhead
++Mode:      ZIP_DEFLATED / compression level 6
++Wrote:     1135 file(s)
++ZIP size:  53,887,082 bytes
++Duration:  2,136 ms
+ ```
+ 
+ ## Workflow rule for timeline tuning
+
+diff --git a/LLM_Helpers/make_light_source_zip.py b/LLM_Helpers/make_light_source_zip.py
+index 1ca616521..140bb6b55 100644
+--- a/LLM_Helpers/make_light_source_zip.py
++++ b/LLM_Helpers/make_light_source_zip.py
+@@ -4,9 +4,9 @@
+ # (c) 2026 wonderingabout (see Authors in root README.md)
+ #
+ # <!-- custom: Create a timestamped Civ4 mod light source ZIP for quick local/LLM review handoffs.
+-# Store repo-relative paths with ZIP_STORED/no compression so creation is fast and the archive remains easy to inspect.
++# Store repo-relative paths and use ZIP_DEFLATED by default so adding selected screenshot folders stays reasonably uploadable.
+ # Refined with ChatGPT-5.5 and Codex. -->
+-# Create a timestamped, no-compression light source ZIP for a Civ4 mod.
++# Create a timestamped light source ZIP for a Civ4 mod.
+ 
+ from __future__ import annotations
+ 
+@@ -14,8 +14,9 @@ import argparse
+ import re
+ from datetime import datetime
+ from pathlib import Path
++from time import perf_counter
+ from typing import Iterable, Iterator
+-from zipfile import ZIP_STORED, ZipFile
++from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
+ 
+ 
+ ASSET_SUBDIRS = (
+@@ -42,6 +43,16 @@ EXTRA_SUBDIRS = (
+     "_1_AdvCiv-SAS/git_logs",
+ )
+ 
++# Optional screenshot-folder whitelist for visual LLM/code-agent context, e.g.
++# advisors, main menu, Sevopedia, and common UI. Keep this explicit instead of
++# including all image folders so broad image additions do not silently bloat the archive.
++IMAGE_SUBDIRS = (
++    "_1_AdvCiv-SAS/Images/advisors",
++    "_1_AdvCiv-SAS/Images/main_menu",
++    "_1_AdvCiv-SAS/Images/sevopedia",
++    "_1_AdvCiv-SAS/Images/ui_other",
++)
++
+ DLL_TOP_LEVEL_DIR = "CvGameCoreDLL"
+ DLL_PROJECT_DIR = "CvGameCoreDLL/Project"
+ DLL_PROJECT_MAX_BYTES = 1 * 1024 * 1024
+@@ -49,6 +60,7 @@ DEFAULT_OUTPUT_DIR = "."
+ DEFAULT_MOD_NAME = "UnspecifiedModName"
+ ARCHIVE_LABEL = "light_source"
+ DEFAULT_ARCHIVE_PREFIX = None
++DEFAULT_COMPRESSION_LEVEL = 6
+ GENERATED_ARCHIVE_MARKER = "_light_source_"
+ 
+ # Skip Python bytecode/cache folders anywhere in the tree. They are generated,
+@@ -85,7 +97,7 @@ SKIP_FILE_NAMES = {"manual.pdf", "manual.odt"}
+ 
+ def parse_args() -> argparse.Namespace:
+     parser = argparse.ArgumentParser(
+-        description="Create a timestamped Civ4 mod light source ZIP with no compression."
++        description="Create a timestamped Civ4 mod light source ZIP."
+     )
+     parser.add_argument(
+         "--repo-root",
+@@ -116,11 +128,27 @@ def parse_args() -> argparse.Namespace:
+             "<mod-name>_light_source. Use this only for manual labels or old naming."
+         ),
+     )
++    parser.add_argument(
++        "--compression-level",
++        type=int,
++        default=DEFAULT_COMPRESSION_LEVEL,
++        choices=range(0, 10),
++        metavar="0-9",
++        help=(
++            "ZIP_DEFLATED compression level. Default: "
++            f"{DEFAULT_COMPRESSION_LEVEL}. Use 0 for ZIP_STORED / no compression."
++        ),
++    )
+     parser.add_argument(
+         "--dry-run",
+         action="store_true",
+         help="Print what would be archived without writing the ZIP.",
+     )
++    parser.add_argument(
++        "--no-duration",
++        action="store_true",
++        help="Do not print ZIP write duration. Useful when stable/deterministic-looking command output is preferred.",
++    )
+     return parser.parse_args()
+ 
+ 
+@@ -302,16 +330,20 @@ def collect_files(repo_root: Path) -> list[Path]:
+     for rel_dir in EXTRA_SUBDIRS:
+         add(iter_tree_files(repo_root / rel_dir, repo_root))
+ 
++    for rel_dir in IMAGE_SUBDIRS:
++        add(iter_tree_files(repo_root / rel_dir, repo_root))
++
+     return sorted(files, key=lambda p: p.relative_to(repo_root).as_posix().lower())
+ 
+ 
+-def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path]) -> int:
++def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path], compression_level: int) -> int:
+     count = 0
+     temp_path = zip_path.with_suffix(zip_path.suffix + ".tmp")
+     if temp_path.exists():
+         temp_path.unlink()
+ 
+-    with ZipFile(temp_path, "w", compression=ZIP_STORED, allowZip64=True) as archive:
++    compression_method = ZIP_STORED if compression_level <= 0 else ZIP_DEFLATED
++    with ZipFile(temp_path, "w", compression=compression_method, compresslevel=(None if compression_method == ZIP_STORED else compression_level), allowZip64=True) as archive:
+         preserved_temp_dir = repo_root / PRESERVED_LIGHT_SOURCE_TEMP_DIR
+         if preserved_temp_dir.is_dir():
+             archive.writestr(PRESERVED_LIGHT_SOURCE_TEMP_DIR.rstrip("/") + "/", b"")
+@@ -332,6 +364,7 @@ def main() -> int:
+     zip_path = output_path(repo_root, args.output_dir, prefix, not args.dry_run)
+     files = collect_files(repo_root)
+     total_bytes = sum(path.stat().st_size for path in files)
++    compression_mode = "ZIP_STORED / no compression" if args.compression_level <= 0 else f"ZIP_DEFLATED / compression level {args.compression_level}"
+ 
+     print(f"Repo root: {repo_root}")
+     print(f"Mod name:  {mod_name}")
+@@ -339,7 +372,7 @@ def main() -> int:
+     print(f"Archive:   {zip_path}")
+     print(f"Files:     {len(files)}")
+     print(f"Size:      {total_bytes:,} bytes before ZIP container overhead")
+-    print("Mode:      ZIP_STORED / no compression")
++    print(f"Mode:      {compression_mode}")
+ 
+     if args.dry_run:
+         for path in files:
+@@ -347,8 +380,13 @@ def main() -> int:
+         print("Dry run only; no archive written.")
+         return 0
+ 
+-    count = write_zip(zip_path, repo_root, files)
++    start_time = perf_counter()
++    count = write_zip(zip_path, repo_root, files, args.compression_level)
++    duration_ms = int((perf_counter() - start_time) * 1000)
+     print(f"Wrote:     {count} file(s)")
++    print(f"ZIP size:  {zip_path.stat().st_size:,} bytes")
++    if not args.no_duration:
++        print(f"Duration:  {duration_ms:,} ms")
+     return 0
+
+diff --git a/README.md b/README.md
+index 7e2504f78..b1e065f84 100644
+--- a/README.md
++++ b/README.md
+@@ -888,7 +888,7 @@ For modders: i have made several scripts with AI assistance. We don't use them a
+ 
+ Active helper scripts for LLM-assisted review and tuning live in [LLM_Helpers](/LLM_Helpers/). For example, [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py) compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, and can generate a stable Markdown example such as [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) with changed fields, numeric deltas, percentage deltas, and an embedded TSV matrix.
+ 
+-Or notably also [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), that creates a timestamped no-compression light source archive for quick local/LLM review handoffs (e.g., to ChatGPT) without manually selecting and tediously creating an updated ZIP of each file/folder each time. It includes the core useful source/data/docs/helper files, including [LLM_Helpers](/LLM_Helpers/) itself, while leaving out generated or too-heavy files/folders (e.g., as of now no `LLM_Helpers/outputs`, .fpk, .tga, .dll, pycache folders, or art assets folder).
++Or notably also [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), that creates a timestamped compressed light source archive for quick local/LLM review handoffs (e.g., to ChatGPT) without manually selecting and tediously creating an updated ZIP of each file/folder each time. It includes the core useful source/data/docs/helper files, including [LLM_Helpers](/LLM_Helpers/) itself, plus selected screenshot folders useful for UI/context review: local agentic tools like Codex can inspect screenshots directly, while external/ZIP-only LLMs like ChatGPT can only see them if the archive includes them. It still leaves out generated or too-heavy files/folders (e.g., as of now no `LLM_Helpers/outputs`, .fpk, .tga, .dll, pycache folders, or broad art assets folder).
+ 
+ GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions. They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size enum/XML drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md). For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change). The AIP predump refresh bot is a separate tested workflow that refreshes `SevoPediaLeaderCachePredumped.py` outside Civ4 and opens a bot PR only when the generated predump actually changes; [PR #31](https://github.com/wonderingabout/AdvCiv-SAS/pull/31) validated no-op, XML comment-only, numeric XML drift, and Python label/display drift cases.
+ 
+@@ -935,7 +935,7 @@ For example, `SASGameRecord_*.log` starts with comparable run setup lines and th
+ 
+ ```log
+ GAME_RECORD_SAVE_LOADED utc=20260710T064839Z logFile="SASGameRecord_20260710T064839Z_load1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
+-GAME_RECORD_GAME_SETTINGS mapScript="Pangaea" map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
++GAME_RECORD_GAME_SETTINGS mapScript="Pangaea" map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT calendar=CALENDAR_DEFAULT startTurn=0 startYear=-50000 gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
+ GAME_RECORD_MOD_CONTEXT modName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
+ GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=48 MAX_PLAYERS=49 BARBARIAN_PLAYER=48 MAX_CIV_TEAMS=48 MAX_TEAMS=49 BARBARIAN_TEAM=48 NO_PLAYER=-1 NO_TEAM=-1
+ GAME_RECORD_ACTION turn=0 type=AUTOPLAY_STARTED oldTurnsLeft=0 newTurnsLeft=200 activePlayer=0 changePlayerStatus=1
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 606f2e108..cad7edd3d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -130,7 +130,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Other examples: This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)), and [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)). The checks also run locally with Python 3; see [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
+ - **Python Ruff GitHub workflow:** added [`python-ruff.yml`](/.github/workflows/python-ruff.yml), which prints a full Ruff report and fails on a practical critical gate for syntax/parse errors and Pyflakes bug checks. This helped spot shadowed duplicate callbacks in base Civ4 `Oasis.py` (see [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-workflow)) and a Base AdvCiv bug of dormant undefined `Point` (instead of using `PointLayout`) helper in `RectLayout.py` (see [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-dormant-rectlayout-upperleft-helper-returned-undefined-point-found-by-python-ruff)).
+ - **Python 2.4 Docker compile GitHub workflow:** added [`python24-compile.yml`](/.github/workflows/python24-compile.yml), which runs `Assets/Python` and `PrivateMaps` through real CPython 2.4 syntax/bytecode compilation using our separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) GHCR image. This complements Ruff by checking the old parser Civ4 embeds, without launching Civ4 or importing engine-only modules. A deliberate [test confirmed it fails](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27897204427) on Python 2.5+ ternary syntax such as `SAS_MAGIC_PY24_COMPILE_BREAK_TEST = 1 if True else 0` in `SASMagicNumbers.py`. See [`.github/workflows/README.md`](/.github/workflows/README.md#python-24-compile-workflow), and [README.md (Python Scripts)](/README.md#python-scripts) for screenshots.
+-- **Light source archive helper:** added [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), which creates a timestamped no-compression AdvCiv-SAS source/data/docs archive under `LLM_Helpers/outputs` or a chosen output folder. This avoids repeatedly manually selecting and tediously creating an updated ZIP of each file/folder each time, of the same useful core files/folders ChatGPT or other LLMs can read or needs, while leaving unneeded or too heavy to use ones (e.g., as of now no .fpk, .tga, .dll, or pycache folders, art assets folder), when sharing compact mod context with local tools or LLMs.
++- **Light source archive helper:** added [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), which creates a timestamped compressed AdvCiv-SAS source/data/docs archive under the mod root or a chosen output folder. This avoids repeatedly manually selecting and tediously creating an updated ZIP of each file/folder each time, of the same useful core files/folders ChatGPT or other LLMs can read or needs, while leaving unneeded or too heavy to use ones (e.g., as of now no .fpk, .tga, .dll, or pycache folders, broad art assets folder), when sharing compact mod context with local tools or LLMs. (Requires AdvCiv-SAS 6105+) Some image folders are included too because advisors, Sevopedia, main menu, and common UI screenshots are very useful for LLM development/review and help show what the mod actually looks like. Local agentic tools like Codex can inspect these screenshots directly, while external/ZIP-only LLMs like ChatGPT can only use them if the archive includes them; adding every image folder would currently add 50+ MB and roughly double the archive.
+ - **Dependabot for GitHub Actions:** added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20 (see [<hidden-email>#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24)). This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
+ - **Handicap XML comparison helper:** added [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py), a report-only, mod-agnostic helper that compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, by handicap index; shows missing fields as blanks, includes absolute/percentage numeric deltas, and embeds a spreadsheet-friendly TSV matrix.
+ - **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+@@ -152,7 +152,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Centralize magic numbers** in [`SASMagicNumbers.py`](/Assets/Python/SASMagicNumbers.py), an import-free leaf helper for named constants used across screens, Sevopedia, mapscripts, and map generator utilities. Examples: Sevopedia/Tech Chooser `WIDGET_PYTHON` data1 IDs and Sevopedia Movie/Music packed-key type IDs. This avoids duplicated definitions, widget-id drift/collisions, and circular-import/load-order risk.
+ - (Requires AdvCiv-SAS 6058+) **Shared DLL diagnostic metadata:** added `WarDeclarationCause` (as of now `WAR_DECLARATION_DIRECT`, `WAR_DECLARATION_GAME_SETUP`, `WAR_DECLARATION_ALWAYS_WAR`, `WAR_DECLARATION_PERMANENT_ALLIANCE`, `WAR_DECLARATION_DEFENSIVE_PACT`, `WAR_DECLARATION_VASSAL_ALIGNMENT`, `WAR_DECLARATION_DIPLOMACY`, `WAR_DECLARATION_VOTE`, and `WAR_DECLARATION_NUCLEAR_ATTACK`), `getSASWarDeclarationCause`, and `getSASMemoryType` for SASGameRecord war and diplomacy rows.
+ - (Requires AdvCiv-SAS 6101+) Similarly added `TechAcquisitionCause` (`TECH_ACQUISITION_UNKNOWN`, `TECH_ACQUISITION_RESEARCH`, `TECH_ACQUISITION_TRADE`, `TECH_ACQUISITION_FREE_CHOICE`, `TECH_ACQUISITION_GOODY`, `TECH_ACQUISITION_GREAT_PERSON`, `TECH_ACQUISITION_ESPIONAGE`, `TECH_ACQUISITION_RANDOM_EVENT`, `TECH_ACQUISITION_TECH_SHARE`, `TECH_ACQUISITION_TEAM_MERGE`, `TECH_ACQUISITION_INHERITANCE`, `TECH_ACQUISITION_ADVANCED_START`, `TECH_ACQUISITION_BARBARIAN_RESEARCH`, `TECH_ACQUISITION_GAME_SETUP`, and `TECH_ACQUISITION_DEBUG`) and `getSASTechAcquisitionCause` so technology-acquisition rows can identify how each technology was obtained. Logging only; no gameplay change.
+-- (Requires AdvCiv-SAS 6102+) Added `getSASGameType` and `getSASGameMode` for shared raw names of the existing `GameType` and `GameMode` enums. Logging only; no gameplay change.
++- (Requires AdvCiv-SAS 6102+) Added `getSASGameType` and `getSASGameMode` for shared raw names of the existing `GameType` and `GameMode` enums. (Requires AdvCiv-SAS 6105+) Added shared `getSASCalendarType` for calendar context. Logging only; no gameplay change.
+ - **Cache once per session precomputed** Sevopedia Traits' Charts and Sevopedia Improvements' Weights (Leaders) Chart on category open before any entry is clicked on. This uses a simplified version of the AI Personality Panel's caching approach. See [AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, CI now checks that the committed predump still matches leader XML/shared AIP display logic; if it fails, `aip_predump_values.py --write` can refresh the file outside Civ4. This checker notably caught 394 stale label entries, such as `Build Unit (52)` missing the updated `Build Unit % (52)` text and then helped generate an updated predump. The old manual in-game `PythonDbg.log` dump path remains a manual fallback or alternative way of refreshing the predump.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same).
+@@ -166,7 +166,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 6022+) **SAS game-record log:** added a separate `SASGameRecord_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by recording what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly. (Requires AdvCiv-SAS 6057+) It also notably records compact per-turn exploration, map changes and environmental status, explicit spaceship launches and project-victory progress, and a full final snapshot when the game is won.
+ - (Requires AdvCiv-SAS 6058+) It notably also records war-declaration causes and sponsors, diplomacy memories, progress for all enabled victories, project-victory resets and failures, and compact full-map revelation. (Requires AdvCiv-SAS 6077+) It notably also further records active mod and DLL-slot identity, research and production overflow, production conversion and lost-production gold, city buildings and pollution, trade unlocks, and compact territory development including routes, improvements, irrigation, and improved/unimproved bonus types, and also names player-wide health/happiness modifier sources and records AI victory-stage strategies and the target's victory context when war is declared. (Requires AdvCiv-SAS 6091+) It also records `UnitCombat` shares alongside raw army-composition counts, compact air/missile/nuclear posture including carrier and missile cargo, and per-city air-unit occupancy/capacity. (Requires AdvCiv-SAS 6092+) It also records current/undamaged city-defense state and bombard damage on city snapshots, synthetic consecutive city-bombard sequences with actual before/after defense reduction and unit counts, plus individual air strikes, interceptions, and plot-air-bomb attempts so military-unit ownership can be compared with actual tactical use.
+ - (Requires AdvCiv-SAS 6100+) It also records compact production and military interval flows plus exact civic, effective state-religion, and war-plan transitions. (Requires AdvCiv-SAS 6101+) Technology-acquisition rows also identify whether each technology came from research, trade, a free choice, a goody hut, a Great Person, espionage, a random event, technology sharing, a team merge, inheritance, Advanced Start, Barbarian research, game setup, debug tools, or an unknown Python/script source. (Requires AdvCiv-SAS 6102+) Each log also identifies whether the session is a new or loaded single-player, scenario, network, Hotseat, PBEM, Pitboss, or replay game, including its multiplayer turn options. (Requires AdvCiv-SAS 6103+) It also synthesizes one summary for every war between civilization teams, including declaration and peace context, elapsed turns, war-success changes, units destroyed and their total production cost, city-plot battle wins, and cities/population captured. Wars already active when a save is loaded are explicitly partial, while wars still active at victory or autoplay end remain marked ongoing rather than being misreported as peace. A full turn-474 test matched all 115 declarations to exactly 91 ordinary-peace summaries, 4 capitulations, 13 state-change/elimination summaries, and 7 wars still ongoing at victory.
+-- (Requires AdvCiv-SAS 6104+) Full interval and victory snapshots also record UTC to milliseconds, total real milliseconds since the log session began, and milliseconds since the previous snapshot. This makes autoplay speed and late-game slowdown directly comparable without external timing or timestamp subtraction; real time includes pauses and user interaction. Anonymous process-memory, system memory-load percentage, available 32-bit address space, and exact foreground/minimized samples can be disabled separately without disabling timing or gameplay records. A separate privacy/detail level defaults to display context (resolution, fullscreen/windowed state, and graphics options), Windows versus Wine/Proton, and pointer width; it can be lowered to hide these or raised to add logical processor count and total RAM.
++- (Requires AdvCiv-SAS 6105+) Setup context also records the calendar, starting turn/year, and each player's actual assigned color with its primary RGB values, which helps connect the text record to maps and screenshots. When the game is won, one final row per civilization pairs its ordinary score with Civ4's normalized final score. (Requires AdvCiv-SAS 6104+) Full interval and victory snapshots also record UTC to milliseconds, total real milliseconds since the log session began, and milliseconds since the previous snapshot. This makes autoplay speed and late-game slowdown directly comparable without external timing or timestamp subtraction; real time includes pauses and user interaction. Anonymous process-memory, system memory-load percentage, available 32-bit address space, and exact foreground/minimized samples can be disabled separately without disabling timing or gameplay records. A separate privacy/detail level defaults to display context (resolution, fullscreen/windowed state, and graphics options), Windows versus Wine/Proton, and pointer width; it can be lowered to hide these or raised to add logical processor count and total RAM.
+ - Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-record log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context while staying compact enough to upload and share. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=8 omittedFiles=1 embeddedPatchBytes=49412

@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2526
+# Commit: c082b7565598d28c0d93f2a976e247638f6137ba
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e097767f5513136e9f10e91922e80271b7480869
+# Title: Fix AdvCiv bug: wrong speed-adjustment for AI memory decay
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 501770466..87303b56b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -17764,7 +17764,7 @@ void CvPlayerAI::AI_doCounter()  // advc: style changes
+ 			if (eMem == MEMORY_RECEIVED_TECH_FROM_ANY || eMem == MEMORY_TRADED_TECH_TO_US)
+ 				rProb = scaled(1, iDecayRand);
+ 			// Moderate game speed adjustment
+-			rProb *= per100(GC.getInfo(kGame.getGameSpeedType()).getGoldenAgePercent());
++			rProb /= per100(GC.getInfo(kGame.getGameSpeedType()).getGoldenAgePercent());
+ 			// </advc.130r>
+ 			// <advc.144> No decay of MADE_DEMAND_RECENT while peace treaty
+ 			if (eMem == MEMORY_MADE_DEMAND_RECENT &&
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=708

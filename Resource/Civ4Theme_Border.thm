@@ -27,17 +27,17 @@ For information regarding GFC Commercial License Agreements go to:
 
 with GFC_Control_Border
 {
-	
+
 	GFC_Control_DefaultBorder_Style
 	{
 		GFC_Control_Renderer_Control			=	GFC_CtrlTheme_Bitmap_Control_Border_Renderer_ControlStandard;			
-													
+
 		.Child_Title							=	GFC_CtrlTheme_Bitmap_Control_Border_Child_TitleLabel;
-													
+
 		.StyleId_Title_Inside					=	GPropertyId(GFC_Control_StandardLabel_Style);
 		.StyleId_Title_Outside					=	GPropertyId(GFC_Control_StandardLabel_Style);
 		.StyleId_Title_Center					=	GPropertyId(GFC_Control_StandardLabel_Style);
-	
+
 		with GFC_Control_Flag
 		{
 			// Base control flags
@@ -51,7 +51,7 @@ with GFC_Control_Border
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-											
+
 			// Control flag change masks	
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -84,28 +84,28 @@ with GFC_Control_Border
 			.DragCorner_TopRight				=	.DragCorner_TopLeft;
 			.DragCorner_BottomLeft				=	.DragCorner_TopLeft;
 			.DragCorner_BottomRight				=	.DragCorner_TopLeft;
-								
+
 			.TitleBorderMargin_Inside			=	GRectMargin(0,0,0,0);
 			.TitleBorderMargin_Outside			=	GRectMargin(0,0,0,0);
 			.TitleBorderMargin_Center			=	GRectMargin(4,0,4,0);
-												
+
 			.TitleInsetMargin_Inside			=	GRectMargin(4,4,4,4);
 			.TitleInsetMargin_Outside			=	GRectMargin(1,2,1,4);
 			.TitleInsetMargin_Center			=	GRectMargin(4,2,4,2);						
 		}
-													
+
 		with .Color									
 		{								
 			.Inner								=	GFC_Control_Color_Surface;
 			.Frame								=	GFC_Control_Color_Surface;
 		}										
-													
+
 		with .Combine								
 		{						
 			.Inner								=	GFC_Control_Combine_Inner_Default;
 			.Frame								=	GFC_Control_Combine_Border_Default;
 		}										
-													
+
 		with .Cursor								
 		{										
 			.Size_Top							=	GFC_Control_Cursor_Size_UpDown;
@@ -116,7 +116,7 @@ with GFC_Control_Border
 			.Size_TopRight						=	GFC_Control_Cursor_Size_UpRight;
 			.Size_BottomLeft					=	GFC_Control_Cursor_Size_DownLeft;
 			.Size_BottomRight					=	GFC_Control_Cursor_Size_DownRight;
-													
+
 			.Move_Top							=	GFC_Control_Cursor_Arrow;
 			.Move_Bottom						=	GFC_Control_Cursor_Arrow;
 			.Move_Left							=	GFC_Control_Cursor_Arrow;
@@ -141,7 +141,7 @@ with GFC_Control_Border
 				.Full_InactiveDisable			=	0;
 				.Full_Winoff					=	0;
 				.Full_WinoffDisable				=	0;
-													
+
 				.Top_Default					=	0;
 				.Top_Disable					=	0;
 				.Top_Inactive					=	0;
@@ -204,7 +204,7 @@ with GFC_Control_Border
 	GFC_Control_InBorder_Style
 	{
 		.Size_Margin							=	GRectMargin(6,6,6,6);
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Border_Skin
 		{
 			with .Full
@@ -242,7 +242,7 @@ with GFC_Control_Border
 				.WinoffDisable			=	.Disable;
 			}
 		}
-			
+
 		map GFC_CtrlTheme_Bitmap_Control_Border		=	GFC_Control_DefaultBorder_Style;
 		map GFC_Control								=	GFC_Control_DefaultBorder_Style;
 	}
@@ -306,14 +306,14 @@ with GFC_Control_Border
 				.WinoffDisable			=	.Disable;
 			}
 		}
-		
+
 		map GFC_CtrlTheme_Bitmap_Control_Border		=	GFC_Control_DefaultBorder_Style;
 		map GFC_Control								=	GFC_Control_DefaultBorder_Style;
 	}
 
 
 	// ** Solid style
-	
+
 	GFC_Control_SolidBorder_Style
 	{
 		//.Renderer_Control							=	GFC_CtrlTheme_Bitmap_Control_Border_Renderer_ControlStandard;		
@@ -359,7 +359,7 @@ with GFC_Control_Border
 
 
 	// ** Empty style
-	
+
 	GFC_Control_EmptyBorder_Style
 	{
 		GFC_Control_Renderer_Control			=	GFC_CtrlTheme_Bitmap_Control_Border_Renderer_ControlEmpty;
@@ -380,20 +380,20 @@ with GFC_Control_Border
 
 		GFC_Control_Label_Size_Margin				=	GRectMargin(6,4,8,5);
 
-			
+
 		with GFC_Control_Label_Color
 		{	
 			.Text_Default						=	GFC_Control_Color_Text_Default;
 			.Text_Disable						=	GFC_Control_Color_Text_Disable;
 			.Text_Winoff						=	.Text_Default;
 			.Text_WinoffDisable					=	.Text_Disable;
-												
+
 			.TextShadow_Default					=	GFC_Control_Color_TextShadow_Default;
 			.TextShadow_Disable					=	GFC_Control_Color_TextShadow_Disable;
 			.TextShadow_Winoff					=	.TextShadow_Default;
 			.TextShadow_WinoffDisable			=	.TextShadow_Disable;
 		}
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Label_Skin
 		{
 			.Default
@@ -428,7 +428,7 @@ with GFC_Control_Border
 			.Winoff					= .Default;
 			.WinoffDisable			= .Winoff;
 		}
-		
+
 		map GFC_CtrlTheme_Bitmap_Control_Label					=	GFC_Control_DefaultLabel_Style;
 		map GFC_Control											=	GFC_Control_DefaultLabel_Style;
 	}
@@ -511,7 +511,7 @@ with GFC_Control_Border
 				.WinoffDisable			=	.Disable;
 			}
 		}
-		
+
 		map GFC_CtrlTheme_Bitmap_Control_Border		=	GFC_Control_DefaultBorder_Style;
 		map GFC_Control								=	GFC_Control_DefaultBorder_Style;
 	}

@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2195
+# Commit: 415325df6cb75938c42021882b619e77dcf7d80c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 63944fc2bf42e4ece60246ff2c8029a248c2dfe8
+# Title: Decrease probability of lake starts
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/CvGame.cpp
+3	0	CvGameCoreDLL/CvMapGenerator.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index a81745fe3..21ff69d74 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1415,10 +1415,13 @@ void CvGame::normalizeAddRiver()  // advc: style changes
+ 			//CvMapGenerator::GetInstance().doRiver(pStartingPlot);
+ 			// K-Mod. If we can have a lake then we don't always need a river.
+ 			// Also, the river shouldn't always start on the SE corner of our site.
+-			if (getSorenRandNum(10, "normalize add river") < (pStartingPlot->isCoastalLand() ? 5 : 7))
++			if (//getSorenRandNum(10, "normalize add river") < (pStartingPlot->isCoastalLand() ? 5 : 7))
++				/*	advc.108: 25% lake chance (but will also get a lake
++					when no river possible or a lake already happens to be present) */
++				fixp(0.75).bernoulliSuccess(GC.getGame().getSRand(), "normalize add river"))
+ 			{
+ 				CvPlot* pRiverPlot = pStartingPlot->getInlandCorner();
+-				if (pRiverPlot)
++				if (pRiverPlot != NULL)
+ 					CvMapGenerator::GetInstance().doRiver(pRiverPlot);
+ 			} // K-Mod end.
+ 		} // otherwise, use new river code which is much more likely to succeed
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index dcbcd25ad..60ed209c0 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -405,6 +405,9 @@ void CvMapGenerator::doRiver(CvPlot *pStartPlot, CardinalDirectionTypes eLastCar
+ //creates fresh water on the passed plot. Quite useful really
+ //Although I veto'd its use since I like that you don't always
+ //get fresh water starts.
++/*	advc (note): This function isn't unused though. It's a fallback
++	in case that no lake can be placed. Though I'm not sure if can
++	succeed where CvGame::normalizeFindLakePlot fails. */
+ // pFreshWaterPlot = the plot we want to give a fresh water river
+ bool CvMapGenerator::addRiver(CvPlot* pFreshWaterPlot)
+ {
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1885

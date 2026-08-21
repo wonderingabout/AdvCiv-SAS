@@ -1,0 +1,74 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 602
+# Commit: 73b3dd74ae04f75f789493db570695c2e4dade7c
+# History segment: K-Mod history
+# Parent used for diff: 6a3f10d302d8bfab2cf08b59035a97574d14a7ff
+# Title: The AI value of evasion on nuke units now scales depending on who has the ability to shoot down the nukes. (evasion is worthless if no one is trying to hit t...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+32	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 67e3ae112..2c426d443 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11465,6 +11465,7 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 	case UNITAI_ICBM:
+ 		if (GC.getUnitInfo(eUnit).getNukeRange() != -1)
+ 		{
++			/* original bts code
+ 			iTempValue = 40 + (GC.getUnitInfo(eUnit).getNukeRange() * 40);
+ 			if (GC.getUnitInfo(eUnit).getAirRange() == 0)
+ 			{
+@@ -11474,7 +11475,37 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 			{
+ 				iValue += (iTempValue * std::min(10, GC.getUnitInfo(eUnit).getAirRange())) / 10;
+ 			}
+-			iValue += (iTempValue * (60 + GC.getUnitInfo(eUnit).getEvasionProbability())) / 100;
++			iValue += (iTempValue * (60 + GC.getUnitInfo(eUnit).getEvasionProbability())) / 100; */
++			// K-Mod
++			iTempValue = 100 + (GC.getUnitInfo(eUnit).getNukeRange() * 40);
++			if (GC.getUnitInfo(eUnit).getAirRange() > 0)
++			{
++				iTempValue = iTempValue * std::min(8, GC.getUnitInfo(eUnit).getAirRange()) / 10;
++			}
++			// estimate the expected loss from being shot down.
++			{
++				bool bWar = pArea && pArea->getAreaAIType(getTeam()) != AREAAI_NEUTRAL;
++				const CvTeamAI& kTeam = GET_TEAM(getTeam());
++				int iInterceptTally = 0;
++				int iPowerTally = 0;
++				for (TeamTypes i = (TeamTypes)0; i < MAX_CIV_TEAMS; i = (TeamTypes)(i+1))
++				{
++					const CvTeam& kLoopTeam = GET_TEAM(i);
++					if (kLoopTeam.isAlive() && kTeam.isHasMet(i) && (!bWar || kTeam.AI_getWarPlan(i) != NO_WARPLAN))
++					{
++						int iPower = kLoopTeam.getPower(false);
++						iPowerTally += iPower;
++						iInterceptTally += kLoopTeam.getNukeInterception() * iPower;
++					}
++				}
++				if (iInterceptTally > 0)
++				{
++					FAssert(iPowerTally > 0);
++					iTempValue -= iTempValue * (iInterceptTally / iPowerTally) * (100 - GC.getUnitInfo(eUnit).getEvasionProbability()) / 10000;
++				}
++			}
++			iValue += iTempValue;
++			// K-Mod end
+ 		}
+ 		break;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2035

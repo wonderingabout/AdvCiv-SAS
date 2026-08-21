@@ -1,0 +1,159 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2328
+# Commit: 6e0fb4e2c25807f261bfd5ca569e962b4b2e2b6b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9775bdf80a6bdb293dc9a008ef6707496cbd35d8
+# Title: A few minor fixes for team games
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	1	CvGameCoreDLL/CvGame.cpp
+3	1	CvGameCoreDLL/CvGameTextMgr.cpp
+6	3	CvGameCoreDLL/CvPlayer.cpp
+33	9	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index aab1a6566..29069bbf1 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1402,8 +1402,11 @@ void CvGame::setStartingPlotNormalizationLevel(StartingPlotNormalizationLevel eL
+ 	{
+ 		eLevel = (GC.getDefineBOOL("NORMALIZE_STARTPLOTS_AGGRESSIVELY") ?
+ 				NORMALIZE_HIGH : NORMALIZE_LOW);
+-		if(eLevel == NORMALIZE_LOW && isGameMultiPlayer())
++		if (eLevel == NORMALIZE_LOW && isGameMultiPlayer() &&
++			TeamIter<HUMAN>::count() > 1)
++		{
+ 			eLevel = NORMALIZE_MEDIUM;
++		}
+ 	}
+ 	m_eNormalizationLevel = eLevel;
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 43d0f304e..498f3b4ae 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -16409,7 +16409,9 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 	// <advc.004q>
+ 	int iTotalCached = kPlayer.AI_getAttitudeVal(eTargetPlayer, false);
+ 	if (!bConstCache && bSHowHiddenAttitude && !bObscurePersonality &&
+-		iTotal != iTotalCached && !g.isNetworkMultiPlayer())
++		iTotal != iTotalCached && !g.isNetworkMultiPlayer() &&
++		// advc.130u: bForced=false is ignored among teammates
++		kPlayer.getTeam() != TEAMID(eTargetPlayer))
+ 	{
+ 		FAssertMsg(iTotal == iTotalCached, "Attitude cache out of date "
+ 				"(OK after loading a save created prior to AdvCiv 0.95)");
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 0fbdab3e4..a1d72896a 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1009,6 +1009,8 @@ void CvPlayer::setIsHuman(bool bNewValue, /* advc.127c: */ bool bUpdateAI)
+ 
+ 	GC.getInitCore().setSlotStatus(getID(), bNewValue ? SS_TAKEN :
+ 			SS_COMPUTER); // or SS_OPEN for multiplayer?
++	// advc.opt (needs to be done before checking the alerts)
++	GET_TEAM(getTeam()).updateLeaderID();
+ 	// <advc.210> Only human players need alerts
+ 	if (bNewValue)
+ 	{
+@@ -20429,16 +20431,17 @@ PlayerTypes CvPlayer::pickConqueredCityOwner(const CvCity& kCity) const
+ 	return getID();
+ }
+ 
++// advc (note): In part duplicated in CvPlayerAI::AI_civicValue
+ bool CvPlayer::canHaveTradeRoutesWith(PlayerTypes ePlayer) const
+ {
+ 	CvPlayer& kOtherPlayer = GET_PLAYER(ePlayer);
+ 	if (!kOtherPlayer.isAlive())
+ 		return false;
+-	if (getTeam() == kOtherPlayer.getTeam())
+-		return true;
+ 	// <advc.124>
+-	if(kOtherPlayer.isAnarchy())
++	if(getID() != ePlayer && kOtherPlayer.isAnarchy())
+ 		return false; // </advc.124>
++	if (getTeam() == kOtherPlayer.getTeam())
++		return true;
+ 
+ 	if (!GET_TEAM(getTeam()).isFreeTrade(kOtherPlayer.getTeam()))
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 8a329ea4b..26d4a4344 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1356,17 +1356,41 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)  // advc: style changes
+ 
+ 		case MISSION_MOVE_TO_UNIT:
+ 		{
+-			if (getHeadUnitAIType() == UNITAI_CITY_DEFENSE && getPlot().isCity() &&
+-				getPlot().getTeam() == getTeam())
++			CvPlot const& kPlot = getPlot();
++			if (getHeadUnitAIType() == UNITAI_CITY_DEFENSE && kPlot.isCity() &&
++				kPlot.getTeam() == getTeam())
+ 			{
+-				if (getPlot().getBestDefender(getOwner())->getGroup() == this)
+-				{
+-					bAction = false;
+-					bDone = true;
+-					break;
++				if (kPlot.getBestDefender(getOwner())->getGroup() == this)
++				{	/*	<advc.001> UNITAI_CITY_DEFENSE unit may be passing through
++						the city of a teammate. Should only have to stay there
++						if no other team member can defend. */
++					bool bStay = (kPlot.getOwner() == getOwner());
++					if (!bStay)
++					{
++						FAssert(GET_TEAM(getTeam()).getNumMembers() > 1);
++						bStay = true;
++						for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
++						{
++							if (itMember->getID() != getOwner() &&
++								kPlot.getBestDefender(itMember->getID()) != NULL)
++							{
++								bStay = false;
++								break;
++							}
++						}
++						FAssertMsg(!bStay, "Can probably happen; will it get this group stuck in a loop?");
++					}
++					if (bStay) // </advc.001>
++					{
++						FAssertMsg(false, "Does this generally get the group stuck?"); // advc.test
++						bAction = false;
++						bDone = true;
++						break;
++					}
+ 				}
+ 			}
+-			CvUnitAI const* pTargetUnit = GET_PLAYER((PlayerTypes)missionData.iData1).AI_getUnit(missionData.iData2);
++			CvUnitAI const* pTargetUnit = GET_PLAYER((PlayerTypes)missionData.iData1).
++					AI_getUnit(missionData.iData2);
+ 			if (pTargetUnit == NULL)
+ 			{
+ 				bDone = true;
+@@ -1375,7 +1399,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)  // advc: style changes
+ 			MissionAITypes eMissionAI = AI().AI_getMissionAIType(); // advc.003u
+ 			if (eMissionAI != MISSIONAI_SHADOW && eMissionAI != MISSIONAI_GROUP)
+ 			{
+-				if (!getPlot().isOwned() || getPlot().getOwner() == getOwner())
++				if (!kPlot.isOwned() || kPlot.getOwner() == getOwner())
+ 				{
+ 					CvPlot* pMissionPlot = pTargetUnit->AI_getGroup()->AI_getMissionAIPlot();
+ 					if (pMissionPlot != NULL && NO_TEAM != pMissionPlot->getTeam())
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5158

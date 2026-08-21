@@ -1,0 +1,338 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1932
+# Commit: 37fa9f1674b169b48d144948fbbef4a730754c3e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 235df4a91723f029bf720cd6fcdf4fdcd3747245
+# Title: Global Warming can't destroy preserved forest, jungle
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+4	0	Assets/XML/Terrain/CIV4TerrainSchema.xml
+90	64	CvGameCoreDLL/CvGame.cpp
+1	0	CvGameCoreDLL/CvInfo_Terrain.cpp
+1	0	CvGameCoreDLL/CvInfo_Terrain.h
+5	5	CvGameCoreDLL/CvPlot.cpp
+7	2	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index 7b65ed841..48f39cb77 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -1630,6 +1630,8 @@
+ 			<iTilesPerGoody>0</iTilesPerGoody>
+ 			<iGoodyRange>0</iGoodyRange>
+ 			<iFeatureGrowth>64</iFeatureGrowth>
++			<!-- advc.055: -->
++			<iGWFeatureProtection>100</iGWFeatureProtection>
+ 			<iUpgradeTime>0</iUpgradeTime>
+ 			<iAirBombDefense>20</iAirBombDefense>
+ 			<iDefenseModifier>0</iDefenseModifier>
+
+diff --git a/Assets/XML/Terrain/CIV4TerrainSchema.xml b/Assets/XML/Terrain/CIV4TerrainSchema.xml
+index c9945b91f..f805f67cb 100644
+--- a/Assets/XML/Terrain/CIV4TerrainSchema.xml
++++ b/Assets/XML/Terrain/CIV4TerrainSchema.xml
+@@ -397,6 +397,8 @@
+ 	<ElementType name="bPermanent" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="iGoodyRange" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iFeatureGrowth" content="textOnly" dt:type="int"/>
++	<!-- advc.055: -->
++	<ElementType name="iGWFeatureProtection" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAirBombDefense" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iDefenseModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iPillageGold" content="textOnly" dt:type="int"/>
+@@ -451,6 +453,8 @@
+ 		<element type="iTilesPerGoody"/>
+ 		<element type="iGoodyRange"/>
+ 		<element type="iFeatureGrowth"/>
++		<!-- advc.055: (default value in DLL: 0) -->
++		<element type="iGWFeatureProtection" minOccurs="0"/>
+ 		<element type="iUpgradeTime"/>
+ 		<element type="iAirBombDefense"/>
+ 		<element type="iDefenseModifier"/>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index e153fc45e..da0ae53d9 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6536,86 +6536,112 @@ void CvGame::doGlobalWarming()
+ 			//CvPlot* pPlot = GC.getMap().syncRandPlot(RANDPLOT_LAND | RANDPLOT_NOT_CITY);
+ 			// Global warming is no longer completely random. getRandGWPlot will get a weighted random plot for us to strike
+ 			CvPlot* pPlot = getRandGWPlot(3);
+-
+-			if (pPlot != NULL)
++			if (pPlot == NULL)
++				continue; // advc
++			// <advc.055>
++			bool bProtectFeature = false;
++			CvFeatureInfo const* pFeature = NULL;
++			if (pPlot->isImproved() && pPlot->isFeature())
+ 			{
+-				bool bChanged = false;
+-				// rewritten terrain changing code:
+-				// 1) Melt frozen terrain
+-				if (pPlot->getFeatureType() == eColdFeature)
++				if (::bernoulliSuccess(GC.getInfo(pPlot->getImprovementType()).
++					get(CvImprovementInfo::GWFeatureProtection) / 100.0))
+ 				{
+-					pPlot->setFeatureType(NO_FEATURE);
+-					bChanged = true;
++					bProtectFeature = true;
++					pFeature = &GC.getInfo(pPlot->getFeatureType());
+ 				}
+-				else if (pPlot->getTerrainType() == eFrozenTerrain)
++			} // </advc.055>
++			bool bChanged = false;
++			// rewritten terrain changing code:
++			// 1) Melt frozen terrain
++			if (pPlot->getFeatureType() == eColdFeature /* advc.055: */ && !bProtectFeature)
++			{
++				pPlot->setFeatureType(NO_FEATURE);
++				bChanged = true;
++			}
++			else if (pPlot->getTerrainType() == eFrozenTerrain &&
++				(!bProtectFeature || pFeature->isTerrain(eColdTerrain))) // advc.055
++			{
++				pPlot->setTerrainType(eColdTerrain);
++				bChanged = true;
++			}
++			else if (pPlot->getTerrainType() == eColdTerrain &&
++				(!bProtectFeature || pFeature->isTerrain(eTemperateTerrain))) // advc.055
++			{
++				pPlot->setTerrainType(eTemperateTerrain);
++				bChanged = true;
++			}
++			// 2) Forest -> Jungle
++			// advc.055: Commented out
++			/*else if (pPlot->getFeatureType() == eTemperateFeature) {
++			pPlot->setFeatureType(eWarmFeature);
++			bChanged = true;
++			}*/
++			// 3) Remove other features
++			else if (pPlot->isFeature() && pPlot->getFeatureType() != eFalloutFeature &&
++				!bProtectFeature) // advc.055
++			{
++				pPlot->setFeatureType(NO_FEATURE);
++				bChanged = true;
++			}
++			// 4) Dry the terrain
++			else if (pPlot->getTerrainType() == eTemperateTerrain &&
++				(!bProtectFeature || pFeature->isTerrain(eDryTerrain))) // advc.055
++			{
++				pPlot->setTerrainType(eDryTerrain);
++				bChanged = true;
++			}
++			else if (pPlot->getTerrainType() == eDryTerrain &&
++				(!bProtectFeature || pFeature->isTerrain(eBarrenTerrain))) // advc.055
++			{
++				pPlot->setTerrainType(eBarrenTerrain);
++				bChanged = true;
++			}
++			/* 5) Sink coastal desert (disabled)
++			else if (pPlot->getTerrainType() == eBarrenTerrain) {
++				if (isOption(GAMEOPTION_RISING_SEAS)) {
++					if (pPlot->isCoastalLand()) {
++						if (!pPlot->isHills() && !pPlot->isPeak()) {
++							pPlot->forceBumpUnits();
++							pPlot->setPlotType(PLOT_OCEAN);
++							bChanged = true;
++			} } } }*/
++			if (bChanged)
++			{
++				// only destroy the improvement if the new terrain cannot support it
++				if (!pPlot->canHaveImprovement(pPlot->getImprovementType()),
++					NO_BUILD, false) // dlph.9
+ 				{
+-						pPlot->setTerrainType(eColdTerrain);
+-						bChanged = true;
+-				}
+-				else if (pPlot->getTerrainType() == eColdTerrain)
+-				{
+-					pPlot->setTerrainType(eTemperateTerrain);
+-					bChanged = true;
+-				}
+-				// 2) Forest -> Jungle
+-				// advc.055: Commented out
+-				/*else if (pPlot->getFeatureType() == eTemperateFeature) {
+-					pPlot->setFeatureType(eWarmFeature);
+-					bChanged = true;
+-				}*/
+-				// 3) Remove other features
+-				else if (pPlot->isFeature() && pPlot->getFeatureType() != eFalloutFeature)
++					pPlot->setImprovementType(NO_IMPROVEMENT);
++				}  // <advc.055>
++				if (!pPlot->canHaveFeature(pPlot->getFeatureType(), true))
+ 				{
+ 					pPlot->setFeatureType(NO_FEATURE);
+-					bChanged = true;
+-				}
+-				// 4) Dry the terrain
+-				// Rising seas
+-				else if (pPlot->getTerrainType() == eTemperateTerrain)
++					FAssert(!bProtectFeature);
++				} // </advc.055>
++				CvCity* pCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(),
++						NO_PLAYER, NO_TEAM, false);
++				if (pCity != NULL)
+ 				{
+-					pPlot->setTerrainType(eDryTerrain);
+-					bChanged = true;
+-				}
+-				else if (pPlot->getTerrainType() == eDryTerrain)
+-				{
+-					pPlot->setTerrainType(eBarrenTerrain);
+-					bChanged = true;
+-				}
+-				/* 5) Sink coastal desert (disabled)
+-				else if (pPlot->getTerrainType() == eBarrenTerrain) {
+-					if (isOption(GAMEOPTION_RISING_SEAS)) {
+-						if (pPlot->isCoastalLand()) {
+-							if (!pPlot->isHills() && !pPlot->isPeak()) {
+-								pPlot->forceBumpUnits();
+-								pPlot->setPlotType(PLOT_OCEAN);
+-								bChanged = true;
+-				} } } }*/
+-
+-				if (bChanged)
+-				{
+-					// only destroy the improvement if the new terrain cannot support it
+-					if (!pPlot->canHaveImprovement(pPlot->getImprovementType()),
+-							NO_BUILD, false) // dlph.9
+-						pPlot->setImprovementType(NO_IMPROVEMENT);
+-
+-					CvCity* pCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), NO_PLAYER, NO_TEAM, false);
+-					if (pCity != NULL)
++					if (pPlot->isVisible(pCity->getTeam()))
+ 					{
+-						if (pPlot->isVisible(pCity->getTeam()))
+-						{
+-							CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_GLOBAL_WARMING_NEAR_CITY", pCity->getNameKey());
+-							gDLL->getInterfaceIFace()->addMessage(pCity->getOwner(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_SQUISH", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX(), pPlot->getY(), true, true);
+-						}
++						CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_GLOBAL_WARMING_NEAR_CITY",
++								pCity->getNameKey());
++						gDLL->getInterfaceIFace()->addMessage(pCity->getOwner(), false,
++								GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_SQUISH",
++								MESSAGE_TYPE_INFO, NULL, (ColorTypes)
++								GC.getInfoTypeForString("COLOR_RED"),
++								pPlot->getX(), pPlot->getY(), true, true);
+ 					}
+-					changeGwEventTally(1);
+ 				}
++				changeGwEventTally(1);
+ 			}
+ 		}
+ 	}
+ 	updateGwPercentAnger();
+ 	if (getGlobalWarmingIndex() > 0)
+ 	{
+-		changeGlobalWarmingIndex(-getGlobalWarmingIndex()*GC.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE", 0)/100);
++		changeGlobalWarmingIndex(-getGlobalWarmingIndex() *
++				GC.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE", 0)/100);
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.cpp b/CvGameCoreDLL/CvInfo_Terrain.cpp
+index 4e4ac1eb5..337faa011 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.cpp
++++ b/CvGameCoreDLL/CvInfo_Terrain.cpp
+@@ -1317,6 +1317,7 @@ void CvImprovementInfo::addElements(std::vector<XMLElement*>& r) const
+ {
+ 	CvXMLInfo::addElements(r);
+ 	r.push_back(new IntElement(HealthPercent, "HealthPercent", 0)); // advc.901
++	r.push_back(new IntElement(GWFeatureProtection, "GWFeatureProtection", 0)); // advc.055
+ } // </advc.tag>
+ 
+ bool CvImprovementInfo::read(CvXMLLoadUtility* pXML)
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.h b/CvGameCoreDLL/CvInfo_Terrain.h
+index 4102f9390..e7f6b5377 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.h
++++ b/CvGameCoreDLL/CvInfo_Terrain.h
+@@ -360,6 +360,7 @@ public: /*  All the const functions are exposed to Python except those dealing w
+ 	enum IntElementTypes
+ 	{
+ 		HealthPercent = CvXMLInfo::NUM_INT_ELEMENT_TYPES, // advc.901
++		GWFeatureProtection, // advc.055
+ 		NUM_INT_ELEMENT_TYPES
+ 	};
+ 	enum BoolElementTypes // unused so far
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 237f24923..7a9fd4fb4 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3085,12 +3085,13 @@ bool CvPlot::isFighting() const
+ }
+ 
+ 
+-bool CvPlot::canHaveFeature(FeatureTypes eFeature) const
++bool CvPlot::canHaveFeature(FeatureTypes eFeature,
++	bool bIgnoreCurrentFeature) const // advc.055
+ {
+ 	if (eFeature == NO_FEATURE)
+ 		return true;
+ 
+-	if (isFeature())
++	if (isFeature() /* advc.055: */ && !bIgnoreCurrentFeature)
+ 		return false;
+ 
+ 	if (isPeak())
+@@ -3114,13 +3115,12 @@ bool CvPlot::canHaveFeature(FeatureTypes eFeature) const
+ 
+ 	if (kFeature.isNoAdjacent())
+ 	{
+-		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++		FOR_EACH_ENUM(Direction)
+ 		{
+-			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), (DirectionTypes)iI);
++			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eLoopDirection);
+ 			if (pAdjacentPlot != NULL)
+ 			{
+ 				if (pAdjacentPlot->getFeatureType() == eFeature)
+-
+ 					return false;
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 9d1accdb4..31e1969a3 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -256,7 +256,8 @@ public:
+ 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;																								// Exposed to Python
+ 	DllExport bool isFighting() const;																																// Exposed to Python
+ 
+-	bool canHaveFeature(FeatureTypes eFeature) const;																				// Exposed to Python
++	bool canHaveFeature(FeatureTypes eFeature,																								// Exposed to Python
++			bool bIgnoreCurrentFeature = false) const; // advc.055
+ 	// advc.inl
+ 	DllExport inline bool isRoute() const																																		// Exposed to Python
+ 	{
+@@ -431,7 +432,11 @@ public:
+ 	DllExport inline ImprovementTypes getImprovementType() const																													// Exposed to Python
+ 	{
+ 		return (ImprovementTypes)m_eImprovementType;
+-	}
++	}  // <advc>
++	inline bool isImproved() const
++	{
++		return (getImprovementType() != NO_IMPROVEMENT);
++	} // </advc>
+ 	void setImprovementType(ImprovementTypes eNewValue);																									// Exposed to Python
+ 	// advc.inl
+ 	inline RouteTypes getRouteType() const																																			// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=11513

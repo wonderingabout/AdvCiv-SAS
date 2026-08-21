@@ -1,0 +1,261 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2010
+# Commit: 56af3a8dfa7f97c1fa229e1b9499a91428db0ed1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7dc47c184025001e6880ebb4eeca95b80ecfb247
+# Title: Fix issues with AI Auto Play ending upon player defeat
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/Python/Contrib/AIAutoPlay.py
+20	5	CvGameCoreDLL/CvAgents.cpp
+2	0	CvGameCoreDLL/CvAgents.h
+64	40	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/AIAutoPlay.py b/Assets/Python/Contrib/AIAutoPlay.py
+index 3d38de1bb..d43239379 100644
+--- a/Assets/Python/Contrib/AIAutoPlay.py
++++ b/Assets/Python/Contrib/AIAutoPlay.py
+@@ -200,8 +200,8 @@ class AIAutoPlay :
+ 	def checkPlayer( self ) :
+ 		
+ 		pPlayer = gc.getActivePlayer()
+-
+-		if( not pPlayer.isAlive() ) :
++		# advc.127: Unit check added to avoid multiple popups. Note however: Normally, CvPlayer::verifyAlive automatically transfers human control to a different player when the active player is defeated. The popup here remains only as a fallback.
++		if( not pPlayer.isAlive() and pPlayer.getNumUnits() <= 0 ) :
+ 			popup = PyPopup.PyPopup(7052,contextType = EventContextTypes.EVENTCONTEXT_ALL)
+ 			popup.setHeaderString( localText.getText("TXT_KEY_AIAUTOPLAY_PICK_CIV", ()) )
+ 			popup.setBodyString( localText.getText("TXT_KEY_AIAUTOPLAY_CIV_DIED", ()) )
+
+diff --git a/CvGameCoreDLL/CvAgents.cpp b/CvGameCoreDLL/CvAgents.cpp
+index 8bfe89824..c3ad2d72f 100644
+--- a/CvGameCoreDLL/CvAgents.cpp
++++ b/CvGameCoreDLL/CvAgents.cpp
+@@ -163,14 +163,16 @@ void CvAgents::playerDefeated(PlayerTypes eDeadPlayer)
+ }
+ 
+ 
+-void CvAgents::colonyCreated(PlayerTypes eNewPlayer)
++void CvAgents::playerSetAliveInGame(PlayerTypes ePlayer, bool bRevive)
+ {
+-	CvPlayerAI* pPlayer = &GET_PLAYER(eNewPlayer);
+-	CvTeamAI* pTeam = &GET_TEAM(eNewPlayer);
+-	insertIntoVector(teamSeqCache(CIV_EVER_ALIVE), pTeam);
++	CvPlayerAI* pPlayer = &GET_PLAYER(ePlayer);
++	CvTeamAI* pTeam = &GET_TEAM(ePlayer);
++	if (!bRevive)
++		insertIntoVector(teamSeqCache(CIV_EVER_ALIVE), pTeam, false);
+ 	insertIntoVector(teamSeqCache(CIV_ALIVE), pTeam);
+ 	insertIntoVector(teamSeqCache(MAJOR_ALIVE), pTeam);
+-	insertIntoVector(playerSeqCache(CIV_EVER_ALIVE), pPlayer);
++	if (!bRevive)
++		insertIntoVector(playerSeqCache(CIV_EVER_ALIVE), pPlayer, false);
+ 	insertIntoVector(playerSeqCache(CIV_ALIVE), pPlayer);
+ 	insertIntoVector(playerSeqCache(MAJOR_ALIVE), pPlayer);
+ 	PlayerVector const& members = memberSeqCache(MEMBER, pTeam->getID());
+@@ -180,6 +182,19 @@ void CvAgents::colonyCreated(PlayerTypes eNewPlayer)
+ }
+ 
+ 
++void CvAgents::colonyCreated(PlayerTypes eNewPlayer)
++{
++	// Normally, players shouldn't be reused; if reuse does occur, call should still succeed.
++	playerSetAliveInGame(eNewPlayer, false);
++}
++
++
++void CvAgents::playerRevived(PlayerTypes ePlayer)
++{
++	playerSetAliveInGame(ePlayer, true);
++}
++
++
+ void CvAgents::updateVassal(TeamTypes eVassal, TeamTypes eMaster, bool bVassal)
+ {
+ 	FAssertBounds(0, playerSeqCache(ALL).size(), eMaster);
+
+diff --git a/CvGameCoreDLL/CvAgents.h b/CvGameCoreDLL/CvAgents.h
+index 882605955..3ded36976 100644
+--- a/CvGameCoreDLL/CvAgents.h
++++ b/CvGameCoreDLL/CvAgents.h
+@@ -35,6 +35,7 @@ public:
+ 	void gameStart(bool bFromSaveGame);
+ 	void playerDefeated(PlayerTypes ePlayer);
+ 	void colonyCreated(PlayerTypes eNewPlayer);
++	void playerRevived(PlayerTypes ePlayer);
+ 	void teamCapitulated(TeamTypes eVassal, TeamTypes eMaster)
+ 	{
+ 		updateVassal(eVassal, eMaster, true); // sufficient for now
+@@ -193,6 +194,7 @@ private:
+ 
+ 	void updateAllCachedSequences();
+ 	void updateVassal(TeamTypes eVassal, TeamTypes eMaster, bool bVassal);
++	void playerSetAliveInGame(PlayerTypes ePlayer, bool bRevive);
+ 
+ 	PlayerVector m_noPlayers; // empty
+ 	TeamVector m_noTeams; // empty
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index f506950b4..fc56b2cab 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2634,7 +2634,7 @@ void CvPlayer::setHumanDisabled(bool bNewVal)
+ 	// Not sure if this is needed:
+ 	bool const bActive = (g.getActivePlayer() == getID());
+ 	CvWString szReplayText;
+-	if(bNewVal && !m_bDisableHuman)
++	if (bNewVal && !m_bDisableHuman)
+ 	{
+ 		AI().AI_setHumanDisabled(true);
+ 		if(bActive)
+@@ -2644,7 +2644,7 @@ void CvPlayer::setHumanDisabled(bool bNewVal)
+ 			szReplayText = gDLL->getText("TXT_KEY_AUTO_PLAY_STARTED");
+ 		}
+ 	}
+-	else if(!bNewVal && m_bDisableHuman)
++	else if (!bNewVal && m_bDisableHuman)
+ 	{
+ 		AI().AI_setHumanDisabled(false);
+ 		m_iNewMessages = 0; // Don't open Event Log when coming out of Auto Play
+@@ -9615,8 +9615,15 @@ void CvPlayer::setAlive(bool bNewValue)  // advc: some style changes
+ 	GET_TEAM(getTeam()).changeAliveCount(isAlive() ? 1 : -1);
+ 	// <advc.agent>
+ 	if (!isAlive())
+-		GC.getAgents().playerDefeated(getID()); // </advc.agent>
+-
++		GC.getAgents().playerDefeated(getID());
++	else if (bEverAlive && getParent() == NO_PLAYER) // Colonies are handled by initInGame
++	{
++		GC.getAgents().playerRevived(getID());
++		// <advc.104r> (UWAI data gets deleted upon death)
++		if(getUWAI.isEnabled())
++			getUWAI.processNewCivInGame(getID()); // </advc.104r>
++	}
++	// </advc.agent>
+ 	// Report event to Python
+ 	CvEventReporter::getInstance().setPlayerAlive(getID(), bNewValue);
+ 
+@@ -9631,9 +9638,11 @@ void CvPlayer::setAlive(bool bNewValue)  // advc: some style changes
+ 			setFoundedFirstCity(false);
+ 		updatePlotGroups();
+ 		if (g.isMPOption(MPOPTION_SIMULTANEOUS_TURNS) ||
+-				g.getNumGameTurnActive() == 0 ||
+-				(g.isSimultaneousTeamTurns() && GET_TEAM(getTeam()).isTurnActive()))
++			g.getNumGameTurnActive() == 0 ||
++			(g.isSimultaneousTeamTurns() && GET_TEAM(getTeam()).isTurnActive()))
++		{
+ 			setTurnActive(true);
++		}
+ 		gDLL->openSlot(getID());
+ 		if(!isBarbarian()) // advc.003n
+ 		{	// K-Mod. Attitude cache
+@@ -9710,47 +9719,62 @@ void CvPlayer::setAlive(bool bNewValue)  // advc: some style changes
+ 
+ void CvPlayer::verifyAlive()
+ {
+-	if (isAlive())
++	CvGame const& kGame = GC.getGame();
++	if (!isAlive())
+ 	{
+-		bool bKill = false; // advc: Removed superfluous code
+-		if (!isBarbarian())
++		if (getNumCities() > 0 || getNumUnits() > 0)
++			setAlive(true);
++		return; // advc
++	}
++	bool bKill = false; // advc: Removed superfluous code
++	if (!isBarbarian())
++	{
++		if (getNumCities() == 0 && getAdvancedStartPoints() < 0)
+ 		{
+-			if (getNumCities() == 0 && getAdvancedStartPoints() < 0)
+-			{
+-				//if ((getNumUnits() == 0) || (!(GC.getGame().isOption(GAMEOPTION_COMPLETE_KILLS)) && isFoundedFirstCity()))
+-				// advc.701: COMPLETE_KILLS option removed (replacing the line above)
+-				if (getNumUnits() <= 0 || isFoundedFirstCity())
+-				{
+-					bKill = true;
+-				}
+-			}
++			//if (getNumUnits() == 0 || (!kGame.isOption(GAMEOPTION_COMPLETE_KILLS) && isFoundedFirstCity()))
++			// advc.701: COMPLETE_KILLS option removed (replacing the line above)
++			if (getNumUnits() <= 0 || isFoundedFirstCity())
++				bKill = true;
+ 		}
+-
+-		if (!bKill)
++	}
++	if (!bKill && !isBarbarian() && kGame.getMaxCityElimination() > 0 &&
++		getCitiesLost() >= kGame.getMaxCityElimination())
++	{
++		bKill = true;
++	}
++	if (bKill)
++	{	// <advc.127> Defeat of active player during AI Auto Play
++		if (isHumanDisabled() && kGame.getActivePlayer() == getID() &&
++			!kGame.isOption(GAMEOPTION_RISE_FALL)) // advc.701
+ 		{
+-			if (!isBarbarian())
++			// Automatically change active player
++			PlayerTypes eNextAlive = getID();
++			for (int iPass = 0; iPass < 2; iPass++)
+ 			{
+-				if (GC.getGame().getMaxCityElimination() > 0)
++				bool bAllowMinor = (iPass == 1);
++				do // Akin to RiseFall::nextCivAlive
+ 				{
+-					if (getCitiesLost() >= GC.getGame().getMaxCityElimination())
+-					{
+-						bKill = true;
+-					}
+-				}
++					eNextAlive = (PlayerTypes)((eNextAlive + 1) % MAX_CIV_PLAYERS);
++				} while(eNextAlive != getID() &&
++					(!GET_PLAYER(eNextAlive).isAlive() || GET_PLAYER(eNextAlive).isHuman() ||
++					GET_PLAYER(eNextAlive).isHumanDisabled() ||
++					(!bAllowMinor && GET_PLAYER(eNextAlive).isMinorCiv())));
++				if (eNextAlive != getID())
++					break;
+ 			}
+-		}
+-
+-		if (bKill)
+-		{
+-			setAlive(false);
+-		}
+-	}
+-	else
+-	{
+-		if ((getNumCities() > 0) || (getNumUnits() > 0))
+-		{
+-			setAlive(true);
+-		}
++			if (eNextAlive != getID())
++			{
++				setIsHuman(false);
++				GC.getGame().changeHumanPlayer(eNextAlive);
++				GET_PLAYER(eNextAlive).setHumanDisabled(true);
++			}
++			else
++			{
++				FAssertMsg(kGame.isGameMultiPlayer(), "No other civ alive left?");
++				// (Let the original AI Auto Play code handle it)
++			}
++		} // </advc.127>
++		setAlive(false);
+ 	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=8122

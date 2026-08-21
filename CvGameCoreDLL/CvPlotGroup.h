@@ -34,14 +34,8 @@ public:
 
 	void insertAtEndPlots(XYCoords xy) { m_plots.insertAtEnd(xy); }
 	CLLNode<XYCoords>* deletePlotsNode(CLLNode<XYCoords>* pNode);
-	CLLNode<XYCoords>* nextPlotsNode(CLLNode<XYCoords>* pNode)
-	{
-		return m_plots.next(pNode);
-	} // <advc.003s> Safer in 'for' loops
-	CLLNode<XYCoords> const* nextPlotsNode(CLLNode<XYCoords> const* pNode)
-	{
-		return m_plots.next(pNode);
-	} // </advc.003s>
+	CLLNode<XYCoords>* nextPlotsNode(CLLNode<XYCoords>* pNode) { return m_plots.next(pNode); } // <advc.003s> Safer in 'for' loops
+	CLLNode<XYCoords> const* nextPlotsNode(CLLNode<XYCoords> const* pNode) { return m_plots.next(pNode); } // </advc.003s>
 	int getLengthPlots() const { return m_plots.getLength(); }
 	CLLNode<XYCoords>* headPlotsNode() { return m_plots.head(); }
 

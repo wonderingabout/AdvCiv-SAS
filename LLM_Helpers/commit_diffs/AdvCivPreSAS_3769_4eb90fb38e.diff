@@ -1,0 +1,56 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3769
+# Commit: 4eb90fb38eb82d25b5895153e19a82d3726ab026
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5e9f14e250ab00a14e892f0de1a8843981bc39d8
+# Title: Fix an assertion about AI nuke weight
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	9	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 456f33dde..4f336136a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6433,21 +6433,18 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 					break;
+ 
+ 				case UNITAI_ICBM:
++				{
+ 					//iMilitaryValue += ((bWarPlan) ? 200 : 100);
+ 					// K-Mod
+-					if (!GC.getGame().isNoNukes())
++					int const iNukeWeight = AI_nukeWeight();
++					if (iNukeWeight > 0) // advc (replacing an assertion)
+ 					{
+ 						iOffenceValue = std::max(iOffenceValue,
+ 								(bWarPlan ? 2 : 1) * iWeight +
+-								(GC.getGame().isNukesValid() ?
+-								2 * AI_nukeWeight() : 0) * iWeight / 100);
+-						FAssert(!GC.getGame().isNukesValid() ||
+-								kTeam.isCapitulated() || // advc.143b
+-								AI_nukeWeight() > 0);
+-					}
+-					// K-Mod end
++								(2 * iNukeWeight * iWeight) / 100);
++					} // K-Mod end
+ 					break;
+-
++				}
+ 				case UNITAI_WORKER_SEA:
+ 					if (iCoastalCities > 0)
+ 					{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1031

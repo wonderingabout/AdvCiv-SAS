@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3541
+# Commit: 4cca33a91cca2e91c67b769ad5cf6d56d8d73647
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 68c59d5ec1c93b534d073b56843a24bb418f618c
+# Title: Assert that goody huts don't pop while loading scenario
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	2	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 79071c60c..dfb5b3c83 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4456,9 +4456,18 @@ void CvPlayer::disband(CvCity& kCity) // advc: param was CvCity*
+ 
+ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) const
+ {
+-	CvGoodyInfo const& kGoody = GC.getInfo(eGoody); // advc
+-	// <advc.314>
+ 	CvGame const& kGame = GC.getGame();
++	/*	<advc> Safety measure for scenarios. Border expansion upon city placement
++		or units placed onto a hut can lead to a goody before the game is ready.
++		addGoodyMsg will crash then. Can probably only happen with manually edited
++		scenarios. */
++	if (!kGame.isFinalInitialized())
++	{
++		FErrorMsg("Goodies shouldn't be received during game setup");
++		return false;
++	} // </advc>
++	CvGoodyInfo const& kGoody = GC.getInfo(eGoody);
++	// <advc.314>
+ 	int const iTrainHalved = (GC.getInfo(kGame.getGameSpeedType()).
+ 			getTrainPercent() + 100) / 2;
+ 	bool bVeryEarlyGame = (100 * kGame.getGameTurn() < 20 * iTrainHalved);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1085

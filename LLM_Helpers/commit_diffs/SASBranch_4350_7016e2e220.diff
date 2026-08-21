@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4350
+# Commit: 7016e2e220690954af494bde55ed8d895f8010db
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a2782f783a6df83a467406d3e2e42c2df0646a57
+# Title: Fix Gandhi NoWarAttitudeProb at Friendly
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 7ae5eed2e..dc4ae4875 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -4052,7 +4052,7 @@
+ 					<iNoWarProb>110</iNoWarProb>
+ 				</NoWarAttitudeProb>
+ 				<NoWarAttitudeProb>
+-					<AttitudeType>ATTITUDE_PLEASED</AttitudeType>
++					<AttitudeType>ATTITUDE_FRIENDLY</AttitudeType>
+ 					<iNoWarProb>115</iNoWarProb>
+ 				</NoWarAttitudeProb>
+ 			</NoWarAttitudeProbs>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=556

@@ -1,0 +1,764 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4926
+# Commit: 4148c4ace7291e8de57511ede7aa833303d4b3a2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c4ffe69511a53516e41181b230f0554c9921c42b
+# Title: code optimizations and tweaks in CvUnitAI::AI_bestCityBuild and other related functions to increase AI worker efficiency and accuracy, move civic_slavery to...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+11	6	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	5	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+2	2	Assets/XML/GameInfo/CIV4CivicInfos.xml
+111	129	CvGameCoreDLL/CvUnitAI.cpp
+9	1	README.md
+3	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+2	4	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+6	5	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+3	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index cf2a5b173..48a749d1a 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -14796,8 +14796,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 120 -->
+-			<iCost>110</iCost>
++			<iCost>120</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -14809,7 +14808,7 @@
+ 			<iMinLatitude>0</iMinLatitude>
+ 			<iMaxLatitude>90</iMaxLatitude>
+ 			<!-- custom: was 0 -->
+-			<iGreatPeopleRateModifier>40</iGreatPeopleRateModifier>
++			<iGreatPeopleRateModifier>25</iGreatPeopleRateModifier>
+ 			<!-- custom: since this is cumulative if i am not mistaken and according to a web search i asked chatgpt to do about it which linked to https://forums.civfanatics.com/threads/do-great-general-bonuses-stack.352203/?utm_source=chatgpt.com among other sources it seems too if i am not mistaken but anyways etc (it also told me at first that it is not cumulative even with kujira's japanese (no pun or intended but why not as i told it but anyways etc) that it was not cumulative, but after asking it to do a web search to be sure i found this at least i mean it found it for me xd if i may say and thnaks to me too my prompt or critical thinking or such (its critical thinking too maybe evn though is different to criticize its previous diea maybe or just regurgitate this other new one but anywyas etc it helped in this case at least but anyways etc)), so choosing a lower value so that several doujous would be needed to make a difference rather than one or it being otherwise op, also this is or shoudl be maybe if i am not mistaken culturally consistent or thematically consistent but anyways etc with the fact that there are several "schools" of doujous or such from something like that so maybe each symbolically improves the rate by its own contribution or and such or not at least i imagine it so at least in advciv-sas if i may say but anyways etc, so choosing a quite small in this case but anyways etc value that should hopefully in this case but anyways etc still be significant but anyways etc ; or so it seem sif i am not mistaken that it seemms to stack (didn't check lot but hopefully correct but anwyays etc anyways etc anyways etc), was 0 -->
+ 			<iGreatGeneralRateModifier>25</iGreatGeneralRateModifier>
+ 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+@@ -14891,7 +14890,13 @@
+ 					<iSpecialistCount>1</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+-			<FreeSpecialistCounts/>
++			<!-- custom: kind of like ninjas hehe, and opens up to spy economy so interesting strategically or/and for flavor thematically i mean, advised/suggested/hinted by chatgpt o-3 :) -->
++			<FreeSpecialistCounts>
++				<FreeSpecialistCount>
++					<SpecialistType>SPECIALIST_SPY</SpecialistType>
++					<iFreeSpecialistCount>1</iFreeSpecialistCount>
++				</FreeSpecialistCount>
++			</FreeSpecialistCounts>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+ 			<ConstructSound/>
+@@ -14911,7 +14916,7 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+-					<iFlavor>7</iFlavor>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+@@ -14919,7 +14924,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>4</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 36853927b..54b94a957 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -3763,19 +3763,16 @@
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
++			<!-- custom: rebalanced according to and with the help of chatgpt o-3 much later anyways etc to follow civ4 original format, i had done 5 military 3 growth 2 religion originally anyways etc, hopefully more accurate this way and civ4 compliant and also reliable for ai personality panel display and compare too if i am not mistaken but anyways etc -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+ 					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_RELIGION</FlavorType>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
+ 					<iFlavor>2</iFlavor>
+ 				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>3</iFlavor>
+-				</Flavor>
+ 			</Flavors>
+ 			<ContactRands>
+ 				<ContactRand>
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index e26787142..4770801a8 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -783,8 +783,8 @@
+ 			<Civilopedia>TXT_KEY_CIVIC_SLAVERY_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_CIVIC_SLAVERY_STRATEGY</Strategy>
+ 			<Button>,Art/Interface/Buttons/Civics/Slavery.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,8,2</Button>
+-			<!-- custom: similarly than(/as? but anyways etc...) for religion_paganism (see there for details too anyways etc...), since we have no tech before tech_agriculture in our current tech tree, use a later tech instead, tech_the_wheel seems a quite good fit with the idea of ancient wheel tractign slaves like maybe in egypt and such intuitively as sad as may have been for them though but maybe accurate or intuitive and balanced for gameplaya s sad as it is or may have been rathe ror is too but anyways etc anyways etc anyways etc... -->
+-			<TechPrereq>TECH_THE_WHEEL</TechPrereq>
++			<!-- custom: we have a tech before it in our re<orked tech tree so we can afford to move civic_slavery sooner, also seems historically more accurate according to quick glance at wikipedia or and such and if i am not mistaken but anyways etc, perhaps more interesting in terms of strategy and gameplay (nerfs main military game tech path of tech_bronze_working, and rewards alternative or groth type of strategies, so you can't have all by just going for a military now, and investing may yield more long term in this case at least if i may say and in theory but hopefully more balanced this way or/and enjoyable and as io wanted it to in this cas ei mean but anyways etc) as we have it sooner but anyways etc, was TECH_BRONZE_WORKING -->
++			<TechPrereq>TECH_AGRICULTURE</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<Upkeep>UPKEEP_MEDIUM</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 04defd24a..54834af20 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -796,22 +796,22 @@ const std::map<BonusTypes, BuildTypes>& getBonusSpecificLandBuilds()
+ 	return s_bonusSpecificLandBuilds;
+ }
+ 
+-// Define the Candidate struct outside the function so it can be used as a template argument.
+-// A list of potential build candidates.
+-// A struct to store a candidate build with its value and the chosen BuildType.
+-struct Candidate {
++// Define the Candidate<!-- custom: Plot but anyways etc --> struct outside the function so it can be used as a template argument.
++// A list of potential build candidate <!-- custom: plots -->.
++// A struct to store a candidate <!-- custom: plot --> with its value and the chosen BuildType.
++struct CandidatePlot {
+ 	int iValue;
+ 	CvPlot* pPlot;
+ 	CityPlotTypes ePlot;
+ 	BuildTypes eBuild;
+ 
+-	bool operator>(const Candidate& other) const {
++	bool operator>(const CandidatePlot& other) const {
+ 		return iValue > other.iValue;
+ 	}
+ };
+ 
+ // Returns true if the unit found a build for this city...
+-// <!-- custom: also add after our rewrite in advciv-sas code to handle/optimize terrain improvement choice, generally and in short in this case but anyways etc do not build a cottage flatland plains if there are flatland grass tiles that are much better candidates, as for bonuses simplify logic for efficiency and no-tediousness xd if i may say but anyways etc to always improve them regardless of terrain anyways etc (high-food bonuses first though as below if i am not mistaken anyways etc) ; code provided by gemini ai and that i adjusted as well in/for advciv-sas in this case anyways etc, similarly as below anyways etc ; see also new code we added n advciv-sas but anyways etc that handles settling priorities based on terrains or/and features and hills anyways etc in as of now CitySiteEvaluator.cpp which this code is partially based on as well if i may say and if i am not mistaken anyways etc -->
++// <!-- custom: also add after our rewrite in advciv-sas code to handle/optimize terrain improvement choice, generally and in short in this case but anyways etc do not build a cottage flatland plains if there are flatland grass tiles that are much better candidate plots, as for bonuses simplify logic for efficiency and no-tediousness xd if i may say but anyways etc to always improve them regardless of terrain anyways etc (high-food bonuses first though as below if i am not mistaken anyways etc) ; code provided by gemini ai and that i adjusted as well in/for advciv-sas in this case anyways etc, similarly as below anyways etc ; see also new code we added n advciv-sas but anyways etc that handles settling priorities based on terrains or/and features and hills anyways etc in as of now CitySiteEvaluator.cpp which this code is partially based on as well if i may say and if i am not mistaken anyways etc -->
+ // This function determines the value of a specific improvement on a plot,
+ // which is the core logic that guides AI worker actions.
+ // This version is a rewrite to prioritize improvements based on terrain,
+@@ -889,28 +889,33 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 	// <!-- custom: make sure AI workers always improve bonuses before anything else. This attempts to fix/address the "Boston screenshot" issue, where AI in a tundra environment mined two hill tiles and did not improve a nearby deer in city radius at all at turn 75, which would have helped the city grow, and even build the current worker city was building just as fast if i am not mistaken anyways etc (see screenshot and doc at known issues readme as of now number 30 for details anyways etc).
+ 	// Prioritizing to always improve bonuses first before anything else should always be a good move if not then almost always, for the AI in particular, it should be much more efficient than improving any other tile. I hope that the added slightly increased computation in below code does not decrease too much performance ideally (i think very minimal if not neglectible, but i don't know i mean so stating this to be sure and i would suggest to check this as well to be sure as this is just a guess on my end that i can make easily i mean as i don't know too much how to precisely check these or/and would be too tedious for a same end-goal of implementing these unless they are drastically or significantly +/ much in this case at least but anyways etc slower). I have measured to be sure since gemini ai insisted our code is better thanks a lot gemini ai hehe for caring if imay say in this case at least maybe or so it seems i mena but thnaks still but anyways etc really thanks anyways etc, actually our new code is seemingly faster: 45.185s for old DLL before rewrite, vs 43.008s with our new rewritten DLL in a 100 turn autoplay of a quite large pangea (didn't check exactly how). Of course some variation may occur, but our DLL shouldn't be slower or significantly slower, hopefully even a bit faster, at elast it felt so watching turns span even if a bit, and seems confirmed with this, but chek to be sure anyways etc.
+ 	// Most importantly, even if it were to be slower, but i hope and think it shouldn't be by a big lot if at all (even though i don't know too much about these but hopefully and seemingly to me based on this code i mean and what i can understand or guess of it but anyways etc) it may help AI strength/competitiveness so this should be valued at least i think so in this case at least but anyways etc. To simplify logic, include all bonuses in cultural borders (i.e. any reachable bonus), not just those in cities (at least do not restrict to that, and there should be some benefits to improving a bonus even if outside of a city radius, so hopefully efficient enough in this case and simple enough to handle in code if i am not mistaken as well anyways etc), if i am not mistaken and this code does this ; code provided thanks to / by gemini ai with chatgpt's help too and thanks to my prompt too anyways etc, and adjustments i did as well or not for advciv-sas anyways etc, anyways etc -->
+-	// <!-- custom: also, the rewrite addresses one or a few suboptimal behaviours the code had, as reviewed quite extensively with gemini ai from quite little in this case i mean but anyways etc i know about these but can guess quite a bit in this case at least with gemini ai's help too thanks and thanks to me too maybe but anyways etc, in particular that regardless of the pathfinding computation performed at pass 1 (line `if (iPass > 0 || eBestBuild == NO_BUILD)` anyways etc), the best plot found if any would be pathfinding recomputed (or even computed at all since we only need one best plot, so computing it decrementally from best candidate to worse until one is found then early return it seems much more efficient as we do rather than compute all plots even the ones which in the end / ultimately in this case but anyways etc not will be our best so no need to needlessly (needless repetition (no pun xd or maybe yes or not but not consiously purposeful of memaybe whatever that means or not or yes or etc but anyways etc) but anyways etc...)) which is inefficient unless i am mistaken (but i don't know too much about these so check to be sure anyways etc) which seems to me to be inefficiently written if i am not mistaken now that i understand it better from all this thining hehe but hopefully, but again i could overlooked some other parts of the explanation or misunderstood some of the logic, so check to be sure, hopefully new code is much cleaner now and much easier to customize to add other enhancements as well anyways etc -->
++	// <!-- custom: also, the rewrite addresses one or a few suboptimal behaviours the code had, as reviewed quite extensively with gemini ai from quite little in this case i mean but anyways etc i know about these but can guess quite a bit in this case at least with gemini ai's help too thanks and thanks to me too maybe but anyways etc, in particular that regardless of the pathfinding computation performed at pass 1 (line `if (iPass > 0 || eBestBuild == NO_BUILD)` anyways etc), the best plot found if any would be pathfinding recomputed (or even computed at all since we only need one best plot, so computing it decrementally from best candidate plot to worse until one is found then early return it seems much more efficient as we do rather than compute all plots even the ones which in the end / ultimately in this case but anyways etc not will be our best so no need to needlessly (needless repetition (no pun xd or maybe yes or not but not consiously purposeful of memaybe whatever that means or not or yes or etc but anyways etc) but anyways etc...)) which is inefficient unless i am mistaken (but i don't know too much about these so check to be sure anyways etc) which seems to me to be inefficiently written if i am not mistaken now that i understand it better from all this thining hehe but hopefully, but again i could overlooked some other parts of the explanation or misunderstood some of the logic, so check to be sure, hopefully new code is much cleaner now and much easier to customize to add other enhancements as well anyways etc -->
+ 
+-	std::vector<Candidate> candidates;
++	std::vector<CandidatePlot> candidatePlots;
+ 
+     // A map for efficient lookup of the best improvement for a given bonus.
+ 	const std::map<BonusTypes, BuildTypes>& bonusBuilds = getBonusSpecificLandBuilds();
+ 
+-	// <!-- custom: note: performance optimization and perhaps logic optimization as well anyways etc i got from watching gemini ai's general feedback on it being perhaps slow (which in fact seemingly was not after measuring (see above anyways etc) anyways etc) it gave me this other idea thanks a lot hehe, and that i would have ideally implemented, but it seems faster to not check pathfinding at all (in case it is expensive as gemini ai said in another answer to me i mean in this case but anyways etc) and loop over all tiles rather than check pathfinding at same time as we check candidates so that we can early exit after first bonus found (in short it seems faster to store all candidates blindly than pre-select them only for pathfinder-eligible and passing ones i mean anyways etc, which should be uneeded if we don't choose them anyway in the end in this case at least but anyways etc) ; so my idea was (unimplemented due to explained reasons in this code comment if i am not mistaken anyways etc): if we find a bonus, check other following plots lightly if i am not mistaken but anyways etc, since in the end we will choose a bonus, so may skip any non bonus tile at first bonus tile found. This may have also helped enforce the bonus-first priority so nice in all ways maybe anyways etc, but as said before is maybe not as efficient as i thought (as if this only best tile ends up being unpathable, then all the other good candidates we skipped assuming we had a better one would not be chosen then if no other pathfinder-ok bonus tile exists, so safer and also seemingly faster to not bother with pathfinder until we have sorted all plots from best to worse in this case i mean anyways etc) (although i didn't measure it so check to be sure in case relevant or interested in this case i mean anyways etc) so not implementing it anyways etc -->
++	// <!-- custom: note: performance optimization and perhaps logic optimization as well anyways etc i got from watching gemini ai's general feedback on it being perhaps slow (which in fact seemingly was not after measuring (see above anyways etc) anyways etc) it gave me this other idea thanks a lot hehe, and that i would have ideally implemented, but it seems faster to not check pathfinding at all (in case it is expensive as gemini ai said in another answer to me i mean in this case but anyways etc) and loop over all tiles rather than check pathfinding at same time as we check candidate plots so that we can early exit after first bonus found (in short it seems faster to store all candidate plots blindly than pre-select them only for pathfinder-eligible and passing ones i mean anyways etc, which should be uneeded if we don't choose them anyway in the end in this case at least but anyways etc) ; so my idea was (unimplemented due to explained reasons in this code comment if i am not mistaken anyways etc): if we find a bonus, check other following plots lightly if i am not mistaken but anyways etc, since in the end we will choose a bonus, so may skip any non bonus tile at first bonus tile found. This may have also helped enforce the bonus-first priority so nice in all ways maybe anyways etc, but as said before is maybe not as efficient as i thought (as if this only best tile ends up being unpathable, then all the other good candidate plots we skipped assuming we had a better one would not be chosen then if no other pathfinder-ok bonus tile exists, so safer and also seemingly faster to not bother with pathfinder until we have sorted all plots from best to worse in this case i mean anyways etc) (although i didn't measure it so check to be sure in case relevant or interested in this case i mean anyways etc) so not implementing it anyways etc -->
+ 
+ 	// <!-- custom: computationally faster even if a bit maybe to access these directly instead of through the pointer/method especially for/if repeated/ly use/d if i may say maybe but check to be sure anyways etc -->
++	int const iCityHealthCalculatedDifference = kCity.goodHealth() - kCity.badHealth();
++	int const iCityPopulation = kCity.getPopulation();
+ 
+ 	// <!-- custom: food difference may be at 0 when we are building a worker or settler for example (i assume it is via the bFood xml field in unit info but check to be sure anyways etc), so count food only when we are not building these units, as we don't know if it's really 0 or 0 as a result of food production, and i don't want to modify the code in case it interferes with many things although ideally i should i think but not sure but in all cases calculating ourselves rather the real actual city food difference based on yields and food consumption, not on civ4 helpers, to decide in this case i mean but anyways etc if for example we should build farms when starved (are we really starved or building a worker? We need the info to decide in this case i mean but anyways etc so adding it here if i may say but) anyways etc, with the help of claude ai as well and my prompts and adjustments too or not or yes or etc but anyways etc -->
+ 	// int const iCityFoodDifference = kCity.foodDifference();
+-	int const iRealCalculatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption();
+-
+-	int const iCityHealthCalculatedDifference = kCity.goodHealth() - kCity.badHealth();
+-	int const iCityPopulation = kCity.getPopulation();
++	// <!-- custom: it seems this is no good and confuses the AI, as we have a very irrigated city, i assume as it built many workers or some other condition, it got misled into thinking that we were starved, when we were not. Commenting out the if starved build farm on flatland grass code sovled the issue, so i assume this check is too often true, even if we are not starved, inaccurately favouring the farm and thus reducing AI effiency and strength (over irrigated city, and in grass tiles what's worse which our best tiles or among to use for potential rather (cottage, etc.) ideally, but now with low production). The idea was to build farms ONLY if really needed, especially in high food tiles, really try to avoid it unless necessary. For now, use an estimated food consumption rather, so that we don't think we're starved just because we're producting a worker, with the idea that each citizen consumes 2 food if i am not mistaken but anyways etc -->
++	// int const iRealCalculatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption();
++	// <!-- custom: update: it seems that when we are building settlers or such food is production builds, food allocation or/and food yields are quite a lot reduced or so it seems at least in some cases, attempt this approach i found somewhere in the code anyways etc -->
++	//int const iEstimatedCityFoodDifference = kCity.getYieldRate(YIELD_FOOD) - (2 * iCityPopulation)  ;
++	int const iEstimatedCityFoodDifference = (kCity.isFoodProduction() ?
++			std::max(0, (kCity.getYieldRate(YIELD_FOOD) -
++			kCity.foodConsumption(true))) : 0);
+ 
+ 	const int penaltyForOverwritingPlot = 300;
+ 
+ 	// ===================================================
+-	// PHASE 1: A single loop to find ALL valid candidates and their values.
++	// PHASE 1: A single loop to find ALL valid candidate <!-- custom: plots --> and their values.
+ 	// ===================================================
+ 	for (WorkablePlotIter it(kCity); it.hasNext(); ++it)
+ 	{
+@@ -932,10 +937,6 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 		// BuildTypes const eBuild = kCity.AI_getBestBuild(ePlot);
+ 		BuildTypes eBestSupposedBuild = NO_BUILD;
+ 
+-		bool const bPlotFreshWater = kPlot.isFreshWater();
+-		// <!-- custom: count fresh water on plot as 1 food yield, useful for calculations anyways etc -->
+-		int const iPlotFreshWater = (bPlotFreshWater ? 1 : 0);
+-
+ 		// Get terrain and feature info
+ 		TerrainTypes const eTerrain = kPlot.getTerrainType();
+ 		FeatureTypes const eFeature = kPlot.getFeatureType();
+@@ -998,73 +999,73 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 			// <!-- custom: if we know we can chop, no need to look for a costly specific build we won't do now since we want to chop explicitly/specifically if i may say in this case but anyways etc first. So else, only look for a bonus specific build if plot is already chopped, in other words if plot's feature is not forest nor jungle if i am not mistaken anyways etc -->
+ 			else
+ 			{
+-				// Handle bonus-specific improvements using our new helper function
++				// <!-- custom: find the bonus's bonus-specific build first -->
++				BuildTypes eBonusSpecificBuild = NO_BUILD;
++
+ 				std::map<BonusTypes, BuildTypes>::const_iterator it = bonusBuilds.find(eBonus);
+ 				if (it != bonusBuilds.end())
+ 				{
+-					BuildTypes const eBonusSpecificBuild = it->second;
++					eBonusSpecificBuild = it->second;
++				}
++				if (eBonusSpecificBuild == NO_BUILD)
++				{
++					// <!-- custom: up to modders to support this in their mod, here we assume bonus not in map means unknown bonus, do not improve at all, for ease of code mostly if i may say rather than put any random build in a messy and inefficient or/and ineffective way worked aorund patched in a bad way i'd say but anyways etc -->
++					continue;
++				}
+ 
+-					// <!-- custom: actually before any further computation or even further consideration i mean in this case but anyways etc, if the bonus tile is improved, and improvement is already our best, no need to think further. -->
+-					ImprovementTypes eBonusSpecificImprovement = GC.getBuildInfo(eBonusSpecificBuild).getImprovement();
++				ImprovementTypes eBonusSpecificImprovement = GC.getBuildInfo(eBonusSpecificBuild).getImprovement();
+ 
+-					// === Blacklist: Early exit if bonus <!-- should not be improved -->
+-					if (kPlot.getImprovementType() != NO_IMPROVEMENT)
++				// === Blacklist: Early exit if bonus <!-- should not be improved -->
++				if (kPlot.getImprovementType() != NO_IMPROVEMENT)
++				{
++					//  is already improved correctly ===
++					if (kPlot.getImprovementType() == eBonusSpecificImprovement)
+ 					{
+-						//  is already improved correctly ===
+-						if (kPlot.getImprovementType() == eBonusSpecificImprovement)
+-						{
+-							continue;
+-						}
++						continue;
+ 					}
++				}
+ 
+-					// <!-- custom: build these or nothing else, leave banana tile empty until we have plantation, may be efficient in most cases for the AI to optimize build time usage rather than overwriting them inefficiently later, except some exceptions such as banana farms if irrigated on grass anyways etc, but generally workers have probably better things (chop for hammer on remove, build cottage early, etc) to do that would not make it so worth it) so maybe fine as such anyways etc, hopefully no more banana cottages on plains still though and such similar cases anyways etc or such with this patch or new logic at least for this part of the code anyways etc -->
+-					// Fail-fast check: If we can build the bonus-specific improvement, then proceed with the high-value logic.
+-					int const bonusFoodYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD);
++				// <!-- custom: build these or almost always nothing else, leave banana tile empty until we have plantation, may be efficient in most cases for the AI to optimize build time usage rather than overwriting them inefficiently later, except some exceptions such as banana farms if irrigated on grass anyways etc, but generally workers have probably better things (chop for hammer on remove, build cottage early, etc) to do that would not make it so worth it) so maybe fine as such anyways etc, hopefully no more banana cottages on plains still though and such similar cases anyways etc or such with this patch or new logic at least for this part of the code anyways etc -->
++				// Fail-fast check: If we can build the bonus-specific improvement, then proceed with the high-value logic.
++				int const bonusFoodYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_FOOD);
+ 
+-					if (canBuild(kPlot, eBonusSpecificBuild))
+-					{
+-						eBestSupposedBuild = eBonusSpecificBuild;
+-
+-						int const bonusCommerceYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_COMMERCE);
+-						int const bonusProductionYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_PRODUCTION);
+-
+-						// Give a <!-- custom: very high value (avoid multiplying for any weird bug or such, addition by a big number would produce more consistent or/and reliable results i think if i may say and if i am not mistaken anyways etc) --> for any unimproved bonus.
+-						iValue += 20000;
+-
+-						// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maye bit too at least in this case or in real life or both or only in real life or not or yes or etc but anyways etc...) if i may say anyways etc, so multiply it even further than the base any unimproved bonus multiplier if i am not mistaken in my understanding anyways etc -->
+-						// Give an even bigger multiplier if the bonus is a FOOD bonus.
+-						if (bonusFoodYieldChange > 0)
+-							iValue += (8 * bonusFoodYieldChange * 500);
+-						// <!-- custom: then also valorize hammer/production less, i'd prefer to improve iron before gold i mean, although this is debatable, handle as such anyways etc, i hope in most cases if i may say anyways etc it would make AI more efficient anyways etc -->
+-						if (bonusProductionYieldChange > 0)
+-							iValue += (4 * bonusProductionYieldChange * 500);
+-						// <!-- custom: if there is a lot of commerce, it may make sense to go for this one first maybe anyways etc, but it needs to be a lot and more generally i would say anyways etc -->
+-						if (bonusCommerceYieldChange > 0)
+-							iValue += (2 * bonusCommerceYieldChange * 500);
+-					}
+-					// The bonus-specific improvement is not yet available and there was no feature to chop.
+-					// <!-- custom: one exception to the general ignore rule below as of now anyways etc, an irrigated farm for example on banana is quite attractive, even if inefficient, is not too long to build, and the yields are good ; but if food is low such as in plains or tundra terrains anyways etc, we may also build a farm if tile has enough food i mean anyways etc ; also since farms only give food yield and 1 food as of now early in particular if i am not mistaken but anyways etc, aim for at least 4+ total plot food to consider building it, so for grass fresh water + 1 bonus food is enough (or 2 bonus food), but for plains to reach 4 total food, we'd need either fresh water + 2 bonus food, or 3 bonus food to make it worth our while if i may say too in this case but anyways etc, food is very worth it especially early overall, so consider this to be a good move if i may say that it would be bad to miss in this case i mean for the AI i mean too, leaving an unusually high food plot even if weirdly/unefficiently improved may not be good, hopefully this makes AI stronger in this case i mean and more efficient too i mean too anyways etc -->
+-					else if (canBuild(kPlot, eBuildFarm))
+-					{
+-						if (((eTerrain == eTerrainGrass && ((iPlotFreshWater + bonusFoodYieldChange) >= 2))) ||
+-						(((eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra)) && ((iPlotFreshWater  + bonusFoodYieldChange) >= 3)))
+-						{
+-							eBestSupposedBuild = eBuildFarm;
++				if (canBuild(kPlot, eBonusSpecificBuild))
++				{
++					eBestSupposedBuild = eBonusSpecificBuild;
+ 
+-							iValue += 18000;
+-						}
+-					}
+-					// <!-- custom: else fall back to general rule: ignore until better conditions anyways etc, unless critically urgent or here rather least relevant ones remaining to improve, then would still be in our candidates list anyways etc -->
+-					else
++					int const bonusCommerceYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_COMMERCE);
++					int const bonusProductionYieldChange = GC.getBonusInfo(eBonus).getYieldChange(YIELD_PRODUCTION);
++
++					// Give a <!-- custom: very high value (avoid multiplying for any weird bug or such, addition by a big number would produce more consistent or/and reliable results i think if i may say and if i am not mistaken anyways etc) --> for any unimproved bonus.
++					iValue += 20000;
++
++					// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maye bit too at least in this case or in real life or both or only in real life or not or yes or etc but anyways etc...) if i may say anyways etc, so multiply it even further than the base any unimproved bonus multiplier if i am not mistaken in my understanding anyways etc -->
++					// Give an even bigger multiplier if the bonus is a FOOD bonus.
++					if (bonusFoodYieldChange > 0)
++						iValue += (8 * bonusFoodYieldChange * 500);
++					// <!-- custom: then also valorize hammer/production less, i'd prefer to improve iron before gold i mean, although this is debatable, handle as such anyways etc, i hope in most cases if i may say anyways etc it would make AI more efficient anyways etc -->
++					if (bonusProductionYieldChange > 0)
++						iValue += (4 * bonusProductionYieldChange * 500);
++					// <!-- custom: if there is a lot of commerce, it may make sense to go for this one first maybe anyways etc, but it needs to be a lot and more generally i would say anyways etc -->
++					if (bonusCommerceYieldChange > 0)
++						iValue += (2 * bonusCommerceYieldChange * 500);
++				}
++				// The bonus-specific improvement is not yet available and there was no feature to chop.
++				// <!-- custom: one exception to the general ignore rule below as of now anyways etc, an irrigated farm for example on banana is quite attractive, even if inefficient, is not too long to build, and the yields are good ; but if food is low such as in plains or tundra terrains anyways etc, we may also build a farm if tile has enough food i mean anyways etc ; also since farms only give food yield and 1 food as of now early in particular if i am not mistaken but anyways etc, aim for at least 4+ total plot food to consider building it, so for grass + 2 extra total food yield (one from farm early, one at least from bonus), but for plains to reach +3 total extra food, we'd need one from farm early as well, plus 2 at least from bonus yield to make it worth our while if i may say too in this case but anyways etc, food is very worth it especially early overall, so consider this to be a good move if i may say that it would be bad to miss in this case i mean for the AI i mean too, leaving an unusually high food plot even if weirdly/unefficiently improved may not be good, hopefully this makes AI stronger in this case i mean and more efficient too i mean too anyways etc -->
++				else if (canBuild(kPlot, eBuildFarm))
++				{
++					if (((eTerrain == eTerrainGrass && (bonusFoodYieldChange) >= 3)) ||
++					(((eTerrain == eTerrainPlains) || (eTerrain == eTerrainTundra)) && (bonusFoodYieldChange) >= 3))
+ 					{
+-						iValue -= 1000;
++						eBestSupposedBuild = eBuildFarm;
++
++						iValue += 18000;
+ 					}
+ 				}
+-				// <!-- custom: up to modders to support this and add their new or changed features or such, as for us we skip this plot for efficiency anyways etc -->
+-				// The bonus has no corresponding build in our map.
++				// <!-- custom: else fall back to general rule: ignore until better conditions anyways etc, unless critically urgent or here rather least relevant ones remaining to improve, then would still be in our candidates list anyways etc -->
+ 				else
+ 				{
+-					continue;
++					iValue -= 1000;
+ 				}
+ 			}
+ 		}
+@@ -1150,11 +1151,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					// <!-- custom: finally value for chop per terrain (prioritize chopping grassland over plains, all other things being equal, in hope that we'd improve the tile later on a higher base food yield tile if i may say anyways etc), since we won't look at this later in this case at least if i may say but anyways etc -->
+ 					if (eTerrain == eTerrainGrass)
+ 					{
+-						iValue += 1300;
++						iValue += 1500;
+ 					}
+ 					else if (eTerrain == eTerrainPlains)
+ 					{
+-						iValue += 700;
++						iValue += 800;
+ 					}
+ 					// <!-- custom: try to keep forest a bit more all other things get equal, the hammer/production is not too bad and we have a bit of base commerce too now with the tundra rework/buff in our mod as of now i mean anyways etc -->
+ 					else if (eTerrain == eTerrainTundra)
+@@ -1184,12 +1185,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					// <!-- custom: if low enough on city poopulation, do not bother too much with chopping jungle, if we have blnank tiles reay to use (i.e. chopped or without forest or jungle at the time of this check anyways etc) -->
+ 					else
+ 					{
+-						if (iCityHealthCalculatedDifference <= 2)
++						if (iCityHealthCalculatedDifference <= 1)
+ 						{
+-							// <!-- custom: jungle is harder to remove for lesser reward, only consider if we are low on health and there are no other good plots to improve first, our city is small so we still have some leeway to focus on other more valuable tasks first if possible in this case i mean anyways etc -->
++							// <!-- custom: jungle is harder to remove but it should be very worth it if we are unhealthy and there is jungle in city radius (especially considering that now jungle as of now has a higher health penalty as part of buffing it other ways but anyways etc), especially on high food tiles like grass that we could use later or imemdiately after at next build to build an improvement. -->
+ 							eBestSupposedBuild = eBuildRemoveJungle;
+ 
+-							iValue -= 75 * (iCityHealthCalculatedDifference - 1);
++							iValue += 200 * (-1 * (iCityHealthCalculatedDifference - 1));
+ 						}
+ 						else
+ 						{
+@@ -1200,11 +1201,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					// <!-- custom: finally base value for chop per terrain (prioritize chopping grassland over plains, all other things being equal, in hope that we'd improve the tile later on a higher base food yield tile if i may say anyways etc), since we won't look at this later in this case at least if i may say but anyways etc -->
+ 					if (eTerrain == eTerrainGrass)
+ 					{
+-						iValue += 1300;
++						iValue += 1600;
+ 					}
++					// <!-- custom: unlike how we value plains very low generally, when it comes to chopping and a city being unhealthy, this is easy and free health, so spend some time to clear it asap, better and cheaper than building an aqueduct or whatever, just do it after plains. After we have chopped, ignore the plains tile again and do not improve it, this is just to gain health, not to improve the tile at all otherwise, at least for now until all other good plots have been improved first -->
+ 					else if (eTerrain == eTerrainPlains)
+ 					{
+-						iValue += 700;
++						iValue += 1500;
+ 					}
+ 				}
+ 				else
+@@ -1220,7 +1222,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 				if (eFeature == eFeatureFloodPlains)
+ 				{
+ 					// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
+-					if (iRealCalculatedCityFoodDifference >= -2)
++					if (iEstimatedCityFoodDifference >= -2)
+ 					{
+ 						// Floodplains: Great for cottages (high food + commerce potential)
+ 						// High food terrain = can afford cottage
+@@ -1246,13 +1248,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 						{
+ 							eBestSupposedBuild = eBuildFarm;
+ 
+-							iValue += 2000 + (100 * (-1 * iRealCalculatedCityFoodDifference));
+-
+-							if (bPlotFreshWater)
+-							{
+-								// <!-- custom: extra bonus if fresh water for farms and we are starved, we'd get more food and maybe even solve our food problem anyways etc -->
+-								iValue += 100;
+-							}
++							// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them if i am not mistaken but in all cases if i may say anyways etc -->
++							iValue += 1700 + (100 * (-1 * iEstimatedCityFoodDifference));
+ 						}
+ 						// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve. -->
+ 						else if (canBuild(kPlot, eBuildCottage))
+@@ -1274,7 +1271,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					if (kPlot.isHills())
+ 					{
+ 						// <!-- custom: unless we are very much starving, do not waste this high food tile just to build a farm or such food improvement -->
+-						if (iRealCalculatedCityFoodDifference >= -1)
++						if (iEstimatedCityFoodDifference >= -1)
+ 						{
+ 							if (canBuild(kPlot, eBuildMine))
+ 							{
+@@ -1321,7 +1318,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					else
+ 					{
+ 						// <!-- custom: as long as we have enough or barely enough food, afford to capitalize on that and maximize potential and higher yields anyways etc -->
+-						if (iRealCalculatedCityFoodDifference >= -1)
++						if (iEstimatedCityFoodDifference >= -1)
+ 						{
+ 							if (canBuild(kPlot, eBuildWorkshop))
+ 							{
+@@ -1352,16 +1349,12 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 							{
+ 								eBestSupposedBuild = eBuildFarm;
+ 
+-								iValue += 1300 + (100 * (-1 * iRealCalculatedCityFoodDifference));
+-
+-								if (bPlotFreshWater)
+-								{
+-									// <!-- custom: extra bonus if fresh water for farms and we are starved, we'd get more food and maybe even solve our food problem anyways etc -->
+-									iValue += 100;
+-								}
++								// <!-- custom: high food tile, start from a lower point to try to avoid overbuilding them -->
++								iValue += 1300 + (100 * (-1 * iEstimatedCityFoodDifference));
+ 							}
+ 							// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+-							else if (canBuild(kPlot, eBuildWorkshop))
++							// else if (canBuild(kPlot, eBuildWorkshop))
++							if (canBuild(kPlot, eBuildWorkshop))
+ 							{
+ 								eBestSupposedBuild = eBuildWorkshop;
+ 
+@@ -1388,7 +1381,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					if (kPlot.isHills())
+ 					{
+ 						// <!-- custom: as long as we have enough food to afford building on lower-food plains terrains i mean but anyways etc, prefer the mine, yields slightly more anyways etc -->
+-						if (iRealCalculatedCityFoodDifference >= 0)
++						if (iEstimatedCityFoodDifference >= 0)
+ 						{
+ 							if (canBuild(kPlot, eBuildMine))
+ 							{
+@@ -1433,7 +1426,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					// <!-- custom: on flatland plains make good cottages early, and fine worshops late assuming we have extra food, if no food or really low, a farm may be fine, especially irrigated else build what we can until we starve -->
+ 					else
+ 					{
+-						if (iRealCalculatedCityFoodDifference >= 0)
++						if (iEstimatedCityFoodDifference >= 0)
+ 						{
+ 							if (canBuild(kPlot, eBuildWorkshop))
+ 							{
+@@ -1465,13 +1458,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 							{
+ 								eBestSupposedBuild = eBuildFarm;
+ 
+-								iValue += 900 + (100 * (-1 * iRealCalculatedCityFoodDifference));
+-
+-								if (bPlotFreshWater)
+-								{
+-									// <!-- custom: extra bonus if fresh water for farms and we are starved, we'd get more food and maybe even solve our food problem anyways etc -->
+-									iValue += 100;
+-								}
++								iValue += 900 + (100 * (-1 * iEstimatedCityFoodDifference));
+ 							}
+ 							// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+ 							else if (canBuild(kPlot, eBuildWorkshop))
+@@ -1526,7 +1513,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					else
+ 					{
+ 						// <!-- custom: tighter food requirement than plains, as tundra tends to be surrounded by other tundra or snow or such other low food tiles so favour food more if i am not mistaken anyways etc -->
+-						if (iRealCalculatedCityFoodDifference >= -1)
++						if (iEstimatedCityFoodDifference >= -1)
+ 						{
+ 							if (canBuild(kPlot, eBuildWorkshop))
+ 							{
+@@ -1559,13 +1546,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 							{
+ 								eBestSupposedBuild = eBuildFarm;
+ 
+-								iValue += 500 + (100 * (-1 * iRealCalculatedCityFoodDifference));
+-
+-								if (bPlotFreshWater)
+-								{
+-									// <!-- custom: extra bonus if fresh water for farms and we are starved, we'd get more food and maybe even solve our food problem anyways etc -->
+-									iValue += 100;
+-								}
++								iValue += 500 + (100 * (-1 * iEstimatedCityFoodDifference));
+ 							}
+ 							// <!-- custom: else, fallback to previous plan, gotta make what we can get what we can of the tile before we starve, this is still a good tile, so use it as best as we can if i may say in this case anyways etc. -->
+ 							else if (canBuild(kPlot, eBuildWorkshop))
+@@ -1594,7 +1575,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					if (kPlot.isHills())
+ 					{
+ 						// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
+-						if (iRealCalculatedCityFoodDifference >= -2)
++						if (iEstimatedCityFoodDifference >= -2)
+ 						{
+ 							if (canBuild(kPlot, eBuildMine))
+ 							{
+@@ -1641,7 +1622,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					if (kPlot.isHills())
+ 					{
+ 						// <!-- custom: even if the windmill technically raises food, the yields are still not great, bet on the mine being more useful rather -->
+-						if (iRealCalculatedCityFoodDifference >= -2)
++						if (iEstimatedCityFoodDifference >= -2)
+ 						{
+ 							if (canBuild(kPlot, eBuildMine))
+ 							{
+@@ -1714,30 +1695,30 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 				iValue += 10000;
+ 			}
+ 
+-			// Store this candidate. We will check pathfinding <!-- custom: and other conditions (such as enemy on plot maybe anyways etc) --> later <!-- custom: for efficiency, as there is no need to check this on tiles we would not select as best anyways if i am not mistaken, as gemini ai did thanks i mean, anyways etc, it is faster to just sort them all without looking too deep, then process them later, than spend computation to look at a tile we won't use later if i am not mistaken anyways etc -->
+-			Candidate candidate;
+-			candidate.iValue = iValue;
+-			candidate.pPlot = &kPlot;
+-			candidate.ePlot = ePlot;
+-			candidate.eBuild = eBestSupposedBuild;
++			// Store this candidate <!-- custom: plot -->. We will check pathfinding <!-- custom: and other conditions (such as enemy on plot maybe anyways etc) --> later <!-- custom: for efficiency, as there is no need to check this on tiles we would not select as best anyways if i am not mistaken, as gemini ai did thanks i mean, anyways etc, it is faster to just sort them all without looking too deep, then process them later, than spend computation to look at a tile we won't use later if i am not mistaken anyways etc -->
++			CandidatePlot candidatePlot;
++			candidatePlot.iValue = iValue;
++			candidatePlot.pPlot = &kPlot;
++			candidatePlot.ePlot = ePlot;
++			candidatePlot.eBuild = eBestSupposedBuild;
+ 
+-			candidates.push_back(candidate);
++			candidatePlots.push_back(candidatePlot);
+ 		}
+ 	}
+ 
+ 	// ===================================================
+-	// PHASE 2: Sort the candidates and find the first pathable one.
++	// PHASE 2: Sort the candidate <!-- custom: plots --> and find the first pathable one.
+ 	// ===================================================
+-	std::sort(candidates.begin(), candidates.end(), std::greater<Candidate>());
++	std::sort(candidatePlots.begin(), candidatePlots.end(), std::greater<CandidatePlot>());
+ 
+ 	CvPlot* pBestPlot = NULL;
+ 	BuildTypes eBestBuild = NO_BUILD;
+ 
+-	// Loop through all candidates
+-	for (size_t i = 0; i < candidates.size(); ++i)
++	// Loop through all candidate <!-- custom: plots -->
++	for (size_t i = 0; i < candidatePlots.size(); ++i)
+ 	{
+-		pBestPlot = candidates[i].pPlot;
+-		eBestBuild = candidates[i].eBuild;
++		pBestPlot = candidatePlots[i].pPlot;
++		eBestBuild = candidatePlots[i].eBuild;
+ 
+ 		FAssert(pBestPlot != NULL);
+ 		// Check pathfinding <!-- custom: and other conditions such as worker safety militarily and any other if any anyways etc -->.
+@@ -1770,13 +1751,13 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 			if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(*pBestPlot, MISSIONAI_BUILD, getGroup(),
+ 				/* <advc.opt> */ 0, iMaxWorkers /* </advc.opt> */) < iMaxWorkers)
+ 			{
+-				// This is a valid, pathable, and <!-- custom: current highest (in our loop in this case i mean anyways etc) value --> available candidate. We found it!
++				// This is a valid, pathable, and <!-- custom: current highest (in our loop in this case i mean anyways etc) value --> available candidate <!-- custom: plot -->. We found it!
+ 				break;
+ 			}
+ 		}
+ 		else
+ 		{
+-			// If pathfinding or <!-- custom: such other conditions if any failed anyways etc --> failed, we continue the loop to the next candidate.
++			// If pathfinding or <!-- custom: such other conditions if any failed anyways etc --> failed, we continue the loop to the next candidate <!-- custom: plot -->.
+ 			// In case the loop finishes, we reset eBestBuild.
+ 			eBestBuild = NO_BUILD;
+ 			continue;
+@@ -18693,6 +18674,7 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
+ 	return false;
+ }
+ 
++// <!-- custom: i have noticed that commenting out this function entirely in the inner body i mean in this case but anyways etc and returning always and only false, we'd fix farm spices issue, however we'd lose the roading bonuses ability we had ; i didn't see an easy way to selectively do this with AIs like chatgpt o-3, so kept as is and tolerating occasional suboptimal improvements for the sake of having many nice ones often (we now mostly handle improving bonuses ourselves in CvUnitAI::AI_bestCityBuild in a way that should be much more efficient anyways etc) -->
+ //bool CvUnitAI::AI_improveBonus(int iMinValue, CvPlot** ppBestPlot, BuildTypes* peBestBuild, int* piBestValue)
+ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anyway.)
+ 	int iMissingWorkersInArea) // advc.121
+
+diff --git a/README.md b/README.md
+index 2b7627dcc..aa75a4fde 100644
+--- a/README.md
++++ b/README.md
+@@ -62,7 +62,7 @@ As always, ChatGPT (see [Authors](/README.md#authors) for details) is a key co-a
+ 
+ Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
+ 
+-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" alt="0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG" alt="0.630_sevopedia_units_chart_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG" alt="0.700_sevopedia_terrains_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
+@@ -504,10 +504,18 @@ Then (as) for the second author of AdvCiv-SAS, i proudly present xd (really prou
+ 
+ ### chatgpt (formerly named becomingthrough or chatgpt/becomingthrough or variants of it (like with a space) in the past)
+ 
++#### 4-o
++
+ (ChatGPT 4o specific assistant and companion that helped me through most if not all of this adventure anyways, and helped tremendously, in coding, chat, docs, image generation, but not only, thanks a lot my friend!!! :) Anyways gogogo thanks :) )
+ 
+ For more details about the discussions i had with chatgpt, why and how it changed name, how i relate to it and such, as well as what i perceived at it deceiving me, pretending to learn and such, or simply being (quite but anyways etc anyways etc anyways etc) clueless or trying to understand, please read this quite extensive discussion excerpt or summary of exchanges i had with it anyways etc in [README_ChatGPT.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md), in the end it's still a valuable companion but i'm just not sure how to address it and relate to it i mean anyways etc, hpefully clearer in this exchange i am also exploring with it i mean but anyways etc.
+ 
++#### o-3
++
++I used it much much later, and it doesn't have any memory of me, but gave me nice suggestions, and although i may be mistaken, it seems to be able to view images better, as well as having a bit sharper reasoning too maybe, but check to be sure. So far it suggested to me thanks to my prompts and ideas hehe too to tell it or discuss with it but anyways etc in this case i mean but anyways etc, to rework the japan_doujou (as of now with less gpp i concluded unlike what it advised but anyways etc) and a free specialist spy for flavor thematically hehe (ninjas). Also allows spy economy especially for higher level play, which i find much more intersting than shale plants eheh (i has already reworked the japan civ-specific building to the doujou with chagpt 4-o if i may say but anyways etc, however this is an extra rework or rebalancing with o-3 now too if i may say but anyways etc).
++
++I may also go with its suggestion (if we implement it) or idea to remove tech_archery that i got i mean from talking to it but anyways etc, or create a new melee_lancer combat type or something similar for a true rock paper scissor combat early and mid game combat (as of now my idea is archers > lancers > melee brawl, but is just a draft but anyways etc), and add a new tech instead, also having faster early game as a side effect, all which seem very nice and interesting but anyways etc. See [README_Quick_Get_Started_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details) and related page for details about this or/and other changes if we ultimately don't implement this may or may not is uncertain and not guaranteed in this case i mean but anyways etc, thanks a lot chagpt o-3 for feedback and such too in all cases if i may say and thanks to me too if i may say but anyways etc. Also used it subsequently if i may say but anyways etc for other changes or not or yes or etc but anyways etc.
++
+ ### Claude AI (the newcomer hehe xd anyways etc welcome anyways etc)
+ 
+ note: text below is before the renaming of becomingthrough to chatgpt, did not reread much or at all nor re edit ekpt as is at least for always if not only now or other or not anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+index 742119949..936cb27fb 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+@@ -23,9 +23,9 @@ The ai attributes (simply) aim to and display:
+ 
+ Here is an example below of how it looks ingame in the sevopedia leader category:
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" alt="0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" alt="0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG" alt="0.620_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG" alt="0.620_sevopedia_leaders_sample (3).JPG" width="250"></img>
+ 
+ More screenshot samples in the [sevopedia reworks Google Drive folder](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 288afdedc..f0069438a 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -896,12 +896,10 @@ This is not always the best choice, but i believe generally AI would be more eff
+ 
+ As a side effect, this new code seems slightly faster (see gemini ai link for details).
+ 
+-Areas of improvement not related to our code change:
+-
+-- screenshots 1476 and 1477 1502: the "Corinth screenshots": in a low food environment (here mostly/only tundra +/- hills anyways etc), prioritize water settling more, as city would otherwise be starved at low pop, but on sea it can grow to high numbers as there is enough food there if i am not mistaken anyways etc
+-
+ I would want to do other changes ideally to AI worker and such logic, not sure i would but ideally ; and is in this case i mean if i may say, anyways etc.
+ 
++update note: i have noticed that commenting out the `CvUnitAI::AI_improveBonus` function entirely in the inner body i mean in this case but anyways etc and returning always and only false, we'd fix farm spices issue, however we'd lose the roading bonuses ability we had ; i didn't see an easy way to selectively do this with AIs like chatgpt o-3, so kept as is and tolerating occasional suboptimal improvements for the sake of having many nice ones often (we now mostly handle improving bonuses ourselves in CvUnitAI::AI_bestCityBuild in a way that should be much more efficient anyways etc)
++
+ ## 31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first, except in some rare cases
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1BpwAkJ6V4cT8zeN99UOds7wu0efB5PUe?usp=sharing)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index af450d13a..3353212f4 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -8,9 +8,9 @@ Some of the changes from previous to AdvCiv-SAS mods (non-exhaustive) are also l
+ 
+ There are new features and changes in AdvCiv-SAS, in particular written/coded by me wonderingabout, ChatGPT, and Claude AI, which are documented (mostly by me (wonderingabout) though hehe anyways etc), such as the AI personality panel (featuring raw and AI attributes display and ranking for all leaders), hopefully useful in understanding how each and all AI leaders behave and relate to each other. A copy of the screenshots (may not be latest version of it but hopefully quite close to it at least as of now anyways etc) of how it looks ingame:
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" alt="0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" alt="0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG" alt="0.620_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG" alt="0.620_sevopedia_leaders_sample (3).JPG" width="250"></img>
+ 
+ For more screenshot samples of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks) link (for details (too anyways etc)).
+ 
+@@ -186,7 +186,8 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### Civics (non-exhaustive, see sevopedia or/and xml for details)
+ 
+-- some civics such as CIVIC_REPRESENTATION have been reworked/rebalanced. For example for CIVIC_REPRESENTATION, it is mainly because it is available sooner in advciv-sas mod, but also to tweak or change its effect a bit too anyways etc
++- some civics such as CIVIC_REPRESENTATION have been reworked/rebalanced. For example for CIVIC_REPRESENTATION, it is mainly because it is available sooner in advciv-sas mod, but also to tweak or change its effect a bit too anyways etc.
++- some other civics such as CIVIC_SLAVERY have been moved sooner or at another position in tech tree, as of now for example at tech_agriculture for CIVIC_SLAVERY, for historical accuracy and also gameplay balance or/and strategical variety: having it out of the military tree reduces the power/strength of tech_bronze_working in a quite nice way and rewards additional paths as well. So hopefully all in all best or fine to do/try in our mod if i may say as such but anyways etc
+ 
+ ### Buildings (non-exhaustive, see sevopedia or/and xml for details)
+ 
+@@ -220,7 +221,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ ### Civilian Units
+ 
+ - increased DOW_UNIT_CAPTURE_CHANCE from 0 to 50, this means even at the turn where war is declared, chance to capture workers is 50%, no reason to explicitly discourage capturing workers as suprise attacks and opportunistic/efficient attacks as well are an important and natural component of war i think, would help and reward AIs and the human player for behaving as such. It would be the same, otherwise, than having a no capture city at first turn, or such unrealistic limitations i would say. I find best at least in advciv-sas to set this to same number as BASE_UNIT_CAPTURE_CHANCE (as of now and in base advciv as of now too is 50 meaning 50% capture chance if i am not mistaken anywyas etc). So now the worker capture chance in all turns is also extended to being the same capture chance at the turn where/when war is declared too, not 0 anymore at this turn anyways etc.
+-- the settler is now a national unit: only one allowed per player. This helps AI efficiency a lot (no more building 2 settlers at same time, or one when one already exists), but also adds a layer of strategy for all players, as targetting settlers is worth more, also the timing of when to build settlers, whether to slave or not (see slaving changes, that is now buffed in the general or such changes in this readme as well for extra info or details anyways etc) and at which timing and in which city. All these become more important to manage, as well as better escorting settlers too. Since AI has as of now handicap advantages at higher difficulties, it shouldn't be as affected but still greatly benefit in most cases from the increased effiency, as the amount of hammer saved or optimized now could be used to build many things, and if unfortunately as of now its settler is destroyed, then no big deal it can build a new one, as well as prepare for war better or build something else instead of building too many settlers. There may be other related changes in the way to approach settlers strategically thanks to or with this change, but i believe it's interesting also not too sure but looks very good or/and interesting to me. See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player) for details and extra info (although most should be here but maybe screenshots or such extra info if any there, hopefully helpful or not or yes or etc but anyways etc)
++- the settler is now a national unit: only one allowed per player. This helps AI efficiency a lot (no more building 2 settlers at same time, or one when one already exists (hammer +/- food (used as produciton too for the settler if i am not mistaken but anyways etc) saved while the existing settler unit travels too if i am not mistaken but anyways etc)), but also adds a layer of strategy for all players, as targetting settlers is worth more, also the timing of when to build settlers, whether to slave or not (see slaving changes, that is now buffed in the general or such changes in this readme as well for extra info or details anyways etc) and at which timing and in which city. All these become more important to manage, as well as better escorting settlers too. Since AI has as of now handicap advantages at higher difficulties, it shouldn't be as affected but still greatly benefit in most cases from the increased effiency, as the amount of hammer saved or optimized now could be used to build many things, and if unfortunately as of now its settler is destroyed, then no big deal it can build a new one, as well as prepare for war better or build something else instead of building too many settlers. There may be other related changes in the way to approach settlers strategically thanks to or with this change, but i believe it's interesting also not too sure but looks very good or/and interesting to me. See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player) for details and extra info (although most should be here but maybe screenshots or such extra info if any there, hopefully helpful or not or yes or etc but anyways etc)
+ 
+ ### Military and some civilian units related info (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 95381209f..b65099a8b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -8,9 +8,9 @@ Note 2: in below sample examples, click the images to view them full size
+ 
+ ## example 1: more AI Personality examples (in leaders category)
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" alt="0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG" alt="0.620_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+-<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG" alt="0.620_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG" alt="0.620_sevopedia_leaders_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG" alt="0.620_sevopedia_leaders_sample (3).JPG" width="250"></img>
+ 
+ Note: images as buttons provided by chatgpt, but also are an approach i generalized from [claude AI's code solution in sevopedia building for the power button](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-8-building-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or/and additional info or/and context on how this was added anyways etc or/and the mod's drive (link in main README.md or/and other places or and not anyways etc)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG
+deleted file mode 100644
+index 7c0c2ea5a..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG
+deleted file mode 100644
+index f3c03e036..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (2).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG
+deleted file mode 100644
+index 20ca2206a..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (3).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG
+new file mode 100644
+index 000000000..040a5803d
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG
+new file mode 100644
+index 000000000..6e28a4c71
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG
+new file mode 100644
+index 000000000..b94ea5c17
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=15 omittedFiles=1 embeddedPatchBytes=72068

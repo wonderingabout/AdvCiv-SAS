@@ -1,0 +1,80 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5688
+# Commit: 7e8e968117923f3506b994368170fefbe579d7fe
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 30003b69d5e13078fb1a22b1aa07fc41b316916f
+# Title: fix sevopedia leader expanded text panel rendering aip or such inside it
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	4	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+1	1	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 64011da88..369661c65 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -246,11 +246,12 @@ class SevoPediaLeader:
+ 		if self.bContentExpanded:
+ 			self.placeLeaderHeadPane()
+ 			return
++		# <!-- custom: when history is expanded, render only the overlay to avoid underlying panel bleed-through. (GPT-5.3-Codex) -->
++		if self.bHistoryExpanded:
++			self.placeHistory()
++			return
+ 
+-		# <!-- custom: change call order to match filling/building order, generally from top left to bottom and left to right but not always, reordering in such a way is maybe a bit more intuitive this way perhaps or clearer or helpful or not or other etc anyways, -->
+-		# <!-- custom: placeHistory must be last so its expanded overlay renders on top of all other panels (traits, AI personality). (Claude code Sonnet 4.6) -->
+-		if not self.bHistoryExpanded:
+-			self.placeLeaderHeadPane()
++		self.placeLeaderHeadPane()
+ 		self.placeFavorites()
+ 		self.placeMusic()
+ 		self.placeAttitudes()
+@@ -265,6 +266,7 @@ class SevoPediaLeader:
+ 		else:
+ 			if IS_DEBUG_LEADER and IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE:
+ 				print("[DEBUG] Leader index iLeader=%d in EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS=%s is skipped, leave the place where AI Personality panel was supposed to be entirely empty so we don't get a missing key in leaders_info_cached Error, while signifying clearly enough hopefully that the excluded leader currently selected doesn't have an item in leaders_info_cached and AI Personality Panel at all/is not part of it." % (iLeader, str(EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS)))
++		# <!-- custom: normal-mode panels are drawn first; placeHistory() is called last so its expandable overlay remains top-most. (Claude code Sonnet 4.6 + GPT-5.3-Codex) -->
+ 		self.placeHistory()
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 937a90adc..d064cca5a 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -4557,7 +4557,7 @@ Files changed:
+ 
+ ## 120 - (Documented) Known Limitation: Per-era leader art shows the lowest-index player's era when the same leader is assigned to multiple players
+ 
+-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1Pmlc3XtyCe6qwUYRVBwEL4dYNEIUOZTK?usp=sharing).
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1_idRpqnUsnPtbYnuzLbnB3nBCV7WivFd?usp=sharing).
+ 
+ Observed issue:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 815d1967e..b9988c9bf 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -533,7 +533,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ ## Leaders
+ 
+ - New leaders: **Ewuare**; **Grace O'Malley**, **Michael Collins**.
+-- (Requires AdvCiv-SAS 5685+): Add optional **leaderhead art per era** with the new `EraArtDefineTags` and `EraArtDefineTag` XML fields; e.g., Gandhi's appearance and button changing at Ancient, Classical, Medieval, etc. Currently only a few leaders have such per-era alternative art; the feature is implemented gradually. Note: This is **per-player** not human-centered; e.g. even if the human player is at Medieval Era, if the rival Gandhi is still at Classical Era then Gandhi will use the Classical Era (if set). If none is set or disabled in SAS defines, the art defaults to the base `ArtDefineTag`. Note 2: due to a Civ4 limitation, if a leader (e.g., Gandhi) is used by several players (e.g., in Custom Game), only the first of these leaders' current era is used to select the art for all instances of that leader regardless of their own progress (e.g., if Gandhi 1 is at Medieval and Gandhi 2 and 3 are still at Classical, then Gandhi 2 and 3 will use Gandhi 1's Medieval art). See [README.md (EraArtDefineTags and EraArtDefineTag for leaderhead era art)](/README.md#eraartdefinetags-and-eraartdefinetag-for-leaderhead-era-art) and [KI#120](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#120---documented-known-limitation-per-era-leader-art-shows-the-lowest-index-players-era-when-the-same-leader-is-assigned-to-multiple-players).
++- (Requires AdvCiv-SAS 5685+): Add optional **leaderhead art per era** with the new `EraArtDefineTags` and `EraArtDefineTag` XML fields; e.g., Gandhi's appearance and button changing at Ancient, Classical, Medieval, etc. Currently only a few leaders have such per-era alternative art; the feature **is technically functional** but leaderhead era **art for each leader is added gradually**. Note: This is **per-player** not human-centered; e.g. even if the human player is at Medieval Era, if the rival Gandhi is still at Classical Era then Gandhi will use the Classical Era (if set). If none is set or disabled in SAS defines, the art defaults to the base `ArtDefineTag`. Note 2: due to a Civ4 limitation, if a leader (e.g., Gandhi) is used by several players (e.g., in Custom Game), only the first of these leaders' current era is used to select the art for all instances of that leader regardless of their own progress (e.g., if Gandhi 1 is at Medieval and Gandhi 2 and 3 are still at Classical, then Gandhi 2 and 3 will use Gandhi 1's Medieval art). See [README.md (EraArtDefineTags and EraArtDefineTag for leaderhead era art)](/README.md#eraartdefinetags-and-eraartdefinetag-for-leaderhead-era-art) and [KI#120](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#120---documented-known-limitation-per-era-leader-art-shows-the-lowest-index-players-era-when-the-same-leader-is-assigned-to-multiple-players).
+ - Each leader now has **distinct leader music** (previous BTS/AdvCiv shared tracks split per leader). See [Copyright & disclaimer](/README.md#copyright-and-disclaimer). Note: switched **De Gaulle** from Louis' music in Base AdvCiv to Base Civ4's Napoleon's music, and added an AdvCiv-SAS specific new music for Napoleon so each leader has its own specific music, see [KI#98](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#98---fixed-base-advciv-issue-of-de-gaulle-using-louis-music-instead-of-the-music-common-to-de-gaulle-and-napoleon).
+ - **Trait overhaul:** Overhauled for historical fit + gameplay relevance. **Examples:**: Julius Caesar Organized + Imperialist → Aggressive + Imperialist *(military conqueror; offensive pressure)*; Hammurabi Organized + Aggressive → Organized + Protective *(lawgiver/administrator; defensive empire)*; Saladin Protective + Spiritual → Spiritual + Charismatic *(religious leader with battlefield charisma; warmonger in Civ IV terms)*; Isabella Spiritual + Expansive → Spiritual + Aggressive *(zealous, hard-edged campaigns)*; Charlemagne — Imperialistic + Protective → Aggressive + Organized *(although it is historically debatable, he emphasized conquest and administration; meshes with his more forceful Civ IV profile)*; Hatshepsut — Spiritual + Creative → Spiritual + Financial *(historical emphasis on trade/wealth; modest buff in practice)*. Full before/after with rationale in  [Assets Rebalancing table (Leader Traits)](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-traits-rework), or the values and rankings only in the new **Sevopedia Traits' Charts**. *Note: leader "flavors" unchanged.*
+ - Barbarian **leader button/icon** is distinct (no longer Genghis Khan’s).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7756

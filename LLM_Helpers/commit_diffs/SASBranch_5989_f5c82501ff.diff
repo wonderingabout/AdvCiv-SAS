@@ -1,0 +1,127 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5989
+# Commit: f5c82501ff77543bfd7164581aac773db629d771
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5bb2a0bdb14b284bca7aa253215bbac8f9549e20
+# Title: Fix/enhancement: Recheck and reassign K-Mod AI citizens from their plots to safe, clearly better unworked plots
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+68	0	CvGameCoreDLL/CvCityAI.cpp
+2	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index abdffebb0..4f79bc5b7 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -13847,6 +13847,74 @@ void CvCityAI::AI_juggleCitizens(/* advc.131d: */ bool bEmphasize)
+ 			// else we're done.
+ 		}
+ 
++		// <!-- custom: If K-Mod's fast approximate prefilter gives up, try one guarded direct plot-to-plot fallback.
++		// The raw 3F + 2H + 1C diagnostic proved too naive for final behavior, but it is useful as a cheap suspicion filter.
++		// Only plot pairs that are strict yield upgrades, large food/commerce gains, or large weighted raw gains without food loss are tested here, and the normal contextual AI_jobChangeValue check still decides whether the swap is actually good.
++		// Apply at most one swap, then recalculate. (ChatGPT-5.5 + GPT-5.5) -->
++		if (!bTakeNewJob && !isHuman())
++		{
++			bool const bLogCitizenFallback = (gCitizenLogLevel >= 2);
++			std::vector<PotentialJob_t>::iterator bestFallbackWorked = worked_jobs.end();
++			std::vector<PotentialJob_t>::iterator bestFallbackUnworked = unworked_jobs.end();
++			int iBestFallbackValue = 0;
++			int iBestFallbackRaw321Delta = 0;
++			char const* szBestFallbackReason = NULL;
++			for (std::vector<PotentialJob_t>::iterator workedFallback = worked_jobs.begin(); workedFallback != worked_jobs.end(); ++workedFallback)
++			{
++				if (workedFallback->second.first)
++					continue;
++				CvPlot const& kWorkedPlot = *getCityIndexPlot((CityPlotTypes)workedFallback->second.second);
++				for (std::vector<PotentialJob_t>::iterator unworkedFallback = unworked_jobs.begin(); unworkedFallback != unworked_jobs.end(); ++unworkedFallback)
++				{
++					if (unworkedFallback->second.first || unworkedFallback->first > workedFallback->first)
++						continue;
++					CvPlot const& kUnworkedPlot = *getCityIndexPlot((CityPlotTypes)unworkedFallback->second.second);
++					int const iFoodDelta = kUnworkedPlot.getYield(YIELD_FOOD) - kWorkedPlot.getYield(YIELD_FOOD);
++					int const iProductionDelta = kUnworkedPlot.getYield(YIELD_PRODUCTION) - kWorkedPlot.getYield(YIELD_PRODUCTION);
++					int const iCommerceDelta = kUnworkedPlot.getYield(YIELD_COMMERCE) - kWorkedPlot.getYield(YIELD_COMMERCE);
++					bool const bStrictYieldUpgrade = (iFoodDelta >= 0 && iProductionDelta >= 0 && iCommerceDelta >= 0 && (iFoodDelta > 0 || iProductionDelta > 0 || iCommerceDelta > 0));
++					int const iRaw321Delta = 3 * iFoodDelta + 2 * iProductionDelta + iCommerceDelta;
++					bool const bLargeFoodCommerceGain = (iFoodDelta >= 2 && iCommerceDelta >= 3 && iProductionDelta >= -3);
++					bool const bLargeRawGainWithoutFoodLoss = (iFoodDelta >= 0 && iProductionDelta >= -2 && iRaw321Delta >= 4);
++					if (!bStrictYieldUpgrade && !bLargeFoodCommerceGain && !bLargeRawGainWithoutFoodLoss)
++						continue;
++
++					if (iFoodPerTurn + kUnworkedPlot.getYield(YIELD_FOOD) - kWorkedPlot.getYield(YIELD_FOOD) + iStarvingAllowance < 0)
++						continue;
++					if (std::find(new_jobs.begin(), new_jobs.end(), workedFallback->second) != new_jobs.end())
++						continue;
++
++					int const iContextValue = AI_jobChangeValue(unworkedFallback->second, workedFallback->second, false, false, iGrowthValue);
++					if (iContextValue > iBestFallbackValue)
++					{
++						iBestFallbackValue = iContextValue;
++						if (bLogCitizenFallback)
++						{
++							iBestFallbackRaw321Delta = iRaw321Delta;
++							szBestFallbackReason = (bStrictYieldUpgrade ? "STRICT_YIELD" : (bLargeFoodCommerceGain ? "LARGE_FOOD_COMMERCE" : "LARGE_RAW_NO_FOOD_LOSS"));
++						}
++						bestFallbackWorked = workedFallback;
++						bestFallbackUnworked = unworkedFallback;
++					}
++				}
++			}
++			if (bestFallbackWorked != worked_jobs.end())
++			{
++				worked_it = bestFallbackWorked;
++				unworked_it = bestFallbackUnworked;
++				bTakeNewJob = true;
++				if (bLogCitizenFallback)
++				{
++					CvPlot const& kWorkedPlot = *getCityIndexPlot((CityPlotTypes)worked_it->second.second);
++					CvPlot const& kUnworkedPlot = *getCityIndexPlot((CityPlotTypes)unworked_it->second.second);
++					logBBAI("CITIZEN_CONTEXT_FALLBACK_TAKE turn=%d player=%d %S city=%S cityId=%d fallbackReason=%s raw321Delta=%d contextValue=%d approximateDelta=%d oldPlot=(%d,%d) oldFood=%d oldProduction=%d oldCommerce=%d newPlot=(%d,%d) newFood=%d newProduction=%d newCommerce=%d",
++							GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationShortDescription(), getName().GetCString(), getID(), szBestFallbackReason, iBestFallbackRaw321Delta, iBestFallbackValue, unworked_it->first - worked_it->first,
++							kWorkedPlot.getX(), kWorkedPlot.getY(), kWorkedPlot.getYield(YIELD_FOOD), kWorkedPlot.getYield(YIELD_PRODUCTION), kWorkedPlot.getYield(YIELD_COMMERCE),
++							kUnworkedPlot.getX(), kUnworkedPlot.getY(), kUnworkedPlot.getYield(YIELD_FOOD), kUnworkedPlot.getYield(YIELD_PRODUCTION), kUnworkedPlot.getYield(YIELD_COMMERCE));
++				}
++			}
++		}
++
+ 		if (!bTakeNewJob)
+ 		{
+ 			// <!-- custom: K-Mod orders candidate jobs by approximate standalone values and stops before contextual
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index eb5394c40..7d3846889 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -153,6 +153,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+ - **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis (also good to give us a different point of view/review if needed).
+ - (Requires AdvCiv-SAS 5980+) **Culture-victory BBAI diagnostics:** added a new dedicated `SAS_BBAI_CULTURE_LOG_LEVEL` for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs. It notably records culture-stage reasons, current/projected Legendary-city countdowns and rival ranking, competing victory progress, actual culture-slider decisions, per-city weights and production, and culture contributed by production processes and assigned specialists.
++- (Requires AdvCiv-SAS 5988+) **Citizen-allocation BBAI diagnostics:** added a dedicated `SAS_BBAI_CITIZEN_LOG_LEVEL` for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked. At the highest level, it also reports suspicious worked/unworked plot pairs under a simple food-first yield check; this second report is diagnostic only because city needs can legitimately outweigh raw yields.
+ - (Requires AdvCiv-SAS 5962+) **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - (Requires AdvCiv-SAS 5925+) **BBAI log files timestamped name**: Optionally log BBAI to a **new file each time** Civ4 launch/session with a **new UTC-timestamp** in filename such as (e.g., `BBAI_20260608T065231Z.log`) instead of repeatedly appending to `BBAI.log`. This **avoids previous tedious manual clearing** `BBAI.log` before restarting Civ4, prevents one **massive mixed log from accumulating** across many test runs, and makes the **relevant log easier to identify, store, or upload** for review.
+ - **BBAI logging guard cleanup:** now that BBAI logging is runtime-tunable rather than compile-gated, some older logging-only code paths are **guarded more explicitly** through the relevant log-level defines. This avoids running logging passes or expensive/unneeded evaluation and formatting of **log parameters** that ultimately won't be used when that log category is disabled.
+@@ -191,6 +192,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ - Fix K-Mod some allocation pathologies: e.g. starving/stagnant cities no longer choose **+1 hammer** over **+4 food** unworked plots; also fix the "food is production" valuation so settlers/workers don’t undervalue food. See [KI#34](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#34---seemingly-fixedtweaked-major-k-mod-suboptimal-food-plot-ai-city-allocation-starving-or-stagnant-cities-prefer-1-hammer-over-4-food-plots-that-are-unallocated-to-any-population-ulundi-screenshots-prague-screenshots-and-others--food-not-being-valued-when-food-is-production-eg-worker-settler-etc-if-any-more-when-it-is-in-fact-the-exact-same-and-probably-more-reliable-to-set-rather-than-production).
+ - If happiness room is **high**, push growth harder: favor food tiles more, deemphasize hammers (unless **food is currently production**). See [KI#40](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#40---seemingly-fixed--addressed-tremendousmajor-plot-allocation-improvement-2-if-we-are-high-in-happiness-favour-food-tiles-much-more-and-hammer-tiles-much-less-if-happiness-is-really-high-favour-growth-dynamically-and-plot-allocation-of-these-the-more-we-can-afford-it-even-if-production-is-slightly-reduced-short-term-as-a-result-it-auto-corrects-at-high-happiness-with-seemingly-much-stronger-ai-and-developped-cities-as-a-result-excluded-if-food-is-production-eg-worker-settler-etc-if-i-am-not-mistaken-but).
+ - (Requires AdvCiv-SAS 5927+) Update: now mitigated/halted by **high food loss from unhealthiness**, where it is inefficient to grow more (e.g., York size 25 with 25 health 36 unhealth (-11 food) and 39 happy 27 unhappy, +3 food per turn still, should not grow more and work specialists or other yields than food rather to increase efficiency).
++- (Requires AdvCiv-SAS 5989+) **Recheck and reassign citizens to safe, clearly better unworked plots:** K-Mod could keep a weaker worked (i.e. assigned to one population in city) plot because its quick initial estimate overlooked another plot that its full city-aware comparison considered better. If ordinary citizen allocation finds no change, the **AI now rechecks plots that improve at least one yield without reducing any**, **trade some production for a large food/commerce gain**, or otherwise **offer a substantial overall gain without losing food**. It switches **only when** the full city-aware valuation confirms the change is **beneficial**, never when the swap would cause starvation, and does not immediately reverse a plot assigned earlier in the same update. The newly added `SAS_BBAI_CITIZEN_LOG_LEVEL` BBAI logging test showed this corrected cases such as Karakorum working **2 food / 0 hammers / 1 commerce** instead of the strictly better **2 food / 1 hammer / 1 commerce** plot, made 624 approved swaps through turn 359 at normal game speed, and reduced remaining plot-to-plot contextual misses from 4,187 to 3,229 (about 23%); specialist-related swaps remain a separate target.
+ 
+ #### City Production (AI)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=12051

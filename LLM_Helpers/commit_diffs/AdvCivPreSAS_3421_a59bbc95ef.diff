@@ -1,0 +1,71 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3421
+# Commit: a59bbc95ef010d737cd6089fe762af1be75f4781
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ce91d634c486b909eced4e5b167c6d3b09d9de3b
+# Title: Clearer AP war resolution text when active human is target
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	0	Assets/XML/Text/CIV4GameText_advc.xml
+9	2	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index a847781b7..1325a3a1c 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -7104,4 +7104,16 @@
+ 		<Spanish>Provocar en %s1_city una revuelta durante %d2 [NUM2:turno:turnos]</Spanish>
+ 	</TEXT>
+ 
++	<!-- kekm.25/advc: Based on TXT_KEY_POPUP_ELECTION_FORCE_WAR
++		 (CIV4GameText_BTS.xml). Make sure the player understands that he or she
++		 is the target and that this is not a mistake. -->
++	<TEXT>
++		<Tag>TXT_KEY_POPUP_ELECTION_FORCE_WAR_VS_YOU</Tag>
++		<English>Force the full members declare war on you(!!) (Requires %d1_ReqNum of %d2_TotNum Total Votes)</English>
++		<French>>Force les membres permanents � vous (!) d�clarer la guerre (%d1_ReqNum vote(s) sur %d2_TotNum requis)</French>
++		<German>Zwingt die Vollmitglieder Ihnen(!) den Krieg zu erkl�ren. (Erfordert %d1_ReqNum on insgesamt %d2_TotNum Stimmen.)</German>
++		<Italian>Costringe i membri a pieno titolo a dichiarare guerra a te(!!) (Richiede %d1_ReqNum su %d2_TotNum voti totali)</Italian>
++		<Spanish>Obliga a los miembros de pleno derecho a declararos la guerra(!!) (Requiere %d1_ReqNum de %d2_TotNum votos totales)</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 5e3906fa5..51a4be650 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -10318,10 +10318,17 @@ VoteSelectionData* CvGame::addVoteSelection(VoteSourceTypes eVoteSource)
+ 				kData.ePlayer = it->getLeaderID();
+ 				if (isValidVoteSelection(eVoteSource, kData))
+ 				{
+-					kData.szText = gDLL->getText("TXT_KEY_POPUP_ELECTION_FORCE_WAR",
++					kData.szText =
++							// <kekm.25/advc>
++							(it->isActive() ?
++							gDLL->getText("TXT_KEY_POPUP_ELECTION_FORCE_WAR_VS_YOU",
++							getVoteRequired(kData.eVote, eVoteSource),
++							countPossibleVote(kData.eVote, eVoteSource)) :
++							// </kekm.25/advc>
++							gDLL->getText("TXT_KEY_POPUP_ELECTION_FORCE_WAR",
+ 							it->getName().GetCString(),
+ 							getVoteRequired(kData.eVote, eVoteSource),
+-							countPossibleVote(kData.eVote, eVoteSource));
++							countPossibleVote(kData.eVote, eVoteSource)));
+ 					pData->aVoteOptions.push_back(kData);
+ 				}
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2280

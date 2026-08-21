@@ -1,0 +1,370 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5276
+# Commit: f1309cd115130e60e3475fead43e07e21a2a3164
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9946feb2c08c7c0192f6c55a8cde2bfe704d1d69
+# Title: fix external file bug mod help not opening in advciv-sas, update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	.gitattributes
+52	2	Assets/Python/BUG/BugHelp.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+1	1	Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+1	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+0	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+2	1	Assets/XML/GlobalDefines_advciv_sas.xml
+3	3	Assets/XML/Terrain/CIV4BonusInfos.xml
+1	1	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+0	0	{_0_Common_Docs/AdvCiv_Base_Doc => Long_Comments}/CIV4BuildingInf_os_Doto_mod.txt
+13	0	README.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+7	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+ rename {_0_Common_Docs/AdvCiv_Base_Doc => Long_Comments}/CIV4BuildingInf_os_Doto_mod.txt (100%)
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index 76fac697d..2559057fa 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -30,11 +30,11 @@
+ *.PDN  export-ignore
+ 
+ /scan_xml_duplicates-3.3.py                                             export-ignore
++/Long_Comments/CIV4BuildingInf_os_Doto_mod.txt                          export-ignore
+ /_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                              export-ignore
+ /_0_Common_Docs/AdvCiv_Base_Doc/manual.txt                              export-ignore
+-/_0_Common_Docs/AdvCiv_Base_Doc/CIV4BuildingInf_os_Doto_mod.txt         export-ignore
+-/_0_Common_Docs/git_logs/                                               export-ignore
+ /_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/                export-ignore
++/_0_Common_Docs/git_logs/                                               export-ignore
+ /_1_AdvCiv-SAS/git_logs/                                                export-ignore
+ /_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/                  export-ignore
+ /Assets/Res/Fonts/other_mods/                                           export-ignore
+
+diff --git a/Assets/Python/BUG/BugHelp.py b/Assets/Python/BUG/BugHelp.py
+index f7e241b50..d4c74058f 100644
+--- a/Assets/Python/BUG/BugHelp.py
++++ b/Assets/Python/BUG/BugHelp.py
+@@ -35,7 +35,9 @@ def launch(argsList=None):
+ 	else: # advc.009: There is no FRA and ESP translation
+ 		sLang = ["ENG", "ENG", "DEU", "ITA", "ENG"]
+ 		name = "BUG Mod Help-%s.chm" % (sLang[CyGame().getCurrentLanguage()])
+-		file = BugPath.findInfoFile(name)
++		#file = BugPath.findInfoFile(name)
++
++		file, debug = _SAS_findBugDocFile(name)
+ 		if file:
+ 			import os
+ 			message = BugUtil.getPlainText("TXT_KEY_BUG_HELP_OPENING")
+@@ -44,7 +46,7 @@ def launch(argsList=None):
+ 			return True
+ 		else:
+ 			showErrorAlert(BugUtil.getPlainText("TXT_KEY_BUG_HELP_MISSING_TITLE"),
+-					BugUtil.getText("TXT_KEY_BUG_HELP_MISSING_BODY", (name,)))
++					debug + BugUtil.getText("TXT_KEY_BUG_HELP_MISSING_BODY", (name,)))
+ 	return False
+ 
+ def showLaunchMessage():
+@@ -58,3 +60,51 @@ def showErrorAlert(title, body):
+ 	popup.setHeaderString(title)
+ 	popup.setBodyString(body)
+ 	popup.launch()
++
++# <!-- custom: on Windows, the BUG Menu's help does not open for some reason ingame whe clicking on the "Bug Mod Help" button in the Bug Menu. Fixed by adding this with the help of chatgpt 5.2 thanks.
++# Note: based on testing, it looks like cwd's path is: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\, considering the error message we got with a faulty path if we don't add the rest of the path to our mod, and considering adding such a remaining path fixes the issue ingame and successfully allows to display the BUG Menu's help. -->
++def _SAS_findBugDocFile(name):
++	# Returns (fullpath_or_None, debug_string)
++	try:
++		import os
++
++		debugLines = []
++		try:
++			cwd = os.getcwd()
++		except:
++			cwd = "<cwd?>"
++		debugLines.append("BugHelp debug")
++		debugLines.append("cwd=%s" % cwd)
++
++		tries = []
++
++		def addTry(p):
++			if p and p not in tries:
++				tries.append(p)
++
++		# 3) Common Civ4 layout guesses from cwd
++		try:
++			# <!-- custom: based on testing, the below path fetching (as of now files are in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\BUG Doc\) works successfully ingame. -->
++			# <!-- custom: note 2: our mod AdvCiv-SAS's name is as of now hardcoded but it works, if you change the mod's name, you'd need to change it here too unless this name is dynamically fetched instead of as of now being hardcoded. -->
++			#addTry(os.path.join(cwd, "Mods", "AdvCiv-SAS", "BUG Doc", name))
++			# <!-- custom: since i want to centralize some docs in our AdvCiv-SAS Mod, moving it to another folder where our other folders as of now are. Note: added a "_" for consistency with other non-space separated folder names and file names. Works successfully ingame (as of now after the path now in: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\BUG_Doc\).  -->
++			addTry(os.path.join(cwd, "Mods", "AdvCiv-SAS", "_0_Common_Docs", "BUG_Doc", name))
++		except:
++			pass
++
++		# Decide
++		for p in tries:
++			try:
++				if os.path.isfile(p):
++					debugLines.append("FOUND=%s" % p)
++					return p, "\n".join(debugLines) + "\n\n"
++			except:
++				pass
++
++		# Not found: show first few attempts in the popup
++		for i in range(3):
++			if i < len(tries):
++				debugLines.append("try%d=%s" % (i+1, tries[i]))
++		return None, "\n".join(debugLines) + "\n\n"
++	except:
++		return None, "BugHelp debug failed completely.\n\n"
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index a2e9e69ef..ea94bf4fa 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -196,8 +196,8 @@ class SevoPediaBonus:
+ 
+ 
+ 
+-	# <!-- custom: switch to an horizontal panel version provided by claude ai at my request it kindly did so for me and as a consequence all who would play this mod advciv-sas i am making or/and others kindly too or not or both or not or and other or and not anyways etc using it too, anyways etc, thanks claude ai and all or not all or yes all or not or other or etc anyways etc anyways etc anyways etc and me too perhaps or not or yes anyways etc anyways etc anyways etc, and then also modified by me or and not for advciv-sas or and not or and other or and not anyways etc anyways etc anyways etc -->
+-	# <!-- custom: note: this needs to be debugged (simplify code, add left side padding before first button, anyways etc, but hopefully works well enough for now anyways etc -->
++	# <!-- custom: switch to an horizontal panel version provided by claude ai at my request thanks. -->
++	# <!-- custom: note: this needs to be debugged (simplify code, add left side padding before first button) -->
+ 	def placeImprovements(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index d56a09131..a96a69e7f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -35,7 +35,7 @@ def do_pre_load_xml_features_info_required_data_validation():
+ 						maxSoFarProduction = removeProduction
+ 					else:
+ 						if removeProduction > maxSoFarProduction:
+-							# <!-- custom: (note: this simplifies display for the where case cottages and farms would have different values (e.g. 20 vs 35 (imaginary values to illustrate anyways etc)) which would be highly unusual. This edge case is ignored in our mod advciv-sas to simplify code, display, and logic, and raising an error instead anyways etc. Ideally if a mod implements such a feature (the remove iProduction 20 vs 35 for different builds), which would be strange btw as building a farm also has a remove the jungle feature as part of it if i am not mistaken it is not a different operation at least it seems so ingame anyways, but in all cases they'd or can remove this check and error, and then alter display to see the different possible values maybe, although again i don't see too much of a case where it may be useful, but just in case and if i am maybe mistaken, you'd need to change this code and then the display logic to display the different value -->
++							# <!-- custom: (note: this simplifies display for the where case cottages and farms would have different values (e.g. 20 vs 35 (imaginary values to illustrate anyways etc)) which would be highly unusual. This edge case is ignored to simplify code, display, and logic, and raising an error instead anyways etc. Ideally if a mod implements such a feature (the remove iProduction 20 vs 35 for different builds), which would be strange btw as building a farm also has a remove the jungle feature as part of it if i am not mistaken it is not a different operation at least it seems so ingame anyways, but in all cases they'd or can remove this check and error, and then alter display to see the different possible values maybe, although again i don't see too much of a case where it may be useful, but just in case and if i am maybe mistaken, you'd need to change this code and then the display logic to display the different value -->
+ 							if maxSoFarProduction > 0:
+ 								raise ValueError(u"[VALUE ERROR] Unexpected different iProduction removeProduction=%d value where a not equal to 0 value maxSoFarProduction=%d already existed between builds (cottage, remove_jungle, farm, etc.) at feature=%d (feature type is %s). Please make sure your iProduction is consistent accross all builds that can remove this feature, or if purposely designed as such, modify this code to display such information if you want or/and remove the error anyways etc." % (removeProduction, maxSoFarProduction, iFeature, gc.getFeatureInfo(iFeature).getType()))
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index adbdd163e..1ab9c75f1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -1051,7 +1051,7 @@ def _compute_leader_cache_internal():
+ 				# Your original line was correct:
+ 				compute_and_store_leader_info_cached_tuple(raw_value_4_aggregated_contact_prob, min_value_4_aggregated_raw_contact_prob, max_value_4_aggregated_raw_contact_prob, b_invert_4_aggregated_contact_probs, symbol_aggregated_contact_probs, all_symbols, parsed_name_4_aggregated_contact_prob, label_with_raw_value_rand_and_raw_value_delay, iLeader, leader_info_cached)
+ 
+-			# <!-- custom: similarly for memory fields, we don't need the raw attitude_percent and decay since they are already in label and we don't display them normalized otherwise either (or neither? But anyways etc...) anyways etc, so normalize only aggregated positive and negative memory affections and resentments, but more specifically also, we don't display positive memory resentments and negative memory affections due to table being too small for these all but anyways etc and/but also our XML being otherwise quite straightforward at least as of now if not always or not, as positive memories all have a positive attitude_percent if i'm not mistaken and same or similarly rather anyways etc negative memories all have a negative atittude_percent, so positive memory resentments and negative memory affections would just perfectly overlap and be redundant with positive memory affections and negative memory resentments, so don't display them in our mod advciv-sas at least as of now if not most likely always in advciv-sas or maybe not but most likely anyways etc. But the feature is there if some mods want to display it, and i think it's very cool to have masochistic (negative memory affections) and/or bitterly ungrateful (positive memory resentments), so code comment code samples or rather maybe lines anyways etc if you want to support it in your mod, remember to also add these fields (parsed_name (parsed names for all fields actually but anyways etc)) in UI categories too and order them as you see fit if you'd want that, which i think is very cool and wish i did and could do, but table is already too full, and i dont have such a crazy in a way i like hehe leader as of yet (or yet? Simply? But anyways etc...) if not always or maybe not but most likely in this case i mean anyways etc, but in all cases, regardless of which, uncomment if you want to add positive memory resentments and negative memory resentments, same also for raw memory attitude_percents and decays not displayed as well since they are in label of aggregated field and we don't otherwise need them, anyways etc -->
++			# <!-- custom: similarly for memory fields, we don't need the raw attitude_percent and decay since they are already in label and we don't display them normalized otherwise either (or neither? But anyways etc...) anyways etc, so normalize only aggregated positive and negative memory affections and resentments, but more specifically also, we don't display positive memory resentments and negative memory affections due to table being too small for these all but anyways etc and/but also our XML being otherwise quite straightforward at least as of now if not always or not, as positive memories all have a positive attitude_percent if i'm not mistaken and same or similarly rather anyways etc negative memories all have a negative atittude_percent, so positive memory resentments and negative memory affections would just perfectly overlap and be redundant with positive memory affections and negative memory resentments, so don't display them at least as of now if not most likely always in advciv-sas or maybe not but most likely anyways etc. But the feature is there if some mods want to display it, and i think it's very cool to have masochistic (negative memory affections) and/or bitterly ungrateful (positive memory resentments), so code comment code samples or rather maybe lines anyways etc if you want to support it in your mod, remember to also add these fields (parsed_name (parsed names for all fields actually but anyways etc)) in UI categories too and order them as you see fit if you'd want that, which i think is very cool and wish i did and could do, but table is already too full, and i dont have such a crazy in a way i like hehe leader as of yet (or yet? Simply? But anyways etc...) if not always or maybe not but most likely in this case i mean anyways etc, but in all cases, regardless of which, uncomment if you want to add positive memory resentments and negative memory resentments, same also for raw memory attitude_percents and decays not displayed as well since they are in label of aggregated field and we don't otherwise need them, anyways etc -->
+ 			# b_invert_memory_attitude_percents, b_invert_memory_decays = get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection)
+ 			#symbol_memory_attitude_percents_decays = all_symbols["RAW_SCALE_SYMBOL"]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+index f551c8a51..2b58d30fe 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_utils_shared_with_civ4.py
+@@ -404,7 +404,7 @@ def get_memory_attitude_percent_and_decay_invert_flags(is_positive, is_affection
+ 		if is_affection:
+ 			# <!-- custom: higher attitude score (ex: + 350 > + 200) means more intense positive feeling (affection), closer to 0 means AI cares less (0 should be		- minimum -		attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways (where again AI cares the least)), so we don't invert.
+ 			# -->
+-			# As for decay it should remain the same as it seems to just be some time unit or span (always positive if i'm not mistaken? At least after checking seems so in advciv data and in our mod AdvCiv-SAS at least so far, anyways) if i am not mistaken but this is just an assumption that could be accurate or not but that i think is (accurate), anyways -->
++			# As for decay it should remain the same as it seems to just be some time unit or span (always positive if i'm not mistaken? At least after checking seems so in advciv data and in AdvCiv-SAS at least so far), check if accurate. -->
+ 			return False, False
+ 		else:
+ 			# <!-- custom: lower attitude score (ex: -350 < -200) means more intense negative feeling (resentment) (resentful and (more) especially spiteful AI even for (presumably) good deeds), closer to 0 means AI cares less (0 should be		- maximum -		attitudes after normalization unless i'm mistaken anyways but should be as this if i'm not mistaken anyways (where again AI also, as in positive affection, for this value 0 (after adjustment) attitude, cares the least (at least we model it a such))), so we should invert indeed.
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 810b103e1..d67e26bce 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -21804,7 +21804,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: TECH_NATURALISM (if we rework it indeed as such anyways etc) seems more accurate or and is very bare and makes sense more in terms of gameplay in our reworked tech tree, plsu can be built a bit sooner and is nice to have a cultural building at this tech +/- era anyways etc at least in terms of civ4 gameplay in our mod advciv-sas or and other or and not, also boosting culture path and wonders by building them sooner indirectly but anyways etc anyways etc, was TECH_NATIONALISM -->
++			<!-- custom: TECH_NATURALISM (if we rework it indeed as such anyways etc) seems more accurate or and is very bare and makes sense more in terms of gameplay in our reworked tech tree, plsu can be built a bit sooner and is nice to have a cultural building at this tech +/- era, also boosting culture path and wonders by building them sooner indirectly; was TECH_NATIONALISM -->
+ 			<PrereqTech>TECH_NATURALISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index dd188abf8..292491094 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -4335,8 +4335,6 @@
+ 					<BuildingType>NONE</BuildingType>
+ 				</Building>
+ 				are useless it seems, at least they do not prevent barbarians building moai and hermitage for example, (should have said hermitage first but moai came to mind first plus historically was before so maybe should have said moai first but hermitage was last so i thought of it sooner as i think it was more recent is why i thought of it first but anyways whether or this is why removing the spaghetti code since it is nothelping and we don't want to maintain it when and if we add new wonders, especially if needless, anyways etc)-->
+-
+-				<!-- custom: also allow barbarians (even though i am not sure these lines make any difference seemingly since it was an old code comment but as for logic yes i(/we((?)?)) would not mind barbarians having holy cities if they discover a religion but they seem to do it on their own just fine regardless, i saw them have the mahadhobi thing if i am not mistaken too good for them anyways moving on as in focusing on civ4 again anyways etc this mod advciv-sas i mean anyways etc anyways etc) would not holy cities in case they are first to found a religion and get a great prophet for it, (and (anyways etc)) also allow them to build all religious buildings in case a religion reaches them no reason why they couldn't, and otherwise still remain warmongerers i tihnk, (but) anyways etc (it also declutters the xml a bit (xd.. (i am free indeed(!...)if i may say (yes) but anwyays etc....))-->
+ 			</Buildings>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 0ee210d43..420283f2d 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -3,7 +3,8 @@
+ <!-- custom: note: using the prefix is a bit cringe xd if i may say but anyways etc but at same time cool and does some publicity if i may say but anyways etc, but most importantly it gives us freedom while being compact but anyways etc to name freely our tunables without risking overriding existing ones and having to check them, as recommended by chatgpt 5 (i had considered it at first then thought meh xd if i may say but anyways etc but now think it makes sense in this case i mean but anyways etc), check if accurate, anyways etc -->
+ <!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such if i may say but anyways etc) but check to be sure if in doubt anyways etc -->
+ <!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings anyways etc) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or/and add other global define files, make sure they are added there as well if i am not mistaken and chatgpt 5 confirms it, or it won't load as it didn't seem to (load anyways etc) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders anyways etc), check to be sure anyways etc -->
+-<!-- custom: note 4: almost all these knobs apply only to AI players (some apply to human players) even if they are not named in a way that would indicate such, so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentionned if so, check if accurate anyways etc). -->
++<!-- custom: note 4: i did not add it here to avoid having issues or a complicated implementation, but a few places use the hardcoded mod name such as as of now "AdvCiv-SAS" instead for example of "AdvCiv". To find these places easily, i generally wrote a comment that has something like "our mod AdvCiv-SAS" or "mod AdvCiv-SAS" or "AdvCiv-SAS Mod" or something similar so they can be found more easily to change them in case you change the mod's name. -->
++<!-- custom: note 5: almost all these knobs apply only to AI players (some apply to human players) even if they are not named in a way that would indicate such, so when code comments say a person focused thing such as "we" in for example "we want" it often would mean "AI players want" or "the current AI player will want to" for most of these knobs, and rarely apply to the human players (should be mentionned if so, check if accurate anyways etc). -->
+ <!-- custom: note 5: consider using VS Code or such other IDE or text editor that has "word wrap" or similar so that you can read long lines in this file without scrolling horizontally for a long while anyways etc -->
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index 346d08295..88229a67b 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -874,7 +874,7 @@
+ 				<iRandApp3>0</iRandApp3>
+ 				<iRandApp4>0</iRandApp4>
+ 			</Rands>
+-			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and mollusc are for example) (if any other(s) such bonuses exist in civ4 in our civ4 mod advciv-sas at least anyways etc), was 0 / 32 -->
++			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and molluscs are for example, was 0 / 32 -->
+ 			<iPlayer>0</iPlayer>
+ 			<iTilesPer>30</iTilesPer>
+ 			<iMinLandPercent>0</iMinLandPercent>
+@@ -1983,8 +1983,8 @@
+ 				<iRandApp3>0</iRandApp3>
+ 				<iRandApp4>0</iRandApp4>
+ 			</Rands>
+-			<!-- custom: reducing iPlayer to 0 if need be to make it player-independent too if i am not mistaken and flat, always constant spanwing, anyways etc, was 67 -->
+-			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and mollusc are for example) (if any other(s) such bonuses exist in civ4 in our civ4 mod advciv-sas at least anyways etc), but since it was 0, using a higher than 0 value to not disable it if i am not mistaken according to/as said in (english verison rather translated web page using google chrome (for example is what i used anyways etc, see docs for details anyways etc) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper, was 67 / 0 ; after tweaking it to 0 / 26 seems still a bit too high in frequency, whale appears a bit too often anyways etc, reduce it a bit now from 0 / 26 anyways etc to value(s) below anyways etc anyways etc anyways etc -->
++			<!-- custom: reducing iPlayer to 0 if need be to make it player-independent too if i am not mistaken and flat, always constant spanwing, was 67 -->
++			<!-- custom: buff water ressources, less pronounced in less general ressources/bonsues (as fish and molluscs are for example), but since it was 0, using a higher than 0 value to not disable it if i am not mistaken according to/as said in (english verison rather translated web page using google chrome (for example is what i used, see docs for details) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#itilesper, was 67 / 0; after tweaking it to 0 / 26 seems still a bit too high in frequency, whale appears a bit too often, reduce it a bit now from 0 / 26 to value(s) below that. -->
+ 			<iPlayer>0</iPlayer>
+ 			<iTilesPer>29</iTilesPer>
+ 			<iMinLandPercent>0</iMinLandPercent>
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index 245e128b3..d13631267 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -755,7 +755,7 @@
+ 			<FeatureMakesValids/>
+ 			<ImprovementPillage/>
+ 			<ImprovementUpgrade/>
+-			<!-- custom: seems more historically accurate or/and anyways etc making sense for our reworked tech tree of our mod advciv-sas anyways etc at least anyways etc if not others or not or yes or not or yes or other or etc anyways etc, was TECH_GAME_THEORY -->
++			<!-- custom: seems more historically accurate or/and making sense for our reworked tech tree, was TECH_GAME_THEORY -->
+ 			<TechYieldChanges>
+ 				<TechYieldChange>
+ 					<PrereqTech>TECH_PHYSICS</PrereqTech>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 4b7ac3948..b62423345 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1662,7 +1662,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 						// <!-- custom: note: we could have added the watermill, but the yields are not good enough and early enough, also even if not, this is not a high production terrain and is likely to be surrounded by economy tiles as well or/and tundra ones maybe too but anyways etc, bet on commerce rather for these tiles/cities maybe, hopefully statistically often most helpful for AI but anyways etc -->
+ 						else if (canBuild(kPlot, eBuildCottage))
+ 						{
+-							// <!-- custom: still quite good especially with the tundra change that now gives one extra commerce in our mod advciv-sas if i may say but anyways etc, but still not ultimate best if i may say but anyways etc, delay if all higher potential food tiles especially unimproved ones have been improved already -->
++							// <!-- custom: still quite good especially with the tundra change that now gives one extra commerce, delay if all higher potential food tiles especially unimproved ones have been improved already. -->
+ 							eBestSupposedBuild = eBuildCottage;
+ 
+ 							iValue += 550;
+
+diff --git a/_0_Common_Docs/AdvCiv_Base_Doc/CIV4BuildingInf_os_Doto_mod.txt b/Long_Comments/CIV4BuildingInf_os_Doto_mod.txt
+similarity index 100%
+rename from _0_Common_Docs/AdvCiv_Base_Doc/CIV4BuildingInf_os_Doto_mod.txt
+rename to Long_Comments/CIV4BuildingInf_os_Doto_mod.txt
+
+diff --git a/README.md b/README.md
+index 84e1d10f7..4d50459e1 100644
+--- a/README.md
++++ b/README.md
+@@ -44,6 +44,7 @@ As for the future, i have some more content prepared for the future era (no pun
+ [Assets Rebalancing](/README.md#assets-rebalancing)  
+ [48 Civs DLL](/README.md#48-civs-dll)  
+ [Long Comments Archive](/README.md#long-comments-archive)  
++[External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)  
+ [Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-orand-civ4-anyways-etc)  
+ ["Temporary" crashes](/README.md#temporary-crashes)  
+ [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)  
+@@ -449,6 +450,18 @@ Note 2: in the [development version](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Q
+ Context: after AI performed measurably better following a DLL refactor, the only other change was moving a very heavy XML comment (UnitAI XML info, not C++), which made it a suspect for the improvement and prompted us to archive long comments out of game files (AdvCiv-SAS 5240; see [update notes](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/) and the CFC download/update page for [that version](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/update/37055/)). To keep files readable, we consolidated long comments into [Long_Comments/](/Long_Comments/). See details in [commit 940d04c](/commit/940d04ce76fddb1671b22608f66a41cfe6233ddb) and [PR #17](/pull/17).
+ Note: we try to balance comment cleanup with keeping concise technical explanations in code when they help maintainers.
+ 
++## External file access in Civ4 ingame (on Windows)
++
++With the help of chatgpt 5.2, while trying to debug why the "BUG Mod Help" button in the BUG Menu ingame caused a path error in AdvCiv-SAS but not in base AdvCiv, even though path was the same, i have discovered it is possible to access external files ingame in Civ4 (e.g. [BUG Mod Help-ENG.chm](/_0_Common_Docs/BUG_Doc/BUG%20Mod%20Help-ENG.chm)), and it works successfully.
++
++The path is something like this for example in [BugPath.py](/Assets/Python/BUG/BugPath.py), if i'm not mistaken, for `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\BUG_Doc\BUG Mod Help-ENG.chm`
++
++```py
++os.path.join(cwd, "Mods", "AdvCiv-SAS", "_0_Common_Docs", "BUG_Doc", name)
++```
++
++This possibly theoretically could be used to open other external files in Civ4 maybe (check if accurate, as i don't know too much about these). See also [KI#87](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
++
+ ## Known issues that may be fixed or not fixed in base AdvCiv or/and Civ4 anyways etc
+ 
+ See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 7ee3b7b0c..20e7aad8e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -144,6 +144,7 @@ For sevopedia new content and most reworks, see above in this readme or in more
+ ## Code/Performance optimizations
+ 
+ - various performance optimizations and code refactoring to python, cleanup XML, and C++ code. See for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc), or caching in C++ various variables in `static const` or/and hoisting them (undocumented in the .md documentation anyways etc), or caching mapname is landheavy or mapname is navalheavy information once per game (new game, load save, etc if any more hopefully handled but check to be sure anyways etc in the new `CvGame::recomputeMapnameHeaviness` we added (see also [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc) for details anyways etc)) so no need to recheck it everytime at each turn for each unit or such if i'm not mistaken but anyways etc (check if accurate as i don't know too much about these, done with the help of chatgpt 5 quite carefully and minimalistically but anyways etc), bonus-specific builds/improvements caching (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), or for example [README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets), or caching in new features we added as well such as in [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching) and/or such anyways etc, which i hopefully did well enough and that could always (at least until issues are fixed or polished if worth the tedium xd (is fun to do too btw but takes time and is still bit tedious but fun if i may say but anyways etc...) if i may say but anyways etc) be enhanced on / continued or possibly improved but that hopefully helps but anyways etc. Refactor extremely redundant code (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py))
++- (Requires AdvCiv-SAS 5276+) **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+ - (Requires AdvCiv-SAS 5242+) Consolidated **long comments** (e.g. 1000+ character XML code comments) into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers to keep XML files readable.
+ 
+ ## 48 Civs DLL
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index bd1475b00..24a39d4c7 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -120,6 +120,7 @@ hopefully helpful, thanks, anyways, thanks,
+ [84 - (Added missing feature) Rivals of the active/human player that are willing to become the active/human player's vassal not showing an icon to quickly indicate that at a glance, in the Foreign advisor's glance tab (no pun but anyways etc.)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#84---added-missing-feature-rivals-of-the-activehuman-player-that-are-willing-to-become-the-activehuman-players-vassal-not-showing-an-icon-to-quickly-indicate-that-at-a-glance-in-the-foreign-advisors-glance-tab-no-pun-but-anyways-etc)  
+ [85 - (Corrected Explanation) BUG Tech Advisor's Bulbing Indicators causing preGameStart (CvAppInterface) error at turn 0 so as in base advciv it is disabled at this turn and enabled only from turn 1 onwards, but base advciv's explanation about it affecting very large maps was incorrect: happened on a standard size map as well](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well)  
+ [86 - (Fixed) Base AdvCiv bug, in sevopedia bonus, in the aluminium bonus' entry, of all project tooltips showing the Apostolic Palace and redirecting to it instead of showing the project's tooltip and redirecting to said project, with the help of chatgpt 5.2 thanks anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#86---fixed-base-advciv-bug-in-sevopedia-bonus-in-the-aluminium-bonus-entry-of-all-project-tooltips-showing-the-apostolic-palace-and-redirecting-to-it-instead-of-showing-the-projects-tooltip-and-redirecting-to-said-project-with-the-help-of-chatgpt-52-thanks-anyways-etc)  
++[87 - (Fixed and Generalized) Cannot open BUG Mod Help-ENG.chm on windows in AdvCiv-SAS, but can open it on windows in base AdvCiv, even though path is the same](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -3204,3 +3205,9 @@ Update: somehow sometimes they appear at turn 0 and sometimes not, what matters
+ See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1I71aSFVOj4GZIhgBde0niJwJIFmx_exC?usp=sharing) anyways etc.
+ 
+ Now fixed with the help of chatgpt 5.2 thanks anyways etc.
++
++## 87 - (Fixed and Generalized) Cannot open BUG Mod Help-ENG.chm on windows in AdvCiv-SAS, but can open it on windows in base AdvCiv, even though path is the same
++
++See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1vFB4Iae35EQlTOaobLDD7Cw4J4OuW_ta?usp=sharing) anyways etc.
++
++Issue and fixed described in [/README.md#external-file-access-in-civ4-ingame-on-windows](/README.md#external-file-access-in-civ4-ingame-on-windows).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 32980eec2..1792ee7f2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -137,6 +137,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ ### Code/Performance optimizations
+ 
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well-anyways-etc)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), etc.
++- (Requires AdvCiv-SAS 5276+) **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+ - (Requires AdvCiv-SAS 5242+) Consolidated **long comments** (e.g. 1000+ character XML code comments) into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers to keep XML files readable.
+ 
+ ### 48 Civs DLL
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=41259

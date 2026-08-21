@@ -1,0 +1,162 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1316
+# Commit: 2292bebefacb9acb8556887bcc50a8086bf7db44
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b577db20a26e6a6083265410dbd8963bd95730f5
+# Title: Capitulated vassals no longer train nukes. Was supposed to work this way since v0.8x(?), but I hadn't implemented it properly. [advc.143b]
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/xml/Text/CIV4GameText_advc.xml
+8	7	Assets/xml/Text/K-Mod hints.xml
+6	3	CvGameCoreDLL/CvCityAI.cpp
+3	1	CvGameCoreDLL/CvPlayerAI.cpp
+14	1	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index fb7667498..6fe16cbb4 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -398,6 +398,16 @@
+ 		<Italian></Italian><Spanish></Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.106 -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_CITY_NUKED</Tag>
++		<English>%s1_CityName (%s2_PlyrName) was hit by a nuclear warhead launched by %s3_PlyrName.</English>
++		<French>%s1_CityName (%s2_PlyrName) a �t� [NUM1:frapp�:frapp�e] par une ogive nucl�aire lanc�e par %s3_PlyrName.</French>
++		<German>%s1_CityName (%s2_PlyrName) wurde von einer Atomwaffe getroffen, abgefeuert durch %s3_PlyrName.</German>
++		<Italian>%s1_CityName (%s2_PlyrName) � stata [NUM1:colpito:colpita] da una testata nucleare lanciata da %s3_PlyrName.</Italian>
++		<Spanish>%s1_CityName (%s2_PlyrName) fue [NUM1:golpeado:golpeada] por una ojiva nuclear lanzada por %s3_PlyrName.</Spanish>
++	</TEXT>
++
+ 	<!-- [advc.004b]
+ 		 Help text for projected city costs (city maintenance, civic upkeep,
+ 		 unit cost, inflation) before founding a city. -->
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index 3dbd9c165..ea8043217 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -227,15 +227,16 @@
+ 	<Spanish>Debes ser prudente y guardar algunas reservas de oro en tu tesoro. Nunca se sabe cu�ndo tus ahorros pueden servir para mitigar los efectos de un suceso desastroso o para darte acceso a oportunidades adicionales cuando se produzca un suceso positivo.</Spanish>
+ </TEXT>
+ 
+-<!-- advc.008c: It's good to point out the BtS Concepts page, but since it's no
+-	 longer a novelty, the players don't need to "be sure to check" it out. -->
++<!-- advc.008c, advc.002g: It's good to point out the BtS Concepts page, but
++	 since it's no longer a novelty, the players don't need to "be sure to
++	 check" it out. -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_59</Tag>
+-	<English>The "Beyond the Sword Concepts" page in the Civilopedia summarizes the changes introduced by that expansion.</English>
+-	<French>Pensez &#224; lire la page "Concepts de Beyond the Sword" dans la Civilop&#233;die pour conna&#238;tre toutes les modifications apport&#233;es par cette extension.</French>
+-	<German>Die Seite "Beyond The Sword-Konzepte" in der Zivilop&#228;die fasst die &#196;nderungen dieser Erweiterung zusammen.</German>
+-	<Italian>Consulta la pagina "Nozioni di Beyond the Sword" nella Civilopedia per leggere tutte le modifiche effettuate in questa espansione.</Italian>
+-	<Spanish>Aseg&#250;rate de consultar la p&#225;gina "Conceptos de Beyond the Sword" en la Civilopedia para conocer todos los cambios que incorpora esta expansi&#243;n.</Spanish>
++	<English>The "BtS Concepts" page in the Civilopedia summarizes the changes introduced by the "Beyond the Sword" expansion.</English>
++	<French>Pensez &#224; lire la page "Concepts de BtS" dans la Civilop&#233;die pour conna&#238;tre toutes les modifications apport&#233;es par cette extension.</French>
++	<German>Die Seite "BtS-Konzepte" in der Zivilop&#228;die fasst die &#196;nderungen der "Beyond the Sword"-Erweiterung zusammen.</German>
++	<Italian>Consulta la pagina "Nozioni di BtS" nella Civilopedia per leggere tutte le modifiche effettuate in questa espansione.</Italian>
++	<Spanish>Aseg&#250;rate de consultar la p&#225;gina "Conceptos de BtS" en la Civilopedia para conocer todos los cambios que incorpora esta expansi&#243;n.</Spanish>
+ </TEXT>
+ 
+ <!-- advc.008c: Removed "now" as it's longer news. -->
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 612ad7d55..f0048bcaf 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2271,7 +2271,8 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	} */
+ 	// K-Mod. Roughly the same conditions for building a nuke, but with a few adjustments for flavour and strategy
+-	if (!bAlwaysPeace && !bLandWar && !bUnitExempt && !bFinancialTrouble)
++	if (!bAlwaysPeace && !bLandWar && !bUnitExempt && !bFinancialTrouble
++			&& !GET_TEAM(kPlayer.getTeam()).isCapitulated()) // advc.143b
+ 	{
+ 		if ((kPlayer.AI_isDoStrategy(AI_STRATEGY_OWABWNW) || GC.getGame().getSorenRandNum(1200, "AI consider Nuke") < std::min(400, iNukeWeight))
+ 			&& (!bAssault || GC.getGame().getSorenRandNum(400, "AI consider Nuke despite assult") < std::min(200, 50 + iNukeWeight/2)))
+@@ -3037,8 +3038,10 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 		aiUnitAIVal[iI] *= std::max(0, (GC.getLeaderHeadInfo(getPersonalityType()).getUnitAIWeightModifier(iI) + 100));
+ 		aiUnitAIVal[iI] /= 100;
+ 	} // <advc.033>
+-	if(TEAMREF(getOwnerINLINE()).isCapitulated())
+-		aiUnitAIVal[UNITAI_PIRATE_SEA] = 0; // </advc.033>
++	if(TEAMREF(getOwnerINLINE()).isCapitulated()) {
++		aiUnitAIVal[UNITAI_PIRATE_SEA] = 0;
++		aiUnitAIVal[UNITAI_ICBM] = 0; // advc.143b
++	} // </advc.033>
+ 	iBestValue = 0;
+ 	eBestUnit = NO_UNIT;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 41809134b..1da8fe293 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8060,7 +8060,9 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 					if (!GC.getGameINLINE().isNoNukes())
+ 					{
+ 						iOffenceValue = std::max(iOffenceValue, (bWarPlan ? 2 : 1)*iWeight + (GC.getGameINLINE().isNukesValid() ? 2*AI_nukeWeight() : 0)*iWeight/100);
+-						FAssert(!GC.getGameINLINE().isNukesValid() || AI_nukeWeight() > 0);
++						FAssert(!GC.getGameINLINE().isNukesValid() || 
++								kTeam.isCapitulated() || // advc.143b
++								AI_nukeWeight() > 0);
+ 					}
+ 					// K-Mod end
+ 					break;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 3fe89de60..aa0a95d5d 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -4589,6 +4589,7 @@ bool CvUnit::nuke(int iX, int iY)
+ 			GET_TEAM(getTeam()).AI_changeWarSuccess(((TeamTypes)iI), GC.getDefineINT("WAR_SUCCESS_NUKE"));
+ 		}
+ 	}
++	CvCity const* nukedCity = NULL; // advc.106
+ 	// <advc.130q>
+ 	for(int i = 0; i < MAX_TEAMS; i++) {
+ 		TeamTypes tId = (TeamTypes)i;
+@@ -4603,6 +4604,9 @@ bool CvUnit::nuke(int iX, int iY)
+ 			if(p == NULL || !p->isCity())
+ 				continue;
+ 			CvCity const& c = *p->getPlotCity();
++			// <advc.106>
++			if(nukedCity == NULL || nukedCity->getPopulation() < c.getPopulation())
++				nukedCity = &c; // </advc.106>
+ 			if(c.getTeam() != tId)
+ 				continue;
+ 			score += GET_PLAYER(c.getOwnerINLINE()).razeAngerRating(c);
+@@ -4695,7 +4699,16 @@ bool CvUnit::nuke(int iX, int iY)
+ 			gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), (((PlayerTypes)iI) == getOwnerINLINE()), GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_NUKE_EXPLODES", MESSAGE_TYPE_MAJOR_EVENT, getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX_INLINE(), pPlot->getY_INLINE(), true, true);
+ 		}
+ 	}
+-
++	// <advc.106>
++	if(nukedCity != NULL) {
++		szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_NUKED",
++				nukedCity->getNameKey(), GET_PLAYER(
++				nukedCity->getOwnerINLINE()).getNameKey(),
++				GET_PLAYER(getOwnerINLINE()).getNameKey());
++		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
++				getOwnerINLINE(), szBuffer, getX_INLINE(), getY_INLINE(),
++				(ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
++	} // </advc.106>
+ 	if (isSuicide())
+ 	{
+ 		kill(true);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=7425

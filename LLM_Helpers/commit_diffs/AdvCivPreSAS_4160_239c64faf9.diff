@@ -1,0 +1,99 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4160
+# Commit: 239c64faf931b41b80407e92869ef6997923c4f2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2371c3b9723e2f23e62485ba27e7491004debe87
+# Title: Rename Makefile.settings to Makefile.user
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/Project/AdvCiv.vcxproj
+8	8	CvGameCoreDLL/Project/Makefile
+0	0	CvGameCoreDLL/Project/{Makefile.settings => Makefile.user}
+-	-	manual.odt
+-	-	manual.pdf
+ rename CvGameCoreDLL/Project/{Makefile.settings => Makefile.user} (100%)
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 12a767a43..80954579f 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -393,7 +393,7 @@
+     <None Include="CvGameCoreDLL.def" />
+     <None Include="Makefile" />
+     <None Include="Makefile.project" />
+-    <None Include="Makefile.settings" />
++    <None Include="Makefile.user" />
+   </ItemGroup>
+   <ItemGroup>
+     <ResourceCompile Include="CvGameCoreDLL.rc" />
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+index bb8bc2ea2..d8ddcfdf2 100644
+--- a/CvGameCoreDLL/Project/Makefile
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -35,22 +35,22 @@
+ 
+ ## User setup
+ ##
+-## Any setting here can be overwritten by assigning a new value to the variables in Makefile.settings
+-##  Makefile.settings is made automatically if it is missing whenever the project is build or cleaned
++## Any setting here can be overwritten by assigning a new value to the variables in Makefile.user
++##  Makefile.user is made automatically if it is missing whenever the project is build or cleaned
+ ##
+ ## Not touching the makefile itself can be beneficial if the makefile is committed to svn/git
+-## Makefile.settings can also accept CUSTOM_CFLAGS and CUSTOM_LDFLAGS if you want to ADD additional flags
++## Makefile.user can also accept CUSTOM_CFLAGS and CUSTOM_LDFLAGS if you want to ADD additional flags
+ ##   the custom flags will not overwrite any flags the makefile sets itself
+ ##   An example could be you want to define ENABLE_MY_DEBUG_OUTPUT in C++, then you write
+ ##     CUSTOM_CFLAGS -DENABLE_MY_DEBUG_OUTPUT
+-##     in Makefile.settings and it will be defined for you without the risk of committing active debug output to other people
++##     in Makefile.user and it will be defined for you without the risk of committing active debug output to other people
+ ##
+ ##     You can write whatever you want after -D and it will work like you write #DEFINE in C++
+ ## 
+ 
+ 
+ #### Paths ####
+-# Note: Edit Makefile.settings instead and add it to .gitignore
++# Note: Edit Makefile.user instead and add it to .gitignore
+ # Note: $(PROGRAMFILES) converts to "C:\Program Files", "C:\Program Files (x86)" or whatever fits your system.
+ # run "nmake.exe /P" in cmd.exe to see what it is on your system
+ #
+@@ -104,11 +104,11 @@ CUSTOM_LDFLAGS =
+ 
+ 
+ 
+-!IF [IF NOT EXIST Makefile.settings EXIT 1] != 0
+-!IF [ECHO CUSTOM_CFLAGS = > Makefile.settings]
++!IF [IF NOT EXIST Makefile.user EXIT 1] != 0
++!IF [ECHO CUSTOM_CFLAGS = > Makefile.user]
+ !ENDIF
+ !ENDIF
+-!include Makefile.settings
++!include Makefile.user
+ 
+ PRECOMPILE_DEPENDENCIES =
+ PROJECT_CFLAGS =
+
+diff --git a/CvGameCoreDLL/Project/Makefile.settings b/CvGameCoreDLL/Project/Makefile.user
+similarity index 100%
+rename from CvGameCoreDLL/Project/Makefile.settings
+rename to CvGameCoreDLL/Project/Makefile.user
+
+[PATCH OMITTED] file=a/manual.odt b/manual.odt reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH OMITTED] file=a/manual.pdf b/manual.pdf reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=3 omittedFiles=2 embeddedPatchBytes=2901

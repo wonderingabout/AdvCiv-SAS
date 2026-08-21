@@ -1,0 +1,299 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2544
+# Commit: 57a150e98c219fd3236ef368887dbdd5607191f2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9f4b83351c3d5ef7729eb526b189a899629dd200
+# Title: A few comment, whitespace, var name changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	Assets/Python/Screens/CvMainInterface.py
+1	1	Assets/XML/GlobalDefines_advc.xml
+12	12	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCity.h
+3	3	CvGameCoreDLL/CvDLLWidgetData.cpp
+2	1	CvGameCoreDLL/CvGlobals.cpp
+4	4	CvGameCoreDLL/CvInitCore.cpp
+3	3	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+2	4	CvGameCoreDLL/CvUnitAI.cpp
+0	1	CvGameCoreDLL/PlotRange.h
+3	3	CvGameCoreDLL/PragmaWarnings.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 7eaa64100..b9ca258e6 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -5221,7 +5221,6 @@ class CvMainInterface:
+ 					scores.setWaiting()
+ # BUG - Dead Civs - start
+ 		# <advc.190d>
+-		# (based on K-Mod)
+ 		bConcealCiv = False
+ 		bConcealLeader = False
+ 		# Note: Not much of a  point in concealing anything in HotSeat mode
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index db01485fd..f1e0b17b6 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1196,7 +1196,7 @@
+ 		 Recommended: 20, meaning that e.g. Rome is 1.2 times as likely
+ 		 to be chosen than Mali and America is 1.4 times as likely as Mali. -->
+ 	<Define>
+-		<DefineName>PER_LEADER_EXTRA_CIV_SELECTION_WEIGHT</DefineName>
++		<DefineName>PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT</DefineName>
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index e01449164..58f875fde 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -567,19 +567,19 @@ void CvCity::doTurn()  // advc: style changes
+ 	#endif // XXX
+ }
+ 
+-// <advc.104u> Cut, pasted, refactored from the end of CvCity::doTurn
+-int CvCity::calculateBaseYieldRate(YieldTypes y)
++// advc.104u: Cut, pasted, refactored from the end of CvCity::doTurn
++int CvCity::calculateBaseYieldRate(YieldTypes eYield)
+ {
+-	int r = 0;
++	int iR = 0;
+ 	for (WorkingPlotIter it(*this); it.hasNext(); ++it)
+ 	{
+ 		CvPlot const* pPlot = getCityIndexPlot(it.currID());
+ 		if(pPlot != NULL)
+-			r += pPlot->getYield(y);
++			iR += pPlot->getYield(eYield);
+ 	}
+ 	FOR_EACH_ENUM(Specialist)
+ 	{
+-		r += GET_PLAYER(getOwner()).specialistYield(eLoopSpecialist, y) *
++		iR += GET_PLAYER(getOwner()).specialistYield(eLoopSpecialist, eYield) *
+ 				(getSpecialistCount(eLoopSpecialist) +
+ 				getFreeSpecialistCount(eLoopSpecialist));
+ 	}
+@@ -588,13 +588,13 @@ int CvCity::calculateBaseYieldRate(YieldTypes y)
+ 	{
+ 		BuildingTypes eBuilding = kCiv.buildingAt(i);
+ 		CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+-		r += getNumActiveBuilding(eBuilding) * (kBuilding.getYieldChange(y) +
+-				getBuildingYieldChange(kBuilding.getBuildingClassType(), y));
++		iR += getNumActiveBuilding(eBuilding) * (kBuilding.getYieldChange(eYield) +
++				getBuildingYieldChange(kBuilding.getBuildingClassType(), eYield));
+ 	}
+-	r += getTradeYield(y);
+-	r += getCorporationYield(y);
+-	return r;
+-} // </advc.104u>
++	iR += getTradeYield(eYield);
++	iR += getCorporationYield(eYield);
++	return iR;
++}
+ 
+ // advc: Code cut and pasted from CvPlot::doCulture; also refactored.
+ void CvCity::doRevolt()
+@@ -11563,8 +11563,8 @@ void CvCity::getVisibleBuildings(std::list<BuildingTypes>& kChosenVisible,
+ 	TeamTypes const eActiveTeam = GC.getGame().getActiveTeam();
+ 	bool const bAllVisible = (eActiveTeam != NO_TEAM &&
+ 			isAllBuildingsVisible(eActiveTeam, true)); // </advc.045>
+-	CvCivilization const& kCiv = getCivilization(); // advc.003w
+ 	std::vector<BuildingTypes> kVisible;
++	CvCivilization const& kCiv = getCivilization(); // advc.003w
+ 	for (int i = 0; i < kCiv.getNumBuildings(); i++)
+ 	{
+ 		BuildingTypes const eBuilding = kCiv.buildingAt(i);
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index bad74ef45..9345156fc 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -720,7 +720,7 @@ public:
+ 	}
+ 	void setBaseYieldRate(YieldTypes eIndex, int iNewValue);														// Exposed to Python
+ 	void changeBaseYieldRate(YieldTypes eIndex, int iChange);														// Exposed to Python
+-	int calculateBaseYieldRate(YieldTypes eIndex); // advc.104u
++	int calculateBaseYieldRate(YieldTypes eYield); // advc.104u
+ 	int getYieldRateModifier(YieldTypes eIndex) const { return m_aiYieldRateModifier.get(eIndex); }					// Exposed to Python
+ 	void changeYieldRateModifier(YieldTypes eIndex, int iChange);
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index d10b86277..ed678be17 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -5976,8 +5976,7 @@ void CvDLLWidgetData::parseGoldenAgeAnarchyHelp(PlayerTypes ePlayer, int iData2,
+ 	}
+ } // </advc.085>
+ 
+-/*  K-Mod, 5/jan/11, karadoc
+-	Environmental advisor mouse-over text */
++// <K-Mod> 5/jan/11: Environmental advisor mouse-over text
+ void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+ 	szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_OFFSETS_HELP"));
+@@ -5988,7 +5987,8 @@ void CvDLLWidgetData::parsePollutionOffsetsHelp(CvWidgetDataStruct &widgetDataSt
+ 		if (iWarmingDefence != 0)
+ 		{
+ 			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_OFFSET_PER_FEATURE", -iWarmingDefence, GC.getInfo((FeatureTypes)iI).getTextKeyWide()));
++			szBuffer.append(gDLL->getText("TXT_KEY_OFFSET_PER_FEATURE",
++					-iWarmingDefence, GC.getInfo((FeatureTypes)iI).getTextKeyWide()));
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index cbe73b193..8e07e6bbf 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -828,7 +828,8 @@ void CvGlobals::updateCameraStartDistance(bool bReset)
+ 		fNewValue = std::max(8750 - 80 * getDefineFLOAT("FIELD_OF_VIEW"), 1200.f);
+ 		PlayerTypes eActivePlayer = getGame().getActivePlayer();
+ 		if (eActivePlayer != NO_PLAYER)
+-		{
++		{	/*	Or better use getNumCities (while still calling updateCameraStartDistance
++				only upon entering a new era)? */
+ 			switch((int)GET_PLAYER(eActivePlayer).getCurrentEra())
+ 			{
+ 			case 0: fNewValue *= 0.88f; break;
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index c229a5ac4..6aeec620f 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -1591,9 +1591,9 @@ void CvInitCore::reRandomizeCivsAndLeaders()
+ {
+ 	if (getOption(GAMEOPTION_LEAD_ANY_CIV))
+ 		return;
+-	int const iPER_LEADER_EXTRA_CIV_SELECTION_WEIGHT = GC.getDefineINT(
+-			"PER_LEADER_EXTRA_CIV_SELECTION_WEIGHT");
+-	if (iPER_LEADER_EXTRA_CIV_SELECTION_WEIGHT == 0) // BtS behavior
++	int const iPER_EXTRA_LEADER_CIV_SELECTION_WEIGHT = GC.getDefineINT(
++			"PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT");
++	if (iPER_EXTRA_LEADER_CIV_SELECTION_WEIGHT == 0) // BtS behavior
+ 		return;
+ 	FOR_EACH_ENUM2(Civilization, eCiv)
+ 	{
+@@ -1693,7 +1693,7 @@ void CvInitCore::reRandomizeCivsAndLeaders()
+ 				for (size_t j = 0; j < leadersPerCiv[eCiv].size(); j++)
+ 				{
+ 					if (!abLeaderTaken.get(leadersPerCiv[eCiv][j]))
+-						iWeight += iPER_LEADER_EXTRA_CIV_SELECTION_WEIGHT;
++						iWeight += iPER_EXTRA_LEADER_CIV_SELECTION_WEIGHT;
+ 				}
+ 				if (iWeight == 0) // All leaders already taken
+ 					continue;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 64b4f13af..5764d90dd 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5850,7 +5850,7 @@ int CvPlayer::calculatePollution(int iTypes) const
+ 	return iTotal;
+ }
+ 
+-// K-Mod
++// <K-Mod>
+ void CvPlayer::setGwPercentAnger(int iNewValue)
+ {
+ 	if (iNewValue != m_iGwPercentAnger)
+@@ -5877,8 +5877,8 @@ int CvPlayer::getUnitCostMultiplier() const
+ 	}
+ 
+ 	return iMultiplier;
+-}
+-// K-Mod end
++} // </K-Mod>
++
+ 
+ int CvPlayer::calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& iPaidUnits,
+ 	int& iPaidMilitaryUnits, int& iUnitCost, int& iMilitaryCost, int& iExtraCost,
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0c1cfd614..438a2ac58 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -20,7 +20,7 @@
+ #include "BBAILog.h"
+ #include "CvPopupInfo.h"
+ 
+-//#define GREATER_FOUND_RANGE			(5)
++//#define GREATER_FOUND_RANGE		(5)
+ #define CIVIC_CHANGE_DELAY			(20) // was 25
+ #define RELIGION_CHANGE_DELAY		(15)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2486713c7..6d2f9a81d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -13103,9 +13103,7 @@ bool CvUnitAI::AI_exploreRange(int iRange) // advc: style changes
+ }
+ 
+ // BETTER_BTS_AI_MOD, 03/29/10, jdog5000 (War tactics AI, Efficiency):
+-/*	Returns target city.
+-	This function has been heavily edited for K-Mod
+-	(and I got sick of putting "K-Mod" tags all over the place) */
++/*	Returns target city. K-Mod: heavily edited */
+ CvCity* CvUnitAI::AI_pickTargetCity(int iFlags, int iMaxPathTurns, bool bHuntBarbs)
+ {
+ 	PROFILE_FUNC();
+@@ -13425,7 +13423,7 @@ bool CvUnitAI::AI_goToTargetCity(int iFlags, int iMaxPathTurns, CvCity* pTargetC
+ 	else
+ 	{
+ 		pBestPlot = pTargetCity->plot();
+-		/*	K-mod. As far as I know, nothing actually uses MOVE_THROUGH_ENEMY here..
++		/*	K-Mod. As far as I know, nothing actually uses MOVE_THROUGH_ENEMY here..
+ 			but that doesn't mean we should let the code be wrong. */
+ 		int iPathTurns;
+ 		if (!generatePath(pBestPlot, iFlags, true, &iPathTurns, iMaxPathTurns) || iPathTurns > iMaxPathTurns)
+
+diff --git a/CvGameCoreDLL/PlotRange.h b/CvGameCoreDLL/PlotRange.h
+index fba1200de..32b176281 100644
+--- a/CvGameCoreDLL/PlotRange.h
++++ b/CvGameCoreDLL/PlotRange.h
+@@ -8,5 +8,4 @@
+ #include "PlotRadiusIterator.h" // includes CvMap.h, CvPlot.h
+ #include "CityPlotIterator.h" // includes CvCity.h
+ 
+-
+ #endif
+
+diff --git a/CvGameCoreDLL/PragmaWarnings.h b/CvGameCoreDLL/PragmaWarnings.h
+index a3869d150..52162636d 100644
+--- a/CvGameCoreDLL/PragmaWarnings.h
++++ b/CvGameCoreDLL/PragmaWarnings.h
+@@ -15,7 +15,7 @@
+ 	warnings. BtS had disabled that one through the PCH. */
+ 
+ /*	These should remain enabled even if the global level is dialed back down to 3.
+-	But I'm not sure how to keep them disabled in the std headers etc.
++	But I'm not sure how disable them in the std headers etc.
+ 	May need to put them into a separate header for that, to be included in the PCH
+ 	after loading the non-conforming headers. */
+ /*
+@@ -39,8 +39,8 @@
+ /*	Level 4 warnings that are too strict ...
+ 	(at least for day-to-day builds) */
+ 
+-#pragma warning(disable: 100) // "unreferenced formal parameter" x
+-#pragma warning(disable: 127) // "conditional expression is constant" x
++#pragma warning(disable: 100) // "unreferenced formal parameter"
++#pragma warning(disable: 127) // "conditional expression is constant"
+ #pragma warning(disable: 702) // "unreachable code"
+ 
+ /*	"operator signed/unsigned mismatch"
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=10442

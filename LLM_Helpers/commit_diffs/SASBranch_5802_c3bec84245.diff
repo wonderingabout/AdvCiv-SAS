@@ -1,0 +1,428 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5802
+# Commit: c3bec84245fde0622701d6bef939c927979eef9a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1127ae3c5e114adcd9a254f4421069dcde748edc
+# Title: Summary Tab tweaks or polish; update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+37	40	Assets/Python/Screens/CvMilitaryAdvisor.py
+5	0	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+16	2	Assets/XML/Text/AdvCiv-SAS_Core.xml
+2	2	Assets/XML/Text/AdvCiv-SAS_main.xml
+21	9	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (4).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (5).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (4).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (5).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 9834e07e7..5ae6c1234 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -294,7 +294,7 @@ class CvMilitaryAdvisor:
+ 		self.TEXT_SUMMARY_AVG_HEALTH = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_AVG_HEALTH", ())
+ 		self.TEXT_SUMMARY_MIN_HEALTH = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_MIN_HEALTH", ())
+ 		self.TEXT_SUMMARY_FAVORITE_PROMOS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_FAVORITE_PROMOS", ())
+-		self.TEXT_SUMMARY_SPECIAL_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SPECIAL_UNITS", ())
++		self.TEXT_SUMMARY_COVERT_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_COVERT_UNITS", ())
+ 		self.TEXT_SUMMARY_INVISIBLE = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_INVISIBLE", ())
+ 		self.TEXT_SUMMARY_SPIES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SPIES", ())
+ 		self.TEXT_SUMMARY_HIDDEN_NAT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_HIDDEN_NAT", ())
+@@ -558,7 +558,7 @@ class CvMilitaryAdvisor:
+ 		return localText.getText("TXT_KEY_TIME_AD", (iYear,))
+ 
+ 	def getBattleUnitStrength(self, iUnit):
+-		# <!-- custom: Battles table uses strength, not hammer cost; cost is less reliable for animals, spawned units, and special cases with 0 or unusual production cost. (GPT-5.5) -->
++		# <!-- custom: Battles table uses strength, not hammer cost; cost is less reliable for animals, spawned units, and edge cases with 0 or unusual production cost. (GPT-5.5) -->
+ 		iCombat = gc.getUnitInfo(iUnit).getCombat()
+ 		if iCombat <= 0:
+ 			iCombat = gc.getUnitInfo(iUnit).getAirCombat()
+@@ -1065,7 +1065,7 @@ class CvMilitaryAdvisor:
+ 		iHealthHigh = 0
+ 		iHealthMedium = 0
+ 		iHealthLow = 0
+-		# <!-- custom: special-unit categories: invisible (subs and similar - UnitInfo.getInvisibleType() != -1 declares an invisibility class), spies (isSpy flag), hidden-nationality (privateers and similar - pirate flag). A single unit can be more than one of these (e.g. a stealth spy in some mods); we count independently rather than partitioning. (Claude code Opus 4.7) -->
++		# <!-- custom: covert-unit categories: invisible (subs and similar - UnitInfo.getInvisibleType() != -1 declares an invisibility class), spies (isSpy flag), hidden-nationality (privateers and similar - pirate flag). A single unit can be more than one of these (e.g. a stealth spy in some mods); we count independently rather than partitioning. Named "covert" rather than "special" because Civ4 already uses "special" as a distinct concept (special unit classes, special buildings), so reusing that word would suggest a different categorization. (Claude code Opus 4.7) -->
+ 		iInvisibleUnits = 0
+ 		iSpyUnits = 0
+ 		iHiddenNatUnits = 0
+@@ -1074,7 +1074,7 @@ class CvMilitaryAdvisor:
+ 		iNumPromotionInfos = gc.getNumPromotionInfos()
+ 		# <!-- custom: build the upgrade-cost list rather than just the running total so we can compute min/avg/max afterwards. (Claude code Opus 4.7) -->
+ 		aUpgradeCosts = []
+-		# <!-- custom: do NOT track an "average strength gained per upgrade" stat. CvUnitInfo::getCombat() returns base XML strength only and excludes combat modifiers (collateral, city attack, withdraw, first strikes). E.g. Trebuchet upgrades from Catapult are a real strategic upgrade through their city-attack/collateral modifiers, but the visible base-strength delta would read as flat or negative on some configurations. A delta number without those modifiers would mislead more than inform. (Claude code Opus 4.7) -->
++		# <!-- custom: do NOT track an "average strength gained per upgrade" stat. CvUnitInfo::getCombat() returns base XML strength only and excludes combat modifiers (collateral, city attack, withdraw, first strikes). E.g. Catapult vs Trebuchet are concurrent siege units (not an upgrade chain in AdvCiv-SAS), with Trebuchet having lower base strength but stronger city-attack/collateral modifiers; either picked over the other for a real strategic reason that a base-strength delta would read as flat or negative. A delta number without those modifiers would mislead more than inform. (Claude code Opus 4.7) -->
+ 
+ 		# <!-- custom: cache team relations once instead of re-fetching per unit; team lookups in Civ4 Python are cheap but iterate fast enough to be worth hoisting on large empires. The "ally" predicate is intentionally broad: same team OR mutual vassalage (us->them or them->us). Defensive pacts and open borders are deliberately NOT counted as ally here because they don't grant the same trust level for stationing armies. (Claude code Opus 4.7) -->
+ 		eMyTeam = pPlayer.getTeam()
+@@ -1087,7 +1087,7 @@ class CvMilitaryAdvisor:
+ 			# <!-- custom: count units flagged bMilitarySupport=0 in CIV4UnitInfos.xml (e.g. Robotic Infantry, "No military support cost" in Sevopedia). CvUnit::changeMilitarySupportUnits skips changeNumMilitaryUnits() for these, so they pay regular unit cost but bypass the military-cost portion of CvPlayer::calculateUnitCost. (Claude code Opus 4.7) -->
+ 			if not pUnitInfo.isMilitarySupport():
+ 				iNoMilSupportUnits += 1
+-			# <!-- custom: special-unit predicates checked on every owned unit (not just canFight) so spies count. Independent flags can co-occur. (Claude code Opus 4.7) -->
++			# <!-- custom: covert-unit predicates checked on every owned unit (not just canFight) so spies count. Independent flags can co-occur. (Claude code Opus 4.7) -->
+ 			if pUnitInfo.getInvisibleType() != -1:
+ 				iInvisibleUnits += 1
+ 			if pUnitInfo.isSpy():
+@@ -1405,6 +1405,14 @@ class CvMilitaryAdvisor:
+ 			"count_castles": iCountCastles,
+ 			"city_heroic_epic": szHeroicEpicCity,
+ 			"city_mil_academy": szMilAcademyCity,
++			# <!-- custom: building button paths read directly via gc.getBuildingInfo(iBld).getButton(). No -1 fallback: the iBldClass* resolutions in initDefines already passed getInfoTypeOrFail, and pCivInfo.getCivilizationBuildings(class) returning -1 here would mean the modder disabled one of these for the active civ. Letting that crash loudly is the same contract as the strict class lookups above - silent fallback to empty icon would hide a real data issue. (Claude code Opus 4.7); not cached because these buildings vary by civ and there would be many or it would be unclean, and would increase maintenance if these civ-specific variants change -->
++			"icon_barracks": gc.getBuildingInfo(iBldBarracks).getButton(),
++			"icon_stables": gc.getBuildingInfo(iBldStable).getButton(),
++			"icon_drydocks": gc.getBuildingInfo(iBldDrydock).getButton(),
++			"icon_walls": gc.getBuildingInfo(iBldWalls).getButton(),
++			"icon_castles": gc.getBuildingInfo(iBldCastle).getButton(),
++			"icon_heroic_epic": gc.getBuildingInfo(iBldHeroicEpic).getButton(),
++			"icon_mil_academy": gc.getBuildingInfo(iBldMilAcademy).getButton(),
+ 			"avg_prod_mod": iAvgProdMod,
+ 			"best_prod_mod": iBestProdMod,
+ 			"best_prod_city": szBestProdCity,
+@@ -1628,6 +1636,7 @@ class CvMilitaryAdvisor:
+ 		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
+ 		(iX, iY, iW, iH), (_, _, _, _) = getAdvisorMaximizedPanelLayout(self.W_SCREEN, self.Y_BOTTOM_PANEL)
+ 		screen.addPanel(self.SUMMARY_PANEL_ID, "", "", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_MAIN)
++		placeAdvisorLegendLink(self, "CONCEPT_SAS_MILITARY_ADVISOR_SUMMARY_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
+ 		dStats = self.collectSummaryData()
+ 
+ 		iColGap = 20
+@@ -1645,7 +1654,7 @@ class CvMilitaryAdvisor:
+ 		eHelpAwaySupply = WidgetTypes.WIDGET_HELP_FINANCE_AWAY_SUPPLY
+ 		eHelpInflated = WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS
+ 
+-		# <!-- custom: row tuple is (label, value, helpWidget, data1, data2, indent, valueColor). Support column treats Total Units as the parent of all unit-support detail: Free Used/Cap and Paid for regular unit support, then No Mil. Cost Units/Mil. Cost Units for the military surcharge, then Outside Units for supply. Blank lines separate breakdowns that use different splitting logic, while one-level indentation shows they still depend on the Total Units set. Total Cost + Supply stays top-level because it combines unit cost and unit supply. Mil. Cost Units has its own Free Used/Cap and Paid threshold because paid military units are computed against getNumMilitaryUnits(), not against paid total units. No Mil. Cost includes any unit with bMilitarySupport=0, including civilians and special combat units; those units still count toward regular unit support. Keep count rows neutral; color only actual gold-cost rows. (Claude code Opus 4.7, GPT-5.5) -->
++		# <!-- custom: row tuple is (label, value, helpWidget, data1, data2, indent, valueColor). Support column treats Total Units as the parent of all unit-support detail: Free Used/Cap and Paid for regular unit support, then No Mil. Cost Units/Mil. Cost Units for the military surcharge, then Outside Units for supply. Blank lines separate breakdowns that use different splitting logic, while one-level indentation shows they still depend on the Total Units set. Total Cost + Supply stays top-level because it combines unit cost and unit supply. Mil. Cost Units has its own Free Used/Cap and Paid threshold because paid military units are computed against getNumMilitaryUnits(), not against paid total units. No Mil. Cost includes any unit with bMilitarySupport=0, including civilians and certain combat units (e.g. Robotic Infantry); those units still count toward regular unit support. Keep count rows neutral; color only actual gold-cost rows. (Claude code Opus 4.7, GPT-5.5) -->
+ 		# <!-- custom: Paid count rows are left default (white) rather than red, since "paid" just means "beyond the free threshold", not "unaffordable"; red is reserved for actual positive gold costs in the formulas and subtotals. (Claude code Opus 4.7, GPT-5.5) -->
+ 		# <!-- custom: Use simple burden coloring for the support math: green = 0 cost, red = positive cost. The earlier affordability coloring (yellow if the player still had nonnegative net gold/turn) made rows like `(84 x 100 x 82) / 10000 = 68` look merely cautionary even though this panel is explaining where the unit-support burden comes from. (GPT-5.5) -->
+ 		def _supportColor(iCost):
+@@ -1696,7 +1705,7 @@ class CvMilitaryAdvisor:
+ 			# <!-- custom: Keep the CvPlayer.cpp integer formula explicit here. K-Mod stores getGoldPerUnit/getUnitCostMultiplier as percent-like ints but computes `paid * rate * multiplier / 10000`, so e.g. 1 x 100 x 82 floors to 0; showing "1 x 100% x 82%" would read like normal decimal math and look wrong. (GPT-5.5) -->
+ 			(self.TEXT_SUMMARY_GOLD_PER_UNIT, self.getSummaryCostResultText(u"(%d x %d x %d) / 10000" % (dStats["paid_units"], dStats["gold_per_unit"], dStats["unit_cost_multiplier"]), dStats["regular_unit_cost"], iUnitCostColor), eHelpUnitCost, self.iActivePlayer, 1, 1, -1),
+ 			(None, None, eNone, -1, -1, 0, -1),
+-			# <!-- custom: No Mil. Cost Units and Mil. Cost Units are sibling subsets of Total Units for the military-surcharge breakdown; neither is nested inside the other because bMilitarySupport=0 includes civilians and special combat units. (GPT-5.5) -->
++			# <!-- custom: No Mil. Cost Units and Mil. Cost Units are sibling subsets of Total Units for the military-surcharge breakdown; neither is nested inside the other because bMilitarySupport=0 includes civilians and certain combat units (e.g. Robotic Infantry). (GPT-5.5) -->
+ 			(self.TEXT_SUMMARY_COSTLESS_SHORT, unicode(dStats["no_mil_support"]), eNone, -1, -1, 1, -1),
+ 			(self.TEXT_SUMMARY_MILITARY_SHORT, unicode(dStats["num_military"]), eNone, -1, -1, 1, -1),
+ 			(self.TEXT_SUMMARY_FREE_USED_CAP_SHORT, szFreeUsedMilitaryCapText, eNone, -1, -1, 2, -1),
+@@ -1723,11 +1732,12 @@ class CvMilitaryAdvisor:
+ 			if iValue > 0:
+ 				return u"+%d%%" % iValue
+ 			return u"%d%%" % iValue
++		# <!-- custom: gate Best City rows on a strictly positive value, not just on a city existing. Otherwise the first-found city always "wins" a 0-vs-0 comparison and we'd render misleading "Haithabu +0%" / "Haithabu (0)" rows when no city actually has a military-production or XP bonus. (Claude code Opus 4.7, GPT-5.5-thinking) -->
+ 		szBestProdValue = u"-"
+-		if dStats["best_prod_city"]:
++		if dStats["best_prod_city"] and dStats["best_prod_mod"] > 0:
+ 			szBestProdValue = u"%s %s" % (dStats["best_prod_city"], _signedPct(dStats["best_prod_mod"]))
+ 		szBestXpValue = u"-"
+-		if dStats["best_xp_city"]:
++		if dStats["best_xp_city"] and dStats["best_free_xp"] > 0:
+ 			szBestXpValue = u"%s (%d)" % (dStats["best_xp_city"], dStats["best_free_xp"])
+ 		szCityFraction = u"/ %d" % dStats["num_cities"]
+ 		szCoastalFraction = u"/ %d" % dStats["num_coastal_cities"]
+@@ -1737,11 +1747,11 @@ class CvMilitaryAdvisor:
+ 		aSupport.extend([
+ 			(None, None, eNone, -1, -1),
+ 			(self.TEXT_SUMMARY_MIL_BUILDINGS, u"", eNone, -1, -1, 0, -1),
+-			(dStats["label_barracks"], u"%d %s" % (dStats["count_barracks"], szCityFraction), eNone, -1, -1, 1, -1),
+-			(dStats["label_stables"], u"%d %s" % (dStats["count_stables"], szCityFraction), eNone, -1, -1, 1, -1),
+-			(dStats["label_drydocks"], szDrydockValue, eNone, -1, -1, 1, -1),
+-			(self.TEXT_SUMMARY_BLDG_HEROIC_EPIC, _cityNameOrDash(dStats["city_heroic_epic"]), eNone, -1, -1, 1, -1),
+-			(self.TEXT_SUMMARY_BLDG_MIL_ACADEMY, _cityNameOrDash(dStats["city_mil_academy"]), eNone, -1, -1, 1, -1),
++			(dStats["label_barracks"], u"%d %s" % (dStats["count_barracks"], szCityFraction), eNone, -1, -1, 1, -1, dStats["icon_barracks"]),
++			(dStats["label_stables"], u"%d %s" % (dStats["count_stables"], szCityFraction), eNone, -1, -1, 1, -1, dStats["icon_stables"]),
++			(dStats["label_drydocks"], szDrydockValue, eNone, -1, -1, 1, -1, dStats["icon_drydocks"]),
++			(self.TEXT_SUMMARY_BLDG_HEROIC_EPIC, _cityNameOrDash(dStats["city_heroic_epic"]), eNone, -1, -1, 1, -1, dStats["icon_heroic_epic"]),
++			(self.TEXT_SUMMARY_BLDG_MIL_ACADEMY, _cityNameOrDash(dStats["city_mil_academy"]), eNone, -1, -1, 1, -1, dStats["icon_mil_academy"]),
+ 		])
+ 		aSupport.extend([
+ 			(None, None, eNone, -1, -1),
+@@ -1756,7 +1766,7 @@ class CvMilitaryAdvisor:
+ 		# <!-- custom: Defenses moved from Support to Deployment because city protection reads closer to "where my forces/cities are" than to support cost. (Claude code Opus 4.7, GPT-5.5) -->
+ 
+ 
+-		# <!-- custom: Army column summarizes the active player's own forces: composition, strongest/costliest/power-rank callouts, quality means, Great General state, promotions, special-unit flags, and upgrade costs. (Claude code Opus 4.7, GPT-5.5) -->
++		# <!-- custom: Army column summarizes the active player's own forces: composition, strongest/costliest/power-rank callouts, quality means, Great General state, promotions, covert-unit flags, and upgrade costs. (Claude code Opus 4.7, GPT-5.5) -->
+ 		szStrongest = u""
+ 		szStrongestIcon = u""
+ 		if dStats["strongest_str"] >= 0:
+@@ -1807,10 +1817,10 @@ class CvMilitaryAdvisor:
+ 		for szPromoName, iPromoCount, szPromoButton in dStats["favorite_promotions"]:
+ 			# <!-- custom: promotion rows show count + %-of-military so a "Combat I 8 (62%)" reads as "most of my army has this" without further math. (Claude code Opus 4.7) -->
+ 			aArmy.append((szPromoName, _withPct(iPromoCount, iMilCount), eNone, -1, -1, 1, -1, szPromoButton))
+-		# <!-- custom: special-units block always emitted (even when all three categories are zero) so the section's existence and exhaustive coverage are discoverable. Previously suppressed-when-empty, which led to "I have no stealth section, is the feature broken?" confusion. The block is short (parent + 3 rows) and its zero state is informative - it confirms there's no stealth coverage in the current army. (Claude code Opus 4.7) -->
++		# <!-- custom: covert-units block always emitted (even when all three categories are zero) so the section's existence and exhaustive coverage are discoverable. Previously suppressed-when-empty, which led to "I have no covert section, is the feature broken?" confusion. The block is short (parent + 3 rows) and its zero state is informative - it confirms there's no covert coverage in the current army. (Claude code Opus 4.7) -->
+ 		aArmy.extend([
+ 			(None, None, eNone, -1, -1),
+-			(self.TEXT_SUMMARY_SPECIAL_UNITS, u"", eNone, -1, -1, 0, -1),
++			(self.TEXT_SUMMARY_COVERT_UNITS, u"", eNone, -1, -1, 0, -1),
+ 			(self.TEXT_SUMMARY_INVISIBLE, _withPct(dStats["invisible_units"], dStats["total"]), eNone, -1, -1, 1, -1),
+ 			(self.TEXT_SUMMARY_SPIES, _withPct(dStats["spy_units"], dStats["total"]), eNone, -1, -1, 1, -1),
+ 			(self.TEXT_SUMMARY_HIDDEN_NAT, _withPct(dStats["hidden_nat_units"], dStats["total"]), eNone, -1, -1, 1, -1),
+@@ -1832,7 +1842,7 @@ class CvMilitaryAdvisor:
+ 		szWoundedValue = _withPct(dStats["wounded"], iMilCount)
+ 		# <!-- custom: show one best-defended city instead of enumerating city garrisons; detailed per-city coverage belongs in Domestic Advisor, while this Summary tab stays at-a-glance. (Claude code Opus 4.7, GPT-5.5) -->
+ 		szBestDefendedRow = u"-"
+-		if dStats["best_defense_city"]:
++		if dStats["best_defense_city"] and dStats["best_defense"] > 0:
+ 			szBestDefendedRow = u"%s (+%d%%)" % (dStats["best_defense_city"], dStats["best_defense"])
+ 		aDeployment = [
+ 			(self.TEXT_SUMMARY_IN_CITIES, unicode(dStats["in_cities"]), eNone, -1, -1),
+@@ -1852,8 +1862,8 @@ class CvMilitaryAdvisor:
+ 			(None, None, eNone, -1, -1),
+ 			# <!-- custom: Defenses live in Deployment beside best-defended city rather than Support cost math. (Claude code Opus 4.7, GPT-5.5) -->
+ 			(self.TEXT_SUMMARY_DEFENSES, u"", eNone, -1, -1, 0, -1),
+-			(self.TEXT_SUMMARY_BLDG_WALLS, u"%d %s" % (dStats["count_walls"], u"/ %d" % dStats["num_cities"]), eNone, -1, -1, 1, -1),
+-			(self.TEXT_SUMMARY_BLDG_CASTLES, u"%d %s" % (dStats["count_castles"], u"/ %d" % dStats["num_cities"]), eNone, -1, -1, 1, -1),
++			(self.TEXT_SUMMARY_BLDG_WALLS, u"%d %s" % (dStats["count_walls"], u"/ %d" % dStats["num_cities"]), eNone, -1, -1, 1, -1, dStats["icon_walls"]),
++			(self.TEXT_SUMMARY_BLDG_CASTLES, u"%d %s" % (dStats["count_castles"], u"/ %d" % dStats["num_cities"]), eNone, -1, -1, 1, -1, dStats["icon_castles"]),
+ 			(None, None, eNone, -1, -1),
+ 			(self.TEXT_SUMMARY_WOUNDED, szWoundedValue, eNone, -1, -1, 0, iWoundedColor),
+ 			(self.TEXT_SUMMARY_MAX_HEALTH, u"%d%%" % dStats["max_health"], eNone, -1, -1, 1, iMaxHealthColor),
+@@ -1872,9 +1882,10 @@ class CvMilitaryAdvisor:
+ 		if dBattle["total"] > 0:
+ 			aDeployment.append((None, None, eNone, -1, -1))
+ 			aDeployment.append((self.TEXT_SUMMARY_BATTLES_TOTAL, unicode(dBattle["total"]), eNone, -1, -1))
+-			aDeployment.append((self.TEXT_SUMMARY_BATTLES_WON, _withPct(dBattle["wins"], dBattle["total"]), eNone, -1, -1, 1, self.COLOR_GREEN))
+-			aDeployment.append((self.TEXT_SUMMARY_BATTLES_RETREATED, _withPct(dBattle["retreats"], dBattle["total"]), eNone, -1, -1, 1, self.COLOR_YELLOW))
+-			aDeployment.append((self.TEXT_SUMMARY_BATTLES_LOST, _withPct(dBattle["losses"], dBattle["total"]), eNone, -1, -1, 1, self.COLOR_RED))
++			# <!-- custom: reuse the Battles tab's outcome glyphs. (Claude code Opus 4.7) -->
++			aDeployment.append((self.TEXT_SUMMARY_BATTLES_WON, _withPct(dBattle["wins"], dBattle["total"]), eNone, -1, -1, 1, self.COLOR_GREEN, self.ART_BATTLE_RESULT_WON))
++			aDeployment.append((self.TEXT_SUMMARY_BATTLES_RETREATED, _withPct(dBattle["retreats"], dBattle["total"]), eNone, -1, -1, 1, self.COLOR_YELLOW, self.ART_BATTLE_RESULT_RETREAT))
++			aDeployment.append((self.TEXT_SUMMARY_BATTLES_LOST, _withPct(dBattle["losses"], dBattle["total"]), eNone, -1, -1, 1, self.COLOR_RED, self.ART_BATTLE_RESULT_LOST))
+ 			aDeployment.append((None, None, eNone, -1, -1))
+ 			if dBattle["wins"] > 0:
+ 				aDeployment.append((self.TEXT_SUMMARY_GOOD_LUCK, _withPct(dBattle["good_luck_wins"], dBattle["wins"]), eNone, -1, -1, 1, self.COLOR_GREEN))
+@@ -2102,28 +2113,14 @@ class CvMilitaryAdvisor:
+ 		# 1 = unit-type rows (e.g. Warrior (3)),
+ 		# 2 = individual unit detail rows (when details are expanded).
+ 		# Combat headers stay left with a bit more icon->text gap; unit/detail rows are pushed right and kept closer to their text for faster scanning. (GPT-5.3-Codex) -->
+-		szIconIndentByLevel = {
+-			0: u"",
+-			1: u"    ",
+-			2: u"        ",
+-		}
+-		szIconGapByLevel = {
+-			0: u"  ",
+-			1: u"",
+-			2: u" ",
+-		}
++		szIconIndentByLevel = {0: u"", 1: u"    ", 2: u"        "}
++		szIconGapByLevel = {0: u"  ", 1: u"", 2: u" "}
+ 
+ 		def formatListRowText(szText, szButton, iIndentLevel):
+ 			szLabelText = sasFontTagLabel + szText + SAS_FONT_TAG_CLOSE
+ 			if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_ICONS and szButton:
+ 				# <!-- custom: note: inline <img> icon paths are stricter than icon-slot rendering; avoid risky button filenames (spaces/parentheses) to prevent magenta icons. See KI#118. (GPT-5.3-Codex) -->
+-				return u"%s<img=%s size=%d></img>%s%s" % (
+-					szIconIndentByLevel.get(iIndentLevel, u""),
+-					szButton,
+-					self.iInlineIconSize,
+-					szIconGapByLevel.get(iIndentLevel, u" "),
+-					szLabelText,
+-				)
++				return u"%s<img=%s size=%d></img>%s%s" % (szIconIndentByLevel.get(iIndentLevel, u""), szButton, self.iInlineIconSize, szIconGapByLevel.get(iIndentLevel, u" "), szLabelText)
+ 			return szLabelText
+ 
+ 		if (bReload):
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index d30a10b07..79348decf 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -38,6 +38,11 @@
+ 			<Description>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
++		<NewConceptInfo>
++			<Type>CONCEPT_SAS_MILITARY_ADVISOR_SUMMARY_LEGEND</Type>
++			<Description>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_SUMMARY_LEGEND</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_SUMMARY_LEGEND_PEDIA</Civilopedia>
++		</NewConceptInfo>
+ 		<NewConceptInfo>
+ 			<Type>CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Type>
+ 			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Description>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 32b6e2fb1..2ce6aead0 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -141,9 +141,16 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>[H1]World Advisor Territory Legend[\H1][PARAGRAPH:2]The Territory tab counts plots and map assets owned by the selected player.[NEWLINE][NEWLINE][ICON_BULLET]BFC: owned plots inside at least one selected-player city BFC.[NEWLINE][ICON_BULLET]Sub: suburbs; owned plots outside all selected-player city BFCs.[NEWLINE][ICON_BULLET]Tot: BFC plus Sub.[NEWLINE][NEWLINE]In Plots, Water, Peak, Hill and Flat partition all owned plots, so Total is their real plot count. River, Lake and Coastal overlap those rows; for example, a riverside Grassland Hill is both Hill and River. Terrain and Features are split because every plot has one terrain, while only some have a feature.[NEWLINE][NEWLINE]Hidden or unexplored plots and bonuses stay hidden unless debug mode is active. Hover row icons for tooltips, or click them to open Sevopedia entries when available.</English>
+ 	</TEXT>
+ 
++
++
+ 	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND</Tag>
+-		<English>Domestic Advisor Legend</English>
++		<Tag>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_SUMMARY_LEGEND</Tag>
++		<English>Military Advisor Summary Legend</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_SUMMARY_LEGEND_PEDIA</Tag>
++		<English>[H1]Military Advisor Summary Legend[\H1][PARAGRAPH:2]The Summary tab consolidates support cost, army composition / quality, and deployment data at a glance. Most numbers were already in Civ4 but scattered across the Finance hover, Composition tab, and city screens; this tab brings the headline data into one panel and exposes the actual DLL formulas so "why is my cost X?" reads directly instead of by guesswork.[PARAGRAPH:2][H2]Support Column - Unit Cost Formula[\H2][NEWLINE][ICON_BULLET]Total Units / Free Used/Cap / Paid: total owned units, free units used out of the free-unit cap (handicap + base + population %), and paid units (count beyond the cap).[NEWLINE][ICON_BULLET]P x R x M: regular unit cost = Paid x getGoldPerUnit() x getUnitCostMultiplier() / 10000. K-Mod stores the rates as percent-like integers so the visible product can floor to 0 even with positive paid units.[NEWLINE][ICON_BULLET]Mil. Cost Units / No Mil. Cost Units: subset of Total Units that pays / bypasses the military surcharge (bMilitarySupport flag in CIV4UnitInfos.xml). Some units, civilian or military, have no military cost (e.g. as of now Worker, Robotic Infantry - see their Sevopedia entry).[NEWLINE][ICON_BULLET]Mil. Cost P x R: military surcharge = Paid Military x getGoldPerMilitaryUnit() / 100. Stacks on top of regular unit cost.[NEWLINE][ICON_BULLET]Extra Cost: getExtraUnitCost() / 100, per-unit overrides.[NEWLINE][ICON_BULLET]U Cost x I: pre-inflation unit cost x inflation factor = displayed Unit Cost.[NEWLINE][ICON_BULLET]Outside Units: units outside own territory. Free / Paid threshold from INITIAL_FREE_OUTSIDE_UNITS define plus game-speed adjustments.[NEWLINE][ICON_BULLET]Outside P x R: Paid Outside x INITIAL_OUTSIDE_UNIT_GOLD_PERCENT / 100. AI handicap can apply an extra multiplier shown as raw then adjusted.[NEWLINE][ICON_BULLET]U Supply x I: pre-inflation unit supply x inflation factor = displayed Unit Supply.[NEWLINE][ICON_BULLET]Total Cost + Supply: Unit Cost + Unit Supply, the bottom-line gold/turn.[PARAGRAPH:2][H2]Support Column - City Stats[\H2][NEWLINE][ICON_BULLET]Military Buildings: counts of Barracks / Stables / Drydocks built / total cities (Drydocks denominator is coastal cities). Heroic Epic / Military Academy show the owning city name or "-" if not built. The XP suffix on Barracks (+3), Stables (+X Mounted), Drydocks (+X Naval) is read directly from the building XML.[NEWLINE][ICON_BULLET]Unit Production: Avg Modifier averages getMilitaryProductionModifier() across cities; Best City highlights the strongest single bonus. Avg New XP / Best New XP read getFreeExperience() per city (Barracks XP, civics, religion, traits all stack into it).[PARAGRAPH:2][H2]Army Column[\H2][NEWLINE][ICON_BULLET]Military Units / Civilian Units: split by canFight() (combat-capable). Civilian units (Workers, Settlers, Spies, Missionaries, Great People) still count toward regular Unit Cost.[NEWLINE][ICON_BULLET]Land / Sea / Air: military units split by getDomainType().[NEWLINE][ICON_BULLET]Strongest: unit type with the highest base XML strength (or air combat for air units). Costliest: highest base hammer cost.[NEWLINE][ICON_BULLET]Total Hammers / Avg Hammers: sum and mean of getProductionCost() across military units. Hammer cost works as an alternative power proxy alongside base strength, since Civ4 layers combat modifiers (collateral, city attack, withdraw, first strikes) that base strength alone does not reflect. For example, Trebuchet has lower base strength than concurrent melee units of its era but stronger city-attack value, which the hammer cost prices in.[NEWLINE][ICON_BULLET]Power Rank (Known): your getPower() rank among met civs.[NEWLINE][ICON_BULLET]Avg XP / Avg Level: averaged across military units only; civilians don't dilute.[NEWLINE][ICON_BULLET]Great Generals: standalone GG units (UnitInfo.getLeaderPromotion() set) waiting to attach. GG-Led Units: combat units carrying PROMOTION_LEADER after a prior attach.[NEWLINE][ICON_BULLET]Top Promotions: 5 most common promotions across your military, with count and %-of-military. Icon next to each row.[NEWLINE][ICON_BULLET]Covert Units: counts of units with getInvisibleType() (submarines, etc.), isSpy() (spies), isHiddenNationality() (privateers). Named "covert" rather than "special" because Civ4 already uses "special" for a distinct concept (special unit classes, special buildings). Always shown so the section's existence is discoverable; a zero state is informative.[NEWLINE][ICON_BULLET]Upgradeable: count of units with at least one available upgrade you can build. Min/Avg/Max/Total Cost: cheapest upgrade prices summed across upgradeable units.[NEWLINE][ICON_BULLET]Allied Hammers: total hammer cost across allied civs' military (teammates + mutual vassalage). Allies are "semi-ours" strategically; counts your shared force.[PARAGRAPH:2][H2]Deployment Column[\H2][NEWLINE][ICON_BULLET]In Own Cities: count + Best Defended (city with highest getBuildingDefense()) and Avg Defense (mean across own cities).[NEWLINE][ICON_BULLET]In Own Territory: in own borders but not in a city.[NEWLINE][ICON_BULLET]In Allied / Neutral Civ / Enemy Territory: foreign-civ plot owners split by diplomatic relation. Allied = same team or mutual vassalage. Enemy = at war. Neutral = any other met civ (open-borders partners and defensive-pact partners land here).[NEWLINE][ICON_BULLET]Roaming (Unowned Land) / At Sea (Open Water): unowned plots, land vs water.[NEWLINE][ICON_BULLET]Defenses: counts of Walls / Castles built / total cities, with building icons.[NEWLINE][ICON_BULLET]Wounded: count of military units with any damage, + % of military.[NEWLINE][ICON_BULLET]Max / Avg / Min Health: hit-points-based health %; colored 100% = white, above 66% = green, above 33% = yellow, else red. Same thresholds as the Battles tab strength coloring.[NEWLINE][ICON_BULLET]Full / High / Medium / Low Health: distribution by band (count + % of military). Band rows are intentionally not colored - the values are counts, not health percentages.[PARAGRAPH:2][H2]Deployment Column - Battle Record[\H2][NEWLINE][ICON_BULLET]Battles / Won / Retreated / Lost: aggregated from the persisted SASBattleHistory log (same data feeding the Battles tab). Outcome icons match the Battles tab (white star = won, left arrow = retreated, broken heart = lost).[NEWLINE][ICON_BULLET]Good-Luck Wins: wins where our pre-battle odds were below 50% - we were the underdog and won anyway.[NEWLINE][ICON_BULLET]Bad-Luck Losses: losses where our pre-battle odds were above 50% - we were favored and lost.[NEWLINE][ICON_BULLET]Best: the win with the lowest pre-battle odds (most underdog). Worst: the loss with the highest pre-battle odds (most expected to win).[NEWLINE][ICON_BULLET]Both Best/Worst rows show the two unit icons (ours + theirs), starting effective strengths, year, and final odds %.[PARAGRAPH:2][H2]Color Coding[\H2][NEWLINE][ICON_BULLET]Money lines (Unit Cost / Unit Supply / Total Cost + Supply): green = 0 cost, red = positive cost. Earlier "yellow if income still net-positive" coloring was dropped because this panel explains where the burden comes from, not whether it's affordable in isolation.[NEWLINE][ICON_BULLET]Paid count rows: default white (just a count, "paid" doesn't mean "unaffordable").[NEWLINE][ICON_BULLET]Health %: 100 = white, above 66 = green, above 33 = yellow, else red.[NEWLINE][ICON_BULLET]Battle outcomes: green = won, yellow = retreated, red = lost.[PARAGRAPH:2][H2]Indent / Icon Conventions[\H2][NEWLINE][ICON_BULLET]Sub-rows step right under their parent ("Free / Paid" under "Total Units"). The right-aligned value steps inward too, so a parent's number sits visually above where its children sum to.[NEWLINE][ICON_BULLET]Icons sit at the row's right edge; the value text wraps to their left. Two-icon rows (Best / Worst battles) pair our unit + their unit.[PARAGRAPH:2][H2]Perspective[\H2][NEWLINE][ICON_BULLET]The player dropdown selects whose army is summarized. Outside debug mode this is constrained to you and your vassals (when the SAS define allows). All values are computed from the engine's state for that civ, with no fog-of-war filtering.
++	</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND</Tag>
+@@ -153,6 +160,13 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND_PEDIA</Tag>
+ 		<English>[H1]Military Advisor Battles Legend[\H1][PARAGRAPH:2]Battle rows are shown from the inspected player's perspective: "Our" columns always describe the inspected player's unit, "Their" columns describe the opponent. The dropdown selects whose perspective is shown.[PARAGRAPH:2][H2]Columns[\H2][NEWLINE][ICON_BULLET]Turn / Year: when the battle happened.[NEWLINE][ICON_BULLET]Result (emoji): three distinct emojis, one for each outcome — won, lost, or retreat (combat ended without a death).[NEWLINE][ICON_BULLET]Est%: simple strength-share estimate from starting effective strengths: our strength divided by both units' combined strength. It is not exact Civ4 combat odds because first strikes, withdrawal, damage rounds, etc. are not modeled here.[NEWLINE][ICON_BULLET]Role (emoji): emoji shown when the inspected player initiated the attack; blank when defending or when role is unknown.[NEWLINE][ICON_BULLET]Strength icon b: base XML strength of the unit (no modifiers).[NEWLINE][ICON_BULLET]Strength icon s: starting effective strength at combat begin (with all modifiers applied).[NEWLINE][ICON_BULLET]Strength icon e: ending effective strength after combat damage was applied.[NEWLINE][ICON_BULLET]Strength icon m: maximum effective strength (full health, with modifiers).[NEWLINE][ICON_BULLET]XP: unit experience before combat; yellow XP marks a Great-General-led unit.[NEWLINE][ICON_BULLET]Our Unit / Their Unit: the units that fought; click to open Sevopedia entry. Unit name shown in yellow when that unit was led by a Great General.[NEWLINE][ICON_BULLET]Civ / Leader icons (Their side only): opponent civ and leader; click to open Sevopedia entry.[NEWLINE][ICON_BULLET]PID: opponent player ID.[NEWLINE][ICON_BULLET]Cap#: colored capture count from inspected-player perspective. Green = we captured this many of their units; red = they captured this many of ours; blank = no capture.[NEWLINE][ICON_BULLET]Cap (icon): captured unit type when applicable; click to open Sevopedia entry.[NEWLINE][ICON_BULLET]Hill/Peak / Terrain / Feature (optional, gated by SAS define): plot context where the combat occurred; click to open Sevopedia entry.[NEWLINE][ICON_BULLET]Plot (icon): click to close the advisor and center the camera on the battle plot. Three distinct icons cover open-field battle, defended city (still standing for original owner), and city fell during this battle.[PARAGRAPH:2][H2]Strength Color Coding[\H2][NEWLINE][ICON_BULLET]Effective strength columns are color-coded relative to the unit's max effective strength: white at full, green above 66%, yellow above 33%, red at 33% or below.[PARAGRAPH:2][H2]Sorting and Logging[\H2][NEWLINE][ICON_BULLET]Click any column header to sort numerically/alphabetically.[NEWLINE][ICON_BULLET]The LOG button (when enabled via SAS define) writes the visible battle history to PythonDbg.log for external inspection.[PARAGRAPH:2][H2]Blank Values[\H2][NEWLINE][ICON_BULLET]Blank cells can mean the value is zero or not applicable (for example, the lost unit died, no worker was captured), or that the row was not recorded fully for some reason (early version of this feature, bug to fix, etc.).</English>
+ 	</TEXT>
++
++
++
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND</Tag>
++		<English>Domestic Advisor Legend</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND_PEDIA</Tag>
+ 		<English>[H1]Domestic Advisor Legend[\H1][PARAGRAPH:2]The Overview tabs show cities for the selected player. In debug mode, the player dropdown can inspect another alive player's cities.[PARAGRAPH:2][H2]Overview 1[\H2][NEWLINE][ICON_BULLET]Rel: religions present.[NEWLINE][ICON_BULLET]T: turns left on current production.[NEWLINE][ICON_BULLET]Defense icon %: city defense.[NEWLINE][ICON_BULLET]Strength icon: defenders.[NEWLINE][ICON_BULLET]Occupation icon %: revolt chance.[PARAGRAPH:2][H2]Overview 2[\H2][NEWLINE][ICON_BULLET]d: net surplus or deficit.[NEWLINE][ICON_BULLET]Food columns: produced food, consumed food, food d, stored food / storage threshold.[NEWLINE][ICON_BULLET]Production columns: produced hammers, stored hammers / production threshold.[NEWLINE][ICON_BULLET]Happiness columns: happy, unhappy, happiness d.[NEWLINE][ICON_BULLET]Health columns: healthy, unhealthy, health d.[NEWLINE][ICON_BULLET]Yield modifier icons %: food, production and commerce yield modifiers.[NEWLINE][ICON_BULLET]Commerce modifier icons %: gold, research, culture and espionage modifiers.[NEWLINE][ICON_BULLET]Trade icon R%: trade route modifier.[NEWLINE][ICON_BULLET]Trade icon FR%: foreign trade route modifier.[PARAGRAPH:2][H2]Overview 3[\H2][NEWLINE][ICON_BULLET]Culture columns: total, threshold, rate, turns.[NEWLINE][ICON_BULLET]Great Person columns: total, threshold, base rate, final rate, modifier %, turns.[NEWLINE][ICON_BULLET]#: total Great People born in the city.[NEWLINE][ICON_BULLET]Bad-gold %: maintenance modifier.[NEWLINE][ICON_BULLET]WW%: war weariness modifier.[NEWLINE][ICON_BULLET]HA%: hurry anger modifier.[NEWLINE][ICON_BULLET]Unhealthy icon %: unhealthy population modifier.[NEWLINE][ICON_BULLET]Mil%: military production modifier.[NEWLINE][ICON_BULLET]Space%: spaceship production modifier.[NEWLINE][ICON_BULLET]Air%: air defense modifier.[NEWLINE][ICON_BULLET]Nuke%: nuclear defense modifier.[NEWLINE][ICON_BULLET]Espionage icon D%: espionage defense modifier.[PARAGRAPH:2][H2]Overview 4[\H2][NEWLINE][ICON_BULLET]Founded: founding year.[NEWLINE][ICON_BULLET]POP#: real population.[NEWLINE][ICON_BULLET]Corp: corporations present.[NEWLINE][ICON_BULLET]XP: free unit experience.[NEWLINE][ICON_BULLET]SXP: specialist free experience.[NEWLINE][ICON_BULLET]Specialist portraits: assigned specialists plus free specialists.[NEWLINE][ICON_BULLET]Angry icon: angry citizens.[PARAGRAPH:2][H2]Sorting and Colors[\H2][NEWLINE][ICON_BULLET]Signed values sort numerically.[NEWLINE][ICON_BULLET]Positive helpful values are green, negative helpful values are red, and penalty modifiers invert that coloring.[NEWLINE][ICON_BULLET]Zero balance columns can show - for easier scanning, while zero modifier columns are blank.</English>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index c7457dcd8..3e4e97f28 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -261,8 +261,8 @@ Created as part of AdvCiv-SAS improvements
+ 		<English>Top Promotions</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SPECIAL_UNITS</Tag>
+-		<English>Special Units</English>
++		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_COVERT_UNITS</Tag>
++		<English>Covert Units</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_INVISIBLE</Tag>
+
+diff --git a/README.md b/README.md
+index 3ac7644a0..8c3914ad7 100644
+--- a/README.md
++++ b/README.md
+@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
+ 
+ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited), Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Exapnded Text Panels), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
+ 
+-Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Battles Tab, Score tab, and Timeline Tab in the Info Screen) and they now dynamically adjust to game resolution; they were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
++Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Summary Tab, new Composition Tab, new Battles Tab (Military Advisor); new Score tab and Timeline tabs (Info Screen)); and they now dynamically adjust to game resolution.They were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
+ 
+ A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up button, scroll down button, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
+ 
+@@ -37,8 +37,8 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[Home page](/README.md#home-page)  
+ &emsp;[Simple Game rework](/README.md#simple-game-rework)  
+ [UI (Ingame)](/README.md#ui-ingame)  
+-&emsp;[Main Advisors reworks (e.g., Overview tabs (Domestic Advisor), Battles Tab (Military Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))](/README.md#main-advisors-reworks)  
+-&emsp;&emsp;[New Advisors (e.g., Overview tabs (Domestic Advisor), Battles Tab (Military Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))](/README.md#new-advisors-eg-overview-tabs-domestic-advisor-battles-tab-military-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen)  
++&emsp;[Main Advisors reworks](/README.md#main-advisors-reworks)  
++&emsp;&emsp;[New Advisors (e.g., Overview tabs (Domestic Advisor); Summary Tab, Battles Tab, Composition Tab (Military Advisor); new World Advisor; Score Tab and Timeline Tab (Info Screen))](/README.md#new-advisors-eg-overview-tabs-domestic-advisor-summary-tab-battles-tab-composition-tab-military-advisor-new-world-advisor-score-tab-and-timeline-tab-info-screen)  
+ &emsp;&emsp;[Advisors adjustments](/README.md#advisors-adjustments)  
+ &emsp;["Willing to become a vassal" and vassal icons in foreign advisor's glance tab](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab)  
+ &emsp;[Inverted BUG options](/README.md#inverted-bug-options)  
+@@ -183,7 +183,7 @@ Also, advisors are now excentered so overall more information is displayed, thus
+ 
+ See for related and similar changes [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game).
+ 
+-#### New Advisors (e.g., Overview tabs (Domestic Advisor), Battles Tab (Military Advisor), new World Advisor, Score Tab and Timeline Tab (Info Screen))
++#### New Advisors (e.g., Overview tabs (Domestic Advisor); Summary Tab, Battles Tab, Composition Tab (Military Advisor); new World Advisor; Score Tab and Timeline Tab (Info Screen))
+ 
+ ##### Overview tabs (Domestic Advisor)
+ 
+@@ -195,16 +195,27 @@ The domestic advisor now follows the usual advisor with tabs and debug mode layo
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (4).JPG" alt="0.511_domestic_advisor (4).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.511_domestic_advisor (5).JPG" alt="0.511_domestic_advisor (5).JPG" width="250"></img>
+ 
++##### Summary tab (Military Advisor)
++
++Added a new Summary tab in the Military Advisor, showing a synthetic view of our Military's **Support** (detailed Cost and Supply, and Unit Cap numerical breakdown (e.g., `P x R x M    (1 x 100 x 82) / 10000 = 0 gold icon char`), etc.), **Army** (detailed numerical overview for military/civilian units, Domain repartition (Land/Sea/Air), Strongest, Costliest, etc.), and **Deployment** (Allied/Neutral/Enemy Cities/Territory/Roaming information with Avg Defense and Best defense of our cities, defensive buildings (as of now Walls and Castles (e.g., `1 / 2`)), Wounded information (Max/Avg/Min and Full/High/Medium/Low Health (e.g, `15 (100%)`)), and Battles reusing the [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py) added with the new Battles Tab (Won/Retreated/Lost (e.g., `35 (33%)`)), Good-Luck Wins and Bad-Luck Losses counts (`e.g., 11 (31%)`), Best/Worst (e.g., `6.3 vs 10.0 1300 AD (39%)`)).
++
++Also added a **legend link**. Implementation details in the Main Changes guide.
++
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG" alt="/0.515_military_advisor (1).JPG" width="250"></img>
++
+ ##### Battles tab (Military Advisor)
+ 
+-Added a new Battles tab in the Military Advisor, showing as a sortable table the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode). Icons are hoverable to sevopedia (or have a camera effect). Text color is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red).
++Added a new Battles tab in the Military Advisor, showing as a sortable table the detailed **record of each battle** (see [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py)) for the selected player in debug dropdown (or the active player or its vassals outside debug mode). Icons are hoverable to sevopedia (or have a camera effect). Text color is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red).
+ 
+ Also added a **legend link**, and **LOG Button** (as the Timeline tab). Implementation details in the Main Changes guide.
+ 
+-Also added a new Composition Tab, showing Current Units (non-civilians, including Animals (including Barbarian in debug mode)), Promotions, and Unit Combats.
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (4).JPG" alt="/0.515_military_advisor (4).JPG" width="250"></img>
+ 
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG" alt="/0.515_military_advisor (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG" alt="/0.515_military_advisor (3).JPG" width="250"></img>
++##### Compostion tab (Military Advisor)
++
++Also added a new Composition Tab, showing Current Units (non-civilians, including Animals (including Barbarian in debug mode)), Current Unit, Promotion, and Unit Combat counts.
++
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (5).JPG" alt="/0.515_military_advisor (5).JPG" width="250"></img>
+ 
+ ##### World Advisor
+ 
+@@ -260,7 +271,8 @@ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab,
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG" alt="0.513_foreign_advisor (5).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (6).JPG" alt="0.513_foreign_advisor (6).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (7).JPG" alt="0.513_foreign_advisor (7).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG" alt="/0.515_military_advisor (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG" alt="/0.515_military_advisor (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG" alt="/0.515_military_advisor (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (1).JPG" alt="0.518_info_screen (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (4).JPG" alt="0.518_info_screen (4).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.518_info_screen (5).JPG" alt="0.518_info_screen (5).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index f71f36501..c4bb0642c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -361,6 +361,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. (Requires AdvCiv-SAS 5530+) Note: **unit icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440), and **promotion icon size** is **increased** (no longer DLL-hardcoded (was 16)). (Requires AdvCiv-SAS 5777+) **Lift up the unit panel to full height** (reduces the need for scrolling vertically) and **expand it laterally** to **accomodate lengthy unit rows** (e.g., avoid line wrap if unit name is long, if there are many promotions). Make **show/hide individual unit text clickable** too (more accessible than the small +/- button alone). **Increase leader icon bar from 1 to multiple rows**, and **do not reduce icon size until all rows are full**. For example, at 1080p, 5 rows allow to show up to 45 players (including barbarian) at full leader icon size before leader icon size is reduced. **Reduce Leader icon size reduction** when all rows are full (**mild reduction**, no longer halved). See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4), [KI#130](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#130---fixed-base-advciv-bug-of-unit-rows-showing-build-player-name-instead-of-improvement-text-military-advisor-map-tab), and [KI#131](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer). Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported.
+ - (Requires AdvCiv-SAS 5771+) Added a new **Battles tab** in the Military Advisor, showing as a **sortable table** the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode): **Turn**, **Year**, **Result** (Won, Lost, Retreat) as emoji, **Estimated Odds %** (simple starting effective strength comparison, not exact Civ4 combat odds), **Role** (Are we the attacker?) as emoji, **base Strength** (XML), **start effective Strength** (including modifiers at that battle), **end effective Strength**, **max effective Strength**, **XP before combat** (yellow if Great-General-led), **Our Unit**, **Their Unit** (unit name in yellow if Great-General-led), **same** strength/XP columns for their unit, **Civ icon**, **Player icon**, **Player ID** (to cover the same leader picked by several leaders (custom games, etc.)), **Captured Unit type**, **Captured Unit icon**, **Hill or Peak icon**, **Terrain icon**, **Feature icon**, **Click Plot icon** (**on click camera is moved to this plot** (as the wonder tabs' (Info Screen) text does), with distinct art for normal plot, defended city, and captured city battles). Icons are **hoverable to sevopedia** (or have a camera effect). **Text color** is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red). Implemented a **legend link**, and **LOG Button** (as the Timeline tab). Examples of LOG: `163 | 760 AD | Lost | 43 | A | 6 | 6.04 |  | 7.20 | 8 | 0 | Camel Archer | Longbowman | 5 | 0 | 4 | 8.10 | 5.04 | 9.00 | 9 | 0 |  |  | TERRAIN_GRASS |  | 54 | 30`, `133 | 10 BC | Won | 64 | A | 3 | 3.30 | 1.81 | 3.30 | 2 | 0 | Trireme | Galley | 1 | 0 | 2 | 1.84 |  | 2.20 | 48 | 0 |  |  | TERRAIN_COAST |  | 32 | 10`. Main files changed: [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py), [CvEventManager.py](/Assets/Python/CvEventManager.py), [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py), [CvUnit.cpp](/CvGameCoreDLL/CvUnit.cpp), [CvDllPythonEvents.cpp](/CvGameCoreDLL/CvDllPythonEvents.cpp), [CvDllPythonEvents.h](/CvGameCoreDLL/CvDllPythonEvents.h), [CvEventReporter.cpp](/CvGameCoreDLL/CvEventReporter.cpp), [CvEventReporter.h](/CvGameCoreDLL/CvEventReporter.h).
++- (Requires AdvCiv-SAS 5802+) Added a new **Summary tab** in the Military Advisor, showing a **synthetic view** of our Military: **Support** (detailed Cost and Supply, and Unit Cap numerical breakdown (e.g., `P x R x M    (1 x 100 x 82) / 10000 = 0 gold icon char`), Military Buildings, Military Production and XP information, and Allied Hammers for total hammer value of allies' (e.g., vassals, same team) army); **Army** (detailed numerical overview for military/civilian units, Domain repartition (Land/Sea/Air), Strongest, Costliest, Total/Avg Hammers as a power estimatation of units, Power Rank (Known) (e.g., `9/11` (in fact `44/48` if debug mode is enabled for spoilers)), Top promotions, Covert Units (Invisible, Spies, Hidden Nationality), And upgradeable units costs (Min/Avg/Max/Total)); **Deployment** (Allied/Neutral/Enemy Cities/Territory/Roaming information with Avg Defense and Best defense of our cities, defensive buildings (as of now Walls and Castles (e.g., `1 / 2`)), Wounded information (Max/Avg/Min and Full/High/Medium/Low Health (e.g, `15 (100%)`)), and Battles reusing the [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py) added with the new Battles Tab (Won/Retreated/Lost (e.g., `35 (33%)`)), Good-Luck Wins and Bad-Luck Losses counts (`e.g., 11 (31%)`), Best/Worst (e.g., `6.3 vs 10.0 1300 AD (39%)`)). Also added a **legend link**.
+ - (Requires AdvCiv-SAS 5775+) Added a new **Composition Tab**, as a set of **sortable tables** for **Current** (unlike saved data in the Statistics Tab in the Info Screen) **Units** (non-civilian, including Animal (including Barbarian in debug mode)), **Promotions**, and **Unit Combats** **counts**, default-**sorted from most to least** for no tedium (as done in the Statistics Tab). See also [KI#129](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-map-tab-minimap-disappeared-after-switching-tabs).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set an **alternative lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor, and an **alternative top space space** for **advisor buttons** (in map view) because this alternative right space may cover these advisor buttons. **Boldened title** for consistency. (Requires AdvCiv-SAS 5520+) See also [KI#114](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked). (Requires AdvCiv-SAS 5691+) **When opening** Technology Advisor, **right-align scoreboard leader text** so it is easier to read (because text is often not visible due to advisor width expansion). **On Technology Advisor close**, it **reverts back** to usual alignment.
+ - **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG
+index 812e82f7a..7d88021ca 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG
+index ea00ee10e..aab3a1456 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG
+index 0ef2b53c5..75902cf01 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (4).JPG b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (4).JPG
+new file mode 100644
+index 000000000..c11485535
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (5).JPG b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (5).JPG
+new file mode 100644
+index 000000000..456c5ee66
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (5).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=58676

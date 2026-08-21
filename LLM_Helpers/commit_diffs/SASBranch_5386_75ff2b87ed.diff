@@ -1,0 +1,606 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5386
+# Commit: 75ff2b87ed12321cb832c01aff78e40a184e99aa
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d2e2b649298af276986bfa8990dc0da24f6450cc
+# Title: Refactor common Movies and Music logic to Sevopedia Media Player - Done with the very nice help of GPT-5.2-Codex thanks a lot!!
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	51	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+177	0	Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+14	72	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+14	90	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+2	0	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+2	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+ create mode 100644 Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 91b0d8989..d2d6cbe4e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -1992,59 +1992,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 	def handleInput (self, inputClass):
+-		if self.pediaMusic.isMusicPlayerOpen():
+-			# <!-- custom: While the full-screen music player overlay is open, consume input here so
+-			# Civ4 does not treat ESC/ENTER as "close civilopedia" and bounce to the main menu. (ChatGPT-5.2 Thinking) -->
+-			iNotify = inputClass.getNotifyCode()
+-
+-			if iNotify == NotifyCode.NOTIFY_CHARACTER:
+-				iKey = inputClass.getData()
+-				if iKey == int(InputTypes.KB_ESCAPE) or iKey == int(InputTypes.KB_RETURN):
+-					self.pediaMusic.closeMusicPlayer()
+-					return 1
+-				# Some keyboards send a distinct numpad enter key code.
+-				try:
+-					if iKey == int(InputTypes.KB_NUMPADENTER):
+-						self.pediaMusic.closeMusicPlayer()
+-						return 1
+-				except:
+-					pass
+-
+-			if iNotify == NotifyCode.NOTIFY_CLICKED:
+-				szName = inputClass.getFunctionName()
+-				# Exit button, or click anywhere on the overlay (image/title/background) to close.
+-				if szName == self.pediaMusic.MUSIC_PLAYER_EXIT_ID or szName.startswith("MusicPlayer"):
+-					self.pediaMusic.closeMusicPlayer()
+-					return 1
++		if self.pediaMusic.handleOverlayInput(inputClass):
+ 			return 1
+ 
+-		if self.pediaMovies.isMoviePlayerOpen():
+-			# Same idea as music: keep ESC/ENTER/clicks inside the overlay so we return to the
+-			# same SevoPedia entry instead of exiting SevoPedia (or bouncing to the main menu).
+-			iNotify = inputClass.getNotifyCode()
+-
+-			if iNotify == NotifyCode.NOTIFY_MOVIE_DONE:
+-				self.pediaMovies.closeMoviePlayer()
+-				return 1
+-
+-			if iNotify == NotifyCode.NOTIFY_CHARACTER:
+-				iKey = inputClass.getData()
+-				if iKey == int(InputTypes.KB_ESCAPE) or iKey == int(InputTypes.KB_RETURN):
+-					self.pediaMovies.closeMoviePlayer()
+-					return 1
+-				try:
+-					if iKey == int(InputTypes.KB_NUMPADENTER):
+-						self.pediaMovies.closeMoviePlayer()
+-						return 1
+-				except:
+-					pass
+-
+-			if iNotify == NotifyCode.NOTIFY_CLICKED:
+-				szName = inputClass.getFunctionName()
+-				# Exit button, or click anywhere on the overlay (movie/nif/dds/title/background) to close.
+-				if szName == self.pediaMovies.MOVIE_PLAYER_EXIT_ID or szName.startswith("MoviePlayer"):
+-					self.pediaMovies.closeMoviePlayer()
+-					return 1
++		if self.pediaMovies.handleOverlayInput(inputClass):
+ 			return 1
+ 
+ 		# Forward to leader page (existing behavior).
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+new file mode 100644
+index 000000000..1dbedee52
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+@@ -0,0 +1,177 @@
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++
++
++from CvPythonExtensions import *
++import CvUtil
++
++gc = CyGlobalContext()
++localText = CyTranslator()
++
++
++
++class SevoPediaMediaPlayer:
++
++	def __init__(self, screenId, screenEnum, exitId, clickPrefix):
++		self.screenId = screenId
++		self.screenEnum = screenEnum
++		self.exitId = exitId
++		self.clickPrefix = clickPrefix
++		self.isOpen = False
++		self.soundId = None
++		self.is3DSound = False
++
++
++
++	def openScreen(self):
++		screen = CyGInterfaceScreen(self.screenId, self.screenEnum)
++
++		# <!-- custom: (ChatGPT-5.2 Thinking) -->
++		try:
++			screen.enableWorldSounds(True)
++		except:
++			pass
++		try:
++			screen.setScreenGroup(1)
++		except:
++			pass
++
++		self.isOpen = True
++
++		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
++		screen.setRenderInterfaceOnly(True)
++		screen.enableWorldSounds(False)
++		screen.addPanel(self.clickPrefix + "BG", u"", u"", True, False, -10, -10, screen.getXResolution() + 20, screen.getYResolution() + 20, PanelStyles.PANEL_STYLE_MAIN)
++		return screen
++
++
++
++	def setupLayout(self, screen, szTitleText):
++		iScreenW = screen.getXResolution()
++		iScreenH = screen.getYResolution()
++		iMediaW = iScreenW
++		iMediaH = iScreenW * 2 / 3
++		if iMediaH > iScreenH:
++			iMediaH = iScreenH
++			iMediaW = iMediaH * 3 / 2
++		iMediaX = (iScreenW - iMediaW) / 2
++		iMediaY = (iScreenH - iMediaH) / 2
++
++		screen.setLabel(self.clickPrefix + "Title", "Background", u"<font=4b>" + szTitleText.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, iScreenW / 2, 8, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		return (iScreenW, iScreenH, iMediaX, iMediaY, iMediaW, iMediaH)
++
++
++
++	def placeExitButton(self, screen, iScreenW, iScreenH):
++		screen.setButtonGFC(self.exitId, localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", iScreenW / 2 - 50, iScreenH - 42, 100, 30, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
++
++		# <!-- custom: (ChatGPT-5.2 Thinking) -->
++		try:
++			screen.setEscapeKey(self.exitId)
++		except:
++			pass
++		try:
++			screen.setReturnKey(self.exitId)
++		except:
++			pass
++
++
++
++	def playSound(self, szSoundScript, iSoundId, bForce3D):
++		self.soundId = None
++		self.is3DSound = False
++
++		if (not szSoundScript) and iSoundId == -1:
++			return
++
++		try:
++			if iSoundId != -1:
++				if bForce3D:
++					self.soundId = CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0)
++					self.is3DSound = True
++				else:
++					self.soundId = CyAudioGame().Play2DSoundWithId(iSoundId)
++			else:
++				if szSoundScript.startswith("AS3D_"):
++					# 3D scripts need Play3DSound
++					self.soundId = CyAudioGame().Play3DSound(szSoundScript, 0, 0, 0)
++					self.is3DSound = True
++				else:
++					self.soundId = CyAudioGame().Play2DSound(szSoundScript)
++		except:
++			self.soundId = None
++
++		if self.soundId is None or self.soundId == -1:
++			if szSoundScript:
++				CyInterface().playGeneralSound(szSoundScript)
++			self.soundId = None
++			self.is3DSound = False
++
++
++
++	def stopSound(self):
++		if self.soundId is not None and self.soundId != -1:
++			try:
++				if self.is3DSound:
++					CyAudioGame().Destroy3DSound(self.soundId)
++				else:
++					CyAudioGame().Destroy2DSound(self.soundId)
++			except:
++				try:
++					CyInterface().stop2DSound()
++				except:
++					pass
++			self.soundId = None
++			self.is3DSound = False
++		elif self.soundId is not None:
++			try:
++				CyInterface().stop2DSound()
++			except:
++				pass
++			self.soundId = None
++			self.is3DSound = False
++
++
++
++	def closeScreen(self):
++		screen = CyGInterfaceScreen(self.screenId, self.screenEnum)
++		screen.hideScreen()
++		self.isOpen = False
++
++
++
++	def handleInput(self, inputClass, closeCallback, bCloseOnMovieDone):
++		if not self.isOpen:
++			return False
++
++		# <!-- custom: While the full-screen music player overlay is open, consume input here so
++		# Civ4 does not treat ESC/ENTER as "close civilopedia" and bounce to the main menu. (ChatGPT-5.2 Thinking) -->
++		iNotify = inputClass.getNotifyCode()
++
++		if bCloseOnMovieDone and iNotify == NotifyCode.NOTIFY_MOVIE_DONE:
++			closeCallback()
++			return True
++
++		if iNotify == NotifyCode.NOTIFY_CHARACTER:
++			iKey = inputClass.getData()
++			if iKey == int(InputTypes.KB_ESCAPE) or iKey == int(InputTypes.KB_RETURN):
++				closeCallback()
++				return True
++			# Some keyboards send a distinct numpad enter key code.
++			try:
++				if iKey == int(InputTypes.KB_NUMPADENTER):
++					closeCallback()
++					return True
++			except:
++				pass
++
++		if iNotify == NotifyCode.NOTIFY_CLICKED:
++			szName = inputClass.getFunctionName()
++			# Exit button, or click anywhere on the overlay (image/title/background or movie/nif/dds/title/background) to close.
++			if szName == self.exitId or szName.startswith(self.clickPrefix):
++				closeCallback()
++				return True
++
++		return True
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+index 7aa07fc59..449b0176f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -12,6 +12,7 @@ import CvUtil
+ import SevoScreenEnums
+ 
+ from _sevopedia_helpers import *
++from SevoPediaMediaPlayer import SevoPediaMediaPlayer
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+@@ -28,8 +29,7 @@ class SevoPediaMovie:
+ 		self.MOVIE_PLAYER_SCREEN = "SevoPediaMoviePlayer"
+ 		self.MOVIE_PLAYER_EXIT_ID = "SAS_MoviePlayerExit"
+ 		self.SAS_savedNoMovies = None
+-		self.SAS_isMoviePlayerOpen = False
+-		self.SAS_movieSoundId = None
++		self.mediaPlayer = SevoPediaMediaPlayer(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES, self.MOVIE_PLAYER_EXIT_ID, "MoviePlayer")
+ 
+ 		self.X_HEADER = self.top.X_PEDIA_PAGE
+ 		self.Y_HEADER = self.top.Y_PEDIA_PAGE
+@@ -132,37 +132,9 @@ class SevoPediaMovie:
+ 		self.SAS_savedNoMovies = CyUserProfile().getGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES)
+ 		CyUserProfile().setGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES, False)
+ 
+-		screen = CyGInterfaceScreen(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES)
+-
+-		# <!-- custom: (ChatGPT-5.2 Thinking) -->
+-		try:
+-			screen.enableWorldSounds(True)
+-		except:
+-			pass
+-		try:
+-			screen.setScreenGroup(1)
+-		except:
+-			pass
+-
+-		self.SAS_isMoviePlayerOpen = True
+-
+-		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+-		screen.setRenderInterfaceOnly(True)
+-		screen.enableWorldSounds(False)
+-		screen.addPanel("MoviePlayerBG", u"", u"", True, False, -10, -10, screen.getXResolution() + 20, screen.getYResolution() + 20, PanelStyles.PANEL_STYLE_MAIN)
+-
+-		iScreenW = screen.getXResolution()
+-		iScreenH = screen.getYResolution()
+-		iMovieW = iScreenW
+-		iMovieH = iScreenW * 2 / 3
+-		if iMovieH > iScreenH:
+-			iMovieH = iScreenH
+-			iMovieW = iMovieH * 3 / 2
+-		iMovieX = (iScreenW - iMovieW) / 2
+-		iMovieY = (iScreenH - iMovieH) / 2
+-
+ 		szTitleText = self.getMovieTitle(iMovieType, iMovieId)
+-		screen.setLabel("MoviePlayerTitle", "Background", u"<font=4b>" + szTitleText.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, iScreenW / 2, 8, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen = self.mediaPlayer.openScreen()
++		iScreenW, iScreenH, iMovieX, iMovieY, iMovieW, iMovieH = self.mediaPlayer.setupLayout(screen, szTitleText)
+ 
+ 		if szMovieKind == "nif":
+ 			screen.addReligionMovieWidgetGFC("MoviePlayerMovie", szMovieFile, iMovieX, iMovieY, iMovieW, iMovieH, WidgetTypes.WIDGET_GENERAL, -1, -1)
+@@ -176,31 +148,14 @@ class SevoPediaMovie:
+ 		# CvEraMovieScreen.py using screen.setSound() before showScreen(), but we couldn't make it work
+ 		# in our context, so we stick with this approach. Credit: GPT-5.2-Codex, Claude Opus 4.5. -->
+ 		if szSoundScript:
+-			self.SAS_movieSoundId = None
+-			try:
+-				self.SAS_movieSoundId = CyAudioGame().Play2DSound(szSoundScript)
+-			except:
+-				self.SAS_movieSoundId = None
+-			if self.SAS_movieSoundId is None or self.SAS_movieSoundId == -1:
+-				CyInterface().playGeneralSound(szSoundScript)
+-				self.SAS_movieSoundId = None
++			self.mediaPlayer.playSound(szSoundScript, -1, False)
+ 
+-		screen.setButtonGFC(self.MOVIE_PLAYER_EXIT_ID, localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", iScreenW / 2 - 50, iScreenH - 42, 100, 30, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+-
+-		# <!-- custom: (ChatGPT-5.2 Thinking) -->
+-		try:
+-			screen.setEscapeKey(self.MOVIE_PLAYER_EXIT_ID)
+-		except:
+-			pass
+-		try:
+-			screen.setReturnKey(self.MOVIE_PLAYER_EXIT_ID)
+-		except:
+-			pass
++		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
+ 
+ 
+ 
+ 	def closeMoviePlayer(self):
+-		if not self.SAS_isMoviePlayerOpen:
++		if not self.mediaPlayer.isOpen:
+ 			return
+ 
+ 		if self.SAS_savedNoMovies is not None:
+@@ -209,32 +164,19 @@ class SevoPediaMovie:
+ 		# <!-- custom: try to stop the specific 2D sound via Destroy2DSound(handle); if that fails, fall back to
+ 		# CyInterface().stop2DSound() as a global 2D stop for stubborn handles. Credit: CIV4BUG API docs.
+ 		# (GPT-5.2-Codex (summarized)) -->
+-		if self.SAS_movieSoundId is not None and self.SAS_movieSoundId != -1:
+-			try:
+-				CyAudioGame().Destroy2DSound(self.SAS_movieSoundId)
+-			except:
+-				try:
+-					CyInterface().stop2DSound()
+-				except:
+-					pass
+-			self.SAS_movieSoundId = None
+-		elif self.SAS_movieSoundId is not None:
+-			try:
+-				CyInterface().stop2DSound()
+-			except:
+-				pass
+-			self.SAS_movieSoundId = None
+-
+-		screen = CyGInterfaceScreen(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES)
+-		screen.hideScreen()
+-		self.SAS_isMoviePlayerOpen = False
++		self.mediaPlayer.stopSound()
++		self.mediaPlayer.closeScreen()
+ 
+ 		self.top.pediaJump(SevoScreenEnums.PEDIA_MOVIES, self.iMovie, False, False)
+ 
+ 
+ 
+ 	def isMoviePlayerOpen(self):
+-		return self.SAS_isMoviePlayerOpen
++		return self.mediaPlayer.isOpen
++
++
++	def handleOverlayInput(self, inputClass):
++		return self.mediaPlayer.handleInput(inputClass, self.closeMoviePlayer, True)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index d92554356..d32b8ea2f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -10,6 +10,7 @@ import CvUtil
+ import SevoScreenEnums
+ 
+ from _sevopedia_helpers import *
++from SevoPediaMediaPlayer import SevoPediaMediaPlayer
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+@@ -24,8 +25,7 @@ class SevoPediaMusic:
+ 		self.iMusic = -1
+ 		self.MUSIC_PLAYER_SCREEN = "SevoPediaMusicPlayer"
+ 		self.MUSIC_PLAYER_EXIT_ID = "SAS_MusicPlayerExit"
+-		self.SAS_isMusicPlayerOpen = False
+-		self.SAS_musicSoundId = None
++		self.mediaPlayer = SevoPediaMediaPlayer(self.MUSIC_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MUSIC, self.MUSIC_PLAYER_EXIT_ID, "MusicPlayer")
+ 
+ 		# Offset for the extra width of Music items list vs base width
+ 		I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
+@@ -222,37 +222,9 @@ class SevoPediaMusic:
+ 		if szSoundScript == "NONE":
+ 			szSoundScript = ""
+ 
+-		screen = CyGInterfaceScreen(self.MUSIC_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MUSIC)
+-
+-		# <!-- custom: (ChatGPT-5.2 Thinking) -->
+-		try:
+-			screen.enableWorldSounds(True)
+-		except:
+-			pass
+-		try:
+-			screen.setScreenGroup(1)
+-		except:
+-			pass
+-
+-		self.SAS_isMusicPlayerOpen = True
+-
+-		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+-		screen.setRenderInterfaceOnly(True)
+-		screen.enableWorldSounds(False)
+-		screen.addPanel("MusicPlayerBG", u"", u"", True, False, -10, -10, screen.getXResolution() + 20, screen.getYResolution() + 20, PanelStyles.PANEL_STYLE_MAIN)
+-
+-		iScreenW = screen.getXResolution()
+-		iScreenH = screen.getYResolution()
+-		iImageW = iScreenW
+-		iImageH = iScreenW * 2 / 3
+-		if iImageH > iScreenH:
+-			iImageH = iScreenH
+-			iImageW = iImageH * 3 / 2
+-		iImageX = (iScreenW - iImageW) / 2
+-		iImageY = (iScreenH - iImageH) / 2
+-
+ 		szTitleText = self.top.SAS_getMusicTitle(iMusic)
+-		screen.setLabel("MusicPlayerTitle", "Background", u"<font=4b>" + szTitleText.upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, iScreenW / 2, 8, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen = self.mediaPlayer.openScreen()
++		iScreenW, iScreenH, iImageX, iImageY, iImageW, iImageH = self.mediaPlayer.setupLayout(screen, szTitleText)
+ 
+ 		iEra = self.top.SAS_getMusicEra(iMusic)
+ 		szImagePath = ""
+@@ -262,77 +234,29 @@ class SevoPediaMusic:
+ 			screen.setImageButton("MusicPlayerImage", szImagePath, iImageX, iImageY, iImageW, iImageH, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_ERA_CHART, -1)
+ 
+ 		if szSoundScript or (iSoundId != -1):
+-			self.SAS_musicSoundId = None
+-			self.SAS_is3DSound = False
+-			try:
+-				if iSoundId != -1:
+-					if self.top.SAS_isMusicSound3D(iMusic):
+-						self.SAS_musicSoundId = CyAudioGame().Play3DSoundWithId(iSoundId, 0, 0, 0)
+-						self.SAS_is3DSound = True
+-					else:
+-						self.SAS_musicSoundId = CyAudioGame().Play2DSoundWithId(iSoundId)
+-				elif szSoundScript.startswith("AS3D_"):
+-					# 3D scripts need Play3DSound
+-					self.SAS_musicSoundId = CyAudioGame().Play3DSound(szSoundScript, 0, 0, 0)
+-					self.SAS_is3DSound = True
+-				else:
+-					self.SAS_musicSoundId = CyAudioGame().Play2DSound(szSoundScript)
+-			except:
+-				self.SAS_musicSoundId = None
+-			if self.SAS_musicSoundId is None or self.SAS_musicSoundId == -1:
+-				if szSoundScript:
+-					CyInterface().playGeneralSound(szSoundScript)
+-				self.SAS_musicSoundId = None
++			self.mediaPlayer.playSound(szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
+ 
+-		screen.setButtonGFC(self.MUSIC_PLAYER_EXIT_ID, localText.getText("TXT_KEY_MAIN_MENU_OK", ()), "", iScreenW / 2 - 50, iScreenH - 42, 100, 30, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
+-
+-		# <!-- custom: (ChatGPT-5.2 Thinking) -->
+-		try:
+-			screen.setEscapeKey(self.MUSIC_PLAYER_EXIT_ID)
+-		except:
+-			pass
+-		try:
+-			screen.setReturnKey(self.MUSIC_PLAYER_EXIT_ID)
+-		except:
+-			pass
++		self.mediaPlayer.placeExitButton(screen, iScreenW, iScreenH)
+ 
+ 
+ 
+ 	def closeMusicPlayer(self):
+-		if not self.SAS_isMusicPlayerOpen:
++		if not self.mediaPlayer.isOpen:
+ 			return
+ 
+-		if self.SAS_musicSoundId is not None and self.SAS_musicSoundId != -1:
+-			try:
+-				if getattr(self, 'SAS_is3DSound', False):
+-					CyAudioGame().Destroy3DSound(self.SAS_musicSoundId)
+-				else:
+-					CyAudioGame().Destroy2DSound(self.SAS_musicSoundId)
+-			except:
+-				try:
+-					CyInterface().stop2DSound()
+-				except:
+-					pass
+-			self.SAS_musicSoundId = None
+-			self.SAS_is3DSound = False
+-		elif self.SAS_musicSoundId is not None:
+-			try:
+-				CyInterface().stop2DSound()
+-			except:
+-				pass
+-			self.SAS_musicSoundId = None
+-			self.SAS_is3DSound = False
+-
+-		screen = CyGInterfaceScreen(self.MUSIC_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MUSIC)
+-		screen.hideScreen()
+-		self.SAS_isMusicPlayerOpen = False
++		self.mediaPlayer.stopSound()
++		self.mediaPlayer.closeScreen()
+ 
+ 		self.top.pediaJump(SevoScreenEnums.PEDIA_MUSIC, self.iMusic, False, False)
+ 
+ 
+ 
+ 	def isMusicPlayerOpen(self):
+-		return self.SAS_isMusicPlayerOpen
++		return self.mediaPlayer.isOpen
++
++
++	def handleOverlayInput(self, inputClass):
++		return self.mediaPlayer.handleInput(inputClass, self.closeMusicPlayer, False)
+
+diff --git a/README.md b/README.md
+index 7b4d47157..149ef1b1e 100644
+--- a/README.md
++++ b/README.md
+@@ -279,6 +279,8 @@ Based on the Middle-earth mod's Platypedia's Movies category and adjusted and th
+ 
+ Multiple categories are supported, as of now Victories, Wonders, Projects, Religions, and Eras. The movie starts in a new screen that can be exited anytime. A clickable emoji-based Play Button has been provided.
+ 
++Common logic is in [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py) with the very nice help of GPT-5.2-Codex thanks a lot!
++
+ We also added a new Sevopedia Music that allows to play ~1750 audio scripts in Sevopedia (as of now 963 AS2D and 786 AS3D audio scripts)! Search bar support allows for an easy find of the wanted tracks. And a play Button is provided. Among assets, notably but not only, each Tech's, Leader's, Civlization's, Era's music can be listened to.
+ 
+ See [Sevopedia Reworks (Movies category (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-movies-category-with-audio-support) and [Sevopedia Reworks (Music category (~1750 audio scripts playable ingame))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-music-category-1750-audio-scripts-playable-ingame)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index daea2924e..4d9e5d027 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -299,7 +299,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5300+) **Game Speed Chart**: similarly a new category to see all game speed XML values in a **sortable chart**, notably **by icons (first column)**, which allows to **group them by theme**. In particular, they allow to see the full **Calendar/Timeline** information in lines such as `"+2*10k=30k"` or `"+40*m2=2076m9"` for each month increment and each game speed; and the **Culture Level Infos** at each game speed. For convenience, additional fields are added (e.g. or `Total Turns*` 165 at game speed Turbo) and marked with `*` to distinguish them from regular XML info fields. See [Sevopedia reworks (Game Speed Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-06-game-speed-chart-category).
+ - (Requires AdvCiv-SAS 5307+) **World Sizes Chart**: similarly a new category to see all World Size XML values in a **sortable chart**. See [Sevopedia reworks (World Sizes Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category). Similarly, for convenience, additional fields are added (e.g. or `Ratio to Standard*` 3.640 at World Size SAS24), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), or `Recommended DLL*` (e.g."48 Civs" at World Size SAS24) and marked with `*` to help identify them.
+ - (Requires AdvCiv-SAS 5312+) Similarly, added a new Eras Chart category with sortable entries including the list of techs for all eras, and notably **optional era buttons**. See [Sevopedia reworks (Eras Chart)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-08-eras-chart-category).
+-- (Requires AdvCiv-SAS 5357+) New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. Movies are played on a **new screen**. Click on "OK" or Right-click to **stop the media playing**; press Escape or Enter key for main menu. See [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-movies-category-with-audio-support).
++- (Requires AdvCiv-SAS 5357+) New **Movies category** (bik, nif, dds) for **Victories**, **Wonders**, **Projects**, **Religions**, and **Eras**, additional **audio support for non-bik** files (e.g. Religions have a nif + separate audio asset). **Play button** added in related Sevopedia categories to redirect to their entry in Sevopedia Movies. Movies are played on a **new screen**. Click on "OK" or Right-click to **stop the media playing**; press Escape or Enter key for main menu. See [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py) and [Sevopedia reworks (Movies (with audio support))](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-090-movies-category-with-audio-support).
+ - (Requires AdvCiv-SAS 5359+) New **Music category**: allows to play **~1750 audio scripts** (i.e. files) in Sevopedia, notably for **Techs**, **Leaders**, **Eras**, **Civilizations**, and many other. **Play button** added in related Sevopedia categories to redirect to Sevopedia Music. Approach broadly similar to that of Sevopedia Movies. **Search bar support** and **widening** allows to find desired tracks. Note: there are **multiple sounds in an item** for each civilization sound item, so **replay many times the same item to hear all civilization sounds**. See [Sevopedia reworks (Music)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-091-music-category-1750-audio-scripts-playable-in-sevopedia).
+ - (Requires AdvCiv-SAS 5340+) Added a new **Sevopedia Builds** category (e.g. **"Remove Jungle"**, **Chop Down a Forest**, **"Build a Road"**, **"Create a Farm"**) distinct from Sevopedia Improvements, notably with **FeatureStruct** panels and **mod-agnostic new Civilopedia blurbs-based Background panel** (added the new XML field `Civilopedia`> to BuildInfos). Also added them to **Sevopedia Index** as **clickable entries with buttons**. See [Sevopedia reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm).
+ - (Requires AdvCiv-SAS 5354+) Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 259324394..6ee117588 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -190,6 +190,8 @@ Emoji-based Play button is added to Sevopedia Building, Project, Religions, and
+ 
+ Implementation based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS with the very nice help of GPT-5.2-Codex and Claude code Opus 4.5, and Claude code Sonnet 4.5 a bit for some UI, thanks a lot!
+ 
++Note: Common logic to Sevopedia Movies and Music is in [SevoPediaMediaPlayer.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py) with the very nice help of GPT-5.2-Codex thanks a lot!
++
+ <img src="../Images/sevopedia/0.810_sevopedia_movies (1).JPG" alt="0.810_sevopedia_movies (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.810_sevopedia_movies (2).JPG" alt="0.810_sevopedia_movies (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.810_sevopedia_movies (3).JPG" alt="0.810_sevopedia_movies (3).JPG" width="250"></img>
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=25654

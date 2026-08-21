@@ -1,0 +1,104 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2086
+# Commit: 1c5f39d8bebad59307fd420de2cba052a666760e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f54cc305502cb61c3a27a6de7f015925a5f1b4c1
+# Title: Fix a minor (AdvCiv) issue with culture layer coloring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	15	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1e8bc196d..9d2578b35 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -21953,7 +21953,7 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 		if(eOwner == NO_PLAYER)
+ 			continue; // advc: Moved up
+ 		// how many people own this plot?
+-		std::vector < std::pair<int,int> > plot_owners;
++		std::vector<std::pair<int,PlayerTypes> > plot_owners;
+ 		//int iNumNonzeroOwners = 0;
+ 		// K-Mod
+ 		int iTotalCulture = kLoopPlot.getTotalCulture(); // advc.opt: was countTotalCulture
+@@ -21965,18 +21965,19 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 		bool bVisible = kLoopPlot.isVisible(getTeam(), true);
+ 		if(bVisible)
+ 		{ // </advc.004z>
+-			for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++) // dlph.21: was MAX_CIV_PLAYERS
+-			{	// <advc.004z> Owner handled above
+-				if(iPlayer == eOwner)
++			// dlph.21: include Barbarians; advc.099: include defeated.
++			for (PlayerIter<EVER_ALIVE> it; it.hasNext(); ++it)
++			{
++				PlayerTypes ePlayer = it->getID();
++				// <advc.004z> Owner handled above
++				if(ePlayer == eOwner)
+ 					continue; // </advc.004z>
+-				if(!GET_PLAYER((PlayerTypes)iPlayer).isEverAlive()) // advc.099: was isAlive
+-					continue;
+-				int iCurCultureAmount = kLoopPlot.getCulture((PlayerTypes)iPlayer);
++				int iCurCultureAmount = kLoopPlot.getCulture(ePlayer);
+ 				//if (iCurCultureAmount != 0)
+ 				// K-Mod (to reduce visual spam from small amounts of culture)
+-				if (iCurCultureAmount * 100 / iTotalCulture >= 20)
++				if (100 * iCurCultureAmount >= 20 * iTotalCulture)
+ 				{	//iNumNonzeroOwners ++;
+-					plot_owners.push_back(std::pair<int,int>(iCurCultureAmount, iPlayer));
++					plot_owners.push_back(std::make_pair(iCurCultureAmount, ePlayer));
+ 				}
+ 			}
+ 		}
+@@ -21989,7 +21990,7 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 			plot_owners.size() < iColorsPerPlot; iPass++)
+ 		{
+ 			// To avoid adding to plot_owners while looping through it
+-			std::vector <std::pair<int,int> > repeated_owners;
++			std::vector<std::pair<int,PlayerTypes> > repeated_owners;
+ 			for(size_t i = 0; i < plot_owners.size(); i++)
+ 			{
+ 				if(baDone[plot_owners[i].second])
+@@ -21999,8 +22000,8 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 					iExtra += (plot_owners[i].first * iColorsPerPlot) / iTotalCulture;
+ 				else if(iPass == 1) // Round to nearest
+ 				{
+-					iExtra += ::round((plot_owners[i].first * iColorsPerPlot) /
+-							(double)iTotalCulture);
++					iExtra += ROUND_DIVIDE(plot_owners[i].first * iColorsPerPlot,
++							iTotalCulture);
+ 				} // Respect size limit
+ 				iExtra = std::min(iExtra, iColorsPerPlot - (int)
+ 						(plot_owners.size() + repeated_owners.size()));
+@@ -22014,10 +22015,15 @@ void CvPlayer::getCultureLayerColors(std::vector<NiColorA>& aColors, std::vector
+ 				will be set to the civ's color. */
+ 			for(size_t i = 0; i < repeated_owners.size(); i++)
+ 				plot_owners.push_back(repeated_owners[i]);
+-		} // Ideally ==, but my algorithm above can't guarantee that.
+-		FAssert(plot_owners.size() <= iColorsPerPlot);
++		}
++		/*	Ideally ==iColorsPerPlot, but my algorithm above can't guarantee that.
++			Can be 1 greater than iColorsPerPlot because the territorial owner is
++			always included. */
++		FAssert(plot_owners.size() <= iColorsPerPlot + 1);
+ 		// </advc.004z>
+-		for (int i = 0; i < iColorsPerPlot; ++i)
++		for (int i = 0;
++			// adv.004z: max (see comment above)
++			i < std::max(iColorsPerPlot, (int)plot_owners.size()); i++)
+ 		{
+ 			int iCurOwnerIdx = i % plot_owners.size();
+ 			PlayerTypes eCurOwnerID = (PlayerTypes) plot_owners[iCurOwnerIdx].second;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3789

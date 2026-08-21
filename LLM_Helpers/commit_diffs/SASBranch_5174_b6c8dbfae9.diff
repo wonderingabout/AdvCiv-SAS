@@ -1,0 +1,186 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5174
+# Commit: b6c8dbfae9b40bcc9e1edb6f9123aab9e24bfa97
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1022ec5365188ec73df05e65a178898b1e2b84ea
+# Title: further beautify domestic advisor and some foreign advisor sections: add iExtraWidth, iExtraHeight, iExtraY - domestic advisor: so it occupies the full game...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	3	Assets/Python/Screens/CvDomesticAdvisor.py
+20	10	Assets/Python/Screens/CvExoticForeignAdvisor.py
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.500_bTrade_bRepeat_example.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index bb1bb7784..12fd2cec7 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -35,9 +35,14 @@ class CvDomesticAdvisor:
+ 		# Create a new screen, called DomesticAdvisur, using the file CvDomesticAdvisor.py for input
+ 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
+ 
+-		self.nScreenWidth = screen.getXResolution() - 30
++		# <!-- custom: further beautify: expand to all width (remove the - 30) with the help of gemini 3 pro thanks anyways etc. -->
++		# <!-- custom: update: for some reason there are still empty edges even at full resolution, on the left and right sides, which is distracting, so expand it a bit beyond that anyways etc. -->
++		# self.iExtraWidth = 0
++		self.iExtraWidth = 4
++		self.nScreenWidth = screen.getXResolution() + (2 * self.iExtraWidth)
+ 		# advc.120c: Was -250. Need a little more space for the HUD.
+-		self.nScreenHeight = screen.getYResolution() - 255
++		# <!-- custom: further beautify: after our changes, reduce height a bit so we can see more of the selected unit row(s) and of the HUD (should be fine i think but anyways etc. as we don't have that many cities that it would critically change things if i'm not mistaken in my thinking but anyways etc.) (was - 255) with the help of gemini 3 pro thanks anyways etc. -->
++		self.nScreenHeight = screen.getYResolution() - 305
+ 		self.nTableWidth = self.nScreenWidth - 35
+ 		self.nTableHeight = self.nScreenHeight - 85
+ 		self.nNormalizedTableWidth = 970
+@@ -60,7 +65,10 @@ class CvDomesticAdvisor:
+ 
+ 		screen.setRenderInterfaceOnly(True)
+ 		# advc.120c: y position changed from 100 to 85 so that the unit icons aren't obscured. The espionage slider isn't normally visible anyway.
+-		screen.setDimensions(15, 85, self.nScreenWidth, self.nScreenHeight)
++		# <!-- custom: further beautify: expand to all width (and so remove the extra X starting position anyways etc.), and also move the screen lower so we can see the espionage slider as well (before that change only the first 2 sliders were visible) with the help of gemini 3 pro thanks anyways etc. -->
++		# screen.setDimensions(15, 85, self.nScreenWidth, self.nScreenHeight)
++		# <!-- custom: update: for some reason there are still empty edges even at full resolution, on the left and right sides, which is distracting, so expand it a bit beyond that anyways etc. -->
++		screen.setDimensions(-self.iExtraWidth, 105, self.nScreenWidth, self.nScreenHeight)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+ 	
+ 		# Here we set the background widget and exit button, and we show the screen
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index fbe090a15..1d3d54018 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -404,12 +404,12 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		
+ 		#screen.addPanel(mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
+ 		# <advc.066> Replacing the above (same as in drawInfoOriginal)
+-		# <!-- custom: remove the margins same as in the other foreign advisor sub-screens after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks but anyways etc. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification but anyways etc. -->
++		# <!-- custom: remove the margins same as in the other foreign advisor sections after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks but anyways etc. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification but anyways etc. -->
+ 		# leftRightMargin = 25
+ 		# topBottomMargin = 50
+ 		leftRightMargin = 0
+ 		# <!-- custom: 43 is a bit nicer as it overflows less on the top and bottom, but we lose one leader row with it with the current inter row spacing as of now, so keep 42 rather despite the slight overflowing outside the top and bottom edges as of now but anyways etc. -->
+-		# <!-- custom: note: does not necessarily lead to one more leader row as it seems (but not sure, check if accurate as this is just a guess of mine even though it does seem to be as such but check to be sure anyways etc.) rows can be higher if they have more lines as of now in the foreign advisor's active sub-screen but doing as such for consistency as well as in base advciv code as well coincidentally i mean if i may say but anyways etc. -->
++		# <!-- custom: note: does not necessarily lead to one more leader row as it seems (but not sure, check if accurate as this is just a guess of mine even though it does seem to be as such but check to be sure anyways etc.) rows can be higher if they have more lines as of now in the foreign advisor's active section but doing as such for consistency as well as in base advciv code as well coincidentally i mean if i may say but anyways etc. -->
+ 		topBottomMargin = 42
+ 		mainPanelWidth = self.W_SCREEN - 2 * leftRightMargin
+ 		mainPanelHeight = self.H_SCREEN - 2 * topBottomMargin
+@@ -526,7 +526,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		
+ 		#screen.addPanel(mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
+ 		# <advc.066> Replacing the above (same as in drawActive)
+-		# <!-- custom: remove the margins same as in the other foreign advisor sub-screens after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks but anyways etc. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification but anyways etc. -->
++		# <!-- custom: remove the margins same as in the other foreign advisor sections after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks but anyways etc. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification but anyways etc. -->
+ 		# leftRightMargin = 25
+ 		# topBottomMargin = 50
+ 		leftRightMargin = 0
+@@ -603,7 +603,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 					nCivic = objLoopPlayer.getCivics (nCivicOption)
+ 					screen.attachImageButton (infoPanelName, "", gc.getCivicInfo (nCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, nCivic, 1, False)
+ 
+-				# <!-- custom: also show favorite religions in the foreign advisor's info sub-screen anyways etc. Code added with the help of gemini 3 pro thanks anyways etc, also refactor this part of the code as well for clarity anyways etc. -->
++				# <!-- custom: also show favorite religions in the foreign advisor's info section anyways etc. Code added with the help of gemini 3 pro thanks anyways etc, also refactor this part of the code as well for clarity anyways etc. -->
+ 				nFavoriteCivic = objLeaderHead.getFavoriteCivic()
+ 				hasFavoriteCivic = (objLoopPlayer.isFavoriteCivicKnown() and nFavoriteCivic != -1) # advc.130n
+ 
+@@ -1218,10 +1218,15 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		# </advc.073>
+ 		
+ 		# # Assemble the panel that shows the trade table
++		# <!-- custom: beautify, trim or adjust the edges to remove empty space or overfilling blue panel or/and such anyways etc. -->
++		# iExtraY = 0
++		# iExtraHeight = 0
++		iExtraY = - 20
++		iExtraHeight = -12
+ 		self.TABLE_PANEL_X = self.RES_LEFT_RIGHT_SPACE
+-		self.TABLE_PANEL_Y = self.SURPLUS_Y + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE
++		self.TABLE_PANEL_Y = self.SURPLUS_Y + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + iExtraY
+ 		self.TABLE_PANEL_WIDTH = self.W_SCREEN - 2 * self.RES_LEFT_RIGHT_SPACE
+-		self.TABLE_PANEL_HEIGHT = self.H_SCREEN - self.TABLE_PANEL_Y - self.RES_TOP_BOTTOM_SPACE
++		self.TABLE_PANEL_HEIGHT = self.H_SCREEN - self.TABLE_PANEL_Y - self.RES_TOP_BOTTOM_SPACE + iExtraHeight
+ 		
+ 		self.tradePanel = self.getNextWidgetName()
+ 		# <!-- custom: save some space, don't use a header, anyways etc. -->
+@@ -1374,10 +1379,15 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		self.initTechTable()
+ 
+ 		# Assemble the panel
+-		TECH_PANEL_X = self.TECH_LEFT_RIGHT_SPACE
+-		TECH_PANEL_Y = self.TECH_TOP_BOTTOM_SPACE
+-		TECH_PANEL_WIDTH = self.W_SCREEN - 2 * self.TECH_LEFT_RIGHT_SPACE
+-		TECH_PANEL_HEIGHT = self.H_SCREEN - 2 * self.TECH_TOP_BOTTOM_SPACE
++		# <!-- custom: add extra width tweak to remove the yellow side edges, and extra height tweak to remove distracting top bright band plus have more room on bottom side's row as well, with gemini 3 pro's help thanks anyways etc. -->
++		# iExtraWidth = 0
++		iExtraWidth = 4
++		TECH_PANEL_X = self.TECH_LEFT_RIGHT_SPACE - iExtraWidth
++		TECH_PANEL_WIDTH = self.W_SCREEN - 2 * self.TECH_LEFT_RIGHT_SPACE + (2 * iExtraWidth)
++		# iExtraHeight = 0
++		iExtraHeight = 4
++		TECH_PANEL_Y = self.TECH_TOP_BOTTOM_SPACE - iExtraHeight
++		TECH_PANEL_HEIGHT = self.H_SCREEN - 2 * self.TECH_TOP_BOTTOM_SPACE + (2 * iExtraHeight)
+ 
+ 		self.tradePanel = self.getNextWidgetName()
+ 		screen.addPanel( self.tradePanel, "", "", True, True, TECH_PANEL_X, TECH_PANEL_Y, TECH_PANEL_WIDTH, TECH_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 2e4d914d1..73ae70e03 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -120,8 +120,8 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc. Note: the recommended settle spots do not always match what AI would do if it were to play for the human player in autoplay, so while our choosing logic is much stronger, i am not sure the colored settle points displayed to the human player are always the ones the AI would deem the best as per our reworked/enhanced `AIFoundValue::evaluate` so take them with some caution i'd say if i'm not mistaken but anyways etc.
+ - removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are oftentimes outdated or/and tedious to maintain anyways etc.
+ - add the "Cannot be traded" and the "Can be researched multiple times" information tooltips in the tech advisor as well anyways etc. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+-- (Requires AdvCiv-SAS 5173+) **Beautified** the **Domestic Advisor** (F1 key): now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
+-- (Requires AdvCiv-SAS 5162+ to 5168+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined the panels to display up to 12 players and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
++- (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
++- (Requires AdvCiv-SAS 5162+ to 5169+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined the panels to display up to 12 players and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
+ 
+ ## Code/Performance optimizations
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index e9627e6a2..9c1f5487d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -113,8 +113,8 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ - removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
+ - Added "Cannot be traded" and "Can be researched multiple times" tooltips to the Tech Advisor screen. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+-- (Requires AdvCiv-SAS 5173+) **Beautified** the **Domestic Advisor** (F1 key): now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
+-- (Requires AdvCiv-SAS 5162+ to 5168+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined the panels to display up to 12 players and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
++- (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
++- (Requires AdvCiv-SAS 5162+ to 5169+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined the panels to display up to 12 players and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Other advisors' rework](/README.md#other-advisors-rework).
+ 
+ ### Code/Performance optimizations
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.500_bTrade_bRepeat_example.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.500_bTrade_bRepeat_example.JPG
+index 22854c397..7a47851c3 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.500_bTrade_bRepeat_example.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.500_bTrade_bRepeat_example.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG
+index 139c8296f..29bf9ea11 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG
+index 9dbc27fdd..4ae6ae1c4 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.512_foreign_advisor_techs.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG
+index f07cb95da..e06e3a2b2 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.530_domestic_advisor.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=21364

@@ -1,0 +1,196 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6044
+# Commit: 41c913b8d88a618155bc8159239b2f8d6250f984
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fbdef73e56e745f9d4edbe8af442ebbbf1e77d45
+# Title: Improve AI city-site health/happiness valuation for special buildings
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+15	1	Assets/XML/GlobalDefines_advciv_sas.xml
+50	6	CvGameCoreDLL/CitySiteEvaluator.cpp
+1	1	CvGameCoreDLL/CitySiteEvaluator.h
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 126477aeb..56f7f07f9 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -947,7 +947,8 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_COMMERCE_VALUE</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Settlement-specific non-yield value for a bonus's explicit health/happiness effect and ordinary building bonus effects up to the prerequisite-era gate below. In save file 450, the old broad AI_bonusVal path made Elephants greatly outscore nearby Crab, pushing Shaka's uMgungundlovu toward the weaker (18,40) site over the Crab and greener (17,40) alternative; this is wrong because Crab is locally a valuable high food source, and its empire health gain remains useful especially later, while Elephants are mostly classical-era pressure (War Elephants) with some happiness. Settling cares less about immediate current-era trade value and more about long-term health/happiness city-site value, which can be very different. Example: if health value is 150 and coastal Crab gives 1 empire-wide health plus 1 health from Harbor within the era gate, the city site gains 2 * 150 = 300 before trade/access/water adjustments. See KI#178. (GPT-5.5) -->
++	<!-- custom: Settlement-specific non-yield value for a bonus's explicit health/happiness effect and plausible building bonus effects up to the prerequisite-era gate below. In save file 450, the old broad AI_bonusVal path made Elephants greatly outscore nearby Crab, pushing Shaka's uMgungundlovu toward the weaker (18,40) site over the Crab and greener (17,40) alternative.
++	This is wrong because Crab is locally a valuable high food source, and its empire health gain remains useful especially later, while Elephants are mostly classical-era pressure (War Elephants) with some happiness. Settling cares less about immediate current-era trade value and more about long-term health/happiness city-site value, which can be very different. Example: if health value is 150 and coastal Crab gives 1 empire-wide health plus 1 health from Harbor within the era gate, the city site gains 2 * 150 = 300 before trade/access/water adjustments. See KI#178. Note: Special-building effects use the conservative per-point values and shared cap below. (GPT-5.5 + GPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_HEALTH_VALUE</DefineName>
+ 		<iDefineIntVal>150</iDefineIntVal>
+@@ -961,6 +962,19 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_BUILDING_EFFECT_MAX_PREREQ_ERA</DefineName>
+ 		<iDefineIntVal>2</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Special buildings should contribute to long-term city-site value without counting every overlapping religious variant at full ordinary-building value. Each positive health/happiness point from a religion-linked special building contributes 25, while a nonreligious special building contributes 100 because its variants are less likely to overlap. Cap their combined value at 200 so seven Incense Cathedrals contribute 7 * 25 = 175 rather than 7 * 150, and mod-added special buildings cannot inflate a site without bound. Religion-linked detection uses the building's religion, prerequisite religion, state religion, or holy city rather than hardcoded SpecialBuildingType names. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_RELIGIOUS_SPECIAL_BUILDING_HAPPY_HEALTH_VALUE_PER_POINT</DefineName>
++		<iDefineIntVal>25</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_NON_RELIGIOUS_SPECIAL_BUILDING_HAPPY_HEALTH_VALUE_PER_POINT</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_NON_YIELD_BONUS_SPECIAL_BUILDING_HAPPY_HEALTH_MAX_VALUE</DefineName>
++		<iDefineIntVal>200</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Base AdvCiv weights now tunable: every plot starts with its natural XML yields: terrain, retained feature, and any revealed bonus's intrinsic yield, but not improvement yield handled by SAS_EVALUATE_BFC_BONUS_IMPROVEMENT_*. The code then selects exactly one value set: SELF_SUSTAINING, ONE_FOOD_SHORT, or DEFAULT. (GPT-5.5) -->
+ 	<!-- custom: SELF_SUSTAINING applies to a land home plot or land plot with at least the 2 Food consumed by one citizen. E.g. 2F1P contributes the fixed 10-point self-sustaining bonus + 2 * 40 + 1 * 30 = 120 before other plot adjustments. (GPT-5.5) -->
+ 	<Define>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index c58c52efe..f47690e25 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -6,7 +6,7 @@
+ #include "PlotRange.h"
+ #include "CvArea.h"
+ #include "CvInfo_City.h"
+-// <!-- custom: Needed for settlement-specific bonus health/happiness from ordinary buildings, e.g. Harbor seafood health, without using broad AI_bonusVal trade logic. (GPT-5.5) -->
++// <!-- custom: Needed for settlement-specific bonus health/happiness from plausible buildings, e.g. Harbor seafood health and capped Incense Cathedral happiness, without using broad AI_bonusVal trade logic. (GPT-5.5 + GPT-5.6-Sol) -->
+ #include "CvInfo_Building.h"
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+@@ -2805,9 +2805,7 @@ bool AIFoundValue::isBonusOwnedOrClaimedByFutureBFC(BonusTypes eBonus) const
+ bool AIFoundValue::isBonusBuildingEffectValued(BuildingTypes eBuilding, int iMaxPrereqEra, bool bCoastal) const
+ {
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+-	// <!-- custom: Settlement scoring should anticipate ordinary Granary/Harbor-style bonus health/happiness without importing full AI_bonusVal trade logic. Keep limited buildings, special-building chains, obsolete buildings, non-coastal water buildings, and late prerequisite eras out of this narrow long-term city-site value. See KI#178. (GPT-5.5) -->
+-	if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
+-		return false;
++	// <!-- custom: Settlement scoring should anticipate ordinary Granary/Harbor-style and conservatively estimated special-building bonus health/happiness without importing full AI_bonusVal trade logic. Keep obsolete buildings, non-coastal water buildings, and prerequisites beyond the configured era out of this narrow long-term city-site value. Limited buildings are rejected by the caller. See KI#178. (GPT-5.5 + GPT-5.6-Sol) -->
+ 	if (kBuilding.isWater() && !bCoastal)
+ 		return false;
+ 	TechTypes const eObsoleteTech = kBuilding.getObsoleteTech();
+@@ -2822,6 +2820,20 @@ bool AIFoundValue::isBonusBuildingEffectValued(BuildingTypes eBuilding, int iMax
+ 		if (eAndTech != NO_TECH && GC.getInfo(eAndTech).getEra() > iMaxPrereqEra)
+ 			return false;
+ 	}
++	SpecialBuildingTypes const eSpecialBuilding = kBuilding.getSpecialBuildingType();
++	if (eSpecialBuilding != NO_SPECIALBUILDING)
++	{
++		CvSpecialBuildingInfo const& kSpecialBuilding = GC.getInfo(eSpecialBuilding);
++		TechTypes const eSpecialObsoleteTech = kSpecialBuilding.getObsoleteTech();
++		if (eSpecialObsoleteTech != NO_TECH && GET_TEAM(eTeam).isHasTech(eSpecialObsoleteTech))
++			return false;
++		TechTypes const eSpecialPrereqTech = kSpecialBuilding.getTechPrereq();
++		if (eSpecialPrereqTech != NO_TECH && GC.getInfo(eSpecialPrereqTech).getEra() > iMaxPrereqEra)
++			return false;
++		TechTypes const eSpecialPrereqAnyoneTech = kSpecialBuilding.getTechPrereqAnyone();
++		if (eSpecialPrereqAnyoneTech != NO_TECH && GC.getInfo(eSpecialPrereqAnyoneTech).getEra() > iMaxPrereqEra)
++			return false;
++	}
+ 	return true;
+ }
+ 
+@@ -2833,7 +2845,14 @@ int AIFoundValue::calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool
+ 		return 0;
+ 	static const int iHealthValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HEALTH_VALUE");
+ 	static const int iHappinessValue = GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_HAPPINESS_VALUE");
++	static const int iReligiousSpecialBuildingValuePerPoint = std::max(0, GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_RELIGIOUS_SPECIAL_BUILDING_HAPPY_HEALTH_VALUE_PER_POINT"));
++	static const int iNonReligiousSpecialBuildingValuePerPoint = std::max(0, GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_NON_RELIGIOUS_SPECIAL_BUILDING_HAPPY_HEALTH_VALUE_PER_POINT"));
++	static const int iSpecialBuildingMaxValue = std::max(0, GC.getDefineINT("SAS_EVALUATE_NON_YIELD_BONUS_SPECIAL_BUILDING_HAPPY_HEALTH_MAX_VALUE"));
+ 	int iValue = 0;
++	int iReligiousSpecialBuildingHealthPoints = 0;
++	int iReligiousSpecialBuildingHappinessPoints = 0;
++	int iNonReligiousSpecialBuildingHealthPoints = 0;
++	int iNonReligiousSpecialBuildingHappinessPoints = 0;
+ 	CvCivilization const& kCiv = kPlayer.getCivilization();
+ 	for (int i = 0; i < kCiv.getNumBuildings(); i++)
+ 	{
+@@ -2844,8 +2863,33 @@ int AIFoundValue::calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool
+ 		if (!isBonusBuildingEffectValued(eBuilding, iMaxPrereqEra, bCoastal))
+ 			continue;
+ 		CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+-		iValue += std::max(0, kBuilding.getBonusHealthChanges(eBonus)) * iHealthValue + std::max(0, kBuilding.getBonusHappinessChanges(eBonus)) * iHappinessValue;
++		int const iHealthPoints = std::max(0, kBuilding.getBonusHealthChanges(eBonus));
++		int const iHappinessPoints = std::max(0, kBuilding.getBonusHappinessChanges(eBonus));
++		SpecialBuildingTypes const eSpecialBuilding = kBuilding.getSpecialBuildingType();
++		if (eSpecialBuilding == NO_SPECIALBUILDING)
++			iValue += iHealthPoints * iHealthValue + iHappinessPoints * iHappinessValue;
++		else
++		{
++			bool const bReligionLinked = (kBuilding.getReligionType() != NO_RELIGION || kBuilding.getPrereqReligion() != NO_RELIGION || kBuilding.getStateReligion() != NO_RELIGION || kBuilding.getHolyCity() != NO_RELIGION);
++			if (bReligionLinked)
++			{
++				iReligiousSpecialBuildingHealthPoints += iHealthPoints;
++				iReligiousSpecialBuildingHappinessPoints += iHappinessPoints;
++			}
++			else
++			{
++				iNonReligiousSpecialBuildingHealthPoints += iHealthPoints;
++				iNonReligiousSpecialBuildingHappinessPoints += iHappinessPoints;
++			}
++		}
+ 	}
++	int const iReligiousSpecialBuildingValue = (iReligiousSpecialBuildingHealthPoints + iReligiousSpecialBuildingHappinessPoints) * iReligiousSpecialBuildingValuePerPoint;
++	int const iNonReligiousSpecialBuildingValue = (iNonReligiousSpecialBuildingHealthPoints + iNonReligiousSpecialBuildingHappinessPoints) * iNonReligiousSpecialBuildingValuePerPoint;
++	int const iSpecialBuildingRawValue = iReligiousSpecialBuildingValue + iNonReligiousSpecialBuildingValue;
++	int const iSpecialBuildingValue = std::min(iSpecialBuildingRawValue, iSpecialBuildingMaxValue);
++	iValue += iSpecialBuildingValue;
++	IFLOG if (iSpecialBuildingRawValue != 0) logBBAI("Special-building bonus (%S): religiousHealth=%d religiousHappiness=%d nonReligiousHealth=%d nonReligiousHappiness=%d religiousValue=%d nonReligiousValue=%d raw=%d cap=%d value=%d",
++			GC.getInfo(eBonus).getDescription(), iReligiousSpecialBuildingHealthPoints, iReligiousSpecialBuildingHappinessPoints, iNonReligiousSpecialBuildingHealthPoints, iNonReligiousSpecialBuildingHappinessPoints, iReligiousSpecialBuildingValue, iNonReligiousSpecialBuildingValue, iSpecialBuildingRawValue, iSpecialBuildingMaxValue, iSpecialBuildingValue);
+ 	return iValue;
+ }
+ 
+@@ -2853,7 +2897,7 @@ int AIFoundValue::calculateBonusBuildingHappyHealthValue(BonusTypes eBonus, bool
+ int AIFoundValue::nonYieldBonusValue(CvPlot const& p, BonusTypes eBonus, bool bCanTrade, bool bCanTradeSoon, bool bEasyAccess, bool bCoastal, std::vector<int>* paiBonusCount, int iCultureModifier, int* piHappyHealthValue, int* piBuildingHappyHealthValue, int* piAdjustPercent, int* piWaterPenalty) const
+ {
+ 	// <!-- custom: In save file 450, the old broad AI_bonusVal path made Elephants at (20,41) greatly outscore nearby Crab, pushing Shaka's uMgungundlovu toward the weaker (18,40) site over the Crab and greener (17,40) alternative; this is wrong because Crab is locally a valuable high food source, and its empire health gain remains useful especially later, while Elephants are mostly classical-era pressure with some happiness. Settlement scoring cares less about immediate current-era trade value than about long-term health and happiness city-site value, which can be very different.
+-	// Score explicit new health/happiness and ordinary building health/happiness effects here. The old first-growth/luxury extra is removed because explicit health/happiness already represents that empire-wide effect. Diversity, strategic AIObjective, and improvement yields are handled separately by the caller. See KI#178. (GPT-5.5) -->
++	// Score explicit new health/happiness, ordinary building effects, and conservatively estimated special-building effects here. The old first-growth/luxury extra is removed because explicit health/happiness already represents that empire-wide effect. Diversity, strategic AIObjective, and improvement yields are handled separately by the caller. See KI#178. (GPT-5.5 + GPT-5.6-Sol) -->
+ 	// int r = kPlayer.AI_bonusVal(eBonus, 1, true) * (!kSet.isStartingLoc() && kPlayer.getNumTradeableBonuses(eBonus) == 0 && aiBonusCount[eBonus] == 1 ? 80 : 20); // BtS
+ 	// int iCount = kPlayer.getNumTradeableBonuses(eBonus) == 0 + aiBonusCount[eBonus];
+ 	// int r = AI_bonusVal(eBonus, 0, true) * 80 / (1 + 2*iCount); // K-Mod
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.h b/CvGameCoreDLL/CitySiteEvaluator.h
+index 4b6f018ca..9f3587032 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.h
++++ b/CvGameCoreDLL/CitySiteEvaluator.h
+@@ -166,7 +166,7 @@ private:
+ 	// <!-- custom: removed and now added inline in parent caller AIFoundValue::evaluate() directly, as it seems to be called only once, and we'd have more parameters to fine tune it further in parent caller rather, it is also clearer this way i think -->
+ 	//int foundOnResourceValue(int const* aiBonusImprovementYield) const;
+ 	int applyCultureModifier(CvPlot const& p, int iPlotValue, int iCultureModifier, bool bShare) const;
+-	// <!-- custom: Base AdvCiv had no diagnostic pointer parameters here; our previous SAS diagnostics exposed baseBonusVal/multiplier/earlyPercent from the broad AI_bonusVal path. Replace those with explicit new health/happiness value, ordinary building health/happiness effects, final adjustment, and water-penalty diagnostics. The old first-growth/luxury extra is not a separate parameter because new health/happiness already represents that empire-wide effect; adding a flat first-bonus value would double-count it. See KI#178. (GPT-5.5) -->
++	// <!-- custom: Base AdvCiv had no diagnostic pointer parameters here; our previous SAS diagnostics exposed baseBonusVal/multiplier/earlyPercent from the broad AI_bonusVal path. Replace those with explicit new health/happiness value, plausible ordinary and capped special-building health/happiness effects, final adjustment, and water-penalty diagnostics. The old first-growth/luxury extra is not a separate parameter because new health/happiness already represents that empire-wide effect; adding a flat first-bonus value would double-count it. See KI#178. (GPT-5.5 + GPT-5.6-Sol) -->
+ 	bool isPlotInKnownRivalFutureBFC(CvPlot const& p) const;
+ 	bool isBonusOwnedOrClaimedByFutureBFC(BonusTypes eBonus) const;
+ 	bool isBonusBuildingEffectValued(BuildingTypes eBuilding, int iMaxPrereqEra, bool bCoastal) const;
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 3830d127d..b9127f178 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -311,6 +311,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - Avoid settling on bonuses (especially food/metal/high-production/commerce) unless the immediate overall site value clearly justifies it. See [KI#25](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#25---seemingly-fixed-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-or-also-commerce-bonuses-to-a-lesser-extent).
+ - **Unowned bonus extra valuation in city-site valuation:** for example, if we already own Wheat, a site with 1 Maize is **much better for the whole empire** than a city site with 2 more Wheat, which would have **more yields locally for this city** (e.g., ~+3-4 extra food per plot), **but much less long-term empire growth** (e.g., +1 Health +1 Health with Granary for all cities) (which is perhaps better even for this local city). Or, stone, happiness, or other bonuses could provide other advantages, for example **trading, military, accelerating buildables, etc**. Trade imports do not count as owned because they are not permanent. Applied once per bonus type and only after the first city. See [KI#147](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#147---fixedenhanced-base-advciv-issue-of-ai-settlers-not-adding-extra-valuation-to-unowned-bonuses-in-city-site-scoring). (Requires AdvCiv-SAS 6025+) Update: now do not count as unowned the ones plausibly claimed by one of our existing cities' future BFC (see below bullet and [KI#178](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value)).
+ - (Requires AdvCiv-SAS 6025+) **City-site bonus value now uses settlement-specific long-term value instead of broad trade value:** the old non-yield path reused `AI_bonusVal`, which is useful for immediate bonus trading but can be wrong for founding cities (for example health may be mostly useless early but very valuable late game, but short-term trading only the value of a bonus right now matters, the deal may be cancelled anytime or a bonus get obsolete later, but cities are founded generally early, and permanently, so `AI_bonusVal` seems unfit to be used for settler valuation). So AdvCiv-SAS now values explicit bonus health/happiness plus ordinary early building effects such as Granary/Harbor, while excluding late/expensive buildings through a tunable prerequisite-era gate (e.g., we'll likely benefit from Health from Harbor if city is Coastal and has connected Crab, but the game may end before we build a Supermarket for some bonus' effect so don't value it). In save file 450 BBAI testing, `AI_bonusVal` was massively, seemingly incorrectly valuing Elephants over Crab, despite the Crab site being better locally (food from bonus and greener, vs a desert/plains/hill site to get Elephants), so the AI preferred `(18,40)` Elephants/Rice/Camel site instead of seemingly better stronger `(17,40)` with Crab/Rice/Camel, this change now helped Shaka successfully found uMgungundlovu at stronger `(17,40)`, the log showed Crab and Rice receiving explicit `happyHealth=300 buildingHappyHealth=150` instead of relying on one opaque `AI_bonusVal` spike. See [KI#178](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value).
++- (Requires AdvCiv-SAS 6044+) Note: Special-building effects are estimated conservatively: religion-linked variants receive a lower per-point value because we are unlikely to build every overlapping variant, nonreligious special buildings receive more, and a shared cap prevents mod-added sets from inflating a site without bound; for example, Incense's 7 Cathedral happiness effects contribute 175 in total instead of 7 * 150 = 1050
+ - (Requires AdvCiv-SAS 6025+) **Duplicate bonus value no longer over-counts reliable future-BFC coverage:** trade imports still do not count as owned as in Base AdvCiv, but bonuses already owned or plausibly claimed by one of our existing cities' future BFC no longer receive another full empire-wide duplicate value. Contested bonuses can still count when a known rival future BFC also threatens them, because ownership is not reliable. This prevents new cities from chasing a safe duplicate Crab (better go for bonuses we don't have to grow more) while still letting a contested Camel near Arabia matter (don't count on it empire-wide, but still locally there's a chance we might steal it so value it enough for local valuation only, not empire-wide one as not reliable enough for that). See [KI#178](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#178---fixedimproved-city-site-bonus-valuation-used-broad-trade-style-ai_bonusval-instead-of-settlement-specific-long-term-value).
+ - **Settler site eval - devalue BFCs with many very bad tiles:** Candidate sites are **significantly devalued** (not auto-rejected) when enough non-home BFC plots are impassable or remain very low-yield after their best XML-valid improvement: the threshold as of now is dynamic `4 * food + 2 * production + commerce` (e.g., 1 food is not very bad, 1 hammer and 1 commerce is very bad, peak is very bad) (visible bonuses on usable plots are not counted because bonuses are likely to be always valuable). See [KI#26.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#262---enhanced-ai-settlers-not-devaluing-very-bad-non-home-tiles-peak-ice-cap-non-hill-desert-without-a-bonus-non-hill-snow-without-a-bonus-if-we-have-enough-of-them-in-bfc).
+ - **First-city Good enough plots threshold**: AI settlers now also require the first-city site to have **enough** (e.g., >=13) **“good enough”** (i.e. tile is not impassable, not persistently barren by yield-potential logic, or is a reachable/already-improved water bonus) **BFC tiles** before accepting it, so the first-city is less likely to be founded on a long-term disadvantageous location.
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=21701

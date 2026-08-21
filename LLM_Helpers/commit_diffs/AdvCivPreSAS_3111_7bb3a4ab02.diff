@@ -1,0 +1,81 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3111
+# Commit: 7bb3a4ab0285ea444aa14e118a74215fe3e18b98
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1fcd93404c2547dcc1a16d169107d1fb3569df9c
+# Title: Little bit of cleanup
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+1	3	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b2e121af8..6657de110 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14854,7 +14854,7 @@ int CvPlayerAI::AI_nukePlotValue(CvPlot const& kPlot,
+ 				iMilitaryTargetWeight) / 100;
+ 		/*	Pretty arbitrary coefficient. Some measure of for how long we
+ 			will care about their military production. But we've also already
+-			counted the productionm costs of military buildings and have already
++			counted the production costs of military buildings and have already
+ 			counted destroyed improvements ... */
+ 		iValue += GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH) *
+ 				iMilitaryProduction;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 4a2434c65..2cc3f252c 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -5003,6 +5003,7 @@ void CvTeamAI::read(FDataStreamBase* pStream)
+ // advc.opt: (for legacy savegames)
+ void CvTeamAI::AI_finalizeInit()
+ {
++	m_aiWarPlanCounts.reset(); // De-allocate in case that the counts are all 0
+ 	FOR_EACH_ENUM(WarPlan)
+ 	{
+ 		m_aiWarPlanCounts.set(eLoopWarPlan, AI_countWarPlans(eLoopWarPlan,
+@@ -5010,7 +5011,6 @@ void CvTeamAI::AI_finalizeInit()
+ 		if (m_aiWarPlanCounts.get(eLoopWarPlan) > 0)
+ 			m_bAnyWarPlan = true;
+ 	}
+-	m_aiWarPlanCounts.resetIfNoContent();
+ }
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 1cca579b3..a298fb20d 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -112,8 +112,6 @@ public:
+ 	// Note: hasContent() can release memory if it doesn't alter what get() will return.
+ 	bool isAllocated() const;
+ 	bool hasContent() const;
+-	// advc: Non-const alias b/c calling a const function for its side-effect is awkward
+-	__forceinline void resetIfNoContent() { hasContent(); }
+ 
+ 	T getMin() const;
+ 	T getMax() const;
+@@ -1582,7 +1580,7 @@ private:
+ /*	There's boost::is_enum in boost/type_traits.hpp,
+ 	but I think this will be good enough for my purposes,
+ 	i.e. assuming that T is an integral type.
+-	(Using my own meta-programming macros from TypeChoice.h.) */
++	(Using my own meta-programming structs from TypeChoice.h.) */
+ #define IS_ENUM_TYPE(T) \
+ 	sizeof(V) == 4 && \
+ 	!is_same_type<V,int>::value && \
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2274

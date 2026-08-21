@@ -1,0 +1,1147 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2033
+# Commit: fe4f9ef0fbbbe2026c5775064ccbbd6dac635c9e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5c9c8617856d26ff4d05cea6db25d2823f177ac3
+# Title: Code for testing whether AI Auto Play sequence is reproducible
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	CvGameCoreDLL/CvArea.cpp
+6	10	CvGameCoreDLL/CvCity.cpp
+5	4	CvGameCoreDLL/CvCityAI.cpp
+10	6	CvGameCoreDLL/CvDLLWidgetData.cpp
+2	1	CvGameCoreDLL/CvDeal.cpp
+3	0	CvGameCoreDLL/CvEventReporter.cpp
+17	12	CvGameCoreDLL/CvGame.cpp
+6	3	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	1	CvGameCoreDLL/CvInitCore.cpp
+2	3	CvGameCoreDLL/CvMap.cpp
+4	3	CvGameCoreDLL/CvPlayer.cpp
+7	5	CvGameCoreDLL/CvPlayerAI.cpp
+11	3	CvGameCoreDLL/CvPlot.cpp
+3	3	CvGameCoreDLL/CvSelectionGroup.cpp
+2	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+10	3	CvGameCoreDLL/CvStructs.h
+2	0	CvGameCoreDLL/CvTalkingHeadMessage.cpp
+2	1	CvGameCoreDLL/CvTeam.cpp
+2	0	CvGameCoreDLL/CvTeamAI.cpp
+3	1	CvGameCoreDLL/CvUnitAI.cpp
+155	49	CvGameCoreDLL/FDataStreamBase.h
+122	0	CvGameCoreDLL/ReproTest.cpp
+69	0	CvGameCoreDLL/ReproTest.h
+ create mode 100644 CvGameCoreDLL/ReproTest.cpp
+ create mode 100644 CvGameCoreDLL/ReproTest.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvArea.cpp b/CvGameCoreDLL/CvArea.cpp
+index 586dfb3c5..be22cbbfd 100644
+--- a/CvGameCoreDLL/CvArea.cpp
++++ b/CvGameCoreDLL/CvArea.cpp
+@@ -786,6 +786,7 @@ void CvArea::read(FDataStreamBase* pStream)
+ void CvArea::write(FDataStreamBase* pStream)
+ {
+ 	PROFILE_FUNC(); // advc
++	REPRO_TEST_BEGIN_WRITE(CvString::format("Area(%d)", getID()));
+ 	uint uiFlag=0;
+ 	uiFlag = 1; // advc.030
+ 	uiFlag = 2; // advc: Remove m_aiAnimalsPerPlayer, advc.enum: write m_aaiYieldRateModifier as short
+@@ -834,4 +835,5 @@ void CvArea::write(FDataStreamBase* pStream)
+ 	m_aaiNumAIUnits.Write(pStream);
+ 	m_aiBonuses.Write(pStream);
+ 	//m_aiImprovements.Write(pStream); // advc.opt
++	REPRO_TEST_END_WRITE();
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index e0fbd252e..0a05ab0db 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11112,7 +11112,7 @@ void CvCity::read(FDataStreamBase* pStream)
+ void CvCity::write(FDataStreamBase* pStream)
+ {
+ 	PROFILE_FUNC(); // advc
+-
++	REPRO_TEST_BEGIN_WRITE(CvString::format("City(%d,%d)", getX(), getY()));
+ 	uint uiFlag = 1; // flag for expansion
+ 	uiFlag = 2; // advc.004x
+ 	uiFlag = 3; // advc.030b
+@@ -11347,6 +11347,7 @@ void CvCity::write(FDataStreamBase* pStream)
+ 	// <advc.004x>
+ 	pStream->Write(m_iMostRecentOrder);
+ 	pStream->Write(m_bMostRecentUnit); // </advc.004x>
++	REPRO_TEST_END_WRITE();
+ }
+ 
+ 
+@@ -11447,13 +11448,7 @@ bool CvCity::isAllBuildingsVisible(TeamTypes eTeam, bool bDebug) const
+ 			getPlot().plotCheck(NULL, -1, -1, NO_PLAYER, eTeam) > 0 != NULL);
+ } // </advc.045>
+ 
+-
+-static int natGetDeterministicRandom(int iMin, int iMax, int iSeedX, int iSeedY)
+-{
+-	srand(7297 * iSeedX + 2909  * iSeedY);
+-	return (rand() % (iMax - iMin)) + iMin;
+-}
+-
++// (advc: natGetDeterministicRandom deleted; should use 'hash' in CvGameCoreUtils instead.)
+ 
+ void CvCity::getVisibleEffects(ZoomLevelTypes eCurZoom,
+ 	std::vector<const TCHAR*>& kEffectNames)
+@@ -11478,8 +11473,9 @@ void CvCity::getVisibleEffects(ZoomLevelTypes eCurZoom,
+ 			kEffectNames.push_back("EFFECT_CITY_DISEASED");
+ 
+ 		if (isWeLoveTheKingDay())
+-		{
+-			int iSeed = natGetDeterministicRandom(0, 32767, getX(), getY());
++		{	// <advc> Cut from deleted free function natGetDeterministicRandom
++			srand(7297 * getX() + 2909  * getY());
++			int iSeed = (rand() % 32767); // </advc>
+ 			CvRandom kRand;
+ 			kRand.init(iSeed);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index f66d147c6..88938f9a5 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -979,9 +979,9 @@ void CvCityAI::AI_chooseProduction()
+ 	{
+ 		if (!(bLandWar && iWarSuccessRating < -30) && !bDanger && !bFinancialTrouble)
+ 		{	/*  <advc.017> These were calls to AI_getNumTrainAIUnits, i.e. the
+-				BBAI code only ensured that we're not building lots of ships in
+-				parallel. I suspect that AI_totalWaterAreaUnitAIs had been intended,
+-				after all, the logBBAI call says "minimal naval". */
++				BBAI code ensured that we're not building lots of ships in parallel.
++				I want to make sure that we don't end up with more than a
++				minimal naval force. */
+ 			std::vector<UnitAITypes> aeSeaAttackTypes;
+ 			aeSeaAttackTypes.push_back(UNITAI_ATTACK_SEA);
+ 			aeSeaAttackTypes.push_back(UNITAI_PIRATE_SEA);
+@@ -12878,7 +12878,7 @@ void CvCityAI::write(FDataStreamBase* pStream)
+ 	uiFlag = 5; // advc.003u: Move m_bChooseProductionDirty to CvCity
+ 	uiFlag = 6; // advc.opt: Per-player meta data for closeness cache
+ 	pStream->Write(uiFlag);
+-
++	REPRO_TEST_BEGIN_WRITE(CvString::format("CityAI(%d,%d)", getX(), getY()));
+ 	pStream->Write(m_iEmphasizeAvoidGrowthCount);
+ 	pStream->Write(m_iEmphasizeGreatPeopleCount);
+ 	pStream->Write(m_bAssignWorkDirty);
+@@ -12908,6 +12908,7 @@ void CvCityAI::write(FDataStreamBase* pStream)
+ 	pStream->Write(GC.getNumBuildingClassInfos(), &m_aiConstructionValue[0]); // uiFlag >= 1
+ 	pStream->Write(m_iCultureWeight); // uiFlag >= 2
+ 	// K-Mod end
++	REPRO_TEST_END_WRITE();
+ }
+ 
+ // advc:
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 32040afff..038eb2a7d 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1138,7 +1138,11 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataStruct)
+ 		break;
+ 	case WIDGET_LH_GLANCE: // advc.152
+ 	case WIDGET_LEADERHEAD:
+-		doContactCiv(widgetDataStruct);
++		#ifdef ENABLE_REPRO_TEST
++			ReproTest::startTest(widgetDataStruct.m_iData1);
++		#else
++			doContactCiv(widgetDataStruct);
++		#endif
+ 		break;  // <advc.ctr>
+ 	case WIDGET_CITY_TRADE:
+ 		// Both left and right click close the city screen
+@@ -1440,17 +1444,17 @@ void CvDLLWidgetData::doCityTab(CvWidgetDataStruct &widgetDataStruct)
+ void CvDLLWidgetData::doContactCiv(CvWidgetDataStruct &widgetDataStruct)
+ {
+ 	if (gDLL->isDiplomacy() || gDLL->isMPDiplomacyScreenUp())
+-	{
+ 		return;
+-	}
+ 
+ 	//	Do not execute this if we are trying to contact ourselves...
+ 	if (GC.getGame().getActivePlayer() == widgetDataStruct.m_iData1)
+ 	{
+-		if (!gDLL->getInterfaceIFace()->isFocusedWidget()
+-				// advc.085: Never minimize the scoreboard
+-				&& gDLL->getInterfaceIFace()->isScoresMinimized())
++		if (!gDLL->getInterfaceIFace()->isFocusedWidget() &&
++			// advc.085: Never minimize the scoreboard
++			gDLL->getInterfaceIFace()->isScoresMinimized())
++		{
+ 			gDLL->getInterfaceIFace()->toggleScoresMinimized();
++		}
+ 		return;
+ 	}
+ 	// BETTER_BTS_AI_MOD, Player Interface, 01/11/09, jdog5000: START
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 78e7b0e96..53255359b 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -733,7 +733,7 @@ void CvDeal::write(FDataStreamBase* pStream)
+ 	PROFILE_FUNC(); // advc
+ 	uint uiFlag=0;
+ 	pStream->Write(uiFlag);
+-
++	REPRO_TEST_BEGIN_WRITE(CvString::format("Deal(%d,%d,%d)", getID(), getFirstPlayer(), getSecondPlayer()));
+ 	pStream->Write(m_iID);
+ 	pStream->Write(m_iInitialGameTurn);
+ 
+@@ -742,6 +742,7 @@ void CvDeal::write(FDataStreamBase* pStream)
+ 
+ 	m_firstTrades.Write(pStream);
+ 	m_secondTrades.Write(pStream);
++	REPRO_TEST_END_WRITE();
+ }
+ 
+ void CvDeal::read(FDataStreamBase* pStream)
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index cbfab30a2..060b7a712 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -550,10 +550,13 @@ void CvEventReporter::readStatistics(FDataStreamBase* pStream)
+ 	m_kStatistics.read(pStream);
+ 	GC.getGame().onAllGameDataRead(); // advc
+ }
++
+ void CvEventReporter::writeStatistics(FDataStreamBase* pStream)
+ {
+ 	PROFILE_FUNC(); // advc
++	REPRO_TEST_BEGIN_WRITE("Statistics");
+ 	m_kStatistics.write(pStream);
++	REPRO_TEST_FINAL_WRITE();
+ }
+ 
+ // advc.106l: Explicit constructor added, so I can initialize my booleans.
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index bde87e1c2..7da45c79e 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4490,10 +4490,10 @@ int CvGame::calculateGwSustainabilityThreshold(PlayerTypes ePlayer) const
+ 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+ 	if (kPlayer.isAlive())
+ 	{
+-		return iGlobalThreshold * kPlayer.getTotalLand() / std::max(1, GC.getMap().getLandPlots());
++		return iGlobalThreshold * kPlayer.getTotalLand() /
++				std::max(1, GC.getMap().getLandPlots());
+ 	}
+-	else
+-		return 0;
++	return 0;
+ }
+ 
+ int CvGame::calculateGwSeverityRating() const
+@@ -4507,7 +4507,8 @@ int CvGame::calculateGwSeverityRating() const
+ 
+ 	// I recommend looking at the graph of this function to get a sense of how it works.
+ 
+-	const long x = GC.getDefineINT("GLOBAL_WARMING_PROB") * getGlobalWarmingIndex() / (std::max(1,4*GC.getInfo(getGameSpeedType()).getVictoryDelayPercent()*GC.getMap().getLandPlots()));
++	const long x = GC.getDefineINT("GLOBAL_WARMING_PROB") * getGlobalWarmingIndex() /
++			(std::max(1,4*GC.getInfo(getGameSpeedType()).getVictoryDelayPercent()*GC.getMap().getLandPlots()));
+ 	const long b = 70; // shape parameter. Lower values result in the function being steeper earlier.
+ 	return 100L - b*100L/(b+x*x);
+ }
+@@ -8952,22 +8953,23 @@ void CvGame::read(FDataStreamBase* pStream)
+ void CvGame::write(FDataStreamBase* pStream)
+ {
+ 	PROFILE_FUNC(); // advc
+-
+ 	uint uiFlag=1;
+ 	uiFlag = 2; // advc.701: R&F option
+ 	uiFlag = 3; // advc.052
+-	uiFlag = 4; // advc.opt: Civs and teams EverAlive tracked
++	uiFlag = 4; // advc.opt: Players and teams ever alive
+ 	uiFlag = 5; // advc.004m
+ 	uiFlag = 6; // advc.106h
+-	pStream->Write(uiFlag);		// flag for expansion
+-
++	pStream->Write(uiFlag);
++	REPRO_TEST_BEGIN_WRITE("Game pt1");
+ 	pStream->Write(m_iElapsedGameTurns);
+ 	pStream->Write(m_iStartTurn);
+ 	pStream->Write(m_iStartYear);
+ 	pStream->Write(m_iEstimateEndTurn);
++	REPRO_TEST_END_WRITE(); // Skip TurnSlice
+ 	pStream->Write(m_iTurnSlice);
+ 	pStream->Write(m_iCutoffSlice);
+ 	pStream->Write(m_iNumGameTurnActive);
++	REPRO_TEST_BEGIN_WRITE("Game pt2");
+ 	pStream->Write(m_iNumCities);
+ 	pStream->Write(m_iTotalPopulation);
+ 	pStream->Write(m_iTradeRoutes);
+@@ -9060,13 +9062,16 @@ void CvGame::write(FDataStreamBase* pStream)
+ 			pStream->WriteString(*it);
+ 		}
+ 	}
+-
++	REPRO_TEST_END_WRITE();
+ 	WriteStreamableFFreeListTrashArray(m_deals, pStream);
++	REPRO_TEST_BEGIN_WRITE("Game pt3");
+ 	WriteStreamableFFreeListTrashArray(m_voteSelections, pStream);
+ 	WriteStreamableFFreeListTrashArray(m_votesTriggered, pStream);
+-
++	REPRO_TEST_END_WRITE();
++	REPRO_TEST_BEGIN_WRITE("SyncRNGs");
+ 	m_mapRand.write(pStream);
+ 	m_sorenRand.write(pStream);
++	REPRO_TEST_END_WRITE();
+ 	// <advc.250b>
+ 	if(isOption(GAMEOPTION_SPAH))
+ 		m_pSpah->write(pStream); // </advc.250b>
+@@ -9083,9 +9088,8 @@ void CvGame::write(FDataStreamBase* pStream)
+ 			pMessage->write(*pStream);
+ 	}
+ 	// m_pReplayInfo not saved
+-
+ 	pStream->Write(m_iNumSessions);
+-
++	REPRO_TEST_BEGIN_WRITE("Game pt3"); // (skip replay messages, sessions)
+ 	pStream->Write(m_aPlotExtraYields.size());
+ 	for (std::vector<PlotExtraYield>::iterator it = m_aPlotExtraYields.begin();
+ 		it != m_aPlotExtraYields.end(); ++it)
+@@ -9121,6 +9125,7 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iNumCultureVictoryCities);
+ 	pStream->Write(m_eCultureVictoryCultureLevel);
+ 	pStream->Write(m_bScenario); // advc.052
++	REPRO_TEST_END_WRITE();
+ }
+ 
+ void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index a1ef62397..40df1733d 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -113,7 +113,10 @@ double percentileRank(vector<double>& distribution, double score,
+ 		return 1;
+ 	return iLEq / (double)n;
+ } // </advc.003g>
+-// <advc>
++/*	<advc> Akin to natGetDeterministicRandom (deleted from CvCity.cpp). For reference,
++	the implementation of that function was:
++	srand(7297 * iSeedX + 2909  * iSeedY);
++	return (rand() % (iMax - iMin)) + iMin; */
+ float hash(vector<long> const& x, PlayerTypes ePlayer)
+ {
+ 	int const iPrime = 31;
+@@ -139,8 +142,8 @@ float hash(vector<long> const& x, PlayerTypes ePlayer)
+ 		lHashVal += iCapitalIndex;
+ 		lHashVal *= iPrime;
+ 	}
+-	/*  Use ASyncRand to avoid the overhead of creating a new object? I don't think
+-		it matters. */
++	/*  Use ASyncRand to avoid the overhead of creating a new object?
++		Or use stdlib's rand/sRand? I don't think it matters. */
+ 	/*CvRandom& rng = GC.getASyncRand();
+ 	rng.reset(hashVal);*/
+ 	CvRandom rng;
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index e01c1de81..85a40fe5b 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -1862,6 +1862,7 @@ void CvInitCore::read(FDataStreamBase* pStream)
+ 
+ void CvInitCore::write(FDataStreamBase* pStream)
+ {
++	REPRO_TEST_BEGIN_WRITE("InitCore");
+ 	uint uiSaveFlag=1;
+ 	uiSaveFlag=2; // advc.912d
+ 	pStream->Write(uiSaveFlag);		// flag for expansion, see SaveBits)
+@@ -1947,7 +1948,7 @@ void CvInitCore::write(FDataStreamBase* pStream)
+ 	pStream->Write(MAX_PLAYERS, (int*)m_aeHandicap);
+ 	pStream->Write(MAX_PLAYERS, (int*)m_aeColor);
+ 	pStream->Write(MAX_PLAYERS, (int*)m_aeArtStyle);
+-
++	REPRO_TEST_END_WRITE(); // (skip slot data)
+ 	pStream->Write(MAX_PLAYERS, (int*)m_aeSlotStatus);
+ 	pStream->Write(MAX_PLAYERS, (int*)m_aeSlotClaim);
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 08ba2ff9b..730582e31 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -1077,7 +1077,6 @@ void CvMap::read(FDataStreamBase* pStream)
+ 			m_pMapPlots[iI].read(pStream);
+ 	}
+ 
+-	// call the read of the free list CvArea class allocations
+ 	ReadStreamableFFreeListTrashArray(m_areas, pStream);
+ 	// <advc> Let the plots know that the areas have been loaded
+ 	for (int i = 0; i < numPlots(); i++)
+@@ -1108,6 +1107,7 @@ void CvMap::read(FDataStreamBase* pStream)
+ // save object to a stream
+ void CvMap::write(FDataStreamBase* pStream)
+ {
++	REPRO_TEST_BEGIN_WRITE("Map");
+ 	uint uiFlag=0;
+ 	uiFlag = 1; // advc.106n
+ 	pStream->Write(uiFlag);
+@@ -1126,11 +1126,10 @@ void CvMap::write(FDataStreamBase* pStream)
+ 	FAssertMsg((0 < GC.getNumBonusInfos()), "GC.getNumBonusInfos() is not greater than zero but an array is being allocated");
+ 	m_aiNumBonus.Write(pStream);
+ 	m_aiNumBonusOnLand.Write(pStream);
+-
++	REPRO_TEST_END_WRITE();
+ 	for (int iI = 0; iI < numPlots(); iI++)
+ 		m_pMapPlots[iI].write(pStream);
+ 
+-	// call the read of the free list CvArea class allocations
+ 	WriteStreamableFFreeListTrashArray(m_areas, pStream);
+ 	// <advc.106n>
+ 	pStream->Write(m_replayTexture.size());
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index a31a7bb9e..8241f8abd 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -16512,7 +16512,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ {
+ 	PROFILE_FUNC(); // advc
+ 	int iI;
+-
++	REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerPt1(%d)", getID()));
+ 	uint uiFlag = 4;
+ 	uiFlag = 5; // advc.908a
+ 	uiFlag = 7; // advc.912c (6 used up for a test version)
+@@ -16716,6 +16716,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	{
+ 		PROFILE("CvPlayer::Write.FLTA"); // advc
+ 		WriteStreamableFFreeListTrashArray(m_plotGroups, pStream);
++		REPRO_TEST_END_WRITE();
+ 		WriteStreamableFFreeListTrashArray(m_cities, pStream);
+ 		WriteStreamableFFreeListTrashArray(m_units, pStream);
+ 		WriteStreamableFFreeListTrashArray(m_selectionGroups, pStream);
+@@ -16760,10 +16761,9 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 			if (NULL != pInfo)
+ 			{
+ 				pInfo->write(*pStream);
+-			}
+ 		}
+ 	}
+-
++	REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerPt2(%d)", getID())); // (skip popups, messages)
+ 	{
+ 		CvDiploQueue::_Alloc::size_type iSize = m_listDiplomacy.size();
+ 		pStream->Write(iSize);
+@@ -16934,6 +16934,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iPopRushHurryCount);
+ 	pStream->Write(m_iGoldRushHurryCount); // advc.064b
+ 	pStream->Write(m_iInflationModifier);
++	REPRO_TEST_END_WRITE();
+ }
+ 
+ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit,
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f06ec3c27..dbf2c1024 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -19622,10 +19622,7 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 	PROFILE_FUNC(); // advc
+ 	CvPlayer::write(pStream);
+ 
+-	uint uiFlag=7;
+-	uiFlag = 8; // advc.opt
+-	uiFlag = 9; // advc.148
+-	uiFlag = 10; // advc.036
++REPRO_TEST_BEGIN_WRITE(CvString::format("PlayerAI(%d)", getID()));	uiFlag = 10; // advc.036
+ 	uiFlag = 11; // advc.104i
+ 	uiFlag = 12; // advc.079
+ 	uiFlag = 14; // advc.130c
+@@ -19731,9 +19728,14 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 		pStream->Write(it->first);
+ 		pStream->Write(it->second);
+ 	} // </advc.opt>
++	REPRO_TEST_END_WRITE();
+ 	// <advc.104>
+ 	if(isAlive() && isMajorCiv())
+-		m_pUWAI->write(pStream); // </advc.104>
++	{
++		REPRO_TEST_BEGIN_WRITE(CvString::format("UWAICache(%d)", getID()));
++		m_pUWAI->write(pStream);
++		REPRO_TEST_END_WRITE();
++	} // </advc.104>
+ }
+ 
+ // (K-Mod note: this should be roughly in units of commerce.)
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 7d1b8127c..b7bfa1404 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -7236,7 +7236,7 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	uiFlag = 5; // advc.opt, advc.011, advc.enum: some int or short members turned into short or char
+ 	uiFlag = 6; // advc.opt: m_eTeam
+ 	pStream->Write(uiFlag);
+-
++	REPRO_TEST_BEGIN_WRITE(CvString::format("Plot pt1(%d,%d)", getX(), getY()).GetCString());
+ 	pStream->Write(m_iX);
+ 	pStream->Write(m_iY);
+ 	pStream->Write(areaID());
+@@ -7273,14 +7273,21 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_eRouteType);
+ 	pStream->Write(m_eRiverNSDirection);
+ 	pStream->Write(m_eRiverWEDirection);
+-	pStream->Write(m_eSecondOwner); // advc.035
++	// <advc.035>
++	/*	To be consistent with code in read that resets m_eSecondOwner in case
++		that the option was disabled in between saving and reloading. */
++	if(!GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS))
++		m_eSecondOwner = m_eOwner;
++	pStream->Write(m_eSecondOwner); // <advc.035>
++	// advc (tbd.): Store these owners as char
+ 	pStream->Write(m_plotCity.eOwner);
+ 	pStream->Write(m_plotCity.iID);
+ 	pStream->Write(m_workingCity.eOwner);
+ 	pStream->Write(m_workingCity.iID);
+ 	pStream->Write(m_workingCityOverride.eOwner);
+ 	pStream->Write(m_workingCityOverride.iID);
+-
++	REPRO_TEST_END_WRITE();
++	REPRO_TEST_BEGIN_WRITE(CvString::format("Plot pt2(%d,%d)", getX(), getY()).GetCString());
+ 	m_aiYield.Write(pStream, false);
+ 	if (!m_aiCulture.hasContent())
+ 		pStream->Write((char)0);
+@@ -7396,6 +7403,7 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	}
+ 
+ 	m_units.Write(pStream);
++	REPRO_TEST_END_WRITE();
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 9f2f99689..3554bc382 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -4515,8 +4515,8 @@ void CvSelectionGroup::write(FDataStreamBase* pStream)
+ 	uint uiFlag=0;
+ 	uiFlag = 1; // advc.011b
+ 	uiFlag = 2; // advc.004l
+-	pStream->Write(uiFlag);		// flag for expansion
+-
++	pStream->Write(uiFlag);
++	REPRO_TEST_BEGIN_WRITE(CvString::format("SelGroup(%d,%d,%d)", getID(), getX(), getY()));
+ 	pStream->Write(m_iID);
+ 	pStream->Write(m_iMissionTimer);
+ 
+@@ -4525,10 +4525,10 @@ void CvSelectionGroup::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_eOwner);
+ 	pStream->Write(m_eActivityType);
+ 	pStream->Write(m->eAutomateType);
+-
+ 	m_units.Write(pStream);
+ 	m->knownEnemies.Write(pStream); // advc.004l
+ 	m_missionQueue.Write(pStream);
++	REPRO_TEST_END_WRITE();
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index d7cd462e2..e8333a568 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -898,7 +898,7 @@ void CvSelectionGroupAI::write(FDataStreamBase* pStream)
+ 
+ 	uint uiFlag=0;
+ 	pStream->Write(uiFlag);
+-
++	REPRO_TEST_BEGIN_WRITE(CvString::format("SelGroupAI(%d,%d,%d)", getID(), getX(), getY()));
+ 	pStream->Write(m_iMissionAIX);
+ 	pStream->Write(m_iMissionAIY);
+ 
+@@ -912,4 +912,5 @@ void CvSelectionGroupAI::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_bGroupAttack);
+ 	pStream->Write(m_iGroupAttackX);
+ 	pStream->Write(m_iGroupAttackY);
++	REPRO_TEST_END_WRITE();
+ }
+
+diff --git a/CvGameCoreDLL/CvStructs.h b/CvGameCoreDLL/CvStructs.h
+index 3f7513eb4..accd79990 100644
+--- a/CvGameCoreDLL/CvStructs.h
++++ b/CvGameCoreDLL/CvStructs.h
+@@ -70,6 +70,7 @@ struct GameTurnInfo				// Exposed to Python
+ 
+ struct OrderData					// Exposed to Python
+ {
++	INIT_STRUCT_PADDING(OrderData);
+ 	OrderTypes eOrderType;
+ 	int iData1;
+ 	int iData2;
+@@ -78,6 +79,7 @@ struct OrderData					// Exposed to Python
+ 
+ struct MissionData				// Exposed to Python
+ {
++	INIT_STRUCT_PADDING(MissionData);
+ 	MissionTypes eMissionType;
+ 	int iData1;
+ 	int iData2;
+@@ -93,9 +95,14 @@ struct TradeData					// Exposed to Python
+ {
+ 	// <advc> To replace global setTradeItem (CvGameCoreUtils)
+ 	TradeData(TradeableItems eItem = NO_TRADE_ITEM, int iData = -1,
+-		bool bOffering = false, bool bHidden = false) :
+-		m_eItemType(eItem), m_iData(iData), m_bOffering(bOffering), m_bHidden(bHidden) {}
+-	// </advc>
++		bool bOffering = false, bool bHidden = false)
++	{
++		INIT_STRUCT_PADDING_INL();
++		m_eItemType = eItem;
++		m_iData = iData;
++		m_bOffering = bOffering;
++		m_bHidden = bHidden;
++	} // </advc>
+ 	TradeableItems m_eItemType;	//	What type of item is this
+ 	int m_iData;				//	Any additional data?
+ 	bool m_bOffering;			//	Is this item up for grabs?
+
+diff --git a/CvGameCoreDLL/CvTalkingHeadMessage.cpp b/CvGameCoreDLL/CvTalkingHeadMessage.cpp
+index fdcdd87a1..ed05a52c3 100644
+--- a/CvGameCoreDLL/CvTalkingHeadMessage.cpp
++++ b/CvGameCoreDLL/CvTalkingHeadMessage.cpp
+@@ -61,10 +61,12 @@ void CvTalkingHeadMessage::write(FDataStreamBase& stream) const
+ 	stream.Write(m_iFlashY);
+ 	stream.Write(m_bOffScreenArrows);
+ 	stream.Write(m_bOnScreenArrows);
++	REPRO_TEST_BEGIN_WRITE("CvTalkingHeadMessage");
+ 	stream.Write(m_iTurn);
+ 	stream.Write(m_eMessageType);
+ 	stream.Write(m_eFromPlayer);
+ 	stream.Write(m_eTarget);
++	REPRO_TEST_END_WRITE();
+ 	stream.Write(m_bShown);
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index a82205ff3..b7ea7e576 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -5621,7 +5621,7 @@ void CvTeam::finalizeInit()
+ void CvTeam::write(FDataStreamBase* pStream)
+ {
+ 	PROFILE_FUNC(); // advc
+-
++	REPRO_TEST_BEGIN_WRITE(CvString::format("Team(%d)", getID()));
+ 	uint uiFlag = 1;
+ 	uiFlag = 2; // advc.opt: m_eLeader added
+ 	uiFlag = 3; // advc.034
+@@ -5722,6 +5722,7 @@ void CvTeam::write(FDataStreamBase* pStream)
+ 	{
+ 		pStream->Write(*it);
+ 	}
++	REPRO_TEST_END_WRITE();
+ }
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index b99590a33..dcae732ae 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4579,6 +4579,7 @@ void CvTeamAI::write(FDataStreamBase* pStream)
+ 	PROFILE_FUNC(); // advc
+ 	CvTeam::write(pStream);
+ 
++	REPRO_TEST_BEGIN_WRITE(CvString::format("TeamAI(%d)", getID()).GetCString());
+ 	uint uiFlag=1;
+ 	uiFlag = 2; // advc.109
+ 	uiFlag = 3; // advc.opt: m_aiWarPlanCounts
+@@ -4619,6 +4620,7 @@ void CvTeamAI::write(FDataStreamBase* pStream)
+ 	// <advc.104>
+ 	if(isEverAlive() && !isBarbarian() && !isMinorCiv())
+ 		uwai().write(pStream); // </advc.104>
++	REPRO_TEST_END_WRITE();
+ }
+ 
+ // <advc.012>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 886cfe057..b1cca5386 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -21803,15 +21803,17 @@ void CvUnitAI::read(FDataStreamBase* pStream)
+ 
+ void CvUnitAI::write(FDataStreamBase* pStream)
+ {
++	REPRO_TEST_BEGIN_WRITE(CvString::format("Unit[AI](%d,%d,%d)", getID(), getX(), getY()));
+ 	CvUnit::write(pStream);
+ 
+ 	uint uiFlag=0;
+-	pStream->Write(uiFlag);		// flag for expansion
++	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iBirthmark);
+ 
+ 	pStream->Write(m_eUnitAIType);
+ 	pStream->Write(m_iAutomatedAbortTurn);
++	REPRO_TEST_END_WRITE();
+ }
+ 
+ // advc:
+
+diff --git a/CvGameCoreDLL/FDataStreamBase.h b/CvGameCoreDLL/FDataStreamBase.h
+index a12e5899b..649ae2835 100644
+--- a/CvGameCoreDLL/FDataStreamBase.h
++++ b/CvGameCoreDLL/FDataStreamBase.h
+@@ -1,12 +1,9 @@
+ #pragma once
+ 
+ //	$Revision: #4 $		$Author: mbreitkreutz $ 	$DateTime: 2005/06/13 13:35:55 $
+-//---------------------------------------------------------------------------------------
+ //  Copyright (c) 2004 Firaxis Games, Inc. All rights reserved.
+-//---------------------------------------------------------------------------------------
+ 
+ /*
+-*
+ * FILE:    FDataStreamBase.h
+ * DATE:    7/15/2004
+ * AUTHOR: Mustafa Thamer
+@@ -14,29 +11,26 @@
+ *
+ *		Easily read and write data to those kinds of streams using the same baseclass interface.
+ *		FStrings not used since this is a public dll header.
+-*
+ */
+ 
+-#ifndef		FDATASTREAMBASE_H
+-#define		FDATASTREAMBASE_H
+-#pragma		once
++#ifndef FDATASTREAMBASE_H
++#define FDATASTREAMBASE_H
+ 
+-//
++#include "ReproTest.h" // advc.repro
+ // Stream abstract base class
+-//
+ class FDataStreamBase
+ {
+ public:
+-	virtual void	Rewind() = 0;
+-	virtual bool	AtEnd() = 0;
+-	virtual void	FastFwd() = 0;
+-	virtual unsigned int  GetPosition() const =  0;
+-	virtual void    SetPosition(unsigned int position) = 0;
+-	virtual void    Truncate() = 0;
+-	virtual void	Flush() = 0;
++	virtual void			Rewind() = 0;
++	virtual bool			AtEnd() = 0;
++	virtual void			FastFwd() = 0;
++	virtual unsigned int	GetPosition() const =  0;
++	virtual void			SetPosition(unsigned int position) = 0;
++	virtual void			Truncate() = 0;
++	virtual void			Flush() = 0;
+ 	virtual unsigned int	GetEOF() const = 0;
+-	virtual unsigned int			GetSizeLeft() const = 0;
+-	virtual void	CopyToMem(void* mem) = 0;
++	virtual unsigned int	GetSizeLeft() const = 0;
++	virtual void			CopyToMem(void* mem) = 0;
+ 
+ 	virtual unsigned int	WriteString(const wchar *szName) = 0;
+ 	virtual unsigned int	WriteString(const char *szName) = 0;
+@@ -52,8 +46,8 @@ public:
+ 	virtual unsigned int	ReadString(int count, std::string values[]) = 0;
+ 	virtual unsigned int	ReadString(int count, std::wstring values[]) = 0;
+ 
+-	virtual char *			ReadString() = 0;		// allocates memory
+-	virtual wchar *		ReadWideString() = 0;	// allocates memory
++	virtual char*			ReadString() = 0;		// allocates memory
++	virtual wchar*			ReadWideString() = 0;	// allocates memory
+ 
+ 	virtual void		Read(char *) = 0;
+ 	virtual void		Read(byte *) = 0;
+@@ -81,34 +75,146 @@ public:
+ 	virtual void		Read(double* value) = 0;
+ 	virtual void		Read(int count, double values[]) = 0;
+ 
+-	virtual void		Write( char value) = 0;
+-	virtual void		Write(byte value) = 0;
+-	virtual void		Write(int count, const  char values[]) = 0;
+-	virtual void		Write(int count, const  byte values[]) = 0;
+-
+-	virtual void		Write(bool value) = 0;
+-	virtual void		Write(int count, const bool values[]) = 0;
+-
+-	virtual void		Write(short value) = 0;
+-	virtual void		Write(unsigned short value) = 0;
+-	virtual void		Write(int count, const short values[]) = 0;
+-	virtual void		Write(int count, const unsigned short values[])  = 0;
+-
+-	virtual void		Write(int value) = 0;
+-	virtual void		Write(unsigned int value)  = 0;
+-	virtual void 		Write(int count, const int values[]) = 0;
+-	virtual void		Write(int count, const unsigned int values[])  = 0;
+-
+-	virtual void		Write(long value) = 0;
+-	virtual void		Write(unsigned long  value)  = 0;
+-	virtual void 		Write(int count, const long values[]) = 0;
+-	virtual void		Write(int count, const unsigned long values[])  = 0;
+-
+-	virtual void		Write(float value) = 0;
+-	virtual void		Write(int count, const float values[]) = 0;
+-
+-	virtual void		Write(double value) = 0;
+-	virtual void		Write(int count, const double values[]) = 0;
++	virtual void		WriteExternal(char value) = 0;
++	virtual void		WriteExternal(byte value) = 0;
++	virtual void		WriteExternal(int count, const char values[]) = 0;
++	virtual void		WriteExternal(int count, const byte values[]) = 0;
++
++	virtual void		WriteExternal(bool value) = 0;
++	virtual void		WriteExternal(int count, const bool values[]) = 0;
++
++	virtual void		WriteExternal(short value) = 0;
++	virtual void		WriteExternal(unsigned short value) = 0;
++	virtual void		WriteExternal(int count, const short values[]) = 0;
++	virtual void		WriteExternal(int count, const unsigned short values[])  = 0;
++
++	virtual void		WriteExternal(int value) = 0;
++	virtual void		WriteExternal(unsigned int value)  = 0;
++	virtual void 		WriteExternal(int count, const int values[]) = 0;
++	virtual void		WriteExternal(int count, const unsigned int values[])  = 0;
++
++	virtual void		WriteExternal(long value) = 0;
++	virtual void		WriteExternal(unsigned long value) = 0;
++	virtual void 		WriteExternal(int count, const long values[]) = 0;
++	virtual void		WriteExternal(int count, const unsigned long values[])  = 0;
++
++	virtual void		WriteExternal(float value) = 0;
++	virtual void		WriteExternal(int count, const float values[]) = 0;
++
++	virtual void		WriteExternal(double value) = 0;
++	virtual void		WriteExternal(int count, const double values[]) = 0;
++
++	// <advc.repro> (And renamed the original functions to WriteExternal)
++	inline void Write(char value)
++	{
++		REPRO_TEST_REPORT(sizeof(value), &value);
++		WriteExternal(value);
++	}
++	inline void Write(byte value)
++	{
++		REPRO_TEST_REPORT(sizeof(value), &value);
++		WriteExternal(value);
++	}
++	inline void Write(int iCount, char const values[])
++	{
++		REPRO_TEST_REPORT(sizeof(char) * iCount, values);
++		WriteExternal(iCount, values);
++	}
++	inline void Write(int iCount, byte const values[])
++	{
++		REPRO_TEST_REPORT(sizeof(byte) * iCount, values);
++		WriteExternal(iCount, values);
++	}
++	inline void Write(bool value)
++	{
++		REPRO_TEST_REPORT(sizeof(value), &value);
++		WriteExternal(value);
++	}
++	inline void Write(int iCount, const bool values[])
++	{
++		REPRO_TEST_REPORT(sizeof(bool) * iCount, values);
++		WriteExternal(iCount, values);
++	}
++	inline void Write(short value)
++	{
++		REPRO_TEST_REPORT(sizeof(value), &value);
++		WriteExternal(value);
++	}
++	inline void Write(unsigned short value)
++	{
++		REPRO_TEST_REPORT(sizeof(value), &value);
++		WriteExternal(value);
++	}
++	inline void Write(int iCount, const short values[])
++	{
++		REPRO_TEST_REPORT(sizeof(short) * iCount, values);
++		WriteExternal(iCount, values);
++	}
++	inline void Write(int iCount, const unsigned short values[])
++	{
++		REPRO_TEST_REPORT(sizeof(unsigned short) * iCount, values);
++		WriteExternal(iCount, values);
++	}
++	inline void Write(int value)
++	{
++		REPRO_TEST_REPORT(sizeof(value), &value);
++		WriteExternal(value);
++	}
++	inline void Write(unsigned int value)
++	{
++		REPRO_TEST_REPORT(sizeof(value), &value);
++		WriteExternal(value);
++	}
++	inline void Write(int iCount, int const values[])
++	{
++		REPRO_TEST_REPORT(sizeof(int) * iCount, values);
++		WriteExternal(iCount, values);
++	}
++	inline void Write(int iCount, unsigned int const values[])
++	{
++		REPRO_TEST_REPORT(sizeof(uint) * iCount, values);
++		WriteExternal(iCount, values);
++	}
++	inline void Write(long value)
++	{
++		REPRO_TEST_REPORT(sizeof(value), &value);
++		WriteExternal(value);
++	}
++	inline void Write(unsigned long value)
++	{
++		REPRO_TEST_REPORT(sizeof(value), &value);
++		WriteExternal(value);
++	}
++	inline void Write(int iCount, long const values[])
++	{
++		REPRO_TEST_REPORT(sizeof(long) * iCount, values);
++		WriteExternal(iCount, values);
++	}
++	inline void Write(int iCount, unsigned long const values[])
++	{
++		REPRO_TEST_REPORT(sizeof(unsigned long) * iCount, values);
++		WriteExternal(iCount, values);
++	}
++	/*	Floating-point data isn't normally part of the synchronized game state.
++		So these wrappers aren't needed, but, somehow, if I remove them and
++		rename the respective virtual functions back to "Write", I get a crash
++		when calling Write(bool). */
++	inline void Write(float value)
++	{
++		WriteExternal(value);
++	}
++	inline void Write(int count, const float values[])
++	{
++		WriteExternal(count, values);
++	}
++	inline void Write(double value)
++	{
++		WriteExternal(value);
++	}
++	inline void Write(int count, const double values[])
++	{
++		WriteExternal(count, values);
++	} // <advc.repro>
+ };
+ 
+-#endif	//FDATASTREAMBASE_H
++#endif
+
+diff --git a/CvGameCoreDLL/ReproTest.cpp b/CvGameCoreDLL/ReproTest.cpp
+new file mode 100644
+index 000000000..b2149a56f
+--- /dev/null
++++ b/CvGameCoreDLL/ReproTest.cpp
+@@ -0,0 +1,122 @@
++// advc.repro: New file; see comment in header.
++
++#include "CvGameCoreDLL.h"
++#include "ReproTest.h"
++#include "CvGame.h"
++
++ReproTest* ReproTest::m_pReproTest = NULL;
++
++void ReproTest::startTest(int iTurns)
++{
++	SAFE_DELETE(m_pReproTest);
++	ReproTest::m_pReproTest = new ReproTest(iTurns);
++}
++
++ReproTest::ReproTest(int iTurns)
++{
++	m_iAutoPlayTurns = iTurns;
++	m_bQuickLoadDone = false;
++	m_iPos = 0;
++	CvGame& kGame = GC.getGame();
++	if (!kGame.canDoControl(CONTROL_QUICK_SAVE))
++	{
++		FAssertMsg(false, "Open widget blocks quick-save. Repro test canceled.");
++		return;
++	}
++	kGame.doControl(CONTROL_QUICK_SAVE);
++	kGame.setAIAutoPlay(m_iAutoPlayTurns, true);
++}
++
++void ReproTest::recordData(int iBytes, byte const aBytes[])
++{
++	// aBytes can be NULL despite iBytes > 0 when it's pointer to the 0th element of a vector
++	if (iBytes <= 0 || aBytes == NULL || GC.getGame().getAIAutoPlay() > 0)
++		return;
++	for (int i = 0; i < iBytes; i++)
++	{
++		m_aBytes.push_back(aBytes[i]);
++		/*	For pinpointing the cause of "byte %d differs" assertions.
++			(examples; only helpful w/ debugger): */
++		//FAssert(m_aBytes.size()!=220||m_aObjectIDs.back()!="Game pt1");
++		//FAssert(m_aBytes.size()!=568||m_aObjectIDs.back()!="PlayerPt1(1)");
++	}
++}
++
++void ReproTest::beginWrite(CvString szObjectId)
++{
++	m_aBytes.clear();
++	if (GC.getGame().getAIAutoPlay() <= 0 && !m_bQuickLoadDone)
++		m_aObjectIDs.push_back(szObjectId);
++}
++
++void ReproTest::endWrite(bool bFinal)
++{
++	CvGame& kGame = GC.getGame();
++	if (kGame.getAIAutoPlay() > 0)
++		return;
++	FAssert(!m_aBytes.empty());
++	if (!m_bQuickLoadDone)
++	{
++		m_aaSaveData.push_back(m_aBytes);
++		if (bFinal)
++		{
++			if (!kGame.canDoControl(CONTROL_QUICK_LOAD))
++			{
++				FAssertMsg(false, "Open widget blocks quick-load. Repro test canceled.");
++				SAFE_DELETE(m_pReproTest);
++				return;
++			}
++			bool bDebugMode = kGame.isDebugMode();
++			m_bQuickLoadDone = true;
++			kGame.doControl(CONTROL_QUICK_LOAD);
++			/*	Debug mode gets turned off after reload. Needs to be consistent
++				because, otherwise, CvPlayer::m_listGameMessages won't be reproducible. */
++			if (bDebugMode)
++				kGame.toggleDebugMode();
++			kGame.setAIAutoPlay(m_iAutoPlayTurns, true);
++		}
++		return;
++	}
++	CvString szMsg = CvString::format("Non reproducible state of %s "
++			"%d turns after quicksave",
++			m_aObjectIDs[m_iPos].GetCString(), m_iAutoPlayTurns);
++	size_t iOldLen = m_aaSaveData[m_iPos].size();
++	size_t iLen = m_aBytes.size();
++	if (iLen != iOldLen)
++	{
++		CvString szLenMsg = szMsg + CvString::format(
++				". iLen is %d, iOldLen is %d", iLen, iOldLen);
++		FAssertMsg(iLen == iOldLen, szLenMsg.GetCString());
++		// Actually, let's still step through the data.
++		/*SAFE_DELETE(m_pReproTest);
++		return;*/
++	}
++	bool const bCancelAfterFirstDifference = true;
++	bool bSame = true;
++	for (size_t i = 0; i < std::min(iLen, iOldLen); i++)
++	{
++		CvString szLoopMsg;
++		if (m_aBytes[i] != m_aaSaveData[m_iPos][i])
++		{
++			szLoopMsg = szMsg + CvString::format(": byte %d differs: m_aBytes[%d] is %d,"
++					" m_aaSaveData[m_iPos][%d] is %d.", i, i, m_aBytes[i], i,
++					m_aaSaveData[m_iPos][i]);
++			if (i < 80 && i > 0)
++			{
++				szLoopMsg += " m_aBytes:\n";
++				for (size_t j = 0; j < i; j++)
++					szLoopMsg += CvString::format("%d.", m_aBytes[j]);
++				szLoopMsg += "\nm_aaSaveData[m_iPos]:\n";
++				for (size_t j = 0; j < i; j++)
++					szLoopMsg += CvString::format("%d.", m_aaSaveData[m_iPos][j]);
++			}
++			FAssertMsg(false, szLoopMsg.GetCString());
++			bSame = false;
++			if (bCancelAfterFirstDifference)
++				break;
++		}
++	}
++	m_iPos++;
++	if (m_iPos == m_aObjectIDs.size() || (bCancelAfterFirstDifference && !bSame))
++		SAFE_DELETE(m_pReproTest);
++}
+
+diff --git a/CvGameCoreDLL/ReproTest.h b/CvGameCoreDLL/ReproTest.h
+new file mode 100644
+index 000000000..6c3947250
+--- /dev/null
++++ b/CvGameCoreDLL/ReproTest.h
+@@ -0,0 +1,69 @@
++#pragma once
++
++#ifndef REPRO_TEST_H
++#define REPRO_TEST_H
++
++/*	When ENABLE_REPRO_TEST is defined, then contacting an AI leader via right click in the
++	Foreign Advisor (see startTest call in CvDLLWidgetData.cpp) will start a
++	"reproducibility test": Quick-save; run AI Auto Play for a number of turns equal to
++	the id of the contacted player; upon auto-saving after AI Auto Play, copy all
++	synchronized savegame data to a place that doesn't get reset upon loading (namely to
++	m_pReproTest->m_aaSaveData); quick-load; run AI Auto Play for the same number of
++	turns as before; upon auto-saving, compare the synchronized data that gets written
++	to the savegame with the data kept in memory and assert that they're the same.
++	Prerequisites: Assert (or Debug) build, AutoSaveInterval = 1 in CivilizationIV.ini.
++	Caveat: MSVC03 doesn't initialize padding bytes. CLinkList will write those into
++	savegames. I've fixed that for a few structs through the INIT_STRUCT_PADDING macro,
++	but there might be more. */
++//#define ENABLE_REPRO_TEST
++
++#ifdef ENABLE_REPRO_TEST
++	#define REPRO_TEST_REPORT(iBytes, aBytes) \
++		if (ReproTest::getInstance() != NULL) \
++			ReproTest::getInstance()->recordData((iBytes), (byte const*)(aBytes));
++	#define REPRO_TEST_BEGIN_WRITE(szObjectID) \
++		if (ReproTest::getInstance() != NULL) \
++			ReproTest::getInstance()->beginWrite(CvString(szObjectID));
++	#define REPRO_TEST_END_WRITE() \
++		if (ReproTest::getInstance() != NULL) \
++			ReproTest::getInstance()->endWrite(false);
++	#define REPRO_TEST_FINAL_WRITE() \
++		if (ReproTest::getInstance() != NULL) \
++			ReproTest::getInstance()->endWrite(true);
++	#define INIT_STRUCT_PADDING_INL() \
++		memset(this, 0, sizeof(*this))
++	#define INIT_STRUCT_PADDING(StructName) \
++		StructName##() { INIT_STRUCT_PADDING_INL(); }
++#else
++	#define REPRO_TEST_REPORT(iBytes, aBytes)
++	#define REPRO_TEST_BEGIN_WRITE(szObjectID)
++	#define REPRO_TEST_END_WRITE()
++	#define REPRO_TEST_FINAL_WRITE()
++	#define INIT_STRUCT_PADDING_INL()
++	#define INIT_STRUCT_PADDING(StructName)
++#endif
++
++
++class CvString;
++
++class ReproTest
++{
++	static ReproTest* m_pReproTest;
++public:
++	static void startTest(int iTurns);
++	static inline ReproTest* getInstance() { return m_pReproTest; }
++	ReproTest(int iTurns);
++	void beginWrite(CvString szObjectId);
++	void endWrite(bool bFinal);
++	void recordData(int iBytes, byte const aBytes[]);
++
++private:
++	int m_iAutoPlayTurns;
++	bool m_bQuickLoadDone;
++	std::vector<byte> m_aBytes;
++	std::vector<CvString> m_aObjectIDs;
++	std::vector<std::vector<byte> > m_aaSaveData;
++	size_t m_iPos;
++};
++
++#endif
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=23 omittedFiles=0 embeddedPatchBytes=37960

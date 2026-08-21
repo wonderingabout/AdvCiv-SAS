@@ -1,0 +1,42 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2501
+# Commit: 1e9857c4078ae40b136a5811ae9fc054ef5af2a3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 280e5c12cf3d3d4844710ffa02f96a91dffeaf2f
+# Title: Forest defense hover text no longer leaks info
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 681bc47c7..8a15be9d7 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4555,9 +4555,10 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
+ 	TeamTypes const eDefTeam = (eRevealedOwner != NO_PLAYER ?
+ 			GET_PLAYER(eRevealedOwner).getTeam() :
+ 			NO_TEAM);
+-	int iDefWithFeatures = kPlot.defenseModifier(eDefTeam, true, NO_TEAM, true);
+-	int iDefWithoutFeatures = kPlot.defenseModifier(eDefTeam, true,
+-			kPlot.getTeam(), true);
++	int iDefWithFeatures = kPlot.defenseModifier(
++			eDefTeam, true, NO_TEAM, true);
++	int iDefWithoutFeatures = kPlot.defenseModifier(
++			eDefTeam, true, kPlot.getRevealedTeam(eActiveTeam, true), true);
+ 	int iDelta = iDefWithFeatures - iDefWithoutFeatures;
+ 	if(iDefWithoutFeatures != 0 || iDefWithFeatures != 0)
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=900

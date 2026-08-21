@@ -1,0 +1,303 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3819
+# Commit: 07bd8466ad81b4b846621d9691f708b9520a43b3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a253d70353c6ab72518a1d9bdc44ea3db2a37dde
+# Title: Increase column, font size on Domestic Advisor
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+36	9	Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+37	21	Assets/Python/Screens/CvDomesticAdvisor.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+index d77f86aac..1ced981f9 100644
+--- a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+@@ -758,7 +758,7 @@ class CvCustomizableDomesticAdvisor:
+ 
+ 		# Location of Text Buttons
+ 		self.X_EXIT = self.nTableX + self.nTableWidth
+-		self.Y_EXIT = self.nPanelLength + self.nPanelY - 32
++		self.Y_EXIT = self.nPanelLength + self.nPanelY - 37 # advc.913: was -32
+ 		self.Y_TEXT = self.nPanelLength + self.nPanelY - 27
+ 		self.Z_TEXT = -0.1
+ 		self.DX_TEXT = -200
+@@ -903,7 +903,14 @@ class CvCustomizableDomesticAdvisor:
+ 		#screen.addDDSGFC( self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("SCREEN_BG").getPath(), 0, 29, 1024, 592, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		# Text Buttons
+-		screen.setText(self.EXIT_NAME, "Background", localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper(), CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_TEXT, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
++		screen.setText(self.EXIT_NAME, "Background",
++				u"<font=4>" + # advc.193
++				localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
++				+ u"</font>", # advc.193
++				CvUtil.FONT_RIGHT_JUSTIFY,
++				self.X_EXIT, self.Y_EXIT, self.Z_TEXT,
++				FontTypes.TITLE_FONT,
++				WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
+ 
+ 		x = self.X_SPECIAL + self.PAGES_DD_W + 10
+ 
+@@ -2249,12 +2256,32 @@ class CvCustomizableDomesticAdvisor:
+ 			iBuildingButtonY = self.nTableY
+ 			civInfo = gc.getCivilizationInfo(gc.getActivePlayer().getCivilizationType())
+ 
++			# <advc.193> For adjusting column widths to available space
++			iTotalColW = 0
++			for value, key in columns:
++				iTotalColW += self.columnWidth[key]
++			# Filling up nTableWidth entirely makes the columns too wide
++			# for some reason(?).
++			fHScaleFactor = min(2, max((self.nTableWidth - 50.0) / iTotalColW,
++					# I don't think we should shrink columns when player
++					# configures too many
++					1))
++			if fHScaleFactor > 1.36:
++				iCellFontSize = 3
++			else:
++				iCellFontSize = 2
++			# (The three uses of these tags in the code below aren't tagged w/ comments)
++			szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
++			szFontTagClose = u"</font>"
++			# </advc.193>
++
+ 			# Loop through the columns first. This is unintuitive, but faster.
+ 			for value, key in columns:
+ 
+ 				try:
+ 					columnDef = self.COLUMNS_LIST[self.COLUMNS_INDEX[key]]
+ 					type = columnDef[2]
++					iColW = int(round(self.columnWidth[key] * fHScaleFactor)) # advc.193
+ 					if (type == "bldg" or type == "bldgclass"):
+ 						if (type == "bldg"):
+ 							building = columnDef[7]
+@@ -2267,16 +2294,16 @@ class CvCustomizableDomesticAdvisor:
+ 							buildingClass = columnDef[7]
+ 							building = civInfo.getCivilizationBuildings(buildingClass)
+ 							buildingInfo = self.BUILDING_INFO_LIST[building]
+-						screen.setTableColumnHeader (page, value + 1, "", self.columnWidth[key])
++						screen.setTableColumnHeader (page, value + 1, "", iColW)
+ 						szName = "BLDG_BTN_%d" % building
+-						x = iBuildingButtonX + (self.columnWidth[key] - self.BUILDING_BUTTON_X_SIZE) / 2
++						x = iBuildingButtonX + (iColW - self.BUILDING_BUTTON_X_SIZE) / 2
+ 						screen.setImageButton (szName, buildingInfo.getButton(), 
+ 											   x, iBuildingButtonY, self.BUILDING_BUTTON_X_SIZE, self.BUILDING_BUTTON_Y_SIZE, 
+ 											   WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, building, -1)
+ 					else:
+-						screen.setTableColumnHeader (page, value + 1, "<font=2>" + self.HEADER_DICT[key] + "</font>", self.columnWidth[key] )
++						screen.setTableColumnHeader (page, value + 1, szFontTagOpen + self.HEADER_DICT[key] + szFontTagClose, iColW )
+ 
+-					iBuildingButtonX += self.columnWidth[key]
++					iBuildingButtonX += iColW
+ 
+ 					# And the correct writing function.
+ 					if (type == "text"):
+@@ -2309,7 +2336,7 @@ class CvCustomizableDomesticAdvisor:
+ 						calcFunc = columnDef[3]
+ 						# Loop through the cities
+ 						for i in cityRange:
+-							szValue = colorFunc(unicode(calcFunc(cityList[i].city)), key)
++							szValue = szFontTagOpen + colorFunc(unicode(calcFunc(cityList[i].city)), key) + szFontTagClose
+ 							wd1,wd2,wd3 = widgetDataForCity(cityList[i].city)
+ 							funcTableWrite (page, value + 1, i, szValue, "", wd1, wd2, wd3, justify)
+ 						
+@@ -2317,7 +2344,7 @@ class CvCustomizableDomesticAdvisor:
+ 						calcFunc = columnDef[4]
+ 						# Loop through the cities
+ 						for i in cityRange:
+-							szValue = colorFunc(unicode(calcFunc(cityList[i].city, columnDef[5])), key)
++							szValue = szFontTagOpen + colorFunc(unicode(calcFunc(cityList[i].city, columnDef[5])), key) + szFontTagClose
+ 							wd1,wd2,wd3 = widgetDataForCity(cityList[i].city)
+ 							funcTableWrite (page, value + 1, i, szValue, "", wd1, wd2, wd3, justify)
+ 
+@@ -2326,7 +2353,7 @@ class CvCustomizableDomesticAdvisor:
+ 						
+ 						# Loop through the cities
+ 						for i in cityRange:
+-							szValue = colorFunc(unicode(calcFunc(cityList[i].city, key, columnDef[7])), key)
++							szValue = szFontTagOpen + colorFunc(unicode(calcFunc(cityList[i].city, key, columnDef[7])), key) + szFontTagClose
+ 							wd1,wd2,wd3 = widgetDataForCity(cityList[i].city)
+ 							funcTableWrite (page, value + 1, i, szValue, "", wd1, wd2, wd3, justify)
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index 668c6f8f2..3187dc9b8 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -67,7 +67,13 @@ class CvDomesticAdvisor:
+ 	
+ 		# Here we set the background widget and exit button, and we show the screen
+ 		screen.addPanel( "DomesticAdvisorBG", u"", u"", True, False, 0, 0, self.nScreenWidth, self.nScreenHeight, PanelStyles.PANEL_STYLE_MAIN )
+-		screen.setText("DomesticExit", "Background", localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper(), CvUtil.FONT_RIGHT_JUSTIFY, self.nScreenWidth - 25, self.nScreenHeight - 45, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
++		screen.setText("DomesticExit", "Background",
++				u"<font=4>" + # advc.193
++				localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
++				+ u"</font>", # advc.193
++				CvUtil.FONT_RIGHT_JUSTIFY, self.nScreenWidth - 25, self.nScreenHeight - 45, -0.1,
++				FontTypes.TITLE_FONT,
++				WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
+ 
+ 		bCanLiberate = false
+ 		(loopCity, iter) = player.firstCity(false)
+@@ -99,8 +105,8 @@ class CvDomesticAdvisor:
+ 		# Zoom to City
+ 		screen.setTableColumnHeader( "CityListBackground", 0, "", (30 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 		
+-		# Name Column
+-		screen.setTableColumnHeader( "CityListBackground", 1, "<font=2>" + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_NAME", ()) + "</font>", (221 * self.nTableWidth) / self.nNormalizedTableWidth )
++		# Name Column (advc.193: Font size increased; was 2.)
++		screen.setTableColumnHeader( "CityListBackground", 1, "<font=3>" + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_NAME", ()) + "</font>", (221 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 		
+ 		# Population Column
+ 		# advc.002f: Replace localText.getText("TXT_KEY_POPULATION", ()) with CITIZEN_CHAR from BULL
+@@ -145,8 +151,8 @@ class CvDomesticAdvisor:
+ 		# advc.004: Use STRENGTH_CHAR instead of DEFENSE_CHAR
+ 		screen.setTableColumnHeader( "CityListBackground", 14, "<font=2>" + (u"%c" % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR)) + "</font>", (35 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 				
+-		# Production Column
+-		screen.setTableColumnHeader( "CityListBackground", 15, "<font=2>" + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ()) + "</font>", (132 * self.nTableWidth) / self.nNormalizedTableWidth )	
++		# Production Column (advc.193: Font size increased; was 2.)
++		screen.setTableColumnHeader( "CityListBackground", 15, "<font=3>" + localText.getText("TXT_KEY_DOMESTIC_ADVISOR_PRODUCING", ()) + "</font>", (132 * self.nTableWidth) / self.nNormalizedTableWidth )	
+ 
+ 		# Liberate Column
+ 		#screen.setTableColumnHeader( "CityListBackground", 16, "", (25 * self.nTableWidth) / self.nNormalizedTableWidth )
+@@ -195,6 +201,16 @@ class CvDomesticAdvisor:
+ 
+ 		screen.setTableText( "CityListBackground", 0, i, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath(), WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY);
+ 
++		# <advc.193>
++		if self.nTableWidth / float(self.nNormalizedTableWidth) > 1.36:
++			iCellFontSize = 3
++		else:
++			iCellFontSize = 2
++		# (Uses of these tags in the code below aren't tagged w/ comments)
++		szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
++		szFontTagClose = u"</font>"
++		# </advc.193>
++
+ 		szName = pLoopCity.getName()
+ 		if pLoopCity.isCapital():
+ 			szName += (u"%c" % CyGame().getSymbolID(FontSymbols.STAR_CHAR))
+@@ -215,14 +231,14 @@ class CvDomesticAdvisor:
+ 				szName += (u"%c" % gc.getCorporationInfo(iCorporation).getChar())
+ 					
+ 		# City name...
+-		screen.setTableText( "CityListBackground", 1, i, szName, "",
++		screen.setTableText( "CityListBackground", 1, i, szFontTagOpen + szName + szFontTagClose, "",
+ 				#WidgetTypes.WIDGET_GENERAL, -1, -1,
+ 				# advc.186b: BULL attaches this to the zoom button. I like it better on the city name b/c, that way, it doesn't obscure the button that the player may want to click.
+ 				WidgetTypes.WIDGET_EXAMINE_CITY, pLoopCity.getOwner(), pLoopCity.getID(),
+ 				CvUtil.FONT_LEFT_JUSTIFY )
+ 		
+ 		# Population
+-		screen.setTableInt( "CityListBackground", 2, i, unicode(pLoopCity.getPopulation()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableInt( "CityListBackground", 2, i, szFontTagOpen + unicode(pLoopCity.getPopulation()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Happiness...
+ 		iNetHappy = pLoopCity.happyLevel() - pLoopCity.unhappyLevel(0)
+@@ -231,7 +247,7 @@ class CvDomesticAdvisor:
+ 			szText = localText.getText("TXT_KEY_COLOR_POSITIVE", ()) + szText + localText.getText("TXT_KEY_COLOR_REVERT", ())
+ 		elif iNetHappy < 0:
+ 			szText = localText.getText("TXT_KEY_COLOR_NEGATIVE", ()) + szText + localText.getText("TXT_KEY_COLOR_REVERT", ())
+-		screen.setTableInt( "CityListBackground", 3, i, szText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableInt( "CityListBackground", 3, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Health...
+ 		iNetHealth = pLoopCity.goodHealth() - pLoopCity.badHealth(0)
+@@ -240,7 +256,7 @@ class CvDomesticAdvisor:
+ 			szText = localText.getText("TXT_KEY_COLOR_POSITIVE", ()) + szText + localText.getText("TXT_KEY_COLOR_REVERT", ())
+ 		elif iNetHealth < 0:
+ 			szText = localText.getText("TXT_KEY_COLOR_NEGATIVE", ()) + szText + localText.getText("TXT_KEY_COLOR_REVERT", ())
+-		screen.setTableInt( "CityListBackground", 4, i, szText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableInt( "CityListBackground", 4, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Food status...
+ 		iNetFood = pLoopCity.foodDifference(true)
+@@ -249,19 +265,19 @@ class CvDomesticAdvisor:
+ 			szText = localText.getText("TXT_KEY_COLOR_POSITIVE", ()) + szText + localText.getText("TXT_KEY_COLOR_REVERT", ())
+ 		elif iNetFood < 0:
+ 			szText = localText.getText("TXT_KEY_COLOR_NEGATIVE", ()) + szText + localText.getText("TXT_KEY_COLOR_REVERT", ())
+-		screen.setTableInt( "CityListBackground", 5, i, szText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableInt( "CityListBackground", 5, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		
+ 		# Production status...
+-		screen.setTableInt( "CityListBackground", 6, i, unicode(pLoopCity.getYieldRate(YieldTypes.YIELD_PRODUCTION)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableInt( "CityListBackground", 6, i, szFontTagOpen+ unicode(pLoopCity.getYieldRate(YieldTypes.YIELD_PRODUCTION)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Gold status...
+-		screen.setTableInt( "CityListBackground", 7, i, unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_GOLD)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableInt( "CityListBackground", 7, i, szFontTagOpen + unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_GOLD)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Science rate...
+-		screen.setTableInt( "CityListBackground", 8, i, unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_RESEARCH)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableInt( "CityListBackground", 8, i, szFontTagOpen + unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_RESEARCH)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Espionage rate...
+-		screen.setTableInt( "CityListBackground", 9, i, unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_ESPIONAGE)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableInt( "CityListBackground", 9, i, szFontTagOpen + unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_ESPIONAGE)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Culture status...
+ 		szCulture = unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_CULTURE))
+@@ -272,16 +288,16 @@ class CvDomesticAdvisor:
+ 			if iCultureLeftTimes100 > 0:
+ 				szCulture += u" (" + unicode((iCultureLeftTimes100  + iCultureRateTimes100 - 1) / iCultureRateTimes100) + u")"
+ 
+-		screen.setTableInt( "CityListBackground", 10, i, szCulture, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableInt( "CityListBackground", 10, i, szFontTagOpen + szCulture + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Trade
+-		screen.setTableInt( "CityListBackground", 11, i, unicode(pLoopCity.getTradeYield(YieldTypes.YIELD_COMMERCE)), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableInt( "CityListBackground", 11, i, szFontTagOpen + unicode(pLoopCity.getTradeYield(YieldTypes.YIELD_COMMERCE)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Maintenance...
+ 		#iMaintenance = pLoopCity.getMaintenance()
+ 		# advc.004: Based on K-Mod code in CvMainInterface.py
+ 		iMaintenance = pLoopCity.getMaintenanceTimes100() * (100+gc.getPlayer(pLoopCity.getOwner()).calculateInflationRate()) // 10000
+-		screen.setTableInt( "CityListBackground", 12, i, unicode(iMaintenance), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableInt( "CityListBackground", 12, i, szFontTagOpen + unicode(iMaintenance) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Great Person
+ 		iGreatPersonRate = pLoopCity.getGreatPeopleRate()
+@@ -294,17 +310,17 @@ class CvDomesticAdvisor:
+ 					iTurnsLeft += 1
+ 				szGreatPerson += u" (" + unicode(iTurnsLeft) + u")"
+ 		
+-		screen.setTableInt( "CityListBackground", 13, i, szGreatPerson, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableInt( "CityListBackground", 13, i, szFontTagOpen + szGreatPerson + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		
+ 		# Garrison
+-		screen.setTableInt( "CityListBackground", 14, i, unicode(pLoopCity.plot().getNumDefenders(pLoopCity.getOwner())), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableInt( "CityListBackground", 14, i, szFontTagOpen + unicode(pLoopCity.plot().getNumDefenders(pLoopCity.getOwner())) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Producing
+ 		szProducing = pLoopCity.getProductionName()
+ 		iProductionTurns = pLoopCity.getGeneralProductionTurnsLeft()
+ 		if iProductionTurns > 0: # advc.004x
+ 			szProducing += " (" + str(iProductionTurns) + ")"
+-		screen.setTableText( "CityListBackground", 15, i, szProducing, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		screen.setTableText( "CityListBackground", 15, i, szFontTagOpen + szProducing + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Liberation
+ 		# advc.004: Mark potential independent colonies too (bCanSplit check added to the two conditions below)
+@@ -323,7 +339,7 @@ class CvDomesticAdvisor:
+ 			if not pLoopCity.canCultureFlip():
+ 				szColorTag = "COLOR_YIELD_FOOD"
+ 			szRevoltPr = localText.changeTextColor(szRevoltPr, gc.getInfoTypeForString(szColorTag))
+-			screen.setTableText("CityListBackground", 16, i, "<font=2>" + szRevoltPr + "</font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText("CityListBackground", 16, i, szFontTagOpen + szRevoltPr + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		# </advc.ctr>
+ 		
+ 	# Draw the specialist and their increase and decrease buttons
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=17439

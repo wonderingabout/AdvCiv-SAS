@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3585
+# Commit: 6952d0bf0b4dc07d36aa4496c16d060f1013c055
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bb8e6e58a5cedb96aa7cfa9d84d84970cf27b6ac
+# Title: Fix a unit class text key used in debug output
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	Assets/XML/Units/CIV4UnitClassInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4UnitClassInfos.xml b/Assets/XML/Units/CIV4UnitClassInfos.xml
+index 141918621..460a113af 100644
+--- a/Assets/XML/Units/CIV4UnitClassInfos.xml
++++ b/Assets/XML/Units/CIV4UnitClassInfos.xml
+@@ -98,7 +98,9 @@
+ 		</UnitClassInfo>
+ 		<UnitClassInfo>
+ 			<Type>UNITCLASS_EXECUTIVE_2</Type>
+-			<Description>CHANGED_TXT_KEY_UNIT_EXECUTIVE_2</Description>
++			<!-- advc.001: Was CHANGED_TXT_KEY_UNIT_EXECUTIVE_2, which doesn't
++				 exist. (Only used for debugging anyway I think.) -->
++			<Description>TXT_KEY_UNIT_EXECUTIVE_2</Description>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>-1</iMaxTeamInstances>
+ 			<iMaxPlayerInstances>5</iMaxPlayerInstances>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=711

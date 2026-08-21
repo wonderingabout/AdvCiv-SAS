@@ -1,0 +1,575 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4872
+# Commit: 45f29176c61c9e66d4a3fa09b63266a3d967c5f7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 378e9fd759531884508e29d44b309861fe37b787
+# Title: refactor sevopedia building to use multilist code similarly and more anyways etc and other minor or not changes anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+150	106	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+13	4	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+1	1	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+5	9	Assets/XML/Units/CIV4UnitInfos.xml
+3	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index d661c56e2..c45bafc84 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -52,7 +52,7 @@
+ 
+ 
+ 
+-			# <!-- custom: for freebonus, done according to according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
++			# <!-- custom: for freebonus, done according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
+ 			#
+ 			# This determines the amount of resource this structure produces.
+ 			# If <FreeBonus> is set to a value other than NONE and you set this to a positive value,the structure will produce the specified amount of the specified resource.
+@@ -609,6 +609,7 @@ class SevoPediaBuilding:
+ 
+ 
+ 
++	# <!-- custom: additional info by chatgpt thanks to my prompt too but anyways etc: "The self.iBuilding is a unique ID already. But the prerequisites (like isBuildingClassNeededInCity) refer to a class, not a specific building. That's where the helper comes in." + also anyways etc "The helper get_iDefaultBuilding_current_civ(iBuildingClass) is not for the current building (self.iBuilding). It's used to resolve prerequisite buildings by class — and each building class can have different versions (UUs) for each civ." i don't know if accurate but maybe is, so adding this info here as part of refactoring and wondering if we should use it in required for anyways etc to which chatgpt also replied anyways etc thanks but or not but or yes but but anyways etc "In placeRequiredFor: You’re checking: for each building: if building X requires our current building's class: show building X" and "You already have the concrete building (X). No need to resolve anything — you are showing the building that depends on yours, not the class." hopefully helpful or not or yes thanks or not thanks or yes thanks anyways etc anyways etc anyways etc -->
+ 	def get_iDefaultBuilding_current_civ(self, i):
+ 		# Get the default building of this class for the current civilization
+ 		if self.top.iActivePlayer != -1:
+@@ -655,7 +656,7 @@ class SevoPediaBuilding:
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!--custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+ 		buttonsPerRow = get_max_occurences_found_buttons_per_row(wPanel, BUTTON_SIZE)
+ 
+ 		for iPrereqTech in xrange(gc.getNumTechInfos()):
+@@ -745,7 +746,7 @@ class SevoPediaBuilding:
+ 					screen.appendMultiListButton(rowListName, projectInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, iProject, 1, False)
+ 
+ 					if not bFirst:
+-						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not anyways etc, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any anyways etc), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad or not or yes or and other or and not anyways etc anyways etc anyways etc...), not having thus to rewrite our otherwise working/functionning(functionnal?) code, anyways etc anyways etc anyways etc...
++						# <!-- custom: workaround as our code doesn't handle inconsistent occurence size (a button is 64px currently if not always or not anyways etc, but a label "or" would be smaller than 64px, messing the txtNums alignment of subsequent buttons (if any anyways etc), so to not rewrite all our code or tweak it too deeply, maybe this alternative solution is/can be quite elegant too instead, of putting the "or" label rather as a txtNum just between the buttons, and belonging to the new 2nd button we are adding (no "or" if first project so maybe more sensical or intuitive this way even though is still a hack but maybe not so bad or not or yes or and other or and not anyways etc anyways etc anyways etc...), not having thus to rewrite our otherwise working/functionning(functionnal?) code, anyways etc anyways etc anyways etc... -->
+ 						# (Also) S(s)ince our next button is a project, if we were to use this "or", it is fine to be a bit more aggressive with the adjustment and place the txtNum right inbetween both buttons, as no txtNum will be left or right of this txtNum directly in contact with it and colliding or being merged in unintended way, so i quite like this elegant solution :) hehe if i may say, but anyways etc anyways etc anyways etc... -->
+ 						numTxt = localText.getText("TXT_KEY_OR", ())
+ 						# <!-- custom: "or" numTxt aligned between this button and the previous one anyways etc -->
+@@ -773,7 +774,7 @@ class SevoPediaBuilding:
+ 					screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
+ 
+ 					numTxt = "InC"
+-					extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_off_centered_x()
++					extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_or_other_causes_off_centered_x()
+ 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 					isButtonFound = True
+@@ -809,37 +810,47 @@ class SevoPediaBuilding:
+ 
+ 
+ 
+-	def displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(self, screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, xPanel, yPanel, wPanel, hPanel):
+-		# <!-- custom: now display(ing anyways etc) the corresponding num or text matching the button if any (button) anyways etc -->
+-		if isButtonFound:
+-			yPanelBottomPart = yPanel + int(0.8 * hPanel)
+-			for xOccurenceFound, numTxtOccurenceFound in xNumsOrTextsFound:
+-				textName = self.top.getNextWidgetName()
+-				szText = numTxtOccurenceFound
+-				screen.addMultilineText(textName, szText, xOccurenceFound, yPanelBottomPart, 2 * buttonSize, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++	def placeRequiredFor(self):
++		# Shows buildings that require this building as a prerequisite
++		#
++		xPanel = self.X_REQUIRED_FOR
++		yPanel = self.Y_REQUIRED_FOR
++		wPanel = self.W_REQUIRED_FOR
++		hPanel = self.H_REQUIRED_FOR
+ 
+-		# If no <!-- custom: button --> found, display a message
+-		else:
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			textName = self.top.getNextWidgetName()
+-			szText = CyTranslator().getText(txtKeyNoButtonFound, ())
+-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
+ 
++		# Create panel with proper styling
++		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_REQUIRED_FOR", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 
++		# Create MultiList for class and combat buttons
++		rowListName = self.top.getNextWidgetName()
+ 
+-	# Shows buildings that require this building as a prerequisite
+-	def placeRequiredFor(self):
+-		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
++		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel if i may say but anyways etc anyways etc anyways etc -->
++		# Constants for button display
++		BUTTON_SIZE = 64 # Size of each button
++		PANEL_MULTILIST_OFFSET_X = 9
++		PANEL_MULTILIST_OFFSET_Y = 36
++		PANEL_MULTILIST_ADDITIONAL_W = -1 * (PANEL_MULTILIST_OFFSET_X * 2)
++		PANEL_MULTILIST_ADDITIONAL_H = -1 * (PANEL_MULTILIST_OFFSET_Y)
+ 
+-		nCountOccurencesFound = 0
+-		xNumsOrTextsFound = []
+-		buttonSize = 64
++		# Create the MultiList control
++		# Per documentation, the numLists parameter (7th) is actually number of columns
++		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
++		multiListX = xPanel + PANEL_MULTILIST_OFFSET_X
++		multiListY = yPanel + PANEL_MULTILIST_OFFSET_Y
++		multiListW = wPanel + PANEL_MULTILIST_ADDITIONAL_W
++		multiListH = hPanel + PANEL_MULTILIST_ADDITIONAL_H
++		# Using 1 for auto-calculation of buttons per row
++		buttonCalculate = 1
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+-		# Create panel with proper styling
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_REQUIRED_FOR", ()), "", False, True, self.X_REQUIRED_FOR, self.Y_REQUIRED_FOR, self.W_REQUIRED_FOR, self.H_REQUIRED_FOR, PanelStyles.PANEL_STYLE_BLUE50)
+-		# Add padding
+-		screen.attachLabel(panelName, "", "  ")
++		isButtonFound = False
++		iButtonIndex = 0
++
++		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		buttonsPerRow = get_max_occurences_found_buttons_per_row(wPanel, BUTTON_SIZE)
+ 		
+ 		# Get the building class of our current building
+ 		iCurrentBuildingClass = gc.getBuildingInfo(self.iBuilding).getBuildingClassType()
+@@ -850,28 +861,37 @@ class SevoPediaBuilding:
+ 			
+ 			# Check if this building is needed via BuildingClassNeededs
+ 			if loopBuildingInfo.isBuildingClassNeededInCity(iCurrentBuildingClass):
+-				nCountOccurencesFound += 1
++				# Column index (always 0 when numLists=1)
++				columnIndex = 0
++				screen.appendMultiListButton(rowListName, loopBuildingInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, 1, False)
++
+ 				numTxt = "InC"
+-				xSubstractedAdjustment = int(0.75 * buttonSize)
+-				xPanel = self.X_REQUIRED_FOR
+-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
++				extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_or_other_causes_off_centered_x()
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+-				screen.attachImageButton(panelName, "", loopBuildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, -1, False)
++				isButtonFound = True
++				iButtonIndex += 1
+ 			
+ 			# Check if this building is needed via PrereqBuildingClasses
+ 			iNumRequired = loopBuildingInfo.getPrereqNumOfBuildingClass(iCurrentBuildingClass)
+ 			if iNumRequired > 0:
+-				nCountOccurencesFound += 1
+-				numTxt = u"AllC %s+RM" % iNumRequired
+-				xSubstractedAdjustment = int(1.19 * buttonSize)
+-				xPanel = self.X_REQUIRED_FOR
+-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
++				# Column index (always 0 when numLists=1)
++				columnIndex = 0
++				screen.appendMultiListButton(rowListName, loopBuildingInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, 1, False)
+ 
+-				screen.attachImageButton(panelName, "", loopBuildingInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iLoopBuilding, -1, False)
++				numTxt = "AllC %s+RM" % iNumRequired
++				extraCorrectionX = get_extra_correction_x(numTxt)
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+-		isButtonFound = (nCountOccurencesFound > 0)
+-		txtKeyNoButtonFound = "TXT_KEY_PEDIA_REQUIRED_FOR_NO_BUTTON_FOUND"
+-		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_REQUIRED_FOR, self.Y_REQUIRED_FOR, self.W_REQUIRED_FOR, self.H_REQUIRED_FOR)
++				isButtonFound = True
++				iButtonIndex += 1
++
++		if not isButtonFound:
++			txtKey = "TXT_KEY_PEDIA_REQUIRED_FOR_NO_BUTTON_FOUND"
++			textName = self.top.getNextWidgetName()
++			szText = CyTranslator().getText(txtKey, ())
++			yPanelCenter = yPanel + (hPanel / 2)
++			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -890,7 +910,7 @@ class SevoPediaBuilding:
+ 		# Check if the building has an obsolete tech directly <!-- custom: (i assume is about the obsoletetech info in (adjust to your mod path) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4BuildingInfos.xml) -->
+ 		iObsoleteTech = buildingInfo.getObsoleteTech()
+ 	
+-		# If no direct obsolete tech, check if it's a special building type<!-- cus
++		# If no direct obsolete tech, check if it's a special building type
+ 		# <!-- custom: (e.g. the jewish monastery appears as never obsolete from the direct obsolete tech check due to <ObsoleteTech>NONE</ObsoleteTech>, but it does get obsolete at scientific method though in <ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech> at (adjust with your mod path if different) for example C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml (now this file is/has been imported in AdvCiv-SAS as well in case we need to change it and to have all info we want and control it if i may say anyways etc anyways etc anyways etc...)) -->
+ 		if iObsoleteTech == -1:
+ 			iSpecialBuildingType = buildingInfo.getSpecialBuildingType()
+@@ -915,18 +935,44 @@ class SevoPediaBuilding:
+ 
+ 
+ 	def placeFreePBBS(self):
++		xPanel = self.X_FREE_PBBS
++		yPanel = self.Y_FREE_PBBS
++		wPanel = self.W_FREE_PBBS
++		hPanel = self.H_FREE_PBBS
++
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 
+ 		# Create panel with proper styling
+-		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_PBBS", ()), "", False, True, self.X_FREE_PBBS, self.Y_FREE_PBBS, self.W_FREE_PBBS, self.H_FREE_PBBS, PanelStyles.PANEL_STYLE_BLUE50)
+-		# Additional left side padding for the button(s)
+-		screen.attachLabel(panelName, "", "  ")
++		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_FREE_PBBS", ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
++
++		# Create MultiList for class and combat buttons
++		rowListName = self.top.getNextWidgetName()
++
++		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel if i may say but anyways etc anyways etc anyways etc -->
++		# Constants for button display
++		BUTTON_SIZE = 64 # Size of each button
++		PANEL_MULTILIST_OFFSET_X = 9
++		PANEL_MULTILIST_OFFSET_Y = 36
++		PANEL_MULTILIST_ADDITIONAL_W = -1 * (PANEL_MULTILIST_OFFSET_X * 2)
++		PANEL_MULTILIST_ADDITIONAL_H = -1 * (PANEL_MULTILIST_OFFSET_Y)
++
++		# Create the MultiList control
++		# Per documentation, the numLists parameter (7th) is actually number of columns
++		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
++		multiListX = xPanel + PANEL_MULTILIST_OFFSET_X
++		multiListY = yPanel + PANEL_MULTILIST_OFFSET_Y
++		multiListW = wPanel + PANEL_MULTILIST_ADDITIONAL_W
++		multiListH = hPanel + PANEL_MULTILIST_ADDITIONAL_H
++		# Using 1 for auto-calculation of buttons per row
++		buttonCalculate = 1
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++
++		isButtonFound = False
++		iButtonIndex = 0
+ 
+-		nCountOccurencesFound = 0
+-		xNumsOrTextsFound = []
+-		buttonSize = 64
+-		xSubstractedAdjustmentNums = 0.61
++		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		buttonsPerRow = get_max_occurences_found_buttons_per_row(wPanel, BUTTON_SIZE)
+ 
+ 		# Get the building info
+ 		buildingInfo = gc.getBuildingInfo(self.iBuilding)
+@@ -934,85 +980,80 @@ class SevoPediaBuilding:
+ 		# Check if the building grants a free promotion<!-- custom: , and attach(or /"display" maybe indeed too anyways etc anyways etc anyways etc as ClaudeAI said anyways etc its button if there is any/a (free promotion) -->
+ 		iFreePromotion = buildingInfo.getFreePromotion()
+ 		if iFreePromotion != -1:
+-			# <!-- custom: store text position matching the button for later display as a text -->
+-			nCountOccurencesFound += 1
++			# Column index (always 0 when numLists=1)
++			columnIndex = 0
++			screen.appendMultiListButton(rowListName, gc.getPromotionInfo(iFreePromotion).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iFreePromotion, 1, False)
++
+ 			numTxt = "All Un.C"
+-			xSubstractedAdjustment = int(1.04 * buttonSize)
+-			xPanel = self.X_FREE_PBBS
+-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
++			extraCorrectionX = get_extra_correction_x(numTxt)
++			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+-			# <!-- custom: (but) attach button right now -->
+-			screen.attachImageButton(panelName, "", gc.getPromotionInfo(iFreePromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iFreePromotion, -1, False)
++			isButtonFound = True
++			iButtonIndex += 1
+ 		
+ 		# Check if the building grants a free building
+ 		iFreeBuildingClass = buildingInfo.getFreeBuildingClass()
+ 		if iFreeBuildingClass != -1:
+-			nCountOccurencesFound += 1
+-			numTxt = "All Cs"
+-			xSubstractedAdjustment = int(0.87 * buttonSize)
+-			xPanel = self.X_FREE_PBBS
+-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+-
+-			# Get the default building of this class for the current civilization
+-			if self.top.iActivePlayer != -1:
+-				iDefaultBuilding = gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationBuildings(iFreeBuildingClass)
+-			else:
+-				iDefaultBuilding = gc.getBuildingClassInfo(iFreeBuildingClass).getDefaultBuildingIndex()
++			iDefaultBuilding =  self.get_iDefaultBuilding_current_civ(iFreeBuildingClass)
+ 			
+ 			# If a valid building exists, display its button
+ 			if iDefaultBuilding != -1:
+-				screen.attachImageButton(panelName, "", gc.getBuildingInfo(iDefaultBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, -1, False)
++				# Column index (always 0 when numLists=1)
++				columnIndex = 0
++				screen.appendMultiListButton(rowListName, gc.getBuildingInfo(iDefaultBuilding).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iDefaultBuilding, 1, False)
++
++				numTxt = "All Cs"
++				extraCorrectionX = get_extra_correction_x(numTxt)
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++
++				isButtonFound = True
++				iButtonIndex += 1
+ 
+ 		# Check if the building grants a free bonus
+ 		iFreeBonus = buildingInfo.getFreeBonus()
+-		iNumFreeBonuses = buildingInfo.getNumFreeBonuses()
+ 		
+ 		if iFreeBonus != -1:
+-			# <!-- custom: store text position matching the button for later display as a text -->
+-			nCountOccurencesFound += 1
+-
+-			# <!-- custom: note: for freebonus, done according to according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome), see also "for freebonus, done according to kujira's website" note/code comment at top of this py file if need(ed? But or not but or yes but or etc but anyways etc anyways etc anyways etc) anyways etc:
+-			# based on this, displaying free bonus if >= 1 or if == -1, adjusting display depending on this
+-			# -->
++			iNumFreeBonuses = buildingInfo.getNumFreeBonuses()
+ 
+-			if iNumFreeBonuses == -1:
+-				numTxt = "RM"
+-				xSubstractedAdjustment = int(0.74 * buttonSize)
+-			elif iNumFreeBonuses >= 1:
+-				numTxt = u"%s" % (iNumFreeBonuses)
+-				xSubstractedAdjustment = int(xSubstractedAdjustmentNums * buttonSize)
+-			else:
+-				raise ValueError("[FATAL] Unexpected iNumFreeBonuses=%d value out of bounds iNumFreeBonuses == -1 or iNumFreeBonuses >=1, please verify the code and iNumFreeBonuses are behaving as intended and adjust this sevopedia code or/and your mod code based on this as you want/prefer anyways etc. Note: for info str(FreeBonus) (for display in this error message anyways etc)=%s anyways etc." % (iNumFreeBonuses, str(iFreeBonus)))
++			# Column index (always 0 when numLists=1)
++			columnIndex = 0
++			screen.appendMultiListButton(rowListName, gc.getBonusInfo(iFreeBonus).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iFreeBonus, 1, False)
+ 
+-			xPanel = self.X_FREE_PBBS
+-			xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
++			numTxt = get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses)
++			extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_or_other_causes_off_centered_x()
++			add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+-			# <!-- custom: (but) attach button right now -->
+-			screen.attachImageButton(panelName, "", gc.getBonusInfo(iFreeBonus).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iFreeBonus, -1, False)
++			isButtonFound = True
++			iButtonIndex += 1
+ 			
+ 		# Check if the building grants free specialists - simpler approach
+ 		for iSpecialist in range(gc.getNumSpecialistInfos()):
+ 			if buildingInfo.getFreeSpecialistCount(iSpecialist) > 0:
+-				# <!-- custom: store text position matching the button for later display as a text -->
+-				nCountOccurencesFound += 1
+ 				iSpecialistCount = buildingInfo.getFreeSpecialistCount(iSpecialist)
+-				numTxt = u"%s" % (iSpecialistCount)
+-				xSubstractedAdjustment = int(xSubstractedAdjustmentNums * buttonSize)
+-				xPanel = self.X_FREE_PBBS
+-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+ 
+-				# <!-- custom: (but) attach button right now -->
+-				screen.attachImageButton(panelName, "", gc.getSpecialistInfo(iSpecialist).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, -1, False)
++				# Column index (always 0 when numLists=1)
++				columnIndex = 0
++				screen.appendMultiListButton(rowListName, gc.getSpecialistInfo(iSpecialist).getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, 1, False)
+ 
+-		isButtonFound = (nCountOccurencesFound > 0)
+-		txtKeyNoButtonFound = "TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND"
+-		self.displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, self.X_FREE_PBBS, self.Y_FREE_PBBS, self.W_FREE_PBBS, self.H_FREE_PBBS)
++				numTxt = "%d" % iSpecialistCount
++				extraCorrectionX = get_extra_correction_x(numTxt) + get_extra_correction_some_letters_or_other_causes_off_centered_x()
++				add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, buttonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++
++				isButtonFound = True
++				iButtonIndex += 1
++
++		if not isButtonFound:
++			txtKey = "TXT_KEY_PEDIA_FREE_PBBS_NO_BUTTON_FOUND"
++			textName = self.top.getNextWidgetName()
++			szText = CyTranslator().getText(txtKey, ())
++			yPanelCenter = yPanel + (hPanel / 2)
++			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-		# <!-- custom: see also the "For (/to) parsing (parse?)" note/code comment and/or the "example of how to directly import a button path" at top of this py file if need(ed?) but or not or yes but but anyways etc anyways etc anyways etc -->
+ 
+-	# Helper function to determine if a building is civ-specific (unique)
+-	def isBuildingUnique(self, iBuildingIndex):
+ 
++	def isBuildingUnique(self, iBuildingIndex):
++		# Helper function to determine if a building is civ-specific (unique)
++		#
+ 		buildingInfo = gc.getBuildingInfo(iBuildingIndex)
+ 		buildingClassInfo = gc.getBuildingClassInfo(buildingInfo.getBuildingClassType())
+ 		
+@@ -1021,8 +1062,10 @@ class SevoPediaBuilding:
+ 		return iBuildingIndex != defaultBuildingForClass
+ 
+ 
+-	# Helper function to get which civ a unique building belongs to
++
+ 	def getBuildingCiv(self, iBuildingIndex):
++		# Helper function to get which civ a unique building belongs to
++		#
+ 		buildingInfo = gc.getBuildingInfo(iBuildingIndex)
+ 		buildingClassType = buildingInfo.getBuildingClassType()
+ 		
+@@ -1035,9 +1078,10 @@ class SevoPediaBuilding:
+ 		return -1  # Should not happen for unique buildings
+ 
+ 
+-	# Helper function to check if a building class has any unique versions
+-	def buildingClassHasUniqueVersions(self, buildingClassType):
+ 
++	def buildingClassHasUniqueVersions(self, buildingClassType):
++		# Helper function to check if a building class has any unique versions
++		#
+ 		buildingClassInfo = gc.getBuildingClassInfo(buildingClassType)
+ 		defaultBuilding = buildingClassInfo.getDefaultBuildingIndex()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 38f570746..3d248bb62 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -475,7 +475,7 @@ class SevoPediaUnit:
+ 		isButtonFound = False
+ 		iButtonIndex = 0
+ 
+-		# <!--custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+ 		buttonsPerRow = get_max_occurences_found_buttons_per_row(wPanel, BUTTON_SIZE)
+ 
+ 		# Get the unit info
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index aa64aff03..975eb762b 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -152,10 +152,19 @@ def get_numTxt_combat_type_modifiers(iModCombat):
+ 
+ 
+ 
++def get_numTxt_num_free_bonus_or_random_map(iNumFreeBonuses):
++	# <!-- custom: note: for freebonus, done according to kujira's website if i am not mistaken anyways etc, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome), see also "for freebonus, done according to kujira's website" note/code comment at top of sevopedia building py file if need(ed? But or not but or yes but or etc but anyways etc anyways etc anyways etc) anyways etc: based on this, displaying free bonus if >= 1 or if == -1, adjusting display depending on this -->
++	if iNumFreeBonuses == -1:
++		return "RM"
++	elif iNumFreeBonuses >= 1:
++		return "%d" % (iNumFreeBonuses)
++	else:
++		raise ValueError("[FATAL] Unexpected iNumFreeBonuses=%d value out of bounds of iNumFreeBonuses == -1 or iNumFreeBonuses >=1, please verify the code and iNumFreeBonuses are behaving as intended and adjust this sevopedia code or/and your mod code based on this as you want/prefer anyways etc." % iNumFreeBonuses)
++
++
++
+ def get_extra_correction_x(numTxt):
+-	if len(numTxt) < 3:
+-		return -3
+-	elif len(numTxt) == 3:
++	if len(numTxt) <= 3:
+ 		return -4
+ 	elif len(numTxt) == 4:
+ 		# <!-- custom: example "+50%" -->
+@@ -171,7 +180,7 @@ def get_extra_correction_x(numTxt):
+ 
+ 
+ 
+-def get_extra_correction_some_letters_off_centered_x():
++def get_extra_correction_some_letters_or_other_causes_off_centered_x():
+ 	# <!-- custom: it seems this numTxt takes slightly more room than expected and is off-centered as a result, maybe because of capitalized letters of maybe alphabetical chars take a bit more room or some other cause, in all cases it uses same code base than for numerical values and such in other parts of the code anyways etc, so just add a small correction specifically for this numTxt or/and in other similar cases if any other anyways etc -->
+ 	return -2
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index a1cbb5787..34630d293 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -43,7 +43,7 @@
+ 			<iDeclareWarTradeRand>0</iDeclareWarTradeRand>
+ 			<iDemandRebukedSneakProb>0</iDemandRebukedSneakProb>
+ 			<iDemandRebukedWarProb>0</iDemandRebukedWarProb>
+-			<!-- custom: make barbarians more likely to destroy cities rather than conquer them, after all they are barbarians, so the human player or other players should tightly defend to prevent that, reinvading is a bit too convenient, as barbarians should be more likely i think and ideally to pillage and destroy everything, not so much conquer all, and if they are too strong, it should be balanced elsewhere not here (which currently tones down their war/raze tendency which i think is not ideal, hopefully more idela this way now and balancing their strength in an other place if need if they are too strong and thus raze too often cities, not here, i wouldn't want gameplay to be too forgiving but accurate, however i want it lenient in its balance whatever that means, that i want it fair and fun, but hard enough and not toned down, and accurate, maybe clear enough this way whatever that means or not or yes or and other or and not anyways etc) -->
++			<!-- custom: make barbarians more likely to destroy cities rather than conquer them, after all they are barbarians, so the human player or other players should tightly defend to prevent that, reinvading is a bit too convenient, as barbarians should be more likely i think and ideally to pillage and destroy everything, not so much conquer all, and if they are too strong, it should be balanced elsewhere not here (which currently tones down their war/raze tendency which i think is not ideal, hopefully more idela this way now and balancing their strength in an other place if need if they are too strong and thus raze too often cities, not here, i wouldn't want gameplay to be too forgiving but accurate, however i want it lenient in its balance whatever that means, that i want it fair and fun, but hard enough and not toned down, and accurate, maybe clear enough this way whatever that means or not or yes or and other or and not anyways etc), was 10 -->
+ 			<iRazeCityProb>75</iRazeCityProb>
+ 			<!-- custom: 
+ 			- Update about this buildunitprob 100: it seems extremely effective no wonder at all in one autoplay ; and update 2 seems to always work perfectly in a few autoplays of 100-200 turns each anyways etc so maybe is good and safe to say it almost if not always works extremely well in preventing barbarians building wonders now anyways etc, and old spaghetti code was indeed useless for that i mean at least rather or not rather but thanks for doing it still if i assume it is old still thanks from the future self who (me i.e. anyways etc) read your code carefully crafted in the past thanks a lot, hopefully is even more polished and beautiful now, anyways etc ; , much less normal buildings too in barbarians but still the core palace we want, no lighthouse ever though even in naval cities, may tweak it bit but seems extremely promising, testing more to be sure, anyways etc
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 7be9b2a74..90132a67f 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -2061,7 +2061,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>4</iCombat>
++			<iCombat>1</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -2287,7 +2287,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>6</iCombat>
++			<iCombat>4</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -2329,8 +2329,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>3</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+-			<!-- custom: was 2 -->
+-			<iPower>3</iPower>
++			<iPower>2</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>2</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -11137,15 +11136,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- custom: was PROMOTION_FIRST_STRIKE1 and PROMOTION_FIRST_STRIKE2 -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+ 					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_FIRST_STRIKE2</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+ 			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+@@ -22955,7 +22951,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bInvisible>0</bInvisible>
+ 			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>0</bNoDefensiveBonus>
+-			<bIgnoreBuildingDefense>1</bIgnoreBuildingDefense>
++			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+ 			<bCanMoveImpassable>0</bCanMoveImpassable>
+ 			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+ 			<bFlatMovementCost>0</bFlatMovementCost>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index fd70c4c92..6068fef5c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -118,7 +118,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### Technologies (non-exhaustive, see sevopedia or/and tech advisor or/and xml for details)
+ 
+-- tech tree is vastly reordered for historical accuracy (for example steel is at iron age, pottery is before the wheel, metal casting before currency and before bronze working; and medicine much sooner too), but it is mostly the same techs as in civ4 bts/base advciv, hopefully easier to get into/used to, and i did not see a specific reason to change these, initially i started this AdvCiv-SAS mod mostly to readjust tech tree if i remember correctly.
++- tech tree is vastly reordered for historical accuracy (for example pottery is before the wheel, metal casting before currency and before bronze working; and medicine much sooner too), but it is mostly the same techs as in civ4 bts/base advciv, hopefully easier to get into/used to, and i did not see a specific reason to change these, initially i started this AdvCiv-SAS mod mostly to readjust tech tree if i remember correctly.
+ - some gameplay elements happen at different times, can resarch sooner, build culture sooner, slavery sooner, plantations sooner
+ - nerf tech whoreism (if that is a word anyways etc), which AIs are especially vulnerable to and that humans can abuse, by adding a few or quite many new "This tech cannot be traded" flags in sevopedia, tech tree view (tech advisor) at some techs, hopefully this makes the game more interesting and strategic, while not preventing tech trading altogether (unless you use the "No Tech Trading" option in custom game if i am not mistaken which disables it entirely if i am not mistaken too anyways etc), so you can't gain 10 techs in a row with just one tech anymore, but maybe you can profit a bit from tech trading if you don't use the option i.e. if you play with tech trading enabled (personally i don't play with tech trading at least as of now anyways etc and when i last played but anyways etc but i hope it is more balanced this way now anyways), added also a new "This Technology cannot be traded" sevopedia tech (in "Special Abilities" panel (placeSpecial in the py code if i am not mistaken too anyways etc)) and tech tree view (called "technology advisor" if i am not mistaken too anyways etc) (see also [README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details on how this was implemented/coded in advciv-sas by me with the help of chatgpt/becomingthrough but anyways etc anyways etc anyways etc...), hopefully gameplay is more balanced and interesting this way, perhaps informative too with my changes if i may say, but anyways etc anyways etc anyways etc...
+ - reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 GlobalDefines_advc.xml for details and or latest updated value anyways etc), which as reminder according to the base advciv code comment if i am not mistaken anyways etc: `<!-- advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option). -->`
+@@ -139,7 +139,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### Traits (non-exhaustive, see sevopedia or/and xml for details)
+ 
+-- traits have been reworked, some weak traits have been buffed or/and modified, while some other op traits may have been modified (not necessarily nerfed). For example, the protective trait has been buffed, as i had found it too weak or/and not relevant enough, and the industrious trait has been reworked (wonder building is ridiculous and op or not balanced, instead give production based effect instead as of now). This is not necessarily for all traits but should still be for most. Please look at the Sevopedia "Traits" entries to have the latest updated version of the traits effects.
++- traits have been reworked, some weak traits have been buffed or/and modified, while some other op traits may have been modified (not necessarily nerfed). For example, the protective trait has been buffed, as i had found it too weak or/and not relevant enough, and the industrious trait has been reworked (wonder building is ridiculous and op or not balanced, instead give worker and similar production based effect instead as of now (from expansive trait as of now that is reworked as well as of now anyways etc)). This is not necessarily for all traits but should still be for most. Please look at the Sevopedia "Traits" entries to have the latest updated version of the traits effects.
+ 
+ ### Civics (non-exhaustive, see sevopedia or/and xml for details)
+ 
+@@ -203,7 +203,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - in BBAI_Game_Options_GlobalDefines.xml, disabled BBAI_DEFENSIVE_PACT_BEHAVIOR to restore default BTS behavior of defensive pacts between players being broken when a player has declared war on the other if i understood it correctly and am not mistaken in my understanding anyways etc, was 1, now 0 (see xml for updated value anyways etc), anyways etc anyways etc anyways etc
+ - voluntary vassals are permanent, think of their culture being absorbed by the empire,
+ and them merging with the empire, becoming its citizens, something to pay attention to maybe in particular if you don't want it to happen to other rivals anyways etc anyways etc
+-- move permanent alliance ability a bit out of the main military tech (was in both tech communism and tech fascism) path to make it relatively weaker and reward relatively more alternate paths, even though this makes military artillery selectively stronger now as a tech anyways etc but should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non-directly miltiary techs for players (would need to change flavors or/and such for AIs if i am not mistaken anyways etc) ; also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability anyways etc for example anyways etc, one tech for build process culture for example too i mean anyways etc, hopefully more balanced or/and startegically interesting if i may say but anyways etc anyways etc anyways etc ; maybe this makes more sense in terms of theme too, as such powerful weapons make leaders consider more seriously permanent alliances rather than solo war if i may say in this case but anyways etc, even though they existed before, but perhaps they are bit stronger if not lot now at artillery tech maybe or yes or not or yes or and other or etc anyways etc anyways etc anyways etc
++- move permanent alliance ability a bit out of the main military tech path (was in both tech communism and tech fascism) to make it relatively weaker and reward relatively more alternate paths, should dissuade or/and incentivize maybe rather to pay more attention or give more weight to non- miltiary techs for players (would need to change flavors or/and such for AIs if i am not mistaken anyways etc) ; also this allows to better respect the seemingly rule of one tech per ability, one tech for map trading ability anyways etc for example anyways etc, one tech for build process culture for example too i mean anyways etc, hopefully more balanced or/and startegically interesting if i may say but anyways etc anyways etc anyways etc
+ - reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least if i am not mistaken anyways etc, see xml for details anyways etc) so that hopefully more varied types or/and there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones if i am not mistaken in my understanding +/- guess anyways etc, both for defense but more importantly for offense if i am not mistaken and from asking chatgpt too with web search anyways etc.
+ - to compensate this reduction of flavor, also make barracks more valued by AI in all circumstances, if i am not mistaken anyways etc, also increase iAIWeight so that AIs in particular don't do too premature rushes and start building units unit they have barracks ideally so that these units are upgraded units in experience ideally, by also asking chatgpt with web search and such kujira (see useful links or somewhere in readme that mentions kujira anyways etc for details) example to be sure anyways etc, and also by seeing what FFH2 mod does (it uses a value of 40 for example anyways etc) as of now from 0 to 70 (as of now 75 for the zulu bararcks due to extra gold effect, see xml for updated values or and details anyways etc), so all AI leaders (except barbarian as it just needs more units more efficient for it i think anyways etc) prioritize building barracks more, hopefully not too high so that versatility and other alternative efficient or quite efficient strategies could be explored as well, if i am not mistaken, hopefully AI would plan more and execute better their rushes with stronger in experience if i may say anyways etc units even if these rushes are slightly delayed as a result if i am not mistaken anyways etc
+ - stables buildings: similar reasoning and balance changes, as of now iAIWeight from 0 to 75, see xml or and docs or/and other relevant info in our mod or outside of it maybe if helps and if i am not mistaken too i mean but anyways etc
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=46075

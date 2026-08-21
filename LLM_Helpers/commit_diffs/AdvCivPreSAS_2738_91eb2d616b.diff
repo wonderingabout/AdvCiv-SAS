@@ -1,0 +1,406 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2738
+# Commit: 91eb2d616bfa696f3d3b0ac3aa3701868b05c2c0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c3955440b4b8c741979f4c4bd6cdc9e022cde639
+# Title: Move minimap options from XML to the BUG Menu
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	0	Assets/Config/BUG Main Interface.xml
+5	0	Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+28	0	Assets/Python/Contrib/MinimapOptions.py
+4	2	Assets/Python/Screens/CvMainInterface.py
+0	12	Assets/XML/GlobalDefines_advc.xml
+52	0	Assets/XML/Text/BUG Main Interface Options.xml
+0	1	CvGameCoreDLL/CvGlobals.h
+29	0	CvGameCoreDLL/CvMap.h
+5	7	CvGameCoreDLL/CvPlot.cpp
+31	0	CvGameCoreDLL/CyMap.cpp
+8	0	CvGameCoreDLL/CyMap.h
+8	0	CvGameCoreDLL/CyMapInterface.cpp
+ create mode 100644 Assets/Python/Contrib/MinimapOptions.py
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index 11aca2ccb..dd3a8463c 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -132,6 +132,22 @@
+ 				<choice id="Custom"/>
+ 			</list>
+ 
++			<!-- advc.002a: -->
++			<list   id="MinimapWaterColor" key="Minimap Water Color" 
++					type="int" default="1" listType="string" 
++					values="Maximal|Medium|Zero"
++					get="getMinimapWaterColor">
++				<change module="MinimapOptions" function="updateMinimapWaterColor"/>
++				<choice id="Maximal"/>
++				<choice id="Medium"/>
++				<choice id="Zero"/>
++			</list>
++			<option id="UnitsOnMinimap" key="Units On Minimap" 
++					type="boolean" default="False"
++					get="isUnitsOnMinimap">
++				<change module="MinimapOptions" function="updateUnitsOnMinimap"/>
++			</option>
++
+ 			<!-- Movement Points -->
+ 			<option id="UnitMovementPointsFraction" key="Unit Movement Points Fraction" 
+ 					type="boolean" default="True"
+
+diff --git a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+index ee79e478e..e1ff220dd 100644
+--- a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+@@ -65,6 +65,11 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, right, "MainInterface__FieldOfView_Remember", True)
+ 		# advc.004m:
+ 		self.addTextDropdown(screen, right, right, "MainInterface__DefaultCamDistance")
++		# <advc.002a>
++		self.addLabel(screen, right, "Minimap", "Minimap:")
++		self.addTextDropdown(screen, right, right, "MainInterface__MinimapWaterColor")
++		self.addCheckbox(screen, right, "MainInterface__UnitsOnMinimap")
++		# </advc.002a>
+ 		self.addLabel(screen, right, "Misc", "Misc:")
+ 		self.addCheckbox(screen, right, "EventSigns__Enabled")
+
+diff --git a/Assets/Python/Contrib/MinimapOptions.py b/Assets/Python/Contrib/MinimapOptions.py
+new file mode 100644
+index 000000000..3e84d549d
+--- /dev/null
++++ b/Assets/Python/Contrib/MinimapOptions.py
+@@ -0,0 +1,28 @@
++# advc.002a: New module for minimap options. I want to let the DLL cache those; that makes them a bit more complicated than other BUG options.
++
++from CvPythonExtensions import *
++import BugCore
++import BugOptions
++
++gc = CyGlobalContext()
++
++def init():
++	MainOpt = BugCore.game.MainInterface
++	gc.getMap().setMinimapShowUnits(MainOpt.isUnitsOnMinimap())
++	gc.getMap().setMinimapWaterAlpha(minimapWaterChoiceToAlpha(MainOpt.getMinimapWaterColor()))
++
++def updateUnitsOnMinimap(option, value):
++	gc.getMap().setMinimapShowUnits(value)
++	gc.getMap().updateMinimapColor()
++
++def updateMinimapWaterColor(option, value):
++	gc.getMap().setMinimapWaterAlpha(minimapWaterChoiceToAlpha(value))
++	gc.getMap().updateMinimapColor()
++
++def minimapWaterChoiceToAlpha(choice):
++	alpha = gc.getMap().getMinimapLandAlpha()
++	if choice == 1:
++		alpha /= float(2.3)
++	elif choice == 2:
++		alpha = 0
++	return alpha
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index b9ca258e6..93af490d2 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -80,6 +80,8 @@ import ProgressBarUtil
+ # PLE Code
+ import PLE
+ 
++import MinimapOptions # advc.002a
++
+ # <advc.090>
+ import math
+ def floor(f):
+@@ -669,8 +671,8 @@ class CvMainInterface:
+ 		screen.addPanel( "MiniMapPanel", u"", u"", True, False, iMiniMapPanelX, iMiniMapPanelY, iMiniMapPanelWidth, iMiniMapPanelHeight, PanelStyles.PANEL_STYLE_STANDARD )
+ 		screen.setStyle( "MiniMapPanel", "Panel_Game_HudMap_Style" )
+ 		screen.hide( "MiniMapPanel" )
+-		self.initMinimap(screen) # advc
+-
++		MinimapOptions.init() # advc.002a: Let DLL cache minimap options
++		self.initMinimap(screen) # advc: Moved into new function
+ 		gc.getMap().updateMinimapColor()
+ 
+ 		self.createMinimapButtons()
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 55c92d802..0e1b119da 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -381,18 +381,6 @@
+         <iDefineIntVal>0</iDefineIntVal>
+     </Define>
+ 
+-	<!-- [advc.002a]
+-		 Determines the color of cultural borders of water tiles on the
+-		 minimap.
+-		 5 means that the tile is colored at 50% opactiy.
+-		 6 (recommended) is like 5 but doesn't show units on the minimap.
+-		 4 is the BtS behavior: full color.
+-		 3 leaves the tiles uncolored (as in Civ 3). -->
+-    <Define>
+-        <DefineName>MINIMAP_WATER_MODE</DefineName>
+-        <iDefineIntVal>6</iDefineIntVal>
+-    </Define>
+-
+ 	<!-- [advc.004f]
+ 		 City celebrations ("we-love-the-king day") trigger only in cities
+ 		 with at least this much population. The chance is population / 1000
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 5c72511c6..8b7d7c153 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -377,6 +377,58 @@
+ 		<Spanish>Automatic|Close|Medium|Far|Custom (XML)</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.002a: -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__MINIMAP_TEXT</Tag>
++		<English>Minimap</English>
++		<French>Minimap</French>
++		<German>Minimap</German>
++		<Italian>Minimap</Italian>
++		<Spanish>Minimap</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__MINIMAPWATERCOLOR_TEXT</Tag>
++		<English>Opacity on Water</English>
++		<French>Opacity on Water</French>
++		<German>Farbdeckung auf Wasser</German>
++		<Italian>Opacity on Water</Italian>
++		<Spanish>Opacity on Water</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__MINIMAPWATERCOLOR_HOVER</Tag>
++		<English>Opacity of civ colors on water tiles. This affects only the minimap on the main screen, not the one on the Military Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Same as the opacity on land tiles; like in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - More transparent than on land tiles; similar to the Military Advisor.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zero[COLOR_REVERT] - No civ colors on water tiles; like in Civ III.</English>
++		<French>Opacity of civ colors on water tiles. This affects only the minimap on the main screen, not the one on the Military Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Same as the opacity on land tiles; like in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - More transparent than on land tiles; similar to the Military Advisor.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zero[COLOR_REVERT] - No civ colors on water tiles; like in Civ III.</French>
++		<German>Deckkraft von Zivilisations-Farben auf Wasserfeldern. Betrifft nur die Mini-Karte auf dem Hauptbildschirm, nicht die auf dem Milit�rberater-Bildschirm.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Gleiche Opazit�t wie auf Landfeldern; so wie in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Mittel[COLOR_REVERT] - H�here Transparenz als auf Landfeldern; �hnlich wie im Milit�rberater.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Null[COLOR_REVERT] - Keine Farben auf Wasserfeldern; wie in Civ III.</German>
++		<Italian>Opacity of civ colors on water tiles. This affects only the minimap on the main screen, not the one on the Military Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Same as the opacity on land tiles; like in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - More transparent than on land tiles; similar to the Military Advisor.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zero[COLOR_REVERT] - No civ colors on water tiles; like in Civ III.</Italian>
++		<Spanish>Opacity of civ colors on water tiles. This affects only the minimap on the main screen, not the one on the Military Advisor screen.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Maximal[COLOR_REVERT] - Same as the opacity on land tiles; like in BtS.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Medium[COLOR_REVERT] - More transparent than on land tiles; similar to the Military Advisor.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zero[COLOR_REVERT] - No civ colors on water tiles; like in Civ III.</Spanish>
++	</TEXT>
++	<!-- (It's not truly "maximal", i.e. 100%,
++		 but I don't want to commit to numbers here.) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__MINIMAPWATERCOLOR_LIST</Tag>
++		<English>Maximal|Medium|Zero</English>
++		<French>Maximal|Medium|Zero</French>
++		<German>Maximal|Mittel|Null</German>
++		<Italian>Maximal|Medium|Zero</Italian>
++		<Spanish>Maximal|Medium|Zero</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__UNITSONMINIMAP_TEXT</Tag>
++		<English>Show Units</English>
++		<French>Show Units</French>
++		<German>Einheiten anzeigen</German>
++		<Italian>Show Units</Italian>
++		<Spanish>Show Units</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__UNITSONMINIMAP_HOVER</Tag>
++		<English>If checked, units outside their owners' borders are shown as colored blips on the main screen minimap.</English>
++		<French>If checked, units outside their owners' borders are shown as colored blips on the main screen minimap.</French>
++		<German>Zeigt Einheiten, die sich au�erhalb ihres Territoriums befinden, als Farbkleckse auf der Mini-Karte (Hauptbildschirm) an.</German>
++		<Italian>If checked, outside their owners' borders units are shown as colored blips on the main screen minimap.</Italian>
++		<Spanish>If checked, outside their owners' borders units are shown as colored blips on the main screen minimap.</Spanish>
++	</TEXT>
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__PROGRESSBARSTICKMARKS_TEXT</Tag>
+ 		<English>Tick Marks</English>
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 4695f06e1..9753029c1 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -434,7 +434,6 @@ public:
+ 		DO(OWN_EXCLUSIVE_RADIUS) /* advc.035 */ \
+ 		DO(ANNOUNCE_REPARATIONS) /* advc.039 */ \
+ 		DO(PER_PLAYER_MESSAGE_CONTROL_LOG) /* advc.007 */ \
+-		DO(MINIMAP_WATER_MODE) /* advc.002a */ \
+ 		DO(DELAY_UNTIL_BUILD_DECAY) /* advc.011 */ \
+ 		DO(DISENGAGE_LENGTH) /* advc.034 */ \
+ 		DO(AT_WAR_ATTITUDE_CHANGE) /* advc.130g */ \
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 3f33edcc1..8b31f803f 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -512,6 +512,34 @@ public: // advc: made several functions const
+ 			int iNumCustomMapOptions, CustomMapOptionTypes* eCustomMapOptions);
+ 	void updateReplayTexture(); // advc.106n
+ 	byte const* getReplayTexture() const; // advc.106n
++	/*	<advc.002a> Set through BUG options, but I worry that accessing those
++		while redrawing the minimap plot for plot would be too slow.
++		Let BUG cache the settings here whenever they change. */
++	class MinimapSettings : private boost::noncopyable
++	{
++	public:
++		MinimapSettings()
++		:	m_bShowUnits(false),
++			/*	Replacing STANDARD_MINIMAP_ALPHA in CvPlot.cpp,
++				which was 0.6f. */
++			m_fLandAlpha(0.75f),
++			m_fWaterAlpha(m_fLandAlpha)
++		{}
++		// All exposed to Python via CyMap
++		void setShowUnits(bool b) { m_bShowUnits = b; }
++		void setWaterAlpha(float f) { m_fWaterAlpha = f; }
++		void setLandAlpha(float f) { m_fLandAlpha = f; }
++		bool isShowUnits() const { return m_bShowUnits; }
++		float getWaterAlpha() const { return m_fWaterAlpha; }
++		float getLandAlpha() const { return m_fLandAlpha; }
++	private:
++		bool m_bShowUnits;
++		float m_fWaterAlpha;
++		float m_fLandAlpha;
++	};
++	MinimapSettings& getMinimapSettings() { return m_minimapSettings; }
++	MinimapSettings const& getMinimapSettings() const { return m_minimapSettings; }
++	// </advc.002a>
+ 
+ protected:
+ 
+@@ -534,6 +562,7 @@ protected:
+ 	std::map<Shelf::Id,Shelf*> shelves; // advc.300
+ 	FFreeListTrashArray<CvArea> m_areas;
+ 	std::vector<byte> m_replayTexture; // advc.106n
++	MinimapSettings m_minimapSettings; // advc.002a
+ 
+ 	void calculateAreas();
+ 	// <advc.030>
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index fcf5d1e4c..f3341bd63 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -25,7 +25,6 @@
+ 	conversions from larger to smaller int types but also float-to-int conversions. */
+ #pragma warning(disable: 244) // "type conversion: possible loss of data"
+ 
+-#define STANDARD_MINIMAP_ALPHA		(0.75f) // advc.002a: was 0.6
+ bool CvPlot::m_bAllFog = false; // advc.706
+ int CvPlot::m_iMaxVisibilityRangeCache; // advc.003h
+ #define NO_BUILD_IN_PROGRESS (-2) // advc.011
+@@ -588,12 +587,11 @@ void CvPlot::updateMinimapColor()
+ 	if (!GC.IsGraphicsInitialized())
+ 		return;
+ 	// <advc.002a>
+-	int const iMode = GC.getDefineINT(CvGlobals::MINIMAP_WATER_MODE);
+-	if(iMode == 3 && isWater())
+-		return; // </advc.002a>
++	CvMap::MinimapSettings const& kSettings = GC.getMap().getMinimapSettings();
++	float fAlpha = (isWater() ? kSettings.getWaterAlpha() : kSettings.getLandAlpha());
++	// </advc.002a>
+ 	gDLL->UI().setMinimapColor(MINIMAPMODE_TERRITORY, getX(), getY(),
+-			plotMinimapColor(), STANDARD_MINIMAP_ALPHA
+-			/ ((isWater() && iMode != 4) ? 2.3f : 1.f)); // advc.002a
++			plotMinimapColor(), fAlpha);
+ }
+ 
+ 
+@@ -6817,7 +6815,7 @@ ColorTypes CvPlot::plotMinimapColor()
+ 			return GC.getColorType("WHITE");
+ 
+ 		if (isActiveVisible(true) &&
+-			GC.getDefineINT(CvGlobals::MINIMAP_WATER_MODE) != 6) // advc.002a
++			GC.getMap().getMinimapSettings().isShowUnits()) // advc.002a
+ 		{
+ 			CvUnit* pCenterUnit = getDebugCenterUnit();
+ 			if (pCenterUnit != NULL)
+
+diff --git a/CvGameCoreDLL/CyMap.cpp b/CvGameCoreDLL/CyMap.cpp
+index 4eff4c474..bfb1d30ab 100644
+--- a/CvGameCoreDLL/CyMap.cpp
++++ b/CvGameCoreDLL/CyMap.cpp
+@@ -291,3 +291,34 @@ void CyMap::updateMinOriginalStartDist(CyArea* pArea)
+ {
+ 	m_kMap.updateMinOriginalStartDist(pArea->getArea());
+ }
++
++// <advc.002a>
++void CyMap::setMinimapShowUnits(bool b)
++{
++	m_kMap.getMinimapSettings().setShowUnits(b);
++}
++
++void CyMap::setMinimapWaterAlpha(float f)
++{
++	m_kMap.getMinimapSettings().setWaterAlpha(f);
++}
++
++void CyMap::setMinimapLandAlpha(float f)
++{
++	m_kMap.getMinimapSettings().setLandAlpha(f);
++}
++
++bool CyMap::isMinimapShowUnits()
++{
++	return m_kMap.getMinimapSettings().isShowUnits();
++}
++
++float CyMap::getMinimapWaterAlpha()
++{
++	return m_kMap.getMinimapSettings().getWaterAlpha();
++}
++
++float CyMap::getMinimapLandAlpha()
++{
++	return m_kMap.getMinimapSettings().getLandAlpha();
++} // </advc.002a>
+
+diff --git a/CvGameCoreDLL/CyMap.h b/CvGameCoreDLL/CyMap.h
+index bfb73b276..5fc0b92b6 100644
+--- a/CvGameCoreDLL/CyMap.h
++++ b/CvGameCoreDLL/CyMap.h
+@@ -85,6 +85,14 @@ public:
+ 	void updateFog();
+ 	void updateMinimapColor();
+ 	void updateMinOriginalStartDist(CyArea* pArea);
++	// <advc.002a>
++	void setMinimapShowUnits(bool b);
++	void setMinimapWaterAlpha(float f);
++	void setMinimapLandAlpha(float f);
++	bool isMinimapShowUnits();
++	float getMinimapWaterAlpha();
++	float getMinimapLandAlpha();
++	// </advc.002a>
+ 
+ 	// PYTHON HELPER FUNCTIONS
+ 	//int getNumPlayerOwnedPlots(int /*PlayerTypes*/ iPlayer);
+
+diff --git a/CvGameCoreDLL/CyMapInterface.cpp b/CvGameCoreDLL/CyMapInterface.cpp
+index 87bec82ba..87be86025 100644
+--- a/CvGameCoreDLL/CyMapInterface.cpp
++++ b/CvGameCoreDLL/CyMapInterface.cpp
+@@ -78,5 +78,13 @@ void CyMapPythonInterface()
+ 		.def("updateFog", &CyMap::updateFog, "void ()")
+ 		.def("updateMinimapColor", &CyMap::updateMinimapColor, "void ()")
+ 		.def("updateMinOriginalStartDist", &CyMap::updateMinOriginalStartDist, "void (CyArea* pArea)")
++		// <advc.002a>
++		.def("setMinimapShowUnits", &CyMap::setMinimapShowUnits, "void (bool)")
++		.def("setMinimapWaterAlpha", &CyMap::setMinimapWaterAlpha, "void (float)")
++		.def("setMinimapLandAlpha", &CyMap::setMinimapLandAlpha, "void (float)")
++		.def("isMinimapShowUnits", &CyMap::isMinimapShowUnits, "bool ()")
++		.def("getMinimapWaterAlpha", &CyMap::getMinimapWaterAlpha, "float ()")
++		.def("getMinimapLandAlpha", &CyMap::getMinimapLandAlpha, "float ()")
++		// </advc.002a>
+ 		;
+ }
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=15841

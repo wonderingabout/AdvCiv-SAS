@@ -1,0 +1,2924 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2843
+# Commit: e8bfef1ca5cd2c188c2ad01365760ed750a7b3bc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7257590b64a247ebcc016d51f1840046763d04fa
+# Title: Refactor combat odds calc, damage limit bugfix
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	Assets/XML/LeadFromBehind_GlobalDefines.xml
+655	0	CvGameCoreDLL/CombatOdds.cpp
+77	0	CvGameCoreDLL/CombatOdds.h
+13	0	CvGameCoreDLL/CvEventReporter.cpp
+5	0	CvGameCoreDLL/CvEventReporter.h
+0	576	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	5	CvGameCoreDLL/CvGameCoreUtils.h
+229	276	CvGameCoreDLL/CvGameTextMgr.cpp
+12	0	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+57	116	CvGameCoreDLL/CvUnit.cpp
+8	6	CvGameCoreDLL/CvUnit.h
+4	7	CvGameCoreDLL/CvUnitAI.cpp
+2	1	CvGameCoreDLL/CyGameCoreUtils.cpp
+1	1	CvGameCoreDLL/CyStructsInterface1.cpp
+2	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+ create mode 100644 CvGameCoreDLL/CombatOdds.cpp
+ create mode 100644 CvGameCoreDLL/CombatOdds.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/LeadFromBehind_GlobalDefines.xml b/Assets/XML/LeadFromBehind_GlobalDefines.xml
+index 9d64bb20d..b8d29c252 100644
+--- a/Assets/XML/LeadFromBehind_GlobalDefines.xml
++++ b/Assets/XML/LeadFromBehind_GlobalDefines.xml
+@@ -37,6 +37,10 @@
+ 		<DefineName>LFB_ADJUSTDENOMINATOR</DefineName>
+ 		<iDefineIntVal>6</iDefineIntVal>
+ 	</Define>
++	<!-- advc.003g: Disabling this option should ensure that no floating-point
++		 math gets used in synchronized odds calculations. That said, AdvCiv
++		 still uses floating-point math in plenty of AI code, so disabling
++		 LFB combat odds is unlikely to help against OOS errors. -->
+ 	<Define>
+ 		<DefineName>LFB_USECOMBATODDS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/CombatOdds.cpp b/CvGameCoreDLL/CombatOdds.cpp
+new file mode 100644
+index 000000000..0ef83e6b0
+--- /dev/null
++++ b/CvGameCoreDLL/CombatOdds.cpp
+@@ -0,0 +1,655 @@
++#include "CvGameCoreDLL.h"
++#include "CombatOdds.h"
++#include "CvUnit.h"
++
++// advc: Cut from CvGameCoreUtils.cpp
++
++using std::vector;
++using namespace combat_odds; // advc
++
++#ifdef FASSERT_ENABLE
++	/*	advc.test: Will verify all results of calculateCombatOdds through a
++		Monte Carlo simulation of the resolveCombat procedure. Slow. */
++	#define MONTE_CARLO_ODDS_TEST 0
++#else
++	#define MONTE_CARLO_ODDS_TEST 0
++#endif
++
++/*	Returns the number of combinations of k draws out of a population of n
++	Written by DeepO
++	Modified by Jason Winokur to keep the intermediate factorials small */
++__int64 getBinomialCoefficient(int iN, int iK)
++{
++	__int64 iTemp = 1;
++	//take advantage of symmetry in combination, eg. 15C12 = 15C3
++	iK = std::min(iK, iN - iK);
++	//eg. 15C3 = (15 * 14 * 13) / (1 * 2 * 3) = 15 / 1 * 14 / 2 * 13 / 3 = 455
++	for(int i = 1; i <= iK; i++)
++		iTemp = (iTemp * (iN - i + 1)) / i;
++	FAssert(iTemp <= MAX_INT); // advc: was <
++	return iTemp;
++}
++
++namespace
++{
++/*	advc: Cut from getCombatOdds. See wrapper setupCombatants about the return value.
++	For bFORCE_INIT=true, there is no meaningful return value.
++	(The template param instead of a call param is just for performance.
++	Probably shouldn't have concerned myself with that ...) */
++template<bool bFORCE_INIT>
++int setupCombatantsImpl(CvUnit const& kAttacker, CvUnit const& kDefender,
++	Combatant& att, Combatant& def)
++{
++	// Needs to match CvUnit::getDefenderCombatValues, getCombatFirstStrikes.
++	{
++		att.setStrength(kAttacker.currCombatStr());
++		def.setStrength(kDefender.currCombatStr(kDefender.plot(), &kAttacker));
++		FAssert(att.strength() > 0 || def.strength() > 0);
++		def.setOdds((GC.getCOMBAT_DIE_SIDES() * def.strength()) /
++				(att.strength() + def.strength()));
++	}
++	att.setOdds(GC.getCOMBAT_DIE_SIDES() - def.odds());
++	if (!bFORCE_INIT)
++	{
++		if (att.odds() == 0)
++			return 0;
++		if (def.odds() == 0)
++			return 1000;
++	}
++	{
++		int iAttFirepower = kAttacker.currFirepower();
++		int iDefFirepower = kDefender.currFirepower(kDefender.plot(), &kAttacker);
++		FAssert(iAttFirepower > 0 && iDefFirepower > 0);
++		int iMeanFirepower = (iAttFirepower + iDefFirepower + 1) / 2;
++		// Damage inflicted per hit
++		att.setDamagePerRound(std::max(1,
++				((GC.getCOMBAT_DAMAGE() * (iAttFirepower + iMeanFirepower)) /
++				(iDefFirepower + iMeanFirepower))));
++		def.setDamagePerRound(std::max(1,
++				((GC.getCOMBAT_DAMAGE() * (iDefFirepower + iMeanFirepower)) /
++				(iAttFirepower + iMeanFirepower))));
++		// Needed rounds = round_up(health/damage)
++		int iDefHitLimit = kDefender.maxHitPoints() - kAttacker.combatLimit();
++		/*	advc.001l: Cut from CvGameTextMgr::setACOPlotHelp,
++			replaced with code that I think is equivalent (iDefLimit),
++			then commented that out too b/c I'm addressing this bug
++			through CvUnit::resolveCombat instead. */
++		/*int const iNeededRoundsAttacker = 1 + (pDefender->currHitPoints() -
++				pDefender->maxHitPoints() + pAttacker->combatLimit() -
++				(pAttacker->combatLimit() == pDefender->maxHitPoints() ? 1 : 0)) /
++				iDamageToDefender;*/
++		/*if (iDefHitLimit > 0)
++			iDefHitLimit--;*/
++		att.setHitsToWin(intdiv::uceil(std::max(0,
++				kDefender.currHitPoints() - iDefHitLimit), att.damagePerRound()));
++		def.setHitsToWin(intdiv::uceil(
++				kAttacker.currHitPoints(), def.damagePerRound()));
++		// <advc>
++		if (!bFORCE_INIT)
++		{
++			// (moved -incl. comments- from LFBgetCombatOdds)
++			/*	Essentially, this means we're attacking with a siege engine
++				and the defender is already at or below the max combat limit
++				We're not allowed to attack regardless, since we can't do any damage -
++				just return 100% */
++			if (att.hitsToWin() == 0)
++				return 1000;
++			/*	Because the best defender code calls us from the defender's perspective,
++				we also need to check 'defender' rounds zero */
++			/*if (def.hitsToWin() == 0)
++				return 0;*/
++		}
++		FAssert(def.hitsToWin() > 0); // Not doing that perspective thing anymore
++		// </advc>
++	}
++	if (!kDefender.immuneToFirstStrikes())
++		att.setFirstStrikes(kAttacker.firstStrikes(), kAttacker.chanceFirstStrikes());
++	if (!kAttacker.immuneToFirstStrikes())
++		def.setFirstStrikes(kDefender.firstStrikes(), kDefender.chanceFirstStrikes());
++
++	return (bFORCE_INIT ? 0 : -1); // No valid combat odds computed yet
++}
++
++/*	Returns combat odds of 0 or 1000 permille if those odds are immediately implied
++	by the per-round odds; -1 otherwise. Not guaranteed to fully initialize
++	the combatants (it's assumed that the caller won't need them when the
++	odds are trivial). */
++int setupCombatants(CvUnit const& kAttacker, CvUnit const& kDefender,
++	Combatant& att, Combatant& def)
++{
++	return setupCombatantsImpl<false>(kAttacker, kDefender, att, def);
++}
++
++float fBinomial(int iN, int iK) // advc: for convenience
++{
++	return static_cast<float>(getBinomialCoefficient(iN, iK));
++}
++/*	advc.003g: Fixme -- Lead From Behind uses calculateCombatOdds in (synchronized)
++	AI code, therefore, iBinomial should be used instead of fBinomial. Comments say
++	that "this needs to be in floating point math", but it's only a matter of
++	rounding errors. ScaledNum should handle that well enough at least for the AI.
++	(Could continue using float for UI output.) */
++int iBinomial(int iN, int iK)
++{
++	return static_cast<int>(getBinomialCoefficient(iN, iK));
++}
++
++// Lead From Behind by UncutDragon (start)
++typedef vector<int> LFBoddsAttOdds;
++typedef vector<LFBoddsAttOdds> LFBoddsDefRounds;
++typedef vector<LFBoddsDefRounds> LFBoddsAttRounds;
++typedef vector<LFBoddsAttRounds> LFBoddsFirstStrike;
++LFBoddsFirstStrike pOddsCacheFSPos;
++LFBoddsFirstStrike pOddsCacheFSNeg;
++int const LFB_ODDS_INTERVAL_SIZE = 16;
++int const LFB_ODDS_EXTRA_ACCURACY = 32;
++
++/*	Perform the actual odds calculation (basically identical to the default algorithm
++	except that we retain a little more accuracy) */
++int LFBcalculateCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker,
++	int iNeededRoundsDefender, int iAttackerOdds)
++{
++	int iMaxRounds = iNeededRoundsAttacker + iNeededRoundsDefender - 1;
++	int iOdds = 0;
++	// <advc.opt>
++	float const fAttHitProb = iAttackerOdds / (float)GC.getCOMBAT_DIE_SIDES();
++	float const fDefHitProb = 1 - fAttHitProb; // </advc.opt>
++	/*	This part is basically the inside of the outer two loops
++		at the end of the standard getCombatOdds */
++	if (iFirstStrikes > 0)
++	{
++		int const iAttFS = iFirstStrikes; // advc
++		// Attacker gets more or equal first strikes than defender
++		/*	For every possible first strike getting hit, calculate both
++			the chance of that event happening, as well as the rest of
++			the chance assuming the event has happened. Multiply these
++			together to get the total chance (Bayes rule).
++			iI3 counts the number of successful first strikes */
++		for (int iI3 = 0; iI3 < iAttFS + 1; iI3++)
++		{
++			// event: iI3 first strikes hit the defender
++			/*	calculate chance of iI3 first strikes hitting: fOddsEvent
++				f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
++				this needs to be in floating point math */
++			float fOddsEvent = fBinomial(iAttFS, iI3) *
++					std::pow(fAttHitProb, iI3) *
++					std::pow(fDefHitProb, iAttFS - iI3);
++			// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
++			float fOddsAfterEvent = 0;
++			if (iI3 >= iNeededRoundsAttacker)
++				fOddsAfterEvent = 1;
++			else
++			{
++				/*	odds for _at_least_ (iNeededRoundsAttacker - iI3) (the remaining hits
++					the attacker needs to make) out of (iMaxRounds - iI3) (the left over
++					rounds) is the sum of each _exact_ draw */
++				for (int iI4 = iNeededRoundsAttacker - iI3; iI4 < iMaxRounds - iI3 + 1; iI4++)
++				{
++					/*	odds of exactly iI4 out of (iMaxRounds - iI3) draws.
++						f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
++						this needs to be in floating point math */
++					fOddsAfterEvent += fBinomial((iMaxRounds - iI3), iI4) *
++							std::pow(fAttHitProb, iI4) *
++							std::pow(fDefHitProb, (iMaxRounds - iI3) - iI4);
++				}
++			}
++			/*	Multiply these together, round them properly, and add
++				the result to the total iOdds */
++			iOdds += (int)((1000 * fOddsEvent * fOddsAfterEvent *
++					LFB_ODDS_EXTRA_ACCURACY) + 0.5f);
++		}
++	}
++	else
++	{
++		// Attacker gets fewer first strikes than defender
++		int const iDefFS = -iFirstStrikes; // advc
++		/*	For every possible first strike getting hit, calculate both
++			the chance of that event happening, as well as the rest of
++			the chance assuming the event has happened. Multiply these
++			together to get the total chance (Bayes rule).
++			iI3 counts the number of successful first strikes */
++		for (int iI3 = 0; iI3 < iDefFS + 1; iI3++)
++		{
++			// event: iI3 first strikes hit the defender
++			/*	First of all, check if the attacker is still alive.
++				Otherwise, no further calculations need to occur */
++			if (iI3 < iNeededRoundsDefender)
++			{
++				/*	calculate chance of iI3 first strikes hitting: fOddsEvent
++					f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
++					this needs to be in floating point math */
++				float fOddsEvent = fBinomial(iDefFS, iI3) *
++						std::pow(fDefHitProb, iI3) *
++						std::pow(fAttHitProb, iDefFS - iI3);
++				// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
++				float fOddsAfterEvent = 0;
++				/*	odds for _at_least_ iNeededRoundsAttacker (the remaining hits
++					the attacker needs to make) out of (iMaxRounds - iI3) (the left over
++					rounds) is the sum of each _exact_ draw */
++				for (int iI4 = iNeededRoundsAttacker; iI4 < iMaxRounds - iI3 + 1; iI4++)
++				{
++					/*	odds of exactly iI4 out of (iMaxRounds - iI3) draws.
++						f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
++						this needs to be in floating point math */
++					fOddsAfterEvent += fBinomial(iMaxRounds - iI3, iI4) *
++							std::pow(fAttHitProb, iI4) *
++							std::pow(fDefHitProb, (iMaxRounds - iI3) - iI4);
++				}
++				/*	Multiply these together, round them properly, and add
++					the result to the total iOdds */
++				iOdds += (int)((1000 * fOddsEvent * fOddsAfterEvent *
++						LFB_ODDS_EXTRA_ACCURACY) + 0.5f);
++			}
++		}
++	}
++	return iOdds;
++}
++
++
++int LFBlookupCombatOdds(LFBoddsAttOdds* pOdds, int iOddsIndex, int iFirstStrikes,
++	int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
++{
++	// Index==0 => AttackerOdds==0 => no chance to win
++	if (iOddsIndex == 0)
++		return 0;
++	/*	We don't store all possible indices, just what we need/use.
++		So use position 0 to keep track of what index we start with */
++	int iFirstIndex = iOddsIndex;
++	if (pOdds->empty())
++		pOdds->push_back(iFirstIndex);
++	else iFirstIndex = (*pOdds)[0];
++	int iRealIndex = iOddsIndex - iFirstIndex + 1;
++	int iNotComputed = -1;
++	// Index is before the start of our array
++	int iInsert = -iRealIndex + 1;
++	if (iInsert > 0)
++	{
++		pOdds->insert(pOdds->begin() + 1, iInsert, iNotComputed);
++		iFirstIndex -= iInsert;
++		iRealIndex = 1;
++		(*pOdds)[0] = iFirstIndex;
++	}
++	// Index is past the end of our array
++	iInsert = iRealIndex - (int)pOdds->size() + 1;
++	if (iInsert > 0)
++		pOdds->insert(pOdds->end(), iInsert, iNotComputed);
++	// Retrieve the odds from the array
++	int iOdds = (*pOdds)[iRealIndex];
++	// Odds aren't cached yet - need to actually calculate them
++	if (iOdds == iNotComputed)
++	{
++		iOdds = LFBcalculateCombatOdds(iFirstStrikes, iNeededRoundsAttacker,
++				iNeededRoundsDefender, iAttackerOdds);
++		(*pOdds)[iRealIndex] = iOdds;
++	}
++
++	return iOdds;
++}
++
++
++int LFBlookupCombatOdds(LFBoddsFirstStrike* pOdds, int iFSIndex, int iFirstStrikes,
++	int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
++{
++	// Grow the arrays as needed
++	// First dimension is the first strikes
++	int iInsert = iFSIndex - (int)pOdds->size() + 1;
++	if (iInsert > 0)
++	{
++		LFBoddsAttRounds pAdd;
++		pOdds->insert(pOdds->end(), iInsert, pAdd);
++	}
++	// Second dimension is the attacker rounds (starting at 1)
++	LFBoddsAttRounds* pAttRounds = &((*pOdds)[iFSIndex]);
++	iInsert = iNeededRoundsAttacker - (int)pAttRounds->size();
++	if (iInsert > 0)
++	{
++		LFBoddsDefRounds pAdd;
++		pAttRounds->insert(pAttRounds->end(), iInsert, pAdd);
++	}
++	// Third dimension is the defender rounds (starting at 1)
++	LFBoddsDefRounds* pDefRounds = &((*pAttRounds)[iNeededRoundsAttacker-1]);
++	iInsert = iNeededRoundsDefender - (int)pDefRounds->size();
++	if (iInsert > 0)
++	{
++		LFBoddsAttOdds pAdd;
++		pDefRounds->insert(pDefRounds->end(), iInsert, pAdd);
++	}
++	// Fourth (last) dimension is the odds index (odds/16)
++	LFBoddsAttOdds* pAttOdds = &((*pDefRounds)[iNeededRoundsDefender-1]);
++	// Round down to the nearest interval
++	int iMinOddsIndex = iAttackerOdds / LFB_ODDS_INTERVAL_SIZE;
++	int iMinOddsValue = iMinOddsIndex * LFB_ODDS_INTERVAL_SIZE;
++	// Lookup the odds for the rounded down value
++	int iOdds = LFBlookupCombatOdds(pAttOdds, iMinOddsIndex, iFirstStrikes,
++			iNeededRoundsAttacker, iNeededRoundsDefender, iMinOddsValue);
++	// If we happened to hit an interval exactly, we're done
++	if (iMinOddsValue < iAttackerOdds)
++	{
++		/*	'Round up' to the nearest interval - we don't actually need to compute it,
++			we know it's one more than the rounded down interval */
++		int iMaxOddsIndex = iMinOddsIndex + 1;
++		int iMaxOddsValue = iMinOddsValue + LFB_ODDS_INTERVAL_SIZE;
++		// Lookup the odds for the rounded up value
++		int iMaxOdds = LFBlookupCombatOdds(pAttOdds, iMaxOddsIndex, iFirstStrikes,
++				iNeededRoundsAttacker, iNeededRoundsDefender, iMaxOddsValue);
++		// Do a simple weighted average on the two odds
++		iOdds += ROUND_DIVIDE( // K-Mod: rounded rather than truncated
++				(iAttackerOdds - iMinOddsValue) * (iMaxOdds - iOdds),
++				LFB_ODDS_INTERVAL_SIZE);
++	}
++	return iOdds;
++}
++
++// lookup the combat odds in the cache for a specific sub-result
++int LFBlookupCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker,
++	int iNeededRoundsDefender, int iAttackerOdds)
++{
++	int iOdds = 0;
++	/*	We actually maintain two caches - one for positive first strikes (plus zero)
++		and one for negative.
++		This just makes the indices (and growing the array as needed) easy */
++	if (iFirstStrikes < 0)
++	{
++		iOdds = LFBlookupCombatOdds(&pOddsCacheFSNeg, (-iFirstStrikes) - 1, iFirstStrikes,
++				iNeededRoundsAttacker, iNeededRoundsDefender, iAttackerOdds);
++	}
++	else
++	{
++		iOdds = LFBlookupCombatOdds(&pOddsCacheFSPos, iFirstStrikes, iFirstStrikes,
++				iNeededRoundsAttacker, iNeededRoundsDefender, iAttackerOdds);
++	}
++	return iOdds;
++}
++
++/*	gets the combat odds using precomputed attacker/defender values
++	[advc: Now stored in objects] instead of unit pointers */
++int LFBcalculateCombatOdds(Combatant const& att, Combatant const& def)
++{
++	// (advc: 0-hitsToWin checks moved into setupCombatants)
++
++	int iOdds = 0;
++	/*	If attacker has better than even chance to hit, we just flip it
++		and calculate defender's chance to win.
++		This reduces how much we cache considerably (by half just from the fact
++		that we're only dealing with half the odds - but additionally,
++		iNeededRounds'Defender' is guaranteed to stay low -
++		at most 5 with standard settings). */
++	bool const bFlip = (att.odds() > def.odds());
++	/*	This is basically the two outside loops at the end of BtS's getCombatOdds
++		We just call our cache lookup in the middle (flipped if necessary)
++		instead of the actual computation */
++	for (int i = att.lowFS(); i < att.highFS() + 1; i++)
++	{
++		for (int j = def.lowFS(); j < def.highFS() + 1; j++)
++		{
++			int iFirstStrikes = i - j;
++			if (bFlip)
++			{
++				iOdds += LFBlookupCombatOdds(-iFirstStrikes, def.hitsToWin(),
++						att.hitsToWin(), def.odds());
++			}
++			else
++			{
++				iOdds += LFBlookupCombatOdds(iFirstStrikes, att.hitsToWin(),
++						def.hitsToWin(), att.odds());
++			}
++		}
++	}
++	/*	Odds are a straight average of all the FS combinations
++		(since all are equally possible) */
++	iOdds /= (att.FSChances() + 1) * (def.FSChances() + 1);
++	// Now that we have the final odds, we can remove the extra accuracy
++	iOdds = ROUND_DIVIDE(iOdds, LFB_ODDS_EXTRA_ACCURACY);
++	// If we flipped the perspective in the computation/lookup, need to flip it back now.
++	if (bFlip)
++		iOdds = 1000 - iOdds;
++	return iOdds;
++}
++// Lead From Behind by UncutDragon (end)
++
++/*	advc: Cut from getCombatOdds (probably to be deleted -
++	I don't think the LFB changes need to be optional) */
++int calculateCombatOddsLegacy(Combatant const& att, Combatant const& def)
++{
++	int iOdds = 0;
++	int const iMaxRounds = att.hitsToWin() + def.hitsToWin() - 1;
++	/*	For every possible first strike event, calculate the odds of combat.
++		Then, add these to the total, weighted by the chance of that first
++		strike event occurring */
++	// advc.opt>
++	float const fAttHitProb = att.odds() / (float)GC.getCOMBAT_DIE_SIDES();
++	float const fDefHitProb = 1 - fAttHitProb; // </advc.opt>
++	for (int iI1 = att.lowFS(); iI1 < att.highFS() + 1; iI1++)
++	{
++		for (int iI2 = def.lowFS(); iI2 < def.highFS() + 1; iI2++)
++		{
++			// for every possible combination of fs results, calculate the chance
++			if (iI1 >= iI2)
++			{
++				// Attacker gets more or equal first strikes than defender
++				int const iAttFS = iI1 - iI2;
++				/*	For every possible first strike getting hit, calculate both
++					the chance of that event happening, as well as the rest of
++					the chance assuming the event has happened. Multiply these
++					together to get the total chance (Bayes rule).
++					iI3 counts the number of successful first strikes */
++				for (int iI3 = 0; iI3 < iAttFS + 1; iI3++)
++				{
++					// event: iI3 first strikes hit the defender
++					/*	calculate chance of iI3 first strikes hitting: fOddsEvent
++						f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
++						this needs to be in floating point math */
++					float fOddsEvent = fBinomial(iAttFS, iI3) *
++							std::pow(fAttHitProb, iI3) *
++							std::pow(fDefHitProb, iAttFS - iI3);
++					// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
++					float fOddsAfterEvent = 0;
++					if (iI3 >= att.hitsToWin())
++						fOddsAfterEvent = 1;
++					else
++					{
++						/*	odds for _at_least_ (iNeededRoundsAttacker - iI3)
++							(the remaining hits the attacker needs to make) out of
++							(iMaxRounds - iI3) (the left over rounds) is the sum of
++							each _exact_ draw */
++						for (int iI4 = att.hitsToWin() - iI3;
++							iI4 < iMaxRounds - iI3 + 1; iI4++)
++						{
++							/*	odds of exactly iI4 out of (iMaxRounds - iI3) draws.
++								f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
++								this needs to be in floating point math */
++							fOddsAfterEvent +=
++									fBinomial((iMaxRounds - iI3), iI4) *
++									std::pow(fAttHitProb, iI4) *
++									std::pow(fDefHitProb, (iMaxRounds - iI3) - iI4);
++						}
++					}
++					/*	Multiply these together, round them properly, and add
++						the result to the total iOdds */
++					iOdds += (int)(1000 * fOddsEvent * fOddsAfterEvent + 0.5f);
++				}
++			}
++			else // (iI1 < iI2)
++			{
++				// Attacker gets fewer first strikes than defender
++				int const iDefFS = iI2 - iI1;
++
++				/*	For every possible first strike getting hit, calculate both
++					the chance of that event happening, as well as the rest of
++					the chance assuming the event has happened. Multiply these
++					together to get the total chance (Bayes rule).
++					iI3 counts the number of successful first strikes */
++				for (int iI3 = 0; iI3 < iDefFS + 1; iI3++)
++				{
++					// event: iI3 first strikes hit the defender
++					/*	First of all, check if the attacker is still alive.
++						Otherwise, no further calculations need to occur */
++					if (iI3 < def.hitsToWin())
++					{
++						/*	calculate chance of iI3 first strikes hitting: fOddsEvent
++							f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
++							this needs to be in floating point math */
++						float fOddsEvent = fBinomial(iDefFS, iI3) *
++								std::pow(fDefHitProb, iI3) *
++								std::pow(fAttHitProb, iDefFS - iI3);
++						// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
++						float fOddsAfterEvent = 0;
++						/*	odds for _at_least_ att.hitsToWin()
++							(the remaining hits the attacker needs to make) out of
++							(iMaxRounds - iI3) (the left over rounds)
++							is the sum of each _exact_ draw */
++						for (int iI4 = att.hitsToWin(); iI4 < iMaxRounds - iI3 + 1; iI4++)
++						{
++							/*	odds of exactly iI4 out of (iMaxRounds - iI3) draws.
++								f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
++								this needs to be in floating point math */
++							fOddsAfterEvent +=
++									fBinomial(iMaxRounds - iI3, iI4) *
++									std::pow(fAttHitProb, iI4) *
++									std::pow(fDefHitProb, iMaxRounds - iI3 - iI4);
++						}
++
++						/*	Multiply these together, round them properly
++							and add the result to the total iOdds */
++						iOdds += (int)(1000 * fOddsEvent * fOddsAfterEvent + 0.5f);
++					}
++				}
++			}
++		}
++	}
++	// Weigh the total to the number of possible combinations of first strikes events
++	return ROUND_DIVIDE(iOdds, (att.FSChances() + 1) * (def.FSChances() + 1));
++}
++
++// advc.test:
++#if MONTE_CARLO_ODDS_TEST
++/*	Based on CvUnit::resolveCombat, setCombatFirstStrikes
++	(ignoring withdrawal chance; not ignoring damage limit).
++	Returns true if the attacker wins. Reaching its damage limit counts as a win. */
++bool simulateCombat(CvUnit const& kAttacker, CvUnit const& kDefender)
++{
++	// Odds of defender destroying attacker, per-round damage to(!) attacker, to defender.
++	int iDefenderOdds=0, iAttackerDamage=0, iDefenderDamage=0;
++	{
++		int iDefenderStrength=0;
++		kAttacker.getDefenderCombatValues(kDefender, kDefender.plot(),
++				kAttacker.currCombatStr(), 
++				kAttacker.currFirepower(),
++				iDefenderOdds, iDefenderStrength,
++				iAttackerDamage, iDefenderDamage);
++	}
++	int iAttackerTotalDamage = kAttacker.getDamage();
++	int iDefenderTotalDamage = kDefender.getDamage();
++	int iAttackerTotalCombatFS = (kDefender.immuneToFirstStrikes() ? 0 :
++			(kAttacker.firstStrikes() + GC.getASyncRand().get(
++			kAttacker.chanceFirstStrikes() + 1, "First Strike Sim Att")));
++	int iDefenderTotalCombatFS = (kAttacker.immuneToFirstStrikes() ? 0 :
++			(kDefender.firstStrikes() + GC.getASyncRand().get(
++			kDefender.chanceFirstStrikes() + 1, "First Strike Sim Def")));
++	while (iAttackerTotalDamage < kAttacker.maxHitPoints() &&
++		iDefenderTotalDamage < kDefender.maxHitPoints())
++	{
++		if (GC.getASyncRand().get(
++			GC.getCOMBAT_DIE_SIDES(), "Combat Roll Sim") < iDefenderOdds)
++		{
++			if (iAttackerTotalCombatFS == 0)
++				iAttackerTotalDamage += iAttackerDamage;
++		}
++		else
++		{
++			if (iDefenderTotalCombatFS == 0)
++			{
++				if (std::min(GC.getMAX_HIT_POINTS() - 1, // (advc.001l: see resolveCombat)
++					iDefenderTotalDamage + iDefenderDamage) >= kAttacker.combatLimit())
++				{
++					iDefenderTotalDamage = kAttacker.combatLimit();
++					break;
++				}
++				iDefenderTotalDamage += iDefenderDamage;
++			}
++		}
++		if (iAttackerTotalCombatFS > 0)
++			iAttackerTotalCombatFS--;
++		if (iDefenderTotalCombatFS > 0)
++			iDefenderTotalCombatFS--;
++	}
++	return (iAttackerTotalDamage < kAttacker.maxHitPoints());
++}
++
++// Estimates the attacker's victory (cf. simulateCombat) odds at permille precision
++int estimateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender, int iSamples)
++{
++	FAssert(iSamples > 0);
++	int iWins = 0;
++	for (int i = 0; i < iSamples; i++)
++	{
++		if (simulateCombat(kAttacker, kDefender))
++			iWins++;
++	}
++	return ROUND_DIVIDE(iWins * 1000, iSamples);
++}
++#endif // MONTE_CARLO_ODDS_TEST
++} // (end of unnamed namespace)
++
++// Unlike setupCombatants, this is guaranteed to initialize the combatants.
++void combat_odds::initCombatants(CvUnit const& kAttacker, CvUnit const& kDefender,
++	Combatant& att, Combatant& def)
++{
++	setupCombatantsImpl<true>(kAttacker, kDefender, att, def);
++}
++
++/*	advc: Replacement I wrote for CvUnit::LFBgetDefenderCombatOdds, which used to be
++	called from CvUnit::LFBgetDefenderOdds. Computes the victory odds of the defender.
++	But it turns out that we can just use 1000 minus calculateCombatOdds insetad.
++	The results can differ by 1 point, but I'm not sure which is more correct, and
++	defender odds aren't even shown by the UI. */
++/*int LFBcalculateDefenderCombatOdds(CvUnit const& kDefender, CvUnit const& kAttacker) {
++	Combatant att, def;
++	int iOdds = setupCombatants(kAttacker, kDefender, att, def);
++	// Here's where we invert stuff
++	if (iOdds >= 0)
++		iOdds = 1000 - iOdds;
++	else iOdds = LFBcalculateCombatOdds(def, att);
++	#ifdef FASSERT_ENABLE
++		int iAltOdds = 1000 - calculateCombatOdds(kAttacker, kDefender);
++		FAssert(abs(iOdds - iAltOdds) <=
++				(iOdds == 0 || iAltOdds == 0 || iOdds == 1000 || iAltOdds==1000 ? 0 : 1));
++	#endif
++	return iOdds;
++}*/
++
++/*	Calculates combat odds, given two units
++	Returns value from 0-1000
++	Written by DeepO (advc: gutted) */
++int calculateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender)
++{
++	PROFILE_FUNC(); // advc: OK - not called all that frequently.
++	// setup battle, calculate strengths and odds
++	Combatant att, def;
++	// Odds for trivial cases get computed during setup
++	int iOdds = setupCombatants(kAttacker, kDefender, att, def);
++	if (iOdds < 0)
++	{
++		// UncutDragon
++		if (GC.getDefineBOOL(CvGlobals::LFB_ENABLE))
++			iOdds = LFBcalculateCombatOdds(att, def);
++		// /UncutDragon
++		// advc: Move this into a subroutine too
++		else iOdds = calculateCombatOddsLegacy(att, def);
++	}
++	#if MONTE_CARLO_ODDS_TEST // advc.test
++	int iEstimate=0; // To allow inspection in debugger
++	FAssert(abs(iOdds - (iEstimate = estimateCombatOdds(kAttacker, kDefender, 500000))) <= 2 ||
++			// On fail, run calculation again, just so that we can immediately step into it.
++			(setupCombatants(kAttacker, kDefender, att, def) < 0 &&
++			(GC.getDefineBOOL(CvGlobals::LFB_ENABLE) ?
++			LFBcalculateCombatOdds(att, def) :
++			calculateCombatOddsLegacy(att, def)) < 0)); // Not going to be true
++	// While we're at it: also verify that the BtS and LFB calculations are consistent
++	int iOtherMethod=0;
++	FAssert(abs(iOdds - (iOtherMethod = (GC.getDefineBOOL(CvGlobals::LFB_ENABLE) ?
++			calculateCombatOddsLegacy(att, def) :
++			LFBcalculateCombatOdds(att, def)))) <= 2);
++	#endif
++	return iOdds;
++}
+
+diff --git a/CvGameCoreDLL/CombatOdds.h b/CvGameCoreDLL/CombatOdds.h
+new file mode 100644
+index 000000000..34ccb076d
+--- /dev/null
++++ b/CvGameCoreDLL/CombatOdds.h
+@@ -0,0 +1,77 @@
++#pragma once
++
++#ifndef COMBAT_ODDS_H
++#define COMBAT_ODDS_H
++
++// advc: Cut from CvGameCoreUtils.h
++
++class CvUnit;
++
++// advc: Renamed from "getCombatOdds"
++int calculateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender); // Exposed to Python
++
++// <advc>
++namespace combat_odds
++{
++class Combatant;
++void initCombatants(CvUnit const& kAttacker, CvUnit const& kDefender,
++		Combatant& att, Combatant& def);
++class Combatant // Replacing local iAttacker..., iDefender... variables
++{
++public:
++	Combatant()
++	:	m_iOdds(0), m_iHitsToWin(0), m_iCertainFS(0), m_iFSChances(0),
++		m_iStrength(0), m_iDamagePerRound(0)
++	{} // Will need both combatants for proper initilization (use initCombatants)
++	inline void setOdds(int iOdds)
++	{
++		FAssert(iOdds >= 0);
++		m_iOdds = iOdds;
++	}
++	inline void setHitsToWin(int iHitsToWin)
++	{
++		m_iHitsToWin = iHitsToWin;
++	}
++	// (advc: Moved this comment from BtS's getCombatOdds)
++	// the integer math breaks down when #FS > 656 (with a die size of 1000)
++	inline void setFirstStrikes(int iCertainFS, int iFSChances)
++	{
++		m_iCertainFS = iCertainFS;
++		m_iFSChances = iFSChances;
++	}
++	void setStrength(int iStrength)
++	{
++		m_iStrength = iStrength;
++	}
++	void setDamagePerRound(int iDamagePerRound)
++	{
++		m_iDamagePerRound = iDamagePerRound;
++	}
++	// Per-round odds of landing a hit
++	inline int odds() const { return m_iOdds; }
++	// Hits that this combatant needs to land for victory
++	inline int hitsToWin() const { return m_iHitsToWin; }
++	// First-strike chances (not including guaranteed first strikes)
++	inline int FSChances() const { return m_iFSChances; }
++	// Guaranteed number of first strikes
++	inline int lowFS() const { return m_iCertainFS; }
++	// Maximally lucky number of first strikes
++	inline int highFS() const { return m_iCertainFS + m_iFSChances; }
++	// Current combat strength (not: firepower); needed by ACO.
++	inline int strength() const { return m_iStrength; }
++	// Damage that this combatant deals upon landing a hit
++	inline int damagePerRound() const { return m_iDamagePerRound; }
++private:
++	int m_iOdds;
++	int m_iHitsToWin;
++	// Replacing m_iLowFS, m_iHighFS
++	int m_iCertainFS;
++	int m_iFSChances;
++	int m_iStrength;
++	int m_iDamagePerRound;
++};
++} // </advc>
++
++__int64 getBinomialCoefficient(int iN, int iK);
++
++#endif
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index c0f22a2b6..3198682d8 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -2,6 +2,7 @@
+ #include "CvEventReporter.h"
+ #include "CvGame.h"
+ #include "CvPlayer.h"
++#include "CvDLLPythonIFaceBase.h" // advc
+ 
+ //
+ // static, singleton accessor
+@@ -121,6 +122,18 @@ void CvEventReporter::combatResult(CvUnit* pWinner, CvUnit* pLoser)
+ 	m_kPythonEventMgr.reportCombatResult(pWinner, pLoser);
+ }
+ 
++// advc: Cut from CvUnit::resolveCombat
++void CvEventReporter::combatLogHit(CombatDetails const& kAttackerDetails,
++	CombatDetails const& kDefenderDetails, int iDamage, bool bAttackerTakesHit)
++{
++	CyArgsList pyArgs;
++	pyArgs.add(gDLL->getPythonIFace()->makePythonObject(&kAttackerDetails));
++	pyArgs.add(gDLL->getPythonIFace()->makePythonObject(&kDefenderDetails));
++	pyArgs.add(bAttackerTakesHit ? 1 : 0);
++	pyArgs.add(iDamage);
++	genericEvent("combatLogHit", pyArgs.makeFunctionArgs());
++}
++
+ void CvEventReporter::improvementBuilt(int iImprovementType, int iX, int iY)
+ {
+ 	m_kPythonEventMgr.reportImprovementBuilt(iImprovementType, iX, iY);
+
+diff --git a/CvGameCoreDLL/CvEventReporter.h b/CvGameCoreDLL/CvEventReporter.h
+index 9970fc110..cdce81122 100644
+--- a/CvGameCoreDLL/CvEventReporter.h
++++ b/CvGameCoreDLL/CvEventReporter.h
+@@ -18,6 +18,7 @@ class CvUnit;
+ class CvCity;
+ class CvPlot;
+ class CvSelectionGroup;
++struct CombatDetails; // advc
+ 
+ class CvEventReporter
+ {
+@@ -55,6 +56,10 @@ public:
+ 
+ 	void firstContact(TeamTypes eTeamID1, TeamTypes eTeamID2);
+ 	void combatResult(CvUnit* pWinner, CvUnit* pLoser);
++	// advc:
++	void combatLogHit(CombatDetails const& kAttackerDetails,
++			CombatDetails const& kDefenderDetails,
++			int iDamage, bool bAttackerTakesHit);
+ 	void improvementBuilt(int iImprovementType, int iX, int iY);
+ 	void improvementDestroyed(int iImprovementType, int iPlayer, int iX, int iY);
+ 	void routeBuilt(int iRouteType, int iX, int iY);
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 56d46e517..55e31ebc9 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -382,265 +382,6 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
+ 	return GET_TEAM(eOurTeam).AI_mayAttack(eTheirTeam);
+ }*/
+ 
+-// FUNCTION: getBinomialCoefficient
+-// Needed for getCombatOdds
+-// Returns int value, being the possible number of combinations
+-// of k draws out of a population of n
+-// Written by DeepO
+-// Modified by Jason Winokur to keep the intermediate factorials small
+-__int64 getBinomialCoefficient(int iN, int iK)
+-{
+-	__int64 iTemp = 1;
+-	//take advantage of symmetry in combination, eg. 15C12 = 15C3
+-	iK = std::min(iK, iN - iK);
+-
+-	//eg. 15C3 = (15 * 14 * 13) / (1 * 2 * 3) = 15 / 1 * 14 / 2 * 13 / 3 = 455
+-	for(int i=1;i<=iK;i++)
+-		iTemp = (iTemp * (iN - i + 1)) / i;
+-
+-	// Make sure iTemp fits in an integer (and thus doesn't overflow)
+-	FAssert(iTemp < MAX_INT);
+-
+-	return iTemp;
+-}
+-
+-// FUNCTION: getCombatOdds
+-// Calculates combat odds, given two units
+-// Returns value from 0-1000
+-// Written by DeepO
+-int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender)
+-{
+-	float fOddsEvent;
+-	float fOddsAfterEvent;
+-	int iAttackerStrength;
+-	int iAttackerFirepower;
+-	int iDefenderStrength;
+-	int iDefenderFirepower;
+-	int iDefenderOdds;
+-	int iAttackerOdds;
+-	int iStrengthFactor;
+-	int iDamageToAttacker;
+-	int iDamageToDefender;
+-	int iNeededRoundsAttacker;
+-	int iNeededRoundsDefender;
+-	int iMaxRounds;
+-	int iAttackerLowFS;
+-	int iAttackerHighFS;
+-	int iDefenderLowFS;
+-	int iDefenderHighFS;
+-	int iFirstStrikes;
+-	int iDefenderHitLimit;
+-	int iI;
+-	int iJ;
+-	int iI3;
+-	int iI4;
+-	int iOdds = 0;
+-
+-	// setup battle, calculate strengths and odds
+-	//////
+-
+-	//Added ST
+-	iAttackerStrength = pAttacker->currCombatStr(NULL, NULL);
+-	iAttackerFirepower = pAttacker->currFirepower(NULL, NULL);
+-
+-	iDefenderStrength = pDefender->currCombatStr(pDefender->plot(), pAttacker);
+-	iDefenderFirepower = pDefender->currFirepower(pDefender->plot(), pAttacker);
+-
+-	FAssert(iAttackerStrength + iDefenderStrength > 0);
+-	FAssert(iAttackerFirepower + iDefenderFirepower > 0);
+-
+-	iDefenderOdds = (GC.getCOMBAT_DIE_SIDES() * iDefenderStrength) /
+-			(iAttackerStrength + iDefenderStrength);
+-
+-	if (iDefenderOdds == 0)
+-	{
+-		return 1000;
+-	}
+-
+-	iAttackerOdds = GC.getCOMBAT_DIE_SIDES() - iDefenderOdds;
+-
+-	if (iAttackerOdds == 0)
+-	{
+-		return 0;
+-	}
+-
+-	iStrengthFactor = ((iAttackerFirepower + iDefenderFirepower + 1) / 2);
+-
+-	// calculate damage done in one round
+-	//////
+-
+-	iDamageToAttacker = std::max(1,((GC.getCOMBAT_DAMAGE() * (iDefenderFirepower + iStrengthFactor)) / (iAttackerFirepower + iStrengthFactor)));
+-	iDamageToDefender = std::max(1,((GC.getCOMBAT_DAMAGE() * (iAttackerFirepower + iStrengthFactor)) / (iDefenderFirepower + iStrengthFactor)));
+-
+-	// calculate needed rounds.
+-	// Needed rounds = round_up(health/damage)
+-	//////
+-
+-	iDefenderHitLimit = pDefender->maxHitPoints() - pAttacker->combatLimit();
+-
+-	iNeededRoundsAttacker = (std::max(0, pDefender->currHitPoints() - iDefenderHitLimit) + iDamageToDefender - 1) / iDamageToDefender;
+-	iNeededRoundsDefender = (pAttacker->currHitPoints() + iDamageToAttacker - 1) / iDamageToAttacker;
+-	iMaxRounds = iNeededRoundsAttacker + iNeededRoundsDefender - 1;
+-
+-	// calculate possible first strikes distribution.
+-	// We can't use the getCombatFirstStrikes() function (only one result,
+-	// no distribution), so we need to mimic it.
+-	//////
+-
+-	iAttackerLowFS = (pDefender->immuneToFirstStrikes()) ? 0 : pAttacker->firstStrikes();
+-	iAttackerHighFS = (pDefender->immuneToFirstStrikes()) ? 0 : (pAttacker->firstStrikes() + pAttacker->chanceFirstStrikes());
+-
+-	iDefenderLowFS = (pAttacker->immuneToFirstStrikes()) ? 0 : pDefender->firstStrikes();
+-	iDefenderHighFS = (pAttacker->immuneToFirstStrikes()) ? 0 : (pDefender->firstStrikes() + pDefender->chanceFirstStrikes());
+-
+-	// UncutDragon
+-	if (GC.getDefineBOOL(CvGlobals::LFB_ENABLE))
+-		return LFBgetCombatOdds(iAttackerLowFS, iAttackerHighFS, iDefenderLowFS, iDefenderHighFS, iNeededRoundsAttacker, iNeededRoundsDefender, iAttackerOdds);
+-	// /UncutDragon
+-
+-	// For every possible first strike event, calculate the odds of combat.
+-	// Then, add these to the total, weighted to the chance of that first
+-	// strike event occurring
+-	//////
+-
+-	for (iI = iAttackerLowFS; iI < iAttackerHighFS + 1; iI++)
+-	{
+-		for (iJ = iDefenderLowFS; iJ < iDefenderHighFS + 1; iJ++)
+-		{
+-			// for every possible combination of fs results, calculate the chance
+-
+-			if (iI >= iJ)
+-			{
+-				// Attacker gets more or equal first strikes than defender
+-
+-				iFirstStrikes = iI - iJ;
+-
+-				// For every possible first strike getting hit, calculate both
+-				// the chance of that event happening, as well as the rest of
+-				// the chance assuming the event has happened. Multiply these
+-				// together to get the total chance (Bayes rule).
+-				// iI3 counts the number of successful first strikes
+-				//////
+-
+-				for (iI3 = 0; iI3 < (iFirstStrikes + 1); iI3++)
+-				{
+-					// event: iI3 first strikes hit the defender
+-
+-					// calculate chance of iI3 first strikes hitting: fOddsEvent
+-					// f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
+-					// this needs to be in floating point math
+-					//////
+-
+-					fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI3) * pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), (iFirstStrikes - iI3));
+-
+-					// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
+-					//////
+-
+-					if (iI3 >= iNeededRoundsAttacker)
+-					{
+-						fOddsAfterEvent = 1;
+-					}
+-					else
+-					{
+-						fOddsAfterEvent = 0;
+-
+-						// odds for _at_least_ (iNeededRoundsAttacker - iI3) (the remaining hits
+-						// the attacker needs to make) out of (iMaxRounds - iI3) (the left over
+-						// rounds) is the sum of each _exact_ draw
+-						//////
+-
+-						for (iI4 = (iNeededRoundsAttacker - iI3); iI4 < (iMaxRounds - iI3 + 1); iI4++)
+-						{
+-							// odds of exactly iI4 out of (iMaxRounds - iI3) draws.
+-							// f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
+-							// this needs to be in floating point math
+-							//////
+-
+-							fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI4) * pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), ((iMaxRounds - iI3) - iI4));
+-						}
+-					}
+-
+-					// Multiply these together, round them properly, and add
+-					// the result to the total iOdds
+-					//////
+-
+-					iOdds += ((int)(1000.0 * (fOddsEvent*fOddsAfterEvent + 0.0005)));
+-				}
+-			}
+-			else // (iI < iJ)
+-			{
+-				// Attacker gets less first strikes than defender
+-
+-				iFirstStrikes = iJ - iI;
+-
+-				// For every possible first strike getting hit, calculate both
+-				// the chance of that event happening, as well as the rest of
+-				// the chance assuming the event has happened. Multiply these
+-				// together to get the total chance (Bayes rule).
+-				// iI3 counts the number of successful first strikes
+-				//////
+-
+-				for (iI3 = 0; iI3 < (iFirstStrikes + 1); iI3++)
+-				{
+-					// event: iI3 first strikes hit the defender
+-
+-					// First of all, check if the attacker is still alive.
+-					// Otherwise, no further calculations need to occur
+-					/////
+-
+-					if (iI3 < iNeededRoundsDefender)
+-					{
+-						// calculate chance of iI3 first strikes hitting: fOddsEvent
+-						// f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
+-						// this needs to be in floating point math
+-						//////
+-
+-						fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * pow((((float)iDefenderOdds) / GC.getCOMBAT_DIE_SIDES()), iI3) * pow((1.0f - (((float)iDefenderOdds) / GC.getCOMBAT_DIE_SIDES())), (iFirstStrikes - iI3));
+-
+-						// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
+-						//////
+-
+-						fOddsAfterEvent = 0;
+-
+-						// odds for _at_least_ iNeededRoundsAttacker (the remaining hits
+-						// the attacker needs to make) out of (iMaxRounds - iI3) (the left over
+-						// rounds) is the sum of each _exact_ draw
+-						//////
+-
+-						for (iI4 = iNeededRoundsAttacker; iI4 < (iMaxRounds - iI3 + 1); iI4++)
+-						{
+-
+-							// odds of exactly iI4 out of (iMaxRounds - iI3) draws.
+-							// f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
+-							// this needs to be in floating point math
+-							//////
+-
+-							fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI4) * pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), ((iMaxRounds - iI3) - iI4));
+-						}
+-
+-						// Multiply these together, round them properly, and add
+-						// the result to the total iOdds
+-						//////
+-
+-						iOdds += ((int)(1000.0 * (fOddsEvent*fOddsAfterEvent + 0.0005)));
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-	// Weigh the total to the number of possible combinations of first strikes events
+-	// note: the integer math breaks down when #FS > 656 (with a die size of 1000)
+-	//////
+-
+-	iOdds /= (((pDefender->immuneToFirstStrikes()) ? 0 : pAttacker->chanceFirstStrikes()) + 1) * (((pAttacker->immuneToFirstStrikes()) ? 0 : pDefender->chanceFirstStrikes()) + 1);
+-
+-	// finished!
+-	//////
+-
+-	return iOdds;
+-}
+-
+ // K-Mod: (advc - Where do we move this? Should be a static member, not global.)
+ int estimateCollateralWeight(CvPlot const* pPlot, TeamTypes eAttackTeam,
+ 	TeamTypes eDefenceTeam)
+@@ -1414,320 +1155,3 @@ void getUnitAIString(CvWString& szString, UnitAITypes eUnitAI)
+ 	default: szString = CvWString::format(L"unknown(%d)", eUnitAI); break;
+ 	}
+ }
+-
+-// Lead From Behind by UncutDragon
+-typedef vector<int> LFBoddsAttOdds;
+-typedef vector<LFBoddsAttOdds> LFBoddsDefRounds;
+-typedef vector<LFBoddsDefRounds> LFBoddsAttRounds;
+-typedef vector<LFBoddsAttRounds> LFBoddsFirstStrike;
+-int LFBlookupCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds);
+-int LFBlookupCombatOdds(LFBoddsFirstStrike* pOdds, int iFSIndex, int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds);
+-int LFBlookupCombatOdds(LFBoddsAttOdds* pOdds, int iOddsIndex, int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds);
+-int LFBcalculateCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds);
+-
+-const int LFB_ODDS_INTERVAL_SIZE = 16;
+-const int LFB_ODDS_EXTRA_ACCURACY = 32;
+-LFBoddsFirstStrike pOddsCacheFSPos;
+-LFBoddsFirstStrike pOddsCacheFSNeg;
+-
+-// gets the combat odds using precomputed attacker/defender values instead of unit pointers
+-int LFBgetCombatOdds(int iAttackerLowFS,	int iAttackerHighFS, int iDefenderLowFS, int iDefenderHighFS, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
+-{
+-	int iDefenderOdds;
+-	bool bFlip = false;
+-	int iFirstStrikes;
+-	int iI;
+-	int iJ;
+-	int iOdds = 0;
+-
+-	// Essentially, this means we're attacking with a seige engine and the defender is already at or below the max combat limit
+-	// We're not allowed to attack regardless, since we can't do any damage - just return 100%
+-	if (iNeededRoundsAttacker == 0)
+-		return 1000;
+-	// Because the best defender code calls us from the defender's perspective, we also need to check 'defender' rounds zero
+-	if (iNeededRoundsDefender == 0)
+-		return 0;
+-
+-	// If attacker has better than even chance to hit, we just flip it and calculate defender's chance to win
+-	// This reduces how much we cache considerably (by half just from the fact we're only dealing with half the odds
+-	// - but additionally, iNeededRounds'Defender' is guaranteed to stay low - at most 5 with standard settings).
+-	iDefenderOdds = GC.getCOMBAT_DIE_SIDES() - iAttackerOdds;
+-	if (iAttackerOdds > iDefenderOdds)
+-		bFlip = true;
+-
+-	// This is basically the two outside loops at the end of the standard getCombatOdds
+-	// We just call our cache lookup in the middle (flipped if necessary) instead of the actual computation
+-	for (iI = iAttackerLowFS; iI < iAttackerHighFS + 1; iI++)
+-	{
+-		for (iJ = iDefenderLowFS; iJ < iDefenderHighFS + 1; iJ++)
+-		{
+-			iFirstStrikes = iI - iJ;
+-			if (bFlip)
+-				iOdds += LFBlookupCombatOdds(-iFirstStrikes, iNeededRoundsDefender, iNeededRoundsAttacker, iDefenderOdds);
+-			else
+-				iOdds += LFBlookupCombatOdds(iFirstStrikes, iNeededRoundsAttacker, iNeededRoundsDefender, iAttackerOdds);
+-		}
+-	}
+-
+-	// Odds are a straight average of all the FS combinations (since all are equally possible)
+-	iOdds /= ((iAttackerHighFS - iAttackerLowFS + 1) * (iDefenderHighFS - iDefenderLowFS + 1));
+-
+-	// Now that we have the final odds, we can remove the extra accuracy, rounding off
+-	iOdds = (iOdds + (LFB_ODDS_EXTRA_ACCURACY/2)) / LFB_ODDS_EXTRA_ACCURACY;
+-
+-	// If we flipped the perspective in the computation/lookup, need to flip it back now
+-	if (bFlip)
+-		iOdds = 1000 - iOdds;
+-
+-	return iOdds;
+-}
+-
+-// lookup the combat odds in the cache for a specific sub-result
+-int LFBlookupCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
+-{
+-	int iOdds = 0;
+-
+-	// We actually maintain two caches - one for positive first strikes (plus zero), and one for negative
+-	// This just makes the indices (and growing the array as needed) easy
+-	if (iFirstStrikes < 0)
+-		iOdds = LFBlookupCombatOdds(&pOddsCacheFSNeg, (-iFirstStrikes)-1, iFirstStrikes, iNeededRoundsAttacker, iNeededRoundsDefender, iAttackerOdds);
+-	else
+-		iOdds = LFBlookupCombatOdds(&pOddsCacheFSPos, iFirstStrikes, iFirstStrikes, iNeededRoundsAttacker, iNeededRoundsDefender, iAttackerOdds);
+-
+-	return iOdds;
+-}
+-
+-int LFBlookupCombatOdds(LFBoddsFirstStrike* pOdds, int iFSIndex, int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
+-{
+-	// Grow the arrays as needed
+-	// First dimension is the first strikes
+-	int iInsert = iFSIndex - (int)(*pOdds).size() + 1;
+-	if (iInsert > 0)
+-	{
+-		LFBoddsAttRounds pAdd;
+-		(*pOdds).insert((*pOdds).end(), iInsert, pAdd);
+-	}
+-
+-	// Second dimension is the attacker rounds (starting at 1)
+-	LFBoddsAttRounds* pAttRounds = &((*pOdds)[iFSIndex]);
+-	iInsert = iNeededRoundsAttacker - (int)(*pAttRounds).size();
+-	if (iInsert > 0)
+-	{
+-		LFBoddsDefRounds pAdd;
+-		(*pAttRounds).insert((*pAttRounds).end(), iInsert, pAdd);
+-	}
+-
+-	// Third dimension is the defender rounds (starting at 1)
+-	LFBoddsDefRounds* pDefRounds = &((*pAttRounds)[iNeededRoundsAttacker-1]);
+-	iInsert = iNeededRoundsDefender - (int)(*pDefRounds).size();
+-	if (iInsert > 0)
+-	{
+-		LFBoddsAttOdds pAdd;
+-		(*pDefRounds).insert((*pDefRounds).end(), iInsert, pAdd);
+-	}
+-
+-	// Fourth (last) dimension is the odds index (odds/16)
+-	LFBoddsAttOdds* pAttOdds = &((*pDefRounds)[iNeededRoundsDefender-1]);
+-
+-	// Round down to the nearest interval
+-	int iMinOddsIndex = iAttackerOdds / LFB_ODDS_INTERVAL_SIZE;
+-	int iMinOddsValue = iMinOddsIndex * LFB_ODDS_INTERVAL_SIZE;
+-
+-	// Lookup the odds for the rounded down value
+-	int iOdds = LFBlookupCombatOdds(pAttOdds, iMinOddsIndex, iFirstStrikes, iNeededRoundsAttacker, iNeededRoundsDefender, iMinOddsValue);
+-
+-	// If we happened to hit an interval exactly, we're done
+-	if (iMinOddsValue < iAttackerOdds)
+-	{
+-		// 'Round up' to the nearest interval - we don't actually need to compute it, we know
+-		// it's one more than the rounded down interval
+-		int iMaxOddsIndex = iMinOddsIndex+1;
+-		int iMaxOddsValue = iMinOddsValue+LFB_ODDS_INTERVAL_SIZE;
+-
+-		// Lookup the odds for the rounded up value
+-		int iMaxOdds = LFBlookupCombatOdds(pAttOdds, iMaxOddsIndex, iFirstStrikes, iNeededRoundsAttacker, iNeededRoundsDefender, iMaxOddsValue);
+-
+-		// Do a simple weighted average on the two odds
+-		//iOdds += (((iAttackerOdds - iMinOddsValue) * (iMaxOdds - iOdds)) / LFB_ODDS_INTERVAL_SIZE);
+-		iOdds += ((iAttackerOdds - iMinOddsValue) * (iMaxOdds - iOdds) + LFB_ODDS_INTERVAL_SIZE/2) / LFB_ODDS_INTERVAL_SIZE; // K-Mod. (rounded rather than truncated)
+-	}
+-
+-	return iOdds;
+-}
+-
+-int LFBlookupCombatOdds(LFBoddsAttOdds* pOdds, int iOddsIndex, int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
+-{
+-	int iNotComputed = -1;
+-
+-	// Index 0 -> AttackerOdds 0 -> no chance to win
+-	if (iOddsIndex == 0)
+-		return 0;
+-
+-	// We don't store all possible indices, just what we need/use
+-	// So use position 0 to keep track of what index we start with
+-	int iFirstIndex = iOddsIndex;
+-	if ((*pOdds).size() == 0)
+-		(*pOdds).push_back(iFirstIndex);
+-	else
+-		iFirstIndex = (*pOdds)[0];
+-
+-	int iRealIndex = iOddsIndex - iFirstIndex + 1;
+-
+-	// Index is before the start of our array
+-	int iInsert = -iRealIndex+1;
+-	if (iInsert > 0)
+-	{
+-		(*pOdds).insert((*pOdds).begin()+1, iInsert, iNotComputed);
+-		iFirstIndex -= iInsert;
+-		iRealIndex = 1;
+-		(*pOdds)[0] = iFirstIndex;
+-	}
+-
+-	// Index is past the end of our array
+-	iInsert = iRealIndex - (int)(*pOdds).size() + 1;
+-	if (iInsert > 0)
+-		(*pOdds).insert((*pOdds).end(), iInsert, iNotComputed);
+-
+-	// Retrieve the odds from the array
+-	int iOdds = (*pOdds)[iRealIndex];
+-
+-	// Odds aren't cached yet - need to actually calculate them
+-	if (iOdds == iNotComputed)
+-	{
+-		iOdds = LFBcalculateCombatOdds(iFirstStrikes, iNeededRoundsAttacker, iNeededRoundsDefender, iAttackerOdds);
+-		(*pOdds)[iRealIndex] = iOdds;
+-	}
+-
+-	return iOdds;
+-}
+-
+-// Perform the actual odds calculation (basically identical to the default algorithm, except that we retain a little more accuracy)
+-int LFBcalculateCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds)
+-{
+-	float fOddsEvent;
+-	float fOddsAfterEvent;
+-	int iMaxRounds = iNeededRoundsAttacker + iNeededRoundsDefender - 1;
+-	int iOdds = 0;
+-	int iI3;
+-	int iI4;
+-
+-	// This part is basically the inside of the outer two loops at the end of the standard getCombatOdds
+-	if (iFirstStrikes > 0)
+-	{
+-		// Attacker gets more or equal first strikes than defender
+-
+-		// For every possible first strike getting hit, calculate both
+-		// the chance of that event happening, as well as the rest of
+-		// the chance assuming the event has happened. Multiply these
+-		// together to get the total chance (Bayes rule).
+-		// iI3 counts the number of successful first strikes
+-		//////
+-
+-		for (iI3 = 0; iI3 < (iFirstStrikes + 1); iI3++)
+-		{
+-			// event: iI3 first strikes hit the defender
+-
+-			// calculate chance of iI3 first strikes hitting: fOddsEvent
+-			// f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
+-			// this needs to be in floating point math
+-			//////
+-
+-			fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * std::pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI3) * std::pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), (iFirstStrikes - iI3));
+-
+-			// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
+-			//////
+-
+-			if (iI3 >= iNeededRoundsAttacker)
+-			{
+-				fOddsAfterEvent = 1;
+-			}
+-			else
+-			{
+-				fOddsAfterEvent = 0;
+-
+-				// odds for _at_least_ (iNeededRoundsAttacker - iI3) (the remaining hits
+-				// the attacker needs to make) out of (iMaxRounds - iI3) (the left over
+-				// rounds) is the sum of each _exact_ draw
+-				//////
+-
+-				for (iI4 = (iNeededRoundsAttacker - iI3); iI4 < (iMaxRounds - iI3 + 1); iI4++)
+-				{
+-					// odds of exactly iI4 out of (iMaxRounds - iI3) draws.
+-					// f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
+-					// this needs to be in floating point math
+-					//////
+-
+-					fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * std::pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI4) * std::pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), ((iMaxRounds - iI3) - iI4));
+-				}
+-			}
+-
+-			// Multiply these together, round them properly, and add
+-			// the result to the total iOdds
+-			//////
+-
+-			iOdds += ((int)((1000.0 * fOddsEvent * fOddsAfterEvent * (float)LFB_ODDS_EXTRA_ACCURACY) + 0.5));
+-		}
+-	}
+-	else // (iI < iJ)
+-	{
+-		// Attacker gets less first strikes than defender
+-		int iDefenderOdds = GC.getCOMBAT_DIE_SIDES() - iAttackerOdds;
+-		iFirstStrikes *= -1;
+-
+-		// For every possible first strike getting hit, calculate both
+-		// the chance of that event happening, as well as the rest of
+-		// the chance assuming the event has happened. Multiply these
+-		// together to get the total chance (Bayes rule).
+-		// iI3 counts the number of successful first strikes
+-		//////
+-
+-		for (iI3 = 0; iI3 < (iFirstStrikes + 1); iI3++)
+-		{
+-			// event: iI3 first strikes hit the defender
+-
+-			// First of all, check if the attacker is still alive.
+-			// Otherwise, no further calculations need to occur
+-			/////
+-
+-			if (iI3 < iNeededRoundsDefender)
+-			{
+-				// calculate chance of iI3 first strikes hitting: fOddsEvent
+-				// f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
+-				// this needs to be in floating point math
+-				//////
+-
+-				fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * std::pow((((float)iDefenderOdds) / GC.getCOMBAT_DIE_SIDES()), iI3) * std::pow((1.0f - (((float)iDefenderOdds) / GC.getCOMBAT_DIE_SIDES())), (iFirstStrikes - iI3));
+-
+-				// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
+-				//////
+-
+-				fOddsAfterEvent = 0;
+-
+-				// odds for _at_least_ iNeededRoundsAttacker (the remaining hits
+-				// the attacker needs to make) out of (iMaxRounds - iI3) (the left over
+-				// rounds) is the sum of each _exact_ draw
+-				//////
+-
+-				for (iI4 = iNeededRoundsAttacker; iI4 < (iMaxRounds - iI3 + 1); iI4++)
+-				{
+-
+-					// odds of exactly iI4 out of (iMaxRounds - iI3) draws.
+-					// f(k;n,p)=C(n,k)*(p^k)*((1-p)^(n-k))
+-					// this needs to be in floating point math
+-					//////
+-
+-					fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * std::pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI4) * std::pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), ((iMaxRounds - iI3) - iI4));
+-				}
+-
+-				// Multiply these together, round them properly, and add
+-				// the result to the total iOdds
+-				//////
+-
+-				iOdds += ((int)((1000.0 * fOddsEvent * fOddsAfterEvent * (float)LFB_ODDS_EXTRA_ACCURACY)+0.5));
+-			}
+-		}
+-	}
+-
+-	return iOdds;
+-}
+-// lfb end
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 534640ab5..b3d595a2e 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -289,9 +289,8 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB);										// Exposed to Python
+ /*	advc.003w: Moved some two dozen functions to CvInfo classes;
+ 	mostly functions dealing with building and unit class limitations.
+ 	Removed isTechRequiredForProject. */
++// advc: getCombatOdds, LFBgetCombatOdds moved to CombatOdds
+ 
+-__int64 getBinomialCoefficient(int iN, int iK);
+-int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender);				// Exposed to Python
+ int estimateCollateralWeight(const CvPlot* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenceTeam = NO_TEAM); // K-Mod
+ 
+ /*	advc (note): Still used in the DLL by CvPlayer::buildTradeTable, but mostly deprecated.
+@@ -369,7 +368,4 @@ void getMissionTypeString(CvWString& szString, MissionTypes eMissionType);
+ void getMissionAIString(CvWString& szString, MissionAITypes eMissionAI);
+ void getUnitAIString(CvWString& szString, UnitAITypes eUnitAI);
+ 
+-// Lead From Behind by UncutDragon
+-int LFBgetCombatOdds(int iAttackerLowFS, int iAttackerHighFS, int iDefenderLowFS, int iDefenderHighFS, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds);
+-
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index e1c5f4cbe..fc8756f0d 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -3,6 +3,7 @@
+ #include "CoreAI.h"
+ #include "CvUnitAI.h"
+ #include "CvSelectionGroupAI.h"
++#include "CombatOdds.h"
+ #include "TeamPathFinder.h" // advc.104b
+ #include "CvCityAI.h"
+ #include "CitySiteEvaluator.h"
+@@ -2679,7 +2680,7 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 	}
+ 	if (pAttacker->getDomainType() != DOMAIN_AIR)
+ 	{
+-		int const iCombatOdds = getCombatOdds(pAttacker, pDefender);
++		int const iCombatOdds = calculateCombatOdds(*pAttacker, *pDefender);
+ 		bool bVictoryOddsAppended = false; // advc.048
+ 		if (pAttacker->combatLimit() >= GC.getMAX_HIT_POINTS())
+ 		{
+@@ -2884,43 +2885,35 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ /*	ADVANCED COMBAT ODDS v1.1, 11/7/09, PieceOfMind: START
+ 	Calculates the probability of a particular combat outcome
+ 	Returns a float value (between 0 and 1)
+-	Written by PieceOfMind
+-	n_A = hits taken by attacker, n_D = hits taken by defender.
+-	advc (note/ fixme): Seems to overlap a lot with code in
+-	setACOPlotHelp. */
++	Written by PieceOfMind */
+ namespace
+ {
+-float getCombatOddsSpecific(CvUnit const* pAttacker, CvUnit const* pDefender, int n_A, int n_D)
++float getCombatOddsSpecific(CvUnit const* pAttacker, CvUnit const* pDefender,
++	int iHitsByDef, int iHitsByAtt) // advc: Renamed from "n_A", "n_D"
+ {
+-	int const iAttackerStrength  = pAttacker->currCombatStr(NULL, NULL);
+-	int const iAttackerFirepower = pAttacker->currFirepower(NULL, NULL);
+-	int const iDefenderStrength  = pDefender->currCombatStr(pDefender->plot(), pAttacker);
+-	int const iDefenderFirepower = pDefender->currFirepower(pDefender->plot(), pAttacker);
+-
+-	int const iStrengthFactor   = ((iAttackerFirepower + iDefenderFirepower + 1) / 2);
+-	int const iDamageToAttacker = std::max(1,
+-			(GC.getCOMBAT_DAMAGE() * (iDefenderFirepower + iStrengthFactor)) /
+-			(iAttackerFirepower + iStrengthFactor));
+-	int iDamageToDefender = std::max(1,
+-			(GC.getCOMBAT_DAMAGE() * (iAttackerFirepower + iStrengthFactor)) /
+-				(iDefenderFirepower + iStrengthFactor));
+-
+-	int iDefenderOdds = ((GC.getCOMBAT_DIE_SIDES() * iDefenderStrength) /
+-			(iAttackerStrength + iDefenderStrength));
+-	int iAttackerOdds = GC.getCOMBAT_DIE_SIDES() - iDefenderOdds;
++	// <advc> Replacing redundant code
++	combat_odds::Combatant att, def;
++	combat_odds::initCombatants(*pAttacker, *pDefender, att, def);
++	float const P_A = att.odds() / (float)GC.getCOMBAT_DIE_SIDES();
++	float const P_D = def.odds() / (float)GC.getCOMBAT_DIE_SIDES();
++	int iAttackerOdds = att.odds();
++	int iDefenderOdds = def.odds();
++	int const AttFSnet = att.lowFS() - def.lowFS();
++	int const AttFSC = att.FSChances();
++	int const DefFSC = def.FSChances();
++	/*	(Variables N_A, N_D replaced with def.hitsToWin(), att.hitsToWin()
++		- in that order. Let's hope that this is correct.) */ // </advc>
++
+ 	/*  advc.001: Replacing the check below. The BUG authors must've missed this
+ 		one when they integrated ACO into BUG. */
+-	if(!BUGOption::isEnabled("ACO__IgnoreBarbFreeWins", false) &&
+-	//GC.getDefineINT("ACO_IgnoreBarbFreeWins")==0
+-		!GC.getGame().isOption(GAMEOPTION_SPAH)) // advc.250b
++	if(!BUGOption::isEnabled("ACO__IgnoreBarbFreeWins", false))
+ 	{
+ 		if (pDefender->isBarbarian())
+ 		{
+ 			//defender is barbarian
+ 			if (!GET_PLAYER(pAttacker->getOwner()).isBarbarian() &&
+ 				GET_PLAYER(pAttacker->getOwner()).getWinsVsBarbs() <
+-				GC.getInfo(GET_PLAYER(pAttacker->getOwner()).getHandicapType()).
+-				getFreeWinsVsBarbs())
++				GET_PLAYER(pAttacker->getOwner()).getFreeWinsVsBarbs())
+ 			{
+ 				//attacker is not barb and attacker player has free wins left
+ 				//I have assumed in the following code only one of the units (attacker and defender) can be a barbarian
+@@ -2933,8 +2926,7 @@ float getCombatOddsSpecific(CvUnit const* pAttacker, CvUnit const* pDefender, in
+ 			//attacker is barbarian
+ 			if (!GET_PLAYER(pDefender->getOwner()).isBarbarian() &&
+ 				GET_PLAYER(pDefender->getOwner()).getWinsVsBarbs() <
+-				GC.getInfo(GET_PLAYER(pDefender->getOwner()).getHandicapType()).
+-				getFreeWinsVsBarbs())
++				GET_PLAYER(pDefender->getOwner()).getFreeWinsVsBarbs())
+ 			{
+ 				//defender is not barbarian and defender has free wins left and attacker is barbarian
+ 				iAttackerOdds = std::min((10 * GC.getCOMBAT_DIE_SIDES()) / 100, iAttackerOdds);
+@@ -2943,163 +2935,150 @@ float getCombatOddsSpecific(CvUnit const* pAttacker, CvUnit const* pDefender, in
+ 		}
+ 	}
+ 
+-	int const iDefenderHitLimit = pDefender->maxHitPoints() - pAttacker->combatLimit();
+-
+-	//iNeededRoundsAttacker = (std::max(0, pDefender->currHitPoints() - iDefenderHitLimit) + iDamageToDefender - (((pAttacker->combatLimit())==GC.getMAX_HIT_POINTS())?1:0)) / iDamageToDefender;
+-	int const iNeededRoundsAttacker = 1 + (pDefender->currHitPoints() -
+-			pDefender->maxHitPoints() + pAttacker->combatLimit() -
+-			(pAttacker->combatLimit() == pDefender->maxHitPoints() ? 1 : 0)) /
+-			iDamageToDefender;
+-
+-	int const N_D = (std::max(0, pDefender->currHitPoints() - iDefenderHitLimit) +
+-			iDamageToDefender -
+-			(pAttacker->combatLimit() == GC.getMAX_HIT_POINTS() ? 1: 0)) /
+-			iDamageToDefender;
+-
+-	//int N_A = (pAttacker->currHitPoints() + iDamageToAttacker - 1) / iDamageToAttacker;  //same as next line
+-	int const N_A = 1 + (pAttacker->currHitPoints() - 1) / iDamageToAttacker;
+-
+ 	//int iRetreatOdds = std::max((pAttacker->withdrawalProbability()),100);
+ 	float const fRetreatOdds = std::min(pAttacker->withdrawalProbability(), 100) / 100.0f ;
+ 
+-	int const AttFSnet = (pDefender->immuneToFirstStrikes() ? 0 : pAttacker->firstStrikes()) -
+-			(pAttacker->immuneToFirstStrikes() ? 0 : pDefender->firstStrikes());
+-	int const AttFSC = (pDefender->immuneToFirstStrikes() ? 0 : pAttacker->chanceFirstStrikes());
+-	int const DefFSC = (pAttacker->immuneToFirstStrikes() ? 0 : pDefender->chanceFirstStrikes());
+-
+-	float const P_A = iAttackerOdds / (float)GC.getCOMBAT_DIE_SIDES();
+-	float const P_D = iDefenderOdds / (float)GC.getCOMBAT_DIE_SIDES();
+ 	float answer = 0;
+-	if (n_A < N_A && n_D == iNeededRoundsAttacker)   // (1) Defender dies or is taken to combat limit
++	// (1) Defender dies or is taken to combat limit
++	if (iHitsByDef < def.hitsToWin() && iHitsByAtt == att.hitsToWin())
+ 	{
+ 		float sum1 = 0.0f;
+-		for (int i = (-AttFSnet-AttFSC<1?1:-AttFSnet-AttFSC); i <= DefFSC - AttFSnet; i++)
++		for (int i = (-AttFSnet - AttFSC < 1 ? 1 : -AttFSnet-AttFSC); i <= DefFSC - AttFSnet; i++)
+ 		{
+ 			for (int j = 0; j <= i; j++)
+ 			{
+-				if (n_A >= j)
++				if (iHitsByDef >= j)
+ 				{
+-					sum1 += (float)getBinomialCoefficient(i,j) * pow(P_A,(float)(i-j)) *
+-							getBinomialCoefficient(iNeededRoundsAttacker-1+n_A-j,iNeededRoundsAttacker-1);
+-
+-				} //if
+-			}//for j
+-		}//for i
+-		sum1 *= pow(P_D,(float)n_A)*pow(P_A,(float)iNeededRoundsAttacker);
++					sum1 += (float)getBinomialCoefficient(i,j) * pow(P_A, (float)i - j) *
++							getBinomialCoefficient(
++							att.hitsToWin() - 1 + iHitsByDef - j,
++							att.hitsToWin() - 1);
++				}
++			}
++		}
++		sum1 *= pow(P_D, (float)iHitsByDef)*pow(P_A, (float)att.hitsToWin());
+ 		answer += sum1;
+ 
+ 		float sum2 = 0.0f;
+ 
+-		for (int i = (0<AttFSnet-DefFSC?AttFSnet-DefFSC:0); i <= AttFSnet + AttFSC; i++)
++		for (int i = (AttFSnet - DefFSC > 0 ? AttFSnet - DefFSC : 0); i <= AttFSnet + AttFSC; i++)
+ 		{
+ 			for (int j = 0; j <= i; j++)
+ 			{
+-				if (N_D > j)
++				if (att.hitsToWin() > j)
+ 				{
+-					sum2 = sum2 + getBinomialCoefficient(n_A+iNeededRoundsAttacker-j-1,n_A) *
+-							(float)getBinomialCoefficient(i,j) * pow(P_A,(float)iNeededRoundsAttacker) *
+-							pow(P_D,(float)(n_A+i-j));
++					sum2 = sum2 + getBinomialCoefficient(
++							iHitsByDef + att.hitsToWin() - j - 1, iHitsByDef) *
++							(float)getBinomialCoefficient(i, j) *
++							pow(P_A, (float)att.hitsToWin()) *
++							pow(P_D, (float)iHitsByDef + i - j);
+ 				}
+-				else if (n_A == 0)
++				else if (iHitsByDef == 0)
+ 				{
+-					sum2 = sum2 + (float)getBinomialCoefficient(i,j) *
+-							pow(P_A,(float)j) * pow(P_D,(float)(i-j));
++					sum2 = sum2 + (float)getBinomialCoefficient(i, j) *
++							pow(P_A, (float)j) * pow(P_D,(float)i - j);
+ 				}
+ 				else sum2 = sum2 + 0.0f;
+-			}//for j
+-		}//for i
++			}
++		}
+ 		answer += sum2;
+ 	}
+-	else if (n_D < N_D && n_A == N_A)  // (2) Attacker dies!
++	// (2) Attacker dies!
++	else if (iHitsByAtt < att.hitsToWin() && iHitsByDef == def.hitsToWin())
+ 	{
+-		float sum1 = 0.0f;
+-		for (int i = (-AttFSnet-AttFSC<1?1:-AttFSnet-AttFSC); i <= DefFSC - AttFSnet; i++)
++		float sum1 = 0;
++		for (int i = (-AttFSnet - AttFSC < 1 ? 1 : -AttFSnet - AttFSC); i <= DefFSC - AttFSnet; i++)
+ 		{
+ 			for (int j = 0; j <= i; j++)
+ 			{
+-				if (N_A>j)
++				if (def.hitsToWin() > j)
+ 				{
+-					sum1 += getBinomialCoefficient(n_D+N_A-j-1,n_D) *
+-							(float)getBinomialCoefficient(i,j) *
+-							pow(P_D,(float)(N_A)) * pow(P_A,(float)(n_D+i-j));
++					sum1 += getBinomialCoefficient(
++							iHitsByAtt + def.hitsToWin() - j - 1, iHitsByAtt) *
++							(float)getBinomialCoefficient(i, j) *
++							pow(P_D, (float)def.hitsToWin()) *
++							pow(P_A, (float)iHitsByAtt + i - j);
+ 				}
+ 				else
+ 				{
+-					if (n_D == 0)
++					if (iHitsByAtt == 0)
+ 					{
+ 						sum1 += (float)getBinomialCoefficient(i,j) *
+-								pow(P_D,(float)(j)) * pow(P_A,(float)(i-j));
++								pow(P_D, (float)j) * pow(P_A,(float)i - j);
+ 					}//if (inside if) else sum += 0
+-				}//if
+-			}//for j
+-		}//for i
++				}
++			}
++		}
+ 		answer += sum1;
+ 		float sum2 = 0.0f;
+-		for (int i = (0<AttFSnet-DefFSC?AttFSnet-DefFSC:0); i <= AttFSnet + AttFSC; i++)
++		for (int i = (0 < AttFSnet - DefFSC ? AttFSnet - DefFSC : 0); i <= AttFSnet + AttFSC; i++)
+ 		{
+ 			for (int j = 0; j <= i; j++)
+ 			{
+-				if (n_D >= j)
++				if (iHitsByAtt >= j)
+ 				{
+-					sum2 += (float)getBinomialCoefficient(i,j) * pow(P_D,(float)(i-j)) *
+-							getBinomialCoefficient(N_A-1+n_D-j,N_A-1);
+-				} //if
+-			}//for j
+-		}//for i
+-		sum2 *= pow(P_A,(float)(n_D))*pow(P_D,(float)(N_A));
++					sum2 += (float)getBinomialCoefficient(i, j) *
++							pow(P_D, (float)i - j) *
++							getBinomialCoefficient(
++							def.hitsToWin() - 1 + iHitsByAtt - j, def.hitsToWin() - 1);
++				}
++			}
++		}
++		sum2 *= pow(P_A, (float)iHitsByAtt) * pow(P_D, (float)def.hitsToWin());
+ 		answer += sum2;
+ 		answer = answer * (1.0f - fRetreatOdds);
+ 	}
+-	else if (n_A == (N_A-1) && n_D < N_D)  // (3) Attacker retreats!
++	// (3) Attacker retreats!
++	else if (iHitsByDef == def.hitsToWin() - 1 && iHitsByAtt < att.hitsToWin())
+ 	{
+ 		float sum1 = 0.0f;
+-		for (int i = (AttFSnet+AttFSC>-1?1:-AttFSnet-AttFSC); i <= DefFSC - AttFSnet; i++)
++		for (int i = (AttFSnet+AttFSC > - 1 ? 1 : -AttFSnet - AttFSC); i <= DefFSC - AttFSnet; i++)
+ 		{
+ 			for (int j = 0; j <= i; j++)
+ 			{
+-				if (N_A>j)
++				if (def.hitsToWin() > j)
+ 				{
+-					sum1 += getBinomialCoefficient(n_D+N_A-j-1,n_D) *
+-							(float)getBinomialCoefficient(i,j) *
+-							pow(P_D,(float)(N_A)) * pow(P_A,(float)(n_D+i-j));
++					sum1 += getBinomialCoefficient(
++							iHitsByAtt + def.hitsToWin() - j - 1, iHitsByAtt) *
++							(float)getBinomialCoefficient(i, j) *
++							pow(P_D, (float)def.hitsToWin()) *
++							pow(P_A, (float)iHitsByAtt + i - j);
+ 				}
+ 				else
+ 				{
+-					if (n_D == 0)
++					if (iHitsByAtt == 0)
+ 					{
+-						sum1 += (float)getBinomialCoefficient(i,j) *
+-								pow(P_D,(float)(j)) * pow(P_A,(float)(i-j));
++						sum1 += (float)getBinomialCoefficient(i, j) *
++								pow(P_D, (float)j) * pow(P_A, (float)i - j);
+ 					}//if (inside if) else sum += 0
+-				}//if
+-			}//for j
+-		}//for i
++				}
++			}
++		}
+ 		answer += sum1;
+ 
+ 		float sum2 = 0.0f;
+-		for (int i = (0<AttFSnet-DefFSC?AttFSnet-DefFSC:0); i <= AttFSnet + AttFSC; i++)
++		for (int i = (0 < AttFSnet - DefFSC?AttFSnet - DefFSC : 0); i <= AttFSnet + AttFSC; i++)
+ 		{
+ 			for (int j = 0; j <= i; j++)
+ 			{
+-				if (n_D >= j)
++				if (iHitsByAtt >= j)
+ 				{
+-					sum2 += (float)getBinomialCoefficient(i,j) *
+-							pow(P_D,(float)(i-j)) * getBinomialCoefficient(N_A-1+n_D-j,N_A-1);
+-				} //if
+-			}//for j
+-		}//for i
+-		sum2 *= pow(P_A,(float)(n_D))*pow(P_D,(float)(N_A));
++					sum2 += (float)getBinomialCoefficient(i, j) *
++							pow(P_D, (float)i - j) *
++							getBinomialCoefficient(
++							def.hitsToWin() - 1 + iHitsByAtt - j, def.hitsToWin() - 1);
++				}
++			}
++		}
++		sum2 *= pow(P_A, (float)iHitsByAtt) * pow(P_D, (float)def.hitsToWin());
+ 		answer += sum2;
+-		answer = answer * fRetreatOdds;//
+-	}
+-	else
+-	{
+-		//Unexpected value.  Process should not reach here.
+-		FErrorMsg("unexpected value in getCombatOddsSpecific");
++		answer = answer * fRetreatOdds;
+ 	}
++	else FErrorMsg("unexpected value in getCombatOddsSpecific");
+ 
+ 	answer /= (AttFSC+DefFSC + 1); // dividing by (t+w+1) as is necessary
+ 	return answer;
+-}// getCombatOddsSpecific
++}
+ } // ADVANCED COMBAT ODDS, 11/7/09, PieceOfMind: END
+ 
+ // advc: Cut from setCombatPlotHelp
+@@ -3150,33 +3129,20 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 		{
+ 			iDefenderExperienceModifier += GC.getInfo(eLoopPromotion).getExperiencePercent();
+ 		}
+-	}
+-	/** phungus end **/ //thanks to phungus420
++	} /** phungus end **/ //thanks to phungus420
++
++	/*	<advc> Get rid of some duplicate code, and make sure that it's consistent
++		with change advc.001l. */
++	combat_odds::Combatant att, def;
++	combat_odds::initCombatants(*pAttacker, *pDefender, att, def);
++	int iAttackerOdds = att.odds();
++	int iDefenderOdds = def.odds(); // </advc>
+ 
+ 	/** Many thanks to DanF5771 for some of these calculations! **/
+-	int const iAttackerStrength  = pAttacker->currCombatStr(NULL, NULL);
+-	int const iAttackerFirepower = pAttacker->currFirepower(NULL, NULL);
+-	int const iDefenderStrength  = pDefender->currCombatStr(pPlot, pAttacker);
+-	int const iDefenderFirepower = pDefender->currFirepower(pPlot, pAttacker);
+-
+-	FAssert((iAttackerStrength + iDefenderStrength)*(iAttackerFirepower + iDefenderFirepower) > 0);
+-
+-	int const iStrengthFactor    = ((iAttackerFirepower + iDefenderFirepower + 1) / 2);
+-	int const iDamageToAttacker  = std::max(1,
+-			(GC.getCOMBAT_DAMAGE() * (iDefenderFirepower + iStrengthFactor)) /
+-			(iAttackerFirepower + iStrengthFactor));
+-	int const iDamageToDefender  = std::max(1,
+-			(GC.getCOMBAT_DAMAGE() * (iAttackerFirepower + iStrengthFactor)) /
+-			(iDefenderFirepower + iStrengthFactor));
+-	//int iFlankAmount       = iDamageToAttacker; // advc: unused
+-
+-	int iDefenderOdds = ((GC.getCOMBAT_DIE_SIDES() * iDefenderStrength) /
+-			(iAttackerStrength + iDefenderStrength));
+-	int iAttackerOdds = GC.getCOMBAT_DIE_SIDES() - iDefenderOdds;
++	int const iDefenderHitLimit = std::max(0,
++			pDefender->maxHitPoints() - pAttacker->combatLimit());
+ 
+ 	// Barbarian related code
+-	/*	advc (note/ fixme): This part and the const definitions above are (largely?)
+-		duplicated in getCombatOddsSpecific */
+ 	/*  advc.001: The section below deals with FreeWins, so it should
+ 		only be executed if !IgnoreBarbFreeWins. The condition was
+ 		checking the opposite. */
+@@ -3190,7 +3156,7 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 			//defender is barbarian
+ 			if (!kAttackerOwner.isBarbarian() &&
+ 				kAttackerOwner.getWinsVsBarbs() <
+-				GC.getInfo(kAttackerOwner.getHandicapType()).getFreeWinsVsBarbs())
++				kAttackerOwner.getFreeWinsVsBarbs())
+ 			{
+ 				/*	attacker is not barb and attacker player has free wins left
+ 					I have assumed in the following code only one of the units
+@@ -3200,9 +3166,9 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 				iAttackerOdds = std::max(iAttackerOdds,
+ 						(90 * GC.getCOMBAT_DIE_SIDES()) / 100);
+ 				szTempBuffer.Format(SETCOLR L"%d\n" ENDCOLR,
+-						TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),GC.getInfo(
+-						kAttackerOwner.getHandicapType()).
+-						getFreeWinsVsBarbs() - kAttackerOwner.getWinsVsBarbs());
++						TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
++						kAttackerOwner.getFreeWinsVsBarbs()
++						- kAttackerOwner.getWinsVsBarbs());
+ 				szString.append(gDLL->getText("TXT_ACO_BarbFreeWinsLeft"));
+ 				szString.append(szTempBuffer.GetCString());
+ 			}
+@@ -3216,7 +3182,7 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 				//attacker is barbarian
+ 				if (!kDefenderOwner.isBarbarian() &&
+ 					kDefenderOwner.getWinsVsBarbs() <
+-					GC.getInfo(kDefenderOwner.getHandicapType()).getFreeWinsVsBarbs())
++					kDefenderOwner.getFreeWinsVsBarbs())
+ 				{
+ 					/*	defender is not barbarian and
+ 						defender has free wins left and attacker is barbarian */
+@@ -3226,8 +3192,8 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 							(90 * GC.getCOMBAT_DIE_SIDES()) / 100);
+ 					szTempBuffer.Format(SETCOLR L"%d\n" ENDCOLR,
+ 							TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
+-							GC.getInfo(kDefenderOwner.getHandicapType()).
+-							getFreeWinsVsBarbs() - kDefenderOwner.getWinsVsBarbs());
++							kDefenderOwner.getFreeWinsVsBarbs()
++							- kDefenderOwner.getWinsVsBarbs());
+ 					szString.append(gDLL->getText("TXT_ACO_BarbFreeWinsLeft"));
+ 					szString.append(szTempBuffer.GetCString());
+ 				}
+@@ -3239,20 +3205,18 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 	//XP calculations
+ 	int iExperience;
+ 	if (pAttacker->combatLimit() < 100)
+-	{
+ 		iExperience = GC.getDefineINT(CvGlobals::EXPERIENCE_FROM_WITHDRAWL);
+-	}
+ 	else
+ 	{
+-		iExperience = (pDefender->attackXPValue() * iDefenderStrength) / iAttackerStrength;
++		iExperience = (pDefender->attackXPValue() * def.strength()) / att.strength();
+ 		iExperience = ::range(iExperience, GC.getDefineINT(CvGlobals::MIN_EXPERIENCE_PER_COMBAT),
+ 				iMaxXPAtt); // advc.312
+ 	}
+ 	//thanks to phungus420
+ 	int iWithdrawXP = GC.getDefineINT(CvGlobals::EXPERIENCE_FROM_WITHDRAWL);
+ 
+-	int iDefExperienceKill = (pAttacker->defenseXPValue() * iAttackerStrength) /
+-			iDefenderStrength;
++	int iDefExperienceKill = (pAttacker->defenseXPValue() * att.strength()) /
++			def.strength();
+ 	iDefExperienceKill = ::range(iDefExperienceKill,
+ 			GC.getDefineINT(CvGlobals::MIN_EXPERIENCE_PER_COMBAT),
+ 			iMaxXPDef); // advc.312
+@@ -3288,28 +3252,12 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 		}
+ 	}
+ 
+-	int const iNeededRoundsAttacker = 1 + (pDefender->currHitPoints() -
+-			pDefender->maxHitPoints() + pAttacker->combatLimit() -
+-			(pAttacker->combatLimit() == pDefender->maxHitPoints() ? 1 : 0)) /
+-			iDamageToDefender;
+-	/*	The extra term introduced here was to account for the incorrect way it
+-		treated units that had combatLimits.
+-		A catapult that deals 25HP per round, and has a combatLimit of 75HP
+-		must deal four successful hits before it kills the warrior - not 3.
+-		This is proved in the way CvUnit::resolvecombat works.
+-		The old formula (with just a plain -1 instead of a conditional -1 or 0)
+-		was incorrectly saying three. */
+-
+-	// int iNeededRoundsDefender = (pAttacker->currHitPoints() + iDamageToAttacker - 1) / iDamageToAttacker;  //this is idential to the following line
+-	int const iNeededRoundsDefender = 1 + (pAttacker->currHitPoints() - 1) / iDamageToAttacker;
+-
+ 	//szTempBuffer.Format(L"iNeededRoundsAttacker = %d\niNeededRoundsDefender = %d",iNeededRoundsAttacker,iNeededRoundsDefender);
+ 	//szString.append(NEWLINE);szString.append(szTempBuffer.GetCString());
+ 	//szTempBuffer.Format(L"pDefender->currHitPoints = %d\n-pDefender->maxHitPOints = %d\n + pAttacker->combatLimit = %d\n - 1 if\npAttackercomBatlimit equals pDefender->maxHitpoints\n=(%d == %d)\nall over iDamageToDefender = %d\n+1 = ...",
+ 	//pDefender->currHitPoints(),pDefender->maxHitPoints(),pAttacker->combatLimit(),pAttacker->combatLimit(),pDefender->maxHitPoints(),iDamageToDefender);
+ 	//szString.append(NEWLINE);szString.append(szTempBuffer.GetCString());
+ 
+-	int const iDefenderHitLimit = pDefender->maxHitPoints() - pAttacker->combatLimit();
+ 
+ 	//NOW WE CALCULATE SOME INTERESTING STUFF :)
+ 
+@@ -3321,15 +3269,15 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 	float E_HP_Att_Victory=0;
+ 	//this one is predetermined easily
+ 	int E_HP_Att_Retreat = pAttacker->currHitPoints() -
+-			(iNeededRoundsDefender - 1) * iDamageToAttacker;
++			(def.hitsToWin() - 1) * def.damagePerRound();
+ 	float E_HP_Def_Withdraw=0;
+ 	float E_HP_Def_Defeat=0; // if attacker dies
+ 	//Note E_HP_Def is the same for if the attacker withdraws or dies
+ 
+-	float AttackerUnharmed = getCombatOddsSpecific(pAttacker, pDefender, 0, iNeededRoundsAttacker);
+-	float DefenderUnharmed = getCombatOddsSpecific(pAttacker, pDefender, iNeededRoundsDefender, 0);
++	float AttackerUnharmed = getCombatOddsSpecific(pAttacker, pDefender, 0, att.hitsToWin());
++	float DefenderUnharmed = getCombatOddsSpecific(pAttacker, pDefender, def.hitsToWin(), 0);
+ 	//attacker withdraws or retreats
+-	DefenderUnharmed += getCombatOddsSpecific(pAttacker, pDefender, iNeededRoundsDefender - 1, 0);
++	DefenderUnharmed += getCombatOddsSpecific(pAttacker, pDefender, def.hitsToWin() - 1, 0);
+ 	// The probability the attacker exits combat with min HP
+ 	float prob_bottom_Att_HP=0;
+ 	// The probability the defender exits combat with min HP
+@@ -3342,17 +3290,18 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 		szString.append(szTempBuffer.GetCString());
+ 	}
+ 	// already covers both possibility of defender not being killed AND being killed
+-	for (int n_A = 0; n_A < iNeededRoundsDefender; n_A++)
++	for (int iHitsByDef = 0; iHitsByDef < def.hitsToWin(); iHitsByDef++)
+ 	{
+-		//prob_attack[n_A] = getCombatOddsSpecific(pAttacker,pDefender,n_A,iNeededRoundsAttacker);
+-		E_HP_Att += (pAttacker->currHitPoints() - n_A*iDamageToAttacker) *
+-				getCombatOddsSpecific(pAttacker, pDefender, n_A, iNeededRoundsAttacker);
++		//prob_attack[iHitsByDef] = getCombatOddsSpecific(pAttacker,pDefender,iHitsByDef,att.hitsToWin());
++		E_HP_Att += (pAttacker->currHitPoints() - iHitsByDef * def.damagePerRound()) *
++				getCombatOddsSpecific(pAttacker, pDefender, iHitsByDef, att.hitsToWin());
+ 		if (ACO_debug)
+ 		{
+ 			szTempBuffer.Format(L"+%d * %.2f%%  (Def %d) (%d:%d)",
+-					pAttacker->currHitPoints() - n_A*iDamageToAttacker,
+-					100.0f * getCombatOddsSpecific(pAttacker, pDefender, n_A, iNeededRoundsAttacker),
+-					iDefenderHitLimit, n_A, iNeededRoundsAttacker);
++					pAttacker->currHitPoints() - iHitsByDef * def.damagePerRound(),
++					100.0f * getCombatOddsSpecific(
++					pAttacker, pDefender, iHitsByDef, att.hitsToWin()),
++					iDefenderHitLimit, iHitsByDef, att.hitsToWin());
+ 			szString.append(NEWLINE);
+ 			szString.append(szTempBuffer.GetCString());
+ 		}
+@@ -3360,7 +3309,7 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 	E_HP_Att_Victory = E_HP_Att;//NOT YET NORMALISED
+ 	E_HP_Att_Withdraw = E_HP_Att;//NOT YET NORMALIZED
+ 	prob_bottom_Att_HP = getCombatOddsSpecific(
+-			pAttacker, pDefender, iNeededRoundsDefender - 1, iNeededRoundsAttacker);
++			pAttacker, pDefender, def.hitsToWin() - 1, att.hitsToWin());
+ 	if(pAttacker->withdrawalProbability() > 0)
+ 	{
+ 		// if withdraw odds involved
+@@ -3370,22 +3319,22 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 			szString.append(NEWLINE);
+ 			szString.append(szTempBuffer.GetCString());
+ 		}
+-		for (int n_D = 0; n_D < iNeededRoundsAttacker; n_D++)
++		for (int iHitsByAtt = 0; iHitsByAtt < att.hitsToWin(); iHitsByAtt++)
+ 		{
+ 			E_HP_Att += ( (pAttacker->currHitPoints()) -
+-					(iNeededRoundsDefender-1)*iDamageToAttacker) *
+-					getCombatOddsSpecific(pAttacker, pDefender, iNeededRoundsDefender - 1, n_D);
++					(def.hitsToWin() - 1) * def.damagePerRound()) *
++					getCombatOddsSpecific(pAttacker, pDefender, def.hitsToWin() - 1, iHitsByAtt);
+ 			prob_bottom_Att_HP += getCombatOddsSpecific(
+-					pAttacker, pDefender, iNeededRoundsDefender - 1, n_D);
++					pAttacker, pDefender, def.hitsToWin() - 1, iHitsByAtt);
+ 			if (ACO_debug)
+ 			{
+ 				szTempBuffer.Format(L"+%d * %.2f%%  (Def %d) (%d:%d)",
+ 						pAttacker->currHitPoints() -
+-						(iNeededRoundsDefender - 1) * iDamageToAttacker,
++						(def.hitsToWin() - 1) * def.damagePerRound(),
+ 						100.0f * getCombatOddsSpecific(
+-						pAttacker, pDefender, iNeededRoundsDefender - 1, n_D),
+-						pDefender->currHitPoints() - n_D * iDamageToDefender,
+-						iNeededRoundsDefender - 1, n_D);
++						pAttacker, pDefender, def.hitsToWin() - 1, iHitsByAtt),
++						pDefender->currHitPoints() - iHitsByAtt * att.damagePerRound(),
++						def.hitsToWin() - 1, iHitsByAtt);
+ 				szString.append(NEWLINE);
+ 				szString.append(szTempBuffer.GetCString());
+ 			}
+@@ -3399,69 +3348,73 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 		szString.append(NEWLINE);
+ 		szString.append(szTempBuffer.GetCString());
+ 	}
+-	for (int n_D = 0; n_D < iNeededRoundsAttacker; n_D++)
++	for (int iHitsByAtt = 0; iHitsByAtt < att.hitsToWin(); iHitsByAtt++)
+ 	{
+-		//prob_defend[n_D] = getCombatOddsSpecific(pAttacker,pDefender,iNeededRoundsDefender,n_D);//attacker dies
+-		//prob_defend[n_D] += getCombatOddsSpecific(pAttacker,pDefender,iNeededRoundsDefender-1,n_D);//attacker retreats
+-		E_HP_Def += (pDefender->currHitPoints() - n_D * iDamageToDefender) *
+-				(getCombatOddsSpecific(pAttacker, pDefender, iNeededRoundsDefender,n_D) +
+-				getCombatOddsSpecific(pAttacker, pDefender, iNeededRoundsDefender - 1, n_D));
++		//prob_defend[iHitsByAtt] = getCombatOddsSpecific(pAttacker,pDefender,def.hitsToWin(),iHitsByAtt);//attacker dies
++		//prob_defend[iHitsByAtt] += getCombatOddsSpecific(pAttacker,pDefender,def.hitsToWin()-1,iHitsByAtt);//attacker retreats
++		E_HP_Def += (pDefender->currHitPoints() - iHitsByAtt * att.damagePerRound()) *
++				(getCombatOddsSpecific(pAttacker, pDefender, def.hitsToWin(), iHitsByAtt) +
++				getCombatOddsSpecific(pAttacker, pDefender, def.hitsToWin() - 1, iHitsByAtt));
+ 		if (ACO_debug)
+ 		{
+ 			szTempBuffer.Format(L"+%d * %.2f%%  (Att 0 or %d) (%d:%d)",
+-					pDefender->currHitPoints() - n_D*iDamageToDefender,
++					pDefender->currHitPoints() - iHitsByAtt * att.damagePerRound(),
+ 					100.0f * (getCombatOddsSpecific(
+-					pAttacker, pDefender, iNeededRoundsDefender, n_D)+
++					pAttacker, pDefender, def.hitsToWin(), iHitsByAtt)+
+ 					getCombatOddsSpecific(
+-					pAttacker, pDefender, iNeededRoundsDefender - 1, n_D)),
+-					pAttacker->currHitPoints()- (iNeededRoundsDefender - 1)*
+-					iDamageToAttacker, iNeededRoundsDefender, n_D);
++					pAttacker, pDefender, def.hitsToWin() - 1, iHitsByAtt)),
++					pAttacker->currHitPoints()- (def.hitsToWin() - 1)*
++					def.damagePerRound(), def.hitsToWin(), iHitsByAtt);
+ 			szString.append(NEWLINE);
+ 			szString.append(szTempBuffer.GetCString());
+ 		}
+ 	}
+ 	prob_bottom_Def_HP = getCombatOddsSpecific(
+-			pAttacker, pDefender, iNeededRoundsDefender, iNeededRoundsAttacker-1);
++			pAttacker, pDefender, def.hitsToWin(), att.hitsToWin() - 1);
+ 	//prob_bottom_Def_HP += getCombatOddsSpecific(pAttacker,pDefender,iNeededRoundsDefender-1,iNeededRoundsAttacker-1);
+ 	E_HP_Def_Defeat = E_HP_Def;
+ 	E_HP_Def_Withdraw = 0;
+ 	//if attacker has a combatLimit (eg. catapult)
+ 	if (pAttacker->combatLimit() < pDefender->maxHitPoints())
+ 	{
+-		if (pAttacker->combatLimit() == iDamageToDefender*(iNeededRoundsAttacker - 1))
++#if 0 // advc.001l: This can no longer occur
++		if (pAttacker->combatLimit() == att.damagePerRound() * (att.hitsToWin() - 1))
+ 		{
+ 			/*	Then we have an odd situation because the last successful hit
+ 				by an attacker will do 0 damage, and doing either iNeededRoundsAttacker
+-				or iNeededRoundsAttacker-1 will cause the same damage */
++				or iNeededRoundsAttacker - 1 will cause the same damage */
+ 			if (ACO_debug)
+ 			{
+ 				szTempBuffer.Format(L"Odds that attacker withdraws at combatLimit (abnormal)");
+ 				szString.append(NEWLINE);
+ 				szString.append(szTempBuffer.GetCString());
+ 			}
+-			for (int n_A = 0; n_A < iNeededRoundsDefender; n_A++)
++			for (int iHitsByDef = 0; iHitsByDef < def.hitsToWin(); iHitsByDef++)
+ 			{
+-				//prob_defend[iNeededRoundsAttacker-1] += getCombatOddsSpecific(pAttacker,pDefender,n_A,iNeededRoundsAttacker);//this is the defender at the combatLimit
++				//prob_defend[iNeededRoundsAttacker-1] += getCombatOddsSpecific(pAttacker,pDefender,iHitsByDef,att.hitsToWin());//this is the defender at the combatLimit
+ 				E_HP_Def += iDefenderHitLimit * getCombatOddsSpecific(
+-						pAttacker, pDefender, n_A, iNeededRoundsAttacker);
++						pAttacker, pDefender, iHitsByDef, att.hitsToWin());
+ 				//should be the same as
+-				//E_HP_Def += ( (pDefender->currHitPoints()) - (iNeededRoundsAttacker-1)*iDamageToDefender) * getCombatOddsSpecific(pAttacker,pDefender,n_A,iNeededRoundsAttacker);
++				//E_HP_Def += ( (pDefender->currHitPoints()) - (att.hitsToWIn()-1)*iDamageToDefender) * getCombatOddsSpecific(pAttacker,pDefender,iHitsByDef,att.hitsToWin());
+ 				E_HP_Def_Withdraw += iDefenderHitLimit * getCombatOddsSpecific(
+-						pAttacker, pDefender, n_A, iNeededRoundsAttacker);
++						pAttacker, pDefender, iHitsByDef, att.hitsToWin());
+ 				prob_bottom_Def_HP += getCombatOddsSpecific(
+-						pAttacker, pDefender, n_A, iNeededRoundsAttacker);
++						pAttacker, pDefender, iHitsByDef, att.hitsToWin());
+ 				if (ACO_debug)
+ 				{
+ 					szTempBuffer.Format(L"+%d * %.2f%%  (Att %d) (%d:%d)",
+ 							iDefenderHitLimit, 100.0f * getCombatOddsSpecific(
+-							pAttacker, pDefender, n_A, iNeededRoundsAttacker),
+-							100 - n_A * iDamageToAttacker, n_A, iNeededRoundsAttacker);
++							pAttacker, pDefender, iHitsByDef, att.hitsToWin()),
++							100 - iHitsByDef * def.damagePerRound(), iHitsByDef, att.hitsToWin());
+ 					szString.append(NEWLINE);
+ 					szString.append(szTempBuffer.GetCString());
+ 				}
+ 			}
+ 		}
+ 		else // normal situation
++#else
++		FAssert(pAttacker->combatLimit() != att.damagePerRound() * (att.hitsToWin() - 1));
++#endif // advc.001l
+ 		{
+ 			if (ACO_debug)
+ 			{
+@@ -3471,27 +3424,27 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 				szString.append(szTempBuffer.GetCString());
+ 			}
+ 
+-			for (int n_A = 0; n_A < iNeededRoundsDefender; n_A++)
++			for (int iHitsByDef = 0; iHitsByDef < def.hitsToWin(); iHitsByDef++)
+ 			{
+ 
+-				E_HP_Def += (float)iDefenderHitLimit * getCombatOddsSpecific(
+-						pAttacker, pDefender, n_A, iNeededRoundsAttacker);
+-				E_HP_Def_Withdraw += (float)iDefenderHitLimit * getCombatOddsSpecific(
+-						pAttacker, pDefender, n_A, iNeededRoundsAttacker);
++				E_HP_Def += iDefenderHitLimit * getCombatOddsSpecific(
++						pAttacker, pDefender, iHitsByDef, att.hitsToWin());
++				E_HP_Def_Withdraw += iDefenderHitLimit * getCombatOddsSpecific(
++						pAttacker, pDefender, iHitsByDef, att.hitsToWin());
+ 				prob_bottom_Def_HP += getCombatOddsSpecific(
+-						pAttacker, pDefender, n_A, iNeededRoundsAttacker);
++						pAttacker, pDefender, iHitsByDef, att.hitsToWin());
+ 				if (ACO_debug)
+ 				{
+ 					szTempBuffer.Format(L"+%d * %.2f%%  (Att %d) (%d:%d)",
+ 							iDefenderHitLimit, 100.0f * getCombatOddsSpecific(
+-							pAttacker, pDefender, n_A, iNeededRoundsAttacker),
+-							GC.getMAX_HIT_POINTS() - n_A*iDamageToAttacker,
+-							n_A, iNeededRoundsAttacker);
++							pAttacker, pDefender, iHitsByDef, att.hitsToWin()),
++							GC.getMAX_HIT_POINTS() - iHitsByDef * def.damagePerRound(),
++							iHitsByDef, att.hitsToWin());
+ 					szString.append(NEWLINE);
+ 					szString.append(szTempBuffer.GetCString());
+ 				}
+-			}//for
+-		}//else
++			}
++		}
+ 	}
+ 	if (ACO_debug)
+ 		szString.append(NEWLINE);
+@@ -3503,9 +3456,9 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 	float RetreatOdds = 0;
+ 	float DefenderKillOdds = 0;
+ 
++	// THE ALL-IMPORTANT COMBATRATIO
+ 	float const CombatRatio = pAttacker->currCombatStr(NULL, NULL) /
+ 			(float)pDefender->currCombatStr(pPlot, pAttacker);
+-	// THE ALL-IMPORTANT COMBATRATIO
+ 
+ 	// These two values are simply for the Unrounded XP display
+ 	float const AttXP = (pDefender->attackXPValue()) / CombatRatio;
+@@ -3513,37 +3466,37 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 
+ 	// General odds
+ 	//ie. we can kill the defender... I hope this is the most general form
+-	if (pAttacker->combatLimit() == pDefender->maxHitPoints())
++	if (pAttacker->combatLimit() >= pDefender->maxHitPoints())
+ 	{
+ 		//float AttackerKillOdds = 0.0f;
+-		for (int n_A = 0; n_A < iNeededRoundsDefender; n_A++)
++		for (int iHitsByDef = 0; iHitsByDef < def.hitsToWin(); iHitsByDef++)
+ 		{
+ 			AttackerKillOdds += getCombatOddsSpecific(
+-					pAttacker, pDefender, n_A, iNeededRoundsAttacker);
+-		}//for
++					pAttacker, pDefender, iHitsByDef, att.hitsToWin());
++		}
+ 	}
+ 	else
+ 	{
+ 		// else we cannot kill the defender (eg. catapults attacking)
+-		for (int n_A = 0; n_A < iNeededRoundsDefender; n_A++)
++		for (int iHitsByDef = 0; iHitsByDef < def.hitsToWin(); iHitsByDef++)
+ 		{
+ 			PullOutOdds += getCombatOddsSpecific(
+-					pAttacker, pDefender, n_A, iNeededRoundsAttacker);
+-		}//for
++					pAttacker, pDefender, iHitsByDef, att.hitsToWin());
++		}
+ 	}
+-	if ((pAttacker->withdrawalProbability()) > 0)
++	if (pAttacker->withdrawalProbability() > 0)
+ 	{
+-		for (int n_D = 0; n_D < iNeededRoundsAttacker; n_D++)
++		for (int iHitsByAtt = 0; iHitsByAtt < att.hitsToWin(); iHitsByAtt++)
+ 		{
+ 			RetreatOdds += getCombatOddsSpecific(
+-					pAttacker, pDefender, iNeededRoundsDefender - 1, n_D);
+-		}//for
++					pAttacker, pDefender, def.hitsToWin() - 1, iHitsByAtt);
++		}
+ 	}
+-	for (int n_D = 0; n_D < iNeededRoundsAttacker; n_D++)
++	for (int iHitsByAtt = 0; iHitsByAtt < att.hitsToWin(); iHitsByAtt++)
+ 	{
+ 		DefenderKillOdds += getCombatOddsSpecific(
+-				pAttacker, pDefender, iNeededRoundsDefender, n_D);
+-	}//for
++				pAttacker, pDefender, def.hitsToWin(), iHitsByAtt);
++	}
+ 	//this gives slight negative numbers sometimes, I think
+ 	//DefenderKillOdds = 1.0f - (AttackerKillOdds + RetreatOdds + PullOutOdds);
+ 
+@@ -3624,7 +3577,7 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 
+ 
+ 	szString.append(NEWLINE);
+-	if (pAttacker->combatLimit() == pDefender->maxHitPoints())
++	if (pAttacker->combatLimit() >= pDefender->maxHitPoints())
+ 	{
+ 		szTempBuffer.Format(L": " SETCOLR L"%.2f%% " L"%d" ENDCOLR,
+ 				TEXT_COLOR("COLOR_POSITIVE_TEXT"),
+@@ -3753,7 +3706,7 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 		//we do an XP range display
+ 		//This should hopefully now work for any max and min XP values.
+ 
+-		if (pAttacker->combatLimit() == pDefender->maxHitPoints())
++		if (pAttacker->combatLimit() >= pDefender->maxHitPoints())
+ 		{
+ 			FAssert(/* advc.312: */ iMaxXPAtt
+ 					//ensuring the differences is at least 1
+@@ -3879,11 +3832,11 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 	if (iView & BUGOption::getValue("ACO__ShowAttackerHealthBars", 1))
+ 	{
+ 		int first_combined_HP_Att = 0;
+-		for (int n_A = 0; n_A < iNeededRoundsDefender-1; n_A++)
++		for (int iHitsByDef = 0; iHitsByDef < def.hitsToWin() - 1; iHitsByDef++)
+ 		{
+ 			float prob = 100.0f * getCombatOddsSpecific(
+-				pAttacker,pDefender,n_A,iNeededRoundsAttacker);
+-			if (prob > HP_percent_cutoff || n_A==0)
++					pAttacker, pDefender, iHitsByDef, att.hitsToWin());
++			if (prob > HP_percent_cutoff || iHitsByDef == 0)
+ 			{
+ 				if (bCondensed) // then we need to print the prev ones
+ 				{
+@@ -3949,7 +3902,7 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 
+ 				szString.append(gDLL->getText("TXT_KEY_COLOR_POSITIVE"));
+ 				szTempBuffer.Format(L"%d",
+-						((pAttacker->currHitPoints()) - n_A*iDamageToAttacker));
++						((pAttacker->currHitPoints()) - iHitsByDef * def.damagePerRound()));
+ 				szString.append(szTempBuffer.GetCString());
+ 				szString.append(gDLL->getText("TXT_ACO_HP"));
+ 				szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+@@ -3960,9 +3913,9 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 			{
+ 				bCondensed = true;
+ 				first_combined_HP_Att = std::max(first_combined_HP_Att,
+-						(pAttacker->currHitPoints() - n_A * iDamageToAttacker));
++						(pAttacker->currHitPoints() - iHitsByDef * def.damagePerRound()));
+ 				last_combined_HP = pAttacker->currHitPoints()
+-						- n_A*iDamageToAttacker;
++						- iHitsByDef * def.damagePerRound();
+ 				combined_HP_sum += prob;
+ 			}
+ 		}
+@@ -3971,7 +3924,7 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 		{
+ 			szString.append(NEWLINE);
+ 			{
+-				int pixels = (int)(Scaling_Factor*combined_HP_sum + 0.5);  // 1% per pixel
++				int pixels = (int)(Scaling_Factor * combined_HP_sum + 0.5);  // 1% per pixel
+ 				int fullBlocks = (pixels) / 10;
+ 				int lastBlock = (pixels) % 10;
+ 				szString.append(L"<img=Art/ACO/green_bar_left_end.dds>");
+@@ -4012,7 +3965,7 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 		I may include this in the future though, but probably only if retreat odds are zero. */
+ 
+ 		float const prob_victory = 100.0f * getCombatOddsSpecific(
+-				pAttacker, pDefender, iNeededRoundsDefender-1, iNeededRoundsAttacker);
++				pAttacker, pDefender, def.hitsToWin() - 1, att.hitsToWin());
+ 		float const prob_retreat = 100.0f * RetreatOdds;
+ 
+ 		szString.append(NEWLINE);
+@@ -4064,7 +4017,7 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 		szString.append(L" ");
+ 		szString.append(gDLL->getText("TXT_KEY_COLOR_POSITIVE"));
+ 		szTempBuffer.Format(L"%d", pAttacker->currHitPoints()
+-				- (iNeededRoundsDefender-  1) * iDamageToAttacker);
++				- (def.hitsToWin() - 1) * def.damagePerRound());
+ 		szString.append(szTempBuffer.GetCString());
+ 		szString.append(gDLL->getText("TXT_ACO_HP"));
+ 		szString.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+@@ -4079,50 +4032,50 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 	{
+ 		int first_combined_HP_Def = pDefender->currHitPoints();
+ 		float prob = 0.0f;
+-		for (int n_D = iNeededRoundsAttacker; n_D >= 1; n_D--)//
++		for (int iHitsByAtt = att.hitsToWin(); iHitsByAtt >= 1; iHitsByAtt--)//
+ 		{	// a unit with a combat limit
+ 			if (pAttacker->combatLimit() >= pDefender->maxHitPoints())
+ 			{
+-				if (n_D == iNeededRoundsAttacker)
+-					n_D--;//we don't need to do HP for when the unit is dead.
++				if (iHitsByAtt == att.hitsToWin())
++					iHitsByAtt--;//we don't need to do HP for when the unit is dead.
+ 			}
+ 
+ 			int def_HP = std::max((pDefender->currHitPoints()) -
+-				n_D*iDamageToDefender,(pDefender->maxHitPoints() -
+-				pAttacker->combatLimit()));
++					iHitsByAtt * att.damagePerRound(),
++					pDefender->maxHitPoints() - pAttacker->combatLimit());
+ 
+ 			if ((pDefender->maxHitPoints() - pAttacker->combatLimit()) ==
+-				pDefender->currHitPoints() - (n_D-1)*iDamageToDefender)
++				pDefender->currHitPoints() - (iHitsByAtt - 1) * att.damagePerRound())
+ 			{
+ 				// if abnormal
+-				if (n_D == iNeededRoundsAttacker)
++				if (iHitsByAtt == att.hitsToWin())
+ 				{
+-					n_D--;
++					iHitsByAtt--;
+ 					def_HP = (pDefender->maxHitPoints()  - pAttacker->combatLimit());
+ 					prob += 100.0f*PullOutOdds;
+ 					prob += 100.0f*(getCombatOddsSpecific(
+-						pAttacker,pDefender,iNeededRoundsDefender,n_D)+
++						pAttacker,pDefender, def.hitsToWin(), iHitsByAtt)+
+ 						getCombatOddsSpecific(
+-						pAttacker,pDefender,iNeededRoundsDefender-1,n_D));
++						pAttacker, pDefender, def.hitsToWin() - 1, iHitsByAtt));
+ 				}
+ 			}
+ 			else
+ 			{
+ 				//not abnormal
+-				if (n_D == iNeededRoundsAttacker)
++				if (iHitsByAtt == att.hitsToWin())
+ 					prob += 100.0f*PullOutOdds;
+ 				else
+ 				{
+ 					prob += 100.0f*(getCombatOddsSpecific(
+-						pAttacker,pDefender,iNeededRoundsDefender,n_D)+
++						pAttacker, pDefender, def.hitsToWin(), iHitsByAtt) +
+ 						getCombatOddsSpecific(
+-						pAttacker,pDefender,iNeededRoundsDefender-1,n_D));
++						pAttacker, pDefender, def.hitsToWin() - 1, iHitsByAtt));
+ 				}
+ 			}
+ 
+ 			if (prob > HP_percent_cutoff ||
+ 				(pAttacker->combatLimit() < pDefender->maxHitPoints() &&
+-				n_D==iNeededRoundsAttacker))
++				iHitsByAtt == att.hitsToWin()))
+ 			{
+ 				if (bCondensed) // then we need to print the prev ones
+ 				{
+@@ -4200,22 +4153,22 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 				bCondensed = true;
+ 				first_combined_HP_Def = std::min(first_combined_HP_Def,def_HP);
+ 				last_combined_HP = std::max(((pDefender->currHitPoints()) -
+-					n_D*iDamageToDefender),pDefender->maxHitPoints() -
+-					pAttacker->combatLimit());
++						iHitsByAtt * att.damagePerRound()),pDefender->maxHitPoints() -
++						pAttacker->combatLimit());
+ 				combined_HP_sum += prob;
+ 			}
+ 			prob = 0.0f;
+-		}//for n_D
++		}
+ 
+-		if (bCondensed && iNeededRoundsAttacker>1) // then we need to print the prev ones
+-		/*	the reason we need iNeededRoundsAttacker to be greater than 1 is
++		if (bCondensed && att.hitsToWin() > 1) // then we need to print the prev ones
++		/*	the reason we need att.hitsToWin() to be greater than 1 is
+ 			that if it's equal to 1 then we end up with the
+ 			defender detailed HP bar show up twice
+ 			because it will also get printed below */
+ 		{
+ 			szString.append(NEWLINE);
+ 			{
+-				int pixels = (int)(Scaling_Factor*combined_HP_sum + 0.5);  // 1% per pixel
++				int pixels = (int)(Scaling_Factor * combined_HP_sum + 0.5);  // 1% per pixel
+ 				int fullBlocks = (pixels) / 10;
+ 				int lastBlock = (pixels) % 10;
+ 				//if(pixels>=2) {szString.append(L"<img=Art/ACO/green_bar_left_end.dds>");}
+@@ -4253,9 +4206,9 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 		//print the unhurt value...always
+ 
+ 		prob = 100.0f*(getCombatOddsSpecific(
+-			pAttacker,pDefender,iNeededRoundsDefender,0)+
+-			getCombatOddsSpecific(
+-			pAttacker,pDefender,iNeededRoundsDefender-1,0));
++				pAttacker, pDefender, def.hitsToWin(), 0)+
++				getCombatOddsSpecific(
++				pAttacker, pDefender, def.hitsToWin() - 1,0));
+ 		{
+ 			int pixels = (int)(Scaling_Factor*prob + 0.5);  // 1% per pixel
+ 			int fullBlocks = (pixels) / 10;
+@@ -4305,8 +4258,8 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 	if (iView & BUGOption::getValue("ACO__ShowBasicInfo", 2))
+ 	{	// advc.048: Opening parenthesis added
+ 		szTempBuffer.Format(L"(" SETCOLR L"%d" ENDCOLR L", " SETCOLR L"%d " ENDCOLR,
+-				TEXT_COLOR("COLOR_POSITIVE_TEXT"), iDamageToDefender,
+-				TEXT_COLOR("COLOR_NEGATIVE_TEXT"), iDamageToAttacker);
++				TEXT_COLOR("COLOR_POSITIVE_TEXT"), att.damagePerRound(),
++				TEXT_COLOR("COLOR_NEGATIVE_TEXT"), def.damagePerRound());
+ 		szString.append(NEWLINE);
+ 		szString.append(szTempBuffer.GetCString());
+ 		szString.append(gDLL->getText("TXT_ACO_HP"));
+@@ -4314,8 +4267,8 @@ void CvGameTextMgr::setACOPlotHelp(CvWStringBuffer &szString,
+ 		szString.append(gDLL->getText("TXT_ACO_MULTIPLY"));
+ 		// advc.048: Opening parenthesis added
+ 		szTempBuffer.Format(L" (" SETCOLR L"%d" ENDCOLR L", " SETCOLR L"%d " ENDCOLR,
+-				TEXT_COLOR("COLOR_POSITIVE_TEXT"), iNeededRoundsAttacker,
+-				TEXT_COLOR("COLOR_NEGATIVE_TEXT"), iNeededRoundsDefender);
++				TEXT_COLOR("COLOR_POSITIVE_TEXT"), att.hitsToWin(),
++				TEXT_COLOR("COLOR_NEGATIVE_TEXT"), def.hitsToWin());
+ 		szString.append(szTempBuffer.GetCString());
+ 		szString.append(gDLL->getText("TXT_ACO_HitsAt"));
+ 		// advc.048: Closing parenthesis added
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c281dfffc..5215ac1df 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -8295,6 +8295,18 @@ void CvPlayer::changeCitiesLost(int iChange)
+ 	m_iCitiesLost = (m_iCitiesLost + iChange);
+ }
+ 
++// advc:
++int CvPlayer::getFreeWinsVsBarbs() const
++{
++	if (GC.getGame().isOption(GAMEOPTION_SPAH) || // advc.250b
++		GC.getGame().isOption(GAMEOPTION_RISE_FALL)) // advc.700
++	{
++		return 0;
++	}
++	// Cut from CvUnit::getDefenderCombatValues
++	return GC.getInfo(getHandicapType()).getFreeWinsVsBarbs();
++}
++
+ 
+ int CvPlayer::getWinsVsBarbs() const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 31702ca98..7b7812b61 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -778,6 +778,7 @@ public:
+ 	int getCitiesLost() const { return m_iCitiesLost; }																// Exposed to Python
+ 	void changeCitiesLost(int iChange);
+ 
++	int getFreeWinsVsBarbs() const; // advc
+ 	int getWinsVsBarbs() const;																						// Exposed to Python
+ 	void changeWinsVsBarbs(int iChange);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 79f436286..22bad0838 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -9625,7 +9625,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
+ 			GET_PLAYER(ePlayer).AI_dealVal(getID(), kWeGive,
+ 			false, 1, false, false, bCountLiberation)).round();
+ 	//kTheyAlsoGive.clear(); kWeAlsoGive.clear(); // advc: Moved into CvPlayer::AI_counterProposeExternal
+-	/*  advc.001l: Moved into balanceDeal; should be called on whichever side
++	/*  advc.001: Moved into balanceDeal; should be called on whichever side
+ 		receives gold. (Though, in AdvCiv, it doesn't currently make a difference.) */
+ 	//int iGoldValuePercent = AI_goldTradeValuePercent();
+ 	// K-Mod. Refuse all war-time offers unless it's part of a peace deal
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index fd136601a..2894c4614 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1,6 +1,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvUnit.h"
+ #include "CvUnitAI.h"
++#include "CombatOdds.h"
+ #include "CvSelectionGroupAI.h"
+ #include "CoreAI.h"
+ #include "CvCityAI.h"
+@@ -1056,12 +1057,17 @@ void CvUnit::updateAirCombat(bool bQuick)
+ 
+ /*	K-Mod -- this makes the game log the odds and outcomes of every battle,
+ 	to help verify the accuracy of the odds calculation. */
+-//#define LOG_COMBAT_OUTCOMESfunction so that it handles the battle planning internally rather than feeding details back to the caller.
++//#define LOG_COMBAT_OUTCOMES
++
++/*	K-Mod. I've edited this function so that it handles the battle planning internally
++	rather than feeding details back to the caller. */
++/*	advc (note): Much of CombatOdds.cpp is based on this function and may have to
++	be changed if the combat resolution rules are changed. */
+ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ {
+ 	#ifdef LOG_COMBAT_OUTCOMES
+-		int iLoggedOdds = getCombatOdds(this, pDefender);
+-		iLoggedOdds += (1000 - iLoggedOdds)*withdrawalProbability()/100;
++		int iLoggedOdds = calculateCombatOdds(*this, *pDefender);
++		iLoggedOdds += (1000 - iLoggedOdds) * withdrawalProbability() / 100;
+ 	#endif
+ 
+ 	// K-Mod. Initialize battle info.
+@@ -1083,7 +1089,7 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ 	CombatDetails cdDefenderDetails;
+ 
+ 	int iAttackerStrength = currCombatStr(NULL, NULL, &cdAttackerDetails);
+-	int iAttackerFirepower = currFirepower(NULL, NULL);
++	int iAttackerFirepower = currFirepower();
+ 
+ 	int iDefenderStrength=0, iAttackerDamage=0, iDefenderDamage=0, iDefenderOdds=0;
+ 	getDefenderCombatValues(*pDefender, pPlot, iAttackerStrength, iAttackerFirepower,
+@@ -1093,11 +1099,10 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ 
+ 	if (isHuman() || pDefender->isHuman())
+ 	{
+-		//Added ST
+ 		CyArgsList pyArgsCD;
+ 		pyArgsCD.add(gDLL->getPythonIFace()->makePythonObject(&cdAttackerDetails));
+ 		pyArgsCD.add(gDLL->getPythonIFace()->makePythonObject(&cdDefenderDetails));
+-		pyArgsCD.add(getCombatOdds(this, pDefender));
++		pyArgsCD.add(calculateCombatOdds(*this, *pDefender));
+ 		CvEventReporter::getInstance().genericEvent("combatLogCalc", pyArgsCD.makeFunctionArgs());
+ 	}
+ 
+@@ -1132,13 +1137,9 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ 				// K-Mod end
+ 				cdAttackerDetails.iCurrHitPoints = currHitPoints();
+ 				if (isHuman() || pDefender->isHuman())
+-				{
+-					CyArgsList pyArgs;
+-					pyArgs.add(gDLL->getPythonIFace()->makePythonObject(&cdAttackerDetails));
+-					pyArgs.add(gDLL->getPythonIFace()->makePythonObject(&cdDefenderDetails));
+-					pyArgs.add(1);
+-					pyArgs.add(iAttackerDamage);
+-					CvEventReporter::getInstance().genericEvent("combatLogHit", pyArgs.makeFunctionArgs());
++				{	// advc: Moved into new function
++					CvEventReporter::getInstance().combatLogHit(
++							cdAttackerDetails, cdDefenderDetails, iAttackerDamage, true);
+ 				}
+ 			}
+ 			// K-Mod. Track the free-strike misses, to use for choreographing the battle animation.
+@@ -1149,24 +1150,30 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ 		else
+ 		{
+ 			if (pDefender->getCombatFirstStrikes() == 0)
+-			{
+-				if (std::min(GC.getMAX_HIT_POINTS(),
+-					pDefender->getDamage() + iDefenderDamage) > combatLimit())
++			{	// <advc.001l>
++				int iDamage = iDefenderDamage;
++				//if (std::min(GC.getMAX_HIT_POINTS(), pDefender->getDamage() + iDefenderDamage) > combatLimit())
++				/*	The above lets combat continue when the limit is
++					reached exactly. This means, if the attacker lands another hit,
++					it'll deal 0 damage (weird). Also inconsistent w/ caclulateCombatOdds. */
++				// Minus one b/c reaching MAX_HIT_POINTS mustn't be treated as a withdrawal
++				bool const bLimitReached = (std::min(GC.getMAX_HIT_POINTS() - 1, 
++						pDefender->getDamage() + iDamage) >= combatLimit());
++				if (bLimitReached)
+ 				{
++					iDamage = combatLimit() - pDefender->getDamage();
++					/*	Don't break right after the XP change; want to log the hit -
++						now that it's guaranteed to be a proper hit (positive damage). */
++					// </advc.001l>
+ 					changeExperience(GC.getDefineINT(CvGlobals::EXPERIENCE_FROM_WITHDRAWL),
+ 							pDefender->maxXPValue(), true, pPlot->getOwner() == getOwner(),
+ 							!pDefender->isBarbarian());
+-					combat_log.push_back(combatLimit() - pDefender->getDamage()); // K-Mod
+-					pDefender->setDamage(combatLimit(), getOwner());
+-					break;
+ 				}
+-
+-				pDefender->changeDamage(iDefenderDamage, getOwner());
+-				combat_log.push_back(iDefenderDamage); // K-Mod
+-
++				pDefender->changeDamage(iDamage, getOwner());
++				combat_log.push_back(iDamage); // K-Mod
+ 				/* if (getCombatFirstStrikes() > 0 && isRanged()) {
+ 					kBattle.addFirstStrikes(BATTLE_UNIT_ATTACKER, 1);
+-					kBattle.addDamage(BATTLE_UNIT_DEFENDER, BATTLE_TIME_RANGED, iDefenderDamage);
++					kBattle.addDamage(BATTLE_UNIT_DEFENDER, BATTLE_TIME_RANGED, iDamage);
+ 				} */
+ 				// K-Mod
+ 				if (getCombatFirstStrikes() > 0)
+@@ -1174,14 +1181,13 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ 				// K-Mod end
+ 				cdDefenderDetails.iCurrHitPoints = pDefender->currHitPoints();
+ 				if (isHuman() || pDefender->isHuman())
+-				{
+-					CyArgsList pyArgs;
+-					pyArgs.add(gDLL->getPythonIFace()->makePythonObject(&cdAttackerDetails));
+-					pyArgs.add(gDLL->getPythonIFace()->makePythonObject(&cdDefenderDetails));
+-					pyArgs.add(0);
+-					pyArgs.add(iDefenderDamage);
+-					CvEventReporter::getInstance().genericEvent("combatLogHit", pyArgs.makeFunctionArgs());
++				{	// advc: Moved into new function
++					CvEventReporter::getInstance().combatLogHit(
++							cdAttackerDetails, cdDefenderDetails, iDamage, false);
+ 				}
++				// <advc.001l>
++				if (bLimitReached)
++					break; // </advc.001l>
+ 			}
+ 			// K-Mod
+ 			else if (bVisible && !combat_log.empty())
+@@ -7727,7 +7733,7 @@ CvUnit* CvUnit::bestSeaPillageInterceptor(CvUnit* pPillager, int iMinOdds) const
+ 					// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000:
+ 					&iBestUnitRank))
+ 				{
+-					if (getCombatOdds(pPillager, pLoopUnit) < iMinOdds)
++					if (calculateCombatOdds(*pPillager, *pLoopUnit) < iMinOdds)
+ 						pBestUnit = pLoopUnit;
+ 				}
+ 			}
+@@ -11118,25 +11124,20 @@ void CvUnit::getDefenderCombatValues(CvUnit const& kDefender, CvPlot const* pPlo
+ 	FAssert(iOurFirepower + iTheirFirepower > 0);
+ 
+ 	iTheirOdds = (GC.getCOMBAT_DIE_SIDES() * iTheirStrength) / (iOurStrength + iTheirStrength);
+-	// <advc.250b>
+-	if(!GC.getGame().isOption(GAMEOPTION_SPAH) && !GC.getGame().isOption(GAMEOPTION_RISE_FALL))
+-	{	// </advc.250b>
+-		if (kDefender.isBarbarian())
++	if (kDefender.isBarbarian())
++	{
++		if (GET_PLAYER(getOwner()).getWinsVsBarbs() <
++			GET_PLAYER(getOwner()).getFreeWinsVsBarbs())
+ 		{
+-			if (GET_PLAYER(getOwner()).getWinsVsBarbs() < GC.getInfo(GET_PLAYER(getOwner()).
+-				getHandicapType()).getFreeWinsVsBarbs())
+-			{
+-				iTheirOdds = std::min((10 * GC.getCOMBAT_DIE_SIDES()) / 100, iTheirOdds);
+-			}
++			iTheirOdds = std::min((10 * GC.getCOMBAT_DIE_SIDES()) / 100, iTheirOdds);
+ 		}
+-		if (isBarbarian())
++	}
++	if (isBarbarian())
++	{
++		if (GET_PLAYER(kDefender.getOwner()).getWinsVsBarbs() <
++			GET_PLAYER(kDefender.getOwner()).getFreeWinsVsBarbs())
+ 		{
+-			if (GET_PLAYER(kDefender.getOwner()).getWinsVsBarbs() <
+-				GC.getInfo(GET_PLAYER(kDefender.getOwner()).getHandicapType()).
+-				getFreeWinsVsBarbs())
+-			{
+-				iTheirOdds =  std::max((90 * GC.getCOMBAT_DIE_SIDES()) / 100, iTheirOdds);
+-			}
++			iTheirOdds =  std::max((90 * GC.getCOMBAT_DIE_SIDES()) / 100, iTheirOdds);
+ 		}
+ 	}
+ 
+@@ -11464,6 +11465,12 @@ int CvUnit::getSelectionSoundScript() const
+ 	return iScriptId;
+ }
+ 
++// advc.154: for UI purposes
++bool CvUnit::isWorker() const
++{
++	return (AI_getUnitAIType() == UNITAI_WORKER || AI_getUnitAIType() == UNITAI_WORKER_SEA);
++}
++
+ /*	BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000: START
+ 	Original isBetterDefenderThan call (without the extra parameter) -
+ 	now just a pass-through */
+@@ -11550,7 +11557,8 @@ int CvUnit::LFBgetDefenderOdds(const CvUnit* pAttacker) const
+ 	if (bUseAttacker && GC.getDefineBOOL(CvGlobals::LFB_USECOMBATODDS))
+ 	{
+ 		// We start with straight combat odds
+-		iDefense = LFBgetDefenderCombatOdds(pAttacker);
++		// advc: Replacing call to deleted (and redundant) LFBgetDefenderCombatOdds
++		iDefense = 1000 - calculateCombatOdds(*pAttacker, *this);
+ 	}
+ 	else
+ 	{
+@@ -11745,70 +11753,3 @@ int CvUnit::LFGgetDefensiveValueAdjustment() const
+ 
+ 	return iValue;
+ }
+-// K-Mod end
+-
+-int CvUnit::LFBgetDefenderCombatOdds(const CvUnit* pAttacker) const
+-{
+-	int iAttackerStrength;
+-	int iAttackerFirepower;
+-	int iDefenderStrength;
+-	int iDefenderFirepower;
+-	int iDefenderOdds;
+-	int iStrengthFactor;
+-	int iDamageToAttacker;
+-	int iDamageToDefender;
+-	int iNeededRoundsAttacker;
+-	int iNeededRoundsDefender;
+-	int iAttackerLowFS;
+-	int iAttackerHighFS;
+-	int iDefenderLowFS;
+-	int iDefenderHighFS;
+-	int iDefenderHitLimit;
+-
+-	iAttackerStrength = pAttacker->currCombatStr(NULL, NULL);
+-	iAttackerFirepower = pAttacker->currFirepower(NULL, NULL);
+-
+-	iDefenderStrength = currCombatStr(plot(), pAttacker);
+-	iDefenderFirepower = currFirepower(plot(), pAttacker);
+-
+-	FAssert((iAttackerStrength + iDefenderStrength) > 0);
+-	FAssert((iAttackerFirepower + iDefenderFirepower) > 0);
+-
+-	iDefenderOdds = ((GC.getCOMBAT_DIE_SIDES() * iDefenderStrength) / (iAttackerStrength + iDefenderStrength));
+-	iStrengthFactor = ((iAttackerFirepower + iDefenderFirepower + 1) / 2);
+-
+-	// calculate damage done in one round
+-	//////
+-
+-	iDamageToAttacker = std::max(1,((GC.getCOMBAT_DAMAGE() * (iDefenderFirepower + iStrengthFactor)) / (iAttackerFirepower + iStrengthFactor)));
+-	iDamageToDefender = std::max(1,((GC.getCOMBAT_DAMAGE() * (iAttackerFirepower + iStrengthFactor)) / (iDefenderFirepower + iStrengthFactor)));
+-
+-	// calculate needed rounds.
+-	// Needed rounds = round_up(health/damage)
+-	//////
+-
+-	iDefenderHitLimit = maxHitPoints() - pAttacker->combatLimit();
+-
+-	iNeededRoundsAttacker = (std::max(0, currHitPoints() - iDefenderHitLimit) + iDamageToDefender - 1) / iDamageToDefender;
+-	iNeededRoundsDefender = (pAttacker->currHitPoints() + iDamageToAttacker - 1) / iDamageToAttacker;
+-
+-	// calculate possible first strikes distribution.
+-	// We can't use the getCombatFirstStrikes() function (only one result,
+-	// no distribution), so we need to mimic it.
+-	//////
+-
+-	iAttackerLowFS = (immuneToFirstStrikes()) ? 0 : pAttacker->firstStrikes();
+-	iAttackerHighFS = (immuneToFirstStrikes()) ? 0 : (pAttacker->firstStrikes() + pAttacker->chanceFirstStrikes());
+-
+-	iDefenderLowFS = (pAttacker->immuneToFirstStrikes()) ? 0 : firstStrikes();
+-	iDefenderHighFS = (pAttacker->immuneToFirstStrikes()) ? 0 : (firstStrikes() + chanceFirstStrikes());
+-
+-	return LFBgetCombatOdds(iDefenderLowFS, iDefenderHighFS, iAttackerLowFS, iAttackerHighFS, iNeededRoundsDefender, iNeededRoundsAttacker, iDefenderOdds);
+-}
+-// BETTER_BTS_AI_MOD: END
+-
+-// advc.154: for UI purposes
+-bool CvUnit::isWorker() const
+-{
+-	return (AI_getUnitAIType() == UNITAI_WORKER || AI_getUnitAIType() == UNITAI_WORKER_SEA);
+-}
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index d84046eda..4d569996d 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -423,7 +423,7 @@ public:
+ 	{
+ 		return ((maxCombatStr(pPlot, pAttacker, pCombatDetails) * currHitPoints()) / maxHitPoints());
+ 	}
+-	int currFirepower(const CvPlot* pPlot, const CvUnit* pAttacker) const									// Exposed to Python
++	int currFirepower(const CvPlot* pPlot = NULL, const CvUnit* pAttacker = NULL) const						// Exposed to Python
+ 	{
+ 		return ((maxCombatStr(pPlot, pAttacker) + currCombatStr(pPlot, pAttacker) + 1) / 2);
+ 	}
+@@ -432,6 +432,10 @@ public:
+ 			int iCurrentHP = -1) const; // advc.139
+ 	DllExport float maxCombatStrFloat(const CvPlot* pPlot, const CvUnit* pAttacker) const;					// Exposed to Python
+ 	DllExport float currCombatStrFloat(const CvPlot* pPlot, const CvUnit* pAttacker) const;					// Exposed to Python
++	// advc: was protected
++	void getDefenderCombatValues(CvUnit const& kDefender, const CvPlot* pPlot,
++			int iOurStrength, int iOurFirepower, int& iTheirOdds, int& iTheirStrength,
++			int& iOurDamage, int& iTheirDamage, CombatDetails* pTheirDetails = NULL) const;
+ 
+ 	DllExport inline bool canFight() const																	// Exposed to Python
+ 	{
+@@ -1008,6 +1012,8 @@ public:
+ 	DllExport void getLayerAnimationPaths(std::vector<AnimationPathTypes>& aAnimationPaths) const;
+ 	DllExport int getSelectionSoundScript() const;
+ 
++	bool isWorker() const; // advc.154  (Exposed to Python)
++
+ 	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker,
+ 	// Lead From Behind (UncutDragon, edited for K-Mod): START
+ 			int* pBestDefenderRank,
+@@ -1020,9 +1026,8 @@ public:
+ 	int LFBgetRelativeValueRating() const;
+ 	int LFGgetDefensiveValueAdjustment() const; // K-Mod
+ 	bool LFBisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank) const;
+-	int LFBgetDefenderCombatOdds(const CvUnit* pAttacker) const;
++	// (advc: LFBgetDefenderCombatOdds deleted, use 1000 minus calculateCombatOdds instead.)
+ 	// Lead From Behind: END
+-	bool isWorker() const; // advc.154  (Exposed to Python)
+ 
+ 	// <advc.003u>
+ 	// virtual for FFreeListTrashArray
+@@ -1170,9 +1175,6 @@ protected:
+ 	bool verifyRoundsValid(const CvBattleDefinition & battleDefinition) const;
+ 	void increaseBattleRounds(CvBattleDefinition & battleDefinition) const;
+ 	int computeWaveSize(bool bRangedRound, int iAttackerMax, int iDefenderMax) const;
+-	void getDefenderCombatValues(CvUnit& kDefender, const CvPlot* pPlot, int iOurStrength,
+-			int iOurFirepower, int& iTheirOdds, int& iTheirStrength, int& iOurDamage,
+-			int& iTheirDamage, CombatDetails* pTheirDetails = NULL) const;
+ 	bool isCombatVisible(const CvUnit* pDefender) const;
+ 	//void resolveCombat(CvUnit* pDefender, CvPlot* pPlot, CvBattleDefinition& kBattle);
+ 	void resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible); // K-Mod
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 686cd2717..f1d98e7db 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1,5 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvUnitAI.h"
++#include "CombatOdds.h"
+ #include "CvSelectionGroupAI.h"
+ #include "GroupPathFinder.h"
+ #include "FAStarNode.h"
+@@ -717,15 +718,15 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ 		GC.getDefineBOOL(CvGlobals::LFB_USECOMBATODDS))
+ 	{
+ 		// Combat odds are out of 1000 - we need odds out of 100
+-		int iOdds = (getCombatOdds(this, pDefender) + 5) / 10;
++		int iOdds = (calculateCombatOdds(*this, *pDefender) + 5) / 10;
+ 		iOdds += GET_PLAYER(getOwner()).AI_getAttackOddsChange();
+ 		return std::max(1, std::min(iOdds, 99));
+ 	}
+ 
+ 	int iOurStrength = (getDomainType() == DOMAIN_AIR ?
+-			airCurrCombatStr(NULL) : currCombatStr(NULL, NULL));
++			airCurrCombatStr(NULL) : currCombatStr());
+ 	int iOurFirepower = (getDomainType() == DOMAIN_AIR ?
+-			iOurStrength : currFirepower(NULL, NULL));
++			iOurStrength : currFirepower());
+ 
+ 	if (iOurStrength == 0)
+ 		return 1;
+@@ -748,11 +749,7 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ 	int iDamageToThem = std::max(1, (GC.getCOMBAT_DAMAGE() *
+ 			(iOurFirepower + iStrengthFactor)) /
+ 			(iTheirFirepower + iStrengthFactor));
+-	/*	advc: If this function gets used for air units, then airCombatLimit
+-		should probably be used. */
+-	FAssert(getDomainType() != DOMAIN_AIR);
+ 	int iHitLimitThem = pDefender->maxHitPoints() - combatLimit();
+-
+ 	int iNeededRoundsUs = (std::max(0, pDefender->currHitPoints() - iHitLimitThem) +
+ 			iDamageToThem - 1) / iDamageToThem;
+ 	int iNeededRoundsThem = (std::max(0, currHitPoints()) + iDamageToUs - 1) / iDamageToUs;
+
+diff --git a/CvGameCoreDLL/CyGameCoreUtils.cpp b/CvGameCoreDLL/CyGameCoreUtils.cpp
+index e4761a5fb..115c64ac3 100644
+--- a/CvGameCoreDLL/CyGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CyGameCoreUtils.cpp
+@@ -5,6 +5,7 @@
+ #include "CvMap.h"
+ #include "CvCity.h" // </advc.make>
+ // <advc>
++#include "CombatOdds.h"
+ #include "CvTeam.h" // (Would be nicer to expose getEspionageModifier through CyTeam)
+ #include "CvPlayer.h" // for getCity, getUnit
+ // For functions moved from CvGameCoreUtils to CvInfos
+@@ -251,7 +252,7 @@ bool cyIsLimitedProject(int /*ProjectTypes*/ eProject)
+ 
+ int cyGetCombatOdds(CyUnit* pAttacker, CyUnit* pDefender)
+ {
+-	return getCombatOdds(pAttacker->getUnit(), pDefender->getUnit());
++	return calculateCombatOdds(*pAttacker->getUnit(), *pDefender->getUnit());
+ }
+ 
+ int cyGetEspionageModifier(int iOurTeam, int iTargetTeam)
+
+diff --git a/CvGameCoreDLL/CyStructsInterface1.cpp b/CvGameCoreDLL/CyStructsInterface1.cpp
+index 309687199..af023ef0d 100644
+--- a/CvGameCoreDLL/CyStructsInterface1.cpp
++++ b/CvGameCoreDLL/CyStructsInterface1.cpp
+@@ -137,7 +137,7 @@ void CyStructsPythonInterface1()
+ 		.def_readwrite("bClaimed", &PBPlayerAdminData::bClaimed)
+ 		.def_readwrite("bTurnActive", &PBPlayerAdminData::bTurnActive)
+ 		;
+-	//Added ST
++
+ 	python::class_<CombatDetails>("CombatDetails")
+ 		.def_readwrite("iExtraCombatPercent", &CombatDetails::iExtraCombatPercent)
+ 		.def_readwrite("iAnimalCombatModifierTA", &CombatDetails::iAnimalCombatModifierTA)
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 37d2d021d..e22ff37e6 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -42,6 +42,7 @@
+     <ClCompile Include="..\ArmamentForecast.cpp" />
+     <ClCompile Include="..\BBAILog.cpp" />
+     <ClCompile Include="..\CitySiteEvaluator.cpp" />
++    <ClCompile Include="..\CombatOdds.cpp" />
+     <ClCompile Include="..\CvAgents.cpp" />
+     <ClCompile Include="..\CvArea.cpp" />
+     <ClCompile Include="..\CvArtFileMgr.cpp" />
+@@ -208,6 +209,7 @@
+     <ClInclude Include="..\BoostPythonPCH.h" />
+     <ClInclude Include="..\CityPlotIterator.h" />
+     <ClInclude Include="..\CitySiteEvaluator.h" />
++    <ClInclude Include="..\CombatOdds.h" />
+     <ClInclude Include="..\CoreAI.h" />
+     <ClInclude Include="..\CvAgents.h" />
+     <ClInclude Include="..\CvArea.h" />
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=118723

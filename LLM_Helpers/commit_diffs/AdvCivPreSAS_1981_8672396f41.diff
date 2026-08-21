@@ -1,0 +1,99 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1981
+# Commit: 8672396f414d621e4a72d35fadd0d0ec9b014066
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 476c94e6fff0604a42278c0f3e908eb47d40dcd7
+# Title: Amend recent changes to CvGameAI
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvGame.cpp
+12	8	CvGameCoreDLL/CvGameAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 91af5faa8..de2d75e84 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1178,7 +1178,8 @@ void CvGame::assignStartingPlots()
+ 				int iPos = ::range((iAlive *
+ 						GC.getInfo(civ.getHandicapType()).
+ 						getStartingLocationPercent()) / 100, 0, iAlive - 1);
+-				if(playerOrder[iPos] != NO_PLAYER) { // Pos already taken
++				if (playerOrder[iPos] != NO_PLAYER) // Pos already taken
++				{
+ 					for(int j = 1; j < std::max(iPos + 1, iAlive - iPos); j++)
+ 					{
+ 						// Alternate between better and worse positions
+
+diff --git a/CvGameCoreDLL/CvGameAI.cpp b/CvGameCoreDLL/CvGameAI.cpp
+index 5637a819f..e1d9bdfbd 100644
+--- a/CvGameCoreDLL/CvGameAI.cpp
++++ b/CvGameCoreDLL/CvGameAI.cpp
+@@ -25,6 +25,7 @@ CvGameAI::~CvGameAI()
+ void CvGameAI::AI_init()
+ {
+ 	AI_reset();
++	AI_sortOutUWAIOptions(false); // advc.104
+ }
+ 
+ // <advc.104u>
+@@ -94,10 +95,7 @@ void CvGameAI::AI_reset(/* advc (as in CvGame): */ bool bConstructor)
+ 	AI_uninit();
+ 	m_iPad = 0;
+ 	if (!bConstructor)
+-	{
+-		AI_sortOutUWAIOptions(false); // advc.104
+ 		AI_updateExclusiveRadiusWeight(); // advc.099b
+-	}
+ }
+ 
+ 
+@@ -160,6 +158,9 @@ scaled_int CvGameAI::AI_exclusiveRadiusWeight(int iDist) const
+ {
+ 	if(iDist >= (int)m_arExclusiveRadiusWeight.size())
+ 		return 0;
++	// Position 0 of the array is for iDist==-1 (unknown distance)
++	if (iDist <= 0)
++		iDist++;
+ 	FAssert(iDist >= 0);
+ 	return m_arExclusiveRadiusWeight[iDist];
+ }
+@@ -168,17 +169,20 @@ scaled_int CvGameAI::AI_exclusiveRadiusWeight(int iDist) const
+  void CvGameAI::AI_updateExclusiveRadiusWeight()
+  {
+ 	FAssert(m_arExclusiveRadiusWeight.size() == 3);
+-	for (int iDist = 0; iDist < (int)m_arExclusiveRadiusWeight.size(); iDist++)
++	for (int i = 0; i < (int)m_arExclusiveRadiusWeight.size(); i++)
+ 	{
+ 		scaled_int rDistMultiplier;
+-		if(iDist == 0 || iDist == 1)
+-			rDistMultiplier = 2;
+-		else rDistMultiplier = 1;
++		switch(i)
++		{
++		case 1: rDistMultiplier = 2; break;
++		case 2: rDistMultiplier = 1; break;
++		default: rDistMultiplier = fixp(1.5);
++		}
+ 		// High exponent; better use higher precision than usual.
+ 		ScaledInt<32*1024> rBase = 1 - rDistMultiplier *
+ 				per1000(GC.getDefineINT(CvGlobals::CITY_RADIUS_DECAY));
+ 		FAssertMsg(rBase > 0, "CITY_RADIUS_DECAY too great; negative base for scaled_int::pow.");
+-		m_arExclusiveRadiusWeight[iDist] = 1 - rBase.pow(
++		m_arExclusiveRadiusWeight[i] = 1 - rBase.pow(
+ 				25 * per100(GC.getInfo(getGameSpeedType()).getGoldenAgePercent()));
+ 	}
+  }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2540

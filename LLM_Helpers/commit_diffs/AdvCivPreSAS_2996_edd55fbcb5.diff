@@ -1,0 +1,68 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2996
+# Commit: edd55fbcb5285299d3d44487ca32dacd69b07979
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5d751ff409bb2d5909f980830e49b49acc1c8764
+# Title: Fix v0.98 bug that had prevented resource clusters
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	12	CvGameCoreDLL/CvMapGenerator.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 111eaf606..27f020b34 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -680,14 +680,12 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
+ 					can't enforce this well b/c it doesn't know whether a cluster starts
+ 					(distance needs to be heeded) or continues (distance mustn't be heeded). */
+ 				BonusClassTypes eClassToAvoid = kBonus.getBonusClassType();
+-				/*  Only resources that occur in clusters are problematic. Not sure about
+-					the iClassToAvoid>0 clause. 0 is the "general" bonus class containing
+-					all the clustered resources except for Gold, Silver, Gems which I've
+-					moved to a separate class "precious". I.e. currently only double clusters
+-					of precious bonuses are avoided. Eliminating all double clusters might
+-					get in the way of (early) resource trades too much and make the map
+-					less exciting than it could be. */
+-				if(kBonus.getGroupRand() > 0 && eClassToAvoid != NO_BONUSCLASS)
++				/*	In BtS, all resources that occur in clusters are of the
++					"general" class, id 0. Don't want to eliminate all overlapping clusters
++					b/c that may get in the way of (early) resource trades too much and
++					make the map less exciting than it could be. So I've moved the
++					problematic resources into a new class "precious" (id greater than 0). */
++				if (kBonus.getGroupRand() > 0 && eClassToAvoid > 0)
+ 				{
+ 					bool bSkip = false;
+ 					/*  Can't use kUnitClass.getUniqueRange() b/c this has to be
+@@ -787,11 +785,14 @@ int CvMapGenerator::placeGroup(BonusTypes eBonus, CvPlot const& kCenter,
+ 	for (int j = 0; j < iSize &&
+ 		iLimit > 0; j++)
+ 	{
+-		scaled pr = per100(kBonus.getGroupRand());
+-		pr *= fixp(2/3.).pow(iPlaced);
+-		if (pr.bernoulliSuccess(GC.getGame().getMapRand(), "addNonUniqueBonusType"))
++		CvPlot& kPlot = *apGroupRange[aiShuffled[j]];
++		if (!canPlaceBonusAt(eBonus, kPlot.getX(), kPlot.getY(), bIgnoreLatitude))
++			continue;
++		scaled rAddBonusProb = per100(kBonus.getGroupRand());
++		rAddBonusProb *= fixp(2/3.).pow(iPlaced);
++		if (rAddBonusProb.bernoulliSuccess(GC.getGame().getMapRand(), "addNonUniqueBonusType"))
+ 		{
+-			apGroupRange[aiShuffled[j]]->setBonusType(eBonus);
++			kPlot.setBonusType(eBonus);
+ 			iLimit--;
+ 			iPlaced++;
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2358

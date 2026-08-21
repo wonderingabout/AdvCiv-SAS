@@ -1,0 +1,1477 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1615
+# Commit: 490871f5b31101a0f6a72c51680c2b0d655489f7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 49bc0f540e3e308bf944c43a12b87e2456557b0f
+# Title: Some headers moved into CvGameCoreDLL.h
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	CvGameCoreDLL/AdvCiv4lerts.cpp
+0	1	CvGameCoreDLL/CvArea.cpp
+0	2	CvGameCoreDLL/CvBugOptions.cpp
+0	9	CvGameCoreDLL/CvCity.cpp
+0	7	CvGameCoreDLL/CvCityAI.cpp
+0	9	CvGameCoreDLL/CvDLLButtonPopup.cpp
+0	1	CvGameCoreDLL/CvDLLEntity.cpp
+0	4	CvGameCoreDLL/CvDLLPython.cpp
+1	5	CvGameCoreDLL/CvDLLWidgetData.cpp
+0	2	CvGameCoreDLL/CvDeal.cpp
+0	7	CvGameCoreDLL/CvDllPythonEvents.cpp
+5	3	CvGameCoreDLL/CvEventReporter.cpp
+4	2	CvGameCoreDLL/CvEventReporter.h
+0	1	CvGameCoreDLL/CvFractal.cpp
+0	10	CvGameCoreDLL/CvGame.cpp
+0	2	CvGameCoreDLL/CvGameAI.cpp
+0	5	CvGameCoreDLL/CvGameCoreDLL.cpp
+17	2	CvGameCoreDLL/CvGameCoreDLL.h
+0	3	CvGameCoreDLL/CvGameCoreUtils.cpp
+0	8	CvGameCoreDLL/CvGameInterface.cpp
+1	7	CvGameCoreDLL/CvGameTextMgr.cpp
+0	3	CvGameCoreDLL/CvGlobals.cpp
+0	1	CvGameCoreDLL/CvInfos.cpp
+0	3	CvGameCoreDLL/CvInitCore.cpp
+0	9	CvGameCoreDLL/CvMap.cpp
+0	4	CvGameCoreDLL/CvMapGenerator.cpp
+0	2	CvGameCoreDLL/CvMessageData.cpp
+3	13	CvGameCoreDLL/CvPlayer.cpp
+0	8	CvGameCoreDLL/CvPlayerAI.cpp
+0	8	CvGameCoreDLL/CvPlot.cpp
+0	1	CvGameCoreDLL/CvPlotGroup.cpp
+0	1	CvGameCoreDLL/CvRandom.cpp
+0	2	CvGameCoreDLL/CvReplayInfo.cpp
+1	8	CvGameCoreDLL/CvSelectionGroup.cpp
+0	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+3	0	CvGameCoreDLL/CvStatistics.h
+0	7	CvGameCoreDLL/CvTeam.cpp
+0	4	CvGameCoreDLL/CvTeamAI.cpp
+0	10	CvGameCoreDLL/CvUnit.cpp
+0	5	CvGameCoreDLL/CvUnitAI.cpp
+0	1	CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+0	1	CvGameCoreDLL/CvXMLLoadUtilityInit.cpp
+0	1	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+0	1	CvGameCoreDLL/CyArea.cpp
+0	1	CvGameCoreDLL/CyAreaInterface.cpp
+0	2	CvGameCoreDLL/CyArgsList.cpp
+0	2	CvGameCoreDLL/CyArtFileMgr.cpp
+0	3	CvGameCoreDLL/CyCity.cpp
+0	2	CvGameCoreDLL/CyCityInterface1.cpp
+0	1	CvGameCoreDLL/CyCityInterface2.cpp
+0	4	CvGameCoreDLL/CyGame.cpp
+0	3	CvGameCoreDLL/CyGameCoreUtils.cpp
+0	3	CvGameCoreDLL/CyGameCoreUtilsInterface.cpp
+0	1	CvGameCoreDLL/CyGameInterface.cpp
+0	2	CvGameCoreDLL/CyGameTextMgr.cpp
+0	1	CvGameCoreDLL/CyGlobalContext.cpp
+0	1	CvGameCoreDLL/CyGlobalContextInterface1.cpp
+0	1	CvGameCoreDLL/CyGlobalContextInterface2.cpp
+0	1	CvGameCoreDLL/CyGlobalContextInterface3.cpp
+0	1	CvGameCoreDLL/CyGlobalContextInterface4.cpp
+1	4	CvGameCoreDLL/CyMap.cpp
+0	2	CvGameCoreDLL/CyMapGenerator.cpp
+0	3	CvGameCoreDLL/CyMapInterface.cpp
+0	1	CvGameCoreDLL/CyMessageControl.cpp
+1	5	CvGameCoreDLL/CyPlayer.cpp
+0	3	CvGameCoreDLL/CyPlayerInterface1.cpp
+0	3	CvGameCoreDLL/CyPlayerInterface2.cpp
+0	2	CvGameCoreDLL/CyPlot.cpp
+1	4	CvGameCoreDLL/CyPlotInterface1.cpp
+3	4	CvGameCoreDLL/CySelectionGroup.cpp
+0	2	CvGameCoreDLL/CySelectionGroupInterface.cpp
+4	8	CvGameCoreDLL/CyUnit.cpp
+0	3	CvGameCoreDLL/CyUnitInterface1.cpp
+0	1	CvGameCoreDLL/FProfiler.h
+0	3	CvGameCoreDLL/RiseFall.cpp
+0	1	CvGameCoreDLL/StartPointsAsHandicap.cpp
+0	1	CvGameCoreDLL/WarAndPeaceAI.cpp
+0	1	CvGameCoreDLL/WarAndPeaceAgent.cpp
+0	1	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index 97fb08cb2..f84bc504a 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -5,7 +5,6 @@
+ #include "CvInfos.h"
+ #include "CvGamePlay.h"
+ #include "RiseFall.h" // advc.706
+-#include "CvDLLInterfaceIFaceBase.h"
+ #include <iterator>
+ 
+ using std::set;
+
+diff --git a/CvGameCoreDLL/CvArea.cpp b/CvGameCoreDLL/CvArea.cpp
+index cf50c11d2..a620f3236 100644
+--- a/CvGameCoreDLL/CvArea.cpp
++++ b/CvGameCoreDLL/CvArea.cpp
+@@ -4,7 +4,6 @@
+ #include "CvMap.h"
+ #include "CvGamePlay.h"
+ #include "CvInfos.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+ 
+ // Public Functions...
+
+diff --git a/CvGameCoreDLL/CvBugOptions.cpp b/CvGameCoreDLL/CvBugOptions.cpp
+index 984d2c019..63588f4a8 100644
+--- a/CvGameCoreDLL/CvBugOptions.cpp
++++ b/CvGameCoreDLL/CvBugOptions.cpp
+@@ -13,9 +13,7 @@ Created:	2009-01-21
+ #include "CvGameCoreDLL.h"
+ #include "CvBugOptions.h"
+ #include "CvGameAI.h"
+-#include "CyArgsList.h"
+ #include "FVariableSystem.h"
+-#include "CvDLLPythonIFaceBase.h"
+ 
+ bool getDefineBOOL(const char* xmlKey, bool bDefault)
+ {
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 7bbba85c5..0fbed769a 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5,19 +5,10 @@
+ #include "CvGamePlay.h"
+ #include "CvMap.h"
+ #include "CvInfos.h"
+-#include "CvArtFileMgr.h"
+ #include "CvPopupInfo.h"
+-#include "CyCity.h"
+-#include "CyArgsList.h"
+ #include "CvGameTextMgr.h"
+-#include "CvEventReporter.h"
+ #include "CvBugOptions.h" // advc.060
+-#include "CvInitCore.h" // advc.001: Needed for bugfix in getCityBillboardSizeIconColors
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+-#include "CvDLLEngineIFaceBase.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLEntityIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+ 
+ 
+ CvCity::CvCity()
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 9c6731372..ea85a5d44 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -5,17 +5,10 @@
+ #include "CvGamePlay.h"
+ #include "WarAndPeaceAgent.h" // advc.031b (for trait checks)
+ #include "CvMap.h"
+-#include "CyCity.h"
+-#include "CyArgsList.h"
+ #include "CvInfos.h"
+-#include "CvStatistics.h" // advc.310
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ #include "BBAI_Defines.h"
+ 
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLFAStarIFaceBase.h"
+-
+ 
+ #define BUILDINGFOCUS_FOOD					(1 << 1)
+ #define BUILDINGFOCUS_PRODUCTION			(1 << 2)
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index e5462855f..499a6b84c 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -6,19 +6,10 @@
+ #include "CvGamePlay.h"
+ #include "RiseFall.h" // advc.706
+ #include "CvMap.h"
+-#include "CvArtFileMgr.h"
+-#include "CyCity.h"
+-#include "CyArgsList.h"
+ #include "CvPopupReturn.h"
+ #include "CvInfos.h"
+-#include "CvInitCore.h"
+ #include "CvGameTextMgr.h"
+-#include "CvEventReporter.h"
+ #include "CvMessageControl.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLEntityIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
+ 
+ 
+ #define PASSWORD_DEFAULT (L"*****")
+
+diff --git a/CvGameCoreDLL/CvDLLEntity.cpp b/CvGameCoreDLL/CvDLLEntity.cpp
+index bbcbd8d1d..27b8bbba0 100644
+--- a/CvGameCoreDLL/CvDLLEntity.cpp
++++ b/CvGameCoreDLL/CvDLLEntity.cpp
+@@ -1,6 +1,5 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLEntity.h"
+-#include "CvDLLEntityIFaceBase.h"
+ 
+ CvDLLEntity::CvDLLEntity() : m_pEntity(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CvDLLPython.cpp b/CvGameCoreDLL/CvDLLPython.cpp
+index 4ca4a6f80..4b356b1a7 100644
+--- a/CvGameCoreDLL/CvDLLPython.cpp
++++ b/CvGameCoreDLL/CvDLLPython.cpp
+@@ -1,11 +1,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyMap.h"
+ #include "CyPlayer.h"
+-#include "CyPlot.h"
+ #include "CyGame.h"
+-#include "CyUnit.h"
+-#include "CyGlobalContext.h"
+-#include "CyCity.h"
+ 
+ void CyCityPythonInterface1(python::class_<CyCity>& x);
+ void CyCityPythonInterface2(python::class_<CyCity>& x); // dlph.34
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 64c779ee5..ffe63b38e 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2,9 +2,7 @@
+ #include "CvDLLWidgetData.h"
+ #include "CvGamePlay.h"
+ #include "CvMap.h"
+-#include "CyArgsList.h"
+ #include "CvGameTextMgr.h"
+-#include "CvEventReporter.h"
+ #include "CvPopupInfo.h"
+ #include "CvMessageControl.h"
+ #include "CvInfos.h"
+@@ -12,9 +10,7 @@
+ #include "BBAI_Defines.h"
+ #include "WarEvaluator.h" // advc.104l
+ #include "RiseFall.h" // advc.706
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
++
+ 
+ CvDLLWidgetData* CvDLLWidgetData::m_pInst = NULL;
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index da4a74632..f23ffa8ff 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -5,8 +5,6 @@
+ #include "WarAndPeaceAgent.h" // advc.104
+ #include "CvMap.h"
+ #include "CvGameTextMgr.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvEventReporter.h"
+ #include "CvInfos.h"
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+
+diff --git a/CvGameCoreDLL/CvDllPythonEvents.cpp b/CvGameCoreDLL/CvDllPythonEvents.cpp
+index 209305523..669618166 100644
+--- a/CvGameCoreDLL/CvDllPythonEvents.cpp
++++ b/CvGameCoreDLL/CvDllPythonEvents.cpp
+@@ -1,16 +1,9 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDllPythonEvents.h"
+ #include "CvGameAI.h"
+-#include "CyArgsList.h"
+-#include "CyUnit.h"
+-#include "CyPlot.h"
+ #include "CvPlot.h"
+-#include "CyCity.h"
+ #include "CvSelectionGroup.h"
+ #include "CvUnit.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+ 
+ bool CvDllPythonEvents::preEvent()
+ {
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index b9297ba4d..092090597 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -2,9 +2,6 @@
+ #include "CvEventReporter.h"
+ #include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+-#include "CvDllPythonEvents.h"
+-#include "CvInitCore.h"
+-#include "CvDLLInterfaceIFaceBase.h" // advc.106l
+ 
+ //
+ // static, singleton accessor
+@@ -389,6 +386,11 @@ void CvEventReporter::playerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPl
+ {
+ 	m_kPythonEventMgr.reportPlayerGoldTrade(eFromPlayer, eToPlayer, iAmount);
+ }
++// <advc.make> To get rid of the K-Mod friend declaration in the header
++CvPlayerRecord const* CvEventReporter::getPlayerRecord(PlayerTypes ePlayer) const
++{
++	return m_kStatistics.getPlayerRecord(ePlayer);
++} // </advc.make>
+ 
+ void CvEventReporter::chat(CvWString szString)
+ {
+
+diff --git a/CvGameCoreDLL/CvEventReporter.h b/CvGameCoreDLL/CvEventReporter.h
+index 92a128c7d..2ea02a959 100644
+--- a/CvGameCoreDLL/CvEventReporter.h
++++ b/CvGameCoreDLL/CvEventReporter.h
+@@ -5,7 +5,6 @@
+ 
+ #include "CvStatistics.h"
+ #include "CvDllPythonEvents.h"
+-#include "CvPlayer.h" // advc.make: for K-Mod's friend declaration
+ 
+ //
+ // A singleton class which is used to track game events.
+@@ -23,7 +22,9 @@ class CvSelectionGroup;
+ class CvEventReporter
+ {
+ 	friend class CyStatistics;
+-	friend const CvPlayerRecord* CvPlayer::getPlayerRecord() const; // K-Mod. Allow direct read-only access to player stats
++	/*  advc.make: Want to precompile this header, so CvPlayer.h can't be included.
++		I've instead added a public CvEventReporter::getPlayerRecord function. */
++	//friend const CvPlayerRecord* CvPlayer::getPlayerRecord() const; // K-Mod. Allow direct read-only access to player stats
+ public:
+ 	CvEventReporter(); // advc.106l: Should perhaps be private, but that might break sth. in the EXE.
+ 	DllExport static CvEventReporter& getInstance();		// singleton accessor
+@@ -117,6 +118,7 @@ public:
+ 	void setPlayerAlive(PlayerTypes ePlayerID, bool bNewValue);
+ 	void playerChangeStateReligion(PlayerTypes ePlayerID, ReligionTypes eNewReligion, ReligionTypes eOldReligion);
+ 	void playerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iAmount);
++	CvPlayerRecord const* getPlayerRecord(PlayerTypes ePlayer) const; // advc.make
+ 
+ 	DllExport void chat(CvWString szString);
+
+diff --git a/CvGameCoreDLL/CvFractal.cpp b/CvGameCoreDLL/CvFractal.cpp
+index d9218b099..445b800af 100644
+--- a/CvGameCoreDLL/CvFractal.cpp
++++ b/CvGameCoreDLL/CvFractal.cpp
+@@ -2,7 +2,6 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CvFractal.h"
+-#include "CvInitCore.h" // advc.tsl
+ 
+ 
+ #define FLOAT_PRECISION		(1000)
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index ac5c1c403..2e0ee4f1a 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4,27 +4,17 @@
+ #include "CvGame.h"
+ #include "CvGamePlay.h"
+ #include "CvMap.h"
+-#include "CvInitCore.h"
+ #include "CvMapGenerator.h"
+-#include "CvArtFileMgr.h"
+ #include "CvDiploParameters.h"
+ #include "CvReplayMessage.h"
+-#include "CyArgsList.h"
+ #include "CvInfos.h"
+ #include "CvPopupInfo.h"
+ #include "CvReplayInfo.h"
+ #include "CvGameTextMgr.h"
+-#include "CvEventReporter.h"
+ #include "CvMessageControl.h"
+ #include "StartPointsAsHandicap.h" // advc.250b
+ #include "RiseFall.h" // advc.700
+ #include "CvHallOfFameInfo.h" // advc.106i
+-
+-// interface uses
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
+-#include "CvDLLPythonIFaceBase.h"
+-
+ #include "BBAILog.h" // BBAI
+ #include "CvBugOptions.h" // K-Mod
+
+diff --git a/CvGameCoreDLL/CvGameAI.cpp b/CvGameCoreDLL/CvGameAI.cpp
+index ccc6bd490..beac31d44 100644
+--- a/CvGameCoreDLL/CvGameAI.cpp
++++ b/CvGameCoreDLL/CvGameAI.cpp
+@@ -4,8 +4,6 @@
+ #include "CvGameAI.h"
+ #include "CvGamePlay.h"
+ #include "CvInfos.h"
+-// advc.137:
+-#include "CvInitCore.h"
+ 
+ 
+ CvGameAI::CvGameAI()
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.cpp b/CvGameCoreDLL/CvGameCoreDLL.cpp
+index 8f9223356..5b44802a5 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.cpp
++++ b/CvGameCoreDLL/CvGameCoreDLL.cpp
+@@ -1,11 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGameCoreDLLUndefNew.h"
+ #include <new>
+-#include "CvDLLInterfaceIFaceBase.h"
+-#ifdef USE_INTERNAL_PROFILER
+-#include "CvDLLPythonIFaceBase.h"
+-#endif
+-
+ #include <psapi.h>
+ /*  advc.mak: This fixes a linker error related to psapi. One can probably also
+ 	amend this through Visual Studio settings. I copied the line from here:
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 573b70a1a..ce3c743d6 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -240,9 +240,9 @@ namespace python = boost::python;
+ #include "FFreeListArray.h"
+ //#include "FVariableSystem.h"
+ #include "CvString.h"
+-#include "CvEnums.h"
++#include "CvEnums.h" // includes CvDefines.h
+ #include "CvStructs.h"
+-#include "CvDLLUtilityIFaceBase.h"
++#include "CvDLLUtilityIFaceBase.h" // includes LinkedList.h
+ 
+ //jason tests
+ // advc.make: Removed most of these. (Don't know what the comment above means.)
+@@ -250,6 +250,21 @@ namespace python = boost::python;
+ #include "CvGlobals.h"
+ #include "FProfiler.h"
+ #include "CvRandom.h"
++/*  advc.make: These I had removed (not _that_ frequently included),
++	but decided to add them back. */
++#include "CyGlobalContext.h" // includes CvArtFileMgr.h
++#include "CyCity.h"
++#include "CvDLLPythonIFaceBase.h"
++#include "CvDLLEntityIFaceBase.h"
++// advc.make: New additions
++#include "CvDLLInterfaceIFaceBase.h"
++#include "CvDLLFAStarIFaceBase.h"
++#include "CvDLLEngineIFaceBase.h"
++#include "CvInitCore.h"
++#include "CvEventReporter.h" // includes CvStatistics.h and CvDllPythonEvents.h
++#include "CyArgsList.h"
++#include "CyPlot.h"
++#include "CyUnit.h"
+ 
+ #ifdef FINAL_RELEASE
+ // Undefine OutputDebugString in final release builds
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 721784f45..e032fc8b0 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -4,9 +4,6 @@
+ #include "CvMap.h"
+ #include "FAStarNode.h"
+ #include "CvInfos.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLEntityIFaceBase.h"
+-#include "CvDLLFAStarIFaceBase.h"
+ 
+ using std::vector; // advc.003
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 83fe64a6c..6adabefb1 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -4,20 +4,12 @@
+ #include "CvTeamAI.h"
+ #include "CvMap.h"
+ #include "CvInfos.h"
+-#include "CvInitCore.h"
+ #include "RiseFall.h" // advc.700
+-#include "CyPlot.h"
+-#include "CyArgsList.h"
+ #include "CvPopupInfo.h"
+ #include "FAStarNode.h"
+ #include "CvGameTextMgr.h"
+ #include "CvMessageControl.h"
+ #include "CvBugOptions.h"
+-#include "CvEventReporter.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
+-#include "CvDLLFAStarIFaceBase.h"
+-#include "CvDLLPythonIFaceBase.h"
+ #include <fstream> // advc.003d
+ 
+ /*  advc: This file was, reportedly, added by patch 3.17.
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 3cbe700df..5360de8a2 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -15,20 +15,14 @@
+ #include "CvGameTextMgr.h"
+ #include "CvInfos.h"
+ #include "CvXMLLoadUtility.h"
+-#include "CvArtFileMgr.h"
+ #include "CvMap.h"
+ #include "RiseFall.h" // advc.700
+ #include "BBAI_Defines.h"
+ #include "CvBugOptions.h"
+ #include "CvPopupInfo.h"
+-#include "CyArgsList.h"
+-// <advc.050>
+-#include "CvInitCore.h"
+-#include <sstream> // </advc.050>
+-#include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLUtilityIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLSymbolIFaceBase.h"
++#include <sstream> // advc.050
+ 
+ int shortenID(int iId)
+ {
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 941f44761..cebafbbb2 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -6,13 +6,10 @@
+ #include "CvGamePlay.h"
+ #include "CvMap.h"
+ #include "CvInfos.h"
+-#include "CvArtFileMgr.h"
+ #include "CvPlayerAI.h"
+ #include "CvInfoWater.h"
+ #include "CvGameTextMgr.h"
+ #include "FVariableSystem.h"
+-#include "CvInitCore.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLUtilityIFaceBase.h"
+ #include "CvDLLXMLIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index a2dbeff75..a15c9f8e2 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -11,7 +11,6 @@
+ //------------------------------------------------------------------------------------------------
+ #include "CvGameCoreDLL.h"
+ #include "CvInfos.h"
+-#include "CvArtFileMgr.h"
+ #include "CvXMLLoadUtility.h"
+ #include "CvGameTextMgr.h"
+ #include "CvDLLXMLIFaceBase.h"
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 5f7ae646b..66f33ca0e 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -3,11 +3,8 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvInitCore.h"
+ #include "CvPlayerAI.h"
+-#include "CyArgsList.h"
+ #include "CvInfos.h"
+-#include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLUtilityIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h" // advc.001m
+ 
+ 
+ CvInitCore::CvInitCore()
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 32a17c85b..d17c39c8a 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -1,11 +1,9 @@
+-//
+ //	FILE:	 CvMap.cpp
+ //	AUTHOR:  Soren Johnson
+ //	PURPOSE: Game map class
+ //-----------------------------------------------------------------------------
+ //	Copyright (c) 2004 Firaxis Games, Inc. All rights reserved.
+ //-----------------------------------------------------------------------------
+-//
+ 
+ 
+ #include "CvGameCoreDLL.h"
+@@ -16,15 +14,8 @@
+ #include "CvFractal.h"
+ #include "CvMapGenerator.h"
+ #include "FAStarNode.h"
+-#include "CvInitCore.h"
+ #include "CvInfos.h"
+-#include "CyArgsList.h"
+-#include "CvDLLEngineIFaceBase.h"
+ #include "CvDLLIniParserIFaceBase.h"
+-#include "CvDLLFAStarIFaceBase.h"
+-#include "CvDLLFAStarIFaceBase.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h" // K-Mod
+ #include <stack> // advc.030
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 57c345518..f3d9f9d7d 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -4,10 +4,6 @@
+ #include "CvMap.h"
+ #include "CvFractal.h"
+ #include "CvInfos.h"
+-#include "CyPlot.h"
+-#include "CyArgsList.h"
+-#include "CvDLLPythonIFaceBase.h"
+-
+ 
+ // static
+ CvMapGenerator* CvMapGenerator::m_pInst = NULL;
+
+diff --git a/CvGameCoreDLL/CvMessageData.cpp b/CvGameCoreDLL/CvMessageData.cpp
+index 1353186d8..1e2c8a789 100644
+--- a/CvGameCoreDLL/CvMessageData.cpp
++++ b/CvGameCoreDLL/CvMessageData.cpp
+@@ -2,10 +2,8 @@
+ #include "CvMessageData.h"
+ #include "CvInfos.h"
+ #include "CvGamePlay.h"
+-#include "CvEventReporter.h"
+ #include "FDataStreamBase.h"
+ #include "CvDLLUtilityIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+ 
+ 
+ CvMessageData* CvMessageData::createMessage(GameMessageTypes eType)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1d38c6ede..35ec7e06b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5,26 +5,14 @@
+ #include "CvGamePlay.h"
+ #include "WarAndPeaceAgent.h" // advc.104
+ #include "CvMap.h"
+-#include "CvArtFileMgr.h"
+ #include "CvDiploParameters.h"
+-#include "CvInitCore.h"
+-#include "CyArgsList.h"
+ #include "CvInfos.h"
+ #include "CvPopupInfo.h"
+ #include "CvDiploParameters.h"
+ #include "CvGameTextMgr.h"
+ #include "RiseFall.h" // advc.700
+ #include "AdvCiv4lerts.h" // advc.210
+-#include "CyCity.h"
+-#include "CyPlot.h"
+-#include "CyUnit.h"
+-#include "CvEventReporter.h"
+ #include "CvBugOptions.h" // advc.106b
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLEntityIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
+-#include "CvDLLFAStarIFaceBase.h"
+-#include "CvDLLPythonIFaceBase.h"
+ //bbai
+ #include "CvDLLFlagEntityIFaceBase.h"
+ #include "BBAILog.h"
+@@ -14010,7 +13998,9 @@ void CvPlayer::updateEspionageHistory(int iTurn, int iBestEspionage)
+ // (This saves us from having to use the built-in CyStatistics class)
+ const CvPlayerRecord* CvPlayer::getPlayerRecord() const
+ {
+-	return CvEventReporter::getInstance().m_kStatistics.getPlayerRecord(getID());
++	return CvEventReporter::getInstance().
++			// advc.make: CvEventReporter::getPlayerRecord added
++			/*m_kStatistics.*/getPlayerRecord(getID());
+ }
+ // K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 703e74289..ad62e6062 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -9,17 +9,9 @@
+ #include "RiseFall.h" // advc.705
+ #include "CvMap.h"
+ #include "CvDiploParameters.h"
+-#include "CvInitCore.h"
+ #include "CvInfos.h"
+ #include "CvPopupInfo.h"
+-#include "CvEventReporter.h"
+-#include "CyArgsList.h"
+ #include "FAStarNode.h"
+-#include "CvDLLFAStarIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLEntityIFaceBase.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
+ #include <iterator> // advc.036
+ #include <queue> // k146
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 6658e436e..63c7aee8c 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5,17 +5,9 @@
+ #include "CvGamePlay.h"
+ #include "CvMap.h"
+ #include "CvInfos.h"
+-#include "CvArtFileMgr.h"
+-#include "CyArgsList.h"
+-#include "CvEventReporter.h"
+ #include "FAStarNode.h" // BETTER_BTS_AI_MOD, General AI, 11/30/08, jdog5000
+-#include "CvDLLFAStarIFaceBase.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLSymbolIFaceBase.h"
+-#include "CvDLLEntityIFaceBase.h"
+ #include "CvDLLPlotBuilderIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
+ #include "CvDLLFlagEntityIFaceBase.h"
+ 
+ #define STANDARD_MINIMAP_ALPHA		(0.75f) // advc.002a: was 0.6
+
+diff --git a/CvGameCoreDLL/CvPlotGroup.cpp b/CvGameCoreDLL/CvPlotGroup.cpp
+index 07a051d8c..c68781c9c 100644
+--- a/CvGameCoreDLL/CvPlotGroup.cpp
++++ b/CvGameCoreDLL/CvPlotGroup.cpp
+@@ -4,7 +4,6 @@
+ #include "CvPlotGroup.h"
+ #include "CvPlayerAI.h"
+ #include "CvMap.h"
+-#include "CvDLLFAStarIFaceBase.h"
+ 
+ int CvPlotGroup::m_iRecalculating = 0; // advc.064d
+
+diff --git a/CvGameCoreDLL/CvRandom.cpp b/CvGameCoreDLL/CvRandom.cpp
+index 84df370b0..b8b087c90 100644
+--- a/CvGameCoreDLL/CvRandom.cpp
++++ b/CvGameCoreDLL/CvRandom.cpp
+@@ -3,7 +3,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvRandom.h"
+ #include "CvGameAI.h"
+-#include "CyArgsList.h"
+ 
+ #define RANDOM_A      (1103515245)
+ #define RANDOM_C      (12345)
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 5ec2d0fa8..a2588dbe0 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -6,9 +6,7 @@
+ #include "CvMap.h"
+ #include "CvReplayMessage.h"
+ #include "CvGameTextMgr.h"
+-#include "CvInitCore.h"
+ #include "StartPointsAsHandicap.h" // advc.250b
+-#include "CvDLLInterfaceIFaceBase.h"
+ 
+ int CvReplayInfo::REPLAY_VERSION = 6; // advc.707, advc.106i: 4 in BtS
+ bool CvReplayInfo::STORE_REPLAYS_AS_BTS = false; // advc.106i
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 045542616..92731cc34 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -7,15 +7,8 @@
+ #include "BBAILog.h"
+ #include "FAStarNode.h"
+ #include "CvInfos.h"
+-#include "CvEventReporter.h"
+-#include "CyPlot.h"
+ #include "CySelectionGroup.h"
+-#include "CyArgsList.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLEntityIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h" // advc.102
+-#include "CvDLLFAStarIFaceBase.h"
++
+ 
+ KmodPathFinder CvSelectionGroup::path_finder; // K-Mod
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 37ae0b790..282711852 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -5,7 +5,6 @@
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
+ #include "CvMap.h"
+-#include "CvDLLEntityIFaceBase.h"
+ 
+ 
+ CvSelectionGroupAI::CvSelectionGroupAI()
+
+diff --git a/CvGameCoreDLL/CvStatistics.h b/CvGameCoreDLL/CvStatistics.h
+index f858a5775..b9ff84db1 100644
+--- a/CvGameCoreDLL/CvStatistics.h
++++ b/CvGameCoreDLL/CvStatistics.h
+@@ -155,6 +155,9 @@ public:
+ 	void goldenAge(PlayerTypes ePlayer);
+ 
+ 	DllExport CvPlayerRecord* getPlayerRecord(int iIndex);
++	// <advc.make> Need a (double) const version of this
++	inline CvPlayerRecord const* getPlayerRecord(int iIndex) const
++	{ return const_cast<CvStatistics*>(this)->getPlayerRecord(iIndex); } // </advc.make>
+ 
+ 	const char* getMapName() const;
+ 	EraTypes getEra() const;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 01e69721f..cff6db65d 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -5,19 +5,12 @@
+ #include "CvGamePlay.h"
+ #include "WarAndPeaceAgent.h" // advc.104t
+ #include "CvMap.h"
+-#include "CvEventReporter.h"
+-#include "CvArtFileMgr.h"
+ #include "CvDiploParameters.h"
+ #include "CvInfos.h"
+ #include "CvPopupInfo.h"
+-#include "CyArgsList.h"
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ #include "BBAI_Defines.h"
+-#include "CvInitCore.h" // advc.003m
+ #include "CvBugOptions.h" // advc.071
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+ 
+ // Public Functions...
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index a4b218adf..5d4a2998b 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -5,13 +5,9 @@
+ #include "CvGamePlay.h"
+ #include "CvMap.h"
+ #include "CvInfos.h"
+-#include "CyArgsList.h"
+ #include "BBAILog.h"
+ #include "BBAI_Defines.h"
+ #include "WarAndPeaceAgent.h" // advc.104
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLFAStarIFaceBase.h" // K-Mod (currently used in AI_isLandTarget)
+ #include <numeric> // K-Mod. used in AI_warSpoilsValue
+ 
+ // statics
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 9abf3777e..d6f4afb3e 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -6,21 +6,11 @@
+ #include "WarAndPeaceAgent.h" // advc.104
+ #include "RiseFall.h" // advc.705
+ #include "CvMap.h"
+-#include "CyUnit.h"
+-#include "CyArgsList.h"
+-#include "CyPlot.h"
+ #include "CvInfos.h"
+ #include "CvPopupInfo.h"
+-#include "CvArtFileMgr.h"
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 02/24/10, jdog5000
+ #include "BBAI_Defines.h"
+ #include "CvBugOptions.h" // advc.002e
+-#include "CvDLLEntityIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
+-#include "CvEventReporter.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLFAStarIFaceBase.h"
+ 
+ 
+ CvUnit::CvUnit()
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f610649f5..ff5cb7b0f 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -4,15 +4,10 @@
+ #include "CvUnitAI.h"
+ #include "CvGamePlay.h"
+ #include "CvMap.h"
+-#include "CyUnit.h"
+-#include "CyArgsList.h"
+ #include "CvInfos.h"
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ #include "BBAI_Defines.h"
+ #include "FAStarNode.h"
+-#include "CvDLLPythonIFaceBase.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLFAStarIFaceBase.h"
+ 
+ #define FOUND_RANGE				(7)
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+index bec6f2349..b07c5ed90 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+@@ -5,7 +5,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLXMLIFaceBase.h"
+ #include "CvXMLLoadUtility.h"
+-#include "CvArtFileMgr.h"
+ #include "FInputDevice.h"
+ 
+ //
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilityInit.cpp b/CvGameCoreDLL/CvXMLLoadUtilityInit.cpp
+index a5804573e..4c1cd8504 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilityInit.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilityInit.cpp
+@@ -3,7 +3,6 @@
+ //
+ #include "CvGameCoreDLL.h"
+ #include "CvXMLLoadUtility.h"
+-#include "CvArtFileMgr.h"
+ #include "CvGameTextMgr.h"
+ #include "CvInfoWater.h"
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 24048786b..f19a8c69c 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -5,7 +5,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDLLXMLIFaceBase.h"
+ #include "CvXMLLoadUtility.h"
+-#include "CvArtFileMgr.h"
+ #include "CvGameTextMgr.h"
+ #include "CvInfoWater.h"
+ #include "CvGameAI.h" // advc.104x
+
+diff --git a/CvGameCoreDLL/CyArea.cpp b/CvGameCoreDLL/CyArea.cpp
+index b1b5bb4ef..2861c9bec 100644
+--- a/CvGameCoreDLL/CyArea.cpp
++++ b/CvGameCoreDLL/CyArea.cpp
+@@ -2,7 +2,6 @@
+ // Python wrapper class for CvArea
+ //
+ #include "CvGameCoreDLL.h"
+-#include "CyCity.h"
+ #include "CyArea.h"
+ #include "CvArea.h"
+
+diff --git a/CvGameCoreDLL/CyAreaInterface.cpp b/CvGameCoreDLL/CyAreaInterface.cpp
+index ac47fa99f..68de424d2 100644
+--- a/CvGameCoreDLL/CyAreaInterface.cpp
++++ b/CvGameCoreDLL/CyAreaInterface.cpp
+@@ -1,6 +1,5 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyArea.h"
+-#include "CyCity.h"
+ //
+ // published python interface for CyArea
+ //
+
+diff --git a/CvGameCoreDLL/CyArgsList.cpp b/CvGameCoreDLL/CyArgsList.cpp
+index 8231ba264..3d4c355b5 100644
+--- a/CvGameCoreDLL/CyArgsList.cpp
++++ b/CvGameCoreDLL/CyArgsList.cpp
+@@ -1,7 +1,5 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyArgsList.h"
+-#include "CyGlobalContext.h"
+-#include "CvDLLPythonIFaceBase.h"
+ 
+ //////////////////////////////////////////////////////
+ // CyArgsList
+
+diff --git a/CvGameCoreDLL/CyArtFileMgr.cpp b/CvGameCoreDLL/CyArtFileMgr.cpp
+index fe709bdad..fe4a86be2 100644
+--- a/CvGameCoreDLL/CyArtFileMgr.cpp
++++ b/CvGameCoreDLL/CyArtFileMgr.cpp
+@@ -3,8 +3,6 @@
+ //
+ #include "CvGameCoreDLL.h"
+ #include "CyArtFileMgr.h"
+-#include "CvArtFileMgr.h"
+-#include "CyGlobalContext.h"
+ 
+ CyArtFileMgr::CyArtFileMgr() : m_pArtFileMgr(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CyCity.cpp b/CvGameCoreDLL/CyCity.cpp
+index d66f40fb1..3ebceb344 100644
+--- a/CvGameCoreDLL/CyCity.cpp
++++ b/CvGameCoreDLL/CyCity.cpp
+@@ -4,10 +4,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyCity.h"
+ #include "CvCity.h"
+-#include "CyPlot.h"
+ #include "CyArea.h"
+-#include "CyUnit.h"
+-#include "CvDLLPythonIFaceBase.h"
+ 
+ CyCity::CyCity() : m_pCity(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CyCityInterface1.cpp b/CvGameCoreDLL/CyCityInterface1.cpp
+index 3eb6c1bd6..2254d2097 100644
+--- a/CvGameCoreDLL/CyCityInterface1.cpp
++++ b/CvGameCoreDLL/CyCityInterface1.cpp
+@@ -1,6 +1,4 @@
+ #include "CvGameCoreDLL.h"
+-#include "CyCity.h"
+-#include "CyPlot.h"
+ #include "CyArea.h"
+ #include "CvInfos.h"
+
+diff --git a/CvGameCoreDLL/CyCityInterface2.cpp b/CvGameCoreDLL/CyCityInterface2.cpp
+index 3505ca106..47173e726 100644
+--- a/CvGameCoreDLL/CyCityInterface2.cpp
++++ b/CvGameCoreDLL/CyCityInterface2.cpp
+@@ -1,5 +1,4 @@
+ #include "CvGameCoreDLL.h"
+-#include "CyCity.h"
+ 
+ // dlph.34/advc: Added in order to reduce the size of CyCityInterface1.cpp
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index f65f59f11..6865b02f7 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -7,13 +7,9 @@
+ #include "CvGameAI.h"
+ #include "StartPointsAsHandicap.h" // advc.250b
+ #include "RiseFall.h" // advc.703
+-#include "CyGlobalContext.h"
+ #include "CyPlayer.h"
+-#include "CyCity.h"
+ #include "CyDeal.h"
+ #include "CyReplayInfo.h"
+-#include "CvDLLEngineIFaceBase.h" // BULL - AutoSave
+-#include "CyPlot.h"
+ 
+ CyGame::CyGame() : m_pGame(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CyGameCoreUtils.cpp b/CvGameCoreDLL/CyGameCoreUtils.cpp
+index bc736774f..3a061dcf5 100644
+--- a/CvGameCoreDLL/CyGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CyGameCoreUtils.cpp
+@@ -1,9 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyGameCoreUtils.h"
+ #include "CvGameCoreUtils.h"
+-#include "CyPlot.h"
+-#include "CyCity.h"
+-#include "CyUnit.h"
+ /*  advc.make (would be nicer to move the respective functions to the
+ 	Python interface of CvMap) */
+ #include "CvMap.h"
+
+diff --git a/CvGameCoreDLL/CyGameCoreUtilsInterface.cpp b/CvGameCoreDLL/CyGameCoreUtilsInterface.cpp
+index f262e6d48..0e1ff8338 100644
+--- a/CvGameCoreDLL/CyGameCoreUtilsInterface.cpp
++++ b/CvGameCoreDLL/CyGameCoreUtilsInterface.cpp
+@@ -1,8 +1,5 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyGameCoreUtils.h"
+-#include "CyPlot.h"
+-#include "CyCity.h"
+-#include "CyUnit.h"
+ 
+ //
+ // Python interface for CvgameCoreUtils.h.
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 6cfe879ee..628568322 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -1,6 +1,5 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyGame.h"
+-#include "CyCity.h"
+ #include "CyDeal.h"
+ #include "CyReplayInfo.h"
+
+diff --git a/CvGameCoreDLL/CyGameTextMgr.cpp b/CvGameCoreDLL/CyGameTextMgr.cpp
+index c00b1d997..22e2c6374 100644
+--- a/CvGameCoreDLL/CyGameTextMgr.cpp
++++ b/CvGameCoreDLL/CyGameTextMgr.cpp
+@@ -4,9 +4,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvGameTextMgr.h"
+ #include "CyGameTextMgr.h"
+-#include "CyCity.h"
+ #include "CyDeal.h"
+-#include "CyUnit.h"
+ 
+ CyGameTextMgr::CyGameTextMgr() :
+ m_pGameTextMgr(NULL)
+
+diff --git a/CvGameCoreDLL/CyGlobalContext.cpp b/CvGameCoreDLL/CyGlobalContext.cpp
+index 3515af482..5448b8e4c 100644
+--- a/CvGameCoreDLL/CyGlobalContext.cpp
++++ b/CvGameCoreDLL/CyGlobalContext.cpp
+@@ -4,7 +4,6 @@
+ //
+ 
+ #include "CvGameCoreDLL.h"
+-#include "CyGlobalContext.h"
+ #include "CvGamePlay.h"
+ #include "CyGame.h"
+ #include "CyPlayer.h"
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface1.cpp b/CvGameCoreDLL/CyGlobalContextInterface1.cpp
+index 0b9a1ac1d..f3ecdfb06 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface1.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface1.cpp
+@@ -7,7 +7,6 @@
+ #include "CyMap.h"
+ #include "CyPlayer.h"
+ #include "CyGame.h"
+-#include "CyGlobalContext.h"
+ #include "CvInfos.h"
+ #include "CyTeam.h"
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface2.cpp b/CvGameCoreDLL/CyGlobalContextInterface2.cpp
+index 6a1c7cb30..1a7ae3577 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface2.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface2.cpp
+@@ -7,7 +7,6 @@
+ #include "CyMap.h"
+ #include "CyPlayer.h"
+ #include "CyGame.h"
+-#include "CyGlobalContext.h"
+ #include "CvInfos.h"
+ #include "CyTeam.h"
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface3.cpp b/CvGameCoreDLL/CyGlobalContextInterface3.cpp
+index e7bafbd74..4737b28a1 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface3.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface3.cpp
+@@ -6,7 +6,6 @@
+ #include "CyMap.h"
+ #include "CyPlayer.h"
+ #include "CyGame.h"
+-#include "CyGlobalContext.h"
+ #include "CvInfos.h"
+ #include "CyTeam.h"
+
+diff --git a/CvGameCoreDLL/CyGlobalContextInterface4.cpp b/CvGameCoreDLL/CyGlobalContextInterface4.cpp
+index 717ad85dc..173a4a5db 100644
+--- a/CvGameCoreDLL/CyGlobalContextInterface4.cpp
++++ b/CvGameCoreDLL/CyGlobalContextInterface4.cpp
+@@ -7,7 +7,6 @@
+ #include "CyMap.h"
+ #include "CyPlayer.h"
+ #include "CyGame.h"
+-#include "CyGlobalContext.h"
+ #include "CvInfos.h"
+ #include "CyTeam.h"
+
+diff --git a/CvGameCoreDLL/CyMap.cpp b/CvGameCoreDLL/CyMap.cpp
+index b487a6f00..58c5c8bed 100644
+--- a/CvGameCoreDLL/CyMap.cpp
++++ b/CvGameCoreDLL/CyMap.cpp
+@@ -4,14 +4,11 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CyMap.h"
+-#include "CyPlot.h"
+ #include "CvMap.h"
+-#include "CyCity.h"
+ #include "CySelectionGroup.h"
+-#include "CyUnit.h"
+ #include "CyArea.h"
+ #include "CvMapGenerator.h"
+-#include "CvInitCore.h"
++
+ 
+ CyMap::CyMap() : m_pMap(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CyMapGenerator.cpp b/CvGameCoreDLL/CyMapGenerator.cpp
+index fa204cb4f..c61ed8891 100644
+--- a/CvGameCoreDLL/CyMapGenerator.cpp
++++ b/CvGameCoreDLL/CyMapGenerator.cpp
+@@ -12,8 +12,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyMapGenerator.h"
+ #include "CvMapGenerator.h"
+-#include "CyPlot.h"
+-#include "CvDLLPythonIFaceBase.h"
+ 
+ CyMapGenerator::CyMapGenerator() : m_pMapGenerator(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CyMapInterface.cpp b/CvGameCoreDLL/CyMapInterface.cpp
+index 54973c3a1..f424b929e 100644
+--- a/CvGameCoreDLL/CyMapInterface.cpp
++++ b/CvGameCoreDLL/CyMapInterface.cpp
+@@ -1,10 +1,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyMap.h"
+ #include "CyArea.h"
+-#include "CyCity.h"
+ #include "CySelectionGroup.h"
+-#include "CyUnit.h"
+-#include "CyPlot.h"
+ //# include <boost/python/manage_new_object.hpp>
+ //# include <boost/python/return_value_policy.hpp>
+
+diff --git a/CvGameCoreDLL/CyMessageControl.cpp b/CvGameCoreDLL/CyMessageControl.cpp
+index 754013870..22c96b096 100644
+--- a/CvGameCoreDLL/CyMessageControl.cpp
++++ b/CvGameCoreDLL/CyMessageControl.cpp
+@@ -1,7 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyMessageControl.h"
+ #include "CvMessageControl.h"
+-#include "CvDLLPythonIFaceBase.h"
+ #include "CvDLLUtilityIFaceBase.h"
+ 
+ void CyMessageControl::sendPushOrder(int iCityID, int eOrder, int iData, bool bAlt, bool bShift, bool bCtrl)
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 5331e3fa9..15acf38db 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -4,14 +4,10 @@
+ 
+ #include "CvGameCoreDLL.h"
+ #include "CyPlayer.h"
+-#include "CyUnit.h"
+-#include "CyCity.h"
+ #include "CyArea.h"
+-#include "CyPlot.h"
++#include "CySelectionGroup.h"
+ #include "CvPlayerAI.h"
+ #include "CvMap.h"
+-#include "CySelectionGroup.h"
+-#include "CvDLLPythonIFaceBase.h"
+ 
+ CyPlayer::CyPlayer() : m_pPlayer(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index 283a2c1d9..fb1172ad3 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -1,8 +1,5 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyPlayer.h"
+-#include "CyUnit.h"
+-#include "CyCity.h"
+-#include "CyPlot.h"
+ #include "CySelectionGroup.h"
+ #include "CyArea.h"
+ //# include <boost/python/manage_new_object.hpp>
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface2.cpp b/CvGameCoreDLL/CyPlayerInterface2.cpp
+index cdc14ec8f..0bef708d5 100644
+--- a/CvGameCoreDLL/CyPlayerInterface2.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface2.cpp
+@@ -1,8 +1,5 @@
+ #include "CvGameCoreDLL.h"
+ #include "CyPlayer.h"
+-#include "CyUnit.h"
+-#include "CyCity.h"
+-#include "CyPlot.h"
+ #include "CySelectionGroup.h"
+ #include "CyArea.h"
+ //# include <boost/python/manage_new_object.hpp>
+
+diff --git a/CvGameCoreDLL/CyPlot.cpp b/CvGameCoreDLL/CyPlot.cpp
+index 44cb41a01..74cdedbab 100644
+--- a/CvGameCoreDLL/CyPlot.cpp
++++ b/CvGameCoreDLL/CyPlot.cpp
+@@ -4,9 +4,7 @@
+ //
+ #include "CvGameCoreDLL.h"
+ #include "CyPlot.h"
+-#include "CyCity.h"
+ #include "CyArea.h"
+-#include "CyUnit.h"
+ #include "CvPlot.h"
+ 
+ CyPlot::CyPlot(CvPlot* pPlot) : m_pPlot(pPlot)
+
+diff --git a/CvGameCoreDLL/CyPlotInterface1.cpp b/CvGameCoreDLL/CyPlotInterface1.cpp
+index 7c845274b..68bcd4a26 100644
+--- a/CvGameCoreDLL/CyPlotInterface1.cpp
++++ b/CvGameCoreDLL/CyPlotInterface1.cpp
+@@ -1,9 +1,6 @@
+ #include "CvGameCoreDLL.h"
+-#include "CyPlot.h"
+-#include "CyCity.h"
+-#include "CyArea.h"
+-#include "CyUnit.h"
+ #include "CvPlot.h"
++#include "CyArea.h"
+ //# include <boost/python/manage_new_object.hpp>
+ //# include <boost/python/return_value_policy.hpp>
+
+diff --git a/CvGameCoreDLL/CySelectionGroup.cpp b/CvGameCoreDLL/CySelectionGroup.cpp
+index c5c518e7a..1928bc12a 100644
+--- a/CvGameCoreDLL/CySelectionGroup.cpp
++++ b/CvGameCoreDLL/CySelectionGroup.cpp
+@@ -5,11 +5,10 @@
+ #include "CvGameCoreDLL.h"
+ #include "CySelectionGroup.h"
+ #include "CvSelectionGroup.h"
+-#include "CvPlot.h"
+-#include "CyPlot.h"
+-#include "CvArea.h"
+ #include "CyArea.h"
+-#include "CyUnit.h"
++#include "CvArea.h"
++#include "CvPlot.h"
++
+ 
+ CySelectionGroup::CySelectionGroup() : m_pSelectionGroup(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CySelectionGroupInterface.cpp b/CvGameCoreDLL/CySelectionGroupInterface.cpp
+index 1e7a824e9..c39b32877 100644
+--- a/CvGameCoreDLL/CySelectionGroupInterface.cpp
++++ b/CvGameCoreDLL/CySelectionGroupInterface.cpp
+@@ -1,8 +1,6 @@
+ #include "CvGameCoreDLL.h"
+ #include "CySelectionGroup.h"
+-#include "CyPlot.h"
+ #include "CyArea.h"
+-#include "CyUnit.h"
+ //# include <boost/python/manage_new_object.hpp>
+ //# include <boost/python/return_value_policy.hpp>
+
+diff --git a/CvGameCoreDLL/CyUnit.cpp b/CvGameCoreDLL/CyUnit.cpp
+index 0bd132ce9..c8a93769f 100644
+--- a/CvGameCoreDLL/CyUnit.cpp
++++ b/CvGameCoreDLL/CyUnit.cpp
+@@ -1,18 +1,14 @@
+ //
+ // Python wrapper class for CvUnit
+ //
+-//
++
+ #include "CvGameCoreDLL.h"
+ #include "CyUnit.h"
+-#include "CyCity.h"
+-#include "CvArea.h"
+-#include "CvPlot.h"
+-#include "CvUnit.h"
+-#include "CyPlot.h"
+ #include "CyArea.h"
+-#include "CvArtFileMgr.h"
+ #include "CySelectionGroup.h"
+-#include "CvDLLInterfaceIFaceBase.h"
++#include "CvUnit.h"
++#include "CvArea.h"
++#include "CvPlot.h"
+ 
+ CyUnit::CyUnit() : m_pUnit(NULL)
+ {
+
+diff --git a/CvGameCoreDLL/CyUnitInterface1.cpp b/CvGameCoreDLL/CyUnitInterface1.cpp
+index 8377d8ebb..91867cd19 100644
+--- a/CvGameCoreDLL/CyUnitInterface1.cpp
++++ b/CvGameCoreDLL/CyUnitInterface1.cpp
+@@ -1,7 +1,4 @@
+ #include "CvGameCoreDLL.h"
+-#include "CyUnit.h"
+-#include "CyCity.h"
+-#include "CyPlot.h"
+ #include "CyArea.h"
+ #include "CySelectionGroup.h"
+ #include "CyArtFileMgr.h"
+
+diff --git a/CvGameCoreDLL/FProfiler.h b/CvGameCoreDLL/FProfiler.h
+index aa5b25885..685b5e2aa 100644
+--- a/CvGameCoreDLL/FProfiler.h
++++ b/CvGameCoreDLL/FProfiler.h
+@@ -9,7 +9,6 @@
+ #pragma once
+ 
+ 
+-#include "CvDLLEntityIFaceBase.h"
+ #include "CvDLLUtilityIFaceBase.h"
+ #include "CvGlobals.h"	// for gDLL
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 16a2400bf..3e623fb1c 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -7,11 +7,8 @@
+ #include "WarAndPeaceAgent.h" // advc.104
+ #include "BBAI_Defines.h"
+ #include "CvPopupInfo.h"
+-#include "CvInitCore.h"
+ #include "CvReplayInfo.h"
+ #include "CvPlot.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+-#include "CvDLLEngineIFaceBase.h"
+ 
+ using std::wstringstream;
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/StartPointsAsHandicap.cpp b/CvGameCoreDLL/StartPointsAsHandicap.cpp
+index d1a9b3a19..1b79a0077 100644
+--- a/CvGameCoreDLL/StartPointsAsHandicap.cpp
++++ b/CvGameCoreDLL/StartPointsAsHandicap.cpp
+@@ -4,7 +4,6 @@
+ #include "StartPointsAsHandicap.h"
+ #include "CvGameAI.h"
+ #include "CvPlayerAI.h"
+-#include "CvInitCore.h"
+ #include "CvMap.h"
+ #include <cmath>
+ #include <sstream>
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 65362e1ad..6a20f1f65 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -7,7 +7,6 @@
+ #include "CvGamePlay.h"
+ #include "CvMap.h"
+ #include "CvInfos.h"
+-#include "CvDLLInterfaceIFaceBase.h"
+ #include <iterator>
+ 
+ /*  advc.make: Include this for debugging with Visual Leak Detector
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAgent.cpp b/CvGameCoreDLL/WarAndPeaceAgent.cpp
+index d1fdafbdf..819c88246 100644
+--- a/CvGameCoreDLL/WarAndPeaceAgent.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAgent.cpp
+@@ -11,7 +11,6 @@
+ #include "CvDiploParameters.h"
+ #include "CvMap.h"
+ #include "RiseFall.h" // advc.705
+-#include "CvDLLInterfaceIFaceBase.h"
+ #include <iterator>
+ 
+ using std::vector;
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index ab563cb95..b2e7055dc 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -9,7 +9,6 @@
+ #include "MilitaryAnalyst.h"
+ #include "CvGamePlay.h"
+ #include "BBAI_Defines.h"
+-#include "CvStatistics.h"
+ #include "CvMap.h"
+ #include "CvInfos.h"
+
+[PATCH COVERAGE]
+patchFiles=79 embeddedFiles=79 omittedFiles=0 embeddedPatchBytes=41532

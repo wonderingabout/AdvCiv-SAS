@@ -359,6 +359,9 @@ void CyInfoPythonInterface1()
 		.def("getFreePromotions", &CvUnitInfo::getFreePromotions, "bool (int i)")
 		.def("getLeaderPromotion", &CvUnitInfo::getLeaderPromotion, "int ()")
 		.def("getLeaderExperience", &CvUnitInfo::getLeaderExperience, "int ()")
+		// <!-- custom: expose getObsoleteTech to Python for Sevopedia Tech obsoletes panel (Claude code Sonnet 4.5) -->
+		.def("getObsoleteTech", &CvUnitInfo::getObsoleteTech, "int ()")
+		// <!-- custom: End - expose getObsoleteTech to Python for Sevopedia Tech obsoletes panel (Claude code Sonnet 4.5) -->
 
 		.def("getEarlyArtDefineTag", &CvUnitInfo::getEarlyArtDefineTag, "string (int i, UnitArtStyleTypes eStyle)")
 		.def("getLateArtDefineTag", &CvUnitInfo::getLateArtDefineTag, "string (int i, UnitArtStyleTypes eStyle)")

@@ -1,0 +1,321 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3551
+# Commit: 6763e19c94ed3fd2c73aaa36dc9b04dd59399e7b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: eacdbbb294679d1cccbfb3f748d0bb39843bfadd
+# Title: Comment changes, minor refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvGame.h
+4	4	CvGameCoreDLL/CvGameTextMgr.cpp
+5	4	CvGameCoreDLL/CvMap.cpp
+17	19	CvGameCoreDLL/CvPlot.cpp
+4	5	CvGameCoreDLL/CvPlot.h
+2	2	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 4382084c2..8dc5afde5 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -6990,7 +6990,7 @@ void CvCity::changeBonusYieldRateModifier(YieldTypes eYield, int iChange)
+ }
+ 
+ 
+-int CvCity::totalTradeModifier(CvCity const* pOtherCity) const // advc: const CvCity*
++int CvCity::totalTradeModifier(CvCity const* pOtherCity) const
+ {
+ 	static int const iCAPITAL_TRADE_MODIFIER = GC.getDefineINT("CAPITAL_TRADE_MODIFIER"); // advc.opt
+ 	int iModifier = 100;
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 2a0094034..4e087b735 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -725,6 +725,7 @@ public:
+ 	{
+ 		return m_sorenRand.getInt(iNum, pszLog, /* advc.007: */ iData1, iData2);
+ 	}
++	// (map rand, sync rand)
+ 	std::pair<uint,uint> getInitialRandSeed() const; // advc.027b
+ 
+ 	DllExport int calculateSyncChecksum();																								// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index f0d64ebfb..d76801eab 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1697,7 +1697,7 @@ void CvGameTextMgr::setPlotListHelpPerOwner(CvWStringBuffer& szString,
+ 	/*  First heading, unless rogue or a small number of units of only the active player,
+ 		or a single unit of any player as the center unit. */
+ 	else if((iTotal >= 5 || iHeadings > 1 || eCenterOwner != eActivePlayer) &&
+-			perOwner[iCenterOwner][ALL].size() > 1)
++		perOwner[iCenterOwner][ALL].size() > 1)
+ 	{
+ 		appendUnitOwnerHeading(szString, eCenterOwner, (int)perOwner[eCenterOwner][ARMY].size(),
+ 				(int)perOwner[eCenterOwner][NAVY].size(), (int)perOwner[eCenterOwner][AIR].size(),
+@@ -5905,7 +5905,7 @@ void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait
+ 			{
+ 				szHelpString.append(gDLL->getText(
+ 						"TXT_KEY_TRAIT_TRADE_YIELD_MODIFIERS",
+-						iModifier, iYieldChar, "YIELD"));
++						iModifier, iYieldChar/*, "YIELD"*/)); // advc: wth?
+ 			}
+ 		}
+ 	}
+@@ -5915,13 +5915,13 @@ void CvGameTextMgr::parseTraits(CvWStringBuffer &szHelpString, TraitTypes eTrait
+ 		{
+ 			szHelpString.append(gDLL->getText("TXT_KEY_TRAIT_COMMERCE_CHANGES",
+ 					kTrait.getCommerceChange(eCommerce),
+-					GC.getInfo(eCommerce).getChar(), "COMMERCE"));
++					GC.getInfo(eCommerce).getChar()/*, "COMMERCE"*/)); // advc
+ 		}
+ 		if (kTrait.getCommerceModifier(eCommerce) != 0)
+ 		{
+ 			szHelpString.append(gDLL->getText("TXT_KEY_TRAIT_COMMERCE_MODIFIERS",
+ 					kTrait.getCommerceModifier(eCommerce),
+-					GC.getInfo(eCommerce).getChar(), "COMMERCE"));
++					GC.getInfo(eCommerce).getChar()/*, "COMMERCE"*/)); // advc
+ 		}
+ 	}
+ 	// <advc.908b>
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 04feac88f..6843a4d9b 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -65,9 +65,9 @@ void CvMap::init(CvMapInitData* pInitInfo)
+ 			getPlot(iX, iY).init(iX, iY);
+ 		}
+ 	}
+-	// <advc.opt>
++	// <advc.003s>
+ 	FOR_EACH_ENUM(PlotNum)
+-		getPlotByIndex(eLoopPlotNum).initAdjList(); // </advc.opt>
++		getPlotByIndex(eLoopPlotNum).initAdjList(); // </advc.003s>
+ 	calculateAreas();
+ 	gDLL->logMemState("CvMap after init plots");
+ }
+@@ -1166,9 +1166,10 @@ void CvMap::read(FDataStreamBase* pStream)
+ 		m_pMapPlots = new CvPlot[numPlots()];
+ 		for (int i = 0; i < numPlots(); i++)
+ 			m_pMapPlots[i].read(pStream);
+-		// <advc.opt>
++		// <advc.003s>
+ 		for (int i = 0; i < numPlots(); i++)
+-			m_pMapPlots[i].initAdjList();
++			m_pMapPlots[i].initAdjList(); // </advc.003s>
++		// <advc.opt>
+ 		if (uiFlag < 2)
+ 		{
+ 			for (int i = 0; i < numPlots(); i++)
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index f58f538e7..36d8c92c9 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -56,9 +56,9 @@ CvPlot::CvPlot() // advc: Merged with the deleted reset function
+ 	m_pCenterUnit = NULL;
+ 	m_szScriptData = NULL;
+ 	m_szMostRecentCityName = NULL; // advc.005c
+-	// <advc.opt>
++	// <advc.003s>
+ 	m_paAdjList = NULL;
+-	m_iAdjPlots = 0; // </advc.opt>
++	m_iAdjPlots = 0; // </advc.003s>
+ 
+ 	m_iX = 0;
+ 	m_iY = 0;
+@@ -111,7 +111,7 @@ CvPlot::~CvPlot() // advc: Merged with the deleted uninit function
+ {
+ 	SAFE_DELETE_ARRAY(m_szScriptData);
+ 	SAFE_DELETE_ARRAY(m_szMostRecentCityName); // advc.005c
+-	SAFE_DELETE_ARRAY(m_paAdjList); // advc.opt
++	SAFE_DELETE_ARRAY(m_paAdjList); // advc.003s
+ 
+ 	gDLL->getFeatureIFace()->destroy(m_pFeatureSymbol);
+ 	if(m_pPlotBuilder)
+@@ -142,7 +142,7 @@ void CvPlot::updatePlotNum()
+ 		m_iPlotNum = (PlotNumInt)GC.getMap().plotNum(getX(), getY());
+ }
+ 
+-// advc.opt:
++// advc.003s:
+ void CvPlot::initAdjList()
+ {
+ 	std::vector<CvPlot*> apAdjList;
+@@ -1690,7 +1690,7 @@ int CvPlot::seeThroughLevel() const
+ 
+ 
+ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement,
+-	CvUnit const* pUnit, bool bUpdatePlotGroups) // advc: const CvUnit*
++	CvUnit const* pUnit, bool bUpdatePlotGroups)
+ {
+ 	PROFILE_FUNC(); // advc: See comment in canSeeDisplacementPlot
+ 
+@@ -1704,17 +1704,17 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement,
+ 	std::vector<InvisibleTypes> aeSeeInvisibleTypes;
+ 	if (pUnit != NULL)
+ 	{
+-		for(int i = 0; i < pUnit->getNumSeeInvisibleTypes(); i++)
++		for (int i = 0; i < pUnit->getNumSeeInvisibleTypes(); i++)
+ 			aeSeeInvisibleTypes.push_back(pUnit->getSeeInvisibleType(i));
+ 	}
+-	if(aeSeeInvisibleTypes.empty())
++	if (aeSeeInvisibleTypes.empty())
+ 		aeSeeInvisibleTypes.push_back(NO_INVISIBLE);
+ 
+ 	// check one extra outer ring
+ 	if (!bAerial)
+ 		iRange++;
+ 
+-	for(size_t i = 0; i < aeSeeInvisibleTypes.size(); i++)
++	for (size_t i = 0; i < aeSeeInvisibleTypes.size(); i++)
+ 	{
+ 		for (int iDX = -iRange; iDX <= iRange; iDX++)
+ 		{
+@@ -1724,13 +1724,13 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement,
+ 				if (bAerial ||
+ 					shouldProcessDisplacementPlot(iDX, iDY, /*iRange - 1,*/ eFacingDirection))
+ 				{
+-					bool outerRing = false;
++					bool bOuterRing = false;
+ 					if (abs(iDX) == iRange || abs(iDY) == iRange)
+-						outerRing = true;
++						bOuterRing = true;
+ 
+ 					// check if anything blocking the plot
+ 					if (bAerial ||
+-						canSeeDisplacementPlot(eTeam, iDX, iDY, iDX, iDY, true, outerRing))
++						canSeeDisplacementPlot(eTeam, iDX, iDY, iDX, iDY, true, bOuterRing))
+ 					{
+ 						CvPlot* pPlot = plotXY(getX(), getY(), iDX, iDY);
+ 						if (pPlot != NULL)
+@@ -1744,10 +1744,10 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement,
+ 
+ 				if (eFacingDirection != NO_DIRECTION)
+ 				{	// always reveal adjacent plots when using line of sight
+-					if(abs(iDX) <= 1 && abs(iDY) <= 1)
++					if (abs(iDX) <= 1 && abs(iDY) <= 1)
+ 					{
+ 						CvPlot* pPlot = plotXY(getX(), getY(), iDX, iDY);
+-						if (NULL != pPlot)
++						if (pPlot != NULL)
+ 						{
+ 							pPlot->changeVisibilityCount(
+ 									eTeam, 1, aeSeeInvisibleTypes[i], bUpdatePlotGroups,
+@@ -1783,12 +1783,12 @@ bool CvPlot::canSeePlot(CvPlot const* pPlot, TeamTypes eTeam, int iRange,
+ 	//check if in facing direction
+ 	if (shouldProcessDisplacementPlot(dx, dy,/* iRange - 1,*/ eFacingDirection))
+ 	{
+-		bool outerRing = false;
++		bool bOuterRing = false;
+ 		if (abs(dx) == iRange || abs(dy) == iRange)
+-			outerRing = true;
++			bOuterRing = true;
+ 
+ 		//check if anything blocking the plot
+-		if (canSeeDisplacementPlot(eTeam, dx, dy, dx, dy, true, outerRing))
++		if (canSeeDisplacementPlot(eTeam, dx, dy, dx, dy, true, bOuterRing))
+ 			return true;
+ 	}
+ 
+@@ -5761,9 +5761,7 @@ void CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange,
+ 		initial cities were being placed and over the first few turns.
+ 		The problems remain unresolved. */
+ 	/*	advc.001: Also works around a problem with nukeExplosion replacing
+-		a sight-blocking feature with fallout. To reproduce this bug (in order to
+-		fix it properly), it should suffice to drop a nuke onto a fogged Forest
+-		or Jungle. */
++		a sight-blocking feature with fallout. */
+ 	if(getVisibilityCount(eTeam) < 0)
+ 	{
+ 		FAssert(m_aiVisibilityCount.get(eTeam) >= 0);
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 9f3d0e55a..dfb003e76 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -28,7 +28,7 @@ public:
+ 	~CvPlot();
+ 
+ 	void init(int iX, int iY);
+-	void initAdjList(); // advc.opt
++	void initAdjList(); // advc.003s
+ 	void setupGraphical();
+ 	void updateGraphicEra();
+ 
+@@ -776,8 +776,7 @@ public:
+ 	DllExport bool checkLateEra() const;
+ 	void killRandomUnit(PlayerTypes eOwner, DomainTypes eDomain); // advc.300
+ 
+-	// <advc.opt>
+-	/*	advc.003s: No assertion of iAt being within array bounds; should
++	/*	<advc.003s> No assertion of iAt being within array bounds; should
+ 		call this only via a FOR_EACH_ADJ_PLOT macro (PlotAdjListTraversal.h). */
+ 	CvPlot* getAdjacentPlotUnchecked(int iAt) const
+ 	{
+@@ -785,7 +784,7 @@ public:
+ 		return m_paAdjList[iAt];
+ 	}
+ 	int numAdjacentPlots() const { return m_iAdjPlots; }
+-	// </advc.opt>
++	// </advc.003s>
+ 
+ 	wchar const* debugStr() const; // advc.031c
+ 
+@@ -856,7 +855,7 @@ protected:
+ 	int m_iUpgradeProgress;
+ 	int m_iTotalCulture; // advc.opt
+ 
+-	CvPlot** m_paAdjList; // advc.opt (a vector would take up 16 byte)
++	CvPlot** m_paAdjList; // advc.003s (a vector would take up 16 byte)
+ 	// <advc> m_pArea is enough - except while loading a savegame.
+ 	union
+ 	{
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 3378bdfab..4c569a2c3 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -9332,9 +9332,9 @@ void CvUnit::changeKamikazePercent(int iChange)
+ 	}
+ }
+ 
+-DirectionTypes CvUnit::getFacingDirection(bool checkLineOfSightProperty) const
++DirectionTypes CvUnit::getFacingDirection(bool bCheckLineOfSightProperty) const
+ {
+-	if (checkLineOfSightProperty)
++	if (bCheckLineOfSightProperty)
+ 	{
+ 		if (m_pUnitInfo->isLineOfSight())
+ 			return m_eFacingDirection; //only look in facing direction
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 7dc5b3510..fd382983d 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -804,7 +804,7 @@ public:
+ 	int getKamikazePercent() const;																			// Exposed to Python
+ 	void changeKamikazePercent(int iChange);
+ 
+-	DllExport DirectionTypes getFacingDirection(bool checkLineOfSightProperty) const;
++	DllExport DirectionTypes getFacingDirection(bool bCheckLineOfSightProperty) const;
+ 	void setFacingDirection(DirectionTypes facingDirection);
+ 	void rotateFacingDirectionClockwise();
+ 	void rotateFacingDirectionCounterClockwise();
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=10598

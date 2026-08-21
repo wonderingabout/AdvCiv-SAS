@@ -1,0 +1,240 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6035
+# Commit: 373e5275eec8eb2aacd6bea07a5db209d884ba33
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: cecab8af1e29b99c0996bbf68418aebbb66dd0d7
+# Title: Prefer a closer weak/disliked land target when UWAI would otherwise prepare against a clearly farther target (KI#182) - Keep the guard narrow so equal-distan...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+36	0	Assets/XML/GlobalDefines_advciv_sas.xml
+82	3	CvGameCoreDLL/UWAIAgent.cpp
+30	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index cb1fa4507..70af6b212 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1423,6 +1423,42 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 
+ 
++	<!-- custom: Prefer a nearby mutually land-relevant war target when it is weak enough, disliked enough, and has enough UWAI drive. This narrowly avoids UWAI probabilistic target fall-through where a farther target is chosen even though a closer weak/disliked target is available; faraway wars can split armies from the core and invite opportunistic invasions. Island/naval target selection is intentionally left to ordinary UWAI or future naval-specific rules. Set to 0 to restore base target fall-through. See WAR_TARGET_LOCAL_PREFERRED logs and KI#182. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: Minimum adjusted UWAI drive percent for a nearby land target to block worse farther fallbacks, e.g. 25 means at least 25% drive after peace-treaty and avoid-war adjustments. This is only a sanity gate for the preferred local target, not a comparison with the farther target; set to 0 to ignore drive for this rule. (GPT-5.5); i set it to a low value instead of GPT-5.5's value of 25 because i don't know enough about this drive value or as of now trust it too much, so as low enough attitude weak enough opponent that is close when we were about to pick another is already a strong enough, simple and reliable incentive, then kept it as such in case it would/may make us choose very low utility or skip high utility ones or such. -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_DRIVE_PERCENT</DefineName>
++		<iDefineIntVal>15</iDefineIntVal>
++	</Define>
++	<!-- custom: Maximum nearest-city distance for the preferred local war-target rule. This is intentionally local, so remote naval or overseas choices still use ordinary UWAI target selection. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_DISTANCE</DefineName>
++		<iDefineIntVal>8</iDefineIntVal>
++	</Define>
++	<!-- custom: Maximum target defensive power as percent of our team power for the preferred local war-target rule, e.g. 70 means the target has at most 70% of our team's power. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_TARGET_POWER_PERCENT</DefineName>
++		<iDefineIntVal>75</iDefineIntVal>
++	</Define>
++	<!-- custom: Maximum AI attitude value toward the preferred local war target. 0 allows neutral or worse targets; negative values require dislike. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MAX_ATTITUDE_VALUE</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: Minimum AI_teamCloseness for the preferred local war-target rule. 1 keeps this to actual nearby land rivalry and avoids treating zero-contact geography as local. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_CLOSENESS</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: Minimum nearest-city distance advantage required before skipping a farther fallback target. 2 means a fallback at distance 10 can be skipped for a preferred local target at distance 8 or closer. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_UWAI_LOCAL_WAR_TARGET_MIN_DISTANCE_ADVANTAGE</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
++
+ 
+ 	<!-- custom: Dedicated structured SAS game-summary report, notably for autoplay comparison, general game analysis, user-assistance summaries, and external LLM review. This is independent from the classic SAS_BBAI_LOG_ENABLE diagnostic master switch and writes to SASGameSummary_*.log, so it can produce compact GAME_SUMMARY_* rows without broad AI-decision spam. Unlike BBAI diagnostics, this currently has no separate master switch because the summary has only one log-level define: 0 disables it, higher values enable more detail (note: in the log, fields ending in X100 are percentages multiplied by 100, e.g. 150 means 1.50%). (ChatGPT-5.5 + GPT-5.5) -->
+ 	<Define>
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 4fe0cf31f..6da00aa63 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -52,6 +52,54 @@ namespace
+ 		return (100 * GET_TEAM(eTarget).getDefensivePower(kAgent.getID())) / std::max(1, kAgent.getPower(true));
+ 	}
+ 
++	bool isSASBBAIPreferredLocalWarTarget(CvTeamAI const& kAgent, TeamTypes eTarget, scaled rDrive)
++	{
++		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE");
++		if (!bEnable)
++			return false;
++		// <!-- custom: UWAI sorts by drive, then tests targets probabilistically. BBAI war-target logs showed this can fall through to a farther target even when a closer weak/disliked land target is available, splitting armies away from the core and inviting opportunistic invasions.
++		// Mark only mutually land-relevant local targets here; island/naval choices remain ordinary UWAI or future naval-specific logic. The later skip is intentionally narrow so ordinary UWAI target choice is not flattened into always attacking the weakest neighbor. Uses team power because UWAI chooses team war plans. See KI#182. (GPT-5.5) -->
++		if (!kAgent.AI_isLandTarget(eTarget) || !GET_TEAM(eTarget).AI_isLandTarget(kAgent.getID()))
++			return false;
++		static const int iMinDrivePercent = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MIN_DRIVE_PERCENT");
++		static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MAX_DISTANCE");
++		static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MAX_TARGET_POWER_PERCENT");
++		static const int iMaxAttitudeValue = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MAX_ATTITUDE_VALUE");
++		static const int iMinCloseness = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MIN_CLOSENESS");
++		return (rDrive.getPercent() >= iMinDrivePercent && getSASBBAINearestCityDistance(kAgent.getID(), eTarget) <= iMaxDistance && getSASBBAITargetPowerPercent(kAgent, eTarget) <= iMaxTargetPowerPercent && kAgent.AI_getAttitudeVal(eTarget) <= iMaxAttitudeValue && kAgent.AI_teamCloseness(eTarget) >= iMinCloseness);
++	}
++
++	bool shouldSASBBAISkipForPreferredLocalWarTarget(CvTeamAI const& kAgent, TeamTypes eTarget, TeamTypes ePreferredTarget)
++	{
++		if (ePreferredTarget == NO_TEAM || eTarget == ePreferredTarget)
++			return false;
++		static const int iMinDistanceAdvantage = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MIN_DISTANCE_ADVANTAGE");
++		return (getSASBBAINearestCityDistance(kAgent.getID(), eTarget) >= getSASBBAINearestCityDistance(kAgent.getID(), ePreferredTarget) + iMinDistanceAdvantage);
++	}
++
++	bool isSASBBAIBetterPreferredLocalWarTarget(CvTeamAI const& kAgent, TeamTypes eCandidate, scaled rCandidateDrive, TeamTypes eCurrent, scaled rCurrentDrive)
++	{
++		if (eCurrent == NO_TEAM)
++			return true;
++		int const iCandidateDistance = getSASBBAINearestCityDistance(kAgent.getID(), eCandidate);
++		int const iCurrentDistance = getSASBBAINearestCityDistance(kAgent.getID(), eCurrent);
++		if (iCandidateDistance != iCurrentDistance)
++			return (iCandidateDistance < iCurrentDistance);
++		int const iCandidatePowerPercent = getSASBBAITargetPowerPercent(kAgent, eCandidate);
++		int const iCurrentPowerPercent = getSASBBAITargetPowerPercent(kAgent, eCurrent);
++		if (iCandidatePowerPercent != iCurrentPowerPercent)
++			return (iCandidatePowerPercent < iCurrentPowerPercent);
++		int const iCandidateAttitudeValue = kAgent.AI_getAttitudeVal(eCandidate);
++		int const iCurrentAttitudeValue = kAgent.AI_getAttitudeVal(eCurrent);
++		if (iCandidateAttitudeValue != iCurrentAttitudeValue)
++			return (iCandidateAttitudeValue < iCurrentAttitudeValue);
++		int const iCandidateCloseness = kAgent.AI_teamCloseness(eCandidate);
++		int const iCurrentCloseness = kAgent.AI_teamCloseness(eCurrent);
++		if (iCandidateCloseness != iCurrentCloseness)
++			return (iCandidateCloseness > iCurrentCloseness);
++		return (rCandidateDrive.getPercent() > rCurrentDrive.getPercent());
++	}
++
+ 	void logSASBBAIWarTargetEval(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, int iLimitedU, int iTotalU, bool bLimitedNaval, bool bTotalNaval, int iLimitedPrepTime, int iTotalPrepTime, bool bShortWork)
+ 	{
+ 		CvTeamAI const& kTarget = GET_TEAM(eTarget);
+@@ -1638,16 +1686,47 @@ void UWAI::Team::scheme()
+ 	}
+ 	// Descending by drive
+ 	std::sort(aTargets.rbegin(), aTargets.rend());
++	vector<scaled> aAdjustedDrives;
++	aAdjustedDrives.reserve(aTargets.size());
++	TeamTypes ePreferredLocalTarget = NO_TEAM;
++	scaled rPreferredLocalDrive;
++	int iPreferredLocalRank = -1;
++	// <!-- custom: Reuse the same adjusted drive that the normal target loop uses after AI_isAvoidWar hesitation, then pick at most one close/weak/disliked land-war target for the narrow faraway-target guard. This prepass does not itself start a war; it only identifies the local target that can block clearly farther alternatives below. See KI#182. (GPT-5.5) -->
+ 	for (size_t i = 0; i < aTargets.size(); i++)
+ 	{
+ 		TeamTypes const eTarget = aTargets[i].eTeam;
+ 		scaled rDrive = aTargets[i].rDrive;
+ 		// Conscientious hesitation
+ 		if (kAgent.AI_isAvoidWar(eTarget, true))
+-		{
+ 			rDrive -= rTotalDrive / 2;
+-			if (rDrive <= 0)
+-				continue;
++		aAdjustedDrives.push_back(rDrive);
++		if (rDrive > 0 && isSASBBAIPreferredLocalWarTarget(kAgent, eTarget, rDrive) && isSASBBAIBetterPreferredLocalWarTarget(kAgent, eTarget, rDrive, ePreferredLocalTarget, rPreferredLocalDrive))
++		{
++			ePreferredLocalTarget = eTarget;
++			rPreferredLocalDrive = rDrive;
++			iPreferredLocalRank = (int)i + 1;
++		}
++	}
++	if (gWarLogLevel >= 1 && ePreferredLocalTarget != NO_TEAM)
++	{
++		logBBAI("WAR_TARGET_LOCAL_PREFERRED turn=%d agentTeam=%d preferredTargetTeam=%d preferredDrivePercent=%d preferredRank=%d candidateCount=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
++				GC.getGame().getGameTurn(), kAgent.getID(), ePreferredLocalTarget, rPreferredLocalDrive.getPercent(), iPreferredLocalRank, (int)aTargets.size(), kAgent.AI_getAttitude(ePreferredLocalTarget), kAgent.AI_getAttitudeVal(ePreferredLocalTarget), kAgent.AI_teamCloseness(ePreferredLocalTarget), getSASBBAINearestCityDistance(kAgent.getID(), ePreferredLocalTarget), getSASBBAITargetPowerPercent(kAgent, ePreferredLocalTarget));
++	}
++	for (size_t i = 0; i < aTargets.size(); i++)
++	{
++		TeamTypes const eTarget = aTargets[i].eTeam;
++		scaled rDrive = aAdjustedDrives[i];
++		if (rDrive <= 0)
++			continue;
++		if (shouldSASBBAISkipForPreferredLocalWarTarget(kAgent, eTarget, ePreferredLocalTarget))
++		{
++			// <!-- custom: Only block targets that are clearly farther than the preferred local land target. Equal-distance and closer targets still use ordinary UWAI, keeping this a narrow faraway-war blunder fix rather than a broad war-target rewrite. (GPT-5.5) -->
++			if (gWarLogLevel >= 1)
++			{
++				logBBAI("WAR_TARGET_LOCAL_PREFERRED_SKIP turn=%d agentTeam=%d skippedTargetTeam=%d preferredTargetTeam=%d skippedDrivePercent=%d preferredDrivePercent=%d skippedRank=%d preferredRank=%d candidateCount=%d skippedAttitude=%d skippedAttitudeValue=%d preferredAttitude=%d preferredAttitudeValue=%d skippedCloseness=%d preferredCloseness=%d skippedDistance=%d preferredDistance=%d skippedTargetPowerPercent=%d preferredTargetPowerPercent=%d",
++						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, ePreferredLocalTarget, rDrive.getPercent(), rPreferredLocalDrive.getPercent(), (int)i + 1, iPreferredLocalRank, (int)aTargets.size(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitude(ePreferredLocalTarget), kAgent.AI_getAttitudeVal(ePreferredLocalTarget), kAgent.AI_teamCloseness(eTarget), kAgent.AI_teamCloseness(ePreferredLocalTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), ePreferredLocalTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, ePreferredLocalTarget));
++			}
++			continue;
+ 		}
+ 		WarPlanTypes const eWP = (aTargets[i].bTotal ? WARPLAN_PREPARING_TOTAL :
+ 				WARPLAN_PREPARING_LIMITED);
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index d69335089..524e606f3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -6685,3 +6685,33 @@ Retesting with `SAS_AI_CHOOSE_UNIT_SETTLER_EARLY_MIN_FOUND_VALUE_MIN_CITIES=1` i
+ A separate stale-Settler problem can still happen when a valid site exists when the Settler is created but later disappears or becomes invalid/reachable value 0. That is not fully solved by this production floor and should be treated as a distinct stale-Settler cleanup issue if it remains important.
+ 
+ Fixed/improved with the help of ChatGPT-5.5 thanks.
++
++## 182 - (Fixed/Improved) UWAI war-target selection could fall through to farther targets even when a closer weak/disliked land target was available
++
++The existing AdvCiv-SAS faraway-war safeguards, such as KI#61, reduced many bad long-distance wars, but BBAI war-target logging exposed a remaining UWAI target-selection issue. `UWAI::Team::scheme` sorts war targets by drive, then tests them probabilistically. When the best nearby target fails its random roll, the loop can fall through to another target that is farther away, friendlier, or less practical, even if a closer weak/disliked land target exists.
++
++This is a major military AI blunder when it happens: attacking too far away can split the army from the core, make reinforcements slow, leave cities vulnerable to opportunistic invasions, and make captured cities harder to defend. However, the fix should not make UWAI bland by always attacking the nearest or weakest neighbor; sometimes ordinary UWAI has valid diplomatic or strategic reasons to prefer another local target.
++
++The fix therefore stays deliberately narrow. Before the normal target roll, AdvCiv-SAS marks one preferred local land target only if it passes tunable gates:
++
++- close enough by nearest-city distance;
++- weak enough by team defensive power percent;
++- disliked or neutral enough by attitude value;
++- mutually land-relevant through `AI_isLandTarget`, so island/naval target selection remains ordinary UWAI or future naval-specific logic;
++- enough `AI_teamCloseness`;
++- and at least a small adjusted UWAI drive sanity threshold.
++
++During the normal target loop, the AI skips only non-preferred targets that are farther than the preferred local target by the configured distance advantage. Equal-distance and closer candidates are left to ordinary UWAI, so this is a "do not go too far when a clearly better local target exists" guard, not a complete replacement for UWAI target choice.
++
++Final BBAI test data with `SAS_UWAI_LOCAL_WAR_TARGET_MIN_DRIVE_PERCENT=15`, `SAS_UWAI_LOCAL_WAR_TARGET_MAX_TARGET_POWER_PERCENT=75`, and the narrow distance skip showed the intended scope in `BBAI_20260713T100055Z_load1.log`:
++
++```text
++WAR_TARGET_LOCAL_PREFERRED: 32
++WAR_TARGET_LOCAL_PREFERRED_SKIP: 17
++WAR_TARGET_CHOSEN: 247
++declares war: 154
++```
++
++All 17 skips had the skipped target at least 2 tiles farther than the preferred target. The preferred targets had adjusted drive at least 16%, and all had preferred target power <= 75%: 16 were in the 51-75% band and one was in the 26-50% band. Earlier experiments were intentionally rejected: setting the drive gate to 0 produced too many very-low-drive overrides, and a broader same-distance / near-distance skip affected ordinary local choices too much.
++
++Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 61065e09e..52a857fd5 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -374,6 +374,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Musketmen — AI role**: now also flagged with `UNITAI_ATTACK_CITY`, so the AI uses Musketmen more often in **offensive city-assault** roles. Civ-specific Musketman variants may also include additional changes.
+ - **Grenadiers & Bazookas — AI role**: now also flagged with `UNITAI_CITY_DEFENSE`, so the AI may use them more for **city defense**.
+ - **War target selection — distance guard**: added a **distance-based pre-filter** in `Risk::preEvaluate` (WarUtilityAspect.cpp) so the AI **rejects faraway rivals** during war-risk evaluation. This curbs "bait" wars that leave cores under-defended and keeps armies concentrated near relevant fronts. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp).
++- (Requires AdvCiv-SAS 6035+) **UWAI target choice avoids faraway wars:** Following [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp)'s related fix, BBAI war-target logging in save file 450 showed the AI could still prepare some avoidable faraway wars: for example, on turn 182, Arabia (Team 0) could ignore closer Holy Rome (Team 6) at distance 5, attitudeValue -2, and targetPowerPercent 64, then prepare against the farther Netherlands (Team 5) at distance 10, attitudeValue +1, and targetPowerPercent 92. That is dangerous because a faraway war can split armies from the core, slow reinforcements, expose cities to opportunistic invasions, or make captures harder to hold. The new guard only optionally promotes a nearby land-war target, not an island/naval target, when it is close enough, weak enough, disliked/neutral enough, and has minimal UWAI drive (i.e. current war-preparation interest); With the current distance threshold, it only steps in when the alternative target is at least 2 tiles farther away; targets at the same distance or closer are left to normal UWAI. This is intentionally a narrow blunder-fix rather than a war-logic overhaul, so UWAI choices do not become too bland or broadly overridden. In the confirming BBAI run, the guard found 32 valid closer targets and blocked 17 farther alternatives, leaving usual UWAI logic to either pick these closer targets or continue normally if no suitable target remained. See [KI#182](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#182---fixedimproved-uwai-war-target-selection-could-fall-through-to-farther-targets-even-when-a-closer-weakdisliked-land-target-was-available).
+ - **City evacuation — doomed city auto-retreat (land units only)**: in `CvUnitAI::AI_evacuateCity`, the AI now optionally (default ON, recommended) **evacuates 100% of its land units** from a **doomed city** (i.e. a city that exceeds the existing `AI_EVACUATION_THRESH`-based (default as of now: 138%) attacker/defender strength threshold (note: the threshold is raised for important cities, as it is worth defending them and generally bad to evacuate them)). Fixed an inherited Base AdvCiv percentile inversion that instead gave this important-city protection to low-value cities; see [KI#172](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#172---fixed-base-advciv-bug-inverted-city-value-percentile-gave-intended-important-city-evacuation-protection-to-low-value-cities). Previously it often retreated only a tiny fraction (e.g., 2 of 11 defenders vs a 22+ stack, whereas now all 11 defenders would evacuate if the city is deemed doomed). This change might prolong wars/game length, but the intent is a **more competitive, less self-sabotaging** AI. See [KI#62](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity).
+ - **Minimum Stack size before war**: Added a minimum stack unit count requirement to prevent the stack from being marked as "ready" until it has enough units: no `MOVE_DECLARE_WAR` flag, no premature advance toward the city, and AI keeps building units until the stack is big enough. Helps fix the **issue of "back and forth" war declarations with immediate retreat without city attack**: low-numbered unit stacks were especially sensible to power swings (city defenses, one more enemy units skews win chance, etc.). Change in `CvUnitAI::AI_attackCityMove`. See [KI#104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#104---tremendously-improved-base-advciv-issue-of-the-weird-back-and-forth-of-declaring-war-moving-a-stack-then-withdrawing-without-attacking-which-is-extremely-inefficient).
+ - **City attack oscillation — pre-check vs strong targets (possible mitigation)**: In `CvUnitAI::AI_attackCityMove`, add a sanity check to **skip marching to/attacking a city** when the **defending stack is too strong**. Goal: prevent the inefficient **advance → abort → backtrack** loop and reduce the risk of being caught without time to retreat. **Note:** in the test sample, this behavior also resolved without the change by running ~2+ autoplay turns in a row instead of 1 turn only from a slightly older save file rather; treat this as a **possible fix/sanity check** (not (at least not yet) broadly tested). See [KI#63](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but).
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=22369

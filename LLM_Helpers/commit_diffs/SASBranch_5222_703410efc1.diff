@@ -1,0 +1,412 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5222
+# Commit: 703410efc144d78a1b2f0b3205b550fb8d3629d7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 26f0b4ffb4a2ee07fe284edbb67bfad939416d39
+# Title: group by specialist type in sevopedia specialists + refactor + other changes - rename Sevopedia "People" to "Specialists" (more accurate anyways etc.) - simi...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+91	55	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+10	5	Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+6	0	Assets/XML/GlobalDefines_advciv_sas.xml
+1	2	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+1	0	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+18	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.750_sevopedia_projects_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.760_sevopedia_specialists_sample (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.750_sevopedia_projects_sample (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.760_sevopedia_specialists_sample (1).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 2e218fa74..b9fd23f2a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -189,6 +189,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_cacheCorporationHQBuildingByCorp = None
+ 		self.SAS_cacheReligionsTuple = None
+ 		self.SAS_cacheProjectsTuple = None
++		self.SAS_cacheSpecialistsTuple = None
+ 
+ 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
+ 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
+@@ -405,6 +406,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
+ 
+ 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
+ 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
+@@ -582,15 +584,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			print("Sevopedia Tech Untradeable techs list prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT=%s)." % str(self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT))
+ 	
+ 	def getTechList(self):
+-		if self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA:
+-			if self.SAS_cacheTechsTuple is None:
++		if self.SAS_cacheTechsTuple is None:
++			if self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA:
+ 				self.SAS_cacheTechsTuple = self.SAS_getTechsGroupedByEra()
+-			return self.SAS_cacheTechsTuple
+-		else:
+-			if self.SAS_cacheTechsTuple is None:
++			else:
+ 				# <!-- custom: base advciv's formula, only difference is we cache it now if i'm not mistaken anyways etc. -->
+ 				self.SAS_cacheTechsTuple = tuple(self.getSortedList(gc.getNumTechInfos(), gc.getTechInfo))
+-			return self.SAS_cacheTechsTuple
++		return self.SAS_cacheTechsTuple
+ 
+ 
+ 	def placeUnits(self):
+@@ -692,16 +692,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	# <!-- custom: similarly, in sevopedia units, group units by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getUnitList(self):
+-		if self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA:
+-			if self.SAS_cacheUnitsTuple is None:
+-				baseList = self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo)
++		if self.SAS_cacheUnitsTuple is None:
++			baseList = self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo)
++			if self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA:
+ 				self.SAS_cacheUnitsTuple = self.SAS_getUnitsGroupedByEra_fromBaseList(baseList)
+-			return self.SAS_cacheUnitsTuple
+-
+-		else:
+-			if self.SAS_cacheUnitsTuple is None:
+-				self.SAS_cacheUnitsTuple = tuple(self.getSortedList(gc.getNumUnitInfos(), gc.getUnitInfo))
+-			return self.SAS_cacheUnitsTuple
++			else:
++				self.SAS_cacheUnitsTuple = tuple(baseList)
++		return self.SAS_cacheUnitsTuple
+ 
+ 
+ 	def placeUnitUpgrades(self):
+@@ -849,15 +846,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	
+ 	# <!-- custom: similarly, in sevopedia buildings, group techs by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getBuildingList(self):
+-		if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
+-			if self.SAS_cacheRegularBuildingsTuple is None:
+-				baseList = self.pediaBuilding.getBuildingSortedList(0)
++		if self.SAS_cacheRegularBuildingsTuple is None:
++			baseList = self.pediaBuilding.getBuildingSortedList(0)
++			if self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA:
+ 				self.SAS_cacheRegularBuildingsTuple = self.SAS_getBuildingsGroupedByEra_fromBaseList(baseList)
+-			return self.SAS_cacheRegularBuildingsTuple
+-		else:
+-			if self.SAS_cacheRegularBuildingsTuple is None:
+-				self.SAS_cacheRegularBuildingsTuple = tuple(self.pediaBuilding.getBuildingSortedList(0))
+-			return self.SAS_cacheRegularBuildingsTuple
++			else:
++				self.SAS_cacheRegularBuildingsTuple = tuple(baseList)
++		return self.SAS_cacheRegularBuildingsTuple
+ 
+ 
+ 	def placeNationalWonders(self):
+@@ -962,23 +957,71 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	# <!-- custom: similarly, in sevopedia projects, group projects by era instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getProjectList(self):
+-		if self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA:
+-			if self.SAS_cacheProjectsTuple is None:
+-				baseList = self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo)
++		if self.SAS_cacheProjectsTuple is None:
++			baseList = self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo)
++			if self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA:
+ 				self.SAS_cacheProjectsTuple = self.SAS_getProjectsGroupedByEra_fromBaseList(baseList)
+-			return self.SAS_cacheProjectsTuple
+-		else:
+-			if self.SAS_cacheProjectsTuple is None:
+-				self.SAS_cacheProjectsTuple = tuple(self.getSortedList(gc.getNumProjectInfos(), gc.getProjectInfo))
+-			return self.SAS_cacheProjectsTuple
++			else:
++				self.SAS_cacheProjectsTuple = tuple(baseList)
++		return self.SAS_cacheProjectsTuple
++
++
++	# Helper to group specialists by type (regular vs great). Great specialists are identified by "GREAT_" in SpecialistInfo.getType(), matching RFC DoC's convention.
++	def SAS_getSpecialistsGroupedByType(self):
++		specialistsList = []
++		greatSpecialistsList = []
++
++		# One pass: preserve XML order when Sort Lists is OFF.
++		for iSpecialist in range(gc.getNumSpecialistInfos()):
++			info = gc.getSpecialistInfo(iSpecialist)
++			if not info or info.isGraphicalOnly():
++				continue
++
++			szName = info.getDescription()
++			szType = info.getType()
++
++			if szType and (szType.find("GREAT_") > -1):
++				greatSpecialistsList.append((szName, iSpecialist))
++			else:
++				specialistsList.append((szName, iSpecialist))
++
++		# Optional sorting within each group
++		if self.isSortLists():
++			specialistsList.sort()
++			greatSpecialistsList.sort()
++
++		outList = []
++
++		if specialistsList:
++			# Reuse the category label for a localized "Specialists" header.
++			outList.append((localText.getText("TXT_KEY_PEDIA_CATEGORY_SPECIALIST", ()), -1))
++			for x in specialistsList:
++				outList.append(x)
++
++		if greatSpecialistsList:
++			if outList:
++				outList.append(("", -1))  # spacer between groups
++			outList.append(("Great Specialists", -1))
++			for x in greatSpecialistsList:
++				outList.append(x)
+ 
++		return tuple(outList)
+ 
+ 	def placeSpecialists(self):
+ 		self.list = self.getSpecialistList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, gc.getSpecialistInfo)
+ 
++	# <!-- custom: in sevopedia specialists, group specialists by type: regular specialists vs great specialists (those whose <Type> contains "GREAT_"), based on RFC DOC mod's code thanks but anyways etc. Added with the help of chatgpt 5.2 thanks but anyways etc. -->
++	# Notes (kept conservative)
++	# 	- “Great specialists” detection is exactly RFC’s convention: getType().find("GREAT_") > -1. 
++	# 	- I reused TXT_KEY_PEDIA_CATEGORY_SPECIALIST for the regular header (so it’s localized), and I used the literal string "Great Specialists" for the great header (since your mod likely doesn’t have RFC’s TXT_KEY_PEDIA_HEADER_GREAT_SPECIALIST). If you want, you can later add your own TXT_KEY and swap that line to localText.getText("TXT_KEY_PEDIA_HEADER_GREAT_SPECIALIST", ()).
+ 	def getSpecialistList(self):
+-		return self.getSortedList(gc.getNumSpecialistInfos(), gc.getSpecialistInfo)
++		if self.SAS_cacheSpecialistsTuple is None:
++			if self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE:
++				self.SAS_cacheSpecialistsTuple = self.SAS_getSpecialistsGroupedByType()
++			else:
++				self.SAS_cacheSpecialistsTuple = tuple(self.getSortedList(gc.getNumSpecialistInfos(), gc.getSpecialistInfo))
++		return self.SAS_cacheSpecialistsTuple
+ 
+ 
+ 	def placeTerrains(self):
+@@ -1155,15 +1198,12 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	# Right now your civics list is just getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo) (optionally alphabetical via BUG).
+ 	# In RFC DoC, placeCivics() at least groups by civic option category using header rows. They also show how they do era tier grouping for other lists (e.g., wonders/buildings grouped by prereq tech era).
+ 	def getCivicList(self):
+-		if self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES:
+-			if self.SAS_cacheCivicsTuple is None:
++		if self.SAS_cacheCivicsTuple is None:
++			if self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES:
+ 				self.SAS_cacheCivicsTuple = self.SAS_getCivicsGroupedByCivicOption()
+-			return self.SAS_cacheCivicsTuple
+-		# <!-- custom: else no grouping, full alphabetical ordered list cached as a tuple, using the base advciv's list formula but anyways etc. -->
+-		else:
+-			if self.SAS_cacheCivicsTuple is None:
++			else:
+ 				self.SAS_cacheCivicsTuple = tuple(self.getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo))
+-			return self.SAS_cacheCivicsTuple
++		return self.SAS_cacheCivicsTuple
+ 
+ 
+ 	# Compute the "availability era" for a religion, based on its founding tech prereq.
+@@ -1234,15 +1274,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	# <!-- custom: similarly, in sevopedia religions, group religions by era (based on their founding tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getReligionList(self):
+-		if self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA:
+-			if self.SAS_cacheReligionsTuple is None:
+-				baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
++		baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
++		if self.SAS_cacheReligionsTuple is None:
++			if self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA:
+ 				self.SAS_cacheReligionsTuple = self.SAS_getReligionsGroupedByEra_fromBaseList(baseList)
+-			return self.SAS_cacheReligionsTuple
+-		else:
+-			if self.SAS_cacheReligionsTuple is None:
+-				self.SAS_cacheReligionsTuple = tuple(self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo))
+-			return self.SAS_cacheReligionsTuple
++			else:
++				self.SAS_cacheReligionsTuple = tuple(baseList)
++		return self.SAS_cacheReligionsTuple
+ 
+ 	# In AdvCiv-SAS, your corporations are effectively gated by the founding building (the BUILDING_CORPORATION_X that has <FoundsCorporation>CORPORATION_X</FoundsCorporation> and has <PrereqTech> / <TechTypes>), while the corresponding CIV4CorporationInfo.xml often has <TechPrereq>NONE</TechPrereq>. So the clean “era” for a corporation should be the availability era of its founding building.
+ 	# This reuses your existing SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs) helper (the one that already accounts for SpecialBuilding tech + religion founding tech).
+@@ -1329,15 +1367,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	
+ 	# <!-- custom: similarly, in sevopedia corporations, group corporations by era (based on founding building prereq tech era) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getCorporationList(self):
+-		if self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA:
+-			if self.SAS_cacheCorporationsTuple is None:
+-				baseList = self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo)
++		if self.SAS_cacheCorporationsTuple is None:
++			baseList = self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo)
++			if self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA:
+ 				self.SAS_cacheCorporationsTuple = self.SAS_getCorporationsGroupedByEra_fromBaseList(baseList)
+-			return self.SAS_cacheCorporationsTuple
+-		else:
+-			if self.SAS_cacheCorporationsTuple is None:
+-				self.SAS_cacheCorporationsTuple = tuple(self.getSortedList(gc.getNumCorporationInfos(), gc.getCorporationInfo))
+-			return self.SAS_cacheCorporationsTuple
++			else:
++				self.SAS_cacheCorporationsTuple = tuple(baseList)
++		return self.SAS_cacheCorporationsTuple
+ 
+ 	def placeConcepts(self):
+ 		self.list = self.getConceptList()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+index 4e0c90a11..8f56f95d5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+@@ -53,17 +53,22 @@ class SevoPediaSpecialist:
+ 
+ 	def interfaceScreen(self, iSpecialist):
+ 		self.iSpecialist = iSpecialist
+-		screen = self.top.getScreen()
+-
+-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_MAIN_PANEL, self.Y_MAIN_PANEL, self.W_MAIN_PANEL, self.H_MAIN_PANEL, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
+-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getSpecialistInfo(self.iSpecialist).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
++		self.placeSpecialistPane()
+ 		self.placeSpecial()
+ 		self.placeText()
+ 
+ 
+ 
++	def placeSpecialistPane(self):
++		screen = self.top.getScreen()
++
++		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_MAIN_PANEL, self.Y_MAIN_PANEL, self.W_MAIN_PANEL, self.H_MAIN_PANEL, PanelStyles.PANEL_STYLE_BLUE50)
++		# <!-- custom: no need for the blue frame on blue background, use transparent instead, anyways etc -->
++		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
++		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
++		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getSpecialistInfo(self.iSpecialist).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
++
+ 	def placeSpecial(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 78e92ff54..23832a50b 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -72,6 +72,12 @@
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: in sevopedia main specialists list, group specialists by type (regular vs great) based on how RFC DOC mod does it thanks but anyways etc. -->
++	<!-- custom: 1 to enable (recommended), 0 to disable -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 93d478eb6..e2b6688d3 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -55,8 +55,7 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_SPECIALIST</Tag>
+-		<!-- custom: <English>Specialists</English>-->
+-		<English>People</English>
++		<English>Specialists</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_BONUS</Tag>
+
+diff --git a/README.md b/README.md
+index 87af6534f..dbd2cc69b 100644
+--- a/README.md
++++ b/README.md
+@@ -195,6 +195,7 @@ Here is below a sample of the example screenshots showing the AI Personality pan
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.710_sevopedia_techs_sample (1).JPG" alt="0.710_sevopedia_techs_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG" alt="0.730_sevopedia_promotions_sample (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG" alt="0.740_sevopedia_civics_sample (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.760_sevopedia_specialists_sample (1).JPG" alt="0.760_sevopedia_specialists_sample (1).JPG" width="250"></img>
+ 
+ For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index f6b44f5cd..bf5468f70 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -124,7 +124,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - additionally, also expanded sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc
+ - reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.
+ - in particular replaced some pedia entries of religions in particular but not only (also of some techs, buildings, units, bonuses, a few terrains/features as of now too, etc.), with wikipedia based entries (unless stated otherwise in the pedia entry or in code comments or docs), so that it is more accurate and possibly if i may say anyways etc instructive or/and informative or/and neutral/objective or/and perhaps also enjoyable anyways etc.
+-- (Requires AdvCiv-SAS 5212+ to 5214+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.) or **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
++- (Requires AdvCiv-SAS 5212+ to 5222+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.), **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries, **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialists. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - sevopedia shortcuts category: add info about Alt+S shortcut (Toggle on/off write some text ("Enter caption") on a tile) (added in the Map Layers subcategory anyways etc).
+ - added a few new concepts (as of now in the "Outdated" sevopedia category) entries such as concept_rivers, concept_route_road, concept_route_railroad. These are not supported in advciv-sas, hence the "outdated" name (i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images, or that i found informative or/and wanted to add anyways etc. See [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details.
+ - removed the strategy text in history / background panels as they are oftentimes outdated or/and tedious to maintain anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 03ef6ecf2..b0b0bade4 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -118,7 +118,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - Wider content area, narrower main category column; fills available screen space.
+ - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md).
+-- (Requires AdvCiv-SAS 5212+ to 5214+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.) or **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
++- (Requires AdvCiv-SAS 5212+ to 5222+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.), **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries, **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialists. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+ - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+ - Sevopedia — History/Background panels: removed the embedded **Strategy** text; it was often outdated and tedious to maintain.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 6d70e075b..87a59e3b8 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -24,6 +24,8 @@ Note 2: in below sample examples, click the images to view them full size.
+ [example 11: shortcuts category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-11-shortcuts-category)  
+ [example 12: promotions category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-12-promotions-category)  
+ [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category)  
++[example 14: projects category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-14-projects-category)  
++[example 15: specialists category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-15-specialists-category)  
+ 
+ ## example 1: more AI Personality examples (in leaders category)
+ 
+@@ -198,3 +200,19 @@ Examples of output below anyways etc.:
+ <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG" alt="0.740_sevopedia_civics_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG" alt="0.740_sevopedia_civics_sample (2).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG" alt="0.740_sevopedia_civics_sample (3).JPG" width="250"></img>
++
++## example 14: projects category
++
++Did not beautify it, except from adding the grouping as we said as of now at the top of this file but anyways etc.
++
++Since this is a nice functionnal change, i wanted to show it here as well despite that but anyways etc.
++
++<img src="../Images_In_General/sevopedia_reworks/0.750_sevopedia_projects_sample (1).JPG" alt="0.750_sevopedia_projects_sample (1).JPG" width="250"></img>
++
++## example 15: specialists category
++
++Beautified it a bit (removed the ugly blue panel around the buttons as we did in previous reworks but anyways etc.), but added the grouping (by specialist type (as of now normal vs great specialists if i'm not mistaken but anyways etc.)) similarly to how we said as of now at the top of this file but anyways etc.
++
++Still, i wanted to showcase it as i think it's quite nice thanks to RFC DOC's mod for having done the code i could use as a base for this plus chatgpt 5.2 for help (and thanks to me too as well but anyways etc.)
++
++<img src="../Images_In_General/sevopedia_reworks/0.760_sevopedia_specialists_sample (1).JPG" alt="0.760_sevopedia_specialists_sample (1).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.750_sevopedia_projects_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.750_sevopedia_projects_sample (1).JPG
+new file mode 100644
+index 000000000..89449cbe8
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.750_sevopedia_projects_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.760_sevopedia_specialists_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.760_sevopedia_specialists_sample (1).JPG
+new file mode 100644
+index 000000000..99e8c716c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.760_sevopedia_specialists_sample (1).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=27181

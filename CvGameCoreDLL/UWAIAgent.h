@@ -22,13 +22,10 @@ public:
 	void write(FDataStreamBase* pStream) const;
 	void read(FDataStreamBase* pStream);
 	void addTeam(PlayerTypes eOtherLeader); // When forming a Permanent Alliance
-	void reportWarEnding(TeamTypes eEnemy,
-			CLinkList<TradeData> const* pWeReceive = NULL,
-			CLinkList<TradeData> const* pWeGive = NULL);
+	void reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive = NULL, CLinkList<TradeData> const* pWeGive = NULL);
 	void turnPre();
 	void doWar(); // replacement for CvTeamAI::doWar
-	bool canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan,
-			bool bCheckDefensivePacts = true) const;
+	bool canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan, bool bCheckDefensivePacts = true) const;
 	// Replacing parts of CvTeamAI::AI_declareWarTrade
 	DenialTypes declareWarTrade(TeamTypes eTeam, TeamTypes eSponsor) const;
 	/*	Replacing CvTeamAI::AI_declareWarTradeVal. However, that function is
@@ -78,6 +75,7 @@ public:
 	/*	Whether this team can reach any city of eTarget with military units;
 		based on cached info. */
 	bool canReach(TeamTypes eTarget) const;
+	bool isSASVictoryDenialDirectWarAllowed(TeamTypes eTarget, int iTargetMaxVictoryStage, bool bNaval, int iDistance) const; // <!-- custom: Shared UWAI policy lets target selection and its contact-distance guard use the same victory urgency, power, distance and land-access requirements. (GPT-5.6-Sol) -->
 	bool isCloseToAdoptingAnyWarPlan() const;
 	UWAI::Player const& leaderUWAI() const;
 	// E.g. never need to (directly) evaluate war against vassals
@@ -97,25 +95,28 @@ private:
 	void reset();
 	/*	Abandon wars in preparation, switch plans or targets and consider peace.
 		Returns false if scheming should be skipped this turn. */
-	bool reviewWarPlans();
+	// <!-- custom: Return changed targets so same-turn scheming cannot immediately recreate a plan that this review just canceled or replaced. (GPT-5.6-Sol) -->
+	bool reviewWarPlans(std::set<TeamTypes>& aeChangedTargets);
 	/*	Review plan vs. eTarget. Returns true if plan continues unchanged,
 		false if any change (abandoned, peace made, target changed). */
-	bool reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns);
+	// <!-- custom: Added bNaval so reviewing an existing preparation uses the same land/naval victory-denial direct-war gate as its initial target evaluation. Added the emergency-peace measurements, preferred target and cached reluctance so multi-war danger is computed once and first seeks feasible peace in the least valuable war instead of forcing peace against every opponent. (GPT-5.6-Sol) -->
+	bool reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNaval, int iMajorWars, int iEnemyPowerPercent, int iAdjustedEnemyPowerPercent, TeamTypes ePreferredEmergencyPeaceTarget, int iPreferredEmergencyPeaceReluctance);
 	// All these return true if the war plan remains unchanged, false otherwise.
-	bool considerPeace(TeamTypes eTarget, int iU);
-	bool considerCapitulation(TeamTypes eMaster, int iAgentWarUtility,
-			int iMasterReluctancePeace);
+	bool considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iEnemyPowerPercent, int iAdjustedEnemyPowerPercent, TeamTypes ePreferredEmergencyPeaceTarget, int iPreferredEmergencyPeaceReluctance); // <!-- custom: See reviewPlan: only the preferred feasible current war receives the emergency override. (GPT-5.6-Sol) -->
+	bool considerCapitulation(TeamTypes eMaster, int iAgentWarUtility, int iMasterReluctancePeace);
 	bool tryFindingMaster(TeamTypes eEnemy);
 	bool considerPlanTypeChange(TeamTypes eTarget, int iU);
 	bool considerAbandonPreparations(TeamTypes eTarget, int iU, int iTurnsRemaining);
 	bool considerSwitchTarget(TeamTypes eTarget, int iU, int iTurnsRemaining);
-	bool considerConcludePreparations(TeamTypes eTarget, int iU, int iTurnsRemaining);
+	// <!-- custom: Added iVictoryDenialBoost so preparation and direct-war utility retain the same victory-denial value when they are compared. (GPT-5.6-Sol) -->
+	bool considerConcludePreparations(TeamTypes eTarget, int iU, int iTurnsRemaining, int iVictoryDenialBoost);
 
-	void scheme(); // Consider new war plans
+	// <!-- custom: Added aeChangedTargets to skip only targets whose plans changed earlier in this turn; other new war opportunities remain available. (GPT-5.6-Sol) -->
+	void scheme(std::set<TeamTypes> const& aeChangedTargets); // Consider new war plans
 	void alignAreaAI(bool bNaval);
 	int peaceThreshold(TeamTypes eTarget) const;
 	scaled limitedWarWeight() const;
-	
+
 	scaled utilityToTradeVal(scaled rUtility) const;
 	/*	tradeVal should roughly correspond to gold per turn; converted into
 		war utility based on our current commerce rate. */
@@ -161,10 +162,8 @@ public:
 	bool isPeaceDealPossible(PlayerTypes eHuman) const;
 	/*	Can eHuman trade assets to us with a total value of at least
 		iTargetTradeVal? */
-	bool canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman,
-			/*	If this is not NULL, then it is used to return the trade value of
-				all assets that the human can trade, but only up to targetTradeVal. */
-			int* piAvailableTradeVal = NULL, bool bIgnoreCities = false) const;
+	// If this is not NULL, then it is used to return the trade value of all assets that the human can trade, but only up to targetTradeVal. <!-- custom: hoisted from multiline signature between `eHuman` and `piAvailableTradeVal` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	bool canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman, int* piAvailableTradeVal = NULL, bool bIgnoreCities = false) const;
 	scaled utilityToTradeVal(scaled rUtility) const;
 	scaled tradeValToUtility(scaled rTradeVal) const;
 	scaled tradeValUtilityConversionRate() const;
@@ -173,8 +172,7 @@ public:
 	/*	iTurns: Build-up over how many turns?
 		Will be adjusted to game speed by this function! */
 	scaled estimateBuildUpRate(PlayerTypes ePlayer, int iTurns = 10) const;
-	scaled estimateDemographicGrowthRate(PlayerTypes ePlayer,
-			PlayerHistoryTypes eDemographic, int iTurns = 10) const;
+	scaled estimateDemographicGrowthRate(PlayerTypes ePlayer, PlayerHistoryTypes eDemographic, int iTurns = 10) const;
 	/*	Whether this player can reach any city of eTarget with military units;
 		based on cached info. */
 	bool canReach(PlayerTypes eTarget) const;
@@ -206,14 +204,8 @@ public:
 		0 to 1 means that the leader is rather self-reliant, above means
 		he or she likes dogpile wars. */
 	scaled warConfidenceAllies() const;
-	scaled confidenceAgainstHuman() const
-	{
-		/*  Doesn't seem necessary so far; AI rather too reluctant to attack humans
-			due to human diplomacy, and other special treatment of humans; e.g.
-			can't get a capitulation from human.
-			(I've left an older implementation commented out in the .cpp file.) */
-		return 1;
-	}
+	/* Doesn't seem necessary so far; AI rather too reluctant to attack humans due to human diplomacy, and other special treatment of humans; e.g. can't get a capitulation from human. (I've left an older implementation commented out in the .cpp file.) */
+	scaled confidenceAgainstHuman() const { return 1; }
 	/*	How willing our leader is to go after players that he or she really dislikes.
 		Between 0 (Gandhi) and 10 (Montezuma). */
 	int vengefulness() const;

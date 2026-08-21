@@ -1,0 +1,263 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4050
+# Commit: 5bf8ffeab88f7d85617406539d8c24d6d7b8c5e1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c8b8ae7e1b59fefe159b8599a4b97131b0c0d96d
+# Title: Allow pillaging own improvement through Ctrl key
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/XML/Text/CIV4GameText_advc.xml
+2	1	Assets/XML/Text/Shortcuts_CIV4GameText.xml
+14	6	CvGameCoreDLL/CvDLLWidgetData.cpp
+5	2	CvGameCoreDLL/CvGameInterface.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+5	3	CvGameCoreDLL/CvSelectionGroup.cpp
+12	6	CvGameCoreDLL/CvUnit.cpp
+5	3	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 07c272174..eea34e036 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -7010,4 +7010,14 @@
+ 		<English>Your machine is below recommended specifications. The graphic settings were altered to accommodate this. To avoid this adjustment and warning in the future, please set HideMinSpecWarning=1 in CivilizationIV.ini under \My Games\Beyond the Sword\.</English>
+ 	</TEXT>
+ 
++	<!-- advc.111 -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_DESTROY_OWN_STRUCTURE</Tag>
++		<English>Hold [COLOR_POSITIVE_TEXT]&lt;Ctrl&gt;[COLOR_REVERT] to Destroy %s1_Structure instead</English>
++		<French>[COLOR_POSITIVE_TEXT]&lt;Ctrl&gt;[COLOR_REVERT] d�truit %s1_Structure plut�t</French>
++		<German>[COLOR_POSITIVE_TEXT]&lt;Strg&gt;[COLOR_REVERT]-Taste zerst�rt stattdessen %s1_Structure</German>
++		<Italian>[COLOR_POSITIVE_TEXT]&lt;Ctrl&gt;[COLOR_REVERT] invece distrugge %s1_Structure</Italian>
++		<Spanish>[COLOR_POSITIVE_TEXT]&lt;Ctrl&gt;[COLOR_REVERT] destruye %s1_Structure en lugar</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/Shortcuts_CIV4GameText.xml b/Assets/XML/Text/Shortcuts_CIV4GameText.xml
+index 31cc95c5e..87876101b 100644
+--- a/Assets/XML/Text/Shortcuts_CIV4GameText.xml
++++ b/Assets/XML/Text/Shortcuts_CIV4GameText.xml
+@@ -142,9 +142,10 @@
+ 		 Reminder, Alt+G to Regenerate, Alt hover on plot list) -->
+ 	<!-- advc.004t: Right-click on city tile -->
+ 	<!-- advc.088: Unselect all -->
++	<!-- advc.111: Self-pillage -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SHORTCUTS_BUG_PEDIA</Tag>
+-		<English>[H1]Mods (BUG, K-Mod, AdvCiv)[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+O[COLOR_REVERT][\BOLD][TAB][TAB]BUG options menu [NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+F1[COLOR_REVERT][\BOLD][TAB]BUG Help (external)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+N[COLOR_REVERT][\BOLD][TAB][TAB]Popup for testing Unit Naming rules (if enabled)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Shift+M[COLOR_REVERT][\BOLD][TAB]Save map as Python script[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+M[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Set a reminder message[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+L[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Start/stop Autolog (if enabled)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Create manual Autolog entry (if Autolog started)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Log battle statistics (if Autolog started)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+X[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Place (left click) or remove (right click) city on dotmap[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+X[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Show/hide dot map overlay[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Shift+X[COLOR_REVERT][\BOLD][TAB]Start/ end AI Auto Play if in cheat mode ("chipotle")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Shift+B[COLOR_REVERT][\BOLD][TAB]Start an AI Auto Play benchmark test ("chipotle")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Shift+L[COLOR_REVERT][\BOLD][TAB]Popup for taking control of another civ ("chipotle")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Shift+P[COLOR_REVERT][\BOLD][TAB]Popup for reassigning civ leaders and teams ("chipotle")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]X+any command[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Suppress unit cycling[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Alt+U (briefly held)[COLOR_REVERT][\BOLD][TAB]Unselect all units[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click build button[COLOR_REVERT][\BOLD][TAB]Suspend worker build 1 turn before completion[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+tile hover[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]View incomplete worker builds[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+hover in city screen[COLOR_REVERT][\BOLD][TAB]View absolute effects of buildings and specialists[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Right-click on city tile[COLOR_REVERT][\BOLD][TAB][TAB]Exit city screen and center on city tile</English>
++		<English>[H1]Mods (BUG, K-Mod, AdvCiv)[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+O[COLOR_REVERT][\BOLD][TAB][TAB]BUG options menu [NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+F1[COLOR_REVERT][\BOLD][TAB]BUG Help (external)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+N[COLOR_REVERT][\BOLD][TAB][TAB]Popup for testing Unit Naming rules (if enabled)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Shift+M[COLOR_REVERT][\BOLD][TAB]Save map as Python script[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+M[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Set a reminder message[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+L[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Start/stop Autolog (if enabled)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Create manual Autolog entry (if Autolog started)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Log battle statistics (if Autolog started)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+X[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Place (left click) or remove (right click) city on dotmap[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+X[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Show/hide dot map overlay[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Shift+X[COLOR_REVERT][\BOLD][TAB]Start/ end AI Auto Play if in cheat mode ("chipotle")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Shift+B[COLOR_REVERT][\BOLD][TAB]Start an AI Auto Play benchmark test ("chipotle")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Shift+L[COLOR_REVERT][\BOLD][TAB]Popup for taking control of another civ ("chipotle")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Shift+P[COLOR_REVERT][\BOLD][TAB]Popup for reassigning civ leaders and teams ("chipotle")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]X+any command[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Suppress unit cycling[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Alt+U (briefly held)[COLOR_REVERT][\BOLD][TAB]Unselect all units[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click build button[COLOR_REVERT][\BOLD][TAB]Suspend worker build 1 turn before completion[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+tile hover[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]View incomplete worker builds[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+pillage/ air bomb[COLOR_REVERT][\BOLD][TAB][TAB]Destroy friendly improvement (instead of a route)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+hover in city screen[COLOR_REVERT][\BOLD][TAB]View absolute effects of buildings and specialists[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Right-click on city tile[COLOR_REVERT][\BOLD][TAB][TAB]Exit city screen and center on city tile</English>
+ 		<German>[H1]BUG Mod[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Alt+O[COLOR_REVERT][\BOLD][TAB][TAB]Optionsbildschirm der BUG Mod[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Alt+F1[COLOR_REVERT][\BOLD][TAB][TAB]BUG Hilfe-Datei aufrufen (externe Anwendung)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+M, Strg+Alt+R[COLOR_REVERT][\BOLD][TAB]Erinnerung  schreiben[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+L[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Protokollierung starten/stoppen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Protokolleintrag erstellen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Kampfstatistiken protokollieren[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+X[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Strategie-Overlay bearbeiten[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+X[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Strategie-Overlay ein-/ausblenden[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+G[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Karte neu generieren[NEWLINE][NEWLINE]Dr�cken und Halten von [BOLD][COLOR_HIGHLIGHT_TEXT]Alt[COLOR_REVERT][\BOLD], w�hrend der Mauszeiger �ber ein Einheitensymbol in der Einheitenliste bewegt wird, zeigt alle m�glichen Einheitenbewegungen an.</German>
+ 		<Italian>[H1]Scorciatoie del BUG Mod[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+O[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Apre la Schermata delle Opzioni del BUG Mod[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+F1[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Apre l'Help (esterno) del BUG Mod[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+M, Alt+Ctrl+R[COLOR_REVERT][\BOLD][TAB]Crea un Promemoria[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+L[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Avvia/Pausa il Registro[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Crea una nota personalizzata nel Registro[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Inserisce le statistiche di combattimento nel Registro[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+X[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Alterna la modalit� del Livello Strategico[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+X[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Mostra/Nasconde il Livello Strategico[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+N[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Apre la finestra di test per la denominazione delle Unit�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+G[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Regenerate the map[NEWLINE][NEWLINE]Tenere premuto [BOLD][COLOR_HIGHLIGHT_TEXT]Alt[COLOR_REVERT][\BOLD] stazionando il mouse sopra un'icona di Unit� per evidenziare sulla mappa le possibilit� di movimento di tale Unit�.</Italian>
+ 		<Spanish>[H1]BUG Mod[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+O[COLOR_REVERT][\BOLD][TAB][TAB]Ventana de opciones de BUG[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Ctrl+F1[COLOR_REVERT][\BOLD][TAB][TAB]Ayuda de BUG (externa)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+M, Alt+Ctrl+R[COLOR_REVERT][\BOLD][TAB]Crear recordatorio[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+L[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Comenzar/detener registrado[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+E[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Crear registro manual[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Registrar estad�sticas de batalla[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+X[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Permite colocar marcadores en el mapa[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+X[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Mostrar/ocultar marcadores en mapa[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+G[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Regenerar el mapa[NEWLINE][NEWLINE]Hold [BOLD][COLOR_HIGHLIGHT_TEXT]Alt[COLOR_REVERT][\BOLD] mientras se deja el rat�n sobre el icono de una unidad para mostrar sus posibles movimientos en el mapa.</Spanish>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 0cac9094f..5b6767edb 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2328,16 +2328,24 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 		break;
+ 	}
+ 	case MISSION_PILLAGE:
+-	{	// <advc.111> Matching a change in CvUnit::pillage
+-		if (kMissionPlot.getTeam() == kUnitTeam.getID())
++	{	// <advc.111>
++		if (kUnit.getDestructibleStructureAt(kMissionPlot, true, GC.ctrlKey()) ==
++			CvUnit::STRUCTURE_IMPROVEMENT)
+ 		{
+-			if (!GAMETEXT.setPillageHelp(szBuffer, kMissionPlot.getRouteType()))
+-				GAMETEXT.setPillageHelp(szBuffer, kMissionPlot.getImprovementType());
++			GAMETEXT.setPillageHelp(szBuffer, kMissionPlot.getImprovementType());
+ 		}
+ 		else
+ 		{
+-			if (!GAMETEXT.setPillageHelp(szBuffer, kMissionPlot.getImprovementType()))
+-				GAMETEXT.setPillageHelp(szBuffer, kMissionPlot.getRouteType());
++			GAMETEXT.setPillageHelp(szBuffer, kMissionPlot.getRouteType());
++			if (!GC.ctrlKey() && kUnit.getDestructibleStructureAt(kMissionPlot, true, true) ==
++				CvUnit::STRUCTURE_IMPROVEMENT)
++			{
++				szBuffer.append(L". (");
++				szBuffer.append(gDLL->getText("TXT_KEY_MISC_DESTROY_OWN_STRUCTURE",
++						GC.getInfo(kMissionPlot.getRevealedImprovementType(
++						getActiveTeam())).getTextKeyWide()));
++				szBuffer.append(L".)");
++			}
+ 		} // </advc.111>
+ 		break;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index d8f335532..e24c6ab12 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -974,8 +974,11 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
+ 				}
+ 			} // <advc.011b>
+ 			bool bModified = false;
+-			if (iData2 == MISSION_BUILD)
+-				bModified = GC.ctrlKey(); // </advc.001b>
++			if (iData2 == MISSION_BUILD ||
++				iData2 == MISSION_PILLAGE || iData2 == MISSION_AIRBOMB) // advc.111
++			{
++				bModified = GC.ctrlKey();
++			} // </advc.011b>
+ 			// <advc.048>
+ 			if (iData2 == MISSION_MOVE_TO)
+ 				bModified = GC.altKey(); // </advc.048>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 877d25c90..79e577d86 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -20866,7 +20866,7 @@ void CvGameTextMgr::getAirBombPlotHelp(CvPlot const& kPlot,
+ 	} 
+ 	// <advc.255>
+ 	CvUnit::StructureTypes const eStructure = kHeadSelectedUnit.
+-			getDestructibleStructureAt(kPlot, true);
++			getDestructibleStructureAt(kPlot, true, /* advc.111: */ GC.ctrlKey());
+ 	if (eStructure == CvUnit::NO_STRUCTURE)
+ 		return; // </advc.255>
+ 	// Formula matches dice roll in CvUnit::airBomb
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index d45c5b97c..e9ab494d0 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -571,7 +571,7 @@ void CvSelectionGroup::pushMission(MissionTypes eMission, int iData1, int iData2
+ 	mission.iData2 = iData2;
+ 	mission.eFlags = eFlags;
+ 	mission.iPushTurn = GC.getGame().getGameTurn();
+-	mission.bModified = bModified; //advc.011b
++	mission.bModified = bModified; // advc.011b
+ 
+ 	if (canAllMove()) // K-Mod. Do not set the AI mission type if this is just a "follow" command!
+ 		AI().AI_setMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
+@@ -897,7 +897,8 @@ void CvSelectionGroup::startMission()
+ 			while ((pUnit = AI().AI_bestUnitForMission(MISSION_PILLAGE,
+ 				NULL, &aiHasPillaged)) != NULL) // </advc>
+ 			{	// <K-Mod>
+-				if (pUnit->pillage())
++				if (pUnit->pillage(
++					headMissionQueueNode()->m_data.bModified)) // advc.111
+ 				{
+ 					bAction = true;
+ 					if (!AI_isControlled())
+@@ -937,7 +938,8 @@ void CvSelectionGroup::startMission()
+ 			bool bIntercepted = false;
+ 			CvUnit* pUnit;
+ 			while ((pUnit = AI().AI_bestUnitForMission(MISSION_AIRBOMB, &kMissionPlot)) != NULL &&
+-				pUnit->airBomb(kMissionPlot, &bIntercepted))
++				pUnit->airBomb(kMissionPlot, &bIntercepted,
++				headMissionQueueNode()->m_data.bModified)) // advc.111
+ 			{
+ 				bAction = true;
+ 				if (bIntercepted && !bStackAttack)
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index b21767195..568dfe14c 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -4415,7 +4415,8 @@ bool CvUnit::canAirBombAt(CvPlot const& kTarget, CvPlot const* pFrom) const
+ 	target plot would be an improvement, a route or none - assuming that the unit
+ 	has the ability to pillage or air bomb the plot (not checked). */
+ CvUnit::StructureTypes CvUnit::getDestructibleStructureAt(CvPlot const& kTarget,
+-	bool bTestVisibility) const
++	bool bTestVisibility,
++	bool bForceImprovement) const // advc.111
+ {
+ 	ImprovementTypes eImprov = (bTestVisibility ?
+ 			kTarget.getRevealedImprovementType(getTeam()) :
+@@ -4434,6 +4435,9 @@ CvUnit::StructureTypes CvUnit::getDestructibleStructureAt(CvPlot const& kTarget,
+ 	}
+ 	if (eImprov == NO_IMPROVEMENT && eRoute == NO_ROUTE)
+ 		return NO_STRUCTURE;
++	// <advc.111>
++	if (bForceImprovement && eImprov != NO_IMPROVEMENT)
++		eRoute = NO_ROUTE; // </advc.111>
+ 	if (getTeam() == (bTestVisibility ?
+ 		kTarget.getRevealedTeam(getTeam(), false) : kTarget.getTeam()))
+ 	{
+@@ -4457,8 +4461,9 @@ int CvUnit::airBombDefenseDamage(CvCity const& kCity) const
+ }
+ 
+ // advc: Target plot was given as coordinates
+-bool CvUnit::airBomb(CvPlot& kTarget, /* <advc.004c> */ bool* pbIntercepted)
+-{
++bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted,
++	bool bForceImprovement) // advc.111
++{	// <advc.004c>
+ 	if (pbIntercepted != NULL)
+ 		*pbIntercepted = false; // </advc.004c>
+ 	if (!canAirBombAt(kTarget))
+@@ -4496,7 +4501,8 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* <advc.004c> */ bool* pbIntercepted)
+ 	{	// <advc.255> 
+ 		bool const bValidOwner = (!kTarget.isOwned() || isEnemy(kTarget) || // advc.004c
+ 				kTarget.getOwner() == getOwner());
+-		StructureTypes const eStructure = getDestructibleStructureAt(kTarget, false);
++		StructureTypes const eStructure = getDestructibleStructureAt(kTarget, false,
++				bForceImprovement); // advc.111
+ 		if (bValidOwner && eStructure != NO_STRUCTURE)
+ 		{
+ 			bool const bRoute = (eStructure == STRUCTURE_ROUTE);
+@@ -4766,7 +4772,7 @@ bool CvUnit::canPillage(CvPlot const& kPlot) const
+ }
+ 
+ 
+-bool CvUnit::pillage()
++bool CvUnit::pillage(/* advc.111: */ bool bForceImprovement)
+ {
+ 	CvPlot& kPlot = getPlot();
+ 	if (!canPillage(kPlot))
+@@ -4799,7 +4805,7 @@ bool CvUnit::pillage()
+ 	RouteTypes const eOldRoute = kPlot.getRouteType();
+ 	// <advc.111>
+ 	bool bPillaged = false;
+-	if (getDestructibleStructureAt(kPlot, false) == STRUCTURE_ROUTE)
++	if (getDestructibleStructureAt(kPlot, false, bForceImprovement) == STRUCTURE_ROUTE)
+ 		bPillaged = pillageRoute();
+ 	else bPillaged = pillageImprovement(); // </advc.111>
+ 	changeMoves(GC.getMOVE_DENOMINATOR());
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index eaab711ca..3d3a6f9ad 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -168,9 +168,11 @@ public:
+ 	// <advc.255>
+ 	enum StructureTypes { NO_STRUCTURE, STRUCTURE_IMPROVEMENT, STRUCTURE_ROUTE };
+ 	StructureTypes getDestructibleStructureAt(CvPlot const& kTarget,
+-			bool bTestVisibility) const; // </advc.255>
++			bool bTestVisibility, // </advc.255>
++			bool bForceImprovement = false) const; // advc.111
+ 	int airBombDefenseDamage(CvCity const& kCity) const; // advc
+-	bool airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted = NULL);
++	bool airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted = NULL,
++			bool bForceImprovement = false); // advc.111
+ 
+ 	bool canAirStrike(CvPlot const& kPlot) const; // (advc.004c: was protected)
+ 
+@@ -184,7 +186,7 @@ public:
+ 	bool paradrop(int iX, int iY, /* advc.004c: */ IDInfo* pInterceptor = NULL);
+ 
+ 	bool canPillage(CvPlot const& kPlot) const;																// Exposed to Python
+-	bool pillage();
++	bool pillage(/* advc.111: */ bool bForceImprovement = false);
+ 
+ 	bool canPlunder(CvPlot const& kPlot, bool bTestVisible = false) const;									// Exposed to Python
+ 	bool plunder();
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=18584

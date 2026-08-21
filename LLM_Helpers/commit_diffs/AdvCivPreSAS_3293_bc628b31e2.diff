@@ -1,0 +1,570 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3293
+# Commit: bc628b31e20a8e41c6e0f604bb12b34c48e68309
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b3ce6e5a32b18f75d9692950a955f84a6c60a0e7
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/GlobalDefines_advc.xml
+13	16	CvGameCoreDLL/CvCity.cpp
+4	3	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvEventReporter.h
+4	5	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+14	10	CvGameCoreDLL/CvPlayer.cpp
+6	7	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvPlot.h
+3	0	CvGameCoreDLL/CvSelectionGroup.cpp
+5	3	CvGameCoreDLL/CvSelectionGroup.h
+3	0	CvGameCoreDLL/CvStructs.h
+3	1	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+1	2	CvGameCoreDLL/CvUnitAI.cpp
+12	12	CvGameCoreDLL/CyGame.cpp
+3	3	CvGameCoreDLL/LinkedList.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 0707ed1a6..a14751e46 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -936,7 +936,7 @@
+ 	</Define>
+ 
+ 	<!-- [advc.700] Rise & Fall parameters. The first four are applied at game
+-		 start; changing them in a running game has no effect.  -->
++		 start; changing them in an ongoing game has no effect.  -->
+ 	<!-- Base value for the number of chapters; recommended: 7. Has to be
+ 		 positive. The game adjusts the value based on game speed and start
+ 		 date. -->
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 169d8c76e..7756dafb7 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10653,7 +10653,6 @@ void CvCity::doDecay()
+ 	{
+ 		if (getProductionBuilding() == eLoopBuilding)
+ 			continue;
+-
+ 		if (getBuildingProduction(eLoopBuilding) > 0)
+ 		{
+ 			changeBuildingProductionTime(eLoopBuilding, 1);
+@@ -10678,27 +10677,25 @@ void CvCity::doDecay()
+ 	{
+ 		if (getProductionUnit() == eLoopUnit)
+ 			continue;
++		if (getUnitProduction(eLoopUnit) > 0)
+ 		{
+-			if (getUnitProduction(eLoopUnit) > 0)
++			changeUnitProductionTime(eLoopUnit, 1);
++			if (isHuman())
+ 			{
+-				changeUnitProductionTime(eLoopUnit, 1);
+-				if (isHuman())
++				int const iGameSpeedPercent = GC.getInfo(GC.getGame().
++						getGameSpeedType()).getTrainPercent();
++				if (100 * getUnitProductionTime(eLoopUnit) >
++					GC.getDefineINT(CvGlobals::UNIT_PRODUCTION_DECAY_TIME) * iGameSpeedPercent)
+ 				{
+-					int const iGameSpeedPercent = GC.getInfo(GC.getGame().
+-							getGameSpeedType()).getTrainPercent();
+-					if (100 * getUnitProductionTime(eLoopUnit) >
+-						GC.getDefineINT(CvGlobals::UNIT_PRODUCTION_DECAY_TIME) * iGameSpeedPercent)
+-					{
+-						int iProduction = getUnitProduction(eLoopUnit);
+-						int const iDecayPercent = GC.getDefineINT(CvGlobals::UNIT_PRODUCTION_DECAY_PERCENT);
+-						setUnitProduction(eLoopUnit, iProduction -
+-								(iProduction * (100 - iDecayPercent) + iGameSpeedPercent - 1) /
+-								iGameSpeedPercent);
+-					}
++					int iProduction = getUnitProduction(eLoopUnit);
++					int const iDecayPercent = GC.getDefineINT(CvGlobals::UNIT_PRODUCTION_DECAY_PERCENT);
++					setUnitProduction(eLoopUnit, iProduction -
++							(iProduction * (100 - iDecayPercent) + iGameSpeedPercent - 1) /
++							iGameSpeedPercent);
+ 				}
+ 			}
+-			else setUnitProductionTime(eLoopUnit, 0);
+ 		}
++		else setUnitProductionTime(eLoopUnit, 0);
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 06be9041d..c75e3866b 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9803,8 +9803,8 @@ void CvCityAI::AI_juggleCitizens()
+ #endif
+ }
+ 
+-// K-Mod. Estimate the cost of recovery after losing iQuantity number of citizens in this city.
+-// (units of 4x commerce.)
++/*	K-Mod. Estimate the cost of recovery after losing iQuantity number of citizens
++	in this city. (units of 4x commerce.) Replacing AI_citizenLossCost in BtS. */
+ int CvCityAI::AI_citizenSacrificeCost(int iCitLoss, int iHappyLevel, int iNewAnger, int iAngerTimer)
+ {
+ 	PROFILE_FUNC();
+@@ -12620,7 +12620,8 @@ int CvCityAI::AI_countNumBonuses(BonusTypes eBonus,
+ 	return iCount;
+ }
+ 
+-// BBAI (K-Mod - I've rearranged some stuff and fixed some bugs):
++// BBAI (11/14/09, jdog5000): City AI
++// K-Mod - rearranged some stuff and fixed some bugs
+ // advc (tbd.): Some overlap with CvPlayerAI::AI_isUnimprovedBonus -- merge?
+ int CvCityAI::AI_countNumImprovableBonuses(bool bIncludeNeutral, TechTypes eExtraTech, bool bLand,
+ 	bool bWater) /* advc: */ const
+
+diff --git a/CvGameCoreDLL/CvEventReporter.h b/CvGameCoreDLL/CvEventReporter.h
+index cdce81122..aaea7f748 100644
+--- a/CvGameCoreDLL/CvEventReporter.h
++++ b/CvGameCoreDLL/CvEventReporter.h
+@@ -11,9 +11,9 @@
+ // It will report events to python and the stats collector.
+ //
+ 
++/*class CyDiplomacyTrade;
++struct TradeData;*/ // advc: not used
+ struct CvStatBase;
+-struct TradeData;
+-class CyDiplomacyTrade;
+ class CvUnit;
+ class CvCity;
+ class CvPlot;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 1d61d0e84..c1ca071ad 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -5478,15 +5478,14 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat)
+ 	{
+ 		int iActiveNetId = ((NO_PLAYER != eOldActivePlayer) ? GET_PLAYER(eOldActivePlayer).getNetID() : -1);
+ 		GC.getInitCore().setActivePlayer(eNewValue);
+-
+-		//if (GET_PLAYER(eNewValue).isHuman() && (isHotSeat() || isPbem() || bForceHotSeat))
+-		if (eNewValue != NO_PLAYER && GET_PLAYER(eNewValue).isHuman() && (isHotSeat() || isPbem() || bForceHotSeat)) // K-Mod
++		if (eNewValue != NO_PLAYER && // K-Mod
++			GET_PLAYER(eNewValue).isHuman() && (isHotSeat() || isPbem() || bForceHotSeat))
+ 		{
+ 			gDLL->getPassword(eNewValue);
+ 			setHotPbemBetweenTurns(false);
+ 			gDLL->getInterfaceIFace()->dirtyTurnLog(eNewValue);
+ 
+-			if (NO_PLAYER != eOldActivePlayer)
++			if (eOldActivePlayer != NO_PLAYER)
+ 			{
+ 				int iInactiveNetId = GET_PLAYER(eNewValue).getNetID();
+ 				GET_PLAYER(eNewValue).setNetID(iActiveNetId);
+@@ -9911,7 +9910,7 @@ void CvGame::changeHumanPlayer(PlayerTypes eNewHuman)
+ 
+ 	GET_PLAYER(eCurHuman).setIsHuman(false, /* advc.127c: */ true);
+ 	GET_PLAYER(eCurHuman).updateHuman(); // advc.127
+-} // BETTER_BTS_AI_MOD: END
++}
+ 
+ 
+ bool CvGame::isCompetingCorporation(
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 3ec13d443..a1b4e1d49 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -507,7 +507,7 @@ public:
+ 	bool isInBetweenTurns() const;
+ 	void setInBetweenTurns(bool b); // </advc.106b>
+ 
+-	HandicapTypes getHandicapType() const { return m_eHandicap; }
++	HandicapTypes getHandicapType() const { return m_eHandicap; }									// Exposed to Python
+ 	void setHandicapType(HandicapTypes eHandicap);
+ 	HandicapTypes getAIHandicap() const { return m_eAIHandicap; } // advc.127 (advc.708: exposed to Python)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 8a5adeb7b..8544df581 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -728,7 +728,6 @@ void CvPlayer::changeLeader(LeaderHeadTypes eNewLeader)
+ 	//AI().AI_init();
+ }
+ 
+-// (advc: Moved up so that all the CHANGE_PLAYER code dated 08/17/08 is in one place)
+ // for changing whether this player is human or not
+ void CvPlayer::setIsHuman(bool bNewValue, /* advc.127c: */ bool bUpdateAI)
+ {
+@@ -4915,7 +4914,8 @@ void CvPlayer::found(int iX, int iY)
+ 
+ 		if (eDefenderUnit != NO_UNIT)
+ 		{
+-			for (int i = 0; i < GC.getInfo(kGame.getHandicapType()).getBarbarianInitialDefenders(); i++)
++			for (int i = 0; i < GC.getInfo(kGame.getHandicapType()).
++				getBarbarianInitialDefenders(); i++)
+ 			{
+ 				initUnit(eDefenderUnit, iX, iY, UNITAI_CITY_DEFENSE);
+ 			}
+@@ -18989,7 +18989,7 @@ void CvPlayer::updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& k
+ }
+ 
+ /*	K-Mod: Find each item from the offer list in the inventory list -
+-	mark it as m_bOffering == true.
++	mark it as m_bOffering=true.
+ 	(This is usually done somewhere in the game engine,
+ 	or when the offer list is being generated or something.) */
+ void CvPlayer::markTradeOffers(CLinkList<TradeData>& kOurInventory,
+@@ -18998,18 +18998,22 @@ void CvPlayer::markTradeOffers(CLinkList<TradeData>& kOurInventory,
+ {
+ 	FOR_EACH_TRADE_ITEM_VAR2(pOfferItem, kOurOffer)
+ 	{
+-		CLLNode<TradeData>* pInvNode; // (defined here just for the assertion at the end)
+-		for (pInvNode = kOurInventory.head(); pInvNode != NULL;
+-			pInvNode = kOurInventory.next(pInvNode))
++	#ifdef FASSERT_ENABLE
++		bool bFound = false;
++	#endif
++		FOR_EACH_TRADE_ITEM_VAR2(pInvItem, kOurInventory)
+ 		{
+-			if (pInvNode->m_data.m_eItemType == pOfferItem->m_eItemType &&
+-				pInvNode->m_data.m_iData == pOfferItem->m_iData)
++			if (pInvItem->m_eItemType == pOfferItem->m_eItemType &&
++				pInvItem->m_iData == pOfferItem->m_iData)
+ 			{
+-				pInvNode->m_data.m_bOffering = pOfferItem->m_bOffering = true;
++				pInvItem->m_bOffering = pOfferItem->m_bOffering = true;
++			#ifdef FASSERT_ENABLE
++				bFound = true;
++			#endif
+ 				break;
+ 			}
+ 		}
+-		FAssertMsg(pInvNode != NULL ||
++		FAssertMsg(bFound ||
+ 				// <advc.134a> I guess it's OK that these aren't part of the inventory
+ 				pOfferItem->m_eItemType == TRADE_SURRENDER ||
+ 				pOfferItem->m_eItemType == TRADE_PEACE_TREATY, // </advc.134a>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3b0df126e..83bd50740 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -663,7 +663,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ }
+ 
+ // advc (note): UWAI bypasses this function
+-void CvPlayerAI::AI_doPeace()  // advc: refactored
++void CvPlayerAI::AI_doPeace()
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -7424,7 +7424,7 @@ int CvPlayerAI::AI_getAttitudeVal(PlayerTypes ePlayer, bool bForced) const
+ 	// <advc.003n> Moved out of the bForced branch and assert added
+ 	if (isBarbarian() || ePlayer == BARBARIAN_PLAYER)
+ 	{
+-		FAssert(false);
++		FErrorMsg("Barbarian attitude shouldn't matter");
+ 		return -100;
+ 	} // </advc.003n>
+ 	if (bForced)
+@@ -20152,7 +20152,7 @@ void CvPlayerAI::AI_doDiplo()
+ 			if ((kPlayer.getTeam() == getTeam() || GET_TEAM(ePlayer).isVassal(getTeam())) &&
+ 				canPossiblyTradeItem(ePlayer, TRADE_RESOURCES)) // advc.opt
+ 			{
+-				// XXX will it cancel this deal if it loses its first resource???
++				// XXX will it cancel this deal if it loses its first resource??? (advc.133 addresses this)
+ 				int iBestValue = 0;
+ 				BonusTypes eBestGiveBonus = NO_BONUS;
+ 				FOR_EACH_ENUM(Bonus)
+@@ -20165,7 +20165,7 @@ void CvPlayerAI::AI_doDiplo()
+ 						bool bHasBonus = kPlayer.getNumAvailableBonuses(eLoopBonus) > 0;
+ 						if (kPlayer.AI_bonusTradeVal(eLoopBonus, getID(), 1) > 0 &&
+ 							2 * kPlayer.AI_bonusVal(eLoopBonus, 1) >
+-							(bHasBonus? 3 : 2) * AI_bonusVal(eLoopBonus, -1)) // K-mod end
++							(bHasBonus? 3 : 2) * AI_bonusVal(eLoopBonus, -1)) // K-Mod end
+ 						{
+ 							if (canTradeItem(ePlayer, TradeData(TRADE_RESOURCES, eLoopBonus), true))
+ 							{
+@@ -21393,7 +21393,7 @@ bool CvPlayerAI::AI_proposeResourceTrade(PlayerTypes eTo)
+ 			/*  <advc.036> For AI-AI trades the conditions below are better handled
+ 				by AI_getTradeDenial. */
+ 			if (kTo.isHuman() && (kTo.getNumTradeableBonuses(eLoopBonus) <= 1 ||
+-				// || AI_bonusTradeVal(eLoopBonus, eOther, 1) <= 0)
++				//AI_bonusTradeVal(eLoopBonus, eOther, 1) <= 0)
+ 				kTo.AI_corporationBonusVal(eLoopBonus, true) > 0))
+ 			{
+ 				continue;
+@@ -28792,8 +28792,7 @@ void CvPlayerAI::AI_setHuman(bool b)
+ 	for (size_t i = 0; i < apSplitGroups.size(); i++)
+ 	{
+ 		apSplitGroups[i]->splitGroup(1);
+-	}
+-	// </advc.057>
++	} // </advc.057>
+ }
+ 
+ // advc.031c:
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index d8fff7082..1b5421b7d 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6637,10 +6637,10 @@ void CvPlot::changeCultureRangeCities(PlayerTypes eOwnerIndex, CultureLevelTypes
+ 	if(iChange == 0)
+ 		return;
+ 
+-	bool bOldCultureRangeCities = isCultureRangeCity(eOwnerIndex, eRangeIndex);
++	bool bOldCultureRangeCity = isCultureRangeCity(eOwnerIndex, eRangeIndex);
+ 	m_aaiCultureRangeCities.add(eOwnerIndex, eRangeIndex, iChange);
+ 	FAssert(m_aaiCultureRangeCities.get(eOwnerIndex, eRangeIndex) >= 0); // advc
+-	if (bOldCultureRangeCities != isCultureRangeCity(eOwnerIndex, eRangeIndex))
++	if (bOldCultureRangeCity != isCultureRangeCity(eOwnerIndex, eRangeIndex))
+ 		updateCulture(true, bUpdatePlotGroups);
+ }
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 80c3adab1..57ba75d88 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -541,7 +541,7 @@ public:
+ 	PlayerTypes findHighestCulturePlayer(
+ 			bool bAlive = false) const; // advc.035
+ 	int calculateCulturePercent(PlayerTypes ePlayer) const;											// Exposed to Python
+-	int calculateTeamCulturePercent(TeamTypes eTeam) const;										// Exposed to Python
++	int calculateTeamCulturePercent(TeamTypes eTeam) const;											// Exposed to Python
+ 	void setCulture(PlayerTypes eIndex, int iNewValue, bool bUpdate,								// Exposed to Python
+ 			bool bUpdatePlotGroups);
+ 	void changeCulture(PlayerTypes eIndex, int iChange, bool bUpdate);								// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 15a39a7c8..42fb33187 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1405,6 +1405,9 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 				bDone = true;
+ 				break;
+ 			}
++			/*	(BETTER_BTS_AI_MOD 12/07/08, 08/08/09, Maniac & jdog5000, General AI
++				pickup of stranded units - deleted by K-Mod.) */
++
+ 			MissionAITypes eMissionAI = AI().AI_getMissionAIType(); // advc.003u
+ 			if (eMissionAI != MISSIONAI_SHADOW && eMissionAI != MISSIONAI_GROUP)
+ 			{
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 1f57eee59..cd2cc265b 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -162,15 +162,17 @@ public:
+ 
+ 	RouteTypes getBestBuildRoute(CvPlot const& kPlot, BuildTypes* peBestBuild = NULL) const;	// Exposed to Python
+ 
++	//bool groupDeclareWar(CvPlot* pPlot, bool bForce = false); // deleted by K-Mod
+ 	bool groupAttack(int iX, int iY, MovementFlags eFlags, bool& bFailedAlreadyFighting,
+ 			bool bMaxSurvival = false); // advc.048
+ 	void groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit = NULL, bool bEndMove = false);
+ 	bool groupPathTo(int iX, int iY, MovementFlags eFlags);
+ 	bool groupRoadTo(int iX, int iY, MovementFlags eFlags);
+-	bool groupBuild(BuildTypes eBuild,
+-			bool bFinish = true); // advc.011b
++	bool groupBuild(BuildTypes eBuild, /* advc.011b: */ bool bFinish = true);
+ 
+-	void setTransportUnit(CvUnit* pTransportUnit, CvSelectionGroup** pOtherGroup = NULL); // bbai added pOtherGroup
++	void setTransportUnit(CvUnit* pTransportUnit,
++			CvSelectionGroup** pOtherGroup = NULL); // BBAI
++	//void setRemoteTransportUnit(CvUnit* pTransportUnit); // BBAI; deleted by K-Mod.
+ 
+ 	bool isAmphibPlot(CvPlot const* pPlot) const;																																		// Exposed to Python
+ 	bool groupAmphibMove(CvPlot const& kPlot, MovementFlags eFlags);
+
+diff --git a/CvGameCoreDLL/CvStructs.h b/CvGameCoreDLL/CvStructs.h
+index c6db8310a..e8e0b9e5e 100644
+--- a/CvGameCoreDLL/CvStructs.h
++++ b/CvGameCoreDLL/CvStructs.h
+@@ -106,6 +106,9 @@ struct TradeData					// Exposed to Python
+ 	bool m_bOffering;			//	Is this item up for grabs?
+ 	bool m_bHidden;				//	Are we hidden?
+ };
++/*	advc.003k: Memory layout probably mustn't change b/c CLinkList<TradeData>
++	occurs in the parameter lists of some exported functions */
++BOOST_STATIC_ASSERT(sizeof(TradeData) == 12);
+ 
+ struct EventTriggeredData
+ {
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index af89be7e9..36a84eab8 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2963,7 +2963,9 @@ bool CvTeamAI::AI_anyMemberAtVictoryStage3() const
+ 	-99 means we losing and have very little hope of surviving.
+ 	99 means we are soundly defeating our enemies.
+ 	Zero is neutral (eg. no wars being fought).
+-	(Based on K-Mod code for Force Peace diplomacy voting.) */
++	(Based on K-Mod code for Force Peace diplomacy voting.)
++	Replacing AI_getWarSuccessCapitulationRatio
++	(BETTER_BTS_AI_MOD, 03/20/10, jdog5000: War Strategy AI). */
+ int CvTeamAI::AI_getWarSuccessRating() const
+ {
+ 	PROFILE_FUNC();
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 6f10aaa37..aa872195d 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2285,7 +2285,7 @@ bool CvUnit::canMoveInto(CvPlot const& kPlot, bool bAttack, bool bDeclareWar,
+ 	}
+ 
+ 	TeamTypes ePlotTeam = kPlot.getTeam();
+-	CvTeamAI const& kOurTeam = GET_TEAM(getTeam()); // advc
++	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
+ 	bool bCanEnterTerritory = canEnterTerritory(ePlotTeam, false, kPlot.area());
+ 	if (bCanEnterTerritory)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 85811694f..ea5a02908 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -12354,8 +12354,7 @@ bool CvUnitAI::AI_paradrop(int iRange)
+ }
+ 
+ #if 0
+-/*  advc.003j: This function was apparently replaced by K-Mod's
+-	AI_defendTerritory.
++/*  advc.003j: This function was replaced by K-Mod's AI_defendTerritory.
+ 	The eFlags and iMaxPathTurns parameters of AI_protect were switched in
+ 	this file; I've corrected this although the function is unused; also in
+ 	the commented-out code at the call locations. */
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index b10171ce2..c6c6e13d6 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -104,22 +104,22 @@ int CyGame::countPossibleVote(int /*VoteTypes*/ eVote, int /*VoteSourceTypes*/ e
+ 
+ int CyGame::getVoteRequired(int /*VoteTypes*/ eVote, int /*VoteSourceTypes*/ eVoteSource) const
+ {
+-	return (int)m_kGame.getVoteRequired((VoteTypes)eVote, (VoteSourceTypes) eVoteSource);
++	return m_kGame.getVoteRequired((VoteTypes)eVote, (VoteSourceTypes) eVoteSource);
+ }
+ 
+ int CyGame::getSecretaryGeneral(int /*VoteSourceTypes*/ eVoteSource) const
+ {
+-	return (int)m_kGame.getSecretaryGeneral((VoteSourceTypes) eVoteSource);
++	return m_kGame.getSecretaryGeneral((VoteSourceTypes) eVoteSource);
+ }
+ 
+ bool CyGame::canHaveSecretaryGeneral(int /*VoteSourceTypes*/ eVoteSource) const
+ {
+-	return (int)m_kGame.canHaveSecretaryGeneral((VoteSourceTypes) eVoteSource);
++	return m_kGame.canHaveSecretaryGeneral((VoteSourceTypes) eVoteSource);
+ }
+ 
+ int CyGame::getVoteSourceReligion(int /*VoteSourceTypes*/ eVoteSource) const
+ {
+-	return (int)m_kGame.getVoteSourceReligion((VoteSourceTypes) eVoteSource);
++	return m_kGame.getVoteSourceReligion((VoteSourceTypes) eVoteSource);
+ }
+ 
+ void CyGame::setVoteSourceReligion(int /*VoteSourceTypes*/ eVoteSource, int /*ReligionTypes*/ eReligion, bool bAnnounce)
+@@ -209,17 +209,17 @@ bool CyGame::canTrainNukes()
+ 
+ int CyGame::getCurrentEra()
+ {
+-	return (int)m_kGame.getCurrentEra();
++	return m_kGame.getCurrentEra();
+ }
+ 
+ int CyGame::getActiveTeam()
+ {
+-	return (int)m_kGame.getActiveTeam();
++	return m_kGame.getActiveTeam();
+ }
+ 
+ int /* CivilizationTypes */ CyGame::getActiveCivilizationType()
+ {
+-	return (int)m_kGame.getActiveCivilizationType();
++	return m_kGame.getActiveCivilizationType();
+ }
+ 
+ bool CyGame::isNetworkMultiPlayer()
+@@ -616,7 +616,7 @@ void CyGame::setScreenDimensions(int x, int y)
+ 
+ int /*PlayerTypes*/ CyGame::getActivePlayer()
+ {
+-	return (int)m_kGame.getActivePlayer();
++	return m_kGame.getActivePlayer();
+ }
+ 
+ void CyGame::setActivePlayer(int /*PlayerTypes*/ eNewValue, bool bForceHotSeat)
+@@ -636,7 +636,7 @@ bool CyGame::isPaused()
+ 
+ int /*PlayerTypes*/ CyGame::getBestLandUnit()
+ {
+-	return (int)m_kGame.getBestLandUnit();
++	return m_kGame.getBestLandUnit();
+ }
+ 
+ int CyGame::getBestLandUnitCombat()
+@@ -646,12 +646,12 @@ int CyGame::getBestLandUnitCombat()
+ 
+ int /*TeamTypes*/ CyGame::getWinner()
+ {
+-	return (int)m_kGame.getWinner();
++	return m_kGame.getWinner();
+ }
+ 
+ int /*VictoryTypes*/ CyGame::getVictory()
+ {
+-	return (int)m_kGame.getVictory();
++	return m_kGame.getVictory();
+ }
+ 
+ void CyGame::setWinner(int /*TeamTypes*/ eNewWinner, int /*VictoryTypes*/ eNewVictory)
+@@ -661,7 +661,7 @@ void CyGame::setWinner(int /*TeamTypes*/ eNewWinner, int /*VictoryTypes*/ eNewVi
+ 
+ int /*GameStateTypes*/ CyGame::getGameState()
+ {
+-	return (int)m_kGame.getGameState();
++	return m_kGame.getGameState();
+ }
+ 
+ int /* HandicapTypes */ CyGame::getHandicapType()
+
+diff --git a/CvGameCoreDLL/LinkedList.h b/CvGameCoreDLL/LinkedList.h
+index a7f0198eb..62ec139af 100644
+--- a/CvGameCoreDLL/LinkedList.h
++++ b/CvGameCoreDLL/LinkedList.h
+@@ -3,6 +3,9 @@
+ #define LINKEDLIST_H
+ 
+ // LinkedList.h: A doubly-linked list
++/*	advc.003k (note): This class appears to have been compiled into the EXE
++	(it occurs in the parameter lists of exported CvPlayer member functions),
++	so changing the memory layout may not be safe. */
+ 
+ #include "LinkedListTraversal.h" // advc.003s
+ 
+@@ -74,9 +77,6 @@ public:
+ 	}
+ 
+ protected:
+-	/*	advc.003k (note): This class appears to have been compiled into the EXE
+-		(it occurs in the parameter lists of exported CvPlayer member functions),
+-		so changing the memory layout may not be safe. */
+ 	int m_iLength;
+ 	CLLNode<tVARTYPE>* m_pHead;
+ 	CLLNode<tVARTYPE>* m_pTail;
+
+[PATCH COVERAGE]
+patchFiles=18 embeddedFiles=18 omittedFiles=0 embeddedPatchBytes=20511

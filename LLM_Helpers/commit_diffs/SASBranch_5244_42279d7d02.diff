@@ -1,0 +1,1898 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5244
+# Commit: 42279d7d028af9dd84e19a4c735b2b09f9135a09
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6fc5c6ca57022db392b2504301fc0f07177b6063
+# Title: Codex-GPT-5.2: archive XML txt notes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	58	Assets/XML/Audio/AudioDefines-nested-comments-out-of-xml-file-to-avoid-crash.txt
+0	64	Assets/XML/BasicInfos/CIV4BasicInf_os.txt
+1	1	Assets/XML/BasicInfos/CIV4BasicInfos.xml
+0	37	Assets/XML/BasicInfos/CIV4UnitAIInf_os.txt
+1	1	Assets/XML/BasicInfos/CIV4UnitAIInfos.xml
+0	67	Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt
+0	86	Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt
+1	1	Assets/XML/Units/CIV4UnitInfos.xml
+533	205	Long_Comments/Long_Comments_XML.txt
+1	1	_0_Common_Docs/git_log_anonymized_email.txt
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+ delete mode 100644 Assets/XML/Audio/AudioDefines-nested-comments-out-of-xml-file-to-avoid-crash.txt
+ delete mode 100644 Assets/XML/BasicInfos/CIV4BasicInf_os.txt
+ delete mode 100644 Assets/XML/BasicInfos/CIV4UnitAIInf_os.txt
+ delete mode 100644 Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt
+ delete mode 100644 Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt
+
+[PATCHES]
+
+diff --git a/Assets/XML/Audio/AudioDefines-nested-comments-out-of-xml-file-to-avoid-crash.txt b/Assets/XML/Audio/AudioDefines-nested-comments-out-of-xml-file-to-avoid-crash.txt
+deleted file mode 100644
+index fa29e90b5..000000000
+--- a/Assets/XML/Audio/AudioDefines-nested-comments-out-of-xml-file-to-avoid-crash.txt
++++ /dev/null
+@@ -1,58 +0,0 @@
+-long code comment in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Audio\AudioDefines.xml causes(d) a crash before game can fully start, recorded in C:\Users\PC\Documents\My Games\beyond the sword\Logs\audio.log :
+-
+-
+-
+-[8213.390] Audio Manager: Loading Audio Defines file XML\Audio\AudioDefines.xml...
+-[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string SND_BUILD_PAGAN Art/AdvCiv_SAS/Religions/Paganism/Baalism DYNAMIC_RES 1 1 of TagId 8
+-[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string Generic of TagId 8
+-[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string GAME_SPEECH of TagId 8
+-[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string ALL of TagId 8
+-[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string 3D of TagId 8
+-[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string ROOM of TagId 8
+-[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string GENERAL of TagId 8
+-[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string GENERAL 1.0 0.0 0.0 1.0 0.0 FOREST of TagId 8
+-[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string TXT_KEY_OPTION_SOUND_SYSTEM_CONFIG of TagId 8
+-
+-
+-
+-so moving these (code comments anyways etc) below in this now .txt file anyways etc
+-
+-
+-
+-		<!-- custom: was (after renaming religion from confucianism/confucian(ist was it? Anyways etc) to paganism/pagan):
+-		<SoundData>
+-			<SoundID>SND_BUILD_PAGAN</SoundID>
+-			<Filename>Sounds/Buildings/ConfucianistDink</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_BUILD_PAGAN_MOVIE</SoundID>
+-			<Filename>Sounds/Buildings/Confuscianist</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		-->
+-		<!-- custom: import from HR mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\XML\Audio\AudioDefines.xml modified or not anyways etc for AdvCiv-SAS anyways etc
+-		HR's ones are:
+-		<SoundData>
+-			<SoundID>SND_BUILD_BAAL</SoundID>
+-			<Filename>Sounds/Religions/Baalism</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		<SoundData>
+-			<SoundID>SND_BUILD_BAAL_MOVIE</SoundID>
+-			<Filename>Sounds/Religions/Baalism</Filename>
+-			<LoadType>DYNAMIC_RES</LoadType>
+-			<bIsCompressed>1</bIsCompressed>
+-			<bInGeneric>1</bInGeneric>
+-		</SoundData>
+-		-->
+-
+-
+-
+-now fixed, at least game starts normally, be careful of too long (in line or/and char count i don't know which but anyways etc) xml comment in nested fields perhaps anyways etc
+
+diff --git a/Assets/XML/BasicInfos/CIV4BasicInf_os.txt b/Assets/XML/BasicInfos/CIV4BasicInf_os.txt
+deleted file mode 100644
+index 5b45d4de2..000000000
+--- a/Assets/XML/BasicInfos/CIV4BasicInf_os.txt
++++ /dev/null
+@@ -1,64 +0,0 @@
+-My goals doing this are:
+-- rename "Concepts" to "Mods Info"
+-- rename "Game Concepts" to "Concepts (Outdated)"
+-- move all entries that are in "Mods Info (Outdated)"
+-(except BtS rules changes) to "Concepts (Outdated)"
+-
+-Purpose:
+-- gather all Civ4 old data together (vanilla + BTS)
+-- use a new category for all mods rules changes (not balance changes
+-except if already written such as in bts rules changes)
+-
+-I had figured out most of it, but could not make it work, so i asked
+<hidden-email> which gave me a very detailed answer that helped me solve this.
+-
+-Credit goes to @f1rpo, current maintainer of AdvCiv, to have explained
+-to me (see below for the explanation quoted, that i added here with
+<hidden-email>'s accord) in thorough detail how to achieve that, which helped
+-a lot. I had given to @f1rpo slightly different names for the categories
+-than the one i provided here at the "rename" bullet points above, but
+-the explanation should be mostly (almost entirely in fact) the same
+-(minus these name differences).
+-
+-Beginning of quote:
+-"
+-Apparently,
+-TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW
+-is the name of the "BtS Concepts" category. So that can be changed to "Mods information" in CIV4GameText_advc_pedia.xml or can be moved to a different game text file and changed there. (The original definition is in CIV4GameText_Objects_BTS.xml.) The "Game Concepts" text key is TXT_KEY_PEDIA_CATEGORY_CONCEPT in CIV4GameTextInfos_Objects.xml (base game); can be re-defined to "BtS Concepts". Regarding the placement of concepts in categories, Sevopedia has these functions:
+-Spoiler : 
+-Python:
+-	def getNewConceptInfo(self, id):
+-		info = gc.getNewConceptInfo(id)
+-		if not self.isShortcutInfo(info) and not self.isTraitInfo(info):
+-			return info
+-		return None
+-
+-	def isTraitInfo(self, info):
+-		return info.getType().find("_TRAIT_") != -1
+-
+-	def isShortcutInfo(self, info):
+-		return info.getType().find("SHORTCUTS") != -1
+-So, if it has "_TRAIT_" or "SHORTCUTS" in its type string, it's not a BtS Concept. Everything else in BasicInfos\Civ4NewConceptInfos.xml is a BtS Concept. The pre-BtS Concepts are taken from CIV4BasicInfos.xml (the BtS version of that file). Those ConceptInfo or NewConceptInfo elements specify one text key each for the heading and for the exposition:
+-XML:
+-<ConceptInfo>
+-	<Type>CONCEPT_ANIMALS</Type>
+-	<Description>TXT_KEY_CONCEPT_ANIMALS</Description>
+-	<Civilopedia>TXT_KEY_CONCEPT_ANIMALS_PEDIA</Civilopedia>
+-</ConceptInfo>
+-So, to move the BtS Concepts into Game Concepts, one could copy Civ4BasicInfos.xml from BtS into the mod, cut-and-paste all the non-trait, non-shortcut NewConceptInfo elements from Civ4NewConceptInfos.xml into CIV4BasicInfos.xml and change them from NewConceptInfo to ConceptInfo. And then create NewConceptInfo elements in Civ4NewConceptInfos.xml for the content you want in there, e.g.
+-XML:
+-		<NewConceptInfo>
+-			<Type>CONCEPT_KMOD_RULES</Type>
+-			<Description>TXT_KEY_KMOD_RULES</Description>
+-			<Civilopedia>TXT_KEY_KMOD_RULES_PEDIA</Civilopedia>
+-		</NewConceptInfo>
+-(Could be named anything, I think; just so long as it doesn't say "trait" or "shortcut".) Plus the corresponding text key definitions in a game text file. All just in theory. Might even work if Sevopedia is disabled via the BUG menu. Ignoring that possibility, there are probably more surgical ways to achieve what you want through changes in SevoPediaMain.py. But you'd need to change a bunch of (small) functions there, not just the three I included above.
+-"
+-End of quote.
+-
+-Additionally from @f1rpo's quote, i also did not need to rename
+-TXT KEY types nor any data so that it would include "_TRAIT_"
+-or "SHORTCUTS" in it.
+-I don't know if i did all steps correctly, but at least it works
+-now.
+--->
+
+diff --git a/Assets/XML/BasicInfos/CIV4BasicInfos.xml b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+index f3a46ef89..44fdb2e2a 100644
+--- a/Assets/XML/BasicInfos/CIV4BasicInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+@@ -6,7 +6,7 @@
+ <!-- Basic Infos -->
+ <!-- custom: file imported from:
+ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\BasicInfos\CIV4BasicInfos.xml
+-then modified to have "Mods Info" and "Outdated" instead of the old concept sevopedia categories if i am not mistaken anyways etc, see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInf_os.txt for details anyways etc) -->
++then modified to have "Mods Info" and "Outdated" instead of the old concept sevopedia categories if i am not mistaken anyways etc, see Long_Comments/Long_Comments_XML.txt comment #93 for details anyways etc) -->
+ <Civ4BasicInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
+ 	<ConceptInfos>
+ 		<!-- custom: moved these concepts away from:
+
+diff --git a/Assets/XML/BasicInfos/CIV4UnitAIInf_os.txt b/Assets/XML/BasicInfos/CIV4UnitAIInf_os.txt
+deleted file mode 100644
+index 5eb2235c5..000000000
+--- a/Assets/XML/BasicInfos/CIV4UnitAIInf_os.txt
++++ /dev/null
+@@ -1,37 +0,0 @@
+-		<!-- custom: rename "PROPHET" to "GREAT_PROPHET":
+-		- this is weird and inconsistent that "general" is "GREAT_GENERAL" and "spy" is "GREAT_SPY"(, anyways etc), while "PROPHET" is not "GREAT_PROPHET" (not best example as i am not too fond of them but is to be "fair" if i may say i mean anyways anyways etc anyways etc...) and "SCIENTIST" ("scientist") and such are not "GREAT_SCIENTIST" and such, but are as said before in this comment comment but anyways etc "SCIENTIST" instead. Why the inconsistency? Are scientists and such not great, while spy/generals are? Or is it just(?(,) But anyways etc) careless renaming, if not cowardice or maybe not and a mistake or some inaccuracy. But is not (for) me to assess these as i can only express my judgment thought of these and what they may be not what and how they actually are as in went in/went by? But in all cases this seems inaccurate and hopefully fixed and clearer even if a bit more if not ideally a lot more, but anyways etc... I may make such inaccuracies too so feel free to maybe point them to me or (maybe?) not or yes or and other or and not, but in all cases anyways etc...
+-
+-		- it is also especially weird that the TXT though as the correct name, for example "TXT_KEY_UNIT_GREAT_PROPHET" so we don't rename these (and less work/hassle (not that i mind but anyways etc...(is quite fun actually even though bit tedious but anyways etc...))) as confusing as the discrepancy or maybe rather mismatch, same as with the obelisk sometimes naming the monument while other times monument was used for that in base civ4/advciv too (as in too like the monument vs great scientist not being great(ly accurately named) or as in advciv like civ4 "too" or both or none or one of these or and other or and not (but) anyways etc...) if i am not mistaken, but anyways etc...
+-
+-		- also renamed UNITAI_PROPHET and UNITAI_SCIENTIST (and UNITAI_GENERAL) and such to UNITAI_GREAT_PROPHET and UNITAI_GREAT_SCIENTIST and UNITAI_GREAT_GENERAL, as weirdly only the spy was great now in UNITAI_GREAT_SPY and inconsistently and weirdly (again but anyways etc... anyways etc...) not the general (i.e the general was not great) anymore now.. Hopefully fixed and everyone is great now, else i would have no problem to make no one great or half or only 1 or all except one if was accurate maybe or not or yes indeed or not or yes or and other or and not but anyways etc.... h(H?)oepfully fixed (or/?) and clearer too maybe (now?(??))(,) (B?)(b)but anyways etc anyways etc... So also be careful to keep both UNITAI_SPY and UNITAI_GREAT_SPY, even though both are different units, it also means the other great people should be great unitai types too, but be careful to not mix it up, me as/while (i'm) doing it (or/and other or and not or yes or not or etc anyways etc), but anyways etc
+-
+-		- and finally too if i am not mistaken anyways etc, not renaming specialists like/such as SPECIALIST_SCIENTIST to great scientist as they are a normal type of people not a great type of people not that they can't be great by themselves or in general or particular or not but anyways etc...
+-		An exception or maybe indeed rather particular case but anyways etc is the priest specialist, there is no great priest but a great prophet, should we rename these for consistency or keep as is? But then there is no great priest, and a normal prophet should be i think weird too (as they should be more unique and great by default/definition? Or maybe not or yes or and other or and not but anyways etc if i am not mistaken, but anyways etc...), leaving as is for now maybe makes sense or not, but anyways etc ; but update even though i didn't send yet but update in my reasoning anyways that yes it makes so much more sense to have a great priest that lives for thousands of years, and matches the existing ("normal"/"default"/"standard"/"base" or and other or and not anyways etc but anyways etc) priest specialist, so as said below the great prophet unit becomes a great priest specialist (when it joins a city), this matches the priest specialist anyways etc), got partially the idea from "Great Military instructor" that i wanted to change to "great general" like the other great people, but the distinction between great specialist and great unit makes sense, a general is also more supposed to be in battle (as a unit maybe and not in city as an instructor that gives exp to new units furthermore if i am not mistaken anyways etc), and since i had the great priest confusion that is not a confusion but clarity i think maybe or not or yes but anyways etc, may apply it there too and rename now indeed anyways etc rather the great prophet specialist to great priest, all the while keeping the great prophet unit as great prophet and not great priest, and update 2 after doing/looking at this change and as said in another code comment "specialist "Great Prophet" (already was GREAT_PRIEST in code as i think is nice at least to me anyways etc, see after this bracket for details anyways etc: ) to "Great Priest", keeping everything else the same since all the code uses GREAT_PRIEST already, only need to change the name for AdvCiv-SAS as we want it, i am happy to go in the direction of civ4 code when i can and find it nice, not that it is a requirement to go in or against it(s direction but anyways etc as is or not anyways etc) ; and all the while not renaming the Great Prophet unit, a prophet is unique, but a priest or great priest could be many in history, when they join or are part of a city, hopefully clearer and makes more sense now hopefully", as the shrine is unique and a prophet seemingly unique to a religion, hopefully makes much more sense and wraps it all now hopefully, at least to me makes sense, hopefully helpful or not or yes or and other or and not, anyways etc anyways etc
+-		Another particular case is the great general, there are great general specialists (when they join a city if i am not mistaken anyways etc), scientist(s) specialists, and great scientist specialists (when they join a city too if i am not mistaken, but anyways etc), but another exception or particular case is that when a great prophet joins the city it (update: now) becomes a great priest which is (update: not) so weird and inconsistent, but makes sense in terms of gameplay maybe as a prophet can't live thousands of turns (update: yes i think so especially now but anyways etc), but a great priest could be repolaced as in renewed by/in succession/successor, so maybe leaving as is even though a bit weird but anyways etc but maybe makes sense though anyways etc (but: no changing it actually, the great prophet unit becomes a great priest specialist (when it joins a city), this matches the priest specialist anyways etc)...
+-		
+-		(note:
+-		even kmod code comment (or(/and anyways etc) a code comment mentioning kmod anyways etc) (seemingly) made the confusion (too)twice (if i am not mistaken maybe indeed or yes or not or yes or and other or and not anyways etc), but unitai_great_merchant seemingly did not exist before my/this/my anyways etc anyways etc change and was only (errouneously as in inaccurately and misleadingly but anyways etc anyways etc anyways etc) UNITAI_MERCHANT while designating the great merchant not the merchant, hopefully clearer now, anyways etc..
+-			
+-		in (edited the comment chars/format/syntax anyways etc from/in the quoted below code comment anyways etc to not break our comment out syntax anyways etc):
+-			<Capture>NONE</Capture>
+-			<Combat>NONE</Combat>
+-			<Domain>DOMAIN_LAND</Domain>
+-			< K-Mod: was UNITAI_GREAT_MERCHANT >
+-			<DefaultUnitAI>UNITAI_GREAT_SPY</DefaultUnitAI>
+-			
+-		and in:
+-			<FlankingStrikes/>
+-			<UnitAIs>
+-				< K-Mod: was UNITAI_GREAT_MERCHANT >
+-				<UnitAI>
+-					<UnitAIType>UNITAI_GREAT_SPY</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-			</UnitAIs>
+-		)
+-
+-		Added a note/code comment maybe rather anyways about these (old kmod?(or about kmod older code comments whoever made them thanks but i mean anyways if i may say anyways that they are not seemingly and unless i am mistaken accurate, so added a note/code comment maybe rather about these anyways etc)).
+-		
+-		So hopefully to "fix" these as in making them consistent again and hopefully clear and accurate and simple and beauitful( relatively to me but anyways etc)(and even though i am not fond (too fond? Maybe rather or not but anyways etc...)), to be accurate they are the first example so starting with these and not going my extra extra way out to avoid them being named first, maybe(?), but in all cases is as it is or not but in all cases too or not too whatever that means or means not or yes or not or and other or and not anyways etc...
+-		And as for specialists, they remain mostly if not totally(/strictly? No, maybe rather the same but anwyays etc samely the same i mean anyways etc)(is quite cool "samely the same" hehe and makes me smiel happily and of joy i mean but anyways hum hum.. focus or not or and other or and not anyways etc... But it is quite pleasant indeed and makes me happy and in smile or good as in fulfilled? Mood r not... Or yes but in all cases i maybe said too much or maybe not or yes or and other or maybe not but in all cases as is or not anyways etc anyways etc....)
+-		-->
+
+diff --git a/Assets/XML/BasicInfos/CIV4UnitAIInfos.xml b/Assets/XML/BasicInfos/CIV4UnitAIInfos.xml
+index 4282c2e4c..5bc581d08 100644
+--- a/Assets/XML/BasicInfos/CIV4UnitAIInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4UnitAIInfos.xml
+@@ -2,7 +2,7 @@
+ <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
+ <!-- Sid Meier's Civilization 4 -->
+ <!-- Copyright Firaxis Games 2005 -->
+-<!-- custom: about unitai renaming, see CIV4UnitAIInf_os.txt for details anyways etc. -->
++<!-- custom: about unitai renaming, see Long_Comments/Long_Comments_XML.txt comment #92 for details anyways etc. -->
+ 
+ <!-- Basic Infos -->
+ <Civ4UnitAIInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
+
+diff --git a/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt b/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt
+deleted file mode 100644
+index e5c271a4a..000000000
+--- a/Assets/XML/Units/CIV4PromotionInf_os_UnitCombats_notes.txt
++++ /dev/null
+@@ -1,67 +0,0 @@
+-<!--
+-custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it gets messy really quickly full order to take from for quick editing or/and copy/paste:
+-
+-			<UnitCombats>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-			</UnitCombats>
+-
+--->
+\ No newline at end of file
+
+diff --git a/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt b/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt
+deleted file mode 100644
+index 6795a84bf..000000000
+--- a/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt
++++ /dev/null
+@@ -1,86 +0,0 @@
+-<!-- custom: 
+-note: below rework as of now not fully implemented not too likely as bit tedious and then would need to change buildings and such, but might be, but even if we don't implement it as below, general idea of rebalancing iPower to avoid suicidal war declarations as i had noticed (perhaps even help AI war decisions of which units to attack for example? But anyways etc) by myself while playing civ4 i mean base advciv mod still valid, read below for details anyways etc:
+-
+-multiply iPower by:
+-- 10 for standard military units for example (ancient maceman (warrior)), i don't know if this takes into account promotions and other multipliers such as natural base stats, but maybe this helps the problem of suicidal war declarations in particular, idea i got from realism invictus's commit https://sourceforge.net/p/civ4mods/code/5464/  (name/description) (without actually looking at their code, but i can take it from there), for example 10 strength x 10 multiplier = 100 iPower for the ancient maceman
+-- 7 for cover military units or (more) specialized defenders, for example for the archer, they will not directly attack cities, even if they may participate in the assault but a bit of a threat, for example 6 strength x 7 multiplier = 42 iPower - 5 for animals: not used currently but if some players were to control animals, these animals may not be able to (be) use(d in) advanced strategy(ies) maybe, but their raw power, usually higher than of humans, should not be ignored for example for the lion 15 strength x 5 = 75 iPower
+-- 5 for support military too: for example the explorer has good enough stats to attack in some cases, but more often than not is not a threat against regular military at all, so for example would be 6 strength x 5 = 30 iPower
+-- 2 for support units (worker if i give them strength), for example an ancient worker 3 strength x 2 = 6 iPower, not entirely useless (may delay city
+-capture or very rarely fight animals, but mostly not a threat)
+-- 1 (much less) for naval units, for example x1; indeed they can barely have any major influence on land warfare, and their strength may be misleading, for the calculation for example 3 strength (early sailboat) x 1 = 1 iPower 10 strength (early frigate) x 1 = 10 iPower
+--->
+-
+-
+-
+-<!-- custom: below iAsset rework also unlikely to be implemented for similar reasons, but read below for details hopefully helpful or not or yes or and other or etc anyways etc anyways etc anyways etc
+-As for iAsset, as this should not directly affect combat tactics or choices (i think), increase it just by strength count, so that it scales accurately ;
+-for example for the ancient maceman:
+-10 stregth = iAsset value of 10
+-for example for the archer
+-6 strength = iAsset value of 6
+--->
+-
+-
+-
+-<!-- custom: as for UnitAIs, for ground units (taken from the archer unit):
+-
+-UnitAIs and NotUnitAIs all alphabetical order (for quick copy paste then adjust maybe anyways):
+-(gradually add more MnitAIs/NotUnitAIs here)
+-
+-			<UnitAIs>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY_LEMMING</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_EXPLORE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_PARADROP</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_SPY</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-			</NotUnitAIs>
+--->
+\ No newline at end of file
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index fc771240e..82c53eca5 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -7,7 +7,7 @@
+ <!-- custom: to avoid or reduce fake/suicidal AI war declarations, reduce iPower for some units anyways etc if i am not mistaken anyways etc:
+ - like and in particular naval units as warfare happens mostly on land and even if AI has 10 frigates, it will not win against 2 crossbows or even warriors for example if i am not mistaken anyways etc
+ - also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them
+-see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Units\CIV4UnitInf_os_UnitAI_and_notes.txt for details anyways etc -->
++see also Long_Comments/Long_Comments_XML.txt comment #90 for details anyways etc -->
+ <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #83 -->
+ <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #84 -->
+ <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 850e7759d..cf457d9a3 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -1,4 +1,4 @@
+-﻿Long XML comments (consolidated)
++Long XML comments (consolidated)
+ Purpose: keep XML files readable by moving very long comments into this file.
+ Threshold: comments >= 1000 characters (inner length) are moved here.
+ Note: Python long comments may be consolidated into a separate file later.
+@@ -231,7 +231,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ <iAIPerEraModifier>
+ Game-wide settings
+ When the overall game difficulty is this difficulty,
+-the AI ​​players will receive a (multiplicative) n% modifier to the following costs for each era they advance:
++the AI ??players will receive a (multiplicative) n% modifier to the following costs for each era they advance:
+ 
+ For example, when the Emperor AI (setting value: -5) is in the Renaissance era (the fourth era),
+ all the costs above will be modified by -20%.
+@@ -284,7 +284,7 @@ Here is its explanation based on code samples i fed it too (and most of the abov
+ 
+ beginning of quote
+ "
+-- Yes—you’ve read it right. iAIHandicapIncrementTurns adds a linear, time-based discount for AIs that stacks every so many turns (scaled by game speed).
++- Yes�you�ve read it right. iAIHandicapIncrementTurns adds a linear, time-based discount for AIs that stacks every so many turns (scaled by game speed).
+ - To disable it without recompiling, set iAIHandicapIncrementTurns to 0 in CIV4HandicapInfo.xml. Setting it to 100 does not disable it; it just makes the drip very slow.
+ "
+ end of quote
+@@ -292,17 +292,17 @@ end of quote
+ it also said:
+ beginning of quote
+ "
+-This is a (usually negative) percentage points value that gets added to the various AI Percent fields when costs are computed (train/construct/world variants, research, growth threshold, etc.). With a positive iAIHandicapIncrementTurns, the return value is negative and grows in magnitude over time ⇒ AI costs go down the longer the game runs.
++This is a (usually negative) percentage points value that gets added to the various AI Percent fields when costs are computed (train/construct/world variants, research, growth threshold, etc.). With a positive iAIHandicapIncrementTurns, the return value is negative and grows in magnitude over time ? AI costs go down the longer the game runs.
+ 
+ Rule of thumb on Normal speed (getSpeedPercent()==100):
+-iAIHandicapIncrementTurns = 100 → about –1% per 100 turns
++iAIHandicapIncrementTurns = 100 ? about �1% per 100 turns
+ 
+-50 → –2% per 100 turns
+-33 → ≈ –3% per 100 turns
+-25 → –4% per 100 turns
+-20 → –5% per 100 turns
++50 ? �2% per 100 turns
++33 ? � �3% per 100 turns
++25 ? �4% per 100 turns
++20 ? �5% per 100 turns
+ 
+-So across 300–400 turns, those add up (e.g., 20 yields roughly –15% to –20% total extra discount by late game). That’s likely a contributor to the midgame AI runaway you’re seeing even with conservative base handicap percents.
++So across 300�400 turns, those add up (e.g., 20 yields roughly �15% to �20% total extra discount by late game). That�s likely a contributor to the midgame AI runaway you�re seeing even with conservative base handicap percents.
+ "
+ end of quote
+ 
+@@ -385,7 +385,7 @@ Quote:
+ What happens if you only define an XML entry in English?
+ 
+ If you only define one language (like English) in your XML (e.g., CIV4GameText.xml), and leave out translations for other languages, then:
+-Yes â other languages will see the English version.
++Yes �?? other languages will see the English version.
+ 
+ Why?
+ Because Civ4's text system falls back to English if:
+@@ -398,13 +398,13 @@ So for example:
+ 	<English>Sniper</English>
+ </TEXT>
+ 
+-If the player has their game language set to French, Spanish, or anything else â they'll still see "Sniper" in English, because:
+-- The game didnât find <French>, <German>, etc., for that tag.
++If the player has their game language set to French, Spanish, or anything else �?? they'll still see "Sniper" in English, because:
++- The game didn�??t find <French>, <German>, etc., for that tag.
+ - So it shows <English> as a fallback.
+ 
+ Exceptions / Notes:
+ - If the <English> field is missing entirely, the game will show the tag name (like TXT_KEY_UNIT_SNIPER) instead.
+-- If you include a <French> tag but leave it empty, it may show nothing or just whitespace â so it's better to leave other languages out entirely unless you have a proper translation.
++- If you include a <French> tag but leave it empty, it may show nothing or just whitespace �?? so it's better to leave other languages out entirely unless you have a proper translation.
+ "
+ 
+ 
+@@ -428,7 +428,7 @@ Civ4 will completely override the original text entry, even in non-English langu
+ 
+ So:
+ - English players will see: "Frozen Hell"
+-- French players will not see the original Firaxis French translation â theyâll see "Frozen Hell" too.
++- French players will not see the original Firaxis French translation �?? they�??ll see "Frozen Hell" too.
+ - Other languages will also see your new English text, not the base game's translation.
+ "
+ 
+@@ -436,7 +436,7 @@ Important Note:
+ Once you override a <Tag> in your mod, the original translations are no longer used, even if you only replace <English>.
+ That means:
+ - You're responsible for translations if you want to preserve them.
+-- If not, it's totally fine â Civ4 will fall back to your <English> string in all languages.
++- If not, it's totally fine �?? Civ4 will fall back to your <English> string in all languages.
+ 
+ Pro Tip:
+ If you're just changing English and want to keep the original translations, you can rename the tag, like:
+@@ -457,7 +457,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 
+ ===== .\Assets\XML\Text\AdvCiv-SAS_IconsAsButtons.xml =====
+ ----- Comment #31 -----
+-<!-- custom: âï¸ emoji ('s choice/idea/suggestion but anyways etc anyways etc anyways etc.) is from chatgpt's code anyways etc
++<!-- custom: �??️ emoji ('s choice/idea/suggestion but anyways etc anyways etc anyways etc.) is from chatgpt's code anyways etc
+     then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example anyways etc, there are also several images to choose from in the website as well for example but anyways etc, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt as well but anyways etc...), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite... but anyways etc...) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt hehe (see authors as well similarly as for claude ai) for details anyways etc, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe if i may say anyways etc anyways etc anyways etc... -->
+ 
+ ===== .\Assets\XML\Text\BUG City Screen Options.xml =====
+@@ -472,9 +472,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVER_HOVER</Tag>
+ 		<English>When checked, displays the number of turns before and amount of decay in the hover text for units and buildings in the build queue.</English>
+-		<German>Zeigt im Tooltip von Einheiten und Gebäuden in der Produktionsliste die Anzahl der Runden an, bis ein Produktionsfortschritt verfällt und wie viele [ICON_PRODUCTION] dann verloren gehen</German>
+-		<Italian>Quando è selezionato, mostra nel testo a comparsa delle Unità e degli Edifici in coda di produzione il numero di turni prima che perdano la produzione accumulata e l'ammontare di tale perdita.</Italian>
+-		<Spanish>Si se activa, muestra el número de turnos que faltan para que la producción empiece a decaer así como la cantidad de reducción en el texto flotante para unidades y edificios en la cola de producción.</Spanish>
++		<German>Zeigt im Tooltip von Einheiten und Geb�uden in der Produktionsliste die Anzahl der Runden an, bis ein Produktionsfortschritt verf�llt und wie viele [ICON_PRODUCTION] dann verloren gehen</German>
++		<Italian>Quando � selezionato, mostra nel testo a comparsa delle Unit� e degli Edifici in coda di produzione il numero di turni prima che perdano la produzione accumulata e l'ammontare di tale perdita.</Italian>
++		<Spanish>Si se activa, muestra el n�mero de turnos que faltan para que la producci�n empiece a decaer as� como la cantidad de reducci�n en el texto flotante para unidades y edificios en la cola de producci�n.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVERUNITTHRESHOLD_TEXT</Tag>
+@@ -486,23 +486,23 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVERUNITTHRESHOLD_HOVER</Tag>
+ 		<English>Select the number of turns before a unit will decay at which time the decay information is first displayed.</English>
+-		<German>Bestimmt die Anzahl der Runden, bevor der Produktionsfortschritt einer produzierten Einheit verfällt und ein gelbes Ausrufezeichen angezeigt wird</German>
+-		<Italian>Inserisci il numero di turni prima che una Unità in coda perda la produzione accumulata mancanti i quali verranno visualizzate per la prima volta le informazioni relative.</Italian>
+-		<Spanish>Selecciona el número de turnos a esperar antes de mostrar información de decaimiento.</Spanish>
++		<German>Bestimmt die Anzahl der Runden, bevor der Produktionsfortschritt einer produzierten Einheit verf�llt und ein gelbes Ausrufezeichen angezeigt wird</German>
++		<Italian>Inserisci il numero di turni prima che una Unit� in coda perda la produzione accumulata mancanti i quali verranno visualizzate per la prima volta le informazioni relative.</Italian>
++		<Spanish>Selecciona el n�mero de turnos a esperar antes de mostrar informaci�n de decaimiento.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVERBUILDINGTHRESHOLD_TEXT</Tag>
+ 		<English>Building Warning</English>
+-		<German>Gebäude-Warnung</German>
++		<German>Geb�ude-Warnung</German>
+ 		<Italian>Avviso per gli Edifici</Italian>
+ 		<Spanish>Decaimiento edificios</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__PRODUCTIONDECAYHOVERBUILDINGTHRESHOLD_HOVER</Tag>
+ 		<English>Select the number of turns before a building will decay at which time the decay information is first displayed.</English>
+-		<German>Bestimmt die Anzahl der Runden, bevor der Produktionsfortschritt eines produzierten Gebäudes verfällt und ein gelbes Ausrufezeichen angezeigt wird</German>
++		<German>Bestimmt die Anzahl der Runden, bevor der Produktionsfortschritt eines produzierten Geb�udes verf�llt und ein gelbes Ausrufezeichen angezeigt wird</German>
+ 		<Italian>Inserisci il numero di turni prima che un Edificio in coda perda la produzione accumulata mancanti i quali verranno visualizzate per la prima volta le informazioni relative.</Italian>
+-		<Spanish>Selecciona el número de turnos a esperar antes de mostrar información de decaimiento.</Spanish>
++		<Spanish>Selecciona el n�mero de turnos a esperar antes de mostrar informaci�n de decaimiento.</Spanish>
+ 	</TEXT-->
+ 
+ ===== .\Assets\XML\Text\BUG Main Interface Options.xml =====
+@@ -518,10 +518,10 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__OPTIONSKEY_HOVER</Tag>
+ 		<English>When checked, displays a message about Alt + Ctrl + O when a game is started or loaded.</English>
+-		<French>En activant, en rappel sur l'utilisation de Alt + Ctrl + O est montré quand un jeu démarre ou est chargé.</French>
++		<French>En activant, en rappel sur l'utilisation de Alt + Ctrl + O est montr� quand un jeu d�marre ou est charg�.</French>
+ 		<German>Zeigt nach dem Spielstart oder dem Laden eines Spielstands eine Meldung, die an die Tastenkombination [STRG + ALT + O] erinnert, mit der man die Optionen der "BUG Mod" aufrufen kann</German>
+-		<Italian>Quando è selezionato, mostra un messaggio che ricorda la combinazione di tasti per accedere al Menù delle Opzioni del BUG Mod quando un gioco viene iniziato o caricato .</Italian>
+-		<Spanish>Si está activo, muestra un mensaje sobre Alt + Ctrl + O cuando un juego comienza o es cargado.</Spanish>
++		<Italian>Quando � selezionato, mostra un messaggio che ricorda la combinazione di tasti per accedere al Men� delle Opzioni del BUG Mod quando un gioco viene iniziato o caricato .</Italian>
++		<Spanish>Si est� activo, muestra un mensaje sobre Alt + Ctrl + O cuando un juego comienza o es cargado.</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #34 -----
+@@ -533,7 +533,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPPRODUCTIONICON_HOVER</Tag>
+ 		<English>When checked, the [ICON_PRODUCTION] icon is shown above the billboard of your city with the highest production rate if that city generates at least 10 [ICON_PRODUCTION] per turn.</English>
+-		<German>Zeigt das [ICON_PRODUCTION]-Symbol über dem Namen ihrer Stadt mit der höchsten Produktionsrate an - falls diese Stadt wenigstens 10 [ICON_PRODUCTION] pro Zug generiert.</German>
++		<German>Zeigt das [ICON_PRODUCTION]-Symbol �ber dem Namen ihrer Stadt mit der h�chsten Produktionsrate an - falls diese Stadt wenigstens 10 [ICON_PRODUCTION] pro Zug generiert.</German>
+ 	</TEXT>
+ 		<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPGOLDICON_TEXT</Tag>
+@@ -543,7 +543,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPGOLDICON_HOVER</Tag>
+ 		<English>When checked, the [ICON_GOLD] icon is shown above the billboard of your city with the highest gold rate if that city generates at least 10 [ICON_GOLD] per turn.</English>
+-		<German>Zeigt das [ICON_GOLD]-Symbol über dem Namen ihrer Stadt mit der höchsten Goldrate an - falls diese Stadt wenigstens 10 [ICON_GOLD] pro Zug generiert.</German>
++		<German>Zeigt das [ICON_GOLD]-Symbol �ber dem Namen ihrer Stadt mit der h�chsten Goldrate an - falls diese Stadt wenigstens 10 [ICON_GOLD] pro Zug generiert.</German>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPRESEARCHICON_TEXT</Tag>
+@@ -553,7 +553,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPRESEARCHICON_HOVER</Tag>
+ 		<English>When checked, the [ICON_RESEARCH] icon is shown above the billboard of your city with the highest research rate if that city generates at least 10 [ICON_RESEARCH] per turn.</English>
+-		<German>Zeigt das [ICON_RESEARCH]-Symbol über dem Namen ihrer Stadt mit der höchsten Forschungsrate an - falls diese Stadt wenigstens 10 [ICON_RESEARCH] pro Zug generiert.</German>
++		<German>Zeigt das [ICON_RESEARCH]-Symbol �ber dem Namen ihrer Stadt mit der h�chsten Forschungsrate an - falls diese Stadt wenigstens 10 [ICON_RESEARCH] pro Zug generiert.</German>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPESPIONAGEICON_TEXT</Tag>
+@@ -563,7 +563,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPESPIONAGEICON_HOVER</Tag>
+ 		<English>When checked, the [ICON_ESPIONAGE] icon is shown above the billboard of your city with the highest espionage rate if that city generates at least 10 [ICON_ESPIONAGE] per turn.</English>
+-		<German>Zeigt das [ICON_ESPIONAGE]-Symbol über dem Namen ihrer Stadt mit der höchsten Spionagerate an - falls diese Stadt wenigstens 10 [ICON_ESPIONAGE] pro Zug generiert.</German>
++		<German>Zeigt das [ICON_ESPIONAGE]-Symbol �ber dem Namen ihrer Stadt mit der h�chsten Spionagerate an - falls diese Stadt wenigstens 10 [ICON_ESPIONAGE] pro Zug generiert.</German>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPXPICON_TEXT</Tag>
+@@ -573,7 +573,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPXPICON_HOVER</Tag>
+ 		<English>When checked, the [ICON_GREATGENERAL] icon is shown above the billboard of your city with the highest amount of free experience (XP). XP that doesn't apply to all military units is counted half in this context. The icon is not shown when the XP counted this way is less than 2.</English>
+-		<German>Zeigt das [ICON_GREATGENERAL]-Symbol über dem Namen Ihrer Stadt mit den höchsten Zusatzerfahrungspunkten an. Erfahrungspunkte, die nicht allen Militäreinheiten zukommen, zählen dabei nur halb, und wenn die gezählten Punkte kleiner als 2 sind, wird das Symbol nicht angezeigt.</German>
++		<German>Zeigt das [ICON_GREATGENERAL]-Symbol �ber dem Namen Ihrer Stadt mit den h�chsten Zusatzerfahrungspunkten an. Erfahrungspunkte, die nicht allen Milit�reinheiten zukommen, z�hlen dabei nur halb, und wenn die gez�hlten Punkte kleiner als 2 sind, wird das Symbol nicht angezeigt.</German>
+ 	</TEXT-->
+ 
+ ----- Comment #35 -----
+@@ -585,7 +585,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__NOUNHAPPYICON_HOVER</Tag>
+ 		<English>When checked, the [ICON_HAPPY] icon is shown above the billboard of cities that are immune to [ICON_UNHAPPY].</English>
+-		<German>Zeigt das [ICON_HAPPY]-Symbol über den Namen von Städten an, die gegen Unzufriedenheit immun sind.</German>
++		<German>Zeigt das [ICON_HAPPY]-Symbol �ber den Namen von St�dten an, die gegen Unzufriedenheit immun sind.</German>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__NOBADHEALTHICON_TEXT</Tag>
+@@ -595,7 +595,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__NOBADHEALTHICON_HOVER</Tag>
+ 		<English>When checked, the [ICON_HEALTHY] icon is shown above the billboard of cities that are immune to [ICON_UNHEALTHY] from population.</English>
+-		<German>Zeigt das [ICON_HEALTHY]-Symbol über den Namen von Städten an, deren Bevölkerung keine [ICON_UNHEALTHY]-Punkte generiert.</German>
++		<German>Zeigt das [ICON_HEALTHY]-Symbol �ber den Namen von St�dten an, deren Bev�lkerung keine [ICON_UNHEALTHY]-Punkte generiert.</German>
+ 	</TEXT-->
+ 
+ ===== .\Assets\XML\Text\BUG Options Screen.xml =====
+@@ -606,20 +606,20 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<French>Recherche et Construction:</French>
+ 		<German>Forschung / Bauten:</German>
+ 		<Italian>Ricerca e costruzioni:</Italian>
+-		<Spanish>Investigación y Construcción:</Spanish>
++		<Spanish>Investigaci�n y Construcci�n:</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_CITIES</Tag>
+ 		<English>Cities:</English>
+ 		<French>Villes:</French>
+-		<German>Städte:</German>
+-		<Italian>Città:</Italian>
++		<German>St�dte:</German>
++		<Italian>Citt�:</Italian>
+ 		<Spanish>Ciudades:</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_AUTOLOG_EVENTS</Tag>
+ 		<English>Events:</English>
+-		<French>Evènements:</French>
++		<French>Ev�nements:</French>
+ 		<German>Ereignisse:</German>
+ 		<Italian>Eventi:</Italian>
+ 		<Spanish>Eventos:</Spanish>
+@@ -657,15 +657,15 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<French>War Mobilization Icons</French>
+ 		<German>Kriegsvorbereitungen</German>
+ 		<Italian>Icone di Mobilitazione</Italian>
+-		<Spanish>Icono de Mobilización</Spanish>
++		<Spanish>Icono de Mobilizaci�n</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__WHEOOH_HOVER</Tag>
+ 		<English>When checked, shows an orange fist icon when the AI is mobilizing for war (We Have Enough on Our Hands).</English>
+ 		<French>When checked, shows an orange fist icon when the AI is mobilizing for war (We Have Enough on Our Hands).</French>
+ 		<German>Zeigt ein orangenes Faust-Symbol an, wenn sich eine Zivilisation auf einen Krieg vorbereitet (engl. "We Have Enough on Our Hands")</German>
+-		<Italian>Quando è selezionato, mostra un'apposita icona quando la Civiltà si sta mobilitando per la guerra ('We Have Enough on Our Hands', WHEOH).</Italian>
+-		<Spanish>Cuando se activa, muestra un puño naranja cuando la IA se está preparando para la guerra.</Spanish>
++		<Italian>Quando � selezionato, mostra un'apposita icona quando la Civilt� si sta mobilitando per la guerra ('We Have Enough on Our Hands', WHEOH).</Italian>
++		<Spanish>Cuando se activa, muestra un pu�o naranja cuando la IA se est� preparando para la guerra.</Spanish>
+ 	</TEXT-->
+ 
+ ===== .\Assets\XML\Text\BUG_CIV4GameText_Custom.xml =====
+@@ -673,16 +673,16 @@ Rename the tag									Original untouched; you're free to localize your version
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BULL_REQUIRED</Tag>
+ 		<English>[COLOR_WARNING_TEXT]This feature requires the BUG DLL (BULL).[COLOR_REVERT]</English>
+-		<German>[COLOR_WARNING_TEXT]Für dieses Feature wird die BUG-DLL (BULL) benötigt.[COLOR_REVERT]</German>
++		<German>[COLOR_WARNING_TEXT]F�r dieses Feature wird die BUG-DLL (BULL) ben�tigt.[COLOR_REVERT]</German>
+ 		<Italian>[COLOR_WARNING_TEXT]Questa caratteristica richiede la libreria DLL del BUG Mod ('BULL').[COLOR_REVERT]</Italian>
+-		<Spanish>[COLOR_WARNING_TEXT]Esta característica requiere el DLL de BUG (BULL).[COLOR_REVERT]</Spanish>
++		<Spanish>[COLOR_WARNING_TEXT]Esta caracter�stica requiere el DLL de BUG (BULL).[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BULL_REQUIRED_NEWER</Tag>
+ 		<English>[COLOR_WARNING_TEXT]This feature requires a newer version of the BUG DLL (BULL).[COLOR_REVERT]</English>
+-		<German>[COLOR_WARNING_TEXT]Für dieses Feature wird eine neuere Version der BUG-DLL (BULL) benötigt.[COLOR_REVERT]</German>
++		<German>[COLOR_WARNING_TEXT]F�r dieses Feature wird eine neuere Version der BUG-DLL (BULL) ben�tigt.[COLOR_REVERT]</German>
+ 		<Italian>[COLOR_WARNING_TEXT]Questa caratteristica richiede una nuova versione della libreria DLL del BUG Mod ('BULL').[COLOR_REVERT]</Italian>
+-		<Spanish>[COLOR_WARNING_TEXT]Esta característica requiere una versión más nueva del DLL de BUG (BULL).[COLOR_REVERT]</Spanish>
++		<Spanish>[COLOR_WARNING_TEXT]Esta caracter�stica requiere una versi�n m�s nueva del DLL de BUG (BULL).[COLOR_REVERT]</Spanish>
+ 	</TEXT-->
+ 
+ ===== .\Assets\XML\Text\BUG_Civ4lerts_Options_advc.xml =====
+@@ -691,7 +691,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGOCCUPATION_TEXT</Tag>
+ 		<English>Pending</English>
+ 		<French>Prochain tour</French>
+-		<German>Nächste Runde</German>
++		<German>N�chste Runde</German>
+ 		<Italian>Imminente</Italian>
+ 		<Spanish>Pendiente</Spanish>
+ 	</TEXT>
+@@ -699,9 +699,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYPENDINGOCCUPATION_HOVER</Tag>
+ 		<English>Displays an alert when a city will be pacified next turn, ending occupation.</English>
+ 		<French>When checked, displays an alert when a city will be pacified next turn, ending occupation.</French>
+-		<German>Meldet, wenn die Unruhen in einer (eroberten) Stadt in der nächsten Runde enden</German>
+-		<Italian>Quando è selezionato, viene visualizzato un avviso quando una città verrà pacificata al turno successivo, ponendo fine al periodo di occupazione.</Italian>
+-		<Spanish>Muestra un aviso cuando una ciudad vaya a ser pacificada el próximo turno, terminando con la ocupación.</Spanish>
++		<German>Meldet, wenn die Unruhen in einer (eroberten) Stadt in der n�chsten Runde enden</German>
++		<Italian>Quando � selezionato, viene visualizzato un avviso quando una citt� verr� pacificata al turno successivo, ponendo fine al periodo di occupazione.</Italian>
++		<Spanish>Muestra un aviso cuando una ciudad vaya a ser pacificada el pr�ximo turno, terminando con la ocupaci�n.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYOCCUPATION_TEXT</Tag>
+@@ -709,15 +709,15 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<French>Pacification</French>
+ 		<German>Beruhigung</German>
+ 		<Italian>Pacificazione</Italian>
+-		<Spanish>Pacificación</Spanish>
++		<Spanish>Pacificaci�n</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYOCCUPATION_HOVER</Tag>
+ 		<English>Displays an alert when a city has been pacified, ending occupation.</English>
+ 		<French>When checked, displays an alert when a city has been pacified, ending occupation.</French>
+ 		<German>Meldet, wenn die Unruhen in einer (eroberten) Stadt enden</German>
+-		<Italian>Quando è selezionato, viene visualizzato un avviso quando una città viene pacificata, ponendo fine al periodo di occupazione.</Italian>
+-		<Spanish>Muestra un aviso cuando una ciudad sea pacificada, terminando con la ocupación.</Spanish>
++		<Italian>Quando � selezionato, viene visualizzato un avviso quando una citt� viene pacificata, ponendo fine al periodo di occupazione.</Italian>
++		<Spanish>Muestra un aviso cuando una ciudad sea pacificada, terminando con la ocupaci�n.</Spanish>
+ 	</TEXT-->
+ 
+ ===== .\Assets\XML\Text\BUG_MoreCiv4lerts Options.xml =====
+@@ -725,15 +725,15 @@ Rename the tag									Original untouched; you're free to localize your version
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__CITYFOUNDED_TEXT</Tag>
+ 		<English>City Founded by Rival</English>
+-		<German>Gegnerische Stadtgründungen</German>
+-		<Italian>Città fondate dagli avversari</Italian>
++		<German>Gegnerische Stadtgr�ndungen</German>
++		<Italian>Citt� fondate dagli avversari</Italian>
+ 		<Spanish>Ciudad Fundada por Rival</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__CITYFOUNDED_HOVER</Tag>
+ 		<English>Displays an alert when a rival founds a city.</English>
+-		<German>Lässt eine Warnung erscheinen, wenn eine gegnerische Zivilisation eine Stadt gründet</German>
+-		<Italian>Quando è selezionato,  viene visualizzato un avviso quando una Civiltà avversaria fonda una Città.</Italian>
++		<German>L�sst eine Warnung erscheinen, wenn eine gegnerische Zivilisation eine Stadt gr�ndet</German>
++		<Italian>Quando � selezionato,  viene visualizzato un avviso quando una Civilt� avversaria fonda una Citt�.</Italian>
+ 		<Spanish>Muestra un aviso cuando un rival funda una ciudad.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -742,15 +742,15 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<French>Expansion Culturelle</French>
+ 		<German>Bevorstehende Grenzerweiterung</German>
+ 		<Italian>Espansione dei confini imminente</Italian>
+-		<Spanish>Expansión de fronteras prevista</Spanish>
++		<Spanish>Expansi�n de fronteras prevista</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__CITYPENDINGBORDEREXPANSION_HOVER</Tag>
+ 		<English>Displays an alert when a city will expand its cultural borders next turn.</English>
+-		<French>En activant, une alerte sera montrée quand les frontières culturelles d'une ville s'aggrandiront au prochain tour.</French>
+-		<German>Lässt eine Warnung erscheinen, wenn sich die Kulturgrenzen einer Stadt in der nächsten Runde erweitern</German>
+-		<Italian>Quando è selezionato, viene visualizzato un avviso quando una città espanderà i suoi confini culturali al turno successivo.</Italian>
+-		<Spanish>Muestra un aviso cuando una ciudad expandirá sus fronteras el próximo turno.</Spanish>
++		<French>En activant, une alerte sera montr�e quand les fronti�res culturelles d'une ville s'aggrandiront au prochain tour.</French>
++		<German>L�sst eine Warnung erscheinen, wenn sich die Kulturgrenzen einer Stadt in der n�chsten Runde erweitern</German>
++		<Italian>Quando � selezionato, viene visualizzato un avviso quando una citt� espander� i suoi confini culturali al turno successivo.</Italian>
++		<Spanish>Muestra un aviso cuando una ciudad expandir� sus fronteras el pr�ximo turno.</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #41 -----
+@@ -758,16 +758,16 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__DOMPOP_TEXT</Tag>
+ 		<English>Domination: Population</English>
+ 		<French>Domination: Population</French>
+-		<German>Bevölkerung</German>
++		<German>Bev�lkerung</German>
+ 		<Italian>Populazione</Italian>
+-		<Spanish>Dominación: Población</Spanish>
++		<Spanish>Dominaci�n: Poblaci�n</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__DOMPOP_HOVER</Tag>
+ 		<English>Displays an alert when your population is close to or exceeds the limit for a Domination victory.</English>
+-		<German>Meldet, wenn sich die eigene Bevölkerungszahl dem Grenzbereich für einen Vorherrschafts-Sieg nähert oder ihn überschreitet</German>
+-		<Italian>Quando è selezionato, viene visualizzato un avviso quando la tua Popolazione è vicina al limite (o oltre) per una Vittoria di Dominazione.</Italian>
+-		<Spanish>Muestra un aviso cuando tu población está cerca del límite para una victoria por Dominación o lo excede.</Spanish>
++		<German>Meldet, wenn sich die eigene Bev�lkerungszahl dem Grenzbereich f�r einen Vorherrschafts-Sieg n�hert oder ihn �berschreitet</German>
++		<Italian>Quando � selezionato, viene visualizzato un avviso quando la tua Popolazione � vicina al limite (o oltre) per una Vittoria di Dominazione.</Italian>
++		<Spanish>Muestra un aviso cuando tu poblaci�n est� cerca del l�mite para una victoria por Dominaci�n o lo excede.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__DOMPOPTHRESH_TEXT</Tag>
+@@ -775,15 +775,15 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<French>Seuil de Population</French>
+ 		<German>Grenzbereich Bev.</German>
+ 		<Italian>Limite di popolazione</Italian>
+-		<Spanish>Límite Población</Spanish>
++		<Spanish>L�mite Poblaci�n</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__DOMPOPTHRESH_HOVER</Tag>
+ 		<English>Population threshold for Domination victory.</English>
+ 		<French>Seuil de Population pour une Victoire par Domination.</French>
+-		<German>Bestimmt den Grenzbereich für die Bevölkerungszahl, ab dem eine Warnung vor einem Vorherrschafts-Sieg erscheint</German>
++		<German>Bestimmt den Grenzbereich f�r die Bev�lkerungszahl, ab dem eine Warnung vor einem Vorherrschafts-Sieg erscheint</German>
+ 		<Italian>Livello limite di popolazione per una Vittoria di Dominazione.</Italian>
+-		<Spanish>Límite de población para una victoria por Dominación.</Spanish>
++		<Spanish>L�mite de poblaci�n para una victoria por Dominaci�n.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__DOMLAND_TEXT</Tag>
+@@ -791,14 +791,14 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<French>Domination: Territoire</French>
+ 		<German>Landmasse</German>
+ 		<Italian>Territorio</Italian>
+-		<Spanish>Dominación: Territorio</Spanish>
++		<Spanish>Dominaci�n: Territorio</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__DOMLAND_HOVER</Tag>
+ 		<English>Displays an alert when your land area is close to or exceeds the limit for a Domination victory.</English>
+-		<German>Meldet, wenn sich die eigene Landmasse dem Grenzbereich für einen Vorherrschafts-Sieg nähert oder ihn überschreitet</German>
+-		<Italian>Quando è selezionato, viene visualizzato un avviso quando il tuo Territorio è vicino al limite (o oltre) per una Vittoria di Dominazione.</Italian>
+-		<Spanish>Muestra un aviso cuando tu territorio está cerca del límite para una victoria por Dominación o lo excede.</Spanish>
++		<German>Meldet, wenn sich die eigene Landmasse dem Grenzbereich f�r einen Vorherrschafts-Sieg n�hert oder ihn �berschreitet</German>
++		<Italian>Quando � selezionato, viene visualizzato un avviso quando il tuo Territorio � vicino al limite (o oltre) per una Vittoria di Dominazione.</Italian>
++		<Spanish>Muestra un aviso cuando tu territorio est� cerca del l�mite para una victoria por Dominaci�n o lo excede.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__DOMLANDTHRESH_TEXT</Tag>
+@@ -806,15 +806,15 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<French>Seuil de Territoire</French>
+ 		<German>Grenzbereich Land</German>
+ 		<Italian>Limite di territorio</Italian>
+-		<Spanish>Límite Territorio</Spanish>
++		<Spanish>L�mite Territorio</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MORECIV4LERTS__DOMLANDTHRESH_HOVER</Tag>
+ 		<English>Land threshold for Domination victory.</English>
+ 		<French>Seuil de Territoire pour une Victoire par Domination.</French>
+-		<German>Bestimmt den Grenzbereich für die Größe der Landmasse, ab dem eine Warnung vor einem Vorherrschafts-Sieg erscheint</German>
++		<German>Bestimmt den Grenzbereich f�r die Gr��e der Landmasse, ab dem eine Warnung vor einem Vorherrschafts-Sieg erscheint</German>
+ 		<Italian>Livello limite di popolazione per una Vittoria di Dominazione.</Italian>
+-		<Spanish>Límite de territorio para una victoria por Dominación.</Spanish>
++		<Spanish>L�mite de territorio para una victoria por Dominaci�n.</Spanish>
+ 	</TEXT-->
+ 
+ ===== .\Assets\XML\Text\BUG_Not Just Another Game Clock Options.xml =====
+@@ -822,7 +822,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWCOMPLETEDPERCENT_TEXT</Tag>
+ 		<English>Completed Percentage</English>
+-		<French>Pourcentage Complét&#233;</French>
++		<French>Pourcentage Compl�t&#233;</French>
+ 		<German>Verstrichene Runden (in Prozent)</German>
+ 		<Italian>Percentuale completata</Italian>
+ 		<Spanish>Porcentaje Completado</Spanish>
+@@ -830,15 +830,15 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWCOMPLETEDPERCENT_HOVER</Tag>
+ 		<English>When checked, the completed percentage is displayed if Time Victory is enabled.</English>
+-		<French>En activant, le pourcentage complété pour une Victoire de Temps est montré.</French>
+-		<German>Zeigt die verstrichenen Runden als Prozentsatz der insgesamt verfügbaren Runden an, falls "Punktsieg" aktiviert ist</German>
+-		<Italian>Quando è selezionato, viene visualizzata la percentuale di turni completati (se la Vittoria a Tempo è abilitata).</Italian>
+-		<Spanish>Muestra el porcentaje de turnos completado si la condición de Victoria por Tiempo está habilitada</Spanish>
++		<French>En activant, le pourcentage compl�t� pour une Victoire de Temps est montr�.</French>
++		<German>Zeigt die verstrichenen Runden als Prozentsatz der insgesamt verf�gbaren Runden an, falls "Punktsieg" aktiviert ist</German>
++		<Italian>Quando � selezionato, viene visualizzata la percentuale di turni completati (se la Vittoria a Tempo � abilitata).</Italian>
++		<Spanish>Muestra el porcentaje de turnos completado si la condici�n de Victoria por Tiempo est� habilitada</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWALTCOMPLETEDPERCENT_TEXT</Tag>
+ 		<English>Completed Percentage</English>
+-		<French>Pourcentage Complét&#233;</French>
++		<French>Pourcentage Compl�t&#233;</French>
+ 		<German>Verstrichene Runden (in Prozent)</German>
+ 		<Italian>Percentuale completata</Italian>
+ 		<Spanish>Porcentaje completado</Spanish>
+@@ -846,10 +846,10 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_NJAGC__SHOWALTCOMPLETEDPERCENT_HOVER</Tag>
+ 		<English>When checked, the completed percentage is displayed if Time Victory is enabled.</English>
+-		<French>En activant, le pourcentage complété pour une Victoire de Temps est montré.</French>
+-		<German>Zeigt die verstrichenen Runden als Prozentsatz der insgesamt verfügbaren Runden an, falls "Punktsieg" aktiviert ist</German>
+-		<Italian>Quando è selezionato, viene visualizzata la percentuale di turni completati (se la Vittoria a Tempo è abilitata).</Italian>
+-		<Spanish>Muestra el porcentaje de turnos completado si la condición de Victoria por Tiempo está habilitada</Spanish>
++		<French>En activant, le pourcentage compl�t� pour une Victoire de Temps est montr�.</French>
++		<German>Zeigt die verstrichenen Runden als Prozentsatz der insgesamt verf�gbaren Runden an, falls "Punktsieg" aktiviert ist</German>
++		<Italian>Quando � selezionato, viene visualizzata la percentuale di turni completati (se la Vittoria a Tempo � abilitata).</Italian>
++		<Spanish>Muestra el porcentaje de turnos completado si la condici�n de Victoria por Tiempo est� habilitada</Spanish>
+ 	</TEXT-->
+ 
+ ===== .\Assets\XML\Text\BUG_Plot List Enhancements Options.xml =====
+@@ -860,7 +860,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<French>PLE|Vanilla|BUG</French>
+ 		<German>PLE|Standard|BUG</German>
+ 		<Italian>PLE|Vanilla|BUG</Italian>
+-		<Spanish>PLE|Estándar|BUG</Spanish>
++		<Spanish>PLE|Est�ndar|BUG</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__DRAW_METHOD_TEXT</Tag>
+@@ -873,24 +873,24 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__DRAW_METHOD_HOVER</Tag>
+ 		<English>Sets the draw method.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Vanilla[COLOR_REVERT] - uses the 'draw' code that was in the original game (or close enough)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]BUG[COLOR_REVERT] - uses the BUG team developed 'draw' code - newly developed so it might be a little unstable but does promise greatly enhanced performance (ie speed) when dealing with large stacks[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]PLE[COLOR_REVERT] - uses the 'draw' code that was originally provided by the PLE enhancement</English>
+-		<German>Bestimmt die Anzeigemethode:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Standard[COLOR_REVERT] - Einsatz der regulären Anzeigemethode des Spiels[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]BUG[COLOR_REVERT] - Einsatz der Anzeigemethode, die vom Team der BUG Mod neu entwickelt wurde (daher möglicherweise etwas instabil), um nur die grafischen Elemente neu zu laden, die sich verändert haben, und so die Geschwindigkeit der Anzeige bei großen Truppenmassen drastisch erhöht[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]PLE[COLOR_REVERT] - Einsatz der von der ursprünglichen PLE-Mod verwendeten Anzeigemethode</German>
++		<German>Bestimmt die Anzeigemethode:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Standard[COLOR_REVERT] - Einsatz der regul�ren Anzeigemethode des Spiels[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]BUG[COLOR_REVERT] - Einsatz der Anzeigemethode, die vom Team der BUG Mod neu entwickelt wurde (daher m�glicherweise etwas instabil), um nur die grafischen Elemente neu zu laden, die sich ver�ndert haben, und so die Geschwindigkeit der Anzeige bei gro�en Truppenmassen drastisch erh�ht[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]PLE[COLOR_REVERT] - Einsatz der von der urspr�nglichen PLE-Mod verwendeten Anzeigemethode</German>
+ 		<Italian>Sets the draw method.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Vanilla[COLOR_REVERT] - uses the 'draw' code that was in the original game (or close enough)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]BUG[COLOR_REVERT] - uses the BUG team developed 'draw' code - newly developed so it might be a little unstable but does promise greatly enhanced performance (ie speed) when dealing with large stacks[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]PLE[COLOR_REVERT] - uses the 'draw' code that was originally provided by the PLE enhancement</Italian>
+-		<Spanish>Permite seleccionar el modo de dibujado.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Estándar[COLOR_REVERT] - Modo de dibujado empleado en el juego original[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]BUG[COLOR_REVERT] - Modo de dibujado desarrollado por el equipo BUG[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]PLE[COLOR_REVERT] - Modo de dibujado empleado originalmente por PLE</Spanish>
++		<Spanish>Permite seleccionar el modo de dibujado.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Est�ndar[COLOR_REVERT] - Modo de dibujado empleado en el juego original[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]BUG[COLOR_REVERT] - Modo de dibujado desarrollado por el equipo BUG[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]PLE[COLOR_REVERT] - Modo de dibujado empleado originalmente por PLE</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__PLE_STYLE_HOVER</Tag>
+ 		<English>Enables the Plot List Enhancements mod and the rest of the options on this tab.</English>
+ 		<French>Active le mod Plot List Enhancements ainsi que le reste des options sur cet onglet.</French>
+ 		<German>Aktiviert die Verbesserungen der Einheitenliste am unteren Bildschirmrand (verwendet 12monkeys' "Plot List Enhancements"-Mod)</German>
+-		<Italian>Abilita il mod 'Plot List Enhancements' (PLE, Icone delle Unità Avanzate) e le altre opzioni in questa pagina.</Italian>
+-		<Spanish>Activa las mejoras a la lista de unidades y el resto de opciones de esta pestaña.</Spanish>
++		<Italian>Abilita il mod 'Plot List Enhancements' (PLE, Icone delle Unit� Avanzate) e le altre opzioni in questa pagina.</Italian>
++		<Spanish>Activa las mejoras a la lista de unidades y el resto de opciones de esta pesta�a.</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #44 -----
+ <!-- Old translations:
+-		 <French>Détermine le mode de vue quand vous démarrez Civ IV.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Une Ligne[COLOR_REVERT] - Vue par défaut de Civ IV[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Plusieures Lignes[COLOR_REVERT] - Vue par défaut de Beyond the Sword[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Groupes Verticaux[COLOR_REVERT] - Les Unités sont groupées en colonnes[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Groupes Horizontaux[COLOR_REVERT] - Les Unités sont groupées en rangées</French>
+-		 <Italian>Determina la modalità di visualizzazione utilizzata all'avvio del gioco:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Riga singola[COLOR_REVERT] - visualizzazione originale di Civ4;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Righe multiple[COLOR_REVERT] - visualizzazione originale di Civ4:BtS;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Gruppi verticali[COLOR_REVERT] - le Unità vengono raggruppate per colonna;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Gruppi orizzontali[COLOR_REVERT] - le Unità vengono raggruppate per riga.</Italian>
+-		 <Spanish>Fija la vista a emplear cuando inicias Civilization IV.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Fila Simple[COLOR_REVERT] - Vista de Civilization IV original[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Múltiples Filas[COLOR_REVERT] - Vista de Beyond the Sword[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Grupos Verticales[COLOR_REVERT] - Las unidades se agrupan en columnas[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Grupos Horizontales[COLOR_REVERT] - Las unidades se agrupan en filas</Spanish>
++		 <French>D�termine le mode de vue quand vous d�marrez Civ IV.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Une Ligne[COLOR_REVERT] - Vue par d�faut de Civ IV[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Plusieures Lignes[COLOR_REVERT] - Vue par d�faut de Beyond the Sword[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Groupes Verticaux[COLOR_REVERT] - Les Unit�s sont group�es en colonnes[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Groupes Horizontaux[COLOR_REVERT] - Les Unit�s sont group�es en rang�es</French>
++		 <Italian>Determina la modalit� di visualizzazione utilizzata all'avvio del gioco:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Riga singola[COLOR_REVERT] - visualizzazione originale di Civ4;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Righe multiple[COLOR_REVERT] - visualizzazione originale di Civ4:BtS;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Gruppi verticali[COLOR_REVERT] - le Unit� vengono raggruppate per colonna;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Gruppi orizzontali[COLOR_REVERT] - le Unit� vengono raggruppate per riga.</Italian>
++		 <Spanish>Fija la vista a emplear cuando inicias Civilization IV.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Fila Simple[COLOR_REVERT] - Vista de Civilization IV original[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]M�ltiples Filas[COLOR_REVERT] - Vista de Beyond the Sword[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Grupos Verticales[COLOR_REVERT] - Las unidades se agrupan en columnas[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Grupos Horizontales[COLOR_REVERT] - Las unidades se agrupan en filas</Spanish>
+ 		 -->
+ 
+ ----- Comment #45 -----
+@@ -905,9 +905,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__HORIZONTAL_SPACING_HOVER</Tag>
+ 		<English>Specifies the horizontal spacing between icons (default value is 34).</English>
+-		<French>Specifie l'espacement horizontal des icônes (valeur par défaut = 34).</French>
++		<French>Specifie l'espacement horizontal des ic�nes (valeur par d�faut = 34).</French>
+ 		<German>Bestimmt den horizontalen Abstand zwischen den Einheitensymbolen (der Standardwert ist 34)</German>
+-		<Italian>Indica la spaziatura orizzontale fra le icone (il valore predefinito è '34').</Italian>
++		<Italian>Indica la spaziatura orizzontale fra le icone (il valore predefinito � '34').</Italian>
+ 		<Spanish>Especifica el espaciado horizontal entre los iconos (el valor por defecto es 34).</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -921,9 +921,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__VERTICAL_SPACING_HOVER</Tag>
+ 		<English>Specifies the vertical spacing between icons (default value is 42).</English>
+-		<French>Specifie l'espacement vertical des icônes (valeur par défaut = 42).</French>
++		<French>Specifie l'espacement vertical des ic�nes (valeur par d�faut = 42).</French>
+ 		<German>Bestimmt den vertikalen Abstand zwischen den Einheitensymbolen (der Standardwert ist 42)</German>
+-		<Italian>Indica la spaziatura orizzontale fra le icone (il valore predefinito è '42').</Italian>
++		<Italian>Indica la spaziatura orizzontale fra le icone (il valore predefinito � '42').</Italian>
+ 		<Spanish>Especifica el espaciado vertical entre los iconos (el valor por defecto es 42).</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -932,15 +932,15 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<French>Position Horizontale</French>
+ 		<German>Horizontale Position</German>
+ 		<Italian>Posizione orizzontale</Italian>
+-		<Spanish>Posición Horizontal</Spanish>
++		<Spanish>Posici�n Horizontal</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_X_HOVER</Tag>
+ 		<English>Specifies the horizontal position of the Unit Info hover pane (default value is 5).</English>
+-		<French>Specifie la position horizontale de l'infobulle d'Info d'Unité (valeur par défaut = 5).</French>
++		<French>Specifie la position horizontale de l'infobulle d'Info d'Unit� (valeur par d�faut = 5).</French>
+ 		<German>Bestimmt die horizontale Position des neuen Info-Tooltips der Einheitensymbole (der Standardwert ist 5)</German>
+-		<Italian>Indica la posizione orizzontale del Pannello di Informazioni sulle Unità (il valore predefinito è '5').</Italian>
+-		<Spanish>Especifica la posición horizontal del texto flotante del panel de información de unidades (el valor por defecto es 5).</Spanish>
++		<Italian>Indica la posizione orizzontale del Pannello di Informazioni sulle Unit� (il valore predefinito � '5').</Italian>
++		<Spanish>Especifica la posici�n horizontal del texto flotante del panel de informaci�n de unidades (el valor por defecto es 5).</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_Y_TEXT</Tag>
+@@ -948,24 +948,24 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<French>Position Verticale</French>
+ 		<German>Vertikale Position</German>
+ 		<Italian>Posizione  verticale</Italian>
+-		<Spanish>Posición Vertical</Spanish>
++		<Spanish>Posici�n Vertical</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_Y_HOVER</Tag>
+ 		<English>Specifies the vertical position of the Unit Info hover pane (default value is 160).</English>
+-		<French>Specifie la position verticale de l'infobulle d'Info d'Unité (valeur par défaut = 160).</French>
++		<French>Specifie la position verticale de l'infobulle d'Info d'Unit� (valeur par d�faut = 160).</French>
+ 		<German>Bestimmt die vertikale Position des neuen Info-Tooltips der Einheitensymbole (der Standardwert ist 160)</German>
+-		<Italian>Indica la posizione verticale del Pannello di Informazioni sulle Unità (il valore predefinito è '160').</Italian>
+-		<Spanish>Especifica la posición vertical del texto flotante del panel de información de unidades (el valor por defecto es 160).</Spanish>
++		<Italian>Indica la posizione verticale del Pannello di Informazioni sulle Unit� (il valore predefinito � '160').</Italian>
++		<Spanish>Especifica la posici�n vertical del texto flotante del panel de informaci�n de unidades (el valor por defecto es 160).</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #46 -----
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_PLE__INFO_PANE_PROMO_ICON_OFFSET_Y_HOVER</Tag>
+ 		<English>This offset can be used to adjust the vertical position of the promotion icons displayed by PLE inside the help text for a unit icon. A positive offset moves the icons up, a negative one moves them down.</English>
+-		<German>Zur manuellen Korrektur der vertikalen Position der Beförderungssymbole im PLE-Einheiten-Hilfetext. Ein positiver Wert verschiebt die Symbole nach oben, ein negativer Wert nach unten.</German>
+-		<Italian>Determina il posizionamento verticale delle Icone di Promozione nel Pannello di Informazioni sulle Unità (il valore predefinito è '0', i valori positivi indicano uno spostamento verso l'alto e quelli negativi verso il basso). Utilizza questa impostazione per aggiustare il piazzamento delle icone di promozione quando utilizzi dei temi personalizzati che modificano il font predefinito di Civ4 (per esempio, ti consigliamo di impostare un valore di '6' se utilizzi il tema del mod BlueMarble).</Italian>
+-		<Spanish>Especifica el espaciado vertical de los iconos de promoción en el texto flotante del panel de información de unidades (el valor por defecto es cero, valores positivos hacia arriba). Es necesario modificar este valor al usar temas que modifican la fuente. Por ejemplo, hay que usar 6 con BlueMarble.</Spanish>
++		<German>Zur manuellen Korrektur der vertikalen Position der Bef�rderungssymbole im PLE-Einheiten-Hilfetext. Ein positiver Wert verschiebt die Symbole nach oben, ein negativer Wert nach unten.</German>
++		<Italian>Determina il posizionamento verticale delle Icone di Promozione nel Pannello di Informazioni sulle Unit� (il valore predefinito � '0', i valori positivi indicano uno spostamento verso l'alto e quelli negativi verso il basso). Utilizza questa impostazione per aggiustare il piazzamento delle icone di promozione quando utilizzi dei temi personalizzati che modificano il font predefinito di Civ4 (per esempio, ti consigliamo di impostare un valore di '6' se utilizzi il tema del mod BlueMarble).</Italian>
++		<Spanish>Especifica el espaciado vertical de los iconos de promoci�n en el texto flotante del panel de informaci�n de unidades (el valor por defecto es cero, valores positivos hacia arriba). Es necesario modificar este valor al usar temas que modifican la fuente. Por ejemplo, hay que usar 6 con BlueMarble.</Spanish>
+ 	</TEXT!-->
+ 
+ ===== .\Assets\XML\Text\BULL Actions Options.xml =====
+@@ -973,16 +973,16 @@ Rename the tag									Original untouched; you're free to localize your version
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ACTIONS__ASKDECLAREWARUNITS_TEXT</Tag>
+ 		<English>Offer to Declare War</English>
+-		<German>Kriegserklärung anbieten</German>
++		<German>Kriegserkl�rung anbieten</German>
+ 		<Italian>Offer to Declare War</Italian>
+ 		<Spanish>Ofrecer Declarar la Guerra</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ACTIONS__ASKDECLAREWARUNITS_HOVER</Tag>
+ 		<English>When checked, gives you the option to declare war when moving into a tile containing a rival unit. Always gives the option when moving into rival territory without open borders.</English>
+-		<German>Bietet bei Betreten eines Geländefeldes die Möglichkeit einer Kriegserklärung an, wenn sich auf diesem eine gegnerische Einheit befindet (wird bei Betreten eines gegnerischen Geländefeldes ohne Vertrag über Offene Grenzen immer abgefragt)</German>
++		<German>Bietet bei Betreten eines Gel�ndefeldes die M�glichkeit einer Kriegserkl�rung an, wenn sich auf diesem eine gegnerische Einheit befindet (wird bei Betreten eines gegnerischen Gel�ndefeldes ohne Vertrag �ber Offene Grenzen immer abgefragt)</German>
+ 		<Italian>When checked, gives you the option to declare war when moving into a tile containing a rival unit. Always gives the option when moving into rival territory without open borders.</Italian>
+-		<Spanish>Si se activa, se te da la opción de declarar la guerra cuando te muevas en una casilla que contenga una unidad enemiga. Siempre se da la opción cuando una unidad se mueva en territorio enemigo sin apertura de fronteras.</Spanish>
++		<Spanish>Si se activa, se te da la opci�n de declarar la guerra cuando te muevas en una casilla que contenga una unidad enemiga. Siempre se da la opci�n cuando una unidad se mueva en territorio enemigo sin apertura de fronteras.</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #48 -----
+@@ -997,8 +997,8 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Tag>TXT_KEY_BUG_OPT_ACTIONS__SENTRYHEALING_HOVER</Tag>
+ 		<English>When checked, units ordered to heal will awaken when they spot danger, acting like sentries.</English>
+ 		<German>Veranlasst Einheiten, die sich gerade heilen, bei Gefahr aktiv zu werden</German>
+-		<Italian>Quando è selezionato, le Unità che hanno ricevuto l'ordine di curarsi si riattiveranno quando avvertono un pericolo, fungendo da sentinelle.</Italian>
+-		<Spanish>Si se activa, las unidades a las que se les ordene curarse se despertarán cuando vean peligro.</Spanish>
++		<Italian>Quando � selezionato, le Unit� che hanno ricevuto l'ordine di curarsi si riattiveranno quando avvertono un pericolo, fungendo da sentinelle.</Italian>
++		<Spanish>Si se activa, las unidades a las que se les ordene curarse se despertar�n cuando vean peligro.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ACTIONS__SENTRYHEALINGONLYNEUTRAL_TEXT</Tag>
+@@ -1010,9 +1010,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ACTIONS__SENTRYHEALINGONLYNEUTRAL_HOVER</Tag>
+ 		<English>When checked, if Sentry While Healing is enabled, units will awaken to danger only when in neutral territory. This stops your attacking force from waking up each turn outside an enemy city or your defenders inside friendly territory.</English>
+-		<German>Falls die Option "Wache bei Heilung" gewählt wurde, werden Einheiten nur bei Gefahr aktiv, wenn sie sich in neutralem Gebiet befinden (verhindert beispielsweise, dass sich heilende Einheiten während eines Angriffs auf eine feindliche Stadt oder verteidigende Einheiten in befreundetem Gebiet jede Runde wieder aktiv werden)</German>
+-		<Italian>Quando è selezionato, se è stata abilitata l'opzione 'Sentinella durante la guarigione', le Unità che hanno ricevuto l'ordine di curarsi si riattiveranno quando avvertono un pericolo solamente se si trovano in territorio neutrale. Ciò vi eviterà alle vostre forze d'attacco di attivarsi ogni turno in prossimità di una Città nemica ed alle vostre forze di difesa di riattivarsi in territorio nemico.</Italian>
+-		<Spanish>Si se activa, y Vigilar mientras se Cura está también activa, las unidades sólo despertarán al peligro cuando estén en territorio neutral.</Spanish>
++		<German>Falls die Option "Wache bei Heilung" gew�hlt wurde, werden Einheiten nur bei Gefahr aktiv, wenn sie sich in neutralem Gebiet befinden (verhindert beispielsweise, dass sich heilende Einheiten w�hrend eines Angriffs auf eine feindliche Stadt oder verteidigende Einheiten in befreundetem Gebiet jede Runde wieder aktiv werden)</German>
++		<Italian>Quando � selezionato, se � stata abilitata l'opzione 'Sentinella durante la guarigione', le Unit� che hanno ricevuto l'ordine di curarsi si riattiveranno quando avvertono un pericolo solamente se si trovano in territorio neutrale. Ci� vi eviter� alle vostre forze d'attacco di attivarsi ogni turno in prossimit� di una Citt� nemica ed alle vostre forze di difesa di riattivarsi in territorio nemico.</Italian>
++		<Spanish>Si se activa, y Vigilar mientras se Cura est� tambi�n activa, las unidades s�lo despertar�n al peligro cuando est�n en territorio neutral.</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #49 -----
+@@ -1026,9 +1026,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ACTIONS__PRECHOPFORESTS_HOVER</Tag>
+ 		<English>When checked, Workers ordered to chop a forest will stop with 1 turn remaining. Issue the order again to finish the chop.</English>
+-		<German>Stoppt Bautrupps, die die Aktion "Wald abholzen" ausführen, 1 Runde, bevor die Aktion beendet wird, und lässt sie auf einen weiteren Befehl warten</German>
+-		<Italian>Quando è selezionato, i Lavoratori a cui è stato ordinato di tagliare una Foresta si fermeranno quando mancherà un turno al completamento dell'incarico. Per terminare il disboscamento è necessario impartire nuovamente l'ordine.</Italian>
+-		<Spanish>Si se activa, los Trabajadores a los que se les ordene talar un bosque se detendrán cuando les quede un turno para terminar. Si se realiza la orden de nuevo terminarán el talado.</Spanish>
++		<German>Stoppt Bautrupps, die die Aktion "Wald abholzen" ausf�hren, 1 Runde, bevor die Aktion beendet wird, und l�sst sie auf einen weiteren Befehl warten</German>
++		<Italian>Quando � selezionato, i Lavoratori a cui � stato ordinato di tagliare una Foresta si fermeranno quando mancher� un turno al completamento dell'incarico. Per terminare il disboscamento � necessario impartire nuovamente l'ordine.</Italian>
++		<Spanish>Si se activa, los Trabajadores a los que se les ordene talar un bosque se detendr�n cuando les quede un turno para terminar. Si se realiza la orden de nuevo terminar�n el talado.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ACTIONS__PRECHOPIMPROVEMENTS_TEXT</Tag>
+@@ -1040,9 +1040,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ACTIONS__PRECHOPIMPROVEMENTS_HOVER</Tag>
+ 		<English>When checked, Workers ordered to build an improvement that will remove a forest will stop with 1 turn remaining. Issue the order again to finish the improvement.</English>
+-		<German>Stoppt Bautrupps, die eine Modernisierung auf einem Wald-Geländefeld errichten und diesen damit entfernen würden, 1 Runde, bevor die Aktion beendet wird, und lässt sie auf einen weiteren Befehl warten</German>
+-		<Italian>Quando è selezionato, i Lavoratori a cui è stato ordinato di tagliare una Foresta e successivamente costruire un miglioramento si fermeranno quando mancherà un turno al completamento dell'incarico. Per terminare la costruzione è necessario impartire nuovamente l'ordine.</Italian>
+-		<Spanish>Si se activa, los Trabajadores a los que se les ordene construir una mejora que resulte en el talado de un bosque se detendrán cuando les quede un turno para terminar. Si se realiza la orden de nuevo terminarán la mejora.</Spanish>
++		<German>Stoppt Bautrupps, die eine Modernisierung auf einem Wald-Gel�ndefeld errichten und diesen damit entfernen w�rden, 1 Runde, bevor die Aktion beendet wird, und l�sst sie auf einen weiteren Befehl warten</German>
++		<Italian>Quando � selezionato, i Lavoratori a cui � stato ordinato di tagliare una Foresta e successivamente costruire un miglioramento si fermeranno quando mancher� un turno al completamento dell'incarico. Per terminare la costruzione � necessario impartire nuovamente l'ordine.</Italian>
++		<Spanish>Si se activa, los Trabajadores a los que se les ordene construir una mejora que resulte en el talado de un bosque se detendr�n cuando les quede un turno para terminar. Si se realiza la orden de nuevo terminar�n la mejora.</Spanish>
+ 	</TEXT-->
+ 
+ ===== .\Assets\XML\Text\BULL City Bar Options.xml =====
+@@ -1058,7 +1058,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HEALTH_HOVER</Tag>
+ 		<English>When checked, shows the net health ([ICON_HEALTHY] or [ICON_UNHEALTHY]) for the city.</English>
+ 		<German>Zeigt die derzeitige Gesundheit ([ICON_HEALTHY] oder [ICON_UNHEALTHY]) einer Stadt an</German>
+-		<Italian>Quando è selezionato, mostra la salute risultante([ICON_HEALTHY] o [ICON_UNHEALTHY]) per la città.</Italian>
++		<Italian>Quando � selezionato, mostra la salute risultante([ICON_HEALTHY] o [ICON_UNHEALTHY]) per la citt�.</Italian>
+ 		<Spanish>Permite mostrar los iconos de salud ([ICON_HEALTHY] o [ICON_UNHEALTHY]) para la ciudad.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -1072,7 +1072,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HAPPINESS_HOVER</Tag>
+ 		<English>When checked, shows the net happiness ([ICON_HAPPY] or [ICON_UNHAPPY]) for the city.</English>
+ 		<German>Zeigt die derzeitige Zufriedenheit ([ICON_HAPPY] oder [ICON_UNHAPPY]) einer Stadt an</German>
+-		<Italian>Quando è selezionato, mostra la felicità risultante ([ICON_HAPPY] o [ICON_UNHAPPY]) per la città.</Italian>
++		<Italian>Quando � selezionato, mostra la felicit� risultante ([ICON_HAPPY] o [ICON_UNHAPPY]) per la citt�.</Italian>
+ 		<Spanish>Permite mostrar los iconos de felicidad ([ICON_HAPPY] o [ICON_UNHAPPY]) para la ciudad.</Spanish>
+ 	</TEXT-->
+ 
+@@ -1087,9 +1087,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HURRYANGER_HOVER</Tag>
+ 		<English>When checked, shows the number of angry population ([ICON_ANGRYPOP]) due to whipping and the number of turns left on the timer.</English>
+-		<German>Zeigt die Anzahl der wegen Zwangsarbeit unzufriedenen Bürger ([ICON_ANGRYPOP]) und die Anzahl der verbleibenden Runden an, bis diese sich wieder beruhigt haben</German>
+-		<Italian>Quando è selezionato, mostra il numero di cittadini adirati ([ICON_ANGRYPOP]) a causa dei sacrifici ed il numero di turni prima che si pacifichino.</Italian>
+-		<Spanish>Muestra la cantidad de población enfadada ([ICON_ANGRYPOP]) debido al sacrificio y el número de turnos restantes de la misma.</Spanish>
++		<German>Zeigt die Anzahl der wegen Zwangsarbeit unzufriedenen B�rger ([ICON_ANGRYPOP]) und die Anzahl der verbleibenden Runden an, bis diese sich wieder beruhigt haben</German>
++		<Italian>Quando � selezionato, mostra il numero di cittadini adirati ([ICON_ANGRYPOP]) a causa dei sacrifici ed il numero di turni prima che si pacifichino.</Italian>
++		<Spanish>Muestra la cantidad de poblaci�n enfadada ([ICON_ANGRYPOP]) debido al sacrificio y el n�mero de turnos restantes de la misma.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__DRAFTANGER_TEXT</Tag>
+@@ -1101,8 +1101,8 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__DRAFTANGER_HOVER</Tag>
+ 		<English>When checked, shows the number of angry population ([ICON_ANGRYPOP]) due to drafting and the number of turns left on the timer.</English>
+-		<German>Zeigt die Anzahl der wegen Zwangsrekrutierung unzufriedenen Bürger ([ICON_ANGRYPOP]) und die Anzahl der verbleibenden Runden an, bis diese sich wieder beruhigt haben</German>
+-		<Spanish>Muestra la cantidad de población enfadada ([ICON_ANGRYPOP]) debido al reclutamiento y el número de turnos restantes de la misma.</Spanish>
++		<German>Zeigt die Anzahl der wegen Zwangsrekrutierung unzufriedenen B�rger ([ICON_ANGRYPOP]) und die Anzahl der verbleibenden Runden an, bis diese sich wieder beruhigt haben</German>
++		<Spanish>Muestra la cantidad de poblaci�n enfadada ([ICON_ANGRYPOP]) debido al reclutamiento y el n�mero de turnos restantes de la misma.</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #52 -----
+@@ -1116,9 +1116,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__FOODASSIST_HOVER</Tag>
+ 		<English>When checked, shows more detailed information about growth (growing, shrinking, starvation, stagnation).</English>
+-		<German>Zeigt detailliertere Informationen über das Wachstum einer Stadt an (Zunahme, Abnahme, Hungersnot, Stagnation).</German>
+-		<Italian>Quando è selezionato, mostra più dettagli sulla crescita (crescita, decrescita, carestia, stagnazione).</Italian>
+-		<Spanish>Si se activa, muestra información detallada sobre el crecimiento (creciendo, reduciéndose, hambruna, detenido).</Spanish>
++		<German>Zeigt detailliertere Informationen �ber das Wachstum einer Stadt an (Zunahme, Abnahme, Hungersnot, Stagnation).</German>
++		<Italian>Quando � selezionato, mostra pi� dettagli sulla crescita (crescita, decrescita, carestia, stagnazione).</Italian>
++		<Spanish>Si se activa, muestra informaci�n detallada sobre el crecimiento (creciendo, reduci�ndose, hambruna, detenido).</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__BASEVALUES_TEXT</Tag>
+@@ -1130,23 +1130,23 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__BASEVALUES_HOVER</Tag>
+ 		<English>When checked, holding CTRL while hovering shows the base (without modifiers) values for most items: production, trade, commerce, maintenance, great people.</English>
+-		<German>Zeigt, wenn der Mauszeiger bei gedrückter [STRG]-Taste über eine Stadt bewegt wird, die Basiswerte (ohne Modifikatoren) der folgenden Güter an: Produktion, Handel, Wirtschaft, Unterhalt, Große Persönlichkeiten</German>
+-		<Italian>Quando è selezionato, tenendo premuto CTRL mentre si posiziona il cursore su un oggetto ne mostra i valori base (privi di modificatori) di produzione, oro, commercio, mantenimento, grandi personaggi.</Italian>
+-		<Spanish>Si se activa, mantener Ctrl mientras se mantiene el ratón sobre un valor mostrará el valor sin modificaciones para la mayoría de valores: producción, comercio, oro, mantenimiento, grandes personas.</Spanish>
++		<German>Zeigt, wenn der Mauszeiger bei gedr�ckter [STRG]-Taste �ber eine Stadt bewegt wird, die Basiswerte (ohne Modifikatoren) der folgenden G�ter an: Produktion, Handel, Wirtschaft, Unterhalt, Gro�e Pers�nlichkeiten</German>
++		<Italian>Quando � selezionato, tenendo premuto CTRL mentre si posiziona il cursore su un oggetto ne mostra i valori base (privi di modificatori) di produzione, oro, commercio, mantenimento, grandi personaggi.</Italian>
++		<Spanish>Si se activa, mantener Ctrl mientras se mantiene el rat�n sobre un valor mostrar� el valor sin modificaciones para la mayor�a de valores: producci�n, comercio, oro, mantenimiento, grandes personas.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__BASEPRODUCTION_TEXT</Tag>
+ 		<English>Base Production</English>
+ 		<German>Grundproduktion</German>
+ 		<Italian>Produzione base</Italian>
+-		<Spanish>Producción Base</Spanish>
++		<Spanish>Producci�n Base</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__BASEPRODUCTION_HOVER</Tag>
+ 		<English>When checked, shows base production (excludes overflow, whipping, and chopping) in addition to the current turn's production.</English>
+-		<German>Zeigt die Grundproduktion (ohne Überschuss, Zwangsarbeit und Waldrodung) zusätzlich zur Produktion der derzeitigen Runde an</German>
+-		<Italian>Quando è selezionato, mostra la produzione base (escluse le quote da surplus, sacrifici e abbattimento alberi) come aggiunta alla produzione del turno corrente.</Italian>
+-		<Spanish>Muestra la producción base (excluyendo excedentes, sacrificios y tala) además de la producción del turno actual.</Spanish>
++		<German>Zeigt die Grundproduktion (ohne �berschuss, Zwangsarbeit und Waldrodung) zus�tzlich zur Produktion der derzeitigen Runde an</German>
++		<Italian>Quando � selezionato, mostra la produzione base (escluse le quote da surplus, sacrifici e abbattimento alberi) come aggiunta alla produzione del turno corrente.</Italian>
++		<Spanish>Muestra la producci�n base (excluyendo excedentes, sacrificios y tala) adem�s de la producci�n del turno actual.</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #53 -----
+@@ -1160,9 +1160,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HURRYASSIST_HOVER</Tag>
+ 		<English>When checked, shows the cost ([ICON_CITIZEN] or [ICON_GOLD]) and overflow ([ICON_PRODUCTION] and [ICON_GOLD]) for hurrying (whip and/or buy) the item being produced.</English>
+-		<German>Zeigt die Kosten ([ICON_CITIZEN] oder [ICON_GOLD]) und Überschüsse ([ICON_PRODUCTION] und [ICON_GOLD]) einer Beschleunigung (Zwangsarbeit und/oder Kauf) der derzeitigen Produktion an</German>
+-		<Italian>Quando è selezionato, mostra il costo ([ICON_CITIZEN] o [ICON_GOLD]) ed il surplus ([ICON_PRODUCTION] e [ICON_GOLD]) per l'accelerazione (da sacrifici e/o pagamenti) per l'oggetto in produzione.</Italian>
+-		<Spanish>Si se activa, muestra el coste ([ICON_CITIZEN] o [ICON_GOLD]) y excedente ([ICON_PRODUCTION] y [ICON_GOLD]) por apresurar (sacrificio y/o compra) la producción actual.</Spanish>
++		<German>Zeigt die Kosten ([ICON_CITIZEN] oder [ICON_GOLD]) und �bersch�sse ([ICON_PRODUCTION] und [ICON_GOLD]) einer Beschleunigung (Zwangsarbeit und/oder Kauf) der derzeitigen Produktion an</German>
++		<Italian>Quando � selezionato, mostra il costo ([ICON_CITIZEN] o [ICON_GOLD]) ed il surplus ([ICON_PRODUCTION] e [ICON_GOLD]) per l'accelerazione (da sacrifici e/o pagamenti) per l'oggetto in produzione.</Italian>
++		<Spanish>Si se activa, muestra el coste ([ICON_CITIZEN] o [ICON_GOLD]) y excedente ([ICON_PRODUCTION] y [ICON_GOLD]) por apresurar (sacrificio y/o compra) la producci�n actual.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HURRYASSISTINCLUDECURRENT_TEXT</Tag>
+@@ -1174,9 +1174,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HURRYASSISTINCLUDECURRENT_HOVER</Tag>
+ 		<English>When checked, includes the current turn's production when calculating overflow ([ICON_PRODUCTION] and/or [ICON_GOLD]) from hurrying with the whip.</English>
+-		<German>Bezieht [ICON_PRODUCTION] einer Stadt aus der aktuellen Runde in die Berechnung des Produktionsüberschusses ([ICON_PRODUCTION] und/oder [ICON_GOLD]) ein, der aus der Produktionsbeschleunigung durch Zwangsarbeit entsteht</German>
+-		<Italian>Quando è selezionato, include il turno corrente quando calcola il surplus ([ICON_PRODUCTION] e/o [ICON_GOLD]) per l'accelerazione da sacrifici.</Italian>
+-		<Spanish>Si se activa, incluye la producción del turno actual cuando se calcule el excedente ([ICON_PRODUCTION] y/o [ICON_GOLD]) de apresurar construcción mediante sacrificio.</Spanish>
++		<German>Bezieht [ICON_PRODUCTION] einer Stadt aus der aktuellen Runde in die Berechnung des Produktions�berschusses ([ICON_PRODUCTION] und/oder [ICON_GOLD]) ein, der aus der Produktionsbeschleunigung durch Zwangsarbeit entsteht</German>
++		<Italian>Quando � selezionato, include il turno corrente quando calcola il surplus ([ICON_PRODUCTION] e/o [ICON_GOLD]) per l'accelerazione da sacrifici.</Italian>
++		<Spanish>Si se activa, incluye la producci�n del turno actual cuando se calcule el excedente ([ICON_PRODUCTION] y/o [ICON_GOLD]) de apresurar construcci�n mediante sacrificio.</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #54 -----
+@@ -1190,9 +1190,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__TRADEDETAIL_HOVER</Tag>
+ 		<English>When checked, shows breakdowns for trade: total, foreign, and foreign overseas. Each includes those after it: foreign includes foreign overseas, and total includes both foreign and foreign overseas.</English>
+-		<German>Zeigt eine Aufschlüsselung des Handels in "Gesamt", "Ausland" und "Übersee" an, wobei der Wert für "Ausland" jenen für "Übersee" einschließt und "Gesamt" wiederum beide Werte in sich vereint</German>
+-		<Italian>Quando è selezionato, mostra dei subtotali per il commercio: totale, estero, ed oltremare. Quello estero include quello d'oltremare, e quello totale include entrambi.</Italian>
+-		<Spanish>Activar esta opción muestra detalles para el comercio: total, exterior y ultramar. Cada valor incluye a los anteriores.</Spanish>
++		<German>Zeigt eine Aufschl�sselung des Handels in "Gesamt", "Ausland" und "�bersee" an, wobei der Wert f�r "Ausland" jenen f�r "�bersee" einschlie�t und "Gesamt" wiederum beide Werte in sich vereint</German>
++		<Italian>Quando � selezionato, mostra dei subtotali per il commercio: totale, estero, ed oltremare. Quello estero include quello d'oltremare, e quello totale include entrambi.</Italian>
++		<Spanish>Activar esta opci�n muestra detalles para el comercio: total, exterior y ultramar. Cada valor incluye a los anteriores.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__COMMERCE_TEXT</Tag>
+@@ -1205,7 +1205,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__COMMERCE_HOVER</Tag>
+ 		<English>When checked, the total commerce ([ICON_COMMERCE]) is shown before the individual commerce types ([ICON_GOLD], [ICON_RESEARCH], [ICON_CULTURE], and [ICON_ESPIONAGE]).</English>
+ 		<German>Zeigt das gesamte Wirtschaftseinkommen ([ICON_COMMERCE]) vor den einzelnen Einkommensarten ([ICON_GOLD], [ICON_RESEARCH], [ICON_CULTURE] und [ICON_ESPIONAGE]) an</German>
+-		<Italian>Quando è selezionato, mostra l'oro totale ([ICON_COMMERCE]) prima dei singoli tipi ([ICON_GOLD], [ICON_RESEARCH], [ICON_CULTURE], e [ICON_ESPIONAGE]).</Italian>
++		<Italian>Quando � selezionato, mostra l'oro totale ([ICON_COMMERCE]) prima dei singoli tipi ([ICON_GOLD], [ICON_RESEARCH], [ICON_CULTURE], e [ICON_ESPIONAGE]).</Italian>
+ 		<Spanish>Muestra el comercio total ([ICON_COMMERCE]) delante de cada uno de los tipos de comercio individuales  ([ICON_GOLD], [ICON_RESEARCH], [ICON_CULTURE], y [ICON_ESPIONAGE]).</Spanish>
+ 	</TEXT-->
+ 
+@@ -1213,15 +1213,15 @@ Rename the tag									Original untouched; you're free to localize your version
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__BUILDINGICONS_TEXT</Tag>
+ 		<English>Building Icons</English>
+-		<German>Gebäude-Symbole</German>
++		<German>Geb�ude-Symbole</German>
+ 		<Italian>Icone di edifici</Italian>
+-		<Spanish>Iconos de Construcción</Spanish>
++		<Spanish>Iconos de Construcci�n</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__BUILDINGICONS_HOVER</Tag>
+ 		<English>When checked, the list of buildings is shown using icons instead of their names.</English>
+-		<German>Zeigt die Liste der Gebäude mit Symbolen statt Text an</German>
+-		<Italian>Quando è selezionato, la lista degli edifici viene visualizzata con le rispettive icone invece dei nomi.</Italian>
++		<German>Zeigt die Liste der Geb�ude mit Symbolen statt Text an</German>
++		<Italian>Quando � selezionato, la lista degli edifici viene visualizzata con le rispettive icone invece dei nomi.</Italian>
+ 		<Spanish>Si se activa, se muestra la lista de edificios empleando iconos en lugar de nombres.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+@@ -1234,9 +1234,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__HIDEINSTRUCTIONS_HOVER</Tag>
+ 		<English>When checked, hides the instructions for selecting cities and showing base values to make room for the new information.</English>
+-		<German>Verbirgt die Hinweise zur Auswahl von Städten und zur Anzeige der Basiswerte, um Platz für die neuen Informationen zu schaffen</German>
+-		<Italian>Quando è selezionato, nasconde le istruzioni per la selezione delle Città e mostra i valori base per fare posto alle nuove informazioni.</Italian>
+-		<Spanish>Si se activa, se ocultan las instrucciones para seleccionar ciudades y mostrar valores base para hacer sitio a más información.</Spanish>
++		<German>Verbirgt die Hinweise zur Auswahl von St�dten und zur Anzeige der Basiswerte, um Platz f�r die neuen Informationen zu schaffen</German>
++		<Italian>Quando � selezionato, nasconde le istruzioni per la selezione delle Citt� e mostra i valori base per fare posto alle nuove informazioni.</Italian>
++		<Spanish>Si se activa, se ocultan las instrucciones para seleccionar ciudades y mostrar valores base para hacer sitio a m�s informaci�n.</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #56 -----
+@@ -1251,22 +1251,22 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__CULTURETURNS_HOVER</Tag>
+ 		<English>When checked, shows the number of turns until the city's borders expand due to culture ([ICON_CULTURE]).</English>
+ 		<German>Zeigt die Anzahl der Runden an, bis sich die Kulturgrenzen ([ICON_CULTURE]) einer Stadt erweitern</German>
+-		<Italian>Quando è selezionato, mostra il numero di turni mancanti per la successiva espansione culturale ([ICON_CULTURE]).</Italian>
+-		<Spanish>Si se activa, muestra el número de turnos restantes para que los bordes de la ciudad se expandan debido a su cultura ([ICON_CULTURE]).</Spanish>
++		<Italian>Quando � selezionato, mostra il numero di turni mancanti per la successiva espansione culturale ([ICON_CULTURE]).</Italian>
++		<Spanish>Si se activa, muestra el n�mero de turnos restantes para que los bordes de la ciudad se expandan debido a su cultura ([ICON_CULTURE]).</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__GREATPERSONTURNS_TEXT</Tag>
+ 		<English>Great Person Turns</English>
+-		<German>Große Persönlichkeiten</German>
++		<German>Gro�e Pers�nlichkeiten</German>
+ 		<Italian>Turni dei Grandi Personaggi</Italian>
+ 		<Spanish>Turnos de Gran Personaje</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYBAR__GREATPERSONTURNS_HOVER</Tag>
+ 		<English>When checked, shows the number of turns until the city will create the next great person ([ICON_GREATPEOPLE]).</English>
+-		<German>Zeigt die Anzahl der Runden an, bis eine Stadt eine Große Persönlichkeit ([ICON_GREATPEOPLE]) hervorbringt</German>
+-		<Italian>Quando è selezionato, mostra il numero di turni necessario perchè la città generi il successivo Grande Personaggio([ICON_GREATPEOPLE]).</Italian>
+-		<Spanish>Si se activa, muestra el número de turnos restantes para que en la ciudad nazca una gran personaje ([ICON_GREATPEOPLE]).</Spanish>
++		<German>Zeigt die Anzahl der Runden an, bis eine Stadt eine Gro�e Pers�nlichkeit ([ICON_GREATPEOPLE]) hervorbringt</German>
++		<Italian>Quando � selezionato, mostra il numero di turni necessario perch� la citt� generi il successivo Grande Personaggio([ICON_GREATPEOPLE]).</Italian>
++		<Spanish>Si se activa, muestra el n�mero de turnos restantes para que en la ciudad nazca una gran personaje ([ICON_GREATPEOPLE]).</Spanish>
+ 	</TEXT-->
+ 
+ ===== .\Assets\XML\Text\BULL Misc Hovers Options.xml =====
+@@ -1281,7 +1281,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADHIDDENATTITUDE_HOVER</Tag>
+ 		<English>When checked, displays the hidden attitude modifiers (possibly spoiler).</English>
+-		<German>Zeigt die verborgenen Beziehungsmodifikatoren anderer Oberhäupter an (möglicher Spoiler)</German>
++		<German>Zeigt die verborgenen Beziehungsmodifikatoren anderer Oberh�upter an (m�glicher Spoiler)</German>
+ 		<Italian>When checked, displays the hidden attitude modifiers (possibly spoiler).</Italian>
+ 		<Spanish>Permite mostrar los modificadores de actitud ocultos (posibles spoilers).</Spanish>
+ 	</TEXT>
+@@ -1296,7 +1296,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADWORSTENEMY_HOVER</Tag>
+ 		<English>When checked, the worst enemy of each AI rival is shown in the hover text for their icon.</English>
+-		<German>Zeigt den Erzfeind jedes Gegenspielers an, wenn der Mauszeiger über desssen Symbol bewegt wird</German>
++		<German>Zeigt den Erzfeind jedes Gegenspielers an, wenn der Mauszeiger �ber desssen Symbol bewegt wird</German>
+ 		<Italian>When checked, the worst enemy of each AI rival is shown in the hover text for their icon.</Italian>
+ 		<Spanish>Se muestra el peor enemigo de cada rival IA en el texto flotante para su icono.</Spanish>
+ 	</TEXT>
+@@ -1304,47 +1304,47 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADDEFENSIVEPACTS_TEXT</Tag>
+ 		<English>Defensive Pacts</English>
+-		<German>Verteidigungsbündnisse</German>
++		<German>Verteidigungsb�ndnisse</German>
+ 		<Italian>Defensive Pacts</Italian>
+-		<Spanish>Acuerdos de Protección</Spanish>
++		<Spanish>Acuerdos de Protecci�n</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LEADERHEADDEFENSIVEPACTS_HOVER</Tag>
+ 		<English>When checked, the defensive pacts of each rival are shown in the hover text for their icon.</English>
+-		<German>Zeigt die Verteidigungsbündnisse jedes Gegenspielers an, wenn der Mauszeiger über desssen Symbol bewegt wird</German>
++		<German>Zeigt die Verteidigungsb�ndnisse jedes Gegenspielers an, wenn der Mauszeiger �ber desssen Symbol bewegt wird</German>
+ 		<Italian>When checked, the defensive pacts of each rival are shown in the hover text for their icon.</Italian>
+-		<Spanish>Permite mostrar los acuerdos de protección de cada rival en su texto flotante.</Spanish>
++		<Spanish>Permite mostrar los acuerdos de protecci�n de cada rival en su texto flotante.</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #58 -----
+ <!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LATLONGCOORDS_TEXT</Tag>
+ 		<English>Longitude / Latitude</English>
+-		<German>Längengrad / Breitengrad</German>
++		<German>L�ngengrad / Breitengrad</German>
+ 		<Italian>Longitude / Latitude</Italian>
+ 		<Spanish>Longitud / Latitud</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__LATLONGCOORDS_HOVER</Tag>
+ 		<English>When checked, the longitude and latitude are shown when hovering over a plot once you have centered the map.</English>
+-		<German>Zeigt bei zentrierter Karte den Längen- und Breitengrad eines Geländefeldes an, wenn der Mauszeiger darüber bewegt wird</German>
++		<German>Zeigt bei zentrierter Karte den L�ngen- und Breitengrad eines Gel�ndefeldes an, wenn der Mauszeiger dar�ber bewegt wird</German>
+ 		<Italian>When checked, the longitude and latitude are shown when hovering over a plot once you have centered the map.</Italian>
+-		<Spanish>Muestra la latitud y longitud cuando se deje el ratón sobre una casilla una vez esté centrado el mapa.</Spanish>
++		<Spanish>Muestra la latitud y longitud cuando se deje el rat�n sobre una casilla una vez est� centrado el mapa.</Spanish>
+ 	</TEXT>
+ 
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__PARTIALBUILDS_TEXT</Tag>
+ 		<English>Partial Builds</English>
+-		<German>Unvollständige Bauten</German>
++		<German>Unvollst�ndige Bauten</German>
+ 		<Italian>Costruzione parziale</Italian>
+-		<Spanish>Construcción Parcial</Spanish>
++		<Spanish>Construcci�n Parcial</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__PARTIALBUILDS_HOVER</Tag>
+ 		<English>When checked, hovering over a plot that has partially-completed builds (improvements, routes, and chops) will show how many worker turns are required to complete them as long as your workers can actually do so.</English>
+-		<German>Zeigt, wenn der Mauszeiger über ein Geländefeld mit teilweise fertig gestellten Bauten (Modernisierungen, Straßen und Waldrodungen) bewegt wird, an, wie viele Runden ein Bautrupp noch benötigt, um sie fertig zu stellen, wenn der Bautrupp diese Aktionen beherrscht</German>
+-		<Italian>Quando è selezionato, posizionare il cursore su una casella che contiene costruzioni (miglioramenti, strade, eccetera) parzialmente completate mostrerà quanti turni di lavoro sono necessari per completare l'opera.</Italian>
+-		<Spanish>Dejar el ratón sobre una casilla con mejoras no terminadas mostarará el número de turnos necesarios para terminar.</Spanish>
++		<German>Zeigt, wenn der Mauszeiger �ber ein Gel�ndefeld mit teilweise fertig gestellten Bauten (Modernisierungen, Stra�en und Waldrodungen) bewegt wird, an, wie viele Runden ein Bautrupp noch ben�tigt, um sie fertig zu stellen, wenn der Bautrupp diese Aktionen beherrscht</German>
++		<Italian>Quando � selezionato, posizionare il cursore su una casella che contiene costruzioni (miglioramenti, strade, eccetera) parzialmente completate mostrer� quanti turni di lavoro sono necessari per completare l'opera.</Italian>
++		<Spanish>Dejar el rat�n sobre una casilla con mejoras no terminadas mostarar� el n�mero de turnos necesarios para terminar.</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #59 -----
+@@ -1358,7 +1358,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__CULTUREINUNOWNEDTILES_HOVER</Tag>
+ 		<English>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [COLOR_HIGHLIGHT_TEXT]Shift[COLOR_REVERT] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</English>
+-		<German>Zeigt Kulturanteile im Hilfetext aller einsehbaren Felder an. Wenn diese Option nicht angekreuzt ist, werden Kulturanteile neutraler Felder nur bei gedrückter [COLOR_HIGHLIGHT_TEXT]Umschalt[COLOR_REVERT]taste angezeigt.</German>
++		<German>Zeigt Kulturanteile im Hilfetext aller einsehbaren Felder an. Wenn diese Option nicht angekreuzt ist, werden Kulturanteile neutraler Felder nur bei gedr�ckter [COLOR_HIGHLIGHT_TEXT]Umschalt[COLOR_REVERT]taste angezeigt.</German>
+ 		<Italian>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [COLOR_HIGHLIGHT_TEXT]Shift[COLOR_REVERT] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</Italian>
+ 		<Spanish>When checked, culture percentages are shown in the help text of any actively visible tile. Otherwise, culture percentages in unowned tiles are only shown when the [COLOR_HIGHLIGHT_TEXT]Shift[COLOR_REVERT] key is held down. (Culture on unowned tiles is a common occurrence because K-Mod lets cities spread culture beyond their owner's borders.)</Spanish>
+ 	</TEXT-->
+@@ -1374,9 +1374,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__SPEDUPTECHS_HOVER</Tag>
+ 		<English>When checked, displays the technologies that will be sped up by acquiring the technology you are hovering over (e.g. Animal Husbandry would be shown for Agriculture once you have acquired Hunting).</English>
+-		<German>Zeigt Technologien an, die durch das Vorhandensein der Technologie beschleunigt würden, über der sich der Mauszeiger befindet (beispielsweise würde "Tierzucht" bei "Landwirtschaft" erscheinen, wenn bereits "Jagd" erforscht wäre)</German>
+-		<Italian>Quando è selezionato, nel testo a comparsa di una Tecnologia vengono mostrate le Tecnologie che risultano accelerate dall'acquisizione della Tecnologia in questione (p. es. una volta acquisita la tecnologia 'Caccia', se posizionerete il cursore sulla tecnologia 'Agricoltura' vi verrà ricordato che questa accelererà la tecnologia 'Allevamento di animali').</Italian>
+-		<Spanish>Permite mostrar las tecnologías cuyo avance será acelerado una vez adquieras la tecnología sobre la cual mantienes el ratón (por ejemplo, Ganadería se mostraría para Agricultura una vez que adquieras Caza).</Spanish>
++		<German>Zeigt Technologien an, die durch das Vorhandensein der Technologie beschleunigt w�rden, �ber der sich der Mauszeiger befindet (beispielsweise w�rde "Tierzucht" bei "Landwirtschaft" erscheinen, wenn bereits "Jagd" erforscht w�re)</German>
++		<Italian>Quando � selezionato, nel testo a comparsa di una Tecnologia vengono mostrate le Tecnologie che risultano accelerate dall'acquisizione della Tecnologia in questione (p. es. una volta acquisita la tecnologia 'Caccia', se posizionerete il cursore sulla tecnologia 'Agricoltura' vi verr� ricordato che questa accelerer� la tecnologia 'Allevamento di animali').</Italian>
++		<Spanish>Permite mostrar las tecnolog�as cuyo avance ser� acelerado una vez adquieras la tecnolog�a sobre la cual mantienes el rat�n (por ejemplo, Ganader�a se mostrar�a para Agricultura una vez que adquieras Caza).</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #61 -----
+@@ -1385,14 +1385,14 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<English>Technology Trade Denial</English>
+ 		<German>Verweigerung von Technologien</German>
+ 		<Italian>Rifiuto di commercio di Tecnologie</Italian>
+-		<Spanish>Intercambios de Tecnología</Spanish>
++		<Spanish>Intercambios de Tecnolog�a</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__TECHTRADEDENIAL_HOVER</Tag>
+ 		<English>When checked, hovering over a technology in the "Won't Trade" column of the Foreign Advisor's TECHS page will show you the AI's reason for denying the trade.</English>
+-		<German>Zeigt die Gründe für die Verweigerung eines Handels an, wenn der Mauszeiger über eine Technologie in der Spalte "Unverhandelbar" auf der Seite "Technologien" des Auslandsberaters bewegt wird</German>
+-		<Italian>Quando è selezionato, posizionando il cursore su una Tecnologia nella colonna 'Non commercia' della pagina delle Tecnologie del Consigliere Estero verrà visualizzata la ragione per cui l'AI rifiuta di commerciare tale Tecnologia.</Italian>
+-		<Spanish>Si se activa, dejar el ratón sobre una tecnología de la columna "No intercambia" de la ventana del Consejero de Asuntos Exteriores mostrará las razones de la IA para negarse a ese intercambio.</Spanish>
++		<German>Zeigt die Gr�nde f�r die Verweigerung eines Handels an, wenn der Mauszeiger �ber eine Technologie in der Spalte "Unverhandelbar" auf der Seite "Technologien" des Auslandsberaters bewegt wird</German>
++		<Italian>Quando � selezionato, posizionando il cursore su una Tecnologia nella colonna 'Non commercia' della pagina delle Tecnologie del Consigliere Estero verr� visualizzata la ragione per cui l'AI rifiuta di commerciare tale Tecnologia.</Italian>
++		<Spanish>Si se activa, dejar el rat�n sobre una tecnolog�a de la columna "No intercambia" de la ventana del Consejero de Asuntos Exteriores mostrar� las razones de la IA para negarse a ese intercambio.</Spanish>
+ 	</TEXT-->
+ 
+ ----- Comment #62 -----
+@@ -1406,9 +1406,9 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__BONUSTRADEDENIAL_HOVER</Tag>
+ 		<English>When checked, hovering over a resource in the "Won't Trade" column of the Foreign Advisor's RESOURCES page will show you the AI's reason for denying the trade.</English>
+-		<German>Zeigt die Gründe für die Verweigerung eines Handels an, wenn der Mauszeiger über eine Ressource in der Spalte "Unverhandelbar" auf der Seite "Ressourcen" des Auslandsberaters bewegt wird</German>
+-		<Italian>Quando è selezionato, posizionando il cursore su una Risorsa nella colonna 'Non commercia' della pagina delle Risorse del Consigliere Estero verrà visualizzata la ragione per cui l'AI rifiuta di commerciare tale Risorsa.</Italian>
+-		<Spanish>Si se activa, dejar el ratón sobre un recurso de la columna "No intercambia" de la ventana del Consejero de Asuntos Exteriores mostrará las razones de la IA para negarse a ese intercambio.</Spanish>
++		<German>Zeigt die Gr�nde f�r die Verweigerung eines Handels an, wenn der Mauszeiger �ber eine Ressource in der Spalte "Unverhandelbar" auf der Seite "Ressourcen" des Auslandsberaters bewegt wird</German>
++		<Italian>Quando � selezionato, posizionando il cursore su una Risorsa nella colonna 'Non commercia' della pagina delle Risorse del Consigliere Estero verr� visualizzata la ragione per cui l'AI rifiuta di commerciare tale Risorsa.</Italian>
++		<Spanish>Si se activa, dejar el rat�n sobre un recurso de la columna "No intercambia" de la ventana del Consejero de Asuntos Exteriores mostrar� las razones de la IA para negarse a ese intercambio.</Spanish>
+ 	</TEXT-->
+ 
+ ===== .\Assets\XML\Text\BULL_CIV4GameText.xml =====
+@@ -1432,7 +1432,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CITY_BAR_FOOD_SHRINK</Tag>
+ 		<English>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turn[NEWLINE][COLOR_YELLOW]Shrinking: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:Turn:Turns])[COLOR_REVERT]</English>
+-		<French>[NEWLINE]%d1 [ICON_BAD_FOOD]/tour[NEWLINE][COLOR_YELLOW]Rétrécissement : %d2/%d3 [ICON_FOOD] (%d4 [NUM4:tour:tours])[COLOR_REVERT]</French>
++		<French>[NEWLINE]%d1 [ICON_BAD_FOOD]/tour[NEWLINE][COLOR_YELLOW]R�tr�cissement : %d2/%d3 [ICON_FOOD] (%d4 [NUM4:tour:tours])[COLOR_REVERT]</French>
+ 		<German>[NEWLINE]%d1 [ICON_BAD_FOOD]/Runde[NEWLINE][COLOR_YELLOW]Schrumpfung: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:Runde:Runden])[COLOR_REVERT]</German>
+ 		<Italian>[NEWLINE]%d1 [ICON_BAD_FOOD]/Turno[NEWLINE][COLOR_YELLOW]Crescita: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turni])[COLOR_REVERT]</Italian>
+ 		<Spanish>[NEWLINE]%d1 [ICON_BAD_FOOD]/turno[NEWLINE][COLOR_YELLOW]Crecimiento: %d2/%d3 [ICON_FOOD] (%d4 [NUM4:turno:turnos])[COLOR_REVERT]</Spanish>
+@@ -1466,16 +1466,16 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_DEFENSIVE_PACT_WITH</Tag>
+ 		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Defensive Pact with %s1_player[COLOR_REVERT]</English>
+-		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Défensive pacte avec %s1_player[COLOR_REVERT]</French>
+-		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Verteidigungsbündnis mit %s1_player[COLOR_REVERT]</German>
++		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D�fensive pacte avec %s1_player[COLOR_REVERT]</French>
++		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Verteidigungsb�ndnis mit %s1_player[COLOR_REVERT]</German>
+ 		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Difensive patto con %s1_player[COLOR_REVERT]</Italian>
+ 		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Pacto defensivo con %s1_player[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_DEFENSIVE_PACT_WITH_YOU</Tag>
+ 		<English>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]You have a Defensive Pact[COLOR_REVERT]</English>
+-		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Vous disposez d'un pacte défensif[COLOR_REVERT]</French>
+-		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ihr habt ein Verteidigungsbündnis[COLOR_REVERT]</German>
++		<French>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Vous disposez d'un pacte d�fensif[COLOR_REVERT]</French>
++		<German>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ihr habt ein Verteidigungsb�ndnis[COLOR_REVERT]</German>
+ 		<Italian>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Si dispone di un patto di difesa[COLOR_REVERT]</Italian>
+ 		<Spanish>[ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ustedes tiene un pacto defensivo[COLOR_REVERT]</Spanish>
+ 	</TEXT-->
+@@ -1537,7 +1537,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_NUCLEAR_WINTER_NEAR_CITY</Tag>
+ 		<English>Radioactive dust fills the skies near %s1_CityName!</English>
+-		<French>*Hiver nucléaire* Alerte ! R&#233;chauffement plan&#233;taire pr&#232;s de %s1_CityName !</French>
++		<French>*Hiver nucl�aire* Alerte ! R&#233;chauffement plan&#233;taire pr&#232;s de %s1_CityName !</French>
+ 		<German>*Kernwinter* Nahe der Stadt %s1_CityName zeigen sich Auswirkungen der globalen Erw&#228;rmung!</German>
+ 		<Italian>*Inverno nucleare* Gli effetti del riscaldamento globale colpiscono %s1_CityName!</Italian>
+ 		<Spanish>*Invierno nuclear* El calentamiento global causa efecto cerca de %s1_CityName.</Spanish>
+@@ -1555,7 +1555,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 		<English>Global warming can raise sea level.</English>
+ 		<French>Le rechauffement global peut soulever le niveau de la mer.</French>
+ 		<German>Die globale Erwarmung kann Meeresspiegel anheben.</German>
+-		<Italian>Il riscaldamento globale può innalzare il livello del mare.</Italian>
++		<Italian>Il riscaldamento globale pu� innalzare il livello del mare.</Italian>
+ 		<Spanish>El calentamiento del planeta puede levantar nivel del mar.</Spanish>
+ 	</TEXT>
+ 	[end of unused tags] -->
+@@ -1706,22 +1706,22 @@ Rename the tag									Original untouched; you're free to localize your version
+ <!-- custom: note about collateral damage calculation in advciv and by extension in our mod xd if i'm not mistaken since i as of now didn't change it, according to chatgpt 5 and thanks to my prompt / after i asked it and or such but anyways etc, and about whether it is additive or multiplicative or other, after feeding it our relevant code (which i found in CvUnit::collateralCombat if i was not mistaken in how i found it  (check if accurate as i don't know too much about these but i could or not be right or not or yes or other or etc but anyways etc), manual, and it doing a quite extensive web search before but anyways etc. I formatted this comment too if i may say, check if accurate, hopefully helpful or not or yes or etc, but anyways etc:
+ 
+ "
+-Great catch digging into your own DLL + notes — that settles it.
+-In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple add-on:
+-	- The “collateral strength” is
++Great catch digging into your own DLL + notes � that settles it.
++In your AdvCiv/K-Mod base the effect is �mostly multiplicative�, not simple add-on:
++	- The �collateral strength� is
+ 
+ 	iCollateralStrength = baseCombatStr * collateralDamage() / 100
+ 
+ 	If collateralDamage() == 0, that term is 0.
+ 
+-	- However, the function doesn’t bail if your unit has promotion-based bonus: it returns only if iCollateralStrength <= 0 && getExtraCollateralDamage() <= 0.
+-	- The actual damage per target is then computed from a ratio that still includes a non-zero iStrengthFactor based on the defender’s strength, and finally scaled by 100 + getExtraCollateralDamage() (your Collateral I, II, …).
+-	→ With base collateral 0, promotions still work, but the numbers are modest (exactly what your doc meant by “with the multiplicative formula, 0 base ⇒ Barrage does little”).
++	- However, the function doesn�t bail if your unit has promotion-based bonus: it returns only if iCollateralStrength <= 0 && getExtraCollateralDamage() <= 0.
++	- The actual damage per target is then computed from a ratio that still includes a non-zero iStrengthFactor based on the defender�s strength, and finally scaled by 100 + getExtraCollateralDamage() (your Collateral I, II, �).
++	? With base collateral 0, promotions still work, but the numbers are modest (exactly what your doc meant by �with the multiplicative formula, 0 base ? Barrage does little�).
+ 
+ 	So the mental model is:
+ 	- Not 0 + 15 = 15%.
+-	- Also not 0 × 1.15 = 0% (i.e., “no effect”).
+-	- It’s “small baseline from the strength-ratio” × (1 + promo bonus), and capped by your MaxUnits and Limit.
++	- Also not 0 � 1.15 = 0% (i.e., �no effect�).
++	- It�s �small baseline from the strength-ratio� � (1 + promo bonus), and capped by your MaxUnits and Limit.
+ "
+ -->
+ 
+@@ -1740,3 +1740,331 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ ----- Comment #89 -----
+ <!-- custom: old caravels (_caravel) removed entirely, hopefully to remove the nonsensical border enter without trigegring war, that now only privateers can do if i am not mistaken at least among visible naval units if i am not mistaken in my guess about invisible units not triggering war if entering without open borders anyways etc anyways etc ; as for the effect bRivalTerritory is set to 0 in the galleon as well same as what it was, even though they have UNITAI_EXPLORE_SEA, was annoying from my memory of advciv games that caravels could send many spies in particular without ever declaring war and without me allowing them to enter my borders, but anyways etc, hopefully much more sensical now and pleasant this way, that they have to respect water rights or something, and galleon is a bit more affordable and civilian like unit but anyways etc, may also help to simplify gameplay a bit as we don't need strongly/strongly need but anyways etc the caravel if the galleon is cheap enough and fast enough, may help the AI indirectly or simplify gameplay perhaps, not ideal but maybe a desirable change at least for me, but anyways etc anyways etc anyways etc... -->
+ 
++===== .\\Assets/XML/Units/UnitAI notes (Units XML) =====
++----- Comment #90 -----
++<!-- custom: 
++note: below rework as of now not fully implemented not too likely as bit tedious and then would need to change buildings and such, but might be, but even if we don't implement it as below, general idea of rebalancing iPower to avoid suicidal war declarations as i had noticed (perhaps even help AI war decisions of which units to attack for example? But anyways etc) by myself while playing civ4 i mean base advciv mod still valid, read below for details anyways etc:
++
++multiply iPower by:
++- 10 for standard military units for example (ancient maceman (warrior)), i don't know if this takes into account promotions and other multipliers such as natural base stats, but maybe this helps the problem of suicidal war declarations in particular, idea i got from realism invictus's commit https://sourceforge.net/p/civ4mods/code/5464/  (name/description) (without actually looking at their code, but i can take it from there), for example 10 strength x 10 multiplier = 100 iPower for the ancient maceman
++- 7 for cover military units or (more) specialized defenders, for example for the archer, they will not directly attack cities, even if they may participate in the assault but a bit of a threat, for example 6 strength x 7 multiplier = 42 iPower - 5 for animals: not used currently but if some players were to control animals, these animals may not be able to (be) use(d in) advanced strategy(ies) maybe, but their raw power, usually higher than of humans, should not be ignored for example for the lion 15 strength x 5 = 75 iPower
++- 5 for support military too: for example the explorer has good enough stats to attack in some cases, but more often than not is not a threat against regular military at all, so for example would be 6 strength x 5 = 30 iPower
++- 2 for support units (worker if i give them strength), for example an ancient worker 3 strength x 2 = 6 iPower, not entirely useless (may delay city
++capture or very rarely fight animals, but mostly not a threat)
++- 1 (much less) for naval units, for example x1; indeed they can barely have any major influence on land warfare, and their strength may be misleading, for the calculation for example 3 strength (early sailboat) x 1 = 1 iPower 10 strength (early frigate) x 1 = 10 iPower
++-->
++
++
++
++<!-- custom: below iAsset rework also unlikely to be implemented for similar reasons, but read below for details hopefully helpful or not or yes or and other or etc anyways etc anyways etc anyways etc
++As for iAsset, as this should not directly affect combat tactics or choices (i think), increase it just by strength count, so that it scales accurately ;
++for example for the ancient maceman:
++10 stregth = iAsset value of 10
++for example for the archer
++6 strength = iAsset value of 6
++-->
++
++
++
++<!-- custom: as for UnitAIs, for ground units (taken from the archer unit):
++
++UnitAIs and NotUnitAIs all alphabetical order (for quick copy paste then adjust maybe anyways):
++(gradually add more MnitAIs/NotUnitAIs here)
++
++			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY_LEMMING</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_EXPLORE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PARADROP</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_SPY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
++-->
++
++===== .\\Assets/XML/Units/Unit combat notes (Promotions XML) =====
++----- Comment #91 -----
++<!--
++custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it gets messy really quickly full order to take from for quick editing or/and copy/paste:
++
++			<UnitCombats>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_AIR_FIGHTER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_POLEARM</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++			</UnitCombats>
++
++-->
++
++===== .\\Assets/XML/BasicInfos/UnitAI notes (BasicInfos XML) =====
++----- Comment #92 -----
++		<!-- custom: rename "PROPHET" to "GREAT_PROPHET":
++		- this is weird and inconsistent that "general" is "GREAT_GENERAL" and "spy" is "GREAT_SPY"(, anyways etc), while "PROPHET" is not "GREAT_PROPHET" (not best example as i am not too fond of them but is to be "fair" if i may say i mean anyways anyways etc anyways etc...) and "SCIENTIST" ("scientist") and such are not "GREAT_SCIENTIST" and such, but are as said before in this comment comment but anyways etc "SCIENTIST" instead. Why the inconsistency? Are scientists and such not great, while spy/generals are? Or is it just(?(,) But anyways etc) careless renaming, if not cowardice or maybe not and a mistake or some inaccuracy. But is not (for) me to assess these as i can only express my judgment thought of these and what they may be not what and how they actually are as in went in/went by? But in all cases this seems inaccurate and hopefully fixed and clearer even if a bit more if not ideally a lot more, but anyways etc... I may make such inaccuracies too so feel free to maybe point them to me or (maybe?) not or yes or and other or and not, but in all cases anyways etc...
++
++		- it is also especially weird that the TXT though as the correct name, for example "TXT_KEY_UNIT_GREAT_PROPHET" so we don't rename these (and less work/hassle (not that i mind but anyways etc...(is quite fun actually even though bit tedious but anyways etc...))) as confusing as the discrepancy or maybe rather mismatch, same as with the obelisk sometimes naming the monument while other times monument was used for that in base civ4/advciv too (as in too like the monument vs great scientist not being great(ly accurately named) or as in advciv like civ4 "too" or both or none or one of these or and other or and not (but) anyways etc...) if i am not mistaken, but anyways etc...
++
++		- also renamed UNITAI_PROPHET and UNITAI_SCIENTIST (and UNITAI_GENERAL) and such to UNITAI_GREAT_PROPHET and UNITAI_GREAT_SCIENTIST and UNITAI_GREAT_GENERAL, as weirdly only the spy was great now in UNITAI_GREAT_SPY and inconsistently and weirdly (again but anyways etc... anyways etc...) not the general (i.e the general was not great) anymore now.. Hopefully fixed and everyone is great now, else i would have no problem to make no one great or half or only 1 or all except one if was accurate maybe or not or yes indeed or not or yes or and other or and not but anyways etc.... h(H?)oepfully fixed (or/?) and clearer too maybe (now?(??))(,) (B?)(b)but anyways etc anyways etc... So also be careful to keep both UNITAI_SPY and UNITAI_GREAT_SPY, even though both are different units, it also means the other great people should be great unitai types too, but be careful to not mix it up, me as/while (i'm) doing it (or/and other or and not or yes or not or etc anyways etc), but anyways etc
++
++		- and finally too if i am not mistaken anyways etc, not renaming specialists like/such as SPECIALIST_SCIENTIST to great scientist as they are a normal type of people not a great type of people not that they can't be great by themselves or in general or particular or not but anyways etc...
++		An exception or maybe indeed rather particular case but anyways etc is the priest specialist, there is no great priest but a great prophet, should we rename these for consistency or keep as is? But then there is no great priest, and a normal prophet should be i think weird too (as they should be more unique and great by default/definition? Or maybe not or yes or and other or and not but anyways etc if i am not mistaken, but anyways etc...), leaving as is for now maybe makes sense or not, but anyways etc ; but update even though i didn't send yet but update in my reasoning anyways that yes it makes so much more sense to have a great priest that lives for thousands of years, and matches the existing ("normal"/"default"/"standard"/"base" or and other or and not anyways etc but anyways etc) priest specialist, so as said below the great prophet unit becomes a great priest specialist (when it joins a city), this matches the priest specialist anyways etc), got partially the idea from "Great Military instructor" that i wanted to change to "great general" like the other great people, but the distinction between great specialist and great unit makes sense, a general is also more supposed to be in battle (as a unit maybe and not in city as an instructor that gives exp to new units furthermore if i am not mistaken anyways etc), and since i had the great priest confusion that is not a confusion but clarity i think maybe or not or yes but anyways etc, may apply it there too and rename now indeed anyways etc rather the great prophet specialist to great priest, all the while keeping the great prophet unit as great prophet and not great priest, and update 2 after doing/looking at this change and as said in another code comment "specialist "Great Prophet" (already was GREAT_PRIEST in code as i think is nice at least to me anyways etc, see after this bracket for details anyways etc: ) to "Great Priest", keeping everything else the same since all the code uses GREAT_PRIEST already, only need to change the name for AdvCiv-SAS as we want it, i am happy to go in the direction of civ4 code when i can and find it nice, not that it is a requirement to go in or against it(s direction but anyways etc as is or not anyways etc) ; and all the while not renaming the Great Prophet unit, a prophet is unique, but a priest or great priest could be many in history, when they join or are part of a city, hopefully clearer and makes more sense now hopefully", as the shrine is unique and a prophet seemingly unique to a religion, hopefully makes much more sense and wraps it all now hopefully, at least to me makes sense, hopefully helpful or not or yes or and other or and not, anyways etc anyways etc
++		Another particular case is the great general, there are great general specialists (when they join a city if i am not mistaken anyways etc), scientist(s) specialists, and great scientist specialists (when they join a city too if i am not mistaken, but anyways etc), but another exception or particular case is that when a great prophet joins the city it (update: now) becomes a great priest which is (update: not) so weird and inconsistent, but makes sense in terms of gameplay maybe as a prophet can't live thousands of turns (update: yes i think so especially now but anyways etc), but a great priest could be repolaced as in renewed by/in succession/successor, so maybe leaving as is even though a bit weird but anyways etc but maybe makes sense though anyways etc (but: no changing it actually, the great prophet unit becomes a great priest specialist (when it joins a city), this matches the priest specialist anyways etc)...
++		
++		(note:
++		even kmod code comment (or(/and anyways etc) a code comment mentioning kmod anyways etc) (seemingly) made the confusion (too)twice (if i am not mistaken maybe indeed or yes or not or yes or and other or and not anyways etc), but unitai_great_merchant seemingly did not exist before my/this/my anyways etc anyways etc change and was only (errouneously as in inaccurately and misleadingly but anyways etc anyways etc anyways etc) UNITAI_MERCHANT while designating the great merchant not the merchant, hopefully clearer now, anyways etc..
++			
++		in (edited the comment chars/format/syntax anyways etc from/in the quoted below code comment anyways etc to not break our comment out syntax anyways etc):
++			<Capture>NONE</Capture>
++			<Combat>NONE</Combat>
++			<Domain>DOMAIN_LAND</Domain>
++			< K-Mod: was UNITAI_GREAT_MERCHANT >
++			<DefaultUnitAI>UNITAI_GREAT_SPY</DefaultUnitAI>
++			
++		and in:
++			<FlankingStrikes/>
++			<UnitAIs>
++				< K-Mod: was UNITAI_GREAT_MERCHANT >
++				<UnitAI>
++					<UnitAIType>UNITAI_GREAT_SPY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++		)
++
++		Added a note/code comment maybe rather anyways about these (old kmod?(or about kmod older code comments whoever made them thanks but i mean anyways if i may say anyways that they are not seemingly and unless i am mistaken accurate, so added a note/code comment maybe rather about these anyways etc)).
++		
++		So hopefully to "fix" these as in making them consistent again and hopefully clear and accurate and simple and beauitful( relatively to me but anyways etc)(and even though i am not fond (too fond? Maybe rather or not but anyways etc...)), to be accurate they are the first example so starting with these and not going my extra extra way out to avoid them being named first, maybe(?), but in all cases is as it is or not but in all cases too or not too whatever that means or means not or yes or not or and other or and not anyways etc...
++		And as for specialists, they remain mostly if not totally(/strictly? No, maybe rather the same but anwyays etc samely the same i mean anyways etc)(is quite cool "samely the same" hehe and makes me smiel happily and of joy i mean but anyways hum hum.. focus or not or and other or and not anyways etc... But it is quite pleasant indeed and makes me happy and in smile or good as in fulfilled? Mood r not... Or yes but in all cases i maybe said too much or maybe not or yes or and other or maybe not but in all cases as is or not anyways etc anyways etc....)
++		-->
++
++===== .\\Assets/XML/BasicInfos/BasicInfos notes (concept categories) =====
++----- Comment #93 -----
++My goals doing this are:
++- rename "Concepts" to "Mods Info"
++- rename "Game Concepts" to "Concepts (Outdated)"
++- move all entries that are in "Mods Info (Outdated)"
++(except BtS rules changes) to "Concepts (Outdated)"
++
++Purpose:
++- gather all Civ4 old data together (vanilla + BTS)
++- use a new category for all mods rules changes (not balance changes
++except if already written such as in bts rules changes)
++
++I had figured out most of it, but could not make it work, so i asked
+<hidden-email> which gave me a very detailed answer that helped me solve this.
++
++Credit goes to @f1rpo, current maintainer of AdvCiv, to have explained
++to me (see below for the explanation quoted, that i added here with
+<hidden-email>'s accord) in thorough detail how to achieve that, which helped
++a lot. I had given to @f1rpo slightly different names for the categories
++than the one i provided here at the "rename" bullet points above, but
++the explanation should be mostly (almost entirely in fact) the same
++(minus these name differences).
++
++Beginning of quote:
++"
++Apparently,
++TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW
++is the name of the "BtS Concepts" category. So that can be changed to "Mods information" in CIV4GameText_advc_pedia.xml or can be moved to a different game text file and changed there. (The original definition is in CIV4GameText_Objects_BTS.xml.) The "Game Concepts" text key is TXT_KEY_PEDIA_CATEGORY_CONCEPT in CIV4GameTextInfos_Objects.xml (base game); can be re-defined to "BtS Concepts". Regarding the placement of concepts in categories, Sevopedia has these functions:
++Spoiler : 
++Python:
++	def getNewConceptInfo(self, id):
++		info = gc.getNewConceptInfo(id)
++		if not self.isShortcutInfo(info) and not self.isTraitInfo(info):
++			return info
++		return None
++
++	def isTraitInfo(self, info):
++		return info.getType().find("_TRAIT_") != -1
++
++	def isShortcutInfo(self, info):
++		return info.getType().find("SHORTCUTS") != -1
++So, if it has "_TRAIT_" or "SHORTCUTS" in its type string, it's not a BtS Concept. Everything else in BasicInfos\Civ4NewConceptInfos.xml is a BtS Concept. The pre-BtS Concepts are taken from CIV4BasicInfos.xml (the BtS version of that file). Those ConceptInfo or NewConceptInfo elements specify one text key each for the heading and for the exposition:
++XML:
++<ConceptInfo>
++	<Type>CONCEPT_ANIMALS</Type>
++	<Description>TXT_KEY_CONCEPT_ANIMALS</Description>
++	<Civilopedia>TXT_KEY_CONCEPT_ANIMALS_PEDIA</Civilopedia>
++</ConceptInfo>
++So, to move the BtS Concepts into Game Concepts, one could copy Civ4BasicInfos.xml from BtS into the mod, cut-and-paste all the non-trait, non-shortcut NewConceptInfo elements from Civ4NewConceptInfos.xml into CIV4BasicInfos.xml and change them from NewConceptInfo to ConceptInfo. And then create NewConceptInfo elements in Civ4NewConceptInfos.xml for the content you want in there, e.g.
++XML:
++		<NewConceptInfo>
++			<Type>CONCEPT_KMOD_RULES</Type>
++			<Description>TXT_KEY_KMOD_RULES</Description>
++			<Civilopedia>TXT_KEY_KMOD_RULES_PEDIA</Civilopedia>
++		</NewConceptInfo>
++(Could be named anything, I think; just so long as it doesn't say "trait" or "shortcut".) Plus the corresponding text key definitions in a game text file. All just in theory. Might even work if Sevopedia is disabled via the BUG menu. Ignoring that possibility, there are probably more surgical ways to achieve what you want through changes in SevoPediaMain.py. But you'd need to change a bunch of (small) functions there, not just the three I included above.
++"
++End of quote.
++
++Additionally from @f1rpo's quote, i also did not need to rename
++TXT KEY types nor any data so that it would include "_TRAIT_"
++or "SHORTCUTS" in it.
++I don't know if i did all steps correctly, but at least it works
++now.
++-->
++
++===== .\\Assets/XML/Audio/AudioDefines nested-comments crash notes =====
++----- Comment #94 -----
++long code comment in C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Audio\AudioDefines.xml causes(d) a crash before game can fully start, recorded in C:\Users\PC\Documents\My Games\beyond the sword\Logs\audio.log :
++
++
++
++[8213.390] Audio Manager: Loading Audio Defines file XML\Audio\AudioDefines.xml...
++[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string SND_BUILD_PAGAN Art/AdvCiv_SAS/Religions/Paganism/Baalism DYNAMIC_RES 1 1 of TagId 8
++[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string Generic of TagId 8
++[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string GAME_SPEECH of TagId 8
++[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string ALL of TagId 8
++[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string 3D of TagId 8
++[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string ROOM of TagId 8
++[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string GENERAL of TagId 8
++[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string GENERAL 1.0 0.0 0.0 1.0 0.0 FOREST of TagId 8
++[8213.421] ERR: FAudioManager::GetAudioTagIndex(): Could not find string TXT_KEY_OPTION_SOUND_SYSTEM_CONFIG of TagId 8
++
++
++
++so moving these (code comments anyways etc) below in this now .txt file anyways etc
++
++
++
++		<!-- custom: was (after renaming religion from confucianism/confucian(ist was it? Anyways etc) to paganism/pagan):
++		<SoundData>
++			<SoundID>SND_BUILD_PAGAN</SoundID>
++			<Filename>Sounds/Buildings/ConfucianistDink</Filename>
++			<LoadType>DYNAMIC_RES</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SND_BUILD_PAGAN_MOVIE</SoundID>
++			<Filename>Sounds/Buildings/Confuscianist</Filename>
++			<LoadType>DYNAMIC_RES</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		-->
++		<!-- custom: import from HR mod C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\XML\Audio\AudioDefines.xml modified or not anyways etc for AdvCiv-SAS anyways etc
++		HR's ones are:
++		<SoundData>
++			<SoundID>SND_BUILD_BAAL</SoundID>
++			<Filename>Sounds/Religions/Baalism</Filename>
++			<LoadType>DYNAMIC_RES</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		<SoundData>
++			<SoundID>SND_BUILD_BAAL_MOVIE</SoundID>
++			<Filename>Sounds/Religions/Baalism</Filename>
++			<LoadType>DYNAMIC_RES</LoadType>
++			<bIsCompressed>1</bIsCompressed>
++			<bInGeneric>1</bInGeneric>
++		</SoundData>
++		-->
++
++
++
++now fixed, at least game starts normally, be careful of too long (in line or/and char count i don't know which but anyways etc) xml comment in nested fields perhaps anyways etc
++
++
+
+[PATCH OMITTED] file=a/_0_Common_Docs/git_log_anonymized_email.txt b/_0_Common_Docs/git_log_anonymized_email.txt reason=known-generated/noisy-history changedLines=2 bytes=2550
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 07cd82510..47ea8e56d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -256,7 +256,7 @@ Note 2: master-vassal(s) changes are made with the aim that they in most cases w
+ - (Attemptingly fixed or addressed) AI building settlers at critical time when war is likely, instead of preparing for war: very bad as the few more units with the hammer saved could make us gain or not lose the war, while the extra city makes all our empire thinner and our units split, on top of having less units overall as well, by doing changes in `CvCityAI::AI_bestUnit` as well but anyways etc. I hope AI is much stronger or at least not weaker in such circumstances as i had noticed happen twice in same game in base advciv in example 47, see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well-anyways-etc) for details anyways etc. See also [README_Custom_Main_Changes_Guide.md#civilian-units](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#civilian-units) for additional or related info (settler now a national unit), which may help quite a lot AI effiency on top of adding extra strategy for all players too but anyways etc. Note: thanks to our changes in known issue as of now 53, this can most likely be removed if desired, AI will stick to one settler at a time now if i'm not mistaken and our new code works as intended as quickly tested successfully for privateers and galleons, and no settler at war, so if you prefer disable it if you want many settlers at a time, hopefully AI will still stick to our rule of 1 at a time or now none if danger or such. But may be fine to keep it as such anyways etc.
+ - disabled for AIs the unreliable unitais that are unreliable (`UNITAI_COLLATERAL` to aim for less suicides and getting baited and more focused defense or offense units, `UNITAI_PILLAGE` (no time to waste running around, this unit will not be focused attacking or defending if i am not mistaken, avoid this, inefficient, although they seem to still pillage sometimes ingame anyways etc), and `UNITAI_PIRATE_SEA` again not efficient and annoying, is also part of reducing naval warfare influence (see below for details anyways etc), as a result we use our hammers more efficiently to have a more effective and efficient unitais. Say a swordsman will be an attacker or a defender, but not a pillager, so the stack will be stronger, and the cities more guarded, at least in theory, results seem good, as Khmer AI could pull an early rush on Medina and capture it with a strong stack.)
+ - additionally, tweaked unitais, although i don't know how effective these changes will be or if i did them at the right place (as they sometimes seem to be overriden but rarely so and maybe it me not understanding or/and knowing how this works rather or additionally but in all cases i mean anyways etc), in `CvCityAI::AI_bestUnit` and `CvCityAI::AI_bestUnitAI` and `CvCityAI::AI_chooseProduction` functions as of now in cvcityai but anyways etc. It does seem though as of now to be taken quite well into acocunt, but test to be sure anyways etc. This also depends on map type (less on naval maps, a lot more on land maps, hybrid in other maps, see above links in this known issue for details anyways etc), but now for example if an AI enters offense mode, and the map is a land map, say pangea, continents, etc, as best as we could classify them i mean with chatgpt 5 if i may say so check if accurate and if works as intended test to be sure but anyways etc, AI will more or less ignore unitais that don't help it directly in war as we instructed it, so it will value a lot more `UNITAI_ATTACK` or `UNITAI_ATTACK_CITY` for example, a bit of `UNITAI_RESERVE` (visible in debug mode (ctrl+z and "chipotle") by holding ctrl or alt i forgot which while hovering on a unit or unit stack anyways etc), and this means its units won't wander or such and attack more decisively at least in theory, and vice versa in defense mode they'd value these less and unitais such as `UNITAI_CITY_DEFENSE`, `UNITAI_CITY_SPECIAL`, `UNITAI_RESERVE` etc if any more as well i mean too but anyways etc, for the most part. Hopefully helps the AI better execute its attacks but many things could influence it. It will not care to produce any naval or such unitais units. So it can produce say a swordsman with the attack_city or attack or even reserve unitais maybe, but naval units can't have these, and their unitais like `UNITAI_ATTACK_SEA` or such if i'm not mistaken are tremendously less valued. This avoids the issue i had in base advciv of AI having 10 galleons but barely any land defender on a pangea if i'm not mistaken, see above links for details as well. In naval maps, if detcted as such with our code i mean but anyways etc, this is toned down a bit, but the general idea remains to protect our cities first and foremost, and aim for most effiicent roles but anyways etc, see cvcityai for details. Also, is this galleon / trireme / galley really worth the 2-3 extra axemen / swordsmen / extra worker or half settler? Probably not, and wastes turns time to build not just ressources as in yields, so we are delayed in war plans, tech etc. I believe it is more efficient to do so at least for AIs and in most cases but anyways etc. I didn't test code too much, but based on it semeingly having much less barbarian successful invasions, and on the theory of efficiency behind it as i explained and ideas i got and autoplay results, it seems better for the AI to go slower, even if we lose 1-2 city spots or wonders, the benefits are larger it seems anyways etc. This is a summary i attempted to do of the changes and again didn't test too much so far; while i hope it helps the AI, i am not necessarily too open to feedback, so i would suggest you best share your experience regarding this on a forum, such as CFC forum, i do hope that it helps and is enjoyable to play though but anyways etc. I also hope these changes fix base advciv issue of AI abandonning capital city, sometimes in a way that ruins the entire game, just to attack 1 unit. I didn't test it, but i hope with these unitais that now exclude colalteral, pillage, etc, units would be more efficient in not doing so, and better guard cities, as well as be, when on offense mode, more focused on their goal, at least in theory, but many other parts of the code could interfere or i could have gotten the logic wrong somehow. It seems to be applied quite well in few autoplays i quickly glanced at skimmed through i may say, hopefully helpful and making AI stronger and more capable as a result but test to be sure anyways etc.
+-- to avoid or reduce fake/suicidal AI war declarations, reduce iPower for some units anyways etc if i am not mistaken anyways etc, like and in particular naval units as warfare happens mostly on land and even if AI has 10 frigates, it will not win against 2 crossbows or even warriors for example if i am not mistaken anyways etc; also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them, see also [CIV4UnitInf_os_UnitAI_and_notes.txt](/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt) for details anyways etc
++- to avoid or reduce fake/suicidal AI war declarations, reduce iPower for some units anyways etc if i am not mistaken anyways etc, like and in particular naval units as warfare happens mostly on land and even if AI has 10 frigates, it will not win against 2 crossbows or even warriors for example if i am not mistaken anyways etc; also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them, see also [Long_Comments/Long_Comments_XML.txt](/Long_Comments/Long_Comments_XML.txt) (search for `UnitAI notes (Units XML)`) for details anyways etc
+ - reduce the flavor_military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least if i am not mistaken anyways etc, see xml for details anyways etc)) so that hopefully more varied types or/and there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones if i am not mistaken in my understanding +/- guess anyways etc, both for defense but more importantly for offense if i am not mistaken and from asking chatgpt too with web search anyways etc.
+ - to compensate this reduction of flavor, also make barracks more valued by AI in all circumstances, if i am not mistaken anyways etc, also increase `iAIWeight` so that AIs in particular don't do too premature rushes and start building units unit they have barracks ideally so that these units are upgraded units in experience ideally, by also asking chatgpt with web search and such kujira (see useful links or somewhere in readme that mentions kujira anyways etc for details) example to be sure anyways etc, and also by seeing what FFH2 mod does (it uses a value of 40 for example anyways etc) as of now from 0 to 70 (as of now 75 for the zulu bararcks due to extra gold effect, see xml for updated values or and details anyways etc), so all AI leaders (except barbarian as it just needs more units more efficient for it i think anyways etc) prioritize building barracks more, hopefully not too high so that versatility and other alternative efficient or quite efficient strategies could be explored as well, if i am not mistaken, hopefully AI would plan more and execute better their rushes with stronger in experience if i may say anyways etc units even if these rushes are slightly delayed as a result if i am not mistaken anyways etc
+ - stables buildings: similar reasoning and balance changes, as of now `iAIWeight` from 0 to 75, see xml or and docs or/and other relevant info in our mod or outside of it maybe if helps and if i am not mistaken too i mean but anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index aa0357808..eaf6d66b1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -320,7 +320,7 @@ Be careful of having too long XML code comments, they (seem to indeed but anyway
+ 
+ Something to keep in mind perhaps if i may say i mean anyways while doing XML code comments, that if they have to be long, move them outside of the XML tree entirely maybe, or at least outside the nested ones maybe, tweak this advice or opinion or feel or not feel or yes feel but maybe rather too view/thought as you see fit and/or want or not, hopefully helpful or not or and other or and not but in all cases maybe or not or yes anyways etc anyways etc anyways etc.
+ 
+-More details here too anyways etc in anyways etc anyways etc anyways etc: [AudioDefines-nested-comments-out-of-xml-file-to-avoid-crash.txt](/Assets/XML/Audio/AudioDefines-nested-comments-out-of-xml-file-to-avoid-crash.txt)
++More details here too anyways etc in anyways etc anyways etc anyways etc: [Long_Comments/Long_Comments_XML.txt](/Long_Comments/Long_Comments_XML.txt) (search for `AudioDefines nested-comments crash notes`)
+ 
+ ## 7 - Screenshots on multi screen display (if playing civ4 with "windowed" and not fullscreen if i am not mistaken as well anyways etc) don't work if not taken in primary screen
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 4eb387ff6..f0c0014c7 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -247,7 +247,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - Avoid **settlers at critical war timings**: bias `AI_bestUnit` away from settlers when war is likely; prepare for war instead. Related: settler is a **national unit (1 max)**. See **[KI#36](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#36---attemptingly-fixed-or-addressed-ai-building-settlers-at-critical-time-when-war-is-likely-instead-of-preparing-for-war-very-bad-as-the-few-more-units-with-the-hammer-saved-could-make-us-gain-or-not-lose-the-war-while-the-extra-city-makes-all-our-empire-thinner-and-our-units-split-on-top-of-having-less-units-overall-as-well-anyways-etc)** and **[Civilian Units](#civilian-units)**.
+ - Disable unreliable **UnitAIs** for AIs: `UNITAI_COLLATERAL`, `UNITAI_PILLAGE` (but despite that, AI still seems to occasionally pillage), `UNITAI_PIRATE_SEA` to reduce suicides/baiting and keep stacks focused.
+ - Retune UnitAI **selection/weights** in `AI_bestUnit`, `AI_bestUnitAI`, `AI_chooseProduction`: land maps emphasize `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` (with some `UNITAI_RESERVE`); defense mode emphasizes `UNITAI_CITY_DEFENSE` / `UNITAI_CITY_SPECIAL` / `UNITAI_RESERVE`; naval UnitAIs are downweighted on land-focused maps. Goal: fewer wandering/baited units; more decisive stacks.
+-- Rebalance perceived **iPower**: downweight some naval units; adjust certain land units (e.g., warrior, animals) to reduce **fake power** that triggers bad wars. See `/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt`.
++- Rebalance perceived **iPower**: downweight some naval units; adjust certain land units (e.g., warrior, animals) to reduce **fake power** that triggers bad wars. See [Long_Comments/Long_Comments_XML.txt](/Long_Comments/Long_Comments_XML.txt) (search for `UnitAI notes (Units XML)`).
+ - **Barracks**: lower `FLAVOR_MILITARY` (e.g., 10 → 6 for the generic barracks) so non-militaristic leaders don’t overbuild it; increase `iAIWeight` substantially (e.g., 0 → 70; 75 for Zulu barracks) so when built, it’s for solid ROI (earlier experienced troops). Rationale drawn partly from FFH2’s use of 40 as a baseline.
+ - **Stables**: similarly increase `iAIWeight` (e.g., 0 → 75) so they’re pursued when relevant.
+ - XML **DefaultUnitAI / UnitAIs / NotUnitAIs**: align roles with efficiency (e.g., swordsmen primarily offensive even if versatile; longbows defensive unless explicitly set otherwise).
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=12 omittedFiles=1 embeddedPatchBytes=167806

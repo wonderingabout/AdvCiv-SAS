@@ -1,0 +1,146 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4690
+# Commit: 7ae0669ba4f06433fc9dd4652c59f88d0a98dfce
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c740bcfb1f13b25c7af59cad1f490e133777d883
+# Title: rename "BtS Concepts (Outdated)" to "Concepts (Outdated)", reduce iThresh from 23 to 19 a lot more room now, and maybe clearer too or more efficient naming o...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	7	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+5	5	Assets/XML/BasicInfos/CIV4BasicInfos.xml
+1	1	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+1	0	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+9	2	Assets/XML/Text/CIV4GameText_advc_hints.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 01b5db7af..f59972935 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -480,17 +480,18 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			szHeading = category[1]
+ 			# For English, 16 happens to be OK.
+ 			# <!-- custom: allow room to fit more characters; our
+-			# text "Bts Concepts (Outdated)" doesn't fit if this
+-			# is less than 23.
+-			# Not increasing to 24 to accomodate 23 for other
++			# text "Concepts (Outdated)" doesn't fit otherwise.
++			#
++			# Not increasing to further to accomodate the -1 for other
+ 			# languages, as they are unlikely to use such long
+-			# texts anyway, saving the one extra iThresh instead,
+-			# was 16
++			# texts anyway, and i really need or/and want the extra
++			# space (that is not so useful in categories headers
++			# i think, but anyways), was 16
+ 			# --> 
+-			iThresh = 23
++			iThresh = 19
+ 			if gc.getGame().getCurrentLanguage() != 0:
+ 				# <!-- custom: was 15 -->
+-				iThresh = 23
++				iThresh = 19
+ 			if len(szHeading) <= iThresh:
+ 				szHeading = graphic + szHeading # </advc.002b>
+ 			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MAIN + i + 1, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/XML/BasicInfos/CIV4BasicInfos.xml b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+index 05a782647..ad844d703 100644
+--- a/Assets/XML/BasicInfos/CIV4BasicInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+@@ -9,10 +9,10 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
+ then modified to:
+ 
+ My goals doing this are:
+-- rename "BtS Concepts" to "Mods Info"
+-- rename "Game Concepts" to "BtS Concepts (Outdated)"
++- rename "Concepts" to "Mods Info"
++- rename "Game Concepts" to "Concepts (Outdated)"
+ - move all entries that are in "Mods Info (Outdated)"
+-(except BtS rules changes) to "BtS Concepts (Outdated)"
++(except BtS rules changes) to "Concepts (Outdated)"
+ 
+ Purpose:
+ - gather all Civ4 old data together (vanilla + BTS)
+@@ -150,12 +150,12 @@ now.
+ 
+ 		<!-- custom: these old vanilla civ4 concepts (if i am not mistaken)
+ 		were already in BasicInfos.XML, and are now (in the Sevopedia) instead,
+-		displayed alongside the BTS concepts (almost all, except BTS rules
++		displayed alongside the Concepts (almost all, except BTS rules
+ 		changes).
+ 		I think the game and the BTS expansion is old enough to consider
+ 		them the same game, so merging these together for a clear view,
+ 		and to highlight they are outdated in the new TXT KEY of the
+-		sevopedia category "BTS Concepts " -->
++		sevopedia category "Concepts " -->
+ 		<ConceptInfo>
+ 			<Type>CONCEPT_ANIMALS</Type>
+ 			<Description>TXT_KEY_CONCEPT_ANIMALS</Description>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index b610db9ff..b8ad64d39 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -60,7 +60,7 @@
+ 	-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
+-		<English>Bts Concepts (Outdated)</English>
++		<English>Concepts (Outdated)</English>
+ 	</TEXT>
+ 	<!-- custom: was "BtS Concepts", see code comments in
+ 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index 04d043f08..c68254430 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -79,6 +79,7 @@
+ 		 (en. BTS Concepts, fr. Conceptes BTS, dt. Beyond the Sword-Konzepte,
+ 		 it. Concetti di BTS, es. Conceptos BtS)
+ 		 because I'm replacing this key in CIV4GameText_advc_pedia.xml. -->
++
+ 	<!-- custom: rename "Unique Buildings" to "Civilization Buildings",
+ 	hopefully clearer -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index c92f692c7..f565862cf 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -405,12 +405,19 @@
+ 	<Spanish>Debes ser prudente y guardar algunas reservas de oro en tu tesoro. Nunca se sabe cu�ndo tus ahorros pueden servir para mitigar los efectos de un suceso desastroso o para darte acceso a oportunidades adicionales cuando se produzca un suceso positivo.</Spanish>
+ </TEXT>
+ 
+-<!-- advc.008c, advc.002g: It's good to point out the BtS Concepts page, but
++<!-- custom: is now named "Concepts (Outdated)", find it quite pleasant
++that we (both) agree that it's no longer novel, hence the "Outdated"
++i added on it (and less strain to maintain it (will not all, but keep
++if data is valuable somehow, while also though again anyways clearly
++indicating it is outdated and to view it with caution or/and with
++that in mind, at least in the header category text of the sevopedia,
++anyways)) -->
++<!-- advc.008c, advc.002g: It's good to point out the Concepts page, but
+ 	 since it's no longer a novelty, the players don't need to "be sure to
+ 	 check" it out. -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_59</Tag>
+-	<English>The "BtS Concepts" page in the Sevopedia summarizes the changes introduced by the "Beyond the Sword" expansion.</English>
++	<English>The "Concepts (Outdated)" page in the Sevopedia summarizes the changes introduced by the "Beyond the Sword" expansion.</English>
+ 	<French>Pensez &#224; lire la page "Concepts de BtS" dans la Civilop&#233;die pour conna&#238;tre toutes les modifications apport&#233;es par cette extension.</French>
+ 	<German>Die Seite "BtS-Konzepte" in der Zivilop&#228;die fasst die &#196;nderungen der "Beyond the Sword"-Erweiterung zusammen.</German>
+ 	<Italian>Consulta la pagina "Nozioni di BtS" nella Sevopedia per leggere tutte le modifiche effettuate in questa espansione.</Italian>
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6091

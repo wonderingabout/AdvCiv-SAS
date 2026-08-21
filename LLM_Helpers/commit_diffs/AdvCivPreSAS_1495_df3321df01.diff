@@ -1,0 +1,72 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1495
+# Commit: df3321df0162481b0d597f5fdec62f515a1cc8b6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 59ebdf364a094e427882b5c1d39534f8114b4699
+# Title: Bugfixes for mod-mods: negative city defense modifiers, early projects
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/Python/Screens/CvInfoScreen.py
+13	7	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 20b34f17c..f9c041e0d 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -2740,7 +2740,8 @@ class CvInfoScreen:
+ 								if (iTeamLoop == self.iActiveTeam or self.pActiveTeam.isHasMet(iTeamLoop)):
+ 									self.aaWondersBuilt_BUG.append([-9999,iProjectLoop,True,gc.getPlayer(iPlayerLoop).getCivilizationShortDescription(0),None, iPlayerLoop])
+ 								else:
+-									self.aaWondersBuilt_BUG.append([-9999,iProjectLoop,False,localText.getText("TXT_KEY_UNKNOWN", ()),None, 9999])
++									# advc.001: Last param was 9999
++									self.aaWondersBuilt_BUG.append([-9999,iProjectLoop,False,localText.getText("TXT_KEY_UNKNOWN", ()), None, gc.getBARBARIAN_PLAYER()])
+ 								self.iNumWonders += 1
+ 
+ 		# Sort wonders in order of date built
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 6061149bf..73d3f69e7 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1141,14 +1141,20 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 	{
+ 		iValue  = 128 * (currEffectiveStr(pPlot, ((pPlot == NULL) ? NULL : this)));
+ 		iValue *= (100 + iCollateralDamageValue);
+-		// BETTER_BTS_AI_MOD, General AI, 05/14/10, jdog5000: START
+-		/*original bts code
+-		iValue /= (100 + cityDefenseModifier());
+-		iValue *= (100 + withdrawalProbability());	
+-		iValue /= std::max(1, (1 + m_pUnitInfo->getProductionCost()));
+-		iValue /= (10 + getExperience());*/
+-		iValue /= (100 + cityDefenseModifier());
++	
++		//iValue /= (100 + cityDefenseModifier());
++		/*  <advc.001> The above doesn't handle negative modifiers well
++			(especially not -100 ...). Bug found by keldath. */
++		int iCityDefenseModifier = cityDefenseModifier();
++		if(iCityDefenseModifier < 0) {
++			iCityDefenseModifier = (iCityDefenseModifier * 2) / 5;
++			FAssert(iCityDefenseModifier > -100);
++		}
++		iValue /= std::max(1, 100 + iCityDefenseModifier); // </advc.001>
+ 		iValue *= (100 + withdrawalProbability());
++		// BETTER_BTS_AI_MOD, General AI, 05/14/10, jdog5000: START
++		/*iValue /= std::max(1, (1 + m_pUnitInfo->getProductionCost()));
++		iValue /= (10 + getExperience());*/ // BtS code
+ 		iValue /= 100; // K-Mod
+ 
+ 		// Experience and medics now better handled in LFB
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2330

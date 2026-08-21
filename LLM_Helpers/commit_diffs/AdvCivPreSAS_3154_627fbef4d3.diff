@@ -1,0 +1,117 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3154
+# Commit: 627fbef4d3d10e91173ca186ee9c71cd95fb0cfb
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f3224a8a3245ae097c4317843137f855e9585b27
+# Title: Slightly increase free city culture, culture decay
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	14	Assets/XML/GlobalDefines_advc.xml
+7	3	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 5c1b1a33d..db320c741 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -126,15 +126,6 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- advc: Was 20 in BtS and was unused in K-Mod. The K-Mod formula works
+-		 differently - free culture isn't multiplied by the culture level -,
+-		 but there's still such a thing as free culture, so I'm putting this
+-		 parameter back in use. Set to 4 for K-Mod behavior. -->
+-	<Define> <!-- redefine -->
+-		<DefineName>CITY_FREE_CULTURE_GROWTH_FACTOR</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
+-	</Define>
+-
+     <!-- [advc.100]
+ 		 Only relevant if UWAI disabled (or only in the background).
+ 		 When an AI civ is willing to declare war in exchange for gold or tech,
+@@ -583,22 +574,31 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- [advc.099b]
++	<!-- advc.099b:
+ 	     Each round, the tile culture value of each player (civ and barbarian)
+ 		 is decreased by this permillage. 0 to disable decay.
+ 		 (Will also have to set CITY_RADIUS_DECAY=0 to disable decay in
+ 		 foreign city radii.)
+-		 Recommended: 10 (1% decay). -->
++		 Recommended: 15 (1.5% decay). -->
+ 	<Define>
+ 		<DefineName>TILE_CULTURE_DECAY_PER_MILL</DefineName>
+-		<iDefineIntVal>10</iDefineIntVal>
++		<iDefineIntVal>15</iDefineIntVal>
+ 	</Define>
+ 	<!-- Per-mill decay rate of foreign culture on tiles within a city radius.
+ 		 The value gets doubled for tiles in the inner radius. Set to 0 to have
+-		 foreign culture decay normally. Recommended: 20 -->
++		 foreign culture decay normally. Recommended: 25 -->
+ 	<Define>
+ 		<DefineName>CITY_RADIUS_DECAY</DefineName>
+-		<iDefineIntVal>20</iDefineIntVal>
++		<iDefineIntVal>25</iDefineIntVal>
++	</Define>
++
++	<!-- advc.098: Was 20 in BtS and was unused in K-Mod. The K-Mod formula
++		 works differently - free culture isn't multiplied by the culture level -,
++		 but there's still such a thing as free culture, so I'm putting this
++		 parameter back in use. Recommended: 5; use 4 for K-Mod behavior. -->
++	<Define> <!-- redefine -->
++		<DefineName>CITY_FREE_CULTURE_GROWTH_FACTOR</DefineName>
++		<iDefineIntVal>5</iDefineIntVal>
+ 	</Define>
+ 
+ 	<!-- advc.098: If set to 1, then buildings with a positive
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index dd5530c11..a846b007e 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10320,9 +10320,9 @@ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer,
+ 	if (bCityCulture)
+ 	{
+ 		FAssertMsg(iCultureRateTimes100 >= 0, "dubious");
+-		// <advc> Putting this XML define back to use
++		// <advc.098> Putting this BtS define back to use (with new semantics)
+ 		static int const iCITY_FREE_CULTURE_GROWTH_FACTOR = GC.getDefineINT("CITY_FREE_CULTURE_GROWTH_FACTOR");
+-		iCultureRateTimes100 += iCITY_FREE_CULTURE_GROWTH_FACTOR * 100; // </advc>
++		iCultureRateTimes100 += iCITY_FREE_CULTURE_GROWTH_FACTOR * 100; // </advc.098>
+ 	}
+ 
+ 	if (eCultureLevel == NO_CULTURELEVEL ||
+@@ -10355,12 +10355,16 @@ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer,
+ 		if (iDistance > eCultureLevel && !p.isOwned())
+ 			continue; // </advc.098>
+ 		// BtS formula for culture to add (the 20 was "CITY_FREE_CULTURE_GROWTH_FACTOR"):
+-		//eCultureLevel < iDistance ? 0 : (1 + iCultureRateTimes100/100 + (eCultureLevel - iDistance) * 20;
++		//eCultureLevel < iDistance ? 0 : (iCultureRateTimes100/100 + 1 + (eCultureLevel - iDistance) * 20;
+ 		// K-Mod 1.45 (older K-Mod code deleted):
+ 		//int iCultureToAdd = iCultureRateTimes100*((iScale-1)*(iDistance-iCultureRange)*(iDistance-iCultureRange) + iCultureRange*iCultureRange)/(100*iCultureRange*iCultureRange);
+ 		/*  <advc.001> Secure this against overflow from culture added through WB.
+ 			(K-Mod 1.46 does so too - by using floating-point math.) */
+ 		scaled rDistFactor(SQR(iCultureRange - iDistance), SQR(iCultureRange));
++		/*	Observation (rephrasing a deleted K-Mod comment):
++			If iDistance is 0, then we add the culture rate times iScale.
++			(However, culture distance is always at least 1 - even for the city plot.)
++			If iDistance equals iCultureRange, then we add the culture rate (times 1). */
+ 		scaled rCultureToAdd = per100(iCultureRateTimes100) * (1 + rDistFactor * (iScale - 1));
+ 		// </advc.001>  <advc.025>
+ 		if (p.getTeam() != getTeam() &&
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4426

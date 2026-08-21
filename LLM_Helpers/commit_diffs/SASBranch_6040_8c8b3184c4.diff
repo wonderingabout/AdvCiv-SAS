@@ -1,0 +1,517 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6040
+# Commit: 8c8b3184c49ae3e6b2d4d69585296d3553d73e01
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f82aaa544451d38e1bbc77e29267a8f72e17e2d6
+# Title: (Fixed/Improved) Base AdvCiv issue: post-capital AI Settlers could ignore promising fogged nearby city-site alternatives and then follow stale cached targets...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+24	6	Assets/XML/GlobalDefines_advciv_sas.xml
+9	9	CvGameCoreDLL/BBAILog.cpp
+2	2	CvGameCoreDLL/BBAILog.h
+17	5	CvGameCoreDLL/CitySiteEvaluator.cpp
+2	0	CvGameCoreDLL/CitySiteEvaluator.h
+116	0	CvGameCoreDLL/CvUnitAI.cpp
+1	1	README.md
+59	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 4c964bd5c..39cab427c 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1240,6 +1240,24 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_SETTLER_FOUND_IN_PLACE_BETTER_SITE_MIN_PERCENT_DIFF</DefineName>
+ 		<iDefineIntVal>8</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Post-capital Settlers can be one tile from a promising alternative that currently scores slightly lower only because more of its BFC is still fogged. Instead of founding the barely-higher known site immediately, optionally spend a small extra move as exploration, then let normal city-site scoring recalculate next turn. Set the unrevealed advantage to 0 to disable. See KI#185. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_UNREVEALED_ADVANTAGE</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_REVEALED_BFC</DefineName>
++		<iDefineIntVal>12</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_AVERAGE_VALUE_PERCENT</DefineName>
++		<iDefineIntVal>105</iDefineIntVal>
++	</Define>
++	<!-- custom: Maximum extra path turns allowed for this post-capital Settler scouting detour compared with the current selected found target. Default 3 is intentionally local but not one-tile-only: save-file 450 testing preserved the corrected uMgungundlovu (17,40) choice, did not create obvious Settler parking by turn 101, and still requires the other promising-site gates above, so ordinary city founding should not turn into broad wandering. See KI#185. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS</DefineName>
++		<iDefineIntVal>3</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Optional AI production floor for trained early/midgame Settlers. Weak Settlers are costly while empires are still small because they pause growth/production, tie up escorts, raise maintenance, and can weaken military tempo before the new city repays the investment. If only poor sites remain, a compact AI may be better off growing, defending, or attacking than forcing a far, slow filler city.
+ 	Later empires have more cities, production, trade/building/bonus support, and can better absorb added maintenance or slow growth; lower-value filler/resource/denial/colony cities can therefore become worthwhile again, so this floor can stop applying by era. This is an AI build-choice gate only, not a canTrain rule: existing Settlers, humans, scripts, and late opportunistic settling remain legal. Set value to 0 to defer to normal AdvCiv minimum found-value logic. (ChatGPT-5.5) -->
+ 	<Define>
+@@ -1376,11 +1394,16 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_GREAT_GENERAL_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Dedicated Settler-unit diagnostics, separated from UNIT so Settlers and other units can be inspected independently. This covers city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; FOUND separately controls detailed city-site scoring calculations. Level 2 logs compact parking/security decisions, and level 3 adds city unit-list detail for escort-diversion analysis. (GPT-5.5 + ChatGPT-5.5) -->
++	<!-- custom: Dedicated Settler-unit diagnostics, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, parking reasons, danger context, and city escort pools; FOUND separately controls detailed city-site scoring calculations. Level 2 notably logs compact parking/security decisions, and level 3 notably adds city unit-list detail for escort-diversion analysis. (GPT-5.5 + ChatGPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_SETTLER_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Base AdvCiv LOG_FOUND_VALUE default: when enabled: 1; when disabled: 0. (GPT-5.5?) -->
++	<Define>
++		<DefineName>SAS_BBAI_FOUND_LOG_LEVEL</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Dedicated evacuation/retreat diagnostics, separated from CITY and UNIT so city-side evacuation decisions and affected units can be inspected together without broad logging. This notably covers doomed cities, workers, and naval units. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_EVACUATION_LOG_LEVEL</DefineName>
+@@ -1396,11 +1419,6 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_WORKER_SEA_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Base AdvCiv LOG_FOUND_VALUE default: when enabled: 1; when disabled: 0. (GPT-5.5?) -->
+-	<Define>
+-		<DefineName>SAS_BBAI_FOUND_LOG_LEVEL</DefineName>
+-		<iDefineIntVal>0</iDefineIntVal>
+-	</Define>
+ 	<!-- custom: Base AdvCiv LOG_AI default: when enabled: 3; LOG_FOUND_VALUE changed this to 1 for starting site normalization context (advc.031c); when disabled: 0. (GPT-5.5?) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_MAP_LOG_LEVEL</DefineName>
+
+diff --git a/CvGameCoreDLL/BBAILog.cpp b/CvGameCoreDLL/BBAILog.cpp
+index 789dde3f3..637d35d3a 100644
+--- a/CvGameCoreDLL/BBAILog.cpp
++++ b/CvGameCoreDLL/BBAILog.cpp
+@@ -22,7 +22,7 @@ static int getClampedSASBBAILogLevel(char const* szDefineName)
+ // <!-- custom: Cache each effective XML-backed BBAI diagnostic log setting on first use for cheap hot-path checks. Game-summary run reports are handled independently in SASGameSummaryLog.cpp. (GPT-5.5? + GPT-5.5) -->
+ bool isSASBBAILogEnabled()
+ {
+-	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAIWarLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIGreatGeneralLogLevel() > 0 || getSASBBAISettlerLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
++	static const bool bEnabled = (isSASBBAILogMasterEnabled() && (getSASBBAIPlayerLogLevel() > 0 || getSASBBAITeamLogLevel() > 0 || getSASBBAIWarLogLevel() > 0 || getSASBBAICityLogLevel() > 0 || getSASBBAICitizenLogLevel() > 0 || getSASBBAIUnitLogLevel() > 0 || getSASBBAIGreatGeneralLogLevel() > 0 || getSASBBAISettlerLogLevel() > 0 || getSASBBAIFoundLogLevel() > 0 || getSASBBAIEvacuationLogLevel() > 0 || getSASBBAIWorkerLogLevel() > 0 || getSASBBAIWorkerSeaLogLevel() > 0 || getSASBBAIMapLogLevel() > 0 || getSASBBAIDealCancelLogLevel() > 0 || getSASBBAICultureLogLevel() > 0));
+ 	return bEnabled;
+ }
+ 
+@@ -84,6 +84,12 @@ int getSASBBAISettlerLogLevel()
+ 	return iLevel;
+ }
+ 
++int getSASBBAIFoundLogLevel()
++{
++	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_FOUND_LOG_LEVEL") : 0);
++	return iLevel;
++}
++
+ // <!-- custom: Separate evacuation/retreat diagnostics, notably for doomed cities, workers, and naval units. (GPT-5.5) -->
+ int getSASBBAIEvacuationLogLevel()
+ {
+@@ -111,12 +117,6 @@ int getSASBBAIMapLogLevel()
+ 	return iLevel;
+ }
+ 
+-int getSASBBAIFoundLogLevel()
+-{
+-	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_FOUND_LOG_LEVEL") : 0);
+-	return iLevel;
+-}
+-
+ int getSASBBAIDealCancelLogLevel()
+ {
+ 	static const int iLevel = (isSASBBAILogMasterEnabled() ? getClampedSASBBAILogLevel("SAS_BBAI_DEAL_CANCEL_LOG_LEVEL") : 0);
+@@ -250,8 +250,8 @@ static void logSASBBAIGameState(const char* szRowType)
+ // <!-- custom: Record the effective BBAI diagnostic profile in each new/load file so test runs with different category levels are not compared as if they contained the same diagnostics. (GPT-5.5) -->
+ static void logSASBBAILogSettings()
+ {
+-	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_WAR_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
+-			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAIWarLogLevel(), getSASBBAICityLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIGreatGeneralLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
++	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_WAR_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
++			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAIWarLogLevel(), getSASBBAICityLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIGreatGeneralLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
+ }
+ 
+ // <!-- custom: Roll over before new-game initialization can emit map-generation or starting-position diagnostics. The complete metadata is logged later from CvEventReporter::gameStart, once the generated game state exists. (GPT-5.5) -->
+
+diff --git a/CvGameCoreDLL/BBAILog.h b/CvGameCoreDLL/BBAILog.h
+index f2369ce89..bd438faec 100644
+--- a/CvGameCoreDLL/BBAILog.h
++++ b/CvGameCoreDLL/BBAILog.h
+@@ -23,11 +23,11 @@ int getSASBBAICitizenLogLevel();
+ int getSASBBAIUnitLogLevel();
+ int getSASBBAIGreatGeneralLogLevel();
+ int getSASBBAISettlerLogLevel();
++int getSASBBAIFoundLogLevel();
+ int getSASBBAIEvacuationLogLevel();
+ int getSASBBAIWorkerLogLevel();
+ int getSASBBAIWorkerSeaLogLevel();
+ int getSASBBAIMapLogLevel();
+-int getSASBBAIFoundLogLevel();
+ int getSASBBAIDealCancelLogLevel();
+ int getSASBBAICultureLogLevel();
+ int getSASBBAIScoreLogInterval();
+@@ -45,11 +45,11 @@ void startSASBBAILogForLoadedSave(); // <!-- custom: Roll and identify a loaded
+ #define gUnitLogLevel getSASBBAIUnitLogLevel()
+ #define gGreatGeneralLogLevel getSASBBAIGreatGeneralLogLevel() // <!-- custom: Separate Great General action, Military Instructor, and Warlord attachment diagnostics from general UNIT logging. (GPT-5.5) -->
+ #define gSettlerLogLevel getSASBBAISettlerLogLevel() // <!-- custom: Separate Settler diagnostics from general UNIT logging so each can be inspected independently. (GPT-5.5) -->
++#define gFoundLogLevel getSASBBAIFoundLogLevel() // advc.031c
+ #define gEvacuationLogLevel getSASBBAIEvacuationLogLevel() // <!-- custom: Separate evacuation/retreat diagnostics from general CITY and UNIT logging. (GPT-5.5) -->
+ #define gWorkerLogLevel getSASBBAIWorkerLogLevel() // <!-- custom: Separate land-Worker diagnostics from general UNIT logging. (ChatGPT-5.5 + GPT-5.5 review) -->
+ #define gWorkerSeaLogLevel getSASBBAIWorkerSeaLogLevel() // <!-- custom: Separate Work Boat / WORKER_SEA diagnostics from general UNIT and land-Worker logging. (ChatGPT-5.5 + GPT-5.5 review) -->
+ #define gMapLogLevel getSASBBAIMapLogLevel() // K-Mod
+-#define gFoundLogLevel getSASBBAIFoundLogLevel() // advc.031c
+ #define gDealCancelLogLevel getSASBBAIDealCancelLogLevel() // advc.133
+ #define gCultureLogLevel getSASBBAICultureLogLevel() // <!-- custom: Separate culture-victory diagnostics from general PLAYER and CITY logging. (ChatGPT-5.5) -->
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 559b75b52..c58c52efe 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -262,12 +262,17 @@ int CitySiteEvaluator::evaluateWithLogging(CvPlot const& kPlot) const
+ }
+ 
+ 
+-void CitySiteEvaluator::log(CvPlot const& kPlot)
++// <!-- custom: Selected-site breakdown was already compact, but save-file 450's uMgungundlovu regression needed the same compact row for adjacent/next alternatives too; otherwise the relevant 18,40 vs 17,40 delta was buried in verbose per-plot logs. (GPT-5.5) -->
++void CitySiteEvaluator::logComparedSiteBreakdown(char const* szLabel, CvPlot const& kPlot) const
+ {
+-	// <!-- custom: callers normally check gFoundLogLevel already; keep this guard so this entry point stays cheap if reached directly. (ChatGPT 5.5) -->
+-	if (gFoundLogLevel <= 0)
+-		return;
++	CvString szBreakdown;
++	int const iBreakdownValue = evaluateWithBreakdown(kPlot, szBreakdown);
++	logBBAI("%s breakdown value=%d %s", szLabel, iBreakdownValue, szBreakdown.GetCString());
++}
+ 
++
++void CitySiteEvaluator::log(CvPlot const& kPlot)
++{
+ 	/*  Important to ignore other city sites. Because, when CvPlayerAI::
+ 		AI_updateCitySites computes the found value of the best site,
+ 		none of the other sites are chosen yet. Here, all sites are chosen. */
+@@ -284,6 +289,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
+ 	}
+ 	// <!-- custom: Log the selected site's final value beside adjacent/next alternatives; the verbose component dump alone made save file 450's 18,40 vs 17,40 comparison unnecessarily hard to verify. (GPT-5.5) -->
+ 	int const iCurrentValue = evaluateWithLogging(kPlot);
++	bool const bLogComparedSiteBreakdown = (gFoundLogLevel >= 2);
+ 	if (gFoundLogLevel >= 2)
+ 	{
+ 		CvString szCurrentBreakdown;
+@@ -320,6 +326,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
+ 			int iAdjY = pBestAdjSite->getY();
+ 			logBBAI("\nBest Barbarian site adjacent to (%d,%d): selected=%d adjacent=%d delta=%+d (%d,%d) water=%d visibleToCivTeam=%d spawnEligible=%d", kPlot.getX(), kPlot.getY(), iCurrentValue, iBestAdj, iBestAdj - iCurrentValue, iAdjX, iAdjY, pBestAdjSite->isWater(), pBestAdjSite->isVisibleToCivTeam(), !pBestAdjSite->isWater() && !pBestAdjSite->isVisibleToCivTeam());
+ 			evaluateWithLogging(*pBestAdjSite);
++			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best adjacent Barbarian site", *pBestAdjSite);
+ 		}
+ 		if (pBestEligibleAdjSite != NULL && pBestEligibleAdjSite != pBestAdjSite)
+ 		{
+@@ -327,6 +334,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
+ 			int iAdjY = pBestEligibleAdjSite->getY();
+ 			logBBAI("\nBest spawn-eligible Barbarian site adjacent to (%d,%d): selected=%d adjacent=%d delta=%+d (%d,%d)", kPlot.getX(), kPlot.getY(), iCurrentValue, iBestEligibleAdj, iBestEligibleAdj - iCurrentValue, iAdjX, iAdjY);
+ 			evaluateWithLogging(*pBestEligibleAdjSite);
++			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best spawn-eligible adjacent Barbarian site", *pBestEligibleAdjSite);
+ 		}
+ 		CvPlot const* pBestRange2Site = NULL;
+ 		CvPlot const* pBestEligibleRange2Site = NULL;
+@@ -358,6 +366,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
+ 			int iRangeY = pBestRange2Site->getY();
+ 			logBBAI("\nBest Barbarian site at distance 2 from (%d,%d): selected=%d range2=%d delta=%+d (%d,%d) water=%d visibleToCivTeam=%d spawnEligible=%d", kPlot.getX(), kPlot.getY(), iCurrentValue, iBestRange2, iBestRange2 - iCurrentValue, iRangeX, iRangeY, pBestRange2Site->isWater(), pBestRange2Site->isVisibleToCivTeam(), !pBestRange2Site->isWater() && !pBestRange2Site->isVisibleToCivTeam());
+ 			evaluateWithLogging(*pBestRange2Site);
++			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best distance-2 Barbarian site", *pBestRange2Site);
+ 		}
+ 		if (pBestEligibleRange2Site != NULL && pBestEligibleRange2Site != pBestRange2Site)
+ 		{
+@@ -365,6 +374,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
+ 			int iRangeY = pBestEligibleRange2Site->getY();
+ 			logBBAI("\nBest spawn-eligible Barbarian site at distance 2 from (%d,%d): selected=%d range2=%d delta=%+d (%d,%d)", kPlot.getX(), kPlot.getY(), iCurrentValue, iBestEligibleRange2, iBestEligibleRange2 - iCurrentValue, iRangeX, iRangeY);
+ 			evaluateWithLogging(*pBestEligibleRange2Site);
++			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best spawn-eligible distance-2 Barbarian site", *pBestEligibleRange2Site);
+ 		}
+ 		return;
+ 	}
+@@ -389,6 +399,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
+ 			int iNextY = pNextBestSite->getY();
+ 			logBBAI("\nNext best site compared with selected (%d,%d): selected=%d next=%d delta=%+d (%d,%d)", kPlot.getX(), kPlot.getY(), iCurrentValue, iBest, iBest - iCurrentValue, iNextX, iNextY);
+ 			evaluateWithLogging(*pNextBestSite);
++			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Next best site", *pNextBestSite);
+ 		}
+ 	}
+ 	{
+@@ -409,6 +420,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
+ 			int iAdjY = pBestAdjSite->getY();
+ 			logBBAI("\nBest site adjacent to (%d,%d): selected=%d adjacent=%d delta=%+d (%d,%d)", kPlot.getX(), kPlot.getY(), iCurrentValue, iBest, iBest - iCurrentValue, iAdjX, iAdjY);
+ 			evaluateWithLogging(*pBestAdjSite);
++			if (bLogComparedSiteBreakdown) logComparedSiteBreakdown("Best adjacent site", *pBestAdjSite);
+ 		}
+ 	}
+ }
+@@ -1660,7 +1672,7 @@ int AIFoundValue::evaluate()
+ 	{
+ 		const int iBreakdownDirectOther = iBreakdownDirect - iBreakdownHomeWater - iBreakdownRiverBFC;
+ 		const int iBreakdownModifiers = iValue - iBreakdownPreModifiers;
+-		*m_pszBreakdown = CvString::format("base=%d directOther=%d homeWater=%d riverBFC=%d plots=%d resources=%d(nonYield=%d,bonusImprovementYields=%d) health=%d featureProduction=%d sea=%d lowFood=%d veryBad=%d preModifiers=%d modifiers=%d(nothingSpecial=%d,homeResource=%d,landBoundary=%d,startingSurroundings=%d,distanceCulture=%d,citiesPerArea=%d,bonusCount=%d,badHealth=%d,goodies=%d,navalHeavy=%d) final=%d",
++		*m_pszBreakdown = CvString::format("base=%d directOther=%d homeWater=%d riverBFC=%d plots=%d bonuses=%d(nonYield=%d,bonusImprovementYields=%d) health=%d featureProduction=%d sea=%d lowFood=%d veryBad=%d preModifiers=%d modifiers=%d(nothingSpecial=%d,homeResource=%d,landBoundary=%d,startingSurroundings=%d,distanceCulture=%d,citiesPerArea=%d,bonusCount=%d,badHealth=%d,goodies=%d,navalHeavy=%d) final=%d",
+ 				iBreakdownBase, iBreakdownDirectOther, iBreakdownHomeWater, iBreakdownRiverBFC, iBreakdownPlots, iBreakdownResourcesAdded, iBreakdownNonYieldResources, iBreakdownBonusImprovementYields, iBreakdownHealth, iBreakdownFeatureProduction, iBreakdownSea, iBreakdownLowFood, iBreakdownVeryBad, iBreakdownPreModifiers, iBreakdownModifiers, iBreakdownNothingSpecial, iBreakdownHomeResource, iBreakdownLandBoundary, iBreakdownStartingSurroundings, iBreakdownDistanceCulture, iBreakdownCitiesPerArea, iBreakdownBonusCount, iBreakdownBadHealth, iBreakdownGoodies, iBreakdownNavalHeavy, iValue);
+ 	}
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.h b/CvGameCoreDLL/CitySiteEvaluator.h
+index a756fd1ac..4b6f018ca 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.h
++++ b/CvGameCoreDLL/CitySiteEvaluator.h
+@@ -68,6 +68,8 @@ public:
+ 	bool isExpansive() const { return m_bExpansive; }
+ 	// <advc.031c>
+ 	void log(CvPlot const& kPlot);
++	// <!-- custom: Detailed found-value breakdown for comparison sites logged next to a selected site, e.g. adjacent/current-site checks that explained and fixed the uMgungundlovu stale-target case in KI#185. (GPT-5.5) -->
++	void logComparedSiteBreakdown(char const* szLabel, CvPlot const& kPlot) const;
+ 	void logSettings() const; // </advc.031c>
+ 
+ private:
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f93c25716..2461e3a19 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -511,6 +511,81 @@ static int SAS_countUnrevealedNonHomeBFCPlots(CvPlot const& kCityPlot, TeamTypes
+ 	return iUnrevealedPlots;
+ }
+ 
++static int SAS_countRevealedNonHomeBFCPlots(CvPlot const& kCityPlot, TeamTypes eTeam)
++{
++	int iRevealedPlots = 0;
++	for (int iCityPlot = 0; iCityPlot < NUM_CITY_PLOTS; ++iCityPlot)
++	{
++		if (iCityPlot == CITY_HOME_PLOT)
++			continue;
++		CvPlot const* pLoopPlot = plotCity(kCityPlot.getX(), kCityPlot.getY(), static_cast<CityPlotTypes>(iCityPlot));
++		if (pLoopPlot != NULL && pLoopPlot->isRevealed(eTeam))
++			++iRevealedPlots;
++	}
++	return iRevealedPlots;
++}
++
++// <!-- custom: Post-capital Settlers normally found the best currently known city site, but save-file 450 showed uMgungundlovu choosing 18,40 over nearby 17,40 because the latter's BFC still hid Rice and other plots.
++// Compare average known value per revealed BFC plot rather than a flat value gap: a nearby site with stronger known average and more fogged plots is plausibly better, so move toward it as exploration rather than as MISSIONAI_FOUND and let next turn recalculate normally instead of auto-founding blindly. See KI#185. (GPT-5.5) -->
++static bool SAS_shouldScoutPromisingFoggedNearbyFoundSite(CvUnitAI& kSettler, MovementFlags eMoveFlags, CvPlot const& kSelectedSite, int iSelectedFoundValue, int iSelectedPathTurns, CvPlot const*& pScoutSite, CvPlot const*& pScoutEndTurnPlot, int& iScoutFoundValue, int& iScoutPathTurns, int& iSelectedRevealedBFC, int& iSelectedUnrevealedBFC, int& iScoutRevealedBFC, int& iScoutUnrevealedBFC)
++{
++	pScoutSite = NULL;
++	pScoutEndTurnPlot = NULL;
++	iScoutFoundValue = 0;
++	iScoutPathTurns = -1;
++	iSelectedRevealedBFC = SAS_countRevealedNonHomeBFCPlots(kSelectedSite, kSettler.getTeam());
++	iSelectedUnrevealedBFC = SAS_countUnrevealedNonHomeBFCPlots(kSelectedSite, kSettler.getTeam());
++	iScoutRevealedBFC = 0;
++	iScoutUnrevealedBFC = 0;
++	static const int iMinUnrevealedAdvantage = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_UNREVEALED_ADVANTAGE");
++	if (iMinUnrevealedAdvantage <= 0 || iSelectedFoundValue <= 0)
++		return false;
++	static const int iMinRevealedBFC = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_REVEALED_BFC");
++	static const int iMinAverageValuePercent = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_AVERAGE_VALUE_PERCENT");
++	static const int iMaxExtraPathTurns = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS");
++	if (iSelectedRevealedBFC < iMinRevealedBFC)
++		return false;
++	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
++	// <!-- custom: Adjacent promising-fog candidates can have cached getFoundValue=0 when they are not in the current city-site list, which hid 17,40 in save file 450. Evaluate them directly so this scout check compares real site values. See KI#185. (GPT-5.5) -->
++	CitySiteEvaluator kEvaluator(kOwner);
++	// <!-- custom: Treat adjacent promising-fog candidates as replacements for the selected site, not as extra tentative sites next to it; otherwise overlap with the selected 18,40 site makes the 17,40 comparison return 0 while the found-value logger correctly shows it as viable. See KI#185. (GPT-5.5) -->
++	kEvaluator.setDebug(true);
++	FOR_EACH_ADJ_PLOT(kSelectedSite)
++	{
++		if (pAdj == NULL || pAdj == &kSelectedSite)
++			continue;
++		if (!kSettler.canFound(pAdj) || (!pAdj->isArea(kSettler.getArea()) && !kSettler.canMoveAllTerrain()) || kOwner.AI_isAnyPlotTargetMissionAI(*pAdj, MISSIONAI_FOUND, kSettler.getGroup()))
++		{
++			if (gSettlerLogLevel >= 3) logBBAI("    Settler promising-fogged-site reject %d,%d reason=not-foundable-or-targeted", pAdj->getX(), pAdj->getY());
++			continue;
++		}
++		int iPathTurns = -1;
++		if (!kSettler.generatePath(*pAdj, eMoveFlags, true, &iPathTurns) || iPathTurns > iSelectedPathTurns + iMaxExtraPathTurns)
++		{
++			if (gSettlerLogLevel >= 3) logBBAI("    Settler promising-fogged-site reject %d,%d reason=path selectedPathTurns=%d pathTurns=%d maxExtra=%d", pAdj->getX(), pAdj->getY(), iSelectedPathTurns, iPathTurns, iMaxExtraPathTurns);
++			continue;
++		}
++		int const iRevealedBFC = SAS_countRevealedNonHomeBFCPlots(*pAdj, kSettler.getTeam());
++		int const iUnrevealedBFC = SAS_countUnrevealedNonHomeBFCPlots(*pAdj, kSettler.getTeam());
++		int const iFoundValue = kEvaluator.evaluate(*pAdj);
++		if (gSettlerLogLevel >= 3) logBBAI("    Settler promising-fogged-site candidate %d,%d selectedValue=%d value=%d selectedRevealedBFC=%d revealedBFC=%d selectedUnrevealedBFC=%d unrevealedBFC=%d selectedAvgX100=%d avgX100=%d selectedPathTurns=%d pathTurns=%d", pAdj->getX(), pAdj->getY(), iSelectedFoundValue, iFoundValue, iSelectedRevealedBFC, iRevealedBFC, iSelectedUnrevealedBFC, iUnrevealedBFC, (100 * iSelectedFoundValue) / iSelectedRevealedBFC, (iRevealedBFC <= 0 ? 0 : (100 * iFoundValue) / iRevealedBFC), iSelectedPathTurns, iPathTurns);
++		if (iRevealedBFC < iMinRevealedBFC || iUnrevealedBFC < iSelectedUnrevealedBFC + iMinUnrevealedAdvantage)
++			continue;
++		if (100 * iFoundValue * iSelectedRevealedBFC < iMinAverageValuePercent * iSelectedFoundValue * iRevealedBFC)
++			continue;
++		if (pScoutSite == NULL || iFoundValue * iScoutRevealedBFC > iScoutFoundValue * iRevealedBFC || (iFoundValue * iScoutRevealedBFC == iScoutFoundValue * iRevealedBFC && iUnrevealedBFC > iScoutUnrevealedBFC))
++		{
++			pScoutSite = pAdj;
++			pScoutEndTurnPlot = &kSettler.getPathEndTurnPlot();
++			iScoutFoundValue = iFoundValue;
++			iScoutPathTurns = iPathTurns;
++			iScoutRevealedBFC = iRevealedBFC;
++			iScoutUnrevealedBFC = iUnrevealedBFC;
++		}
++	}
++	return pScoutSite != NULL && pScoutEndTurnPlot != NULL;
++}
++
+ // <!-- custom: Choose where a first-city scout should finish by charging each return turn against the site's current found value. Keep this separate from city-site valuation: the same site retains the same strategic value, but a nearly equal nearby capital can be more efficient than several turns of backtracking.
+ // The early deadline can instead protect the best raw-value site, using travel cost only to break exact ties, so wandering cannot progressively replace it with weaker nearby sites.
+ // Include the current plot so a strong site such as Aztec (34,24) in save file 431 is not omitted and abandoned for a weaker return target. Caller guards any logging. (GPT-5.5) -->
+@@ -19227,6 +19302,47 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 	}
+ 	if (pBestPlot == NULL || pBestFoundPlot == NULL)
+ 		return false;
++
++	// <!-- custom: Promising-fog scouting can reveal that the Settler's current plot is now better than the cached target, as in save file 450 where the group reached 17,40 and revealed it as better than stale 18,40.
++	// Evaluate the current plot as a replacement site before moving away, otherwise the Settler can scout correctly and still found the old weaker target. See KI#185. (GPT-5.5) -->
++	if (!at(*pBestFoundPlot) && canFound(plot()) && !kOwner.AI_isAnyPlotTargetMissionAI(getPlot(), MISSIONAI_FOUND, getGroup()))
++	{
++		CitySiteEvaluator kCurrentPlotEvaluator(kOwner);
++		kCurrentPlotEvaluator.setDebug(true);
++		int const iCurrentFoundValue = kCurrentPlotEvaluator.evaluate(getPlot());
++		int const iSelectedFoundValue = pBestFoundPlot->getFoundValue(getOwner());
++		if (iCurrentFoundValue > iSelectedFoundValue)
++		{
++			if (gSettlerLogLevel >= 2) SAS_logSettlerMissionDecision("FOUND_CURRENT_SITE_BETTER_THAN_SELECTED_TARGET", *this, &getPlot(), &getPlot(), iCurrentFoundValue, 0, "CURRENT_SITE_NOW_BETTER");
++			pBestPlot = &getPlot();
++			pBestFoundPlot = &getPlot();
++			iBestPathTurns = 0;
++		}
++	}
++
++	// <!-- custom: After choosing the best currently known target, allow a short MISSIONAI_EXPLORE detour to a nearby fogged alternative that has stronger known average value but lower total value only because fewer BFC plots are revealed.
++	// This keeps normal post-capital founding decisive while fixing the save-file 450 uMgungundlovu case where 17,40 needed one more local scout before outranking stale 18,40. See KI#185. (GPT-5.5) -->
++	CvPlot const* pFogScoutSite = NULL;
++	CvPlot const* pFogScoutEndTurnPlot = NULL;
++	int iFogScoutFoundValue = 0;
++	int iFogScoutPathTurns = -1;
++	int iSelectedRevealedBFC = 0;
++	int iSelectedUnrevealedBFC = 0;
++	int iFogScoutRevealedBFC = 0;
++	int iFogScoutUnrevealedBFC = 0;
++	if (SAS_shouldScoutPromisingFoggedNearbyFoundSite(*this, eFlags, *pBestFoundPlot, pBestFoundPlot->getFoundValue(getOwner()), iBestPathTurns, pFogScoutSite, pFogScoutEndTurnPlot, iFogScoutFoundValue, iFogScoutPathTurns, iSelectedRevealedBFC, iSelectedUnrevealedBFC, iFogScoutRevealedBFC, iFogScoutUnrevealedBFC))
++	{
++		if (gSettlerLogLevel >= 2)
++		{
++			logBBAI("    Settler scouting promising nearby fogged city site for %S player %d from target %d,%d to %d,%d; selectedValue=%d scoutValue=%d selectedRevealedBFC=%d scoutRevealedBFC=%d selectedUnrevealedBFC=%d scoutUnrevealedBFC=%d selectedAvgX100=%d scoutAvgX100=%d selectedPathTurns=%d scoutPathTurns=%d",
++				kOwner.getCivilizationDescription(0), getOwner(), pBestFoundPlot->getX(), pBestFoundPlot->getY(), pFogScoutSite->getX(), pFogScoutSite->getY(), pBestFoundPlot->getFoundValue(getOwner()), iFogScoutFoundValue, iSelectedRevealedBFC, iFogScoutRevealedBFC, iSelectedUnrevealedBFC, iFogScoutUnrevealedBFC, (100 * pBestFoundPlot->getFoundValue(getOwner())) / iSelectedRevealedBFC, (100 * iFogScoutFoundValue) / iFogScoutRevealedBFC, iBestPathTurns, iFogScoutPathTurns);
++			SAS_logSettlerMissionDecision("PUSH_SCOUT_PROMISING_FOGGED_SITE", *this, pFogScoutSite, pFogScoutEndTurnPlot, iFogScoutFoundValue, iFogScoutPathTurns, "PROMISING_FOGGED_NEAR_SITE");
++		}
++		pushGroupMoveTo(*pFogScoutEndTurnPlot, eFlags, false, false, MISSIONAI_EXPLORE, pFogScoutSite);
++		return true;
++	}
++
++	// <!-- custom: Normal found-at-target path after the current-site and promising-fog safeguards above had a chance to override stale or under-scouted targets. (GPT-5.5) -->
+ 	if (at(*pBestFoundPlot))
+ 	{
+ 		if (gSettlerLogLevel >= 2)
+
+diff --git a/README.md b/README.md
+index 27ce66722..666a79600 100644
+--- a/README.md
++++ b/README.md
+@@ -918,7 +918,7 @@ For example, following AdvCiv-SAS changes, BBAI head of a log looks like this:
+ BBAI_SAVE_LOADED utc=20260712T143627Z logFile=BBAI_20260712T143627Z_load1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
+ BBAI_GAME_SETTINGS mapScript=Pangaea map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
+ BBAI_GAME_RNG mapRandState=1043290197 syncRandState=3442762126
+-BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=3 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL=100
++BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=3 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL=100
+ ```
+ 
+ ### SAS game summary log
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index ce4c61e6c..42068af07 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -224,6 +224,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [183 - (Fixed) AdvCiv-SAS faraway-war Risk hard reject could make mediocre wars look extremely good by penalizing the peace scenario](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario)\
+ [184 - (Fixed/Improved) Multiple UWAI victory-denial issues could let imminent Space winners survive: no war before fixing this (regardless of whether AI was very strong militarily like in the Ramesses run or very weak like in the Lincoln run), then even after the initial fix wars were still too-late, too-short, or too-low-impact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact)\
+ [184.2 - (Fixed/Improved) UWAI Space victory-denial could still start too late when stage-3 Space leaders already had many spaceship parts before countdown](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1842---fixedimproved-uwai-space-victory-denial-could-still-start-too-late-when-stage-3-space-leaders-already-had-many-spaceship-parts-before-countdown)\
++[185 - (Fixed/Improved) Base AdvCiv issue: post-capital AI Settlers could ignore promising fogged nearby city-site alternatives and then follow stale cached targets after scouting](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#185---fixedimproved-base-advciv-issue-post-capital-ai-settlers-could-ignore-promising-fogged-nearby-city-site-alternatives-and-then-follow-stale-cached-targets-after-scouting)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -6849,3 +6850,61 @@ Save file 450 retests showed the same pattern on the Ramesses branch. In `BBAI_2
+ In the later `BBAI_20260715T072834Z_load1.log` / `SASGameSummary_20260715T072834Z_load1.log` branch, the Space response again began at 8/16 parts: UWAI chose stage-3 Space pressure from turn 265 onward, later direct wars fired, cities changed hands, and the Space win moved to turn 293. This supports keeping the threshold broad enough to start real pressure before countdown without making every Apollo builder an emergency target.
+ 
+ Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
++
++## 185 - (Fixed/Improved) Base AdvCiv issue: post-capital AI Settlers could ignore promising fogged nearby city-site alternatives and then follow stale cached targets after scouting
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1-RaBTEQYMlgIDXpHRokuzQBP-UDYx9Ay?usp=sharing).
++
++This is a follow-up to the save-file 450 uMgungundlovu investigation from KI#178. KI#178 fixed a major bonus-valuation problem: the old broad `AI_bonusVal` path could make Elephants massively outscore Crab for settlement, pushing Shaka toward weaker `(18,40)` instead of the stronger nearby `(17,40)` site. Later BBAI retesting showed a separate remaining movement / information problem: even after bonus valuation was improved, history could change enough that `(17,40)` still looked slightly worse only because more of its BFC was fogged, while `(18,40)` had more known plots.
++
++This is not the same system as first-city roaming in KI#43 / KI#173. First-city scouting happens before the capital exists and uses a bounded capital-search routine. This issue is for post-capital `CvUnitAI::AI_found`, where the AI normally follows cached city-site targets. By then, most nearby land is usually known, so we do not want broad roaming; the useful case is narrow: a Settler is already near a selected site, and an adjacent site has a stronger average known value per revealed BFC plot while still having more unrevealed plots.
++
++In `BBAI_20260715T092145Z_load1.log`, the first half of the new logic worked: Zulu repeatedly chose `PUSH_SCOUT_PROMISING_FOGGED_SITE` toward `(17,40)`:
++
++```text
++Settler promising-fogged-site candidate 17,40 selectedValue=3064 value=2959 selectedRevealedBFC=19 revealedBFC=17 selectedUnrevealedBFC=1 unrevealedBFC=3 selectedAvgX100=16126 avgX100=17405 selectedPathTurns=3 pathTurns=3
++SETTLER_MISSION_DECISION turn=36 player=7 Zulu Empire action=PUSH_SCOUT_PROMISING_FOGGED_SITE reason=PROMISING_FOGGED_NEAR_SITE ... target=(17,40) ... targetFoundValue=2959 pathTurns=3
++```
++
++However, that revealed a second stale-target issue. The Settler reached `(17,40)`, fully revealed it, and the direct found-value comparison now showed it was better than `(18,40)`, but the cached city-site target remained `(18,40)` and the Settler still walked back to found there:
++
++```text
++Settler promising-fogged-site candidate 17,40 selectedValue=3993 value=4099 selectedRevealedBFC=20 revealedBFC=20 selectedUnrevealedBFC=0 unrevealedBFC=0 selectedAvgX100=19965 avgX100=20495 selectedPathTurns=1 pathTurns=1
++SETTLER_MISSION_DECISION turn=40 player=7 Zulu Empire action=PUSH_MOVE_TO_FOUND ... x=17 y=40 target=(18,40) ... targetFoundValue=3993 pathTurns=1
++Shaka is about to found a city at (18,40); turn 40
++Best site adjacent to (18,40): selected=3993 adjacent=4099 delta=+106 (17,40)
++```
++
++The final fix therefore has two parts:
++
++- post-capital Settlers can make a short exploratory move to an adjacent promising fogged site when its known average value is strong enough and it has enough additional unrevealed BFC plots;
++- after such scouting or any similar movement, if the Settler is already standing on a foundable plot that direct replacement scoring now says is better than the cached selected target, it founds there instead of walking away to the stale target.
++
++The debugging path matters because the code looks more specific than a simple adjacent-tile scan:
++
++- first attempt: using adjacent plots' cached `getFoundValue` made `(17,40)` log as `value=0`, because adjacent replacement candidates are not necessarily entries in the current cached city-site list;
++- second attempt: switching to a direct evaluator still logged `value=0`, because the evaluator treated `(17,40)` as an extra tentative city overlapping the selected `(18,40)` site;
++- third attempt: matching the found-value logger's replacement-site mode with `setDebug(true)` made `(17,40)` score correctly and triggered the scout move;
++- final missing piece: once the group reached `(17,40)`, the normal cached target could still remain `(18,40)`, so a current-plot replacement check was needed before moving away.
++
++Implementation details:
++
++- candidate scoring uses a direct `CitySiteEvaluator` pass, not cached `getFoundValue`, because adjacent alternatives may not be in the current city-site list and can otherwise read as `0`;
++- the evaluator uses `setDebug(true)` for these comparisons, matching the found-value logger's adjacent-site mode, so the alternative is treated as a replacement for the selected site rather than an extra tentative city overlapping it;
++- the exploratory move uses `MISSIONAI_EXPLORE`, not `MISSIONAI_FOUND`, so `AI_foundFollow` does not blindly found after one move without recalculating.
++
++Retesting in `BBAI_20260715T092627Z_load1.log` / `SASGameSummary_20260715T092627Z_load1.log` confirmed the intended result:
++
++```text
++SETTLER_MISSION_DECISION turn=40 player=7 Zulu Empire action=FOUND_CURRENT_SITE_BETTER_THAN_SELECTED_TARGET reason=CURRENT_SITE_NOW_BETTER ... x=17 y=40 target=(17,40) ... targetFoundValue=4099 pathTurns=0
++Shaka is about to found a city at (17,40); turn 40
++Selected site breakdown value=4099 ... bonuses=2077(nonYield=1302,bonusImprovementYields=775) ...
++Best site adjacent to (17,40): selected=4099 adjacent=3993 delta=-106 (18,40)
++GAME_SUMMARY_ACTION turn=40 type=CITY_BUILT player=7 cityId=16385 city="uMgungundlovu" x=17 y=40 pop=1
++```
++
++This founded uMgungundlovu at `(17,40)` with Crab/Rice/Camel and a better food profile, instead of the stale `(18,40)` Elephants/Rice/Camel site. Follow-up testing with the extra-path limit raised to 3 in `BBAI_20260715T100351Z_load1.log` / `SASGameSummary_20260715T100351Z_load1.log` preserved the same `(17,40)` result, showed no obvious Settler parking by turn 101, and produced only three actual promising-fog scout chains in the run. This supports default 3 as local enough while still allowing more than one-tile-only correction attempts.
++
++This should make post-capital Settlers less brittle around small fog differences without turning them into broad wandering scouts.
++
++Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 6944220b8..c97e3ab7b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -339,6 +339,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - (Requires AdvCiv-SAS 6027+) **Settler city-escort reassignment:** to avoid merely restoring old Settler parking, an unescorted Settler parked in one of its own cities can reassign one healthy local defender as escort when the donor city keeps enough healthy defenders behind. With the default tunable value of as of now at least 2 remaining healthy defenders after giving one to the Settler, a city with 3 healthy defenders can reassign 1 escort and still keep 2, which is safe enough, so the Settler should not keep waiting; delaying expansion can lose contested city sites and early growth snowball. Save file 450 follow-up logs showed exposed Settlers waiting when no safe escort was available, then moving once guarded, while later Nobamba persisted with defenders instead of repeating the earlier empty-city Barbarian razing pattern. See [KI#179](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#179---fixedimproved-advciv-sas-early-settler-anti-parking-override-could-let-post-capital-settlers-found-exposed-cities-without-escorts).
+ - (Requires AdvCiv-SAS 6028+) **Settler valid-tile trap avoided:** a Settler already standing on a foundable plot no longer immediately settles there when another reachable city site is clearly better. Save file 450 BBAI testing showed that after a `(7,45)` Barbarian city spawned, the planned Zulu city 3 space became much smaller and poorer; the AI Settler still founded weak tundra-heavy `(10,47)` anyway, despite a much better reachable `(10,41)` site with unowned Sheep plains and Hill Grass. It now travels to and tries to settle this stronger site instead. See [KI#180](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#180---fixedimproved-ai-settlers-could-settle-a-merely-valid-current-plot-eg-after-nearby-barbarian-city-spawn-made-remaining-space-smaller-and-poorer-even-when-a-clearly-better-reachable-city-site-existed).
+ - (Requires AdvCiv-SAS 6028+) **Settler no longer bounces back to a near weak site:** the first direct-found guard fixed the bad `(10,47)` founding, but revealed that the existing `AI_found` movement scoring could still pull the Settler back to the same near weak site because it was only one turn away, causing back-and-forth movement without settling for 10-20+ turns. Fix: the same raw-value check now also prevents a very near but much weaker city site from winning for travel-distance reasons. As a result, the confirming run shows Zulu city 3 is founded quickly at the `(10,41)` unowned Sheep plains and Hill Grass site; Zulu AI then conquers the strong nearby `(7,45)` Barbarian city, which has unowned Horse, unowned Deer, unowned Silver, and unowned Gems (that appear during the game), instead of settling a useless cramped tundra city near it; and by ~T131 becomes top 2 player with a strong empire instead of being among the weakest due to loss of early momentum and bad early cities. See [KI#180](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#180---fixedimproved-ai-settlers-could-settle-a-merely-valid-current-plot-eg-after-nearby-barbarian-city-spawn-made-remaining-space-smaller-and-poorer-even-when-a-clearly-better-reachable-city-site-existed).
++- (Requires AdvCiv-SAS 6040+) **Post-capital Settlers can scout promising nearby fogged city sites and avoid stale cached targets:** some time after KI#178 improved uMgungundlovu's bonus valuation, save file 450 run changed and exposed a remaining information/movement issue: `(17,40)` could look slightly worse than `(18,40)` only because more of its BFC was unrevealed: BBAI showed `(18,40)` evaluated at total `3064` with 19 revealed / 1 unrevealed non-home BFC plots, while `(17,40)` was only total `2959` with 17 revealed / 3 unrevealed; however, the average evaluation per revealed plot was higher for `(17,40)` (2959 / 17 = 174.04 which is higher than 3064 / 19 = 161.25) so it would have been better to explore the remaining unrevealed nearby plots rather than founding the better explored current site immediately, like a human player would, which is now fixed: post-capital AI Settlers now optionally (as of now default enabled as likely stronger) explore such adjacent promising sites, then recalculate normally and choose the best after enough info is known (the old one remains the best if the new one turns out in fact not to have been better). The follow-up guard also matters: if the Settler reaches a plot that is now directly better than the cached selected target, it founds there instead of walking away to the stale target. In the confirming run, Shaka scouted `(17,40)`, then founded uMgungundlovu there at value `4099` instead of stale adjacent `(18,40)` at `3993`, gaining Crab/Rice/Camel and a better food profile (as in KI#178). This is similar in spirit to first-city scouting, but narrower: later Settlers usually know more of the map and should not become broad roaming scouts. See [KI#185](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#185---fixedimproved-base-advciv-issue-post-capital-ai-settlers-could-ignore-promising-fogged-nearby-city-site-alternatives-and-then-follow-stale-cached-targets-after-scouting).
+ - (Requires AdvCiv-SAS 6029+) **Settler production floor for weak early/midgame sites:** AI cities no longer train a new early/midgame Settler just because one low-value legal city site remains. If only poor filler sites are left, for example tundra/snow-heavy sites, the AI is often better off growing, defending, or attacking than spending food/hammers/growth, escorts, maintenance, and spreading forces thin on a low-potential city unlikely to help or grow soon: we may be strong and concentrated enough this way to do a lucky early rush/capture of a good enough city and maybe recover the game (else we'd likely lose anyway with low city count or value). This is tunable by min city value (as of now > 2000), max total cities (as of now 1 i.e. only before the capital city is built i.e. effectively never) and era (as of now stops applying from Renaissance onward, when Settlers are faster to produce, new cities may be able to grow faster with our stronger empire/tech/bonuses/etc, maintenance is easier to absorb, and armies/economies are usually more stable, so lower-value filler/resource/denial cities are more likely to be worth it then and onward). In save-file 450 follow-up testing, this blocked France AI from settling the 4th low Tundra/Snow city (city 4 in Snow, as city 3 in Tundra had Deer + Copper that are valuable) that likely won't be useful but instead make France AI even weaker (value of ~1500), while still allowing strong Settler sites (city 2), and also rejected Carthage marginal sites that had a low value of ~1850. Note: the check is applied in `CvCityAI::AI_chooseUnit(UnitTypes, UnitAITypes)`, just before the concrete `pushOrder`, which is low enough to catch normal Settler-production short-circuits instead of only or many tedious or unreliable high-level branches. See [KI#181](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#181---fixedimproved-ai-could-train-earlymidgame-settlers-for-weak-remaining-sites-after-good-expansion-was-gone-eg-pariss-settler-for-snowfiller-sites-example).
+ 
+ ##### Workers (AI)
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=9 omittedFiles=1 embeddedPatchBytes=48880

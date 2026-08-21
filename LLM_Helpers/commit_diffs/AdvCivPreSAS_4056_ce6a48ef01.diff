@@ -1,0 +1,91 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4056
+# Commit: ce6a48ef0153b4d9c456fe19c4d5bff023f69ffa
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 67383d167967b8a9ad34f84d1210a5c6afea064f
+# Title: Tweak UWAI eval of 3rd-party interventions a bit more
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	17	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 5c3467718..0a671ecc5 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -4520,19 +4520,9 @@ int ThirdPartyIntervention::preEvaluate()
+ 			/*	Squared b/c logistics power is only the cargo capacity.
+ 				(Fixme: should track power of cargo ships separately.) */
+ 			SQR(militAnalyst().lostPower(eWe, LOGISTICS));
+-	/*	The timing of the intervention is difficult to predict. They may or may not
+-		need to build up units, and we may be weakest early in the simulation or
+-		late, but, even in the latter case, they might attack early b/c we already
+-		appear weak enough ... Too complicated to estimate their build-up, but it'll
+-		probably be less than ours because we'll start right away and won't stop
+-		until the war ends. So let's count our estimated change in power half
+-		and theirs not at all - and later adjust our power a bit to account for
+-		distraction. */
+-	m_rDefPow = (militAnalyst().gainedPower(eWe, ARMY) +
+-			militAnalyst().gainedPower(eWe, HOME_GUARD)) / 2 + // Count gains half
+-			// The cache includes HOME_GUARD in ARMY
+-			ourCache().getPowerValues()[ARMY]->power();
+-	m_rDefPow.increaseTo(scaled::epsilon());
++	scaled const rGainedPow = militAnalyst().gainedPower(eWe, ARMY) +
++			militAnalyst().gainedPower(eWe, HOME_GUARD);
++	m_rDefPow = ourCache().getPowerValues()[ARMY]->power(); // includes HOME_GUARD
+ 	for (PlayerAIIter<MAJOR_CIV,OTHER_KNOWN_TO> itAlly(eOurTeam);
+ 		itAlly.hasNext(); ++itAlly)
+ 	{
+@@ -4549,8 +4539,18 @@ int ThirdPartyIntervention::preEvaluate()
+ 			rOurLostPow += militAnalyst().lostPower(itAlly->getID(), ARMY);
+ 		}
+ 	}
+-	m_rLostDefPowRatio = rOurLostPow / m_rDefPow;
++	m_rLostDefPowRatio = rOurLostPow / std::max(m_rDefPow,
++			m_rDefPow + rGainedPow);
+ 	m_rLostDefPowRatio.clamp(0, fixp(0.5));
++	/*	The timing of the intervention is difficult to predict. They may or may not
++		need to build up units, and we may be weakest early in the simulation or
++		late, but, even in the latter case, they might attack early b/c we already
++		appear weak enough ... Too complicated to estimate their build-up, but it'll
++		probably be less than ours because we'll start right away and won't stop
++		until the war ends. So let's count our estimated change in power half
++		and theirs not at all - and later adjust our power to account for
++		m_rLostDefPowRatio (losses, distraction). */
++	m_rDefPow.increaseTo(m_rDefPow + rGainedPow / 2);
+ 	return 0;
+ }
+ 
+@@ -4651,8 +4651,8 @@ void ThirdPartyIntervention::evaluate()
+ 		int iOurDefPow = kOurTeam.getDefensivePower();
+ 		iOurDefPow = (iOurDefPow * (1 - rOurLostPowRatio)).uround();
+ 		int iParanoia = kWe.AI_paranoiaRating(eThey, iOurDefPow, false, true);
+-		iParanoia = std::min(iParanoia, 220);
+-		rInterventionProb = scaled(iParanoia - 30, 250);
++		iParanoia = std::min(iParanoia, 210);
++		rInterventionProb = scaled(iParanoia - 28, 233);
+ 		if (rInterventionProb > 0)
+ 		{
+ 			log("Our paranoia rating: %d", iParanoia);
+@@ -4755,7 +4755,7 @@ void ThirdPartyIntervention::evaluate()
+ 		hence sqrt). We want to avoid any tough fights with 2nd parties, when a
+ 		dangerous 3rd-party intervention looms. */
+ 	scaled rCost = rInterventionProb * 85 * rOurLostPowRatio.sqrt();
+-	{	// These formulas are a mess
++	{	// These formulas are a bit of a mess
+ 		scaled const rPowRatioThresh = 2;
+ 		if (rTheirPowToOurs > rPowRatioThresh)
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3458

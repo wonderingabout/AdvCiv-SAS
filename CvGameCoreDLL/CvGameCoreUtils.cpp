@@ -6,6 +6,7 @@
 #include "CityPlotIterator.h"
 #include "BBAILog.h" // advc.007
 #include "CvInfo_GameOption.h"
+#include "CvInfo_Building.h" // <!-- custom: getSASTeamSpaceshipPartsBuilt needs CvProjectInfo::isSpaceship for Space-victory denial checks. (GPT-5.5) -->
 
 // advc.035:
 void contestedPlots(std::vector<CvPlot*>& r, TeamTypes t1, TeamTypes t2)
@@ -74,6 +75,26 @@ float colorDifference(NiColorA const& c1, NiColorA const& c2)
 	return fDiff;
 }
 
+// <!-- custom: iDifficulty is a score/rating in XML, not always enum index * 10 after AdvCiv-SAS adds Rookie and Deity+. (ChatGPT-5.5) -->
+HandicapTypes handicapFromDifficulty(int iDifficulty)
+{
+	static const HandicapTypes eSTANDARD_HANDICAP = (HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP");
+	HandicapTypes eBestHandicap = NO_HANDICAP;
+	int iBestDelta = MAX_INT;
+	for (int i = 0; i < GC.getNumHandicapInfos(); i++)
+	{
+		HandicapTypes const eLoopHandicap = (HandicapTypes)i;
+		int const iDelta = std::abs(GC.getInfo(eLoopHandicap).getDifficulty() - iDifficulty);
+		if (iDelta < iBestDelta)
+		{
+			iBestDelta = iDelta;
+			eBestHandicap = eLoopHandicap;
+		}
+	}
+	FAssert(eBestHandicap != NO_HANDICAP);
+	return (eBestHandicap == NO_HANDICAP ? eSTANDARD_HANDICAP : eBestHandicap);
+}
+
 DirectionTypes cardinalDirectionToDirection(CardinalDirectionTypes eCard)
 {
 	switch (eCard)
@@ -121,8 +142,7 @@ DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 
 /*	advc: Cut from CvXMLLoadUtility.cpp, renamed
 	from "CreateHotKeyFromDescription"; nothing is "created" here. */
-CvWString hotkeyDescr::hotKeyFromDescription(TCHAR const* szDescr,
-	bool bShift, bool bAlt, bool bCtrl)
+CvWString hotkeyDescr::hotKeyFromDescription(TCHAR const* szDescr, bool bShift, bool bAlt, bool bCtrl)
 {
 	// Example: "Delete <COLOR:140,255,40,255>Shift+Delete</COLOR>"
 	CvWString szHotKey;
@@ -287,6 +307,355 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
 {
 	return (eTeamA != NO_TEAM && eTeamB != NO_TEAM && GET_TEAM(eTeamA).isAtWar(eTeamB));
 }
+
+char const* getSASDiploEventType(DiploEventTypes eDiploEvent)
+{
+	switch (eDiploEvent)
+	{
+	case DIPLOEVENT_CONTACT: return "DIPLOEVENT_CONTACT";
+	case DIPLOEVENT_AI_CONTACT: return "DIPLOEVENT_AI_CONTACT";
+	case DIPLOEVENT_FAILED_CONTACT: return "DIPLOEVENT_FAILED_CONTACT";
+	case DIPLOEVENT_GIVE_HELP: return "DIPLOEVENT_GIVE_HELP";
+	case DIPLOEVENT_REFUSED_HELP: return "DIPLOEVENT_REFUSED_HELP";
+	case DIPLOEVENT_ACCEPT_DEMAND: return "DIPLOEVENT_ACCEPT_DEMAND";
+	case DIPLOEVENT_REJECTED_DEMAND: return "DIPLOEVENT_REJECTED_DEMAND";
+	case DIPLOEVENT_DEMAND_WAR: return "DIPLOEVENT_DEMAND_WAR";
+	case DIPLOEVENT_CONVERT: return "DIPLOEVENT_CONVERT";
+	case DIPLOEVENT_NO_CONVERT: return "DIPLOEVENT_NO_CONVERT";
+	case DIPLOEVENT_REVOLUTION: return "DIPLOEVENT_REVOLUTION";
+	case DIPLOEVENT_NO_REVOLUTION: return "DIPLOEVENT_NO_REVOLUTION";
+	case DIPLOEVENT_JOIN_WAR: return "DIPLOEVENT_JOIN_WAR";
+	case DIPLOEVENT_NO_JOIN_WAR: return "DIPLOEVENT_NO_JOIN_WAR";
+	case DIPLOEVENT_STOP_TRADING: return "DIPLOEVENT_STOP_TRADING";
+	case DIPLOEVENT_NO_STOP_TRADING: return "DIPLOEVENT_NO_STOP_TRADING";
+	case DIPLOEVENT_ASK_HELP: return "DIPLOEVENT_ASK_HELP";
+	case DIPLOEVENT_MADE_DEMAND: return "DIPLOEVENT_MADE_DEMAND";
+	case DIPLOEVENT_RESEARCH_TECH: return "DIPLOEVENT_RESEARCH_TECH";
+	case DIPLOEVENT_TARGET_CITY: return "DIPLOEVENT_TARGET_CITY";
+	case DIPLOEVENT_MADE_DEMAND_VASSAL: return "DIPLOEVENT_MADE_DEMAND_VASSAL";
+	case DIPLOEVENT_SET_WARPLAN: return "DIPLOEVENT_SET_WARPLAN";
+	default: return "UNKNOWN_DIPLOEVENT";
+	}
+}
+
+char const* getSASMemoryType(MemoryTypes eMemory)
+{
+	switch (eMemory)
+	{
+	case MEMORY_DECLARED_WAR: return "MEMORY_DECLARED_WAR";
+	case MEMORY_DECLARED_WAR_ON_FRIEND: return "MEMORY_DECLARED_WAR_ON_FRIEND";
+	case MEMORY_HIRED_WAR_ALLY: return "MEMORY_HIRED_WAR_ALLY";
+	case MEMORY_NUKED_US: return "MEMORY_NUKED_US";
+	case MEMORY_NUKED_FRIEND: return "MEMORY_NUKED_FRIEND";
+	case MEMORY_RAZED_CITY: return "MEMORY_RAZED_CITY";
+	case MEMORY_RAZED_HOLY_CITY: return "MEMORY_RAZED_HOLY_CITY";
+	case MEMORY_SPY_CAUGHT: return "MEMORY_SPY_CAUGHT";
+	case MEMORY_GIVE_HELP: return "MEMORY_GIVE_HELP";
+	case MEMORY_REFUSED_HELP: return "MEMORY_REFUSED_HELP";
+	case MEMORY_ACCEPT_DEMAND: return "MEMORY_ACCEPT_DEMAND";
+	case MEMORY_REJECTED_DEMAND: return "MEMORY_REJECTED_DEMAND";
+	case MEMORY_ACCEPTED_RELIGION: return "MEMORY_ACCEPTED_RELIGION";
+	case MEMORY_DENIED_RELIGION: return "MEMORY_DENIED_RELIGION";
+	case MEMORY_ACCEPTED_CIVIC: return "MEMORY_ACCEPTED_CIVIC";
+	case MEMORY_DENIED_CIVIC: return "MEMORY_DENIED_CIVIC";
+	case MEMORY_ACCEPTED_JOIN_WAR: return "MEMORY_ACCEPTED_JOIN_WAR";
+	case MEMORY_DENIED_JOIN_WAR: return "MEMORY_DENIED_JOIN_WAR";
+	case MEMORY_ACCEPTED_STOP_TRADING: return "MEMORY_ACCEPTED_STOP_TRADING";
+	case MEMORY_DENIED_STOP_TRADING: return "MEMORY_DENIED_STOP_TRADING";
+	case MEMORY_STOPPED_TRADING: return "MEMORY_STOPPED_TRADING";
+	case MEMORY_STOPPED_TRADING_RECENT: return "MEMORY_STOPPED_TRADING_RECENT";
+	case MEMORY_HIRED_TRADE_EMBARGO: return "MEMORY_HIRED_TRADE_EMBARGO";
+	case MEMORY_MADE_DEMAND: return "MEMORY_MADE_DEMAND";
+	case MEMORY_CANCELLED_VASSAL_AGREEMENT: return "MEMORY_CANCELLED_VASSAL_AGREEMENT";
+	case MEMORY_MADE_DEMAND_RECENT: return "MEMORY_MADE_DEMAND_RECENT";
+	case MEMORY_CANCELLED_OPEN_BORDERS: return "MEMORY_CANCELLED_OPEN_BORDERS";
+	case MEMORY_CANCELLED_DEFENSIVE_PACT: return "MEMORY_CANCELLED_DEFENSIVE_PACT";
+	case MEMORY_TRADED_TECH_TO_US: return "MEMORY_TRADED_TECH_TO_US";
+	case MEMORY_RECEIVED_TECH_FROM_ANY: return "MEMORY_RECEIVED_TECH_FROM_ANY";
+	case MEMORY_VOTED_AGAINST_US: return "MEMORY_VOTED_AGAINST_US";
+	case MEMORY_VOTED_FOR_US: return "MEMORY_VOTED_FOR_US";
+	case MEMORY_EVENT_GOOD_TO_US: return "MEMORY_EVENT_GOOD_TO_US";
+	case MEMORY_EVENT_BAD_TO_US: return "MEMORY_EVENT_BAD_TO_US";
+	case MEMORY_LIBERATED_CITIES: return "MEMORY_LIBERATED_CITIES";
+	case MEMORY_INDEPENDENCE: return "MEMORY_INDEPENDENCE";
+	case MEMORY_DECLARED_WAR_RECENT: return "MEMORY_DECLARED_WAR_RECENT";
+	default: return "UNKNOWN_MEMORY";
+	}
+}
+
+char const* getSASTradeItemType(TradeableItems eItem)
+{
+	switch (eItem)
+	{
+	case NO_TRADE_ITEM: return "-";
+	case TRADE_GOLD: return "TRADE_GOLD";
+	case TRADE_GOLD_PER_TURN: return "TRADE_GOLD_PER_TURN";
+	case TRADE_MAPS: return "TRADE_MAPS";
+	case TRADE_VASSAL: return "TRADE_VASSAL";
+	case TRADE_SURRENDER: return "TRADE_SURRENDER";
+	case TRADE_OPEN_BORDERS: return "TRADE_OPEN_BORDERS";
+	case TRADE_DEFENSIVE_PACT: return "TRADE_DEFENSIVE_PACT";
+	case TRADE_PERMANENT_ALLIANCE: return "TRADE_PERMANENT_ALLIANCE";
+	case TRADE_PEACE_TREATY: return "TRADE_PEACE_TREATY";
+	case TRADE_TECHNOLOGIES: return "TRADE_TECHNOLOGIES";
+	case TRADE_RESOURCES: return "TRADE_RESOURCES";
+	case TRADE_CITIES: return "TRADE_CITIES";
+	case TRADE_PEACE: return "TRADE_PEACE";
+	case TRADE_WAR: return "TRADE_WAR";
+	case TRADE_EMBARGO: return "TRADE_EMBARGO";
+	case TRADE_CIVIC: return "TRADE_CIVIC";
+	case TRADE_RELIGION: return "TRADE_RELIGION";
+	case TRADE_DISENGAGE: return "TRADE_DISENGAGE";
+	default: return "UNKNOWN_TRADE_ITEM";
+	}
+}
+
+char const* getSASWarPlanType(WarPlanTypes eWarPlan)
+{
+	switch (eWarPlan)
+	{
+	case NO_WARPLAN: return "NO_WARPLAN";
+	case WARPLAN_ATTACKED_RECENT: return "WARPLAN_ATTACKED_RECENT";
+	case WARPLAN_ATTACKED: return "WARPLAN_ATTACKED";
+	case WARPLAN_PREPARING_LIMITED: return "WARPLAN_PREPARING_LIMITED";
+	case WARPLAN_PREPARING_TOTAL: return "WARPLAN_PREPARING_TOTAL";
+	case WARPLAN_LIMITED: return "WARPLAN_LIMITED";
+	case WARPLAN_TOTAL: return "WARPLAN_TOTAL";
+	case WARPLAN_DOGPILE: return "WARPLAN_DOGPILE";
+	default: return "UNKNOWN_WARPLAN";
+	}
+}
+
+char const* getSASGameType(GameType eType)
+{
+	switch (eType)
+	{
+	case GAME_NONE: return "GAME_NONE";
+	case GAME_SP_NEW: return "GAME_SP_NEW";
+	case GAME_SP_SCENARIO: return "GAME_SP_SCENARIO";
+	case GAME_SP_LOAD: return "GAME_SP_LOAD";
+	case GAME_MP_NEW: return "GAME_MP_NEW";
+	case GAME_MP_SCENARIO: return "GAME_MP_SCENARIO";
+	case GAME_MP_LOAD: return "GAME_MP_LOAD";
+	case GAME_HOTSEAT_NEW: return "GAME_HOTSEAT_NEW";
+	case GAME_HOTSEAT_SCENARIO: return "GAME_HOTSEAT_SCENARIO";
+	case GAME_HOTSEAT_LOAD: return "GAME_HOTSEAT_LOAD";
+	case GAME_PBEM_NEW: return "GAME_PBEM_NEW";
+	case GAME_PBEM_SCENARIO: return "GAME_PBEM_SCENARIO";
+	case GAME_PBEM_LOAD: return "GAME_PBEM_LOAD";
+	case GAME_REPLAY: return "GAME_REPLAY";
+	default: return "UNKNOWN_GAME_TYPE";
+	}
+}
+
+char const* getSASGameMode(GameMode eMode)
+{
+	switch (eMode)
+	{
+	case NO_GAMEMODE: return "NO_GAMEMODE";
+	case GAMEMODE_NORMAL: return "GAMEMODE_NORMAL";
+	case GAMEMODE_PITBOSS: return "GAMEMODE_PITBOSS";
+	default: return "UNKNOWN_GAME_MODE";
+	}
+}
+
+char const* getSASCalendarType(CalendarTypes eCalendar)
+{
+	switch (eCalendar)
+	{
+	case NO_CALENDAR: return "NO_CALENDAR";
+	case CALENDAR_DEFAULT: return "CALENDAR_DEFAULT";
+	case CALENDAR_BI_YEARLY: return "CALENDAR_BI_YEARLY";
+	case CALENDAR_YEARS: return "CALENDAR_YEARS";
+	case CALENDAR_TURNS: return "CALENDAR_TURNS";
+	case CALENDAR_SEASONS: return "CALENDAR_SEASONS";
+	case CALENDAR_MONTHS: return "CALENDAR_MONTHS";
+	case CALENDAR_WEEKS: return "CALENDAR_WEEKS";
+	default: return "UNKNOWN_CALENDAR";
+	}
+}
+
+char const* getSASWarDeclarationCause(WarDeclarationCause eCause)
+{
+	switch (eCause)
+	{
+	case WAR_DECLARATION_DIRECT: return "DIRECT";
+	case WAR_DECLARATION_GAME_SETUP: return "GAME_SETUP";
+	case WAR_DECLARATION_ALWAYS_WAR: return "ALWAYS_WAR";
+	case WAR_DECLARATION_PERMANENT_ALLIANCE: return "PERMANENT_ALLIANCE";
+	case WAR_DECLARATION_DEFENSIVE_PACT: return "DEFENSIVE_PACT";
+	case WAR_DECLARATION_VASSAL_ALIGNMENT: return "VASSAL_ALIGNMENT";
+	case WAR_DECLARATION_DIPLOMACY: return "DIPLOMACY";
+	case WAR_DECLARATION_VOTE: return "DIPLOMATIC_VOTE";
+	case WAR_DECLARATION_NUCLEAR_ATTACK: return "NUCLEAR_ATTACK";
+	default: return "UNKNOWN";
+	}
+}
+
+char const* getSASTechAcquisitionCause(TechAcquisitionCause eCause)
+{
+	switch (eCause)
+	{
+	case TECH_ACQUISITION_RESEARCH: return "RESEARCH";
+	case TECH_ACQUISITION_TRADE: return "TRADE";
+	case TECH_ACQUISITION_FREE_CHOICE: return "FREE_CHOICE";
+	case TECH_ACQUISITION_GOODY: return "GOODY";
+	case TECH_ACQUISITION_GREAT_PERSON: return "GREAT_PERSON";
+	case TECH_ACQUISITION_ESPIONAGE: return "ESPIONAGE";
+	case TECH_ACQUISITION_RANDOM_EVENT: return "RANDOM_EVENT";
+	case TECH_ACQUISITION_TECH_SHARE: return "TECH_SHARE";
+	case TECH_ACQUISITION_TEAM_MERGE: return "TEAM_MERGE";
+	case TECH_ACQUISITION_INHERITANCE: return "INHERITANCE";
+	case TECH_ACQUISITION_ADVANCED_START: return "ADVANCED_START";
+	case TECH_ACQUISITION_BARBARIAN_RESEARCH: return "BARBARIAN_RESEARCH";
+	case TECH_ACQUISITION_GAME_SETUP: return "GAME_SETUP";
+	case TECH_ACQUISITION_DEBUG: return "DEBUG";
+	default: return "UNKNOWN";
+	}
+}
+
+char const* getSASAutoPlayEndCause(SASAutoPlayEndCause eCause)
+{
+	switch (eCause)
+	{
+	case SAS_AUTOPLAY_END_SCHEDULED: return "SCHEDULED";
+	case SAS_AUTOPLAY_END_USER_INTERRUPTED: return "USER_INTERRUPTED";
+	case SAS_AUTOPLAY_END_VICTORY: return "VICTORY";
+	case SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED: return "ACTIVE_PLAYER_DEFEATED";
+	case SAS_AUTOPLAY_END_DESYNC: return "DESYNC";
+	case SAS_AUTOPLAY_END_ASSERTION: return "ASSERTION";
+	case SAS_AUTOPLAY_END_RISE_FALL: return "RISE_FALL";
+	case SAS_AUTOPLAY_END_OTHER: return "OTHER";
+	default: return "-";
+	}
+}
+
+// <!-- custom: Victory-stage state is a bitfield; share this helper because BBAI/game-record diagnostics and AI logic all need the same compact 0..4 level without repeating four AI_atVictoryStage-style checks. (GPT-5.5) -->
+int getSASVictoryStageLevel(AIVictoryStage eVictoryStageHash, AIVictoryStage eStage1, AIVictoryStage eStage2, AIVictoryStage eStage3, AIVictoryStage eStage4)
+{
+	if ((eVictoryStageHash & eStage4) != 0)
+		return 4;
+	if ((eVictoryStageHash & eStage3) != 0)
+		return 3;
+	if ((eVictoryStageHash & eStage2) != 0)
+		return 2;
+	if ((eVictoryStageHash & eStage1) != 0)
+		return 1;
+	return 0;
+}
+
+int getSASCultureVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CULTURE1, AI_VICTORY_CULTURE2, AI_VICTORY_CULTURE3, AI_VICTORY_CULTURE4); }
+int getSASSpaceVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4); }
+int getSASConquestVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4); }
+int getSASDominationVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4); }
+int getSASDiplomacyVictoryStageLevel(AIVictoryStage eVictoryStageHash) { return getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4); }
+int getSASTeamMaxVictoryStage(TeamTypes eTeam)
+{
+	int iMaxVictoryStage = 0;
+	for (MemberAIIter it(eTeam); it.hasNext(); ++it)
+	{
+		AIVictoryStage const eVictoryStageHash = it->AI_getVictoryStageHash();
+		int const iMemberMaxVictoryStage = std::max(std::max(getSASCultureVictoryStageLevel(eVictoryStageHash), getSASSpaceVictoryStageLevel(eVictoryStageHash)), std::max(std::max(getSASConquestVictoryStageLevel(eVictoryStageHash), getSASDominationVictoryStageLevel(eVictoryStageHash)), getSASDiplomacyVictoryStageLevel(eVictoryStageHash)));
+		iMaxVictoryStage = std::max(iMaxVictoryStage, iMemberMaxVictoryStage);
+	}
+	return iMaxVictoryStage;
+}
+
+int getSASTeamSpaceVictoryStage(TeamTypes eTeam)
+{
+	int iMaxSpaceStage = 0;
+	for (MemberAIIter it(eTeam); it.hasNext(); ++it)
+		iMaxSpaceStage = std::max(iMaxSpaceStage, getSASSpaceVictoryStageLevel(it->AI_getVictoryStageHash()));
+	return iMaxSpaceStage;
+}
+
+int getSASTeamSpaceshipPartsBuilt(TeamTypes eTeam)
+{
+	int iPartsBuilt = 0;
+	CvTeamAI const& kTeam = GET_TEAM(eTeam);
+	for (int iProject = 0; iProject < GC.getNumProjectInfos(); iProject++)
+	{
+		CvProjectInfo const& kProject = GC.getInfo((ProjectTypes)iProject);
+		if (kProject.isSpaceship())
+			iPartsBuilt += kTeam.getProjectCount((ProjectTypes)iProject);
+	}
+	return iPartsBuilt;
+}
+
+int getSASSpaceshipPartsRequired()
+{
+	static int iPartsRequired = -1;
+	if (iPartsRequired < 0)
+	{
+		iPartsRequired = 0;
+		for (int iProject = 0; iProject < GC.getNumProjectInfos(); iProject++)
+		{
+			CvProjectInfo const& kProject = GC.getInfo((ProjectTypes)iProject);
+			if (kProject.isSpaceship())
+				iPartsRequired += std::max(0, kProject.getMaxTeamInstances());
+		}
+	}
+	return iPartsRequired;
+}
+
+int getSASTeamSpaceshipPartsPercent(TeamTypes eTeam)
+{
+	int const iPartsRequired = getSASSpaceshipPartsRequired();
+	return (iPartsRequired <= 0 ? 0 : getSASTeamSpaceshipPartsBuilt(eTeam) * 100 / iPartsRequired);
+}
+
+// <!-- custom: Victory countdown lengths themselves use VictoryDelayPercent, so SAS countdown gates expressed in Normal-speed turns must use the same scale. Keep the adjusted value per call rather than static so starting a different game speed in the same Civ4 process cannot reuse a stale result. (GPT-5.6 Thinking) -->
+int getSASVictoryDelayTurnsFromNormalGameSpeed(int iNormalTurns)
+{
+	if (iNormalTurns <= 0)
+		return 0;
+	int const iVictoryDelayPercent = GC.getInfo(GC.getGame().getGameSpeedType()).getVictoryDelayPercent();
+	return std::max(1, (iNormalTurns * iVictoryDelayPercent + 50) / 100);
+}
+
+int getSASLeadingSpaceshipPartsBuilt()
+{
+	int iLeadingParts = 0;
+	for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+		iLeadingParts = std::max(iLeadingParts, getSASTeamSpaceshipPartsBuilt(itTeam->getID()));
+	return iLeadingParts;
+}
+
+bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam)
+{
+	static const int iStage3SpacePercentThreshold = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_PARTS_PERCENT_THRESHOLD");
+	if (iStage3SpacePercentThreshold <= 0 || getSASTeamSpaceVictoryStage(eTeam) < 3)
+		return false;
+	int const iPartsBuilt = getSASTeamSpaceshipPartsBuilt(eTeam);
+	static const int iLeaderPartMargin = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_LEADER_PART_MARGIN");
+	// <!-- custom: Save-file 452 showed raw part count was too crude: England and Egypt were both major Space threats at 8/16 parts, but every Apollo builder should not trigger emergency wars. Require enough completion and near-leader Space progress. (GPT-5.5) -->
+	return (iPartsBuilt * 100 >= getSASSpaceshipPartsRequired() * iStage3SpacePercentThreshold && getSASLeadingSpaceshipPartsBuilt() - iPartsBuilt <= iLeaderPartMargin);
+}
+
+// <!-- custom: Victory-denial peace refusal was implemented only as a final CvDeal guard. A fresh Pangaea diagnostic run logged 57 negotiations that returned success although the guard kept the teams at war, causing repeated ineffective treaties. Share the exact threat test so UWAI can reject those negotiations before building a deal while CvDeal retains its safety net. (GPT-5.6-Sol) -->
+bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown, int* piMaxVictoryStage)
+{
+	static const bool bSASUWAIVictoryDenialEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
+	if (!bSASUWAIVictoryDenialEnable)
+		return false;
+	static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_REFUSE_PEACE");
+	int const iMaxVictoryDenialPeaceCountdown = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxVictoryDenialPeaceCountdownNormal);
+	int const iCountdown = GET_TEAM(eTeam).AI_getLowestVictoryCountdown();
+	int const iMaxVictoryStage = getSASTeamMaxVictoryStage(eTeam);
+	if (piVictoryCountdown != NULL)
+		*piVictoryCountdown = iCountdown;
+	if (piMaxVictoryStage != NULL)
+		*piMaxVictoryStage = iMaxVictoryStage;
+	static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
+	static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE3_SPACE_PEACE_ENABLE");
+	return (iCountdown >= 0 && iCountdown <= iMaxVictoryDenialPeaceCountdown) || (bRefuseStage4Peace && iMaxVictoryStage >= 4) || (bRefuseStage3SpacePeace && isSASTeamStage3SpaceVictoryThreat(eTeam));
+}
+
+int getSASTeamStage3SpaceLeaderPartGap(TeamTypes eTeam)
+{
+	return getSASLeadingSpaceshipPartsBuilt() - getSASTeamSpaceshipPartsBuilt(eTeam);
+}
+
 // advc: No longer needed
 /*bool isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam)
 {
@@ -298,8 +667,7 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
 }*/
 
 // K-Mod: (advc - Where do we move this? Should not be global.)
-int estimateCollateralWeight(CvPlot const* pPlot, TeamTypes eAttackTeam,
-	TeamTypes eDefenseTeam)
+int estimateCollateralWeight(CvPlot const* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenseTeam)
 {
 	int iBaseCollateral = GC.getDefineINT(CvGlobals::COLLATERAL_COMBAT_DAMAGE); // normally 10
 	if (pPlot == NULL)
@@ -367,8 +735,7 @@ void setTradeItem(TradeData* pItem, TradeableItems eItemType, int iData)
 }
 
 
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, bool& bFirst) // advc: bool&
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst) // advc: bool&
 {
 	if (bFirst)
 		szBuffer += szStart;
@@ -378,8 +745,7 @@ void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
 }
 
 
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, bool& bFirst) // advc: bool&
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, bool& bFirst) // advc: bool&
 {
 	if (bFirst)
 		szBuffer.append(szStart);
@@ -389,8 +755,7 @@ void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* s
 }
 
 // <advc> Based on the above
-void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, int& iLastListID, int iListID)
+void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID)
 {
 	if (iLastListID != iListID)
 		szBuffer += szStart;
@@ -399,8 +764,7 @@ void setListHelp(CvWString& szBuffer, wchar const* szStart, wchar const* szItem,
 	iLastListID = iListID; // advc: And deleted this line from every call location
 }
 
-void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem,
-	wchar const* szSeparator, int& iLastListID, int iListID)
+void setListHelp(CvWStringBuffer& szBuffer, wchar const* szStart, wchar const* szItem, wchar const* szSeparator, int& iLastListID, int iListID)
 {
 	if (iLastListID != iListID)
 		szBuffer.append(szStart);
@@ -744,7 +1108,10 @@ bool PUF_makeInfoBarDirty(CvUnit* pUnit, int iDummy1, int iDummy2)
 // advc.003j (comment): Unused
 int baseYieldToSymbol(int iNumYieldTypes, int iYieldStack)
 {
-	return iNumYieldTypes * GC.getDefineINT("MAX_YIELD_STACK") + iYieldStack;
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iMAX_YIELD_STACK = GC.getDefineINT("MAX_YIELD_STACK");
+
+	return iNumYieldTypes * iMAX_YIELD_STACK + iYieldStack;
 }
 /*  advc.003j: Vanilla Civ 4 function that used to be a DLLExport;
 	certainly unused since BtS, and doesn't sound too useful. */
@@ -786,26 +1153,29 @@ int intHash(std::vector<int> const& kInputs, PlayerTypes ePlayer)
 }
 
 
-int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
-	GameSpeedTypes eSpeed)
+int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed)
 {
 	return getTurnMonthForGame(iGameTurn, iStartYear, eCalendar, eSpeed) /
 			std::max(1, GC.getNumMonthInfos()); // advc: max
 }
 
 
-int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
-	GameSpeedTypes eSpeed)
+int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed)
 {
 	int iTurnMonth = iStartYear * GC.getNumMonthInfos();
 	switch (eCalendar)
 	{
 	case CALENDAR_DEFAULT:
 	{
+		// <!-- custom: performance optimizations as recommended as well by chatgpt 5 thanks, check if accurate -->
+		// <!-- custom: code/performance optimization: hoist -->
+        const CvGameSpeedInfo& kSpeed = GC.getInfo(eSpeed);
+        int const n = kSpeed.getNumTurnIncrements();
+
 		int iTurnCount = 0;
-		for (int i = 0; i < GC.getInfo(eSpeed).getNumTurnIncrements(); i++)
+		for (int i = 0; i < n; i++)
 		{
-			GameTurnInfo const& kGameTurn = GC.getInfo(eSpeed).getGameTurnInfo(i);
+			GameTurnInfo const& kGameTurn = kSpeed.getGameTurnInfo(i);
 			if (iGameTurn > iTurnCount + kGameTurn.iNumGameTurnsPerIncrement)
 			{
 				iTurnMonth += kGameTurn.iMonthIncrement *
@@ -821,8 +1191,8 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
 		}
 		if (iGameTurn > iTurnCount)
 		{
-			iTurnMonth += GC.getInfo(eSpeed).getGameTurnInfo(
-					GC.getInfo(eSpeed).getNumTurnIncrements() - 1).
+			iTurnMonth += kSpeed.getGameTurnInfo(
+					n - 1).
 					iMonthIncrement * (iGameTurn - iTurnCount);
 		}
 		break;
@@ -846,9 +1216,14 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar,
 		break;
 
 	case CALENDAR_WEEKS:
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iWEEKS_PER_MONTHS = GC.getDefineINT("WEEKS_PER_MONTHS");
+
 		iTurnMonth += iGameTurn /
-				std::max(1, GC.getDefineINT("WEEKS_PER_MONTHS")); // advc: max
+				std::max(1, iWEEKS_PER_MONTHS); // advc: max
 		break;
+	}
 
 	default:
 		FAssert(false);
@@ -1053,12 +1428,12 @@ void getUnitAIString(CvWString& szString, UnitAITypes eUnitAI)
 	case UNITAI_CITY_SPECIAL: szString = L"city special"; break;
 	case UNITAI_EXPLORE: szString = L"explore"; break;
 	case UNITAI_MISSIONARY: szString = L"missionary"; break;
-	case UNITAI_PROPHET: szString = L"prophet"; break;
-	case UNITAI_ARTIST: szString = L"artist"; break;
-	case UNITAI_SCIENTIST: szString = L"scientist"; break;
-	case UNITAI_GENERAL: szString = L"general"; break;
-	case UNITAI_MERCHANT: szString = L"merchant"; break;
-	case UNITAI_ENGINEER: szString = L"engineer"; break;
+	case UNITAI_GREAT_PROPHET: szString = L"prophet"; break;
+	case UNITAI_GREAT_ARTIST: szString = L"artist"; break;
+	case UNITAI_GREAT_SCIENTIST: szString = L"scientist"; break;
+	case UNITAI_GREAT_GENERAL: szString = L"general"; break;
+	case UNITAI_GREAT_MERCHANT: szString = L"merchant"; break;
+	case UNITAI_GREAT_ENGINEER: szString = L"engineer"; break;
 	case UNITAI_GREAT_SPY: szString = L"great spy"; break; // K-Mod
 	case UNITAI_SPY: szString = L"spy"; break;
 	case UNITAI_ICBM: szString = L"icbm"; break;

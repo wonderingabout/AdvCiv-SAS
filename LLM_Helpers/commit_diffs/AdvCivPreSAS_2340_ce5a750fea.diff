@@ -1,0 +1,126 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2340
+# Commit: ce5a750feace3514d4c8e089e5c8a8d8ac60bc4e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a00f43b3301df4cae4b69befadb762494e44b9a9
+# Title: Refactor build progress decay
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+28	21	CvGameCoreDLL/CvPlot.cpp
+2	1	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 331bdc449..48cb6c990 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5014,7 +5014,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
+ 				szBuildDescr.c_str());
+ 		szBuildDescr = szTempBuffer;
+ 		bool bDecay = (GC.getDefineINT(CvGlobals::DELAY_UNTIL_BUILD_DECAY) > 0 &&
+-				pPlot->decayBuildProgress(true));
++				kPlot.isBuildProgressDecaying(true));
+ 		if(bDecay) // Check if Workers are getting on the task this turn
+ 		{
+ 			for (CLLNode<IDInfo> const* pNode = kPlot.headUnitNode();
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 4560c626b..22a3baab4 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6325,40 +6325,47 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange,
+ 	return true;
+ }
+ 
+-// <advc.011> bTest checks if the next non-bTest call will cause decay
+-bool CvPlot::decayBuildProgress(bool bTest)
++// <advc.011>
++bool CvPlot::isBuildProgressDecaying(bool bWarn) const
+ {
+-	PROFILE_FUNC();
++	if (m_iTurnsBuildsInterrupted <= NO_BUILD_IN_PROGRESS)
++		return false;
+ 	int const iDelay = GC.getDefineINT(CvGlobals::DELAY_UNTIL_BUILD_DECAY);
+-	if(bTest && m_iTurnsBuildsInterrupted > NO_BUILD_IN_PROGRESS &&
+-			m_iTurnsBuildsInterrupted + 1 < iDelay)
++	if (m_iTurnsBuildsInterrupted > NO_BUILD_IN_PROGRESS &&
++		m_iTurnsBuildsInterrupted + (bWarn ? 1 : 0) < iDelay)
++	{
+ 		return false;
+-	else
++	}
++	FOR_EACH_ENUM(Build)
+ 	{
+-		if(m_iTurnsBuildsInterrupted > NO_BUILD_IN_PROGRESS && m_iTurnsBuildsInterrupted < iDelay)
+-			m_iTurnsBuildsInterrupted++;
+-		if(m_iTurnsBuildsInterrupted < iDelay)
+-			return false;
++		if (m_aiBuildProgress.get(eLoopBuild) > 0)
++			return true;
+ 	}
+-	bool r = false;
++	return false;
++}
++
++
++void CvPlot::decayBuildProgress()
++{
++	if (m_iTurnsBuildsInterrupted > NO_BUILD_IN_PROGRESS &&
++		m_iTurnsBuildsInterrupted < GC.getDefineINT(CvGlobals::DELAY_UNTIL_BUILD_DECAY))
++	{
++		m_iTurnsBuildsInterrupted++;
++	}
++	if (!isBuildProgressDecaying())
++		return;
+ 	bool bAnyInProgress = false;
+ 	FOR_EACH_ENUM(Build)
+ 	{
+-		if(m_aiBuildProgress.get(eLoopBuild) <= 0)
+-			continue;
+-		if(!bTest)
+-			m_aiBuildProgress.add(eLoopBuild, -1);
+-		r = true;
+-		if(m_aiBuildProgress.get(eLoopBuild) > 0)
++		if (m_aiBuildProgress.get(eLoopBuild) > 0)
+ 		{
++			m_aiBuildProgress.add(eLoopBuild, -1);
+ 			bAnyInProgress = true;
+-			break;
+ 		}
+ 	}
+-	// Suspend decay (just for better performance)
+-	if(!bAnyInProgress && !bTest)
++	// Explicitly suspend decay (just for better performance)
++	if (!bAnyInProgress)
+ 		m_iTurnsBuildsInterrupted = NO_BUILD_IN_PROGRESS;
+-	return r;
+ } // </advc.011>
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 2baa23b7f..a1aa88cc3 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -608,7 +608,8 @@ public:
+ 	bool changeBuildProgress(BuildTypes eBuild, int iChange,									// Exposed to Python
+ 			//TeamTypes eTeam = NO_TEAM
+ 			PlayerTypes ePlayer); // advc.251
+-	bool decayBuildProgress(bool bTest = false); // advc.011
++	bool isBuildProgressDecaying(bool bWarn = false) const; // advc.011
++	void decayBuildProgress(); // advc.011
+ 
+ 	void updateFeatureSymbolVisibility();
+ 	void updateFeatureSymbol(bool bForce = false);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3334

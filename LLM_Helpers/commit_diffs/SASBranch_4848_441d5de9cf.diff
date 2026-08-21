@@ -1,0 +1,74 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4848
+# Commit: 441d5de9cfc8a48ed181be6530bcdaa8457fdf43
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 2973ba48f3bd65d0a85956ed5aee0457858dc621
+# Title: fixes and tweaks from previous commit after multiple manual rereads hehe if i may say in this case but anyways etc due to github showing the same code diff m...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/BUG/SpyUtil.py
+1	1	Assets/Python/Screens/CvInfoScreen.py
+7	2	Assets/Python/Screens/CvTechChooser.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/SpyUtil.py b/Assets/Python/BUG/SpyUtil.py
+index df9b1144f..3714f6493 100644
+--- a/Assets/Python/BUG/SpyUtil.py
++++ b/Assets/Python/BUG/SpyUtil.py
+@@ -27,7 +27,7 @@ def getSpending(playerOrID, ActiveplayerOrID=None):
+ 
+ 	iTotal = 0
+ 	for targetTeam in PlayerUtil.teams(True, None, False):
+-		if (ActiveplayerOrID is not None
++		if (ActiveplayerOrID is None
+ 		or pActiveTeam.isHasMet(targetTeam.getID())):
+ 			iTotal += getDifferenceByTeam(PlayerUtil.getPlayerTeam(playerOrID), targetTeam.getID())
+ 	return iTotal
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index aa559a5e1..0b279e8c6 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -1503,7 +1503,7 @@ class CvInfoScreen:
+ 			if self.bAlwaysShowBestWorstNameIfMet:
+ 				return (szPlayerName,"?")
+ 			return ("","?")
+-		# <!-- custom: as per ruff rule E714 and chatgpt/becomingthrough's reply to my prompt and such and me too for sending it but anyways etc anyways etc anwyays etc ; do not use "and not aiGroup is None" instead use "aiGroup is not None" anyways etc -->
++		# <!-- custom: as per ruff rule E714 and chatgpt/becomingthrough's reply to my prompt and such and me too for sending it but anyways etc anyways etc anwyays etc ; do not use "and not aiGroup is None" instead use "and aiGroup is not None" anyways etc -->
+ 		if self.bShowBestKnown and not self.bRevealAll and aiGroup is not None:
+ 			# Make sure player name isn't too long (I use the same code in CvOptionsScreen)
+ 			iCharLimit = 18
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index 53bbff936..0b60116f1 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -36,8 +36,13 @@ PREF_ICON_SIZE = 24
+ PREF_ICON_BOTTOM = 738
+ PREF_ICON_LEFT = 40 # was a bit farther left (10)
+ # </advc.004a>
+-FLAVORS = [ TechPrefs.FLAVOR_PRODUCTION, TechPrefs.FLAVOR_GOLD, TechPrefs.FLAVOR_SCIENCE,
+-			TechPrefs.FLAVOR_CULTURE, TechPrefs.FLAVOR_RELIGION ]
++FLAVORS = [
++	TechPrefs.FLAVOR_PRODUCTION,
++	TechPrefs.FLAVOR_GOLD,
++	TechPrefs.FLAVOR_SCIENCE,
++	TechPrefs.FLAVOR_CULTURE,
++	TechPrefs.FLAVOR_RELIGION
++]
+ UNIT_CLASSES = [
+ 	"UNITCLASS_GREAT_ENGINEER",
+ 	"UNITCLASS_GREAT_MERCHANT",
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2309

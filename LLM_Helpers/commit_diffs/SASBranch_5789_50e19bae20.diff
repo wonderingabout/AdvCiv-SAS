@@ -1,0 +1,698 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5789
+# Commit: 50e19bae20f9607d5420f06dfb2290b7660e013c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 110c82fdbc7eb186f6739c618601f7d3ff98c8eb
+# Title: replace multiline 3, in comments too, and update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AGENTS.md
+16	45	Assets/Python/Screens/CvMainInterface.py
+42	4	LLM_Helpers/README.md
+4	0	LLM_Helpers/autotune_speed_from_xml.py
+4	0	LLM_Helpers/collapse_multiline_brackets.py
+4	0	LLM_Helpers/compare_speed_summaries.py
+370	0	LLM_Helpers/singleline_pass3_comments_and_long.py
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 LLM_Helpers/singleline_pass3_comments_and_long.py
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 87f653823..07b52df90 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -155,7 +155,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - For AI or gameplay logic changes, include a slightly more verbose rationale (why it helps efficiency or outcomes), not just what changed.
+ - When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
+ - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
+-- Try to make one liner code whenever possible, for example a line like `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)` is much easier to scan or grep through/compare throughout our codebase than a multi-line mostly needlessly stylized version of it. As such a refactor would be extensive, do it as we go rather than all in one-go. See also a LLM-helper to perform that refactor for py files in [collapse_multiline_brackets.py](/LLM_Helpers/collapse_multiline_brackets.py).
++- Try to make one liner code whenever possible, for example a line like `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)` is much easier to scan or grep through/compare throughout our codebase than a multi-line mostly needlessly stylized version of it. The user has line wrap on VS Code so it is preferrable for the user too. As such a refactor would be extensive, do it as we go rather than all in one-go. See also a LLM-helpers to perform that refactor for py files in [collapse_multiline_brackets.py](/LLM_Helpers/collapse_multiline_brackets.py) and [singleline_pass3_comments_and_long.py](/LLM_Helpers/singleline_pass3_comments_and_long.py).
+ - Note that an exception to the former is for very long or uniform listings such as as of now in `self.SAS_CATEGORY_DEFS` or `getMusicList` (in SevoPediaMain.py): a multiline statement seems preferable and more readable for these. Adjust as you see fit.
+ - When doing performance optimizations, checking quotes (i.e. `"`) only on one side is handy to spot all string lookups we could potentially cache. E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")`. Or appending `.` or `)` or ` ` or `,`, or ` `, etc., to what we want to simplify. E.g., `GET_TEAM(getTeam()).` or `GET_TEAM(getTeam()))`, or `GET_TEAM(getTeam()) `, or `GET_TEAM(getTeam()),`, etc. Basically any charcter other than `;`, for example `GET_TEAM(getTeam());`, most likely indicates this is not a cached variable and so most likely an optimize candidate.
+ - When doing performance optimizations, using local variables only is enough and best if we don't use this variable elsewhere. E.g. `eYellow = gc.getInfoTypeForString("COLOR_YELLOW")` at init in SevoPediaMain.py.
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index b07b62c34..f48be1dfe 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -468,9 +468,7 @@ class CvMainInterface:
+ 		self.DRAW_METHOD_VAN = "DRAW_METHOD_VAN"
+ 		self.DRAW_METHOD_BUG = "DRAW_METHOD_BUG"
+ 		# advc.069: No longer used
+-		#self.DRAW_METHODS = (self.DRAW_METHOD_PLE,
+-		#					 self.DRAW_METHOD_VAN,
+-		#					 self.DRAW_METHOD_BUG)
++		#self.DRAW_METHODS = (self.DRAW_METHOD_PLE, self.DRAW_METHOD_VAN, self.DRAW_METHOD_BUG)
+ #		self.sDrawMethod = self.DRAW_METHOD_PLE
+ # BUG - draw method
+ 
+@@ -949,10 +947,7 @@ class CvMainInterface:
+ 		self.DEFAULT_FIELD_OF_VIEW = 37.0
+ 		#aspectFactor = pow((0.8 * self.xResolution) / self.yResolution, 0.72)
+ 		if ((not MainOpt.isRememberFieldOfView() and not MainOpt.isShowFieldOfView()) or int(MainOpt.getFieldOfView())) < 0:
+-		#	self.DEFAULT_FIELD_OF_VIEW = int(max(self.DEFAULT_FIELD_OF_VIEW,
+-		#			min(2 * self.DEFAULT_FIELD_OF_VIEW,
+-		#			(aspectFactor * self.xResolution) /
+-		#			max(70 - self.DEFAULT_FIELD_OF_VIEW, 10))))
++			# self.DEFAULT_FIELD_OF_VIEW = int(max(self.DEFAULT_FIELD_OF_VIEW, min(2 * self.DEFAULT_FIELD_OF_VIEW, (aspectFactor * self.xResolution) / max(70 - self.DEFAULT_FIELD_OF_VIEW, 10))))
+ 			# Better to adjust only to the smaller aspect.
+ 			# Bigger screen also tends to mean that the player sits farther away.
+ 			if self.yResolution > 1024:
+@@ -1977,9 +1972,7 @@ class CvMainInterface:
+ 		screen.hide("RawYieldsOwnedTiles6")
+ # BUG - Raw Yields - end
+ # BUG - BUG Option Button - Start
+-		#self.setImageButton("BUGOptionsScreenWidget",
+-		#		ArtFileMgr.getInterfaceArtInfo("BUG_OPTIONS_SCREEN_BUTTON").getPath(),
+-		#		WidgetTypes.WIDGET_BUG_OPTION_SCREEN)
++		#self.setImageButton("BUGOptionsScreenWidget", ArtFileMgr.getInterfaceArtInfo("BUG_OPTIONS_SCREEN_BUTTON").getPath(), WidgetTypes.WIDGET_BUG_OPTION_SCREEN)
+ 		# <K-Mod>
+ 		# </K-Mod>
+ 		self.setStyledButton("BUGOptionsScreenWidget", "Button_HUDAdvisorCorporation_Style", WidgetTypes.WIDGET_BUG_OPTION_SCREEN)
+@@ -2165,15 +2158,8 @@ class CvMainInterface:
+ 			szPanelName = "PlotListPanel" + str(j)
+ 			# <!-- custom: move unit bar ("PlotListPanel") more to the left so it is as of now aligned with where production chooser buttons start. Done with the help of GPT-5.2-Codex thanks a lot, was 6 -->
+ 			plotListPanelWGap = 0
+-			gSetRect(szPanelName, "Top",
+-					# (Don't want these margins to scale fully)
+-					gRect("LowerLeftCornerPanel").xRight() + HSPACE(2) + plotListPanelWGap
+-					+ self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET,
+-					gRect("CenterBottomPanel").y() - VSPACE(2) - 4
+-					+ (j - iRows) * iBtnSize
+-					+ self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET,
+-					iCols * iBtnSize + HSPACE(3),
+-					iBtnSize + VSPACE(1))
++			# (Don't want these margins to scale fully)
++			gSetRect(szPanelName, "Top", gRect("LowerLeftCornerPanel").xRight() + HSPACE(2) + plotListPanelWGap + self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_X_OFFSET, gRect("CenterBottomPanel").y() - VSPACE(2) - 4 + (j - iRows) * iBtnSize + self.iSAS_CV_MAIN_INTERFACE_PLOTLISTPANEL_Y_OFFSET, iCols * iBtnSize + HSPACE(3), iBtnSize + VSPACE(1))
+ 			self.addPanel(szPanelName, PanelStyles.PANEL_STYLE_EMPTY)
+ 			for i in range(iCols):
+ 				k = j * iCols + i
+@@ -2241,8 +2227,7 @@ class CvMainInterface:
+ 		except KeyError:
+ 			return # </advc.009b>
+ 
+-#		BugUtil.debug("update - Turn %d, Player %d, Interface %d, End Turn Button %d ===",
+-#				gc.getGame().getGameTurn(), gc.getGame().getActivePlayer(), CyInterface().getShowInterface(), CyInterface().getEndTurnState())
++#		BugUtil.debug("update - Turn %d, Player %d, Interface %d, End Turn Button %d ===", gc.getGame().getGameTurn(), gc.getGame().getActivePlayer(), CyInterface().getShowInterface(), CyInterface().getEndTurnState())
+ 
+ # BUG - Options - start
+ 		BugOptions.write()
+@@ -2322,11 +2307,9 @@ class CvMainInterface:
+ 				# advc.004: Option disabled
+ 				# elif MainOpt.isShowOptionsKeyReminder()
+ 				# 	if BugPath.isMac():
+-				# 		acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER_MAC",
+-				# 				(BugPath.getModName(),))
++				# 		acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER_MAC", (BugPath.getModName(),))
+ 				# 	else:
+-				# 		acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER",
+-				# 				(BugPath.getModName(),))
++				# 		acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER", (BugPath.getModName(),))
+ 				# 	#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
+ 				# 	screen.setEndTurnState("EndTurnText", acOutput)
+ 				# 	bShow = True
+@@ -2397,8 +2380,7 @@ class CvMainInterface:
+ 		# <advc.706> Freeze main interface during interlude
+ 		if gc.getGame().isRFInterlude():
+ 			return 0 # </advc.706>
+-#		BugUtil.debug("redraw - Turn %d, Player %d, Interface %d, End Turn Button %d",
+-#				gc.getGame().getGameTurn(), gc.getGame().getActivePlayer(), CyInterface().getShowInterface(), CyInterface().getEndTurnState())
++		# BugUtil.debug("redraw - Turn %d, Player %d, Interface %d, End Turn Button %d", gc.getGame().getGameTurn(), gc.getGame().getActivePlayer(), CyInterface().getShowInterface(), CyInterface().getEndTurnState())
+ 		# advc.009b: Set screen attribute after reloading scripts
+ 		screen = self.screen = CyGInterfaceScreen("MainInterface", CvScreenEnums.MAIN_INTERFACE)
+ 
+@@ -2529,11 +2511,8 @@ class CvMainInterface:
+ 			return False
+ 		if player.getCommercePercent(eCommerce) > 0:
+ 			return True
+-		if (eCommerce == CommerceTypes.COMMERCE_ESPIONAGE and
+-				(gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) or
+-				gc.getTeam(player.getTeam()).getHasMetCivCount(True) == 0 or
+-				(gc.getPlayer(ePlayer).getCommercePercent(eCommerce) == 0 and # advc.120c
+-				not CyInterface().isCityScreenUp() and MainOpt.isHideEspSlider()))):
++		# advc.120c
++		if (eCommerce == CommerceTypes.COMMERCE_ESPIONAGE and (gc.getGame().isOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) or gc.getTeam(player.getTeam()).getHasMetCivCount(True) == 0 or (gc.getPlayer(ePlayer).getCommercePercent(eCommerce) == 0 and not CyInterface().isCityScreenUp() and MainOpt.isHideEspSlider()))):
+ 			return False
+ 		return player.isCommerceFlexible(eCommerce)
+ 
+@@ -3214,9 +3193,7 @@ class CvMainInterface:
+ #		BugUtil.debug("updatePlotListButtons_BUG - A")
+ #		if (pPlot and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and CyEngine().isGlobeviewUp() == False):
+ 		# skip this if we don't need to display any units
+-#		if not (pPlot
+-#		and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL
+-#		and CyEngine().isGlobeviewUp() == False):
++#		if not (pPlot and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and CyEngine().isGlobeviewUp() == False):
+ 		if (not pPlot or CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_HIDE_ALL or (CyEngine().isGlobeviewUp())):
+ 			self.BupPanel.clearUnits()
+ 			self.BupPanel.Hide()
+@@ -3566,11 +3543,9 @@ class CvMainInterface:
+ 						# <advc.004k>
+ 						# (I don't think these options are needed after all)
+ 						#
+-						# if (gc.getActionInfo(i).getMissionType() == MissionTypes.MISSION_SEAPATROL and
+-						# 		not MainOpt.isShowSeaPatrol()):
++						# if (gc.getActionInfo(i).getMissionType() == MissionTypes.MISSION_SEAPATROL and not MainOpt.isShowSeaPatrol()):
+ 						# 	continue
+-						# if (gc.getActionInfo(i).getAutomateType() == AutomateTypes.AUTOMATE_EXPLORE and
+-						# 		not MainOpt.isShowAutoExplore()):
++						# if (gc.getActionInfo(i).getAutomateType() == AutomateTypes.AUTOMATE_EXPLORE and not MainOpt.isShowAutoExplore()):
+ 						# 	continue
+ 						#
+ 						# Show grouping commands before promotions, upgrades
+@@ -3806,10 +3781,7 @@ class CvMainInterface:
+ 				szName = "CitizenButton" + szIndex
+ 				# advc: Redundant I think
+ 				#
+-				# self.addCheckBox(szName,
+-				# 			gc.getSpecialistInfo(iSpecialist).getTexture(), "",
+-				# 			ButtonStyles.BUTTON_STYLE_LABEL,
+-				# 			WidgetTypes.WIDGET_CITIZEN, iSpecialist, j)
++				# self.addCheckBox(szName, gc.getSpecialistInfo(iSpecialist).getTexture(), "", ButtonStyles.BUTTON_STYLE_LABEL, WidgetTypes.WIDGET_CITIZEN, iSpecialist, j)
+ 				#
+ 				screen.show(szName)
+ 				szName = "CitizenButtonHighlight" + szIndex
+@@ -6624,8 +6596,7 @@ class CvMainInterface:
+ 	# 		yCoord = yResolution - 180
+ 	# 	else:
+ 	# 		yCoord = yResolution - 88
+-	# 	screen.moveItem(szButtonID,
+-	# 			996, yCoord - (iWhichLine * 18), -0.3)
++	# 	screen.moveItem(szButtonID, 996, yCoord - (iWhichLine * 18), -0.3)
+ 	#
+ 
+ 	# Will build the globeview UI
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index 1fceb67d6..c28a1aced 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -1,14 +1,30 @@
+ ﻿# External helper tools
+ 
+-This folder contains external Python 3 scripts for tasks outside Civ4's embedded Python 2.4 runtime — balancing workflows, code refactoring, etc.
++This folder contains external Python 3 helper scripts for tasks outside Civ4's embedded Python 2.4 runtime — balancing workflows, code refactoring, report generation, tuning experiments, etc.
++
++General note for LLM/code-agent helpers:
++
++- These scripts are external tools. They may use modern Python 3 even when the mod itself must still run in Civ4's old Python 2.4 runtime.
++- Only worry about Python 2.4-safe **output** when the script rewrites a Python file that Civ4 will actually load, such as files under `Assets\Python`.
++- Report outputs, tuning summaries, `.txt` review files, generated diagnostics, and other helper artifacts do **not** need to be Civ4-loadable. Make them clear for humans and LLMs.
++- When a helper rewrites source code, preserve behavior first: do not silently delete comments, do not rewrite strings, and review the diff before committing.
++- Paths created by ChatGPT in `/mnt/data/...` are sandbox paths, not repo paths. Codex/Claude/local agents should replace them with repo-relative paths such as `Assets\Python\Screens\CvMainInterface.py`.
+ 
+ - `collapse_multiline_brackets.py`
+-  - Collapses multi-line bracketed expressions (`(...)`, `[...]`, `{...}`) in a single Python source file to one-liners.
++  - Legacy/simple character-based collapser for multi-line bracketed expressions (`(...)`, `[...]`, `{...}`) in a single Python source file.
+   - Use to make boilerplate Civ4 API calls and helper invocations greppable on one line.
+-  - Preserves line endings (CRLF or LF), string literals, and out-of-range comments.
+-  - Strips line comments and indentation **inside** collapsed ranges.
++  - Preserves line endings (CRLF or LF), string literals, and comments outside collapsed ranges.
++  - Strips line comments and indentation **inside** collapsed ranges, so be careful on comment-heavy files.
+   - **Run on ONE file at a time** and eyeball the diff before committing — a whole-directory sweep was tried once and reverted.
+ 
++- `singleline_pass3_comments_and_long.py` / future `collapse_multiline_python.py`
++  - ChatGPT-generated safer basis for LLM-first multiline-to-single-line cleanup.
++  - Intended goal: one logical API/layout operation per physical line, so grep and LLM context snippets show the whole operation.
++  - Better than `collapse_multiline_brackets.py` for comment-heavy files because it moves inline comments above collapsed statements instead of deleting them.
++  - Can also collapse clearly code-like commented-out multiline blocks.
++  - The ChatGPT-generated pass scripts were made in a sandbox and may contain hardcoded `/mnt/data/...` paths. Before adding one to the repo, convert it to a normal CLI tool that accepts a target path and optional `--in-place`/review-copy mode.
++  - For source-rewrite helpers, useful checks are: unchanged meaningful code-token sequence, preserved comment text, reviewed diff, and an in-game smoke test for UI files.
++
+ - `compare_speed_summaries.py`
+   - Reads the latest Sevopedia Game Speed chart dump from `PythonDbg.log`.
+   - Compares `Normal` vs one selected speed across summary rows.
+@@ -29,6 +45,28 @@ Examples (PowerShell from mod root):
+ python LLM_Helpers\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py
+ ```
+ 
++Safer LLM-first single-line cleanup, once the ChatGPT pass script is cleaned into a repo tool:
++
++```powershell
++python LLM_Helpers\collapse_multiline_python.py Assets\Python\Screens\CvMainInterface.py --in-place --move-comments --collapse-commented-code
++```
++
++After source-rewrite cleanup:
++
++```powershell
++git diff -- Assets\Python\Screens\CvMainInterface.py
++```
++
++Review checklist for source-rewrite helpers:
++
++- No comment text was silently deleted.
++- Moved comments still describe the collapsed statement accurately.
++- The tool reports unchanged meaningful code tokens when possible.
++- Python 3 syntax checks are only sanity checks, not proof of Civ4 Python 2.4 compatibility.
++- For UI files such as `CvMainInterface.py`, prefer a real in-game smoke test.
++
++Speed summary comparison:
++
+ ```powershell
+ python LLM_Helpers\compare_speed_summaries.py --speed slow
+ python LLM_Helpers\compare_speed_summaries.py --speed marathon --summary 6
+
+diff --git a/LLM_Helpers/autotune_speed_from_xml.py b/LLM_Helpers/autotune_speed_from_xml.py
+index c84c090cf..536487f65 100644
+--- a/LLM_Helpers/autotune_speed_from_xml.py
++++ b/LLM_Helpers/autotune_speed_from_xml.py
+@@ -1,4 +1,8 @@
+ #!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
+ import argparse
+ import io
+ import os
+
+diff --git a/LLM_Helpers/collapse_multiline_brackets.py b/LLM_Helpers/collapse_multiline_brackets.py
+index 60347d880..b8a4200a8 100644
+--- a/LLM_Helpers/collapse_multiline_brackets.py
++++ b/LLM_Helpers/collapse_multiline_brackets.py
+@@ -1,4 +1,8 @@
+ #!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
+ # Collapse multi-line bracketed expressions ((...), [...], {...}) to one-liners
+ # in a single Python source file. Useful for grepping boilerplate Civ4 API calls
+ # in an LLM/AI workflow.
+
+diff --git a/LLM_Helpers/compare_speed_summaries.py b/LLM_Helpers/compare_speed_summaries.py
+index 3b80f5ca9..e283cef55 100644
+--- a/LLM_Helpers/compare_speed_summaries.py
++++ b/LLM_Helpers/compare_speed_summaries.py
+@@ -1,4 +1,8 @@
+ ﻿#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
+ import argparse
+ import csv
+ import io
+
+diff --git a/LLM_Helpers/singleline_pass3_comments_and_long.py b/LLM_Helpers/singleline_pass3_comments_and_long.py
+new file mode 100644
+index 000000000..b1bde9572
+--- /dev/null
++++ b/LLM_Helpers/singleline_pass3_comments_and_long.py
+@@ -0,0 +1,370 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++"""Third multiline-to-single-line pass for CvMainInterface.py.
++
++Input:  CvMainInterface.singleline2.py
++Output: CvMainInterface.singleline3.py
++
++Adds two conservative behaviors on top of the previous passes:
++- Collapses remaining real multiline logical statements up to a longer line cap,
++  preserving/moving inline COMMENT tokens above the statement.
++- Collapses commented-out multiline Python calls/conditions when they are clearly
++  bracket-continuation code comments. Normal prose comments are left alone.
++
++Verification:
++- significant real-code token sequence is unchanged;
++- output compiles under Python 3's parser for this file.
++"""
++from __future__ import print_function
++from pathlib import Path
++import io
++import re
++import difflib
++import tokenize
++import py_compile
++
++SRC = Path('/mnt/data/CvMainInterface.singleline2.py')
++DST = Path('/mnt/data/CvMainInterface.singleline3.py')
++DIFF = Path('/mnt/data/CvMainInterface.singleline3.diff')
++MAX_REAL_CODE_LINE_LEN = 400
++MAX_COMMENTED_CODE_LINE_LEN = 500
++
++raw = SRC.read_bytes()
++newline = b'\r\n' if b'\r\n' in raw else b'\n'
++NL = '\r\n' if newline == b'\r\n' else '\n'
++text = raw.decode('utf-8', errors='replace')
++lines = text.splitlines(True)
++
++
++def leading_indent(s):
++    return s[:len(s) - len(s.lstrip(' \t'))]
++
++
++def strip_line_ending(s):
++    return s.rstrip('\r\n')
++
++
++def join_parts(parts):
++    body = ''
++    for part in parts:
++        if not body:
++            body = part
++            continue
++        if body.rstrip().endswith(('(', '[', '{')) or part.lstrip().startswith((')', ']', '}', ':', ',')):
++            body += part
++        else:
++            body += ' ' + part
++    return body
++
++
++def significant_code_tokens(path):
++    result = []
++    with path.open('rb') as f:
++        for tok in tokenize.tokenize(f.readline):
++            if tok.type in (tokenize.ENCODING, tokenize.ENDMARKER, tokenize.NL, tokenize.NEWLINE, tokenize.COMMENT):
++                continue
++            result.append((tok.type, tok.string))
++    return result
++
++# --- Pass 3A: real Python logical statements ---------------------------------
++
++groups = []
++cur = []
++with SRC.open('rb') as f:
++    for tok in tokenize.tokenize(f.readline):
++        if tok.type in (tokenize.ENCODING, tokenize.ENDMARKER):
++            continue
++        if not cur and tok.type in (tokenize.NL, tokenize.COMMENT, tokenize.INDENT, tokenize.DEDENT):
++            continue
++        cur.append(tok)
++        if tok.type == tokenize.NEWLINE:
++            if cur:
++                groups.append((cur[0].start[0], cur[-1].end[0], cur[:]))
++            cur = []
++
++candidate_ranges = {}
++real_changed = 0
++real_moved_comments = 0
++real_removed_lines = 0
++skipped_real = {
++    'single_line': 0,
++    'multiline_string': 0,
++    'backslash': 0,
++    'too_long': 0,
++    'empty_after_comment_removal': 0,
++    'list_or_dict_assignment': 0,
++}
++
++for start, end, toks in groups:
++    if end <= start:
++        skipped_real['single_line'] += 1
++        continue
++    if any(t.type == tokenize.STRING and t.start[0] != t.end[0] for t in toks):
++        skipped_real['multiline_string'] += 1
++        continue
++    if any(lines[i - 1].rstrip('\r\n').rstrip().endswith('\\') for i in range(start, end)):
++        skipped_real['backslash'] += 1
++        continue
++
++    comment_toks = [t for t in toks if t.type == tokenize.COMMENT]
++    indent = leading_indent(lines[start - 1])
++
++    # Avoid collapsing large data containers; these stay more useful as one entry per line.
++    first_meaningful = None
++    for t in toks:
++        if t.type not in (tokenize.INDENT, tokenize.DEDENT, tokenize.NL, tokenize.NEWLINE, tokenize.COMMENT):
++            first_meaningful = t
++            break
++    stripped_start = lines[start - 1].strip()
++    if ('= [' in stripped_start or '= {' in stripped_start) and end - start >= 3:
++        skipped_real['list_or_dict_assignment'] += 1
++        continue
++
++    cut_cols_by_line = {}
++    for t in comment_toks:
++        line_no, col = t.start
++        cut_cols_by_line[line_no] = min(col, cut_cols_by_line.get(line_no, col))
++
++    code_parts = []
++    for line_no in range(start, end + 1):
++        raw_line = strip_line_ending(lines[line_no - 1])
++        if line_no in cut_cols_by_line:
++            raw_line = raw_line[:cut_cols_by_line[line_no]]
++        part = raw_line.strip()
++        if part:
++            code_parts.append(part)
++    if not code_parts:
++        skipped_real['empty_after_comment_removal'] += 1
++        continue
++
++    body = join_parts(code_parts)
++    joined_code = indent + body
++    comment_lines = [indent + t.string.strip() for t in comment_toks]
++    replacement_lines = comment_lines + [joined_code]
++    replacement = NL.join(replacement_lines) + NL
++
++    if len(joined_code) > MAX_REAL_CODE_LINE_LEN:
++        skipped_real['too_long'] += 1
++        continue
++
++    candidate_ranges[start] = (end, replacement)
++    real_changed += 1
++    real_removed_lines += (end - start + 1) - len(replacement_lines)
++    real_moved_comments += len(comment_toks)
++
++out = []
++i = 1
++n = len(lines)
++while i <= n:
++    if i in candidate_ranges:
++        end, replacement = candidate_ranges[i]
++        out.append(replacement)
++        i = end + 1
++    else:
++        out.append(lines[i - 1])
++        i += 1
++text_after_real = ''.join(out)
++
++# --- Pass 3B: commented-out bracket continuations -----------------------------
++
++comment_line_re = re.compile(r'^(?P<prefix>[ \t]*#)(?P<body>.*?)(?P<eol>\r?\n?)$')
++
++
++def split_comment_line(line):
++    m = comment_line_re.match(line)
++    if not m:
++        return None
++    return m.group('prefix'), m.group('body'), m.group('eol')
++
++
++def bracket_delta(s):
++    """Return net bracket delta for one code-ish line, ignoring strings and trailing # comments."""
++    delta = 0
++    stack = []
++    i = 0
++    n = len(s)
++    quote = None
++    triple = None
++    while i < n:
++        c = s[i]
++        if quote:
++            if c == '\\':
++                i += 2
++                continue
++            if triple:
++                if s[i:i+3] == triple:
++                    quote = None
++                    triple = None
++                    i += 3
++                    continue
++            elif c == quote:
++                quote = None
++            i += 1
++            continue
++        if c == '#':
++            break
++        if c in ('"', "'"):
++            if s[i:i+3] in ('"""', "'''"):
++                quote = c
++                triple = s[i:i+3]
++                i += 3
++                continue
++            quote = c
++            i += 1
++            continue
++        if c in '([{':
++            delta += 1
++        elif c in ')]}':
++            delta -= 1
++        i += 1
++    return delta
++
++
++def looks_like_commented_code_start(body):
++    s = body.lstrip()
++    # Allow one extra comment marker for blocks written like '# #foo(...)'.
++    if s.startswith('#'):
++        s2 = s[1:].lstrip()
++    else:
++        s2 = s
++    if not s2:
++        return False
++    if s2.startswith(('<', '-', '*')):
++        return False
++    # Most commented-out continuation code here is assignment/call/condition style.
++    code_keywords = ('if ', 'elif ', 'while ', 'for ', 'return ', 'assert ')
++    if s2.startswith(code_keywords):
++        return True
++    if re.match(r'[A-Za-z_][A-Za-z0-9_\.]*\s*(=|\(|\[|\{|\.)', s2):
++        return True
++    if s2.startswith(('self.', 'gc.', 'Cy', 'screen.', 'BugUtil.', 'MainOpt.', 'gRect(', 'gSet', 'localText.')):
++        return True
++    return False
++
++
++def collapse_commented_body(first_prefix, first_body, bodies):
++    # Preserve the leading whitespace after '#' from the first line.
++    leading_after_hash = first_body[:len(first_body) - len(first_body.lstrip(' \t'))]
++    parts = []
++    for b in bodies:
++        part = b.strip()
++        if part:
++            parts.append(part)
++    if not parts:
++        return None
++    body = join_parts(parts)
++    return first_prefix + leading_after_hash + body + NL
++
++comment_changed = 0
++comment_removed_lines = 0
++comment_skipped = {'too_long': 0, 'unbalanced': 0, 'not_code_like': 0}
++
++work_lines = text_after_real.splitlines(True)
++out2 = []
++i = 0
++while i < len(work_lines):
++    split = split_comment_line(work_lines[i])
++    if not split:
++        out2.append(work_lines[i])
++        i += 1
++        continue
++    prefix, body, eol = split
++    if bracket_delta(body) <= 0 or not looks_like_commented_code_start(body):
++        out2.append(work_lines[i])
++        i += 1
++        continue
++
++    depth = bracket_delta(body)
++    bodies = [body]
++    j = i + 1
++    has_internal_commented_prose = False
++    while j < len(work_lines) and depth > 0:
++        split_j = split_comment_line(work_lines[j])
++        if not split_j:
++            break
++        _, body_j, _ = split_j
++        # A second '#' after uncommenting the line usually means an explanatory
++        # comment inside commented-out code. Keep such blocks multiline so the
++        # explanation remains attached to the specific subexpression.
++        if body_j.lstrip().startswith('#'):
++            has_internal_commented_prose = True
++        bodies.append(body_j)
++        depth += bracket_delta(body_j)
++        j += 1
++
++    if has_internal_commented_prose:
++        out2.append(work_lines[i])
++        i += 1
++        comment_skipped['internal_comment'] = comment_skipped.get('internal_comment', 0) + 1
++        continue
++
++    if depth != 0 or j == i + 1:
++        out2.append(work_lines[i])
++        i += 1
++        if depth != 0:
++            comment_skipped['unbalanced'] += 1
++        continue
++
++    collapsed = collapse_commented_body(prefix, body, bodies)
++    if collapsed is None:
++        out2.append(work_lines[i])
++        i += 1
++        continue
++    if len(strip_line_ending(collapsed)) > MAX_COMMENTED_CODE_LINE_LEN:
++        out2.append(work_lines[i])
++        i += 1
++        comment_skipped['too_long'] += 1
++        continue
++
++    out2.append(collapsed)
++    comment_changed += 1
++    comment_removed_lines += (j - i - 1)
++    i = j
++
++new_text = ''.join(out2)
++DST.write_bytes(new_text.encode('utf-8'))
++
++orig_tokens = significant_code_tokens(SRC)
++new_tokens = significant_code_tokens(DST)
++code_verified = orig_tokens == new_tokens
++
++# Also verify token sequence vs the original uploaded baseline for extra confidence? No: this pass input is second pass.
++try:
++    py_compile.compile(str(DST), doraise=True)
++    py3_compile_ok = True
++except Exception as e:
++    py3_compile_ok = False
++    py3_compile_error = repr(e)
++
++# Diff from pass2 to pass3.
++diff = difflib.unified_diff(
++    SRC.read_text(encoding='utf-8', errors='replace').splitlines(True),
++    DST.read_text(encoding='utf-8', errors='replace').splitlines(True),
++    fromfile='CvMainInterface.singleline2.py',
++    tofile='CvMainInterface.singleline3.py',
++)
++DIFF.write_text(''.join(diff), encoding='utf-8')
++
++print('real_code_changed_logical_statements=%d' % real_changed)
++print('real_code_moved_comments=%d' % real_moved_comments)
++print('real_code_removed_physical_lines=%d' % real_removed_lines)
++print('real_code_max_line_len=%d' % MAX_REAL_CODE_LINE_LEN)
++print('real_code_skipped=%s' % skipped_real)
++print('commented_code_changed_groups=%d' % comment_changed)
++print('commented_code_removed_physical_lines=%d' % comment_removed_lines)
++print('commented_code_max_line_len=%d' % MAX_COMMENTED_CODE_LINE_LEN)
++print('commented_code_skipped=%s' % comment_skipped)
++print('code_token_sequence_verified=%s' % code_verified)
++print('py3_compile_ok=%s' % py3_compile_ok)
++if not code_verified:
++    for idx, (a, b) in enumerate(zip(orig_tokens, new_tokens)):
++        if a != b:
++            print('first_code_token_difference_at=%d orig=%r new=%r' % (idx, a, b))
++            break
++    raise SystemExit(1)
++if not py3_compile_ok:
++    print('py3_compile_error=%s' % py3_compile_error)
++    raise SystemExit(1)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 8f170d100..65c5c840c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -111,6 +111,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 5515+) **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+ - (Requires AdvCiv-SAS 5516+) **Remove screen-dependent geometry computation** from `__init__` in advisors because this advisor object is created before a reliable screen context exists; doing layout in `interfaceScreen` **ensures correct values for the current resolution**. Keeping **only screen-independent edge constants** in `__init__` ensures **no redundant recomputation** is made again in `interfaceScreen`, and **catches loud screen-dependent errors** in `__init__`.
+ - **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
++- (Requires AdvCiv-SAS 5789+) **Collapse multiline statements to single-line form** (e.g., `draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)`): much **easier** to **scan**, **maintain**, and **grep**, especially **for LLMs**. Often done using scripts to batch process it, and done as we go rather than all at once since this is a recent change. Especially important in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) where ~2158 lines of code have been collapsed to ~879 lines. See also [LLM_Helpers (README.md)](/LLM_Helpers/README.md) and [PR#23](https://github.com/wonderingabout/AdvCiv-SAS/pull/23).
+ - Convert **single quote to double quote** (e.g. `'BONUS_IRON'` to `"BONUS_IRON"`), which allowed to **detect and fix incorrect fields** and later strengthen them with `getInfoTypeOrFail(...)`.
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+ - Performance optimizations in [Arboria.py](/PrivateMaps/Arboria.py).
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=35012

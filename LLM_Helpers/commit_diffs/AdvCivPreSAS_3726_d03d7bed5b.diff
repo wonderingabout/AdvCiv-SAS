@@ -1,0 +1,104 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3726
+# Commit: d03d7bed5bec301da8f81a636013d69e4798eafb
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9f9627fc3f4117788bd401143f9b4bbd0a389c6f
+# Title: Show More sea level info for Tectonics landmass choices
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+46	0	Assets/XML/Text/CIV4GameText_advc.xml
+2	2	PrivateMaps/Tectonics.py
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 904f35e44..a2b2cf744 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3217,6 +3217,52 @@
+ 		<Italian>Simile alla Terra (60%% acqua)</Italian>
+ 		<Spanish>Similar a la Tierra (60%% agua)</Spanish>
+ 	</TEXT>
++	<!-- State the water percentage -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_MAP_SCRIPT_MEDITERRANEAN</Tag>
++		<English>Mediterranean (45%% water)</English>
++		<French>M�diterran�en (45% d'eau)</French>
++		<German>Mediterran (45%% Wasser)</German>
++		<Italian>Mediterraneo (45%% acqua)</Italian>
++		<Spanish>Mediterr�neo (45%% agua)</Spanish>
++	</TEXT>
++	<!-- NB: These two only gets used for Tectonics -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_MAP_SCRIPT_PANGAEA</Tag>
++		<English>Pangaea (70%% water)</English>
++		<French>Pang�e (70%% d'eau)</French>
++		<German>Pang�a (70%% Wasser)</German>
++		<Italian>Pangea (70%% acqua)</Italian>
++		<Spanish>Pangea (70%% agua)</Spanish>
++	</TEXT>
++	<!-- Also shortened this one a bit, removing the word "Actual". -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_MAP_SCRIPT_TERRA</Tag>
++		<English>Randomized Earth (67%% water)</English>
++		<French>Randomisation de la Terre (67%% d'eau)</French>
++		<German>Zuf�llige Erde (67%% Wasser)</German>
++		<Italian>Terra casuale (67%% acqua)</Italian>
++		<Spanish>Tierra al azar (67%% agua)</Spanish>
++	</TEXT>
++	<!-- To be consistent with the above -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_MAP_SCRIPT_TERRA_OLD_WORLD_START</Tag>
++		<English>Randomized Earth (Old World Start)</English>
++		<French>Randomisation de la Terre (d�part : Antiquit�)</French>
++		<German>Zuf�llige Erde (Start Alte Welt)</German>
++		<Italian>Terra casuale (partenza Vecchio Mondo)</Italian>
++		<Spanish>Tierra al azar (inicio en Viejo Mundo)</Spanish>
++	</TEXT>
++	<!-- Based on TXT_KEY_MAP_SCRIPT_ISLANDS (CIV4GameText_Misc1.xml),
++		 which is used for various map scripts. -->
++	<TEXT>
++		<Tag>TXT_KEY_MAP_SCRIPT_ISLANDS_90</Tag>
++		<English>Islands (90%% water)</English>
++		<French>Iles (90%% d'eau)</French>
++		<German>Inseln (90%% Wasser)</German>
++		<Italian>Isole (90%% acqua)</Italian>
++		<Spanish>Islas (90%% agua)</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.004g: Based on Vanilla Civ4GameTextInfos.xml -->
+ 	<TEXT>
+
+diff --git a/PrivateMaps/Tectonics.py b/PrivateMaps/Tectonics.py
+index dd5e145ea..0739d762e 100644
+--- a/PrivateMaps/Tectonics.py
++++ b/PrivateMaps/Tectonics.py
+@@ -151,7 +151,7 @@ def getCustomMapOptionDescAt(argsList):
+ 					   "TXT_KEY_MAP_SCRIPT_EARTH_50", # advc.021a
+ 	                   "TXT_KEY_MAP_SCRIPT_PANGAEA",
+ 	                   "TXT_KEY_MAP_SCRIPT_LAKES",
+-	                   "TXT_KEY_MAP_SCRIPT_ISLANDS",
++	                   "TXT_KEY_MAP_SCRIPT_ISLANDS_90", # advc.021a: was ..._ISLANDS
+ 	                   "TXT_KEY_MAP_SCRIPT_MEDITERRANEAN", 
+ 	                   "TXT_KEY_MAP_SCRIPT_TERRA",
+ 	                   "TXT_KEY_MAP_SCRIPT_TERRA_OLD_WORLD_START"]
+@@ -169,7 +169,7 @@ def getCustomMapOptionDescAt(argsList):
+ def getCustomMapOptionDefault(argsList):
+ 	iOption = argsList[0]
+ 	if (iOption == 0):
+-		return 1 # advc.021a: Was 0, i.e. 70%. Now 60% as the default.
++		return 1 # advc.021a: Was 0, i.e. EARTH_70. Now EARTH_60 as the default.
+ 	else:
+ 		return 1
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3345

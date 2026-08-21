@@ -1,0 +1,123 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 765
+# Commit: 8976d4f7fd29920652ab0fe0244a37dcb5123efc
+# History segment: K-Mod history
+# Parent used for diff: dafcb88ed0bd1e423209602b3361fd790d16f1d9
+# Title: Fixed a mistake in the code which is meant to allow partial-group air strikes. Fixed a problem which sometimes caused city names of unmet teams to appear bla...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	CvGameCoreDLL/CvCity.cpp
+3	5	CvGameCoreDLL/CvSelectionGroup.cpp
+47	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 9b059276f..696d33605 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10130,6 +10130,11 @@ void CvCity::setRevealed(TeamTypes eIndex, bool bNewValue)
+ 	{
+ 		m_abRevealed[eIndex] = bNewValue;
+ 
++		// K-Mod
++		if (bNewValue)
++			GET_TEAM(eIndex).makeHasSeen(getTeam());
++		// K-Mod end
++
+ 		updateVisibility();
+ 
+ 		if (eIndex == GC.getGameINLINE().getActiveTeam())
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 32c4c69c4..dcab133c7 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3746,13 +3746,11 @@ bool CvSelectionGroup::canDoMission(int iMission, int iData1, int iData2, CvPlot
+ 					return true;
+ 
+ 				if (pLoopUnit->getDomainType() != DOMAIN_AIR)
+-					bValid = true; // need to check 'canMove' for all units.
+-				else if (pLoopUnit->canMove())
+-					return true; // air units don't have to move as a group
++					bValid = true; // air units don't have to move as a group
+ 			}
+ 
+-			if (!pLoopUnit->canMove())
+-				return false;
++			if (pLoopUnit->canMove() != bValid)
++				return !bValid; // huh?
+ 			break;
+ 
+ 		case MISSION_ROUTE_TO:
+
+diff --git a/changelog.txt b/changelog.txt
+index c8fb41126..c44ce3c51 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,6 +1,52 @@
+-This is K-Mod version 1.29b.
++This is K-Mod version 1.30.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
++v1.30 changelist
++
++Game
++
+++ Fixed a bug from BtS which caused the prerequisite conditions to be ignored for some diplomacy votes.
+++ Added a new promotion: "Disorganized", which gives -10% strength.
+++ Spontaneously spawned barbarian ships will now start with the disorganized promotion.
++
++UI
++
+++ Re-enabled the "is unwilling to talk" indicator option on the scoreboard. (It now uses '!' in the order string instead of 'F'.)
+++ Tweaked the effect of spacing (numbers) in the scoreboard order string so that it behaves more predictably.
+++ Air units can now be ordered to rebase or air strike when only part of the group can move.
+++ Missionaries and executives will now split up their group if they are automated, so that they can target different cities.
+++ Made several improvements to the new group cycle ordering system.
+++ When a worker finishes a build, all similar missions in progress on the plot are immediately cancelled. (This will help give better unit cycling, because it means the workers won't have to wait a cycle just to cancel their build.)
+++ Made some adjustments to the orchestration of battle animations.
+++ The base number of battle animations rounds is now an xml parameter: "STANDARD_BATTLE_ANIMATIONS_ROUNDS".
+++ Fixed a bug in the new battle animation planning which caused the game to crash when a unit withdraws from combat without any damage done to either side.
+++ Fixed a bug which caused the identify of unmet civs to be hidden in the worldbuilder screen unless using cheat mode.
+++ Fixed a bug which caused some city names to be displayed in black for one turn after trading maps.
+++ Espionage spending weights (in the espionage screen) will now default to 1 rather than 0.
+++ Changed some of the default BUG settings. (The BUG options suitcase is now disabled by default; and the scoreboard order is slightly different.)
+++ Autoplay and change player functionality is now only available in cheat mode.
++
++AI
++
+++ Fixed a bug which essentially prevented the AI from spreading corporations to more than half of their cities!
+++ Made some slight adjustments to the AI's probability of building execs.
+++ Made some adjustments to help the AI better prioritise spaceship research and construction when close to a space victory.
+++ Made some adjustments to the way the AI updates its tactical memory.
+++ Changed the behaviour of barbarian galleys. They will now be slightly more interested in pillaging rather than chasing workboats.
+++ Made some minor changes to the AI's gold target.
+++ Slightly increased the AI's colony cost estimates when considering a diplomatic victory, so as to encourage more empire splits for diplomatic civs.
+++ Slightly increased the AI's minimum attack stack size for the late-game.
++
++Back end
++
+++ Made some minor speed improvements in various parts of the code.
++(The following points have no direct effect on K-mod. They only apply to mods that are based on K-Mod.)
+++ Changed many parts of the back-end code and UI the handling of commerce to enable the possibility of an inflexible gold rate.
+++ Removed the rule from the base game which converted all gold into research if research was inflexible.
+++ Rewrote parts of the game mechanics and AI so that they can handle the new commerce flexibility rules without getting into an infinite loop.
++
++
++--
+ v1.29b changelist
+ 
+ + Rewrote some of the code for loading of the game text xml. The new loading routines treat the xml in a more intuitive and less rigid way. In particular, the language names used to tag the xml values are now what determines the text for any given language. (Previously this was determined by the order of the tags.) The order of the languages is no longer important. If there is a missing language, the first text will be used instead (this is English for all of the current text files.)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5388

@@ -1,0 +1,453 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3847
+# Commit: a06dd7516458677ebf90bb980223ad7198fe9ee0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f4af0bc3e0056ee18b9b4b04578b1120a03b4bcb
+# Title: Refactor SelfMod class (based on Taurus 1.00)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+179	99	CvGameCoreDLL/SelfMod.cpp
+11	9	CvGameCoreDLL/SelfMod.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/SelfMod.cpp b/CvGameCoreDLL/SelfMod.cpp
+index 5d578e41d..1a21badad 100644
+--- a/CvGameCoreDLL/SelfMod.cpp
++++ b/CvGameCoreDLL/SelfMod.cpp
+@@ -1,41 +1,37 @@
++// trs.092b: New implementation file; see comment in header.
+ #include "CvGameCoreDLL.h"
+ #include "SelfMod.h"
+ #include "CvGame.h"
+ #include "CvBugOptions.h"
+ 
+-// advc.092b: New implementation file; see comment in header.
+-
+-Civ4BeyondSwordMods smc::BtS_EXE;
++Civ4BeyondSwordPatches smc::BtS_EXE;
+ 
+ namespace
+ {
+ /*	This class seems like an elegant way of ensuring that virtual memory protections
+ 	are restored at the end */
+-class RuntimePatch : boost::noncopyable
++class SelfMod : boost::noncopyable
+ {
+ public:
+-	virtual ~RuntimePatch() { restorePageProtections(); }
++	SelfMod() : m_iAddressOffset(0) {}
++	virtual ~SelfMod() { restorePageProtections(); }
+ 	// Return false on unexpected failure
+ 	bool applyIfEnabled()
+ 	{
+-//		if (!GC.getDefineBOOL("DISABLE_EXE_RUNTIME_MODS"))
++		if (!GC.getDefineBOOL("DISABLE_EXE_RUNTIME_MODS"))
+ 			return apply();
+ 		return true;
+ 	}
+ 	/*	Derived classes can override this to be exempt from the
+ 		DISABLE_EXE_RUNTIME_MODS check */
+ 	virtual bool isOptionalThroughXML() const { return true; }
++	int getAddressOffset() const { return m_iAddressOffset; }
+ 
+ protected:
+ 	virtual bool apply()=0; // See applyIfEnabled about the return value
+ 	bool unprotectPage(LPVOID pAddress, SIZE_T uiSize,
+ 		DWORD ulNewProtect = PAGE_EXECUTE_READWRITE)
+ 	{
+-		/*	Any actual self-modifying code (which is what this class is really
+-			inteded for) should have the saafety switch in XML */
+-		FAssert((ulNewProtect != PAGE_EXECUTE &&
+-				ulNewProtect != PAGE_EXECUTE_READ &&
+-				ulNewProtect != PAGE_EXECUTE_READWRITE) || isOptionalThroughXML());
+ 		/*	Getting a segmentation fault when writing to the text segment under
+ 			Win 8.1. Probably the same on all Windows versions that anyone still uses.
+ 			Need to unprotect the virtual memory page first. Let's hope that this
+@@ -60,8 +56,37 @@ protected:
+ 		m_aPageProtections.push_back(PageProtection(pAddress, uiSize, uiOldProtect));
+ 		return true;
+ 	}
++	/*	This should return 0 when dealing with the exact same build of the EXE
++		that has been reverse-engineered to write this class. I don't think a
++		compatibility layer should make a difference. Large address awareness
++		has been tested both ways. It's unclear whether different builds exist
++		apart from the incompatible Steam version. Localized editions perhaps. 
++		So this hasn't really been tested; it's a better-than-nothing effort to
++		align a starting address at which a certain sequence of code bytes is
++		expected with the address, if any, at which the sequence is actually found.
++		Returns the difference between expected and actual address as a byte offset
++		or MIN_INT if no such offset has been found. */
++	int findAddressOffset(
++		// Sequence that we search for and address at which we expect it to start
++		byte* pNeedleBytes, int iNeedleBytes, uint uiExpectedStart,
++		/*	Shorter sequence to check for upfront, to save time.
++			If found at uiQuckTestStart, then an offset of 0 is returned
++			w/o checking pNeeldeBytes. */
++		byte* pQuickTestBytes = NULL, int iQuickTestBytes = 0, uint uiQuickTestStart = 0,
++		/*	How big an offset we contemplate. Not going to search the
++			entire virtual memory*/
++		int iMaxAbsOffset = 256 * 1024)
++	{
++		// Preserve the (most recent) offset in m_iAddressOffset
++		updateAddressOffset(pNeedleBytes, iNeedleBytes, uiExpectedStart,
++				pQuickTestBytes, iQuickTestBytes, uiQuickTestStart, iMaxAbsOffset);
++		return m_iAddressOffset;
++	}
++	bool testCodeLayout(byte* pBytes, int iBytes, uint uiStart) const;
+ 
+ private:
++	int m_iAddressOffset;
++
+ 	struct PageProtection
+ 	{
+ 		PageProtection(LPVOID pAddress, SIZE_T uiSize, DWORD uiProtect)
+@@ -84,16 +109,104 @@ private:
+ 			FAssertMsg(iSuccess != 0, "Failed to restore memory protection");
+ 		}
+ 	}
++	void updateAddressOffset(
++		byte* pNeedleBytes, int iNeedleBytes, uint uiExpectedStart,
++		byte* pQuickTestBytes = NULL, int iQuickTestBytes = 0, uint uiQuickTestStart = 0,
++		int iMaxAbsOffset = 256 * 1024)
++	{
++		if (pQuickTestBytes != NULL &&
++			testCodeLayout(pQuickTestBytes, iQuickTestBytes, uiQuickTestStart))
++		{
++			m_iAddressOffset = 0;
++			return;
++		}
++		/*	Would be safer to be aware of the few different builds that (may) exist
++			and to hardcode offsets for them. So this is a problem worth reporting,
++			even if we can recover. */
++		FAssertMsg(pQuickTestBytes == NULL, "Trying to compensate through address offset");
++		int iAddressOffset = 0;
++		// Base address of the EXE. Reading below that results in a crash.
++		int const iLowAddressBound = 0x00400000;
++		// I see mostly just zeros above this address in the VS Memory window
++		int const iHighAddressBound = 0x0FFFFFFF;
++		if (((int)uiExpectedStart) >= iLowAddressBound &&
++			((int)uiExpectedStart) <= iHighAddressBound)
++		{
++			int const iMaxSubtrahend = std::min(iMaxAbsOffset, static_cast<int>(
++					uiExpectedStart - iLowAddressBound));
++			int const iMaxAddend = std::min(iMaxAbsOffset, static_cast<int>(
++					iHighAddressBound - uiExpectedStart));
++			int const iHaystackBytes = iMaxSubtrahend + iMaxAddend;
++			byte* pHaystackBytes = new byte[iHaystackBytes];
++			for (int iOffset = -iMaxSubtrahend; iOffset < iMaxAddend; iOffset++)
++			{
++				pHaystackBytes[iOffset + iMaxSubtrahend] =
++						reinterpret_cast<byte*>(uiExpectedStart)[iOffset];
++			}
++			// No std::begin, std::end until C++11
++			byte* const pHaystackEnd = pHaystackBytes + iHaystackBytes;
++			byte* pos = std::search(
++					pHaystackBytes, pHaystackEnd,
++					pNeedleBytes, pNeedleBytes + iNeedleBytes);
++			if (pos == pHaystackEnd)
++			{
++				FErrorMsg("Failed to locate expected code bytes in EXE");
++				m_iAddressOffset = MIN_INT;
++				return;
++			}
++			iAddressOffset = ((int)std::distance(pHaystackBytes, pos))
++					- iMaxSubtrahend;
++		}
++		else
++		{
++			FErrorMsg("uiExpectedStart doesn't look like a code address");
++			m_iAddressOffset = MIN_INT;
++			return;
++		}
++		// Run our initial test again to be on the safe side
++		if (pQuickTestBytes != NULL &&
++			!testCodeLayout(pQuickTestBytes, iQuickTestBytes,
++			uiQuickTestStart + iAddressOffset))
++		{
++			FErrorMsg("Address offset discarded; likely incorrect.");
++			m_iAddressOffset = MIN_INT;
++			return;
++		}
++		m_iAddressOffset = iAddressOffset;
++		return;
++	}
+ };
++// Don't want this to be inlined; out-of-class definition accomplishes that.
++bool SelfMod::testCodeLayout(byte* pBytes, int iBytes, uint uiStart) const
++{
++	for (int i = 0; i < iBytes; i++)
++	{
++		byte iActual = reinterpret_cast<byte*>(uiStart)[i]; // for inspection in debugger
++		if (pBytes[i] != iActual)
++		{
++		#ifdef _DEBUG
++			FAssertMsg(iActual != 0xCC, "Interrupt found in native code. "
++					/*	Remedy: Should probably keep breakpoints disabled
++						until SelfMod is finished */
++					"Debugger breakpoint?");
++		#endif
++			FErrorMsg("Unexpected memory layout of EXE");
++			return false;
++		}
++	}
++	return true;
++}
++
+ 
+-class PlotIndicatorSizePatch : public RuntimePatch
++class PlotIndicatorSizeMod : public SelfMod
+ {
+ public:
+-	PlotIndicatorSizePatch(int iScreenHeight) : m_iScreenHeight(iScreenHeight) {}
++	PlotIndicatorSizeMod(int iScreenHeight) : m_iScreenHeight(iScreenHeight) {}
+ protected:
+ 	bool apply() // override
+ 	{
+-		// Cache for performance (though probably not a concern)
++		/*	Cache (Performance probably no concern, but best not to fiddle
++			with memory protections unnecessarily.) */
+ 		static PlotIndicatorSize ffMostRecentBaseSize;
+ 
+ 		/*	Size values for plot indicators shown onscreen and offscreen that are
+@@ -107,7 +220,9 @@ protected:
+ 			int iUserChoice = BUGOption::getValue("MainInterface__PlotIndicatorSize");
+ 			switch (iUserChoice)
+ 			{
+-			case 0: ffBaseSize.onScreen -= 2; break; // "automatic" behavior
++				/* "Automatic" behavior: Subtract a little b/c the BtS size
++					is a bit too big overall, i.e. even on the lowest resolution. */
++			case 0: ffBaseSize.onScreen -= 2; break;
+ 			case 1: std::swap(bAdjustToFoV, bAdjustToRes); break; // BtS behavior
+ 			/*	Note that this formula ignores how the choices are labeled.
+ 				That menu text needs to be kept consistent with our code here. */
+@@ -141,7 +256,7 @@ protected:
+ 		/*	(I'm not going to dirty the globe layer in response to a FoV change - that
+ 			would probably cause stuttering while the player adjusts the FoV slider.) */
+ 		{
+-			int iUserChoice = BUGOption::getValue("MainInterface__OffScreenUnitSizeMult", 3);
++			int iUserChoice = BUGOption::getValue("MainInterface__OffScreenUnitSizeMult");
+ 			if (iUserChoice == 7)
+ 			{	// Meaning "disable". 0 size seems to accomplish that.
+ 				ffBaseSize.offScreen = 0;
+@@ -176,66 +291,32 @@ protected:
+ 					1,			1,			6,			1
+ 		};
+ 
+-		int iAddressOffset = 0;
+ 		/*	Before applying our patch, let's confirm that the code is layed out
+ 			in memory as we expect it to be. */
+-		if (!testCodeLayout())
+-		{
+-			/*	We don't give up yet. If the mod is otherwise working, then the EXE is
+-				probably largely unchanged and the code bytes we're looking for do exist
+-				just as we expect - they're merely in a (slightly?) different place. */
+-			/*	The first 27 instructions at the start of the function that calls
+-				CvPlayer::getGlobeLayerColors. This is a fairly long sequence w/o any
+-				absolute addresses in operands. After this sequence, there are a bunch
+-				of DLL calls, the last one being CvPlayer::getGlobeLayerColors. It would
+-				be nice to search for those calls as well - since native code has fairly
+-				low entropy, meaning that my pattern of 27 instructions may not be as
+-				unique as I hope - but I'm not sure if the call addresses for external
+-				functions would be the same in a slightly abnormal EXE. */
+-			byte aNeedleBytes[] = {
+-				0x6A, 0xFF, 0x68, 0x15, 0xB9, 0xA3, 0x00, 0x64, 0xA1, 0x00, 0x00, 0x00,
+-				0x00, 0x50, 0x64, 0x89, 0x25, 0x00, 0x00, 0x00, 0x00, 0x83, 0xEC, 0x68,
+-				0x53, 0x55, 0x56, 0x57, 0x33, 0xFF, 0x89, 0x7C, 0x24, 0x54, 0x89, 0x7C,
+-				0x24, 0x58, 0x89, 0x7C, 0x24, 0x5C, 0x89, 0xBC, 0x24, 0x80, 0x00, 0x00,
+-				0x00, 0x89, 0x7C, 0x24, 0x44, 0x89, 0x7C, 0x24, 0x48, 0x89, 0x7C, 0x24,
+-				0x4C, 0x8D, 0x54, 0x24, 0x40, 0x52, 0xC6, 0x84, 0x24, 0x84, 0x00, 0x00,
+-				0x00, 0x01, 0x8B, 0x41, 0x04, 0x8D, 0x54, 0x24, 0x54, 0x52, 0x50, 0x8B,
+-				0x41, 0x08, 0x50 
+-			};
+-			// Where we expect the needle at iAddressOffset=0
+-			uint const uiStartAddress = 0x00464930;
+-			// How big an iAddressOffset we contemplate
+-			int const iMaxAbsOffset = 256 * 1024;
+-			if (uiStartAddress >= iMaxAbsOffset &&
+-				uiStartAddress <= MAX_INT - iMaxAbsOffset)
+-			{
+-				byte aHaystackBytes[2 * iMaxAbsOffset];
+-				for (int iOffset = -iMaxAbsOffset; iOffset < iMaxAbsOffset; iOffset++)
+-				{
+-					aHaystackBytes[iOffset + iMaxAbsOffset] = *reinterpret_cast<byte*>(
+-							((int)uiStartAddress) + iOffset);
+-				}
+-				// No std::begin, std::end until C++11
+-				byte* const pHaystackEnd = aHaystackBytes + ARRAYSIZE(aHaystackBytes);
+-				byte* pos = std::search(
+-						aHaystackBytes, pHaystackEnd,
+-						aNeedleBytes, aNeedleBytes + ARRAYSIZE(aNeedleBytes));
+-				if (pos == pHaystackEnd)
+-				{
+-					FErrorMsg("Failed to locate plot indicator code bytes in EXE");
+-					return false;
+-				}
+-				iAddressOffset = ((int)std::distance(aHaystackBytes, pos))
+-						- iMaxAbsOffset;
+-			}
+-			else FErrorMsg("uiStartAddress doesn't look like a code address");
+-			// Run our initial test again to be on the safe side
+-			if (!testCodeLayout(iAddressOffset))
+-			{
+-				FErrorMsg("Address offset likely incorrect");
+-				return false;
+-			}
+-		}
++		/*	This is the call to CvPlayer::getGlobeLayerColors,
++			for a quick test upfront.
++			 004649A9	call dword ptr ds:[0BC1E64h] */
++		byte aQuickTestBytes[] = { 0xFF, 0x15, 0x64, 0x1E, 0xBC, 0x00 };
++		/*	Longer sequence to search for if we have to find an address offset.
++			The first 27 instructions at the start of the function that calls
++			CvPlayer::getGlobeLayerColors. This is a fairly long sequence w/o any
++			absolute addresses in operands. After this sequence, there are a bunch
++			of DLL calls, the last one being CvPlayer::getGlobeLayerColors. */
++		byte aNeedleBytes[] = {
++			0x6A, 0xFF, 0x68, 0x15, 0xB9, 0xA3, 0x00, 0x64, 0xA1, 0x00, 0x00, 0x00,
++			0x00, 0x50, 0x64, 0x89, 0x25, 0x00, 0x00, 0x00, 0x00, 0x83, 0xEC, 0x68,
++			0x53, 0x55, 0x56, 0x57, 0x33, 0xFF, 0x89, 0x7C, 0x24, 0x54, 0x89, 0x7C,
++			0x24, 0x58, 0x89, 0x7C, 0x24, 0x5C, 0x89, 0xBC, 0x24, 0x80, 0x00, 0x00,
++			0x00, 0x89, 0x7C, 0x24, 0x44, 0x89, 0x7C, 0x24, 0x48, 0x89, 0x7C, 0x24,
++			0x4C, 0x8D, 0x54, 0x24, 0x40, 0x52, 0xC6, 0x84, 0x24, 0x84, 0x00, 0x00,
++			0x00, 0x01, 0x8B, 0x41, 0x04, 0x8D, 0x54, 0x24, 0x54, 0x52, 0x50, 0x8B,
++			0x41, 0x08, 0x50 
++		};
++		int iAddressOffset = findAddressOffset(
++				aNeedleBytes, ARRAYSIZE(aNeedleBytes), 0x00464930,
++				aQuickTestBytes, ARRAYSIZE(aQuickTestBytes), 0x004649A9);
++		if (iAddressOffset == MIN_INT)
++			return false;
+ 
+ 		// Finally apply the actual patch
+ 		for (int i = 0; i < ARRAYSIZE(aCodeAdresses); i++)
+@@ -252,46 +333,39 @@ protected:
+ 	}
+ 	
+ private:
+-	int m_iScreenHeight;
++	int const m_iScreenHeight;
+ 	struct PlotIndicatorSize
+ 	{
+ 		PlotIndicatorSize(float fOnScreen = 0, float fOffScreen = 0)
+ 		:	onScreen(fOnScreen), offScreen(fOffScreen) {}
+ 		// Overriding operator== for this nested thing would be a PITA
+-		bool equals(PlotIndicatorSizePatch::PlotIndicatorSize const& kOther)
++		bool equals(PlotIndicatorSizeMod::PlotIndicatorSize const& kOther)
+ 		{	// Exact floating point comparison
+ 			return (onScreen == kOther.onScreen &&
+ 					offScreen == kOther.offScreen);
+ 		}
+ 		float onScreen, offScreen;
+ 	};
+-
+-	bool testCodeLayout(int iAddressOffset = 0)
+-	{
+-		/*	This is the call to CvPlayer::getGlobeLayerColors:
+-			 004649A9	call dword ptr ds:[0BC1E64h] */
+-		byte aCodeBytes[] = { 0xFF, 0x15, 0x64, 0x1E, 0xBC, 0x00 };
+-		byte* pCodeLoc = reinterpret_cast<byte*>(0x004649A9 + iAddressOffset);
+-		for (int i = 0; i < ARRAYSIZE(aCodeBytes); i++)
+-		{
+-			if (aCodeBytes[i] != pCodeLoc[i])
+-			{
+-				/*	NB: Large address awareness shouldn't be an issue, I've tested
+-					that both ways. Steam MP version isn't going to work with our
+-					DLL anyway. Wine should be tested, localized versions also. */
+-				FErrorMsg("Unexpected memory layout; EXE statically patched somehow?"
+-						" Wine? Non-MULTI5 version?");
+-				return false;
+-			}
+-		}
+-		return true; // Looks good, we don't worry.
+-	}
+ };
+ 
+ } // (end of unnamed namespace)
+ 
+ 
+-void Civ4BeyondSwordMods::patchPlotIndicatorSize()
++void Civ4BeyondSwordPatches::showErrorMsgToPlayer(CvWString szMsg)
++{
++	// Don't need more error messages if assertions are enabled
++#ifndef FASSERT_ENABLE
++	if (GC.IsGraphicsInitialized() && GC.getGame().getActivePlayer() != NO_PLAYER)
++	{
++		gDLL->getInterfaceIFace()->addMessage(GC.getGame().getActivePlayer(), true,
++				GC.getEVENT_MESSAGE_TIME(), szMsg, NULL, MESSAGE_TYPE_INFO, NULL,
++				(ColorTypes)GC.getInfoTypeForString("COLOR_RED"));
++	}
++#endif
++}
++
++
++void Civ4BeyondSwordPatches::patchPlotIndicatorSize()
+ {
+ 	int const iScreenHeight = GC.getGame().getScreenHeight();
+ 	if (iScreenHeight <= 0)
+@@ -301,5 +375,11 @@ void Civ4BeyondSwordMods::patchPlotIndicatorSize()
+ 	}
+ 	// (If we fail past here, there won't be a point in trying again.)
+ 	m_bPlotIndicatorSizePatched = true;
+-	PlotIndicatorSizePatch(iScreenHeight).applyIfEnabled();
++	if (!PlotIndicatorSizeMod(iScreenHeight).applyIfEnabled())
++	{
++		showErrorMsgToPlayer(
++				"Failed to change balloon icon size. To avoid seeing "
++				"this error message, set the size to \"BtS\" on the Map tab "
++				"of the BUG menu");
++	}
+ }
+
+diff --git a/CvGameCoreDLL/SelfMod.h b/CvGameCoreDLL/SelfMod.h
+index 6d3f97730..fd87425d0 100644
+--- a/CvGameCoreDLL/SelfMod.h
++++ b/CvGameCoreDLL/SelfMod.h
+@@ -1,24 +1,26 @@
++// advc.092b: Let's put all self-modifying code in a single place
+ #pragma once
+ #ifndef SELF_MOD_H
+ #define SELF_MOD_H
+ 
+-/*	advc.092b: Let's put all runtime patches for Civ4BeyondSword.exe (v3.19)
+-	in one place. */
+-
+-
+-
+-class Civ4BeyondSwordMods
++// Runtime modifications to the native code of Civ4BeyondSword.exe (v3.19)
++class Civ4BeyondSwordPatches
+ {
+ public:
+-	bool isPlotIndicatorSizePatched() const { return m_bPlotIndicatorSizePatched; }
+ 	void patchPlotIndicatorSize(); // (exposed to Python via CyGameCoreUtils) 
++	bool isPlotIndicatorSizePatched() const { return m_bPlotIndicatorSizePatched; }
++	Civ4BeyondSwordPatches()
++	:	m_bPlotIndicatorSizePatched(false)
++	{}
++
+ private:
+ 	bool m_bPlotIndicatorSizePatched;
++	void showErrorMsgToPlayer(CvWString szMsg);
+ };
+ 
+ namespace smc
+ {
+-	extern Civ4BeyondSwordMods BtS_EXE;
+-};
++	extern Civ4BeyondSwordPatches BtS_EXE;
++}
+ 
+ #endif
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=16826

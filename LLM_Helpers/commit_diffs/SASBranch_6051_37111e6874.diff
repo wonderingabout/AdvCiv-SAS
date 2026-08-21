@@ -1,0 +1,558 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6051
+# Commit: 37111e6874eb326fa68bde675dead6ab6ad2f645
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e88cb89821c63958b03c889ddc91a3dc07449029
+# Title: (Fixed/Improved) Major UWAI issue: repeated random reviews could cancel or redirect most war preparations before they became wars (KI#189)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+16	1	Assets/XML/GlobalDefines_advciv_sas.xml
+130	62	CvGameCoreDLL/UWAIAgent.cpp
+8	4	CvGameCoreDLL/UWAIAgent.h
+30	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 00e52fc2d..860e218ba 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1406,7 +1406,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_TEAM_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Dedicated war-plan and war-target diagnostics, separated from TEAM so UWAI target choice, preparation switches, direct-war adoption, and declaration context can be inspected without broad team/diplomacy logging. (GPT-5.5) -->
++	<!-- custom: Dedicated war-plan and war-target diagnostics, separated from TEAM so UWAI notably target choice, preparation review/cancellation causes and severity, target switches, direct-war adoption, and declaration context can be inspected without broad team/diplomacy logging. (GPT-5.5 + GPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_WAR_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -3174,6 +3174,21 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Minimum severity required to abandon a war preparation whose utility has become negative. UWAI instead treated this severity as a new random cancellation chance every review, so even mildly negative plans were eventually canceled without circumstances changing. 100 keeps preparing unless the old personality- and game-speed-adjusted formula reaches its maximum; lower values abandon questionable plans sooner. Save-file 452 diagnostics showed 38 checks at 100 severity compared with 69 cancellations caused by repeated rolls. See KI#189. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_UWAI_PREPARATION_ABANDON_MIN_SEVERITY_PERCENT</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
++	<!-- custom: Minimum war-plan age before negative-utility severity alone may cancel a preparation. Save-file 452 testing showed the first deterministic version could cancel at age 1 after a transient utility drop, then select the same target again next turn; 3 gives the plan two full reviews to settle. This does not delay illegal-target, preparation-deadline, or imminent-war cancellations. See KI#189. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_UWAI_PREPARATION_ABANDON_MIN_AGE</DefineName>
++		<iDefineIntVal>3</iDefineIntVal>
++	</Define>
++	<!-- custom: Minimum relative advantage score required to switch an existing war preparation to the best alternative target. UWAI used the score as a random chance on every review, making target choice unstable; 50 requires a materially better target, while 0 accepts any alternative that has higher utility. Save-file 452 diagnostics would accept 15 of 71 real comparisons at 50 instead of producing 22 roll-dependent switches. See KI#189. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_UWAI_PREPARATION_TARGET_SWITCH_MIN_ADVANTAGE_PERCENT</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 08b39c7ec..1a78f4952 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -328,9 +328,10 @@ void UWAI::Team::doWar()
+ 		return;
+ 	}
+ 	UWAICache& kCache = leaderCache();
+-	if (reviewWarPlans())
++	set<TeamTypes> aeChangedWarPlanTargets;
++	if (reviewWarPlans(aeChangedWarPlanTargets))
+ 	{
+-		scheme();
++		scheme(aeChangedWarPlanTargets);
+ 		for (TeamIter<CIV_ALIVE,KNOWN_POTENTIAL_ENEMY_OF> itTarget(kAgent.getID());
+ 			itTarget.hasNext(); ++itTarget)
+ 		{
+@@ -394,7 +395,7 @@ namespace
+ 	};
+ }
+ 
+-bool UWAI::Team::reviewWarPlans()
++bool UWAI::Team::reviewWarPlans(set<TeamTypes>& aeChangedTargets)
+ {
+ 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
+ 	if (!kAgent.AI_isAnyWarPlan())
+@@ -434,6 +435,9 @@ bool UWAI::Team::reviewWarPlans()
+ 			WarEvalParameters params(kAgent.getID(), eTarget, *m_pReport);
+ 			WarEvaluator eval(params);
+ 			int iU = eval.evaluate(eWP);
++			// <!-- custom: doScheme adds victory-denial urgency when selecting a target. Preserve that value during later reviews too; otherwise UWAI can select a rival for being close to victory and cancel the same preparation after evaluating it without the urgency boost. Save-file 452 reproduced this repeatedly against India. See KI#189. (GPT-5.6-Sol) -->
++			if (!kAgent.isAtWar(eTarget))
++				iU += getSASBBAIVictoryDenialUtilityBoost(eTarget, getSASTeamMaxVictoryStage(eTarget));
+ 			// 'evaluate' sets preparation time and isNaval in params
+ 			aPlans.push_back(PlanData(iU, eTarget, params.getPreparationTime(),
+ 					params.isNaval()));
+@@ -450,9 +454,10 @@ bool UWAI::Team::reviewWarPlans()
+ 		for (size_t i = 0; i < aPlans.size(); i++)
+ 		{
+ 			bPlanChanged = !reviewPlan(aPlans[i].eTarget, aPlans[i].iU,
+-					aPlans[i].iPrepTurns);
++					aPlans[i].iPrepTurns, aPlans[i].bNaval);
+ 			if (bPlanChanged)
+ 			{
++				aeChangedTargets.insert(aPlans[i].eTarget);
+ 				abTargetDone.set(aPlans[i].eTarget, true);
+ 				if (abTargetDone.numNonDefault() < (int)aPlans.size())
+ 				{
+@@ -574,7 +579,8 @@ void UWAI::Team::alignAreaAI(bool bNaval)
+ }
+ 
+ 
+-bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
++// <!-- custom: Added bNaval so a reviewed preparation retains the initial target evaluation's land/naval restriction when checking whether victory denial justifies immediate war. (GPT-5.6-Sol) -->
++bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNaval)
+ {
+ 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
+ 	WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
+@@ -598,10 +604,22 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
+ 	}
+ 	else
+ 	{
++		// <!-- custom: The initial target evaluation included victory-denial urgency, but inherited UWAI reviews omitted it and could immediately discard or redirect the preparation. Reapply the same boost during reviews, retain the unboosted value for diagnostics, and pass the boost into the direct-war comparison below. See KI#189. (GPT-5.6-Sol) -->
++		int const iTargetMaxVictoryStage = getSASTeamMaxVictoryStage(eTarget);
++		int const iVictoryDenialBoost = getSASBBAIVictoryDenialUtilityBoost(eTarget, iTargetMaxVictoryStage);
++		int const iOriginalU = iU - iVictoryDenialBoost;
++		if (iVictoryDenialBoost > 0 && gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_VICTORY_DENIAL_ADJUST turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s originalUtility=%d adjustedUtility=%d boost=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d distance=%d targetPowerPercent=%d",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iOriginalU, iU, iVictoryDenialBoost, iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
++		// <!-- custom: Save-file 452 diagnostics showed 152 war preparations but only 17 becoming wars, while 130 were canceled or switched. Keep each real/simulated review and exact cancellation/conclusion cause visible while correcting inherited UWAI behavior. (GPT-5.6-Sol) -->
++		if (gWarLogLevel >= 2 && (eWP == WARPLAN_PREPARING_LIMITED || eWP == WARPLAN_PREPARING_TOTAL)) logBBAI("WAR_PREPARATION_REVIEW turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d warPlanCount=%d wars=%d forcedPeaceTurns=%d distance=%d targetVictoryCountdown=%d targetPowerPercent=%d",
++					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iWPAge, iPrepTurns,
++					kAgent.AI_countWarPlans(), kAgent.getNumWars(true, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget));
+ 		if (!canSchemeAgainst(eTarget, true))
+ 		{
+ 			m_pReport->log("War plan \"%s\" canceled b/c %s is no longer a legal target",
+ 					m_pReport->warPlanName(eWP), m_pReport->teamName(eTarget));
++			if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_CANCEL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s reason=illegal_target utility=%d stateCounter=%d prepTurnsRemaining=%d",
++					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iWPAge, iPrepTurns);
+ 			if (!isInBackground())
+ 			{
+ 				kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
+@@ -609,6 +627,15 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
+ 			}
+ 			return false;
+ 		}
++		// <!-- custom: A victory threat can become close and weak enough for direct war after preparation began. Use the same narrow distance, power and naval gates as doScheme, then declare immediately instead of letting the old review logic cancel or delay the emergency plan. See KI#189. (GPT-5.6-Sol) -->
++		if (iVictoryDenialBoost > 0 && isSASBBAIVictoryDenialDirectWarAllowed(kAgent, eTarget, iTargetMaxVictoryStage, bNaval) && kAgent.canDeclareWar(eTarget))
++		{
++			WarPlanTypes const eDirectWP = (eWP == WARPLAN_PREPARING_TOTAL || eWP == WARPLAN_TOTAL ? WARPLAN_TOTAL : WARPLAN_LIMITED);
++			if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_VICTORY_DENIAL_DECLARE turn=%d background=%d agentTeam=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s utility=%d originalUtility=%d boost=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d distance=%d targetPowerPercent=%d",
++					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iOriginalU, iVictoryDenialBoost, iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
++			if (!isInBackground()) kAgent.declareWar(eTarget, false, eDirectWP);
++			return false;
++		}
+ 		if (eWP != WARPLAN_PREPARING_LIMITED && eWP != WARPLAN_PREPARING_TOTAL)
+ 		{
+ 			FAssert(eWP == WARPLAN_LIMITED || eWP == WARPLAN_TOTAL ||
+@@ -617,6 +644,8 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
+ 			if (iU < 0)
+ 			{
+ 				m_pReport->log("Imminent war canceled; no longer worthwhile");
++				if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_CANCEL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s reason=imminent_negative_utility utility=%d stateCounter=%d prepTurnsRemaining=%d",
++						GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iWPAge, iPrepTurns);
+ 				if (!isInBackground())
+ 				{
+ 					kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
+@@ -626,25 +655,16 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
+ 			}
+ 			else
+ 			{
+-				// Consider switching when war remains imminent for a long time
+-				scaled rSwitchProb = std::min(fixp(1/3.), iWPAge * fixp(0.04));
+-				m_pReport->log("pr of considering to switch target: %d",
+-						rSwitchProb.getPercent());
+-				if (SyncRandSuccess(rSwitchProb))
+-				{
+-					/*  Hack: considerSwitchTarget was written under the assumption
+-						that no war is imminent. Might be difficult to rectify;
+-						change the war plan temporarily instead. */
+-					kAgent.AI_setWarPlanNoUpdate(eTarget, WARPLAN_PREPARING_LIMITED);
+-					bool const bSwitch = !considerSwitchTarget(eTarget, iU, 0);
+-					/*  If we do switch, then considerSwitchTarget has
+-						already reset the war plan against targetId --
+-						except when running in the background. */
+-					if (!bSwitch || isInBackground())
+-						kAgent.AI_setWarPlanNoUpdate(eTarget, eWP);
+-					if (bSwitch)
+-						return false;
+-				}
++				// <!-- custom: Once target switching itself requires a clear deterministic advantage, a separate random roll only makes the AI overlook the best target unpredictably. Always perform the comparison; the temporary plan change remains necessary because the inherited helper expects a preparation plan. See KI#189. (GPT-5.6-Sol) -->
++				kAgent.AI_setWarPlanNoUpdate(eTarget, WARPLAN_PREPARING_LIMITED);
++				bool const bSwitch = !considerSwitchTarget(eTarget, iU, 0);
++				/*  If we do switch, then considerSwitchTarget has
++					already reset the war plan against targetId --
++					except when running in the background. */
++				if (!bSwitch || isInBackground())
++					kAgent.AI_setWarPlanNoUpdate(eTarget, eWP);
++				if (bSwitch)
++					return false;
+ 			}
+ 			CvMap const& kMap = GC.getMap();
+ 			// 12 turns for a (AdvCiv) Standard-size map, 9 on Small.
+@@ -666,6 +686,8 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
+ 			{
+ 				m_pReport->log("Imminent war canceled b/c of timeout (%d turns)",
+ 						iTimeout);
++				if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_CANCEL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s reason=imminent_timeout utility=%d stateCounter=%d timeout=%d",
++						GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iWPAge, iTimeout);
+ 				if (!isInBackground())
+ 				{
+ 					kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
+@@ -678,7 +700,7 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
+ 		}
+ 		else
+ 		{
+-			if (!considerConcludePreparations(eTarget, iU, iPrepTurns))
++			if (!considerConcludePreparations(eTarget, iU, iPrepTurns, iVictoryDenialBoost))
+ 				return false;
+ 			if (!considerAbandonPreparations(eTarget, iU, iPrepTurns))
+ 				return false;
+@@ -1214,12 +1236,15 @@ bool UWAI::Team::considerPlanTypeChange(TeamTypes eTarget, int iU)
+ bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU, int iTurnsRemaining)
+ {
+ 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
++	WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
+ 	if (kAgent.AI_countWarPlans() > kAgent.getNumWars(true, true) + 1)
+ 	{
+ 		/*  Only one war should be imminent or in preparation at a time.
+ 			(Otherwise WarEvaluator will ignore all but one plan).
+ 			Too many plans can occur here only if UWAI was running
+ 			in the background at some point. */
++		if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_CANCEL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s reason=too_many_plans utility=%d stateCounter=%d prepTurnsRemaining=%d warPlanCount=%d wars=%d",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining, kAgent.AI_countWarPlans(), kAgent.getNumWars(true, true));
+ 		if (!isInBackground())
+ 		{
+ 			kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
+@@ -1234,6 +1259,8 @@ bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU, int iTur
+ 	if (iTurnsRemaining <= 0)
+ 	{
+ 		m_pReport->log("Time limit for preparations reached; plan abandoned");
++		if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_CANCEL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s reason=preparation_deadline_negative_utility utility=%d stateCounter=%d prepTurnsRemaining=%d",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining);
+ 		if (!isInBackground())
+ 		{
+ 			kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
+@@ -1241,27 +1268,44 @@ bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU, int iTur
+ 		}
+ 		return false;
+ 	}
+-	WarPlanTypes eWP = kAgent.AI_getWarPlan(eTarget);
+-	if (isInBackground() && eWP == WARPLAN_DOGPILE)
+-		eWP = WARPLAN_PREPARING_LIMITED;
++	// <!-- custom: The deterministic severity gate initially canceled newly selected plans after only one review when transient UWAI/AreaAI changes briefly drove utility negative. Save-file 452 then reselected 7 of those targets on the next turn and 11 within three turns. Give a new preparation two full reviews to settle before severity alone may cancel it; hard deadline and legality failures remain immediate. See KI#189. (GPT-5.6-Sol) -->
++	static int const iMinAge = GC.getDefineINT("SAS_UWAI_PREPARATION_ABANDON_MIN_AGE");
++	static int const iMinAbandonSeverityPercent = GC.getDefineINT("SAS_UWAI_PREPARATION_ABANDON_MIN_SEVERITY_PERCENT");
++	int const iAge = kAgent.AI_getWarPlanStateCounter(eTarget);
++	if (iAge < iMinAge)
++	{
++		m_pReport->log("Preparation abandonment deferred until age %d (current age %d)", iMinAge, iAge);
++		if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_ABANDON_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d reason=minimum_age minAbandonAge=%d warRand=-1 abandonSeverityPercent=-1 minAbandonSeverityPercent=%d abandoned=0 distance=%d targetVictoryCountdown=%d targetPowerPercent=%d",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iAge, iTurnsRemaining, iMinAge, iMinAbandonSeverityPercent, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget));
++		return true;
++	}
++	WarPlanTypes eEvaluationWP = eWP;
++	if (isInBackground() && eEvaluationWP == WARPLAN_DOGPILE)
++		eEvaluationWP = WARPLAN_PREPARING_LIMITED;
+ 	int iWarRand = -1;
+-	if (eWP == WARPLAN_PREPARING_LIMITED)
++	if (eEvaluationWP == WARPLAN_PREPARING_LIMITED)
+ 		iWarRand = kAgent.AI_limitedWarRand();
+-	if (eWP == WARPLAN_PREPARING_TOTAL)
++	if (eEvaluationWP == WARPLAN_PREPARING_TOTAL)
+ 		iWarRand = kAgent.AI_maxWarRand();
+ 	FAssert(iWarRand >= 0);
+ 	// WarRand is between 40 (aggro) and 400 (chilled)
+-	scaled rAbandonProb(-iU * iWarRand, 7500);
++	// <!-- custom: UWAI named this value rAbandonProb and rolled it on every negative review, so even a mildly doubtful unchanged preparation was eventually canceled. Rename it rAbandonSeverity because the same personality/game-speed-adjusted value is now compared with a deterministic threshold and only clearly bad plans are abandoned; save-file 452 showed this would reduce 69 random cancellations to the 38 checks that reached the default 100% severity. See KI#189. (GPT-5.6-Sol) -->
++	scaled rAbandonSeverity(-iU * iWarRand, 7500);
+ 	// Slight adjustment to training speed
+-	rAbandonProb *= 2;
+-	rAbandonProb /= per100(GC.getInfo(GC.getGame().getGameSpeedType()).
++	rAbandonSeverity *= 2;
++	rAbandonSeverity /= per100(GC.getInfo(GC.getGame().getGameSpeedType()).
+ 			getTrainPercent()) + 1;
+-	rAbandonProb.decreaseTo(1);
+-	m_pReport->log("Abandoning preparations with probability %d percent (warRand=%d)",
+-			rAbandonProb.getPercent(), iWarRand);
+-	if (SyncRandSuccess(rAbandonProb))
++	rAbandonSeverity.decreaseTo(1);
++	bool const bAbandon = (rAbandonSeverity.getPercent() >= iMinAbandonSeverityPercent);
++	m_pReport->log("Preparation abandonment severity %d percent; threshold %d (warRand=%d)", rAbandonSeverity.getPercent(), iMinAbandonSeverityPercent, iWarRand);
++	if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_ABANDON_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d warRand=%d abandonSeverityPercent=%d minAbandonSeverityPercent=%d abandoned=%d distance=%d targetVictoryCountdown=%d targetPowerPercent=%d",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iAge, iTurnsRemaining,
++				iWarRand, rAbandonSeverity.getPercent(), iMinAbandonSeverityPercent, bAbandon, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget));
++	if (bAbandon)
+ 	{
+ 		m_pReport->log("Preparations abandoned");
++		if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_CANCEL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s reason=severe_negative_utility utility=%d stateCounter=%d prepTurnsRemaining=%d warRand=%d abandonSeverityPercent=%d minAbandonSeverityPercent=%d",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iAge, iTurnsRemaining, iWarRand, rAbandonSeverity.getPercent(), iMinAbandonSeverityPercent);
+ 		if (!isInBackground())
+ 		{
+ 			kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
+@@ -1298,6 +1342,8 @@ bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU, int iTurnsRemai
+ 		WarEvalParameters params(kAgent.getID(), eAltTarget, silentReport, true);
+ 		WarEvaluator eval(params);
+ 		int iAltU = eval.evaluate(eWP, iTurnsRemaining);
++		// <!-- custom: Compare targets using the same victory-denial value used when they are first selected and later reviewed. (GPT-5.6-Sol) -->
++		iAltU += getSASBBAIVictoryDenialUtilityBoost(eAltTarget, getSASTeamMaxVictoryStage(eAltTarget));
+ 		if (iAltU > std::max(iBestUtility, bQualms ? 0 : iU))
+ 		{
+ 			eBestAltTarget = eAltTarget;
+@@ -1310,37 +1356,36 @@ bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU, int iTurnsRemai
+ 		m_pReport->log("No other promising target for war preparations found");
+ 		return true;
+ 	}
++	// <!-- custom: UWAI named this result rSwitchProb and rolled it on every review. Preserve its relative-target calculation but rename it rSwitchAdvantage, then compare it with a deterministic threshold so a clearly better target is reliably selected and a small fluctuation never redirects an established preparation. Save-file 452's default threshold accepts 15 of 71 comparisons instead of producing 22 roll-dependent switches. See KI#189. (GPT-5.6-Sol) -->
+ 	int iPadding = 0;
+ 	if (std::min(iU, iBestUtility) < 20)
+ 		iPadding += 20 - std::min(iU, iBestUtility);
+-	scaled rSwitchProb = fixp(0.75) * (1 - scaled(iU + iPadding, iBestUtility + iPadding));
++	scaled rSwitchAdvantage = fixp(0.75) * (1 - scaled(iU + iPadding, iBestUtility + iPadding));
+ 	// Slight adjustment to training speed
+-	if (rSwitchProb.isPositive())
++	if (rSwitchAdvantage.isPositive())
+ 	{
+-		rSwitchProb *= 2;
+-		rSwitchProb /= per100(GC.getInfo(GC.getGame().getGameSpeedType()).
++		rSwitchAdvantage *= 2;
++		rSwitchAdvantage /= per100(GC.getInfo(GC.getGame().getGameSpeedType()).
+ 				getTrainPercent()) + 1;
+ 	}
+ 	if (bQualms && !bAltQualms)
+-		rSwitchProb += fixp(1.8);
+-	m_pReport->log("Switching target for war preparations to %s (u=%d) with pr=%d percent",
+-			m_pReport->teamName(eBestAltTarget), iBestUtility, rSwitchProb.getPercent());
+-	if (gWarLogLevel >= 1)
+-	{
+-		logBBAI("WAR_TARGET_SWITCH_CHECK turn=%d agentTeam=%d oldTargetTeam=%d newTargetTeam=%d warPlan=%s oldUtility=%d newUtility=%d switchPercent=%d oldQualms=%d newQualms=%d oldDistance=%d newDistance=%d oldAttitude=%d newAttitude=%d oldAttitudeValue=%d newAttitudeValue=%d oldTargetPowerPercent=%d newTargetPowerPercent=%d",
+-				GC.getGame().getGameTurn(), kAgent.getID(), eTarget, eBestAltTarget, getSASWarPlanType(eWP), iU, iBestUtility, rSwitchProb.getPercent(), bQualms, bAltQualms, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eBestAltTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitude(eBestAltTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitudeVal(eBestAltTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, eBestAltTarget));
+-	}
+-	if (!SyncRandSuccess(rSwitchProb))
++		rSwitchAdvantage += fixp(1.8);
++	static int const iMinSwitchAdvantagePercent = GC.getDefineINT("SAS_UWAI_PREPARATION_TARGET_SWITCH_MIN_ADVANTAGE_PERCENT");
++	bool const bSwitch = (rSwitchAdvantage.getPercent() >= iMinSwitchAdvantagePercent);
++	m_pReport->log("Best alternative target %s (u=%d) has advantage score %d percent; threshold %d",
++			m_pReport->teamName(eBestAltTarget), iBestUtility, rSwitchAdvantage.getPercent(), iMinSwitchAdvantagePercent);
++	if (gWarLogLevel >= 1) logBBAI("WAR_TARGET_SWITCH_CHECK turn=%d background=%d agentTeam=%d oldTargetTeam=%d newTargetTeam=%d warPlan=%s oldUtility=%d newUtility=%d prepTurnsRemaining=%d stateCounter=%d switchAdvantagePercent=%d minSwitchAdvantagePercent=%d switched=%d oldQualms=%d newQualms=%d oldDistance=%d newDistance=%d oldAttitude=%d newAttitude=%d oldAttitudeValue=%d newAttitudeValue=%d oldTargetPowerPercent=%d newTargetPowerPercent=%d",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, eBestAltTarget, getSASWarPlanType(eWP), iU, iBestUtility, iTurnsRemaining, kAgent.AI_getWarPlanStateCounter(eTarget), rSwitchAdvantage.getPercent(), iMinSwitchAdvantagePercent, bSwitch,
++				bQualms, bAltQualms, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eBestAltTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitude(eBestAltTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitudeVal(eBestAltTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, eBestAltTarget));
++	if (!bSwitch)
+ 	{
+ 		m_pReport->log("Target not switched");
+ 		return true;
+ 	}
+ 	m_pReport->log("Target switched");
+-	if (gWarLogLevel >= 1)
+-	{
+-		logBBAI("WAR_TARGET_SWITCHED turn=%d agentTeam=%d oldTargetTeam=%d newTargetTeam=%d warPlan=%s oldUtility=%d newUtility=%d oldDistance=%d newDistance=%d oldAttitudeValue=%d newAttitudeValue=%d oldTargetPowerPercent=%d newTargetPowerPercent=%d",
+-				GC.getGame().getGameTurn(), kAgent.getID(), eTarget, eBestAltTarget, getSASWarPlanType(eWP), iU, iBestUtility, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eBestAltTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitudeVal(eBestAltTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, eBestAltTarget));
+-	}
++	if (gWarLogLevel >= 1) logBBAI("WAR_TARGET_SWITCHED turn=%d background=%d agentTeam=%d oldTargetTeam=%d newTargetTeam=%d warPlan=%s oldUtility=%d newUtility=%d prepTurnsRemaining=%d stateCounter=%d oldDistance=%d newDistance=%d oldAttitudeValue=%d newAttitudeValue=%d oldTargetPowerPercent=%d newTargetPowerPercent=%d",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, eBestAltTarget, getSASWarPlanType(eWP), iU, iBestUtility, iTurnsRemaining, kAgent.AI_getWarPlanStateCounter(eTarget),
++				getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eBestAltTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitudeVal(eBestAltTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, eBestAltTarget));
+ 	if (!isInBackground())
+ 	{
+ 		int iWPAge = kAgent.AI_getWarPlanStateCounter(eTarget);
+@@ -1354,7 +1399,8 @@ bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU, int iTurnsRemai
+ }
+ 
+ 
+-bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTurnsRemaining)
++// <!-- custom: Added iVictoryDenialBoost so an existing preparation keeps the same victory-denial value when its preparation and immediate-war utilities are compared. (GPT-5.6-Sol) -->
++bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTurnsRemaining, int iVictoryDenialBoost)
+ {
+ 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
+ 	if (kAgent.AI_countWarPlans() > kAgent.getNumWars(true, true) + 1)
+@@ -1367,6 +1413,8 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTu
+ 	{
+ 		m_pReport->log("Can't finish preparations b/c of peace treaty (%d turns"
+ 				" to cancel)", iTurnsOfPeace);
++		if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_CONCLUDE_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d reason=forced_peace forcedPeaceTurns=%d concluded=0",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining, iTurnsOfPeace);
+ 		return true;
+ 	}
+ 	WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
+@@ -1377,8 +1425,14 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTu
+ 	if (iTurnsRemaining <= 0)
+ 	{
+ 		if (iU < 0)
++		{
++			if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_CONCLUDE_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d reason=deadline_negative_utility concluded=0",
++					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining);
+ 			return true; // Let considerAbandonPreparations handle it
++		}
+ 		m_pReport->log("Time limit for preparation reached; adopting direct war plan");
++		if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_CONCLUDE_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d reason=deadline_reached concluded=1",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining);
+ 		bConclude = true;
+ 	}
+ 	else
+@@ -1386,11 +1440,12 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTu
+ 		UWAIReport silentReport(true);
+ 		WarEvalParameters params(kAgent.getID(), eTarget, silentReport);
+ 		WarEvaluator eval(params);
+-		int iDirectU = eval.evaluate(eDirectWP);
++		int iDirectU = eval.evaluate(eDirectWP) + iVictoryDenialBoost;
+ 		m_pReport->log("Utility of immediate switch to direct war plan: %d", iDirectU);
+ 		if (iDirectU > 0)
+ 		{
+-			scaled rRandWeight = SyncRandFract(scaled);
++			// <!-- custom: UWAI randomly selected a new threshold on every review, so an unchanged preparation could unpredictably conclude or continue. Keep the inherited random lines and original explanation below commented out for reference; the active midpoint preserves the intended time/readiness progression deterministically. See KI#189. (GPT-5.6-Sol) -->
++			// scaled rRandWeight = SyncRandFract(scaled);
+ 			/*  The more time remains, the longer we'd still have to wait in order
+ 				to achieve utility iU. Therefore use a low threshold
+ 				if iTurnsRemaining is high.
+@@ -1398,13 +1453,17 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTu
+ 						 8 turns later, if still iU=80: thresh between 64 and 80. */
+ 			scaled rRandPortion(iTurnsRemaining, 10); 
+ 			rRandPortion.decreaseTo(fixp(0.4));
+-			scaled rThresh = iU * ((1 - rRandPortion) + rRandWeight * rRandPortion);
+-			m_pReport->log("Utility threshold for direct war plan randomly set to %d",
+-					rThresh.round());
++			// scaled rThresh = iU * ((1 - rRandPortion) + rRandWeight * rRandPortion);
++			scaled rThresh = iU * ((1 - rRandPortion) + fixp(0.5) * rRandPortion);
++			m_pReport->log("Utility threshold for direct war plan: %d", rThresh.round());
+ 			if (iDirectU >= rThresh)
+ 				bConclude = true;
+ 			m_pReport->log("%sirect war plan adopted", (bConclude ? "D" : "No d"));
++			if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_CONCLUDE_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s directWarPlan=%s utility=%d directUtility=%d threshold=%d stateCounter=%d prepTurnsRemaining=%d reason=direct_utility_threshold concluded=%d",
++					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iDirectU, rThresh.round(), kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining, bConclude);
+ 		}
++		else if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_CONCLUDE_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s directWarPlan=%s utility=%d directUtility=%d stateCounter=%d prepTurnsRemaining=%d reason=direct_utility_nonpositive concluded=0",
++				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iDirectU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining);
+ 	}
+ 	if (bConclude)
+ 	{
+@@ -1642,7 +1701,8 @@ namespace
+ 	};
+ }
+ 
+-void UWAI::Team::scheme()
++// <!-- custom: Added aeChangedTargets so a canceled or redirected preparation cannot be recreated against the same target later in this team turn; other targets remain eligible. (GPT-5.6-Sol) -->
++void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
+ {
+ 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
+ 	if (kAgent.AI_countWarPlans() > kAgent.getNumWars(true, true))
+@@ -1671,6 +1731,14 @@ void UWAI::Team::scheme()
+ 		itTarget.hasNext(); ++itTarget)
+ 	{
+ 		TeamTypes const eTarget = itTarget->getID();
++		// <!-- custom: Save-file 452 still had four cases where review canceled a plan and scheme selected the same target again later in the same team turn because evaluating an existing plan and starting it anew produced contradictory utilities. Wait for the next turn before reconsidering that target, without blocking other targets. See KI#189. (GPT-5.6-Sol) -->
++		if (aeChangedTargets.count(eTarget) > 0)
++		{
++			kCache.setCanBeHiredAgainst(eTarget, false);
++			if (gWarLogLevel >= 1) logBBAI("WAR_TARGET_SAME_TURN_RECONSIDERATION_BLOCKED turn=%d background=%d agentTeam=%d targetTeam=%d currentWarPlan=%s",
++					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)));
++			continue;
++		}
+ 		if (!canSchemeAgainst(eTarget, true, false))
+ 			kCache.setCanBeHiredAgainst(eTarget, false);
+ 		if (!canSchemeAgainst(eTarget, false))
+
+diff --git a/CvGameCoreDLL/UWAIAgent.h b/CvGameCoreDLL/UWAIAgent.h
+index 2274083c9..d8f3ca9d4 100644
+--- a/CvGameCoreDLL/UWAIAgent.h
++++ b/CvGameCoreDLL/UWAIAgent.h
+@@ -94,10 +94,12 @@ private:
+ 	void reset();
+ 	/*	Abandon wars in preparation, switch plans or targets and consider peace.
+ 		Returns false if scheming should be skipped this turn. */
+-	bool reviewWarPlans();
++	// <!-- custom: Return changed targets so same-turn scheming cannot immediately recreate a plan that this review just canceled or replaced. (GPT-5.6-Sol) -->
++	bool reviewWarPlans(std::set<TeamTypes>& aeChangedTargets);
+ 	/*	Review plan vs. eTarget. Returns true if plan continues unchanged,
+ 		false if any change (abandoned, peace made, target changed). */
+-	bool reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns);
++	// <!-- custom: Added bNaval so reviewing an existing preparation uses the same land/naval victory-denial direct-war gate as its initial target evaluation. (GPT-5.6-Sol) -->
++	bool reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNaval);
+ 	// All these return true if the war plan remains unchanged, false otherwise.
+ 	bool considerPeace(TeamTypes eTarget, int iU);
+ 	bool considerCapitulation(TeamTypes eMaster, int iAgentWarUtility, int iMasterReluctancePeace);
+@@ -105,9 +107,11 @@ private:
+ 	bool considerPlanTypeChange(TeamTypes eTarget, int iU);
+ 	bool considerAbandonPreparations(TeamTypes eTarget, int iU, int iTurnsRemaining);
+ 	bool considerSwitchTarget(TeamTypes eTarget, int iU, int iTurnsRemaining);
+-	bool considerConcludePreparations(TeamTypes eTarget, int iU, int iTurnsRemaining);
++	// <!-- custom: Added iVictoryDenialBoost so preparation and direct-war utility retain the same victory-denial value when they are compared. (GPT-5.6-Sol) -->
++	bool considerConcludePreparations(TeamTypes eTarget, int iU, int iTurnsRemaining, int iVictoryDenialBoost);
+ 
+-	void scheme(); // Consider new war plans
++	// <!-- custom: Added aeChangedTargets to skip only targets whose plans changed earlier in this turn; other new war opportunities remain available. (GPT-5.6-Sol) -->
++	void scheme(std::set<TeamTypes> const& aeChangedTargets); // Consider new war plans
+ 	void alignAreaAI(bool bNaval);
+ 	int peaceThreshold(TeamTypes eTarget) const;
+ 	scaled limitedWarWeight() const;
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index cfa144de8..9b8e9cbee 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -231,6 +231,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [188 - (Fixed/Improved) Major Base AdvCiv/K-Mod bug in organizing armies against Barbarian cities could park 65-82% of an AI's military or prevent capable attackers from forming city-assault expeditions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#188---fixedimproved-major-base-advcivk-mod-bug-in-organizing-armies-against-barbarian-cities-could-park-65-82-of-an-ais-military-or-prevent-capable-attackers-from-forming-city-assault-expeditions)\
+ [188.2 - (Fixed/Improved) Base AdvCiv/K-Mod issue: offensive armies could ignore nearby endangered cities instead of going back to try to help defending them](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1882---fixedimproved-base-advcivk-mod-issue-offensive-armies-could-ignore-nearby-endangered-cities-instead-of-going-back-to-try-to-help-defending-them)\
+ [188.3 - (Fixed/Improved) Major Base AdvCiv/K-Mod bug: city-assault armies without a reachable target or war plan could keep waiting for reinforcements indefinitely and park 40-53% of an AI's military](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1883---fixedimproved-major-base-advcivk-mod-bug-city-assault-armies-without-a-reachable-target-or-war-plan-could-keep-waiting-for-reinforcements-indefinitely-and-park-40-53-of-an-ais-military)\
++[189 - (Fixed/Improved) Major UWAI issue: repeated random reviews could cancel or redirect most war preparations before they became wars](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#189---fixedimproved-major-uwai-issue-repeated-random-reviews-could-cancel-or-redirect-most-war-preparations-before-they-became-wars)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7085,3 +7086,32 @@ Save file 452 independently confirmed the behavior with 93 releases across ten c
+ This reuses `SAS_MIN_ATTACK_CITY_STACK_UNITS` rather than adding another tuning value, because the existing minimum already expresses how large a generally useful city-assault nucleus should be.
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
++
++## 189 - (Fixed/Improved) Major UWAI issue: repeated random reviews could cancel or redirect most war preparations before they became wars
++
++BBAI diagnostics in save file 452 showed that the AI frequently began preparing a war, mobilized around that plan, and then discarded or redirected it before fighting. Across all civilization AIs, 152 preparations began, 130 were canceled or switched away from, and only 17 became wars. China was the clearest individual example: it began 36 preparations, had 19 canceled by the inherited random-abandonment roll, switched target 13 times, and turned only 2 preparations into wars. Repeated mobilization without commitment wastes military tempo and can keep units concentrated around plans that never produce a conquest or defensive result.
++
++The main cause was not simply that war utility sometimes became negative. UWAI converted the negative utility, leader `WarRand`, and game speed into an abandonment probability and rolled it on every negative review. The save-file 452 baseline contained 120 such checks and 69 random cancellations. Repeated rolls make even a moderate chance cumulative: an unchanged 20% chance is about 67% over five reviews and about 89% over ten. A mildly doubtful plan was therefore likely to disappear eventually even when no decisive strategic deterioration occurred.
++
++Two other inherited rolls made the result less stable. UWAI used the relative benefit of the best alternative target as a probability of switching rather than as a requirement, so a small improvement could sometimes redirect an established preparation while a large improvement could sometimes be ignored. It also randomly selected the utility threshold for changing from preparation to a direct war plan, making otherwise identical readiness decisions conclude on different turns. The baseline produced 22 target switches from 71 comparisons.
++
++This instability could immediately contradict fresh scheming. Of the 74 baseline cancellations, 32 selected the same target again on the same team turn and 41 did so within three turns. The current-plan review and the fresh-plan evaluation legitimately use different preparation horizons, so a mature plan can sometimes be unattractive as an immediate war but attractive again with more preparation time. However, canceling and recreating it on the same turn is never useful, and newly selected plans also need a short commitment period so transient UWAI or AreaAI changes do not erase them after their first review.
++
++AdvCiv-SAS now makes preparation review deterministic and gives commitment already spent on mobilization appropriate weight:
++
++- the old personality- and game-speed-adjusted abandonment value is retained as a severity score rather than rerolled as a probability; the XML-tunable default requires the maximum 100% severity;
++- severity alone cannot abandon a preparation before the XML-tunable age 3, giving it two full reviews to settle, while illegal targets, expired preparations with negative utility, and imminent-war failures remain immediate;
++- the best alternative target must reach an XML-tunable 50% relative-advantage score to switch reliably; smaller fluctuations never switch, and qualifying alternatives no longer depend on another roll;
++- imminent plans always perform that meaningful-advantage comparison instead of first rolling whether to look for a better target;
++- the direct-war threshold uses the old random range's midpoint, preserving its preparation-time progression without making readiness depend on a dice roll;
++- a target whose plan changed during review cannot be reconsidered by fresh scheming later in the same team turn, but all other targets remain available and the changed target can be reconsidered normally on a later turn.
++
++The investigation also found an AdvCiv-SAS integration bug in victory denial. `doScheme` added urgency when selecting a rival close to victory, but later inherited war-plan review omitted the boost. In the save-file 452 baseline, China selected India on turn 237 at utility `320` (`20 + 300` victory denial), then reviewed the same preparation at only `17` on turn 238 and switched away. Similar attempts were canceled and immediately selected again. Reviews and alternative-target comparisons now retain the same victory-denial value. If an existing preparation later passes the narrow distance, power, naval, and countdown gates from KI#184, it can declare immediately instead of waiting for another scheming cycle.
++
++The final save-file 452 confirming run reduced cancellations from 74 to 34 and target switches from 22 to 15 while increasing actual wars from 22 to 29. Same-turn reselection fell from 32 to 0, and reselection within three turns fell from 41 to 5. All deterministic decisions matched their XML thresholds: every severity cancellation scored 100, continued checks scored 2-98, accepted switches scored at least 51, and rejected switches scored at most 49. The age grace protected 15 preparation episodes; plans that remained decisively bad could still be canceled from age 3 onward, while others recovered, continued below the severity threshold, switched to a clearly better target, or advanced to direct war.
++
++Save file 450 independently confirmed the behavior over 418 preparation reviews: 39 preparations advanced to direct war and 35 wars started. The run had no same-turn cancel/reselect case, no severity cancellation before age 3, 14 severity cancellations all at exactly 100, and 109 post-grace negative checks from 1-95 that correctly continued. All 21 target switches scored at least 51 while all 66 rejected comparisons scored at most 49. Three existing victory-denial preparations newly passed the direct-war gates during review; each declaration appeared in the game summary, including wars against the eventual Space threats on turns 255 and 281.
++
++The cure intentionally does not forbid every later return to a mature or expired target. In the save-file 450 confirmation, 15 of 38 cancellations prepared against the same target again within three turns, mainly after a full preparation deadline, an imminent-war timeout, or a mature severe deterioration. A longer preparation horizon can genuinely make such a war attractive again. The fixed issue is premature and roll-dependent loss of commitment, especially same-turn contradictions, not legitimate later reconsideration after the plan or strategic timing has changed.
++
++Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d9ec43016..bd7b18b1f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -408,6 +408,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - (Requires AdvCiv-SAS 6049+) **Offensive armies can interrupt or divide an expedition to defend nearby endangered cities:** Following KI#188, similar logging showed a ready AI army, including one already in enemy territory after being backstabbed, could in Base AdvCiv/K-Mod select another enemy city while an underdefended own city was reachable within a few turns. The clearest diagnostic case was in save file 450: Baghdad needed 12 defenders and had 5, but a healthy 11-unit Arabian city-assault army only two turns away waited for more units, grew to 23 units / 32% of Arabia's military, and attacked Prague; Baghdad fell, Prague was not captured, and Arabia retook Baghdad five turns later after its population had fallen from 10 to 4. To fix and enhance this, before choosing its next offensive target, the army now first tries to counter a suitable nearby invader when its area is considered defensive. If no such counterattack is selected, it can send enough units to fill an endangered city's remaining defender shortage within three turns and continue the expedition with the rest. The AI does not begin a rescue when a one-unit group cannot fill a larger shortage or when filling it would consume more than three quarters of the group, and doomed-city evacuation still takes priority. This lets a military advantage serve defense without automatically abandoning every viable offensive. After the fix, history diverged, but a similar save file 450 run showed the intended choices working: an Arabian city-assault group suspended its expedition to counter Holy Roman units near Baghdad, which remained Arabian. Later, a Dutch army sent 10 of its 19 units to protect Amsterdam while keeping 9 in the field; the Dutch won three of four nearby land battles and successfully retained the city. Overall, 11 of the 16 expedition-split decisions targeted cities that survived the immediate war or remained held through the test. The five failures were all on the collapsing Holy Roman front, where Najran, Vienna, Nuremberg, Prague, and Aachen still fell, so the response improves viable defenses without pretending an overwhelmed empire can save every city. See [KI#188.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1882---fixedimproved-base-advcivk-mod-issue-offensive-armies-could-ignore-nearby-endangered-cities-instead-of-going-back-to-try-to-help-defending-them).
+ - (Requires AdvCiv-SAS 6049+) **Emergency city reinforcements now complete their assigned rescue:** Similar logging showed that the first prototypes of the cure above could detach defenders only for them to immediately regroup with their offensive army instead of reaching the endangered city. For example, at Chichen Itza, 6 units detached from an 8-unit army, regrouped, and had to be detached again two turns later; the city fell before the rescue was completed. This was not an inherited Base AdvCiv/K-Mod issue, but a missing part of our candidate cure. To complete the cure, emergency reinforcements now retain their city assignment, count as incoming defenders so the AI does not duplicate the same response, and remain in the city while needed; once the danger or defender shortage ends, they return to normal duties. In the confirming save file 450 run, 7 units successfully reached Amsterdam while the other 11 remained together for their campaign. See [KI#188.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1882---fixedimproved-base-advcivk-mod-issue-offensive-armies-could-ignore-nearby-endangered-cities-instead-of-going-back-to-try-to-help-defending-them).
+ - (Requires AdvCiv-SAS 6050+) **Large AI armies parked with nothing reachable to attack:** BBAI logging showed a major Base AdvCiv/K-Mod bug: even while at peace, with no planned war and no rival or Barbarian city it could reach, the AI could keep waiting for reinforcements and effectively lock more units into the same army so they could not be released for other duties. For example, in save file 450, a United States group grew from 6 units on T126 to 18 of the empire's 47 military units by T225, and then, after the short war, it returned to peace still holding 21 of 51 units on T247. So it concentrated about 40% of the AI's military in one city and left far fewer units available to defend the rest of its empire or pursue another opportunity, which was very problematic. To fix this, when the AI has nothing to attack, it now stops waiting for more reinforcements: if the army is already in its own territory and not immediately threatened, the AI now only keeps one modest core group ready for a future city attack. As for the excess units, they now instead leave the group and resume defending cities or preparing another expedition. Note: an army that is still abroad or in immediate danger remains together until it returns to its own territory and is no longer immediately threatened, so the fix does not break it apart while exposed. Note 2: the units can also regroup into a large army as soon as a real target or planned war appears. After the fix, confirming runs of save files 450 and 452 showed the intended behavior: in save file 452, Japan reduced its peacetime city-assault group with nothing to attack from 21 to 11 units, freeing 10 units for other duties; at the same time, the AI could still assemble large armies when a real war began, as Carthage attacked Susa with 63 units in save file 450, and China attacked Aksum with roughly 180-202 units in save file 452. See [KI#188.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1883---fixedimproved-major-base-advcivk-mod-bug-city-assault-armies-without-a-reachable-target-or-war-plan-could-keep-waiting-for-reinforcements-indefinitely-and-park-40-53-of-an-ais-military).
++- (Requires AdvCiv-SAS 6051+) **AI war preparations no longer repeatedly gamble away their own mobilization:** BBAI logging in save file 452 showed a major UWAI issue: across all AIs, 152 war preparations began, 130 were canceled or redirected to another target, and only 17 became wars. Whenever UWAI reviewed a preparation whose war value had become negative, it converted how doubtful the plan looked into a chance to abandon it and rolled that chance on every negative review. China alone began 36 preparations: repeated abandonment rolls canceled 19, separate target-switch rolls redirected another 13, and only 2 became wars. Established preparations also used a random roll to decide when to become direct war. This could waste the military advantage and upkeep already committed to mobilization: 32 of 74 cancellations even selected the exact same target again later in the same team turn. To fix this, the AI now keeps a newly chosen plan through its first two reviews unless a hard failure, such as an illegal target or expired unprofitable preparation, requires immediate cancellation. After that, it cancels only when the personality- and game-speed-adjusted evidence reaches the tunable maximum for a clearly bad plan. It switches only when another rival is clearly better, uses a stable readiness threshold before beginning direct war, and cannot cancel and recreate the same target during one team turn; other targets remain available throughout. In the final confirming save-file 452 run, cancellations fell from 74 to 34, target switches from 22 to 15, same-turn reselections from 32 to 0, and reselections within three turns from 41 to 5, while actual wars increased from 22 to 29. Save file 450 independently confirmed no same-turn reselection, 39 preparations advancing to direct war, and 35 wars starting. See [KI#189](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#189---fixedimproved-major-uwai-issue-repeated-random-reviews-could-cancel-or-redirect-most-war-preparations-before-they-became-wars).
++- (Requires AdvCiv-SAS 6051+) **War preparations against near-winning rivals no longer forget why the rival was chosen:** the same investigation found an AdvCiv-SAS integration bug in the victory-denial improvements from KI#184. China selected India on T237 with a war value of 320, including 300 because India threatened victory, but the inherited next-turn review omitted that urgency, saw only 17, and switched away. Reviews and alternative-target comparisons now preserve the victory-denial value; if an existing preparation later meets the same narrow distance, power, naval, and victory-timing limits used for emergency war selection, the AI can declare immediately instead of losing more turns. In the independent save-file 450 confirmation, this later direct-war path fired three times and all three declarations appeared in the game history, including wars against near-Space-victory rivals on T255 and T281. See [KI#189](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#189---fixedimproved-major-uwai-issue-repeated-random-reviews-could-cancel-or-redirect-most-war-preparations-before-they-became-wars) and [KI#184](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact).
+ 
+ ## UI
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=54033

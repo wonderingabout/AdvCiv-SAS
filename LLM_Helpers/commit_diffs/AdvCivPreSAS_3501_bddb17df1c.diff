@@ -1,0 +1,50 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3501
+# Commit: bddb17df1c46314a590412ce55d9fea119cc60f6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c0a57cf0bbc2ba7b00e2bcf23788da7b07d48f9c
+# Title: Again tweak UWAI eval of effort for military buildup
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	15	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 00da891da..15b3fe662 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2814,21 +2814,6 @@ int Effort::preEvaluate()
+ 				// I.e. add between 3 (Gandhi) and 8 (Ragnar) percentage points
+ 				scaled(kOurPersonality.getBuildUnitProb(), 500));
+ 	}
+-	{
+-		bool bAnyWar = false;
+-		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
+-		{
+-			if (militAnalyst().isWar(eWe, it->getID()))
+-			{
+-				bAnyWar = true;
+-				break;
+-			}
+-		}
+-		/*	If we're at peace, units trained are apparently deemed useful by CvCityAI;
+-			we still shouldn't assume that they'll _certainly_ be useful. */
+-		if (!bAnyWar)
+-			rFutureUse *= fixp(1.12);
+-	}
+ 	scaled const rInvested = militAnalyst().militaryProduction(eWe);
+ 	scaled const rOurLostProduction = rOurLostProductionInUnits * rFutureUse +
+ 			rInvested *
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=924

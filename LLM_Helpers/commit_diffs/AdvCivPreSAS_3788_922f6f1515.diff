@@ -1,0 +1,195 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3788
+# Commit: 922f6f1515feccff2ab8816179ac8cb694206268
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2f93fe494536f760c16864ca365e3d0d219880b2
+# Title: Misc. comment and (very few) minor refactoring changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/Config/Plot List Enhancements.xml
+3	3	Assets/Python/Screens/RectLayout.py
+1	1	Assets/XML/GlobalDefines_advc.xml
+2	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	1	CvGameCoreDLL/CvGlobals.h
+4	4	CvGameCoreDLL/CvMap.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/Plot List Enhancements.xml b/Assets/Config/Plot List Enhancements.xml
+index c852ea03d..44070ab97 100644
+--- a/Assets/Config/Plot List Enhancements.xml	
++++ b/Assets/Config/Plot List Enhancements.xml	
+@@ -148,7 +148,7 @@
+ 			<option id="Info_Pane_Width" key="Info Pane X Size" 
+ 					type="int" default="5" 
+ 					get="getInfoPaneWidth"/>
+-			<ption id="Info_Pane_Standard_Line_Height" key="Pixel Per Line Type 1" 
++			<option id="Info_Pane_Standard_Line_Height" key="Pixel Per Line Type 1" 
+ 					type="int" default="24" 
+ 					get="getInfoPaneStandardLineHeight"/>
+ 			<option id="Info_Pane_Bulleted_Line_Height" key="Pixel Per Line Type 2" 
+@@ -180,8 +180,8 @@
+ 					type="boolean" default="False" 
+ 					get="isShowMoveHighlighter"/>
+ 			
+-			<!-- advc.069 (comment): These are unused -->
+-			<option id="MH_Color_Impassable_Terrain" key="Color Impassable Terrain" 
++			<!-- advc.069 These are unused -->
++			<!--option id="MH_Color_Impassable_Terrain" key="Color Impassable Terrain" 
+ 					type="color" default="COLOR_CLEAR" 
+ 					get="getImpassableTerrainColor"/>
+ 			<option id="MH_Color_Passable_Terrain" key="Color Passable Terrain" 
+@@ -204,7 +204,7 @@
+ 					get="getEnemyUnitColor"/>
+ 			<option id="MH_Color_Barbarian_Unit" key="Color Barbarian Unit" 
+ 					type="color" default="COLOR_CYAN" 
+-					get="getBarbarianUnitColor"/>
++					get="getBarbarianUnitColor"/-->
+ 		</section>
+ 	</options>
+ </mod>
+
+diff --git a/Assets/Python/Screens/RectLayout.py b/Assets/Python/Screens/RectLayout.py
+index 58bd12d43..78e0f9be6 100644
+--- a/Assets/Python/Screens/RectLayout.py
++++ b/Assets/Python/Screens/RectLayout.py
+@@ -21,7 +21,7 @@ class PointLayout:
+ # The constructor receives the coordinates as an offset from another
+ # ("parent") RectLayout - and converts them to absolute screen coordinates
+ # accessible through the x and y methods.
+-# For convenience, the constructors works with float values, but the accessors
++# For convenience, the constructor works with float values, but the accessors
+ # return integers because that's what most of the CyGInterfaceScreen functions
+ # in the EXE expect.
+ class RectLayout(object):
+@@ -40,13 +40,13 @@ class RectLayout(object):
+ 			# ('None' is allowed only for the RectLayout representing the screen itself.
+ 			# In that case, fX and fY need to be absolute screen coordinates.)
+ 			lParent,
+-			# Distance from the lParent's left edge if positive,
++			# Distance from lParent's left edge if positive,
+ 			# from lParent's right edge if negative.
+ 			# CENTER centers this widget horizontally.
+ 			# RIGHT aligns this widget horizontally to the right edge of lParent.
+ 			# LEFT is equivalent to fX=0.
+ 			fX,
+-			# Distance from the lParent's top edge if positive,
++			# Distance from lParent's top edge if positive,
+ 			# from lParent's bottom edge if negative.
+ 			# CENTER centers this widget vertically.
+ 			# BOTTOM aligns this widget vertically to the bottom edge of lParent.
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index cf043d5c1..fc1859ec6 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -406,7 +406,7 @@
+ 
+ 	<!-- advc.004m: 2200 in BtS. Now ignored unless the "Default Camera Distance"
+ 		 BUG option is set to "Custom". -->
+-	<Define>
++	<Define> <!-- redefine -->
+ 		<DefineName>CAMERA_START_DISTANCE</DefineName>
+ 		<fDefineFloatVal>5400</fDefineFloatVal>
+ 	</Define>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index b80d6ad75..49cba2ff5 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1264,10 +1264,10 @@ void CvDLLWidgetData::doPlotListShift(int iChange, bool bMaxStep)
+ 		return;
+ 	int const iPlotUnits = pPlot->getNumUnits();
+ 	int iStep = 10;
+-	// (Not sure that this is really a maximal limit of anything)
+-	int const iBigStep = GC.getDefineINT("MAX_PLOT_LIST_SIZE"); // 100
+ 	if (gDLL->UI().isCityScreenUp())
+ 	{
++		// (Not sure that this is really a maximal limit of anything)
++		int const iBigStep = GC.getDefineINT("MAX_PLOT_LIST_SIZE"); // 100
+ 		/*	BUG drawing method will only ever show a single row on the city screen.
+ 			Don't want to expand rapidly upon the first right-shift then.
+ 			Instead, let the bMaxStep param jump to the final column. */
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index c6f5fd3fd..ac0366959 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -26,7 +26,7 @@ class CvInterface;
+ class FProfiler;
+ class CvDLLUtilityIFaceBase;
+ class CvPythonCaller; // advc.003y
+-class CvDLLLogger;
++class CvDLLLogger; // advc
+ class CvRandom;
+ class CvGame; // advc.003u
+ class CvGameAI;
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 3149647e3..d49b0fd14 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -837,7 +837,7 @@ int CvMap::numPlotsExternal() const // advc.inl
+ }
+ 
+ 
+-int CvMap::pointXToPlotX(float fX) /* advc: */ const
++int CvMap::pointXToPlotX(float fX) const
+ {
+ 	float fWidth, fHeight;
+ 	gDLL->getEngineIFace()->GetLandscapeGameDimensions(fWidth, fHeight);
+@@ -845,7 +845,7 @@ int CvMap::pointXToPlotX(float fX) /* advc: */ const
+ }
+ 
+ 
+-float CvMap::plotXToPointX(int iX) /* advc: */ const
++float CvMap::plotXToPointX(int iX) const
+ {
+ 	float fWidth, fHeight;
+ 	gDLL->getEngineIFace()->GetLandscapeGameDimensions(fWidth, fHeight);
+@@ -853,7 +853,7 @@ float CvMap::plotXToPointX(int iX) /* advc: */ const
+ }
+ 
+ 
+-int CvMap::pointYToPlotY(float fY) /* advc: */ const
++int CvMap::pointYToPlotY(float fY) const
+ {
+ 	float fWidth, fHeight;
+ 	gDLL->getEngineIFace()->GetLandscapeGameDimensions(fWidth, fHeight);
+@@ -861,7 +861,7 @@ int CvMap::pointYToPlotY(float fY) /* advc: */ const
+ }
+ 
+ 
+-float CvMap::plotYToPointY(int iY) /* advc: */ const
++float CvMap::plotYToPointY(int iY) const
+ {
+ 	float fWidth, fHeight;
+ 	gDLL->getEngineIFace()->GetLandscapeGameDimensions(fWidth, fHeight);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 4f336136a..3dc3f8982 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8728,7 +8728,8 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 			else
+ 			{
+ 				bFriendlyToSecretary =
+-						(kOurTeam.AI_getAttitude(eSecretaryGeneral) == ATTITUDE_FRIENDLY);
++						// advc: was ==
++						(kOurTeam.AI_getAttitude(eSecretaryGeneral) >= ATTITUDE_FRIENDLY);
+ 			}
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=6473

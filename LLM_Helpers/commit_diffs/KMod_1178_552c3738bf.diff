@@ -1,0 +1,42 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1178
+# Commit: 552c3738bfddfbc1fc53b185fe2a203891eb24b1
+# History segment: K-Mod history
+# Parent used for diff: a4e0fd73a92d43f8b89f2659f51c619326d05d3c
+# Title: Tweaked global warming values to start a bit earlier.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/xml/GlobalDefinesAlt.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/GlobalDefinesAlt.xml b/Assets/xml/GlobalDefinesAlt.xml
+index 6fad4dcf3..05bdfbbef 100644
+--- a/Assets/xml/GlobalDefinesAlt.xml
++++ b/Assets/xml/GlobalDefinesAlt.xml
+@@ -74,11 +74,11 @@
+ 	<!-- global warming threshold is # land plots * resistance. -->
+ 	<Define>
+ 		<DefineName>GLOBAL_WARMING_RESISTANCE</DefineName>
+-		<iDefineIntVal>10</iDefineIntVal>
++		<iDefineIntVal>9</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>GLOBAL_WARMING_INDEX_PER_CHANCE</DefineName>
+-		<iDefineIntVal>450</iDefineIntVal>
++		<iDefineIntVal>500</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>GLOBAL_WARMING_BASE_ANGER_PERCENT</DefineName>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=656

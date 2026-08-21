@@ -1,0 +1,1420 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1777
+# Commit: c0439987e092e0adea07aedba24a9b4bce933487
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 031cc06cb2cf73b6ae824c08d7021a72ec6e2c9e
+# Title: Clearer help text for building defense; AI tweak.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	4	Assets/XML/Buildings/CIV4BuildingInfos.xml
+4	0	Assets/XML/Buildings/CIV4BuildingsSchema.xml
+38	0	Assets/XML/Text/CIV4GameText_advc.008.xml
+44	0	Assets/XML/Text/CIV4GameText_advc.xml
+46	10	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvCity.h
+139	76	CvGameCoreDLL/CvCityAI.cpp
+6	1	CvGameCoreDLL/CvCityAI.h
+2	0	CvGameCoreDLL/CvDLLWidgetData.cpp
+53	51	CvGameCoreDLL/CvGameTextMgr.cpp
+29	22	CvGameCoreDLL/CvInfo_Base.cpp
+92	71	CvGameCoreDLL/CvInfo_Base.h
+6	5	CvGameCoreDLL/CvInfo_Building.cpp
+22	1	CvGameCoreDLL/CvInfo_Building.h
+4	4	CvGameCoreDLL/CvInfo_Terrain.cpp
+8	8	CvGameCoreDLL/CvInfo_Terrain.h
+4	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 26c9df864..81fe5ae4c 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -663,7 +663,9 @@
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+ 			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>50</iDefense>
++			<iDefense>0</iDefense>
++			<!-- advc.004c: Replacing the above (which was also 50) -->
++			<iRaiseDefense>50</iRaiseDefense>
+ 			<iBombardDefense>50</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+@@ -843,7 +845,9 @@
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+ 			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>50</iDefense>
++			<iDefense>0</iDefense>
++			<!-- advc.004c: Replacing the above (which was also 50) -->
++			<iRaiseDefense>50</iRaiseDefense>
+ 			<iBombardDefense>50</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+@@ -1028,7 +1032,9 @@
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+ 			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>50</iDefense>
++			<iDefense>0</iDefense>
++			<!-- advc.004c: Replacing the above (which was 50) -->
++			<iRaiseDefense>100</iRaiseDefense>
+ 			<iBombardDefense>25</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+@@ -1228,7 +1234,9 @@
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+ 			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>50</iDefense>
++			<iDefense>0</iDefense>
++			<!-- advc.004c: Replacing the above (which was 50) -->
++			<iRaiseDefense>100</iRaiseDefense>
+ 			<iBombardDefense>25</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingsSchema.xml b/Assets/XML/Buildings/CIV4BuildingsSchema.xml
+index 1210b1ffc..9b4846452 100644
+--- a/Assets/XML/Buildings/CIV4BuildingsSchema.xml
++++ b/Assets/XML/Buildings/CIV4BuildingsSchema.xml
+@@ -165,6 +165,8 @@
+ 	<ElementType name="iGlobalPopulationChange" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iFreeTechs" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iDefense" content="textOnly" dt:type="int"/>
++	<!-- advc.004c: Non-cumulative defense modifier-->
++	<ElementType name="iRaiseDefense" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iBombardDefense" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAllCityDefense" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iEspionageDefense" content="textOnly" dt:type="int"/>
+@@ -496,6 +498,8 @@
+ 		<element type="iGlobalPopulationChange"/>
+ 		<element type="iFreeTechs"/>
+ 		<element type="iDefense"/>
++		<!-- advc.004c (default is 0) -->
++		<element type="iRaiseDefense" minOccurs="0"/>
+ 		<element type="iBombardDefense"/>
+ 		<element type="iAllCityDefense"/>
+ 		<element type="iEspionageDefense"/>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.008.xml b/Assets/XML/Text/CIV4GameText_advc.008.xml
+index eb35522ca..40e3ca940 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.008.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.008.xml
+@@ -855,4 +855,42 @@
+ 		<Spanish>[H1]Victoria [\H1][PARAGRAPH:2]En Civilization IV hay muchas maneras de ganar. Puedes ganar si consigues el dominio pol&#237;tico, cultural o tecnol&#243;gico y, por supuesto, por el siempre popular m&#233;todo de "aplastar a todos los dem&#225;s bajo las ruedas de tu carro". Todos estos m&#233;todos se describen m&#225;s adelante.[PARAGRAPH:2][H2]Efectos de la victoria[\H2][PARAGRAPH:2]T&#250; ganas y todos los dem&#225;s pierden. Se acab&#243; la partida (pero mira a continuaci&#243;n). Si tu victoria es lo bastante espectacular, tus logros se guardar&#225;n en la pantalla del "Sal&#243;n de la Fama" de Civilization IV.[PARAGRAPH:2][BOLD]Proseguir una partida tras la victoria:[\BOLD] Tras ganar la partida puedes seguir jugando, pero ning&#250;n logro posterior se guardar&#225; en la pantalla del Sal&#243;n de la Fama. Tampoco es posible conseguir otro tipo de victoria despu&#233;s de que haya tenido lugar una victoria o derrota.[PARAGRAPH:2][H2]Derrota[\H2][PARAGRAPH:2]Pierdes si te borran del mapa o si alguno de tus oponentes logra una de las victorias que se indican m&#225;s adelante. La partida terminar&#225; y todos los dem&#225;s l&#237;deres se reir&#225;n de ti. Ser&#225; el momento de empezar una nueva y volver a intentarlo.[PARAGRAPH:2][H2]Condiciones para la victoria[\H2][PARAGRAPH:2]A continuaci&#243;n se da una lista de las maneras en que puedes lograr la victoria en Civilization IV. Si quieres averiguar m&#225;s detalles, pulsa F8 para ir a la pantalla de "condiciones para la victoria". All&#237; ver&#225;s una lista de los caminos a la victoria que hay disponibles y lo cerca que est&#225;s de lograr cada uno de ellos (ten en cuenta que si en esa pantalla no aparece un tipo espec&#237;fico de victoria es que se excluy&#243; durante la configuraci&#243;n de la partida).[PARAGRAPH:2][BOLD]Victoria por tiempo[\BOLD][PARAGRAPH:2]La partida termina en un turno concreto, normalmente en el 2050 d. C. Ganar&#225; la civilizaci&#243;n que tenga la puntuaci&#243;n m&#225;s alta ese turno.[PARAGRAPH:2][BOLD]Victoria por conquista[\BOLD][PARAGRAPH:2]La partida termina cuando una civilizaci&#243;n elimina a todas las rivales. Una civilizaci&#243;n queda eliminada cuando su &#250;ltima ciudad cae capturada o destruida, aunque a&#250;n tenga unidades en juego.[PARAGRAPH:2][BOLD]Victoria por dominaci&#243;n[\BOLD][PARAGRAPH:2]La partida termina cuando una civilizaci&#243;n controla el 75%% de la poblaci&#243;n mundial Y el 75%% del &#225;rea terrestre del mundo.[PARAGRAPH:2][BOLD]Victoria cultural[\BOLD][PARAGRAPH:2]La partida termina cuando una civilizaci&#243;n tiene tres ciudades con una "cultura legendaria" (50.000 puntos de cultura por ciudad a la velocidad de juego normal). Ver [LINK=CONCEPT_CULTURE]Cultura[\LINK] para obtener una descripci&#243;n de la misma y de c&#243;mo la obtienen las ciudades.[PARAGRAPH:2][BOLD]por carrera espacial[\BOLD][PARAGRAPH:2]La partida termina cuando construyes todos los componentes para la nave espacial, la lanzas y &#233;sta consigue llegar a Alpha Centauri. Puedes ver el estado de la carrera espacial con las civilizaciones rivales mediante la pantalla de condiciones para la victoria que se activa con F8. En esa pantalla hay una lista con todos los componentes necesarios para construir la nave espacial y cu&#225;ntos has completado hasta el momento.[PARAGRAPH:2][BOLD]Victoria diplom&#225;tica[\BOLD][PARAGRAPH:2]La partida termina cuando se crea [LINK=CONCEPT_UNITED_NATIONS]Naciones Unidas[\LINK] y un l&#237;der gana las elecciones a l&#237;der del mundo.[PARAGRAPH:2]</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004c: Replace all mentions of "pre-Gunpowder" with
++		 "pre-Renaissance" (or remove mention). Explain building defense. -->
++	<!-- Dun, Citadel: from CIV4GameText_Warlords.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_CELTIC_DUN_STRATEGY</Tag>
++		<English>[COLOR_BUILDING_TEXT]Dun[COLOR_REVERT], the Celtic replacement for [COLOR_BUILDING_TEXT]Walls[COLOR_REVERT] grants the [COLOR_HIGHLIGHT_TEXT]Guerrilla I[COLOR_REVERT] promotion to all eligible units trained in this city. Note (AdvCiv): Melee units like [LINK=UNIT_CELTIC_GALLIC_WARRIOR]Gallic Warrior[\LINK] are not eligible.</English>
++		<French>L'[COLOR_BUILDING_TEXT]oppida[COLOR_REVERT], version celte des [COLOR_BUILDING_TEXT]murailles[COLOR_REVERT], augmente la d&#233;fense des villes contre les unit&#233;s datant d'avant l'invention de la poudre &#224; canon. Il fournit aussi la promotion [COLOR_HIGHLIGHT_TEXT]Gu&#233;rilla I[COLOR_REVERT] &#224; toutes les unit&#233;s construites dans la ville.</French>
++		<German>Die keltischen [COLOR_BUILDING_TEXT]Duns[COLOR_REVERT] ersetzen die [COLOR_BUILDING_TEXT]Mauern[COLOR_REVERT]. Sie statten alle geeigneten Einheiten, die in dieser Stadt trainiert werden, mit der [COLOR_HIGHLIGHT_TEXT]Guerilla I[COLOR_REVERT]-Bef&#246;rderung aus. Anmerkung (AdvCiv): [LINK=UNIT_CELTIC_GALLIC_WARRIOR]Gallische Krieger[\LINK] k�nnen - als Nahk�mpfer - keine Guerilla-Bef�rderung erhalten.</German>
++		<Italian>Il [COLOR_BUILDING_TEXT]dun[COLOR_REVERT], l'equivalente celtico delle [COLOR_BUILDING_TEXT]mura[COLOR_REVERT], potenzia le difese della citt&#224; contro le unit&#224; precedenti alla polvere da sparo e garantisce a tutte le unit&#224; adatte costruite in citt&#224; la promozione [COLOR_HIGHLIGHT_TEXT]Guerriglia I[COLOR_REVERT].</Italian>
++		<Spanish>Los [COLOR_BUILDING_TEXT]Duns[COLOR_REVERT], los equivalentes celtas de las [COLOR_BUILDING_TEXT]Murallas[COLOR_REVERT], aumentan las defensas de una ciudad contra unidades anteriores a las armas de p&#243;lvora y otorgan a todas las unidades pertinentes que se construyan en esa ciudad el ascenso a [COLOR_HIGHLIGHT_TEXT]Guerra de guerrillas I[COLOR_REVERT].</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_SPANISH_CITADEL_STRATEGY</Tag>
++		<English>[COLOR_BUILDING_TEXT]Citadel[COLOR_REVERT], the Spanish replacement for [COLOR_BUILDING_TEXT]Castle[COLOR_REVERT] grants some experience points to all Siege units that the city produces.</English>
++		<French>La [COLOR_BUILDING_TEXT]citadelle[COLOR_REVERT], version espagnole du [COLOR_BUILDING_TEXT]ch&#226;teau[COLOR_REVERT], augmente la d&#233;fense des villes contre les unit&#233;s datant d'avant l'invention de la poudre &#224; canon. Elle fournit aussi un bonus d'exp&#233;rience aux unit&#233;s de si&#232;ge cr&#233;&#233;es dans la ville.</French>
++		<German>Die spanische [COLOR_BUILDING_TEXT]Zitadelle[COLOR_REVERT] ersetzt das [COLOR_BUILDING_TEXT]Schloss[COLOR_REVERT]. Sie stattet Belagerungseinheiten, die in der Stadt produziert werden, mit zus&#228;tzlichen Erfahrungspunkten aus.</German>
++		<Italian>La [COLOR_BUILDING_TEXT]roccaforte[COLOR_REVERT], l'equivalente spagnolo del [COLOR_BUILDING_TEXT]castello[COLOR_REVERT], potenzia le difese della citt&#224; contro le unit&#224; precedenti alla polvere da sparo e fornisce esperienza extra alle nuove unit&#224; d'assedio costruite in citt&#224;.</Italian>
++		<Spanish>Las [COLOR_BUILDING_TEXT]Ciudadelas[COLOR_REVERT], los equivalentes espa&#241;oles de los [COLOR_BUILDING_TEXT]Castillos[COLOR_REVERT], aumentan las defensas de la ciudad contra unidades anteriores a las armas de p&#243;lvora y otorgan algo de experiencia extra a las unidades de asedio all&#237; construidas.</Spanish>
++	</TEXT>
++	<!-- Walls: from CIV4GameText_Strategy.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_WALLS_STRATEGY</Tag>
++		<English>[COLOR_BUILDING_TEXT]Walls[COLOR_REVERT] raise a city's defenses against Medieval and earlier units. Build them in cities under threat from enemy civilizations or Barbarians. Note (AdvCiv): Defense from Walls is not cumulative with defense from city culture. The higher of the two values counts.</English>
++		<French>Les [COLOR_BUILDING_TEXT]remparts[COLOR_REVERT] am&#233;liorent les d&#233;fenses d'une ville contre les unit&#233;s ant&#233;rieures &#224; la poudre &#224; canon. Construisez-les dans les villes menac&#233;es par des attaques ennemies ou des barbares.</French>
++		<German>[COLOR_BUILDING_TEXT]Mauern[COLOR_REVERT] erh�hen den Verteidigungswert einer Stadt gegen Einheiten des Mittelalters und fr�herer Zeitalter. Errichten Sie Mauern in St&#228;dten, die von Barbaren oder anderen Feinden bedroht werden. Hinweis (AdvCiv): Mauern werden nicht zum Kultur-Verteidigungswert addiert; nur der h�here der beiden Werte z�hlt.</German>
++		<Italian>Le [COLOR_BUILDING_TEXT]mura[COLOR_REVERT] potenziano le difese della citt&#224; contro le unit&#224; precedenti alla polvere da sparo. Costruiscile nelle citt&#224; minacciate o assediate dai barbari.</Italian>
++		<Spanish>Las [COLOR_BUILDING_TEXT]Murallas[COLOR_REVERT] aumentan las defensas de la ciudad contra unidades anteriores a las armas de p&#243;lvora. Conviene amurallar las ciudades que puedan ser asaltadas por b&#225;rbaros o enemigos.</Spanish>
++	</TEXT>
++	<!-- Castle: from CIV4GameTextChanged_BTS.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_CASTLE_STRATEGY</Tag>
++		<English>[COLOR_BUILDING_TEXT]Castles[COLOR_REVERT] greatly improve your city's defenses against pre-Renaissance units and grant economical benefits. Note (AdvCiv): The defense modifier from Castle replaces the one from Wall and is not cumulative with defense from city culture.</English>
++		<French>Les [COLOR_BUILDING_TEXT]Ch&#226;teaux[COLOR_REVERT] am&#233;liorent les d&#233;fenses de la ville contre les unit&#233;s ant&#233;rieures &#224; la poudre &#224; canon, augmentent la production de l'espionnage et g&#233;n&#232;rent une faible quantit&#233; de culture. Construisez-les dans les villes &#224; proximit&#233; des civilisations ennemies.</French>
++		<German>[COLOR_BUILDING_TEXT]Schl�sser[COLOR_REVERT] machen es Ihren Feinden sehr schwer, Ihre St�dte einzunehmen. Gegen Einheiten der Renaissance und sp�terer Zeitalter wirken die Verteidigungsf�higkeiten allerdings nicht. Au�erdem gew�hren Schl�sser wirtschaftliche Vorteile. Hinweis (AdvCiv): Der Verteidigungswert eines Schlosses ersetzt den der (Stadt-)Mauern und wird nicht zum Kultur-Verteidigungswert addiert.</German>
++		<Italian>Il [COLOR_BUILDING_TEXT]castello[COLOR_REVERT] potenzia le difese di una citt&#224; contro le unit&#224; precedenti alla polvere da sparo, aumenta la resa di Spionaggio e genera una piccola quantit&#224; di cultura. Costruiscilo nelle citt&#224; vicine alle civilt&#224; nemiche.</Italian>
++		<Spanish>Los [COLOR_BUILDING_TEXT]Castillos[COLOR_REVERT] aumentan las defensas de la ciudad contra unidades anteriores a las armas de p&#243;lvora, aumentan el rendimiento del espionaje y generan una peque&#241;a cantidad de cultura. Conviene construirlos en ciudades que est&#233;n cerca de las civilizaciones enemigas.</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 117991fa8..bcc1a60c6 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5831,4 +5831,48 @@
+ 		</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004c: Based on TXT_KEY_BUILDING_DEFENSE_MOD (see below).
++		 For the DefenseRaise XML tag. Use the defense icon and refer to
++		 non-gunpowder-based units as "pre-Renaissance". "Gunpowder-based" is
++		 too similar to "Gunpowder" (unit class). -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_DEFENSE_RAISE</Tag>
++		<English>[ICON_BULLET]Raises [ICON_DEFENSE] to %d1_Mod%% against pre-Renaissance Units</English>
++		<French>[ICON_BULLET]%d1_Mod%% en d&#233;fense (sauf contre les unit&#233;s avec armes &#224; feu)</French>
++		<German>[ICON_BULLET]Erh�ht [ICON_DEFENSE] auf %d1_Mod%% gegen pr�-Renaissance-Einheiten</German>
++		<Italian>[ICON_BULLET]%d1_Mod%% alla difesa (tranne contro le armi da fuoco)</Italian>
++		<Spanish>[ICON_BULLET]%d1_Mod%% a la defensa (excepto contra unidades con armas de p&#243;lvora)</Spanish>
++	</TEXT>
++	<!-- DEFENSE_MOD should be supplanted by DEFENSE_RAISE. But perhaps it
++		 won't be in a mod-mod. So let's update DEFENSE_MOD as well: Use the
++		 defense icon and state that it increases (only) building defense. -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_DEFENSE_MOD</Tag>
++		<English>[ICON_BULLET]+%d1_Mod%% Building [ICON_DEFENSE] against pre-Renaissance Units</English>
++		<French>[ICON_BULLET]%d1_Mod%% en d&#233;fense (sauf contre les unit&#233;s avec armes &#224; feu)</French>
++		<German>[ICON_BULLET]+%d1_Mod%% Geb�ude-[ICON_DEFENSE] gegen pr�-Renaissance-Einheiten</German>
++		<Italian>[ICON_BULLET]%d1_Mod%% alla difesa (tranne contro le armi da fuoco)</Italian>
++		<Spanish>[ICON_BULLET]%d1_Mod%% a la defensa (excepto contra unidades con armas de p&#243;lvora)</Spanish>
++	</TEXT>
++	<!-- From CIV4GameText_Warlords_Changed.xml.
++		 To be consistent with the above. -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_BOMBARD_DEFENSE_MOD</Tag>
++		<English>[ICON_BULLET]%D1_Mod%% [ICON_DEFENSE] Bombardment by pre-Renaissance Units</English>
++		<French>[ICON_BULLET]%D1_Mod%% D&#233;g&#226;ts inflig&#233;s aux d&#233;fenses apr&#232;s un bombardement (sauf contre les unit&#233;s &#224; poudre)</French>
++		<German>[ICON_BULLET]%D1_Mod%% [ICON_DEFENSE]-Schaden durch bombardierende pr�-Renaissance-Einheiten</German>
++		<Italian>[ICON_BULLET]%D1_Mod%% di danni alle difese a causa del bombardamento (tranne contro unit&#224; che utilizzano la povere da sparo)</Italian>
++		<Spanish>[ICON_BULLET]%D1_Mod%% de da�o a las defensas por ca�oneo (excepto contra unidades con armas de p�lvora)</Spanish>
++	</TEXT>
++	<!-- From CIV4GameTextInfos.xml. Also for consistency. Chichen Itza
++		 actually is cumulative with culture defense. -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_DEFENSE_MOD_ALL_CITIES</Tag>
++		<English>[ICON_BULLET]%d1_Mod%% [ICON_DEFENSE] in All Cities</English>
++		<French>[ICON_BULLET]%d1_Mod%% en d&#233;fense dans toutes les villes</French>
++		<German>[ICON_BULLET]%d1_Mod%% [ICON_DEFENSE] in allen St&#228;dten</German>
++		<Italian>[ICON_BULLET]%d1_Mod%% alla difesa in tutte le citt&#224;</Italian>
++		<Spanish>[ICON_BULLET]%d1_Mod%% a la defensa en todas las ciudades</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c6efe2f2f..2ef9e94cf 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3375,6 +3375,7 @@ void CvCity::processBonus(BonusTypes eBonus, int iChange)
+ 
+ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolete)
+ {
++	PROFILE_FUNC(); // advc
+ 	int iI, iJ;
+ 	// <advc>
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+@@ -3392,7 +3393,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolet
+ 
+ 		if (kBuilding.getNoBonus() != NO_BONUS)
+ 		{
+-			changeNoBonusCount(((BonusTypes)(kBuilding.getNoBonus())), iChange);
++			changeNoBonusCount((BonusTypes)kBuilding.getNoBonus(), iChange);
+ 		}
+ 
+ 		if (kBuilding.getFreeBonus() != NO_BONUS)
+@@ -3559,7 +3560,22 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolet
+ 
+ 	if (!bObsolete)
+ 	{
+-		changeBuildingDefense(kBuilding.getDefenseModifier() * iChange);
++		/*  <advc.004c> Can avoid an update (which loops over all buildings)
++			in the most common circumstances */
++		if (kBuilding.getDefenseModifier() != 0 && getBuildingDefense() > 0)
++			updateBuildingDefense();
++		else // </advc.004c>
++			changeBuildingDefense(kBuilding.getDefenseModifier() * iChange);
++		// <advc.004c>
++		if (kBuilding.get(CvBuildingInfo::RaiseDefense) > 0)
++		{
++			if (iChange >= 0)
++			{
++				changeBuildingDefense(std::max(kBuilding.get(CvBuildingInfo::RaiseDefense),
++						getBuildingDefense()) - getBuildingDefense());
++			}
++			else updateBuildingDefense();
++		} // </advc.004c>
+ 		changeBuildingBombardDefense(kBuilding.getBombardDefenseModifier() * iChange);
+ 		// advc.051: Moved
+ 		//changeBaseGreatPeopleRate(kBuilding.getGreatPeopleRateChange() * iChange);
+@@ -3644,6 +3660,24 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)  // adv
+ 	changeSpecialistFreeExperience(kSpecialist.getExperience() * iChange);
+ }
+ 
++// <advc.004c>
++void CvCity::updateBuildingDefense()
++{
++	int iMaxRaise = 0;
++	int iModifier = 0;
++	CvCivilization const& kCiv = getCivilization();
++	for (int i = 0; i < kCiv.getNumBuildings(); i++)
++	{
++		BuildingTypes eBuilding = kCiv.buildingAt(i);
++		if (getNumBuilding(eBuilding) <= 0)
++			continue;
++		// (No obsoletion to worry about)
++		iMaxRaise = std::max(iMaxRaise, GC.getInfo(eBuilding).get(CvBuildingInfo::RaiseDefense));
++		iModifier += GC.getInfo(eBuilding).getDefenseModifier();
++	}
++	changeBuildingDefense(std::max(iModifier, iMaxRaise) - getBuildingDefense());
++} // </advc.004c>
++
+ 
+ HandicapTypes CvCity::getHandicapType() const
+ {
+@@ -7128,11 +7162,13 @@ void CvCity::changeBuildingDefense(int iChange)
+ // BUG - Building Additional Defense - start
+ int CvCity::getAdditionalDefenseByBuilding(BuildingTypes eBuilding) const
+ {
+-	FAssertMsg(eBuilding >= 0, "eBuilding expected to be >= 0");
+-	FAssertMsg(eBuilding < GC.getNumBuildingInfos(), "eBuilding expected to be < GC.getNumBuildingInfos()");
+-
+ 	CvBuildingInfo& kBuilding = GC.getInfo(eBuilding);
+-	int iDefense = std::max(getBuildingDefense() + kBuilding.getDefenseModifier(), getNaturalDefense()) + GET_PLAYER(getOwner()).getCityDefenseModifier() + kBuilding.getAllCityDefenseModifier();
++	int iDefense = std::max(
++			std::max(kBuilding.get(CvBuildingInfo::RaiseDefense), // advc.004c
++			getBuildingDefense() + kBuilding.getDefenseModifier()),
++			getNaturalDefense()) +
++			GET_PLAYER(getOwner()).getCityDefenseModifier() +
++			kBuilding.getAllCityDefenseModifier();
+ 
+ 	// doesn't take bombardment into account
+ 	return iDefense - getTotalDefense(false);
+@@ -7387,9 +7423,7 @@ bool CvCity::isBombardable(const CvUnit* pUnit) const
+ int CvCity::getNaturalDefense() const
+ {
+ 	if (getCultureLevel() == NO_CULTURELEVEL)
+-	{
+ 		return 0;
+-	}
+ 
+ 	return GC.getInfo(getCultureLevel()).getCityDefenseModifier();
+ }
+@@ -7397,7 +7431,8 @@ int CvCity::getNaturalDefense() const
+ 
+ int CvCity::getTotalDefense(bool bIgnoreBuilding) const
+ {
+-	return (std::max(((bIgnoreBuilding) ? 0 : getBuildingDefense()), getNaturalDefense()) + GET_PLAYER(getOwner()).getCityDefenseModifier());
++	return std::max(bIgnoreBuilding ? 0 : getBuildingDefense(), getNaturalDefense()) +
++			GET_PLAYER(getOwner()).getCityDefenseModifier();
+ }
+ 
+ 
+@@ -13601,7 +13636,8 @@ void CvCity::getVisibleBuildings(std::list<BuildingTypes>& kChosenVisible, int&
+ 		CvBuildingInfo& kBuilding = GC.getInfo(eCurType);
+ 		bool bWonder = isLimitedWonderClass((BuildingClassTypes)kBuilding.
+ 				getBuildingClassType());
+-		bool bDefense = (kBuilding.getDefenseModifier() > 0);
++		bool bDefense = (kBuilding.getDefenseModifier() > 0 ||
++				kBuilding.get(CvBuildingInfo::RaiseDefense) > 0); // advc.004c
+ 		if(!bAllVisible && !bWonder && !bDefense) {
+ 			bool visibleYieldChange = false;
+ 			int* seaPlotYieldChanges = kBuilding.getSeaPlotYieldChangeArray();
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 56562c974..4d373ef62 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1222,6 +1222,7 @@ protected:
+ 	bool canHurryUnit(HurryTypes eHurry, UnitTypes eUnit, bool bIgnoreNew) const;
+ 	bool canHurryBuilding(HurryTypes eHurry, BuildingTypes eBuilding, bool bIgnoreNew) const;
+ 
++	void updateBuildingDefense(); // advc.004c
+ 	double garrisonStrength(double stopCountingAt = -1) const; // advc.500b
+ 	//int calculateMaintenanceDistance() const;
+ 	// advc.004b: Replacing the above (which was public, but is only used internally)
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 59ba013d7..8373fc767 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3575,8 +3575,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags) const {
+ // This function has been heavily edited for K-Mod
+ // Scale is roughly 4 = 1 commerce / turn
+ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+-	int iThreshold, bool bConstCache, bool bAllowRecursion,
+-	bool bIgnoreSpecialists) const // advc.121b
++	int iThreshold, bool bConstCache, bool bAllowRecursion, /* advc.121b: */ bool bIgnoreSpecialists,
++	bool bObsolete) const // advc.004c
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -3598,12 +3598,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 	int iPriorityFactor = 100;
+ 
+ 	// bRemove means that we're evaluating the cost of losing this building rather than adding it.
+-	// the definition used here is just a kludge because there currently isn't any other to tell the difference.
++	// the definition used here is just a kludge because there currently isn't any other way to tell the difference.
+ 	// Currently, bRemove is only in a few parts of the evaluation where it is particularly important;
+ 	// for example, bRemove is critical for calculating the lost value of obsoleting walls and castles.
+ 	// There are several sections which could, in the future, be improved using bRemove -
+ 	// but I don't see it as a high priority.
+-	bool bRemove = getNumBuilding(eBuilding) >= GC.getDefineINT(CvGlobals::CITY_MAX_NUM_BUILDINGS);
++	bool bRemove = (getNumBuilding(eBuilding) >= GC.getDefineINT(CvGlobals::CITY_MAX_NUM_BUILDINGS));
++	// advc.004c: bRemove && !bObsolete is OK; that means spy attack.
++	FAssert(!bObsolete || bRemove);
+ 
+ 	// Veto checks: return zero if the building is not suitable.
+ 	// Note: these checks are essentially the same as in the original code, they've just been moved.
+@@ -3710,79 +3712,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 		//
+ 		// I've moved this condition to the end of the block, and tweaked it for better readability.
+ 
+-		if ((iFocusFlags & BUILDINGFOCUS_DEFENSE) || (iPass > 0))
++		if ((iFocusFlags & BUILDINGFOCUS_DEFENSE) || iPass > 0)
+ 		{
+-			// K-Mod. I've merged and modified the code from here and the code from higher up.
+-			if (!bAreaAlone)
+-			{
+-				if (g.getBestLandUnit() == NO_UNIT || !GC.getInfo(g.getBestLandUnit()).isIgnoreBuildingDefense())
+-				{
+-					int iTemp = 0;
+-					// bombard reduction
+-					int iOldBombardMod = getBuildingBombardDefense() - (bRemove ? kBuilding.getBombardDefenseModifier() : 0);
+-					iTemp += std::max((bRemove ?0 :kBuilding.getDefenseModifier()) + getBuildingDefense(), getNaturalDefense()) * std::min(kBuilding.getBombardDefenseModifier(), 100-iOldBombardMod) / std::max(80, 8 * (100 - iOldBombardMod));
+-					// defence bonus
+-					iTemp += std::max(0, std::min((bRemove? 0 :kBuilding.getDefenseModifier()) + getBuildingDefense() - getNaturalDefense() - 10, kBuilding.getDefenseModifier())) / 4;
+-
+-					iTemp *= (bWarPlan ? 3 : 2);
+-					iTemp /= 3;
+-					iValue += iTemp;
+-				}
+-			}
+-			iValue += kBuilding.getAllCityDefenseModifier() * iNumCities / (bWarPlan ? 4 : 5);
+-			iValue += kBuilding.getAirlift() * 10 + (iNumCitiesInArea < iNumCities && kBuilding.getAirlift() > 0 ? getPopulation()+25 : 0);
+-
+-			int iAirDefense = -kBuilding.getAirModifier();
+-			if (iAirDefense > 0)
+-			{
+-				int iTemp = iAirDefense;
+-				iTemp *= std::min(200, 100 * GET_TEAM(getTeam()).AI_getRivalAirPower() / std::max(1, GET_TEAM(getTeam()).AI_getAirPower()+4*iNumCities));
+-				iTemp /= 200;
+-				iValue += iTemp;
+-			}
+-
+-			//iValue += -kBuilding.getNukeModifier() / (g.isNukesValid() && !g.isNoNukes() ? 4 : 40);
+-			// K-Mod end
+-			// <dlph.16> Replacing the line above.
+-			// DarkLunaPhantom - "Bomb Shelters should be of much higher value, I copied and adjusted rough estimates from AI_projectValue()."
+-			int iNukeDefense = -kBuilding.getNukeModifier();
+-			if(iNukeDefense > 0)
+-			{
+-				int iNukeEvasionProbability = 0;
+-				int iNukeUnitTypes = 0;
+-				for(int i = 0; i < GC.getNumUnitInfos(); i++)
+-				{
+-					CvUnitInfo const& kLoopUnit = GC.getInfo((UnitTypes)i);
+-					if(kLoopUnit.getNukeRange() >= 0)
+-					{
+-						iNukeEvasionProbability += kLoopUnit.getEvasionProbability();
+-						iNukeUnitTypes++;
+-					}
+-				}
+-				iNukeEvasionProbability /= std::max(1, iNukeUnitTypes);
+-				/*  DarkLunaPhantom - "cf. iTargetValue in the SDI section of
+-					AI_projectValue() (K-Mod)." */
+-				int iTargetValue = 10 + (getYieldRate(YIELD_PRODUCTION) * 5 +
+-						getYieldRate(YIELD_COMMERCE) * 3)/2;
+-				/*  "Lazy attempt to estimate the value of the strongest
+-					unit stack this shelter might defend." */
+-				int iStackValue = 0;
+-				for(int i = 0; i < MAX_CIV_PLAYERS; i++)
+-				{
+-					CvPlayer const& kLoopPlayer = GET_PLAYER((PlayerTypes)i);
+-					if(kLoopPlayer.getTeam() == kOwner.getTeam())
+-						iStackValue += area()->getPower(kLoopPlayer.getID());
+-				}
+-				iStackValue *= 7;
+-				iStackValue /= 20;
+-				int iTempValue = iNukeDefense * (iStackValue + iTargetValue);
+-				iTempValue /= 100;
+-				iTempValue *= 10000 - kTeam.getNukeInterception() *
+-						(100 - iNukeEvasionProbability);
+-				iTempValue /= 10000;
+-				iTempValue /= kOwner.AI_nukeDangerDivisor();
+-				iValue += iTempValue;
+-			} // </dlph.16>
++			// <advc> Moved into new function
++			iValue += AI_defensiveBuildingValue(eBuilding, bAreaAlone, bWarPlan,
++					iNumCities, iNumCitiesInArea, bRemove, bObsolete); // </advc>
+ 		}
+ 
+ 		if ((iFocusFlags & BUILDINGFOCUS_ESPIONAGE) || iPass > 0)
+@@ -5686,6 +5620,135 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 	return iValue;
+ }
+ 
++/*  advc: Cut from AI_buildingValue.
++	bRemove means that eBuilding needs to be evaluated under the assumption
++	that eBuilding isn't already present. So it should generally be a
++	positive value; see also the comment above AI_buildingValue. */
++int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding,
++	bool bAreaAlone, bool bWarPlan, int iNumCities, int iNumCitiesInArea,
++	bool bRemove, bool bObsolete) const
++{
++	int r = 0;
++	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
++	if (!bAreaAlone && (GC.getGame().getBestLandUnit() == NO_UNIT ||
++		!GC.getInfo(GC.getGame().getBestLandUnit()).isIgnoreBuildingDefense()))
++	{
++		int const iBombardMod = kBuilding.getBombardDefenseModifier();
++		int const iDefMod = kBuilding.getDefenseModifier();
++		// <advc.004c>
++		int const iDefRaise = kBuilding.get(CvBuildingInfo::RaiseDefense);
++		if (iDefMod != 0 || iBombardMod != 0 || iDefRaise > 0)
++		{
++			int const iOwnerDefMod = GET_PLAYER(getOwner()).getCityDefenseModifier();
++			/*  Defense abilities don't go obsolete. Looks like K-Mod had gotten that wrong.
++				Tagging advc.001 (bugfix). */
++			bool bRemoveDef = (bRemove && !bObsolete);
++			if (bRemoveDef)
++			{
++				// Spy attack; don't know by whom. They don't know our preparations.
++				bWarPlan = (GET_TEAM(getTeam()).getNumWars() > 0);
++			} // </advc.004c>
++			// defence bonus
++			/*r += std::max(0, std::min(kBuilding.getDefenseModifier(),
++					(bRemoveDef ? 0 : kBuilding.getDefenseModifier()) +
++					getBuildingDefense() - getNaturalDefense() - 10)) / 4;*/
++			/*  <advc.004c> Don't quite see the logic behind the above. Might be pretty
++				good but idk how to extend it. */
++			int iOldDefenseModifier = getTotalDefense(false);
++			int iNewDefenseModifier = iOldDefenseModifier;
++			if (bRemoveDef)
++			{
++				if (iDefMod != 0)
++				{
++					iNewDefenseModifier = std::max(getNaturalDefense(),
++							iNewDefenseModifier - iDefMod) + iOwnerDefMod;
++				}
++				if (iDefRaise > 0)
++				{
++					// Don't bother checking if there'll be other defensive buildings left
++					iNewDefenseModifier = getNaturalDefense() + iOwnerDefMod;
++				}
++				std::swap(iOldDefenseModifier, iNewDefenseModifier);
++			}
++			else
++			{
++				iNewDefenseModifier = std::max(iDefRaise, std::max(getNaturalDefense(),
++						iNewDefenseModifier + iDefMod + iOwnerDefMod));
++			}
++			r += (iNewDefenseModifier - iOldDefenseModifier) / 4;
++			if (iBombardMod != 0) // </advc.004c>
++			{
++				// bombard reduction
++				int iOldBombardMod = getBuildingBombardDefense() - (bRemoveDef ? iBombardMod : 0);
++				r += /*std::max(getNaturalDefense(),
++						(bRemove ? 0 : iDefMod) + getBuildingDefense())*/
++						iNewDefenseModifier * // advc.004c
++						std::min(iBombardMod, 100 - iOldBombardMod) /
++						std::max(80, 8 * (100 - iOldBombardMod));
++			}
++			r *= (bWarPlan ? 3 : 2);
++			r /= 3;
++		}
++	}
++	// K-Mod. I've merged and modified the code from here and the code
++	// from higher up. [advc: i.e. from above the call location in AI_buildingValue]
++	r += kBuilding.getAllCityDefenseModifier() * iNumCities / (bWarPlan ? 4 : 5);
++	r += kBuilding.getAirlift() * 10 + (iNumCitiesInArea < iNumCities &&
++			kBuilding.getAirlift() > 0 ? getPopulation() + 25 : 0);
++	int iAirDefense = -kBuilding.getAirModifier();
++	if (iAirDefense > 0)
++	{
++		int iTemp = iAirDefense;
++		iTemp *= std::min(200, 100 * GET_TEAM(getTeam()).AI_getRivalAirPower() /
++				std::max(1, GET_TEAM(getTeam()).AI_getAirPower() + 4 * iNumCities));
++		iTemp /= 200;
++		r += iTemp;
++	}
++	//r += -kBuilding.getNukeModifier() / (g.isNukesValid() && !g.isNoNukes() ? 4 : 40);
++	// K-Mod end
++	// <dlph.16> Replacing the line above.
++	// DarkLunaPhantom - "Bomb Shelters should be of much higher value, I copied and adjusted rough estimates from AI_projectValue()."
++	int iNukeDefense = -kBuilding.getNukeModifier();
++	if(iNukeDefense > 0)
++	{
++		int iNukeEvasionProbability = 0;
++		int iNukeUnitTypes = 0;
++		for(int i = 0; i < GC.getNumUnitInfos(); i++)
++		{
++			CvUnitInfo const& kLoopUnit = GC.getInfo((UnitTypes)i);
++			if(kLoopUnit.getNukeRange() >= 0)
++			{
++				iNukeEvasionProbability += kLoopUnit.getEvasionProbability();
++				iNukeUnitTypes++;
++			}
++		}
++		iNukeEvasionProbability /= std::max(1, iNukeUnitTypes);
++		/*  DarkLunaPhantom - "cf. iTargetValue in the SDI section of
++			AI_projectValue() (K-Mod)." */
++		int iTargetValue = 10 + (getYieldRate(YIELD_PRODUCTION) * 5 +
++				getYieldRate(YIELD_COMMERCE) * 3)/2;
++		/*  "Lazy attempt to estimate the value of the strongest
++			unit stack this shelter might defend." */
++		int iStackValue = 0;
++		for(int i = 0; i < MAX_CIV_PLAYERS; i++)
++		{
++			CvPlayer const& kLoopPlayer = GET_PLAYER((PlayerTypes)i);
++			if(kLoopPlayer.getTeam() == getTeam())
++				iStackValue += area()->getPower(kLoopPlayer.getID());
++		}
++		iStackValue *= 7;
++		iStackValue /= 20;
++		int iTempValue = iNukeDefense * (iStackValue + iTargetValue);
++		iTempValue /= 100;
++		iTempValue *= 10000 - GET_TEAM(getTeam()).getNukeInterception() *
++				(100 - iNukeEvasionProbability);
++		iTempValue /= 10000;
++		iTempValue /= GET_PLAYER(getOwner()).AI_nukeDangerDivisor();
++		r += iTempValue;
++	} // </dlph.16>
++	return r;
++}
++
+ 
+ // This function has been significantly modified for K-Mod
+ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bAsync) /* advc: */ const
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 957ce82fe..dc05d82e0 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -40,7 +40,8 @@ public:
+ 	int AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags = 0, int iThreshold = 0) const; */
+ 	int AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags = 0,
+ 			int iThreshold = 0, bool bConstCache = false, bool bAllowRecursion = true,
+-			bool bIgnoreSpecialists = false) const; // advc.121b
++			bool bIgnoreSpecialists = false, // advc.121b
++			bool bObsolete = false) const; // advc.004c
+ 	// <advc.179>
+ 	double AI_estimateReligionBuildings(PlayerTypes ePlayer, ReligionTypes eReligion,
+ 			std::vector<BuildingTypes> const& aeBuildings) const; // </advc.179>
+@@ -230,6 +231,10 @@ protected:
+ 	int AI_healthHappyImprovementValue(CvPlot const& kPlot, ImprovementTypes eImprovement,
+ 			ImprovementTypes eFinalImprovement, bool bIgnoreFeature,
+ 			bool bIgnoreOtherCities = true) const; // </advc.901>
++	// <advc>
++	int AI_defensiveBuildingValue(BuildingTypes eBuilding, bool bAreaAlone,
++			bool bWarPlan, int iNumCities, int iNumCitiesInArea,
++			bool bRemove, /* advc.004c: */ bool bObsolete) const; // </advc>
+ 
+ 	int AI_experienceWeight();
+ 	int AI_buildUnitProb(/* advc.017: */ bool bDraft = false);
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 5437ee4fc..8e409ff86 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -682,6 +682,8 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 				widgetDataStruct.m_iData2, true, szBuffer);
+ 		break;
+ 	}
++	if (GC.getGame().getActivePlayer() == NO_PLAYER)
++		return;
+ 	static WidgetTypes aeExpandTypes[] = {
+ 		WIDGET_CONTACT_CIV, WIDGET_DEAL_KILL, WIDGET_PEDIA_JUMP_TO_TECH,
+ 		WIDGET_EXPAND_SCORES, WIDGET_SCORE_BREAKDOWN, WIDGET_POWER_RATIO,
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index ca6e53046..c7f7bab85 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -10307,7 +10307,7 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool
+ 	//if (!bCivilopediaText && GC.getGame().getActivePlayer() != NO_PLAYER)
+ 	if (pCity == NULL)
+ 	{
+-		if(u.getProductionCost() > 0) // advc.004y
++		if(u.getProductionCost() > 0 && !bCivilopediaText) // advc.004y
+ 		{
+ 			szTempBuffer.Format(L"%s%d%c", NEWLINE,
+ 					// <advc.004y>
+@@ -11297,6 +11297,12 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_DEFENSE_MOD", kBuilding.getDefenseModifier()));
+ 	}
++	// <advc.004c>
++	if (kBuilding.get(CvBuildingInfo::RaiseDefense) > 0)
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_DEFENSE_RAISE", kBuilding.get(CvBuildingInfo::RaiseDefense)));
++	} // </advc.004c>
+ 
+ 	if (kBuilding.getBombardDefenseModifier() != 0)
+ 	{
+@@ -11735,7 +11741,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 	{
+ 		if (pCity == NULL)
+ 		{
+-			if (kBuilding.getProductionCost() > 0)
++			if (kBuilding.getProductionCost() > 0 /* advc.004y: */ && !bCivilopediaText)
+ 			{
+ 				szTempBuffer.Format(L"\n%d%c",
+ 						(ePlayer == NO_PLAYER ? kBuilding.getProductionCost() : // advc
+@@ -11786,7 +11792,8 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 					GC.getInfo((TechTypes) kBuilding.getObsoleteTech()).
+ 					getTextKeyWide()));
+ 
+-			if (kBuilding.getDefenseModifier() != 0 || kBuilding.getBombardDefenseModifier() != 0)
++			if (kBuilding.getDefenseModifier() != 0 || kBuilding.getBombardDefenseModifier() != 0 ||
++				kBuilding.get(CvBuildingInfo::RaiseDefense) > 0) // advc.004c
+ 			{
+ 				szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_OBSOLETE_EXCEPT"));
+ 			}
+@@ -11813,7 +11820,8 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText(szObsoleteWithTag, GC.getInfo((TechTypes)
+ 					kBuilding.getObsoleteTech()).getTextKeyWide()));
+-			if(kBuilding.getDefenseModifier() != 0 || kBuilding.getBombardDefenseModifier() != 0)
++			if(kBuilding.getDefenseModifier() != 0 || kBuilding.getBombardDefenseModifier() != 0 ||
++					kBuilding.get(CvBuildingInfo::RaiseDefense) > 0) // advc.004c
+ 				szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_OBSOLETE_EXCEPT"));
+ 		}
+ 		if(kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
+@@ -12308,24 +12316,18 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 
+ 	CvWString szTempBuffer;
+ 	CvWString szFirstBuffer;
+-	int iI;
+ 
+ 	if (NO_PROJECT == eProject)
+-	{
+ 		return;
+-	}
+ 
+ 	CvProjectInfo& kProject = GC.getInfo(eProject);
+ 	PlayerTypes ePlayer = NO_PLAYER;
+ 	if (pCity != NULL)
+-	{
+ 		ePlayer = pCity->getOwner();
+-	}
+-	else
++	else ePlayer = GC.getGame().getActivePlayer();
++
++	if(!bCivilopediaText) // advc
+ 	{
+-		ePlayer = GC.getGame().getActivePlayer();
+-	}
+-	if(!bCivilopediaText) { // advc
+ 		szTempBuffer.Format( SETCOLR L"<link=literal>%s</link>" ENDCOLR , TEXT_COLOR("COLOR_PROJECT_TEXT"), kProject.getDescription());
+ 		szBuffer.append(szTempBuffer);
+ 	}
+@@ -12418,7 +12420,7 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 		szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_ENABLES_SPECIAL", GC.getInfo((SpecialBuildingTypes)(kProject.getEveryoneSpecialBuilding())).getTextKeyWide()));
+ 	}
+ 
+-	for (iI = 0; iI < GC.getNumVictoryInfos(); ++iI)
++	for (int iI = 0; iI < GC.getNumVictoryInfos(); ++iI)
+ 	{
+ 		if (kProject.getVictoryThreshold(iI) > 0)
+ 		{
+@@ -12437,8 +12439,7 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 	}
+ 
+ 	bool bFirst = true;
+-
+-	for (iI = 0; iI < GC.getNumProjectInfos(); ++iI)
++	for (int iI = 0; iI < GC.getNumProjectInfos(); ++iI)
+ 	{
+ 		if (GC.getInfo((ProjectTypes)iI).getAnyoneProjectPrereq() == eProject)
+ 		{
+@@ -12450,8 +12451,7 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 	}
+ 
+ 	bFirst = true;
+-
+-	for (iI = 0; iI < GC.getNumProjectInfos(); ++iI)
++	for (int iI = 0; iI < GC.getNumProjectInfos(); ++iI)
+ 	{
+ 		if (GC.getInfo((ProjectTypes)iI).getProjectsNeeded(eProject) > 0)
+ 		{
+@@ -12473,7 +12473,7 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 			{
+ 				if (kProject.isAllowsNukes())
+ 				{
+-					for (iI = 0; iI < GC.getNumUnitInfos(); ++iI)
++					for (int iI = 0; iI < GC.getNumUnitInfos(); ++iI)
+ 					{
+ 						if (GC.getInfo((UnitTypes)iI).getNukeRange() != -1)
+ 						{
+@@ -12488,28 +12488,35 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 
+ 		if (kProject.getAnyoneProjectPrereq() != NO_PROJECT)
+ 		{
+-			if ((pCity == NULL) || (GC.getGame().getProjectCreatedCount((ProjectTypes)(kProject.getAnyoneProjectPrereq())) == 0))
++			if (pCity == NULL || GC.getGame().getProjectCreatedCount((ProjectTypes)kProject.getAnyoneProjectPrereq()) == 0)
+ 			{
+ 				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_REQUIRES_ANYONE", GC.getInfo((ProjectTypes)kProject.getAnyoneProjectPrereq()).getTextKeyWide()));
++				szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_REQUIRES_ANYONE",
++						GC.getInfo((ProjectTypes)kProject.getAnyoneProjectPrereq()).getTextKeyWide()));
+ 			}
+ 		}
+ 
+-		for (iI = 0; iI < GC.getNumProjectInfos(); ++iI)
++		for (int iI = 0; iI < GC.getNumProjectInfos(); ++iI)
+ 		{
+ 			if (kProject.getProjectsNeeded(iI) > 0)
+ 			{
+-				if ((pCity == NULL) || (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getProjectCount((ProjectTypes)iI) < kProject.getProjectsNeeded(iI)))
++				if (pCity == NULL || (GET_TEAM(ePlayer).getProjectCount(
++					(ProjectTypes)iI) < kProject.getProjectsNeeded(iI)))
+ 				{
+ 					if (pCity != NULL)
+ 					{
+ 						szBuffer.append(NEWLINE);
+-						szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_REQUIRES", GC.getInfo((ProjectTypes)iI).getTextKeyWide(), GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getProjectCount((ProjectTypes)iI), kProject.getProjectsNeeded(iI)));
++						szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_REQUIRES",
++								GC.getInfo((ProjectTypes)iI).getTextKeyWide(),
++								GET_TEAM(ePlayer).getProjectCount((ProjectTypes)iI),
++								kProject.getProjectsNeeded(iI)));
+ 					}
+ 					else
+ 					{
+ 						szBuffer.append(NEWLINE);
+-						szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_REQUIRES_NO_CITY", GC.getInfo((ProjectTypes)iI).getTextKeyWide(), kProject.getProjectsNeeded(iI)));
++						szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_REQUIRES_NO_CITY",
++								GC.getInfo((ProjectTypes)iI).getTextKeyWide(),
++								kProject.getProjectsNeeded(iI)));
+ 					}
+ 				}
+ 			}
+@@ -12526,7 +12533,8 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 						szBuffer.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
+ 					// </advc.008a>
+ 					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_REQUIRES_STRING_VICTORY", GC.getInfo((VictoryTypes)(kProject.getVictoryPrereq())).getTextKeyWide()));
++					szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_REQUIRES_STRING_VICTORY",
++							GC.getInfo((VictoryTypes)kProject.getVictoryPrereq()).getTextKeyWide()));
+ 					// <advc.008a>
+ 					if(ePlayer != NO_PLAYER)
+ 						szBuffer.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+@@ -12536,25 +12544,27 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 		}
+ 	}
+ 
+-	//if (!bCivilopediaText) { // advc
+ 	if (pCity == NULL)
+ 	{
+-		int iCost=-1; // advc.251
+-		if (ePlayer != NO_PLAYER)
+-			iCost = GET_PLAYER(ePlayer).getProductionNeeded(eProject);
+-		else
++		if (!bCivilopediaText) // advc.004y
+ 		{
+-			// <advc.251>
+-			int const iBaseCost = kProject.getProductionCost();
+-			iCost = iBaseCost;
+-			iCost *= GC.getDefineINT("PROJECT_PRODUCTION_PERCENT");
+-			iCost /= 100;
+-			// To match CvPlayer::getProductionNeeded
+-			iCost = ::roundToMultiple(iCost, iBaseCost > 500 ? 50 : 5);
+-			// </advc.251>
++			int iCost=-1; // advc.251
++			if (ePlayer != NO_PLAYER)
++				iCost = GET_PLAYER(ePlayer).getProductionNeeded(eProject);
++			else
++			{
++				// <advc.251>
++				int const iBaseCost = kProject.getProductionCost();
++				iCost = iBaseCost;
++				iCost *= GC.getDefineINT("PROJECT_PRODUCTION_PERCENT");
++				iCost /= 100;
++				// To match CvPlayer::getProductionNeeded
++				iCost = ::roundToMultiple(iCost, iBaseCost > 500 ? 50 : 5);
++				// </advc.251>
++			}
++			szTempBuffer.Format(L"\n%d%c", iCost, GC.getInfo(YIELD_PRODUCTION).getChar());
++			szBuffer.append(szTempBuffer);
+ 		}
+-		szTempBuffer.Format(L"\n%d%c", iCost, GC.getInfo(YIELD_PRODUCTION).getChar());
+-		szBuffer.append(szTempBuffer);
+ 	}
+ 	else
+ 	{
+@@ -12579,25 +12589,18 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 		szBuffer.append(szTempBuffer);
+ 	}
+ 
+-	for (iI = 0; iI < GC.getNumBonusInfos(); ++iI)
++	for (int iI = 0; iI < GC.getNumBonusInfos(); ++iI)
+ 	{
+ 		if (kProject.getBonusProductionModifier(iI) != 0)
+ 		{
+ 			if (pCity != NULL)
+ 			{
+ 				if (pCity->hasBonus((BonusTypes)iI))
+-				{
+ 					szBuffer.append(gDLL->getText("TXT_KEY_COLOR_POSITIVE"));
+-				}
+-				else
+-				{
+-					szBuffer.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
+-				}
++				else szBuffer.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
+ 			}
+ 			if (!bCivilopediaText)
+-			{
+ 				szBuffer.append(L" (");
+-			}
+ 			else
+ 			{
+ 				szTempBuffer.Format(L"%s%c", NEWLINE, gDLL->getSymbolID(BULLET_CHAR));
+@@ -12646,7 +12649,6 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 
+ void CvGameTextMgr::setProcessHelp(CvWStringBuffer &szBuffer, ProcessTypes eProcess)
+ {
+-
+ 	szBuffer.append(GC.getInfo(eProcess).getDescription());
+ 	for (int iI = 0; iI < NUM_COMMERCE_TYPES; ++iI)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.cpp b/CvGameCoreDLL/CvInfo_Base.cpp
+index 12e4d0c09..ee9b7ff23 100644
+--- a/CvGameCoreDLL/CvInfo_Base.cpp
++++ b/CvGameCoreDLL/CvInfo_Base.cpp
+@@ -192,7 +192,7 @@ m_bCtrlDownAlt(false)
+ 
+ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!CvXMLInfo::read(pXML)) // advc.tag
+ 		return false;
+ 
+ 	int iVal;
+@@ -243,7 +243,7 @@ bool CvHotkeyInfo::read(CvXMLLoadUtility* pXML)
+ #if SERIALIZE_CVINFOS
+ void CvHotkeyInfo::read(FDataStreamBase* pStream)
+ {
+-	CvInfoBase::read(pStream);
++	CvXMLInfo::read(pStream); // advc.tag
+ 	uint uiFlag=0;
+ 	pStream->Read(&uiFlag);
+ 
+@@ -266,7 +266,7 @@ void CvHotkeyInfo::read(FDataStreamBase* pStream)
+ 
+ void CvHotkeyInfo::write(FDataStreamBase* pStream)
+ {
+-	CvInfoBase::write(pStream);
++	CvXMLInfo::write(pStream); // advc.tag
+ 	uint uiFlag = 0;
+ 	pStream->Write(uiFlag);
+ 
+@@ -287,6 +287,13 @@ void CvHotkeyInfo::write(FDataStreamBase* pStream)
+ 	pStream->WriteString(m_szHotKeyString);
+ }
+ #endif
++// <advc.tag>
++void CvHotkeyInfo::addElements(std::vector<XMLElement*>& r) const
++{
++	CvXMLInfo::addElements(r);
++	// (Could add CvHotKeyInfo elements here)
++} // </advc.tag>
++
+ int CvHotkeyInfo::getActionInfoIndex() const
+ {
+ 	return m_iActionInfoIndex;
+@@ -441,62 +448,62 @@ void CvHotkeyInfo::setHotKeyDescription(const wchar* szHotKeyDescKey, const wcha
+ }
+ 
+ // <advc.tag>
+-CvInfoEnum::XMLElement::XMLElement(int iEnumValue, CvString szName) :
++CvXMLInfo::XMLElement::XMLElement(int iEnumValue, CvString szName) :
+ 		m_iEnumValue(iEnumValue), m_szName(szName), m_bMandatory(true) {}
+ 
+-CvInfoEnum::XMLElement::XMLElement(int iEnumValue, CvString szName, bool bMandatory) :
++CvXMLInfo::XMLElement::XMLElement(int iEnumValue, CvString szName, bool bMandatory) :
+ 		m_iEnumValue(iEnumValue), m_szName(szName), m_bMandatory(bMandatory) {}
+ 
+-int CvInfoEnum::XMLElement::getEnumValue() const { return m_iEnumValue; }
++int CvXMLInfo::XMLElement::getEnumValue() const { return m_iEnumValue; }
+ 
+-CvString CvInfoEnum::XMLElement::getName() const { return m_szName; }
++CvString CvXMLInfo::XMLElement::getName() const { return m_szName; }
+ 	
+-bool CvInfoEnum::XMLElement::isMandatory() const { return m_bMandatory; }
++bool CvXMLInfo::XMLElement::isMandatory() const { return m_bMandatory; }
+ 
+-CvInfoEnum::IntElement::IntElement(int iEnumValue, CvString szName) :
++CvXMLInfo::IntElement::IntElement(int iEnumValue, CvString szName) :
+ 		XMLElement(iEnumValue, szName), m_iDefaultValue(0) {}
+ 
+-CvInfoEnum::IntElement::IntElement(int iEnumValue, CvString szName, int iDefault) :
++CvXMLInfo::IntElement::IntElement(int iEnumValue, CvString szName, int iDefault) :
+ 		XMLElement(iEnumValue, szName, false), m_iDefaultValue(iDefault) {}
+ 
+-CvInfoEnum::ElementDataType CvInfoEnum::IntElement::getDataType() const
++CvXMLInfo::ElementDataType CvXMLInfo::IntElement::getDataType() const
+ {
+ 	return INT_ELEMENT;
+ }
+ 
+-int CvInfoEnum::IntElement::getDefaultValue() const { return m_iDefaultValue; }
++int CvXMLInfo::IntElement::getDefaultValue() const { return m_iDefaultValue; }
+ 
+-CvInfoEnum::BoolElement::BoolElement(int iEnumValue, CvString szName) :
++CvXMLInfo::BoolElement::BoolElement(int iEnumValue, CvString szName) :
+ 		XMLElement(iEnumValue, szName), m_bDefaultValue(false) {}
+ 
+-CvInfoEnum::BoolElement::BoolElement(int iEnumValue, CvString szName, bool bDefault) :
++CvXMLInfo::BoolElement::BoolElement(int iEnumValue, CvString szName, bool bDefault) :
+ 		XMLElement(iEnumValue, szName, false), m_bDefaultValue(bDefault) {}
+ 
+-CvInfoEnum::ElementDataType CvInfoEnum::BoolElement::getDataType() const
++CvXMLInfo::ElementDataType CvXMLInfo::BoolElement::getDataType() const
+ {
+ 	return BOOL_ELEMENT;
+ }
+ 
+-int CvInfoEnum::BoolElement::getDefaultValue() const { return m_bDefaultValue; }
++int CvXMLInfo::BoolElement::getDefaultValue() const { return m_bDefaultValue; }
+ 
+-void CvInfoEnum::addElements(std::vector<XMLElement*>& r) const
++void CvXMLInfo::addElements(std::vector<XMLElement*>& r) const
+ {
+ 	// Could add elements common to all info classes here
+ }
+ 
+-void CvInfoEnum::set(IntElementTypes e, int iNewValue)
++void CvXMLInfo::set(IntElementTypes e, int iNewValue)
+ {
+ 	FASSERT_BOUNDS(0, (int)m_aiData.size(), e, "CvInfoBase::set(IntElementTypes,int)");
+ 	m_aiData[e] = iNewValue;
+ }
+ 
+-void CvInfoEnum::set(BoolElementTypes e, bool bNewValue)
++void CvXMLInfo::set(BoolElementTypes e, bool bNewValue)
+ {
+ 	FASSERT_BOUNDS(0, (int)m_abData.size(), e, "CvInfoBase::set(BoolElementTypes,bool)");
+ 	m_abData[e] = bNewValue;
+ }
+ 
+-bool CvInfoEnum::read(CvXMLLoadUtility* pXML)
++bool CvXMLInfo::read(CvXMLLoadUtility* pXML)
+ {
+ 	CvInfoBase::read(pXML);
+ 
+@@ -558,14 +565,14 @@ bool CvInfoEnum::read(CvXMLLoadUtility* pXML)
+ }
+ 
+ #if SERIALIZE_CVINFOS
+-void CvInfoEnum::read(FDataStreamBase* pStream)
++void CvXMLInfo::read(FDataStreamBase* pStream)
+ {
+ 	CvInfoBase::read(pStream);
+ 	pStream->Read((int)m_aiData.size(), m_aiData.data());
+ 	pStream->Read((int)m_abData.size(), m_abData.data());
+ }
+ 
+-void CvInfoEnum::write(FDataStreamBase* pStream)
++void CvXMLInfo::write(FDataStreamBase* pStream)
+ {
+ 	CvInfoBase::write(pStream);
+ 	pStream->Write((int)m_aiData.size(), m_aiData.data());
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index 259ad1792..b97e42720 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -106,76 +106,8 @@ protected:
+ 	float m_fInterfaceScale; 
+ };
+ 
+-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-//  class : CvHotkeyInfo
+-//  holds the hotkey info for an info class
+-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-class CvHotkeyInfo : public CvInfoBase
+-{
+-public:
+-	CvHotkeyInfo();
+-
+-	bool read(CvXMLLoadUtility* pXML);
+-	#if SERIALIZE_CVINFOS
+-	virtual void read(FDataStreamBase* pStream);
+-	virtual void write(FDataStreamBase* pStream);
+-	#endif
+-	int getActionInfoIndex() const;
+-	void setActionInfoIndex(int i);
+-
+-	int getHotKeyVal() const;
+-	void setHotKeyVal(int i);
+-	int getHotKeyPriority() const;
+-	void setHotKeyPriority(int i);
+-	int getHotKeyValAlt() const;
+-	void setHotKeyValAlt(int i);
+-	int getHotKeyPriorityAlt() const;
+-	void setHotKeyPriorityAlt(int i);
+-	int getOrderPriority() const;
+-	void setOrderPriority(int i);
+-
+-	bool isAltDown() const;
+-	void setAltDown(bool b);
+-	bool isShiftDown() const;
+-	void setShiftDown(bool b);
+-	bool isCtrlDown() const;
+-	void setCtrlDown(bool b);
+-	bool isAltDownAlt() const;
+-	void setAltDownAlt(bool b);
+-	bool isShiftDownAlt() const;
+-	void setShiftDownAlt(bool b);
+-	bool isCtrlDownAlt() const;
+-	void setCtrlDownAlt(bool b);
+-
+-	const TCHAR* getHotKey() const; // Exposed to Python
+-	void setHotKey(const TCHAR* szVal);
+-
+-	std::wstring getHotKeyDescription() const;
+-	void setHotKeyDescription(const wchar* szHotKeyDescKey, const wchar* szHotKeyAltDescKey,
+-		const wchar* szHotKeyString);
+-
+-protected:
+-	int m_iActionInfoIndex;
+-	int m_iHotKeyVal;
+-	int m_iHotKeyPriority;
+-	int m_iHotKeyValAlt;
+-	int m_iHotKeyPriorityAlt;
+-	int m_iOrderPriority;
+-
+-	bool m_bAltDown;
+-	bool m_bShiftDown;
+-	bool m_bCtrlDown;
+-	bool m_bAltDownAlt;
+-	bool m_bShiftDownAlt;
+-	bool m_bCtrlDownAlt;
+-
+-	CvString m_szHotKey;
+-	CvWString m_szHotKeyDescriptionKey;
+-	CvWString m_szHotKeyAltDescriptionKey;
+-	CvWString m_szHotKeyString;
+-};
+ // <advc.tag> Abstract class that allows XML elements to be added and accessed through enum values
+-class CvInfoEnum : public CvInfoBase
++class CvXMLInfo : public CvInfoBase
+ {
+ public:
+ 	enum IntElementTypes // To be extended by derived classes (see CvImprovementInfo for an example)
+@@ -188,12 +120,12 @@ public:
+ 	};
+ 	__forceinline int get(IntElementTypes e) const
+ 	{
+-		FASSERT_BOUNDS(0, (int)m_aiData.size(), e, "CvInfoEnum::get(IntElementTypes)");
++		FASSERT_BOUNDS(0, (int)m_aiData.size(), e, "CvXMLInfo::get(IntElementTypes)");
+ 		return m_aiData[e];
+ 	}
+ 	__forceinline int get(BoolElementTypes e) const
+ 	{
+-		FASSERT_BOUNDS(0, (int)m_abData.size(), e, "CvInfoEnum::get(BoolElementTypes)");
++		FASSERT_BOUNDS(0, (int)m_abData.size(), e, "CvXMLInfo::get(BoolElementTypes)");
+ 		return m_abData[e];
+ 	}
+ 	bool read(CvXMLLoadUtility* pXML);
+@@ -256,4 +188,93 @@ private:
+ 	std::vector<bool> m_abData;
+ }; // </advc.tag>
+ 
++//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++//  class : CvHotkeyInfo
++//  holds the hotkey info for an info class
++//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++class CvHotkeyInfo : public /* advc.tag: */ CvXMLInfo
++{
++public:
++	CvHotkeyInfo();
++	// <advc.tag>
++	enum IntElementTypes // unused so far
++	{
++		NUM_INT_ELEMENT_TYPES = CvXMLInfo::NUM_BOOL_ELEMENT_TYPES
++	};
++	enum BoolElementTypes // unused so far
++	{
++		NUM_BOOL_ELEMENT_TYPES = CvXMLInfo::NUM_BOOL_ELEMENT_TYPES
++	};
++	using CvXMLInfo::get; // unhide
++	__forceinline int get(IntElementTypes e) const
++	{
++		return get(static_cast<CvXMLInfo::IntElementTypes>(e));
++	}
++	__forceinline int get(BoolElementTypes e) const
++	{
++		return get(static_cast<CvXMLInfo::BoolElementTypes>(e));
++	} // </advc.tag>
++
++	bool read(CvXMLLoadUtility* pXML);
++	#if SERIALIZE_CVINFOS
++	virtual void read(FDataStreamBase* pStream);
++	virtual void write(FDataStreamBase* pStream);
++	#endif
++	int getActionInfoIndex() const;
++	void setActionInfoIndex(int i);
++
++	int getHotKeyVal() const;
++	void setHotKeyVal(int i);
++	int getHotKeyPriority() const;
++	void setHotKeyPriority(int i);
++	int getHotKeyValAlt() const;
++	void setHotKeyValAlt(int i);
++	int getHotKeyPriorityAlt() const;
++	void setHotKeyPriorityAlt(int i);
++	int getOrderPriority() const;
++	void setOrderPriority(int i);
++
++	bool isAltDown() const;
++	void setAltDown(bool b);
++	bool isShiftDown() const;
++	void setShiftDown(bool b);
++	bool isCtrlDown() const;
++	void setCtrlDown(bool b);
++	bool isAltDownAlt() const;
++	void setAltDownAlt(bool b);
++	bool isShiftDownAlt() const;
++	void setShiftDownAlt(bool b);
++	bool isCtrlDownAlt() const;
++	void setCtrlDownAlt(bool b);
++
++	const TCHAR* getHotKey() const; // Exposed to Python
++	void setHotKey(const TCHAR* szVal);
++
++	std::wstring getHotKeyDescription() const;
++	void setHotKeyDescription(const wchar* szHotKeyDescKey, const wchar* szHotKeyAltDescKey,
++		const wchar* szHotKeyString);
++
++protected:
++	int m_iActionInfoIndex;
++	int m_iHotKeyVal;
++	int m_iHotKeyPriority;
++	int m_iHotKeyValAlt;
++	int m_iHotKeyPriorityAlt;
++	int m_iOrderPriority;
++
++	bool m_bAltDown;
++	bool m_bShiftDown;
++	bool m_bCtrlDown;
++	bool m_bAltDownAlt;
++	bool m_bShiftDownAlt;
++	bool m_bCtrlDownAlt;
++
++	CvString m_szHotKey;
++	CvWString m_szHotKeyDescriptionKey;
++	CvWString m_szHotKeyAltDescriptionKey;
++	CvWString m_szHotKeyString;
++
++	void addElements(std::vector<XMLElement*>& r) const; // advc.tag
++};
++
+ #endif
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.cpp b/CvGameCoreDLL/CvInfo_Building.cpp
+index 7e4fbbbf4..626361b3f 100644
+--- a/CvGameCoreDLL/CvInfo_Building.cpp
++++ b/CvGameCoreDLL/CvInfo_Building.cpp
+@@ -213,6 +213,12 @@ CvBuildingInfo::~CvBuildingInfo()
+ 		SAFE_DELETE_ARRAY(m_ppaiBonusYieldModifier);
+ 	}
+ }
++// <advc.tag>
++void CvBuildingInfo::addElements(std::vector<XMLElement*>& r) const
++{
++	CvHotkeyInfo::addElements(r);
++	r.push_back(new IntElement(RaiseDefense, "RaiseDefense", 0)); // advc.004c
++} // </advc.tag>
+ 
+ int CvBuildingInfo::getVictoryPrereq() const
+ {
+@@ -623,11 +629,6 @@ int CvBuildingInfo::getFreeTechs() const
+ 	return m_iFreeTechs;
+ }
+ 
+-int CvBuildingInfo::getDefenseModifier() const
+-{
+-	return m_iDefenseModifier;
+-}
+-
+ int CvBuildingInfo::getBombardDefenseModifier() const
+ {
+ 	return m_iBombardDefenseModifier;
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.h b/CvGameCoreDLL/CvInfo_Building.h
+index 2735ac113..229d8f2da 100644
+--- a/CvGameCoreDLL/CvInfo_Building.h
++++ b/CvGameCoreDLL/CvInfo_Building.h
+@@ -18,6 +18,25 @@ class CvBuildingInfo : public CvHotkeyInfo
+ public: // All the const functions are exposed to Python // advc.130f (tbd.): inline most of these?
+ 	CvBuildingInfo();
+ 	~CvBuildingInfo();
++	// <advc.tag>
++	enum IntElementTypes
++	{
++		RaiseDefense = CvHotkeyInfo::NUM_INT_ELEMENT_TYPES, // advc.004c
++		NUM_INT_ELEMENT_TYPES
++	};
++	enum BoolElementTypes // unused so far
++	{
++		NUM_BOOL_ELEMENT_TYPES = CvHotkeyInfo::NUM_BOOL_ELEMENT_TYPES
++	};
++	using CvXMLInfo::get; // unhide
++	__forceinline int get(IntElementTypes e) const
++	{
++		return get(static_cast<CvXMLInfo::IntElementTypes>(e));
++	}
++	__forceinline int get(BoolElementTypes e) const
++	{
++		return get(static_cast<CvXMLInfo::BoolElementTypes>(e));
++	} // </advc.tag>
+ 
+ 	inline int getBuildingClassType() const { return m_iBuildingClassType; } // advc.130f: inline
+ 	int getVictoryPrereq() const;
+@@ -101,7 +120,7 @@ public: // All the const functions are exposed to Python // advc.130f (tbd.): in
+ 	int getGlobalHealth() const;
+ 	int getGlobalPopulationChange() const;
+ 	int getFreeTechs() const;
+-	int getDefenseModifier() const;
++	inline int getDefenseModifier() const { return m_iDefenseModifier; } // advc.130f: inline
+ 	int getBombardDefenseModifier() const;
+ 	int getAllCityDefenseModifier() const;
+ 	int getEspionageDefenseModifier() const;
+@@ -394,6 +413,8 @@ protected:
+ 	bool m_bAnySpecialistYieldChange;
+ 	bool m_bAnyBonusYieldModifier;
+ 	// UNOFFICIAL_PATCH: END
++
++	void addElements(std::vector<XMLElement*>& r) const; // advc.tag
+ 	// <advc.310>
+ 	static bool m_bEnabledAreaBorderObstacle;
+ 	static bool m_bEnabledAreaTradeRoutes;
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.cpp b/CvGameCoreDLL/CvInfo_Terrain.cpp
+index 0ed841ace..9ed01adb5 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.cpp
++++ b/CvGameCoreDLL/CvInfo_Terrain.cpp
+@@ -1178,7 +1178,7 @@ void CvArtInfoImprovement::setShaderNIF(const TCHAR* szDesc)
+ #if SERIALIZE_CVINFOS
+ void CvImprovementInfo::read(FDataStreamBase* stream)
+ {
+-	CvInfoEnum::read(stream); // advc.tag
++	CvXMLInfo::read(stream); // advc.tag
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+@@ -1265,7 +1265,7 @@ void CvImprovementInfo::read(FDataStreamBase* stream)
+ 
+ void CvImprovementInfo::write(FDataStreamBase* stream)
+ {
+-	CvInfoEnum::write(stream); // advc.tag
++	CvXMLInfo::write(stream); // advc.tag
+ 	uint uiFlag=0;
+ 	stream->Write(uiFlag);
+ 
+@@ -1315,13 +1315,13 @@ void CvImprovementInfo::write(FDataStreamBase* stream)
+ // <advc.tag>
+ void CvImprovementInfo::addElements(std::vector<XMLElement*>& r) const
+ {
+-	CvInfoEnum::addElements(r);
++	CvXMLInfo::addElements(r);
+ 	r.push_back(new IntElement(HealthPercent, "HealthPercent", 0)); // advc.901
+ } // </advc.tag>
+ 
+ bool CvImprovementInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoEnum::read(pXML)) // advc.tag
++	if (!CvXMLInfo::read(pXML)) // advc.tag
+ 		return false;
+ 
+ 	CvString szTextVal;
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.h b/CvGameCoreDLL/CvInfo_Terrain.h
+index cd0c0100d..eb812c120 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.h
++++ b/CvGameCoreDLL/CvInfo_Terrain.h
+@@ -350,7 +350,7 @@ class CvImprovementBonusInfo;
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //  class : CvImprovementInfo
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-class CvImprovementInfo : /* advc.tag: */ public CvInfoEnum
++class CvImprovementInfo : /* advc.tag: */ public CvXMLInfo
+ {
+ public: /*  All the const functions are exposed to Python except those dealing with sound,
+ 			Advanced Start and those added by mods */ // advc.003f: Inlined many of the getters
+@@ -359,21 +359,21 @@ public: /*  All the const functions are exposed to Python except those dealing w
+ 	// <advc.tag>
+ 	enum IntElementTypes
+ 	{
+-		HealthPercent = CvInfoEnum::NUM_INT_ELEMENT_TYPES, // advc.901
++		HealthPercent = CvXMLInfo::NUM_INT_ELEMENT_TYPES, // advc.901
+ 		NUM_INT_ELEMENT_TYPES
+ 	};
+ 	enum BoolElementTypes // unused so far
+ 	{
+-		NUM_BOOL_ELEMENT_TYPES = CvInfoEnum::NUM_BOOL_ELEMENT_TYPES
++		NUM_BOOL_ELEMENT_TYPES = CvXMLInfo::NUM_BOOL_ELEMENT_TYPES
+ 	};
+-	using CvInfoEnum::get; // unhide
++	using CvXMLInfo::get; // unhide
+ 	__forceinline int get(IntElementTypes e) const
+ 	{
+-		return get(static_cast<CvInfoEnum::IntElementTypes>(e));
++		return get(static_cast<CvXMLInfo::IntElementTypes>(e));
+ 	}
+ 	__forceinline int get(BoolElementTypes e) const
+ 	{
+-		return get(static_cast<CvInfoEnum::BoolElementTypes>(e));
++		return get(static_cast<CvXMLInfo::BoolElementTypes>(e));
+ 	} // </advc.tag>
+ 
+ 	int getAdvancedStartCost() const;
+@@ -449,8 +449,6 @@ public: /*  All the const functions are exposed to Python except those dealing w
+ 	bool readPass2(CvXMLLoadUtility* pXML);
+ 
+ protected:
+-	void addElements(std::vector<XMLElement*>& r) const; // advc.tag
+-
+ 	int m_iAdvancedStartCost;
+ 	int m_iAdvancedStartCostIncrease;
+ 
+@@ -496,6 +494,8 @@ protected:
+ 	int** m_ppiRouteYieldChanges;
+ 
+ 	CvImprovementBonusInfo* m_paImprovementBonus;
++
++	void addElements(std::vector<XMLElement*>& r) const; // advc.tag
+ };
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 89c8b8d95..041e102ff 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7505,7 +7505,10 @@ int CvPlayerAI::AI_obsoleteBuildingPenalty(TechTypes eTech, bool bConstCache) co
+ 		{
+ 			int n = pLoopCity->getNumActiveBuilding(eLoopBuilding);
+ 			if (n > 0)
+-				iTotalPenalty += n * pLoopCity->AI_buildingValue(eLoopBuilding, 0, 0, bConstCache);
++			{
++				iTotalPenalty += n * pLoopCity->AI_buildingValue(eLoopBuilding, 0, 0, bConstCache,
++						true, false, /*bObsolete=*/true); // advc.004c
++			}
+ 		}
+ 	}
+ 	// iScale is set more or less arbitrarily based on trial and error.
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=63708

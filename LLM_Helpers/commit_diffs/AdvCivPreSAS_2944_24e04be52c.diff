@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2944
+# Commit: 24e04be52c359e61602c12d82cc09f629f92121b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4d12fde966633e6c3d5da2a43cd0c9ec8b3e9d5e
+# Title: Tweak UWAI prediction about availability of coll. damage units
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	CvGameCoreDLL/MilitaryBranch.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index d6b76da45..0847f47ac 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -445,6 +445,10 @@ bool MilitaryBranch::Army::canTrainCollateral() const {
+ 		CvUnitInfo const& u = GC.getInfo(ut);
+ 		if(u.getCollateralDamage() > 0 &&
+ 				isValidDomain(u.getDomainType()) &&
++				/*	Usually it takes the AI a while to assemble a significant number
++					of coll.-dmg. units after discovering the respective tech, so
++					let's delay things a bit with this (cheap) extra check. */
++				owner.getUnitClassCountPlusMaking(kCiv.unitClass(ut)) > 1 &&
+ 				owner.AI_canBeExpectedToTrain(ut))
+ 			return true;
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=721

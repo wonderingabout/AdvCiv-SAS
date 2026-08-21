@@ -1,0 +1,579 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2814
+# Commit: d2921cb3f63f97847aa4ab5cab80663c6ec7f8ce
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5bfc6cf9aa4dd00be71461aea406f9352d9b9716
+# Title: Minor refactoring, comment changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	1	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvGame.h
+3	3	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	2	CvGameCoreDLL/CvInfoEnums.h
+1	1	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlot.cpp
+7	7	CvGameCoreDLL/CvSelectionGroup.cpp
+7	7	CvGameCoreDLL/CvUnit.cpp
+3	3	CvGameCoreDLL/CvUnit.h
+47	50	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CvVirtualWrappers.cpp
+42	25	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 70fd4b957..e8ede92b9 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7517,8 +7517,11 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 				{
+ 					if (kOwner.isOption(PLAYEROPTION_LEAVE_FORESTS))
+ 						bValid = false;
+-					else if (healthRate() < 0 && GC.getInfo(kPlot.getFeatureType()).getHealthPercent() > 0)
++					else if (healthRate() < 0 &&
++						GC.getInfo(kPlot.getFeatureType()).getHealthPercent() > 0)
++					{
+ 						bValid = false;
++					}
+ 					else if (kOwner.getFeatureHappiness(kPlot.getFeatureType()) > 0)
+ 						bValid = false;
+ 				}
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 3f9a277e7..d5bc3fe09 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -82,9 +82,9 @@ public:
+ 	{
+ 		return getPlotUnits(pPlot, NULL, iIndex); // advc
+ 	}
+-	DllExport void getPlotUnits(const CvPlot *pPlot, std::vector<CvUnit*>& plotUnits) const
++	DllExport void getPlotUnits(const CvPlot *pPlot, std::vector<CvUnit*>& kPlotUnits) const
+ 	{
+-		getPlotUnits(pPlot, &plotUnits, -1); // advc
++		getPlotUnits(pPlot, &kPlotUnits, -1); // advc
+ 	}
+ 
+ 	DllExport void cycleCities(bool bForward = true, bool bAdd = false) const;																				// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index b6f257dc8..eac20871d 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -477,18 +477,18 @@ int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender)
+ 	return iOdds;
+ }
+ 
+-// K-Mod:
++// K-Mod: (advc - Where do we move this? Should be a static member, not global.)
+ int estimateCollateralWeight(CvPlot const* pPlot, TeamTypes eAttackTeam,
+ 	TeamTypes eDefenceTeam)
+ {
+ 	int iBaseCollateral = GC.getDefineINT(CvGlobals::COLLATERAL_COMBAT_DAMAGE); // normally 10
++	if (pPlot == NULL)
++		return iBaseCollateral * 110;
+ 
+ 	/*	Collateral damage does not depend on any kind of strength bonus -
+ 		so when a unit takes collateral damage, their bonuses are effectively wasted.
+ 		Therefore, I'm going to inflate the value of collateral damage based
+ 		on a rough estimate of the defenders bonuses. */
+-	if (pPlot == NULL)
+-		return iBaseCollateral * 110; // advc
+ 
+ 	TeamTypes ePlotBonusTeam = eDefenceTeam;
+ 	if (ePlotBonusTeam == NO_TEAM)
+
+diff --git a/CvGameCoreDLL/CvInfoEnums.h b/CvGameCoreDLL/CvInfoEnums.h
+index 6a4da63f2..116c2db83 100644
+--- a/CvGameCoreDLL/CvInfoEnums.h
++++ b/CvGameCoreDLL/CvInfoEnums.h
+@@ -237,7 +237,7 @@ static inline T operator-(T minuend, T subtrahend)
+ 
+ /*  These don't have a dedicated CvInfo class, and the macros for generating
+ 	getter functions can't deal with that. (typedef would make it impossible
+-	to forward declare them in CvGlobals.h.) */
++	to forward-declare them in CvGlobals.h.) */
+ #define CvHintInfo CvInfoBase
+ #define CvConceptInfo CvInfoBase
+ #define CvNewConceptInfo CvInfoBase
+@@ -253,7 +253,7 @@ static inline T operator-(T minuend, T subtrahend)
+ #define CvCalendarInfo CvInfoBase
+ #define CvUnitAIInfo CvInfoBase
+ #define CvDenialInfo CvInfoBase
+-// This one just has an irregular, exported name
++// This one just has an irregular, exported name.
+ #define CvThroneRoomCameraInfo CvThroneRoomCamera
+ 
+ // Macros for generating enum definitions and getEnumLength functions (CvEnums, CvGlobals) ...
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 5f671672a..3c47b77e2 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3664,7 +3664,7 @@ bool CvPlayer::canReceiveTradeCity() const
+ }
+ 
+ 
+-bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial) const  // advc: Refactoring changes; assertions added.
++bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial) const  // advc: assertions added.
+ {
+ 	PROFILE_FUNC(); // advc: To keep an eye on items that aren't profiled separately
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 81ba574fa..459536b19 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6286,7 +6286,8 @@ void CvPlot::updateFlagSymbol()
+ 	//create and/or update unit's flag
+ 	if (ePlayer != NO_PLAYER)
+ 	{
+-		if (m_pFlagSymbol == NULL || gDLL->getFlagEntityIFace()->getPlayer(m_pFlagSymbol) != ePlayer)
++		if (m_pFlagSymbol == NULL ||
++			gDLL->getFlagEntityIFace()->getPlayer(m_pFlagSymbol) != ePlayer)
+ 		{
+ 			if (m_pFlagSymbol != NULL)
+ 				gDLL->getFlagEntityIFace()->destroy(m_pFlagSymbol);
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 389d58e3c..4116c5d7b 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1239,8 +1239,7 @@ void CvSelectionGroup::startMission()
+ 			{
+ 				GC.getGame().cycleSelectionGroups_delayed(kOwner.
+ 						isOption(PLAYEROPTION_QUICK_MOVES) ? 1 : 2, true);
+-			}
+-			// K-Mod end
++			} // K-Mod end
+ 		}
+ 	}
+ }
+@@ -2929,8 +2928,9 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, MovementFlags eFlags)
+ 	CvPlot const* pOriginPlot = plot(); // K-Mod
+ 
+ 	if (at(iX, iY))
+-		return false; // XXX is this necessary?
+-
++	{	// XXX is this necessary? - advc: Yes, for route-to and move-to-unit missions.
++		return false;
++	}
+ 	FAssert(!isBusy());
+ 	FAssert(getOwner() != NO_PLAYER);
+ 	FAssert(headMissionQueueNode() != NULL);
+@@ -3291,9 +3291,9 @@ bool CvSelectionGroup::readyToMove(bool bAny) /* advc: */ const
+ 	//return (((bAny) ? canAnyMove() : canAllMove()) && (headMissionQueueNode() == NULL) && (getActivityType() == ACTIVITY_AWAKE) && !isBusy() && !isCargoBusy());
+ 	// K-Mod:
+ 	return (bAny ? canAnyMove() : canAllMove()) &&
+-		(isForceUpdate() ||
+-		(headMissionQueueNode() == NULL && getActivityType() ==  ACTIVITY_AWAKE)) &&
+-		!isBusy() && !isCargoBusy();
++			(isForceUpdate() ||
++			(headMissionQueueNode() == NULL && getActivityType() ==  ACTIVITY_AWAKE)) &&
++			!isBusy() && !isCargoBusy();
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 4d231409b..1d5b2fc3c 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -4321,11 +4321,11 @@ bool CvUnit::airBomb(int iX, int iY, /* <advc.004c> */ bool* pbIntercepted)
+ }
+ 
+ 
+-CvCity* CvUnit::bombardTarget(CvPlot const& kPlot) const
++CvCity* CvUnit::bombardTarget(CvPlot const& kFrom) const
+ {
+ 	CvCity* pBestCity = NULL;
+ 	int iBestValue = MAX_INT;
+-	FOR_EACH_ADJ_PLOT(kPlot)
++	FOR_EACH_ADJ_PLOT(kFrom)
+ 	{
+ 		CvCity* pLoopCity = pAdj->getPlotCity();
+ 		if (pLoopCity == NULL || !pLoopCity->isBombardable(this))
+@@ -4335,7 +4335,7 @@ CvCity* CvUnit::bombardTarget(CvPlot const& kPlot) const
+ 		/*	advc (note): Was added in BtS. Not sure if it's correct - or necessary.
+ 			iValue is non-negative. We're computing an argmin. CvCity::isBombardable
+ 			already checks isEnemy - but only for this unit's current plot. */
+-		if (isEnemy(pLoopCity->getTeam(), kPlot))
++		if (isEnemy(pLoopCity->getTeam(), kFrom))
+ 			iValue *= 128;
+ 		if (iValue < iBestValue)
+ 		{
+@@ -4347,7 +4347,7 @@ CvCity* CvUnit::bombardTarget(CvPlot const& kPlot) const
+ }
+ 
+ 
+-bool CvUnit::canBombard(CvPlot const& kPlot) const
++bool CvUnit::canBombard(CvPlot const& kFrom) const
+ {
+ 	if (bombardRate() <= 0)
+ 		return false;
+@@ -4358,16 +4358,16 @@ bool CvUnit::canBombard(CvPlot const& kPlot) const
+ 	if (isCargo())
+ 		return false;
+ 
+-	if (bombardTarget(kPlot) == NULL)
++	if (bombardTarget(kFrom) == NULL)
+ 		return false;
+ 
+ 	return true;
+ }
+ 
+ // Moved out of CvUnit::bombard (note: may exceed the target's defensive modifier)
+-int CvUnit::damageToBombardTarget(CvPlot const& kPlot) const
++int CvUnit::damageToBombardTarget(CvPlot const& kFrom) const
+ {
+-	CvCity const* pBombardCity = bombardTarget(kPlot);
++	CvCity const* pBombardCity = bombardTarget(kFrom);
+ 	if (pBombardCity == NULL)
+ 		return 0;
+ 	// <advc.004c>
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 699003b8c..b69401c3c 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -158,9 +158,9 @@ public:
+ 
+ 	bool canAirStrike(CvPlot const& kPlot) const; // (advc.004c: was protected)
+ 
+-	CvCity* bombardTarget(CvPlot const& kPlot) const;														// Exposed to Python
+-	bool canBombard(CvPlot const& kPlot) const;																// Exposed to Python
+-	int damageToBombardTarget(CvPlot const& kPlot) const; // advc
++	CvCity* bombardTarget(CvPlot const& kFrom) const;														// Exposed to Python
++	bool canBombard(CvPlot const& kFrom) const;																// Exposed to Python
++	int damageToBombardTarget(CvPlot const& kFrom) const; // advc
+ 	bool bombard();
+ 
+ 	bool canParadrop(const CvPlot* pPlot) const;															// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1b786290f..53deb44be 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -822,7 +822,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 	for (int iPass = 0; iPass < 2; iPass++)
+ 	{
+ 		// K-Mod: only workable tiles
+-		for (WorkablePlotIter it(kCity); it.hasNext(); ++it)  // advc: continue statements
++		for (WorkablePlotIter it(kCity); it.hasNext(); ++it)
+ 		{
+ 			CvPlot& kPlot = *it;
+ 			CityPlotTypes ePlot = it.currID();
+@@ -832,54 +832,51 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
+ 				continue;
+ 			int iValue = kCity.AI_getBestBuildValue(ePlot);
+ 			if (iValue <= iBestValue)
+-					continue;
+-
+-				BuildTypes eBuild = kCity.AI_getBestBuild(ePlot);
+-				if (eBuild == NO_BUILD || /* K-Mod: */ !canBuild(kPlot, eBuild))
+-					continue;
+-
+-				if (iPass == 0)
+-				{
+-					iBestValue = iValue;
+-					pBestPlot = &kPlot;
+-					eBestBuild = eBuild;
+-					continue;
+-				}
+-				//if (canBuild(pLoopPlot, eBuild))
+-				if (kPlot.isVisibleEnemyUnit(this))
+-					continue;
+-				/*int iPathTurns;
+-				if (generatePath(pLoopPlot, 0, true, &iPathTurns)) {
+-					// XXX take advantage of range (warning... this could lead to some units doing nothing...)
+-					int iMaxWorkers = 1;
+-					if (getPathLastNode()->m_iData1 == 0)
+-						iPathTurns++;
+-					else if (iPathTurns <= 1)
+-						iMaxWorkers = AI_calculatePlotWorkersNeeded(pLoopPlot, eBuild);
+-					if (pUnit != NULL) {
+-						if (pUnit->getPlot().isCity() && iPathTurns == 1 && getPathLastNode()->m_iData1 > 0)
+-						iMaxWorkers += 10;
+-					} }*/ // BtS
+-				// K-Mod. basically the same thing, but using pathFinder.
+-				if (!pathFinder.generatePath(kPlot))
+-					continue;
+-				int iPathTurns = pathFinder.getPathTurns() + (pathFinder.getFinalMoves() == 0 ? 1 : 0);
+-				int iMaxWorkers = (iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(kPlot, eBuild));
+-				if (pUnit != NULL && pUnit->getPlot().isCity() && iPathTurns == 1)
++				continue;
++			BuildTypes eBuild = kCity.AI_getBestBuild(ePlot);
++			if (eBuild == NO_BUILD || /* K-Mod: */ !canBuild(kPlot, eBuild))
++				continue;
++			if (iPass == 0)
++			{
++				iBestValue = iValue;
++				pBestPlot = &kPlot;
++				eBestBuild = eBuild;
++				continue;
++			}
++			//if (canBuild(pLoopPlot, eBuild))
++			if (kPlot.isVisibleEnemyUnit(this))
++				continue;
++			/*int iPathTurns;
++			if (generatePath(pLoopPlot, 0, true, &iPathTurns)) {
++				// XXX take advantage of range (warning... this could lead to some units doing nothing...)
++				int iMaxWorkers = 1;
++				if (getPathLastNode()->m_iData1 == 0)
++					iPathTurns++;
++				else if (iPathTurns <= 1)
++					iMaxWorkers = AI_calculatePlotWorkersNeeded(pLoopPlot, eBuild);
++				if (pUnit != NULL) {
++					if (pUnit->getPlot().isCity() && iPathTurns == 1 && getPathLastNode()->m_iData1 > 0)
+ 					iMaxWorkers += 10;
+-				// K-Mod end
+-				if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, getGroup(),
+-					/* <advc.opt> */ 0, iMaxWorkers /* </advc.opt> */) < iMaxWorkers)
+-				{
+-					//XXX this could be improved greatly by
+-					//looking at the real build time and other factors
+-					//when deciding whether to stack.
+-					iValue /= iPathTurns;
++				} }*/ // BtS
++			// K-Mod. basically the same thing, but using pathFinder.
++			if (!pathFinder.generatePath(kPlot))
++				continue;
++			int iPathTurns = pathFinder.getPathTurns() + (pathFinder.getFinalMoves() == 0 ? 1 : 0);
++			int iMaxWorkers = (iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(kPlot, eBuild));
++			if (pUnit != NULL && pUnit->getPlot().isCity() && iPathTurns == 1)
++				iMaxWorkers += 10;
++			// K-Mod end
++			if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, getGroup(),
++				/* <advc.opt> */ 0, iMaxWorkers /* </advc.opt> */) < iMaxWorkers)
++			{
++				//XXX this could be improved greatly by
++				//looking at the real build time and other factors
++				//when deciding whether to stack.
++				iValue /= iPathTurns;
+ 
+-					iBestValue = iValue;
+-					pBestPlot = &kPlot;
+-					eBestBuild = eBuild;
+-				}
++				iBestValue = iValue;
++				pBestPlot = &kPlot;
++				eBestBuild = eBuild;
+ 			}
+ 		}
+ 		if (iPass > 0 || eBestBuild == NO_BUILD)
+@@ -3754,12 +3751,12 @@ void CvUnitAI::AI_collateralMove()
+ 		FAssert(iTally > 0);
+ 		FAssert(collateralDamageMaxUnits() > 0);
+ 
+-		int iDangerModifier = 100;
++		//int iDangerModifier = 100;
+ 		do
+ 		{
+ 			int iMinOdds = 80 / (3 + iTally);
+-			iMinOdds *= 100;
+-			iMinOdds /= iDangerModifier;
++			/*iMinOdds *= 100;
++			iMinOdds /= iDangerModifier;*/ // advc: was always 100 ...
+ 			if (AI_anyAttack(1, iMinOdds, NO_MOVEMENT_FLAGS, std::min(
+ 				2*collateralDamageMaxUnits(), collateralDamageMaxUnits() + iTally - 1)))
+ 			{
+
+diff --git a/CvGameCoreDLL/CvVirtualWrappers.cpp b/CvGameCoreDLL/CvVirtualWrappers.cpp
+index 44ca363cc..e6a2a7d73 100644
+--- a/CvGameCoreDLL/CvVirtualWrappers.cpp
++++ b/CvGameCoreDLL/CvVirtualWrappers.cpp
+@@ -2,8 +2,8 @@
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
+ #include "CvGameAI.h"
+-#include "CvUnitAI.h"
+ #include "CvSelectionGroupAI.h"
++#include "CvUnitAI.h" // (for CvUnitAI -> CvUnit up-casts)
+ 
+ /*  advc.003u: New file for dummy/ adapter implementations of AI_... functions
+ 	that shouldn't have been made virtual, but need to be preserved for the EXE.
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index c34b152c5..f22c75e70 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -17,6 +17,11 @@
+ // advc.003j: unused
+ //#define INIT_XML_GLOBAL_LOAD(xmlInfoPath, infoArray, numInfos)  SetGlobalClassInfo(infoArray, xmlInfoPath, numInfos);
+ 
++/*	advc: Switch that will cause a failed assertion for each global define that
++	gets read multiple times, i.e. that the mod overwrites. Could be helpful
++	for merging a mod into AdvCiv. */
++#define CHECK_FOR_REDEFINES 0
++
+ // read the global defines from a specific file
+ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObject* cache)
+ {
+@@ -39,10 +44,6 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 		sprintf(szMessage, "LoadXML call failed for %s.\nCurrent XML file is: %s", szXMLFileName, GC.getCurrentXMLFile().GetCString());
+ 		errorMessage(szMessage, XML_LOAD_ERROR);
+ 	}
+-	/*	advc: Switch that will cause a failed assertion for each global define
+-		that gets read multiple times, i.e. that the mod overwrites. Could be helpful
+-		for merging a mod into AdvCiv. */
+-	#define CHECK_FOR_OVERWRITES 0
+ 
+ 	if (bLoaded)
+ 	{
+@@ -80,7 +81,7 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 										// if the node type of the current tag is a float then
+ 										if (strcmp(szNodeType,"float")==0)
+ 										{	// <advc>
+-											#if CHECK_FOR_OVERWRITES
++											#if CHECK_FOR_REDEFINES
+ 												float fDummy;
+ 												FAssertMsg(!GC.getDefinesVarSystem()->GetValue(szName, fDummy), szName);
+ 											#endif // </advc>
+@@ -92,7 +93,7 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 										// else if the node type of the current tag is an int then
+ 										else if (strcmp(szNodeType,"int")==0)
+ 										{	// <advc>
+-											#if CHECK_FOR_OVERWRITES
++											#if CHECK_FOR_REDEFINES
+ 												int iDummy;
+ 												FAssertMsg(!GC.getDefinesVarSystem()->GetValue(szName, iDummy), szName);
+ 											#endif // </advc>
+@@ -104,7 +105,7 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 										// else if the node type of the current tag is a boolean then
+ 										else if (strcmp(szNodeType,"boolean")==0)
+ 										{	// <advc>
+-											#if CHECK_FOR_OVERWRITES
++											#if CHECK_FOR_REDEFINES
+ 												bool bDummy;
+ 												FAssertMsg(!GC.getDefinesVarSystem()->GetValue(szName, bDummy), szName);
+ 											#endif // </advc>
+@@ -116,7 +117,7 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 										// otherwise we will assume it is a string/text value
+ 										else
+ 										{	// <advc>
+-											#if CHECK_FOR_OVERWRITES
++											#if CHECK_FOR_REDEFINES
+ 												char szBuffer[256];
+ 												char* szDummy = szBuffer;
+ 												FAssertMsg(!GC.getDefinesVarSystem()->GetValue(szName, szDummy), szName);
+@@ -165,6 +166,8 @@ bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObje
+ 	return true;
+ }
+ 
++#undef CHECK_FOR_REDEFINES // advc
++
+ // Load GlobalDefines from XML
+ bool CvXMLLoadUtility::SetGlobalDefines()
+ {
+@@ -174,9 +177,10 @@ bool CvXMLLoadUtility::SetGlobalDefines()
+ 	// use disk cache if possible.
+ 	// if no cache or cache is older than xml file, use xml file like normal, else read from cache
+ 	//
+-
+-	CvCacheObject* cache = gDLL->createGlobalDefinesCacheObject("GlobalDefines.dat");	// cache file name
+-
++	CvCacheObject* cache = NULL;
++	#if ENABLE_XML_FILE_CACHE
++	cache = gDLL->createGlobalDefinesCacheObject("GlobalDefines.dat");	// cache file name
++	#endif
+ 	if (!ReadGlobalDefines("xml\\GlobalDefines.xml", cache))
+ 		return false;
+ 
+@@ -218,8 +222,9 @@ bool CvXMLLoadUtility::SetGlobalDefines()
+ 				return false;
+ 		}
+ 	}
++	#if ENABLE_XML_FILE_CACHE
+ 	gDLL->destroyCache(cache);
+-
++	#endif
+ 	GC.cacheGlobals();
+ 	return true;
+ }
+@@ -459,7 +464,6 @@ bool CvXMLLoadUtility::LoadGlobalText()
+ {
+ 	#if ENABLE_XML_FILE_CACHE
+ 	CvCacheObject* cache = gDLL->createGlobalTextCacheObject("GlobalText.dat");	// cache file name
+-	// advc: Handle successful read upfront
+ 	if (gDLL->cacheRead(cache))
+ 	{
+ 		logMsg("Read GlobalText from cache");
+@@ -477,12 +481,20 @@ bool CvXMLLoadUtility::LoadGlobalText()
+ 
+ 	gDLL->enumerateFiles(aszFiles, "xml\\text\\*.xml");
+ 
+-	// K-Mod. Text files from mods may not have the same set of language as the base game.
+-	// When such a mismatch occurs, we cannot simply rely on "getCurrentLanguage()" to give us the correct text from the mod file. We should instead check the xml tags.
+-	// So, before we start loading text, we need to extract the current name of our language tag. This isn't as easy as I'd like. Here's what I'm going to do:
+-	// CIV4GameText_Misc1.xml contains the text for the language options dropdown menu in the settings screen; so I'm going to assume that particular text file is
+-	// well formed, and I'm going to use it to determine the current language name. (Note: I'd like to use the names from TXT_KEY_LANGUAGE_#, but that text isn't easy to access.)
+-	// label text for the currently selected language -- that should correspond to the xml label used for that language.
++	/*	K-Mod. Text files from mods may not have the same set of languages
++		as the base game. When such a mismatch occurs, we cannot simply rely
++		on "getCurrentLanguage()" to give us the correct text from the mod file.
++		We should instead check the xml tags. So, before we start loading text,
++		we need to extract the current name of our language tag.
++		This isn't as easy as I'd like. Here's what I'm going to do:
++		CIV4GameText_Misc1.xml contains the text for the language options
++		dropdown menu in the settings screen; so I'm going to assume
++		that particular text file is well formed, and I'm going to use it
++		to determine the current language name.
++		(Note: I'd like to use the names from TXT_KEY_LANGUAGE_#,
++		but that text isn't easy to access.) */
++	/*	label text for the currently selected language --
++		that should correspond to the xml label used for that language. */
+ 	std::string langauge_name;
+ 	if (LoadCivXml(m_pFXml, "xml\\text\\CIV4GameText_Misc1.xml"))
+ 	{
+@@ -503,7 +515,9 @@ bool CvXMLLoadUtility::LoadGlobalText()
+ 					break;
+ 				if (i == iLanguage)
+ 				{
+-					char buffer[1024]; // no way to determine max tag name size. .. This is really bad; but what can I do about it?
++					/*	no way to determine max tag name size.
++						This is really bad; but what can I do about it? */
++					char buffer[1024];
+ 					if (gDLL->getXMLIFace()->GetLastLocatedNodeTagName(m_pFXml, buffer))
+ 					{
+ 						buffer[1023] = 0; // just in case the buffer isn't even terminated!
+@@ -511,15 +525,17 @@ bool CvXMLLoadUtility::LoadGlobalText()
+ 					}
+ 				}
+ 			}
+-			// this is stupid...
+-			// the number of languages is a static private variable which can only be set by a non-static function.
++			/*	this is stupid... the number of languages is a static private variable
++				which can only be set by a non-static function. */
+ 			CvGameText dummy;
+ 			dummy.setNumLanguages(i);
+ 		}
+ 	}
+ 
+-	// Remove duplicate files. (Both will be loaded from the mod folder anyway, so this will save us some time.)
+-	// However, we must not disturb the order of the list, because it is important that the modded files overrule the unmodded files.
++	/*	Remove duplicate files. (Both will be loaded from the mod folder anyway,
++		so this will save us some time.)
++		However, we must not disturb the order of the list, because it is
++		important that the modded files overrule the unmodded files. */
+ 	for(std::vector<CvString>::iterator it = aszFiles.begin(); it != aszFiles.end(); ++it)
+ 	{
+ 		std::vector<CvString>::iterator jt = it+1;
+@@ -545,7 +561,8 @@ bool CvXMLLoadUtility::LoadGlobalText()
+ 		if (!bLoaded)
+ 		{
+ 			char	szMessage[1024];
+-			sprintf(szMessage, "LoadXML call failed for %s.\nCurrent XML file is: %s", it->c_str(), GC.getCurrentXMLFile().GetCString());
++			sprintf(szMessage, "LoadXML call failed for %s.\nCurrent XML file is: %s",
++					it->c_str(), GC.getCurrentXMLFile().GetCString());
+ 			errorMessage(szMessage, XML_LOAD_ERROR);
+ 		}
+ 		if (bLoaded)
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=22431

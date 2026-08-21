@@ -1,0 +1,95 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5403
+# Commit: 4f7a13df9cae48b82ed30261719552f37fcc5c35
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b665b8f7c0f8fd4f8ca92a2eca0f696efd5438f8
+# Title: update docs about pre-AdvCiv-SAS scenarios not being supported in AdvCiv-SAS - Scenarios: "Play a Scenario" and "Custom Scenario" in the main menu shows some...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	README.md
+7	5	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+3	3	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index 51eb0e502..38cd02e61 100644
+--- a/README.md
++++ b/README.md
+@@ -617,7 +617,8 @@ As of now AdvCiv-SAS is rather stable so crashes should be rare now. Recently, t
+ 
+ ## Not supported in AdvCiv-SAS
+ 
+-- non-English translations: too tedious to translate them all, plus i'm fine with English being the only language in the game.
++- non-English translations: New or changed content in AdvCiv-SAS ships with English text only. This is because it is too tedious to translate them all, plus i'm fine with English being the only language in the game. If your game language isn’t English, those entries will still appear (in English).
++- Scenarios: "Play a Scenario" and "Custom Scenario" in the main menu shows some scenario files that are pre-AdvCiv-SAS; since we made structural changes like renaming `_CORN` to `_MAIZE`, adding `CAMEL_BONUS`and many other changes, pre-AdvCiv-SAS scenarios are not supported in AdvCiv-SAS. Also, we cannot just grey in the main menu (via `NoCustomScenario = 1` in [AdvCiv-SAS.ini](/AdvCiv-SAS.ini)) these play modes in case player add AdvCiv-SAS compatible scenarios that they would be unable to then play; plus this does not fix "Play a Scenario", only "Custom Scenarios", so preferred to just document it as an all around much better and simpler solution.
+ - CustomDomAdv, which according to the txt inside it seems to relate to "only settings for the mod components Advanced Unit Naming and Customizable Domestic Advisor (both disabled by default through the BUG menu)" (see [/Settings/About%20this%20folder.txt](/Settings/About%20this%20folder.txt)). Since i don't use it, and is similarly like the translations a bit if not lot tedious or complicated to maintain furthermore, then i am not supporting it in AdvCiv-SAS. May or not be updated every while or inconsistently but expect it to be unsupported.
+ - concepts being updated in their content: see [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+ - savegame compatibility. Anytime an asset is added or removed in the game (e.g. adding a tech, removing a unit or building or other), it should be expected that previous savegames are NOT compatible. Same with any DLL recompile. They may luckily or sometimes somehow work, but as a rule expect that generally they don't, and i will not support old save files, if you want to continue playing on them, use the previous version (see [/README.md#version-number](/README.md#version-number) for info about how we choose version number in advciv-sas) of this mod you were using. E.g. if AdvCiv-SAS version 4946 worked, and then version 4947 broke comptibility in one way or an other, play it with this version instead. I have decided to do so as it's beyond way too tedious and i'm really not sure it's worth preserving compatibility considering the code mess it creates xd. Also i don't know how so i'd rather not, but hopefully keep playing on the old version (same version that you used to create this save file) should be fine or not too bad. Note: XML changes such as increasing the cost of this unit or changing the bonus needed in the xml for this building or such should generally if not always be fine, at least seems so to me, but i don't know too much about these, check if accurate. See related info at [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result) as well.
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index 87d8cbd60..c09846383 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -406,7 +406,7 @@ Done with the help of GPT-5.2 Thinking thanks:
+ | `Pangaea`              | One massive primary continent (most civs share early land contact).                                                                               | Land                                     | Base Civ4, Warlords, AdvCiv-SAS      |
+ | `PerfectMongoose`      | Approximative: Third-party “planet” style generator; typically aims for more natural-looking geography (still mostly standard land/sea gameplay). | Land                                     | AdvCiv-SAS                           |
+ | `Tectonics`            | Plate-tectonics style continents with strong mountain chains and structured geography.                                                            | Land                                     | BTS, AdvCiv-SAS                      |
+-| `Terra`                | Old World starts with a separate “New World” to discover/colonize later; `<!-- custom: Land, see description -->` | Other (old world/new world colonization); `<!-- custom: empirically and based on map descriptions looks landHeavy -->` | Base Civ4, Warlords, BTS, AdvCiv-SAS |
++| `Terra`                | Old World starts with a separate “New World” to discover/colonize later; `<!-- custom: empirically and based on map descriptions looks landHeavy -->` | Other (old world/new world colonization); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, BTS, AdvCiv-SAS |
+ | `aDebugMap`            | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial).                                               | Other (debug/test map)                   | Base Civ4                            |
+ | `Archipelago`          | Many small islands; heavy naval emphasis early.                                                                                                   | Water                                    | Base Civ4, Warlords                  |
+ | `Balanced`             | Land/sea like standard scripts but biased toward fairer starts.                                                                                   | Land                                     | Base Civ4, Warlords                  |
+@@ -438,10 +438,12 @@ Done with the help of GPT-5.2 Thinking thanks:
+ | `Rainforest`           | Jungle-heavy/wet-biome emphasis (terrain/feature density changes).                                                                                | Land                                     | BTS                                  |
+ | `RandomScriptMap`      | Meta-script that selects one of the installed scripts at random (often from a curated set).                                                       | Random                                   | BTS                                  |
+ 
+-[1: The Complete Guide to Map Creation (image heavy) - CivFanatics](https://civfanatics.com/civ4/strategy/references/the-complete-guide-to-map-creation-image-heavy/)
+-[2: scribd.com/document/597223574/AdvCiv-manual](https://www.scribd.com/document/597223574/AdvCiv-manual)
+-[3: map-script-which-one-do-you-usually-play.471862](https://forums.civfanatics.com/threads/map-script-which-one-do-you-usually-play.471862/)
+-[4: https://forums.civfanatics.com/threads/odd-scenarios.363992/](https://forums.civfanatics.com/threads/odd-scenarios.363992/)
++Sources (GPT-5.2 Thinking):
++
++- [1: The Complete Guide to Map Creation (image heavy) - CivFanatics](https://civfanatics.com/civ4/strategy/references/the-complete-guide-to-map-creation-image-heavy/)
++- [2: scribd.com/document/597223574/AdvCiv-manual](https://www.scribd.com/document/597223574/AdvCiv-manual)
++- [3: map-script-which-one-do-you-usually-play.471862](https://forums.civfanatics.com/threads/map-script-which-one-do-you-usually-play.471862/)
++- [4: https://forums.civfanatics.com/threads/odd-scenarios.363992/](https://forums.civfanatics.com/threads/odd-scenarios.363992/)
+ 
+ ### old info
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 7d6f901d7..2ebd90b0d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -13,7 +13,7 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
+ 
+ [Full code diff (very long)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#full-code-diff-very-long)  
+ [Main Changes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#main-changes)  
+-&emsp;[Translations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#translations)  
++&emsp;[Not supported in AdvCiv-SAS](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#not-supported-in-advciv-sas)  
+ &emsp;[Renaming](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming)  
+ &emsp;[Code/Performance optimizations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#codeperformance-optimizations)  
+ &emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#48-civs-dll)  
+@@ -71,9 +71,9 @@ See [Full exhaustive changes (very long)](/README.md#full-exhaustive-very-long-a
+ 
+ ## Main Changes
+ 
+-### Translations
++### Not supported in AdvCiv-SAS
+ 
+-- New or changed content in AdvCiv-SAS ships with English text only. If your game language isn’t English, those entries will still appear (in English).
++Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-AdvCiv-SAS scenarios. See [root README.md: Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas).
+ 
+ ### Renaming
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=9430

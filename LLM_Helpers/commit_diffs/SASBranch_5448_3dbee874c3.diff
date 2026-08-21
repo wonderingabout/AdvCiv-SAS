@@ -1,0 +1,736 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5448
+# Commit: 3dbee874c3475210c112d5c5bf17aa7060eaac13
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 30d39de13ddfa8fe26ddaa747fc92cdd7cb2728e
+# Title: add and remove maps in Simple Game +/- update .dds - further reduce the grid size for almost_all_land as was stll quite a bit too big - **Remove from Simple...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds
+-	-	Assets/Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds
+-	-	Assets/Art/AdvCiv_SAS/Maps/Boreal/FLAT_Boreal.dds
+-	-	Assets/Art/AdvCiv_SAS/Maps/Donut/FLAT_Donut.dds
+-	-	Assets/Art/AdvCiv_SAS/Maps/Earth2/FLAT_Earth2.dds
+-	-	Assets/Art/AdvCiv_SAS/Maps/Highlands/FLAT_Highlands.dds
+-	-	Assets/Art/AdvCiv_SAS/Maps/Inland_Sea/FLAT_Inland_Sea.dds
+-	-	Assets/Art/AdvCiv_SAS/Maps/Lakes/FLAT_Lakes.dds
+-	-	Assets/Art/AdvCiv_SAS/Maps/Ring/FLAT_Ring.dds
+-	-	Assets/Art/AdvCiv_SAS/Maps/Wheel/FLAT_Wheel.dds
+88	29	Assets/XML/Interface/CIV4WorldPickerInfos.xml
+1	1	Assets/XML/Text/AdvCiv-SAS_main.xml
+13	0	PrivateMaps/BTG_Lagoon.py
+17	1	PrivateMaps/Boreal.py
+2	2	PrivateMaps/Donut.py
+2	2	PrivateMaps/Great_Plains.py
+2	2	PrivateMaps/Oasis.py
+4	0	PrivateMaps/Ring.py
+8	8	PrivateMaps/SAS_WorldSizes.py
+4	0	PrivateMaps/Wheel.py
+14	1	README.md
+41	41	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+5	6	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (1).PNG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (2).PNG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Maps/Donut/FLAT_Donut.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Maps/Highlands/FLAT_Highlands.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Maps/Inland_Sea/FLAT_Inland_Sea.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Maps/Lakes/FLAT_Lakes.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Maps/Ring/FLAT_Ring.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Maps/Wheel/FLAT_Wheel.dds
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (1).PNG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (2).PNG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds b/Assets/Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds
+index 3ac644d20..24d6ee899 100644
+Binary files a/Assets/Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds and b/Assets/Art/AdvCiv_SAS/Maps/BTG_Cross/FLAT_BTG_Cross.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds b/Assets/Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds
+index 116b07abb..f60842c09 100644
+Binary files a/Assets/Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds and b/Assets/Art/AdvCiv_SAS/Maps/BTG_Lagoon/FLAT_BTG_Lagoon.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/Boreal/FLAT_Boreal.dds b/Assets/Art/AdvCiv_SAS/Maps/Boreal/FLAT_Boreal.dds
+index be1d9ab95..69dcd4fc1 100644
+Binary files a/Assets/Art/AdvCiv_SAS/Maps/Boreal/FLAT_Boreal.dds and b/Assets/Art/AdvCiv_SAS/Maps/Boreal/FLAT_Boreal.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/Donut/FLAT_Donut.dds b/Assets/Art/AdvCiv_SAS/Maps/Donut/FLAT_Donut.dds
+new file mode 100644
+index 000000000..ff6247046
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Maps/Donut/FLAT_Donut.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/Earth2/FLAT_Earth2.dds b/Assets/Art/AdvCiv_SAS/Maps/Earth2/FLAT_Earth2.dds
+index dfd3655ca..d6d1841a0 100644
+Binary files a/Assets/Art/AdvCiv_SAS/Maps/Earth2/FLAT_Earth2.dds and b/Assets/Art/AdvCiv_SAS/Maps/Earth2/FLAT_Earth2.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/Highlands/FLAT_Highlands.dds b/Assets/Art/AdvCiv_SAS/Maps/Highlands/FLAT_Highlands.dds
+new file mode 100644
+index 000000000..7e6c4404f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Maps/Highlands/FLAT_Highlands.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/Inland_Sea/FLAT_Inland_Sea.dds b/Assets/Art/AdvCiv_SAS/Maps/Inland_Sea/FLAT_Inland_Sea.dds
+new file mode 100644
+index 000000000..f32933320
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Maps/Inland_Sea/FLAT_Inland_Sea.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/Lakes/FLAT_Lakes.dds b/Assets/Art/AdvCiv_SAS/Maps/Lakes/FLAT_Lakes.dds
+new file mode 100644
+index 000000000..1404c867d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Maps/Lakes/FLAT_Lakes.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/Ring/FLAT_Ring.dds b/Assets/Art/AdvCiv_SAS/Maps/Ring/FLAT_Ring.dds
+new file mode 100644
+index 000000000..2fff1071c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Maps/Ring/FLAT_Ring.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/Wheel/FLAT_Wheel.dds b/Assets/Art/AdvCiv_SAS/Maps/Wheel/FLAT_Wheel.dds
+new file mode 100644
+index 000000000..d9c94e4ca
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Maps/Wheel/FLAT_Wheel.dds differ
+
+diff --git a/Assets/XML/Interface/CIV4WorldPickerInfos.xml b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+index 220a6a15d..b81b64cda 100644
+--- a/Assets/XML/Interface/CIV4WorldPickerInfos.xml
++++ b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+@@ -450,7 +450,7 @@
+ 				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+ 			</Climates>
+ 			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_Highlands.dds</WaterLevelDecalPath> <!-- Random -->
++				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Highlands/FLAT_Highlands.dds</WaterLevelDecalPath> <!-- custom: replaced with an AdvCiv-SAS one -->
+ 			</WaterLevelDecals>
+ 			<WaterLevelGloss>
+ 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+@@ -512,29 +512,18 @@
+ 				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+ 			</Climates>
+ 			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA01.dds</WaterLevelDecalPath> <!-- Random -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA01.dds</WaterLevelDecalPath> <!-- Low -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA02.dds</WaterLevelDecalPath> <!-- Medium -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/FLAT_WaterINLANDSEA03.dds</WaterLevelDecalPath> <!-- High -->
++				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Inland_Sea/FLAT_Inland_Sea.dds</WaterLevelDecalPath> <!-- custom: replaced with an AdvCiv-SAS one -->
+ 			</WaterLevelDecals>
+ 			<WaterLevelGloss>
+ 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Low -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Medium -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- High -->
+ 			</WaterLevelGloss>
+ 		</WorldPickerInfo>
+ 		<WorldPickerInfo>
+ 			<MapName>Lakes</MapName>
+-			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+ 			<Sizes>
+ 				<Size>1.0</Size> <!-- Random -->
+ 				<Size>0.128</Size> <!-- Arena (14x10) -->
+@@ -550,24 +539,13 @@
+ 				<Size>6.346</Size> <!-- SAS48 -->
+ 			</Sizes>
+ 			<Climates>
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Random -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Temp.dds</ClimatePath> <!-- Temperate -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Trop.dds</ClimatePath> <!-- Tropical -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Arid.dds</ClimatePath> <!-- Arid -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Rock.dds</ClimatePath> <!-- Rocky -->
+-				<ClimatePath>Art/Interface/Screens/WorldPicker/CLI_Cold.dds</ClimatePath> <!-- Cold -->
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
+ 			</Climates>
+ 			<WaterLevelDecals>
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE01.dds</WaterLevelDecalPath> <!-- Random -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE01.dds</WaterLevelDecalPath> <!-- Low -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE02.dds</WaterLevelDecalPath> <!-- Medium -->
+-				<WaterLevelDecalPath>Art/Interface/Screens/WorldPicker/WaterLAKE03.dds</WaterLevelDecalPath> <!-- High -->
++				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Lakes/FLAT_Lakes.dds</WaterLevelDecalPath>
+ 			</WaterLevelDecals>
+ 			<WaterLevelGloss>
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES01.dds</WaterLevelGlossPath> <!-- Random -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES01.dds</WaterLevelGlossPath> <!-- Low -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES02.dds</WaterLevelGlossPath> <!-- Medium -->
+-				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_LAKES03.dds</WaterLevelGlossPath> <!-- High -->
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+ 			</WaterLevelGloss>
+ 		</WorldPickerInfo>
+ 		<WorldPickerInfo>
+@@ -600,6 +578,33 @@
+ 				<!-- Random -->
+ 			</WaterLevelGloss>
+ 		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Donut</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Donut/FLAT_Donut.dds</WaterLevelDecalPath>
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
+ 		<WorldPickerInfo>
+ 			<MapName>Pangaea</MapName>
+ 			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+@@ -638,6 +643,33 @@
+ 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_PANG03.dds</WaterLevelGlossPath> <!-- High -->
+ 			</WaterLevelGloss>
+ 		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Ring</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Ring/FLAT_Ring.dds</WaterLevelDecalPath>
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
+ 		<WorldPickerInfo>
+ 			<MapName>Terra</MapName>
+ 			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+@@ -676,5 +708,32 @@
+ 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/GLOSS_Terra03.dds</WaterLevelGlossPath> <!-- High -->
+ 			</WaterLevelGloss>
+ 		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Wheel</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Wheel/FLAT_Wheel.dds</WaterLevelDecalPath>
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
+ 	</WorldPickerInfos>
+ </Civ4WorldPickerInfos>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 36e2d2608..5f1d4d03c 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -207,7 +207,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MAP_SCRIPT_SAS_WORLD_SIZES_DESCR</Tag>
+-		<English>SAS world-size helper sandbox map: almost all land with mostly flat grass tiles.</English>
++		<English>Originally a SAS world-size helper, now kept as a playable flat-grass sandbox map (almost all land).</English>
+ 	</TEXT>
+
+diff --git a/PrivateMaps/BTG_Lagoon.py b/PrivateMaps/BTG_Lagoon.py
+index e8312d11f..82baa5695 100644
+--- a/PrivateMaps/BTG_Lagoon.py
++++ b/PrivateMaps/BTG_Lagoon.py
+@@ -62,6 +62,9 @@ def getCustomMapOptionName(argsList):
+ 		4:	"Start Position",
+ 		5:	"TXT_KEY_MAP_WORLD_WRAP"
+ 		}
++	# <!-- custom: guard against stale/foreign option indices queried by Civ UI (e.g. 11) to avoid KeyError crashes. (GPT-5.3-Codex) -->
++	if not option_names.has_key(iOption):
++		return u""
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -75,6 +78,8 @@ def getNumCustomMapOptionValues(argsList):
+ 		4:	3,
+ 		5:	3
+ 		}
++	if not option_values.has_key(iOption):
++		return 1
+ 	return option_values[iOption]
+ 	
+ def getCustomMapOptionDescAt(argsList):
+@@ -108,6 +113,10 @@ def getCustomMapOptionDescAt(argsList):
+ 			2: "TXT_KEY_MAP_WRAP_TOROID"
+ 			}			
+ 		}
++	if not selection_names.has_key(iOption):
++		return u""
++	if not selection_names[iOption].has_key(iSelection):
++		return u""
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+ 	
+@@ -121,6 +130,8 @@ def getCustomMapOptionDefault(argsList):
+ 		4:	1,
+ 		5:	0
+ 		}
++	if not option_defaults.has_key(iOption):
++		return 0
+ 	return option_defaults[iOption]
+ 
+ def isRandomCustomMapOption(argsList):
+@@ -133,6 +144,8 @@ def isRandomCustomMapOption(argsList):
+ 		4:	false,
+ 		5:	false
+ 		}
++	if not option_random.has_key(iOption):
++		return false
+ 	return option_random[iOption]
+ 
+ def getWrapX():
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index 4a9f5c2c2..2da6b84f1 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -51,6 +51,9 @@ def getCustomMapOptionName(argsList):
+ 		0: "Deer Percentage",
+ 		1: "TXT_KEY_MAP_WORLD_WRAP"
+ 	}
++	# <!-- custom: guard against stale/foreign option indices queried by Civ UI (e.g. 5) to avoid KeyError crashes. (GPT-5.3-Codex) -->
++	if not option_names.has_key(iOption):
++		return u""
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+ 	
+@@ -60,6 +63,8 @@ def getNumCustomMapOptionValues(argsList):
+ 		0: 6,
+ 		1: 3
+ 	}
++	if not option_values.has_key(iOption):
++		return 1
+ 	return option_values[iOption]
+ 	
+ def getCustomMapOptionDescAt(argsList):
+@@ -79,6 +84,10 @@ def getCustomMapOptionDescAt(argsList):
+ 			2: "TXT_KEY_MAP_WRAP_TOROID"
+ 		}
+ 	}
++	if not selection_names.has_key(iOption):
++		return u""
++	if not selection_names[iOption].has_key(iSelection):
++		return u""
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+ 	
+@@ -88,6 +97,8 @@ def getCustomMapOptionDefault(argsList):
+ 		0: 4, # 75%
+ 		1: 0
+ 	}
++	if not option_defaults.has_key(iOption):
++		return 0
+ 	return option_defaults[iOption]
+ 
+ def isRandomCustomMapOption(argsList):
+@@ -96,6 +107,8 @@ def isRandomCustomMapOption(argsList):
+ 		0: false,
+ 		1: false
+ 	}
++	if not option_random.has_key(iOption):
++		return false
+ 	return option_random[iOption]
+ 
+ def getWrapX():
+@@ -109,7 +122,10 @@ def getWrapY():
+ def getDeerPercent():
+ 	map = CyMap()
+ 	deer_percents = (0, 10, 25, 50, 75, 100)
+-	return deer_percents[map.getCustomMapOption(0)]
++	iSelection = map.getCustomMapOption(0)
++	if iSelection < 0 or iSelection >= len(deer_percents):
++		return deer_percents[4]
++	return deer_percents[iSelection]
+ 
+ def getTopLatitude():
+ 	return 90
+
+diff --git a/PrivateMaps/Donut.py b/PrivateMaps/Donut.py
+index 70d713885..c4195af0d 100644
+--- a/PrivateMaps/Donut.py
++++ b/PrivateMaps/Donut.py
+@@ -126,8 +126,8 @@ def addBonusType(argsList):
+ 	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
+ 
+ def isAdvancedMap():
+-	"This map should not show up in simple mode"
+-	return 1
++	# <!-- custom: show this map in Simple Game; keep available in Custom Game too. (GPT-5.3-Codex) -->
++	return 0
+ 
+ def isClimateMap():
+ 	return 0
+
+diff --git a/PrivateMaps/Great_Plains.py b/PrivateMaps/Great_Plains.py
+index b839104f0..2c47f7fb1 100644
+--- a/PrivateMaps/Great_Plains.py
++++ b/PrivateMaps/Great_Plains.py
+@@ -26,8 +26,8 @@ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_GREAT_PLAINS_DESCR"
+ 
+ def isAdvancedMap():
+-	"This map should show up in simple mode"
+-	return 0
++	# <!-- custom: hide this map from Simple Game to keep that list curated; still available in Custom Game. (GPT-5.3-Codex) -->
++	return 1
+ 	
+ def isClimateMap():
+ 	return 0
+
+diff --git a/PrivateMaps/Oasis.py b/PrivateMaps/Oasis.py
+index 49659d116..a2ecace71 100644
+--- a/PrivateMaps/Oasis.py
++++ b/PrivateMaps/Oasis.py
+@@ -29,8 +29,8 @@ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_OASIS_DESCR"
+ 
+ def isAdvancedMap():
+-	"This map should show up in simple mode"
+-	return 0
++	# <!-- custom: hide this map from Simple Game to keep that list curated; still available in Custom Game. (GPT-5.3-Codex) -->
++	return 1
+ 	
+ def getNumCustomMapOptions():
+ 	return 2
+
+diff --git a/PrivateMaps/Ring.py b/PrivateMaps/Ring.py
+index 3171dbaee..4e132f2ae 100644
+--- a/PrivateMaps/Ring.py
++++ b/PrivateMaps/Ring.py
+@@ -30,6 +30,10 @@ bUseDefaultStartPlacement = False
+ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_RING_DESCR"
+ 
++def isAdvancedMap():
++	# <!-- custom: show this map in Simple Game; keep available in Custom Game too. (GPT-5.3-Codex) -->
++	return 0
++
+ def getNumCustomMapOptions():
+ 	"""
+ 	Number of different user-defined options for this map
+
+diff --git a/PrivateMaps/SAS_WorldSizes.py b/PrivateMaps/SAS_WorldSizes.py
+index 8463712d8..6b41979f4 100644
+--- a/PrivateMaps/SAS_WorldSizes.py
++++ b/PrivateMaps/SAS_WorldSizes.py
+@@ -36,16 +36,16 @@ def sas_default_sizevalues():
+ 
+ 
+ 
+-# <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from Huge anchor (18x14) using Huge baseline of 18 max players (custom game can reach 18) to keep ratio and tiles-per-player closer to Huge. See also SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND (GPT-5.3-Codex) -->
++# <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from Huge anchor using Huge baseline of 18 max players (custom game can reach 18) to keep ratio and tiles-per-player closer to Huge while reducing spacing for underpopulated starts further. See also SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND (GPT-5.3-Codex) -->
+ def sas_compact_almost_all_land_grid_sizes():
+ 	return {
+-		0:  (4, 3),    # ARENA
+-		1:  (5, 3),    # DUEL
+-		2:  (6, 4),    # TINY
+-		3:  (8, 6),    # SMALL
+-		4:  (11, 8),   # STANDARD
+-		5:  (14, 11),  # LARGE
+-		6:  (18, 14),  # HUGE
++		0:  (2, 2),    # ARENA
++		1:  (3, 2),    # DUEL
++		2:  (4, 3),    # TINY
++		3:  (6, 4),    # SMALL
++		4:  (8, 6),    # STANDARD
++		5:  (11, 8),   # LARGE
++		6:  (15, 11),  # HUGE
+ 	}
+
+diff --git a/PrivateMaps/Wheel.py b/PrivateMaps/Wheel.py
+index 2275f09f5..6539ed2eb 100644
+--- a/PrivateMaps/Wheel.py
++++ b/PrivateMaps/Wheel.py
+@@ -31,6 +31,10 @@ bUseDefaultStartPlacement = False
+ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_WHEEL_DESCR"
+ 
++def isAdvancedMap():
++	# <!-- custom: show this map in Simple Game; keep available in Custom Game too. (GPT-5.3-Codex) -->
++	return 0
++
+ def getNumCustomMapOptions():
+ 	"""
+ 	Number of different user-defined options for this map
+
+diff --git a/README.md b/README.md
+index 76bde1431..3247be75c 100644
+--- a/README.md
++++ b/README.md
+@@ -546,11 +546,24 @@ Some of them are selectable in the Simple Game menu, while others only via Custo
+ 
+ ### New .dds for maps in Simple Game
+ 
+-As part of adding, modifying, or removing some maps in Simple Game, redid some of their .dds; some additional examples below:
++As part of adding, modifying, or removing some maps in Simple Game, redid some of their .dds, as a dark globe or inaccurate dds was not accurate or informative or immersive: adjusted a ratio in the the EXE of around 467 W x 377 H at 1080p, empirically with Paint.NET with a canvas size of 336 W x 256 H with empty bands to avoid overfill and preserve image ratio.
++
++This definitely feels like masonry but works and fun xd i guess after having tediously figured out the optimal or that fits quite well dimensions and way to do it xd then it only needs iterating.
++
++Trick: by having the view box in a water or snow zone you can edit it later and remove it easier when making the .dds. Maybe there is a better way but this works quite well. Some examples below:
++
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (1).PNG" alt="0.3202_technique_paint_net_fast_resize_map (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (2).PNG" alt="0.3202_technique_paint_net_fast_resize_map (2).PNG" width="250"></img>
+ 
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG" alt="0.3201_maps_simple_game (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG" alt="0.3201_maps_simple_game (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG" alt="0.3201_maps_simple_game (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG" alt="0.3201_maps_simple_game (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG" alt="0.3201_maps_simple_game (5).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG" alt="0.3201_maps_simple_game (6).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG" alt="0.3201_maps_simple_game (7).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG" alt="0.3201_maps_simple_game (8).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG" alt="0.3201_maps_simple_game (9).JPG" width="250"></img>
+ 
+ ## Change from short to int the Found value pipeline
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index 2f15448a3..2924c8ebd 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -397,47 +397,47 @@ Adjust to your mod path:
+ 
+ Done with the help of GPT-5.2 Thinking thanks:
+ 
+-| Map script name        | Description                                                                                                                                       | Map Type                                 | Folders (oldest -> newest)           |
+-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ------------------------------------ |
+-| `Fractal`              | Approximative: Standard random world generator; usually produces a few sizable landmasses with varied coastlines.                                 | Land                                     | Base Civ4, Warlords, AdvCiv-SAS      |
+-| `Hemispheres`          | Two (or few) major landmasses separated by ocean; tends to split starts across them.                                                              | Land                                     | BTS, AdvCiv-SAS                      |
+-| `Mixed_Continents`     | Hybrid continents + smaller land/island pieces; not purely “big continents” nor purely islands.                                                   | Other (hybrid land + islands)            | AdvCiv-SAS                           |
+-| `not_too_Big_or_Small` | Hybrid landmass sizing tuned to avoid extremes (not one supercontinent, not tiny-islands-only).                                                   | Other (hybrid land + islands)            | AdvCiv-SAS                           |
+-| `Pangaea`              | One massive primary continent (most civs share early land contact).                                                                               | Land                                     | Base Civ4, Warlords, AdvCiv-SAS      |
+-| `SAS_WorldSizes`       | SAS world-size helper sandbox map: almost all land with mostly flat grass tiles.                                                                  | Land                                     | AdvCiv-SAS                           |
+-| `PerfectMongoose`      | Approximative: Third-party “planet” style generator; typically aims for more natural-looking geography (still mostly standard land/sea gameplay). | Land                                     | AdvCiv-SAS                           |
+-| `Tectonics`            | Plate-tectonics style continents with strong mountain chains and structured geography.                                                            | Land                                     | BTS, AdvCiv-SAS                      |
+-| `Terra`                | Old World starts with a separate “New World” to discover/colonize later; `<!-- custom: empirically and based on map descriptions looks landHeavy -->` | Other (old world/new world colonization); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, BTS, AdvCiv-SAS |
+-| `aDebugMap`            | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial); `// <!-- custom: empirically and based on code comments looks landHeavy -->` | Other (debug/test map); `<!-- custom: Land, see description -->` | Base Civ4, AdvCiv-SAS |
+-| `Archipelago`          | Many small islands; heavy naval emphasis early.                                                                                                   | Water                                    | Base Civ4, Warlords, AdvCiv-SAS      |
+-| `Balanced`             | Land/sea like standard scripts but biased toward fairer starts.                                                                                   | Land                                     | Base Civ4, Warlords                  |
+-| `Continents`           | Several large continents separated by ocean; naval matters for contact, but landmasses are large.                                                 | Land                                     | Base Civ4, Warlords, AdvCiv-SAS      |
+-| `Custom_Continents`    | Continents-style with extra customization knobs; still “big continent” gameplay.                                                                  | Land                                     | Base Civ4, Warlords                  |
+-| `Fantasy_Realm`        | Approximative: “Fantasy/exotic” generation (more extreme/unusual geography than standard scripts); `<!-- custom: empirically looks landHeavy -->` | Other (script-specific exotic geometry); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, AdvCiv-SAS |
+-| `Great_Plains`         | Very land-dominant, open terrain focus (fewer big natural barriers).                                                                              | Land                                     | Base Civ4, Warlords, AdvCiv-SAS      |
+-| `Highlands`            | Rugged, hill/mountain-heavy world with more chokepoints.                                                                                          | Land                                     | Base Civ4, Warlords, BTS, AdvCiv-SAS |
+-| `Hub`                  | Structured hub-and-spokes style connectivity (nonstandard geometry).                                                                              | Other (structured hub geometry)          | Base Civ4, Warlords, AdvCiv-SAS                            |
+-| `Ice_Age`              | Cold-biome leaning world (more tundra/snow feel than default).                                                                                    | Land                                     | Base Civ4, AdvCiv-SAS                |
+-| `Inland_Sea`           | Central inland sea with surrounding land; coastal play is central but not an island world; `<!-- custom: empirically looks landHeavy -->`         | Other (central inland sea layout); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, AdvCiv-SAS |
+-| `Islands`              | Island-heavy map (often fewer/larger islands than Archipelago, depending on script).                                                              | Water                                    | Base Civ4, Warlords                  |
+-| `Lakes`                | Land-heavy with many internal lakes and inland coastlines.                                                                                        | Land                                     | Base Civ4, Warlords, AdvCiv-SAS      |
+-| `Maze`                 | Labyrinth corridors and chokepoints (movement constrained by channels); `<!-- custom: empirically looks landHeavy -->` | Other (maze/chokepoint geometry); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, AdvCiv-SAS                    |
+-| `Medium_and_Small`     | Mix of medium landmasses plus smaller islands; more hybrid than pure continents.                                                                  | Other (hybrid land + islands)            | BTS, AdvCiv-SAS                                           |
+-| `Mirror`               | Symmetrical/mirrored layout for fairness (often MP-friendly).                                                                                     | Other (symmetry-based layout)            | Base Civ4, Warlords, AdvCiv-SAS                            |
+-| `Oasis`                | Desert-heavy with fertile pockets; expansion routes revolve around green clusters.                                                                | Land                                     | Base Civ4, Warlords, AdvCiv-SAS      |
+-| `Ring`                 | Ring-shaped primary land distribution (distinct wraparound feel); `<!-- custom: empirically looks landHeavy -->`                                  | Other (ring geometry); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, AdvCiv-SAS      |
+-| `Shuffle`              | Randomly selects among multiple generator styles each game.                                                                                       | Random                                   | Base Civ4, Warlords                  |
+-| `Team_Battleground`    | Team-oriented, typically symmetric starts/front lines (purpose-built for teams); `<!-- custom: empirically looks landHeavy -->`                   | Other (team/symmetry layout); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, BTS, AdvCiv-SAS |
+-| `Tilted_Axis`          | Standard landmasses, but climate bands are “tilted” vs normal north-south; `<!-- custom: empirically looks landHeavy -->`                         | Land; `<!-- custom: empirically looks Water -->` | Base Civ4, Warlords, AdvCiv-SAS                  |
+-| `Wheel`                | Wheel/spokes-style structure (highly nonstandard geometry); `<!-- custom: empirically looks landHeavy -->`                                        | Other (wheel/spokes geometry); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, AdvCiv-SAS |
+-| `Arboria`              | Forest-heavy/“lush” world variant (terrain emphasis more than geometry).                                                                          | Land                                     | BTS, AdvCiv-SAS                      |
+-| `Big_and_Small`        | Mix of a few big landmasses plus many smaller islands; both land and naval matter.                                                                | Other (hybrid land + islands)            | BTS, AdvCiv-SAS                                           |
+-| `Boreal`               | Cold/taiga-biome emphasis (forests/tundra feel).                                                                                                  | Land                                     | BTS, AdvCiv-SAS                      |
+-| `Donut`                | Donut-shaped land ring with central water (distinct navigation); `<!-- custom: empirically looks landHeavy -->`                                   | Other (donut/ring geometry); `<!-- custom: Land, see description -->` | BTS, AdvCiv-SAS           |
+-| `Earth2`               | Approximative: Earth-like distribution feel (not necessarily a fixed real Earth map).                                                             | Land                                     | BTS, AdvCiv-SAS                      |
+-| `Global_Highlands`     | Highlands-like ruggedness applied broadly (more hills/peaks overall).                                                                             | Land                                     | BTS, AdvCiv-SAS                      |
+-| `Rainforest`           | Jungle-heavy/wet-biome emphasis (terrain/feature density changes).                                                                                | Land                                     | BTS, AdvCiv-SAS                      |
+-| `RandomScriptMap`      | Meta-script that selects one of the installed scripts at random (often from a curated set).                                                       | Random                                   | BTS, AdvCiv-SAS                      |
++| Map script name        | Description                                                                                                                                       | Map Type                                 |
++| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
++| `Fractal`              | Approximative: Standard random world generator; usually produces a few sizable landmasses with varied coastlines.                                 | Land                                     |
++| `Hemispheres`          | Two (or few) major landmasses separated by ocean; tends to split starts across them.                                                              | Land                                     |
++| `Mixed_Continents`     | Hybrid continents + smaller land/island pieces; not purely “big continents” nor purely islands.                                                   | Other (hybrid land + islands)            |
++| `not_too_Big_or_Small` | Hybrid landmass sizing tuned to avoid extremes (not one supercontinent, not tiny-islands-only).                                                   | Other (hybrid land + islands)            |
++| `Pangaea`              | One massive primary continent (most civs share early land contact).                                                                               | Land                                     |
++| `SAS_WorldSizes`       | SAS world-size helper sandbox map: almost all land with mostly flat grass tiles.                                                                  | Land                                     |
++| `PerfectMongoose`      | Approximative: Third-party “planet” style generator; typically aims for more natural-looking geography (still mostly standard land/sea gameplay). | Land                                     |
++| `Tectonics`            | Plate-tectonics style continents with strong mountain chains and structured geography.                                                            | Land                                     |
++| `Terra`                | Old World starts with a separate “New World” to discover/colonize later; `<!-- custom: empirically and based on map descriptions looks landHeavy -->` | Other (old world/new world colonization); `<!-- custom: Land, see description -->` |
++| `aDebugMap`            | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial); `// <!-- custom: empirically and based on code comments looks landHeavy -->` | Other (debug/test map); `<!-- custom: Land, see description -->` |
++| `Archipelago`          | Many small islands; heavy naval emphasis early.                                                                                                   | Water                                    |
++| `Balanced`             | Land/sea like standard scripts but biased toward fairer starts.                                                                                   | Land                                     |
++| `Continents`           | Several large continents separated by ocean; naval matters for contact, but landmasses are large.                                                 | Land                                     |
++| `Custom_Continents`    | Continents-style with extra customization knobs; still “big continent” gameplay.                                                                  | Land                                     |
++| `Fantasy_Realm`        | Approximative: “Fantasy/exotic” generation (more extreme/unusual geography than standard scripts); `<!-- custom: empirically looks landHeavy -->` | Other (script-specific exotic geometry); `<!-- custom: Land, see description -->` |
++| `Great_Plains`         | Very land-dominant, open terrain focus (fewer big natural barriers).                                                                              | Land                                     |
++| `Highlands`            | Rugged, hill/mountain-heavy world with more chokepoints.                                                                                          | Land                                     |
++| `Hub`                  | Structured hub-and-spokes style connectivity (nonstandard geometry).                                                                              | Other (structured hub geometry)          |
++| `Ice_Age`              | Cold-biome leaning world (more tundra/snow feel than default).                                                                                    | Land                                     |
++| `Inland_Sea`           | Central inland sea with surrounding land; coastal play is central but not an island world; `<!-- custom: empirically looks landHeavy -->`         | Other (central inland sea layout); `<!-- custom: Land, see description -->` |
++| `Islands`              | Island-heavy map (often fewer/larger islands than Archipelago, depending on script).                                                              | Water                                    |
++| `Lakes`                | Land-heavy with many internal lakes and inland coastlines.                                                                                        | Land                                     |
++| `Maze`                 | Labyrinth corridors and chokepoints (movement constrained by channels); `<!-- custom: empirically looks landHeavy -->` | Other (maze/chokepoint geometry); `<!-- custom: Land, see description -->` |
++| `Medium_and_Small`     | Mix of medium landmasses plus smaller islands; more hybrid than pure continents.                                                                  | Other (hybrid land + islands)            |
++| `Mirror`               | Symmetrical/mirrored layout for fairness (often MP-friendly).                                                                                     | Other (symmetry-based layout)            |
++| `Oasis`                | Desert-heavy with fertile pockets; expansion routes revolve around green clusters.                                                                | Land                                     |
++| `Ring`                 | Ring-shaped primary land distribution (distinct wraparound feel); `<!-- custom: empirically looks landHeavy -->`                                  | Other (ring geometry); `<!-- custom: Land, see description -->` |
++| `Shuffle`              | Randomly selects among multiple generator styles each game.                                                                                       | Random                                   |
++| `Team_Battleground`    | Team-oriented, typically symmetric starts/front lines (purpose-built for teams); `<!-- custom: empirically looks landHeavy -->`                   | Other (team/symmetry layout); `<!-- custom: Land, see description -->` |
++| `Tilted_Axis`          | Standard landmasses, but climate bands are “tilted” vs normal north-south; `<!-- custom: empirically looks landHeavy -->`                         | Land; `<!-- custom: empirically looks Water -->` |
++| `Wheel`                | Wheel/spokes-style structure (highly nonstandard geometry); `<!-- custom: empirically looks landHeavy -->`                                        | Other (wheel/spokes geometry); `<!-- custom: Land, see description -->` |
++| `Arboria`              | Forest-heavy/“lush” world variant (terrain emphasis more than geometry).                                                                          | Land                                     |
++| `Big_and_Small`        | Mix of a few big landmasses plus many smaller islands; both land and naval matter.                                                                | Other (hybrid land + islands)            |
++| `Boreal`               | Cold/taiga-biome emphasis (forests/tundra feel).                                                                                                  | Land                                     |
++| `Donut`                | Donut-shaped land ring with central water (distinct navigation); `<!-- custom: empirically looks landHeavy -->`                                   | Other (donut/ring geometry); `<!-- custom: Land, see description -->` |
++| `Earth2`               | Approximative: Earth-like distribution feel (not necessarily a fixed real Earth map).                                                             | Land                                     |
++| `Global_Highlands`     | Highlands-like ruggedness applied broadly (more hills/peaks overall).                                                                             | Land                                     |
++| `Rainforest`           | Jungle-heavy/wet-biome emphasis (terrain/feature density changes).                                                                                | Land                                     |
++| `RandomScriptMap`      | Meta-script that selects one of the installed scripts at random (often from a curated set).                                                       | Random                                   |
+ 
+ Sources (GPT-5.2 Thinking):
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 85d41c2df..eadf7001c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -347,16 +347,15 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ - (Requires AdvCiv-SAS 5406+) Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Maps)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#maps).
+ - (Requires AdvCiv-SAS 5407+) Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py), [Oasis.py](/PrivateMaps/Oasis.py), [Ring.py](/PrivateMaps/Ring.py), [Team_Battleground.py](/PrivateMaps/Team_Battleground.py), [Tilted_Axis.py](/PrivateMaps/Tilted_Axis.py), [Wheel.py](/PrivateMaps/Wheel.py), [Arboria.py](/PrivateMaps/Arboria.py), [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Earth2.py](/PrivateMaps/Earth2.py) (see below), [Global_Highlands.py](/PrivateMaps/Global_Highlands.py), [Rainforest.py](/PrivateMaps/Rainforest.py), [RandomScriptMap.py](/PrivateMaps/RandomScriptMap.py).
+-- (Requires AdvCiv-SAS 5413+) **Reduced the grid size** of some maps that are **almost entirely composed of land** plots. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py).
++- (Requires AdvCiv-SAS 5413+) **Reduced the grid size** of some maps that are **almost entirely composed of land** plots: city spacing **was too wide** due to the **excess of land** and **lack of water** plots. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py).
+ - (Requires AdvCiv-SAS 5415+) Add new **SAS_Worldsizes map**: helper sandbox map: almost all land with mostly flat grass tiles.
+ - (Requires AdvCiv-SAS 5433+) **Earth2 start distribution rework:** for Huge and beyond world sizes, keep Earth2 at its existing **Huge-scale sizing** (already large enough), but solve crowding by **populating underused landmasses instead** (e.g., min 16 players before Africa is populated, min 32 players before the whole world is populated) of enlarging the script further. **Thresholds are based on player count** (not world size). See [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ - (Requires AdvCiv-SAS 5444+) Add **Deer percentage map option** (e.g., `0/10/25/50/75/100`) for [Arboria.py](/PrivateMaps/Arboria.py) and [Boreal.py](/PrivateMaps/Boreal.py): **high-food terrain** (e.g. grass) maps like Arboria, or **lower-food terrain** ones (e.g. tundra/plains) like Boreal, had **too much deer**. See also See [KI#105](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#105---fixed-base-advciv-bug-of-most-bonuses-eg-deer-sometimes-not-appearing-at-first-civ4-launch-in-some-maps-eg-boreal).
+ - (Requires AdvCiv-SAS 5446+) **Order maps alphabetically** in **Simple Game** or **Custom Game** (by adding missing map scripts in **PrivateMaps**).
+-- (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps. See [Root Readme (Maps)](/README.md#maps). See [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+-- (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, and expose the map in both **Simple Game** and **Custom Game** lists.
+-- (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
+-- (Requires AdvCiv-SAS 5445+) **Add other maps** to **Simple Game**: [Boreal.py](/PrivateMaps/Boreal.py).
+-- (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential; they are remain playable via the **Custom Game** menu: [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py), [Hemispheres.py](/PrivateMaps/Hemispheres.py), [Big_and_Small.py](/PrivateMaps/Big_and_Small.py).
++- (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential or unbalanced; they are remain playable via the **Custom Game** menu: [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py), [Hemispheres.py](/PrivateMaps/Hemispheres.py), [Big_and_Small.py](/PrivateMaps/Big_and_Small.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Oasis.py](/PrivateMaps/Oasis.py).
++- (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps so it is more illustrative or accurate than a dark or incorrect globe map. See [Readme.md (New .dds for maps in Simple Game)](/README.md#new-dds-for-maps-in-simple-game) and [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
++- (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) map (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, and expose the map in both **Simple Game** and **Custom Game** lists. (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
++- (Requires AdvCiv-SAS 5445+) **Add other maps** to **Simple Game**: [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Ring.py](/PrivateMaps/Ring.py), [Wheel.py](/PrivateMaps/Wheel.py)
+ 
+ ### Handicaps
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+index 1c46f6097..6a3d12e10 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG
+index 15ec644f2..29c4362d1 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG
+index ac3aba676..cf24e48fa 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG
+index cf0a5951e..9f6a1ac1c 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG
+new file mode 100644
+index 000000000..d7edf592a
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG
+new file mode 100644
+index 000000000..dd371921e
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG
+new file mode 100644
+index 000000000..dd3c74f08
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG
+new file mode 100644
+index 000000000..8edace6af
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG
+new file mode 100644
+index 000000000..cf04bdc0f
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG
+new file mode 100644
+index 000000000..9d4aeecdb
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (1).PNG b/_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (1).PNG
+new file mode 100644
+index 000000000..bc7bb0d81
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (1).PNG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (2).PNG b/_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (2).PNG
+new file mode 100644
+index 000000000..ffa3fdd1d
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (2).PNG differ
+
+[PATCH COVERAGE]
+patchFiles=35 embeddedFiles=35 omittedFiles=0 embeddedPatchBytes=52872

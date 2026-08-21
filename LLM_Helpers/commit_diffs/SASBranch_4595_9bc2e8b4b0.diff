@@ -1,0 +1,253 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4595
+# Commit: 9bc2e8b4b0053f02656bf7ac095cf9a9d3539fa3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b799a6e34d4e4433a424c178d3fce0d8cc076c73
+# Title: remove some/quite a few units, add a few units in docs, add new docs, update docs otherwise etc i mean anyways and about this, thanks
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Extra_Appendixes/types of feudal age vessels merged with paint.png
+31	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+49	32	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+21	0	_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Extra_Appendixes/types of feudal age vessels merged with paint.png
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index dd060bcc8..0df0570df 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Extra_Appendixes/types of feudal age vessels merged with paint.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/Extra_Appendixes/types of feudal age vessels merged with paint.png
+new file mode 100644
+index 000000000..efce67f51
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Extra_Appendixes/types of feudal age vessels merged with paint.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index daff62d85..45505fc84 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -931,3 +931,34 @@ though they have the correct model and description it seems though but anyways)
+ vicory about this anyways etc. I also really like his bio and all from the very little i read on wiki or/and or just in wiki
+ maybe actually, i relate a bit to it, but no need say all anyways etc todo delete this later maybe too etc i mean anyways
+ but wanted ot say maybe etc anyways i mean anyways, thanks,
++
++- first frigate around 1500 AD: https://en.wikipedia.org/wiki/Frigate#:~:text=The%20classic%20sailing%20frigate%2C%20or,first%20example%20of%20this%20type.
++
++- removed caravel: Too close to the galleon, also not very sensical that it can somehow enter borders without accord, may add this ability (cargo) to privateers but not sure, in particular because i am not sure AIs would handle it well, but would make
++more sense at least i mean anyways, about this etc i mean anyways, thanks. May remove also other units or not similarly, for example the ship of the line or/and other units, etc i mean anyways and about this at least i mean anyways, thanks,
++
++- hoplite is lance heavy, and a phalanx, https://en.wikipedia.org/wiki/Hoplite#Ancient_Greece, more on the origin of the
++word here too https://www.worldhistory.org/hoplite/ (make them available from the mid iron age (around 700 BC approximately)
++(so no longer based on the axeman as in base civ4 bts/advciv but on the spearman, and name changed to match this to "hoplite
++phalanx" (similar to the one in history rewritten but slightly different, and similar than in civ3 which i liked a lot but i
++play civ4 and enjoy it muh more now but is about this i mean/meant etc i mean anywyas, because it has deeper strategy and such,
++and many nice other things, first i modded too and seems much more powerful and easier first before that but is aobut this etc
++i mean anwyays delete this part of the note later maybe etc i mean anywyas, thanks, )), anyways civ3 got it betetr with the
++name and unit type (lancer not axeman) but wrong on availability, not bronze age and bronze working but mid iron age if i am not working which is much later, may check if copper or bronze requirement but for now and later adjust tech requirement first
++etc i mean anyways, and is about this etc i mean anyways, thanks, )
++
++- types of feudal age vessels: https://www.altered-realms.com/iron-age-transportation/ , very useful data, about this etc
++i mean anyways, i mean anyways, about this etc i mean anyways, thanks,
++
++Copying it here in case it gets deleted someday, about this etc i mean anyways, thanks, but is too long after trying quick,
++adding a screenshot in docs rather et i mean anyways, thanks, grossly (actually was merged quite nicely if i may say in this
++case and about this etc i mean anyways, focus, maybe delete a small part of this note later or maybe not as not directly
++related to my thoughts or not or for other reason or not or not for or other or not other etc anyways etc i mean anyways,
++thanks, ) (but i really like this software, paint, but is about this etc i mean anyways, focus, do not mislead, delete this
++later etc i mean anyways, thanks... ,) merged using paint etc i mean anyways, about this etc
++i mean anyways, thanks,
++
++![img1](/_1_AdvCiv-SAS/Docs_And_Appendixes/Extra_Appendixes/types%20of%20feudal%20age%20vessels%20merged%20with%20paint.png)
++
++Based on this i should reduce the cost of other ships or/and add new ships, the sailboat maybe for example as an alternative
++to the galley, may increase the galley's cost instead, which makes sense when thinking about it, etc i mean anyways, thanks,
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index 0742c32c1..96a9ada5c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -21,6 +21,8 @@ infantry (too generic and i have many more specialized gun units about this i me
+ air bomber (put B52 instead)
+ stealth bomber (simplifying the end game, removing stealth air units)
+ fighter (put fokker dr.1 instead)
++caravel (too close to the galleon, also not very sensical that it can somehow enter borders without accord)
++ship of the line (too close to the frigate for too little extra benefit, redundant)
+ 
+ 
+ _________________________________________________________________________
+@@ -33,7 +35,9 @@ samratihoran: flurry ffh2
+ xiongnu: horseman (han) realism invictus rename to another unit name, maybe "Xiongnu horseman"?
+ mongol: rename unit to keshig + give them the keshig (unique) history rewritten. Plus i checked on wiki quick, their unit art design seems more accurate too (and more epic etc), for info: https://en.wikipedia.org/wiki/Kheshig
+ england: longbow welsh realism invictus?
+-greece: hoplite? hero history rewritten
++greece: hoplite hero history rewritten but rename to hoplite phalanx, put it in lance heavy class, mid iron age not bronze
++age, plus check if copper requirement or if copper +/- iron (i.e. if copepr is absolutely necessary or if iron is good enough
++too i mean anyways about this etc i mean anyways, thanks, )
+ france: chevalier (unique) history rewritten
+ egypt: rename war chariot to wereryet like history rewritten did?
+ vikings: berserk (unique) history rewritten
+@@ -60,8 +64,8 @@ early religion military
+ paganism:donal lugh (hero) _ mythical swordsman (medium) ffh2
+ hinduism: stephanos (hero) _ god horse lance ffh2 (as they worship or value animals greatly maybe etc)
+ judaism: maybe a worker, after all they were an oppressed people in history if i'm not mistaken. Idea of effect: reduced worker price, since is lower now, may reduce it to 10 hammer only maybe for example, etc.
+-buddhism: shaolin monk realism invictus
+-daoism: monk _ daoist monk c2c (maybe change remove health icon if i want to make it a fighter like the buddhist monk)
++buddhism: shaolin monk realism invictus (class is lancer light)
++daoism: monk _ daoist monk c2c (maybe change remove health icon if i want to make it a fighter like the buddhist monk) (class is lancer light)
+ christianism: crusader _ crusader knight realism invictus
+ islam: mujahid (ansar) realism invictus
+ 
+@@ -72,7 +76,7 @@ neo religion military
+ paganism: gibbon goetia (hero) _ heretic ffh2
+ hinduism: cassay (hero) - hindu cavalry history rewritten
+ judaism: semi-modern infantry (tsahal) _ zionist colon/infantry 
+-buddhism: monk _  free monk ffh2 (high evasion against guns maybe?)
++buddhism: monk _  free monk ffh2 (find some effect or maybe another type of unit see buddhism's history etc)
+ daoism: nightwatch _ ninja ffh2 (halve spying costs? Is it possible with current/existing XML options, else find other effect maybe? Etc)
+ christianism: semi modern infantry (usa) _ special ops realism invictus (note that it fits fbi and such but also kgb and such, both christian in historical culture, so may fit well)
+ islam: anti tank infantry _ "allahu akbar" (jihadist), give it city attack and collateral damage, but weak(er) stats otherwise, maybe some evade too, not politically correct but historically accurate maybe, a bit funny too even though not for all but is arrogant to say delete later i wanted to do this about this though i mean at least focus i really meant about this at least when i wrote this delete later etc
+@@ -187,34 +191,6 @@ explore 9: scout droid c2c
+ 
+ 
+ 
+-___________________________________________________________________________________________
+-boats
+-
+-transport boats:
+-transport 1: raft c2c
+-transport 2: galley
+-transport 3: galleon
+-transport 4:
+-transport 5:
+-transport 6:
+-transport 7:
+-transport 8:
+-transport 9:
+-
+-
+-
+-war boats
+-war boat 1: war canoe c2c
+--
+-war boat 3: -
+-war boat 4:
+-war boat 5:
+-war boat 6:
+-war boat 7:
+-war boat 8:
+-war boat 9:
+-
+-
+ 
+ ___________________________________________________________________________________________
+ macemen
+@@ -615,6 +591,9 @@ air bomber 8: Long range bomber B52 realism invictus - Modern bomber B52
+ air bomber 9: drone tactical bomber c2c
+ 
+ 
++
++
++
+ gunships:
+ -
+ -
+@@ -629,6 +608,7 @@ gunship 9: hybrid gunship c2c
+ 
+ 
+ 
++
+ ____________________________________________________________________________________________
+ tanks
+ tank defense
+@@ -660,6 +640,43 @@ tank offense 9: - _ robotic tank -
+ 
+ 
+ 
++
++___________________________________________________________________________________________
++boats
++
++transport boats:
++transport 1: raft c2c
++transport 2: galley
++transport 3: galleon
++transport 4:
++transport 5:
++transport 6:
++transport 7:
++transport 8:
++transport 9:
++
++
++
++war boats
++war boat 1: war canoe c2c
++-
++war boat 3: - (trireme)
++war boat 4:
++war boat 5: - (frigate)
++war boat 6:
++war boat 7:
++war boat 8:
++war boat 9:
++
++
++
++
++
++
++
++
++
++
+ ____________________________________________________________________________________________
+ assasin units: (maybe not do? Gameplay too untidy with this maybe? Etc)
+ spy of civ4 give it attack too? and early spy?
+
+diff --git a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+index f1ce50920..2bd4b885b 100644
+--- a/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md
+@@ -120,6 +120,27 @@ point) page of the sevopedia?
+ - military units are rebalanced: some op units (according to me) are nerfed
+ slightly (for example: todo), some weaker ones buffed quite a lot (for example
+ the jaguar warrior)
++- some units have been removed: sometimes for graphical reasons: for example the
++rifleman has a new graphic art but the concept of a rifleman remains in itself
++(may be rebalanced or not though like the other units though)
++- some units have been removed: sometimes for gameplay reasons: for example the
++caravel has been removed because too close to the galleon and i want only one
++type/class of unit per era, also not very sensical to me that somehow these
++boats can travel incognito or freely in borders without being attacked. May
++move this ability to privateers maybe todo but not sure; or the stealth bomber
++to simplify gameplay especially the endgame, there are stronger bombers at each
++era, just not stealth, or for example the panzer has been removed for a sooner,
++more likely to be useful civ unit: the teutonic (foot) knight.
++- some units have been removed: sometimes for historical accuracy or flavor one
++could say maybe reasons: for example the phalanx civ unit of the greek empire
++is now the hoplite phalanx (a lancer heavy type/class, not based on the axeman
++anymore), and available in mid iron age not in bronze age for better historical
++accuracy. I did not check them all (maybe todo fix this note if did) but those
++who i did and that i found to be (especially if gravely) mistaken and that i
++wanted and did decide to fix or did i did fix. Feel free to point historical
++accuracies to me, not guaranteed i would fix them, but if i am available to
++read them and all i may or/and reply to those requests i mean about these, but
++not guaranteed, may or not, about this, thanks,
+ - some units automatically upgrade, for example the workers, scout, and similar
+ units. They get a new design graphically at a new era, but also more bonuses, for
+ example every few eras workers may become more and more productive (faster
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=12438

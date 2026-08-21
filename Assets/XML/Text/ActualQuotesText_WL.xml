@@ -102,7 +102,7 @@
 	<TEXT>
 		<Tag>AI_DIPLO_REFUSE_TO_TALK_LEADER_ AUGUSTUS_CAESAR _1</Tag>
 		<English>Give me back my legions! No? Well then off with you!</English>
-		<French>Partez, [CT_NAME] ; vous m'ennuyez.</French>
+		<French>Partez, [CT_NAME]; vous m'ennuyez.</French>
 		<German>Hinfort, [CT_NAME]! Ihr strapaziert meine Nerven!</German>
 		<Italian>Vattene, [CT_NAME]; non infastidirmi.</Italian>
 		<Spanish>Marchad, [CT_NAME]. Me importunáis.</Spanish>

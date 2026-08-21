@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3308
+# Commit: a5b47253ec1aec527c48dd3ce6d9dc3871ecc088
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 26a99d650bed1a70e7d9c920c1bcacbbd6df3776
+# Title: Force-inline getTeam, getPlayer in wrapper headers
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CoreAI.h
+2	2	CvGameCoreDLL/CvGamePlay.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CoreAI.h b/CvGameCoreDLL/CoreAI.h
+index 82eb94a5d..2c43dec6f 100644
+--- a/CvGameCoreDLL/CoreAI.h
++++ b/CvGameCoreDLL/CoreAI.h
+@@ -16,11 +16,11 @@
+ 
+ namespace CoreAI
+ {
+-	inline CvTeamAI& getTeam(TeamTypes eTeam)
++	__forceinline CvTeamAI& getTeam(TeamTypes eTeam)
+ 	{
+ 		return CvTeamAI::AI_getTeam(eTeam);
+ 	}
+-	inline CvTeamAI& getTeam(PlayerTypes ePlayer)
++	__forceinline CvTeamAI& getTeam(PlayerTypes ePlayer)
+ 	{
+ 		return CvTeamAI::AI_getTeam(TEAMID(ePlayer));
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGamePlay.h b/CvGameCoreDLL/CvGamePlay.h
+index 3aeafd7e1..a8b992a06 100644
+--- a/CvGameCoreDLL/CvGamePlay.h
++++ b/CvGameCoreDLL/CvGamePlay.h
+@@ -23,11 +23,11 @@
+ 
+ namespace CvGamePlay
+ {
+-	inline CvTeam& getTeam(TeamTypes eTeam)
++	__forceinline CvTeam& getTeam(TeamTypes eTeam)
+ 	{
+ 		return CvTeam::getTeam(eTeam);
+ 	}
+-	inline CvTeam& getTeam(PlayerTypes ePlayer)
++	__forceinline CvTeam& getTeam(PlayerTypes ePlayer)
+ 	{
+ 		return CvTeam::getTeam(TEAMID(ePlayer));
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=996

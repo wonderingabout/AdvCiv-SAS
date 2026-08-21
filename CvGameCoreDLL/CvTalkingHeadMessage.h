@@ -6,11 +6,7 @@
 class CvTalkingHeadMessage
 {
 public:
-	DllExport CvTalkingHeadMessage(int iMessageTurn = 0, int iLen = 0,
-			LPCWSTR pszDesc = NULL, LPCTSTR pszSound = NULL, 
-			InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCTSTR icon = NULL,
-			ColorTypes eColor = NO_COLOR, int iX = -1, int iY = -1,
-			bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false);
+	DllExport CvTalkingHeadMessage(int iMessageTurn = 0, int iLen = 0, LPCWSTR pszDesc = NULL, LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCTSTR icon = NULL, ColorTypes eColor = NO_COLOR, int iX = -1, int iY = -1, bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false);
 	DllExport virtual ~CvTalkingHeadMessage();
 
 	void read(FDataStreamBase& stream);

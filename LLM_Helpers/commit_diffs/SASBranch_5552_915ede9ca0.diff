@@ -1,0 +1,462 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5552
+# Commit: 915ede9ca0a74c7f7ad7a2cf1269ce0472805cf9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 763c8e8503dcd60ed4b58d91f248f26e0991807c
+# Title: fix incorrect text size too small body instead of label or not title when needed
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+6	3	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+4	4	Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+6	3	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+8	8	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+8	5	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+1	1	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+3	3	Assets/XML/GlobalDefines_advciv_sas.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index a8e1cb203..dbd8adc28 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -141,10 +141,10 @@ class SevoPediaBonus:
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+ 	def _bodyText(self, szText):
+-		return SAS_FONT_TAG_BODY + unicode(szText) + SAS_FONT_TAG_CLOSE
++		return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE
+ 
+ 	def _labelText(self, szText):
+-		return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE
++		return SAS_FONT_TAG_TITLE + unicode(szText) + SAS_FONT_TAG_CLOSE
+ 
+ 
+ 
+@@ -187,7 +187,7 @@ class SevoPediaBonus:
+ 		screen.enableSelect(panelName, False)
+ 		
+ 		# <!-- custom: handle multiple potential yield changes by separating the header from yield stats display --> 
+-		szTextHeader = SAS_FONT_TAG_LABEL_BOLD + localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_BONUS_NATURAL_TILE_YIELD_CHANGES", ()) + u"\n" + SAS_FONT_TAG_CLOSE
++		szTextHeader = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SEVOPEDIA_BONUS_NATURAL_TILE_YIELD_CHANGES", ()) + u"\n" + SAS_FONT_TAG_CLOSE
+ 		screen.appendListBoxString(panelName, szTextHeader, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		for k in range(YieldTypes.NUM_YIELD_TYPES):
+@@ -202,7 +202,7 @@ class SevoPediaBonus:
+ 				szYield = (u"%s%i" % (sign, iYieldChange))
+ 				# <!-- custom: add information about the precise type of yield it is, which can be otherwise very confusing -->
+ 				szText1 = (u"%c  " % gc.getYieldInfo(k).getChar()) + szYield
+-				szText2 = SAS_FONT_TAG_LABEL_BOLD + szText1 + u"\n" + SAS_FONT_TAG_CLOSE
++				szText2 = SAS_FONT_TAG_TITLE + szText1 + u"\n" + SAS_FONT_TAG_CLOSE
+ 				screen.appendListBoxString(panelName, szText2, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+index c8f4a6221..5a765c54d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+@@ -99,7 +99,7 @@ class SevoPediaBuild:
+ 		return get_feature_production_modifier_techs()
+ 
+ 	def _bodyText(self, szText):
+-		return SAS_FONT_TAG_BODY + unicode(szText) + SAS_FONT_TAG_CLOSE
++		return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE
+ 
+ 
+ 	def interfaceScreen(self, iBuild):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 308e4e3a5..6ae480be6 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -147,10 +147,10 @@ class SevoPediaBuilding:
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+ 	def _bodyText(self, szText):
+-		return SAS_FONT_TAG_BODY + unicode(szText) + SAS_FONT_TAG_CLOSE
++		return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE
+ 
+ 	def _labelText(self, szText):
+-		return SAS_FONT_TAG_LABEL + unicode(szText) + SAS_FONT_TAG_CLOSE
++		return SAS_FONT_TAG_TITLE + unicode(szText) + SAS_FONT_TAG_CLOSE
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+index df95f149e..4edfd0cce 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+@@ -127,7 +127,7 @@ class SevoPediaCivilization:
+ 			else:
+ 				szText += "\n" + localText.getText("[ICON_BULLET]", ())
+ 			szText += localText.getText(Info.getCityNames(i), ())
+-		szText = SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE
++		szText = SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE
+ 		screen.addMultilineText(self.top.getNextWidgetName(), szText, self.X_CITIES + 10, self.Y_CITIES + 30, self.W_CITIES, self.H_CITIES - 30, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+@@ -210,7 +210,7 @@ class SevoPediaCivilization:
+ 		screen.addPanel(panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+ 		# <!-- custom: also adding textName (see SevoPediaCivic.py for details) -->
+ 		textName = self.top.getNextWidgetName()
+-		szText = SAS_FONT_TAG_BODY + gc.getCivilizationInfo(self.iCivilization).getCivilopedia() + SAS_FONT_TAG_CLOSE
++		szText = SAS_FONT_TAG_LABEL + gc.getCivilizationInfo(self.iCivilization).getCivilopedia() + SAS_FONT_TAG_CLOSE
+ 		# <!-- custom: similar fix as in placeHistory of SevoPediCivic.py, choosing a more advanced function that also allows padding, and adding padding, about all these elements, see SevoPediaCivic.py for potentially additional information -->
+ 		# screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 10, self.W_HISTORY - (15 * 2), self.H_HISTORY - (15 * 2) - 25 + 29, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 6d2c1aaa5..4efb5731a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -153,7 +153,10 @@ class SevoPediaFeature:
+ 		self.I_PROMOTION_WOODSMAN3 = getInfoTypeOrFail("PROMOTION_WOODSMAN3")
+ 
+ 	def _bodyText(self, szText):
+-		return SASTextScale.bodyText(szText)
++		return SASTextScale.labelText(szText)
++
++	def _paneText(self, szText):
++		return SASTextScale.titleText(szText)
+ 
+ 
+ 
+@@ -202,7 +205,7 @@ class SevoPediaFeature:
+ 		screen.appendListBoxString(panel, SAS_FONT_TAG_TITLE_BOLD + info.getDescription() + SAS_FONT_TAG_CLOSE, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		szText = ""
+-		screen.appendListBoxString(panel, self._bodyText(localText.getText("TXT_KEY_PEDIA_FEATURE", ())), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.appendListBoxString(panel, self._paneText(localText.getText("TXT_KEY_PEDIA_FEATURE", ())), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		szText = u""
+ 		for iYield in xrange(YieldTypes.NUM_YIELD_TYPES):
+@@ -213,7 +216,7 @@ class SevoPediaFeature:
+ 					szSign = "+"
+ 				szText += (u"%s%d%c  " % (szSign, iYieldChange, gc.getYieldInfo(iYield).getChar()))
+ 
+-		screen.appendListBoxString(panel, self._bodyText(szText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.appendListBoxString(panel, self._paneText(szText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+index 84bb7289a..f37799db5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHistory.py
+@@ -47,7 +47,7 @@ class SevoPediaHistory:
+ 		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
+ 		szText = self.getCivilopedia(iEntry)
+ 		# <!-- custom: some engine-provided text can carry embedded <font=...>; use normalize* helper (strip + reapply) so SAS scaling is consistent. See SASTextScale normalize comments. (GPT-5.3-Codex) -->
+-		szText = SASTextScale.normalizeBodyText(szText)
++		szText = SASTextScale.normalizeLabelText(szText)
+ 		textName = self.top.getNextWidgetName()
+ 		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 955fae14f..b80a8ef2e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -187,10 +187,10 @@ class SevoPediaImprovement:
+ 		# INCHART_ICON_SIZE, INCHART_ICON_SPACING, INCHART_ROW_HEIGHT -->
+ 
+ 	def _bodyText(self, szText):
+-		return SASTextScale.bodyText(szText)
++		return SASTextScale.labelText(szText)
+ 
+ 	def _labelText(self, szText):
+-		return SASTextScale.labelText(szText)
++		return SASTextScale.titleText(szText)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 99fa86ebb..0a514e0c1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -1446,7 +1446,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		hintText = szHintsText.split("\n")
+ 		for hint in hintText:
+ 			if len(hint) != 0:
+-				screen.appendListBoxStringNoUpdate(szHintBox, SAS_FONT_TAG_BODY + hint + SAS_FONT_TAG_CLOSE, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				screen.appendListBoxStringNoUpdate(szHintBox, SAS_FONT_TAG_LABEL + hint + SAS_FONT_TAG_CLOSE, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		screen.updateListBox(szHintBox)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+index da9d3e8fc..449952b3f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -121,7 +121,7 @@ class SevoPediaMovie:
+ 				szText = ""
+ 		if szText and szText.startswith("TXT_KEY_"):
+ 			szText = ""
+-		szText = SASTextScale.bodyText(szText)
++		szText = SASTextScale.labelText(szText)
+ 		textName = self.top.getNextWidgetName()
+ 		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index 233746bcf..b28aed570 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -208,7 +208,7 @@ class SevoPediaMusic:
+ 					szText = szTitleText + u"\n" + szSoundId + u"\n" + szScript
+ 			else:
+ 				szText = szTitleText + u"\n" + szScript
+-		szText = SASTextScale.bodyText(szText)
++		szText = SASTextScale.labelText(szText)
+ 		textName = self.top.getNextWidgetName()
+ 		screen.addMultilineText(textName, szText, self.X_TEXT + 10, self.Y_TEXT + 10, self.W_TEXT - 20, self.H_TEXT - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+index 00009c66d..8f85d6cfe 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+@@ -257,7 +257,7 @@ class SevoPediaPromotion:
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+ 		listName = self.top.getNextWidgetName()
+ 		szSpecialText = CyGameTextMgr().getPromotionHelp(self.iPromotion, True)[1:]
+-		szSpecialText = SASTextScale.normalizeBodyText(szSpecialText)
++		szSpecialText = SASTextScale.normalizeLabelText(szSpecialText)
+ 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+@@ -274,7 +274,7 @@ class SevoPediaPromotion:
+ 				# <!-- custom: note: i had removed the `iRow = screen.appendTableRow(szTable)` line to fix ruff warning of variable being unused so cleaning this up, after having asked chatgpt this seemed fine and safe to do and we had no errors so maybe was solved as well (as in sevopedia unit ruff warning fix/cleanup as well), other sevopedia classes didn't seem to have a similar issue from quick glance at each file, although i had not investigated it in depth, was hopefully fine i thought, and if in doubt i could have checked ingame display to see if it matches xml info, in sevopedia. However: update: although the variable is not used, the line was needed to show all entries, else we only showed the first one, so remove the identifier rather while keeping the instruction, as chatgpt noticed as wel and poitned to me hehe thanks -->
+ 				# iRow = screen.appendTableRow(szTable)
+ 				screen.appendTableRow(szTable)
+-				screen.setTableText(szTable, 0, i, SASTextScale.bodyText(gc.getUnitCombatInfo(iI).getDescription()), gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				screen.setTableText(szTable, 0, i, SASTextScale.labelText(gc.getUnitCombatInfo(iI).getDescription()), gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				i += 1
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+index e70ed1f16..d00fffd69 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+@@ -90,11 +90,11 @@ class SevoPediaSpecialist:
+ 
+ 
+ 	def _bodyText(self, szText):
+-		return SASTextScale.bodyText(szText)
++		return SASTextScale.labelText(szText)
+ 
+ 
+ 	def _labelText(self, szText):
+-		return SASTextScale.labelText(szText)
++		return SASTextScale.titleText(szText)
+ 
+ 
+ 
+@@ -116,7 +116,7 @@ class SevoPediaSpecialist:
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS_SPECIALISTS", ()), "", True, False, self.X_EFFECTS_PANEL, self.Y_EFFECTS_PANEL, self.W_EFFECTS_PANEL, self.H_TOP_PANEL, PanelStyles.PANEL_STYLE_BLUE50)
+ 		textName = self.top.getNextWidgetName()
+ 		szSpecialText = CyGameTextMgr().getSpecialistHelp(self.iSpecialist, True)
+-		szSpecialText = SASTextScale.normalizeBodyText(szSpecialText)
++		szSpecialText = SASTextScale.normalizeLabelText(szSpecialText)
+ 		# <!-- custom: reduce top padding now that the traits header is removed (GPT-5.2-Codex). Was Y + headerExtraHeight (i.e. + 10) -->
+ 		headerExtraHeight = 10
+ 		screen.addMultilineText(textName, szSpecialText, self.X_EFFECTS_PANEL + 5, self.Y_EFFECTS_PANEL - headerExtraHeight, self.W_EFFECTS_PANEL - 10, self.H_TOP_PANEL - headerExtraHeight, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -267,7 +267,7 @@ class SevoPediaSpecialist:
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50)
+ 		textName = self.top.getNextWidgetName()
+ 		szText = gc.getSpecialistInfo(self.iSpecialist).getCivilopedia()
+-		szText = SASTextScale.normalizeBodyText(szText)
++		szText = SASTextScale.normalizeLabelText(szText)
+ 		# <!-- custom: also account for scrolling: top text needs to remain visible as an entire line. Note: somehow modifying H weirdly changes the Y optimal scroll point so adjust one at a time maybe. -->
+ 		panelTopPadding = 40
+ 		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + panelTopPadding, self.W_HISTORY - 7, self.H_HISTORY - panelTopPadding - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 7123e0c85..cebe66488 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -104,7 +104,10 @@ class SevoPediaTerrain:
+ 		self.I_PROMOTION_NAVIGATOR = getInfoTypeOrFail("PROMOTION_NAVIGATOR")
+ 
+ 	def _bodyText(self, szText):
+-		return SASTextScale.bodyText(szText)
++		return SASTextScale.labelText(szText)
++
++	def _paneText(self, szText):
++		return SASTextScale.titleText(szText)
+ 
+ 
+ 
+@@ -147,7 +150,7 @@ class SevoPediaTerrain:
+ 		else:
+ 			txtKeyTerrainPlotTypeLabel = "TXT_KEY_PEDIA_TERRAIN_CUSTOM"
+ 
+-		screen.appendListBoxString(panel, self._bodyText(localText.getText(txtKeyTerrainPlotTypeLabel, ())), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.appendListBoxString(panel, self._paneText(localText.getText(txtKeyTerrainPlotTypeLabel, ())), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		if self.iTerrain == self.I_TERRAIN_HILL:
+ 			szStats = (u"%d%c  " % (-1, gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()))
+@@ -159,7 +162,7 @@ class SevoPediaTerrain:
+ 				if iYieldChange != 0:
+ 					szStats += (u"%d%c  " % (iYieldChange, gc.getYieldInfo(iYield).getChar()))
+ 
+-		screen.appendListBoxString(panel, self._bodyText(szStats), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.appendListBoxString(panel, self._paneText(szStats), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index a9b60c711..6f2b9a601 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -295,10 +295,10 @@ class SevoPediaTrait:
+ 				iRow = screen.appendTableRow(leftTableName)
+ 				otherTraitInfo = gc.getTraitInfo(otherTrait)
+ 
+-				traitText = SASTextScale.bodyText(u"%c %s" % (TraitUtil.getIcon(otherTrait), otherTraitInfo.getDescription()))
++				traitText = SASTextScale.labelText(u"%c %s" % (TraitUtil.getIcon(otherTrait), otherTraitInfo.getDescription()))
+ 				screen.setTableText(leftTableName, 0, iRow, traitText, "", WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_TRAIT, otherTrait, CvUtil.FONT_LEFT_JUSTIFY)
+-				screen.setTableText(leftTableName, 1, iRow, SASTextScale.bodyText(u"%d" % pairCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+-				screen.setTableText(leftTableName, 2, iRow, SASTextScale.bodyText(u"%d" % totalCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++				screen.setTableText(leftTableName, 1, iRow, SASTextScale.labelText(u"%d" % pairCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++				screen.setTableText(leftTableName, 2, iRow, SASTextScale.labelText(u"%d" % totalCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				inchart_set_icon_cells(screen, leftTableName, iRow, leaderIds, 3, maxLeadersLeft, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
+ 
+@@ -327,15 +327,15 @@ class SevoPediaTrait:
+ 
+ 				trait1Info = gc.getTraitInfo(trait1)
+ 				trait2Info = gc.getTraitInfo(trait2)
+-				pairText = SASTextScale.bodyText(u"%c %s + %c %s" % (
++				pairText = SASTextScale.labelText(u"%c %s + %c %s" % (
+ 					TraitUtil.getIcon(trait1), trait1Info.getDescription(),
+ 					TraitUtil.getIcon(trait2), trait2Info.getDescription()))
+ 				screen.setTableText(rightTableName, 0, iRow, pairText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-				screen.setTableText(rightTableName, 1, iRow, SASTextScale.bodyText(u"%d" % pairCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++				screen.setTableText(rightTableName, 1, iRow, SASTextScale.labelText(u"%d" % pairCount), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				# Ranking bar using centralized helper
+ 				rankingBar = inchart_calc_ranking_bar(pairCount, minCount, maxCount)
+-				screen.setTableText(rightTableName, 2, iRow, SASTextScale.bodyText(rankingBar), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++				screen.setTableText(rightTableName, 2, iRow, SASTextScale.labelText(rankingBar), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				inchart_set_icon_cells(screen, rightTableName, iRow, leaderIds, 3, maxLeadersRight, INCHART_ICON_TYPE_LEADER, {"leaderToCiv": leaderToCiv})
+ 
+@@ -423,7 +423,7 @@ class SevoPediaTrait:
+ 							szSpecial += "\n"
+ 						szSpecial += line[2:]  # strip first two spaces
+ 			if bFound:
+-				szSpecial = SASTextScale.bodyText(szSpecial)
++				szSpecial = SASTextScale.labelText(szSpecial)
+ 				screen.addMultilineText(listName, szSpecial, self.X_SPECIAL+5, self.Y_SPECIAL+32, self.W_SPECIAL-10, self.H_SPECIAL-40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+@@ -436,7 +436,7 @@ class SevoPediaTrait:
+ 
+ 		textName = self.top.getNextWidgetName()
+ 		szText = gc.getTraitInfo(self.iTrait).getCivilopedia()
+-		szText = SASTextScale.bodyText(szText)
++		szText = SASTextScale.labelText(szText)
+ 		screen.addMultilineText(textName, szText, self.X_HISTORY + 7, self.Y_HISTORY + 30, self.W_HISTORY - 5, self.H_HISTORY - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 0b603fd0b..50d914e39 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -189,11 +189,14 @@ class SevoPediaUnit:
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+ 	def _bodyText(self, szText):
+-		return SASTextScale.bodyText(szText)
++		return SASTextScale.labelText(szText)
+ 
+ 	def _labelText(self, szText):
+ 		return SASTextScale.labelText(szText)
+ 
++	def _paneText(self, szText):
++		return SASTextScale.titleText(szText)
++
+ 
+ 
+ 	def interfaceScreen(self, iUnit):
+@@ -265,7 +268,7 @@ class SevoPediaUnit:
+ 		if iStrength > 0: # advc.004y: Don't show 0 strength for nukes
+ 			szStrength = localText.getText("TXT_KEY_PEDIA_STRENGTH_CUSTOM", (iStrength,))
+ 			szStrengthText = u"%c  " % CyGame().getSymbolID(FontSymbols.STRENGTH_CHAR) + szStrength
+-			screen.appendListBoxStringNoUpdate(panelName, self._bodyText(szStrengthText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.appendListBoxStringNoUpdate(panelName, self._paneText(szStrengthText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		eDomain = gc.getUnitInfo(self.iUnit).getDomainType()
+ 		# <!-- custom: don't show movement for domain immobile units (missiles and such for example, not air fighters and such) --> 
+@@ -276,7 +279,7 @@ class SevoPediaUnit:
+ 			#elif eDomain != DomainTypes.DOMAIN_AIR: # </advc.004y>
+ 			szMovement = localText.getText("TXT_KEY_PEDIA_MOVEMENT_CUSTOM", (gc.getUnitInfo(self.iUnit).getMoves(),))
+ 			szMovementText = u"%c  " % CyGame().getSymbolID(FontSymbols.MOVES_CHAR) + szMovement
+-			screen.appendListBoxStringNoUpdate(panelName, self._bodyText(szMovementText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.appendListBoxStringNoUpdate(panelName, self._paneText(szMovementText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		# advc.004y: Moved range above production cost. Condition for ICBM added.
+ 		if gc.getUnitInfo(self.iUnit).getAirRange() > 0 or gc.getUnitInfo(self.iUnit).getNukeRange() >= 0:
+@@ -288,7 +291,7 @@ class SevoPediaUnit:
+ 				szRange = localText.getText("TXT_KEY_PEDIA_RANGE_UNLIMITED_CUSTOM", ())
+ 			# </advc.004y>
+ 			szRangeText = u"R    " + szRange
+-			screen.appendListBoxStringNoUpdate(panelName, self._bodyText(szRangeText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.appendListBoxStringNoUpdate(panelName, self._paneText(szRangeText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 		if (gc.getUnitInfo(self.iUnit).getProductionCost() >= 0 and not gc.getUnitInfo(self.iUnit).isFound()):
+ 			unitCost = (gc.getUnitInfo(self.iUnit).getProductionCost() * gc.getDefineINT("UNIT_PRODUCTION_PERCENT"))/100
+ 			if self.top.iActivePlayer != -1:
+@@ -296,7 +299,7 @@ class SevoPediaUnit:
+ 
+ 			szCost = localText.getText("TXT_KEY_PEDIA_COST_CUSTOM", (unitCost,))
+ 			szCostText = u"%c  " % gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar() + szCost
+-			screen.appendListBoxStringNoUpdate(panelName, self._bodyText(szCostText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.appendListBoxStringNoUpdate(panelName, self._paneText(szCostText), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 		screen.updateListBox(panelName)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index b0377db72..93b788054 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -708,7 +708,7 @@ def inchart_show_no_content_text(screen, selfTop, panelX, panelY, panelW, panelH
+ 	szText = localText.getText(txtKey, ())
+ 	yPanelCenter = panelY + (panelH / 2)
+ 	screen.addMultilineText(
+-		textName, SASTextScale.bodyText(szText),
++		textName, SASTextScale.labelText(szText),
+ 		panelX + 7, yPanelCenter,
+ 		panelW - 14, panelH - 20,
+ 		WidgetTypes.WIDGET_GENERAL, -1, -1,
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 4590d1296..46c8edcaa 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -324,17 +324,17 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 1. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_TINY</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: shared UI body font size for standard list/table/content text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 2. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_BODY</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>2</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 3. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_LABEL</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: shared UI title font size for advisor/screen titles and primary action text. Keep in [1..4] (GPT-5.3-Codex). Base Civ4 Font size: 4. -->
+ 	<Define>
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=26088

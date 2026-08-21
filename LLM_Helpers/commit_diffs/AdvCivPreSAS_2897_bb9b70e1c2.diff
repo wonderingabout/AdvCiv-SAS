@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2897
+# Commit: bb9b70e1c2743b777fb99472ef28a51778ece17e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c93532452cbf631f08d9337ed570c10c517d3ab6
+# Title: Fix minor fog-of-war bug with goody hut bubbles
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6d24a4fe4..bd984912f 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -19269,7 +19269,7 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption,
+ 			szBuffer.clear();
+ 			// <advc.004z>
+ 			if(eLoopBonus == NO_BONUS)
+-				GAMETEXT.setImprovementHelp(szBuffer, kPlot.getImprovementType());
++				GAMETEXT.setImprovementHelp(szBuffer, eImpr);
+ 			else // </advc.004z>
+ 			{
+ 				//GAMETEXT.setBonusHelp(szBuffer, eCurType, false);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=552

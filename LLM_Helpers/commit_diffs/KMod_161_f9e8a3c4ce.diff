@@ -1,0 +1,181 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 161
+# Commit: f9e8a3c4ceeab74d8d33f1fe8a0323ac5d1bc5be
+# History segment: K-Mod history
+# Parent used for diff: 6f7869e5a9d8b0c2bbabe79b6c7a05602eb2e3ff
+# Title: Fixed a bug caused by my code to skip the allocation of citizen when in disorder. Tweaked global warming plot targetting. Tweaked some espionage values. Furt...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	12	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvGame.cpp
+18	9	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index cd1c39c68..54fe173ff 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -244,18 +244,11 @@ void CvCityAI::AI_assignWorkingPlots()
+ 	CvPlot* pHomePlot;
+ 	int iI;
+ 
+-	// K-Mod
+-	if (isDisorder())
+-	{
+-		// can't do anything anyway.
+-		return;
+-	}
+-	// K-Mod end
+-	
++	/* original bts code
+ 	if (0 != GC.getDefineINT("AI_SHOULDNT_MANAGE_PLOT_ASSIGNMENT"))
+ 	{
+ 		return;
+-	}
++	} */ // K-Mod. that option would break a bunch of stuff.
+ 
+ 	// remove all assigned plots if we automated
+ 	if (!isHuman() || isCitizensAutomated())
+@@ -325,7 +318,8 @@ void CvCityAI::AI_assignWorkingPlots()
+ 	FAssertMsg(extraSpecialists() >= 0, "extraSpecialists() is expected to be non-negative (invalid Index)");
+ 
+ 	// do we have population unassigned
+-	while (extraPopulation() > 0)
++	//while (extraPopulation() > 0)
++	while (extraPopulation() > 0 && !isDisorder()) // K-Mod (just to save time)
+ 	{
+ 		// (AI_addBestCitizen now handles forced specialist logic)
+ 		if (!AI_addBestCitizen(/*bWorkers*/ true, /*bSpecialists*/ true))
+@@ -374,7 +368,8 @@ void CvCityAI::AI_assignWorkingPlots()
+ 	FAssertMsg(iExtraSpecialists >= 0, "added too many specialists");
+ 
+ 	// if we still have population to assign, assign specialists
+-	while (extraSpecialists() > 0)
++	//while (extraSpecialists() > 0)
++	while (extraSpecialists() > 0 && !isDisorder()) // K-Mod (just to save time)
+ 	{
+ 		if (!AI_addBestCitizen(/*bWorkers*/ false, /*bSpecialists*/ true))
+ 		{
+@@ -383,7 +378,8 @@ void CvCityAI::AI_assignWorkingPlots()
+ 	}
+ 	
+ 	// if automated, look for better choices than the current ones
+-	if (!isHuman() || isCitizensAutomated())
++	//if (!isHuman() || isCitizensAutomated())
++	if (!isHuman() || isCitizensAutomated() && !isDisorder()) // K-Mod (just to save time)
+ 	{
+ 		AI_juggleCitizens();
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index d5d762597..575a4e5d9 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6400,7 +6400,7 @@ CvPlot* CvGame::getRandGWPlot(int iPool)
+ 
+ 		if (iTestScore > iBestScore)
+ 		{
+-			if (iBestScore > 0)
++			if (iBestScore > 0 || iTestScore >= 3)
+ 				return pTestPlot; // lets not target the ice too much...
+ 
+ 			pBestPlot = pTestPlot;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f4d719b16..59482a09d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5279,11 +5279,15 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 				}
+ 				else
+ 				{
+-					// Space ship parts
+-					if( AI_isDoVictoryStrategy(AI_VICTORY_SPACE3) )
++					// Space ship parts (changed by K-Mod)
++					if (AI_isDoVictoryStrategy(AI_VICTORY_SPACE2))
+ 					{
+ 						iValue += 1000;
+ 					}
++					if (AI_isDoVictoryStrategy(AI_VICTORY_SPACE3))
++					{
++						iValue += 800; // (additional)
++					}
+ 				}
+ 			}
+ 
+@@ -12834,7 +12838,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 					BonusTypes eBonus = pPlot->getNonObsoleteBonusType(GET_PLAYER(eTargetPlayer).getTeam());
+ 					if (NO_BONUS != eBonus)
+ 					{
+-						iValue += GET_PLAYER(eTargetPlayer).AI_bonusVal(eBonus, -1);
++						iValue += 2*GET_PLAYER(eTargetPlayer).AI_bonusVal(eBonus, -1); // was 1*
+ 						
+ 						int iTempValue = 0;
+ 						if (NULL != pPlot->getWorkingCity())
+@@ -12886,7 +12890,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 		{
+ 			CvProjectInfo& kProject = GC.getProjectInfo((ProjectTypes)iData);
+ 			
+-			iValue += getProductionNeeded((ProjectTypes)iData) * ((kProject.getMaxTeamInstances() == 1) ? 3 : 2);
++			iValue += getProductionNeeded((ProjectTypes)iData) * (kProject.getMaxTeamInstances() == 1 ? 6 : 4); // was 3 : 2
+ 		}
+ 	}
+ 
+@@ -12904,7 +12908,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 					if (pCity->getProductionProject() != NO_PROJECT)
+ 					{
+ 						CvProjectInfo& kProject = GC.getProjectInfo(pCity->getProductionProject());
+-						iValue += iTempValue * ((kProject.getMaxTeamInstances() == 1) ? 4 : 2);	
++						iValue += iTempValue * ((kProject.getMaxTeamInstances() == 1) ? 6 : 3);	// was 4 : 2
+ 					}
+ 					else if (pCity->getProductionBuilding() != NO_BUILDING)
+ 					{
+@@ -12972,10 +12976,11 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 		// K-Mod (I didn't comment that line out, btw.)
+ 		const TeamTypes eTeam = GET_PLAYER(eTargetPlayer).getTeam();
+ 		const int iEra = getCurrentEra();
+-		int iCounterValue = 5;
++		int iCounterValue = 5 + (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3 || AI_VICTORY_SPACE3) ? 10 : 0);
++		// this is pretty bogus. I'll try to come up with something better some other time.
+ 		iCounterValue *= 50*iEra*iEra + GET_TEAM(eTeam).getEspionagePointsAgainstTeam(getTeam());
+ 		iCounterValue /= std::max(1, 50*iEra*iEra + GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(eTeam));
+-		iCounterValue *= AI_getMemoryCount(eTargetPlayer, MEMORY_SPY_CAUGHT) + (GET_TEAM(getTeam()).isAtWar(eTeam)?2 :0);
++		iCounterValue *= AI_getMemoryCount(eTargetPlayer, MEMORY_SPY_CAUGHT) + (GET_TEAM(getTeam()).isAtWar(eTeam)?2 :0) + (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4 || AI_VICTORY_SPACE4)?1 : 0);
+ 		iValue += iCounterValue;
+ 	}
+ 
+@@ -13036,7 +13041,8 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 			if (NULL != pCity)
+ 			{
+ 				int iCityHealth = pCity->goodHealth() - pCity->badHealth(false, 0);
+-				int iBaseUnhealth = GC.getEspionageMissionInfo(eMission).getCityPoisonWaterCounter();
++				//int iBaseUnhealth = GC.getEspionageMissionInfo(eMission).getCityPoisonWaterCounter();
++				int iBaseUnhealth = GC.getEspionageMissionInfo(eMission).getCityPoisonWaterCounter() - std::max(pCity->getOccupationTimer(), GET_PLAYER(eTargetPlayer).getAnarchyTurns());
+ 
+ 				// K-Mod: fixing some "wtf".
+ 				/*
+@@ -13071,7 +13077,10 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 			if (NULL != pCity)
+ 			{
+ 				int iCityCurAngerLevel = pCity->happyLevel() - pCity->unhappyLevel(0);
+-				int iBaseAnger = GC.getEspionageMissionInfo(eMission).getCityUnhappinessCounter();
++				//int iBaseAnger = GC.getEspionageMissionInfo(eMission).getCityUnhappinessCounter();
++				// K-Mod
++				int iBaseAnger = GC.getEspionageMissionInfo(eMission).getCityUnhappinessCounter() - std::max(pCity->getOccupationTimer(), GET_PLAYER(eTargetPlayer).getAnarchyTurns());
++				// K-Mod end
+ 				int iAvgUnhappy = iCityCurAngerLevel - iBaseAnger/2;
+ 				
+ 				if (iAvgUnhappy < 0)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6627

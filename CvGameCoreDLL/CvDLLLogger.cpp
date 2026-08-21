@@ -16,9 +16,7 @@ CvDLLLogger::CvDLLLogger(bool bEnabled, bool bRandEnabled)
 :	m_bEnabled(bEnabled), m_bRandEnabled(bRandEnabled) {}
 
 // Cut from CvRandom::getInt
-void CvDLLLogger::logRandomNumber(const TCHAR* szMsg, unsigned short usNum,
-	unsigned int uiSeed, int iData1, int iData2,
-	CvString const* pszFileName) // advc.007b
+void CvDLLLogger::logRandomNumber(const TCHAR* szMsg, unsigned short usNum, unsigned int uiSeed, int iData1, int iData2, CvString const* pszFileName) // advc.007b
 {
 	FAssert(isEnabledRand()); // Caller should handle this, for performance reasons.
 	if (szMsg == NULL)
@@ -130,6 +128,7 @@ void appendPercentage(std::ostringstream& os, wchar const* szLabel, int iAbsolut
 
 void CvDLLLogger::logMapStats(bool bAfterNormalization)
 {
+	// <!-- custom: i am not sure this is safe to static const so left as such, gain should be minimal as well but these are pure speculative guesses of mine//me as i don't know too much if at all about these, check if accurate -->
 	if (!isEnabled() || !GC.getDefineBOOL("LOG_MAP_STATS"))
 		return;
 	std::ostringstream out;

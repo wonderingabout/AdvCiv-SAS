@@ -1,0 +1,160 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2558
+# Commit: 68aa493b1bd34fb8c2b93f091cb73b6c663d0e58
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 28362301b805b3eafcdd7d92c81c50127113aa79
+# Title: Tiny bit of misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	13	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+1	2	CvGameCoreDLL/CyUnit.cpp
+2	2	CvGameCoreDLL/FAStarFunc.cpp
+2	1	CvGameCoreDLL/FAStarFunc.h
+2	2	CvGameCoreDLL/UWAICache.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 9b23b7729..c5e330413 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7828,23 +7828,24 @@ CvPlot* CvGame::randomBarbarianPlot(CvArea const& a, Shelf const* pShelf)
+ }
+ 
+ 
+-bool CvGame::killBarbarian(int iPresent, int iTiles, int iBarbPop, CvArea& a, Shelf* shelf)
++bool CvGame::killBarbarian(int iUnitsPresent, int iTiles, int iPop, CvArea& a, Shelf* pShelf)
+ {
+-	if (iPresent <= 5) // 5 is never a crowd
++	if (iUnitsPresent <= 5) // 5 is never a crowd
+ 		return false;
+-	double divisor = 4 * iBarbPop;
+-	if (shelf != NULL)
+-		divisor += shelf->size();
+-	else divisor += iTiles; /*  Includes 50% shelf (given the way this function
++	scaled rDivisor = std::max(1, 4 * iPop);
++	if (pShelf != NULL)
++		rDivisor += pShelf->size();
++	else rDivisor += iTiles; /*  Includes 50% shelf (given the way this function
+ 								is currently used). */
+ 	// Don't want large Barbarian continents crawling with units
+-	divisor = 5 * std::pow(divisor, 0.7);
+-	if (::bernoulliSuccess(iPresent / divisor, "advc.300 (kill_2)"))
+-	{
+-		if(shelf != NULL)
+-			return shelf->killBarbarian();
+-		/*  Tbd.: Be a bit more considerate about which unit to sacrifice.
+-			Currently, it's the same (arbitrary) method as for animal culling. */
++	rDivisor.exponentiate(fixp(0.7));
++	rDivisor *= 5;
++	if ((iUnitsPresent / rDivisor).bernoulliSuccess(getSRand(), "killBarbarian2"))
++	{
++		if(pShelf != NULL)
++			return pShelf->killBarbarian();
++		/*  The same method as for animal culling. Should result
++			in first-in-first-out behavior; fair enough. */
+ 		FOR_EACH_UNIT_VAR(pUnit, GET_PLAYER(BARBARIAN_PLAYER))
+ 		{
+ 			CvUnit& u = *pUnit;
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 2268c9374..48e3b7d0b 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -1028,7 +1028,7 @@ protected:
+ 	int createBarbarianUnits(int n, CvArea& a, Shelf* shelf, bool bCargoAllowed = false,
+ 			bool bOnlyCargo = false);
+ 	CvPlot* randomBarbarianPlot(CvArea const& a, Shelf const* pShelf);
+-	bool killBarbarian(int iPresent, int iTiles, int iPop, CvArea& a, Shelf* shelf);
++	bool killBarbarian(int iUnitsPresent, int iTiles, int iPop, CvArea& a, Shelf* pShelf);
+ 	UnitTypes randomBarbarianUnit(UnitAITypes eUnitAI, CvArea const& a);
+ 	// </advc.300>
+
+diff --git a/CvGameCoreDLL/CyUnit.cpp b/CvGameCoreDLL/CyUnit.cpp
+index b56e163e6..49738ad19 100644
+--- a/CvGameCoreDLL/CyUnit.cpp
++++ b/CvGameCoreDLL/CyUnit.cpp
+@@ -62,8 +62,7 @@ void CyUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
+ 
+ CyPlot* CyUnit::getPathEndTurnPlot()
+ {
+-	return m_pUnit ? new CyPlot(m_pUnit->getPathEndTurnPlot()) : //false
+-			NULL; // advc.001
++	return m_pUnit ? new CyPlot(m_pUnit->getPathEndTurnPlot()) : NULL;
+ }
+ 
+ bool CyUnit::generatePath(CyPlot* pToPlot, int iFlags, bool bReuse, int* piPathTurns)
+
+diff --git a/CvGameCoreDLL/FAStarFunc.cpp b/CvGameCoreDLL/FAStarFunc.cpp
+index 9e669451d..8d20a4327 100644
+--- a/CvGameCoreDLL/FAStarFunc.cpp
++++ b/CvGameCoreDLL/FAStarFunc.cpp
+@@ -426,7 +426,7 @@ int pathCost(CvPlot const& kFrom, CvPlot const& kTo,
+ 				/*	For human-controlled units, only apply the following effects
+ 					for multi-step moves. (otherwise this might prevent the user
+ 					from attacking from where they want to attack from.) */
+-				if (bAIControl || iKnownCost != 0 || eFlags & MOVE_HAS_STEPPED)
++				if (bAIControl || iKnownCost != 0 || (eFlags & MOVE_HAS_STEPPED))
+ 				{
+ 					iAttackCount++;
+ 					if (!pLoopUnit->noDefensiveBonus())
+@@ -520,7 +520,7 @@ int pathCost(CvPlot const& kFrom, CvPlot const& kTo,
+ }
+ 
+ 
+-/*	advc.inl (note): These two functions are ultimately only called in the EXE,
++/*	advc.inl (note): These two functions are only called from the EXE,
+ 	so there's no point in trying to get them inlined. */
+ int stepHeuristic(int iFromX, int iFromY, int iToX, int iToY)
+ {
+
+diff --git a/CvGameCoreDLL/FAStarFunc.h b/CvGameCoreDLL/FAStarFunc.h
+index eb7b816b7..d9db217e4 100644
+--- a/CvGameCoreDLL/FAStarFunc.h
++++ b/CvGameCoreDLL/FAStarFunc.h
+@@ -5,7 +5,8 @@
+ 
+ /*	advc.pf: New header for path finding functions (previously in CvGameCoreUtils.h).
+ 	Most of these functions get passed to CvDLLFAStarIFaceBase, so they have to
+-	remain compatible with that interface. I've replaced return type int with
++	remain compatible with that interface. Also note that those functions get called
++	from the EXE despite not being exported. I've replaced return type int with
+ 	BOOL (which is a typedef of int) where appropritate. Those functions that
+ 	KmodPathFinder used to call directly, I've turned into wrappers so that
+ 	KmodPathFinder can use a more intuitive interface. */
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 85f92150d..3c6edc9b1 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -1479,7 +1479,7 @@ void UWAICache::City::updateDistance(CvCity const& targetCity) {
+ 		CvPlot* p = c->plot();
+ 		int pwd = -1; // pairwise (travel) duration
+ 		int d = -1; // set by measureDistance
+-		if(measureDistance(cacheOwnerId, DOMAIN_LAND, *p, *targetCity.plot(), &d)) {
++		if(measureDistance(cacheOwnerId, DOMAIN_LAND, *p, targetCity.getPlot(), &d)) {
+ 			double speed = estimateMovementSpeed(cacheOwnerId, DOMAIN_LAND, d);
+ 			// Will practically always have to move through some foreign tiles
+ 			d = std::min(d, 2) + ::round((d - std::min(d, 2)) / speed);
+@@ -1496,7 +1496,7 @@ void UWAICache::City::updateDistance(CvCity const& targetCity) {
+ 			DomainTypes dom = DOMAIN_SEA;
+ 			if(!trainDeepSeaCargo)
+ 				dom = DOMAIN_IMMOBILE; // Encode non-ocean as IMMOBILE
+-			if(measureDistance(cacheOwnerId, dom, *p, *targetCity.plot(), &d)) {
++			if(measureDistance(cacheOwnerId, dom, *p, targetCity.getPlot(), &d)) {
+ 				FAssert(d >= 0);
+ 				d = (int)std::ceil(d / estimateMovementSpeed(cacheOwnerId, DOMAIN_SEA, d)) +
+ 						seaPenalty;
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=5902

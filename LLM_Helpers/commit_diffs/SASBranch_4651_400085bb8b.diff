@@ -1,0 +1,36 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4651
+# Commit: 400085bb8b4e0f65090b0c3bae6747d374edea88
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f624f9b8bbc66dec56af0f42a9a473bea7897cbe
+# Title: remove big music file i had not noticed (thanks to wiztree saw it while downloading zip (, anyways, ))
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/{vs code replace manually bit faster.PNG => replace manually bit faster (outdated no translate now).PNG}
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using wiztree example to find big files and remove them.PNG
+ rename _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/{vs code replace manually bit faster.PNG => replace manually bit faster (outdated no translate now).PNG} (100%)
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using wiztree example to find big files and remove them.PNG
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/vs code replace manually bit faster.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/replace manually bit faster (outdated no translate now).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/vs code replace manually bit faster.PNG
+rename to _1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/replace manually bit faster (outdated no translate now).PNG
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using wiztree example to find big files and remove them.PNG b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using wiztree example to find big files and remove them.PNG
+new file mode 100644
+index 000000000..a5586bb05
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/using wiztree example to find big files and remove them.PNG differ
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=977

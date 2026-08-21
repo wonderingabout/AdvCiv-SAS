@@ -1,0 +1,1430 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1352
+# Commit: 69b231572a2f96ffd55352425830a23d7f3fca1d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7d159cac168542a7079e45413122b5353bde93ea
+# Title: Bugs fixed in AI war trade behavior; tech cost adjustments
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+208	0	Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+3	3	Assets/xml/GameInfo/CIV4EraInfos.xml
+2	1	Assets/xml/GameInfo/CIV4HandicapInfo.xml
+54	29	Assets/xml/GameInfo/CIV4WorldInfo.xml
+4	2	Assets/xml/Technologies/CIV4TechInfos.xml
+18	0	Assets/xml/Text/CIV4GameText_advc.xml
+38	3	CvGameCoreDLL/CvGameTextMgr.cpp
+2	1	CvGameCoreDLL/CvPlayer.cpp
+84	44	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.h
+4	4	CvGameCoreDLL/CvTeam.h
+10	10	CvGameCoreDLL/CvTeamAI.cpp
+11	10	CvGameCoreDLL/WarAndPeaceAI.cpp
+1	1	CvGameCoreDLL/WarAndPeaceAI.h
+10	4	CvGameCoreDLL/WarUtilityAspect.cpp
+-	-	manual_0.93.odt
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+index 53e75e432..74e0093fd 100644
+--- a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -435,6 +435,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -1063,6 +1067,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -1701,6 +1709,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -2332,6 +2344,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -2968,6 +2984,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -3606,6 +3626,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -4250,6 +4274,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -4878,6 +4906,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -5509,6 +5541,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -6150,6 +6186,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -6794,6 +6834,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -7434,6 +7478,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -8070,6 +8118,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -8706,6 +8758,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -9340,6 +9396,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -9951,6 +10011,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -10587,6 +10651,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -11214,6 +11282,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -11854,6 +11926,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -12496,6 +12572,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -13129,6 +13209,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -13763,6 +13847,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -14410,6 +14498,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -15050,6 +15142,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -15681,6 +15777,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -16312,6 +16412,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -16948,6 +17052,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -17588,6 +17696,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -18215,6 +18327,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -18856,6 +18972,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -19492,6 +19612,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -20134,6 +20258,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -20769,6 +20897,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -21409,6 +21541,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -22049,6 +22185,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -22689,6 +22829,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -23337,6 +23481,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -23966,6 +24114,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -24600,6 +24752,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -25236,6 +25392,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -25871,6 +26031,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -26505,6 +26669,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -27139,6 +27307,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -27771,6 +27943,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -28418,6 +28594,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -29063,6 +29243,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -29697,6 +29881,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -30332,6 +30520,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -30966,6 +31158,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -31608,6 +31804,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -32263,6 +32463,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+@@ -32910,6 +33114,10 @@
+ 					<MemoryType>MEMORY_HIRED_TRADE_EMBARGO</MemoryType>
+ 					<iMemoryRand>60</iMemoryRand>
+ 				</MemoryDecay>
++				<MemoryDecay>
++					<MemoryType>MEMORY_STOPPED_TRADING</MemoryType>
++					<iMemoryRand>60</iMemoryRand>
++				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND</MemoryType>
+ 					<iMemoryRand>30</iMemoryRand>
+
+diff --git a/Assets/xml/GameInfo/CIV4EraInfos.xml b/Assets/xml/GameInfo/CIV4EraInfos.xml
+index a96b01702..cabdc3f8b 100644
+--- a/Assets/xml/GameInfo/CIV4EraInfos.xml
++++ b/Assets/xml/GameInfo/CIV4EraInfos.xml
+@@ -94,7 +94,7 @@
+ 			<iResearchPercent>90</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 0 -->
+ 			<!-- advc.910: was 0 -->
+-			<iTechCostModifier>-2</iTechCostModifier>
++			<iTechCostModifier>2</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>100</iBuildPercent>
+ 			<iImprovementPercent>100</iImprovementPercent>
+@@ -166,7 +166,7 @@
+ 			<iResearchPercent>80</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 4 -->
+ 			<!-- advc.910: was 6 in K-Mod -->
+-			<iTechCostModifier>8</iTechCostModifier>
++			<iTechCostModifier>7</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>100</iBuildPercent>
+ 			<iImprovementPercent>100</iImprovementPercent>
+@@ -240,7 +240,7 @@
+ 			<iResearchPercent>70</iResearchPercent>
+ 			<!-- BBAI start: effectively modify cost for all techs from this era.  Default: 9 -->
+ 			<!-- advc.910: was 12 in K-Mod -->
+-			<iTechCostModifier>20</iTechCostModifier>
++			<iTechCostModifier>22</iTechCostModifier>
+ 			<!-- BBAI end -->
+ 			<iBuildPercent>90</iBuildPercent>
+ 			<iImprovementPercent>90</iImprovementPercent>
+
+diff --git a/Assets/xml/GameInfo/CIV4HandicapInfo.xml b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+index 4ca659840..cb16cbc4f 100644
+--- a/Assets/xml/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+@@ -393,7 +393,8 @@
+ 			<iGold>0</iGold>
+ 			<iFreeUnits>8</iFreeUnits>
+ 			<iUnitCostPercent>50</iUnitCostPercent>
+-			<iResearchPercent>100</iResearchPercent>
++			<!-- advc.251: was 100 -->
++			<iResearchPercent>95</iResearchPercent>
+ 			<iDistanceMaintenancePercent>75</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>70</iNumCitiesMaintenancePercent>
+ 			<iMaxNumCitiesMaintenance>5</iMaxNumCitiesMaintenance>
+
+diff --git a/Assets/xml/GameInfo/CIV4WorldInfo.xml b/Assets/xml/GameInfo/CIV4WorldInfo.xml
+index 6a09df57a..229ff5578 100644
+--- a/Assets/xml/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/xml/GameInfo/CIV4WorldInfo.xml
+@@ -16,15 +16,19 @@
+ 			<iTargetNumCities>4</iTargetNumCities>
+ 			<iNumFreeBuildingBonuses>1</iNumFreeBuildingBonuses>
+ 			<iBuildingClassPrereqModifier>0</iBuildingClassPrereqModifier>
+-			<iMaxConscriptModifier>-50</iMaxConscriptModifier>
+-			<iWarWearinessModifier>50</iWarWearinessModifier>
++			<!-- advc.140: was -50 -->
++			<iMaxConscriptModifier>-30</iMaxConscriptModifier>
++			<!-- advc.140: was 37 -->
++			<iWarWearinessModifier>30</iWarWearinessModifier>
+ 			<iGridWidth>10</iGridWidth>
+ 			<iGridHeight>6</iGridHeight>
+ 			<iTerrainGrainChange>-1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>-1</iFeatureGrainChange>
+ 			<iResearchPercent>100</iResearchPercent>
+-			<iTradeProfitPercent>80</iTradeProfitPercent>
+-			<iDistanceMaintenancePercent>50</iDistanceMaintenancePercent>
++			<!-- advc.140: was 80 -->
++			<iTradeProfitPercent>70</iTradeProfitPercent>
++			<!-- advc.140: was 50 -->
++			<iDistanceMaintenancePercent>60</iDistanceMaintenancePercent>
+ 			<!-- advc.140: was 45 -->
+ 			<iNumCitiesMaintenancePercent>40</iNumCitiesMaintenancePercent>
+ 			<iColonyMaintenancePercent>67</iColonyMaintenancePercent>
+@@ -42,15 +46,19 @@
+ 			<iTargetNumCities>4</iTargetNumCities>
+ 			<iNumFreeBuildingBonuses>1</iNumFreeBuildingBonuses>
+ 			<iBuildingClassPrereqModifier>0</iBuildingClassPrereqModifier>
+-			<iMaxConscriptModifier>-25</iMaxConscriptModifier>
+-			<iWarWearinessModifier>30</iWarWearinessModifier>
++			<!-- advc.140: was -25 -->
++			<iMaxConscriptModifier>-15</iMaxConscriptModifier>
++			<!-- advc.140: was 30 -->
++			<iWarWearinessModifier>20</iWarWearinessModifier>
+ 			<iGridWidth>13</iGridWidth>
+ 			<iGridHeight>8</iGridHeight>
+ 			<iTerrainGrainChange>-1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>-1</iFeatureGrainChange>
+ 			<iResearchPercent>110</iResearchPercent>
+-			<iTradeProfitPercent>70</iTradeProfitPercent>
+-			<iDistanceMaintenancePercent>60</iDistanceMaintenancePercent>
++			<!-- advc.140: was 70 -->
++			<iTradeProfitPercent>63</iTradeProfitPercent>
++			<!-- advc.140: was 60 -->
++			<iDistanceMaintenancePercent>67</iDistanceMaintenancePercent>
+ 			<!-- advc.140: was 40 -->
+ 			<iNumCitiesMaintenancePercent>37</iNumCitiesMaintenancePercent>
+ 			<iColonyMaintenancePercent>60</iColonyMaintenancePercent>
+@@ -69,14 +77,17 @@
+ 			<iNumFreeBuildingBonuses>3</iNumFreeBuildingBonuses>
+ 			<iBuildingClassPrereqModifier>25</iBuildingClassPrereqModifier>
+ 			<iMaxConscriptModifier>0</iMaxConscriptModifier>
+-			<iWarWearinessModifier>10</iWarWearinessModifier>
++			<!-- advc.140: was 10 -->
++			<iWarWearinessModifier>12</iWarWearinessModifier>
+ 			<iGridWidth>16</iGridWidth>
+ 			<iGridHeight>10</iGridHeight>
+ 			<iTerrainGrainChange>0</iTerrainGrainChange>
+ 			<iFeatureGrainChange>0</iFeatureGrainChange>
+ 			<iResearchPercent>120</iResearchPercent>
+-			<iTradeProfitPercent>60</iTradeProfitPercent>
+-			<iDistanceMaintenancePercent>70</iDistanceMaintenancePercent>
++			<!-- advc.140: was 60 -->
++			<iTradeProfitPercent>55</iTradeProfitPercent>
++			<!-- advc.140: was 70 -->
++			<iDistanceMaintenancePercent>75</iDistanceMaintenancePercent>
+ 			<!-- advc.140: was 35 -->
+ 			<iNumCitiesMaintenancePercent>34</iNumCitiesMaintenancePercent>
+ 			<iColonyMaintenancePercent>52</iColonyMaintenancePercent>
+@@ -93,20 +104,25 @@
+ 			<iDefaultPlayers>8</iDefaultPlayers>
+ 			<iUnitNameModifier>20</iUnitNameModifier>
+ 			<iTargetNumCities>5</iTargetNumCities>
+-			<iNumFreeBuildingBonuses>5</iNumFreeBuildingBonuses>
++			<!-- advc.140: was 5 -->
++			<iNumFreeBuildingBonuses>4</iNumFreeBuildingBonuses>
+ 			<!-- advc.054: Was 50. Doesn't actually make a difference b/c of
+ 				 rounding and b/c the base number of req. buildings is always
+ 				 1, 2 or 4 (never 3). -->
+ 			<iBuildingClassPrereqModifier>38</iBuildingClassPrereqModifier>
+-			<iMaxConscriptModifier>25</iMaxConscriptModifier>
+-			<iWarWearinessModifier>-10</iWarWearinessModifier>
++			<!-- advc.140: was 25 -->
++			<iMaxConscriptModifier>15</iMaxConscriptModifier>
++			<!-- advc.140: was -10 -->
++			<iWarWearinessModifier>0</iWarWearinessModifier>
+ 			<iGridWidth>21</iGridWidth>
+ 			<iGridHeight>13</iGridHeight>
+ 			<iTerrainGrainChange>0</iTerrainGrainChange>
+ 			<iFeatureGrainChange>0</iFeatureGrainChange>
+ 			<iResearchPercent>130</iResearchPercent>
+-			<iTradeProfitPercent>50</iTradeProfitPercent>
+-			<iDistanceMaintenancePercent>80</iDistanceMaintenancePercent>
++			<!-- advc.140: was 50 -->
++			<iTradeProfitPercent>48</iTradeProfitPercent>
++			<!-- advc.140: was 80 -->
++			<iDistanceMaintenancePercent>82</iDistanceMaintenancePercent>
+ 			<!-- advc.140: was 30 -->
+ 			<iNumCitiesMaintenancePercent>31</iNumCitiesMaintenancePercent>
+ 			<iColonyMaintenancePercent>45</iColonyMaintenancePercent>
+@@ -122,19 +138,23 @@
+ 			<iDefaultPlayers>11</iDefaultPlayers>
+ 			<iUnitNameModifier>10</iUnitNameModifier>
+ 			<iTargetNumCities>6</iTargetNumCities>
+-			<iNumFreeBuildingBonuses>6</iNumFreeBuildingBonuses>
++			<!-- advc.140: was 6 -->
++			<iNumFreeBuildingBonuses>5</iNumFreeBuildingBonuses>
+ 			<!-- advc.054: was 75 -->
+ 			<iBuildingClassPrereqModifier>50</iBuildingClassPrereqModifier>
+-			<iMaxConscriptModifier>50</iMaxConscriptModifier>
+-			<iWarWearinessModifier>-30</iWarWearinessModifier>
++			<!-- advc.140: was 50 -->
++			<iMaxConscriptModifier>30</iMaxConscriptModifier>
++			<!-- advc.140: was -30 -->
++			<iWarWearinessModifier>-13</iWarWearinessModifier>
+ 			<iGridWidth>26</iGridWidth>
+ 			<iGridHeight>16</iGridHeight>
+ 			<iTerrainGrainChange>1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>1</iFeatureGrainChange>
+-			<!-- advc.137: was 140 -->
+-			<iResearchPercent>150</iResearchPercent>
++			<!-- advc.140: was 140 -->
++			<iResearchPercent>148</iResearchPercent>
+ 			<iTradeProfitPercent>40</iTradeProfitPercent>
+-			<iDistanceMaintenancePercent>90</iDistanceMaintenancePercent>
++			<!-- advc.140: was 90 -->
++			<iDistanceMaintenancePercent>89</iDistanceMaintenancePercent>
+ 			<!-- advc.140: was 25 -->
+ 			<iNumCitiesMaintenancePercent>28</iNumCitiesMaintenancePercent>
+ 			<iColonyMaintenancePercent>37</iColonyMaintenancePercent>
+@@ -151,19 +171,24 @@
+ 			<iDefaultPlayers>16</iDefaultPlayers>
+ 			<iUnitNameModifier>0</iUnitNameModifier>
+ 			<iTargetNumCities>6</iTargetNumCities>
+-			<iNumFreeBuildingBonuses>7</iNumFreeBuildingBonuses>
++			<!-- advc.140: was 7 -->
++			<iNumFreeBuildingBonuses>6</iNumFreeBuildingBonuses>
+ 			<!-- advc.054: was 100 -->
+ 			<iBuildingClassPrereqModifier>75</iBuildingClassPrereqModifier>
+-			<iMaxConscriptModifier>75</iMaxConscriptModifier>
+-			<iWarWearinessModifier>-50</iWarWearinessModifier>
++			<!-- advc.140: was 75 -->
++			<iMaxConscriptModifier>45</iMaxConscriptModifier>
++			<!-- advc.140: was -50 -->
++			<iWarWearinessModifier>-25</iWarWearinessModifier>
+ 			<iGridWidth>32</iGridWidth>
+ 			<iGridHeight>20</iGridHeight>
+ 			<iTerrainGrainChange>1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>1</iFeatureGrainChange>
+-			<!-- advc.137: was 150 -->
+-			<iResearchPercent>170</iResearchPercent>
+-			<iTradeProfitPercent>30</iTradeProfitPercent>
+-			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
++			<!-- advc.140: was 150 -->
++			<iResearchPercent>165</iResearchPercent>
++			<!-- advc.140: was 30 -->
++			<iTradeProfitPercent>33</iTradeProfitPercent>
++			<!-- advc.140: was 100 -->
++			<iDistanceMaintenancePercent>97</iDistanceMaintenancePercent>
+ 			<!-- advc.140: was 20 -->
+ 			<iNumCitiesMaintenancePercent>25</iNumCitiesMaintenancePercent>
+ 			<iColonyMaintenancePercent>30</iColonyMaintenancePercent>
+
+diff --git a/Assets/xml/Technologies/CIV4TechInfos.xml b/Assets/xml/Technologies/CIV4TechInfos.xml
+index 9bbac7816..fe7d41951 100644
+--- a/Assets/xml/Technologies/CIV4TechInfos.xml
++++ b/Assets/xml/Technologies/CIV4TechInfos.xml
+@@ -670,7 +670,8 @@
+ 			<Help/>
+ 			<Strategy>TXT_KEY_TECH_FEUDALISM_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+-			<iAIWeight>0</iAIWeight>
++			<!-- advc.131b -->
++			<iAIWeight>-135</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+ 			<iCost>700</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -4835,7 +4836,8 @@
+ 			<Help/>
+ 			<Strategy>TXT_KEY_TECH_IRON_WORKING_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+-			<iAIWeight>0</iAIWeight>
++			<!-- advc.131b -->
++			<iAIWeight>-70</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iCost>200</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 3a8e8a672..c23a44b27 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -3462,6 +3462,24 @@
+ 		<Italian>[COLOR_WARNING_TEXT]Richiede %s1_Name: %d2-%d3[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_WARNING_TEXT]Requiere %s1_Name: %d2-%d3[COLOR_REVERT]</Spanish>
+ 	</TEXT>
++	<!-- Based on TXT_KEY_CIVIC_CONSCRIPTION in CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_CONSCRIPTION_RANGE</Tag>
++		<English>[ICON_BULLET]Can [LINK=CONCEPT_DRAFT]Draft[\LINK] %d1_Num-%d2_Num Units per Turn</English>
++		<French>[ICON_BULLET]Peut [LINK=CONCEPT_DRAFT]enr&#244;ler[\LINK] %d1_Num-%d2_Num Unit&#233;s par tour</French>
++		<German>[ICON_BULLET]Kann %d1_Num-%d2_Num Einheiten pro Runde [LINK=CONCEPT_DRAFT]rekrutieren[\LINK]</German>
++		<Italian>[ICON_BULLET]Pu&#242; [LINK=CONCEPT_DRAFT]richiamare[\LINK] alla leva %d1_Num-%d2_Num unit&#224; per turno</Italian>
++		<Spanish>[ICON_BULLET]Puede [LINK=CONCEPT_DRAFT]reclutar[\LINK] %d1_Num-%d2_Num unidades por turno</Spanish>
++	</TEXT>
++	<!-- Based on TXT_KEY_BUILDING_PROVIDES in CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_PROVIDES_RANGE</Tag>
++		<English>[ICON_BULLET]Provides %d1_Num-%d2_Num [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s3_BonusName[\LINK][COLOR_REVERT] (%F4_BonusIcon)</English>
++		<French>[ICON_BULLET]Fournit %d1_Num-%d2_Num [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s3_BonusName[\LINK][COLOR_REVERT] (%F4_BonusIcon)</French>
++		<German>[ICON_BULLET]Liefert %d1_Num-%d2_Num des Bonusguts [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s3_BonusName[\LINK][COLOR_REVERT] (%F4_BonusIcon)</German>
++		<Italian>[ICON_BULLET]Fornisce %d1_Num-%d2_Num [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s3_BonusName[\LINK][COLOR_REVERT] (%F4_BonusIcon)</Italian>
++		<Spanish>[ICON_BULLET]Da %d1_Num-%d2_Num de [COLOR_HIGHLIGHT_TEXT][LINK=literal]%s3_BonusName[\LINK][COLOR_REVERT] (%F4_BonusIcon)</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.106: Based on TXT_KEY_ERA_SPLASH_SCREEN in
+ 		 Civ4GameText_Misc1.xml. -->
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 2ca4b8dbc..4497acb3b 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -7014,7 +7014,25 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
+ 	if (getWorldSizeMaxConscript(eCivic) != 0)
+ 	{
+ 		szHelpText.append(NEWLINE);
+-		szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_CONSCRIPTION", getWorldSizeMaxConscript(eCivic)));
++		// <advc.004y>
++		/*  Caller doesn't seem to set bPlayerContext and bCivilopediaText
++			properly; will have to figure it out on our own: */
++		bool bRange = (GC.getGameINLINE().getActivePlayer() == NO_PLAYER);
++		if(bRange) {
++			int iBase = GC.getCivicInfo(eCivic).getMaxConscript();
++			int iLow = (iBase * std::max(0, (GC.getWorldInfo((WorldSizeTypes)0).
++					getMaxConscriptModifier() + 100))) / 100;
++			int iHigh = (iBase * std::max(0, (GC.getWorldInfo((WorldSizeTypes)
++					(GC.getNumWorldInfos() - 1)).getMaxConscriptModifier() + 100))) / 100;
++			if(iHigh == iLow)
++				bRange = false;
++			else {
++				szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_CONSCRIPTION_RANGE",
++						iLow, iHigh));
++			}
++		}
++		if(!bRange) // </advc.004y>
++			szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_CONSCRIPTION", getWorldSizeMaxConscript(eCivic)));
+ 	}
+ 
+ 	//	Population Unhealthiness
+@@ -9558,7 +9576,24 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 	if (kBuilding.getFreeBonus() != NO_BONUS)
+ 	{
+ 		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES", g.getNumFreeBonuses(eBuilding), GC.getBonusInfo((BonusTypes) kBuilding.getFreeBonus()).getTextKeyWide(), GC.getBonusInfo((BonusTypes) kBuilding.getFreeBonus()).getChar()));
++		// <advc.004y>
++		bool bRange = (ePlayer == NO_PLAYER);
++		if(bRange) {
++			int iLow = GC.getWorldInfo((WorldSizeTypes)
++					0).getNumFreeBuildingBonuses();
++			int iHigh = GC.getWorldInfo((WorldSizeTypes)
++					(GC.getNumWorldInfos() - 1)).getNumFreeBuildingBonuses();
++			if(iHigh == iLow)
++				bRange = false;
++			else {
++				szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES_RANGE",
++						iLow, iHigh, GC.getBonusInfo((BonusTypes)kBuilding.
++						getFreeBonus()).getTextKeyWide(), GC.getBonusInfo(
++						(BonusTypes)kBuilding.getFreeBonus()).getChar()));
++			}
++		}
++		if(!bRange) // </advc.004y>
++			szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_PROVIDES", g.getNumFreeBonuses(eBuilding), GC.getBonusInfo((BonusTypes) kBuilding.getFreeBonus()).getTextKeyWide(), GC.getBonusInfo((BonusTypes) kBuilding.getFreeBonus()).getChar()));
+ 
+ 		if (GC.getBonusInfo((BonusTypes)(kBuilding.getFreeBonus())).getHealth() != 0)
+ 		{
+@@ -10791,7 +10826,7 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer, Build
+ 						wsz = GC.getMapINLINE().getWorldSize();
+ 					int iHigh = iLow * std::max(0, (GC.getWorldInfo(wsz).
+ 							getBuildingClassPrereqModifier() + 100));
+-					iHigh = (int)::ceil(iHigh / 100.0); // advc.054
++					iHigh = (int)::ceil(iHigh / 100.0); // advc.140
+ 					// </advc.004y>
+ 					CvWString szTempBuffer;
+ 					szTempBuffer.Format(L"%s%s", NEWLINE, gDLL->getText(
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 1238d3e5f..12184c2e0 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4880,6 +4880,7 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ /************************************************************************************************/
+ 		TEAMREF(ePlayer).declareWar((TeamTypes)iData1, false, WARPLAN_DOGPILE,
+ 				true, getID()); // advc.100
++		// Call CvTeam::makeUnwillingToTalk instead?
+ 		for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 		{
+ 			CvPlayerAI& attacked = GET_PLAYER((PlayerTypes)iI); // <advc.003>
+@@ -7477,7 +7478,7 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
+ 
+ 	iPrereqs *= std::max(0, (GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getBuildingClassPrereqModifier() + 100));
+ 	//iPrereqs /= 100;
+-	iPrereqs = (int)::ceil(iPrereqs / 100.0); // advc.954: Round up
++	iPrereqs = (int)std::ceil(iPrereqs / 100.0); // advc.140: Round up
+ 
+ 	if (!isLimitedWonderClass(eBuildingClass))
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 421d1bb84..040e6fb16 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6510,7 +6510,8 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	}
+ 	if(!bFreeTech) // k146
+ 		iValue += kTeam.getResearchProgress(eTech)/4;
+-
++	// advc.007: Might need this again
++	//FAssert(!canResearch(eTech) || std::wcscmp(kTechInfo.getDescription(), L"Feudalism") != 0);
+ 	// Map stuff
+ 	if (kTechInfo.isExtraWaterSeeFrom())
+ 	{
+@@ -13751,48 +13752,50 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCity* pCity, PlayerTypes ePlayer) const {
+ 	return DENIAL_NEVER;
+ } // </advc.003>
+ 
+-
+-int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer) const
++/*  advc.003 (comment): This object pays for the embargo and ePlayer stops trading
++	with eTradeTeam. */
++int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer,
++		bool bWarTrade) const // advc.104o
+ {
+-	CvDeal* pLoopDeal;
+-	int iModifier;
+-	int iValue;
+-	int iLoop;
+-
+-	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
+-	FAssertMsg(GET_PLAYER(ePlayer).getTeam() != getTeam(), "shouldn't call this function on ourselves");
+-	FAssertMsg(eTradeTeam != getTeam(), "shouldn't call this function on ourselves"); // advc.003: The next two asserts had nonsensical messages (copy-paste error apparently)
+-	FAssertMsg(GET_TEAM(eTradeTeam).isAlive(), "GET_TEAM(eTradeTeam).isAlive is expected to be true");
+-	FAssertMsg(!atWar(eTradeTeam, GET_PLAYER(ePlayer).getTeam()), "ePlayer should be at peace with eTradeTeam");
++	CvDeal* pLoopDeal=NULL;
++	int iLoop=-1;
++	// advc.003: Moved some declarations
++	FAssert(ePlayer != getID());
++	FAssert(TEAMID(ePlayer) != getTeam());
++	FAssert(eTradeTeam != getTeam());
++	FAssert(GET_TEAM(eTradeTeam).isAlive());
++	FAssert(!atWar(eTradeTeam, TEAMID(ePlayer)));
+ 	// <advc.130f>
+ 	if(TEAMREF(ePlayer).isCapitulated() && TEAMREF(ePlayer).isVassal(getTeam()))
+ 		return 0; // </advc.130f>
+-	iValue = (50 + (GC.getGameINLINE().getGameTurn() / 2));
+-	iValue += (GET_TEAM(eTradeTeam).getNumCities() * 5);
+-
+-	iModifier = 0;
+-
+-	switch (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).AI_getAttitude(eTradeTeam))
+-	{
++	int iValue = 50 + GC.getGameINLINE().getGameTurn() / 2;
++	//iValue += GET_TEAM(eTradeTeam).getNumCities() * 5;
++	// <advc.130f>
++	iValue += std::max(GET_TEAM(getTeam()).getNumCities(),
++			GET_TEAM(eTradeTeam).getNumCities()) * 4;
++	int iModifier = 0;
++	if(!bWarTrade) {
++		int iPowRatioPercent = (100 * GET_TEAM(eTradeTeam).getPower(true)) /
++				(TEAMREF(ePlayer).getPower(false) +
++				(GET_TEAM(eTradeTeam).isAtWar(getTeam()) ?
++				GET_TEAM(getTeam()).getPower(false) / 4 : 0));
++		iModifier += iPowRatioPercent;
++	} // </advc.130f>
++	switch(TEAMREF(ePlayer).AI_getAttitude(eTradeTeam)) {
+ 	case ATTITUDE_FURIOUS:
+ 		break;
+-
+ 	case ATTITUDE_ANNOYED:
+ 		iModifier += 25;
+ 		break;
+-
+ 	case ATTITUDE_CAUTIOUS:
+ 		iModifier += 50;
+ 		break;
+-
+ 	case ATTITUDE_PLEASED:
+ 		iModifier += 100;
+ 		break;
+-
+ 	case ATTITUDE_FRIENDLY:
+ 		iModifier += 200;
+ 		break;
+-
+ 	default:
+ 		FAssert(false);
+ 		break;
+@@ -13805,10 +13808,16 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
+ 		iModifier -= 25;
+ 	CvTeam const& kTeam = TEAMREF(ePlayer); // The team that'll have to cancel OB
+ 	if(kTeam.isOpenBorders(eTradeTeam)) {
++		iModifier += 50;
+ 		if(kTeam.getAtWarCount() > 0 && GET_PLAYER(ePlayer).isFocusWar() &&
+-				!kTeam.allWarsShared(getTeam(), false))
+-			iModifier += towardUs < ATTITUDE_FRIENDLY ? 150 : 100;
+-		else iModifier += 50;
++				!kTeam.allWarsShared(getTeam(), false)) {
++			/*  <advc.104o> Will probably want to focus on the new war then.
++				(Though with a human sponsor, we shouldn't be too sure.) */
++			if(bWarTrade)
++				iModifier += ((isHuman() && towardUs < ATTITUDE_FRIENDLY) ? 50 : 25);
++			// </advc.104o>
++			else iModifier += (towardUs < ATTITUDE_FRIENDLY ? 100 : 50);
++		}
+ 	} // Lower bound was 0% in BtS, now 50%
+ 	iValue *= std::max(50, iModifier + 100); // </advc.130f>
+ 	iValue /= 100;
+@@ -13825,30 +13834,55 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
+ 
+ 	for(pLoopDeal = GC.getGameINLINE().firstDeal(&iLoop); pLoopDeal != NULL; pLoopDeal = GC.getGameINLINE().nextDeal(&iLoop))
+ 	{
+-		if (pLoopDeal->isCancelable(getID()) && !(pLoopDeal->isPeaceDeal()))
++		//if (pLoopDeal->isCancelable(getID()) && !(pLoopDeal->isPeaceDeal()))
++		// <advc.130f>
++		if(pLoopDeal->isPeaceDeal() ||
++				/*  OB don't have a proper trade value and have already been
++					covered above */
++				pLoopDeal->headFirstTradesNode() != NULL &&
++				pLoopDeal->headFirstTradesNode()->m_data.m_eItemType ==
++				TRADE_OPEN_BORDERS)
++			continue; // </advc.130f>
++		if (GET_PLAYER(pLoopDeal->getFirstPlayer()).getTeam() == TEAMID(ePlayer)
++				// advc.001q:
++				&& TEAMID(pLoopDeal->getSecondPlayer()) == eTradeTeam)
+ 		{
+-			if (GET_PLAYER(pLoopDeal->getFirstPlayer()).getTeam() == GET_PLAYER(ePlayer).getTeam())
++			if (pLoopDeal->getLengthSecondTrades() > 0)
+ 			{
+-				if (pLoopDeal->getLengthSecondTrades() > 0)
+-				{
+-					iValue += (GET_PLAYER(pLoopDeal->getFirstPlayer()).AI_dealVal(pLoopDeal->getSecondPlayer(), pLoopDeal->getSecondTrades()) * ((pLoopDeal->getLengthFirstTrades() == 0) ? 2 : 1));
+-				}
++				iValue += GET_PLAYER(pLoopDeal->getFirstPlayer()).AI_dealVal(
++						pLoopDeal->getSecondPlayer(), pLoopDeal->getSecondTrades()) *
++						/*  advc.130f: Was ... 2 : 1.
++							dealVal is based on the peace treaty duration,
++							but we're likely to lose the trade permanently.
++							A gift is better than a trade, but what we give away
++							is less valuable than what we get; 3:2 captures this
++							better than 2:1 I think. */
++						(pLoopDeal->getLengthFirstTrades() == 0 ? 3 : 2);
+ 			}
++		}
+ 
+-			if (GET_PLAYER(pLoopDeal->getSecondPlayer()).getTeam() == GET_PLAYER(ePlayer).getTeam())
++		if (GET_PLAYER(pLoopDeal->getSecondPlayer()).getTeam() == TEAMID(ePlayer)
++				// advc.001q:
++				&& TEAMID(pLoopDeal->getFirstPlayer()) == eTradeTeam)
++		{
++			if (pLoopDeal->getLengthFirstTrades() > 0)
+ 			{
+-				if (pLoopDeal->getLengthFirstTrades() > 0)
+-				{
+-					iValue += (GET_PLAYER(pLoopDeal->getSecondPlayer()).AI_dealVal(pLoopDeal->getFirstPlayer(), pLoopDeal->getFirstTrades()) * ((pLoopDeal->getLengthSecondTrades() == 0) ? 2 : 1));
+-				}
++				iValue += GET_PLAYER(pLoopDeal->getSecondPlayer()).AI_dealVal(
++						pLoopDeal->getFirstPlayer(), pLoopDeal->getFirstTrades()) *
++						// advc.130f: See above
++						(pLoopDeal->getLengthSecondTrades() == 0 ? 3 : 2);
+ 			}
+ 		}
+ 	}
+ 
+-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isVassal(getTeam()))
++	if (TEAMREF(ePlayer).isVassal(getTeam()))
+ 	{
+ 		iValue /= 2;
+-	}
++	} // <advc.130f>
++	double embargoLengthMult = GC.getLeaderHeadInfo(GET_PLAYER(GET_TEAM(
++			eTradeTeam).getLeaderID()).getPersonalityType()).
++			getMemoryDecayRand(MEMORY_STOPPED_TRADING_RECENT) / 20.0;
++	iValue = ::round(embargoLengthMult * iValue); // </advc.130f>
+ 	return GET_TEAM(getTeam()).roundTradeVal(iValue); // advc.104k
+ }
+ 
+@@ -17579,12 +17613,15 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 			// K-Mod end
+ 		}
+ 		iTempValue += ((kCivic.getTradeYieldModifier(iI) * iCities) / 11);
+-		// (K-Mod note: that denominator is bogus, but since no civics currently have this modifier anyway, I'm just going to leave it.)
++		/*  (K-Mod note: that denominator is bogus, but since no civics
++			currently have this modifier anyway, I'm just going to leave it.) */
+ 
+ 		for (int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+ 		{
+-			// Free Speech
+-			iTempValue += (AI_averageYieldMultiplier((YieldTypes)iI) * (kCivic.getImprovementYieldChanges(iJ, iI) * (getImprovementCount((ImprovementTypes)iJ) + iCities/2))) / 100;
++			iTempValue += (AI_averageYieldMultiplier((YieldTypes)iI) *
++					(kCivic.getImprovementYieldChanges(iJ, iI) *
++					(getImprovementCount((ImprovementTypes)iJ) + iCities/2))) /
++					100;
+ 		}
+ 
+ 		/* original code
+@@ -19043,6 +19080,9 @@ void CvPlayerAI::AI_doCounter()
+ 			if(mId == MEMORY_DECLARED_WAR_ON_FRIEND &&
+ 					atWarWithPartner(TEAMID(civId)))
+ 				continue;
++			if((mId == MEMORY_STOPPED_TRADING || mId == MEMORY_HIRED_TRADE_EMBARGO) &&
++					AI_getMemoryCount(civId, MEMORY_STOPPED_TRADING_RECENT) > 0)
++				continue;
+ 			// </advc.130r><advc.130j>
+ 			/*  Need to decay at least twice as fast b/c each
+ 				request now counts twice (on average). */
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 669122031..0daa227ed 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -282,7 +282,8 @@ public:
+ 	int AI_cityTradeVal(CvCity* pCity) const;
+ 	DenialTypes AI_cityTrade(CvCity* pCity, PlayerTypes ePlayer) const;
+ 
+-	int AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer) const;
++	int AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer,
++			bool bWarTrade = false) const; // advc.104o
+ 	DenialTypes AI_stopTradingTrade(TeamTypes eTradeTeam, PlayerTypes ePlayer) const;
+ 
+ 	int AI_civicTradeVal(CivicTypes eCivic, PlayerTypes ePlayer) const;
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 670d35a81..a91b7537b 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -371,12 +371,10 @@ public:
+ 	/* advc.004a: A hack that allows other classes to pretend that a team knows
+ 	   a tech for some computation. Should be toggled back afterwards. */
+ 	void setHasTechTemporarily(TechTypes tt, bool b);
+-	/* <advc.134a> NB: Looks like the several stages (finite state machine)
++	/* advc.134a: (Looks like the several stages (finite state machine)
+ 	   aren't needed after all; i.e. would work with just offeringPeace
+-	   set to either the team whose peace offer is incoming or NO_TEAM otherwise. */
++	   set to either the team whose peace offer is incoming or NO_TEAM otherwise.) */
+ 	void advancePeaceOfferStage(TeamTypes aiTeam = NO_TEAM);
+-	private: TeamTypes offeringPeace; int peaceOfferStage;
+-	public: // </advc.134a>
+ 
+ 	bool isNoTradeTech(TechTypes eIndex) const;																														// Exposed to Python
+ 	void setNoTradeTech(TechTypes eIndex, bool bNewValue);																					// Exposed to Python
+@@ -547,6 +545,8 @@ protected:
+ 
+ 	std::vector<BonusTypes> m_aeRevealedBonuses;
+ 
++	TeamTypes offeringPeace; int peaceOfferStage; // advc.134a
++
+ 	void doWarWeariness();
+ 
+ 	void updateTechShare(TechTypes eTech);
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 3a8579029..8aa0acacf 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4301,7 +4301,7 @@ int CvTeamAI::AI_declareWarTradeVal(TeamTypes eWarTeam, TeamTypes eTeam) const
+ 	CvPlayerAI const& allyLeader = GET_PLAYER(GET_TEAM(eTeam).getLeaderID());
+ 	if(allyLeader.canStopTradingWithTeam(eWarTeam))
+ 		r = std::max(r, GET_PLAYER(getLeaderID()).AI_stopTradingTradeVal(
+-				eWarTeam, allyLeader.getID()));
++				eWarTeam, allyLeader.getID(), true));
+ 	// </advc.104o>
+ 	return roundTradeVal(r); // advc.104k
+ }
+@@ -4693,7 +4693,7 @@ void CvTeamAI::AI_updateWorstEnemy(bool updateRivalTrade) // advc.130p: New para
+ 	int iBestValue = enemyValue(m_eWorstEnemy);
+ 	if(iBestValue > 0) {
+ 		eBestTeam = m_eWorstEnemy;
+-		/*  <advc.130p> Inertia; to reduce oscillation. New worst enemy has to be
++		/*  advc.130p: Inertia; to reduce oscillation. New worst enemy has to be
+ 			strictly worse than current minus 1.
+ 			Oscillation is already a problem in BtS, but changes in
+ 			CvPlayerAI::AI_getRivalTradeAttitude (penalty for OB) make it worse.
+@@ -4702,8 +4702,6 @@ void CvTeamAI::AI_updateWorstEnemy(bool updateRivalTrade) // advc.130p: New para
+ 			between the two would be even worse. */
+ 		iBestValue++;
+ 	}
+-	else eBestTeam = NO_TEAM;
+-	// </advc.130p>
+ 	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 	{
+ 		TeamTypes eLoopTeam = (TeamTypes)iI;
+@@ -4718,11 +4716,14 @@ void CvTeamAI::AI_updateWorstEnemy(bool updateRivalTrade) // advc.130p: New para
+ 		}
+ 	}
+ 	// <advc.130p>
++	if(eBestTeam == m_eWorstEnemy)
++		return;
+ 	if(updateRivalTrade && m_eWorstEnemy != NO_TEAM && m_eWorstEnemy != eBestTeam) {
+ 		for(int i = 0; i < MAX_CIV_TEAMS; i++) {
+ 			TeamTypes tId = (TeamTypes)i;
+ 			// The old enemy can't have traded with itself
+-			if(!GET_TEAM(tId).isAlive() || tId == m_eWorstEnemy) continue;
++			if(!GET_TEAM(tId).isAlive() || tId == m_eWorstEnemy)
++				continue;
+ 			int const oldGrantVal = AI_getEnemyPeacetimeGrantValue(tId);
+ 			int const oldTradeVal = AI_getEnemyPeacetimeTradeValue(tId);
+ 			AI_setEnemyPeacetimeGrantValue(tId, (2 * oldGrantVal) / 3);
+@@ -4730,9 +4731,8 @@ void CvTeamAI::AI_updateWorstEnemy(bool updateRivalTrade) // advc.130p: New para
+ 		}
+ 		// The above loop may have improved relations with eBestTeam
+ 		AI_updateWorstEnemy(false);
+-	}
+-	if(eBestTeam == m_eWorstEnemy)
+ 		return;
++	}
+ 	m_eWorstEnemy = eBestTeam;
+ 	/*  Changing EnemyPeacetime values updates the attitude cache, but that's
+ 		still based on the old worst enemy. Need another update vs. everyone
+@@ -6007,14 +6007,14 @@ void CvTeamAI::AI_doCounter()
+ 		setSharedWarSuccess(tId, (int)
+ 				((1 - decay) * getSharedWarSuccess(tId))); // </advc.130m>
+ 		// <advc.130p>
+-		AI_changeEnemyPeacetimeGrantValue(tId, -(int)::ceil(
++		AI_changeEnemyPeacetimeGrantValue(tId, -(int)std::ceil(
+ 				decay * AI_getEnemyPeacetimeGrantValue(tId)));
+-		AI_changeEnemyPeacetimeTradeValue(tId, -(int)::ceil(
++		AI_changeEnemyPeacetimeTradeValue(tId, -(int)std::ceil(
+ 				decay * AI_getEnemyPeacetimeTradeValue(tId)));
+ 		// </advc.130p>
+ 		// <advc.130r> Double decay rate for war success
+ 		int wsOld = AI_getWarSuccess(tId);
+-		int wsNew = std::max(0, wsOld - (int)::ceil(2 * decay * wsOld));
++		int wsNew = std::max(0, wsOld - (int)std::ceil(2 * decay * wsOld));
+ 		AI_setWarSuccess(tId, wsNew); // </advc.130r>
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 96f51e991..c83419d97 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -929,7 +929,7 @@ bool WarAndPeaceAI::Team::considerSwitchTarget(TeamTypes targetId, int u,
+ 	bool altQualms = false;
+ 	for(size_t i = 0; i < getWPAI._properTeams.size(); i++) {
+ 		TeamTypes altTargetId = getWPAI._properTeams[i];
+-		if(!canSchemeAgainst(altTargetId) ||
++		if(!canSchemeAgainst(altTargetId, false) ||
+ 				agent.turnsOfForcedPeaceRemaining(altTargetId) > timeRemaining)
+ 			continue;
+ 		bool loopQualms = (GC.getLeaderHeadInfo(GET_PLAYER(agent.getLeaderID()).
+@@ -1095,13 +1095,12 @@ int WarAndPeaceAI::Team::tradeValJointWar(TeamTypes targetId,
+ 		pay humans for war (and I've no plans for changing that). */
+ 	FAssert(!GET_TEAM(allyId).isHuman());
+ 	PROFILE_FUNC();
+-	// That's already a comparison between joint war and solo war
+-	int u = uJointWar(targetId, allyId);
++	int u = uJointWar(targetId, allyId); // Compares joint war with solo war
+ 	if(u < 0)
+ 		return 0;
+ 	// NB: declareWarTrade applies an additional threshold
+ 	int const thresh = dwtUtilityThresh;
+-	return ::round(utilityToTradeVal(std::min(u, thresh)));
++	return ::round(utilityToTradeVal(std::min(u, -thresh)));
+ }
+ 
+ int WarAndPeaceAI::Team::reluctanceToPeace(TeamTypes otherId,
+@@ -1169,10 +1168,10 @@ void WarAndPeaceAI::Team::scheme() {
+ 	WarAndPeaceCache& cache = leaderCache();
+ 	for(size_t i = 0; i < getWPAI._properTeams.size(); i++) {
+ 		TeamTypes targetId = getWPAI._properTeams[i];
+-		if(!canSchemeAgainst(targetId)) {
++		if(!canSchemeAgainst(targetId, true))
+ 			cache.setCanBeHiredAgainst(targetId, false);
++		if(!canSchemeAgainst(targetId, false))
+ 			continue;
+-		}
+ 		report->log("Scheming against %s", report->teamName(targetId));
+ 		bool shortWork = isPushover(targetId);
+ 		if(shortWork)
+@@ -1321,7 +1320,7 @@ DenialTypes WarAndPeaceAI::Team::declareWarTrade(TeamTypes targetId,
+ 			return DENIAL_RECENT_CANCEL;*/
+ 	}
+ 	CvTeamAI const& agent = GET_TEAM(agentId);
+-	// We don't know why utility is so small; can only guess
++	// We don't know why utility is so small; can only guess.
+ 	if(4 * agent.getPower(true) + (sponsor.isAtWar(targetId) ?
+ 			2 * sponsor.getPower(true) : 0) < 3 * GET_TEAM(targetId).getPower(true))
+ 		return DENIAL_POWER_THEM;
+@@ -1369,7 +1368,7 @@ int WarAndPeaceAI::Team::declareWarTradeVal(TeamTypes targetId,
+ 		a decent price, even if we don't mind declaring war. */
+ 	int lowerBound = -2;
+ 	if(!sponsor.isAtWar(targetId))
+-		lowerBound -= 5;
++		lowerBound -= 4;
+ 	// War utility esp. unreliable when things get desperate
+ 	int wsr = GET_TEAM(agentId).AI_getWarSuccessRating();
+ 	if(wsr < 0)
+@@ -1661,9 +1660,11 @@ double WarAndPeaceAI::Team::reparationsToHuman(double u) const {
+ 
+ void WarAndPeaceAI::Team::respondToRebuke(TeamTypes targetId, bool prepare) {
+ 
+-	if(!canSchemeAgainst(targetId))
+-		return;
+ 	CvTeamAI& agent = GET_TEAM(agentId);
++	if(!canSchemeAgainst(targetId, true) || (prepare ?
++			agent.AI_isSneakAttackPreparing(targetId) :
++			agent.AI_isSneakAttackReady(targetId)))
++		return;
+ 	if(!prepare && !agent.canDeclareWar(targetId))
+ 		return;
+ 	CvTeam const& target = GET_TEAM(targetId);
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.h b/CvGameCoreDLL/WarAndPeaceAI.h
+index b08ce80ff..7dbc9ca61 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.h
++++ b/CvGameCoreDLL/WarAndPeaceAI.h
+@@ -181,7 +181,7 @@ public:
+ 		  bool considerConcludePreparations(TeamTypes targetId, int u,
+ 				int timeRemaining);
+ 		void scheme(); // Consider new war plans
+-		bool canSchemeAgainst(TeamTypes targetId, bool assumeNoWarPlan = false) const;
++		bool canSchemeAgainst(TeamTypes targetId, bool assumeNoWarPlan) const;
+ 		void startReport();
+ 		void closeReport();
+ 		bool isReportTurn() const;
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index b6a5cedf4..a99aee61b 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -3097,9 +3097,14 @@ void UlteriorMotives::evaluate() {
+ 	CvTeamAI const& target = GET_TEAM(targetId);
+ 	bool jointWar = m->isWar(TEAMID(theyId), targetId);
+ 	// If they're in a hot war, their motives seem clear (and honest) enough
+-	if(jointWar && target.AI_getWarSuccess(TEAMID(theyId)) +
++	if(jointWar && (target.AI_getWarSuccess(TEAMID(theyId)) +
+ 			TEAMREF(theyId).AI_getWarSuccess(targetId) >
+-			(3 * GC.getWAR_SUCCESS_CITY_CAPTURING()) / 2 &&
++			(3 * GC.getWAR_SUCCESS_CITY_CAPTURING()) / 2 ||
++			/*  An AI sponsor can, in principle, have ulterior motives. For example,
++				if they expect the war to hurt us, this could result in positive
++				utility from Kingmaking for them. This is a bit farfetched though,
++				so I'm going to skip the war success check if the sponsor is an AI. */
++			!they->isHuman()) &&
+ 			// Perhaps no longer hot?
+ 			target.warAndPeaceAI().canReach(TEAMID(theyId)) &&
+ 			// If the target is in our area but not theirs, that's fishy
+@@ -3112,8 +3117,9 @@ void UlteriorMotives::evaluate() {
+ 		suspicious we are. */
+ 	int delta = GC.getLeaderHeadInfo(we->getPersonalityType()).
+ 			getDeclareWarRefuseAttitudeThreshold() - towardsThem + 1;
+-	int uMinus = 15 + 5 * (delta - (towardsThem == ATTITUDE_FRIENDLY ? 1 : 0));
+-	if(!jointWar) uMinus += 5;
++	int uMinus = 8 + 4 * (delta - (towardsThem == ATTITUDE_FRIENDLY ? 1 : 0));
++	if(!jointWar)
++		uMinus += 4;
+ 	if(uMinus > 0) {
+ 		log("Difference between attitude towards %s (%d) and refuse-thresh: %d",
+ 				report.leaderName(theyId), towardsThem, -delta);
+
+[PATCH OMITTED] file=a/manual_0.93.odt b/manual_0.93.odt reason=binary/generated-file changedLines=0 bytes=140
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=15 omittedFiles=2 embeddedPatchBytes=56089

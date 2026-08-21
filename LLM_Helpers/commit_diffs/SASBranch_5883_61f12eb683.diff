@@ -1,0 +1,71 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5883
+# Commit: 61f12eb6834e6cf7d474837555542230a6aaf6b7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ca81ed7166bbfee75ff0632ac24ed33c4903667e
+# Title: fix ruff E713 - pass 2 - using ruff --fix. Note: here we use Ruff --fix only for reviewed safe rules, e.g. E713: not x in y -> x not in y. - update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	AGENTS.md
+1	1	PrivateMaps/Arboria.py
+1	1	PrivateMaps/Boreal.py
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 06180e682..dfdfb8350 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -181,7 +181,11 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
+ - For UI text, do not hardcode font tags like `<font=2/3/4>`; use `SASFontUtils` (`sasFontTag*`/ `sasFontTag*.bold` / `SAS_FONT_TAG_CLOSE` / `getSASUIFont*`) so XML defines control scaling globally. Example good: `sasFontTagLabel + szText + SAS_FONT_TAG_CLOSE` or `sasFontTagTitle.bold + szText + SAS_FONT_TAG_CLOSE`; avoid: `u"<font=3>%s</font>" % szText` or `u"<font=4b>%s</font>" % szText`.
+ - Some rare exceptions exist where hard coded font size is necessary (e.g., as of now Foreign Advisor's Glance tab's diplomacy icons (else the cell's text clips horizontally)), some places where font size was not necessary to increase empirically to achieve the wanted result, or some places where upscaling was not implemented yet due to it being not possible (EXE-controlled or such) or not supported in AdvCiv-SAS (e.g., as of now Chat log, etc.).
+-- Treat linting output as hints only; Civ4 runs Python 2.4 and engine imports can look unused to Python 3 linters.
++- Treat Ruff/lint output as hints only; Civ4 runs Python 2.4 and engine imports can look unused to modern linters.
++- We don't always need to use linters as part of our tasks, but if we do, among them, VS Code Ruff extension is useful for open-file Problems feedback; locally installed Ruff (`py -m ruff`) is better for broad audits, saved reports, and narrow rule-by-rule autofixes.
++- Example (powershell): `cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS"; New-Item -ItemType Directory -Force "LLM_Helpers\outputs" | Out-Null; $ts = Get-Date -Format "yyyyMMdd_HHmmss"; py -m ruff check . --output-format=grouped 2>&1 | Out-File -Encoding utf8 "LLM_Helpers\outputs\ruff_all_py_$ts.txt"; py -m ruff check . --select E101 --output-format=grouped 2>&1 | Out-File -Encoding utf8 "LLM_Helpers\outputs\ruff_e101_$ts.txt"; py -m ruff check . --select E701,E702,E703,E713,E741 --output-format=grouped 2>&1 | Out-File -Encoding utf8 "LLM_Helpers\outputs\ruff_easy_$ts.txt"; py -m ruff check . --select F401,F841 --output-format=grouped 2>&1 | Out-File -Encoding utf8 "LLM_Helpers\outputs\ruff_unused_$ts.txt"; Write-Host "wrote Ruff reports with timestamp $ts"`
++- Use Ruff `--fix` only for reviewed safe rules (e.g. `E713`); do not broad-autofix risky rules such as `F401`, `F841`, `E712`, old parser warnings, or anything touching Civ4 import/runtime assumptions.
++- Always review `git diff` before committing Ruff-driven changes.
+ - Use the Python 2.4/3 print compatibility trick for debugging: `print("msg %s" % value)` is valid in both (single string only). For bulk cleanup of simple Python 2 bare prints, use [wrap_python2_prints_for_linting.py](/LLM_Helpers/wrap_python2_prints_for_linting.py), then manually review any comma-print cases that need `%` formatting so Ruff/Python 3 parsing can show real issues instead of print-syntax noise.
+ - For Python 2 parser cleanup, start with the easy cases first, such as `print "x"` -> `print("x")` or `raise Error, value` -> `raise Error(value)`. Leave more complicated cases, such as old `except Error, e` syntax, tuple-unpacking `except`, re-raise changes, or compatibility fallbacks, for manual review or a later pass.
+ - Prefer robust UI identifiers: widget names can strip numeric suffixes, so use descriptive text suffixes and map widget IDs to data for event handling.
+
+diff --git a/PrivateMaps/Arboria.py b/PrivateMaps/Arboria.py
+index c60e67d38..e5488d47a 100644
+--- a/PrivateMaps/Arboria.py
++++ b/PrivateMaps/Arboria.py
+@@ -320,7 +320,7 @@ def addBonusType(argsList):
+ 	dice = gc.getGame().getMapRand()
+ 	type_string = gc.getBonusInfo(iBonusType).getType()
+ 
+-	if not (type_string in forest):
++	if type_string not in forest:
+ 		print("Default", type_string, "Default")
+ 		CyPythonMgr().allowDefaultImpl() # Let C handle this bonus in the default way.
+ 	else: # Current bonus type is custom-handled. Assignments to follow.
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index 2916f21c3..7722d4369 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -620,7 +620,7 @@ def addBonusType(argsList):
+ 	if (type_string in resourcesToEliminate):
+ 		print("-NONE-", type_string, "-NONE-")
+ 		return None # These bonus types will not appear, at all.
+-	elif not (type_string in boreal):
++	elif type_string not in boreal:
+ 		print("Default", type_string, "Default")
+ 		CyPythonMgr().allowDefaultImpl() # Let C handle this bonus in the default way.
+ 	else: # Current bonus type is custom-handled. Assignments to follow.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4863

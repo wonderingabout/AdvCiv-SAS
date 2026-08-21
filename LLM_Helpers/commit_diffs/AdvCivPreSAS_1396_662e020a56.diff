@@ -1,0 +1,2132 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1396
+# Commit: 662e020a56765e5df4cee3ac8769079829d61cb4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cbb4852bb0a72aefb11307b1c0ef18dfffcc310c
+# Title: Tentative changes to make naval invasions easier to intercept
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+13	5	Assets/Python/Contrib/MonkeyTools.py
+1	2	Assets/xml/GameInfo/CIV4HandicapInfo.xml
+7	0	Assets/xml/GlobalDefines_advc.xml
+19	0	Assets/xml/Text/CIV4GameText_advc.xml
+61	58	Assets/xml/Units/CIV4PromotionInfos.xml
+4	2	Assets/xml/Units/CIV4UnitSchema.xml
+21	15	CvGameCoreDLL/CvGameCoreUtils.cpp
+23	4	CvGameCoreDLL/CvGameTextMgr.cpp
+18	10	CvGameCoreDLL/CvInfos.cpp
+4	2	CvGameCoreDLL/CvInfos.h
+65	67	CvGameCoreDLL/CvPlayerAI.cpp
+48	24	CvGameCoreDLL/CvPlot.cpp
+4	2	CvGameCoreDLL/CvPlot.h
+8	3	CvGameCoreDLL/CvSelectionGroup.cpp
+10	5	CvGameCoreDLL/CvSelectionGroupAI.cpp
+29	8	CvGameCoreDLL/CvTeam.cpp
+3	1	CvGameCoreDLL/CvTeam.h
+101	50	CvGameCoreDLL/CvUnit.cpp
+4	1	CvGameCoreDLL/CvUnit.h
+48	27	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/CyInfoInterface1.cpp
+-	-	manual_0.94c.odt
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/MonkeyTools.py b/Assets/Python/Contrib/MonkeyTools.py
+index cf03b507c..2a3d43a8f 100644
+--- a/Assets/Python/Contrib/MonkeyTools.py
++++ b/Assets/Python/Contrib/MonkeyTools.py
+@@ -116,7 +116,7 @@ def checkAnyUpgrade(pUnit):
+ 	
+ def getPromotionInfoText(pUnit):
+ 	szPromotionInfo = u""
+-	bBlitz = false
++	iBlitz = 0 # advc.164
+ 	bAmphib = false
+ 	bRiver = false
+ 	bEnemyRoads = false
+@@ -145,8 +145,9 @@ def getPromotionInfoText(pUnit):
+ 	lUnitCombatModifierPercent = [0]*gc.getNumUnitCombatInfos()
+ 	for i in range(gc.getNumPromotionInfos()):
+ 		if pUnit.isHasPromotion(i):
+-			if gc.getPromotionInfo(i).isBlitz():
+-				bBlitz = true
++			#if gc.getPromotionInfo(i).isBlitz():
++			#	bBlitz = true
++			iBlitz = gc.getPromotionInfo(i).getBlitz() # advc.164
+ 			if gc.getPromotionInfo(i).isAmphib():
+ 				bAmphib = true
+ 			if gc.getPromotionInfo(i).isRiver():
+@@ -223,8 +224,15 @@ def getPromotionInfoText(pUnit):
+ 					if iTemp > 0:
+ 						lUnitCombatModifierPercent[ii] += iTemp
+ 				
+-	if bBlitz:
+-		szPromotionInfo += localText.getText("TXT_KEY_PROMOTION_BLITZ_TEXT", ()) + "\n"
++	#if bBlitz:
++	#	szPromotionInfo += localText.getText("TXT_KEY_PROMOTION_BLITZ_TEXT", ()) + "\n"
++	# <advc.164>
++	if iBlitz != 0:
++		if iBlitz > 0:
++			szPromotionInfo += localText.getText("TXT_KEY_PROMOTION_BLITZ_LIMIT", (iBlitz)) + "\n"
++		else:
++			szPromotionInfo += localText.getText("TXT_KEY_PROMOTION_BLITZ_TEXT", ()) + "\n"
++	# </advc.164>
+ 	if bAmphib:
+ 		szPromotionInfo += localText.getText("TXT_KEY_PROMOTION_AMPHIB_TEXT", ()) + "\n"
+ 	if bRiver:
+
+diff --git a/Assets/xml/GameInfo/CIV4HandicapInfo.xml b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+index 467acae75..8246ab29d 100644
+--- a/Assets/xml/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+@@ -401,8 +401,7 @@
+ 			<iGold>0</iGold>
+ 			<iFreeUnits>8</iFreeUnits>
+ 			<iUnitCostPercent>50</iUnitCostPercent>
+-			<!-- advc.251: was 100 -->
+-			<iResearchPercent>95</iResearchPercent>
++			<iResearchPercent>100</iResearchPercent>
+ 			<iDistanceMaintenancePercent>75</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>70</iNumCitiesMaintenancePercent>
+ 			<iMaxNumCitiesMaintenance>5</iMaxNumCitiesMaintenance>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 3ae2bd6f9..54293d49b 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -1002,4 +1002,11 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.162: 1 enables change 162 (see manual), 0 disables it (BtS
++		 behavior). -->
++	<Define>
++		<DefineName>ENABLE_162</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 53b136185..c40499695 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -4195,5 +4195,24 @@
+ 		<Spanish>�No hay suficiente espacio!</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.164: Based on TXT_KEY_PROMOTION_BLITZ_TEXT in
++		 CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_BLITZ_LIMIT</Tag>
++		<English>[ICON_BULLET]Can Attack %d1 times per Turn</English>
++		<French>[ICON_BULLET]Peut attaquer %d1 fois par tour</French>
++		<German>[ICON_BULLET]Kann %d1 mal pro Runde angreifen</German>
++		<Italian>[ICON_BULLET]Permette di attaccare %d1 volte durante lo stesso turno</Italian>
++		<Spanish>[ICON_BULLET]Puede atacar %d1 veces por turno</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PROMOTION_BLITZ_TWICE</Tag>
++		<English>[ICON_BULLET]Can Attack Twice per Turn</English>
++		<French>[ICON_BULLET]Peut attaquer deux fois par tour</French>
++		<German>[ICON_BULLET]Kann zweimal pro Runde angreifen</German>
++		<Italian>[ICON_BULLET]Permette di attaccare due volte durante lo stesso turno</Italian>
++		<Spanish>[ICON_BULLET]Puede atacar dos veces por turno</Spanish>
++	</TEXT>
++	
+ 	
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Units/CIV4PromotionInfos.xml b/Assets/xml/Units/CIV4PromotionInfos.xml
+index 1a51af661..7221d18f3 100644
+--- a/Assets/xml/Units/CIV4PromotionInfos.xml
++++ b/Assets/xml/Units/CIV4PromotionInfos.xml
+@@ -12,7 +12,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -112,7 +112,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -212,7 +212,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -312,7 +312,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -412,7 +412,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -512,7 +512,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -593,7 +593,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -678,7 +678,7 @@
+ 			<TechPrereq>TECH_GUNPOWDER</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -767,7 +767,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -853,7 +853,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -938,7 +938,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -1028,7 +1028,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>1</bAmphib>
+ 			<bRiver>1</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -1113,7 +1113,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -1195,14 +1195,17 @@
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+-			<PromotionPrereqOr1>PROMOTION_COMBAT3</PromotionPrereqOr1>
+-			<!-- was PROMOTION_DRILL3 in K-Mod; reverted -->
+-			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
++			<!-- advc.164: was PROMOTION_DRILL3 in K-Mod -->
++			<PromotionPrereqOr1>PROMOTION_DRILL1</PromotionPrereqOr1>
++			<PromotionPrereqOr2>PROMOTION_COMBAT3</PromotionPrereqOr2>
+ 			<PromotionPrereqOr3>NONE</PromotionPrereqOr3>
+ 			<TechPrereq>TECH_MILITARY_SCIENCE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>1</bBlitz>
++			<!-- advc.164: No change to the value. 1 means 1 extra attack now;
++				 higher numbers work also. Set to -1 for BtS behavior
++				 (unlimited attacks). -->
++			<iBlitz>1</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -1283,7 +1286,7 @@
+ 			<TechPrereq>TECH_MILITARY_SCIENCE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>1</bEnemyRoute>
+@@ -1371,7 +1374,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -1463,7 +1466,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -1555,7 +1558,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -1631,7 +1634,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -1711,7 +1714,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -1787,7 +1790,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -1872,7 +1875,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -1966,7 +1969,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -2047,7 +2050,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -2123,7 +2126,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -2199,7 +2202,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -2280,7 +2283,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -2352,7 +2355,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -2424,7 +2427,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -2501,7 +2504,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -2589,7 +2592,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -2681,7 +2684,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -2773,7 +2776,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -2870,7 +2873,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -2942,7 +2945,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -3019,7 +3022,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -3096,7 +3099,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -3164,7 +3167,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -3244,7 +3247,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -3325,7 +3328,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -3405,7 +3408,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -3477,7 +3480,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -3545,7 +3548,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -3613,7 +3616,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>1</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -3713,7 +3716,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -3813,7 +3816,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -3913,7 +3916,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -4013,7 +4016,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -4113,7 +4116,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -4205,7 +4208,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -4273,7 +4276,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -4341,7 +4344,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -4413,7 +4416,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -4485,7 +4488,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+@@ -4554,7 +4557,7 @@
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+-			<bBlitz>0</bBlitz>
++			<iBlitz>0</iBlitz>
+ 			<bAmphib>0</bAmphib>
+ 			<bRiver>0</bRiver>
+ 			<bEnemyRoute>0</bEnemyRoute>
+
+diff --git a/Assets/xml/Units/CIV4UnitSchema.xml b/Assets/xml/Units/CIV4UnitSchema.xml
+index 0d8df9208..9f5e564d3 100644
+--- a/Assets/xml/Units/CIV4UnitSchema.xml
++++ b/Assets/xml/Units/CIV4UnitSchema.xml
+@@ -804,7 +804,8 @@
+ 	<ElementType name="TechPrereq" content="textOnly"/>
+ 	<ElementType name="StateReligionPrereq" content="textOnly"/>
+ 	<ElementType name="bLeader" content="textOnly" dt:type="boolean"/>
+-	<ElementType name="bBlitz" content="textOnly" dt:type="boolean"/>
++	<!-- advc.164: was boolean -->
++	<ElementType name="iBlitz" content="textOnly" dt:type="int"/>
+ 	<ElementType name="bAmphib" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="bRiver" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="bEnemyRoute" content="textOnly" dt:type="boolean"/>
+@@ -866,7 +867,8 @@
+ 		<element type="TechPrereq"/>
+ 		<element type="StateReligionPrereq"/>
+ 		<element type="bLeader"/>
+-		<element type="bBlitz"/>
++		<!-- advc.164 -->
++		<element type="iBlitz"/>
+ 		<element type="bAmphib"/>
+ 		<element type="bRiver"/>
+ 		<element type="bEnemyRoute"/>
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 93d9cf662..9f83ce423 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -544,13 +544,14 @@ bool isPromotionValid(PromotionTypes ePromotion, UnitTypes eUnit, bool bLeader)
+ 
+ 	if (kUnit.isOnlyDefensive())
+ 	{
+-		if ((kPromotion.getCityAttackPercent() != 0) ||
+-			  (kPromotion.getWithdrawalChange() != 0) ||
+-			  (kPromotion.getCollateralDamageChange() != 0) ||
+-			  (kPromotion.isBlitz()) ||
+-			  (kPromotion.isAmphib()) ||
+-			  (kPromotion.isRiver()) ||
+-			  (kPromotion.getHillsAttackPercent() != 0))
++		if (kPromotion.getCityAttackPercent() != 0 ||
++			  kPromotion.getWithdrawalChange() != 0 ||
++			  kPromotion.getCollateralDamageChange() != 0 ||
++			  kPromotion.//isBlitz()
++				getBlitz() != 0 || // advc.164
++			  kPromotion.isAmphib() ||
++			  kPromotion.isRiver() ||
++			  kPromotion.getHillsAttackPercent() != 0)
+ 		{
+ 			return false;
+ 		}
+@@ -563,14 +564,14 @@ bool isPromotionValid(PromotionTypes ePromotion, UnitTypes eUnit, bool bLeader)
+ 			return false;
+ 		}
+ 	}
+-
+-	if (kUnit.getMoves() == 1)
++	// advc.164: Check this in CvUnit::isPromotionValid instead
++	/*if (kUnit.getMoves() == 1)
+ 	{
+ 		if (kPromotion.isBlitz())
+ 		{
+ 			return false;
+ 		}
+-	}
++	}*/
+ 
+ 	if ((kUnit.getCollateralDamage() == 0) || (kUnit.getCollateralDamageLimit() == 0) || (kUnit.getCollateralDamageMaxUnits() == 0))
+ 	{
+@@ -1906,7 +1907,8 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 			FAssert(pLoopUnit->getDomainType() != DOMAIN_AIR);
+ 
+ 			int iMaxMoves = parent->m_iData1 > 0 ? parent->m_iData1 : pLoopUnit->maxMoves();
+-			int iMoveCost = pToPlot->movementCost(pLoopUnit, pFromPlot);
++			int iMoveCost = pToPlot->movementCost(pLoopUnit, pFromPlot,
++					false); // advc.001i
+ 			int iMovesLeft = std::max(0, (iMaxMoves - iMoveCost));
+ 
+ 			iWorstMovesLeft = std::min(iWorstMovesLeft, iMovesLeft);
+@@ -2236,7 +2238,8 @@ int pathValid_source(FAStarNode* parent, CvSelectionGroup* pSelectionGroup, int
+ 	}
+ 	// <advc.049> No new AI routes in human territory (but upgrade to railroad OK)
+ 	if(iFlags & MOVE_ROUTE_TO) {
+-		if(!pFromPlot->isRoute() && !pSelectionGroup->isHuman()) {
++		if(pFromPlot->getRevealedRouteType(pSelectionGroup->getHeadTeam(), false) ==
++			NO_ROUTE && !pSelectionGroup->isHuman()) {
+ 			PlayerTypes eOwner = pFromPlot->getOwnerINLINE();
+ 			if(eOwner != NO_PLAYER && GET_PLAYER(eOwner).isHuman())
+ 				return FALSE;
+@@ -2421,14 +2424,16 @@ int pathAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer,
+ 		}
+ 
+ 		CLLNode<IDInfo>* pUnitNode = pSelectionGroup->headUnitNode();
+-		int iMoveCost = pToPlot->movementCost(::getUnit(pUnitNode->m_data), pFromPlot);
++		int iMoveCost = pToPlot->movementCost(::getUnit(pUnitNode->m_data), pFromPlot,
++				false); // advc.001i
+ 		bool bUniformCost = true;
+ 
+ 		for (pUnitNode = pSelectionGroup->nextUnitNode(pUnitNode); pUnitNode && bUniformCost; pUnitNode = pSelectionGroup->nextUnitNode(pUnitNode))
+ 		{
+ 			CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 
+-			int iLoopCost = pToPlot->movementCost(pLoopUnit, pFromPlot);
++			int iLoopCost = pToPlot->movementCost(pLoopUnit, pFromPlot,
++					false); // advc.001i
+ 			if (iLoopCost != iMoveCost)
+ 			{
+ 				bUniformCost = false;
+@@ -2464,7 +2469,8 @@ int pathAdd(FAStarNode* parent, FAStarNode* node, int data, const void* pointer,
+ 				int iUnitMoves = bMaxMoves ? pLoopUnit->maxMoves() : pLoopUnit->movesLeft();
+ 				for (size_t i = plot_list.size()-1; i > 0; i--)
+ 				{
+-					iUnitMoves -= plot_list[i-1]->movementCost(pLoopUnit, plot_list[i]);
++					iUnitMoves -= plot_list[i-1]->movementCost(pLoopUnit, plot_list[i],
++							false); // advc.001i
+ 					FAssert(iUnitMoves > 0 || i == 1);
+ 				}
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b1679b8b3..a59d0306a 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -739,7 +739,17 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 			if (pUnit->isBlitz())
+ 			{
+ 				szString.append(NEWLINE);
+-				szString.append(gDLL->getText("TXT_KEY_PROMOTION_BLITZ_TEXT"));
++				// <advc.164>
++				int iBlitz = pUnit->getBlitzCount();
++				if(iBlitz > 0) {
++					if(iBlitz > 1) {
++						szString.append(gDLL->getText("TXT_KEY_PROMOTION_BLITZ_LIMIT",
++								iBlitz + 1));
++					}
++					else szString.append(gDLL->getText("TXT_KEY_PROMOTION_BLITZ_TWICE"));
++				}
++				else // </advc.164>
++					szString.append(gDLL->getText("TXT_KEY_PROMOTION_BLITZ_TEXT"));
+ 			}
+ 
+ 			if (pUnit->isAmphib())
+@@ -7032,10 +7042,19 @@ void CvGameTextMgr::parsePromotionHelp(CvWStringBuffer &szBuffer, PromotionTypes
+ 		return;
+ 	}
+ 
+-	if (GC.getPromotionInfo(ePromotion).isBlitz())
+-	{
++	//if (GC.getPromotionInfo(ePromotion).isBlitz())
++	// <advc.164>
++	int iBlitz = GC.getPromotionInfo(ePromotion).getBlitz();
++	if(iBlitz != 0) { // </advc.164>
+ 		szBuffer.append(pcNewline);
+-		szBuffer.append(gDLL->getText("TXT_KEY_PROMOTION_BLITZ_TEXT"));
++		// <advc.164>
++		if(iBlitz > 0) {
++			if(iBlitz > 1)
++				szBuffer.append(gDLL->getText("TXT_KEY_PROMOTION_BLITZ_LIMIT", iBlitz + 1));
++			else szBuffer.append(gDLL->getText("TXT_KEY_PROMOTION_BLITZ_TWICE"));
++		}
++		else // </advc.164>
++			szBuffer.append(gDLL->getText("TXT_KEY_PROMOTION_BLITZ_TEXT"));
+ 	}
+ 
+ 	if (GC.getPromotionInfo(ePromotion).isAmphib())
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index a66a577ec..d6f63a713 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -1646,7 +1646,7 @@ m_iUpgradeDiscount(0),
+ m_iExperiencePercent(0),
+ m_iKamikazePercent(0),
+ m_bLeader(false),
+-m_bBlitz(false),
++m_iBlitz(0), // advc.164
+ m_bAmphib(false),
+ m_bRiver(false),
+ m_bEnemyRoute(false),
+@@ -1899,11 +1899,11 @@ bool CvPromotionInfo::isLeader() const
+ {
+ 	return m_bLeader;
+ }
+-
+-bool CvPromotionInfo::isBlitz() const			
++// <advc.164> was bool
++int CvPromotionInfo::getBlitz() const			
+ {
+-	return m_bBlitz;
+-}
++	return m_iBlitz;
++} // </advc.164>
+ 
+ bool CvPromotionInfo::isAmphib() const			
+ {
+@@ -2054,9 +2054,17 @@ void CvPromotionInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_iUpgradeDiscount);
+ 	stream->Read(&m_iExperiencePercent);
+ 	stream->Read(&m_iKamikazePercent);
+-
+ 	stream->Read(&m_bLeader);
+-	stream->Read(&m_bBlitz);
++	// <advc.164>
++	if(uiFlag >= 1)
++		stream->Read(&m_iBlitz);
++	else {
++		bool bTmp=false;
++		stream->Read(&bTmp);
++		if(bTmp)
++			m_iBlitz = 1;
++		else m_iBlitz = 0;
++	} // </advc.164>
+ 	stream->Read(&m_bAmphib);
+ 	stream->Read(&m_bRiver);
+ 	stream->Read(&m_bEnemyRoute);
+@@ -2110,6 +2118,7 @@ void CvPromotionInfo::write(FDataStreamBase* stream)
+ 	CvHotkeyInfo::write(stream);
+ 
+ 	uint uiFlag = 0;
++	uiFlag = 1; // advc.164
+ 	stream->Write(uiFlag);		// flag for expansion
+ 
+ 	stream->Write(m_iLayerAnimationPath);
+@@ -2149,9 +2158,8 @@ void CvPromotionInfo::write(FDataStreamBase* stream)
+ 	stream->Write(m_iUpgradeDiscount);
+ 	stream->Write(m_iExperiencePercent);
+ 	stream->Write(m_iKamikazePercent);
+-
+ 	stream->Write(m_bLeader);
+-	stream->Write(m_bBlitz);
++	stream->Write(&m_iBlitz); // advc.164
+ 	stream->Write(m_bAmphib);
+ 	stream->Write(m_bRiver);
+ 	stream->Write(m_bEnemyRoute);
+@@ -2199,7 +2207,7 @@ bool CvPromotionInfo::read(CvXMLLoadUtility* pXML)
+ 	{
+ 		m_bGraphicalOnly = true;  // don't show in Civilopedia list of promotions
+ 	}
+-	pXML->GetChildXmlValByName(&m_bBlitz, "bBlitz");
++	pXML->GetChildXmlValByName(&m_iBlitz, "iBlitz"); // advc.164
+ 	pXML->GetChildXmlValByName(&m_bAmphib, "bAmphib");
+ 	pXML->GetChildXmlValByName(&m_bRiver, "bRiver");
+ 	pXML->GetChildXmlValByName(&m_bEnemyRoute, "bEnemyRoute");
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index b8ec21fe1..4c3f6ee30 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -496,7 +496,8 @@ public:
+ 	int getKamikazePercent() const;				// Exposed to Python
+ 
+ 	bool isLeader() const;				// Exposed to Python
+-	bool isBlitz() const;				// Exposed to Python
++	// advc.164: was isBlitz
++	int getBlitz() const;				// Exposed to Python
+ 	bool isAmphib() const;				// Exposed to Python
+ 	bool isRiver() const;				// Exposed to Python
+ 	bool isEnemyRoute() const;				// Exposed to Python
+@@ -569,7 +570,8 @@ protected:
+ 	int m_iKamikazePercent;
+ 
+ 	bool m_bLeader;
+-	bool m_bBlitz;									
++	//bool m_bBlitz;
++	int m_iBlitz; // advc.164
+ 	bool m_bAmphib;								
+ 	bool m_bRiver;									
+ 	bool m_bEnemyRoute;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 357590c19..e3189132d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5157,12 +5157,8 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves,
+ 	}
+ 
+ 	/* bbai if( bTestMoves && isTurnActive() )
+-	{
+-		if( (iRange <= DANGER_RANGE) && pPlot->getActivePlayerNoDangerCache() )
+-		{
+-			return false;
+-		}
+-	} */
++	{ if( (iRange <= DANGER_RANGE) && pPlot->getActivePlayerNoDangerCache() )
++			return false; } */
+ 	// K-Mod
+ 	if (bTestMoves && isSafeRangeCacheValid() && iRange <= pPlot->getActivePlayerSafeRangeCache())
+ 		return false;
+@@ -5187,16 +5183,14 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves,
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+ 	CvPlot* pLoopPlot;
+-	int iDistance;
+ 	int iDX, iDY;
+ 	CvArea *pPlotArea = pPlot->area();
+-	int iDangerRange;
+ 
+ 	for (iDX = -(iRange); iDX <= iRange; iDX++)
+ 	{
+ 		for (iDY = -(iRange); iDY <= iRange; iDY++)
+ 		{
+-			pLoopPlot	= plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
++			pLoopPlot = plotXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), iDX, iDY);
+ 
+ 			if (pLoopPlot != NULL)
+ 			{	// <advc.030>
+@@ -5204,48 +5198,51 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves,
+ 				if(pPlotArea->canBeEntered(fromArea)) // Replacing:
+ 				//if (pLoopPlot->area() == pPlotArea) // </advc.030>
+ 				{
+-				    iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
++				    int iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
+ 				    if( bCheckBorder
+ 							// advc.030: For CheckBorder, it's a helpful precondition.
+ 							&& pLoopPlot->area() == pPlotArea)
+ 					{
+ 						if (atWar(pLoopPlot->getTeam(), eTeam))
+-						{
+-							/* original bbai code
++						{	/* original bbai code
+ 							// Border cache is reversible, set for both team and enemy.
+-							if (iDistance == 1)
+-							{
++							if (iDistance == 1) {
+ 								pPlot->setBorderDangerCache(eTeam, true);
+ 								pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+ 								pLoopPlot->setBorderDangerCache(eTeam, true);
+ 								pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+-								return true;
+-							}
+-							else if ((iDistance == 2) && (pLoopPlot->isRoute()))
+-							{
++								return true; }
++							else if ((iDistance == 2) && (pLoopPlot->isRoute())) {
+ 								pPlot->setBorderDangerCache(eTeam, true);
+ 								pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+ 								pLoopPlot->setBorderDangerCache(eTeam, true);
+ 								pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+-								return true;
+-							} */
++								return true; } */
+ 							// K-Mod. reversible my arse.
+ 							if (iDistance == 1)
+ 							{
+ 								pPlot->setBorderDangerCache(eTeam, true);
+-								pLoopPlot->setBorderDangerCache(eTeam, true); // pLoopPlot is in enemy territory, so this is fine.
+-								if (pPlot->getTeam() == eTeam) // only set the cache for the pLoopPlot team if pPlot is owned by us! (ie. owned by their enemy)
++								// pLoopPlot is in enemy territory, so this is fine.
++								pLoopPlot->setBorderDangerCache(eTeam, true);
++								/*  only set the cache for the pLoopPlot team if pPlot is
++									owned by us! (ie. owned by their enemy) */
++								if (pPlot->getTeam() == eTeam)
+ 								{
+ 									pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+ 									pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+ 								}
+ 								return true;
+ 							}
+-							else if (iDistance == 2 && pLoopPlot->isRoute())
++							else if (iDistance == 2 && pLoopPlot->//isRoute()
++									// advc.001i
++									getRevealedRouteType(eTeam, false) != NO_ROUTE)
+ 							{
+ 								pPlot->setBorderDangerCache(eTeam, true);
+ 								pLoopPlot->setBorderDangerCache(eTeam, true); // owned by our enemy
+-								if (pPlot->isRoute() && pPlot->getTeam() == eTeam)
++								if (pPlot->//isRoute()
++										// advc.001i:
++										getRevealedRouteType(pLoopPlot->getTeam(), false) != NO_ROUTE
++										&& pPlot->getTeam() == eTeam)
+ 								{
+ 									pLoopPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+ 									pPlot->setBorderDangerCache(pLoopPlot->getTeam(), true);
+@@ -5262,41 +5259,32 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves,
+ 					{
+ 						pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+-
+ 						// No need to loop over tiles full of our own units
+ 						if( pLoopUnit->getTeam() == eTeam )
+ 						{
+-							if( !(pLoopUnit->alwaysInvisible()) && (pLoopUnit->getInvisibleType() == NO_INVISIBLE) )
+-							{
++							if(!pLoopUnit->alwaysInvisible() &&
++									pLoopUnit->getInvisibleType() == NO_INVISIBLE)
+ 								break;
+-							}
+-						}
+-
+-						if (pLoopUnit->isEnemy(eTeam))
+-						{	// advc.315: was pLoopUnit->canAttack()
+-							if (AI_canBeAttackedBy(*pLoopUnit))
++						} // advc.003: Indentation reduced
++						if (pLoopUnit->isEnemy(eTeam) &&
++								// advc.315: was pLoopUnit->canAttack()
++								AI_canBeAttackedBy(*pLoopUnit) &&
++								!pLoopUnit->isInvisible(eTeam, false) &&
++								/* advc.030, advc.001k: Replacing the condition below
++								   (which calls isMadeAttack) */
++								pPlotArea->canBeEntered(fromArea, pLoopUnit))
++								//if (pLoopUnit->canMoveOrAttackInto(pPlot))
++						{
++							if (!bTestMoves)
++								return true;
++							else
+ 							{
+-								if (!(pLoopUnit->isInvisible(eTeam, false)))
+-								{ /* advc.030, advc.001k: Replacing the line below
+-									 (which calls isMadeAttack) */
+-									if(pPlotArea->canBeEntered(fromArea, pLoopUnit))
+-								    //if (pLoopUnit->canMoveOrAttackInto(pPlot))
+-									{
+-                                        if (!bTestMoves)
+-                                        {
+-                                            return true;
+-                                        }
+-                                        else
+-                                        {
+-                                            iDangerRange = pLoopUnit->baseMoves();
+-                                            iDangerRange += ((pLoopPlot->isValidRoute(pLoopUnit)) ? 1 : 0);
+-                                            if (iDangerRange >= iDistance)
+-											{
+-												return true;
+-											}
+-										}
+-									}
+-								}
++								int iDangerRange = pLoopUnit->baseMoves();
++								if(pLoopPlot->isValidRoute(pLoopUnit,
++										false)) // advc.001i
++									iDangerRange++;
++								if(iDangerRange >= iDistance)
++									return true;
+ 							}
+ 						}
+ 					}
+@@ -5398,10 +5386,10 @@ int CvPlayerAI::AI_getPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves
+ 							{
+ 								iBorderDanger++;
+ 							}
+-							else if ((iDistance == 2) && (pLoopPlot->isRoute()))
+-							{
++							else if (iDistance == 2 && pLoopPlot->//isRoute()
++									// advc.001i:
++									getRevealedRouteType(eTeam, false) != NO_ROUTE)
+ 								iBorderDanger++;
+-							}
+ 						}
+ 					} // advc.104
+ 
+@@ -5449,7 +5437,9 @@ int CvPlayerAI::AI_getPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves
+ 						else
+ 						{
+ 							int iDangerRange = pLoopUnit->baseMoves();
+-							iDangerRange += ((pLoopPlot->isValidRoute(pLoopUnit)) ? 1 : 0);
++							if(pLoopPlot->isValidRoute(pLoopUnit,
++									false)) // advc.001i
++								iDangerRange++;
+ 							if (iDangerRange >= iDistance)
+ 							{
+ 								iCount++;
+@@ -5533,10 +5523,10 @@ int CvPlayerAI::AI_getUnitDanger(CvUnit* pUnit, int iRange, bool bTestMoves, boo
+ 				        {
+ 				            iBorderDanger++;
+ 				        }
+-				        else if ((iDistance == 2) && (pLoopPlot->isRoute()))
+-				        {
++				        else if (iDistance == 2 && pLoopPlot->//isRoute()
++								// advc.001i
++								getRouteType(getTeam(), false) != NO_ROUTE)
+ 				            iBorderDanger++;
+-				        }
+ 				    }
+ 
+ 
+@@ -5562,7 +5552,9 @@ int CvPlayerAI::AI_getUnitDanger(CvUnit* pUnit, int iRange, bool bTestMoves, boo
+                                         else
+                                         {
+                                             iDangerRange = pLoopUnit->baseMoves();
+-                                            iDangerRange += ((pLoopPlot->isValidRoute(pLoopUnit)) ? 1 : 0);
++											if(pLoopPlot->isValidRoute(pLoopUnit),
++													false) // advc.001i
++												iDangerRange++;
+                                             if (iDangerRange >= iDistance)
+                                             {
+                                                 iCount++;
+@@ -16237,7 +16229,7 @@ int CvPlayerAI::AI_missionaryValue(CvArea* pArea, ReligionTypes eReligion, Playe
+ 				if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() != getTeam() && kLoopPlayer.getNumCities() > 0)
+ 				{
+ 					if (GET_TEAM(kLoopPlayer.getTeam()).isOpenBorders(getTeam()) ||
+-							// advc.001i:
++							// advc.001j:
+ 							GET_TEAM(getTeam()).isFriendlyTerritory(kLoopPlayer.getTeam()))
+ 					{
+ 						int iCitiesCount = 0;
+@@ -16652,7 +16644,9 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
+ 							// - because the calling function might be waiting to use some pathfinding results
+ 							// So this check will have to be really rough. :(
+ 							int iMoves = pLoopUnit->baseMoves();
+-							iMoves += pLoopPlot->isValidRoute(pLoopUnit) ? 1 : 0;
++							if(pLoopPlot->isValidRoute(pLoopUnit,
++									false)) // advc.001i
++								iMoves++;
+ 							int iDistance = std::max(std::abs(iDX), std::abs(iDY));
+ 							if (iDistance > iMoves)
+ 								continue; // can't make it. (maybe?)
+@@ -16723,14 +16717,18 @@ int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAtt
+ 							// - because the calling function might be waiting to use some pathfinding results
+ 							// So this check will have to be really rough. :(
+ 							int iMoves = pLoopUnit->baseMoves();
+-							iMoves += pLoopPlot->isValidRoute(pLoopUnit) ? 1 : 0;
++							if(pLoopPlot->isValidRoute(pLoopUnit,
++									false)) // advc.001i
++								iMoves++;
+ 							int iDistance = std::max(std::abs(iDX), std::abs(iDY));
+ 							if (iDistance > iMoves)
+ 								continue; // can't make it. (maybe?)
+ 						}
+ 						if (bCheckCanAttack)
+ 						{
+-							if (!pLoopUnit->canMove() || (pLoopUnit->isMadeAttack() && !pLoopUnit->isBlitz())
++							if (!pLoopUnit->canMove() ||
++								//(pLoopUnit->isMadeAttack() && !pLoopUnit->isBlitz())
++								pLoopUnit->isMadeAllAttacks() // advc.164
+ 								|| (bUseTarget && pLoopUnit->combatLimit() < 100 && pLoopPlot->isWater() && !pTargetPlot->isWater()))
+ 							{
+ 								continue; // can't attack
+@@ -24711,7 +24709,7 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 						if (GET_PLAYER((PlayerTypes)iI).isAlive() && kTeam.isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
+ 						{
+                             if (kTeam.isOpenBorders(GET_PLAYER((PlayerTypes)iI).getTeam()) ||
+-									// advc.001i
++									// advc.001j:
+ 									kTeam.isFriendlyTerritory(GET_PLAYER((PlayerTypes)iI).getTeam()))
+                             {
+ 								if ((GET_PLAYER((PlayerTypes)iI).getStateReligion() == getStateReligion()))
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index eac1fb4f7..f6977e1f7 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -838,11 +838,12 @@ void CvPlot::verifyUnitValidPlot()
+ 		{
+ 			if (pLoopUnit->atPlot(this))
+ 			{
+-				if (!(pLoopUnit->isCargo()))
++				if (!pLoopUnit->isCargo())
+ 				{
+-					if (!(pLoopUnit->isCombat()))
++					if (!pLoopUnit->isCombat())
+ 					{
+-						if (!isValidDomainForLocation(*pLoopUnit) || !(pLoopUnit->canEnterArea(getTeam(), area())))
++						if (!isValidDomainForLocation(*pLoopUnit) ||
++								!pLoopUnit->canEnterArea(getTeam(), area()))
+ 						{
+ 							if (!pLoopUnit->jumpToNearestValidPlot(true))
+ 							{
+@@ -880,13 +881,13 @@ void CvPlot::verifyUnitValidPlot()
+ 			{
+ 				if (pLoopUnit->atPlot(this))
+ 				{
+-					if (!(pLoopUnit->isCombat()))
++					if (!pLoopUnit->isCombat())
+ 					{
+ 						if (pLoopUnit->getTeam() != getTeam() && (getTeam() == NO_TEAM || !GET_TEAM(getTeam()).isVassal(pLoopUnit->getTeam())))
+ 						{
+ 							if (isVisibleEnemyUnit(pLoopUnit))
+ 							{
+-								if (!(pLoopUnit->isInvisible(getTeam(), false)))
++								if (!pLoopUnit->isInvisible(getTeam(), false))
+ 								{
+ 									if (!pLoopUnit->jumpToNearestValidPlot(true))
+ 									{
+@@ -2853,13 +2854,13 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
+ }
+ 
+ 
+-int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot) const
++int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot,
++		bool bAssumeRevealed) const // advc.001i
+ {
+-	int iRegularCost;
+-	int iRouteCost;
+-	int iRouteFlatCost;
+-
+ 	FAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
++	// <advc.162>
++	if(pUnit->isInvasionMove(*pFromPlot, *this))
++		return pUnit->movesLeft(); // </advc.162>
+ 
+ 	if (pUnit->flatMovementCost() || (pUnit->getDomainType() == DOMAIN_AIR))
+ 	{
+@@ -2875,7 +2876,10 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot) const
+ 		}
+ 	} */
+ 	// K-Mod. Why let the AI cheat this?
+-	if (!isRevealed(pUnit->getTeam(), false))
++	if ( /* advc.001i: The K-Mod condition is OK, but now that the pathfinder passes
++			bAssumeRevealed=false, it's cleaner to check that too. */
++		!bAssumeRevealed &&
++		!isRevealed(pUnit->getTeam(), false))
+ 	{
+ 		/*if (!pFromPlot->isRevealed(pUnit->getTeam(), false))
+ 			return pUnit->maxMoves();
+@@ -2898,14 +2902,16 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot) const
+ 
+ 	FAssert(pUnit->getDomainType() != DOMAIN_IMMOBILE);
+ 
++	int iRegularCost;
+ 	if (pUnit->ignoreTerrainCost())
+ 	{
+ 		iRegularCost = 1; 
+ 	}
+ 	else
+ 	{
+-		iRegularCost = ((getFeatureType() == NO_FEATURE) ? GC.getTerrainInfo(getTerrainType()).getMovementCost() : GC.getFeatureInfo(getFeatureType()).getMovementCost());
+-
++		iRegularCost = ((getFeatureType() == NO_FEATURE) ?
++				GC.getTerrainInfo(getTerrainType()).getMovementCost() :
++				GC.getFeatureInfo(getFeatureType()).getMovementCost());
+ 		if (isHills())
+ 		{
+ 			iRegularCost += GC.getHILLS_EXTRA_MOVEMENT();
+@@ -2931,13 +2937,28 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot) const
+ 			iRegularCost /= 2;
+ 		}
+ 	}
+-
+-	if (pFromPlot->isValidRoute(pUnit) && isValidRoute(pUnit) && ((GET_TEAM(pUnit->getTeam()).isBridgeBuilding() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, this))))))
+-	{
+-		iRouteCost = std::max((GC.getRouteInfo(pFromPlot->getRouteType()).getMovementCost() + GET_TEAM(pUnit->getTeam()).getRouteChange(pFromPlot->getRouteType())),
+-			               (GC.getRouteInfo(getRouteType()).getMovementCost() + GET_TEAM(pUnit->getTeam()).getRouteChange(getRouteType())));
+-		iRouteFlatCost = std::max((GC.getRouteInfo(pFromPlot->getRouteType()).getFlatMovementCost() * pUnit->baseMoves()),
+-			                   (GC.getRouteInfo(getRouteType()).getFlatMovementCost() * pUnit->baseMoves()));
++	int iRouteCost, iRouteFlatCost;
++	// <advc.001i> Pass along bAssumeRevealed
++	if (pFromPlot->isValidRoute(pUnit, bAssumeRevealed) &&
++			isValidRoute(pUnit, bAssumeRevealed) && // </advc.001i>
++			(GET_TEAM(pUnit->getTeam()).isBridgeBuilding() ||
++			!pFromPlot->isRiverCrossing(directionXY(pFromPlot, this))))
++	{	// <advc.001i>
++		RouteTypes eFromRoute = (bAssumeRevealed ? pFromPlot->getRouteType() :
++				pFromPlot->getRevealedRouteType(pUnit->getTeam(), false));
++		CvRouteInfo const& fromRoute = GC.getRouteInfo(eFromRoute);
++		RouteTypes eToRoute = (bAssumeRevealed ? getRouteType() :
++				getRevealedRouteType(pUnit->getTeam(), false));
++		CvRouteInfo const& toRoute = GC.getRouteInfo(eToRoute);
++		iRouteCost = std::max(
++				fromRoute.getMovementCost() +
++				GET_TEAM(pUnit->getTeam()).getRouteChange(eFromRoute),
++				toRoute.getMovementCost() +
++				GET_TEAM(pUnit->getTeam()).getRouteChange(eToRoute));
++		// </advc.001i>
++		iRouteFlatCost = std::max(
++					fromRoute.getFlatMovementCost() * pUnit->baseMoves(),
++					toRoute.getFlatMovementCost() * pUnit->baseMoves());
+ 	}
+ 	else
+ 	{
+@@ -3997,16 +4018,19 @@ bool CvPlot::isRoute() const
+ }
+ 
+ 
+-bool CvPlot::isValidRoute(const CvUnit* pUnit) const
++bool CvPlot::isValidRoute(const CvUnit* pUnit,
++		bool bAssumeRevealed) const // advc.001i
+ {
+-	if (isRoute())
++	//if (isRoute())
++	// <advc.001i> Replacing the above
++	RouteTypes eRoute = (bAssumeRevealed ? getRouteType() :
++			getRevealedRouteType(pUnit->getTeam(), false));
++	if(eRoute != NO_ROUTE) // </advc.001i>
+ 	{
+ 		if ((!pUnit->isEnemy(getTeam(), this) || pUnit->isEnemyRoute())
+ 				// advc.034:
+ 				&& !GET_TEAM(pUnit->getTeam()).isDisengage(getTeam()))
+-		{
+ 			return true;
+-		}
+ 	}
+ 
+ 	return false;
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index ed9dc9298..194fd613c 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -147,7 +147,8 @@ public:
+ 		/*  advc.012: NO_TEAM means rival defense applies; moved bHelp to the
+ 			end b/c that parameter is rarely set */
+ 			TeamTypes eAttacker = NO_TEAM, bool bHelp = false) const;									// Exposed to Python				
+-	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot) const;														// Exposed to Python				
++	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot,														// Exposed to Python				
++			bool bAssumeRevealed = true) const; // advc.001i
+ 
+ 	int getExtraMovePathCost() const;																																// Exposed to Python
+ 	void changeExtraMovePathCost(int iChange);																																// Exposed to Python
+@@ -242,7 +243,8 @@ public:
+ 	bool canHaveFeature(FeatureTypes eFeature) const;																				// Exposed to Python
+ 
+ 	DllExport bool isRoute() const;																																		// Exposed to Python
+-	bool isValidRoute(const CvUnit* pUnit) const;																											// Exposed to Python
++	bool isValidRoute(const CvUnit* pUnit,																											// Exposed to Python
++			bool bAssumeRevealed) const; // advc.001i
+ 	bool isTradeNetworkImpassable(TeamTypes eTeam) const;																														// Exposed to Python
+ 	bool isNetworkTerrain(TeamTypes eTeam) const;																											// Exposed to Python
+ 	bool isBonusNetwork(TeamTypes eTeam) const;																												// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 08f721197..7a41f6201 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3105,7 +3105,10 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 						return false;
+ 					//
+ 
+-					bool bNoBlitz = (!pBestAttackUnit->isBlitz() || !pBestAttackUnit->isMadeAttack());
++					//bool bNoBlitz = (!pBestAttackUnit->isBlitz() || !pBestAttackUnit->isMadeAttack());
++					/*  advc.164: This looks OK - exclude units that have made
++						at least 1 attack. Just for clarity: */
++					bool bBlitz = (pBestAttackUnit->isBlitz() && pBestAttackUnit->isMadeAttack());
+ 
+ 					/*if (groupDeclareWar(pDestPlot))
+ 					{
+@@ -3114,7 +3117,8 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 
+ 					while (true)
+ 					{
+-						pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, false, iAttackOdds, false, bNoBlitz);
++						pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, false, iAttackOdds, false,
++								!bBlitz); // advc.164
+ 						if (pBestAttackUnit == NULL)
+ 						{
+ 							break;
+@@ -3122,7 +3126,8 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 
+ 						if (iAttackOdds < 68)
+ 						{
+-						    CvUnit * pBestSacrifice = AI_getBestGroupSacrifice(pDestPlot, false, false, bNoBlitz);
++						    CvUnit * pBestSacrifice = AI_getBestGroupSacrifice(pDestPlot, false, false,
++									!bBlitz); // advc.164
+ 						    if (pBestSacrifice != NULL)
+ 						    {
+                                 pBestAttackUnit = pBestSacrifice;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index aa33413a4..2d0ac3f22 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -350,7 +350,8 @@ int CvSelectionGroupAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy)
+ }
+ 
+ 
+-CvUnit* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz) const
++CvUnit* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot,
++		bool bPotentialEnemy, int& iUnitOdds, bool bForce, bool bNoBlitz) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -440,7 +441,8 @@ CvUnit* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool bP
+ 	return pBestUnit;
+ }
+ 
+-CvUnit* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot, bool bPotentialEnemy, bool bForce, bool bNoBlitz) const
++CvUnit* CvSelectionGroupAI::AI_getBestGroupSacrifice(const CvPlot* pPlot,
++		bool bPotentialEnemy, bool bForce, bool bNoBlitz) const
+ {
+ 	int iBestValue = 0;
+ 	CvUnit* pBestUnit = NULL;
+@@ -549,8 +551,10 @@ int CvSelectionGroupAI::AI_compareStacks(const CvPlot* pPlot, bool bCheckCanAtta
+ 	return compareRatio;
+ }
+ 
+-// K-Mod. I've removed bCheckMove, and changed bCheckCanAttack to include checks for moves, and for hasAlreadyAttacked / blitz
+-int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot, DomainTypes eDomainType, bool bCheckCanAttack) const
++/*  K-Mod. I've removed bCheckMove, and changed bCheckCanAttack to include checks
++	for moves, and for hasAlreadyAttacked / blitz */
++int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot,
++		DomainTypes eDomainType, bool bCheckCanAttack) const
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+@@ -583,7 +587,8 @@ int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot, DomainTypes
+ 				{
+ 					if (!pLoopUnit->canAttack() || !pLoopUnit->canMove()
+ 						|| (pAttackedPlot && bDefenders && !pLoopUnit->canMoveInto(pAttackedPlot, true, true))
+-						|| (!pLoopUnit->isBlitz() && pLoopUnit->isMadeAttack()))
++						|| //(!pLoopUnit->isBlitz() && pLoopUnit->isMadeAttack())
++							pLoopUnit->isMadeAllAttacks()) // advc.164
+ 						continue; // can't attack.
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 4e6a83e59..7af68021b 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -235,6 +235,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
+ 		m_abHasMet[iI] = false;
+ 		m_abHasSeen[iI] = false; // K-Mod
+ 		m_abAtWar[iI] = false;
++		m_abJustDeclaredWar[iI] = false; // advc.162
+ 		m_abPermanentWarPeace[iI] = false;
+ 		m_abOpenBorders[iI] = false;
+ 		m_abDisengage[iI] = false; // advc.034
+@@ -254,6 +255,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
+ 			kLoopTeam.m_abHasMet[getID()] = false;
+ 			kLoopTeam.m_abHasSeen[getID()] = false; // K-Mod
+ 			kLoopTeam.m_abAtWar[getID()] = false;
++			kLoopTeam.m_abJustDeclaredWar[getID()] = false; // advc.162
+ 			kLoopTeam.m_abPermanentWarPeace[getID()] = false;
+ 			kLoopTeam.m_abOpenBorders[getID()] = false;
+ 			kLoopTeam.m_abDisengage[getID()] = false; // advc.034
+@@ -1069,16 +1071,18 @@ void CvTeam::doTurn()
+ 	FAssert(isAlive());
+ 
+ 	AI_doTurnPre();
+-
++	// <advc.162>
++	for(int i = 0; i < MAX_TEAMS; i++)
++		m_abJustDeclaredWar[i] = false;
++	// </advc.162>
+ 	if (isBarbarian())
+ 	{
+ 		// <advc.307>
+-		CvGame& g = GC.getGame();
+-		bool noBarbCities = GC.getEraInfo(g.getCurrentEra()).isNoBarbCities();
+-		bool ignorePrereqs = noBarbCities
++		CvGame& g = GC.getGameINLINE();
++		bool bNoBarbCities = GC.getEraInfo(g.getCurrentEra()).isNoBarbCities();
++		bool bIgnorePrereqs = bNoBarbCities;
+ 				/*  Barbs get all tech from earlier eras for free. Don't need
+-					to catch up. */ //|| (((int)g.getStartEra()) > 0)
+-				;
++					to catch up. */ //|| (((int)g.getStartEra()) > 0);
+ 		// </advc.307>
+ 		/*  K-Mod. Delay the start of the barbarian research. (This is an
+ 			experimental change. It is currently compensated by an increase in
+@@ -1091,7 +1095,7 @@ void CvTeam::doTurn()
+ 			{
+ 				//if (!isHasTech((TechTypes)iI))
+ 				if (!isHasTech(i) && 
+-					(ignorePrereqs || // advc.307
++					(bIgnorePrereqs || // advc.307
+ 					kBarbPlayer.canResearch(i, false, true))) // K-Mod. Make no progress on techs until prereqs are researched.
+ 				{
+ 					int iCount = 0;
+@@ -1127,7 +1131,7 @@ void CvTeam::doTurn()
+ 							having contact with barbs if at least one of them has
+ 							contact. Otherwise, New World barbs catch up too slowly
+ 							when colonized only by one or two civs. */
+-						if(noBarbCities)
++						if(bNoBarbCities)
+ 							iCount = std::max(iCount, (2 * hasTechCount) / 3);
+ 						//changeResearchProgress(((TechTypes)iI), ((getResearchCost((TechTypes)iI) * ((GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT") * iCount) / iPossibleCount)) / 100), getLeaderID());
+ 						// K-Mod. Adjust research rate for game-speed & start-era - but _not_ world-size. And fix the rounding error.
+@@ -1480,6 +1484,9 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 
+ 	setAtWar(eTeam, true);
+ 	GET_TEAM(eTeam).setAtWar(getID(), true);
++	// <advc.162>
++	if(GC.getDefineINT("ENABLE_162") > 0)
++		m_abJustDeclaredWar[eTeam] = true; // </advc.162>
+ 
+ 	// Plot danger cache (bbai)
+ 	GC.getMapINLINE().invalidateBorderDangerCache(eTeam);
+@@ -1561,6 +1568,8 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 		gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+ 		// advc.001w: Can now enter each other's territory
+ 		gDLL->getInterfaceIFace()->setDirty(Waypoints_DIRTY_BIT, true);
++		// advc.162: DoW increases certain path costs
++		CvSelectionGroup::path_finder.Reset();
+ 	}
+ 	// advc.003j: Obsolete
+ 	/*for (iI = 0; iI < MAX_PLAYERS; iI++)
+@@ -4467,6 +4476,13 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
+ 	// </advc.035>
+ }
+ 
++/*  <advc.162> "Just" meaning on the current turn. Don't want to rely on
++	CvTeamAI::AI_atWarCounter for this b/c that's an AI function. */
++bool CvTeam::hasJustDeclaredWar(TeamTypes eIndex) const {
++
++	return m_abJustDeclaredWar[eIndex];
++} // </advc.162>
++
+ 
+ bool CvTeam::isPermanentWarPeace(TeamTypes eIndex) const
+ {
+@@ -7547,6 +7563,9 @@ void CvTeam::read(FDataStreamBase* pStream)
+ 		memcpy(m_abHasSeen, m_abHasMet, sizeof(*m_abHasSeen)*MAX_TEAMS);
+ 	// K-Mod end
+ 	pStream->Read(MAX_TEAMS, m_abAtWar);
++	// <advc.162>
++	if(uiFlag >= 4)
++		pStream->Read(MAX_TEAMS, m_abJustDeclaredWar); // </advc.162>
+ 	pStream->Read(MAX_TEAMS, m_abPermanentWarPeace);
+ 	pStream->Read(MAX_TEAMS, m_abOpenBorders);
+ 	// <advc.034>
+@@ -7614,6 +7633,7 @@ void CvTeam::write(FDataStreamBase* pStream)
+ 	uint uiFlag = 1;
+ 	uiFlag = 2; // advc.003b: m_eLeader added
+ 	uiFlag = 3; // advc.034
++	uiFlag = 4; // advc.162
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iNumMembers);
+@@ -7659,6 +7679,7 @@ void CvTeam::write(FDataStreamBase* pStream)
+ 	pStream->Write(MAX_TEAMS, m_abHasMet);
+ 	pStream->Write(MAX_TEAMS, m_abHasSeen); // K-Mod. uiFlag >= 1
+ 	pStream->Write(MAX_TEAMS, m_abAtWar);
++	pStream->Write(MAX_TEAMS, m_abJustDeclaredWar); // advc.162
+ 	pStream->Write(MAX_TEAMS, m_abPermanentWarPeace);
+ 	pStream->Write(MAX_TEAMS, m_abOpenBorders);
+ 	pStream->Write(MAX_CIV_TEAMS, m_abDisengage); // advc.034
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 4414f4495..226fcb310 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -275,6 +275,7 @@ public:
+ 
+ 	DllExport bool isAtWar(TeamTypes eIndex) const;																			// Exposed to Python
+ 	void setAtWar(TeamTypes eIndex, bool bNewValue);
++	bool hasJustDeclaredWar(TeamTypes eIndex) const; // advc.162
+ 
+ 	bool isPermanentWarPeace(TeamTypes eIndex) const;																		// Exposed to Python
+ 	void setPermanentWarPeace(TeamTypes eIndex, bool bNewValue);									// Exposed to Python
+@@ -506,11 +507,12 @@ protected:
+ 	int* m_aiForceTeamVoteEligibilityCount;
+ 
+ 	bool* m_abAtWar;
++	bool m_abJustDeclaredWar[MAX_TEAMS]; // advc.162
+ 	bool* m_abHasMet;
+ 	bool* m_abHasSeen; // K-Mod
+ 	bool* m_abPermanentWarPeace;
+ 	bool* m_abOpenBorders;
+-	bool m_abDisengage[MAX_TEAMS];
++	bool m_abDisengage[MAX_TEAMS]; // advc.034
+ 	bool* m_abDefensivePact;
+ 	bool* m_abForcePeace;
+ 	bool* m_abVassal;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 331dd8265..2cb2b7905 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -381,7 +381,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
+ 	m_eFacingDirection = DIRECTION_SOUTH;
+ 	m_iImmobileTimer = 0;
+ 
+-	m_bMadeAttack = false;
++	//m_bMadeAttack = false;
++	m_iMadeAttacks = 0; // advc.164
+ 	m_bMadeInterception = false;
+ 	m_bPromotionReady = false;
+ 	m_bDeathDelay = false;
+@@ -1819,7 +1820,8 @@ void CvUnit::updateCombat(bool bQuick)
+ 
+ void CvUnit::checkRemoveSelectionAfterAttack()
+ {
+-	if (!canMove() || !isBlitz())
++	if (!canMove() ||//!isBlitz()
++			isMadeAllAttacks()) // advc.164
+ 	{
+ 		if (IsSelected())
+ 		{
+@@ -1834,14 +1836,6 @@ void CvUnit::checkRemoveSelectionAfterAttack()
+ 
+ bool CvUnit::isActionRecommended(int iAction)
+ {
+-	//CvCity* pWorkingCity;
+-	//CvPlot* pPlot;
+-	//ImprovementTypes eImprovement;
+-	//ImprovementTypes eFinalImprovement;
+-	//BuildTypes eBuild;
+-	//RouteTypes eRoute;
+-	//BonusTypes eBonus;
+-	//int iIndex;
+ 	/*  advc.002e: Can't find another DLL function that is called by the EXE after
+ 		loading a savegame and after calling CvUnit::isPromotionReady */
+ 	gDLL->getEntityIFace()->showPromotionGlow(getUnitEntity(), isReadyForPromotion());
+@@ -2031,7 +2025,7 @@ bool CvUnit::isActionRecommended(int iAction)
+ 
+ 				if (eRoute != NO_ROUTE)
+ 				{
+-					if (!(pPlot->isRoute()))
++					if (!pPlot->isRoute())
+ 					{
+ 						if (eBonus != NO_BONUS)
+ 						{
+@@ -2662,7 +2656,10 @@ TeamTypes CvUnit::getDeclareWarMove(const CvPlot* pPlot) const
+ 
+ 	if (eRevealedTeam != NO_TEAM)
+ 	{
+-		if (!canEnterArea(eRevealedTeam, pPlot->area()) || (getDomainType() == DOMAIN_SEA && !canCargoEnterArea(eRevealedTeam, pPlot->area(), false) && getGroup()->isAmphibPlot(pPlot)))
++		if (!canEnterArea(eRevealedTeam, pPlot->area()) ||
++				(getDomainType() == DOMAIN_SEA &&
++				!canCargoEnterArea(eRevealedTeam, pPlot->area(), false) &&
++				getGroup()->isAmphibPlot(pPlot)))
+ 		{
+ 			if (GET_TEAM(getTeam()).canDeclareWar(pPlot->getTeam()))
+ 			{
+@@ -2676,11 +2673,13 @@ TeamTypes CvUnit::getDeclareWarMove(const CvPlot* pPlot) const
+ 		{
+ 			//if (canMoveInto(pPlot, true, true, true))
+ 			// K-Mod. Don't give the "declare war" popup unless we need war to move into the plot.
+-			if (canMoveInto(pPlot, true, true, true, false) && !canMoveInto(pPlot, false, false, false, false))
++			if (canMoveInto(pPlot, true, true, true, false) &&
++					!canMoveInto(pPlot, false, false, false, false))
+ 			// K-Mod end
+ 			{
+-				CvUnit* pUnit = pPlot->plotCheck(PUF_canDeclareWar, getOwnerINLINE(), isAlwaysHostile(pPlot), NO_PLAYER, NO_TEAM, PUF_isVisible, getOwnerINLINE());
+-
++				CvUnit* pUnit = pPlot->plotCheck(PUF_canDeclareWar,
++						getOwnerINLINE(), isAlwaysHostile(pPlot),
++						NO_PLAYER, NO_TEAM, PUF_isVisible, getOwnerINLINE());
+ 				if (pUnit != NULL)
+ 				{
+ 					return pUnit->getTeam();
+@@ -2910,10 +2909,9 @@ bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bo
+ 	/*
+ 	if (bAttack || (pPlot->isEnemyCity(*this) && !canCoexistWithEnemyUnit(NO_TEAM)) )
+ 	{
+-		if (isMadeAttack() && !isBlitz())
+-		{
++		if (//isMadeAttack() && !isBlitz()
++				isMadeAllAttacks()) // advc.164
+ 			return false;
+-		}
+ 	}
+ 	*/
+ 
+@@ -2921,10 +2919,10 @@ bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bo
+ 	// made a previous attack or paradrop
+ 	if (bAttack)
+ 	{
+-		if (isMadeAttack() && !isBlitz() && pPlot->isVisibleEnemyDefender(this))
+-		{
++		if (//isMadeAttack() && !isBlitz()
++				isMadeAllAttacks() && // advc.164
++				pPlot->isVisibleEnemyDefender(this))
+ 			return false;
+-		}
+ 	}
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                        END                                                  */
+@@ -3106,6 +3104,20 @@ bool CvUnit::canEnterArea(CvArea const& a) const {
+ 	return a.canBeEntered(*area(), this);
+ } // </advc.030>
+ 
++// <advc.162>
++bool CvUnit::isInvasionMove(CvPlot const& from, CvPlot const& to) const {
++
++	TeamTypes eToTeam = to.getTeam();
++	if(eToTeam == NO_TEAM || eToTeam == from.getTeam() || isRivalTerritory())
++		return false;
++	DomainTypes eDomain = getDomainType();
++	if(eDomain != DOMAIN_LAND && eDomain != DOMAIN_SEA)
++		return false;
++	if(GET_TEAM(getTeam()).hasJustDeclaredWar(eToTeam))
++		return true;
++	return !canEnterTerritory(eToTeam);
++} // </advc.162>
++
+ 
+ void CvUnit::attack(CvPlot* pPlot, bool bQuick)
+ {
+@@ -3267,7 +3279,15 @@ void CvUnit::move(CvPlot* pPlot, bool bShow)
+ 	CvPlot* pOldPlot = plot();
+ 
+ 	changeMoves(pPlot->movementCost(this, plot()));
+-
++	// <advc.162>
++	if(isInvasionMove(*pOldPlot, *pPlot)) {
++		std::vector<CvUnit*> aCargoUnits;
++		getCargoUnits(aCargoUnits);
++		for(size_t i = 0; i < aCargoUnits.size(); i++) {
++			if(!aCargoUnits[i]->isRivalTerritory() && aCargoUnits[i]->getDomainType() != DOMAIN_AIR)
++				aCargoUnits[i]->changeMoves(aCargoUnits[i]->movesLeft());
++		}
++	} // </advc.162>
+ 	setXY(pPlot->getX_INLINE(), pPlot->getY_INLINE(), true, true, bShow && pPlot->isVisibleToWatchingHuman(), bShow);
+ 
+ 	//change feature
+@@ -3388,9 +3408,15 @@ bool CvUnit::jumpToNearestValidPlot(bool bGroup, bool bForceMove)
+ 	if (pBestPlot != NULL)
+ 	{
+ 		// K-Mod. If a unit is bumped, we should clear their mission queue
+-		if (pBestPlot != plot())
++		if(pBestPlot != plot()) {
+ 			getGroup()->clearMissionQueue();
+-		// K-Mod end
++			// K-Mod end
++			// <advc.163>
++			getGroup()->setAutomateType(NO_AUTOMATE);
++			getGroup()->setActivityType(ACTIVITY_AWAKE);
++			setMoves(movesLeft());
++			// </advc.163>
++		}
+ 		setXY(pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE(), bGroup);
+ 	}
+ 	else
+@@ -4908,10 +4934,11 @@ bool CvUnit::canAirBomb(const CvPlot* pPlot) const
+ 		return false;
+ 	}
+ 
+-	if (isMadeAttack())
+-	{
++	if (//isMadeAttack()
++			/*  advc.164: In case aircraft are ever allowed to have Blitz
++				(there'd probably be other issues though). */
++			isMadeAllAttacks())
+ 		return false;
+-	}
+ 
+ 	return true;
+ }
+@@ -5139,10 +5166,9 @@ bool CvUnit::canBombard(const CvPlot* pPlot) const
+ 		return false;
+ 	}
+ 
+-	if (isMadeAttack())
+-	{
++	if (//isMadeAttack()
++			isMadeAllAttacks()) // advc.164
+ 		return false;
+-	}
+ 
+ 	if (isCargo())
+ 	{
+@@ -9624,7 +9650,7 @@ bool CvUnit::isInvisible(TeamTypes eTeam, bool bDebug, bool bCheckCargo) const
+ 		return false;
+ 	}
+ 
+-	return !(plot()->isInvisibleVisible(eTeam, getInvisibleType()));
++	return !plot()->isInvisibleVisible(eTeam, getInvisibleType());
+ }
+ 
+ 
+@@ -11090,13 +11116,14 @@ int CvUnit::getBlitzCount() const
+ 
+ bool CvUnit::isBlitz() const
+ {
+-	return (getBlitzCount() > 0);
++	return (getBlitzCount() != 0); // advc.164: was > 0
+ }
+ 
+ void CvUnit::changeBlitzCount(int iChange)			
+ {
+ 	m_iBlitzCount += iChange;
+-	FAssert(getBlitzCount() >= 0);
++	// advc.164: Negative values now used for unlimited Blitz
++	//FAssert(getBlitzCount() >= 0);
+ }
+ 
+ int CvUnit::getAmphibCount() const
+@@ -11628,15 +11655,25 @@ void CvUnit::changeImmobileTimer(int iChange)
+ 
+ bool CvUnit::isMadeAttack() const
+ {
+-	return m_bMadeAttack;
++	//return m_bMadeAttack;
++	// advc.164: Keep the boolean interface in place
++	return (m_iMadeAttacks > 0);
+ }
+ 
++void CvUnit::setMadeAttack(bool bNewValue) {
+ 
+-void CvUnit::setMadeAttack(bool bNewValue)
+-{
+-	m_bMadeAttack = bNewValue;
++	//m_bMadeAttack = bNewValue;
++	// <advc.164>
++	if(bNewValue)
++		m_iMadeAttacks++;
++	else m_iMadeAttacks = 0;
+ }
+ 
++bool CvUnit::isMadeAllAttacks() const {
++
++	return (getBlitzCount() >= 0 && m_iMadeAttacks > getBlitzCount());
++} // </advc.164>
++
+ 
+ bool CvUnit::isMadeInterception() const
+ {
+@@ -12415,14 +12452,17 @@ bool CvUnit::isPromotionValid(PromotionTypes ePromotion) const
+ 	{
+ 		return false;
+ 	}
+-
++	// <advc.164> Moved from ::isPromotionValid. The paradrop clause is new.
++	if(promotionInfo.getBlitz() != 0 && maxMoves() <= 1 && getDropRange() <= 0)
++		return false;
++	// </advc.164>
+ 	// <advc.124>
+-	PromotionTypes prereq = (PromotionTypes)promotionInfo.getPrereqPromotion();
+-	// Unit extra moves can currently only stem from promotions.
++	PromotionTypes ePrereq = (PromotionTypes)promotionInfo.getPrereqPromotion();
++	// Unit extra moves can currently only come from promotions
+ 	if(promotionInfo.getMovesChange() + m_pUnitInfo->getMoves() + getExtraMoves() > 4 &&
+ 			GET_PLAYER(getOwner()).AI_unitImpassableCount(getUnitType()) > 0 &&
+ 			// Allow Morale
+-			(prereq == NO_PROMOTION || !GC.getPromotionInfo(prereq).isLeader()))
++			(ePrereq == NO_PROMOTION || !GC.getPromotionInfo(ePrereq).isLeader()))
+ 		return false; // </advc.124>
+ 
+ 	return true;
+@@ -12462,7 +12502,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
+ 
+ 	int iChange = ((isHasPromotion(eIndex)) ? 1 : -1);
+ 
+-	changeBlitzCount((GC.getPromotionInfo(eIndex).isBlitz()) ? iChange : 0);
++	//changeBlitzCount((GC.getPromotionInfo(eIndex).isBlitz()) ? iChange : 0);
++	// advc.164: Conveniently, CvUnit was already storing Blitz in an integer.
++	changeBlitzCount(GC.getPromotionInfo(eIndex).getBlitz() * iChange);
+ 	changeAmphibCount((GC.getPromotionInfo(eIndex).isAmphib()) ? iChange : 0);
+ 	changeRiverCount((GC.getPromotionInfo(eIndex).isRiver()) ? iChange : 0);
+ 	changeEnemyRouteCount((GC.getPromotionInfo(eIndex).isEnemyRoute()) ? iChange : 0);
+@@ -12658,8 +12700,17 @@ void CvUnit::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iBaseCombat);
+ 	pStream->Read((int*)&m_eFacingDirection);
+ 	pStream->Read(&m_iImmobileTimer);
+-
+-	pStream->Read(&m_bMadeAttack);
++	//pStream->Read(&m_bMadeAttack);
++	// <advc.164>
++	if(uiFlag >= 5)
++		pStream->Read(&m_iMadeAttacks);
++	else {
++		bool bTmp=false;
++		pStream->Read(&bTmp);
++		if(bTmp)
++			m_iMadeAttacks = 1;
++		else m_iMadeAttacks = 0;
++	} // </advc.164>
+ 	pStream->Read(&m_bMadeInterception);
+ 	pStream->Read(&m_bPromotionReady);
+ 	pStream->Read(&m_bDeathDelay);
+@@ -12702,7 +12753,8 @@ void CvUnit::read(FDataStreamBase* pStream)
+ 
+ void CvUnit::write(FDataStreamBase* pStream)
+ {
+-	uint uiFlag=4; // advc.029
++	uint uiFlag = 4; // advc.029
++	uiFlag = 5; // advc.164
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iID);
+@@ -12763,8 +12815,8 @@ void CvUnit::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iBaseCombat);
+ 	pStream->Write(m_eFacingDirection);
+ 	pStream->Write(m_iImmobileTimer);
+-
+-	pStream->Write(m_bMadeAttack);
++	//pStream->Write(m_bMadeAttack);
++	pStream->Write(m_iMadeAttacks); // advc.164
+ 	pStream->Write(m_bMadeInterception);
+ 	pStream->Write(m_bPromotionReady);
+ 	pStream->Write(m_bDeathDelay);
+@@ -13150,10 +13202,9 @@ bool CvUnit::canRangeStrike() const
+ 		return false;
+ 	}
+ 
+-	if (isMadeAttack() && !isBlitz())
+-	{
++	if (//isMadeAttack() && !isBlitz()
++			isMadeAllAttacks()) // advc.164
+ 		return false;
+-	}
+ 
+ 	if (!canMove() && getMoves() > 0)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index dea34d425..607bfb6b9 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -111,6 +111,7 @@ public:
+ 	bool canMoveOrAttackInto(const CvPlot* pPlot, bool bDeclareWar = false) const;								// Exposed to Python
+ 	// bool canMoveThrough(const CvPlot* pPlot, bool bDeclareWar = false) const; // disabled by K-Mod (was exposed to Python)
+ 	bool canEnterArea(CvArea const& a) const; // advc.030
++	bool isInvasionMove(CvPlot const& from, CvPlot const& to) const; // advc.162
+ 	void attack(CvPlot* pPlot, bool bQuick);
+ 	void attackForDamage(CvUnit *pDefender, int attackerDamageChange, int defenderDamageChange);
+ 	void fightInterceptor(const CvPlot* pPlot, bool bQuick);
+@@ -627,6 +628,7 @@ public:
+ 
+ 	bool isMadeAttack() const;																																// Exposed to Python
+ 	void setMadeAttack(bool bNewValue);																							// Exposed to Python
++	bool isMadeAllAttacks() const; // advc.164
+ 
+ 	bool isMadeInterception() const;																													// Exposed to Python
+ 	void setMadeInterception(bool bNewValue);																				// Exposed to Python
+@@ -863,7 +865,8 @@ protected:
+ 	DirectionTypes m_eFacingDirection;
+ 	int m_iImmobileTimer;
+ 
+-	bool m_bMadeAttack;
++	//bool m_bMadeAttack;
++	int m_iMadeAttacks; // advc.164
+ 	bool m_bMadeInterception;
+ 	bool m_bPromotionReady;
+ 	bool m_bDeathDelay;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index fdb83aeb0..a4fd73c1d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -10133,16 +10133,26 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+ 		return 0;
+ 	}
+ 
+-	if (GC.getPromotionInfo(ePromotion).isBlitz())
+-	{
+-		if ((AI_getUnitAIType() == UNITAI_RESERVE  && baseMoves() > 1) || 
+-			AI_getUnitAIType() == UNITAI_PARADROP)
+-		{
+-			iValue += 10;
+-		}
+-		else
+-		{
+-			iValue += 2;
++	//if (GC.getPromotionInfo(ePromotion).isBlitz())
++	// <advc.164>
++	int iBlitz = GC.getPromotionInfo(ePromotion).getBlitz();
++	if(iBlitz != 0) {
++		if(iBlitz < 0)
++			iBlitz = 3;
++		int iExtraAttacks = std::min(iBlitz, baseMoves() - 1 +
++				(getDropRange() > 0 ? 1 : 0));
++		if(iExtraAttacks > 0) { // </advc.164>
++			if ((AI_getUnitAIType() == UNITAI_RESERVE  && baseMoves() > 1) || 
++				AI_getUnitAIType() == UNITAI_PARADROP)
++			{
++				//iValue += 10;
++				iValue += 8 * iExtraAttacks; // advc.164
++			}
++			else
++			{
++				//iValue += 2;
++				iValue += iExtraAttacks; // advc.164
++			}
+ 		}
+ 	}
+ 
+@@ -14914,7 +14924,8 @@ bool CvUnitAI::AI_safety()
+ 
+ 						// K-Mod
+ 						iValue += (bEnemyTerritory ? !isEnemy(pLoopPlot->getTeam(), pLoopPlot) : pLoopPlot->getTeam() == getTeam()) ? 30 : 0;
+-						iValue += pLoopPlot->isValidRoute(this) ? 25 : 0;
++						iValue += pLoopPlot->isValidRoute(this, false /* advc.001i */)
++								? 25 : 0;
+ 						// K-Mod end
+ 
+ 						if (atPlot(pLoopPlot))
+@@ -21913,9 +21924,12 @@ int CvUnitAI::AI_airOffenseBaseValue( CvPlot* pPlot )
+ 			if (pLoopPlot != NULL)
+ 			{
+ 				if (pLoopPlot->area() == pPlot->area() && pLoopPlot->isOwned())
+-				{
++				{	// <advc.001i>
++					if(!pLoopPlot->isRevealed(getTeam(), false))
++						continue; // </advc.001i>
+ 				    int iDistance = stepDistance(pPlot->getX_INLINE(), pPlot->getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE());
+-				    if( pLoopPlot->getTeam() != getTeam() && !(GET_TEAM(pLoopPlot->getTeam()).isVassal(getTeam())) )
++				    if(pLoopPlot->getTeam() != getTeam() &&
++							!GET_TEAM(pLoopPlot->getTeam()).isVassal(getTeam()) )
+ 					{
+ 						if( iDistance == 1 )
+ 						{
+@@ -21928,10 +21942,10 @@ int CvUnitAI::AI_airOffenseBaseValue( CvPlot* pPlot )
+ 							{
+ 								iBorderDanger += 2;
+ 							}
+-							else if ((iDistance == 2) && (pLoopPlot->isRoute()))
+-							{
++							else if (iDistance == 2 && pLoopPlot->//isRoute()
++									// advc.001i:
++									getRevealedRouteType(getTeam(), false))
+ 								iBorderDanger += 2;
+-							}
+ 						}
+ 					}
+ 				}
+@@ -24549,7 +24563,7 @@ int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ {
+ 	FAssert(canPillage(pPlot) || canAirBombAt(plot(), pPlot->getX_INLINE(), pPlot->getY_INLINE()) || (getGroup()->getCargo() > 0));
+ 
+-	if (!(pPlot->isOwned()))
++	if (!pPlot->isOwned())
+ 	{
+ 		return 0;
+ 	}
+@@ -24579,7 +24593,9 @@ int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ 
+ 	if (getDomainType() != DOMAIN_AIR)
+ 	{
+-		if (pPlot->isRoute())
++		if (pPlot->//isRoute()
++				// advc.001i:
++				getRevealedRouteType(getTeam(), false) != NO_ROUTE)
+ 		{
+ 			iValue++;
+ 			if (eNonObsoleteBonus != NO_BONUS)
+@@ -24600,12 +24616,13 @@ int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ 						iValue += 10;
+ 					}
+ 
+-					if (!(pAdjacentPlot->isRoute()))
++					//if (!pAdjacentPlot->isRoute())
++					// advc.001i:
++					if(pAdjacentPlot->getRevealedRouteType(getTeam(), false) == NO_ROUTE)
+ 					{
+-						if (!(pAdjacentPlot->isWater()) && !(pAdjacentPlot->isImpassable()))
+-						{
++						if (!pAdjacentPlot->isWater() &&
++								!pAdjacentPlot->isImpassable())
+ 							iValue += 2;
+-						}
+ 					}
+ 				}
+ 			}
+@@ -24620,15 +24637,19 @@ int CvUnitAI::AI_pillageValue(CvPlot* pPlot, int iBonusValueThreshold)
+ 	{
+ 		eImprovement = pPlot->getRevealedImprovementType(getTeam(), false);
+ 	}*/
+-	ImprovementTypes eImprovement = pPlot->getImprovementDuration() > 20 ? pPlot->getImprovementType() : pPlot->getRevealedImprovementType(getTeam(), false);
+-
++	ImprovementTypes eImprovement = pPlot->getImprovementDuration() > 20 ?
++			pPlot->getImprovementType() :
++			pPlot->getRevealedImprovementType(getTeam(), false);
+ 	if (eImprovement != NO_IMPROVEMENT)
+ 	{
+ 		if (pPlot->getWorkingCity() != NULL)
+ 		{
+-			iValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_FOOD, pPlot->getOwnerINLINE()) * 5);
+-			iValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_PRODUCTION, pPlot->getOwnerINLINE()) * 4);
+-			iValue += (pPlot->calculateImprovementYieldChange(eImprovement, YIELD_COMMERCE, pPlot->getOwnerINLINE()) * 3);
++			iValue += (pPlot->calculateImprovementYieldChange(eImprovement,
++					YIELD_FOOD, pPlot->getOwnerINLINE()) * 5);
++			iValue += (pPlot->calculateImprovementYieldChange(eImprovement,
++					YIELD_PRODUCTION, pPlot->getOwnerINLINE()) * 4);
++			iValue += (pPlot->calculateImprovementYieldChange(eImprovement,
++					YIELD_COMMERCE, pPlot->getOwnerINLINE()) * 3);
+ 		}
+ 
+ 		if (getDomainType() != DOMAIN_AIR)
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index 3a016f43d..97a61370a 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -142,7 +142,7 @@ void CyInfoPythonInterface1()
+ 		.def("getKamikazePercent", &CvPromotionInfo::getKamikazePercent, "int ()")
+ 
+ 		.def("isLeader", &CvPromotionInfo::isLeader, "bool ()")
+-		.def("isBlitz", &CvPromotionInfo::isBlitz, "bool ()")
++		.def("getBlitz", &CvPromotionInfo::getBlitz, "int ()") // advc.164
+ 		.def("isAmphib", &CvPromotionInfo::isAmphib, "bool ()")
+ 		.def("isRiver", &CvPromotionInfo::isRiver, "bool ()")
+ 		.def("isEnemyRoute", &CvPromotionInfo::isEnemyRoute, "bool ()")
+
+[PATCH OMITTED] file=a/manual_0.94c.odt b/manual_0.94c.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=21 omittedFiles=2 embeddedPatchBytes=75310

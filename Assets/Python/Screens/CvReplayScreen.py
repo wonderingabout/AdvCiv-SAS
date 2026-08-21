@@ -1,11 +1,16 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
 from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import time
 import re
 import CvScreensInterface
+from SASFontUtils import *
+from SASUtils import getInfoTypeOrFail
 
 # globals
 gc = CyGlobalContext()
@@ -30,6 +35,8 @@ class CvReplayScreen:
 		self.WIDGET_ID = "ReplayScreenWidget"
 		self.EXIT_ID = "ReplayScreenExitWidget"
 		self.BACKGROUND_ID = "ReplayScreenBackground"
+		self.GRAPH_LABEL_X_ID = "ReplayGraphLabelX"
+		self.GRAPH_LABEL_Y_ID = "ReplayGraphLabelY"
 
 		self.Z_BACKGROUND = -6.1
 		self.Z_CONTROLS = self.Z_BACKGROUND - 0.2
@@ -43,22 +50,13 @@ class CvReplayScreen:
 		if self.bLayoutDone:
 			return
 		self.bLayoutDone = True # </advc.106m>
-		self.W_SCREEN = 1024
-		self.H_SCREEN = 768
-		#self.X_SCREEN = 500
-		#self.Y_SCREEN = 396
-		# <advc.106m>
-		self.HORIZONTAL_MARGIN = 25
-		self.VERTICAL_MARGIN = 20
 		iXRes = self.getScreen().getXResolution()
-		self.W_SCREEN = max(self.W_SCREEN, iXRes - 2 * self.HORIZONTAL_MARGIN)
 		iYRes = self.getScreen().getYResolution()
-		self.H_SCREEN = max(self.H_SCREEN, iYRes - 2 * self.VERTICAL_MARGIN)
-		self.HORIZONTAL_MARGIN = min(self.HORIZONTAL_MARGIN, (iXRes - self.W_SCREEN) / 2)
-		self.VERTICAL_MARGIN = min(self.VERTICAL_MARGIN, (iYRes - self.H_SCREEN) / 2)
-		# Those margins are outside of the screen dimensions
-		self.X_SCREEN = self.HORIZONTAL_MARGIN
-		self.Y_SCREEN = self.VERTICAL_MARGIN
+		# <!-- custom: use true fullscreen bounds for Replay (no outer margins): x/y start at 0,0 and width/height follow current resolution. (GPT-5.3-Codex) -->
+		self.W_SCREEN = iXRes
+		self.H_SCREEN = iYRes
+		self.X_SCREEN = 0
+		self.Y_SCREEN = 0
 		# </advc.106m>
 		self.Y_TITLE = 8
 		# advc: unused
@@ -150,14 +148,15 @@ class CvReplayScreen:
 		if screen.isActive():
 			return
 		self.calculateLayout() # advc.106m
-		screen.setRenderInterfaceOnly(True);
+		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
 
-		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + u"</font>"
-		self.PLAY_TEXT = u"<font=4>" + localText.getText("TXT_KEY_REPLAY_SCREEN_PLAY", ()).upper() + u"</font>"
-		self.FORWARD_TEXT = u"<font=4>" + localText.getText("TXT_KEY_REPLAY_SCREEN_NEXT", ()).upper() + u"</font>"
-		self.STOP_TEXT = u"<font=4>" + localText.getText("TXT_KEY_REPLAY_SCREEN_STOP", ()).upper() + u"</font>"
-		self.SPEED_TEXT = localText.getText("TXT_KEY_REPLAY_SCREEN_SPEED", ())
+		self.EXIT_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.PLAY_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_REPLAY_SCREEN_PLAY", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.FORWARD_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_REPLAY_SCREEN_NEXT", ()).upper() + SAS_FONT_TAG_CLOSE
+		self.STOP_TEXT = sasFontTagTitle + localText.getText("TXT_KEY_REPLAY_SCREEN_STOP", ()).upper() + SAS_FONT_TAG_CLOSE
+		# <!-- custom: Replay control labels (e.g., speed) should follow SAS UI scaling rather than fixed game-font size to stay readable at upscaled settings. (GPT-5.3-Codex) -->
+		self.SPEED_TEXT = sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_SPEED", ()) + SAS_FONT_TAG_CLOSE
 
 		self.bPlaying = False
 		self.fLastUpdate = 0.
@@ -196,7 +195,7 @@ class CvReplayScreen:
 		# Header...
 		self.szHeader = self.getNextWidgetName()
 		# advc.106m: X position was self.X_SCREEN; that doesn't work anymore.
-		screen.setLabel(self.szHeader, "Background", u"<font=4b>" + localText.getText("TXT_KEY_REPLAY_SCREEN_TITLE", ()).upper() + u"</font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.szHeader, "Background", sasFontTagTitle.bold + localText.getText("TXT_KEY_REPLAY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		# Minimap initialization
 		self.H_MAP = (self.W_MAP * self.replayInfo.getMapHeight()) / self.replayInfo.getMapWidth()
@@ -230,13 +229,12 @@ class CvReplayScreen:
 		# Play
 		screen.setText(self.szPlayId, "Background", self.PLAY_TEXT, CvUtil.FONT_LEFT_JUSTIFY, self.X_PLAY, self.Y_PLAY, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, 1, -1 )
 
-
 		# Speed Slider
 		self.szSliderTextId = self.getNextWidgetName()
 		screen.setLabel(self.szSliderTextId, "Background", self.SPEED_TEXT, CvUtil.FONT_CENTER_JUSTIFY, self.X_SPEED, self.Y_SPEED, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
 		self.szSliderId = self.getNextWidgetName()
-		screen.addSlider(self.szSliderId, self.X_SLIDER, self.Y_SLIDER, self.W_SLIDER, self.H_SLIDER, self.iSpeed - 1, 0, self.NUM_SLIDER_STOPS-1, WidgetTypes.WIDGET_GENERAL, -1, -1, False);
+		screen.addSlider(self.szSliderId, self.X_SLIDER, self.Y_SLIDER, self.W_SLIDER, self.H_SLIDER, self.iSpeed - 1, 0, self.NUM_SLIDER_STOPS-1, WidgetTypes.WIDGET_GENERAL, -1, -1, False)
 
 		self.showEvents(self.iTurn, False)
 
@@ -258,11 +256,10 @@ class CvReplayScreen:
 			self.showEvents(self.iTurn, False)
 			return
 
-
 		szTurnDate = CyGameTextMgr().getDateStr(self.iTurn, false, self.replayInfo.getCalendar(), self.replayInfo.getStartYear(), self.replayInfo.getGameSpeed())
 		screen.deleteWidget(self.szHeader)
 		# advc.106m: x was X_SCREEN; that doesn't work anymore.
-		screen.setLabel(self.szHeader, "Background", u"<font=4b>" + szTurnDate + u"<font>", CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+		screen.setLabel(self.szHeader, "Background", sasFontTagTitle.bold + szTurnDate + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 
 		events = []
 		bFound = False
@@ -277,6 +274,9 @@ class CvReplayScreen:
 					bDone = True
 			i += 1
 
+		# <!-- custom: hoist out of per-event loop. (Claude code Opus 4.7) -->
+		eColorClear = getInfoTypeOrFail("COLOR_CLEAR")
+		eColorWhite = getInfoTypeOrFail("COLOR_WHITE")
 		for iLoopEvent in events:
 
 			szEventDate = CyGameTextMgr().getDateStr(self.replayInfo.getReplayMessageTurn(iLoopEvent), false, self.replayInfo.getCalendar(), self.replayInfo.getStartYear(), self.replayInfo.getGameSpeed())
@@ -287,12 +287,11 @@ class CvReplayScreen:
 			eMessageType = self.replayInfo.getReplayMessageType(iLoopEvent)
 			eColor = self.replayInfo.getReplayMessageColor(iLoopEvent)
 
-
 			if (szText != "" and not bSilent):
 				szTextNoColor = re.sub("<color=.*?>", "", szText)
 				szText = re.sub("</color>", "", szTextNoColor)
 
-				szText =  u"<font=2>" + szEventDate + u": " + szText + u"</font>"
+				szText =  sasFontTagLabel + szEventDate + u": " + szText + SAS_FONT_TAG_CLOSE
 				szText =localText.changeTextColor(szText, eColor)
 				screen.prependListBoxString(self.szAreaId, szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
@@ -301,10 +300,10 @@ class CvReplayScreen:
 				if iPlayer != -1:
 					screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, self.replayInfo.getColor(iPlayer), 0.6)
 				else:
-					screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, gc.getInfoTypeForString("COLOR_CLEAR"), 0.6)
+					screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, eColorClear, 0.6)
 			else:
 				if (iX > -1 and iY > -1 and not bSilent):
-					screen.minimapFlashPlot(iX, iY, gc.getInfoTypeForString("COLOR_WHITE"), 10)
+					screen.minimapFlashPlot(iX, iY, eColorWhite, 10)
 		if (self.yMessage > self.H_TEXT):
 			screen.scrollableAreaScrollToBottom(self.szAreaId)
 
@@ -342,9 +341,11 @@ class CvReplayScreen:
 
 	def resetMinimapColor(self):
 		screen = self.getScreen()
+		# <!-- custom: hoist out of nested xy loop. (Claude code Opus 4.7) -->
+		eColorClear = getInfoTypeOrFail("COLOR_CLEAR")
 		for iX in range(self.replayInfo.getMapWidth()):
 			for iY in range(self.replayInfo.getMapHeight()):
-				screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, gc.getInfoTypeForString("COLOR_CLEAR"), 0.6)
+				screen.setMinimapColor(MinimapModeTypes.MINIMAPMODE_REPLAY, iX, iY, eColorClear, 0.6)
 
 	def resetData(self):
 		screen = self.getScreen()
@@ -354,15 +355,18 @@ class CvReplayScreen:
 		self.initGraph()
 		screen.clearListBoxGFC(self.szAreaId)
 
-
 	def initGraph(self):
 		screen = self.getScreen()
 		for iPlayer in range(self.replayInfo.getNumPlayers()):
-			screen.addGraphLayer(self.szGraph, iPlayer, self.replayInfo.getColor(iPlayer));
+			screen.addGraphLayer(self.szGraph, iPlayer, self.replayInfo.getColor(iPlayer))
 
-		screen.setGraphLabelX(self.szGraph, localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()));
-		screen.setGraphLabelY(self.szGraph, localText.getText("TXT_KEY_REPLAY_SCREEN_SCORE", ()));
-		screen.setGraphYDataRange(self.szGraph, 0.0, 1.0);
+		# <!-- custom: Graph widget axis labels render raw text and do not parse <font=...> tags, so draw SAS-scaled overlay labels instead and keep built-in graph labels empty. (GPT-5.3-Codex) -->
+		screen.setGraphLabelX(self.szGraph, u"")
+		screen.setGraphLabelY(self.szGraph, u"")
+		# <!-- custom: nudge Turns label lower and Score label higher and left for better visual separation from the graph edges. (Claude Code Sonnet 4.6) -->
+		screen.setLabel(self.GRAPH_LABEL_X_ID, "Background", sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GRAPH + (self.W_GRAPH / 2), self.Y_GRAPH + self.H_GRAPH - 3, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setLabel(self.GRAPH_LABEL_Y_ID, "Background", sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_SCORE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_GRAPH, self.Y_GRAPH - 21, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+		screen.setGraphYDataRange(self.szGraph, 0.0, 1.0)
 
 	def setPlaying(self, bPlaying):
 		if bPlaying != self.bPlaying:

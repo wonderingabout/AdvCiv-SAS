@@ -1,0 +1,663 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5937
+# Commit: 4013454bed4cb38d0e0ee4e1aa9bd387eb68dfe9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a0e0e8a3e3609241129755046048867d0e2dd478
+# Title: Add XML suspicious text-character build check and fix the corresponding errors. See KI#152. - Add workflow check for billboard scale detail XML
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	.github/workflows/README.md
+2	0	.github/workflows/build.yml
+173	0	.github/workflows/build/detail_manager.py
+259	0	.github/workflows/build/xml_suspicious_text_chars.py
+6	6	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+1	1	README.md
+34	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 .github/workflows/build/detail_manager.py
+ create mode 100644 .github/workflows/build/xml_suspicious_text_chars.py
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 154ccdee9..3d1d42bbc 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -25,6 +25,7 @@ For example, this helped spot [map scripts that were previously unclassified in
+ - `build/launch_guard.py`: verifies `SASDefineGuard.py` exists and its int/string sentinel constants match `GlobalDefines_advciv_sas.xml`.
+ - `build/xml_comments.py`: verifies XML comments under `Assets/XML` do not contain illegal double hyphen `--` and are not left unclosed.
+ - `build/xml_suspicious_angle_tags.py`: verifies raw XML files under `Assets/XML` do not contain suspicious malformed-looking tag punctuation such as doubled opening angles or extra closing angles after tags, catching valid-but-wrong text like `<French>>...`. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) and fix suspicious malformed-looking XML tag punctuation. See [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check).
++- `build/xml_suspicious_text_chars.py`: verifies XML text does not contain high-confidence corrupted characters such as `?` inside a word-like token, Unicode replacement characters in active/non-ignored text, common mojibake fragments, or raw control characters; inherited non-English replacement-character noise is hidden by default and can be listed with `--show-ignored`. This intentionally does not enforce broader typography policy such as em dashes, curly quotes, or accented letters. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) and fix the corresponding errors. See [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check).
+ - `build/xml_sas_text_english.py`: verifies AdvCiv-SAS-owned GameText XML files (`Assets/XML/Text/AdvCiv-SAS*.xml`) only use `<English>` language entries, except a narrow whitelist for inherited/renamed diplomacy text entries that intentionally keep old non-English fields.
+ - `build/xml_text_duplicate_tags.py`: verifies each GameText `TXT_KEY`-style `<TEXT>/<Tag>` entry under `Assets/XML/Text` is defined only once, with source line numbers for duplicate definitions. Inspired by the old AdvCiv-SAS blind [scan_xml_duplicates-3.3.py](/LLM_Helpers/scan_xml_duplicates-3.3.py) (see [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](/LLM_Helpers/README.md#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)). This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894) and fix XML text duplicate errors. See [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check).
+ - `build/xml_parent_duplicate_keys.py`: verifies parent-style XML objects are not defined twice with the same key, such as duplicate `*Info` `<Type>` values or duplicate audio `ScriptID` / `SoundID` entries. This intentionally does not check child/list duplicate semantics, which can be more context-dependent.
+@@ -34,6 +35,7 @@ For example, this helped spot [map scripts that were previously unclassified in
+ - `build/opening_music.py`: verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed script, and if shuffle is enabled, at least one valid non-`NONE` shuffle script.
+ - `build/bbai_log.py`: verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`.
+ - `build/fonts.py`: verifies shared UI font defaults are `1 / 2 / 3 / 4 / 3`.
++- `build/detail_manager.py`: verifies `Assets/XML/Misc/CIV4DetailManager.xml` `CITYBILLBOARD_SCALE` keys match the committed shared UI font/default billboard-scale defines and the base values used by `Assets/Python/SASBillboardScale.py`, catching stale rewritten billboard scales after temporary UI upscaling.
+ - `build/aip.py`: verifies the Sevopedia Leader AI Personality Panel is enabled, uses the predumped cache by default, does not dump recomputed cache data to the log by default, and has a non-empty predumped cache file.
+ - `build/worldsizes.py`: verifies `SAS_MAGIC_WORLDSIZE_*` constants in `Assets/Python/SASMagicNumbers.py` match the `Assets/XML/GameInfo/CIV4WorldInfo.xml` order.
+ - `build/mapscripts.py`: verifies every playable `PrivateMaps/*.py` script is listed exactly once across the SAS map-script heaviness/coverage defines, and every listed map script exists in `PrivateMaps/`. `SAS_MAP_SCRIPT_NAMES_HEAVINESS_UNSPECIFIED` is coverage-only and is not read by the DLL; it documents map scripts intentionally left outside the explicit land-heavy / almost-all-land / naval-heavy override lists.
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index f50a56a73..217b540e7 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -20,6 +20,7 @@ jobs:
+       - run: python .github/workflows/build/launch_guard.py
+       - run: python .github/workflows/build/xml_comments.py
+       - run: python .github/workflows/build/xml_suspicious_angle_tags.py
++      - run: python .github/workflows/build/xml_suspicious_text_chars.py
+       - run: python .github/workflows/build/xml_sas_text_english.py
+       - run: python .github/workflows/build/xml_text_duplicate_tags.py
+       - run: python .github/workflows/build/xml_parent_duplicate_keys.py
+@@ -29,6 +30,7 @@ jobs:
+       - run: python .github/workflows/build/opening_music.py
+       - run: python .github/workflows/build/bbai_log.py
+       - run: python .github/workflows/build/fonts.py
++      - run: python .github/workflows/build/detail_manager.py
+       - run: python .github/workflows/build/aip.py
+       - run: python .github/workflows/build/worldsizes.py
+       - run: python .github/workflows/build/mapscripts.py
+
+diff --git a/.github/workflows/build/detail_manager.py b/.github/workflows/build/detail_manager.py
+new file mode 100644
+index 000000000..f51fb6c38
+--- /dev/null
++++ b/.github/workflows/build/detail_manager.py
+@@ -0,0 +1,173 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: DetailManager city billboard scale must match the committed
++# SAS font/default billboard-scale settings and the runtime scaler base values.
++
++from pathlib import Path
++import argparse
++import ast
++import re
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, read_global_define_ints, local_name, child_text_by_local_name
++
++
++DETAIL_MANAGER_REL_PATH = Path("Assets") / "XML" / "Misc" / "CIV4DetailManager.xml"
++BILLBOARD_SCALE_REL_PATH = Path("Assets") / "Python" / "SASBillboardScale.py"
++BILLBOARD_FADER_NAME = "CITYBILLBOARD_SCALE"
++BASE_KEYS_VARIABLE_NAME = "_BASE_BILLBOARD_KEYS"
++
++
++def read_base_billboard_keys(repo_root: Path) -> list[tuple[int, float]]:
++	path = repo_root / BILLBOARD_SCALE_REL_PATH
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++
++	module = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
++
++	for node in module.body:
++		if not isinstance(node, ast.Assign):
++			continue
++		for target in node.targets:
++			if isinstance(target, ast.Name) and target.id == BASE_KEYS_VARIABLE_NAME:
++				value = ast.literal_eval(node.value)
++				return normalize_keys(value, f"{path}:{BASE_KEYS_VARIABLE_NAME}")
++
++	raise RuntimeError(f"{BASE_KEYS_VARIABLE_NAME} not found in {path}")
++
++
++def normalize_keys(value: object, source: str) -> list[tuple[int, float]]:
++	if not isinstance(value, (list, tuple)):
++		raise RuntimeError(f"{source} must be a list/tuple of (distance, scale) pairs")
++
++	keys: list[tuple[int, float]] = []
++	for index, item in enumerate(value):
++		if not isinstance(item, (list, tuple)) or len(item) != 2:
++			raise RuntimeError(f"{source}[{index}] must be a (distance, scale) pair")
++		distance, scale = item
++		if not isinstance(distance, int):
++			raise RuntimeError(f"{source}[{index}] distance must be int, found {distance!r}")
++		if not isinstance(scale, (int, float)):
++			raise RuntimeError(f"{source}[{index}] scale must be numeric, found {scale!r}")
++		keys.append((distance, float(scale)))
++
++	if not keys:
++		raise RuntimeError(f"{source} must not be empty")
++
++	return keys
++
++
++def read_detail_manager_billboard_keys(repo_root: Path) -> list[tuple[int, str]]:
++	path = repo_root / DETAIL_MANAGER_REL_PATH
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
++
++	tree = ET.parse(path)
++	for fader in tree.getroot().iter():
++		if local_name(fader.tag) != "Fader":
++			continue
++		if child_text_by_local_name(fader, "Name") != BILLBOARD_FADER_NAME:
++			continue
++
++		keys: list[tuple[int, str]] = []
++		for child in list(fader):
++			if local_name(child.tag) != "Key":
++				continue
++			text = (child.text or "").strip()
++			match = re.match(r"^(-?\d+)\s*,\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*$", text)
++			if match is None:
++				raise RuntimeError(f"invalid {BILLBOARD_FADER_NAME} <Key> value in {path}: {text!r}")
++			keys.append((int(match.group(1)), format(float(match.group(2)), ".2f")))
++
++		if not keys:
++			raise RuntimeError(f"{BILLBOARD_FADER_NAME} has no <Key> values in {path}")
++		return keys
++
++	raise RuntimeError(f"{BILLBOARD_FADER_NAME} fader not found in {path}")
++
++
++def get_active_billboard_percent(defines: dict[str, int]) -> tuple[int, int]:
++	font_name = "SAS_UI_FONT_BODY"
++	if font_name not in defines:
++		raise RuntimeError(f"{font_name}: missing define")
++
++	font_body = defines[font_name]
++	if font_body < 1 or font_body > 4:
++		raise RuntimeError(f"{font_name}: expected 1..4, found {font_body}")
++
++	percent_name = f"SAS_BILLBOARD_SCALE_PERCENT_FONT_{font_body}"
++	if percent_name not in defines:
++		raise RuntimeError(f"{percent_name}: missing define")
++
++	percent = defines[percent_name]
++	if percent < 10 or percent > 500:
++		raise RuntimeError(f"{percent_name}: expected 10..500, found {percent}")
++
++	return font_body, percent
++
++
++def expected_keys(base_keys: list[tuple[int, float]], percent: int) -> list[tuple[int, str]]:
++	multiplier = percent / 100.0
++	return [(distance, format(scale * multiplier, ".2f")) for distance, scale in base_keys]
++
++
++def key_lines(keys: list[tuple[int, str]]) -> list[str]:
++	return [f"<Key>{distance},    {scale}</Key>" for distance, scale in keys]
++
++
++def compare_keys(expected: list[tuple[int, str]], actual: list[tuple[int, str]]) -> list[str]:
++	failures: list[str] = []
++
++	if len(expected) != len(actual):
++		failures.append(f"expected {len(expected)} CITYBILLBOARD_SCALE keys, found {len(actual)}")
++
++	for index, (expected_key, actual_key) in enumerate(zip(expected, actual), start=1):
++		if expected_key != actual_key:
++			failures.append(f"key {index}: expected {expected_key[0]}, {expected_key[1]}; found {actual_key[0]}, {actual_key[1]}")
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that CIV4DetailManager CITYBILLBOARD_SCALE matches SAS font/default billboard-scale settings.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	try:
++		defines = read_global_define_ints(args.repo_root)
++		font_body, percent = get_active_billboard_percent(defines)
++		base_keys = read_base_billboard_keys(args.repo_root)
++		expected = expected_keys(base_keys, percent)
++		actual = read_detail_manager_billboard_keys(args.repo_root)
++		failures = compare_keys(expected, actual)
++	except RuntimeError as exc:
++		print("FAIL DetailManager CITYBILLBOARD_SCALE")
++		print(f"  - {exc}")
++		return 1
++
++	if failures:
++		print("FAIL DetailManager CITYBILLBOARD_SCALE")
++		print(f"  - SAS_UI_FONT_BODY={font_body}; SAS_BILLBOARD_SCALE_PERCENT_FONT_{font_body}={percent}")
++		for failure in failures:
++			print(f"  - {failure}")
++		print("  - expected keys:")
++		for line in key_lines(expected):
++			print(f"      {line}")
++		print("  - found keys:")
++		for line in key_lines(actual):
++			print(f"      {line}")
++		print("  - If these are stale after temporary UI upscaling, launch the mod once with the committed font defaults or restore CIV4DetailManager.xml to the expected keys.")
++		return 1
++
++	print(f"PASS DetailManager CITYBILLBOARD_SCALE matches SAS_UI_FONT_BODY={font_body} / {percent}% billboard scale")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/xml_suspicious_text_chars.py b/.github/workflows/build/xml_suspicious_text_chars.py
+new file mode 100644
+index 000000000..4bbd5cac0
+--- /dev/null
++++ b/.github/workflows/build/xml_suspicious_text_chars.py
+@@ -0,0 +1,259 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: suspicious/corrupted text characters in XML.
++#
++# <!-- custom: Keep this check focused on high-confidence corruption, not broad
++# typography policy. For example, K?szeghy is probably a lost accented letter,
++# while a sentence-ending question mark is normal. (ChatGPT-5.5) -->
++
++from pathlib import Path
++import argparse
++import re
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root
++
++
++XML_SCAN_RELATIVE_PATHS = (
++	Path("Assets/XML"),
++)
++
++ENCODINGS_TO_TRY = (
++	"utf-8-sig",
++	"cp1252",
++	"latin1",
++)
++
++COMMENT_SPANS = (
++	("<!--", "-->"),
++)
++
++# Anything surrounded by these characters is not considered to be inside one
++# word-like token. Keep this broad enough for normal sentence punctuation and
++# Civ4 placeholders, but not so broad that corrupted names such as K?szeghy are missed.
++QUESTION_MARK_TOKEN_DELIMITERS = set(
++	" \t\r\n<>/\\\"'`()[]{}.,;:!?&|=+*%#-"
++)
++
++# These inherited language tags contain many old non-English replacement chars in
++# base/BUG text. They are hidden by default so this check stays useful for active
++# English/SAS text, but can still be printed with --show-ignored.
++IGNORED_REPLACEMENT_CHAR_LANGUAGE_TAGS = {
++	"French",
++	"German",
++	"Italian",
++	"Spanish",
++}
++
++MOJIBAKE_PATTERNS = (
++	(
++		"common UTF-8 mojibake fragment",
++		re.compile(r"(?:Ã[^\s<]|Â[^\s<]|â[€„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ])"),
++	),
++	(
++		"common emoji/symbol mojibake fragment",
++		re.compile(r"(?:ðŸ[^\s<]|Ð[^\s<]|Ñ[^\s<])"),
++	),
++)
++
++CONTROL_CHAR_PATTERN = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]")
++LANGUAGE_LINE_PATTERN = re.compile(r"^\s*<([A-Za-z]+)(?:\s|>)")
++
++
++def decode_xml_bytes(data: bytes) -> str:
++	for encoding in ENCODINGS_TO_TRY:
++		try:
++			return data.decode(encoding)
++		except UnicodeDecodeError:
++			pass
++	return data.decode("latin1", errors="replace")
++
++
++def line_bounds(text: str, index: int) -> tuple[int, int]:
++	line_start = text.rfind("\n", 0, index) + 1
++	line_end = text.find("\n", index)
++	if line_end < 0:
++		line_end = len(text)
++	return line_start, line_end
++
++
++def line_number(text: str, index: int) -> int:
++	return text.count("\n", 0, index) + 1
++
++
++def excerpt_around_index(text: str, index: int, radius: int = 90) -> str:
++	line_start, line_end = line_bounds(text, index)
++	start = max(line_start, index - radius)
++	end = min(line_end, index + radius + 1)
++	prefix = "..." if start > line_start else ""
++	suffix = "..." if end < line_end else ""
++	return (prefix + text[start:end] + suffix).strip()
++
++
++def language_tag_for_line(text: str, index: int) -> str | None:
++	line_start, line_end = line_bounds(text, index)
++	line = text[line_start:line_end]
++	match = LANGUAGE_LINE_PATTERN.match(line)
++	if match is None:
++		return None
++	return match.group(1)
++
++
++def blank_preserving_lines(text: str, start: int, end: int) -> str:
++	return "".join("\n" if char == "\n" else " " for char in text[start:end])
++
++
++def blank_comments(text: str) -> str:
++	result = text
++	for start_token, end_token in COMMENT_SPANS:
++		search_from = 0
++		parts: list[str] = []
++		while True:
++			start = result.find(start_token, search_from)
++			if start < 0:
++				parts.append(result[search_from:])
++				break
++			end = result.find(end_token, start + len(start_token))
++			if end < 0:
++				end = len(result)
++			else:
++				end += len(end_token)
++			parts.append(result[search_from:start])
++			parts.append(blank_preserving_lines(result, start, end))
++			search_from = end
++		result = "".join(parts)
++	return result
++
++
++def is_delimiter(char: str) -> bool:
++	return not char or char.isspace() or char in QUESTION_MARK_TOKEN_DELIMITERS
++
++
++def is_suspicious_question_mark(text: str, index: int) -> bool:
++	previous_char = text[index - 1] if index > 0 else ""
++	next_char = text[index + 1] if index + 1 < len(text) else ""
++
++	return not is_delimiter(previous_char) and not is_delimiter(next_char)
++
++
++def should_scan_file(path: Path) -> bool:
++	if path.name.endswith("Schema.xml"):
++		return False
++	return path.suffix.lower() == ".xml"
++
++
++def finding(relative_path: Path, text: str, index: int, reason: str) -> str:
++	return f"{relative_path}: line {line_number(text, index)}: {reason}: {excerpt_around_index(text, index)}"
++
++
++def check_xml_text(relative_path: Path, text: str) -> tuple[list[str], list[str]]:
++	failures: list[str] = []
++	ignored: list[str] = []
++	seen_positions: set[tuple[int, str]] = set()
++	scanned_text = blank_comments(text)
++
++	for index, char in enumerate(scanned_text):
++		if char != "?":
++			continue
++		if not is_suspicious_question_mark(scanned_text, index):
++			continue
++		key = (index, "suspicious question mark inside token")
++		if key in seen_positions:
++			continue
++		seen_positions.add(key)
++		failures.append(finding(relative_path, text, index, "suspicious question mark inside token"))
++
++	for index, char in enumerate(scanned_text):
++		if char != "�":
++			continue
++		key = (index, "Unicode replacement character")
++		if key in seen_positions:
++			continue
++		seen_positions.add(key)
++		message = finding(relative_path, text, index, "Unicode replacement character")
++		if language_tag_for_line(text, index) in IGNORED_REPLACEMENT_CHAR_LANGUAGE_TAGS:
++			ignored.append(message)
++		else:
++			failures.append(message)
++
++	for reason, pattern in MOJIBAKE_PATTERNS:
++		for match in pattern.finditer(scanned_text):
++			start = match.start()
++			key = (start, reason)
++			if key in seen_positions:
++				continue
++			seen_positions.add(key)
++			failures.append(finding(relative_path, text, start, reason))
++
++	for match in CONTROL_CHAR_PATTERN.finditer(scanned_text):
++		start = match.start()
++		key = (start, "raw control character")
++		if key in seen_positions:
++			continue
++		seen_positions.add(key)
++		codepoint = ord(scanned_text[start])
++		failures.append(finding(relative_path, text, start, f"raw control character U+{codepoint:04X}"))
++
++	return failures, ignored
++
++
++def check_xml_files(repo_root: Path) -> tuple[list[str], list[str]]:
++	failures: list[str] = []
++	ignored: list[str] = []
++
++	for relative_root in XML_SCAN_RELATIVE_PATHS:
++		root = repo_root / relative_root
++		if not root.exists():
++			failures.append(f"{relative_root}: missing directory")
++			continue
++
++		for path in sorted(root.rglob("*.xml")):
++			if not should_scan_file(path):
++				continue
++
++			relative_path = path.relative_to(repo_root)
++			text = decode_xml_bytes(path.read_bytes())
++			file_failures, file_ignored = check_xml_text(relative_path, text)
++			failures.extend(file_failures)
++			ignored.extend(file_ignored)
++
++	return failures, ignored
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check XML text for high-confidence corrupted characters.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	parser.add_argument("--show-ignored", action="store_true", help="also print known inherited non-English replacement-character findings")
++	args = parser.parse_args()
++
++	failures, ignored = check_xml_files(args.repo_root)
++	if failures:
++		print("FAIL XML suspicious text chars")
++		for failure in failures:
++			print(f"  - {failure}")
++		if ignored and args.show_ignored:
++			print("Ignored known inherited non-English replacement-character findings")
++			for item in ignored:
++				print(f"  - {item}")
++		elif ignored:
++			print(f"Ignored {len(ignored)} known inherited non-English replacement-character finding(s); rerun with --show-ignored to list them.")
++		return 1
++
++	if ignored and args.show_ignored:
++		print("Ignored known inherited non-English replacement-character findings")
++		for item in ignored:
++			print(f"  - {item}")
++
++	print("PASS XML suspicious text chars")
++	if ignored and not args.show_ignored:
++		print(f"Ignored {len(ignored)} known inherited non-English replacement-character finding(s); rerun with --show-ignored to list them.")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 1d4070ae6..c84005984 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -178,7 +178,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: rename "UNIT_KNIGHT" to "UNIT_HORSE_KNIGHT" so it is distinct from camel knights and from the generic/general(?) concept of a knight that could be a land foot or anything maybe too (magician? Xd..) unit ...; as for description replaced with a wikipedia based one as civ4 one was too inaccurate even uninformative even from little i know about it, from https://en.wikipedia.org/wiki/Knight and adjusted or not for advciv-sas -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_HORSE_KNIGHT_PEDIA</Tag>
+-		<English>[TAB]A knight is a person granted an honorary title of a knighthood by a head of state (including the pope) or representative for service to the monarch, the church, or the country, especially in a military capacity.[PARAGRAPH:1]The concept of a knighthood may have been inspired by the ancient Greek hippeis and Roman equites. In the Early Middle Ages in Western Christian Europe, knighthoods were conferred upon mounted warriors. During the High Middle Ages, a knighthood was considered a class of petty nobility. By the Late Middle Ages, the rank had become associated with the ideals of chivalry, a code of conduct for the perfect courtly Christian warrior. Often, a knight was a vassal who served as an elite fighter or a bodyguard for a lord, with payment in the form of land holdings. The lords trusted the knights, who were skilled in battle on horseback. In the Middle Ages, a knighthood was closely linked with horsemanship (and especially the joust) from its origins in the 12th century until its final flowering as a fashion among the high nobility in the Duchy of Burgundy in the 15th century. This linkage is reflected in the etymology of chivalry, cavalier, and related terms such as the French title of chevalier. In that sense, the special prestige accorded to mounted warriors in Christendom finds a parallel in the furusiyya in the Islamic world. The Crusades brought various military orders of knights to the forefront of defending Christian pilgrims traveling to the Holy Land.[PARAGRAPH:1]In the Late Middle Ages, new methods of warfare - such as the introduction of the culverin as an anti-personnel, gunpowder-fired weapon - began to render classical knights in armour obsolete, but the titles remained in many countries. Holy Roman Emperor Maximilian I (1459-1519) is often referred to as the "last knight" in this regard; however, some of the most iconic battles of the Knights Hospitaller, such as the Siege of Rhodes and the Great Siege of Malta, took place after his rule. The ideals of chivalry were popularized in medieval literature, particularly the literary cycles known as the Matter of France, relating to the legendary companions of Charlemagne and his men-at-arms, the paladins, and the Matter of Britain, relating to the legend of King Arthur and his Knights of the Round Table.[PARAGRAPH:1]Today, a number of orders of knighthood continue to exist in Christian Churches, as well as in several historically Christian countries and their former territories, such as the Roman Catholic Sovereign Military Order of Malta, the Protestant Order of Saint John, as well as the English Order of the Garter, the Swedish Royal Order of the Seraphim, the Spanish Order of Santiago, and the Norwegian Order of St Olav. There are also dynastic orders like the Order of the Golden Fleece, the Imperial Order of the Rose, the Most Ancient and Most Noble Order of the Thistle and the Order of St George. In modern times these are orders centred around charity and civic service, and are no longer military orders. Each of these orders has its own criteria for eligibility, but knighthood is generally granted by a head of state, monarch, or prelate to selected persons to recognise some meritorious achievement, often for service to the Church or country.[PARAGRAPH:1]The British honours system gradates the various orders of chivalry in precedence from the Most Excellent Order of the British Empire up to Most Noble Order of the Garter and the class/level of knighthood granted within each order, with Knight Grand Cross being superior to Knight Commander. Many British orders are restricted to people of a specific country - e.g. the Order of the Thistle is open only to Scots - or who have undertaken certain roles with civilian and military divisions. Many honours are granted as a matter of courtesy to judges of higher courts, civil servants, and military personnel on reaching a certain duration / level of service or rank with, for example, the Most Distinguished Order of Saint Michael and Saint George being awarded solely to diplomats. Informally within the civil service, the tongue-in-cheek class ranking of the Order of Saint Michael and Saint George runs:[PARAGRAPH:1]Companion (CMG) - "call me God"[PARAGRAPH:1]Knight Commander (KCMG) - "kindly call me God"[PARAGRAPH:1]Knight Grand Cross (GCMG) - "God calls me God"[PARAGRAPH:1]which was widely disseminated in the BBC satirical comedy in the episode "Doing the Honours" of Yes, Minister. Anyone receiving a knighthood can receive later additional ones as a promotion to a higher class or order. These civil servants receive higher grading honours as they progress through the service.[PARAGRAPH:1]Knighthoods are granted regularly, through a set process biannually in the New Year Honours and Birthday Honours lists, mostly at the nomination of the prime minister, short-listed by a parliamentary committee, and ratified by the monarch, though a few are solely at the behest of the monarch. There are also honours given ad hoc, such as at the departure from office of a sitting prime minister. The honours lists are of particular cultural note and reflect the political winds, so are inspected intently by the media, though the knighthoods granted to famous and notable people - such as, actors and business leaders - are mainly found in the lowest order, that of the Order of the British Empire. Anyone can receive a knighthood from the British crown, but only citizens of the UK and the Commonwealth are permitted to use the honorific of Sir or Dame.[PARAGRAPH:1]The modern female equivalent in the English language is Dame. Knighthoods and damehoods are traditionally regarded as being one of the most prestigious awards people can obtain[PARAGRAPH:2]The word knight, from Old English cniht ("boy" or "servant"), is a cognate of the German word Knecht ("servant, bondsman, vassal"). This meaning, of unknown origin, is common among West Germanic languages (cf Old Frisian kniucht, Dutch knecht, Danish kn�gt, Swedish knekt, Norwegian knekt, Middle High German kneht, all meaning "boy, youth, lad"). Middle High German had the phrase guoter kneht, which also meant knight; but this meaning was in decline by about 1200.[PARAGRAPH:1]The meaning of cniht changed over time from its original meaning of "boy" to "household retainer". �lfric's homily of St. Swithun describes a mounted retainer as a cniht. While cnihtas might have fought alongside their lords, their role as household servants features more prominently in the Anglo-Saxon texts. In several Anglo-Saxon wills cnihtas are left either money or lands. In his will, King �thelstan leaves his cniht, Aelfmar, eight hides of land.[PARAGRAPH:1]A r?dcniht, "riding-servant", was a servant on horseback.[PARAGRAPH:1]A narrowing of the generic meaning "servant" to "military follower of a king or other superior" is visible by 1100. The specific military sense of a knight as a mounted warrior in the heavy cavalry emerges only in the Hundred Years' War. The verb "to knight" (to make someone a knight) appears around 1300; and, from the same time, the word "knighthood" shifted from "adolescence" to "rank or dignity of a knight".[PARAGRAPH:1]An Equestrian (Latin, from eques "horseman", from equus "horse") was a member of the second highest social class in the Roman Republic and early Roman Empire. This class is often translated as "knight"; the medieval knight, however, was called miles in Latin (which in classical Latin meant "soldier", normally infantry).[PARAGRAPH:1]In the later Roman Empire, the classical Latin word for horse, equus, was replaced in common parlance by the vulgar Latin caballus, sometimes thought to derive from Gaulish caballos. From caballus arose terms in the various Romance languages cognate with the (French-derived) English cavalier: Italian cavaliere, Spanish caballero, French chevalier (whence chivalry), Portuguese cavaleiro, and Romanian cavaler. The Germanic languages have terms cognate with the English rider: German Ritter, and Dutch and Scandinavian ridder. These words are derived from Germanic ridan, "to ride", in turn derived from the Proto-Indo-European root *reidh-.</English>
++		<English>[TAB]A knight is a person granted an honorary title of a knighthood by a head of state (including the pope) or representative for service to the monarch, the church, or the country, especially in a military capacity.[PARAGRAPH:1]The concept of a knighthood may have been inspired by the ancient Greek hippeis and Roman equites. In the Early Middle Ages in Western Christian Europe, knighthoods were conferred upon mounted warriors. During the High Middle Ages, a knighthood was considered a class of petty nobility. By the Late Middle Ages, the rank had become associated with the ideals of chivalry, a code of conduct for the perfect courtly Christian warrior. Often, a knight was a vassal who served as an elite fighter or a bodyguard for a lord, with payment in the form of land holdings. The lords trusted the knights, who were skilled in battle on horseback. In the Middle Ages, a knighthood was closely linked with horsemanship (and especially the joust) from its origins in the 12th century until its final flowering as a fashion among the high nobility in the Duchy of Burgundy in the 15th century. This linkage is reflected in the etymology of chivalry, cavalier, and related terms such as the French title of chevalier. In that sense, the special prestige accorded to mounted warriors in Christendom finds a parallel in the furusiyya in the Islamic world. The Crusades brought various military orders of knights to the forefront of defending Christian pilgrims traveling to the Holy Land.[PARAGRAPH:1]In the Late Middle Ages, new methods of warfare - such as the introduction of the culverin as an anti-personnel, gunpowder-fired weapon - began to render classical knights in armour obsolete, but the titles remained in many countries. Holy Roman Emperor Maximilian I (1459-1519) is often referred to as the "last knight" in this regard; however, some of the most iconic battles of the Knights Hospitaller, such as the Siege of Rhodes and the Great Siege of Malta, took place after his rule. The ideals of chivalry were popularized in medieval literature, particularly the literary cycles known as the Matter of France, relating to the legendary companions of Charlemagne and his men-at-arms, the paladins, and the Matter of Britain, relating to the legend of King Arthur and his Knights of the Round Table.[PARAGRAPH:1]Today, a number of orders of knighthood continue to exist in Christian Churches, as well as in several historically Christian countries and their former territories, such as the Roman Catholic Sovereign Military Order of Malta, the Protestant Order of Saint John, as well as the English Order of the Garter, the Swedish Royal Order of the Seraphim, the Spanish Order of Santiago, and the Norwegian Order of St Olav. There are also dynastic orders like the Order of the Golden Fleece, the Imperial Order of the Rose, the Most Ancient and Most Noble Order of the Thistle and the Order of St George. In modern times these are orders centred around charity and civic service, and are no longer military orders. Each of these orders has its own criteria for eligibility, but knighthood is generally granted by a head of state, monarch, or prelate to selected persons to recognise some meritorious achievement, often for service to the Church or country.[PARAGRAPH:1]The British honours system gradates the various orders of chivalry in precedence from the Most Excellent Order of the British Empire up to Most Noble Order of the Garter and the class/level of knighthood granted within each order, with Knight Grand Cross being superior to Knight Commander. Many British orders are restricted to people of a specific country - e.g. the Order of the Thistle is open only to Scots - or who have undertaken certain roles with civilian and military divisions. Many honours are granted as a matter of courtesy to judges of higher courts, civil servants, and military personnel on reaching a certain duration / level of service or rank with, for example, the Most Distinguished Order of Saint Michael and Saint George being awarded solely to diplomats. Informally within the civil service, the tongue-in-cheek class ranking of the Order of Saint Michael and Saint George runs:[PARAGRAPH:1]Companion (CMG) - "call me God"[PARAGRAPH:1]Knight Commander (KCMG) - "kindly call me God"[PARAGRAPH:1]Knight Grand Cross (GCMG) - "God calls me God"[PARAGRAPH:1]which was widely disseminated in the BBC satirical comedy in the episode "Doing the Honours" of Yes, Minister. Anyone receiving a knighthood can receive later additional ones as a promotion to a higher class or order. These civil servants receive higher grading honours as they progress through the service.[PARAGRAPH:1]Knighthoods are granted regularly, through a set process biannually in the New Year Honours and Birthday Honours lists, mostly at the nomination of the prime minister, short-listed by a parliamentary committee, and ratified by the monarch, though a few are solely at the behest of the monarch. There are also honours given ad hoc, such as at the departure from office of a sitting prime minister. The honours lists are of particular cultural note and reflect the political winds, so are inspected intently by the media, though the knighthoods granted to famous and notable people - such as, actors and business leaders - are mainly found in the lowest order, that of the Order of the British Empire. Anyone can receive a knighthood from the British crown, but only citizens of the UK and the Commonwealth are permitted to use the honorific of Sir or Dame.[PARAGRAPH:1]The modern female equivalent in the English language is Dame. Knighthoods and damehoods are traditionally regarded as being one of the most prestigious awards people can obtain[PARAGRAPH:2]The word knight, from Old English cniht ("boy" or "servant"), is a cognate of the German word Knecht ("servant, bondsman, vassal"). This meaning, of unknown origin, is common among West Germanic languages (cf Old Frisian kniucht, Dutch knecht, Danish kn�gt, Swedish knekt, Norwegian knekt, Middle High German kneht, all meaning "boy, youth, lad"). Middle High German had the phrase guoter kneht, which also meant knight; but this meaning was in decline by about 1200.[PARAGRAPH:1]The meaning of cniht changed over time from its original meaning of "boy" to "household retainer". �lfric's homily of St. Swithun describes a mounted retainer as a cniht. While cnihtas might have fought alongside their lords, their role as household servants features more prominently in the Anglo-Saxon texts. In several Anglo-Saxon wills cnihtas are left either money or lands. In his will, King �thelstan leaves his cniht, Aelfmar, eight hides of land.[PARAGRAPH:1]A radcniht, "riding-servant", was a servant on horseback.[PARAGRAPH:1]A narrowing of the generic meaning "servant" to "military follower of a king or other superior" is visible by 1100. The specific military sense of a knight as a mounted warrior in the heavy cavalry emerges only in the Hundred Years' War. The verb "to knight" (to make someone a knight) appears around 1300; and, from the same time, the word "knighthood" shifted from "adolescence" to "rank or dignity of a knight".[PARAGRAPH:1]An Equestrian (Latin, from eques "horseman", from equus "horse") was a member of the second highest social class in the Roman Republic and early Roman Empire. This class is often translated as "knight"; the medieval knight, however, was called miles in Latin (which in classical Latin meant "soldier", normally infantry).[PARAGRAPH:1]In the later Roman Empire, the classical Latin word for horse, equus, was replaced in common parlance by the vulgar Latin caballus, sometimes thought to derive from Gaulish caballos. From caballus arose terms in the various Romance languages cognate with the (French-derived) English cavalier: Italian cavaliere, Spanish caballero, French chevalier (whence chivalry), Portuguese cavaleiro, and Romanian cavaler. The Germanic languages have terms cognate with the English rider: German Ritter, and Dutch and Scandinavian ridder. These words are derived from Germanic ridan, "to ride", in turn derived from the Proto-Indo-European root *reidh-.</English>
+ 	</TEXT>
+ 
+ 
+@@ -203,7 +203,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: from https://en.wikipedia.org/wiki/Zamburak?utm_source=chatgpt.com also thanks to chatgpt linking it to me as a source as i prompted it -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_CAMEL_CUIRASSIER_PEDIA</Tag>
+-		<English>Zamburak (romanized: zanburak, lit. 'culverin', lit. 'little wasp'), was a specialized form of self-propelled artillery from the early modern period featuring small swivel guns mounted on and fired from camels. Its operator was known as a zamburakchi. It was used by the gunpowder empires, especially Safavid Iran, the Timurid Empire, and Afsharid Iran, due to the ruggedness of the Iranian plateau, which made typical transportation of heavy cannons difficult.[PARAGRAPH:1]The zamburak became a popular mode of warfare in the 18th century in the Indian subcontinent. The Pashtuns used it in the Battle of Gulnabad, routing a numerically superior imperial Safavid army. It was also used successfully in the campaigns of Nader Shah when the shah and military genius Nader Shah utilized a zamburak corps in conjunction with a regular corps of conventional cannon to devastating effect in numerous battles, such as at the Battle of Damghan (1729), the Battle of Yeghev?rd, and the Battle of Karnal. A large number of zamburaks were also successfully employed by Ahmad Shah Durrani during his raid in the North Indian plain in the Third Battle of Panipat against the Maratha Confederacy.[PARAGRAPH:1]Zamburaks were one of the royal guard units in the Qajar Army. A Persian zamburak regiment was accompanied by musicians with huge camel-mounted drums, to further intimidate the enemy. Zamburaks were also used during the First Anglo-Afghan War and the First and Second Anglo-Sikh Wars.[PARAGRAPH:1]By the eighteenth century, usage of Zamburak became popular in the Indian subcontinent as well. In 1761, the Durrani conqueror, Ahmed Shah Durrani (also Ahmed Shah Abdali) used around 2000 camel guns in a battle against the Marathas, which proved to be a decisive factor in routing the Maratha forces near Panipat.[PARAGRAPH:1]A zamburak consisted of a soldier on a camel with a mounted swivel gun (a small falconet) hinged on a metal fork-rest protruding from the camel's saddle. To fire it, the camel was put on its knees. The name is derived from the Persian word for wasp zambur, possibly in reference to the sound earlier camel-mounted crossbows made. The camel's mobility combined with the swivel gun's flexibility and heavy firepower made an intimidating military unit, although the cannon's accuracy and range were rather low. The light cannon was also not particularly useful against heavy fortifications.[PARAGRAPH:1]The Dzungar Khanate used camel-mounted miniature cannons in battle. Gunpowder weapons like guns and cannons were used by both sides during the Dzungar-Qing Wars.[PARAGRAPH:1]After their invention in 1861, Gatling guns were mounted on camels as well.</English>
++		<English>Zamburak (romanized: zanburak, lit. 'culverin', lit. 'little wasp'), was a specialized form of self-propelled artillery from the early modern period featuring small swivel guns mounted on and fired from camels. Its operator was known as a zamburakchi. It was used by the gunpowder empires, especially Safavid Iran, the Timurid Empire, and Afsharid Iran, due to the ruggedness of the Iranian plateau, which made typical transportation of heavy cannons difficult.[PARAGRAPH:1]The zamburak became a popular mode of warfare in the 18th century in the Indian subcontinent. The Pashtuns used it in the Battle of Gulnabad, routing a numerically superior imperial Safavid army. It was also used successfully in the campaigns of Nader Shah when the shah and military genius Nader Shah utilized a zamburak corps in conjunction with a regular corps of conventional cannon to devastating effect in numerous battles, such as at the Battle of Damghan (1729), the Battle of Yeghevard, and the Battle of Karnal. A large number of zamburaks were also successfully employed by Ahmad Shah Durrani during his raid in the North Indian plain in the Third Battle of Panipat against the Maratha Confederacy.[PARAGRAPH:1]Zamburaks were one of the royal guard units in the Qajar Army. A Persian zamburak regiment was accompanied by musicians with huge camel-mounted drums, to further intimidate the enemy. Zamburaks were also used during the First Anglo-Afghan War and the First and Second Anglo-Sikh Wars.[PARAGRAPH:1]By the eighteenth century, usage of Zamburak became popular in the Indian subcontinent as well. In 1761, the Durrani conqueror, Ahmed Shah Durrani (also Ahmed Shah Abdali) used around 2000 camel guns in a battle against the Marathas, which proved to be a decisive factor in routing the Maratha forces near Panipat.[PARAGRAPH:1]A zamburak consisted of a soldier on a camel with a mounted swivel gun (a small falconet) hinged on a metal fork-rest protruding from the camel's saddle. To fire it, the camel was put on its knees. The name is derived from the Persian word for wasp zambur, possibly in reference to the sound earlier camel-mounted crossbows made. The camel's mobility combined with the swivel gun's flexibility and heavy firepower made an intimidating military unit, although the cannon's accuracy and range were rather low. The light cannon was also not particularly useful against heavy fortifications.[PARAGRAPH:1]The Dzungar Khanate used camel-mounted miniature cannons in battle. Gunpowder weapons like guns and cannons were used by both sides during the Dzungar-Qing Wars.[PARAGRAPH:1]After their invention in 1861, Gatling guns were mounted on camels as well.</English>
+ 	</TEXT>
+ 
+ 
+@@ -235,7 +235,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: based on https://en.wikipedia.org/wiki/Hussar -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_GERMAN_HUSSAR_PEDIA</Tag>
+-		<English>[TAB]A hussar was a member of a class of light cavalry, originally from the Kingdom of Hungary during the 15th and 16th centuries. The title and distinctive dress of these horsemen were subsequently widely adopted by light cavalry regiments in European armies during the late 17th and 18th centuries. By the 19th century, hussars were wearing jackets decorated with braid plus shako or busby fur hats and had developed a romanticized image of being dashing and adventurous.[PARAGRAPH:1]Historically, the term derives from the cavalry of late medieval Hungary, under Matthias Corvinus, with mainly Serb warriors.[PARAGRAPH:2]Initially the first units of Polish Hussars in the Kingdom of Poland were formed around 1500. The Polish heavy hussars of the Polish-Lithuanian Commonwealth were far more manoeuvrable than the heavily armoured lancers previously employed. The hussars proved vital to the Polish-Lithuanian victories at the Orsza (1514), the Obertyn (1531) and the Battle of Vienna (1683).[PARAGRAPH:2]Hussars throughout Europe followed a different line of development than the Polish hussars. During the early decades of the 17th century, hussars in Hungary ceased to wear metal body armour; and, by 1640, most were light cavalry. It was hussars of this "light" pattern, rather than the Polish heavy hussar, that were later copied across Europe. These light hussars were ideal for reconnaissance and raiding sources of fodder and provisions in advance of the army.[PARAGRAPH:1]In battle, they were used in such light cavalry roles as harassing enemy skirmishers, overrunning artillery positions, and pursuing fleeing troops. In many countries, the hussars and bosniaks actually retained their original Asiatic uniforms. In the late 17th and 18th centuries, many Hungarian hussars sought employment in other Central and Western European countries and became the core of similar light cavalry formations created there. Following their example, hussar regiments were introduced into at least twelve European armies by 1800.[PARAGRAPH:1]Bavaria raised its first hussar regiment in 1688 and a second one in about 1700. Prussia followed suit in 1721 when Frederick the Great used hussar units extensively during the War of the Austrian Succession.[PARAGRAPH:1]France established a number of hussar regiments from 1692 onward, recruiting originally from Hungary and Germany, then subsequently from German-speaking frontier regions within France itself. The first hussar regiment in the French army was the Hussars-Royaux (Royal Hussars), raised from Hungarian deserters in 1692.[PARAGRAPH:2]During and after R�k�czi's War of Independence, many Hungarians served in the Habsburg army. Located in garrisons far away from Hungary, some deserted from the Austrian army and joined that of Prussia. The value of the Hungarian hussars as light cavalry was recognised and, in 1721, two Hussaren Corps were organised in the Prussian Army.[PARAGRAPH:1]Frederick II (later called "The Great") recognised the value of hussars as light cavalry and encouraged their recruitment. In 1741, he established a further five regiments, largely from Polish deserters. Three more regiments were raised for Prussian service in 1744 and another in 1758. While the hussars were increasingly drawn from Prussian and other German cavalrymen, they continued to wear the traditional Hungarian uniform, richly decorated with braid and gold trim.[PARAGRAPH:1]Possibly due to a daring and impudent surprise raid on his capital, Berlin, by the hussars of Hungarian general Andr�s Hadik, Frederick also recognised the national characteristics of his Hungarian recruits and, in 1759, issued a royal order which warned the Prussian officers never to offend the self-esteem of his hussars with insults and abuse. At the same time, he exempted the hussars from the usual disciplinary measures of the Prussian Army, such as physical punishments including cudgeling.[PARAGRAPH:1]Frederick used his hussars for reconnaissance duties and for surprise attacks against the enemy's flanks and rear. A hussar regiment under the command of Colonel Sigismund Dabasi-Hal�sz helped win the Battle of Hohenfriedberg at Striegau on May 4, 1745, by attacking the Austrian combat formation on its flank and capturing all of its artillery.[PARAGRAPH:1]The effectiveness of the hussars in Frederick's army can be judged by the number of promotions and decorations awarded to their officers. Recipients included the Hungarian generals Pal Werner and Ferenc K?szeghy, who received the highest Prussian military order, the "Pour le M�rite"; General Tivadar Ruesh was awarded the title of baron; Mih�ly Sz�kely was promoted from the rank of captain to general after less than fifteen years of service.[PARAGRAPH:1]While Hungarian hussars served in the opposing armies of Frederick and Maria Theresa, there were no known instances of fratricidal clashes between them.</English>
++		<English>[TAB]A hussar was a member of a class of light cavalry, originally from the Kingdom of Hungary during the 15th and 16th centuries. The title and distinctive dress of these horsemen were subsequently widely adopted by light cavalry regiments in European armies during the late 17th and 18th centuries. By the 19th century, hussars were wearing jackets decorated with braid plus shako or busby fur hats and had developed a romanticized image of being dashing and adventurous.[PARAGRAPH:1]Historically, the term derives from the cavalry of late medieval Hungary, under Matthias Corvinus, with mainly Serb warriors.[PARAGRAPH:2]Initially the first units of Polish Hussars in the Kingdom of Poland were formed around 1500. The Polish heavy hussars of the Polish-Lithuanian Commonwealth were far more manoeuvrable than the heavily armoured lancers previously employed. The hussars proved vital to the Polish-Lithuanian victories at the Orsza (1514), the Obertyn (1531) and the Battle of Vienna (1683).[PARAGRAPH:2]Hussars throughout Europe followed a different line of development than the Polish hussars. During the early decades of the 17th century, hussars in Hungary ceased to wear metal body armour; and, by 1640, most were light cavalry. It was hussars of this "light" pattern, rather than the Polish heavy hussar, that were later copied across Europe. These light hussars were ideal for reconnaissance and raiding sources of fodder and provisions in advance of the army.[PARAGRAPH:1]In battle, they were used in such light cavalry roles as harassing enemy skirmishers, overrunning artillery positions, and pursuing fleeing troops. In many countries, the hussars and bosniaks actually retained their original Asiatic uniforms. In the late 17th and 18th centuries, many Hungarian hussars sought employment in other Central and Western European countries and became the core of similar light cavalry formations created there. Following their example, hussar regiments were introduced into at least twelve European armies by 1800.[PARAGRAPH:1]Bavaria raised its first hussar regiment in 1688 and a second one in about 1700. Prussia followed suit in 1721 when Frederick the Great used hussar units extensively during the War of the Austrian Succession.[PARAGRAPH:1]France established a number of hussar regiments from 1692 onward, recruiting originally from Hungary and Germany, then subsequently from German-speaking frontier regions within France itself. The first hussar regiment in the French army was the Hussars-Royaux (Royal Hussars), raised from Hungarian deserters in 1692.[PARAGRAPH:2]During and after R�k�czi's War of Independence, many Hungarians served in the Habsburg army. Located in garrisons far away from Hungary, some deserted from the Austrian army and joined that of Prussia. The value of the Hungarian hussars as light cavalry was recognised and, in 1721, two Hussaren Corps were organised in the Prussian Army.[PARAGRAPH:1]Frederick II (later called "The Great") recognised the value of hussars as light cavalry and encouraged their recruitment. In 1741, he established a further five regiments, largely from Polish deserters. Three more regiments were raised for Prussian service in 1744 and another in 1758. While the hussars were increasingly drawn from Prussian and other German cavalrymen, they continued to wear the traditional Hungarian uniform, richly decorated with braid and gold trim.[PARAGRAPH:1]Possibly due to a daring and impudent surprise raid on his capital, Berlin, by the hussars of Hungarian general Andr�s Hadik, Frederick also recognised the national characteristics of his Hungarian recruits and, in 1759, issued a royal order which warned the Prussian officers never to offend the self-esteem of his hussars with insults and abuse. At the same time, he exempted the hussars from the usual disciplinary measures of the Prussian Army, such as physical punishments including cudgeling.[PARAGRAPH:1]Frederick used his hussars for reconnaissance duties and for surprise attacks against the enemy's flanks and rear. A hussar regiment under the command of Colonel Sigismund Dabasi-Hal�sz helped win the Battle of Hohenfriedberg at Striegau on May 4, 1745, by attacking the Austrian combat formation on its flank and capturing all of its artillery.[PARAGRAPH:1]The effectiveness of the hussars in Frederick's army can be judged by the number of promotions and decorations awarded to their officers. Recipients included the Hungarian generals Pal Werner and Ferenc Koszeghy, who received the highest Prussian military order, the "Pour le M�rite"; General Tivadar Ruesh was awarded the title of baron; Mih�ly Sz�kely was promoted from the rank of captain to general after less than fifteen years of service.[PARAGRAPH:1]While Hungarian hussars served in the opposing armies of Frederick and Maria Theresa, there were no known instances of fratricidal clashes between them.</English>
+ 	</TEXT>
+ 
+ 
+@@ -510,7 +510,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: replace sistine_chapel with natya_shastra, import/based on similarly on https://en.wikipedia.org/wiki/Natya_Shastra and modified or not for advciv-sas -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_NATYA_SHASTRA_PEDIA</Tag>
+-		<English>[TAB]The Natya Shastra is a Sanskrit treatise on the performing arts. The text is attributed to sage Bharata, and its first complete compilation is dated to between 200 BCE and 200 CE, but estimates vary between 500 BCE and 500 CE.[PARAGRAPH:1]The text consists of 36 chapters with a cumulative total of 6,000 poetic verses describing performance arts. The subjects covered by the treatise include dramatic composition, structure of a play and the construction of a stage to host it, genres of acting, body movements, make up and costumes, role and goals of an art director, the musical scales, musical instruments and the integration of music with art performance.[PARAGRAPH:1]The Natya sastra is notable as an ancient encyclopedic treatise on the arts, one which has influenced dance, music and literary traditions in India. It is also notable for its aesthetic "Rasa" theory, which asserts that entertainment is a desired effect of performance arts but not the primary goal, and that the primary goal is to transport the individual in the audience into another parallel reality, full of wonder, where they experience the essence of their own consciousness, and reflect on spiritual and moral questions. The text further inspired secondary literature such as the 10th century commentary Abhinavabharati - an example of a classic Sanskrit bhasya ("reviews and commentaries") - written by Abhinavagupta. In April 2025, the Natya Shastra manuscript was added to UNESCO's Memory of the World Register.[PARAGRAPH:1]The title of the text is composed of two words, "Natya" and "Shastra". The root of the Sanskrit word Natya is Nata which means "act, represent". The word Shastra means "precept, rules, manual, compendium, book or treatise", and is generally used as a suffix in the Indian literature context, for knowledge in a defined area of practice.[PARAGRAPH:2]The Natyashastra is the oldest surviving ancient Indian work on performance arts. The roots of the text extend at least as far back as the Natas?tras, dated to around the mid 1st millennium BCE.[PARAGRAPH:1]The Natasutras are mentioned in the text of Panini, the sage who wrote the classic on Sanskrit grammar, and who is dated to about 500 BCE. This performance arts related Sutra text is mentioned in other late Vedic texts, as are two scholars names Shilalin (IAST: silalin) and Krishashva (Krsasva), credited to be pioneers in the studies of ancient drama, singing, dance and Sanskrit compositions for these arts. The Natyashastra refers to drama performers as shailalinas, likely because they were so known at the time the text was written, a name derived from the legacy of the vedic sage silalin credited with Natasutras. Richmond et al. estimate the Natasutras to have been composed around 600 BCE.[PARAGRAPH:1]According to Lewis Rowell, a professor of Music specializing on classical Indian music, the earliest Indian artistic thought included three arts, syllabic recital (vadya), melos (gita) and dance (nrtta), as well as two musical genre, Gandharva (formal, composed, ceremonial music) and Gana (informal, improvised, entertainment music). The Gandharva subgenre also implied celestial, divine associations, while the Gana was free form art and included singing. The Sanskrit musical tradition spread widely in the Indian subcontinent during the late 1st millennium BCE, and the ancient Tamil classics make it "abundantly clear that a cultivated musical tradition existed in South India as early as the last few pre-Christian centuries".[PARAGRAPH:1]The art schools of Shilalin and Krishashva, mentioned in both the Brahmanas and the Kalpasutras and Srautasutras, may have been associated with the performance of vedic rituals, which involved storytelling with embedded ethical values. The Vedanga texts such as verse 1.4.29 of Panini Sutras mention these as well. The roots of the Natyashastra thus likely trace to the more ancient vedic traditions of integrating ritual recitation, dialogue and song in a dramatic representation of spiritual themes. The Sanskrit verses in chapter 13.2 of Shatapatha Brahmana (~800-700 BCE), for example, are written in the form of a riddle play between two actors.[PARAGRAPH:1]"The Vedic sacrifice (yajna) is presented as a kind of drama, with its actors, its dialogues, its portion to be set to music, its interludes, and its climaxes." - Louis Renou, Vedic India[PARAGRAPH:2]The most studied version of the text, consisting of about 6000 poetic verses, is structured into 36 chapters. The tradition believes that the text originally had 12,000 verses. Somewhat different versions of the manuscripts exist, and these contain 37 or 38 chapters. Predominant number of its verses are in precise Anustubh meter (4x8, or exactly 32 syllables in every shloka), some verses are in Arya meter (a morae-based Sanskrit meter), and the text has some text that is in prose particularly in chapters 6, 7 and 28.[PARAGRAPH:1]The structure of the text harmoniously compiles aspects of the theatrical arts into separate chapters. The text opens with the mythical genesis and history of drama, mentions the role of different Hindu deities in various aspects of the arts, and the recommended puja (consecration ceremony) of a stage for performance arts. The text, states Natalia Lidova, then describes the theory of Tandava dance (Shiva), the theory of rasa, of bhava, expression, gestures, acting techniques, basic steps, standing postures.[PARAGRAPH:2]The contents of the Natyashastra, states Susan Schwartz, are "in part theatrical manual, part philosophy of aesthetics, part mythological history, part theology". It is the oldest surviving encyclopedic treatise on dramaturgy from India, with sections on the theory and practice of various performance arts. The text extends its reach into asking and understanding the goals of performance arts, the nature of the playwright, the artists and the spectators, their intimate relationship during the performance. Natya topics as envisioned in this text includes what in western performing arts would include drama, dance, theatre, poetry and music. The text integrates its aesthetics, axiology and description of arts with mythologies associated with Hindu Devas and Devis. Performance arts, states Natyashastra, are a form of Vedic ritual ceremony (yajna).[PARAGRAPH:1]The general approach of the text is treated entertainment as an effect, but not the primary goal of arts. The primary goal is to lift and transport the spectators, unto the expression of ultimate reality and transcendent values. The text allows, states Schwartz, the artists "enormous innovation" as they connect the playwright and the spectators, through their performance, to Rasa (the essence, juice).[PARAGRAPH:1]The "rasa theory" of Natyashastra, states Daniel Meyer-Dinkgr�fe, presumes that bliss is intrinsic and innate in man, it exists in oneself, that manifests non-materially through spiritual and personally subjective means. Performance arts aim to empower man to experience this rasa, or re-experience it. Actors aim to journey the spectator to this aesthetic experience within him. Rasa is prepared, states Natya Shastra, through a creative synthesis and expression of vibhava (determinants), anubhava (consequents) and vyabhicharibhava (transitory states). In the process of emotionally engaging the individual in the audience, the text outlines the use of eight sentiments - erotic, comic, pathetic, terrible, furious, odious, heroic and marvellous.[PARAGRAPH:2]The Natyashastra defines drama in verse 6.10 as that which aesthetically arouses joy in the spectator, through the medium of actor's art of communication, that helps connect and transport the individual into a super sensual inner state of being. The Natya connects through abhinaya, that is applying body-speech-mind and scene, wherein asserts Natyashastra, the actors use two practices of dharmi (performance), in four styles and four regional variations, accompanied by song and music in a playhouse carefully designed to achieve siddhi (success in production).[PARAGRAPH:2]The text discusses a variety of performance arts as well as the design of the stage. The text details three architectural styles for the playhouse:Vikrista (oblong); Caturasra (square); Tryasra (triangular)[PARAGRAPH:1]Drama did not require painted scenery, instead utilizing costumes and makeup. Well aware of the limitations of realism, descriptions of the setting were interwoven in rhythmic verse and prose. Further, detailed zonal rules outlined how to portray settings inside and outside a house, as well as settings near or far. For example, change in acts would convey travel to distant lands.[PARAGRAPH:2]The Natyashastra is, states Emmie te Nijenhuis, the oldest surviving text that systematically treats "the theory and instruments of Indian music". Music has been an integral part of performance arts in the Hindu tradition since its Vedic times, and the theories of music found in the Natyashastra are also found in many Puranas, such as the Markandeya Purana.</English>
++		<English>[TAB]The Natya Shastra is a Sanskrit treatise on the performing arts. The text is attributed to sage Bharata, and its first complete compilation is dated to between 200 BCE and 200 CE, but estimates vary between 500 BCE and 500 CE.[PARAGRAPH:1]The text consists of 36 chapters with a cumulative total of 6,000 poetic verses describing performance arts. The subjects covered by the treatise include dramatic composition, structure of a play and the construction of a stage to host it, genres of acting, body movements, make up and costumes, role and goals of an art director, the musical scales, musical instruments and the integration of music with art performance.[PARAGRAPH:1]The Natya sastra is notable as an ancient encyclopedic treatise on the arts, one which has influenced dance, music and literary traditions in India. It is also notable for its aesthetic "Rasa" theory, which asserts that entertainment is a desired effect of performance arts but not the primary goal, and that the primary goal is to transport the individual in the audience into another parallel reality, full of wonder, where they experience the essence of their own consciousness, and reflect on spiritual and moral questions. The text further inspired secondary literature such as the 10th century commentary Abhinavabharati - an example of a classic Sanskrit bhasya ("reviews and commentaries") - written by Abhinavagupta. In April 2025, the Natya Shastra manuscript was added to UNESCO's Memory of the World Register.[PARAGRAPH:1]The title of the text is composed of two words, "Natya" and "Shastra". The root of the Sanskrit word Natya is Nata which means "act, represent". The word Shastra means "precept, rules, manual, compendium, book or treatise", and is generally used as a suffix in the Indian literature context, for knowledge in a defined area of practice.[PARAGRAPH:2]The Natyashastra is the oldest surviving ancient Indian work on performance arts. The roots of the text extend at least as far back as the Natasutras, dated to around the mid 1st millennium BCE.[PARAGRAPH:1]The Natasutras are mentioned in the text of Panini, the sage who wrote the classic on Sanskrit grammar, and who is dated to about 500 BCE. This performance arts related Sutra text is mentioned in other late Vedic texts, as are two scholars names Shilalin (IAST: silalin) and Krishashva (Krsasva), credited to be pioneers in the studies of ancient drama, singing, dance and Sanskrit compositions for these arts. The Natyashastra refers to drama performers as shailalinas, likely because they were so known at the time the text was written, a name derived from the legacy of the vedic sage silalin credited with Natasutras. Richmond et al. estimate the Natasutras to have been composed around 600 BCE.[PARAGRAPH:1]According to Lewis Rowell, a professor of Music specializing on classical Indian music, the earliest Indian artistic thought included three arts, syllabic recital (vadya), melos (gita) and dance (nrtta), as well as two musical genre, Gandharva (formal, composed, ceremonial music) and Gana (informal, improvised, entertainment music). The Gandharva subgenre also implied celestial, divine associations, while the Gana was free form art and included singing. The Sanskrit musical tradition spread widely in the Indian subcontinent during the late 1st millennium BCE, and the ancient Tamil classics make it "abundantly clear that a cultivated musical tradition existed in South India as early as the last few pre-Christian centuries".[PARAGRAPH:1]The art schools of Shilalin and Krishashva, mentioned in both the Brahmanas and the Kalpasutras and Srautasutras, may have been associated with the performance of vedic rituals, which involved storytelling with embedded ethical values. The Vedanga texts such as verse 1.4.29 of Panini Sutras mention these as well. The roots of the Natyashastra thus likely trace to the more ancient vedic traditions of integrating ritual recitation, dialogue and song in a dramatic representation of spiritual themes. The Sanskrit verses in chapter 13.2 of Shatapatha Brahmana (~800-700 BCE), for example, are written in the form of a riddle play between two actors.[PARAGRAPH:1]"The Vedic sacrifice (yajna) is presented as a kind of drama, with its actors, its dialogues, its portion to be set to music, its interludes, and its climaxes." - Louis Renou, Vedic India[PARAGRAPH:2]The most studied version of the text, consisting of about 6000 poetic verses, is structured into 36 chapters. The tradition believes that the text originally had 12,000 verses. Somewhat different versions of the manuscripts exist, and these contain 37 or 38 chapters. Predominant number of its verses are in precise Anustubh meter (4x8, or exactly 32 syllables in every shloka), some verses are in Arya meter (a morae-based Sanskrit meter), and the text has some text that is in prose particularly in chapters 6, 7 and 28.[PARAGRAPH:1]The structure of the text harmoniously compiles aspects of the theatrical arts into separate chapters. The text opens with the mythical genesis and history of drama, mentions the role of different Hindu deities in various aspects of the arts, and the recommended puja (consecration ceremony) of a stage for performance arts. The text, states Natalia Lidova, then describes the theory of Tandava dance (Shiva), the theory of rasa, of bhava, expression, gestures, acting techniques, basic steps, standing postures.[PARAGRAPH:2]The contents of the Natyashastra, states Susan Schwartz, are "in part theatrical manual, part philosophy of aesthetics, part mythological history, part theology". It is the oldest surviving encyclopedic treatise on dramaturgy from India, with sections on the theory and practice of various performance arts. The text extends its reach into asking and understanding the goals of performance arts, the nature of the playwright, the artists and the spectators, their intimate relationship during the performance. Natya topics as envisioned in this text includes what in western performing arts would include drama, dance, theatre, poetry and music. The text integrates its aesthetics, axiology and description of arts with mythologies associated with Hindu Devas and Devis. Performance arts, states Natyashastra, are a form of Vedic ritual ceremony (yajna).[PARAGRAPH:1]The general approach of the text is treated entertainment as an effect, but not the primary goal of arts. The primary goal is to lift and transport the spectators, unto the expression of ultimate reality and transcendent values. The text allows, states Schwartz, the artists "enormous innovation" as they connect the playwright and the spectators, through their performance, to Rasa (the essence, juice).[PARAGRAPH:1]The "rasa theory" of Natyashastra, states Daniel Meyer-Dinkgr�fe, presumes that bliss is intrinsic and innate in man, it exists in oneself, that manifests non-materially through spiritual and personally subjective means. Performance arts aim to empower man to experience this rasa, or re-experience it. Actors aim to journey the spectator to this aesthetic experience within him. Rasa is prepared, states Natya Shastra, through a creative synthesis and expression of vibhava (determinants), anubhava (consequents) and vyabhicharibhava (transitory states). In the process of emotionally engaging the individual in the audience, the text outlines the use of eight sentiments - erotic, comic, pathetic, terrible, furious, odious, heroic and marvellous.[PARAGRAPH:2]The Natyashastra defines drama in verse 6.10 as that which aesthetically arouses joy in the spectator, through the medium of actor's art of communication, that helps connect and transport the individual into a super sensual inner state of being. The Natya connects through abhinaya, that is applying body-speech-mind and scene, wherein asserts Natyashastra, the actors use two practices of dharmi (performance), in four styles and four regional variations, accompanied by song and music in a playhouse carefully designed to achieve siddhi (success in production).[PARAGRAPH:2]The text discusses a variety of performance arts as well as the design of the stage. The text details three architectural styles for the playhouse:Vikrista (oblong); Caturasra (square); Tryasra (triangular)[PARAGRAPH:1]Drama did not require painted scenery, instead utilizing costumes and makeup. Well aware of the limitations of realism, descriptions of the setting were interwoven in rhythmic verse and prose. Further, detailed zonal rules outlined how to portray settings inside and outside a house, as well as settings near or far. For example, change in acts would convey travel to distant lands.[PARAGRAPH:2]The Natyashastra is, states Emmie te Nijenhuis, the oldest surviving text that systematically treats "the theory and instruments of Indian music". Music has been an integral part of performance arts in the Hindu tradition since its Vedic times, and the theories of music found in the Natyashastra are also found in many Puranas, such as the Markandeya Purana.</English>
+ 	</TEXT>
+ 
+ 
+@@ -1274,7 +1274,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: based on https://en.wikipedia.org/wiki/Flying_column -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_IRELAND_FLYING_COLUMN_PEDIA</Tag>
+-		<English>[TAB]A flying column is a small, independent, military land unit capable of rapid mobility and usually composed of all arms. It is often an ad hoc unit, formed during the course of operations.[PARAGRAPH:1]The term is usually, though not necessarily, applied to forces less than the strength of a brigade. As mobility is its primary purpose, a flying column is accompanied by the minimum of equipment. It generally uses suitable fast transport; historically, horses were used, with trucks and helicopters replacing them in modern times.[PARAGRAPH:2]Flying columns are mentioned by Sun Tzu in his Art of War in such a fashion that indicates it was not a new concept at the time of his writing. This dates to at least the middle 6th century BC, and possibly the late 8th century BC.[PARAGRAPH:1]The Roman army made good use of the flying columns in the early imperial era. One Roman commander, the proconsul Germanicus Caesar used flying columns to great effect in the early stages of the campaign against one of Rome's greatest enemies, Arminius. Scouts, raiders, and screening forces were used against the Germanic tribes responsible for destroying three Roman legions (the 17th, 18th, and 19th) in the Battle of the Teutoburg Forest.[PARAGRAPH:1]Boer kommandos in 17th-20th-century South Africa may be regarded as a form of flying column (unlike commandos in the more recent sense). The mobile columns employed against Boer forces, by British Empire forces in the South African War of 1899-1902, were usually of the strength of two battalions of infantry, a battery of artillery, and a squadron of cavalry, almost exactly half that of a Mixed brigade.[PARAGRAPH:1]Flying columns have also been used in guerrilla warfare, notably the mobile armed units of the Irish Republican Army during the Irish War of Independence 1919-1921.During this period, the most successful Irish flying columns in terms of casualties inflicted on the police and military were the west Connemara, the south Mayo and the west Mayo column under the command of Michael Kilroy.[PARAGRAPH:1]In 1919, Polish officer Stanis?aw Maczek created a flying company made of a battle-hardened infantry, using horses for mobility, and a lot of machine guns for fire power. They were part of the 4th Infantry Division (Poland).[PARAGRAPH:1]In the 1920s, Defence Scheme No. 1, the proposed Canadian response to an invasion by the United States, Lt. Col. James "Buster" Brown suggested "immediate dispatch of flying columns on the declaration of war" in order to counter-invade across the border and enact a scorched earth policy, forcing the US to divert military resources towards the defense of its northern cities.[PARAGRAPH:1]During and shortly after the Anglo-Iraqi War of 1941, British forces employed flying columns code-named Kingcol, Mercol and Gocol. Kingcol advanced into Iraq from Jordan and Palestine.</English>
++		<English>[TAB]A flying column is a small, independent, military land unit capable of rapid mobility and usually composed of all arms. It is often an ad hoc unit, formed during the course of operations.[PARAGRAPH:1]The term is usually, though not necessarily, applied to forces less than the strength of a brigade. As mobility is its primary purpose, a flying column is accompanied by the minimum of equipment. It generally uses suitable fast transport; historically, horses were used, with trucks and helicopters replacing them in modern times.[PARAGRAPH:2]Flying columns are mentioned by Sun Tzu in his Art of War in such a fashion that indicates it was not a new concept at the time of his writing. This dates to at least the middle 6th century BC, and possibly the late 8th century BC.[PARAGRAPH:1]The Roman army made good use of the flying columns in the early imperial era. One Roman commander, the proconsul Germanicus Caesar used flying columns to great effect in the early stages of the campaign against one of Rome's greatest enemies, Arminius. Scouts, raiders, and screening forces were used against the Germanic tribes responsible for destroying three Roman legions (the 17th, 18th, and 19th) in the Battle of the Teutoburg Forest.[PARAGRAPH:1]Boer kommandos in 17th-20th-century South Africa may be regarded as a form of flying column (unlike commandos in the more recent sense). The mobile columns employed against Boer forces, by British Empire forces in the South African War of 1899-1902, were usually of the strength of two battalions of infantry, a battery of artillery, and a squadron of cavalry, almost exactly half that of a Mixed brigade.[PARAGRAPH:1]Flying columns have also been used in guerrilla warfare, notably the mobile armed units of the Irish Republican Army during the Irish War of Independence 1919-1921.During this period, the most successful Irish flying columns in terms of casualties inflicted on the police and military were the west Connemara, the south Mayo and the west Mayo column under the command of Michael Kilroy.[PARAGRAPH:1]In 1919, Polish officer Stanislaw Maczek created a flying company made of a battle-hardened infantry, using horses for mobility, and a lot of machine guns for fire power. They were part of the 4th Infantry Division (Poland).[PARAGRAPH:1]In the 1920s, Defence Scheme No. 1, the proposed Canadian response to an invasion by the United States, Lt. Col. James "Buster" Brown suggested "immediate dispatch of flying columns on the declaration of war" in order to counter-invade across the border and enact a scorched earth policy, forcing the US to divert military resources towards the defense of its northern cities.[PARAGRAPH:1]During and shortly after the Anglo-Iraqi War of 1941, British forces employed flying columns code-named Kingcol, Mercol and Gocol. Kingcol advanced into Iraq from Jordan and Palestine.</English>
+ 	</TEXT>
+ 
+ 
+@@ -1447,7 +1447,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: AI-generated with the help of GPT-5.2-Thinking, then made more wiki sounding with the help of Kimi K2.5 thanks -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET_PEDIA</Tag>
+-		<English>[TAB]Traditional education within the Ethiopian Orthodox Tewahedo Church follows a structured progression through ecclesiastical schools. Students initially enter the Nebab Bet (house of reading), where they acquire literacy skills and commit to memory essential prayers and the Psalms. Subsequent advancement encompasses liturgical studies, chant (zema), and poetry (qene), ultimately leading to the Metsehaf Bet?a specialized institution devoted to advanced textual exegesis.[PARAGRAPH:1]The term Metsehaf Bet functions as an umbrella designation for commentary schools comprising four principal divisions: Old Testament studies (Beluy), New Testament studies (Haddis), patristics and ancillary disciplines (Liqawent, incorporating canon law and computus), and monastic literature (Menekosat). Pedagogical methodology centers on intensive textual analysis, wherein students engage in line-by-line interpretation and examine theological, ethical, and historical dimensions through established commentary traditions.</English>
++		<English>[TAB]Traditional education within the Ethiopian Orthodox Tewahedo Church follows a structured progression through ecclesiastical schools. Students initially enter the Nebab Bet (house of reading), where they acquire literacy skills and commit to memory essential prayers and the Psalms. Subsequent advancement encompasses liturgical studies, chant (zema), and poetry (qene), ultimately leading to the Metsehaf Bet - a specialized institution devoted to advanced textual exegesis.[PARAGRAPH:1]The term Metsehaf Bet functions as an umbrella designation for commentary schools comprising four principal divisions: Old Testament studies (Beluy), New Testament studies (Haddis), patristics and ancillary disciplines (Liqawent, incorporating canon law and computus), and monastic literature (Menekosat). Pedagogical methodology centers on intensive textual analysis, wherein students engage in line-by-line interpretation and examine theological, ethical, and historical dimensions through established commentary traditions.</English>
+ 	</TEXT>
+ 	<!-- advc (note): Could just replace all the [NEWLINE] with \n for easier editing -->
+ 	<!-- advc.002b: Added/removed tabs to fix alignment (only for English
+
+diff --git a/README.md b/README.md
+index 25f750f81..65194f75c 100644
+--- a/README.md
++++ b/README.md
+@@ -883,7 +883,7 @@ Active helper scripts for LLM-assisted review and tuning live in [LLM_Helpers](/
+ 
+ GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions. They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size magic-number drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md). For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
+ 
+-This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)). This also helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) and fix suspicious malformed-looking XML tag punctuation (e.g., `<French>>`, `</English>>`). See [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check).
++This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)). This also helped spot and fix [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)).
+ 
+ Also added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20 (see [<hidden-email>#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24)). This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md`](/.github/workflows/README.md).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index c255fe772..4c576a897 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -187,6 +187,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [149 - (Fixed) Base AdvCiv issue: Duplicate XML text tags found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check)  
+ [150 - (Fixed) Base AdvCiv issue (and some AdvCiv-SAS): Priority duplicate XML child/list entries found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)  
+ [151 - (Fixed) Base AdvCiv issue: Suspicious malformed-looking XML angle tags found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)  
++[152 - (Fixed) Suspicious replacement question marks in lengthy Sevopedia XML found by new GitHub workflow check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -5559,6 +5560,8 @@ After these changes, `python .github/workflows/build/xml_child_duplicate_report.
+ 
+ ## 151 - (Fixed) Base AdvCiv issue: Suspicious malformed-looking XML angle tags found by new GitHub workflow check
+ 
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1u_l6UkCpRFe0oGhf4Z_43FK-fP7pcEuW?usp=sharing).
++
+ While adding `build/xml_suspicious_angle_tags.py` to the GitHub workflow checks, the [first failing run](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) found XML text entries with extra `>` characters near language tags. These are valid enough for a normal XML parser because the extra angle can be interpreted as text, but they are still almost certainly malformed text data and can show an unintended leading or trailing `>` in-game.
+ 
+ GitHub Actions output:
+@@ -5585,3 +5588,34 @@ Fix notes:
+ - Removed the extra trailing `>` after the German war-status text in `CIV4GameText_advc_rf.xml`.
+ 
+ After these changes, `python .github/workflows/build/xml_suspicious_angle_tags.py` passed.
++
++## 152 - (Fixed) Suspicious replacement question marks in lengthy Sevopedia XML found by new GitHub workflow check
++
++While adding `build/xml_suspicious_text_chars.py` to the GitHub workflow checks, the [first failing](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) run found suspicious `?` characters inside word-like tokens in `AdvCiv-SAS_Sevopedia_Lengthy.xml`. This was an AdvCiv-SAS lengthy text issue, not a base AdvCiv inheritance issue. The check also reported 182 inherited non-English replacement-character findings as ignored by default, so the actionable failure stayed focused on active English/SAS text.
++
++GitHub Actions output:
++
++```text
++Run python .github/workflows/build/xml_suspicious_text_chars.py
++  
++FAIL XML suspicious text chars
++  - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 181: suspicious question mark inside token: ...n his will, King Æthelstan leaves his cniht, Aelfmar, eight hides of land.[PARAGRAPH:1]A r?dcniht, "riding-servant", was a servant on horseback.[PARAGRAPH:1]A narrowing of the gener...
++  - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 206: suspicious question mark inside token: ... effect in numerous battles, such as at the Battle of Damghan (1729), the Battle of Yeghev?rd, and the Battle of Karnal. A large number of zamburaks were also successfully employed ...
++  - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 238: suspicious question mark inside token: ...rded to their officers. Recipients included the Hungarian generals Pal Werner and Ferenc K?szeghy, who received the highest Prussian military order, the "Pour le Mérite"; General Ti...
++  - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 513: suspicious question mark inside token: ...n work on performance arts. The roots of the text extend at least as far back as the Natas?tras, dated to around the mid 1st millennium BCE.[PARAGRAPH:1]The Natasutras are mentioned...
++  - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 1277: suspicious question mark inside token: ...ayo column under the command of Michael Kilroy.[PARAGRAPH:1]In 1919, Polish officer Stanis?aw Maczek created a flying company made of a battle-hardened infantry, using horses for mo...
++  - Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml: line 1450: suspicious question mark inside token: ...iturgical studies, chant (zema), and poetry (qene), ultimately leading to the Metsehaf Bet?a specialized institution devoted to advanced textual exegesis.[PARAGRAPH:1]The term Metse...
++Ignored 182 known inherited non-English replacement-character finding(s); rerun with --show-ignored to list them.
++Error: Process completed with exit code 1.
++```
++
++Fix notes:
++
++- `r?dcniht` was changed to plain ASCII `radcniht`.
++- `Yeghev?rd` was changed to plain ASCII `Yeghevard`.
++- `K?szeghy` was changed to plain ASCII `Koszeghy`.
++- `Natas?tras` was changed to plain ASCII `Natasutras`.
++- `Stanis?aw` was changed to plain ASCII `Stanislaw`.
++- `Metsehaf Bet?a` was changed to `Metsehaf Bet - a`, treating the `?` as lost punctuation rather than a lost letter.
++
++After these changes, `python .github/workflows/build/xml_suspicious_text_chars.py` passed.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 1c74a5dea..7bbc15bae 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -111,7 +111,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Fail-fast XML lookup hardening:** replaced almost all `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values. Notably allowed to detect and fix incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` instead of correct `DirectionTypes.DIRECTION_NORTH` (in Planet Generator map), or incorrect `getInfoTypeOrFail("PLOT_PEAK")` failing instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map).
+ - **Static define-key audit:** added [`audit_define_keys.py`](/LLM_Helpers/audit_define_keys.py), which statically greps every literal `getDefine{BOOL,FLOAT,INT,STRING}("X")` call across Python and DLL and verifies `X` is declared in mod XML, base BTS XML, or vanilla Civ4 XML. Catches **per-key drift** (renamed/removed XML entries) before runtime. A runtime fail-loud wrapper isn't practical here because `getDefine*` returns `0`/`""` for both missing and legitimately zero/empty keys (unlike `getInfoTypeForString` which has a clean `-1` sentinel); a static grep is also **cheaper and simpler to maintain** than wrapping every call site. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - **Unused-text-key audit + cleanup:** added [`audit_unused_text_keys.py`](/LLM_Helpers/audit_unused_text_keys.py), which flags mod GameText `<Tag>TXT_KEY_*` entries referenced **nowhere** in the mod, base BTS, or vanilla Civ4 (Python + DLL + XML); dynamically-built (`"TXT_KEY_BUG_OPT_"+id`) and engine-derived (`_PEDIA/_HELP/...`) key families are routed to a separate review bucket to avoid false positives. Used it to **remove confirmed dead GameText entries** from [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml). See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+-- (Requires AdvCiv-SAS 5930+) **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `SAS_MAGIC_WORLDSIZE_*` constants matching `CIV4WorldInfo.xml` order, and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change). (Requires AdvCiv-SAS 5935+) This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)), and [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`). See [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check).. The checks also run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md).
++- (Requires AdvCiv-SAS 5930+) **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `SAS_MAGIC_WORLDSIZE_*` constants matching `CIV4WorldInfo.xml` order, and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change). (Requires AdvCiv-SAS 5935+) This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)), and [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)). The checks also run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md).
+ - (Requires AdvCiv-SAS 5931+) **Dependabot for GitHub Actions:** added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20 (see [<hidden-email>#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24)). This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md`](/.github/workflows/README.md).
+ - **Handicap XML comparison helper:** added [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py), a report-only, mod-agnostic helper that compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, by handicap index; shows missing fields as blanks, includes absolute/percentage numeric deltas, and embeds a spreadsheet-friendly TSV matrix. The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) compares base AdvCiv 1.12 vs AdvCiv-SAS. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=100938

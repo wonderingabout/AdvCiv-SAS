@@ -1,0 +1,135 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4077
+# Commit: 12287ad37d6083547fb5c301b8063909d1dffbc4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 909fcd27324e50ceea735027c708ad203cf9558c
+# Title: Global define for chopping on unowned tiles
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/XML/GlobalDefines_advc.xml
+2	1	CvGameCoreDLL/CvGlobals.h
+14	8	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index d13946624..83bf5f784 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1372,4 +1372,14 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.119: Set to 1 to allow workers to chop Forest and Jungle on
++		 unowned tiles. This restores the BtS rule - except that BtS also
++		 allows chopping on hostile tiles when at war. 0 allows chopping
++		 only on tiles owned by the worker's owner or by a teammate
++		 (recommended in order to slow down global deforestation a bit). -->
++	<Define>
++		<DefineName>CAN_CHOP_UNOWNED_FEATURES</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 41938b727..67b2d5f46 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -562,7 +562,8 @@ public:
+ 		DO(RF_PLAYER_HANDICAP_ADJUSTMENT) /* advc.708 */ \
+ 		DO(BASE_UNIT_CAPTURE_CHANCE) /* advc.010 */ \
+ 		DO(DOW_UNIT_CAPTURE_CHANCE) /* advc.010 */ \
+-		DO(SHOW_ODDS_IN_COMBAT_MESSAGES) /* advc.048 */
++		DO(SHOW_ODDS_IN_COMBAT_MESSAGES) /* advc.048 */ \
++		DO(CAN_CHOP_UNOWNED_FEATURES) /* advc.119 */
+ 	#define MAKE_ENUMERATOR(VAR) VAR,
+ 	enum GlobalDefines
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 6e53e35b4..d91ca852a 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2295,17 +2295,21 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
+ 		if (bPyOverride)
+ 			return bCanBuild;
+ 	}
++	TeamTypes const eTeam = TEAMID(ePlayer);
+ 	bool bValid = false;
++	// <advc.181>
++	TeamTypes const ePlotTeam = (bIgnoreFoW ? getTeam() :
++			getRevealedTeam(eTeam, false)); // </advc.181>
+ 	ImprovementTypes const eImprovement = GC.getInfo(eBuild).getImprovement();
+ 	if (eImprovement != NO_IMPROVEMENT)
+ 	{
+-		if (!canHaveImprovement(eImprovement, TEAMID(ePlayer), bTestVisible,
++		if (!canHaveImprovement(eImprovement, eTeam, bTestVisible,
+ 			eBuild, false)) // kekm.9
+ 		{
+ 			return false;
+ 		}
+ 		ImprovementTypes const eOldImprov = (bIgnoreFoW ? getImprovementType() :
+-				getRevealedImprovementType(TEAMID(ePlayer)));
++				getRevealedImprovementType(eTeam));
+ 		if (eOldImprov != NO_IMPROVEMENT) // advc.181
+ 		//if (isImproved())
+ 		{
+@@ -2323,12 +2327,12 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
+ 		}
+ 		if (!bTestVisible)
+ 		{
+-			if (TEAMID(ePlayer) != getTeam())
++			if (eTeam != ePlotTeam)
+ 			{
+ 				//outside borders can't be built in other's culture
+ 				if (GC.getInfo(eImprovement).isOutsideBorders())
+ 				{
+-					if (getTeam() != NO_TEAM)
++					if (ePlotTeam != NO_TEAM)
+ 						return false;
+ 				}
+ 				else return false; //only buildable in own culture
+@@ -2342,7 +2346,7 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
+ 	{
+ 		// <advc.181>
+ 		RouteTypes const eOldRoute = (bIgnoreFoW ? getRouteType() :
+-				getRevealedRouteType(TEAMID(ePlayer)));
++				getRevealedRouteType(eTeam));
+ 		if (eOldRoute != NO_ROUTE) // </advc.181>
+ 		//if (isRoute())
+ 		{
+@@ -2375,16 +2379,18 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
+ 		}
+ 		bValid = true;
+ 	}
+-
+ 	if (isFeature())
+ 	{
+ 		if (GC.getInfo(eBuild).isFeatureRemove(getFeatureType()))
+-		{	/*if (isOwned() && TEAMID(ePlayer) != getTeam() && !GET_TEAM(ePlayer).isAtWar(getTeam()))
++		{	/*if (isOwned() && eTeam != ePlotTeam && !GET_TEAM(eTeam).isAtWar(ePlotTeam))
+ 				return false;
+ 			bValid = true;*/
+ 			// <advc.119> Replacing the above
+-			if(getTeam() == TEAMID(ePlayer))
++			if (ePlotTeam == eTeam || (ePlotTeam == NO_TEAM &&
++				GC.getDefineBOOL(CvGlobals::CAN_CHOP_UNOWNED_FEATURES)))
++			{
+ 				bValid = true;
++			}
+ 			else return false; // </advc.119>
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3875

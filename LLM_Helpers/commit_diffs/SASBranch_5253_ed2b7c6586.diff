@@ -1,0 +1,89 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5253
+# Commit: ed2b7c658621f122e1824a858ab79856a5bef736
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 10fd402effc12c3fa90c265b74630a263a7e761e
+# Title: add conservative fixes to keyboard navigation Note: history handling (i.e. not remembering all visited pages with the arrows inbetween original entry and ent...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+3	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 6abc6f1a0..7e16ceb8a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -554,6 +554,17 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			self.iItem = -1
+ 			self.iItemIndex = -1
+ 
++			# <!-- custom: force keyboard focus so UP/DOWN works without requiring a click (chatgpt 5.2 + claude opus 4.5) -->
++			try:
++				screen = self.getScreen()
++				# Focus the left list when present
++				if self.SAS_lastItemsWidget is not None:
++					try:
++						screen.setFocus(self.ITEM_LIST_ID)
++					except:
++						pass
++			except:
++				pass
+ 		self.tab = self.TAB_TOC
+ 
+ 	def isIndexShowing(self):
+@@ -910,6 +921,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.UPGRADES_GRAPH_ID = self.getNextWidgetName()
+ 		screen.addScrollPanel(self.UPGRADES_GRAPH_ID, u"", self.X_ITEMS, self.Y_PEDIA_PAGE - 13, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 2, PanelStyles.PANEL_STYLE_STANDARD)
+ 		screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_NORMAL)
++
++		# <!-- custom: focus the graph so arrow scrolling works without clicking (chatgpt 5.2 + claude opus 4.5) -->
++		try:
++			screen.setFocus(self.UPGRADES_GRAPH_ID)
++		except:
++			pass
++
+ 		upgradesGraph = UnitUpgradesGraph.UnitUpgradesGraph(self)
+ 		upgradesGraph.getGraph()
+ 		upgradesGraph.drawGraph()
+@@ -945,6 +963,13 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.UPGRADES_GRAPH_ID = self.getNextWidgetName()
+ 		screen.addScrollPanel(self.UPGRADES_GRAPH_ID, u"", self.X_ITEMS, self.Y_PEDIA_PAGE - 13, self.W_SCREEN - self.X_ITEMS, self.H_PEDIA_PAGE + 2, PanelStyles.PANEL_STYLE_STANDARD)
+ 		screen.setActivation(self.UPGRADES_GRAPH_ID, ActivationTypes.ACTIVATE_NORMAL)
++
++		# <!-- custom: focus the graph so arrow scrolling works without clicking (chatgpt 5.2 + claude opus 4.5) -->
++		try:
++			screen.setFocus(self.UPGRADES_GRAPH_ID)
++		except:
++			pass
++
+ 		upgradesGraph = UnitUpgradesGraph.PromotionsGraph(self)
+ 		upgradesGraph.getGraph()
+ 		upgradesGraph.drawGraph()
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 62b889df5..35cca8222 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -59,6 +59,9 @@ In AdvCiv-SAS 5252, based on C2C mod's code thanks, and with the help of claude
+ The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ 
+ - 1st commit: It is the conservative first stable functional version. Has some minor issues such sometimes as the tree pages (Unit Tree, Promotions Tree) having the arrows not result in anything unless the player clicks on the page itself, or some similar or related issues: []().
++- 2nd commit: Conservative fixes with the help of chatgpt 5.2 and claude opus 4.5. Now scrolling in tree pages is functional without requiring a click, and when going from a tree page to a list page we can now use successfully the arrow keys without requiring a click. : []().
++
++Note: history handling (i.e. not remembering all visited pages with the arrows inbetween original entry and entry we browsed to) purposely ignored and not supported as it caused issues and fixing it was not easy and created other issues as well, cleaner to just support it as it is (i.e. remembering all these entries as is the default) if i'm not mistaken (check if accurate).
+ 
+ ## Sevopedia Pages individual reworks
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3632

@@ -1,0 +1,90 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 757
+# Commit: 8130223516f2b97278b66042a4ee362fe8a2cc67
+# History segment: K-Mod history
+# Parent used for diff: 30accb6a2377799508c397d1975e51a4380d188d
+# Title: CvTeamAI::AI_updateStrengthMemory is now called in CvTeamAI::AI_doTurnPost. (Previously it was unused.) Made some effiency improvements to CvTeamAI::AI_updat...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGameCoreDLL.vcproj
+11	1	CvGameCoreDLL/CvTeamAI.cpp
+0	1	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.vcproj b/CvGameCoreDLL/CvGameCoreDLL.vcproj
+index aa35c9244..39f523d22 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.vcproj
++++ b/CvGameCoreDLL/CvGameCoreDLL.vcproj
+@@ -2,7 +2,7 @@
+ <VisualStudioProject
+ 	ProjectType="Visual C++"
+ 	Version="9.00"
+-	Name="K-Mod DLL"
++	Name="CvGameCoreDLL"
+ 	ProjectGUID="{29299FB8-F6C4-4054-A054-470F4E36D57B}"
+ 	Keyword="MakeFileProj"
+ 	TargetFrameworkVersion="196613"
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index c71d94707..3f1476e25 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -178,6 +178,8 @@ void CvTeamAI::AI_doTurnPre()
+ 
+ void CvTeamAI::AI_doTurnPost()
+ {
++	AI_updateStrengthMemory(); // K-Mod
++
+ 	AI_updateWorstEnemy();
+ 
+ 	AI_updateAreaStragies(false);
+@@ -4062,14 +4064,22 @@ void CvTeamAI::AI_setStrengthMemory(int x, int y, int value)
+ 
+ void CvTeamAI::AI_updateStrengthMemory()
+ {
++	PROFILE_FUNC();
++
++	if (!isAlive() || isHuman() || isMinorCiv() || isBarbarian())
++		return;
++
+ 	FAssert(m_aiStrengthMemory.size() == GC.getMapINLINE().numPlotsINLINE());
+ 	for (int i = 0; i < GC.getMapINLINE().numPlotsINLINE(); i++)
+ 	{
++		if (m_aiStrengthMemory[i] == 0)
++			continue;
++
+ 		CvPlot* kLoopPlot = GC.getMapINLINE().plotByIndexINLINE(i);
+ 		if (kLoopPlot->isVisible(getID(), false) && !kLoopPlot->isVisibleEnemyUnit(getLeaderID()))
+ 			m_aiStrengthMemory[i] = 0;
+ 		else
+-			m_aiStrengthMemory[i] = 92 * m_aiStrengthMemory[i] / 100; // reduce by 8%, rounding down. (arbitrary number)
++			m_aiStrengthMemory[i] = 96 * m_aiStrengthMemory[i] / 100; // reduce by 4%, rounding down. (arbitrary number)
+ 	}
+ }
+ // K-Mod end
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index c87812867..b6b6d57b4 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -199,7 +199,6 @@ public:
+ 	virtual void write(FDataStreamBase* pStream);
+ 
+ 	// K-Mod. Strength Memory - a very basic and rough reminder-map of how strong the enemy presence is on each plot.
+-	// Currently it is only used and set during pathfinding, with the MOVE_ATTACK_STACK flag.
+ public:
+ 	int AI_getStrengthMemory(int x, int y) const;
+ 	inline int AI_getStrengthMemory(const CvPlot* pPlot) { return AI_getStrengthMemory(pPlot->getX_INLINE(), pPlot->getY_INLINE()); }
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2293

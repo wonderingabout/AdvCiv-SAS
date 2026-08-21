@@ -761,8 +761,7 @@ void CvGlobals::cacheGlobalInts(char const* szChangedDefine, int iNewValue)
 	m_iEventMessageTime = getDefineINT("EVENT_MESSAGE_TIME");
 } // </advc.opt>
 
-void CvGlobals::cacheGlobalFloats(
-	bool bAllowRecursion) // advc.004m: Probably not needed; feels safer.
+void CvGlobals::cacheGlobalFloats(bool bAllowRecursion) // advc.004m: Probably not needed; feels safer.
 {
 	//m_fFIELD_OF_VIEW = getDefineFLOAT("FIELD_OF_VIEW");
 	// <advc.004m>
@@ -835,9 +834,8 @@ int CvGlobals::getDefineINTExternal(char const* szName) const
 	return getDefineINT(szName);
 }
 
-int CvGlobals::getDefineINT(char const* szName,
-	// BETTER_BTS_AI_MOD, 02/21/10, jdog5000: START
-	int iDefault) const
+// BETTER_BTS_AI_MOD, 02/21/10, jdog5000: START <!-- custom: hoisted from multiline signature between `szName` and `iDefault` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int CvGlobals::getDefineINT(char const* szName, int iDefault) const
 {
 	int iReturn = iDefault;
 	// BETTER_BTS_AI_MOD: END
@@ -846,7 +844,28 @@ int CvGlobals::getDefineINT(char const* szName,
 	bool bSuccess =
 	#endif // </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, iReturn);
-	FAssert(bSuccess); // advc.003c
+	// <!-- custom: this assert fired at map load when starting a new game, but the info in the assert is not helpful by itself in assert message to me i mean, add more info as chatgpt 5 advised/suggested, check if accurate -->
+	// FAssert(bSuccess); // advc.003c
+	#ifdef _DEBUG
+	if (!bSuccess)
+	{
+        char buf[256];
+        _snprintf(buf, sizeof(buf),
+                  "Missing INT define '%s' — using default=%d%s",
+                  szName, iDefault,
+                  getCurrentXMLFile() ? (CvString(" | XML=") + getCurrentXMLFile()).c_str() : "");
+        FAssertMsg(false, buf);
+		// <!-- custom: now with the info we can spot it -->
+		// Assert Failed
+		// File:  ..\.\CvGlobals.cpp
+		// Line:  858
+		// Func:  CvGlobals::getDefineINT
+		// Expression:  false
+		// Message:  Missing INT define 'INITIAL_MILITARY_UNITS_POPULATION_PERCENT' using default=0 | XML=xml\Events/CIV4EventTriggerInfos.xml
+		//
+		// <!-- custom: now fixed by renaming it to INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT (was a typo/bug i introduced while refactoring, still detailed assert is very helpful in identifying which and fixing the issue if possible i mean to me but) -->
+	}
+	#endif
 	return iReturn;
 }
 
@@ -859,9 +878,22 @@ float CvGlobals::getDefineFLOAT(char const* szName) const
 	bool bSuccess =
 	#endif // </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, fReturn);
-	/*  advc.003c: The EXE queries CAMERA_MIN_DISTANCE during startup, which
-		fails but doesn't cause any problems. */
-	FAssert(bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
+	// <!-- custom: since the more detailed assert in CvGlobals::getDefineINT was very helpful, also adding these provided by chatgpt 5 (untested though), check if accurate -->
+	#ifdef _DEBUG
+	const bool bAssertCondition = (bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
+	if (!bAssertCondition)
+	{
+		// /*  advc.003c: The EXE queries CAMERA_MIN_DISTANCE during startup, which
+		// 	fails but doesn't cause any problems. */
+		// FAssert(bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
+        char buf[256];
+        _snprintf(buf, sizeof(buf),
+                  "Missing FLOAT define '%s' — using default=%g%s",
+                  szName, fReturn,
+                  getCurrentXMLFile() ? (CvString(" | XML=") + getCurrentXMLFile()).c_str() : "");
+        FAssertMsg(bAssertCondition, buf);
+	}
+	#endif
 	return fReturn;
 }
 
@@ -873,7 +905,19 @@ char const* CvGlobals::getDefineSTRING(char const* szName) const
 	bool bSuccess =
 	#endif// </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, szReturn);
-	FAssert(bSuccess); // advc.003c
+	// <!-- custom: since the more detailed assert in CvGlobals::getDefineINT was very helpful, also adding these provided by chatgpt 5 (untested though), check if accurate -->
+	// FAssert(bSuccess); // advc.003c
+	#ifdef _DEBUG
+	if (!bSuccess)
+	{
+        char buf[256];
+        _snprintf(buf, sizeof(buf),
+                  "Missing STRING define '%s'%s",
+                  szName,
+                  getCurrentXMLFile() ? (CvString(" | XML=") + getCurrentXMLFile()).c_str() : "");
+        FAssertMsg(bSuccess, buf);
+	}
+	#endif
 	return szReturn;
 }
 
@@ -903,6 +947,7 @@ void CvGlobals::setDefineSTRING(char const* szName, char const* szValue, /* advc
 // <advc.004m>
 void CvGlobals::updateCameraStartDistance(bool bReset)
 {
+	// <!-- custom: doesn't seem safe to static const (there seems to be a setdefine later, so caching may interfere with that, but i don't know a lot about these so check if accurate)), chatgpt 5 also advises so, check if accurate as i don't know too much about these but it seems unsafe to change these so left as such (i.e. code unchanged besides this code as of now in this case i mean) if i may say i mean -->
 	static float m_fCAMERA_START_DISTANCE_Override = std::max(1000.f,
 			GC.getDefineFLOAT("CAMERA_START_DISTANCE"));
 	float fNewValue = m_fCAMERA_START_DISTANCE_Override;
@@ -1002,8 +1047,7 @@ bool CvGlobals::isDLLProfilerEnabled() const
 }
 
 
-int CvGlobals::getTypesEnum(const char* szType,
-	bool bHideAssert, bool bFromPython) const // advc.006
+int CvGlobals::getTypesEnum(const char* szType, bool bHideAssert, bool bFromPython) const // advc.006
 {
 	FAssertMsg(szType != NULL, "null type string");
 	TypesMap::const_iterator it = m_typesMap.find(szType);
@@ -1028,8 +1072,7 @@ void CvGlobals::setHoFScreenUp(bool b)
 }
 
 
-int CvGlobals::getInfoTypeForString(const char* szType, bool bHideAssert,
-	bool bFromPython) const // advc.006
+int CvGlobals::getInfoTypeForString(const char* szType, bool bHideAssert, bool bFromPython) const // advc.006
 {
 	FAssertMsg(szType != NULL, "null info type string");
 	InfosMap::const_iterator it = m_infosMap.find(szType);
@@ -1059,8 +1102,7 @@ void CvGlobals::infoTypeFromStringReset()
 
 /*	advc.006: Based on code cut from getInfoTypeForString --
 	also want this for non-info enum types. */
-void CvGlobals::handleUnknownTypeString(char const* szType,
-	bool bHideAssert, bool bFromPython) const
+void CvGlobals::handleUnknownTypeString(char const* szType, bool bHideAssert, bool bFromPython) const
 {
 	if (!bHideAssert && /* K-Mod: */ !(strcmp(szType, "") == 0 || strcmp(szType, "NONE") == 0))
 	{

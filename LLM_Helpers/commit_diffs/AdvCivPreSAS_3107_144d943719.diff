@@ -1,0 +1,41 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3107
+# Commit: 144d943719234b9b177bc89d835f34009a93d086
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f63a1064a36f69dcd18e770627308d23355c153f
+# Title: Store plot indices compactly for up to 32 players
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 36558a32d..a2610c3d7 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -1278,9 +1278,9 @@ SET_XML_ENUM_SIZE1(PlayerVote, Dummy)
+ DO_FOR_EACH_BIG_DYN_INFO_TYPE(SET_XML_ENUM_SIZE2)
+ /*	The corresponding getEnumLength function is inlined in CvMap.h.
+ 	2 byte allows for at most 256*128 tiles (or 181*181).
+-	Larger maps really aren't playable, but let's allow them when
+-	the player limit has been increased. */
+-#if MAX_CIV_PLAYERS <= 18
++	Larger maps really aren't playable, but let's allow them
++	if the civ limit has been increased by a lot. */
++#if MAX_CIV_PLAYERS >= 32
+ SET_XML_ENUM_SIZE2(PlotNum, Dummy)
+ #else
+ template<> struct EnumMapGetDefault<PlotNumTypes> {
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=757

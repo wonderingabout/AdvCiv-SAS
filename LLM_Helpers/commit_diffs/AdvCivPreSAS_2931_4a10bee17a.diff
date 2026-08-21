@@ -1,0 +1,42 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2931
+# Commit: 4a10bee17a7889c6ad5feceac027605bf30543d9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a16555656d83d7bc92067d6c1156ce0303d1f69d
+# Title: Amend UWAI deployment distances fix
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/UWAICache.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index e3e42b9b5..709a46c73 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -1453,11 +1453,11 @@ void UWAICache::City::updateDistance(CvCity const& targetCity, TeamPathFinders*
+ 			if(transportDest != NULL) {
+ 				int d = -1;
+ 				if(trainDeepSeaCargo) {
+-					if(pf->anyWaterFinder().generatePath(targetCity.getPlot(), *transportDest))
++					if(pf->anyWaterFinder().generatePath(*transportDest, *p))
+ 						d = pf->anyWaterFinder().getPathCost();
+ 				}
+ 				else {
+-					if(pf->shallowWaterFinder().generatePath(targetCity.getPlot(), *transportDest))
++					if(pf->shallowWaterFinder().generatePath(*transportDest, *p))
+ 						d = pf->shallowWaterFinder().getPathCost();
+ 				}
+ 				if(d > 0) {
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=795

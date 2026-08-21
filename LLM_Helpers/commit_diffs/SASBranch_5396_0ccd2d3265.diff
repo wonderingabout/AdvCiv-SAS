@@ -1,0 +1,361 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5396
+# Commit: 0ccd2d326531e86392923753a1b2f672361775f5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 118ca10d88960f6c88cd425ae597e006ee2c751a
+# Title: change playlist from listbox to table in sevopedia media player
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	11	AGENTS.md
+21	8	Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+15	3	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+8	3	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+4	4	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (3).JPG
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 4e5377e17..586e216f3 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1,6 +1,6 @@
+ # AGENTS
+ 
+-## You don't need to look at files mentioned in this sub-section as an agent
++## Credit
+ 
+ AI, UI, or other modifications
+ Created as part of AdvCiv-SAS improvements
+@@ -8,15 +8,15 @@ Created as part of AdvCiv-SAS improvements
+ 
+ ## General information
+ 
+-This is the general guidelines to follow for this repo of our mod AdvCiv-SAS that is based on AdvCiv 1.12, for AI helpers.
++This is the general guidelines to follow for this repo of our mod AdvCiv-SAS that is based on AdvCiv 1.12, for AI helpers. You don't need to look at files mentioned in this sub-section for now, just get aware of their existence if you need them later in our tasks.
+ 
+-You can expand this freely as you see fit.
++You can expand this [AGENTS.md](/AGENTS.md) freely as you see fit.
+ 
+ Note: our mod is also on github, see [AdvCiv-SAS's github repo](https://github.com/wonderingabout/AdvCiv-SAS) if needed.
+ 
+ ## Information Fetching from other known helpful mods
+ 
+-If you don't know how to do something, generally mostly for UI stuff as we like to have and invent our own AI logic, generally (not a strict requirement but generally so), if you find yourself stuck or in doubt to double-check how other mods implement things, consider looking at what these mods do, as they usually have high-tech stuff that has often proven handy for the AdvCiv-SAS mod, in particular and mostly for UI:
++If you don't know how to do something, generally mostly for UI stuff as we like to have and invent our own AI logic, generally (not a strict requirement but generally so), if you find yourself stuck or in doubt to double-check how other mods implement things, consider looking at what these mods do, as they usually have high-tech stuff that has oftentimes proven handy for the AdvCiv-SAS mod, in particular and mostly for UI:
+ 
+ - The Middle-earth mod (in particular but not only their Platypedia) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Middle-earth"
+ - The C2C (Cavemen2Cosmos) mod (in particular but not only for UI/EXE stuff) at "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Caveman2Cosmos"
+@@ -29,7 +29,7 @@ Example of UI tip discovered: if a new Sevopedia category needs clickable entrie
+ 
+ You can find Civ4 local user folder here "C:\Users\PC\Documents\My Games\beyond the sword".
+ 
+-In particular but only, these are usually helpful:
++In particular but not only, these are usually helpful:
+ 
+ - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log"
+ - "C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log"
+@@ -39,14 +39,10 @@ The root Program Files Civ4 folder is here:
+ 
+ - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\"
+ 
+-Also, legacy documentation (K-Mod, AdvCiv, etc.) may prove helpful, in particular but not only:
++Also, legacy documentation (K-Mod, AdvCiv, etc.) may prove helpful, but it is lengthy, grep if needed from there:
+ 
+ - "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\AdvCiv_Base_Doc\manual.txt"
+ 
+-Civ4 BUG documentation is also provided as .txt, but it is lengthy, consider reading it for double check or grep needs or such. It helped us find the `Destroy2DSound` python function for example (with the help of Claude code Opus 4.5, although it didn't ultimately solve our issue, doc is helpful as reference (but lengthy)):
+-
+-- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt"
+-
+ Our AdvCiv-SAS documentation is mostly located here:
+ 
+ - root README.md: "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\README.md"
+@@ -62,7 +58,13 @@ May help to find key documentation, additionally to doing a grep or such, indexe
+ 
+ ## Sevopedia debug dumps (Python API introspection)
+ 
+-When a Python getter seems missing or unclear (e.g., the culture breakdown error where `CvCivicInfo` has no `getCommerceChange`), use Sevopedia debug dumps to verify what Python can actually access; these live under `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\Debug` (example file: [__SevoPediaCivic-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner-debug-content.txt), and they’re valuable because they prevent guessing whether a getter is exposed in Python or requires DLL changes.
++When a Python getter seems missing or unclear (e.g., the culture breakdown error where `CvCivicInfo` has no `getCommerceChange`), use Sevopedia debug dumps to verify what Python can actually access without having to guess if a getter is exposed in Python or requires DLL changes; these debug logs are usually our first and preferred source of truth since they are real inspect logs, although they might be slightly outdated if DLL changes were made since then.
++
++- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\Debug" (example file: [__SevoPediaCivic-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner-debug-content.txt)).
++
++Alternatively, the Civ4 BUG documentation is also provided as .txt, may be helpful, consider reading it for double check or grep needs if in doubt or such. It helped us find the `Destroy2DSound` python function for example, doc is helpful as reference (but lengthy):
++
++- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\_0_Common_Docs\CIV4BUG_Sourceforge_net_All_Classes_Doc\civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt"
+ 
+ ## Information Fetching online
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+index bfa993408..f27fdcdd7 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMediaPlayer.py
+@@ -169,7 +169,7 @@ class SevoPediaMediaPlayer:
+ 
+ 
+ 
+-	def placeQueueList(self, screen, iScreenW, iScreenH, items, currentIndex, groupByIndex, groupLabels):
++	def placeQueueList(self, screen, iScreenW, iScreenH, items, currentIndex, groupByIndex, groupLabels, itemIcons):
+ 		if (items is None) or (len(items) == 0):
+ 			return
+ 
+@@ -190,11 +190,18 @@ class SevoPediaMediaPlayer:
+ 			pass
+ 
+ 		screen.addPanel(self.queuePanelId, "", "", True, False, iPanelX, iPanelY, iPanelW, iPanelH, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.addListBoxGFC(self.queueListId, "", iPanelX + 6, iPanelY + 6, iPanelW - 12, iPanelH - 12, TableStyles.TABLE_STYLE_STANDARD)
++		iIconColW = 24
++		iTableX = iPanelX + 6
++		iTableY = iPanelY + 6
++		iTableW = iPanelW - 12
++		iTableH = iPanelH - 12
++		screen.addTableControlGFC(self.queueListId, 2, iTableX, iTableY, iTableW, iTableH, False, False, 22, 22, TableStyles.TABLE_STYLE_STANDARD)
++		screen.setTableColumnHeader(self.queueListId, 0, "", iIconColW)
++		screen.setTableColumnHeader(self.queueListId, 1, "", iTableW - iIconColW - 4)
+ 		screen.enableSelect(self.queueListId, False)
+ 
+-		iRowH = 22
+-		iMaxRows = iPanelH / iRowH
++		iRowH = 24
++		iMaxRows = (iTableH - 4) / iRowH
+ 		if iMaxRows <= 0:
+ 			iMaxRows = 1
+ 
+@@ -220,14 +227,16 @@ class SevoPediaMediaPlayer:
+ 
+ 			if iGroup != iLastGroup and (groupLabels is not None) and (iGroup >= 0) and (iGroup < len(groupLabels)) and iRows < iMaxRows:
+ 				if iLastGroup != -1 and iRows < iMaxRows:
+-					screen.appendListBoxStringNoUpdate(self.queueListId, u"<font=3> </font>", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					iRow = screen.appendTableRow(self.queueListId)
++					screen.setTableText(self.queueListId, 1, iRow, u"<font=3> </font>", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					iRows += 1
+ 				szHeader = groupLabels[iGroup]
+ 				if szHeader:
+ 					if iGroup == iCurrentGroup:
+ 						szHeader = u">> " + szHeader
+ 					szHeader = u"<font=3b>" + szHeader + u"</font>"
+-					screen.appendListBoxStringNoUpdate(self.queueListId, szHeader, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++					iRow = screen.appendTableRow(self.queueListId)
++					screen.setTableText(self.queueListId, 1, iRow, szHeader, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					iRows += 1
+ 				iLastGroup = iGroup
+ 				if iRows >= iMaxRows:
+@@ -239,10 +248,14 @@ class SevoPediaMediaPlayer:
+ 				szLabel = u"<font=3b>" + szLabel + u"</font>"
+ 			else:
+ 				szLabel = u"<font=3>" + szLabel + u"</font>"
+-			screen.appendListBoxStringNoUpdate(self.queueListId, szLabel, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			szButton = ""
++			if (itemIcons is not None) and (i < len(itemIcons)):
++				szButton = itemIcons[i]
++			iRow = screen.appendTableRow(self.queueListId)
++			screen.setTableText(self.queueListId, 0, iRow, "", szButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(self.queueListId, 1, iRow, szLabel, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 			iRows += 1
+ 			i += 1
+-		screen.updateListBox(self.queueListId)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+index 6055c720b..0ab82de7c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -34,6 +34,7 @@ class SevoPediaMovie:
+ 		self.SAS_lastMoviePayload = None
+ 		self.SAS_playableMovies = None
+ 		self.SAS_playableMovieLabels = None
++		self.SAS_playableMovieIcons = None
+ 		self.SAS_playableMovieIndex = -1
+ 		self.SAS_playableMovieGroupByIndex = None
+ 		self.SAS_playableMovieGroupLabels = None
+@@ -187,8 +188,9 @@ class SevoPediaMovie:
+ 			self.mediaPlayer.clearQueueList(screen)
+ 			szPrev, szNext = self.SAS_getAdjacentMovieLabels()
+ 			self.mediaPlayer.placePrevNextLabels(screen, iScreenW, iScreenH, szPrev, szNext)
++			self.mediaPlayer.setCurrentLabel(screen, self.getMovieTitle(iMovieType, iMovieId))
+ 		else:
+-			self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMovieLabels, self.SAS_playableMovieIndex, self.SAS_playableMovieGroupByIndex, self.SAS_playableMovieGroupLabels)
++			self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMovieLabels, self.SAS_playableMovieIndex, self.SAS_playableMovieGroupByIndex, self.SAS_playableMovieGroupLabels, self.SAS_playableMovieIcons)
+ 
+ 
+ 
+@@ -289,6 +291,7 @@ class SevoPediaMovie:
+ 		(
+ 			self.SAS_playableMovies,
+ 			self.SAS_playableMovieLabels,
++			self.SAS_playableMovieIcons,
+ 			self.SAS_playableMovieGroupByIndex,
+ 			self.SAS_playableMovieGroupLabels,
+ 			self.SAS_movieGroupFirstIndex,
+@@ -306,6 +309,7 @@ class SevoPediaMovie:
+ 	def SAS_buildPlayableMoviesAndLabels(self):
+ 		r = []
+ 		labels = []
++		icons = []
+ 		groupByIndex = []
+ 		groupLabels = []
+ 		groupFirst = []
+@@ -324,6 +328,14 @@ class SevoPediaMovie:
+ 			if self.hasMovie(iType, iId):
+ 				r.append(iPacked)
+ 				labels.append(szName)
++				szButton = ""
++				info = self.getMovieInfo(iType, iId)
++				if info:
++					try:
++						szButton = info.getButton()
++					except:
++						szButton = ""
++				icons.append(szButton)
+ 				if iGroup < 0:
+ 					iGroup = 0
+ 				groupByIndex.append(iGroup)
+@@ -337,7 +349,7 @@ class SevoPediaMovie:
+ 					groupLast[iGroup] = len(r) - 1
+ 				else:
+ 					groupLast[iGroup] = len(r) - 1
+-		return (r, labels, groupByIndex, groupLabels, groupFirst, groupLast)
++		return (r, labels, icons, groupByIndex, groupLabels, groupFirst, groupLast)
+ 
+ 
+ 
+@@ -357,7 +369,7 @@ class SevoPediaMovie:
+ 
+ 
+ 	def SAS_getFirstPlayableMovie(self):
+-		playable, labels, groupByIndex, groupLabels, groupFirst, groupLast = self.SAS_buildPlayableMoviesAndLabels()
++		playable, labels, icons, groupByIndex, groupLabels, groupFirst, groupLast = self.SAS_buildPlayableMoviesAndLabels()
+ 		if not playable:
+ 			return -1
+ 		return playable[0]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index b5acfc59a..6fb84794c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -29,6 +29,7 @@ class SevoPediaMusic:
+ 		self.SAS_lastMusicSound = None
+ 		self.SAS_playableMusic = None
+ 		self.SAS_playableMusicLabels = None
++		self.SAS_playableMusicIcons = None
+ 		self.SAS_playableMusicIndex = -1
+ 		self.SAS_playableMusicGroupByIndex = None
+ 		self.SAS_playableMusicGroupLabels = None
+@@ -262,7 +263,7 @@ class SevoPediaMusic:
+ 		self.mediaPlayer.setToggleCallback(self.switchToMovies)
+ 		self.SAS_lastMusicSound = (szSoundScript, iSoundId, self.top.SAS_isMusicSound3D(iMusic))
+ 		self.SAS_setupPlayableMusic(iMusic)
+-		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex, self.SAS_playableMusicGroupByIndex, self.SAS_playableMusicGroupLabels)
++		self.mediaPlayer.placeQueueList(screen, iScreenW, iScreenH, self.SAS_playableMusicLabels, self.SAS_playableMusicIndex, self.SAS_playableMusicGroupByIndex, self.SAS_playableMusicGroupLabels, self.SAS_playableMusicIcons)
+ 
+ 
+ 
+@@ -354,6 +355,7 @@ class SevoPediaMusic:
+ 		(
+ 			self.SAS_playableMusic,
+ 			self.SAS_playableMusicLabels,
++			self.SAS_playableMusicIcons,
+ 			self.SAS_playableMusicGroupByIndex,
+ 			self.SAS_playableMusicGroupLabels,
+ 			self.SAS_musicGroupFirstIndex,
+@@ -370,6 +372,7 @@ class SevoPediaMusic:
+ 	def SAS_buildPlayableMusicAndLabels(self):
+ 		r = []
+ 		labels = []
++		icons = []
+ 		groupByIndex = []
+ 		groupLabels = []
+ 		groupFirst = []
+@@ -387,6 +390,8 @@ class SevoPediaMusic:
+ 			if self.hasMusic(iPacked):
+ 				r.append(iPacked)
+ 				labels.append(szName)
++				szButton = self.top.SAS_getMusicButton(iPacked)
++				icons.append(szButton)
+ 				if iGroup < 0:
+ 					iGroup = 0
+ 				groupByIndex.append(iGroup)
+@@ -400,7 +405,7 @@ class SevoPediaMusic:
+ 					groupLast[iGroup] = len(r) - 1
+ 				else:
+ 					groupLast[iGroup] = len(r) - 1
+-		return (r, labels, groupByIndex, groupLabels, groupFirst, groupLast)
++		return (r, labels, icons, groupByIndex, groupLabels, groupFirst, groupLast)
+ 
+ 
+ 
+@@ -416,7 +421,7 @@ class SevoPediaMusic:
+ 
+ 
+ 	def SAS_getFirstPlayableMusic(self):
+-		playable, labels, groupByIndex, groupLabels, groupFirst, groupLast = self.SAS_buildPlayableMusicAndLabels()
++		playable, labels, icons, groupByIndex, groupLabels, groupFirst, groupLast = self.SAS_buildPlayableMusicAndLabels()
+ 		if not playable:
+ 			return -1
+ 		return playable[0]
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 7fdfd999e..52f704ecb 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -101,7 +101,7 @@ See [Full exhaustive changes (very long)](/README.md#full-exhaustive-very-long-a
+ - (Requires AdvCiv-SAS 5298+) **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+ - (Requires AdvCiv-SAS 5314+) **Found-value** evaluation now uses **`int`** end-to-end (CitySiteEvaluator, AIFoundValue, CvPlot cache, SPI, Python callback), **not `short`**. Why: **avoid overflow/underflow** and short wraparounds in site scoring; keep the logic the same while **improving reliability**. Expectation: more robust site values, fewer edge-case penalties/boosts from short overflow; no known negative gameplay change. Performance: `int` is typically at least as fast as short on modern CPUs; no slowdown expected. Tested: autoplay ran fine. See [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline).
+-- (Requires AdvCiv-SAS 5335+) Removed the old clunky Base AdvCiv's `CONCEPT_TRAIT` XML clutter. Now using using the more efficient `WIDGET_PYTHON` similarly instead.
++- (Requires AdvCiv-SAS 5335+) Removed the old clunky Base AdvCiv's `CONCEPT_TRAIT` XML clutter. Now using the more efficient `WIDGET_PYTHON` similarly instead.
+ - (Requires AdvCiv-SAS 5348+) **Cache once per session precomputed** Sevopedia Traits' Charts and Sevopedia Improvements' Weights (Leaders) Chart on category open before any entry is clicked on. This uses a simplified version of the AI Personality Panel's caching approach. See [AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+@@ -267,7 +267,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - Added **Emojis** without having to tediously implement them as characters. See [Emojis](/README.md#emojis) and [CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml).
+ - Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md (Untradeable techs (bTrade) display)](/README.md#untradeable-techs-btrade-display-information) for details.
+ - removed the **Strategy Text** in Choose Production and Choose Research ("Sid’s tips") popups, as well as in the Civic Revolution popup ("Would you like to start a revolution?"), and in Sevopedia; these blurbs were often outdated or tedious to maintain.
+-- (Requires AdvCiv-SAS 5335+) **Worker builds** that **remove a feature** now **redirect to the corresponding new Sevopedia Builds** page. Applies to any caller (e.g. **Technology Advisor**, **Sevopedia Tech**, **Sevopedia Builds** itself) using the `WIDGET_PYTHON` `6278` approach. See [Sevopedia Reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm) and [Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits). See also [KI#97](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-remove-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page).
++- (Requires AdvCiv-SAS 5335+) **Worker builds** that **remove a feature** now **redirect to the corresponding new Sevopedia Builds** page. Applies to any caller (e.g. **Technology Advisor**, **Sevopedia Tech**, **Sevopedia Builds** itself) using the `WIDGET_PYTHON` `6798` approach. See [Sevopedia Reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm) and [Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits). See also [KI#97](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-remove-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page).
+ 
+ ### UI (In-game)
+ 
+@@ -291,7 +291,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Wider content area, narrower main category column; fills available screen space.
+ - **Search Bar**: shared by several Sevopedia pages; it allows to **search** for entries using the **keyboard**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: search bar](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-01-added-a-search-bar-used-in-several-sevopedia-pages).
+ - **Keyboard Navigation**: allows to **browse Sevopedia categories** using the keyboard in the list pages (e.g. In the Units Category: Axeman, Swordsman, Worker) or tree pages (e.g. Units Tree and Promotion Tree categories) using the **keyboard UP/DOWN arrow keys**. The code is in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). See [Sevopedia_reworks: keyboard (UP/DOWN) navigation](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-02-added-keyboard-arrow-updown-navigation-support-used-in-several-sevopedia-pages).
+-- **Entries Grouping**: Depending on the Sevopedia Page, Sevopedia lists are now grouped: **by Civic Type** (e.g. Government, Economy) in Sevopedia Civics; **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era)); **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist; **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig) in Sevopedia Bonus; **by Land/Water** (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) sometimes with additional subgroups. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py) () and (Requires AdvCiv-SAS 5362+) [_sevopedia_main_groupings.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py).
++- **Entries Grouping**: Depending on the Sevopedia Page, Sevopedia lists are now grouped: **by Civic Type** (e.g. Government, Economy) in Sevopedia Civics; **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era)); **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist; **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig) in Sevopedia Bonus; **by Land/Water** (e.g. Land Improvements -> Farm/Pasture, Water Improvements -> Fishing Boats/Offshore Platform) sometimes with additional subgroups. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py) and (Requires AdvCiv-SAS 5362+) [_sevopedia_main_groupings.py](/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py).
+ - (Requires AdvCiv-SAS 5298+) the **Default First Sevopedia category opened** is changed from hardcoded Sevopedia Techs no matter its position to now **whichever category is the first in the category order**. Change in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - (Requires AdvCiv-SAS 5297+) **Sevopedia Index** is now moved from the Tabs (bottom) to **its own category** for easier access and navigation between categories. Also implements the Search Bar.
+ - (Requires AdvCiv-SAS 5312+) **Beautify** Sevopedia Main: **Reorder categories** and **Change icon characters**. See [Sevopedia reworks (Main Refactor)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+@@ -320,7 +320,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Leader random selection**: `PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT` **20 → 0** (all civs equal chance regardless of leader count). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
+ - **We Love the King Day**: restored (present in AdvCiv-SAS).
+ - **Cost rounding to 5 removed (human-side)**: Eliminated the base AdvCiv "round to 5" rule from `CvPlayer::getProductionNeeded` (units, buildings, projects) that applied only to human players, so **costs are no longer altered for the human player** — e.g., a Swordsman at 42 hammers costs 42 (not 40), at 43 costs 43 (not 45), and an Ancient Maceman at 18 costs 18 (not 20). Also removed analogous rounding in `CvPlayer::greatPeopleThreshold`, `CvPlayer::getNewCityProductionValue`, and `CvTeam::getResearchCost`. This fixes the Sevopedia vs. in-game mismatch, and the issue of human players having a different cost than AI players even if cost would have otherwise been the same (e.g., at Noble, the AI paid 42 while the human paid 40; 43 vs. 45). Fine-grained costs now also enable true **per-hammer** tuning—e.g., you can set 40, 41, 42, 43, 44, or 45 instead of being forced to choose 40 or 45. See [KI#67](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues).
+-- (Requires AdvCiv-SAS 5360+) **Hints**:: remove multiple copies of the same hint. Change in [CIV4Hints.xml](/Assets/XML/GameInfo/CIV4Hints.xml).
++- (Requires AdvCiv-SAS 5360+) **Hints**: remove multiple copies of the same hint. Change in [CIV4Hints.xml](/Assets/XML/GameInfo/CIV4Hints.xml).
+ - **Mod scope:** keep overall gameplay relatively lightweight (no clutter), but go deeper on the systems that are changed.
+ 
+ ### Game Speeds
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (1).JPG
+index 41ba2b07a..eb507391e 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (2).JPG
+index 982eefcd4..d2e5d6ea0 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (3).JPG
+index 817ff5930..a9e86c2a0 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.810_sevopedia_media_player (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=28952

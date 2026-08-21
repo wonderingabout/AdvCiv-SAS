@@ -1,0 +1,375 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1259
+# Commit: 0c3f38b7c28069235c400a36c8e4be2480741682
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bcc6c57bd0dd9496cbe34988fa22b0bab53bf7d5
+# Title: v0.82: Minor tweaks, and two serious bugs fixed:
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+32	25	CvGameCoreDLL/CvGame.cpp
+4	1	CvGameCoreDLL/CvMap.cpp
+3	1	CvGameCoreDLL/CvMap.h
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+5	7	CvGameCoreDLL/CvTeamAI.cpp
+4	1	CvGameCoreDLL/Shelf.cpp
+2	1	CvGameCoreDLL/Shelf.h
+13	5	CvGameCoreDLL/WarAndPeaceAI.cpp
+6	0	CvGameCoreDLL/WarEvaluator.cpp
+1	0	CvGameCoreDLL/WarEvaluator.h
+8	5	CvGameCoreDLL/WarUtilityAspect.cpp
+-	-	manual_0.8.pdf
+-	-	manual_0.82.pdf
+ delete mode 100644 manual_0.8.pdf
+ create mode 100644 manual_0.82.pdf
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index f9ee5f1cc..c397ace41 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7763,29 +7763,29 @@ int CvGame::spawnBarbarians(int n, CvArea& area, Shelf* shelf,
+ 	for (iI = 0; iI < n; iI++)
+ 	{
+         // <advc.300>
+-		pPlot = randomBarbPlot(area, shelf);
+-		/* If we can't find a plot once, we won't find one in a later iteration
+-		   either. */
+-		if(pPlot == NULL)
+-			return r;
+-		// Reroll once if the tile has poor yield
+-		int totalYield = 0;
+-		for(int i = 0; i < GC.getNUM_YIELD_TYPES(); i++)
+-			totalYield += pPlot->getYield((YieldTypes)i);
+-		// Want to re-roll flat Tundra Forest as well
+-		if(totalYield == 2 && pPlot->getImprovementType() == NO_IMPROVEMENT) {
+-			totalYield = 0;
+-			for(int i = 0; i < GC.getNUM_YIELD_TYPES(); i++)
+-				totalYield += pPlot->calculateNatureYield((YieldTypes)i, NO_TEAM,
+-					true); // Ignore feature
+-		}
+-		if(totalYield < 2) {
++		// Reroll twice if the tile has poor yield
++		for(int i = 0; i < 3; i++) {
+ 			pPlot = randomBarbPlot(area, shelf);
++			/* If we can't find a plot once, we won't find one in a later
++				iteration either. */
+ 			if(pPlot == NULL)
+ 				return r;
++			int totalYield = 0;
++			for(int i = 0; i < GC.getNUM_YIELD_TYPES(); i++)
++				totalYield += pPlot->getYield((YieldTypes)i);
++			// Want to re-roll flat Tundra Forest as well
++			if(totalYield == 2 && pPlot->getImprovementType() == NO_IMPROVEMENT) {
++				totalYield = 0;
++				for(int i = 0; i < GC.getNUM_YIELD_TYPES(); i++)
++					totalYield += pPlot->calculateNatureYield((YieldTypes)i,
++							NO_TEAM, true); // Ignore feature
++			}
++			if(totalYield >= 2)
++				break;
+ 		}
+ 		UnitAITypes ai = UNITAI_ATTACK;
+-		if(shelf != NULL) ai = UNITAI_ATTACK_SEA;
++		if(shelf != NULL)
++			ai = UNITAI_ATTACK_SEA;
+ 		// Original code moved into new function:
+ 		UnitTypes ut = randomBarbUnit(ai, area);
+ 		if(ut == NO_UNIT)
+@@ -7823,19 +7823,26 @@ CvPlot* CvGame::randomBarbPlot(CvArea const& area, Shelf* shelf) const {
+ 			RANDPLOT_PASSIBLE |
+ 			RANDPLOT_HABITABLE | // New flag
+ 			RANDPLOT_UNOWNED;
+-	// With Rage, spawn barbs even in visible plots from Renaissance onward
+-	/*if(!GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS) ||
+-			!GC.getEraInfo(GC.getGame().getCurrentEra()).isNoBarbCities())
+-		restrictionFlags = restrictionFlags | RANDPLOT_NOT_VISIBLE_TO_CIV;*/
+-	// (Disabled again; too irrelevant)
+ 	/*  Added the "unowned" flag to prevent spawning in barbarian land.
+ 		Could otherwise happen now b/c the visible flag and dist. restriction
+ 		no longer apply to barbarians previously spawned; see
+ 		CvPlot::isVisibleToCivTeam, CvMap::isCivUnitNearby. */
+ 	int dist = GC.getDefineINT("MIN_BARBARIAN_STARTING_DISTANCE");
++	// <advc.304> Sometimes don't pick a plot if there are few legal plots
++	int legalCount = 0;
++	CvPlot* r = NULL;
+ 	if(shelf == NULL)
+-		return GC.getMap().syncRandPlot(restrictionFlags, area.getID(), dist);
+-	return shelf->randomPlot(restrictionFlags, dist);
++		r = GC.getMap().syncRandPlot(restrictionFlags, area.getID(), dist, -1,
++				&legalCount);
++	else r = shelf->randomPlot(restrictionFlags, dist, &legalCount);
++	if(r != NULL) {
++		double prSkip = 0;
++		if(legalCount > 0 && legalCount < 4)
++			prSkip = 1 - 1.0 / (5 - legalCount);
++		if(::bernoulliSuccess(prSkip))
++			r = NULL;
++	}
++	return r; // </advc.304>
+ }
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 5a6b947aa..bafce1681 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -628,7 +628,8 @@ void CvMap::combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvP
+ 	}
+ }
+ 
+-CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTimeout)
++CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTimeout,
++		int* legalCount) // advc.304
+ {
+ 	CvPlot* pTestPlot;
+ 	bool bValid;
+@@ -760,6 +761,8 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
+ 	}
+ 	//return pPlot;
+ 	int nLegal = (int)legalPlots.size();
++	if(legalCount != NULL)
++		*legalCount = nLegal;
+     if(nLegal == 0)
+         return NULL;
+     return legalPlots[GC.getGame().getSorenRandNum(nLegal, "advc.304")];
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 35b918505..f9a049246 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -115,7 +115,9 @@ public:
+ 
+ 	void combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvPlotGroup* pPlotGroup2);	
+ 
+-	CvPlot* syncRandPlot(int iFlags = 0, int iArea = -1, int iMinUnitDistance = -1, int iTimeout = 100);// Exposed to Python 
++	CvPlot* syncRandPlot(int iFlags = 0, int iArea = -1, int iMinUnitDistance = -1, int iTimeout = 100, // Exposed to Python 
++			// advc.304:
++			int* legalCount = NULL);
+ 
+ 	DllExport CvCity* findCity(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, bool bSameArea = true, bool bCoastalOnly = false, TeamTypes eTeamAtWarWith = NO_TEAM, DirectionTypes eDirection = NO_DIRECTION, CvCity* pSkipCity = NULL);	// Exposed to Python
+ 	DllExport CvSelectionGroup* findSelectionGroup(int iX, int iY, PlayerTypes eOwner = NO_PLAYER, bool bReadyToSelect = false, bool bWorkers = false);				// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 66e7ccac2..9a511859c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8038,11 +8038,11 @@ int CvPlayerAI::AI_getCloseBordersAttitude(PlayerTypes ePlayer) const
+ 	return m_aiCloseBordersAttitudeCache[ePlayer];
+ }
+ 
+-// <advc.130y><advc.sha>
++// <advc.sha>
+ int CvPlayerAI::warSuccessAttitudeDivisor() const {
+ 
+ 	return GC.getWAR_SUCCESS_CITY_CAPTURING() + 2 * getCurrentEra();
+-} // </advc.sha></advc.130y>
++} // </advc.sha>
+ 
+ int CvPlayerAI::AI_getWarAttitude(PlayerTypes ePlayer,
+ 		int partialSum) const // advc.sha
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 344756073..fd0855fa9 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -5311,11 +5311,8 @@ void CvTeamAI::forgiveEnemy(TeamTypes enemyId, bool capitulated, bool freed) {
+ 		making peace but also when breaking free. Can therefore not rely on
+ 		this->isCapitulated (but GET_TEAM(enemyId).isCapitulated() is fine).
+ 		If we make peace after having broken free, it's called twice for each
+-		former enemy in total. Reduce memory by at most 1 on the call with
+-		freed==true. */
++		former enemy in total. */
+ 	int delta = 0;
+-	if(!freed)
+-		delta--;
+ 	capitulated = (capitulated || GET_TEAM(enemyId).isCapitulated());
+ 	if(capitulated)
+ 		delta--;
+@@ -5344,9 +5341,10 @@ void CvTeamAI::forgiveEnemy(TeamTypes enemyId, bool capitulated, bool freed) {
+ 					MEMORY_DECLARED_WAR);
+ 			int deltaLoop = delta;
+ 			/*  Forgiveness if war success small, but only if memory high and
+-				no other forgiveness condition applies */
+-			if(limit <= -3 && delta >= 0 &&
+-					(double)ws < 0.75 * member.warSuccessAttitudeDivisor())
++				no other forgiveness condition applies, and not (times 0) in the
++				Ancient era (attacks on Workers and Settlers). */
++			if(limit <= -3 && delta >= 0 && (double)ws < 0.3 * getCurrentEra() *
++					GC.getWAR_SUCCESS_CITY_CAPTURING())
+ 				deltaLoop--;
+ 			// No complete forgiveness unless capitulated
+ 			if(!capitulated && limit < 0)
+
+diff --git a/CvGameCoreDLL/Shelf.cpp b/CvGameCoreDLL/Shelf.cpp
+index 8061113cb..2f738e869 100644
+--- a/CvGameCoreDLL/Shelf.cpp
++++ b/CvGameCoreDLL/Shelf.cpp
+@@ -11,7 +11,8 @@ void Shelf::add(CvPlot* plot) {
+ }
+ 
+ 
+-CvPlot* Shelf::randomPlot(int restrictionFlags, int unitDistance) const {
++CvPlot* Shelf::randomPlot(int restrictionFlags, int unitDistance,
++		int* legalCount) const {
+ 
+     /* Based on CvMap::syncRandPlot, but shelves are (normally) so small
+        that random sampling isn't efficient. Instead, compute the legal
+@@ -36,6 +37,8 @@ CvPlot* Shelf::randomPlot(int restrictionFlags, int unitDistance) const {
+             legal.push_back(plot);
+     }
+     int nLegal = legal.size();
++	if(legalCount != NULL)
++		*legalCount = nLegal;
+     if(nLegal == 0)
+         return NULL;
+     return legal[GC.getGameINLINE().getSorenRandNum(nLegal, "advc.300")];
+
+diff --git a/CvGameCoreDLL/Shelf.h b/CvGameCoreDLL/Shelf.h
+index 3dbd95d79..2aaa91921 100644
+--- a/CvGameCoreDLL/Shelf.h
++++ b/CvGameCoreDLL/Shelf.h
+@@ -18,7 +18,8 @@ class Shelf {
+ public:
+ 
+ 	void add(CvPlot* plot);
+-	CvPlot* randomPlot(int restrictionFlags, int unitDistance) const;
++	CvPlot* randomPlot(int restrictionFlags, int unitDistance,
++			int* legalCount = NULL) const;
+ 	int size() const;
+ 	int countUnownedPlots() const;
+ 	int countBarbarians() const;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index f19b37b75..c9a65f088 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -56,6 +56,7 @@ void WarAndPeaceAI::update() {
+ 	}
+ 	for(size_t i = 0; i < _properTeams.size(); i++)
+ 		GET_TEAM(getWPAI._properTeams[i]).warAndPeaceAI().updateMembers();
++	WarEvaluator::clearCache();
+ }
+ 
+ bool WarAndPeaceAI::isEnabled(bool inBackground) const{
+@@ -1211,6 +1212,13 @@ int WarAndPeaceAI::Team::endWarVal(TeamTypes enemyId) const {
+ 	CvTeamAI const& human = (agentHuman ? GET_TEAM(agentId) : GET_TEAM(enemyId));
+ 	CvTeamAI const& ai =  (agentHuman ? GET_TEAM(enemyId) : GET_TEAM(agentId));
+ 	int aiReluct = ai.warAndPeaceAI().reluctanceToPeace(human.getID(), false);
++	/*  If no payment is possible, human utility shouldn't matter.
++		(Should ideally also check if human could give the AI a city.
++		Then again, human probably won't give up a city anywax, at least not
++		pre-Alphabet and pre-Currency. */
++	if(aiReluct <= 0 && !human.isGoldTrading() && !human.isTechTrading() &&
++			!ai.isGoldTrading() && !ai.isTechTrading())
++		return 0;
+ 	// Really just utility given how peaceThreshold is computed for humans
+ 	int humanUtility = human.warAndPeaceAI().reluctanceToPeace(ai.getID(), false);
+ 	// Neither side pays if both want peace, and the AI wants it more than the human
+@@ -1555,11 +1563,11 @@ double WarAndPeaceAI::Team::confidenceFromWarSuccess(TeamTypes targetId) const {
+ 	float const fixedBound = 0.5;
+ 	// Reaches fixedBound after 25 turns
+ 	float timeBasedBound = (100 - 2 * timeAtWar) / 100.0f;
+-	/*  Becomes relevant once a war lasts long; e.g. after 25 turns, will need a
+-		total war success of 250 to reach fixedBound. Should perhaps somehow
+-		be based on the progress of the game (war successes are more plentiful
+-		late in the game). Anyway, the idea is that no one has much of a leg up
+-		in a war without much action. */
++	/*  Total-based bound: Becomes relevant once a war lasts long; e.g. after
++		25 turns, in the Industrial era, will need a total war success of 250
++		in order to reach fixedBound. Neither side should feel confident if there
++		isn't much action. */
++	float progressFactor = 11 - GET_TEAM(agentId).getCurrentEra() * 1.5f;
+ 	float totalBasedBound = (100 - (5.0f * (ourSuccess + theirSuccess)) / timeAtWar)
+ 			/ 100;
+ 	float r = successRatio;
+
+diff --git a/CvGameCoreDLL/WarEvaluator.cpp b/CvGameCoreDLL/WarEvaluator.cpp
+index d2c7ed017..4faf7d2ba 100644
+--- a/CvGameCoreDLL/WarEvaluator.cpp
++++ b/CvGameCoreDLL/WarEvaluator.cpp
+@@ -25,6 +25,12 @@ int WarEvaluator::cacheSz = 5; // lastCall... initializers need to match this nu
+ int WarEvaluator::lastIndex = 0;
+ bool WarEvaluator::checkCache = false;
+ 
++void WarEvaluator::clearCache() {
++
++	for(int i = 0; i < cacheSz; i++)
++		lastCallResult[i] = INT_MIN;
++}
++
+ WarEvaluator::WarEvaluator(WarEvalParameters& warEvalParams, bool useCache) :
+ 
+ 	params(warEvalParams), report(params.getReport()),
+
+diff --git a/CvGameCoreDLL/WarEvaluator.h b/CvGameCoreDLL/WarEvaluator.h
+index 358a871b4..a4896c487 100644
+--- a/CvGameCoreDLL/WarEvaluator.h
++++ b/CvGameCoreDLL/WarEvaluator.h
+@@ -66,6 +66,7 @@ private:
+ 	/*  If (or while) set, all WarEvaluator objects use the cache, not just those
+ 		with useCache=true. */
+ 	public: static bool checkCache;
++			static void clearCache();
+ };
+ 
+ // </advc.104>
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index d1aae03f1..5ef94a574 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -1646,10 +1646,10 @@ void HiredHand::evaluate() {
+ 				log("... but we don't like our hireling enough to care");
+ 				continue;
+ 			}
+-			/*  Behave as if someone had paid us the equivalent of 12 utility;
++			/*  Behave as if someone had paid us the equivalent of 20 utility;
+ 				feel obliged to fight along the ally for 10 turns.
+ 				Or should it matter how much we've paid the ally? */
+-			uPlus += eval(ally.getID(), 12, 10);
++			uPlus += eval(ally.getID(), 20, 10);
+ 		}
+ 	}
+ 	/*  Have we been at war since the start of the game? Then it's a scenario
+@@ -2976,7 +2976,10 @@ void FairPlay::evaluate() {
+ 		Not actually true in e.g. EarthAD1000 scenario. Still, early attacks on
+ 		AI civs aren't a serious problem. */
+ 	if(g.getCurrentEra() > 0 || !they->isHuman() || we->isHuman() ||
+-			m->getWarsDeclaredBy(weId).count(theyId) <= 0)
++			m->getWarsDeclaredBy(weId).count(theyId) <= 0 ||
++			// No kid gloves if they've attacked us or a friend
++			we->AI_getMemoryAttitude(theyId, MEMORY_DECLARED_WAR) < 0 ||
++			we->AI_getMemoryAttitude(theyId, MEMORY_DECLARED_WAR_ON_FRIEND) < 0)
+ 		return;
+ 	CvHandicapInfo& h = GC.getHandicapInfo(g.getHandicapType());
+ 	/*  Mostly care about Archery, which has power 6. The Wheel isn't unfair
+@@ -2992,8 +2995,8 @@ void FairPlay::evaluate() {
+ 	if(!powerTechFound)
+ 		return;*/
+ 	/*  Actually, never mind checking for starting tech. Don't want early rushes
+-		on low difficulty either, and on King the AI doesn't get Archery, but lots
+-		of other freebies. */
++		on low difficulty either, and on King, the AI doesn't get Archery, but
++		lots of other freebies. */
+ 	int trainPercent = GC.getGameSpeedInfo(g.getGameSpeedType()).getTrainPercent();
+ 	if(trainPercent <= 0) {
+ 		FAssert(trainPercent > 0);
+
+[PATCH OMITTED] file=a/manual_0.8.pdf b/manual_0.8.pdf reason=binary/generated-file changedLines=0 bytes=147
+
+[PATCH OMITTED] file=a/manual_0.82.pdf b/manual_0.82.pdf reason=binary/generated-file changedLines=0 bytes=146
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=11 omittedFiles=3 embeddedPatchBytes=14010

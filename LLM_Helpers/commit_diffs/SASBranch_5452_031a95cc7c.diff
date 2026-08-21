@@ -1,0 +1,1732 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5452
+# Commit: 031a95cc7cb72a0996acd852db4cb05beccd1e73
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1e8acff71e6cf406f5ade59003fdfc22625838d7
+# Title: add Equal_Islands_V2_beta.py (modified), fix ' to " and incorrect bonus names in some maps - remove Earth2 and Lakes from simple game list
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/Equal_Islands_V2_beta_SAS48.dds
+1	1	Assets/Python/BUG/BugUnitPlot.py
+1	1	Assets/Python/BUG/UnitPlotListUtil.py
+2	2	Assets/Python/Contrib/AIAutoPlay.py
+1	1	Assets/Python/Contrib/FavoriteCivicDetector.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+2	2	Assets/Python/CvMapGeneratorUtil.py
+1	1	Assets/Python/EntryPoints/CvRandomEventInterface.py
+1	1	Assets/Python/Screens/PLE.py
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+27	0	Assets/XML/Interface/CIV4WorldPickerInfos.xml
+8	7	PrivateMaps/Arboria.py
+6	5	PrivateMaps/BTG_Cross.py
+17	16	PrivateMaps/Boreal.py
+2	2	PrivateMaps/Earth2.py
+947	0	PrivateMaps/Equal_Islands_V2_beta.py
+21	20	PrivateMaps/Fantasy_Realm.py
+31	30	PrivateMaps/Great_Plains.py
+2	2	PrivateMaps/Lakes.py
+16	15	PrivateMaps/Oasis.py
+14	13	PrivateMaps/Rainforest.py
+0	1	README.md
+4	3	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/Equal_Islands_V2_beta_SAS48.dds
+ create mode 100644 PrivateMaps/Equal_Islands_V2_beta.py
+ delete mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/Equal_Islands_V2_beta_SAS48.dds b/Assets/Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/Equal_Islands_V2_beta_SAS48.dds
+new file mode 100644
+index 000000000..13d80dfd5
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/Equal_Islands_V2_beta_SAS48.dds differ
+
+diff --git a/Assets/Python/BUG/BugUnitPlot.py b/Assets/Python/BUG/BugUnitPlot.py
+index 8c38e0f1d..c6b758e90 100644
+--- a/Assets/Python/BUG/BugUnitPlot.py
++++ b/Assets/Python/BUG/BugUnitPlot.py
+@@ -553,7 +553,7 @@ class BupUnit:
+ 		self.isHurt = pUnit.isHurt()
+ 		self.isPromotionReady = pUnit.isPromotionReady()
+ 
+-		iLeaderPromo = gc.getInfoTypeForString('PROMOTION_LEADER')
++		iLeaderPromo = gc.getInfoTypeForString("PROMOTION_LEADER")
+ 		self.isLeadByGreatGeneral = iLeaderPromo != -1 and pUnit.isHasPromotion(iLeaderPromo)
+ 
+ 		self.DotStatus = self._getDotStatus()
+
+diff --git a/Assets/Python/BUG/UnitPlotListUtil.py b/Assets/Python/BUG/UnitPlotListUtil.py
+index 2399d790f..21cae3fbb 100644
+--- a/Assets/Python/BUG/UnitPlotListUtil.py
++++ b/Assets/Python/BUG/UnitPlotListUtil.py
+@@ -15,7 +15,7 @@ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+-iLeaderPromo = gc.getInfoTypeForString('PROMOTION_LEADER')
++iLeaderPromo = gc.getInfoTypeForString("PROMOTION_LEADER")
+ sFileNamePromo = ArtFileMgr.getInterfaceArtInfo("OVERLAY_PROMOTION_FRAME").getPath()
+ #screen = CyGInterfaceScreen( "MainInterface", CvScreenEnums.MAIN_INTERFACE )
+
+diff --git a/Assets/Python/Contrib/AIAutoPlay.py b/Assets/Python/Contrib/AIAutoPlay.py
+index c3fec7fbd..7b4f89b97 100644
+--- a/Assets/Python/Contrib/AIAutoPlay.py
++++ b/Assets/Python/Contrib/AIAutoPlay.py
+@@ -366,8 +366,8 @@ class AIAutoPlay :
+ 		benchmarkEndTime = time.clock()
+ 		timeElapsed = benchmarkEndTime - self.benchmarkStartTime	
+ 		popupInfo = PyPopup.PyPopup(game.getActivePlayer())
+-		popupInfo.setHeaderString('Benchmark complete!') # advc: Put this in the header
+-		popupInfo.setBodyString('Elapsed time: ' + str(timeElapsed) + ' seconds. turns: ' + str(self.numTurns))	
++		popupInfo.setHeaderString("Benchmark complete!") # advc: Put this in the header
++		popupInfo.setBodyString("Elapsed time: " + str(timeElapsed) + " seconds. turns: " + str(self.numTurns))	
+ 		popupInfo.launch(true, PopupStates.POPUPSTATE_QUEUED)
+ 	# </BM1>
+
+diff --git a/Assets/Python/Contrib/FavoriteCivicDetector.py b/Assets/Python/Contrib/FavoriteCivicDetector.py
+index cbb2b2e6a..f02658036 100644
+--- a/Assets/Python/Contrib/FavoriteCivicDetector.py
++++ b/Assets/Python/Contrib/FavoriteCivicDetector.py
+@@ -313,7 +313,7 @@ class FavoriteCivicDetector:
+ 	def __init__(self, eventManager):
+ 		BugUtil.debug("FavoriteCivicDetector.__init__(). Resetting data and initing event manager.")
+ 		initHelpers()
+-		eventManager.addEventHandler('BeginActivePlayerTurn', self.onBeginActivePlayerTurn)
++		eventManager.addEventHandler("BeginActivePlayerTurn", self.onBeginActivePlayerTurn)
+ 		eventManager.addEventHandler("GameStart", self.onGameStart)
+ 		eventManager.addEventHandler("OnLoad", self.onLoadGame)
+ 		eventManager.addEventHandler("OnPreSave", self.onPreSave)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 7394766aa..18a50c2e7 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -361,7 +361,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				self.SAS_mainLinkToCategory[szLinkKey] = iEnum
+ 
+ 		# <!-- custom: add highlight text for sevopedia sorting needs as we added, here fetched once for performance optimization or such -->
+-		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString('COLOR_HIGHLIGHT_TEXT')
++		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")
+ 		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+index 318db33da..4757a6b3c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+@@ -90,7 +90,7 @@ class SevoPediaUnitChart:
+ 		szMove = u"%c" % CyGame().getSymbolID(FontSymbols.MOVES_CHAR)
+ 
+ 		# <!-- custom: display more potentially useful information, useful in AdvCiv-SAS or maybe other mods as well, also so that i don't have to maintain it everytime i make a micro (or big) change, more versatile and flexible this way too. -->
+-		#if self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_AIR') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_NAVAL') or self.iGroup == gc.getInfoTypeForString('UNITCOMBAT_SIEGE'):
++		#if self.iGroup == gc.getInfoTypeForString("UNITCOMBAT_AIR") or self.iGroup == gc.getInfoTypeForString("UNITCOMBAT_NAVAL") or self.iGroup == gc.getInfoTypeForString("UNITCOMBAT_SIEGE"):
+ 			# <!-- custom: imported and modified from base advciv in a similar way -->
+ 			#szSpecial = "Bombard"
+ 		#else:
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index 4033ba4e3..e74be9570 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -1553,9 +1553,9 @@ class BonusBalancer:
+ 		self.gc = CyGlobalContext()
+ 		self.map = CyMap()
+ 		
+-		self.resourcesToBalance = ('BONUS_ALUMINUM', 'BONUS_COAL', 'BONUS_COPPER', 'BONUS_HORSE', 'BONUS_IRON', 'BONUS_OIL', 'BONUS_URANIUM')
++		self.resourcesToBalance = ("BONUS_ALUMINUM", "BONUS_COAL", "BONUS_COPPER", "BONUS_HORSE", "BONUS_IRON", "BONUS_OIL", "BONUS_URANIUM")
+ 		# advc.108c: Don't eliminate Marble
+-		self.resourcesToEliminate = ()#('BONUS_MARBLE', )
++		self.resourcesToEliminate = ()#("BONUS_MARBLE", )
+ 		
+ 	def isSkipBonus(self, iBonusType):
+ 		type_string = self.gc.getBonusInfo(iBonusType).getType()
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index 9fe660ac8..26c9cf54d 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -991,7 +991,7 @@ def applySaltpeter(argsList):
+ 	placeLandmark(plot, sEventType, iFood, iProd, iComm, True, -1)
+ 	# EventSigns end
+ 		
+-	iForest = gc.getInfoTypeForString('FEATURE_FOREST')
++	iForest = gc.getInfoTypeForString("FEATURE_FOREST")
+ 	
+ 	listPlots = []
+ 	for i in range(map.numPlots()):
+
+diff --git a/Assets/Python/Screens/PLE.py b/Assets/Python/Screens/PLE.py
+index 0de91a985..0b7f22b77 100644
+--- a/Assets/Python/Screens/PLE.py
++++ b/Assets/Python/Screens/PLE.py
+@@ -2277,7 +2277,7 @@ class PLE:
+ 		# Units led by a GG will get a star instead of a dot.
+ 		if (self.bShowGreatGeneralIndicator):
+ 			# is unit led by a GG?
+-			#iLeaderPromo = gc.getInfoTypeForString('PROMOTION_LEADER')
++			#iLeaderPromo = gc.getInfoTypeForString("PROMOTION_LEADER")
+ 			#if (iLeaderPromo != -1 and pLoopUnit.isHasPromotion(iLeaderPromo)):
+ 			# advc: Replacing the above
+ 			if pLoopUnit.getLeaderUnitType() >= 0:
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 3dccb9154..b6f1f3e6c 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -311,7 +311,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY</DefineName>
+-		<DefineTextVal>Archipelago,Islands,Tilted_Axis</DefineTextVal>
++		<DefineTextVal>Archipelago,Islands,Tilted_Axis,Equal_Islands_V2_beta</DefineTextVal>
+ 	</Define>
+
+diff --git a/Assets/XML/Interface/CIV4WorldPickerInfos.xml b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+index b81b64cda..24c1e9916 100644
+--- a/Assets/XML/Interface/CIV4WorldPickerInfos.xml
++++ b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+@@ -321,6 +321,33 @@
+ 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+ 			</WaterLevelGloss>
+ 		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>Equal_Islands_V2_beta</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/Equal_Islands_V2_beta/Equal_Islands_V2_beta_SAS48.dds</WaterLevelDecalPath>
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
+ 		<WorldPickerInfo>
+ 			<MapName>Earth_IceAge</MapName>
+ 			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+
+diff --git a/PrivateMaps/Arboria.py b/PrivateMaps/Arboria.py
+index 5e5c71acb..02df48edf 100644
+--- a/PrivateMaps/Arboria.py
++++ b/PrivateMaps/Arboria.py
+@@ -1,4 +1,4 @@
+-#
++﻿#
+ #	FILE:	 Arboria.py
+ #	AUTHOR:  Bob Thomas (Sirian)
+ #	PURPOSE: Global map script - Forest paradise - Primarily for MP
+@@ -312,12 +312,12 @@ def normalizeAddExtras():
+ # Sirian's "Sahara Regional Bonus Placement" system.
+ 
+ # Init all bonuses. This is your master key.
+-forest = ('BONUS_SILVER', 'BONUS_DEER')
+-silver = ('BONUS_SILVER')
+-deer = ('BONUS_DEER')
++forest = ("BONUS_SILVER", "BONUS_DEER")
++silver = ("BONUS_SILVER")
++deer = ("BONUS_DEER")
+ 
+ def addBonusType(argsList):
+-	print('*******')
++	print("*******")
+ 	[iBonusType] = argsList
+ 	gc = CyGlobalContext()
+ 	map = CyMap()
+@@ -325,7 +325,7 @@ def addBonusType(argsList):
+ 	type_string = gc.getBonusInfo(iBonusType).getType()
+ 
+ 	if not (type_string in forest):
+-		print('Default', type_string, 'Default')
++		print("Default", type_string, "Default")
+ 		CyPythonMgr().allowDefaultImpl() # Let C handle this bonus in the default way.
+ 	else: # Current bonus type is custom-handled. Assignments to follow.
+ 		iW = map.getGridWidth()
+@@ -333,7 +333,7 @@ def addBonusType(argsList):
+ 
+ 		# Generate resources
+ 		if (type_string in forest):
+-			print('---', type_string, '---')
++			print("---", type_string, "---")
+ 			NiTextOut("Placing forest resources (Python Arboria) ...")
+ 			featureForest = getInfoTypeOrFail("FEATURE_FOREST")
+ 			iDeerPercent = getDeerPercent()
+@@ -365,3 +365,4 @@ def addBonusType(argsList):
+ 									map.plot(x,y).setBonusType(iBonusType)
+ 
+ 		return None
++
+
+diff --git a/PrivateMaps/BTG_Cross.py b/PrivateMaps/BTG_Cross.py
+index 4039dde60..4200ff3e9 100644
+--- a/PrivateMaps/BTG_Cross.py
++++ b/PrivateMaps/BTG_Cross.py
+@@ -1,4 +1,4 @@
+-#
++﻿#
+ #	FILE:	 Grid.py
+ #	AUTHOR:  Axius
+ #	CONTRIB: Bob Thomas (Sirian)
+@@ -28,8 +28,8 @@ from SASUtils import getInfoTypeOrFail
+ from SAS_WorldSizes import *
+ 
+ balancer = BonusBalancer()
+-balancer.resourcesToBalance = ('BONUS_ALUMINUM', 'BONUS_COPPER', 'BONUS_HORSE', 'BONUS_IRON', 'BONUS_OIL', 'BONUS_URANIUM')
+-balancer.resourcesToEliminate = ('', )
++balancer.resourcesToBalance = ("BONUS_ALUMINUM", "BONUS_COPPER", "BONUS_HORSE", "BONUS_IRON", "BONUS_OIL", "BONUS_URANIUM")
++balancer.resourcesToEliminate = ("", )
+ 
+ def getDescription():
+ #	BugUtil.debug("Team_Battleground: getDescription")
+@@ -1166,7 +1166,7 @@ def normalizeAddExtras():
+ 	elephantsBonus = getInfoTypeOrFail("BONUS_ELEPHANTS")
+ 	gold = getInfoTypeOrFail("BONUS_GOLD")
+ 	silver = getInfoTypeOrFail("BONUS_SILVER")
+-	gemstonesBonus = getInfoTypeOrFail("BONUS_GEMSTONES")
++	gemstonesBonus = getInfoTypeOrFail("BONUS_GEMSTONESTONES")
+ 	random.seed(gc.getGame().getMapRand().get(30000, "Shuffle Plots - PYTHON"))
+ 
+ 	for i in range(0,gc.getMAX_CIV_PLAYERS()):
+@@ -1286,7 +1286,7 @@ def normalizeAddExtras():
+ 		pig = getInfoTypeOrFail("BONUS_PIG")	
+ 		wheat = getInfoTypeOrFail("BONUS_WHEAT")	
+ 		bronze = getInfoTypeOrFail("BONUS_COPPER")	
+-		corn = getInfoTypeOrFail("BONUS_CORN")	
++		corn = getInfoTypeOrFail("BONUS_MAIZE")	
+ 	
+ 		iW = map.getGridWidth()
+ 		iH = map.getGridHeight()
+@@ -1483,3 +1483,4 @@ def mirrorizeMap():
+ 	
+ def startHumansOnSameTile():
+ 	return False
++
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index a16fc4874..84810ee3b 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -1,4 +1,4 @@
+-#
++﻿#
+ #	FILE:	 Boreal.py
+ #	AUTHOR:  Bob Thomas (Sirian)
+ #	PURPOSE: Regional map script - Boreal forest region / tundra.
+@@ -308,15 +308,15 @@ class BorealFeatureGenerator(CvMapGeneratorUtil.FeatureGenerator):
+ 		else:
+ 			if pPlot.isRiverSide() and pPlot.isFlatlands():
+ 				if pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_SNOW"):
+-					print('Changing River Ice Plot to Tundra')
++					print("Changing River Ice Plot to Tundra")
+ 					terrainTundra = getInfoTypeOrFail("TERRAIN_TUNDRA")
+ 					pPlot.setTerrainType(terrainTundra, true, true)
+ 				elif pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_TUNDRA"):
+-					print('Changing River Tundra Plot to Plains')
++					print("Changing River Tundra Plot to Plains")
+ 					terrainPlains = getInfoTypeOrFail("TERRAIN_PLAINS")
+ 					pPlot.setTerrainType(terrainPlains, true, true)
+ 				elif pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_PLAINS"):
+-					print('Changing River Plains Plot to Grass')
++					print("Changing River Plains Plot to Grass")
+ 					terrainGrass = getInfoTypeOrFail("TERRAIN_GRASS")
+ 					pPlot.setTerrainType(terrainGrass, true, true)
+ 			self.addForestsAtPlot(pPlot, iX, iY)
+@@ -600,18 +600,18 @@ def normalizeAddExtras():
+ # Sirian's "Sahara Regional Bonus Placement" system.
+ 
+ # Init all bonuses. This is your master key.
+-resourcesToEliminate = ('BONUS_SILK', 'BONUS_BANANA', 'BONUS_CORN', 
+-						'BONUS_RICE', 'BONUS_PIG', 'BONUS_INCENSE', 
+-						'BONUS_CLAM')
++resourcesToEliminate = ("BONUS_SILK", "BONUS_BANANA", "BONUS_MAIZE", 
++						"BONUS_RICE", "BONUS_PIG", "BONUS_INCENSE", 
++						"BONUS_MOLLUSCS")
+ 
+-boreal = ('BONUS_GEMS', 'BONUS_DEER', 'BONUS_SHEEP', 'BONUS_WHEAT')
+-gems = ('BONUS_GEMS')
+-deer = ('BONUS_DEER')
+-sheep = ('BONUS_SHEEP')
+-wheat = ('BONUS_WHEAT')
++boreal = ("BONUS_GEMSTONES", "BONUS_DEER", "BONUS_SHEEP", "BONUS_WHEAT")
++gems = ("BONUS_GEMSTONES")
++deer = ("BONUS_DEER")
++sheep = ("BONUS_SHEEP")
++wheat = ("BONUS_WHEAT")
+ 
+ def addBonusType(argsList):
+-	print('*******')
++	print("*******")
+ 	[iBonusType] = argsList
+ 	gc = CyGlobalContext()
+ 	map = CyMap()
+@@ -619,10 +619,10 @@ def addBonusType(argsList):
+ 	type_string = gc.getBonusInfo(iBonusType).getType()
+ 
+ 	if (type_string in resourcesToEliminate):
+-		print('-NONE-', type_string, '-NONE-')
++		print("-NONE-", type_string, "-NONE-")
+ 		return None # These bonus types will not appear, at all.
+ 	elif not (type_string in boreal):
+-		print('Default', type_string, 'Default')
++		print("Default", type_string, "Default")
+ 		CyPythonMgr().allowDefaultImpl() # Let C handle this bonus in the default way.
+ 	else: # Current bonus type is custom-handled. Assignments to follow.
+ 		iW = map.getGridWidth()
+@@ -630,7 +630,7 @@ def addBonusType(argsList):
+ 
+ 		# Generate resources
+ 		if (type_string in boreal):
+-			print('---', type_string, '---')
++			print("---", type_string, "---")
+ 			NiTextOut("Placing forest resources (Python Arboria) ...")
+ 			iWheatBottom1 = food.getHeightFromPercent(40)
+ 			iWheatTop1 = food.getHeightFromPercent(45)
+@@ -681,3 +681,4 @@ def addBonusType(argsList):
+ 									map.plot(x,y).setBonusType(iBonusType)
+ 
+ 		return None
++
+
+diff --git a/PrivateMaps/Earth2.py b/PrivateMaps/Earth2.py
+index f3b94c836..a8fec4906 100644
+--- a/PrivateMaps/Earth2.py
++++ b/PrivateMaps/Earth2.py
+@@ -57,8 +57,8 @@ def getDescription():
+     return "TXT_KEY_MAP_SCRIPT_EARTH2_DESCR"
+ 
+ def isAdvancedMap():
+-    "This map should show up in simple mode"
+-    return 0
++    "This map should not show up in simple mode"
++    return 1
+ 
+ def getGridSize(argsList):
+     "Enlarge the grids! According to Soren, Earth-type maps are usually huge anyway."
+
+diff --git a/PrivateMaps/Equal_Islands_V2_beta.py b/PrivateMaps/Equal_Islands_V2_beta.py
+new file mode 100644
+index 000000000..b0d07453e
+--- /dev/null
++++ b/PrivateMaps/Equal_Islands_V2_beta.py
+@@ -0,0 +1,947 @@
++﻿#
++#	FILE:	 Equal Islands V2.py
++#	AUTHOR:  Axius
++#	CONTRIB: Bob Thomas (Sirian)
++#	PURPOSE: Based on Sirian's Islands script, but all islands are identical.
++#-----------------------------------------------------------------------------
++#	Copyright (c) 2005 Firaxis Games, Inc. All rights reserved.
++#-----------------------------------------------------------------------------
++#
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++
++from CvPythonExtensions import *
++from SAS_WorldSizes import *
++from SASUtils import getInfoTypeOrFail
++import CvUtil
++import CvMapGeneratorUtil
++import sys
++import random
++import math
++from CvMapGeneratorUtil import FractalWorld
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++from CvMapGeneratorUtil import BonusBalancer
++
++balancer = BonusBalancer()
++balancer.resourcesToBalance = ("BONUS_ALUMINUM", "BONUS_COPPER", "BONUS_HORSE", "BONUS_IRON", "BONUS_OIL", "BONUS_URANIUM")
++balancer.resourcesToEliminate = ("", )
++_balancerBonusTypeIDs = None
++
++
++def _buildDynamicRegionTemplate(iNumRegions):
++	template = {}
++	fSouthMin = 0.1
++	fNorthMax = 0.9
++	fLatSpan = fNorthMax - fSouthMin
++	iCols = max(2, int(math.ceil(math.sqrt(float(iNumRegions) * 1.5))))
++	iRows = max(2, int(math.ceil(float(iNumRegions) / float(iCols))))
++	for iRegion in range(iNumRegions):
++		iRow = iRegion / iCols
++		iCol = iRegion % iCols
++		fWest = float(iCol) / float(iCols)
++		fEast = float(iCol + 1) / float(iCols)
++		fSouth = fSouthMin + (float(iRow) * fLatSpan) / float(iRows)
++		fNorth = fSouthMin + (float(iRow + 1) * fLatSpan) / float(iRows)
++		template[iRegion] = [fWest, fEast, fSouth, fNorth]
++	return template
++
++def _getBalancerBonusTypeIDs():
++	global _balancerBonusTypeIDs
++	if _balancerBonusTypeIDs == None:
++		_balancerBonusTypeIDs = []
++		for tag in balancer.resourcesToBalance:
++			_balancerBonusTypeIDs.append(getInfoTypeOrFail(tag))
++		for tag in balancer.resourcesToEliminate:
++			if tag != "":
++				_balancerBonusTypeIDs.append(getInfoTypeOrFail(tag))
++	return _balancerBonusTypeIDs
++
++def getDescription():
++	return "Each game generates a different island, but all players in that game get the exact same (very good) island with equalized starts/resources. It is recommended to play on largest world sizes (e.g., SAS48) with the 48 Civs DLL to have larger islands. Based on Equal Islands V2 beta from Argonath. Modified for AdvCiv-SAS: supports SAS upscaling/high player counts and bug fixes."
++
++def isAdvancedMap():
++	# <!-- custom: Keep Equal Islands visible in Simple Game; this script is now SAS-adapted and stable enough for normal map selection flow. (GPT-5.3-Codex) -->
++	return 0
++
++def getNumCustomMapOptions():
++	return 2
++	
++def getNumHiddenCustomMapOptions():
++	return 0
++
++def getCustomMapOptionName(argsList):
++	[iOption] = argsList
++	option_names = {
++		0:	"TXT_KEY_MAP_WORLD_WRAP",
++		1:	"TXT_KEY_CONCEPT_RESOURCES"
++		}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
++	return translated_text
++	
++def getNumCustomMapOptionValues(argsList):
++	[iOption] = argsList
++	option_values = {
++		0:	3,
++		1:	3
++		}
++	return option_values[iOption]
++	
++def getCustomMapOptionDescAt(argsList):
++	[iOption, iSelection] = argsList
++	selection_names = {
++		0:	{
++			0: "TXT_KEY_MAP_WRAP_FLAT",
++			1: "TXT_KEY_MAP_WRAP_CYLINDER",
++			2: "TXT_KEY_MAP_WRAP_TOROID"
++			},
++		1:	{
++			0: "TXT_KEY_WORLD_STANDARD",
++			1: "TXT_KEY_MAP_BALANCED",
++			2: "TXT_KEY_MAP_SCRIPT_EXTRAS"
++			}
++		}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
++	return translated_text
++	
++def getCustomMapOptionDefault(argsList):
++	[iOption] = argsList
++	option_defaults = {
++		0:	1,
++		1:	2
++		}
++	return option_defaults[iOption]
++
++def isRandomCustomMapOption(argsList):
++	[iOption] = argsList
++	option_random = {
++		0:	false,
++		1:	false
++		}
++	return option_random[iOption]
++
++def getWrapX():
++	map = CyMap()
++	return (map.getCustomMapOption(0) == 1 or map.getCustomMapOption(0) == 2)
++	
++def getWrapY():
++	map = CyMap()
++	return (map.getCustomMapOption(0) == 2)
++	
++def beforeGeneration():
++	global iNumRegions
++	global regions_in_use
++	global remaining_regions
++	gc = CyGlobalContext()
++	map = CyMap()
++	dice = gc.getGame().getMapRand()
++	iW = map.getGridWidth()
++	iH = map.getGridHeight()
++	iPlayers = gc.getGame().countCivPlayersEverAlive()
++
++	# Error catching.
++	if iPlayers < 1:
++		return None
++
++	# Number of Large Islands: One per Player
++	configs = [0, 4, 4, 4, 6, 8, 8, 12, 12, 12, 15, 15, 15, 15, 20, 20, 20, 24, 24]
++		
++	# Choose a "Large Islands" template.
++	if iPlayers < len(configs):
++		iNumRegions = configs[iPlayers]
++	else:
++		iNumRegions = iPlayers
++	# Some regions may go unused. We need to track the ones that have been used.
++	regions_in_use = []
++	remaining_regions = []
++	for loopy in range(iNumRegions): 
++		remaining_regions.append(loopy)
++
++	# Templates are nested by keys: {NumRegions: {RegionID: [WestLon, EastLon, SouthLat, NorthLat]}}
++	templates = {4: {0: [0.0, 0.5, 0.1, 0.45],
++	                 1: [0.5, 1.0, 0.1, 0.45],
++	                 2: [0.0, 0.5, 0.55, 0.9],
++	                 3: [0.5, 1.0, 0.55, 0.9]},
++	             6: {0: [0.0, 0.333, 0.1, 0.45],
++	                 1: [0.333, 0.667, 0.1, 0.45],
++	                 2: [0.667, 1.0, 0.1, 0.45],
++	                 3: [0.0, 0.333, 0.55, 0.9],
++	                 4: [0.333, 0.667, 0.55, 0.9],
++	                 5: [0.667, 1.0, 0.55, 0.9]},
++	             8: {0: [0.0, 0.25, 0.1, 0.45],
++	                 1: [0.25, 0.5, 0.1, 0.45],
++	                 2: [0.5, 0.75, 0.1, 0.45],
++	                 3: [0.75, 1.0, 0.1, 0.45],
++	                 4: [0.0, 0.25, 0.55, 0.9],
++	                 5: [0.25, 0.5, 0.55, 0.9],
++	                 6: [0.5, 0.75, 0.55, 0.9],
++	                 7: [0.75, 1.0, 0.55, 0.9]},
++	             12: {0: [0.0, 0.25, 0.1, 0.35],
++	                  1: [0.25, 0.5, 0.1, 0.35],
++	                  2: [0.5, 0.75, 0.1, 0.35],
++	                  3: [0.75, 1.0, 0.1, 0.35],
++	                  4: [0.0, 0.25, 0.4, 0.6],
++	                  5: [0.25, 0.5, 0.4, 0.6],
++	                  6: [0.5, 0.75, 0.4, 0.6],
++	                  7: [0.75, 1.0, 0.4, 0.6],
++	                  8: [0.0, 0.25, 0.65, 0.9],
++	                  9: [0.25, 0.5, 0.65, 0.9],
++	                  10: [0.5, 0.75, 0.65, 0.9],
++	                  11: [0.75, 1.0, 0.65, 0.9]},
++	             15: {0: [0.0, 0.2, 0.1, 0.35],
++	                  1: [0.2, 0.4, 0.1, 0.35],
++	                  2: [0.4, 0.6, 0.1, 0.35],
++	                  3: [0.6, 0.8, 0.1, 0.35],
++	                  4: [0.8, 1.0, 0.1, 0.35],
++	                  5: [0.0, 0.2, 0.4, 0.6],
++	                  6: [0.2, 0.4, 0.4, 0.6],
++	                  7: [0.4, 0.6, 0.4, 0.6],
++	                  8: [0.6, 0.8, 0.4, 0.6],
++	                  9: [0.8, 1.0, 0.4, 0.6],
++	                  10: [0.0, 0.2, 0.65, 0.9],
++	                  11: [0.2, 0.4, 0.65, 0.9],
++	                  12: [0.4, 0.6, 0.65, 0.9],
++	                  13: [0.6, 0.8, 0.65, 0.9],
++	                  14: [0.8, 1.0, 0.65, 0.9]},
++	             20: {0: [0.0, 0.2, 0.1, 0.29],
++	                  1: [0.2, 0.4, 0.1, 0.29],
++	                  2: [0.4, 0.6, 0.1, 0.29],
++	                  3: [0.6, 0.8, 0.1, 0.29],
++	                  4: [0.8, 1.0, 0.1, 0.29],
++	                  5: [0.0, 0.2, 0.33, 0.48],
++	                  6: [0.2, 0.4, 0.33, 0.48],
++	                  7: [0.4, 0.6, 0.33, 0.48],
++	                  8: [0.6, 0.8, 0.33, 0.48],
++	                  9: [0.8, 1.0, 0.33, 0.48],
++	                  10: [0.0, 0.2, 0.52, 0.67],
++	                  11: [0.2, 0.4, 0.52, 0.67],
++	                  12: [0.4, 0.6, 0.52, 0.67],
++	                  13: [0.6, 0.8, 0.52, 0.67],
++	                  14: [0.8, 1.0, 0.52, 0.67],
++	                  15: [0.0, 0.2, 0.71, 0.9],
++	                  16: [0.2, 0.4, 0.71, 0.9],
++	                  17: [0.4, 0.6, 0.71, 0.9],
++	                  18: [0.6, 0.8, 0.71, 0.9],
++	                  19: [0.8, 1.0, 0.71, 0.9]},
++	             24: {0: [0.0, 0.167, 0.1, 0.29],
++	                  1: [0.167, 0.333, 0.1, 0.29],
++	                  2: [0.333, 0.5, 0.1, 0.29],
++	                  3: [0.5, 0.667, 0.1, 0.29],
++	                  4: [0.667, 0.833, 0.1, 0.29],
++	                  5: [0.833, 1.0, 0.1, 0.29],
++	                  6: [0.0, 0.167, 0.33, 0.48],
++	                  7: [0.167, 0.333, 0.33, 0.48],
++	                  8: [0.333, 0.5, 0.33, 0.48],
++	                  9: [0.5, 0.667, 0.33, 0.48],
++	                  10: [0.667, 0.833, 0.33, 0.48],
++	                  11: [0.833, 1.0, 0.33, 0.48],
++	                  12: [0.0, 0.167, 0.52, 0.67],
++	                  13: [0.167, 0.333, 0.52, 0.67],
++	                  14: [0.333, 0.5, 0.52, 0.67],
++	                  15: [0.5, 0.667, 0.52, 0.67],
++	                  16: [0.667, 0.833, 0.52, 0.67],
++	                  17: [0.833, 1.0, 0.52, 0.67],
++	                  18: [0.0, 0.167, 0.71, 0.9],
++	                  19: [0.167, 0.333, 0.71, 0.9],
++	                  20: [0.333, 0.5, 0.71, 0.9],
++	                  21: [0.5, 0.667, 0.71, 0.9],
++	                  22: [0.667, 0.833, 0.71, 0.9],
++	                  23: [0.833, 1.0, 0.71, 0.9]}
++	}
++	# End of template data.
++
++	# List region_coords: [WestLon, EastLon, SouthLat, NorthLat]
++	global region_coords
++	if templates.has_key(iNumRegions):
++		region_coords = templates[iNumRegions]
++	else:
++		region_coords = _buildDynamicRegionTemplate(iNumRegions)
++
++	# Translate region_coords to actual X,Y
++	global regionWidth
++	global regionHeight
++	regionWidth,regionHeight = 1000,1000
++	for reg in range(len(region_coords)):
++		[fWestLon, fEastLon, fSouthLat, fNorthLat] = region_coords[reg]
++		iWestX = int(iW * fWestLon)
++		iEastX = int(iW * fEastLon) - 1
++		iSouthY = int(iH * fSouthLat)
++		iNorthY = int(iH * fNorthLat) -1
++		region_coords[reg] = [iWestX, iEastX, iSouthY, iNorthY]
++		iWidth = iEastX - iWestX + 1
++		iHeight = iNorthY - iSouthY + 1
++		if iWidth < regionWidth:
++			regionWidth = iWidth
++		if iHeight < regionHeight:
++			regionHeight = iHeight
++		
++class IslandsMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
++	def generatePlotsByRegion(self):
++		# Sirian's MultilayeredFractal class, controlling function.
++		# You -MUST- customize this function for each use of the class.
++		iPlayers = self.gc.getGame().countCivPlayersEverAlive()
++		# <!-- custom: Keep island footprint fixed to SAS48 baseline on all world sizes so Standard/Small do not shrink island room per player. (GPT-5.3-Codex) -->
++		fSquareSize = 0.8
++		fNarrowSize = 0.63
++		fSquareOffset = 0.2
++		fNarrowOffset = 0.37
++		fCenterOffset = 0.1
++		
++		# Sea Level adjustment (from user input), limited to value of 5%.
++		sea = self.gc.getSeaLevelInfo(self.map.getSeaLevel()).getSeaLevelChange()
++		sea = min(sea, 5)
++		sea = max(sea, -5)
++
++		# Add the Large Islands (two fractals each to ensure cohesion).
++		global region_coords
++		global regionWidth
++		global regionHeight
++		global regions_in_use
++		global remaining_regions
++		for region_loop in range(iPlayers):
++			# Choose an unused region in which to place a Large Island.
++			region_roll = self.dice.get(len(remaining_regions), "Extra Islands - Islands PYTHON")
++			thisRegion = remaining_regions[region_roll]
++			regions_in_use.append(thisRegion)
++			del remaining_regions[region_roll]
++
++			# Region dimensions
++			[iWestX, iEastX, iSouthY, iNorthY] = region_coords[thisRegion]
++
++			# Each island only takes up approximately 63% of the space in its region.
++			# This space is further divided between land and water. (These islands are fairly small!)
++			# Islands get different shapes and offsets to vary their appearance and placement.
++			# Choose a pattern for this Large Island.
++			thisIslandPattern = self.dice.get(4, "Island Pattern - Islands PYTHON")
++			if thisIslandPattern == 1: # Square island, offset.
++				iOffSetX = self.dice.get(int(regionWidth * fSquareOffset) + 1, "Island Offset - Islands PYTHON")
++				iOffSetY = self.dice.get(int(regionHeight * fSquareOffset) + 1, "Island Offset - Islands PYTHON")
++				regWestX = iWestX + iOffSetX
++				regSouthY = iSouthY + iOffSetY
++				regWidth = int(regionWidth * fSquareSize)
++				regHeight = int(regionHeight * fSquareSize)
++			elif thisIslandPattern == 2: # Tall island, offset.
++				iOffSetX = self.dice.get(int(regionWidth * fNarrowOffset) + 1, "Island Offset - Islands PYTHON")
++				iOffSetY = 0
++				regWestX = iWestX + iOffSetX
++				regSouthY = iSouthY + iOffSetY
++				regWidth = int(regionWidth * fNarrowSize)
++				regHeight = regionHeight
++			elif thisIslandPattern == 3: # Wide island, offset.
++				iOffSetX = 0
++				iOffSetY = self.dice.get(int(regionHeight * fNarrowOffset) + 1, "Island Offset - Islands PYTHON")
++				regWestX = iWestX + iOffSetX
++				regSouthY = iSouthY + iOffSetY
++				regWidth = regionWidth
++				regHeight = int(regionHeight * fNarrowSize)
++			else: # thisIslandPattern == 0, Square island, centered.
++				iOffSetX = int(regionWidth * fCenterOffset)
++				iOffSetY = int(regionHeight * fCenterOffset)
++				regWestX = iWestX + iOffSetX
++				regSouthY = iSouthY + iOffSetY
++				regWidth = int(regionWidth * fSquareSize)
++				regHeight = int(regionHeight * fSquareSize)
++
++			# Don't allow the islands to reach the region boundary
++			if regWestX <= iWestX:
++				regWestX = iWestX + 1
++			if regWestX + regWidth >= iWestX + regionWidth:
++				regWidth = iWestX + regionWidth - 1 - regWestX
++			if regSouthY < iSouthY:
++				regSouthY = iSouthY + 1
++			if regSouthY + regHeight >= iSouthY + regionHeight:
++				regHeight = iSouthY + regionHeight - 1 - regSouthY
++
++			# Vary the shoreline
++			shore_grain = 1 + self.dice.get(3, "Random Shoreline Type - Islands PYTHON")
++
++			self.generatePlotsInRegion(55 + sea,
++			                           regWidth, regHeight,
++			                           regWestX, regSouthY,
++			                           shore_grain, 4,
++			                           self.iRoundFlags, self.iTerrainFlags,
++			                           6, 6,
++			                           True, 3,
++			                           -1, False,
++			                           False
++			                           )
++
++			# Core fractal to increase cohesion
++			coreWestX = regWestX + int(regWidth * 0.25)
++			coreEastX = coreWestX + int(regWidth * 0.5)
++			coreSouthY = regSouthY + int(regHeight * 0.25)
++			coreNorthY = coreSouthY + int(regHeight * 0.5)
++			coreWidth = coreEastX - coreWestX + 1
++			coreHeight = coreNorthY - coreSouthY + 1
++
++			self.generatePlotsInRegion(65,
++			                           coreWidth, coreHeight,
++			                           coreWestX, coreSouthY,
++			                           1, 3,
++			                           self.iHorzFlags, self.iTerrainFlags,
++			                           5, 5,
++			                           True, 3,
++			                           -1, False,
++			                           False
++			                           )
++
++		# All regions have been processed. Plot Type generation completed.
++		return self.wholeworldPlotTypes
++
++"""
++Regional Variables Key:
++
++iWaterPercent,
++iRegionWidth, iRegionHeight,
++iRegionWestX, iRegionSouthY,
++iRegionGrain, iRegionHillsGrain,
++iRegionPlotFlags, iRegionTerrainFlags,
++iRegionFracXExp, iRegionFracYExp,
++bShift, iStrip,
++rift_grain, has_center_rift,
++invert_heights
++"""
++
++def generatePlotTypes():
++	NiTextOut("Setting Plot Types (Python Islands) ...")
++	iPlayers = CyGlobalContext().getGame().countCivPlayersEverAlive()
++
++	# Check for valid number of players.
++	if iPlayers < 1: # Error catching.
++		fractal_world = FractalWorld()
++		fractal_world.initFractal(polar = True)
++		plotTypes = fractal_world.generatePlotTypes()
++		return plotTypes
++
++	fractal_world = IslandsMultilayeredFractal()
++	plotTypes = fractal_world.generatePlotsByRegion()
++	return plotTypes
++
++def generateTerrainTypes():
++	print "terrain"
++	NiTextOut("Generating Terrain (Python Islands) ...")
++	terraingen = TerrainGenerator()
++	terrainTypes = terraingen.generateTerrain()
++	return terrainTypes
++
++def addFeatures():
++	print "features"
++	NiTextOut("Adding Features (Python Islands) ...")
++	featuregen = FeatureGenerator()
++	featuregen.addFeatures()
++	return 0
++
++def assignStartingPlots():
++	# Custom start plot finder for Islands.
++	global iNumRegions
++	global region_coords
++	global regionWidth
++	global regionHeight
++	global regions_in_use
++	gc = CyGlobalContext()
++	map = CyMap()
++	dice = gc.getGame().getMapRand()
++	iW = map.getGridWidth()
++	iH = map.getGridHeight()
++	iPlayers = gc.getGame().countCivPlayersEverAlive()
++	if (not globals().has_key("region_coords")) or (not globals().has_key("iNumRegions")):
++		beforeGeneration()
++		if (not globals().has_key("region_coords")) or (not globals().has_key("iNumRegions")):
++			CyPythonMgr().allowDefaultImpl()
++			return
++	
++	# Error catching.
++	if iPlayers < 1:
++		CyPythonMgr().allowDefaultImpl()
++		return
++
++	# Obtain the minimum crow-flies distance figures [minX, minY] for this map size and number of players.
++	minimums = {4: [0.15, 0.1],
++	            6: [0.1, 0.1],
++	            8: [0.07, 0.1],
++	            12: [0.07, 0.07],
++	            15: [0.06, 0.07],
++	            20: [0.06, 0.05],
++	            24: [0.05, 0.05]}
++	if minimums.has_key(iNumRegions):
++		[minLon, minLat] = minimums[iNumRegions]
++	else:
++		minLon = max(0.03, (float(regionWidth) / float(iW)) * 0.5)
++		minLat = max(0.03, (float(regionHeight) / float(iH)) * 0.5)
++	minX = max(3, int(minLon * iW))
++	minY = max(3, int(minLat * iH))
++
++	# region_data: [WestX, EastX, SouthY, NorthY, 
++	# numLandPlotsinRegion, numCoastalPlotsinRegion,
++	# numOceanPlotsinRegion, iRegionNetYield, 
++	# iNumLandAreas, iNumPlotsinRegion]
++	global region_data
++	region_data = {}
++	region_best_areas = {}
++	region_yields = []
++	sorting_regions = []
++	for regionLoop in range(len(regions_in_use)):
++		thisRegion = regions_in_use[regionLoop]
++		# Region dimensions
++		[iWestX, iEastX, iSouthY, iNorthY] = region_coords[thisRegion]
++		iEastX = iWestX + regionWidth - 1
++		iNorthY = iSouthY + regionHeight - 1
++		# Plot and Area info.
++		iNumLandPlots = 0
++		iNumCoastalPlots = 0
++		iNumOceanPlots = 0
++		iRegionNetYield = 0
++		iNumLandAreas = 0
++		iNumPlotsinRegion = 0
++		land_areas = []
++		land_area_plots = {}
++		land_area_yield = {}
++		# Cycle through all plots in the region.
++		for x in range(iWestX, iEastX + 1):
++			for y in range(iSouthY, iNorthY + 1):
++				iNumPlotsinRegion += 1
++				i = y * iW + x
++				pPlot = map.plot(x, y)
++				if pPlot.getBonusType(-1) != -1: # Count any bonus resource as added value
++					iRegionNetYield += 2
++				if pPlot.isWater(): # Water plot
++					iFertileCheck = pPlot.calculateBestNatureYield(YieldTypes.YIELD_FOOD, TeamTypes.NO_TEAM)
++					if iFertileCheck > 1: # If the plot has extra food, count it.
++						iRegionNetYield += (2 * (iFertileCheck - 1))
++					if pPlot.isAdjacentToLand(): # Coastal plot
++						if pPlot.isFreshWater:
++							iNumCoastalPlots += 1
++							iRegionNetYield += 2
++						else:
++							iNumCoastalPlots += 1
++							iRegionNetYield += 1
++					else:
++						iNumOceanPlots += 1
++				else: # Land plot
++					iNumLandPlots += 1
++					iArea = pPlot.getArea()
++					iPlotYield = pPlot.calculateTotalBestNatureYield(TeamTypes.NO_TEAM)
++					iFertileCheck = pPlot.calculateBestNatureYield(YieldTypes.YIELD_FOOD, TeamTypes.NO_TEAM)
++					if iFertileCheck > 1: # If the plot has extra food, count the extra as double value!
++						iPlotYield += (iFertileCheck - 1)
++					iRegionNetYield += iPlotYield
++					if pPlot.isHills(): iRegionNetYield += 1 # Add a bonus point for Hills plots.
++					if not iArea in land_areas: # This plot is the first detected in its AreaID.
++						iNumLandAreas += 1
++						land_areas.append(iArea)
++						land_area_plots[iArea] = 1
++						land_area_yield[iArea] = iPlotYield
++					else: # This AreaID already known.
++						land_area_plots[iArea] += 1
++						land_area_yield[iArea] += iPlotYield
++		# Sort areas, achieving a list of AreaIDs with best areas first.
++		area_yields = land_area_yield.values()
++		area_yields.sort()
++		area_yields.reverse()
++		best_areas = []
++		for areaTestLoop in range(iNumLandAreas):
++			for landLoop in range(len(land_areas)):
++				if area_yields[areaTestLoop] == land_area_yield[land_areas[landLoop]]:
++					best_areas.append(land_areas[landLoop])
++					del land_areas[landLoop]
++					break
++		# Store infos to regional lists.
++		region_data[thisRegion] = [iWestX, iEastX, iSouthY, iNorthY, 
++		                           iNumLandPlots, iNumCoastalPlots,
++		                           iNumOceanPlots, iRegionNetYield,
++		                           iNumLandAreas, iNumPlotsinRegion]
++		region_best_areas[thisRegion] = best_areas
++		region_yields.append(iRegionNetYield)
++		sorting_regions.append(iRegionNetYield)
++		
++	# Now sort the regions
++	best_regions = []
++	region_numbers = regions_in_use
++	sorting_regions.sort()
++	sorting_regions.reverse()
++	for regionTestLoop in range(iNumRegions):
++		for yieldLoop in range(len(region_numbers)):
++			if sorting_regions[regionTestLoop] == region_yields[yieldLoop]:
++				best_regions.append(region_numbers[yieldLoop])
++				del region_numbers[yieldLoop]
++				del region_yields[yieldLoop]
++				break
++		
++	# Need to discard the worst regions and then reverse the region order.
++	# Of the regions that will be used, the worst will be assigned first.
++	best_regions.reverse()
++
++	# Obtain player numbers. (Account for possibility of Open slots!)
++	player_list = []
++	for plrCheckLoop in range(gc.getMAX_CIV_PLAYERS()):
++		if CyGlobalContext().getPlayer(plrCheckLoop).isEverAlive():
++			player_list.append(plrCheckLoop)
++
++	# Shuffle start points so that players are assigned regions at random.
++	shuffledPlayers = []
++	for playerLoopTwo in range(gc.getGame().countCivPlayersEverAlive()):
++		iChoosePlayer = dice.get(len(player_list), "Shuffling Regions - Islands PYTHON")
++		shuffledPlayers.append(player_list[iChoosePlayer])
++		del player_list[iChoosePlayer]
++
++	# Find the oceans. We want all civs to start along the coast of a salt water body.
++	oceans = []
++	for i in range(map.getIndexAfterLastArea()):
++		area = map.getArea(i)
++		if not area.isNone():
++			if area.isWater() and not area.isLake():
++				oceans.append(area)
++	
++	# Now assign the start plots!
++	plot_assignments = {}
++	min_dist = []
++	# Loop through players/regions.
++	for assignLoop in range(iPlayers):
++		playerID = shuffledPlayers[assignLoop]
++		reg = best_regions[assignLoop]
++		[westX, eastX, southY, northY] = region_data[reg][0:4]
++		iNumAreas = region_data[reg][8]
++		area_list = region_best_areas[reg]
++		# Print Data for debugging
++		# Error Handling (if valid start plot not found, reduce MinDistance)
++		# <!-- custom: Keep iPass scoped to each player-assignment attempt (outside the while loop) so retry fallback can advance; resetting inside the loop traps generation at "pass 0" and causes an endless start-plot search. (GPT-5.3-Codex) -->
++		iPass = 0
++		while (true):
++			iBestValue = 0
++			pBestPlot = None
++			# <!-- custom: First try classic coastal/ocean starts; if a region can't satisfy that (common on tighter layouts), fall back to any valid land tile in-region instead of ending the game at turn 0. (GPT-5.3-Codex) -->
++			for bRequireCoastal in (True, False):
++				# Loop through best areas in this region
++				for areaLoop in range(iNumAreas):
++					areaID = area_list[areaLoop]
++					player = gc.getPlayer(playerID)
++					player.AI_updateFoundValues(True)
++					iRange = player.startingPlotRange()
++					validFn = None
++					# Loop through all plots in the region.
++					for iX in range(westX, eastX + 1):
++						for iY in range(southY, northY + 1):
++							pPlot = map.plot(iX, iY)
++							if pPlot.isWater(): continue
++							if bRequireCoastal and not pPlot.isCoastalLand(): continue
++							if areaID != pPlot.getArea(): continue
++							if validFn != None and not validFn(playerID, iX, iY): continue
++							val = pPlot.getFoundValue(playerID)
++							if val > iBestValue:
++								valid = True
++								for invalid in min_dist:
++									[invalidX, invalidY] = invalid
++									if abs(invalidX - iX) < minX and abs(invalidY - iY) < minY:
++										valid = False
++										break
++								if valid and bRequireCoastal:
++									oceanside = False
++									for ocean in oceans:
++										if pPlot.isAdjacentToArea(ocean):
++											oceanside = True
++											break
++									if not oceanside:
++										valid = False # Not valid unless adjacent to an ocean!
++								if valid:
++									for iI in range(gc.getMAX_CIV_PLAYERS()):
++										if (gc.getPlayer(iI).isAlive()):
++											if (iI != playerID):
++												if gc.getPlayer(iI).startingPlotWithinRange(pPlot, playerID, iRange, iPass):
++													valid = False
++													break
++								if valid:
++									iBestValue = val
++									pBestPlot = pPlot
++
++					if pBestPlot != None:
++						min_dist.append([pBestPlot.getX(), pBestPlot.getY()])
++						sPlot = map.plot(pBestPlot.getX(), pBestPlot.getY())
++						plrID = gc.getPlayer(playerID)
++						plrID.setStartingPlot(sPlot, true)
++						break # Valid start found, stop checking areas and plots.
++					else: pass # This area too close to somebody, try the next area.
++				if pBestPlot != None:
++					break
++			
++			# Check to see if a valid start was found in ANY areaID.
++			if pBestPlot == None:
++				print "player", playerID, "pass", iPass, "failed"
++				iPass += 1
++				if iPass <= max(player.startingPlotRange() + eastX - westX, player.startingPlotRange() + northY - southY):
++					continue
++				else: # Hard fallback: force any valid land plot in this region.
++					for iX in range(westX, eastX + 1):
++						for iY in range(southY, northY + 1):
++							pPlot = map.plot(iX, iY)
++							if pPlot.isWater(): continue
++							if pPlot.isPeak(): continue
++							if pPlot.isImpassable(): continue
++							pBestPlot = pPlot
++							break
++						if pBestPlot != None:
++							break
++					if pBestPlot == None:
++						# Last-resort global fallback (should never happen on this script).
++						for iX in range(iW):
++							for iY in range(iH):
++								pPlot = map.plot(iX, iY)
++								if pPlot.isWater(): continue
++								if pPlot.isPeak(): continue
++								if pPlot.isImpassable(): continue
++								pBestPlot = pPlot
++								break
++							if pBestPlot != None:
++								break
++					if pBestPlot == None:
++						print "---"
++						print "A region has failed"
++						print "---"
++						CyPythonMgr().allowDefaultImpl()
++						return
++					min_dist.append([pBestPlot.getX(), pBestPlot.getY()])
++					sPlot = map.plot(pBestPlot.getX(), pBestPlot.getY())
++					plrID = gc.getPlayer(playerID)
++					plrID.setStartingPlot(sPlot, true)
++					break
++			else: break # This player has been assigned a start plot.
++			
++	# Successfully assigned start plots, continue back to C++
++	return None
++	
++def normalizeRemovePeaks():
++	return None
++
++def normalizeAddExtras():
++	gc = CyGlobalContext()
++	map = CyMap()
++	iW = map.getGridWidth()
++	iH = map.getGridHeight()
++	if not globals().has_key("region_coords"):
++		beforeGeneration()
++		if not globals().has_key("region_coords"):
++			CyPythonMgr().allowDefaultImpl()
++			return None
++	global region_coords
++	global regionWidth
++	global regionHeight
++	forest = getInfoTypeOrFail("FEATURE_FOREST")
++	ice = getInfoTypeOrFail("FEATURE_ICE")
++	grass = getInfoTypeOrFail("TERRAIN_GRASS")
++	plains = getInfoTypeOrFail("TERRAIN_PLAINS")
++	desert = getInfoTypeOrFail("TERRAIN_DESERT")
++	ocean = getInfoTypeOrFail("TERRAIN_OCEAN")
++	regMask = []
++	regMask = [0] * (iW*iH)
++
++	# Find starting location with a river and the most land around, preferably with most rivers
++	best = 0
++	player0 = 0
++	for i in range(0,gc.getMAX_CIV_PLAYERS()):
++		if gc.getPlayer(i).isAlive():
++			start_plot = gc.getPlayer(i).getStartingPlot()
++			startx, starty = start_plot.getX(), start_plot.getY()
++			quality = 0
++			if start_plot.isRiver():
++				quality = 100
++			for dx in range(-3,4):
++				for dy in range(-3,4):
++					if dx*dx + dy*dy < 13:
++						p = map.plot(startx+dx,starty+dy)
++						if not p.isNone():
++							if (not p.isImpassable()) and (not p.isWater()):
++								quality += 1
++								if p.isRiver():
++									quality += 1
++			if quality > best:
++				best = quality
++				player0 = i
++
++	start_plot = gc.getPlayer(player0).getStartingPlot() 
++	startx0, starty0 = start_plot.getX(), start_plot.getY()
++
++	# find region by location
++	westX0, eastX0, southY0, northY0 = 0,1,0,1
++	for reg in range(len(region_coords)):
++		[westX0, eastX0, southY0, northY0] = region_coords[reg]
++		if (startx0 >= westX0) and (startx0 <= eastX0) and (starty0 >= southY0) and (starty0 <= northY0):
++			eastX0 = westX0 + regionWidth - 1
++			northY0 = southY0 + regionHeight - 1
++			break
++	# mask region
++	for x in range(westX0,eastX0+1):
++		for y in range(southY0,northY0+1):
++			regMask[y*iW + x] = 1
++
++	if (CyMap().getCustomMapOption(1) == 1):
++		balancer.normalizeAddExtras()
++	if (CyMap().getCustomMapOption(1) == 2):
++		# these are randomly dropped within the city limits on 1st pass:
++		resourcesInCity = (getInfoTypeOrFail("BONUS_GOLD"), getInfoTypeOrFail("BONUS_GEMSTONES"), getInfoTypeOrFail("BONUS_MAIZE"), getInfoTypeOrFail("BONUS_PIG"), getInfoTypeOrFail("BONUS_RICE"), getInfoTypeOrFail("BONUS_SHEEP"), getInfoTypeOrFail("BONUS_WHEAT"), getInfoTypeOrFail("BONUS_DEER"), getInfoTypeOrFail("BONUS_BANANA"), getInfoTypeOrFail("BONUS_FISH"), getInfoTypeOrFail("BONUS_MOLLUSCS"), getInfoTypeOrFail("BONUS_CRAB"))
++		# these are randomly dropped within 2 culture expansions around the city on 2nd pass:
++		resourcesNearCity = (getInfoTypeOrFail("BONUS_COPPER"), getInfoTypeOrFail("BONUS_IRON"), getInfoTypeOrFail("BONUS_HORSE"), getInfoTypeOrFail("BONUS_STONE"), getInfoTypeOrFail("BONUS_MARBLE"), getInfoTypeOrFail("BONUS_ELEPHANTS"), getInfoTypeOrFail("BONUS_OIL"), getInfoTypeOrFail("BONUS_ALUMINUM"), getInfoTypeOrFail("BONUS_COAL"), getInfoTypeOrFail("BONUS_URANIUM"))
++		# these are forcibly added on 3rd pass. only supports land-based resources
++		resourcesMustHave = (getInfoTypeOrFail("BONUS_IRON"), getInfoTypeOrFail("BONUS_OIL"), getInfoTypeOrFail("BONUS_ALUMINUM"))
++
++		random.seed(gc.getGame().getMapRand().get(30000, "Shuffle Plots and Bonuses - PYTHON"))
++
++		# Build a list of bonuses
++		bonuses = []
++		for bonus in range(gc.getNumBonusInfos()):
++			bonuses += [bonus]
++		random.shuffle(bonuses) # place bonuses in random order
++
++		# Build a list of plots around the city
++		plots_city = [] # plots within the city radius
++		plots_near = [] # plots within 2 culture expansions
++		for dx in range(-3,4):
++			for dy in range(-3,4):
++				dd = dx*dx + dy*dy
++				if (dd > 0) and (dd < 13):
++					# check that the tile is in the same region!
++					if (startx0+dx >= westX0) and (startx0+dx <= eastX0) and (starty0+dy >= southY0) and (starty0+dy <= northY0):
++						p = map.plot(startx0+dx,starty0+dy)
++						if not p.isNone():
++							plots_near.append(p)
++							if dd < 8:
++								plots_city.append(p)
++		random.shuffle(plots_city) # try plots in random order
++		random.shuffle(plots_near)
++
++		# Prepare: remove all existing listed bonuses from the area
++		for p in plots_near:
++			bonus = p.getBonusType(-1)
++			if bonus != BonusTypes.NO_BONUS:
++				if (bonus in resourcesInCity) or (bonus in resourcesNearCity):
++					p.setBonusType(BonusTypes.NO_BONUS)
++
++		# 1st pass: place bonuses within the city radius
++		for bonus in bonuses:
++			if bonus in resourcesInCity:
++				for p in plots_city:
++					if p.canHaveBonus(bonus, True):
++						p.setBonusType(bonus)
++						break
++
++		# 2nd pass: place bonuses nearby
++		for bonus in bonuses:
++			if bonus in resourcesNearCity:
++				for p in plots_near:
++					if p.canHaveBonus(bonus, True):
++						p.setBonusType(bonus)
++						break
++
++		# 3rd pass: forcibly place the "must have" bonuses
++		iPlot = 0
++		for bonus in bonuses:
++			bInfo = gc.getBonusInfo(bonus)
++			if bonus in resourcesMustHave:
++				have_it = false
++				for p in plots_near:
++					if p.getBonusType(-1) == bonus:
++						have_it = True
++						break
++				if not have_it:
++					# <!-- custom: Guard against empty/exhausted plots_near on large/high-player setups; without this bound check, must-have bonus placement can index past the list and crash map generation. (GPT-5.3-Codex) -->
++					while (iPlot < len(plots_near)) and plots_near[iPlot].isWater():
++						iPlot += 1
++					if iPlot >= len(plots_near):
++						break
++					p = plots_near[iPlot]
++					if bInfo.isFlatlands() or not bInfo.isHills():
++						p.setPlotType(PlotTypes.PLOT_LAND, True, True)
++					elif bInfo.isHills():
++						p.setPlotType(PlotTypes.PLOT_HILLS, True, True)
++					if not bInfo.isTerrain(p.getTerrainType()):
++						tryTerrain = grass
++						if not bInfo.isTerrain(tryTerrain):
++							tryTerrain = plains
++							if not bInfo.isTerrain(tryTerrain):
++								tryTerrain = desert
++						p.setTerrainType(tryTerrain, True, True)
++					p.setFeatureType(FeatureTypes.NO_FEATURE, -1)
++					p.setBonusType(bonus)
++					iPlot += 1
++
++		# 4th pass: fill any unused plots with forests
++		for p in plots_near:
++			if (p.getBonusType(-1) == BonusTypes.NO_BONUS) and (p.getFeatureType() == FeatureTypes.NO_FEATURE) and p.canHaveFeature(forest):
++				p.setFeatureType(forest, -1)
++
++	# Copy the best starting location to everybody else (entire region)
++	for i in range(0,gc.getMAX_CIV_PLAYERS()):
++		if (i != player0) and gc.getPlayer(i).isAlive():
++
++			start_plot = gc.getPlayer(i).getStartingPlot()
++			startx, starty = start_plot.getX(), start_plot.getY()
++
++			# find region by location
++			westX, eastX, southY, northY = 0,1,0,1
++			dx = 0
++			dy = 0
++			for reg in range(len(region_coords)):
++				[westX, eastX, southY, northY] = region_coords[reg]
++				if (startx >= westX) and (startx <= eastX) and (starty >= southY) and (starty <= northY):
++					eastX = westX + regionWidth - 1
++					northY = southY + regionHeight - 1
++					dx = westX - westX0
++					dy = southY - southY0
++					break
++			# mask region
++			for x in range(westX,eastX+1):
++				for y in range(southY,northY+1):
++					regMask[y*iW + x] = 1
++
++			# copy land
++			for x in range(westX0,eastX0+1):
++				for y in range(southY0,northY0+1):
++					p0 = map.plot(x,y)
++					p = map.plot(x+dx,y+dy)
++					if (not p0.isNone()) and (not p.isNone()):
++						p.setPlotType(p0.getPlotType(), True, True)
++						p.setTerrainType(p0.getTerrainType(), True, True)
++						p.setBonusType(p0.getBonusType(-1))
++						p.setImprovementType(p0.getImprovementType())
++						# don't change ice
++						if p.getFeatureType() != ice:
++							f0 = p0.getFeatureType()
++							if f0 != ice:
++								p.setFeatureType(f0, -1)
++
++			# copy rivers after land, otherwise river crossing counts might be set wrong
++			for x in range(westX0,eastX0+1):
++				for y in range(southY0,northY0+1):
++					p0 = map.plot(x,y)
++					p = map.plot(x+dx,y+dy)
++					if (not p0.isNone()) and (not p.isNone()):
++						p.setNOfRiver(p0.isNOfRiver(), p0.getRiverWEDirection())
++						p.setWOfRiver(p0.isWOfRiver(), p0.getRiverNSDirection())
++
++			# move starting location
++			start_plot = map.plot(startx0+dx, starty0+dy)
++			gc.getPlayer(i).setStartingPlot(start_plot, True)
++
++	# Clear everything outside of the used regions
++	for x in range(iW):
++		for y in range(iH):
++			if regMask[y*iW + x] == 0:
++				map.plot(x,y).setBonusType(BonusTypes.NO_BONUS)
++
++	return None
++
++def addBonusType(argsList):
++	[iBonusType] = argsList
++
++	if (CyMap().getCustomMapOption(1) == 1):
++		if iBonusType in _getBalancerBonusTypeIDs():
++			return None # don't place any of this bonus randomly
++		
++	CyPythonMgr().allowDefaultImpl() # pretend we didn't implement this method, and let C handle this bonus in the default way
++
++def startHumansOnSameTile():
++	return True
++
+
+diff --git a/PrivateMaps/Fantasy_Realm.py b/PrivateMaps/Fantasy_Realm.py
+index 75ed5fa87..601260636 100644
+--- a/PrivateMaps/Fantasy_Realm.py
++++ b/PrivateMaps/Fantasy_Realm.py
+@@ -1,4 +1,4 @@
+-#
++﻿#
+ #	FILE:	 Fantasy_Realm.py
+ #	AUTHOR:  Bob Thomas (Sirian)
+ #	PURPOSE: Regional map script - Fantastical terrain, X and Y Wrap
+@@ -130,12 +130,12 @@ def beforeGeneration():
+ 		return
+ 	
+ 	# Set up "Crazy" resources.
+-	food_list = ['BONUS_BANANA', 'BONUS_CORN', 'BONUS_PIG', 'BONUS_RICE', 'BONUS_SHEEP', 'BONUS_WHEAT']
+-	luxury_list = ['BONUS_GEMS', 'BONUS_GOLD', 'BONUS_INCENSE', 'BONUS_SILK', 'BONUS_SILVER', 'BONUS_WINE']
+-	strategic_list = ['BONUS_COPPER', 'BONUS_HORSE', 'BONUS_IRON', 'BONUS_IVORY', 'BONUS_MARBLE', 'BONUS_STONE']
+-	late_list = ['BONUS_ALUMINUM', 'BONUS_COAL', 'BONUS_OIL', 'BONUS_URANIUM']
+-	sea_list = ['BONUS_CLAM', 'BONUS_CRAB', 'BONUS_FISH', 'BONUS_WHALE']
+-	leftovers_list = ['BONUS_DYE', 'BONUS_FUR', 'BONUS_SPICES', 'BONUS_SUGAR', 'BONUS_COW', 'BONUS_DEER']
++		food_list = ["BONUS_BANANA", "BONUS_MAIZE", "BONUS_PIG", "BONUS_RICE", "BONUS_SHEEP", "BONUS_WHEAT"]
++		luxury_list = ["BONUS_GEMSTONES", "BONUS_GOLD", "BONUS_INCENSE", "BONUS_SILK", "BONUS_SILVER", "BONUS_GRAPES"]
++		strategic_list = ["BONUS_COPPER", "BONUS_HORSE", "BONUS_IRON", "BONUS_ELEPHANTS", "BONUS_MARBLE", "BONUS_STONE"]
++		late_list = ["BONUS_ALUMINUM", "BONUS_COAL", "BONUS_OIL", "BONUS_URANIUM"]
++		sea_list = ["BONUS_MOLLUSCS", "BONUS_CRAB", "BONUS_FISH", "BONUS_WHALE"]
++		leftovers_list = ["BONUS_DYE", "BONUS_FUR", "BONUS_SPICES", "BONUS_SUGAR", "BONUS_CATTLE", "BONUS_DEER"]
+ 
+ 	# Choose the four "Crazy" resources.
+ 	gc = CyGlobalContext()
+@@ -412,19 +412,19 @@ def addFeatures():
+ 	return 0
+ 
+ # Init bonus lists.
+-forcePlacementOnFlats = ('BONUS_GOLD', 'BONUS_SILVER', 'BONUS_COAL', 'BONUS_ALUMINUM')
+-forcePlacementOnHills = ('BONUS_BANANA', 'BONUS_RICE', 'BONUS_SUGAR', 'BONUS_OIL')
+-forcePlacementInFloodPlains = ('BONUS_INCENSE')
+-forcePlacementInJungle = ('BONUS_HORSE', 'BONUS_WHEAT')
+-forcePlacementInForest = ('BONUS_GOLD', 'BONUS_SILVER', 'BONUS_COAL', 'BONUS_ALUMINUM')
+-forceNotInGrass = ('BONUS_COW', 'BONUS_CORN', 'BONUS_RICE', 'BONUS_PIG', 'BONUS_IVORY')
+-forceNotInDesert = ('BONUS_OIL', 'BONUS_STONE', 'BONUS_IRON', 'BONUS_COPPER')
+-forceNotInSnow = ('BONUS_SILVER', 'BONUS_DEER', 'BONUS_FUR')
+-forceNotInPlains = ('BONUS_WINE', 'BONUS_SHEEP', 'BONUS_MARBLE', 'BONUS_IVORY')
+-forceNotInJungle = ('BONUS_BANANA', 'BONUS_SUGAR', 'BONUS_DYE', 'BONUS_OIL', 'BONUS_GEMS')
+-forceNotInForest = ('BONUS_DEER', 'BONUS_SILK', 'BONUS_SPICES', 'BONUS_URANIUM')
+-forceNotInFreshWater = ('BONUS_RICE', 'BONUS_CORN', 'BONUS_WHEAT', 'BONUS_SUGAR')
+-seaResources = ('BONUS_CLAM', 'BONUS_CRAB', 'BONUS_FISH', 'BONUS_WHALE')
++forcePlacementOnFlats = ("BONUS_GOLD", "BONUS_SILVER", "BONUS_COAL", "BONUS_ALUMINUM")
++forcePlacementOnHills = ("BONUS_BANANA", "BONUS_RICE", "BONUS_SUGAR", "BONUS_OIL")
++forcePlacementInFloodPlains = ("BONUS_INCENSE")
++forcePlacementInJungle = ("BONUS_HORSE", "BONUS_WHEAT")
++forcePlacementInForest = ("BONUS_GOLD", "BONUS_SILVER", "BONUS_COAL", "BONUS_ALUMINUM")
++forceNotInGrass = ("BONUS_CATTLE", "BONUS_MAIZE", "BONUS_RICE", "BONUS_PIG", "BONUS_ELEPHANTS")
++forceNotInDesert = ("BONUS_OIL", "BONUS_STONE", "BONUS_IRON", "BONUS_COPPER")
++forceNotInSnow = ("BONUS_SILVER", "BONUS_DEER", "BONUS_FUR")
++forceNotInPlains = ("BONUS_GRAPES", "BONUS_SHEEP", "BONUS_MARBLE", "BONUS_ELEPHANTS")
++forceNotInJungle = ("BONUS_BANANA", "BONUS_SUGAR", "BONUS_DYE", "BONUS_OIL", "BONUS_GEMSTONES")
++forceNotInForest = ("BONUS_DEER", "BONUS_SILK", "BONUS_SPICES", "BONUS_URANIUM")
++forceNotInFreshWater = ("BONUS_RICE", "BONUS_MAIZE", "BONUS_WHEAT", "BONUS_SUGAR")
++seaResources = ("BONUS_MOLLUSCS", "BONUS_CRAB", "BONUS_FISH", "BONUS_WHALE")
+ 
+ def addBonusType(argsList):
+ 	[iBonusType] = argsList
+@@ -597,3 +597,4 @@ def normalizeRemoveBadFeatures():
+ 
+ def normalizeAddGoodTerrain():
+ 	return None
++
+
+diff --git a/PrivateMaps/Great_Plains.py b/PrivateMaps/Great_Plains.py
+index 2c47f7fb1..1e3857975 100644
+--- a/PrivateMaps/Great_Plains.py
++++ b/PrivateMaps/Great_Plains.py
+@@ -1,4 +1,4 @@
+-#
++﻿#
+ #	FILE:	 Great_Plains.py
+ #	AUTHOR:  Bob Thomas (Sirian)
+ #	PURPOSE: Regional map script - Great Plains, North America
+@@ -578,35 +578,35 @@ def normalizeAddExtras():
+ # Sirian's "Sahara Regional Bonus Placement" system.
+ 
+ # Init all bonuses. This is your master key.
+-resourcesInRockies = ('BONUS_ALUMINUM', 'BONUS_FUR', 'BONUS_GOLD',
+-                      'BONUS_SILVER', 'BONUS_SHEEP', 'BONUS_DEER',
+-                      'BONUS_URANIUM', 'BONUS_HORSE', 'BONUS_DYE')
+-resourcesInPlains = ('BONUS_HORSE', 'BONUS_GEMS', 'BONUS_SPICES')
+-resourcesInEast = ('BONUS_CORN', 'BONUS_FUR', 'BONUS_DEER', 'BONUS_PIG',
+-                   'BONUS_MARBLE', 'BONUS_SUGAR', 'BONUS_SPICES', 'BONUS_HORSE')
+-resourcesInSW = ('BONUS_INCENSE', 'BONUS_SILVER')
+-resourcesInNorth = ('BONUS_WHEAT', 'BONUS_WINE')
+-resourcesInTexas = ('BONUS_OIL')
+-resourcesInGulf = ('BONUS_CLAM', 'BONUS_FISH')
+-buffalo = ('BONUS_COW')
+-swCorn = ('BONUS_CORN')
+-rockyDyes = ('BONUS_DYE')
+-
+-resourcesToEliminate = ('BONUS_RICE', 'BONUS_WHALE', 'BONUS_SILK',
+-                        'BONUS_BANANA', 'BONUS_IVORY')
+-resourcesHandledByDefault = ('BONUS_IRON', 'BONUS_COPPER', 'BONUS_COAL', 'BONUS_STONE')
+-
+-resourcesToForce = ('BONUS_FUR', 'BONUS_GEMS', 'BONUS_SILVER',
+-                    'BONUS_DEER', 'BONUS_SHEEP', 'BONUS_OIL',
+-                    'BONUS_URANIUM', 'BONUS_SPICES', 'BONUS_DYE')
+-forcePlacementOnFlats = ('BONUS_FUR', 'BONUS_DEER', 'BONUS_SPICES', 'BONUS_OIL')
+-forcePlacementOnHills = ('BONUS_SHEEP', 'BONUS_SILVER', 'BONUS_GEMS', 'BONUS_URANIUM')
+-forceRarity = ('BONUS_MARBLE', 'BONUS_GEMS', 'BONUS_DYE',
+-               'BONUS_INCENSE', 'BONUS_SUGAR')
+-forceAbundance = ('BONUS_SILVER', 'BONUS_FUR', 'BONUS_CORN',
+-                  'BONUS_HORSE', 'BONUS_WHEAT')
+-forceNoRarity = ('BONUS_ALUMINUM', 'BONUS_GOLD', 'BONUS_URANIUM',
+-                 'BONUS_SHEEP', 'BONUS_DEER')
++resourcesInRockies = ("BONUS_ALUMINUM", "BONUS_FUR", "BONUS_GOLD",
++                      "BONUS_SILVER", "BONUS_SHEEP", "BONUS_DEER",
++                      "BONUS_URANIUM", "BONUS_HORSE", "BONUS_DYE")
++resourcesInPlains = ("BONUS_HORSE", "BONUS_GEMSTONES", "BONUS_SPICES")
++resourcesInEast = ("BONUS_MAIZE", "BONUS_FUR", "BONUS_DEER", "BONUS_PIG",
++                   "BONUS_MARBLE", "BONUS_SUGAR", "BONUS_SPICES", "BONUS_HORSE")
++resourcesInSW = ("BONUS_INCENSE", "BONUS_SILVER")
++resourcesInNorth = ("BONUS_WHEAT", "BONUS_GRAPES")
++resourcesInTexas = ("BONUS_OIL")
++resourcesInGulf = ("BONUS_MOLLUSCS", "BONUS_FISH")
++buffalo = ("BONUS_CATTLE")
++swCorn = ("BONUS_MAIZE")
++rockyDyes = ("BONUS_DYE")
++
++resourcesToEliminate = ("BONUS_RICE", "BONUS_WHALE", "BONUS_SILK",
++                        "BONUS_BANANA", "BONUS_ELEPHANTS")
++resourcesHandledByDefault = ("BONUS_IRON", "BONUS_COPPER", "BONUS_COAL", "BONUS_STONE")
++
++resourcesToForce = ("BONUS_FUR", "BONUS_GEMSTONES", "BONUS_SILVER",
++                    "BONUS_DEER", "BONUS_SHEEP", "BONUS_OIL",
++                    "BONUS_URANIUM", "BONUS_SPICES", "BONUS_DYE")
++forcePlacementOnFlats = ("BONUS_FUR", "BONUS_DEER", "BONUS_SPICES", "BONUS_OIL")
++forcePlacementOnHills = ("BONUS_SHEEP", "BONUS_SILVER", "BONUS_GEMSTONES", "BONUS_URANIUM")
++forceRarity = ("BONUS_MARBLE", "BONUS_GEMSTONES", "BONUS_DYE",
++               "BONUS_INCENSE", "BONUS_SUGAR")
++forceAbundance = ("BONUS_SILVER", "BONUS_FUR", "BONUS_MAIZE",
++                  "BONUS_HORSE", "BONUS_WHEAT")
++forceNoRarity = ("BONUS_ALUMINUM", "BONUS_GOLD", "BONUS_URANIUM",
++                 "BONUS_SHEEP", "BONUS_DEER")
+ 
+ def addBonusType(argsList):
+ 	[iBonusType] = argsList
+@@ -1006,3 +1006,4 @@ def getRiverAltitude(argsList):
+ 	if y > 0.3 * iH:
+ 		return int((iW - x) * 0.38) - (y * 0.1)
+ 	return int(((iW - x) * 0.38) + (y * 0.1))
++
+
+diff --git a/PrivateMaps/Lakes.py b/PrivateMaps/Lakes.py
+index 59e9849ed..a62e1918e 100644
+--- a/PrivateMaps/Lakes.py
++++ b/PrivateMaps/Lakes.py
+@@ -30,8 +30,8 @@ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_LAKES_DESCR"
+ 
+ def isAdvancedMap():
+-	"This map should show up in simple mode"
+-	return 0
++	"This map should not show up in simple mode"
++	return 1
+ 
+ def getNumCustomMapOptions():
+ 	return 2
+
+diff --git a/PrivateMaps/Oasis.py b/PrivateMaps/Oasis.py
+index 87f55e0d2..6715c71af 100644
+--- a/PrivateMaps/Oasis.py
++++ b/PrivateMaps/Oasis.py
+@@ -1,4 +1,4 @@
+-#
++﻿#
+ #	FILE:	 Oasis.py
+ #	AUTHOR:  Bob Thomas (Sirian)
+ #	PURPOSE: Regional map script - Desert region between two fertile bands.
+@@ -642,22 +642,22 @@ up to the end of development.
+ '''
+ 
+ # Init all bonuses. This is your master key.
+-resourcesInOasis = ('BONUS_ALUMINUM', 'BONUS_IRON', 'BONUS_OIL', 'BONUS_STONE',
+-                     'BONUS_GOLD', 'BONUS_INCENSE', 'BONUS_IVORY')
+-resourcesInNorth = ('BONUS_HORSE', 'BONUS_MARBLE', 'BONUS_FUR', 'BONUS_SILVER',
+-                    'BONUS_SPICES', 'BONUS_WINE', 'BONUS_WHALE', 'BONUS_CLAM',
+-                    'BONUS_CRAB', 'BONUS_FISH', 'BONUS_SHEEP', 'BONUS_WHEAT')
+-resourcesInSouth = ('BONUS_DYE', 'BONUS_FUR', 'BONUS_GEMS', 'BONUS_SILK', 'BONUS_SUGAR',
+-                    'BONUS_BANANA', 'BONUS_DEER', 'BONUS_PIG', 'BONUS_RICE')
++resourcesInOasis = ("BONUS_ALUMINUM", "BONUS_IRON", "BONUS_OIL", "BONUS_STONE",
++                     "BONUS_GOLD", "BONUS_INCENSE", "BONUS_ELEPHANTS")
++resourcesInNorth = ("BONUS_HORSE", "BONUS_MARBLE", "BONUS_FUR", "BONUS_SILVER",
++                    "BONUS_SPICES", "BONUS_GRAPES", "BONUS_WHALE", "BONUS_MOLLUSCS",
++                    "BONUS_CRAB", "BONUS_FISH", "BONUS_SHEEP", "BONUS_WHEAT")
++resourcesInSouth = ("BONUS_DYE", "BONUS_FUR", "BONUS_GEMSTONES", "BONUS_SILK", "BONUS_SUGAR",
++                    "BONUS_BANANA", "BONUS_DEER", "BONUS_PIG", "BONUS_RICE")
+ resourcesToEliminate = ()
+ 
+-resourcesToForce = ('BONUS_FUR', 'BONUS_SILVER', 'BONUS_DEER')
+-forcePlacementInForest = ('BONUS_FUR')
+-forcePlacementOnGrass = ('BONUS_DEER')
+-forcePlacementOnHills = ('BONUS_SILVER')
+-forceRarity = ('BONUS_SILK', 'BONUS_WHALE')
+-forceAbundance = ('BONUS_FUR', 'BONUS_IRON', 'BONUS_IVORY', 'BONUS_HORSE', 'BONUS_OIL')
+-oasisCorn = ('BONUS_CORN')
++resourcesToForce = ("BONUS_FUR", "BONUS_SILVER", "BONUS_DEER")
++forcePlacementInForest = ("BONUS_FUR")
++forcePlacementOnGrass = ("BONUS_DEER")
++forcePlacementOnHills = ("BONUS_SILVER")
++forceRarity = ("BONUS_SILK", "BONUS_WHALE")
++forceAbundance = ("BONUS_FUR", "BONUS_IRON", "BONUS_ELEPHANTS", "BONUS_HORSE", "BONUS_OIL")
++oasisCorn = ("BONUS_MAIZE")
+ 
+ def addBonusType(argsList):
+ 	[iBonusType] = argsList
+@@ -970,3 +970,4 @@ def addRivers():
+ 		addNileStyleRiverFlowingNorth(center, maxshift, startX, startY, 5)
+ 	
+ 	return 0
++
+
+diff --git a/PrivateMaps/Rainforest.py b/PrivateMaps/Rainforest.py
+index 3da3423f8..6c11550bf 100644
+--- a/PrivateMaps/Rainforest.py
++++ b/PrivateMaps/Rainforest.py
+@@ -1,4 +1,4 @@
+-#
++﻿#
+ #	FILE:	 Rainforest.py
+ #	AUTHOR:  Bob Thomas (Sirian)
+ #	PURPOSE: Regional map script - Tropical rainforest
+@@ -554,19 +554,19 @@ def normalizeAddExtras():
+ # Sirian's "Sahara Regional Bonus Placement" system.
+ 
+ # Init all bonuses. This is your master key.
+-resourcesToEliminate = ('BONUS_WHALE', 'BONUS_CLAM', 'BONUS_FISH', 'BONUS_CRAB')
++resourcesToEliminate = ("BONUS_WHALE", "BONUS_MOLLUSCS", "BONUS_FISH", "BONUS_CRAB")
+ 
+-jungleFood = ('BONUS_BANANA', 'BONUS_PIG', 'BONUS_RICE')
+-banana = ('BONUS_BANANA')
+-pig = ('BONUS_PIG')
+-rice = ('BONUS_RICE')
++jungleFood = ("BONUS_BANANA", "BONUS_PIG", "BONUS_RICE")
++banana = ("BONUS_BANANA")
++pig = ("BONUS_PIG")
++rice = ("BONUS_RICE")
+ 
+-resourcesToForce = ('BONUS_FUR', 'BONUS_SILVER', 'BONUS_DEER')
+-forcePlacementOnFlats = ('BONUS_FUR', 'BONUS_DEER')
+-forcePlacementOnHills = ('BONUS_SILVER')
++resourcesToForce = ("BONUS_FUR", "BONUS_SILVER", "BONUS_DEER")
++forcePlacementOnFlats = ("BONUS_FUR", "BONUS_DEER")
++forcePlacementOnHills = ("BONUS_SILVER")
+ 
+ def addBonusType(argsList):
+-	print('*******')
++	print("*******")
+ 	[iBonusType] = argsList
+ 	gc = CyGlobalContext()
+ 	map = CyMap()
+@@ -574,12 +574,12 @@ def addBonusType(argsList):
+ 	type_string = gc.getBonusInfo(iBonusType).getType()
+ 
+ 	if (type_string in resourcesToEliminate):
+-		print('-NONE-', type_string, '-NONE-')
++		print("-NONE-", type_string, "-NONE-")
+ 		return None # These bonus types will not appear, at all.
+ 	elif not ((type_string in resourcesToForce) or (type_string in jungleFood)):
+ 		CyPythonMgr().allowDefaultImpl() # Let C handle this bonus in the default way.
+ 	else: # Current bonus type is custom-handled. Assignments to follow.
+-		print('+++', type_string, '+++')
++		print("+++", type_string, "+++")
+ 		iW = map.getGridWidth()
+ 		iH = map.getGridHeight()
+ 
+@@ -594,7 +594,7 @@ def addBonusType(argsList):
+ 		# Generate jungle food
+ 		# Note: any fractal assignment of bonuses, like this one, must come before determining the count for forced bonuses.
+ 		if (type_string in jungleFood):
+-			print('---', type_string, '---')
++			print("---", type_string, "---")
+ 			global food
+ 			NiTextOut("Placing Jungle Food (Jungle Food - Python Rainforest) ...")
+ 			iRiceBottom = food.getHeightFromPercent(24)
+@@ -678,3 +678,4 @@ def addBonusType(argsList):
+ 		# This bonus type is done.
+ 
+ 		return None
++
+
+diff --git a/README.md b/README.md
+index 52c0159ae..891a56299 100644
+--- a/README.md
++++ b/README.md
+@@ -565,7 +565,6 @@ Trick: by having the view box in a water or snow zone you can edit it later and
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG" alt="0.3201_maps_simple_game (6).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG" alt="0.3201_maps_simple_game (7).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG" alt="0.3201_maps_simple_game (8).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG" alt="0.3201_maps_simple_game (9).JPG" width="250"></img>
+ 
+ ## Change from short to int the Found value pipeline
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 764902bce..eff87c953 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -102,6 +102,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 5429+) **Launch guard for SAS defines (startup/load/Sevopedia):** Added a strict define-integrity check using one **int sentinel** and one **string sentinel**, validated at pre-game start, game start, save load, Sevopedia creation, and Sevopedia show. If a value is missing or mismatched, Python raises a **fatal error** with `actual` vs `expected` values and guidance to launch from a Windows shortcut. The game will be **unplayable if the config is incorrect**. Change in: [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py). See also [Quick Install Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop).
+ - (Requires AdvCiv-SAS 5442+) **Fail-fast XML lookup hardening:** replaced `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values.
+ - **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
++- (Requires AdvCiv-SAS 5452+) Convert **single quote to double quote** (e.g. `'BONUS_IRON'` to `"BONUS_IRON"`), which allowed to **detect and fix incorrect fields** and later strengthen them with `getInfoTypeOrFail(...)`.
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+ - **Found-value** evaluation now uses **`int`** end-to-end (CitySiteEvaluator, AIFoundValue, CvPlot cache, SPI, Python callback), **not `short`**. Why: **avoid overflow/underflow** and short wraparounds in site scoring; keep the logic the same while **improving reliability**. Expectation: more robust site values, fewer edge-case penalties/boosts from short overflow; no known negative gameplay change. Performance: `int` is typically at least as fast as short on modern CPUs; no slowdown expected. Tested: autoplay ran fine. See [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline).
+ - Removed the old clunky Base AdvCiv's `CONCEPT_TRAIT` XML clutter. Now using the more efficient `WIDGET_PYTHON` similarly instead.
+@@ -352,11 +353,11 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5433+) **Earth2 start distribution rework:** for Huge and beyond world sizes, keep Earth2 at its existing **Huge-scale sizing** (already large enough), but solve crowding by **populating underused landmasses instead** (e.g., min 16 players before Africa is populated, min 32 players before the whole world is populated) of enlarging the script further. **Thresholds are based on player count** (not world size). See [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ - (Requires AdvCiv-SAS 5444+) Add **Deer percentage map option** (e.g., `0/10/25/50/75/100`) for [Arboria.py](/PrivateMaps/Arboria.py) and [Boreal.py](/PrivateMaps/Boreal.py): **high-food terrain** (e.g. grass) maps like Arboria, or **lower-food terrain** ones (e.g. tundra/plains) like Boreal, had **too much deer**. See also See [KI#105](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#105---fixed-base-advciv-bug-of-most-bonuses-eg-deer-sometimes-not-appearing-at-first-civ4-launch-in-some-maps-eg-boreal).
+ - (Requires AdvCiv-SAS 5446+) **Order maps alphabetically** in **Simple Game** or **Custom Game** (by adding missing map scripts in **PrivateMaps**).
+-- (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential or unbalanced; they are remain playable via the **Custom Game** menu: [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py), [Hemispheres.py](/PrivateMaps/Hemispheres.py), [Big_and_Small.py](/PrivateMaps/Big_and_Small.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Oasis.py](/PrivateMaps/Oasis.py).
++- (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential or unbalanced; they are remain playable via the **Custom Game** menu: [Big_and_Small.py](/PrivateMaps/Big_and_Small.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Earth2.py](/PrivateMaps/Earth2.py), [Hemispheres.py](/PrivateMaps/Hemispheres.py), [Lakes.py](/PrivateMaps/Lakes.py) (has too few lakes), [Oasis.py](/PrivateMaps/Oasis.py), [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
+ - (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps so it is more illustrative or accurate than a dark or incorrect globe map. See [Readme.md (New .dds for maps in Simple Game)](/README.md#new-dds-for-maps-in-simple-game) and [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+ - (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) map (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, and expose the map in both **Simple Game** and **Custom Game** lists. (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
+-- (Requires AdvCiv-SAS 5449+) **Add and adapt** [Planet_Generator_0_68.py](/PrivateMaps/Planet_Generator_0_68.py) (from [CFC](https://forums.civfanatics.com/resources/planet-generator-0-68.1817/)): keeps its core behavior (unpredictable continent shapes with balanced continent sizes) while applying AdvCiv-SAS map compatibility changes, notably **world-size percentage scaling**, **removed unneeded options** (map-size override and redundant resources choice), and **bug fixes** (including robust direction handling). Expose the map in both **Simple Game** and **Custom Game** lists.
+-- (Requires AdvCiv-SAS 5445+) **Add other maps** to **Simple Game**: [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Ring.py](/PrivateMaps/Ring.py), [Wheel.py](/PrivateMaps/Wheel.py)
++- (Requires AdvCiv-SAS 5449+) **Add and adapt** [Planet_Generator_0_68.py](/PrivateMaps/Planet_Generator_0_68.py) (from [CFC](https://forums.civfanatics.com/resources/planet-generator-0-68.1817/)): keeps its core behavior (unpredictable continent shapes with balanced continent sizes) while applying AdvCiv-SAS map compatibility changes, notably **world-size percentage scaling**, **removed unneeded options** (map-size override and redundant resources choice), and **bug fixes** (including robust direction handling). Expose the map in both **Simple Game** and **Custom Game** lists. Similarly add [Equal_Islands_V2_beta.py](/PrivateMaps/Equal_Islands_V2_beta.py) (from [CFC](https://forums.civfanatics.com/resources/equal-islands-v2-beta.19405/)).
++- (Requires AdvCiv-SAS 5445+) Make other maps **also appear in Simple Game**: [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Ring.py](/PrivateMaps/Ring.py), [Wheel.py](/PrivateMaps/Wheel.py)
+ 
+ ### Handicaps
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+index 6a3d12e10..b527f99ac 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG
+index d7edf592a..280ddf008 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG
+index dd371921e..9d4aeecdb 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG
+deleted file mode 100644
+index 9d4aeecdb..000000000
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG and /dev/null differ
+
+[PATCH COVERAGE]
+patchFiles=28 embeddedFiles=28 omittedFiles=0 embeddedPatchBytes=77372

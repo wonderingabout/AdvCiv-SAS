@@ -1,0 +1,1400 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5486
+# Commit: 0870e0adc82ecca37f58144f7285a46c46cb7197
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 34d4d7d39242f5824ea69f7524c6995b0901bc76
+# Title: Add SAS_Parallel_Lines.py, update 48 civs DLL - Add quotes in Assets rebalancing
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Maps/SAS_Parallel_Lines/FLAT_SAS_Parallel_Lines.dds
+-	-	Assets/CvGameCoreDLL_48_civs_DLL.dll
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+27	0	Assets/XML/Interface/CIV4WorldPickerInfos.xml
+2	2	PrivateMaps/Boreal.py
+20	7	PrivateMaps/SAS_Large_Facing_Islands.py
+136	12	PrivateMaps/SAS_Longworld.py
+464	0	PrivateMaps/SAS_Parallel_Lines.py
+119	8	PrivateMaps/SAS_Spiky_Avenues.py
+18	5	README.md
+98	0	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (4).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (4).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (4).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (2).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (3).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (4).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Maps/SAS_Parallel_Lines/FLAT_SAS_Parallel_Lines.dds
+ create mode 100644 PrivateMaps/SAS_Parallel_Lines.py
+ delete mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (4).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (4).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (4).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (4).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/SAS_Parallel_Lines/FLAT_SAS_Parallel_Lines.dds b/Assets/Art/AdvCiv_SAS/Maps/SAS_Parallel_Lines/FLAT_SAS_Parallel_Lines.dds
+new file mode 100644
+index 000000000..398a5afa4
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Maps/SAS_Parallel_Lines/FLAT_SAS_Parallel_Lines.dds differ
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_48_civs_DLL.dll b/Assets/CvGameCoreDLL_48_civs_DLL.dll reason=binary/generated-file changedLines=0 bytes=224
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 16c6ae577..5414362ab 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -351,7 +351,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: comma-separated map script names (optional .py/path tolerated) treated as land-heavy by DLL cache (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
+-		<DefineTextVal>aDebugMap,Arboria,Balanced,BTG_Cross,BTG_Grid,BTG_Lagoon,Continents,Custom_Continents,Donut,Earth2,Fractal,Global_Highlands,Hemispheres,Ice_Age,Inland_Sea,Maze,Mixed_Continents,Pangaea,Peirce,Planet_Generator_0_68,Ring,SAS_Longworld,SAS_Spiky_Avenues,Tectonics,Terra,Water,Wheel</DefineTextVal>
++		<DefineTextVal>aDebugMap,Arboria,Balanced,BTG_Cross,BTG_Grid,BTG_Lagoon,Continents,Custom_Continents,Donut,Earth2,Fractal,Global_Highlands,Hemispheres,Ice_Age,Inland_Sea,Maze,Mixed_Continents,Pangaea,Peirce,Planet_Generator_0_68,Ring,SAS_Longworld,SAS_Parallel_Lines,SAS_Spiky_Avenues,Tectonics,Terra,Water,Wheel</DefineTextVal>
+ 	</Define>
+ 	<!-- custom: note: these are about making AI stronger by telling it map land/naval heaviness, which is distinct and as of now unrelated to map grid size adjustments in map scripts (.py files) (e.g., if almost_all_land then reduce grid size to accomodate for no water that causes too wide city spacing if not corrected for it) -->
+ 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
+
+diff --git a/Assets/XML/Interface/CIV4WorldPickerInfos.xml b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+index 680d87edc..6b4e3ca84 100644
+--- a/Assets/XML/Interface/CIV4WorldPickerInfos.xml
++++ b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+@@ -805,6 +805,33 @@
+ 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+ 			</WaterLevelGloss>
+ 		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>SAS_Parallel_Lines</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/SAS_Parallel_Lines/FLAT_SAS_Parallel_Lines.dds</WaterLevelDecalPath>
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
+ 		<WorldPickerInfo>
+ 			<MapName>SAS_Spiky_Avenues</MapName>
+ 			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index 84810ee3b..23030ecec 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -30,8 +30,8 @@ def getDescription():
+ 
+ def isAdvancedMap():
+ 	"This map should not show up in simple mode"
+-	# <!-- custom: keep this at 0 so Boreal appears in Simple Game mode map lists; return 1 hides it from simple mode. (GPT-5.3-Codex (summarized)) -->
+-	return 0
++	# <!-- custom: keep Boreal out of Simple Game by design; return 1 hides it there while keeping the script available in advanced/custom setup. (GPT-5.3-Codex) -->
++	return 1
+ 	
+ def isClimateMap():
+ 	return 0
+
+diff --git a/PrivateMaps/SAS_Large_Facing_Islands.py b/PrivateMaps/SAS_Large_Facing_Islands.py
+index 555e9aaee..c0f750459 100644
+--- a/PrivateMaps/SAS_Large_Facing_Islands.py
++++ b/PrivateMaps/SAS_Large_Facing_Islands.py
+@@ -23,7 +23,7 @@ def getVersion():
+ 
+ 
+ def getDescription():
+-	return "Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough). Island size stays the same on all world sizes and is fairly large. North-South and East-West bands can optionally be set to Coast or Ocean. Supports world sizes up to SAS48. The world revolves horizontally (WrapX on). Inspired by Empire Earth (1) Large Islands, with some ideas adapted from our SAS_Longworld map."
++	return "Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough). Island size stays the same on all world sizes and is fairly large. Supports world sizes up to SAS48. The world revolves horizontally (WrapX on). Inspired by Empire Earth (1) Large Islands, with some ideas adapted from our SAS_Longworld map."
+ 
+ 
+ def isAdvancedMap():
+@@ -32,7 +32,7 @@ def isAdvancedMap():
+ 
+ 
+ def getNumCustomMapOptions():
+-	return 2
++	return 3
+ 
+ 
+ def getNumHiddenCustomMapOptions():
+@@ -43,7 +43,8 @@ def getCustomMapOptionName(argsList):
+ 	[iOption] = argsList
+ 	option_names = {
+ 		0: u"North-South Bands",
+-		1: u"East-West Bands"
++		1: u"East-West Bands",
++		2: u"Revolving World"
+ 	}
+ 	if not option_names.has_key(iOption):
+ 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+@@ -55,7 +56,8 @@ def getNumCustomMapOptionValues(argsList):
+ 	[iOption] = argsList
+ 	option_values = {
+ 		0: 2,
+-		1: 2
++		1: 2,
++		2: 2
+ 	}
+ 	if not option_values.has_key(iOption):
+ 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+@@ -75,6 +77,10 @@ def getCustomMapOptionDescAt(argsList):
+ 		1: {
+ 			0: u"E-W Coast Bands (Recommended)",
+ 			1: u"E-W Ocean Bands"
++		},
++		2: {
++			0: u"WrapX (Recommended)",
++			1: u"None"
+ 		}
+ 	}
+ 	if not selection_names.has_key(iOption):
+@@ -89,7 +95,8 @@ def getCustomMapOptionDefault(argsList):
+ 	[iOption] = argsList
+ 	option_defaults = {
+ 		0: 1,
+-		1: 0
++		1: 0,
++		2: 0
+ 	}
+ 	if not option_defaults.has_key(iOption):
+ 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+@@ -101,7 +108,8 @@ def isRandomCustomMapOption(argsList):
+ 	[iOption] = argsList
+ 	option_random = {
+ 		0: false,
+-		1: false
++		1: false,
++		2: false
+ 	}
+ 	if not option_random.has_key(iOption):
+ 		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
+@@ -110,7 +118,7 @@ def isRandomCustomMapOption(argsList):
+ 
+ 
+ def getWrapX():
+-	return True
++	return _get_wrap_mode() == 0
+ 
+ 
+ def getWrapY():
+@@ -161,6 +169,11 @@ def _get_ns_connector_mode():
+ 	return _get_option_value(0, 1, 2)
+ 
+ 
++def _get_wrap_mode():
++	# 0 = WrapX, 1 = None
++	return _get_option_value(2, 0, 2)
++
++
+ def _get_option_value(iOption, iDefault, iNumValues):
+ 	map_obj = CyMap()
+ 	iValue = iDefault
+
+diff --git a/PrivateMaps/SAS_Longworld.py b/PrivateMaps/SAS_Longworld.py
+index c9a5eb838..d9b1e773a 100644
+--- a/PrivateMaps/SAS_Longworld.py
++++ b/PrivateMaps/SAS_Longworld.py
+@@ -12,6 +12,7 @@
+ from CvPythonExtensions import *
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
++from SAS_WorldSizes import *
+ 
+ 
+ def getVersion():
+@@ -24,12 +25,132 @@ def getDescription():
+ 
+ def isAdvancedMap():
+ 	"This map should show up in Simple Game."
+-	# <!-- custom: No custom map options in this script, so the stale multi-option/Simple Game cache guard is not needed (empirically verified in-game). (GPT-5.3-Codex) -->
++	# <!-- custom: Keep visible in Simple Game; option set is compact and stale-option safe. (GPT-5.3-Codex) -->
+ 	return 0
+ 
+ 
++def getNumCustomMapOptions():
++	return 3
++
++
++def getNumHiddenCustomMapOptions():
++	return 0
++
++
++def getCustomMapOptionName(argsList):
++	[iOption] = argsList
++	option_names = {
++		0: u"LongWorld Height",
++		1: u"Width Per Player",
++		2: u"Revolving World"
++	}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return u"LongWorld Height"
++	return option_names[iOption]
++
++
++def getNumCustomMapOptionValues(argsList):
++	[iOption] = argsList
++	option_values = {
++		0: 6,
++		1: 6,
++		2: 2
++	}
++	if not option_values.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return 3
++	return option_values[iOption]
++
++
++def getCustomMapOptionDescAt(argsList):
++	[iOption, iSelection] = argsList
++	selection_names = {
++		0: {
++			0: u"2 Plots",
++			1: u"3 Plots",
++			2: u"4 Plots (Recommended)",
++			3: u"5 Plots",
++			4: u"6 Plots",
++			5: u"7 Plots"
++		},
++		1: {
++			0: u"10",
++			1: u"11",
++			2: u"12 (Recommended)",
++			3: u"13",
++			4: u"14",
++			5: u"15"
++		},
++		2: {
++			0: u"WrapX (Recommended)",
++			1: u"None"
++		}
++	}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return u"Recommended"
++	if not selection_names[iOption].has_key(iSelection):
++		return selection_names[iOption][0]
++	return selection_names[iOption][iSelection]
++
++
++def getCustomMapOptionDefault(argsList):
++	[iOption] = argsList
++	option_defaults = {
++		0: 2,
++		1: 2,
++		2: 0
++	}
++	if not option_defaults.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return 2
++	return option_defaults[iOption]
++
++
++def isRandomCustomMapOption(argsList):
++	[iOption] = argsList
++	option_random = {
++		0: false,
++		1: false,
++		2: false
++	}
++	if not option_random.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return false
++	return option_random[iOption]
++
++
++def _get_option_value(iOption, iDefault, iNumValues):
++	map_obj = CyMap()
++	iValue = iDefault
++	try:
++		if iOption >= getNumCustomMapOptions():
++			sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++			return iDefault
++		iValue = map_obj.getCustomMapOption(iOption)
++	except:
++		return iDefault
++	if iValue < 0 or iValue >= iNumValues:
++		return iDefault
++	return iValue
++
++
++def _strip_height():
++	iSelection = _get_option_value(0, 2, 6)
++	heights = [2, 3, 4, 5, 6, 7]
++	return heights[iSelection]
++
++
++def _width_per_player():
++	iSelection = _get_option_value(1, 2, 6)
++	widths = [10, 11, 12, 13, 14, 15]
++	return widths[iSelection]
++
++
+ def getWrapX():
+-	return True
++	iWrapMode = _get_option_value(2, 0, 2)
++	return (iWrapMode == 0)
+ 
+ 
+ def getWrapY():
+@@ -50,14 +171,10 @@ def minStartingDistanceModifier():
+ 
+ 
+ def getStripBounds(iH):
+-	# <!-- custom: Keep one connected horizontal land strip, but thicken it on taller maps to avoid overly cramped land. (GPT-5.3-Codex) -->
+-	iBandHeight = 2
+-	if iH >= 8:
+-		iBandHeight = 5
+-	elif iH >= 6:
+-		iBandHeight = 4
+-	elif iH >= 5:
+-		iBandHeight = 3
++	# <!-- custom: Use explicit strip heights for clarity in map options; clamp by map height for very small worlds. (GPT-5.3-Codex) -->
++	iBandHeight = _strip_height()
++	iBandHeight = max(2, iBandHeight)
++	iBandHeight = min(iH - 2, iBandHeight)
+ 
+ 	iTopRow = max(1, (iH / 2) - (iBandHeight / 2))
+ 	iBottomRow = iTopRow + iBandHeight - 1
+@@ -130,19 +247,26 @@ def getGridSize(argsList):
+ 	}
+ 
+ 	[eWorldSize] = argsList
++	fWidthScale = float(_width_per_player()) / 12.0
++	def _scaled_width(iBaseWidth):
++		return max(3, int(float(iBaseWidth) * fWidthScale + 0.5))
++
+ 	if eWorldSize in grid_sizes:
+-		return grid_sizes[eWorldSize]
++		(iBaseWidth, iHeight) = grid_sizes[eWorldSize]
++		return (_scaled_width(iBaseWidth), iHeight)
+ 
+ 	# <!-- custom: For post-Huge SAS sizes, keep long-map height and scale width by default player ratio from Huge anchor. (GPT-5.3-Codex) -->
+ 	gc = CyGlobalContext()
+ 	if eWorldSize > WorldSizeTypes.WORLDSIZE_HUGE and eWorldSize < gc.getNumWorldInfos():
+ 		(iAnchorWidth, iAnchorHeight) = grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
++		iAnchorWidth = _scaled_width(iAnchorWidth)
+ 		iAnchorPlayers = max(1, gc.getWorldInfo(WorldSizeTypes.WORLDSIZE_HUGE).getDefaultPlayers())
+ 		iTargetPlayers = max(1, gc.getWorldInfo(eWorldSize).getDefaultPlayers())
+ 		iTargetWidth = max(iAnchorWidth + 1, int((float(iAnchorWidth) * float(iTargetPlayers)) / float(iAnchorPlayers) + 0.5))
+ 		return (iTargetWidth, iAnchorHeight)
+ 
+-	return grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
++	(iFallbackWidth, iFallbackHeight) = grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
++	return (_scaled_width(iFallbackWidth), iFallbackHeight)
+ 
+ 
+ def generatePlotTypes():
+
+diff --git a/PrivateMaps/SAS_Parallel_Lines.py b/PrivateMaps/SAS_Parallel_Lines.py
+new file mode 100644
+index 000000000..a12830239
+--- /dev/null
++++ b/PrivateMaps/SAS_Parallel_Lines.py
+@@ -0,0 +1,464 @@
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# FILE: SAS_Parallel_Lines.py
++# PURPOSE: Parallel vertical-lines map (wrapX + wrapY) for symmetric multi-line play.
++#
++# AUTHORS: wonderingabout & GPT-5.3-Codex
++# <!-- custom: inspired by SAS_Longworld geometry and startup patterns. (GPT-5.3-Codex) -->
++
++from CvPythonExtensions import *
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++from SAS_WorldSizes import *
++from SASUtils import getInfoTypeOrFail
++
++gc = CyGlobalContext()
++_sas_layout_cache = None
++_sas_start_assignments = {}
++
++
++def getVersion():
++	return "1.00"
++
++
++def getDescription():
++	return "Parallel lines map where the world is optionally (default) connected horizontally (WrapX) and vertically (WrapY). Fixed number of players per line (3 or 4), and height per player. Each land line has an adjacent land line to its left and to its right, separated by a water line. Larger world sizes add more lines."
++
++
++def isAdvancedMap():
++	# <!-- custom: keep visible in Simple Game; options are minimal and practical. (GPT-5.3-Codex) -->
++	return 0
++
++
++def getNumCustomMapOptions():
++	return 5
++
++
++def getNumHiddenCustomMapOptions():
++	return 0
++
++
++def getCustomMapOptionName(argsList):
++	[iOption] = argsList
++	option_names = {
++		0: u"Players Per Line",
++		1: u"Height Per Player",
++		2: u"Inter-Line Bands",
++		3: u"Line Thickness",
++		4: u"Revolving World"
++	}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return u"Players Per Line"
++	return option_names[iOption]
++
++
++def getNumCustomMapOptionValues(argsList):
++	[iOption] = argsList
++	option_values = {
++		0: 2,
++		1: 9,
++		2: 2,
++		3: 5,
++		4: 4
++	}
++	if not option_values.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return 2
++	return option_values[iOption]
++
++
++def getCustomMapOptionDescAt(argsList):
++	[iOption, iSelection] = argsList
++	# <!-- custom: keep labels explicit for screenshots/discussion where option headers may not be visible. (GPT-5.3-Codex) -->
++	selection_names = {
++		0: {
++			0: u"3 Players Per Line (Recommended)",
++			1: u"4 Players Per Line"
++		},
++		1: {
++			0: u"7",
++			1: u"8",
++			2: u"9",
++			3: u"10 (Recommended)",
++			4: u"11",
++			5: u"12",
++			6: u"13",
++			7: u"14",
++			8: u"15"
++		},
++		2: {
++			0: u"Coast Bands (Recommended)",
++			1: u"Ocean Bands"
++		},
++		3: {
++			0: u"3 Plots",
++			1: u"4 Plots",
++			2: u"5 Plots (Recommended)",
++			3: u"6 Plots",
++			4: u"7 Plots"
++		},
++		4: {
++			0: u"WrapX + WrapY (Recommended)",
++			1: u"WrapX Only",
++			2: u"WrapY Only",
++			3: u"None"
++		}
++	}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return u"3 Players Per Line (Recommended)"
++	if not selection_names[iOption].has_key(iSelection):
++		return selection_names[iOption][0]
++	return selection_names[iOption][iSelection]
++
++
++def getCustomMapOptionDefault(argsList):
++	[iOption] = argsList
++	option_defaults = {
++		0: 0,
++		1: 3,
++		2: 0,
++		3: 2,
++		4: 0
++	}
++	if not option_defaults.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return 0
++	return option_defaults[iOption]
++
++
++def isRandomCustomMapOption(argsList):
++	[iOption] = argsList
++	option_random = {
++		0: false,
++		1: false,
++		2: false,
++		3: false,
++		4: false
++	}
++	if not option_random.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return false
++	return option_random[iOption]
++
++
++def getWrapX():
++	iWrapMode = _get_option_value(4, 0, 4)
++	return (iWrapMode == 0 or iWrapMode == 1)
++
++
++def getWrapY():
++	iWrapMode = _get_option_value(4, 0, 4)
++	return (iWrapMode == 0 or iWrapMode == 2)
++
++def getTopLatitude():
++	return 50
++
++
++def getBottomLatitude():
++	return -50
++
++
++def minStartingDistanceModifier():
++	# <!-- custom: dense high-player symmetric lines need a low floor to avoid start failures. (GPT-5.3-Codex) -->
++	return -95
++
++
++def _get_option_value(iOption, iDefault, iNumValues):
++	map_obj = CyMap()
++	iValue = iDefault
++	try:
++		if iOption >= getNumCustomMapOptions():
++			sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++			return iDefault
++		iValue = map_obj.getCustomMapOption(iOption)
++	except:
++		return iDefault
++	if iValue < 0 or iValue >= iNumValues:
++		return iDefault
++	return iValue
++
++
++def _players_per_line():
++	iSelection = _get_option_value(0, 0, 2)
++	if iSelection == 1:
++		return 4
++	return 3
++
++
++def _band_mode():
++	# 0 = coast, 1 = ocean
++	return _get_option_value(2, 0, 2)
++
++
++def _line_thickness():
++	iSelection = _get_option_value(3, 2, 5)
++	line_thicknesses = [3, 4, 5, 6, 7]
++	return line_thicknesses[iSelection]
++
++
++def _height_per_player():
++	iSelection = _get_option_value(1, 3, 9)
++	heights = [7, 8, 9, 10, 11, 12, 13, 14, 15]
++	return heights[iSelection]
++
++
++def _interline_gap():
++	# <!-- custom: Keep line-to-line spacing equal to SAS_Large_Facing_Islands center gap for consistent tactical travel times. (GPT-5.3-Codex) -->
++	return 8
++
++
++def _effective_line_and_gap(iLines):
++	iLinePlots = _line_thickness()
++	iBandPlots = _interline_gap()
++	# <!-- custom: This hard-cap fixed a reproducible startup crash on SAS48 world size with the 48 Civs DLL (SAS_Parallel_Lines only).
++	# Root cause was extreme vertical map dimensions from many lines + wide inter-line gaps. Preserve configured line thickness and reduce
++	# only inter-line water gap when necessary so normal sizes keep their original layout. (GPT-5.3-Codex) -->
++	iMaxLateralSpanPlots = 192
++	if iLines > 0:
++		iMaxBand = (iMaxLateralSpanPlots / iLines) - iLinePlots
++		if iMaxBand < 1:
++			iMaxBand = 1
++		if iBandPlots > iMaxBand:
++			iBandPlots = iMaxBand
++	return (iLinePlots, iBandPlots)
++
++
++def _default_players_for_world():
++	map_obj = CyMap()
++	iWorld = map_obj.getWorldSize()
++	if iWorld >= 0 and iWorld < gc.getNumWorldInfos():
++		return max(1, gc.getWorldInfo(iWorld).getDefaultPlayers())
++	return 11
++
++
++def _line_count():
++	iPPL = max(1, _players_per_line())
++	iPlayers = _default_players_for_world()
++	return max(1, (iPlayers + iPPL - 1) / iPPL)
++
++
++def getGridSize(argsList):
++	if argsList[0] == -1:
++		return []
++
++	# <!-- custom: Redesign for stability on extreme sizes (e.g., SAS48 with 48 Civs DLL): scaling vertically caused startup crashes,
++	# while SAS40 still worked. Keep lines parallel but scale line count laterally (X) and place players top-to-bottom within each line. (GPT-5.3-Codex) -->
++	iPPL = _players_per_line()
++	iTopBottomMarginPlots = 6
++	iPerPlayerHeightPlots = _height_per_player()
++	iInterPlayerGapPlots = 4
++	iHeightPlots = 2 * iTopBottomMarginPlots + iPPL * iPerPlayerHeightPlots + max(0, iPPL - 1) * iInterPlayerGapPlots
++	iLines = max(1, _line_count())
++	(iLinePlots, iBandPlots) = _effective_line_and_gap(iLines)
++	iWidthPlots = iLines * (iLinePlots + iBandPlots)
++	return ((iWidthPlots + 3) / 4, (iHeightPlots + 3) / 4)
++
++
++def _build_layout():
++	global _sas_layout_cache
++	if _sas_layout_cache is not None:
++		return _sas_layout_cache
++
++	map_obj = CyMap()
++	iW = map_obj.getGridWidth()
++	iH = map_obj.getGridHeight()
++	iLines = _line_count()
++	(iLinePlots, iBandPlots) = _effective_line_and_gap(iLines)
++	iBlock = iLinePlots + iBandPlots
++	if iBlock <= 0:
++		iBlock = 1
++
++	line_x_ranges = []
++	line_x_centers = []
++	for iLine in range(iLines):
++		iLeft = (iLine * iBlock + iBandPlots) % iW
++		iRight = iLeft + iLinePlots - 1
++		line_x_ranges.append((iLeft, iRight))
++		line_x_centers.append(iLeft + iLinePlots / 2)
++
++	iPPL = _players_per_line()
++	iDefaultPlayers = _default_players_for_world()
++	line_slots = []
++	for iLine in range(iLines):
++		iSlots = iPPL
++		if iLine == iLines - 1:
++			iR = iDefaultPlayers % iPPL
++			if iR != 0:
++				iSlots = iR
++		line_slots.append(iSlots)
++
++	_sas_layout_cache = {
++		"iW": iW,
++		"iH": iH,
++		"line_x_ranges": line_x_ranges,
++		"line_x_centers": line_x_centers,
++		"line_slots": line_slots,
++		"line_plots": iLinePlots,
++		"band_plots": iBandPlots,
++	}
++	return _sas_layout_cache
++
++
++def beforeGeneration():
++	global _sas_layout_cache, _sas_start_assignments
++	_sas_layout_cache = None
++	_sas_start_assignments = {}
++	_build_layout()
++
++
++def generatePlotTypes():
++	NiTextOut("Setting Plot Types (Python SAS_Parallel_Lines) ...")
++	layout = _build_layout()
++	map_obj = CyMap()
++	iW = layout["iW"]
++	iH = layout["iH"]
++	dice = gc.getGame().getMapRand()
++	plot_types = [PlotTypes.PLOT_OCEAN] * (iW * iH)
++
++	for (iLeft, iRight) in layout["line_x_ranges"]:
++		for x in range(iLeft, iRight + 1):
++			iX = x % iW
++			for y in range(iH):
++				plot_types[map_obj.plotNum(iX, y)] = PlotTypes.PLOT_LAND
++
++	# <!-- custom: add gentle side waviness so lanes look less artificial while preserving readability. (GPT-5.3-Codex) -->
++	for (iLeft, iRight) in layout["line_x_ranges"]:
++		for y in range(iH):
++			if dice.get(100, "SAS_Parallel_Lines left trim") < 22:
++				iX = iLeft % iW
++				i = map_obj.plotNum(iX, y)
++				if plot_types[i] == PlotTypes.PLOT_LAND:
++					plot_types[i] = PlotTypes.PLOT_OCEAN
++			if dice.get(100, "SAS_Parallel_Lines right trim") < 22:
++				iX = iRight % iW
++				i = map_obj.plotNum(iX, y)
++				if plot_types[i] == PlotTypes.PLOT_LAND:
++					plot_types[i] = PlotTypes.PLOT_OCEAN
++
++	# Sparse hills for texture.
++	for i in range(iW * iH):
++		if plot_types[i] != PlotTypes.PLOT_LAND:
++			continue
++		if dice.get(20, "SAS_Parallel_Lines hills") <= 2:
++			plot_types[i] = PlotTypes.PLOT_HILLS
++
++	return plot_types
++
++
++def _is_valid_start_plot(pPlot):
++	return pPlot is not None and not pPlot.isWater() and not pPlot.isImpassable()
++
++
++def findStartingPlot(argsList):
++	global _sas_start_assignments
++	[playerID] = argsList
++	layout = _build_layout()
++	map_obj = CyMap()
++
++	lPlayers = []
++	for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
++		if gc.getPlayer(iPlayer).isAlive():
++			lPlayers.append(iPlayer)
++	if len(lPlayers) == 0:
++		CyPythonMgr().allowDefaultImpl()
++		return
++	lPlayers.sort()
++
++	if playerID not in lPlayers:
++		CyPythonMgr().allowDefaultImpl()
++		return
++
++	if _sas_start_assignments.has_key(playerID):
++		return _sas_start_assignments[playerID]
++
++	iIndex = lPlayers.index(playerID)
++	iRemaining = iIndex
++	iLine = 0
++	iPosInLine = 0
++	for k in range(len(layout["line_slots"])):
++		iSlots = layout["line_slots"][k]
++		if iRemaining < iSlots:
++			iLine = k
++			iPosInLine = iRemaining
++			break
++		iRemaining -= iSlots
++		iLine = k
++		iPosInLine = iSlots - 1
++
++	iSlotsThisLine = max(1, layout["line_slots"][iLine])
++	iMargin = 2
++	iSpan = max(1, layout["iH"] - 2 * iMargin)
++	iY = iMargin + ((2 * iPosInLine + 1) * iSpan) / (2 * iSlotsThisLine)
++	if iY >= layout["iH"]:
++		iY = layout["iH"] - 1
++	iX = layout["line_x_centers"][iLine] % layout["iW"]
++
++	pSlot = map_obj.plot(iX, iY)
++	if _is_valid_start_plot(pSlot):
++		iPlotNum = map_obj.plotNum(iX, iY)
++		_sas_start_assignments[playerID] = iPlotNum
++		return iPlotNum
++
++	# Fallback: search this line first.
++	(iLeft, iRight) = layout["line_x_ranges"][iLine]
++	for dy in range(layout["iH"]):
++		iTryY = (iY + dy) % layout["iH"]
++		for x in range(iLeft, iRight + 1):
++			iTryX = x % layout["iW"]
++			pTry = map_obj.plot(iTryX, iTryY)
++			if _is_valid_start_plot(pTry):
++				iNum = map_obj.plotNum(iTryX, iTryY)
++				_sas_start_assignments[playerID] = iNum
++				return iNum
++
++	CyPythonMgr().allowDefaultImpl()
++	return
++
++
++def generateTerrainTypes():
++	NiTextOut("Generating Terrain (Python SAS_Parallel_Lines) ...")
++	terrain_gen = TerrainGenerator()
++	terrain_types = terrain_gen.generateTerrain()
++	_apply_interline_bands(terrain_types)
++	return terrain_types
++
++
++def _apply_interline_bands(terrain_types):
++	if _band_mode() == 1:
++		return
++
++	layout = _build_layout()
++	map_obj = CyMap()
++	iW = layout["iW"]
++	iH = layout["iH"]
++	eCoast = getInfoTypeOrFail("TERRAIN_COAST")
++
++	# <!-- custom: In coast-band mode, convert water between neighboring vertical lines to coast for early cross-line navigation. (GPT-5.3-Codex) -->
++	for iLine in range(len(layout["line_x_ranges"])):
++		(_, iRight) = layout["line_x_ranges"][iLine]
++		(iNextLeft, _) = layout["line_x_ranges"][(iLine + 1) % len(layout["line_x_ranges"])]
++		gap_cols = []
++		x = (iRight + 1) % iW
++		while x != iNextLeft % iW:
++			gap_cols.append(x)
++			x = (x + 1) % iW
++			if len(gap_cols) > iW:
++				break
++
++		for iX in gap_cols:
++			for y in range(iH):
++				i = map_obj.plotNum(iX, y)
++				pPlot = map_obj.plotByIndex(i)
++				if pPlot.isWater():
++					terrain_types[i] = eCoast
++
++
++def addFeatures():
++	NiTextOut("Adding Features (Python SAS_Parallel_Lines) ...")
++	feature_gen = FeatureGenerator()
++	feature_gen.addFeatures()
++	return 0
+
+diff --git a/PrivateMaps/SAS_Spiky_Avenues.py b/PrivateMaps/SAS_Spiky_Avenues.py
+index d940a83c1..5f9f11855 100644
+--- a/PrivateMaps/SAS_Spiky_Avenues.py
++++ b/PrivateMaps/SAS_Spiky_Avenues.py
+@@ -32,6 +32,7 @@
+ from CvPythonExtensions import *
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
++from SAS_WorldSizes import *
+ 
+ sas_spiky_layout = None
+ sas_slot_assignments = {}
+@@ -43,15 +44,125 @@ def getVersion():
+ 
+ 
+ def getDescription():
+-	return "Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets. One player starts per house. Bigger world sizes increase street/spike counts (not house size). Examples: in Large worldsize (11 default players), 3 spikes per street (6 houses) and 2 streets (12 houses total); in SAS48 (48 Civs DLL) worldsize (48 default players), 6 spikes per street (12 houses) and 4 streets (48 houses total). Recommended to play this map on SAS48. This is an AdvCiv-SAS original map."
++	return "Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets. One player starts per house. Bigger world sizes increase street/spike counts. Examples: in Large worldsize (11 default players), 3 spikes per street (6 houses) and 2 streets (12 houses total); in SAS48 (48 Civs DLL) worldsize (48 default players), 6 spikes per street (12 houses) and 4 streets (48 houses total). Recommended to play this map on SAS48. This is an AdvCiv-SAS original map."
+ 
+ 
+ def isAdvancedMap():
+ 	"This map should show up in Simple Game."
+-	# <!-- custom: No custom map options in this script, so the stale multi-option/Simple Game cache guard is not needed (empirically verified in-game). (GPT-5.3-Codex) -->
++	# <!-- custom: Keep visible in Simple Game; options are practical and stale-option safe. (GPT-5.3-Codex) -->
+ 	return 0
+ 
+ 
++def getNumCustomMapOptions():
++	return 2
++
++
++def getNumHiddenCustomMapOptions():
++	return 0
++
++
++def getCustomMapOptionName(argsList):
++	[iOption] = argsList
++	option_names = {
++		0: u"Ribbon Width",
++		1: u"House Size"
++	}
++	if not option_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return u"Ribbon Width"
++	return option_names[iOption]
++
++
++def getNumCustomMapOptionValues(argsList):
++	[iOption] = argsList
++	option_values = {
++		0: 5,
++		1: 6
++	}
++	if not option_values.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return 2
++	return option_values[iOption]
++
++
++def getCustomMapOptionDescAt(argsList):
++	[iOption, iSelection] = argsList
++	selection_names = {
++		0: {
++			0: u"-2",
++			1: u"-1",
++			2: u"Recommended",
++			3: u"+1",
++			4: u"+2"
++		},
++		1: {
++			0: u"3",
++			1: u"4",
++			2: u"5 (Recommended)",
++			3: u"6",
++			4: u"7",
++			5: u"8"
++		}
++	}
++	if not selection_names.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return u"Recommended"
++	if not selection_names[iOption].has_key(iSelection):
++		return selection_names[iOption][0]
++	return selection_names[iOption][iSelection]
++
++
++def getCustomMapOptionDefault(argsList):
++	[iOption] = argsList
++	option_defaults = {
++		0: 2,
++		1: 2
++	}
++	if not option_defaults.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return 0
++	return option_defaults[iOption]
++
++
++def isRandomCustomMapOption(argsList):
++	[iOption] = argsList
++	option_random = {
++		0: false,
++		1: false
++	}
++	if not option_random.has_key(iOption):
++		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++		return false
++	return option_random[iOption]
++
++
++def _get_option_value(iOption, iDefault, iNumValues):
++	map_obj = CyMap()
++	iValue = iDefault
++	try:
++		if iOption >= getNumCustomMapOptions():
++			sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
++			return iDefault
++		iValue = map_obj.getCustomMapOption(iOption)
++	except:
++		return iDefault
++	if iValue < 0 or iValue >= iNumValues:
++		return iDefault
++	return iValue
++
++
++def _ribbon_width():
++	iSelection = _get_option_value(0, 2, 5)
++	widths = [2, 3, 4, 5, 6]
++	return widths[iSelection]
++
++
++def _house_size():
++	iSelection = _get_option_value(1, 2, 6)
++	sizes = [3, 4, 5, 6, 7, 8]
++	return sizes[iSelection]
++
++
+ def getWrapX():
+ 	return True
+ 
+@@ -82,9 +193,9 @@ def getGridSize(argsList):
+ 	if iStreets <= 0 or iSpikesPerStreet <= 0:
+ 		return []
+ 
+-	iAvenueHeight = 4
+-	iSpikeDepth = 5
+-	iHouseWidth = 5
++	iAvenueHeight = _ribbon_width()
++	iSpikeDepth = _house_size()
++	iHouseWidth = _house_size()
+ 	# <!-- custom: widen inter-house spacing to one house-width and keep it as water lanes for culture separation. (GPT-5.3-Codex) -->
+ 	iHouseGap = iHouseWidth
+ 	iBridgeWidth = 1
+@@ -137,9 +248,9 @@ def _build_layout():
+ 	iH = map_obj.getGridHeight()
+ 	(iStreets, iSpikesPerStreet) = _profile_for_world_size(map_obj.getWorldSize())
+ 
+-	iAvenueHeight = 4
+-	iSpikeDepth = 5
+-	iHouseWidth = 5
++	iAvenueHeight = _ribbon_width()
++	iSpikeDepth = _house_size()
++	iHouseWidth = _house_size()
+ 	iHouseGap = iHouseWidth
+ 	iStreetGap = iHouseWidth
+ 	iBridgeWidth = 1
+
+diff --git a/README.md b/README.md
+index d5ffce212..7ae7e74e2 100644
+--- a/README.md
++++ b/README.md
+@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
+ 
+ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new Score tab and History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework (notably multiple random main menu music support (shuffle-bag)).
+ 
+-New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Spiky_Avenues`).
++New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
+ 
+ Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
+ 
+@@ -61,7 +61,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[How to use](/README.md#how-to-use)  
+ &emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)  
+ [Mapscripts](/README.md#mapscripts)  
+-&emsp;[AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Spiky_Avenues)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_spiky_avenues)  
++&emsp;[AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_parallel_lines-sas_spiky_avenues)  
+ &emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)  
+ &emsp;[New .dds for maps in Simple Game](/README.md#new-dds-for-maps-in-simple-game)  
+ [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)  
+@@ -584,7 +584,7 @@ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1
+ 
+ ## Mapscripts
+ 
+-### AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Spiky_Avenues)
++### AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)
+ 
+ #### SAS_Longworld
+ 
+@@ -597,6 +597,7 @@ Like all mapscripts in AdvCiv-SAS as of now, it supports SAS48 worldsize and pla
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (1).JPG" alt="0.3202_maps_sas_longworld (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG" alt="0.3202_maps_sas_longworld (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG" alt="0.3202_maps_sas_longworld (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (4).JPG" alt="0.3202_maps_sas_longworld (4).JPG" width="250"></img>
+ 
+ #### SAS_Spiky_Avenues
+ 
+@@ -607,16 +608,29 @@ Similarly we also added our new original SAS_Spiky_Avenues mapscript with the he
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG" alt="0.3203_maps_sas_spiky_avenues (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG" alt="0.3203_maps_sas_spiky_avenues (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG" alt="0.3203_maps_sas_spiky_avenues (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (4).JPG" alt="0.3203_maps_sas_spiky_avenues (4).JPG" width="250"></img>
+ 
+ #### SAS_Large_Facing_Islands
+ 
+-Our latest addition with the help of GPT-5.3-Codex, and some ideas from GPT-5.2-Thinking thanks.
++An addition with the help of GPT-5.3-Codex, and some ideas from GPT-5.2-Thinking thanks.
+ 
+ >Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough). Island size stays the same on all world sizes and is fairly large. North-South and East-West bands can optionally be set to Coast or Ocean. Supports world sizes up to SAS48. The world revolves horizontally (WrapX on). Inspired by Empire Earth (1) Large Islands, with some ideas adapted from our SAS_Longworld map.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (1).JPG" alt="0.3204_maps_sas_large_facing_islands (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG" alt="0.3204_maps_sas_large_facing_islands (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG" alt="0.3204_maps_sas_large_facing_islands (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (4).JPG" alt="0.3204_maps_sas_large_facing_islands (4).JPG" width="250"></img>
++
++#### SAS_Parallel_Lines
++
++Our latest addition with the help of GPT-5.3-Codex thanks.
++
++>Parallel lines map where the world is optionally (default) connected horizontally (WrapX) and vertically (WrapY). Fixed number of players per line (3 or 4), and height per player. Each land line has an adjacent land line to its left and to its right, separated by a water line. Larger world sizes add more lines.
++
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG" alt="0.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG" alt="0.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG" alt="0.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG" alt="0.3205_maps_sas_parallel_lines (1).JPG" width="250"></img>
+ 
+ ### New Maps (e.g., BTG_Cross, BTG_Lagoon)
+ 
+@@ -653,7 +667,6 @@ Trick: by having the view box in a water or snow zone you can edit it later and
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG" alt="0.3201_maps_simple_game (8).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG" alt="0.3201_maps_simple_game (9).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG" alt="0.3201_maps_simple_game (10).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG" alt="0.3201_maps_simple_game (11).JPG" width="250"></img>
+ 
+ ## Change from short to int the Found value pipeline
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index d2f9c6ece..9a1146b61 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -6,6 +6,7 @@ Some of the asset rebalancing is shown here (not exhaustive)
+ 
+ [How to](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#how-to)  
+ [Civs' starting techs rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civs-starting-techs-rework)  
++[Tech quote swaps rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#tech-quote-swaps-rework)  
+ [Civ-specific buildings rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civ-specific-buildings-rework)  
+ [Leaders' traits rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-traits-rework)  
+ [Leaders' favourite civics rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-favourite-civics-rework)  
+@@ -106,6 +107,103 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ - Pair counts sum to **36** civs.  
+ - Tech totals sum to **72** picks. OK
+ 
++## Tech quote swaps rework
++
++| Quote | Base AdvCiv tech | AdvCiv-SAS tech |
++| --- | --- | --- |
++| "Oh! I have slipped the surly bonds of Earth - Put out my hand and touched the Face of God." - John Gillespie Magee, Junior | Advanced Flight | Keep |
++| "Art for art's sake is an empty phrase. Art for the sake of truth, art for the sake of the good and the beautiful, that is the faith I am searching for." - George Sand | Aesthetics | Keep |
++| "Oh farmers, pray that your summers be wet and your winters clear." - Virgil | Agriculture | Keep |
++| "I cannot live without books" - Thomas Jefferson | Paper | AI |
++| "Behind a veil, unseen yet present, I was the forceful soul that moved this mighty body." - Jean Racine | Stealth | Alien Life |
++| "Blessed shall be the fruit of thy cattle, the increase of thy kine, and the flocks of thy sheep." - The Bible, Deut. 28:4 | Animal Husbandry | Keep |
++| "Artillery adds dignity to what would otherwise be a vulgar brawl." - Frederick the Great | Artillery | Keep |
++| "People can have the Model T in any color - so long as it's black." - Henry Ford | Assembly Line | Keep |
++| "Astronomy compels the soul to look upwards and leads us from this world to another." - Plato | Astronomy | Keep |
++| "Banking establishments are more dangerous than standing armies." - Thomas Jefferson | Banking | Keep |
++| "Everything in life is somewhere else, and you get there in a car." - E. B. White | Combustion | Bioengineering |
++| "There is a single light of science, and to brighten it anywhere is to brighten it everywhere." - Isaac Asimov | Fiber Optics | Biology |
++| "There is no wealth like knowledge, no poverty like ignorance." - Ali ibn Abi-Talib | Education | Broader Education |
++| "It is entirely seemly for a young man killed in battle to lie mangled by the bronze spear. In his death all things appear fair." - Homer | Bronze Working | Keep |
++| "For everything there is a season and a time for every purpose under heaven." - Ecclesiastes | Calendar | Keep |
++| "Chemistry means the difference between poverty and starvation and the abundant life." - Robert Brent | Chemistry | Keep |
++| "I will to my lord be true and faithful, and love all which he loves and shun all which he shuns." - Anglo Saxon Oath of Fealty | Feudalism | Chivalry |
++| "The bureaucracy is expanding to meet the needs of the expanding bureaucracy" - Unknown | Civil Service | Keep |
++| "To bring about the rule of righteousness in the land, so that the strong should not harm the weak." - Hammurabi's Code; Prologue | Code Of Laws | Keep |
++| "I just want to say one word to you. Just one word: plastics." - Calder Willingham, The Graduate | Plastics | Combustion |
++| "When I give food to the poor, they call me a saint. When I ask why the poor have no food, they call me a communist." - Dom Helder Camara | Utopia | Communism |
++| "The whole is greater than the sum of its parts." - Aristotle | Composites | Keep |
++| "Never trust a computer you can't throw out a window." - Steve Wozniak | Computers | Keep |
++| "No freeman shall be taken, imprisoned, or in any other way destroyed, except by the lawful judgment of his peers." - The Magna Carta | Constitution | Keep |
++| "I must study politics and war that my sons may have liberty to study mathematics and philosophy." - John Adams | Military Science | Construction |
++| "Corporation, n. An ingenious device for obtaining individual profit without individual responsibility." - Ambrose Bierce | Corporation | Keep |
++| "Everything is worth what its purchaser will pay for it." - Publius Syrus | Currency | Keep |
++| "It has been said that democracy is the worst form of government except all the others that have been tried." - Winston Churchill | Democracy | Keep |
++| "Compound interest is the most powerful force in the universe." - ascribed to Albert Einstein | Economics | Depopulation |
++| "All the world's a stage, And all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts. " - William Shakespeare | Drama | Keep |
++| "We do not inherit the earth from our ancestors, we borrow it from our children" - unknown | Ecology | Keep |
++| "People of the same trade seldom meet together, even for merriment and diversion, but the conversation ends in a conspiracy against the public." - Adam Smith | Guilds | Economics |
++| "We will make electricity so cheap that only the rich will burn candles." - Thomas Edison | Electricity | Keep |
++| "A designer knows he has achieved perfection not when there is nothing left to add, but when there is nothing left to take away." - Antoine de Saint-Exupry | Engineering | Keep |
++| "Tell me what you eat, and I will tell you what you are." - Anthelme Brillat-Savarin | Refrigeration | Environmentalism |
++| "The great masses of the people... will more easily fall victims to a big lie than to a small one." - Adolf Hitler | Fascism | Keep |
++| "I am the state." - ascribed to Louis XIV | Divine Right | Feudalism |
++| "Political power grows out of the barrel of a gun." - Mao Zedong | Rifling | Firearms |
++| "Give a man a fish and you feed him for a day. Teach a man to fish and you feed him for a lifetime." - Lao Tzu | Fishing | Keep |
++| If the radiance of a thousand suns were to burst at once into the sky, that would be like the splendor of the Mighty One... I am become Death, the Shatterer of Worlds. - J. Robert Oppenheimer, quoting "The Bhagavad Gita" | Fission | Keep |
++| "For once you have tasted flight you will walk the earth with your eyes turned skywards, for there you have been and there you will long to return." - ascribed to Leonardo Da Vinci | Flight | Keep |
++| "Any sufficiently advanced technology is indistinguishable from magic." - Arthur C. Clarke | Fusion | Keep |
++| "I fooled you, I fooled you, I got pig iron, I got pig iron, I got all pig iron." - Lonnie Donegan, "Rock Island Line" | Railroad | Game Theory |
++| "Soon it will be a sin for parents to have a child which carries the heavy burden of genetic disease." - Bob Edwards | Genetics | Keep |
++| "You can get more of what you want with a kind word and a gun than you can with just a kind word." - Al Capone | Gunpowder | Keep |
++| "If you chase two rabbits, you will lose them both." - proverb | Hunting | Keep |
++| "There is one rule for the industrialist and that is: Make the best quality of goods possible at the lowest cost possible, paying the highest wages possible." - Henry Ford | Industrialism | Keep |
++| "You should hammer your iron when it is glowing hot." - Publius Syrus | Iron Working | Keep |
++| "A multitude of rulers is not a good thing. Let there be one ruler, one king." - Homer, The Iliad | Monarchy | Later Abrahamism |
++| "Any society that would give up a little liberty to gain a little security will deserve neither and lose both." - Benjamin Franklin | Liberalism | Keep |
++| "Some books are to be tasted, others to be swallowed, and some few to be chewed and digested." - Sir Francis Bacon | Literature | Keep |
++| "A god from the machine" - Menander | Machinery | Keep |
++| "You would make a ship sail against the winds and currents by lighting a bon-fire under her deck? I have no time for such nonsense." - Napoleon, on Robert Fulton's Steamship (anecdote) | Steam Power | Marine Technology |
++| "It is from their foes, not their friends, that cities learn the lesson of building high walls." - Aristophanes | Masonry | Keep |
++| "The only thing worse than being talked about is not being talked about." - Oscar Wilde | Mass Media | Keep |
++| "If in other sciences we should arrive at certainty without doubt and truth without error, it behooves us to place the foundations of knowledge in mathematics." - Roger Bacon | Mathematics | Keep |
++| "As to diseases make a habit of two things - to help, or at least, to do no harm." - Hippocrates | Medicine | Keep |
++| "Meditation brings wisdom; lack of meditation leaves ignorance. Know well what leads you forward and what holds you back." - The Buddha | Meditation | Keep |
++| "Before that steam drill shall beat me down, I'll die with my hammer in my hand." - from "John Henry, the Steel-Driving Man" | Steel | Metal Casting |
++| "Do not throw the arrow which will return against you." - Kurdish Proverb | Archery | Military Science |
++| "And them that take the sword shall perish by the sword." - The Bible, Matthew | Metal Casting | Military Tradition |
++| "The man who moves a mountain begins by carrying away small stones." - Confucius | Mining | Keep |
++| "And on the pedestal these words appear: 'My name is Ozymandias, king of kings: Look on my works, ye Mighty, and despair!' Nothing beside remains." - Percy Bysshe Shelley | Construction | Monarchy |
++| "I am the Lord thy God. Thou shalt have no other gods before Me." - The Bible, Exodus | Monotheism | Keep |
++| "If you speak the truth, have a foot in the stirrup." - Turkish proverb | Horseback Riding | Mounted Combat |
++| "Nature herself has imprinted on the minds of all the idea of God." - Cicero | Mysticism | Keep |
++| "A man does not have himself killed for a half-pence a day or for a petty distinction. You must speak to the soul in order to electrify him." - ascribed to Napoleon Bonaparte | Nationalism | Keep |
++| "I do not feel obliged to believe that the same God who has endowed us with sense, reason, and intellect has intended us to forgo their use." - Galileo Galilei | Scientific Method | Naturalism |
++| "The wisest men follow their own direction." - ascribed to Euripides | Compass | Navigation |
++| "I have gained this by philosophy: that I do without being commanded what others do only from fear of the law." - ascribed to Aristotle | Philosophy | Keep |
++| "To every action there is always opposed an equal reaction." - Isaac Newton | Physics | Keep |
++| "Not at all similar are the race of the immortal gods and the race of men who walk upon the earth." - Homer | Polytheism | Keep |
++| "The Lord bless you and keep you; the Lord make His face to shine upon you and be gracious to you; the Lord lift up His countenance upon you and give you peace." - The Bible, Numbers | Priesthood | Postaxial Religion |
++| "Hath not the potter power over the clay, to make one vessel unto honor, and another unto dishonor?" - The Bible, Romans | Pottery | Keep |
++| "What gunpowder did for war, the printing press has done for the mind." - Wendell Phillips | Printing Press | Keep |
++| "The whole is more than the sum of its parts." - Aristotle | Replaceable Parts | Quantum Mechanics |
++| "Then one fine mornin' she puts on a New York station. You know her life was saved by Rock 'n' Roll." - The Velvet Underground, "Rock And Roll" | Radio | Keep |
++| "The real problem is not whether machines think, but whether men do." - B.F. Skinner | Robotics | Robot Rights |
++| "The Earth is the cradle of the mind, but one cannot eternally live in a cradle." - Konstantin E. Tsiolkovsky | Rocketry | Keep |
++| "If music be the food of love, play on." - William Shakespeare | Music | Romanticism |
++| "You can't direct the wind, but you can adjust your sails." - Unknown | Sailing | Keep |
++| "Beep...beep...beep...beep..." - Sputnik I | Satellites | Keep |
++| "One doesn't discover new lands without losing sight of the shore." - Andre Gide | Optics | Seafaring |
++| "Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws." - Douglas Adams | Laser | Space Exploration |
++| "Victorious warriors win first and then go to war, while defeated warriors go to war first and then seek to win." - Sun-Tzu | Military Tradition | Steam Power |
++| "What is happiness? The feeling that power is growing, that resistance is overcome." - Friedrich Nietzsche | Superconductors | Keep |
++| "Two cities have been formed by two loves: the earthly by the love of self; the heavenly by the love of God." - St. Augustine | Theology | Terraforming |
++| "It is not the strongest of the species that survive, but the one most responsive to change." - Charles Darwin (paraphrase) | Biology | Theory Of Evolution |
++| "Put your shoulder to the wheel." - ascribed to Aesop | The Wheel | Keep |
++| "The future will be better tomorrow." - Dan Quayle | Future Tech | Transhumanism |
++| "Words have the power to both destroy and heal. When words are both true and kind, they can change our world." - ascribed to the Buddha | Alphabet | Water Wheel |
++| "True glory consists in doing what deserves to be written; in writing what deserves to be read." - Pliny the Elder | Writing | Keep |
++
+ ## Civ-specific buildings rework
+ 
+ No counts yet (faster pass).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index e0ebec1fd..d80235834 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -367,7 +367,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5446+) **Order maps alphabetically** in **Simple Game** or **Custom Game** (by adding missing map scripts in **PrivateMaps**).
+ - (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential or unbalanced; they are remain playable via the **Custom Game** menu: [Big_and_Small.py](/PrivateMaps/Big_and_Small.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Earth2.py](/PrivateMaps/Earth2.py), [Hemispheres.py](/PrivateMaps/Hemispheres.py), [Lakes.py](/PrivateMaps/Lakes.py) (has too few lakes), [Mixed_Continents.py](/PrivateMaps/Mixed_Continents.py), [Oasis.py](/PrivateMaps/Oasis.py), [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
+ - (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps so it is more illustrative or accurate than a dark or incorrect globe map. See [Readme.md (New .dds for maps in Simple Game)](/README.md#new-dds-for-maps-in-simple-game) and [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+-- (Requires AdvCiv-SAS 5455+) **Add** new AdvCiv-SAS original maps: [SAS_Longworld](/PrivateMaps/SAS_Longworld.py): A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified, similarly also [SAS_Spiky_Avenues.py](/PrivateMaps/SAS_Spiky_Avenues.py) (Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets), and [SAS_Large_Facing_Islands.py](/PrivateMaps/SAS_Large_Facing_Islands.py) (Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough)). See [Readme.md (AdvCiv-SAS original mapscripts)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_spiky_avenues).
++- (Requires AdvCiv-SAS 5455+) **Add** new AdvCiv-SAS original maps: [SAS_Longworld](/PrivateMaps/SAS_Longworld.py): A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified, similarly also [SAS_Spiky_Avenues.py](/PrivateMaps/SAS_Spiky_Avenues.py) (Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets), [SAS_Large_Facing_Islands.py](/PrivateMaps/SAS_Large_Facing_Islands.py) (Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough)), and [SAS_Parallel_Lines.py](/PrivateMaps/SAS_Parallel_Lines.py) (Parallel lines map where the world is optionally (default) connected horizontally (WrapX) and vertically (WrapY). Fixed number of players per line (3 or 4), and height per player). See [Readme.md (AdvCiv-SAS original mapscripts)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_parallel_lines-sas_spiky_avenues).
+ - (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) map (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, **change some options** (e.g., allow Desert as Default), and expose the map in both **Simple Game** and **Custom Game** lists. (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Grid.py](/PrivateMaps/BTG_Grid.py), [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
+ - (Requires AdvCiv-SAS 5449+) **Add and adapt** [Planet_Generator_0_68.py](/PrivateMaps/Planet_Generator_0_68.py) (from [CFC](https://forums.civfanatics.com/resources/planet-generator-0-68.1817/)): keeps its core behavior (unpredictable continent shapes with balanced continent sizes) while applying AdvCiv-SAS map compatibility changes, notably **world-size percentage scaling**, **removed unneeded options** (map-size override and redundant resources choice), and **bug fixes** (including robust direction handling). Expose the map in both **Simple Game** and **Custom Game** lists. Similarly add [Equal_Islands_V2_beta.py](/PrivateMaps/Equal_Islands_V2_beta.py) (from [CFC](https://forums.civfanatics.com/resources/equal-islands-v2-beta.19405/)), [Water.py](/PrivateMaps/Water.py) (from [CFC](https://forums.civfanatics.com/resources/water.15334/)) (actually has many lakes unlike [Lakes.py](/PrivateMaps/Lakes.py); also **adjusted city spacing** that **was too wide**).
+ - (Requires AdvCiv-SAS 5445+) Make other maps **also appear in Simple Game**: [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Ring.py](/PrivateMaps/Ring.py), [Wheel.py](/PrivateMaps/Wheel.py)
+@@ -458,7 +458,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ ### Technologies
+ 
+-- **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Overall tech count stays similar to base (some low-value techs removed, with the **Future era expanded**). **Quotes/announcer lines** were reassigned to better fit the new placements (including Future era) and for accuracy..
++- **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Overall tech count stays similar to base (some low-value techs removed, with the **Future era expanded**). **Quotes/announcer lines** were reassigned to better fit the new placements (including Future era) and for accuracy. See [Assets rebalancing: Tech quotes](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#tech-quote-swaps-rework).
+ - Gameplay timings shift: **culture**, **slavery**, **plantations**, etc., often **earlier**.
+ - **Selective tech-trade bans for snowball techs:** Some high-impact techs are now flagged **"Cannot be traded"** (`bTrade = 0`) to curb extreme tech-brokering/"tech whoreism" chains (e.g. turning one breakthrough into a long series of trades), which AIs are especially vulnerable to and for balance. The goal is to tone down decisive, snowbally trades while still allowing normal tech trading (unless you enable the **No Tech Trading** game option, which disables it entirely). Info added in UI: see [UI (In-game)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game) and [UI (Sevopedia)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-sevopedia) sections.
+ - **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading option is on). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+index 57f734e04..eb310d629 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG
+index 66dfc9ef8..5f4b48a40 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG
+index 1012dd944..89425df8e 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (10).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG
+deleted file mode 100644
+index b16d7a868..000000000
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG
+index e1806aa10..6eba09518 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG
+index 679e910fe..bc62859a5 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG
+index 4422d2d7e..16ac8be13 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG
+index e92b733a5..69172d531 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (5).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG
+index 4cc19bd5d..e83511b7d 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (6).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG
+index a4eefcae4..f7d0c48c9 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (7).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG
+index 401b0d925..3631c28c4 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (8).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG
+index f2cbfc61e..b8adfd282 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (9).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG
+index 91c2ef0b2..e5d5f9aaa 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG
+index 68793231b..91c2ef0b2 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (4).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (4).JPG
+new file mode 100644
+index 000000000..68793231b
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG
+index b5e9b179e..b3ed7140a 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG
+index ce21e531c..b5e9b179e 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (4).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (4).JPG
+new file mode 100644
+index 000000000..ce21e531c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG
+index 5e578cb10..d8cd68528 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG
+index b78152b7b..5e578cb10 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (4).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (4).JPG
+new file mode 100644
+index 000000000..b78152b7b
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3204_maps_sas_large_facing_islands (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG
+new file mode 100644
+index 000000000..60077856d
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (2).JPG
+new file mode 100644
+index 000000000..af43b7ad6
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (3).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (3).JPG
+new file mode 100644
+index 000000000..c83e4c09c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (4).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (4).JPG
+new file mode 100644
+index 000000000..011343ead
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3205_maps_sas_parallel_lines (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=37 embeddedFiles=36 omittedFiles=1 embeddedPatchBytes=68572

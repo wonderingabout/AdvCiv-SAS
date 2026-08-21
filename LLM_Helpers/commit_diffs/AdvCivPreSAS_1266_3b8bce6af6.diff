@@ -1,0 +1,119 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1266
+# Commit: 3b8bce6af6419bd37d9230d3bdbcc978b5ec6a3c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b3489a71632316af505b7a32204187bac03c2a5f
+# Title: Additions to v0.88rc: * K-Mod bug fixed in computation of AI city trade value. The AI had valued previously lost cities way too highly, practically always ag...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+6	7	Assets/Python/Screens/CvInfoScreen.py
+19	0	Assets/xml/Text/CIV4GameText_advc.xml
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+7	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 839235577..def28eae0 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -2428,13 +2428,12 @@ class CvInfoScreen:
+ 									if (iPlayerTeam == self.iActiveTeam):
+ 										self.aaWondersBuilt_BUG.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,True,pPlayer.getCivilizationShortDescription(0), pCity, iPlayerLoop])
+ 										self.iNumWonders += 1
+-									# <advc.001d> Never show (finished)
+-									# national wonders of other teams.
+-									#elif (self.pActiveTeam.isHasMet(iPlayerTeam)
+-									#and pCity.isRevealed(gc.getGame().getActiveTeam())):
+-										#self.aaWondersBuilt_BUG.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,True,pPlayer.getCivilizationShortDescription(0), pCity, iPlayerLoop])
+-										#self.iNumWonders += 1
+-									# </advc.001>
++									# advc.001d (comment): To hide (finished)
++									# national wonders of other teams, remove
++									# this code block:
++									elif (self.pActiveTeam.isHasMet(iPlayerTeam) and pCity.isRevealed(gc.getGame().getActiveTeam())):
++										self.aaWondersBuilt_BUG.append([pCity.getBuildingOriginalTime(iBuildingLoop),iBuildingLoop,True,pPlayer.getCivilizationShortDescription(0), pCity, iPlayerLoop])
++										self.iNumWonders += 1
+ 
+ 		# This array used to store which players have already used up a team's slot so team projects don't get added to list more than once
+ 		aiTeamsUsed = []
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 56fcaf683..1f4028bba 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -560,6 +560,25 @@
+ 		<Spanish>[SPACE](%s1_Name)</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004g: Originally in CIV4GameTextInfos.xml; info about right-click
++		 shorthand added.  -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_INCREASE_RATE</Tag>
++		<English>Increase %s1_CmrcType Rate by %d2_Mod%%. (Right-click to set to 100%.)</English>
++		<French>Augmente la production (Taux : %s1_CmrcType) de %d2_Mod%%</French>
++		<German>Wirtschaftsrate f&#252;r %s1_CmrcType um %d2_Mod%% erh&#246;hen. (Rechtsklick setzt die Rate auf 100%.)</German>
++		<Italian>Aumenta il ritmo %s1_CmrcType del %d2_Mod%%</Italian>
++		<Spanish>Aumentar ritmo de %s1_CmrcType en un %d2_Mod%%</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_DECREASE_RATE</Tag>
++		<English>Decrease %s1_CmrcType Rate by %d2_Mod%%. (Right-click to set to 0.)</English>
++		<French>R&#233;duit la production (Taux : %s1_CmrcType) de %d2_Mod%%</French>
++		<German>Wirtschaftsrate f&#252;r %s1_CmrcType um %d2_Mod%% senken. (Rechtsklick setzt die Rate auf 0.)</German>
++		<Italian>Diminuisce il ritmo %s1_CmrcType del %d2_Mod%%</Italian>
++		<Spanish>Disminuir ritmo de %s1_CmrcType en un %d2_Mod%%</Spanish>
++	</TEXT>
++	
+ 	<!-- [advc.004s] Originally in CIV4GameTextInfos.xml;
+ 		 says just "(Gold)" there. Translation from TXT_KEY_RESEARCH
+ 		 in CIV4GameText_Misc1.xml. -->
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index c64fbcc6d..060ab307d 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -16155,7 +16155,7 @@ void CvGameTextMgr::parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity& city
+ 			iProgress *= 100;
+ 			iProgress /= owner.greatPeopleThreshold(false);
+ 			//int iProgress = ((city.getGreatPeopleUnitProgress((UnitTypes)iI) * 100) / iTotalGreatPeopleUnitProgress);
+-			// </advc.001>
++			// </advc.001c>
+ 			if (iProgress > 0)
+ 			{
+ 				iTotalTruncated += iProgress;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 97524498c..977e85d3b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11530,7 +11530,13 @@ int CvPlayerAI::AI_cityTradeVal(CvCity* pCity) const
+ 	iValue += pCity->getPopulation()*20 + pCity->getHighestPopulation()*30; // K-Mod
+ 
+ 	iValue += (pCity->getCultureLevel() * 200);
+-	iValue += 200 * pCity->getCultureLevel() * pCity->getCulture(getID()) / std::max(1, pCity->getCulture(pCity->getOwnerINLINE())); // K-Mod
++	iValue += (200 * pCity->getCultureLevel() * pCity->getCulture(getID())) /
++			std::max(1, pCity->getCulture(pCity->getOwnerINLINE())
++			/*  advc.001: I think karadoc's intention was to add at most
++				200 * CultureLevel, namely when the city owner has 0 culture,
++				but without the addition below, the increment would actually be
++				200 * CultureLevel * this player's city culture, i.e. millions. */
++			+ pCity->getCulture(getID()));
+ 
+ 	//iValue += (((((pCity->getPopulation() * 50) + GC.getGameINLINE().getElapsedGameTurns() + 100) * 4) * pCity->plot()->calculateCulturePercent(pCity->getOwnerINLINE())) / 100);
+ 	// K-Mod
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=4817

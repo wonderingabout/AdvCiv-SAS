@@ -1,0 +1,41 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3790
+# Commit: a10547687b7b3b90cdc62adf8cbf74b5e572ac9f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8517639b8272446e8c0ec0d2cb4a23736844a45b
+# Title: Very slightly decrease single-unit gfx scale
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	0	Assets/XML/GlobalDefines_advc.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index fc1859ec6..03d40620d 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -411,6 +411,12 @@
+ 		<fDefineFloatVal>5400</fDefineFloatVal>
+ 	</Define>
+ 
++	<!-- advc.002j: Was 1.25 in BtS; just a tiny adjustment. -->
++	<Define> <!-- redefine -->
++		<DefineName>SINGLE_UNIT_GFX_EXTRA_SCALE</DefineName>
++		<fDefineFloatVal>1.22</fDefineFloatVal>
++	</Define>
++
+ 	<!-- advc.500b: If this is set to a value greater than 0, unhappiness for
+ 		 lack of military protection is computed based on defensive strength.
+ 		 Otherwise, the BtS computation is used, i.e. any combat unit
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=693

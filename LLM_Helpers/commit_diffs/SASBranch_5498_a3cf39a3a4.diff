@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5498
+# Commit: a3cf39a3a4b3b0db102492004ceaefee0515c8d6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b97bbac6e185f15be1eb7c55ba7291648c9f351c
+# Title: properly fix sevopedia groupings (music and media player) not finding the opening menu musics (game would run them fine in main menu though) - To expand on t...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	2	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+6	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index e60c55710..4ab4bedb5 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -57,8 +57,14 @@ def _SAS_findAssetXmlPath(szFileName, szSubDir):
+ 
+ 	candidates = []
+ 	try:
+-		szHere = os.path.dirname(__file__)
+-		_SAS_addCandidate(candidates, os.path.join(szHere, "..", "..", "..", szSubDir, szFileName))
++		# <!-- custom: fallback independent from __file__: derive mod Assets from current BTS cwd + CvModName.
++		# Some Civ4 Python load paths can expose __file__ as empty/relative, so this keeps Sevopedia Music on mod XML safely
++		# without calling BugPath during early startup. See KI#110. (GPT-5.3-Codex) -->
++		import CvModName
++		szModName = CvModName.modName
++		szCwd = os.getcwd()
++		if szModName and szCwd:
++			_SAS_addCandidate(candidates, os.path.join(szCwd, "Mods", szModName, "Assets", szSubDir, szFileName))
+ 	except:
+ 		pass
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 3d77eb975..d0206677b 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -4311,3 +4311,9 @@ Update:
+ To be more precise, the issue was not with music shuffle itself, but with how sevopedia music and media player find existing musics.
+ 
+ Music shuffle feature is kept for now since it seems to work fine.
++
++Update 2:
++
++- To expand on this: the cleaner and sufficient fix for Sevopedia groupings (Music and Media Player) not showing the other opening menu tracks was to fix the XML fetcher path logic itself in `_SAS_findAssetXmlPath()`.
++- In practice, resolving directly from mod path context (current BTS cwd + `CvModName.modName`, then `Mods/<mod>/Assets/...`) restored correct track discovery.
++- So the robust approach was fetcher-path correction rather than adding BUG-path helper calls.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2101

@@ -1,0 +1,92 @@
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+
+in sevopediafeature, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), with chatgpt 5.2's help, in interfaceScreen:
+iBuild = gc.getInfoTypeForString("BUILD_ROAD")  # example
+printObjAttrs(gc.getBuildInfo(iBuild))
+outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+
+
+[DEBUG] Beginning of show obj inner fields.
+
+__class__
+
+__delattr__
+
+__dict__ = {}
+
+__doc__ = None
+
+__getattribute__
+
+__hash__
+
+__init__
+
+__instance_size__ = 556
+
+__module__ = CvPythonExtensions
+
+__new__
+
+__reduce__
+
+__reduce_ex__
+
+__repr__
+
+__setattr__
+
+__str__
+
+__weakref__ = None
+
+getButton
+
+getCivilopedia
+
+getCost
+
+getDescription
+
+getDescriptionForm
+
+getEntityEvent
+
+getFeatureProduction
+
+getFeatureTech
+
+getFeatureTime
+
+getHelp
+
+getImprovement
+
+getMissionType
+
+getRoute
+
+getStrategy
+
+getTechPrereq
+
+getText
+
+getTextKey
+
+getTime
+
+getType
+
+isFeatureRemove
+
+isGraphicalOnly
+
+isKill
+
+isMatchForLink
+
+[DEBUG] End of show show obj inner fields.

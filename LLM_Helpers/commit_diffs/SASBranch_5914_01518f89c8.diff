@@ -1,0 +1,140 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5914
+# Commit: 01518f89c830433be372b953eb067c07a5af51e1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6eb3e959e9f1fbbbcc7a6516587a1863de030613
+# Title: Improve AI worker irrigation-chain farm support Value non-bonus farms as longer-term support infrastructure for low-food and hill-heavy cities, including foo...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+68	9	CvGameCoreDLL/CvUnitAI.cpp
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 8d8cf673a..0a0f123fb 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1313,18 +1313,77 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 			bool const bFarmGetsFood = (iFarmFoodYieldChange > 0);
+ 			bool const bFarmCanCarryIrrigation = (GET_TEAM(getTeam()).isIrrigation() && kPlot.canHavePotentialIrrigation() && kPlot.isIrrigationAvailable(true));
+ 			bool const bFarmGoodIrrigationTile = (bFarmCanCarryIrrigation || (kPlot.isFreshWater() && kPlot.canHavePotentialIrrigation()));
+-			bool const bFoodSupportFarmCandidate = (!kPlot.isHills() && bCanBuildFarm && bCityHighFoodSupportNeed && (bFarmGetsStrongFood || (bFarmGetsFood && bFarmGoodIrrigationTile) || (iAdjustedFoodDifference <= 0 && bFarmGetsFood)));
++			int iAdjacentDryFarmsIrrigatedByThisFarm = 0;
++			if (!kPlot.isHills() && bCanBuildFarm && bFarmCanCarryIrrigation && kPlot.getBuildProgress(eBuildFarm) <= 0)
++			{
++				// <!-- custom: Hunt concrete chain-irrigation fixes, not abstract irrigation paths. In the Nippur 2014 AD test save, existing farms stayed dry because the missing water-carrying farm could be in another city's BFC and that plot had a cottage/workshop instead. If farming this exact plot would irrigate adjacent existing dry farms, value it enough to replace basic non-food improvements; skip dry farms already reachable or already being fixed by another in-progress farm so workers do not pile onto irrigation speculation. (GPT-5.5) -->
++				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++				{
++					CvPlot* pAdjacentDryFarm = plotDirection(kPlot.getX(), kPlot.getY(), (DirectionTypes)iI);
++					if (pAdjacentDryFarm == NULL || pAdjacentDryFarm->getOwner() != getOwner() || pAdjacentDryFarm->getImprovementType() != eImprovementFarm || pAdjacentDryFarm->isIrrigated() || pAdjacentDryFarm->isIrrigationAvailable(true))
++						continue;
++					bool bAdjacentDryFarmAlreadyGettingIrrigation = false;
++					for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
++					{
++						CvPlot* pOtherPossibleSource = plotDirection(pAdjacentDryFarm->getX(), pAdjacentDryFarm->getY(), (DirectionTypes)iJ);
++						if (pOtherPossibleSource != NULL && pOtherPossibleSource != &kPlot && pOtherPossibleSource->getBuildProgress(eBuildFarm) > 0 && pOtherPossibleSource->canHavePotentialIrrigation() && pOtherPossibleSource->isIrrigationAvailable(true))
++						{
++							bAdjacentDryFarmAlreadyGettingIrrigation = true;
++							break;
++						}
++					}
++					if (!bAdjacentDryFarmAlreadyGettingIrrigation)
++						iAdjacentDryFarmsIrrigatedByThisFarm++;
++				}
++			}
++			bool const bFarmIrrigatesExistingDryFarm = (iAdjacentDryFarmsIrrigatedByThisFarm > 0);
++			bool const bFoodSupportFarmCandidate = (!kPlot.isHills() && bCanBuildFarm && (bCityHighFoodSupportNeed || bFarmIrrigatesExistingDryFarm) && (bFarmIrrigatesExistingDryFarm || bFarmGetsStrongFood || (bFarmGetsFood && bFarmGoodIrrigationTile) || (iAdjustedFoodDifference <= 0 && bFarmGetsFood)));
+ 			int const iBasicCottageFoodSupportOverwriteBias = ((ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate) ? (kPlot.isBeingWorked() ? -100 : 150) : 0);
+-			int const iRawFoodSupportFarmValue = (bFoodSupportFarmCandidate ? 350 + (250 * iFarmFoodYieldChange) + (bFarmGoodIrrigationTile ? 150 : 0) + (bCityStructuralFoodSupportNeed ? 150 : 0) + (100 * std::max(0, -iAdjustedFoodDifference)) + iBasicCottageFoodSupportOverwriteBias : 0);
+-			int const iFoodSupportFarmValue = std::max(0, iRawFoodSupportFarmValue - (100 * std::max(0, iAdjustedFoodDifference - 3)));
+-			bool const bAllowBasicCottageFoodSupportOverwrite = (ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate && (!kPlot.isBeingWorked() || bFarmGetsStrongFood || iAdjustedFoodDifference <= 0));
++			int const iDryFarmIrrigationChainValue = 1400 * iAdjacentDryFarmsIrrigatedByThisFarm;
++			// <!-- custom: If this exact farm would irrigate existing dry farms, unholy the blocker but rank candidates by damage: unimproved plots first, then workshop/cottage, hamlet, village, town last. Even one newly irrigated farm can justify breaking a town because it may continue an irrigation chain beyond what this local check can see; the ranking steers workers to the least harmful viable chain breaker instead of forbidding mature blockers or making a one-farm town break net-negative. (GPT-5.5) -->
++			int const iDryFarmIrrigationOverwritePenalty = (
++				!bFarmIrrigatesExistingDryFarm ? 0 :
++				ePlotCurrentImprovement == eImprovementWorkshop ? 0 :
++				ePlotCurrentImprovement == eImprovementCottage ? 100 :
++				ePlotCurrentImprovement == eImprovementHamlet ? 350 :
++				ePlotCurrentImprovement == eImprovementVillage ? 650 :
++				ePlotCurrentImprovement == eImprovementTown ? 1000 :
++				0
++			);
++			int const iRawFoodSupportFarmValue = (bFoodSupportFarmCandidate ? 350 + (250 * iFarmFoodYieldChange) + (bFarmGoodIrrigationTile ? 150 : 0) + (bCityStructuralFoodSupportNeed ? 150 : 0) + iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty + (100 * std::max(0, -iAdjustedFoodDifference)) + iBasicCottageFoodSupportOverwriteBias : 0);
++			int const iFoodSupportFarmValue = std::max(iDryFarmIrrigationChainValue - iDryFarmIrrigationOverwritePenalty, iRawFoodSupportFarmValue - (100 * std::max(0, iAdjustedFoodDifference - 3)));
++			bool const bAllowDryFarmIrrigationChainOverwrite = (
++				bFarmIrrigatesExistingDryFarm &&
++				(
++					ePlotCurrentImprovement == eImprovementCottage ||
++					ePlotCurrentImprovement == eImprovementWorkshop ||
++					ePlotCurrentImprovement == eImprovementHamlet ||
++					ePlotCurrentImprovement == eImprovementVillage ||
++					ePlotCurrentImprovement == eImprovementTown
++				)
++			);
++			bool const bAllowBasicCottageFoodSupportOverwrite = (ePlotCurrentImprovement == eImprovementCottage && bFoodSupportFarmCandidate && (bAllowDryFarmIrrigationChainOverwrite || !kPlot.isBeingWorked() || bFarmGetsStrongFood || iAdjustedFoodDifference <= 0));
+ 			int const iNonFoodIrrigationPathPenalty = ((iFoodSupportFarmValue > 0 && bFarmGoodIrrigationTile) ? 75 : 0);
++			bool bFarmCarriesIrrigationToAdjacentFarm = false;
++			if (ePlotCurrentImprovement == eImprovementFarm && kPlot.isIrrigated())
++			{
++				// <!-- custom: Once the chain farm exists, keep it semi-holy too. Otherwise a later cottage/workshop pass could remove the carrier farm and recreate the same dry-farm problem we just fixed. This is a cheap adjacent-farm guard rather than full irrigation-network analysis; it protects irrigated farms next to owned irrigated farms that do not have direct fresh water. (GPT-5.5) -->
++				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++				{
++					CvPlot* pAdjacentFarm = plotDirection(kPlot.getX(), kPlot.getY(), (DirectionTypes)iI);
++					if (pAdjacentFarm != NULL && pAdjacentFarm->getOwner() == getOwner() && pAdjacentFarm->getImprovementType() == eImprovementFarm && pAdjacentFarm->isIrrigated() && !pAdjacentFarm->isFreshWater())
++					{
++						bFarmCarriesIrrigationToAdjacentFarm = true;
++						break;
++					}
++				}
++			}
+ 
+ 			// <!-- custom: first the absolutely holy improvements to never improve -->
+-			if (ePlotCurrentImprovement == eImprovementHamlet ||
+-				ePlotCurrentImprovement == eImprovementVillage ||
+-				ePlotCurrentImprovement == eImprovementTown ||
+-				ePlotCurrentImprovement == eImprovementWorkshop ||
++			if ((ePlotCurrentImprovement == eImprovementHamlet && !bAllowDryFarmIrrigationChainOverwrite) ||
++				(ePlotCurrentImprovement == eImprovementVillage && !bAllowDryFarmIrrigationChainOverwrite) ||
++				(ePlotCurrentImprovement == eImprovementTown && !bAllowDryFarmIrrigationChainOverwrite) ||
++				(ePlotCurrentImprovement == eImprovementWorkshop && !bAllowDryFarmIrrigationChainOverwrite) ||
+ 				ePlotCurrentImprovement == eImprovementWindmill)
+ 			{
+ 				// This 'continue' will skip to the next build in the outer loop,
+@@ -1344,7 +1403,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 				);
+ 				// <!-- custom: also the opposite, in high food environments (lots of grass, i have noticed workers inefficiently swapping cottage then farm on flatland grass for example), but if we built cottage once, it means environment was high enough food to being with at that time, else we would not have had done so, so assume that environment is still high food and it is just our current food difference that is fluctuating, either due to suboptimal or more produciton focused plot allocation, or if not irrigated enough or such, but for simplicity, assume our environment is still the same (high-food) and we should thus consider cottage to be absolutely holy under/within/if these conditions //are met as well-->
+ 
+-				if ((bLowFoodEnvironment || bCityStructuralFoodSupportNeed) && kPlot.getImprovementType() == eImprovementFarm)
++				if ((bLowFoodEnvironment || bCityStructuralFoodSupportNeed || bFarmCarriesIrrigationToAdjacentFarm) && kPlot.getImprovementType() == eImprovementFarm)
+ 				{
+ 					// <!-- custom: extra oscillation avoid cases, even with our system, for the better maybe, we respond dynamically to food surplus in city, in low-food environments, one has to win, it is likely will starve again, so if we built a farm once, do not cancel it ever again and consider it holy as well -->
+ 					continue;
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 6961859e1..cc88ea886 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -183,7 +183,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Always improve **bonuses first**, prioritizing **food** bonuses. Major refactor of `CvUnitAI::AI_bestCityBuild` to use a probabilistic value tree tuned for AdvCiv-SAS. See [KI#30](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes).
+ - One worker per improvement **cap** to avoid over-stacking on slow tiles and reduce capture risk.
+ - Greatly simplified `AI_betterPlotBuild`: hard **de-prioritization of roads/routes** early; build them only when they’re truly the best move. Focus is on **yields first**, but still ensure **important bonus connections** (road/route when the bonus is connectable and not yet connected). See [KI#31](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases).
+-- **Overhaul: `AI_bestCityBuild` (full routine):** "holy" improvements (never overwrite: **hamlet, village, town, workshop**) and "semi-holy" (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the "now" move would be inferior; prefer farms on low-food BFCs. See [KI#33](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild). Update: worker AI now also weighs the **longer-term value** of strong **non-bonus farms** for **low-food or hill-heavy cities**: they can **support food-consuming mines**, **faster growth**, or **specialist economies**, and the logic is more **mindful of preserving useful irrigation paths** instead of blindly maximizing immediate cottage/workshop yield.
++- **Overhaul: `AI_bestCityBuild` (full routine):** "holy" improvements (never overwrite: **hamlet, village, town, workshop**) and "semi-holy" (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the "now" move would be inferior; prefer farms on low-food BFCs. See [KI#33](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild). Update: worker AI now also weighs the **longer-term value** of strong **non-bonus farms** for **low-food or hill-heavy cities**: they can **support food-consuming mines**, **faster growth**, or **specialist economies**; (Requires AdvCiv-SAS 5914+) concrete dry-farm irrigation-chain fixes can replace the least harmful blocker first; and the logic is more **mindful of preserving useful irrigation paths** instead of blindly maximizing immediate cottage/workshop yield.
+ - **Mobility:** workers leave "over-improved" cities sooner to help weaker ones; later pass further improves cross-city mobility and bravery within borders (less idle parking). See [KI#39](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it) and [KI#41](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but). Update: **AI workers: favor low-pop cities (untested in a before/after save file compare):** `CvUnitAI::AI_nextCityToImprove` now weights smaller cities higher so workers rotate to underdeveloped hubs sooner—spreading early tile improvements, jump-starting growth, and avoiding over-investment in already-strong capitals.
+ - **Retreat logic:** fix excessive retreat → "parking in city" edge cases with a wake-from-retreat and saner thresholds. See [KI#50](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=14964

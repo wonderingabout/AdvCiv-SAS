@@ -1,0 +1,98 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3197
+# Commit: 3120cbda3f29db70755e675f357fd09837639cb0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b76e11c297168cef2d291eced1c07c9ccf291c7b
+# Title: Call updateDiplomacyAttitude from AI_updateAttitudeCache
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	6	CvGameCoreDLL/CvPlayer.cpp
+13	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3d3402a63..ea5b89b1f 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9267,9 +9267,6 @@ void CvPlayer::setLastStateReligion(ReligionTypes eNewReligion)
+ 	if (!GC.getGame().isFinalInitialized())
+ 		return;
+ 
+-	if (gDLL->isDiplomacy() && (gDLL->getDiplomacyPlayer() == getID()))
+-		gDLL->updateDiplomacyAttitude(true);
+-
+ 	if (!isBarbarian() &&
+ 		/*  advc.150a: Message superfluous when already reported switch to
+ 			civic that prohibits state religion. */
+@@ -9343,6 +9340,8 @@ void CvPlayer::setLastStateReligion(ReligionTypes eNewReligion)
+ 			}
+ 		} // </K-Mod end>
+ 	}
++	/*	(advc.001: updateDiplomacyAttitude was called too early;
++		now handled by AI_updateAttitude. ) */
+ }
+ 
+ 
+@@ -10330,9 +10329,6 @@ void CvPlayer::setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue)
+ 	if(!kGame.isFinalInitialized() || /* advc.003n: */ isBarbarian())
+ 		return;
+ 
+-	if (gDLL->isDiplomacy() && (gDLL->getDiplomacyPlayer() == getID()))
+-		gDLL->updateDiplomacyAttitude(true);
+-
+ 	if (getCivics(eCivicOption) != NO_CIVIC &&
+ 		/* BtS code (which erroneously blocked the message for certain civic switches)
+ 		if (getCivics(eCivicOption) != GC.getInfo(getCivilizationType()).getCivilizationInitialCivics(eCivicOption))*/
+@@ -10386,6 +10382,8 @@ void CvPlayer::setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue)
+ 			itOther->AI_updateAttitude(getID());
+ 		} // </K-Mod>
+ 	}
++	/*	(advc.001: updateDiplomacyAttitude was called too early;
++		now handled by AI_updateAttitude. ) */
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index db6fa02ae..784eb5068 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7317,7 +7317,10 @@ void CvPlayerAI::AI_updateAttitude(PlayerTypes ePlayer, /* advc.130e: */ bool bU
+ 		m_abTheyFarAhead[ePlayer] = m_abTheyBarelyAhead[ePlayer] = false; // advc.130c
+ 		m_aiAttitude[ePlayer] = 0;
+ 		return;
+-	} // <advc.130c> Are they (ePlayer) 150% ahead in score?
++	}
++	int const iOldAttitude = m_aiAttitude[ePlayer]; // advc.001
++
++	// <advc.130c> Are they (ePlayer) 150% ahead in score?
+ 	CvGame const& kGame = GC.getGame();
+ 	int iTheirScore = kGame.getPlayerScore(ePlayer);
+ 	int iOurScore = kGame.getPlayerScore(getID());
+@@ -7363,6 +7366,15 @@ void CvPlayerAI::AI_updateAttitude(PlayerTypes ePlayer, /* advc.130e: */ bool bU
+ 	// <advc.130e>
+ 	if(bUpdateWorstEnemy)
+ 		GET_TEAM(getTeam()).AI_updateWorstEnemy(); // </advc.130e>
++	// <advc.001>
++	if (iOldAttitude != m_aiAttitude[ePlayer] &&
++		/*	Moved from CvPlayer::setCivics, setLastStateReligion.
++			Seems like this update should be relevant in other contexts as well. */
++		gDLL->isDiplomacy() && gDLL->getDiplomacyPlayer() == getID())
++	{
++		gDLL->updateDiplomacyAttitude(true);
++		// Should we do a bForce=false update otherwise? Unnecessary I guess ...
++	} // </advc.001>
+ }
+ 
+ // for making minor adjustments
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2967

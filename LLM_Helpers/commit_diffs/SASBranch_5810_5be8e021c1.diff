@@ -1,0 +1,340 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5810
+# Commit: 5be8e021c15a5111e4e4cc04794a5590a57bda94
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 65336cddcb00b9b4e417efb3623091136e4cb27b
+# Title: add toggle background style button (default kept and tunable)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+57	19	Assets/Python/Screens/CvMainInterface.py
+31	36	Assets/XML/GlobalDefines_advciv_sas.xml
+2	2	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index b8ba7d18f..fb68b55ee 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -56,25 +56,27 @@ import MinimapOptions # advc.002a
+ import RawYields # BUG - Raw Yields
+ import WidgetUtil
+ # <!-- custom: custom widget types for scoreboard scroll/expand buttons; registered once at module load so hover text works. (Claude code Sonnet 4.6) -->
+-WIDGET_SCORE_SCROLL_UP     = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP")
+-WIDGET_SCORE_SCROLL_DOWN   = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN")
++WIDGET_SCORE_SCROLL_UP = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP")
++WIDGET_SCORE_SCROLL_DOWN = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN")
+ # <!-- custom: fast-scroll tiers; step sizes come from SAS defines (FAST / FASTEST). Names must stay digit-free: the engine strips trailing numeric suffixes from control names, so "...Fastest" collapsed onto "...Fast" and both tiers ran the same step (see AGENTS.md XML/UID notes). Hover text stays generic so it stays correct if the defines change. (Claude code Opus 4.7) -->
+-WIDGET_SCORE_SCROLL_UP_FAST    = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FAST")
+-WIDGET_SCORE_SCROLL_UP_FASTEST   = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FASTEST")
+-WIDGET_SCORE_SCROLL_DOWN_FAST  = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN_FAST")
++WIDGET_SCORE_SCROLL_UP_FAST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FAST")
++WIDGET_SCORE_SCROLL_UP_FASTEST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_UP_FASTEST")
++WIDGET_SCORE_SCROLL_DOWN_FAST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN_FAST")
+ WIDGET_SCORE_SCROLL_DOWN_FASTEST = WidgetUtil.createWidget("WIDGET_SCORE_SCROLL_DOWN_FASTEST")
++WIDGET_SCORE_BG_STYLE = WidgetUtil.createWidget("WIDGET_SCORE_BG_STYLE")
+ WIDGET_SCORE_EXPAND_TOGGLE = WidgetUtil.createWidget("WIDGET_SCORE_EXPAND_TOGGLE")
+-WIDGET_ANNOTATIONS_TOGGLE  = WidgetUtil.createWidget("WIDGET_ANNOTATIONS_TOGGLE")
++WIDGET_ANNOTATIONS_TOGGLE = WidgetUtil.createWidget("WIDGET_ANNOTATIONS_TOGGLE")
+ def _scoreHelp(szText):
+ 	return lambda *_: sasFontTagHover + szText + SAS_FONT_TAG_CLOSE
+-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP,     _scoreHelp(u"Scroll scoreboard up"))
+-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN,   _scoreHelp(u"Scroll scoreboard down"))
+-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FAST,    _scoreHelp(u"Scroll scoreboard up (fast)"))
+-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FASTEST,   _scoreHelp(u"Scroll scoreboard up (fastest)"))
+-WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN_FAST,  _scoreHelp(u"Scroll scoreboard down (fast)"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP, _scoreHelp(u"Scroll scoreboard up"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN, _scoreHelp(u"Scroll scoreboard down"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FAST, _scoreHelp(u"Scroll scoreboard up (fast)"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP_FASTEST, _scoreHelp(u"Scroll scoreboard up (fastest)"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN_FAST, _scoreHelp(u"Scroll scoreboard down (fast)"))
+ WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN_FASTEST, _scoreHelp(u"Scroll scoreboard down (fastest)"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_BG_STYLE, _scoreHelp(u"Cycle scoreboard background style"))
+ WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_EXPAND_TOGGLE, _scoreHelp(u"Toggle lock scoreboard hover"))
+-WidgetUtil.setWidgetHelpFunction(WIDGET_ANNOTATIONS_TOGGLE,  _scoreHelp(u"Toggle show map annotations"))
++WidgetUtil.setWidgetHelpFunction(WIDGET_ANNOTATIONS_TOGGLE, _scoreHelp(u"Toggle show map annotations"))
+ # <advc.090>
+ import math
+ def floor(f):
+@@ -591,6 +593,11 @@ class CvMainInterface:
+ 		self.iScoreScrollOffset = 0
+ 		# <!-- custom: always-expand scoreboard toggle; when True, expanded columns shown without hovering. (Claude code Sonnet 4.6) -->
+ 		self.bScoreAlwaysExpand = False
++		# <!-- custom: scoreboard background style cycle (not just opacity: PanelStyles also include plain/colored panels e.g. blue/tan, not only opaque/translucent). Discrete PanelStyle levels in cycle order: 0 HUD_HELP (vanilla look), 1 SOLID (most opaque / darkest), 2 MAIN (plain panel), 3 MAIN_BLACK50 (dark translucent), 4 MAIN_BLACK25 (light translucent), 5 EMPTY (no visible bg, text over map). Reorder/extend freely; if you add or reorder styles here, update the matching SAS_SCOREBOARD_BG_DEFAULT_STYLE legend comment in GlobalDefines_advciv_sas.xml to keep them in sync. Starting level comes from the SAS_SCOREBOARD_BG_DEFAULT_STYLE define, resolved lazily (None until first use). Changes the panel background only. (Claude code Opus 4.7) -->
++		self.iScoreBgStyleLevel = None
++		self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE = None
++		self.aScoreBgStyleLevels = [PanelStyles.PANEL_STYLE_HUD_HELP, PanelStyles.PANEL_STYLE_SOLID, PanelStyles.PANEL_STYLE_MAIN, PanelStyles.PANEL_STYLE_MAIN_BLACK50, PanelStyles.PANEL_STYLE_MAIN_BLACK25, PanelStyles.PANEL_STYLE_EMPTY]
++		self._eScoreBgStyleApplied = PanelStyles.PANEL_STYLE_HUD_HELP
+ 		# <!-- custom: main-map annotation visibility toggle; signs/landmarks have no Python visibility flag, so hide caches them and removes engine billboards until restored. (GPT-5.5) -->
+ 		self.bAnnotationsVisible = True
+ 		self.aHiddenAnnotationSigns = []
+@@ -829,6 +836,7 @@ class CvMainInterface:
+ 		gSetRect("ScoreScrollUpFastest", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+ 		gSetRect("ScoreScrollDownFast", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+ 		gSetRect("ScoreScrollDownFastest", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
++		gSetRect("ScoreBgStyle", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+ 		gSetRect("ScoreExpandToggle", "Top", 0, 0, iSScrollBtnSz, iSScrollBtnSz)
+ 		if self.bScaleHUD:
+ 			# To make room for the Turn Log, whose (default) position I can't change.
+@@ -1884,6 +1892,9 @@ class CvMainInterface:
+ 		screen.hide("ScoreScrollDownFast")
+ 		self.setStyledButton("ScoreScrollDownFastest", ButtonStyles.BUTTON_STYLE_CITY_MINUS, WIDGET_SCORE_SCROLL_DOWN_FASTEST, -1, -1)
+ 		screen.hide("ScoreScrollDownFastest")
++		# <!-- custom: scoreboard bg style cycle button; plain styled button, hover explains it. (Claude code Opus 4.7) -->
++		self.setStyledButton("ScoreBgStyle", ButtonStyles.BUTTON_STYLE_STANDARD, WIDGET_SCORE_BG_STYLE, -1, -1)
++		screen.hide("ScoreBgStyle")
+ 		# <!-- custom: always-expand toggle; resolve SAS emoji path explicitly (addCheckBox only auto-resolves INTERFACE_/BUTTON_/RAW_YIELDS_/PLE_ prefixes). (Claude code Sonnet 4.6) -->
+ 		self.addCheckBox("ScoreExpandToggle", self.szScoreExpandTogglePath, self.szScoreExpandTogglePath, ButtonStyles.BUTTON_STYLE_IMAGE, WIDGET_SCORE_EXPAND_TOGGLE)
+ 		screen.setState("ScoreExpandToggle", False)
+@@ -6034,6 +6045,22 @@ class CvMainInterface:
+ 			for i in range(Scoreboard.NUM_PARTS):
+ 				screen.hide("ScoreText%d-%d" %(iPlayer, i))
+ # BUG - Align Icons - end
++	# <!-- custom: recreate ScoreBackground with the selected PanelStyle; only on change to avoid per-refresh churn. No runtime setPanelStyle in Civ4, hence delete+addPanel (same pattern as _rebuildCityScreenBottomBars). PANEL_STYLE_EMPTY level reads as no background. (Claude code Opus 4.7) -->
++	def _applyScoreBackgroundStyle(self):
++		if self.iScoreBgStyleLevel is None:
++			if self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE is None:
++				self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE = gc.getDefineINT("SAS_SCOREBOARD_BG_DEFAULT_STYLE")
++			self.iScoreBgStyleLevel = self.iSAS_SCOREBOARD_BG_DEFAULT_STYLE
++		eStyle = self.aScoreBgStyleLevels[self.iScoreBgStyleLevel]
++		if eStyle == self._eScoreBgStyleApplied:
++			return
++		screen = self.screen
++		try:
++			screen.deleteWidget("ScoreBackground")
++		except:
++			pass
++		screen.addPanel("ScoreBackground", u"", u"", True, False, 0, 0, 0, 0, eStyle)
++		self._eScoreBgStyleApplied = eStyle
+ 	# advc.092: Reconciling redundant BtS code from updateScoreStrings
+ 	# with BUG code from Scoreboard.draw.
+ 	def updateScoreBackgrSize(self, iTextWidth, iTextHeight):
+@@ -6056,6 +6083,7 @@ class CvMainInterface:
+ 		screen.hide("ScoreScrollUpFastest")
+ 		screen.hide("ScoreScrollDownFast")
+ 		screen.hide("ScoreScrollDownFastest")
++		screen.hide("ScoreBgStyle")
+ 		screen.hide("ScoreExpandToggle")
+ 		eUIVis = CyInterface().getShowInterface()
+ 		if (eUIVis == InterfaceVisibility.INTERFACE_HIDE_ALL or eUIVis == InterfaceVisibility.INTERFACE_MINIMAP_ONLY or not CyInterface().isScoresVisible() or CyInterface().isCityScreenUp()):
+@@ -6065,6 +6093,8 @@ class CvMainInterface:
+ 		if (CyEngine().isGlobeviewUp() and (not MainOpt.isScoresInGlobeView() or eUIVis == InterfaceVisibility.INTERFACE_HIDE)):
+ 			return
+ 		# <advc.004z>
++		# <!-- custom: ensure ScoreBackground uses the currently selected PanelStyle (recreated only on change). (Claude code Opus 4.7) -->
++		self._applyScoreBackgroundStyle()
+ 		screen.show("ScoreBackground") # Moved up
+ 		if bOnlyBackgr:
+ 			return # </advc.004z>
+@@ -6088,13 +6118,15 @@ class CvMainInterface:
+ 		# <!-- custom: row layout right->left is [Lock] [-50][-10][-1] [+1][+10][+50]. Lock/unlock is now the rightmost, fixed slot so it stays anchored to the panel edge even when the scroll tiers are hidden (player count <= capacity); previously it floated mid-row. Speed increases outward from the central +/-1 pair. (Claude code Opus 4.7) -->
+ 		iSRight = gPoint("ScoreTextLowerRight").x()
+ 		iSGap = HSPACE(6)  # gap separating the Lock toggle from the scroll cluster
+-		screen.moveItem("ScoreExpandToggle",     iSRight - 1 * iSScrollBtnSz, iSScrollY, -0.3)
+-		screen.moveItem("ScoreScrollDownFastest",  iSRight - 2 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+-		screen.moveItem("ScoreScrollDownFast",   iSRight - 3 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+-		screen.moveItem("ScoreScrollDown",       iSRight - 4 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+-		screen.moveItem("ScoreScrollUp",         iSRight - 5 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+-		screen.moveItem("ScoreScrollUpFast",     iSRight - 6 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+-		screen.moveItem("ScoreScrollUpFastest",    iSRight - 7 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
++		# <!-- custom: row right->left: [BgStyle][Lock] | gap | [-50][-10][-1] [+1][+10][+50]. Lock is intentionally kept left of the rightmost background-style button: when the player count fits and the scroll +/- buttons are hidden, the lock stays in a consistent, easy-to-reach spot, while the narrower right screen edge suits the rarer, less important, shorter style toggle. (Claude code Opus 4.7) -->
++		screen.moveItem("ScoreBgStyle", iSRight - 1 * iSScrollBtnSz, iSScrollY, -0.3)
++		screen.moveItem("ScoreExpandToggle", iSRight - 2 * iSScrollBtnSz, iSScrollY, -0.3)
++		screen.moveItem("ScoreScrollDownFastest", iSRight - 3 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
++		screen.moveItem("ScoreScrollDownFast", iSRight - 4 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
++		screen.moveItem("ScoreScrollDown", iSRight - 5 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
++		screen.moveItem("ScoreScrollUp", iSRight - 6 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
++		screen.moveItem("ScoreScrollUpFast", iSRight - 7 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
++		screen.moveItem("ScoreScrollUpFastest", iSRight - 8 * iSScrollBtnSz - iSGap, iSScrollY, -0.3)
+ 		screen.setState("ScoreExpandToggle", self.bScoreAlwaysExpand)
+ 		# <!-- custom: swap emoji per state. (Claude code Opus 4.7) -->
+ 		if self.bScoreAlwaysExpand:
+@@ -6102,6 +6134,7 @@ class CvMainInterface:
+ 		else:
+ 			screen.changeImageButton("ScoreExpandToggle", self.szScoreExpandToggleOffPath)
+ 		screen.show("ScoreExpandToggle")
++		screen.show("ScoreBgStyle")
+ # BUG - Align Icons - start
+ 		bAlignIcons = ScoreOpt.isAlignIcons()
+ 		if bAlignIcons:
+@@ -6983,6 +7016,11 @@ class CvMainInterface:
+ 					self.iScoreScrollOffset = max(0, self.iScoreScrollOffset - iStep)
+ 					self.updateScoreStrings()
+ 					return 1
++				# <!-- custom: scoreboard bg style cycle; advances PanelStyle level (lazily seeded from SAS_SCOREBOARD_BG_DEFAULT_STYLE on first use), redraw recreates the panel. (Claude code Opus 4.7) -->
++				elif fn == "ScoreBgStyle":
++					self.iScoreBgStyleLevel = (self.iScoreBgStyleLevel + 1) % len(self.aScoreBgStyleLevels)
++					self.updateScoreStrings()
++					return 1
+ 				# <!-- custom: always-expand toggle; flips bScoreAlwaysExpand so expanded columns are shown permanently. (Claude code Sonnet 4.6) -->
+ 				elif fn == "ScoreExpandToggle":
+ 					self.bScoreAlwaysExpand = not self.bScoreAlwaysExpand
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 3da65e9b7..fa7f0d42a 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -181,22 +181,21 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_SCOREBOARD_SCROLL_INCREMENT_FASTEST</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
++	<!-- custom: scoreboard background default style; this sets the default background at each save load / new game: 0 = HUD_HELP (vanilla scoreboard panel, the shipped default), 1 = SOLID (most opaque, darkest), 2 = MAIN (plain panel), 3 = MAIN_BLACK50 (dark translucent), 4 = MAIN_BLACK25 (light translucent), 5 = EMPTY (no visible background, text drawn over the map). These indices mirror the aScoreBgStyleLevels list in CvMainInterface.py; keep both in sync if styles are added or reordered. Keep at 0 to preserve the vanilla look. (Claude code Opus 4.7) -->
++	<Define>
++		<DefineName>SAS_SCOREBOARD_BG_DEFAULT_STYLE</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
+ 
+ 
+ 
+-	<!-- custom: Tech Chooser (i.e. Technology Advisor) low-res scoreboard swap threshold (in pixels).
+-	<= 0: hard disable; > 0: if current screen width is below this threshold, Tech Chooser uses the alternate low-res scoreboard margin below to gain tree width (more columns). A very high value like 9999 effectively always applies on current displays.
+-	Example: a value of 2560 means the right space alternate value applies for widths below 2560*1440 (i.e. 1440p) (e.g., for 1920*1080 (i.e. 1080p)).
+-	(GPT-5.3-Codex) -->
++	<!-- custom: Tech Chooser (i.e. Technology Advisor) low-res scoreboard swap threshold (in pixels). <= 0: hard disable; > 0: if current screen width is below this threshold, Tech Chooser uses the alternate low-res scoreboard margin below to gain tree width (more columns). A very high value like 9999 effectively always applies on current displays.
++	Example: a value of 2560 means the right space alternate value applies for widths below 2560*1440 (i.e. 1440p) (e.g., for 1920*1080 (i.e. 1080p)). (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_CV_TECH_CHOOSER_LOW_RES_SCOREBOARD_SWAP_WIDTH</DefineName>
+ 		<iDefineIntVal>2560</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Tech Chooser alternate right-side reserved space for scoreboard when low-res swap is active.
+-	Lower value => wider tech tree and more chance to fit one extra column at low resolution.
+-	Higher value => preserves more scoreboard/map area.
+-	This is mainly useful on lower resolutions where reclaiming some scoreboard space can make one more tech-tree column visible.
+-	Use 0 for maximum squeeze during low-res mode. (GPT-5.3-Codex); for example at 1080p a value of 206 allows to show exactly one more technology advisor column -->
++	<!-- custom: Tech Chooser alternate right-side reserved space for scoreboard when low-res swap is active. Lower value => wider tech tree and more chance to fit one extra column at low resolution. Higher value => preserves more scoreboard/map area. This is mainly useful on lower resolutions where reclaiming some scoreboard space can make one more tech-tree column visible. Use 0 for maximum squeeze during low-res mode. (GPT-5.3-Codex); for example at 1080p a value of 206 allows to show exactly one more technology advisor column -->
+ 	<Define>
+ 		<DefineName>SAS_CV_TECH_CHOOSER_RIGHT_SPACE_FOR_SCOREBOARD_LOW_RES</DefineName>
+ 		<iDefineIntVal>206</iDefineIntVal>
+@@ -1389,8 +1388,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: obsolete-unit scrap hard-gates by era and domain, based on iXMLCost. If obsolete and iXMLCost <= cap, scrapping is allowed; if above cap, unit is kept. iXMLCost is game-speed invariant, and these caps are compared as raw XML-cost gates (no game-speed scaling). DOMAIN_LAND is for land combat units; DOMAIN_SEA is for ships (cargo transports are hard-protected in DLL regardless of cap). (GPT-5.3-Codex) -->
+-	<!-- custom: do not scrap units so early -->
++	<!-- custom: obsolete-unit scrap hard-gates by era and domain, based on iXMLCost. If obsolete and iXMLCost <= cap, scrapping is allowed; if above cap, unit is kept. iXMLCost is game-speed invariant, and these caps are compared as raw XML-cost gates (no game-speed scaling). DOMAIN_LAND is for land combat units; DOMAIN_SEA is for ships (cargo transports are hard-protected in DLL regardless of cap). (GPT-5.3-Codex); do not scrap units so early -->
+ 	<Define>
+ 		<DefineName>SAS_CAN_SCRAP_OBSOLETE_WEAK_XMLCOST_CAP_DOMAIN_LAND_ANCIENT</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -1489,8 +1487,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CAN_UPGRADE_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- AI upgrade cost check: maximum gold per 10% strength gain.
+-	     Purpose: stop the AI from spending lots of gold on upgrades that give only a tiny strength gain (common in the late game). -->
++	<!-- AI upgrade cost check: maximum gold per 10% strength gain. Purpose: stop the AI from spending lots of gold on upgrades that give only a tiny strength gain (common in the late game). -->
+ 	<!-- custom: Long_Comments_XML.txt #105 -->
+ 	<Define>
+ 		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH</DefineName>
+@@ -1507,15 +1504,13 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
+-	<!-- AI upgrade cost check: maximum gold per +1 flat strength gain (flat strength gain gate).
+-	     Purpose: an extra safety gate so upgrades are not expensive even when percent strength gain is large (common for very weak units). -->
++	<!-- AI upgrade cost check: maximum gold per +1 flat strength gain (flat strength gain gate). Purpose: an extra safety gate so upgrades are not expensive even when percent strength gain is large (common for very weak units). -->
+ 	<!-- custom: Long_Comments_XML.txt #104 -->
+ 	<Define>
+ 		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH</DefineName>
+ 		<iDefineIntVal>15</iDefineIntVal>
+ 	</Define>
+-	<!-- Extra allowance based on unit EXP.
+-	     Purpose: higher-EXP units keep valuable promotions, so the AI can pay more gold to upgrade them for the same flat strength gain; Long_Comments_XML.txt #176 -->
++	<!-- Extra allowance based on unit EXP. Purpose: higher-EXP units keep valuable promotions, so the AI can pay more gold to upgrade them for the same flat strength gain; Long_Comments_XML.txt #176 -->
+ 	<Define>
+ 		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1732,29 +1727,29 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
+ 	<!-- bias trade valuation toward key military techs when we're clearly outgunned -->
+ 	<!-- custom: Long_Comments_XML.txt #112 -->
+-    <Define>
+-        <DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE</DefineName>
+-        <iDefineIntVal>1</iDefineIntVal>
+-    </Define>
+-    <!-- When in danger, scale the trade value of such techs by this percentage. -->
+-    <!-- e.g. 130 = +30%, 150 = +50%. -->
+-    <Define>
+-        <DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT</DefineName>
+-        <iDefineIntVal>130</iDefineIntVal>
+-    </Define>
++	<Define>
++		<DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- When in danger, scale the trade value of such techs by this percentage. -->
++	<!-- e.g. 130 = +30%, 150 = +50%. -->
++	<Define>
++		<DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT</DefineName>
++		<iDefineIntVal>130</iDefineIntVal>
++	</Define>
+ 
+ 
+ 
+ 	<!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); Long_Comments_XML.txt #201 -->
+-    <Define>
+-        <DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE</DefineName>
+-        <iDefineIntVal>1</iDefineIntVal>
+-    </Define>
+-    <!-- If any team in our master–vassal locus already knows the tech and the offering team is outside that locus, multiply tech trade value by this; Long_Comments_XML.txt #175 -->
+-    <Define>
+-        <DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT</DefineName>
+-        <iDefineIntVal>70</iDefineIntVal>
+-    </Define>
++	<Define>
++		<DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- If any team in our master–vassal locus already knows the tech and the offering team is outside that locus, multiply tech trade value by this; Long_Comments_XML.txt #175 -->
++	<Define>
++		<DefineName>SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT</DefineName>
++		<iDefineIntVal>70</iDefineIntVal>
++	</Define>
+
+diff --git a/README.md b/README.md
+index 88411084d..ca1f8fa7a 100644
+--- a/README.md
++++ b/README.md
+@@ -10,7 +10,7 @@ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12
+ 
+ Among notable UI changes, advisor screens have been reworked or new ones were added (e.g., new World Advisor with detailed geography information per city in BFC, suburbs, and territory; new Summary Tab, new Composition Tab, new Battles Tab (Military Advisor); new Score tab and Timeline tabs (Info Screen)); and they now dynamically adjust to game resolution.They were also were expanded so they use more of the available screen space (notably now optimized for a 16:9 display), reducing the need for players to scroll, and with new information displayed as well. Advisors have been reorganized for easier, logical, and even access (e.g., merge the Espionage Screen so it is now a tab of the Foreign Advisor, merge Civics, Religions, and Corporations so they are now tabs of the Policy Advisor).
+ 
+-A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up and scroll down buttons, the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button.
++A significant UI addition is optional text upscaling (regardless of game resolution) from font 1 (smallest text size) to font 4 (largest text size) which especially helps at higher resolutions or to improve readability on lower resolutions. Or the new Scoreboard scroll up and scroll down buttons, toggle lock hover button, and toggle background style button, the do not render beyond bottom of commerce sliders behaviour.
+ 
+ New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units, `EraArtDefineTags` and `EraArtDefineTag` for leaderhead era art); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Large_Facing_Islands`, `SAS_Longworld`, `SAS_Parallel_Lines`, `SAS_Spiky_Avenues`).
+ 
+@@ -344,7 +344,7 @@ Besides these and other changes in the main changes guide or code only, a notabl
+ 
+ ##### Scoreboard
+ 
+-The new scroll up, scroll fast up, and scroll fastest buttons (same for scroll down), the do not render beyond bottom of commerce sliders behaviour, and toggle lock hover button features have been added.
++The new scroll up, scroll fast up, and scroll fastest buttons (same for scroll down), the do not render beyond bottom of commerce sliders behaviour, toggle lock hover button, and toggle Background Style button (AdvCiv default at each save load/new game kept; tunable) (e.g., blue panel, black50, empty (transparent)) features have been added.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (1).JPG" alt="0.410_scoreboard (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.410_scoreboard (2).JPG" alt="0.410_scoreboard (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index c1ee34786..7c08435f7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -375,7 +375,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**. Show **Era text default ON** (as of now on top left); **strip " Era" suffix** so text is now only e.g., `Renaissance` not `Renaissance Era` (would overflow during golden age when text is upscaled, plus it is unneeded). See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** ((Requires AdvCiv-SAS 5690+) with optional separate blue ribbon, bar Y position and bar height position fine-tuning tunables (e.g., helps remove needless scroll bar when there are not more than max rows, or keep display symetric or prettier)) and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). (Requires AdvCiv-SAS 5526+) Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5689+) Adjust **city camera** to the north (tunable) so extra rows can be shown without overflowing into bottom BFC plots in `CvGame::onCityScreenChange`. And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5726+) Added **help text box** (`DefaultHelpArea`) (on the left side) optional **width adjustment** (negative value shrinks it). Make **x and y positions** (resolution-scaled), and **width** (hard pixel; not resolution-scaled) of the **unit bar** (`PlotListPanel`) **adjustable**, and **fix horizontal overflow of unit bar into scoreboard** when unit bar is full and scoreboard is hovered on (or toggle lock scoreboard hover is ON) (see [KI#124](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)). (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**. (Requires AdvCiv-SAS 5723+) Added a **Toggle show annotations** (Alt + S **captions**, Alt + X **BFC marks**) button (next to the other buttons **above the Minimap**); the toggled state **persists on save and load**; reorganized buttons as part of this change (this takes the Event Log's former HUD icon former (it gets another one instead)). See [README.md (Map annotations)](/README.md#map-annotations).
+-- (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+** (up, fast up, and fastest up) and **-** (down, fast down, and fastest down (e.g., 1 by 1, 5 by 5, or 50 by 50 (effectively max))) **scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Lock scoreboard hover toggle button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover). Note: in first turns of the game the lock button effectively has no effect since power ratios are not yet visible. Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard).
++- (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+** (up, fast up, and fastest up) and **-** (down, fast down, and fastest down (e.g., 1 by 1, 5 by 5, or 50 by 50 (effectively max))) **scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Toggle lock scoreboard hover button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover). Note: in first turns of the game the lock button effectively has no effect since power ratios are not yet visible. Add a **Toggle Background Style button** (AdvCiv **default at each save load/new game kept**; tunable) (e.g., blue panel, black50, empty (transparent)). Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard).
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=34252

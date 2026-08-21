@@ -1,0 +1,232 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6064
+# Commit: cd0fd0a2c657047a3f71bf8014d7c3c990da258e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e746edc8945e8d4ea30f65ca1d57913a36e3a38f
+# Title: Add BBAI diagnostics for assault-transport production bottlenecks in dedicated overseas diagnostics
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+54	14	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index dc095f562..5b30a3e8d 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1033,6 +1033,8 @@ void CvCityAI::AI_chooseProduction()
+ 		AI_barbChooseProduction();
+ 		return;
+ 	}
++	bool const bLogOverseasTransport = (gOverseasTransportLogLevel >= 2);
++	bool const bLogDetailedOverseasTransport = (gOverseasTransportLogLevel >= 3);
+ 
+ 	CvArea* pWaterArea = waterArea(true);
+ 	bool bMaybeWaterArea = false;
+@@ -1140,7 +1142,7 @@ void CvCityAI::AI_chooseProduction()
+ 			kPlayer.AI_getNumAdjacentAreaCitySites(iWaterAreaBestFoundValue,
+ 			*pWaterSettlerArea, &kArea);
+ 	int iNumSettlers = kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
+-	if (gOverseasTransportLogLevel >= 2 && isCapital()) SAS_logOverseasTransportOpportunity(*this, pWaterSettlerArea, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, SAS_getSettlerBuildMinFoundValue(kPlayer, bDanger), iWaterPercent, iBuildUnitProb, iUnitSpending, bFinancialTrouble, bDanger, bLandWar, bAssault);
++	if (bLogOverseasTransport && isCapital()) SAS_logOverseasTransportOpportunity(*this, pWaterSettlerArea, iNumWaterAreaCitySites, iWaterAreaBestFoundValue, SAS_getSettlerBuildMinFoundValue(kPlayer, bDanger), iWaterPercent, iBuildUnitProb, iUnitSpending, bFinancialTrouble, bDanger, bLandWar, bAssault);
+ 
+ 	bool bCapitalArea = false;
+ 	int iNumCapitalAreaCities = 0;
+@@ -1726,7 +1728,7 @@ void CvCityAI::AI_chooseProduction()
+ 					// </advc.017b>
+ 					if (AI_chooseUnit(UNITAI_SETTLER_SEA, iOdds))
+ 					{
+-						if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses early settler sea", sCityName);
++						if (gCityLogLevel >= 2 || bLogOverseasTransport) logBBAI("      City %S uses early settler sea", sCityName);
+ 						return;
+ 					}
+ 				}
+@@ -2409,13 +2411,13 @@ void CvCityAI::AI_chooseProduction()
+ 				}
+ 
+ 				int const iSettlerSeaExisting = kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_SETTLER_SEA);
+-				if (gOverseasTransportLogLevel >= 2 && isCapital() && iSettlerSeaNeeded > 0) logBBAI("      SETTLER_SEA_TRANSPORT_DEMAND turn=%d player=%d %S city=%S waterArea=%d waterSites=%d waterBest=%d settlerBuildMin=%d existing=%d needed=%d shortfall=%d overseasColonies=%d workers=%d assault=%d financialTrouble=%d danger=%d",
++				if (bLogOverseasTransport && isCapital() && iSettlerSeaNeeded > 0) logBBAI("      SETTLER_SEA_TRANSPORT_DEMAND turn=%d player=%d %S city=%S waterArea=%d waterSites=%d waterBest=%d settlerBuildMin=%d existing=%d needed=%d shortfall=%d overseasColonies=%d workers=%d assault=%d financialTrouble=%d danger=%d",
+ 					GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, pWaterArea->getID(), iNumWaterAreaCitySites, iWaterAreaBestFoundValue, iSettlerBuildMinFoundValue, iSettlerSeaExisting, iSettlerSeaNeeded, std::max(0, iSettlerSeaNeeded - iSettlerSeaExisting), iTotalCities - (pCapital == NULL ? iTotalCities : pCapital->getArea().getCitiesPerPlayer(getOwner())), kPlayer.AI_totalUnitAIs(UNITAI_WORKER), bAssault, bFinancialTrouble, bDanger);
+ 				if (iSettlerSeaExisting < iSettlerSeaNeeded)
+ 				{
+ 					if (AI_chooseUnit(UNITAI_SETTLER_SEA))
+ 					{
+-						if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses main settler sea", sCityName);
++						if (gCityLogLevel >= 2 || bLogOverseasTransport) logBBAI("      City %S uses main settler sea", sCityName);
+ 						return;
+ 					}
+ 				}
+@@ -2738,9 +2740,15 @@ void CvCityAI::AI_chooseProduction()
+ 	int iCarriers = kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_SEA);
+ 
+ 	// Revamped logic for production for invasions
++	// <!-- custom: The overseas-opportunity summary alone cannot show whether AdvCiv's invasion-production branch requested a transport. At level 3, trace entry into that branch; the capacity and central production-gate rows below then identify the exact later refusal without adding diagnostic work when logging is disabled. (GPT-5.6-Sol) -->
++	if (bLogDetailedOverseasTransport && pWaterArea != NULL && iUnitSpending >= iMaxUnitSpending + 25) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=INVASION_BRANCH result=REJECT_UNIT_SPENDING unitSpending=%d branchMax=%d assault=%d anyWarPlan=%d areaAI=%d waterArea=%d",
++		GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, iUnitSpending, iMaxUnitSpending + 25,
++		bAssault, kTeam.AI_isAnyWarPlan(), kArea.getAreaAIType(getTeam()), pWaterArea->getID());
+ 	if (iUnitSpending < iMaxUnitSpending + 25) // was + 10 (new unit spending metric)
+ 	{
+ 		bool bBuildAssault = bAssault;
++		bool bAssaultTargetFound = false;
++		bool bHasLandPathToEnemyCity = false;
+ 		CvArea* pAssaultWaterArea = NULL;
+ 		if (pWaterArea != NULL)
+ 		{
+@@ -2753,7 +2761,6 @@ void CvCityAI::AI_chooseProduction()
+ 				kArea.getAreaAIType(getTeam()) != AREAAI_DEFENSIVE)
+ 			{
+ 				// <advc.030b>
+-				bool bAssaultTargetFound = false;
+ 				for (PlayerIter<CIV_ALIVE,KNOWN_POTENTIAL_ENEMY_OF> itTarget(getTeam());
+ 					itTarget.hasNext(); ++itTarget)
+ 				{
+@@ -2767,17 +2774,21 @@ void CvCityAI::AI_chooseProduction()
+ 				}
+ 				if (!bAssaultTargetFound)
+ 					pAssaultWaterArea = NULL;
+-				if (bAssaultTargetFound && // </advc.030b>
+-					!kTeam.AI_isHasPathToEnemyCity(kPlot))
++				if (bAssaultTargetFound) // </advc.030b>
+ 				{
+-					bBuildAssault = true;
++					bHasLandPathToEnemyCity = kTeam.AI_isHasPathToEnemyCity(kPlot);
++					if (!bHasLandPathToEnemyCity)
++						bBuildAssault = true;
+ 				}
+ 			}
+ 		}
++		if (bLogDetailedOverseasTransport && pWaterArea != NULL) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=INVASION_BRANCH result=%s initialAssault=%d buildAssault=%d anyWarPlan=%d areaAI=%d assaultTargetFound=%d hasLandPathToEnemyCity=%d waterArea=%d assaultWaterArea=%d",
++			GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (bBuildAssault ? "ENTER" : "REJECT_NO_ASSAULT_STATE"),
++			bAssault, bBuildAssault, kTeam.AI_isAnyWarPlan(), kArea.getAreaAIType(getTeam()), bAssaultTargetFound, bHasLandPathToEnemyCity, pWaterArea->getID(), (pAssaultWaterArea == NULL ? -1 : pAssaultWaterArea->getID()));
+ 
+ 		if (bBuildAssault)
+ 		{
+-			if (gCityLogLevel >= 2 || gOverseasTransportLogLevel >= 2) logBBAI("      City %S uses build assault", sCityName);
++			if (gCityLogLevel >= 2 || bLogOverseasTransport) logBBAI("      City %S uses build assault", sCityName);
+ 
+ 			UnitTypes eBestAssaultUnit = NO_UNIT;
+ 			if (pAssaultWaterArea != NULL)
+@@ -2787,6 +2798,8 @@ void CvCityAI::AI_chooseProduction()
+ 			int iBestSeaAssaultCapacity = 0;
+ 			if (eBestAssaultUnit != NO_UNIT)
+ 				iBestSeaAssaultCapacity = GC.getInfo(eBestAssaultUnit).getCargoSpace();
++			else if (bLogOverseasTransport) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=BEST_UNIT result=REJECT_NO_TRAINABLE_ASSAULT_TRANSPORT assaultWaterArea=%d",
++				GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (pAssaultWaterArea == NULL ? -1 : pAssaultWaterArea->getID()));
+ 
+ 			int iAreaAttackCityUnits = kPlayer.AI_totalAreaUnitAIs(kArea, UNITAI_ATTACK_CITY);
+ 
+@@ -2913,22 +2926,31 @@ void CvCityAI::AI_chooseProduction()
+ 				int iTargetCapacity = intdiv::uround(5 * iUnitsToTransport, 4);
+ 				if(iTargetCapacity > iTransportCapacity) // </advc.104p>
+ 				{
++					if (bLogOverseasTransport) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=CAPACITY result=SHORTAGE bestUnit=%S bestCargo=%d unitsToTransport=%d targetCapacity=%d localTransports=%d transportsAtSea=%d effectiveTransports=%d transportCapacity=%d unitSpending=%d maxUnitSpending=%d",
++						GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (eBestAssaultUnit == NO_UNIT ? L"-" : GC.getInfo(eBestAssaultUnit).getDescription()),
++						iBestSeaAssaultCapacity, iUnitsToTransport, iTargetCapacity, iLocalTransports, iTransportsAtSea, iTransports, iTransportCapacity, iUnitSpending, iMaxUnitSpending);
+ 					//if ((iUnitSpending < iMaxUnitSpending) || (iUnitsToTransport > 2*iTransportCapacity))
+ 					// K-Mod
+-					if (iUnitSpending < iMaxUnitSpending ||
+-						SyncRandSuccess100(
+-						// advc.104p: Changed 100 to 350
+-						(350 * (iTargetCapacity - iTransportCapacity)) /
+-						std::max(1, iTransportCapacity)))
++					bool const bSpendingAllowsTransport = (iUnitSpending < iMaxUnitSpending);
++					// advc.104p: Changed 100 to 350
++					int const iShortageBuildOdds = (bSpendingAllowsTransport ? -1 : (350 * (iTargetCapacity - iTransportCapacity)) / std::max(1, iTransportCapacity));
++					bool const bShortageRollPassed = (!bSpendingAllowsTransport && SyncRandSuccess100(iShortageBuildOdds));
++					if (bSpendingAllowsTransport || bShortageRollPassed)
+ 					// K-Mod end
+ 					{
+ 						if (AI_chooseUnit(UNITAI_ASSAULT_SEA))
+ 						{
++							if (bLogOverseasTransport) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=ORDER result=TRAIN_ASSAULT_TRANSPORT bestUnit=%S spendingAllows=%d shortageOdds=%d shortageRollPassed=%d",
++								GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (eBestAssaultUnit == NO_UNIT ? L"-" : GC.getInfo(eBestAssaultUnit).getDescription()), bSpendingAllowsTransport, iShortageBuildOdds, bShortageRollPassed);
+ 							AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 8);
+ 							return;
+ 						}
++						if (bLogOverseasTransport) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=ORDER result=REJECT_CHOOSE_UNIT bestUnit=%S spendingAllows=%d shortageOdds=%d shortageRollPassed=%d",
++							GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (eBestAssaultUnit == NO_UNIT ? L"-" : GC.getInfo(eBestAssaultUnit).getDescription()), bSpendingAllowsTransport, iShortageBuildOdds, bShortageRollPassed);
+ 					}
++					else if (bLogOverseasTransport) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=ORDER result=REJECT_SHORTAGE_ROLL bestUnit=%S spendingAllows=%d shortageOdds=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, (eBestAssaultUnit == NO_UNIT ? L"-" : GC.getInfo(eBestAssaultUnit).getDescription()), bSpendingAllowsTransport, iShortageBuildOdds);
+ 				}
++				else if (bLogDetailedOverseasTransport) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=CAPACITY result=ENOUGH unitsToTransport=%d targetCapacity=%d transportCapacity=%d", GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, iUnitsToTransport, iTargetCapacity, iTransportCapacity);
+ 			}
+ 
+ 			if (iUnitSpending < iMaxUnitSpending)
+@@ -12364,6 +12386,7 @@ void CvCityAI::AI_doEmphasize()
+ 
+ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
+ {
++	bool const bLogRequestedAssaultTransportProduction = (eUnitAI == UNITAI_ASSAULT_SEA && gOverseasTransportLogLevel >= 2);
+ 	// <!-- custom: Production-side Settler diagnostics belong to the Settler log category, not the broad city log, so tests with only SAS_BBAI_SETTLER_LOG_LEVEL enabled still show which high- or low-level unit choice path tried to train a Settler. Callers still own the log-level guard before this formatter is invoked. (GPT-5.5-Thinking) -->
+ 	const bool bRequestedSettler = (eUnitAI == UNITAI_SETTLE);
+ 	if (bRequestedSettler)
+@@ -12383,6 +12406,9 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
+ 	if (eUnitAI != NO_UNITAI)
+ 		eBestUnit = AI_bestUnitAI(eUnitAI);
+ 	else eBestUnit = AI_bestUnit(false, NO_ADVISOR, &eUnitAI);
++	if (bLogRequestedAssaultTransportProduction) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=UNIT_SELECTION result=%s bestUnit=%S odds=%d",
++		GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(),
++		(eBestUnit == NO_UNIT ? "REJECT_NO_BEST_UNIT" : "BEST_UNIT"), (eBestUnit == NO_UNIT ? L"-" : GC.getInfo(eBestUnit).getDescription()), iOdds);
+ 
+ 	const bool bResolvedSettler = (eUnitAI == UNITAI_SETTLE);
+ 	if (bResolvedSettler && gSettlerLogLevel >= 2)
+@@ -12426,6 +12452,9 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
+ 		{
+ 			SAS_logSettlerBuildDecision(*this, bRequestedSettler ? "AI_chooseUnit_requested" : "AI_chooseUnit_generic", "REJECT_RANDOM_ODDS", eBestUnit, eUnitAI, iOdds, -1);
+ 		}
++		else if (bLogRequestedAssaultTransportProduction) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=UNIT_SELECTION result=REJECT_RANDOM_ODDS bestUnit=%S odds=%d progress=%d needed=%d",
++			GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(),
++			GC.getInfo(eBestUnit).getDescription(), iOdds, getUnitProduction(eBestUnit), getProductionNeeded(eBestUnit));
+ 	}
+ 
+ 	return false;
+@@ -13226,6 +13255,8 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 					}
+ 					else if (bNavalSupportOffenseFrontUnitAIs)
+ 					{
++						bool const bLogAssaultTransportCentralGate = (gOverseasTransportLogLevel >= 2);
++						// <!-- custom: Log the final SAS assault-transport production gate separately from AdvCiv's request and capacity logic above. This identifies whether missing lift came from immediate danger or the land-heavy-map fleet cap rather than from the city never requesting a transport. (GPT-5.6-Sol) -->
+ 						// <!-- custom: the needed amount will heavily be influenced by our war strategy or situation, otherwise falling back with the as of now below default -->
+ 						int iMaxUnits = iNumCities;
+ 						// if (bNavalHeavyMapname)
+@@ -13239,6 +13270,9 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 						if (bEnemyStrong || bDanger)
+ 						{
+ 							// <!-- custom: no time for these, focus is on defense atm not offense -->
++							if (bLogAssaultTransportCentralGate) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=SAS_CENTRAL_GATE result=REJECT_THREAT unit=%S atWar=%d enemyStrong=%d enemyPowerPercent=%d danger=%d warPlan=%d landHeavyMap=%d navalHeavyMap=%d",
++								GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), pUnitInfo->getDescription(),
++								bAtWar, bEnemyStrong, iEnemyPowerPercent, bDanger, bWarPlan, kGame.isLandHeavyMapnameCached(), bNavalHeavyMapname);
+ 							return false;
+ 						}
+ 						else if (bWarPlan)
+@@ -13252,8 +13286,14 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 
+ 						if (iTotalUnitAIs >= iMaxUnits)
+ 						{
++							if (bLogAssaultTransportCentralGate) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=SAS_CENTRAL_GATE result=REJECT_ASSAULT_TRANSPORT_CAP unit=%S existingAndTraining=%d max=%d atWar=%d enemyStrong=%d danger=%d warPlan=%d landHeavyMap=%d navalHeavyMap=%d",
++								GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), pUnitInfo->getDescription(),
++								iTotalUnitAIs, iMaxUnits, bAtWar, bEnemyStrong, bDanger, bWarPlan, kGame.isLandHeavyMapnameCached(), bNavalHeavyMapname);
+ 							return false;
+ 						}
++						if (gOverseasTransportLogLevel >= 3) logBBAI("      ASSAULT_TRANSPORT_PRODUCTION_DECISION turn=%d player=%d %S city=%S stage=SAS_CENTRAL_GATE result=ALLOW unit=%S existingAndTraining=%d max=%d atWar=%d enemyStrong=%d danger=%d warPlan=%d landHeavyMap=%d navalHeavyMap=%d",
++							GC.getGame().getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), getName().GetCString(), pUnitInfo->getDescription(),
++							iTotalUnitAIs, iMaxUnits, bAtWar, bEnemyStrong, bDanger, bWarPlan, kGame.isLandHeavyMapnameCached(), bNavalHeavyMapname);
+ 					}
+ 					else if (bNavalSupportDefenseFrontUnitAIs)
+ 					{
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=16048

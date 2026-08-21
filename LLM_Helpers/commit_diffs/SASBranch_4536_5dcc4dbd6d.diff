@@ -1,0 +1,87 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4536
+# Commit: 5dcc4dbd6d58068acf8cb2d9abcbe5bb4d4f07bc
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fcc0eb0f037708593754751e14fdd6ddde67288b
+# Title: update docs or/and tech tree 2 i mean anyways, thanks,
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+6	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+14	3	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index 2e5305a06..dbfe84aaa 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index 57149f3b9..d4396560f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -215,3 +215,9 @@ least i mean anyways, thanks,
+ Example: more lancers, grenadier slightly before rifle (but would need to check if this is all
+ accurate or maybe would leave as is or not, but is about this i mean anyways, i mean, anyways,
+ i mean anwyays, thanks,)
++
++- not sure the scout droid (scout/explorers upgrade) fits better in atomic/modern era or in future
++era, but it would be a bit too ineffective in future era, however putting it at atomic/era is a bit
++weird if next to ww2 fighters, maybe i can solve this by making it with a later tech requirement
++that is still in modern era. Similar logic for all i mean anyways units in the military upgrade tree
++i made about this i mean anyways, at least about this i mean anyways, thanks,
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index a911532a1..b6b241551 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -52,7 +52,7 @@ worker 3: maybe a bit faster one but not sure is worth the hassle of upgrading t
+ -
+ worker 6: labourer history rewritten
+ -
+-worker 8: robot i would want etc about this i mean anyways etc about this i mean anyways thanks
++worker 8: service droid c2c
+ 
+ 
+ 
+@@ -60,7 +60,7 @@ work boats (if need take from c2c but i dont thnik is worth for gameplay, leavin
+ -
+ -
+ -
+-work boat 4:
++-
+ -
+ -
+ 
+@@ -81,7 +81,18 @@ explore 3: scout c2c
+ -
+ explore 5: -
+ -
+-explore 7: drone i would want maybe about this i mean anyways, thanks, -> drone helicopter c2c
++explore 7: scout droid c2c
++-
++
++
++air explore
++-
++-
++-
++-
++air explore 5: hot air baloon c2c
++air explore 6: -
++air explore 7: drone helicopter c2c
+ -
+ 
+ ___________________________________________________________________________________________
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2590

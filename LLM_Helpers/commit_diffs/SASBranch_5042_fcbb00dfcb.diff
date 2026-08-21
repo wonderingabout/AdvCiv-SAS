@@ -1,0 +1,1369 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5042
+# Commit: fcbb00dfcb72ce37854c941e2d83cf9d989a40e5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 47ac86538b82513d9df5ccbcc948b25f1c3f509b
+# Title: remove trait_expansive, overhaul traits for many leaders for accuracy and gameplay relevance or/and other or/and not anyways etc - in particular, removed tra...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	5	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+12	36	Assets/XML/Buildings/CIV4BuildingInfos.xml
+72	41	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+1	29	Assets/XML/Civilizations/CIV4TraitInfos.xml
+5	0	README.md
+421	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md
+4	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	137	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+11	8	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index 2c5d374dd..e8eeb109a 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -102,11 +102,7 @@
+ 			<Description>TXT_KEY_TRAIT_CREATIVE</Description>
+ 			<Civilopedia>TXT_KEY_TRAIT_CREATIVE_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
+-		<NewConceptInfo>
+-			<Type>CONCEPT_TRAIT_EXPANSIVE</Type>
+-			<Description>TXT_KEY_TRAIT_EXPANSIVE</Description>
+-			<Civilopedia>TXT_KEY_TRAIT_EXPANSIVE_PEDIA</Civilopedia>
+-		</NewConceptInfo>
++		<!-- custom: removed CONCEPT_TRAIT_EXPANSIVE as the trait is now as of now but anyways etc removed in our mod but anyways etc -->
+ 		<NewConceptInfo>
+ 			<Type>CONCEPT_TRAIT_FINANCIAL</Type>
+ 			<Description>TXT_KEY_TRAIT_FINANCIAL</Description>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 89759b647..d87cf6e46 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -3171,12 +3171,8 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
++			<!-- custom: was (now removed but anyways etc) TRAIT_EXPANSIVE 100 anyways etc -->
++			<ProductionTraits/>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+@@ -3364,12 +3360,8 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
++			<!-- custom: was (now removed but anyways etc) TRAIT_EXPANSIVE 100 anyways etc -->
++			<ProductionTraits/>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+@@ -3555,12 +3547,8 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
++			<!-- custom: was (now removed but anyways etc) TRAIT_EXPANSIVE 100 anyways etc -->
++			<ProductionTraits/>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+@@ -3757,12 +3745,8 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
++			<!-- custom: was (now removed but anyways etc) TRAIT_EXPANSIVE 100 anyways etc -->
++			<ProductionTraits/>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+@@ -5011,12 +4995,8 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
++			<!-- custom: was (now removed but anyways etc) TRAIT_EXPANSIVE 100 anyways etc -->
++			<ProductionTraits/>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+@@ -5211,12 +5191,8 @@
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_EXPANSIVE</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
++			<!-- custom: was (now removed but anyways etc) TRAIT_EXPANSIVE 100 anyways etc -->
++			<ProductionTraits/>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index 78459c61d..29717135d 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -1140,13 +1140,15 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_FREE_RELIGION</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion>
++			<!-- custom: traits reworked with the very nice help of chatgpt 5 and my prompts and ideas and/or such, see docs (in particular as of now README_Assets_Rebalancing.md (or the quick guide if filename changed since then or/and git commit or/and such but anyways etc) but anyways etc) for details anyways etc -->
++			<!-- Asoka — was TRAIT_SPIRITUAL and TRAIT_ORGANIZED -->
+ 			<Traits>
+ 				<Trait>
+ 					<TraitType>TRAIT_SPIRITUAL</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_ORGANIZED</TraitType>
++					<TraitType>TRAIT_PROTECTIVE</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -1598,13 +1600,14 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_NATIONHOOD</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<!-- Bismarck — was TRAIT_EXPANSIVE and TRAIT_INDUSTRIOUS -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_EXPANSIVE</TraitType>
++					<TraitType>TRAIT_ORGANIZED</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
++					<TraitType>TRAIT_PROTECTIVE</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -2223,9 +2226,10 @@
+ 			<iVassalPowerModifier>-20</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<!-- Catherine — was TRAIT_CREATIVE and TRAIT_IMPERIALIST -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_CREATIVE</TraitType>
++					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+@@ -2460,13 +2464,14 @@
+ 			<iVassalPowerModifier>10</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_VASSALAGE</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<!-- Charlemagne — was TRAIT_IMPERIALIST and TRAIT_PROTECTIVE -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_IMPERIALIST</TraitType>
++					<TraitType>TRAIT_AGGRESSIVE</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_PROTECTIVE</TraitType>
++					<TraitType>TRAIT_ORGANIZED</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -3322,13 +3327,14 @@
+ 			<iVassalPowerModifier>-20</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_NATIONHOOD</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<!-- De Gaulle — was TRAIT_INDUSTRIOUS and TRAIT_CHARISMATIC -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
++					<TraitType>TRAIT_CHARISMATIC</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_CHARISMATIC</TraitType>
++					<TraitType>TRAIT_ORGANIZED</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -3536,9 +3542,10 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_FREE_RELIGION</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<!-- Elizabeth — was TRAIT_PHILOSOPHICAL and TRAIT_FINANCIAL -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
++					<TraitType>TRAIT_CREATIVE</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+@@ -3752,14 +3759,14 @@
+ 			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
+ 			<!-- custom: they seem to lean more towards paganism than christianity even though both seem ot be part of the kingdom of benin i mean anyways, etc, see notes for details -->
+ 			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
+-			<!-- custom: traits decided if i may say anyways etc from chatgpt's breakdown(breakthrough? Anyways etc) and my understanding and discussion with it and feeding it our pedia entry of ewuare as well anyways etc -->
++			<!-- Ewuare — was TRAIT_IMPERIALIST and TRAIT_SPIRITUAL -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_IMPERIALIST</TraitType>
++					<TraitType>TRAIT_SPIRITUAL</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_SPIRITUAL</TraitType>
++					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -3976,13 +3983,14 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_UNIVERSAL_SUFFRAGE</FavoriteCivic>
+ 			<FavoriteReligion>NONE</FavoriteReligion> <!-- custom: actually seems none not christianity, see notes for details -->
++			<!-- Frederick — was TRAIT_PHILOSOPHICAL and TRAIT_ORGANIZED -->
+ 			<Traits>
+ 				<Trait>
+ 					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_ORGANIZED</TraitType>
++					<TraitType>TRAIT_CREATIVE</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -4879,13 +4887,14 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
++			<!-- Hammurabi — was TRAIT_ORGANIZED and TRAIT_AGGRESSIVE -->
+ 			<Traits>
+ 				<Trait>
+ 					<TraitType>TRAIT_ORGANIZED</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_AGGRESSIVE</TraitType>
++					<TraitType>TRAIT_PROTECTIVE</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -5284,13 +5293,14 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_ORGANIZED_RELIGION</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
++			<!-- Hatshepsut — was TRAIT_SPIRITUAL and TRAIT_CREATIVE -->
+ 			<Traits>
+ 				<Trait>
+ 					<TraitType>TRAIT_SPIRITUAL</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_CREATIVE</TraitType>
++					<TraitType>TRAIT_FINANCIAL</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -5522,13 +5532,14 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
++			<!-- Huayna Capac — was TRAIT_INDUSTRIOUS and TRAIT_FINANCIAL -->
+ 			<Traits>
+ 				<Trait>
+ 					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_FINANCIAL</TraitType>
++					<TraitType>TRAIT_ORGANIZED</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -5744,13 +5755,14 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_THEOCRACY</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<!-- Isabella — was TRAIT_SPIRITUAL and TRAIT_EXPANSIVE -->
+ 			<Traits>
+ 				<Trait>
+ 					<TraitType>TRAIT_SPIRITUAL</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_EXPANSIVE</TraitType>
++					<TraitType>TRAIT_AGGRESSIVE</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -5984,13 +5996,14 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<!-- João II — was TRAIT_IMPERIALIST and TRAIT_EXPANSIVE -->
+ 			<Traits>
+ 				<Trait>
+ 					<TraitType>TRAIT_IMPERIALIST</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_EXPANSIVE</TraitType>
++					<TraitType>TRAIT_FINANCIAL</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -6192,9 +6205,10 @@
+ 			<iVassalPowerModifier>20</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_REPRESENTATION</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
++			<!-- Julius Caesar — was TRAIT_ORGANIZED and TRAIT_IMPERIALIST -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_ORGANIZED</TraitType>
++					<TraitType>TRAIT_AGGRESSIVE</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+@@ -6401,13 +6415,14 @@
+ 			<iVassalPowerModifier>20</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_THEOCRACY</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<!-- Justinian — was TRAIT_SPIRITUAL and TRAIT_IMPERIALIST -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_SPIRITUAL</TraitType>
++					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_IMPERIALIST</TraitType>
++					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -6614,9 +6629,10 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion>
++			<!-- Kublai Khan — was TRAIT_AGGRESSIVE and TRAIT_CREATIVE -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_AGGRESSIVE</TraitType>
++					<TraitType>TRAIT_IMPERIALIST</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+@@ -7507,9 +7523,10 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_STATE_PROPERTY</FavoriteCivic>
+ 			<FavoriteReligion>NONE</FavoriteReligion>
++			<!-- Mao Zedong — was TRAIT_EXPANSIVE and TRAIT_PROTECTIVE -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_EXPANSIVE</TraitType>
++					<TraitType>TRAIT_AGGRESSIVE</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+@@ -7714,13 +7731,14 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_VASSALAGE</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_ISLAM</FavoriteReligion>
++			<!-- Mehmed II — was TRAIT_EXPANSIVE and TRAIT_ORGANIZED -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_EXPANSIVE</TraitType>
++					<TraitType>TRAIT_IMPERIALIST</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_ORGANIZED</TraitType>
++					<TraitType>TRAIT_AGGRESSIVE</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -8146,9 +8164,10 @@
+ 			<iVassalPowerModifier>20</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_REPRESENTATION</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<!-- Napoleon — was TRAIT_ORGANIZED and TRAIT_CHARISMATIC -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_ORGANIZED</TraitType>
++					<TraitType>TRAIT_IMPERIALIST</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+@@ -8360,14 +8379,16 @@
+ 			<VassalRefuseAttitudeThreshold>ATTITUDE_PLEASED</VassalRefuseAttitudeThreshold>
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_HEREDITARY_RULE</FavoriteCivic>
+-			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion> <!-- custom: did not find much info for pacal (2) so going with the very succint wiki mention that i could not refute or investigate further in short time and quick data sample (if need else not necessary to explictly refute anwyays etc) hopefully accuate enough anyways etc -->
++			<!-- custom: did not find much info for pacal (2) so going with the very succint wiki mention that i could not refute or investigate further in short time and quick data sample (if need else not necessary to explictly refute anwyays etc) hopefully accuate enough anyways etc -->
++			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
++			<!-- Pacal — was TRAIT_FINANCIAL and TRAIT_EXPANSIVE -->
+ 			<Traits>
+ 				<Trait>
+ 					<TraitType>TRAIT_FINANCIAL</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_EXPANSIVE</TraitType>
++					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -8780,13 +8801,14 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_BUREAUCRACY</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<!-- Peter — was TRAIT_PHILOSOPHICAL and TRAIT_EXPANSIVE -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_PHILOSOPHICAL</TraitType>
++					<TraitType>TRAIT_IMPERIALIST</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_EXPANSIVE</TraitType>
++					<TraitType>TRAIT_ORGANIZED</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -9695,13 +9717,14 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_MERCANTILISM</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<!-- Franklin D. Roosevelt — was TRAIT_INDUSTRIOUS and TRAIT_ORGANIZED -->
+ 			<Traits>
+ 				<Trait>
+ 					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_ORGANIZED</TraitType>
++					<TraitType>TRAIT_CHARISMATIC</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -9914,13 +9937,14 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_THEOCRACY</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_ISLAM</FavoriteReligion>
++			<!-- Saladin — was TRAIT_PROTECTIVE and TRAIT_SPIRITUAL -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_PROTECTIVE</TraitType>
++					<TraitType>TRAIT_SPIRITUAL</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_SPIRITUAL</TraitType>
++					<TraitType>TRAIT_CHARISMATIC</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -10150,13 +10174,14 @@
+ 			<iVassalPowerModifier>20</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_POLICE_STATE</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_PAGANISM</FavoriteReligion>
++			<!-- Shaka — was TRAIT_AGGRESSIVE and TRAIT_EXPANSIVE -->
+ 			<Traits>
+ 				<Trait>
+ 					<TraitType>TRAIT_AGGRESSIVE</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_EXPANSIVE</TraitType>
++					<TraitType>TRAIT_ORGANIZED</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -11003,9 +11028,10 @@
+ 			<FavoriteCivic>CIVIC_CASTE_SYSTEM</FavoriteCivic>
+ 			<!-- advc.005a: was BUDDHISM -->
+ 			<FavoriteReligion>RELIGION_HINDUISM</FavoriteReligion>
++			<!-- Suryavarman II — was TRAIT_EXPANSIVE and TRAIT_CREATIVE -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_EXPANSIVE</TraitType>
++					<TraitType>TRAIT_INDUSTRIOUS</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+@@ -11240,13 +11266,14 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_MERCANTILISM</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion>
++			<!-- Tokugawa — was TRAIT_PROTECTIVE and TRAIT_AGGRESSIVE -->
+ 			<Traits>
+ 				<Trait>
+ 					<TraitType>TRAIT_PROTECTIVE</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_AGGRESSIVE</TraitType>
++					<TraitType>TRAIT_ORGANIZED</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -11689,14 +11716,16 @@
+ 			<VassalRefuseAttitudeThreshold>ATTITUDE_CAUTIOUS</VassalRefuseAttitudeThreshold>
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_CASTE_SYSTEM</FavoriteCivic>
+-			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion> <!-- custom: no confucianism anymore, leaning closer to buddhism it seems, so changed to it, read notes for details -->
++			<!-- custom: no confucianism anymore, leaning closer to buddhism it seems, so changed to it, read notes for details -->
++			<FavoriteReligion>RELIGION_BUDDHISM</FavoriteReligion>
++			<!-- Wang Kon — was TRAIT_FINANCIAL and TRAIT_PROTECTIVE -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_FINANCIAL</TraitType>
++					<TraitType>TRAIT_ORGANIZED</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+-					<TraitType>TRAIT_PROTECTIVE</TraitType>
++					<TraitType>TRAIT_SPIRITUAL</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 			</Traits>
+@@ -11899,9 +11928,10 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_FREE_SPEECH</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<!-- Washington — was TRAIT_EXPANSIVE and TRAIT_CHARISMATIC -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_EXPANSIVE</TraitType>
++					<TraitType>TRAIT_PROTECTIVE</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+@@ -12348,9 +12378,10 @@
+ 			<iVassalPowerModifier>0</iVassalPowerModifier>
+ 			<FavoriteCivic>CIVIC_THEOCRACY</FavoriteCivic>
+ 			<FavoriteReligion>RELIGION_CHRISTIANITY</FavoriteReligion>
++			<!-- Zara Yaqob — was TRAIT_CREATIVE and TRAIT_ORGANIZED -->
+ 			<Traits>
+ 				<Trait>
+-					<TraitType>TRAIT_CREATIVE</TraitType>
++					<TraitType>TRAIT_SPIRITUAL</TraitType>
+ 					<bTrait>1</bTrait>
+ 				</Trait>
+ 				<Trait>
+
+diff --git a/Assets/XML/Civilizations/CIV4TraitInfos.xml b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+index 47f4b7536..0897826ce 100644
+--- a/Assets/XML/Civilizations/CIV4TraitInfos.xml
++++ b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+@@ -107,34 +107,6 @@
+ 			<FreePromotions/>
+ 			<FreePromotionUnitCombats/>
+ 		</TraitInfo>
+-		<TraitInfo>
+-			<Type>TRAIT_EXPANSIVE</Type>
+-			<Description>TXT_KEY_TRAIT_EXPANSIVE</Description>
+-			<ShortDescription>TXT_KEY_TRAIT_EXPANSIVE_SHORT</ShortDescription>
+-			<Civilopedia>TXT_KEY_TRAIT_EXPANSIVE_PEDIA</Civilopedia>
+-			<iHealth>2</iHealth>
+-			<iHappiness>0</iHappiness>
+-			<iMaxAnarchy>-1</iMaxAnarchy>
+-			<iUpkeepModifier>0</iUpkeepModifier>
+-			<iLevelExperienceModifier>0</iLevelExperienceModifier>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+-			<iMaxGlobalBuildingProductionModifier>0</iMaxGlobalBuildingProductionModifier>
+-			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
+-			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
+-			<ExtraYieldThresholds/>
+-			<!-- custom: try a food based multiplier, i don't know how op it would be or the exact math or rather example of values,  but seems interesting and goes well with the growth type and food type/profil i mean of the expansive trait so trying it as such anyways etc, see also this topic/forum https://forums.civfanatics.com/threads/modifying-traits-tradeyieldmodifiers.264979/post-8045016 if helps i mean there is a screenshot and such discussion about this if i am not mistaken hopefully helpful or not or yes or other but anyways etc, was empty -->
+-			<TradeYieldModifiers>
+-				<iYield>20</iYield>
+-				<iYield>0</iYield>
+-				<iYield>0</iYield>
+-			</TradeYieldModifiers>
+-			<CommerceChanges/>
+-			<CommerceModifiers/>
+-			<FreePromotions/>
+-			<FreePromotionUnitCombats/>
+-		</TraitInfo>
+ 		<TraitInfo>
+ 			<Type>TRAIT_INDUSTRIOUS</Type>
+ 			<Description>TXT_KEY_TRAIT_INDUSTRIOUS</Description>
+@@ -329,7 +301,7 @@
+ 			<iMaxTeamBuildingProductionModifier>0</iMaxTeamBuildingProductionModifier>
+ 			<iMaxPlayerBuildingProductionModifier>0</iMaxPlayerBuildingProductionModifier>
+ 			<ExtraYieldThresholds/>
+-			<!-- custom: change from (translate to english with web browser or such anyways etc) https://gforestshade.github.io/kujira/post/civ4traitinfos/#tradeyieldmodifiers adjusted or not for advciv-sas anyways etc, was empty -->
++			<!-- custom: change from (translate to english with web browser or such anyways etc) https://gforestshade.github.io/kujira/post/civ4traitinfos/#tradeyieldmodifiers adjusted or not for advciv-sas anyways etc, see also this topic/forum https://forums.civfanatics.com/threads/modifying-traits-tradeyieldmodifiers.264979/post-8045016 if helps i mean there is a screenshot and such discussion about this if i am not mistaken hopefully helpful or not or yes or other but anyways etc, was empty -->
+ 			<TradeYieldModifiers>
+ 				<iYield>10</iYield>
+ 				<iYield>20</iYield>
+
+diff --git a/README.md b/README.md
+index c775e0bc8..a82f3bf11 100644
+--- a/README.md
++++ b/README.md
+@@ -38,6 +38,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
+ &emsp;[World map with civs](/README.md#world-map-with-civs)  
+ &emsp;[Other map(s) i used for terrain modifiers for civ-specific units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units)  
++[Assets Rebalancing](/README.md#assets-rebalancing)  
+ [48 Civs DLL](/README.md#48-civs-dll)  
+ [Autoplay test runs](/README.md#autoplay-test-runs)  
+ [Project Goals and global view on gameplay changes](/README.md#project-goals-and-global-view-on-gameplay-changes)  
+@@ -271,6 +272,10 @@ Note: sometimes i slightly deviated from strict terrain world map real layout, a
+ 
+ Note 2: as of now i'm using plains as a representative of savanna more or less anyways etc
+ 
++## Assets Rebalancing
++
++See [README_Assets_Rebalancing.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md).
++
+ ## 48 Civs DLL
+ 
+ A 48 Civs DLL is also available and provided in this mod. (As of now named "CvGameCoreDLL_48_civs_dll.dll").
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md
+new file mode 100644
+index 000000000..b50e19f6b
+--- /dev/null
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md
+@@ -0,0 +1,421 @@
++# README_Assets_Rebalancing
++
++Some of the asset rebalancing is shown here (not exhaustive)
++
++## Menu
++
++Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 which does this very well and fast anyways etc among other versions who/which could or not but anyways etc), feeding it the global search results of these entries and telling the format of the entries :), and then i adjusted a bit after but anyways etc. Hopefully helpful, thanks a lot chatgpt 5 hehe (among other versions or not had i tried with them but anyways etc). If you're curious how i did it, see this [google drive folder link](https://drive.google.com/drive/folders/1B18cJ8GYD8X_0vMoiTihVz0tthg5m_sg?usp=sharing) 's screenshots for details, hopefully helpful or not or yes or etc anyways etc
++
++[Starting techs rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#starting-techs-rework)  
++[Leaders' traits rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#leaders-traits-rework)  
++
++## Starting techs rework
++
++As it is too lengthy to put in the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md), here are how we changed the starting civ techs in our mod
++
++### before most recent as of now rework anyways etc
++
++#### main table (chatgpt 5 written anyways etc) - before change anyways etc
++
++Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file as of now anyways etc), check if accurate and thanks a lot chatgpt 5 and thanks to my prompt and such too if i may say but anyways etc
++
++| Civ                      | Lines       | FreeTechs                               | Allowed-only? |
++|--------------------------|-------------|------------------------------------------|---------------|
++| America                  | 9–142       | 109→Fishing, 113→Agriculture             | ❌            |
++| Arabia                   | 143–244     | 219→The Wheel, 223→Mysticism             | ❌            |
++| Aztec                    | 245–346     | 321→Mysticism, 325→Hunting               | ✅            |
++| Babylon                  | 347–452     | 427→Agriculture, 431→The Wheel           | ❌            |
++| Byzantium                | 453–562     | 537→The Wheel, 541→Mysticism             | ❌            |
++| Carthage                 | 563–669     | 644→Fishing, 648→Mining                  | ✅            |
++| Celt                     | 670–784     | 755→Hunting, 759→Mysticism               | ✅            |
++| China                    | 785–898     | 869→Agriculture, 873→Mining              | ❌            |
++| Egypt                    | 899–1024    | 995→The Wheel, 999→Agriculture           | ❌            |
++| England                  | 1025–1136   | 1103→Fishing, 1107→Mining                | ✅            |
++| Ethiopia                 | 1137–1256   | 1215→Hunting, 1219→Mining                | ✅            |
++| Kingdom of Benin         | 1257–1366   | 1341→Mysticism, 1345→Fishing             | ✅            |
++| France                   | 1367–1480   | 1447→The Wheel, 1451→Agriculture         | ❌            |
++| Germany                  | 1481–1603   | 1574→Pottery, 1578→Mining                | ✅            |
++| Greece                   | 1604–1718   | 1689→Fishing, 1693→Hunting               | ✅            |
++| Holy Roman               | 1719–1830   | 1805→Mysticism, 1809→Hunting             | ✅            |
++| Inca                     | 1831–1931   | 1906→Agriculture, 1910→Mysticism         | ❌            |
++| India                    | 1932–2098   | 2069→Mysticism, 2073→Mining              | ✅            |
++| Japan                    | 2099–2199   | 2174→Fishing, 2178→The Wheel             | ❌            |
++| Khmer                    | 2200–2307   | 2282→Hunting, 2286→Mining                | ✅            |
++| Korea                    | 2308–2404   | 2379→Mining, 2383→Mysticism              | ✅            |
++| Mali                     | 2405–2500   | 2475→The Wheel, 2479→Mining              | ❌            |
++| Maya                     | 2501–2610   | 2585→Mining, 2589→Mysticism              | ✅            |
++| Mongol                   | 2611–2713   | 2684→The Wheel, 2688→Hunting             | ❌            |
++| Native America           | 2714–2829   | 2804→Agriculture, 2808→Fishing           | ❌            |
++| Netherlands              | 2830–2942   | 2917→Agriculture, 2921→Fishing           | ❌            |
++| Ottoman                  | 2943–3048   | 3019→The Wheel, 3023→Agriculture         | ❌            |
++| Persia                   | 3049–3183   | 3154→Agriculture, 3158→Hunting           | ❌            |
++| Portugal                 | 3184–3294   | 3269→Fishing, 3273→Mining                | ✅            |
++| Rome                     | 3295–3419   | 3390→Fishing, 3394→Mining                | ✅            |
++| Russia                   | 3420–3531   | 3498→Hunting, 3502→Mining                | ✅            |
++| Spain                    | 3532–3638   | 3613→Fishing, 3617→Mysticism             | ✅            |
++| Sumeria                  | 3639–3742   | 3716→Mysticism, 3720→Pottery             | ✅            |
++| Scandinavia              | 3743–3847   | 3822→Fishing, 3826→Hunting               | ✅            |
++| Zulu                     | 3848–3949   | 3924→Agriculture, 3928→Hunting           | ❌            |
++| Minor                    | 3950–4087   | 4046→Mining, 4050→Mysticism, 4054→Fishing, 4058→The Wheel, 4062→Agriculture, 4066→Hunting | ❌ |
++| Barbarian                | 4088–EOF    | 4487→Pottery, 4491→Fishing, 4495→Seafaring, 4500→Masonry | ❌ |
++
++#### Global tech totals (should sum to 70 = 35 civs × 2) - before change anyways etc
++
++Without counting barbarians and minor, the total count among civs is as of now (thanks to chatgpt 5 too and my prompt and such too hehe but anyways etc):
++
++Allowed starting techs
++
++- Mining:     13
++- Fishing:    12
++- Mysticism:  12
++- Hunting:    11
++- Pottery:     2
++
++### after most recent as of now rework anyways etc
++
++After a few or quite many back and forth and reviewing rounds with chatgpt 5 which helped me tons but also me hehe and my own ideas but it helped lot too but anyways etc, here are (below but anyways etc) the adjusted starting techs for civs as of now in advciv-sas, written by chatgpt 5. This was mostly to remove/replace old now removed tech_agriculture and tech_the_wheel starters that are now no longer starting techs, as well as quite along with it rebalance it and rework it all if i may say but anyways etc. I think the result is really good at least much better than it was check if accurate anyways etc.
++
++#### main table (chatgpt 5 written with some tweaks from me but anyways etc)
++
++Goals: (1) stay historically/thematically sane, (2) avoid **too many repeats** of the same pair, and (3) **not too many “amazing” pairs** like **Mining+Hunting** (early rush spike) and **Mining+Pottery** (eco+production spike) — while keeping **quite a few enough** for clear identity/variety.
++
++Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without concern as long as there is not too much of it.
++
++| Civ               | Old FreeTechs                 | New FreeTechs                 | Rationale |
++|-------------------|-------------------------------|-------------------------------|-----------|
++| America           | Fishing, Agriculture          | **Fishing, Hunting**          | Drops disallowed Agriculture. Frontier/scouting flavor; modest econ. *Avoids Mining+Hunting / Mining+Pottery.* |
++| Arabia            | The Wheel, Mysticism          | **Mysticism, Pottery**        | Replaces Wheel. Oasis trade + early religion; balanced culture/commercial start. *Avoids Mining+Pottery.* |
++| Aztec             | Mysticism, Hunting            | **Mining, Mysticism**         | **Jaguar** now at Bronze Working → Mining speeds access. Mysticism matches ritual/state culture. We **avoid Mining+Hunting** to curb rush. |
++| Babylon           | Agriculture, The Wheel        | **Pottery, Mysticism**        | **Bowman** is now **Longbow-class** at Construction. Pottery fits the Masonry → Construction lane (bricks, aqueducts, Hanging Gardens), while Mysticism preserves the temple/garden flavor. |
++| Byzantium         | The Wheel, Mysticism          | **Mysticism, Fishing**        | Bosporus/seaborne empire + spiritual tone; removes early-road snowball. |
++| Carthage          | Fishing, Mining               | **Fishing, Pottery**          | Maritime commerce + cottages; **drops Mining** to lower early snowball and reduce pair repetition. |
++| Celt              | Hunting, Mysticism            | **Hunting, Mining**           | **Gallic Warrior** metallurgy path justified; shifts from “druidic” to martial. **Intentional strong pair** (Mining+Hunting) for civ-specific unit identity; kept rare overall. |
++| China             | Agriculture, Mining           | **Mining, Pottery**           | Bronze/iron + ceramics traditions; we keep this as **one of the few** strong **Mining+Pottery** pairs for identity. |
++| Egypt             | The Wheel, Agriculture        | **Hunting, Pottery**          | Keep **Pottery** to flow into **Masonry → Construction** (builder identity: Pyramids, aqueducts, etc.). Add **Hunting** to align the **War Chariot** path. |
++| England           | Fishing, Mining               | **Fishing, Mining**           | Industrial metals identity fits; Fishing+Mining is acceptable (Fishing is weakest). Also avoids overusing Mining+Pottery. |
++| Ethiopia          | Hunting, Mining               | **Hunting, Mysticism**        | Highlands/faith; **removes Mining+Hunting** spike while keeping early defense. |
++| Kingdom of Benin  | /                             | **Mysticism, Fishing**        | Coastal trade + religious courts; already balanced and flavorful. |
++| France            | The Wheel, Agriculture        | **Hunting, Pottery**          | Aristocratic hunt + towns; replaces disallowed pair. |
++| Germany           | Pottery, Mining               | **Pottery, Mining**           | Crafts + metalwork flexibility. **One of the few** Mining+Pottery we keep (Old World metallurgy). |
++| Greece            | Fishing, Hunting              | **Fishing, Mysticism**        | Still coastal/Aegean, but we emphasize oracles/cults/philosophy. Avoids Mining+Pottery/Hunting spikes. |
++| Holy Roman        | Mysticism, Hunting            | **Mysticism, Hunting**        | Clerical legitimacy + levies; varied without Mining spikes. |
++| Inca              | Agriculture, Mysticism        | **Pottery, Mining**           | Andean mining/metallurgy (copper, arsenical bronze; large-scale gold/silver extraction) + state logistics makes Mining a great fit. Also supports Quechua @ **Iron Working** |
++| India             | Mysticism, Mining             | **Mysticism, Mining**         | Spiritual tradition + engineering; not an “amazing” pair. |
++| Japan             | Fishing, The Wheel            | **Fishing, Hunting**          | Keeps maritime identity; **Jōmon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
++| Khmer             | Hunting, Mining               | **Fishing, Hunting**          | Tonlé Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
++| Korea             | Mining, Mysticism             | **Mining, Mysticism**         | Metalwork/engineering + Confucian culture; solid, non-“amazing” pair. |
++| Mali              | The Wheel, Mining             | **Hunting, Pottery**          | **Skirmisher** is now **Longbow-class** at Construction. Hunting keeps the Sahel skirmisher/camp identity; Pottery sustains early commerce while beelining Construction. They don't need mining as much for their civ-specific unit. |
++| Maya              | Mining, Mysticism             | **Mysticism, Pottery**        | Classic Maya = obsidian/chert/jade; metals are late/minor. Holkan @ Bronze Working (Mining line) remains reachable, but early Pottery better fits their builder profile and ramps Ball Court @ Construction, while Mysticism matches ritual/astronomy and supplies early culture. |
++| Mongol            | The Wheel, Hunting            | **Hunting, Mysticism**        | Pastoral steppe with early horses: Hunting → Animal Husbandry → Mounted Combat (and Barracks @ Hunting in AdvCiv-SAS), which also matches their aggressive-leaning leader profiles; Mysticism reflects Tengri/shamanic cohesion and supplies early culture/monuments to claim steppe space. |
++| Native America    | Agriculture, Fishing          | **Hunting, Mining**           | Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity. |
++| Netherlands       | Agriculture, Fishing          | **Fishing, Pottery**          | Maritime commerce + early cottages; *no Mining* for a gentler opener. |
++| Ottoman           | The Wheel, Agriculture        | **Fishing, Pottery**          | **Fishing** to reflect an early maritime footprint on the **Aegean**, **Sea of Marmara** (Bosporus), **Black Sea**, and the **eastern Mediterranean**. Pair with **Pottery** to support early crafts/urbanization and a builder-empire profile. They don't need as much strong starting techs for their civ-specific unit that is later in the game. |
++| Persia            | Agriculture, Hunting          | **Hunting, Mining**           | Nearer to **Iron Working** path in your tree; strong metallurgy tradition. We accept one more OP pair for identity; totals remain balanced. |
++| Portugal          | Fishing, Mining               | **Fishing, Pottery**          | Age-of-Discovery maritime commerce; Mining ceded to reduce repetition and fund other civs’ thematic needs. |
++| Rome              | Fishing, Mining               | **Fishing, Mining**           | Metals for **Legionary** timing; avoids Hunting and Mining+Pottery extremes. |
++| Russia            | Hunting, Mining               | **Pottery, Mining**           | Land-empire emphasis (settlement/crafts) and less “fishy” opening. Keeps metal identity; also offsets Ottoman’s change to keep 14/14/14/14/14 totals. |
++| Spain             | Fishing, Mysticism            | **Fishing, Mysticism**        | Maritime reach + organized religion; avoids Mining spikes. |
++| Sumeria           | Mysticism, Pottery            | **Mysticism, Mining**         | **Vulture** (axe) loves metals; still not the “amazing” Mining+Pottery/Hunting. |
++| Scandinavia       | Fishing, Hunting              | **Fishing, Hunting**          | Seafaring + raiding/hunting; balanced opener without Mining; keeps variety. |
++| Zulu              | Agriculture, Hunting          | **Hunting, Mining**           | **Intentionally keep an OP pair (Mining+Hunting)** for **Impi** flavor/identity; brings Agriculture into compliance. |
++
++#### Global tech totals (should sum to 70 = 35 civs × 2)
++
++| Tech      | Count |
++|-----------|-------|
++| Fishing   | 14    |
++| Hunting   | 14    |
++| Mysticism | 14    |
++| Pottery   | 14    |
++| Mining    | 14    |
++
++#### Starting pair counts (canonicalized; order-insensitive)
++
++| Pair                   | Count |
++|------------------------|-------|
++| Mining + Mysticism     | 4     |
++| Fishing + Hunting      | 4     |
++| Fishing + Mysticism    | 4     |
++| Fishing + Pottery      | 4     |
++| Hunting + Mining       | 4     |
++| Mining + Pottery       | 4     |
++| Hunting + Pottery      | 3     |
++| Mysticism + Pottery    | 3     |
++| Hunting + Mysticism    | 3     |
++| Fishing + Mining       | 2     |
++
++**Sanity checks:**
++
++- Pair counts sum to **35** civs.  
++- Tech totals sum to **70** picks (5 techs × 14 each). ✅
++
++## Leaders' traits rework
++
++While doing/considering in this case i mean but anyways etc the holy roman empire civ-specific unit's rework or replacement, i have noticed charlemagne's traits were not in accord with his historical profile (i asked chatgpt 5 thanks since i don't know too much if at all aobut his history and leader profile or/and such and to be sure and have its advice as well thanks but anyways etc).
++
++It is also limiting when we want as now to assign a new unit e.g. to the holy roman empire or possibly building, so i thought this was a good time to rework leader traits for balance, accuracy, and overall synergy with the civ's profile, as well as its civ-specific units and buildings, and also to match ingame behaviour +/- more(/most? But anyways etc) importantly xml or and such if / as much as possible or relevant i mean if i may say but anyways etc.
++
++Done with the help of chatgpt 5 thanks a lot and thanks to my prompts too and/or adjustments and/or thoughts in this case i mean but anyways etc and/or formatting and/or such but anyways etc, check if accurate in this case i mean but anyways etc.
++
++### previous state
++
++This is extracted from the [CIV4LeaderHeadInfos.xml](/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml) rather but anyways etc, as we had issues importing it from our custom leaders_data_to_csv or/and it took too much time, due to data being too big or/and such i guess maybe if i'm not mistaken i mean in this case but anyways etc.
++
++#### main table before changes to traits anyways etc
++
++| Leader | Traits |
++|---|---|
++| Alexander | Philosophical, Aggressive |
++| Asoka | Spiritual, Organized |
++| Augustus | Imperialist, Industrious |
++| Bismarck | Expansive, Industrious |
++| Boudica | Charismatic, Aggressive |
++| Brennus | Spiritual, Charismatic |
++| Catherine | Creative, Imperialist |
++| Charlemagne | Imperialist, Protective |
++| Churchill | Charismatic, Protective |
++| Cyrus | Charismatic, Imperialist |
++| Darius | Organized, Financial |
++| De Gaulle | Industrious, Charismatic |
++| Elizabeth | Philosophical, Financial |
++| Ewuare | Imperialist, Spiritual |
++| Frederick | Philosophical, Organized |
++| Gandhi | Spiritual, Philosophical |
++| Genghis Khan | Aggressive, Imperialist |
++| Gilgamesh | Protective, Creative |
++| Hammurabi | Organized, Aggressive |
++| Hannibal | Financial, Charismatic |
++| Hatshepsut | Spiritual, Creative |
++| Huayna Capac | Industrious, Financial |
++| Isabella | Spiritual, Expansive |
++| Joao | Imperialist, Expansive |
++| Julius Caesar | Organized, Imperialist |
++| Justinian | Spiritual, Imperialist |
++| Kublai Khan | Aggressive, Creative |
++| Lincoln | Philosophical, Charismatic |
++| Louis XIV | Industrious, Creative |
++| Mansa Musa | Spiritual, Financial |
++| Mao Zedong | Expansive, Protective |
++| Mehmed | Expansive, Organized |
++| Moctezuma | Aggressive, Spiritual |
++| Napoleon | Organized, Charismatic |
++| Pacal | Financial, Expansive |
++| Pericles | Philosophical, Creative |
++| Peter | Philosophical, Expansive |
++| Qin Shi Huang | Industrious, Protective |
++| Ragnar | Financial, Aggressive |
++| Ramesses | Spiritual, Industrious |
++| Franklin Roosevelt | Industrious, Organized |
++| Saladin | Protective, Spiritual |
++| Shaka | Aggressive, Expansive |
++| Sitting Bull | Philosophical, Protective |
++| Stalin | Industrious, Aggressive |
++| Suleiman | Imperialist, Philosophical |
++| Suryavarman | Expansive, Creative |
++| Tokugawa | Protective, Aggressive |
++| Victoria | Imperialist, Financial |
++| Wang Kon | Financial, Protective |
++| Washington | Expansive, Charismatic |
++| Willem van Oranje | Creative, Financial |
++| Zara Yaqob | Creative, Organized |
++
++#### raw traits assignment count
++
++| Trait | Count |
++|---|---|
++| Spiritual | 11 |
++| Imperialist | 11 |
++| Aggressive | 10 |
++| Expansive | 10 |
++| Financial | 10 |
++| Charismatic | 9 |
++| Creative | 9 |
++| Industrious | 9 |
++| Organized | 9 |
++| Philosophical | 9 |
++| Protective | 9 |
++
++#### pairs count
++
++| Pair | Count |
++|---|---|
++| Imperialist + Spiritual | 2 |
++| Aggressive + Charismatic | 1 |
++| Aggressive + Creative | 1 |
++| Aggressive + Expansive | 1 |
++| Aggressive + Financial | 1 |
++| Aggressive + Imperialist | 1 |
++| Aggressive + Industrious | 1 |
++| Aggressive + Organized | 1 |
++| Aggressive + Philosophical | 1 |
++| Aggressive + Protective | 1 |
++| Aggressive + Spiritual | 1 |
++| Charismatic + Expansive | 1 |
++| Charismatic + Financial | 1 |
++| Charismatic + Imperialist | 1 |
++| Charismatic + Industrious | 1 |
++| Charismatic + Organized | 1 |
++| Charismatic + Philosophical | 1 |
++| Charismatic + Protective | 1 |
++| Charismatic + Spiritual | 1 |
++| Creative + Expansive | 1 |
++| Creative + Financial | 1 |
++| Creative + Imperialist | 1 |
++| Creative + Industrious | 1 |
++| Creative + Organized | 1 |
++| Creative + Protective | 1 |
++| Creative + Spiritual | 1 |
++| Expansive + Financial | 1 |
++| Expansive + Imperialist | 1 |
++| Expansive + Industrious | 1 |
++| Expansive + Organized | 1 |
++| Expansive + Philosophical | 1 |
++| Expansive + Protective | 1 |
++| Expansive + Spiritual | 1 |
++| Financial + Imperialist | 1 |
++| Financial + Industrious | 1 |
++| Financial + Organized | 1 |
++| Financial + Philosophical | 1 |
++| Financial + Protective | 1 |
++| Financial + Spiritual | 1 |
++| Imperialist + Industrious | 1 |
++| Imperialist + Organized | 1 |
++| Imperialist + Philosophical | 1 |
++| Imperialist + Protective | 1 |
++| Industrious + Organized | 1 |
++| Industrious + Protective | 1 |
++| Industrious + Spiritual | 1 |
++| Organized + Philosophical | 1 |
++| Organized + Spiritual | 1 |
++| Philosophical + Protective | 1 |
++| Philosophical + Spiritual | 1 |
++| Protective + Spiritual | 1 |
++
++### new state after rework with rationale and/or such anyways etc
++
++#### main table after changes to traits anyways etc
++
++| Leader | Current Traits | Recommendation | Rationale |
++|---|---|---|---|
++| Alexander | Philosophical, Aggressive | **Keep** | Philosopher-king + relentless conqueror fits. |
++| Asoka | Spiritual, Organized | **Spiritual, Protective** | Edicts focused on welfare/stability: medical care for people & animals, wells/trees, non-violence. Reads as “guardian of the realm’s well-being.” |
++| Augustus | Imperialist, Industrious | **Keep** | Empire builder + massive works program. |
++| Bismarck | Expansive, Industrious | **Organized, Protective** | Why not Aggressive? He orchestrated three short, limited wars (1864, 1866, 1870–71) to unify Germany, then spent the rest of his career preventing great-power war via alliance webs (Dreikaiserbund, Reinsurance Treaty, Congress of Berlin). That’s sharp power politics, not a “wade-in-and-smash” military persona. He wasn’t a battlefield leader; his hallmark is calculated diplomacy + internal statecraft. What really defines him? Organized: high-efficiency governance—central civil service, Reichsbank, tariffs, and the pioneering social insurance system (health 1883, accident 1884, old-age 1889). This maps perfectly to your “-75% upkeep” / efficient state. Protective (in your mod’s sense = stability/no anarchy/health): post-1871 his entire strategy was systemic risk management (deterrence, balance) and domestically “order first” (Anti-Socialist Laws) plus worker protection through insurance—i.e., protecting the state’s cohesion and people’s welfare. Verdict (accuracy-first): Go Organized + Protective. It captures both the manager-state architect and the stability/health side far better than Aggressive. (Charismatic doesn’t fit his public vibe, and Imperialistic doesn’t match his reluctant, late, and limited colonial stance.) |
++| Boudica | Charismatic, Aggressive | **Keep** | War leader rallying tribes; morale + offense. |
++| Brennus | Spiritual, Charismatic | **Keep** | Druidic authority + chieftain charisma. |
++| Catherine | Creative, Imperialist | **Philosophical, Imperialist** | Enlightened despot: corresponded with Voltaire/Diderot, issued the Nakaz, pushed legal/educational reform—more thinker-ruler than pure arts patron. Philosophical = ideas shaping policy. Catherine is the poster child for Enlightened absolutism: the Nakaz (Instruction), legal/education reforms, heavy engagement with Voltaire/Diderot, commissions on law and schooling. Her brand is “rules by ideas.”. Creative = culture output/patronage. She absolutely patronized the arts (Hermitage, theatre), but that was a means to an ideological/modernizing end, not her core identity. If you want to signal culture yields in gameplay, Creative is fine; historically, it’s secondary to her policymaking. |
++| Charlemagne | Imperialist, Protective | **Aggressive, Organized** | Empire via conquest and capitularies/marches/missi dominici. Less settler/colonial growth; more “fight + administer.” Dropping Imperialist narrows the tag to true expansion engines. |
++| Churchill | Charismatic, Protective | **Keep** | Wartime morale + defensive strategy. |
++| Cyrus | Charismatic, Imperialist | **Keep** | Founder of vast empire; tolerant unifier. |
++| Darius | Organized, Financial | **Keep** | Satrapies/roads/taxation; efficient and wealthy. |
++| De Gaulle | Industrious, Charismatic | **Charismatic, Organized** | Resistance icon and founder of the Fifth Republic’s institutions. Post-war modernization happened, but his identity is leadership + constitutional/administrative redesign more than building programs. |
++| Elizabeth | Philosophical, Financial | **Creative, Financial** | Her era is literally shorthand for a cultural bloom: Shakespeare/Marlowe, theatres, court masques, music, letters. She wasn’t a “philosopher-queen” so much as a savvy ruler who presided over (and patronized) an artistic boom. Keeping Financial also tracks (privateering, merchant ventures, early global trade). |
++| Ewuare | Imperialist, Spiritual | **Spiritual, Industrious** | Benin’s strong court/ritual religion. Benin’s strength = urban works (walls/ditches), craft guilds, and court art; expansion via hegemony/tribute more than settler-style growth. Industrious captures that better than Imperialist. |
++| Frederick | Philosophical, Organized | **Philosophical, Creative** | Enlightenment/arts over bureaucracy. |
++| Gandhi | Spiritual, Philosophical | **Keep** | Canonical fit. |
++| Genghis Khan | Aggressive, Imperialist | **Keep** | Archetypal conqueror. |
++| Gilgamesh | Protective, Creative | **Keep** | Walls/city defense + epic/civic culture. |
++| Hammurabi | Organized, Aggressive | **Organized, Protective** | Lawgiver/city-builder; warfare largely pragmatic/defensive. |
++| Hannibal | Financial, Charismatic | **Keep** | Hallmark = operational genius + multi-ethnic army cohesion and Italian defections after Cannae. More “inspire & outmaneuver” than brute-force brutality. Charismatic still supports a war playstyle (cheaper promos) without the raw smash of Aggressive; Financial keeps Carthaginian commerce. |
++| Hatshepsut | Spiritual, Creative | **Spiritual, Financial** | Iconic Punt expedition + trade-focused reign; commerce funded temples/works. Her identity reads more “trade & temple economy” than “arts output.” |
++| Huayna Capac | Industrious, Financial | **Industrious, Organized** | Inca economy was state-planned and labor-tax (mit’a), not money/market-driven. “Organized” fits roads, storehouses, and redistribution much better than “Financial.” |
++| Isabella | Spiritual, Expansive | **Spiritual, Aggressive** | Militant piety + ruthless campaigns; reads truer than “Imperialist.” |
++| Joao | Imperialist, Expansive | **Imperialist, Financial** | Maritime commerce + colonial charters; cleaner than Expansive overlap. |
++| Julius Caesar | Organized, Imperialist | **Aggressive, Imperialist** | Primary identity = conqueror (Gaul, Civil War). Keep Imperialist for expansion; swap in Aggressive to reflect operational boldness. <!-- custom: plus matches with xml profile of aggression and thematic epicness if i may say and if i am not mistaken but anyways etc --> |
++| Justinian | Spiritual, Imperialist | **Philosophical, Industrious** | Big reconquests (Africa, Italy, S. Hispania) + colossal building + Corpus Juris Civilis are uncontested. Critics say the reconquest wars/taxation left the state overextended and then the Justinianic Plague hit hard; newer work debates how devastating the plague really was. Net: “restorer & codifier,” but also “overstretched the empire.”. Less “Spiritual,” more “Legal/Scholar + Empire-builder.”. Reconquests ≠ colonization. His lasting mark is legal/intellectual codification + mega building (Hagia Sophia, fortifications), not founding/settler-driven growth. |
++| Kublai Khan | Aggressive, Creative | **Imperialist, Creative** | Completed the Song conquest and pursued large overseas campaigns (Japan, Đại Việt/Champa, Burma, Java). Emphasize empire-building/expansion over personal ferocity; keep Creative for patronage/tolerance. |
++| Lincoln | Philosophical, Charismatic | **Keep** | Moral/philosophical leadership + national unity. |
++| Louis XIV | Industrious, Creative | **Keep** | Palace/works + arts and culture. |
++| Mansa Musa | Spiritual, Financial | **Keep** | Pilgrimage/religion + trans-Saharan wealth. He was devout (Hajj, mosques), *and* a patron of learning (Timbuktu/Sankore). |
++| Mao Zedong | Expansive, Protective | **Aggressive, Protective** | Mass campaigns and external war (Civil War, Korea), purges, and militant mobilization read more “Aggressive” than “cheap administration.” Protective still captures internal security/defense posture. <!-- custom: i like this one very much as i think he was very brutal wasn't he xd, from very little i know about him i mean in this case i mean if i may say but anyways etc --> |
++| Mehmed | Expansive, Organized | **Imperialist, Aggressive** | Siege monster and serial conqueror (Constantinople, Balkans, Anatolia); “The Conqueror” leans warlike more than “efficient administration.” |
++| Moctezuma | Aggressive, Spiritual | **Keep** | Militarism + ritual/faith. |
++| Napoleon | Organized, Charismatic | **Imperialist, Charismatic** | Signature is conquest + continental empire (client states, annexations). He *did* codify/administer, but his core identity isn’t “low-upkeep governance”—it’s expansion + leadership aura. |
++| Pacal | Financial, Expansive | **Financial, Industrious** | Monumental architecture/engineering + trade. |
++| Pericles | Philosophical, Creative | **Keep** | Golden Age of philosophy and arts. |
++| Peter | Philosophical, Expansive | **Imperialist, Organized** | lean warmonger/reformer, not “arts guy.” → Switch to Imperialist, Organized (state-driven expansion + Table of Ranks/navy/army reform) |
++| Qin Shi Huang | Industrious, Protective | **Keep** | Great Wall/standardization + legalist control. |
++| Ragnar | Financial, Aggressive | **Keep** | Raiding/commerce + martial ferocity. |
++| Ramesses | Spiritual, Industrious | **Keep** | Temple/monument builder with priestly legitimation. |
++| Franklin Roosevelt | Industrious, Organized | **Industrious, Charismatic** | New Deal public works -> keep Industrious. His defining edge was coalition-building and morale (Fireside Chats, wartime leadership) more than bureaucratic cost efficiency. |
++| Saladin | Protective, Spiritual | **Spiritual, Charismatic** | Admired by both sides; unifying religious leadership — not just a “defender.” He led major offensive campaigns (Hattin, Jerusalem) and had broad admiration. Your switch to Spiritual, Charismatic is very defensible; I wouldn’t go back to Protective unless you want to emphasize “shield of Islam” over his rallying aura. |
++| Shaka | Aggressive, Expansive | **Aggressive, Organized** | Fits Ikhanda-style admin — “charismatic” in Civ terms can imply inspirational popularity; historically he ruled more by fear/discipline. Your pick Aggressive, Organized is perfect (impi/regimental system + logistics). I wouldn’t use Charismatic here. |
++| Sitting Bull | Philosophical, Protective | **Keep** | Visionary/teacher + defensive resistance. |
++| Stalin | Industrious, Aggressive | **Keep** | Forced industrialization + ruthless offensives. |
++| Suleiman | Imperialist, Philosophical | **Keep** | “Lawgiver” persona + patronage of learning fits Philosophical better than Spiritual for gameplay and history; keeps imperial scope. <!-- custom: plus if i remember enough i read he was quite areligious or religious open no? If so phi might fit better indeed than spi no? Thanks anyways etc thanks --> |
++| Suryavarman | Expansive, Creative | **Industrious, Creative** | Builder of Angkor; monumental works + culture. |
++| Tokugawa | Protective, Aggressive | **Protective, Organized** | After unification, policy emphasized internal order, class discipline, and isolation over external aggression; governance beats battlefield ferocity. <!-- custom: from a very quick search and my intuition/memory of what i read aobut him, he was very cautious and cunning/scheming rather if i'm not mistaken so maybe aggressive doesn't fit as well but anyways etc --> |
++| Victoria | Imperialist, Financial | **Keep** | Global empire + finance/trade. |
++| Wang Kon | Financial, Protective | **Organized, Spiritual** | this is the softest OP fit. He’s the founder/administrator (Organized, yes), but the “Protective” piece is less uniquely his (many big defensive moments come under successors). Organized + Spiritual: his Ten Injunctions stress protecting Buddhism, geomancy/ritual legitimacy—reads as statecraft grounded in religion. Bottom line: If you want to trim OP without losing accuracy, flip Wang Kon → Organized, Spiritual (history-first, no change to rare Financial) |
++| Washington | Expansive, Charismatic | **Protective, Charismatic** | Preservation-first Fabian strategy in the Revolution + 1777 army-wide smallpox inoculation (public-health safeguarding). Still inspirational. |
++| Willem van Oranje | Creative, Financial | **Keep** | Tolerance/trade + arts/commerce. |
++| Zara Yaqob | Creative, Organized | **Spiritual, Organized** | Strong doctrinal/religious policy + centralized rule — deeply doctrinal, centralizing, sometimes harsh. Spiritual, Organized > Creative. (He wrote and enforced doctrine more than fostering open culture.) |
++
++#### new traits total count
++
++| Trait         | Count |
++|---------------|------:|
++| Spiritual     |    12 |
++| Aggressive    |    12 |
++| Imperialist   |    12 |
++| Charismatic   |    11 |
++| Industrious   |    11 |
++| Organized     |    11 |
++| Financial     |    10 |
++| Protective    |    10 |
++| Philosophical |     9 |
++| Creative      |     8 |
++
++Sanity: 53 leaders × 2 = 106 total assignments.
++
++#### new pairs total count anyways etc
++
++| Pair | Count |
++|---|---|
++| Aggressive + Imperialist | 3 |
++| Organized + Protective | 3 |
++| Aggressive + Organized | 2 |
++| Aggressive + Spiritual | 2 |
++| Charismatic + Imperialist | 2 |
++| Charismatic + Protective | 2 |
++| Charismatic + Spiritual | 2 |
++| Creative + Financial | 2 |
++| Creative + Industrious | 2 |
++| Creative + Philosophical | 2 |
++| Financial + Charismatic | 2 |
++| Imperialist + Charismatic | 2 |
++| Imperialist + Creative | 2 |
++| Imperialist + Financial | 2 |
++| Imperialist + Organized | 2 |
++| Industrious + Charismatic | 2 |
++| Industrious + Creative | 2 |
++| Industrious + Imperialist | 2 |
++| Industrious + Organized | 2 |
++| Industrious + Spiritual | 2 |
++| Philosophical + Aggressive | 2 |
++| Philosophical + Charismatic | 2 |
++| Philosophical + Creative | 2 |
++| Philosophical + Imperialist | 2 |
++| Philosophical + Industrious | 2 |
++| Philosophical + Protective | 2 |
++| Protective + Charismatic | 2 |
++| Protective + Creative | 2 |
++| Protective + Industrious | 2 |
++| Protective + Spiritual | 2 |
++| Aggressive + Charismatic | 1 |
++| Aggressive + Creative | 1 |
++| Aggressive + Financial | 1 |
++| Aggressive + Protective | 1 |
++| Charismatic + Organized | 1 |
++| Creative + Imperialist | 1 |
++| Creative + Protective | 1 |
++| Financial + Industrious | 1 |
++| Financial + Organized | 1 |
++| Imperialist + Industrious | 1 |
++| Imperialist + Organized | 1 |
++| Industrious + Organized | 1 |
++| Industrious + Philosophical | 1 |
++| Industrious + Protective | 1 |
++| Philosophical + Protective | 1 |
++| Philosophical + Spiritual | 1 |
++| Protective + Spiritual | 1 |
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index e81ebfea7..a8f9110b0 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -312,7 +312,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml) for details and or latest updated value anyways etc), which as reminder according to the base advciv code comment if i am not mistaken anyways etc: `<!-- advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option). -->`
+ - game pace advances exponentially: later eras have fewer techs and units. This avoids the hassle of a long and tedious endgame, but is also realistic as most of history in the amount of years, happened in the past. Historically, bronze Age alone was longer than most of recent eras for example, and even more so for Stone Age. There are also less buildings to fasten the end game (but trying to keep just enough techs to make it last long enough) time per turn in minutes/hour played.
+ - reworked techs 's FirstFreeUnitClass i mean, (i.e. the techs at which first player to discover the tech gets a free unit class, here a great person type, for example as of now a great spy at the new tech game theory anyways etc) anyways etc; this is to have greater versatility in strategy and relatively boosting the non-main military path in tech tree if players were to choose/risk to take it and reward it relatively more i mean anyways etc in this case anyways etc, with similarly to the corporations great person change only one great person type per tech so that it is balanced and varied as well anyways etc, generally sooner in tech tree as well so that these have a stronger impact, see xml or tech advisor (i.e. tech tree i mean anyways etc) or/and sevopedia for details or/and updated values anyways etc
+-- reworked/rebalanced starting techs after our tech tree rework, in particular due to tech_agriculture and tech_the_wheel no longer being starting techs, while tech_pottery now is, with the very nice and tremedous help of chatgpt 5 as well here thanks. Also used this opportunity to balance tech repartition to be equal ideally or as even and balanced as possible (as of now among the 35 playable civilizations, the techs are exactly split at 14 assignments per starting tech, for a total of 70 starting techs (2 per civ), which is very nice if possible). Changes include when culturally relevant for example giving tech_mining to tech_bronze_working or such leaning civilizations when thematically/historically quite/relevant enough. For example we changed the native american starting techs from tech_agriculture and tech_fishing to tech_hunting and tech_mining (goes well with the dog soldier civ-specific unit, and chatgpt 5 gave this rationale if helpful/more exhaustive: "Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity."). The max occurence of pairs (e.g. tech_hunting + tech_mining is a pair, and tech_mining + tech_hunting is obviously the one and same pair, anyways etc) among all as of now playable 35 civilizations is as of now 4 which is very reasonable and varied enough. I tried to avoid OP combinations but didn't prevent it extra hard either, so gameplay is varied and quite balanced when relevant enough i mean anyways etc. See for details the as of now list of all civs and their current starting techs with rationale is available there too in [README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc) for details (not put here for concision but is synthetic and straightforward unlike this message xd but that i hope is sitll helpful i mean but anyways etc)
++- reworked/rebalanced starting techs after our tech tree rework, in particular due to tech_agriculture and tech_the_wheel no longer being starting techs, while tech_pottery now is, with the very nice and tremedous help of chatgpt 5 as well here thanks. Also used this opportunity to balance tech repartition to be equal ideally or as even and balanced as possible (as of now among the 35 playable civilizations, the techs are exactly split at 14 assignments per starting tech, for a total of 70 starting techs (2 per civ), which is very nice if possible). Changes include when culturally relevant for example giving tech_mining to tech_bronze_working or such leaning civilizations when thematically/historically quite/relevant enough. For example we changed the native american starting techs from tech_agriculture and tech_fishing to tech_hunting and tech_mining (goes well with the dog soldier civ-specific unit, and chatgpt 5 gave this rationale if helpful/more exhaustive: "Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity."). The max occurence of pairs (e.g. tech_hunting + tech_mining is a pair, and tech_mining + tech_hunting is obviously the one and same pair, anyways etc) among all as of now playable 35 civilizations is as of now 4 which is very reasonable and varied enough. I tried to avoid OP combinations but didn't prevent it extra hard either, so gameplay is varied and quite balanced when relevant enough i mean anyways etc. See for details the as of now list of all civs and their current starting techs with rationale is available there too in [README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-most-recent-as-of-now-rework-anyways-etc) for details (not put here for concision but is synthetic and straightforward unlike this message xd but that i hope is sitll helpful i mean but anyways etc)
+ 
+ ### Eras
+ 
+@@ -342,6 +342,9 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ ### Traits (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - traits have been reworked, some weak traits have been buffed or/and modified, while some other op traits may have been modified (not necessarily nerfed). For example, the protective trait has been buffed, as i had found it too weak or/and not relevant enough, and the industrious trait has been reworked (wonder building is ridiculous and op or not balanced, instead give worker and similar production based effect instead as of now (from expansive trait as of now that is reworked as well as of now anyways etc)). This is not necessarily for all traits but should still be for most. Please look at the Sevopedia "Traits" entries to have the latest updated version of the traits effects.
++- in particular, removed trait_expansive: was overlapping with our more general trait_protective (does not just protect defensively in our mod but also more generally protects health too and also has no anarchy (protects political stability more or less anyways etc)) and empire-expansion related trait_imperalist (settler discount same, but also trade route based scaling yield modifiers), so trait_expansive was redundant. Also, it was among weakest (flat health not so helpful) and hardest to balance (most often weak or some (very in this case i mean but anyways etc) rare times op) so removed.
++- in addition to the above, overhauled all traits with a focus on historical accuracy most importantly, but also gameplay relevance (+/- civ-specific building and unit timing and effects as well but anyways etc) and overall civ theme to a lesser extent, with the help of chatgpt 5 and multiple rounds of review, +/- other AIs or not so much or yes in this case i mean but anyways etc. For example, julius caesar has been changed from organized + imperialist to aggressive + imperialist (war theme and strength), hammurabi has been changed from organized + aggressive to organized + protective (more of an administrator + defensive civ overall if i'm not mistaken but anyways etc), saladin has been changed from protective + spiritual to spiritual + charismatic (more of warmonger in civ4 + historical warmonger and charisma), or isabella has been changed from spiritual + expansive to spiritual + aggressive (very ruthless campaigns). See for the list of all changes with a before vs after comparison as well as rationales the table at [README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc) but anyways etc. Note: as of now leaders' flavors unchanged for simplicity vs base advciv but anyways etc
++- removed trait_expansive related building modifiers (they were the granary and harbor in advciv-sas before, removed as too generic and op plus no good/relevant candidate to replace them in a balanced way but anyways etc)
+ 
+ ### Civics (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+index 716c1f9f0..955f7c538 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+@@ -62,140 +62,4 @@ Then if i am not mistaken much later i did this swapping based version but that
+ 
+ ## Starting techs rework
+ 
+-As it is too lengthy to put in the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md), here are how we changed the starting civ techs in our mod
+-
+-### before most recent as of now rework anyways etc
+-
+-#### main table (chatgpt 5 written anyways etc) - before change anyways etc
+-
+-Done amazingly by chatgpt 5 (numbers are line in our xml civilization info file as of now anyways etc), check if accurate and thanks a lot chatgpt 5 and thanks to my prompt and such too if i may say but anyways etc
+-
+-| Civ                      | Lines       | FreeTechs                               | Allowed-only? |
+-|--------------------------|-------------|------------------------------------------|---------------|
+-| America                  | 9–142       | 109→Fishing, 113→Agriculture             | ❌            |
+-| Arabia                   | 143–244     | 219→The Wheel, 223→Mysticism             | ❌            |
+-| Aztec                    | 245–346     | 321→Mysticism, 325→Hunting               | ✅            |
+-| Babylon                  | 347–452     | 427→Agriculture, 431→The Wheel           | ❌            |
+-| Byzantium                | 453–562     | 537→The Wheel, 541→Mysticism             | ❌            |
+-| Carthage                 | 563–669     | 644→Fishing, 648→Mining                  | ✅            |
+-| Celt                     | 670–784     | 755→Hunting, 759→Mysticism               | ✅            |
+-| China                    | 785–898     | 869→Agriculture, 873→Mining              | ❌            |
+-| Egypt                    | 899–1024    | 995→The Wheel, 999→Agriculture           | ❌            |
+-| England                  | 1025–1136   | 1103→Fishing, 1107→Mining                | ✅            |
+-| Ethiopia                 | 1137–1256   | 1215→Hunting, 1219→Mining                | ✅            |
+-| Kingdom of Benin         | 1257–1366   | 1341→Mysticism, 1345→Fishing             | ✅            |
+-| France                   | 1367–1480   | 1447→The Wheel, 1451→Agriculture         | ❌            |
+-| Germany                  | 1481–1603   | 1574→Pottery, 1578→Mining                | ✅            |
+-| Greece                   | 1604–1718   | 1689→Fishing, 1693→Hunting               | ✅            |
+-| Holy Roman               | 1719–1830   | 1805→Mysticism, 1809→Hunting             | ✅            |
+-| Inca                     | 1831–1931   | 1906→Agriculture, 1910→Mysticism         | ❌            |
+-| India                    | 1932–2098   | 2069→Mysticism, 2073→Mining              | ✅            |
+-| Japan                    | 2099–2199   | 2174→Fishing, 2178→The Wheel             | ❌            |
+-| Khmer                    | 2200–2307   | 2282→Hunting, 2286→Mining                | ✅            |
+-| Korea                    | 2308–2404   | 2379→Mining, 2383→Mysticism              | ✅            |
+-| Mali                     | 2405–2500   | 2475→The Wheel, 2479→Mining              | ❌            |
+-| Maya                     | 2501–2610   | 2585→Mining, 2589→Mysticism              | ✅            |
+-| Mongol                   | 2611–2713   | 2684→The Wheel, 2688→Hunting             | ❌            |
+-| Native America           | 2714–2829   | 2804→Agriculture, 2808→Fishing           | ❌            |
+-| Netherlands              | 2830–2942   | 2917→Agriculture, 2921→Fishing           | ❌            |
+-| Ottoman                  | 2943–3048   | 3019→The Wheel, 3023→Agriculture         | ❌            |
+-| Persia                   | 3049–3183   | 3154→Agriculture, 3158→Hunting           | ❌            |
+-| Portugal                 | 3184–3294   | 3269→Fishing, 3273→Mining                | ✅            |
+-| Rome                     | 3295–3419   | 3390→Fishing, 3394→Mining                | ✅            |
+-| Russia                   | 3420–3531   | 3498→Hunting, 3502→Mining                | ✅            |
+-| Spain                    | 3532–3638   | 3613→Fishing, 3617→Mysticism             | ✅            |
+-| Sumeria                  | 3639–3742   | 3716→Mysticism, 3720→Pottery             | ✅            |
+-| Scandinavia              | 3743–3847   | 3822→Fishing, 3826→Hunting               | ✅            |
+-| Zulu                     | 3848–3949   | 3924→Agriculture, 3928→Hunting           | ❌            |
+-| Minor                    | 3950–4087   | 4046→Mining, 4050→Mysticism, 4054→Fishing, 4058→The Wheel, 4062→Agriculture, 4066→Hunting | ❌ |
+-| Barbarian                | 4088–EOF    | 4487→Pottery, 4491→Fishing, 4495→Seafaring, 4500→Masonry | ❌ |
+-
+-#### Global tech totals (should sum to 70 = 35 civs × 2) - before change anyways etc
+-
+-Without counting barbarians and minor, the total count among civs is as of now (thanks to chatgpt 5 too and my prompt and such too hehe but anyways etc):
+-
+-Allowed starting techs
+-
+-- Mining:     13
+-- Fishing:    12
+-- Mysticism:  12
+-- Hunting:    11
+-- Pottery:     2
+-
+-### after most recent as of now rework anyways etc
+-
+-After a few or quite many back and forth and reviewing rounds with chatgpt 5 which helped me tons but also me hehe and my own ideas but it helped lot too but anyways etc, here are (below but anyways etc) the adjusted starting techs for civs as of now in advciv-sas, written by chatgpt 5. This was mostly to remove/replace old now removed tech_agriculture and tech_the_wheel starters that are now no longer starting techs, as well as quite along with it rebalance it and rework it all if i may say but anyways etc. I think the result is really good at least much better than it was check if accurate anyways etc.
+-
+-#### main table (chatgpt 5 written with some tweaks from me but anyways etc)
+-
+-Goals: (1) stay historically/thematically sane, (2) avoid **too many repeats** of the same pair, and (3) **not too many “amazing” pairs** like **Mining+Hunting** (early rush spike) and **Mining+Pottery** (eco+production spike) — while keeping **quite a few enough** for clear identity/variety.
+-
+-Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without concern as long as there is not too much of it.
+-
+-| Civ               | Old FreeTechs                 | New FreeTechs                 | Rationale |
+-|-------------------|-------------------------------|-------------------------------|-----------|
+-| America           | Fishing, Agriculture          | **Fishing, Hunting**          | Drops disallowed Agriculture. Frontier/scouting flavor; modest econ. *Avoids Mining+Hunting / Mining+Pottery.* |
+-| Arabia            | The Wheel, Mysticism          | **Mysticism, Pottery**        | Replaces Wheel. Oasis trade + early religion; balanced culture/commercial start. *Avoids Mining+Pottery.* |
+-| Aztec             | Mysticism, Hunting            | **Mining, Mysticism**         | **Jaguar** now at Bronze Working → Mining speeds access. Mysticism matches ritual/state culture. We **avoid Mining+Hunting** to curb rush. |
+-| Babylon           | Agriculture, The Wheel        | **Pottery, Mysticism**        | **Bowman** is now **Longbow-class** at Construction. Pottery fits the Masonry → Construction lane (bricks, aqueducts, Hanging Gardens), while Mysticism preserves the temple/garden flavor. |
+-| Byzantium         | The Wheel, Mysticism          | **Mysticism, Fishing**        | Bosporus/seaborne empire + spiritual tone; removes early-road snowball. |
+-| Carthage          | Fishing, Mining               | **Fishing, Pottery**          | Maritime commerce + cottages; **drops Mining** to lower early snowball and reduce pair repetition. |
+-| Celt              | Hunting, Mysticism            | **Hunting, Mining**           | **Gallic Warrior** metallurgy path justified; shifts from “druidic” to martial. **Intentional strong pair** (Mining+Hunting) for civ-specific unit identity; kept rare overall. |
+-| China             | Agriculture, Mining           | **Mining, Pottery**           | Bronze/iron + ceramics traditions; we keep this as **one of the few** strong **Mining+Pottery** pairs for identity. |
+-| Egypt             | The Wheel, Agriculture        | **Hunting, Pottery**          | Keep **Pottery** to flow into **Masonry → Construction** (builder identity: Pyramids, aqueducts, etc.). Add **Hunting** to align the **War Chariot** path. |
+-| England           | Fishing, Mining               | **Fishing, Mining**           | Industrial metals identity fits; Fishing+Mining is acceptable (Fishing is weakest). Also avoids overusing Mining+Pottery. |
+-| Ethiopia          | Hunting, Mining               | **Hunting, Mysticism**        | Highlands/faith; **removes Mining+Hunting** spike while keeping early defense. |
+-| Kingdom of Benin  | /                             | **Mysticism, Fishing**        | Coastal trade + religious courts; already balanced and flavorful. |
+-| France            | The Wheel, Agriculture        | **Hunting, Pottery**          | Aristocratic hunt + towns; replaces disallowed pair. |
+-| Germany           | Pottery, Mining               | **Pottery, Mining**           | Crafts + metalwork flexibility. **One of the few** Mining+Pottery we keep (Old World metallurgy). |
+-| Greece            | Fishing, Hunting              | **Fishing, Mysticism**        | Still coastal/Aegean, but we emphasize oracles/cults/philosophy. Avoids Mining+Pottery/Hunting spikes. |
+-| Holy Roman        | Mysticism, Hunting            | **Mysticism, Hunting**        | Clerical legitimacy + levies; varied without Mining spikes. |
+-| Inca              | Agriculture, Mysticism        | **Pottery, Mining**           | Andean mining/metallurgy (copper, arsenical bronze; large-scale gold/silver extraction) + state logistics makes Mining a great fit. Also supports Quechua @ **Iron Working** |
+-| India             | Mysticism, Mining             | **Mysticism, Mining**         | Spiritual tradition + engineering; not an “amazing” pair. |
+-| Japan             | Fishing, The Wheel            | **Fishing, Hunting**          | Keeps maritime identity; **Jōmon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
+-| Khmer             | Hunting, Mining               | **Fishing, Hunting**          | Tonlé Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
+-| Korea             | Mining, Mysticism             | **Mining, Mysticism**         | Metalwork/engineering + Confucian culture; solid, non-“amazing” pair. |
+-| Mali              | The Wheel, Mining             | **Hunting, Pottery**          | **Skirmisher** is now **Longbow-class** at Construction. Hunting keeps the Sahel skirmisher/camp identity; Pottery sustains early commerce while beelining Construction. They don't need mining as much for their civ-specific unit. |
+-| Maya              | Mining, Mysticism             | **Mysticism, Pottery**        | Classic Maya = obsidian/chert/jade; metals are late/minor. Holkan @ Bronze Working (Mining line) remains reachable, but early Pottery better fits their builder profile and ramps Ball Court @ Construction, while Mysticism matches ritual/astronomy and supplies early culture. |
+-| Mongol            | The Wheel, Hunting            | **Hunting, Mysticism**        | Pastoral steppe with early horses: Hunting → Animal Husbandry → Mounted Combat (and Barracks @ Hunting in AdvCiv-SAS), which also matches their aggressive-leaning leader profiles; Mysticism reflects Tengri/shamanic cohesion and supplies early culture/monuments to claim steppe space. |
+-| Native America    | Agriculture, Fishing          | **Hunting, Mining**           | Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity. |
+-| Netherlands       | Agriculture, Fishing          | **Fishing, Pottery**          | Maritime commerce + early cottages; *no Mining* for a gentler opener. |
+-| Ottoman           | The Wheel, Agriculture        | **Fishing, Pottery**          | **Fishing** to reflect an early maritime footprint on the **Aegean**, **Sea of Marmara** (Bosporus), **Black Sea**, and the **eastern Mediterranean**. Pair with **Pottery** to support early crafts/urbanization and a builder-empire profile. They don't need as much strong starting techs for their civ-specific unit that is later in the game. |
+-| Persia            | Agriculture, Hunting          | **Hunting, Mining**           | Nearer to **Iron Working** path in your tree; strong metallurgy tradition. We accept one more OP pair for identity; totals remain balanced. |
+-| Portugal          | Fishing, Mining               | **Fishing, Pottery**          | Age-of-Discovery maritime commerce; Mining ceded to reduce repetition and fund other civs’ thematic needs. |
+-| Rome              | Fishing, Mining               | **Fishing, Mining**           | Metals for **Legionary** timing; avoids Hunting and Mining+Pottery extremes. |
+-| Russia            | Hunting, Mining               | **Pottery, Mining**           | Land-empire emphasis (settlement/crafts) and less “fishy” opening. Keeps metal identity; also offsets Ottoman’s change to keep 14/14/14/14/14 totals. |
+-| Spain             | Fishing, Mysticism            | **Fishing, Mysticism**        | Maritime reach + organized religion; avoids Mining spikes. |
+-| Sumeria           | Mysticism, Pottery            | **Mysticism, Mining**         | **Vulture** (axe) loves metals; still not the “amazing” Mining+Pottery/Hunting. |
+-| Scandinavia       | Fishing, Hunting              | **Fishing, Hunting**          | Seafaring + raiding/hunting; balanced opener without Mining; keeps variety. |
+-| Zulu              | Agriculture, Hunting          | **Hunting, Mining**           | **Intentionally keep an OP pair (Mining+Hunting)** for **Impi** flavor/identity; brings Agriculture into compliance. |
+-
+-#### Global tech totals (should sum to 70 = 35 civs × 2)
+-
+-| Tech      | Count |
+-|-----------|-------|
+-| Fishing   | 14    |
+-| Hunting   | 14    |
+-| Mysticism | 14    |
+-| Pottery   | 14    |
+-| Mining    | 14    |
+-
+-#### Starting pair counts (canonicalized; order-insensitive)
+-
+-| Pair                   | Count |
+-|------------------------|-------|
+-| Mining + Mysticism     | 4     |
+-| Fishing + Hunting      | 4     |
+-| Fishing + Mysticism    | 4     |
+-| Fishing + Pottery      | 4     |
+-| Hunting + Mining       | 4     |
+-| Mining + Pottery       | 4     |
+-| Hunting + Pottery      | 3     |
+-| Mysticism + Pottery    | 3     |
+-| Hunting + Mysticism    | 3     |
+-| Fishing + Mining       | 2     |
+-
+-**Sanity checks:**
+-
+-- Pair counts sum to **35** civs.  
+-- Tech totals sum to **70** picks (5 techs × 14 each). ✅
++After changing the tech tree, starting techs had to be adjusted. See [README_Assets_Rebalancing.md#starting-techs-rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#starting-techs-rework) for details/results but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 5388208ac..9ceb6b1c7 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -147,7 +147,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ #### Workers (AI)
+ 
+ - Strongly discourage building **forts on bonuses** (very poor early yield/time trade). See [KI#24](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive).
+-- Always improve **bonuses first**, prioritizing **food** bonuses. Major refactor of `CvUnitAI::AI_bestCityBuild` to use a probabilistic value tree tuned for SAS. See [KI#30](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc).
++- Always improve **bonuses first**, prioritizing **food** bonuses. Major refactor of `CvUnitAI::AI_bestCityBuild` to use a probabilistic value tree tuned for AdvCiv-SAS. See [KI#30](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc).
+ - One worker per improvement **cap** to avoid over-stacking on slow tiles and reduce capture risk.
+ - Greatly simplified `AI_betterPlotBuild`: hard **de-prioritization of roads/routes** early; build them only when they’re truly the best move. Focus is on **yields first**. See [KI#31](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases).
+ - **Overhaul: `AI_bestCityBuild` (full routine):** “holy” improvements (never overwrite: **hamlet, village, town, workshop**) and “semi-holy” (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the “now” move would be inferior. See [KI#33](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild).
+@@ -212,7 +212,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Siege production — conditional minimization (trebuchets especially)**: In `CvCityAI::AI_chooseUnit`, added targeted checks to keep **siege output** as low as needed—**up to none at all** when conditions say they’re poor value (e.g., when the AI is **weaker** or not preparing **city assaults**). Rationale: **trebuchets** are very **hammer-inefficient** outside direct city attacks; **catapults/cannons** also aren’t versatile enough (and are often misused) for defense. Current tuning intentionally leans **low** versus before (but not permanently zero when other conditions are met). Result: **more varied offensive stacks** and **stronger defense** when behind. See [KI#53.3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc). **Update:** From the **Renaissance** onward, thresholds are **heavily relaxed** in `CvCityAI::AI_chooseUnit` and in `CvCity::doTurn`—when **Cannons** unlock they can serve as a practical **defensive pivot** (esp. if you lack bonuses/muskets), and the AI avoids **over-producing Pikemen** into **Cuirassiers**, leading to **more varied stacks** and improved survival. See [KI#53.3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only-anyways-etc).
+ - **City-counter role pruning (e.g. Macemen)**: Removed `UNITAI_CITY_COUNTER` from **non-versatile** units (e.g., `UNIT_MACEMAN`). For example for macemen, as city defenders they’re too easy to punish—knights counter them hard, and even crossbow stacks can beat defending macemen—so they’re better assigned to **offensive** `UnitAI` roles. While macemen beat pikemen, pikes seldom assault cities efficiently, so the city-counter slot isn’t warranted. The same adjustment applies to any other units with this mismatch.
+ - **Mounted “Counter” role pruning:** Removed `UNITAI_COUNTER` from the mounted units (`UNIT_CHARIOT`, `UNIT_EGYPTIAN_WAR_CHARIOT`, `UNIT_CARTHAGE_NUMIDIAN_CAVALRY`) that had it. Rationale: mounted units don’t "receive defense bonuses" (note: not related to bonus/ressources) and can be countered by other units; assigning them to COUNTER can park them in cities (e.g. seemingly seen in autoplay with War Chariots) and occupies a slot **Longbowmen** are more fit to fill as they unlock early and are cheap and versatile defenders, so these mounted unit lines are better used for offense roles rather during its window—or skipped outside it.
+-- **Very cheap-combat spam cap (tiered & generalized):** The AI was **overbuilding very cheap combat units**—notably the **Ancient Maceman**—even ~T100. Because they’re so cheap, they pile up, are weak once Archers appear, and can drag the economy. We added conditions in `CvCityAI::AI_chooseUnit` to **limit** these builds, with a **stricter cap after ~T50** when they’re especially poor value. In SAS, Archers arrive early, are cheap/versatile, and fill defense quotas sooner, letting cities pivot to offense. (Scouts get trimmed incidentally since they’re combat-tagged, though they weren’t the main issue.) **Result:** more varied, stronger stacks (e.g., ~3 Ancient Macemen @T100–130 vs ~11 before) and a **healthier economy**. See [KI#53.4](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc). **Update:** The cap is now **generalized beyond Ancient** using **tier-based (not era-based) thresholds** to avoid era bleed-through (e.g., Ancient Macemen don’t inherit looser Classical caps). This also aims to trim (at least in theory, data lacking to draw a conclusion on an experiment anyways etc) for example **Archers in Classical** and **Longbows/Triremes in Medieval** when they’re too cheap for their tier. In practice we see AI mixes improve (e.g., Japan AI shifting from ~75 Longbows @T200 to ~50–60 Longbows + 10–15 Camel Archers + 20–27 Samurai, run-dependent). Tunables live in `CvCityAI::AI_chooseUnit` and [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). **Update (fallback production):** Applied the same cap inside CvCity::doTurn’s **no-production fallback** so that the **new offense-only** alternative logic no longer spams **Ancient Macemen** (e.g., ~19 @T100).
++- **Very cheap-combat spam cap (tiered & generalized):** The AI was **overbuilding very cheap combat units**—notably the **Ancient Maceman**—even ~T100. Because they’re so cheap, they pile up, are weak once Archers appear, and can drag the economy. We added conditions in `CvCityAI::AI_chooseUnit` to **limit** these builds, with a **stricter cap after ~T50** when they’re especially poor value. In AdvCiv-SAS, Archers arrive early, are cheap/versatile, and fill defense quotas sooner, letting cities pivot to offense. (Scouts get trimmed incidentally since they’re combat-tagged, though they weren’t the main issue.) **Result:** more varied, stronger stacks (e.g., ~3 Ancient Macemen @T100–130 vs ~11 before) and a **healthier economy**. See [KI#53.4](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc). **Update:** The cap is now **generalized beyond Ancient** using **tier-based (not era-based) thresholds** to avoid era bleed-through (e.g., Ancient Macemen don’t inherit looser Classical caps). This also aims to trim (at least in theory, data lacking to draw a conclusion on an experiment anyways etc) for example **Archers in Classical** and **Longbows/Triremes in Medieval** when they’re too cheap for their tier. In practice we see AI mixes improve (e.g., Japan AI shifting from ~75 Longbows @T200 to ~50–60 Longbows + 10–15 Camel Archers + 20–27 Samurai, run-dependent). Tunables live in `CvCityAI::AI_chooseUnit` and [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). **Update (fallback production):** Applied the same cap inside CvCity::doTurn’s **no-production fallback** so that the **new offense-only** alternative logic no longer spams **Ancient Macemen** (e.g., ~19 @T100).
+ 
+ ### General changes (non-exhaustive; see GlobalDefines/XML)
+ 
+@@ -221,7 +221,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Start map behavior**: less “terrain polishing”; more starting **vision** so you can choose a spot rather than forcing ideal tiles.
+ - **Slavery**: `HURRY_POPULATION` production increased (**24 → 27**). See [CIV4HurryInfo.xml](/Assets/XML/GameInfo/CIV4HurryInfo.xml) (`HURRY_POPULATION`).
+ - **Leader random selection**: `PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT` **20 → 0** (all civs equal chance regardless of leader count). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
+-- **We Love the King Day**: restored (present in SAS).
++- **We Love the King Day**: restored (present in AdvCiv-SAS).
+ - **Research scaling — sea level**: `iResearchPercent = 100` for High / Medium / Low (**was** `117 / 100 / 87`). Sea level no longer alters research pace.
+ - **Research scaling — world size**: `iResearchPercent` rescaled from `95 / 98 / 102 / 115 / 137 / 150` to `85 / 90 / 95 / 100 / 105 / 110` (so **Standard = 100**). Rationale: on larger maps the AI doesn’t start with proportionally more early cities, so heavier early research multipliers left it behind. We now tune tech costs directly in XML. **Examples** (illustrative, see Sevopedia/XML for current values): on **Standard**, `TECH_MATHEMATICS` = 250 (was 285) and `TECH_ALIEN_LIFE` = 16000 (was 18400).
+ - **Cost rounding to 5 removed (human-side)**: Eliminated the base AdvCiv “round to 5” rule from `CvPlayer::getProductionNeeded` (units, buildings, projects) that applied only to human players, so **costs are no longer altered for the human player** — e.g., a Swordsman at 42 hammers costs 42 (not 40), at 43 costs 43 (not 45), and an Ancient Maceman at 18 costs 18 (not 20). Also removed analogous rounding in `CvPlayer::greatPeopleThreshold`, `CvPlayer::getNewCityProductionValue`, and `CvTeam::getResearchCost`. This fixes the Sevopedia vs. in-game mismatch, and the issue of human players having a different cost than AI players even if cost would have otherwise been the same (e.g., at Noble, the AI paid 42 while the human paid 40; 43 vs. 45). Fine-grained costs now also enable true **per-hammer** tuning—e.g., you can set 40, 41, 42, 43, 44, or 45 instead of being forced to choose 40 or 45. See [KI#67](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc).
+@@ -238,7 +238,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ - **AI starting workers**: `iAIStartingWorkerUnits` **0** on all difficulties.
+ - **Goodies (huts)**: remove **worker/settler** pops; rebalance barbarian outcomes (fewer strong, more weak at high difficulties); increase **experience** rewards at higher difficulties.
+ - **Handicap normalization (starting units)**: Reduced/standardized several handicap fields so they’re **the same at all difficulties**: `iStartingDefenseUnits`, `iStartingWorkerUnits`, `iStartingExploreUnits`, `iAIStartingDefenseUnits`, `iAIStartingWorkerUnits`, `iAIStartingExploreUnits`. This reflects recent AI improvements (workers, building choices, scrapping rules, unit mix) and aims to keep games fair while the AI remains competitive. See [Handicap tables](/README.md#csv-and-md-view-of-the-handicap-difficulties-info-in-a-table-for-all-difficulties-info).
+-- **Difficulty scaling — `iAIHandicapIncrementTurns`**: **disabled (set to 0 on all difficulties)**. This removes the **per-turn** AI discount that made games progressively harder; with SAS’s improved hammer efficiency, that scaling led to runaway AIs at high levels. Now AI cost/research **modifiers** come **only** from the static **difficulty (handicap) XML fields** (e.g., `iAITrainPercent`, `iAIBuildingCostPercent`, `iAIResearchPercent`, …), which have been **retuned to be linear by difficulty (not per-turn)**—hard but fair. Practical effects: fewer excess units and lower bankruptcy risk, healthier mid→late-game economies, and challenge that relies on AI competency gains rather than exponential scaling.
++- **Difficulty scaling — `iAIHandicapIncrementTurns`**: **disabled (set to 0 on all difficulties)**. This removes the **per-turn** AI discount that made games progressively harder; with AdvCiv-SAS’s improved hammer efficiency, that scaling led to runaway AIs at high levels. Now AI cost/research **modifiers** come **only** from the static **difficulty (handicap) XML fields** (e.g., `iAITrainPercent`, `iAIBuildingCostPercent`, `iAIResearchPercent`, …), which have been **retuned to be linear by difficulty (not per-turn)**—hard but fair. Practical effects: fewer excess units and lower bankruptcy risk, healthier mid→late-game economies, and challenge that relies on AI competency gains rather than exponential scaling.
+ 
+ ### Specialists (non-exhaustive)
+ 
+@@ -271,7 +271,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ - **Whales — buff & placement:** **Whales** have been **buffed** and can now **spawn on coast** as well as ocean. Details in **Sevopedia → Bonus → Whales**.
+ - **Horses — no tundra placement:** **Horses no longer spawn on tundra.** Food needs there are primarily handled by **Deer**. Concentrating Horses on non-tundra improves typical access patterns on most starts.
+ - **Edge-weighted bonus placement:** Shifted bonus distribution to **favor map edges** more (it was too **center-weighted**), reducing the advantage of central starts and making **edge starts more competitive**.
+-- **Desert rework — Camel replaces Movies:** On **desert**, **BONUS_CAMEL** now **replaces BONUS_MOVIES**, providing a **desert-friendly food bonus** and serving as a **mounted unit resource** that **competes with Horses** (see **[Military: camel changes](/README.md#military-tree-and-changes)**). Camel XML derives from Horse with SAS adjustments; desert tiles become more viable via **high food yield**.
++- **Desert rework — Camel replaces Movies:** On **desert**, **BONUS_CAMEL** now **replaces BONUS_MOVIES**, providing a **desert-friendly food bonus** and serving as a **mounted unit resource** that **competes with Horses** (see **[Military: camel changes](/README.md#military-tree-and-changes)**). Camel XML derives from Horse with AdvCiv-SAS adjustments; desert tiles become more viable via **high food yield**.
+ - **Horse frequency reduced:** With **Camels** added as an alternative mount, **Horse** **spawn frequency is reduced** to keep mounted-resource balance.
+ - **High-food animals slightly rarer:** Other **high-food land animals** are **slightly reduced** in frequency so **Camels** can be present without making food abundances trivial—keeping **competition for top sites** intact.
+ - **Gemstones** can spawn on **flood plains**. See Sevopedia/XML.
+@@ -292,7 +292,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ - **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading game option is on). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
+ - **Exponential pacing**: fewer late‑era techs/units to avoid a tedious endgame.
+ - **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier).
+-- **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **“pair”** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **4** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. Details: [starting-techs (civ list & rationale)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc).
++- **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **“pair”** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **4** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. Details: [starting-techs (civ list & rationale)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-most-recent-as-of-now-rework-anyways-etc).
+ 
+ ### Eras
+ 
+@@ -314,7 +314,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ 
+ ### Barbarians (non-exhaustive)
+ 
+-- **Barbarians — stronger early game & smarter aggression**: economically **stronger in the early game**, growing at a pace closer to human/AI civs and **founding cities more often**, so they stay **relevant longer** before gradually fading by midgame. They still aren’t a full player (**no diplomacy**; **scattered independent cities** that collectively count as the Barbarian civilization). Difficulty scaling is adjusted so players have **less to no combat bonus vs. barbarians** (never a reverse bonus for barbs), with strength **rising gradually by difficulty**. Barbarians also **fill unclaimed land** if it’s left open, tend to **target weaker rivals**, and may **raze cities** more than base AdvCiv/Civ4. This pairs with the AI’s improved **hammer efficiency and availability** (far fewer scrapping/no-production issues): by engaging and “burning off” surplus early units (e.g., **ancient macemen, archers, longbowmen**), barbarians help prevent runaway over-production and early bankruptcies while empires keep growing. For definitions and exact knobs, see the Sevopedia **Barbarian Civilization** entry and XML: [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml), [CIV4BuildingInfos.xml](/Assets/XML/Buildings/CIV4BuildingInfos.xml), and [CIV4HandicapInfo.xml](/Assets/XML/GameInfo/CIV4HandicapInfo.xml); also see the SAS **handicap tables** in the repo for comparative values.
++- **Barbarians — stronger early game & smarter aggression**: economically **stronger in the early game**, growing at a pace closer to human/AI civs and **founding cities more often**, so they stay **relevant longer** before gradually fading by midgame. They still aren’t a full player (**no diplomacy**; **scattered independent cities** that collectively count as the Barbarian civilization). Difficulty scaling is adjusted so players have **less to no combat bonus vs. barbarians** (never a reverse bonus for barbs), with strength **rising gradually by difficulty**. Barbarians also **fill unclaimed land** if it’s left open, tend to **target weaker rivals**, and may **raze cities** more than base AdvCiv/Civ4. This pairs with the AI’s improved **hammer efficiency and availability** (far fewer scrapping/no-production issues): by engaging and “burning off” surplus early units (e.g., **ancient macemen, archers, longbowmen**), barbarians help prevent runaway over-production and early bankruptcies while empires keep growing. For definitions and exact knobs, see the Sevopedia **Barbarian Civilization** entry and XML: [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml), [CIV4BuildingInfos.xml](/Assets/XML/Buildings/CIV4BuildingInfos.xml), and [CIV4HandicapInfo.xml](/Assets/XML/GameInfo/CIV4HandicapInfo.xml); also see the AdvCiv-SAS **handicap tables** in the repo for comparative values.
+ - **Barbarians** no longer attempt **world wonders** (prevents hammer sinks). See [KI#3](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc).
+ - Barbarian **workers** are civ-specific and **cannot be captured** (prevents worker farming).  
+ - Barbarian **workboat** is civ-specific mainly for cost/balance.  
+@@ -323,10 +323,13 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ ### Traits (non-exhaustive)
+ 
+ - Several traits reworked. Weaker ones are buffed/modified; some previously OP ones are adjusted. Example: **Protective** is stronger; **Industrious** shifts away from “wonders faster” toward **worker/production-oriented** effects (elements formerly in Expansive). See in-game Sevopedia → Traits for current effects (+x culture / +x hammer / +x commerce as listed there).
++- **Removed trait — Expansive:** In AdvCiv-SAS, **Protective** is broadened from “just city defense” to an empire-wide protection theme: it now also covers health and no anarchy (political stability), and with **Imperialist** already handling expansion (settler discount + now also trade-route–scaled yields), **Expansive** no longer had a distinct role, was overlapping with the former, and was weak/volatile to balance → removed.
++- **Trait overhaul (leader assignments):** Overhauled for historical fit + gameplay relevance. **Examples:**: Julius Caesar Organized + Imperialist → Aggressive + Imperialist *(military conqueror; offensive pressure)*; Hammurabi Organized + Aggressive → Organized + Protective *(lawgiver/administrator; defensive empire)*; Saladin Protective + Spiritual → Spiritual + Charismatic *(religious leader with battlefield charisma; warmonger in Civ IV terms)*; Isabella Spiritual + Expansive → Spiritual + Aggressive *(zealous, hard-edged campaigns)*. Full before/after with rationale: [Assets Rebalancing table](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#new-state-after-rework-with-rationale-andor-such-anyways-etc). *Note: leader “flavors” unchanged.*
++- **Expansive clean-up:** Removed its building modifiers (**Granary**, **Harbor**)—too generic/OP and no balanced replacements.
+ 
+ ### Civics (non-exhaustive)
+ 
+-- Some civics reworked/rebalanced (e.g., **Representation** earlier in SAS and with adjusted effects).
++- Some civics reworked/rebalanced (e.g., **Representation** earlier in AdvCiv-SAS and with adjusted effects).
+ - Some civics moved on the tech tree for history/balance/variety. **Slavery** is now at **Agriculture** (earlier), which weakens the **Bronze Working** beeline and opens non-military paths.
+ 
+ ### Buildings (non-exhaustive)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG
+index 3525914b5..8ec09ae98 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG
+index 7906c7578..7bbec7d6f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG
+index 370f3af30..6f49315dd 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG
+index 33136c0f0..23173a6c2 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.622_sevopedia_leaders_labels_as_keys.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=114258

@@ -1,0 +1,421 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4900
+# Commit: 56ea046e0da6e55652841d4cc3181b92e294323c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8662b6bb212613b584ce334a2c1770d4ce24d523
+# Title: add collateral damage limit info in sevopedia unit and ingame even if base collateral damage is 0, fix bugs in advciv-sas and also a bug ro bugs in base advc...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+3	1	Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+7	1	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+4	4	Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+6	5	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+20	32	Assets/XML/Units/CIV4PromotionInfos.xml
+2	1	Assets/XML/Units/CIV4UnitInfos.xml
+8	4	CvGameCoreDLL/CvGameTextMgr.cpp
+6	4	README.md
+143	0	_0_Common_Docs/git_log_anonymized_email.txt
+10	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+index 055770e2a..a0bf51f08 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+@@ -142,7 +142,9 @@ class SevoPediaPromotion:
+ 		i = 0
+ 		for iI in range(gc.getNumUnitCombatInfos()):
+ 			if (0 != gc.getPromotionInfo(self.iPromotion).getUnitCombat(iI)):
+-				# <!-- custom: removed line `iRow = screen.appendTableRow(szTable)` to fix ruff warning of variable being unused so cleaning this up, after asking chatgpt this seems fine and safe to do and we have no errors so maybe solved as well (as in sevopedia unit ruff warning fix/cleanup as well anyways etc) anyways etc -->
++				# <!-- custom: removed line `iRow = screen.appendTableRow(szTable)` to fix ruff warning of variable being unused so cleaning this up, after asking chatgpt this seems fine and safe to do and we have no errors so maybe solved as well (as in sevopedia unit ruff warning fix/cleanup as well anyways etc) anyways etc, other sevopedia classes don't seem to have a similar issue from quick glance at each file, although i didn't investigate in depth, hopefully fine, if in doubt check ingame display to see if it matches xml info, in sevopedia at least if i may say, hopefully helpful or not or yes or etc, but or not but or yes but anyways etc anyways etc anyways etc -->
++				# <!-- custom: update: although the variable is not used, the line was needed to show all entries, else we only showed the first one, so remove the identifier rather while keeping the instruction, as chatgpt noticed as wel and poitned to me hehe thanks -->
++				screen.appendTableRow(szTable)
+ 				screen.setTableText(szTable, 0, i, u"<font=2>" + gc.getUnitCombatInfo(iI).getDescription() + u"</font>", gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				i += 1
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index ae6b64a75..29eff64dd 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -863,8 +863,14 @@ class SevoPediaUnit:
+ 		screen.addPanel(panelName, localText.getText("", ()), "", True, True, self.X_PROMO_PANE, self.Y_PROMO_PANE, self.W_PROMO_PANE, self.H_PROMO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		rowListName = self.top.getNextWidgetName()
+ 		screen.addMultiListControlGFC(rowListName, "", self.X_PROMO_PANE+15, self.Y_PROMO_PANE+40, self.W_PROMO_PANE-20, self.H_PROMO_PANE-40, 1, self.PROMOTION_ICON_SIZE, self.PROMOTION_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++
++		# <!-- custom: disabling entirely if (isPromotionValid(k, self.iUnit, False) we get too many promotions, but enabling it some are missing (see below in code comments but anyways etc), so as advised by chatgpt checking which promotions belong to the unit through another condition, seems to solve/fix the issue as now we see the missing promotions as per the xml, anyways etc -->
++		eUnitCombat = gc.getUnitInfo(self.iUnit).getUnitCombatType()
++
+ 		for k in range(gc.getNumPromotionInfos()):
+-			if (isPromotionValid(k, self.iUnit, False) and not gc.getPromotionInfo(k).isGraphicalOnly()):
++			# <!-- custom: disable isPromotionValid(k, self.iUnit, False) check as some promotions are missing such as collateral damage 1 and 2 and also leadership promotion in the generic swordsman panel for example, as advised by chatgpt, anyways etc (it said "In-game, a Swordsman may earn the promotion eventually (e.g. through experience), but if it doesn't yet satisfy all prereqs, isPromotionValid might return False" which i don't know if it is accurate but maybe is, hopefully helpful or not or yes or etc but anyways etc) -->
++			#if (isPromotionValid(k, self.iUnit, False) and not gc.getPromotionInfo(k).isGraphicalOnly()):
++			if gc.getPromotionInfo(k).getUnitCombat(eUnitCombat) > 0 and not gc.getPromotionInfo(k).isGraphicalOnly():
+ 				screen.appendMultiListButton(rowListName, gc.getPromotionInfo(k).getButton(), 0, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, k, -1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+index a1a9c56fa..54d60e03a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+@@ -30,8 +30,8 @@ class SevoPediaUnitChart:
+ 		self.MARGIN = 20
+ 		self.N_COLUMNS = 0
+ 		self.W_NAME = 270
+-		# <!-- custom: with 128 or below, the collateral damage text is not fully displayed as of now anyways etc -->
+-		self.W_NUM = 129
++		# <!-- custom: 129 is enough but just in case some numerical chars are longer, add a bit extra margin if i may say (i don't know if accurate, may or may not be so, but if it is, this avoids the display from being truncated due to too short row width although maybe a bit less pretty even if a tiny bit as a result if i may due to display being larger in this case if i may say but anyways etc) -->
++		self.W_NUM = 130
+ 		
+ 		self.W_TABLE = ((self.N_COLUMNS - 2 - 1) * self.W_NUM) + (2 * self.MARGIN)
+ 
+@@ -222,8 +222,8 @@ class SevoPediaUnitChart:
+ 
+ 	def placeTableCollateral(self, screen, table, iCol, iRow, UnitInfo):
+ 		# Collateral
+-		if UnitInfo.getCollateralDamage() > 0:
+-			szCollateralRate = u"%d%%-%d%% (%d)" % (UnitInfo.getCollateralDamage(), UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
++		if UnitInfo.getCollateralDamage() > 0 or UnitInfo.getCollateralDamageLimit():
++			szCollateralRate = u"%d%%/%d%% (%d)" % (UnitInfo.getCollateralDamage(), UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
+ 		else:
+ 			szCollateralRate = u""
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 888e41bf8..5556ad39e 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -575,24 +575,25 @@
+ 		<Tag>TXT_KEY_PROMOTION_RANGE2</Tag>
+ 		<English>Air Range 2</English>
+ 	</TEXT>
++	<!-- custom: rename "_BARRAGE" to "_COLLATERAL_DAMAGE" -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_PROMOTION_BARRAGE1</Tag>
++		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE1</Tag>
+ 		<English>Collateral Damage 1</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PROMOTION_BARRAGE2</Tag>
++		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE2</Tag>
+ 		<English>Collateral Damage 2</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PROMOTION_BARRAGE3</Tag>
++		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE3</Tag>
+ 		<English>Collateral Damage 3</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PROMOTION_BARRAGE4</Tag>
++		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE4</Tag>
+ 		<English>Collateral Damage 4</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PROMOTION_BARRAGE5</Tag>
++		<Tag>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE5</Tag>
+ 		<English>Collateral Damage 5</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 6c9295a7a..ce1a10d64 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -2908,7 +2908,7 @@
+ 
+ 		<PromotionInfo>
+ 			<Type>PROMOTION_COLLATERAL_DAMAGE1</Type>
+-			<Description>TXT_KEY_PROMOTION_BARRAGE1</Description>
++			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE1</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+@@ -2993,11 +2993,7 @@
+ 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<!-- custom: todo replace only for lance light (they can throw them), not
+-				exactly collateral but close enough maybe? same for sword light, imagine
+-				they can throw shurikens or knifes or something from a distance (then
+-				maybe run away), i also like that it is consistent with the other light
+-				units having collateral damage -->
++				<!-- custom: not exactly collateral but close enough maybe? same for sword light, imagine they can throw shurikens or knifes or something from a distance (then maybe run away), i also like that it is consistent with the other light units having collateral damage -->
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -3013,6 +3009,10 @@
+ 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -3027,7 +3027,7 @@
+ 		</PromotionInfo>
+ 		<PromotionInfo>
+ 			<Type>PROMOTION_COLLATERAL_DAMAGE2</Type>
+-			<Description>TXT_KEY_PROMOTION_BARRAGE2</Description>
++			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE2</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+@@ -3112,11 +3112,7 @@
+ 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<!-- custom: todo replace only for lance light (they can throw them), not
+-				exactly collateral but close enough maybe? same for sword light, imagine
+-				they can throw shurikens or knifes or something from a distance (then
+-				maybe run away), i also like that it is consistent with the other light
+-				units having collateral damage -->
++				<!-- custom: not exactly collateral but close enough maybe? same for sword light, imagine they can throw shurikens or knifes or something from a distance (then maybe run away), i also like that it is consistent with the other light units having collateral damage -->
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -3132,6 +3128,10 @@
+ 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -3146,7 +3146,7 @@
+ 		</PromotionInfo>
+ 		<PromotionInfo>
+ 			<Type>PROMOTION_COLLATERAL_DAMAGE3</Type>
+-			<Description>TXT_KEY_PROMOTION_BARRAGE3</Description>
++			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+@@ -3220,11 +3220,6 @@
+ 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<!-- custom: todo only sword light -->
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+ 				<!-- custom: restricted to MOUNTED_RANGED units not all mounted units anyways etc -->
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+@@ -3250,7 +3245,7 @@
+ 		</PromotionInfo>
+ 		<PromotionInfo>
+ 			<Type>PROMOTION_COLLATERAL_DAMAGE4</Type>
+-			<Description>TXT_KEY_PROMOTION_BARRAGE4</Description>
++			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE4</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+@@ -3311,18 +3306,6 @@
+ 					<UnitCombatType>UNITCOMBAT_AIR_BOMBER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
+-				<!-- custom: todo only gun bomber -->
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+-				<!-- custom: todo replace with war boats and war boats (and submarines too
+-				i think but todo check) foreign only 
+-				todo only boat cuirassiers if i add them again, anyways, -->
+-				<UnitCombat>
+-					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+-					<bUnitCombat>1</bUnitCombat>
+-				</UnitCombat>
+ 				<!-- custom: todo only heavy artillery -->
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+@@ -3338,7 +3321,7 @@
+ 		</PromotionInfo>
+ 		<PromotionInfo>
+ 			<Type>PROMOTION_COLLATERAL_DAMAGE5</Type>
+-			<Description>TXT_KEY_PROMOTION_BARRAGE5</Description>
++			<Description>TXT_KEY_PROMOTION_COLLATERAL_DAMAGE5</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>PROMOTION_LEADER</PromotionPrereq>
+@@ -4499,6 +4482,11 @@
+ 					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<!-- custom: weird that melee is not here, adding it as well if i am not mistaken in doing so and assessing i'd want to do so, but should be so still at least i want so in this case if i'm not mistaken, but anyways etc anyways etc anyways etc -->
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 437bd08c5..5d818295e 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -23892,7 +23892,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iEvasionProbability>50</iEvasionProbability>
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>100</iCollateralDamage>
+-			<iCollateralDamageLimit>50</iCollateralDamageLimit>
++			<!-- custom: was 50 -->
++			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 39aa6eb9f..0c5924f0e 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -981,13 +981,15 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 				(100 * pUnit->combatLimit()) / GC.getMAX_HIT_POINTS()));
+ 	}
+ 
+-	if (pUnit->collateralDamage() > 0)
++	// <!-- custom: also show collateral damage info (with defenders too but anyways etc) if collateral damage limit > 0 as well, may be useful to know, anyways etc -->
++	// <!-- custom: use pUnit->collateralDamageLimit() instead of 100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS() , i had done so in an attempt to solve an issue of limit not displaying if base collateral damage is 0, but the issue was something else (we needed to also apply the change in u. unit if i am not mistaken so it (also) appears in sevopedia unit, not in this seemingly ingame panel, but anyways etc), still, is maybe cleaner (but i don't know again as i don't know a lot about these but anyways etc) and the catapult still seems to have the limit info shown, so since display seems to function fine and same as before, leaving it as is it now with our change, but check to be sure, even though seems to be fine at least to me but again check to be sure, hopefully helpful or not or yes or etc, anyways etc -->
++	if (pUnit->collateralDamage() > 0 || pUnit->collateralDamageLimit() > 0)
+ 	{
+ 		szString.append(NEWLINE);
+ 		szString.append(gDLL->getText(
+ 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT", // advc.004: short version
+ 				pUnit->collateralDamage(), // <!-- custom: add missing iCollateralDamage info as well if i am not mistaken anyways etc, for example <iCollateralDamage>25</iCollateralDamage> ; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well but anyways etc -->
+-				100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS(),
++				pUnit->collateralDamageLimit(),
+ 				pUnit->collateralDamageMaxUnits())); // advc.004
+ 		// <!-- custom: if i am not mistaken the TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA should not be an else conditional display but a cumulative effect with the base collateral damage, so showing both as well anyways etc -->
+ 		if (pUnit->getExtraCollateralDamage() != 0)
+@@ -9315,14 +9317,16 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 				(100 * u.getCombatLimit()) / GC.getMAX_HIT_POINTS()));
+ 	}
+ 
+-	if (u.getCollateralDamage() > 0)
++	// <!-- custom: also display the collateral limit info even for units that have a base collateral damage of 0, but now applying this to sevopedia unit placeSpecial panel here in this code block if i am not mistaken anyways etc, with chatgpt's help too, hopefully helpful or not or yes or etc anyways etc -->
++	int const iCollateralDamageLimit = 100 * u.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS();
++	if (u.getCollateralDamage() > 0 || u.getCollateralDamageLimit() > 0)
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText(/* advc.004: */ bCivilopediaText ?
+ 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE" :
+ 				"TXT_KEY_UNIT_COLLATERAL_DAMAGE_SHORT", // advc.004
+ 				u.getCollateralDamage(), // <!-- custom: add missing iCollateralDamage info as well if i am not mistaken anyways etc, for example <iCollateralDamage>25</iCollateralDamage> ; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well but anyways etc -->
+-				100 * u.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS(),
++				iCollateralDamageLimit,
+ 				u.getCollateralDamageMaxUnits()));// advc.004
+ 	}
+
+diff --git a/README.md b/README.md
+index 568fe950c..d5d081162 100644
+--- a/README.md
++++ b/README.md
+@@ -203,7 +203,7 @@ The output is amazing and it is now our main menu image :)
+ 
+ Then i converted it to .dds with Paint.NET similarly than for other image files in our mod anyways etc.
+ 
+-As for how to replace default civ4 main menu background, i used ri mod's civ4mainmenubg.nif and its related files, then just if i amy say but anyways etc replaced their duomo3.dds with our dds, now renamed to duomo3.dds as well, and updated the path to where our nif is, see `MAINMENU_SCENE_CLASSICAL` (main menu background) and `MAINMENU_LOAD_CLASSICAL` (load screen (e.g. save file, etc.) background) in [/Assets/XML/Art/CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml) for details
++As for how to replace default civ4 main menu background, i used ri mod's civ4mainmenubg.nif and its related files, then just if i amy say but anyways etc replaced their duomo3.dds with our dds, now renamed to duomo3.dds as well, and updated the path to where our nif is, see `MAINMENU_SCENE_CLASSICAL` (main menu background) and `MAINMENU_LOAD_CLASSICAL` (loading screen (e.g. loading a save file, loading a new map, etc.) background) in [/Assets/XML/Art/CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml) for details
+ 
+ Note: intended game resolution: 1920 x 1080 Unexpeted results may happen at higher resolutions like the ri mod's logo suddenly apeparing maybe xd even though should otherwise be the exact same gameplay but check to be sure and i am not responsible even though seems most likely that nothig else changed, but again check to be sure in case i overlooked something (unlikely and hopefully i am not mistaken in saying so but again check to be sure just to cover myself if i may say, hoepfully helpful or not or yes or etc, anyways etc), anyways etc.
+ 
+@@ -287,12 +287,14 @@ Non-exhaustive list of fixes, see docs for details or/and additional info anyway
+ - Fixed obsolete bonuses (such as BONUS_ELEPHANTS, BONUS_DRAMA, etc anyways etc) in tech advisor (i.e. tech tree view anyways etc) failing to redirect to their corresponding sevopedia bonus page, with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example anyways etc) successfully showing the building item's page anyways etc. The issue/bug/error anyways etc was seemingly caused by a new base advciv code in CvDLLWidgetData.cpp, now reverted to using `iData1` same as obsolete buildings did (and which didn't have the issue again but anyways etc) and not `widgetDataStruct.m_iData2`, which fixed it now if i am not mistaken anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---partially-fixedworkedaround-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---partially-fixedworkedaround-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc) for details anyways etc
+ - fixed some seemingly mistaken flavors in forbidden palace (asset renamed in advciv-sas to forbidden_palace anyways etc) in base advciv: military 5??? Now changed to a growth and gold based formula, see xml for updated values anyways etc
+ - also fixed/replaced the strange the strange `[PARAGRAPH:2:1]` with the much more commonly used `[PARAGRAPH:2]` in our advciv-sas assets, i don't know what this strange format/thing is, but if the base `:2` can do it no need for a `:2:1` anyways etc, and strange trailing `[PARAGRAPH:2]</English>` and or such as well that also seem uneeded anyways etc, and remove unneeded `[PARAGRAPH:1]` in some tech quotes (as of now didn't do it to all tech quotes as bit tedious and not so worth but ideally would but may or may not in this case but anyways etc) anyways etc
+-- Fixed and now added anyways etc missing iCollateralDamage info as well in the collateral damage text in the DLL if i am not mistaken anyways etc, for example `<iCollateralDamage>25</iCollateralDamage>` for the chinese crossbowman or `<iCollateralDamage>100</iCollateralDamage>` for the catapult is now displayed as well as of now as for example anyways etc `Collateral Damage (base 25%, max 200%) to 5 Defenders` for the chinese crossbowman or `Collateral Damage (base 100%, max 200%) to 6 Defenders` for the catapult; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well but anyways etc
+-- Also fixed in the DLL the TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA (this unit causes x% extra collateral damage if i am not mistaken anyways etc) now being cumulatively displayed ingame (not in sevopedia, as it was, anyways etc) additionally to the general collateral damage text, instead of it being previously conditionally displayed instead of (`else`) the general collateral damage which would not be visible, so now (e.g. catapult) we see only the general collateral damage message if `pUnit->getExtraCollateralDamage() == 0)`, and alternatively if `(pUnit->getExtraCollateralDamage() != 0)` (e.g. cannon) we now see both the general collateral damage message and additionally also the extra collateral damage as well if i am not mistaken, hopefully helpful or not or yes or etc and as i wanted or and maybe liked too to do maybe yes or not or yes maybe or etc but anyways etc...
+ - Attemptingly fixed AI workers often very inefficiently building forts, especially on top of existing bonuses/ressources: further discourage AI workers to build forts on bonus/ressources, as it is often very inefficient (lower yields than ressource/bonus specific improvements, longer time to build, unlikely to be attacked there as disadvantageous, sometimes AI workers waste time to go out of their way to remove a ressource/bonus specific improvement just to build a fort in base advciv), i tried to make this much less, ideally never likely to happen, as should generally be much more efficient to do so. In some cases the forts advantages may be lost such as connecting naval tiles or such, but generally it should benefit the AI and improve its performance. As of now untested, but done with chatgpt's help in modifying the DLL to do so, also guided by existing code comments that help a lot, see also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#24---attemptingly-fixed-ai-workers-often-build-forts-on-ressourcesbonuses-even-if-they-already-have-an-existing-improvement-very-inefficient-and-not-immersive) for details
+ - Attemptingly fixed AI settlers often settling/planting their cities on bonuses/ressources, in particular on food bonuses (as of now pig, wheat, etc.), but also bonuses with a quite high if not more but anyways etc production total yield (as of now iron, copper, etc.), and bonuses with a high commerce yield (as of now gold, incense, etc.), thanks to chatgpt's help and my prompts and adjustments too or and such and its help too but anyways etc anyways etc anyways etc, see for details [README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#25---attempt-to-fix-ais-settling-too-much-and-too-often-on-bonuses-especially-food-bonuses--and-metals-and-other-high-production-bonuses-to-a-lesser-extent) anyways etc. For quite high if not more but anyways etc production bonuses, make logic conditional depending on plot type or/and terrain (for example desert terrain is low food so often fine to plant on a high production bonus there, but as for hills it may be a good idea to plant on them for the extra hammer and avoiding low food yields on this tile (plus defense bonus of planting on the tile etc), exception being hills grassland where for 1 food cost it should really be better (i think so at least but anyways etc) to maximize the hammer count, plus total hammer count would be lower than say on a plains hill that has lower food as well so it may be worth it more to plant on a hills plains but not so much on a hills grassland, etc). As for the results, i only tested it a bit (a few autoplay glances at turn 100), but the results seem extremely good and really much better, may test more to be sure or/and ask player feedback after mod release or and such if we do release it as planned/intended in this case but anwyays etc, so i would say to take this with a bit of caution maybe, but overall if i may say but anyways etc it does seems AIs almost always if not always maximize planting/settling their cities around found bonuses in the radius and not planting on them, cannot tell too much or if this is just small sample but it does seem to make a big difference but anyways etc anyways etc anyways etc.
+ - About water bonuses/ressources in particular, quite often it seems they are in range of city settle/found/plant spot but ignored by AI settling/founding/planting its city instead but anyways etc a non-coastal location, attempt to fix/address this as well by making the penalty in that case much stronger, as of now increased from -165 to -400 (seems to have been -800 in k-mod if i am not mistaken but anyways etc, see [/CvGameCoreDLL/CitySiteEvaluator.cpp](/CvGameCoreDLL/CitySiteEvaluator.cpp) for details or/and updated value anyways etc), hopefully helps the AI consider more often water ressources or at least not ignore them when they are in range of their city sites considerations if i may say in this case at least maybe but anyways etc anyways etc anyways etc
+ - Similarly also attemptingly fixed/addressed AI settling/founding/planting cities, for non-bonus/ressource tiles, not enough on low food tiles such as hill (defense modifier and low food in particular make it a particularly nice candidate to settle/plant/found cities on in most cases (excluding hills grassland but anyways etc) but anyways etc) +/- desert, snow (terrain), plains, tundra, all of which should now more or less strongly depending on some conditions be prioritized even a bit if not a bit more but anyways etc, and too often on high food ones such as grassland, including hill grassland, and flood plains. This logic was added in the DLL, with chatgpt's help and my prompts and thoughts too similarly i mean than for previous AI settling or worker behaviour changes in advciv-sas i mean as i don't know too much about these but can provide some ideas or think about them in this case with chatgpt's help thanks anyways etc, but anyways etc anyways etc anyways etc, hopefully helpful or not or yes or etc but anyways etc anyways etc anyways etc. Effect should be a bit less pronounced if i may say but anyways etc, as i don't know how this code may affect other parts or not of the AI behaviour, still there may be a bit of difference if not quite a bit, hopefully helpful but anyways etc anyways etc anyways etc (only tested on a few autoplay runs, you may want to test to be sure and see if it maybe makes a difference or/and that is signficant enough, but anyways etc anyways etc anyways etc). I am not sure it always improves AI settling behaviour ; there may be some cases where locally AI makes worse settling choices due to these changes, but in most cases, at least in theory if i am not mistaken, and although i don't know too much about these, generally/maybe it should improve AI settling choices even if a bit if not more than a bit but anyways etc maybe but anyways etc, but test to be sure, anyways etc.
++- Fixed and now added anyways etc missing iCollateralDamage info as well in the collateral damage text in the DLL if i am not mistaken anyways etc, for example `<iCollateralDamage>25</iCollateralDamage>` for the chinese crossbowman or `<iCollateralDamage>100</iCollateralDamage>` for the catapult is now displayed as well as of now as for example anyways etc `Collateral Damage (base 25%, max 200%) to 5 Defenders` for the chinese crossbowman or `Collateral Damage (base 100%, max 200%) to 6 Defenders` for the catapult; added thanks to chatgpt's help as well anyways etc and me guessing or adjusting it as well but anyways etc
++- Also fixed in the DLL the TXT_KEY_UNIT_COLLATERAL_DAMAGE_EXTRA (this unit causes x% extra collateral damage if i am not mistaken anyways etc) now being cumulatively displayed ingame (not in sevopedia, as it was, anyways etc) additionally to the general collateral damage text, instead of it being previously conditionally displayed instead of (`else`) the general collateral damage which would not be visible, so now (e.g. catapult) we see only the general collateral damage message if `pUnit->getExtraCollateralDamage() == 0)`, and alternatively if `(pUnit->getExtraCollateralDamage() != 0)` (e.g. cannon) we now see both the general collateral damage message and additionally also the extra collateral damage as well if i am not mistaken, hopefully helpful or not or yes or etc and as i wanted or and maybe liked too to do maybe yes or not or yes maybe or etc but anyways etc...
++- Fixed the stealth bomber and other units having a lower collateral damage limit than its base collateral damage (`<iCollateralDamage>100</iCollateralDamage>` vs `<iCollateralDamageLimit>50</iCollateralDamageLimit>`), which i don't know a lot about but seems like a mistake or inconsistent with most units (why put a higher than the limit damage, again i could be mistaken about how this works-functions but anyways etc, but we (i.e. me but anyways etc xd if i may say but anyways etc...) also wanted to add more collateral damage support so now all units have some (swordsmen could throw shurikens) collateral damage limit, even though collateral damage itself starts at 0 for most units still ; such info is now displayed in sevopedia unit chart (as of now named "Combat" category, as well as in each unit's sevopedia unit placeSpecial (as of now named "Special Abilities" panel)), and also ingame in map view when hovering over the unit, in its effects panel (we also now show more reliably the extra collateral damage info there as well if i am not mistaken, see [README.md#main-bugsissues-fixed-from-base-advciv-code](/README.md#main-bugsissues-fixed-from-base-advciv-code) for details anyways etc) ; hopefully or not or yes or etc i am not mistaken in doing so or/and it is helpful or not or yes or etc but anyways etc)
++- fix a seemingly bug in base advciv +/- civ4 of some promotions not being shown in sevopedia unit's placePromotions for example for the generic swordsman and the impi (i.e. for example for the melee units combat type), see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#27---now-fixed-some-promotions-are-missing-in-sevopedia-units-placepromotions](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#27---now-fixed-some-promotions-are-missing-in-sevopedia-units-placepromotions)
+ 
+ ## Not supported in AdvCiv-SAS
+ 
+@@ -345,7 +347,7 @@ For mods we took from, i mention them in more detail, hopefully exhaustive but i
+ 
+ ## Note about the audio in main menu
+ 
+-Sound seems strangely louder at first game launch, but then accesing main menu again from a loaded save file or such ingame map state, then the sound in main menu is seemingly quieter so amking it a bit louder to accomodate that so it is not too low when acessing main menu again from ingame map view. Also, sounds seems blurrier the lower i put the music sound/volume, although it could be just my perception, or maybe not (?), i'd rather have a higher volume just in case. If you want to listen to the real audio, link is in this readme.md 's copyright section at `SONG_OPENING_MENU`, or alternatively also accessible in our mod locally as well, as of now here at [lofi-song-330550.mp3](/Assets/Art/AdvCiv_SAS/Main_Menu/music/lofi-song-330550.mp3), hopefully helpful or not or yes or etc, anyways etc.
++Sound seems strangely louder at first game launch, but then accesing main menu again from a loaded save file or such ingame map state, then the sound in main menu is seemingly quieter so amking it a bit louder to accomodate that so it is not too low when acessing main menu again from ingame map view. Also, sounds seems blurrier (ironic since this is a lofi music as of now if i'm not msitaken but i still want it accurate xd, and assuming my perception of it being blurrier is also correct as well as this is not sure and maybe it sounds the same or the same enough regardless of xml volume then increasing system/computer volume per user action or not but anyways etc) the lower i put the music sound/volume, although it could be just my perception, or maybe not (?), i'd rather have a higher volume just in case. If you want to listen to the real audio, link is in this readme.md 's copyright section at `SONG_OPENING_MENU`, or alternatively also accessible in our mod locally as well, as of now here at [lofi-song-330550.mp3](/Assets/Art/AdvCiv_SAS/Main_Menu/music/lofi-song-330550.mp3), hopefully helpful or not or yes or etc, anyways etc.
+ 
+ ## Credits
+
+[PATCH OMITTED] file=a/_0_Common_Docs/git_log_anonymized_email.txt b/_0_Common_Docs/git_log_anonymized_email.txt reason=known-generated/noisy-history changedLines=143 bytes=27160
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 010d7496a..4c81f79fb 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -789,3 +789,13 @@ Results so far seem to be that it does seem to help quite a lot from the few aut
+ I am not sure it always improves AI settling behaviour ; there may be some cases where locally AI makes worse settling choices due to these changes, but in most cases, at least in theory if i am not mistaken, and although i don't know too much about these, generally/maybe it should improve AI settling choices even if a bit if not more than a bit but anyways etc maybe but anyways etc, but test to be sure, anyways etc.
+ 
+ Still overall should be an improvement, ideally try it a bit more in this case but anyways etc, but is maybe fine or not too bad as is, again i only ran a few autoplay and don't know too much aobut these, but with chatgpt's help and my thoughts too, it does seem like an improvement, even if a bit, if not a bit lot in this case but anyways etc, hopefully helpful or not or yes or etc, but anyways etc.
++
++## 27 - (now fixed) Some promotions are missing in sevopedia unit's placePromotions
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1hRe5rR9DPBH6XzwllwTLSnh9kbIQwkEG?usp=sharing)
++
++Some promotions were missing in sevopedia unit's placePromotions, for example for the generic swordsman or the zulu impi (melee units combat type if i am not mistaken but anyways etc), they didn't show collateral damage 1 and collateral damage 2 (as of now renamed from base advciv +/- civ4's barrage promotions if i am not mistaken but anyways etc).
++
++So thanks to chatgpt's help, i found the cause althoguh i suspected it too intuitively hehe, but chatgpt told me the issue thnaks to my prompt too but thanks to itself too but anyways etc and provided me and int his code if i may say but anyways etc a working alternative condition of as of now `gc.getPromotionInfo(k).getUnitCombat(eUnitCombat)` (note: `eUnitCombat = gc.getUnitInfo(self.iUnit).getUnitCombatType()`) instead of `isPromotionValid(k, self.iUnit, False)` that was too strict, but just disabling this old too strict condition if i may say but anyways etc showed too many promotions even the ones these units shouldn't have access to such as of now collateral damage 3 and 4 for example anyways etc.
++
++This seems to fix the issue (see screenshots for details, as we specifically now see the missing promotions on top of same old ones if i am not mistaken (didn't check in detail but there seem to be more than before and also to have relevant ones, check screenshots or/and xml for details or comparison or and such but anyways etc)), hopefully helpful or not or yes or etc but anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 882ae374a..379e56092 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -197,6 +197,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - This also changes warfare tactics and such for some other unit combat where i made such small or not modifications in this case but anyways etc anyways etc, for example mounted units are now split into mounted melee and mounted range units, so for example pikemen as of now are strong against mounted melee (like the horse knight) but not against the mounted ranged (such as the horse archer or cuirassier for example anyways etc). Also note that some civ-specific units are not in same combat type than their generic "parent" if i may say anyways etc, for example the ballista elephant is mounted ranged vs the war elephant being mounted melee if i may say anyways etc. I have tweaked a bit the advantages of most of the mounted melee units to buff them relatively a bit as they would be a bit weaker otherwise if i am not mistaken anyways etc as of now at least anyways etc, also there are other small or not differences anyways etc such as the defend order or such too if i am not mistaken.
+ - new camel units related to the BONUS_CAMEL changes, as an alternative mount to the horse. Also reworked the arabian empire's civ-specific unit as well
+ - All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) [https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense](https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense) for details (too anyways etc(.)) anyways etc...
++- fixed the stealth bomber and other units having a lower collateral damage limit than its base collateral damage (`<iCollateralDamage>100</iCollateralDamage>` vs `<iCollateralDamageLimit>50</iCollateralDamageLimit>`), which i don't know a lot about but seems like a mistake or inconsistent with most units (why put a higher than the limit damage, again i could be mistaken about how this works-functions but anyways etc, but we (i.e. me but anyways etc xd if i may say but anyways etc...) also wanted to add more collateral damage support so now all units have some (swordsmen could throw shurikens) collateral damage limit, even though collateral damage itself starts at 0 for most units still ; such info is now displayed in sevopedia unit chart (as of now named "Combat" category, as well as in each unit's sevopedia unit placeSpecial (as of now named "Special Abilities" panel)), and also ingame in map view when hovering over the unit, in its effects panel (we also now show more reliably the extra collateral damage info there as well if i am not mistaken but anyways etc) ; also as a result and in line/following this change but anyways etc, as of now collateral damage 1 and 2 promotions are available to all eligible units (which should be all or almost all, see sevopedia promotion or sevopedia unit for details) ; hopefully i am not mistaken in doing so or/and it is helpful or not or yes or etc but anyways etc)
+ - some units are buildable at different times/tech, also for historical accuracy, see tech tree i.e. tech advisor for details anyways etc
+ - explore units can attack: but their strength should be quite low
+ - military units are versatile: swordsmen can defend, archers can attack or/and fit more in an attacker as well anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG
+index 93d1da9ed..a3efbfcf5 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (2).JPG
+index 6749ec27e..c31ea32a3 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.630_sevopedia_units_chart_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+index b3a2d523a..bf1f30ae6 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+index 5564780dc..2e983f751 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=14 omittedFiles=2 embeddedPatchBytes=44220

@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3871
+# Commit: 6450e1f2be3c5925669c748dacc5c4a026d4be08
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 09bd99d42fdd8ebd115d9b83a9aebb2c241832f8
+# Title: Fix some potential issue with Sea Patrol
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	4	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 617deb1f3..73678d420 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3471,6 +3471,9 @@ bool CvUnit::canSeaPatrol(CvPlot const* pPlot, /* advc: */ bool bCheckActivity)
+ 	if (!canFight() || isOnlyDefensive())
+ 		return false;
+ 	// <advc.004k>
++	// Will need pillager to attack us, unlikely to work under Ice.
++	if (kPlot.isImpassable())
++		return false;
+ 	bool bValid = false;
+ 	for (SquareIter itOther(kPlot, GC.getMAX_SEA_PATROL_RANGE(), false);
+ 		!bValid && itOther.hasNext(); ++itOther)
+@@ -3485,11 +3488,13 @@ bool CvUnit::canSeaPatrol(CvPlot const* pPlot, /* advc: */ bool bCheckActivity)
+ 	return true;
+ }
+ 
+-// advc: Cut from canSeaPatrol
++// advc:
+ bool CvUnit::isSeaPatrolling() const
+ {
+-	return //isWaiting() // BtS
+-			(getGroup()->getActivityType() == ACTIVITY_PATROL); // K-Mod
++	return (//isWaiting() // BtS
++			// K-Mod: (advc - cut from canSeaPatrol)
++			getGroup()->getActivityType() == ACTIVITY_PATROL &&
++			getDomainType() == DOMAIN_SEA);
+ }
+ 
+ // advc.004k:
+@@ -3500,7 +3505,7 @@ bool CvUnit::canReachBySeaPatrol(CvPlot const& kDest, CvPlot const* pFrom) const
+ 	return (iDist <= GC.getMAX_SEA_PATROL_RANGE() && iDist > 0 &&
+ 			kDest.isWater() && kDest.getTeam() == getTeam() &&
+ 			kDest.getRevealedImprovementType(getTeam()) != NO_IMPROVEMENT &&
+-			kDest.getArea().canBeEntered(getArea())); // advc.030
++			!GC.getMap().isSeparatedByIsthmus(kFrom, kDest));
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1481

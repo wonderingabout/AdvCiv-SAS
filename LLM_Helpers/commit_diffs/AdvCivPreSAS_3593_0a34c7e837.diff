@@ -1,0 +1,81 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3593
+# Commit: 0a34c7e83717896630e34f2cbd98c5b228b99c2a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3f6bf79acac20369d45be8e1787b278a8575eca3
+# Title: More tweaks to reproducibility tests
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	CvGameCoreDLL/CvCity.cpp
+3	1	CvGameCoreDLL/CvCityAI.cpp
+2	0	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index f0fefcf80..63651b77b 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11793,7 +11793,9 @@ void CvCity::write(FDataStreamBase* pStream)
+ 	}
+ 
+ 	m_orderQueue.Write(pStream);
+-
++	/*	These caches are (or ought to be) reliably invalidated,
++		don't need to be in-sync at all times. */
++	REPRO_TEST_END_WRITE();
+ 	pStream->Write(m_iPopulationRank);
+ 	pStream->Write(m_bPopulationRankValid);
+ 	m_aiBaseYieldRank.write(pStream);
+@@ -11802,7 +11804,7 @@ void CvCity::write(FDataStreamBase* pStream)
+ 	m_abYieldRankValid.write(pStream);
+ 	m_aiCommerceRank.write(pStream);
+ 	m_abCommerceRankValid.write(pStream);
+-
++	REPRO_TEST_BEGIN_WRITE(CvString::format("City(%d,%d) pt2", getX(), getY()));
+ 	pStream->Write(m_aEventsOccured.size());
+ 	for (std::vector<EventTypes>::iterator it = m_aEventsOccured.begin();
+ 		it != m_aEventsOccured.end(); ++it)
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 0ce6d6137..f36ec660f 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -13590,7 +13590,9 @@ void CvCityAI::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_eBestBuild); // advc.opt
+ 	pStream->Write(GC.getNumEmphasizeInfos(), m_pbEmphasize);
+ 	pStream->Write(NUM_YIELD_TYPES, m_aiSpecialYieldMultiplier);
+-
++	REPRO_TEST_END_WRITE();
++	// The closeness cache is prone to OOS/ reproducibility problems
++	REPRO_TEST_BEGIN_WRITE(CvString::format("CityAI(%d,%d) caches", getX(), getY()));
+ 	pStream->Write(/*<advc.opt>*/MAX_PLAYERS/*</advc.opt>*/, m_aiCachePlayerClosenessTurn);
+ 	pStream->Write(/*<advc.opt>*/MAX_PLAYERS/*</advc.opt>*/, m_aiCachePlayerClosenessDistance);
+ 	pStream->Write(MAX_PLAYERS, m_aiPlayerCloseness);
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index d6ccfce36..6ec7fa0f1 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -6037,7 +6037,9 @@ void CvTeam::write(FDataStreamBase* pStream)
+ 	m_aiResearchProgress.write(pStream);
+ 	m_aiTechCount.write(pStream);
+ 	m_aiTerrainTradeCount.write(pStream);
++	REPRO_TEST_END_WRITE(); // Autosave happens before victory countdowns are updated
+ 	m_aiVictoryCountdown.write(pStream);
++	REPRO_TEST_BEGIN_WRITE(CvString::format("Team(%d) pt2", getID()));
+ 	m_abHasTech.write(pStream);
+ 	pStream->Write(m_iTechCount); // advc.101
+ 	m_abNoTradeTech.write(pStream);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2390

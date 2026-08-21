@@ -1,0 +1,621 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 724
+# Commit: a84c210b72e709ff03edbe7c98c5e0927e0b4517
+# History segment: K-Mod history
+# Parent used for diff: 82d69ee18d753ad5292b41904ce2875d4292142f
+# Title: Completely redesigned the group cycle ordering scheme, again. Implemented a new system for tracking which groups have been selected, so that the group cycle...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvCityAI.cpp
+3	7	CvGameCoreDLL/CvGame.cpp
+2	0	CvGameCoreDLL/CvGame.h
+1	0	CvGameCoreDLL/CvGameCoreDLL.h
+39	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+2	0	CvGameCoreDLL/CvGameCoreUtils.h
+1	1	CvGameCoreDLL/CvGameInterface.cpp
+96	117	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+8	2	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/CvSelectionGroup.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 804e46187..bfcd466ab 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4054,8 +4054,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					if (eLoopSpec == eDefaultSpecialist)
+ 						continue;
+ 
+-					int iLimit = kOwner.isSpecialistValid(eLoopSpec) ? getPopulation() : getMaxSpecialistCount(eLoopSpec) - getSpecialistCount(eLoopSpec);
+-					FAssert(iLimit >= 0);
++					int iLimit = kOwner.isSpecialistValid(eLoopSpec) ? getPopulation() : std::max(0, getMaxSpecialistCount(eLoopSpec) - getSpecialistCount(eLoopSpec));
++					FAssert(iLimit >= 0); // in rare situations, this function can be called while citizens are incorrectly assigned. So I've forced the min condition in the line above.
+ 					//iUnusedSpecialists += iLimit;
+ 
+ 					if (kBuilding.getSpecialistCount(eLoopSpec) > 0 && iLimit <= 2)
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index feb2ed7f4..5b1f708fb 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -628,6 +628,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	{
+ 		AI_reset();
+ 	}
++	m_ActivePlayerCycledGroups.clear(); // K-Mod
+ }
+ 
+ 
+@@ -5980,6 +5981,7 @@ void CvGame::doTurn()
+ 	doUpdateCacheOnTurn();
+ 
+ 	CvSelectionGroup::path_finder.Reset(); // K-Mod. (one of the few manual resets we need)
++	m_ActivePlayerCycledGroups.clear(); // K-Mod
+ 	// K-Mod - fixing a problem from the CAR mod.
+ 	// (CvTeamAI::AI_doCounter has a couple of things which invalidate the cache without clearing it. So I'm clearing the cache here to avoid OOS errors.)
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+@@ -7246,13 +7248,6 @@ void CvGame::updateMoves()
+ 					{
+ 						for (pLoopSelectionGroup = player.firstSelectionGroup(&iLoop); pLoopSelectionGroup; pLoopSelectionGroup = player.nextSelectionGroup(&iLoop))
+ 						{
+-							// While we're here, update the group cycle order
+-							// (Ideally this would be done after AI_update rather than before. But again, that would cause problems if AI_update gets the group killed.)
+-							CvUnit* pHeadUnit = pLoopSelectionGroup->getHeadUnit();
+-							if (pHeadUnit && pHeadUnit->hasMoved() && pHeadUnit->canMove() && !pLoopSelectionGroup->isWaiting())
+-								player.updateGroupCycle(pLoopSelectionGroup);
+-							//
+-
+ 							if (pLoopSelectionGroup->AI_update())
+ 							{
+ 								FAssert(player.hasBusyUnit());
+@@ -7260,6 +7255,7 @@ void CvGame::updateMoves()
+ 							}
+ 						}
+ 					}
++					player.refreshGroupCycleList(); // This is the primary update for the group cycle ordering. (it use to be done inside CvUnit::setXY, but now it isn't.)
+ 					// K-Mod end
+ 
+ 					if (!(player.hasBusyUnit()))
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 59a5d6a63..e294142dc 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -573,6 +573,8 @@ public:
+ 
+ 	DllExport void handleDiplomacySetAIComment(DiploCommentTypes eComment) const;
+ 
++	std::set<int> m_ActivePlayerCycledGroups; // K-Mod. This is used to track which groups have been cycled through in the current turn. Note: it does not need to be kept in sync for multiplayer games.
++
+ protected:
+ 	int m_iElapsedGameTurns;
+ 	int m_iStartTurn;
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index ccab01c6e..301535014 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -30,6 +30,7 @@
+ #include <map>
+ #include <hash_map>
+ // K-Mod
++#include <set>
+ #include <utility>
+ #include <algorithm>
+ // K-Mod end
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 7941a3cef..1a70c83fc 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -231,6 +231,45 @@ bool isBeforeUnitCycle(const CvUnit* pFirstUnit, const CvUnit* pSecondUnit)
+ 	return (pFirstUnit->getID() < pSecondUnit->getID());
+ }
+ 
++// K-Mod
++int groupCycleDistance(const CvSelectionGroup* pFirstGroup, const CvSelectionGroup* pSecondGroup)
++{
++	FAssert(pFirstGroup && pSecondGroup && pFirstGroup != pSecondGroup);
++
++	CvUnit* pFirstHead = pFirstGroup->getHeadUnit();
++	CvUnit* pSecondHead = pSecondGroup->getHeadUnit();
++
++	FAssert(pFirstHead && pSecondHead);
++
++	const int iBaseScale = 4;
++	int iPenalty = 0;
++	if (pFirstHead->getUnitType() != pSecondHead->getUnitType())
++	{
++		if (pFirstHead->canFight() != pSecondHead->canFight())
++			iPenalty += 4;
++		else
++		{
++			if (pFirstHead->canFight())
++			{
++				if (pFirstHead->getUnitCombatType() != pSecondHead->getUnitCombatType())
++					iPenalty += 2;
++				if (pFirstHead->canAttack() != pSecondHead->canAttack())
++					iPenalty += 1;
++			}
++			else
++				iPenalty += 2;
++		}
++	}
++
++	int iDistance = plotDistance(pFirstHead->getX_INLINE(), pFirstHead->getY_INLINE(), pSecondHead->getX_INLINE(), pSecondHead->getY_INLINE());
++	iPenalty = std::min(5, iPenalty * (1+iDistance) / iBaseScale);
++	if (iDistance == 0 && !isBeforeUnitCycle(pFirstHead, pSecondHead))
++		iPenalty += iPenalty > 0 ? 1 : 5;
++
++	return iDistance + iPenalty;
++}
++// K-Mod end
++
+ bool isPromotionValid(PromotionTypes ePromotion, UnitTypes eUnit, bool bLeader)
+ {
+ 	CvUnitInfo& kUnit = GC.getUnitInfo(eUnit);
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 0b2277d17..3a55fd2c8 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -234,7 +234,9 @@ bool isPotentialEnemy(TeamTypes eOurTeam, TeamTypes eTheirTeam);			// Exposed to
+ DllExport CvCity* getCity(IDInfo city);	// Exposed to Python
+ DllExport CvUnit* getUnit(IDInfo unit);	// Exposed to Python
+ 
++inline bool isCycleGroup(const CvSelectionGroup* pGroup) { return pGroup->getNumUnits() > 0 && !pGroup->isWaiting() && !pGroup->isAutomated(); } // K-Mod
+ bool isBeforeUnitCycle(const CvUnit* pFirstUnit, const CvUnit* pSecondUnit);
++int groupCycleDistance(const CvSelectionGroup* pFirstGroup, const CvSelectionGroup* pSecondGroup); // K-Mod
+ bool isPromotionValid(PromotionTypes ePromotion, UnitTypes eUnit, bool bLeader);	// Exposed to Python
+ 
+ int getPopulationAsset(int iPopulation);								// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 1b80f7f4a..9e9ef0b36 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -734,7 +734,7 @@ void CvGame::cycleSelectionGroups(bool bClear, bool bForward, bool bWorkers) con
+ 
+ 		if (bWrap)
+ 		{
+-			if (GET_PLAYER(getActivePlayer()).hasAutoUnit())
++			//if (GET_PLAYER(getActivePlayer()).hasAutoUnit()) // condition disabled by K-Mod (so that the group cycle order can be refreshed by automoves.)
+ 			{
+ 				CvMessageControl::getInstance().sendAutoMoves();
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 507d86be3..63bc1c5d1 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2909,10 +2909,18 @@ CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward, b
+ 	CLLNode<int>* pFirstSelectionGroupNode;
+ 	CvSelectionGroup* pLoopSelectionGroup;
+ 
+-	if (pbWrap != NULL)
++	// K-Mod
++	FAssert(GC.getGameINLINE().getActivePlayer() == getID());
++	bool bDummy;
++	bool &bWrap = pbWrap ? *pbWrap : bDummy; // this means we can just use bWrap directly and it will update *pbWrap if need be.
++	std::set<int>& cycled_groups = GC.getGameINLINE().m_ActivePlayerCycledGroups; // for convenience
++	// K-Mod end
++
++	/* if (pbWrap != NULL)
+ 	{
+ 		*pbWrap = false;
+-	}
++	} */
++	bWrap = false;
+ 
+ 	pSelectionGroupNode = headGroupCycleNode();
+ 
+@@ -2922,6 +2930,10 @@ CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward, b
+ 		{
+ 			if (getSelectionGroup(pSelectionGroupNode->m_data) == pUnit->getGroup())
+ 			{
++				// K-Mod
++				if (isTurnActive())
++					cycled_groups.insert(pSelectionGroupNode->m_data);
++				//
+ 				if (bForward)
+ 				{
+ 					pSelectionGroupNode = nextGroupCycleNode(pSelectionGroupNode);
+@@ -2948,10 +2960,10 @@ CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward, b
+ 			pSelectionGroupNode = tailGroupCycleNode();
+ 		}
+ 
+-		if (pbWrap != NULL)
++		/* if (pbWrap != NULL)
+ 		{
+ 			*pbWrap = true;
+-		}
++		} */ // disabled by K-Mod
+ 	}
+ 
+ 	if (pSelectionGroupNode != NULL)
+@@ -2963,17 +2975,18 @@ CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward, b
+ 			pLoopSelectionGroup = getSelectionGroup(pSelectionGroupNode->m_data);
+ 			FAssertMsg(pLoopSelectionGroup != NULL, "LoopSelectionGroup is not assigned a valid value");
+ 
+-			if (pLoopSelectionGroup->readyToSelect())
++			//if (pLoopSelectionGroup->readyToSelect())
++			if (pLoopSelectionGroup->readyToSelect() && cycled_groups.count(pSelectionGroupNode->m_data) == 0) // K-Mod
+ 			{
+ 				if (!bWorkers || pLoopSelectionGroup->hasWorker())
+ 				{
+-					if (pUnit && pLoopSelectionGroup == pUnit->getGroup())
++					/* if (pUnit && pLoopSelectionGroup == pUnit->getGroup())
+ 					{
+ 						if (pbWrap != NULL)
+ 						{
+ 							*pbWrap = true;
+ 						}
+-					}
++					} */
+ 
+ 					return pLoopSelectionGroup;
+ 				}
+@@ -2987,10 +3000,10 @@ CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward, b
+ 				{
+ 					pSelectionGroupNode = headGroupCycleNode();
+ 
+-					if (pbWrap != NULL)
++					/* if (pbWrap != NULL)
+ 					{
+ 						*pbWrap = true;
+-					}
++					} */
+ 				}
+ 			}
+ 			else
+@@ -3001,18 +3014,27 @@ CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward, b
+ 				{
+ 					pSelectionGroupNode = tailGroupCycleNode();
+ 
+-					if (pbWrap != NULL)
++					/* if (pbWrap != NULL)
+ 					{
+ 						*pbWrap = true;
+-					}
++					} */
+ 				}
+ 			}
+ 
+ 			if (pSelectionGroupNode == pFirstSelectionGroupNode)
+ 			{
+-				break;
++				// break;
++				// K-Mod
++				if (bWrap)
++					break;
++				else
++				{
++					cycled_groups.clear();
++					bWrap = true;
++				}
++				// K-Mod end
+ 			}
+-		}
++		} //
+ 	}
+ 
+ 	return NULL;
+@@ -3410,19 +3432,18 @@ void CvPlayer::doTurnUnits()
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvSelectionGroup* pLoopSelectionGroup;
+ 	int iLoop;
+ 
+ 	AI_doTurnUnitsPre();
+ 
+-	for(pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup != NULL; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
++	for(CvSelectionGroup* pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup != NULL; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
+ 	{
+ 		pLoopSelectionGroup->doDelayedDeath();
+ 	}
+ 
+ 	for (int iPass = 0; iPass < 4; iPass++)
+ 	{
+-		for(pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup != NULL; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
++		for (CvSelectionGroup* pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup != NULL; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
+ 		{
+ 			switch (pLoopSelectionGroup->getDomainType())
+ 			{
+@@ -3462,11 +3483,11 @@ void CvPlayer::doTurnUnits()
+ 		}
+ 	}
+ 
+-	// K-Mod. This is the primary update for the group cycle ordering. (it use to be done inside CvUnit::setXY, but now it isn't.)
+-	for (pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup != NULL; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
++	// K-Mod. (currently unused)
++	/*for (CvSelectionGroup* pLoopSelectionGroup = firstSelectionGroup(&iLoop); pLoopSelectionGroup != NULL; pLoopSelectionGroup = nextSelectionGroup(&iLoop))
+ 	{
+ 		updateGroupCycle(pLoopSelectionGroup);
+-	}
++	}*/
+ 	// K-Mod end
+ 
+ 	if (getID() == GC.getGameINLINE().getActivePlayer())
+@@ -13113,7 +13134,7 @@ void CvPlayer::changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes
+ 
+ 
+ // K-Mod. I've changed this function from using pUnit to using pGroup.
+-// I've also rearranged the code to be more robust and readable, and rewritten the group ordering method
++// I've also rewriten most of the code, to give more natural ordering, and to be more robust and readable code.
+ void CvPlayer::updateGroupCycle(CvSelectionGroup* pGroup)
+ {
+ 	PROFILE_FUNC();
+@@ -13121,126 +13142,59 @@ void CvPlayer::updateGroupCycle(CvSelectionGroup* pGroup)
+ 
+ 	CvPlot* pPlot = pGroup->plot();
+ 
+-	if (!pPlot)
++	if (!pPlot || !isCycleGroup(pGroup))
+ 		return;
+ 
+ 	CvUnit* pUnit = pGroup->getHeadUnit();
+ 	FAssert(pUnit);
+ 
+-	removeGroupCycle(pGroup->getID());
++	//removeGroupCycle(pGroup->getID()); // will be removed while we reposition it
+ 
+-	CvUnit* pBeforeUnit = NULL;
+-	CvUnit* pAfterUnit = NULL;
++	CLLNode<int>* pBestSelectionGroupNode = NULL;
++	int iBestCost = MAX_INT;
+ 
+-	CLLNode<IDInfo>* pUnitNode = pPlot->headUnitNode();
++	CvSelectionGroup* pPreviousGroup = NULL;
+ 
+-	while (pUnitNode != NULL)
++	CLLNode<int>* pSelectionGroupNode = headGroupCycleNode();
++
++	while (pSelectionGroupNode)
+ 	{
+-		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-		pUnitNode = pPlot->nextUnitNode(pUnitNode);
++		CvSelectionGroup* pNextGroup = getSelectionGroup(pSelectionGroupNode->m_data);
++		FAssert(pNextGroup);
+ 
+-		//if (pLoopUnit->isGroupHead())
+-		if (pLoopUnit->getOwnerINLINE() == getID() && pLoopUnit->isGroupHead() && pLoopUnit->getGroup()->isWaiting() == pGroup->isWaiting()) // K-Mod
++		// if we find our group in the list, remove it.
++		if (pNextGroup == pGroup)
+ 		{
+-			if (pLoopUnit != pUnit)
+-			{
+-				if (!isBeforeUnitCycle(pLoopUnit, pUnit))
+-				{
+-					pBeforeUnit = pLoopUnit;
+-					break;
+-				}
+-				else
+-				{
+-					pAfterUnit = pLoopUnit;
+-				}
+-			}
++			pSelectionGroupNode = deleteGroupCycleNode(pSelectionGroupNode);
+ 		}
+-	}
+-
+-	int iBestValue = MAX_INT;
+-	CLLNode<int>* pBestSelectionGroupNode = NULL;
+-
+-	for (CLLNode<int>* pSelectionGroupNode = headGroupCycleNode(); pSelectionGroupNode; pSelectionGroupNode = nextGroupCycleNode(pSelectionGroupNode))
+-	{
+-		CvSelectionGroup* pLoopSelectionGroup = getSelectionGroup(pSelectionGroupNode->m_data);
+-		FAssert(pLoopSelectionGroup);
+-
+-		CvUnit* pLoopHead = pLoopSelectionGroup->getHeadUnit();
+-		if (!pLoopHead)
+-			continue;
+-
+-		if (pBeforeUnit)
++		else if (isCycleGroup(pNextGroup) && pNextGroup->canAllMove())
+ 		{
+-			if (pBeforeUnit == pLoopHead)
++			//int iCost = groupCycleDistance(pPreviousGroup, pGroup) + groupCycleDistance(pGroup, pNextGroup) - groupCycleDistance(pPreviousGroup, pNextGroup);
++			int iCost = groupCycleDistance(pGroup, pNextGroup) + (pPreviousGroup ? groupCycleDistance(pPreviousGroup, pGroup) - groupCycleDistance(pPreviousGroup, pNextGroup) : 0);
++			if (iCost < iBestCost)
+ 			{
++				iBestCost = iCost;
+ 				pBestSelectionGroupNode = pSelectionGroupNode;
+-				break;
+ 			}
++			pPreviousGroup = pNextGroup;
++			pSelectionGroupNode = nextGroupCycleNode(pSelectionGroupNode);
+ 		}
+-		else if (pAfterUnit)
++		else
+ 		{
+-			if (pAfterUnit == pLoopHead)
+-			{
+-				pBestSelectionGroupNode = nextGroupCycleNode(pSelectionGroupNode);
+-				break;
+-			}
++			pSelectionGroupNode = nextGroupCycleNode(pSelectionGroupNode);
+ 		}
+-		//else
+-		else if (pLoopSelectionGroup->isWaiting() == pGroup->isWaiting()) // K-Mod
++	}
++	if (pPreviousGroup)
++	{
++		FAssert(isCycleGroup(pPreviousGroup) && pPreviousGroup->canAllMove());
++		int iCost = groupCycleDistance(pPreviousGroup, pGroup); // cost for being at the end of the list.
++		if (iCost < iBestCost)
+ 		{
+-			/* original bts code
+-			int iValue = plotDistance(pUnit->getX_INLINE(), pUnit->getY_INLINE(), pLoopHead->getX_INLINE(), pLoopHead->getY_INLINE());
+-
+-			if (iValue < iBestValue)
+-			{
+-				iBestValue = iValue;
+-				pBestSelectionGroupNode = pSelectionGroupNode;
+-			} */
+-
+-			// K-Mod. Show some bias towards units of the same type / purpose / status
+-			int iValue = 4;
+-			if (pUnit->getUnitType() != pLoopHead->getUnitType())
+-			{
+-				if (pUnit->canFight() != pLoopHead->canFight())
+-					iValue += 4;
+-				else
+-				{
+-					if (pUnit->canFight())
+-					{
+-						if (pUnit->getUnitCombatType() != pLoopHead->getUnitCombatType())
+-							iValue += 2;
+-						if (pUnit->canAttack() != pLoopHead->canAttack())
+-							iValue += 1;
+-					}
+-					else
+-						iValue += 2;
+-				}
+-			}
+-
+-			iValue *= plotDistance(pUnit->getX_INLINE(), pUnit->getY_INLINE(), pLoopHead->getX_INLINE(), pLoopHead->getY_INLINE());
+-
+-			if (iValue < iBestValue)
+-			{
+-				iBestValue = iValue;
+-
+-				// We want to insert this group either at the start, or at the end of the groups on the plot - not in the middle.
+-				bool bBefore = isBeforeUnitCycle(pUnit, pLoopHead);
+-
+-				CLLNode<int>* pTempNode = pSelectionGroupNode;
+-				do
+-				{
+-					pBestSelectionGroupNode = pTempNode;
+-					pTempNode = bBefore ? previousGroupCycleNode(pTempNode) : nextGroupCycleNode(pTempNode);
+-				} while (pTempNode && getSelectionGroup(pTempNode->m_data)->plot() == pLoopHead->plot());
+-				if (!bBefore)
+-					pBestSelectionGroupNode = pTempNode;
+-			}
+-			// K-Mod end
++			pBestSelectionGroupNode = 0;
+ 		}
+ 	}
+-	FAssertMsg(pSelectionGroupNode || (!pBeforeUnit && !pAfterUnit), "Reached end of group cycle list without finding other groups on the plot.");
+ 
+-	if (pBestSelectionGroupNode != NULL)
++	if (pBestSelectionGroupNode)
+ 	{
+ 		m_groupCycle.insertBefore(pUnit->getGroupID(), pBestSelectionGroupNode);
+ 	}
+@@ -13271,6 +13225,31 @@ void CvPlayer::removeGroupCycle(int iID)
+ 	}
+ }
+ 
++// K-Mod
++void CvPlayer::refreshGroupCycleList()
++{
++	std::vector<CvSelectionGroup*> update_list;
++
++	CLLNode<int>* pNode = headGroupCycleNode();
++	while (pNode)
++	{
++		CvSelectionGroup* pLoopGroup = getSelectionGroup(pNode->m_data);
++		CvUnit* pLoopHead = pLoopGroup->getHeadUnit();
++		if (pLoopHead && isCycleGroup(pLoopGroup) && pLoopGroup->canAllMove() && (pLoopHead->hasMoved() || (pLoopHead->isCargo() && pLoopHead->getTransportUnit()->hasMoved())))
++		{
++			update_list.push_back(pLoopGroup);
++			pNode = deleteGroupCycleNode(pNode);
++		}
++		else
++			pNode = nextGroupCycleNode(pNode);
++	}
++
++	for (size_t i = 0; i < update_list.size(); i++)
++	{
++		updateGroupCycle(update_list[i]);
++	}
++}
++// K-Mod end
+ 
+ CLLNode<int>* CvPlayer::deleteGroupCycleNode(CLLNode<int>* pNode)
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 7c129fc34..6d6c63bf9 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -874,6 +874,7 @@ public:
+ 	//void updateGroupCycle(CvUnit* pUnit);
+ 	void updateGroupCycle(CvSelectionGroup* pGroup); // K-Mod
+ 	void removeGroupCycle(int iID);
++	void refreshGroupCycleList(); // K-Mod
+ 	CLLNode<int>* deleteGroupCycleNode(CLLNode<int>* pNode);
+ 	CLLNode<int>* nextGroupCycleNode(CLLNode<int>* pNode) const;
+ 	CLLNode<int>* previousGroupCycleNode(CLLNode<int>* pNode) const;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 88a9f8b54..4d967372e 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -157,6 +157,8 @@ void CvSelectionGroup::doTurn()
+ 
+ 	if (getNumUnits() > 0)
+ 	{
++		bool bCouldAllMove = canAllMove(); // K-Mod
++
+ 		bool bHurt = false;
+ 
+ 		// do unit's turns (checking for damage)
+@@ -252,6 +254,10 @@ void CvSelectionGroup::doTurn()
+ 				}
+ 			}
+ 		}
++		// K-Mod
++		if (!bCouldAllMove && isCycleGroup(this))
++			GET_PLAYER(getOwnerINLINE()).updateGroupCycle(this);
++		// K-Mod end
+ 	}
+ 
+ 	doDelayedDeath();
+@@ -4096,7 +4102,7 @@ void CvSelectionGroup::setActivityType(ActivityTypes eNewValue)
+ 		m_eActivityType = eNewValue;
+ 
+ 		// K-Mod
+-		if (bWasWaiting != isWaiting())
++		if (bWasWaiting && !isWaiting())
+ 			GET_PLAYER(getOwnerINLINE()).updateGroupCycle(this);
+ 		// K-Mod end
+ 
+@@ -4145,7 +4151,7 @@ AutomateTypes CvSelectionGroup::getAutomateType() const
+ }
+ 
+ 
+-bool CvSelectionGroup::isAutomated()
++bool CvSelectionGroup::isAutomated() const
+ {
+ 	return (getAutomateType() != NO_AUTOMATE);
+ }
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 644b05339..cff1c7af0 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -161,7 +161,7 @@ public:
+ 	void setActivityType(ActivityTypes eNewValue);																											// Exposed to Python
+ 
+ 	AutomateTypes getAutomateType() const;																																		// Exposed to Python
+-	bool isAutomated();																																									// Exposed to Python
++	bool isAutomated() const; // Exposed to Python
+ 	void setAutomateType(AutomateTypes eNewValue);																											// Exposed to Python
+ 
+ 	FAStarNode* getPathLastNode() const;
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=20268

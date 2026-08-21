@@ -1,0 +1,1261 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5024
+# Commit: 93f2d43f9ff8f9e290e903717b0d5ecfa1b89a3e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f497a3cd0e9d816fea21bb01fac1837190bd6939
+# Title: rename "_KESHIK" to "_KHISHIGTEN", rework the mongol_khishigten to be now horse knight based: meshes much better with the medieval window for knights and hop...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/knight_mongol.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/Mongol HeavyCavalry Body.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHeavyCavalry128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHeavyCavalryfinal.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHvyCavalryHead.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeadfinal.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeavyCavalryBodyfinal.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeavyCavalryHorsefinal.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/mongolpike_128.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/pikeman_128_gloss.dds
+25	24	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+2	2	Assets/XML/Audio/Audio2DScripts.xml
+1	1	Assets/XML/Audio/AudioDefines.xml
+2	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+5	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+8	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+219	214	Assets/XML/Units/CIV4UnitInfos.xml
+1	0	README.md
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/knight_mongol.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/Mongol HeavyCavalry Body.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHeavyCavalry128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHeavyCavalryfinal.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHvyCavalryHead.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeadfinal.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeavyCavalryBodyfinal.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeavyCavalryHorsefinal.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/mongolpike_128.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/pikeman_128_gloss.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/knight_mongol.dds b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/knight_mongol.dds
+new file mode 100644
+index 000000000..12b19f604
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/knight_mongol.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/Mongol HeavyCavalry Body.dds b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/Mongol HeavyCavalry Body.dds
+new file mode 100644
+index 000000000..f6c84db5c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/Mongol HeavyCavalry Body.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHeavyCavalry128.dds b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHeavyCavalry128.dds
+new file mode 100644
+index 000000000..ad7668af9
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHeavyCavalry128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHeavyCavalryfinal.nif b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHeavyCavalryfinal.nif
+new file mode 100644
+index 000000000..ef562447d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHeavyCavalryfinal.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHvyCavalryHead.dds b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHvyCavalryHead.dds
+new file mode 100644
+index 000000000..4b24706fa
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHvyCavalryHead.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeadfinal.dds b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeadfinal.dds
+new file mode 100644
+index 000000000..399958753
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeadfinal.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeavyCavalryBodyfinal.dds b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeavyCavalryBodyfinal.dds
+new file mode 100644
+index 000000000..9e423ee72
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeavyCavalryBodyfinal.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeavyCavalryHorsefinal.dds b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeavyCavalryHorsefinal.dds
+new file mode 100644
+index 000000000..b59a75254
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/NewGlossMongolHeavyCavalryHorsefinal.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/mongolpike_128.dds b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/mongolpike_128.dds
+new file mode 100644
+index 000000000..1ae356f37
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/mongolpike_128.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/pikeman_128_gloss.dds b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/pikeman_128_gloss.dds
+new file mode 100644
+index 000000000..839041971
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/pikeman_128_gloss.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 81360bcb1..1e02e9f44 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -1716,30 +1716,6 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_MONGOL_KESHIK</Type>
+-			<Button>,Art/Interface/Buttons/Units/Keshik.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,2</Button>
+-			<fScale>0.42</fScale>
+-			<fInterfaceScale>0.9</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Unique/Mongol/Keshik/MongelKeshik.nif</NIF>
+-			<KFM>Art/Units/Unique/Mongol/Keshik/MongelKeshik.kfm</KFM>
+-			<SHADERNIF>Art/Units/Unique/Mongol/Keshik/MongelKeshik_FX.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>HorseBip Spine1</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bActAsRanged>0</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+ 		<!-- custom: now CAMEL_ARCHER is a generic unit not civ-specific to any civ (all civs can built it anyways etc), art nif import from ri mod's ART_DEF_UNIT_ARABIA_CAMELARCHER (asset files in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Units_Arabia.FPK" anyways etc... button is now the base civ4 camel archer's one for clarity/consistency with the other camel generic (i.e. non-civ-specific unit) buttons anyways etc, and instead arabian civ-specific unit has a new button instead see there for details anyways etc. (note: the .kfm is base civ4 one of arabian old camel archer anyways etc so can't find it in the ri mod anyways etc) -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CAMEL_ARCHER</Type>
+@@ -1864,6 +1840,31 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: art import from ri mod's ART_DEF_UNIT_KNIGHT_MONGOL, from their svn version so thankfully no need to painfully go through fpks and/but instead nicely able to download and find assets super fast thanks! But anyways etc; note: be careful the kfm is actually base civ4 one as i found it to be the case in other mods xd thanks but anyways etc -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_MONGOL_KHISHIGTEN</Type>
++			<Button>Art/AdvCiv_SAS/Units/Mongol_Khishigten/knight_mongol.dds</Button>
++			<fScale>0.42</fScale>
++			<fInterfaceScale>0.9</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHeavyCavalryfinal.nif</NIF>
++			<KFM>Art/Units/Charlemagne_HeavyCavalry/HeavyCavalry.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/Mongol_Khishigten/nif/MongolHeavyCavalryfinal.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
++				<ShadowAttachNode>HorseBip Spine1</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>0</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<!-- custom: new unit CAMEL_KNIGHT based on the KNIGHT camel version of it anyways etc, art import from RFC DOC mod's ART_DEF_UNIT_CAMEL_RIDER (is in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk" anyways etc) with their very very nice and very very tidy and ordered and works-functions at first try FPK!!!! Thanks a lot!!! I had issues with other mods assets scattered across several fpks or and hardcoded paths in nif not worth debugging at least not quick, this one all in one fpk so nice and tidy thanks a lot, anyways etc -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CAMEL_KNIGHT</Type>
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 2dc6aaaae..7899a52e6 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -17107,8 +17107,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_UNIT_BUILD_MONGOL_KESHIK</ScriptID>
+-		<SoundID>SND_BUILD_MONGOL_KESHIK</SoundID>
++		<ScriptID>AS2D_UNIT_BUILD_MONGOL_KHISHIGTEN</ScriptID>
++		<SoundID>SND_BUILD_MONGOL_KHISHIGTEN</SoundID>
+ 		<SoundType>GAME_SFX</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 0efa98a16..fbfb15021 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -4777,7 +4777,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_BUILD_MONGOL_KESHIK</SoundID>
++			<SoundID>SND_BUILD_MONGOL_KHISHIGTEN</SoundID>
+ 			<Filename>Sounds/Units/BuildMogolKeshik</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 939aacd36..f53e3652f 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -2663,8 +2663,8 @@
+ 			</Buildings>
+ 			<Units>
+ 				<Unit>
+-					<UnitClassType>UNITCLASS_HORSE_ARCHER</UnitClassType>
+-					<UnitType>UNIT_MONGOL_KESHIK</UnitType>
++					<UnitClassType>UNITCLASS_HORSE_KNIGHT</UnitClassType>
++					<UnitType>UNIT_MONGOL_KHISHIGTEN</UnitType>
+ 				</Unit>
+ 			</Units>
+ 			<FreeUnitClasses>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 196f16feb..458b1d4a0 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -403,6 +403,11 @@
+ 		<Tag>TXT_KEY_UNIT_ARABIA_HAJJAN</Tag>
+ 		<English>Hajjan</English>
+ 	</TEXT>
++	<!-- custom: rename "_KESHIK" to "_KHISHIGTEN" anyways etc, name from https://www.reddit.com/r/mongolia/comments/15zd5gj/comment/jxgk8zu/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button anyways etc as it seems most accurate accurate to comment there anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_MONGOL_KHISHIGTEN</Tag>
++		<English>Khishigten</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 389c93307..a14d5e434 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -219,6 +219,14 @@
+ 
+ 
+ 
++	<!-- custom: rename "_KESHIK" to "_KHISHIGTEN" anyways etc, pedia entry based on https://en.wikipedia.org/wiki/Kheshig quite similarly anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_MONGOL_KHISHIGTEN_PEDIA</Tag>
++		<English>[TAB]Kheshig (also Khishig, Keshik, Khishigten; lit. "mugay", "blessed") were the imperial guard and shock troops for Mongol royalty in the Mongol Empire, particularly for rulers like Genghis Khan and his wife B�rte. Their primary purpose was to act as bodyguards for the emperors and other important nobles. They were divided into two subgroups: the day guard (Torguud) and the night guard (Khevtuul). They were distinct from the regular army and would not go to battle with them, instead staying back on guard duty. Their supreme commander was called the Cherbi.[PARAGRAPH:1]Because the Mongol Empire spanned most of Eurasia, its impacts on Mongol controlled-areas led to the creation of imperial guards like the Keshik. Kheshig was the term used for the palace guards of the Mughal emperors in India, and also for the matchlocks and sabres, which were changed weekly from Akbar the Great's armoury for the royal use. The royal guards in Persia who watched the King's person at night were also called Keshikchi.[PARAGRAPH:2]The assassination of the leaders of rival Mongol tribes was a common occurrence thanks to the ever-shifting loyalties and conflicting interests at play within Mongol tribal politics. Yesugei, the father of Genghis Khan, was unwittingly poisoned by one of his enemies. The risk was especially high at night since the ger that Mongol nomads traditionally sleep in lacked a solid wall, so a sword or spear could easily penetrate the walls and kill the subject inside. As a result, Mongol rulers typically had personal guards. Toghrul, the khan of the Keraites, had an imperial guard called the Torguud. According to oral tradition, their descendants were the Torghut. After the defeat of Ong Khan in 1203, Genghis established the kheshig. The kheshig consisted mainly of sworn personal followers.[PARAGRAPH:1]At first, this consisted of seventy day guards (torguud or tunghaut) and eighty night guards (khevtuul). During the reign of Genghis, it seems to have been divided into four groups, commanded by the four generals Muqali, Chormaqan, Bo'orchu and Borokhula. Members of the kheshig outranked almost any other military officers in the Mongol Empire. As it was exceptionally well paid, the vocation was popular, and the numbers of Kheshig skyrocketed to the extent that they were only generally on duty for three days in succession. In light of this, the word kheshig refers favor or blessing in the Mongolian language. Membership in the kheshig was regarded as a supreme honor and was an alternative to the necessity of hostage-taking for noblemen. the guard comprised 1000 men in the early days. By the middle of Genghis Khan's reign, they had expanded to a tumen (10,000 men) commanded by Nayagha, an uncle of Bayan of the Baarin.[PARAGRAPH:1]The Kheshig was originally consisted of Mongols. As the empire expanded rapidly, Genghis Khan's successors recruited Persian, Georgian, Armenian, Alan, Korean, Italian and Russian units. Since the kheshig was personal appanage of a monarch, his successors did not inherit them. Instead, the kheshigs of deceased Emperors took care of their lords' families and assisted households. However, G�y�k Khan took most of his father �gedei's old kheshig.[PARAGRAPH:1]For his bodyguards, Kublai Khan retained the traditional kheshig. Kublai created a new Imperial guard force, the suwei, of which half were Chinese and the other half ethnically-mixed. By the 1300s, even the kheshig was flooded with Han Chinese. The suwei were initially 6500 strong, but by the end of the dynasty, it had become 100,000 strong. They were divided into wei or guards, each recruited from a particular ethnicity. Most wei were Chinese, while a few were Mongols, Koreans, Tungusic peoples, Kipchaks and Europeans/Middle Easterners, including Alans and even one unit of Russians. The Keshig was converted into an administrative organisation instead.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: based on https://en.wikipedia.org/wiki/Hussar anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_GERMAN_HUSSAR_PEDIA</Tag>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index d5b06dda7..d6f2bd8ab 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -15731,20 +15731,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_ARCHER, type: UNIT_MONGOL_KESHIK (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_HORSE_ARCHER</Class>
+-			<Type>UNIT_MONGOL_KESHIK</Type>
++		<!-- custom: new unit, camel version of the horse_archer, based on the horse_archer 's xml and adjusted a bit if not lot or maybe not or etc or other or not or yes or etc or other or etc but anyways etc anyways etc anyways etc... -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_ARCHER, type: UNIT_CAMEL_ARCHER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_CAMEL_ARCHER</Class>
++			<Type>UNIT_CAMEL_ARCHER</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<!-- custom: note: is mounted_melee unlike the generic unit anyways etc -->
+-			<Combat>UNITCOMBAT_MOUNTED_MELEE</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_MONGOL_KESHIK</Description>
+-			<Civilopedia>TXT_KEY_UNIT_MONGOL_KESHIK_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_CAMEL_ARCHER</Description>
++			<Civilopedia>TXT_KEY_UNIT_CAMEL_ARCHER_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -15767,13 +15767,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bFound>0</bFound>
+ 			<bGoldenAge>0</bGoldenAge>
+ 			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bFirstStrikeImmune>1</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>1</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+ 			<bCanMoveImpassable>0</bCanMoveImpassable>
+ 			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+ 			<bFlatMovementCost>0</bFlatMovementCost>
+-			<bIgnoreTerrainCost>1</bIgnoreTerrainCost>
++			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqBonuses>0</bPrereqBonuses>
+ 			<bPrereqReligion>0</bPrereqReligion>
+@@ -15830,13 +15830,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>BONUS_HORSE</BonusType>
++			<BonusType>BONUS_CAMEL</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 50 -->
+-			<iCost>55</iCost>
++			<iCost>50</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -15866,11 +15865,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+-			<iFirstStrikes>1</iFirstStrikes>
++			<iFirstStrikes>0</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>50</iWithdrawalProb>
++			<iWithdrawalProb>20</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+@@ -15881,14 +15880,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
++			<!-- custom: make camel units better/stronger in desert and such terrains, but not buffing them too much as they are the generic unit and it may skew warfare too much to use them both for offense or defense against stronger units they shouldn't win again, so buff it moderately but quite a bit in this case at least if i may say but anyways etc -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
+-				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+@@ -15896,19 +15892,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
+-				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc . also remove forest penalties due to civ geographic in world map advantage of forest, see other units code comments at terrainattacks or and such hopefully helpful or not or yes or etc but anyways etc, was empty -->
+-			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureAttack>-25</iFeatureAttack>
+-				</FeatureAttack>
+-			</FeatureAttacks>
++			<FeatureAttacks/>
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+ 			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<iFeatureDefense>-25</iFeatureDefense>
+@@ -15921,14 +15912,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</UnitClassAttackMod>
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
+-			<!-- custom: above comment to delete or update later anyways etc -->
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE_SHOCK</UnitCombatType>
+-					<iUnitCombatMod>25</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -15950,7 +15934,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_MONGOL_KESHIK</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_CAMEL_ARCHER</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -15963,20 +15947,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<!-- custom: new unit, camel version of the horse_archer, based on the horse_archer 's xml and adjusted a bit if not lot or maybe not or etc or other or not or yes or etc or other or etc but anyways etc anyways etc anyways etc... -->
+-		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_ARCHER, type: UNIT_CAMEL_ARCHER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_CAMEL_ARCHER</Class>
+-			<Type>UNIT_CAMEL_ARCHER</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_WAR_ELEPHANT, type: UNIT_WAR_ELEPHANT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_WAR_ELEPHANT</Class>
++			<Type>UNIT_WAR_ELEPHANT</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_CAMEL_ARCHER</Description>
+-			<Civilopedia>TXT_KEY_UNIT_CAMEL_ARCHER_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_WAR_ELEPHANT</Description>
++			<Civilopedia>TXT_KEY_UNIT_WAR_ELEPHANT_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -15999,7 +15982,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bFound>0</bFound>
+ 			<bGoldenAge>0</bGoldenAge>
+ 			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>1</bFirstStrikeImmune>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>1</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+ 			<bCanMoveImpassable>0</bCanMoveImpassable>
+@@ -16013,7 +15996,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: also add UNITCLASS_CAMEL_KNIGHT where there is the UNITCLASS_HORSE_KNIGHT at least here if not other or not i.e maybe not but in all cases anyways etc anyways etc anyways etc... -->
++			<!-- custom: also add UNITCLASS_CAMEL_KNIGHT where there is the UNITCLASS_HORSE_KNIGHT at least here if not other or not i.e maybe not but in all cases anyways etc anyways etc anyways etc... ; also as for war_elephants, make them upgrade to knights rather than cuirassiers as in base advciv +/- civ4 xml if i am not mistaken anyways etc, so they are more useful and versatile, should be quite realistic too this way anyways etc that elephant riders convert to knight horse or camel riding anyways etc but i didn't check to be sure hopefully realistic/accurate/entertaining or/and pleasurable enough for adciv-sas our mod but anyways etc anyways etc anyways etc..., was UNITCLASS_HORSE_CUIRASSIER -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_HORSE_KNIGHT</UnitClassUpgradeType>
+@@ -16028,21 +16011,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+-			<FlankingStrikes>
+-				<FlankingStrike>
+-					<FlankingStrikeUnitClass>UNITCLASS_CATAPULT</FlankingStrikeUnitClass>
+-					<iFlankingStrength>100</iFlankingStrength>
+-				</FlankingStrike>
+-				<FlankingStrike>
+-					<FlankingStrikeUnitClass>UNITCLASS_TREBUCHET</FlankingStrikeUnitClass>
+-					<iFlankingStrength>100</iFlankingStrength>
+-				</FlankingStrike>
+-			</FlankingStrikes>
++			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -16056,23 +16034,25 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
++			<!-- custom: was TECH_CONSTRUCTION and TECH_MOUNTED_COMBAT -->
+ 			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_HUNTING</PrereqTech>
++				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>BONUS_CAMEL</BonusType>
++			<BonusType>BONUS_ELEPHANTS</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>50</iCost>
++			<!-- K-Mod: was 60 -->
++			<iCost>70</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>2</iMoves>
++			<iMoves>1</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+@@ -16091,7 +16071,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>6</iCombat>
++			<iCombat>8</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -16101,10 +16081,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>20</iWithdrawalProb>
++			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
++			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+@@ -16112,21 +16092,30 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: make camel units better/stronger in desert and such terrains, but not buffing them too much as they are the generic unit and it may skew warfare too much to use them both for offense or defense against stronger units they shouldn't win again, so buff it moderately but quite a bit in this case at least if i may say but anyways etc -->
++			<!-- custom: trying not to make it op since this is a generic unit and plains is sparse so may affect too much warfare unlike desert maybe, and plains is quite strong or not too bad of a tile anyways etc, so buff it or add this only a bit/moderately here at least in this case i mean but anyways etc -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<FeatureAttacks/>
+-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+@@ -16137,14 +16126,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iFeatureDefense>-25</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+-			<UnitClassAttackMods>
+-				<UnitClassAttackMod>
+-					<UnitClassType>UNITCLASS_CATAPULT</UnitClassType>
+-					<iUnitClassMod>50</iUnitClassMod>
+-				</UnitClassAttackMod>
+-			</UnitClassAttackMods>
++			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -16157,16 +16146,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>5</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+-			<iPower>6</iPower>
++			<iPower>8</iPower>
+ 			<UnitMeshGroups>
+-				<iGroupSize>3</iGroupSize>
++				<iGroupSize>2</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+ 				<fPadTime>1</fPadTime>
+-				<iMeleeWaveSize>3</iMeleeWaveSize>
+-				<iRangedWaveSize>3</iRangedWaveSize>
++				<iMeleeWaveSize>2</iMeleeWaveSize>
++				<iRangedWaveSize>2</iRangedWaveSize>
+ 				<UnitMeshGroup>
+-					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_CAMEL_ARCHER</EarlyArtDefineTag>
++					<iRequired>2</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_WAR_ELEPHANT</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -16179,19 +16168,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_WAR_ELEPHANT, type: UNIT_WAR_ELEPHANT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_WAR_ELEPHANT, type: UNIT_KHMER_BALLISTA_ELEPHANT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_WAR_ELEPHANT</Class>
+-			<Type>UNIT_WAR_ELEPHANT</Type>
++			<Type>UNIT_KHMER_BALLISTA_ELEPHANT</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_MOUNTED_MELEE</Combat>
++			<!-- custom: note: is mounted_ranged unlike the generic unit that is mounted_melee anyways etc -->
++			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_WAR_ELEPHANT</Description>
+-			<Civilopedia>TXT_KEY_UNIT_WAR_ELEPHANT_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_KHMER_BALLISTA_ELEPHANT</Description>
++			<Civilopedia>TXT_KEY_UNIT_KHMER_BALLISTA_ELEPHANT_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -16240,7 +16230,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+-			<UnitCombatTargets/>
++			<UnitCombatTargets>
++				<UnitCombatTarget>
++					<UnitCombatTargetType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatTargetType>
++					<bUnitCombatTarget>1</bUnitCombatTarget>
++				</UnitCombatTarget>
++			</UnitCombatTargets>
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+@@ -16309,7 +16304,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+-			<iFirstStrikes>0</iFirstStrikes>
++			<!-- K-Mod: was 0 -->
++			<iFirstStrikes>1</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+@@ -16324,28 +16320,23 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: trying not to make it op since this is a generic unit and plains is sparse so may affect too much warfare unlike desert maybe, and plains is quite strong or not too bad of a tile anyways etc, so buff it or add this only a bit/moderately here at least in this case i mean but anyways etc -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>10</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; remove jungle defense penalty and give an additional jungle attack advantage as of now anyways etc for this civ-specific unit if i may say but anyways etc due to civ geography world map advantage, see other units's code comments for details or/and additional info anyways etc -->
+ 			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>-25</iFeatureAttack>
+-				</FeatureAttack>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureAttack>-25</iFeatureAttack>
++					<iFeatureAttack>25</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+@@ -16353,10 +16344,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+ 					<iFeatureDefense>-25</iFeatureDefense>
+ 				</FeatureDefense>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>-25</iFeatureDefense>
+-				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+@@ -16387,7 +16374,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>2</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>2</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_WAR_ELEPHANT</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_KHMER_BALLISTA_ELEPHANT</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -16400,20 +16387,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_WAR_ELEPHANT, type: UNIT_KHMER_BALLISTA_ELEPHANT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_WAR_ELEPHANT</Class>
+-			<Type>UNIT_KHMER_BALLISTA_ELEPHANT</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_KNIGHT, type: UNIT_HORSE_KNIGHT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_HORSE_KNIGHT</Class>
++			<Type>UNIT_HORSE_KNIGHT</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<!-- custom: note: is mounted_ranged unlike the generic unit that is mounted_melee anyways etc -->
+-			<Combat>UNITCOMBAT_MOUNTED_RANGED</Combat>
++			<Combat>UNITCOMBAT_MOUNTED_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_KHMER_BALLISTA_ELEPHANT</Description>
+-			<Civilopedia>TXT_KEY_UNIT_KHMER_BALLISTA_ELEPHANT_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_HORSE_KNIGHT</Description>
++			<Civilopedia>TXT_KEY_UNIT_HORSE_KNIGHT_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -16436,7 +16422,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bFound>0</bFound>
+ 			<bGoldenAge>0</bGoldenAge>
+ 			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bFirstStrikeImmune>1</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>1</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+ 			<bCanMoveImpassable>0</bCanMoveImpassable>
+@@ -16450,36 +16436,36 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: also add UNITCLASS_CAMEL_KNIGHT where there is the UNITCLASS_HORSE_KNIGHT at least here if not other or not i.e maybe not but in all cases anyways etc anyways etc anyways etc... ; also as for war_elephants, make them upgrade to knights rather than cuirassiers as in base advciv +/- civ4 xml if i am not mistaken anyways etc, so they are more useful and versatile, should be quite realistic too this way anyways etc that elephant riders convert to knight horse or camel riding anyways etc but i didn't check to be sure hopefully realistic/accurate/entertaining or/and pleasurable enough for adciv-sas our mod but anyways etc anyways etc anyways etc..., was UNITCLASS_HORSE_CUIRASSIER -->
++			<!-- custom: add camel_cuirassier too anyways etc -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_HORSE_KNIGHT</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_HORSE_CUIRASSIER</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_CAMEL_KNIGHT</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_CAMEL_CUIRASSIER</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+-			<UnitCombatTargets>
+-				<UnitCombatTarget>
+-					<UnitCombatTargetType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatTargetType>
+-					<bUnitCombatTarget>1</bUnitCombatTarget>
+-				</UnitCombatTarget>
+-			</UnitCombatTargets>
++			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+-			<FlankingStrikes/>
++			<FlankingStrikes>
++				<FlankingStrike>
++					<FlankingStrikeUnitClass>UNITCLASS_CATAPULT</FlankingStrikeUnitClass>
++					<iFlankingStrength>100</iFlankingStrength>
++				</FlankingStrike>
++				<FlankingStrike>
++					<FlankingStrikeUnitClass>UNITCLASS_TREBUCHET</FlankingStrikeUnitClass>
++					<iFlankingStrength>100</iFlankingStrength>
++				</FlankingStrike>
++			</FlankingStrikes>
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -16493,25 +16479,29 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_CONSTRUCTION and TECH_MOUNTED_COMBAT -->
+-			<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
++			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
++				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>BONUS_ELEPHANTS</BonusType>
+-			<PrereqBonuses/>
++			<BonusType>BONUS_HORSE</BonusType>
++			<PrereqBonuses>
++				<BonusType>BONUS_IRON</BonusType>
++				<BonusType>NONE</BonusType>
++				<BonusType>NONE</BonusType>
++				<BonusType>NONE</BonusType>
++			</PrereqBonuses>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- K-Mod: was 60 -->
+-			<iCost>70</iCost>
++			<!-- custom: was 90 -->
++			<iCost>100</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<iMoves>1</iMoves>
++			<iMoves>2</iMoves>
+ 			<bNoRevealMap>0</bNoRevealMap>
+ 			<iAirRange>0</iAirRange>
+ 			<iAirUnitCap>0</iAirUnitCap>
+@@ -16530,21 +16520,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>8</iCombat>
++			<iCombat>10</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+-			<!-- K-Mod: was 0 -->
+-			<iFirstStrikes>1</iFirstStrikes>
++			<iFirstStrikes>0</iFirstStrikes>
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
++			<!-- custom: was 0 -->
++			<iWithdrawalProb>10</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+@@ -16552,23 +16542,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
+-				</TerrainAttack>
+-			</TerrainAttacks>
+-			<TerrainDefenses>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
+-				</TerrainDefense>
+-			</TerrainDefenses>
+-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; remove jungle defense penalty and give an additional jungle attack advantage as of now anyways etc for this civ-specific unit if i may say but anyways etc due to civ geography world map advantage, see other units's code comments for details or/and additional info anyways etc -->
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
+ 			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
++					<iFeatureAttack>-25</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+@@ -16576,15 +16560,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+ 					<iFeatureDefense>-25</iFeatureDefense>
+ 				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -16594,19 +16577,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<iCultureGarrison>5</iCultureGarrison>
++			<iCultureGarrison>6</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
+-			<iPower>8</iPower>
++			<iAsset>3</iAsset>
++			<iPower>10</iPower>
+ 			<UnitMeshGroups>
+-				<iGroupSize>2</iGroupSize>
++				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+ 				<fPadTime>1</fPadTime>
+-				<iMeleeWaveSize>2</iMeleeWaveSize>
+-				<iRangedWaveSize>2</iRangedWaveSize>
++				<iMeleeWaveSize>3</iMeleeWaveSize>
++				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+-					<iRequired>2</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_KHMER_BALLISTA_ELEPHANT</EarlyArtDefineTag>
++					<iRequired>3</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -16619,9 +16602,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_KNIGHT, type: UNIT_HORSE_KNIGHT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_KNIGHT, type: UNIT_BYZANTINE_CATAPHRACT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_HORSE_KNIGHT</Class>
+-			<Type>UNIT_HORSE_KNIGHT</Type>
++			<Type>UNIT_BYZANTINE_CATAPHRACT</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -16630,8 +16613,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_HORSE_KNIGHT</Description>
+-			<Civilopedia>TXT_KEY_UNIT_HORSE_KNIGHT_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_BYZANTINE_CATAPHRACT</Description>
++			<Civilopedia>TXT_KEY_UNIT_BYZANTINE_CATAPHRACT_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -16654,7 +16637,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bFound>0</bFound>
+ 			<bGoldenAge>0</bGoldenAge>
+ 			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>1</bFirstStrikeImmune>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>1</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+ 			<bCanMoveImpassable>0</bCanMoveImpassable>
+@@ -16728,7 +16711,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 90 -->
+-			<iCost>100</iCost>
++			<iCost>110</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -16752,7 +16735,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>10</iCombat>
++			<iCombat>12</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -16774,8 +16757,34 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>10</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainDefense>10</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
+ 			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+@@ -16812,7 +16821,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>6</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+-			<iPower>10</iPower>
++			<iPower>12</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -16821,7 +16830,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_HORSE_KNIGHT</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_BYZANTINE_CATAPHRACT</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -16834,9 +16843,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_KNIGHT, type: UNIT_BYZANTINE_CATAPHRACT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_KNIGHT, type: UNIT_MONGOL_KHISHIGTEN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_HORSE_KNIGHT</Class>
+-			<Type>UNIT_BYZANTINE_CATAPHRACT</Type>
++			<Type>UNIT_MONGOL_KHISHIGTEN</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -16845,8 +16854,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_BYZANTINE_CATAPHRACT</Description>
+-			<Civilopedia>TXT_KEY_UNIT_BYZANTINE_CATAPHRACT_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_MONGOL_KHISHIGTEN</Description>
++			<Civilopedia>TXT_KEY_UNIT_MONGOL_KHISHIGTEN_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -16869,13 +16878,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bFound>0</bFound>
+ 			<bGoldenAge>0</bGoldenAge>
+ 			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bFirstStrikeImmune>1</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>1</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+ 			<bCanMoveImpassable>0</bCanMoveImpassable>
+ 			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
+ 			<bFlatMovementCost>0</bFlatMovementCost>
+-			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
++			<!-- custom: idea nicely provided to me by chatgpt 5 thanks anyways etc -->
++			<bIgnoreTerrainCost>1</bIgnoreTerrainCost>
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqBonuses>0</bPrereqBonuses>
+ 			<bPrereqReligion>0</bPrereqReligion>
+@@ -16942,7 +16952,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 90 -->
++			<!-- custom: was 90 (in the base advciv horse knight anyways etc) -->
+ 			<iCost>110</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -16967,7 +16977,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>12</iCombat>
++			<iCombat>10</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -16978,7 +16988,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+ 			<!-- custom: was 0 -->
+-			<iWithdrawalProb>10</iWithdrawalProb>
++			<iWithdrawalProb>15</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+@@ -16991,48 +17001,32 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
+-				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>10</iTerrainDefense>
+-				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>10</iTerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
++			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc . also remove forest penalties due to civ geographic in world map advantage of forest, see other units code comments at terrainattacks or and such hopefully helpful or not or yes or etc but anyways etc, was empty -->
+ 			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>-25</iFeatureAttack>
+-				</FeatureAttack>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<iFeatureAttack>-25</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>-25</iFeatureDefense>
+-				</FeatureDefense>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<iFeatureDefense>-25</iFeatureDefense>
+@@ -17053,7 +17047,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>6</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+-			<iPower>12</iPower>
++			<!-- custom: was 10 in advciv-sas horse knight anyways etc -->
++			<iPower>11</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -17062,7 +17057,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_BYZANTINE_CATAPHRACT</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_MONGOL_KHISHIGTEN</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -17071,7 +17066,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: "pay tribute to us or we'll attack your city" is part of the effect i tried/wanted to represent here but anyways etc + also being very good at retreat from little i know about their story in this case i mean but anyways etc; mongol khishigten rework anyways etc -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_BLITZKRIEG</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_RETREAT1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+
+diff --git a/README.md b/README.md
+index 565a08f6a..b2d3a4e00 100644
+--- a/README.md
++++ b/README.md
+@@ -478,6 +478,7 @@ it too though unless i'm mistaken)
+ - Dragon UnPACKer to view inside .fpk files and do operations such as file search or/and such if there operations (i didn't check so i don't know too anyways etc), for example finding all "tao" (search) assests in a base civ4 .fpk [(Google Drive preview example here)](https://drive.google.com/drive/folders/1lFqJ0LLa03a0oDTrJO9ahYigY6yjesTj?usp=sharing) (thanks a lot too anyways etc!! :) gogo anyways etc, useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
+ - PakBuild (note: i don't know the details, but it seems not recommended to use PakBuild at all to pack (not unpack) your assets into .fpk files according to [this discussion at least in civfanatics forum](https://forums.civfanatics.com/threads/utilizing-pakbuild-for-faster-mod-load.679925/) i glanced quick at and other things i read, but since here we use it only to unpack existing .fpk files from other mods, not pack our files into an .fpk file, then it might be fine to do so for us and as part of this unpacking (not packing) explanation if i may say and if i am not mistaken but anyways etc), very useful to unpack fpks where it is more convenient to manipulate files directly for modding anyways etc, especially for mods like realism invictus ("for example anyways etc" anyways etc) anyways etc where there are many sub fpks and the assets are spread across several fpks sometimes, easier to extract all fpks in one folder and access files directly, see this [google drive folder example for details](https://drive.google.com/drive/folders/1cvNRH86cSrsaagsqlvoNRxjFAeHQfX0H?usp=sharing) (note: should not be necessary if your/the mod only has a few fpks but as you prefer, but if the mod has a few dozen fpks like ri mod for example as said before anyways etc, it would save a lot of time if you often import their assets to unpack/merge them all in one folder the access directly with wiztree anyways etc) (note: i found to "just" / "only" anyways etc even though takes bit times but saves lot later and pain/heart-/brainache but anyways etc... hopefully helps but anyways etc, that indeed just the "structures" and "interface" fpks unpack(ed but anyways etc) are enough for my needs at least now no need to unpack all may or not later if need but anyways etc anyways etc anyways etc hopefully helps/is helpful but anyways etc..., note 2: be careful if unpacking all fpks in same folder may create errors/issues/missing files, see link above in this paragraph/bullet point i mean for details anyways etc anyways etc)
+ - NifSkope to read .nif files if need(ed) (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1StBDHqJ6LfOf8yxFuRxfkYUuKu6QgZz2?usp=drive_link)) helps too even though some people seem to say it's not too good if i am not mistaken but seems to do the trick i.e. or/and maybe rather be helpful for civ4 at least advciv-sas, for example anyways etc viewing the HR mod's baal(ism) (Generic found i assume for many other religions) religion .nif file which if i am not mistaken is the religion's movie file as said in description if i understand it bit or lot or both or not or and other or and not anyways etc correctly or not or yes or and other or and not anyways etc)(anyways etc), or the civ4's tao/dao ism one anyways etc or also the HR mod's asatru (viking (/scandiavian?) one for example for comparison that is quite characteristic and helps understand how it works (image seems frozen but maybe is intended this way and works as is maybe (not guaranteed but anyways etc) or the very pretty :o but anyways etc pesdejet found, or the shamanism one that we finally choose for paganism anyways etc after consideration of all or most of these or and other ones or and not anyways etc anyways etc anyways etc
++- TortoiseSVN (to download the SVN version of ri mod (to get the art assets much more easily without needing to go thorugh fpks painfully anyways etc))
+ - [Diffchecker website](https://www.diffchecker.com/), seems to work extremely well at spotting differences even in quite long texts and nice display and all, for example useful when for example trying to investiage why the git(hub) diff was different ([not visible in the github preview in website in this linked commit's diff (it seems but anyways etc anyways etc) for example('s url anyways etc)](https://github.com/wonderingabout/AdvCiv-SAS/commit/277746f4154a2424d763d9cc385d6a6bc8ef92bc?diff=split#diff-55db1d87967dd9a8a331adbb123e77ea20972a1b5ac44c8114c9f4d3ae24071eR39)) anyways etc, but can quickly see where and why with diffchecker (see [Google Drive preview examples here](https://drive.google.com/drive/folders/10vaaNidNwt2a2B-1EZa9SEGxYEOYhTxX?usp=sharing)) website where and why the difference(s) are, based on which (i.e. from this (info) anyways etc) i could assess i don't need to reupload the screenshot after i had automatically fixed with global (quite careful maybe(and in current doc only in vs code anyways etc)) replace the paganism religion description that is quite deep nested as in far in the text so not visible in our first screenshot anyway if i may say but anyways etc, is also a bit faster that doing a manual diff on vs code unless i don't know how, or maybe could have some other uses or and not anyways etc, thanks a lot, anyways etc, thanks, i like it very much, and still love vs code, as in continuously hehe at least as of now, as for future whatever happens or maybe not or yes but anyways etc anyways etc, in all cases anyways etc, for diffchecker website to go back to it more specifically anyways etc anyways etc, thanks,
+ - Wikipedia, a lot of very amazing, informative, quite if not lot and very accurate and neutral but just a bit and enough opiniated, and very exhaustive and all, thanks a big big lot! For making wikipedia and all and letting me and others or not but at least for me use it, good if helps others or maybe not or yes or both or not or and other or maybe yes or not or other anyways speaking about me etc thanks anyways anyways etc, thanks,
+ - Quillbot (a quite accurate and convenient to use i think but anyways web translator using AI, i used the free version), for example: [translation of "the people of benin" with Quillbot](https://quillbot.com/fr/traduction?sl=auto&tl=fr&text=the+people+of+Benin) (did not use this example in AdvCiv-SAS, is just to illustrate, hopefully helpful, anyways)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 24d3eaa90..b53a359c1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -918,6 +918,8 @@ Like this for example if it helps too, anyways etc... (not sayin this is a stand
+ 
+ note3: in some cases it's even harder than that as the nif expects some assets not in the other mod where you're importing it from's folder anyways etc, so with nifskope (see screenshots in drive link in this section of the readme anyways etc), for example for the usa_patriot of/in advciv-sas anyways etc, open the trees and such until you find one or many of the assets the nif requires, in this case it was just brownbesstexture.dds, that was not in ri mod's li_fus_early_america if i am not mistaken anyways etc where the remaining and what i expected to be all but anyways etc unit's art were. So to solve this, i did a search with dragon unpacker in the .fpk of civilization america where i took this unit from, and luckily for us anyways etc this brownbesstexture.dds was there, so i extracted, added it, verified path in nif is relative to current folder as was and not in some other folder parent or child anyways etc to ours, and since all was good by adding this .dds as well in Mods\AdvCiv-SAS\Assets\Art\AdvCiv_SAS\Units\USA_Patriot\nif\ then finally the gun was not purple again of missing art but was the real gun same as in ri mod yohoo!! If i may say but anyways etc. Since it was not luckily too hard to solve unlike harder times i had for example with c2c camel units with many missing assets or and with a path outside of the unit's folder if i remember correctly, i thought it was a good time to add this example to the tutorial since easier and such and i could solve it, while also remembering chatgpt's instructions at the time for c2c even though i didn't succeed at it at the time now solved with the usa patriot that has a nice brown gun in the game (or white in nifskope as in empty if i am not mistaken in this case but anyways etc) i mean but anyways etc anyways etc anyways etc... hopefully helpful, see drive screenshots as well for examples of how i solved it in main steps hopefully helpful anyways etc
+ 
++note 3.2 / update: i have found that as of now for ri mod in particular, downloading the SVN version (for example with TortoiseSVN as they recommend it on their website if i'm not mistaken but anyways etc) allows to have directly all the asset files, which is extremely convenient, no need to browse through fpks painfully and very inefficiently!!! Anyways etc. Used for the mongol khishigten art assets! Thanks for assets to ri mod and for providing this version that happens to have no fpk to save my sanity and time or whatever or not or yes or etc in this case i mean but anyways etc.
++
+ ## (Not used anymore in advciv-sas) Example of how to add a static image file (such as .PNG, .JPG, etc) as a leader portrait
+ 
+ Old information from my notes, now we use leader portraits (nif) with an animation, but an earlier version used static images if i may say and am not mistaken in saying so but anyways etc. But these instructions may be helpful to me or others maybe so adding them for reference anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index b1b1f9ef8..938a43b92 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -407,7 +407,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - unit promotions are reworked or/and rebalanced: woodsman for example is buffed, some other like Hills Master 2 and 3 (guerilla) are rebalanced or nerfed, and other some promotions have also their requirements changed, for example archers have access to city bombard promotion (units are reworked too, see below), or "Logistics" (named "Commando" before) is now accessible after Combat 1 or City Raider 1, or City Raider 3 or City Garrison 3 or First Strike 3 as of now also require (i.e. additionally, on top of previous prereq if i'm not mistaken but anyways etc) Combat 2 before that not only the previous level (else was a bit too op before i think but anyways etc). Some are available sooner too, for example "Logistics" is available at "The Wheel", not "Military Science" anymore, since we understand roads we can use them, maybe, more strategic importance now too maybe hopefully.
+ - removed some promotions such as PROMOTION_TACTICS, as effect is redundant with retreat 1 and retreat 2 plus bypassing it, having too high retreat chance would be broken as well and inefficient as a promotion tree maybe anyways etc
+ - military units are reworked: for example the holy roman empire special unit, to better accomodate its history and stats, can be built starting from a different tech
+-- military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values
++- military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), or the mongol khishigten (medieval horse knight based as of now anyways etc (replaces the mongol keshik anyways etc)), also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values
+ - some units have been removed: sometimes for gameplay reasons: for example the nuclear_submarine is not relevant enough and does not actually hold nuclear weapons, only is nuclear powered if i am not mistaken, but effect is not strong enough to justify the hassle so just remove them anyways etc ; or for example the caravel as it was not very sensical / nonsensical to me at least anyways etc that openly nation-specific and announced caravels could freely travel in outer borders even if borders are not open (and send annoying spies and such) without declaring war while doing so, so now this ability is now specific only to the privateer, among visible units at least (unlike the (normal) submarine for example if i am not mistaken anyways etc), and the privateer is now also buffed, see sevopedia for latest values and effects anyways etc, as for the caravel its transportation effect or faster mobility (if i am not mistaken about it being faster due to it being smaller if i am not mistaken about this as well anyways etc) is not worth the hassle of having 2 naval units (i.e. than the galleon anyways etc) at same era that do otherwise about the same thing anyways etc
+ - some military units have no military support cost such as for example as of now for example the robotic_infantry or the robotic_tank we added in advciv-sas anyways etc, and some no longer have a free cost such as of now the privateer that was free, but now costs like all or almost all military units (even if it has nationality, it would still cost gold/money to run if i may say but anyways etc, but the AI can be considered cheap labor enough that can be considered free to maintain after it has been produced at least in our mod and as of now if i may say but anyways etc). This information is displayed in sevopedia (As of now "No military support cost"), see also [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) for related info anyways etc
+ - the stealth ability has been removed from some units where i felt/thought it didn't make sense if any more have this ability that i'd want to be removed, except for units such as submarines, spies, stealth bombers too as it would be tedious to add many new air units, and perhaps complicate needlessly the game, they fit fine as an upgrade to the bomber in civ4 terms i think for both efficient and progressive/gradual strategy maybe anyways etc, and maybe other units too if any other units anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index eeb982721..bdbcbd6d1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -392,7 +392,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+   - **Logistics** now at **The Wheel** (was Military Science).
+   - Removed redundant promotions (e.g., **Tactics**), to avoid broken retreat odds.
+ - **Unit redesigns:**
+-  - Weak/late UUs replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**).
++  - Weak/late UUs replaced by earlier/impactful ones (e.g., Dutch **East Indiaman** → Dutch **Swift Worker**; German **Panzer** → **Hussar**; Mongol **Keshik** → **Khishigten** — better window with the **Ger**, longer medieval span, higher hammer rate, and more historical).
+   - **Air** unit costs generally increased.
+ - **Upgrade paths** simplified and made more sensible:
+   - Mounted tiers upgrade along mounted lines (e.g., **Chariot → Horse Archer**; **War Elephant → Knight**).
+
+[PATCH COVERAGE]
+patchFiles=21 embeddedFiles=21 omittedFiles=0 embeddedPatchBytes=79138

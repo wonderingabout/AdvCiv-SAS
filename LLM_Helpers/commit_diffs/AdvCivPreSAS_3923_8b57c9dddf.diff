@@ -1,0 +1,191 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3923
+# Commit: 8b57c9dddfd84b9ffd6f5c9838b54aa77def7835
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a11d772bc8085c90dab9cef2623275bae2c96d64
+# Title: Ranks on Demographics tab only based on known civs
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+37	27	Assets/Python/Screens/CvInfoScreen.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index aed7af834..c57d8bebc 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -50,6 +50,10 @@ class CvInfoScreen:
+ 		if self.bShowBestKnown:
+ 			self.bAlwaysShowBestWorstNameIfMet = False
+ 		self.bRevealAll = False
++		# Rank numbers shown for the active player and its rivals are based on
++		# only on demographics of civs that the active player has met.
++		# Set to False to ignore has-met status when calculating tank numbers.
++		self.bRanksAmongKnown = True
+ 		# </advc.077>
+ 
+ 		self.screenId = screenId
+@@ -1477,6 +1481,11 @@ class CvInfoScreen:
+ 		return (iWorstValue, iWorstPlayer) # advc.077
+ 	
+ 	# <advc.077>
++	def addGroupData(self, iValue, iPlayer, aiGroup):
++		if (not self.bRanksAmongKnown or self.bRevealAll or
++				self.pActiveTeam.isHasMet(gc.getPlayer(iPlayer).getTeam())):
++			aiGroup.append((iValue, iPlayer))
++
+ 	def getPlayerValueStr(self, valuePlayerPair, szMeasure = "", aiGroup = None):
+ 		iPlayer = valuePlayerPair[1]
+ 		szPlayerName = ""
+@@ -1544,7 +1553,7 @@ class CvInfoScreen:
+ 		iHealthGameAverage = 0
+ 		iNetTradeGameAverage = 0
+ 
+-		# Lists of Player values - will be used to determine rank, strength and average per city
++		# Lists of Player values - will be used to determine rank
+ 		aiGroupEconomy = []
+ 		aiGroupIndustry = []
+ 		aiGroupAgriculture = []
+@@ -1593,8 +1602,7 @@ class CvInfoScreen:
+ 						iKnownRivalDemogr += 1
+ 					# </advc.077>
+ 					iEconomyGameAverage += iValue
+-				aiGroupEconomy.append((iValue, iPlayerLoop))
+-				
++				self.addGroupData(iValue, iPlayerLoop, aiGroupEconomy) # advc.077
+ 				#iValue = pCurrPlayer.calculateTotalYield(YieldTypes.YIELD_PRODUCTION)
+ 				# <advc.077>
+ 				if iGameTurn >= 0:
+@@ -1606,7 +1614,7 @@ class CvInfoScreen:
+ 					iIndustry = iValue
+ 				else:
+ 					iIndustryGameAverage += iValue
+-				aiGroupIndustry.append((iValue, iPlayerLoop))
++				self.addGroupData(iValue, iPlayerLoop, aiGroupIndustry) # advc.077
+ 
+ 				#iValue = pCurrPlayer.calculateTotalYield(YieldTypes.YIELD_FOOD)
+ 				# <advc.077>
+@@ -1619,7 +1627,7 @@ class CvInfoScreen:
+ 					iAgriculture = iValue
+ 				else:
+ 					iAgricultureGameAverage += iValue
+-				aiGroupAgriculture.append((iValue, iPlayerLoop))
++				self.addGroupData(iValue, iPlayerLoop, aiGroupAgriculture) # advc.077
+ 				# advc.077: was *1000
+ 				iValue = pCurrPlayer.getPower() * iMilitaryCoeff
+ 				if iPlayerLoop == self.iActivePlayer:
+@@ -1630,42 +1638,42 @@ class CvInfoScreen:
+ 						iMilitary = iValue
+ 				else:
+ 					iMilitaryGameAverage += iValue
+-				aiGroupMilitary.append((iValue, iPlayerLoop))
++				self.addGroupData(iValue, iPlayerLoop, aiGroupMilitary) # advc.077
+ 				# advc.077: was *1000
+ 				iValue = pCurrPlayer.getTotalLand() * iLandCoeff
+ 				if iPlayerLoop == self.iActivePlayer:
+ 					iLandArea = iValue
+ 				else:
+ 					iLandAreaGameAverage += iValue
+-				aiGroupLandArea.append((iValue, iPlayerLoop))
++				self.addGroupData(iValue, iPlayerLoop, aiGroupLandArea) # advc.077
+ 
+ 				iValue = pCurrPlayer.getRealPopulation()
+ 				if iPlayerLoop == self.iActivePlayer:
+ 					iPopulation = iValue
+ 				else:
+ 					iPopulationGameAverage += iValue
+-				aiGroupPopulation.append((iValue, iPlayerLoop))
++				self.addGroupData(iValue, iPlayerLoop, aiGroupPopulation) # advc.077
+ 
+ 				iValue = self.getHappyValue(pCurrPlayer)
+ 				if iPlayerLoop == self.iActivePlayer:
+ 					iHappiness = iValue
+ 				else:
+ 					iHappinessGameAverage += iValue
+-				aiGroupHappiness.append((iValue, iPlayerLoop))
++				self.addGroupData(iValue, iPlayerLoop, aiGroupHappiness) # advc.077
+ 
+ 				iValue = self.getHealthValue(pCurrPlayer)
+ 				if iPlayerLoop == self.iActivePlayer:
+ 					iHealth = iValue
+ 				else:
+ 					iHealthGameAverage += iValue
+-				aiGroupHealth.append((iValue, iPlayerLoop))
++				self.addGroupData(iValue, iPlayerLoop, aiGroupHealth) # advc.077
+ 				# advc.077: Don't subtract imports. Would be kind of nice to add pLoopPlayer.getGoldPerTurnByPlayer (summed up over all players), but would have to subtract gold payments too, and that wouldn't be consistent with counting only "export" trade routes.
+ 				iValue = pCurrPlayer.calculateTotalExports(YieldTypes.YIELD_COMMERCE)# - pCurrPlayer.calculateTotalImports(YieldTypes.YIELD_COMMERCE)
+ 				if iPlayerLoop == self.iActivePlayer:
+ 					iNetTrade = iValue
+ 				else:
+ 					iNetTradeGameAverage += iValue
+-				aiGroupNetTrade.append((iValue, iPlayerLoop))
++				self.addGroupData(iValue, iPlayerLoop, aiGroupNetTrade) # advc.077
+ 					
+ 		iEconomyRank = self.getRank(aiGroupEconomy)
+ 		iIndustryRank = self.getRank(aiGroupIndustry)
+@@ -1708,16 +1716,17 @@ class CvInfoScreen:
+ 			iColumns -= 1
+ 		bShowAvg = (iActiveRivals > 3)
+ 		if bShowAvg:
+-			# All occurrences of 'iNumActivePlayers - 1' replaced with iActiveRivals
+-			iEconomyGameAverage = iEconomyGameAverage / max(1, iActiveRivals)
+-			iIndustryGameAverage = iIndustryGameAverage / max(1, iActiveRivals)
+-			iAgricultureGameAverage = iAgricultureGameAverage / max(1, iActiveRivals)
+-			iMilitaryGameAverage = iMilitaryGameAverage / max(1, iActiveRivals)
+-			iLandAreaGameAverage = iLandAreaGameAverage / max(1, iActiveRivals)
+-			iPopulationGameAverage = iPopulationGameAverage / max(1, iActiveRivals)
+-			iHappinessGameAverage = iHappinessGameAverage / max(1, iActiveRivals)
+-			iHealthGameAverage = iHealthGameAverage / max(1, iActiveRivals)
+-			iNetTradeGameAverage = iNetTradeGameAverage / max(1, iActiveRivals)
++			iDivForAvg = max(1, iActiveRivals)
++			# All occurrences of max(1, iNumActivePlayers-1) replaced with iDivForAvg
++			iEconomyGameAverage = iEconomyGameAverage / iDivForAvg
++			iIndustryGameAverage = iIndustryGameAverage / iDivForAvg
++			iAgricultureGameAverage = iAgricultureGameAverage / iDivForAvg
++			iMilitaryGameAverage = iMilitaryGameAverage / iDivForAvg
++			iLandAreaGameAverage = iLandAreaGameAverage / iDivForAvg
++			iPopulationGameAverage = iPopulationGameAverage / iDivForAvg
++			iHappinessGameAverage = iHappinessGameAverage / iDivForAvg
++			iHealthGameAverage = iHealthGameAverage / iDivForAvg
++			iNetTradeGameAverage = iNetTradeGameAverage / iDivForAvg
+ 			# Round the averages
+ 			iMultiple = 5
+ 			# (I don't know ...)
+@@ -1778,18 +1787,19 @@ class CvInfoScreen:
+ 			iBestCol = iNextCol
+ 			# Column width was 155
+ 			screen.setTableColumnHeader(szTable, iBestCol, self.TEXT_BEST, 170 + iBestWorstExtraWidth)
+-		iAvgCol = -1
+-		if bShowAvg:
+-			iNextCol += 1
+-			iAvgCol = iNextCol
+-			# Column width was 155
+-			screen.setTableColumnHeader(szTable, iAvgCol, self.TEXT_AVERAGE, 154)
++		# Worst col moved before avg col
+ 		iWorstCol = -1
+ 		if bShowWorst:
+ 			iNextCol += 1
+ 			iWorstCol = iNextCol
+ 			# Column width was 155
+ 			screen.setTableColumnHeader(szTable, iWorstCol, self.TEXT_WORST, 170 + iBestWorstExtraWidth)
++		iAvgCol = -1
++		if bShowAvg:
++			iNextCol += 1
++			iAvgCol = iNextCol
++			# Column width was 155
++			screen.setTableColumnHeader(szTable, iAvgCol, self.TEXT_AVERAGE, 154)
+ 		#iTargetRows = 18 + 5 # 18 normal items + 5 lines for spacing
+ 		# Replacing the above
+ 		iTargetRows = 8 * 3
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=7137

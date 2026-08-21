@@ -1,0 +1,65 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1146
+# Commit: 298e18cb0624fe0c468de06a30f3fa6db5dd87e1
+# History segment: K-Mod history
+# Parent used for diff: 1de1f7b760d7d56599ccb7a995129d1919d9eb86
+# Title: Tweaked evaluation of rivers and continent bonuses in AI_foundValue.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	5	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6183ac1fd..4bc11598b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3220,7 +3220,7 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 				{
+ 					//iPlotValue += 10; // (original)
+ 					// K-Mod
+-					iPlotValue += (kSet.bFinancial || kSet.bStartingLoc) ? 25 : 5;
++					iPlotValue += (kSet.bFinancial || kSet.bStartingLoc) ? 30 : 10;
+ 					iPlotValue += (pPlot->isRiver() ? 15 : 0);
+ 				}
+ 				if (pLoopPlot->canHavePotentialIrrigation())
+@@ -3480,6 +3480,7 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 							iTempValue += pLoopPlot->getYield(YIELD_FOOD) * 9;
+ 							iTempValue += pLoopPlot->getYield(YIELD_PRODUCTION) * 5;
+ 							iTempValue += pLoopPlot->getYield(YIELD_COMMERCE) * 3;
++							iTempValue += pLoopPlot->isRiver() ? 1 : 0;
+ 							iTempValue += pLoopPlot->isWater() ? -2 : 0;
+ 							iValue += iTempValue;
+ 							if (iTempValue < 13)
+@@ -3534,8 +3535,8 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 					iTypes += std::min(100, 100 * pArea->getNumBonuses(i) / std::max(2, iPlayers + 1));
+ 				}
+ 			}
+-			// bonus for resources per player on the continent
+-			iValue = iValue * (100 + 2 * iBonuses/100 + 8 * iTypes/100) / 100;
++			// bonus for resources per player on the continent. (capped to avoid overflow)
++			iValue = iValue * std::min(400, 100 + 2 * iBonuses/100 + 8 * iTypes/100) / 130;
+ 
+ 			// strong penality for a solo start. bonus for pairing with an existing solo start. penality for highly populated islands
+ 			iValue = iValue * (10 + std::max(-2, iPlayers ? 2 - iPlayers : -2)) / 10;
+@@ -3644,8 +3645,6 @@ short CvPlayerAI::AI_foundValue_bulk(int iX, int iY, const CvFoundSettings& kSet
+ 				iValue /= 1000;
+ 			}
+ 
+-			//iValue /= 10; // (disabled by K-Mod)
+-
+ 			if (pPlot->getBonusType() != NO_BONUS)
+ 			{
+ 				iValue /= 2;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1989

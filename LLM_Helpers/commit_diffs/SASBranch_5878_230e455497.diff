@@ -1,0 +1,386 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5878
+# Commit: 230e455497b304ffa137ce5de1a28d86e8bc36fd
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ececa8d173bc8f28e447dd4b80579cc8cfcafa79
+# Title: fix ruff E702 (a; b -> a \n b) - pass 1b
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	2	LLM_Helpers/comment_cleanup_pass_v2.py
+6	3	PrivateMaps/Pangaea.py
+40	20	PrivateMaps/RandomScriptMap.py
+34	17	PrivateMaps/Terra.py
+
+[PATCHES]
+
+diff --git a/LLM_Helpers/comment_cleanup_pass_v2.py b/LLM_Helpers/comment_cleanup_pass_v2.py
+index bb42a3304..4274d42a4 100644
+--- a/LLM_Helpers/comment_cleanup_pass_v2.py
++++ b/LLM_Helpers/comment_cleanup_pass_v2.py
+@@ -104,7 +104,8 @@ def transform(text):
+     for l in src_lines:
+         n,c=fix_typos(l); lines.append(n)
+         typos+=c
+-    out=[]; collapsed=0
++    out=[]
++    collapsed=0
+     i=0
+     while i < len(lines):
+         if not is_plain_comment_line(lines[i]):
+@@ -114,7 +115,8 @@ def transform(text):
+             out.append(lines[i]); i+=1; continue
+         indent, _ = split_comment(lines[i])
+         # collect same-indent plain comments only
+-        j=i; contents=[]
++        j=i
++        contents=[]
+         raw=[]
+         while j < len(lines) and is_plain_comment_line(lines[j]) and split_comment(lines[j])[0] == indent:
+             _ind, cont=split_comment(lines[j]); contents.append(cont); raw.append(lines[j])
+
+diff --git a/PrivateMaps/Pangaea.py b/PrivateMaps/Pangaea.py
+index 90fc3a092..6e1917edb 100644
+--- a/PrivateMaps/Pangaea.py
++++ b/PrivateMaps/Pangaea.py
+@@ -401,13 +401,16 @@ class PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 
+ 			scShape = self.dice.get(5, "Subcontinent Shape - Terra PYTHON")
+ 			if scShape > 1: # Regular subcontinent.
+-				scWater = 55+sea; scGrain = 1
++				scWater = 55+sea
++				scGrain = 1
+ 				scRift = -1
+ 			elif scShape == 1: # Irregular subcontinent.
+-				scWater = 66+sea; scGrain = 2
++				scWater = 66+sea
++				scGrain = 2
+ 				scRift = 2
+ 			else: # scShape == 0, Archipelago subcontinent.
+-				scWater = 77+sea; scGrain = grain
++				scWater = 77+sea
++				scGrain = grain
+ 				scRift = -1
+                 
+ 			self.generatePlotsInRegion(scWater,
+
+diff --git a/PrivateMaps/RandomScriptMap.py b/PrivateMaps/RandomScriptMap.py
+index 1af2be669..15bdf4922 100644
+--- a/PrivateMaps/RandomScriptMap.py
++++ b/PrivateMaps/RandomScriptMap.py
+@@ -1132,13 +1132,16 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 
+             scShape = self.dice.get(5, "RandomScriptUtil PYTHON")
+             if scShape == 0:    # Regular subcontinent.
+-                scWater = 55+sea; scGrain = 1
++                scWater = 55+sea
++                scGrain = 1
+                 scRift = -1
+             elif scShape > 2:   # Irregular subcontinent.
+-                scWater = 66+sea; scGrain = 2
++                scWater = 66+sea
++                scGrain = 2
+                 scRift = 2
+             else:               # scShape 1 and 2, Archipelago subcontinent.
+-                scWater = 77+sea; scGrain = grain
++                scWater = 77+sea
++                scGrain = grain
+                 scRift = -1
+                 
+             self.generatePlotsInRegion(scWater,
+@@ -1248,7 +1251,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+             twWidth = twEastX - twWestX + 1
+             twNorthY = eurasiaNorthY - eurasiaHeight/4
+             twSouthY = eurasiaSouthY + eurasiaHeight/4
+-            twWater = 60+sea; twGrain = 1
++            twWater = 60+sea
++            twGrain = 1
+             twRift = 2
+             
+             self.generatePlotsInRegion(twWater,
+@@ -1282,7 +1286,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         nwWidth = nwEastX - nwWestX + 1
+         nwHeight = nwNorthY - nwSouthY + 1
+ 
+-        nwWater = 61+sea; nwGrain = 1
++        nwWater = 61+sea
++        nwGrain = 1
+         nwRift = -1
+                 
+         self.generatePlotsInRegion(nwWater,
+@@ -1308,7 +1313,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         nwsWidth = nwsEastX - nwsWestX + 1
+         nwsHeight = nwsNorthY - nwsSouthY + 1
+     
+-        nwsWater = 55+sea; nwsGrain = 1
++        nwsWater = 55+sea
++        nwsGrain = 1
+         nwsRift = -1
+                 
+         self.generatePlotsInRegion(nwsWater,
+@@ -1329,7 +1335,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         nwpWidth = nwpEastX - nwpWestX + 1
+         nwpHeight = nwpNorthY - nwpSouthY + 1
+         
+-        nwpWater = 67+sea; nwpGrain = 1
++        nwpWater = 67+sea
++        nwpGrain = 1
+         nwpRift = -1
+         
+         self.generatePlotsInRegion(nwpWater,
+@@ -1353,7 +1360,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         twSouthY = int(self.iH * 0.75)
+         twHeight = twNorthY - twSouthY + 1
+         
+-        twWater = 68+sea; twGrain = 2
++        twWater = 68+sea
++        twGrain = 2
+         twRift = -1
+         
+         self.generatePlotsInRegion(twWater,
+@@ -1378,7 +1386,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         twNorthY = int(self.iH * 0.975)
+         twSouthY = int(self.iH * 0.85)
+         
+-        twWater = 76+sea; twGrain = archGrain
++        twWater = 76+sea
++        twGrain = archGrain
+         twRift = -1
+                 
+         self.generatePlotsInRegion(twWater,
+@@ -1403,7 +1412,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         nwcSouthY = int(self.iH * 0.42)
+         nwcHeight = nwcNorthY - nwcSouthY + 1
+         
+-        nwcWater = 60+sea; nwcGrain = 1
++        nwcWater = 60+sea
++        nwcGrain = 1
+         nwcRift = -1
+                 
+         self.generatePlotsInRegion(nwcWater,
+@@ -1427,7 +1437,8 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         twSouthY = int(self.iH * 0.47)
+         twHeight = twNorthY - twSouthY + 1
+         
+-        twWater = 75+sea; twGrain = archGrain + 1
++        twWater = 75+sea
++        twGrain = archGrain + 1
+         twRift = -1
+         
+         self.generatePlotsInRegion(twWater,
+@@ -1455,13 +1466,16 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         
+         scShape = self.dice.get(4, "RndMapUtil, Terra, PYTHON")
+         if scShape > 1:    # Massive subcontinent! (Africa style)
+-            scWater = 55+sea; scGrain = 1
++            scWater = 55+sea
++            scGrain = 1
+             scRift = 2
+         elif scShape == 1: # Standard subcontinent.
+-            scWater = 66+sea; scGrain = 2
++            scWater = 66+sea
++            scGrain = 2
+             scRift = 2
+         else:              # scShape == 0, Archipelago subcontinent.
+-            scWater = 77+sea; scGrain = archGrain
++            scWater = 77+sea
++            scGrain = archGrain
+             scRift = -1
+             
+         self.generatePlotsInRegion(scWater,
+@@ -1490,13 +1504,16 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 
+         scsShape = self.dice.get(4, "RandomScriptUtil PYTHON")
+         if scsShape == 2:   # Massive subcontinent!
+-            scsWater = 55+sea; scsGrain = 1
++            scsWater = 55+sea
++            scsGrain = 1
+             scsRift = 2
+         elif scsShape == 1: # Standard subcontinent. (India style).
+-            scsWater = 66+sea; scsGrain = 2
++            scsWater = 66+sea
++            scsGrain = 2
+             scsRift = 2
+         else:               # scsShape == 0 or 3, Archipelago subcontinent.
+-            scsWater = 77+sea; scsGrain = archGrain
++            scsWater = 77+sea
++            scsGrain = archGrain
+             scsRift = -1
+                 
+         self.generatePlotsInRegion(scsWater,
+@@ -1527,13 +1544,16 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+             
+             twShape = self.dice.get(3, "RandomScriptUtil PYTHON")
+             if twShape == 2:   # Massive subcontinent!
+-                twWater = 60+sea; twGrain = 1
++                twWater = 60+sea
++                twGrain = 1
+                 twRift = 2
+             elif twShape == 1: # Standard subcontinent.
+-                twWater = 65+sea; twGrain = 2
++                twWater = 65+sea
++                twGrain = 2
+                 twRift = 2
+             else:              # twShape == 0, Archipelago subcontinent.
+-                twWater = 70+sea; twGrain = archGrain
++                twWater = 70+sea
++                twGrain = archGrain
+                 twRift = -1
+                 
+             self.generatePlotsInRegion(twWater,
+
+diff --git a/PrivateMaps/Terra.py b/PrivateMaps/Terra.py
+index f00ca1fdf..27dcc557b 100644
+--- a/PrivateMaps/Terra.py
++++ b/PrivateMaps/Terra.py
+@@ -270,7 +270,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		twNorthY = eurasiaNorthY - eurasiaHeight/4
+ 		twSouthY = eurasiaSouthY + eurasiaHeight/4
+ 
+-		twWater = 60+sea; twGrain = 1
++		twWater = 60+sea
++		twGrain = 1
+ 		twRift = 2
+                 
+ 		self.generatePlotsInRegion(twWater,
+@@ -294,7 +295,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		nwWidth = nwEastX - nwWestX + 1
+ 		nwHeight = nwNorthY - nwSouthY + 1
+ 
+-		nwWater = 61+sea; nwGrain = 1
++		nwWater = 61+sea
++		nwGrain = 1
+ 		nwRift = -1
+                 
+ 		self.generatePlotsInRegion(nwWater,
+@@ -320,7 +322,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		nwsWidth = nwsEastX - nwsWestX + 1
+ 		nwsHeight = nwsNorthY - nwsSouthY + 1
+ 
+-		nwsWater = 55+sea; nwsGrain = 1
++		nwsWater = 55+sea
++		nwsGrain = 1
+ 		nwsRift = -1
+                 
+ 		self.generatePlotsInRegion(nwsWater,
+@@ -341,7 +344,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		nwpWidth = nwpEastX - nwpWestX + 1
+ 		nwpHeight = nwpNorthY - nwpSouthY + 1
+ 
+-		nwpWater = 67+sea; nwpGrain = 1
++		nwpWater = 67+sea
++		nwpGrain = 1
+ 		nwpRift = -1
+                 
+ 		self.generatePlotsInRegion(nwpWater,
+@@ -366,7 +370,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		twSouthY = int(self.iH * 0.75)
+ 		twHeight = twNorthY - twSouthY + 1
+ 
+-		twWater = 68+sea; twGrain = 2
++		twWater = 68+sea
++		twGrain = 2
+ 		twRift = -1
+                 
+ 		self.generatePlotsInRegion(twWater,
+@@ -392,7 +397,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		twNorthY = int(self.iH * 0.975)
+ 		twSouthY = int(self.iH * 0.85)
+ 
+-		twWater = 76+sea; twGrain = archGrain
++		twWater = 76+sea
++		twGrain = archGrain
+ 		twRift = -1
+                 
+ 		self.generatePlotsInRegion(twWater,
+@@ -418,7 +424,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		nwcSouthY = int(self.iH * 0.42)
+ 		nwcHeight = nwcNorthY - nwcSouthY + 1
+ 
+-		nwcWater = 60+sea; nwcGrain = 1
++		nwcWater = 60+sea
++		nwcGrain = 1
+ 		nwcRift = -1
+                 
+ 		self.generatePlotsInRegion(nwcWater,
+@@ -443,7 +450,8 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		twSouthY = int(self.iH * 0.47)
+ 		twHeight = twNorthY - twSouthY + 1
+ 
+-		twWater = 75+sea; twGrain = archGrain + 1
++		twWater = 75+sea
++		twGrain = archGrain + 1
+ 		twRift = -1
+                 
+ 		self.generatePlotsInRegion(twWater,
+@@ -472,13 +480,16 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 
+ 		scShape = self.dice.get(4, "Large Subcontinent Shape - Terra PYTHON")
+ 		if scShape > 1: # Massive subcontinent! (Africa style)
+-			scWater = 55+sea; scGrain = 1
++			scWater = 55+sea
++			scGrain = 1
+ 			scRift = 2
+ 		elif scShape == 1: # Standard subcontinent.
+-			scWater = 66+sea; scGrain = 2
++			scWater = 66+sea
++			scGrain = 2
+ 			scRift = 2
+ 		else: # scShape == 0, Archipelago subcontinent.
+-			scWater = 77+sea; scGrain = archGrain
++			scWater = 77+sea
++			scGrain = archGrain
+ 			scRift = -1
+                 
+ 		self.generatePlotsInRegion(scWater,
+@@ -506,13 +517,16 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 
+ 		scsShape = self.dice.get(4, "Small Subcontinent Shape - Terra PYTHON")
+ 		if scsShape == 2: # Massive subcontinent!
+-			scsWater = 55+sea; scsGrain = 1
++			scsWater = 55+sea
++			scsGrain = 1
+ 			scsRift = 2
+ 		elif scsShape == 1: # Standard subcontinent. (India style).
+-			scsWater = 66+sea; scsGrain = 2
++			scsWater = 66+sea
++			scsGrain = 2
+ 			scsRift = 2
+ 		else: # scsShape == 0 or 3, Archipelago subcontinent (East Indies style).
+-			scsWater = 77+sea; scsGrain = archGrain
++			scsWater = 77+sea
++			scsGrain = archGrain
+ 			scsRift = -1
+                 
+ 		self.generatePlotsInRegion(scsWater,
+@@ -542,13 +556,16 @@ class TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 
+ 			twShape = self.dice.get(3, "Minor Region Shape - Terra PYTHON")
+ 			if twShape == 2: # Massive subcontinent!
+-				twWater = 60+sea; twGrain = 1
++				twWater = 60+sea
++				twGrain = 1
+ 				twRift = 2
+ 			elif twShape == 1: # Standard subcontinent.
+-				twWater = 65+sea; twGrain = 2
++				twWater = 65+sea
++				twGrain = 2
+ 				twRift = 2
+ 			else: # twShape == 0, Archipelago subcontinent.
+-				twWater = 70+sea; twGrain = archGrain
++				twWater = 70+sea
++				twGrain = archGrain
+ 				twRift = -1
+                 
+ 			self.generatePlotsInRegion(twWater,
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=12974

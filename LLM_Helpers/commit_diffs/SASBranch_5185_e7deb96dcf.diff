@@ -1,0 +1,68 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5185
+# Commit: e7deb96dcfc30b5774fdd8a3c6664f31c5382180
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 96e8d47e660cee2083e300038b379826c832fef2
+# Title: beautify: adjust foreign advisor's cities tab's dimensions anyways etc.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+23	3	Assets/Python/Screens/CvExoticForeignAdvisor.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index 9bf3073df..67d375198 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -1647,8 +1647,17 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		gridHeight = iconGrid.getPrefferedHeight()
+ 		LEFT_RIGHT_SPACE = (self.W_SCREEN - gridWidth - 20) / 2
+ 		TOP_BOTTOM_SPACE = (self.H_SCREEN - gridHeight - 20) / 2
+-		iconGrid.setPosition(LEFT_RIGHT_SPACE + 10, TOP_BOTTOM_SPACE + 10)
+-		iconGrid.setSize(gridWidth, gridHeight)
++
++		# <!-- custom: manually adjust the grid's position and size so it better fits the screen anyways etc. -->
++		# iExtraX = 0
++		# iExtraWidth = 0
++		iExtraX = 24
++		# <!-- custom: note: empirically, it seems that reducing width to have symetrical margins than on the left side causes buttons (or is it icons? But anyways etc.) like the war declare or peace one to be too close to the leader's button. On the other hand, the right space is useless in itself, and we have no other column on the right, so it's fine if it overfills beyond the screen on the right side, as long as it helps have enough space from the leader button. Could maybe ideally fix this more properly but may be possibly very tedious and is fine enough as such i mean if i may say so left as such as long as it displays nicely on the left side but anyways etc. (comparing it to the foreign advisor's tech tab and trying to have a more or less identical left side display seems more important but anyways etc.). -->
++		iExtraWidth = 10
++
++		iconGrid.setPosition(LEFT_RIGHT_SPACE + 10 + iExtraX, TOP_BOTTOM_SPACE + 10)
++		iconGrid.setSize(gridWidth + iExtraWidth, gridHeight)
++
+ 		return iconGrid, LEFT_RIGHT_SPACE, TOP_BOTTOM_SPACE
+ 
+ 	def drawCityDeals(self, bInitial): # Based on drawTechDeals
+@@ -1658,7 +1667,18 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		iconGrid, PANEL_X, PANEL_Y = self.initCityTable()
+ 		PANEL_WIDTH = self.W_SCREEN - 2 * PANEL_X
+ 		PANEL_HEIGHT = self.H_SCREEN - 2 * PANEL_Y
+-		screen.addPanel(self.getNextWidgetName(), "", "", True, True, PANEL_X, PANEL_Y, PANEL_WIDTH, PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
++
++		# <!-- custom: manually adjust the blue panel's position and size so it better fits the screen anyways etc. -->
++		# iExtraX = 0
++		# iExtraY = 0
++		# iExtraWidth = 0
++		# iExtraHeight = 0
++		iExtraX = 20
++		iExtraY = -12
++		iExtraWidth = -40
++		iExtraHeight = 24
++
++		screen.addPanel(self.getNextWidgetName(), "", "", True, True, PANEL_X +iExtraX, PANEL_Y +iExtraY, PANEL_WIDTH + iExtraWidth, PANEL_HEIGHT + iExtraHeight, PanelStyles.PANEL_STYLE_MAIN )
+ 
+ 		iconGrid.createGrid()
+ 		iconGrid.clearData()
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2771

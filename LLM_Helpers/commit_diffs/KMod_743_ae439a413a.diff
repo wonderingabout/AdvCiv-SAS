@@ -1,0 +1,111 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 743
+# Commit: ae439a413a67ba4e73c36dc9b8832ac89c65f61a
+# History segment: K-Mod history
+# Parent used for diff: 9a6f57339e03f8c39e466aa66505c755d36b0114
+# Title: Duplicate text files are now removed without sorting the list. (Sorting the list may cause old text to override new text when using a different file-name.) A...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+12	2	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+10	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 0c7d819dc..c0176b248 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -13200,7 +13200,7 @@ void CvPlayer::updateGroupCycle(CvSelectionGroup* pGroup)
+ 		else if (isCycleGroup(pNextGroup) && pNextGroup->canAllMove())
+ 		{
+ 			//int iCost = groupCycleDistance(pPreviousGroup, pGroup) + groupCycleDistance(pGroup, pNextGroup) - groupCycleDistance(pPreviousGroup, pNextGroup);
+-			int iCost = groupCycleDistance(pGroup, pNextGroup) + (pPreviousGroup ? groupCycleDistance(pPreviousGroup, pGroup) - groupCycleDistance(pPreviousGroup, pNextGroup) : 0);
++			int iCost = groupCycleDistance(pGroup, pNextGroup) + (pPreviousGroup ? groupCycleDistance(pPreviousGroup, pGroup) - groupCycleDistance(pPreviousGroup, pNextGroup) : 1);
+ 			if (iCost < iBestCost)
+ 			{
+ 				iBestCost = iCost;
+@@ -13217,7 +13217,7 @@ void CvPlayer::updateGroupCycle(CvSelectionGroup* pGroup)
+ 	if (pPreviousGroup)
+ 	{
+ 		FAssert(isCycleGroup(pPreviousGroup) && pPreviousGroup->canAllMove());
+-		int iCost = groupCycleDistance(pPreviousGroup, pGroup); // cost for being at the end of the list.
++		int iCost = groupCycleDistance(pPreviousGroup, pGroup) + 1; // cost for being at the end of the list.
+ 		if (iCost < iBestCost)
+ 		{
+ 			pBestSelectionGroupNode = 0;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index d4acc35a7..c71d94707 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -5189,7 +5189,7 @@ void CvTeamAI::AI_doWar()
+ 
+ 												if (iValue > iBestValue)
+ 												{
+-													FAssert(!AI_shareWar((TeamTypes)iI));
++													//FAssert(!AI_shareWar((TeamTypes)iI)); // disabled by K-Mod. (It isn't always true.)
+ 													iBestValue = iValue;
+ 													eBestTeam = ((TeamTypes)iI);
+ 												}
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 7e1e06001..550de83bb 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -603,8 +603,18 @@ bool CvXMLLoadUtility::LoadGlobalText()
+ 		}
+ 
+ 		// Remove duplicate files. (Both will be loaded from the mod folder anyway, so this will save us some time.)
+-		std::sort(aszFiles.begin(), aszFiles.end());
+-		aszFiles.erase(std::unique(aszFiles.begin(), aszFiles.end()), aszFiles.end());
++		// However, we must not disturb the order of the list, because it is important that the modded files overrule the unmodded files.
++		for(std::vector<CvString>::iterator it = aszFiles.begin(); it != aszFiles.end(); ++it)
++		{
++			std::vector<CvString>::iterator jt = it+1;
++			while (jt != aszFiles.end())
++			{
++				if (it->CompareNoCase(*jt) == 0)
++					jt = aszFiles.erase(jt);
++				else
++					++jt;
++			}
++		}
+ 		// K-Mod end
+ 
+ 		if (gDLL->isModularXMLLoading())
+
+diff --git a/changelog.txt b/changelog.txt
+index c7f0df10f..c8fb41126 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,6 +1,15 @@
+-This is K-Mod version 1.29.
++This is K-Mod version 1.29b.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
++v1.29b changelist
++
+++ Rewrote some of the code for loading of the game text xml. The new loading routines treat the xml in a more intuitive and less rigid way. In particular, the language names used to tag the xml values are now what determines the text for any given language. (Previously this was determined by the order of the tags.) The order of the languages is no longer important. If there is a missing language, the first text will be used instead (this is English for all of the current text files.)
+++ Fixed a problem which sometimes blocked unit cycling after an attack command.
+++ Restored missing "at war" mouseover text on the scoreboard.
+++ Tightened the conditions on the triggering of automoves - hopefully this will reduce the chance of getting an unintended automoves trigger at the start of the turn.
+++ Deleted the tech infos xml. (it is no longer used by K-Mod)
++
++--
+ v1.29 changelist
+ 
+ Game
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=4084

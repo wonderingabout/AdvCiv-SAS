@@ -1,0 +1,82 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2740
+# Commit: cd2aa1694097a9e67b1489cd5a32d2d3683769bc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c4fb85431e03c837f9fe6af462841a6ea5274adb
+# Title: Just a few comment changes in Python
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	Assets/Config/init.xml
+1	1	Assets/Python/BUG/BugScreenInit.py
+1	2	Assets/Python/Screens/CvMainInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Config/init.xml b/Assets/Config/init.xml
+index 5ed78813a..ef0b2795b 100644
+--- a/Assets/Config/init.xml
++++ b/Assets/Config/init.xml
+@@ -160,8 +160,7 @@
+ 	<load mod="EventSigns"/>
+ 	<load mod="Strategy Overlay"/>
+ 	<load mod="StatusDump"/>
+-	<!-- kekm.27: -->
+-	<load mod="OOSLogger"/> <!-- OOS logging, idea from Fall From Heaven 2 by Kael. -->
++	<load mod="OOSLogger"/> <!-- kekm.27: OOS logging, idea from Fall From Heaven 2 by Kael. -->
+ 	
+ 	<!-- BULL -->
+
+diff --git a/Assets/Python/BUG/BugScreenInit.py b/Assets/Python/BUG/BugScreenInit.py
+index f3923958e..31a53fb32 100644
+--- a/Assets/Python/BUG/BugScreenInit.py
++++ b/Assets/Python/BUG/BugScreenInit.py
+@@ -1,7 +1,7 @@
+ # advc.009b: New module for initialization/ reloading of modified BtS screens
+ 
+ # Calling these CvScreensInterface functions directly through BugUtil.lookupFunction doesn't work reliably (race condition) when reloading scripts. I don't understand why; perhaps some circular dependency.
+-# initBugAdvisors might still fail sometimes(?).
++# initBugAdvisors may still fail sometimes.
+ # BUG - Options - start  (moved from CvScreensInterface.py)
+ def init(): # called when parsing 'BUG Core.xml'
+ 	import CvScreensInterface
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 93af490d2..0ea785b71 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -674,7 +674,6 @@ class CvMainInterface:
+ 		MinimapOptions.init() # advc.002a: Let DLL cache minimap options
+ 		self.initMinimap(screen) # advc: Moved into new function
+ 		gc.getMap().updateMinimapColor()
+-
+ 		self.createMinimapButtons()
+ 
+ 		# Help button (always visible)
+@@ -1103,6 +1102,7 @@ class CvMainInterface:
+ 		return 0
+ 
+ 	def initMinimap(self, screen): # advc (needed in two places)
++		# This should recreate the minimap on load games and returns if already exists -JW
+ 		screen.initMinimap(self.iMiniMapX1, self.iMiniMapX2, self.iMiniMapY1, self.iMiniMapY2, -0.1 )
+ 
+ 	# Will update the screen (every 250 MS)
+@@ -1125,7 +1125,6 @@ class CvMainInterface:
+ 		yResolution = screen.getYResolution()
+ #		self.m_iNumPlotListButtons = (xResolution - (iMultiListXL+iMultiListXR) - 68) / 34
+ 		
+-		# This should recreate the minimap on load games and returns if already exists -JW
+ 		self.initMinimap(screen)
+ 
+ 		messageControl = CyMessageControl()
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2398

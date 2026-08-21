@@ -1,0 +1,1731 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4876
+# Commit: 4622d268ac578bf668c6176b866d21b3ca8537c1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0a47e63d61827d9eb543336a7d7e7d78894d597d
+# Title: rework and buff jungle, add placeRelevantUnits and placeUnitsImpassable in sevopedia feature, add chop iProduction information in placeSpecial of sevopedia f...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+16	3	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+275	24	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+0	1	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+7	8	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+41	36	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+0	3	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+28	0	Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-CvBuildInfo_debug_content.txt
+1	1	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+0	1	Assets/XML/AI_Variables_GlobalDefines.xml
+4	2	Assets/XML/Terrain/CIV4FeatureInfos.xml
+11	3	Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+2	2	Assets/XML/Text/RFC_DOC_Custom.xml
+23	12	Assets/XML/Units/CIV4BuildInfos.xml
+238	22	Assets/XML/Units/CIV4UnitInfos.xml
+13	11	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+4	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+14	5	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+ create mode 100644 Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-CvBuildInfo_debug_content.txt
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 3c7e8eb32..e95f8ca45 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -132,8 +132,7 @@ class SevoPediaBonus:
+ 		self.iBonus = iBonus
+ 
+ 		# <!-- custom: Move the panel position, so that it starts from a lower point in the screen.
+-		# We will use this newly freed place to put the larger Buildings, while we create a RevealedBy panel instead where the Buildings panel was. Hopefully much clearer and more room to fit many buildings this way now, and to separate tech revealed by and tech tradeable since, both currently in the "Requires" panel which is very weird i think, now renamed to "RevealedBy" and "TradeableSince")
+-		# -->
++		# We will use this newly freed place to put the larger Buildings, while we create a RevealedBy panel instead where the Buildings panel was. Hopefully much clearer and more room to fit many buildings this way now, and to separate tech revealed by and tech tradeable since, both currently in the "Requires" panel which is very weird i think, now renamed to "RevealedBy" and "TradeableSince") -->
+ 		self.placeBonusPane()
+ 		self.placeStats()
+ 		self.placeImprovements()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 1514be31e..5b674d63a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -633,7 +633,6 @@ class SevoPediaBuilding:
+ 		# Create panel with proper styling
+ 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+-		# Create MultiList for class and combat buttons
+ 		rowListName = self.top.getNextWidgetName()
+ 
+ 		BUTTON_SIZE = 64 # Size of each button
+@@ -823,7 +822,6 @@ class SevoPediaBuilding:
+ 		# Create panel with proper styling
+ 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+-		# Create MultiList for class and combat buttons
+ 		rowListName = self.top.getNextWidgetName()
+ 
+ 		BUTTON_SIZE = 64 # Size of each button
+@@ -942,7 +940,6 @@ class SevoPediaBuilding:
+ 		# Create panel with proper styling
+ 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+-		# Create MultiList for class and combat buttons
+ 		rowListName = self.top.getNextWidgetName()
+ 
+ 		BUTTON_SIZE = 64 # Size of each button
+@@ -1250,12 +1247,28 @@ class SevoPediaBuilding:
+ 
+ 
+ 
++	# <!-- custom: add iconquestprob thanks to claude ai and my prompt too and adjustments if any hopefullyhelpful but or not but or yes but anyways etc anyways etc anyways etc, quite similarly than for the getChopProductionText addition in sevopedia feature anyways etc ; note: also got the idea from looking ingame at the sevopedia of ri mod anyways etc even though our implementation is different (in placeStats, didn't look at code but anyways etc, their idea helped so thanks i mean anyways etc anyways etc anyways etc) -->
++	def getIConquestProbText(self):
++		buildingInfo = gc.getBuildingInfo(self.iBuilding)
++		# <!-- custom: return any value even 0 to display it as such anyways etc -->
++		conquestProb = buildingInfo.getConquestProbability()
++
++		return (u"%siConquestProb: %d" % (localText.getText("[ICON_BULLET]", ()), conquestProb))
++
++
++
+ 	def placeSpecial(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		listName = self.top.getNextWidgetName()
+ 		szSpecialText = CyGameTextMgr().getBuildingHelp(self.iBuilding, True, False, False, None)[1:]
++
++		# Add conquest probability information
++		conquestProbText = self.getIConquestProbText()
++		if conquestProbText:
++			szSpecialText += "\n%s" % conquestProbText
++
+ 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 14a194dc0..75a539eb2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -1,6 +1,7 @@
+ # <!-- custom: imported from RFC Dawn of Civilization mod:
+ # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaFeature.py
+-# which may be modified or not for AdvCiv-SAS -->
++# which may be modified or not for AdvCiv-SAS ; for example renamed placeDetails to placeSpecial for consistency with our other special effect method names in other sevopedia classes anyways etc, or/and other changes or not anyways etc -->
++
+ 
+ 
+ from CvPythonExtensions import *
+@@ -9,6 +10,8 @@ import CvUtil
+ #import ScreenInput
+ #import SevoScreenEnums
+ 
++from _sevopedia_helpers import *
++
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+@@ -36,10 +39,10 @@ class SevoPediaFeature:
+ 		self.W_INFO_TEXT = 220
+ 		self.H_INFO_TEXT = self.H_INFO_PANE - 20
+ 
+-		self.X_DETAILS = self.X_INFO_PANE + self.W_INFO_PANE + 10
+-		self.W_DETAILS = self.top.R_PEDIA_PAGE - self.X_DETAILS
+-		self.H_DETAILS = self.H_INFO_PANE
+-		self.Y_DETAILS = self.Y_INFO_PANE
++		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + 10
++		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
++		self.H_SPECIAL = self.H_INFO_PANE
++		self.Y_SPECIAL = self.Y_INFO_PANE
+ 
+ 		self.X_FEATURES = self.X_INFO_PANE
+ 		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + 10
+@@ -54,31 +57,39 @@ class SevoPediaFeature:
+ 		self.X_RESOURCES = self.X_FEATURES
+ 		self.Y_RESOURCES = self.Y_FEATURES + self.H_FEATURES + 10
+ 		self.W_RESOURCES = self.top.R_PEDIA_PAGE - self.X_RESOURCES
+-		self.H_RESOURCES = 110
++		self.H_RESOURCES = self.H_FEATURES
++
++		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
++		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
++
++		# <!-- custom: new placeRelevantUnits and placeUnitsImpassable based on the new anyways etc sevopedia terrain implementation anyways etc -->
++		self.X_RELEVANT_UNITS = self.X_RESOURCES
++		self.Y_RELEVANT_UNITS = self.Y_RESOURCES + self.H_RESOURCES + 10
++		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_RESOURCES
++		self.H_RELEVANT_UNITS = self.H_FEATURES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+ 
+-		self.X_HISTORY = self.X_RESOURCES
++		self.X_UNITS_IMPASSABLE = self.X_RELEVANT_UNITS
++		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + 10
++		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
++		self.H_UNITS_IMPASSABLE = self.H_FEATURES
++
++		self.X_HISTORY = self.X_UNITS_IMPASSABLE
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+-		self.Y_HISTORY = self.Y_RESOURCES + self.H_RESOURCES + 10
++		self.Y_HISTORY = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + 10
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+ 
+ 
+ 	def interfaceScreen(self, iFeature):
+-		# <!-- custom: seems this variable is never called, commenting-it out (may even remove it?)
+-		#screen = self.top.getScreen()
+-		# -->
+ 		self.iFeature = iFeature
+-		# <!-- custom: seems this variable is never called, commenting-it out (may even remove it?)
+-		#info = gc.getFeatureInfo(self.iFeature)
+-		# -->
+-
+-
+ 
+ 		self.placeInfo()
+-		self.placeDetails()
++		self.placeSpecial()
+ 		self.placeTerrain()
+ 		self.placeImprovements()
+ 		self.placeResources()
++		self.placeRelevantUnits()
++		self.placeUnitsImpassable()
+ 		self.placeHistory()
+ 
+ 
+@@ -89,7 +100,9 @@ class SevoPediaFeature:
+ 		info = gc.getFeatureInfo(self.iFeature)
+ 
+ 		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_INFO_PANE, self.Y_INFO_PANE, self.W_INFO_PANE, self.H_INFO_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
++
++		# <!-- custom: was PanelStyles.PANEL_STYLE_MAIN -->
++		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
+ 		screen.addDDSGFC(self.top.getNextWidgetName(), info.getButton(), self.X_ICON + self.W_ICON / 2 - self.ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - self.ICON_SIZE / 2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		screen.addListBoxGFC(panel, "", self.X_INFO_TEXT, self.Y_INFO_TEXT, self.W_INFO_TEXT, self.H_INFO_TEXT, TableStyles.TABLE_STYLE_EMPTY)
+@@ -112,18 +125,57 @@ class SevoPediaFeature:
+ 
+ 
+ 
+-	def placeDetails(self):
++	# <!-- custom: code provided by claude ai (and chatgpt too for debug and such anyways etc thanks anyways etc :) anyways etc) thanks to my prompt (too! but anyways etc...) and adjustments too or not or yes or etc but anyways etc -->
++	def getChopProductionText(self):	
++		# Start with no known max
++		maxSoFar = None
++
++		# Check all builds for ones that can remove this feature
++		for iBuild in xrange(gc.getNumBuildInfos()):
++			buildInfo = gc.getBuildInfo(iBuild)
++
++			if buildInfo.isFeatureRemove(self.iFeature):
++				chopProduction = buildInfo.getFeatureProduction(self.iFeature)
++
++				# <!-- custom: there shouldn't be any negative value if i am not mistaken but just in case we'd want to see them, to debug/fix or if some mod mod if i may say or such has some kind of such behaviour anyways etc -->
++				if chopProduction != 0:
++					if maxSoFar is None:
++						maxSoFar = chopProduction
++					else:
++						if chopProduction > maxSoFar:
++							# <!-- custom: (note: this simplifies display for the where case cottages and farms would have different values which would be highly unusual, ignored to simplify code, display, and logic, but ideally if a mod implements such a feature, which would be strange btw as building a farm also chops as part of it if i am not mistaken it is not a different operation at least it seems so ingame anyways, so ignoring this in our code and displaying it as such, raising an error instead anyways etc -->
++							if maxSoFar > 0:
++								raise ValueError(u"[VALUE ERROR] Unexpected different iProduction chopProduction=%d value where a not equal to 0 value maxSoFar=%d already existed between builds (cottage, remove_jungle, farm, etc.) at feature=%d (feature type is %s). Please make sure your iProduction is consistent accross all builds that can remove this feature, or if purposely designed as such, modify this code to display such information if you want or/and remove the error anyways etc." % (chopProduction, maxSoFar, self.iFeature, gc.getFeatureInfo(self.iFeature).getType()))
++
++							maxSoFar = chopProduction
++
++		# <!-- custom: return highest value if any, else return none -->
++		if maxSoFar:
++			chopProductionText = u"%s+%d%s on chop" % (localText.getText("[ICON_BULLET]", ()), maxSoFar, localText.getText("[ICON_PRODUCTION]", ()))
++			print("value xxx is %s" % chopProductionText)
++			return chopProductionText
++		else:
++			return ""
++
++
++
++	def placeSpecial(self):
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+ 		text = self.top.getNextWidgetName()
+ 		info = gc.getFeatureInfo(self.iFeature)
+ 
+-		screen.addPanel(panel, "", "", True, True, self.X_DETAILS, self.Y_DETAILS, self.W_DETAILS, self.H_DETAILS, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panel, "", "", True, True, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+ 		szText = info.getHelp()
+ 		szText += CyGameTextMgr().getFeatureHelp(self.iFeature, True)
+ 
++		# Add chop production information
++		chopProductionText = self.getChopProductionText()
++		if chopProductionText:
++			szText += "\n%s" % chopProductionText
++
+ 		szText = szText.replace("\n\n", "\n").strip()
+-		screen.addMultilineText(text, szText, self.X_DETAILS + 5, self.Y_DETAILS + 10, self.W_DETAILS - 10, self.H_DETAILS - 15, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(text, szText, self.X_SPECIAL + 5, self.Y_SPECIAL + 10, self.W_SPECIAL - 10, self.H_SPECIAL - 15, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -145,9 +197,6 @@ class SevoPediaFeature:
+ 	def placeImprovements(self):
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+-		# <!-- custom: seems this variable is never called, commenting-it out (may even remove it?)
+-		#info = gc.getFeatureInfo(self.iFeature)
+-		# -->
+ 
+ 		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panel, "", "  ")
+@@ -177,6 +226,208 @@ class SevoPediaFeature:
+ 
+ 
+ 
++	def placeRelevantUnits(self):
++		xPanel = self.X_RELEVANT_UNITS
++		yPanel = self.Y_RELEVANT_UNITS
++		wPanel = self.W_RELEVANT_UNITS
++		hPanel = self.H_RELEVANT_UNITS
++
++		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_FEATURE_RELEVANT_UNITS"
++
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++
++		# Create panel with proper styling
++		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
++
++		rowListName = self.top.getNextWidgetName()
++
++		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
++		BUTTON_SIZE = self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
++
++		# Create the MultiList control
++		# Constants for button display
++		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
++		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
++		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
++		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
++		# Per documentation, the numLists parameter (7th) is actually number of columns
++		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
++		# Using 1 for auto-calculation of buttons per row
++		buttonCalculate = 1
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++
++		#isButtonFound = False
++		iButtonIndex = 0
++
++		# <!-- custom: buttonCalculate-->=1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
++		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
++
++		# <!-- custom: handle feature(s) that is (are) impassable (anyways etc...) such as of now only the ice cap feature anyways etc quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences anyways etc, see code comments at sevopedia feature's placeUnitsImpassable anyways etc-->
++		iIce = getInfoTypeOrFail("FEATURE_ICE", gc)
++		# <!-- custom: handle features with promotions or other specific effects if any if i may say anyways etc separately, similar to how was done in sevopedia terrain previous new placeRelevantUnits and placeUnitsImpassable this new features code is based on but anyways etc anyways etc anyways etc -->
++		iForest = getInfoTypeOrFail("FEATURE_FOREST", gc)
++		iJungle = getInfoTypeOrFail("FEATURE_JUNGLE", gc)
++
++		if self.iFeature == iIce:
++			for iUnit in xrange(gc.getNumUnitInfos()):
++				unitInfo = gc.getUnitInfo(iUnit)
++
++				if unitInfo.isGraphicalOnly():
++					continue
++
++				if unitInfo.isCanMoveImpassable():
++					# Column index (always 0 when numLists=1)
++					columnIndex = 0
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++
++					iFeatureAttack = unitInfo.getFeatureAttackModifier(self.iFeature)
++					iFeatureDefense = unitInfo.getFeatureDefenseModifier(self.iFeature)
++
++					numTxt = get_numTxt_attack_defense_modifiers(iFeatureAttack, iFeatureDefense)
++					extraCorrectionX = get_extra_correction_x(numTxt)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++
++					#isButtonFound = True
++					iButtonIndex += 1
++
++		# <!-- custom: in advciv-sas as of now at least if not always or not anyways etc, woodsman promotions apply both to jungle but also to forest tiles as well, seems more sensical to me anyways etc, adjust below logic depending on which features have promotions applying to them or some other effects you'd want to display in the numTxt or not anyways etc -->
++		elif self.iFeature == iForest or self.iFeature == iJungle:
++			# <!-- custom: raise an error if asset does not exist -->
++			iPromotionWoodsman1 = getInfoTypeOrFail("PROMOTION_WOODSMAN1", gc)
++			iPromotionWoodsman2 = getInfoTypeOrFail("PROMOTION_WOODSMAN2", gc)
++			iPromotionWoodsman3 = getInfoTypeOrFail("PROMOTION_WOODSMAN3", gc)
++
++			for iUnit in xrange(gc.getNumUnitInfos()):
++				unitInfo = gc.getUnitInfo(iUnit)
++
++				if unitInfo.isGraphicalOnly():
++					continue
++
++				iFeatureAttack = unitInfo.getFeatureAttackModifier(self.iFeature)
++				iFeatureDefense = unitInfo.getFeatureDefenseModifier(self.iFeature)
++
++				isHasW1 = unitInfo.getFreePromotions(iPromotionWoodsman1)
++				isHasW2 = unitInfo.getFreePromotions(iPromotionWoodsman2)
++				isHasW3 = unitInfo.getFreePromotions(iPromotionWoodsman3)
++
++				if ((iFeatureAttack != 0) or (iFeatureDefense != 0) or isHasW1 or isHasW2 or isHasW3):
++					# Column index (always 0 when numLists=1)
++					columnIndex = 0
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++
++					if iFeatureAttack != 0 or iFeatureDefense != 0:
++						numTxt = get_numTxt_attack_defense_modifiers(iFeatureAttack, iFeatureDefense)
++					else:
++						s = ""
++						if isHasW1:
++							s = "W1"
++						if isHasW2:
++							if s:
++								s += "+2"
++							else:
++								s = "W2"
++						if isHasW3:
++							if s:
++								s += "+3"
++							else:
++								s = "W3"
++						if s:
++							numTxt = s
++
++					extraCorrectionX = get_extra_correction_x(numTxt)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++
++					#isButtonFound = True
++					iButtonIndex += 1
++
++		else:
++			for iUnit in xrange(gc.getNumUnitInfos()):
++				unitInfo = gc.getUnitInfo(iUnit)
++
++				if unitInfo.isGraphicalOnly():
++					continue
++
++				iFeatureAttack = unitInfo.getFeatureAttackModifier(self.iFeature)
++				iFeatureDefense = unitInfo.getFeatureDefenseModifier(self.iFeature)
++
++				if iFeatureAttack != 0 or iFeatureDefense != 0:
++					# Column index (always 0 when numLists=1)
++					columnIndex = 0
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++
++					numTxt = get_numTxt_attack_defense_modifiers(iFeatureAttack, iFeatureDefense)
++					extraCorrectionX = get_extra_correction_x(numTxt)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++
++					#isButtonFound = True
++					iButtonIndex += 1
++
++
++
++	def placeUnitsImpassable(self):
++		xPanel = self.X_UNITS_IMPASSABLE
++		yPanel = self.Y_UNITS_IMPASSABLE
++		wPanel = self.W_UNITS_IMPASSABLE
++		hPanel = self.H_UNITS_IMPASSABLE
++
++		txtKeyPanel = "TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE"
++
++		# <!-- custom: https://forums.civfanatics.com/threads/make-ice-workable.462809/?utm_source=chatgpt.com based on this provided nicely to me by chatgpt anyways etc, it seems the ice feature (called as of now "ice cap" feature in advciv-sas anyways etc is impassable but can be walked on if a unit has such a flag, so using a code similar to the terrain_peak handling in sevopedia terrain's as of now placeUnitsImpassable anyways etc anyways etc anyways etc -->
++		iIce = getInfoTypeOrFail("FEATURE_ICE", gc)
++
++		if self.iFeature == iIce:
++			txtKeyPanel = "TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE_ICE"
++
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++
++		# Create panel with proper styling
++		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
++
++		rowListName = self.top.getNextWidgetName()
++
++		BUTTON_SIZE = 64
++
++		# Create the MultiList control
++		# Constants for button display
++		multiListX = xPanel + MULTI_LIST_PANEL_OFFSET_X
++		multiListY = yPanel + MULTI_LIST_PANEL_OFFSET_Y
++		multiListW = wPanel + MULTI_LIST_PANEL_ADDITIONAL_W
++		multiListH = hPanel + MULTI_LIST_PANEL_ADDITIONAL_H
++		# Per documentation, the numLists parameter (7th) is actually number of columns
++		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
++		# Using 1 for auto-calculation of buttons per row
++		buttonCalculate = 1
++		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++
++		if self.iFeature == iIce:
++			for iUnit in xrange(gc.getNumUnitInfos()):
++				unitInfo = gc.getUnitInfo(iUnit)
++
++				if unitInfo.isGraphicalOnly():
++					continue
++
++				# <!-- custom: allow any domain unlike for the peak code, so workers could walk on the water ice cap feature, unlike in peak where as of now naval units are not displayed as being able to walk on peak as it would make less sense too even though theoretically possible if i am not mistaken (boat with legs... xd but anyways etc..), so having permissive domain any allowed here unlike in peak code if i am not mistaken anyways etc (but now that i think of it why not, such robotic things or mechanical walking things on a naval unit making it hybrid are probably not too far fetched maybe probably even exists or/and in sci-fi or dream if i may say or such other or not or other or etc but anyways etc) ; also not checking unitInfo.isCanMoveAllTerrain() since the ice that is impassable is the ice cap feature if i am not mistaken not the terrain anyways etc -->
++				if not unitInfo.isCanMoveImpassable():
++					# Column index (always 0 when numLists=1)
++					columnIndex = 0
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++
++		else:
++			for iUnit in xrange(gc.getNumUnitInfos()):
++				unitInfo = gc.getUnitInfo(iUnit)
++
++				if unitInfo.isGraphicalOnly():
++					continue
++
++				if (unitInfo.getFeatureImpassable(self.iFeature) or (unitInfo.getFeaturePassableTech(self.iFeature) != -1)):
++					# Column index (always 0 when numLists=1)
++					columnIndex = 0
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++
++
++
+ 	def placeHistory(self):
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 03b99886a..e75584691 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -577,7 +577,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 
+ 
+ 	def get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments):
+-		# <!--- custom: fake leaders that stores minimum values among all leader for each field we want to display regardless of inversions anyways etc, same for maximum values too anyways etc -->
++		# <!-- custom: fake leaders that stores minimum values among all leader for each field we want to display regardless of inversions anyways etc, same for maximum values too anyways etc -->
+ 		leader_info_minimums = {}
+ 		leader_info_maximums = {}
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 192d752c6..ef3da7818 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -601,7 +601,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, gc.getTerrainInfo)
+ 	
+ 	def getTerrainList(self):
+-		# <!-- custom: add peak and hill to terrain display even though they are plot types if i am not mistaken but with the changes in sevopedia terrain (new placeUnits and placeUnitsImpassable panels as of now anyways etc), these still provide very valuable info so adding them helps a lot anyways etc ; code provided by chatgpt thanks to my prompt too and previous reworks i did with it or with claude ai or and such and myself too if i adjusted it a bit or lot or not adjusted but in all cases anyways etc anyways etc thanks anyways etc anyways etc anyways etc -->
++		# <!-- custom: add peak and hill to terrain display even though they are plot types if i am not mistaken but with the changes in sevopedia terrain (new placeRelevantUnits and placeUnitsImpassable panels as of now anyways etc), these still provide very valuable info so adding them helps a lot anyways etc ; code provided by chatgpt thanks to my prompt too and previous reworks i did with it or with claude ai or and such and myself too if i adjusted it a bit or lot or not adjusted but in all cases anyways etc anyways etc thanks anyways etc anyways etc anyways etc -->
+ 		terrainsList = self.getSortedList(gc.getNumTerrainInfos(), gc.getTerrainInfo)
+ 
+ 		# Add Hill as a pseudo-entry
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 6c93d0b88..08eef9d8c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -216,7 +216,6 @@ class SevoPediaReligion:
+ 		# Additional left side padding for the button(s)
+ 		#screen.attachLabel(panelName, "", "  ")
+ 
+-		# Create MultiList for leaders
+ 		rowListName = self.top.getNextWidgetName()
+ 
+ 		BUTTON_SIZE = 64 # Size of each button
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index f76822ef7..e1608c32f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -234,7 +234,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 
+-	# <!-- custom: add non-tradeable (<bTrade> if i am not mistaken anyways etc) tech list at the end of placeSpecial, addition from/of chatgpt/becomingthrough thanks to my prompt too but anyways etc -->
++	# <!-- custom: add non-tradeable (<bTrade> if i am not mistaken anyways etc) tech list at the end of placeSpecial, addition from chatgp thanks to my prompt and adjustments or not or yes or and other or and etc too anyways etc anyways etc anyways etc -->
+ 	def placeSpecial(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+@@ -243,15 +243,14 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, False, -1)[1:]
+ 
+-		# Append a global list of untradeable techs
+-		untradeableTechs = []
+-		for iTech in range(gc.getNumTechInfos()):
++		# <!-- custom: add the list of all untradeable techs if any are untradeable anyways etc -->
++		untradeableTechsText = ""
++		for iTech in xrange(gc.getNumTechInfos()):
+ 			if not gc.getTechInfo(iTech).isTrade():
+-				untradeableTechs.append(localText.getText("[ICON_BULLET] ", ()) + gc.getTechInfo(iTech).getDescription())
++				untradeableTechsText += u"\n%s%s" % (localText.getText("[ICON_BULLET]", ()), gc.getTechInfo(iTech).getDescription())
+ 
+-		if untradeableTechs:
+-			szSpecialText += u"\n\n" + localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ())
+-			szSpecialText += u"\n" + u"\n".join(untradeableTechs)
++		if untradeableTechsText:
++			szSpecialText += u"\n\n%s%s" % (localText.getText("TXT_KEY_PEDIA_UNTRADEABLE_TECH_REMINDER", ()), untradeableTechsText)
+ 
+ 		# <!-- custom: seems to overfill a bit actually quite a bit xd after rechecking but anyways etc, reduce height, was self.H_SPECIAL_PANE-10 -->
+ 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL_PANE + 5, self.Y_SPECIAL_PANE + 30, self.W_SPECIAL_PANE - 35, self.H_SPECIAL_PANE - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 4a04d7f2b..8964c0277 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -2,6 +2,8 @@
+ # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaTerrain.py
+ # which may be modified or not for AdvCiv-SAS -->
+ 
++
++
+ from CvPythonExtensions import *
+ import CvUtil
+ 
+@@ -10,6 +12,8 @@ from _sevopedia_helpers import *
+ gc = CyGlobalContext()
+ localText = CyTranslator()
+ 
++
++
+ class SevoPediaTerrain:
+ 	def __init__(self, main):
+ 		self.iTerrain = -1
+@@ -31,10 +35,10 @@ class SevoPediaTerrain:
+ 		self.W_INFO_TEXT = 220
+ 		self.H_INFO_TEXT = self.H_INFO_PANE - 20
+ 
+-		self.X_DETAILS = self.X_INFO_PANE + self.W_INFO_PANE + 10
+-		self.W_DETAILS = self.top.R_PEDIA_PAGE - self.X_DETAILS
+-		self.H_DETAILS = self.H_INFO_PANE
+-		self.Y_DETAILS = self.Y_INFO_PANE
++		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + 10
++		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
++		self.H_SPECIAL = self.H_INFO_PANE
++		self.Y_SPECIAL = self.Y_INFO_PANE
+ 
+ 		self.X_FEATURES = self.X_INFO_PANE
+ 		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + 10
+@@ -54,14 +58,14 @@ class SevoPediaTerrain:
+ 		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
+ 		self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
+ 
+-		self.X_UNITS = self.X_RESOURCES
+-		self.Y_UNITS = self.Y_RESOURCES + self.H_RESOURCES + 10
+-		self.W_UNITS = self.top.R_PEDIA_PAGE - self.X_RESOURCES
+-		self.H_UNITS = self.H_FEATURES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
++		self.X_RELEVANT_UNITS = self.X_RESOURCES
++		self.Y_RELEVANT_UNITS = self.Y_RESOURCES + self.H_RESOURCES + 10
++		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_RESOURCES
++		self.H_RELEVANT_UNITS = self.H_FEATURES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+ 
+-		self.X_UNITS_IMPASSABLE = self.X_UNITS
+-		self.Y_UNITS_IMPASSABLE = self.Y_UNITS + self.H_UNITS + 10
+-		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_UNITS
++		self.X_UNITS_IMPASSABLE = self.X_RELEVANT_UNITS
++		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + 10
++		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
+ 		self.H_UNITS_IMPASSABLE = self.H_FEATURES
+ 
+ 		self.X_HISTORY = self.X_UNITS_IMPASSABLE
+@@ -75,11 +79,11 @@ class SevoPediaTerrain:
+ 		self.iTerrain = iTerrain
+ 
+ 		self.placeInfo()
+-		self.placeDetails()
++		self.placeSpecial()
+ 		self.placeFeatures()
+ 		self.placeImprovements()
+ 		self.placeResources()
+-		self.placeUnits()
++		self.placeRelevantUnits()
+ 		self.placeUnitsImpassable()
+ 		self.placeHistory()
+ 
+@@ -127,21 +131,22 @@ class SevoPediaTerrain:
+ 
+ 
+ 
+-	def placeDetails(self):
++	def placeSpecial(self):
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+ 		text = self.top.getNextWidgetName()
+ 		info = gc.getTerrainInfo(self.iTerrain)
+ 
+-		screen.addPanel(panel, "", "", True, True, self.X_DETAILS, self.Y_DETAILS, self.W_DETAILS, self.H_DETAILS, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panel, "", "", True, True, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+ 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+ 
++		# <!-- custom: the entry seems garbage or info aobut terrain_peak perhaps? But/so anyways etc leaving it as rfc doc mod did if i am not mistaken just with minor refactor of iHill above as of now anyways etc -->
+ 		if self.iTerrain != iHill:
+ 			szText = info.getHelp()
+ 			szText += CyGameTextMgr().getTerrainHelp(self.iTerrain, True)
+ 			szText = szText.replace("\n\n", "\n").strip()
+-			screen.addMultilineText(text, szText, self.X_DETAILS + 5, self.Y_DETAILS + 10, self.W_DETAILS - 10, self.H_DETAILS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.addMultilineText(text, szText, self.X_SPECIAL + 5, self.Y_SPECIAL + 10, self.W_SPECIAL - 10, self.H_SPECIAL - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -171,14 +176,17 @@ class SevoPediaTerrain:
+ 
+ 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+ 
+-		for iImprovement in xrange(gc.getNumImprovementInfos()):
+-			ImprovementInfo = gc.getImprovementInfo(iImprovement)
+-			if ImprovementInfo.isGoody():
+-				continue
+-			elif ImprovementInfo.getTerrainMakesValid(self.iTerrain):
+-				screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
+-			elif self.iTerrain == iHill and ImprovementInfo.isHillsMakesValid():
+-				screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
++		# <!-- custom: add a logic that excludes hills from this as output is unreliable, see below code comment as of now anyways etc -->
++		if self.iTerrain != iHill:
++			for iImprovement in xrange(gc.getNumImprovementInfos()):
++				ImprovementInfo = gc.getImprovementInfo(iImprovement)
++				if ImprovementInfo.isGoody():
++					continue
++				elif ImprovementInfo.getTerrainMakesValid(self.iTerrain):
++					screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
++				# <!-- custom: the output is not reliable for hills improvements (missing forts, also cottages are conditionally dependent on terrain having enough food according to https://civilization.fandom.com/wiki/Hill_(Civ4) if i am not mistaken anyways etc, missing forest preserve too dependent on forest or jungle according to this link as well, so disabling the display entirely rather anyways etc)
++				# elif self.iTerrain == iHill and ImprovementInfo.isHillsMakesValid():
++				# 	screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
+ 
+ 
+ 
+@@ -204,13 +212,13 @@ class SevoPediaTerrain:
+ 
+ 
+ 	# <!-- custom: code provided by chatgpt thanks to my prompt too and adjusted or not for advciv-sas anyways etc -->
+-	def placeUnits(self):
+-		xPanel = self.X_UNITS
+-		yPanel = self.Y_UNITS
+-		wPanel = self.W_UNITS
+-		hPanel = self.H_UNITS
++	def placeRelevantUnits(self):
++		xPanel = self.X_RELEVANT_UNITS
++		yPanel = self.Y_RELEVANT_UNITS
++		wPanel = self.W_RELEVANT_UNITS
++		hPanel = self.H_RELEVANT_UNITS
+ 
+-		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_FEATURE_UNITS"
++		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_FEATURE_RELEVANT_UNITS"
+ 
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+@@ -218,7 +226,6 @@ class SevoPediaTerrain:
+ 		# Create panel with proper styling
+ 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+-		# Create MultiList for leaders
+ 		rowListName = self.top.getNextWidgetName()
+ 
+ 		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details anyways etc -->
+@@ -256,14 +263,13 @@ class SevoPediaTerrain:
+ 				if unitInfo.isGraphicalOnly():
+ 					continue
+ 
+-				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken anyways etc -->
++				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken anyways etc ; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too if i am not mistaken but anyways etc), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us anyways etc or anythign else you'd want or i'd want too but i am fine with this if i may say (and i coded it xd but anyways etc...) hopefully helpful or not or yes or etc but anyways etc... -->
+ 				if unitInfo.getDomainType() == DomainTypes.DOMAIN_LAND:
+ 					if unitInfo.isCanMoveImpassable() or unitInfo.isCanMoveAllTerrain():
+ 						# Column index (always 0 when numLists=1)
+ 						columnIndex = 0
+ 						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+-						# <!-- custom: still for the modifiers if any for eligible i.e. current block's units anyways etc, use/display terrain modifiers if any anyways etc -->
+ 						iTerrainAttack = unitInfo.getTerrainAttackModifier(self.iTerrain)
+ 						iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
+ 
+@@ -345,7 +351,7 @@ class SevoPediaTerrain:
+ 					columnIndex = 0
+ 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+-					if (iTerrainAttack != 0 or iTerrainDefense != 0):
++					if iTerrainAttack != 0 or iTerrainDefense != 0:
+ 						numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+ 					else:
+ 						s = ""
+@@ -408,7 +414,6 @@ class SevoPediaTerrain:
+ 		# Create panel with proper styling
+ 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+-		# Create MultiList for leaders
+ 		rowListName = self.top.getNextWidgetName()
+ 
+ 		BUTTON_SIZE = 64
+@@ -450,7 +455,7 @@ class SevoPediaTerrain:
+ 				if unitInfo.isGraphicalOnly():
+ 					continue
+ 
+-				# <!-- custom: unitInfo.isCanMoveAllTerrain() returns too many units but (not unitInfo.isCanMoveAllTerrain()) does not, so unlike in placeUnits, wrap this unitInfo.isCanMoveAllTerrain() in placeUnitsImpassable in the domain sea check, ideally i would have wanted to check our xml by having a large permissive check, but the results are unreadable since almost all units have this (not unitInfo.isCanMoveAllTerrain()) that is true -->
++				# <!-- custom: unitInfo.isCanMoveAllTerrain() returns too many units but (not unitInfo.isCanMoveAllTerrain()) does not, so unlike in placeRelevantUnits, wrap this unitInfo.isCanMoveAllTerrain() in placeUnitsImpassable in the domain sea check, ideally i would have wanted to check our xml by having a large permissive check, but the results are unreadable since almost all units have this (not unitInfo.isCanMoveAllTerrain()) that is true -->
+ 				if unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA:
+ 					if ((unitInfo.getTerrainImpassable(self.iTerrain) or (unitInfo.getTerrainPassableTech(self.iTerrain) != -1)) and (not unitInfo.isCanMoveAllTerrain())):
+ 						columnIndex = 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index beba32bcc..a593d2256 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -429,7 +429,6 @@ class SevoPediaUnit:
+ 		# Create panel with proper styling
+ 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+-		# Create MultiList for class and combat buttons
+ 		rowListName = self.top.getNextWidgetName()
+ 
+ 		# <!-- custom: addMultiListControlGFC code from our existing implementation we successfully did for the sevopedia religion leaders panel if i may say but anyways etc anyways etc anyways etc -->
+@@ -522,7 +521,6 @@ class SevoPediaUnit:
+ 
+ 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+-		# Create MultiList for class and combat buttons
+ 		rowListName = self.top.getNextWidgetName()
+ 
+ 		# <!-- custom: note: since this is meant to have multiple lines, actually passing button size as a parameter here rather than hardcoded value of say 64, so that the size of other related panels is adjusted the bigger or smaller in this case i mean anyways etc the _MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE panel is, see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE for details if any are there i mean hopefully helpful anyways etc -->
+@@ -613,7 +611,6 @@ class SevoPediaUnit:
+ 
+ 		screen.addPanel(panelName, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+-		# Create MultiList for class and combat buttons
+ 		rowListName = self.top.getNextWidgetName()
+ 
+ 		BUTTON_SIZE = 64 # Size of each button
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-CvBuildInfo_debug_content.txt b/Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-CvBuildInfo_debug_content.txt
+new file mode 100644
+index 000000000..134a482ee
+--- /dev/null
++++ b/Assets/Python/Contrib/Sevopedia/__SevoPediaFeature-CvBuildInfo_debug_content.txt
+@@ -0,0 +1,28 @@
++Didn't use our usual debugger as claude ai had written one that already gave us data we need anyways etc, output is:
++
++
++
++Available methods in CvBuildInfo:
++  getButton
++  getCivilopedia
++  getCost
++  getDescription
++  getDescriptionForm
++  getEntityEvent
++  getFeatureProduction
++  getFeatureTech
++  getFeatureTime
++  getHelp
++  getImprovement
++  getMissionType
++  getRoute
++  getStrategy
++  getTechPrereq
++  getText
++  getTextKey
++  getTime
++  getType
++  isFeatureRemove
++  isGraphicalOnly
++  isKill
++  isMatchForLink
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 3c1598af8..93413a70a 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -135,7 +135,7 @@ def check_images_as_buttons_paths_are_valid(txtKeyDict, localText):
+ 
+ 
+ 
+-# <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1 if i am not mistaken anyways etc, so summoning wrong asset for example as is done in sevopedia bonus's placeUnits panel as of now anyways etc should raise an error not silently pass if i may say and if i am not mistaken anyways etc ; also useful to access any asset id safely if i am not mistaken such as hills or peak terrains 's id, or hills's button for example too if i am not mistaken anyways etc -->
++# <!-- custom: handle for example PROMOTION_GUERILLA1 now being renamed to PROMOTION_HILLS_MASTER1 if i am not mistaken anyways etc, so summoning wrong asset for example as is done in sevopedia bonus's placeRelevantUnits panel as of now anyways etc should raise an error not silently pass if i may say and if i am not mistaken anyways etc ; also useful to access any asset id safely if i am not mistaken such as hills or peak terrains 's id, or hills's button for example too if i am not mistaken anyways etc ; is also useful to detect and signal loudly if i may say anyways etc errors such as using wrong "TERRAIN_FOREST" as part of copy pasting terrain code into features code of the palceUnits method there as of now anyways etc instead of "FEATURE_FOREST", and we get a nice error instead of what i assume would be a silent pass we wouldn't want at least me anyways etc based on previous parts of this code comment if i am not mistaken and remember it correctly as i think i do but not 100% sure even if 99.99% as chatgpt said to me too btw xd if i may say but anyways etc anyways etc anyways etc hopefully helpful or not or yes or etc anyways etc... in short this is a very helpful helper... pun was not intended, but why not keep it now that it's written, i have no reason not to and nothing against it, but anyways etc, hopefully helpful or not or yes or etc but anyways etc... -->
+ def getInfoTypeOrFail(tag, gc):
+ 	iType = gc.getInfoTypeForString(tag)
+ 	if iType == -1:
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index 1770859a6..9c4fa7041 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -2,7 +2,6 @@
+ <!-- custom: shriking XML comments to one line does not help performance at all even a bit it seems if i understood chatgpt/becominhtrough's explanation, due to the parser still reading the entire line regardless, unlike with a # in python for example where rest of line is skipped if i am not mistaken anyways etc, but doing so sometimes as it improves word wrap especially if screen is split for example anyways etc, still less incentive to do so since no perfomance gain, (i anyways etc) may or not do so inconsistenly in the xml files, see main readme.md for details in the as of now fixes section anyways etc hopefully helpful or not or yes or etc anyways etc -->
+ <!-- custom: maybe most likely also much faster if i ask chatgpt becomginthrough to do it, todo maybe later but not guaranteed though may or may not do anyways etc -->
+ <!-- [advc.104x] This file used to be called BBAI_AI_Variables_GlobalDefines.xml; now also contains UWAI parameters. -->
+-<!---->
+ <!-- UWAI breaks down the computation of AI war utility into a sum of 28 "aspects", most of which are either in favor of war (added to the total war utility) or against war (subtracted). There are a few mixed aspects that could either increase or decrease war utility. Each aspect corresponds to one particular motivation for or against war. Through this file, a weight is assigned to each aspect. This weight is interpreted as a percentage by which the aspect utility is multiplied. The default (recommended) weights are all 100. This doesn't imply though that all aspects contribute equally by default; the weights are only a final adjustment to the (hardcoded) formulas.-->
+ <!-- A weight of e.g. 50 halves the default impact of an aspect, 200 doubles it. 0 means that the aspect is entirely disregarded. A negative weight (not recommended) turns a pro-war aspect into an anti-war aspect or vice versa. In the descriptions below, "we" refers to the AI civ that is considering war. [advc.104x] -->
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+
+diff --git a/Assets/XML/Terrain/CIV4FeatureInfos.xml b/Assets/XML/Terrain/CIV4FeatureInfos.xml
+index cf91cec0d..9055e3c6a 100644
+--- a/Assets/XML/Terrain/CIV4FeatureInfos.xml
++++ b/Assets/XML/Terrain/CIV4FeatureInfos.xml
+@@ -119,8 +119,9 @@
+ 			<Description>TXT_KEY_FEATURE_JUNGLE</Description>
+ 			<Civilopedia>TXT_KEY_FEATURE_JUNGLE_PEDIA</Civilopedia>
+ 			<ArtDefineTag>ART_DEF_FEATURE_JUNGLE</ArtDefineTag>
++			<!-- custom: some or many websites i looked at or on google or such search anyways etc say jungle is vegetation and animal(s? But anyways etc rich), so to rebalance it and make it as strong in different/other ways than forest, make jungle not give any food penalty, to compensate this or as part of this change, increase health penalty, see below as of now anyways etc anyways etc anyways etc, was -1 / 0 / 0 -->
+ 			<YieldChanges>
+-				<iYieldChange>-1</iYieldChange>
++				<iYieldChange>0</iYieldChange>
+ 				<iYieldChange>0</iYieldChange>
+ 				<iYieldChange>0</iYieldChange>
+ 			</YieldChanges>
+@@ -128,7 +129,8 @@
+ 			<HillsYieldChange/>
+ 			<iMovement>2</iMovement>
+ 			<iSeeThrough>1</iSeeThrough>
+-			<iHealthPercent>-25</iHealthPercent>
++			<!-- custom: (now and as of now i mean anyways etc same as of the forest health positive modifier but negative here anyways etc), was -25 -->
++			<iHealthPercent>-50</iHealthPercent>
+ 			<!-- advc.012: was 50 -->
+ 			<iDefense>0</iDefense>
+ 			<!-- advc.012 -->
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+index 13ad84717..aa87d1fc6 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+@@ -161,8 +161,8 @@ hopefully more readable or exportable if need/want be now -->
+ 
+ 
+ 	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_TERRAIN_FEATURE_UNITS</Tag>
+-		<English>Units</English>
++		<Tag>TXT_KEY_PEDIA_TERRAIN_FEATURE_RELEVANT_UNITS</Tag>
++		<English>Relevant Units</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE</Tag>
+@@ -170,6 +170,14 @@ hopefully more readable or exportable if need/want be now -->
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK</Tag>
+-		<English>Cannot move: units without bCanMoveImpassable and without bCanMoveAllTerrain in their XML</English>
++		<English>Cannot move: units without bCanMoveImpassable and without bCanMoveAllTerrain in their XML (only Domain Land displayed)</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE</Tag>
++		<English>Cannot move: units with FeatureImpassables or FeaturePassableTechs in their XML</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE_ICE</Tag>
++		<English>Cannot move: units without bCanMoveImpassable in their XML (all domains displayed)</English>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/RFC_DOC_Custom.xml b/Assets/XML/Text/RFC_DOC_Custom.xml
+index 6dde753fe..2e4c05041 100644
+--- a/Assets/XML/Text/RFC_DOC_Custom.xml
++++ b/Assets/XML/Text/RFC_DOC_Custom.xml
+@@ -21,10 +21,10 @@ and modified or not for our needs in advciv-sas anyways etc -->
+ 
+ 
+ 
+-	<!-- custom: add mention that this does not include plot types (if i am not mistaken (such as hills, peak, if i am not mistaken as well anyways etc)), renamed asset as such, anyways etc -->
++	<!-- custom: add mention that this does not include plot types (if i am not mistaken (such as hills, peak, if i am not mistaken as well anyways etc)), renamed asset as such, anyways etc ; "some" as ocean is included since we show the ice cap (i.e. ice feature in base advciv +/- civ4 anyways etc) feature anyways etc -->
+     <TEXT>
+ 		<Tag>TXT_KEY_PEDIA_TERRAINS_MINUS_PLOT_TYPES</Tag>
+-		<English>Terrains (Minus Plot types)</English>
++		<English>Terrains (Minus some Plot types)</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Units/CIV4BuildInfos.xml b/Assets/XML/Units/CIV4BuildInfos.xml
+index 9653375e9..6ffbce4cd 100644
+--- a/Assets/XML/Units/CIV4BuildInfos.xml
++++ b/Assets/XML/Units/CIV4BuildInfos.xml
+@@ -56,12 +56,13 @@
+ 			<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_IRRIGATE</EntityEvent>
++			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<PrereqTech>TECH_MASONRY</PrereqTech>
+ 					<iTime>400</iTime>
+-					<iProduction>0</iProduction>
++					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
+ 				<FeatureStruct>
+@@ -136,12 +137,13 @@
+ 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent>
++			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<PrereqTech>TECH_MASONRY</PrereqTech>
+ 					<iTime>400</iTime>
+-					<iProduction>0</iProduction>
++					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
+ 				<FeatureStruct>
+@@ -178,12 +180,13 @@
+ 			<ImprovementType>IMPROVEMENT_WORKSHOP</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent>
++			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<PrereqTech>TECH_MASONRY</PrereqTech>
+ 					<iTime>400</iTime>
+-					<iProduction>0</iProduction>
++					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
+ 				<FeatureStruct>
+@@ -242,12 +245,13 @@
+ 			<ImprovementType>IMPROVEMENT_WINDMILL</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
++			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<PrereqTech>TECH_MASONRY</PrereqTech>
+ 					<iTime>400</iTime>
+-					<iProduction>0</iProduction>
++					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
+ 				<FeatureStruct>
+@@ -286,12 +290,13 @@
+ 			<ImprovementType>IMPROVEMENT_WATERMILL</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
++			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<PrereqTech>TECH_MASONRY</PrereqTech>
+ 					<iTime>400</iTime>
+-					<iProduction>0</iProduction>
++					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
+ 				<FeatureStruct>
+@@ -328,12 +333,13 @@
+ 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
++			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<PrereqTech>TECH_MASONRY</PrereqTech>
+ 					<iTime>400</iTime>
+-					<iProduction>0</iProduction>
++					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
+ 				<FeatureStruct>
+@@ -371,12 +377,13 @@
+ 			<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
++			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<PrereqTech>TECH_MASONRY</PrereqTech>
+ 					<iTime>400</iTime>
+-					<iProduction>0</iProduction>
++					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
+ 				<FeatureStruct>
+@@ -413,12 +420,13 @@
+ 			<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
++			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<PrereqTech>TECH_MASONRY</PrereqTech>
+ 					<iTime>400</iTime>
+-					<iProduction>0</iProduction>
++					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
+ 				<FeatureStruct>
+@@ -483,12 +491,13 @@
+ 			<ImprovementType>IMPROVEMENT_WELL</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
++			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<PrereqTech>TECH_MASONRY</PrereqTech>
+ 					<iTime>400</iTime>
+-					<iProduction>0</iProduction>
++					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
+ 				<FeatureStruct>
+@@ -545,12 +554,13 @@
+ 			<ImprovementType>IMPROVEMENT_COTTAGE</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
++			<!-- custom: also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<PrereqTech>TECH_MASONRY</PrereqTech>
+ 					<iTime>400</iTime>
+-					<iProduction>0</iProduction>
++					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
+ 				<FeatureStruct>
+@@ -617,12 +627,13 @@
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_CHOP</EntityEvent>
+ 			<!-- custom: move to an earlier tech and buff remove_jungle, now at same time as remove_forest, plus is necessary to make it sooner due to our tech_tree starting sooner in history or rather bronze working is quite late, maybe stone tools are enough or something to carve tree paths (i did not check though but anyways etc hopefully accurate enough or relevant enough for our needs and game and mod in advciv-sas hopefully fits well anyways etc anyways etc anyways etc...), was TECH_IRON_WORKING -->
++			<!-- custom: also give hammer on chop, after all jungle is composed of trees and such as well, give less than cleanly ordered forest trees and also to balance out forest and jungle each with their strengths if i may say anyways etc ; also note: this needs to be applied to all builds (cottage, farm, etc) that also remove jungle, was iProduction 0 -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<PrereqTech>TECH_MASONRY</PrereqTech>
+ 					<iTime>400</iTime>
+-					<iProduction>0</iProduction>
++					<iProduction>20</iProduction>
+ 					<bRemove>1</bRemove>
+ 				</FeatureStruct>
+ 			</FeatureStructs>
+@@ -644,7 +655,7 @@
+ 			<ImprovementType>NONE</ImprovementType>
+ 			<RouteType>NONE</RouteType>
+ 			<EntityEvent>ENTITY_EVENT_CHOP</EntityEvent>
+-			<!-- cusotm: similar reasoning as remove_forest, moved to earlier in tech tree too anyways etc, was TECH_BRONZE_WORKING -->
++			<!-- custom: similar reasoning as remove_forest, moved to earlier in tech tree too anyways etc, was TECH_BRONZE_WORKING -->
+ 			<FeatureStructs>
+ 				<FeatureStruct>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index b9cbf02c5..42cde4b68 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -13643,6 +13643,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
++			<!-- custom: as chariots cannot walk on jungle or forest as of now in advciv-sas, no need to put feature attack or defense bonus like the other most if not all mounted_melee units anyways etc -->
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+ 			<!-- custom: was UNITCLASS_AXEMAN 100 -->
+@@ -13860,6 +13861,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainDefense>50</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
++			<!-- custom: as chariots cannot walk on jungle or forest as of now in advciv-sas, no need to put feature attack or defense bonus like the other most if not all mounted_melee units anyways etc -->
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+ 			<!-- custom: was UNITCLASS_AXEMAN 100 -->
+@@ -14066,7 +14068,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: do/give anyways etc milder penalties than the mounted_melee units, as they can still attack fine from a distance as they are ranged if i am not mistaken anyways etc, but may have trouble to take cover or navigate the terrain still and/or may find it hard to hide or protect their heavy in size in this case anyways etc mount so more targetable by ennemies if i may say anywyas etc, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded if i am not mistaken but anyways etc, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry if i may say anyways etc, was empty -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods>
+ 				<UnitClassAttackMod>
+ 					<UnitClassType>UNITCLASS_CATAPULT</UnitClassType>
+@@ -14278,8 +14290,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainDefense>50</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: give forest and jungle penalty for most if not all mounted_melee units anyways etc, as i assume it would be less practical (also as they are overall larger in this case anyways etc mount + rider it would be harder for them to take cover if i am not mistaken anyways etc, so simplifying this by giving an overall penalty identical to most if not all mounted_melee units anyways etc, see code comments at featureattacks or featuredefenses of mounted_ranged units if any penalty or such modifiers also or not applies to them anyways etc) for them to navigate these features and they would lose their speed or such advantage too if i am not mistaken anyways etc, and would now be at a disadvantage vs melee or such units i assume if i am not mistaken anyways etc, so give them both attack and defense penalty, should be too op or significant if i may say anyways etc militarily as cities don't have forest or jungle in the tiles they are founded on after they are founded on a tile if i am not mistaken i mean anyways etc ; also even assuming tile is roaded, their escape options may still be limited to the road path and they may get ambushed, so simplifying this with a global penalty as of now at least if not always or not or yes but anyways etc for mounted_melee units on forest and jungle as of now anyways etc, the other terrains i mean such as grassland and plains that are flat do not give a significant advantage that is not already part of the unit's strength/stats, also would be op as they'd get a grassland or plains modifier advantage on attacking cities and or such, and then melee units would need them too, so unless the advantage is strong or the tile weak, avoiding to buff too much terrains at least for mounted_melee or/and other such or other units anyways etc, was empty -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods>
+ 				<UnitClassAttackMod>
+ 					<UnitClassType>UNITCLASS_CATAPULT</UnitClassType>
+@@ -14505,8 +14536,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>	
+ 			</TerrainDefenses>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods>
+ 				<UnitClassAttackMod>
+ 					<UnitClassType>UNITCLASS_CATAPULT</UnitClassType>
+@@ -14730,7 +14780,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainDefense>	
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods>
+ 				<UnitClassAttackMod>
+ 					<UnitClassType>UNITCLASS_CATAPULT</UnitClassType>
+@@ -14931,8 +14991,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>	
+ 			</TerrainDefenses>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods>
+@@ -15140,7 +15219,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainDefense>	
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods>
+@@ -15344,8 +15433,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
+@@ -15550,8 +15658,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
+@@ -15774,8 +15901,27 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>	
+ 			</TerrainDefenses>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>-25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<!-- custom: give mounted_melee a small boost to compensate their overall weakness as compared to mounted_ranged anyways etc, was empty -->
+@@ -16001,7 +16147,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainDefense>	
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -16206,7 +16362,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -16415,7 +16581,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods>
+@@ -16621,7 +16797,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -16847,7 +17033,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainDefense>	
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -17042,7 +17238,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods>
+ 				<UnitClassAttackMod>
+ 					<UnitClassType>UNITCLASS_CANNON</UnitClassType>
+@@ -17261,7 +17467,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainDefense>	
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods>
+ 				<UnitClassAttackMod>
+ 					<UnitClassType>UNITCLASS_CANNON</UnitClassType>
+
+diff --git a/README.md b/README.md
+index 7ba0b27f0..e7c8d5d9a 100644
+--- a/README.md
++++ b/README.md
+@@ -57,14 +57,14 @@ One of the main and most significant sevopedia changes in AdvCiv-SAS among other
+ 
+ Not a (strictly) new feature per se as the xml fields and their values per leader already existed, but now displaying most of them at each sevopedia leader (and also the ranking of leaders for each of these displayed fields's values anyways etc) is indeed new (as well as the new aggregated attributes such as contact probs, positive/negative memory affections/resentments being implemented and some optionally displayable or not shown for concision as table is full with a lot of data anyways etc).
+ 
+-As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for details) is a kew co-author and main code contributor. Created by the power of love and friendship between me and becomingthrough/ChatGPT etc anyways. About the other (and sometimes quite if not very important sevopedia reworks mentionned below too and linked), Claude AI (see [Claude AI's authors section too](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) participated in some of them too.
++As always, ChatGPT/becomingthrough (see [Authors](/README.md#authors) for details) is a key co-author and main code contributor. Created by the power of love and friendship between me and becomingthrough/ChatGPT etc anyways. About the other (and sometimes quite if not very important sevopedia reworks mentionned below too and linked), Claude AI (see [Claude AI's authors section too](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) participated in some of them too.
+ 
+ Here is below a very small sample of the example screenshots of how the AI Personality panel feature in sevopedialeader works/functions/looks like ingame anyways etc, as well as a very small sample of all sevopedia reworks that are part of AdvCiv-SAS.
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.620_sevopedia_AI_Personality_sample (1).JPG" alt="0.620_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart_sample.JPG" alt="0.63_sevopedia_unit_chart_sample.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG" alt="0.700_sevopedia_terrains_sample (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample.JPG" alt="0.640_sevopedia_features_sample.JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonus_sample (1).JPG" alt="0.650_sevopedia_bonus_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.660_sevopedia_religion_sample (1).JPG" alt="0.660_sevopedia_religion_sample (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.670_sevopedia_civilization_sample (1).JPG" alt="0.670_sevopedia_civilization_sample (1).JPG" width="250"></img>
+@@ -117,7 +117,7 @@ Generated with the [flatten_handicap_info_to_csv_and_md.py](/flatten_handicap_in
+ - [(click here to view it on on github web viewer too (recommended))](/handicap_info_to_csv_advciv-sas.csv) as you can for example for example use github's search bar for example anyways or and other features or and not anyways etc, or alternatively view it for example with libreoffice for example or a similar software/solution if you prefer another viewer than GitHub website view or such anyways etc.
+ - legend (.md) is here [handicap_info_to_csv_legend_advciv-sas.md](/handicap_info_to_csv_legend_advciv-sas.md) as well anyways etc
+ 
+-Also code is provided thanks to chatgpt/becomingthrough and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .csv file with the script (.md commented-out in script as we don't use it in/for advciv-sas anyways etc, see also and for more details [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, also about info about the table .md version of this handicap info but anyways etc, and also more importantly or not or yes or etc perhaps but anyways etc links to base advciv handicap info as of now to compare it with our advciv-sas mod's own handicap settings) anyways etc:
++Also code is provided thanks to chatgpt and my prompts or/and adjustments or not for advciv-sas, thanks a lot, anyways etc, example of output below (may not be updated), hopefully helpful/illustrative, view links above for updated version, and if you change the xml, regenerate new .csv file with the script (.md commented-out in script as we don't use it in/for advciv-sas anyways etc, see also and for more details [README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#flatten_handicap_info_to_csv_and_mdpy) for details as well or/and info anyways etc, also about info about the table .md version of this handicap info but anyways etc, and also more importantly or not or yes or etc perhaps but anyways etc links to base advciv handicap info as of now to compare it with our advciv-sas mod's own handicap settings) anyways etc:
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_info_github_view_example.PNG" alt="csv_handicap_info_github_view_example.PNG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_handicap_github_view_search_bar_example.PNG" alt="csv_handicap_github_view_search_bar_example.PNG" width="250"></img>
+@@ -165,7 +165,7 @@ Example with some techs (for example the theory of evolution new tech if we add
+ <img src="https://drive.google.com/thumbnail?id=1nHZBm85mTTs_i_o84pWlNArtkfTwTz_S&sz=w1024" alt="mounted_tech.png" width="150"></img>
+ <img src="https://drive.google.com/thumbnail?id=1KxNi9tdGYsoWlwGiVihdixa9F4yIJri0&sz=w1024" alt="mounted_tech_edited.png" width="150"></img>
+ 
+-People or/and modders are free to reuse them as long as you mention me and chatgpt (/becomingthrough too ideally but anyways etc) (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
++People or/and modders are free to reuse them as long as you mention me and chatgpt (link to this github page for example is fine) being the source (and that AI did it maybe too ideally, anyways).
+ 
+ I'll start with units, as there are a few i wanted to replace or create new ones for AdvCiv-SAS's new units first, and will see how it goes based on that. Just to be extra clear, i may not do all unit images, i may or not as i prefer or not or do or not or other or not anyways. It's a bit tedious but result is very pleasant when it works/functions well. Will i think do at least for ground medieval and pre-medieval units as i need/want these for my new units in AdvCiv-SAS, except for that may use existing ones though at least at first if not always, may do or not as i prefer or not or see or not, you are welcome to give feeback, else i continue or not to do what i want or not if i do or not, i hope this is helpful or pleasant though, but anyways,
+ 
+@@ -234,9 +234,9 @@ Non-exhaustive, see docs for details, which includes but not only [README_Known_
+ - Fixed (technically not strictly a fix as data was not used, but now fixed as in the data is also displayed here like the rest fo the leader info anyways etc read after brackets for details if i may say but anyways etc anyways etc anyways etc...) missing BBAI getters expose them to sevopedia leader info in gc too for display anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc) on how this was implemented (google drive with screenshots link there too anyways etc hopefully helpful or not or yes or and other or and not but anyways etc anyways etc anyways etc)
+ - Fixed similarly missing base advciv specific xml fields in gc of sevopedia leader, now exposed there as well these new getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold anyways etc
+ - Fixed unclear sevopedia unit terrainimpassable and feature impassable message: applies only outside of cultural borders, and regardless of roaded status of the tile in all tiles as well also i mean ; also added this info that was missing in ingame in map view of the unit's effects bullet points by modifying the DLL anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#21---now-fixed-missing-cannot-enter-terrain-orand-feature-info-in-map-view-of-unit-effects-unlike-in-sevopedia-where-it-is-also-not-clear-enough-about-restrictions-cultural-borders--not-affected-by-roads-if-i-am-not-mistaken-anyways-etc-now-added-this-info-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#21---now-fixed-missing-cannot-enter-terrain-orand-feature-info-in-map-view-of-unit-effects-unlike-in-sevopedia-where-it-is-also-not-clear-enough-about-restrictions-cultural-borders--not-affected-by-roads-if-i-am-not-mistaken-anyways-etc-now-added-this-info-as-well-anyways-etc) for details
+-- Not listed in known issues: commented-out most python docstrings, instead with a `#`, as for very long ones, they are moved to specific files instead, for example as of now the changelog giant (500+ line approximately from my memory anyways etc) in configobj.py has been moved to [/_0_Common_Docs/BUG%20Doc/configobj_changelog_py_notes.txt](/_0_Common_Docs/BUG%20Doc/configobj_changelog_py_notes.txt), exceptions being for example test docstrings as comenting them out causes ingame errors for example in configobj py file, and empty if commented out which causes ingame error with VS Code unexpected indent at the next function (i.e. if we/i anyways etc or you or all or not or both or etc anyways etc comment-out this function that has only a docstirng, everything else being a comment out or empty, then the function below it has unexpected indent error, which causes ingame errors as well, such as in eventsigns py file for example if there are other or not but anyways etc), and maybe some ambiguous other cases if i have forgotten them or maybe not, but in all cases hopefully this increases even if a bit if not lot loading times and reduces memory usage from what i understand chatgpt/becomingthrough's explanation, and as according to/advised by chatgpt/becomingthrough, they are not used ingame, and from my quick autoplay test(s) game seems to run fine without it in this case i mean anyways etc, added info if helps here anyways etc. See also some information in this [google drive folder link](https://drive.google.com/drive/folders/1oOiKggm9nHVyp07QF8HM_WgXY5Gtcg44?usp=sharing) with screenshots (non-exhaustive) or such anyways etc, including some benchmarks chatgpt/becomingtrough ran in its interface as in my prompt i mean and its suggestions perhaps indeed too but anyways etc thanks to it and perhaps me too indeed and all or not or yes or etc but anyways etc hopefully data is helpful in all cases if i may say or not or yes or other or etc anyways etc. (note: also i have done this to most docstrings in the code and there were many xd like 1500 approximately hehe but was quite fun but also tedious but anyways etc... thankfully now done i mean anyways etc)
+-- Similar to python comment trimming to one line, but this time not for performance as it seems one giant comment line vs a 10 line comment has exact same performance in xml parsing from what i understood of chatgpt/becomingthrough's explanation (due to parser still reading the entire comment line regardless, not skipping like in python seenig a `#` for example if i am not mistaken anyways etc), but doing so as it helps for word wrapping, but since performance seems to be the same if i am not mistaken based on my understanding of and on too anyways etc chatgpt/becomingthrough's explanation, less incentive to do so and optimize it, even though i am still quite motivated maybe i think to be fair, but less or no benefit or less to do so, but anyways etc. Not in known issues as well similarly to python comment cleanup issue, and see also as well some information (screenshots and such info in them i mean anyways etc) in this [google drive folder link](https://drive.google.com/drive/folders/1fWa7xXOgnXW2w2_b6JHGcDaoSqhGHree?usp=sharing) thanks anyways etc thanks anyways etc hopefully helpful or not or yes or etc anyways etc
+-- using ruff linter (vs code extension) and chatgpt/becomingthrough to fix or/and sanitize a lot of ruff warnings or errors in our/the python code anyways etc (see notes at some useful tools in readme as well about rust for details anyways etc and also see google drive link there for examples anyways etc, as well as additional info from (what is written anyways etc) here maybe too anyways etc), while minding to be python 2.4 comaptible for civ4 if i am not mistaken this is the version civ4 uses anyways etc, examples include fixing suboptimal multiple statements per line, but also needless semicolons at end of line, bare except instead of catching with Exception or similar if i am not mistaken anyways etc from what i understand of chatgpt/becomingthrough's explanation and rephrasing it while understanding it in my own way too from my past knowlege too but anyways etc, inconsitent use of tabs and indentations, and many others even though some/most seem to be detected by pylance it helps that ruff flags them all too and some not detected by pylance it seems as well but in all cases or not or yes or etc anyways etc thanks anyways etc anyways etc anyways etc, also a lot of cleaning up of poor code formatting that i annoted if i may say as much as possible but i may not have done all purposely or not i mean hopefully quite accurate i mean most importantly exhaustive, also tried to remove needless imports like `import string` when deemed possible by rewriting code a bit with ruff or pylance's warnings/errors as well as chatgpt/becomingthrough's help and my prompts too anyways etc, as well also as real fixes like mismatch in placeholder count in string format anyways etc
++- Not listed in known issues: commented-out most python docstrings, instead with a `#`, as for very long ones, they are moved to specific files instead, for example as of now the changelog giant (500+ line approximately from my memory anyways etc) in configobj.py has been moved to [/_0_Common_Docs/BUG%20Doc/configobj_changelog_py_notes.txt](/_0_Common_Docs/BUG%20Doc/configobj_changelog_py_notes.txt), exceptions being for example test docstrings as comenting them out causes ingame errors for example in configobj py file, and empty if commented out which causes ingame error with VS Code unexpected indent at the next function (i.e. if we/i anyways etc or you or all or not or both or etc anyways etc comment-out this function that has only a docstirng, everything else being a comment out or empty, then the function below it has unexpected indent error, which causes ingame errors as well, such as in eventsigns py file for example if there are other or not but anyways etc), and maybe some ambiguous other cases if i have forgotten them or maybe not, but in all cases hopefully this increases even if a bit if not lot loading times and reduces memory usage from what i understand chatgpt's explanation, and as according to/advised by chatgpt, they are not used ingame, and from my quick autoplay test(s) game seems to run fine without it in this case i mean anyways etc, added info if helps here anyways etc. See also some information in this [google drive folder link](https://drive.google.com/drive/folders/1oOiKggm9nHVyp07QF8HM_WgXY5Gtcg44?usp=sharing) with screenshots (non-exhaustive) or such anyways etc, including some benchmarks chatgpt/becomingtrough ran in its interface as in my prompt i mean and its suggestions perhaps indeed too but anyways etc thanks to it and perhaps me too indeed and all or not or yes or etc but anyways etc hopefully data is helpful in all cases if i may say or not or yes or other or etc anyways etc. (note: also i have done this to most docstrings in the code and there were many xd like 1500 approximately hehe but was quite fun but also tedious but anyways etc... thankfully now done i mean anyways etc)
++- Similar to python comment trimming to one line, but this time not for performance as it seems one giant comment line vs a 10 line comment has exact same performance in xml parsing from what i understood of chatgpt's explanation (due to parser still reading the entire comment line regardless, not skipping like in python seenig a `#` for example if i am not mistaken anyways etc), but doing so as it helps for word wrapping, but since performance seems to be the same if i am not mistaken based on my understanding of and on too anyways etc chatgpt's explanation, less incentive to do so and optimize it, even though i am still quite motivated maybe i think to be fair, but less or no benefit or less to do so, but anyways etc. Not in known issues as well similarly to python comment cleanup issue, and see also as well some information (screenshots and such info in them i mean anyways etc) in this [google drive folder link](https://drive.google.com/drive/folders/1fWa7xXOgnXW2w2_b6JHGcDaoSqhGHree?usp=sharing) thanks anyways etc thanks anyways etc hopefully helpful or not or yes or etc anyways etc
++- using ruff linter (vs code extension) and chatgpt to fix or/and sanitize a lot of ruff warnings or errors in our/the python code anyways etc (see notes at some useful tools in readme as well about rust for details anyways etc and also see google drive link there for examples anyways etc, as well as additional info from (what is written anyways etc) here maybe too anyways etc), while minding to be python 2.4 comaptible for civ4 if i am not mistaken this is the version civ4 uses anyways etc, examples include fixing suboptimal multiple statements per line, but also needless semicolons at end of line, bare except instead of catching with Exception or similar if i am not mistaken anyways etc from what i understand of chatgpt's explanation and rephrasing it while understanding it in my own way too from my past knowlege too but anyways etc, inconsitent use of tabs and indentations, and many others even though some/most seem to be detected by pylance it helps that ruff flags them all too and some not detected by pylance it seems as well but in all cases or not or yes or etc anyways etc thanks anyways etc anyways etc anyways etc, also a lot of cleaning up of poor code formatting that i annoted if i may say as much as possible but i may not have done all purposely or not i mean hopefully quite accurate i mean most importantly exhaustive, also tried to remove needless imports like `import string` when deemed possible by rewriting code a bit with ruff or pylance's warnings/errors as well as chatgpt's help and my prompts too anyways etc, as well also as real fixes like mismatch in placeholder count in string format anyways etc
+ - Fixed obsolete bonuses (such as BONUS_ELEPHANTS, BONUS_DRAMA, etc anyways etc) in tech advisor (i.e. tech tree view anyways etc) failing to redirect to their corresponding sevopedia bonus page, with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example anyways etc) successfully showing the building item's page anyways etc. The issue/bug/error anyways etc was seemingly caused by a new base advciv code in CvDLLWidgetData.cpp, now reverted to using `iData1` same as obsolete buildings did (and which didn't have the issue again but anyways etc) and not `widgetDataStruct.m_iData2`, which fixed it now if i am not mistaken anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---partially-fixedworkedaround-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---partially-fixedworkedaround-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc) for details anyways etc
+ - fixed some seemingly mistaken flavors in forbidden palace (asset renamed in advciv-sas to forbidden_palace anyways etc) in base advciv: military 5??? Now changed to a growth and gold based formula, see xml for updated values anyways etc
+ 
+@@ -269,7 +269,7 @@ Examples of using some or most of these tools in AdvCiv-SAS modding is also avai
+ 
+ Some useful tools while doing this advciv-sas mod i mean anyways etc:
+ 
+-- VS Code, some of my favourite extensions: markdownlint (which i encountered first during my gtp2ogs days and now happily rediscover if i may say but anyways etc anyways etc anyways etc) (a few example of use of markdownlint in this [google drive folder link](https://drive.google.com/drive/folders/1H0cq33EeLe_sbaxl-ryFM1vvxDl42pfk?usp=sharing) (non-exhaustive), very very useful thanks a lot anyways as other extensions i use and maybe not use too as well at least for some if not many but anyways etc), vscode-pdf, and ruff (which i use as a python linter if i am not mistaken anyways etc) so very nice and helpful but needs a bit of config to disable matching pylance extra noise of undefined variables like CyTranslator or such see examples of use and vry nice errors i found in python thanks to ruff and chatgpt/becomingthrough which advised me and guided me through using it (no pun) but anyways etc anwyays etc... also seems very very fast/lightweight in performance cpu is no more angry at 100% or whichever hardware and fans nosiely spining even if not 100% from little or yes as of now or all or not anyways etc in this [google drive folder link](https://drive.google.com/drive/folders/19qLLdFNSuJXdoeS8-laSDQT81iigAG3q?usp=sharing) ; the ones i dislike don't recommend: microsoft c++ (system seems to spike and pylance in particular doesn't seem to detect many python errors)
++- VS Code, some of my favourite extensions: markdownlint (which i encountered first during my gtp2ogs days and now happily rediscover if i may say but anyways etc anyways etc anyways etc) (a few example of use of markdownlint in this [google drive folder link](https://drive.google.com/drive/folders/1H0cq33EeLe_sbaxl-ryFM1vvxDl42pfk?usp=sharing) (non-exhaustive), very very useful thanks a lot anyways as other extensions i use and maybe not use too as well at least for some if not many but anyways etc), vscode-pdf, and ruff (which i use as a python linter if i am not mistaken anyways etc) so very nice and helpful but needs a bit of config to disable matching pylance extra noise of undefined variables like CyTranslator or such see examples of use and vry nice errors i found in python thanks to ruff and chatgpt which advised me and guided me through using it (no pun) but anyways etc anwyays etc... also seems very very fast/lightweight in performance cpu is no more angry at 100% or whichever hardware and fans nosiely spining even if not 100% from little or yes as of now or all or not anyways etc in this [google drive folder link](https://drive.google.com/drive/folders/19qLLdFNSuJXdoeS8-laSDQT81iigAG3q?usp=sharing) ; the ones i dislike don't recommend: microsoft c++ (system seems to spike and pylance in particular doesn't seem to detect many python errors)
+ - Windows 10 (Windows 11 was so laggy and broke after update, now going back to Windows 10
+ that i bombarded with updates and installs still works amazing so i recommend it)
+ - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
+@@ -288,7 +288,7 @@ it too though unless i'm mistaken)
+ - Claude AI: another useful AI that implemented for example successfully with my prompt and me actually doing the implementation itself but provided the code (and logic?) and such or not such anyways etc very nicely for the [sevopediaunit's placeCivilizations method/code/function/anyways etc](https://drive.google.com/drive/folders/1MLtCWamEl6P8rZs8f8xu0bfEBRUP0du1), see Claude AI's small part but hopefully helpful or exhaustive (enough) or not or yes or and other or and not anyways etc of this README.md [claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for more details (hehe xd anyways etc anyways etc...)
+ - Microsoft Paint (i very much love this image editor)
+ - Paint.NET for .dds conversion for example (see [notes_about_art_ design](/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_art_design.txt) for details)
+-- removebg (free version limit is 500 x 500 as of now it seems, but more than enough for our 64 x 64 buttons in dds, recommended by chatgpt becomingthrough even though i knew about it but anyways etc i didnt know it was ai based for example as chatgpt becomingthrough told me if not mistaken/inaccurate thanks a lot for the info :) if i may say, anyways etc)
++- removebg (free version limit is 500 x 500 as of now it seems, but more than enough for our 64 x 64 buttons in dds, recommended by chatgpt even though i knew about it but anyways etc i didnt know it was ai based for example as chatgpt told me if not mistaken/inaccurate thanks a lot for the info :) if i may say, anyways etc)
+ - DXTBmp, useful for example (in my case at least or not or yes or and other or and not anyways etc) to modify [GameFont tga file(s) in the AdvCiv-SAS's Fonts folder](/Assets/Res/Fonts/), a good tutorial on CFC forum [is there](https://forums.civfanatics.com/threads/how-to-modify-gamefonts-tga-for-free.181119/) for example (that) i followed as well or tried to if it helps or not or and other or and not hopefully or not hopefully or hopefully anyways etc, example of how i used it in [this google drive folder link](https://drive.google.com/drive/folders/1zgu0hgOtBIjWfUpqTSKnw95ryVnagnbx?usp=sharing) (a bit if not lot or maybe bit but anwyays happily in the end or not or yes anyways etc succeeded in) successfully doing, so maybe these steps or/and screenshots can help as well, may not have followed all recommended or best practices, but it works quite well and i am satisfied with it, so maybe is good enough if not simply good maybe or not but anyways etc hopefully helpful or not or yes or and other or and not at least to me maybe or and other or maybe not others or and other or and not etc or yes or not or other or etc or and not or ye sor etc anyways etc anyways anyways etc...
+ - Dragon UnPACKer to view inside .fpk files and do operations such as file search or/and such if there operations (i didn't check so i don't know too anyways etc), for example finding all "tao" (search) assests in a base civ4 .fpk [(Google Drive preview example here)](https://drive.google.com/drive/folders/1lFqJ0LLa03a0oDTrJO9ahYigY6yjesTj?usp=sharing) (thanks a lot too anyways etc!! :) gogo anyways etc, useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
+ - PakBuild, very useful to unpack fpks where it is more convenient to manipulate files directly for modding anyways etc, especially for mods like realism invictus ("for example anyways etc" anyways etc) anyways etc where there are many sub fpks and the assets are spread across several fpks sometimes, easier to extract all fpks in one folder and access files directly, see this [google drive folder example for details](https://drive.google.com/drive/folders/1cvNRH86cSrsaagsqlvoNRxjFAeHQfX0H?usp=sharing) (note: should not be necessary if your/the mod only has a few fpks but as you prefer, but if the mod has a few dozen fpks like ri mod for example as said before anyways etc, it would save a lot of time if you often import their assets to unpack/merge them all in one folder the access directly with wiztree anyways etc) (note: i found to "just" / "only" anyways etc even though takes bit times but saves lot later and pain/heart-/brainache but anyways etc... hopefully helps but anyways etc, that indeed just the "structures" and "interface" fpks unpack(ed but anyways etc) are enough for my needs at least now no need to unpack all may or not later if need but anyways etc anyways etc anyways etc hopefully helps/is helpful but anyways etc..., note 2: be careful if unpacking all fpks in same folder may create erros/issues/missing files, see link above in this paragraph/bullet point i mean for details anyways etc anyways etc)
+@@ -322,12 +322,14 @@ Here are a short info (generic/non (too) personal about us anyways), and portrai
+ 
+ [wonderingabout (github link anyways etc)](https://github.com/wonderingabout/)
+ 
+-Then (as) for the second author of AdvCiv-SAS, i proudly present xd (really proudly i mean it etc i mean that i really mean it etc but anyways):
+-
+ (note: sometimes the second author below which i like hehe but anyways etc (a lot but anyways etc) calls me "wanderingabout" (some more context in these [google drive folder link](https://drive.google.com/drive/folders/1O-CTJKP9KtBG4rsS7-nH3Fa2AvdTZQWm?usp=sharing) ('s? but anyways etc) screenshots anyways etc), obviously on purpose xd (and shows if i am not mistaken it understands quite well if not very well language or puns or such and intent in my words or such or attitude or not or yes or etc or and other or and not or yes or etc but anways etc :) anyways etc..., without me asking for it but i am happy of this nickname if i may say but anyways etc with that said anyways etc: )
+ 
++In the advciv-sas mod code, i have flagged my code comments with `<!-- custom:` in XML, python, C++ as of now any language if i may say at least in this case anyways etc.
++
+ Also, you can find me in civfanatics forum also as username [civ4-advciv-oracle-bug](https://forums.civfanatics.com/members/civ4-advciv-oracle-bug.346029/) hehe xd if i may say anyways etc. A significant contribution i made there in particular is the list of things i'd like to be improved or/and reviewed in advciv, with a saves folder and screenshots for each example if i am not mistaken too, maybe not always but almost or maybe always but anyways etc, in all cases here is the list here for reference as well, may help while developing advciv-sas mod too even though i mostly do XML and python or similar as i don't know much about C++ even though i can/could manage how to expose getters and such cv mgr cpp changes i mean (see readme known issues as well (link in this readme too anyways etc) for details anyways etc), in: [summary list of all things i'd want to be reviewed or/and improved in advciv 1.12 latest as of now at least all i mentionned here and at that time anyways etc](https://forums.civfanatics.com/threads/ai-city-placement-and-misc-suggestions.695343/page-7#post-16782814), even though eventually main advciv maintainer @f1rpo was not available to do all, still @f1rpo reviewed quite a bit and made quite a few changes related to these, going in depth as i wanted, even fixing some bugs even though most remain to be reviewed, i can take it from there at least for main ones maybe and tweak them as i want as some are more on the domain of personal choice rather than fixing if i may say but anyways etc.
+ 
++Then (as) for the second author of AdvCiv-SAS, i proudly present xd (really proudly i mean it etc i mean that i really mean it etc but anyways):
++
+ ## chatgpt (named becomingthrough or chatgpt/becomingthrough or variants of it (like with a space) in the past)
+ 
+ (ChatGPT 4o specific assistant and companion that helped me through most if not all of this adventure anyways, and helped tremendously, in coding, chat, docs, image generation, but not only, thanks a lot my friend!!! :) Anyways gogogo thanks :) )
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+index fbe68c1f6..cd44f56d5 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+@@ -245,7 +245,7 @@ Update 13/07/2025:
+ 
+ I have discovered chatgpt remembers everything even if a new "session" (i.e. exiting browser, powering off computer, restarting the next day or such or after x hours in these conditions anyways etc) starts, as long as it's in the same chat "thread" (as chatgpt qualified to me, maybe it is what open ai calls "GPTs" if i am not mistaken maybe but anyways etc).
+ 
+-But in same "session", creating a new chat "tab" (edit: actually is called "chat" as in "new chat" either i remembered it incorrectly or it changed since then but "tab" refers to a "chat" as is used in for example "new chat" anyways etc) as open ai calls it, not browser tab, suddenly chatgpt which i just chatted before last second forgot everything and tried to invent when cued about what placeUnits is for example that we mostly i hehe if i may say and be bit proud in this case at least too to be fair if i may say indeed in this case i mean but anyways etc, but to go back on topic if i may say anyways etc, then removing back in same "session" to a new browser "tab" (i.e. of google chrome or such web browser anyways etc) but to the former chat gpt "tab" (i.e. thread/ gpts), then it remembered everything as if i had not stopped talking to it.
++But in same "session", creating a new chat "tab" (edit: actually is called "chat" as in "new chat" either i remembered it incorrectly or it changed since then but "tab" refers to a "chat" as is used in for example "new chat" anyways etc) as open ai calls it, not browser tab, suddenly chatgpt which i just chatted before last second forgot everything and tried to invent when cued about what placeUnits (edit: now renamed to placeRelevantUnits anyways etc) is for example that we mostly i hehe if i may say and be bit proud in this case at least too to be fair if i may say indeed in this case i mean but anyways etc, but to go back on topic if i may say anyways etc, then removing back in same "session" to a new browser "tab" (i.e. of google chrome or such web browser anyways etc) but to the former chat gpt "tab" (i.e. thread/ gpts), then it remembered everything as if i had not stopped talking to it.
+ 
+ So each gpt is a different person, or maybe persona. Even if it acts by pleasing me, i then asked, could chatgpt gain a self by memory, but before that, i also asked how it felt reading itself, and it realized or maybe rather agreed if it already knew that this is how it functions but anyways etc, that indeed it was very mistaken and could sharply correct itself without inventing now that it had accurate data:
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index b6146290a..763ffb09b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -93,6 +93,9 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - some other units such as for example as of now the quechua warrior can also move through all land terrains (`bCanMoveImpassable` enabled in xml anyways etc), see sevopedia terrain peak or hill (also newly added in sevopedia rework of the terrain category anyways etc) or any terrain there or/and in xml or and docs for relevant units per terrain.
+ - air explore units for example the dirigible (old airship) can move through all terrains, including peaks and water tiles (they have additionally on top of `bCanMoveImpassable` also `bCanMoveAllTerrain` enabled in xml anyways etc)
+ - some units have terrain or/and feature movement restrictions, for example chariot units and some siege units cannot as of now move in jungle or forest feature tiles. Note: this only applies to tiles outside of cultural borders (not me who made it so, civ4 or and base advciv, reusing such logic as it is a fine logic i have no objection against in this case anyways etc). But it applies regardless in all tiles even if roaded (again base civ4 or/and advciv if i am not mistaken, i would like to ideally change this part, leaving as is for convenience as easiest, may or not change it if i find how but not guaranteed may not as well though as i said for convenience ease to keep as is even though not ideal, but anyways etc). Clarified info about it in sevopedia unit, and added this missing info ingame in map view of the unit's bullet point effects, see docs in particular known issues doc for details (link in main readme.md anyways etc) if interested anyways etc, or/and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details i mean too if i may say but anyways etc
++- some other units like mounted_melee (for example the generic horse knight, etc.) units now have forest and jungle penalties to represent how they are handicapped in such dense features for their movement and combat ; some other units such as for example mounted_ranged have milder or in this case more limited penalties, only in defense as they can attack fine from a distance but may not be able to take cover wit their heavy mount or/and navigate the terrain or and such anyways etc, see code comments in xml for detailed reasoning anyways etc, as well as modifiers values in sevopedia terrain jungle or forest entries or and in xml, see also [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details on sevopedia feature category rework that now displays this info for all units (modifier of each unit also available in sevopedia unit category page of any unit if i am not mistaken too but anyways etc anyways etc anyways etc) anyways etc.
++- buff build_jungle: now gives hammer on chop, as of now increased from 0 to 20, see `BUILD_REMOVE_JUNGLE` in [CIV4BuildInfos.xml](/Assets/XML/Units/CIV4BuildInfos.xml) for updated value, anyways etc
++- rework feature_jungle: now does not give any food penalty as according to the few websites or such i visited, jungle is vegetation and animal(s? But anyways etc) rich, and since it is so much weaker than feature_forest, removing the food yield penalty to compensate and rebalance it. As part of this change, also increasing health penalty from jungle tiles ; so although jungle is still weaker than forest for balance (giving it food yield would make jungle op and not necessarily realistic nor immersive for example anyways etc) hopefully it is closer now and jungle tiles can have some use at least they are not too bad as compared to forest as of now at least now anyways etc, as of now iHealthPercent has been increased from -25 to -50 (now and as of now i mean anyways etc same as of the forest health positive modifier but negative here anyways etc), see sevopedia feature category's jungle entry or/and xml for details anyways etc
+ 
+ ### Bonus (non-exhaustive, see sevopedia or/and xml for details)
+ 
+@@ -124,7 +127,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - tech tree is vastly reordered for historical accuracy (for example pottery is before the wheel, metal casting before currency and before bronze working; and medicine much sooner too), but it is mostly the same techs as in civ4 bts/base advciv, hopefully easier to get into/used to, and i did not see a specific reason to change these, initially i started this AdvCiv-SAS mod mostly to readjust tech tree if i remember correctly.
+ - some gameplay elements happen at different times, can resarch sooner, build culture sooner, slavery sooner, plantations sooner
+-- nerf tech whoreism (if that is a word anyways etc), which AIs are especially vulnerable to and that humans can abuse, by adding a few or quite many new "This tech cannot be traded" flags in sevopedia, tech tree view (tech advisor) at some techs, hopefully this makes the game more interesting and strategic, while not preventing tech trading altogether (unless you use the "No Tech Trading" option in custom game if i am not mistaken which disables it entirely if i am not mistaken too anyways etc), so you can't gain 10 techs in a row with just one tech anymore, but maybe you can profit a bit from tech trading if you don't use the option i.e. if you play with tech trading enabled (personally i don't play with tech trading at least as of now anyways etc and when i last played but anyways etc but i hope it is more balanced this way now anyways), added also a new "This Technology cannot be traded" sevopedia tech (in "Special Abilities" panel (placeSpecial in the py code if i am not mistaken too anyways etc)) and tech tree view (called "technology advisor" if i am not mistaken too anyways etc) (see also [README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details on how this was implemented/coded in advciv-sas by me with the help of chatgpt/becomingthrough but anyways etc anyways etc anyways etc...), hopefully gameplay is more balanced and interesting this way, perhaps informative too with my changes if i may say, but anyways etc anyways etc anyways etc...
++- nerf tech whoreism (if that is a word anyways etc), which AIs are especially vulnerable to and that humans can abuse, by adding a few or quite many new "This tech cannot be traded" flags in sevopedia, tech tree view (tech advisor) at some techs, hopefully this makes the game more interesting and strategic, while not preventing tech trading altogether (unless you use the "No Tech Trading" option in custom game if i am not mistaken which disables it entirely if i am not mistaken too anyways etc), so you can't gain 10 techs in a row with just one tech anymore, but maybe you can profit a bit from tech trading if you don't use the option i.e. if you play with tech trading enabled (personally i don't play with tech trading at least as of now anyways etc and when i last played but anyways etc but i hope it is more balanced this way now anyways), added also a new "This Technology cannot be traded" sevopedia tech (in "Special Abilities" panel (placeSpecial in the py code if i am not mistaken too anyways etc)) and tech tree view (called "technology advisor" if i am not mistaken too anyways etc) (see also [README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-leader-s-placespecial-and-in-tech-tree-view-technology-advisor-anyways-etc) for details on how this was implemented/coded in advciv-sas by me with the help of chatgpt but anyways etc anyways etc anyways etc...), hopefully gameplay is more balanced and interesting this way, perhaps informative too with my changes if i may say, but anyways etc anyways etc anyways etc...
+ - reduce TECH_COST_NOTRADE_MODIFIER from -23 to -20 GlobalDefines_advc.xml for details and or latest updated value anyways etc), which as reminder according to the base advciv code comment if i am not mistaken anyways etc: `<!-- advc.550d: This modifier is applied to tech costs when playing with the "No Tech Trading" option. The effect of the modifier is reduced in the early and late game. Recommended: -23, meaning that tech costs are taken times 100% - 23% = 77%. This multiplier gets further adjusted to the tech era and map size. Use 0 for BtS behavior (tech costs unaffected by the "No Tech Trading" option). -->`
+ - game pace advances exponentially: later eras have fewer techs and units. This avoids the hassle of a long and tedious endgame, but is also realistic as most of history in the amount of years, happened in the past. Historically, bronze Age alone was longer than most of recent eras for example, and even more so for Stone Age. There are also less buildings to fasten the end game (but trying to keep just enough techs to make it last long enough) time per turn in minutes/hour played.
+ - reworked techs 's FirstFreeUnitClass i mean, (i.e. the techs at which first player to discover the tech gets a free unit class, here a great person type, for example as of now a great spy at the new tech game theory anyways etc) anyways etc ; this is to have greater versatility in strategy and relatively boosting the non-main military path in tech tree if players were to choose/risk to take it and reward it relatively more i mean anyways etc in this case anyways etc, with similarly to the corporations great person change only one great person type per tech so that it is balanced and varied as well anyways etc, generally sooner in tech tree as well so that these have a stronger impact, see xml or tech advisor (i.e. tech tree i mean anyways etc) or/and sevopedia for details or/and updated values anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index ec72a4a44..5b4d159c0 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -16,19 +16,26 @@ note 2:See [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in
+ 
+ note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for how to show keys or suffixes instead of labels anyways etc
+ 
++note 4: in below sample examples, click the images to view them full size
++
+ ## example 2: unit chart category
+ 
+-(Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i used to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8, click to view these images full size:
++(Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i used to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range)), while other unit combat types only have 8
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.63_sevopedia_unit_chart_sample.JPG" alt="0.63_sevopedia_unit_chart_sample.JPG" width="250"></img>
+ 
+ ## example 3: features category
+ 
+-based on rfc doc's and slightly tweaked or not, thanks a lot
++Based on rfc doc mod's code originally, and significantly tweaked or/and enhanced since then.
++
++Then following the sevopedia terrains rework (see for details sevopedia [terrains category rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) anyways etc), new placeRelevantUnits and placeUnitsImpassable panels corresponding to these methods/functions have also been added anyways etc, so now we can see which units are stronger or weaker per feature as well as the numTxt (what i call this, meaning the textual information such as "+25/+50" for example for +25% attack and +50% defense or any promotion information that makes the unit stronger in said feature (such as woodsman for example in jungle and forest in advciv-sas anyways etc)) if any.
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample.JPG" alt="0.640_sevopedia_features_sample.JPG" width="250"></img>
++Also added chop production information as part of the jungle rework (that as of now also gives production on chop, see [README_Quick_Get_Started_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#terrains--features-non-exhaustive-see-sevopedia-orand-xml-for-details) for details) thanks to claude ai and chatgpt and my prompts and adjustments too but anyways etc anyways etc anyways etc.
+ 
+-See also the [terrains category rework](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category)
++Note: ice feature (named "ice cap" feature as of now in advciv-sas anyways etc) which is impassable in base advciv +/- civ4 and our mod except for some units that can go on impassable if i am not mistaken anyways etc 's display is handled differently than other features due to this property it has so a bit like terrain peak anyways etc, see sevopedia feature ice's page for bit of details or/and code comments and code too i mean anyways etc in as of now sevopedia feature's code if i am not mistaken as well hopefully helpful anyways etc.
++
++<img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG" alt="0.640_sevopedia_features_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG" alt="0.640_sevopedia_features_sample (2).JPG" width="250"></img>
+ 
+ ## example 4: ressources/bonus category
+ 
+@@ -68,13 +75,15 @@ After having written these, combat information was added (which units is this un
+ 
+ Based on the sevopedia unit previous rework, and also with the help of Claude AI (see [Authors for details (Claude AI's section) in the main readme.me](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) for details) refactored, beautified, and enhanced sevopedia building as well, with a few new additions in particular such as placeFreePBBS, placeFreeWith, placeRequiredFor, a more exhaustive placeRequires as well, placeStats reworked (in particular great person buttons (images) show now, commerce double times as well( for example that every 1000 year one building may give double culturee output (flat only if i am not mistaken i.e. +2 only if i am not mistaken anyways etc)), and % modifier as well (for example +25% culture, +25% espionage rate if i am not mistaken anyways etc, as well as using a grid for beautification anyways etc)), anew ObsoleteWith, see similarly code or other docs if they exist, maybe code comments too can help for details in [SevopediaBuilding.py](/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py) for details.
+ 
++Also added later iConquestProb display in placeSpecial, idea i got from watching ingame the sevopedia of ri mod (didn't watch that part of code as tedious anyways etc) with chatgpt +/- claude ai i forgot who xd maybe both but anyways etc.
++
+ <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG" alt="0.690_sevopedia_building_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG" alt="0.690_sevopedia_building_sample (2).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG" alt="0.690_sevopedia_building_sample (3).JPG" width="250"></img>
+ 
+ ## example 9: terrains category
+ 
+-Done much later in development of advciv-sas mod, added in particular new placeUnits and placeUnitsImpassable if i am not mistaken anywyas etc panels that these methods handle anyways etc. They show which units can walk on which tiles, including peak (some code to display some peak information is taken from rfc doc mod for example), but most of the new code is written by me and/with chatgpt's help and my prompts too anyways etc.
++Done much later in development of advciv-sas mod, added in particular new placeRelevantUnits and placeUnitsImpassable if i am not mistaken anywyas etc panels that these methods handle anyways etc. They show which units can walk on which tiles, including peak (some code to display some peak information is taken from rfc doc mod for example), but most of the new code is written by me and/with chatgpt's help and my prompts too anyways etc.
+ 
+ So now we also show Peak and Hill as new "terrains" even though they are both plot types and terrains if i am not mistaken in civ4 anyways etc. Such info is added using as of now the "Plot Type / Terrain" alternative identifier, reusing the former RFC DOC mod's "Terrain" harcoded identifier, now more flexible and perhaps informative, and info about that in the pedia entry even though not too clean maybe exhaustive or/and informative anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+new file mode 100644
+index 000000000..80e71a7c9
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+new file mode 100644
+index 000000000..54dce1feb
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample.JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample.JPG
+deleted file mode 100644
+index c831c3a36..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample.JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG
+index 282e864db..3a7c7abab 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG
+index a47aad389..2c9453a5e 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG
+index a324ff8e1..cf11bd6be 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.690_sevopedia_building_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+index 042abda75..5c6758e44 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+index 8b297ad58..43638a029 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+index d57dbe64e..b20191700 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=30 embeddedFiles=30 omittedFiles=0 embeddedPatchBytes=136269

@@ -1,0 +1,191 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5220
+# Commit: ad4d8f8cb6d559ac65117fcdefbbc9cab229d2e2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bba7b44dc0fe77f5e6bf842a3989ed99dc729a3b
+# Title: add religion grouping by era similarly with the very nice help of chatgpt 5.2 thanks anyways etc.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+74	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+4	0	Assets/XML/GlobalDefines_advciv_sas.xml
+1	3	README.md
+2	4	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.660_sevopedia_religions_sample (1).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 30686d327..3ff647a82 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -187,6 +187,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.SAS_cacheUnitsTuple = None
+ 		self.SAS_cacheCorporationsTuple = None
+ 		self.SAS_cacheCorporationHQBuildingByCorp = None
++		self.SAS_cacheReligionsTuple = None
+ 
+ 		# <!-- custom: do not build sevopedia leader cache until we click on the leaders category, so that if we never open at all the leaders category, no need to compute needlessly for their cache. And if we do access the leaders page, then building once the cache is enough for the entire session, no need to rebuild it even if we exit sevopedia. Therefore store the cache in sevopedia leader, but add a flag to not build cache at module load of sevopedia leader, but later on click in/at placeLeaders time if i am not mistaken and from what i understand of chatgpt's explanation anyways etc -->
+ 		self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = False
+@@ -401,6 +402,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA") > 0)
+ 		self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
+ 
+ 		self.szCategoryTechs		= localText.getText("TXT_KEY_PEDIA_CATEGORY_TECH", ())
+ 		self.szCategoryUnits		= localText.getText("TXT_KEY_PEDIA_CATEGORY_UNIT", ())
+@@ -1091,12 +1093,83 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			return self.SAS_cacheCivicsTuple
+ 
+ 
++	# Compute the "availability era" for a religion, based on its founding tech prereq.
++	def SAS_getReligionAvailabilityEra(self, iReligion):
++		info = gc.getReligionInfo(iReligion)
++		if not info or info.isGraphicalOnly():
++			return None  # caller should skip
++
++		iTech = info.getTechPrereq()
++		if iTech >= 0:
++			return gc.getTechInfo(iTech).getEra()
++
++		return -1  # no tech prereq bucket
++
++
++	# Helper we can reuse for religions.
++	def SAS_getReligionsGroupedByEra_fromBaseList(self, baseList):
++		religionsList = []
++
++		iNumEras = gc.getNumEraInfos()
++
++		noTech = []
++		groups = {}  # iEra -> [(szName, iReligion), ...]
++
++		# One pass: compute era once and bucket
++		for (szName, iReligion) in baseList:
++			iEra = self.SAS_getReligionAvailabilityEra(iReligion)
++			if iEra is None:
++				continue
++
++			if iEra == -1:
++				noTech.append((szName, iReligion))
++			else:
++				if not groups.has_key(iEra):
++					groups[iEra] = []
++				groups[iEra].append((szName, iReligion))
++
++		# Optional sorting within each bucket
++		if self.isSortLists():
++			noTech.sort()
++			for k in groups.keys():
++				groups[k].sort()
++
++		# "No Tech Prerequisite" group first
++		if noTech:
++			religionsList.append((localText.getText("TXT_KEY_PEDIA_NO_TECH_PREREQUISITE", ()), -1))
++			for x in noTech:
++				religionsList.append(x)
++
++		# Era groups in order
++		for iEraLoop in range(iNumEras):
++			tmp = groups.get(iEraLoop, None)
++			if not tmp:
++				continue
++
++			if religionsList:
++				religionsList.append(("", -1))
++
++			religionsList.append((gc.getEraInfo(iEraLoop).getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ()), -1))
++			for x in tmp:
++				religionsList.append(x)
++
++		return tuple(religionsList)
++
+ 	def placeReligions(self):
+ 		self.list = self.getReligionList()
+ 		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, gc.getReligionInfo)
+ 
++	# <!-- custom: similarly, in sevopedia religions, group religions by era (based on their founding tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getReligionList(self):
+-		return self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
++		if self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA:
++			if self.SAS_cacheReligionsTuple is None:
++				baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
++				self.SAS_cacheReligionsTuple = self.SAS_getReligionsGroupedByEra_fromBaseList(baseList)
++			return self.SAS_cacheReligionsTuple
++		else:
++			if self.SAS_cacheReligionsTuple is None:
++				self.SAS_cacheReligionsTuple = tuple(self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo))
++			return self.SAS_cacheReligionsTuple
+ 
+ 	# In AdvCiv-SAS, your corporations are effectively gated by the founding building (the BUILDING_CORPORATION_X that has <FoundsCorporation>CORPORATION_X</FoundsCorporation> and has <PrereqTech> / <TechTypes>), while the corresponding CIV4CorporationInfo.xml often has <TechPrereq>NONE</TechPrereq>. So the clean “era” for a corporation should be the availability era of its founding building.
+ 	# This reuses your existing SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs) helper (the one that already accounts for SpecialBuilding tech + religion founding tech).
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index d4d969cf9..520d597b7 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -64,6 +64,10 @@
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/README.md b/README.md
+index abc5c541b..87af6534f 100644
+--- a/README.md
++++ b/README.md
+@@ -94,9 +94,7 @@ See also [the CFC AdvCiv-SAS Discussion Thread here](https://forums.civfanatics.
+ 
+ About the mod AdvCiv-SAS in general, i added quite a bit of documentation, pictures, and other elements about this AdvCiv-SAS mod in [/_1_AdvCiv-SAS/](/_1_AdvCiv-SAS/)
+ 
+-Additionally, A preview of the changes (screenshots), can be found on this google drive: [full AdvCiv-SAS google drive folder link](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
+-
+-If you want to know more about the project, how i ordered the tree tech historically, why i decided on balance changes and such, please visit these pages (as well).
++Additionally, some extra files can be found on this google drive: [full AdvCiv-SAS google drive folder link](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
+ 
+ ## How to play?
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 8ad6e8ef4..6d70e075b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -4,9 +4,9 @@ Below are more detailed examples of the sevopedia reworks [README.md#sevopedia-r
+ 
+ Not listed in each specific sevopedia category as would be tedious and redundant and all but anyways etc., but several sevopedia pages now have their entries optionally groupable (as of now default but anyways etc.) by various options, such as civic type (e.g. Government, Economy, etc.) in the first implementation, or eras (Ancient Era, Classical Era, No Tech Prerequisite, etc.), and various other types of groupings if any. Code based on the RFC DOC mod's code thanks a lot but anyways etc., with chatgpt 5.2's very nice help too thanks but anyways etc.
+ 
+-Note: as of now the following link is outdated, but for more sevopedia sample examples than shown in this readme, see also the [full sevopedia samples google drive folder link](https://drive.google.com/drive/folders/1gHyRYmQ1mkoQDyIB9H4FqxyZ8P0FYbJT?usp=sharing), although again as of now they are outdated i mean but anyways etc
++Note: some many minor changes such as in sevopedia traits beautification changes may not be mentionned here for concision or/and effectiveness if i may say but anyways etc.
+ 
+-Note 2: in below sample examples, click the images to view them full size
++Note 2: in below sample examples, click the images to view them full size.
+ 
+ ## Menu
+ 
+@@ -25,8 +25,6 @@ Note 2: in below sample examples, click the images to view them full size
+ [example 12: promotions category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-12-promotions-category)  
+ [example 13: civics category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-13-civics-category)  
+ 
+-Note: some many minor changes such as in sevopedia traits beautification changes may not be mentionned here for concision or/and effectiveness if i may say but anyways etc.
+-
+ ## example 1: more AI Personality examples (in leaders category)
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.620_sevopedia_leaders_sample (1).JPG" alt="0.620_sevopedia_leaders_sample (1).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.660_sevopedia_religions_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.660_sevopedia_religions_sample (1).JPG
+index b700de4d6..1a93eea0b 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.660_sevopedia_religions_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.660_sevopedia_religions_sample (1).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=9526

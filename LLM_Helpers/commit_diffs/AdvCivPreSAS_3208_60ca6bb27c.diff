@@ -1,0 +1,809 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3208
+# Commit: 60ca6bb27c0ab13e5dcf00686cafca9c221e211e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 80bd28a498fffdc2fb52cf75a573456f1b963b3a
+# Title: Move shuffle helpers to CvRandom
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+102	36	CvGameCoreDLL/AgentIterator.h
+4	2	CvGameCoreDLL/CityPlotIterator.h
+1	1	CvGameCoreDLL/CvCity.cpp
+8	8	CvGameCoreDLL/CvGame.cpp
+0	35	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	53	CvGameCoreDLL/CvGameCoreUtils.h
+1	1	CvGameCoreDLL/CvMap.cpp
+5	5	CvGameCoreDLL/CvMapGenerator.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvPlot.cpp
+27	0	CvGameCoreDLL/CvRandom.cpp
+72	2	CvGameCoreDLL/CvRandom.h
+2	2	CvGameCoreDLL/EnumTraits.h
+1	1	CvGameCoreDLL/PlotAdjListTraversal.h
+1	0	CvGameCoreDLL/Project/CvGameCoreDLL.def
+2	2	CvGameCoreDLL/Shelf.cpp
+6	2	CvGameCoreDLL/StartingPositionIteration.cpp
+2	2	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AgentIterator.h b/CvGameCoreDLL/AgentIterator.h
+index 8dcec7c47..295ee8924 100644
+--- a/CvGameCoreDLL/AgentIterator.h
++++ b/CvGameCoreDLL/AgentIterator.h
+@@ -10,9 +10,6 @@
+ 
+ #include "AgentPredicates.h"
+ #include "CvAgents.h"
+-/*	For bSYNCRAND_ORDER
+-	(Tbd.: Let AgentIterator take a CvRandom parameter as in CityPlotIterator.h.) */
+-#include "CvGame.h"
+ 
+ class CvTeam;
+ class CvPlayer;
+@@ -35,7 +32,7 @@ protected:
+ template<class AgentType, AgentStatusPredicate eSTATUS, AgentRelationPredicate eRELATION,
+ 	/*	The iterator should be able to provide non-AI agent instances, but it still needs
+ 		to know the AI agent type b/c that's what's stored in the cached sequences. */
+-	class AgentAIType = AgentType>
++	class AgentAIType>
+ class ExplicitAgentIterator : protected AgentIteratorBase
+ {
+ protected:
+@@ -93,8 +90,8 @@ protected:
+ 		eRELATION != NOT_A_RIVAL_OF && ((bAPPLY_FILTERS && _bADD_BARBARIANS(eCACHE_SUPER)) || \
+ 		(!bAPPLY_FILTERS && _bADD_BARBARIANS(eCACHE_SUBSETEQ))))
+ 
+-template<class AgentType, AgentStatusPredicate eSTATUS, AgentRelationPredicate eRELATION,
+-		bool bSYNCRAND_ORDER = false, class AgentAIType = AgentType>
++template<class Derived, // CRT pattern (just for the setNextFromCache function)
++	class AgentType, AgentStatusPredicate eSTATUS, AgentRelationPredicate eRELATION, class AgentAIType>
+ class AgentIterator : ExplicitAgentIterator<AgentType, eSTATUS, eRELATION, AgentAIType>
+ {
+ public:
+@@ -126,7 +123,7 @@ public:
+ 
+ 	static int count(TeamTypes eTeam = NO_TEAM)
+ 	{
+-		AgentIterator<AgentType,eSTATUS,eRELATION,bSYNCRAND_ORDER,AgentAIType> it(eTeam);
++		AgentIterator it(eTeam);
+ 		if (bAPPLY_FILTERS)
+ 		{
+ 			while (it.hasNext())
+@@ -143,6 +140,11 @@ public:
+ 	}
+ 
+ protected:
++	void setNextFromCache()
++	{	// static polymorphism
++		static_cast<Derived*>(this)->setNextFromCache();
++	}
++
+ 	AgentIterator(TeamTypes eTeam = NO_TEAM)
+ 	:	ExplicitAgentIterator<AgentType,eSTATUS,eRELATION,AgentAIType>(eTeam)
+ 	{
+@@ -170,21 +172,13 @@ protected:
+ 		m_iPos = 0;
+ 		// Cache the cache size (std::vector computes it as 'end' minus 'begin')
+ 		m_iCacheSize = static_cast<short>(m_pCache->size());
+-		if (bSYNCRAND_ORDER)
+-			m_aiShuffledIndices = ::shuffle(m_iCacheSize, GC.getGame().getSorenRand());
+-		generateNext();
+-	}
+-
+-	~AgentIterator()
+-	{
+-		if (bSYNCRAND_ORDER)
+-			delete[] m_aiShuffledIndices;
++		//generateNext(); // Leave this up to the ctor of Derived
+ 	}
+ 
+ 	AgentIterator& operator++()
+ 	{
+ 		FErrorMsg("Derived classes should define their own operator++ function");
+-		// This is what derived classes should do
++		// This is what (non-abstract) derived classes should do
+ 		generateNext();
+ 		return *this;
+ 	}
+@@ -238,20 +232,12 @@ protected:
+ 		}
+ 	}
+ 
+-private:
+ 	std::vector<AgentAIType*> const* m_pCache;
++	AgentAIType* m_pNext;
+ 	short m_iCacheSize;
+ 	short m_iPos;
++private:
+ 	short m_iSkipped;
+-	AgentAIType* m_pNext;
+-	int* m_aiShuffledIndices; // only used if bSYNCRAND_ORDER
+-
+-	void setNextFromCache()
+-	{
+-		if (bSYNCRAND_ORDER)
+-			m_pNext = (*m_pCache)[m_aiShuffledIndices[m_iPos]];
+-		else m_pNext = (*m_pCache)[m_iPos];
+-	}
+ 
+ 	// Don't want to assume that BARBARIAN_PLAYER==BARBARIAN_TEAM
+ 	static AgentAIType* getBarbarianAgent()
+@@ -276,22 +262,88 @@ private:
+ #undef bADD_BARBARIANS
+ #undef _bADD_BARBARIANS
+ 
++// Traversal in random order
++#define RandAgentIteratorBase \
++	AgentIterator<RandAgentIterator<AgentType,eSTATUS,eRELATION,AgentAIType>, \
++	AgentType, eSTATUS, eRELATION, AgentAIType>
++template<class AgentType, AgentStatusPredicate eSTATUS, AgentRelationPredicate eRELATION, class AgentAIType>
++class RandAgentIterator : public RandAgentIteratorBase
++{
++	friend class RandAgentIteratorBase;
++protected:
++	int* m_aiShuffledIndices;
++
++	RandAgentIterator(CvRandom& kRand, TeamTypes eTeam = NO_TEAM)
++	:	RandAgentIteratorBase(eTeam)
++	{
++		m_aiShuffledIndices = kRand.shuffle(m_iCacheSize);
++		generateNext();
++	}
++
++	~RandAgentIterator()
++	{
++		delete[] m_aiShuffledIndices;
++	}
++	
++	void setNextFromCache() // override
++	{
++		m_pNext = (*m_pCache)[m_aiShuffledIndices[m_iPos]];
++	}
++};
++#undef RandAgentIteratorBase
++
++// Normal (non-randomized) traversal
++#define FwdAgentIteratorBase \
++	AgentIterator<FwdAgentIterator<AgentType,eSTATUS,eRELATION,AgentAIType>, \
++	AgentType, eSTATUS, eRELATION, AgentAIType>
++template<class AgentType, AgentStatusPredicate eSTATUS, AgentRelationPredicate eRELATION, class AgentAIType>
++class FwdAgentIterator : public FwdAgentIteratorBase
++{
++	friend class FwdAgentIteratorBase;
++protected:
++	FwdAgentIterator(TeamTypes eTeam = NO_TEAM) : FwdAgentIteratorBase(eTeam)
++	{
++		generateNext();
++	}
++	
++	void setNextFromCache() // override
++	{
++		m_pNext = (*m_pCache)[m_iPos];
++	}
++};
++#undef FwdAgentIteratorBase
++
+ /*	Want separate classes for AI and non-AI iterators - if only so that
+-	AI headers don't need to be included in non-AI code. */
++	AI headers don't need to be included in non-AI code. Will need separate
++	templates for randomization b/c they'll need a different constructor.
++	(Or could specialize on a bRANDOMIZE parameter, but that wouldn't save me
++	from typing the same redundant code either.) */
+ #define DEFINE_PLAYER_ITER(PlayerClassName) \
+-template<AgentStatusPredicate eSTATUS = ANY_AGENT_STATUS, AgentRelationPredicate eRELATION = ANY_AGENT_RELATION, \
+-		bool bSYNCRAND_ORDER = false> \
+-class PlayerClassName##Iter : public AgentIterator<Cv##PlayerClassName, eSTATUS, eRELATION, bSYNCRAND_ORDER, CvPlayerAI> \
++template<AgentStatusPredicate eSTATUS = ANY_AGENT_STATUS, AgentRelationPredicate eRELATION = ANY_AGENT_RELATION> \
++class PlayerClassName##Iter : public FwdAgentIterator<Cv##PlayerClassName, eSTATUS, eRELATION, CvPlayerAI> \
+ { \
+ public: \
+ 	explicit PlayerClassName##Iter(TeamTypes eTeam = NO_TEAM) : \
+-	AgentIterator<Cv##PlayerClassName,eSTATUS,eRELATION,bSYNCRAND_ORDER,CvPlayerAI>(eTeam) \
++	FwdAgentIterator<Cv##PlayerClassName,eSTATUS,eRELATION,CvPlayerAI>(eTeam) \
+ 	{} \
+ 	PlayerClassName##Iter& operator++() \
+ 	{ \
+ 		generateNext(); \
+ 		return *this; \
+ 	} \
++}; \
++template<AgentStatusPredicate eSTATUS = ANY_AGENT_STATUS, AgentRelationPredicate eRELATION = ANY_AGENT_RELATION> \
++class PlayerClassName##RandIter : public RandAgentIterator<Cv##PlayerClassName, eSTATUS, eRELATION, CvPlayerAI> \
++{ \
++public: \
++	explicit PlayerClassName##RandIter(CvRandom& kRand, TeamTypes eTeam = NO_TEAM) : \
++	RandAgentIterator<Cv##PlayerClassName,eSTATUS,eRELATION,CvPlayerAI>(kRand, eTeam) \
++	{} \
++	PlayerClassName##RandIter& operator++() \
++	{ \
++		generateNext(); \
++		return *this; \
++	} \
+ };
+ 
+ DEFINE_PLAYER_ITER(Player)
+@@ -299,13 +351,12 @@ DEFINE_PLAYER_ITER(PlayerAI)
+ #undef DEFINE_PLAYER_ITER
+ 
+ #define DEFINE_TEAM_ITER(TeamClassName) \
+-template<AgentStatusPredicate eSTATUS = ANY_AGENT_STATUS, AgentRelationPredicate eRELATION = ANY_AGENT_RELATION, \
+-		bool bSYNCRAND_ORDER = false> \
+-class TeamClassName##Iter : public AgentIterator<Cv##TeamClassName, eSTATUS, eRELATION, bSYNCRAND_ORDER, CvTeamAI> \
++template<AgentStatusPredicate eSTATUS = ANY_AGENT_STATUS, AgentRelationPredicate eRELATION = ANY_AGENT_RELATION> \
++class TeamClassName##Iter : public FwdAgentIterator<Cv##TeamClassName, eSTATUS, eRELATION, CvTeamAI> \
+ { \
+ public: \
+ 	explicit TeamClassName##Iter(TeamTypes eTeam = NO_TEAM) : \
+-	AgentIterator<Cv##TeamClassName,eSTATUS,eRELATION,bSYNCRAND_ORDER,CvTeamAI>(eTeam) \
++	FwdAgentIterator<Cv##TeamClassName,eSTATUS,eRELATION,CvTeamAI>(eTeam) \
+ 	{ \
+ 		/* Can't loop over all "teams that are members of eTeam" */ \
+ 		BOOST_STATIC_ASSERT(eRELATION != MEMBER_OF); \
+@@ -315,6 +366,21 @@ public: \
+ 		generateNext(); \
+ 		return *this; \
+ 	} \
++}; \
++template<AgentStatusPredicate eSTATUS = ANY_AGENT_STATUS, AgentRelationPredicate eRELATION = ANY_AGENT_RELATION> \
++class TeamClassName##RandIter : public RandAgentIterator<Cv##TeamClassName, eSTATUS, eRELATION, CvTeamAI> \
++{ \
++public: \
++	explicit TeamClassName##RandIter(CvRandom& kRand, TeamTypes eTeam = NO_TEAM) : \
++	RandAgentIterator<Cv##TeamClassName,eSTATUS,eRELATION,CvTeamAI>(kRand, eTeam) \
++	{ \
++		BOOST_STATIC_ASSERT(eRELATION != MEMBER_OF); \
++	} \
++	TeamClassName##RandIter& operator++() \
++	{ \
++		generateNext(); \
++		return *this; \
++	} \
+ };
+ 
+ DEFINE_TEAM_ITER(Team)
+
+diff --git a/CvGameCoreDLL/CityPlotIterator.h b/CvGameCoreDLL/CityPlotIterator.h
+index 2dc823995..3f626d701 100644
+--- a/CvGameCoreDLL/CityPlotIterator.h
++++ b/CvGameCoreDLL/CityPlotIterator.h
+@@ -143,13 +143,15 @@ private:
+ 	CvPlot* m_pNext;
+ 	int m_iCenterX, m_iCenterY;
+ 	CvCity const* m_pCity; // not used if eWORKING_PLOT_TYPE is ANY_CITY_PLOT
+-	// Only used if bRAND_ORDER ...
++	/*	Only used if bRAND_ORDER ...
++		(Could move these into a separate class at the expense of having to
++		duplicate the derived classes; see AgentIterator for reference.) */
+ 	CvRandom* m_pRandom;
+ 	int* m_aiShuffledIndices;
+ 
+ 	void shuffle(bool bIncludeHomePlot)
+ 	{
+-		m_aiShuffledIndices = ::shuffle(NUM_CITY_PLOTS, *m_pRandom);
++		m_aiShuffledIndices = m_pRandom->shuffle(NUM_CITY_PLOTS);
+ 		if (!bIncludeHomePlot)
+ 		{
+ 			// Swap home plot to the front, then advance past it.
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index f4ee77fb7..cb7d7e26b 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10872,7 +10872,7 @@ void CvCity::doGreatPeople()
+ 		}
+ 		/*	<advc> Should only happen in old savegames (due to a bug in AdvCiv 0.97).
+ 			NB: If we break savegame compatibility, then we should call
+-			::weightedRandChoice here (to avoid code duplication). */
++			CvRandom::weightedChoice here (to avoid code duplication). */
+ 		bool const bOverflow = (iTotalGreatPeopleUnitProgress > CvRandom::getRange());
+ 		if (bOverflow)
+ 			iTotalGreatPeopleUnitProgress = per100(iTotalGreatPeopleUnitProgress).ceil(); // </advc>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index cee397887..21f5c731d 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1588,13 +1588,13 @@ void CvGame::rearrangeTeamStarts(/* advc.027: */ bool bOnlyWithinArea, scaled rI
+ 
+ 	int iBestScore = getTeamClosenessScore(aaiDistances, aeStartingLocs);
+ 	bool bFoundSwap = true;
+-	/*	<advc.027> I worry that going through the players in turn order
+-		can lead to biases toward or against the (human) team of player 0.
+-		(PlayerIter unfortunately only knows how to use SRand; I want MapRand here.) */
+-	int aiPlayersShuffled[MAX_CIV_PLAYERS];
+-	::shuffleArray(aiPlayersShuffled, MAX_CIV_PLAYERS, getMapRand()); // </advc.027>
+ 	while (bFoundSwap)
+-	{
++	{	/*	<advc.027> I worry that going through the players in turn order
++			can lead to biases toward or against the (human) team of player 0.
++			(Not using PlayerRandIter b/c I want the outer and inner loop
++			to use the same order.) */
++		int aiPlayersShuffled[MAX_CIV_PLAYERS];
++		getMapRand().shuffle(aiPlayersShuffled, MAX_CIV_PLAYERS); // </advc.027>
+ 		bFoundSwap = false;
+ 		for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 		{
+@@ -6581,7 +6581,7 @@ void CvGame::doTurn()
+ 	if (isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
+ 	{
+ 		int aiShuffle[MAX_PLAYERS];
+-		::shuffleArray(aiShuffle, MAX_PLAYERS, getSorenRand());
++		getSorenRand().shuffle(aiShuffle, MAX_PLAYERS);
+ 		std::set<TeamTypes> activeTeams; // K-Mod
+ 		for (int i = 0; i < MAX_PLAYERS; i++)
+ 		{
+@@ -8193,7 +8193,7 @@ void CvGame::updateMoves()
+ {
+ 	int aiShuffle[MAX_PLAYERS];
+ 	if (isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
+-		shuffleArray(aiShuffle, MAX_PLAYERS, getSorenRand());
++		getSorenRand().shuffle(aiShuffle, MAX_PLAYERS);
+ 	else
+ 	{
+ 		for (int iI = 0; iI < MAX_PLAYERS; iI++)
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 871c8b242..7e0a4e608 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -799,41 +799,6 @@ int intHash(std::vector<int> const& kInputs, PlayerTypes ePlayer)
+ 	return iHashVal;
+ }
+ 
+-// create an array of shuffled numbers
+-int* shuffle(int iNum, CvRandom& kRand)
+-{
+-	int* piShuffle = new int[iNum];
+-	shuffleArray(piShuffle, iNum, kRand);
+-	return piShuffle;
+-}
+-
+-
+-void shuffleArray(int* piShuffle, int iNum, CvRandom& kRand)
+-{
+-	for (int i = 0; i < iNum; i++)
+-		piShuffle[i] = i;
+-
+-	for (int i = 0; i < iNum; i++)
+-	{
+-		int j = (kRand.get(iNum - i, NULL) + i);
+-		if (i != j)
+-		{
+-			int iTemp = piShuffle[i];
+-			piShuffle[i] = piShuffle[j];
+-			piShuffle[j] = iTemp;
+-		}
+-	}
+-}
+-
+-// advc.enum: Caller needs to set the vector size
+-void shuffleVector(std::vector<int>& aiIndices, CvRandom& kRand)
+-{
+-	std11::iota(aiIndices.begin(), aiIndices.end(), 0);
+-	int const iSize = (int)aiIndices.size();
+-	for (int i = 0; i < iSize; i++)
+-		std::swap(aiIndices[i], aiIndices[kRand.get(iSize - i, NULL) + i]);
+-}
+-
+ 
+ int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 39cf14889..7736f3aff 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -18,6 +18,7 @@ class FAStar;
+  +	All functions dealing with arithmetics moved to ArithmeticUtils.h
+ 	except getSign (now in CvPlot.cpp) and any functions involving randomness.
+  +	Distance functions moved into CvMap.h.
++ +	Shuffle functions moved to CvRandom.
+  +	advc.opt: getCity, getUnit moved to CvPlayer.h. CvCity::fromIDInfo and
+ 	CvUnit::fromIDInfo as alternatives in files that don't include CvPlayer.h.
+  +	Unit cycling functions moved to CvSelectionGroup, CvUnit.
+@@ -193,59 +194,6 @@ namespace fmath
+ 	}
+ } // </advc.003g>
+ 
+-DllExport int* shuffle(int iNum, CvRandom& kRand);
+-/*	advc (tbd.): Move these two to CvRandom (as it's done by Civ4Col too).
+-	And also shuffle (with a global wrapper the EXE) and weightedRandChoice. */
+-void shuffleArray(int* piShuffle, int iNum, CvRandom& kRand);
+-void shuffleVector(std::vector<int>& aiIndices, CvRandom& kRand); // advc.enum
+-// advc.304 (may find other uses too):
+-template<class Item>
+-Item* weightedRandChoice(CvRandom& kRand, std::vector<Item*> const& kItems,
+-	/*	NULL means uniform weights. Uniform choice isn't what this function is for,
+-		but it's convenient to have as an option. */
+-	std::vector<int> const* pWeights = NULL)
+-{
+-	std::vector<int> aiLowPrecisionWeights;
+-	int iTotal = 0;
+-	if (pWeights == NULL)
+-		iTotal = (int)kItems.size();
+-	else
+-	{
+-		FAssert(pWeights->size() == kItems.size());
+-		for (size_t i = 0; i < pWeights->size(); i++)
+-			iTotal += (*pWeights)[i];
+-		FAssertMsg(iTotal >= 0, "overflow?");
+-		// This we'll need to be able to recover from I think:
+-		if (iTotal > kRand.getRange())
+-		{
+-			scaled rDownScaleFactor(kRand.getRange(), iTotal);
+-			aiLowPrecisionWeights = *pWeights; // copy
+-			pWeights = &aiLowPrecisionWeights;
+-			iTotal = 0; // recompute
+-			for (size_t i = 0; i < aiLowPrecisionWeights.size(); i++)
+-			{
+-				aiLowPrecisionWeights[i] = (aiLowPrecisionWeights[i] *
+-						rDownScaleFactor).floor();
+-				iTotal += aiLowPrecisionWeights[i];
+-			}
+-			FAssert(iTotal > 0 && iTotal <= kRand.getRange());
+-		}
+-	}
+-	if (iTotal == 0)
+-		return NULL;
+-	int iRoll = kRand.get(iTotal, "weightedRandChoice");
+-	if (pWeights == NULL)
+-		return kItems[iRoll];
+-	for (size_t i = 0; i < kItems.size(); i++)
+-	{
+-		iRoll -= (*pWeights)[i];
+-		if (iRoll < 0)
+-			return kItems[i];
+-	}
+-	FErrorMsg("Negative weights?");
+-	return NULL;
+-}
+-
+ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed);
+ int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed);
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index ce2111117..7b2c23fe6 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -545,7 +545,7 @@ CvPlot* CvMap::syncRandPlot(RandPlotFlags eFlags, CvArea const* pArea,
+ 			}
+ 		}
+ 		iValid = (int)apValidPlots.size();
+-		return weightedRandChoice(GC.getGame().getSRand(), apValidPlots,
++		return GC.getGame().getSRand().weightedChoice(apValidPlots,
+ 				pWeights == NULL ? NULL : &aiWeights);
+ 	}
+ 	FAssert(iTimeout != 0);
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 013d16a69..fab4fc07a 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -208,7 +208,7 @@ void CvMapGenerator::addRivers()  // advc: refactored
+ 	int const iSeaWaterRange = GC.getDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE");
+ 	int const iPlotsPerRiverEdge =  GC.getDefineINT("PLOTS_PER_RIVER_EDGE");
+ 	// advc.129: Randomize the traversal
+-	int* aiShuffledIndices = ::shuffle(GC.getMap().numPlots(), GC.getGame().getMapRand());
++	int* aiShuffledIndices = GC.getGame().getMapRand().shuffle(GC.getMap().numPlots());
+ 	for (int iPass = 0; iPass < 4; iPass++)
+ 	{
+ 		int iRiverSourceRangeLoop = (iPass <= 1 ? iRiverSourceRange : iRiverSourceRange / 2);
+@@ -661,7 +661,7 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
+ 					pBestArea->getNumTiles() / 25; // </advc.129>
+ 
+ 			// Place the bonuses ...
+-			int* aiShuffledIndices = shuffle(kMap.numPlots(), kGame.getMapRand());
++			int* aiShuffledIndices = kGame.getMapRand().shuffle(kMap.numPlots());
+ 			for (int i = 0; i < kMap.numPlots() &&
+ 				(bIgnoreAreaLimit || iAdded < iAreaLimit) && // advc.129
+ 				kMap.getNumBonuses(eBonus) < iTarget; i++)
+@@ -735,7 +735,7 @@ void CvMapGenerator::addNonUniqueBonusType(BonusTypes eBonus)
+ 	if (iBonusCount == 0)
+ 		return;
+ 
+-	int *aiShuffledIndices = shuffle(GC.getMap().numPlots(), GC.getGame().getMapRand());
++	int *aiShuffledIndices = GC.getGame().getMapRand().shuffle(GC.getMap().numPlots());
+ 	bool const bIgnoreLatitude = GC.getPythonCaller()->isBonusIgnoreLatitude();
+ 	for (int i = 0; i < GC.getMap().numPlots(); i++)
+ 	{
+@@ -779,7 +779,7 @@ int CvMapGenerator::placeGroup(BonusTypes eBonus, CvPlot const& kCenter,
+ 	if (iSize <= 0)
+ 		return 0;
+ 	std::vector<int> aiShuffled(iSize);
+-	::shuffleVector(aiShuffled, GC.getGame().getMapRand());
++	GC.getGame().getMapRand().shuffle(aiShuffled);
+ 	for (int j = 0; j < iSize &&
+ 		iLimit > 0; j++)
+ 	{
+@@ -814,7 +814,7 @@ void CvMapGenerator::addGoodies()
+ 		return;
+ 
+ 	CvMap const& kMap = GC.getMap();
+-	int* aiShuffledIndices = shuffle(kMap.numPlots(), GC.getGame().getMapRand());
++	int* aiShuffledIndices = GC.getGame().getMapRand().shuffle(kMap.numPlots());
+ 	FOR_EACH_ENUM(Improvement)
+ 	{
+ 		ImprovementTypes const eGoody = eLoopImprovement;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index e956eb3c4..139944e8e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -20113,7 +20113,7 @@ void CvPlayerAI::AI_doDiplo()
+ 	int aiContacts[MAX_CIV_PLAYERS];
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
+ 		aiContacts[i] = i;
+-	::shuffleArray(aiContacts, MAX_CIV_PLAYERS, kGame.getSorenRand());
++	kGame.getSorenRand().shuffle(aiContacts, MAX_CIV_PLAYERS);
+ 	// </advc.024>
+ 	for (int iPass = 0; iPass < 2; iPass++)
+ 	{	/*  Loop counter renamed from iI b/c it's important for advc.024 that ePlayer
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 99c70e77d..cc2f7f8df 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3831,9 +3831,9 @@ CvPlot* CvPlot::getInlandCorner() const
+ {
+ 	CvPlot* pRiverPlot = NULL; // Plot through whose SE corner we want the river to run
+ 	int aiShuffle[4];
+-	shuffleArray(aiShuffle, 4, GC.getGame().getMapRand());
++	GC.getGame().getMapRand().shuffle(aiShuffle, ARRAYSIZE(aiShuffle));
+ 	CvMap const& m = GC.getMap();
+-	for (int i = 0; i < 4; i++)
++	for (int i = 0; i < ARRAYSIZE(aiShuffle); i++)
+ 	{
+ 		switch (aiShuffle[i])
+ 		{
+
+diff --git a/CvGameCoreDLL/CvRandom.cpp b/CvGameCoreDLL/CvRandom.cpp
+index 1be3627e9..ab4585e14 100644
+--- a/CvGameCoreDLL/CvRandom.cpp
++++ b/CvGameCoreDLL/CvRandom.cpp
+@@ -73,6 +73,33 @@ void CvRandom::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_uiRandomSeed);
+ }
+ 
++// advc: Moved from CvGameCoreUtils
++void CvRandom::shuffle(int* piShuffle, int iNum)
++{
++	for (int i = 0; i < iNum; i++)
++		piShuffle[i] = i;
++	for (int i = 0; i < iNum; i++)
++	{
++		int j = (get(iNum - i, NULL) + i);
++		if (i != j)
++		{
++			int iTemp = piShuffle[i];
++			piShuffle[i] = piShuffle[j];
++			piShuffle[j] = iTemp;
++		}
++	}
++} // </advc>
++
++// advc.enum:
++void CvRandom::shuffle(std::vector<int>& aiIndices)
++{
++	std11::iota(aiIndices.begin(), aiIndices.end(), 0);
++	int const iSize = (int)aiIndices.size();
++	FAssertMsg(iSize > 0, "Shuffling empty vector; intended?");
++	for (int i = 0; i < iSize; i++)
++		std::swap(aiIndices[i], aiIndices[get(iSize - i, NULL) + i]);
++}
++
+ // <advc.007b>
+ /*	Two function calls that won't get inlined, but it doesn't really matter -
+ 	only gets called if the log is enabled. */
+
+diff --git a/CvGameCoreDLL/CvRandom.h b/CvGameCoreDLL/CvRandom.h
+index c5df657b9..5a3cedaf9 100644
+--- a/CvGameCoreDLL/CvRandom.h
++++ b/CvGameCoreDLL/CvRandom.h
+@@ -45,6 +45,25 @@ public:
+ 	void reseed(unsigned int uiNewValue);
+ 	unsigned int getSeed();
+ 
++	/*	<advc> Shuffle functions moved from CvGameCoreUtils
++		(as it's also done in Civ4Col). */
++	int* shuffle(int iNum) // Caller deletes the returned array
++	{
++		int* piShuffle = new int[iNum];
++		shuffle(piShuffle, iNum);
++		return piShuffle;
++	}
++	// renamed from "shuffleArray"
++	void shuffle(int* piShuffle, int iNum); // Caller allocates and frees the array
++	// </advc>  advc.enum:
++	void shuffle(std::vector<int>& kIndices); // Caller sets the vector size
++	// advc.304 (may find other uses too):
++	template<class ItemType>
++	ItemType* weightedChoice(std::vector<ItemType*> const& kItems,
++		/*	NULL means uniform weights. Uniform choice isn't what this function
++			is for, but it's convenient to have as an option. */
++		std::vector<int> const* pWeights = NULL);
++
+ protected:
+ 	virtual void printToLog(TCHAR const* szMsg, unsigned short usNum, // advc.007b
+ 			int iData1, int iData2); // advc.001n
+@@ -75,8 +94,59 @@ protected:
+ 	CvString m_szFileName;
+ };
+ 
+-/*	Some macros that should make the logging aspect less tedious.
+-	Still unsure if I want to use them. Unused (and untested) so far. */
++// advc: Moved from CvGameCoreUtils, exported through .def file.
++int* shuffleExternal(int iNum, CvRandom& kRand)
++{
++	return kRand.shuffle(iNum);
++}
++
++// advc.304:
++template<class ItemType>
++ItemType* CvRandom::weightedChoice(std::vector<ItemType*> const& kItems,
++	std::vector<int> const* pWeights)
++{
++	std::vector<int> aiLowPrecisionWeights;
++	int iTotal = 0;
++	if (pWeights == NULL)
++		iTotal = (int)kItems.size();
++	else
++	{
++		FAssert(pWeights->size() == kItems.size());
++		for (size_t i = 0; i < pWeights->size(); i++)
++			iTotal += (*pWeights)[i];
++		FAssertMsg(iTotal >= 0, "overflow?");
++		// This we'll need to be able to recover from I think:
++		if (iTotal > getRange())
++		{
++			scaled rDownScaleFactor(getRange(), iTotal);
++			aiLowPrecisionWeights = *pWeights; // copy
++			pWeights = &aiLowPrecisionWeights;
++			iTotal = 0; // recompute
++			for (size_t i = 0; i < aiLowPrecisionWeights.size(); i++)
++			{
++				aiLowPrecisionWeights[i] = (aiLowPrecisionWeights[i] *
++						rDownScaleFactor).floor();
++				iTotal += aiLowPrecisionWeights[i];
++			}
++			FAssert(iTotal > 0 && iTotal <= getRange());
++		}
++	}
++	if (iTotal == 0)
++		return NULL;
++	int iRoll = get(iTotal, "weightedChoice");
++	if (pWeights == NULL)
++		return kItems[iRoll];
++	for (size_t i = 0; i < kItems.size(); i++)
++	{
++		iRoll -= (*pWeights)[i];
++		if (iRoll < 0)
++			return kItems[i];
++	}
++	FErrorMsg("Negative weights?");
++	return NULL;
++}
++
++// Some macros that should make the logging aspect less tedious ...
+ 
+ // May well be useful elsewhere, but let's put it where it gets used for now.
+ #define STRINGIFY_HELPER2(x) #x
+
+diff --git a/CvGameCoreDLL/EnumTraits.h b/CvGameCoreDLL/EnumTraits.h
+index ae0381c65..f0a97bde4 100644
+--- a/CvGameCoreDLL/EnumTraits.h
++++ b/CvGameCoreDLL/EnumTraits.h
+@@ -220,7 +220,7 @@ namespace enum_traits_detail
+ #define FOR_EACH_ENUM_RAND(TypeName, kRand) \
+ 	std::vector<int> CONCATVARNAME(aiLoop##TypeName##Indices_, __LINE__) \
+ 			(enum_traits<TypeName##Types>::length()); \
+-	::shuffleVector(CONCATVARNAME(aiLoop##TypeName##Indices_, __LINE__), (kRand)); \
++	(kRand).shuffle(CONCATVARNAME(aiLoop##TypeName##Indices_, __LINE__)); \
+ 	int CONCATVARNAME(iLoop##TypeName##Counter_, __LINE__) = 0; \
+ 	for ( TypeName##Types eLoop##TypeName; \
+ 			CONCATVARNAME(iLoop##TypeName##Counter_, __LINE__) < \
+@@ -232,7 +232,7 @@ namespace enum_traits_detail
+ /*	Example. FOR_EACH_ENUM_RAND(CardinalDirection, GC.getGame().getMapRand())
+ 	expands to:
+ 	std::vector<int> aiLoopCardinalDirectionIndices_443(getEnumLength((CardinalDirectionTypes)0));
+-	::shuffleVector(aiLoopCardinalDirectionIndices_443, (GC.getGame().getMapRand()));
++	(GC.getGame().getMapRand()).shuffle(aiLoopCardinalDirectionIndices_443);
+ 	int iLoopCardinalDirectionCounter_443 = 0;
+ 	for ( CardinalDirectionTypes eLoopCardinalDirection;
+ 			iLoopCardinalDirectionCounter_443 <
+
+diff --git a/CvGameCoreDLL/PlotAdjListTraversal.h b/CvGameCoreDLL/PlotAdjListTraversal.h
+index 23c36ea35..c5885f3e2 100644
+--- a/CvGameCoreDLL/PlotAdjListTraversal.h
++++ b/CvGameCoreDLL/PlotAdjListTraversal.h
+@@ -26,7 +26,7 @@
+ 
+ #define FOR_EACH_ADJ_PLOT_RAND_HELPER(kCenterPlot, pLoopPlot, CvPlotType, kRand) \
+ 	std::vector<int> aiANON_ADJ_LIST_INDICES((kCenterPlot).numAdjacentPlots()); \
+-	::shuffleVector(aiANON_ADJ_LIST_INDICES, (kRand)); \
++	(kRand).shuffle(aiANON_ADJ_LIST_INDICES); \
+ 	int iANON_ADJ_LIST_POS = 0; \
+ 	for (CvPlotType* pLoopPlot; \
+ 		iANON_ADJ_LIST_POS < (kCenterPlot).numAdjacentPlots() && \
+
+diff --git a/CvGameCoreDLL/Project/CvGameCoreDLL.def b/CvGameCoreDLL/Project/CvGameCoreDLL.def
+index 949022825..28c228340 100644
+--- a/CvGameCoreDLL/Project/CvGameCoreDLL.def
++++ b/CvGameCoreDLL/Project/CvGameCoreDLL.def
+@@ -25,3 +25,4 @@ EXPORTS
+ ?<hidden-email>@@QBEPAV?$<hidden-email>@@@@XZ=?<hidden-email>@@QBEPAV?$<hidden-email>@@@@XZ
+ ?<hidden-email>@@QBEPAVCvUnit@@XZ=?<hidden-email>@@QBEPAVCvUnit@@XZ
+ ?<hidden-email>@@QBEPAV?$<hidden-email>@@@@PAV2@@Z=?<hidden-email>@@QBEPAV?$<hidden-email>@@@@PAV2@@Z
++?shuffle@@YAPAHHAAVCvRandom@@@Z=?shuffleExternal@@YAPAHHAAVCvRandom@@@Z
+
+diff --git a/CvGameCoreDLL/Shelf.cpp b/CvGameCoreDLL/Shelf.cpp
+index 3658dd0ae..81de8cdc4 100644
+--- a/CvGameCoreDLL/Shelf.cpp
++++ b/CvGameCoreDLL/Shelf.cpp
+@@ -45,7 +45,7 @@ CvPlot* Shelf::randomPlot(RandPlotFlags eRestrictions, int iUnitDistance,
+ 		}
+ 	}
+ 	iValid = apValid.size();
+-	return weightedRandChoice(GC.getGame().getSRand(), apValid,
++	return GC.getGame().getSRand().weightedChoice(apValid,
+ 			pWeights == NULL ? NULL : &aiWeights);
+ }
+ 
+@@ -122,7 +122,7 @@ CvUnit* Shelf::randomBarbarianTransport() const
+ 		return NULL;
+ 	int iValid = apValid.size();
+ 	scaled rNoneProb = fixp(0.2) + scaled(iValid, 10);
+-	if(!rNoneProb.bernoulliSuccess(GC.getGame().getSRand(), "no Barbarian transport"))
++	if (!rNoneProb.bernoulliSuccess(GC.getGame().getSRand(), "no Barbarian transport"))
+ 		return NULL;
+ 	return apValid[GC.getGame().getSorenRandNum(iValid, "choose Barbarian transport")];
+ }
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index 3a2526d0c..db66165c5 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -52,9 +52,13 @@ StartingPositionIteration::StartingPositionIteration() :
+ 		Map scripts might depend on this order. If a map script sets the
+ 		starting sites, then we have to bail anyway, but we don't know that yet. */
+ 	vector<CvPlayer*> apCivPlayers;
+-	for (PlayerIter<HUMAN,ANY_AGENT_RELATION,true> it; it.hasNext(); ++it)
++	for (PlayerRandIter<HUMAN,ANY_AGENT_RELATION> it(GC.getGame().getMapRand());
++		it.hasNext(); ++it)
++	{
+ 		apCivPlayers.push_back(&(*it));
+-	for (PlayerIter<CIV_ALIVE,ANY_AGENT_RELATION,true> it; it.hasNext(); ++it)
++	}
++	for (PlayerRandIter<CIV_ALIVE,ANY_AGENT_RELATION> it(GC.getGame().getMapRand());
++		it.hasNext(); ++it)
+ 	{
+ 		if (!it->isHuman())
+ 			apCivPlayers.push_back(&*it);
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 3c54d53b2..626802170 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -843,8 +843,8 @@ bool UWAI::Team::considerCapitulation(TeamTypes eMaster, int iAgentWarUtility,
+ bool UWAI::Team::tryFindingMaster(TeamTypes eEnemy)
+ {
+ 	CvPlayerAI& kAgentPlayer = GET_PLAYER(GET_TEAM(m_eAgent).getRandomMemberAlive(false));
+-	for (TeamAIIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF,true> itMaster(m_eAgent);
+-		itMaster.hasNext(); ++itMaster)
++	for (TeamAIRandIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itMaster(
++		GC.getGame().getSRand(), m_eAgent); itMaster.hasNext(); ++itMaster)
+ 	{
+ 		CvTeamAI& kMaster = *itMaster;
+ 		if (kMaster.isAtWar(m_eAgent) ||
+
+[PATCH COVERAGE]
+patchFiles=18 embeddedFiles=18 omittedFiles=0 embeddedPatchBytes=28857

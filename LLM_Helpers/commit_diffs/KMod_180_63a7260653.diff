@@ -1,0 +1,105 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 180
+# Commit: 63a7260653394bf9c9cb8ea01f4bc03cd55589fc
+# History segment: K-Mod history
+# Parent used for diff: 670e0acd662c8025c903b8d21aab3d6863d0b73a
+# Title: Made some minor changes to the auto-build city governor.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	11	CvGameCoreDLL/CvCityAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 5fdabea1d..1774887f6 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10804,6 +10804,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 	AI_setChooseProductionDirty(false);
+ 	clearOrderQueue();
+ 
++	CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
+ 	CvArea* pWaterArea = waterArea();
+ 	bool bWasFoodProduction = isFoodProduction();
+ 	bool bDanger = AI_isDanger();
+@@ -10828,28 +10829,32 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 	//workboat
+ 	if (pWaterArea != NULL)
+ 	{
+-		if (GET_PLAYER(getOwnerINLINE()).AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_WORKER_SEA) == 0)
++		if (kOwner.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_WORKER_SEA) == 0)
+ 		{
+ 			if (AI_neededSeaWorkers() > 0)
+ 			{
+-				int iOdds = 100;
+-				iOdds *= 50 + iBestBuildingValue;
+-				iOdds /= 50 + 5 * iBestBuildingValue;
+-				if (AI_chooseUnit(UNITAI_WORKER_SEA, iOdds))
++				bool bLocalResource = AI_countNumImprovableBonuses(true, NO_TECH, false, true) > 0;
++				if (bLocalResource || iBestBuildingValue < 20)
+ 				{
+-					return;
++					int iOdds = 100;
++					iOdds *= 50 + iBestBuildingValue;
++					iOdds /= 50 + 5 * iBestBuildingValue;
++					if (AI_chooseUnit(UNITAI_WORKER_SEA, iOdds))
++					{
++						return;
++					}
+ 				}
+ 			}
+ 		}
+ 	}
+ 	
+-	if (GET_PLAYER(getOwner()).AI_isPrimaryArea(area())) // if its not a primary area, let the player ship units in.
++	if (kOwner.AI_isPrimaryArea(area())) // if its not a primary area, let the player ship units in.
+ 	{
+ 		//worker
+ 		if (!bDanger)
+ 		{
+-			int iExistingWorkers = GET_PLAYER(getOwner()).AI_totalAreaUnitAIs(area(), UNITAI_WORKER);
+-			int iNeededWorkers = GET_PLAYER(getOwner()).AI_neededWorkers(area());
++			int iExistingWorkers = kOwner.AI_totalAreaUnitAIs(area(), UNITAI_WORKER);
++			int iNeededWorkers = kOwner.AI_neededWorkers(area());
+ 
+ 			if (iExistingWorkers < (iNeededWorkers + 1)/2) // I don't want to build more workers than the player actually wants.
+ 			{
+@@ -10867,9 +10872,10 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 		}
+ 
+ 		//military
+-		if (GET_TEAM(getTeam()).getAtWarCount(true) > 0 && (bDanger || iBestBuildingValue < 20))
++		bool bWar = GET_TEAM(getTeam()).getAtWarCount(true) > 0;
++		if (bDanger || iBestBuildingValue < (bWar ? 30 : 20))
+ 		{
+-			int iOdds = 100;
++			int iOdds = (bWar ? 100 : 50) - kOwner.AI_unitCostPerMil()/2;
+ 			iOdds *= 50 + iBestBuildingValue;
+ 			iOdds /= 50 + 10 * iBestBuildingValue;
+ 			if (AI_chooseUnit(NO_UNITAI, iOdds))
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b9ac8513e..23e41727d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2060,6 +2060,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity)
+ 				}
+ 				// great people
+ 				iRazeValue -= 2 * pCity->getNumGreatPeople();
++				iRazeValue += bBarbCity ? 5 : 0;
+ 				// K-Mod end
+ 
+ 				iRazeValue -= 15 * pCity->getNumActiveWorldWonders();
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2986

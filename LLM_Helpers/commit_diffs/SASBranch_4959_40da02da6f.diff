@@ -1,0 +1,428 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4959
+# Commit: 40da02da6f3c351e20084c219a2ab73a4f9e9160
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 342c91dcbddec9b460723e2c4ec0051f2a50a219
+# Title: Cleanly and reliably seemingly fix / workaround the no production issue in AI cities; reduce iAITrainPercent a bit too anyways etc - revert and properly fix/...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+8	8	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+104	61	CvGameCoreDLL/CvCity.cpp
+2	8	CvGameCoreDLL/CvCityAI.cpp
+4	0	README.md
+11	18	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 681e93c97..a0427549f 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -137,7 +137,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there i mean anyways etc -->
+ 			<iAIResearchPercent>124</iAIResearchPercent>
+ 			<!-- was 6x 160 -->
+-			<iAITrainPercent>124</iAITrainPercent>
++			<iAITrainPercent>118</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>118</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+@@ -263,7 +263,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIGPThresholdPercent>110</iAIGPThresholdPercent>
+ 			<iAIResearchPercent>116</iAIResearchPercent>
+ 			<!-- was 6x 130 -->
+-			<iAITrainPercent>116</iAITrainPercent>
++			<iAITrainPercent>112</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>112</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+@@ -388,7 +388,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIGPThresholdPercent>105</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+ 			<iAIResearchPercent>108</iAIResearchPercent>
+-			<iAITrainPercent>108</iAITrainPercent>
++			<iAITrainPercent>106</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>106</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+@@ -649,7 +649,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIGPThresholdPercent>95</iAIGPThresholdPercent>
+ 			<!-- advc.251 -->
+ 			<iAIResearchPercent>92</iAIResearchPercent>
+-			<iAITrainPercent>92</iAITrainPercent>
++			<iAITrainPercent>94</iAITrainPercent>
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>94</iAIConstructPercent>
+ 			<iAIWorldConstructPercent>100</iAIWorldConstructPercent>
+@@ -786,7 +786,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<iAIGPThresholdPercent>90</iAIGPThresholdPercent>
+ 			<iAIResearchPercent>84</iAIResearchPercent>
+ 			<!-- was 90 -->
+-			<iAITrainPercent>84</iAITrainPercent>
++			<iAITrainPercent>88</iAITrainPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<!-- was 90 -->
+@@ -922,7 +922,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- Higher tech costs for the AI -->
+ 			<iAIResearchPercent>76</iAIResearchPercent>
+ 			<!-- was 85 -->
+-			<iAITrainPercent>76</iAITrainPercent>
++			<iAITrainPercent>82</iAITrainPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<!-- was 85 -->
+@@ -1067,7 +1067,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- Higher tech costs for the AI -->
+ 			<iAIResearchPercent>68</iAIResearchPercent>
+ 			<!-- was 80 -->
+-			<iAITrainPercent>68</iAITrainPercent>
++			<iAITrainPercent>76</iAITrainPercent>
+ 			<!-- was 100 -->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+ 			<iAIConstructPercent>76</iAIConstructPercent>
+@@ -1215,7 +1215,7 @@ So for now not changing it, may be adjusted in the future ideally indeed or may
+ 			<!-- Higher tech costs for the AI -->
+ 			<iAIResearchPercent>60</iAIResearchPercent>
+ 			<!-- was 60 -->
+-			<iAITrainPercent>60</iAITrainPercent>
++			<iAITrainPercent>70</iAITrainPercent>
+ 			<!-- custom: i want more reliable handicap settings if i am not mistaken in my understanding and after asking chatgpt and with a web search i asked it to do to be sure too anyways etc, it told me "According to the Civilization Wiki, the iAIWorldTrainPercent values vary across difficulty levels:" etc.. until "Settler	160 Chieftain 130 Warlord 110 Noble 100 Prince 100 Monarch 100 Emperor 100 Immortal 100 Deity 100" so based on this xml raw data and observation, what i make of it and interpret of it if i may say for our needs in advciv-sas but anyways etc, is that i want reliable AI behaviour when it comes to military hammer train percents, regardless of world size at all difficulties, anyways etc ; seemingly similar reasoning for iAIWorldConstructPercent and iAIWorldCreatePercent if i am not mistaken too anyways etc -->
+ 			<!-- was 100-->
+ 			<iAIWorldTrainPercent>100</iAIWorldTrainPercent>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 7c513126c..6d8a96339 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -557,7 +557,109 @@ void CvCity::doTurn()
+ 	// <K-Mod>
+ 	doPlotCultureTimes100(false, kOwner.getID(),
+ 			getCommerceRateTimes100(COMMERCE_CULTURE), true); // </K-Mod>
++
+ 	doProduction(!bForceProduction);
++
++	// <!-- custom: we have an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been soemthing else back then as it was at end game vs early game now in advciv-sas. In all cases, this is crippling, attempt to patch it with the help of chatgpt 5 but anyways etc, check if accurate anyways etc -->
++	// --- BEGIN: hard safety net for AI production ---
++	// <!-- custom: we now successfully always avoid the no production, and other cities don't fall back to our fall back if they have a valid production -->
++	if (!isHuman())
++	{
++		// <!-- custom: but todo: if a city fell once in no production and this was avoided by our fallback here, then it will never ever exit the fallback loop, despite having only 1 unit currently built in queue, and the other cities doing fine (building granaries, settlers, scouts, barracks, anything it seems) but not our city that fell into the fallback and seemingly can't get out of it at next production (at least in next 20 turns anyways etc), trying to change the bNeedFallback to prevent that, while keeping effectiveness of the fallback otherwise anyways etc; result: very effective! No more no production still, and japan ai gets out of the fallback successfully switching to a settler a few turns later thanks a lot chatgpt 5 anyways etc -->
++		//const bool bNeedFallback = !isProduction();
++		const bool bQueueEmpty  = (getOrderQueueLength() == 0);
++		const bool bHeadProcess = (!bQueueEmpty && isProductionProcess());
++		const bool bHeadInvalid = (!bQueueEmpty && !canContinueProduction(getOrderData(0)));
++		const bool bNeedFallback = (bQueueEmpty || bHeadInvalid || bHeadProcess);
++
++		if (bNeedFallback)
++		{
++			const int iCurrentEra = kOwner.getCurrentEra();
++			// <!-- custom: as of now eras are (see xml for details or/and updated version anyways etc -->
++			// 18,5: 			<Type>ERA_ANCIENT</Type> (0 i assume anyways etc)
++			// 79,5: 			<Type>ERA_CLASSICAL</Type> (1)
++			// 154,5: 			<Type>ERA_MEDIEVAL</Type> (2)
++			// 237,5: 			<Type>ERA_RENAISSANCE</Type> (3)
++			// 320,5: 			<Type>ERA_INDUSTRIAL</Type> (4)
++			// 401,5: 			<Type>ERA_MODERN</Type> (5)
++			// 477,5: 			<Type>ERA_FUTURE</Type> (6)
++			const int iMaxCost = 50 * (iCurrentEra + 1);  // Era 0→50, 1→100, ... 6→350
++
++			// <!-- custom: go for the most expensive one so we don't accumulate a bunch of low overall combat fighting ability and high maintenance cost and go bankrupt too soon; also this helps reduce military upgrade costs later on if i'm not mistaken but anyways etc. Hopefully the xml is such that no unit are super high cost (e.g. 300 hammer unit cost of a unit at stone age/ era_ancient or medieval era/ era_medieval or something in some mod mod or perhaps ours although not too likely but anyways etc), so add a guard against that (per era as unit costs change as the game goes on anyways etc) anyways etc. Note: we also assume here hammer cost accurately reflects overall combat ability if i may say but anyways etc.-->
++			UnitTypes eCheapestUnit = NO_UNIT;      // backup if nothing under cap
++			UnitTypes eBestFallbackUnit = NO_UNIT;  // track highest cost ≤ cap
++
++			int iCheapestCost = MAX_INT;
++			int iBestFallbackCost = MIN_INT;
++
++			FOR_EACH_ENUM(Unit)
++			{
++				if (!canTrain(eLoopUnit, false))
++				{
++					continue;
++				}
++				const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
++				// Land-only, must actually fight
++				if (kU.getDomainType() != DOMAIN_LAND)
++				{
++					continue;
++				}
++				if (kU.getCombat() <= 0)
++				{
++					continue; // ignore noncombat here
++				}
++				// <!-- custom: ignore civilian units that happen to have strength, and more generally any unitai that is not among the most efficient ones (e.g. no naval units, no spy or anything else, etc), while we do a fallback, let it be a good one! Xd anways etc -->
++				const UnitAITypes eUnitAI = kU.getDefaultUnitAIType();
++				if (!(eUnitAI == UNITAI_CITY_DEFENSE ||
++					eUnitAI == UNITAI_COUNTER ||
++					eUnitAI == UNITAI_RESERVE ||
++					eUnitAI == UNITAI_ATTACK ||
++					eUnitAI == UNITAI_ATTACK_CITY))
++				{
++					continue;
++				}
++
++				const int iCost = getProductionNeeded(eLoopUnit);
++
++				// track cheapest overall as fallback-of-fallback
++				if (iCost < iCheapestCost)
++				{
++					iCheapestCost = iCost;
++					eCheapestUnit = eLoopUnit;
++				}
++				// prefer the most expensive unit ≤ cap;
++				if (iCost <= iMaxCost && iCost > iBestFallbackCost)
++				{
++					iBestFallbackCost = iCost;
++					eBestFallbackUnit = eLoopUnit;
++				}
++			}
++
++			// if nothing within cap, use the cheapest trainable option
++			if (eBestFallbackUnit == NO_UNIT)
++			{
++				eBestFallbackUnit = eCheapestUnit;
++			}
++			if (eBestFallbackUnit != NO_UNIT)
++			{
++				// only if something unusable is there
++				const bool bReplaceHead = (!bQueueEmpty);
++				// make it the head so it starts immediately next turn
++				pushOrder(ORDER_TRAIN,
++						eBestFallbackUnit,
++						GC.getInfo(eBestFallbackUnit).getDefaultUnitAIType(),
++						/*bSave=*/false,
++						/*bPop=*/bReplaceHead,
++						/*iPosition=*/0,
++						/*bForce=*/false);
++
++				// critical: stop the chooser from clearing this emergency order next turn
++				setChooseProductionDirty(false);
++			}
++		}
++	}
++	// --- END: safety net ---
++
+ 	doDecay();
+ 	doReligion();
+ 	doGreatPeople();
+@@ -10745,16 +10847,8 @@ bool CvCity::checkCanContinueProduction(bool bCheckUpgrade,
+ 
+ void CvCity::doProduction(bool bAllowNoProduction)
+ {
+-	// <!-- custom: added in an attempt to solve the no production issue we have in many cities, not sure this specific block helps but it has been recommended by chatgpt 5 and doesn't seem to hurt nor change our issue, keep as is just in case anyways etc ; see known issue as of now 51 for details anyways etc -->
+-	// if (GC.getPythonCaller()->doProduction(*this))
+-	// 	return;
+-
+-	// Only honor Python if it actually did something
+-	if (GC.getPythonCaller()->doProduction(*this)) {
+-		if (isProduction() || (isHuman() && isChooseProductionDirty()))
+-			return; // OK, Python set something or popped a human chooser
+-		// else: fall through and let the normal logic pick something
+-	}
++	if (GC.getPythonCaller()->doProduction(*this))
++		return;
+ 
+ 	if (!isHuman() || isProductionAutomated())
+ 	{
+@@ -10765,57 +10859,6 @@ void CvCity::doProduction(bool bAllowNoProduction)
+ 		}
+ 	}
+ 
+-	// <!-- custom: we have an issue of AI cities sometimes having seemingly no production at all for several turns, see known issue as of now 51 for examples and details. It seems to have happened in base advciv as well in an example i had documented, although the issue may have been soemthing else back then as it was at end game vs early game now in advciv-sas. In all cases, this is crippling, attempt to patch it with the help of chatgpt 5 but anyways etc, check if accurate anyways etc -->
+-	// NEW: hard safety net for AI
+-	// <!-- custom: unit is the most reliable, as of now we can always build the warrior (i.e. ancient maceman in our mod now anyways etc), else many units should be available, we don't start with no unit buildable at turn 0 after we have our first city, else how would these cities be guarded, go for cheapest unit just so we don't waste hammer, if we are lucky next production should get back on track as often does, at worst this would happen 2 or 3 times on a row before production seemingly fixes itself hoepfully. We do have many processes in the middle game, so i assume they are a fallback for the many no production that would have happened otherwise as is the case in current save file i am testing on, see known issue as of now 51 for details anyways etc. Note: this is maybe good for AI, as more units even if cheap can be upgraded e.g. of an ancient maceman to an axeman cheaper than for humans so maybe worth it in the long run, and this is a reliable choice, vs buildings that have many conditions we seemingly handle well already, as the japan ai city already produced key buildings except the walls as we instructed it around turns 40-50, so maybe don't meddle with it and not sure it would be as worth, we want more units for now and to not waste hammers if no production as a tentative patch to this no production issue here that happens in many cities it seems at least a few in this save file i am reviewing testing on but anyways etc -->
+-	// <!-- custom: after adding this check, the results are very nice, we have much less no production, and can produce much more units, but i have noticed a huge issue now, which is that we scrap so many units, we scrap more untis that we produce, so ofc AIs die to barbarians, we need to find how to tone that down, despite not being bankrupt due to economy though, it reminds me of the workboat infinite scrapping known issue we had (see known issue as of now) --> 
+-	if (!isHuman() /* <!-- custom: maybe add !isDisorder() and maybe also !isOccupation() or something later but first try to debug or/and fix it if i may say but anyways etc ; update: left as is for now as such as long as doesn't break anything, so we maximize change of solving the issue, even if a fake order is created, hopefully it is created later anyways etc, ideally would add checks but for now trying to fix other issues of excessive unit scrapping which is much more urgent anyways etc, and we seem to have improved on this issue already anyways etc --> */ && !isProduction()) {
+-		// Cheapest combat unit
+-		UnitTypes eBestFallbackUnit = NO_UNIT;
+-		int iBestUCost = MAX_INT;
+-		FOR_EACH_ENUM(Unit)
+-		{
+-			if (!canTrain(eLoopUnit, false))
+-			{
+-				continue;
+-			}
+-
+-			const CvUnitInfo& kU = GC.getInfo(eLoopUnit);
+-			// Land-only, must actually fight
+-			if (kU.getDomainType() != DOMAIN_LAND)
+-			{
+-				continue;
+-			}
+-			if (kU.getCombat() <= 0)
+-			{
+-				continue; // ignore noncombat here
+-			}
+-
+-			// <!-- custom: ignore civilian units that happen to have strength, and more generally any unitai that is not among the most efficient ones (e.g. no naval units, no spy or anything else, etc), while we do a fallback, let it be a good one! Xd anways etc -->
+-			const UnitAITypes eAI = kU.getDefaultUnitAIType();
+-			if (!(eAI == UNITAI_CITY_DEFENSE ||
+-				eAI == UNITAI_COUNTER ||
+-				eAI == UNITAI_RESERVE ||
+-				eAI == UNITAI_ATTACK ||
+-				eAI == UNITAI_ATTACK_CITY))
+-			{
+-				continue;
+-			}
+-
+-			const int iCost = getProductionNeeded(eLoopUnit);
+-			if (iCost < iBestUCost)
+-			{
+-				iBestUCost = iCost;
+-				eBestFallbackUnit = eLoopUnit;
+-			}
+-		}
+-		if (eBestFallbackUnit != NO_UNIT) {
+-			pushOrder(ORDER_TRAIN, eBestFallbackUnit, GC.getInfo(eBestFallbackUnit).getDefaultUnitAIType());
+-			return;
+-		}
+-	}
+-	// <!-- custom: else if fails, let old code continue, it seems there is a process fallback which may explain why so many cities go for processes later in the game rather than the processes being actually good, maybe these cities would have been no production otherwise maybe but anyways etc, still it is a less efficient choice, prefer more units ideally especially for weaker players, but fine as a general rule as well anyways etc -->
+-
+ 	if (!bAllowNoProduction && !isProduction())
+ 		return;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index f6ecbbcd9..46be3fdcc 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -573,14 +573,8 @@ void CvCityAI::AI_chooseProduction()
+ 	if (bWasFoodProduction)
+ 		AI_assignWorkingPlots();
+ 
+-	// <!-- custom: added in an attempt to solve the no production issue we have in many cities, not sure this specific block helps but it has been recommended by chatgpt 5 and doesn't seem to hurt nor change our issue, keep as is just in case anyways etc ; see known issue as of now 51 for details anyways etc -->
+-	// if (GC.getPythonCaller()->AI_chooseProduction(*this))
+-	// 	return;
+-
+-	if (GC.getPythonCaller()->AI_chooseProduction(*this)) {
+-		if (isProduction())   // only accept if it actually queued something
+-			return;
+-	}
++	if (GC.getPythonCaller()->AI_chooseProduction(*this))
++		return;
+ 
+ 	//if (isHuman() && isProductionAutomated())
+ 	if (isHuman())
+
+diff --git a/README.md b/README.md
+index cd03e8eee..31dfd9bdf 100644
+--- a/README.md
++++ b/README.md
+@@ -584,3 +584,7 @@ I also have experimented briefly if i may say but anyways etc as i had the oppor
+ Here is a [google drive folder link](https://drive.google.com/drive/folders/12Eek72K1_vDJ7_2xViYpLdy_eEAgLOaS?usp=sharing) of for example how i implemented a part of this functionality with deepseek ai to experiment with it if i may say at least in this case but anyways etc, it seems to have understood surprisingly well my request and replied to it well as well in this case at least i mean but anyways etc... Hopefully helpful, but anyways etc anyways etc anyways etc...
+ 
+ Note: asking it more complex tasks like adding links as i didn't know how to, it seems to quickly get confused and lost and do unnecessary and inefficient things, in the end helped investigate and explore how to do the task but ended up not doing it in this case at least but anyways etc as too complicated and not worth it if i may say but anyways etc (would have for example to calculate/estimate total height or line count of each szSpecialText if i am not mistaken, then display at each line with its own iTech just to have the links clickable, when list is already accessible since we are in sevopedia tech, and would be computationally super or needlessly expensive but anyways etc, at least i think so in this case at least but anyways etc ; not shown in screenshots in the google drive either as well but anyways etc), but it is still helpful though and i only evaluated it on this task, it may do better or not in other tasks i don't know but anyways etc, if i may say still is to provide feedback at least to myself if not to others or not but anyways etc ; but in the end it helped me and is friendly at least friendly enough if not lot or not or yes or etc but anyways etc each as they are or want or do or be or not but anyways etc thanks anyways etc anyways etc anyways etc... And it is also surprisingly good at teaching at least japanese if i may say or so it seems it spontaneously helped and translated instead of overwhelm me with all data xd thanks i mena in this case at least but anyways etc... Thanks deepseek (but or not but or yes but but?) anyways etc anyways etc anyways etc...
++
++#### V3.1
++
++Helped me attempt to solve using its deep think mode an issue by stealing one of its lines in a very lengthy solutions it provided (crediting it ofc i mean if i may say but anyways etc), even though i had to reverse the change in the end, it was a quite good idea if i may say otherwise thanks (even though i don't know too much about these but anyways etc), see update 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---partially-patched-and-worked-around--improved-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc-add-a-fallback-cheapest-unit-production-which-helps-quite-a-lot-reduce-this-but-not-entirely-in-cvcitydoproduction](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---partially-patched-and-worked-around--improved-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc-add-a-fallback-cheapest-unit-production-which-helps-quite-a-lot-reduce-this-but-not-entirely-in-cvcitydoproduction) for details anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index cc2b00849..d7c02ef65 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -67,7 +67,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or/and always build first logic depending on building type and/or such anyways etc ; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)  
+ [49 - (Enhanced/Addressed) AI having 4+ defenders in capital city but only 1 defender in city B, that gets captured or razed by barbarians then, now almost always if not always new cities go be founded with 2+ defenders](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#49---enhancedaddressed-ai-having-4-defenders-in-capital-city-but-only-1-defender-in-city-b-that-gets-captured-or-razed-by-barbarians-then-now-almost-always-if-not-always-new-cities-go-be-founded-with-2-defenders)  
+ [50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change i mean anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean-anyways-etc)  
+-[51 - (Partially patched and worked around / improved) Massive base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc): add a fallback cheapest unit production which helps quite a lot reduce this, but not entirely, in CvCity::doProduction](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---partially-patched-and-worked-around--improved-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc-add-a-fallback-cheapest-unit-production-which-helps-quite-a-lot-reduce-this-but-not-entirely-in-cvcitydoproduction)  
++[51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc)  
+ [52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#52---beyond-tremendously-improved-anyways-etc-remove-ai-scrapping-of-military-land-units-as-way-too-many-units-are-scrapped-early-yet-we-really-need-them-to-defend-against-barbarians-or-our-rivals-or-such-anyways-etc)  
+ [53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or/and of more importantly building galleons and privateers in droves and excess if i may say but anyways etc, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#53---beyond-tremendously-improved-naval-dementia-of-producing-privateersgalleons-then-seemingly-scrapping-them-and-repeat-orand-of-more-importantly-building-galleons-and-privateers-in-droves-and-excess-if-i-may-say-but-anyways-etc-despite-enemy-threatening-cities-of-land-capture-for-20-turns-and-losing-capital-as-a-result-anyways-etc-fixedaddressed-by-now-managing-production-of-each-unitai-with-max-by-type-in-cvcityaiai_chooseunit-as-well-as-disallowing-scrapping-and-managing-it-by-unitai-type-globally-as-well-in-cvunitcanscrap-by-type-as-well-with-max-and-such-other-conditions-for-some-units-like-as-of-now-workers-anyways-etc)  
+ 
+@@ -1678,7 +1678,7 @@ The one worker per tile is very nice, and we seem to get our ideal improvements.
+ 
+ This was started from a save file that had the issue, i assume that with this new change now in the DLL, the issue won't happen hopefully and this susa city but anyways etc would have been improved already much much sooner. This was quite rare as i hadn't noticed it from quick autoplay glances, but great and a very nice enhancement i beleive. Thanks to this, i believe AI is also significantly stronger and more efficient with its workers, and thanks again chatgpt 5 for help as well although i paritcipated as well in the thinking effort and providing code and such as you did if i may say but anyways etc.
+ 
+-## 51 - (Partially patched and worked around / improved) Massive seemingly base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc): add a fallback cheapest unit production which helps quite a lot reduce this, but not entirely, in CvCity::doProduction
++## 51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc)
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1trFS19b14RsYA6kHc8RT6zFyc36KqILw?usp=sharing)
+ 
+@@ -1686,35 +1686,28 @@ This is an issue i had noticed in advciv, in example 69.3 of the list issues (i
+ 
+ But while solving/addressing known issue as of now 49, i have noticed this again, but now in early cities, and several cities, entering what seems like no production at all for 1 or several turns. For example, in screenshots 2633 (2) and 2634, kyoto has no production, when anything could be best since it is free to produce units if nothing else is good, else the hammer is wasted.
+ 
+-In screenshot 2706, it can be seen the issue is happening in many cities. Also in screenshot 2694, the issue also is happening in ulundi ai city, so it looks quite widespread but not obvious if one is not looking carefully at each turn in cities, as it often only happens for 1 turn, but not always. It also doesn't happen just these turns or runs but would be long to document all, pehraps uneeded, what matters is the issue happens, and often enough to be an issue, where moscow ai and native american ai's cities are also in no production, not only japan ai's city.
++In screenshot 2706, it can be seen the issue is happening in many cities. Also in screenshot 2694, the issue also is happening in ulundi ai city, so it looks quite widespread but not obvious if one is not looking carefully at each turn in cities, as it often only happens for 1 turn, but not always. It also doesn't happen just these turns or runs but would be long to document all, pehraps uneeded, what matters is the issue happens, and often enough to be an issue, where moscow ai and native american ai's cities are also in no production (no entry emoji/button as chatgpt 5 calls it hehe if i'm not mistaken but anyways etc), not only japan ai's city.
+ 
+ But japan ai's no production happened for many turns, something like +/- 5 turns on a row, so i thought it would be a nice place to investigate and try to improve it, as usual with chatgpt 5's help thanks and trial and error xd or/and other ai if needed or/and i want to try them xd if i may say but anyways etc or such but anyways etc.
+ 
+-Anyways, with chatgpt 5's help and my prompts and such too, i added a fallback code in `CvCity::doProduction` (and a bit of caution code just in case in `CvCityAI::AI_chooseProduction`), to produce any cheap unit we can, so we don't waste the hammer, and the only remaining building was the walls, most likely ssuccessfully excluded thanks to our new no walls if at peace and no danger or such logic (see known issue as of now 48 for details but anyways etc). Also, it is a reliable choice, as at least warriors / ancient macemen in our mod as they are named but anyways etc should be available, and since AI is too weak against barbarians or simply to boost its military (as long as it doesn't sink financially it unit unit cost) should be fine.
++I have also noticed the issue more recently as can be seen in existing screenshots between 2920 and 2925 almost all if not all in same turn (turns 200 to 201 with lisbon ai), by pressing print screen super fast while in autoplay, i could see the city being in no produciton, the order for a much needed camel cuirassier being issued (especially since we are much weaker militarily here than other AI players but anyways etc), and then the order getting seemingly popped or whatever the word is for cancelling this order all in the same turn it seems from screenshots as well but anyways etc. Hopefully this is a good start point to implement a better fix, as we are in this map weaker and would have much needed the extra camel cuirassier but anyways etc, and at turn 201 as a result still no produciton as well so we can hopefully fix all that maybe anyways etc. (Note: about this fast screenshot trick i just discovered xd and somehow got the idea to do/try, i added it in [Modding_Ressources/README.md#trick-to-capture-fast-actions-in-same-turn-press-print-screen-super-fast-many-times-if-you-dont-want-to-bother-recording-a-video](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#trick-to-capture-fast-actions-in-same-turn-press-print-screen-super-fast-many-times-if-you-dont-want-to-bother-recording-a-video) for future reference as well if needed anyways etc)) (Note 2: the deer not being improved is before i fixed the bug of forest not being chopped on camp bonuses like deer elephants and such anyways etc, now properly chops and improves there anyways etc)
+ 
+-Thankfully, this patch greatly improves the issue, although it does not suppress it entirely, as can be seen in existing screenshots turn per turn between 2714 and 2728, which cover turns 37 to 44 if i'm not mistaken anyways etc, the no production span is shorter and quickly interrupts to produce 1 extra ancient maceman, and the same a few turns later, so we squeezed 2 extra ancient macemen, which is very great to help our miltiary and barbarian attacking us issues and such.
++So to fix this, using various AIs but ultimately chatgpt 5, i have found the best way so far i could find so far i mean but anyways etc, and that is seemingly very effective and reliable, is to add a unit fallback logic outside of and after `CvCity::doProduction` but anyways etc, in `CvCity::doTurn`.
+ 
+-Note: i forgot to say, but later in the game, i don't see this at all, at least i ddin't check but what i find much more often in cities doing processes (Wealth, Research, Culture, etc.) way more than needed, so i assume they go to the fallback process, but since this isn't available in the early game, they go no production, but i suspect that later all or most of these process cities are actually no production ones that fallback before fails to the process, at least some, so hopefully we'll produce a bit more units than inefficient processes, although they are not too bad really, they are a bit less efficient choices, especially if weaker, we definitely don't want a fallback process but a unit, so i believe or/and hope our patch is slightly more efficient, but check to be sure as this is just a guess from me and i didn't check too much, but it does seem like so, but anyways etc.
++We build if it would otherwise be a no production if i'm not mistaken but anyways etc, the most expensive unit (if less than 50 hammer per era + 1 (e.g 50 hammer at era_ancient, 100 hammer at era_classical, etc. (to avoid crazy high unit costs that would doom us in xml anyways etc))) as a fallback for military cost (gold per turn) efficiency, less units to upgrade as well for the AI and overall military strength (we assume to simplify most expensive units are stronger and get upgraded later to simplify but anyways etc) if there are any other advantages perhaps or not disadvantages but seems much better thna spamming a bunch of fallback ancient macemen then goign bankrupt sooner with overall weaker army (or same issue later in game perhaps maybe) but anyways etc.
+ 
+-But then i noticed the giant issue, even bigger than this one, is that each time we produce ancient macemen, we end up with less units than the turn before. For example we had 4 archers and 4 warriors/ancient macemen if i remember it correctly, but the turn after we successfully produce a new ancient maceman, we now only have 4 archers and 3 ancient macemen??? Not 5????
++The results are extremely good it seems!!!
+ 
+-So most likely this means we are excessively scrapping, which is a huge issue and may contribute or explain why barbarians capture AIs so early, or why AIs are so weak in base advciv in the early say 100 turns with very weak and unchallenging city stacks.
++- in existing screenshots between 2996 and 2998, lisbon ai has one extra turn of no production, then it is solved. Hard to tell if this is just delay of one turn lag or such since we started from a save file that already had it, but we don't have it anymore the turn after (may have been so before but is not worse)
++- most importantly, in existing screenshots between 2999 and 3006, in turns between 37 and 44 as before and even much after, japan ai never enters at all the no production anymore. Even more importantly, no other AI city at all does as other ai cities had the issue such as ulundi ai or moscow ai, i zoomed out as much as possible if i'm not mistaken but anyways etc, and didn't see any at all if i saw correctly if i may say but anyways etc, so this is tremendously better. Also, we still bounce back to a settler a few turns later in japan ai city, and all cities don't get trapped in an archer or such fallback either, they produce settlers, workers, perhaps buildings maybe although i didn't check too much but anyways etc. So all in all it seems so much better than it was, and quite clean and effective but anyways etc.
+ 
+-This is now an urgent issue i'll try to fix, and if not possible, document.
+-
+-It reminds me of the critical bug of infinite workboat loop we found most likely due to base advciv +/- civ4 old code, which caused cities to be stuck producing and then immediately scrapping non stop a new workboat and then be like wait i need a new one xd for dozen turns until it somehow solved, but was very critical. See about that [23 - (Seemingly now fixed) Major bug of AI cities being stuck in a loop of producing a workboat and instantly scrapping it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#23---seemingly-now-fixed-major-bug-of-ai-cities-being-stuck-in-a-loop-of-producing-a-workboat-and-instantly-scrapping-it-so-without-producing-a-new-unit-if-im-not-mistaken-then-producing-a-new-one-endlessly-for-dozen-turns-until-it-somehow-solved-itself-but-way-too-late) for details anyways etc.
+-
+-So trying to find and fix and possibly enhance the excessive scrapping issue, goal is to remain economically competitive (not crush our research or such), but don't excessively scrap, and if all goes well reduce handicap penalties, as i suspect AI production should greatly improve if/after we fix it, and if not possible, at least document it maybe but anyways etc.
+-
+-As for this issue of no production, not totally improved but significantly better now if i'm not mistaken, so trying to move to the much more urgent issue now and see what we can or can not (or cannot? Or not can? Xd but anyways etc) do but anyways etc
+-
+-update: the scrapping issue is now fixed and addressed and enhanced; as for the no production issue, i have seen it more clearly in a savefile numbered 344 and screenshots 2920 to 2925 almost all if not all in same turn, by pressing print screen super fast while in autoplay, i could see the city being in no produciton, the order for a much needed camel cuirassier being issued (especially since we are much weaker militarily here than other AI players but anyways etc), and then the order getting seemingly popped or whatever the word is for cancelling this order all in the same turn it seems from screenshots as well but anyways etc. Hopefully this is a good start point to implement a better fix, as we are in this map weaker and would have much needed the extra camel cuirassier but anyways etc, and at turn 201 as a result still no produciton as well so we can hopefully fix all that maybe anyways etc. (Note: about this fast screenshot trick i just discovered xd and somehow got the idea to do/try, i added it in [Modding_Ressources/README.md#trick-to-capture-fast-actions-in-same-turn-press-print-screen-super-fast-many-times-if-you-dont-want-to-bother-recording-a-video](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#trick-to-capture-fast-actions-in-same-turn-press-print-screen-super-fast-many-times-if-you-dont-want-to-bother-recording-a-video) for future reference as well if needed anyways etc)) (Note 2: the deer not being improved is before i fixed the bug of forest not being chopped on camp bonuses like deer elephants and such anyways etc, now properly chops and improves there anyways etc)
++I still don't know why the no production happened/happens, but it seems we now cleanly and reliably always override it with a fallback, and if not almost always. Thanks to the improvement in AI efficiency, i have adjusted down a bit handicap (as of now only `iAITrainPercent` relative to how they were in advciv-sas which is not exactly like in base advciv, but tries to be gradually harder but anyways etc) costs to match this change anyways etc.
+ 
+ ## 52 - (Beyond Tremendously improved anyways etc) Remove AI scrapping of military land units, as way too many units are scrapped early, yet we really need them to defend against barbarians or our rivals or such anyways etc
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1JHA0QsVUyBiKy_BDFgXFb-wYG_t-EcUc?usp=sharing)
+ 
+-So this is another major AI improvement of a major issue we had in base advciv +/- civ4: for example japan AI would between turns 37 and 44, scrap 2 of its newly produced ancient macemen (now added as a patch to the no produciton at all during that time in known issue 51).
++So this is another major AI improvement of a major issue we had in base advciv +/- civ4: for example japan AI would between turns 37 and 44, scrap 2 of its newly produced ancient macemen (now added as a patch to the no produciton at all during that time in [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc)).
+ 
+ As a result, it was weaker, and this likely contributed to barbarians successfully invading it and japan ai having a bad game.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 0ec1ec1d8..09ab8538d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -155,7 +155,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ #### City Production (AI)
+ 
+-- partially patched/improved the major base advciv +/- civ4 issue of AI cities being in a no production state (they don't produce anything at all, there is a "no entry" like button as chatgpt 5 describe it xd but anyways etc), not even a unit like a warrior or such which would absolutely be free and better than litteral nothing. This wastes a lot of hammers, and happens in quite a few cities, not just during one turn. It seems that later this is covered up by the processes fallback if no other production, although just a guess from me. But we added another fallback of "produce cheapest unit that suits us" (a land unit of offense or defense, not civilian like a scout for example anyways etc), so now cities for which it lasted many turns have it last only 1 turn, and we could squeeze extra units instead of doing absolutely nothing for several turns, so i hope this improves this already, and as a result AI should be stronger as it should have been all along but check to be sure anyways etc. See for details with screenshots and such anyways etc [51 - (Partially patched and worked around / improved) Massive base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc): add a fallback cheapest unit production which helps quite a lot reduce this, but not entirely, in CvCity::doProduction](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---partially-patched-and-worked-around--improved-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc-add-a-fallback-cheapest-unit-production-which-helps-quite-a-lot-reduce-this-but-not-entirely-in-cvcitydoproduction). So this is not a complete fix but our patch seems to have significantly improved as in reducing the severity or perhaps frequency of the issue as well but i am less sure about the latter. Now instead investigating the huge excessive unit scrapping (i.e. destroying if i'm not mistaken anyways etc) issue i have uncovered while solving this, as after we produce our new squeezed out unit, we somehow end up with less units and not more, which reminds me of known issue as of now 23 (see there for details anyways etc), and which is now urgent to fix and attempt to, but as for this current issue here, i hope AI is now stronger due to our partial patch anyways etc.
++- massively patched / worked around and seemingly fixed the major base advciv +/- civ4 issue of AI cities being in a no production state (they don't produce anything at all, there is a "no entry" like button as chatgpt 5 describe it xd but anyways etc), not even a unit like a warrior / ancient maceman or such which would absolutely be free and better than litteral nothing. This wastes a lot of hammers, and happens in quite a few cities, not just during one turn. The very effective work around was to add another fallback of "produce most expensive (if not unusually and unexpectedly very expensive, else cheapest) unit that suits us" (a land unit of offense or defense, not civilian like a scout for example anyways etc). So now cities don't have no production at all anymore, and produce for example an archer instead in the ancient era as of now but anyways etc. See for details with screenshots and such anyways etc [51 - (Worked around / fixed) Massive seemingly base advciv +/- civ4 issue if i'm not mistaken of many cities entering no production early for 1 or several turns many times during the game early (and possibly later this is why many cities have a process rather than no production, as processes are not available early and are listed among fallbacks if production fails it seems but check to be sure anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc). Thanks to the increase in AI efficiency and hammer use due to now using hammer instead of "passing" turns but anyways etc, i have reduced handicap settings a bit more to accomodate that (and so AIs don't go bankrupt, as well as human players having a more even game without excessive penalties too ideally so hopefully for the best in all at least to me if i may say but anyways etc). AI should be quite a bit stronger thanks to this change but anyways etc.
+ 
+ #### Leaders (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 0710b6c0e..8b986b54d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -92,7 +92,7 @@ For the exhaustive diff between AdvCiv stable (e.g., 1.12) and AdvCiv-SAS, see t
+ 
+ #### City Production (AI)
+ 
+-- Partial workaround for the **“no production”** stall (cities doing literally nothing for multiple turns). Add a fallback to produce the **cheapest suitable unit** (not civilians). This doesn’t solve all root causes but cuts wasted turns dramatically. See [KI#51](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---partially-patched-and-worked-around--improved-massive-seemingly-base-advciv---civ4-issue...).
++- **“No production” stall — worked around / fixed**: AI cities no longer sit on **no production**. Added a robust fallback: produce the **most expensive suitable land combat unit**; if a candidate is **unusually overpriced** for the era, switch to the **cheapest suitable** instead. **Civilians (e.g., scouts)** are excluded. This converts idle turns into units and stops widespread hammer waste. See [KI#51](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure-anyways-etc). Related: handicap settings were **slightly reduced** to keep difficulty even with the new efficiency.
+ 
+ #### Leaders (AI)
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=51098

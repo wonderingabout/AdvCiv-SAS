@@ -1,0 +1,115 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2373
+# Commit: 7f280f7cae17ed938c960908a53ed2c4e530a296
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4dd774928fa5548e59376ebc052c76b4777db9c3
+# Title: Tweak "no resources discovered" message
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	5	Assets/XML/Text/CIV4GameText_advc.xml
+19	13	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 49b60ffce..0bd1f29a5 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3583,11 +3583,19 @@
+ 		 Vanilla CIV4GameTextInfos.xml	-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_DISCOVERED_NO_BONUS</Tag>
+-		<English>No unclaimed sources of [COLOR_HIGHLIGHT_TEXT]%s1_BonusName[COLOR_REVERT] have been located.</English>
+-		<French>Aucune source libre de [COLOR_HIGHLIGHT_TEXT]%s1_BonusName[COLOR_REVERT] n'a �t� d�couverte.</French>
+-		<German>Keine verf�gbaren Vorkommen des Bonusguts [COLOR_HIGHLIGHT_TEXT]%s1_BonusName[COLOR_REVERT] wurden entdeckt.</German>
+-		<Italian>Nessuna risorsa libera di [COLOR_HIGHLIGHT_TEXT]%s1_BonusName[COLOR_REVERT] � stato scoperto.</Italian>
+-		<Spanish>No se ha descubierto ninguna fuente disponible de [COLOR_HIGHLIGHT_TEXT]%s1_BonusName[COLOR_REVERT].</Spanish>
++		<English>No%s1_Adjective sources of [COLOR_HIGHLIGHT_TEXT]%s2_BonusName[COLOR_REVERT] have been located.</English>
++		<French>Aucune source %s1_Adjective de [COLOR_HIGHLIGHT_TEXT]%s2_BonusName[COLOR_REVERT] n'a �t� d�couverte.</French>
++		<German>Keine%s1_Adjective Vorkommen des Bonusguts [COLOR_HIGHLIGHT_TEXT]%s2_BonusName[COLOR_REVERT] wurden entdeckt.</German>
++		<Italian>Nessuna risorsa%s1_Adjective di [COLOR_HIGHLIGHT_TEXT]%s2_BonusName[COLOR_REVERT] � stato scoperto.</Italian>
++		<Spanish>No se ha descubierto ninguna fuente%s1_Adjective de [COLOR_HIGHLIGHT_TEXT]%s2_BonusName[COLOR_REVERT].</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_DISCOVERED_UNCLAIMED</Tag>
++		<English>[SPACE]unclaimed</English>
++		<French>[SPACE]libre</French>
++		<German>[SPACE]verf�gbaren</German>
++		<Italian>[SPACE]libera</Italian>
++		<Spanish>[SPACE]disponible</Spanish>
+ 	</TEXT>
+ 
+ 	<!-- advc.160 Originally in CIV4GameTextInfos.xml -->
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 6c25c3c83..068279596 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4534,19 +4534,13 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,  /
+ 		{
+ 			announceTechToPlayers(eTech, /* advc.156: */ ePlayer);
+ 			bool bMessageSent = false; // advc.004r
++			bool bAnyDiscovered = false; // advc.004r
+ 			CvMap const& kMap = GC.getMap();
+-			for (int iI = 0; iI < kMap.numPlots(); iI++)
++			for (int i = 0; i < kMap.numPlots(); i++)
+ 			{
+-				CvPlot const& kLoopPlot = kMap.getPlotByIndex(iI);
+-				// <advc.004r>
+-				TeamTypes eRevealedTeam = kLoopPlot.getRevealedTeam(getID(), false);
+-				if ((eRevealedTeam != getID() && eRevealedTeam != NO_TEAM &&
+-					eRevealedTeam != BARBARIAN_TEAM &&
+-					!GET_TEAM(eRevealedTeam).isVassal(getID())) ||
+-					!kLoopPlot.isRevealed(getID())) // </advc.004r>
+-				{
+-					continue; // advc
+-				}
++				CvPlot const& kLoopPlot = kMap.getPlotByIndex(i);
++				if (!kLoopPlot.isRevealed(getID()))
++					continue;
+ 				BonusTypes eBonus = kLoopPlot.getBonusType();
+ 				if (eBonus == NO_BONUS)
+ 					continue;
+@@ -4555,7 +4549,16 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,  /
+ 				{
+ 					continue;
+ 				}
+-				CvCity* pCity = kMap.findCity(kLoopPlot.getX(), kLoopPlot.getY(), NO_PLAYER,
++				// <advc.004r>
++				bAnyDiscovered = true;
++				TeamTypes eRevealedTeam = kLoopPlot.getRevealedTeam(getID(), false);
++				if (eRevealedTeam != getID() && eRevealedTeam != NO_TEAM &&
++					eRevealedTeam != BARBARIAN_TEAM &&
++					!GET_TEAM(eRevealedTeam).isVassal(getID())) // </advc.004r>
++				{
++					continue; // advc
++				}
++				CvCity const* pCity = kMap.findCity(kLoopPlot.getX(), kLoopPlot.getY(), NO_PLAYER,
+ 						// advc.004r: Pass ID as 'observer' (last param) instead of city owner
+ 						NO_TEAM, false, false, NO_TEAM, NO_DIRECTION, NULL, getID());
+ 				if (pCity == NULL)
+@@ -4586,8 +4589,11 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,  /
+ 				}
+ 				if (eBonus != NO_BONUS)
+ 				{
++					CvWString szOwnershipStatus;
++					if (bAnyDiscovered)
++						szOwnershipStatus = gDLL->getText("TXT_KEY_MISC_DISCOVERED_UNCLAIMED");
+ 					CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_DISCOVERED_NO_BONUS",
+-							GC.getInfo(eBonus).getTextKeyWide());
++							szOwnershipStatus.GetCString(), GC.getInfo(eBonus).getTextKeyWide());
+ 					for (MemberIter it(getID()); it.hasNext(); ++it)
+ 					{
+ 						gDLL->UI().addMessage(it->getID(), false, -1, szBuffer
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4471

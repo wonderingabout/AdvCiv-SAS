@@ -1,0 +1,67 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 610
+# Commit: 30163ea961fcaab27c022097f587075c067895b5
+# History segment: K-Mod history
+# Parent used for diff: 15a7dc2dd14af44ec1e40917d7d7ef42bb141e64
+# Title: Removed some unnecessary python code.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	18	Assets/Python/Contrib/autologEventManager.py
+0	1	Assets/Python/Screens/CvOptionsScreen.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/autologEventManager.py b/Assets/Python/Contrib/autologEventManager.py
+index 9669aca03..ebec013eb 100644
+--- a/Assets/Python/Contrib/autologEventManager.py
++++ b/Assets/Python/Contrib/autologEventManager.py
+@@ -290,24 +290,6 @@ class AutoLogEvent(AbstractAutoLogEvent):
+ 				CyInterface().addMessage(CyGame().getActivePlayer(), True, 10, message, None, 2, None, ColorTypes(8), 0, 0, False, False)
+ 				return 1
+ 
+-			'Check if ALT + T was hit == testing!'
+-#			if (theKey == int(InputTypes.KB_T)
+-#			and self.eventMgr.bAlt):
+-#				message = "Civ / Civic %i %i %i" % (0, 0, self.CIVCivics[0])
+-#				CyInterface().addMessage(CyGame().getActivePlayer(), True, 10, message, None, 2, None, ColorTypes(8), 0, 0, False, False)
+-
+-#				self.storeStuff()
+-#				return 1
+-
+-			'Check if ALT + T was hit == testing!'
+-			if (theKey == int(InputTypes.KB_T)
+-			and self.eventMgr.bAlt):
+-				for i in range(0, 126):   #range(0,1000000):
+-					ci = gc.getColorInfo(i)
+-					ci2 = "XML Val %i %s" % (i, ci.getXmlVal())
+-					print ci2
+-
+-
+ 	def onLoadGame(self, argsList):
+ 		self.bHumanPlaying = True
+ 		self.bHumanEndTurn = False
+
+diff --git a/Assets/Python/Screens/CvOptionsScreen.py b/Assets/Python/Screens/CvOptionsScreen.py
+index 579ae6b33..7ef5da24b 100644
+--- a/Assets/Python/Screens/CvOptionsScreen.py
++++ b/Assets/Python/Screens/CvOptionsScreen.py
+@@ -5,7 +5,6 @@
+ 
+ import CvUtil
+ from CvPythonExtensions import *
+-import BugOptionsScreen
+ 
+ # globals
+ gc = CyGlobalContext()
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1504

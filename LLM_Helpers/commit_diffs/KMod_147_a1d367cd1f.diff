@@ -1,0 +1,195 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 147
+# Commit: a1d367cd1f1dac3db815b8b7b8ba86a5a316b4ea
+# History segment: K-Mod history
+# Parent used for diff: 4a214e861f2c023b7dc787f846727b5d6e144a1e
+# Title: Fixed a bug which caused the AI to refuse to negotiate on terms of trade with their worst enemy (they would only accept the deal if they proposed it themselv...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	9	CvGameCoreDLL/CvCityAI.cpp
+17	7	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 1e0175e1e..2045e9a34 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4115,7 +4115,7 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 			{
+ 				iValue += (kBuilding.getFreeExperience() * ((iHasMetCount > 0) ? 12 : 6));
+ 
+-				for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
++				for (int iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
+ 				{
+ 					if (canTrain((UnitCombatTypes)iI))
+ 					{
+@@ -4197,7 +4197,7 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 			{
+ 				int iSpecialistsValue = 0;
+ 				int iCurrentSpecialistsRunnable = 0;
+-				for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
++				for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+ 				{
+ 					if (iI != GC.getDefineINT("DEFAULT_SPECIALIST"))
+ 					{
+@@ -4371,7 +4371,7 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 
+ 				if (kBuilding.getCivicOption() != NO_CIVICOPTION)
+ 				{
+-					for (iI = 0; iI < GC.getNumCivicInfos(); iI++)
++					for (int iI = 0; iI < GC.getNumCivicInfos(); iI++)
+ 					{
+ 						if (GC.getCivicInfo((CivicTypes)iI).getCivicOptionType() == kBuilding.getCivicOption())
+ 						{
+@@ -4763,7 +4763,7 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 					iValue += std::max(0, AI_getTargetPopulation() - getPopulation()+1) * kBuilding.getFoodKept() / 2;
+ 				}
+ 
+-				for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 				{
+ 					// K-Mod - I've shuffled some parts of this code around.
+ 					int iTempValue = 0;
+@@ -4949,7 +4949,7 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 
+ 			if (iPass > 0)
+ 			{
+-				for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++				for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 				{
+ 					int iTempValue = 0;
+ 
+@@ -5248,7 +5248,7 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 						iCorpValue += iGoldValue; */
+ 
+ 						// K-Mod. See what they did there? I don't. Here's my version.
+-						for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++						for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 						{
+ 							int iExpectedCities = iNumCities + GC.getGameINLINE().countCorporationLevels((CorporationTypes)(kBuilding.getGlobalCorporationCommerce()));
+ 							int iHqValue = 4 * GC.getCorporationInfo((CorporationTypes)(kBuilding.getGlobalCorporationCommerce())).getHeadquarterCommerce(iI) * iExpectedCities;
+@@ -5275,7 +5275,7 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 					iValue += iCorpValue;
+ 				}
+ 
+-				for (iI = 0; iI < GC.getNumReligionInfos(); iI++)
++				for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
+ 				{
+ 					if (kBuilding.getReligionChange(iI) > 0)
+ 					{
+@@ -5483,7 +5483,7 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 				iValue += kBuilding.getAIWeight();
+ 				if (iValue > 0)
+ 				{
+-					for (iI = 0; iI < GC.getNumFlavorTypes(); iI++)
++					for (int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
+ 					{
+ 						iValue += (kOwner.AI_getFlavorValue((FlavorTypes)iI) * kBuilding.getFlavorValue(iI));
+ 					}
+@@ -7746,7 +7746,7 @@ void CvCityAI::AI_updateBestBuild()
+ 		//Prune plots which are sub-par.
+ 		if (iBestUnworkedPlotValue > 0)
+ 		{
+-			for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++			for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 			{
+ 				if (iI != CITY_HOME_PLOT)
+ 				{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 77019b41e..19248711f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2927,7 +2927,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+     
+     int iYieldLostHere = 0;
+ 
+-	for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++	for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 	{
+ 		pLoopPlot = plotCity(iX, iY, iI);
+ 
+@@ -3408,7 +3408,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+ 		
+ 		int iWaterCount = 0;
+ 		
+-		for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++		for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 		{
+ 		    pLoopPlot = plotCity(iX, iY, iI);
+             
+@@ -3621,7 +3621,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+ 	{
+ 	    int iBonusCount = 0;
+ 	    int iUniqueBonusCount = 0;
+-	    for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
++	    for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
+ 	    {
+ 	        iBonusCount += paiBonusCount[iI];
+ 	        iUniqueBonusCount += (paiBonusCount[iI] > 0) ? 1 : 0;
+@@ -3654,7 +3654,7 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int iMinRivalRange, bool bStarting
+ 	{
+ 		iDifferentAreaTile = 0;
+ 
+-		for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++		for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 		{
+ 			pLoopPlot = plotCity(iX, iY, iI);
+ 
+@@ -7994,8 +7994,18 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 	// K-Mod
+-	if (GET_TEAM(getTeam()).AI_getWorstEnemy() == GET_PLAYER(ePlayer).getTeam())
+-		return false;
++	if (iChange < 0)
++	{
++		if (GET_TEAM(getTeam()).AI_getWorstEnemy() == GET_PLAYER(ePlayer).getTeam())
++		{
++			// There's one special case where the AI allow on going trade with it worst enemy...
++			if (pOurList->getLength() != 1 || pOurList->head()->m_data.m_eItemType != TRADE_GOLD_PER_TURN)
++			{
++				// but this case isn't it.
++				return false;
++			}
++		}
++	}
+ 	// K-Mod end
+ 
+ 	int iOurValue = GET_PLAYER(ePlayer).AI_dealVal(getID(), pOurList, false, iChange);
+@@ -11428,7 +11438,7 @@ int CvPlayerAI::AI_corporationValue(CorporationTypes eCorporation, CvCity* pCity
+ 		iMaintenance += kCorp.getHeadquarterCommerce(iI);
+ 	}
+ 
+-	for (iI = 0; iI < NUM_YIELD_TYPES; ++iI)
++	for (int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+ 	{
+ 		iTempValue = kCorp.getYieldProduced((YieldTypes)iI) * iBonuses;
+ 		if (pCity == NULL)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index e50b6cfdf..92b52d332 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5269,7 +5269,7 @@ bool CvUnitAI::AI_greatPersonMove()
+ 				// Construct
+ 				if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopCity->plot(), MISSIONAI_CONSTRUCT, getGroup()) == 0)
+ 				{
+-					for (iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
++					for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+ 					{
+ 						BuildingTypes eBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iI);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6831

@@ -1,0 +1,112 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1169
+# Commit: 13536b4873e3f933131b96a29761793fa9a98fe4
+# History segment: K-Mod history
+# Parent used for diff: 0e3abf7d77ce0af927955fc1ecf8d5a92622cc07
+# Title: Adjusted value of food in AI_yieldValue to avoid overvalue problems.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	15	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index a917eed0c..35a7cf479 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -9145,6 +9145,8 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemo
+ 		iCommerceTimes100 *= getTotalCommerceRateModifier((CommerceTypes)iI);
+ 		iCommerceTimes100 /= 100;
+ 
++		FAssert(iCommerceTimes100 >= 0);
++
+ 		if (eProcess != NO_PROCESS)
+ 			iCommerceTimes100 += GC.getProcessInfo(getProductionProcess()).getProductionToCommerceModifier(iI) * iProductionTimes100 / 100;
+ 
+@@ -9215,7 +9217,6 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemo
+ 	int iSlaveryValue = 0;
+ 
+ 	int iFoodGrowthValue = 0;
+-	int iFoodGPPValue = 0;
+ 
+ 	if (!bIgnoreFood && iFoodYield != 0)
+ 	{
+@@ -9382,26 +9383,23 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemo
+ 					const bool bRelativeComparison = true; // (placeholder, just in case we restore this kind of check in the future)
+ 					if ((iPopToGrow > 0 || bFillingBar) && (bRelativeComparison || iFoodYield - iConsumtionPerPop > 0 || iProductionValue > 0 || iCommerceValue > 0))
+ 					{
+-						// rescale iGrowthValue
+ 						if (bFillingBar)
+ 							iGrowthValue = iGrowthValue * iFoodToGrow / std::max(1, 2*iFoodToGrow + iFoodLevel + iAdjustedFoodPerTurn);
+-						else if (iPopToGrow < 4)
+-							iGrowthValue = iGrowthValue * (17 + 2 * iPopToGrow)/25;
+ 
+-						/* if (iHealthLevel < (bFillingBar ? 0 : 1))
+-							iGrowthValue = iGrowthValue * iFoodYield / (iFoodYield + 1); */
++
+ 						if (iHealthLevel < (bFillingBar ? 0 : 1))
+ 							iGrowthValue = iGrowthValue * 2/3;
+ 
+ 						//iFoodGrowthValue = iFoodYield * iFactorPopToGrow;
+-						// K-Mod. think of the integral of (x * iGrowthValue * (100 - iDevalueRate*(iAdjustedFoodPerTurn+x))/100)
++						// K-Mod. iGrowthValue is the initial value per piece of food, but the value decreases by iDevalueRate for each piece.
++						// Think of the integral of iGrowthValue * (100 - iDevalueRate*(iAdjustedFoodPerTurn+x))/100, with respect to x.
+ 						int iDevalueRate = 0;
+ 						if (!bEmphasizeFood)
+ 						{
+ 							if (bFillingBar)
+ 								iDevalueRate = 25 + 15 * (iFoodLevel + iAdjustedFoodPerTurn) / iFoodToGrow;
+ 							else
+-								iDevalueRate = 22 - std::min(5, iPopToGrow)*4;
++								iDevalueRate = 20 - std::min(5, iPopToGrow)*3;
+ 
+ 							if (iHealthLevel < 1)
+ 								iDevalueRate += 5;
+@@ -9409,7 +9407,6 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemo
+ 						int iBestFoodYield = std::max(0, std::min(iFoodYield, 100/std::max(1, iDevalueRate) - iAdjustedFoodPerTurn)); // maximum value for this amount of food.
+ 						iFoodGrowthValue = iBestFoodYield * iGrowthValue * (100 - iDevalueRate*iAdjustedFoodPerTurn) / 100;
+ 						iFoodGrowthValue -= iBestFoodYield * iBestFoodYield * iDevalueRate * iGrowthValue / 200;
+-						//iFoodGrowthValue += (iAdjustedFoodPerTurn <= 0 ? 50 : 0) * iGrowthValue / 100; // some growth is much better than no growth.
+ 						FAssert(iFoodGrowthValue >= 0);
+ 						// K-Mod end
+ 					}
+@@ -9463,8 +9460,6 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemo
+ 		iSlaveryValue = 0;
+ 	}
+ 
+-	iFoodValue += iFoodGPPValue;
+-
+ 	//Lets have some fun with the multipliers, this basically bluntens the impact of
+ 	//massive bonuses.....
+ 	
+@@ -9886,7 +9881,7 @@ int CvCityAI::AI_specialPlotImprovementValue(CvPlot* pPlot) const
+ int CvCityAI::AI_growthValuePerFood() const
+ {
+ 	int iFoodMultiplier = getBaseYieldRateModifier(YIELD_FOOD);
+-	int iConsumtionPerPop = GC.getFOOD_CONSUMPTION_PER_POPULATION();
++	int iConsumtionPerPop = std::max(1, GC.getFOOD_CONSUMPTION_PER_POPULATION());
+ 
+ 	std::vector<int> jobs;
+ 	for (int i = 1; i < NUM_CITY_PLOTS; i++)
+@@ -9929,9 +9924,7 @@ int CvCityAI::AI_growthValuePerFood() const
+ 		jobs.push_back(0);
+ 	std::partial_sort(jobs.begin(), jobs.begin() + 3, jobs.end(), std::greater<int>());
+ 
+-	return 2 + (jobs[0]*4 + jobs[1]*2 + jobs[2]*1) * 2 / (700 * (iConsumtionPerPop+1));
+-	// Why divide by iConsumptionPerPop+1 rather than just iConsumptionPerPop? I guess it's just an arbitrary scaling factor...
+-	// (I wouldn't expect this to work well for modded values of iConsumptionPerPop anyway.)
++	return (jobs[0]*4 + jobs[1]*2 + jobs[2]*1) / (700 * iConsumtionPerPop);
+ }
+ // K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4385

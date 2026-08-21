@@ -1,0 +1,51 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1298
+# Commit: d842a45cbba9b3bc184816564fc5292bc7bbe080
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a6da45741db43b7d86ac6174cc84b4c2e544f2d1
+# Title: v0.92b: DLL and manual
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+6	4	CvGameCoreDLL/CvPlayerAI.cpp
+-	-	manual_092b.odt
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3bb74f099..6bb2601d0 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -19601,10 +19601,12 @@ int CvPlayerAI::checkCancel(CvDeal const& d, PlayerTypes otherId, bool flip) {
+ 	if(trades1 == NULL)
+ 		return -1;
+ 	CLLNode<TradeData>* tdn = trades1->head();
+-	if(tdn != NULL && CvDeal::isDual(tdn->m_data.m_eItemType, true) &&
+-			getTradeDenial(otherId, tdn->m_data) != NO_DENIAL &&
+-			::bernoulliSuccess(0.2, "advc.133"))
+-		return 1;
++	if(tdn != NULL && CvDeal::isDual(tdn->m_data.m_eItemType, true)) {
++		if(getTradeDenial(otherId, tdn->m_data) != NO_DENIAL &&
++				::bernoulliSuccess(0.2, "advc.133"))
++			return 1;
++		else return -1;
++	}
+ 	/*  getTradeDenial will always return DENIAL_JOKING. Instead, call
+ 		AI_bonusTrade explicitly and tell it that this is about cancelation. */
+ 	if(trades2 == NULL)
+
+[PATCH OMITTED] file=a/manual_092b.odt b/manual_092b.odt reason=binary/generated-file changedLines=0 bytes=140
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=1 omittedFiles=2 embeddedPatchBytes=915

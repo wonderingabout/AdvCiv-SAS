@@ -1,0 +1,54 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4149
+# Commit: a2e6e6ea7703cbd86db80b504291f70fff73550c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: dcc34612e117daf045028f70389ece2129e2c6e5
+# Title: Tweak timing of Resource Display at game start
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+10	4	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 157cb6550..bff84f3de 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2870,12 +2870,18 @@ void CvGame::update()
+ 			{
+ 				autoSave(true); // advc.106l
+ 			}
+-			/*	<advc.004m> This seems to be the earliest place where plot indicators
+-				can be enabled w/o crashing. */
++		}
++		/*	<advc.004m> Slice 0 seems to be the earliest time when plot indicators
++			can be enabled w/o crashing. But it appears that, for some players,
++			the indicators do not actually appear then - race condition? Let's
++			try slice 1. (It's a continuous count.) */
++		if (getTurnSlice() == 1 &&
++			// Leave it up to the savegame when loading an initial autosave
++			m_iTurnLoadedFromSave != m_iElapsedGameTurns)
++		{
+ 			if (BUGOption::isEnabled("MainInterface__StartWithResourceIcons", true))
+ 				gDLL->getEngineIFace()->setResourceLayer(true);
+-			// </advc.004m>
+-		}
++		} // </advc.004m>
+ 		if (getNumGameTurnActive() == 0)
+ 		{
+ 			if (!isPbem() || !getPbemTurnSent())
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=1049

@@ -1,0 +1,214 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5808
+# Commit: b6192c987b67b6221f148f55ac1e51fd0358282c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e65191a9926e17a51288683a0b670971667dbd1b
+# Title: (Fixed) Base AdvCiv issue: Foreign Diplomacy Advisor Glance tab column icons overflow horizontally with 24+ rival players. See KI#134. - replay screen minor...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+55	13	Assets/Python/Screens/CvForeignAdvisor.py
+3	2	Assets/Python/Screens/CvReplayScreen.py
+23	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index dbbecaf4a..d0eacb0b3 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -132,6 +132,13 @@ class CvForeignAdvisor:
+ 		self.GLANCE_BUTTON_SIZE = 46
+ 		self.PLUS_MINUS_SIZE = 25
+ 		self.bGlancePlus = True
++		# <!-- custom: add glance tab column pagination because with 24+ players the column icons overflow the screen width while vertical scrolling still works fine; we use arrow navigation rather than switching to a table widget, which would lose the per-cell widget type interactions (attitude popups, war-trade clicks). Page size 16 fits worldsize Huge and displays fine at 1080p, and suits worldsize SAS48 with 3 pages at 1080p. See KI#134. (Claude Code Sonnet 4.6) -->
++		self.iGlancePage = 0
++		self.iGlanceNumPages = 1
++		self.ltGlanceColumns = []
++		self.glanceLeftArrowID = ""
++		self.glanceRightArrowID = ""
++		self.GLANCE_PAGE_SIZE = 16
+ 
+ 		self.INFO_BORDER = 10
+ 
+@@ -1543,9 +1550,16 @@ class CvForeignAdvisor:
+ 
+ 				# Player panel
+ 				self.nCount += 1
++		# <!-- custom: build ordered column list for pagination (Claude Code Sonnet 4.6) -->
++		self.ltGlanceColumns = [i for i in range(gc.getMAX_PLAYERS()) if self.ltPlayerMet[i] and i != self.iActiveLeader]
++		nPageCols = min(len(self.ltGlanceColumns), self.GLANCE_PAGE_SIZE)
++		self.iGlanceNumPages = max(1, (len(self.ltGlanceColumns) + self.GLANCE_PAGE_SIZE - 1) / self.GLANCE_PAGE_SIZE)
++		# <!-- custom: preserve last page across reopens; clamp in case player count changed. (Claude Code Sonnet 4.6) -->
++		self.iGlancePage = min(self.iGlancePage, self.iGlanceNumPages - 1)
+ 		# advc.066: Was (self.W_SCREEN - 20) /... I don't think there are margins to account for here.
+-		self.X_Spread = self.W_SCREEN / self.nCount
+-		if self.X_Spread < 57:
++		# <!-- custom: use nPageCols+1 as denominator; the +1 reserves a left slot matching the original nCount which included the active player who has no column icon. (Claude Code Sonnet 4.6) -->
++		self.X_Spread = self.W_SCREEN / max(nPageCols + 1, 1)
++		if self.X_Spread < 57 and 57 * (nPageCols + 1) <= self.W_SCREEN:
+ 			self.X_Spread = 57 # advc.066: Lower bound was 58
+ 		# advc.066: Was (self.H_SCREEN - 50) /...
+ 		self.Y_Spread = (self.mainPanelHeight + 105) / (self.nCount + 2)
+@@ -1554,23 +1568,41 @@ class CvForeignAdvisor:
+ 			self.Y_Text_Offset = 0
+ 
+ 	def drawGlanceHeader (self, screen, panelName):
++		# <!-- custom: page-aware column drawing with arrow navigation (Claude Code Sonnet 4.6) -->
++		iPageStart = self.iGlancePage * self.GLANCE_PAGE_SIZE
++		pageColumnSet = set(self.ltGlanceColumns[iPageStart : iPageStart + self.GLANCE_PAGE_SIZE])
++
+ 		nCount = 1
+ 		for iLoopPlayer in range (gc.getMAX_PLAYERS()):
++			if iLoopPlayer not in pageColumnSet:
++				continue
+ 			# <!-- custom: hoist for performance optimization quite similarly to how gemini 3 pro proposed in a related solution -->
+ 			currentPlayer = gc.getPlayer(iLoopPlayer)
+-
+-			if self.ltPlayerMet[iLoopPlayer]:
+-				if (iLoopPlayer != self.iActiveLeader):
+-					szName = self.getNextWidgetName()
+-					screen.addCheckBoxGFCAt(panelName, szName, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.X_GLANCE_OFFSET + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET, self.GLANCE_BUTTON_SIZE, self.GLANCE_BUTTON_SIZE, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, ButtonStyles.BUTTON_STYLE_LABEL, False)
+-					if (self.iSelectedLeader == iLoopPlayer):
+-						screen.setState(szName, True)
+-					else:
+-						screen.setState(szName, False)
+-					nCount += 1
++			szName = self.getNextWidgetName()
++			screen.addCheckBoxGFCAt(panelName, szName, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.X_GLANCE_OFFSET + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET, self.GLANCE_BUTTON_SIZE, self.GLANCE_BUTTON_SIZE, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, ButtonStyles.BUTTON_STYLE_LABEL, False)
++			if (self.iSelectedLeader == iLoopPlayer):
++				screen.setState(szName, True)
++			else:
++				screen.setState(szName, False)
++			nCount += 1
++
++		self.glanceLeftArrowID = ""
++		self.glanceRightArrowID = ""
++		if self.iGlanceNumPages > 1:
++			iArrowSize = 24
++			iArrowY = 50 + (60 - iArrowSize) / 2
++			self.glanceLeftArrowID = self.getNextWidgetName()
++			screen.setButtonGFC(self.glanceLeftArrowID, u"", "", 5, iArrowY, iArrowSize, iArrowSize, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_ARROW_LEFT)
++			screen.enable(self.glanceLeftArrowID, self.iGlancePage > 0)
++			self.glanceRightArrowID = self.getNextWidgetName()
++			screen.setButtonGFC(self.glanceRightArrowID, u"", "", self.W_SCREEN - iArrowSize - 5, iArrowY, iArrowSize, iArrowSize, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_ARROW_RIGHT)
++			screen.enable(self.glanceRightArrowID, self.iGlancePage < self.iGlanceNumPages - 1)
+ 		
+ 	def drawGlanceRows (self, screen, mainPanelName, bSorted = False, nPlayer = 1):
+ 		# ForeignAdvisorPrint ("MAX Players = %d" % gc.getMAX_PLAYERS())
++		# <!-- custom: restrict columns to current page (Claude Code Sonnet 4.6) -->
++		iPageStart = self.iGlancePage * self.GLANCE_PAGE_SIZE
++		pageColumnSet = set(self.ltGlanceColumns[iPageStart : iPageStart + self.GLANCE_PAGE_SIZE])
+ 		ltSortedRelations = [(None,-1)] * gc.getMAX_PLAYERS()
+ 		self.loadColIntoList (self.ltPlayerRelations, ltSortedRelations, nPlayer)
+ 		if bSorted:
+@@ -1611,9 +1643,10 @@ class CvForeignAdvisor:
+ 			# j           = The Column Leader (The Rival)
+ 
+ 			for j in range (gc.getMAX_PLAYERS()):
+-				if self.ltPlayerMet[j]:
++				if self.ltPlayerMet[j] and j in pageColumnSet:
+ 					# <!-- custom: This is extra info by gemini 3 pro; check if accurate -->
+ 					# This line HIDES the column for the Human Player (You), which matches your screenshot.
++					# <!-- custom: pageColumnSet already excludes the active player so j != self.iActiveLeader is always true here; kept for clarity. (Claude Code Sonnet 4.6) -->
+ 					if j != self.iActiveLeader:
+ 						szName = self.getNextWidgetName()
+ 						nAttitude = self.ltPlayerRelations[iLoopPlayer][j]
+@@ -2432,6 +2465,15 @@ class CvForeignAdvisor:
+ 			elif (inputClass.getFunctionName() == self.GLANCE_BUTTON):
+ 				self.handlePlusMinusToggle()
+ 				return 1
++			# <!-- custom: glance tab column pagination arrows (Claude Code Sonnet 4.6) -->
++			elif self.glanceLeftArrowID and inputClass.getFunctionName() + str(inputClass.getID()) == self.glanceLeftArrowID:
++				self.iGlancePage = max(0, self.iGlancePage - 1)
++				self.drawContents(False)
++				return 1
++			elif self.glanceRightArrowID and inputClass.getFunctionName() + str(inputClass.getID()) == self.glanceRightArrowID:
++				self.iGlancePage = min(self.iGlanceNumPages - 1, self.iGlancePage + 1)
++				self.drawContents(False)
++				return 1
+ 	############################################
+ 	### BEGIN CHANGES ENHANCED INTERFACE MOD ###
+ 	############################################
+
+diff --git a/Assets/Python/Screens/CvReplayScreen.py b/Assets/Python/Screens/CvReplayScreen.py
+index 77a150729..8d589bd31 100644
+--- a/Assets/Python/Screens/CvReplayScreen.py
++++ b/Assets/Python/Screens/CvReplayScreen.py
+@@ -368,8 +368,9 @@ class CvReplayScreen:
+ 		# so draw SAS-scaled overlay labels instead and keep built-in graph labels empty. (GPT-5.3-Codex) -->
+ 		screen.setGraphLabelX(self.szGraph, u"")
+ 		screen.setGraphLabelY(self.szGraph, u"")
+-		screen.setLabel(self.GRAPH_LABEL_X_ID, "Background", sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GRAPH + (self.W_GRAPH / 2), self.Y_GRAPH + self.H_GRAPH - 16, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-		screen.setLabel(self.GRAPH_LABEL_Y_ID, "Background", sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_SCORE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_GRAPH + 8, self.Y_GRAPH + 8, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		# <!-- custom: nudge Turns label lower and Score label higher and left for better visual separation from the graph edges. (Claude Code Sonnet 4.6) -->
++		screen.setLabel(self.GRAPH_LABEL_X_ID, "Background", sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_TURNS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GRAPH + (self.W_GRAPH / 2), self.Y_GRAPH + self.H_GRAPH - 3, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(self.GRAPH_LABEL_Y_ID, "Background", sasFontTagLabel + localText.getText("TXT_KEY_REPLAY_SCREEN_SCORE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_GRAPH, self.Y_GRAPH - 21, self.Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		screen.setGraphYDataRange(self.szGraph, 0.0, 1.0)
+ 
+ 	def setPlaying(self, bPlaying):
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 8a0b07b1b..e2de3d991 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -169,6 +169,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer)  
+ [132 - (Enhanced) Base AdvCiv issue of not showing rival gold-per-turn on Foreign Trade Advisor Bonuses tab when not connected to their trade network](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#132---enhanced-base-advciv-issue-of-not-showing-rival-gold-per-turn-on-foreign-trade-advisor-bonuses-tab-when-not-connected-to-their-trade-network)  
+ [133 - (Fixed) Base AdvCiv issue of Sevopedia Index's legacy sort-key cleanup (`TXT_KEY_*` prefix-strip + `"The X"` comma-flip) scattering untranslated entries instead of clustering them (hurts diagnosis of missing translations), sorting items differently than the type-specific pedia pages and than natural alphabetical order, and incurring needless per-entry build-time cost (especially wasteful in non-English locales)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#133---fixed-base-advciv-issue-of-sevopedia-indexs-legacy-sort-key-cleanup-txt_key_-prefix-strip--the-x-comma-flip-scattering-untranslated-entries-instead-of-clustering-them-hurts-diagnosis-of-missing-translations-sorting-items-differently-than-the-type-specific-pedia-pages-and-than-natural-alphabetical-order-and-incurring-needless-per-entry-build-time-cost-especially-wasteful-in-non-english-locales)  
++[134 - (Fixed) Base AdvCiv issue: Foreign Diplomacy Advisor Glance tab column icons overflow horizontally with 24+ rival players](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#134---fixed-base-advciv-issue-foreign-diplomacy-advisor-glance-tab-column-icons-overflow-horizontally-with-24-rival-players)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4929,3 +4930,25 @@ Why:
+ File changed:
+ 
+ - [Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py](/Assets/Python/Contrib/Sevopedia/SevoPediaIndex.py)
++
++## 134 - (Fixed) Base AdvCiv issue: Foreign Diplomacy Advisor Glance tab column icons overflow horizontally with 24+ rival players
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1pkm3MTTVMVBuVA1uiW1r70Z1_T8I5q-G?usp=sharing).
++
++Observed issue:
++
++- In Foreign Diplomacy Advisor, Glance tab, the column header icons (one per rival player) overflowed the screen width when there were 24+ rival players (e.g., for worldsize SAS48).
++- Vertical scrolling worked fine; only the horizontal axis was affected.
++- Root cause is Base AdvCiv's `initializeGlance` formula: `X_Spread = W_SCREEN / nCount` with a hard minimum of 57 px (originally 58). With many players, `nCount` grows while `W_SCREEN` stays fixed, so `X_Spread` hits the floor and the total content width (`57 × nCount`) exceeds the panel width. The panel is created at exactly `W_SCREEN` wide, so icons past that boundary are clipped.
++- Switching to a table widget was considered but rejected because it would lose the per-cell widget type interactions (attitude popups, war-trade clicks, leaderhead hover). Horizontal scrolling was also considered but the header and row panels are separate, so they cannot scroll in sync.
++
++Fix applied:
++
++- Added column pagination to the Glance tab: columns are split into pages of as of now 16 players, navigated with standard left/right arrow buttons (same `BUTTON_STYLE_ARROW_LEFT/RIGHT` style used by `CvInfoScreen`'s graph).
++- `X_Spread` now uses `GLANCE_PAGE_SIZE + 1` as denominator (the `+1` preserves the original left-slot convention, which reserved one slot for the active player who has no column icon), so 16 columns fit the advisor width at 1080p with the 57 px floor comfortably satisfied.
++- Page size 16 fits worldsize Huge well and displays cleanly at 1080p; for SAS48 player counts it yields around 3 pages which also displays fine at 1080p.
++- Arrows are only drawn when `iGlanceNumPages > 1` (i.e. more than 16 rivals), so small games are unaffected.
++
++Files changed:
++
++- [Assets/Python/Screens/CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index a6953afe8..4f966e16c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -359,7 +359,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5528+) Minor **beautified** the [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py): increase **legend culture text width** so it is not cramped when upscaled. Note: although it is functional, the Custom Domestic Advisor is **not supported** in AdvCiv-SAS as of now, so it is lacking the Finance Tab. See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4).
+ - (Requires AdvCiv-SAS 5522+) New **Policy Advisor**. **Beautified**: enlarge **top panels text** so **long civic names don't overflow**. **Remove multiline nationality** information which was **uninfomative** and **crowded vertically** in the **Religions tab** and the **Corporations tab**; use more precise and compact `Leader (ID)` and `HQ (ID)` **one-liner instead** (**ID** also handles **one leader name being used by several players**); **increase row spacing** (now **unified** (was crowded)). **Remove multiline wrapped bonuses** splitting logic in the **Corporations tab**: use one natural comma-separated line (bonuses row height reduced/standardized) since there is enough space after expanding the Policy Advisor and it is more readable. Also add **new rows** (**Bonuses Generated**, **Yields Generated**), and add **first column descriptions** for rows (as of now `Built By:`, `Consumes:`, `Generates:`, `Generates 2:`). Add a **Great Person icon** in `Built By:` row. Change in [CvPolicyAdvisorScreen.py](/Assets/Python/Screens/CvPolicyAdvisorScreen.py).
+ - **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it. (Requires AdvCiv-SAS 5793+) Show **gold per turn** in **Bonuses Tab** even when **not connected to trade network** (if gold trading is available): previously this was hidden, and would require tediously opening the diplomacy screen of each player, and this is now also consistent with flat gold being shown in techs tab for all players (if gold trading is available). See [KI#132](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#132---enhanced-base-advciv-issue-of-not-showing-rival-gold-per-turn-on-foreign-trade-advisor-bonuses-tab-when-not-connected-to-their-trade-network).
+-- Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
++- Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab). (Requires AdvCiv-SAS 5808+) **Split Glance Tab** into **several pages of as of now 16 players** (e.g., 3 pages at SAS48 Worldsize), with clickable left and right arrows for navigation. Fixes **issue of Glance Tab clipping horizontally** if more than 24 players are known and columns being too tight. Last page visited is **remembered and resumed from** on Glance Tab next opening. See [KI#134](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#134---fixed-base-advciv-issue-foreign-diplomacy-advisor-glance-tab-column-icons-overflow-horizontally-with-24-rival-players).
+ - Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. (Requires AdvCiv-SAS 5530+) Note: **unit icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440), and **promotion icon size** is **increased** (no longer DLL-hardcoded (was 16)). (Requires AdvCiv-SAS 5777+) **Lift up the unit panel to full height** (reduces the need for scrolling vertically) and **expand it laterally** to **accomodate lengthy unit rows** (e.g., avoid line wrap if unit name is long, if there are many promotions). Make **show/hide individual unit text clickable** too (more accessible than the small +/- button alone). **Increase leader icon bar from 1 to multiple rows**, and **do not reduce icon size until all rows are full**. For example, at 1080p, 5 rows allow to show up to 45 players (including barbarian) at full leader icon size before leader icon size is reduced. **Reduce Leader icon size reduction** when all rows are full (**mild reduction**, no longer halved). See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4), [KI#130](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#130---fixed-base-advciv-bug-of-unit-rows-showing-build-player-name-instead-of-improvement-text-military-advisor-map-tab), and [KI#131](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer). Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported.
+ - (Requires AdvCiv-SAS 5771+) Added a new **Battles tab** in the Military Advisor, showing as a **sortable table** the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode): **Turn**, **Year**, **Result** (Won, Lost, Retreat) as emoji, **Estimated Odds %** (simple starting effective strength comparison, not exact Civ4 combat odds), **Role** (Are we the attacker?) as emoji, **base Strength** (XML), **start effective Strength** (including modifiers at that battle), **end effective Strength**, **max effective Strength**, **XP before combat** (yellow if Great-General-led), **Our Unit**, **Their Unit** (unit name in yellow if Great-General-led), **same** strength/XP columns for their unit, **Civ icon**, **Player icon**, **Player ID** (to cover the same leader picked by several leaders (custom games, etc.)), **Captured Unit type**, **Captured Unit icon**, **Hill or Peak icon**, **Terrain icon**, **Feature icon**, **Click Plot icon** (**on click camera is moved to this plot** (as the wonder tabs' (Info Screen) text does), with distinct art for normal plot, defended city, and captured city battles). Icons are **hoverable to sevopedia** (or have a camera effect). **Text color** is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red). Implemented a **legend link**, and **LOG Button** (as the Timeline tab). Examples of LOG: `163 | 760 AD | Lost | 43 | A | 6 | 6.04 |  | 7.20 | 8 | 0 | Camel Archer | Longbowman | 5 | 0 | 4 | 8.10 | 5.04 | 9.00 | 9 | 0 |  |  | TERRAIN_GRASS |  | 54 | 30`, `133 | 10 BC | Won | 64 | A | 3 | 3.30 | 1.81 | 3.30 | 2 | 0 | Trireme | Galley | 1 | 0 | 2 | 1.84 |  | 2.20 | 48 | 0 |  |  | TERRAIN_COAST |  | 32 | 10`. Main files changed: [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py), [CvEventManager.py](/Assets/Python/CvEventManager.py), [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py), [CvUnit.cpp](/CvGameCoreDLL/CvUnit.cpp), [CvDllPythonEvents.cpp](/CvGameCoreDLL/CvDllPythonEvents.cpp), [CvDllPythonEvents.h](/CvGameCoreDLL/CvDllPythonEvents.h), [CvEventReporter.cpp](/CvGameCoreDLL/CvEventReporter.cpp), [CvEventReporter.h](/CvGameCoreDLL/CvEventReporter.h).
+ - (Requires AdvCiv-SAS 5802+) Added a new **Summary tab** in the Military Advisor, showing a **synthetic view** of our Military: **Support** (detailed Cost and Supply, and Unit Cap numerical breakdown (e.g., `P x R x M    (1 x 100 x 82) / 10000 = 0 gold icon char`), Military Buildings, Military Production and XP information, and Allied Hammers for total hammer value of allies' (e.g., vassals, same team) army); **Army** (detailed numerical overview for military/civilian units, Domain repartition (Land/Sea/Air), Strongest, Costliest, Total/Avg Hammers as a power estimatation of units, Power Rank (Known) (e.g., `9/11` (in fact `44/48` if debug mode is enabled for spoilers)), Top promotions, Covert Units (Invisible, Spies, Hidden Nationality), And upgradeable units costs (Min/Avg/Max/Total)); **Deployment** (Allied/Neutral/Enemy Cities/Territory/Roaming information with Avg Defense and Best defense of our cities, defensive buildings (as of now Walls and Castles (e.g., `1 / 2`)), Wounded information (Max/Avg/Min and Full/High/Medium/Low Health (e.g, `15 (100%)`)), and Battles reusing the [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py) added with the new Battles Tab (Won/Retreated/Lost (e.g., `35 (33%)`)), Good-Luck Wins and Bad-Luck Losses counts (`e.g., 11 (31%)`), Best/Worst (e.g., `6.3 vs 10.0 1300 AD (39%)`)). Also added a **legend link**.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=24196

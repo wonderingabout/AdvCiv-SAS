@@ -1,0 +1,204 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4406
+# Commit: aa81ff32c2d9c22e2c0cc9ff8a214f81398eaad3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7b9eeda8937e814ddc3a416086e7b171c88a392e
+# Title: Fix degraded performance of PerfectMongoose
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+126	3	PrivateMaps/PerfectMongoose.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 31403cdd6..a3b5bae08 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -659,6 +659,8 @@ class MapConstants:
+ 		# advc: Deleted; can be looked up in-game in AdvCiv. And it's tedious to keep it up to date here.
+ 		#self.optionsString = 
+ 
++		#run_smooth_tests() # advc.test
++
+ 
+ mc = MapConstants()
+ 
+@@ -1167,6 +1169,7 @@ class FloatMap:
+ 
+ 
+ 	def GetAverageInHex(self, x, y, radius):
++		'''
+ 		# advc.oxi: Was getCirclePoints
+ 		list = pb.getFilledCirclePoints(x, y, radius)
+ 		avg = 0.0
+@@ -1185,6 +1188,53 @@ class FloatMap:
+ 		#avg = avg / len(list)
+ 		avg /= count # </advc.oxi>
+ 		return avg
++		'''
++		# advc.opt: The above is too slow. Expanding the function calls
++		# allows the bulk of the overhead to be eliminated. I've mostly let an
++		# LLM perform this task.
++
++		# (The LLM insists that these are nonnegligible optimizations in Python 2.4.)
++		width = self.width
++		height = self.height
++		data = self.data
++		wrapX = self.wrapX
++		wrapY = self.wrapY
++		r2 = radius * radius
++		avg = 0.0
++		count = 0
++		for dy in range(-radius, radius + 1):
++			yy = y + dy
++			# Handle boundary like GetIndex, but only once per dy.
++			if wrapY:
++				if yy < 0 or yy > height - 1:
++					yy_idx = yy % height
++				else:
++					yy_idx = yy
++				base = yy_idx * width
++			else:
++				if yy < 0 or yy > height - 1:
++					continue
++				else:
++					base = yy * width
++			dx = int(math.sqrt(r2 - dy * dy))
++			for xx in range(x - dx, x + dx + 1):
++				if wrapX:
++					if xx < 0 or xx > width - 1:
++						xx_idx = xx % width
++					else:
++						xx_idx = xx
++					i = base + xx_idx
++				else:
++					if xx < 0 or xx > width - 1:
++						continue
++					i = base + xx
++				count += 1
++				avg += data[i]
++
++		if count == 0:
++			return 0.0
++		avg /= count
++		return avg
+ 
+ 	# advc.oxi: Similar changes as in GetAverageInHex
+ 	def GetStdDevInHex(self, x, y, radius):
+@@ -1214,7 +1264,8 @@ class FloatMap:
+ 
+ 
+ 	def Smooth(self, radius):
+-		dataCopy = {}
++		#dataCopy = {}
++		dataCopy = [0.0] * len(self.data) # advc.opt
+ 		for y in range(self.height):
+ 			for x in range(self.width):
+ 				i = self.GetIndex(x, y)
+@@ -1224,7 +1275,8 @@ class FloatMap:
+ 
+ 
+ 	def Deviate(self, radius):
+-		dataCopy = {}
++		#dataCopy = {}
++		dataCopy = [0.0] * len(self.data) # advc.opt
+ 		for y in range(self.height):
+ 			for x in range(self.width):
+ 				i = self.GetIndex(x, y)
+@@ -1239,6 +1291,75 @@ class FloatMap:
+ 			return False
+ 		return True
+ 
++# advc: Tests for FloatMap.Smooth. I chose all the test data; the test code is LLM-generated.
++def set_grid_from_rows(map_obj, rows):
++	h = len(rows)
++	w = len(rows[0])
++	for y in range(h):
++		for x in range(w):
++			map_obj.data[y * w + x] = float(rows[y][x])
++def almost_equal(a, b, eps=1e-9):
++	return abs(a - b) <= eps
++def run_smooth_tests():
++	grid_rows = [
++		[1,  3,  2,  5],
++		[0,  6,  2, -3],
++		[10, -2,  4,  3],
++	]
++	width = len(grid_rows[0])
++	height = len(grid_rows)
++	tests = [ # (expectation at a few coordinates after smoothing)
++		# radius 0, (no horizontal wrap, no vertical wrap)
++		(False, False, 0, {
++			(0,1): 0,
++			(0,2): 10,
++			(3,2): 3,
++		}),
++		(False, False, 1, {
++			(0,0): 4/3.0,
++			(1,1): 1.8,
++			(2,2): 1.75,
++			(3,0): 4/3.0,
++		}),
++		(True, False, 1, {
++			(0,0): 2.25,
++			(1,1): 1.8,
++			(3,1): 1.4,
++			(0,2): 2.75,
++		}),
++		(True, True, 1, {
++			(0,0): 3.8,
++			(2,1): 2.2,
++			(1,2): 4.2,
++			(3,0): 1.6,
++		}),
++		(False, False, 2, {
++			(0,0): 22/6.0,
++			(0,1): 20/7.0,
++		}),
++		(False, False, 4, {
++			(1,1): 31/12.0, # mean of all plots
++		}),
++		(False, True, 3, {
++			(1,1): 74/26.0, # lots of double counting due to wrap-around
++		}),
++	]
++	for wrapX, wrapY, radius, expected_map in tests:
++		m = FloatMap()
++		m.initialize(width, height, wrapX, wrapY)
++		set_grid_from_rows(m, grid_rows)
++		m.Smooth(radius)
++		for (x, y), want in expected_map.items():
++			i = y * width + x
++			got = m.data[i]
++			if not almost_equal(got, want):
++				print("FAIL:",
++				      "wrapX=%s wrapY=%s radius=%d at (x,y)=(%d,%d)" % (wrapX, wrapY, radius, x, y))
++				print("  got     =", got)
++				print("  expected=", want)
++				return
++		print("PASS:", "wrapX=%s wrapY=%s radius=%d" % (wrapX, wrapY, radius))
++	print("All Smooth tests passed.")
+ 
+ ##############################################################################
+ ## PW3 Interpolation and Perlin
+@@ -2237,7 +2358,9 @@ class ClimateMap3:
+ 					tempMap.data[i] = waterTemp
+ 				else:
+ 					tempMap.data[i] = latTemp
+-		tempMap.Smooth(int(math.floor(em.width / 8.0)))
++		# advc: Was floor(em.width / 8.0). That's computationally expensive, and
++		# a smoothing diameter of a quarter of the equator seems enormous.
++		tempMap.Smooth(int(math.ceil(em.width / 18.0)))
+ 		tempMap.Normalize()
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4820

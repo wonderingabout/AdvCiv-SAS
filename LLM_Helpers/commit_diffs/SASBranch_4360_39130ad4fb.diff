@@ -1,0 +1,48 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4360
+# Commit: 39130ad4fb7b4a3703d4c9962b32046f09d6fda5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3a60aa1ca116d1a0b8661cb3ef0526782b0fc930
+# Title: make AI more likely to attack future potential threats would this also help in situations where AI's expansion is blocked in crowded maps or if starting posi...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	Assets/XML/AI_Variables_GlobalDefines.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index 5c4178a05..49943d7c1 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -94,7 +94,7 @@
+ 		<!-- We continue a war because we've been paid for it. (Or maybe, rather,
+ 			 to prove that we're a reliable hireling.) -->
+ 		<!-- custom: just because we are paid for a war is no incentive to risk weakening
+-		our mainland, incentive should be more focused on potential gains (vs risk of loss) -->
++		our mainland, incentive should be more focused on potential gains (vs risk of loss), was 100 -->
+ 		<DefineName>UWAI_WEIGHT_HIRED_HAND</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+@@ -110,8 +110,9 @@
+ 	</Define>
+ 	<Define>
+ 		<!-- To weaken a civ that we perceive as a long-term military threat. -->
++		<!-- custom: may help AI attack sooner a rival that blocks his expansion?, was 100-->
+ 		<DefineName>UWAI_WEIGHT_PREEMPTIVE_WAR</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>150</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Stop civs that we don't like from winning the game, or even civs
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1185

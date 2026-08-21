@@ -1,0 +1,79 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2922
+# Commit: 1f49671a7ed7d7b7da9feeed5d38d72bc24b3879
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 79134e4532795515ec8e1ddfd2e5bc564e671a55
+# Title: Remove ScaledNum "syntax test"
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/XML/LeadFromBehind_GlobalDefines.xml
+2	21	CvGameCoreDLL/ScaledNumTest.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/LeadFromBehind_GlobalDefines.xml b/Assets/XML/LeadFromBehind_GlobalDefines.xml
+index b8d29c252..97a4f58e5 100644
+--- a/Assets/XML/LeadFromBehind_GlobalDefines.xml
++++ b/Assets/XML/LeadFromBehind_GlobalDefines.xml
+@@ -37,10 +37,10 @@
+ 		<DefineName>LFB_ADJUSTDENOMINATOR</DefineName>
+ 		<iDefineIntVal>6</iDefineIntVal>
+ 	</Define>
+-	<!-- advc.003g: Disabling this option should ensure that no floating-point
+-		 math gets used in synchronized odds calculations. That said, AdvCiv
+-		 still uses floating-point math in plenty of AI code, so disabling
+-		 LFB combat odds is unlikely to help against OOS errors. -->
++	<!-- advc.003g (note): Disabling this option should ensure that
++		 no floating-point math gets used in synchronized odds calculations.
++		 That said, AdvCiv still uses floating-point math in a couple of other
++		 places, and floating-point math doesn't normally cause OOS errors. -->
+ 	<Define>
+ 		<DefineName>LFB_USECOMBATODDS</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/ScaledNumTest.cpp b/CvGameCoreDLL/ScaledNumTest.cpp
+index f07dec2e8..fd1243c30 100644
+--- a/CvGameCoreDLL/ScaledNumTest.cpp
++++ b/CvGameCoreDLL/ScaledNumTest.cpp
+@@ -410,27 +410,8 @@ void TestScaledNum()
+ 			iDummy += (int)dCost;
+ 		}
+ 	}
+-
+-	// Syntax test (How easy is it to convert floating-point calculations to ScaledNum?)
+-	/*	Based on some calculations in InvasionGraph::step. Out of context,
+-		the excerpts used here and their names are nonsensical. */
+-	scaled rOtherDist = 2;
+-	scaled rMod = scaled::max(100 - 2 * rOtherDist, 50) / 100;
+-	scaled rOtherPow = 1282;
+-	rOtherPow *= rMod;
+-	scaled rPow = 1417;
+-	scaled rDist = 5;
+-	rPow *= scaled::max(100 - fixp(1.55) * rDist.pow(fixp(1.15)), 50) / 100;
+-	scaled rWeight, rOtherWeight;
+-	rWeight = rOtherWeight = 1;
+-	rOtherWeight *= (rOtherPow > 1000 ? fixp(1.5) : fixp(4/3.));
+-	rWeight += fixp(.25);
+-	rWeight.clamp(fixp(.5), 1);
+-	rPow *= rWeight;
+-	if(rOtherWeight <= per100(99))
+-		rOtherPow *= rOtherWeight;
+-	iDummy += (rPow * (rOtherPow / 2) + rWeight).round();
+-
++	/*	This will always be false, but the compiler can't tell.
++		See comment near the definition of iDummy. */
+ 	if (iDummy == -7)
+ 	{
+ 		FAssert(false);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2228

@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2683
+# Commit: 1f0e1b1b98e9930671730871c2bea24fc42f0179
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c0ead951d27b0dc5139381740bb8b93aaebd3c92
+# Title: Fix AdvCiv minor bug in pre-selection of starting areas
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index cba5dc7a5..d1fa6c440 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1241,7 +1241,9 @@ std::vector<std::pair<int,int> > CvPlayer::findStartingAreas(  // advc: style ch
+ 	//return iBestArea; // <kekm.35>
+ 	VectorPairSecondGreaterComparator kComparator;
+ 	std::sort(areas_by_value.begin(), areas_by_value.end(), kComparator);
+-	areas_by_value.resize(8); // advc: No need to pass around every little island
++	// advc: No need to consider every little island
++	areas_by_value.resize(std::min<int>(areas_by_value.size(),
++			PlayerIter<CIV_ALIVE>::count()));
+ 	return areas_by_value; // </kekm.35>
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=699

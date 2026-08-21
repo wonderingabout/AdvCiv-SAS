@@ -1,0 +1,108 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5167
+# Commit: 80be9845cec1a0d2f3d9a4f055a510c79cc4ca56
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 602f4f308ede3b42081bbd11532e35121ae5b6f5
+# Title: add more info similarly in the foreign advisors's bonuses sub-screen code is very messy so i don't dare (i dared but didnt work xd if i may say but anyways e...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+23	6	Assets/Python/Screens/CvExoticForeignAdvisor.py
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index c90237171..04225d951 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -151,7 +151,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		
+ 		# Height of the panel showing the surplus resources. If self.RES_SHOW_SURPLUS_AMOUNT_ON_TOP is 'False'
+ 		# you'll need to set a higher value for this variable (110 is recommended).
+-		self.RES_SURPLUS_HEIGHT = 110 # advc.073: was 80
++		# <!-- custom: it seems to me just one row of bonuses is enough, to begin with we don't have that much in our mod and not so much are tradeable at the same time anyway (plus we removed the header as well so we don't need as much space anyways etc.), so reduce this anyways etc. -->
++		# self.RES_SURPLUS_HEIGHT = 110 # advc.073: was 80
++		self.RES_SURPLUS_HEIGHT = 60
+ 		
+ 		self.RES_GOLD_COL_WIDTH = 25
+ 		
+@@ -966,14 +968,23 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		else:
+ 			columns = ( IconGrid_BUG.GRID_ICON_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_TEXT_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN, IconGrid_BUG.GRID_MULTI_LIST_COLUMN )
+ 		self.NUM_RESOURCE_COLUMNS = len(columns) - 1
++
+ 		# <advc> Intermediate values leftSpace and topSpace added
+-		leftSpace = self.MIN_LEFT_RIGHT_SPACE + 10
+-		topSpace = self.MIN_TOP_BOTTOM_SPACE + 10
++		# <!-- custom: we don't need all this yellow empty space, better use it for our blue panel and grids or/and such to show more information anyways etc. -->
++		# leftSpace = self.MIN_LEFT_RIGHT_SPACE + 10
++		# topSpace = self.MIN_TOP_BOTTOM_SPACE + 10
++		leftSpace = 0
++		topSpace = self.MIN_TOP_BOTTOM_SPACE
++
+ 		gridX = leftSpace
+-		gridY = topSpace + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + self.TITLE_HEIGHT
++		# <!-- custom: not sure how this all works, some changes don't seem effective at all, manually adjusting as such empirically if i may say but anyways etc. and randomly as such somehow seemed to land it right but anyways etc. -->
++		# gridY = topSpace + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + self.TITLE_HEIGHT
++		gridY = topSpace + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + self.TITLE_HEIGHT - 60
+ 		gridWidth = self.W_SCREEN - gridX - leftSpace
++		# <!-- custom: adjust empirically height as it now overfills on bottom but anyways etc. -->
+ 		gridHeight = self.H_SCREEN - gridY - topSpace
+ 		# </advc>
++
+ 		self.resIconGridName = self.getNextWidgetName()
+ 		self.resIconGrid = IconGrid_BUG.IconGrid_BUG( self.resIconGridName, screen, gridX, gridY, gridWidth, gridHeight, columns, True, self.SHOW_LEADER_NAMES, self.SHOW_ROW_BORDERS )
+ 
+@@ -1024,6 +1035,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 			self.resIconGrid.setHeader( self.activeImportCol, localText.getText("TXT_KEY_FOREIGN_ADVISOR_EXPORTING", ()) )
+ 			self.resIconGrid.setHeader( self.payingCol, (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
+ 			self.resIconGrid.setTextColWidth(self.payingCol, self.RES_GOLD_COL_WIDTH)
++
+ 		if (self.RES_SHOW_IMPORT_EXPORT_HEADER):
+ 			self.resIconGrid.createColumnGroup(" ", 1)
+ 			#self.resIconGrid.createColumnGroup(localText.getText("TXT_KEY_FOREIGN_ADVISOR_EXPORT", ()), 2)
+@@ -1077,6 +1089,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 
+ 	def drawResourceDeals(self, bInitial):
+ 		screen = self.getScreen()
++
+ 		activePlayer = gc.getPlayer(self.iActiveLeader)
+ 		self.initTradeTable()
+ 		
+@@ -1105,7 +1118,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		
+ 		# Assemble the surplus panel
+ 		self.mainAvailablePanel = self.getNextWidgetName()
+-		screen.addPanel( self.mainAvailablePanel, localText.getText("TXT_KEY_FOREIGN_ADVISOR_SURPLUS_RESOURCES", ()), "", False, False, self.SURPLUS_X, self.SURPLUS_Y, self.SURPLUS_WIDTH, self.RES_SURPLUS_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
++		# <!-- custom: save some space, don't use a header, anyways etc. -->
++		# screen.addPanel( self.mainAvailablePanel, localText.getText("TXT_KEY_FOREIGN_ADVISOR_SURPLUS_RESOURCES", ()), "", False, False, self.SURPLUS_X, self.SURPLUS_Y, self.SURPLUS_WIDTH, self.RES_SURPLUS_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
++		screen.addPanel( self.mainAvailablePanel, "", "", False, False, self.SURPLUS_X, self.SURPLUS_Y, self.SURPLUS_WIDTH, self.RES_SURPLUS_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+ 		
+ 		self.availableMultiList = self.getNextWidgetName()
+ 		# advc.073: I don't know how to make the surplus amounts wrap into another row, so the surplus resources will all have to be placed in the top row, even if there isn't enough space.
+@@ -1156,7 +1171,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		self.TABLE_PANEL_HEIGHT = self.H_SCREEN - self.TABLE_PANEL_Y - self.RES_TOP_BOTTOM_SPACE
+ 		
+ 		self.tradePanel = self.getNextWidgetName()
+-		screen.addPanel( self.tradePanel, localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE_TABLE", ()), "", True, True, self.TABLE_PANEL_X, self.TABLE_PANEL_Y, self.TABLE_PANEL_WIDTH, self.TABLE_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
++		# <!-- custom: save some space, don't use a header, anyways etc. -->
++		# screen.addPanel( self.tradePanel, localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE_TABLE", ()), "", True, True, self.TABLE_PANEL_X, self.TABLE_PANEL_Y, self.TABLE_PANEL_WIDTH, self.TABLE_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
++		screen.addPanel( self.tradePanel, "", "", True, True, self.TABLE_PANEL_X, self.TABLE_PANEL_Y, self.TABLE_PANEL_WIDTH, self.TABLE_PANEL_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+ 
+ 		self.resIconGrid.createGrid()
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG
+index 15471ed27..139c8296f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6171

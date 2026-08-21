@@ -1,0 +1,128 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3005
+# Commit: 893bff5eb16c5220a19f0a71b5b0c5db09d9bee0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5a45094da2377696955be407eab3c9b707f87412
+# Title: Improvement stats on Statistics tab no longer optional
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+9	4	Assets/Python/Screens/CvInfoScreen.py
+6	7	Assets/XML/Text/BUG Advisors Options.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py b/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+index 5c91a18b3..03c02cd2a 100644
+--- a/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+@@ -89,8 +89,8 @@ class BugAdvisorOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		# </advc.004>
+ 		self.addCheckbox(screen, right, "Advisors__PartialScoreGraphs") # advc.091
+ 		self.addCheckbox(screen, right, "Advisors__BugGraphsTab")
+-		self.addCheckbox(screen, right, "Advisors__BugStatsTab")
+-		# advc.004: No longer optional
++		# advc.004: No longer optional (x2)
++		#self.addCheckbox(screen, right, "Advisors__BugStatsTab")
+ 		#self.addCheckbox(screen, right, "Advisors__NonZeroStatsOnly") # K-Mod
+ 
+ 		self.addSpacer(screen, right, "Before_Sevopedia") # advc.004
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 09464ad0f..4fa18597e 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -2944,7 +2944,8 @@ class CvInfoScreen:
+ 
+ 		# Bottom Chart
+ #BUG: improvements - start
+-		if AdvisorOpt.isShowImprovements():
++		#if AdvisorOpt.isShowImprovements():
++		if True: # advc.004
+ 			self.X_STATS_BOTTOM_CHART = 45
+ 			self.Y_STATS_BOTTOM_CHART = 280
+ 			self.W_STATS_BOTTOM_CHART_UNITS = 455
+@@ -3141,7 +3142,8 @@ class CvInfoScreen:
+ 		screen.enableSort(szBuildingsTable)
+ 
+ #BUG: improvements - start
+-		if AdvisorOpt.isShowImprovements():
++		#if AdvisorOpt.isShowImprovements():
++		if True: # advc.004
+ 			szImprovementsTable = self.getNextWidgetName()
+ 			screen.addTableControlGFC(szImprovementsTable, self.iNumImprovementStatsChartCols, self.X_STATS_BOTTOM_CHART + self.W_STATS_BOTTOM_CHART_UNITS + self.W_STATS_BOTTOM_CHART_BUILDINGS, self.Y_STATS_BOTTOM_CHART, self.W_STATS_BOTTOM_CHART_IMPROVEMENTS, self.H_STATS_BOTTOM_CHART,
+ 						  True, True, 32,32, TableStyles.TABLE_STYLE_STANDARD)
+@@ -3150,7 +3152,8 @@ class CvInfoScreen:
+ 
+ 		# Reducing the width a bit to leave room for the vertical scrollbar, preventing a horizontal scrollbar from also being created
+ #BUG: improvements - start
+-		if AdvisorOpt.isShowImprovements():
++		#if AdvisorOpt.isShowImprovements():
++		if True: # advc.004
+ 			iChartWidth = self.W_STATS_BOTTOM_CHART_UNITS + self.W_STATS_BOTTOM_CHART_BUILDINGS + self.W_STATS_BOTTOM_CHART_IMPROVEMENTS - 24
+ 
+ 			# Add Columns
+@@ -3204,6 +3207,7 @@ class CvInfoScreen:
+ 
+ # #BUG: improvements - start
+ 		# if AdvisorOpt.isShowImprovements():
++		# if True: # advc.004
+ 			# for i in range(self.iNumImprovementStatsChartRows):
+ 				# if (aiImprovementsCurrent[i] > 0):
+ 					# screen.appendTableRow(szImprovementsTable)
+@@ -3263,7 +3267,8 @@ class CvInfoScreen:
+ 			iRow += 1 # K-Mod
+ 
+ #BUG: improvements - start
+-		if AdvisorOpt.isShowImprovements():
++		#if AdvisorOpt.isShowImprovements():
++		if True: # advc.004
+ 			# Add Improvements to table	
+ 			iRow = 0
+
+diff --git a/Assets/XML/Text/BUG Advisors Options.xml b/Assets/XML/Text/BUG Advisors Options.xml
+index 0b0cda04b..0804cfe40 100644
+--- a/Assets/XML/Text/BUG Advisors Options.xml	
++++ b/Assets/XML/Text/BUG Advisors Options.xml	
+@@ -404,23 +404,22 @@
+ 		<Spanish>Muestra las maravillas empleando el color del jugador que las ha constru�do.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.004: German was "BUG Statistiken" -->
+-	<TEXT>
++	<!-- advc.004: Now disused (German was "BUG Statistiken") -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGSTATSTAB_TEXT</Tag>
+ 		<English>Improvement Stats</English>
+ 		<German>Zus. Statistiken</German>
+ 		<Italian>Scheda Statistiche</Italian>
+ 		<Spanish>Estad�sticas de mejoras</Spanish>
+-	</TEXT>
+-	
+-	<!-- advc.004: rewritten (English, German) -->
+-	<TEXT>
++	</TEXT-->
++	<!-- advc.004: Now disused (English, German rewritten) -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGSTATSTAB_HOVER</Tag>
+ 		<English>When checked, the "Statistics" tab shows how many improvements you currently own of each improvement type.</English>
+ 		<German>Zeigt auf dem Reiter "Statistik" f�r jeden Typ von Gel�ndeverbesserung an, wie viele Verbesserungen dieses Typs Sie derzeit besitzen.</German>
+ 		<Italian>Quando � selezionato, mostra la Scheda delle Statistiche nella versione migliorata del BUG Mod</Italian>
+ 		<Spanish>Muestra mejoras de casillas en la pesta�a 'Estad�sticas'.</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 	
+ 	<!-- advc.004: No longer used -->
+ 	<!--TEXT>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4424

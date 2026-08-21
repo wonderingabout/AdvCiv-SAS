@@ -1,0 +1,527 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4765
+# Commit: 33fc0afda9ff0de631d0ac48a8b5fa9b48ffc996
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e82115dc5a85cd9ef1b4cb77c718594b2087d58c
+# Title: add right panel version as base sevopedia religion version, using addMultiListControlGFC and civ4bug sourceforge net doc (doc also added to our mod's common...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	174	Assets/Python/Contrib/Sevopedia/-SevoPediaReligion_right_panel_version_unfinished_or_abandoned.py
+106	46	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+-	-	Assets/Python/Contrib/Sevopedia/__civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk
+16503	0	_0.0_Common_Docs/CIV4BUG Sourceforge net All Classes Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md
+5	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_relationships.txt
+-	-	_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (6).JPG
+ delete mode 100644 Assets/Python/Contrib/Sevopedia/-SevoPediaReligion_right_panel_version_unfinished_or_abandoned.py
+ create mode 100644 Assets/Python/Contrib/Sevopedia/__civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk
+ create mode 100644 _0.0_Common_Docs/CIV4BUG Sourceforge net All Classes Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/-SevoPediaReligion_right_panel_version_unfinished_or_abandoned.py b/Assets/Python/Contrib/Sevopedia/-SevoPediaReligion_right_panel_version_unfinished_or_abandoned.py
+deleted file mode 100644
+index 148a9212c..000000000
+--- a/Assets/Python/Contrib/Sevopedia/-SevoPediaReligion_right_panel_version_unfinished_or_abandoned.py
++++ /dev/null
+@@ -1,174 +0,0 @@
+-# Sid Meier's Civilization 4
+-# Copyright Firaxis Games 2005
+-
+-#
+-# Sevopedia 2.3
+-#   sevotastic.blogspot.com
+-#   <hidden-email>
+-#
+-# additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+-#
+-# <!-- custom: part of the code here (placeLeaders in particular, but not exhaustive or maybe exhaustive
+-# or not, anyways, is imported from History Rewritten mod:
+-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py
+-# which may be modified or not for AdvCiv-SAS
+-#
+-# <!-- custom: part of the code here (placeBuildings in particular, but not exhaustive or maybe exhaustive
+-# or not, anyways, is imported from RFC Dawn of Civilization mod:
+-# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaReligion.py
+-# which may be modified or not for AdvCiv-SAS
+-
+-from CvPythonExtensions import *
+-import CvUtil
+-import ScreenInput
+-import SevoScreenEnums
+-import string
+-
+-gc = CyGlobalContext()
+-ArtFileMgr = CyArtFileMgr()
+-localText = CyTranslator()
+-
+-class SevoPediaReligion:
+-
+-	def __init__(self, main):
+-		self.iReligion = -1
+-		self.top = main
+-
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+-		self.X_MAIN_PANE = self.top.X_PEDIA_PAGE
+-		self.Y_MAIN_PANE = self.top.Y_PEDIA_PAGE
+-		self.W_MAIN_PANE = 200
+-
+-		self.X_REQUIRES = self.X_MAIN_PANE + self.W_MAIN_PANE + self.MEDIUM_MARGIN
+-		self.Y_REQUIRES = self.Y_MAIN_PANE
+-		self.W_REQUIRES = 84
+-		self.H_REQUIRES = 110
+-
+-		#self.X_LEADERS = self.X_ICON
+-		#self.W_LEADERS = self.top.R_PEDIA_PAGE - self.X_LEADERS
+-		#self.H_LEADERS = 110
+-		#self.Y_LEADERS = self.top.B_PEDIA_PAGE - self.H_LEADERS
+-
+-		self.W_LEADERS = 290
+-		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
+-		self.Y_LEADERS = self.Y_MAIN_PANE
+-
+-		self.X_BUILDINGS = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+-		self.Y_BUILDINGS = self.Y_REQUIRES
+-		self.W_BUILDINGS = self.top.R_PEDIA_PAGE - self.X_BUILDINGS - self.W_LEADERS - self.MEDIUM_MARGIN
+-		self.H_BUILDINGS = self.H_REQUIRES
+-
+-		self.X_SPECIAL = self.X_MAIN_PANE + self.W_MAIN_PANE + self.MEDIUM_MARGIN
+-		self.Y_SPECIAL = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+-		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL - self.W_LEADERS - self.MEDIUM_MARGIN
+-		self.H_SPECIAL = 150
+-
+-		self.H_MAIN_PANE = self.Y_SPECIAL + self.H_SPECIAL - self.Y_MAIN_PANE
+-
+-		self.W_ICON = 150
+-		self.H_ICON = 150
+-		self.X_ICON = self.X_MAIN_PANE + (self.W_MAIN_PANE - self.W_ICON) / 2
+-		self.Y_ICON = self.Y_MAIN_PANE + (self.H_MAIN_PANE - self.H_ICON) / 2
+-		self.ICON_SIZE = 64
+-
+-		self.X_HISTORY = self.X_MAIN_PANE
+-		self.Y_HISTORY = self.Y_SPECIAL + self.H_SPECIAL + self.SMALL_MARGIN
+-		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - self.W_LEADERS - self.MEDIUM_MARGIN
+-		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+-
+-		self.H_LEADERS = self.H_MAIN_PANE + self.SMALL_MARGIN + self.H_HISTORY
+-
+-
+-
+-	def interfaceScreen(self, iReligion):
+-		self.iReligion = iReligion
+-		screen = self.top.getScreen()
+-
+-		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_MAIN_PANE, self.Y_MAIN_PANE, self.W_MAIN_PANE, self.H_MAIN_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
+-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getReligionInfo(self.iReligion).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-
+-		self.placeSpecial()
+-		self.placeRequires()
+-		self.placeBuildings()
+-		self.placeLeaders()
+-		self.placeHistory()
+-
+-
+-
+-	def placeRequires(self):
+-		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_REQUIRES", ()), "", False, True, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES, PanelStyles.PANEL_STYLE_BLUE50 )
+-		screen.attachLabel(panelName, "", "  ")
+-		iTech = gc.getReligionInfo(self.iReligion).getTechPrereq()
+-		if (iTech > -1):
+-			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
+-
+-
+-
+-	def placeBuildings(self):
+-		screen = self.top.getScreen()
+-		panel = self.top.getNextWidgetName()
+-
+-		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_PEDIA_BUILDINGS", ()), "", False, True, self.X_BUILDINGS, self.Y_BUILDINGS, self.W_BUILDINGS, self.H_BUILDINGS, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.attachLabel(panel, "", "  ")
+-
+-		for iBuildingClass in xrange(gc.getNumBuildingClassInfos()):
+-			iCivilization = CyGame().getActiveCivilizationType()
+-			if iCivilization > -1:
+-				iBuilding = gc.getCivilizationInfo(iCivilization).getCivilizationBuildings(iBuildingClass)
+-			else:
+-				iBuilding = gc.getBuildingClassInfo(iBuildingClass).getDefaultBuildingIndex()
+-
+-			if iBuilding > -1:
+-				building = gc.getBuildingInfo(iBuilding)
+-				#if self.iReligion in [building.getPrereqReligion(), building.getOrPrereqReligion(), building.getStateReligion(), building.getOrStateReligion(), building.getHolyCity()]:
+-				#	screen.attachImageButton(panel, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
+-				if self.iReligion in [building.getPrereqReligion(), building.getStateReligion()]:
+-					screen.attachImageButton(panel, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, -1, False)
+-
+-
+-
+-	def placeSpecial(self):
+-		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_EFFECTS", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50 )
+-		listName = self.top.getNextWidgetName()
+-		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
+-		screen.enableSelect(listName, False)
+-		szSpecialText = CyGameTextMgr().parseReligionInfo(self.iReligion, True)
+-		splitText = string.split( szSpecialText, "\n" )
+-		for special in splitText:
+-			if len( special ) != 0:
+-				screen.appendListBoxString( listName, special, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+-
+-
+-
+-	def placeHistory(self):
+-		screen = self.top.getScreen()
+-		panelName = self.top.getNextWidgetName()
+-		screen.addPanel( panelName, "", "", True, True, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, PanelStyles.PANEL_STYLE_BLUE50 )
+-		szText = gc.getReligionInfo(self.iReligion).getCivilopedia()
+-		screen.attachMultilineText( panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-
+-
+-
+-	def placeLeaders(self):
+-		screen = self.top.getScreen()
+-		panel = self.top.getNextWidgetName()
+-
+-		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_PEDIA_CATEGORY_LEADER", ()), "", False, True, self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.attachLabel(panel, "", "  ")
+-
+-		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
+-			LeaderInfo = gc.getLeaderHeadInfo(iLeader)
+-			if LeaderInfo.getFavoriteReligion() == self.iReligion:
+-				screen.attachImageButton(panel, "", LeaderInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
+-
+-
+-
+-	def handleInput (self, inputClass):
+-		return 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 03859e0ba..283af998d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -1,6 +1,6 @@
+ # Sid Meier's Civilization 4
+ # Copyright Firaxis Games 2005
+-
++#
+ #
+ # Sevopedia 2.3
+ #   sevotastic.blogspot.com
+@@ -11,7 +11,7 @@
+ # <!-- custom: part of the code here (placeLeaders in particular, but not exhaustive or maybe exhaustive
+ # or not, anyways, is imported from History Rewritten mod:
+ # C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\History Rewritten\Assets\Python\Pedia\CvPediaReligion.py
+-# which may be modified or not for AdvCiv-SAS
++# which may be modified or not for AdvCiv-SAS, by claude AI and then my adjustments or not to it or not or yes or and other or and not anwyays etc
+ # -->
+ #
+ # <!-- custom: part of the code here (placeBuilding and placeUnit in particular, but not exhaustive or maybe exhaustive
+@@ -36,61 +36,74 @@ class SevoPediaReligion:
+ 		self.iReligion = -1
+ 		self.top = main
+ 
++		# <!-- custom: based on sevopediabuilding's code, see there for details and differences of implementation --> 
++
+ 		self.MEDIUM_MARGIN = 15
+ 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+ 
+-		self.X_MAIN_PANE = self.top.X_PEDIA_PAGE
+-		self.Y_MAIN_PANE = self.top.Y_PEDIA_PAGE
+-		self.W_MAIN_PANE = 200
++		# <!-- custom: this (287 anyways etc) should be accurate according to my measurements if i am not mistaken for a 4 leaders panel but the screen.appendMultiListButton uses seemingly (approximately from my vision but anyways etc) a smaller button spacing, so we have now due to saved reduced spacing a bit extra space on the right margin as compared to left margin, making it asymetrical and less pretty if i may say anyways etc, to solve this, reducing the width, while keeping in mind the correct value should be 287 if i am not mistaken for 4 leaders per row total width including margins (or keeping here as i may or in case i forget or not forget maybe or not or yes or and other or and not anyways etc) -->
++		#self.W_LEADERS = 287
++		self.W_LEADERS = 282
++		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
++		self.Y_LEADERS = self.top.Y_PEDIA_PAGE
++		self.H_LEADERS = self.top.B_PEDIA_PAGE - self.Y_LEADERS
+ 
+-		self.X_REQUIRES = self.X_MAIN_PANE + self.W_MAIN_PANE + self.MEDIUM_MARGIN
+-		self.Y_REQUIRES = self.Y_MAIN_PANE
+-		self.W_REQUIRES = 84
+-		self.H_REQUIRES = 110
++		self.X_RELIGION_PANE = self.top.X_PEDIA_PAGE
++		self.Y_RELIGION_PANE = self.top.Y_PEDIA_PAGE
++		self.W_RELIGION_PANE = 200
++		self.H_RELIGION_PANE = 230
++
++		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code anyways etc) and modified it and its logic for advciv-sas or not or yes or and other things or and not anyways etc -->
++		self.ICON_SIZE = 64
++		self.ICON_FRAME_SIZE = 164
++		self.MAX_ICON_FRAME_SIZE = 164
+ 
+-		self.X_BUILDING = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+-		self.Y_BUILDING = self.Y_REQUIRES
+-		self.W_BUILDING = (self.top.R_PEDIA_PAGE - self.X_BUILDING - self.MEDIUM_MARGIN) / 2
+-		self.H_BUILDING = self.H_REQUIRES
++		if (self.ICON_SIZE > self.ICON_FRAME_SIZE):
++			raise ValueError(u"[FATAL] self.ICON_SIZE=%d cannot be bigger/higher than self.ICON_FRAME_SIZE=%d, self.ICON_SIZE must fit within the frame, please adjust self.ICON_SIZE or/and self.ICON_FRAME_SIZE so that 0 < self.ICON_SIZE < self.ICON_FRAME_SIZE" % (self.ICON_SIZE, self.ICON_FRAME_SIZE))
++		if (self.ICON_FRAME_SIZE > self.MAX_ICON_FRAME_SIZE):
++			raise ValueError(u"[FATAL] Out of bounds self.ICON_FRAME_SIZE=%d, must be lower than  cannot be bigger/higher than self.MAX_ICON_FRAME_SIZE, please reduce self.ICON_FRAME_SIZE so that 0 < self.ICON_FRAME_SIZE < self.MAX_ICON_FRAME_SIZE" % (self.ICON_FRAME_SIZE, self.MAX_ICON_FRAME_SIZE))
+ 
+-		self.X_UNIT = self.X_BUILDING + self.W_BUILDING + self.MEDIUM_MARGIN
+-		self.Y_UNIT = self.Y_BUILDING
+-		self.W_UNIT = self.top.R_PEDIA_PAGE - self.X_UNIT
+-		self.H_UNIT = 110
++		self.W_ICON = self.ICON_SIZE
++		self.H_ICON = self.ICON_SIZE
++		# <!-- custom: icon at the center of the panel for its middle point (both middle point of the icon/button and of the religion_panel should and are wanted for us to coincide here anyways etc if we/i are/am not mistaken anyways etc anyways etc anyways etc...)
++		# Note: formula is approximative but seems to work quite well for a button size of 64px, may be improved indeed or not or yes or not or and other or and not or etc or not etc or yes or and other or and not anyways etc -->
++		self.X_ICON = self.X_RELIGION_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2 + 19
++		self.Y_ICON = self.Y_RELIGION_PANE + (self.H_RELIGION_PANE - self.H_ICON) / 2 + 3
+ 
+-		self.X_SPECIAL = self.X_MAIN_PANE + self.W_MAIN_PANE + self.MEDIUM_MARGIN
+-		self.Y_SPECIAL = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+-		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
+-		self.H_SPECIAL = 150
++		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_LEADERS + self.MEDIUM_MARGIN) - self.MEDIUM_MARGIN - (self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN)
+ 
+-		self.H_MAIN_PANE = self.Y_SPECIAL + self.H_SPECIAL - self.Y_MAIN_PANE
++		self.X_BUILDINGS = self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN
++		self.Y_BUILDINGS = self.Y_RELIGION_PANE
++		self.W_BUILDINGS = self.W_REMAINING_CENTER_SPACE / 2
++		self.H_BUILDINGS = 110
+ 
+-		self.W_ICON = 150
+-		self.H_ICON = 150
+-		self.X_ICON = self.X_MAIN_PANE + (self.W_MAIN_PANE - self.W_ICON) / 2
+-		self.Y_ICON = self.Y_MAIN_PANE + (self.H_MAIN_PANE - self.H_ICON) / 2
+-		self.ICON_SIZE = 64
++		self.W_REQUIRES = 84
+ 
+-		self.X_LEADERS = self.X_MAIN_PANE
+-		self.W_LEADERS = self.top.R_PEDIA_PAGE - self.X_LEADERS
+-		self.H_LEADERS = 110
+-		self.Y_LEADERS = self.Y_MAIN_PANE + self.H_MAIN_PANE + self.SMALL_MARGIN
++		self.X_UNITS = self.X_BUILDINGS
++		self.Y_UNITS = self.Y_BUILDINGS + self.H_BUILDINGS + self.SMALL_MARGIN
++		self.W_UNITS = self.W_BUILDINGS - self.W_REQUIRES - self.MEDIUM_MARGIN
++		self.H_UNITS = self.H_BUILDINGS
+ 
+-		self.X_HISTORY = self.X_MAIN_PANE
+-		self.Y_HISTORY = self.Y_LEADERS + self.H_LEADERS + self.SMALL_MARGIN
+-		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
++		self.X_REQUIRES = self.X_UNITS + self.W_UNITS + self.MEDIUM_MARGIN
++		self.Y_REQUIRES = self.Y_UNITS
++		self.H_REQUIRES = self.H_BUILDINGS
++
++		self.X_SPECIAL = self.X_BUILDINGS + self.W_BUILDINGS + self.MEDIUM_MARGIN
++		self.Y_SPECIAL = self.Y_BUILDINGS
++		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL - self.W_LEADERS - self.MEDIUM_MARGIN
++		self.H_SPECIAL = self.H_BUILDINGS + self.SMALL_MARGIN + self.H_UNITS
++
++		self.X_HISTORY = self.X_RELIGION_PANE
++		self.Y_HISTORY = self.Y_UNITS + self.H_UNITS + self.SMALL_MARGIN
++		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - self.W_LEADERS - self.MEDIUM_MARGIN
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+ 
+ 
+ 	def interfaceScreen(self, iReligion):
+ 		self.iReligion = iReligion
+-		screen = self.top.getScreen()
+-
+-		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_MAIN_PANE, self.Y_MAIN_PANE, self.W_MAIN_PANE, self.H_MAIN_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
+-		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getReligionInfo(self.iReligion).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
++		self.placeReligionPane()
+ 		self.placeSpecial()
+ 		self.placeRequires()
+ 		self.placeBuilding()
+@@ -100,6 +113,17 @@ class SevoPediaReligion:
+ 
+ 
+ 
++	def placeReligionPane(self):
++		screen = self.top.getScreen()
++
++		screen.addPanel( self.top.getNextWidgetName(), "", "", False, False, self.X_RELIGION_PANE, self.Y_RELIGION_PANE, self.W_RELIGION_PANE, self.H_RELIGION_PANE, PanelStyles.PANEL_STYLE_BLUE50)
++		# <!-- custom: no need for the blue frame on blue background, use transparent instead, anyways etc -->
++		#screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_MAIN)
++		screen.addPanel(self.top.getNextWidgetName(), "", "", False, False, self.X_ICON, self.Y_ICON, self.W_ICON, self.H_ICON, PanelStyles.PANEL_STYLE_EMPTY)
++		screen.addDDSGFC(self.top.getNextWidgetName(), gc.getReligionInfo(self.iReligion).getButton(), self.X_ICON + self.W_ICON/2 - self.ICON_SIZE/2, self.Y_ICON + self.H_ICON/2 - self.ICON_SIZE/2, self.ICON_SIZE, self.ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++
++
++
+ 	def placeRequires(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+@@ -110,11 +134,12 @@ class SevoPediaReligion:
+ 			screen.attachImageButton( panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False )
+ 
+ 
++
+ 	# Rise of Mankind 2.9
+ 	def placeBuilding(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_BUILDINGS_ROM_291", ()), "", False, True, self.X_BUILDING, self.Y_BUILDING, self.W_BUILDING, self.H_BUILDING, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName, localText.getText("TXT_KEY_BUILDINGS_ROM_291", ()), "", False, True, self.X_BUILDINGS, self.Y_BUILDINGS, self.W_BUILDINGS, self.H_BUILDINGS, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
+ 		for iBuilding in range(gc.getNumBuildingInfos()):
+ 			# buildings have several options for religions so need to check them all, only one of them needs to be true
+@@ -132,7 +157,7 @@ class SevoPediaReligion:
+ 	def placeUnit(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_UNITS_ROM_291", ()), "", False, True, self.X_UNIT, self.Y_UNIT, self.W_UNIT, self.H_UNIT, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panelName, localText.getText("TXT_KEY_UNITS_ROM_291", ()), "", False, True, self.X_UNITS, self.Y_UNITS, self.W_UNITS, self.H_UNITS, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
+ 		for iUnit in range(gc.getNumUnitInfos()):
+ 			iPrereq = gc.getUnitInfo(iUnit).getPrereqReligion()
+@@ -167,17 +192,52 @@ class SevoPediaReligion:
+ 
+ 
+ 
++	# <!-- custom: in https://civ4bug.sourceforge.net/PythonAPI/AllClasses.html i have found this:
++	# VOID addMultiListControlGFC (STRING szName, STRING helpText, INT iX, INT iY, INT iWidth, INT iHeight, INT numLists, INT defaultWidth, INT defaultHeight, TableStyle eStyle)
++	# and in https://github.com/f1rpo/AdvCiv/blob/master/Assets/Python/Screens/CvMainInterface.py#L2050C1-L2053C38 i have found this:
++	# 		self.screen.addMultiListControlGFC("BottomButtonList", u"",
++	#			lRect.x(), lRect.y(), lRect.width(), lRect.height(),
++	#			4, iButtonSize, iButtonSize, # numLists, defaultWidth, defaultHeight
++	#			TableStyles.TABLE_STYLE_STANDARD)
++	# if it helps us adapt/use the addMultiListControlGFC method, anyways etc
++	# -->
+ 	def placeLeaders(self):
+ 		screen = self.top.getScreen()
+-		panel = self.top.getNextWidgetName()
+-
+-		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_PEDIA_CATEGORY_LEADER", ()), "", False, True, self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, PanelStyles.PANEL_STYLE_BLUE50)
+-		screen.attachLabel(panel, "", "  ")
++		panelName = self.top.getNextWidgetName()
+ 
++		# Create panel with proper styling
++		screen.addPanel(panelName, CyTranslator().getText("TXT_KEY_PEDIA_CATEGORY_LEADER", ()), "", False, True, 
++						self.X_LEADERS, self.Y_LEADERS, self.W_LEADERS, self.H_LEADERS, 
++						PanelStyles.PANEL_STYLE_BLUE50)
++		
++		# Create MultiList for leaders
++		rowListName = self.top.getNextWidgetName()
++		
++		# Constants for leader button display
++		BUTTON_SIZE = 64 # Size of each leader button
++		PADDING_X = 9
++		PADDING_Y = 36
++		
++		# Create the MultiList control
++		# Per documentation, the numLists parameter (7th) is actually number of columns
++		# Setting to 1 means the engine will auto-calculate how many buttons fit per row
++		screen.addMultiListControlGFC(rowListName, "", 
++								self.X_LEADERS + PADDING_X, 
++								self.Y_LEADERS + PADDING_Y, 
++								self.W_LEADERS - (PADDING_X * 2), 
++								self.H_LEADERS - (PADDING_Y + 10), 
++								1,  # Using 1 for auto-calculation of buttons per row
++								BUTTON_SIZE, BUTTON_SIZE, 
++								TableStyles.TABLE_STYLE_STANDARD)
++
++	    # Find all leaders who have this religion as favorite, <!-- custom: and --> add <!-- custom: them --> all to the list <!-- custom: anyways etc (not catch them all... or maybe.. or not or yes, anyways etc... xd anyways etc...) -->
+ 		for iLeader in xrange(gc.getNumLeaderHeadInfos()):
+ 			LeaderInfo = gc.getLeaderHeadInfo(iLeader)
+ 			if LeaderInfo.getFavoriteReligion() == self.iReligion:
+-				screen.attachImageButton(panel, "", LeaderInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
++				LeaderInfo = gc.getLeaderHeadInfo(iLeader)
++				screen.appendMultiListButton(rowListName, LeaderInfo.getButton(), 
++										0,  # Column index (always 0 when numLists=1)
++										WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/__civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk b/Assets/Python/Contrib/Sevopedia/__civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk
+new file mode 100644
+index 000000000..108a94860
+Binary files /dev/null and b/Assets/Python/Contrib/Sevopedia/__civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt - Steam Shortcut.lnk differ
+
+[PATCH OMITTED] file=a/_0.0_Common_Docs/CIV4BUG Sourceforge net All Classes Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt b/_0.0_Common_Docs/CIV4BUG Sourceforge net All Classes Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt reason=file-patch-too-many-changed-lines changedLines=16503 bytes=349465
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md
+index db87bd3ff..5eff91a86 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md
+@@ -65,7 +65,7 @@ doing your own mod](https://github.com/wonderingabout/kujira)
+ maybe (even though i mostly use kujira's website, maybe this one helps too).
+ - list of unitAIs [kujira](https://gforestshade.github.io/kujira/post/keyichiran/#%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88) and
+ [cfc forum with what they do (may be accurate or not anyways)](https://forums.civfanatics.com/threads/list-of-unitais-and-what-they-do.353919/post-8910602)
+-- [Python Class Reference](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, may be useful even though i didn't use it directly (not even indirectly to implement code as well though but it did give me some ideas of (see below too anyways etc) reinspecting the gc py objcet again anyways etc anyways etc anyways etc see below anyways etc
++- [Python Class Reference (civ4bug.sourceforge.net)](https://civ4bug.sourceforge.net/PythonAPI/) List of all or many(?) python class detailed info, can be useful for example it helped me implement the Sevopedia religion's (working and finalized at least as of now anyways etc) right panel version of leaders panel, telling [claude AI (see Claude AI's section of the Authors part of the readme.md for details)](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) to adjust its code for the `screen.addMultiListControlGFC` to display leaders in a multi line button panel, see Sevopedia religion's code and code coomments for details. I have also made a copy of it (this website's content that is very elpful if i or and maybe others or not or other or etc anwyas etc use it or not anyways etc) here in advciv-sas or the current mod you're using showing this/these doc(s), in the file [civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt](/_0.0_Common_Docs/CIV4BUG%20Sourceforge%20net%20All%20Classes%20Doc/civ4bug_sourceforge_net_pythonAPI_AllClasses_html.txt), may help us also for global search (with vs code for example is what we/i i mean use anyways etc  thanks to thosete person(s) who taught me about it anyways etc) if need or and other uses or and not maybe anyways etc.
+ - inspecting an object, see for example, not sure is best way to do it and i am no expert in it, but i did solve it hehe if i may say but anyways... etc.., just one way i randomly or persistently found that solved the issue of displaying/finding required building method, if it can help you too maybe anyways etc, here it is: [_inspect_object_attrs.py](/Assets/Python/Contrib/Sevopedia/_inspect_object_attrs.py) and [-SevoPediaBuilding-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/-SevoPediaBuilding-gc-inner-debug-content.txt) for example, and also [-SevoPediaUnit-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/-SevoPediaUnit-gc-inner-debug-content.txt) which helped me adjust Claude AI's (see [Claude AI's part of the authors section of this README.md below for details](/README.md#claude-ai-the-newcomer-hehe-xd-anyways-etc-welcome-anyways-etc) code of the new placeTerrainFeatureCity or similarly named sevopedia unit function/method anyways etc, not using the inaccurate methods Claude AI provided, at least in advciv and advciv-sas by extension since we use same code as in advciv anyways etc, `getHillsAttackPercent()` and `getHillsDefensePercent()` but instead the real at least as appears in our insect of the unitinfo anyways etc as linked just above in same bulelt point if i am not mistaken indeed if i may say anyways etc with `getHillsAttackModifier()` and `getHillsDefenseModifier()` of an otherwise very great code that worked at first try!!! (see also [this screenshot (1) (google drive image link)](https://drive.google.com/file/d/1oE0tG3VjCY7a5ABwlV0MYDhA3ox3Sbe4/view?usp=sharing) and [this screenshot (2) (google drive image link)](https://drive.google.com/file/d/1Yn7dIxzDpuJ2f8wbpXmhn2W0qZ42ADOe/view?usp=sharing) for example of how i solved it if helpful or interesitng or enjyoabel or pelasant or fun or any other else or not or othr or not or yes or and other or and not anyways etc anyways etc anyways etc) And finally shwoed us hills and peaks too so we can expand on it and try to find how to show them in sevoepdia terrain category now :o anyways etc, thanks a lot Claude AI and thanks to me too or and other or and not anways etc , hopefully helpful or not or yes or and other or and not anyways etc anyways etc anyways etc 
+ - todo add links if i have/want(/do) more to add
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 069f025ca..d2722f09f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -53,7 +53,7 @@ after having written this first paragraph above in this same example 4, a more e
+ 
+ ## example 5: religion category
+ 
+-new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too anyways etc) and Units (based on ROM 291's code too) panels in Sevopedia Religion category:
++new Leaders (based on History Rewritten's code) and Buildings (based originally/initially on RFC DOC's code and then ROM 291 as it was cleaner and seemingly more exahaustive and has more other features too anyways etc) and Units (based on ROM 291's code too) panels in Sevopedia Religion category, and then modified by Claude AI thanks to my prompts too or/and adjustments or/and not anyways etc, as well as civ4 bug doc, see code comments in sevopediareligion.py for details.
+ 
+ (Also note that all leaders now have in AdvCiv-SAS an updated pedia entry based on real wikipedia content, hopefully clearer, more exhaustive, neutral enough, and accurate and updated maybe too, may or not be less politically correct but i don't care, in fact i encourage it and like it, as long as tone is kind and helpful or not necessarily and not respectful either but kind or something, not to impose this as a dictature of myself even though could but would not be very kind, or maybe is in my own way or maybe not or yes etc but anyways... anyways etc anyways etc...)
+ 
+@@ -88,6 +88,10 @@ After having written these, combat information was added (which units is this un
+ <img src="../Images_In_General/0.680_sevopedia_unit_sample (4).JPG" width="250"></img>
+ <img src="../Images_In_General/0.680_sevopedia_unit_sample (5).JPG" width="250"></img>
+ <img src="../Images_In_General/0.680_sevopedia_unit_sample (6).JPG" width="250"></img>
++<img src="../Images_In_General/0.680_sevopedia_unit_sample (7).JPG" width="250"></img>
++<img src="../Images_In_General/0.680_sevopedia_unit_sample (8).JPG" width="250"></img>
++<img src="../Images_In_General/0.680_sevopedia_unit_sample (9).JPG" width="250"></img>
++<img src="../Images_In_General/0.680_sevopedia_unit_sample (10).JPG" width="250"></img>
+ 
+ ## example 8: building category
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_relationships.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_relationships.txt
+index 955b3aab4..4bd2af9c8 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_relationships.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_relationships.txt
+@@ -21,3 +21,4 @@ muslims love Sher Shah Suri
+ muslims like Krishnadevaraya
+ Genghis Khan likes barbarians (and same for other similar aggressive leaders towards each other? But only when relevant(/and also when accurate too or not?) or generalize it?)
+ Qin Shi Huang hates barbarians and some civs too due to history? Check to be sure anyways etc anyways etc anyways etc
++samudragupta likes napoleon and vice versa since they seem so similar anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG
+index b9c73403b..825dd4256 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG
+index 06b6b601e..10c2334a1 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG
+index c99d62c28..3eee3400e 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG
+index fd9d5ee69..abfdae0cd 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG
+index 537faf988..4742ff6ad 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (5).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (6).JPG b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (6).JPG
+index 723b8eab9..2ec24b4c1 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (6).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.660_sevopedia_religion_sample (6).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=12 omittedFiles=1 embeddedPatchBytes=32683

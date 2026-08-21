@@ -1,0 +1,143 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 23
+# Commit: c09837b4c4dbcd63668feeede1e944bf5be2d6f3
+# History segment: K-Mod history
+# Parent used for diff: 72d367b3c4eec1c30a83f7ca40f6828f01bc76e2
+# Title: Corrected mistakes in the severity rating calculation. Added calculateGwSeverityRating() function, and exposed to python. Changed the global warming responsi...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	0	CvGameCoreDLL/CvGame.cpp
+1	0	CvGameCoreDLL/CvGame.h
+7	10	CvGameCoreDLL/CvPlayer.cpp
+5	0	CvGameCoreDLL/CyGame.cpp
+1	0	CvGameCoreDLL/CyGame.h
+1	0	CvGameCoreDLL/CyGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 8f124f80b..e013325ea 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4033,6 +4033,19 @@ int CvGame::calculateGwSustainabilityThreshold(PlayerTypes ePlayer) const
+ 	else
+ 		return 0;
+ }
++
++int CvGame::calculateGwSeverityRating() const
++{
++	// originally I wanted something like this:
++	// (1-(1-warming prob)^(rolls/map_size * max turns))
++	// (with some factor in the exponent to make it better...)
++	// but since that is impractical, I've just made an ad-hoc formula with a similar shape.
++
++	// Note: watch out for integer overflow and rounding errors.
++	//int iRating = 100-100000/(1000+(100 * GC.getDefineINT("GLOBAL_WARMING_PROB") * GC.getGameINLINE().getGlobalWarmingIndex() / (std::max(1,4*GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent()*GC.getMapINLINE().getLandPlots()))));
++	// return 100-100000/(1000+(GC.getGameINLINE().getGlobalWarmingIndex() / (std::max(1,(4*GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent()*GC.getMapINLINE().getLandPlots())/(100 * GC.getDefineINT("GLOBAL_WARMING_PROB"))))));
++	return 100-1000/(10+(GC.getDefineINT("GLOBAL_WARMING_PROB") * GC.getGameINLINE().getGlobalWarmingIndex() / (std::max(1,4*GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent()*GC.getMapINLINE().getLandPlots()))));
++}
+ /*
+ ** K-mod end
+ */
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index f4e7dcb87..723205acb 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -251,6 +251,7 @@ public:
+ 	int calculateGlobalPollution() const; // Exposed to Python
+ 	int calculateGwLandDefence(PlayerTypes ePlayer = NO_PLAYER /* global */) const; // Exposed to Python
+ 	int calculateGwSustainabilityThreshold(PlayerTypes ePlayer = NO_PLAYER /* global */) const; // Exposed to Python
++	int calculateGwSeverityRating() const; // Exposed to Python
+ /*
+ ** K-mod end
+ */
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index d56ce06ac..4dfa6d6eb 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7258,21 +7258,18 @@ int CvPlayer::calculateGwPercentAnger() const
+ 	if (GC.getGameINLINE().getGlobalWarmingIndex() <= 0)
+ 		return 0;
+ 
+-	// player unhappiness = global unhappiness * (local pollution / local threshold) / (global pollution / global threshold)
+-	// global unhappiness = base rate * (1-(1-warming prob)^(rolls/map_size * max turns))
+-	//  = base rate (1-(1-warming prob)^(index / map_size) (with some factor in the exponent to make it better...)
+-	// That was the original plan at least... lets try something a bit simplier with a similar shape
+-	// iBase = base_rate * 100 - 100000/(1000+a*prob*index/map_size);, where 'a' is a balance parameter.
++	// player unhappiness = base rate * severity rating * responsibility factor
++
+ 	int iGlobalPollution = GC.getGameINLINE().calculateGlobalPollution();
++	int iGwSeverityRating = GC.getGameINLINE().calculateGwSeverityRating();
++	int iLocalDefence = GC.getGameINLINE().calculateGwLandDefence(getID());
++	int iGlobalDefence = GC.getGameINLINE().calculateGwLandDefence(NO_PLAYER);
+ 
+-	// Note: watch out for integer overflow and rounding errors.
+-	int iGwSeverityRating = 100-100000/(1000+(GC.getDefineINT("GLOBAL_WARMING_PROB") * GC.getGameINLINE().getGlobalWarmingIndex() / (std::max(1,4*GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent()*GC.getMapINLINE().getLandPlots()))));
+-	// a = 1000/4
+ 
+-	int iResponsibilityFactor =	100*calculatePollution();
++	int iResponsibilityFactor =	100*(calculatePollution() - iLocalDefence);
+ 	iResponsibilityFactor /= std::max(1, GC.getGameINLINE().calculateGwSustainabilityThreshold(getID()));
+ 	iResponsibilityFactor *= GC.getGameINLINE().calculateGwSustainabilityThreshold();
+-	iResponsibilityFactor /= std::max(1, iGlobalPollution);
++	iResponsibilityFactor /= std::max(1, iGlobalPollution - iGlobalDefence);
+ 	// square it, to increase its importance
+ 	iResponsibilityFactor *= iResponsibilityFactor;
+ 	iResponsibilityFactor /= 100;
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index 6c83c97de..c459a783e 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -578,6 +578,11 @@ int CyGame::calculateGwSustainabilityThreshold(int /* PlayerTypes */ ePlayer) co
+ {
+ 	return (NULL != m_pGame ? m_pGame->calculateGwSustainabilityThreshold((PlayerTypes)ePlayer) : 0);
+ }
++
++int CyGame::calculateGwSeverityRating() const
++{
++	return (NULL != m_pGame ? m_pGame->calculateGwSeverityRating() : 0);
++}
+ /*
+ ** K-Mod end
+ */
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index 9df2cf132..f53c4eb94 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -147,6 +147,7 @@ public:
+ 	int calculateGlobalPollution() const; // K-Mod
+ 	int calculateGwLandDefence(int /* PlayerTypes */ ePlayer) const; // K-Mod
+ 	int calculateGwSustainabilityThreshold(int /* PlayerTypes */ ePlayer) const; // K-Mod
++	int calculateGwSeverityRating() const;
+ 
+ 	bool isScoreDirty() const;
+ 	void setScoreDirty(bool bNewValue);
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 2e7b52988..148ac8cc7 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -136,6 +136,7 @@ void CyGamePythonInterface()
+ 		.def("calculateGlobalPollution", &CyGame::calculateGlobalPollution) // K-Mod
+ 		.def("calculateGwLandDefence", &CyGame::calculateGwLandDefence)	// K-Mod
+ 		.def("calculateGwSustainabilityThreshold", &CyGame::calculateGwSustainabilityThreshold)	// K-Mod
++		.def("calculateGwSeverityRating", &CyGame::calculateGwSeverityRating)	// K-Mod
+ 
+ 		.def("isScoreDirty", &CyGame::isScoreDirty, "bool ()")
+ 		.def("setScoreDirty", &CyGame::setScoreDirty)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=5834

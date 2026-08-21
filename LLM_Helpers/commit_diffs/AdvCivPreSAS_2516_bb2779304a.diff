@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2516
+# Commit: bb2779304aa802354015281b8172a9c1015c6612
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d15a4ce0b779e5798e1cabb967c47cd816de959a
+# Title: Fix assertion broken by recent change to Disorganized promo
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 464a7397b..24723a892 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -8979,7 +8979,8 @@ void CvUnit::changeExtraVisibilityRange(int iChange)
+ void CvUnit::changeExtraMoves(int iChange)
+ {
+ 	m_iExtraMoves += iChange;
+-	FAssert(getExtraMoves() >= 0);
++	FAssert(getExtraMoves() >= 0 ||
++			getExtraMoves() == -1 && isBarbarian()); // advc.905a
+ }
+ 
+ void CvUnit::changeExtraMoveDiscount(int iChange)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=491

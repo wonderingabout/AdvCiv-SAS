@@ -1,0 +1,279 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2764
+# Commit: 0daa1be52e774ff92d86acaf73d321af79095ef4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e8d531aa4022470b25f549a20e3bfc28ac6b0588
+# Title: A few minor misc. refactoring changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	6	CvGameCoreDLL/ArmamentForecast.cpp
+1	1	CvGameCoreDLL/CvDeal.cpp
+7	4	CvGameCoreDLL/CvGameTextMgr.cpp
+5	6	CvGameCoreDLL/CvPlayerAI.cpp
+5	7	CvGameCoreDLL/CvPlot.cpp
+3	2	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+2	2	CvGameCoreDLL/MilitaryAnalyst.cpp
+1	1	CvGameCoreDLL/UWAIAgent.cpp
+1	2	CvGameCoreDLL/UWAICache.cpp
+0	1	CvGameCoreDLL/UWAICache.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 7715405bd..967bd6372 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -53,10 +53,10 @@ ArmamentForecast::ArmamentForecast(PlayerTypes civId, MilitaryAnalyst& m,
+ 	if(prodFromUpgrades > 0.01)
+ 		report.log("Production from upgrades: %d", ::round(prodFromUpgrades));
+ 
+-	CvPlayerAI& civ = GET_PLAYER(civId);
+-	TeamTypes tId = TEAMID(civId);
+-	CvTeamAI& t = GET_TEAM(tId);
+-	PlayerTypes weId = m.ourId();
++	CvPlayerAI const& civ = GET_PLAYER(civId);
++	TeamTypes const tId = TEAMID(civId);
++	CvTeamAI const& t = GET_TEAM(tId);
++	PlayerTypes const weId = m.ourId();
+ 	Intensity intensity = NORMAL;
+ 	if(civ.AI_isDoStrategy(AI_STRATEGY_ALERT1))
+ 		intensity = INCREASED;
+@@ -70,8 +70,8 @@ ArmamentForecast::ArmamentForecast(PlayerTypes civId, MilitaryAnalyst& m,
+ 	}
+ 	/*  Much of this function could be written more concisely based on the
+ 		interface of MilitaryAnalyst; currently relies mostly on WarEvalParamters. */
+-	TeamTypes targetTeamId = params.targetId();
+-	TeamTypes master = GET_PLAYER(civId).getMasterTeam();
++	TeamTypes const targetTeamId = params.targetId();
++	TeamTypes const master = GET_PLAYER(civId).getMasterTeam();
+ 	int iTotalWars = 0, iWars = 0;
+ 	// Whether simulation assumes peace between civId and any other civ
+ 	bool peaceAssumed = false;
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index eca2af76a..09fbc3938 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -418,7 +418,7 @@ bool CvDeal::verify(PlayerTypes eRecipient, PlayerTypes eGiver)
+ 		if (pItem->m_eItemType == TRADE_RESOURCES)
+ 		{
+ 			BonusTypes eBonus = (BonusTypes)pItem->m_iData;
+-			// XXX embargoes?
++			// XXX embargoes? // advc.130f (note): Handled by CvPlayer::stopTradingWithTeam
+ 			if ((kGiver.getNumTradeableBonuses(eBonus) < 0) ||
+ 				!kGiver.canTradeNetworkWith(eRecipient) ||
+ 				GET_TEAM(kGiver.getTeam()).isBonusObsolete(eBonus) ||
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 7bb6d502c..a28ad7e35 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -6948,10 +6948,13 @@ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity)
+ 	}
+ 	szString.append(NEWLINE);
+ 	szString.append(gDLL->getText("INTERFACE_CITY_MAINTENANCE"));
+-	int iMaintenance = pCity->getMaintenanceTimes100() *
+-			(100+GET_PLAYER(pCity->getOwner()).calculateInflationRate()) / 100; // K-Mod
+-	szString.append(CvWString::format(L" -%d.%02d %c", iMaintenance/100, iMaintenance%100,
+-			GC.getInfo(COMMERCE_GOLD).getChar()));
++	{
++		int iMaintenance = pCity->getMaintenanceTimes100() *
++				(100 + GET_PLAYER(pCity->getOwner()).calculateInflationRate()) / 100; // K-Mod
++		szString.append(CvWString::format(L" -%d.%02d %c",
++				iMaintenance/100, iMaintenance%100,
++				GC.getInfo(COMMERCE_GOLD).getChar()));
++	}
+ 	{
+ 		bool bFirst = true;
+ 		FOR_EACH_ENUM(Building)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 37a6efe8a..103090f88 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2910,13 +2910,12 @@ int CvPlayerAI::AI_targetCityValue(CvCity const& kCity, bool bRandomize,
+ 		too much work. Stick to the distance in the UWAI cache - if available. */
+ 	if (pUWAICity != NULL && pUWAICity->canReach())
+ 	{
+-		if (pUWAICity->canReachByLand())
+-			iPathTurns = pUWAICity->getDistance();
+-		// Attack by sea (BtS ignored distance in that case)
+-		else
++		iPathTurns = pUWAICity->getDistance();
++		// Attack by sea (BtS had ignored distance in that case)
++		if (!pUWAICity->canReachByLand())
+ 		{
+-			// Accounts for speed of ships and time for loading/ unloading
+-			iPathTurns = pUWAICity->getDistance();
++			/*	NB: If we take this branch, iPathTurns already accounts
++				for the speed of ships and time for loading/ unloading */
+ 			FAssert(iPathTurns >= 0);
+ 			// How much should we prefer a land target?
+ 			if (!bThwartVictory)
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 8a7d21328..f48bea886 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1,5 +1,3 @@
+-// plot.cpp
+-
+ #include "CvGameCoreDLL.h"
+ #include "CvPlot.h"
+ #include "CvPlotGroup.h"
+@@ -3091,8 +3089,8 @@ bool CvPlot::isTradeNetworkConnected(CvPlot const& kOther, TeamTypes eTeam) cons
+ 		return false;
+ 	// <advc.opt> Moved up
+ 	bool const bNetworkTerrain = isNetworkTerrain(eTeam);
+-	bool const bOtherNetwork = kOther.isNetworkTerrain(eTeam);
+-	if (bNetworkTerrain && bOtherNetwork)
++	bool const bOtherNetworkTerrain = kOther.isNetworkTerrain(eTeam);
++	if (bNetworkTerrain && bOtherNetworkTerrain)
+ 		return true; // </advc.opt>
+ 
+ 	if (isRoute() /* advc.124: */ && getRevealedRouteType(eTeam) != NO_ROUTE)
+@@ -3104,7 +3102,7 @@ bool CvPlot::isTradeNetworkConnected(CvPlot const& kOther, TeamTypes eTeam) cons
+ 		}
+ 	}
+ 
+-	if (bOtherNetwork && //isCity(true, eTeam)
++	if (bOtherNetworkTerrain && //isCity(true, eTeam)
+ 		GET_TEAM(eTeam).isRevealedCityTrade(*this)) // advc.124
+ 	{
+ 		return true;
+@@ -3140,7 +3138,7 @@ bool CvPlot::isTradeNetworkConnected(CvPlot const& kOther, TeamTypes eTeam) cons
+ 
+ 	if (isRiverNetwork(eTeam))
+ 	{
+-		if (bOtherNetwork)
++		if (bOtherNetworkTerrain)
+ 		{
+ 			if (isRiverConnection(directionXY(*this, kOther)))
+ 				return true;
+@@ -3155,7 +3153,7 @@ bool CvPlot::isTradeNetworkConnected(CvPlot const& kOther, TeamTypes eTeam) cons
+ 	}
+ 
+ 	// <advc.124> Case 2: This plot has a route and kOther has network terrain
+-	if (isRoute() && isCityRadius() && getTeam() == eTeam && bOtherNetwork)
++	if (isRoute() && isCityRadius() && getTeam() == eTeam && bOtherNetworkTerrain)
+ 	{
+ 		CvCity const* pWorkingCity = getWorkingCity();
+ 		if (pWorkingCity != NULL &&
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 518d2f211..a58e97ce7 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -6715,11 +6715,12 @@ int CvUnit::workRate(bool bMax) const
+ 	if (!bMax && !canMove())
+ 		return 0;
+ 	int iRate = m_pUnitInfo->getWorkRate();
+-	iRate *= std::max(0, (GET_PLAYER(getOwner()).getWorkerSpeedModifier() + 100));
++	iRate *= std::max(0, GET_PLAYER(getOwner()).getWorkerSpeedModifier() + 100);
+ 	iRate /= 100;
+ 	if (!isHuman() && !isBarbarian())
+ 	{
+-		iRate *= std::max(0, (GC.getInfo(GC.getGame().getHandicapType()).getAIWorkRateModifier() + 100));
++		iRate *= std::max(0, GC.getInfo(GC.getGame().getHandicapType()).
++				getAIWorkRateModifier() + 100);
+ 		iRate /= 100;
+ 	}
+ 	return iRate;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 8ab548343..2b0bbe441 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -21814,7 +21814,7 @@ bool CvUnitAI::AI_solveBlockageProblem(CvPlot* pDestPlot, bool bDeclareWar)
+ 
+ int CvUnitAI::AI_calculatePlotWorkersNeeded(CvPlot const& kPlot, BuildTypes eBuild) const
+ {
+-	int iWorkRate = workRate(true);
++	int const iWorkRate = workRate(true);
+ 	if (iWorkRate <= 0)
+ 	{
+ 		FAssert(false);
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index 2e09ecc51..d42cb406b 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -29,7 +29,7 @@ MilitaryAnalyst::MilitaryAnalyst(PlayerTypes weId, WarEvalParameters& warEvalPar
+ 	capitulationsAcceptedPerTeam.resize(MAX_CIV_TEAMS);
+ 	report.log("Military analysis from the pov of %s", report.leaderName(weId));
+ 	CvTeamAI& agent = GET_TEAM(weId);
+-	PlyrSet currentlyAtWar; // 'atWar' is already a name of a global-context function
++	PlyrSet currentlyAtWar; // 'atWar' is already a name of a global function
+ 	PlyrSet ourFutureOpponents;
+ 	PlyrSet ourSide;
+ 	PlyrSet theirSide;
+@@ -148,7 +148,7 @@ MilitaryAnalyst::MilitaryAnalyst(PlayerTypes weId, WarEvalParameters& warEvalPar
+ 		FAssert(!agent.isAtWar(theyId) || !GET_TEAM(theyId).isAVassal()); /*
+ 				Master isn't included in the removed war opponents
+ 				(theirSide) then. */
+-		if(noWarVsExtra) { // diff = theirSide - theyAndTheirVassals
++		if(noWarVsExtra) { // diff = theirSide minus theyAndTheirVassals
+ 			PlyrSet diff;
+ 			std::set_difference(theirSide.begin(), theirSide.end(),
+ 					theyAndTheirVassals.begin(), theyAndTheirVassals.end(),
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 6804155a6..e3fa8ddfe 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -709,7 +709,7 @@ bool UWAI::Team::considerCapitulation(TeamTypes masterId, int ourWarUtility,
+ 	}
+ 	bool human = GET_TEAM(masterId).isHuman();
+ 	/*  Make master accept if it's not sure about continuing the war. Note that
+-		due to change 130v, gaining a vassal can't really hurt the master. */
++		due to change advc.130v, gaining a vassal can't really hurt the master. */
+ 	bool checkAccept = !human && masterReluctancePeace >= 15;
+ 	if(!checkAccept && !human)
+ 		report->log("Master accepts capitulation b/c of low reluctance to peace (%d)",
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index e62f35227..69e9084bc 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -1216,7 +1216,6 @@ void UWAICache::updateMilitaryPower(CvUnitInfo const& u, bool add) {
+ 
+ UWAICache::City::City(PlayerTypes cacheOwnerId, CvCity& c, TeamPathFinders* pf) {
+ 
+-	//descr = c.getName();
+ 	// Use plot index as city id (the pointer 'c' isn't serializable)
+ 	cvCity = &c;
+ 	plotIndex = c.plotNum();
+@@ -1385,7 +1384,7 @@ void UWAICache::City::updateDistance(CvCity const& targetCity, TeamPathFinders*
+ 		reachByLand = true;
+ 		return;
+ 	}
+-	CvPlayerAI& cacheOwner = GET_PLAYER(cacheOwnerId);
++	CvPlayerAI const& cacheOwner = GET_PLAYER(cacheOwnerId);
+ 	distance = -1;
+ 	reachByLand = false;
+ 	bool reachBySea = false;
+
+diff --git a/CvGameCoreDLL/UWAICache.h b/CvGameCoreDLL/UWAICache.h
+index 773ab036b..f77a90613 100644
+--- a/CvGameCoreDLL/UWAICache.h
++++ b/CvGameCoreDLL/UWAICache.h
+@@ -272,7 +272,6 @@ public:
+ 		int targetValue;
+ 		int plotIndex;
+ 		CvCity* cvCity; // Retrieving this based on plotIndex wastes too much time
+-		//CvWString descr; // for debugging
+ 	};
+ };
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=10155

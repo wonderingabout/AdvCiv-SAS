@@ -1,0 +1,291 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5348
+# Commit: 46c5df431941616601060ef6953b56865e28bfd7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 78dbfab4b27d5b33f276a266a3c6a20b9a3c42d2
+# Title: cache once per session sevopedia traits tables - **Cache once per session precomputed** Sevopedia Traits' Tables before any entry is clicked on. This uses a...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+3	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+87	55	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+2	2	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+2	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index c20dd2877..903788252 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -1494,9 +1494,9 @@ def _compute_leader_cache_internal():
+ 	# === AI Panel's Categories ===
+ 	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories(localText)
+ 
+-	# <!-- custom: final return. Note that this caching, while/even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we cache (or load the precomputed cache) only once just at the right time when it is computationally the cheapest for players if i'm not mistaken in SevoPediaMain 's placeLeaders. -->
++	# <!-- custom: final return. Note that this caching, even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we cache (or load the precomputed cache) only once just at the right time when it is computationally the cheapest for players if i'm not mistaken in SevoPediaMain's placeLeaders. -->
+ 	# <!-- custom: also print the debug line below regardless of debug flag status, we really want to know this info and it is short -->
+-	print("[DEBUG] Sevopedia Leader cache prebuilt by Sevopedia Leader's getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession() which if it was called, should cause this message to appear only once for the entire game session (i.e. since civ4 was launched), even if we browse another category or exit sevopedia.")
++	print("Sevopedia Leader cache prebuilt cache prebuilt. This should appear only once per gaming session.")
+ 
+ 	return LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 4d7a36e92..d5ff60c09 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -1807,6 +1807,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def placeTraits(self):
+ 		self.list = self.getTraitList()
+ 		self.placeItems(WidgetTypes.WIDGET_PYTHON, gc.getTraitInfo)
++		# <!-- custom: Trigger cache precomputation on first Traits category click.
++		# Similar to SevoPediaLeader's pattern - compute once, reuse for session. (Claude Opus 4.5) -->
++		SevoPediaTrait.precomputeTraitStatisticsCache()
+ 
+ 	# <!-- custom: Sort traits alphabetically by raw description (without icon), then display with icon.
+ 	# The icon character would cause incorrect sorting if included. (Claude Opus 4.5) -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index d51716c83..9977d7bb6 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -21,6 +21,77 @@ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+ 
++# <!-- custom: Module-level cache for trait statistics. Computed once on first Traits category click,
++# then reused for the entire session. Similar pattern to SevoPediaLeader's LEADERS_INFO_CACHED. (Claude Opus 4.5) -->
++# traitLeaders: dict of traitId -> [leaderIds] - used to quickly compute per-trait pairing data
++# allPairsData: list of (trait1, trait2, count, [leaderIds]) - all trait combinations globally
++# allPairsMinMax: (minCount, maxCount) - for ranking bar normalization
++TRAIT_STATISTICS_CACHE = None
++
++
++def precomputeTraitStatisticsCache():
++	# Precompute and cache trait statistics data. Called once from SevoPediaMain.placeTraits()
++	# on first Traits category click. Returns the cache dict.
++	global TRAIT_STATISTICS_CACHE
++
++	if TRAIT_STATISTICS_CACHE is not None:
++		return TRAIT_STATISTICS_CACHE
++
++	numTraits = gc.getNumTraitInfos()
++	numLeaders = gc.getNumLeaderHeadInfos()
++
++	# Build traitId -> [leaderIds] mapping (used for per-trait pairing lookups)
++	traitLeaders = {}
++	for iTrait in range(numTraits):
++		traitLeaders[iTrait] = []
++	for iLeader in range(numLeaders):
++		leader = gc.getLeaderHeadInfo(iLeader)
++		for iTrait in range(numTraits):
++			if leader.hasTrait(iTrait):
++				traitLeaders[iTrait].append(iLeader)
++
++	# Build leader -> traits mapping (only leaders with 2+ traits) for all-pairs computation
++	leaderTraits = {}
++	for iLeader in range(numLeaders):
++		leader = gc.getLeaderHeadInfo(iLeader)
++		traits = set()
++		for iTrait in range(numTraits):
++			if leader.hasTrait(iTrait):
++				traits.add(iTrait)
++		if len(traits) >= 2:
++			leaderTraits[iLeader] = traits
++
++	# Count all trait pairs
++	pairCounts = {}
++	for iLeader, traits in leaderTraits.items():
++		traitList = sorted(traits)
++		for i in range(len(traitList)):
++			for j in range(i + 1, len(traitList)):
++				pair = (traitList[i], traitList[j])
++				if pair not in pairCounts:
++					pairCounts[pair] = []
++				pairCounts[pair].append(iLeader)
++
++	# Build sorted all-pairs data
++	allPairsData = [(t1, t2, len(ids), sorted(ids)) for (t1, t2), ids in pairCounts.items()]
++	allPairsData.sort(key=lambda d: gc.getTraitInfo(d[0]).getDescription() + gc.getTraitInfo(d[1]).getDescription())
++
++	# Precompute min/max for ranking bar normalization
++	if allPairsData:
++		counts = [d[2] for d in allPairsData]
++		allPairsMinMax = (min(counts), max(counts))
++	else:
++		allPairsMinMax = (0, 0)
++
++	TRAIT_STATISTICS_CACHE = {
++		"traitLeaders": traitLeaders,
++		"allPairsData": tuple(allPairsData),
++		"allPairsMinMax": allPairsMinMax,
++	}
++
++	print("Sevopedia Trait statistics cache prebuilt. This should appear only once per gaming session.")
++	return TRAIT_STATISTICS_CACHE
++
+ 
+ class SevoPediaTrait:
+ 
+@@ -200,7 +271,8 @@ class SevoPediaTrait:
+ 				screen.setTableText(leftTableName, 3, iRow, u"<font=2>%s</font>" % u", ".join(leaderNames), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		# === RIGHT TABLE: All trait combinations globally ===
+-		allPairsData = self._buildAllTraitPairsData()
++		# <!-- custom: Use cached all-pairs data for efficiency. (Claude Opus 4.5) -->
++		allPairsData, (minCount, maxCount) = self._getAllTraitPairsData()
+ 		if allPairsData:
+ 			rightPanelName = self.top.getNextWidgetName()
+ 			screen.addPanel(rightPanelName, "", "", True, True, self.STATS_RIGHT_X, self.STATS_PANEL_Y, self.STATS_RIGHT_W, self.STATS_PANEL_H, PanelStyles.PANEL_STYLE_BLUE50)
+@@ -214,11 +286,6 @@ class SevoPediaTrait:
+ 			screen.setTableColumnHeader(rightTableName, 2, localText.getText("TXT_KEY_PEDIA_SAS_RANKING", ()), self.STATS_RIGHT_COL_RANK)
+ 			screen.setTableColumnHeader(rightTableName, 3, localText.getText("TXT_KEY_CONCEPT_LEADERS", ()), self.STATS_RIGHT_COL_LEADERS)
+ 
+-			# Min/max for normalization
+-			counts = [d[2] for d in allPairsData]
+-			minCount = min(counts)
+-			maxCount = max(counts)
+-
+ 			for trait1, trait2, pairCount, leaderIds in allPairsData:
+ 				iRow = screen.appendTableRow(rightTableName)
+ 
+@@ -242,33 +309,24 @@ class SevoPediaTrait:
+ 				screen.setTableText(rightTableName, 3, iRow, u"<font=2>%s</font>" % u", ".join(leaderNames), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 	def _buildTraitPairingData(self):
+-		# Build trait pairing statistics for the current trait.
+-		# Returns list of (otherTraitId, pairCount, totalWithOther, [leaderIds]) sorted alphabetically.
++		# <!-- custom: Build per-trait pairing data using cached traitLeaders mapping.
++		# Much faster than recomputing the mapping each time. (Claude Opus 4.5) -->
+ 		if self.iTrait < 0:
+ 			return []
+ 
+-		numTraits = gc.getNumTraitInfos()
+-		numLeaders = gc.getNumLeaderHeadInfos()
++		cache = TRAIT_STATISTICS_CACHE
++		if cache is None:
++			return []  # Cache not built yet (shouldn't happen if called after placeTraits)
+ 
+-		# Build traitId -> [leaderIds] mapping
+-		traitLeaders = {}
+-		for iTrait in range(numTraits):
+-			traitLeaders[iTrait] = []
+-		for iLeader in range(numLeaders):
+-			leader = gc.getLeaderHeadInfo(iLeader)
+-			for iTrait in range(numTraits):
+-				if leader.hasTrait(iTrait):
+-					traitLeaders[iTrait].append(iLeader)
+-
+-		leadersWithThisTrait = set(traitLeaders[self.iTrait])
++		traitLeaders = cache["traitLeaders"]
++		leadersWithThisTrait = set(traitLeaders.get(self.iTrait, []))
+ 		if not leadersWithThisTrait:
+ 			return []
+ 
+ 		pairingData = []
+-		for otherTrait in range(numTraits):
++		for otherTrait, leadersWithOther in traitLeaders.items():
+ 			if otherTrait == self.iTrait:
+ 				continue
+-			leadersWithOther = traitLeaders[otherTrait]
+ 			if not leadersWithOther:
+ 				continue
+ 			leadersWithBoth = leadersWithThisTrait.intersection(set(leadersWithOther))
+@@ -278,38 +336,12 @@ class SevoPediaTrait:
+ 		pairingData.sort(key=lambda x: gc.getTraitInfo(x[0]).getDescription())
+ 		return pairingData
+ 
+-	def _buildAllTraitPairsData(self):
+-		# Build data for ALL trait combinations globally.
+-		# Returns list of (trait1Id, trait2Id, pairCount, [leaderIds]) sorted alphabetically.
+-		numTraits = gc.getNumTraitInfos()
+-		numLeaders = gc.getNumLeaderHeadInfos()
+-
+-		# Build leader -> traits mapping (only leaders with 2+ traits)
+-		leaderTraits = {}
+-		for iLeader in range(numLeaders):
+-			leader = gc.getLeaderHeadInfo(iLeader)
+-			traits = set()
+-			for iTrait in range(numTraits):
+-				if leader.hasTrait(iTrait):
+-					traits.add(iTrait)
+-			if len(traits) >= 2:
+-				leaderTraits[iLeader] = traits
+-
+-		# Count all trait pairs
+-		pairCounts = {}
+-		for iLeader, traits in leaderTraits.items():
+-			traitList = sorted(traits)
+-			for i in range(len(traitList)):
+-				for j in range(i + 1, len(traitList)):
+-					pair = (traitList[i], traitList[j])
+-					if pair not in pairCounts:
+-						pairCounts[pair] = []
+-					pairCounts[pair].append(iLeader)
+-
+-		# Build and sort result
+-		allPairsData = [(t1, t2, len(ids), sorted(ids)) for (t1, t2), ids in pairCounts.items()]
+-		allPairsData.sort(key=lambda d: gc.getTraitInfo(d[0]).getDescription() + gc.getTraitInfo(d[1]).getDescription())
+-		return allPairsData
++	def _getAllTraitPairsData(self):
++		# <!-- custom: Return cached all-pairs data. Computed once per session. (Claude Opus 4.5) -->
++		cache = TRAIT_STATISTICS_CACHE
++		if cache is None:
++			return [], (0, 0)
++		return cache["allPairsData"], cache["allPairsMinMax"]
+
+diff --git a/README.md b/README.md
+index 22e3041fb..33ef1ce04 100644
+--- a/README.md
++++ b/README.md
+@@ -290,9 +290,9 @@ Here is below a sample of the example screenshots showing the AI Personality pan
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.750_sevopedia_projects.JPG" alt="0.750_sevopedia_projects.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/sevopedia/0.760_sevopedia_specialists (1).JPG" alt="0.760_sevopedia_specialists (1).JPG" width="250"></img>
+ 
+-#### Notes about the sevopedia leader's AI Personality Panel
++#### Notes about the Sevopedia Leader's AI Personality Panel and Sevopedia Traits' Tables
+ 
+-note 1: its performance should be very very efficient and optimized, see for details [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
++note: its performance should be very very efficient and optimized. See for details [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching). Also as of now using a similar system for the new Sevopedia Traits' Tables.
+ 
+ note 2: you can enable/disable the emoji display as you prefer (see [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for details) or display key names instead of abbreviated custom labels in the AI Personality Panel (see [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for details).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 724d4007f..732a20765 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -101,6 +101,7 @@ See [README.md#full-exhaustive-very-long-and-exhaustive-changes](/README.md#full
+ - (Requires AdvCiv-SAS 5298+) **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+ - (Requires AdvCiv-SAS 5314+) **Found-value** evaluation now uses **`int`** end-to-end (CitySiteEvaluator, AIFoundValue, CvPlot cache, SPI, Python callback), **not `short`**. Why: **avoid overflow/underflow** and short wraparounds in site scoring; keep the logic the same while **improving reliability**. Expectation: more robust site values, fewer edge-case penalties/boosts from short overflow; no known negative gameplay change. Performance: `int` is typically at least as fast as short on modern CPUs; no slowdown expected. Tested: autoplay ran fine. See [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline).
++- (Requires AdvCiv-SAS 5348+) **Cache once per session precomputed** Sevopedia Traits' Tables before any entry is clicked on. This uses a simplified version of the AI Personality Panel's caching approach. See [AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+ - Consolidated **long comments** (e.g. 1000+ character XML code comments) into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers to keep XML files readable.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index dfb669c60..00dc0aafa 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -199,6 +199,8 @@ Also enhanced it with a new Background/History panel that shows fairly mod-agnos
+ 
+ Then added 2 Trait sortable tables showing all trait pairs and their representation among all leaders, using as of now a "++++" kind of ranking, plus even the Leaders'panel's header has been enhanced with similar info, as of now for example "Leader 12/53 (22%)" to show how many leaders among all have this trait! Added with the very nice help of Claude code Opus 4.5 and GPT-5.2-Codex thanks a lot!!
+ 
++Then added caching at category click for the entire session similarly to how was done in Sevopedia Leader (See [AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).). The data doesn't change during the entire session, and in particular for the combinations panel is as of now always the same, may as well cache it.
++
+ <img src="../Images/sevopedia/0.624_sevopedia_traits (1).JPG" alt="0.624_sevopedia_traits (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.624_sevopedia_traits (2).JPG" alt="0.624_sevopedia_traits (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.624_sevopedia_traits (3).JPG" alt="0.624_sevopedia_traits (3).JPG" width="250"></img>
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=18334

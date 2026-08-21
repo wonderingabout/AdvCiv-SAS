@@ -1,0 +1,83 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4100
+# Commit: d9d0dc2f39a88e1ed37b054cf91a43e5deb00858
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b56cf569db6ffc2c17aadba243dbb66b35e3b8e5
+# Title: Fix failure to load two PLE arrow textures
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	8	Assets/Python/Screens/CvMainInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 90a5a4bfb..8d6dbceb5 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -195,7 +195,8 @@ class CvMainInterface:
+ 	@staticmethod
+ 	def _isInterfaceArtKey(s):
+ 		return (s.startswith("INTERFACE_") or s.startswith("BUTTON_") or
+-				s.startswith("RAW_YIELDS_")) # for BUG - Raw Yields
++				s.startswith("RAW_YIELDS_") or # for BUG - Raw Yields
++				s.startswith("PLE_")) # for BUG - PLE
+ 	def setImageButton(self, szName,
+ 			szTexture, # Path or InterfaceArtInfo key
+ 			eWidgetType = None, iData1 = -1, iData2 = -1, szAttachTo = None):
+@@ -846,7 +847,8 @@ class CvMainInterface:
+ 				iPlotListUnitBtnSz)
+ 		gSetRect("DefaultHelpArea", "Top",
+ 				HSPACE(7),
+-				# Turns out that this overlaps with the lower left corner on very high resolutions
++				# (The center bottom panel doesn't fully scale up, so we shouldn't
++				# use that as our point of reference.)
+ 				#-(VSPACE(5) + gRect("CenterBottomPanel").height() + self.plotListUnitButtonSize())
+ 				# BtS leaves some space here, but we want the text area as low as possible
+ 				# to maximize the amount of text we can display (while also having tall corners
+@@ -2012,10 +2014,13 @@ class CvMainInterface:
+ 	def bottomListBtnSize(self):
+ # BUG - Build/Action Icon Size - start
+ 		if MainOpt.isBuildIconSizeLarge():
+-			return 64
++			iSize = 64
+ 		elif MainOpt.isBuildIconSizeMedium():
+-			return 48
+-		return 36
++			iSize = 48
++		else:
++			iSize = 36
++		# advc.092: Also apply some HUD scaling
++		return BTNSZ(iSize, 0.7)
+ # BUG - Build/Action Icon Size - end
+ 
+ 	def updateBottomButtonList(self):
+@@ -2024,8 +2029,6 @@ class CvMainInterface:
+ 		# EF: minimum icon size for disabled buttons to work is 33 so these sizes won't fly
+ 		# iButtonSize=32, iHeight=102
+ 		# iButtonSize=24, iHeight=104
+-		# advc.092: Apply only some HUD scaling
+-		iButtonSize = BTNSZ(iButtonSize, 0.75)
+ 		# advc: I don't know why the BUG heights were chosen.
+ 		# I think they should be multiples of the button size. That was
+ 		# almost exactly the case for the three button sizes above 33.
+@@ -3445,7 +3448,7 @@ class CvMainInterface:
+ 							# (Safety margin - seems that MultiListControl can't use its entire width.)
+ 							-10) / self.bottomListBtnSize())
+ 					# Can display any number of them, but we don't want a scrollbar.
+-					iMaxRows = int((gRect("BottomButtonList").height() - 5) /
++					iMaxRows = int(gRect("BottomButtonList").height() /
+ 							self.bottomListBtnSize())
+ 					iRow0Count = 0
+ 					iRow1Count = 0
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2621

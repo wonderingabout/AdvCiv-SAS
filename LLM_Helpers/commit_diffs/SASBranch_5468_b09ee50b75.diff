@@ -1,0 +1,559 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5468
+# Commit: b09ee50b75bc4baf5a76b570703714fac8488d59
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f891e8f104f4b6fbfd931a753b66538a4489fa59
+# Title: replace pavillion with BUILDING_CHINESE_CHANGPINGCANG (Market) - "Not so cultural game profile plus it is weaker. This new building leans into a market-manag...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/asiapalace.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/market.nif
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/shadow.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/spodek.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/sengoku_atlas_4_3_modified.dds
+11	10	Assets/XML/Art/CIV4ArtDefines_Building.xml
+196	197	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+5	0	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+4	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/asiapalace.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/market.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/shadow.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/spodek.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/sengoku_atlas_4_3_modified.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/asiapalace.dds b/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/asiapalace.dds
+new file mode 100644
+index 000000000..e0165e626
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/asiapalace.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/market.nif b/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/market.nif
+new file mode 100644
+index 000000000..e7cbae7d3
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/market.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/shadow.dds b/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/shadow.dds
+new file mode 100644
+index 000000000..a4e46fd68
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/shadow.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/spodek.dds b/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/spodek.dds
+new file mode 100644
+index 000000000..3ef2a11f1
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/spodek.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/sengoku_atlas_4_3_modified.dds b/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/sengoku_atlas_4_3_modified.dds
+new file mode 100644
+index 000000000..9d8a92baa
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/sengoku_atlas_4_3_modified.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index 2ce964c3b..15d4ed133 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -505,16 +505,6 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Theatre.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,7</Button>
+ 		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_CHINESE_PAVILLION</Type>
+-			<LSystem>LSYSTEM_3x2</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>1.89</fScale>
+-			<fInterfaceScale>0.56</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Chinese Pavillion/Chinese_Pavillion.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Theatre.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,3,2</Button>
+-		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_BYZANTINE_HIPPODROME</Type>
+ 			<LSystem>LSYSTEM_3x3</LSystem>
+@@ -605,6 +595,17 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Market.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,4,3</Button>
+ 		</BuildingArtInfo>
++		<!-- custom: art from the sengoku mod thanks -->
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_CHINESE_CHANGPINGCANG</Type>
++			<LSystem>LSYSTEM_3x3</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>0.75</fScale>
++			<fInterfaceScale>0.5</fInterfaceScale>
++			<NIF>Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/nif/market.nif</NIF>
++			<KFM/>
++			<Button>Art/AdvCiv_SAS/Buildings/Chinese_Changpingcang/sengoku_atlas_4_3_modified.dds</Button>
++		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_PORT</Type>
+ 			<LSystem>LSYSTEM_COAST</LSystem>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index c6c997883..f6d8bf868 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -11307,203 +11307,6 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: theatre, type: chinese_pavillon -->
+-			<BuildingClass>BUILDINGCLASS_THEATRE</BuildingClass>
+-			<Type>BUILDING_CHINESE_PAVILLION</Type>
+-			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_CHINESE_PAVILLION</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_CHINESE_PAVILLION_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_CULTURE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_CHINESE_PAVILLION</ArtDefineTag>
+-			<MovieDefineTag>NONE</MovieDefineTag>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<bStateReligion>0</bStateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<FoundsCorporation>NONE</FoundsCorporation>
+-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+-			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>NONE</FreeStartEra>
+-			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_DRAMA</PrereqTech>
+-			<TechTypes/>
+-			<Bonus>NONE</Bonus>
+-			<PrereqBonuses/>
+-			<!-- custom: was TRAIT_CREATIVE 100 -->
+-			<ProductionTraits/>
+-			<!-- custom: was empty -->
+-			<HappinessTraits>
+-				<HappinessTrait>
+-					<HappinessTraitType>TRAIT_CREATIVE</HappinessTraitType>
+-					<iHappinessTrait>1</iHappinessTrait>
+-				</HappinessTrait>
+-			</HappinessTraits>
+-			<NoBonus>NONE</NoBonus>
+-			<PowerBonus>NONE</PowerBonus>
+-			<FreeBonus>NONE</FreeBonus>
+-			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>NONE</FreeBuilding>
+-			<FreePromotion>NONE</FreePromotion>
+-			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+-			<iHurryAngerModifier>0</iHurryAngerModifier>
+-			<bBorderObstacle>0</bBorderObstacle>
+-			<bTeamShare>0</bTeamShare>
+-			<bWater>0</bWater>
+-			<bRiver>0</bRiver>
+-			<bPower>0</bPower>
+-			<bDirtyPower>0</bDirtyPower>
+-			<bAreaCleanPower>0</bAreaCleanPower>
+-			<DiploVoteType>NONE</DiploVoteType>
+-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+-			<bCapital>0</bCapital>
+-			<bGovernmentCenter>0</bGovernmentCenter>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bAllowsNukes>0</bAllowsNukes>
+-			<bMapCentering>0</bMapCentering>
+-			<bNoUnhappiness>0</bNoUnhappiness>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>1</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bCenterInCity>0</bCenterInCity>
+-			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 50 -->
+-			<iCost>70</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>0</iConquestProb>
+-			<iCitiesPrereq>0</iCitiesPrereq>
+-			<iTeamsPrereq>0</iTeamsPrereq>
+-			<iLevelPrereq>0</iLevelPrereq>
+-			<iMinLatitude>0</iMinLatitude>
+-			<iMaxLatitude>90</iMaxLatitude>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+-			<iAnarchyModifier>0</iAnarchyModifier>
+-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+-			<iExperience>0</iExperience>
+-			<iGlobalExperience>0</iGlobalExperience>
+-			<iFoodKept>0</iFoodKept>
+-			<iAirlift>0</iAirlift>
+-			<iAirModifier>0</iAirModifier>
+-			<iAirUnitCapacity>0</iAirUnitCapacity>
+-			<iNukeModifier>0</iNukeModifier>
+-			<iNukeExplosionRand>0</iNukeExplosionRand>
+-			<iFreeSpecialist>0</iFreeSpecialist>
+-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+-			<iMaintenanceModifier>0</iMaintenanceModifier>
+-			<iWarWearinessModifier>0</iWarWearinessModifier>
+-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+-			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>0</iHealth>
+-			<iAreaHealth>0</iAreaHealth>
+-			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>0</iHappiness>
+-			<iAreaHappiness>0</iAreaHappiness>
+-			<iGlobalHappiness>0</iGlobalHappiness>
+-			<iStateReligionHappiness>0</iStateReligionHappiness>
+-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+-			<iTradeRoutes>0</iTradeRoutes>
+-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+-			<iTradeRouteModifier>0</iTradeRouteModifier>
+-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+-			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>0</iDefense>
+-			<iBombardDefense>0</iBombardDefense>
+-			<iAllCityDefense>0</iAllCityDefense>
+-			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>4</iAsset>
+-			<iPower>0</iPower>
+-			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<SeaPlotYieldChanges/>
+-			<RiverPlotYieldChanges/>
+-			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
+-			<CommerceChanges/>
+-			<ObsoleteSafeCommerceChanges>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>3</iCommerce>
+-			</ObsoleteSafeCommerceChanges>
+-			<CommerceChangeDoubleTimes>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>1000</iCommerce>
+-			</CommerceChangeDoubleTimes>
+-			<CommerceModifiers>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>25</iCommerce>
+-			</CommerceModifiers>
+-			<GlobalCommerceModifiers/>
+-			<SpecialistExtraCommerces/>
+-			<StateReligionCommerces/>
+-			<!-- advc.908b: was 10 culture -->
+-			<CommerceHappinesses>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>5</iCommerce>
+-			</CommerceHappinesses>
+-			<ReligionChanges/>
+-			<SpecialistCounts>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+-					<iSpecialistCount>2</iSpecialistCount>
+-				</SpecialistCount>
+-			</SpecialistCounts>
+-			<FreeSpecialistCounts/>
+-			<CommerceFlexibles/>
+-			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_THEATRE</ConstructSound>
+-			<BonusHealthChanges/>
+-			<BonusHappinessChanges>
+-				<BonusHappinessChange>
+-					<BonusType>BONUS_DYE</BonusType>
+-					<iHappinessChange>1</iHappinessChange>
+-				</BonusHappinessChange>
+-			</BonusHappinessChanges>
+-			<BonusProductionModifiers/>
+-			<UnitCombatFreeExperiences/>
+-			<DomainFreeExperiences/>
+-			<DomainProductionModifiers/>
+-			<BuildingHappinessChanges/>
+-			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs/>
+-			<SpecialistYieldChanges/>
+-			<BonusYieldModifiers/>
+-			<ImprovementFreeSpecialists/>
+-			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>10</iFlavor>
+-				</Flavor>
+-			</Flavors>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-		</BuildingInfo>
+ 		<BuildingInfo> <!-- custom: class: theatre, type: byzantine_hippodrome -->
+ 			<BuildingClass>BUILDINGCLASS_THEATRE</BuildingClass>
+ 			<Type>BUILDING_BYZANTINE_HIPPODROME</Type>
+@@ -13101,6 +12904,202 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
++		<BuildingInfo> <!-- custom: class: market, type: chinese_changpingcang -->
++			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
++			<Type>BUILDING_CHINESE_CHANGPINGCANG</Type>
++			<SpecialBuildingType>NONE</SpecialBuildingType>
++			<Description>TXT_KEY_BUILDING_CHINESE_CHANGPINGCANG</Description>
++			<Civilopedia>TXT_KEY_BUILDING_CHINESE_CHANGPINGCANG_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_ECONOMY</Advisor>
++			<ArtDefineTag>ART_DEF_BUILDING_CHINESE_CHANGPINGCANG</ArtDefineTag>
++			<MovieDefineTag>NONE</MovieDefineTag>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<bStateReligion>0</bStateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<FoundsCorporation>NONE</FoundsCorporation>
++			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
++			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
++			<VictoryPrereq>NONE</VictoryPrereq>
++			<!-- advc.126: was ERA_INDUSTRIAL -->
++			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
++			<MaxStartEra>NONE</MaxStartEra>
++			<ObsoleteTech>NONE</ObsoleteTech>
++			<PrereqTech>TECH_CURRENCY</PrereqTech>
++			<TechTypes/>
++			<Bonus>NONE</Bonus>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<HappinessTraits/>
++			<NoBonus>NONE</NoBonus>
++			<PowerBonus>NONE</PowerBonus>
++			<FreeBonus>NONE</FreeBonus>
++			<iNumFreeBonuses>0</iNumFreeBonuses>
++			<FreeBuilding>NONE</FreeBuilding>
++			<FreePromotion>NONE</FreePromotion>
++			<CivicOption>NONE</CivicOption>
++			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
++			<iHurryAngerModifier>0</iHurryAngerModifier>
++			<bBorderObstacle>0</bBorderObstacle>
++			<bTeamShare>0</bTeamShare>
++			<bWater>0</bWater>
++			<bRiver>0</bRiver>
++			<bPower>0</bPower>
++			<bDirtyPower>0</bDirtyPower>
++			<bAreaCleanPower>0</bAreaCleanPower>
++			<DiploVoteType>NONE</DiploVoteType>
++			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
++			<bCapital>0</bCapital>
++			<bGovernmentCenter>0</bGovernmentCenter>
++			<bGoldenAge>0</bGoldenAge>
++			<bAllowsNukes>0</bAllowsNukes>
++			<bMapCentering>0</bMapCentering>
++			<bNoUnhappiness>0</bNoUnhappiness>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
++			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
++			<bNeverCapture>0</bNeverCapture>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bCenterInCity>0</bCenterInCity>
++			<iAIWeight>0</iAIWeight>
++			<!-- custom: was 130 -->
++			<!-- advc.911b: was 150 -->
++			<iCost>110</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iConquestProb>66</iConquestProb>
++			<iCitiesPrereq>0</iCitiesPrereq>
++			<iTeamsPrereq>0</iTeamsPrereq>
++			<iLevelPrereq>0</iLevelPrereq>
++			<iMinLatitude>0</iMinLatitude>
++			<iMaxLatitude>90</iMaxLatitude>
++			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
++			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
++			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
++			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
++			<iAnarchyModifier>0</iAnarchyModifier>
++			<iGoldenAgeModifier>0</iGoldenAgeModifier>
++			<iGlobalHurryModifier>0</iGlobalHurryModifier>
++			<iExperience>0</iExperience>
++			<iGlobalExperience>0</iGlobalExperience>
++			<!-- custom: Changpingcang keeps food after growth over base Market. (GPT-5.3-Codex) -->
++			<iFoodKept>10</iFoodKept>
++			<iAirlift>0</iAirlift>
++			<iAirModifier>0</iAirModifier>
++			<iAirUnitCapacity>0</iAirUnitCapacity>
++			<iNukeModifier>0</iNukeModifier>
++			<iNukeExplosionRand>0</iNukeExplosionRand>
++			<iFreeSpecialist>0</iFreeSpecialist>
++			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
++			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
++			<iMaintenanceModifier>0</iMaintenanceModifier>
++			<iWarWearinessModifier>0</iWarWearinessModifier>
++			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
++			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
++			<iHealRateChange>0</iHealRateChange>
++			<iHealth>0</iHealth>
++			<iAreaHealth>0</iAreaHealth>
++			<iGlobalHealth>0</iGlobalHealth>
++			<iHappiness>0</iHappiness>
++			<iAreaHappiness>0</iAreaHappiness>
++			<iGlobalHappiness>0</iGlobalHappiness>
++			<iStateReligionHappiness>0</iStateReligionHappiness>
++			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
++			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
++			<iSpaceProductionModifier>0</iSpaceProductionModifier>
++			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
++			<iTradeRoutes>0</iTradeRoutes>
++			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
++			<iTradeRouteModifier>0</iTradeRouteModifier>
++			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
++			<iGlobalPopulationChange>0</iGlobalPopulationChange>
++			<iFreeTechs>0</iFreeTechs>
++			<iDefense>0</iDefense>
++			<iBombardDefense>0</iBombardDefense>
++			<iAllCityDefense>0</iAllCityDefense>
++			<iEspionageDefense>0</iEspionageDefense>
++			<iAsset>3</iAsset>
++			<iPower>0</iPower>
++			<fVisibilityPriority>1.0</fVisibilityPriority>
++			<SeaPlotYieldChanges/>
++			<RiverPlotYieldChanges/>
++			<GlobalSeaPlotYieldChanges/>
++			<YieldChanges/>
++			<CommerceChanges/>
++			<ObsoleteSafeCommerceChanges/>
++			<CommerceChangeDoubleTimes/>
++			<CommerceModifiers>
++				<iCommerce>25</iCommerce>
++			</CommerceModifiers>
++			<GlobalCommerceModifiers/>
++			<SpecialistExtraCommerces/>
++			<StateReligionCommerces/>
++			<CommerceHappinesses/>
++			<ReligionChanges/>
++			<SpecialistCounts>
++				<SpecialistCount>
++					<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
++					<iSpecialistCount>2</iSpecialistCount>
++				</SpecialistCount>
++			</SpecialistCounts>
++			<FreeSpecialistCounts/>
++			<CommerceFlexibles/>
++			<CommerceChangeOriginalOwners/>
++			<ConstructSound>AS2D_BUILD_MARKETPLACE</ConstructSound>
++			<BonusHealthChanges/>
++			<!-- custom: Changpingcang adds happiness from Rice over base Market. (GPT-5.3-Codex) -->
++			<BonusHappinessChanges>
++				<BonusHappinessChange>
++					<BonusType>BONUS_FUR</BonusType>
++					<iHappinessChange>1</iHappinessChange>
++				</BonusHappinessChange>
++				<BonusHappinessChange>
++					<BonusType>BONUS_ELEPHANTS</BonusType>
++					<iHappinessChange>1</iHappinessChange>
++				</BonusHappinessChange>
++				<BonusHappinessChange>
++					<BonusType>BONUS_SILK</BonusType>
++					<iHappinessChange>1</iHappinessChange>
++				</BonusHappinessChange>
++				<BonusHappinessChange>
++					<BonusType>BONUS_RICE</BonusType>
++					<iHappinessChange>1</iHappinessChange>
++				</BonusHappinessChange>
++			</BonusHappinessChanges>
++			<BonusProductionModifiers/>
++			<UnitCombatFreeExperiences/>
++			<DomainFreeExperiences/>
++			<DomainProductionModifiers/>
++			<BuildingHappinessChanges/>
++			<PrereqBuildingClasses/>
++			<BuildingClassNeededs/>
++			<SpecialistYieldChanges/>
++			<BonusYieldModifiers/>
++			<ImprovementFreeSpecialists/>
++			<!-- custom: Changpingcang shifts AI weight toward growth over base Market. (GPT-5.3-Codex) -->
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_GOLD</FlavorType>
++					<iFlavor>6</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>6</iFlavor>
++				</Flavor>
++			</Flavors>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++		</BuildingInfo>
+ 		<BuildingInfo> <!-- custom: class: grocer, type: grocer -->
+ 			<BuildingClass>BUILDINGCLASS_GROCER</BuildingClass>
+ 			<Type>BUILDING_GROCER</Type>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index c66594f63..05ba70847 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -843,8 +843,8 @@
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_THEATRE</BuildingClassType>
+-					<BuildingType>BUILDING_CHINESE_PAVILLION</BuildingType>
++					<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
++					<BuildingType>BUILDING_CHINESE_CHANGPINGCANG</BuildingType>
+ 				</Building>
+ 			</Buildings>
+ 			<Units>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 45be7118c..0cd052c28 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -1401,4 +1401,9 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_KOREAN_GYEONGDANG_PEDIA</Tag>
+ 		<English>[TAB]Historically, Korea has always placed emphasis on education, and today it is evaluated to have been the foundation for South Korea's successful economic growth. The outstanding scholastic performance of South Korean students, demonstrated by the OECD's Program for International Student Assessment, attracts global attention.[PARAGRAPH:1]Keen interest in education by Koreans has a long traditional history. The Goguryeo Kingdom established the first state educational institution called "Taehak" in 372 CE and later set up regional schools called "Gyeongdang" to teach Confucianism and martial arts to youth. The Silla Kingdom founded an educational and training system called "Hwarangdo" to foster elite youths. After unifying the Three Kingdoms in the 7th century, Silla established a higher educational institution named "Gukhak" to teach Confucianism and educate public officials.[PARAGRAPH:1]The Goryeo Dynasty established the "Gukjagam," a central educational organization to teach public officials both Confucianism and technology, and "Hyanggyo," which were public schools for children of local public officials and common people. At the end of the dynasty, it also established a higher educational institution, "Seonggyungwan." Besides these public educational institutions, intellectuals set up 12 private study-houses across the country.[PARAGRAPH:1]The Joseon Dynasty established a new educational system based on Neo-Confucianism. Evolving into the highest educational institution, t Seonggyungwan Academy educated future public officials in Neo-Confucian philosophy and methods. It also set up affiliated schools in the capital and hyanggyo in regions to provide secondary education. According to the Veritable Records of King Sejong, 329 hyanggyo were established across the country. In addition, individuals opened private Neo-Confucian academies (seowon) and village schools (seodang) for elementary education. These institutions primarily taught literacy and basic knowledge, and they were built with two spaces - one for study and the other for offering rituals for sages or local elites. As the government encouraged Confucianism-based education, individuals and teachers could freely open and operate study-houses until a modern educational system was introduced in the late 19th century; as of 1911, 16,540 of them existed.[PARAGRAPH:1]From ancient times, people with Confucian knowledge tended to become leaders and members of the ruling class. As the Joseon Dynasty encouraged people to put efforts into study, people were enthusiastic about education as the way to remain upper-class. The culture of regarding education as important has not changed much for a thousand years. Education has served as one of the motive forces of economic growth, accounting for important part of Korean culture.[PARAGRAPH:1]Source: https://dh.aks.ac.kr/Korea100/wiki/index.php/Korea%27s_Traditional_Education_-_Over_a_Millennium_of_Confucian_Learning</English>
+ 	</TEXT>
++	<!-- custom: AI-generated with the help of GPT-5.2-Thinking thanks -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_CHINESE_CHANGPINGCANG_PEDIA</Tag>
++		<English>[TAB]The Changping Granary (Changpingcang), often called an “ever-normal granary”, was not just a warehouse: it was a public tool for managing the grain market. Already in the 1st century BC, officials in the Han realm treated grain prices as a political danger in both directions: when prices fell too low after harvest, farmers suffered; when prices rose during scarcity, city households and the poor were squeezed. The solution was simple in principle and demanding in practice. Counties were ordered to maintain reserve granaries, buying grain when it was cheap to prevent a collapse in prices, then releasing grain when it was dear to pull prices back down and keep food within reach.[PARAGRAPH:1]Over later dynasties the idea persisted and expanded, with large-scale county systems especially associated with the Qing. The goal was steady supply: grain on hand for local shortfalls, fewer price shocks, and fewer panics when harvests failed. By moving grain through official buying and selling, the state aimed to keep the market “ever normal” - stable enough that ordinary people could plan their lives and survive bad years without chaos.[PARAGRAPH:1]In a rice-growing city, such a system meant more than full storehouses. It meant cleaner reserves, fewer losses to spoilage, and a calmer table when the staple harvest was good.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 533eec30e..f606c79a6 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3558,4 +3558,8 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_KOREAN_GYEONGDANG</Tag>
+ 		<English>Gyeongdang</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_CHINESE_CHANGPINGCANG</Tag>
++		<English>Changpingcang</English>
++	</TEXT>
+ </Civ4GameText>
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=25278

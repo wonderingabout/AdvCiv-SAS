@@ -1,0 +1,170 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3248
+# Commit: 1860dd4e320df53cf01624af8fba6de57c4a4ce3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a833c33e7117e44c3bbeecaa74322421757163eb
+# Title: Fix badly copy-pasted text keys (amend Sevopedia traits commit)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	11	Assets/XML/Civilizations/CIV4TraitInfos.xml
+5	5	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4TraitInfos.xml b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+index aa8bd880c..5fb57fc0b 100644
+--- a/Assets/XML/Civilizations/CIV4TraitInfos.xml
++++ b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+@@ -11,7 +11,7 @@
+ 			<Type>TRAIT_PHILOSOPHICAL</Type>
+ 			<Description>TXT_KEY_TRAIT_PHILOSOPHICAL</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_PHILOSOPHICAL_SHORT</ShortDescription>
+-			<Civilopedia>TXT_KEY_CIVIC_PHILOSOPHICAL_PEDIA</Civilopedia>
++			<Civilopedia>TXT_KEY_TRAIT_PHILOSOPHICAL_PEDIA</Civilopedia>
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iMaxAnarchy>-1</iMaxAnarchy>
+@@ -35,7 +35,7 @@
+ 			<Type>TRAIT_AGGRESSIVE</Type>
+ 			<Description>TXT_KEY_TRAIT_AGGRESSIVE</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_AGGRESSIVE_SHORT</ShortDescription>
+-			<Civilopedia>TXT_KEY_CIVIC_AGGRESSIVE_PEDIA</Civilopedia>
++			<Civilopedia>TXT_KEY_TRAIT_AGGRESSIVE_PEDIA</Civilopedia>
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iMaxAnarchy>-1</iMaxAnarchy>
+@@ -72,7 +72,7 @@
+ 			<Type>TRAIT_SPIRITUAL</Type>
+ 			<Description>TXT_KEY_TRAIT_SPIRITUAL</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_SPIRITUAL_SHORT</ShortDescription>
+-			<Civilopedia>TXT_KEY_CIVIC_SPIRITUAL_PEDIA</Civilopedia>
++			<Civilopedia>TXT_KEY_TRAIT_SPIRITUAL_PEDIA</Civilopedia>
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iMaxAnarchy>0</iMaxAnarchy>
+@@ -95,7 +95,7 @@
+ 			<Type>TRAIT_EXPANSIVE</Type>
+ 			<Description>TXT_KEY_TRAIT_EXPANSIVE</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_EXPANSIVE_SHORT</ShortDescription>
+-			<Civilopedia>TXT_KEY_CIVIC_EXPANSIVE_PEDIA</Civilopedia>
++			<Civilopedia>TXT_KEY_TRAIT_EXPANSIVE_PEDIA</Civilopedia>
+ 			<iHealth>2</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iMaxAnarchy>-1</iMaxAnarchy>
+@@ -118,7 +118,7 @@
+ 			<Type>TRAIT_INDUSTRIOUS</Type>
+ 			<Description>TXT_KEY_TRAIT_INDUSTRIOUS</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_INDUSTRIOUS_SHORT</ShortDescription>
+-			<Civilopedia>TXT_KEY_CIVIC_INDUSTRIOUS_PEDIA</Civilopedia>
++			<Civilopedia>TXT_KEY_TRAIT_INDUSTRIOUS_PEDIA</Civilopedia>
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iMaxAnarchy>-1</iMaxAnarchy>
+@@ -141,7 +141,7 @@
+ 			<Type>TRAIT_CREATIVE</Type>
+ 			<Description>TXT_KEY_TRAIT_CREATIVE</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_CREATIVE_SHORT</ShortDescription>
+-			<Civilopedia>TXT_KEY_CIVIC_CREATIVE_PEDIA</Civilopedia>
++			<Civilopedia>TXT_KEY_TRAIT_CREATIVE_PEDIA</Civilopedia>
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iMaxAnarchy>-1</iMaxAnarchy>
+@@ -171,7 +171,7 @@
+ 			<Type>TRAIT_FINANCIAL</Type>
+ 			<Description>TXT_KEY_TRAIT_FINANCIAL</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_FINANCIAL_SHORT</ShortDescription>
+-			<Civilopedia>TXT_KEY_CIVIC_FINANCIAL_PEDIA</Civilopedia>
++			<Civilopedia>TXT_KEY_TRAIT_FINANCIAL_PEDIA</Civilopedia>
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iMaxAnarchy>-1</iMaxAnarchy>
+@@ -202,7 +202,7 @@
+ 			<Type>TRAIT_ORGANIZED</Type>
+ 			<Description>TXT_KEY_TRAIT_ORGANIZED</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_ORGANIZED_SHORT</ShortDescription>
+-			<Civilopedia>TXT_KEY_CIVIC_ORGANIZED_PEDIA</Civilopedia>
++			<Civilopedia>TXT_KEY_TRAIT_ORGANIZED_PEDIA</Civilopedia>
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iMaxAnarchy>-1</iMaxAnarchy>
+@@ -225,7 +225,7 @@
+ 			<Type>TRAIT_CHARISMATIC</Type>
+ 			<Description>TXT_KEY_TRAIT_CHARISMATIC</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_CHARISMATIC_SHORT</ShortDescription>
+-			<Civilopedia>TXT_KEY_CIVIC_CHARISMATIC_PEDIA</Civilopedia>
++			<Civilopedia>TXT_KEY_TRAIT_CHARISMATIC_PEDIA</Civilopedia>
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>1</iHappiness>
+ 			<iMaxAnarchy>-1</iMaxAnarchy>
+@@ -248,7 +248,7 @@
+ 			<Type>TRAIT_PROTECTIVE</Type>
+ 			<Description>TXT_KEY_TRAIT_PROTECTIVE</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_PROTECTIVE_SHORT</ShortDescription>
+-			<Civilopedia>TXT_KEY_CIVIC_PROTECTIVE_PEDIA</Civilopedia>
++			<Civilopedia>TXT_KEY_TRAIT_PROTECTIVE_PEDIA</Civilopedia>
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iMaxAnarchy>-1</iMaxAnarchy>
+@@ -289,7 +289,7 @@
+ 			<Type>TRAIT_IMPERIALIST</Type>
+ 			<Description>TXT_KEY_TRAIT_IMPERIALIST</Description>
+ 			<ShortDescription>TXT_KEY_TRAIT_IMPERIALIST_SHORT</ShortDescription>
+-			<Civilopedia>TXT_KEY_CIVIC_IMPERIALIST_PEDIA</Civilopedia>
++			<Civilopedia>TXT_KEY_TRAIT_IMPERIALIST_PEDIA</Civilopedia>
+ 			<iHealth>0</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iMaxAnarchy>-1</iMaxAnarchy>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index abb6a0986..08ebed86b 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -1153,31 +1153,31 @@
+ 	</TEXT>
+ 	<!-- advc.908c (new text key) -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_CIVIC_PHILOSOPHICAL_PEDIA</Tag>
++		<Tag>TXT_KEY_TRAIT_PHILOSOPHICAL_PEDIA</Tag>
+ 		<English>The AdvCiv mod has reduced the birth rate from originally 100%% as part of an effort to weaken the strongest traits. Fractional birth rates get rounded down, so the reduction is not as modest as it may appear.</English>
+ 		<German>AdvCiv hat die Geburtsrate reduziert (ehemals 100%%), um dieses spielstarke Merkmale zu schw�chen. Da Geburtsraten auf ganze Zahlen abgerundet werden, macht selbst eine gringf�gige Reduzierung einen deutlichen Unterschied.</German>
+ 	</TEXT>
+ 	<!-- advc -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_CIVIC_AGGRESSIVE_PEDIA</Tag>
++		<Tag>TXT_KEY_TRAIT_AGGRESSIVE_PEDIA</Tag>
+ 		<English>The faster [ICON_PRODUCTION] of Jail was added by K-Mod in order to strengthen this trait.</English>
+ 		<German>Die erh�hte [ICON_PRODUCTION]-Geschwindigkeit von Gef�ngnissen wurde von K-Mod erg�nzt, um dieses Merkmal spielst�rker zu machen.</German>
+ 	</TEXT>
+ 	<!-- advc.908b -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_CIVIC_CREATIVE_PEDIA</Tag>
++		<Tag>TXT_KEY_TRAIT_CREATIVE_PEDIA</Tag>
+ 		<English>Since K-Mod and AdvCiv make [ICON_CULTURE] points more worthwhile in several ways, AdvCiv reduces the [ICON_CULTURE] rate (was 2 in BtS) and adds some free initial [ICON_CULTURE] instead. AdvCiv has also removed the faster [ICON_PRODUCTION] of Colosseum - which doesn't seem to fit the culture theme well.</English>
+ 		<German>Da verschiedene �nderungen in K-Mod und AdvCiv den Nutzen von [ICON_CULTURE]-Punkten erh�hen, reduziert AdvCiv die [ICON_CULTURE]/Runde (war 2 in BtS) und erh�ht stattdessen die anf�ngliche [ICON_CULTURE]-Stufe von St�dten. AdvCiv entfernt au�erdem die erh�hte [ICON_PRODUCTION]-Geschwindigkeit f�rs Kolosseum - welches nicht so recht zu den kulturellen Effekten passte.</German>
+ 	</TEXT>
+ 	<!-- advc.908a -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_CIVIC_FINANCIAL_PEDIA</Tag>
++		<Tag>TXT_KEY_TRAIT_FINANCIAL_PEDIA</Tag>
+ 		<English>In order to weaken this trait and to prevent a synergy with the K-Mod effect of the [LINK=CIVIC_SERFDOM]Serfdom[\LINK] civic, AdvCiv increases the threshold for the extra [ICON_COMMERCE] - unless the natural [ICON_COMMERCE] (not counting terrain improvements) reaches the original threshold.</English>
+ 		<German>Um dieses Merkmal zu schw�chen und eine Wechselwirkung mit der durch K-Mod ver�nderten Staatsform [LINK=CIVIC_SERFDOM]Leibeigenschaft[\LINK] zu verhindern, erh�ht AdvCiv die Schwelle f�r den zus�tzlichen [ICON_COMMERCE]-Ertrag - au�er wenn der nat�rliche [ICON_COMMERCE]-Ertrag (ohne Gel�ndeverbesserungen) die urspr�ngliche Schwelle erreicht.</German>
+ 	</TEXT>
+ 	<!-- advc -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_CIVIC_PROTECTIVE_PEDIA</Tag>
++		<Tag>TXT_KEY_TRAIT_PROTECTIVE_PEDIA</Tag>
+ 		<English>The faster [ICON_PRODUCTION] of Security Bureau was added by K-Mod in order to strengthen this trait.</English>
+ 		<German>Die erh�hte [ICON_PRODUCTION]-Geschwindigkeit des Sicherheitsdienstes wurde von K-Mod erg�nzt, um dieses Merkmal spielst�rker zu machen.</German>
+ 	</TEXT>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=7976

@@ -1,0 +1,291 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4773
+# Commit: 9b4525ea0228d97c3233a9c93cea8c0be1c4141f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 025c696fac3f43dd2b2489d99f36fae3f407ecb4
+# Title: fix/update icons (GameFont.tga and GameFont_75.tga) to use our new buttons equivalent images (manually imported from HR mod and RI mod), add also instruction...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/GameFonts/{Fonts - Steam Shortcut.lnk => (AdvCiv-SAS's) Fonts - Steam Shortcut.lnk}
+-	-	Assets/Art/AdvCiv_SAS/{Religions/Paganism => GameFonts}/Baalism_20px_for_gamefontstga_but_a_bit_too_comrpessed_save_bmg_or_pdn_maybe.dds
+-	-	Assets/Art/AdvCiv_SAS/{Religions/Paganism => GameFonts}/Baalism_20px_with_star_for_gamefontstga.dds
+-	-	Assets/Art/AdvCiv_SAS/{Religions/Paganism => GameFonts}/Baalism_20px_with_star_for_gamefonttga.pdn
+-	-	Assets/Art/AdvCiv_SAS/{Religions/Paganism => GameFonts}/Baalism_20px_with_star_for_gamefonttga_small.bmp
+-	-	Assets/Art/AdvCiv_SAS/{Religions/Paganism => GameFonts}/Baalism_20px_with_star_for_gamefonttga_small.pdn
+-	-	Assets/Res/Fonts/GameFont.tga
+-	-	Assets/Res/Fonts/GameFont_75.tga
+-	-	Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_advciv-sas_tga.bmp
+-	-	Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp
+-	-	Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_c2c_mod_tga.bmp
+-	-	Assets/Res/Fonts/norm_hr_mod_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_hr_mod_tga.bmp
+-	-	Assets/Res/Fonts/norm_ri_mod_75_tga.bmp
+-	-	Assets/Res/Fonts/norm_ri_mod_tga.bmp
+2	0	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+1	1	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+1	0	README.md
+8	0	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md
+54	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_buildings_civ4_to_remove_or_replace_or_add.txt
+-	-	_1_AdvCiv-SAS/Images_In_General/0.690_sevopedia_building_sample (15).JPG
+ rename Assets/Art/AdvCiv_SAS/GameFonts/{Fonts - Steam Shortcut.lnk => (AdvCiv-SAS's) Fonts - Steam Shortcut.lnk} (100%)
+ rename Assets/Art/AdvCiv_SAS/{Religions/Paganism => GameFonts}/Baalism_20px_for_gamefontstga_but_a_bit_too_comrpessed_save_bmg_or_pdn_maybe.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Religions/Paganism => GameFonts}/Baalism_20px_with_star_for_gamefontstga.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Religions/Paganism => GameFonts}/Baalism_20px_with_star_for_gamefonttga.pdn (100%)
+ rename Assets/Art/AdvCiv_SAS/{Religions/Paganism => GameFonts}/Baalism_20px_with_star_for_gamefonttga_small.bmp (100%)
+ rename Assets/Art/AdvCiv_SAS/{Religions/Paganism => GameFonts}/Baalism_20px_with_star_for_gamefonttga_small.pdn (100%)
+ create mode 100644 Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp
+ create mode 100644 Assets/Res/Fonts/norm_advciv-sas_tga.bmp
+ create mode 100644 Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp
+ create mode 100644 Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp
+ create mode 100644 Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp
+ create mode 100644 Assets/Res/Fonts/norm_c2c_mod_tga.bmp
+ create mode 100644 Assets/Res/Fonts/norm_hr_mod_75_tga.bmp
+ create mode 100644 Assets/Res/Fonts/norm_hr_mod_tga.bmp
+ create mode 100644 Assets/Res/Fonts/norm_ri_mod_75_tga.bmp
+ create mode 100644 Assets/Res/Fonts/norm_ri_mod_tga.bmp
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_buildings_civ4_to_remove_or_replace_or_add.txt
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/GameFonts/Fonts - Steam Shortcut.lnk b/Assets/Art/AdvCiv_SAS/GameFonts/(AdvCiv-SAS's) Fonts - Steam Shortcut.lnk
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/GameFonts/Fonts - Steam Shortcut.lnk
+rename to Assets/Art/AdvCiv_SAS/GameFonts/(AdvCiv-SAS's) Fonts - Steam Shortcut.lnk
+
+diff --git a/Assets/Art/AdvCiv_SAS/Religions/Paganism/Baalism_20px_for_gamefontstga_but_a_bit_too_comrpessed_save_bmg_or_pdn_maybe.dds b/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_for_gamefontstga_but_a_bit_too_comrpessed_save_bmg_or_pdn_maybe.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Religions/Paganism/Baalism_20px_for_gamefontstga_but_a_bit_too_comrpessed_save_bmg_or_pdn_maybe.dds
+rename to Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_for_gamefontstga_but_a_bit_too_comrpessed_save_bmg_or_pdn_maybe.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Religions/Paganism/Baalism_20px_with_star_for_gamefontstga.dds b/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefontstga.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Religions/Paganism/Baalism_20px_with_star_for_gamefontstga.dds
+rename to Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefontstga.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Religions/Paganism/Baalism_20px_with_star_for_gamefonttga.pdn b/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga.pdn
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Religions/Paganism/Baalism_20px_with_star_for_gamefonttga.pdn
+rename to Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga.pdn
+
+diff --git a/Assets/Art/AdvCiv_SAS/Religions/Paganism/Baalism_20px_with_star_for_gamefonttga_small.bmp b/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.bmp
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Religions/Paganism/Baalism_20px_with_star_for_gamefonttga_small.bmp
+rename to Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.bmp
+
+diff --git a/Assets/Art/AdvCiv_SAS/Religions/Paganism/Baalism_20px_with_star_for_gamefonttga_small.pdn b/Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.pdn
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Religions/Paganism/Baalism_20px_with_star_for_gamefonttga_small.pdn
+rename to Assets/Art/AdvCiv_SAS/GameFonts/Baalism_20px_with_star_for_gamefonttga_small.pdn
+
+diff --git a/Assets/Res/Fonts/GameFont.tga b/Assets/Res/Fonts/GameFont.tga
+index c77125479..0f545f97b 100644
+Binary files a/Assets/Res/Fonts/GameFont.tga and b/Assets/Res/Fonts/GameFont.tga differ
+
+diff --git a/Assets/Res/Fonts/GameFont_75.tga b/Assets/Res/Fonts/GameFont_75.tga
+index 81bfc3187..fba4842ce 100644
+Binary files a/Assets/Res/Fonts/GameFont_75.tga and b/Assets/Res/Fonts/GameFont_75.tga differ
+
+diff --git a/Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp b/Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp
+new file mode 100644
+index 000000000..b4c9ca620
+Binary files /dev/null and b/Assets/Res/Fonts/norm_advciv-sas_75_tga.bmp differ
+
+diff --git a/Assets/Res/Fonts/norm_advciv-sas_tga.bmp b/Assets/Res/Fonts/norm_advciv-sas_tga.bmp
+new file mode 100644
+index 000000000..4a55e7396
+Binary files /dev/null and b/Assets/Res/Fonts/norm_advciv-sas_tga.bmp differ
+
+diff --git a/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp b/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp
+new file mode 100644
+index 000000000..b51021f8a
+Binary files /dev/null and b/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_75_tga.bmp differ
+
+diff --git a/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp b/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp
+new file mode 100644
+index 000000000..6a57bd296
+Binary files /dev/null and b/Assets/Res/Fonts/norm_advciv-sas_v2_temp_copy_from_if_need_for_paste_for_example_etc_tga.bmp differ
+
+diff --git a/Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp b/Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp
+new file mode 100644
+index 000000000..603865554
+Binary files /dev/null and b/Assets/Res/Fonts/norm_c2c_mod_75_tga.bmp differ
+
+diff --git a/Assets/Res/Fonts/norm_c2c_mod_tga.bmp b/Assets/Res/Fonts/norm_c2c_mod_tga.bmp
+new file mode 100644
+index 000000000..64d17fa63
+Binary files /dev/null and b/Assets/Res/Fonts/norm_c2c_mod_tga.bmp differ
+
+diff --git a/Assets/Res/Fonts/norm_hr_mod_75_tga.bmp b/Assets/Res/Fonts/norm_hr_mod_75_tga.bmp
+new file mode 100644
+index 000000000..fb4330823
+Binary files /dev/null and b/Assets/Res/Fonts/norm_hr_mod_75_tga.bmp differ
+
+diff --git a/Assets/Res/Fonts/norm_hr_mod_tga.bmp b/Assets/Res/Fonts/norm_hr_mod_tga.bmp
+new file mode 100644
+index 000000000..8a9f1b989
+Binary files /dev/null and b/Assets/Res/Fonts/norm_hr_mod_tga.bmp differ
+
+diff --git a/Assets/Res/Fonts/norm_ri_mod_75_tga.bmp b/Assets/Res/Fonts/norm_ri_mod_75_tga.bmp
+new file mode 100644
+index 000000000..785d40144
+Binary files /dev/null and b/Assets/Res/Fonts/norm_ri_mod_75_tga.bmp differ
+
+diff --git a/Assets/Res/Fonts/norm_ri_mod_tga.bmp b/Assets/Res/Fonts/norm_ri_mod_tga.bmp
+new file mode 100644
+index 000000000..0bbe23bc4
+Binary files /dev/null and b/Assets/Res/Fonts/norm_ri_mod_tga.bmp differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index 498646e05..af70ae218 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -142,6 +142,7 @@
+ 			<Type>CURSORS_SELECTION_UNIT</Type>
+ 			<Path>Art/Interface/Cursors/SelectionCursor.nif</Path>
+ 		</InterfaceArtInfo>
++		<!-- custom: add our own .tga file here, default/base advciv one was: <Path>res/Fonts/GameFont.tga</Path>, the base .tga of advciv as of before we modified it at all is also backed up if need in (update to your mod path if not using the Steam version of the game civ4 or/and another path anyways etc) "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\res\Fonts\GameFont_backup_base_advciv_original.tga" (path copied with copy as path anyways etc) -->
+ 		<InterfaceArtInfo>
+ 			<Type>FONTS_GAMEFONT</Type>
+ 			<!-- keep here and unpakked -->
+@@ -157,6 +158,7 @@
+ 			<!-- keep here and unpakked -->
+ 			<Path>res/Fonts/NumberFont-Sylfaen64px.tga</Path>
+ 		</InterfaceArtInfo>
++		<!-- custom: similarly, for the _75.tga, backup in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Res\Fonts\GameFont_75_backup_base_advciv_original.tga" anyways etc -->
+ 		<InterfaceArtInfo>
+ 			<Type>FONTS_SMALLFONT</Type>
+ 			<!-- keep here and unpakked -->
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 53389f6eb..b93a4683c 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -225,7 +225,7 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_PAGAN_CATHEDRAL</Tag>
+-		<English>Pagan Academy</English>
++		<English>Pagan Cathedral</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_PAGAN_SHRINE</Tag>
+
+diff --git a/README.md b/README.md
+index 36cb27f20..1236a8513 100644
+--- a/README.md
++++ b/README.md
+@@ -261,6 +261,7 @@ it too though unless i'm mistaken)
+ - Notepad++ (very reliable and multi tab, i don't use it to generally if not always or not or and other or and not but anyways etc code but to browse code files or/and other or/and not anyways etc)
+ - Q-Dir (very useful and reliable too when works well which is almost always if not always, and very minimalist yet powerful, i so ery love it but anyways etc ; for example you can use it (Q-Dir) [like this (Google Drive preview example here)](https://drive.google.com/drive/folders/1EO0AScGVXM9P0U_YGYbm7xfbVzPnxNvO?usp=sharing) (some fields (are) hidden for (my) privacy anyways etc)) thanks a lot!!! (too! (After writing the WizTree thanks but anwayys etc thanks too i mean too (hehe maybe or not or yes or other or/and not (but) anyways etc) anyways etc...)) Anyways etc...
+ - WizTree (very useful (and reliable and effective) to find the files i want when i want, for example (to) find all the "taois" entries(i.e. files)in the entire full civ4 folder (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1JW3IBenpJxP4ZIVrTb99huR0-Js9HPrt?usp=sharing)), very useful, thanks a lot!!! Anyways etc)
++- CopyAsPath that i may also call for example "copy as path" or and other name or and not anyways etc, a small menu extension i made myself hehe but only from copying intructions and importing an existing .reg file from another palce (from [www.winhelponline.com](www.winhelponline.com) to be exhaustive and/or accurate hehe or not hehe or yes hehe or not or and other or and not anyways etc anyways etc anyways etc), in short i only compiled existing files and instructions hehe, anyways etc, read there for details also, and is also in, anyways etc, in [copy_as_path_context_menu (github repo link)](https://github.com/wonderingabout/copy_as_path_context_menu)
+ - VS Code (especially for the global search feature, very useful, (except partly) when it does not desynchronize folders before git commits)
+ - Git Bash for Windows
+ - GitHub Website
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md
+index 5eff91a86..4300fea62 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources_(In_Bulk)/README.md
+@@ -120,6 +120,8 @@ For unit AIs that are correct in the OP, I didn't write anything.
+ 
+ ## Copy of the tutorial on how to modify GameFonts.tga for FREE
+ 
++Note: you may want to read all this at least the end before you start doing it, in case you see something that makes you change your mind/choose another approach instead, but do as you prefer anyways etc.
++
+ Source: [CFC forum link](https://forums.civfanatics.com/threads/how-to-modify-gamefonts-tga-for-free.181119/)
+ 
+ In case it is deleted, i have made a copy here which is as follows adjsuted or not or and other or and not anyways etc for AdvCiv-SAS (formatting the github readme or and other or and not anyways etc):
+@@ -168,6 +170,12 @@ Eusebius
+ 
+ I am not responsible if it is not updated anymore or inaccurate, but i hope it can be helpful hopefully or maybe not (is not helpful anyways etc) but in all cases is what i wanted to do (to write it here) anyways etc anyways etc anyways etc.
+ 
++Note: it may be much easier, especially if you import art assets from a mod, to also import the icons from the .tga of a mod, see some screenshots in the google drive link above (about this .tga part) where i show for example the difference between our (current) .tga files (in particular the GameFont.tga and GameFont_75.tga files here in this example anyways etc) (before fixing/updating the icons) and HR mod's .tga files (same i.e. GameFont.tga and GameFont_75.tga files anyways etc anyways etc anyways etc) anyways etc, but i find it also interesting even if painful to know how to do, it may be/serve helpful/us especially if you/we want to add your/our own assets that don't exist in any mod for example, but (this) is just a suggestion do as you prefer anyways etc.
++
++Note 2: This seems to be useful when reordering or/and adding/removing xml assets that depend on/use icons in the .tga file if i am not mistaken anyways etc, i don't know how it all works, but it seems that generally for example for religion assets, after having [reordered the xml order (for example in this git commit anyways etc)](https://github.com/wonderingabout/AdvCiv-SAS/commit/025c696fac3f43dd2b2489d99f36fae3f407ecb4), now the icons are all messed up (paganism religion shows with the judaism icon and or other changes anyways etc, see for example screenshots 5085 and 5086), so the .tga icons's order seems to also need to reflect the xml order or vice versa, and similarly for the _75.tga file if i am not mistaken too do all these steps again for more fun if i may say or not as is more tedious but more accurate hopefully this way unless i am mistaken and there is somehow or could be a better way i don't know of maybe, else hopefully more accurate this way or whichever or not whichever way it may/would be, anyways etc anyways etc anyways etc, again i don't know exactly how it all works but i think this is the general idea and that it works helps quite good maybe or not or yes or and other or and not anyways etc hopefully helpful or not or yes or etc or and other or and not anyways etc.
++
++Note 3: you may want to make backups to avoid overwriting accidentally the wrong file or such or not having a backup of the file needed anyways etc anyways etc anyways etc...
++
+ ## ICONS code XML names (may or not be exhaustive anyways etc) (with some color changing code as bonus or to be extra exhaustive a bit more than needed but is here if needed maybe anyways etc)
+ 
+ from: `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvDllTranslator.cpp`
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_buildings_civ4_to_remove_or_replace_or_add.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_buildings_civ4_to_remove_or_replace_or_add.txt
+new file mode 100644
+index 000000000..9060f64f5
+--- /dev/null
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_buildings_civ4_to_remove_or_replace_or_add.txt
+@@ -0,0 +1,54 @@
++(may or not be exhaustive, in other words anyways etc to simplify bit or lot or not or and other or and not anyways etc) non-exhaustive:
++
++1) remove:
++buildings:
++- monasteries?
++- observatory
++- drydock
++- customs house?
++
++wonders:
++- rocknroll
++- space elevator
++- globe theatre?
++- west point?
++
++
++
++2) replace
++buildings:
++- french salon: french art gallery?
++- aztec sacrificial altar (courthouse): aztec sacrificial altar (monument)?
++- mt rushmore (national wonder): mt rushmore (world wonder)?
++- laboratory (superconductors): laboratory (scientific method or around it? Anyways etc)
++- russian research institute to (russian) ? Anyways etc
++- jewish/hebrew ('s civilization anyways etc): ?
++- ziggurat maybe rework or rebalance anyways etc (religious building now or more or and other ot and not? Anyways etc)
++
++wonders:
++- oxford university: University of al-Qarawiyyin (https://en.wikipedia.org/wiki/University_of_al-Qarawiyyin)
++- broadway: akihabara?
++- red cross: rework or remove anyways etc
++
++
++
++3) Add (see also notes_about_wonders_listing.txt):
++buildings:
++-
++
++wonders:
++- Venus of Laussel
++- Petra?
++- Great Sphinx of Giza?
++- Tower of Pisa? (NW, ) Anyways etc
++- temple of heaven?
++- theatre of diyonysus?
++- Machu Pichu?
++- Sun Tzu Art?
++- The Ancient Walls of Benin
++- Tomb of Queen Iden (who is (a) queen of the kingdom of Bening anyways etc), using tomb of emendil or tomb of cyrus asset? Anyways etc
++- theory of evolution? But more as a tech maybe rather? ANyways etc
++- Big Ben
++- brooklyn bridge?
++- Space program (base one except for the USA and Russia? Anyways etc, anyways etc)
++- Soviet space program?
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.690_sevopedia_building_sample (15).JPG b/_1_AdvCiv-SAS/Images_In_General/0.690_sevopedia_building_sample (15).JPG
+index 33c6b0424..1b0294c78 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.690_sevopedia_building_sample (15).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.690_sevopedia_building_sample (15).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=24 embeddedFiles=24 omittedFiles=0 embeddedPatchBytes=15752

@@ -1,0 +1,663 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4439
+# Commit: cc17325237c8b534c194bc287420c439c98c1568
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8b844543827034e697ca3a4815f4d6b4d5be7af0
+# Title: rename project to AdvCiv SAS (Simple Advanced Strategy clean up README too and add Getting started README)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	14	README.md
+0	0	{_0_Base_AdvCiv_Docs => _0_AdvCiv_Base}/K-Mod 1.46 changelog.txt
+0	0	{_0_Base_AdvCiv_Docs => _0_AdvCiv_Base}/links.txt
+-	-	{_0_Base_AdvCiv_Docs => _0_AdvCiv_Base}/manual.odt
+-	-	{_0_Base_AdvCiv_Docs => _0_AdvCiv_Base}/manual.pdf
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+0	0	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.10_world map_with_countries.png
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.20_world_map_terrain_empty.png
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.21_world_map_terrain_with_civs.png
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.30_tech_tree_mini.jpg
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.31_Techtree_original.webp
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.32_Techtree_default_modified.png
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.33_Techtree_modified.png
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/advciv-mod-difficulties_summary-htm-A3.pdf
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/civ4 civs default.png
+0	0	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+0	0	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/notes_about_game_design_choices
+0	0	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/notes_about_some_assets_content
+0	0	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/notes_about_tech_design_choices
+0	0	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Lists/Special_Units_List
+0	0	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Lists/Wonders_List
+0	0	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Civs/Civs music credits.txt
+-	-	"_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus" => "_1_AdvCiv_SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus"
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus
+0	0	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/Music eras credits.txt
+-	-	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus
+0	0	{_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Game/Game music credits.txt
+87	0	_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+7	7	{_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes => _1_AdvCiv_SAS}/README.md
+0	118	_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/README.md
+0	49	_1_AdvCiv_SBAIMTOCO_content/README.md
+ rename {_0_Base_AdvCiv_Docs => _0_AdvCiv_Base}/K-Mod 1.46 changelog.txt (100%)
+ rename {_0_Base_AdvCiv_Docs => _0_AdvCiv_Base}/links.txt (100%)
+ rename {_0_Base_AdvCiv_Docs => _0_AdvCiv_Base}/manual.odt (100%)
+ rename {_0_Base_AdvCiv_Docs => _0_AdvCiv_Base}/manual.pdf (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.10_world map_with_countries.png (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.20_world_map_terrain_empty.png (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.21_world_map_terrain_with_civs.png (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.30_tech_tree_mini.jpg (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.31_Techtree_original.webp (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.32_Techtree_default_modified.png (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/0.33_Techtree_modified.png (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/advciv-mod-difficulties_summary-htm-A3.pdf (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/civ4 civs default.png (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/notes_about_civs_and_terrain_design (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/notes_about_game_design_choices (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/notes_about_some_assets_content (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Docs_And_Appendixes/notes_about_tech_design_choices (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Lists/Special_Units_List (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Lists/Wonders_List (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Civs/Civs music credits.txt (100%)
+ rename "_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus" => "_1_AdvCiv_SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus" (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/Music eras credits.txt (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus (100%)
+ rename {_1_AdvCiv_SBAIMTOCO_content => _1_AdvCiv_SAS}/Music_Civ4_Mod/Game/Game music credits.txt (100%)
+ create mode 100644 _1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+ rename {_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes => _1_AdvCiv_SAS}/README.md (95%)
+ delete mode 100644 _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/README.md
+ delete mode 100644 _1_AdvCiv_SBAIMTOCO_content/README.md
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index cacc59ca1..b25d51b6c 100644
+--- a/README.md
++++ b/README.md
+@@ -1,14 +1,14 @@
+-# AdvCiv mod
+-This mod is based on AdvCiv (https://github.com/f1rpo/AdvCiv/tree/1.12)
+-(1.12 as it is the latest as of now), and will/may update whenever there
+-are new changes that are stable.
++# AdvCiv SAS (Simple Advanced Strategy)
++This mod (AdvCiv SAS (Simple Advanced Strategy)) is based on
++[AdvCiv 1.12](https://github.com/f1rpo/AdvCiv/tree/1.12) as it is the latest as of
++now), and will/may update whenever there are new changes that are stable.
+ 
+ Currently, it is still a work in progress so is not playable yet as explained below,
+ but these are the (main) goals/purposes/features.
+ 
+-![img1](/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.33_Techtree_modified.png)
++![img1](/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png)
+ 
+-They consist of (see [this README.md](/_1_AdvCiv_SBAIMTOCO_content/README.md) for the full details):
++They consist of (see [this README.md](/_1_AdvCiv_SAS/README.md) for the full details):
+ - Stricter Balancing AI (changes AI policy for efficiency and opportunism, AI will not
+ be too aggressive but merciless, also more cautious sometimes (war declarations in
+ particular, mostly just for its self interest and not to spare a valuable target))
+@@ -46,16 +46,21 @@ the finished version.
+ The civs you can expect from this mod come from these parts of the world (circled numbers
+ are the added new civ's real world location) :
+ 
+-![img2](/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
++![img2](/_1_AdvCiv_SAS/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
+ 
+ A preview of the changes (screenshots), can be found on this google drive: 
+ [here](https://drive.google.com/drive/folders/1v4jkm383NGL761ciMUdU6hGuZKvLo00w?usp=sharing).
+ 
+ # Credits
+-To write, but mostly i am very thankful of AdvCiv, it's such a nice improvement
++- AdvCiv: to write, but mostly i am very thankful of AdvCiv, it's such a nice improvement
+ from Civ4, and it's maintainer is very open to feedback at least in my
+-exchanges/experiences during these times i mean anyways.
+-That being said, i intend to do my own thing, thanks i mean anyways,
++exchanges/experiences during these times i mean anyways, thanks
++- Cavemen2Cosmos: i took quite a lot of content from there, thanks
++- Realism Invictus: i took quite a bit content from there, thanks,
++- Firaxis's Civ4 game and Civ4 BTS: Civ4 allows to do a lot of things with just XML,
++which surprised me a lot in a way that pleased me i mean anyways. So far i have not touched
++the deeper code such as C++ and Python, maybe i will not need at all but not sure, is as it
++would be:
+ 
+ # Sources
+ A few useful links :
+@@ -64,10 +69,7 @@ be needed if you only modify XML files if i am not mistaken i mean anyways)
+ - ressources that mention XML files and tags, useful if you'd want to [get started
+ doing your own mod](https://github.com/wonderingabout/kujira). 
+ 
+-Civ4 allows to do a lot of things with just XML, which
+-surprised me a lot in a way that pleased me i mean anyways.
+-So far i have not touched the deeper code such as C++ and Python, maybe i will
+-not need at all but not sure, is as it would be:
++
+ 
+ 
+ todo add links
+
+diff --git a/_0_Base_AdvCiv_Docs/K-Mod 1.46 changelog.txt b/_0_AdvCiv_Base/K-Mod 1.46 changelog.txt
+similarity index 100%
+rename from _0_Base_AdvCiv_Docs/K-Mod 1.46 changelog.txt
+rename to _0_AdvCiv_Base/K-Mod 1.46 changelog.txt
+
+diff --git a/_0_Base_AdvCiv_Docs/links.txt b/_0_AdvCiv_Base/links.txt
+similarity index 100%
+rename from _0_Base_AdvCiv_Docs/links.txt
+rename to _0_AdvCiv_Base/links.txt
+
+[PATCH OMITTED] file=a/_0_Base_AdvCiv_Docs/manual.odt b/_0_AdvCiv_Base/manual.odt reason=binary/generated-file changedLines=0 bytes=172
+
+[PATCH OMITTED] file=a/_0_Base_AdvCiv_Docs/manual.pdf b/_0_AdvCiv_Base/manual.pdf reason=binary/generated-file changedLines=0 bytes=172
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg b/_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg
+rename to _1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Building_Impluvium.jpg
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png b/_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+rename to _1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Banner.png
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp b/_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp
+rename to _1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Map.webp
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba b/_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+rename to _1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Music.weba
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png b/_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+rename to _1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Picture_Full.png
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary b/_1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+rename to _1_AdvCiv_SAS/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.10_world map_with_countries.png b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.10_world map_with_countries.png
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.10_world map_with_countries.png
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/0.10_world map_with_countries.png
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.20_world_map_terrain_empty.png b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.20_world_map_terrain_empty.png
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.20_world_map_terrain_empty.png
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/0.20_world_map_terrain_empty.png
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.21_world_map_terrain_with_civs.png b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.21_world_map_terrain_with_civs.png
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.21_world_map_terrain_with_civs.png
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/0.21_world_map_terrain_with_civs.png
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.30_tech_tree_mini.jpg b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.30_tech_tree_mini.jpg
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.30_tech_tree_mini.jpg
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/0.30_tech_tree_mini.jpg
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.31_Techtree_original.webp b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.31_Techtree_original.webp
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.31_Techtree_original.webp
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/0.31_Techtree_original.webp
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.32_Techtree_default_modified.png b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.32_Techtree_default_modified.png
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.33_Techtree_modified.png b/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/0.33_Techtree_modified.png
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png
+
+[PATCH OMITTED] file=a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/advciv-mod-difficulties_summary-htm-A3.pdf b/_1_AdvCiv_SAS/Docs_And_Appendixes/advciv-mod-difficulties_summary-htm-A3.pdf reason=binary/generated-file changedLines=0 bytes=394
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods b/_1_AdvCiv_SAS/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/advciv-mod-difficulties_summary.ods
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/civ4 civs default.png b/_1_AdvCiv_SAS/Docs_And_Appendixes/civ4 civs default.png
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/civ4 civs default.png
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/civ4 civs default.png
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_civs_and_terrain_design b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_civs_and_terrain_design
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_game_design_choices b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_game_design_choices
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_game_design_choices
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_game_design_choices
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_some_assets_content b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_some_assets_content
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_some_assets_content
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_some_assets_content
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_tech_design_choices b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_tech_design_choices
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/notes_about_tech_design_choices
+rename to _1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_tech_design_choices
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Lists/Special_Units_List b/_1_AdvCiv_SAS/Lists/Special_Units_List
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Lists/Special_Units_List
+rename to _1_AdvCiv_SAS/Lists/Special_Units_List
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Lists/Wonders_List b/_1_AdvCiv_SAS/Lists/Wonders_List
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Lists/Wonders_List
+rename to _1_AdvCiv_SAS/Lists/Wonders_List
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Civs/Civs music credits.txt b/_1_AdvCiv_SAS/Music_Civ4_Mod/Civs/Civs music credits.txt
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Civs/Civs music credits.txt
+rename to _1_AdvCiv_SAS/Music_Civ4_Mod/Civs/Civs music credits.txt
+
+diff --git "a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus" "b/_1_AdvCiv_SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus"
+similarity index 100%
+rename from "_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus"
+rename to "_1_AdvCiv_SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 1 - Ancient Music \342\200\223 Cavemen [j5xo5yGX3UY].opus"
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus b/_1_AdvCiv_SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+rename to _1_AdvCiv_SAS/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus b/_1_AdvCiv_SAS/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus
+rename to _1_AdvCiv_SAS/Music_Civ4_Mod/Eras/1 - Stone Age/Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg].opus
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus b/_1_AdvCiv_SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus
+rename to _1_AdvCiv_SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 1 - PHARAOH [1rSStqL267c].opus
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus b/_1_AdvCiv_SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus
+rename to _1_AdvCiv_SAS/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs].opus
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus b/_1_AdvCiv_SAS/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus
+rename to _1_AdvCiv_SAS/Music_Civ4_Mod/Eras/Medieval Era 1 - Enchanted Village of Moonlake [s6ECJAOafDo].opus
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt b/_1_AdvCiv_SAS/Music_Civ4_Mod/Eras/Music eras credits.txt
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt
+rename to _1_AdvCiv_SAS/Music_Civ4_Mod/Eras/Music eras credits.txt
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus b/_1_AdvCiv_SAS/Music_Civ4_Mod/Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus
+rename to _1_AdvCiv_SAS/Music_Civ4_Mod/Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Game/Game music credits.txt b/_1_AdvCiv_SAS/Music_Civ4_Mod/Game/Game music credits.txt
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Game/Game music credits.txt
+rename to _1_AdvCiv_SAS/Music_Civ4_Mod/Game/Game music credits.txt
+
+diff --git a/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md b/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+new file mode 100644
+index 000000000..8053395f2
+--- /dev/null
++++ b/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md
+@@ -0,0 +1,87 @@
++# Quick Get Started Guide
++
++This page does not go to go deep into the technicalities, for that see the other
++documents of this mod, but it gives instead a quick starter guide on the key
++few differences between AdvCiv and AdvCiv SAS, for newcomer players used to
++AdvCiv, Civ4 BTS, or some similar mods
++
++## Main Changes quick starter guide
++
++- explore units can attack : but their strength should be quite low
++- military units are versatile: swordsmen can defend, archers can attack,
++maybe even workers too
++- unit promotions are reworked: woodsman for example is buffed
++- military units are reworked: for example the holy roman empire special unit,
++to better accomodate its history and stats, or/and are built at a different time,
++in particular the settler is now not freely available but requires agriculture
++(is historical too, but for convenience first settler at starting game is provided
++for free as it was in civ4 bts and advciv)
++- military units are rebalanced: some op units (according to me) are nerfed
++slightly (for example: todo), some weaker ones buffed quite a lot (for example
++the jaguar warrior)
++- terrain is very important, almost all units have terrain bonuses, and sometimes
++rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless
++relevant quite strongly maybe)
++- snow and desert are important now! Some bonuses are added to some units or/and
++Civlizations (for example todo), some buildings give bonus to desert and snow
++yields (for example todo)
++- no more small wonders! To simplify gameplay, great wonders, now named wonders,
++have stronger and more significant effects now, for example todo
++- also, each civilization now is tied to a great wonder, everyone can build it,
++but if the civilization tied to it builds it first
++- some gameplay elements happen at different times, can resarch sooner, build
++culture sooner, slavery sooner, plantations sooner, tech trading a bit later (at
++guilds i think todo)
++- some ressources are not revealed until a certain tech: sheep is always visible,
++but gold not until metal casting.
++- a few new civs added, mostly in snow/desert terrains, or underrepresented parts
++of the world, see [world map with civs](/_1_AdvCiv_SAS/Docs_And_Appendixes/0.22_world_map_terrain_with_new_civs.png)
++(todo add link), for example The Kingdom Of Benin (Nigeria), or in weaker terrains
++(that are now buffed), for example Canada
++- Leaders have been changed: unless strongly desired, all civs have at max 2
++leaders, should be plenty for a variety of gameplay, i don't want to clutter, prefer
++to go deep in strategy instead, for example Joan D'arc has been added, and Louis XIV
++and De Gaulle removed, generally i preferred to keep the stronger ones, Cleopatra
++added and Hatscheputt removed for example
++- Leader animations removed, since now some don't have, better if none have maybe,
++instead i tried to put some nice images relatively as i thought would fit and i
++like, took quite a lot from existing mods
++- Some new ressources, for example camel and todo, some removed ressources, for
++example wine and todo
++- More terrain bonuses from techs and buildings: for example fishing gives food
++on all water tiles (even without boat), the impluvium building (Kingdom of Benin)
++improves quite a lot the desert tiles (you can gain more bonuses with other)
++- todo: space victory removed, it's too tedious to do, instead the USA is the
++only civ who wins if they build the programme Appolo, make sure to keep them in
++check
++- some special units are changed: the USA's F-15 are not relevant soon enough,
++replaced with a sooner unit for example todo
++- one new religion, paganism is added, confucianism is removed, maybe more early
++wars, also historically more relevant/+/-accurate too i think
++- religion is very important: unlike in civ4 where they are very similar, now
++each religion has specific bonuses (for example paganism gives slavery bonuses,
++but buddhism gives science bonus), also the cathedrals have been removed (too
++much clutter, and now the monasteries are called "Altars", very strong buildings
++so you must (i think) pay a lot of attention to religion and consider which one
++you want)
++- later in the game, neo religion, for example judaism has a neoreligion zionism
++(even though not strictly religious), islam has jihad, with big bonuses, just
++as in real life, even in modern eras, religions continue to play a big part in
++politics and society, for better or worse, i think though
++- the techs are mostly the same, they have been completely reordered to better
++fit historical accuracy (see timeline i provided too, should be very accurate
++now or much more), for example metal casting is before bronze age, the wheel
++before pottery, and currency before mathematics. Hopefully should be quite fast
++to adjust ideally, it is really the same techs for most at historical points
++- gradual gameplay: slower early game, faster late game (less of a chore too
++now maybe)
++- some units can be built at different times, also for historical accuracy
++- otherwise simple gameplay, i don't like clutter
++- opportunistic and efficient AI: the AI will not be much more aggressive than
++AdvCiv, it will be more cautious to start wars, but will hesitate less when it
++(thinks it can) profit, so be careful and plan well
++- i intend this to be quite fast paced
++- todo animals can be captured?
++
++- todo continue
++
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/README.md b/_1_AdvCiv_SAS/README.md
+similarity index 95%
+rename from _1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/README.md
+rename to _1_AdvCiv_SAS/README.md
+index 9f6023928..3898c5057 100644
+--- a/_1_AdvCiv_SBAIMTOCO_content/Docs_And_Appendixes/README.md
++++ b/_1_AdvCiv_SAS/README.md
+@@ -1,7 +1,13 @@
+ # Detailed Goals of this mod
++In addition to the quick(er) summary in the [main README.md](../README.md)
++of this AdvCiv SAS mod project, here is more information about the changes
++and the reasoning behind them.
++
++For a quick starter guide on the main changes between base AdvCiv and
++Advciv SAS, please see rather the [Quick Get Started Guide](Quick_Get_Started_Guide.md)
++
+ todo write
+ 
+-## Mod 1: AdvCiv SBAI
+ SBAI stands for Stricter Balancing AI
+ 
+ A preview of the changes (screenshots), can be found on this google drive
+@@ -81,8 +87,6 @@ even in ancient times rulers would try (i think) to appease their people by
+  encourage you to try the following versions (see below).
+ - todo unfinished
+ 
+-## Mod 2: SBAIMTO (SBAI + Military and Terrain Overhaul)
+-
+ - Military overhaul: most units have been completely reworked to be a lot more
+ versatile, which i think is realistic. For example, scouts and explorers can
+ attack, even workers should be able to defend cities (even though very weak),
+@@ -98,10 +102,6 @@ try it yet so i don't know if will be possible for sure i mean so not guaranteed
+ More changes too not listed here. For more changes, including more terrain changes,
+ you may try the next "level" of this mod i am uploading i mean.
+ 
+-## Mod 3: SBAIMTOCO (SBAI + MTO + Complete Overhaul)
+-A preview of the changes (screenshots), can be found on this google drive
+-[here](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M).
+-
+ - Religion overhaul: Religion is now completely changed, it's not just a bunch of
+ (politically correct i think) stats, but each religion has its specific bonuses,
+ also AIs will be much more sensitive to it, it should play a huge role at all stages
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/README.md b/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/README.md
+deleted file mode 100644
+index 085a5a7f2..000000000
+--- a/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/README.md
++++ /dev/null
+@@ -1,118 +0,0 @@
+-# AdvCiv mods
+-Todo write in detail
+-
+-I intend to do 3 mods built on top of each other.
+-
+-The purpose is for players interested to use them in advciv base or
+-maybe other mods too.
+-
+-Each mod has a different goal, and they are gradual in their changes,
+-the first mods are the most conservatives, while the later ones go
+-(much) more in depth.
+-
+-Note that this is a work in progress so it would not be ready too soon,
+-at least not the higher "levels" of the mod as they are more complex i
+-mean.
+-
+-## Mod 1: AdvCiv SBAI
+-
+-SBAI stands for Stricter Balancing AI
+-
+-Here are the main changes one may expect:
+-- balancing the handicap (which is the difficulty settings), so that
+-they are more challenging at lower difficulties, while being less of
+-a grind at higher difficulties (even though they would be hard but not)
+-in a grind way. The games will feel even at all difficulties even though
+-each step should be harder hopefully.
+-- stricter policy: the AI is more opportunistic too, will careless about
+-roleplaying (meaning it will do whatever it takes to win), not be baited
+-into wars, avoid strongly multi wars, focus on efficiency and economy, but
+-attack as soon as someone overplays and is low on defense (but not
+-overcommitting that would slow their economy). It could be assumed to be a
+-(more) merciless AI, that would be more challenging hopefully and enjoyable,
+-while feeling more like a human player (as much as possible)
+-- Quality of life changes: not all changes are harsher, some are meant to
+-have the human player an easier experience, at no change, changes include
+-or planned to include fixed costs (tech, city production, unit maintenance
+-quotas costs, etc), while only the AI's settings ones vary. This means for
+-example that techs will always cost the same price at all difficulties,
+-making it easier for the human player to adjust to newer difficulties
+-and reusing strategies, counting costs and doing strategy hopefully too, only
+-the AI would be faster or slower at it (but intends to be less of a grind
+-in many ways possible, having an even or close to even game against AI even
+-at most high difficulties, that would still be harder, is the goal i mean
+-anyways). Some bugfixes or maybe rather tweaks (for example the icon
+-of the cavalry in tech tree view is weirdly at military tradition (same as
+-the cuirassier) and not at rifling)
+-- some new mechanics, even though this mod 1 is conservative, there are still
+-things i consider suboptimal. For example, players will be able to build
+-research at writing not alphabet, and building culture at mysticism (much sooner),
+-which is historically (i think) more realistic, on top of allowing more diverse
+-strategies. Culture may help against revolts for example, and even in ancient
+-times rulers would try (i think) to appease their people by any cultural means
+-they would have.. For even deeper changes, i would encourage you to try the following
+-versions (see below)
+-
+-
+-## Mod 2: SBAIMTO (SBAI + Military and Terrain Overhaul)
+-- Military overhaul: most units have been completely reworked to be a lot more
+-versatile, which i think is realistic. For example, scouts and explorers can
+-attack, even workers should be able to defend cities (even though very weak),
+-but this is still in development. These changes intend to make it more
+-immersive, balanced in case some units are op while others are not and too weak,
+-and more challenging, as startegy will play a bigger role, with more ways to be
+-punished if doing mistakes i mean anyways.
+-- MiTerrain Overhaul: now all military units all have terrain specific defenses and
+-bonuses. This is a very different experience than civ4 or base advciv, as good as
+-they are, my goals and view are different in this case at least i mean. It would
+-be possible to settle your cities on peaks, as well as walk on them, but i did not
+-try it yet so i don't know if will be possible for sure i mean so not guaranteed.
+-More changes too not listed here. For more changes, including more terrain changes,
+-you may try the next "level" of this mod i am uploading i mean.
+-
+-## Mod 3: SBAIMTOCO (SBAI + MTO + Complete Overhaul)
+-- Religion overhaul: Religion is now completely changed, it's not just a bunch of
+-(politically correct i think) stats, but each religion has its specific bonuses,
+-also AIs will be much more sensitive to it, it should play a huge role at all stages
+-of the game so requiring absolute strategy or at least carefulness if i may say.
+-- New ressources, removed older ones, in a way that makes historically more sense
+-too hopefully or/and has more gameplay depth maybe i mean
+-- New Buildings (and units too most likely)
+-- Removed small wonders, replaced with other changes, great wonders having a special
+-perk and limited to min and max one per cit in the wonders available i mean, so Rome
+-cannot have 5 wonders (example, i don't know if this number is accurate is just to
+-illustrate i mean) while other rivals have at best only one wonder related to their
+-historical real past, it should make a stronger incentive to build or protect or
+-conquer wonders maybe, at least for the human player hopefully i mean in this case.
+-- Completely reworked tech tree to be historically as accurate as possible while
+-being efficient
+-- New Civlizations, while some civs have less leaders now (the ones with 3 leaders).
+-Be warned though that most likely their portait will not be animated unless i find
+-how, this is somehow i am not too good at i mean
+-- many changes, unlisted and still undone, so far this project is in the very early
+-stages, so i cannot make the mods available too soon, most other changes not even
+-started at all, but i have an idea i mean, except a quite very long time maybe if
+-i still wantt to do this mod i mean anyway, thanks
+-
+-You can follow the progress in particular in the specific folder (subfolder of this
+-bigger project i mean): 
+-
+-# Credits
+-
+-To write, but mostly i am very thankful of AdvCiv, it's such a nice improvement
+-from Civ4, and it's maintainer is very open to feedback at least in my
+-exchanges/experiences during these times i mean anyways.
+-
+-# Sources
+-
+-A few useful links :
+-- todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
+-be needed if you only modify XML files if i am not mistaken i mean anyways)
+-- ressources that mention XML files and tags, useful if you'd want to get started
+-doing your own mod. Civ4 allows to do a lot of things with just XML, which
+-surprised me a lot in a way that pleased me i mean anyways.
+-So far i have not touched the deeper code such as C++ and Python, maybe i will
+-not need at all but not sure, is as it would be:
+-todo add links
+-- drive: you can find some previews [here](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=drive_link), under the high-medium-low-very
+-low priority branch of examples i submitted to adv city maintainer i mean anyways
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/README.md b/_1_AdvCiv_SBAIMTOCO_content/README.md
+deleted file mode 100644
+index ed570108f..000000000
+--- a/_1_AdvCiv_SBAIMTOCO_content/README.md
++++ /dev/null
+@@ -1,49 +0,0 @@
+-This folder gathers all the data that is part of this mod that i imported
+-and that is not part of an asset i mean anyways?
+-
+-Will update the readme at a later date if i wish or possible or want, but
+-is as i wish prefer i mean anyways.
+-
+-More details about this mod in the folder listing all the docs
+-
+-## Mod 1: AdvCiv SBAI
+-SBAI stands for Stricter Balancing AI
+-
+-A preview of the changes (screenshots), can be found on this google drive
+-[here](https://drive.google.com/drive/folders/1rHm7J8RwLoqbDpJ5H7pvIGX7NET6s2YN?usp=sharing).
+-
+-Here are the main changes one may expect:
+-- balancing the handicap (which is the difficulty settings), so that
+-they are more challenging at lower difficulties, while being less of
+-a grind at higher difficulties (even though they would be hard but not)
+-in a grind way. The games will feel even at all difficulties even though
+-each step should be harder hopefully.
+-- stricter policy: the AI is more opportunistic too, will careless about
+-roleplaying (meaning it will do whatever it takes to win), not be baited
+-into wars, avoid strongly multi wars, focus on efficiency and economy, but
+-attack as soon as someone overplays and is low on defense (but not
+-overcommitting that would slow their economy). It could be assumed to be a
+-(more) merciless AI, that would be more challenging hopefully and enjoyable,
+-while feeling more like a human player (as much as possible)
+-- Quality of life changes: not all changes are harsher, some are meant to
+-have the human player an easier experience, at no change, changes include
+-or planned to include fixed costs (tech, city production, unit maintenance
+-quotas costs, etc), while only the AI's settings ones vary. This means for
+-example that techs will always cost the same price at all difficulties,
+-making it easier for the human player to adjust to newer difficulties
+-and reusing strategies, counting costs and doing strategy hopefully too, only
+-the AI would be faster or slower at it (but intends to be less of a grind
+-in many ways possible, having an even or close to even game against AI even
+-at most high difficulties, that would still be harder, is the goal i mean
+-anyways). Some bugfixes or maybe rather tweaks (for example the icon
+-of the cavalry in tech tree view is weirdly at military tradition (same as
+-the cuirassier) and not at rifling)
+-- some new mechanics, even though this mod 1 is conservative, there are still
+-things i consider suboptimal. For example, players will be able to build
+-research at writing not alphabet, and building culture at mysticism (much
+-sooner), which is historically (i think) more realistic, on top of allowing
+-more diverse strategies. Culture may help against revolts for example, and
+-even in ancient times rulers would try (i think) to appease their people by
+- any cultural means they would have.. For even deeper changes, i would
+- encourage you to try the following versions (see below).
+-- todo unfinished
+
+[PATCH COVERAGE]
+patchFiles=42 embeddedFiles=39 omittedFiles=3 embeddedPatchBytes=33792

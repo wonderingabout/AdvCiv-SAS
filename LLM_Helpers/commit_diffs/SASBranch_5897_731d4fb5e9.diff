@@ -1,0 +1,1040 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5897
+# Commit: 731d4fb5e99ebbbbd69ca68bb6bac6593ab50e83
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 17fe7e53190042a880290f58f473ebd3bac645ef
+# Title: Fix RandomScriptMap.py, Archipelago, and possibly other mapscripts being too small at worldsize huge: separate helper logic to Assets/Python/SASWorldSizeUtil...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	AGENTS.md
+5	16	PrivateMaps/SAS_WorldSizes.py => Assets/Python/SAS_WorldSizeUtils.py
+1	1	Assets/Python/Screens/CvVictoryScreen.py
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+2	2	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	1	LLM_Helpers/README.md
+1	1	PrivateMaps/Arboria.py
+1	1	PrivateMaps/Archipelago.py
+1	1	PrivateMaps/BTG_Cross.py
+1	1	PrivateMaps/BTG_Grid.py
+1	1	PrivateMaps/BTG_Lagoon.py
+1	1	PrivateMaps/Big_and_Small.py
+1	1	PrivateMaps/Boreal.py
+1	1	PrivateMaps/Continents.py
+1	1	PrivateMaps/Custom_Continents.py
+1	1	PrivateMaps/Donut.py
+1	1	PrivateMaps/Earth2.py
+1	2	PrivateMaps/Equal_Islands_V2_beta.py
+1	2	PrivateMaps/Fantasy_Realm.py
+1	1	PrivateMaps/Fractal.py
+1	1	PrivateMaps/Global_Highlands.py
+2	2	PrivateMaps/Great_Plains.py
+1	1	PrivateMaps/Hemispheres.py
+1	1	PrivateMaps/Highlands.py
+1	1	PrivateMaps/Hub.py
+1	1	PrivateMaps/Ice_Age.py
+1	1	PrivateMaps/Inland_Sea.py
+1	1	PrivateMaps/Islands.py
+1	1	PrivateMaps/Lakes.py
+1	1	PrivateMaps/Maze.py
+1	1	PrivateMaps/Medium_and_Small.py
+1	1	PrivateMaps/Mirror.py
+1	1	PrivateMaps/Mixed_Continents.py
+1	2	PrivateMaps/Oasis.py
+1	1	PrivateMaps/Pangaea.py
+1	1	PrivateMaps/Peirce.py
+2	2	PrivateMaps/PerfectMongoose.py
+1	1	PrivateMaps/Planet_Generator_0_68.py
+1	1	PrivateMaps/Rainforest.py
+1	1	PrivateMaps/RandomScriptMap.py
+1	1	PrivateMaps/Ring.py
+1	1	PrivateMaps/SAS_Large_Facing_Islands.py
+1	1	PrivateMaps/SAS_Longworld.py
+1	1	PrivateMaps/SAS_Parallel_Lines.py
+17	0	PrivateMaps/SAS_Simple_Flat_Grass.py
+1	1	PrivateMaps/SAS_Spiky_Avenues.py
+1	1	PrivateMaps/Shuffle.py
+1	1	PrivateMaps/Team_Battleground.py
+1	1	PrivateMaps/Terra.py
+1	1	PrivateMaps/Tilted_Axis.py
+1	1	PrivateMaps/Water.py
+1	1	PrivateMaps/Wheel.py
+1	1	PrivateMaps/aDebugMap.py
+1	1	PrivateMaps/not_too_Big_or_Small.py
+3	1	README.md
+41	41	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+3	3	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ rename PrivateMaps/SAS_WorldSizes.py => Assets/Python/SAS_WorldSizeUtils.py (88%)
+ create mode 100644 PrivateMaps/SAS_Simple_Flat_Grass.py
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index cfbf1fa74..3d8536b56 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -199,6 +199,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Prefer `getInfoTypeOrFail("TAG")` (from `SASUtils`) over raw `gc.getInfoTypeForString("TAG")` whenever possible so bad XML tags fail loudly and early; this helped catch incorrect direction-string usage in Planet Generator map (e.g., incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` failing instead of `DirectionTypes.DIRECTION_NORTH*` enum constants; or incorrect `getInfoTypeOrFail("PLOT_PEAK")` instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map)).
+ - When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
+ - Use `from module import *` for helper modules to reduce import tedium and make future additions seamless.
++- For map scripts, keep reusable helper modules outside `PrivateMaps` (e.g., in `Assets/Python/SAS_WorldSizeUtils.py`) when they define or might define names that Civ4 treats as map-script callbacks (`getGridSize`, `getNumPlotsPercent`, `getDescription`, etc.). The old playable `PrivateMaps/SAS_WorldSizes.py` helper leaked its compact `getGridSize` through `from SAS_WorldSizes import *`, making RandomScriptMap Huge generate empirically too small (`60 x 44`). Fix: moved helpers to `Assets/Python/SAS_WorldSizeUtils.py`; result: RandomScriptMap Huge returned to `120 x 84`. The playable sandbox wrapper is now `PrivateMaps/SAS_Simple_Flat_Grass.py`.
+ - Keep caller-owned or volatile Civ4 UI/game objects as parameters when needed (e.g. `screen`, `top`, selected city/player objects, or a precomputed `kGame`) rather than hiding them inside helpers. Stable shared Civ4 globals such as `gc`, `localText`, and `ArtFileMgr` may live at helper-module scope when that matches the file's established pattern. This avoids circular dependencies while keeping high-use helpers practical.
+ - Keep magic numbers/constants in [SASMagicNumbers.py](/Assets/Python/SASMagicNumbers.py) when they benefit from a named home, especially when they are imported across maps, advisors, Sevopedia, and utilities. This module should stay import-free: no `CvPythonExtensions`, no `gc`, no screen helpers, and no `SASUtils`, so it remains a safe leaf module and does not create circular-dependency or load-order risk. Prefix exported names with `SAS_MAGIC_` to reduce accidental global-name collisions in files that use from-module import-star. Useful examples: `SAS_MAGIC_PEDIA_PYTHON_BUILD = 6798` is shared by Sevopedia and Tech Chooser instead of being defined twice; `SAS_MAGIC_PEDIA_PYTHON_LEADER_ATTITUDE = 6805` was originally local to Sevopedia Leader but also checked by Sevopedia Main, so centralizing avoids widget-id drift/collision; `SAS_MAGIC_WORLDSIZE_HUGE = 6` avoids duplicated Huge-index fixes in map generator utilities and mapscripts after the AdvCiv-SAS Arena world-size insertion shifted runtime world-size indices.
+ - When extracting shared code to helpers, group all patterns together if similar enough otherwise (e.g. all enum prefixes in one tuple) for simplicity, even if some prefixes are only used by one caller.
+
+diff --git a/PrivateMaps/SAS_WorldSizes.py b/Assets/Python/SAS_WorldSizeUtils.py
+similarity index 88%
+rename from PrivateMaps/SAS_WorldSizes.py
+rename to Assets/Python/SAS_WorldSizeUtils.py
+index 5f7953a65..fec8890b2 100644
+--- a/PrivateMaps/SAS_WorldSizes.py
++++ b/Assets/Python/SAS_WorldSizeUtils.py
+@@ -1,12 +1,12 @@
+-import math
+-from CvPythonExtensions import CyGlobalContext
+-from SASMagicNumbers import *
+-
+ # AI, UI, or other modifications
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# <!-- custom: Shared helpers for ARENA/SAS world sizes in map scripts. (GPT-5.2-Codex) -->
++# <!-- custom: Shared ARENA/SAS world-size helpers for map scripts. This used to live in the playable PrivateMaps/SAS_WorldSizes.py helper map; importing it with import-star leaked that map's compact getGridSize callback into scripts that did not define their own. RandomScriptMap Huge was empirically far too small (60 x 44) and became 120 x 84 after moving the helpers out of PrivateMaps, visually matching base AdvCiv Huge at a glance; the same leak likely affected other scripts such as Archipelago. Keep this utility outside PrivateMaps and do not add Civ4 map-script callback names here. (GPT-5.5?) -->
++
++import math
++from CvPythonExtensions import CyGlobalContext
++from SASMagicNumbers import *
+ 
+ SAS_HUGE_CUSTOM_MAX_PLAYERS = 18
+ SAS_SIMPLE_GAME_STALE_OPTION_WARNED = False
+@@ -93,14 +93,3 @@ def sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes, iAnch
+ 		iTargetPlayers = sas_world_default_players(iWorldSize, 0)
+ 		return sas_calibrate_grid_from_anchor(iAnchorWidth, iAnchorHeight, iAnchorPlayers, iTargetPlayers)
+ 	return base_grid_sizes[max(base_grid_sizes.keys())]
+-
+-# <!-- custom: our helpers actually appears to be a flat grass map that is almost land so kept as such as a playable map then -->
+-def getDescription():
+-	return "TXT_KEY_MAP_SCRIPT_SAS_WORLD_SIZES_DESCR"
+-
+-# <!-- custom: If this helper is selected as a map script, use compact almost-all-land sizing to avoid oversized flat-grass starts. (GPT-5.3-Codex) -->
+-def getGridSize(argsList):
+-	if (argsList[0] == -1): # (-1,) is passed to function on loads
+-		return []
+-	[eWorldSize] = argsList
+-	return sas_get_compact_almost_all_land_grid_size(eWorldSize)
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 9d1fb6616..c735107cf 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -1263,7 +1263,7 @@ class CvVictoryScreen:
+ 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, m.getMapScriptName(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+-		# <!-- custom: append the actual generated grid (CyMap getGridWidth/Height) so the real map size is verifiable, exposing scripts whose getGridSize ignores the WorldInfo size (e.g. the SAS_WorldSizes import * compact-size leak). (Claude code Opus 4.7) -->
++		# <!-- custom: append the actual generated grid (CyMap getGridWidth/Height) so the real map size is verifiable, exposing scripts whose getGridSize ignores the WorldInfo size. This helped catch the old SAS_WorldSizes import-star compact-size leak. (Claude code Opus 4.7) -->
+ 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_MAP_SIZE", (gc.getWorldInfo(m.getWorldSize()).getTextKey(), )) + (u" (%d x %d)" % (m.getGridWidth(), m.getGridHeight())), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_CLIMATE", (gc.getClimateInfo(m.getClimate()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_SEA_LEVEL", (gc.getSeaLevelInfo(m.getSeaLevel()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 8131548a9..bc6f816e2 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -661,7 +661,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND</DefineName>
+-		<DefineTextVal>Boreal,Fantasy_Realm,Great_Plains,Highlands,Lakes,Mirror,Oasis,Rainforest,SAS_WorldSizes,Team_Battleground</DefineTextVal>
++		<DefineTextVal>Boreal,Fantasy_Realm,Great_Plains,Highlands,Lakes,Mirror,Oasis,Rainforest,SAS_Simple_Flat_Grass,Team_Battleground</DefineTextVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_NAVAL_HEAVY</DefineName>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 6932527f4..5b340fd56 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -2163,8 +2163,8 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 	<TEXT>
+-		<Tag>TXT_KEY_MAP_SCRIPT_SAS_WORLD_SIZES_DESCR</Tag>
+-		<English>Originally a SAS world-size helper, now kept as a playable flat-grass sandbox map (almost all land).</English>
++		<Tag>TXT_KEY_MAP_SCRIPT_SAS_SIMPLE_FLAT_GRASS_DESCR</Tag>
++		<English>A minimal SAS simple flat-grass sandbox map (almost all land).</English>
+ 	</TEXT>
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index a64bf577e..539b58c24 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -477,7 +477,7 @@ LIKELY-UNUSED: 16 | REVIEW (maybe dynamic): 28 | duplicate-defined: 0
+ === LIKELY UNUSED (no reference in mod, base BTS, or vanilla; verify before deleting) ===
+ 
+ [Assets/XML/Text/AdvCiv-SAS_main.xml]
+-  TXT_KEY_MAP_SCRIPT_SAS_WORLD_SIZES_DESCR
++  TXT_KEY_MAP_SCRIPT_SAS_SIMPLE_FLAT_GRASS_DESCR
+   TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT
+   TXT_KEY_PEDIA_BUILD_IMPROVEMENT
+   TXT_KEY_PEDIA_BUILD_REMOVE
+
+diff --git a/PrivateMaps/Arboria.py b/PrivateMaps/Arboria.py
+index ee17cd14a..c82c8ad99 100644
+--- a/PrivateMaps/Arboria.py
++++ b/PrivateMaps/Arboria.py
+@@ -22,7 +22,7 @@ import sys
+ from CvMapGeneratorUtil import HintedWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ 
+ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_ARBORIA_DESCR"
+
+diff --git a/PrivateMaps/Archipelago.py b/PrivateMaps/Archipelago.py
+index d1ff60489..d68074c48 100644
+--- a/PrivateMaps/Archipelago.py
++++ b/PrivateMaps/Archipelago.py
+@@ -14,7 +14,7 @@
+ # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+
+diff --git a/PrivateMaps/BTG_Cross.py b/PrivateMaps/BTG_Cross.py
+index 3f8bc2064..7070cebb2 100644
+--- a/PrivateMaps/BTG_Cross.py
++++ b/PrivateMaps/BTG_Cross.py
+@@ -25,7 +25,7 @@ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
+ from SASUtils import getInfoTypeOrFail
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ 
+ balancer = BonusBalancer()
+ balancer.resourcesToBalance = ("BONUS_ALUMINUM", "BONUS_COPPER", "BONUS_HORSE", "BONUS_IRON", "BONUS_OIL", "BONUS_URANIUM")
+
+diff --git a/PrivateMaps/BTG_Grid.py b/PrivateMaps/BTG_Grid.py
+index b0aa340d2..efcbb379c 100644
+--- a/PrivateMaps/BTG_Grid.py
++++ b/PrivateMaps/BTG_Grid.py
+@@ -25,7 +25,7 @@ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
+ from SASUtils import getInfoTypeOrFail
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ 
+ balancer = BonusBalancer()
+ balancer.resourcesToBalance = ("BONUS_ALUMINUM", "BONUS_COPPER", "BONUS_HORSE", "BONUS_IRON", "BONUS_OIL", "BONUS_URANIUM")
+
+diff --git a/PrivateMaps/BTG_Lagoon.py b/PrivateMaps/BTG_Lagoon.py
+index c50ce55fb..fb2a17d09 100644
+--- a/PrivateMaps/BTG_Lagoon.py
++++ b/PrivateMaps/BTG_Lagoon.py
+@@ -12,7 +12,7 @@ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
+ from SASUtils import getInfoTypeOrFail
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ 
+ import random #2.25
+
+diff --git a/PrivateMaps/Big_and_Small.py b/PrivateMaps/Big_and_Small.py
+index 13da61a7e..118dea62b 100644
+--- a/PrivateMaps/Big_and_Small.py
++++ b/PrivateMaps/Big_and_Small.py
+@@ -13,7 +13,7 @@
+ # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index 21aa213a7..4eecf5569 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -23,7 +23,7 @@ from math import sqrt
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ 
+ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_BOREAL_DESCR"
+
+diff --git a/PrivateMaps/Continents.py b/PrivateMaps/Continents.py
+index cff2c9cb7..c361f761c 100644
+--- a/PrivateMaps/Continents.py
++++ b/PrivateMaps/Continents.py
+@@ -13,7 +13,7 @@
+ # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+
+diff --git a/PrivateMaps/Custom_Continents.py b/PrivateMaps/Custom_Continents.py
+index 77fa91492..5a77b4d77 100644
+--- a/PrivateMaps/Custom_Continents.py
++++ b/PrivateMaps/Custom_Continents.py
+@@ -13,7 +13,7 @@
+ # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+
+diff --git a/PrivateMaps/Donut.py b/PrivateMaps/Donut.py
+index bf7519057..092dbc575 100644
+--- a/PrivateMaps/Donut.py
++++ b/PrivateMaps/Donut.py
+@@ -19,7 +19,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from SASUtils import getInfoTypeOrFail
+ 
+ balancer = BonusBalancer()
+
+diff --git a/PrivateMaps/Earth2.py b/PrivateMaps/Earth2.py
+index 541816ab6..bc7d8da0b 100644
+--- a/PrivateMaps/Earth2.py
++++ b/PrivateMaps/Earth2.py
+@@ -17,7 +17,7 @@ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import MultilayeredFractal
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from SASUtils import getInfoTypeOrFail
+ 
+ # MULTILAYERED FRACTAL NOTES
+
+diff --git a/PrivateMaps/Equal_Islands_V2_beta.py b/PrivateMaps/Equal_Islands_V2_beta.py
+index cbf506c65..3c4b27e33 100644
+--- a/PrivateMaps/Equal_Islands_V2_beta.py
++++ b/PrivateMaps/Equal_Islands_V2_beta.py
+@@ -12,7 +12,7 @@
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from SASUtils import getInfoTypeOrFail
+ import CvUtil
+ import CvMapGeneratorUtil
+@@ -938,4 +938,3 @@ def addBonusType(argsList):
+ 
+ def startHumansOnSameTile():
+ 	return True
+-
+
+diff --git a/PrivateMaps/Fantasy_Realm.py b/PrivateMaps/Fantasy_Realm.py
+index 4600a8da4..f8a1cf86e 100644
+--- a/PrivateMaps/Fantasy_Realm.py
++++ b/PrivateMaps/Fantasy_Realm.py
+@@ -16,7 +16,7 @@ import CvUtil
+ import CvMapGeneratorUtil
+ import random
+ import sys
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+@@ -625,4 +625,3 @@ def normalizeRemoveBadFeatures():
+ 
+ def normalizeAddGoodTerrain():
+ 	return None
+-
+
+diff --git a/PrivateMaps/Fractal.py b/PrivateMaps/Fractal.py
+index 0825258a7..04d316c19 100644
+--- a/PrivateMaps/Fractal.py
++++ b/PrivateMaps/Fractal.py
+@@ -9,7 +9,7 @@
+ #
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+
+diff --git a/PrivateMaps/Global_Highlands.py b/PrivateMaps/Global_Highlands.py
+index 1d59ead55..c96a6229c 100644
+--- a/PrivateMaps/Global_Highlands.py
++++ b/PrivateMaps/Global_Highlands.py
+@@ -20,7 +20,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ 
+ balancer = BonusBalancer()
+
+diff --git a/PrivateMaps/Great_Plains.py b/PrivateMaps/Great_Plains.py
+index de5a6bd09..7d7555132 100644
+--- a/PrivateMaps/Great_Plains.py
++++ b/PrivateMaps/Great_Plains.py
+@@ -16,7 +16,7 @@ import CvUtil
+ import CvMapGeneratorUtil
+ import random
+ import sys
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+@@ -80,7 +80,7 @@ def getGridSize(argsList):
+ 	# This map is almost 100% land with no ice.
+ 	# Sizes reduced MORE THAN two levels compared to global maps.
+ 	# Dimensions also pushed more toward being squarish.
+-	# <!-- custom: Keep Great Plains as the source compact almost-all-land profile via SAS_WorldSizes helper (same ARENA/SAS dimensions, centralized for reuse). (GPT-5.3-Codex) -->
++	# <!-- custom: Keep Great Plains as the source compact almost-all-land profile via SAS_WorldSizeUtils helper (same ARENA/SAS dimensions, centralized for reuse). (GPT-5.3-Codex) -->
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+
+diff --git a/PrivateMaps/Hemispheres.py b/PrivateMaps/Hemispheres.py
+index c386270eb..d5e0b7c98 100644
+--- a/PrivateMaps/Hemispheres.py
++++ b/PrivateMaps/Hemispheres.py
+@@ -10,7 +10,7 @@
+ #
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import TerrainGenerator
+
+diff --git a/PrivateMaps/Highlands.py b/PrivateMaps/Highlands.py
+index 3ad6ab1ef..aebd09407 100644
+--- a/PrivateMaps/Highlands.py
++++ b/PrivateMaps/Highlands.py
+@@ -16,7 +16,7 @@ import CvUtil
+ import CvMapGeneratorUtil
+ import random
+ import sys
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from math import sqrt
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+
+diff --git a/PrivateMaps/Hub.py b/PrivateMaps/Hub.py
+index d623a2e5e..c62532700 100644
+--- a/PrivateMaps/Hub.py
++++ b/PrivateMaps/Hub.py
+@@ -15,7 +15,7 @@ from CvPythonExtensions import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ import math
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from CvMapGeneratorUtil import MultilayeredFractal
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+
+diff --git a/PrivateMaps/Ice_Age.py b/PrivateMaps/Ice_Age.py
+index a5e7e99d9..f2d231b42 100644
+--- a/PrivateMaps/Ice_Age.py
++++ b/PrivateMaps/Ice_Age.py
+@@ -15,7 +15,7 @@
+ from CvPythonExtensions import *
+ import CvUtil
+ import CvMapGeneratorUtil
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+
+diff --git a/PrivateMaps/Inland_Sea.py b/PrivateMaps/Inland_Sea.py
+index db5e13328..14b608474 100644
+--- a/PrivateMaps/Inland_Sea.py
++++ b/PrivateMaps/Inland_Sea.py
+@@ -17,7 +17,7 @@ from CvPythonExtensions import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ import sys
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from CvMapGeneratorUtil import HintedWorld
+ from CvMapGeneratorUtil import BonusBalancer
+
+diff --git a/PrivateMaps/Islands.py b/PrivateMaps/Islands.py
+index 2d72962f4..0eb1c240c 100644
+--- a/PrivateMaps/Islands.py
++++ b/PrivateMaps/Islands.py
+@@ -13,7 +13,7 @@
+ # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+
+diff --git a/PrivateMaps/Lakes.py b/PrivateMaps/Lakes.py
+index 5c7e92ef3..77c8003b5 100644
+--- a/PrivateMaps/Lakes.py
++++ b/PrivateMaps/Lakes.py
+@@ -16,7 +16,7 @@ from CvPythonExtensions import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ import sys
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+
+diff --git a/PrivateMaps/Maze.py b/PrivateMaps/Maze.py
+index 9db9fc507..840e9ed85 100644
+--- a/PrivateMaps/Maze.py
++++ b/PrivateMaps/Maze.py
+@@ -17,7 +17,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ 
+ balancer = BonusBalancer()
+
+diff --git a/PrivateMaps/Medium_and_Small.py b/PrivateMaps/Medium_and_Small.py
+index fc153f7ed..d8792787b 100644
+--- a/PrivateMaps/Medium_and_Small.py
++++ b/PrivateMaps/Medium_and_Small.py
+@@ -13,7 +13,7 @@
+ # <!-- custom: added in PrivateMaps so maps in Simple Game or Custom Game are ordered alphabetically -->
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+
+diff --git a/PrivateMaps/Mirror.py b/PrivateMaps/Mirror.py
+index 260f83c41..62a1a7125 100644
+--- a/PrivateMaps/Mirror.py
++++ b/PrivateMaps/Mirror.py
+@@ -14,7 +14,7 @@ from CvPythonExtensions import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ import sys
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+
+diff --git a/PrivateMaps/Mixed_Continents.py b/PrivateMaps/Mixed_Continents.py
+index 6bc4f047f..a7f192f8b 100644
+--- a/PrivateMaps/Mixed_Continents.py
++++ b/PrivateMaps/Mixed_Continents.py
+@@ -32,7 +32,7 @@
+ #
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import TerrainGenerator
+
+diff --git a/PrivateMaps/Oasis.py b/PrivateMaps/Oasis.py
+index 2ea713244..9a56980c2 100644
+--- a/PrivateMaps/Oasis.py
++++ b/PrivateMaps/Oasis.py
+@@ -16,7 +16,7 @@ import CvMapGeneratorUtil
+ import random
+ import sys
+ import math
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+@@ -978,4 +978,3 @@ def addRivers():
+ 		addNileStyleRiverFlowingNorth(center, maxshift, startX, startY, 5)
+ 
+ 	return 0
+-
+
+diff --git a/PrivateMaps/Pangaea.py b/PrivateMaps/Pangaea.py
+index f5fe43d7c..487f0eede 100644
+--- a/PrivateMaps/Pangaea.py
++++ b/PrivateMaps/Pangaea.py
+@@ -9,7 +9,7 @@
+ #
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import MultilayeredFractal
+
+diff --git a/PrivateMaps/Peirce.py b/PrivateMaps/Peirce.py
+index e63ceaafe..d0cfeca12 100644
+--- a/PrivateMaps/Peirce.py
++++ b/PrivateMaps/Peirce.py
+@@ -19,7 +19,7 @@ import CvMapGeneratorUtil
+ import math
+ import sys
+ from SASUtils import getInfoTypeOrFail
+-from SAS_WorldSizes import sas_warn_simple_game_stale_option_once
++from SAS_WorldSizeUtils import sas_warn_simple_game_stale_option_once
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 7d2c20166..845064d04 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -47,7 +47,7 @@
+ # <!-- custom: AdvCiv-SAS does not actively maintain this third-party file; changes here are minor (e.g. collapsing multiline statements to single-line for grep/readability, and similar low-risk consistency tweaks). (Claude code Opus 4.7) -->
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ 
+@@ -6150,7 +6150,7 @@ def getBottomLatitude():
+ # 		WorldSizeTypes.WORLDSIZE_LARGE:					(30, 20),
+ # 		WorldSizeTypes.WORLDSIZE_HUGE:					(36, 24)
+ # 	}
+-# <!-- custom: define getGridSize like the other SAS maps (base grid-unit profile -> calibrated helper) to shadow the compact almost-all-land one leaked by "from SAS_WorldSizes import *". The engine multiplies these grid units ~x4 to plots, so LARGE (20,14) -> ~80x56 effective (bumped up a bit since PerfectMongoose is water-heavy and needs more land; cf. Pangaea ~74x52); returning the full WorldInfo grid (47,34) blew up to 188x136. SAS24-48 calibrate from the Huge anchor. Verify/tune base values via the Victory Screen size readout. (Claude code Opus 4.7) -->
++# <!-- custom: Define getGridSize like the other SAS maps (base grid-unit profile -> calibrated helper). The engine multiplies these grid units ~x4 to plots, so LARGE (20,14) -> ~80x56 effective (bumped up a bit since PerfectMongoose is water-heavy and needs more land; cf. Pangaea ~74x52); returning the full WorldInfo grid (47,34) blew up to 188x136. SAS24-48 calibrate from the Huge anchor. Verify/tune base values via the Victory Screen size readout. (Claude code Opus 4.7) -->
+ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+
+diff --git a/PrivateMaps/Planet_Generator_0_68.py b/PrivateMaps/Planet_Generator_0_68.py
+index 21d24a959..9b726885f 100644
+--- a/PrivateMaps/Planet_Generator_0_68.py
++++ b/PrivateMaps/Planet_Generator_0_68.py
+@@ -21,7 +21,7 @@ import CvUtil
+ from CvUtil import *
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from SASUtils import getInfoTypeOrFail
+ import math
+ import sys
+
+diff --git a/PrivateMaps/Rainforest.py b/PrivateMaps/Rainforest.py
+index 7e8990ded..b0f1c2228 100644
+--- a/PrivateMaps/Rainforest.py
++++ b/PrivateMaps/Rainforest.py
+@@ -19,7 +19,7 @@ from math import sqrt
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from SASUtils import getInfoTypeOrFail
+ 
+ def getDescription():
+
+diff --git a/PrivateMaps/RandomScriptMap.py b/PrivateMaps/RandomScriptMap.py
+index d1c25f93b..d55b33d55 100644
+--- a/PrivateMaps/RandomScriptMap.py
++++ b/PrivateMaps/RandomScriptMap.py
+@@ -29,7 +29,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import MultilayeredFractal
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from SASUtils import getInfoTypeOrFail
+ 
+ #-----------------------------------------------------------------------------
+
+diff --git a/PrivateMaps/Ring.py b/PrivateMaps/Ring.py
+index ba942b2fc..6eae0ac03 100644
+--- a/PrivateMaps/Ring.py
++++ b/PrivateMaps/Ring.py
+@@ -15,7 +15,7 @@ from CvPythonExtensions import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ import math
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from CvMapGeneratorUtil import MultilayeredFractal
+ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+
+diff --git a/PrivateMaps/SAS_Large_Facing_Islands.py b/PrivateMaps/SAS_Large_Facing_Islands.py
+index 9445e14be..9c2d31fcc 100644
+--- a/PrivateMaps/SAS_Large_Facing_Islands.py
++++ b/PrivateMaps/SAS_Large_Facing_Islands.py
+@@ -10,7 +10,7 @@
+ from CvPythonExtensions import *
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from SASUtils import getInfoTypeOrFail
+ 
+ gc = CyGlobalContext()
+
+diff --git a/PrivateMaps/SAS_Longworld.py b/PrivateMaps/SAS_Longworld.py
+index b89ae3c94..97238889d 100644
+--- a/PrivateMaps/SAS_Longworld.py
++++ b/PrivateMaps/SAS_Longworld.py
+@@ -11,7 +11,7 @@
+ from CvPythonExtensions import *
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ 
+ def getVersion():
+ 	return "1.00"
+
+diff --git a/PrivateMaps/SAS_Parallel_Lines.py b/PrivateMaps/SAS_Parallel_Lines.py
+index 22a69e4ba..95144040e 100644
+--- a/PrivateMaps/SAS_Parallel_Lines.py
++++ b/PrivateMaps/SAS_Parallel_Lines.py
+@@ -11,7 +11,7 @@
+ from CvPythonExtensions import *
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from SASUtils import getInfoTypeOrFail
+ 
+ gc = CyGlobalContext()
+
+diff --git a/PrivateMaps/SAS_Simple_Flat_Grass.py b/PrivateMaps/SAS_Simple_Flat_Grass.py
+new file mode 100644
+index 000000000..0cefd33d3
+--- /dev/null
++++ b/PrivateMaps/SAS_Simple_Flat_Grass.py
+@@ -0,0 +1,17 @@
++from SAS_WorldSizeUtils import *
++
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# <!-- custom: Playable simple flat-grass sandbox wrapper for the compact almost-all-land profile in Assets/Python/SAS_WorldSizeUtils.py. Keep reusable helper logic out of this PrivateMaps file: Civ4 treats top-level functions here as map-script callbacks, and the old helper-map/import-star design leaked this file's compact getGridSize into unrelated scripts. RandomScriptMap Huge was empirically too small (60 x 44) until the split restored 120 x 84, visually matching base AdvCiv Huge at a glance; the same leak likely affected other scripts such as Archipelago. (GPT-5.5?) -->
++
++def getDescription():
++	return "TXT_KEY_MAP_SCRIPT_SAS_SIMPLE_FLAT_GRASS_DESCR"
++
++# <!-- custom: Use compact almost-all-land sizing to avoid oversized flat-grass starts. (GPT-5.3-Codex + GPT-5.5?) -->
++def getGridSize(argsList):
++	if (argsList[0] == -1): # (-1,) is passed to function on loads
++		return []
++	[eWorldSize] = argsList
++	return sas_get_compact_almost_all_land_grid_size(eWorldSize)
+
+diff --git a/PrivateMaps/SAS_Spiky_Avenues.py b/PrivateMaps/SAS_Spiky_Avenues.py
+index cbd916dc6..0692cafed 100644
+--- a/PrivateMaps/SAS_Spiky_Avenues.py
++++ b/PrivateMaps/SAS_Spiky_Avenues.py
+@@ -32,7 +32,7 @@
+ from CvPythonExtensions import *
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ 
+ sas_spiky_layout = None
+ sas_slot_assignments = {}
+
+diff --git a/PrivateMaps/Shuffle.py b/PrivateMaps/Shuffle.py
+index 9cbc9748a..eb017deee 100644
+--- a/PrivateMaps/Shuffle.py
++++ b/PrivateMaps/Shuffle.py
+@@ -8,7 +8,7 @@
+ #
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import FractalWorld
+
+diff --git a/PrivateMaps/Team_Battleground.py b/PrivateMaps/Team_Battleground.py
+index 8e4298e0b..bfe0e7a0e 100644
+--- a/PrivateMaps/Team_Battleground.py
++++ b/PrivateMaps/Team_Battleground.py
+@@ -28,7 +28,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import HintedWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ 
+ from math import sqrt
+ from math import cos
+
+diff --git a/PrivateMaps/Terra.py b/PrivateMaps/Terra.py
+index d6dd57a69..f57d6fca4 100644
+--- a/PrivateMaps/Terra.py
++++ b/PrivateMaps/Terra.py
+@@ -8,7 +8,7 @@
+ #
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import MultilayeredFractal
+
+diff --git a/PrivateMaps/Tilted_Axis.py b/PrivateMaps/Tilted_Axis.py
+index c0cf10036..8fce4b6a2 100644
+--- a/PrivateMaps/Tilted_Axis.py
++++ b/PrivateMaps/Tilted_Axis.py
+@@ -19,7 +19,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ 
+ balancer = BonusBalancer()
+
+diff --git a/PrivateMaps/Water.py b/PrivateMaps/Water.py
+index 32b6c45bc..79f164f25 100644
+--- a/PrivateMaps/Water.py
++++ b/PrivateMaps/Water.py
+@@ -13,7 +13,7 @@ from CvPythonExtensions import *
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ 
+ gc = CyGlobalContext()
+
+diff --git a/PrivateMaps/Wheel.py b/PrivateMaps/Wheel.py
+index e30b285ef..0228f88b2 100644
+--- a/PrivateMaps/Wheel.py
++++ b/PrivateMaps/Wheel.py
+@@ -21,7 +21,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ from CvMapGeneratorUtil import BonusBalancer
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ from SASUtils import getInfoTypeOrFail
+ 
+ balancer = BonusBalancer()
+
+diff --git a/PrivateMaps/aDebugMap.py b/PrivateMaps/aDebugMap.py
+index 7935e4df2..aa9905735 100644
+--- a/PrivateMaps/aDebugMap.py
++++ b/PrivateMaps/aDebugMap.py
+@@ -11,7 +11,7 @@ from CvMapGeneratorUtil import FractalWorld
+ from CvMapGeneratorUtil import TerrainGenerator
+ from CvMapGeneratorUtil import FeatureGenerator
+ import sys
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ 
+ def getDescription():
+ 	"Description shown in the main menu"
+
+diff --git a/PrivateMaps/not_too_Big_or_Small.py b/PrivateMaps/not_too_Big_or_Small.py
+index 19d44dd72..8f878ee59 100644
+--- a/PrivateMaps/not_too_Big_or_Small.py
++++ b/PrivateMaps/not_too_Big_or_Small.py
+@@ -3,7 +3,7 @@
+ # advc: Some tweaks; see in-inline comments. Changes tagged with "advc.mxc" were ported from Mixed_Continents.
+ 
+ from CvPythonExtensions import *
+-from SAS_WorldSizes import *
++from SAS_WorldSizeUtils import *
+ import CvUtil
+ import CvMapGeneratorUtil
+ from CvMapGeneratorUtil import TerrainGenerator
+
+diff --git a/README.md b/README.md
+index 616b191d7..5863115e5 100644
+--- a/README.md
++++ b/README.md
+@@ -740,7 +740,9 @@ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1
+ 
+ ## Mapscripts
+ 
+-### AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)
++### AdvCiv-SAS original mapscripts (e.g., SAS_Simple_Flat_Grass, SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)
++
++Map-script helper logic that is reused by several scripts lives in [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py), not in `PrivateMaps`, because Civ4 treats imported top-level callback names such as `getGridSize` as part of the importing map script. `SAS_Simple_Flat_Grass.py` is the playable simple flat-grass sandbox map that uses that helper profile.
+ 
+ #### SAS_Longworld
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index d8d536437..9ac324c71 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -397,47 +397,47 @@ Adjust to your mod path:
+ 
+ Done with the help of GPT-5.2 Thinking thanks:
+ 
+-| Map script name        | Description                                                                                                                                                                                       | Map Type                                                                           |
+-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+-| `aDebugMap`            | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial); `// <!-- custom: empirically and based on code comments looks landHeavy -->`                  | Other (debug/test map); `<!-- custom: Land, see description -->`                   |
+-| `Arboria`              | Forest-heavy/“lush" world variant (terrain emphasis more than geometry).                                                                                                                          | Land                                                                               |
+-| `Archipelago`          | Many small islands; heavy naval emphasis early.                                                                                                                                                   | Water                                                                              |
+-| `Balanced`             | Land/sea like standard scripts but biased toward fairer starts.                                                                                                                                   | Land                                                                               |
+-| `Big_and_Small`        | Mix of a few big landmasses plus many smaller islands; both land and naval matter.                                                                                                                | Other (hybrid land + islands)                                                      |
+-| `Boreal`               | Cold/taiga-biome emphasis (forests/tundra feel).                                                                                                                                                  | Land                                                                               |
+-| `Continents`           | Several large continents separated by ocean; naval matters for contact, but landmasses are large.                                                                                                 | Land                                                                               |
+-| `Custom_Continents`    | Continents-style with extra customization knobs; still “big continent" gameplay.                                                                                                                  | Land                                                                               |
+-| `Donut`                | Donut-shaped land ring with central water (distinct navigation); `<!-- custom: empirically looks landHeavy -->`                                                                                   | Other (donut/ring geometry); `<!-- custom: Land, see description -->`              |
+-| `Earth2`               | Approximative: Earth-like distribution feel (not necessarily a fixed real Earth map).                                                                                                             | Land                                                                               |
+-| `Fantasy_Realm`        | Approximative: “Fantasy/exotic" generation (more extreme/unusual geography than standard scripts); `<!-- custom: empirically looks landHeavy -->`                                                 | Other (script-specific exotic geometry); `<!-- custom: Land, see description -->`  |
+-| `Fractal`              | Approximative: Standard random world generator; usually produces a few sizable landmasses with varied coastlines.                                                                                 | Land                                                                               |
+-| `Global_Highlands`     | Highlands-like ruggedness applied broadly (more hills/peaks overall).                                                                                                                             | Land                                                                               |
+-| `Great_Plains`         | Very land-dominant, open terrain focus (fewer big natural barriers).                                                                                                                              | Land                                                                               |
+-| `Hemispheres`          | Two (or few) major landmasses separated by ocean; tends to split starts across them.                                                                                                              | Land                                                                               |
+-| `Highlands`            | Rugged, hill/mountain-heavy world with more chokepoints.                                                                                                                                          | Land                                                                               |
+-| `Hub`                  | Structured hub-and-spokes style connectivity (nonstandard geometry).                                                                                                                              | Other (structured hub geometry)                                                    |
+-| `Ice_Age`              | Cold-biome leaning world (more tundra/snow feel than default).                                                                                                                                    | Land                                                                               |
+-| `Inland_Sea`           | Central inland sea with surrounding land; coastal play is central but not an island world; `<!-- custom: empirically looks landHeavy -->`                                                         | Other (central inland sea layout); `<!-- custom: Land, see description -->`        |
+-| `Islands`              | Island-heavy map (often fewer/larger islands than Archipelago, depending on script).                                                                                                              | Water                                                                              |
+-| `Lakes`                | Land-heavy with many internal lakes and inland coastlines.                                                                                                                                        | Land                                                                               |
+-| `Maze`                 | Labyrinth corridors and chokepoints (movement constrained by channels); `<!-- custom: empirically looks landHeavy -->`                                                                            | Other (maze/chokepoint geometry); `<!-- custom: Land, see description -->`         |
+-| `Medium_and_Small`     | Mix of medium landmasses plus smaller islands; more hybrid than pure continents.                                                                                                                  | Other (hybrid land + islands)                                                      |
+-| `Mixed_Continents`     | Hybrid continents + smaller land/island pieces; not purely “big continents" nor purely islands. `<!-- custom: empirically looks navalHeavy -->`                                                   | Other (hybrid land + islands) `<!-- custom: Land, see description -->`             |
+-| `Mirror`               | Symmetrical/mirrored layout for fairness (often MP-friendly).                                                                                                                                     | Other (symmetry-based layout)                                                      |
+-| `not_too_Big_or_Small` | Hybrid landmass sizing tuned to avoid extremes (not one supercontinent, not tiny-islands-only).                                                                                                   | Other (hybrid land + islands)                                                      |
+-| `Oasis`                | Desert-heavy with fertile pockets; expansion routes revolve around green clusters.                                                                                                                | Land                                                                               |
+-| `Pangaea`              | One massive primary continent (most civs share early land contact).                                                                                                                               | Land                                                                               |
+-| `PerfectMongoose`      | Approximative: Third-party “planet" style generator; typically aims for more natural-looking geography (still mostly standard land/sea gameplay). `<!-- custom: empirically looks navalHeavy -->` | Land `<!-- custom: empirically looks Water -->`                                    |
+-| `Rainforest`           | Jungle-heavy/wet-biome emphasis (terrain/feature density changes).                                                                                                                                | Land                                                                               |
+-| `RandomScriptMap`      | Meta-script that selects one of the installed scripts at random (often from a curated set).                                                                                                       | Random                                                                             |
+-| `Ring`                 | Ring-shaped primary land distribution (distinct wraparound feel); `<!-- custom: empirically looks landHeavy -->`                                                                                  | Other (ring geometry); `<!-- custom: Land, see description -->`                    |
+-| `SAS_WorldSizes`       | SAS world-size helper sandbox map: almost all land with mostly flat grass tiles.                                                                                                                  | Land                                                                               |
+-| `Shuffle`              | Randomly selects among multiple generator styles each game.                                                                                                                                       | Random                                                                             |
+-| `Tectonics`            | Plate-tectonics style continents with strong mountain chains and structured geography.                                                                                                            | Land                                                                               |
+-| `Team_Battleground`    | Team-oriented, typically symmetric starts/front lines (purpose-built for teams); `<!-- custom: empirically looks landHeavy -->`                                                                   | Other (team/symmetry layout); `<!-- custom: Land, see description -->`             |
+-| `Terra`                | Old World starts with a separate “New World" to discover/colonize later; `<!-- custom: empirically and based on map descriptions looks landHeavy -->`                                             | Other (old world/new world colonization); `<!-- custom: Land, see description -->` |
+-| `Tilted_Axis`          | Standard landmasses, but climate bands are “tilted" vs normal north-south; `<!-- custom: empirically looks navalHeavy -->`                                                                        | Land; `<!-- custom: empirically looks Water -->`                                   |
+-| `Wheel`                | Wheel/spokes-style structure (highly nonstandard geometry); `<!-- custom: empirically looks landHeavy -->`                                                                                        | Other (wheel/spokes geometry); `<!-- custom: Land, see description -->`            |
++| Map script name         | Description                                                                                                                                                                                       | Map Type                                                                           |
++| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
++| `aDebugMap`             | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial); `// <!-- custom: empirically and based on code comments looks landHeavy -->`                  | Other (debug/test map); `<!-- custom: Land, see description -->`                   |
++| `Arboria`               | Forest-heavy/“lush" world variant (terrain emphasis more than geometry).                                                                                                                          | Land                                                                               |
++| `Archipelago`           | Many small islands; heavy naval emphasis early.                                                                                                                                                   | Water                                                                              |
++| `Balanced`              | Land/sea like standard scripts but biased toward fairer starts.                                                                                                                                   | Land                                                                               |
++| `Big_and_Small`         | Mix of a few big landmasses plus many smaller islands; both land and naval matter.                                                                                                                | Other (hybrid land + islands)                                                      |
++| `Boreal`                | Cold/taiga-biome emphasis (forests/tundra feel).                                                                                                                                                  | Land                                                                               |
++| `Continents`            | Several large continents separated by ocean; naval matters for contact, but landmasses are large.                                                                                                 | Land                                                                               |
++| `Custom_Continents`     | Continents-style with extra customization knobs; still “big continent" gameplay.                                                                                                                  | Land                                                                               |
++| `Donut`                 | Donut-shaped land ring with central water (distinct navigation); `<!-- custom: empirically looks landHeavy -->`                                                                                   | Other (donut/ring geometry); `<!-- custom: Land, see description -->`              |
++| `Earth2`                | Approximative: Earth-like distribution feel (not necessarily a fixed real Earth map).                                                                                                             | Land                                                                               |
++| `Fantasy_Realm`         | Approximative: “Fantasy/exotic" generation (more extreme/unusual geography than standard scripts); `<!-- custom: empirically looks landHeavy -->`                                                 | Other (script-specific exotic geometry); `<!-- custom: Land, see description -->`  |
++| `Fractal`               | Approximative: Standard random world generator; usually produces a few sizable landmasses with varied coastlines.                                                                                 | Land                                                                               |
++| `Global_Highlands`      | Highlands-like ruggedness applied broadly (more hills/peaks overall).                                                                                                                             | Land                                                                               |
++| `Great_Plains`          | Very land-dominant, open terrain focus (fewer big natural barriers).                                                                                                                              | Land                                                                               |
++| `Hemispheres`           | Two (or few) major landmasses separated by ocean; tends to split starts across them.                                                                                                              | Land                                                                               |
++| `Highlands`             | Rugged, hill/mountain-heavy world with more chokepoints.                                                                                                                                          | Land                                                                               |
++| `Hub`                   | Structured hub-and-spokes style connectivity (nonstandard geometry).                                                                                                                              | Other (structured hub geometry)                                                    |
++| `Ice_Age`               | Cold-biome leaning world (more tundra/snow feel than default).                                                                                                                                    | Land                                                                               |
++| `Inland_Sea`            | Central inland sea with surrounding land; coastal play is central but not an island world; `<!-- custom: empirically looks landHeavy -->`                                                         | Other (central inland sea layout); `<!-- custom: Land, see description -->`        |
++| `Islands`               | Island-heavy map (often fewer/larger islands than Archipelago, depending on script).                                                                                                              | Water                                                                              |
++| `Lakes`                 | Land-heavy with many internal lakes and inland coastlines.                                                                                                                                        | Land                                                                               |
++| `Maze`                  | Labyrinth corridors and chokepoints (movement constrained by channels); `<!-- custom: empirically looks landHeavy -->`                                                                            | Other (maze/chokepoint geometry); `<!-- custom: Land, see description -->`         |
++| `Medium_and_Small`      | Mix of medium landmasses plus smaller islands; more hybrid than pure continents.                                                                                                                  | Other (hybrid land + islands)                                                      |
++| `Mixed_Continents`      | Hybrid continents + smaller land/island pieces; not purely “big continents" nor purely islands. `<!-- custom: empirically looks navalHeavy -->`                                                   | Other (hybrid land + islands) `<!-- custom: Land, see description -->`             |
++| `Mirror`                | Symmetrical/mirrored layout for fairness (often MP-friendly).                                                                                                                                     | Other (symmetry-based layout)                                                      |
++| `not_too_Big_or_Small`  | Hybrid landmass sizing tuned to avoid extremes (not one supercontinent, not tiny-islands-only).                                                                                                   | Other (hybrid land + islands)                                                      |
++| `Oasis`                 | Desert-heavy with fertile pockets; expansion routes revolve around green clusters.                                                                                                                | Land                                                                               |
++| `Pangaea`               | One massive primary continent (most civs share early land contact).                                                                                                                               | Land                                                                               |
++| `PerfectMongoose`       | Approximative: Third-party “planet" style generator; typically aims for more natural-looking geography (still mostly standard land/sea gameplay). `<!-- custom: empirically looks navalHeavy -->` | Land `<!-- custom: empirically looks Water -->`                                    |
++| `Rainforest`            | Jungle-heavy/wet-biome emphasis (terrain/feature density changes).                                                                                                                                | Land                                                                               |
++| `RandomScriptMap`       | Meta-script that selects one of the installed scripts at random (often from a curated set).                                                                                                       | Random                                                                             |
++| `Ring`                  | Ring-shaped primary land distribution (distinct wraparound feel); `<!-- custom: empirically looks landHeavy -->`                                                                                  | Other (ring geometry); `<!-- custom: Land, see description -->`                    |
++| `SAS_Simple_Flat_Grass` | SAS simple flat-grass sandbox map: almost all land with mostly flat grass tiles.                                                                                                                  | Land                                                                               |
++| `Shuffle`               | Randomly selects among multiple generator styles each game.                                                                                                                                       | Random                                                                             |
++| `Tectonics`             | Plate-tectonics style continents with strong mountain chains and structured geography.                                                                                                            | Land                                                                               |
++| `Team_Battleground`     | Team-oriented, typically symmetric starts/front lines (purpose-built for teams); `<!-- custom: empirically looks landHeavy -->`                                                                   | Other (team/symmetry layout); `<!-- custom: Land, see description -->`             |
++| `Terra`                 | Old World starts with a separate “New World" to discover/colonize later; `<!-- custom: empirically and based on map descriptions looks landHeavy -->`                                             | Other (old world/new world colonization); `<!-- custom: Land, see description -->` |
++| `Tilted_Axis`           | Standard landmasses, but climate bands are “tilted" vs normal north-south; `<!-- custom: empirically looks navalHeavy -->`                                                                        | Land; `<!-- custom: empirically looks Water -->`                                   |
++| `Wheel`                 | Wheel/spokes-style structure (highly nonstandard geometry); `<!-- custom: empirically looks landHeavy -->`                                                                                        | Other (wheel/spokes geometry); `<!-- custom: Land, see description -->`            |
+ 
+ Sources (GPT-5.2 Thinking):
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 91d51e2f7..d73c4118a 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -5041,7 +5041,7 @@ Observed issue:
+ Fix applied:
+ 
+ - Retuned Global Highlands down by one old-size step while keeping the peak-heavy map larger than ordinary scripts; e.g. Huge now uses old Large's `(32,20)` instead of old Huge's `(38,24)`.
+-- SAS24+ and larger still calibrate from the Huge anchor through the shared SAS world-size helper.
++- SAS24+ and larger still calibrate from the Huge anchor through the shared [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py) helper.
+ 
+ File changed:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index f59033dff..51c98ba8a 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -418,10 +418,10 @@ Make some of the data-dense advisors use using a **higher constrast background t
+ 
+ ## Mapscripts
+ 
+-- Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py). See also: [Modding ressources (Mapscripts)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts).
++- Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py). See also: [Modding ressources (Mapscripts)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts).
+ - Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py), [Oasis.py](/PrivateMaps/Oasis.py), [Ring.py](/PrivateMaps/Ring.py), [Team_Battleground.py](/PrivateMaps/Team_Battleground.py), [Tilted_Axis.py](/PrivateMaps/Tilted_Axis.py), [Wheel.py](/PrivateMaps/Wheel.py), [Arboria.py](/PrivateMaps/Arboria.py), [Donut.py](/PrivateMaps/Donut.py), [Earth2.py](/PrivateMaps/Earth2.py) (see below), [Global_Highlands.py](/PrivateMaps/Global_Highlands.py), [PerfectMongoose.py](/PrivateMaps/PerfectMongoose.py), [Rainforest.py](/PrivateMaps/Rainforest.py), [RandomScriptMap.py](/PrivateMaps/RandomScriptMap.py), [Terra.py](/PrivateMaps/Terra.py).
+-- **Reduced the grid size** of some maps that are **almost entirely composed of land** plots: city spacing **was too wide** due to the **excess of land** and **lack of water** plots. See [SAS_WorldSizes.py](/PrivateMaps/SAS_WorldSizes.py).
+-- Add new **SAS_Worldsizes map**: helper sandbox map: almost all land with mostly flat grass tiles.
++- (Requires AdvCiv-SAS 5897+) Added shared Mapscript-related world-size helpers. Note: done in [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py) rather than in the [PrivateMaps](/PrivateMaps/) folder as a .py file. This is because such a previous design caused the helper-as-a-playable-mapscript related bug, in AdvCiv-SAS only, of RandomScriptMap and Archipelago, e.g. at Huge world size, being generated far too small (`60 x 44`). After the fix it returned to `120 x 84`, matching base AdvCiv visually at a glance, and not being overly cramped anymore. The same issue may also have affected other map scripts that imported the old helper. The old helper now only keeps the minimal new playable mapscript code, not imported by other mapscripts anymore, in the new **SAS_Simple_Flat_Grass**: a simple sandbox map with almost all land and mostly flat grass tiles. See [SAS_Simple_Flat_Grass.py](/PrivateMaps/SAS_Simple_Flat_Grass.py).
++- **Reduced the grid size** of some maps that are **almost entirely composed of land** plots: city spacing **was too wide** due to the **excess of land** and **lack of water** plots. See [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py).
+ - **Earth2 start distribution rework:** for Huge and beyond world sizes, keep Earth2 at its existing **Huge-scale sizing** (already large enough), but solve crowding by **populating underused landmasses instead** (e.g., min 16 players before Africa is populated, min 32 players before the whole world is populated) of enlarging the script further. **Thresholds are based on player count** (not world size). See [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ - **Reduce grid size** for each worldsize in [Global_Highlands.py](/PrivateMaps/Global_Highlands.py) by one world size (e.g. World Size Huge was `(38,24)` -> `(32,20)` (old World Size Large's dimensions)): empirically even accounting for the many peaks it has (compensated by a larger grid at each world size than usual), **cities were still too sparse**. See [KI#138](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#138---fixed-base-advciv-issue-global-highlands-map-sizes-were-too-large).
+ - Add **Deer percentage map option** (e.g., `0/10/25/50/75/100`) for [Arboria.py](/PrivateMaps/Arboria.py) and [Boreal.py](/PrivateMaps/Boreal.py): **high-food terrain** (e.g. grass) maps like Arboria, or **lower-food terrain** ones (e.g. tundra/plains) like Boreal, had **too much deer**. See also [KI#105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#105---fixed-base-advciv-bug-of-most-bonuses-eg-deer-sometimes-not-appearing-at-first-civ4-launch-in-some-maps-eg-boreal).
+
+[PATCH COVERAGE]
+patchFiles=58 embeddedFiles=58 omittedFiles=0 embeddedPatchBytes=67749

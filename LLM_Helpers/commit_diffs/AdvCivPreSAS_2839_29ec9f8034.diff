@@ -1,0 +1,275 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2839
+# Commit: 29ec9f8034a42209c84136c2baca2491453f0e2b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1bfa734150b513b75317be10ad17d06c8413c0de
+# Title: AI: Be less distracted by wars against far weaker civs
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	CvGameCoreDLL/ArmamentForecast.cpp
+33	4	CvGameCoreDLL/CvPlayerAI.cpp
+11	0	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvTeamAI.h
+4	15	CvGameCoreDLL/UWAIAgent.cpp
+0	1	CvGameCoreDLL/UWAIAgent.h
+1	1	CvGameCoreDLL/UWAICache.cpp
+5	5	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 30f809c24..ca12e3989 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -211,11 +211,11 @@ ArmamentForecast::ArmamentForecast(PlayerTypes civId, MilitaryAnalyst& m,
+ 		navalArmament = params.isNaval();
+ 	/*  Assume that war against a single small enemy doesn't increase the
+ 		build-up intensity. Otherwise, the AI will tend to leave 1 or 2 cities
+-		alive. Would be cleaner to assume a shorter time horizon, but that's a
+-		can of worms. */
++		alive. Consistent with CvPlayerAI::AI_isFocusWar.
++		Would be cleaner to assume a shorter time horizon, but that's a can of worms. */
+ 	if(singleWarEnemy != NO_TEAM && !navalArmament && iTotalWars <= 0 &&
+ 			iWarPlans <= 1 && !civ.AI_isDoStrategy(AI_STRATEGY_ALERT1 | AI_STRATEGY_ALERT2) &&
+-			t.uwai().isPushover(singleWarEnemy)) {
++			t.AI_isPushover(singleWarEnemy)) {
+ 		intensity = NORMAL;
+ 		fictionalScenario = true; // Don't check AreAI either
+ 	}
+@@ -264,7 +264,7 @@ ArmamentForecast::ArmamentForecast(PlayerTypes civId, MilitaryAnalyst& m,
+ 				report.log("Using estimated intensity for forecast");
+ 				if(intensity <= NORMAL && GET_TEAM(civ.getTeam()).
+ 						isAtWar(TEAMID(weId)) && !GET_TEAM(civ.getTeam()).
+-						uwai().isPushover(TEAMID(weId))) {
++						AI_isPushover(TEAMID(weId))) {
+ 					// Have to expect that human will increase build-up as necessary
+ 					intensity = INCREASED;
+ 					report.log("Increased intensity for human at war with us");
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 74c46e481..2e07a09af 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14477,12 +14477,41 @@ bool CvPlayerAI::AI_isFocusWar(CvArea const* pArea) const
+ 		return false;
+ 	if(pArea == NULL)
+ 		pArea = getCapital()->area();
+-	/*  Chosen wars (ongoing or in preparation) are always worth focusing on;
++	if (AI_isDoStrategy(AI_STRATEGY_ALERT2))
++		return true;
++	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
++	/*  Chosen wars (ongoing or in preparation) are generally worth focusing on;
+ 		others only when on the defensive. (In CvTeamAI::AI_calculateAreaAIType,
+ 		bTargets and bDeclaredTargets are computed in a similar way .) */
+-	return (GET_TEAM(getTeam()).AI_isAnyChosenWar() ||
+-			pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE ||
+-			AI_isDoStrategy(AI_STRATEGY_ALERT2));
++	if (!kOurTeam.AI_isAnyChosenWar() &&
++		pArea->getAreaAIType(getTeam()) != AREAAI_DEFENSIVE)
++	{
++		return false;
++	}
++	// Much weaker targets aren't worth focusing on (except maybe when there are multiple)
++	bool bFirst = true;
++	for (TeamIter<CIV_ALIVE,KNOWN_POTENTIAL_ENEMY_OF> itTeam(getTeam());
++		itTeam.hasNext(); ++itTeam)
++	{
++		if (kOurTeam.AI_getWarPlan(itTeam->getID()) != NO_WARPLAN)
++		{
++			if (!kOurTeam.AI_isPushover(itTeam->getID()))
++				return true;
++			CvCity const* pEnemyCapital = NULL;
++			for (MemberIter itMember(itTeam->getID());
++				pEnemyCapital == NULL && itMember.hasNext(); ++itMember)
++			{
++				pEnemyCapital = itMember->getCapital();
++			}
++			if (pEnemyCapital != NULL && pEnemyCapital->isArea(*pArea))
++			{
++				if (!bFirst) // Multiple wars
++					return true;
++				bFirst = true;
++			}
++		}
++	}
++	return false;
+ }
+ 
+ int CvPlayerAI::AI_adjacentPotentialAttackers(CvPlot const& kPlot, bool bTestCanMove) const
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 32c788080..1ec2c2b4a 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2971,6 +2971,17 @@ int CvTeamAI::AI_getEnemyPowerPercent(bool bConsiderOthers) const
+ 	// K-Mod end
+ }
+ 
++// advc.105, advc.104:
++bool CvTeamAI::AI_isPushover(TeamTypes ePotentialEnemy) const
++{
++	CvTeam const& kPotentialEnemy = GET_TEAM(ePotentialEnemy);
++	int iTheirCities = kPotentialEnemy.getNumCities();
++	int iOurCities = getNumCities();
++	return (((iTheirCities <= 1 && iOurCities >= 3) ||
++			4 * iTheirCities < iOurCities) &&
++			10 * kPotentialEnemy.getPower(true) < 4 * getPower(false));
++}
++
+ // K-Mod
+ int CvTeamAI::AI_getAirPower() const
+ {
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 1ecf7593c..c5921d2f4 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -130,8 +130,8 @@ public:
+ 	bool AI_anyMemberAtVictoryStage3() const;
+ 
+ 	int AI_getWarSuccessRating() const; // K-Mod
+-
+ 	int AI_getEnemyPowerPercent(bool bConsiderOthers = false) const;
++	bool AI_isPushover(TeamTypes ePotentialEnemy) const; // advc.105
+ 	int AI_getAirPower() const; // K-Mod
+ 	int AI_getRivalAirPower() const;
+ 	// K-Mod. (refuse peace when we need war for conquest victory.)
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 3897692f4..7512219a6 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -333,7 +333,7 @@ void UWAI::Team::alignAreaAI(bool isNaval) {
+ 					targetCity->getOwner()) > a.getCitiesPerPlayer(
+ 					member.getID()))) {
+ 				WarPlanTypes wp = GET_TEAM(agentId).AI_getWarPlan(targetCity->getTeam());
+-				if(!isPushover(targetCity->getTeam()) ||
++				if(!GET_TEAM(agentId).AI_isPushover(targetCity->getTeam()) ||
+ 						(wp != WARPLAN_TOTAL && wp != WARPLAN_PREPARING_TOTAL)) {
+ 					// Make sure there isn't an easily reachable target in the capital area
+ 					TeamPathFinder<TeamPath::LAND> pf(GET_TEAM(agentId),
+@@ -1225,7 +1225,7 @@ void UWAI::Team::scheme() {
+ 		if(!canSchemeAgainst(targetId, false))
+ 			continue;
+ 		report->log("Scheming against %s", report->teamName(targetId));
+-		bool shortWork = isPushover(targetId);
++		bool shortWork = agent.AI_isPushover(targetId);
+ 		if(shortWork)
+ 			report->log("Target assumed to be short work");
+ 		bool skipTotal = (agent.AI_isAnyWarPlan() || shortWork);
+@@ -1908,17 +1908,6 @@ bool UWAI::Team::isLandTarget(TeamTypes theyId) const {
+ 	return false;
+ }
+ 
+-bool UWAI::Team::isPushover(TeamTypes theyId) const {
+-
+-	CvTeam const& they = GET_TEAM(theyId);
+-	CvTeam const& agent = GET_TEAM(agentId);
+-	int theirCities = they.getNumCities();
+-	int agentCities = agent.getNumCities();
+-	return ((theirCities <= 1 && agentCities >= 3) ||
+-			4 * theirCities < agentCities) &&
+-			10 * they.getPower(true) < 4 * agent.getPower(false);
+-}
+-
+ void UWAI::Team::startReport() {
+ 
+ 	bool doReport = isReportTurn();
+@@ -2416,8 +2405,8 @@ double UWAI::Civ::militaryPower(CvUnitInfo const& u, double baseValue) const {
+ 	//if(u.isSuicide()) r *= 1.33; // all missiles
+ 
+ 	/*  Combat odds don't increase linearly with strength. Use a power law
+-		with a power between 1.5 and 2 (configured in XML; 1.7 for now). */
+-	r = pow(r, (double)GC.getPOWER_CORRECTION());
++		with a power between 1.5 and 2 (configured in XML). */
++	r = pow(r, GC.getDefineINT(CvGlobals::POWER_CORRECTION) / 100.0);
+ 	return r;
+ }
+
+diff --git a/CvGameCoreDLL/UWAIAgent.h b/CvGameCoreDLL/UWAIAgent.h
+index d86f57489..7e590bc48 100644
+--- a/CvGameCoreDLL/UWAIAgent.h
++++ b/CvGameCoreDLL/UWAIAgent.h
+@@ -69,7 +69,6 @@ public:
+ 		accepting vassalId puts us (the would-be master) into a war. */
+ 	DenialTypes acceptVassal(TeamTypes vassalId) const;
+ 	bool isLandTarget(TeamTypes theyId) const;
+-	bool isPushover(TeamTypes theyId) const;
+ 
+ 	/*  The remaining functions are only to be called while doWar
+ 		is being evaluated. */
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 1b7d01774..e72ad1788 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -552,7 +552,7 @@ void UWAICache::updateWarUtilityIgnDistraction(TeamTypes targetId) {
+ 	// Just limited war and naval based on AI_isLandTarget is good enough here
+ 	if(wp == NO_WARPLAN) {
+ 		wp = WARPLAN_PREPARING_LIMITED;
+-		if(!agent.uwai().isPushover(targetId))
++		if(!agent.AI_isPushover(targetId))
+ 			prepTime = 5;
+ 	}
+ 	warUtilityIgnDistraction.set(targetId, eval.evaluate(
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index d2bc09356..8f1eca0f3 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2288,14 +2288,14 @@ int Effort::preEvaluate() {
+ 		for(PlyrSetIter it = weCont.begin(); it != weCont.end(); ++it) {
+ 			if(we->AI_hasSharedPrimaryArea(*it))
+ 				allWarsLongDist = false;
+-			if(!agent.uwai().isPushover(TEAMID(*it)))
++			if(!agent.AI_isPushover(TEAMID(*it)))
+ 				allPushOver = false;
+ 		}
+ 		PlyrSet const& weDecl = m->getWarsDeclaredBy(weId);
+ 		for(PlyrSetIter it = weDecl.begin(); it != weDecl.end(); ++it) {
+ 			if(we->AI_hasSharedPrimaryArea(*it))
+ 				allWarsLongDist = false;
+-			if(!agent.uwai().isPushover(TEAMID(*it)))
++			if(!agent.AI_isPushover(TEAMID(*it)))
+ 				allPushOver = false;
+ 		}
+ 		if(allPushOver) {
+@@ -3002,7 +3002,7 @@ void Distraction::evaluate() {
+ 	int numPotentialWars = 0;
+ 	for(TeamIter<FREE_MAJOR_CIV,POTENTIAL_ENEMY_OF> it(TEAMID(theyId)); it.hasNext(); ++it) {
+ 		TeamTypes tId = it->getID();
+-		if(!agent.isHasMet(tId) || agent.uwai().isPushover(tId) ||
++		if(!agent.isHasMet(tId) || agent.AI_isPushover(tId) ||
+ 				(!agent.uwai().canReach(tId) &&
+ 				!GET_TEAM(tId).uwai().canReach(agentId)))
+ 			continue;
+@@ -3282,7 +3282,7 @@ void FairPlay::evaluate() {
+ 			we->AI_getMemoryAttitude(theyId, MEMORY_DECLARED_WAR) < -2 ||
+ 			they->AI_atVictoryStage3() ||
+ 			// Then our attack dooms them regardless of other war parties
+-			(agent.uwai().isPushover(TEAMID(theyId)) &&
++			(agent.AI_isPushover(TEAMID(theyId)) &&
+ 			(!they->isHuman() || they->getCurrentEra() > 0)) ||
+ 			/*  If they can't win anymore, we shouldn't hold back. Don't want to
+ 				leave all the loot to others. A human with such poor war success
+@@ -3628,7 +3628,7 @@ void TacticalSituation::evalEngagement() {
+ 	} // (end of  profile scope)
+ 	// Don't count entangled units on missions
+ 	ourMissions = std::max(0, ourMissions - entangled);
+-	if(ourMissions > 0 && agent.uwai().isPushover(TEAMID(theyId))) {
++	if(ourMissions > 0 && agent.AI_isPushover(TEAMID(theyId))) {
+ 		/*  If the target is weak, even a small fraction of our military en route
+ 			could have a big impact once it arrives. */
+ 		ourMissions *= 3;
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=10105

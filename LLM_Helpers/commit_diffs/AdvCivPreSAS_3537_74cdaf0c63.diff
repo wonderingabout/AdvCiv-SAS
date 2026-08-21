@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3537
+# Commit: 74cdaf0c63479a7160b4027e736c93d695599589
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5d8ff076cac985b8199489cf02d2f8e85024a98a
+# Title: DLL, manual for v1.04
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+2	2	CvGameCoreDLL/Project/CvGameCoreDLL.rc
+-	-	manual.odt
+-	-	manual.pdf
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/Project/CvGameCoreDLL.rc b/CvGameCoreDLL/Project/CvGameCoreDLL.rc
+index 501335013..479f7db85 100644
+--- a/CvGameCoreDLL/Project/CvGameCoreDLL.rc
++++ b/CvGameCoreDLL/Project/CvGameCoreDLL.rc
+@@ -54,7 +54,7 @@ END
+ //
+ 
+ VS_VERSION_INFO VERSIONINFO
+- FILEVERSION 1,0,3,0
++ FILEVERSION 1,0,4,0
+  PRODUCTVERSION 3,1,9,0
+  FILEFLAGSMASK 0x17L
+ #ifdef _DEBUG
+@@ -72,7 +72,7 @@ BEGIN
+         BEGIN
+             VALUE "CompanyName", "Firaxis Games"
+             VALUE "FileDescription", "Modified game core DLL for Sid Meier's Civilization 4: Beyond The Sword (Advanced Civ mod)"
+-            VALUE "FileVersion", "1, 0, 3, 0"
++            VALUE "FileVersion", "1, 0, 4, 0"
+             VALUE "InternalName", "Sid Meier's Civilization 4 : Beyond The Sword Game Core DLL"
+             VALUE "LegalCopyright", "Copyright (C) Firaxis Games.  All Rights Reserved."
+             VALUE "OriginalFilename", "CvGameCoreDLL.dll"
+
+[PATCH OMITTED] file=a/manual.odt b/manual.odt reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH OMITTED] file=a/manual.pdf b/manual.pdf reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=1 omittedFiles=3 embeddedPatchBytes=939

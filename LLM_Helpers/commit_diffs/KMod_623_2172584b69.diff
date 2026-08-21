@@ -1,0 +1,258 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 623
+# Commit: 2172584b6944ac4e9c2db4f4a64277bd465a76b2
+# History segment: K-Mod history
+# Parent used for diff: fea28a18e6d48cd0a8659c61dec70d97cb070ce9
+# Title: Fixed a flaw in Lead From Behind which caused cargo-carrying units to be chosen at the best defender more often than they should. (The protection afforded to...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	10	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	9	CvGameCoreDLL/CvGameCoreUtils.h
+32	34	CvGameCoreDLL/CvUnit.cpp
+1	9	CvGameCoreDLL/CvUnit.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 28aff482b..3d352a128 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -2702,12 +2702,7 @@ void getUnitAIString(CvWString& szString, UnitAITypes eUnitAI)
+ 	}
+ }
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/21/10                                jdog5000      */
+-/*                                                                                              */
+-/* Efficiency                                                                                   */
+-/************************************************************************************************/
+-// From Lead From Behind by UncutDragon
++// Lead From Behind by UncutDragon
+ typedef std::vector<int> LFBoddsAttOdds;
+ typedef std::vector<LFBoddsAttOdds> LFBoddsDefRounds;
+ typedef std::vector<LFBoddsDefRounds> LFBoddsAttRounds;
+@@ -2840,7 +2835,8 @@ int LFBlookupCombatOdds(LFBoddsFirstStrike* pOdds, int iFSIndex, int iFirstStrik
+ 		int iMaxOdds = LFBlookupCombatOdds(pAttOdds, iMaxOddsIndex, iFirstStrikes, iNeededRoundsAttacker, iNeededRoundsDefender, iMaxOddsValue);
+ 		
+ 		// Do a simple weighted average on the two odds
+-		iOdds += (((iAttackerOdds - iMinOddsValue) * (iMaxOdds - iOdds)) / LFB_ODDS_INTERVAL_SIZE);
++		//iOdds += (((iAttackerOdds - iMinOddsValue) * (iMaxOdds - iOdds)) / LFB_ODDS_INTERVAL_SIZE);
++		iOdds += ((iAttackerOdds - iMinOddsValue) * (iMaxOdds - iOdds) + LFB_ODDS_INTERVAL_SIZE/2) / LFB_ODDS_INTERVAL_SIZE; // K-Mod. (rounded rather than truncated)
+ 	}
+ 
+ 	return iOdds;
+@@ -3021,6 +3017,4 @@ int LFBcalculateCombatOdds(int iFirstStrikes, int iNeededRoundsAttacker, int iNe
+ 
+ 	return iOdds;
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++// lfb end
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index acb505ba9..536f8b644 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -374,15 +374,7 @@ void getMissionTypeString(CvWString& szString, MissionTypes eMissionType);
+ void getMissionAIString(CvWString& szString, MissionAITypes eMissionAI);
+ void getUnitAIString(CvWString& szString, UnitAITypes eUnitAI);
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/21/10                                jdog5000      */
+-/*                                                                                              */
+-/* Lead From Behind                                                                             */
+-/************************************************************************************************/
+-// From Lead From Behind by UncutDragon
++// Lead From Behind by UncutDragon
+ int LFBgetCombatOdds(int iAttackerLowFS,	int iAttackerHighFS, int iDefenderLowFS, int iDefenderHighFS, int iNeededRoundsAttacker, int iNeededRoundsDefender, int iAttackerOdds);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 3b8e0b5ca..7f07d034b 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1863,11 +1863,6 @@ bool CvUnit::isActionRecommended(int iAction)
+ }
+ 
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/21/10                                jdog5000      */
+-/*                                                                                              */
+-/* Efficiency, Lead From Behind                                                                 */
+-/************************************************************************************************/
+ // From Lead From Behind by UncutDragon
+ // original
+ //bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const
+@@ -1957,23 +1952,13 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
+ 	{
+ 		if (!(pAttacker->immuneToFirstStrikes()))
+ 		{
+-			// UncutDragon
+-			// original
+-			//iOurDefense *= ((((firstStrikes() * 2) + chanceFirstStrikes()) * ((GC.getDefineINT("COMBAT_DAMAGE") * 2) / 5)) + 100);
+-			// modified
+-			iOurDefense *= ((((firstStrikes() * 2) + chanceFirstStrikes()) * ((GC.getCOMBAT_DAMAGE() * 2) / 5)) + 100);
+-			// /UncutDragon
++			iOurDefense *= 100 + (firstStrikes() * 2 + chanceFirstStrikes()) * GC.getCOMBAT_DAMAGE() * 2 / 5;
+ 			iOurDefense /= 100;
+ 		}
+ 
+ 		if (immuneToFirstStrikes())
+ 		{
+-			// UncutDragon
+-			// original
+-			//iOurDefense *= ((((pAttacker->firstStrikes() * 2) + pAttacker->chanceFirstStrikes()) * ((GC.getDefineINT("COMBAT_DAMAGE") * 2) / 5)) + 100);
+-			// modified
+-			iOurDefense *= ((((pAttacker->firstStrikes() * 2) + pAttacker->chanceFirstStrikes()) * ((GC.getCOMBAT_DAMAGE() * 2) / 5)) + 100);
+-			// /UncutDragon
++			iOurDefense *= 100 + (pAttacker->firstStrikes() * 2 + pAttacker->chanceFirstStrikes()) * GC.getCOMBAT_DAMAGE() * 2 / 5;
+ 			iOurDefense /= 100;
+ 		}
+ 	}
+@@ -2012,23 +1997,13 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
+ 	{
+ 		if (!(pAttacker->immuneToFirstStrikes()))
+ 		{
+-			// UncutDragon
+-			// original
+-			//iTheirDefense *= ((((pDefender->firstStrikes() * 2) + pDefender->chanceFirstStrikes()) * ((GC.getDefineINT("COMBAT_DAMAGE") * 2) / 5)) + 100);
+-			// modified
+-			iTheirDefense *= ((((pDefender->firstStrikes() * 2) + pDefender->chanceFirstStrikes()) * ((GC.getCOMBAT_DAMAGE() * 2) / 5)) + 100);
+-			// /UncutDragon
++			iTheirDefense *= 100 + (pDefender->firstStrikes() * 2 + pDefender->chanceFirstStrikes()) * GC.getCOMBAT_DAMAGE() * 2 / 5;
+ 			iTheirDefense /= 100;
+ 		}
+ 
+ 		if (pDefender->immuneToFirstStrikes())
+ 		{
+-			// UncutDragon
+-			// original
+-			//iTheirDefense *= ((((pAttacker->firstStrikes() * 2) + pAttacker->chanceFirstStrikes()) * ((GC.getDefineINT("COMBAT_DAMAGE") * 2) / 5)) + 100);
+-			// modified
+-			iTheirDefense *= ((((pAttacker->firstStrikes() * 2) + pAttacker->chanceFirstStrikes()) * ((GC.getCOMBAT_DAMAGE() * 2) / 5)) + 100);
+-			// /UncutDragon
++			iTheirDefense *= 100 + (pAttacker->firstStrikes() * 2 + pAttacker->chanceFirstStrikes()) * GC.getCOMBAT_DAMAGE() * 2 / 5;
+ 			iTheirDefense /= 100;
+ 		}
+ 	}
+@@ -2060,10 +2035,6 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
+ 
+ 	return (iOurDefense > iTheirDefense);
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-
+ 
+ bool CvUnit::canDoCommand(CommandTypes eCommand, int iData1, int iData2, bool bTestVisible, bool bTestBusy)
+ {
+@@ -13597,6 +13568,7 @@ int CvUnit::LFBgetDefenderOdds(const CvUnit* pAttacker) const
+ 	{
+ 		// This part is taken directly from the standard method
+ 		// Reduces value if a unit is carrying other units
++		/* (disabled by K-Mod)
+ 		int iAssetValue = std::max(1, getUnitInfo().getAssetValue());
+ 		int iCargoAssetValue = 0;
+ 		std::vector<CvUnit*> aCargoUnits;
+@@ -13605,7 +13577,14 @@ int CvUnit::LFBgetDefenderOdds(const CvUnit* pAttacker) const
+ 		{
+ 			iCargoAssetValue += aCargoUnits[i]->getUnitInfo().getAssetValue();
+ 		}
+-		iDefense = iDefense * iAssetValue / std::max(1, iAssetValue + iCargoAssetValue);
++		iDefense = iDefense * iAssetValue / std::max(1, iAssetValue + iCargoAssetValue); */
++
++		// K-Mod. The above code does not achieve the goal, which is to protect cargo-carrying ships from being killed first.
++		// The problem with the code is that when the odds of winning are very small, the artificial reduction is also very small;
++		// on the other hand, when the odds of winning are very great, the artificial reduction is huge. This is the opposite of what we want!
++		// We want to let the boats fight if they are going to win anyway, but give them protection if they would lose.
++
++		// I've added my own version of the value adjustment to LFBgetValueAdjustedOdds.
+ 	}
+ 
+ 	return iDefense;
+@@ -13641,6 +13620,22 @@ int CvUnit::LFBgetValueAdjustedOdds(int iOdds, bool bDefender) const
+ 	// Note that the +10000 is just to try keeping it > 0 - doesn't really matter, other than that -1
+ 	// would be interpreted later as not computed yet, which would cause us to compute it again each time
+ 
++	// K-Mod. If this unit is a transport, reduce the value based on the risk of losing the cargo.
++	// (This replaces the adjustment from LFBgetDefenderOdds. For more info, see the comments in that function.)
++	if (hasCargo())
++	{
++		int iAssetValue = std::max(1, getUnitInfo().getAssetValue());
++		int iCargoAssetValue = 0;
++		std::vector<CvUnit*> aCargoUnits;
++		getCargoUnits(aCargoUnits);
++		for (uint i = 0; i < aCargoUnits.size(); ++i)
++		{
++			iCargoAssetValue += aCargoUnits[i]->getUnitInfo().getAssetValue();
++		}
++		iRank -= 2 * (1000 - iOdds) * iCargoAssetValue / std::max(1, iAssetValue + iCargoAssetValue);
++	}
++	// K-Mod end
++
+ 	return iRank;
+ }
+ 
+@@ -13684,6 +13679,8 @@ int CvUnit::LFBgetRelativeValueRating() const
+ 	return iValueRating;
+ }
+ 
++// K-Mod. unit value adjustment based on how many defensive promotions are active on this plot.
++// (The purpose of this is to encourage experienced units to fight when their promotions are especially suited to the plot they are defending.)
+ int CvUnit::LFGgetDefensiveValueAdjustment() const
+ {
+ 	int iValue = 0;
+@@ -13735,6 +13732,7 @@ int CvUnit::LFGgetDefensiveValueAdjustment() const
+ 
+ 	return iValue;
+ }
++// K-Mod end
+ 
+ int CvUnit::LFBgetDefenderCombatOdds(const CvUnit* pAttacker) const
+ {
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index f2562e65c..a886ff3f6 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -900,12 +900,7 @@ protected:
+ 	void resolveAirCombat(CvUnit* pInterceptor, CvPlot* pPlot, CvAirMissionDefinition& kBattle);
+ 	void checkRemoveSelectionAfterAttack();
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/21/10                                jdog5000      */
+-/*                                                                                              */
+-/* Lead From Behind                                                                             */
+-/************************************************************************************************/
+-// From Lead From Behind by UncutDragon. Edited for K-Mod
++// Lead From Behind by UncutDragon. Edited for K-Mod
+ public:
+ 	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank) const;
+ 	virtual void LFBgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue) const = 0;
+@@ -918,9 +913,6 @@ public:
+ 	int LFGgetDefensiveValueAdjustment() const; // K-Mod
+ 	bool LFBisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank) const;
+ 	int LFBgetDefenderCombatOdds(const CvUnit* pAttacker) const;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ };
+ 
+ #endif
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=12102

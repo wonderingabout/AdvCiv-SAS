@@ -1,0 +1,166 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5204
+# Commit: c28e40dd39782f69ee82b9b61454ccf21595dc98
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8a13288983ec3e985d67645a803c0f742aa3992a
+# Title: (Fixed) exclude iXMLCost <= 0 buildings from the SAS CvCityAI::AI_buildingValue gates entirely - Does **not** affect Buildings with a **negative or equal to...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+22	13	CvGameCoreDLL/CvCityAI.cpp
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 42894e6ca..6b71e240d 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4695,7 +4695,12 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 
+ 	static const bool bSAS_AI_BUILDING_VALUE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_BUILDING_VALUE_OPTIMIZE");
+ 
+-	if (!bBarbarian && !bMinor && bSAS_AI_BUILDING_VALUE_OPTIMIZE)
++	// <!-- custom: in autoplay i have noticed that we don't build any shrine (Mahabodhi, Pagan Shrine, etc.) but that suddenly we'd build them again later in the game after our build world wonders ASAP change/fix. Shrines and such (corporations etc.) have an iCost value of -1 it seems, so there is no point to try to save hammer building or not building them. Similarly to how we did in CvUnitAI::AI_ChooseUnit or related or similar functions we handled in advciv-sas, do not handle abherrent iCost values based on XML actual value as seemed to work fine as such. Code added with the help of chatgpt 5.2 thanks but anyways etc. In autoplay, adding this iXMLCost check seemingly leads to more wonders by turn 300, although it could just be random variation as history somehow changed, it's not less in this autoplay sample at least i mean it seems i mean but anyways etc. -->
++	// <!-- custom: also cache later calls in this function for performance optimization or/and such if any if i am not mistaken i mean but anyways etc. -->
++	const int iXMLCost = kBuilding.getProductionCost(); // XML base cost (unscaled)
++	// -1 (GP-built) or weird 0-cost
++	// Only apply "hammer/turns/top-hammer-city" viability gates to normal, buildable buildings.
++	if ((iXMLCost > 0) && !bBarbarian && !bMinor && bSAS_AI_BUILDING_VALUE_OPTIMIZE)
+ 	{
+ 		// <!-- custom: always pick these first if in this specific case if i may say but anyways etc especially relevant but anyways etc -->
+ 		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, eveyrthing else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map anyways etc. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure i mean but anyways etc) -->
+@@ -4931,11 +4936,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			{
+ 				// <!-- custom: be careful to not make this static in case reloads would cause us to treat old pangea map of last save to a pangea in new archipelago loaded or started map if i am not mistaken but check to be sure, anyways etc -->
+ 				// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+-				bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
++				bool const bLandHeavyMapname = kGame.isLandHeavyMapnameCached();
+ 				// bool bNavalHeavyMapname = false;
+ 				// if (!bLandHeavyMapname)
+ 				// {
+-				// 	bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
++				// 	bNavalHeavyMapname = kGame.isNavalHeavyMapnameCached();
+ 				// }
+ 
+ 				if (bLandHeavyMapname)
+@@ -6939,7 +6944,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 					/*  It's hard to measure an instant boost with units of
+ 						commerce per turn... So I'm just going to divide it by
+ 						(k146) ~12.5, scaled by game speed */
+-					iValue += iTechValue * 8 / GC.getInfo(GC.getGame().getGameSpeedType()).
++					// <!-- custom: use cached kGame for performance optimization or/and such if i am not mistaken i mean but anyways etc. -->
++					iValue += iTechValue * 8 / GC.getInfo(kGame.getGameSpeedType()).
+ 							getResearchPercent();
+ 				}
+ 				// else: If there is nothing to research, a free tech is worthless.
+@@ -7070,8 +7076,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 					if (kLoopBuilding.isBuildingClassNeededInCity(eBuildingClass) &&
+ 						getNumBuilding(eBuilding) == 0 && iPrereqBuildings <= 0)
+ 					{
+-						if (kBuilding.getProductionCost() > 0 &&
+-							kLoopBuilding.getProductionCost() > 0)
++						// <!-- custom: also cache later calls in this function for performance optimization or/and clarity or/and such if i am not mistaken i mean but anyways etc. -->
++						const int iLoopXMLCost = kLoopBuilding.getProductionCost(); // XML base cost (unscaled)
++
++						if (iXMLCost > 0 &&
++							iLoopXMLCost > 0)
+ 						{
+ 							int iTempValue = AI_buildingValue(
+ 									eLoopBuilding, 0, 0, bConstCache, false);
+@@ -7081,9 +7090,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 									how likely we are the build the thing (note. the
+ 									combined production cost is essentially the cost of completing
+ 									kLoopBuilding given our current position.) */
+-								iTempValue *= 2 * kBuilding.getProductionCost();
+-								iTempValue /= 2 * kBuilding.getProductionCost() +
+-										3 * kLoopBuilding.getProductionCost();
++								iTempValue *= 2 * iXMLCost;
++								iTempValue /= 2 * iXMLCost +
++										3 * iLoopXMLCost;
+ 								iValue += iTempValue;
+ 							}
+ 						}
+@@ -7612,7 +7621,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 					/*	K-Mod. Build culture buildings quickly to pop our borders
+ 						(but not wonders / special buildings) */
+ 					if (iTempValue > 0 && !bLimitedWonder &&
+-						kBuilding.getProductionCost() > 0 &&
++						iXMLCost > 0 &&
+ 						AI_needsCultureToWorkFullRadius())
+ 					{
+ 						iPriorityFactor += 25;
+@@ -7955,7 +7964,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 					{
+ 						if (eLoopCorporation != eCorporation &&
+ 							kOwner.hasHeadquarters(eLoopCorporation) &&
+-							GC.getGame().isCompetingCorporation(eCorporation, eLoopCorporation))
++							kGame.isCompetingCorporation(eCorporation, eLoopCorporation))
+ 						{
+ 							/*	This new corp is no good to us if our competing corp
+ 								is already better. note: evaluation of the competing corp
+@@ -8227,7 +8236,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				or on rival's tech, or whatever... */
+ 			iPriorityFactor += 20;
+ 		}
+-		if (kBuilding.getProductionCost() > 0)
++		if (iXMLCost > 0)
+ 		{
+ 			iValue *= iPriorityFactor;
+ 			iValue /= 100;
+@@ -8239,7 +8248,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			iValue += kBuilding.getAIWeight();
+ 			if (iValue > 0 &&
+ 				// K-Mod. Only use flavour adjustments for constructing ordinary buildings.
+-				kBuilding.getProductionCost() > 0 && !bRemove)
++				iXMLCost > 0 && !bRemove)
+ 			{
+ 				int iFlavour = 0;
+ 				FOR_EACH_NON_DEFAULT_PAIR(kBuilding.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index f532727e3..e0e72fe82 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -218,8 +218,8 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - tightened or/and reworked wonders 's (world wonders, and national wonders although a bit lenient threshold anyways etc) keep building thresholds in `CvCityAI::AI_chooseProduction`, so that AIs are now more inclined to ditch wonders we (i.e. the AI itself, i.e. from its point of view anyways etc) are currently building if they are not close from completion, if i am not mistaken anyways etc, if in a war context (at war, or/and planning war, or/and in danger), especially if AI is weaker militarily, then the threshold to ditch the wonder is highest (e.g. as of now 80% completion minimum or ditch it if at war and weaker than the enemy, vs seemingly less at least in some related cases such as danger or such, check code to be sure and have updated values anyways etc). Hopefully this helps AI better react to war threats and not invest too much in wonders when our enemy is about or threatening to conquer city anyway: don't build the wonder for our enemy. Attempt to use the hammer for anything else, perhaps a few extra longbowmen, or walls or something. Hopefully AI has a sharper use of its hammer and more responsive building choices as a result anyways etc.
+ - (Requires AdvCiv-SAS 5203+) Do not build **Anti-Barbarian Border Blocking** (`bBorderObstacle`) **Wonders** (e.g. Great Wall) past a certain **era** (e.g. Classical era, meaning we will not build Great Wall or equivalent wonders from the Medieval and onwards). Change in `CvCityAI::AI_buildingValue`.
+-- added quite a lot of pre-filtering to help guide AI building choices, in `CvCityAI::AI_buildingValue`. These aim to help AI better use responsively and more efficiently its hammers. For example if we are not at war or we are strong, we don't need walls (e.g. build swordsmen or a granary or anything instead, just we have more hammer for that). Or if we are behind/weaker, do not build wonders (especially world wonders), just for our neighbours to capture them later, except for those relevant to such war or danger or planning war or such circumstances that we would then value more, and in our core cities only not low hammer ones anyways etc: use instead the hammer for more urgent tasks, especially walls/castle for example or/and other tasks. Culture buildings early only being important for BFC no need for extra, etc. But don't block economy or growth building either, as it can be hard to tell if barracks or a granary or a library are most often better early, let AI pick these if our pre-filtering new rules don't reject the buildings. So after these pre-filtering rules say ok do the base advciv +/- civ4 existing rules apply if possible. In testing, AI behaves massively differently: it still develops its economy and gets most base buildings, but much less wonders are built, although it seems they start to build a bit more later in the game. They are not hardly forbidden, only told to not value it if ROI is low or time to build too long or danger or such. AI should behave much more as a human as a result of these, and i expect their military is quite a bit stronger as well as a result of the better invested hammers or/and economy (more workers/settlers or such or for other buildings instead). Interestingly, heroic epics and national epics in particular seem to be valued much more by the AI, at least by most of them, and i told them to build the military related ones in their top hammer cities only (not necessarily capital but among best anyways etc). See [48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or/and always build first logic depending on building type and/or such anyways etc; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc) for details, with .md tables of the as of now rules summarized there and screenshots of the autoplay runs before/after i tested it on but anyways etc and/or such for details anyways etc.
+-- (Requires AdvCiv-SAS 5203+) Regardless of the aforementionned pre-filtering rules, **cheap Wonders ASAP** (hammer `iCost` tunable by era in SAS defines). This is because we have prioritized most early hammer towards early urgent growth (settlers, workers, etc.) or military (urgent rush or defense), and the very cheap cost (e.g. Pyramids not yet built Medieval era) make it attractive and worth having ~1-2 less units or similar. Change in `CvCityAI::AI_buildingValue`. Note: about Wonders generally, AdvCiv-SAS uses a quite strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build many as we risk being overrun by our rivals and building wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it).
++- added quite a lot of pre-filtering to help guide AI building choices, in `CvCityAI::AI_buildingValue`. These aim to help AI better use responsively and more efficiently its hammers. For example if we are not at war or we are strong, we don't need walls (e.g. build swordsmen or a granary or anything instead, just we have more hammer for that). Or if we are behind/weaker, do not build wonders (especially world wonders), just for our neighbours to capture them later, except for those relevant to such war or danger or planning war or such circumstances that we would then value more, and in our core cities only not low hammer ones anyways etc: use instead the hammer for more urgent tasks, especially walls/castle for example or/and other tasks. Culture buildings early only being important for BFC no need for extra, etc. But don't block economy or growth building either, as it can be hard to tell if barracks or a granary or a library are most often better early, let AI pick these if our pre-filtering new rules don't reject the buildings. So after these pre-filtering rules say ok do the base advciv +/- civ4 existing rules apply if possible. In testing, AI behaves massively differently: it still develops its economy and gets most base buildings, but much less wonders are built, although it seems they start to build a bit more later in the game. They are not hardly forbidden, only told to not value it if ROI is low or time to build too long or danger or such. AI should behave much more as a human as a result of these, and i expect their military is quite a bit stronger as well as a result of the better invested hammers or/and economy (more workers/settlers or such or for other buildings instead). Interestingly, heroic epics and national epics in particular seem to be valued much more by the AI, at least by most of them, and i told them to build the military related ones in their top hammer cities only (not necessarily capital but among best anyways etc). See [48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or/and always build first logic depending on building type and/or such anyways etc; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc) for details, with .md tables of the as of now rules summarized there and screenshots of the autoplay runs before/after i tested it on but anyways etc and/or such for details anyways etc. (Requires AdvCiv-SAS 5204+) Does **not** affect Buildings with a **negative or equal to 0 XML `iCost` (Shrines, Corporations, etc.)**, since we don't need to save hammer for free of cost buildings, and they would otherwise not be built or heavily delayed if affected by any SAS `CvCityAI::AI_buildingValue` gate.
++- (Requires AdvCiv-SAS 5203+) Regardless of the aforementionned pre-filtering rules, **cheap World Wonders ASAP** (hammer `iCost` tunable by era in SAS defines): early, we have prioritize most hammer towards early urgent growth (settlers, workers, etc.) or military (urgent rush or defense); later on they **cheap cost** (e.g. Pyramids not yet built Medieval era) makes it attractive and worth having ~1-2 less units or similar. Change in `CvCityAI::AI_buildingValue`. Note: about Wonders generally, AdvCiv-SAS uses a fairly strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build world wonders as we risk being overrun by our rivals and building world wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it).
+ - Since then, i enhanced it to better account for which buildings are strict and urgent happiness buildings, by replacing in our prechecks in `CvCityAI::AI_buildingValue` the use of the too broad and unreliable base advciv +/- civ4's `CvCity::getAdditionalHappinessByBuilding` with our new `AI_strictAdditionalHappy`, as well as better account the expected food gains from them after removing unhappy citizens; these changes yielded (no pun but anyways etc) great results as well, see [48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise anyways etc), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc) for details anyways etc.
+ 
+ #### Leaders (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 5a32af73f..bdd46aa12 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -210,8 +210,8 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - Tightened/reworked **wonder-keep** thresholds in `CvCityAI::AI_chooseProduction`: if at war/planning war/in danger and not close to completion, AIs will **ditch world wonders** (highest threshold when weaker) and redirect hammers to urgent needs (e.g., walls/units). See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**.
+ - (Requires AdvCiv-SAS 5203+) Do not build **Anti-Barbarian Border Blocking** (`bBorderObstacle`) **Wonders** (e.g. Great Wall) past a certain **era** (e.g. Classical era, meaning we will not build Great Wall or equivalent wonders from the Medieval and onwards). Change in `CvCityAI::AI_buildingValue`.
+-- Added **pre-filtering** rules in `CvCityAI::AI_buildingValue` so hammers go where they matter: skip walls when safe/strong; avoid wonders when weak/in danger (focus on core cities if relevant); keep early culture to BFC needs; do **not** block economy/growth buildings; fall back to base logic after the pre-filters. AIs tend to value **Heroic/National Epics** more and build them in top-hammer cities. See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**.
+-- (Requires AdvCiv-SAS 5203+) Regardless of the aforementionned pre-filtering rules, **cheap World Wonders ASAP** (hammer `iCost` tunable by era in SAS defines). This is because we have prioritized most early hammer towards early urgent growth (settlers, workers, etc.) or military (urgent rush or defense), and the very cheap cost (e.g. Pyramids not yet built Medieval era) make it attractive and worth having ~1-2 less units or similar. Change in `CvCityAI::AI_buildingValue`. Note: about Wonders generally, AdvCiv-SAS uses a quite strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build world wonders as we risk being overrun by our rivals and building world wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it).
++- Added **pre-filtering** rules in `CvCityAI::AI_buildingValue` so hammers go where they matter: skip walls when safe/strong; avoid wonders when weak/in danger (focus on core cities if relevant); keep early culture to BFC needs; do **not** block economy/growth buildings; fall back to base logic after the pre-filters. AIs tend to value **Heroic/National Epics** more and build them in top-hammer cities. See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**. (Requires AdvCiv-SAS 5204+) Does **not** affect Buildings with a **negative or equal to 0 XML `iCost` (Shrines, Corporations, etc.)**, since we don't need to save hammer for free of cost buildings, and they would otherwise not be built or heavily delayed if affected by any SAS `CvCityAI::AI_buildingValue` gate.
++- (Requires AdvCiv-SAS 5203+) Regardless of the aforementionned pre-filtering rules, **cheap World Wonders ASAP** (hammer `iCost` tunable by era in SAS defines): early, we have prioritize most hammer towards early urgent growth (settlers, workers, etc.) or military (urgent rush or defense); later on they **cheap cost** (e.g. Pyramids not yet built Medieval era) makes it attractive and worth having ~1-2 less units or similar. Change in `CvCityAI::AI_buildingValue`. Note: about Wonders generally, AdvCiv-SAS uses a fairly strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build world wonders as we risk being overrun by our rivals and building world wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it).
+ - **Happiness buildings — urgency & growth accounting**: Improved AI building selection to (1) correctly flag **strict/urgent happiness** buildings (now using, in our prechecks, the new `AI_strictAdditionalHappy` instead of the too-broad `CvCity::getAdditionalHappinessByBuilding`) and (2) factor in the **expected food regained** once unhappy citizens become workable again. Result: noticeably better choices and pacing. See **[KI#48.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc)**.
+ 
+ #### Leaders (AI)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=26350

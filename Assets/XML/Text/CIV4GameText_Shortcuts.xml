@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Copyright (c) 2008 BUG Mod -->
+<!-- -->
+<!-- Game Text - Mouse and Key Shortcuts -->
+<!-- advc (note): Only the shortcuts stated in English text are up to date -->
+<Civ4GameText xmlns="http://www.firaxis.com">
+
+	<!-- advc.004: German was "Referenzübersichten" -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_CATEGORY_SHORTCUTS</Tag>
+		<English>Shortcuts</English>
+		<French>Raccourcis</French>
+		<German>Tastenkürzel</German>
+		<Italian>Scorciatoie</Italian>
+		<Spanish>Atajos</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SHORTCUTS_ADVISORS</Tag>
+		<English>Advisors</English>
+		<French>Adviseurs</French>
+		<German>Berater</German>
+		<Italian>Consiglieri</Italian>
+		<Spanish>Consejeros</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SHORTCUTS_UNITS</Tag>
+		<English>Units</English>
+		<French>Unités</French>
+		<German>Einheiten</German>
+		<Italian>Unit&#224;</Italian>
+		<Spanish>Unidades</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SHORTCUTS_CITYSCREEN</Tag>
+		<English>City Screen</English>
+		<French>Ecran de Ville</French>
+		<German>Stadt-Bildschirm</German>
+		<Italian>Schermata cittadina</Italian>
+		<Spanish>Pantalla de Ciudad</Spanish>
+	</TEXT>
+	<!-- advc.004y: "Main Screen" added b/c City Screen also lists
+		 mouse commands -->
+	<TEXT>
+		<Tag>TXT_KEY_SHORTCUTS_MOUSE</Tag>
+		<English>Mouse (Main Screen)</English>
+		<French>Souris</French>
+		<German>Maus (Hauptbildschirm)</German>
+		<Italian>Mouse</Italian>
+		<Spanish>Ratón</Spanish>
+	</TEXT>
+	<!-- advc.004y: "Map" is too unspecific -->
+	<TEXT>
+		<Tag>TXT_KEY_SHORTCUTS_MAP</Tag>
+		<English>Map Layers</English>
+		<French>Carte</French>
+		<German>Kartenansicht</German>
+		<Italian>Mappa</Italian>
+		<Spanish>Mapa</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SHORTCUTS_GAME</Tag>
+		<English>Game</English>
+		<French>Jeu</French>
+		<German>Allgemein</German>
+		<Italian>Gioco</Italian>
+		<Spanish>Juego</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SHORTCUTS_CAMERA</Tag>
+		<English>Camera</English>
+		<French>Caméra</French>
+		<German>Kamerasteuerung</German>
+		<Italian>Camera</Italian>
+		<Spanish>Cámara</Spanish>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SHORTCUTS_MP</Tag>
+		<English>Multiplayer</English>
+		<French>Multi-Joueur</French>
+		<German>Multiplayer</German>
+		<Italian>Multiplayer</Italian>
+		<Spanish>Multijugador</Spanish>
+	</TEXT>
+
+</Civ4GameText>

@@ -1,0 +1,82 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 952
+# Commit: aace378839f66f72173cf49de2d605e7aaf4f993
+# History segment: K-Mod history
+# Parent used for diff: b7bca4a02495c1417cf6d30c6cf55a667927bcf2
+# Title: Changed the conditions on some city advisor popups.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+18	6	Assets/Python/CvAdvisorUtils.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvAdvisorUtils.py b/Assets/Python/CvAdvisorUtils.py
+index 72dfcc2e2..d5e5ef5d2 100644
+--- a/Assets/Python/CvAdvisorUtils.py
++++ b/Assets/Python/CvAdvisorUtils.py
+@@ -471,7 +471,8 @@ def cityAdvise(pCity, iPlayer):
+ 	if (gc.getPlayer(iPlayer).isOption(PlayerOptionTypes.PLAYEROPTION_ADVISOR_POPUPS) and gc.getPlayer(iPlayer).isHuman() and not gc.getGame().isNetworkMultiPlayer()):
+ 		
+ 		if (gc.getGame().getGameTurn() % 40 == pCity.getGameTurnFounded() % 40):
+-			if (not pCity.getID() in g_listNoLiberateCities):
++			#if (not pCity.getID() in g_listNoLiberateCities):
++			if (gc.getGame().getGameTurn() - pCity.getGameTurnFounded() > 10 and not pCity.getID() in g_listNoLiberateCities): # K-Mod
+ 				eLiberationPlayer = pCity.getLiberationPlayer(false)
+ 				if (eLiberationPlayer != -1):
+ 					# UNOFFICIAL_PATCH begin
+@@ -686,7 +687,8 @@ def cityAdvise(pCity, iPlayer):
+ 
+ 			if (not pCity.isProductionBuilding() and (pCity.getOrderQueueLength() <= 1)):
+ 
+-				if (pCity.healthRate(False, 0) < 0):
++				#if (pCity.healthRate(False, 0) < 0):
++				if (pCity.healthRate(False, 0) < 0 and pCity.happyLevel() > 1): # K-Mod
+ 				
+ 					if (gc.getGame().getGameTurn() + 2) % 40 == pCity.getGameTurnFounded() % 40:
+ 							
+@@ -891,9 +893,14 @@ def cityAdvise(pCity, iPlayer):
+ 							popupInfo.addPopup(iPlayer)
+ 							g_iAdvisorNags += 1
+ 
+-				if (pCity.getBaseCommerceRate(CommerceTypes.COMMERCE_GOLD) > 10):
++				#if (pCity.getBaseCommerceRate(CommerceTypes.COMMERCE_GOLD) > 10):
++					#if (gc.getGame().getGameTurn() + 8) % 40 == pCity.getGameTurnFounded() % 40:
++				# K-Mod
++				if (gc.getGame().getGameTurn() + 8) % 40 == pCity.getGameTurnFounded() % 40:
+ 
+-					if (gc.getGame().getGameTurn() + 8) % 40 == pCity.getGameTurnFounded() % 40:
++					if ((pCity.getBaseCommerceRate(CommerceTypes.COMMERCE_GOLD) > 10 and pCity.findCommerceRateRank(CommerceTypes.COMMERCE_GOLD) <= (gc.getPlayer(iPlayer).getNumCities()+1)/2) or 
++						(gc.getPlayer(iPlayer).getCommercePercent(CommerceTypes.COMMERCE_GOLD) > 20 and pCity.findYieldRateRank(YieldTypes.YIELD_COMMERCE) <= (gc.getPlayer(iPlayer).getNumCities()+2)/3)):
++				# K-Mod end
+ 
+ 						iBestValue = 0
+ 						eBestBuilding = BuildingTypes.NO_BUILDING
+@@ -932,9 +939,14 @@ def cityAdvise(pCity, iPlayer):
+ 							popupInfo.addPopup(iPlayer)
+ 							g_iAdvisorNags += 1
+ 
+-				if (pCity.getBaseCommerceRate(CommerceTypes.COMMERCE_RESEARCH) > 10):
++				#if (pCity.getBaseCommerceRate(CommerceTypes.COMMERCE_RESEARCH) > 10):
++					#if (gc.getGame().getGameTurn() + 10) % 40 == pCity.getGameTurnFounded() % 40:
++				# K-Mod
++				if (gc.getGame().getGameTurn() + 10) % 40 == pCity.getGameTurnFounded() % 40:
+ 			
+-					if (gc.getGame().getGameTurn() + 10) % 40 == pCity.getGameTurnFounded() % 40:
++					if ((pCity.getBaseCommerceRate(CommerceTypes.COMMERCE_RESEARCH) > 10 and pCity.findCommerceRateRank(CommerceTypes.COMMERCE_RESEARCH) <= (gc.getPlayer(iPlayer).getNumCities()+1)/2) or 
++						(gc.getPlayer(iPlayer).getCommercePercent(CommerceTypes.COMMERCE_RESEARCH) > 20 and pCity.findYieldRateRank(YieldTypes.YIELD_COMMERCE) <= (gc.getPlayer(iPlayer).getNumCities()+2)/3)):
++				# K-Mod end
+ 
+ 						iBestValue = 0
+ 						eBestBuilding = BuildingTypes.NO_BUILDING
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3240

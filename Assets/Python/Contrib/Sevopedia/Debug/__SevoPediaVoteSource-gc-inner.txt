@@ -1,0 +1,81 @@
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+
+in sevopediavote, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+iDbgSrc = self._getVoteSourceType()
+if iDbgSrc > -1:
+	printObjAttrs(gc.getVoteSourceInfo(iDbgSrc))
+outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+
+
+[DEBUG] Beginning of show obj inner fields.
+
+__class__
+
+__delattr__
+
+__dict__ = {}
+
+__doc__ = None
+
+__getattribute__
+
+__hash__
+
+__init__
+
+__instance_size__ = 404
+
+__module__ = CvPythonExtensions
+
+__new__
+
+__reduce__
+
+__reduce_ex__
+
+__repr__
+
+__setattr__
+
+__str__
+
+__weakref__ = None
+
+getButton
+
+getCivic
+
+getCivilopedia
+
+getDescription
+
+getDescriptionForm
+
+getFreeSpecialist
+
+getHelp
+
+getReligionCommerce
+
+getReligionYield
+
+getSecretaryGeneralText
+
+getStrategy
+
+getText
+
+getTextKey
+
+getType
+
+getVoteInterval
+
+isGraphicalOnly
+
+isMatchForLink
+
+[DEBUG] End of show show obj inner fields.

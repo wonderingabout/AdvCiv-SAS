@@ -1,0 +1,41 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2206
+# Commit: 070762327dd23eaf0c15bb66c76776633e7755a5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6673c5f7b2747b526ae282977e356ecd260b7ad7
+# Title: Fix minor bug in city trade denial checks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 1cef3a3b9..872934329 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12073,7 +12073,11 @@ DenialTypes CvPlayerAI::AI_cityTrade(CvCityAI const& kCity, PlayerTypes eToPlaye
+ 		scaled rPeaceTreatyAversion = kToPlayer.AI_peaceTreatyAversion(getTeam());
+ 		if (rPeaceTreatyAversion > fixp(0.3))
+ 		{
+-			FAssert(iAcquireVal > 0);
++			if (iAcquireVal == MIN_INT) // Compute lazily
++			{
++				iAcquireVal = GET_PLAYER(eToPlayer).AI_cityTradeVal(
++						kCity, eToPlayer, LIBERATION_WEIGHT_FULL);
++			}
+ 			if (GET_TEAM(eToPlayer).AI_isSneakAttackReady(getTeam()))
+ 			{
+ 				rPeaceTreatyAversion *= fixp(1.5);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=714

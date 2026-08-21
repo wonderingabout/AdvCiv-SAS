@@ -1,0 +1,52 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3568
+# Commit: ae1c841419aa26f14e6686e9d0f38506493b1238
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d078733beb158e78918a5667f3c44d796c479967
+# Title: Fix old issue with Fort preferred over Plantation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	6	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 5f008d197..4d2bb59b7 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7868,14 +7868,17 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 			rValue += kOwner.AI_bonusVal(eNonObsoleteBonus, 1) * 50;
+ 			rValue += 100;
+ 			// K-Mod end
+-			/* <advc.121> Make sure the AI prefers improvements with yields over
+-				Forts. Don't want to rule out Forts altogether b/c of Gems in a
+-				Jungle -- w/o IW, a Fort is the only way to connect the resource. */
++			/*	<advc.121> Kludge to force the AI to prefer improvements with yields
++				over forts. Don't want to rule out forts altogether b/c of gems in a
++				jungle -- w/o IW, a fort is the only way to connect the resource. */
+ 			int iImprYieldChange = 0;
+-			for (int i = 0; i < NUM_YIELD_TYPES; i++)
+-				iImprYieldChange += GC.getInfo(eImprovement).getYieldChange(i);
++			FOR_EACH_ENUM(Yield)
++			{
++				iImprYieldChange += kPlot.calculateImprovementYieldChange(
++						eImprovement, eLoopYield, kOwner.getID());
++			}
+ 			if (iImprYieldChange <= 0 && kPlot.getWorkingCity() != NULL)
+-				rValue /= 5;
++				rValue /= 3;
+ 			// </advc.121>
+ 		}
+ 		else
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1239

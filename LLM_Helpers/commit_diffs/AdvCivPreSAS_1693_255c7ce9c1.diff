@@ -1,0 +1,384 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1693
+# Commit: 255c7ce9c17fb9362d7c00e531bdd5d81b704b8e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c741200a09d380f39d7a6d80d9a6f9e9ed1b0ee2
+# Title: Show AI strategies of human players in Debug mode
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	15	CvGameCoreDLL/CvDLLWidgetData.cpp
+38	37	CvGameCoreDLL/CvGameTextMgr.cpp
+3	2	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index ecf463a1a..6e21e5bed 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3541,68 +3541,68 @@ void CvDLLWidgetData::parseScoreboardCheatText(CvWidgetDataStruct &widgetDataStr
+ 	CvWString szTempBuffer;
+ 	szTempBuffer.Format(L"");
+ 
+-	//kPlayer.AI_getStrategyHash();
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER))
++	// advc.007: bDebug=true param added so that human strategies get shown as well
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER, true))
+ 	{
+ 		szTempBuffer.Format(L"Dagger, ");
+ 		szBuffer.append(szTempBuffer);
+ 	}
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_CRUSH))
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_CRUSH, true))
+ 	{
+ 		szTempBuffer.Format(L"Crush, ");
+ 		szBuffer.append(szTempBuffer);
+ 	}
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT1))
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT1, true))
+ 	{
+ 		szTempBuffer.Format(L"Alert1, ");
+ 		szBuffer.append(szTempBuffer);
+ 	}
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT2))
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT2, true))
+ 	{
+ 		szTempBuffer.Format(L"Alert2, ");
+ 		szBuffer.append(szTempBuffer);
+ 	}
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE))
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE, true))
+ 	{
+ 		szTempBuffer.Format(L"Turtle, ");
+ 		szBuffer.append(szTempBuffer);
+ 	}
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_LAST_STAND))
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_LAST_STAND, true))
+ 	{
+ 		szTempBuffer.Format(L"LastStand, ");
+ 		szBuffer.append(szTempBuffer);
+ 	}
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR))
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR, true))
+ 	{
+ 		szTempBuffer.Format(L"FinalWar, ");
+ 		szBuffer.append(szTempBuffer);
+ 	}
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS))
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS, true))
+ 	{
+ 		szTempBuffer.Format(L"GetBetterUnits, ");
+ 		szBuffer.append(szTempBuffer);
+ 	}
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_PRODUCTION))
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_PRODUCTION, true))
+ 	{
+ 		szTempBuffer.Format(L"Production, ");
+ 		szBuffer.append(szTempBuffer);
+ 	}
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_MISSIONARY))
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_MISSIONARY, true))
+ 	{
+ 		szTempBuffer.Format(L"Missionary, ");
+ 		szBuffer.append(szTempBuffer);
+ 	}
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE))
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE, true))
+ 	{
+ 		szTempBuffer.Format(L"BigEspionage, ");
+ 		szBuffer.append(szTempBuffer);
+ 	}
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS)) // K-Mod
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS, true)) // K-Mod
+ 	{
+ 		szTempBuffer.Format(L"EconomyFocus, ");
+ 		szBuffer.append(szTempBuffer);
+ 	}
+-	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY)) // K-Mod
++	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY, true)) // K-Mod
+ 	{
+ 		szTempBuffer.Format(L"EspionageEconomy, ");
+ 		szBuffer.append(szTempBuffer);
+@@ -3880,7 +3880,7 @@ void CvDLLWidgetData::parseScoreboardCheatText(CvWidgetDataStruct &widgetDataStr
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iI).getTeam() == eTeam)
+ 			{
+-				if (GET_PLAYER((PlayerTypes)iI).AI_isDoStrategy(AI_STRATEGY_DAGGER)
++				if (GET_PLAYER((PlayerTypes)iI).AI_isDoStrategy(AI_STRATEGY_DAGGER, /* advc.007: */ true)
+ 					|| GET_PLAYER((PlayerTypes)iI).AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST3)
+ 					|| GET_PLAYER((PlayerTypes)iI).AI_isDoVictoryStrategy(AI_VICTORY_DOMINATION4))
+ 				{
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d87088e9c..9c8afc18b 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -2336,88 +2336,88 @@ void CvGameTextMgr::setPlotListHelpDebug(CvWStringBuffer& szString, CvPlot const
+ 			CvWString szTempBuffer;
+ 			CvPlayerAI const& kOwner = GET_PLAYER(pHeadGroup->getOwner());
+ 
+-			//AI strategies
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_DAGGER))
++			//AI strategies  // advc.007: bDebug=true added so that human strategies are displayed
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_DAGGER, true))
+ 			{
+ 				szTempBuffer.Format(L"Dagger, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_CRUSH))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_CRUSH, true))
+ 			{
+ 				szTempBuffer.Format(L"Crush, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1, true))
+ 			{
+ 				szTempBuffer.Format(L"Alert1, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT2))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT2, true))
+ 			{
+ 				szTempBuffer.Format(L"Alert2, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE, true))
+ 			{
+ 				szTempBuffer.Format(L"Turtle, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_LAST_STAND))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_LAST_STAND, true))
+ 			{
+ 				szTempBuffer.Format(L"Last Stand, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR, true))
+ 			{
+ 				szTempBuffer.Format(L"FinalWar, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS, true))
+ 			{
+ 				szTempBuffer.Format(L"GetBetterUnits, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_FASTMOVERS))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_FASTMOVERS, true))
+ 			{
+ 				szTempBuffer.Format(L"FastMovers, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ, true))
+ 			{
+ 				szTempBuffer.Format(L"LandBlitz, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ, true))
+ 			{
+ 				szTempBuffer.Format(L"AirBlitz, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_OWABWNW))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_OWABWNW, true))
+ 			{
+ 				szTempBuffer.Format(L"OWABWNW, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_PRODUCTION))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_PRODUCTION, true))
+ 			{
+ 				szTempBuffer.Format(L"Production, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_MISSIONARY))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_MISSIONARY, true))
+ 			{
+ 				szTempBuffer.Format(L"Missionary, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE))
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE, true))
+ 			{
+ 				szTempBuffer.Format(L"BigEspionage, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS)) // K-Mod
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS, true)) // K-Mod
+ 			{
+ 				szTempBuffer.Format(L"EconomyFocus, ");
+ 				szString.append(szTempBuffer);
+ 			}
+-			if (kOwner.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY)) // K-Mod
++			if (kOwner.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY, true)) // K-Mod
+ 			{
+ 				szTempBuffer.Format(L"EspionageEconomy, ");
+ 				szString.append(szTempBuffer);
+@@ -5102,7 +5102,8 @@ void CvGameTextMgr::setPlotHelpDebug_Ctrl(CvWStringBuffer& szString, CvPlot cons
+ 				false, true))); // advc.001n
+ 		szString.append(CvWString::format(L"\nFloating Defenders H/N (%d / %d)",
+ 				kPlayer.AI_getTotalFloatingDefenders(pPlotCity->area()),
+-				kPlayer.AI_getTotalFloatingDefendersNeeded(pPlotCity->area())));
++				kPlayer.AI_getTotalFloatingDefendersNeeded(pPlotCity->area(),
++				true))); // advc.007
+ 		szString.append(CvWString::format(L"\nAir Defenders H/N (%d / %d)",
+ 				pPlotCity->plot()->plotCount(PUF_canAirDefend, -1, -1,
+ 				pPlotCity->getOwner(), NO_TEAM, PUF_isDomainType, DOMAIN_AIR),
+@@ -5717,88 +5718,88 @@ void CvGameTextMgr::setPlotHelpDebug_AltOnly(CvWStringBuffer& szString, CvPlot c
+ 		szString.append(NEWLINE);
+ 
+ 		// BETTER_BTS_AI_MOD, Debug, 06/11/08, jdog5000: START
+-		//AI strategies
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_DAGGER))
++		//AI strategies  // advc.007: bDebug=true argument added
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_DAGGER, true))
+ 		{
+ 			szTempBuffer.Format(L"Dagger, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_CRUSH))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_CRUSH, true))
+ 		{
+ 			szTempBuffer.Format(L"Crush, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1, true))
+ 		{
+ 			szTempBuffer.Format(L"Alert1, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT2))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT2, true))
+ 		{
+ 			szTempBuffer.Format(L"Alert2, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE, true))
+ 		{
+ 			szTempBuffer.Format(L"Turtle, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_LAST_STAND))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_LAST_STAND, true))
+ 		{
+ 			szTempBuffer.Format(L"LastStand, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_FINAL_WAR, true))
+ 		{
+ 			szTempBuffer.Format(L"FinalWar, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS, true))
+ 		{
+ 			szTempBuffer.Format(L"GetBetterUnits, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_FASTMOVERS))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_FASTMOVERS, true))
+ 		{
+ 			szTempBuffer.Format(L"FastMovers, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_LAND_BLITZ, true))
+ 		{
+ 			szTempBuffer.Format(L"LandBlitz, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_AIR_BLITZ, true))
+ 		{
+ 			szTempBuffer.Format(L"AirBlitz, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_OWABWNW))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_OWABWNW, true))
+ 		{
+ 			szTempBuffer.Format(L"OWABWNW, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_PRODUCTION))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_PRODUCTION, true))
+ 		{
+ 			szTempBuffer.Format(L"Production, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_MISSIONARY))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_MISSIONARY, true))
+ 		{
+ 			szTempBuffer.Format(L"Missionary, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE))
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE, true))
+ 		{
+ 			szTempBuffer.Format(L"BigEspionage, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS)) // K-Mod
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS, true)) // K-Mod
+ 		{
+ 			szTempBuffer.Format(L"EconomyFocus, ");
+ 			szString.append(szTempBuffer);
+ 		}
+-		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY)) // K-Mod
++		if (kOwner.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY, true)) // K-Mod
+ 		{
+ 			szTempBuffer.Format(L"EspionageEconomy, ");
+ 			szString.append(szTempBuffer);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index db8268531..692eec4cf 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -23598,9 +23598,10 @@ bool CvPlayerAI::isCloseToReligiousVictory() const
+ 	return GC.getGame().getVoteSourceReligion(eVS) == getStateReligion();
+ }// </advc.115b>
+ 
+-bool CvPlayerAI::AI_isDoStrategy(int iStrategy) const
++bool CvPlayerAI::AI_isDoStrategy(int iStrategy, /* advc.007: */ bool bDebug) const
+ {
+-	if (isHuman() || isBarbarian() || isMinorCiv() || !isAlive())
++	if (!isAlive() || isBarbarian() || isMinorCiv() ||
++			(isHuman() && /* advc.007: */ !bDebug))
+ 		return false;
+ 	return (iStrategy & AI_getStrategyHash());
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index aa1dd47ac..bb9a6436e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -465,7 +465,7 @@ public:
+ 	int AI_getStrategyRand(int iShift) const;
+ 	// BETTER_BTS_AI_MOD: END
+ 	bool isCloseToReligiousVictory() const;
+-	bool AI_isDoStrategy(int iStrategy) const;
++	bool AI_isDoStrategy(int iStrategy, /* advc.007: */ bool bDebug = false) const;
+ 
+ 	void AI_updateGreatPersonWeights(); // K-Mod
+ 	int AI_getGreatPersonWeight(UnitClassTypes eGreatPerson) const; // K-Mod
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=13278

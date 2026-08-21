@@ -1,0 +1,1241 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1361
+# Commit: 20d7ef5a94cf7377c1f6415d0370e3c54919037d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 27414ac0f435081918b04d8795d32862453c7796
+# Title: Rival-trade penalties, war trades on Glance tab, misc. changes:
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	Assets/Config/BUG Advisors.xml
+13	6	Assets/Python/BUG/AttitudeUtil.py
+2	0	Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+7	2	Assets/Python/Screens/CvExoticForeignAdvisor.py
+2	2	Assets/Python/Screens/CvVictoryScreen.py
+13	2	Assets/xml/Civilizations/CIV4CivilizationInfos.xml
+3	2	Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+2	1	Assets/xml/GameInfo/CIV4HandicapInfo.xml
+32	3	Assets/xml/Text/CIV4GameText_advc.xml
+1	1	CvGameCoreDLL/CvCityAI.cpp
+8	0	CvGameCoreDLL/CvDLLWidgetData.cpp
+83	116	CvGameCoreDLL/CvDeal.cpp
+5	2	CvGameCoreDLL/CvDeal.h
+1	0	CvGameCoreDLL/CvEnums.h
+7	5	CvGameCoreDLL/CvGame.cpp
+19	0	CvGameCoreDLL/CvGameTextMgr.cpp
+2	0	CvGameCoreDLL/CvGameTextMgr.h
+4	3	CvGameCoreDLL/CvPlayer.h
+66	24	CvGameCoreDLL/CvPlayerAI.cpp
+20	17	CvGameCoreDLL/CvPlayerAI.h
+1	0	CvGameCoreDLL/CvTeam.h
+6	42	CvGameCoreDLL/CvTeamAI.cpp
+4	4	CvGameCoreDLL/CvTeamAI.h
+1	0	CvGameCoreDLL/CyEnumsInterface.cpp
+9	0	CvGameCoreDLL/CyTeam.cpp
+2	0	CvGameCoreDLL/CyTeam.h
+2	0	CvGameCoreDLL/CyTeamInterface.cpp
+3	0	CvGameCoreDLL/InvasionGraph.cpp
+1	0	CvGameCoreDLL/WarAndPeaceAI.cpp
+13	6	PrivateMaps/PerfectMongoose.py
+-	-	manual_0.93b.odt
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Advisors.xml b/Assets/Config/BUG Advisors.xml
+index 373fc1676..53c19abcf 100644
+--- a/Assets/Config/BUG Advisors.xml	
++++ b/Assets/Config/BUG Advisors.xml	
+@@ -27,6 +27,10 @@
+ 				<choice id="Smilies" get="isShowGlanceSmilies"/>
+ 				<choice id="Both" get="isShowGlanceNumbers isShowGlanceSmilies"/>
+ 			</list>
++			<!-- advc.152 -->
++			<option id="EFAWarTrades" key="EFA War Trades" 
++					type="boolean" default="True" 
++					get="isShowGlanceWarTrades"/>
+ 			<option id="EFAImprovedInfo" key="EFA Improved Info" 
+ 					type="boolean" default="True" 
+ 					get="isUseImprovedEFAInfo"/>
+
+diff --git a/Assets/Python/BUG/AttitudeUtil.py b/Assets/Python/BUG/AttitudeUtil.py
+index 30135adc1..1575a88ab 100644
+--- a/Assets/Python/BUG/AttitudeUtil.py
++++ b/Assets/Python/BUG/AttitudeUtil.py
+@@ -145,7 +145,7 @@ def getAttitudeCount (nPlayer, nTarget):
+ 	return nAtt
+ 
+ 
+-def getAttitudeText (nPlayer, nTarget, bNumber, bSmily, bWorstEnemy, bWarPeace):
++def getAttitudeText (nPlayer, nTarget, bNumber, bSmily, bWorstEnemy, bWarPeace, bWarTrades): # advc.152: bWarTrades added
+ 	"""Returns a string describing the attitude nPlayer has toward nTarget."""
+ 	nAttitude = getAttitudeCount (nPlayer, nTarget)
+ 	if nAttitude == None:
+@@ -162,12 +162,15 @@ def getAttitudeText (nPlayer, nTarget, bNumber, bSmily, bWorstEnemy, bWarPeace):
+ 	pTarget = gc.getPlayer(nTarget)
+ 	if bWorstEnemy and isWorstEnemy(pPlayer, pTarget):
+ 		szIcons += FontUtil.getChar("angrypop")
+-	
++	# <advc.152>
++	bPeace = False
++	# Moved from the bWarPeace branch:
++	nTeam = pPlayer.getTeam()
++	pTeam = gc.getTeam(nTeam)
++	nTargetTeam = pTarget.getTeam()
++	pTargetTeam = gc.getTeam(nTargetTeam)
++	# </advc.152>
+ 	if bWarPeace:
+-		nTeam = pPlayer.getTeam()
+-		pTeam = gc.getTeam(nTeam)
+-		nTargetTeam = pTarget.getTeam()
+-		pTargetTeam = gc.getTeam(nTargetTeam)
+ 		if pTeam.isAtWar(nTargetTeam):
+ 			szIcons += FontUtil.getChar("war")
+ 		elif gc.getGame().getActiveTeam() in (nTeam, nTargetTeam):
+@@ -181,6 +184,10 @@ def getAttitudeText (nPlayer, nTarget, bNumber, bSmily, bWorstEnemy, bWarPeace):
+ 						break
+ 			if bPeace:
+ 				szIcons += FontUtil.getChar("peace")
++	# <advc.152>
++	if bWarTrades and not bPeace and nTargetTeam != gc.getGame().getActiveTeam() and not pTeam.isAtWar(nTargetTeam) and pTeam.AI_declareWarTrade(nTargetTeam, gc.getGame().getActiveTeam()) == -1:
++		szIcons += FontUtil.getChar("occupation")
++	# </advc.152>
+ 	if szIcons:
+ 		szText.append(szIcons)
+
+diff --git a/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py b/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+index a439d6994..42adca5ae 100644
+--- a/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+@@ -35,6 +35,8 @@ class BugAdvisorOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		screen.attachHBox(left, comboBox)
+ 		self.addCheckbox(screen, comboBox, "Advisors__EFAGlanceTab")
+ 		self.addTextDropdown(screen, None, comboBox, "Advisors__EFAGlanceAttitudes")
++		# advc.152:
++		self.addCheckbox(screen, left, "Advisors__EFAWarTrades")
+ 		self.addCheckbox(screen, left, "Advisors__EFAImprovedInfo")
+ 		self.addCheckbox(screen, left, "Advisors__EFADealTurnsLeft")
+ 		#self.addCheckbox(screen, left, "MiscHover__TechTradeDenial")
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index 2b32cdedd..b98be3bab 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -858,11 +858,16 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 						szName = self.getNextWidgetName()
+ 						nAttitude = self.ltPlayerRelations[iLoopPlayer][j]
+ 						if nAttitude != None:
+-							szText = AttitudeUtil.getAttitudeText(j, iLoopPlayer, AdvisorOpt.isShowGlanceNumbers(), AdvisorOpt.isShowGlanceSmilies(), True, True)
++							szText = AttitudeUtil.getAttitudeText(j, iLoopPlayer, AdvisorOpt.isShowGlanceNumbers(), AdvisorOpt.isShowGlanceSmilies(), True, True, AdvisorOpt.isShowGlanceWarTrades()) # advc.152: WarTrades added
+ 						else:
+ 							szText = ""
++						# <advc.152>
++						widgType = WidgetTypes.WIDGET_LEADERHEAD
++						if AdvisorOpt.isShowGlanceWarTrades():
++							widgType = WidgetTypes.WIDGET_LH_GLANCE
++						# </advc.152>
+ 						screen.setTextAt (szName, playerPanelName, szText, CvUtil.FONT_CENTER_JUSTIFY, self.X_GLANCE_OFFSET - 2 + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET + self.Y_Text_Offset, -0.1, FontTypes.GAME_FONT, 
+-								*BugDll.widgetVersion(2, "WIDGET_LEADERHEAD_RELATIONS", j, iLoopPlayer, WidgetTypes.WIDGET_LEADERHEAD, j, iLoopPlayer))
++								*BugDll.widgetVersion(2, "WIDGET_LEADERHEAD_RELATIONS", j, iLoopPlayer, widgType, j, iLoopPlayer))
+ 						nCount += 1
+ 
+ 			if nCount > 8:
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index c7f5506d6..8b28509d5 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -529,14 +529,14 @@ class CvVictoryScreen:
+ 
+ 			if iMember != self.iActivePlayer:
+ 				# player attitude to candidate #1
+-				szText = AttitudeUtil.getAttitudeText (iMember, iCandPlayer1, True, True, False, False)
++				szText = AttitudeUtil.getAttitudeText (iMember, iCandPlayer1, True, True, False, False, False) # advc.152: To match the new signature of getAttitudeText
+ 				if (szText != None
+ 				and iCand1Known == 1
+ 				and bKnown):
+ 					screen.setTableText(szTable, 1, iRow, szText, "", WidgetTypes.WIDGET_LEADERHEAD, iMember, iCandPlayer1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+ 				# player attitude to candidate #2
+-				szText = AttitudeUtil.getAttitudeText (iMember, iCandPlayer2, True, True, False, False)
++				szText = AttitudeUtil.getAttitudeText (iMember, iCandPlayer2, True, True, False, False, False) # advc.152: To match the new signature of getAttitudeText
+ 				if (szText != None
+ 				and iCand2Known == 1
+ 				and bKnown):
+
+diff --git a/Assets/xml/Civilizations/CIV4CivilizationInfos.xml b/Assets/xml/Civilizations/CIV4CivilizationInfos.xml
+index 99c1bffca..618043997 100644
+--- a/Assets/xml/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/xml/Civilizations/CIV4CivilizationInfos.xml
+@@ -9,8 +9,7 @@
+ 	 starting at Monument (still called "Obelisk" internally) until
+ 	 Supermarket.
+ 	 advc.305: Removed (now allowed) Workboat.
+-	 advc.307: Allowed War Elephant (still can't spawn), Musketman,
+-	 Cavalry, Anti-Tank, SAM Infantry.
++	 advc.307: Allowed War Elephant (still can't spawn) and Musketman.
+ 	 Disallowed Frigate, Privateer, Paratrooper, Rifleman, Grenadier,
+ 	 Spy (dlph.6). -->
+ <Civ4CivilizationInfos xmlns="x-schema:CIV4CivilizationsSchema.xml">
+@@ -4596,6 +4595,18 @@
+ 					<UnitClassType>UNITCLASS_CUIRASSIER</UnitClassType>
+ 					<UnitType>NONE</UnitType>
+ 				</Unit>
++				<Unit>
++					<UnitClassType>UNITCLASS_CAVALRY</UnitClassType>
++					<UnitType>NONE</UnitType>
++				</Unit>
++				<Unit>
++					<UnitClassType>UNITCLASS_AT_INFANTRY</UnitClassType>
++					<UnitType>NONE</UnitType>
++				</Unit>
++				<Unit>
++					<UnitClassType>UNITCLASS_SAM_INFANTRY</UnitClassType>
++					<UnitType>NONE</UnitType>
++				</Unit>
+ 				<Unit>
+ 					<UnitClassType>UNITCLASS_TANK</UnitClassType>
+ 					<UnitType>NONE</UnitType>
+
+diff --git a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+index 350af6d41..464ff06d6 100644
+--- a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -16268,14 +16268,15 @@
+ 					<iNoWarProb>100</iNoWarProb>
+ 				</NoWarAttitudeProb>
+ 			</NoWarAttitudeProbs>
+-			<!-- advc.005a: Was Attack 100. Want to stress the conquests more.-->
++			<!-- advc.005a: Was Attack 100. Want to stress the (naval)
++				 conquests more.-->
+ 			<UnitAIWeightModifiers>
+ 				<UnitAIWeightModifier>
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<iWeightModifier>25</iWeightModifier>
+ 				</UnitAIWeightModifier>
+ 				<UnitAIWeightModifier>
+-					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<UnitAIType>UNITAI_ASSAULT_SEA</UnitAIType>
+ 					<iWeightModifier>25</iWeightModifier>
+ 				</UnitAIWeightModifier>
+ 			</UnitAIWeightModifiers>
+
+diff --git a/Assets/xml/GameInfo/CIV4HandicapInfo.xml b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+index 09b125bb9..8d2da76c6 100644
+--- a/Assets/xml/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/xml/GameInfo/CIV4HandicapInfo.xml
+@@ -748,7 +748,8 @@
+ 			<iAIStartingUnitMultiplier>0</iAIStartingUnitMultiplier>
+ 			<iAIStartingDefenseUnits>2</iAIStartingDefenseUnits>
+ 			<iAIStartingWorkerUnits>0</iAIStartingWorkerUnits>
+-			<iAIStartingExploreUnits>1</iAIStartingExploreUnits>
++			<!-- advc.250e: was 1 -->
++			<iAIStartingExploreUnits>0</iAIStartingExploreUnits>
+ 			<iBarbarianDefenders>3</iBarbarianDefenders>
+ 			<iAIDeclareWarProb>100</iAIDeclareWarProb>
+ 			<!-- advc.113: was 50 -->
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 0e1281bcb..3dc727301 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -2230,9 +2230,9 @@
+ 		 in CIV4GameText_BetterBTSAI.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__WARTRADE_TEXT</Tag>
+-		<English>War Plans</English>
++		<English>War Trades</English>
+ 		<French>Plans de guerre</French>
+-		<German>Kriegspl&#228;ne</German>
++		<German>Kriegsbereitschaft</German>
+ 		<Italian>Programmi di guerra</Italian>
+ 		<Spanish>Planes della guerra</Spanish>
+ 	</TEXT>
+@@ -2320,6 +2320,35 @@
+ 		<Spanish>%s1 ha sido pacificada.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.152 -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAWARTRADES_TEXT</Tag>
++		<English>War Trades</English>
++		<French>Guerres commandit�es</French>
++		<German>Kriegsbereitschaft</German>
++		<Italian>Volont� di guerra</Italian>
++		<Spanish>Guerras patrocinadas</Spanish>
++	</TEXT>
++	<!-- Translations based on deepl.com and 
++		 TXT_KEY_BUG_OPT_ADVISORS__EFAGLANCETAB_TEXT in
++		 BUG Advisors Options.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__EFAWARTRADES_HOVER</Tag>
++		<English>When checked, the Glance tab shows fist icons to indicate which leaders are currently willing to start a war at your request.</English>
++		<French>La page Coup d'Oeil affiche les ic�nes poings pour indiquer quels h�ros sont pr�ts � commencer une guerre � votre demande.</French>
++		<German>Zeigt auf dem Reiter "�berblick" durch Faust-Symbole an, welche Gegner bereit sind, auf Ihr Gehei� einen Krieg zu beginnen.</German>
++		<Italian>Mostra dei pugni nella tabella "Occhiata" per indicare quali leader sono disposti ad iniziare una guerra su vostra richiesta.</Italian>
++		<Spanish>Si se activa, la pesta�a Mirar muestra iconos de pu�o para indicar qu� l�deres est�n dispuestos a iniciar una guerra a su petici�n.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WILLING_START_WAR</Tag>
++		<English>Willing to [COLOR_NEGATIVE_TEXT]declare war[COLOR_REVERT] on %s1_LdrName</English>
++		<French>Pr�t � [COLOR_NEGATIVE_TEXT]d�clarer la guerre[COLOR_REVERT] � %s1_LdrName</French>
++		<German>[COLOR_NEGATIVE_TEXT]Bereit zum Krieg[COLOR_REVERT] gegen %s1_LdrName</German>
++		<Italian>[NUM1:Disposto:Disposta] a [COLOR_NEGATIVE_TEXT]dichiarare guerra[COLOR_REVERT] a %s1_LdrName</Italian>
++		<Spanish>[NUM1:Dispuesto:Dispuesta] a [COLOR_NEGATIVE_TEXT]declarar la guerra[COLOR_REVERT] a %s1_LdrName</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.023: Based on INTERFACE_CITY_GROWING in Civ4GameTextInfos.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_OCCUPATION_TIMER</Tag>
+@@ -2430,7 +2459,7 @@
+ 		<Spanish>%s1 ya no est� exportando recursos a %s2 (cancelado: %s3).</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.004q] Based on TXT_KEY_ATTITUDE_TOWARDS in
++	<!-- advc.004q: Based on TXT_KEY_ATTITUDE_TOWARDS in
+ 		 CIV4GameText_Misc1.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GOOD_ATTITUDE_TOWARDS</Tag>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index d74ea4711..3d40064a9 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4590,7 +4590,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			{
+ 				if (GC.getUnitInfo((UnitTypes)iI).getPrereqBuilding() == eBuilding)
+ 				{
+-					// BBAI TODO: Smarter monastary construction, better support for mods
++					// BBAI TODO: Smarter monastery construction, better support for mods
+ 
+ 					if (kOwner.AI_totalAreaUnitAIs(area(), ((UnitAITypes)(GC.getUnitInfo((UnitTypes)iI).getDefaultUnitAIType()))) == 0)
+ 					{
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 5ec20303a..dac20eeb4 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -567,6 +567,13 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	case WIDGET_LEADERHEAD:
+ 		parseLeaderheadHelp(widgetDataStruct, szBuffer);
+ 		break;
++	// <advc.152>
++	case WIDGET_LH_GLANCE:
++		parseLeaderheadHelp(widgetDataStruct, szBuffer);
++		// Might as well call GAMETEXT right here
++		GAMETEXT.parseWarTradesHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
++				(PlayerTypes)widgetDataStruct.m_iData2);
++		break; // </advc.152>
+ 
+ 	case WIDGET_LEADER_LINE:
+ 		parseLeaderLineHelp(widgetDataStruct, szBuffer);
+@@ -1018,6 +1025,7 @@ bool CvDLLWidgetData::executeAltAction( CvWidgetDataStruct &widgetDataStruct )
+ 		widgetData.m_iData1 = widgetData.m_iData2;
+ 		doPediaCivicJump(widgetData);
+ 		break;
++	case WIDGET_LH_GLANCE: // advc.152
+ 	case WIDGET_LEADERHEAD:
+ 		doContactCiv(widgetDataStruct);
+ 		break;
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index ddaa90069..c27a59556 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -136,15 +136,21 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 	if (isVassalTrade(pFirstList) && isVassalTrade(pSecondList))
+ 	{
+ 		return;
+-	}
+-
++	} // <advc.130p>
++	TeamTypes warTradeTarget = NO_TEAM; 
++	TeamTypes peaceTradeTarget = NO_TEAM; // </advc.130p>
+ 	if (pFirstList != NULL)
+ 	{
+ 		for (CLLNode<TradeData>* pNode = pFirstList->head(); pNode; pNode = pFirstList->next(pNode))
+-		{
++		{	// <advc.130p>
++			if(pNode->m_data.m_eItemType == TRADE_WAR)
++				warTradeTarget = (TeamTypes)pNode->m_data.m_iData;
++			else if(pNode->m_data.m_eItemType == TRADE_PEACE)
++				peaceTradeTarget = (TeamTypes)pNode->m_data.m_iData;
++			// </advc.130p>
+ 			if (bCheckAllowed)
+ 			{
+-				if (!(GET_PLAYER(getFirstPlayer()).canTradeItem(getSecondPlayer(), pNode->m_data)))
++				if (!GET_PLAYER(getFirstPlayer()).canTradeItem(getSecondPlayer(), pNode->m_data))
+ 				{
+ 					return;
+ 				}
+@@ -155,8 +161,13 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 	if (pSecondList != NULL)
+ 	{
+ 		for (CLLNode<TradeData>* pNode = pSecondList->head(); pNode; pNode = pSecondList->next(pNode))
+-		{
+-			if (bCheckAllowed && !(GET_PLAYER(getSecondPlayer()).canTradeItem(getFirstPlayer(), pNode->m_data)))
++		{	// <advc.130p>
++			if(pNode->m_data.m_eItemType == TRADE_WAR)
++				warTradeTarget = (TeamTypes)pNode->m_data.m_iData;
++			else if(pNode->m_data.m_eItemType == TRADE_PEACE)
++				peaceTradeTarget = (TeamTypes)pNode->m_data.m_iData;
++			// </advc.130p>
++			if (bCheckAllowed && !GET_PLAYER(getSecondPlayer()).canTradeItem(getFirstPlayer(), pNode->m_data))
+ 			{
+ 				return;
+ 			}
+@@ -166,52 +177,35 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 	TeamTypes eFirstTeam = GET_PLAYER(getFirstPlayer()).getTeam();
+ 	TeamTypes eSecondTeam = GET_PLAYER(getSecondPlayer()).getTeam();
+ 	bool bBumpUnits = false; // K-Mod
+-
+-	if (atWar(eFirstTeam, eSecondTeam))
+-	{
++	/*  <advc.130p> MakePeace calls moved down. Want to count trade value (partially)
++		for peace deals, and I don't think AI_dealValue will work correctly when no
++		longer at war. */
++	bool const bPeace = atWar(eFirstTeam, eSecondTeam);
++	bool bUpd = false;
++	/*  Calls to changePeacetimeTradeValue moved into a subroutine to avoid
++		code duplication */
++	if(recordTradeValue(pSecondList, pFirstList, getSecondPlayer(),
++			getFirstPlayer(), bPeace, peaceTradeTarget, warTradeTarget))
++		bUpd = true;
++	if(recordTradeValue(pFirstList, pSecondList, getFirstPlayer(),
++			getSecondPlayer(), bPeace, peaceTradeTarget, warTradeTarget))
++		bUpd = true;
++	if(bPeace) {
++		bUpd = true; // </advc.130p>
+ 		// free vassals of capitulating team before peace is signed
+-		/*  advc.130y: Commented out; let CvTeam::setVassal free the vassals
++		/*  advc.130y: Deleted; let CvTeam::setVassal free the vassals
+ 			after signing peace */
+ 		/*if (isVassalTrade(pSecondList))
+-		{
+-			for (int iI = 0; iI < MAX_TEAMS; iI++)
+-			{
+-				TeamTypes eLoopTeam = (TeamTypes) iI;
+-				CvTeam& kLoopTeam = GET_TEAM(eLoopTeam);
+-				if ((eLoopTeam != eFirstTeam) && (eLoopTeam != eSecondTeam))
+-				{
+-					if (kLoopTeam.isAlive() && kLoopTeam.isVassal(eSecondTeam))
+-					{
+-						GET_TEAM(eSecondTeam).freeVassal(eLoopTeam);
+-						int iSecondSuccess = GET_TEAM(eFirstTeam).AI_getWarSuccess(eSecondTeam) + GC.getWAR_SUCCESS_CITY_CAPTURING() * GET_TEAM(eSecondTeam).getNumCities();
+-						GET_TEAM(eFirstTeam).AI_setWarSuccess(eLoopTeam, std::max(iSecondSuccess, GET_TEAM(eFirstTeam).AI_getWarSuccess(eLoopTeam)));
+-					}
+-				}
+-			}
+-		}
++		{ ... }
+ 		else if (isVassalTrade(pFirstList)) // K-Mod added 'else'
+-		{
+-			for (int iI = 0; iI < MAX_TEAMS; iI++)
+-			{
+-				TeamTypes eLoopTeam = (TeamTypes) iI;
+-				CvTeam& kLoopTeam = GET_TEAM(eLoopTeam);
+-				if ((eLoopTeam != eFirstTeam) && (eLoopTeam != eSecondTeam))
+-				{
+-					if (kLoopTeam.isAlive() && kLoopTeam.isVassal(eFirstTeam))
+-					{
+-						GET_TEAM(eFirstTeam).freeVassal(eLoopTeam);
+-						int iFirstSuccess = GET_TEAM(eSecondTeam).AI_getWarSuccess(eFirstTeam) + GC.getWAR_SUCCESS_CITY_CAPTURING() * GET_TEAM(eFirstTeam).getNumCities();
+-						GET_TEAM(eSecondTeam).AI_setWarSuccess(eLoopTeam, std::max(iFirstSuccess, GET_TEAM(eSecondTeam).AI_getWarSuccess(eLoopTeam)));
+-					}
+-				}
+-			}
+-		}*/
++		{ ... }*/
+ 
+ 		//GET_TEAM(eFirstTeam).makePeace(eSecondTeam, !isVassalTrade(pFirstList) && !isVassalTrade(pSecondList));
+-
+-		// K-Mod. Bump units only after all trades are completed, because some deals (such as city gifts) may affect which units get bumped.
+-		// (originally, units were bumped automatically while executing the peace deal trades)
+-		// Note: the original code didn't bump units for vassal trades. This is can erroneously allow the vassal's units to stay in the master's land.
++		/*  K-Mod. Bump units only after all trades are completed, because some deals 
++			(such as city gifts) may affect which units get bumped. (originally,
++			units were bumped automatically while executing the peace deal trades)
++			Note: the original code didn't bump units for vassal trades. This can
++			erroneously allow the vassal's units to stay in the master's land. */
+ 		// <advc.039>
+ 		bool bSurrender = isVassalTrade(pFirstList) || isVassalTrade(pSecondList);
+ 		bool bDone = false;
+@@ -239,66 +233,14 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 		bBumpUnits = true;
+ 		// K-Mod end
+ 	}
+-	else
+-	{
+-		if (!isPeaceDealBetweenOthers(pFirstList, pSecondList))
+-		{
+-			bool bUpd = false; // advc.003: Don't update attitude cache unnecessarily
+-			if ((pSecondList != NULL) && (pSecondList->getLength() > 0))
+-			{
+-				int iValue =
+-				/*  <advc.550a> Ignore discounts when it comes to fair-trade
+-					diplo bonuses? Hard to decide, apply half the discount for now. */
+-						::round((GET_PLAYER(getFirstPlayer()).AI_dealVal(
+-						getSecondPlayer(), pSecondList, true, 1, true) + // </advc.550a>
+-						GET_PLAYER(getFirstPlayer()).AI_dealVal(
+-						getSecondPlayer(), pSecondList, true)
+-						/ 2.0)); // advc.550a
+-				// <advc.003>
+-				if(iValue > 0) {
+-					bUpd = true; // </advc.003>
+-					if ((pFirstList != NULL) && (pFirstList->getLength() > 0))
+-					{
+-						GET_PLAYER(getFirstPlayer()).AI_changePeacetimeTradeValue(getSecondPlayer(), iValue);
+-					}
+-					else
+-					{
+-						GET_PLAYER(getFirstPlayer()).AI_changePeacetimeGrantValue(getSecondPlayer(), iValue);
+-					}
+-				} // advc.003
+-			}
+-			if ((pFirstList != NULL) && (pFirstList->getLength() > 0))
+-			{
+-				int iValue = // <advc.550a>
+-						::round((GET_PLAYER(getSecondPlayer()).AI_dealVal(
+-						getFirstPlayer(), pFirstList, true, 1, true) + // </advc.550a>
+-						GET_PLAYER(getSecondPlayer()).AI_dealVal(
+-						getFirstPlayer(), pFirstList, true)
+-						/ 2.0)); // advc.550a
+-				// <advc.003>
+-				if(iValue > 0) {
+-					bUpd = true; // </advc.003>
+-					if ((pSecondList != NULL) && (pSecondList->getLength() > 0))
+-					{
+-						GET_PLAYER(getSecondPlayer()).AI_changePeacetimeTradeValue(getFirstPlayer(), iValue);
+-					}
+-					else
+-					{
+-						GET_PLAYER(getSecondPlayer()).AI_changePeacetimeGrantValue(getFirstPlayer(), iValue);
+-					}
+-				} // advc.003
+-			}
+-			if(bUpd) { // advc.003
+-				// K-Mod
+-				GET_PLAYER(getFirstPlayer()).AI_updateAttitudeCache(getSecondPlayer());
+-				GET_PLAYER(getSecondPlayer()).AI_updateAttitudeCache(getFirstPlayer());
+-				// K-Mod end
+-			} // advc.003
+-		}
++	if(bUpd) { // advc.003b: Don't update cache unnecessarily
++		// K-Mod
++		GET_PLAYER(getFirstPlayer()).AI_updateAttitudeCache(getSecondPlayer());
++		GET_PLAYER(getSecondPlayer()).AI_updateAttitudeCache(getFirstPlayer());
++		// K-Mod end
+ 	}
+ 
+ 	bool bAlliance = false;
+-
+ 	if (pFirstList != NULL)
+ 	{
+ 		// K-Mod. Vassal deals need to be implemented last, so that master/vassal power is set correctly.
+@@ -378,27 +320,52 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 	// K-Mod end
+ }
+ 
++/*  <advc.130p> Based on code cut from addTrades. Return values says whether
++	attitude cache needs to be updated. */
++bool CvDeal::recordTradeValue(CLinkList<TradeData>* list1, CLinkList<TradeData>* list2,
++		PlayerTypes p1, PlayerTypes p2, bool bPeace, TeamTypes peaceTradeTarget,
++		TeamTypes warTradeTarget) {
++
++	if(list1 == NULL || list1->getLength() <= 0 ||
++			/*  Given reparations should matter for RivalTrade; given Peace shouldn't.
++				Brokered peace (TRADE_PEACE) can't be filtered out here b/c other
++				items could be traded along with TRADE_PEACE. */
++			(list1->getLength() == 1 && list1->head()->m_data.m_eItemType ==
++			TRADE_PEACE_TREATY))
++		return false;
++	/*  <advc.550a> Ignore discounts when it comes to fair-trade diplo bonuses?
++		Hard to decide, apply half the discount for now. */
++	int iValue = ::round((GET_PLAYER(p2).AI_dealVal(p1, list1, true, 1, true, true) +
++			GET_PLAYER(p2).AI_dealVal(p1, list1, true, false, true) / 2.0));
++	if(iValue <= 0) 
++		return false;
++	GET_PLAYER(p2).AI_changePeacetimeValue(p1, iValue,
++			list2 == NULL || list2->getLength() <= 0, bPeace, peaceTradeTarget,
++			warTradeTarget);
++	return true;
++} // </advc.130p>
++
+ 
+ void CvDeal::doTurn()
+ {
+ 	int iValue;
+ 
+ 	if (!isPeaceDeal()
+-		/*  <advc.130p> Open Borders and Defensive Pact have very small
+-			AI_dealVals. In (most?) other places, this doesn't matter b/c the AI
+-			never pays for these deals, but, here, it means that OB and DP
+-			have practically no impact on Grant and Trade values. This could be
+-			rectified by multiplying the return values of CvPlayerAI::
+-			AI_openBordersTradeVal and AI_defensivePactTradeVal by
+-			PEACE_TREATY_LENGTH, but I prefer to handle the issue entirely in the
+-			CvPlayerAI::AI_get...Attitude functions, and skip all dual deals here.
+-			In multiplayer, dual deals can be mixed with e.g. gold per turn,
+-			which is why I only skip single-item deals. For mixed multiplayer
+-			deals, OB and DP will be counted as some value between 0 and 5, which is
+-			a bit messy, not really a problem. */
++	/*  <advc.130p> Open Borders and Defensive Pact have very small AI_dealVals.
++		In (most?) other places, this doesn't matter b/c the AI never pays for
++		these deals, but here it means that OB and DP have practically no impact
++		on Grant and Trade values. I'm going to handle all isDual deals entirely
++		in the CvPlayerAI::AI_get...Attitude functions and skip them here.
++		In multiplayer, dual deals can be mixed with e.g. gold per turn, which is
++		why I'm only skipping single-item deals. For mixed multiplayer deals,
++		OB and DP will be counted as some value between 0 and 5, which is a bit
++		messy, but not really a problem. */
+ 			&& (getLengthSecondTrades() != getLengthFirstTrades() ||
+ 			getLengthSecondTrades() > 1 ||
+-			!isDual(getFirstTrades()->head()->m_data.m_eItemType))) // </advc.130p>
++			!isDual(getFirstTrades()->head()->m_data.m_eItemType)) &&
++			/*  The first ten turns of an annual deal are already counted when
++				the deal is implemented */
++			isCancelable()) // </advc.130p>
+ 	{
+ 		if (getLengthSecondTrades() > 0)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvDeal.h b/CvGameCoreDLL/CvDeal.h
+index 186a4f5ae..0446a9d0d 100644
+--- a/CvGameCoreDLL/CvDeal.h
++++ b/CvGameCoreDLL/CvDeal.h
+@@ -92,10 +92,13 @@ protected:
+ 	bool startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+ 	void endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam,
+ 			bool bUpdateAttitude = true); // advc.036
+-	// advc.130p:
++	// <advc.130p>
+ 	static void addEndTradeMemory(PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
+ 			TradeableItems dealType);
+-
++	bool recordTradeValue(CLinkList<TradeData>* list1, CLinkList<TradeData>* list2,
++			PlayerTypes p1, PlayerTypes p2, bool bPeace,
++			TeamTypes peaceTradeTarget = NO_TEAM, TeamTypes warTradeTarget = NO_TEAM);
++	// </advc.130p>
+ 	void startTeamTrade(TradeableItems eItem, TeamTypes eFromTeam, TeamTypes eToTeam, bool bDual);
+ 	void endTeamTrade(TradeableItems eItem, TeamTypes eFromTeam, TeamTypes eToTeam);
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index af1b02c45..04ed9eef0 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -554,6 +554,7 @@ enum WidgetTypes					// Exposed to Python
+ 	WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE,
+ 	// K-Mod end
+ 	WIDGET_RF_CIV_CHOICE, // advc.706
++	WIDGET_LH_GLANCE, // advc.152
+ 
+ #ifdef _USRDLL
+ 	NUM_WIDGET_TYPES
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 5f6ecf83a..e2f0b982c 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -10672,7 +10672,9 @@ void CvGame::deleteVoteTriggered(int iID)
+ 
+ void CvGame::doVoteResults()
+ {
+-	int iLoop;
++	// advc.150b: To make sure it doesn't go out of scope
++	static CvWString targetCityName;
++	int iLoop=-1;
+ 	for (VoteTriggeredData* pVoteTriggered = m_votesTriggered.beginIter(&iLoop); NULL != pVoteTriggered; pVoteTriggered = m_votesTriggered.nextIter(&iLoop))
+ 	{
+ 		CvWString szBuffer;
+@@ -10725,7 +10727,7 @@ void CvGame::doVoteResults()
+ 			{
+ 				continue;
+ 			} // <advc.150b>
+-			wchar const* targetCityNameKey = NULL;
++			targetCityName = "";
+ 			int voteCount = -1; // </advc.150b>
+ 			if (isTeamVote(eVote))
+ 			{
+@@ -10783,7 +10785,7 @@ void CvGame::doVoteResults()
+ 				if(subd.ePlayer != NO_PLAYER && subd.iCityId >= 0) {
+ 					CvCity* targetCity = GET_PLAYER(subd.ePlayer).getCity(subd.iCityId);
+ 					if(targetCity != NULL)
+-						targetCityNameKey = targetCity->getNameKey();
++						targetCityName = targetCity->getNameKey();
+ 				}
+ 				voteCount = countVote(*pVoteTriggered, PLAYER_VOTE_YES);
+ 				bPassed = (voteCount >= getVoteRequired(eVote, eVoteSource));
+@@ -10868,11 +10870,11 @@ void CvGame::doVoteResults()
+ 						resolutionStr = gDLL->getText(key, GET_PLAYER(subd.ePlayer).
+ 								getReplayName(), 0, 0);
+ 					}
+-					else if(kVote.isAssignCity() && targetCityNameKey != NULL &&
++					else if(kVote.isAssignCity() && !targetCityName.empty() &&
+ 							subd.eOtherPlayer != NO_PLAYER) {
+ 						resolutionStr = gDLL->getText("TXT_KEY_POPUP_ELECTION_ASSIGN_CITY",
+ 								GET_PLAYER(subd.ePlayer).getCivilizationAdjectiveKey(),
+-								targetCityNameKey,
++								targetCityName.GetCString(),
+ 								GET_PLAYER(subd.eOtherPlayer).getReplayName(), 0, 0);
+ 					}
+ 				}
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 088fafe74..a892f13c2 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -15603,6 +15603,25 @@ void CvGameTextMgr::parseLeaderHeadHelp(CvWStringBuffer &szBuffer, PlayerTypes e
+ 		getWarWearinessString(szBuffer, eThisPlayer, NO_PLAYER); // total war weariness
+ }
+ 
++// <advc.152>
++void CvGameTextMgr::parseWarTradesHelp(CvWStringBuffer& szBuffer,
++		PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer) {
++
++	/*  Same checks as in getAttitudeText (AttitudeUtil.py), which displays
++		the fist icon. */
++	PlayerTypes activeId = GC.getGame().getActivePlayer();
++	if(eOtherPlayer == activeId || eOtherPlayer == NO_PLAYER ||
++			eThisPlayer == eOtherPlayer || eThisPlayer == NO_PLAYER ||
++			TEAMREF(eThisPlayer).isAtWar(TEAMID(eOtherPlayer)))
++		return;
++	if(TEAMREF(eThisPlayer).AI_declareWarTrade(TEAMID(eOtherPlayer),
++			TEAMID(activeId)) == NO_DENIAL) {
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_WILLING_START_WAR",
++				GET_PLAYER(eOtherPlayer).getName()));
++	}
++} // </advc.152>
++
+ 
+ void CvGameTextMgr::parseLeaderLineHelp(CvWStringBuffer &szBuffer, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index a0817b7ae..83854972f 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -71,6 +71,8 @@ public:
+ 	DllExport void parseCivicInfo(CvWStringBuffer &szBuffer, CivicTypes eCivic, bool bCivilopediaText = false, bool bPlayerContext = false, bool bSkipName = false);
+ 	DllExport void parsePlayerTraits(CvWStringBuffer &szBuffer, PlayerTypes ePlayer);
+ 	DllExport void parseLeaderHeadHelp(CvWStringBuffer &szBuffer, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer);
++	// advc.152:
++	void parseWarTradesHelp(CvWStringBuffer& szBuffer, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer);
+ 	DllExport void parseLeaderLineHelp(CvWStringBuffer &szBuffer, PlayerTypes eThisPlayer, PlayerTypes eOtherPlayer);
+ 	DllExport void parseGreatPeopleHelp(CvWStringBuffer &szBuffer, CvCity& city);
+ // BUG - Building Additional Great People - start
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 234353a5c..f5963f43a 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1167,9 +1167,10 @@ public:
+ 	virtual bool AI_demandRebukedWar(PlayerTypes ePlayer) const = 0;																		// Exposed to Python
+ 	virtual AttitudeTypes AI_getAttitude(PlayerTypes ePlayer, bool bForced = true) const = 0;																// Exposed to Python
+ 	virtual PlayerVoteTypes AI_diploVote(const VoteSelectionSubData& kVoteData, VoteSourceTypes eVoteSource, bool bPropose) = 0;
+-	virtual int AI_dealVal(PlayerTypes ePlayer, const CLinkList<TradeData>* pList, bool bIgnoreAnnual = false, int iExtra = 0
+-		, bool ignoreDiscount = false // advc.550a
+-		) const = 0;
++	virtual int AI_dealVal(PlayerTypes ePlayer, const CLinkList<TradeData>* pList,
++			bool bIgnoreAnnual = false, int iExtra = 0,
++			bool ignoreDiscount = false, // advc.550a
++			bool ignorePeace = false) const = 0; // advc.130p
+ 	// advc.130o: Removed const qualifier
+ 	virtual bool AI_considerOffer(PlayerTypes ePlayer, const CLinkList<TradeData>* pTheirList, const CLinkList<TradeData>* pOurList, int iChange = 1) = 0;
+ 	virtual bool AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeData>* pTheirList, const CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirInventory, CLinkList<TradeData>* pOurInventory, CLinkList<TradeData>* pTheirCounter, CLinkList<TradeData>* pOurCounter) const = 0;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2305b1e15..435f6d5bc 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -9943,14 +9943,15 @@ int CvPlayerAI::AI_getTradeAttitude(PlayerTypes ePlayer) const {
+ 	/*  Adjustment to game progress now happens when recording grant and trade values;
+ 		decay happens explicitly in AI_doCounter. */
+ 	return range(::round(r * TEAMREF(ePlayer).recentlyMetMultiplier(getTeam()))
+-			/ AI_peacetimeTradeValDivisor(), 0, peacetimeTradeRelationsLimit);
++			/ AI_peacetimeTradeValDivisor(false), 0, peacetimeTradeRelationsLimit);
+ }
+ 
+ 
+-int CvPlayerAI::AI_peacetimeTradeValDivisor() const {
++int CvPlayerAI::AI_peacetimeTradeValDivisor(bool bRival) const {
+ 
+ 	return 120000 / ::range(GC.getLeaderHeadInfo(getPersonalityType()).
+-			getMemoryAttitudePercent(MEMORY_EVENT_GOOD_TO_US), 1, 1000);
++			getMemoryAttitudePercent(bRival ? MEMORY_EVENT_BAD_TO_US :
++			MEMORY_EVENT_GOOD_TO_US) * (bRival ? -1 : 1), 1, 1000);
+ }
+ 
+ 
+@@ -10025,7 +10026,7 @@ int CvPlayerAI::AI_getRivalTradeAttitude(PlayerTypes ePlayer) const {
+ 	/*  Adjustment to game progress now happens when recording grant and trade values;
+ 		decay happens explicitly in AI_doCounter. */
+ 	r = (::round(r * TEAMREF(ePlayer).recentlyMetMultiplier(getTeam())) +
+-			75 * ::round(dualDealCounter)) / AI_peacetimeTradeValDivisor();
++			75 * ::round(dualDealCounter)) / AI_peacetimeTradeValDivisor(true);
+ 	return -range(r, 0, peacetimeTradeRelationsLimit);
+ }
+ 
+@@ -11124,7 +11125,8 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ }
+ 
+ int CvPlayerAI::AI_dealVal(PlayerTypes ePlayer, const CLinkList<TradeData>* pList, bool bIgnoreAnnual, int iChange,
+-		bool ignoreDiscount) const // advc.550a
++		bool ignoreDiscount, // advc.550a
++		bool ignorePeace) const // advc.130p
+ {
+ 	CLLNode<TradeData>* pNode;
+ 	CvCity* pCity;
+@@ -11151,8 +11153,9 @@ int CvPlayerAI::AI_dealVal(PlayerTypes ePlayer, const CLinkList<TradeData>* pLis
+ 			OB and DP were not counted as annual, but GPT and resources were;
+ 			now it's the other way around. */
+ 		TradeableItems ti = pNode->m_data.m_eItemType;
+-		if(bIgnoreAnnual && CvDeal::isAnnual(ti) && ti != TRADE_GOLD_PER_TURN &&
+-				ti != TRADE_RESOURCES)
++		if((bIgnoreAnnual && CvDeal::isAnnual(ti) && ti != TRADE_GOLD_PER_TURN &&
++				ti != TRADE_RESOURCES) || (ignorePeace && (ti == TRADE_PEACE ||
++				ti == TRADE_PEACE_TREATY)))
+ 			continue;
+ 		switch(ti) // </advc.130p>
+ 		{
+@@ -14967,10 +14970,19 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 		iValue += iCombatValue * u.getHillsDefenseModifier() / 200;
+ 		// K-Mod end
+ 		break;
+-
+-	case UNITAI_CITY_COUNTER:
+-	case UNITAI_CITY_SPECIAL:
++	/*  <advc.005a> I've assigned these as favorite units in LeaderHead XML
++		and don't want them to be treated exactly like City Counter. */
+ 	case UNITAI_PARADROP:
++		if(u.getDropRange() <= 0)
++			iValue -= iCombatValue/3;
++		else
++			iValue += (iCombatValue * u.getDropRange() * 10) / 100;
++		// Fall through to Counter (as was already the case in BtS)
++	case UNITAI_CITY_SPECIAL:
++		iValue += (iCombatValue * u.getInterceptionProbability()) / 100;
++		// Fall through to Counter (no change)
++		// </advc.005a>
++	case UNITAI_CITY_COUNTER:
+ 		iValue += (iCombatValue / 2);
+ 		iValue += ((iCombatValue * u.getCityDefenseModifier()) / 100);
+ 		for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+@@ -14994,8 +15006,8 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea* pArea
+ 			int iTempValue = u.getInterceptionProbability();
+ 
+ 			iTempValue *= (25 + std::min(125, GET_TEAM(getTeam()).AI_getRivalAirPower()));
+-			iTempValue /= 50;
+-
++			iTempValue /= 57; /* advc.005a: Was 50; hopefully compensated for by 
++								 the bonus for UNITAI_CITY_SPECIAL. */
+ 			iValue += iTempValue;
+ 		}
+ /************************************************************************************************/
+@@ -18188,7 +18200,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 				}*/
+ 				// K-Mod. AI_unitValue is a relative rating value. It shouldn't be used for this.
+ 				// (The espionage mission is not enabled anyway, so I'm not going to put a lot of effort into it.)
+-				iValue += GC.getUnitInfo(eUnit).getProductionCost() * (canTrain(eUnit) ? 4 : 8); // kmodx: Parentheses added; not sure if needed
++				iValue += GC.getUnitInfo(eUnit).getProductionCost() * (canTrain(eUnit) ? 4 : 8); // kmodx: Parentheses added; not sure if needed.
+ 				//
+ 			}
+ 		}
+@@ -18581,15 +18593,16 @@ int CvPlayerAI::AI_getPeacetimeGrantValue(PlayerTypes eIndex) const
+ 
+ // <advc.130p> Merged the following two functions
+ void CvPlayerAI::AI_changePeacetimeTradeValue(PlayerTypes eIndex, int iChange) {
+-	AI_changePeaceTimeValue(eIndex, iChange, false);
++	AI_changePeacetimeValue(eIndex, iChange, false);
+ }
+ void CvPlayerAI::AI_changePeacetimeGrantValue(PlayerTypes eIndex, int iChange) {
+-	AI_changePeaceTimeValue(eIndex, iChange, true);
++	AI_changePeacetimeValue(eIndex, iChange, true);
+ }
+ 
+ // Based on the old AI_changePeacetimeGrantValue
+-void CvPlayerAI::AI_changePeaceTimeValue(PlayerTypes eIndex, int iChange,
+-		bool isGrant) {
++void CvPlayerAI::AI_changePeacetimeValue(PlayerTypes eIndex, int iChange,
++		bool isGrant, bool bPeace, TeamTypes peaceTradeTarget,
++		TeamTypes warTradeTarget) {
+ 
+ 	PROFILE_FUNC(); FAssert(eIndex >= 0); FAssert(eIndex < MAX_PLAYERS);
+ 	if(iChange == 0)
+@@ -18619,23 +18632,52 @@ void CvPlayerAI::AI_changePeaceTimeValue(PlayerTypes eIndex, int iChange,
+ 	if(TEAMREF(eIndex).isCapitulated()) {
+ 		incr /= 2;
+ 		masterId = GET_TEAM(GET_PLAYER(eIndex).getMasterTeam()).getLeaderID();
+-		aiPeacetimeValue[masterId] = aiPeacetimeValue[masterId] + incr;
+-	} // </advc.130v>
+-	aiPeacetimeValue[eIndex] = aiPeacetimeValue[eIndex] + incr;
+-	FAssert(aiPeacetimeValue[eIndex] >= 0 && iChange > 0);
++	} // advc.130p: No PeacetimeTrade for reparations; only RivalTrade.
++	if(!bPeace && peaceTradeTarget == NO_TEAM) {
++		if(masterId != NO_PLAYER)
++			aiPeacetimeValue[masterId] = aiPeacetimeValue[masterId] + incr;
++		// </advc.130v>
++		aiPeacetimeValue[eIndex] = aiPeacetimeValue[eIndex] + incr;
++		FAssert(aiPeacetimeValue[eIndex] >= 0 && iChange > 0);
++	}
+ 	if(iChange <= 0 || TEAMID(eIndex) == getTeam())
+ 		return;
+ 	for(int iI = 0; iI < MAX_CIV_TEAMS; iI++) {
+ 		TeamTypes tId = (TeamTypes)iI;
+ 		CvTeamAI& t = GET_TEAM(tId);
+ 		if(tId != TEAMID(eIndex) && (masterId == NO_TEAM || tId != TEAMID(masterId)) &&
+-				t.isAlive() && t.AI_getWorstEnemy() == getTeam() &&
++				t.isAlive() &&
+ 				t.isHasMet(TEAMID(eIndex))) { // unoffical patch bugfix, by Sephi.
++			// <advc.130p>
++			bool bWorstEnemy = (t.AI_getWorstEnemy() == getTeam());
++			// Special treatment for war enemies trading among each other
++			bool bOtherWar = (t.isAtWar(TEAMID(eIndex)) || warTradeTarget == tId);
++			bool bWar = t.isAtWar(getTeam());
++			if(!bWorstEnemy && !(bWar && !bOtherWar))
++				continue;
++			// No anger among vassal-master when they make peace
++			if(bPeace && TEAMREF(eIndex).getMasterTeam() == tId)
++				continue;
++			/*  Don't mind if t's worst enemy is paid to make peace with a civ that
++				t likes. Unless t is at war with its worst enemy because, then,
++				the peace deals means that t loses a war ally. */
++			if(peaceTradeTarget == t.getMasterTeam() || (peaceTradeTarget != NO_TEAM &&
++					t.AI_getAttitude(peaceTradeTarget) >= ATTITUDE_PLEASED && !bWar &&
++					!t.isAtWar(peaceTradeTarget))) // Should be implied by attitude, but let's make sure.
++				continue; // </advc.130p>
+ 			double mult = 2000;
+ 			// Avoid oscillation of worst enemy
+-			int delta = std::max(0, t.AI_getAttitudeVal(TEAMID(eIndex)) -
+-					t.AI_getAttitudeVal(t.AI_getWorstEnemy()));
++			int delta = ::range(t.AI_getAttitudeVal(TEAMID(eIndex)) -
++					t.AI_getAttitudeVal(t.AI_getWorstEnemy()), 0, 7);
+ 			mult *= delta / 5.0;
++			// <advc.130p>
++			if(bPeace) // But count brokered peace in full
++				mult *= 0.4;
++			if(bWar && bWorstEnemy && !bOtherWar)
++				mult *= 1.33;
++			else if(bWorstEnemy && !bOtherWar)
++				mult *= 0.9;
++			else mult *= 0.67; // </advc.130p>
+ 			int enemyIncr = ::round((val * mult) /
+ 					(g.getTeamScore(getTeam()) + g.getTeamScore(tId)));
+ 			if(enemyIncr <= 0)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index ea3d4a80b..2603794c9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -235,11 +235,12 @@ public:
+ 
+ 	PlayerVoteTypes AI_diploVote(const VoteSelectionSubData& kVoteData, VoteSourceTypes eVoteSource, bool bPropose);
+ 
+-	int AI_dealVal(PlayerTypes ePlayer, const CLinkList<TradeData>* pList, bool bIgnoreAnnual = false,
+-		int iChange = 1 /*  advc.003: was called iExtra, which didn't make sense
++	int AI_dealVal(PlayerTypes ePlayer, const CLinkList<TradeData>* pList,
++		bool bIgnoreAnnual = false,
++		int iChange = 1, /*  advc.003: was called iExtra, which didn't make sense
+ 							and differed from the parameter name in CvPlayerAI.cpp. */
+-		, bool ignoreDiscount = false // advc.550a
+-		) const;
++		bool ignoreDiscount = false, // advc.550a
++		bool ignorePeace = false) const; // advc.130p
+ 	bool AI_goldDeal(const CLinkList<TradeData>* pList) const;
+ 	bool isAnnualDeal(CLinkList<TradeData> const& itemList) const; // advc.705
+ 	/*  advc.130o: Removed const qualifier - function may now change diplo memory.
+@@ -392,17 +393,17 @@ public:
+ 
+ 	int AI_getBonusTradeCounter(PlayerTypes eIndex) const;
+ 	void AI_changeBonusTradeCounter(PlayerTypes eIndex, int iChange);
+-
++	/* <advc.130p> For code shared by AI_changePeacetimeTradeValue and
++		AI_changePeacetimeGrantValue. The third parameter says which of the two
++		should be changed. */
++	void AI_changePeacetimeValue(PlayerTypes eIndex, int iChange, bool isGrant,
++			bool bPeace = false, TeamTypes peaceTradeTarget = NO_TEAM,
++			TeamTypes warTradeTarget = NO_TEAM); // </advc.130p>
+ 	int AI_getPeacetimeTradeValue(PlayerTypes eIndex) const;
+ 	void AI_changePeacetimeTradeValue(PlayerTypes eIndex, int iChange);
+-
+ 	int AI_getPeacetimeGrantValue(PlayerTypes eIndex) const;
+ 	void AI_changePeacetimeGrantValue(PlayerTypes eIndex, int iChange);
+-	/*  <advc.130p> The change functions apply adjustments and have a side-effect
+-		on EnemyTrade and EnemyGrant values. These here are simple setters. */
+-	void AI_setPeacetimeTradeValue(PlayerTypes eIndex, int iVal);
+-	void AI_setPeacetimeGrantValue(PlayerTypes eIndex, int iVal);
+-	// </advc.130p><advc.130k> To make exponential decay more convenient
++	// <advc.130k> To make exponential decay more convenient
+ 	void AI_setSameReligionCounter(PlayerTypes eIndex, int iValue);
+ 	void AI_setDifferentReligionCounter(PlayerTypes eIndex, int iValue);
+ 	void AI_setFavoriteCivicCounter(PlayerTypes eIndex, int iValue);
+@@ -584,13 +585,15 @@ public:
+ 	virtual void write(FDataStreamBase* pStream);
+ 
+ protected:
+-	/*  <advc.130p> For code shared by AI_changePeacetimeTradeValue and
+-		AI_changePeacetimeGrantValue. The third parameter says which
+-		of the two should be changed. */
+-	void AI_changePeaceTimeValue(PlayerTypes eIndex, int iChange, bool isGrant);
+-	int AI_peacetimeTradeValDivisor() const;
++	// <advc.130p>
++	int AI_peacetimeTradeValDivisor(bool bRival) const;
+ 	static int const peacetimeTradeRelationsLimit = 4;
+-	/*  </advc.130p> advc.130x: Mode 0: same religion, 1: different religion,
++	/*  The change functions apply adjustments and have a side-effect
++		on EnemyTrade and EnemyGrant values. These here are simple setters. */
++	void AI_setPeacetimeTradeValue(PlayerTypes eIndex, int iVal);
++	void AI_setPeacetimeGrantValue(PlayerTypes eIndex, int iVal);
++	// </advc.130p>
++	/*	advc.130x: Mode 0: same religion, 1: different religion,
+ 		2: favorite civic. Returns the absolute value of the limit for the
+ 		time based religion/civics relations modifier. */
+ 	int ideologyDiploLimit(PlayerTypes theyId, int mode) const;
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index e7f46958a..ee32cf952 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -465,6 +465,7 @@ public:
+ 	virtual bool AI_isSneakAttackPreparing(TeamTypes eIndex) const = 0;
+ 	virtual bool AI_isSneakAttackReady(TeamTypes eIndex) const = 0;
+ 	virtual void AI_setWarPlan(TeamTypes eIndex, WarPlanTypes eNewValue, bool bWar = true) = 0;
++	// advc.003 (caveat): Adding virtual functions to this class seems to break sth.
+ 
+ protected:
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 24beaefe3..cb33d519f 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2186,43 +2186,9 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eTeam,
+ 	bool peaceDeal) const // advc.140h
+ {
+ 	FAssert(eTeam != getID());
+-	/* original bts code
+-	int iKnownCount;
+-	int iPossibleKnownCount;
+-	int iCost;
+-	int iValue;
+-	int iI;
+-
+-	iCost = std::max(0, (getResearchCost(eTech) - getResearchProgress(eTech)));
+-
+-	iValue = ((iCost * 3) / 2);
+-
+-	iKnownCount = 0;
+-	iPossibleKnownCount = 0;
+-
+-	for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+-	{
+-		if (GET_TEAM((TeamTypes)iI).isAlive())
+-		{
+-			if (iI != getID())
+-			{
+-				if (isHasMet((TeamTypes)iI))
+-				{
+-					if (GET_TEAM((TeamTypes)iI).isHasTech(eTech))
+-					{
+-						iKnownCount++;
+-					}
+-
+-					iPossibleKnownCount++;
+-				}
+-			}
+-		}
+-	}
+-
+-	iValue += (((iCost / 2) * (iPossibleKnownCount - iKnownCount)) / iPossibleKnownCount);
+-	*/
+-	int iValue = (
+-		125 // advc.551: was 150
++	// advc.003: Original BtS code deleted; K-Mod replaced it with AI_knownTechValModifier.
++	CvTechInfo const& kTech = GC.getTechInfo(eTech);
++	int iValue = (125 // advc.551: was 150
+ 			// K-Mod. Standardized the modifier for # of teams with the tech; and removed the effect of team size.
+ 			+ AI_knownTechValModifier(eTech)) *
+ 			std::max(0, (getResearchCost(eTech, true, false) -
+@@ -2234,10 +2200,9 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eTeam,
+ 		spend the gold if the war continues */
+ 	if(peaceDeal)
+ 		iValue = ::round(0.7 * iValue); // </advc.104h>
+-
+-	iValue *= std::max(0, (GC.getTechInfo(eTech).getAITradeModifier() + 100));
++	iValue *= std::max(0, (kTech.getAITradeModifier() + 100));
+ 	iValue /= 100;
+-	//  <advc.550a>
++	// <advc.550a>
+ 	// No discounts for vassals
+ 	if(!ignoreDiscount && !isVassal(eTeam) && !GET_TEAM(eTeam).isVassal(getID())) {
+ 		/*  If they're more advanced/powerful, they shouldn't mind giving us
+@@ -2274,8 +2239,7 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eTeam,
+ 			too much I think. */
+ 		if(modifier < 1)
+ 			iValue = ::round(iValue * modifier);
+-	}
+-	// </advc.550a>
++	} // </advc.550a>
+ 	return roundTradeVal(iValue); // advc.104k
+ }
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 147582780..81e70c75e 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -106,10 +106,9 @@ public: // <advc.104>
+ 
+ 	int CvTeamAI::AI_knownTechValModifier(TechTypes eTech) const; // K-Mod
+ 
+-	int AI_techTradeVal(TechTypes eTech, TeamTypes eTeam
+-		, bool ignoreDiscount = false // advc.550a
+-		, bool peaceDeal = false // advc.140h
+-		) const;
++	int AI_techTradeVal(TechTypes eTech, TeamTypes eTeam,
++			bool ignoreDiscount = false, // advc.550a
++			bool peaceDeal = false) const; // advc.140h
+ 	DenialTypes AI_techTrade(TechTypes eTech, TeamTypes eTeam) const;
+ 
+ 	int AI_mapTradeVal(TeamTypes eTeam) const;
+@@ -148,6 +147,7 @@ public: // <advc.104>
+ 
+ 	int AI_declareWarTradeVal(TeamTypes eWarTeam, TeamTypes eTeam) const;
+ 	DenialTypes AI_declareWarTrade(TeamTypes eWarTeam, TeamTypes eTeam, bool bConsiderPower = true) const;
++
+ 	int roundTradeVal(int val) const; //advc.104k
+ 
+ 	int AI_openBordersTradeVal(TeamTypes eTeam) const;
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 20937af7b..4e5939e00 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -400,6 +400,7 @@ void CyEnumsPythonInterface()
+ 		// Extra specialist commerce (from tech)
+ 		.value("WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE", WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE)
+ 		// K-Mod end
++		.value("WIDGET_LH_GLANCE", WIDGET_LH_GLANCE) // advc.152
+ 		.value("NUM_WIDGET_TYPES", NUM_WIDGET_TYPES)
+ 		;
+ /*
+
+diff --git a/CvGameCoreDLL/CyTeam.cpp b/CvGameCoreDLL/CyTeam.cpp
+index a99697ac0..0cdd48d59 100644
+--- a/CvGameCoreDLL/CyTeam.cpp
++++ b/CvGameCoreDLL/CyTeam.cpp
+@@ -1017,3 +1017,12 @@ int CyTeam::AI_getWarSuccess(int /*TeamTypes*/ eIndex) const
+ {
+ 	return m_pTeam ? m_pTeam->AI_getWarSuccess((TeamTypes)eIndex) : -1;
+ }
++
++// <advc.152>
++int /*DenialTypes*/ CyTeam::AI_declareWarTrade(int /*TeamTypes*/ eWarTeam,
++		int /*TeamTypes*/ eTeam) const {
++
++	// Can't add AI_declareWarTrade to CvTeam
++	return m_pTeam ? dynamic_cast<CvTeamAI*>(m_pTeam)->AI_declareWarTrade(
++			(TeamTypes)eWarTeam, (TeamTypes)eTeam) : -1;
++} // </advc.152>
+
+diff --git a/CvGameCoreDLL/CyTeam.h b/CvGameCoreDLL/CyTeam.h
+index 79c614d66..368695f74 100644
+--- a/CvGameCoreDLL/CyTeam.h
++++ b/CvGameCoreDLL/CyTeam.h
+@@ -237,6 +237,8 @@ public:
+ 	int AI_getAtWarCounter(int /*TeamTypes*/ eTeam) const;
+ 	int AI_getAtPeaceCounter(int /*TeamTypes*/ eTeam) const;
+ 	int AI_getWarSuccess(int /*TeamTypes*/ eIndex) const;
++	// advc.152:
++	int /*DenialTypes*/ AI_declareWarTrade(int /*TeamTypes*/ eWarTeam, int /*TeamTypes*/ eTeam) const;
+ 
+ protected:
+
+diff --git a/CvGameCoreDLL/CyTeamInterface.cpp b/CvGameCoreDLL/CyTeamInterface.cpp
+index 98cc3e82c..5f0c7df34 100644
+--- a/CvGameCoreDLL/CyTeamInterface.cpp
++++ b/CvGameCoreDLL/CyTeamInterface.cpp
+@@ -231,5 +231,7 @@ void CyTeamPythonInterface()
+ 		.def("AI_getAtWarCounter", &CyTeam::AI_getAtWarCounter, "int (TeamTypes)")
+ 		.def("AI_getAtPeaceCounter", &CyTeam::AI_getAtPeaceCounter, "int (TeamTypes)")
+ 		.def("AI_getWarSuccess", &CyTeam::AI_getWarSuccess, "int (TeamTypes)")
++		// advc.152:
++		.def("AI_declareWarTrade", &CyTeam::AI_declareWarTrade, "DenialTypes (TeamTypes eWarTeam,TeamTypes eTeam)")
+ 		;
+ }
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 24f149908..0e9b281ee 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -1178,6 +1178,9 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+     // Just the hill defense (help=true skips city defense)
+ 	tileBonus += cvCity->plot()->defenseModifier(NO_TEAM, true, NO_TEAM, true);
+ 	tileBonus /= 100.0;
++	/*  Would be nice to check also if the city is enclosed by rivers, e.g. in a
++		river delta, but I think this can't really happen on randomly generated maps,
++		and the test could be a bit slow. */
+ 	double localGarrisonPow = (nLocalGarrisons * powerPerGarrison
+ 			* powerCorrect(
+ 			1 + fortificationBonus + cityDefenderBonus + tileBonus)) * confDef;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index b504bfa45..fa4653a1e 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -2380,6 +2380,7 @@ double WarAndPeaceAI::Civ::amortizationMultiplier() const {
+ 	return GET_PLAYER(weId).amortizationMultiplier(25);
+ }
+ 
++// Currently unused; don't remember what I wanted to use it for.
+ bool WarAndPeaceAI::Civ::isNearMilitaryVictory(int stage) const {
+ 
+ 	if(stage <= 0)
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index a33f8cec7..5000cd206 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -3752,10 +3752,15 @@ class ContinentMap:
+ 		#If this was the only continent than we have a pangaea. Oh well.
+ 		if len(continentList) == 0:
+ 			return -1
+-		#get the next largest continent and temporarily remove from list
+-		#add it back later and is automatically 'New World'
+-		biggestNewWorld = continentList[0]
+-		del continentList[0]
++		# <advc.021> Only reserve the second largest continent if this still leaves enough room per civ in the Old World
++		reservedSecondBiggest = False
++		iCivs = CyGlobalContext().getGame().countCivPlayersEverAlive()
++		if float(totalLand - continentList[0].size) / float(iCivs) > 100:
++			reservedSecondBiggest = True # </advc.021>
++			#get the next largest continent and temporarily remove from list
++			#add it back later and is automatically 'New World'
++			biggestNewWorld = continentList[0]
++			del continentList[0]
+ 		#sort list by ID rather than size to make things
+ 		#interesting and possibly bigger new worlds
+ 		continentList.sort(lambda x, y:cmp(x.ID, y.ID))
+@@ -3771,8 +3776,10 @@ class ContinentMap:
+ 			# Was > 0.6. A larger Old World plays better, while the true ratio (Africa+Eurasia)/(Africa+EurasiaAmerica+Oceania) is indeed just 62.5%. Use randomness to make a realistic size possible but rather unlikely.
+ 			if float(oldWorldSize) / float(totalLand) > (60 + PRand.randint(0, 9)) / 100.0:
+ 				break
+-		#add back the biggestNewWorld continent
+-		continentList.append(biggestNewWorld)
++		# advc.021b: A too small Old World is going to be unplayable; rather reserve no New World then (or just some islands).
++		if reservedSecondBiggest and float(oldWorldSize) / float(iCivs) > 85:
++			#add back the biggestNewWorld continent
++			continentList.append(biggestNewWorld)
+ 		#what remains in the list will be considered 'New World'
+ 		#get ID for the next continent, we will use this ID for 'New World'
+ 		#designation
+
+[PATCH OMITTED] file=a/manual_0.93b.odt b/manual_0.93b.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=31 embeddedFiles=30 omittedFiles=1 embeddedPatchBytes=52940

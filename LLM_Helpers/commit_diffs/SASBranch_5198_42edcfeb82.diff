@@ -1,0 +1,224 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5198
+# Commit: 42edcfeb825248631504031b2cbf38e0b69fd5d9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c277ad1928ec28853eca42a7036afb4fbb90287b
+# Title: tech adjustments 3 anyways etc. - PROCESS_CULTURE (build culture in city): change tech prereq from TECH_MUSIC_THEORY to TECH_DRAMA: "Update: back to drama si...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	6	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	2	Assets/XML/GameInfo/CIV4ProcessInfo.xml
+0	1	Assets/XML/Technologies/CIV4TechInfos.xml
+0	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+15	16	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 2244925aa..3ff0ac92d 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -21442,7 +21442,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_DRAMA</PrereqTech>
++			<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -21482,7 +21482,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 300 -->
+-			<iCost>375</iCost>
++			<iCost>500</iCost>
+ 			<iHurryCostModifier>50</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -25104,7 +25104,8 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_MUSIC_THEORY</PrereqTech>
++			<!-- custom: (fits performing arts as per chatgpt 5.2's review thanks but anyways etc.) -->
++			<PrereqTech>TECH_DRAMA</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25142,7 +25143,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>250</iCost>
++			<iCost>375</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -27765,8 +27766,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_MILITARY_SCIENCE -->
+-			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
++			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+
+diff --git a/Assets/XML/GameInfo/CIV4ProcessInfo.xml b/Assets/XML/GameInfo/CIV4ProcessInfo.xml
+index 2eb19cba8..9ddd3394c 100644
+--- a/Assets/XML/GameInfo/CIV4ProcessInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ProcessInfo.xml
+@@ -35,8 +35,8 @@
+ 			<Type>PROCESS_CULTURE</Type>
+ 			<Description>TXT_KEY_PROCESS_CULTURE</Description>
+ 			<Strategy>TXT_KEY_PROCESS_CULTURE_STRATEGY</Strategy>
+-			<!-- custom: polytheism now instead of drama, maybe is more accurate/realistic to have it sooner on top of maybe helping calm revolts sooner? Or/and more diverse strategies possible now? Trying this as it may fit better in AdvCiv-SAS. Note: not putting it in start tech else AIs build culture in their capital which is inefficient, rather than retweak all if even feasable in xml which i doubt but maybe i don't know, it seems easier to remove the culture goalpsot if i may say but anyways etc a bit later, at polytheism, maybe more balanced this way too as culture is a bit too easy to have at MYSTICISM maybe, plus since our tech tree rework si simplified, mysticism is a starting tech we don't have a tech(s) before it so maybe all around better or and more balanced or and more suitable or and more desirable for us in advciv-sas at least is how i'd want to try it set it but anyways etc ; after more consideration and testing, move PROCESS_CULTURE back to TECH_MUSIC_THEORY, AI is a bit too bad or/and too inefficient maybe at using it too early, make it available later but also soon enough as we want/wanted anyways etc, was TECH_DRAMA -->
+-			<TechPrereq>TECH_MUSIC_THEORY</TechPrereq>
++			<!-- custom: polytheism now instead of drama, maybe is more accurate/realistic to have it sooner on top of maybe helping calm revolts sooner? Or/and more diverse strategies possible now? Trying this as it may fit better in AdvCiv-SAS. Note: not putting it in start tech else AIs build culture in their capital which is inefficient, rather than retweak all if even feasable in xml which i doubt but maybe i don't know, it seems easier to remove the culture goalpsot if i may say but anyways etc a bit later, at polytheism, maybe more balanced this way too as culture is a bit too easy to have at MYSTICISM maybe, plus since our tech tree rework is simplified, mysticism is a starting tech we don't have a tech(s) before it so maybe all around better or and more balanced or and more suitable or and more desirable for us in advciv-sas at least is how i'd want to try it set it but anyways etc ; after more consideration and testing, move PROCESS_CULTURE back to TECH_MUSIC_THEORY, AI is a bit too bad or/and too inefficient maybe at using it too early, make it available later but also soon enough as we want/wanted anyways etc. Update: back to drama since we'll remove TECH_MUSIC_THEORY, and since AIs handle this sometimes bad in the early game. This helps culture techs more by condensing their effects and make them more "bulky" if i may say but anyways etc. -->
++			<TechPrereq>TECH_DRAMA</TechPrereq>
+ 			<ProductionToCommerceModifiers>
+ 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+ 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 9d223f9a3..42aace715 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -5686,7 +5686,6 @@
+ 			</OrPreReqs>
+ 			<!-- custom: got the idea while i was asking chatgpt 5, to prevent a beeline that would be bit op or suboptimal depending on tech path maybe i mean but anyways etc, here i mean. Hopefully more balanced as such, and is also thematically relevant i think. Trying not to restrict strategic options (in particular this also preserves the tech_theory_of_evolution gambit i mean as well but anyways etc)  too much here for variety or such i mean as well but anyways etc -->
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 				<PrereqTech>TECH_COMMUNISM</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_GAME_THEORY_QUOTE</Quote>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 1fea40990..3db2ef2d2 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -98,7 +98,6 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - Renamed "Ressource" to "Bonus" (so "ressources" would be "bonuses" now anyways etc) for shorter Sevopedia category width, but also perhaps a good opportunity to match code name and game name maybe at least is how i would want to do it an AdvCiv-SAS if hopefully fine as in functionning well anyways etc.
+ - Renamed some bonuses such as "Ivory" to "Elephants", "Cow" to "Cattle", "Clam" to the more general "Molluscs", and for example also "Wine" to "Grapes", for example. See also Bonus: grapes changes for more / related details anyways etc. Or .
+ - Renamed "Ice" (Terrain) to "Ice Sheet", and "Ice" (Feature) to "Ice Cap", hopefully clearer and more accurate, see their Sevopedia entries for details
+-- (Requires AdvCiv-SAS 5192+) “Music” → “Music Theory” (Reflects the ancient development of notation and harmonics rather than the later artistic genre).
+ - Renamed "great wonders" to "world wonders", but functionally the exact same if i am not mistaken, i hope it is clearer, more intutiive, and in line with "world project", hinting more strongly at the fact that only one is possible in the entire world if i am not mistaken, anyways etc.
+ - Renamed some leaders such as "Montezuma" to "Moctezuma II" for accuracy and exhaustiveness, see xml or/and sevopedia list of leaders ingame or/and docs for details if any details are there as well anyways etc
+ - religion "taoism" has been renamed to "daoism" and all related entries (temple and other buildings, units such as missionary etc, and description/history in sevopedia and such), i have heard many times of the "Dao" (or read maybe rather anyways etc) in manhua (translated) but never ever saw "Tao", while both seem correct as chinese translitterations if am not mistaken, it seemed that Dao is perhaps more fit, but in all cases even if not i'd rather use this one i'm more famililar with and that makes more sense to me, hopefully clearer for others or/and maybe not anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 2a7feab4d..c6a7b75b9 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -94,7 +94,6 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - “Ressource(s)” → “Bonus(es).”
+ - Bonus names standardized: Ivory → Elephants; Cow → Cattle; Clam → Molluscs; Wine → Grapes, etc.
+ - Terrain/Feature: Ice (Terrain) → Ice Sheet; Ice (Feature) → Ice Cap.
+-- (Requires AdvCiv-SAS 5192+) “Music” → “Music Theory” (Reflects the ancient development of notation and harmonics rather than the later artistic genre).
+ - “Great wonders” → “World wonders” (functionally the same).
+ - Leader names corrected where needed (e.g., Montezuma → Moctezuma II).
+ - Taoism → Daoism (with matching building/unit names and encyclopedia text).
+@@ -360,18 +359,18 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ 
+ ### Technologies (non-exhaustive)
+ 
+-- **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Total tech count kept similar to base. **Quotes** reordered to match the new tree (including the new Future era) and for accuracy.
++- **Large reorder** for historical flow (e.g., Pottery before Wheel; Metal Casting before Currency and Bronze Working; Medicine earlier). Overall tech count stays similar to base (some low-value techs removed, with the **Future era expanded**). **Quotes/announcer lines** were reassigned to better fit the new placements (including Future era) and for accuracy..
+ - Gameplay timings shift: **culture**, **slavery**, **plantations**, etc., often **earlier**.
+ - **Selective tech-trade bans for snowball techs:** Some high-impact techs are now flagged **“Cannot be traded”** (`bTrade = 0`) to curb extreme tech-brokering/“tech whoreism” chains (e.g. turning one breakthrough into a long series of trades), which AIs are especially vulnerable to and for balance. The goal is to tone down decisive, snowbally trades while still allowing normal tech trading (unless you enable the **No Tech Trading** game option, which disables it entirely). Info added in UI: see [UI (In-game)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-in-game) and [UI (Sevopedia reworks & related)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#ui-sevopedia-reworks--related) sections.
+-- **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading game option is on). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
+-- **Exponential pacing**: fewer late‑era techs and unit types to avoid a tedious endgame; the **Future** era is the exception and is expanded.
++- **TECH_COST_NOTRADE_MODIFIER** **-23 → -20** (when No Tech Trading option is on). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
++- **Exponential pacing**: fewer late-era techs/unit types (Future era is the exception and is expanded), partly reflecting that ancient eras cover far more “years” than modern ones.
+ - **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier). *Exception:* the Future era has its own GP assignments.
+ - **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **“pair”** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **4** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. Details: [Assets Rebalancing table (starting-techs (civ list & rationale))](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-most-recent-as-of-now-rework-anyways-etc).
+ 
+ ### Eras
+ 
+-- **Future era** reworked into a full era with techs/units/buildings and its own music; begins with **tech_depopulation** as a balancing/historical nod. See Sevopedia/XML.
+-- **Era info** is shown in Sevopedia Tech entries.
++- **Future era** reworked into a full era with techs/units/buildings and its own music; begins with **tech_depopulation** as a balancing/historical nod. See Sevopedia/XML, and [README.md#copyright-and-disclaimer](/README.md#copyright-and-disclaimer).
++- **Era info** is shown in Sevopedia Tech entries (see [README_Sevopedia_Reworks.md#example-10-techs-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-10-techs-category)).
+ - **Eras — research scaling**: `iResearchPercent = 100` (**was** `100 / 90 / 80 / 70 / 60 / 50 / 40` for all eras); `iTechCostModifier = 0`. Tech costs now come directly from TechInfos (no hidden per-era multipliers). Tech costs have been adjusted to match this change.
+ - **Eras — anarchy scaling**: `iAnarchyPercent = 100` for all eras (**was** `50 / 50 / 40 / 40 / 34 / 34 / 34`). In practice this yields about **2 turns** of anarchy when you change civics (or similar). Intent: add strategic weight without tedium; **indirectly buffs** traits with **no anarchy** (e.g., Spiritual).
+ - **Eras — growth & production scaling flattened**: set `iGrowthPercent` (food-to-grow), `iTrainPercent` (unit cost), `iConstructPercent` (building cost), and `iCreatePercent` (project cost) to **100 for all eras** (**was** `100 / 100 / 100 / 90 / 80 / 70 / 60`). Removes late-era discounts that sped up mid/late game; pacing is now **predictable and gradual**, with balance handled directly via per-item `iCost` instead.
+@@ -380,24 +379,24 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ 
+ ### Culture
+ 
+-- **Great Artist** rework: instant culture bomb **reduced** (e.g., **700 → 500** per era), culture **per turn increased** (e.g., **12 → 18** culture/turn). This strengthens long-term culture play while toning down early spikes.
++- **Great Artist rebalance:** culture bomb strength reduced (**700 → 500 per era**), but long-term culture output increased (**12 → 18 culture/turn**). This strengthens long-term culture play while toning down early spikes.
+ 
+ ### Religions (non-exhaustive)
+ 
+-- **Religions roster**: added **Paganism**; removed **Confucianism** (chosen partly because it has **fewer adherents** in our framing). Rationale: a lineup that feels simpler and (to us) more historically fitting. We **keep Judaism** as the in-game representative of early **monotheism**, and we continue to prefer a **small set (~7) of religions** for clarity and efficiency.
++- **Religions roster:** added **Paganism**; removed **Confucianism** (chosen partly because it has fewer adherents in our framing). Rationale: a lineup that feels simpler and (to us) more historically fitting. We **keep Judaism** as the in-game representative of early **monotheism**, and we continue to prefer a **small set (~7) of religions** for clarity and efficiency.
+ - **Missionaries:** significantly **cheaper**.
+-- **Monasteries:** simplified — now **espionage** buildings with a **low Great Person rate**; **no longer obsolete**; **no longer give science** (keeps science buildings cleaner and the theming clearer).
+-- **Shrines** now **require their religion in the city and the religion’s tech** (so they appear in the tech tree and can’t be built just by conquest). See [KI#12](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#12---shrines-now-require-their-religion) and [KI#13](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---shrines-now-appear-in-tech-tree).
++- **Monasteries:** simplified — now **espionage** buildings with a **low Great Person rate**; **no longer obsolete**; **no longer give science** (keeps science buildings cleaner and the theming clearer)..
++- **Shrines:** now require **(1) the religion present in the city** and **(2) the religion’s tech** (previously shrine TechPrereq was NONE). This makes shrines show up properly in the **Religion** Sevopedia building list and in the **tech tree**, and prevents “conquer holy city ⇒ build shrine immediately” without the religion/tech. See [KI#12](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#12---shrines-now-require-their-religion), [KI#13](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#13---shrines-now-appear-in-tech-tree), and [README_Sevopedia_Reworks.md#example-5-religion-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-5-religion-category).
+ 
+ ### Corporations (non-exhaustive)
+ 
+ - **Executives:** significantly **cheaper**.
+-- Each corporation now uses **one distinct Great Person** type (no overlaps).
++- **Great Person variety:** each corporation uses **one distinct Great Person type** (no overlaps).
+ 
+ ### Buildings (non-exhaustive)
+ 
+-- **Granary:** cheaper, slightly weaker food retention. Civ-specific granaries unchanged (so their relative advantage increases).
+-- **Water building line reworked/buffed** *(Goal: make water tiles more viable while requiring you to work them for the benefits; yields apply per worked tile, not passively from routes.)*:
++- **Granary:** cheaper, slightly weaker food retention (partly to balance the Slavery/Hurry changes). Civ-specific granaries unchanged (so their relative advantage increases). Note: the Incan granary (Qullqa) was reworked toward a production/growth role rather than a culture role.
++- **Water building line reworked/buffed** *(Goal: make **water tiles more viable** while requiring you to work them for the benefits; yields apply per worked tile, not passively from routes.)*:
+   - **Harbor** (first water building): health/food oriented.
+   - **Lighthouse:** gold oriented (**+x commerce** from worked tiles where applicable).
+   - **Port (new):** production oriented (**+x hammer** from worked tiles where applicable).
+@@ -405,10 +404,10 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+   - **Customs House:** buffed.  
+ - Fewer **national** wonders and relatively more **world** wonders.
+ - **Palace-likes** (Forbidden Palace, Versailles, etc.) mostly reworked as **world** wonders with tech prereqs so they appear in the tech tree and AIs don’t build them too early. (Barbarian Palace unchanged; used as a balance lever.)
+-- Many world-wonder effects simplified/retuned; overall costs adjusted (often slightly **lower**).
+-- Most `BonusProductionModifiers` (e.g., +100% with Marble) are **greatly reduced**. Example: **Parthenon** is now **+25% with Marble** (was +100%).
++- Many world-wonder effects simplified/retuned; overall costs adjusted (often slightly lower).
++- Most `BonusProductionModifiers` (e.g., +100% with Marble) are greatly reduced. Example: Parthenon is now +25% with Marble (was +100%). Wonder costs were also adjusted to fit this change.
+ - Removed buildings that didn’t carry their weight or distorted pacing (e.g., **Space Elevator**, **West Point**).
+-- **Iron Works:** now requires **both Coal and Iron** empire-wide; city requirement count lowered; cost up moderately (e.g., **700 → 800**).
++- **Iron Works:** now requires **both Coal and Iron empire-wide**; city requirement count lowered; cost up moderately (e.g., 700 -> 800).
+ - **Heroic Epic** (`iMilitaryProductionModifier`): **100% → 50%**. The always-on military production boost was too strong and could let AIs run away; this tones it down while keeping the building relevant.
+ - Some **civ-specific** buildings replaced (especially late-game or underwhelming ones). Example: Russian **Research Institute** replaced with **Gord** (castle-based, earlier impact).
+ - Added `BuildingClassRequired` chains to curb spam and improve AI focus: e.g., **Drydock** now requires **Port**.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index fc0022c9b..8c6ead23a 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index d0264e774..70180011d 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 4f8eea1f4..05e9eaee3 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 76abaa528..301836d6c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=21898

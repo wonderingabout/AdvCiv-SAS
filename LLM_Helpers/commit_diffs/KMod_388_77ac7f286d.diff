@@ -1,0 +1,65 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 388
+# Commit: 77ac7f286d15f9316614b72e2962098d2da6e5b5
+# History segment: K-Mod history
+# Parent used for diff: 298e12d5bd7c143f532a5e969a2cc50bc86a126d
+# Title: Added new xml value: BBAI_MINIMUM_FOUND_VALUE. (The purpose of this is to allow the AI to be adjusted to work more sensibly in Final Frontier style mods.)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	2	Assets/xml/BBAI_AI_Variables_GlobalDefines.xml
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/BBAI_AI_Variables_GlobalDefines.xml b/Assets/xml/BBAI_AI_Variables_GlobalDefines.xml
+index ebaa1dc52..1b9efe82d 100644
+--- a/Assets/xml/BBAI_AI_Variables_GlobalDefines.xml
++++ b/Assets/xml/BBAI_AI_Variables_GlobalDefines.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0"?>
+ <!-- -->
+-<!-- Better BTS AI variables to allow easy AI tweaking -->
+-<!-- by jdog5000 -->
++<!-- Better BTS AI / K-Mod variables to allow easy AI tweaking -->
++<!-- by jdog5000 / karadoc -->
+ <!-- -->
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+ 	<Define>
+@@ -37,4 +37,9 @@
+ 		<DefineName>BBAI_SKIP_BOMBARD_MIN_STACK_RATIO</DefineName>
+ 		<iDefineIntVal>140</iDefineIntVal>
+ 	</Define>
++	<Define>
++		<!-- Minimum city site value that the AI will consider settling. default: 600. (K-Mod) -->
++		<DefineName>BBAI_MINIMUM_FOUND_VALUE</DefineName>
++		<iDefineIntVal>600</iDefineIntVal>
++	</Define>
+ </Civ4Defines>
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index bd473e4e3..445d277d4 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -22068,7 +22068,8 @@ void CvPlayerAI::AI_recalculateFoundValues(int iX, int iY, int iInnerRadius, int
+ 	
+ int CvPlayerAI::AI_getMinFoundValue() const
+ {
+-	int iValue = 600;
++	//int iValue = 600;
++	int iValue = GC.getDefineINT("BBAI_MINIMUM_FOUND_VALUE"); // K-Mod
+ 	int iNetCommerce = 1 + getCommerceRate(COMMERCE_GOLD) + getCommerceRate(COMMERCE_RESEARCH) + std::max(0, getGoldPerTurn());
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                       06/11/09                       jdog5000 & DanF5771    */
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1711

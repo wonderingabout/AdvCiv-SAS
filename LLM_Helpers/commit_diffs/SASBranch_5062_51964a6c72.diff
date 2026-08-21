@@ -1,0 +1,197 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5062
+# Commit: 51964a6c72425de1886bf018b54fd1ad67e08b62
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3c8f353c1a046c7125d68f1cd2b24b866c3bd6c4
+# Title: fix/tweak sevopedia terrain peak or/and such 's unit(s) panels anyways etc and minor other fixes/tweaks or not or ye or etc but anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+47	15	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+1	1	Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index f5f44788b..fe90f4d18 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -444,11 +444,12 @@ class SevoPediaFeature:
+ 		if self.iFeature == iIce:
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				unitInfo = gc.getUnitInfo(iUnit)
+-				unitInfoDomain = unitInfo.getDomainType()
+ 
+ 				if unitInfo.isGraphicalOnly():
+ 					continue
+ 
++				unitInfoDomain = unitInfo.getDomainType()
++
+ 				# <!-- custom: allow any domain unlike for the peak code, so workers could walk on the water ice cap feature, unlike in peak where as of now naval units are not displayed as being able to walk on peak as it would make less sense too even though theoretically possible if i am not mistaken (boat with legs... xd but anyways etc..), so having permissive domain any allowed here unlike in peak code if i am not mistaken anyways etc (but now that i think of it why not, such robotic things or mechanical walking things on a naval unit making it hybrid are probably not too far fetched maybe probably even exists or/and in sci-fi or dream if i may say or such other or not or other or etc but anyways etc); however still require unitInfo.isCanMoveAllTerrain(), as ice cap (ice feature) is only allowed on water terrains it seems, and bCanMoveImpassable is not enough for land units to allow them to walk there if i'm not mistaken but anyways etc. So as of now we'd allow the gunship and airship to walk on ice cap, but not the scout or quechua warrior, even though they all have the bCanMoveImpassable, but only the airship and gunship among these also have canMoveAllTerrain as of now i'm not mistaken so only these can also walk on ice cap on top of walking on peak if i'm not mistaken but anyways etc; note: code provided by chatgpt 5 thanks to my prompts and or such and which i adjusted and/or such, check if accurate but anyways etc -->
+ 				# <!-- custom: below condition/code by chatgpt 5 which i formatted or refactored/adjusted a bit or not or yes or etc, check if accurate anyways etc -->
+ 				# Your Relevant Units panel (from earlier) already shows:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 71a189010..1be9dc74a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -372,9 +372,21 @@ class SevoPediaTerrain:
+ 				if unitInfo.isGraphicalOnly():
+ 					continue
+ 
++				# <!-- custom: parts of the below condition(s)/code by chatgpt 5, check if accurate and check if all is accurate if want to be sure but anyways etc -->
++				# inside placeRelevantUnits(), in the if self.iTerrain == iPeak: loop
++				unitInfoDomain = unitInfo.getDomainType()
++				passTech = (unitInfo.getTerrainPassableTech(iPeak) != -1)
++
+ 				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken anyways etc ; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too if i am not mistaken but anyways etc), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us anyways etc or anything else you'd want or i'd want too but i am fine with this if i may say (and i coded it xd but anyways etc...) hopefully helpful or not or yes or etc but anyways etc... -->
+-				if unitInfo.getDomainType() == DomainTypes.DOMAIN_LAND:
+-					if unitInfo.isCanMoveImpassable() or unitInfo.isCanMoveAllTerrain():
++				# <!-- custom: also show boat with legs, in case some crazy mod mod nicely impelments this xd or us but less likely or not or yes or etc but anyways etc -->
++				# Peak — Relevant Units (includes “boat with legs”; All-Terrain short-circuits)
++				can_walk_on_peak = (
++					unitInfo.isCanMoveAllTerrain() or
++					(unitInfoDomain == DomainTypes.DOMAIN_LAND and
++					(unitInfo.isCanMoveImpassable() or passTech))
++				)
++
++				if can_walk_on_peak:
+ 						# Column index (always 0 when numLists=1)
+ 						columnIndex = 0
+ 						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+@@ -460,14 +472,11 @@ class SevoPediaTerrain:
+ 
+ 					if iTerrainAttack != 0 or iTerrainDefense != 0:
+ 						numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
++					elif isHasN:
++						numTxt = "N"
+ 					else:
+-						s = ""
+-						if isHasN:
+-							s = "N"
+-						if s:
+-							numTxt = s
++						numTxt = "_/_"  # or "" if you prefer no tag
+ 				
+-					numTxt = get_numTxt_attack_defense_modifiers(iTerrainAttack, iTerrainDefense)
+ 					extraCorrectionX = get_extra_correction_x(numTxt)
+ 					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+@@ -543,12 +552,25 @@ class SevoPediaTerrain:
+ 				if unitInfo.isGraphicalOnly():
+ 					continue
+ 
+-				# <!-- custom: also handle water units that can move through all terrains but only on water if i am not mistaken anyways etc -->
+-				if unitInfo.getDomainType() == DomainTypes.DOMAIN_LAND:
+-					if not unitInfo.isCanMoveImpassable() and not unitInfo.isCanMoveAllTerrain():
+-						# Column index (always 0 when numLists=1)
+-						columnIndex = 0
+-						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++				# <!-- custom: parts of the below condition(s)/code by chatgpt 5, check if accurate and check if all is accurate if want to be sure but anyways etc -->
++				# inside placeUnitsImpassable(), in the if self.iTerrain == iPeak: loop
++				unitInfoDomain = unitInfo.getDomainType()
++				passTech = (unitInfo.getTerrainPassableTech(iPeak) != -1)
++
++				# <!-- custom: "boat with legs" edge case handled in as of now relevant units if i'm not mistaken and as chatgpt 5 says as well, if no boat unit at all has legs, as is as of now in advciv-sas, then they would instead be displayed in this units impassable panel for exhaustiveness and notsimply omitted if i understood it correctly and if i'm not mistaken i mean but anyways etc, check if accurate but anyways etc -->
++				# Peak — Units Impassable (show land w/out bypass; all sea unless All-Terrain)
++				blocked = (
++					(not unitInfo.isCanMoveAllTerrain()) and (
++						(unitInfoDomain == DomainTypes.DOMAIN_LAND and
++						not (unitInfo.isCanMoveImpassable() or passTech)) or
++						(unitInfoDomain == DomainTypes.DOMAIN_SEA)  # regular ships blocked
++					)
++				)
++
++				if blocked:
++					# Column index (always 0 when numLists=1)
++					columnIndex = 0
++					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 		elif self.iTerrain == iCoast or self.iTerrain == iOcean:
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+@@ -564,13 +586,23 @@ class SevoPediaTerrain:
+ 						screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 		else:
++			# <!-- custom: parts of the below condition(s)/code by chatgpt 5, check if accurate and check if all is accurate if want to be sure but anyways etc -->
++			info = gc.getTerrainInfo(self.iTerrain)
++
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				unitInfo = gc.getUnitInfo(iUnit)
+ 
+ 				if unitInfo.isGraphicalOnly():
+ 					continue
+ 
+-				if (unitInfo.getTerrainImpassable(self.iTerrain) or (unitInfo.getTerrainPassableTech(self.iTerrain) != -1)):
++				# Right now you include units if they have a passable tech (inverted logic). To show units that are truly blocked (no bypass), use the same pattern you used for features:
++				blocked = (
++					(info.isImpassable() or unitInfo.getTerrainImpassable(self.iTerrain)) and
++					not unitInfo.isCanMoveImpassable() and
++					unitInfo.getTerrainPassableTech(self.iTerrain) == -1 and
++					not unitInfo.isCanMoveAllTerrain()
++				)
++				if blocked:
+ 					# Column index (always 0 when numLists=1)
+ 					columnIndex = 0
+ 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+index b0e79448a..e953ff247 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+@@ -186,7 +186,7 @@ hopefully more readable or exportable if need/want be now -->
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK</Tag>
+-		<English>Cannot move: units without bCanMoveImpassable and without bCanMoveAllTerrain in their XML (only Domain Land displayed)</English>
++		<English>Cannot move: Domain Land/Air without bCanMoveImpassable / bCanMoveAllTerrain / FeaturePassableTech; Domain Sea without bCanMoveAllTerrain in their XML</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE</Tag>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index e5f7fedeb..2f63dac3b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -109,7 +109,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### UI / In-game
+ 
+-- disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc.
++- disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc. Note: the recommended settle spots do not always match what AI would do if it were to play for the human player in autoplay, so while our choosing logic is much stronger, i am not sure the colored settle points displayed to the human player are always the ones the AI would deem the best as per our reworked/enhanced `AIFoundValue::evaluate` so take them with some caution i'd say if i'm not mistaken but anyways etc.
+ - removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are oftentimes outdated or/and tedious to maintain anyways etc.
+ 
+ ## Code/Performance optimizations
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 8391263a0..f7a6f3267 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -100,7 +100,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ ### UI / In-game
+ 
+-- **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#settlers-ai).
++- **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ - removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
+ 
+ ### Code/Performance optimizations
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+index 35d2e3d83..291224880 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=16926

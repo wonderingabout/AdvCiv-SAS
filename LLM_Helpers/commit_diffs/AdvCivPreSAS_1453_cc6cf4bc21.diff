@@ -1,0 +1,2385 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1453
+# Commit: cc6cf4bc210217bd2fbcff5c157a9bfe9d46a9dc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 567dad17990e97ece25aa471f8f298735f9c8380
+# Title: Don't show production turns during disorder (and several small tweaks)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+11	14	Assets/Python/Kek-Mod/OOSLogger.py
+5	7	Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+5	1	Assets/Python/Screens/CvDomesticAdvisor.py
+30	7	Assets/Python/Screens/CvMainInterface.py
+1	1	Assets/XML/Text/CIV4GameText_advc.076.xml
+4	4	Assets/xml/GameInfo/CIV4WorldInfo.xml
+8	4	Assets/xml/Terrain/CIV4BonusInfos.xml
+29	0	Assets/xml/Text/BUG_CIV4GameText.xml
+50	6	Assets/xml/Text/CIV4GameText_advc.xml
+29	5	CvGameCoreDLL/CvCity.cpp
+2	0	CvGameCoreDLL/CvCity.h
+76	62	CvGameCoreDLL/CvCityAI.cpp
+90	61	CvGameCoreDLL/CvDLLButtonPopup.cpp
+19	12	CvGameCoreDLL/CvDLLWidgetData.cpp
+30	19	CvGameCoreDLL/CvGame.cpp
+5	1	CvGameCoreDLL/CvGame.h
+35	29	CvGameCoreDLL/CvGameInterface.cpp
+76	48	CvGameCoreDLL/CvGameTextMgr.cpp
+55	81	CvGameCoreDLL/CvPlayer.cpp
+27	25	CvGameCoreDLL/CvPlayerAI.cpp
+66	65	CvGameCoreDLL/CvTeam.cpp
+3	1	CvGameCoreDLL/CvUnitAI.cpp
+23	8	CvGameCoreDLL/CyCity.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 48fa9da82..70a31673c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -429,7 +429,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			graphic = self.categoryGraphics[category[0]]
+ 			# <advc.002b> Prepend graphic only if there is room
+ 			szHeading = category[1]
+-			if len(szHeading) <= 16:
++			iThresh = 16 # For English, 16 happens to be OK.
++			if gc.getGame().getCurrentLanguage() != 0:
++				iThresh = 15
++			if len(szHeading) <= iThresh:
+ 				szHeading = graphic + szHeading # </advc.002b>
+ 			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MAIN + i + 1, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 		screen.updateListBox(self.CATEGORY_LIST_ID)
+
+diff --git a/Assets/Python/Kek-Mod/OOSLogger.py b/Assets/Python/Kek-Mod/OOSLogger.py
+index fe65d6669..79ea6914e 100644
+--- a/Assets/Python/Kek-Mod/OOSLogger.py
++++ b/Assets/Python/Kek-Mod/OOSLogger.py
+@@ -7,7 +7,7 @@ gc = CyGlobalContext()
+ 
+ #szFilename = "OOSLog.txt"
+ 
+-bWroteLog = False # (advc: I don't think this accomplishes anything)
++bWroteLog = False # (advc: This doesn't seem to accomplish anything(?))
+ 
+ SEPERATOR = "-----------------------------------------------------------------\n"
+ 
+@@ -36,20 +36,17 @@ def onGameUpdate(argsList):
+ 		bWroteLog = False
+ 
+ def writeLog():
+-	# advc: Overwritten below, so what's the point?
+-	#if not CyGame().isPitbossHost():
+-	#	playername = CvUtil.convertToStr(gc.getPlayer(gc.getGame().getActivePlayer()).getName())
+-	#else:
+-	#	playername = "PitBoss"
+-	activePlayer = gc.getPlayer(gc.getGame().getActivePlayer())
+-	# advc: Prepend id b/c player names can be the same (that happens easily when testing on a single machine)
+-	playername = str(activePlayer.getID()) + CvUtil.convertToStr(activePlayer.getName())
++
++	if CyGame().isPitbossHost():
++		playername = "PitBoss"
++	else:
++		# advc: Prepend id b/c player names can be the same (that happens easily when testing on a single machine)
++		activePlayer = gc.getPlayer(gc.getGame().getActivePlayer())
++		playername = str(activePlayer.getID()) + CvUtil.convertToStr(activePlayer.getName())
+ 	szNewFilename = BugPath.getRootDir() + "\\Logs\\" + "OOSLog - %s - " % (playername) + "Turn %s" % (gc.getGame().getGameTurn()) + ".log"
+ 	# <advc> Replacement for the bWroteLog mechanism above
+-	bExists = os.path.isfile(szNewFilename)
+-	if bExists:
+-		return
+-	# </advc>
++	if os.path.isfile(szNewFilename):
++		return # </advc>
+ 	pFile = open(szNewFilename, "w")
+ 
+ 	# Backup current language
+@@ -73,7 +70,7 @@ def writeLog():
+ 	pFile.write(SEPERATOR)
+ 	pFile.write(SEPERATOR)
+ 	pFile.write("\n\n")
+-	# advc: Call getSeed instead of get -- no need to change the state of the RNGs here.
++	# advc: Call getSeed instead of get -- don't want to change the state of the RNGs here.
+ 	pFile.write("Last Map Rand Value: %d\n" % CyGame().getMapRand().getSeed())
+ 	pFile.write("Last Soren Rand Value: %d\n" % CyGame().getSorenRand().getSeed())
+
+diff --git a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+index 239f690b9..517fb5b9a 100644
+--- a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+@@ -1441,15 +1441,13 @@ class CvCustomizableDomesticAdvisor:
+ 	def calculateProducingTurns (self, city, szKey, arg):
+ 
+ 		szReturn = u""
+-
+ 		# If there's something in the queue,
+-		if (city.getOrderQueueLength() > 0):
+-
++		if city.getOrderQueueLength() > 0:
+ 			# If it's not a process (i.e., Wealth, Research, Culture)
+-			if (not (city.isProductionProcess())):
+-
+-				szReturn = unicode(city.getProductionTurnsLeft())
+-
++			if not city.isProductionProcess():
++				iTurns = city.getProductionTurnsLeft()
++				if iTurns > 0: # advc.004x
++					szReturn = unicode(iTurns)
+ 		return szReturn
+ 
+ 	def calculateWhipPopulation (self, city, szKey, arg):
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index f5311a265..1cdad8288 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -290,7 +290,11 @@ class CvDomesticAdvisor:
+ 		screen.setTableInt( "CityListBackground", 14, i, unicode(pLoopCity.plot().getNumDefenders(pLoopCity.getOwner())), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Producing
+-		screen.setTableText( "CityListBackground", 15, i, pLoopCity.getProductionName() + " (" + str(pLoopCity.getGeneralProductionTurnsLeft()) + ")", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		szProducing = pLoopCity.getProductionName()
++		iProductionTurns = pLoopCity.getGeneralProductionTurnsLeft()
++		if iProductionTurns > 0: # advc.004x
++			szProducing += " (" + str(iProductionTurns) + ")"
++		screen.setTableText( "CityListBackground", 15, i, szProducing, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Liberation
+ 		# advc.004: Mark potential independent colonies too (bCanSplit check added to the two conditions below)
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 578fda16c..3232d68ca 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -3708,6 +3708,7 @@ class CvMainInterface:
+ 						szBuffer = pHeadSelectedCity.getProductionName()
+ # BUG - Whip Assist - start
+ 					else:
++						iProductionTurns = pHeadSelectedCity.getProductionTurnsLeft() # advc.004x
+ 						HURRY_WHIP = gc.getInfoTypeForString("HURRY_POPULATION")
+ 						HURRY_BUY = gc.getInfoTypeForString("HURRY_GOLD")
+ 						if (CityScreenOpt.isShowWhipAssist() and pHeadSelectedCity.canHurry(HURRY_WHIP, False)):
+@@ -3739,14 +3740,30 @@ class CvMainInterface:
+ 							iOverflow = pHeadSelectedCity.getHurryOverflow(HURRY_WHIP, True, bCountCurrentOverflow)
+ 							iOverflowGold = pHeadSelectedCity.getHurryOverflow(HURRY_WHIP, False, bCountCurrentOverflow)
+ 							if iOverflowGold > 0: # </advc.064>
+-								szBuffer = localText.getText("INTERFACE_CITY_PRODUCTION_WHIP_PLUS_GOLD", (pHeadSelectedCity.getProductionNameKey(), pHeadSelectedCity.getProductionTurnsLeft(), iHurryPop, iOverflow, iOverflowGold))
++								# <advc.004x>
++								if iProductionTurns <= 0:
++									szBuffer = localText.getText("INTERFACE_CITY_NO_PRODUCTION_WHIP_PLUS_GOLD", (pHeadSelectedCity.getProductionNameKey(), iHurryPop, iOverflow, iOverflowGold))
++								else: # </advc.004x>
++									szBuffer = localText.getText("INTERFACE_CITY_PRODUCTION_WHIP_PLUS_GOLD", (pHeadSelectedCity.getProductionNameKey(), iProductionTurns, iHurryPop, iOverflow, iOverflowGold))
+ 							else:
+-								szBuffer = localText.getText("INTERFACE_CITY_PRODUCTION_WHIP", (pHeadSelectedCity.getProductionNameKey(), pHeadSelectedCity.getProductionTurnsLeft(), iHurryPop, iOverflow))
++								# <advc.004x>
++								if iProductionTurns <= 0:
++									szBuffer = localText.getText("INTERFACE_CITY_NO_PRODUCTION_WHIP", (pHeadSelectedCity.getProductionNameKey(), iHurryPop, iOverflow))
++								else: # </advc.004x>
++									szBuffer = localText.getText("INTERFACE_CITY_PRODUCTION_WHIP", (pHeadSelectedCity.getProductionNameKey(), iProductionTurns, iHurryPop, iOverflow))
+ 						elif (CityScreenOpt.isShowWhipAssist() and pHeadSelectedCity.canHurry(HURRY_BUY, False)):
+ 							iHurryCost = pHeadSelectedCity.hurryGold(HURRY_BUY)
+-							szBuffer = localText.getText("INTERFACE_CITY_PRODUCTION_BUY", (pHeadSelectedCity.getProductionNameKey(), pHeadSelectedCity.getProductionTurnsLeft(), iHurryCost))
++							# <advc.004x>
++							if iProductionTurns <= 0:
++								szBuffer = localText.getText("INTERFACE_CITY_NO_PRODUCTION_BUY", (pHeadSelectedCity.getProductionNameKey(), iHurryCost))
++							else: # </advc.004x>
++								szBuffer = localText.getText("INTERFACE_CITY_PRODUCTION_BUY", (pHeadSelectedCity.getProductionNameKey(), iProductionTurns, iHurryCost))
+ 						else:
+-							szBuffer = localText.getText("INTERFACE_CITY_PRODUCTION", (pHeadSelectedCity.getProductionNameKey(), pHeadSelectedCity.getProductionTurnsLeft()))
++							# <advc.004x>
++							if iProductionTurns <= 0:
++								szBuffer = pHeadSelectedCity.getProductionName()
++							else: # </advc.004x>
++								szBuffer = localText.getText("INTERFACE_CITY_PRODUCTION", (pHeadSelectedCity.getProductionNameKey(), iProductionTurns))
+ # BUG - Whip Assist - end
+ 
+ 					screen.setLabel( "ProductionText", "Background", szBuffer, CvUtil.FONT_CENTER_JUSTIFY, screen.centerX(512), iCityCenterRow2Y, -1.3, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+@@ -4679,7 +4696,9 @@ class CvMainInterface:
+ 				
+ 				if ( CyInterface().getOrderNodeType(i) == OrderTypes.ORDER_TRAIN ):
+ 					szLeftBuffer = gc.getUnitInfo(CyInterface().getOrderNodeData1(i)).getDescription()
+-					szRightBuffer = "(" + str(pHeadSelectedCity.getUnitProductionTurnsLeft(CyInterface().getOrderNodeData1(i), i)) + ")"
++					iProductionTurns = pHeadSelectedCity.getUnitProductionTurnsLeft(CyInterface().getOrderNodeData1(i), i)
++					if iProductionTurns > 0: # advc.004x
++						szRightBuffer = "(" + str(iProductionTurns) + ")"
+ 
+ 					if (CyInterface().getOrderNodeSave(i)):
+ 						szLeftBuffer = u"*" + szLeftBuffer
+@@ -4705,7 +4724,9 @@ class CvMainInterface:
+ 
+ 				elif ( CyInterface().getOrderNodeType(i) == OrderTypes.ORDER_CONSTRUCT ):
+ 					szLeftBuffer = gc.getBuildingInfo(CyInterface().getOrderNodeData1(i)).getDescription()
+-					szRightBuffer = "(" + str(pHeadSelectedCity.getBuildingProductionTurnsLeft(CyInterface().getOrderNodeData1(i), i)) + ")"
++					iProductionTurns = pHeadSelectedCity.getBuildingProductionTurnsLeft(CyInterface().getOrderNodeData1(i), i)
++					if iProductionTurns > 0: # advc.004x
++						szRightBuffer = "(" + str(iProductionTurns) + ")"
+ 
+ # BUG - Production Started - start
+ 					if CityScreenOpt.isShowProductionStarted():
+@@ -4728,7 +4749,9 @@ class CvMainInterface:
+ 
+ 				elif ( CyInterface().getOrderNodeType(i) == OrderTypes.ORDER_CREATE ):
+ 					szLeftBuffer = gc.getProjectInfo(CyInterface().getOrderNodeData1(i)).getDescription()
+-					szRightBuffer = "(" + str(pHeadSelectedCity.getProjectProductionTurnsLeft(CyInterface().getOrderNodeData1(i), i)) + ")"
++					iProductionTurns = pHeadSelectedCity.getProjectProductionTurnsLeft(CyInterface().getOrderNodeData1(i), i)
++					if iProductionTurns > 0: # advc.004x
++						szRightBuffer = "(" + str(iProductionTurns) + ")"
+ 
+ # BUG - Production Started - start
+ 					if BugDll.isVersion(3) and CityScreenOpt.isShowProductionStarted():
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.076.xml b/Assets/XML/Text/CIV4GameText_advc.076.xml
+index 3eea492a3..3f481dfbd 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.076.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.076.xml
+@@ -336,7 +336,7 @@
+ 	<!-- Info about keyboard shortcuts added -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLAYER_OPTION_NO_UNIT_CYCLING_HELP</Tag>
+-		<English>No automatic cycling between units, i.e. units remain selected after receiving an order; use [W] or [ENTER] to jump to the next unit that needs orders. K-Mod: Holding down [X] suppressed automatic unit cycling (if it is enabled).</English>
++		<English>No automatic cycling between units, i.e. units remain selected after receiving an order; use [W] or [ENTER] to jump to the next unit that needs orders. K-Mod: Holding down [X] suppresses automatic unit cycling (if it is enabled).</English>
+ 		<French>Pas de cycle automatique entre les unit&#233;s.</French>
+ 		<German>Kein automatischer Einheitendurchlauf, d.h. Einheiten, die einen Befehl erhalten haben, bleiben ausgew�hlt; durch Dr�cken von [W] oder [EINGABE] k�nnen Sie zur n�chsten Einheit springen, die Befehle ben�tigt. K-Mod: Der automatische Durchlauf (falls aktiviert) l�sst sich durch Halten von [X] unterbinden.</German>
+ 		<Italian>Disattiva lo scorrimento automatico tra le unit&#224;</Italian>
+
+diff --git a/Assets/xml/GameInfo/CIV4WorldInfo.xml b/Assets/xml/GameInfo/CIV4WorldInfo.xml
+index 29a8711e1..f8da63e36 100644
+--- a/Assets/xml/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/xml/GameInfo/CIV4WorldInfo.xml
+@@ -58,7 +58,7 @@
+ 			<iTerrainGrainChange>-1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>-1</iFeatureGrainChange>
+ 			<!-- advc.910: was 110 -->
+-			<iResearchPercent>105</iResearchPercent>
++			<iResearchPercent>100</iResearchPercent>
+ 			<!-- advc.140: was 70 -->
+ 			<iTradeProfitPercent>63</iTradeProfitPercent>
+ 			<!-- advc.140: was 60 -->
+@@ -89,7 +89,7 @@
+ 			<iTerrainGrainChange>0</iTerrainGrainChange>
+ 			<iFeatureGrainChange>0</iFeatureGrainChange>
+ 			<!-- advc.910: was 120 -->
+-			<iResearchPercent>110</iResearchPercent>
++			<iResearchPercent>105</iResearchPercent>
+ 			<!-- advc.140: was 60 -->
+ 			<iTradeProfitPercent>55</iTradeProfitPercent>
+ 			<!-- advc.140: was 70 -->
+@@ -161,7 +161,7 @@
+ 			<iTerrainGrainChange>1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>1</iFeatureGrainChange>
+ 			<!-- advc.910: was 140 -->
+-			<iResearchPercent>125</iResearchPercent>
++			<iResearchPercent>137</iResearchPercent>
+ 			<iTradeProfitPercent>40</iTradeProfitPercent>
+ 			<!-- advc.140: was 90 -->
+ 			<iDistanceMaintenancePercent>89</iDistanceMaintenancePercent>
+@@ -211,7 +211,7 @@
+ 		<!-- advc.test: From vincentz's 34-civs micro mod. For testing
+ 			 MAX_CIV_PLAYERS > 18. I haven't made any adjustments except
+ 			 increase iDefaultPlayers to the highest number that I think
+-			 this map size can accomodate at Low sea level. -->
++			 this map size can accommodate at Low sea level. -->
+ 		<!--WorldInfo>
+ 			<Type>WORLDSIZE_GIANT</Type>
+ 			<Description>Giant</Description>
+
+diff --git a/Assets/xml/Terrain/CIV4BonusInfos.xml b/Assets/xml/Terrain/CIV4BonusInfos.xml
+index cd95fc952..a6de32ad4 100644
+--- a/Assets/xml/Terrain/CIV4BonusInfos.xml
++++ b/Assets/xml/Terrain/CIV4BonusInfos.xml
+@@ -208,7 +208,8 @@
+ 			<iPlacementOrder>1</iPlacementOrder>
+ 			<iConstAppearance>100</iConstAppearance>
+ 			<iMinAreaSize>3</iMinAreaSize>
+-			<iMinLatitude>0</iMinLatitude>
++			<!-- advc.129: was 0 -->
++			<iMinLatitude>9</iMinLatitude>
+ 			<iMaxLatitude>90</iMaxLatitude>
+ 			<Rands>
+ 				<iRandApp1>10</iRandApp1>
+@@ -764,7 +765,8 @@
+ 			<iPlacementOrder>4</iPlacementOrder>
+ 			<iConstAppearance>50</iConstAppearance>
+ 			<iMinAreaSize>3</iMinAreaSize>
+-			<iMinLatitude>0</iMinLatitude>
++			<!-- advc.129: was 0 -->
++			<iMinLatitude>9</iMinLatitude>
+ 			<iMaxLatitude>50</iMaxLatitude>
+ 			<Rands>
+ 				<iRandApp1>25</iRandApp1>
+@@ -978,7 +980,8 @@
+ 			<iPlacementOrder>4</iPlacementOrder>
+ 			<iConstAppearance>50</iConstAppearance>
+ 			<iMinAreaSize>3</iMinAreaSize>
+-			<iMinLatitude>10</iMinLatitude>
++			<!-- advc.129: was 10 -->
++			<iMinLatitude>9</iMinLatitude>
+ 			<iMaxLatitude>50</iMaxLatitude>
+ 			<Rands>
+ 				<iRandApp1>25</iRandApp1>
+@@ -1096,7 +1099,8 @@
+ 			<iPlacementOrder>4</iPlacementOrder>
+ 			<iConstAppearance>50</iConstAppearance>
+ 			<iMinAreaSize>3</iMinAreaSize>
+-			<iMinLatitude>30</iMinLatitude>
++			<!-- advc.129: was 30 -->
++			<iMinLatitude>25</iMinLatitude>
+ 			<iMaxLatitude>90</iMaxLatitude>
+ 			<Rands>
+ 				<iRandApp1>25</iRandApp1>
+
+diff --git a/Assets/xml/Text/BUG_CIV4GameText.xml b/Assets/xml/Text/BUG_CIV4GameText.xml
+index a85b18aad..b67de1679 100644
+--- a/Assets/xml/Text/BUG_CIV4GameText.xml
++++ b/Assets/xml/Text/BUG_CIV4GameText.xml
+@@ -475,6 +475,16 @@
+ 		<Italian>%s1 (%d2)   %d3[ICON_ANGRYPOP] %d4[ICON_PRODUCTION]</Italian>
+ 		<Spanish>%s1 (%d2)   %d3[ICON_ANGRYPOP] %d4[ICON_PRODUCTION]</Spanish>
+ 	</TEXT>
++	<!-- advc.004x: Without production turns in parentheses -->
++	<TEXT>
++		<Tag>INTERFACE_CITY_NO_PRODUCTION_WHIP</Tag>
++		<English>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION]</English>
++		<French>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION]</French>
++		<German>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION]</German>
++		<Italian>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION]</Italian>
++		<Spanish>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION]</Spanish>
++	</TEXT>
++	
+ 	<TEXT>
+ 		<Tag>INTERFACE_CITY_PRODUCTION_WHIP_PLUS_GOLD</Tag>
+ 		<English>%s1 (%d2)   %d3[ICON_ANGRYPOP] %d4[ICON_PRODUCTION] %d5[ICON_GOLD]</English>
+@@ -483,6 +493,16 @@
+ 		<Italian>%s1 (%d2)   %d3[ICON_ANGRYPOP] %d4[ICON_PRODUCTION] %d5[ICON_GOLD]</Italian>
+ 		<Spanish>%s1 (%d2)   %d3[ICON_ANGRYPOP] %d4[ICON_PRODUCTION] %d5[ICON_GOLD]</Spanish>
+ 	</TEXT>
++	<!-- advc.004x -->
++	<TEXT>
++		<Tag>INTERFACE_CITY_NO_PRODUCTION_WHIP_PLUS_GOLD</Tag>
++		<English>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION] %d4[ICON_GOLD]</English>
++		<French>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION] %d4[ICON_GOLD]</French>
++		<German>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION] %d4[ICON_GOLD]</German>
++		<Italian>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION] %d4[ICON_GOLD]</Italian>
++		<Spanish>%s1   %d2[ICON_ANGRYPOP] %d3[ICON_PRODUCTION] %d4[ICON_GOLD]</Spanish>
++	</TEXT>
++
+ 	<TEXT>
+ 		<Tag>INTERFACE_CITY_PRODUCTION_BUY</Tag>
+ 		<English>%s1 (%d2)   -%d3[ICON_GOLD]</English>
+@@ -491,6 +511,15 @@
+ 		<Italian>%s1 (%d2)   -%d3[ICON_GOLD]</Italian>
+ 		<Spanish>%s1 (%d2)   -%d3[ICON_GOLD]</Spanish>
+ 	</TEXT>
++	<!-- advc.004x -->
++	<TEXT>
++		<Tag>INTERFACE_CITY_NO_PRODUCTION_BUY</Tag>
++		<English>%s1   -%d2[ICON_GOLD]</English>
++		<French>%s1   -%d2[ICON_GOLD]</French>
++		<German>%s1   -%d2[ICON_GOLD]</German>
++		<Italian>%s1   -%d2[ICON_GOLD]</Italian>
++		<Spanish>%s1   -%d2[ICON_GOLD]</Spanish>
++	</TEXT>
+ 	
+ 	<!-- Production Decay -->
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index b431b767a..d2d5f53f6 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -906,6 +906,18 @@
+ 		<Spanish>La unidad corta la ruta comercial para que ninguna operaci&#243;n de comercio intercontinental pueda atravesar la casilla bloqueada.</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.004g: Based on TXT_KEY_COMMAND_LOAD_HELP in
++		 CIV4GameText_Help.xml. For situations when "Load" means going
++		 from one ship to another. FR/IT/ES not changed. -->
++	<TEXT>
++		<Tag>TXT_KEY_COMMAND_TRANSFER_HELP</Tag>
++		<English>Move this unit into another transport.</English>
++		<French>Embarquer l'unit&#233; &#224; bord d'un transport.</French>
++		<German>Die Einheit steigt in ein anderes Transportschiff um.</German>
++		<Italian>Per muovere un'unit&#224; a bordo di un trasporto.</Italian>
++		<Spanish>Con esto subir&#233;is la unidad a un transporte.</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.004: German translation - "Neuer Random Seed" was just too
+ 		 awful. Originally in CIV4GameText_Misc1.xml. -->
+ 	<TEXT>
+@@ -3327,14 +3339,15 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_RISE_FALL_HELP</Tag>
+-		<English>Divides the game into chapters; at the end of each chapter, you take over an AI civ and the AI takes over your previous civ. (Singleplayer only, and Large or Huge map recommended.)</English>
+-		<French>Divides the game into chapters; at the end of each chapter, you take over an AI civ and the AI takes over your previous civ. (Singleplayer only, and Large or Huge map recommended.)</French>
+-		<German>Der Spieler �bernimmt in jedem Spielabschnitt eine andere Zivilisation von der KI. (Nur Einzelspielermodus; gro�e oder riesige Karte empfohlen.)</German>
+-		<Italian>Divides the game into chapters; at the end of each chapter, you take over an AI civ and the AI takes over your previous civ. (Singleplayer only, and Large or Huge map recommended.)</Italian>
+-		<Spanish>Divides the game into chapters; at the end of each chapter, you take over an AI civ and the AI takes over your previous civ. (Singleplayer only, and Large or Huge map recommended.)</Spanish>
++		<English>Divides the game into chapters; at the end of each chapter, you take over an AI civ and the AI takes over your previous civ. (Map size above "Standard" recommended.)</English>
++		<French>Divides the game into chapters; at the end of each chapter, you take over an AI civ and the AI takes over your previous civ. (Map size above "Standard" recommended.)</French>
++		<German>Der Spieler �bernimmt in jedem Spielabschnitt eine andere Zivilisation von der KI. (Gro�e oder riesige Karte empfohlen.)</German>
++		<Italian>Divides the game into chapters; at the end of each chapter, you take over an AI civ and the AI takes over your previous civ. (Map size above "Standard" recommended.)</Italian>
++		<Spanish>Divides the game into chapters; at the end of each chapter, you take over an AI civ and the AI takes over your previous civ. (Map size above "Standard" recommended.)</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.702 -->
++	<!-- advc.702 (obsoleted by advc.701, which removes the RF option from the
++		 Staging Room screen). -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_SINGLEPL_ONLY</Tag>
+ 		<English>The Rise and Fall option is only for singleplayer games.</English>
+@@ -4679,6 +4692,17 @@
+ 		<Spanish>Todas las civilizaciones quedar&#225;n bloqueadas en guerra o en paz hasta que acabe la partida.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.054: From CIV4GameText_Misc1.xml. Removed the single-player-only
++		 hint b/c the option is no longer shown on the Staging Room screen. -->
++	<TEXT>
++		<Tag>TXT_KEY_GAME_OPTION_LOCK_MODS_HELP</Tag>
++		<English>Sets a random admin password so that debug tools cannot be used, and the game assets cannot be modified.</English>
++		<French>Les outils de debug ne peuvent pas &#234;tre utilis&#233;s et les donn&#233;es de la partie ne peuvent pas &#234;tre modifi&#233;es.</French>
++		<German>Debug-Tools k&#246;nnen nicht verwendet und die Spieldaten k&#246;nnen nicht modifiziert werden.</German>
++		<Italian>Impedisce l'utilizzo degli strumenti di debug, impedendo la modifica dei beni di gioco.</Italian>
++		<Spanish>No se pueden usar herramientas de depuraci&#243;n, ni se pueden modificar los par&#225;metros del juego.</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.061: Would prefer game terms like "Military", but space is
+ 		 limited and the important distinctions are between military land units,
+ 		 military sea units and civilians/ air units (a single category for
+@@ -5283,4 +5307,24 @@
+ 		<Spanish>&#191;Qu&#233; os gustar&#237;a construir en esta ciudad?</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.004x: Based on TXT_KEY_CITY_BAR_HAMMER_PRODUCTION and
++		 TXT_KEY_CITY_BAR_FOOD_HAMMER_PRODUCTION in
++		 CIV4GameTextInfos.xml. Removed the production turns in parentheses. -->
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_HAMMER_NO_PRODUCTION</Tag>
++		<English>[NEWLINE]%d1 [ICON_PRODUCTION]/Turn[NEWLINE]%s2: %d3/%d4 [ICON_PRODUCTION]</English>
++		<French>[NEWLINE]%d1 [ICON_PRODUCTION]/tour[NEWLINE]%s2 : %d3/%d4 [ICON_PRODUCTION]</French>
++		<German>[NEWLINE]%d1 [ICON_PRODUCTION]/Runde[NEWLINE]%s2: %d3/%d4 [ICON_PRODUCTION]</German>
++		<Italian>[NEWLINE]%d1 [ICON_PRODUCTION]/Turno[NEWLINE]%s2: %d3/%d4 [ICON_PRODUCTION]</Italian>
++		<Spanish>[NEWLINE]%d1 [ICON_PRODUCTION]/turno[NEWLINE]%s2: %d3/%d4 [ICON_PRODUCTION]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CITY_BAR_FOOD_HAMMER_NO_PRODUCTION</Tag>
++		<English>[NEWLINE]%d1 [ICON_FOOD] + %d2 [ICON_PRODUCTION]/Turn[NEWLINE]%s3: %d4/%d5 [ICON_PRODUCTION]</English>
++		<French>[NEWLINE]%d1 [ICON_FOOD] + %d2 [ICON_PRODUCTION]/tour[NEWLINE]%s3 : %d4/%d5 [ICON_PRODUCTION]</French>
++		<German>[NEWLINE]%d1 [ICON_FOOD] + %d2 [ICON_PRODUCTION]/Runde[NEWLINE]%s3: %d4/%d5 [ICON_PRODUCTION]</German>
++		<Italian>[NEWLINE]%d1 [ICON_FOOD] + %d2 [ICON_PRODUCTION]/Turno[NEWLINE]%s3: %d4/%d5 [ICON_PRODUCTION]</Italian>
++		<Spanish>[NEWLINE]%d1 [ICON_FOOD] + %d2 [ICON_PRODUCTION]/turno[NEWLINE]%s3: %d4/%d5 [ICON_PRODUCTION]</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index bc29dfbd0..e1e132f3b 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3215,9 +3215,10 @@ int CvCity::getProductionTurnsLeft(int iProductionNeeded, int iProduction, int i
+ 	int iProductionLeft = std::max(0,
+ 			iProductionNeeded - iProduction - iFirstProductionDifference);
+ 
+-	if (iProductionDifference == 0)
+-		return iProductionLeft + 1;
+-
++	if (iProductionDifference == 0) {
++		//return iProductionLeft + 1;
++		return MAX_INT; // advc.004x
++	}
+ 	int iTurnsLeft = (iProductionLeft / iProductionDifference);
+ 	if (iTurnsLeft * iProductionDifference < iProductionLeft)
+ 		iTurnsLeft++; // advc (comment): rounds up
+@@ -3227,6 +3228,22 @@ int CvCity::getProductionTurnsLeft(int iProductionNeeded, int iProduction, int i
+ 	return std::max(1, iTurnsLeft);
+ }
+ 
++// <advc.004x>
++int CvCity::sanitizeProductionTurns(int iTurns, OrderTypes eOrder, int iData,
++		bool bAssert) const {
++
++	if(iTurns < MAX_INT)
++		return iTurns;
++	FAssert(!bAssert);
++	int r = 1;
++	switch(eOrder) {
++	case ORDER_TRAIN: return r + getProductionNeeded((UnitTypes)iData);
++	case ORDER_CONSTRUCT: return r + getProductionNeeded((BuildingTypes)iData);
++	case ORDER_CREATE: return r + getProductionNeeded((ProjectTypes)iData);
++	}
++	return r + getProductionNeeded();
++} // </advc.004x>
++
+ 
+ void CvCity::setProduction(int iNewValue)
+ {
+@@ -10420,7 +10437,8 @@ double CvCity::revoltProbability(bool bIgnoreWar,
+ 	double occupationFactor = 1;
+ 	if(isOccupation() && !bIgnoreOccupation) {
+ 		occupationFactor = 0.5;
+-		if(!bIgnoreWar && GET_PLAYER(eCulturalOwner).isAlive() &&
++		if(!bIgnoreWar && !isBarbarian() && !GET_TEAM(getTeam()).isMinorCiv() &&
++				GET_PLAYER(eCulturalOwner).isAlive() &&
+ 				GET_TEAM(getTeam()).isAtWar(TEAMID(eCulturalOwner)))
+ 			return 0;
+ 	} // </advc.023>
+@@ -10446,8 +10464,14 @@ double CvCity::revoltProbability(bool bIgnoreWar,
+ // <advc.023>
+ double CvCity::probabilityOccupationDecrement() const {
+ 
+-	if(!isOccupation() || getMilitaryHappinessUnits() <= 0)
++	if(!isOccupation())
+ 		return 0;
++	// While at war, require an occupying force.
++	if(getMilitaryHappinessUnits() <= 0 && !isBarbarian() && !GET_TEAM(getTeam()).isMinorCiv()) {
++		PlayerTypes eCulturalOwner = calculateCulturalOwner();
++		if(eCulturalOwner != NO_PLAYER && TEAMREF(eCulturalOwner).isAtWar(getTeam()))
++			return 0;
++	}
+ 	double r = std::pow(1 - revoltProbability(true, false, true),
+ 			GC.getDefineINT("OCCUPATION_COUNTDOWN_EXPONENT"));
+ 	// Don't use probabilities that are too small to be displayed
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index ee9baa78d..aa3c2268b 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -136,6 +136,8 @@ public:
+ 	int getProductionTurnsLeft(ProjectTypes eProject, int iNum) const;		// Exposed to Python
+ 	int getProductionTurnsLeft(int iProductionNeeded, int iProduction,
+ 			int iFirstProductionDifference, int iProductionDifference) const;
++	int sanitizeProductionTurns(int iTurns, OrderTypes eOrder = NO_ORDER,
++			int iData = -1, bool bAssert = true) const; // advc.004x
+ 	void setProduction(int iNewValue);																			// Exposed to Python
+ 	void changeProduction(int iChange);																			// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index cf9459322..c9ff94cbe 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -528,6 +528,7 @@ void CvCityAI::AI_chooseProduction()
+ 	bool bDanger = AI_isDanger();
+ 
+ 	CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
++	CvGame& g = GC.getGameINLINE(); // advc.003
+ 
+ 	if (isProduction())
+ 	{
+@@ -661,7 +662,7 @@ void CvCityAI::AI_chooseProduction()
+ 	int iNumCitiesInArea = pArea->getCitiesPerPlayer(getOwnerINLINE());
+ 	bool bImportantCity = false; //be very careful about setting this.
+ 	int iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
+-	int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
++	int iCulturalVictoryNumCultureCities = g.culturalVictoryNumCultureCities();
+ 
+ 	int iWarSuccessRating = GET_TEAM(getTeam()).AI_getWarSuccessRating();
+ 	int iEnemyPowerPerc = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+@@ -690,8 +691,8 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	bool bGetBetterUnits = kPlayer.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS);
+ 	bool bDagger = kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER);
+-	bool bAggressiveAI = GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI);
+-	bool bAlwaysPeace = GC.getGameINLINE().isOption(GAMEOPTION_ALWAYS_PEACE);
++	bool bAggressiveAI = g.isOption(GAMEOPTION_AGGRESSIVE_AI);
++	bool bAlwaysPeace = g.isOption(GAMEOPTION_ALWAYS_PEACE);
+ 
+ 	/* original bts code
+ 	int iUnitCostPercentage = (kPlayer.calculateUnitCost() * 100) / std::max(1, kPlayer.calculatePreInflatedCosts()); */
+@@ -757,8 +758,8 @@ void CvCityAI::AI_chooseProduction()
+ 				if (iCultureRateRank > 1 || (kPlayer.getNumCities() > (iCulturalVictoryNumCultureCities + 1)))
+ 				{
+ 					if (iNumAreaCitySites + iNumWaterAreaCitySites > 0 &&
+-							kPlayer.getNumCities() < 6 && GC.getGameINLINE().
+-							getSorenRandNum(2, "AI Less Culture More Expand") == 0)
++							kPlayer.getNumCities() < 6 &&
++							g.getSorenRandNum(2, "AI Less Culture More Expand") == 0)
+ 					{
+ 						bImportantCity = false;
+ 					}
+@@ -840,7 +841,7 @@ void CvCityAI::AI_chooseProduction()
+ 			if (kBestBuilding.getCommerceChange(COMMERCE_CULTURE) + kBestBuilding.getObsoleteSafeCommerceChange(COMMERCE_CULTURE) > 0
+ 				&& (GC.getNumCultureLevelInfos() < 2 ||
+ 					getProductionTurnsLeft(eBestBuilding, 0) <=
+-					GC.getGame().getCultureThreshold((CultureLevelTypes)2)))
++					g.getCultureThreshold((CultureLevelTypes)2)))
+ 			{
+ 				pushOrder(ORDER_CONSTRUCT, eBestBuilding);
+ 				return;
+@@ -912,7 +913,7 @@ void CvCityAI::AI_chooseProduction()
+ 			if (eBestProject != NO_PROJECT && iProjectValue > iBestBuildingValue)
+ 			{
+ 				int iOdds = std::max(0, 100 * iProjectValue / (3 * iProjectValue + 300) - 10);
+-				if (GC.getGameINLINE().getSorenRandNum(100, "Build Project short circuit 1") < iOdds)
++				if (g.getSorenRandNum(100, "Build Project short circuit 1") < iOdds)
+ 				{
+ 					pushOrder(ORDER_CREATE, eBestProject);
+ 					if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose project short-circuit 1. (project value: %d, building value: %d, odds: %d)", getName().GetCString(), iProjectValue, iBestBuildingValue, iOdds);
+@@ -984,7 +985,7 @@ void CvCityAI::AI_chooseProduction()
+ ***/
+ 	int iLandBonuses = AI_countNumImprovableBonuses(true, kPlayer.getCurrentResearch());
+ 
+-	if( isCapital() && (GC.getGame().getElapsedGameTurns() < ((30 * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent()) / 100)))
++	if( isCapital() && (g.getElapsedGameTurns() < ((30 * GC.getGameSpeedInfo(g.getGameSpeedType()).getTrainPercent()) / 100)))
+ 	{
+ 		if( !bDanger && !(kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE)) )
+ 		{	
+@@ -1213,7 +1214,7 @@ void CvCityAI::AI_chooseProduction()
+ 			return;
+ 		}
+ 	}
+-	if (!bDanger && ((iOwnerEra > (GC.getGame().getStartEra() + iProductionRank / 2))) || (iOwnerEra > (GC.getNumEraInfos() / 2))) {
++	if (!bDanger && ((iOwnerEra > (g.getStartEra() + iProductionRank / 2))) || (iOwnerEra > (GC.getNumEraInfos() / 2))) {
+ 		if (AI_chooseBuilding(BUILDINGFOCUS_PRODUCTION, 20 - iWarTroubleThreshold, 15, ((bLandWar || bAssault) ? 25 : -1))) {
+ 			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose BUILDINGFOCUS_PRODUCTION 1", getName().GetCString());
+ 			return;	
+@@ -1239,7 +1240,7 @@ void CvCityAI::AI_chooseProduction()
+ 		{
+ 			if (3*AI_getWorkersHave()/2 < AI_getWorkersNeeded() // local
+ 				// advc.113: used to be RandNum(80)
+-				|| GC.getGame().getSorenRandNum(170, "choose worker 6") > iBestBuildingValue + (iBuildUnitProb + 50)/2)
++				|| g.getSorenRandNum(170, "choose worker 6") > iBestBuildingValue + (iBuildUnitProb + 50)/2)
+ 			{
+ 				if (!bChooseWorker && AI_chooseUnit(UNITAI_WORKER))
+ 				{
+@@ -1273,7 +1274,7 @@ void CvCityAI::AI_chooseProduction()
+ 		if (!bUnitExempt && iUnitSpending < iMaxUnitSpending + 5)
+ 		{
+ 			if (pArea->getAreaAIType(getTeam()) != AREAAI_NEUTRAL || kPlayer.AI_isDoStrategy(AI_STRATEGY_ALERT1) ||
+-				GC.getGameINLINE().getSorenRandNum(iNeededFloatingDefenders, "AI floating def 1") > iTotalFloatingDefenders * (2*iUnitSpending + iMaxUnitSpending)/std::max(1, 3*iMaxUnitSpending))
++				g.getSorenRandNum(iNeededFloatingDefenders, "AI floating def 1") > iTotalFloatingDefenders * (2*iUnitSpending + iMaxUnitSpending)/std::max(1, 3*iMaxUnitSpending))
+ 			if (AI_chooseLeastRepresentedUnit(floatingDefenderTypes))
+ 			{
+ 				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose floating defender 1", getName().GetCString());
+@@ -1477,7 +1478,7 @@ void CvCityAI::AI_chooseProduction()
+ 		//if( !bLandWar || (iWarSuccessRating > 30) )
+ 		if (pArea->getAreaAIType(getTeam()) == AREAAI_NEUTRAL) // K-Mod. Don't do this if there is any war at all.
+ 		{
+-			int iWonderTime = GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
++			int iWonderTime = g.getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
+ 			iWonderTime /= 5;
+ 			iWonderTime += 7;
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderTime))
+@@ -1547,7 +1548,7 @@ void CvCityAI::AI_chooseProduction()
+ 	if (eBestProject != NO_PROJECT && iProjectValue > iBestBuildingValue)
+ 	{
+ 		int iOdds = 100 * (iProjectValue - iBestBuildingValue) / (iProjectValue + iBestBuildingValue + iBuildUnitProb);
+-		if (GC.getGameINLINE().getSorenRandNum(100, "Build Project chance 1") < iOdds)
++		if (g.getSorenRandNum(100, "Build Project chance 1") < iOdds)
+ 		{
+ 			pushOrder(ORDER_CREATE, eBestProject);
+ 			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose project 1. (project value: %d, building value: %d, odds: %d)", getName().GetCString(), iProjectValue, iBestBuildingValue, iOdds);
+@@ -1785,7 +1786,7 @@ void CvCityAI::AI_chooseProduction()
+ 		// For civ at war, don't build wonders if losing
+ 		if (!bTotalWar && (!bLandWar || iWarSuccessRating > 0)) // was -30
+ 		{	
+-			int iWonderTime = GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
++			int iWonderTime = g.getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
+ 			iWonderTime /= 5;
+ 			iWonderTime += 8;
+ 			/*if (AI_chooseBuilding(BUILDINGFOCUS_WORLDWONDER, iWonderTime))
+@@ -2038,7 +2039,7 @@ void CvCityAI::AI_chooseProduction()
+ 							iOdds /= 3;
+ 						// Note: there is a hard limit condition on iUnitSpending earlier in the code.
+ 
+-						if (GC.getGameINLINE().getSorenRandNum(100, "Build AttackSea") < iOdds && AI_chooseUnit(eBestAttackSeaUnit, UNITAI_ATTACK_SEA))
++						if (g.getSorenRandNum(100, "Build AttackSea") < iOdds && AI_chooseUnit(eBestAttackSeaUnit, UNITAI_ATTACK_SEA))
+ 						{
+ 							AI_chooseBuilding(BUILDINGFOCUS_DOMAINSEA, 12);
+ 							return;
+@@ -2054,7 +2055,7 @@ void CvCityAI::AI_chooseProduction()
+ 					//if ((iUnitSpending < iMaxUnitSpending) || (iUnitsToTransport > 2*iTransportCapacity))
+ 					// K-Mod
+ 					if (iUnitSpending < iMaxUnitSpending ||
+-						GC.getGameINLINE().getSorenRandNum(100, "Build Transport") <
++						g.getSorenRandNum(100, "Build Transport") <
+ 								// advc.104p: Changed 100 to 350
+ 								(350 * (targetCapacity - iTransportCapacity)) /
+ 								std::max(1, iTransportCapacity))
+@@ -2150,7 +2151,7 @@ void CvCityAI::AI_chooseProduction()
+     
+ 	if (iUnitSpending < iMaxUnitSpending + 12 && (!bImportantCity || bDefenseWar) ) // K-Mod. was +4, now +12 for the new unit spending metric
+ 	{
+-		if( bLandWar || bAssault || iFreeAirExperience > 0 || GC.getGame().getSorenRandNum(3, "AI train air") == 0 )
++		if( bLandWar || bAssault || iFreeAirExperience > 0 || g.getSorenRandNum(3, "AI train air") == 0 )
+ 		{
+ 			int iBestAirValue = kPlayer.AI_bestCityUnitAIValue(UNITAI_ATTACK_AIR, this, &eBestAttackAircraft);
+ 			int iBestMissileValue = kPlayer.AI_bestCityUnitAIValue(UNITAI_MISSILE_AIR, this, &eBestMissile);
+@@ -2159,7 +2160,7 @@ void CvCityAI::AI_chooseProduction()
+ 				iAircraftHave = kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_AIR) + kPlayer.AI_totalUnitAIs(UNITAI_DEFENSE_AIR) + kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR);
+ 				if (NO_UNIT != eBestAttackAircraft)
+ 				{
+-					iAircraftNeed = (2 + kPlayer.getNumCities() * (3 * GC.getUnitInfo(eBestAttackAircraft).getAirCombat())) / (2 * std::max(1, GC.getGame().getBestLandUnitCombat()));
++					iAircraftNeed = (2 + kPlayer.getNumCities() * (3 * GC.getUnitInfo(eBestAttackAircraft).getAirCombat())) / (2 * std::max(1, g.getBestLandUnitCombat()));
+ 					int iBestDefenseValue = kPlayer.AI_bestCityUnitAIValue(UNITAI_DEFENSE_AIR, this);
+ 					if (iBestDefenseValue > 0)
+ 					{
+@@ -2286,13 +2287,13 @@ void CvCityAI::AI_chooseProduction()
+ 	} // </dlph.15>
+ 
+ 	/* original code
+-	if (!bAlwaysPeace && !(bLandWar || bAssault) && (kPlayer.AI_isDoStrategy(AI_STRATEGY_OWABWNW) || (GC.getGame().getSorenRandNum(12, "AI consider Nuke") == 0)))
++	if (!bAlwaysPeace && !(bLandWar || bAssault) && (kPlayer.AI_isDoStrategy(AI_STRATEGY_OWABWNW) || (g.getSorenRandNum(12, "AI consider Nuke") == 0)))
+ 	{
+ 		if( !bFinancialTrouble )
+ 		{
+ 			int iTotalNukes = kPlayer.AI_totalUnitAIs(UNITAI_ICBM);
+-			int iNukesWanted = 1 + 2 * std::min(kPlayer.getNumCities(), GC.getGame().getNumCities() - kPlayer.getNumCities());
+-			if ((iTotalNukes < iNukesWanted) && (GC.getGame().getSorenRandNum(100, "AI train nuke MWAHAHAH") < (90 - (80 * iTotalNukes) / iNukesWanted)))
++			int iNukesWanted = 1 + 2 * std::min(kPlayer.getNumCities(), g.getNumCities() - kPlayer.getNumCities());
++			if ((iTotalNukes < iNukesWanted) && (g.getSorenRandNum(100, "AI train nuke MWAHAHAH") < (90 - (80 * iTotalNukes) / iNukesWanted)))
+ 			{
+ 				if ((pWaterArea != NULL))
+ 				{
+@@ -2313,14 +2314,14 @@ void CvCityAI::AI_chooseProduction()
+ 	if (!bAlwaysPeace && !bLandWar && !bUnitExempt && !bFinancialTrouble
+ 			&& !GET_TEAM(kPlayer.getTeam()).isCapitulated()) // advc.143b
+ 	{
+-		if ((kPlayer.AI_isDoStrategy(AI_STRATEGY_OWABWNW) || GC.getGame().getSorenRandNum(1200, "AI consider Nuke") < std::min(400, iNukeWeight))
+-			&& (!bAssault || GC.getGame().getSorenRandNum(400, "AI consider Nuke despite assult") < std::min(200, 50 + iNukeWeight/2)))
++		if ((kPlayer.AI_isDoStrategy(AI_STRATEGY_OWABWNW) || g.getSorenRandNum(1200, "AI consider Nuke") < std::min(400, iNukeWeight))
++			&& (!bAssault || g.getSorenRandNum(400, "AI consider Nuke despite assult") < std::min(200, 50 + iNukeWeight/2)))
+ 		{
+ 			int iTotalNukes = kPlayer.AI_totalUnitAIs(UNITAI_ICBM);
+-			int iNukesWanted = 1 + 2 * std::min(kPlayer.getNumCities(), GC.getGame().getNumCities() - kPlayer.getNumCities());
+-			if ((iTotalNukes < iNukesWanted) && (GC.getGame().getSorenRandNum(100, "AI train nuke MWAHAHAH") < (90 - (80 * iTotalNukes) / iNukesWanted)))
++			int iNukesWanted = 1 + 2 * std::min(kPlayer.getNumCities(), g.getNumCities() - kPlayer.getNumCities());
++			if ((iTotalNukes < iNukesWanted) && (g.getSorenRandNum(100, "AI train nuke MWAHAHAH") < (90 - (80 * iTotalNukes) / iNukesWanted)))
+ 			{
+-				if (pWaterArea && kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_CARRIER_SEA) < iTotalNukes/2 && GC.getGame().getSorenRandNum(3, "AI train boat instead") == 0)
++				if (pWaterArea && kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_CARRIER_SEA) < iTotalNukes/2 && g.getSorenRandNum(3, "AI train boat instead") == 0)
+ 				{
+ 					if (AI_chooseUnit(UNITAI_MISSILE_CARRIER_SEA, 50))
+ 					{
+@@ -2407,7 +2408,7 @@ void CvCityAI::AI_chooseProduction()
+ 				}
+ 			}
+ 			// K-Mod - get more siege units for crush
+-			if (bCrushStrategy && GC.getGameINLINE().getSorenRandNum(100, "City AI extra crush bombard") < iTrainInvaderChance)
++			if (bCrushStrategy && g.getSorenRandNum(100, "City AI extra crush bombard") < iTrainInvaderChance)
+ 			{
+ 				// <cdtw.8> Moved up
+ 				UnitTypes eCityAttackUnit = NO_UNIT;
+@@ -2545,10 +2546,10 @@ void CvCityAI::AI_chooseProduction()
+ 	// Ideally we'd look at relative production, not just rank.
+ 	if (iProductionRank <= kPlayer.getNumCities()/9 + 2	&& getPopulation() > 3)
+ 	{
+-		int iWonderRand = 8 + GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
++		int iWonderRand = 8 + g.getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
+ 		
+ 		// increase chance of going for an early wonder
+-		if (GC.getGameINLINE().getElapsedGameTurns() < (100 * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getConstructPercent() / 100) && iNumCitiesInArea > 1)
++		if (g.getElapsedGameTurns() < (100 * GC.getGameSpeedInfo(g.getGameSpeedType()).getConstructPercent() / 100) && iNumCitiesInArea > 1)
+ 		{
+ 			iWonderRand *= 35;
+ 			iWonderRand /= 100;
+@@ -2584,7 +2585,7 @@ void CvCityAI::AI_chooseProduction()
+ 			iWonderRand = iWonderRand * 10/(10-iWarSuccessRating);
+ 		// K-Mod end
+ 		
+-		int iWonderRoll = GC.getGameINLINE().getSorenRandNum(100, "Wonder Build Rand");
++		int iWonderRoll = g.getSorenRandNum(100, "Wonder Build Rand");
+ 		
+ 		if (iProductionRank == 1)
+ 		{
+@@ -2728,12 +2729,10 @@ void CvCityAI::AI_chooseProduction()
+ 		iBuildUnitProb *= (250 + std::max(iProjectValue, iBestBuildingValue));
+ 		iBuildUnitProb /= (100 + 3 * std::max(iProjectValue, iBestBuildingValue));
+ 		// K-Mod end
+-		// <advc.003> Was hard to read
+-		CvGame& g = GC.getGameINLINE();
+ 		if(bLandWar || (kPlayer.getNumCities() <= 3 && g.getElapsedGameTurns() < 60) ||
+ 				!bUnitExempt && g.getSorenRandNum(100, "AI Build Unit Production") < iBuildUnitProb ||
+ 				(isHuman() && getGameTurnFounded() == g.getGameTurn()))
+-		{ // </advc.003>
++		{
+ 			if (AI_chooseUnit())
+ 			{
+ 				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose unit by probability", getName().GetCString());
+@@ -2769,18 +2768,22 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	ProcessTypes eBestProcess = AI_bestProcess();
+ 	if (eBestProcess != NO_PROCESS)
+-	{
+-		// unfortunately, the evaluation of eBestProcess is duplicated.
++	{	// unfortunately, the evaluation of eBestProcess is duplicated.
+ 		// Here we calculate roughly how many turns it would take for the building to pay itself back, where the cost it the value we could have had from building a process.. 
+ 		// Note that as soon as we start working the process, our citizens will rearrange in a way that is likely to devalue the process for the next turn.
+ 		int iOdds = 100;
+ 		if (eBestBuilding != NO_BUILDING)
+-		{
+-			int iBuildingCost = AI_processValue(eBestProcess) * getProductionTurnsLeft(eBestBuilding, 0);
+-			int iScaledTime = 10000 * iBuildingCost / (std::max(1, iBestBuildingValue) * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getConstructPercent());
+-			iOdds = 100*(iScaledTime - 400)/(iScaledTime + 600); // <= 4 turns means 0%. 20 turns ~ 61%.
++		{	// <advc.004x>
++			int iConstructTurnsLeft = getProductionTurnsLeft(eBestBuilding, 0);
++			if(iConstructTurnsLeft == MAX_INT)
++				iOdds = 0;
++			else { // </advc.004x>
++				int iBuildingCost = AI_processValue(eBestProcess) * iConstructTurnsLeft;
++				int iScaledTime = 10000 * iBuildingCost / (std::max(1, iBestBuildingValue) * GC.getGameSpeedInfo(g.getGameSpeedType()).getConstructPercent());
++				iOdds = 100*(iScaledTime - 400)/(iScaledTime + 600); // <= 4 turns means 0%. 20 turns ~ 61%.
++			}
+ 		}
+-		if (iOdds > 0 && GC.getGameINLINE().getSorenRandNum(100, "AI choose process") < iOdds)
++		if (iOdds > 0 && g.getSorenRandNum(100, "AI choose process") < iOdds)
+ 		{
+ 			pushOrder(ORDER_MAINTAIN, eBestProcess);
+ 			if (gCityLogLevel >= 2) logBBAI("      City %S uses choose process by value", getName().GetCString());
+@@ -3431,7 +3434,7 @@ UnitTypes CvCityAI::AI_bestUnitAI(UnitAITypes eUnitAI, bool bAsync, AdvisorTypes
+ 			iValue /= 3;
+ 		}
+ 
+-		//iValue /= std::max(1, (getProductionTurnsLeft(eLoopUnit, 0) + (GC.getUnitInfo(eLoopUnit).isSuicide() ? 1 : 4)));
++		//iValue /= std::max(1, (getProductionTurnsLeft(eLoopUnit, 0) + (GC.getUnitInfo(eLoopUnit).isSuicide() ? 1 : 4))); // advc.004x: Replaced by K-Mod. Also note that this would result in an integer overflow during disorder.
+ 		// K-Mod. The number of turns is usually not so important. What's important is how much it is going to cost us to build this unit.
+ 		int iProductionNeeded = getProductionNeeded(eLoopUnit) - getUnitProduction(eLoopUnit);
+ 		// note: this is a 'multiplier' rather than modifier.
+@@ -3464,6 +3467,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ {
+ 	PROFILE_FUNC(); // advc.003b
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE()); // K-Mod (and I've replaced all other GET_PLAYER calls in this function)
++	CvGame& g = GC.getGameINLINE(); // advc.003
+ 
+ 	bool bAreaAlone = kOwner.AI_isAreaAlone(area());
+ 	int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+@@ -3574,7 +3578,8 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 		// K-Mod
+ 		// Block construction of limited buildings in bad places
+ 		// (the value check is just for efficiency. 1250 takes into account the possible +25 random boost)
+-		if (iFocusFlags == 0 && iValue * 1250 / std::max(1, iTurnsLeft + 3) >= iBestValue)
++		if (iFocusFlags == 0 && /* advc.004x: */ iTurnsLeft < MAX_INT &&
++				iValue * 1250 / std::max(1, iTurnsLeft + 3) >= iBestValue)
+ 		{
+ 			int iLimit = limitedWonderClassLimit(eLoopClass);
+ 			if (iLimit == -1)
+@@ -3598,7 +3603,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 			}
+ 			if (iLimit != -1)
+ 			{
+-				const int iMaxNumWonders = (GC.getGameINLINE().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman()) ? GC.getDefineINT("MAX_NATIONAL_WONDERS_PER_CITY_FOR_OCC") : GC.getDefineINT("MAX_NATIONAL_WONDERS_PER_CITY");
++				const int iMaxNumWonders = (g.isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman()) ? GC.getDefineINT("MAX_NATIONAL_WONDERS_PER_CITY_FOR_OCC") : GC.getDefineINT("MAX_NATIONAL_WONDERS_PER_CITY");
+ 
+ 				if (isNationalWonderClass(eLoopClass) && iMaxNumWonders != -1)
+ 				{
+@@ -3645,7 +3650,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 				}
+ 				else
+ 				{
+-					iTempValue = GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
++					iTempValue = g.getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
+ 				}
+ 
+ 				if (bAreaAlone)
+@@ -3663,8 +3668,8 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 		}
+ 		else
+ 		{
+-			iValue *= 100 + GC.getGameINLINE().getSorenRandNum(25,
+-					"AI Best Building", eLoopClass, m_iID); // advc.007
++			iValue *= 100 + g.getSorenRandNum(25, "AI Best Building",
++					eLoopClass, m_iID); // advc.007
+ 			iValue /= 100;
+ 		}
+ 
+@@ -3674,7 +3679,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 		bool bValid = iMaxTurns <= 0 ? true : false;
+ 		if (!bValid)
+ 		{
+-			bValid = (iTurnsLeft <= GC.getGameINLINE().AI_turnsPercent(iMaxTurns, GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getConstructPercent()));
++			bValid = (iTurnsLeft <= g.AI().AI_turnsPercent(iMaxTurns, GC.getGameSpeedInfo(g.getGameSpeedType()).getConstructPercent()));
+ 		}
+ 		if (!bValid)
+ 		{
+@@ -3691,7 +3696,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 			}
+ 		}
+ 
+-		if (bValid)
++		if (bValid /* advc.004x: */ && iTurnsLeft < MAX_INT)
+ 		{
+ 			FAssert((MAX_INT / 1000) > iValue);
+ 			iValue *= 1000;
+@@ -3711,8 +3716,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 
+ 
+ /* original BtS code. (I don't see the point of this function being separate to the "threshold" version)
+-int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags) const
+-{
++int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags) const {
+ 	return AI_buildingValueThreshold(eBuilding, iFocusFlags, 0);
+ } */
+ 
+@@ -5883,6 +5887,9 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue,
+ 			continue; // can't build it. skip to the next project.
+ 
+ 		int iTurnsLeft = getProductionTurnsLeft(i, 0);
++		// <advc.004x>
++		if(iTurnsLeft == MAX_INT)
++			continue; // </advc.004x>
+ 		int iRelativeTurns = (100 * iTurnsLeft + 50) / GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getCreatePercent();
+ 
+ 		if (iRelativeTurns > 10 && kLoopProject.getMaxTeamInstances() > 0 && GET_TEAM(getTeam()).isHuman())
+@@ -8706,12 +8713,13 @@ void CvCityAI::AI_doHurry(bool bForce)
+ 						area()->getNumAIUnits(getOwnerINLINE(), UNITAI_SETTLE) <= 0 &&
+ 						// advc.121b: Check for local city sites
+ 						kOwner.AI_getNumAreaCitySites(getArea(), foo) > 0) ? 24 : 14) *
+-					/*  advc.064b: Second arg was 1, perhaps by accident, or so that
+-						overflow and chopping production are ignored, but that's
+-						not going to work anymore. 2 would still work, but I think
+-						we should use the actual production turns here -
+-						how much earlier are we getting the Settler? */
+-						(getProductionTurnsLeft(eProductionUnit, 0) - 1);
++					/*  <advc.064b> Second arg for getProductionTurnsLeft was 1,
++						perhaps by accident, or so that overflow and chopping production
++						are ignored, but that's not going to work anymore.
++						2 would still work, but I think we should use the actual
++						production turns here - how much earlier are we getting the unit? */
++						std::min(getProductionTurnsLeft(eProductionUnit, 0) - 1,
++						getProductionNeeded(eProductionUnit)); // </advc.064b>
+ 				break;
+ 			}
+ 			case UNITAI_SETTLER_SEA:
+@@ -8792,8 +8800,9 @@ void CvCityAI::AI_doHurry(bool bForce)
+ 					specialists b/c the city will probably not be able to use them
+ 					right away after the population loss from hurrying */
+ 						false, (iHurryPopulation > 0)) *
+-				// advc.064b: Second arg was 1; see comment in the units branch above.
+-						(getProductionTurnsLeft(eProductionBuilding, 0) - 1);
++				// <advc.064b> Second arg was 1; see comment in the units branch above.
++						std::min(getProductionTurnsLeft(eProductionBuilding, 0) - 1,
++						getProductionNeeded(eProductionBuilding)); // </advc.064b>
+ 				iValue /= std::max(4, 4 - iHappyDiff) + (iHurryPopulation+1)/2;
+ 				/* <advc.121b> AI_buildingValue doesn't say if the building is
+ 					immediately useful */
+@@ -11841,10 +11850,15 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 		// similar to AI_chooseProduction
+ 		int iOdds = 100;
+ 		if (eBestBuilding != NO_BUILDING)
+-		{
+-			int iBuildingCost = AI_processValue(eBestProcess) * getProductionTurnsLeft(eBestBuilding, 0);
+-			int iScaledTime = 10000 * iBuildingCost / (std::max(1, iBestBuildingValue) * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getConstructPercent());
+-			iOdds = 100*(iScaledTime - 400)/(iScaledTime + 600); // <= 4 turns means 0%. 20 turns ~ 61%.
++		{	// <advc.004x>
++			int iConstructionTurns = getProductionTurnsLeft(eBestBuilding, 0);
++			if(iConstructionTurns == MAX_INT)
++				iOdds = 0;
++			else { // </advc.004x>
++				int iBuildingCost = AI_processValue(eBestProcess) * iConstructionTurns;
++				int iScaledTime = 10000 * iBuildingCost / (std::max(1, iBestBuildingValue) * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getConstructPercent());
++				iOdds = 100*(iScaledTime - 400)/(iScaledTime + 600); // <= 4 turns means 0%. 20 turns ~ 61%.
++			}
+ 		}
+ 		if (iOdds > 0 && GC.getGameINLINE().getSorenRandNum(100, "AI choose process") < iOdds)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index ff67b1f80..556cd5d5e 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -1189,103 +1189,133 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	if (eProductionUnit != NO_UNIT)
+ 	{
+ 		int iTurns = pCity->getProductionTurnsLeft(eProductionUnit, 0);
+-		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED", GC.getUnitInfo(eProductionUnit).getTextKeyWide(), iTurns, GC.getAdvisorInfo((AdvisorTypes)(GC.getUnitInfo(eProductionUnit).getAdvisorType())).getTextKeyWide());
+-		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GET_PLAYER(pCity->getOwnerINLINE()).getUnitButton(eProductionUnit), GC.getUnitInfo(eProductionUnit).getUnitClassType(), WIDGET_TRAIN, GC.getUnitInfo(eProductionUnit).getUnitClassType(), pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY );
++		// advc.004x:
++		iTurns = pCity->sanitizeProductionTurns(iTurns, ORDER_TRAIN, eProductionUnit);
++		CvUnitInfo const& kInfo = GC.getUnitInfo(eProductionUnit);
++		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED",
++				kInfo.getTextKeyWide(), iTurns, GC.getAdvisorInfo(
++				(AdvisorTypes)kInfo.getAdvisorType()).getTextKeyWide());
++		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer,
++				GET_PLAYER(pCity->getOwnerINLINE()).getUnitButton(eProductionUnit),
++				kInfo.getUnitClassType(), WIDGET_TRAIN,
++				kInfo.getUnitClassType(), pCity->getID(), true,
++				POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
+ 		iNumBuilds++;
+ 	}
+ 
+ 	if (eProductionBuilding != NO_BUILDING)
+ 	{
+ 		int iTurns = pCity->getProductionTurnsLeft(eProductionBuilding, 0);
+-		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED", GC.getBuildingInfo(eProductionBuilding).getTextKeyWide(), iTurns, GC.getAdvisorInfo((AdvisorTypes)(GC.getBuildingInfo(eProductionBuilding).getAdvisorType())).getTextKeyWide());
+-		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GC.getBuildingInfo(eProductionBuilding).getButton(), GC.getBuildingInfo(eProductionBuilding).getBuildingClassType(), WIDGET_CONSTRUCT, GC.getBuildingInfo(eProductionBuilding).getBuildingClassType(), pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY );
++		// advc.004x:
++		iTurns = pCity->sanitizeProductionTurns(iTurns, ORDER_CONSTRUCT, eProductionBuilding);
++		CvBuildingInfo const& kInfo = GC.getBuildingInfo(eProductionBuilding);
++		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED",
++				kInfo.getTextKeyWide(), iTurns, GC.getAdvisorInfo(
++				(AdvisorTypes)kInfo.getAdvisorType()).getTextKeyWide());
++		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer,
++				kInfo.getButton(), kInfo.getBuildingClassType(), WIDGET_CONSTRUCT,
++				kInfo.getBuildingClassType(), pCity->getID(), true,
++				POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
+ 		iNumBuilds++;
+ 	}
+ 
+ 	if (eProductionProject != NO_PROJECT)
+ 	{
+ 		int iTurns = pCity->getProductionTurnsLeft(eProductionProject, 0);
+-		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED_NO_ADV", GC.getProjectInfo(eProductionProject).getTextKeyWide(), iTurns);
+-		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GC.getProjectInfo(eProductionProject).getButton(), eProductionProject, WIDGET_CREATE, eProductionProject, pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY );
++		// advc.004x:
++		iTurns = pCity->sanitizeProductionTurns(iTurns, ORDER_CREATE, eProductionProject);
++		CvProjectInfo const& kInfo = GC.getProjectInfo(eProductionProject);
++		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED_NO_ADV",
++				kInfo.getTextKeyWide(), iTurns);
++		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer,
++				kInfo.getButton(), eProductionProject, WIDGET_CREATE,
++				eProductionProject, pCity->getID(), true, POPUP_LAYOUT_STRETCH,
++				DLL_FONT_LEFT_JUSTIFY);
+ 		iNumBuilds++;
+ 	}
+ 
+ 	if (eProductionProcess != NO_PROCESS)
+ 	{
+-		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED_NO_ADV_OR_TURNS", GC.getProcessInfo(eProductionProcess).getTextKeyWide());
+-		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GC.getProcessInfo(eProductionProcess).getButton(), eProductionProcess, WIDGET_MAINTAIN, eProductionProcess, pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY );
++		CvProcessInfo const& kInfo = GC.getProcessInfo(eProductionProcess);
++		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED_NO_ADV_OR_TURNS",
++				kInfo.getTextKeyWide());
++		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer,
++				kInfo.getButton(), eProductionProcess, WIDGET_MAINTAIN,
++				eProductionProcess, pCity->getID(), true, POPUP_LAYOUT_STRETCH,
++				DLL_FONT_LEFT_JUSTIFY);
+ 		iNumBuilds++;
+ 	}
+ 
+ 	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+ 	{
+-		UnitTypes eLoopUnit = (UnitTypes)GC.getCivilizationInfo(pCity->getCivilizationType()).getCivilizationUnits(iI);
++		UnitTypes eLoopUnit = (UnitTypes)GC.getCivilizationInfo(
++				pCity->getCivilizationType()).getCivilizationUnits(iI);
++		if (eLoopUnit == NO_UNIT || eLoopUnit == eProductionUnit ||
++				!pCity->canTrain(eLoopUnit))
++			continue; // advc.003
++
++		int iTurns = pCity->getProductionTurnsLeft(eLoopUnit, 0);
++		// advc.004x:
++		iTurns = pCity->sanitizeProductionTurns(iTurns, ORDER_TRAIN, eLoopUnit);
++		szBuffer.Format(L"%s (%d)", GC.getUnitInfo(eLoopUnit).getDescription(), iTurns);
++		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer,
++				GET_PLAYER(pCity->getOwnerINLINE()).getUnitButton(eLoopUnit),
++				iI, WIDGET_TRAIN, iI, pCity->getID(), true, POPUP_LAYOUT_STRETCH,
++				DLL_FONT_LEFT_JUSTIFY);
++		iNumBuilds++;
+ 
+-		if (eLoopUnit != NO_UNIT)
+-		{
+-			if (eLoopUnit != eProductionUnit)
+-			{
+-				if (pCity->canTrain(eLoopUnit))
+-				{
+-					int iTurns = pCity->getProductionTurnsLeft(eLoopUnit, 0);
+-					szBuffer.Format(L"%s (%d)", GC.getUnitInfo(eLoopUnit).getDescription(), iTurns);
+-					gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GET_PLAYER(pCity->getOwnerINLINE()).getUnitButton(eLoopUnit), iI, WIDGET_TRAIN, iI, pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY );
+-					iNumBuilds++;
+-				}
+-			}
+-		}
+ 	}
+ 	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+ 	{
+-		BuildingTypes eLoopBuilding = ((BuildingTypes)(GC.getCivilizationInfo(pCity->getCivilizationType()).getCivilizationBuildings(iI)));
+-
+-		if (eLoopBuilding != NO_BUILDING)
+-		{
+-			if (eLoopBuilding != eProductionBuilding)
+-			{
+-				if (pCity->canConstruct(eLoopBuilding))
+-				{
+-					int iTurns = pCity->getProductionTurnsLeft(eLoopBuilding, 0);
+-					szBuffer.Format(L"%s (%d)", GC.getBuildingInfo(eLoopBuilding).getDescription(), iTurns);
+-					gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GC.getBuildingInfo(eLoopBuilding).getButton(), iI, WIDGET_CONSTRUCT, iI, pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
+-					iNumBuilds++;
+-				}
+-			}
+-		}
++		BuildingTypes eLoopBuilding = (BuildingTypes)GC.getCivilizationInfo(
++				pCity->getCivilizationType()).getCivilizationBuildings(iI);
++		if (eLoopBuilding == NO_BUILDING || eLoopBuilding == eProductionBuilding ||
++				!pCity->canConstruct(eLoopBuilding))
++			continue; // advc.003
++
++		int iTurns = pCity->getProductionTurnsLeft(eLoopBuilding, 0);
++		// advc.004x:
++		iTurns = pCity->sanitizeProductionTurns(iTurns, ORDER_CONSTRUCT, eLoopBuilding);
++		szBuffer.Format(L"%s (%d)", GC.getBuildingInfo(eLoopBuilding).getDescription(), iTurns);
++		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer,
++				GC.getBuildingInfo(eLoopBuilding).getButton(), iI, WIDGET_CONSTRUCT,
++				iI, pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
++			iNumBuilds++;
+ 	}
+ 	for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
+ 	{
+-		if (iI != eProductionProject)
+-		{
+-			if (pCity->canCreate((ProjectTypes)iI))
+-			{
+-				int iTurns = pCity->getProductionTurnsLeft((ProjectTypes)iI, 0);
+-				szBuffer.Format(L"%s (%d)", GC.getProjectInfo((ProjectTypes) iI).getDescription(), iTurns);
+-				gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer, GC.getProjectInfo((ProjectTypes) iI).getButton(), iI, WIDGET_CREATE, iI, pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
+-				iNumBuilds++;
+-			}
+-		}
++		ProjectTypes eLoopProject = (ProjectTypes)iI;
++		if (eLoopProject == eProductionProject || !pCity->canCreate(eLoopProject))
++			continue; // advc.003
++
++		int iTurns = pCity->getProductionTurnsLeft((ProjectTypes)iI, 0);
++		// advc.004x:
++		iTurns = pCity->sanitizeProductionTurns(iTurns, ORDER_CREATE, eLoopProject);
++		szBuffer.Format(L"%s (%d)", GC.getProjectInfo(eLoopProject).getDescription(), iTurns);
++		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, szBuffer,
++				GC.getProjectInfo(eLoopProject).getButton(), iI, WIDGET_CREATE, iI,
++				pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
++		iNumBuilds++;
+ 	}
+ 	for (int iI = 0; iI < GC.getNumProcessInfos(); iI++)
+ 	{
+-		if (iI != eProductionProcess)
+-		{
+-			if (pCity->canMaintain((ProcessTypes)iI))
+-			{
+-				gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, GC.getProcessInfo((ProcessTypes) iI).getDescription(), GC.getProcessInfo((ProcessTypes) iI).getButton(), iI, WIDGET_MAINTAIN, iI, pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
+-				iNumBuilds++;
+-			}
+-		}
++		ProcessTypes eLoopProcess = (ProcessTypes)iI;
++		if (eLoopProcess == eProductionProcess || !pCity->canMaintain(eLoopProcess))
++			continue; // advc.003
++
++		gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup,
++				GC.getProcessInfo(eLoopProcess).getDescription(),
++				GC.getProcessInfo(eLoopProcess).getButton(), iI, WIDGET_MAINTAIN,
++				iI, pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
++		iNumBuilds++;
+ 	}
+ 
+-	if (0 == iNumBuilds)
+-	{
+-		// city cannot build anything, so don't show popup after all
++	if (iNumBuilds <= 0)
++	{	// city cannot build anything, so don't show popup after all
+ 		return false;
+ 	}
+ 
+ 	gDLL->getInterfaceIFace()->popupSetPopupType(pPopup, POPUPEVENT_PRODUCTION, szArtFilename);
+-
+ 	gDLL->getInterfaceIFace()->popupLaunch(pPopup, false, POPUPSTATE_MINIMIZED, 252);
+ 
+ 	switch (info.getData2())
+@@ -1302,8 +1332,7 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 		gDLL->getInterfaceIFace()->playGeneralSound(GC.getProjectInfo((ProjectTypes)info.getData3()).getCreateSound());
+ 		break;
+ 
+-	default:
+-		break;
++	default: break;
+ 	}
+ 
+ 	return true;
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 63bc285ee..0faade656 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2192,8 +2192,13 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 
+ 			if (!CvWString(kCommand.getHelp()).empty())
+ 			{
+-				szBuffer.append(CvWString::format(L"%s%s", NEWLINE,
+-						kCommand.getHelp()).c_str());
++				szBuffer.append(NEWLINE);
++				// <advc.004g>
++				if(kAction.getCommandType() == COMMAND_LOAD && pHeadSelectedUnit != NULL &&
++						pHeadSelectedUnit->isCargo())
++					szBuffer.append(gDLL->getText("TXT_KEY_COMMAND_TRANSFER_HELP"));
++				else // </advc.004g>
++					szBuffer.append(kCommand.getHelp());
+ 			}
+ 			// <advc.004b>
+ 			if(kAction.getCommandType() == COMMAND_DELETE) {
+@@ -2277,8 +2282,8 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 					kAction.getAutomateType());
+ 			if (!CvWString(kAutomate.getHelp()).empty())
+ 			{
+-				szBuffer.append(CvWString::format(L"%s%s", NEWLINE,
+-						kAutomate.getHelp()).c_str());
++				szBuffer.append(NEWLINE);
++				szBuffer.append(kAutomate.getHelp());
+ 			}
+ 		}
+ 	}
+@@ -2289,8 +2294,8 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 				kAction.getControlType());
+ 		if (!CvWString(kControl.getHelp()).empty())
+ 		{
+-			szBuffer.append(CvWString::format(L"%s%s", NEWLINE,
+-					kControl.getHelp()).c_str());
++			szBuffer.append(NEWLINE);
++			szBuffer.append(kControl.getHelp());
+ 		}
+ 	}
+ 
+@@ -2299,8 +2304,8 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 		CvInterfaceModeInfo const& kIMode = GC.getInterfaceModeInfo((InterfaceModeTypes)
+ 				kAction.getInterfaceModeType());
+ 		if (!CvWString(kIMode.getHelp()).empty()) {
+-			szBuffer.append(CvWString::format(L"%s%s", NEWLINE,
+-					kIMode.getHelp()).c_str());
++			szBuffer.append(NEWLINE);
++			szBuffer.append(kIMode.getHelp());
+ 		}
+ 	}
+ }
+@@ -3237,8 +3242,10 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 		szBuffer.append(gDLL->getText("TXT_KEY_ACTION_NUM_TURNS", iTurns));
+ 		CvBuildInfo const& kBuild = GC.getBuildInfo(eBuild);
+ 		if (!CvWString(kBuild.getHelp()).empty())
+-			szBuffer.append(CvWString::format(L"%s%s", NEWLINE, kBuild.getHelp()).c_str());
+-		// <advc.011b>
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(kBuild.getHelp());
++		} // <advc.011b>
+ 		if(bValid && iTurns > 1 && GC.ctrlKey()) {
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(gDLL->getText("TXT_KEY_SUSPEND_WORK"));
+@@ -3252,8 +3259,8 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 		if(eMission == MISSION_DISCOVER)
+ 			szBuffer.append(getDiscoverPathText(kUnit.getUnitType(), kUnitOwner.getID()));
+ 		else { // </advc.004a>
+-			szBuffer.append(CvWString::format(L"%s%s", NEWLINE,
+-			GC.getMissionInfo(eMission).getHelp()).c_str());
++			szBuffer.append(NEWLINE);
++			szBuffer.append(GC.getMissionInfo(eMission).getHelp());
+ 		}
+ 	}
+ } // </advc.003>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 987ae9740..ed83f1d99 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -348,6 +348,7 @@ void CvGame::regenerateMap()
+ 	} // </advc.004j>
+ 
+ 	setFinalInitialized(false);
++	setDawnOfManShown(false); // advc.004x
+ 
+ 	for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+@@ -444,6 +445,7 @@ void CvGame::showDawnOfMan() {
+ 	dom->setButtonPopupType(BUTTONPOPUP_PYTHON_SCREEN);
+ 	dom->setText(L"showDawnOfMan");
+ 	GET_PLAYER(getActivePlayer()).addPopup(dom);
++	setDawnOfManShown(true); // advc.004x
+ } // </advc.004j>
+ 
+ 
+@@ -777,6 +779,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	m_bResourceLayer = bConstructorCall; // advc.004m
+ 	m_bResourceLayerSet = false; // advc.003d
+ 	m_bFeignSP = false; // advc.135c
++	m_bDoMShown = false; // advc.004x
+ }
+ 
+ 
+@@ -4593,11 +4596,11 @@ void CvGame::setAIAutoPlay(int iNewValue) {
+ 	// <advc.127>
+ 	setAIAutoPlayBulk(iNewValue);
+ }
+-void CvGame::setAIAutoPlayBulk(int iNewValue, bool changePlayerStatus)
++void CvGame::setAIAutoPlayBulk(int iNewValue, bool bChangePlayerStatus)
+ {	// advc.127
+ 	m_iAIAutoPlay = std::max(0, iNewValue);
+ 	// <advc.127>
+-	if(!changePlayerStatus)
++	if(!bChangePlayerStatus)
+ 		return; // </advc.127>
+ /************************************************************************************************/
+ /* AI_AUTO_PLAY_MOD                           07/09/08                            jdog5000      */
+@@ -5354,28 +5357,36 @@ void CvGame::setFinalInitialized(bool bNewValue)
+ {
+ 	PROFILE_FUNC();
+ 
+-	if (isFinalInitialized() != bNewValue)
+-	{
+-		m_bFinalInitialized = bNewValue;
+-
+-		if (isFinalInitialized())
+-		{
+-			updatePlotGroups();
++	if (isFinalInitialized() == bNewValue)
++		return; // advc.003
++	m_bFinalInitialized = bNewValue;
++	if (!isFinalInitialized())
++		return;
+ 
+-			GC.getMapINLINE().updateIrrigated();
++	updatePlotGroups();
++	GC.getMapINLINE().updateIrrigated();
+ 
+-			for (int iI = 0; iI < MAX_TEAMS; iI++)
+-			{
+-				GET_TEAM((TeamTypes)iI).AI_initMemory(); // K-Mod
+-				if (GET_TEAM((TeamTypes)iI).isAlive())
+-				{
+-					GET_TEAM((TeamTypes)iI).AI_updateAreaStrategies();
+-				}
+-			}
+-		}
++	for (int iI = 0; iI < MAX_TEAMS; iI++)
++	{
++		CvTeamAI& kTeam = GET_TEAM((TeamTypes)iI);
++		kTeam.AI_initMemory(); // K-Mod
++		if (kTeam.isAlive())
++			kTeam.AI_updateAreaStrategies();
+ 	}
+ }
+ 
++// <advc.004x>
++void CvGame::setDawnOfManShown(bool b) {
++
++	m_bDoMShown = b;
++}
++
++
++bool CvGame::isAboutToShowDawnOfMan() const {
++
++	return (!m_bDoMShown && getElapsedGameTurns() <= 0);
++} // </advc.004x>
++
+ // <advc.061>
+ void CvGame::setScreenDimensions(int x, int y) {
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index f2bdd78c2..3a441b7bd 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -253,7 +253,7 @@ public:
+ 	// advc.127:
+ 	void setAIAutoPlayBulk(int iNewValue, bool changePlayerStatus = true);
+ 	void changeAIAutoPlay(int iChange,
+-			bool changePlayerStatus = true); // advc.127
++			bool bChangePlayerStatus = true); // advc.127
+ 	// <advc.003b>
+ 	int getCivPlayersEverAlive() const;
+ 	void changeCivPlayersEverAlive(int iChange);
+@@ -304,6 +304,9 @@ public:
+ 
+ 	DllExport bool isFinalInitialized() const;																		// Exposed to Python
+ 	DllExport void setFinalInitialized(bool bNewValue);
++	// <advc.004x>
++	void setDawnOfManShown(bool b);
++	bool isAboutToShowDawnOfMan() const; // </advc.004x>
+ 	// <advc.061>
+ 	void setScreenDimensions(int x, int y); // (exposed to Python)
+ 	int getScreenWidth() const;
+@@ -712,6 +715,7 @@ protected:
+ 	bool m_bFeignSP; // advc.135c
+ 	bool m_bScenario; // advc.052
+ 	bool m_bAllGameDataRead; // advc.003
++	bool m_bDoMShown; // advc.004x
+ 
+ 	HandicapTypes m_eHandicap;
+ 	HandicapTypes m_eAIHandicap; // advc.127
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 778ce3d33..4223abfda 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2164,47 +2164,53 @@ void CvGame::startFlyoutMenu(const CvPlot* pPlot, std::vector<CvFlyoutMenuData>&
+ 			aFlyoutItems.push_back(CvFlyoutMenuData(NO_FLYOUT, -1, -1, -1, szBuffer));
+ 			for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+ 			{
+-				UnitTypes eLoopUnit = (UnitTypes) GC.getCivilizationInfo(pCity->getCivilizationType()).getCivilizationUnits(iI);
+-				if (eLoopUnit != NO_UNIT)
+-				{
+-					if (pCity->canTrain(eLoopUnit))
+-					{
+-						szBuffer.Format(L"%s (%d)", GC.getUnitInfo(eLoopUnit).getDescription(), pCity->getProductionTurnsLeft(eLoopUnit, 0));
+-						aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_TRAIN, eLoopUnit, pPlot->getX_INLINE(), pPlot->getY_INLINE(), szBuffer));
+-					}
+-				}
++				UnitTypes eLoopUnit = (UnitTypes)GC.getCivilizationInfo(pCity->getCivilizationType()).
++						getCivilizationUnits(iI);
++				if (eLoopUnit == NO_UNIT || !pCity->canTrain(eLoopUnit))
++					continue; // advc.003
++				szBuffer = GC.getUnitInfo(eLoopUnit).getDescription();
++				int iTurns = pCity->getProductionTurnsLeft(eLoopUnit, 0);
++				if(iTurns < MAX_INT) // advc.004x
++					szBuffer.append(CvWString::format(L" (%d)", iTurns));
++				aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_TRAIN, eLoopUnit,
++						pPlot->getX_INLINE(), pPlot->getY_INLINE(), szBuffer));
+ 			}
+ 
+ 			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+ 			{
+-				BuildingTypes eLoopBuilding = (BuildingTypes)GC.getCivilizationInfo(pCity->getCivilizationType()).getCivilizationBuildings(iI);
+-				if (eLoopBuilding != NO_BUILDING)
+-				{
+-					if (pCity->canConstruct(eLoopBuilding))
+-					{
+-						szBuffer.Format(L"%s (%d)", GC.getBuildingInfo(eLoopBuilding).getDescription(), pCity->getProductionTurnsLeft(eLoopBuilding, 0));
+-						aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_CONSTRUCT, eLoopBuilding, pPlot->getX_INLINE(), pPlot->getY_INLINE(), szBuffer));
+-					}
+-				}
++				BuildingTypes eLoopBuilding = (BuildingTypes)GC.getCivilizationInfo(
++						pCity->getCivilizationType()).getCivilizationBuildings(iI);
++				if (eLoopBuilding == NO_BUILDING || !pCity->canConstruct(eLoopBuilding))
++					continue; // advc.003
++				szBuffer = GC.getBuildingInfo(eLoopBuilding).getDescription();
++				int iTurns = pCity->getProductionTurnsLeft(eLoopBuilding, 0);
++				if(iTurns < MAX_INT) // advc.004x
++					szBuffer.append(CvWString::format(L" (%d)", iTurns));
++				aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_CONSTRUCT, eLoopBuilding,
++						pPlot->getX_INLINE(), pPlot->getY_INLINE(), szBuffer));
+ 			}
+ 
+ 			for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
+ 			{
+-				ProjectTypes eProject = (ProjectTypes) iI;
+-				if (pCity->canCreate(eProject))
+-				{
+-					szBuffer.Format(L"%s (%d)", GC.getProjectInfo(eProject).getDescription(), pCity->getProductionTurnsLeft(eProject, 0));
+-					aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_CREATE, eProject, pPlot->getX_INLINE(), pPlot->getY_INLINE(), szBuffer));
+-				}
++				ProjectTypes eLoopProject = (ProjectTypes) iI;
++				if (!pCity->canCreate(eLoopProject))
++					continue; // advc.003
++				szBuffer = GC.getProjectInfo(eLoopProject).getDescription();
++				int iTurns = pCity->getProductionTurnsLeft(eLoopProject, 0);
++				if(iTurns < MAX_INT) // advc.004x
++					szBuffer.append(CvWString::format(L" (%d)", iTurns));
++				aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_CREATE, eLoopProject,
++						pPlot->getX_INLINE(), pPlot->getY_INLINE(), szBuffer));
+ 			}
+ 
+ 			for (int iI = 0; iI < GC.getNumProcessInfos(); iI++)
+ 			{
+-				if (pCity->canMaintain((ProcessTypes)iI))
+-				{
+-					szBuffer = GC.getProcessInfo((ProcessTypes)iI).getDescription();
+-					aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_MAINTAIN, iI, pPlot->getX_INLINE(), pPlot->getY_INLINE(), szBuffer));
+-				}
++				ProcessTypes eLoopProcess = (ProcessTypes)iI;
++				if (!pCity->canMaintain(eLoopProcess))
++					continue; // advc.003
++				szBuffer = GC.getProcessInfo(eLoopProcess).getDescription();
++				aFlyoutItems.push_back(CvFlyoutMenuData(FLYOUT_MAINTAIN, eLoopProcess,
++						pPlot->getX_INLINE(), pPlot->getY_INLINE(), szBuffer));
+ 			}
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 668983cdd..3a7149f1f 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -6334,38 +6334,63 @@ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity)
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvWString szTempBuffer;
+ 	int iI;
+-	int iRate;
+-
+-	int iFoodDifference = pCity->foodDifference();
++	CvWString szTempBuffer;
+ 
+ 	szString.append(pCity->getName());
+ 
++	int iFoodDifference = pCity->foodDifference();
+ 	if (iFoodDifference <= 0)
+ 	{
+-		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_GROWTH", pCity->getFood(), pCity->growthThreshold()));
++		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_GROWTH",
++				pCity->getFood(), pCity->growthThreshold()));
+ 	}
+ 	else
+ 	{
+-		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_FOOD_GROWTH", iFoodDifference, pCity->getFood(), pCity->growthThreshold(), pCity->getFoodTurnsLeft()));
++		szString.append(gDLL->getText("TXT_KEY_CITY_BAR_FOOD_GROWTH",
++				iFoodDifference, pCity->getFood(), pCity->growthThreshold(),
++				pCity->getFoodTurnsLeft()));
+ 	}
+ 	if (pCity->getProductionNeeded() != MAX_INT)
+ 	{
+ 		int iProductionDiffNoFood = pCity->getCurrentProductionDifference(true, true);
+-		int iProductionDiffJustFood = (pCity->getCurrentProductionDifference(false, true) - iProductionDiffNoFood);
+-
++		int iProductionDiffJustFood = (pCity->getCurrentProductionDifference(false, true) -
++				iProductionDiffNoFood);
++		int iTurns = pCity->getProductionTurnsLeft(); // advc.004x
+ 		if (iProductionDiffJustFood > 0)
+-		{
+-			szString.append(gDLL->getText("TXT_KEY_CITY_BAR_FOOD_HAMMER_PRODUCTION", iProductionDiffJustFood, iProductionDiffNoFood, pCity->getProductionName(), pCity->getProduction(), pCity->getProductionNeeded(), pCity->getProductionTurnsLeft()));
++		{	// <advc.004x>
++			if(iTurns == MAX_INT) {
++				szString.append(gDLL->getText("TXT_KEY_CITY_BAR_FOOD_HAMMER_NO_PRODUCTION",
++						iProductionDiffJustFood, iProductionDiffNoFood,
++						pCity->getProductionName(), pCity->getProduction(),
++						pCity->getProductionNeeded()));
++			}
++			else { // </advc.004x>
++				szString.append(gDLL->getText("TXT_KEY_CITY_BAR_FOOD_HAMMER_PRODUCTION",
++						iProductionDiffJustFood, iProductionDiffNoFood,
++						pCity->getProductionName(), pCity->getProduction(),
++						pCity->getProductionNeeded(), iTurns));
++			}
+ 		}
+ 		else if (iProductionDiffNoFood > 0)
+-		{
+-			szString.append(gDLL->getText("TXT_KEY_CITY_BAR_HAMMER_PRODUCTION", iProductionDiffNoFood, pCity->getProductionName(), pCity->getProduction(), pCity->getProductionNeeded(), pCity->getProductionTurnsLeft()));
++		{	// <advc.004x>
++			if(iTurns == MAX_INT) {
++				szString.append(gDLL->getText("TXT_KEY_CITY_BAR_HAMMER_NO_PRODUCTION",
++						iProductionDiffNoFood, pCity->getProductionName(),
++						pCity->getProduction(), pCity->getProductionNeeded()));
++			}
++			else { // </advc.004x>
++				szString.append(gDLL->getText("TXT_KEY_CITY_BAR_HAMMER_PRODUCTION",
++						iProductionDiffNoFood, pCity->getProductionName(),
++						pCity->getProduction(), pCity->getProductionNeeded(),
++						iTurns));
++			}
+ 		}
+ 		else
+ 		{
+-			szString.append(gDLL->getText("TXT_KEY_CITY_BAR_PRODUCTION", pCity->getProductionName(), pCity->getProduction(), pCity->getProductionNeeded()));
++			szString.append(gDLL->getText("TXT_KEY_CITY_BAR_PRODUCTION",
++					pCity->getProductionName(), pCity->getProduction(),
++					pCity->getProductionNeeded()));
+ 		}
+ 	}
+ 
+@@ -6373,7 +6398,7 @@ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity)
+ 
+ 	for (iI = 0; iI < NUM_COMMERCE_TYPES; ++iI)
+ 	{
+-		iRate = pCity->getCommerceRateTimes100((CommerceTypes)iI);
++		int iRate = pCity->getCommerceRateTimes100((CommerceTypes)iI);
+ 
+ 		if (iRate != 0)
+ 		{
+@@ -6383,7 +6408,7 @@ void CvGameTextMgr::setCityBarHelp(CvWStringBuffer &szString, CvCity* pCity)
+ 		}
+ 	}
+ 
+-	iRate = pCity->getGreatPeopleRate();
++	int iRate = pCity->getGreatPeopleRate();
+ 
+ 	if (iRate != 0)
+ 	{
+@@ -10072,23 +10097,25 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool
+ 	else
+ 	{
+ 		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_UNIT_TURNS",
+-				pCity->getProductionTurnsLeft(eUnit,
+-				((GC.ctrlKey() || !(GC.shiftKey())) ? 0 :
+-				pCity->getOrderQueueLength())),
+-				pCity->getProductionNeeded(eUnit),
+-				GC.getYieldInfo(YIELD_PRODUCTION).getChar()));
++		int iTurns = pCity->getProductionTurnsLeft(eUnit,
++				(GC.ctrlKey() || !GC.shiftKey()) ? 0 : pCity->getOrderQueueLength());
++		if(iTurns < MAX_INT) { // advc.004x
++			szBuffer.append(gDLL->getText("TXT_KEY_UNIT_TURNS", iTurns));
++				// advc.003: TXT_KEY_UNIT_TURNS takes only one argument
++				//pCity->getProductionNeeded(eUnit), GC.getYieldInfo(YIELD_PRODUCTION).getChar()));
++			szBuffer.append(L" - "); // advc.004x: Moved up
++		}
+ 		int iProduction = pCity->getUnitProduction(eUnit);
+ 		if (iProduction > 0)
+ 		{
+-			szTempBuffer.Format(L" - %d/%d%c", iProduction,
++			szTempBuffer.Format(L"%d/%d%c", iProduction,
+ 					pCity->getProductionNeeded(eUnit),
+ 					GC.getYieldInfo(YIELD_PRODUCTION).getChar());
+ 			szBuffer.append(szTempBuffer);
+ 		}
+ 		else
+ 		{
+-			szTempBuffer.Format(L" - %d%c", pCity->getProductionNeeded(eUnit),
++			szTempBuffer.Format(L"%d%c", pCity->getProductionNeeded(eUnit),
+ 					GC.getYieldInfo(YIELD_PRODUCTION).getChar());
+ 			szBuffer.append(szTempBuffer);
+ 		}
+@@ -11678,19 +11705,23 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 		// BUG - Building Actual Effects - end
+ 
+ 				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_NUM_TURNS", pCity->getProductionTurnsLeft(eBuilding, ((GC.ctrlKey() || !(GC.shiftKey())) ? 0 : pCity->getOrderQueueLength()))));
++				int iTurns = pCity->getProductionTurnsLeft(eBuilding,
++						(GC.ctrlKey() || !GC.shiftKey()) ? 0 : pCity->getOrderQueueLength());
++				if(iTurns < MAX_INT) { // advc.004x
++					szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_NUM_TURNS", iTurns));
++					szBuffer.append(L" - "); // advc.004x: Moved up
++				}
+ 
+ 				int iProduction = pCity->getBuildingProduction(eBuilding);
+-				
+ 				int iProductionNeeded = pCity->getProductionNeeded(eBuilding);
+ 				if (iProduction > 0)
+ 				{
+-					szTempBuffer.Format(L" - %d/%d%c", iProduction, iProductionNeeded, GC.getYieldInfo(YIELD_PRODUCTION).getChar());
++					szTempBuffer.Format(L"%d/%d%c", iProduction, iProductionNeeded, GC.getYieldInfo(YIELD_PRODUCTION).getChar());
+ 					szBuffer.append(szTempBuffer);
+ 				}
+ 				else
+ 				{
+-					szTempBuffer.Format(L" - %d%c", iProductionNeeded, GC.getYieldInfo(YIELD_PRODUCTION).getChar());
++					szTempBuffer.Format(L"%d%c", iProductionNeeded, GC.getYieldInfo(YIELD_PRODUCTION).getChar());
+ 					szBuffer.append(szTempBuffer);
+ 				}
+ 			}
+@@ -12506,17 +12537,21 @@ void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProj
+ 		else
+ 		{
+ 			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_NUM_TURNS", pCity->getProductionTurnsLeft(eProject, ((GC.ctrlKey() || !(GC.shiftKey())) ? 0 : pCity->getOrderQueueLength()))));
++			int iTurns = pCity->getProductionTurnsLeft(eProject,
++					(GC.ctrlKey() || !GC.shiftKey()) ? 0 : pCity->getOrderQueueLength());
++			if(iTurns < MAX_INT) { // advc.004x
++				szBuffer.append(gDLL->getText("TXT_KEY_PROJECT_NUM_TURNS", iTurns));
++				szBuffer.append(L" - "); // advc.004x: Moved up
++			}
+ 
+ 			int iProduction = pCity->getProjectProduction(eProject);
+-
+ 			if (iProduction > 0)
+ 			{
+-				szTempBuffer.Format(L" - %d/%d%c", iProduction, pCity->getProductionNeeded(eProject), GC.getYieldInfo(YIELD_PRODUCTION).getChar());
++				szTempBuffer.Format(L"%d/%d%c", iProduction, pCity->getProductionNeeded(eProject), GC.getYieldInfo(YIELD_PRODUCTION).getChar());
+ 			}
+ 			else
+ 			{
+-				szTempBuffer.Format(L" - %d%c", pCity->getProductionNeeded(eProject), GC.getYieldInfo(YIELD_PRODUCTION).getChar());
++				szTempBuffer.Format(L"%d%c", pCity->getProductionNeeded(eProject), GC.getYieldInfo(YIELD_PRODUCTION).getChar());
+ 			}
+ 			szBuffer.append(szTempBuffer);
+ 		}
+@@ -18136,25 +18171,18 @@ void CvGameTextMgr::buildCityBillboardCityNameString( CvWStringBuffer& szBuffer,
+ 	}
+ }
+ 
+-void CvGameTextMgr::buildCityBillboardProductionString( CvWStringBuffer& szBuffer, CvCity* pCity)
++void CvGameTextMgr::buildCityBillboardProductionString(CvWStringBuffer& szBuffer, CvCity* pCity) // advc.003: style changes
+ {
+-	if (pCity->getOrderQueueLength() > 0)
+-	{
+-		szBuffer.assign(pCity->getProductionName());
+-
+-		if (gDLL->getGraphicOption(GRAPHICOPTION_CITY_DETAIL))
+-		{
+-			int iTurns = pCity->getProductionTurnsLeft();
+-
+-			if (iTurns < MAX_INT)
+-			{
+-				szBuffer.append(CvWString::format(L" (%d)", iTurns));
+-			}
+-		}
+-	}
+-	else
+-	{
++	if (pCity->getOrderQueueLength() <= 0) {
+ 		szBuffer.clear();
++		return;
++	}
++
++	szBuffer.assign(pCity->getProductionName());
++	if (gDLL->getGraphicOption(GRAPHICOPTION_CITY_DETAIL)) {
++		int iTurns = pCity->getProductionTurnsLeft();
++		if (iTurns < MAX_INT)
++			szBuffer.append(CvWString::format(L" (%d)", iTurns));
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 63e79d8d0..c946b9163 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3539,16 +3539,13 @@ const TCHAR* CvPlayer::getUnitButton(UnitTypes eUnit) const
+ 	return GC.getUnitInfo(eUnit).getArtInfo(0, getCurrentEra(), (UnitArtStyleTypes) GC.getCivilizationInfo(getCivilizationType()).getUnitArtStyleType())->getButton();
+ }
+ 
+-void CvPlayer::doTurn()
++void CvPlayer::doTurn() // advc.003: style changes
+ {
+ 	PROFILE_FUNC();
+ 
+-	CvCity* pLoopCity;
+-	int iLoop;
+-
+ 	FAssertMsg(isAlive(), "isAlive is expected to be true");
+ 	FAssertMsg(!hasBusyUnit() || GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)  || GC.getGameINLINE().isSimultaneousTeamTurns(), "End of turn with busy units in a sequential-turn game");
+-	CvGame& g = GC.getGame();
++	CvGame& g = GC.getGameINLINE();
+ 	/* <advc.106b> Can't figure out from within CvGame whether it's an AI turn,
+ 	   need assistance from CvPlayer.
+ 	   doTurn contains the entire sequence of an AI turn, but is also called when
+@@ -3556,81 +3553,60 @@ void CvPlayer::doTurn()
+ 	g.setAITurn(true);
+ 	if(isHuman() && //getStartOfTurnMessageLimit() >= 0 && // The message should be helpful even if the log doesn't auto-open
+ 			g.getElapsedGameTurns() > 0 && !m_listGameMessages.empty()) {
+-		CvWString endTurnMsg = gDLL->getText("TXT_KEY_END_TURN_MSG");
+-		gDLL->getInterfaceIFace()->addHumanMessage(getID(), false, 0, endTurnMsg,
+-				0, MESSAGE_TYPE_EOT, 0, (ColorTypes)
+-				GC.getInfoTypeForString("COLOR_LIGHT_GREY"));
++		gDLL->getInterfaceIFace()->addHumanMessage(getID(), false, 0,
++				gDLL->getText("TXT_KEY_END_TURN_MSG"), 0, MESSAGE_TYPE_EOT, 0,
++				(ColorTypes)GC.getInfoTypeForString("COLOR_LIGHT_GREY"));
+ 	}
+ 	if(isHuman())
+ 		m_iNewMessages = 0;
+ 	/*  This way, NewMessages is never reset for non-humans. It is reset in
+-		setHumanDisabled though, i.e. when coming out of AI Auto Play.
+-		Fixme(?): The Event Log might open when loading a multiplayer game b/c
+-		NewMessages isn't stored in savegames. */
++		setHumanDisabled though, i.e. when coming out of AI Auto Play. */
+ 	if(isHuman())
+ 		gDLL->getInterfaceIFace()->clearEventMessages();
+ 	// </advc.106b>
+ 
+-	CvEventReporter::getInstance().beginPlayerTurn( g.getGameTurn(),  getID());
++	CvEventReporter::getInstance().beginPlayerTurn(g.gameTurn(), getID());
+ 	/*  advc.127: Only needs to be true when Civ4lerts are checked, which is done
+ 		in response to beginPlayerTurn. */
+ 	m_bAutoPlayJustEnded = false;
+-	doUpdateCacheOnTurn();
+ 
++	doUpdateCacheOnTurn();
+ 	g.verifyDeals();
+-
+ 	AI_doTurnPre();
+ 
+ 	if (getRevolutionTimer() > 0)
+-	{
+ 		changeRevolutionTimer(-1);
+-	}
+-
+ 	if (getConversionTimer() > 0)
+-	{
+ 		changeConversionTimer(-1);
+-	}
+-
+ 	setConscriptCount(0);
+ 
+ 	AI_assignWorkingPlots();
+ 
+ 	//if (0 == GET_TEAM(getTeam()).getHasMetCivCount(true) || g.isOption(GAMEOPTION_NO_ESPIONAGE))
+-	if (isCommerceFlexible(COMMERCE_ESPIONAGE) && (GET_TEAM(getTeam()).getHasMetCivCount(true) == 0 || GC.getGameINLINE().isOption(GAMEOPTION_NO_ESPIONAGE))) // K-Mod
+-	{
++	// K-Mod.
++	if (isCommerceFlexible(COMMERCE_ESPIONAGE) &&
++			(GET_TEAM(getTeam()).getHasMetCivCount(true) == 0 ||
++			g.isOption(GAMEOPTION_NO_ESPIONAGE))) //
+ 		setCommercePercent(COMMERCE_ESPIONAGE, 0); // (note: not forced)
+-	}
+ 
+ 	verifyGoldCommercePercent();
+-
+ 	doGold();
+-
+ 	doResearch();
+-
+ 	doEspionagePoints();
+ 
+-	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+-	{
++	int iLoop;
++	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 		pLoopCity->doTurn();
+-	}
+ 
+ 	if (getGoldenAgeTurns() > 0)
+-	{
+ 		changeGoldenAgeTurns(-1);
+-	}
+-
+ 	if (getAnarchyTurns() > 0)
+-	{
+ 		changeAnarchyTurns(-1);
+-	}
+-
+ 	verifyCivics();
+-	// <advc.004x>
+-	if(m_eReminderPending != NO_CIVIC)
+-		doChangeCivicsPopup(m_eReminderPending); // </advc.004x>
++	doChangeCivicsPopup(NO_CIVIC); // advc.004x
+ 	//verifyStateReligion(); // dlph.10: disabled for now
+-	updateTradeRoutes();
+ 
++	updateTradeRoutes();
+ 	updateWarWearinessPercentAnger();
+ 	// <advc.011>
+ 	if(GC.getDELAY_UNTIL_BUILD_DECAY() > 0)
+@@ -3653,8 +3629,8 @@ void CvPlayer::doTurn()
+ 	// </advc.004l>
+ 	/*  <advc.034> Cancel disengagement agreements at the end of a round, i.e.
+ 		at the end of the barb turn. */
+-	int disengageLength = GC.getDefineINT("DISENGAGE_LENGTH") > 0;
+-	if(isBarbarian() && disengageLength > 0) {
++	int iDisengageLength = (GC.getDefineINT("DISENGAGE_LENGTH") > 0);
++	if(isBarbarian() && iDisengageLength > 0) {
+ 		for(CvDeal* d = g.firstDeal(&foo); d != NULL; d = g.nextDeal(&foo)) {
+ 			if(d->isDisengage() && d->turnsToCancel() <= 1) {
+ 				/*  Still one turn to cancel, but that turn is practically over.
+@@ -3665,15 +3641,15 @@ void CvPlayer::doTurn()
+ 			}
+ 		}
+ 	} // If DISENGAGE_LENGTH set to 0 in between sessions
+-	else if(disengageLength <= 0) {
+-		CvTeam& ourTeam = GET_TEAM(getTeam());
++	else if(iDisengageLength <= 0) {
++		CvTeam& kOurTeam = GET_TEAM(getTeam());
+ 		for(int i = 0; i < MAX_CIV_TEAMS; i++) {
+ 			TeamTypes tId = (TeamTypes)i;
+-			if(ourTeam.isDisengage(tId))
+-				ourTeam.cancelDisengage(tId);
++			if(kOurTeam.isDisengage(tId))
++				kOurTeam.cancelDisengage(tId);
+ 		}
+ 	} // </advc.034>
+-	int iGameTurn = g.getGameTurn(); // advc,003
++	int iGameTurn = g.getGameTurn();
+ 	updateEconomyHistory(iGameTurn, calculateTotalCommerce());
+ 	updateIndustryHistory(iGameTurn, calculateTotalYield(YIELD_PRODUCTION));
+ 	updateAgricultureHistory(iGameTurn, calculateTotalYield(YIELD_FOOD));
+@@ -3681,26 +3657,17 @@ void CvPlayer::doTurn()
+ 	updateCultureHistory(iGameTurn, countTotalCulture());
+ 	updateEspionageHistory(iGameTurn, GET_TEAM(getTeam()).getEspionagePointsEver());
+ 	expireMessages();  // turn log
+-	showForeignPromoGlow(false); // advc.002e: To match call in doWarnings
+ 
++	showForeignPromoGlow(false); // advc.002e: To match call in doWarnings
+ 	gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+ 
+ 	AI_doTurnPost();
+ 	// <advc.700>
+ 	if(g.isOption(GAMEOPTION_RISE_FALL))
+ 		g.getRiseFall().atTurnEnd(getID()); // </advc.700>
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      07/08/09                                jdog5000      */
+-/*                                                                                              */
+-/* Debug                                                                                        */
+-/************************************************************************************************/
+-    if( g.isDebugMode() )
+-	{
++
++    if (g.isDebugMode()) // BETTER_BTS_AI_MOD, Debug, 07/08/09, jdog5000
+ 		g.updateColoredPlots();
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 	CvEventReporter::getInstance().endPlayerTurn(iGameTurn, getID());
+ }
+@@ -14625,27 +14592,29 @@ void CvPlayer::expireMessages()
+ 
+ void CvPlayer::addPopup(CvPopupInfo* pInfo, bool bFront)
+ {
+-	if (isHuman())
+-	{	// <advc.004x>
+-		if(pInfo->getButtonPopupType() == BUTTONPOPUP_CHANGERELIGION)
+-			killAll(BUTTONPOPUP_CHANGERELIGION);
+-		else if(pInfo->getButtonPopupType() == BUTTONPOPUP_CHANGECIVIC)
+-			killAll(BUTTONPOPUP_CHANGECIVIC);
+-		else if(pInfo->getButtonPopupType() == BUTTONPOPUP_CHOOSETECH)
+-			killAll(BUTTONPOPUP_CHOOSETECH, 0); // </advc.004x>
+-		if (bFront)
+-		{
+-			m_listPopups.push_front(pInfo);
+-		}
+-		else
+-		{
+-			m_listPopups.push_back(pInfo);
+-		}
+-	}
+-	else
+-	{
++	if (!isHuman()) {
+ 		SAFE_DELETE(pInfo);
+-	}
++		return;
++	} // <advc.004x>
++	ButtonPopupTypes eType = pInfo->getButtonPopupType();
++	if(eType == BUTTONPOPUP_CHANGERELIGION)
++		killAll(BUTTONPOPUP_CHANGERELIGION);
++	else if(eType == BUTTONPOPUP_CHANGECIVIC)
++		killAll(BUTTONPOPUP_CHANGECIVIC);
++	else if(eType == BUTTONPOPUP_CHOOSETECH)
++		killAll(BUTTONPOPUP_CHOOSETECH, 0);
++	else if(eType == BUTTONPOPUP_PYTHON_SCREEN) {
++		CvGame& g = GC.getGameINLINE();
++		if(g.getElapsedGameTurns() <= 0 && g.getActivePlayer() != NO_PLAYER) {
++			// Must be DawnOfMan then
++			g.setDawnOfManShown(true);
++			bFront = true;
++			GET_PLAYER(g.getActivePlayer()).doChangeCivicsPopup(NO_CIVIC);
++		}
++	} // </advc.004x>
++	if (bFront)
++		m_listPopups.push_front(pInfo);
++	else m_listPopups.push_back(pInfo);
+ }
+ 
+ 
+@@ -14884,8 +14853,13 @@ void CvPlayer::doChangeCivicsPopup(CivicTypes eCivic) {
+ 		m_eReminderPending = NO_CIVIC;
+ 		return;
+ 	}
+-	if(!canRevolution(NULL)) {
+-		m_eReminderPending = eCivic;
++	if(!canRevolution(NULL) || GC.getGameINLINE().isAboutToShowDawnOfMan()) {
++		m_eReminderPending = (CivicTypes)std::max(m_eReminderPending, eCivic);
++		return;
++	}
++	if(eCivic == NO_CIVIC) { // Then we're only supposed to check for a pending reminder
++		if(m_eReminderPending != NO_CIVIC)
++			doChangeCivicsPopup(m_eReminderPending);
+ 		return;
+ 	}
+ 	m_eReminderPending = NO_CIVIC;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d5d022db3..333d95e4d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1672,7 +1672,8 @@ void CvPlayerAI::AI_doCentralizedProduction()
+ 									}
+ 								}
+ 
+-								if (bValid)
++								if (bValid
++										&& iTurnsLeft < MAX_INT) // advc.004x
+ 								{
+ 									FAssert((MAX_INT / 1000) > iValue);
+ 									iValue *= 1000;
+@@ -9059,12 +9060,17 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ {
+ 	FAssert(getPersonalityType() != NO_LEADER);
+ 	FAssert(ePlayer != getID());
+-
+-	/*  <advc.104i> The EXE keeps calling this function when the diplo screen is
+-		already up, and some of the new code (isPeaceDealPossible) is expensive. */
+-	if(ePlayer == GC.getGameINLINE().getActivePlayer() &&
+-			gDLL->getDiplomacyPlayer() == getID())
+-		return true; // </advc.104i>
++	// <advc.104i>
++	CvGame const& g = GC.getGameINLINE();
++	if(ePlayer == g.getActivePlayer()) {
++		/*  The EXE keeps calling this function when the diplo screen is already up,
++			and some of the new code (isPeaceDealPossible) is expensive. */
++		if(gDLL->getDiplomacyPlayer() == getID())
++			return true;
++		if(GET_PLAYER(ePlayer).isHuman() // i.e. not Auto Play
++				&& g.isOption(GAMEOPTION_ALWAYS_WAR))
++			return false;
++	} // </advc.104i>
+ 
+ 	// <advc.003n> In particular, don't call AI_surrenderTrade on Barbarians.
+ 	if(ePlayer == BARBARIAN_PLAYER)
+@@ -18334,24 +18340,20 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 	if (bMalicious && GC.getEspionageMissionInfo(eMission).getDestroyBuildingCostFactor() > 0)
+ 	{
+ 		FAssert(iData >= 0 && iData < GC.getNumBuildingInfos());
+-		if (canSpyDestroyBuilding(eTargetPlayer, (BuildingTypes)iData))
+-		{
+-			if (NULL != pCity)
+-			{
+-				if (pCity->getNumRealBuilding((BuildingTypes)iData) > 0)
+-				{
+-					CvBuildingInfo& kBuilding = GC.getBuildingInfo((BuildingTypes)iData);
+-					if (!bDisorder) // K-Mod: disorder messes up the evaluation of production and of building value. That's the only reason for this condition.
+-					{
+-						// Note: I'm not allowing recursion in the building evaluation.
+-						// This may cause the cached value to be inaccurate, but it doesn't really matter, because the building is already built!
+-						// (AI_buildingValue gives units of 4x commerce/turn)
+-						iValue += kBuilding.getProductionCost() / 2;
+-						iValue += (2 + pCity->getProductionTurnsLeft((BuildingTypes)iData, 1)) * pCity->AI_buildingValue((BuildingTypes)iData, 0, 0, false, false) / 5;
+-					}
+-					// K-Mod end
+-				}
+-			}
++		if (canSpyDestroyBuilding(eTargetPlayer, (BuildingTypes)iData) && pCity != NULL &&
++				pCity->getNumRealBuilding((BuildingTypes)iData) > 0)
++		{
++			CvBuildingInfo& kBuilding = GC.getBuildingInfo((BuildingTypes)iData);
++			int iTurns = pCity->getProductionTurnsLeft((BuildingTypes)iData, 1);
++			if (iTurns < MAX_INT && // advc.004x: Let's check iTurns _and_ bDisorder
++					!bDisorder) // K-Mod: disorder messes up the evaluation of production and of building value. That's the only reason for this condition.
++			{	// Note: I'm not allowing recursion in the building evaluation.
++				// This may cause the cached value to be inaccurate, but it doesn't really matter, because the building is already built!
++				// (AI_buildingValue gives units of 4x commerce/turn)
++				iValue += kBuilding.getProductionCost() / 2;
++				iValue += (2 + iTurns) * pCity->AI_buildingValue((BuildingTypes)
++						iData, 0, 0, false, false) / 5;
++			} // K-Mod end
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index e62cc2646..950a294bc 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -6452,6 +6452,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 	FAssert(ePlayer >= 0);
+ 	FAssert(ePlayer < MAX_PLAYERS);
+ 
++	CvGame& g = GC.getGameINLINE();
++
+ 	if (GC.getTechInfo(eIndex).isRepeat())
+ 	{
+ 		m_paiTechCount[eIndex]++;
+@@ -6465,7 +6467,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 		{
+ 			if (bAnnounce)
+ 			{
+-				if (GC.getGameINLINE().isFinalInitialized() && !(gDLL->GetWorldBuilderMode()))
++				if (g.isFinalInitialized() && !(gDLL->GetWorldBuilderMode()))
+ 				{
+ 					announceTechToPlayers(eIndex,
+ 							ePlayer); // advc.156
+@@ -6551,7 +6553,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 		{
+ 			if (eIndex == GC.getSpecialBuildingInfo((SpecialBuildingTypes)iI).getTechPrereqAnyone())
+ 			{
+-				GC.getGameINLINE().makeSpecialBuildingValid((SpecialBuildingTypes)iI, bAnnounce);
++				g.makeSpecialBuildingValid((SpecialBuildingTypes)iI, bAnnounce);
+ 			}
+ 		}
+ 
+@@ -6561,7 +6563,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 		bool bReligionFounded = false;
+ 		bool bFirstBonus = false;
+ 		// advc.106:
+-		bool firstToDiscover = (GC.getGameINLINE().countKnownTechNumTeams(eIndex) == 1);
++		bool firstToDiscover = (g.countKnownTechNumTeams(eIndex) == 1);
+ 		if (bFirst)
+ 		{
+ 			if (firstToDiscover)
+@@ -6590,7 +6592,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 									{
+ 										int iValue = 10;
+ 
+-										iValue += GC.getGameINLINE().getSorenRandNum(10, "Found Religion (Player)");
++										iValue += g.getSorenRandNum(10, "Found Religion (Player)");
+ 
+ 										for (int iK = 0; iK < GC.getNumReligionInfos(); iK++)
+ 										{
+@@ -6613,9 +6615,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 
+ 							if (eBestPlayer != NO_PLAYER)
+ 							{
+-								GC.getGameINLINE().setReligionSlotTaken((ReligionTypes)iI, true);
++								g.setReligionSlotTaken((ReligionTypes)iI, true);
+ 
+-								if (GC.getGameINLINE().isOption(GAMEOPTION_PICK_RELIGION))
++								if (g.isOption(GAMEOPTION_PICK_RELIGION))
+ 								{
+ 									if (GET_PLAYER(eBestPlayer).isHuman())
+ 									{
+@@ -6649,7 +6651,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 					{
+ 						if (GC.getCorporationInfo((CorporationTypes)iI).getTechPrereq() == eIndex)
+ 						{
+-							if (!(GC.getGameINLINE().isCorporationFounded((CorporationTypes)iI)))
++							if (!(g.isCorporationFounded((CorporationTypes)iI)))
+ 							{
+ 								int iBestValue = MAX_INT;
+ 								PlayerTypes eBestPlayer = NO_PLAYER;
+@@ -6662,7 +6664,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 										{
+ 											int iValue = 10;
+ 
+-											iValue += GC.getGameINLINE().getSorenRandNum(10, "Found Corporation (Player)");
++											iValue += g.getSorenRandNum(10, "Found Corporation (Player)");
+ 
+ 											if (GET_PLAYER((PlayerTypes)iJ).getCurrentResearch() != eIndex)
+ 											{
+@@ -6744,7 +6746,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 				// advc.106: Do it at the end instead
+ 				if(GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY") <= 0) {
+ 					szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH", GET_PLAYER(ePlayer).getReplayName(), GC.getTechInfo(eIndex).getTextKeyWide());
+-					GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++					g.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 				} // advc.106
+ 			} // <advc.004>
+ 			if(bAnnounceFirst) { // Cut, pasted, refactored from above
+@@ -6792,48 +6794,51 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 		}
+ 
+ 
+-		if (bAnnounce && GC.getGameINLINE().isFinalInitialized() &&
+-			!gDLL->GetWorldBuilderMode()) // advc.003
++		if (bAnnounce && g.isFinalInitialized() &&
++				!gDLL->GetWorldBuilderMode()) // advc.003
+ 		{
+-			announceTechToPlayers(eIndex,
+-					ePlayer); // advc.156
+-			bool messageSent = false; // advc.004r
++			announceTechToPlayers(eIndex, /* advc.156: */ ePlayer); 
++			bool bMessageSent = false; // advc.004r
+ 			for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 			{
+-				CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++				CvPlot const& kLoopPlot = *GC.getMapINLINE().plotByIndexINLINE(iI);
+ 				// <advc.004r>
+-				TeamTypes revTeam = pLoopPlot->getRevealedTeam(getID(), false);
+-				if((revTeam != getID() && revTeam != NO_TEAM &&
+-						revTeam != BARBARIAN_TEAM &&
+-						!GET_TEAM(revTeam).isVassal(getID())) ||
+-						!pLoopPlot->isRevealed(getID(), false)) // </advc.004r>
++				TeamTypes eRevealedTeam = kLoopPlot.getRevealedTeam(getID(), false);
++				if((eRevealedTeam != getID() && eRevealedTeam != NO_TEAM &&
++						eRevealedTeam != BARBARIAN_TEAM &&
++						!GET_TEAM(eRevealedTeam).isVassal(getID())) ||
++						!kLoopPlot.isRevealed(getID(), false)) // </advc.004r>
+ 					continue; // advc.003
+-				BonusTypes eBonus = pLoopPlot->getBonusType();
++				BonusTypes eBonus = kLoopPlot.getBonusType();
+ 				if (eBonus == NO_BONUS)
+-					continue; // advc.003
++					continue;
+ 				if (GC.getBonusInfo(eBonus).getTechReveal() != eIndex ||
+ 						isForceRevealedBonus(eBonus))
+-					continue; // advc.003
+-				CvCity* pCity = GC.getMapINLINE().findCity(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), NO_PLAYER,
++					continue;
++				CvCity* pCity = GC.getMapINLINE().findCity(kLoopPlot.getX_INLINE(), kLoopPlot.getY_INLINE(), NO_PLAYER,
+ 						// advc.004r: Pass ID as 'observer' (last param) instead of city owner 
+ 						NO_TEAM, false, false, NO_TEAM, NO_DIRECTION, NULL, getID());
+ 				if (pCity == NULL)
+-					continue; // advc.003
++					continue;
+ 				CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_DISCOVERED_BONUS", GC.getBonusInfo(eBonus).getTextKeyWide(), pCity->getNameKey());
+ 				/*  <advc.004r> Announce to all team members (instead of
+ 					plot owner, which may not even be alive) */
+ 				for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+-					CvPlayer& member = GET_PLAYER((PlayerTypes)i);
+-					if(!member.isAlive() || member.getTeam() != getID())
++					CvPlayer& kMember = GET_PLAYER((PlayerTypes)i);
++					if(!kMember.isAlive() || kMember.getTeam() != getID())
+ 						continue;
+-					messageSent = true;
+-					gDLL->getInterfaceIFace()->addHumanMessage(member.getID(),
++					bMessageSent = true;
++					gDLL->getInterfaceIFace()->addHumanMessage(kMember.getID(),
+ 							// </advc.004r>
+-							false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DISCOVERBONUS", MESSAGE_TYPE_INFO, GC.getBonusInfo(eBonus).getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), true, true);
++							false, GC.getEVENT_MESSAGE_TIME(), szBuffer,
++							"AS2D_DISCOVERBONUS", MESSAGE_TYPE_INFO,
++							GC.getBonusInfo(eBonus).getButton(), (ColorTypes)
++							GC.getInfoTypeForString("COLOR_WHITE"),
++							kLoopPlot.getX_INLINE(), kLoopPlot.getY_INLINE(), true, true);
+ 				}
+ 			}
+ 			// <advc.004r> Report no sources
+-			if(!messageSent && !isBarbarian() && !isMinorCiv()) {
++			if(!bMessageSent && !isBarbarian() && !isMinorCiv()) {
+ 				BonusTypes eBonus = NO_BONUS;
+ 				for(int i = 0; i < GC.getNumBonusInfos() && eBonus == NO_BONUS; i++) {
+ 					BonusTypes b = (BonusTypes)i;
+@@ -6845,53 +6850,51 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 						CvWString szBuffer = gDLL->getText(
+ 								"TXT_KEY_MISC_DISCOVERED_NO_BONUS",
+ 								GC.getBonusInfo(eBonus).getTextKeyWide());
+-						CvPlayer& member = GET_PLAYER((PlayerTypes)i);
+-						if(!member.isAlive() || member.getTeam() != getID())
++						CvPlayer& kMember = GET_PLAYER((PlayerTypes)i);
++						if(!kMember.isAlive() || kMember.getTeam() != getID())
+ 							continue;
+-						gDLL->getInterfaceIFace()->addHumanMessage(member.getID(),
++						gDLL->getInterfaceIFace()->addHumanMessage(kMember.getID(),
+ 								false, GC.getEVENT_MESSAGE_TIME(), szBuffer
+ 								// Don't play the sound
+ 								/*,"AS2D_DISCOVERBONUS"*/);
+ 					}
+ 				}
+ 			} // </advc.004r>
++		}
++		/*  advc.004x: Don't check bAnnounce for civics popup. FinalInitialized:
++			Let CvPlayer::doChangeCivicsPopup handle that. */
++		if(!gDLL->GetWorldBuilderMode() && getID() == g.getActiveTeam())
++		{
+ 			for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+-			{	// <advc.003> Un-nested the ifs to reduce indentation
+-				CvPlayer& civ = GET_PLAYER((PlayerTypes)iI);
+-				if (civ.isAlive() &&
+-						civ.getTeam() == getID() &&
+-						civ.isHuman() &&
+-						(!bReligionFounded ||
+-						civ.getLastStateReligion() != NO_RELIGION ||
+-						civ.getID() != ePlayer) /*&&
+-						civ.canRevolution(NULL)*/) { // advc.004x
++			{	// advc.003: Un-nested the conditions
++				CvPlayer& kCiv = GET_PLAYER((PlayerTypes)iI);
++				if (kCiv.isAlive() && kCiv.getTeam() == getID() && kCiv.isHuman() &&
++						(kCiv.getID() != ePlayer || !bReligionFounded ||
++						kCiv.getLastStateReligion() != NO_RELIGION) /*&&
++						kCiv.canRevolution(NULL)*/) { // advc.004x
+ 					CivicTypes eCivic = NO_CIVIC;
+-					// </advc.003>
+ 					for (int iJ = 0; iJ < GC.getNumCivicOptionInfos(); iJ++)
+ 					{
+-						if (!civ.isHasCivicOption((CivicOptionTypes)iJ))
++						if (kCiv.isHasCivicOption((CivicOptionTypes)iJ))
++							continue; // advc.003
++						for (int iK = 0; iK < GC.getNumCivicInfos(); iK++)
+ 						{
+-							for (int iK = 0; iK < GC.getNumCivicInfos(); iK++)
+-							{
+-								if (GC.getCivicInfo((CivicTypes)iK).getCivicOptionType() == iJ)
+-								{
+-									if (GC.getCivicInfo((CivicTypes)iK).getTechPrereq() == eIndex)
+-									{
+-										//eCivicOption = (CivicOptionTypes)iJ; // advc.003: unused
+-										eCivic = (CivicTypes)iK;
+-									}
+-								}
++							CivicTypes eLoopCivic = (CivicTypes)iK;
++							if (GC.getCivicInfo(eLoopCivic).getCivicOptionType() != iJ)
++								continue;
++							if (GC.getCivicInfo(eLoopCivic).getTechPrereq() == eIndex)
++							{	//eCivicOption = (CivicOptionTypes)iJ; // advc.003: unused
++								eCivic = eLoopCivic;
+ 							}
+ 						}
+ 					} // <advc.004x>
+-					if(eCivic != NO_CIVIC && civ.canDoCivics(eCivic)) {
++					if(eCivic != NO_CIVIC && kCiv.canDoCivics(eCivic)) {
+ 						// BtS code moved into subroutine
+-						civ.doChangeCivicsPopup(eCivic);
++						kCiv.doChangeCivicsPopup(eCivic);
+ 					} // </advc.004x>
+ 				}
+ 			}
+ 		}
+-
+ 		for (int iI = 0; iI < MAX_TEAMS; iI++)
+ 		{
+ 			if (GET_TEAM((TeamTypes)iI).isAlive())
+@@ -6903,15 +6906,13 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 			}
+ 		}
+ 		// <advc.106>
+-		if(bFirst && firstToDiscover &&
+-				GC.getGameINLINE().getElapsedGameTurns() > 0 &&
++		if(bFirst && firstToDiscover && g.getElapsedGameTurns() > 0 &&
+ 				GC.getDefineINT("SHOW_FIRST_TO_DISCOVER_IN_REPLAY") > 0) {
+ 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH",
+ 					GET_PLAYER(ePlayer).getReplayName(),
+ 					GC.getTechInfo(eIndex).getTextKeyWide());
+-			GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
+-					ePlayer, szBuffer, -1, -1, (ColorTypes)
+-					GC.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT"));
++			g.addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, ePlayer, szBuffer,
++					-1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT"));
+ 		} // </advc.106>
+ 	}
+ 
+@@ -6919,7 +6920,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 	{
+ 		if (bAnnounce)
+ 		{
+-			if (GC.getGameINLINE().isFinalInitialized() && !(gDLL->GetWorldBuilderMode()))
++			if (g.isFinalInitialized() && !(gDLL->GetWorldBuilderMode()))
+ 			{
+ 				FAssert(ePlayer != NO_PLAYER);
+ 				//if (GET_PLAYER(ePlayer).isResearch() && (GET_PLAYER(ePlayer).getCurrentResearch() == NO_TECH))
+@@ -6932,7 +6933,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 		}
+ 	}
+ 
+-	if (getID() == GC.getGameINLINE().getActiveTeam())
++	if (getID() == g.getActiveTeam())
+ 	{
+ 		gDLL->getInterfaceIFace()->setDirty(MiscButtons_DIRTY_BIT, true);
+ 		gDLL->getInterfaceIFace()->setDirty(SelectionButtons_DIRTY_BIT, true);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 4c8a0cbff..57cf37205 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -14164,7 +14164,9 @@ bool CvUnitAI::AI_hurry()
+ 							if (bHurry)
+ 							{
+ 								int iTurnsLeft = pLoopCity->getProductionTurnsLeft();
+-
++								// <advc.004x>
++								if(iTurnsLeft == MAX_INT)
++									continue; // </advc.004x>
+ 								iTurnsLeft -= iPathTurns;
+ 
+ 								if (iTurnsLeft > 8)
+
+diff --git a/CvGameCoreDLL/CyCity.cpp b/CvGameCoreDLL/CyCity.cpp
+index a89c44af2..c41b6ec20 100644
+--- a/CvGameCoreDLL/CyCity.cpp
++++ b/CvGameCoreDLL/CyCity.cpp
+@@ -233,7 +233,10 @@ std::wstring CyCity::getProductionName()
+ 
+ int CyCity::getGeneralProductionTurnsLeft()
+ {
+-	return m_pCity ? m_pCity->getGeneralProductionTurnsLeft() : -1;
++	if(m_pCity == NULL)
++		return -1;
++	int r = m_pCity->getGeneralProductionTurnsLeft();
++	return (r == MAX_INT ? -1 : r); // advc.004x
+ }
+ 
+ std::wstring CyCity::getProductionNameKey()
+@@ -283,22 +286,34 @@ int CyCity::getProductionNeeded()
+ 
+ int CyCity::getProductionTurnsLeft()																
+ {
+-	return m_pCity ? m_pCity->getProductionTurnsLeft() : -1;
++	if(m_pCity == NULL)
++		return -1;
++	int r = m_pCity->getProductionTurnsLeft();
++	return (r == MAX_INT ? -1 : r); // advc.004x
+ }
+ 
+-int CyCity::getUnitProductionTurnsLeft(int /*UnitTypes*/ iUnit, int iNum)									
++int CyCity::getUnitProductionTurnsLeft(int iUnit, int iNum)									
+ {
+-	return m_pCity ? m_pCity->getProductionTurnsLeft((UnitTypes) iUnit, iNum) : -1;
++	if(m_pCity == NULL)
++		return -1;
++	int r = m_pCity->getProductionTurnsLeft((UnitTypes)iUnit, iNum);
++	return (r == MAX_INT ? -1 : r); // advc.004x
+ }
+ 
+-int CyCity::getBuildingProductionTurnsLeft(int /*BuildingTypes*/ iBuilding, int iNum)
++int CyCity::getBuildingProductionTurnsLeft(int iBuilding, int iNum)
+ {
+-	return m_pCity ? m_pCity->getProductionTurnsLeft((BuildingTypes) iBuilding, iNum) : -1;
++	if(m_pCity == NULL)
++		return -1;
++	int r = m_pCity->getProductionTurnsLeft((BuildingTypes)iBuilding, iNum);
++	return (r == MAX_INT ? -1 : r); // advc.004x
+ }
+ 
+-int CyCity::getProjectProductionTurnsLeft(int /*ProjectTypes*/ eProject, int iNum)								
++int CyCity::getProjectProductionTurnsLeft(int eProject, int iNum)								
+ {
+-	return m_pCity ? m_pCity->getProductionTurnsLeft((ProjectTypes)eProject, iNum) : -1;
++	if(m_pCity == NULL)
++		return -1;
++	int r = m_pCity->getProductionTurnsLeft((ProjectTypes)eProject, iNum);
++	return (r == MAX_INT ? -1 : r); // advc.004x
+ }
+ 
+ void CyCity::setProduction(int iNewValue)
+
+[PATCH COVERAGE]
+patchFiles=24 embeddedFiles=24 omittedFiles=0 embeddedPatchBytes=110081

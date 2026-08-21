@@ -1,0 +1,1195 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1374
+# Commit: 17cb564111812be4b75906daa8000edd7f961a29
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b24a9905f62c056acc595ff9577a76569c36e3e8
+# Title: Fixed some issues from recent commits + a few AI/UI tweaks DLL included
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+52	52	Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+12	12	CvGameCoreDLL/CvDLLButtonPopup.cpp
+6	1	CvGameCoreDLL/CvGame.cpp
+4	0	CvGameCoreDLL/CvMap.cpp
+83	37	CvGameCoreDLL/CvPlayer.cpp
+3	0	CvGameCoreDLL/CvPlayer.h
+76	77	CvGameCoreDLL/CvPlot.cpp
+27	41	CvGameCoreDLL/CvTeam.cpp
+17	5	CvGameCoreDLL/CvUnitAI.cpp
+2	1	CvGameCoreDLL/WarAndPeaceAI.cpp
+-	-	manual_0.94.odt
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+index 70d45cdba..0cded06bf 100644
+--- a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -543,7 +543,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -1187,7 +1187,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -1846,7 +1846,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -2497,7 +2497,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -3149,7 +3149,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -3793,7 +3793,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -4439,7 +4439,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -5082,7 +5082,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -5728,7 +5728,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -6380,7 +6380,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -7030,7 +7030,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -7681,7 +7681,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -8333,7 +8333,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -8981,7 +8981,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -9627,7 +9627,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -10246,7 +10246,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -10893,7 +10893,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -11532,7 +11532,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -12175,7 +12175,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -12823,7 +12823,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -13478,7 +13478,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -14128,7 +14128,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -14790,7 +14790,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -15436,7 +15436,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -16083,7 +16083,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -16734,7 +16734,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -17385,7 +17385,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -18032,7 +18032,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -18675,7 +18675,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -19320,7 +19320,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -19967,7 +19967,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -20611,7 +20611,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -21257,7 +21257,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -21908,7 +21908,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -22558,7 +22558,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -23210,7 +23210,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -23870,7 +23870,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -24519,7 +24519,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -25168,7 +25168,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -25818,7 +25818,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -26476,7 +26476,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -27125,7 +27125,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -27765,7 +27765,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -28410,7 +28410,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -29067,7 +29067,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -29720,7 +29720,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -30365,7 +30365,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -31020,7 +31020,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -31660,7 +31660,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -32313,7 +32313,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -32979,7 +32979,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -33633,7 +33633,7 @@
+ 				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>22</iMemoryRand>
++					<iMemoryRand>15</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 03e3c1bda..e1b0eb4b4 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -864,7 +864,8 @@ void CvDLLButtonPopup::OnFocus(CvPopup* pPopup, CvPopupInfo &info)
+ 		break;
+ 
+ 	case BUTTONPOPUP_CHANGECIVIC:
+-		if (!(GET_PLAYER(GC.getGameINLINE().getActivePlayer()).canRevolution(NULL)) || (GC.getGameINLINE().getGameState() == GAMESTATE_OVER))
++		if (!GET_PLAYER(GC.getGameINLINE().getActivePlayer()).canRevolution(NULL) ||
++				GC.getGameINLINE().getGameState() == GAMESTATE_OVER)
+ 		{
+ 			gDLL->getInterfaceIFace()->popupSetAsCancelled(pPopup);
+ 		}
+@@ -1670,23 +1671,22 @@ bool CvDLLButtonPopup::launchChangeCivicsPopup(CvPopup* pPopup, CvPopupInfo &inf
+ 			else
+ 			{
+ 				paeNewCivics[iI] = activePl.getCivics((CivicOptionTypes)iI);
+-				// <advc.004o>
+-				if(bStartButton) {
+-					for(int j = 0; j < GC.getNumCivicInfos(); j++) {
+-						CivicTypes ct = (CivicTypes)j;
+-						if(GC.getCivicInfo(ct).getCivicOptionType() == iI &&
+-								paeNewCivics[iI] != ct && activePl.canDoCivics(ct)) {
+-							bStartButton = false;
+-							break;
+-						}
+-					}
+-				} // </advc.004o>
+ 			}
+ 		}
+ 
+ 		if (activePl.canRevolution(paeNewCivics))
+ 		{
+ 			bValid = true;
++			// <advc.004o>
++			for(int i = 0; i < GC.getNumCivicInfos(); i++) {
++				CivicTypes ct = (CivicTypes)i;
++				if(ct != paeNewCivics[GC.getCivicInfo(ct).getCivicOptionType()] &&
++						!activePl.isCivic(ct) &&
++						activePl.canDoCivics(ct)) {
++					bStartButton = false;
++					break;
++				}
++			} // </advc.004o>
+ 		}
+ 	}
+ 	else
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 7ba0704aa..25c022e97 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -350,8 +350,13 @@ void CvGame::regenerateMap()
+ 	setScriptData("");
+ 	for(int i = 0; i < GC.getMapINLINE().numPlots(); ++i) {
+ 		CvPlot* p = GC.getMapINLINE().plotByIndexINLINE(i);
+-		if(p != NULL)
++		if(p != NULL) {
+ 			p->setScriptData("");
++			/*  advc.021b: Otherwise, assignStartingPlots runs into trouble upon
++				map regeneration when a script calls allowDefaultImpl after
++				assigning starting plots. */
++			p->setStartingPlot(false);
++		}
+ 	} // </advc.004j>
+ 
+ 	setFinalInitialized(false);
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 41599e4a8..13c055676 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -1423,6 +1423,10 @@ void CvMap::read(FDataStreamBase* pStream)
+ 
+ 	setup();
+ 	computeShelves(); // advc.300
++	/*  advc.004z: Not sure if this is the ideal place for this, but it works.
++		(The problem was that goody huts weren't always highlighted by the
++		Resource layer after loading a game.) */
++	gDLL->getInterfaceIFace()->setDirty(GlobeLayer_DIRTY_BIT, true);
+ }
+ 
+ // save object to a stream
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 94aa67002..5db393226 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -759,6 +759,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	iNewMessages = 0; // advc.106b
+ 	autoPlayJustEnded = false; // advc.127
+ 	bSavingReplay = false; // advc.106i
++	eReminderPending = NO_CIVIC; // advc.004x
+ 	
+ 	m_eID = eID;
+ 	updateTeamType();
+@@ -3598,11 +3599,8 @@ void CvPlayer::doTurn()
+ 	CvGame& g = GC.getGame();
+ 	/* <advc.106b> Can't figure out from within CvGame whether it's an AI turn,
+ 	   need assistance from CvPlayer.
+-	   doTurn contains the entire sequence of an AI turn, but is
+-	   also called when a human player ends his/her turn. As soon as that happens,
+-	   the AI should be considered in control b/c the player can't view
+-	   messages. (Well, if a player unit is attacked, messages are displayed
+-	   immediately.) */
++	   doTurn contains the entire sequence of an AI turn, but is also called when
++	   a human player ends his/her turn. */
+ 	g.setAITurn(true);
+ 	if(isHuman() && getStartOfTurnMessageLimit() >= 0 &&
+ 			g.getElapsedGameTurns() > 0 && !m_listGameMessages.empty()) {
+@@ -3675,6 +3673,9 @@ void CvPlayer::doTurn()
+ 	}
+ 
+ 	verifyCivics();
++	// <advc.004x>
++	if(eReminderPending != NO_CIVIC)
++		doChangeCivicsPopup(eReminderPending); // </advc.004x>
+ 	//verifyStateReligion(); // dlph.10: disabled for now
+ 	updateTradeRoutes();
+ 
+@@ -7539,8 +7540,25 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, CvArea* pAr
+ 	}
+ 
+ 	if (GC.getBuildingInfo(eBuilding).getCivicOption() != NO_CIVICOPTION)
+-	{
+-		changeHasCivicOptionCount(((CivicOptionTypes)GC.getBuildingInfo(eBuilding).getCivicOption()), iChange);
++	{	// <advc.004x>
++		CivicOptionTypes eCivicOption = (CivicOptionTypes)GC.getBuildingInfo(eBuilding).
++				getCivicOption();
++		CivicTypes eNewCivic = NO_CIVIC;
++		if(iChange > 0 && isHuman() && !gDLL->GetWorldBuilderMode()) {
++			for(int i = 0; i < GC.getNumCivicInfos(); i++) {
++				CivicTypes eCivic = (CivicTypes)i;
++				if(GC.getCivicInfo(eCivic).getCivicOptionType() == eCivicOption) {
++					if(!canDoCivics(eCivic)) {
++						eNewCivic = eCivic;
++						break;
++					}
++				}
++			}
++		} // </advc.004x>
++		changeHasCivicOptionCount(eCivicOption, iChange);
++		// <advc.004x>
++		if(eNewCivic != NO_CIVIC)
++			doChangeCivicsPopup(eNewCivic); // </advc.004x>
+ 	}
+ 
+ 	changeGreatPeopleRateModifier(GC.getBuildingInfo(eBuilding).getGlobalGreatPeopleRateModifier() * iChange);
+@@ -8794,8 +8812,6 @@ bool CvPlayer::canDoCivics(CivicTypes eCivic) const
+ 
+ bool CvPlayer::canRevolution(CivicTypes* paeNewCivics) const
+ {
+-	int iI;
+-
+ 	if (isAnarchy())
+ 	{
+ 		return false;
+@@ -8807,9 +8823,9 @@ bool CvPlayer::canRevolution(CivicTypes* paeNewCivics) const
+ 	}
+ 
+ 	if (paeNewCivics == NULL)
+-	{
+-		// XXX is this necessary?
+-		for (iI = 0; iI < GC.getNumCivicInfos(); iI++)
++	{	// XXX is this necessary?
++		// ^advc.003: Only for the call in CvPlayer::doAdvancedStartAction I think
++		for (int iI = 0; iI < GC.getNumCivicInfos(); iI++)
+ 		{
+ 			if (canDoCivics((CivicTypes)iI))
+ 			{
+@@ -8822,7 +8838,7 @@ bool CvPlayer::canRevolution(CivicTypes* paeNewCivics) const
+ 	}
+ 	else
+ 	{
+-		for (iI = 0; iI < GC.getNumCivicOptionInfos(); ++iI)
++		for (int iI = 0; iI < GC.getNumCivicOptionInfos(); ++iI)
+ 		{
+ 			if (GC.getGameINLINE().isForceCivicOption((CivicOptionTypes)iI))
+ 			{
+@@ -9522,37 +9538,37 @@ void CvPlayer::setStartingPlot(CvPlot* pNewValue, bool bUpdateStartDist)
+ 	CvPlot* pOldStartingPlot;
+ 
+ 	pOldStartingPlot = getStartingPlot();
+-
+-	if (pOldStartingPlot != pNewValue)
++	// <advc.003>
++	if(pOldStartingPlot == pNewValue)
++		return; // </advc.003>
++	if (pOldStartingPlot != NULL)
+ 	{
+-		if (pOldStartingPlot != NULL)
+-		{
+-			pOldStartingPlot->area()->changeNumStartingPlots(-1);
+-
+-			if (bUpdateStartDist)
+-			{
+-				GC.getMapINLINE().updateMinOriginalStartDist(pOldStartingPlot->area());
+-			}
+-		}
++		pOldStartingPlot->area()->changeNumStartingPlots(-1);
+ 
+-		if (pNewValue == NULL)
++		if (bUpdateStartDist)
+ 		{
+-			m_iStartingX = INVALID_PLOT_COORD;
+-			m_iStartingY = INVALID_PLOT_COORD;
++			GC.getMapINLINE().updateMinOriginalStartDist(pOldStartingPlot->area());
+ 		}
+-		else
+-		{
+-			m_iStartingX = pNewValue->getX_INLINE();
+-			m_iStartingY = pNewValue->getY_INLINE();
++	}
++
++	if (pNewValue == NULL)
++	{
++		m_iStartingX = INVALID_PLOT_COORD;
++		m_iStartingY = INVALID_PLOT_COORD;
++	}
++	else
++	{
++		m_iStartingX = pNewValue->getX_INLINE();
++		m_iStartingY = pNewValue->getY_INLINE();
+ 
+-			getStartingPlot()->area()->changeNumStartingPlots(1);
++		getStartingPlot()->area()->changeNumStartingPlots(1);
+ 
+-			if (bUpdateStartDist)
+-			{
+-				GC.getMapINLINE().updateMinOriginalStartDist(getStartingPlot()->area());
+-			}
++		if (bUpdateStartDist)
++		{
++			GC.getMapINLINE().updateMinOriginalStartDist(getStartingPlot()->area());
+ 		}
+ 	}
++	FAssert(pNewValue==NULL || !pNewValue->isWater()); // advc.021b
+ }
+ 
+ 
+@@ -15074,6 +15090,29 @@ void CvPlayer::clearSpaceShipPopups()
+ 	}
+ }
+ 
++// <advc.004x> Partly cut and pasted from CvTeam::setHasTech
++void CvPlayer::doChangeCivicsPopup(CivicTypes eCivic) {
++
++	if(!isHuman()) { // Forget reminder during Auto Play
++		eReminderPending = NO_CIVIC;
++		return;
++	}
++	if(!canRevolution(NULL)) {
++		eReminderPending = eCivic;
++		return;
++	}
++	eReminderPending = NO_CIVIC;
++	CivicOptionTypes eCivicOption = (CivicOptionTypes)GC.getCivicInfo(eCivic).
++			getCivicOptionType();
++	CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CHANGECIVIC);
++	if(pInfo != NULL) {
++		pInfo->setData1(eCivicOption);
++		pInfo->setData2(eCivic);
++		gDLL->getInterfaceIFace()->addPopup(pInfo, getID());
++	}
++} // </advc.004x>
++
++
+ int CvPlayer::getScoreHistory(int iTurn) const
+ {
+ 	CvTurnScoreMap::const_iterator it = m_mapScoreHistory.find(iTurn);
+@@ -18528,7 +18567,12 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iWondersScore);
+ 	pStream->Read(&m_iTechScore);
+ 	pStream->Read(&m_iCombatExperience);
+-
++	// <advc.004x>
++	if(uiFlag >= 8) {
++		int tmp=-1;
++		pStream->Read(&tmp);
++		eReminderPending = (CivicTypes)tmp;
++	} // </advc.004x>
+ 	pStream->Read(&m_bAlive);
+ 	pStream->Read(&m_bEverAlive);
+ 	pStream->Read(&m_bTurnActive);
+@@ -18943,6 +18987,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	uint uiFlag = 4;
+ 	uiFlag = 5; // advc.908a
+ 	uiFlag = 7; // advc.912c (6 used up for a test version)
++	uiFlag = 8; // advc.004x
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iStartingX);
+@@ -19040,6 +19085,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iWondersScore);
+ 	pStream->Write(m_iTechScore);
+ 	pStream->Write(m_iCombatExperience);
++	pStream->Write(eReminderPending); // advc.004x
+ 
+ 	pStream->Write(m_bAlive);
+ 	pStream->Write(m_bEverAlive);
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 8e750e4ce..37079b50c 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1017,6 +1017,8 @@ public:
+ 	DllExport CvDiploParameters* popFrontDiplomacy();
+ 	DllExport void showSpaceShip();
+ 	DllExport void clearSpaceShipPopups();
++	// advc.004x:
++	void doChangeCivicsPopup(CivicTypes eCivic);
+ 
+ 	int getScoreHistory(int iTurn) const;																								// Exposed to Python
+ 	void updateScoreHistory(int iTurn, int iBestScore);
+@@ -1445,6 +1447,7 @@ protected:
+ 	TeamTypes offeringPeace;
+ 	bool expectingPeaceOffer;
+ 	// </advc.134a>
++	CivicTypes eReminderPending; // advc.004x
+ 	CvTurnScoreMap m_mapScoreHistory;
+ 	CvTurnScoreMap m_mapEconomyHistory;
+ 	CvTurnScoreMap m_mapIndustryHistory;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 80fc09b61..3419fc7bb 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6055,117 +6055,116 @@ ImprovementTypes CvPlot::getImprovementType() const
+ 
+ 
+ void CvPlot::setImprovementType(ImprovementTypes eNewValue)
+-{
+-	int iI;
++{	// <advc.003>
++	int iI=-1;
+ 	ImprovementTypes eOldImprovement = getImprovementType();
++	if(getImprovementType() == eNewValue)
++		return; // </advc.003>
+ 
+-	if (getImprovementType() != eNewValue)
++	if (getImprovementType() != NO_IMPROVEMENT)
+ 	{
+-		if (getImprovementType() != NO_IMPROVEMENT)
++		if (area())
+ 		{
+-			if (area())
+-			{
+-				area()->changeNumImprovements(getImprovementType(), -1);
+-			}
+-			if (isOwned())
+-			{
+-				GET_PLAYER(getOwnerINLINE()).changeImprovementCount(getImprovementType(), -1);
+-			}
++			area()->changeNumImprovements(getImprovementType(), -1);
+ 		}
+-
+-		updatePlotGroupBonus(false);
+-		m_eImprovementType = eNewValue;
+-		updatePlotGroupBonus(true);
+-
+-		if (getImprovementType() == NO_IMPROVEMENT)
++		if (isOwned())
+ 		{
+-			setImprovementDuration(0);
++			GET_PLAYER(getOwnerINLINE()).changeImprovementCount(getImprovementType(), -1);
+ 		}
++	}
+ 
+-		setUpgradeProgress(0);
++	updatePlotGroupBonus(false);
++	m_eImprovementType = eNewValue;
++	updatePlotGroupBonus(true);
+ 
+-		for (iI = 0; iI < MAX_TEAMS; ++iI)
++	if (getImprovementType() == NO_IMPROVEMENT)
++	{
++		setImprovementDuration(0);
++	}
++
++	setUpgradeProgress(0);
++
++	for (iI = 0; iI < MAX_TEAMS; ++iI)
++	{
++		if (GET_TEAM((TeamTypes)iI).isAlive())
+ 		{
+-			if (GET_TEAM((TeamTypes)iI).isAlive())
++			if (isVisible((TeamTypes)iI, false))
+ 			{
+-				if (isVisible((TeamTypes)iI, false))
+-				{
+-					setRevealedImprovementType((TeamTypes)iI, getImprovementType());
+-				}
++				setRevealedImprovementType((TeamTypes)iI, getImprovementType());
+ 			}
+ 		}
++	}
+ 
+-		if (getImprovementType() != NO_IMPROVEMENT)
++	if (getImprovementType() != NO_IMPROVEMENT)
++	{
++		if (area())
+ 		{
+-			if (area())
+-			{
+-				area()->changeNumImprovements(getImprovementType(), 1);
+-			}
+-			if (isOwned())
+-			{
+-				GET_PLAYER(getOwnerINLINE()).changeImprovementCount(getImprovementType(), 1);
+-			}
++			area()->changeNumImprovements(getImprovementType(), 1);
++		}
++		if (isOwned())
++		{
++			GET_PLAYER(getOwnerINLINE()).changeImprovementCount(getImprovementType(), 1);
+ 		}
++	}
+ 
+-		updateIrrigated();
+-		updateYield();
++	updateIrrigated();
++	updateYield();
+ 
+-		for (iI = 0; iI < NUM_CITY_PLOTS; ++iI)
++	for (iI = 0; iI < NUM_CITY_PLOTS; ++iI)
++	{
++		CvPlot* pLoopPlot = plotCity(getX_INLINE(), getY_INLINE(), iI);
++
++		if (pLoopPlot != NULL)
+ 		{
+-			CvPlot* pLoopPlot = plotCity(getX_INLINE(), getY_INLINE(), iI);
++			CvCity* pLoopCity = pLoopPlot->getPlotCity();
+ 
+-			if (pLoopPlot != NULL)
++			if (pLoopCity != NULL)
+ 			{
+-				CvCity* pLoopCity = pLoopPlot->getPlotCity();
+-
+-				if (pLoopCity != NULL)
+-				{
+-					pLoopCity->updateFeatureHappiness();
+-				}
++				pLoopCity->updateFeatureHappiness();
+ 			}
+ 		}
++	}
+ 
+-		// Building or removing a fort will now force a plotgroup update to verify resource connections.
+-		if ( (NO_IMPROVEMENT != getImprovementType() && GC.getImprovementInfo(getImprovementType()).isActsAsCity()) !=
+-			 (NO_IMPROVEMENT != eOldImprovement && GC.getImprovementInfo(eOldImprovement).isActsAsCity()) )
+-		{
+-			updatePlotGroup();
+-		}
++	// Building or removing a fort will now force a plotgroup update to verify resource connections.
++	if ( (NO_IMPROVEMENT != getImprovementType() && GC.getImprovementInfo(getImprovementType()).isActsAsCity()) !=
++		(NO_IMPROVEMENT != eOldImprovement && GC.getImprovementInfo(eOldImprovement).isActsAsCity()) )
++	{
++		updatePlotGroup();
++	}
+ 
+-		if (NO_IMPROVEMENT != eOldImprovement && GC.getImprovementInfo(eOldImprovement).isActsAsCity())
+-		{
+-			verifyUnitValidPlot();
+-		}
++	if (NO_IMPROVEMENT != eOldImprovement && GC.getImprovementInfo(eOldImprovement).isActsAsCity())
++	{
++		verifyUnitValidPlot();
++	}
+ 
+-		if (GC.getGameINLINE().isDebugMode())
+-		{
+-			setLayoutDirty(true);
+-		}
++	if (GC.getGameINLINE().isDebugMode())
++	{
++		setLayoutDirty(true);
++	}
+ 
+-		if (getImprovementType() != NO_IMPROVEMENT)
+-		{
+-			CvEventReporter::getInstance().improvementBuilt(getImprovementType(), getX_INLINE(), getY_INLINE());
+-		}
++	if (getImprovementType() != NO_IMPROVEMENT)
++	{
++		CvEventReporter::getInstance().improvementBuilt(getImprovementType(), getX_INLINE(), getY_INLINE());
++	}
+ 
+-		if (getImprovementType() == NO_IMPROVEMENT)
+-		{
+-			CvEventReporter::getInstance().improvementDestroyed(eOldImprovement, getOwnerINLINE(), getX_INLINE(), getY_INLINE());
+-		}
++	if (getImprovementType() == NO_IMPROVEMENT)
++	{
++		CvEventReporter::getInstance().improvementDestroyed(eOldImprovement, getOwnerINLINE(), getX_INLINE(), getY_INLINE());
++	}
+ 
+-		CvCity* pWorkingCity = getWorkingCity();
+-		if (NULL != pWorkingCity)
++	CvCity* pWorkingCity = getWorkingCity();
++	if (NULL != pWorkingCity)
++	{
++		if ((NO_IMPROVEMENT != eNewValue && pWorkingCity->getImprovementFreeSpecialists(eNewValue) > 0)	|| 
++			(NO_IMPROVEMENT != eOldImprovement && pWorkingCity->getImprovementFreeSpecialists(eOldImprovement) > 0))
+ 		{
+-			if ((NO_IMPROVEMENT != eNewValue && pWorkingCity->getImprovementFreeSpecialists(eNewValue) > 0)	|| 
+-				(NO_IMPROVEMENT != eOldImprovement && pWorkingCity->getImprovementFreeSpecialists(eOldImprovement) > 0))
+-			{
+ 
+-				pWorkingCity->AI_setAssignWorkDirty(true);
++			pWorkingCity->AI_setAssignWorkDirty(true);
+ 
+-			}
+ 		}
+-
+-		gDLL->getInterfaceIFace()->setDirty(CitizenButtons_DIRTY_BIT, true);
+ 	}
++
++	gDLL->getInterfaceIFace()->setDirty(CitizenButtons_DIRTY_BIT, true);
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 625897126..8bd4a2f1a 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -6128,8 +6128,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 	CvCity* pCity;
+ 	CvPlot* pLoopPlot;
+ 	CvWString szBuffer;
+-	CivicOptionTypes eCivicOptionType;
+-	CivicTypes eCivicType;
++	// advc.003: Some declarations moved
+ 	PlayerTypes eBestPlayer;
+ 	BonusTypes eBonus;
+ 	UnitTypes eFreeUnit;
+@@ -6490,7 +6489,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 			}
+ 
+ 			if (bAnnounce && GC.getGameINLINE().isFinalInitialized() &&
+-					!(gDLL->GetWorldBuilderMode())) // advc.003
++					!gDLL->GetWorldBuilderMode()) // advc.003
+ 			{
+ 				announceTechToPlayers(eIndex);
+ 				bool messageSent = false; // advc.004r
+@@ -6552,53 +6551,40 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 						}
+ 					}
+ 				} // </advc.004r>
+-				for (iI = 0; iI < MAX_PLAYERS; iI++)
+-				{
+-					if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-					{
+-						if (GET_PLAYER((PlayerTypes)iI).getTeam() == getID())
++				for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++				{	// <advc.003> Un-nested the ifs to reduce indentation
++					CvPlayer& civ = GET_PLAYER((PlayerTypes)iI);
++					if (civ.isAlive() &&
++							civ.getTeam() == getID() &&
++							civ.isHuman() &&
++							(!bReligionFounded ||
++							civ.getLastStateReligion() != NO_RELIGION ||
++							civ.getID() != ePlayer) /*&&
++							civ.canRevolution(NULL)*/) { // advc.004x
++						CivicOptionTypes eCivicOption = NO_CIVICOPTION;
++						CivicTypes eCivic = NO_CIVIC;
++						// </advc.003>
++						for (iJ = 0; iJ < GC.getNumCivicOptionInfos(); iJ++)
+ 						{
+-							if (GET_PLAYER((PlayerTypes)iI).isHuman())
++							if (!civ.isHasCivicOption((CivicOptionTypes)iJ))
+ 							{
+-								if (!bReligionFounded || (GET_PLAYER((PlayerTypes)iI).getLastStateReligion() != NO_RELIGION) || (iI != ePlayer))
++								for (iK = 0; iK < GC.getNumCivicInfos(); iK++)
+ 								{
+-									if (GET_PLAYER((PlayerTypes)iI).canRevolution(NULL))
++									if (GC.getCivicInfo((CivicTypes)iK).getCivicOptionType() == iJ)
+ 									{
+-										eCivicOptionType = NO_CIVICOPTION;
+-										eCivicType = NO_CIVIC;
+-
+-										for (iJ = 0; iJ < GC.getNumCivicOptionInfos(); iJ++)
+-										{
+-											if (!(GET_PLAYER((PlayerTypes)iI).isHasCivicOption((CivicOptionTypes)iJ)))
+-											{
+-												for (iK = 0; iK < GC.getNumCivicInfos(); iK++)
+-												{
+-													if (GC.getCivicInfo((CivicTypes)iK).getCivicOptionType() == iJ)
+-													{
+-														if (GC.getCivicInfo((CivicTypes)iK).getTechPrereq() == eIndex)
+-														{
+-															eCivicOptionType = ((CivicOptionTypes)iJ);
+-															eCivicType = ((CivicTypes)iK);
+-														}
+-													}
+-												}
+-											}
+-										}
+-
+-										if ((eCivicOptionType != NO_CIVICOPTION) && (eCivicType != NO_CIVIC))
++										if (GC.getCivicInfo((CivicTypes)iK).getTechPrereq() == eIndex)
+ 										{
+-											CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_CHANGECIVIC);
+-											if (NULL != pInfo)
+-											{
+-												pInfo->setData1(eCivicOptionType);
+-												pInfo->setData2(eCivicType);
+-												gDLL->getInterfaceIFace()->addPopup(pInfo, (PlayerTypes)iI);
+-											}
++											eCivicOption = (CivicOptionTypes)iJ;
++											eCivic = (CivicTypes)iK;
+ 										}
+ 									}
+ 								}
+ 							}
+-						}
++						} // <advc.004x>
++						if(eCivic != NO_CIVIC && civ.canDoCivics(eCivic)) {
++							// BtS code moved into subroutine
++							civ.doChangeCivicsPopup(eCivic);
++						} // </advc.004x>
+ 					}
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a60d5506d..7e47d0d86 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -12442,14 +12442,27 @@ bool CvUnitAI::AI_guardCitySite()
+ 	CvPlot* pBestGuardPlot = NULL;
+ 	// advc.003: Moved all the other declarations
+ 	CvPlayerAI const& owner = GET_PLAYER(getOwnerINLINE());
+-	//iBestValue = 0;
+-	/*  advc.300: Don't guard any ole tile with a positive found value;
+-		only actual city sites. */
++	//iBestValue = 0; // <advc.300>
++	// Don't guard any ole tile with a positive found value; only actual city sites. */
+ 	int iBestValue = owner.AI_getMinFoundValue() - 1;
++	CvMap const& m = GC.getMapINLINE(); // </advc.300>
+ 	for (int iI = 0; iI < owner.AI_getNumCitySites(); iI++)
+ 	{
+ 		CvPlot* pLoopPlot = owner.AI_getCitySite(iI);
+-		if (owner.AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_GUARD_CITY, getGroup()) == 0)
++		//if (owner.AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_GUARD_CITY, getGroup()) == 0)
++		// <advc.300> Need to check the adjacent tiles too
++		bool bValid = true;
++		for(int dx = -1; dx <= 1; dx++)
++		for(int dy = -1; dy <= 1; dy++) {
++			CvPlot* adj = m.plot(pLoopPlot->getX_INLINE() + dx,
++					pLoopPlot->getY_INLINE() + dy);
++			if(adj != NULL && owner.AI_plotTargetMissionAIs(adj,
++					MISSIONAI_GUARD_CITY, getGroup()) > 0) {
++				bValid = false;
++				dx = dy = 2; // break x2
++			}
++		}
++		if(bValid) // </advc.300>
+ 		{
+ 			// K-Mod. I've switched the order of the following two if statements, for efficiency.
+ 			int iValue = pLoopPlot->getFoundValue(owner.getID());
+@@ -12466,7 +12479,6 @@ bool CvUnitAI::AI_guardCitySite()
+ 	}
+ 	// <advc.300> Guard an adjacent plot if it's better for fogbusting
+ 	if(pBestGuardPlot != NULL) {
+-		CvMap const& m = GC.getMapINLINE();
+ 		int iBestGuardVal = 0;
+ 		CvPlot* pBetterGuardPlot = pBestGuardPlot;
+ 		for(int dx = -1; dx <= 1; dx++) {
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 1071d692a..202730705 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -2351,7 +2351,8 @@ bool WarAndPeaceAI::Civ::considerGiftRequest(PlayerTypes theyId,
+ 
+ 	/*  Just check war utility and peace treaty here; all the other conditions
+ 		are handled by CvPlayerAI::AI_considerOffer. */
+-	if(TEAMREF(weId).isForcePeace(TEAMID(theyId)))
++	if(TEAMREF(weId).isForcePeace(TEAMID(theyId)) && GET_PLAYER(weId).
++			AI_getMemoryAttitude(theyId, MEMORY_GIVE_HELP) <= 0)
+ 		return false;
+ 	// If war not possible, might as well sign a peace treaty
+ 	if(!TEAMREF(weId).canDeclareWar(TEAMID(theyId)) ||
+
+[PATCH OMITTED] file=a/manual_0.94.odt b/manual_0.94.odt reason=binary/generated-file changedLines=0 bytes=140
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=10 omittedFiles=2 embeddedPatchBytes=38492

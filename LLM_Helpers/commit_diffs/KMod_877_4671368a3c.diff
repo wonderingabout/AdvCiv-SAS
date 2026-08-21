@@ -1,0 +1,63 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 877
+# Commit: 4671368a3c456e71576b315eec8d28ae0238e9f1
+# History segment: K-Mod history
+# Parent used for diff: 65d15cafd05587a02e75183452bc0c6b839987e8
+# Title: Governors will now pop borders for barbs and build more units for humans
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	5	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index f710c43c7..604d3b3b9 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10968,16 +10968,17 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 		}
+ 
+ 		//military
+-		bool bWar = GET_TEAM(getTeam()).getAtWarCount(true) > 0;
+-		if (bDanger || iBestBuildingValue < (bWar ? 35 : 20))
++		bool bWar = area()->getAreaAIType(kOwner.getTeam()) != AREAAI_NEUTRAL;
++		// (I'd like to check AI_neededFloatingDefenders, but I don't want to have to calculate it just for this singluar case.)
++		if (bDanger || iBestBuildingValue < (bWar ? 70 : 35))
+ 		{
+-			int iOdds = (bWar ? 100 : 50) - kOwner.AI_unitCostPerMil()/2;
++			int iOdds = (bWar ? 100 : 60) - kOwner.AI_unitCostPerMil()/2;
+ 			iOdds += AI_experienceWeight();
+ 			iOdds *= 100 + 2*getMilitaryProductionModifier();
+ 			iOdds /= 100;
+ 
+-			iOdds *= 50 + iBestBuildingValue;
+-			iOdds /= 50 + 10 * iBestBuildingValue;
++			iOdds *= 60 + iBestBuildingValue;
++			iOdds /= 60 + 10 * iBestBuildingValue;
+ 
+ 			if (GC.getGameINLINE().getSorenRandNum(100, "City governor choose military") < iOdds)
+ 			{
+@@ -11134,6 +11135,11 @@ void CvCityAI::AI_barbChooseProduction()
+ 		}
+ 	}
+ 
++	// K-Mod. Allow barbs to pop their borders when they can.
++	if (getCultureLevel() <= 1 && AI_chooseProcess(COMMERCE_CULTURE))
++		return;
++	// K-Mod end
++
+ 	if (!bDanger && (2*iExistingWorkers < iNeededWorkers) && (AI_getWorkersNeeded() > 0) && (AI_getWorkersHave() == 0))
+ 	{
+ 		if( getPopulation() > 1 || (GC.getGameINLINE().getGameTurn() - getGameTurnAcquired() > (15 * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getTrainPercent())/100) )
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1680

@@ -1,0 +1,53 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1109
+# Commit: 513113b896c18c39930aae70d54bb9b851f885f4
+# History segment: K-Mod history
+# Parent used for diff: 20ee7503a4502ea777f06fe217e0f78e8b66c83e
+# Title: Added hint about right click on +/- buttons.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	Assets/xml/GameInfo/CIV4Hints.xml
+4	0	Assets/xml/Text/K-Mod hints.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index 19af164c8..fe7199087 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -472,5 +472,8 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_KMOD_HINT_14</Description>
+ 		</HintInfo> <!-- suppress cycling -->
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_15</Description>
++		</HintInfo> <!-- right-click on +/- -->
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index 0e7775e37..73d0f056a 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -142,4 +142,8 @@
+ 	<English>Hold the 'X' key when issuing a command to temporarily suppress automatic unit cycling.</English>
+ 	<Spanish>Mantener la tecla 'X' presionada cuando das una �rden para suprimir temporalmente el ciclo de unidades.</Spanish>
+ </TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_15</Tag>
++	<English>Commerce sliders and espionage weights can be set to max/min quickly by right clicking their +/- buttons.</English>
++</TEXT>
+ </Civ4GameText>
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1139

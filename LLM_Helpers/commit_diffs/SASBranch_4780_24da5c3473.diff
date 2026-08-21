@@ -1,0 +1,606 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4780
+# Commit: 24da5c34731a4e7139d39cf4d3bbaea49f97afd4
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a63e4bcf7f30bcc625e0be5cf90055054ba07a38
+# Title: rework and buff the aztec civ specific building, now aztec_sacrificial_altar based on the building_monument also: - rename _AZTEC_COURTHOUSE to _AZTEC_SACRIF...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+189	191	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+1	1	Assets/XML/GameInfo/CIV4CivicInfos.xml
+19	11	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+2	2	Assets/XML/Units/CIV4UnitInfos.xml
+8	8	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 557f883f2..5f86af500 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -3250,7 +3250,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+-			<iAIWeight>0</iAIWeight>
++			<!-- custom: the granary should be valuable to all players and war profiles (peaceful or warmonger alike could make great use of it, but do not overincrease it in case alternate strategies are better, trying this value then anyways etc), was 0 -->
++			<iAIWeight>25</iAIWeight>
+ 			<iCost>60</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -3356,7 +3357,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -8727,6 +8728,191 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
++		<!-- custom: reworked based on https://en.wikipedia.org/wiki/Aztecs#Religion and https://en.wikipedia.org/wiki/Human_sacrifice#Pre-Columbian_Americas -->
++		<BuildingInfo> <!-- custom: class: monument, type: aztec_sacrificial_altar (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
++			<Type>BUILDING_AZTEC_SACRIFICIAL_ALTAR</Type>
++			<SpecialBuildingType>NONE</SpecialBuildingType>
++			<Description>TXT_KEY_BUILDING_AZTEC_SACRIFICIAL_ALTAR</Description>
++			<Civilopedia>TXT_KEY_BUILDING_AZTEC_SACRIFICIAL_ALTAR_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_BUILDING_AZTEC_SACRIFICIAL_ALTAR_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<ArtDefineTag>ART_DEF_BUILDING_AZTEC_SACRIFICIAL_ALTAR</ArtDefineTag>
++			<MovieDefineTag>NONE</MovieDefineTag>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<bStateReligion>0</bStateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<FoundsCorporation>NONE</FoundsCorporation>
++			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
++			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
++			<VictoryPrereq>NONE</VictoryPrereq>
++			<FreeStartEra>ERA_MODERN</FreeStartEra>
++			<MaxStartEra>NONE</MaxStartEra>
++			<ObsoleteTech>TECH_LIBERALISM</ObsoleteTech>
++			<!-- custom: make it based/require on/ tech_calendar as per/according to the wikipedia info, would be much more relevant after(/if and hopefully yes for the calendar of the aztecs but anyways etc) we rework tech tree as calendar would be much sooner in tech tree, see docs or/and tech tree view in docs as well for details, anyways etc -->
++			<PrereqTech>TECH_MYSTICISM</PrereqTech>
++			<TechTypes/>
++			<Bonus>NONE</Bonus>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<HappinessTraits/>
++			<NoBonus>NONE</NoBonus>
++			<PowerBonus>NONE</PowerBonus>
++			<FreeBonus>NONE</FreeBonus>
++			<iNumFreeBonuses>0</iNumFreeBonuses>
++			<FreeBuilding>NONE</FreeBuilding>
++			<FreePromotion>NONE</FreePromotion>
++			<CivicOption>NONE</CivicOption>
++			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
++			<iHurryAngerModifier>-75</iHurryAngerModifier>
++			<bBorderObstacle>0</bBorderObstacle>
++			<bTeamShare>0</bTeamShare>
++			<bWater>0</bWater>
++			<bRiver>0</bRiver>
++			<bPower>0</bPower>
++			<bDirtyPower>0</bDirtyPower>
++			<bAreaCleanPower>0</bAreaCleanPower>
++			<DiploVoteType>NONE</DiploVoteType>
++			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
++			<bCapital>0</bCapital>
++			<bGovernmentCenter>0</bGovernmentCenter>
++			<bGoldenAge>0</bGoldenAge>
++			<bAllowsNukes>0</bAllowsNukes>
++			<bMapCentering>0</bMapCentering>
++			<bNoUnhappiness>0</bNoUnhappiness>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
++			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
++			<bNeverCapture>1</bNeverCapture>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bCenterInCity>1</bCenterInCity>
++			<!-- custom: this should be very valuable for aztecs to build, make sure they build it, will also help their warmongering and such maybe too, anyways etc -->
++			<iAIWeight>0</iAIWeight>
++			<iCost>45</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iConquestProb>0</iConquestProb>
++			<iCitiesPrereq>0</iCitiesPrereq>
++			<iTeamsPrereq>0</iTeamsPrereq>
++			<iLevelPrereq>0</iLevelPrereq>
++			<iMinLatitude>0</iMinLatitude>
++			<iMaxLatitude>90</iMaxLatitude>
++			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
++			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
++			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
++			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
++			<iAnarchyModifier>0</iAnarchyModifier>
++			<iGoldenAgeModifier>0</iGoldenAgeModifier>
++			<iGlobalHurryModifier>0</iGlobalHurryModifier>
++			<iExperience>0</iExperience>
++			<iGlobalExperience>0</iGlobalExperience>
++			<iFoodKept>0</iFoodKept>
++			<iAirlift>0</iAirlift>
++			<iAirModifier>0</iAirModifier>
++			<iAirUnitCapacity>0</iAirUnitCapacity>
++			<iNukeModifier>0</iNukeModifier>
++			<iNukeExplosionRand>0</iNukeExplosionRand>
++			<iFreeSpecialist>0</iFreeSpecialist>
++			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
++			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
++			<iMaintenanceModifier>0</iMaintenanceModifier>
++			<iWarWearinessModifier>0</iWarWearinessModifier>
++			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
++			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
++			<iHealRateChange>0</iHealRateChange>
++			<iHealth>0</iHealth>
++			<iAreaHealth>0</iAreaHealth>
++			<iGlobalHealth>0</iGlobalHealth>
++			<iHappiness>1</iHappiness>
++			<iAreaHappiness>0</iAreaHappiness>
++			<iGlobalHappiness>0</iGlobalHappiness>
++			<iStateReligionHappiness>0</iStateReligionHappiness>
++			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
++			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
++			<iSpaceProductionModifier>0</iSpaceProductionModifier>
++			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
++			<iTradeRoutes>0</iTradeRoutes>
++			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
++			<iTradeRouteModifier>0</iTradeRouteModifier>
++			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
++			<iGlobalPopulationChange>0</iGlobalPopulationChange>
++			<iFreeTechs>0</iFreeTechs>
++			<iDefense>0</iDefense>
++			<iBombardDefense>0</iBombardDefense>
++			<iAllCityDefense>0</iAllCityDefense>
++			<iEspionageDefense>0</iEspionageDefense>
++			<iAsset>2</iAsset>
++			<iPower>1</iPower>
++			<fVisibilityPriority>1.0</fVisibilityPriority>
++			<SeaPlotYieldChanges/>
++			<RiverPlotYieldChanges/>
++			<GlobalSeaPlotYieldChanges/>
++			<YieldChanges/>
++			<CommerceChanges/>
++			<ObsoleteSafeCommerceChanges>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>2</iCommerce>
++			</ObsoleteSafeCommerceChanges>
++			<CommerceChangeDoubleTimes>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>1000</iCommerce>
++			</CommerceChangeDoubleTimes>
++			<CommerceModifiers/>
++			<GlobalCommerceModifiers/>
++			<SpecialistExtraCommerces/>
++			<StateReligionCommerces/>
++			<CommerceHappinesses/>
++			<ReligionChanges/>
++			<!-- custom: now 0 spy with the rework, not related to courthouse anymore, was 2 spy -->
++			<!-- advc.911a: was 1 spy -->
++			<SpecialistCounts/>
++			<FreeSpecialistCounts/>
++			<CommerceFlexibles/>
++			<CommerceChangeOriginalOwners/>
++			<ConstructSound>AS2D_BUILD_MONUMENT</ConstructSound>
++			<BonusHealthChanges/>
++			<BonusHappinessChanges/>
++			<BonusProductionModifiers/>
++			<UnitCombatFreeExperiences/>
++			<DomainFreeExperiences/>
++			<DomainProductionModifiers/>
++			<BuildingHappinessChanges/>
++			<PrereqBuildingClasses/>
++			<BuildingClassNeededs/>
++			<SpecialistYieldChanges/>
++			<BonusYieldModifiers/>
++			<ImprovementFreeSpecialists/>
++			<!-- advc.020: Was 10 Gold, 3 Espionage. Whipping also has
++				 Production flavor. -->
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>8</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
++					<iFlavor>6</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++			</Flavors>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++		</BuildingInfo>
+ 		<BuildingInfo> <!-- custom: class: public_transportation, type: public_transportation (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_PUBLIC_TRANSPORTATION</BuildingClass>
+ 			<Type>BUILDING_PUBLIC_TRANSPORTATION</Type>
+@@ -13095,7 +13281,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+ 			<CommerceModifiers>
+-				<iCommerce>65</iCommerce>
++				<iCommerce>75</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+@@ -13707,194 +13893,6 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: courthouse, type: aztec_sacrificial_altar (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<BuildingClass>BUILDINGCLASS_COURTHOUSE</BuildingClass>
+-			<Type>BUILDING_AZTEC_SACRIFICIAL_ALTAR</Type>
+-			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_AZTEC_SACRIFICIAL_ALTAR</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_AZTEC_COURTHOUSE_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_AZTEC_SACRIFICIAL_ALTAR_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_ECONOMY</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_AZTEC_SACRIFICIAL_ALTAR</ArtDefineTag>
+-			<MovieDefineTag>NONE</MovieDefineTag>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<bStateReligion>0</bStateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<FoundsCorporation>NONE</FoundsCorporation>
+-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+-			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>ERA_MODERN</FreeStartEra>
+-			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+-			<TechTypes/>
+-			<Bonus>NONE</Bonus>
+-			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
+-			<HappinessTraits/>
+-			<NoBonus>NONE</NoBonus>
+-			<PowerBonus>NONE</PowerBonus>
+-			<FreeBonus>NONE</FreeBonus>
+-			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>NONE</FreeBuilding>
+-			<FreePromotion>NONE</FreePromotion>
+-			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+-			<iHurryAngerModifier>-50</iHurryAngerModifier>
+-			<bBorderObstacle>0</bBorderObstacle>
+-			<bTeamShare>0</bTeamShare>
+-			<bWater>0</bWater>
+-			<bRiver>0</bRiver>
+-			<bPower>0</bPower>
+-			<bDirtyPower>0</bDirtyPower>
+-			<bAreaCleanPower>0</bAreaCleanPower>
+-			<DiploVoteType>NONE</DiploVoteType>
+-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+-			<bCapital>0</bCapital>
+-			<bGovernmentCenter>0</bGovernmentCenter>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bAllowsNukes>0</bAllowsNukes>
+-			<bMapCentering>0</bMapCentering>
+-			<bNoUnhappiness>0</bNoUnhappiness>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>0</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bCenterInCity>0</bCenterInCity>
+-			<iAIWeight>0</iAIWeight>
+-			<iCost>90</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>66</iConquestProb>
+-			<iCitiesPrereq>0</iCitiesPrereq>
+-			<iTeamsPrereq>0</iTeamsPrereq>
+-			<iLevelPrereq>0</iLevelPrereq>
+-			<iMinLatitude>0</iMinLatitude>
+-			<iMaxLatitude>90</iMaxLatitude>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+-			<iAnarchyModifier>0</iAnarchyModifier>
+-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+-			<iExperience>0</iExperience>
+-			<iGlobalExperience>0</iGlobalExperience>
+-			<iFoodKept>0</iFoodKept>
+-			<iAirlift>0</iAirlift>
+-			<iAirModifier>0</iAirModifier>
+-			<iAirUnitCapacity>0</iAirUnitCapacity>
+-			<iNukeModifier>0</iNukeModifier>
+-			<iNukeExplosionRand>0</iNukeExplosionRand>
+-			<iFreeSpecialist>0</iFreeSpecialist>
+-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+-			<iMaintenanceModifier>-50</iMaintenanceModifier>
+-			<iWarWearinessModifier>0</iWarWearinessModifier>
+-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+-			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>0</iHealth>
+-			<iAreaHealth>0</iAreaHealth>
+-			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>0</iHappiness>
+-			<iAreaHappiness>0</iAreaHappiness>
+-			<iGlobalHappiness>0</iGlobalHappiness>
+-			<iStateReligionHappiness>0</iStateReligionHappiness>
+-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+-			<iTradeRoutes>0</iTradeRoutes>
+-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+-			<iTradeRouteModifier>0</iTradeRouteModifier>
+-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+-			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>0</iDefense>
+-			<iBombardDefense>0</iBombardDefense>
+-			<iAllCityDefense>0</iAllCityDefense>
+-			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>5</iAsset>
+-			<iPower>0</iPower>
+-			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<SeaPlotYieldChanges/>
+-			<RiverPlotYieldChanges/>
+-			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
+-			<CommerceChanges>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>2</iCommerce>
+-			</CommerceChanges>
+-			<ObsoleteSafeCommerceChanges/>
+-			<CommerceChangeDoubleTimes/>
+-			<CommerceModifiers/>
+-			<GlobalCommerceModifiers/>
+-			<SpecialistExtraCommerces/>
+-			<StateReligionCommerces/>
+-			<CommerceHappinesses/>
+-			<ReligionChanges/>
+-			<!-- advc.911a: was 1 spy -->
+-			<SpecialistCounts>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_SPY</SpecialistType>
+-					<iSpecialistCount>2</iSpecialistCount>
+-				</SpecialistCount>
+-			</SpecialistCounts>
+-			<FreeSpecialistCounts/>
+-			<CommerceFlexibles/>
+-			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_COURTHOUSE</ConstructSound>
+-			<BonusHealthChanges/>
+-			<BonusHappinessChanges/>
+-			<BonusProductionModifiers/>
+-			<UnitCombatFreeExperiences/>
+-			<DomainFreeExperiences/>
+-			<DomainProductionModifiers/>
+-			<BuildingHappinessChanges/>
+-			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs/>
+-			<SpecialistYieldChanges/>
+-			<BonusYieldModifiers/>
+-			<ImprovementFreeSpecialists/>
+-			<!-- advc.020: Was 10 Gold, 3 Espionage. Whipping also has
+-				 Production flavor. -->
+-			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>8</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>6</iFlavor>
+-				</Flavor>
+-			</Flavors>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-		</BuildingInfo>
+ 		<BuildingInfo> <!-- custom: class: courthouse, type: holy_roman_rathaus (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_COURTHOUSE</BuildingClass>
+ 			<Type>BUILDING_HOLY_ROMAN_RATHAUS</Type>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index e9b34bb4c..262fb8f25 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -294,7 +294,7 @@
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_COURTHOUSE</BuildingClassType>
++					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
+ 					<BuildingType>BUILDING_AZTEC_SACRIFICIAL_ALTAR</BuildingType>
+ 				</Building>
+ 			</Buildings>
+@@ -617,7 +617,7 @@
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
++					<BuildingClassType>BUILDINGCLASS_CUSTOM_HOUSE</BuildingClassType>
+ 					<BuildingType>BUILDING_CARTHAGE_COTHON</BuildingType>
+ 				</Building>
+ 			</Buildings>
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index 59d1bbdd1..38ac0de7e 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -772,7 +772,7 @@
+ 			<Civilopedia>TXT_KEY_CIVIC_SLAVERY_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_CIVIC_SLAVERY_STRATEGY</Strategy>
+ 			<Button>,Art/Interface/Buttons/Civics/Slavery.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,8,2</Button>
+-			<TechPrereq>TECH_BRONZE_WORKING</TechPrereq>
++			<TechPrereq>TECH_AGRICULTURE</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<Upkeep>UPKEEP_MEDIUM</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index cc1db57ed..61ce5ddcf 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -312,6 +312,25 @@
+ 
+ 
+ 
++	<!-- custom: rename "Montezuma" to "Moctezuma II" (more accurate) and fix birth date from "c.1480" to "1466"
++	source for the corrections (mentionned)(anyways etc) above: https://en.wikipedia.org/wiki/Moctezuma_II
++	text otherwise kept same at leats for now if not always or maybe not (too) or maybe yes or not or/and other(s?) or/and not anyways etc anyways etc
++	-->
++	<TEXT>
++		<Tag>TXT_KEY_LEADER_MOCTEZUMA_PEDIA</Tag>
++		<English>[H1]Moctezuma II [\H1][NEWLINE][BOLD]Aztec Emperor [\BOLD][NEWLINE][BOLD]Lived: [\BOLD] c.1466 - 1520[NEWLINE][PARAGRAPH:2][BOLD]Background:[\BOLD][NEWLINE][TAB]Moctezuma II was Emperor of the Aztec nation from approximately 1502 until its dissolution in 1520. At the start of his reign he was considered a god and was absolute monarch of the entire known world; at the end of his reign he watched a small group of foreigners destroy his empire with ease. [PARAGRAPH:1]Moctezuma II ruled the Aztecs at the height of their power. His empire controlled a large portion of what is now modern Mexico. They had conquered virtually all other people around them, except for a few other nations, which they deliberately left free (so that they would have somebody left to make war against and to use as sacrifices). [PARAGRAPH:1]Though extremely rich and powerful, Moctezuma II's nation shamelessly squandered a great portion of its wealth and might. Much like the Egyptians, the Aztecs built huge monuments to their gods and held ever-increasing numbers of expensive religious festivals in which they slaughtered tens of thousands of prisoners and their own people. Moctezuma II himself lived in great splendor, his clothing made of silver, gold, and brightly-colored feathers. His court was brilliant, though much riddled with corruption and intrigue. [PARAGRAPH:1]In 1519, Hernando Cortes led 600 Spanish adventurers with 20 horses and 10 cannon to the shores of Mexico on a mission of exploration. Hearing of the great wealth of the Aztecs, he took his tiny force west, determined to conquer this massive nation of five million. At the start of the march Cortes burned his ships to ensure that his men would not desert him. [PARAGRAPH:1]The natives that first faced Cortes were primitive and divided. They were terrified of the Spanish "demonic" horses and cannon and broke before their accurate musket-fire. Cleverly exploiting their political divisions, Cortes then enlisted the defeated peoples' aid by promising them revenge against the hated Aztecs. [PARAGRAPH:1]Moctezuma II watched Cortes' approach with fear and bewilderment. His religion told him that one day the god Quetzalcoatl would return in the guise of a light-skinned bearded man, and when that day occurred, the Aztecs were to welcome him with open arms. Surely Cortes was Quetzalcoatl, else how could he command an army of demons? On the other hand, Cortes was clearly bent on the conquest of the empire - should Moctezuma II not oppose him? Perhaps the sinful Aztecs needed to be punished! [PARAGRAPH:1]Eventually, at the desperate urging of his advisors, Moctezuma II sent an army into the field against the invaders. But they were unable to offer effective resistance and Cortes' forces quickly overwhelmed them. The invaders then marched into the capital city Tenochtitlan virtually unopposed and took Moctezuma II prisoner. He was eventually killed during an uprising that pushed the invaders out of the city for more than a year. [PARAGRAPH:1]One has to wonder what would have happened if Moctezuma II had shown Cortes' courage and resolve and mobilized his people when the invaders first arrived. Could the Spanish have conquered Mexico against determined and organized resistance? Perhaps, but perhaps the natives would have held on long enough to learn to master the horse and gun - or at least their fear of them. If so, they would have become a formidable foe indeed.</English>
++	</TEXT>
++
++
++
++	<!-- custom: see BUILDING_AZTEC_SACRIFICIAL_ALTAR in CIV4BuildingInfos.xml for details -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_AZTEC_SACRIFICIAL_ALTAR_PEDIA</Tag>
++		<English>[TAB]Some of the most famous forms of ancient human sacrifice were performed by various Pre-Columbian civilizations in the Americas that included the sacrifice of prisoners as well as voluntary sacrifice. Friar Marcos de Niza (1539), writing of the Chichimecas, said that from time to time "they of this valley cast lots whose luck (honour) it shall be to be sacrificed, and they make him great cheer, on whom the lot falls, and with great joy they lund him with flowers upon a bed prepared in the said ditch all full of flowers and sweet herbs, on which they lay him along, and lay great store of dry wood on both sides of him, and set it on fire on either part, and so he dies" and "that the victim took great pleasure" in being sacrificed.[PARAGRAPH:1]The Mixtec players of the Mesoamerican ballgame were sacrificed when the game was used to resolve a dispute between cities. The rulers would play a game instead of going to battle. The losing ruler would be sacrificed. The ruler "Eight Deer", who was considered a great ball player and who won several cities this way, was eventually sacrificed, because he attempted to go beyond lineage-governing practices, and to create an empire.[PARAGRAPH:1]The Aztecs were particularly noted for practicing human sacrifice on a large scale; an offering to Huitzilopochtli would be made to restore the blood he lost, as the sun was engaged in a daily battle. Human sacrifices would prevent the end of the world that could happen on each cycle of 52 years. In the 1487 re-consecration of the Great Pyramid of Tenochtitlan some estimate that 80,400 prisoners were sacrificed though numbers are difficult to quantify, as all obtainable Aztec texts were destroyed by Christian missionaries during the period 1528-1548. The Aztec, also known as Mexica, periodically sacrificed children as it was believed that the rain god, Tlaloc, required the tears of children.[PARAGRAPH:1]According to Ross Hassig, author of Aztec Warfare, "between 10,000 and 80,400 people" were sacrificed in the ceremony. The old reports of numbers sacrificed for special feasts have been described as "unbelievably high" by some authors and that on cautious reckoning, based on reliable evidence, the numbers could not have exceeded at most several hundred per year in Tenochtitlan. The real number of sacrificed victims during the 1487 consecration is unknown.[PARAGRAPH:1]Michael Harner, in his 1997 article The Enigma of Aztec Sacrifice, estimates the number of persons sacrificed in central Mexico in the 15th century as high as 250,000 per year. Fernando de Alva Cort�s Ixtlilxochitl, a Mexica descendant and the author of Codex Ixtlilxochitl, claimed that one in five children of the Mexica subjects was killed annually. Victor Davis Hanson argues that an estimate by Carlos Zum�rraga of 20,000 per annum is more plausible. Other scholars believe that, since the Aztecs always tried to intimidate their enemies, it is far more likely that they inflated the official number as a propaganda tool.[PARAGRAPH:2]Aztec religious life was organized around the calendars. Like most Mesoamerican people, the Aztecs used two calendars simultaneously: a ritual calendar of 260 days called the tonalpohualli and a solar calendar of 365 days called the xiuhpohualli. Each day had a name and number in both calendars, and the combination of two dates was unique within 52 years. The tonalpohualli was mostly used for divinatory purposes and it consisted of 20-day signs and number coefficients of 1-13 that cycled in a fixed order. The xiuhpohualli was made up of 18 "months" of 20 days, and with a remainder of five "void" days at the end of a cycle before the new xiuhpohualli cycle began. Each 20-day month was named after the specific ritual festival that began the month, many of which contained a relation to the agricultural cycle. Whether, and how, the Aztec calendar was corrected for leap year is a matter of discussion among specialists. The monthly rituals involved the entire population as rituals were performed in each household, in the calpolli temples, and the main sacred precinct. Many festivals involved different forms of dancing, as well as the reenactment of mythical narratives by deity impersonators and the offering of sacrifice, in the form of food, animals, and human victims.[PARAGRAPH:1]Every 52 years, the two calendars reached their shared starting point and a new calendar cycle began. This calendar event was celebrated with a ritual known as Xiuhmolpilli or the New Fire Ceremony. In this ceremony, old pottery was broken in all homes and all fires in the Aztec realm were put out. Then a new fire was drilled over the breast of a sacrificial victim and runners brought the new fire to the different calpolli communities where fire was redistributed to each home. The night without fire was associated with the fear that star demons, tzitzimimeh, might descend and devour the earth - ending the fifth period of the sun.[PARAGRAPH:2]To the Aztecs, death was instrumental in the perpetuation of creation, and gods and humans alike had the responsibility of sacrificing themselves to allow life to continue. As described in the myth of creation above, humans were understood to be responsible for the sun's continued revival, as well as for paying the earth for its continued fertility. Blood sacrifice in various forms was conducted. Both humans and animals were sacrificed, depending on the god to be placated and the ceremony being conducted, and priests of some gods were sometimes required to provide their blood through self-mutilation. It is known that some rituals included acts of cannibalism, with the captor and his family consuming part of the flesh of their sacrificed captives, but it is not known how widespread this practice was.[PARAGRAPH:1]While human sacrifice was practiced throughout Mesoamerica, the Aztecs, according to their accounts, brought this practice to an unprecedented level. For example, for the reconsecration of the Great Pyramid of Tenochtitlan in 1487, Aztec and Spanish sources later said that 80,400 prisoners were sacrificed over four days, reportedly by Ahuitzotl, the Great Speaker himself. This number, however, is considered by many scholars as wildly exaggerated. Other estimates place the number of human sacrifices at between 1,000 and 20,000 annually.[PARAGRAPH:1]The scale of Aztec human sacrifice has provoked many scholars to consider what may have been the driving factor behind this aspect of Aztec religion. In the 1970s, Michael Harner and Marvin Harris argued that the motivation behind human sacrifice among the Aztecs was the cannibalization of the sacrificial victims, depicted for example in Codex Magliabechiano. Harner claimed that very high population pressure and an emphasis on maize agriculture, without domesticated herbivores, led to a deficiency of essential amino acids among the Aztecs. While there is universal agreement that the Aztecs practiced sacrifice, there is a lack of scholarly consensus as to whether cannibalism was widespread. Harris, the author of Cannibals and Kings (1977), has propagated the claim, originally proposed by Harner, that the flesh of the victims was a part of an aristocratic diet as a reward since the Aztec diet was lacking in proteins. These claims have been refuted by Bernard Ort�z Montellano who, in his studies of Aztec health, diet, and medicine, demonstrates that while the Aztec diet was low in animal proteins, it was rich in vegetable proteins. Ortiz also points to the preponderance of human sacrifice during periods of food abundance following harvests compared to periods of food scarcity, the insignificant quantity of human protein available from sacrifices, and the fact that aristocrats already had easy access to animal protein. Today, many scholars point to ideological explanations of the practice, noting how the public spectacle of sacrificing warriors from conquered states was a major display of political power, supporting the claim of the ruling classes to divine authority. It also served as an important deterrent against rebellion by subjugated polities against the Aztec state, and such deterrents were crucial for the loosely organized empire to cohere.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: add Ogiso Igodo, leader of the Kingdom Of Benin, copy pasted from:
+ 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml then modified to fit this leader
+ 	Mention of Ogiso Igodo also here:
+@@ -336,17 +355,6 @@
+ 
+ 
+ 
+-	<!-- custom: rename "Montezuma" to "Moctezuma II" (more accurate) and fix birth date from "c.1480" to "1466"
+-	source for the corrections (mentionned)(anyways etc) above: https://en.wikipedia.org/wiki/Moctezuma_II
+-	text otherwise kept same at leats for now if not always or maybe not (too) or maybe yes or not or/and other(s?) or/and not anyways etc anyways etc
+-	-->
+-	<TEXT>
+-		<Tag>TXT_KEY_LEADER_MOCTEZUMA_PEDIA</Tag>
+-		<English>[H1]Moctezuma II [\H1][NEWLINE][BOLD]Aztec Emperor [\BOLD][NEWLINE][BOLD]Lived: [\BOLD] c.1466 - 1520[NEWLINE][PARAGRAPH:2][BOLD]Background:[\BOLD][NEWLINE][TAB]Moctezuma II was Emperor of the Aztec nation from approximately 1502 until its dissolution in 1520. At the start of his reign he was considered a god and was absolute monarch of the entire known world; at the end of his reign he watched a small group of foreigners destroy his empire with ease. [PARAGRAPH:1]Moctezuma II ruled the Aztecs at the height of their power. His empire controlled a large portion of what is now modern Mexico. They had conquered virtually all other people around them, except for a few other nations, which they deliberately left free (so that they would have somebody left to make war against and to use as sacrifices). [PARAGRAPH:1]Though extremely rich and powerful, Moctezuma II's nation shamelessly squandered a great portion of its wealth and might. Much like the Egyptians, the Aztecs built huge monuments to their gods and held ever-increasing numbers of expensive religious festivals in which they slaughtered tens of thousands of prisoners and their own people. Moctezuma II himself lived in great splendor, his clothing made of silver, gold, and brightly-colored feathers. His court was brilliant, though much riddled with corruption and intrigue. [PARAGRAPH:1]In 1519, Hernando Cortes led 600 Spanish adventurers with 20 horses and 10 cannon to the shores of Mexico on a mission of exploration. Hearing of the great wealth of the Aztecs, he took his tiny force west, determined to conquer this massive nation of five million. At the start of the march Cortes burned his ships to ensure that his men would not desert him. [PARAGRAPH:1]The natives that first faced Cortes were primitive and divided. They were terrified of the Spanish "demonic" horses and cannon and broke before their accurate musket-fire. Cleverly exploiting their political divisions, Cortes then enlisted the defeated peoples' aid by promising them revenge against the hated Aztecs. [PARAGRAPH:1]Moctezuma II watched Cortes' approach with fear and bewilderment. His religion told him that one day the god Quetzalcoatl would return in the guise of a light-skinned bearded man, and when that day occurred, the Aztecs were to welcome him with open arms. Surely Cortes was Quetzalcoatl, else how could he command an army of demons? On the other hand, Cortes was clearly bent on the conquest of the empire - should Moctezuma II not oppose him? Perhaps the sinful Aztecs needed to be punished! [PARAGRAPH:1]Eventually, at the desperate urging of his advisors, Moctezuma II sent an army into the field against the invaders. But they were unable to offer effective resistance and Cortes' forces quickly overwhelmed them. The invaders then marched into the capital city Tenochtitlan virtually unopposed and took Moctezuma II prisoner. He was eventually killed during an uprising that pushed the invaders out of the city for more than a year. [PARAGRAPH:1]One has to wonder what would have happened if Moctezuma II had shown Cortes' courage and resolve and mobilized his people when the invaders first arrived. Could the Spanish have conquered Mexico against determined and organized resistance? Perhaps, but perhaps the natives would have held on long enough to learn to master the horse and gun - or at least their fear of them. If so, they would have become a formidable foe indeed.</English>
+-	</TEXT>
+-
+-
+-
+ 	<!-- custom: clean import from:
+ 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml
+ 	And then editing it
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 0706a5bb9..8fcd96a4e 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -1156,7 +1156,7 @@ then adjust maybe anyways):
+ 			</ProductionTraits>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>35</iCost>
++			<iCost>45</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -1406,7 +1406,7 @@ then adjust maybe anyways):
+ 			</ProductionTraits>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>60</iCost>
++			<iCost>45</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/README.md b/README.md
+index 625d093e2..c951654d8 100644
+--- a/README.md
++++ b/README.md
+@@ -73,6 +73,14 @@ Here is below a very small sample of the example screenshots of how the AI Perso
+ 
+ For the full more extensive screenshot of main new sevopedia reworks, i highly highly recommend but anyways etc as you prefer or not or yes or etc or and other or and not anyways etc to look at and read the full [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md)
+ 
++#### csv: Leaders_data flat to csv conversion and its view on github for example
++
++There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/scripts/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
++
+ ## Sex-neutral and Less Generic-neutral (too) unit names or/and combat types (todo and non-exhaustive)
+ 
+ See the [README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sex_Neutral_And_Less_Generic_Neutral_Too_Unit_Names.md) for details.
+@@ -105,14 +113,6 @@ Hopefully helpful and interesting.
+ 
+ See [README_Dds_button_size_comparison_analysis.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md) for details
+ 
+-## csv: Leaders_data flat to csv conversion and its view on github for example
+-
+-There is already a [dedicated documentation about this flatten leaders_data to .csv (.)py script ](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md#leaders_data_to_csvpy) anyways etc but i have just noticed after the [mega commit](https://github.com/wonderingabout/AdvCiv-SAS/commit/50f7983166a9ea2d93ff0084552d2fcfc32b9aec#diff-2224084cfc75aee1dd365084937d36ddb7b77107c9f9529aef06b37721f117a0) that this data is also (nicely but anwyays etc) [(click here to view it on on github too)](/leaders_data_to_csv_ai_flat_example_of_output.csv) (you can also click on the collapse tree button thing to get an even larger display and scroll down the page to remove from "vision field" the uneeded (for this task of viewing fields in the csv in github) the top headers but is just suggestion or not anyways etc anyways etc...), with filters (research) and such anyways etc, so adding a bit more general info about it too, as shown below
+-
+-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/csv_flat_leaders_data_view_example_on_github (1).PNG" width="150"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/csv_flat_leaders_data_view_example_on_github (2).PNG" width="150"></img>
+-<img src="./_1_AdvCiv-SAS/Images_In_General/misc_0.x/csv_flat_leaders_data_view_example_on_github (3).PNG" width="150"></img>
+-
+ ## Project Goals and global view on gameplay changes
+ 
+ The more general gameplay type of changes consist of:
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index c8b9c8e02..8ebedbb82 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -14,7 +14,7 @@ Sevopedia Entry (non-exhaustive), please visit it there (the screenshot below
+ (click to view it full size) may not be updated, it is to give a general
+ idea):
+ 
+-<img src="../Images_In_General/sevopedia_reworks/0.610_sevopedia_advciv_sas_core_changes (1)" width="250"></img>
++<img src="../Images_In_General/sevopedia_mods_info//0.610_sevopedia_advciv_sas_core_changes (1)" width="250"></img>
+ 
+ See also [the main README.md's AdvCiv-SAS core changes section](/README.md#advciv-sas-core-changes-from-advciv) for details.
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=41949

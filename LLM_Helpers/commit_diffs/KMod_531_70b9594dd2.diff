@@ -1,0 +1,82 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 531
+# Commit: 70b9594dd20005dbfb325630729fbe70e080291f
+# History segment: K-Mod history
+# Parent used for diff: bc03ab2267224f3686a78ec8a606200e4b66b7b9
+# Title: The starting plot normalizer will now not always try to create a river. Barbarian attack stacks are now more likely to attack units outside of cities. (They...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	4	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+7	0	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 02f3f2075..5e5d6e6db 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1123,10 +1123,14 @@ void CvGame::normalizeAddRiver()
+ 					if (normalizeFindLakePlot((PlayerTypes)iI) != NULL)
+ 					{
+ 						//CvMapGenerator::GetInstance().doRiver(pStartingPlot);
+-						// K-Mod. The river shouldn't always start on the SE corner of our site.
+-						CvPlot* pRiverPlot = pStartingPlot->getInlandCorner();
+-						if (pRiverPlot)
+-							CvMapGenerator::GetInstance().doRiver(pRiverPlot);
++						// K-Mod. If we can have a lake then we don't always need a river.
++						// Also, the river shouldn't always start on the SE corner of our site.
++						if (getSorenRandNum(10, "normalize add river") < (pStartingPlot->isCoastalLand() ? 5 : 7))
++						{
++							CvPlot* pRiverPlot = pStartingPlot->getInlandCorner();
++							if (pRiverPlot)
++								CvMapGenerator::GetInstance().doRiver(pRiverPlot);
++						}
+ 						// K-Mod end.
+ 					}
+ 					// otherwise, use new river code which is much more likely to succeed
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b90a6a15a..f3dd5ebb1 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -15175,7 +15175,7 @@ void CvPlayerAI::AI_doCommerce()
+ 									{
+ 										if (canStealTech((PlayerTypes)iPlayer, (TechTypes)iT))
+ 										{
+-											bValid = true;
++											bValid = iApproxTechCost > 0; // don't set it true unless there are at least 2 stealable techs.
+ 											// get a (very rough) approximation of how much it will cost to steal a tech.
+ 											iApproxTechCost = (GET_TEAM(getTeam()).getResearchCost((TechTypes)iT) + iApproxTechCost) / (iApproxTechCost != 0 ? 2 : 1);
+ 											break;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f3c2d2158..5434b0cad 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2943,6 +2943,13 @@ void CvUnitAI::AI_attackCityMove()
+ 
+ 	// K-Mod. Try to be consistent in our usage of move flags, so that we don't cause unnecessary pathfinder resets.
+ 	int iMoveFlags = MOVE_AVOID_ENEMY_WEIGHT_2 | (bReadyToAttack ? MOVE_ATTACK_STACK | MOVE_DECLARE_WAR : 0);
++
++	// Barbarian stacks should be reckless and unpredictable.
++	if (isBarbarian())
++	{
++		int iThreshold = GC.getGameINLINE().getSorenRandNum(150, "barb attackCity stackVsStack threshold") + 20;
++		AI_stackVsStack(1, iThreshold, 0, iMoveFlags);
++	}
+ 	// K-Mod end
+ 
+ 	if (AI_guardCity(false, false, MAX_INT, iMoveFlags))
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2566

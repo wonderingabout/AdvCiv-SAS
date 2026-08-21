@@ -1,0 +1,181 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2982
+# Commit: 7cbdab6f15a653a1189a536f07a4a272598d7cb1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 56a3738c8f1b440c155cb04eebddaad337b15670
+# Title: Adopt some bits of unimportant code from Civ4Col
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/XML/Units/CIV4ControlInfos.xml
+6	4	CvGameCoreDLL/CvFractal.cpp
+2	2	CvGameCoreDLL/CvGame.cpp
+1	0	CvGameCoreDLL/CvGameCoreUtils.h
+12	5	CvGameCoreDLL/CvInitCore.cpp
+1	1	CvGameCoreDLL/CvInitCore.h
+1	1	CvGameCoreDLL/CvPlayer.cpp
+3	1	CvGameCoreDLL/CvXMLLoadUtility.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4ControlInfos.xml b/Assets/XML/Units/CIV4ControlInfos.xml
+index 480fa83f8..a3cc65ccf 100644
+--- a/Assets/XML/Units/CIV4ControlInfos.xml
++++ b/Assets/XML/Units/CIV4ControlInfos.xml
+@@ -372,7 +372,7 @@
+ 			<Type>CONTROL_GLOBELAYER</Type>
+ 			<Description>TXT_KEY_GLOBE_VIEW</Description>
+ 			<Help>TXT_KEY_GLOBEVIEW_TOGGLE</Help>
+-			<HotKey></HotKey>
++			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+@@ -387,7 +387,7 @@
+ 			<Type>CONTROL_SCORES</Type>
+ 			<Description>TXT_KEY_ACTION_SCORES</Description>
+ 			<Help>TXT_KEY_ACTION_SCORES_HELP</Help>
+-			<HotKey></HotKey>
++			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+
+diff --git a/CvGameCoreDLL/CvFractal.cpp b/CvGameCoreDLL/CvFractal.cpp
+index e9e051073..2cd31e2e9 100644
+--- a/CvGameCoreDLL/CvFractal.cpp
++++ b/CvGameCoreDLL/CvFractal.cpp
+@@ -370,10 +370,12 @@ void CvFractal::tectonicAction(CvFractal* pRifts)  //  Assumes FRAC_WRAP_X is on
+ 
+ int CvFractal::yieldX(int iBadX)  //  Assumes FRAC_WRAP_X is on.
+ {
+-	if (iBadX < 0)
+-		return (iBadX + m_iFracX);
+-	if (iBadX >= m_iFracX)
+-		return (iBadX - m_iFracX);
++	/*	<advc> while instead of if. Adopted from Civ4Col.
++		Seems like a reasonable precaution if nothing else. */
++	while (iBadX < 0)
++		iBadX += m_iFracX;
++	while (iBadX >= m_iFracX)
++		iBadX -= m_iFracX; // </advc>
+ 	return iBadX;
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index df048ed38..7d14d136d 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -918,7 +918,7 @@ void CvGame::initFreeState()
+ 	if(isOption(GAMEOPTION_SPAH))
+ 		// Reassigns start plots and start points
+ 		m_pSpah->setInitialItems(); // </advc.250b>
+-	if (GC.getInitCore().isScenario())
++	if (GC.getInitCore().getScenario())
+ 	{
+ 		setScenario(true); // advc.052
+ 		AI().AI_initScenario(); // advc.104u
+@@ -1015,7 +1015,7 @@ void CvGame::initScenario()
+ 
+ void CvGame::initFreeUnits()
+ {
+-	bool bScenario = GC.getInitCore().isScenario();
++	bool bScenario = GC.getInitCore().getScenario();
+ 	/*  In scenarios, neither setInitialItems nor initFreeState is called; the
+ 		EXE only calls initFreeUnits, so the initialization of freebies needs to
+ 		happen here. */
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 55f53c216..fb3c68bef 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -373,6 +373,7 @@ int baseYieldToSymbol(int iNumYieldTypes, int iYieldStack);
+ //bool isPickableName(const TCHAR* szName); // advc.003j
+ 
+ DllExport int* shuffle(int iNum, CvRandom& rand);
++// advc (tbd.): Move these two to CvRandom (as it's done by Civ4Col too)
+ void shuffleArray(int* piShuffle, int iNum, CvRandom& rand);
+ void shuffleVector(std::vector<int>& aiIndices, CvRandom& rand); // advc.enum
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index af2f1ec6b..db98a90b3 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -689,12 +689,19 @@ bool CvInitCore::getWBMapScript() const
+ 	return (gDLL->isDescFileName(CvString(m_szMapScriptName).GetCString()));
+ }
+ 
+-/*  advc.030: This only works at the start of a game b/c all savegames have
+-	type GAME_..._LOAD. Use CvGame::isScenario if it's not the start of a game. */
+-bool CvInitCore::isScenario() const
++/*  advc.030 (from Civ4Col): This only works at the start of a game b/c all savegames
++	have type GAME_..._LOAD. Use CvGame::isScenario if it's not the start of a game. */
++bool CvInitCore::getScenario() const
+ {
+-	return m_eType == GAME_SP_SCENARIO || m_eType == GAME_MP_SCENARIO ||
+-			m_eType == GAME_HOTSEAT_SCENARIO || m_eType == GAME_PBEM_SCENARIO;
++	switch(m_eType)
++	{
++	case GAME_SP_SCENARIO:
++	case GAME_MP_SCENARIO:
++	case GAME_HOTSEAT_SCENARIO:
++	case GAME_PBEM_SCENARIO:
++		return true;
++	}
++	return false;
+ }
+
+diff --git a/CvGameCoreDLL/CvInitCore.h b/CvGameCoreDLL/CvInitCore.h
+index ffd0e4583..dc28bc357 100644
+--- a/CvGameCoreDLL/CvInitCore.h
++++ b/CvGameCoreDLL/CvInitCore.h
+@@ -177,7 +177,7 @@ public:
+ 	DllExport GameType getType() const { return m_eType; }
+ 	DllExport void setType(GameType eType);
+ 	DllExport void setType(const CvWString& szType);
+-	bool isScenario() const; // advc.030
++	bool getScenario() const; // advc.030
+ 
+ 	GameMode getMode() const { return m_eMode; }
+ 	DllExport void setMode(GameMode eMode);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 07245bca9..35e2f7e08 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7120,7 +7120,7 @@ void CvPlayer::setStartingPlot(CvPlot* pNewValue, bool bUpdateStartDist)
+ 	else
+ 	{
+ 		// <advc.031c>
+-		if (gFoundLogLevel > 0 && !GC.getInitCore().isScenario() &&
++		if (gFoundLogLevel > 0 && !GC.getInitCore().getScenario() &&
+ 			m_pStartingPlot == NULL)
+ 		{
+ 			AI().logFoundValue(*pNewValue, true);
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.h b/CvGameCoreDLL/CvXMLLoadUtility.h
+index 12db300db..9e65206b1 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.h
++++ b/CvGameCoreDLL/CvXMLLoadUtility.h
+@@ -151,7 +151,9 @@ public:
+ 
+ 	// allocate and initialize a list from a tag pair in the xml
+ 	// advc.003x: Unused param iInfoBaseSize removed
+-	template<typename T> // advc: Replaced three functions with a template (inspired by rheinig's mod)
++	/*	advc: Replaced three functions with a template (inspired by rheinig's mod;
++		Civ4Col also does this) */
++	template<typename T>
+ 	void SetVariableListTagPair(T** pptList, const TCHAR* szRootTagName,
+ 			int iInfoBaseLength, T tDefaultListVal = 0);
+ 	void SetVariableListTagPair(CvString** ppszList, const TCHAR* szRootTagName,
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=5693

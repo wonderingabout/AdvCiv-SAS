@@ -1,0 +1,660 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 817
+# Commit: 15090979da2d7f072b1f130c3b4cef1e5954167c
+# History segment: K-Mod history
+# Parent used for diff: 959bf1ce715cba8ee7098737b3a1adbdf3b6481a
+# Title: Rearranged some code in CvPlayer::setTurnActive. (same functionality)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+238	250	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlayer.h
+1	1	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 232d4e733..209d4b27f 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3913,7 +3913,7 @@ void CvPlayer::chooseTech(int iDiscover, CvWString szText, bool bFront)
+ }
+ 
+ 
+-int CvPlayer::calculateScore(bool bFinal, bool bVictory)
++int CvPlayer::calculateScore(bool bFinal, bool bVictory) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -10943,347 +10943,335 @@ void CvPlayer::setTurnActiveForPbem(bool bActive)
+ }
+ 
+ 
++// This structure of this function has been changed for K-Mod.
+ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ {
+-	int iI;
++	if (isTurnActive() == bNewValue)
++		return;
+ 
+-	if (isTurnActive() != bNewValue)
++	m_bTurnActive = bNewValue;
++
++	if (isTurnActive())
+ 	{
+-		m_bTurnActive = bNewValue;
++		// K-Mod
++		GET_PLAYER(getID()).updateCacheData();
++		onTurnLogging(); // bbai logging
++		// K-Mod end
+ 
+-		if (isTurnActive())
++		if (GC.getLogging())
+ 		{
+-			// K-Mod
+-			GET_PLAYER(getID()).updateCacheData();
+-			// K-Mod end
+-			if (GC.getLogging())
++			if (gDLL->getChtLvl() > 0)
+ 			{
+-				if (gDLL->getChtLvl() > 0)
+-				{
+-					TCHAR szOut[1024];
+-					sprintf(szOut, "Player %d Turn ON\n", getID());
+-					gDLL->messageControlLog(szOut);
+-				}
++				TCHAR szOut[1024];
++				sprintf(szOut, "Player %d Turn ON\n", getID());
++				gDLL->messageControlLog(szOut);
+ 			}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/26/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+-			if( gPlayerLogLevel > 0 ) 
++		}
++
++		FAssertMsg(isAlive(), "isAlive is expected to be true");
++
++		setEndTurn(false);
++		GC.getGameINLINE().resetTurnTimer();
++
++		// If we are the Pitboss, send this player an email
++		if ( gDLL->IsPitbossHost() )
++		{
++			// If this guy is not currently connected, try sending him an email
++			if ( isHuman() && !isConnected() )
+ 			{
+-				logBBAI("Player %d (%S) setTurnActive for turn %d (%d %s)", getID(), getCivilizationDescription(0), GC.getGameINLINE().getGameTurn(), std::abs(GC.getGameINLINE().getGameTurnYear()), GC.getGameINLINE().getGameTurnYear()>0 ? "AD" : "BC");
++				sendReminder();
++			}
++		}
+ 
+-				if( GC.getGameINLINE().getGameTurn() > 0 && (GC.getGameINLINE().getGameTurn() % 25) == 0 && !isBarbarian() )
+-				{
+-					CvWStringBuffer szBuffer;
+-					GAMETEXT.setScoreHelp(szBuffer, getID());
+-					logBBAI("%S", szBuffer);
++		if ((GC.getGameINLINE().isHotSeat() || GC.getGameINLINE().isPbem()) && isHuman() && bDoTurn)
++		{
++			gDLL->getInterfaceIFace()->clearEventMessages();
++			gDLL->getEngineIFace()->setResourceLayer(false);
++
++			GC.getGameINLINE().setActivePlayer(getID());
++		}
+ 
+-					int iGameTurn = GC.getGameINLINE().getGameTurn();
+-					logBBAI("  Total Score: %d, Population Score: %d (%d total pop), Land Score: %d, Tech Score: %d, Wonder Score: %d", calculateScore(), getPopScore(false), getTotalPopulation(), getLandScore(false), getTechScore(), getWondersScore());
++		GC.getGameINLINE().changeNumGameTurnActive(1);
+ 
+-					int iEconomy = 0;
+-					int iProduction = 0;
+-					int iAgri = 0;
+-					int iCount = 0;
+-					for( int iI = 1; iI <= 5; iI++ )
++		if (bDoTurn)
++		{
++			if (isAlive() && !isHuman() && !isBarbarian() && (getAdvancedStartPoints() >= 0))
++			{
++				AI_doAdvancedStart();
++			}
++					
++			if (GC.getGameINLINE().getElapsedGameTurns() > 0)
++			{
++				if (isAlive())
++				{
++					// K-Mod. Call CvTeam::doTurn at the start of this team's turn. ie. when the leader's turn is activated.
++					// (regardless of simultaneous turns - see comments below)
++					if (GET_TEAM(getTeam()).getLeaderID() == getID())
++						GET_TEAM(getTeam()).doTurn();
++					// K-Mod end
++					if (GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
+ 					{
+-						if( iGameTurn - iI >= 0 )
+-						{
+-							iEconomy += getEconomyHistory(iGameTurn - iI);
+-							iProduction += getIndustryHistory(iGameTurn - iI);
+-							iAgri += getAgricultureHistory(iGameTurn - iI);
+-							iCount++;
+-						}
++						doTurn();
+ 					}
+-					iEconomy /= std::max(1, iCount);
+-					iProduction /= std::max(1, iCount);
+-					iAgri /= std::max(1, iCount);
+ 
+-					logBBAI("  Economy avg: %d,  Industry avg: %d,  Agriculture avg: %d", iEconomy, iProduction, iAgri);
++					doTurnUnits();
+ 				}
+ 			}
+ 
+-			if( gPlayerLogLevel >= 2 )
++			if ((getID() == GC.getGameINLINE().getActivePlayer()) && (GC.getGameINLINE().getElapsedGameTurns() > 0))
+ 			{
+-				CvWStringBuffer szBuffer;
+-
+-				logBBAI("    Player %d (%S) has %d cities, %d pop, %d power, %d tech percent", getID(), getCivilizationDescription(0), getNumCities(), getTotalPopulation(), getPower(), GET_TEAM(getTeam()).getBestKnownTechScorePercent());
+-
+-				if( GET_PLAYER(getID()).AI_isFinancialTrouble() )
++				if (GC.getGameINLINE().isNetworkMultiPlayer())
++				{
++					gDLL->getInterfaceIFace()->addHumanMessage(getID(), true, GC.getEVENT_MESSAGE_TIME(), gDLL->getText("TXT_KEY_MISC_TURN_BEGINS").GetCString(), "AS2D_NEWTURN", MESSAGE_TYPE_DISPLAY_ONLY);
++				}
++				else
+ 				{
+-					logBBAI("    Financial trouble!");
++					gDLL->getInterfaceIFace()->playGeneralSound("AS2D_NEWTURN");
+ 				}
++			}
++
++			doWarnings();
++		}
+ 
+-				szBuffer.append(CvWString::format(L"    Team %d has met: ", getTeam()));
++		if (getID() == GC.getGameINLINE().getActivePlayer())
++		{
++			if (gDLL->getInterfaceIFace()->getLengthSelectionList() == 0)
++			{
++				GC.getGameINLINE().cycleSelectionGroups_delayed(1, false);
++			}
+ 
+-				for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
++			gDLL->getInterfaceIFace()->setDirty(SelectionCamera_DIRTY_BIT, true);
++		}
++	}
++	else
++	{
++		if (GC.getLogging())
++		{
++			if (gDLL->getChtLvl() > 0)
++			{
++				TCHAR szOut[1024];
++				sprintf(szOut, "Player %d Turn OFF\n", getID());
++				gDLL->messageControlLog(szOut);
++			}
++		}
++
++		if (getID() == GC.getGameINLINE().getActivePlayer())
++		{
++			gDLL->getInterfaceIFace()->setForcePopup(false);
++			gDLL->getInterfaceIFace()->clearQueuedPopups();
++			gDLL->getInterfaceIFace()->flushTalkingHeadMessages();
++		}
++
++		// start profiling DLL if desired
++		if (getID() == GC.getGameINLINE().getActivePlayer())
++		{
++			startProfilingDLL(true);
++		}
++
++		GC.getGameINLINE().changeNumGameTurnActive(-1);
++
++		if (bDoTurn)
++		{
++			if (!GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
++			{
++				if (isAlive())
+ 				{
+-					if( iI != getTeam() && GET_TEAM(getTeam()).isHasMet((TeamTypes)iI) )
++					doTurn();
++					// K-Mod. Call CvTeam::doTurn when all members of this team have finished their turn.
++					// (actually, no. CvTeam::doTurn should be called at the start of the team's turn, not the end.
++					//  otherwise, things like the counter-espionage counter will not work as expected.)
++					/*
++					if (GC.getGameINLINE().isSimultaneousTeamTurns())
+ 					{
+-						if( GET_TEAM((TeamTypes)iI).isAlive() )
+-						{
+-							szBuffer.append(CvWString::format(L"%d,", iI));
+-						}
++						if (!GET_TEAM(getTeam()).isTurnActive())
++							GET_TEAM(getTeam()).doTurn();
+ 					}
+-				}
+-
+-				if( GET_TEAM(getTeam()).getVassalCount() > 0 )
+-				{
+-					szBuffer.append(CvWString::format(L";  vassals: "));
+-
+-					for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
++					else
+ 					{
+-						if( iI != getTeam() && GET_TEAM((TeamTypes)iI).isVassal(getTeam()) )
++						bool bMoreTeammates = false;
++						for (PlayerTypes i = (PlayerTypes)(getID() + 1); !bMoreTeammates && i < MAX_PLAYERS; i=(PlayerTypes)(i+1))
+ 						{
+-							if( GET_TEAM((TeamTypes)iI).isAlive() )
+-							{
+-								szBuffer.append(CvWString::format(L"%d,", iI));
+-							}
++							const CvPlayer& kLoopPlayer = GET_PLAYER(i);
++							if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == getTeam())
++								bMoreTeammates = true;
+ 						}
+-					}
++						if (!bMoreTeammates)
++							GET_TEAM(getTeam()).doTurn();
++					} */
++					// K-Mod end
+ 				}
+ 
+-				if( GET_TEAM(getTeam()).getAtWarCount(false) > 0 )
++				if ((GC.getGameINLINE().isPbem() || GC.getGameINLINE().isHotSeat()) && isHuman() && GC.getGameINLINE().countHumanPlayersAlive() > 1)
+ 				{
+-					szBuffer.append(CvWString::format(L";  at war with: "));
++					GC.getGameINLINE().setHotPbemBetweenTurns(true);
++				}
+ 
+-					for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
++				if (GC.getGameINLINE().isSimultaneousTeamTurns())
++				{
++					if (!GET_TEAM(getTeam()).isTurnActive())
+ 					{
+-						if( iI != getTeam() && GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) )
++						for (int iI = (getTeam() + 1); iI < MAX_TEAMS; iI++)
+ 						{
+-							if( GET_TEAM((TeamTypes)iI).isAlive() )
++							if (GET_TEAM((TeamTypes)iI).isAlive())
+ 							{
+-								szBuffer.append(CvWString::format(L"%d,", iI));
++								GET_TEAM((TeamTypes)iI).setTurnActive(true);
++								break;
+ 							}
+ 						}
+ 					}
+ 				}
+-
+-				if( GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0 )
++				else
+ 				{
+-					szBuffer.append(CvWString::format(L";  planning war with: "));
+-
+-					for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
++					for (int iI = (getID() + 1); iI < MAX_PLAYERS; iI++)
+ 					{
+-						if( iI != getTeam() && !GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) && GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN )
++						if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 						{
+-							if( GET_TEAM((TeamTypes)iI).isAlive() )
++							if (GC.getGameINLINE().isPbem() && GET_PLAYER((PlayerTypes)iI).isHuman())
++							{
++								if (!GC.getGameINLINE().getPbemTurnSent())
++								{
++									gDLL->sendPbemTurn((PlayerTypes)iI);
++								}
++							}
++							else
+ 							{
+-								szBuffer.append(CvWString::format(L"%d,", iI));
++								GET_PLAYER((PlayerTypes)iI).setTurnActive(true);
+ 							}
++							break;
+ 						}
+ 					}
+ 				}
+-				
+-				logBBAI("%S", szBuffer.getCString());
+-
+-				szBuffer.clear();
+-
+-				if( GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0 ) logBBAI("    Enemy power perc: %d (%d with others reduction)", GET_TEAM(getTeam()).AI_getEnemyPowerPercent(), GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true));
+ 			}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++		}
++	}
+ 
+-			FAssertMsg(isAlive(), "isAlive is expected to be true");
++	gDLL->getInterfaceIFace()->updateCursorType();
+ 
+-			setEndTurn(false);
+-			GC.getGameINLINE().resetTurnTimer();
++	gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+ 
+-			// If we are the Pitboss, send this player an email
+-			if ( gDLL->IsPitbossHost() )
+-			{
+-				// If this guy is not currently connected, try sending him an email
+-				if ( isHuman() && !isConnected() )
+-				{
+-					sendReminder();
+-				}
+-			}
++	GC.getMapINLINE().invalidateIsActivePlayerNoDangerCache();
++}
+ 
+-			if ((GC.getGameINLINE().isHotSeat() || GC.getGameINLINE().isPbem()) && isHuman() && bDoTurn)
+-			{
+-				gDLL->getInterfaceIFace()->clearEventMessages();
+-				gDLL->getEngineIFace()->setResourceLayer(false);
++// K-Mod. The body of this function use to be part of setTurnActive.
++// I've moved it here just to improve the readability of that function.
++// (This logging is from bbai.)
++void CvPlayer::onTurnLogging() const
++{
++	if( gPlayerLogLevel > 0 ) 
++	{
++		logBBAI("Player %d (%S) setTurnActive for turn %d (%d %s)", getID(), getCivilizationDescription(0), GC.getGameINLINE().getGameTurn(), std::abs(GC.getGameINLINE().getGameTurnYear()), GC.getGameINLINE().getGameTurnYear()>0 ? "AD" : "BC");
+ 
+-				GC.getGameINLINE().setActivePlayer(getID());
+-			}
++		if( GC.getGameINLINE().getGameTurn() > 0 && (GC.getGameINLINE().getGameTurn() % 25) == 0 && !isBarbarian() )
++		{
++			CvWStringBuffer szBuffer;
++			GAMETEXT.setScoreHelp(szBuffer, getID());
++			logBBAI("%S", szBuffer);
+ 
+-			GC.getGameINLINE().changeNumGameTurnActive(1);
++			int iGameTurn = GC.getGameINLINE().getGameTurn();
++			logBBAI("  Total Score: %d, Population Score: %d (%d total pop), Land Score: %d, Tech Score: %d, Wonder Score: %d", calculateScore(), getPopScore(false), getTotalPopulation(), getLandScore(false), getTechScore(), getWondersScore());
+ 
+-			if (bDoTurn)
++			int iEconomy = 0;
++			int iProduction = 0;
++			int iAgri = 0;
++			int iCount = 0;
++			for( int iI = 1; iI <= 5; iI++ )
+ 			{
+-				if (isAlive() && !isHuman() && !isBarbarian() && (getAdvancedStartPoints() >= 0))
++				if( iGameTurn - iI >= 0 )
+ 				{
+-					AI_doAdvancedStart();
++					iEconomy += getEconomyHistory(iGameTurn - iI);
++					iProduction += getIndustryHistory(iGameTurn - iI);
++					iAgri += getAgricultureHistory(iGameTurn - iI);
++					iCount++;
+ 				}
++			}
++			iEconomy /= std::max(1, iCount);
++			iProduction /= std::max(1, iCount);
++			iAgri /= std::max(1, iCount);
+ 
+-				if (GC.getGameINLINE().getElapsedGameTurns() > 0)
+-				{
+-					if (isAlive())
+-					{
+-						// K-Mod. Call CvTeam::doTurn at the start of this team's turn. ie. when the leader's turn is activated.
+-						// (regardless of simultaneous turns - see comments below)
+-						if (GET_TEAM(getTeam()).getLeaderID() == getID())
+-							GET_TEAM(getTeam()).doTurn();
+-						// K-Mod end
+-						if (GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
+-						{
+-							doTurn();
+-						}
++			logBBAI("  Economy avg: %d,  Industry avg: %d,  Agriculture avg: %d", iEconomy, iProduction, iAgri);
++		}
++	}
+ 
+-						doTurnUnits();
+-					}
+-				}
++	if( gPlayerLogLevel >= 2 )
++	{
++		CvWStringBuffer szBuffer;
+ 
+-				if ((getID() == GC.getGameINLINE().getActivePlayer()) && (GC.getGameINLINE().getElapsedGameTurns() > 0))
+-				{
+-					if (GC.getGameINLINE().isNetworkMultiPlayer())
+-					{
+-						gDLL->getInterfaceIFace()->addHumanMessage(getID(), true, GC.getEVENT_MESSAGE_TIME(), gDLL->getText("TXT_KEY_MISC_TURN_BEGINS").GetCString(), "AS2D_NEWTURN", MESSAGE_TYPE_DISPLAY_ONLY);
+-					}
+-					else
+-					{
+-						gDLL->getInterfaceIFace()->playGeneralSound("AS2D_NEWTURN");
+-					}
+-				}
++		logBBAI("    Player %d (%S) has %d cities, %d pop, %d power, %d tech percent", getID(), getCivilizationDescription(0), getNumCities(), getTotalPopulation(), getPower(), GET_TEAM(getTeam()).getBestKnownTechScorePercent());
+ 
+-				doWarnings();
+-			}
++		if( GET_PLAYER(getID()).AI_isFinancialTrouble() )
++		{
++			logBBAI("    Financial trouble!");
++		}
+ 
+-			if (getID() == GC.getGameINLINE().getActivePlayer())
+-			{
+-				if (gDLL->getInterfaceIFace()->getLengthSelectionList() == 0)
+-				{
+-					GC.getGameINLINE().cycleSelectionGroups_delayed(1, false);
+-				}
++		szBuffer.append(CvWString::format(L"    Team %d has met: ", getTeam()));
+ 
+-				gDLL->getInterfaceIFace()->setDirty(SelectionCamera_DIRTY_BIT, true);
+-			}
+-		}
+-		else
++		for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
+ 		{
+-			if (GC.getLogging())
++			if( iI != getTeam() && GET_TEAM(getTeam()).isHasMet((TeamTypes)iI) )
+ 			{
+-				if (gDLL->getChtLvl() > 0)
++				if( GET_TEAM((TeamTypes)iI).isAlive() )
+ 				{
+-					TCHAR szOut[1024];
+-					sprintf(szOut, "Player %d Turn OFF\n", getID());
+-					gDLL->messageControlLog(szOut);
++					szBuffer.append(CvWString::format(L"%d,", iI));
+ 				}
+ 			}
++		}
+ 
+-			if (getID() == GC.getGameINLINE().getActivePlayer())
+-			{
+-				gDLL->getInterfaceIFace()->setForcePopup(false);
+-				gDLL->getInterfaceIFace()->clearQueuedPopups();
+-				gDLL->getInterfaceIFace()->flushTalkingHeadMessages();
+-			}
++		if( GET_TEAM(getTeam()).getVassalCount() > 0 )
++		{
++			szBuffer.append(CvWString::format(L";  vassals: "));
+ 
+-			// start profiling DLL if desired
+-			if (getID() == GC.getGameINLINE().getActivePlayer())
++			for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
+ 			{
+-				startProfilingDLL(true);
++				if( iI != getTeam() && GET_TEAM((TeamTypes)iI).isVassal(getTeam()) )
++				{
++					if( GET_TEAM((TeamTypes)iI).isAlive() )
++					{
++						szBuffer.append(CvWString::format(L"%d,", iI));
++					}
++				}
+ 			}
++		}
+ 
+-			GC.getGameINLINE().changeNumGameTurnActive(-1);
++		if( GET_TEAM(getTeam()).getAtWarCount(false) > 0 )
++		{
++			szBuffer.append(CvWString::format(L";  at war with: "));
+ 
+-			if (bDoTurn)
++			for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
+ 			{
+-				if (!GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
++				if( iI != getTeam() && GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) )
+ 				{
+-					if (isAlive())
++					if( GET_TEAM((TeamTypes)iI).isAlive() )
+ 					{
+-						doTurn();
+-						// K-Mod. Call CvTeam::doTurn when all members of this team have finished their turn.
+-						// (actually, no. CvTeam::doTurn should be called at the start of the team's turn, not the end.
+-						//  otherwise, things like the counter-espionage counter will not work as expected.)
+-						/*
+-						if (GC.getGameINLINE().isSimultaneousTeamTurns())
+-						{
+-							if (!GET_TEAM(getTeam()).isTurnActive())
+-								GET_TEAM(getTeam()).doTurn();
+-						}
+-						else
+-						{
+-							bool bMoreTeammates = false;
+-							for (PlayerTypes i = (PlayerTypes)(getID() + 1); !bMoreTeammates && i < MAX_PLAYERS; i=(PlayerTypes)(i+1))
+-							{
+-								const CvPlayer& kLoopPlayer = GET_PLAYER(i);
+-								if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == getTeam())
+-									bMoreTeammates = true;
+-							}
+-							if (!bMoreTeammates)
+-								GET_TEAM(getTeam()).doTurn();
+-						} */
+-						// K-Mod end
++						szBuffer.append(CvWString::format(L"%d,", iI));
+ 					}
++				}
++			}
++		}
+ 
+-					if ((GC.getGameINLINE().isPbem() || GC.getGameINLINE().isHotSeat()) && isHuman() && GC.getGameINLINE().countHumanPlayersAlive() > 1)
+-					{
+-						GC.getGameINLINE().setHotPbemBetweenTurns(true);
+-					}
++		if( GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0 )
++		{
++			szBuffer.append(CvWString::format(L";  planning war with: "));
+ 
+-					if (GC.getGameINLINE().isSimultaneousTeamTurns())
+-					{
+-						if (!GET_TEAM(getTeam()).isTurnActive())
+-						{
+-							for (iI = (getTeam() + 1); iI < MAX_TEAMS; iI++)
+-							{
+-								if (GET_TEAM((TeamTypes)iI).isAlive())
+-								{
+-									GET_TEAM((TeamTypes)iI).setTurnActive(true);
+-									break;
+-								}
+-							}
+-						}
+-					}
+-					else
++			for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
++			{
++				if( iI != getTeam() && !GET_TEAM(getTeam()).isAtWar((TeamTypes)iI) && GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iI) != NO_WARPLAN )
++				{
++					if( GET_TEAM((TeamTypes)iI).isAlive() )
+ 					{
+-						for (iI = (getID() + 1); iI < MAX_PLAYERS; iI++)
+-						{
+-							if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-							{
+-								if (GC.getGameINLINE().isPbem() && GET_PLAYER((PlayerTypes)iI).isHuman())
+-								{
+-									if (!GC.getGameINLINE().getPbemTurnSent())
+-									{
+-										gDLL->sendPbemTurn((PlayerTypes)iI);
+-									}
+-								}
+-								else
+-								{
+-									GET_PLAYER((PlayerTypes)iI).setTurnActive(true);
+-								}
+-								break;
+-							}
+-						}
++						szBuffer.append(CvWString::format(L"%d,", iI));
+ 					}
+ 				}
+ 			}
+ 		}
+ 
+-		gDLL->getInterfaceIFace()->updateCursorType();
++		logBBAI("%S", szBuffer.getCString());
+ 
+-		gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++		szBuffer.clear();
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/21/09                                jdog5000      */
+-/*                                                                                              */
+-/* Efficiency                                                                                   */
+-/************************************************************************************************/
+-		// Plot danger cache
+-		//if( GC.getGameINLINE().getNumGameTurnActive() != 1 )
+-		{
+-			GC.getMapINLINE().invalidateIsActivePlayerNoDangerCache();
+-		}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++		if( GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0 ) logBBAI("    Enemy power perc: %d (%d with others reduction)", GET_TEAM(getTeam()).AI_getEnemyPowerPercent(), GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true));
+ 	}
+ }
+-
++// K-Mod end
+ 
+ bool CvPlayer::isAutoMoves() const																			
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 6c16f9e63..7ab54c5b3 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -169,7 +169,7 @@ public:
+ 
+ 	DllExport void chooseTech(int iDiscover = 0, CvWString szText = "", bool bFront = false);				// Exposed to Python
+ 
+-	int calculateScore(bool bFinal = false, bool bVictory = false);
++	int calculateScore(bool bFinal = false, bool bVictory = false) const;
+ 
+ 	int findBestFoundValue() const;																																				// Exposed to Python
+ 
+@@ -680,6 +680,7 @@ public:
+ 
+ 	DllExport bool isTurnActive() const;																			
+ 	DllExport void setTurnActive(bool bNewValue, bool bDoTurn = true);
++	void onTurnLogging() const; // K-Mod
+ 
+ 	bool isAutoMoves() const;
+ 	DllExport void setAutoMoves(bool bNewValue);
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 764b79d1b..ce3c4fabf 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1030,7 +1030,7 @@ void CvTeam::doTurn()
+ 
+ 	doWarWeariness();
+ 
+-	testCircumnavigated();
++	testCircumnavigated(); // K-Mod note: it's a bit unfair to test circumnavigation in this function.
+ 
+ 	AI_doTurnPost();
+ }
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=21879

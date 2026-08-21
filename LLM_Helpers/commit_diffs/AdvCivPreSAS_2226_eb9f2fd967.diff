@@ -1,0 +1,66 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2226
+# Commit: eb9f2fd967e2528e45c27c55a898ccc02371c517
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e3f449cdf7093c0959c951a9390b973ca4d4f211
+# Title: Tweak leads-to tech hover text
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	8	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index c4623bd52..c9b88d123 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -15552,23 +15552,29 @@ void CvGameTextMgr::buildSingleLineTechTreeString(CvWStringBuffer &szBuffer,
+ 		if(!bTechFound)
+ 			continue;
+ 		bool bImmediate = (bAlreadyMetOR || bMeetsOR || !bAnyOR || !bPlayerContext);
+-		if(bImmediate && bMeetsOR && bPlayerContext)
++		if(bImmediate && bPlayerContext)
+ 		{
+ 			CvTeam const& kActiveTeam = GET_TEAM(GC.getGame().getActiveTeam());
+ 			for(int iJ = 0; iJ < GC.getNUM_AND_TECH_PREREQS(); iJ++)
+ 			{
+-				if(!kActiveTeam.isHasTech((TechTypes)kLeadsTo.getPrereqAndTechs(iJ))) {
+-					bImmediate = false;
+-					break;
++				TechTypes eAndTech = (TechTypes)kLeadsTo.getPrereqAndTechs(iJ);
++				if(eAndTech != eTech && !kActiveTeam.isHasTech(eAndTech))
++				{
++					if (bMeetsOR ||
++						GC.getInfo(eAndTech).getEra() <= GC.getInfo(eLeadsTo).getEra())
++					{
++						bImmediate = false;
++						break;
++					}
+ 				}
+ 			}
+ 		}
+-		std::pair<int,TechTypes> eiLeadsTo = std::make_pair(kLeadsTo.getResearchCost(), eLeadsTo);
++		std::pair<int,TechTypes> ieLeadsTo = std::make_pair(kLeadsTo.getResearchCost(), eLeadsTo);
+ 		if(bMeetsOR && bAlreadyMetOR)
+-			aieSpeedsUp.push_back(eiLeadsTo);
++			aieSpeedsUp.push_back(ieLeadsTo);
+ 		else if(bImmediate)
+-			aieImmediate.push_back(eiLeadsTo);
+-		else aieLater.push_back(eiLeadsTo);
++			aieImmediate.push_back(ieLeadsTo);
++		else aieLater.push_back(ieLeadsTo);
+ 
+ 	}
+ 	std::sort(aieImmediate.begin(), aieImmediate.end());
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1592

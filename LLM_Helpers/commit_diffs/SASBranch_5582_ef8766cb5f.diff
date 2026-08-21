@@ -1,0 +1,75 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5582
+# Commit: ef8766cb5fa6523a74c634656f327fdb4f35460d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bbe944048ee93d0e0abaa981a9d08d830a38cf80
+# Title: increase relations web and beautify bonuses (move closer to edges)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/SASUtils.py
+9	10	Assets/Python/Screens/CvForeignAdvisor.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/SASUtils.py b/Assets/Python/SASUtils.py
+index 8e8b606e9..74498d954 100644
+--- a/Assets/Python/SASUtils.py
++++ b/Assets/Python/SASUtils.py
+@@ -14,7 +14,7 @@ gc = CyGlobalContext()
+ # <!-- custom: as part of upscaling text code changes, now that commerce sliders are on the right-side, reduce left-space (from 172). Increase right-space for scoreboard (from 390) to give more room for anarchy and golden age button and just in case here. Increase top space (from 28). -->
+ SAS_ADVISOR_LEFT_SPACE_FOR_COMMERCE_SLIDERS = 0
+ SAS_ADVISOR_RIGHT_SPACE_FOR_SCOREBOARD = 420
+-SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR = 30
++SAS_ADVISOR_TOP_SPACE_FOR_TECH_BAR = 32
+ SAS_ADVISOR_BOTTOM_SPACE = 0
+ 
+ # <!-- custom: shared offsets/divisors for runtime screen-dependent anchor formulas (title/exit/link/footer) derived from each advisor's current panel width/height in interfaceScreen. (GPT-5.3-Codex) -->
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 7886c1ee7..87b8b5724 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -745,7 +745,7 @@ class CvForeignAdvisor:
+ 		# We want the web to be as tall as possible without going off the bottom.
+ 		# This sets radius to roughly 75% of screen height. Adjust 0.75 as needed.
+ 		# fRadius = (self.H_SCREEN * 0.75) - self.H_LEADER
+-		fRadius = (self.H_SCREEN * 54) / 100
++		fRadius = (self.H_SCREEN * 64) / 100
+ 
+ 		fLeaderArcTop = fLeaderTop + self.H_LEADER + 10
+ 		if iCount < 8:
+@@ -1644,17 +1644,16 @@ class CvForeignAdvisor:
+ 				# advc.073: Replacing the above
+ 				self.resIconGrid.createColumnGroup(" ", 3)
+ 		
+-		gridWidth = self.resIconGrid.getPrefferedWidth()
+-		gridHeight = self.resIconGrid.getPrefferedHeight()
+-		self.RES_LEFT_RIGHT_SPACE = (self.W_SCREEN - gridWidth - 20) / 2
+-		self.RES_TOP_BOTTOM_SPACE = (self.H_SCREEN - gridHeight - self.RES_SURPLUS_HEIGHT - self.RES_PANEL_SPACE - self.TITLE_HEIGHT - 20) / 2
+-		gridX = self.RES_LEFT_RIGHT_SPACE + 10
+-		gridY = self.RES_TOP_BOTTOM_SPACE + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + self.TITLE_HEIGHT + 10
+-		
++		# <!-- custom: keep the bonus tab aligned to runtime advisor bounds (not centered on preferred grid size) so high resolutions don't create narrow/offset panels. Use slightly tighter inner padding/margins so more width/height is used. (GPT-5.3-Codex) -->
++		# <!-- custom: let the bonus-tab blue panels extend a few pixels further to remove leftover side gutters at higher resolutions. (GPT-5.3-Codex) -->
++		self.RES_LEFT_RIGHT_SPACE = self.MIN_LEFT_RIGHT_SPACE - 5
++		self.RES_TOP_BOTTOM_SPACE = max(22, self.MIN_TOP_BOTTOM_SPACE - 18)
++		gridX = self.RES_LEFT_RIGHT_SPACE + 6
++		gridY = self.RES_TOP_BOTTOM_SPACE + self.RES_SURPLUS_HEIGHT + self.RES_PANEL_SPACE + self.TITLE_HEIGHT + 6
++		gridWidth = self.W_SCREEN - 2 * gridX
++		gridHeight = self.H_SCREEN - gridY - self.RES_TOP_BOTTOM_SPACE - 6
+ 		self.resIconGrid.setPosition(gridX, gridY)
+ 		self.resIconGrid.setSize(gridWidth, gridHeight)
+-		# self.RES_LEFT_RIGHT_SPACE = self.MIN_LEFT_RIGHT_SPACE
+-		# self.RES_TOP_BOTTOM_SPACE = self.MIN_TOP_BOTTOM_SPACE
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3165

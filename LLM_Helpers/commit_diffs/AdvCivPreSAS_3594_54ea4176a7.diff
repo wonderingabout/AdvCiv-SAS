@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3594
+# Commit: 54ea4176a7a57a79726b012298c59b75557bda51
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0a34c7e83717896630e34f2cbd98c5b228b99c2a
+# Title: Fix likely OOS issue in UWAI code (closeness cache)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	5	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index a008104f9..0a4589de2 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -1330,22 +1330,28 @@ bool UWAI::Team::canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan,
+ 		{
+ 			if (itAlly->isDefensivePact(eTarget) &&
+ 				/*	(Should come up rarely, so the performance of these checks
+-					shouldn't matter much. Closeness also gets cached.) */
++					shouldn't matter much. Closeness also gets cached, however,
++					we may not be in a synchronized context, so we can't
++					necessarily benefit from caching.) */
+ 				canSchemeAgainst(itAlly->getID(), bAssumeNoWarPlan, false))
+ 			{
+-				int iAllyCloseness = kAgent.AI_teamCloseness(itAlly->getID());
++				int iAllyCloseness = kAgent.AI_teamCloseness(itAlly->getID(),
++						DEFAULT_PLAYER_CLOSENESS, false, true);
+ 				for (TeamIter<MAJOR_CIV,VASSAL_OF> itVassal(itAlly->getID());
+ 					itVassal.hasNext(); ++itVassal)
+ 				{
+ 					iAllyCloseness = std::max(iAllyCloseness,
+-							kAgent.AI_teamCloseness(itVassal->getID()));
++							kAgent.AI_teamCloseness(itVassal->getID(),
++							DEFAULT_PLAYER_CLOSENESS, false, true));
+ 				}
+-				int iTargetCloseness = kAgent.AI_teamCloseness(eTarget);
++				int iTargetCloseness = kAgent.AI_teamCloseness(eTarget,
++						DEFAULT_PLAYER_CLOSENESS, false, true);
+ 				for (TeamIter<MAJOR_CIV,VASSAL_OF> itVassal(eTarget);
+ 					itVassal.hasNext(); ++itVassal)
+ 				{
+ 					iTargetCloseness = std::max(iTargetCloseness,
+-							kAgent.AI_teamCloseness(itVassal->getID()));
++							kAgent.AI_teamCloseness(itVassal->getID(),
++							DEFAULT_PLAYER_CLOSENESS, false, true));
+ 				}
+ 				if (2 * iAllyCloseness > 3 * iTargetCloseness)
+ 					return false;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1749

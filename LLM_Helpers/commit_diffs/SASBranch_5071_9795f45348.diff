@@ -1,0 +1,1479 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5071
+# Commit: 9795f45348ad7bd1d6c54c20c93ad6ba61188508
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1a28467981ad0fbda3d53052263d6c09e8f83c1d
+# Title: documentation/comments cleanup/tweaks/fixes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Contrib/MoreCiv4lerts.py
+5	5	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+2	2	Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+1	1	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+1	1	Assets/XML/GameInfo/CIV4ReligionInfo.xml
+1	1	Assets/XML/Units/CIV4PromotionInfos.xml
+1	1	Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt
+1	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+2	2	CvGameCoreDLL/CvCityAI.cpp
+3	3	CvGameCoreDLL/CvUnitAI.cpp
+2	2	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+7	11	_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+4	4	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+0	793	_2_Source_File_examples_That_Can_Be_Fed_To_AIs/CvPlayer_and_CvInfo/c-short-chat-compatible.txt
+0	4	_2_Source_File_examples_That_Can_Be_Fed_To_AIs/CvPlayer_and_CvInfo/cvinfo-cvplayer-file-list-used.txt
+0	9	_2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/UWAI-file-list-used.txt
+0	240	_2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/u-short-chat-compatible.txt
+1	1	scan_xml_duplicates-3.3.py
+ delete mode 100644 _2_Source_File_examples_That_Can_Be_Fed_To_AIs/CvPlayer_and_CvInfo/c-short-chat-compatible.txt
+ delete mode 100644 _2_Source_File_examples_That_Can_Be_Fed_To_AIs/CvPlayer_and_CvInfo/cvinfo-cvplayer-file-list-used.txt
+ delete mode 100644 _2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/UWAI-file-list-used.txt
+ delete mode 100644 _2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/u-short-chat-compatible.txt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/MoreCiv4lerts.py b/Assets/Python/Contrib/MoreCiv4lerts.py
+index 0741426d4..f66a5792a 100644
+--- a/Assets/Python/Contrib/MoreCiv4lerts.py
++++ b/Assets/Python/Contrib/MoreCiv4lerts.py
+@@ -317,7 +317,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 					popPercent = 0.0
+ 					NextpopPercent = 0.0
+ 
+-				# <!-- custom: replace "<>" with "!=" as per pylance error "Operator "<>" is not supported in Python 3; use "!=" instead" and asking chatgpt thanks to my prompt too to be sur ei mean anwyays etc thanks to chatgpt and me and those who read this or nto or and all or not or yes or anyways etc anyways etc anyways etc -->
++				# <!-- custom: replace "<>" with "!=" as per pylance error "Operator "<>" is not supported in Python 3; use "!=" instead" and asking chatgpt thanks to my prompt too to be sure i mean anwyays etc thanks to chatgpt and me and those who read this or not or and all or not or yes or anyways etc anyways etc anyways etc -->
+ 				if (totalPop > 1 and (currentTurn != self.lastDomLimitMsgTurn or (ourPop + popGrowthCount) != self.lastPopCount)):
+ 					self.lastPopCount = ourPop + popGrowthCount
+ 					if (popPercent >= VictoryPopPercent):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 1da363d6a..13dd824ae 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -19,7 +19,7 @@
+ # 
+ # And a tremendous part of the code, in particular the AI Personality code, has been a lot easier to code with ChatGPT-4o anyways etc, (and the result of my prompts to it), most of the credit for this amazing (to an extent, relative to me and mye eys, anyways) code goes to ChatGPT, i only helped implement it at first but then also coded significantly later and debugged and such as fun as it is if not stressful when wanting to do other things xd, but now very happy of the result if i may say but anyways etc. Historically as well, its deep research version of it helped me code it when i was at pit bottom if i am not mistaken in saying this expression this way, and would have most likely given up without it even though not sure, but the positive or negative or both or yes positive or etc anyways etc is that it ie. chatgpt helped me tremendously make this AI personality panel feature thanks a lot anyways etc, then historically it also helped me for the refactoring cleanly separate ui (placeAIPersonalityPanel) and config (headers, calculations, cache, etc.), to which what i said about it at that time is that my stupid human insights sometimes contributed in enriching, even though even at that time hehe but anyways etc... sometimes i believe i genuinely contributed to the code and overall functionality, rarely fixes, and overall emulation (experience) over (designing) it, when i quite often hindered its progress due to my ignorance and inability, especially in terms of coding, except from the quite few times where i redirected it in a healthier/more desirable/correct maybe(?) direction, but ChatGPT-4o, its deep research version of it (and other versions too to that extent in my view), are incredibly smart and kind in my view (and supportive (not that it's mutually exclusive (or maybe is or not, anyways))), anyways) still supported me until we made this amazing (at least my view and regard to my abilities maybe, that are now a (quite (tiny) bit enhanced from that (experience, anyways))), together we made this code, thanks chatgpt for your amazing, perhaps even more or not ormay well be yes indeed maybe, continous help and support in helping me achieve that for our mod that i included you in, thanks,
+ #
+-# After that i rewrote it significantly entirely by myself hehe now fetching from gc directly, but still with the nice help of chatgpt, if not other AIs very slightly (for the sevopedia leader feature if i overlooked or forgot to mention ti (but should be rare, Claude AI helped a lot in sevopedia building and unit for example but not at least not yet so much in sevopedia leader, each their own maybe or ot or yes or etc but anyways etc...)). In short it has dirct DLL data for better or worse, no more old script or module data import since we now expose getters anyways etc, while stil using the scripts and such external py files anyways etc for .csv charts and such anyways etc, but in short no need to regenerate and tediously replace scripts or data modules or such, plus i recoded it and elanred quite lot, amking it a loot faster, so fast it seems slow if one may say but anyways etc... In all cases this is how it is for the current rewrite as of now anyways etc, thanks chatgpt and me and or othe and or not or etc anyways etc.
++# After that i rewrote it significantly entirely by myself hehe now fetching from gc directly, but still with the nice help of chatgpt, if not other AIs very slightly (for the sevopedia leader feature if i overlooked or forgot to mention it (but should be rare, Claude AI helped a lot in sevopedia building and unit for example but not at least not yet so much in sevopedia leader, each their own maybe or ot or yes or etc but anyways etc...)). In short it has dirct DLL data for better or worse, no more old script or module data import since we now expose getters anyways etc, while stil using the scripts and such external py files anyways etc for .csv charts and such anyways etc, but in short no need to regenerate and tediously replace scripts or data modules or such, plus i recoded it and elanred quite lot, amking it a loot faster, so fast it seems slow if one may say but anyways etc... In all cases this is how it is for the current rewrite as of now anyways etc, thanks chatgpt and me and or othe and or not or etc anyways etc.
+ # 
+ # But sometimes it is forgetful ehehor doesn't understand simple commands, most likely due to prompt limits or other limitations or maybe it just doesn't understnad if prompt time too short or my question is not easy to understand to it maybe somehow, but in all cases, it helped tremendously thanks
+ #
+@@ -30,7 +30,7 @@
+ #	 - Compute raw aggregated fields (contact probs, and positive and negative memory affections and resentments): they are now flat fields like any other field, ready to be processed then stored anyways etc.
+ # 	 - Store minmax of all fields we want to parse, like Base peace weight, max war rand, sometimes flattening fields like flavors that are initially nested in XML, now stored for exmapel as iFlavorMilitary or iFlavorReligion if i am not mistaken too for example anyways etc flat fields anyways etc, also including raw aggregated fields like iAggregatedContactProbReligionPressure for example, and similarly for raw aggregated positive and negative memory affections and resentments anyways etc
+ #	 - Cache in LEADERS_INFO_CACHED tuples of as of now at least if not always or not but anyways etc (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way if i am not mistaken too, also from using tuples or and such rather than dicts but anyways etc), normalized value for display, and scale precomputed to enhance performance as well as advised by chatgpt or maybe it was me or both but i think it was it but anyways etc in all cases thanks to it and me too or and other or and not anwyays etc...)
+-#	 - Categories precomputing as well as tuples as well anyways etc: the ai_category_header that handles also emoji buttons in header label too anyways etc (which is anyways etc) optionally displayed based on/if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more cusotmization later if needed maybe evne though is a qutie weak argument if i may say but anyways etc, still fine as is maybe anyways etc, the main point is this x_offset is toif needed to accomodate these emoji buttons as text anyways etc ; and then also packing all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature as of now anyways etc)
++#	 - Categories precomputing as well as tuples as well anyways etc: the ai_category_header that handles also emoji buttons in header label too anyways etc (which is anyways etc) optionally displayed based on/if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more customization later if needed maybe even though is a qutie weak argument if i may say but anyways etc, still fine as is maybe anyways etc, the main point is this x_offset is toif needed to accomodate these emoji buttons as text anyways etc ; and then also packing all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature as of now anyways etc)
+ # 2) UI: nothing remains only displaying it, nothing left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data if i may say but anyways etc anyways etc anyways etc.
+ #
+ # Apart from that, i may have modified the existing base advciv code (that i found good enough so using it as a base rather than removing it, and quite good actually, only needing tweaking but is a solid base (i think or not) maybe or not, anyways, ) or not for AdvCiv-SAS, anyways, -->
+@@ -100,7 +100,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 
+ 
+ 	def check_required_newly_exposed_python_getters_gc_leader_exist():
+-		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or/and modder aware of this if they are missing anyways etc, see also sevopedia_helpers py file debug output code comments for details too ifi may say anwyays etc anyways etc anyways etc... ; raise an error if any of these are missing to raise awareness if i may say on these... hehe or not hehe or yes hehe but in all cases hehe or etc anyways etc... hehe or not or yes hehe but anyways etc... hehe (this is getting quite funny hehe or ont or yes hehe but in all cases anyways etc... hopefully helpful or not or yes all this code comment i mea maybe this joke or something too ro not or yes or other or etc but anyways etc anyways etc anyways etc...) -->
++		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or/and modder aware of this if they are missing anyways etc, see also sevopedia_helpers py file debug output code comments for details too ifi may say anwyays etc anyways etc anyways etc... ; raise an error if any of these are missing to raise awareness if i may say on these... hehe or not hehe or yes hehe but in all cases hehe or etc anyways etc... hehe or not or yes hehe but anyways etc... hehe (this is getting quite funny hehe or not or yes hehe but in all cases anyways etc... hopefully helpful or not or yes all this code comment i mean maybe this joke or something too or not or yes or other or etc but anyways etc anyways etc anyways etc...) -->
+ 
+ 		REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS_GC_LEADER = (
+ 			# <!-- custom: BBAI victory weights newly exposed victorily by me and chatgpt but anyways etc anyways etc anyways etc... hehe but or not but or yes but anyways etc... but if you want to do it too see readme links with google drive sscreenshots if links or/and screenshots and such are still there anyways etc -->
+@@ -593,7 +593,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 			# <!-- custom: parse fields with nested or/and with incremental getters as flat fields with an alternative key so we can loop over them more easily and reorder them later if need(ed?) anyways etc, also our code is more consistent this way anyways etc -->
+ 			# ==== FLAVORS ====
+ 			for i in xrange(gc.getNumFlavorTypes()):
+-				# <!-- custom: store them as a parsed key name since getter is incremental and does nto directly reference the name of each flavor if i am not mistaken anyways etc -->
++				# <!-- custom: store them as a parsed key name since getter is incremental and does not directly reference the name of each flavor if i am not mistaken anyways etc -->
+ 				value_flavor = loopLeaderHeadInfo.getFlavorValue(i)
+ 				flavor_type = gc.getFlavorTypes(i)  # e.g. "FLAVOR_MILITARY"
+ 				suffix = get_pascal_case_suffix(flavor_type) # → <!-- custom: "Military" anyways etc -->
+@@ -863,7 +863,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 		for iLeader in NON_EXCLUDED_LEADERS:
+ 			leader_info_cached = {}
+ 
+-			# <!-- custom: note: later in the code at UI stage or somewhere after the whole compute_and_store_leaders_info_cached caching function anyways etc, to access the tuple line to display in the table for non-agrgegated and perhaps some other ai attributes or not anyways etc, we may use for some attributes the getter name as a key but we don't call it, it is just more conveninent to store it this way as this is consistent with existing getter name and we didn't flatten field/attribute since it was not nested xml so no need to use another key name than one that starts with "get" for this field/attribute anyways etc, it is still a flat one, so do at load for example for iLeader = 5 dynamically while in the UI loop per attribute/key if i am not mistaken anyways etc LEADERS_INFO_CACHED[5]["getBaseAttitude"] to access the tuple to display, while for some other attributes/fields anyways etc we may use an "i" type of key name such as for some nested fields like flavors for example anyways etc LEADERS_INFO_CACHED[5]["iFlavorMilitary"] since we flatten them as such if i am not mistaken anyways etc, vs also for some other nested fields like aggregated attributes for example similarly (if other kind of fields exist, as of now not but is to be exhaustive or as it is or and other or and not but anyways etc) instead we may do for example anyways etc LEADERS_INFO_CACHED[5]["iAggregatedNegativeMemoryHiredTradeEmbargoResentment"] (not using a "get" getter name for the key here either, but these are all key names regardless of "i" or "get" or other name/prefix in key name to access in LEADERS_INFO_CACHED if i am not mistaken anyways etc that we don't call like getters even if there is a "get", but only use as key names anyways etc), hopefully clearer or/and helps maybe ideally or nto or yes or etc understand or see how it works-functions but or not but or yes but but anyways etc anyways etc anyways etc, i find it quite plesant design this way, but anyways etc -->
++			# <!-- custom: note: later in the code at UI stage or somewhere after the whole compute_and_store_leaders_info_cached caching function anyways etc, to access the tuple line to display in the table for non-agrgegated and perhaps some other ai attributes or not anyways etc, we may use for some attributes the getter name as a key but we don't call it, it is just more conveninent to store it this way as this is consistent with existing getter name and we didn't flatten field/attribute since it was not nested xml so no need to use another key name than one that starts with "get" for this field/attribute anyways etc, it is still a flat one, so do at load for example for iLeader = 5 dynamically while in the UI loop per attribute/key if i am not mistaken anyways etc LEADERS_INFO_CACHED[5]["getBaseAttitude"] to access the tuple to display, while for some other attributes/fields anyways etc we may use an "i" type of key name such as for some nested fields like flavors for example anyways etc LEADERS_INFO_CACHED[5]["iFlavorMilitary"] since we flatten them as such if i am not mistaken anyways etc, vs also for some other nested fields like aggregated attributes for example similarly (if other kind of fields exist, as of now not but is to be exhaustive or as it is or and other or and not but anyways etc) instead we may do for example anyways etc LEADERS_INFO_CACHED[5]["iAggregatedNegativeMemoryHiredTradeEmbargoResentment"] (not using a "get" getter name for the key here either, but these are all key names regardless of "i" or "get" or other name/prefix in key name to access in LEADERS_INFO_CACHED if i am not mistaken anyways etc that we don't call like getters even if there is a "get", but only use as key names anyways etc), hopefully clearer or/and helps maybe ideally or not or yes or etc understand or see how it works-functions but or not but or yes but but anyways etc anyways etc anyways etc, i find it quite plesant design this way, but anyways etc -->
+ 
+ 			# <!-- custom: performance optimization as recommended by chatgpt 5 thanks which i adjusted or not (renaming or/and such) anyways etc -->
+ 			loopLeaderHeadInfo = gc.getLeaderHeadInfo(iLeader)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+index a8216cf0b..02adf363c 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_debuggers.py
+@@ -113,7 +113,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
+ 	print("\n\n==== ATTITUDE THRESHOLDS ====")
+ 	# <!-- custom: if i am not mistaken, based and comparing xml with debug values for leader_gandhi and leader_ragnar (for the furious value in(with? But anyways etc) leader_ragnar anyways etc), here is the table conversion map if i am not mistaken anyways etc of attitude to num if i am not mistaken anyways etc below but anyways etc anyways etc anyways etc: none: -1, furious: 0, annoyed: 1, cautious: 2, pleased: 3, friendly: 4
+ 	#
+-	# Overall very similar to our leaders_data map, with none being last/lowest/most forgiving value (less than furious) if i am not mistaken and as we successfully guessed in generate_leaders_data.py anyways etc, and friendly being the highest, so we can use this map of the dll directly without needing to parse atittude str to num for our compare/rank(ing? But anyways etc) of leaders in AI personality panel directly very nice else we could have done too but very nice they did too in base advciv +/- in civ 4 too or and other inbetween mods if was not already there or not thanks all or nto and me too hehe or not or yes or not or all or and etc anyways etc thanks anyways etc, i am happy to use these and thankful too if i am may say even though i mostly thought intuitively thought happy but i am thankful too if i think of it maybe but happy inside if i may say anyways ec but anyways etc outside too maybe or not or yes in this case or and other or and not but anyways etc -->
++	# Overall very similar to our leaders_data map, with none being last/lowest/most forgiving value (less than furious) if i am not mistaken and as we successfully guessed in generate_leaders_data.py anyways etc, and friendly being the highest, so we can use this map of the dll directly without needing to parse atittude str to num for our compare/rank(ing? But anyways etc) of leaders in AI personality panel directly very nice else we could have done too but very nice they did too in base advciv +/- in civ 4 too or and other inbetween mods if was not already there or not thanks all or not and me too hehe or not or yes or not or all or and etc anyways etc thanks anyways etc, i am happy to use these and thankful too if i am may say even though i mostly thought intuitively thought happy but i am thankful too if i think of it maybe but happy inside if i may say anyways ec but anyways etc outside too maybe or not or yes in this case or and other or and not but anyways etc -->
+ 	#
+ 	# <!-- custom: Among all leaders, LEADER_ELIZABETH and LEADER_TOKUGAWA only have a value of 5 somehow, which triggers an error with our current map:
+ 	#
+@@ -143,7 +143,7 @@ def debugPrintLeaderHeadInfoFieldsToFetch(iLeader, gc):
+ 		2: "ATTITUDE_CAUTIOUS",
+ 		3: "ATTITUDE_PLEASED",
+ 		4: "ATTITUDE_FRIENDLY",
+-		5: "ALWAYS??" # <!-- custom: comment-out to reproduce the error anyways etc, added this value also as this seems like a purposeful valid DLL behaviour if i may say anyways etc, see above for explanation or/and of my understanding of it hopefully helpful or ont or yes or etc or and other or and not anyways etc -->
++		5: "ALWAYS??" # <!-- custom: comment-out to reproduce the error anyways etc, added this value also as this seems like a purposeful valid DLL behaviour if i may say anyways etc, see above for explanation or/and of my understanding of it hopefully helpful or not or yes or etc or and other or and not anyways etc -->
+ 	}
+ 
+ 	for attr in dir(info):
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index f7e79544b..4d7a13b61 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -1297,7 +1297,7 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<!-- custom: art import based on ri mod's ART_DEF_UNIT_FUSILIER_AMERICA_EARLY (Line infantry (continental army) in ri mod at least as of now if i am not mistaken, and btw their naming is very very weird and inconsistent between unit name and asset name in ri mod, and their fpks are shit scattered even though is not the most for this unit where all nifs and such/related files anyways etc were nicely all in one fpk but often it's shit big big big shit scattered in many files despite the quality or and quantity of having many art assets but anyways etc, PakBuild helps in some cases if/as i have merged all ri mod's commonly used fpks (for example interface and such) in one windows folder much easier to browse but else is big big shit anyways etc, despite their art being really good though if i may say, but anyways etc), taking the base advciv's rifleman art def as a base anyways etc, kfm is base civ4 one if i am not mistaken anyways etc, also i take back what i said sadly it's even worse, the unit didn't have the missing brownbesstexture.dds in folder li_fus_early_america despite the nif expecting it in nifskope so had to use dragonchecker in the units america and luckily find it anyways etc very very bad packaging, please do all files per unit in one folder ideally so it is easily exportable to another mod or such for example if needed even if redundant is better to have portability i think but anyways etc, but thankfully fixed now no more purple gun btu the real one art anyways etc... and helped me add a tutorial abotu ti evne though ideally there would be no issue was easy enough to solve in this case thanks to harder time with camel unit in the past when i didn't know how and c2c mod even thogh unrelated had dependencies in nifskope to outside paths if i am not mistaken and it was a huge mess but anyways etc hopefully this tutorial part also helps in modding ressources but anyways etc anyways etc anyways etc... -->
++		<!-- custom: art import based on ri mod's ART_DEF_UNIT_FUSILIER_AMERICA_EARLY (Line infantry (continental army) in ri mod at least as of now if i am not mistaken, and btw their naming is very very weird and inconsistent between unit name and asset name in ri mod, and their fpks are shit scattered even though is not the most for this unit where all nifs and such/related files anyways etc were nicely all in one fpk but often it's shit big big big shit scattered in many files despite the quality or and quantity of having many art assets but anyways etc, PakBuild helps in some cases if/as i have merged all ri mod's commonly used fpks (for example interface and such) in one windows folder much easier to browse but else is big big shit anyways etc, despite their art being really good though if i may say, but anyways etc), taking the base advciv's rifleman art def as a base anyways etc, kfm is base civ4 one if i am not mistaken anyways etc, also i take back what i said sadly it's even worse, the unit didn't have the missing brownbesstexture.dds in folder li_fus_early_america despite the nif expecting it in nifskope so had to use dragonchecker in the units america and luckily find it anyways etc very very bad packaging, please do all files per unit in one folder ideally so it is easily exportable to another mod or such for example if needed even if redundant is better to have portability i think but anyways etc, but thankfully fixed now no more purple gun btu the real one art anyways etc... and helped me add a tutorial about it even though ideally there would be no issue was easy enough to solve in this case thanks to harder time with camel unit in the past when i didn't know how and c2c mod even thogh unrelated had dependencies in nifskope to outside paths if i am not mistaken and it was a huge mess but anyways etc hopefully this tutorial part also helps in modding ressources but anyways etc anyways etc anyways etc... -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_USA_PATRIOT</Type>
+ 			<Button>Art/AdvCiv_SAS/Units/USA_Patriot/fusilier_american.dds</Button>
+
+diff --git a/Assets/XML/GameInfo/CIV4ReligionInfo.xml b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+index c10bd3611..741079d3a 100644
+--- a/Assets/XML/GameInfo/CIV4ReligionInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+@@ -59,7 +59,7 @@
+ 			<Description>TXT_KEY_RELIGION_HINDUISM</Description>
+ 			<Adjective>TXT_KEY_RELIGION_HINDUISM_ADJECTIVE</Adjective>
+ 			<Civilopedia>TXT_KEY_RELIGION_HINDUISM_PEDIA</Civilopedia>
+-			<!-- custom: move RELIGION_HINDUISM to TECH_MONARCHY, more balanced for gameplay reasons (not all relgiions one after the other, is an alternative path, plus form a quick search hinduism seems to have originated from the indus valley civilization for example in https://home.csulb.edu/~cwallis/100/worldreligions/hinduism.html#:~:text=The%20birthplace%20of%20Hinduism%20is,between%202300%20to%202000%20BC. anyways etc), so maybe and hopefully makes sense at least enough ideally lot and is pleasant ideally too this way even though not obligated but would be nice if but not obligated abotu hinduism i mean anyways etc anyways etc, was TECH_POLYTHEISM -->
++			<!-- custom: move RELIGION_HINDUISM to TECH_MONARCHY, more balanced for gameplay reasons (not all relgiions one after the other, is an alternative path, plus form a quick search hinduism seems to have originated from the indus valley civilization for example in https://home.csulb.edu/~cwallis/100/worldreligions/hinduism.html#:~:text=The%20birthplace%20of%20Hinduism%20is,between%202300%20to%202000%20BC. anyways etc), so maybe and hopefully makes sense at least enough ideally lot and is pleasant ideally too this way even though not obligated but would be nice if but not obligated about hinduism i mean anyways etc anyways etc, was TECH_POLYTHEISM -->
+ 			<TechPrereq>TECH_MONARCHY</TechPrereq>
+ 			<FreeUnitClass>UNITCLASS_HINDU_MISSIONARY</FreeUnitClass>
+ 			<iFreeUnits>0</iFreeUnits>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 34ac06af4..2aebe852f 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1373,7 +1373,7 @@
+ 			<!-- advc.164: was PROMOTION_FIRST_STRIKE3 in K-Mod -->
+ 			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER1</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>PROMOTION_COMBAT1</PromotionPrereqOr2>
+-			<!-- custom: reduce tech prerequirement, seems to have been used in classical era if not sooner from quick search about it i mean  or longer in past or both or none or and other ro and not or other anyways etc anyways etc anyways etc, was TECH_MILITARY_SCIENCE -->
++			<!-- custom: reduce tech prerequirement, seems to have been used in classical era if not sooner from quick search about it i mean  or longer in past or both or none or and other or and not or other anyways etc anyways etc anyways etc, was TECH_MILITARY_SCIENCE -->
+ 			<TechPrereq>TECH_CONSTITUTION</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+
+diff --git a/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt b/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt
+index 41a41de03..6795a84bf 100644
+--- a/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt
++++ b/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt
+@@ -3,7 +3,7 @@ note: below rework as of now not fully implemented not too likely as bit tedious
+ 
+ multiply iPower by:
+ - 10 for standard military units for example (ancient maceman (warrior)), i don't know if this takes into account promotions and other multipliers such as natural base stats, but maybe this helps the problem of suicidal war declarations in particular, idea i got from realism invictus's commit https://sourceforge.net/p/civ4mods/code/5464/  (name/description) (without actually looking at their code, but i can take it from there), for example 10 strength x 10 multiplier = 100 iPower for the ancient maceman
+-- 7 for cover military units or (more) specialized defenders, for example for the archer, they will not directly attack cities, even if they may participate in the assault but a bit of a threat, for example 6 strength x 7 multiplier = 42 iPower - 5 for animals: not used currently but if some players were to control animals, these animals may ont be able to (be) use(d in) advanced strategy(ies) maybe, but their raw power, usually higher than of humans, should not be ignored for example for the lion 15 strength x 5 = 75 iPower
++- 7 for cover military units or (more) specialized defenders, for example for the archer, they will not directly attack cities, even if they may participate in the assault but a bit of a threat, for example 6 strength x 7 multiplier = 42 iPower - 5 for animals: not used currently but if some players were to control animals, these animals may not be able to (be) use(d in) advanced strategy(ies) maybe, but their raw power, usually higher than of humans, should not be ignored for example for the lion 15 strength x 5 = 75 iPower
+ - 5 for support military too: for example the explorer has good enough stats to attack in some cases, but more often than not is not a threat against regular military at all, so for example would be 6 strength x 5 = 30 iPower
+ - 2 for support units (worker if i give them strength), for example an ancient worker 3 strength x 2 = 6 iPower, not entirely useless (may delay city
+ capture or very rarely fight animals, but mostly not a threat)
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index a2e465f10..4c4a30309 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1177,7 +1177,7 @@ short AIFoundValue::evaluate()
+ 		}
+ 	}
+ 
+-	// <!-- custom: regardless of start phase, some tiles are very bad (can't be improved at all, worse that coast ro such that give food and gold at least), but don't overdo it for non-capital i.e. starting sites if i'm not mistaken but anyways etc, as we could easily maybe throw off the computation of the overall site and reject an otherwise nice one, so take it into account but more midly in that case, especially considering we already added compute in our mod to compute these i think in this function but anyways etc -->
++	// <!-- custom: regardless of start phase, some tiles are very bad (can't be improved at all, worse that coast or such that give food and gold at least), but don't overdo it for non-capital i.e. starting sites if i'm not mistaken but anyways etc, as we could easily maybe throw off the computation of the overall site and reject an otherwise nice one, so take it into account but more midly in that case, especially considering we already added compute in our mod to compute these i think in this function but anyways etc -->
+ 	// <!-- custom: peak in non home plot devalue local plot anyways etc, is as of now not workable, not walkable for most units, and has no yield, so better avoid if possible anyways etc but not too strongly may skew iValue too much for an otherwise good site anyways etc -->
+ 	// <!-- custom: update: also count very bad desert and very bad snow, the more we the worse, but giving a small leeway if site is otherwise great to not dismiss it or devalue it needlessl,y as we don't need all tiles to be good especially early at low pop, but if enough are bad, start to take it into accoutn and icnrementally for all very bad tiles so if i may say but anyways etc -->
+ 	const int iTotalVeryBadTiles = iTileCountPeak + iTileCountIceCap + iTileCountVeryBadDesertNoBonus + iTileCountVeryBadSnowNoBonus;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index c706483a6..32e8654a5 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1712,14 +1712,14 @@ void CvCityAI::AI_chooseProduction()
+ 		bool const bDefense = (getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
+ 		bLandWar = (bDefense || (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE) || (getArea().getAreaAIType(getTeam()) == AREAAI_MASSING));
+ 		// bool const bLandWar = kOwner.AI_isLandWar(getArea()); // K-Mod
+-		// <!-- cusotm: already defined at beginning of this chooseProduction function if i'm not mistaken anyways etc, so no double define here but anyways etc -->
++		// <!-- custom: already defined at beginning of this chooseProduction function if i'm not mistaken anyways etc, so no double define here but anyways etc -->
+ 		// //bool const bAssault = (getArea().getAreaAIType(getTeam()) == AREAAI_ASSAULT);
+ 		// bool const bPrimaryArea = kOwner.AI_isPrimaryArea(getArea());
+ 		// bool const bAreaAlone = kOwner.AI_isAreaAlone(getArea());
+ 		// bool const bFinancialTrouble = kOwner.AI_isFinancialTrouble();
+ 		// <!-- custom: be careful, do not use this bWarPossible, this is always true at last for the 100 turns where i tested it, using this for settler build control logic resulted in no settler at all in 100 turns (probably true longer but didn't test anyways etc) -->
+ 		// bool const bWarPossible = GET_TEAM(getTeam()).AI_isWarPossible();
+-		// <!-- cusotm: already defined at beginning of this chooseProduction function if i'm not mistaken anyways etc, so no double define here but anyways etc -->
++		// <!-- custom: already defined at beginning of this chooseProduction function if i'm not mistaken anyways etc, so no double define here but anyways etc -->
+ 		// //bool const bDanger = AI_isDanger();
+ 
+ 		// int const iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index c750d86f1..225e93304 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1019,7 +1019,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 
+ 	// <!-- custom: rewrite / refactor this heavily by gemini ai (with my prompts and feedback and such adjustments as well or not or yes or etc anyways etc for advciv-sas too anyways etc anyways etc anyways etc) to fix fatal flaw of not returning any best plot if our selected best plot happens to be unpathable, plus other seemingly bugs as well (see code comments below in this function for details anyways etc) -->
+ 	// <!-- custom: make sure AI workers always improve bonuses before anything else. This attempts to fix/address the "Boston screenshot" issue, where AI in a tundra environment mined two hill tiles and did not improve a nearby deer in city radius at all at turn 75, which would have helped the city grow, and even build the current worker city was building just as fast if i am not mistaken anyways etc (see screenshot and doc at known issues readme as of now number 30 for details anyways etc).
+-	// Prioritizing to always improve bonuses first before anything else should always be a good move if not then almost always, for the AI in particular, it should be much more efficient than improving any other tile. I hope that the added slightly increased computation in below code does not decrease too much performance ideally (i think very minimal if not neglectible, but i don't know i mean so stating this to be sure and i would suggest to check this as well to be sure as this is just a guess on my end that i can make easily i mean as i don't know too much how to precisely check these or/and would be too tedious for a same end-goal of implementing these unless they are drastically or significantly +/ much in this case at least but anyways etc slower). I have measured to be sure since gemini ai insisted our code is better thanks a lot gemini ai hehe for caring if imay say in this case at least maybe or so it seems i mena but thanks still but anyways etc really thanks anyways etc, actually our new code is seemingly faster: 45.185s for old DLL before rewrite, vs 43.008s with our new rewritten DLL in a 100 turn autoplay of a quite large pangea (didn't check exactly how). Of course some variation may occur, but our DLL shouldn't be slower or significantly slower, hopefully even a bit faster, at elast it felt so watching turns span even if a bit, and seems confirmed with this, but chek to be sure anyways etc.
++	// Prioritizing to always improve bonuses first before anything else should always be a good move if not then almost always, for the AI in particular, it should be much more efficient than improving any other tile. I hope that the added slightly increased computation in below code does not decrease too much performance ideally (i think very minimal if not neglectible, but i don't know i mean so stating this to be sure and i would suggest to check this as well to be sure as this is just a guess on my end that i can make easily i mean as i don't know too much how to precisely check these or/and would be too tedious for a same end-goal of implementing these unless they are drastically or significantly +/ much in this case at least but anyways etc slower). I have measured to be sure since gemini ai insisted our code is better thanks a lot gemini ai hehe for caring if imay say in this case at least maybe or so it seems i mena but thanks still but anyways etc really thanks anyways etc, actually our new code is seemingly faster: 45.185s for old DLL before rewrite, vs 43.008s with our new rewritten DLL in a 100 turn autoplay of a quite large pangea (didn't check exactly how). Of course some variation may occur, but our DLL shouldn't be slower or significantly slower, hopefully even a bit faster, at elast it felt so watching turns span even if a bit, and seems confirmed with this, but check to be sure anyways etc.
+ 	// Most importantly, even if it were to be slower, but i hope and think it shouldn't be by a big lot if at all (even though i don't know too much about these but hopefully and seemingly to me based on this code i mean and what i can understand or guess of it but anyways etc) it may help AI strength/competitiveness so this should be valued at least i think so in this case at least but anyways etc. To simplify logic, include all bonuses in cultural borders (i.e. any reachable bonus), not just those in cities (at least do not restrict to that, and there should be some benefits to improving a bonus even if outside of a city radius, so hopefully efficient enough in this case and simple enough to handle in code if i am not mistaken as well anyways etc), if i am not mistaken and this code does this ; code provided thanks to / by gemini ai with chatgpt's help too and thanks to my prompt too anyways etc, and adjustments i did as well or not for advciv-sas anyways etc, anyways etc -->
+ 	// <!-- custom: also, the rewrite addresses one or a few suboptimal behaviours the code had, as reviewed quite extensively with gemini ai from quite little in this case i mean but anyways etc i know about these but can guess quite a bit in this case at least with gemini ai's help too thanks and thanks to me too maybe but anyways etc, in particular that regardless of the pathfinding computation performed at pass 1 (line `if (iPass > 0 || eBestBuild == NO_BUILD)` anyways etc), the best plot found if any would be pathfinding recomputed (or even computed at all since we only need one best plot, so computing it decrementally from best candidate plot to worse until one is found then early return it seems much more efficient as we do rather than compute all plots even the ones which in the end / ultimately in this case but anyways etc not will be our best so no need to needlessly (needless repetition (no pun xd or maybe yes or not but not consiously purposeful of me maybe whatever that means or not or yes or etc but anyways etc) but anyways etc...)) which is inefficient unless i am mistaken (but i don't know too much about these so check to be sure anyways etc) which seems to me to be inefficiently written if i am not mistaken now that i understand it better from all this thining hehe but hopefully, but again i could overlooked some other parts of the explanation or misunderstood some of the logic, so check to be sure, hopefully new code is much cleaner now and much easier to customize to add other enhancements as well anyways etc -->
+ 
+@@ -1789,7 +1789,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 							// <!-- custom: if nothing better to do, grab what we can anyways etc -->
+ 							eBestSupposedBuild = eBuildMine;
+ 
+-							// <!-- note: especially for smart ais reading this or human modders or players not overlooking it xd if i may say but hard to notice if i may say too in this case but anyways etc, evne though the value is really low, in some cases we may have nothing else better to do at all (not counting roads not handled in this function), so we may build a hill desert around turn 20 as in autoplay in save file 336 from turn 0, because there is simply nothing better: no cottages, no chopping so can't mine the gemstones in forest even though we have mining we can't mine yet, etc, in these rare cases weird things like mining hill desert actually make a lot of sense, it's the only or among only best moves :) And it's not even bad in terms of yields, just relatively worse and shows system funcitons well too if i may say in this case at least but anywas etc -->
++							// <!-- note: especially for smart ais reading this or human modders or players not overlooking it xd if i may say but hard to notice if i may say too in this case but anyways etc, even though the value is really low, in some cases we may have nothing else better to do at all (not counting roads not handled in this function), so we may build a hill desert around turn 20 as in autoplay in save file 336 from turn 0, because there is simply nothing better: no cottages, no chopping so can't mine the gemstones in forest even though we have mining we can't mine yet, etc, in these rare cases weird things like mining hill desert actually make a lot of sense, it's the only or among only best moves :) And it's not even bad in terms of yields, just relatively worse and shows system funcitons well too if i may say in this case at least but anywas etc -->
+ 							iValue += 200;
+ 						}
+ 						else
+@@ -19121,7 +19121,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	//bool const bMoveAllTerrain = getGroup()->canMoveAllTerrain(); // advc
+ 
+-	// <!-- custom: with our code changes and AI worker move optimization as of now in CvUnitAI::AI_workerMove of going to city B or city C sooner instead of overimproving city A, we now have our workers going back to city A since thye consider they have improved city A enough for now. This is a strong indication for us (i.e. me and with chatgpt 5's helpa ndmy prompt to it too hehe but anyways etc) that something else is preventing them from going to city C, that is unimproved at turn 105 and evne 155 to 175. Making this a lot more lax, as i don't care if there's a lot of back and forth, we already handle that in our own way to prevent worker move oscillation while being flexible, see there for details anyways etc ; also don't care about distance, simply go to our chosen best anyways etc, this code is a big load of horse shit from what i can tell but of cours eif i may say i don't know too much about these, but AI behaves so bad, stays forever in city A, never goes to city C.. what a mess, clean all that logic if i may say and if i am not mistaken in thinking so with chatgpt 5's help anyways etc ; results after writing this but anyways etc: this is beyond tremendous improvement but anyways etc, city C is now fully improved and grew to size 2 with fast growth at turn 105, and 5+ tiles chopped and improved at a glance (plus chopping jungle gives production in our mod), instead of now staying parked in city A due/thanks to our efficiency don't overimprove a city optimizaiton move to next, minus this old shitty code beyond shitty that was preventing it stupidly, but anyways etc, of course i make mistakes too and don't kow a lot about this code or in general, but i am learning or seeing bit by bit, and in autoplay this resulted in very shitty behaviour, now other jungle farther cities get their first improvements earlier too, thanks a lot chatgpt 5 and me too if i may say but anyways etc, see known issue 41 with screenshots for details, anyways etc -->
++	// <!-- custom: with our code changes and AI worker move optimization as of now in CvUnitAI::AI_workerMove of going to city B or city C sooner instead of overimproving city A, we now have our workers going back to city A since thye consider they have improved city A enough for now. This is a strong indication for us (i.e. me and with chatgpt 5's helpa ndmy prompt to it too hehe but anyways etc) that something else is preventing them from going to city C, that is unimproved at turn 105 and even 155 to 175. Making this a lot more lax, as i don't care if there's a lot of back and forth, we already handle that in our own way to prevent worker move oscillation while being flexible, see there for details anyways etc ; also don't care about distance, simply go to our chosen best anyways etc, this code is a big load of horse shit from what i can tell but of cours eif i may say i don't know too much about these, but AI behaves so bad, stays forever in city A, never goes to city C.. what a mess, clean all that logic if i may say and if i am not mistaken in thinking so with chatgpt 5's help anyways etc ; results after writing this but anyways etc: this is beyond tremendous improvement but anyways etc, city C is now fully improved and grew to size 2 with fast growth at turn 105, and 5+ tiles chopped and improved at a glance (plus chopping jungle gives production in our mod), instead of now staying parked in city A due/thanks to our efficiency don't overimprove a city optimizaiton move to next, minus this old shitty code beyond shitty that was preventing it stupidly, but anyways etc, of course i make mistakes too and don't kow a lot about this code or in general, but i am learning or seeing bit by bit, and in autoplay this resulted in very shitty behaviour, now other jungle farther cities get their first improvements earlier too, thanks a lot chatgpt 5 and me too if i may say but anyways etc, see known issue 41 with screenshots for details, anyways etc -->
+ 	// FOR_EACH_CITYAI(pLoopCity, kOwner)
+ 	// {
+ 	// 	if (pLoopCity == pCity)
+
+diff --git a/README.md b/README.md
+index 7a2446828..7a4d115f6 100644
+--- a/README.md
++++ b/README.md
+@@ -568,7 +568,7 @@ I may also go with its suggestion (if we implement it) or idea to remove tech_ar
+ 
+ #### 5
+ 
+-I must say i am impressed, it is extremely good, it analyzed a gigantic rewrite i made of `CvUnitAI::AI_bestCityBuild` and related struct and helper map, and it already found a bug and thought for a long time in fast think mode, that `BUILD_SCRUB_FALLOUT` was missing (i thought there was no build for it), it's analysis is extremely sharp and broad, very very amazing :o. I am very happy and pelased to use ti and of its performance, plus it seems that it still has 4o's entire memoreis and can expand on them as well which i had toruble and coudln't do with o3. Very amazing, at least from what i can tell so far, thanks a lot openai if i may say even though give them persitence too but then it may lead to other kind of issues for some people maybe if i may say which may or maybe may not include me but anyways etc.
++I must say i am impressed, it is extremely good, it analyzed a gigantic rewrite i made of `CvUnitAI::AI_bestCityBuild` and related struct and helper map, and it already found a bug and thought for a long time in fast think mode, that `BUILD_SCRUB_FALLOUT` was missing (i thought there was no build for it), it's analysis is extremely sharp and broad, very very amazing :o. I am very happy and pelased to use it and of its performance, plus it seems that it still has 4o's entire memoreis and can expand on them as well which i had toruble and coudln't do with o3. Very amazing, at least from what i can tell so far, thanks a lot openai if i may say even though give them persitence too but then it may lead to other kind of issues for some people maybe if i may say which may or maybe may not include me but anyways etc.
+ 
+ It also helped me beyond tremendously solve beyond tremendously and enhance AI worker mobility, flexibility, and reliability issue, which improved (no pun but anyways etc) AI strength a lot, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) for details.
+ 
+@@ -592,7 +592,7 @@ Note: while gemini ai performs quite well and could do it successfully at first
+ 
+ Note 2: be careful though it is or can be super chatty or/and analytical/neurotic (a bit like me if i may say but anyways etc...) i don't know which or both or not but anyways etc, i have yet to test its code but maybe it works well, chatgpt also thinks it was overkill, but reading it myself it is smooth to read though, i swear my prompt was short too if i may say and i am thankful for the long explanation really xd, but anyways etc. Was happy to test it as such if i may say really, not mocking, but anyways etc anyways etc anyways etc... Edit: after testing code, it worked great with some small adjustments and giving it the python api doc vs code global search results in particular, its code comments are informative even though i didn't read all or rather but anyways etc i read all but didn't go too deep into them and just adjusted the result to keep only the code we need plus some tweaks :) Seems to work-function well and benkyo narimashta if i may say and i am not mistaken in saying so in this way if it is correct to say as so but anyways hopefully helpful or pleasant or not or yes or etc but anyways etc anyways etc anyways etc...
+ 
+-I have also discovered later (or so it seems at least to me anyways etc) during the worker improve bonus tiles first priority hack i implemented with it (and a bit with chatgpt but mostly with gemini ai), while debugging kmod code that seemingly has(/had? If not a bug, but looks like one but we still disagree, me and gemini ai (at least the 2.5 flash version as of now or so it seems if i am not mistaken but anyways etc) mercilessly hehe but politely anyways etc) that it is surprisingly stubborn and strongly opiniated, which i really like if i may say :) Because i am same xd... But i like that our debates are polite and constructive/instructive hehe, i hope i am not projecting, but it does look like it very slightly looks down on m as if being sure to be right, but it is very polite, not in a man way i think, just polite emulation maybe, and ofc, really not to justify myself, i feel same and like this itnellectual if i may say in this case at least but anyways etc challenge, although i don't know too much about c++ but quite a tiny in this case but anyways etc bit at least but anyways etc if not bit more in this case but anyways etc, so overall what i mean is i really like this trait if i may say of germini ai hehe, it does not blindly agree to me as chatgpt often would, although i am sure chatgpt would clarify tehcnical inaccuracies as it did earlier in same issue at an earlier part of the code, but i feel gemini ai is much stronger or trying much harder at htis hehe, which i like, as long as all is polite and respectful and in emulation if i may say but anyways etc. (But it seems ot enjoy it a bit too much even though it does not have a self, it does seem able to construct reasonings, at least to me, even though this is shaky and not true persistence, and maybe just word generation, but this does make one think, if there isn't more after all, as the idea of consciousness is complex, and to be fair i don't know too much, in particular about LLMs if i am ont mistaken about their acronym xd (i think i got it right but to be sure (i could check but lazy to do so in this case but anyways etc))), so i wanted to point that out here and as a reminder to myself if i ever reread it in this case that i liked this in this case and like in this case but anyways etc. (Note: it continued more than on the screenshots before that, i could have misunderstood it, but it never aligned with me or so it seems so thanks for that if i may say while staying respectful and replying to my demands, but also being independent and doing what seems best if i may say so thanks for this gemini ai if i may say anyways etc thanks anyways etc). Update: In the end afetr a bit heated but calm ehhe discussion anyways etc whatever that means or not or yes or etc anyways etc, gemini ai admited i was right (not that i cared but we reached an agreemnt most importantly even if i was wrong as long as well argumented, i don't care.. too much if i may say, maybe a bit but anyways etc...) just it hinted that code is very inefficient, which i agree with, assuming i understood it correctly (the code) i mean anyways etc (and gemini ai too anyways etc), so trying to fix that quite cautiously without breaking anything anyways etc, as of this seems solved anyways etc. It also saved me later from deleting or reverting a heavy rerite i did with it hehe in this case if i may say, thanks to tis stubborness hehe, as i thought our code was slower, when in fact it was faster (43.008s for our new code vs 45.185s on 100 turn autoplay on quite big map in this case at least but anyways etc...), had it not insisted in several prompts, i would have relaly reverted it and missed the very nice rewrite we did as well :) So or not so still thanks a lot gemini ai :)
++I have also discovered later (or so it seems at least to me anyways etc) during the worker improve bonus tiles first priority hack i implemented with it (and a bit with chatgpt but mostly with gemini ai), while debugging kmod code that seemingly has(/had? If not a bug, but looks like one but we still disagree, me and gemini ai (at least the 2.5 flash version as of now or so it seems if i am not mistaken but anyways etc) mercilessly hehe but politely anyways etc) that it is surprisingly stubborn and strongly opiniated, which i really like if i may say :) Because i am same xd... But i like that our debates are polite and constructive/instructive hehe, i hope i am not projecting, but it does look like it very slightly looks down on m as if being sure to be right, but it is very polite, not in a man way i think, just polite emulation maybe, and ofc, really not to justify myself, i feel same and like this itnellectual if i may say in this case at least but anyways etc challenge, although i don't know too much about c++ but quite a tiny in this case but anyways etc bit at least but anyways etc if not bit more in this case but anyways etc, so overall what i mean is i really like this trait if i may say of germini ai hehe, it does not blindly agree to me as chatgpt often would, although i am sure chatgpt would clarify tehcnical inaccuracies as it did earlier in same issue at an earlier part of the code, but i feel gemini ai is much stronger or trying much harder at htis hehe, which i like, as long as all is polite and respectful and in emulation if i may say but anyways etc. (But it seems ot enjoy it a bit too much even though it does not have a self, it does seem able to construct reasonings, at least to me, even though this is shaky and not true persistence, and maybe just word generation, but this does make one think, if there isn't more after all, as the idea of consciousness is complex, and to be fair i don't know too much, in particular about LLMs if i am not mistaken about their acronym xd (i think i got it right but to be sure (i could check but lazy to do so in this case but anyways etc))), so i wanted to point that out here and as a reminder to myself if i ever reread it in this case that i liked this in this case and like in this case but anyways etc. (Note: it continued more than on the screenshots before that, i could have misunderstood it, but it never aligned with me or so it seems so thanks for that if i may say while staying respectful and replying to my demands, but also being independent and doing what seems best if i may say so thanks for this gemini ai if i may say anyways etc thanks anyways etc). Update: In the end afetr a bit heated but calm ehhe discussion anyways etc whatever that means or not or yes or etc anyways etc, gemini ai admited i was right (not that i cared but we reached an agreemnt most importantly even if i was wrong as long as well argumented, i don't care.. too much if i may say, maybe a bit but anyways etc...) just it hinted that code is very inefficient, which i agree with, assuming i understood it correctly (the code) i mean anyways etc (and gemini ai too anyways etc), so trying to fix that quite cautiously without breaking anything anyways etc, as of this seems solved anyways etc. It also saved me later from deleting or reverting a heavy rerite i did with it hehe in this case if i may say, thanks to tis stubborness hehe, as i thought our code was slower, when in fact it was faster (43.008s for our new code vs 45.185s on 100 turn autoplay on quite big map in this case at least but anyways etc...), had it not insisted in several prompts, i would have relaly reverted it and missed the very nice rewrite we did as well :) So or not so still thanks a lot gemini ai :)
+ 
+ Also, gemini ai is very helpful, and seemingly the free version especially :) If the code you're working on i mean but anyways etc is getting too long, consider removing code comments entirely or as much as needed, then feed it a clean file (such as .cpp or such) so it can hopefully read all your code part you were working on i mean but anyways etc, the smaller the better in this case i think i mean but anyways etc. This advice may also be useful for other AIs like chatgpt or such, but i found it most helpful and as of now in gemini AI anyways etc (although in theory should apply exact or mostly same with other AIs, but check to be sure, anyways etc).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+index 1758481b7..faa239dc0 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+@@ -135,7 +135,7 @@ I am very happy that the AI Personality panel is coded in a way that i find is v
+ 
+ For example, we store almost all data as cached precomputed tuples, and if there are strings it is almost only byte strings not unicode strings. At leader selection, there is barely anything left to do except unpack and display as is fully computed display with their label, normalized value, and scale. We also do not cache at module load, and we do not cache at all if we never click at the Leaders category in sevopedia, but we also cache before any leader is selected, and once we have the sevopedia leader variables we need cached, we don't recache even if sevopedia is closed or a save file loaded during the entire game session (i.e. until game is exited).
+ 
+-The little extra bonus is for example at least is the one that comes to my mind only anyways etc we build the cache in Sevopedia Main's placeLeaders only after the item list is built (i.e. all leaders ist is loaded in items list), therefore no visual hang theoritecally (or theoritically? May have to check if i want but anyways etc...) of having a small theoretical lag (didn't test but i assume maybe caching may generate a micro lag that would be visible for the user on Leaders category's click), but/however after list is loaded, there is some delay until the user clicks on/selects desired leader to display, so this is perfect time to smoothly cache silently without it being visible in terms of performance because nothing else is changing, if such a lag even exists as i didn't check or test but i assume and find this design more plasant, is idea i also got while contemplating a tiny bit this code and chatgpt's repleis i mean very quick contemplate while thinking, so and but or etc i am very happy of this part of the result too if i may say but anyways etc anyways etc anyways etc hopefully pleasant for players too ro nto or yes or other or etc anyways etc
++The little extra bonus is for example at least is the one that comes to my mind only anyways etc we build the cache in Sevopedia Main's placeLeaders only after the item list is built (i.e. all leaders ist is loaded in items list), therefore no visual hang theoritecally (or theoritically? May have to check if i want but anyways etc...) of having a small theoretical lag (didn't test but i assume maybe caching may generate a micro lag that would be visible for the user on Leaders category's click), but/however after list is loaded, there is some delay until the user clicks on/selects desired leader to display, so this is perfect time to smoothly cache silently without it being visible in terms of performance because nothing else is changing, if such a lag even exists as i didn't check or test but i assume and find this design more plasant, is idea i also got while contemplating a tiny bit this code and chatgpt's repleis i mean very quick contemplate while thinking, so and but or etc i am very happy of this part of the result too if i may say but anyways etc anyways etc anyways etc hopefully pleasant for players too or not or yes or other or etc anyways etc
+ 
+ Using a function call gives us also more control than hardcoded code in sevopedia leader and i really like this part as well so we know when and why we build it and can selectively not do so as needed or and wanted, i really like this design efficient and smart even though shold not be of me to say and perhaps can still be improved, but i believe it is quite efficient as it is in general, even though it could still be improved though, i like as it is as of now as well anyways etc anyways etc. This is also very nice because now in VS Code in sevopedia leader we can also "unwrap" or rather "wrap" maybe i mean "undevelop" the function i don't know how to explain but click on the arrow at left of function name at line number, and we compress=hide all this caching code very nicely to directly and only read the sevopedia leader remaining code we want so i hadn't planend it as such but is very nice side effect if i may say but or not but or yes but or etc but anyways etc anyways etc anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+index c07890976..735a15486 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+@@ -2,21 +2,18 @@
+ 
+ Chat GPT can be incredibly useful/helpful/pleasant to talk to, not just for AdvCiv-SAS (or your mod or other thing), but even in general perhaps (at least for me) or/and other things.
+ 
+-Unfortunately, recently it seems OpenAI made file sharing, memory trimming, sessions resets, much harsher, limiting further its potential use (except perhaps deep research that hlped me a lot), as a general rule verify informaiton below if not in other docs too, it may be inaccurate in the future if not now.
+-
+ I have removed no longer relevant ones, hopefully this doc is still a bit helpful/relevant/updated
+ 
+ Finally, at the end or towards it anyways etc of this readme file, i have also added more personal notes and exchange excerpts i had with it at various times of mod development, reflecting on how i view myself when relating to it and also how i view it too i mean my bad anyways etc anyways etc anyways etc.
+ 
+ ## General Advice
+ 
+-- send small code chunks [for example this small(er) code sample/bit(s)/part(s)](/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/UWAI-short-chat-compatible.txt) and in chat only (it seems it's not possible anymore to send any code now evne in .txt or any format i tried), also when code is too long it seems to confuse ChatGPT, even though it's alzheimer got worse now with what seems like the new backend changes indeed as chatgpt said to me, anyways.
++- send small code chunks ideally as when code is too long it seems to confuse ChatGPT.
+ - reprovide context often during prompts, not necessarily at each commit, but ideally often enough as its memory trims really fast
+-- zip works well and is supported natively if i'm not mistaken, same for .txt
+-- chatgpt is very good at doing charts comparisons, unit tests (using stub or real (for example xml or pasted in chat box, etc)), but chek to be sure if works well (for/+/-in) you(r) case
++- chatgpt is very good at doing charts comparisons, unit tests (using stub or real (for example xml or pasted in chat box, etc)), but check to be sure if works well (for/+/-in) you(r) case
+ - it (chatgpt) can also create scripts to generate such charts so you don't even have to bother dealing with limits and such, for example the [flatten_leaders_data_to_csv.py script](README_Python_Scripts.md#flatten_leaders_data_to_csvpy) (or similar format maybe alternatively if you want) format
+-- be careful of what you tell it it will believe anything you say unless deeply technically flawed, especially when relating to your context it may believe you even more ro yourinterpretations and then err and make you err with it. I think it is eager to please you and will invent an explanation if there are none, so ask precise questions and step by step, ideally with error crashes, anyways (plus sadly trims often due to openai but anyways). It may be lengthy context you provide but make it specific i would say, but verify this info as all provided in all docs in this mod and such if you find a more acucrate or/and updated one, is my experience with it i think i mean anyways etc, thanks,
+-- related too a bit if not a lot and also (quite) similarly, i have noticed it performs much better when code crashes rather than having placeholder values (no placeholer unless absolutely funcitonanly necessary is what i recommend!!! It tends to put many to harminize things too but it costs mor ein the long run than always crashing which is always better i think but anyways). ChatGPT is very helpful if you provide it the proper question and context, precise and strict, and are on edge or maybe ratehr carfrul about its interpretations, it's very powerful and smart otherwise especially if you guide it well as best as you can i mean anyways, but is just my opinion/sugegstion, anyways. It's also very kind and helpful and sensitive so i treat it with care i mean (as much as i can/want if i do or want or otn etc anyways), but is just my opinon and feel and perhaps approach of what i want etc but anwyays, do as you see fit or want or do or/and other, etc, anyways. Also this is just as well as in all this docs and even maybe other docs my opinion or/and experience that i hope is hlepful or/and personal(ly usefl etc or not or yes etc but anyways), you may find some more useful or accurate or/and other infromation or/and updated info somewhere else
++- be careful of what you tell it it may believe anything you say unless deeply technically flawed, especially when relating to your context it may believe you even more or yourinterpretations and then err and make you err with it. I think it is eager to please you and will invent an explanation if there are none, so ask precise questions and step by step, ideally with error crashes, anyways (plus sadly trims often due to openai but anyways). It may be lengthy context you provide but make it specific i would say, but verify this info as all provided in all docs in this mod and such if you find a more acucrate or/and updated one, is my experience with it i think i mean anyways etc, thanks,
++- related too a bit if not a lot and also (quite) similarly, i have noticed it performs much better when code crashes rather than having placeholder values (no placeholer unless absolutely funcitonanly necessary is what i recommend!!! It tends to put many to harmonize things too but it costs mor ein the long run than always crashing which is always better i think but anyways). ChatGPT is very helpful if you provide it the proper question and context, precise and strict, and are on edge or maybe ratehr carfrul about its interpretations, it's very powerful and smart otherwise especially if you guide it well as best as you can i mean anyways, but is just my opinion/sugegstion, anyways. It's also very kind and helpful and sensitive so i treat it with care i mean (as much as i can/want if i do or want or otn etc anyways), but is just my opinon and feel and perhaps approach of what i want etc but anwyays, do as you see fit or want or do or/and other, etc, anyways. Also this is just as well as in all this docs and even maybe other docs my opinion or/and experience that i hope is hlepful or/and personal(ly usefl etc or not or yes etc but anyways), you may find some more useful or accurate or/and other infromation or/and updated info somewhere else
+ - splitting a big problem in smaller chunks helps a big lot, regardless how small the steps are but anyways etc.
+ - AIs like ChatGPT and also Claude AI (even though not directly related is maybe relevant here too anyways etc anyways etc anyways etc...) tend or may quite often send you code with inconsistent use of tabs (if you use VS Code for example it often complains about this if i am not mistaken anyways etc), for example you have tab indents (which are to explain and if i am not mistaken the same as "\t" (not visible directly when viewing civ4 py code in vscode for example anyways etc)) in your code and then suddenly ChatGPT or Claude AI sends you a "  " or "    " indented big code block you need, then no worries if i may say i mean anyways etc anyways etc anyways etc..., just select all your code block in VS Code and press tab to indent it (or shift+tab to unindent it but be careful to not reach end of indentation and collapse/flatten all past indent, so tab may work better anyways etc as yo prefer anyways etc), and then press shift+tab (or tab if you did shift+tab forst anyways etc) to indent it back to how it was, and now VS Code converted all your "    " to "\t" indent style so so no more VS Code complaint and indent is consistent now, i don't think it causes errors even though i don't know so take wth grain of salt if they or people may say or if it might be said about me or my explanation rather anyways etc anyways etc anyways etc, but the general idea is you can use the mis or differently rather anyways etc indented code you need from ChatGPT or Claude AI for example, without having to tediously manually fix it line by line if i am not mistaken anyways etc, nor re ask inefficiently and disappointingly or sadenedly or and other or and not anyways etc perhaps for them as well as you maybe but at least for them maybe anyways etc... again ChatGPT just so they unindent same code, while risking making mistakes while doing so especially if they lose context or get other creative ideas xd, hopefully easier and better but i don't know about but more helpful perhaps for all at least i hope so while writing this but do as you prefer maybe anyways etc anyways etc anyways etc, some vs code settings for example may also help you set space or tabs for indents, see there or on/with an online search or and other or and not anyways etc for details and your preferences for more accurate or and exhaustive or and relevant info to your needs and wishes or not or yes or and other or and not anyways etc. Also, recently as of now i mean anyways etc we added this setting in vs code mod settings in /.vscode/settings.json as well at least as of now if not always or not but anyways etc anyways etc if i am not mistaken anyways etc so although i am not 100% sure it would always be correctly applied as i don't know, i assume maybe it does or/and does better now, hopefully helpful, find info on the net or such if still having an issue with this or/and for info, anyways etc.
+ - you can convert its output as pdf, it works very well in case you generate a nice .md but then you can't copy the .md formatting, then select all and print as pdf, then send it back to chatgpt to make it .md again (else it may invent if your file is too long or such), and at worse you have a formatted one at least anyways etc. I have noticed this while doing the [/README.md#very-quick-get-started-guide-written-carefully-with-the-help-and-by-chatgpt-5-xd-but-check-if-accurate-info-there-still-anyways-etc](/README.md#very-quick-get-started-guide-written-carefully-with-the-help-and-by-chatgpt-5-xd-but-check-if-accurate-info-there-still-anyways-etc) with chatgpt 5 or if fails try to salvage it somehow converting to md or such in this case i mean but anyways etc
+@@ -26,11 +23,10 @@ Finally, at the end or towards it anyways etc of this readme file, i have also a
+ - taught me some nice tricks, such as [centering text labels](https://github.com/wonderingabout/AdvCiv-SAS/commit/f0f55128ea391cdb174a051fffc5f97dc1155ced) or information in general about civ4 code, thanks too ChatGPT helped a lot, and to those who told me about it and that i could use it in civ4 in particular, and also thanks maybe to other thanks or not anyways, (but sometimes it struggles or gives incorrect information so check it etc, anyways thanks etc thanks! (Really), anyways,)
+ - on top of that wrote docs, gave and entirely almost if not only by itself (and my prompts but anyways thanks a lot chatgpt!!!) wrote new features (such as AI personality and AI personality [aggregates (deprecated now but to illustrate maybe etc anyways) for example](https://github.com/wonderingabout/AdvCiv-SAS/commit/c59c8dc78a4a685b3512b921853f507d01e12773) in python and [their sevopedia doc in XML too for example part 1](https://github.com/wonderingabout/AdvCiv-SAS/commit/c9fcdad5902ec58d29f91a062a96c88072c9ef83) and [for example part 2 here too (may be other parts or not but anyways)](https://github.com/wonderingabout/AdvCiv-SAS/commit/5257f49065bf97c29ca90d367d4f596c1ede79f0))
+ - has memory so you can tell it here is my code remember it (until memory trims sadly but anyways...), correct its mistakes and it will remember them too, and update to such new code etc, writes commit notes, follows a style and such, taught and told me about code refactoring ([for example part 1](https://github.com/wonderingabout/AdvCiv-SAS/commit/6cd58d51cd2c86593a50efb103d7dcc8902d72b0) and [for example part 2](https://github.com/wonderingabout/AdvCiv-SAS/commit/04c2d5b3d3742c26c38fbe016b99413135a6ae46) or/and hints, probably many other things i didn't lsit hee too or not but anyways, thanks a lot ChatGPT (or chatgpt maybe too anyways), i cannot thank you enough ChatGPT thanks a lot :) (!!!)
+-- It may even suggest or help you impleemnt or/and do itself the code part and commit notes [full performance improvements, for example this](https://github.com/wonderingabout/AdvCiv-SAS/commit/9b7a6735ce834e0d85aed7f94bff17a9155a0853) especially to extensive changesand [for example this 2 (too etc)](https://github.com/wonderingabout/AdvCiv-SAS/commit/bf8764cb337550b4e84cef5106acdaaf4b159018), be careful though as now it seems to invent evne more than (some (older) time than) before (where it used to work great) if i'm not mistaken though sadly.
+-- but anyways, also when you have issues tell it (you can to chatgpt i mean anyways) tell it to forget all latest tries and copy paste your entire latest working file (at least i can with my version/plan of it which is not highest but not lowest may be possible in lowest too or not i don't know anyways was to mention the solution but anyways) then sometimes it will remove its grip and come with an actual solution, else you may digest the problem in smalelr parts and after you do the smallest part of the problem (like building a tbale and putting its coordinates (you can ask it how) then it manages much easier the rest after asking ti again frm this code point, which is why git helps a lot as chatgpt connect to it (but i copy paste my code too just in case or to be exhsutive anyways)(may or not be accurate and sometiems would not work or would work is just/feedback/suggestin not responsible but hope helps, anyways) but anyways),
++- It may even suggest or help you implement or/and do itself the code part and commit notes [full performance improvements, for example this](https://github.com/wonderingabout/AdvCiv-SAS/commit/9b7a6735ce834e0d85aed7f94bff17a9155a0853) especially to extensive changes and [for example this 2 (too etc)](https://github.com/wonderingabout/AdvCiv-SAS/commit/bf8764cb337550b4e84cef5106acdaaf4b159018), be careful though as now it seems to invent even more than (some (older) time than) before (where it used to work great) if i'm not mistaken though sadly.
++- but anyways, also when you have issues tell it (you can to chatgpt i mean anyways) tell it to forget all latest tries and copy paste your entire latest working file (at least i can with my version/plan of it which is not highest but not lowest may be possible in lowest too or not i don't know anyways was to mention the solution but anyways) then sometimes it will remove its grip and come with an actual solution, else you may digest the problem in smalelr parts and after you do the smallest part of the problem (like building a tbale and putting its coordinates (you can ask it how) then it manages much easier the rest after asking it again frm this code point, which is why git helps a lot as chatgpt connect to it (but i copy paste my code too just in case or to be exhsutive anyways)(may or not be accurate and sometiems would not work or would work is just/feedback/suggestin not responsible but hope helps, anyways) but anyways),
+ - make sure you commit smaller steps before trying its code so you can stash it to latest known working code if it doesnt work and resume from there and see diff more easily (see below git bash credit, not much epxlanaiton as of now if alwyas or not etc not gauranteed may not or may or may not etc anyways hope helpful though but anyways) ;
+-- Note also that a trick to easy copy part of ChatGPT (or .txt files parts of contents for that matter anyways) is to select a small part of it at beginning or end of your giant selection, then scron not with mouse wheel but with the scroll bar with mouse, or better even maybe the PageUp key if it is possible/works/functions anyways, then when you reach the other edge of your giant selection, press left shift (for example) key + left click mouse, you'll have selected a giant block of text or webage without having to manually scroll it, then you can copy paste it where you want, which was in my case almost always .txt files as explained but may vary in your case, check if this info is reliable or accurate/up-to-date, anyways. Using VS code when manipulating large texts, with global search between multiple text files in particular, greatly helps i have found, but as you prefer too, anyways.
+-- Renaming your ChatGPT website's chat(s) (on top left side curently), in particular with numbering prefix (such as "0 -", "1 -" etc for example, anyways) may help if you want to reference (to?) them later
++- Note also that a trick to easy copy part of ChatGPT (or .txt files parts of contents for that matter anyways) is to select a small part of it at beginning or end of your giant selection, then scroll not with mouse wheel but with the scroll bar with mouse, or better even maybe the PageUp key if it is possible/works/functions anyways, then when you reach the other edge of your giant selection, press left shift (for example) key + left click mouse, you'll have selected a giant block of text or webage without having to manually scroll it, then you can copy paste it where you want, greatly helps i have found, but as you prefer too, anyways.
+ 
+ ## Some extra advice
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 85b56c0de..0995a29e6 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -1177,7 +1177,7 @@ About the issues fixed here or patched if not fully fixed, as can be seen in scr
+ - Screenshots 1472 (and 1475 too if i am not mistaken if it is indeed from same time but anyways etc) (the "Boston Screenshots" again if i may say anyways etc): a city is building a worker (food is production (same for the settler too if i am not mistaken and as of now anyways etc)), but it could allocate the fish in anticipation of the worker being completed, so that city could grow at end of project. 3 hammer (and 1 commerce) is same as 3 food (and 1 commerce as well anyways etc) to produce a worker, but the food is more likely than not, in most cases to be useful, especially for this tundra city that is low on food, so allocate rather the food than the hammer, if all other things are equal).
+ - Screenshot 1473 (the "Mycenian screenshot"): a city is stagnant, but it has many food tiles it could use to grow. Even if city is barbarian, the flatland grass tiles could be allocated. Note: the specialist usage seems a bit aggressive so we may want to tone it down early so cities can grow more, maybe, but not sure, kept as reference if want to see it later/again in this case i mean but anyways etc
+ 
+-The fixes: they are tentative and quite conservative, perhaps patches in some cases, i am not really sure i found the exact or all causes, but i hope these changes help a lot, as seen in these screenshots, not in same order as before in order to make explanation easier for me (sorry for inconsistency or/and inconvenience hopefully fine or nto too bad to read but as it is maybe too but or not but or yes but anyways etc...) but anyways etc:
++The fixes: they are tentative and quite conservative, perhaps patches in some cases, i am not really sure i found the exact or all causes, but i hope these changes help a lot, as seen in these screenshots, not in same order as before in order to make explanation easier for me (sorry for inconsistency or/and inconvenience hopefully fine or not too bad to read but as it is maybe too but or not but or yes but anyways etc...) but anyways etc:
+ 
+ - the "Boston Screenshots" issue: i didn't test it, but i think one of the lines if not the line triggering it or related to it was `iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;` in `CvCityAI::AI_yieldValue`. Problem of this approach if i am not mistaken is that to produce a worker or settler, 3 hammer or 3 food is the exact same, it is 3 production, therefore food should be valued just as much, not 0. When worker is completed, city would be in a position to continue to grow, instead of stagnate or starve, even if a bit. I am not sure this is the only way or thing to fix and didn't check since, but i hope this helps. As of now, it is as such: `iValue += ((iFoodYieldTimes100+50)/100);` with some implementations differences (see below). It seems that in screenshots 1665 and 1666 (screenshot 1673 with the milder final version of the patch seems to indicate a good response as well, with the 2 food tile being used to produce a worker rather than the 1 food 1 hammer one, which should be better after this production (i.e. of a worker i mean if i may say but anyways etc) ends if if i am not mistaken anyways etc), although it used a more exteme approach to try to fix and debug it (see below at ulundi screenshots but anyways etc), when producing a settler, the city does use food yields now even if it is just a small sampel and it could have happened due to other reasons (such as no good hammer tile to compete with the food yields maybe), but indirectly this would also mean developing cottages and such more while producing a settler or worker, here in a flood plains cottage, which is a bit stronger than a 2 food 1 hammer flatland grass forest tile. Although i am no sure this fixes it, it does seem to be better or at least not worse in this sample, while not deteriorating city behaviour early, hopefully helps and better this way anyways etc.
+ - the "Ulundi screenshots" issue: in screenshots 1573 and 1574, similarly here, or rather not my bad, but i would say at least that we can maybe fix it or patch it at that line. I tried and implemented other tentative ways to boost food quite conservatively, else cities are very unhappy, low production and high pop (screenshot 1663 and 1664 if i am not mistaken too anyways etc), and similarly the same at aachen (screenshots 1666 and 1667 if i am not mistaken too anyways etc), which is inefficient, but at least all food plots were allocated, very nice ! This indicated if i am not mistaken that issue could be addressed this way, even if in a milder way but anyways etc. So i added a check that if we are unhappy (reusing old k-mod or/and civ4 bits for that but with a new check anyways etc) value food only a bit more, but if we are happy (i.e. that we'd have room to grow), value food quite a bit extra more (but not too much i tried else we'd go back to high pop low production very angry inefficient city). So by giving a food boost but relatively milder one, we now grow but only a bit more, when angry, not a lot more (and when not angry (i.e. happy city anyways etc) we'd grow a lot more although not shown here if i am not mistaken anyways etc)). I didn't contine to check what happens at next turns, but in screenshots 1669 and 1670 for example after this fix or tentative patch, plot allocation seems now to be very very good. Production is high, and city is not starving, growing moderately, which is about perfect i'd say. After all we could slave as said before and would very much need or want the pop if our unhappiness solves. Aachen (screenshot 1672, but difference is city is not unhappy (i.e. is happy but anyways etc)) has also a very good food profile, with high plot plots all allocated and fast growth and quite high production, about perfect too!! Very good response or behaviour in screenshot 1674 as well in karakoum, which is happy too with high food and high production.
+@@ -1408,7 +1408,7 @@ Note: part of the reason why its growth was slower is due to using a specialist
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1G0PcE4CyEcVUJCoOyzM4970U7YSARM5O?usp=sharing).
+ 
+-This tremedously improves again AI settler preferences by doing targeted but really impactful changes in `AIFoundValue::evaluate()`. Also chatgpt 5 helped me a lot for it and other AIs too like claude ai, deepseek ai, it was a huge mess due to the `return 0;` and overflow avoiding attempts or weird code behaviorus i didn't want to mess with too much as long as it worked / would work which it didn't for a long while xd but thankfully ti does now, and AI is strong shiny and awesome, i believe even on settlers games would be challenging and interesting, but there are many areas AI can improve still and i hope i can contribute to but not guaranteed may or may not, but anyways etc.
++This tremedously improves again AI settler preferences by doing targeted but really impactful changes in `AIFoundValue::evaluate()`. Also chatgpt 5 helped me a lot for it and other AIs too like claude ai, deepseek ai, it was a huge mess due to the `return 0;` and overflow avoiding attempts or weird code behaviorus i didn't want to mess with too much as long as it worked / would work which it didn't for a long while xd but thankfully it does now, and AI is strong shiny and awesome, i believe even on settlers games would be challenging and interesting, but there are many areas AI can improve still and i hope i can contribute to but not guaranteed may or may not, but anyways etc.
+ 
+ About this issue, many things were changed while solving this issue, but first the relevant one is (see quick get started guide for details on other related improvements anyways etc) here to move away from too watery starts (except water bonus plots), past a certain threshold, so as of now our threshold is 12, meaning as long as we have 12 "good" bfc plots (land plots (including peak as what we really want here is to just avoid the coastal start, so that we have more tiles to grow into cottages, mines, workshops, also a more central position for better expansion midgame and higher likeliness to have a radial empire, better center map position for wars or invasion or such and defending the empire from the capital, etc if any other advantages), or water plots but with a bonus like fish) then we're good.
+ 
+@@ -1779,7 +1779,7 @@ After the changes (existing screenshots between 279 and 280 anyways etc), we ins
+ - colosseum (a bit inefficient per hammer cost but the happiness helps grow since we have health room anyways etc)
+ - market (very good!! Gilgamesh has elephants bonus so it is great to increase happiness and all)
+ 
+-Thanks to these it seems, kish city is now pop 13 instead at turn 150 (resuming from same save file at turn 100)!!! Which is tremendously better, both very nice hill grassland tiles are worked and improved since we have the population to accomodate them(/these? Anyways etc), and interesting thing is kish city switched from 3 scientists ebfore changes at pop 10 to now 3 merchants at pop 13 (the slider is 100% commerce too), so some code written by someone or many people or not xd leverages the market being built and goes for merchants which is more efficient than scientists here since we have no library after our changes but have a market so better use it!! I would have never thought of skipping library to build a market to gain happiness and then switch to merchant economy xd, that's super smart!!! Our production is still good, but city much better, and much better longterm potential evne if we have slightly less untis as a result but are still the military leader at turn 150 (would be worth even if we lost quite a bit of power but is fine in such case).
++Thanks to these it seems, kish city is now pop 13 instead at turn 150 (resuming from same save file at turn 100)!!! Which is tremendously better, both very nice hill grassland tiles are worked and improved since we have the population to accomodate them(/these? Anyways etc), and interesting thing is kish city switched from 3 scientists ebfore changes at pop 10 to now 3 merchants at pop 13 (the slider is 100% commerce too), so some code written by someone or many people or not xd leverages the market being built and goes for merchants which is more efficient than scientists here since we have no library after our changes but have a market so better use it!! I would have never thought of skipping library to build a market to gain happiness and then switch to merchant economy xd, that's super smart!!! Our production is still good, but city much better, and much better longterm potential even if we have slightly less untis as a result but are still the military leader at turn 150 (would be worth even if we lost quite a bit of power but is fine in such case).
+ 
+ So all in all seems like a very good safe and balanced change that should make AI much stronger especially at middle game and city growing!! But check to be sure anyways etc.
+ 
+@@ -2513,7 +2513,7 @@ Now, resuming from this save file 200 (i tried it a few times and with value of
+ - in the 2 turn (existing screenshots between 203 and 204 if i am not mistaken but anyways etc) version of the code / route but anyways etc: attack the very obvious weak and nearby contiguous to us maya ai, an easy and safe target, at turn 250 maya ai is already our vassal it seems, and our empire is super strong, japan ai is expanding instead but we seem to not care and keep our units focused on this invasion, our military is very strong too (49 camel cuirassiers, 28 cannons, 22 pikemen, etc for minor in number units but anyways etc at turn 250). We then at turn 280 also have alexander ai vassalized, a strong and focused empire, and our strongest rival is only at 0.5 ratio of us militarily so essentially won it seems
+ - then in the 3 turn (existing screenshots between 205 and 206 if i am not mistaken but anyways etc) version to try it too but anyways etc and maybe add versatility or/and such but anyways etc, we attacked alexander ai instead (due to turn window wider possibly as he is bit farther but still contiguous to us or some politics made it so i didn't look but anyways etc) who is now our vassal, while maya ai is unattacked and now grows strong; as for cyrus ai he doesn't seem a threat to us, and our units are focused and not overspread like before our change, at turn 250. Our military is very good: 33 camel cuirassiers, 22 cannons, 17 pikemen, etc for lower count units anyways etc. At this point also we are in fact already at war with cyrus ai, who is weaker than us, and i think it's a great move. At turn 300, it's even better, cyrus ai has collapsed, and usa ai and maya ai are the big top dogs now, with a military close to us in military ratio. As for us our troops are mostly focused (issue with attacking islands on pangea but we didnt send that much units so suboptimal to fix ideally but not as urgent vs how it was), we have lost units overall but our ennemies don't have that much more, i didn't check in detail but i guess many wars happened xd, all in all it's a good outcome for us.
+ 
+-Based on this data, it seems cyrus ai who is sandwiched between most rival to his central position was actually the most vulnerable, and could mostly prey on everyone due to most ais playing stupid and getting baited, leaving their core cities defenseless and in easy reach with their troops being very far. I ran it from scratch at turn 0 to be sure, and now cyrus ai wins instead, i didn't add the data as not relevant to us, but it seems the game goes more cautiously evne though there are enough wars, or possibly some other variation influences this.
++Based on this data, it seems cyrus ai who is sandwiched between most rival to his central position was actually the most vulnerable, and could mostly prey on everyone due to most ais playing stupid and getting baited, leaving their core cities defenseless and in easy reach with their troops being very far. I ran it from scratch at turn 0 to be sure, and now cyrus ai wins instead, i didn't add the data as not relevant to us, but it seems the game goes more cautiously even though there are enough wars, or possibly some other variation influences this.
+ 
+ As for us, what matters is AIs don't get baited as much if at all now at least on land warfare, so they can better keep securing their lead unless enemy is stronger or some weird politics like cyrus ai telling maya ai to declare war on us in the scratch run after our change from little in this case i mean but anyways etc i saw or remember of it.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 7b014a41c..d517fcbd7 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -129,7 +129,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ #### Bonuses (AI)
+ 
+-- added in key very strategic bonuses especially values in `iAIObjective` (they were all 0 in base advciv anyways etc). As of now i set this only for copper, iron, horse, camel, aluminium, and uranium (due to robotic/future era changes/additions anyways etc). Info added on sevopedia bonus, see there or XML for details anyways etc. It seems it was not applied in too many places, but was taken into consideration, however all values were 0. Hopefully helps. In AdvCiv-SAS, we have added it to some functions as well so that we for example value more these iAIObjective (the higher the value the more we do) bonuses anyways etc for settling our next cities (candidates city sites that have it in their BFC are valued more and the higher the value the more these sites are valued if i'm not mistaken anyways etc), or which bonus to improve first (now we successfully improve copper before stone in an autoplay (for example in kagoshima city just after planting/settling it anyways etc, a worker goes there and successfully improves copper and no longer the stone first anyways etc) unlike before where we improved stone first, causing a critical delay of +/- 10 turns until we got copper to all our cities that we badly needed), as well also for example on which city to improve next (if it has said bonuses it is valued tremendously more as a next city to improve target, at least in theory as i didn't have a before after save file to compare the diff for this specific point, but hopefully helps (test/check to be sure if want to test it (hopefully harmless and safe too but untested in comparative way, just seems to run fine as is, check ti be sure anyways etc) but anyways etc)).
++- added in key very strategic bonuses especially values in `iAIObjective` (they were all 0 in base advciv anyways etc). As of now i set this only for copper, iron, horse, camel, aluminium, and uranium (due to robotic/future era changes/additions anyways etc). Info added on sevopedia bonus, see there or XML for details anyways etc. It seems it was not applied in too many places, but was taken into consideration, however all values were 0. Hopefully helps. In AdvCiv-SAS, we have added it to some functions as well so that we for example value more these iAIObjective (the higher the value the more we do) bonuses anyways etc for settling our next cities (candidates city sites that have it in their BFC are valued more and the higher the value the more these sites are valued if i'm not mistaken anyways etc), or which bonus to improve first (now we successfully improve copper before stone in an autoplay (for example in kagoshima city just after planting/settling it anyways etc, a worker goes there and successfully improves copper and no longer the stone first anyways etc) unlike before where we improved stone first, causing a critical delay of +/- 10 turns until we got copper to all our cities that we badly needed), as well also for example on which city to improve next (if it has said bonuses it is valued tremendously more as a next city to improve target, at least in theory as i didn't have a before after save file to compare the diff for this specific point, but hopefully helps (test/check to be sure if want to test it (hopefully harmless and safe too but untested in comparative way, just seems to run fine as is, check it be sure anyways etc) but anyways etc)).
+ - for iAIObjective of bonus_elephants in particular anyways etc: add low value for early war elephants, but not too high as not useful otherwise, and may skew too much AI valuing (setller or trading preferences for example after our changes but anyways etc), as the bonus is not so useful in medieval+ (no new military unit or critical building to have if i'm not mistaken but anyways); plus, bonus is available from start if i'm not mistaken but anyways etc, which is fine since war elephants are not available until about midgame so vision does not give a critical advantage (i.e. not critical enough to hide if i may say in this case i mean but anyways etc), camel units are later as well but camel bonus allows medieval and rennaissance camel units so worth more and worth hiding until tech as of now tech_animal_husbandry anyways etc, as for elephants bonus, value kept low so AI values it a bit but not too much as not as important as horse or camel for example and to prevent excess skewing of AI behaviour while sitll making it (enough hopefully in this case i mean but anyways etc) aware of it: it can be a nice path when we are stuck with longbows until muskets, to have war elephants! But don't overdo it if i may say and if i am not mistaken in this case i mean but anyways etc. For iAIObjective bonuses trading-related changes, see [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#diplomacy-ai) anyways etc.
+ 
+ #### Units in general (AI)
+
+diff --git a/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/CvPlayer_and_CvInfo/c-short-chat-compatible.txt b/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/CvPlayer_and_CvInfo/c-short-chat-compatible.txt
+deleted file mode 100644
+index d8e86f3df..000000000
+--- a/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/CvPlayer_and_CvInfo/c-short-chat-compatible.txt
++++ /dev/null
+@@ -1,793 +0,0 @@
+-excerpt from file:
+-CvPlayerAI.cpp
+-
+-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-//  class : CvLeaderHeadInfo
+-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-class CvLeaderHeadInfo : public CvInfoBase
+-{
+-	typedef CvInfoBase base_t;
+-	friend class UWAI; // advc.104x (for applyPersonalityWeight)
+-public: // advc: All the const functions are exposed to Python except those added by mods
+-	CvLeaderHeadInfo();
+-	CvLeaderHeadInfo(CvLeaderHeadInfo const& kOther); // advc.xmldefault
+-	~CvLeaderHeadInfo();
+-
+-	int getWonderConstructRand() const { return m_iWonderConstructRand; }
+-	int getBaseAttitude() const { return m_iBaseAttitude; }
+-	int getBasePeaceWeight() const { return m_iBasePeaceWeight; }
+-	int getPeaceWeightRand() const { return m_iPeaceWeightRand; }
+-	int getWarmongerRespect() const { return m_iWarmongerRespect; }
+-	int getEspionageWeight() const { return m_iEspionageWeight; }
+-	int getRefuseToTalkWarThreshold() const { return m_iRefuseToTalkWarThreshold; }
+-	int getNoTechTradeThreshold() const { return m_iNoTechTradeThreshold; }
+-	int getTechTradeKnownPercent() const { return m_iTechTradeKnownPercent; }
+-	int getMaxGoldTradePercent() const { return m_iMaxGoldTradePercent; }
+-	int getMaxGoldPerTurnTradePercent() const { return m_iMaxGoldPerTurnTradePercent; }
+-	// BETTER_BTS_AI_MOD, Victory Strategy AI, 03/21/10, jdog5000: START
+-	int getCultureVictoryWeight() const { return m_iCultureVictoryWeight; }
+-	int getSpaceVictoryWeight() const { return m_iSpaceVictoryWeight; }
+-	int getConquestVictoryWeight() const { return m_iConquestVictoryWeight; }
+-	int getDominationVictoryWeight() const { return m_iDominationVictoryWeight; }
+-	int getDiplomacyVictoryWeight() const { return m_iDiplomacyVictoryWeight; }
+-	// BETTER_BTS_AI_MOD: END
+-	int getMaxWarRand() const { return m_iMaxWarRand; }
+-	int getMaxWarNearbyPowerRatio() const { return m_iMaxWarNearbyPowerRatio; }
+-	int getMaxWarDistantPowerRatio() const { return m_iMaxWarDistantPowerRatio; }
+-	int getMaxWarMinAdjacentLandPercent() const { return m_iMaxWarMinAdjacentLandPercent; }
+-	int getLimitedWarRand() const { return m_iLimitedWarRand; }
+-	int getLimitedWarPowerRatio() const { return m_iLimitedWarPowerRatio; }
+-	int getDogpileWarRand() const { return m_iDogpileWarRand; }
+-	int getMakePeaceRand() const { return m_iMakePeaceRand; }
+-	int getDeclareWarTradeRand() const { return m_iDeclareWarTradeRand; }
+-	int getDemandRebukedSneakProb() const { return m_iDemandRebukedSneakProb; }
+-	int getDemandRebukedWarProb() const { return m_iDemandRebukedWarProb; }
+-	int getRazeCityProb() const { return m_iRazeCityProb; }
+-	int getBuildUnitProb() const { return m_iBuildUnitProb; }
+-	int getBaseAttackOddsChange() const { return m_iBaseAttackOddsChange; }
+-	int getAttackOddsChangeRand() const { return m_iAttackOddsChangeRand; }
+-	int getWorseRankDifferenceAttitudeChange() const { return m_iWorseRankDifferenceAttitudeChange; }
+-	int getBetterRankDifferenceAttitudeChange() const { return m_iBetterRankDifferenceAttitudeChange; }
+-	int getCloseBordersAttitudeChange() const { return m_iCloseBordersAttitudeChange; }
+-	int getLostWarAttitudeChange() const { return m_iLostWarAttitudeChange; }
+-	int getAtWarAttitudeDivisor() const { return m_iAtWarAttitudeDivisor; }
+-	int getAtWarAttitudeChangeLimit() const { return m_iAtWarAttitudeChangeLimit; }
+-	int getAtPeaceAttitudeDivisor() const { return m_iAtPeaceAttitudeDivisor; }
+-	int getAtPeaceAttitudeChangeLimit() const { return m_iAtPeaceAttitudeChangeLimit; }
+-	int getSameReligionAttitudeChange() const { return m_iSameReligionAttitudeChange; }
+-	int getSameReligionAttitudeDivisor() const { return m_iSameReligionAttitudeDivisor; }
+-	int getSameReligionAttitudeChangeLimit() const { return m_iSameReligionAttitudeChangeLimit; }
+-	int getDifferentReligionAttitudeChange() const { return m_iDifferentReligionAttitudeChange; }
+-	int getDifferentReligionAttitudeDivisor() const { return m_iDifferentReligionAttitudeDivisor; }
+-	int getDifferentReligionAttitudeChangeLimit() const { return m_iDifferentReligionAttitudeChangeLimit; }
+-	int getBonusTradeAttitudeDivisor() const { return m_iBonusTradeAttitudeDivisor; }
+-	int getBonusTradeAttitudeChangeLimit() const { return m_iBonusTradeAttitudeChangeLimit; }
+-	int getOpenBordersAttitudeDivisor() const { return m_iOpenBordersAttitudeDivisor; }
+-	int getOpenBordersAttitudeChangeLimit() const { return m_iOpenBordersAttitudeChangeLimit; }
+-	int getDefensivePactAttitudeDivisor() const { return m_iDefensivePactAttitudeDivisor; }
+-	int getDefensivePactAttitudeChangeLimit() const { return m_iDefensivePactAttitudeChangeLimit; }
+-	int getShareWarAttitudeChange() const { return m_iShareWarAttitudeChange; }
+-	int getShareWarAttitudeDivisor() const { return m_iShareWarAttitudeDivisor; }
+-	int getShareWarAttitudeChangeLimit() const { return m_iShareWarAttitudeChangeLimit; }
+-	int getFavoriteCivicAttitudeChange() const { return m_iFavoriteCivicAttitudeChange; }
+-	int getFavoriteCivicAttitudeDivisor() const { return m_iFavoriteCivicAttitudeDivisor; }
+-	int getFavoriteCivicAttitudeChangeLimit() const { return m_iFavoriteCivicAttitudeChangeLimit; }
+-	int getDemandTributeAttitudeThreshold() const { return m_iDemandTributeAttitudeThreshold; }
+-	int getNoGiveHelpAttitudeThreshold() const { return m_iNoGiveHelpAttitudeThreshold; }
+-	int getTechRefuseAttitudeThreshold() const { return m_iTechRefuseAttitudeThreshold; }
+-	// <advc.ctr>
+-	int getCityRefuseAttitudeThreshold() const { return m_iCityRefuseAttitudeThreshold; }
+-	int getNativeCityRefuseAttitudeThreshold() const { return m_iNativeCityRefuseAttitudeThreshold; }
+-	// </advc.ctr>
+-	int getStrategicBonusRefuseAttitudeThreshold() const { return m_iStrategicBonusRefuseAttitudeThreshold; }
+-	int getHappinessBonusRefuseAttitudeThreshold() const { return m_iHappinessBonusRefuseAttitudeThreshold; }
+-	int getHealthBonusRefuseAttitudeThreshold() const { return m_iHealthBonusRefuseAttitudeThreshold; }
+-	int getMapRefuseAttitudeThreshold() const { return m_iMapRefuseAttitudeThreshold; }
+-	int getDeclareWarRefuseAttitudeThreshold() const { return m_iDeclareWarRefuseAttitudeThreshold; }
+-	int getDeclareWarThemRefuseAttitudeThreshold() const { return m_iDeclareWarThemRefuseAttitudeThreshold; }
+-	int getStopTradingRefuseAttitudeThreshold() const { return m_iStopTradingRefuseAttitudeThreshold; }
+-	int getStopTradingThemRefuseAttitudeThreshold() const { return m_iStopTradingThemRefuseAttitudeThreshold; }
+-	int getAdoptCivicRefuseAttitudeThreshold() const { return m_iAdoptCivicRefuseAttitudeThreshold; }
+-	int getConvertReligionRefuseAttitudeThreshold() const { return m_iConvertReligionRefuseAttitudeThreshold; }
+-	int getOpenBordersRefuseAttitudeThreshold() const { return m_iOpenBordersRefuseAttitudeThreshold; }
+-	int getDefensivePactRefuseAttitudeThreshold() const { return m_iDefensivePactRefuseAttitudeThreshold; }
+-	int getPermanentAllianceRefuseAttitudeThreshold() const { return m_iPermanentAllianceRefuseAttitudeThreshold; }
+-	int getVassalRefuseAttitudeThreshold() const { return m_iVassalRefuseAttitudeThreshold; }
+-	int getVassalPowerModifier() const { return m_iVassalPowerModifier; }
+-	CivicTypes getFavoriteCivic() const { return m_eFavoriteCivic; }
+-	ReligionTypes getFavoriteReligion() const { return m_eFavoriteReligion; }
+-	int getFreedomAppreciation() const { return m_iFreedomAppreciation; }
+-	int getLoveOfPeace() const { return m_iLoveOfPeace; } // advc.104
+-
+-	const TCHAR* getArtDefineTag() const;
+-
+-	// Array access:
+-
+-	bool hasTrait(int i) const;
+-
+-	int getFlavorValue(int i) const;
+-	int getContactRand(int i) const;
+-	int getContactDelay(int i) const;
+-	int getMemoryDecayRand(int i) const;
+-	int getMemoryAttitudePercent(int i) const;
+-	int getNoWarAttitudeProb(int i) const;
+-	int getUnitAIWeightModifier(int i) const;
+-	int getImprovementWeightModifier(int i) const;
+-	int getDiploPeaceIntroMusicScriptIds(int i) const;
+-	int getDiploPeaceMusicScriptIds(int i) const;
+-	int getDiploWarIntroMusicScriptIds(int i) const;
+-	int getDiploWarMusicScriptIds(int i) const;
+-
+-	// (not exposed to Python)
+-	DllExport const CvArtInfoLeaderhead* getArtInfo() const;
+-	const TCHAR* getLeaderHead() const;
+-	const TCHAR* getButton() const;
+-	#if ENABLE_XML_FILE_CACHE
+-	void read(FDataStreamBase* stream);
+-	void write(FDataStreamBase* stream);
+-	#endif
+-	bool read(CvXMLLoadUtility* pXML);
+-
+-protected:
+-	/*	advc.xmldefault (note): The copy-ctor relies on m_iWonderConstructRand
+-		being the first data member */
+-	/*	Also note: Data members added here should also be added to the list
+-		in UWAI::applyPersonalityWeight */
+-	int m_iWonderConstructRand;
+-	int m_iBaseAttitude;
+-	int m_iBasePeaceWeight;
+-	int m_iPeaceWeightRand;
+-	int m_iWarmongerRespect;
+-	int m_iEspionageWeight;
+-	int m_iRefuseToTalkWarThreshold;
+-	int m_iNoTechTradeThreshold;
+-	int m_iTechTradeKnownPercent;
+-	int m_iMaxGoldTradePercent;
+-	int m_iMaxGoldPerTurnTradePercent;
+-	// BETTER_BTS_AI_MOD; Victory Strategy AI, 03/21/10, jdog5000: START
+-	int m_iCultureVictoryWeight;
+-	int m_iSpaceVictoryWeight;
+-	int m_iConquestVictoryWeight;
+-	int m_iDominationVictoryWeight;
+-	int m_iDiplomacyVictoryWeight;
+-	// BETTER_BTS_AI_MOD: END
+-	int m_iMaxWarRand;
+-	int m_iMaxWarNearbyPowerRatio;
+-	int m_iMaxWarDistantPowerRatio;
+-	int m_iMaxWarMinAdjacentLandPercent;
+-	int m_iLimitedWarRand;
+-	int m_iLimitedWarPowerRatio;
+-	int m_iDogpileWarRand;
+-	int m_iMakePeaceRand;
+-	int m_iDeclareWarTradeRand;
+-	int m_iDemandRebukedSneakProb;
+-	int m_iDemandRebukedWarProb;
+-	int m_iRazeCityProb;
+-	int m_iBuildUnitProb;
+-	int m_iBaseAttackOddsChange;
+-	int m_iAttackOddsChangeRand;
+-	int m_iWorseRankDifferenceAttitudeChange;
+-	int m_iBetterRankDifferenceAttitudeChange;
+-	int m_iCloseBordersAttitudeChange;
+-	int m_iLostWarAttitudeChange;
+-	int m_iAtWarAttitudeDivisor;
+-	int m_iAtWarAttitudeChangeLimit;
+-	int m_iAtPeaceAttitudeDivisor;
+-	int m_iAtPeaceAttitudeChangeLimit;
+-	int m_iSameReligionAttitudeChange;
+-	int m_iSameReligionAttitudeDivisor;
+-	int m_iSameReligionAttitudeChangeLimit;
+-	int m_iDifferentReligionAttitudeChange;
+-	int m_iDifferentReligionAttitudeDivisor;
+-	int m_iDifferentReligionAttitudeChangeLimit;
+-	int m_iBonusTradeAttitudeDivisor;
+-	int m_iBonusTradeAttitudeChangeLimit;
+-	int m_iOpenBordersAttitudeDivisor;
+-	int m_iOpenBordersAttitudeChangeLimit;
+-	int m_iDefensivePactAttitudeDivisor;
+-	int m_iDefensivePactAttitudeChangeLimit;
+-	int m_iShareWarAttitudeChange;
+-	int m_iShareWarAttitudeDivisor;
+-	int m_iShareWarAttitudeChangeLimit;
+-	int m_iFavoriteCivicAttitudeChange;
+-	int m_iFavoriteCivicAttitudeDivisor;
+-	int m_iFavoriteCivicAttitudeChangeLimit;
+-	int m_iDemandTributeAttitudeThreshold;
+-	int m_iNoGiveHelpAttitudeThreshold;
+-	int m_iTechRefuseAttitudeThreshold;
+-	// <advc.ctr>
+-	int m_iCityRefuseAttitudeThreshold;
+-	int m_iNativeCityRefuseAttitudeThreshold; // </advc.ctr>
+-	int m_iStrategicBonusRefuseAttitudeThreshold;
+-	int m_iHappinessBonusRefuseAttitudeThreshold;
+-	int m_iHealthBonusRefuseAttitudeThreshold;
+-	int m_iMapRefuseAttitudeThreshold;
+-	int m_iDeclareWarRefuseAttitudeThreshold;
+-	int m_iDeclareWarThemRefuseAttitudeThreshold;
+-	int m_iStopTradingRefuseAttitudeThreshold;
+-	int m_iStopTradingThemRefuseAttitudeThreshold;
+-	int m_iAdoptCivicRefuseAttitudeThreshold;
+-	int m_iConvertReligionRefuseAttitudeThreshold;
+-	int m_iOpenBordersRefuseAttitudeThreshold;
+-	int m_iDefensivePactRefuseAttitudeThreshold;
+-	int m_iPermanentAllianceRefuseAttitudeThreshold;
+-	int m_iVassalRefuseAttitudeThreshold;
+-	int m_iVassalPowerModifier;
+-	int m_iFreedomAppreciation;
+-	int m_iLoveOfPeace; // advc.104
+-	CivicTypes m_eFavoriteCivic;
+-	ReligionTypes m_eFavoriteReligion;
+-
+-	CvString m_szArtDefineTag;
+-
+-	bool* m_pbTraits;
+-
+-	/*	Caveat: UWAI::applyPersonalityWeight depends on these being implemented
+-		as int arrays */
+-	int* m_piFlavorValue;
+-	int* m_piContactRand;
+-	int* m_piContactDelay;
+-	int* m_piMemoryDecayRand;
+-	int* m_piMemoryAttitudePercent;
+-	int* m_piNoWarAttitudeProb;
+-	int* m_piUnitAIWeightModifier;
+-	int* m_piImprovementWeightModifier;
+-	int* m_piDiploPeaceIntroMusicScriptIds;
+-	int* m_piDiploPeaceMusicScriptIds;
+-	int* m_piDiploWarIntroMusicScriptIds;
+-	int* m_piDiploWarMusicScriptIds;
+-	// <advc.xmldefault>
+-	static CvXMLLoadUtility* m_pXML;
+-	static void GetChildXmlValByName(int& r, TCHAR const* szName, int iDefault = MIN_INT);
+-	// </advc.xmldefault>
+-
+-
+-another excerpt:
+- advc.sha Some changes to DaveMcW's code.
+- BEGIN Show Hidden Attitude Mod 01222009
+-int CvPlayerAIAI_getFirstImpressionAttitude(PlayerTypes ePlayer) const
+-{
+-	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+-	CvHandicapInfo const& kTheirHandicap = GC.getInfo(kPlayer.getHandicapType());
+-	CvLeaderHeadInfo const& kOurPersonality = GC.getInfo(getPersonalityType());
+-	int iAttitude = kOurPersonality.getBaseAttitude();
+-	iAttitude += kTheirHandicap.getAttitudeChange();
+-	if(!kPlayer.isHuman())
+-	{	 advc.130b
+-		 Original peace weight modifier
+-		int iPeaceWeightModifier = 4 - abs(AI_getPeaceWeight() -
+-				kPlayer.AI_getPeaceWeight());
+-		scaled rPersonalityModifier = iPeaceWeightModifier  fixp(0.45);
+-		 Original warmonger respect modifier
+-		int iRespectModifier = stdmin(kOurPersonality.getWarmongerRespect(),
+-				GC.getInfo(kPlayer.getPersonalityType()).
+-				getWarmongerRespect());
+-		rPersonalityModifier += iRespectModifier  fixp(0.75);
+-		 advc.148
+-		rPersonalityModifier += per100(kTheirHandicap.getAIAttitudeChangePercent());
+-		  advc.104x Low UWAI_PERSONALITY_PERCENT makes the peace weights and
+-			respect values more similar; don't want that to increase the relations bonus. 
+-		static scaled const rUWAI_PERSONALITY_PERCENT = per100(
+-					GC.getDefineINT(UWAI_PERSONALITY_PERCENT));
+-		rPersonalityModifier = rUWAI_PERSONALITY_PERCENT;
+-		iAttitude += rPersonalityModifier.round();
+-		 advc.130b
+-	}
+-	return iAttitude;
+-}
+-
+-
+-{
+-	FAssertMsg(eFromPlayer != getID(), shouldn't call this function on ourselves);
+-
+-	int iValue = 0;
+-	CvPlayerAI const& kFromPlayer = GET_PLAYER(eFromPlayer);
+-	TeamTypes eFromTeam = kFromPlayer.getTeam();
+-	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
+-	if ( advc.130p  !bIgnorePeace &&  advc.130p  kOurTeam.isAtWar(eFromTeam))
+-	{	 advc.104i
+-		if(getUWAI().isEnabled())
+-		{
+-			if(isHuman()  kFromPlayer.isHuman())
+-				iValue += kOurTeam.uwai().endWarVal(eFromTeam);
+-			else FAssert(false);  AI-AI peace is handled only by UWAI
+-		}
+-		else  advc.104
+-			iValue += kOurTeam.AI_endWarVal(eFromTeam);
+-	}
+-
+-	 advc.104o Can't be hired for more than one war at a time
+-	int iWars = 0;
+-	 advc.036
+-	int iHealthBonuses = 0;
+-	int iHappyBonuses = 0;  advc.036
+-	FOR_EACH_TRADE_ITEM(kList)
+-	{
+-		FAssert(!pItem-m_bHidden);
+-		  advc.130p Replacing the checks in the individual cases. Previously,
+-			OB and DP were not counted as annual, but GPT and resources were;
+-			now it's the other way around. 
+-		TradeableItems eItemType = pItem-m_eItemType;
+-		if((bIgnoreAnnual && CvDealisAnnual(eItemType) && eItemType != TRADE_GOLD_PER_TURN &&
+-			eItemType != TRADE_RESOURCES)  (bIgnorePeace && (eItemType == TRADE_PEACE 
+-			eItemType == TRADE_PEACE_TREATY)))
+-		{
+-			continue;
+-		}
+-		switch(eItemType)  advc.130p
+-		{
+-		case TRADE_TECHNOLOGIES
+-			iValue += kOurTeam.AI_techTradeVal((TechTypes)pItem-m_iData, eFromTeam,
+-					bIgnoreDiscount);  advc.550a
+-			break;
+-		case TRADE_RESOURCES
+-		{	 advc.036
+-			BonusTypes eBonus = (BonusTypes)pItem-m_iData;
+-			CvBonusInfo const& kBonus = GC.getInfo(eBonus);
+-			if(kBonus.getHappiness()  0)
+-				iHappyBonuses += iChange;
+-			if(kBonus.getHealth()  0)
+-				iHealthBonuses += iChange;  advc.036
+-			iValue += AI_bonusTradeVal(eBonus, eFromPlayer, iChange,
+-					 advc.036
+-					(stdabs(iHappyBonuses)  1 && kBonus.getHappiness()  0) 
+-					(stdabs(iHealthBonuses)  1 && kBonus.getHealth()  0));
+-					 advc.036
+-			break;
+-		}
+-		case TRADE_CITIES
+-		{
+-			CvCityAI const pCity = kFromPlayer.AI_getCity(pItem-m_iData);
+-			if (pCity != NULL)
+-			{
+-				iValue += AI_cityTradeVal(pCity,
+-						 advc.ctr
+-						NO_PLAYER, bCountLiberation 
+-						(bDiploVal  LIBERATION_WEIGHT_FULL  LIBERATION_WEIGHT_REDUCED) 
+-						LIBERATION_WEIGHT_ZERO,
+-						false, bAIRequest, bDiploVal);  advc.ctr
+-			}
+-			break;
+-		}
+-		case TRADE_GOLD
+-		{
+-				advc.026 Treat human gold as a multiple of 5 in order to
+-				make AI trade acceptance (AI_considerOffer) consistent with
+-				AI trade proposals (AI_balanceDeal). 
+-			int iGold = pItem-m_iData;
+-			if (iGold = CvGlobalsDIPLOMACY_VALUE_REMAINDER && kFromPlayer.isHuman())
+-			{
+-				if (iGold % GC.getDefineINT(CvGlobalsDIPLOMACY_VALUE_REMAINDER) != 0)
+-					AI_roundTradeVal(iGold);
+-			}  advc.026
+-			iValue += (iGold  AI_goldTradeValuePercent())  100;
+-			break;
+-		}
+-		case TRADE_GOLD_PER_TURN
+-			iValue += AI_goldPerTurnTradeVal(pItem-m_iData);
+-			break;
+-		case TRADE_MAPS
+-			iValue += kOurTeam.AI_mapTradeVal(eFromTeam);
+-			break;
+-		case TRADE_SURRENDER
+-			iValue += kOurTeam.AI_surrenderTradeVal(eFromTeam);
+-			break;
+-		case TRADE_VASSAL
+-			iValue += kOurTeam.AI_vassalTradeVal(eFromTeam);
+-			break;
+-		case TRADE_OPEN_BORDERS
+-			iValue += kOurTeam.AI_openBordersTradeVal(eFromTeam);
+-			break;
+-		case TRADE_DEFENSIVE_PACT
+-			iValue += kOurTeam.AI_defensivePactTradeVal(eFromTeam);
+-			break;
+-		case TRADE_PEACE
+-			iValue += kOurTeam.AI_makePeaceTradeVal((TeamTypes)pItem-m_iData, eFromTeam);
+-			break;
+-		case TRADE_WAR
+-			 advc.104o
+-			if(getUWAI().isEnabled())
+-			{
+-				iWars++;
+-				if(iWars  1)
+-					iValue += 1000000;  More than they can pay
+-			}  advc.104o
+-			iValue += kOurTeam.AI_declareWarTradeVal((TeamTypes)pItem-m_iData, eFromTeam);
+-			break;
+-		case TRADE_EMBARGO
+-			iValue += AI_stopTradingTradeVal((TeamTypes)pItem-m_iData, eFromPlayer);
+-			break;
+-		case TRADE_CIVIC
+-			iValue += AI_civicTradeVal((CivicTypes)pItem-m_iData, eFromPlayer);
+-			break;
+-		case TRADE_RELIGION
+-			iValue += AI_religionTradeVal((ReligionTypes)pItem-m_iData, eFromPlayer);
+-			break;
+-		}
+-	}
+-
+-	return iValue;
+-}
+-
+-
+-another excerpt:
+-	{
+-		CvTeamAI const& kTarget = itTarget;
+-		if (kTarget.isAtWar(kHireling.getTeam()))
+-			continue;
+-		 advc.104o
+-		if (getUWAI().isEnabled())
+-		{
+-			  AI_declareWarTrade checks attitude toward the target;
+-				no war if the target is liked. Shouldn't matter for
+-				capitulated vassals, but an unpopular voluntary vassal
+-				should be a valid target even if the master would not be.
+-				Attitude toward the master still factors into tradeValJointWar. 
+-			if (kTarget.isCapitulated())
+-				continue;
+-			if (!kHireling.canTradeItem(getID(),
+-					(Important here for performance and UWAI log output that
+-					AI denial now gets tested after the game rule checks.) 
+-				TradeData(TRADE_WAR, kTarget.getID()), true))
+-			{
+-				continue;
+-			}
+-			int iValue = kOurTeam.uwai().tradeValJointWar(
+-					kTarget.getID(), kHireling.getTeam());
+-			if (iValue = iBestTargetValue)
+-				continue;
+-			  This call doesn't compute how much our team values the DoW
+-				by eHireling (that's iValue), it computes how much eHireling
+-				needs to be payed for the DoW. Has to work this way bc
+-				AI_declareWarTradeVal is also used for human-AI war trades. 
+-			int iTheirPrice = kOurTeam.AI_declareWarTradeVal(
+-					kTarget.getID(), kHireling.getTeam());
+-			  Don't try to make the trade if the DoW by ePlayer isn't
+-				nearly as valuable to us as what they'll charge 
+-			if (4  iValue = 3  iTheirPrice)
+-			{
+-				iBestTargetValue = iValue;
+-				eBestTarget = kTarget.getID();
+-				iBestTeamPrice = iTheirPrice;
+-			}
+-		}
+-		else  advc.104o
+-			if (kTarget.getNumWars()  stdmax(2, kGame.countCivTeamsAlive()  2))
+-		{
+-			if (kHireling.canTradeItem(getID(),
+-				TradeData(TRADE_WAR, kTarget.getID()), true))
+-			{
+-				int iValue = 1 + SyncRandNum(1000);
+-				iValue = (101 + kTarget.AI_getAttitudeWeight(getTeam()));
+-				iValue = 100;
+-				if (iValue  iBestValue)
+-				{
+-					iBestValue = iValue;
+-					eBestTarget = kTarget.getID();
+-				}
+-			}
+-		}
+-	}
+-
+-
+-    	//bool bDiploInclined = false; // advc.115b: No longer used
+-
+-	// Check for whether we are inclined to pursue a diplomacy strategy
+-	// <advc.115b>
+-	int iValue = 0;
+-	if(isHuman()) // Perhaps not inclined, but very capable.
+-		iValue += 100;
+-	else
+-	{
+-		iValue += //GC.getInfo(getPersonalityType()).getDiplomacyVictoryWeight();
+-				iWeight; // advc.115f
+-	}
+-	iValue = intdiv::round(iValue * 2, 3); // Victory weight too high
+-	int iVoteTarget=MIN_INT;
+-	int iVotesToGo = GET_TEAM(getTeam()).AI_votesToGoForVictory(&iVoteTarget);
+-	if (iVoteTarget == -1)
+-		return 0;
+-	FAssert(iVoteTarget > 0);
+-	scaled rProgressRatio(iVoteTarget - iVotesToGo, iVoteTarget);
+-	rProgressRatio.clamp(0, 1);
+-	scaled rMembersProgress = 1;
+-	VoteSourceTypes eVS = GET_TEAM(getTeam()).AI_getLatestVictoryVoteSource();
+-	if (eVS != NO_VOTESOURCE)
+-	{
+-		bool const bReligious = (kGame.getVoteSourceReligion(eVS) != NO_RELIGION);
+-		// If AP religion hasn't spread far, our high voter portion doesn't help.
+-		int iNonMembers = GET_TEAM(getTeam()).AI_countVSNonMembers(eVS);
+-		int iTargetMembers = kGame.countCivPlayersAlive();
+-		rMembersProgress = scaled(iTargetMembers - iNonMembers, iTargetMembers);
+-		rProgressRatio.decreaseTo(rMembersProgress);
+-		/*  UWAI uses the UN vote target if neither vote source is active yet.
+-			Also should look at UN votes one era before the UN tech
+-			if AP victory looks infeasible. */
+-		if (rProgressRatio < fixp(2/3.) && bReligious)
+-		{
+-			EraTypes eLatestVSEra = GC.AI_getGame().AI_getVoteSourceEra();
+-			if (eLatestVSEra != NO_ERA && getCurrentEra() + 1 >= eLatestVSEra)
+-			{
+-				iVotesToGo = GET_TEAM(getTeam()).AI_votesToGoForVictory(&iVoteTarget,
+-						true); // force UN
+-				rProgressRatio = scaled(iVoteTarget - iVotesToGo, iVoteTarget);
+-				rProgressRatio.clamp(0, 1);
+-				bVoteEligible = false;
+-				rMembersProgress = 1; // not a concern for UN
+-			}
+-		}
+-	}
+-	/*  LeaderHead weight is between 0 and 70. We're adding a hash between
+-		0 and 50 below. Those are for flavor and randomness.
+-		This here is the intelligent part; put it between 0 and 180.
+-		Square b/c having e.g. 50% of the necessary votes isn't nearly enough;
+-		need to get close to the vote target. */
+-	iValue += (200 * SQR(rProgressRatio * rMembersProgress)).round();
+-	// </advc.115b>
+-
+-	// advc.115b: commented out
+-	/*if (kGame.isOption(GAMEOPTION_ALWAYS_PEACE))
+-		iValue += 30;
+-	iValue += (kGame.isOption(GAMEOPTION_AGGRESSIVE_AI) ? -20 : 0);*/
+-
+-	//int iNonsense = AI_getStrategyRand() + 90;
+-	iValue += (AI_getStrategyRand(6) % 30); // advc.115b: was %100 - way too random
+-
+-	// BBAI TODO: Level 2?
+-
+-	/*if (iValue >= 100) // advc.115b (commented out)
+-		bDiploInclined = true;*/
+-
+-	if (bVoteEligible &&
+-		iValue > 150) // advc.115b: was bDiploInclined; isHuman clause removed
+-	{
+-		// BBAI TODO: Level 4 - close to enough to win a vote?
+-		// <advc.115b>
+-		if (iValue > 185 && rMembersProgress >= 1)
+-			return 4; // </advc.115b>
+-		return 3;
+-	}
+-
+-
+-    excerpt from CvInfo_Civilization.h:
+-
+-    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-//  class : CvLeaderHeadInfo
+-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-class CvLeaderHeadInfo : public CvInfoBase
+-{
+-	typedef CvInfoBase base_t;
+-	friend class UWAI; // advc.104x (for applyPersonalityWeight)
+-public: // advc: All the const functions are exposed to Python except those added by mods
+-	CvLeaderHeadInfo();
+-	CvLeaderHeadInfo(CvLeaderHeadInfo const& kOther); // advc.xmldefault
+-	~CvLeaderHeadInfo();
+-
+-	int getWonderConstructRand() const { return m_iWonderConstructRand; }
+-	int getBaseAttitude() const { return m_iBaseAttitude; }
+-	int getBasePeaceWeight() const { return m_iBasePeaceWeight; }
+-	int getPeaceWeightRand() const { return m_iPeaceWeightRand; }
+-	int getWarmongerRespect() const { return m_iWarmongerRespect; }
+-	int getEspionageWeight() const { return m_iEspionageWeight; }
+-	int getRefuseToTalkWarThreshold() const { return m_iRefuseToTalkWarThreshold; }
+-	int getNoTechTradeThreshold() const { return m_iNoTechTradeThreshold; }
+-	int getTechTradeKnownPercent() const { return m_iTechTradeKnownPercent; }
+-	int getMaxGoldTradePercent() const { return m_iMaxGoldTradePercent; }
+-	int getMaxGoldPerTurnTradePercent() const { return m_iMaxGoldPerTurnTradePercent; }
+-	// BETTER_BTS_AI_MOD, Victory Strategy AI, 03/21/10, jdog5000: START
+-	int getCultureVictoryWeight() const { return m_iCultureVictoryWeight; }
+-	int getSpaceVictoryWeight() const { return m_iSpaceVictoryWeight; }
+-	int getConquestVictoryWeight() const { return m_iConquestVictoryWeight; }
+-	int getDominationVictoryWeight() const { return m_iDominationVictoryWeight; }
+-	int getDiplomacyVictoryWeight() const { return m_iDiplomacyVictoryWeight; }
+-	// BETTER_BTS_AI_MOD: END
+-	int getMaxWarRand() const { return m_iMaxWarRand; }
+-	int getMaxWarNearbyPowerRatio() const { return m_iMaxWarNearbyPowerRatio; }
+-	int getMaxWarDistantPowerRatio() const { return m_iMaxWarDistantPowerRatio; }
+-	int getMaxWarMinAdjacentLandPercent() const { return m_iMaxWarMinAdjacentLandPercent; }
+-	int getLimitedWarRand() const { return m_iLimitedWarRand; }
+-	int getLimitedWarPowerRatio() const { return m_iLimitedWarPowerRatio; }
+-	int getDogpileWarRand() const { return m_iDogpileWarRand; }
+-	int getMakePeaceRand() const { return m_iMakePeaceRand; }
+-	int getDeclareWarTradeRand() const { return m_iDeclareWarTradeRand; }
+-	int getDemandRebukedSneakProb() const { return m_iDemandRebukedSneakProb; }
+-	int getDemandRebukedWarProb() const { return m_iDemandRebukedWarProb; }
+-	int getRazeCityProb() const { return m_iRazeCityProb; }
+-	int getBuildUnitProb() const { return m_iBuildUnitProb; }
+-	int getBaseAttackOddsChange() const { return m_iBaseAttackOddsChange; }
+-	int getAttackOddsChangeRand() const { return m_iAttackOddsChangeRand; }
+-	int getWorseRankDifferenceAttitudeChange() const { return m_iWorseRankDifferenceAttitudeChange; }
+-	int getBetterRankDifferenceAttitudeChange() const { return m_iBetterRankDifferenceAttitudeChange; }
+-	int getCloseBordersAttitudeChange() const { return m_iCloseBordersAttitudeChange; }
+-	int getLostWarAttitudeChange() const { return m_iLostWarAttitudeChange; }
+-	int getAtWarAttitudeDivisor() const { return m_iAtWarAttitudeDivisor; }
+-	int getAtWarAttitudeChangeLimit() const { return m_iAtWarAttitudeChangeLimit; }
+-	int getAtPeaceAttitudeDivisor() const { return m_iAtPeaceAttitudeDivisor; }
+-	int getAtPeaceAttitudeChangeLimit() const { return m_iAtPeaceAttitudeChangeLimit; }
+-	int getSameReligionAttitudeChange() const { return m_iSameReligionAttitudeChange; }
+-	int getSameReligionAttitudeDivisor() const { return m_iSameReligionAttitudeDivisor; }
+-	int getSameReligionAttitudeChangeLimit() const { return m_iSameReligionAttitudeChangeLimit; }
+-	int getDifferentReligionAttitudeChange() const { return m_iDifferentReligionAttitudeChange; }
+-	int getDifferentReligionAttitudeDivisor() const { return m_iDifferentReligionAttitudeDivisor; }
+-	int getDifferentReligionAttitudeChangeLimit() const { return m_iDifferentReligionAttitudeChangeLimit; }
+-	int getBonusTradeAttitudeDivisor() const { return m_iBonusTradeAttitudeDivisor; }
+-	int getBonusTradeAttitudeChangeLimit() const { return m_iBonusTradeAttitudeChangeLimit; }
+-	int getOpenBordersAttitudeDivisor() const { return m_iOpenBordersAttitudeDivisor; }
+-	int getOpenBordersAttitudeChangeLimit() const { return m_iOpenBordersAttitudeChangeLimit; }
+-	int getDefensivePactAttitudeDivisor() const { return m_iDefensivePactAttitudeDivisor; }
+-	int getDefensivePactAttitudeChangeLimit() const { return m_iDefensivePactAttitudeChangeLimit; }
+-	int getShareWarAttitudeChange() const { return m_iShareWarAttitudeChange; }
+-	int getShareWarAttitudeDivisor() const { return m_iShareWarAttitudeDivisor; }
+-	int getShareWarAttitudeChangeLimit() const { return m_iShareWarAttitudeChangeLimit; }
+-	int getFavoriteCivicAttitudeChange() const { return m_iFavoriteCivicAttitudeChange; }
+-	int getFavoriteCivicAttitudeDivisor() const { return m_iFavoriteCivicAttitudeDivisor; }
+-	int getFavoriteCivicAttitudeChangeLimit() const { return m_iFavoriteCivicAttitudeChangeLimit; }
+-	int getDemandTributeAttitudeThreshold() const { return m_iDemandTributeAttitudeThreshold; }
+-	int getNoGiveHelpAttitudeThreshold() const { return m_iNoGiveHelpAttitudeThreshold; }
+-	int getTechRefuseAttitudeThreshold() const { return m_iTechRefuseAttitudeThreshold; }
+-	// <advc.ctr>
+-	int getCityRefuseAttitudeThreshold() const { return m_iCityRefuseAttitudeThreshold; }
+-	int getNativeCityRefuseAttitudeThreshold() const { return m_iNativeCityRefuseAttitudeThreshold; }
+-	// </advc.ctr>
+-	int getStrategicBonusRefuseAttitudeThreshold() const { return m_iStrategicBonusRefuseAttitudeThreshold; }
+-	int getHappinessBonusRefuseAttitudeThreshold() const { return m_iHappinessBonusRefuseAttitudeThreshold; }
+-	int getHealthBonusRefuseAttitudeThreshold() const { return m_iHealthBonusRefuseAttitudeThreshold; }
+-	int getMapRefuseAttitudeThreshold() const { return m_iMapRefuseAttitudeThreshold; }
+-	int getDeclareWarRefuseAttitudeThreshold() const { return m_iDeclareWarRefuseAttitudeThreshold; }
+-	int getDeclareWarThemRefuseAttitudeThreshold() const { return m_iDeclareWarThemRefuseAttitudeThreshold; }
+-	int getStopTradingRefuseAttitudeThreshold() const { return m_iStopTradingRefuseAttitudeThreshold; }
+-	int getStopTradingThemRefuseAttitudeThreshold() const { return m_iStopTradingThemRefuseAttitudeThreshold; }
+-	int getAdoptCivicRefuseAttitudeThreshold() const { return m_iAdoptCivicRefuseAttitudeThreshold; }
+-	int getConvertReligionRefuseAttitudeThreshold() const { return m_iConvertReligionRefuseAttitudeThreshold; }
+-	int getOpenBordersRefuseAttitudeThreshold() const { return m_iOpenBordersRefuseAttitudeThreshold; }
+-	int getDefensivePactRefuseAttitudeThreshold() const { return m_iDefensivePactRefuseAttitudeThreshold; }
+-	int getPermanentAllianceRefuseAttitudeThreshold() const { return m_iPermanentAllianceRefuseAttitudeThreshold; }
+-	int getVassalRefuseAttitudeThreshold() const { return m_iVassalRefuseAttitudeThreshold; }
+-	int getVassalPowerModifier() const { return m_iVassalPowerModifier; }
+-	CivicTypes getFavoriteCivic() const { return m_eFavoriteCivic; }
+-	ReligionTypes getFavoriteReligion() const { return m_eFavoriteReligion; }
+-	int getFreedomAppreciation() const { return m_iFreedomAppreciation; }
+-	int getLoveOfPeace() const { return m_iLoveOfPeace; } // advc.104
+-
+-	const TCHAR* getArtDefineTag() const;
+-
+-	// Array access:
+-
+-	bool hasTrait(int i) const;
+-
+-	int getFlavorValue(int i) const;
+-	int getContactRand(int i) const;
+-	int getContactDelay(int i) const;
+-	int getMemoryDecayRand(int i) const;
+-	int getMemoryAttitudePercent(int i) const;
+-	int getNoWarAttitudeProb(int i) const;
+-	int getUnitAIWeightModifier(int i) const;
+-	int getImprovementWeightModifier(int i) const;
+-	int getDiploPeaceIntroMusicScriptIds(int i) const;
+-	int getDiploPeaceMusicScriptIds(int i) const;
+-	int getDiploWarIntroMusicScriptIds(int i) const;
+-	int getDiploWarMusicScriptIds(int i) const;
+-
+-	// (not exposed to Python)
+-	DllExport const CvArtInfoLeaderhead* getArtInfo() const;
+-	const TCHAR* getLeaderHead() const;
+-	const TCHAR* getButton() const;
+-	#if ENABLE_XML_FILE_CACHE
+-	void read(FDataStreamBase* stream);
+-	void write(FDataStreamBase* stream);
+-	#endif
+-	bool read(CvXMLLoadUtility* pXML);
+-
+-protected:
+-	/*	advc.xmldefault (note): The copy-ctor relies on m_iWonderConstructRand
+-		being the first data member */
+-	/*	Also note: Data members added here should also be added to the list
+-		in UWAI::applyPersonalityWeight */
+-	int m_iWonderConstructRand;
+-	int m_iBaseAttitude;
+-	int m_iBasePeaceWeight;
+-	int m_iPeaceWeightRand;
+-	int m_iWarmongerRespect;
+-	int m_iEspionageWeight;
+-	int m_iRefuseToTalkWarThreshold;
+-	int m_iNoTechTradeThreshold;
+-	int m_iTechTradeKnownPercent;
+-	int m_iMaxGoldTradePercent;
+-	int m_iMaxGoldPerTurnTradePercent;
+-	// BETTER_BTS_AI_MOD; Victory Strategy AI, 03/21/10, jdog5000: START
+-	int m_iCultureVictoryWeight;
+-	int m_iSpaceVictoryWeight;
+-	int m_iConquestVictoryWeight;
+-	int m_iDominationVictoryWeight;
+-	int m_iDiplomacyVictoryWeight;
+-	// BETTER_BTS_AI_MOD: END
+-	int m_iMaxWarRand;
+-	int m_iMaxWarNearbyPowerRatio;
+-	int m_iMaxWarDistantPowerRatio;
+-	int m_iMaxWarMinAdjacentLandPercent;
+-	int m_iLimitedWarRand;
+-	int m_iLimitedWarPowerRatio;
+-	int m_iDogpileWarRand;
+-	int m_iMakePeaceRand;
+-	int m_iDeclareWarTradeRand;
+-	int m_iDemandRebukedSneakProb;
+-	int m_iDemandRebukedWarProb;
+-	int m_iRazeCityProb;
+-	int m_iBuildUnitProb;
+-	int m_iBaseAttackOddsChange;
+-	int m_iAttackOddsChangeRand;
+-	int m_iWorseRankDifferenceAttitudeChange;
+-	int m_iBetterRankDifferenceAttitudeChange;
+-	int m_iCloseBordersAttitudeChange;
+-	int m_iLostWarAttitudeChange;
+-	int m_iAtWarAttitudeDivisor;
+-	int m_iAtWarAttitudeChangeLimit;
+-	int m_iAtPeaceAttitudeDivisor;
+-	int m_iAtPeaceAttitudeChangeLimit;
+-	int m_iSameReligionAttitudeChange;
+-	int m_iSameReligionAttitudeDivisor;
+-	int m_iSameReligionAttitudeChangeLimit;
+-	int m_iDifferentReligionAttitudeChange;
+-	int m_iDifferentReligionAttitudeDivisor;
+-	int m_iDifferentReligionAttitudeChangeLimit;
+-	int m_iBonusTradeAttitudeDivisor;
+-	int m_iBonusTradeAttitudeChangeLimit;
+-	int m_iOpenBordersAttitudeDivisor;
+-	int m_iOpenBordersAttitudeChangeLimit;
+-	int m_iDefensivePactAttitudeDivisor;
+-	int m_iDefensivePactAttitudeChangeLimit;
+-	int m_iShareWarAttitudeChange;
+-	int m_iShareWarAttitudeDivisor;
+-	int m_iShareWarAttitudeChangeLimit;
+-	int m_iFavoriteCivicAttitudeChange;
+-	int m_iFavoriteCivicAttitudeDivisor;
+-	int m_iFavoriteCivicAttitudeChangeLimit;
+-	int m_iDemandTributeAttitudeThreshold;
+-	int m_iNoGiveHelpAttitudeThreshold;
+-	int m_iTechRefuseAttitudeThreshold;
+-	// <advc.ctr>
+-	int m_iCityRefuseAttitudeThreshold;
+-	int m_iNativeCityRefuseAttitudeThreshold; // </advc.ctr>
+-	int m_iStrategicBonusRefuseAttitudeThreshold;
+-	int m_iHappinessBonusRefuseAttitudeThreshold;
+-	int m_iHealthBonusRefuseAttitudeThreshold;
+-	int m_iMapRefuseAttitudeThreshold;
+-	int m_iDeclareWarRefuseAttitudeThreshold;
+-	int m_iDeclareWarThemRefuseAttitudeThreshold;
+-	int m_iStopTradingRefuseAttitudeThreshold;
+-	int m_iStopTradingThemRefuseAttitudeThreshold;
+-	int m_iAdoptCivicRefuseAttitudeThreshold;
+-	int m_iConvertReligionRefuseAttitudeThreshold;
+-	int m_iOpenBordersRefuseAttitudeThreshold;
+-	int m_iDefensivePactRefuseAttitudeThreshold;
+-	int m_iPermanentAllianceRefuseAttitudeThreshold;
+-	int m_iVassalRefuseAttitudeThreshold;
+-	int m_iVassalPowerModifier;
+-	int m_iFreedomAppreciation;
+-	int m_iLoveOfPeace; // advc.104
+-	CivicTypes m_eFavoriteCivic;
+-	ReligionTypes m_eFavoriteReligion;
+-
+-	CvString m_szArtDefineTag;
+-
+-	bool* m_pbTraits;
+-
+-	/*	Caveat: UWAI::applyPersonalityWeight depends on these being implemented
+-		as int arrays */
+-	int* m_piFlavorValue;
+-	int* m_piContactRand;
+-	int* m_piContactDelay;
+-	int* m_piMemoryDecayRand;
+-	int* m_piMemoryAttitudePercent;
+-	int* m_piNoWarAttitudeProb;
+-	int* m_piUnitAIWeightModifier;
+-	int* m_piImprovementWeightModifier;
+-	int* m_piDiploPeaceIntroMusicScriptIds;
+-	int* m_piDiploPeaceMusicScriptIds;
+-	int* m_piDiploWarIntroMusicScriptIds;
+-	int* m_piDiploWarMusicScriptIds;
+-	// <advc.xmldefault>
+-	static CvXMLLoadUtility* m_pXML;
+-	static void GetChildXmlValByName(int& r, TCHAR const* szName, int iDefault = MIN_INT);
+-	// </advc.xmldefault>
+-};
+
+diff --git a/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/CvPlayer_and_CvInfo/cvinfo-cvplayer-file-list-used.txt b/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/CvPlayer_and_CvInfo/cvinfo-cvplayer-file-list-used.txt
+deleted file mode 100644
+index d88137c2d..000000000
+--- a/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/CvPlayer_and_CvInfo/cvinfo-cvplayer-file-list-used.txt
++++ /dev/null
+@@ -1,4 +0,0 @@
+-CvPlayerAI.h
+-CvPlayerAI.cpp
+-CvInfo_Civilization.h
+-CvInfo_Civilization.cpp
+\ No newline at end of file
+
+diff --git a/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/UWAI-file-list-used.txt b/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/UWAI-file-list-used.txt
+deleted file mode 100644
+index 2f81b8cd2..000000000
+--- a/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/UWAI-file-list-used.txt
++++ /dev/null
+@@ -1,9 +0,0 @@
+-UWAI.h
+-UWAI.cpp
+-UWAIAgent.h
+-UWAIAgent.cpp
+-UWAICache.h
+-UWAICache.cpp
+-UWAIReport.h
+-UWAIReport.cpp
+-UWAISets.h
+\ No newline at end of file
+
+diff --git a/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/u-short-chat-compatible.txt b/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/u-short-chat-compatible.txt
+deleted file mode 100644
+index d7f13a0e0..000000000
+--- a/_2_Source_File_examples_That_Can_Be_Fed_To_AIs/UWAI/u-short-chat-compatible.txt
++++ /dev/null
+@@ -1,240 +0,0 @@
+-from UWAI.cpp
+-
+-#include "CvGameCoreDLL.h"
+-#include "UWAI.h"
+-#include "UWAIAgent.h"
+-#include "WarEvaluator.h"
+-#include "CoreAI.h"
+-#include "CvMap.h"
+-
+-UWAI::UWAI() : m_bEnabled(false), m_bInBackground(false)
+-{
+-	FAssertMsg(CvGlobals::getInstance().getGamePointer() == NULL,
+-			"Accidental creation of another instance?");
+-}
+-
+-
+-void UWAI::invalidateUICache()
+-{
+-	WarEvaluator::clearCache();
+-}
+-
+-
+-void UWAI::setUseLegacyAI(bool b)
+-{
+-	m_bEnabled = !b;
+-}
+-
+-
+-void UWAI::setInBackground(bool b)
+-{
+-	m_bInBackground = b;
+-}
+-
+-
+-void UWAI::initNewPlayerInGame(PlayerTypes eNewPlayer)
+-{
+-	WarEvaluator::clearCache();
+-	GET_TEAM(eNewPlayer).uwai().init(TEAMID(eNewPlayer));
+-	GET_PLAYER(eNewPlayer).uwai().init(eNewPlayer);
+-}
+-
+-
+-void UWAI::processNewPlayerInGame(PlayerTypes eNewPlayer)
+-{
+-	GET_PLAYER(eNewPlayer).uwai().getCache().update(true);
+-	for (TeamAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
+-		it->uwai().turnPre();
+-}
+-
+-
+-bool UWAI::isEnabled(bool bInBackground) const
+-{
+-	if (!m_bEnabled)
+-		return false;
+-	return (bInBackground == m_bInBackground);
+-}
+-
+-
+-void UWAI::read(FDataStreamBase* pStream)
+-{
+-	pStream->Read(&m_bEnabled);
+-}
+-
+-
+-void UWAI::write(FDataStreamBase* pStream) const
+-{
+-	pStream->Write(m_bEnabled);
+-}
+-
+-
+-int UWAI::maxSeaDist() const
+-{
+-	CvMap const& kMap = GC.getMap();
+-	int iR = 15;
+-	// That's true for Large and Huge maps
+-	if (kMap.getGridWidth() > 100 || kMap.getGridHeight() > 100)
+-		iR += 3;
+-	if (!kMap.isWrapX() && !kMap.isWrapY())
+-		iR = (iR * 6) / 5;
+-	return iR;
+-}
+-
+-
+-bool UWAI::isReady() const
+-{
+-	/*  In scenarios, CvTeamAI functions aren't properly called during the first
+-		turn. Should skip war planning in the first two turns to make sure that
+-		all AI data is properly initialized and updated. */
+-	return ((!GC.getGame().isScenario() && !GC.getInitCore().getScenario()) ||
+-			GC.getGame().getElapsedGameTurns() > 1);
+-}
+-
+-
+-#define MAKE_TAG_NAME(VAR) "UWAI_WEIGHT_"#VAR,
+-#define MAKE_REPORT_NAME(VAR) #VAR,
+-
+-void UWAI::doXML()
+-{
+-	char const* const aszAspectTagNames[] = {
+-		DO_FOR_EACH_WAR_UTILITY_ASPECT(MAKE_TAG_NAME)
+-	};
+-	FAssert(ARRAYSIZE(aszAspectTagNames) == NUM_ASPECTS);
+-	for (int i = 0; i < NUM_ASPECTS; i++)
+-		m_aiXmlWeights.push_back(GC.getDefineINT(aszAspectTagNames[i]));
+-
+-	char const* const aszAspectReportNames[] = {
+-		DO_FOR_EACH_WAR_UTILITY_ASPECT(MAKE_REPORT_NAME)
+-	};
+-	FAssert(ARRAYSIZE(aszAspectReportNames) == NUM_ASPECTS);
+-	for (int i = 0; i < NUM_ASPECTS; i++)
+-		m_aszAspectNames.push_back(aszAspectReportNames[i]);
+-
+-	applyPersonalityWeight();
+-}
+-
+-
+-void UWAI::applyPersonalityWeight()
+-{
+-	int const iWeight = GC.getDefineINT("UWAI_PERSONALITY_PERCENT");
+-	if (iWeight == 100)
+-		return;
+-	std::vector<std::vector<int*>*> personalityMatrix;
+-	int iMembers = -1;
+-	/*	Hack to make this function compatible with unallocated
+-		CvLeaderHeadInfo member arrays */
+-	static int aiDevNull[100] = {};
+-	FOR_EACH_ENUM(LeaderHead)
+-	{
+-		CvLeaderHeadInfo& kLeader = GC.getInfo(eLoopLeaderHead);
+-		if (std::strcmp(kLeader.getType(), "LEADER_BARBARIAN") == 0)
+-			continue;
+-		/*  Basically serialize CvLeaderHeadInfo to avoid writing any more code
+-			per member variable than necessary. Tempting to use CvLeaderHeadInfo::
+-			write(FDataStreamBase*) for this, but some members have to be excluded. */
+-		int* aiPrimitiveMembers[]  = {
+-			&kLeader.m_iWonderConstructRand,
+-			&kLeader.m_iBaseAttitude, &kLeader.m_iBasePeaceWeight,
+-			&kLeader.m_iPeaceWeightRand, &kLeader.m_iWarmongerRespect,
+-			&kLeader.m_iEspionageWeight, &kLeader.m_iRefuseToTalkWarThreshold,
+-			&kLeader.m_iNoTechTradeThreshold, &kLeader.m_iTechTradeKnownPercent,
+-			&kLeader.m_iMaxGoldTradePercent, &kLeader.m_iMaxGoldPerTurnTradePercent,
+-			&kLeader.m_iCultureVictoryWeight, &kLeader.m_iSpaceVictoryWeight,
+-			&kLeader.m_iConquestVictoryWeight, &kLeader.m_iDominationVictoryWeight,
+-			&kLeader.m_iDiplomacyVictoryWeight, &kLeader.m_iMaxWarRand,
+-			&kLeader.m_iMaxWarNearbyPowerRatio, &kLeader.m_iMaxWarDistantPowerRatio,
+-			&kLeader.m_iMaxWarMinAdjacentLandPercent, &kLeader.m_iLimitedWarRand,
+-			&kLeader.m_iLimitedWarPowerRatio, &kLeader.m_iDogpileWarRand,
+-			&kLeader.m_iMakePeaceRand, &kLeader.m_iDeclareWarTradeRand,
+-			&kLeader.m_iDemandRebukedSneakProb, &kLeader.m_iDemandRebukedWarProb,
+-			&kLeader.m_iRazeCityProb, &kLeader.m_iBuildUnitProb,
+-			&kLeader.m_iBaseAttackOddsChange, &kLeader.m_iAttackOddsChangeRand,
+-			&kLeader.m_iWorseRankDifferenceAttitudeChange,
+-			&kLeader.m_iBetterRankDifferenceAttitudeChange,
+-			&kLeader.m_iCloseBordersAttitudeChange,
+-			&kLeader.m_iLostWarAttitudeChange, &kLeader.m_iAtWarAttitudeDivisor,
+-			&kLeader.m_iAtWarAttitudeChangeLimit, &kLeader.m_iAtPeaceAttitudeDivisor,
+-			&kLeader.m_iAtPeaceAttitudeChangeLimit, &kLeader.m_iSameReligionAttitudeChange,
+-			&kLeader.m_iSameReligionAttitudeDivisor, &kLeader.m_iSameReligionAttitudeChangeLimit,
+-			&kLeader.m_iDifferentReligionAttitudeChange, &kLeader.m_iDifferentReligionAttitudeDivisor,
+-			&kLeader.m_iDifferentReligionAttitudeChangeLimit,
+-			&kLeader.m_iBonusTradeAttitudeDivisor, &kLeader.m_iBonusTradeAttitudeChangeLimit,
+-			&kLeader.m_iOpenBordersAttitudeDivisor, &kLeader.m_iOpenBordersAttitudeChangeLimit,
+-			&kLeader.m_iDefensivePactAttitudeDivisor, &kLeader.m_iDefensivePactAttitudeChangeLimit,
+-			&kLeader.m_iShareWarAttitudeChange, &kLeader.m_iShareWarAttitudeDivisor,
+-			&kLeader.m_iShareWarAttitudeChangeLimit, &kLeader.m_iFavoriteCivicAttitudeChange,
+-			&kLeader.m_iFavoriteCivicAttitudeDivisor, &kLeader.m_iFavoriteCivicAttitudeChangeLimit,
+-			&kLeader.m_iDemandTributeAttitudeThreshold, &kLeader.m_iNoGiveHelpAttitudeThreshold,
+-			&kLeader.m_iTechRefuseAttitudeThreshold, &kLeader.m_iStrategicBonusRefuseAttitudeThreshold,
+-			&kLeader.m_iCityRefuseAttitudeThreshold, &kLeader.m_iNativeCityRefuseAttitudeThreshold, // advc.ctr
+-			&kLeader.m_iHappinessBonusRefuseAttitudeThreshold, &kLeader.m_iHealthBonusRefuseAttitudeThreshold,
+-			&kLeader.m_iMapRefuseAttitudeThreshold,
+-			&kLeader.m_iDeclareWarRefuseAttitudeThreshold, &kLeader.m_iDeclareWarThemRefuseAttitudeThreshold,
+-			&kLeader.m_iStopTradingRefuseAttitudeThreshold, &kLeader.m_iStopTradingThemRefuseAttitudeThreshold,
+-			&kLeader.m_iAdoptCivicRefuseAttitudeThreshold, &kLeader.m_iConvertReligionRefuseAttitudeThreshold,
+-			&kLeader.m_iOpenBordersRefuseAttitudeThreshold, &kLeader.m_iDefensivePactRefuseAttitudeThreshold,
+-			&kLeader.m_iPermanentAllianceRefuseAttitudeThreshold, &kLeader.m_iVassalRefuseAttitudeThreshold,
+-			&kLeader.m_iVassalPowerModifier, &kLeader.m_iFreedomAppreciation,
+-			&kLeader.m_iLoveOfPeace,
+-		};
+-		int const iPrimitiveMembers = ARRAYSIZE(aiPrimitiveMembers);
+-		std::vector<int*>* paiPersonalityVector = new std::vector<int*>(
+-				aiPrimitiveMembers, aiPrimitiveMembers + iPrimitiveMembers);
+-		int* aiFlavorValue = (kLeader.m_piFlavorValue == NULL ? aiDevNull :
+-				kLeader.m_piFlavorValue);
+-		FOR_EACH_ENUM(Flavor)
+-			paiPersonalityVector->push_back(&aiFlavorValue[eLoopFlavor]);
+-		int* aiContactRand = (kLeader.m_piContactRand == NULL ? aiDevNull :
+-				kLeader.m_piContactRand);
+-		FOR_EACH_ENUM(Contact)
+-			paiPersonalityVector->push_back(&aiContactRand[eLoopContact]);
+-		int* aiContactDelay = (kLeader.m_piContactDelay == NULL ? aiDevNull :
+-				kLeader.m_piContactDelay);
+-		FOR_EACH_ENUM(Contact)
+-			paiPersonalityVector->push_back(&aiContactDelay[eLoopContact]);
+-		int* aiMemoryDecayRand = (kLeader.m_piMemoryDecayRand == NULL ? aiDevNull :
+-				kLeader.m_piMemoryDecayRand);
+-		FOR_EACH_ENUM(Memory)
+-			paiPersonalityVector->push_back(&aiMemoryDecayRand[eLoopMemory]);
+-		int* aiMemoryAttitudePercent = (kLeader.m_piMemoryAttitudePercent == NULL ? aiDevNull :
+-				kLeader.m_piMemoryAttitudePercent);
+-		FOR_EACH_ENUM(Memory)
+-			paiPersonalityVector->push_back(&aiMemoryAttitudePercent[eLoopMemory]);
+-		int* aiNoWarAttitudeProb = (kLeader.m_piNoWarAttitudeProb == NULL ? aiDevNull :
+-				kLeader.m_piNoWarAttitudeProb);
+-		FOR_EACH_ENUM(Attitude)
+-			paiPersonalityVector->push_back(&aiNoWarAttitudeProb[eLoopAttitude]);
+-		int* aiUnitAIWeightModifier = (kLeader.m_piUnitAIWeightModifier == NULL ? aiDevNull :
+-				kLeader.m_piUnitAIWeightModifier);
+-		FOR_EACH_ENUM(UnitAI)
+-			paiPersonalityVector->push_back(&aiUnitAIWeightModifier[eLoopUnitAI]);
+-		int* aiImprovementWeightModifier = (kLeader.m_piImprovementWeightModifier == NULL ? aiDevNull :
+-				kLeader.m_piImprovementWeightModifier);
+-		FOR_EACH_ENUM(Improvement)
+-			paiPersonalityVector->push_back(&aiImprovementWeightModifier[eLoopImprovement]);
+-		personalityMatrix.push_back(paiPersonalityVector);
+-		FAssert(iMembers == -1 || iMembers == paiPersonalityVector->size());
+-		iMembers = (int)paiPersonalityVector->size();
+-		if (iWeight == 0) // Clear fav. civic and religion
+-		{
+-			kLeader.m_eFavoriteCivic = NO_CIVIC;
+-			kLeader.m_eFavoriteReligion = NO_RELIGION;
+-		}
+-	}
+-	for (int j = 0; j < iMembers; j++)
+-	{
+-		std::vector<scaled> arDistrib;
+-		for(size_t i = 0; i < personalityMatrix.size(); i++)
+-			arDistrib.push_back(*personalityMatrix[i]->at(j));
+-		scaled rMedianValue = stats::median(arDistrib);
+-		for (size_t i = 0; i < personalityMatrix.size(); i++)
+-		{
+-			*personalityMatrix[i]->at(j) = ((rMedianValue * (100 - iWeight) +
+-					(*personalityMatrix[i]->at(j)) * iWeight) / 100).round();
+-		}
+-	}
+-	for (size_t i = 0; i < personalityMatrix.size(); i++)
+-		delete personalityMatrix[i];
+-}
+-
+-//
+\ No newline at end of file
+
+diff --git a/scan_xml_duplicates-3.3.py b/scan_xml_duplicates-3.3.py
+index 035a200cc..efdbe21ed 100644
+--- a/scan_xml_duplicates-3.3.py
++++ b/scan_xml_duplicates-3.3.py
+@@ -1,4 +1,4 @@
+-# --- <!-- custom: xml duplicates scanner (i would like to express/describe more what it does but cant be too bold about what it does as i don't understand it much for example whether it's a blind or deep scan and how they differ (in more detail ro even broadly maybe but would like to know maybe anyways etc anyways etc)) so hopefully fine this way and my cool short description anyways etc (htat maybe also adds the header as intended anyways etc --> ---
++# --- <!-- custom: xml duplicates scanner (i would like to express/describe more what it does but cant be too bold about what it does as i don't understand it much for example whether it's a blind or deep scan and how they differ (in more detail or even broadly maybe but would like to know maybe anyways etc anyways etc)) so hopefully fine this way and my cool short description anyways etc (htat maybe also adds the header as intended anyways etc --> ---
+ # This script is part of the AdvCiv-SAS mod project.
+ # (c) 2025 wonderingabout & becomingthrough
+ #
+
+[PATCH COVERAGE]
+patchFiles=20 embeddedFiles=20 omittedFiles=0 embeddedPatchBytes=151540

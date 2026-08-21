@@ -1,0 +1,263 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4593
+# Commit: 8d6148a3e8cc22f40c4ad85aab4f70511ee4203f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 87485edceafad5da75b3839b0e63b9a283079d61
+# Title: add more units or/and replacing existing ones, update docs about this etc i mean anyways, thanks,
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+37	35	README.md
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+41	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+10	10	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+
+[PATCHES]
+
+diff --git a/README.md b/README.md
+index ca63ddf98..530e95123 100644
+--- a/README.md
++++ b/README.md
+@@ -26,41 +26,6 @@ I may also update it after releasing mods, maybe, but not guaranteed, if there
+ are significant changes i would like to add or mention/talk about there. But
+ i would move them to the bottom so you don't have to reread all ideally.
+ 
+-## Quick Context
+-
+-This AdvCiv-SAS mod is based on these mods:
+-- Civ4 BTS that is based on vanilla Civ4 (among other possible expansions (?))
+-- K-Mod that is based on Civ4 BTS
+-- AdvCiv that is based on K-Mod
+-- AdvCiv-SAS that is based on AdvCiv
+-
+-To help you transition between these mods, especially if you are a Civ4 vanilla,
+-Civ4 BTS, K-Mod, or other mod player, you can refer to the "Mods Info" category
+-of the Sevopedia (or you could say Civilopedia) ingame (or from main menu accessible
+-too), that tries/attempts to list a few main rules changes between each of these mods.
+-
+-Not balance changes that are too much and already taken account in the Sevopedia
+-entries automatically of each unit/building (so visit these if needed to know more
+-about AdvCiv-SAS in particular) for example the page of the scout unit to know its
+-cost or effects.
+-
+-But instead, things like how in AdvCiv (and maybe in K-Mod too i don't know actually
+-when this rule was added todo), you need to have cities revealed with a scout or
+-any unit, or have the map view of this city otherwise (world map trade (, etc ?)),
+-else even if these cities are connected by land roads or naval road/path, they would
+-still not have any trade routes until you have view of these cities.
+-
+-I hope having a list of such changes may help players, and perhaps me while compliling,
+-as in gathering such a list of elements, understand and perhaps enjoy the game better
+-maybe, but as for all players maybe rather, hopefully it would help transition to new
+-mods and in particular to AdvCivSAS (i will add some rules changes if i make them
+-there too.)
+-
+-These rules changes entries may not be exhaustive or maybe would but hopefully will help,
+-and i can gradually complete them as i see fit or learn, or based on feedback, not
+-guaranteed though, but if need please refer to it, hope it helps you, or as for me doing
+-what i want if i want, i mean.
+-
+ ## Project Goals and global view on gameplay changes
+ 
+ The more general gameplay type of changes consist of
+@@ -120,6 +85,41 @@ Additionally, A preview of the changes (screenshots), can be found on this googl
+ If you want to know more about the project, how i ordered the tree tech historically, why i decided
+ on balance changes and such, please visit these pages (as well).
+ 
++## Some Extra Context
++
++This AdvCiv-SAS mod is based on these mods:
++- Civ4 BTS that is based on vanilla Civ4 (among other possible expansions (?))
++- K-Mod that is based on Civ4 BTS
++- AdvCiv that is based on K-Mod
++- AdvCiv-SAS that is based on AdvCiv
++
++To help you transition between these mods, especially if you are a Civ4 vanilla,
++Civ4 BTS, K-Mod, or other mod player, you can refer to the "Mods Info" category
++of the Sevopedia (or you could say Civilopedia) ingame (or from main menu accessible
++too), that tries/attempts to list a few main rules changes between each of these mods.
++
++Not balance changes that are too much and already taken account in the Sevopedia
++entries automatically of each unit/building (so visit these if needed to know more
++about AdvCiv-SAS in particular) for example the page of the scout unit to know its
++cost or effects.
++
++But instead, things like how in AdvCiv (and maybe in K-Mod too i don't know actually
++when this rule was added todo), you need to have cities revealed with a scout or
++any unit, or have the map view of this city otherwise (world map trade (, etc ?)),
++else even if these cities are connected by land roads or naval road/path, they would
++still not have any trade routes until you have view of these cities.
++
++I hope having a list of such changes may help players, and perhaps me while compliling,
++as in gathering such a list of elements, understand and perhaps enjoy the game better
++maybe, but as for all players maybe rather, hopefully it would help transition to new
++mods and in particular to AdvCivSAS (i will add some rules changes if i make them
++there too.)
++
++These rules changes entries may not be exhaustive or maybe would but hopefully will help,
++and i can gradually complete them as i see fit or learn, or based on feedback, not
++guaranteed though, but if need please refer to it, hope it helps you, or as for me doing
++what i want if i want, i mean.
++
+ # Credits
+ - AdvCiv (the full name Advanced Civ does not yield much results about Civ 4 so i prefer the AdvCiv Name, maybe because of the space character, so i put a "-" instead in my/this mod): todo write, but mostly i am very thankful of AdvCiv, it's such a nice improvement from Civ4, and it's maintainer is very open to feedback at least in my
+ exchanges/experiences during these times i mean anyways, thanks
+@@ -141,6 +141,8 @@ in this case too i mean anyways, but thanks indeeed about this at least i mean a
+ and i do my things if or when i want or don't do as i want or do with all that being said i mean
+ anyways now, as is, maybe or not, or as is, but anyways, thanks,
+ 
++todo add quote
++
+ # A few useful links
+ - todo: tutorial on how to compile the DLL and/or files for Advciv (but should not
+ be needed if you only modify XML files if i am not mistaken i mean anyways)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png
+index f3a17286f..936eb5d87 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.43 military tree_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index c71b1be45..22a6232ae 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -878,3 +878,44 @@ hopefully maybe clearer too, pleasant side effect, did not intend it to be this
+ this way now, but is about this i mean, and meant when writing todo delete this (part of the and is about this etc at least
+ when writing etc todo delete later before merging (this pr etc i mean anyways, thanks) etc i mean anyways, thanks, )
+ note before merging etc i mean anyways, thanks,
++
++- while searching for a new dutch unit, i had found the idea of a/the dutch worker in realism invictus, much betetr than the east indiaman i think i mean anyways. Then i "luckily" found some while later about this etc i mean anyways, thanks, the great
++farmer in c2c that looks very dutch or dutch enough, so following that another "lucky" (even more indeed in this case at least
++i mean anyways, thanks, but is also an opportunity i took about this i mean anyways etc, thanks idk if delete or not thisone though or trim or not or other or not or yes or etc and (is) about this but anyways) search i found/learned (https://www.google.com/search?q=dutch+famring that leads to https://www.nationalgeographic.com/magazine/article/holland-agriculture-sustainable-farming) that the dutch are farming leaders, very nice, may also synergize very well with the
++Dutch growth tendency, as i had noticed before too i mean anyways while adding the first worker for the Dutch. May use both of these for 2 separate eras, or for other civs maybe etc i mean anyways, or a similar approach for other civs etc i mean anyways,
++thanks, as i was considering about the Chinese civ unit for example to switch it to a worker, before that, but is about this
++etc i mean anyways, thanks. About the Dutch worker, may give it improvement build speed or another type of bonus maybe.
++
++- for the robotic era (era 9 currently i mean anyways and about this etc, thanks, ), reusing the concept of the automatic
++body sniper of c2c, but with a human one that handles instead an AI powered gun, that aims semi automatically or/and provides
++other boosting military assistance about this etc i mean anyways, thanks. Very useful and helpful concept and models from c2c,
++even though i got the idea myself on how to tweak them or even without looking at what they did too much, still very helpful,
++thanks! If i may say i mean anyways and about this, also is the only unit so far i haev seen (and used about this etc i mean
++anyways, thanks, ) that holds an actual sniper so very useful, even though i am not sure it can be visible ingame, but maybe
++can and still nice (even nicer with, else still nice and about this i mean meant at least etc i mean anyways, thanks,)
++
++- using the same logic for the gun bomber 9, AI powered bazooka, is all connected and nice, but is about this etc i mean
++anyways, thanks,
++
++- about the powered exoskeleton infantry (gun defense era 9 (robotic)) (keeping same name as in c2c in this case etc i
++mean anyways, thanks, ), make it (description or/and stats) so that it uses its exoskeleton to be tougher, deal deadlier
++blows, while being able to tank more, but slightly slower, so is a defender type of unit etc i mean anyways, thanks,
++
++- about tanks, make it so that offense or rather defense tank 9 is (slightly) stronger than offense tank 9, since i don't
++have or/and want to use the existing modern armor model while upgrading it (in description and as compared to base civ4
++bts/base advciv's modern armor) saying it's robotic. So the defense tank would be stronger due to more advanced AI integration,
++but to make use of these at their max potential, the structure of the unit needs to be adjusted in a way that is currently
++(in the lore of this unit i mean anyways) not compatible with tank offense in terms of performance and speed in particular,
++about this etc i mean anyways and meant, todo delete this later or not maybe etc i mean anyways, thanks, it could be justified
++that way maybe, about this etc i mean anyways, thanks, anyways maybe delete later this part or not or yes or not or other
++or not or etc, by the fact that this new technology could not yet be implemented in newer mobile attack tanks, but has already
++been included in more stationary tanks, about this etc i mean anyways i mean anyways, thanks, maybe, about this etc i mean
++anyways i mean anyways, thanks,
++
++- for the (soft) about this etc i mean anyways, at least etc i mean anyways maybe delete this or not later but wanted say
++it etc i mean anywyas, i mean anyways, thanks, siege unit 9 (robotic era), try this approach about this etc i mean and meant
++but anyways etc i mean anyways, thanks, of having this unit fire ultra high temperature "bullets", about this etc i mean
++anyways, thanks, that would maybe melt the defenses of mechanized robotic units, about this etc i mean anyways at least
++and meant but etc i mean anyways delete this later or not or yes etc i mean anyways, thanks,
++
++- for the tank defense 9
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+index 62e658bb1..d38e9c70e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_imports_listing_only.txt
+@@ -37,7 +37,7 @@ vikings: berserk (unique) history rewritten
+ holy roman empire: crusader (teutonic order) _ teutonic knight (based on my empire earth 2 memories - souvenirs) (make it a bit later in tech tree (still medieval) but stronger)
+ germany: landsknetch (from history rewritten (but may create bugs if some are buggy or maybe not?) or - ?) _ landsknetch mercenary
+ the usa: bandeirante (hero) _ Sheriff history rewritten
+-dutch: worker (dutch) realism invictus, give it production bonus - synergizes well with dutch commerce tendency
++dutch: worker (dutch) realism invictus or/and great farmer c2c for later era
+ arabs: ? _ hashishin
+ sumeria: etlu history rewritten?
+ carthage?
+@@ -339,7 +339,7 @@ chariot 2: chariot archer c2c
+ 
+ chariot lancers
+ -
+-chariot lancer 2: mursili 2 c2c todo icon from screenshot i mean anyways etc i mean anyways, thanks,
++chariot lancer 2: mursili 2 c2c (note: using same icon as the old chariot sword for convenience, but is a chariot lancer now, about this i mean anyways etc i mean anyways, thanks, todo delete later this maybe too etc i mean anyways, thanks, )
+ -
+ 
+ 
+@@ -476,7 +476,7 @@ soft siege 5: culverin c2c
+ soft siege 6: rifled cannon (agyu) realism invictus
+ soft siege 7: - _ atomic age artillery
+ soft siege 8: - _ mobile artillery
+-soft siege 9: ?
++soft siege 9: NLOS Cannon _ Ultra-High Temperature Artillery c2c
+ 
+ 
+ heavy siege units
+@@ -487,8 +487,8 @@ heavy siege 4: medieval trebuchet _ mobile trebuchet realism invictus
+ heavy siege 5: great bombard c2c
+ heavy siege 6: armstrong heavy cannon: -
+ heavy siege 7: howitzer realism invictus
+-heavy siege 8: ?
+-heavy siege 9: ?
++-
++-
+ 
+ 
+ 
+@@ -505,7 +505,7 @@ gun offense 5: - _ rename to arquebusier? -
+ gun offense 6: rifleman realism invictus (same unit just different art etc) (use the icon of the old rifleman of base civ4 bts/advciv? Etc)
+ gun offense 7: trench infantry realism invictus
+ gun offense 8: semi modern infantry (pla) _ Modern Infantry (AK-47)
+-gun offense 9: super soldier c2c
++gun offense 9: hi tech marine _ AI-assisted infantry c2c
+ 
+ 
+ gun defense units
+@@ -517,7 +517,7 @@ gun defense 5: mahardlek (unique) _ imperial arquebus guard history rewritten
+ gun defense 6: blauwe guard (unique) _ royal (rifleman?) guard history rewritten
+ gun defense 7: - (machine gun -)
+ gun defense 8: navy seal (the usa - ) _ Counter Terrorist (Maverick M4A1)
+-gun defense 9: special infantry c2c
++gun defense 9: powered exoskeleton infantry c2c 
+ 
+ 
+ 
+@@ -530,7 +530,7 @@ gun bomber 5: Ming Bomb Thrower _ early bomb thrower choose this name about this
+ gun bomber 6: - _ grenadier -
+ gun bomber 7: - _ early anti tank -
+ gun bomber 8: anti tank _ anti tank infantry (RPG) (is (rocket propelled gun) etc i mean anyways, thanks) realism invictus
+-gun bomber 9: ?
++gun bomber 9: anti tank _ AI powered bazooka c2c
+ 
+ 
+ 
+@@ -545,7 +545,7 @@ gun sniper 5:  (unique) _ long range marksman history rewritten
+ gun sniper 6: rifleman (british) _ - sharpshooter realism invictus
+ gun sniper 7: infantry IJA _ early sniper realism invictus
+ gun sniper 8: semi modern infantry (south asia) _ modern sniper
+-gun sniper 9: ?
++gun sniper 9: automatons _ semi automatic sniper c2c
+ 
+ 
+ 
+@@ -623,7 +623,7 @@ tank defense
+ -
+ tank defense 7: superheavy tank (FCM 2C) - superheavy tank (FCM 2C) realism invictus
+ tank defense 8: - _ mechanized infantry? Seems to fit quite well, may leave here about this etc.
+-tank defense 9: NLOS Cannon _ Laser Tank Defender c2c
++tank defense 9: Hi-Tech APC _ AI-assisted APC c2c
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=14939

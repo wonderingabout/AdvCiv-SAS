@@ -1,0 +1,308 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5793
+# Commit: a1e16a6c6fd8207d53b9974ebb41347e236dac59
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 76d024947fa7e41ed459815916c64ade44694fa1
+# Title: (Enhanced) Base AdvCiv issue of not showing rival gold-per-turn on Foreign Trade Advisor Bonuses tab when not connected to their trade network (See KI#132) -...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_2_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_2_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_64px.dds
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+2	1	Assets/Python/Screens/CvForeignAdvisor.py
+2	2	Assets/Python/Screens/CvMainInterface.py
+6	6	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+59	63	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+13	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_2_64px.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_2_64px.dds
+ delete mode 100644 Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_64px.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_2_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_2_64px.dds
+new file mode 100644
+index 000000000..ba26b4f60
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_2_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds
+deleted file mode 100644
+index 4b4340ab6..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds and /dev/null differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_2_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_2_64px.dds
+new file mode 100644
+index 000000000..8c912ca21
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_2_64px.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_64px.dds
+deleted file mode 100644
+index 02cbf3180..000000000
+Binary files a/Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_64px.dds and /dev/null differ
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 48d992fa9..a3209e1b4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -111,7 +111,7 @@ class SevoPediaLeader:
+ 		self.ERA_BUTTON_WIDGET_BY_ERA = {}
+ 		for iEra in xrange(gc.getNumEraInfos()):
+ 			self.ERA_BUTTON_WIDGET_BY_ERA[iEra] = "SevoPediaLeaderEraBtn%d" % iEra
+-		self.eraDefaultIconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
++		self.eraDefaultIconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED_2").getPath()
+ 		self.eraIconPathByEra = {}
+ 		for iEra in xrange(gc.getNumEraInfos()):
+ 			self.eraIconPathByEra[iEra] = gc.getEraInfo(iEra).getButton()
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 88f32c512..d5dca72da 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -1952,7 +1952,8 @@ class CvForeignAdvisor:
+ 			if ( currentPlayer.isAlive() and not currentPlayer.isBarbarian() and not currentPlayer.isMinorCiv() and gc.getTeam(currentPlayer.getTeam()).isHasMet(activePlayer.getTeam()) and iLoopPlayer != self.iActiveLeader ):
+ 				message = ""
+ 				if ( not activePlayer.canTradeNetworkWith(iLoopPlayer) ):
+-					message = self.TEXT_NOT_CONNECTED
++					# <!-- custom: unlike base AdvCiv, keep showing GPT here even when not connected to trade network (still gated on isGoldTrading / Currency tech), to avoid opening Diplomacy each turn just to see it. Side effect: the pre-existing "Not Connected" overlay then collides with the GPT number, so prepend tabs to push it past the GPT column. See KI#132. (claude code opus 4.7) -->
++					message = "\t\t" + self.TEXT_NOT_CONNECTED
+ 
+ 				self.resIconGrid.appendRow(labelText(currentPlayer.getName()), labelText(message))
+ 				self.resIconGrid.addIcon( currentRow, self.leaderCol
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index f52257e60..03aaf3acc 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -659,8 +659,8 @@ class CvMainInterface:
+ 		self.buildFilterWorldWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
+ 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
+ 		# <!-- custom: lock emoji paths for the always-expand scoreboard toggle. (Claude code Sonnet 4.6 + Claude code Opus 4.7) -->
+-		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
+-		self.szScoreExpandToggleOffPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_UNLOCKED").getPath()
++		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED_2").getPath()
++		self.szScoreExpandToggleOffPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_UNLOCKED_2").getPath()
+ 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude code Sonnet 4.5) -->
+ 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
+ 		self.szBuildFilterTooltipRegular = "TXT_KEY_BUILDING_FILTER_REGULAR"
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index 36df57cc1..2c3da5b4a 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -1878,15 +1878,15 @@ Created as part of AdvCiv-SAS improvements
+ 			<Type>SAS_EMOJI_FAST_DOWN_BUTTON</Type>
+ 			<Path>Art/AdvCiv_SAS/Emojis/Fast_Down_Button/23ec_64px.dds</Path>
+ 		</InterfaceArtInfo>
+-		<!-- 🔒 emoji from emojiterra -->
++		<!-- 🔒 emoji from emojiterra (Microsoft Fluent Emoji - Flat); its unlocked counterpart is much more distinguishable from locked than the base ones, especially at smaller sizes, and its color is plain and fairly neutral so reads fairly easily -->
+ 		<InterfaceArtInfo>
+-			<Type>SAS_EMOJI_LOCKED</Type>
+-			<Path>Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds</Path>
++			<Type>SAS_EMOJI_LOCKED_2</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Locked/1f512_2_64px.dds</Path>
+ 		</InterfaceArtInfo>
+-		<!-- 🔓 emoji from emojiterra -->
++		<!-- 🔓 emoji from emojiterra (Microsoft Fluent Emoji - Flat) -->
+ 		<InterfaceArtInfo>
+-			<Type>SAS_EMOJI_UNLOCKED</Type>
+-			<Path>Art/AdvCiv_SAS/Emojis/Unlocked/1f513_64px.dds</Path>
++			<Type>SAS_EMOJI_UNLOCKED_2</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Unlocked/1f513_2_64px.dds</Path>
+ 		</InterfaceArtInfo>
+ 		<!-- ⭐ emoji from emojiterra (Twitter / X Twemoji 14.0); using this variant because it has better contrast especially on small width tables -->
+ 		<InterfaceArtInfo>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index 2a9be541e..c45b549d1 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -401,72 +401,68 @@ See below in the main table after changes as it includes the before values as we
+ 
+ #### new traits total count
+ 
+-| Trait | Count |
+-| --- | ---: |
+-| Spiritual | 12 |
+-| Aggressive | 13 |
+-| Imperialist | 12 |
+-| Charismatic | 11 |
+-| Industrious | 11 |
+-| Organized | 12 |
+-| Financial | 11 |
+-| Protective | 10 |
+-| Philosophical | 10 |
+-| Creative | 8 |
+-
+-Sanity: 55 leaders x 2 = 110 total assignments.
++| Trait         | Count |
++| ------------- | ----: |
++| Aggressive    |    13 |
++| Spiritual     |    12 |
++| Imperialist   |    12 |
++| Organized     |    12 |
++| Industrious   |    11 |
++| Charismatic   |    11 |
++| Financial     |    11 |
++| Philosophical |    10 |
++| Protective    |    10 |
++| Creative      |     8 |
+ 
+ #### new pairs total count
+ 
+-| Pair | Count |
+-| --- | --- |
+-| Aggressive + Imperialist | 3 |
+-| Organized + Protective | 3 |
+-| Aggressive + Organized | 2 |
+-| Aggressive + Spiritual | 2 |
+-| Charismatic + Imperialist | 2 |
+-| Charismatic + Protective | 2 |
+-| Charismatic + Spiritual | 2 |
+-| Creative + Financial | 2 |
+-| Creative + Industrious | 2 |
+-| Creative + Philosophical | 2 |
+-| Financial + Charismatic | 2 |
+-| Imperialist + Charismatic | 2 |
+-| Imperialist + Creative | 2 |
+-| Imperialist + Financial | 2 |
+-| Imperialist + Organized | 2 |
+-| Industrious + Charismatic | 2 |
+-| Industrious + Creative | 2 |
+-| Industrious + Imperialist | 2 |
+-| Industrious + Organized | 2 |
+-| Industrious + Spiritual | 2 |
+-| Philosophical + Aggressive | 2 |
+-| Philosophical + Charismatic | 2 |
+-| Philosophical + Creative | 2 |
+-| Philosophical + Imperialist | 2 |
+-| Philosophical + Industrious | 2 |
+-| Philosophical + Protective | 2 |
+-| Protective + Charismatic | 2 |
+-| Protective + Creative | 2 |
+-| Protective + Industrious | 2 |
+-| Protective + Spiritual | 2 |
+-| Aggressive + Charismatic | 1 |
+-| Aggressive + Creative | 1 |
+-| Aggressive + Financial | 1 |
+-| Aggressive + Protective | 1 |
+-| Charismatic + Organized | 1 |
+-| Creative + Imperialist | 1 |
+-| Creative + Protective | 1 |
+-| Financial + Industrious | 1 |
+-| Financial + Organized | 1 |
+-| Imperialist + Industrious | 1 |
+-| Imperialist + Organized | 1 |
+-| Industrious + Organized | 1 |
+-| Industrious + Philosophical | 1 |
+-| Industrious + Protective | 1 |
+-| Philosophical + Protective | 1 |
+-| Philosophical + Spiritual | 1 |
+-| Protective + Spiritual | 1 |
++| Pair                        | Count |
++| --------------------------- | ----: |
++| Aggressive + Imperialist    |     3 |
++| Organized + Protective      |     3 |
++| Aggressive + Financial      |     2 |
++| Aggressive + Organized      |     2 |
++| Aggressive + Spiritual      |     2 |
++| Charismatic + Imperialist   |     2 |
++| Charismatic + Protective    |     2 |
++| Charismatic + Spiritual     |     2 |
++| Creative + Financial        |     2 |
++| Creative + Industrious      |     2 |
++| Creative + Philosophical    |     2 |
++| Financial + Imperialist     |     2 |
++| Financial + Spiritual       |     2 |
++| Imperialist + Philosophical |     2 |
++| Industrious + Spiritual     |     2 |
++| Organized + Spiritual       |     2 |
++| Aggressive + Charismatic    |     1 |
++| Aggressive + Industrious    |     1 |
++| Aggressive + Philosophical  |     1 |
++| Aggressive + Protective     |     1 |
++| Charismatic + Financial     |     1 |
++| Charismatic + Industrious   |     1 |
++| Charismatic + Organized     |     1 |
++| Charismatic + Philosophical |     1 |
++| Creative + Imperialist      |     1 |
++| Creative + Protective       |     1 |
++| Financial + Industrious     |     1 |
++| Financial + Organized       |     1 |
++| Imperialist + Industrious   |     1 |
++| Imperialist + Organized     |     1 |
++| Industrious + Organized     |     1 |
++| Industrious + Philosophical |     1 |
++| Industrious + Protective    |     1 |
++| Organized + Philosophical   |     1 |
++| Philosophical + Protective  |     1 |
++| Philosophical + Spiritual   |     1 |
++| Protective + Spiritual      |     1 |
++| Aggressive + Creative       |     0 |
++| Charismatic + Creative      |     0 |
++| Creative + Organized        |     0 |
++| Creative + Spiritual        |     0 |
++| Financial + Philosophical   |     0 |
++| Financial + Protective      |     0 |
++| Imperialist + Protective    |     0 |
++| Imperialist + Spiritual     |     0 |
+ 
+ ## Leaders' favourite civics rework
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index f52a73150..d1a5b7b0a 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -167,6 +167,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-map-tab-minimap-disappeared-after-switching-tabs)  
+ [130 - (Fixed) Base AdvCiv bug of unit rows showing build player name instead of improvement text (Military Advisor Map tab)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#130---fixed-base-advciv-bug-of-unit-rows-showing-build-player-name-instead-of-improvement-text-military-advisor-map-tab)  
+ [131 - (Fixed) Base AdvCiv bug of live unit build action text not being space-separated from its turn timer](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer)  
++[132 - (Enhanced) Base AdvCiv issue of not showing rival gold-per-turn on Foreign Trade Advisor Bonuses tab when not connected to their trade network](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#132---enhanced-base-advciv-issue-of-not-showing-rival-gold-per-turn-on-foreign-trade-advisor-bonuses-tab-when-not-connected-to-their-trade-network)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4848,3 +4849,15 @@ Fix:
+ File changed:
+ 
+ - [CvGameCoreDLL/CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp)
++
++## 132 - (Enhanced) Base AdvCiv issue of not showing rival gold-per-turn on Foreign Trade Advisor Bonuses tab when not connected to their trade network
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1BfRysfE4onN1RS3xczU_jKsf2UMmEdID?usp=sharing).
++
++Base AdvCiv hides a rival's gold-per-turn on the Bonuses tab when not connected to their trade network (GPT is still gated on `isGoldTrading()`, i.e. the Currency tech). The info is already available in Diplomacy, so we just keep it visible here too to avoid opening Diplomacy each turn (also matches the Techs tab, where flat gold via `AI_maxGoldTrade` stays visible regardless of trade-tech state, as long as `isGoldTrading()` is true).
++
++For some unknown AdvCiv-SAS-specific reason the pre-existing "Not Connected to Trade Network" row-overlay label then overlaps the now-shown GPT number. Worked around by prepending tabs to the message so it renders past the GPT column.
++
++File changed:
++
++- [Assets/Python/Screens/CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index bacdb16d5..6b215b8b7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -357,7 +357,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. (Requires AdvCiv-SAS 5522+) Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, (Requires AdvCiv-SAS 5753+) and is now has **tabs**; **enhanced** the Domestic Advisor so it now has **4 overview tabs** with detailed city information (modifiers, yields, specialists, etc.) with a corresponding **legend link**, and an **enter city on click button** (mirroring the info screen's wonders tab). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
+ - (Requires AdvCiv-SAS 5528+) Minor **beautified** the [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py): increase **legend culture text width** so it is not cramped when upscaled. Note: although it is functional, the Custom Domestic Advisor is **not supported** in AdvCiv-SAS as of now, so it is lacking the Finance Tab. See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4).
+ - (Requires AdvCiv-SAS 5522+) New **Policy Advisor**. **Beautified**: enlarge **top panels text** so **long civic names don't overflow**. **Remove multiline nationality** information which was **uninfomative** and **crowded vertically** in the **Religions tab** and the **Corporations tab**; use more precise and compact `Leader (ID)` and `HQ (ID)` **one-liner instead** (**ID** also handles **one leader name being used by several players**); **increase row spacing** (now **unified** (was crowded)). **Remove multiline wrapped bonuses** splitting logic in the **Corporations tab**: use one natural comma-separated line (bonuses row height reduced/standardized) since there is enough space after expanding the Policy Advisor and it is more readable. Also add **new rows** (**Bonuses Generated**, **Yields Generated**), and add **first column descriptions** for rows (as of now `Built By:`, `Consumes:`, `Generates:`, `Generates 2:`). Add a **Great Person icon** in `Built By:` row. Change in [CvPolicyAdvisorScreen.py](/Assets/Python/Screens/CvPolicyAdvisorScreen.py).
+-- **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it.
++- **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it. (Requires AdvCiv-SAS 5793+) Show **gold per turn** in **Bonuses Tab** even when **not connected to trade network** (if gold trading is available): previously this was hidden, and would require tediously opening the diplomacy screen of each player, and this is now also consistent with flat gold being shown in techs tab for all players (if gold trading is available). See [KI#132](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#132---enhanced-base-advciv-issue-of-not-showing-rival-gold-per-turn-on-foreign-trade-advisor-bonuses-tab-when-not-connected-to-their-trade-network).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. (Requires AdvCiv-SAS 5530+) Note: **unit icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440), and **promotion icon size** is **increased** (no longer DLL-hardcoded (was 16)). (Requires AdvCiv-SAS 5777+) **Lift up the unit panel to full height** (reduces the need for scrolling vertically) and **expand it laterally** to **accomodate lengthy unit rows** (e.g., avoid line wrap if unit name is long, if there are many promotions). Make **show/hide individual unit text clickable** too (more accessible than the small +/- button alone). **Increase leader icon bar from 1 to multiple rows**, and **do not reduce icon size until all rows are full**. For example, at 1080p, 5 rows allow to show up to 45 players (including barbarian) at full leader icon size before leader icon size is reduced. **Reduce Leader icon size reduction** when all rows are full (**mild reduction**, no longer halved). See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4), [KI#130](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#130---fixed-base-advciv-bug-of-unit-rows-showing-build-player-name-instead-of-improvement-text-military-advisor-map-tab), and [KI#131](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer). Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported.
+ - (Requires AdvCiv-SAS 5771+) Added a new **Battles tab** in the Military Advisor, showing as a **sortable table** the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode): **Turn**, **Year**, **Result** (Won, Lost, Retreat) as emoji, **Estimated Odds %** (simple starting effective strength comparison, not exact Civ4 combat odds), **Role** (Are we the attacker?) as emoji, **base Strength** (XML), **start effective Strength** (including modifiers at that battle), **end effective Strength**, **max effective Strength**, **XP before combat** (yellow if Great-General-led), **Our Unit**, **Their Unit** (unit name in yellow if Great-General-led), **same** strength/XP columns for their unit, **Civ icon**, **Player icon**, **Player ID** (to cover the same leader picked by several leaders (custom games, etc.)), **Captured Unit type**, **Captured Unit icon**, **Hill or Peak icon**, **Terrain icon**, **Feature icon**, **Click Plot icon** (**on click camera is moved to this plot** (as the wonder tabs' (Info Screen) text does), with distinct art for normal plot, defended city, and captured city battles). Icons are **hoverable to sevopedia** (or have a camera effect). **Text color** is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red). Implemented a **legend link**, and **LOG Button** (as the Timeline tab). Examples of LOG: `163 | 760 AD | Lost | 43 | A | 6 | 6.04 |  | 7.20 | 8 | 0 | Camel Archer | Longbowman | 5 | 0 | 4 | 8.10 | 5.04 | 9.00 | 9 | 0 |  |  | TERRAIN_GRASS |  | 54 | 30`, `133 | 10 BC | Won | 64 | A | 3 | 3.30 | 1.81 | 3.30 | 2 | 0 | Trireme | Galley | 1 | 0 | 2 | 1.84 |  | 2.20 | 48 | 0 |  |  | TERRAIN_COAST |  | 32 | 10`. Main files changed: [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py), [CvEventManager.py](/Assets/Python/CvEventManager.py), [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py), [CvUnit.cpp](/CvGameCoreDLL/CvUnit.cpp), [CvDllPythonEvents.cpp](/CvGameCoreDLL/CvDllPythonEvents.cpp), [CvDllPythonEvents.h](/CvGameCoreDLL/CvDllPythonEvents.h), [CvEventReporter.cpp](/CvGameCoreDLL/CvEventReporter.cpp), [CvEventReporter.h](/CvGameCoreDLL/CvEventReporter.h).
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=23281

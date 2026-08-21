@@ -47,31 +47,14 @@ public:
 	scaled gainedPower(PlayerTypes ePlayer, MilitaryBranchTypes eBranch) const;
 	// Production invested in military build-up
 	scaled militaryProduction(PlayerTypes ePlayer) const;
-	TeamSet const& getCapitulationsAccepted(TeamTypes eMaster) const
-	{
-		FAssertBounds(0, MAX_CIV_TEAMS, eMaster);
-		return m_capitulationsAcceptedPerTeam[eMaster];
-	}
-	scaled getNukedCities(PlayerTypes eNukeOwner, PlayerTypes eCityOwner) const
-	{
-		FAssertBounds(0, MAX_CIV_PLAYERS, eNukeOwner);
-		FAssertBounds(0, MAX_CIV_PLAYERS, eCityOwner);
-		return m_nukedCities[eNukeOwner][eCityOwner];
-	}
-	bool isWar(PlayerTypes eFirst, PlayerTypes eSecond) const // After simulated DoWs
-	{
-		FAssertBounds(0, MAX_CIV_PLAYERS, eFirst);
-		FAssertBounds(0, MAX_CIV_PLAYERS, eSecond);
-		return m_warTable[eFirst][eSecond];
-	}
+	TeamSet const& getCapitulationsAccepted(TeamTypes eMaster) const { FAssertBounds(0, MAX_CIV_TEAMS, eMaster); return m_capitulationsAcceptedPerTeam[eMaster]; }
+	scaled getNukedCities(PlayerTypes eNukeOwner, PlayerTypes eCityOwner) const { FAssertBounds(0, MAX_CIV_PLAYERS, eNukeOwner); FAssertBounds(0, MAX_CIV_PLAYERS, eCityOwner); return m_nukedCities[eNukeOwner][eCityOwner]; }
+	bool isWar(PlayerTypes eFirst, PlayerTypes eSecond) const { FAssertBounds(0, MAX_CIV_PLAYERS, eFirst); FAssertBounds(0, MAX_CIV_PLAYERS, eSecond); return m_warTable[eFirst][eSecond]; } // After simulated DoWs
 	bool isWar(TeamTypes eFirst, TeamTypes eSecond) const;
 	// Prep. time, if any, plus time horizon
 	int turnsSimulated() const { return m_iTurnsSimulated; }
 	// Does ePlayer have a node in the InvasionGraph?
-	bool isPartOfAnalysis(PlayerTypes ePlayer) const
-	{
-		return (m_partOfAnalysis.count(ePlayer) > 0);
-	}
+	bool isPartOfAnalysis(PlayerTypes ePlayer) const { return (m_partOfAnalysis.count(ePlayer) > 0); }
 	void logResults(PlayerTypes ePlayer); // for debugging
 	// (There's another public and private section below)
 private:
@@ -100,16 +83,10 @@ private:
 		void addNukesFired(scaled rNukes) { m_rNukesFired += rNukes; }
 		scaled getNukesFired() const { return m_rNukesFired; }
 		void setDoWOn(PlayerTypes eAggressor) { m_DoWOn.insert(eAggressor); }
-		void setDoWOn(PlyrSetIter const& itFirst, PlyrSetIter const& itLast)
-		{
-			m_DoWOn.insert(itFirst, itLast);
-		}
+		void setDoWOn(PlyrSetIter const& itFirst, PlyrSetIter const& itLast) { m_DoWOn.insert(itFirst, itLast); }
 		PlyrSet const& getDoWOn() const { return m_DoWOn; }
 		void setDoWBy(PlayerTypes eTarget) { m_DoWBy.insert(eTarget); }
-		void setDoWBy(PlyrSetIter const& itFirst, PlyrSetIter const& itLast)
-		{
-			m_DoWBy.insert(itFirst, itLast);
-		}
+		void setDoWBy(PlyrSetIter const& itFirst, PlyrSetIter const& itLast) { m_DoWBy.insert(itFirst, itLast); }
 		PlyrSet const& getDoWBy() const { return m_DoWBy; }
 		void setWarContinued(PlayerTypes eEnemy) { m_warsCont.insert(eEnemy); }
 		PlyrSet const& getWarsContinued() const { return m_warsCont; }

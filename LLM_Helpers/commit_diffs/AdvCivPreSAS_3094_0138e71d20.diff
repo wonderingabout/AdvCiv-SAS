@@ -1,0 +1,450 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3094
+# Commit: 0138e71d209d7392e7fbdf2049dfec1332bc2589
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9237b111666ebfaeea0bf3c8bed5d87df96586b7
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	Assets/XML/Text/CIV4GameText_advc.xml
+1	3	CvGameCoreDLL/CvCityAI.cpp
+2	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+3	3	CvGameCoreDLL/CvGameCoreUtils.cpp
+8	8	CvGameCoreDLL/CvGameCoreUtils.h
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+3	6	CvGameCoreDLL/CvPlayer.cpp
+4	1	CvGameCoreDLL/CvPlayer.h
+14	15	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvTeamAI.cpp
+52	50	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 12746544b..1c13605da 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3607,11 +3607,11 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BAD_ATTITUDE_TOWARDS</Tag>
+-		<English>%s1_attitude ([COLOR_WARNING_TEXT]%d2[COLOR_REVERT]) towards %s3_leader</English>
+-		<French>%s1_attitude ([COLOR_WARNING_TEXT]%d2[COLOR_REVERT]) envers %s3_leader</French>
+-		<German>%s1_attitude ([COLOR_WARNING_TEXT]%d2[COLOR_REVERT]) gegen&#252;ber %s3_leader</German>
+-		<Italian>%s1_attitude ([COLOR_WARNING_TEXT]%d2[COLOR_REVERT]) confronti di %s3_leader</Italian>
+-		<Spanish>Actitud hacia %s3_leader: %s1_attitude ([COLOR_WARNING_TEXT]%d2[COLOR_REVERT])</Spanish>
++		<English>%s1_attitude ([COLOR_NEGATIVE_TEXT]%d2[COLOR_REVERT]) towards %s3_leader</English>
++		<French>%s1_attitude ([COLOR_NEGATIVE_TEXT]%d2[COLOR_REVERT]) envers %s3_leader</French>
++		<German>%s1_attitude ([COLOR_NEGATIVE_TEXT]%d2[COLOR_REVERT]) gegen&#252;ber %s3_leader</German>
++		<Italian>%s1_attitude ([COLOR_NEGATIVE_TEXT]%d2[COLOR_REVERT]) confronti di %s3_leader</Italian>
++		<Spanish>Actitud hacia %s3_leader: %s1_attitude ([COLOR_NEGATIVE_TEXT]%d2[COLOR_REVERT])</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_POSITIVE_NEUTRAL_ATTITUDE_TOWARDS</Tag>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index a414a977b..ed091822d 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -75,9 +75,7 @@ void CvCityAI::init(int iID, PlayerTypes eOwner, int iX, int iY,
+ 	CvCity::init(iID, eOwner, iX, iY, bBumpUnits, bUpdatePlotGroups, iOccupationTimer);
+ 	//AI_reset(); // advc.003u: Merged into constructor
+ 	AI_assignWorkingPlots();
+-	/*AI_updateWorkersHaveAndNeeded();
+-	AI_updateBestBuild();*/
+-	// BETTER_BTS_AI_MOD, City AI, Worker AI, 11/14/09, jdog5000: START
++	// BETTER_BTS_AI_MOD, City AI, Worker AI, 11/14/09, jdog5000: calls swapped
+ 	AI_updateBestBuild();
+ 	AI_updateWorkersHaveAndNeeded();
+ 	// BETTER_BTS_AI_MOD: END
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 1a0ce4f61..c7d3e5284 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2166,7 +2166,8 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	{
+ 		CvInterfaceModeInfo const& kIMode = GC.getInfo((InterfaceModeTypes)
+ 				kAction.getInterfaceModeType());
+-		if (!CvWString(kIMode.getHelp()).empty()) {
++		if (!CvWString(kIMode.getHelp()).empty())
++		{
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(kIMode.getHelp());
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index d71c79545..9264f584c 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -13,13 +13,13 @@ using std::vector; // advc
+ 	the implementation of that function was:
+ 	srand(7297 * iSeedX + 2909  * iSeedY);
+ 	return (rand() % (iMax - iMin)) + iMin; */
+-int intHash(vector<int> const& x, PlayerTypes ePlayer)
++int intHash(vector<int> const& kInputs, PlayerTypes ePlayer)
+ {
+ 	int const iPrime = 31;
+ 	int iHashVal = 0;
+-	for (size_t i = 0; i < x.size(); i++)
++	for (size_t i = 0; i < kInputs.size(); i++)
+ 	{
+-		iHashVal += x[i];
++		iHashVal += kInputs[i];
+ 		iHashVal *= iPrime;
+ 	}
+ 	int iCapitalIndex = -1;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 993e6c5d6..1b1429420 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -130,9 +130,9 @@ namespace stats // Seems too generic, but what else to name it?
+ 	} 
+ }
+ 
+-/*  Hash based on the components of x. Plot index of capital factored in for
++/*  Hash based on kInputs. Plot index of capital factored in for
+ 	increased range if ePlayer given. (ePlayer is ignored if it has no capital.) */
+-int intHash(std::vector<int> const& x, PlayerTypes ePlayer = NO_PLAYER);
++int intHash(std::vector<int> const& kInputs, PlayerTypes ePlayer = NO_PLAYER);
+ 
+ namespace fmath
+ {
+@@ -145,22 +145,22 @@ namespace fmath
+ 	/*	See intHash about the parameters.
+ 		Result between 0 and 1. Returns float b/c CvRandom uses float (not double).
+ 		(Similar but more narrow: CvUnitAI::AI_unitBirthmarkHash, AI_unitPlotHash) */
+-	inline float hash(std::vector<int> const& x, PlayerTypes ePlayer = NO_PLAYER)
++	inline float hash(std::vector<int> const& kInputs, PlayerTypes ePlayer = NO_PLAYER)
+ 	{
+ 		/*  Use ASyncRand to avoid the overhead of creating a new object?
+ 			Or use stdlib's rand/sRand? I don't think it matters. */
+ 		/*CvRandom& rng = GC.getASyncRand();
+ 		rng.reset(hashVal);*/
+ 		CvRandom rng;
+-		rng.init(intHash(x, ePlayer));
++		rng.init(intHash(kInputs, ePlayer));
+ 		return rng.getFloat();
+ 	}
+ 	// For hashing just a single input
+-	inline float hash(int x, PlayerTypes ePlayer = NO_PLAYER)
++	inline float hash(int iInputs, PlayerTypes ePlayer = NO_PLAYER)
+ 	{
+-		std::vector<int> v;
+-		v.push_back(x);
+-		return hash(v, ePlayer);
++		std::vector<int> inputs;
++		inputs.push_back(iInputs);
++		return hash(inputs, ePlayer);
+ 	}
+ } // </advc.003g>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d6610f8c2..eca8b5aea 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -20096,7 +20096,7 @@ void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot,
+ 		if (kHeadSelectedUnit.isNukeVictim(&kPlot, eVictimTeam) &&
+ 			!kHeadSelectedUnit.isEnemy(eVictimTeam))
+ 		{	// advc.130q: No newline
+-			szHelp += gDLL->getText("TXT_KEY_CANT_NUKE_FRIENDS");
++			szHelp.append(gDLL->getText("TXT_KEY_CANT_NUKE_FRIENDS"));
+ 			break;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 67e7c323f..09aecb0c8 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3384,7 +3384,8 @@ int CvPlayer::countNumCitiesConnectedToCapital() const
+ }
+ 
+ // K-Mod:
+-bool CvPlayer::doesImprovementConnectBonus(ImprovementTypes eImprovement, BonusTypes eBonus) const
++bool CvPlayer::doesImprovementConnectBonus(ImprovementTypes eImprovement,
++	BonusTypes eBonus) const
+ {
+ 	return GET_TEAM(getTeam()).doesImprovementConnectBonus(eImprovement, eBonus);
+ }
+@@ -4158,11 +4159,6 @@ int CvPlayer::getNumAvailableBonuses(BonusTypes eBonus) const
+ }
+ 
+ 
+-int CvPlayer::getNumTradeableBonuses(BonusTypes eBonus) const
+-{
+-	return (getNumAvailableBonuses(eBonus) - getBonusImport(eBonus));
+-}
+-
+ bool CvPlayer::hasBonus(BonusTypes eBonus) const
+ {
+ 	FOR_EACH_CITY(pLoopCity, *this)
+@@ -4173,6 +4169,7 @@ bool CvPlayer::hasBonus(BonusTypes eBonus) const
+ 	return false;
+ }
+ 
++
+ int CvPlayer::getNumTradeBonusImports(PlayerTypes eFromPlayer) const // advc: Simplified using the new CvDeal interface
+ {
+ 	FAssert(eFromPlayer != getID());
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index c6996f56d..7e93082f4 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -237,7 +237,10 @@ public:
+ 	DllExport DenialTypes getTradeDenial(PlayerTypes eWhoTo, TradeData item) const;									// Exposed to Python
+ 	bool canTradeNetworkWith(PlayerTypes ePlayer) const;															// Exposed to Python
+ 	int getNumAvailableBonuses(BonusTypes eBonus) const;															// Exposed to Python
+-	int getNumTradeableBonuses(BonusTypes eBonus) const;															// Exposed to Python
++	int getNumTradeableBonuses(BonusTypes eBonus) const																// Exposed to Python
++	{
++		return (getNumAvailableBonuses(eBonus) - getBonusImport(eBonus));
++	}
+ 	int getNumTradeBonusImports(PlayerTypes eFromPlayer) const;														// Exposed to Python
+ 	bool hasBonus(BonusTypes eBonus) const;																			// Exposed to Python
+ 	// advc: Said "IncludeCancelable", but actually does the opposite.
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 842fb2547..fc22e7b68 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -10158,22 +10158,21 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal,
+ 					iTheyReceive - iWeReceive - iItemValue > 10)
+ 				{
+ 					// No randomness here; needs to be reproducible.
+-					std::vector<int> hashInputs;
+-					hashInputs.push_back(GC.getGame().getGameTurn());
+-					hashInputs.push_back(eBonus);
+-					if(scaled::hash(hashInputs, getID()) > per100(iItemValue))
++					std::vector<int> aihashInputs;
++					aihashInputs.push_back(GC.getGame().getGameTurn());
++					aihashInputs.push_back(eBonus);
++					if(scaled::hash(aihashInputs, getID()) > per100(iItemValue))
+ 						continue;
+ 				}
+ 				abBonusDeal.set(eBonus, true);
+ 				bNonsurplus = true;
+-				if ((kPlayer.getNumTradeableBonuses(eBonus) > 1 &&
+-					kPlayer.AI_corporationBonusVal(eBonus, true) == 0) ||
+-					/*  Prefer to give non-surplus resources over gpt in
+-						AI-AI trades (i.e. no special treatment of nonsurplus
+-						resources needed). If a human is involved, gpt needs to
+-						be preferred b/c we don't want humans to minmax the gpt
+-						through trial and error. */
+-					(!isHuman() && !kPlayer.isHuman()))
++				/*  Prefer to give non-surplus resources over gpt in AI-AI trades
++					(i.e. no special treatment of nonsurplus resources needed).
++					If a human is involved, gpt needs to be preferred b/c we
++					don't want humans to minmax the gpt through trial and error. */
++				if ((!isHuman() && !kPlayer.isHuman()) ||
++					(kPlayer.getNumTradeableBonuses(eBonus) > 1 &&
++					kPlayer.AI_corporationBonusVal(eBonus, true) == 0))
+ 				{
+ 					bNonsurplus = false;
+ 				}
+@@ -11862,8 +11861,8 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer,
+ 		iValueForThem = kPlayer.AI_bonusVal(eBonus, iChange, false, true);
+ 	// </advc.036>
+ 		if (isHuman() &&
+-				/*  advc.036: No deal if they (AI) don't need the resource, but
+-					check attitude before giving the human that info. */
++			/*  advc.036: No deal if they (AI) don't need the resource, but
++				check attitude before giving the human that info. */
+ 			iValueForThem >= iTradeValThresh)
+ 		{
+ 			return NO_DENIAL;
+@@ -11876,7 +11875,7 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer,
+ 		return DENIAL_JOKING;*/
+ 
+ 	bool bStrategic = false;
+-	bool bCrucialStrategic = false; // advc.036
++	bool bCrucialStrategic = false; // advc.036 (NB: unused)
+ 
+ 	CvCity const* pCapital = getCapital();
+ 	FOR_EACH_ENUM2(Unit, eUnit)
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index f25971cd3..cc88517ab 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2951,7 +2951,7 @@ bool CvTeamAI::AI_anyMemberAtVictoryStage3() const
+ 	return false;
+ } // BETTER_BTS_AI_MOD: END
+ 
+-/*	K-Mod. return a rating of our war success between -99 and 99.
++/*	K-Mod: return a rating of our war success between -99 and 99.
+ 	-99 means we losing and have very little hope of surviving.
+ 	99 means we are soundly defeating our enemies.
+ 	Zero is neutral (eg. no wars being fought).
+@@ -2980,7 +2980,7 @@ int CvTeamAI::AI_getWarSuccessRating() const
+ 	}
+ 	iScore = range((100*iScore)/std::max(1, iThisTeamPower*iSuccessScale*5), -99, 99);
+ 	return iScore;
+-} // K-Mod end
++}
+ 
+ /*  BETTER_BTS_AI_MOD, War Strategy AI, 03/20/10, jdog5000: START
+ 	Compute power of enemies as percentage of our power */
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index b716713df..2260ae3d3 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5702,7 +5702,8 @@ void CvUnitAI::AI_ICBMMove()
+ 	{
+ 		// BETTER_BTS_AI_MOD, 04/25/10, jdog5000: Unit AI
+ 		/*	(advc: Had been deleted entirely by K-Mod upon introducing
+-			AI_localDefenceStrength and AI_localAttackStrength) */
++			AI_localDefenceStrength and AI_localAttackStrength. The BBAI code does
++			seem unnecessary seeing that rebasing is considered in any case.) */
+ 		/*if (GET_TEAM(getTeam()).isAirBase(getPlot())) {
+ 			int iOurDefense = GET_TEAM(getTeam()).AI_getOurPlotStrength(plot(),0,true,false,true);
+ 			int iEnemyOffense = GET_PLAYER(getOwner()).AI_getEnemyPlotStrength(plot(),2,false,false);
+@@ -19772,7 +19773,7 @@ bool CvUnitAI::AI_nuke()
+ 	int const iWarRating = kTeam.AI_getWarSuccessRating();
+ 	int const iOurNukes = kOwner.getNumNukeUnits();
+ 	int const iOurCities = kOwner.getNumCities();
+-	// Player-independant part of the weight for civilian damage evaluation
++	// Player-independent part of the weight for civilian damage evaluation
+ 	// advc.650: Moved into new function
+ 	int const iBaseDestrWeight = kOwner.AI_nukeBaseDestructionWeight();
+ 
+@@ -19782,6 +19783,7 @@ bool CvUnitAI::AI_nuke()
+ 		no functional change except for a removed Dagger strategy check. I guess
+ 		it makes sense that range-limited nukes are more sensitive to danger -
+ 		might not find a target at all if danger isn't responded to swiftly.
++		(Well, I don't know ...)
+ 		I've decreased the production cost multipliers by 1 (i.e. from 3:4 to 2:3)
+ 		because the nuke value counted per unit and per building is now (much) smaller. */
+ 	int iValueThresh = std::max(0, (bRangeLimited ? 2 : 3) *
+@@ -19825,7 +19827,7 @@ bool CvUnitAI::AI_nuke()
+ 	for (PlayerIter<CIV_ALIVE,ENEMY_OF> itEnemy(kTeam.getID());
+ 		itEnemy.hasNext(); ++itEnemy)
+ 	{
+-		CvPlayerAI const& kEnemy = *itEnemy;
++		CvPlayer const& kEnemy = *itEnemy;
+ 		// <advc.650>
+ 		int const iTheirNukes = kOwner.AI_estimateNukeCount(kEnemy.getID());
+ 		// Don't be too shy if we have far more nukes than they do
+@@ -19945,6 +19947,53 @@ bool CvUnitAI::AI_nuke()
+ 	// ...
+ }*/
+ 
++/*	K-Mod: Return the value of the best nuke target in the range specified,
++	and set pBestTarget to be the specific target plot. The return value is
++	roughly in units of production. */
++int CvUnitAI::AI_nukeValue(CvPlot const& kCenterPlot, int iSearchRange,
++	CvPlot const*& pBestTarget, int iCivilianTargetWeight) const
++{
++	PROFILE_FUNC();
++
++	typedef std::map<CvPlot const*, int> plotMap_t;
++	plotMap_t plotValueCache;
++	pBestTarget = NULL;
++	int iBestValue = 0; // note: value is divided by 100 at the end
++	for (SquareIter itTarget(kCenterPlot, iSearchRange); itTarget.hasNext(); ++itTarget)
++	{
++		CvPlot& kLoopTarget = *itTarget;
++		if (!canNukeAt(getPlot(), kLoopTarget.getX(), kLoopTarget.getY()))
++			continue;
++		/*	Note: canNukeAt checks that we aren't hitting any 3rd party targets,
++			so we don't have to worry about checking that elsewhere */
++
++		int iTargetValue = 0;
++		//bool bValid = true; // advc: Rewritten w/o this flag
++		for (SquareIter itNuke(kLoopTarget, nukeRange()); itNuke.hasNext(); ++itNuke)
++		{
++			plotMap_t::iterator pos = plotValueCache.find(&*itNuke);
++			if (pos != plotValueCache.end())
++			{
++				if (pos->second == MIN_INT)
++					continue;
++				iTargetValue += pos->second;
++				continue;
++			}
++			// plot evaluation ... (advc: moved to CvPlayerAI)
++			int iPlotValue = GET_PLAYER(getOwner()).AI_nukePlotValue(
++					*itNuke, iCivilianTargetWeight);
++			plotValueCache[&*itNuke] = iPlotValue;
++			iTargetValue += iPlotValue;
++		}
++		if (iTargetValue > iBestValue)
++		{
++			pBestTarget = &kLoopTarget;
++			iBestValue = iTargetValue;
++		}
++	}
++	return iBestValue / 100;
++}
++
+ // K-Mod. Get the best trade mission value.
+ // Note. The iThreshold parameter is only there to improve efficiency.
+ int CvUnitAI::AI_tradeMissionValue(CvPlot*& pBestPlot, int iThreshold)  // advc: refactoring
+@@ -21022,53 +21071,6 @@ int CvUnitAI::AI_pillageValue(CvPlot const& kPlot, int iBonusValueThreshold) //
+ 	return iValue;
+ }
+ 
+-/*	K-Mod: Return the value of the best nuke target in the range specified,
+-	and set pBestTarget to be the specific target plot. The return value is
+-	roughly in units of production. */
+-int CvUnitAI::AI_nukeValue(CvPlot const& kCenterPlot, int iSearchRange,
+-	CvPlot const*& pBestTarget, int iCivilianTargetWeight) const
+-{
+-	PROFILE_FUNC();
+-
+-	typedef std::map<CvPlot const*, int> plotMap_t;
+-	plotMap_t plotValueCache;
+-	pBestTarget = NULL;
+-	int iBestValue = 0; // note: value is divided by 100 at the end
+-	for (SquareIter itTarget(kCenterPlot, iSearchRange); itTarget.hasNext(); ++itTarget)
+-	{
+-		CvPlot& kLoopTarget = *itTarget;
+-		if (!canNukeAt(getPlot(), kLoopTarget.getX(), kLoopTarget.getY()))
+-			continue;
+-		/*	Note: canNukeAt checks that we aren't hitting any 3rd party targets,
+-			so we don't have to worry about checking that elsewhere */
+-
+-		int iTargetValue = 0;
+-		//bool bValid = true; // advc: Rewritten w/o this flag
+-		for (SquareIter itNuke(kLoopTarget, nukeRange()); itNuke.hasNext(); ++itNuke)
+-		{
+-			plotMap_t::iterator pos = plotValueCache.find(&*itNuke);
+-			if (pos != plotValueCache.end())
+-			{
+-				if (pos->second == MIN_INT)
+-					continue;
+-				iTargetValue += pos->second;
+-				continue;
+-			}
+-			// plot evaluation ... (advc: moved to CvPlayerAI)
+-			int iPlotValue = GET_PLAYER(getOwner()).AI_nukePlotValue(
+-					*itNuke, iCivilianTargetWeight);
+-			plotValueCache[&*itNuke] = iPlotValue;
+-			iTargetValue += iPlotValue;
+-		}
+-		if (iTargetValue > iBestValue)
+-		{
+-			pBestTarget = &kLoopTarget;
+-			iBestValue = iTargetValue;
+-		}
+-	}
+-	return iBestValue / 100;
+-}
+-
+ // <advc.121>
+ int CvUnitAI::AI_connectBonusCost(CvPlot const& p, BuildTypes eBuild, int iMissingWorkersInArea) const
+ {
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=17200

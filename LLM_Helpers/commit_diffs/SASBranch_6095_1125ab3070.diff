@@ -1,0 +1,198 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6095
+# Commit: 1125ab30704a50318e65661e6666c1c0c1664e08
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8227c7d3284e3dd3ebe4a8e30901f79c0495ba38
+# Title: (Fixed/Improved) Base AdvCiv AI non-combat food-production allocation could stall small growing cities instead of using mature or stagnant food/production pu...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+10	0	Assets/XML/GlobalDefines_advciv_sas.xml
+75	0	CvGameCoreDLL/CvCityAI.cpp
+21	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 0076622ce..ff0577069 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1533,6 +1533,16 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION</DefineName>
+ 		<iDefineIntVal>5</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Maximum fresh build time, expressed in Normal-speed-equivalent turns, that is considered fast enough for an AI city to train a non-combat food-production unit locally. The DLL scales this gate by the current game speed's TrainPercent, matching the same game-speed factor used in unit production costs: for example, the default 5 becomes about 10 turns on Marathon (200%). A city at or below the adjusted gate keeps the choice immediately, allowing several capable cities to rebuild Workers in parallel after losses. A slower city normally defers to the preferred same-area food/hammer pump, but if every city is slow the preferred available city still builds instead of waiting. 0 disables this allocation optimization. (GPT-5.6 Thinking) -->
++	<Define>
++		<DefineName>SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS</DefineName>
++		<iDefineIntVal>5</iDefineIntVal>
++	</Define>
++	<!-- custom: Population tolerance for preferring a currently stagnant city over the largest eligible same-area city when a slow AI city delegates a non-combat food-production unit. The comparison is strict: 3 lets a stagnant population-8 city beat a population-10 city, but not population 7. Cities already training a food-production unit count as stagnant, intentionally allowing an efficient large city to produce several Workers or similar units in sequence. If no stagnant city is this close to the largest candidate, highest population wins. 0 disables the stagnant-city preference. (GPT-5.6 Thinking) -->
++	<Define>
++		<DefineName>SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_STAGNANT_POPULATION_GAP</DefineName>
++		<iDefineIntVal>3</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Allow the first and only capital, when not in danger, to produce one immediately useful Work Boat or required land Worker before filling an empty city garrison. This accelerates the first improvement and growth, but can be exploited by an unusually early rush. After this one economic unit, the unchanged Base AdvCiv no-defender priority resumes. Set to 0 to always produce the defender first. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_FIRST_CITY_ECONOMIC_UNIT_BEFORE_DEFENDER_ENABLE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ba060c9d9..bdc5218d7 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -89,6 +89,61 @@ static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pW
+ // <!-- custom: Measure currently committed offensive production by base hammers rather than city count, unit count, era, or the inherited upkeep recommendation. A 40-hammer military city therefore matters far more than a 2-hammer new settlement, and the signal scales automatically with empire size and production development. (GPT-5.6 Thinking) -->
+ static bool SAS_isOffensiveProductionAI(UnitAITypes eUnitAI) { return (eUnitAI == UNITAI_ATTACK || eUnitAI == UNITAI_ATTACK_CITY); }
+ 
++// <!-- custom: Food-production civilian units halt growth while trained, so slow cities should normally leave them to stronger food/hammer pumps. Keep combat-capable and nuclear units outside this allocator so a future modmod may still let side cities urgently train food-production fighters. (GPT-5.6 Thinking) -->
++static bool SAS_isNonCombatFoodProductionUnit(UnitTypes eUnit)
++{
++	CvUnitInfo const& kUnit = GC.getInfo(eUnit);
++	return (kUnit.isFoodProduction() && kUnit.getCombat() <= 0 && kUnit.getAirCombat() <= 0 && !kUnit.isNuke());
++}
++
++// <!-- custom: Pick the preferred same-area pump for a non-combat food-production unit by population rather than a fragile turns-saved comparison. Only consider cities that can build the unit at least as quickly as the current city, so delegation can never make delivery slower. If a currently stagnant city is within the XML population-gap tolerance of the largest remaining city, prefer the stagnant candidate so an efficient food-production pump can continue producing such units in sequence; otherwise use the largest city. Actual unit turns only break equal-population ties. The caller's fast-enough turn gate still allows several cities to produce in parallel when rapid replacement is needed, and if every city is slow the best available city remains allowed instead of waiting forever. (GPT-5.6 Thinking) -->
++static CvCityAI const* SAS_getPreferredNonCombatFoodProductionCity(CvCityAI const& kCity, UnitTypes eUnit, int iCurrentUnitTurns, int iStagnantPopulationGap, int& iPreferredUnitTurns, int& iMaxPopulation, bool& bPreferredStagnant)
++{
++	CvPlayerAI const& kPlayer = GET_PLAYER(kCity.getOwner());
++	iPreferredUnitTurns = MAX_INT;
++	iMaxPopulation = -1;
++	bPreferredStagnant = false;
++	FOR_EACH_CITYAI(pLoopCity, kPlayer)
++	{
++		if (!pLoopCity->isArea(kCity.getArea()) || pLoopCity->AI_isDanger() || !pLoopCity->canTrain(eUnit, false)) continue;
++		int const iUnitTurns = pLoopCity->getProductionTurnsLeft(eUnit, 0);
++		if (iUnitTurns <= 0 || iUnitTurns >= MAX_INT || iUnitTurns > iCurrentUnitTurns) continue;
++		iMaxPopulation = std::max(iMaxPopulation, pLoopCity->getPopulation());
++	}
++	if (iMaxPopulation < 0) return NULL;
++
++	bool bPreferStagnant = false;
++	if (iStagnantPopulationGap > 0)
++	{
++		FOR_EACH_CITYAI(pLoopCity, kPlayer)
++		{
++			if (!pLoopCity->isArea(kCity.getArea()) || pLoopCity->AI_isDanger() || !pLoopCity->canTrain(eUnit, false)) continue;
++			int const iUnitTurns = pLoopCity->getProductionTurnsLeft(eUnit, 0);
++			if (iUnitTurns <= 0 || iUnitTurns >= MAX_INT || iUnitTurns > iCurrentUnitTurns) continue;
++			if (pLoopCity->foodDifference(true, false) <= 0 && iMaxPopulation - pLoopCity->getPopulation() < iStagnantPopulationGap)
++			{
++				bPreferStagnant = true;
++				break;
++			}
++		}
++	}
++
++	CvCityAI const* pBestCity = NULL;
++	FOR_EACH_CITYAI(pLoopCity, kPlayer)
++	{
++		if (!pLoopCity->isArea(kCity.getArea()) || pLoopCity->AI_isDanger() || !pLoopCity->canTrain(eUnit, false)) continue;
++		int const iUnitTurns = pLoopCity->getProductionTurnsLeft(eUnit, 0);
++		if (iUnitTurns <= 0 || iUnitTurns >= MAX_INT || iUnitTurns > iCurrentUnitTurns) continue;
++		bool const bStagnant = (pLoopCity->foodDifference(true, false) <= 0);
++		if (bPreferStagnant && (!bStagnant || iMaxPopulation - pLoopCity->getPopulation() >= iStagnantPopulationGap)) continue;
++		if (pBestCity != NULL && (pLoopCity->getPopulation() < pBestCity->getPopulation() || (pLoopCity->getPopulation() == pBestCity->getPopulation() && iUnitTurns >= iPreferredUnitTurns))) continue;
++		pBestCity = pLoopCity;
++		iPreferredUnitTurns = iUnitTurns;
++		bPreferredStagnant = bStagnant;
++	}
++	return pBestCity;
++}
++
+ static int SAS_getOffensiveProductionCapacityPercent(CvPlayerAI const& kPlayer, int& iOffensiveBaseProduction, int& iTotalBaseProduction, int& iOffensiveCities, int& iProductiveCities)
+ {
+ 	iOffensiveBaseProduction = 0;
+@@ -12978,6 +13033,26 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
+ 			(eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()), iOdds, iProgressOddsBonus, iEffectiveOdds, iOdds >= 0, bUnitRollPassed);
+ 		if (bUnitRollPassed) // K-Mod end
+ 		{
++			// <!-- custom: For fresh non-combat food-production units, any city that can finish within the XML Normal-speed-equivalent turn gate (scaled by game-speed TrainPercent) is already good enough and may build immediately; this preserves parallel emergency replacement. Slower cities yield only when another safe same-area city is the preferred population/stagnation pump. If all cities are slow, the preferred one still builds. Existing invested production is always finished. (GPT-5.6 Thinking) -->
++			static const int iNonCombatFoodProductionMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS"));
++			static const int iNonCombatFoodProductionStagnantPopulationGap = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_STAGNANT_POPULATION_GAP"));
++			int const iNonCombatFoodProductionMaxTurns = (iNonCombatFoodProductionMaxTurnsNormal <= 0 ? 0 : std::max(1, (iNonCombatFoodProductionMaxTurnsNormal * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent() + 50) / 100));
++			// <!-- custom: Settlers remain exempt while SAS intentionally restricts them to the capital; otherwise the capital could defer to a non-capital that current production policy will never ask to build the Settler. If that capital-only rule is later removed, this generic allocator is ready to cover Settlers too by removing this one role exemption. (GPT-5.6 Thinking) -->
++			if (!isHuman() && !isBarbarian() && !AI_isDanger() && eUnitAI != UNITAI_SETTLE && iNonCombatFoodProductionMaxTurns > 0 && getUnitProduction(eBestUnit) <= 0 && SAS_isNonCombatFoodProductionUnit(eBestUnit))
++			{
++				int const iCurrentUnitTurns = getProductionTurnsLeft(eBestUnit, 0);
++				CvCityAI const* pPreferredCity = this;
++				int iPreferredUnitTurns = iCurrentUnitTurns;
++				int iMaxPopulation = getPopulation();
++				bool bPreferredStagnant = (foodDifference(true, false) <= 0);
++				if (iCurrentUnitTurns > iNonCombatFoodProductionMaxTurns) pPreferredCity = SAS_getPreferredNonCombatFoodProductionCity(*this, eBestUnit, iCurrentUnitTurns, iNonCombatFoodProductionStagnantPopulationGap, iPreferredUnitTurns, iMaxPopulation, bPreferredStagnant);
++				bool const bDeferToPreferredCity = (iCurrentUnitTurns > iNonCombatFoodProductionMaxTurns && pPreferredCity != NULL && pPreferredCity != this);
++				if (gWorkerLogLevel >= 3 || (gWorkerLogLevel >= 2 && bDeferToPreferredCity)) logBBAI("      FOOD_PRODUCTION_ALLOCATION turn=%d player=%d %S city=%S cityId=%d decision=%s unit=%s unitAI=%s pop=%d stagnant=%d unitTurns=%d maxTurns=%d maxCandidatePop=%d stagnantPopGap=%d preferredCity=%S preferredCityId=%d preferredPop=%d preferredStagnant=%d preferredUnitTurns=%d preferredCurrentUnit=%s",
++					GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getName().GetCString(), getID(), (bDeferToPreferredCity ? "DEFER_TO_PREFERRED_CITY" : "KEEP"), GC.getInfo(eBestUnit).getType(), (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType()),
++					getPopulation(), foodDifference(true, false) <= 0, iCurrentUnitTurns, iNonCombatFoodProductionMaxTurns, iMaxPopulation, iNonCombatFoodProductionStagnantPopulationGap, (pPreferredCity == NULL ? L"-" : pPreferredCity->getName().GetCString()), (pPreferredCity == NULL ? -1 : pPreferredCity->getID()),
++					(pPreferredCity == NULL ? -1 : pPreferredCity->getPopulation()), (pPreferredCity == NULL ? 0 : bPreferredStagnant), (pPreferredCity == NULL ? -1 : iPreferredUnitTurns), (pPreferredCity == NULL || pPreferredCity->getProductionUnit() == NO_UNIT ? "-" : GC.getInfo(pPreferredCity->getProductionUnit()).getType()));
++				if (bDeferToPreferredCity) return false;
++			}
+ 			if (bResolvedSettler && gSettlerLogLevel >= 2)
+ 				SAS_logSettlerBuildDecision(*this, bRequestedSettler ? "AI_chooseUnit_requested" : "AI_chooseUnit_generic", "CALL_CONCRETE", eBestUnit, eUnitAI, iOdds, -1);
+ 			// <!-- custom: avoid redundance, call same function instead, also so we can tweak it there only once, much cleaner; also note: chatgpt 5 recommeneded to add a return here (i.e. in next code, not comment, line as of now below), i thought it was not necessary, but maybe chatgpt 5 is right and i don't know too much about these, check if accurate -->
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index bd7f072f6..1dff0ff27 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -256,6 +256,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [197.8 - (Improved) Under-strength military production could still react too weakly for low-BuildUnitProb personalities because the relative-power catch-up was only multiplicative even when more units were affordable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1978---improved-under-strength-military-production-could-still-react-too-weakly-for-low-buildunitprob-personalities-because-the-relative-power-catch-up-was-only-multiplicative-even-when-more-units-were-affordable)\
+ [197.9 - (Improved) Healthy AI empires could still devote too little productive capacity to offensive units even after BuildUnitProb and spending-limit fixes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1979---improved-healthy-ai-empires-could-still-devote-too-little-productive-capacity-to-offensive-units-even-after-buildunitprob-and-spending-limit-fixes)\
+ [198 - (Fixed/Improved) Likely Base AdvCiv Worker/land-development underperformance, compounded by an AdvCiv-SAS Worker-demand regression and too-low minimum, could leave mature AI cities badly unimproved](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#198---fixedimproved-likely-base-advciv-workerland-development-underperformance-compounded-by-an-advciv-sas-worker-demand-regression-and-too-low-minimum-could-leave-mature-ai-cities-badly-unimproved)\
++[198.2 - (Fixed/Improved) Base AdvCiv AI non-combat food-production allocation could stall small growing cities instead of using mature or stagnant food/production pumps (observed with Workers)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1982---fixedimproved-base-advciv-ai-non-combat-food-production-allocation-could-stall-small-growing-cities-instead-of-using-mature-or-stagnant-foodproduction-pumps-observed-with-workers)\
+ [199 - (Fixed/Improved) Base AdvCiv/K-Mod generic UnitAI fallback could use dedicated land anti-air units as ordinary attackers or reserves](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#199---fixedimproved-base-advcivk-mod-generic-unitai-fallback-could-use-dedicated-land-anti-air-units-as-ordinary-attackers-or-reserves)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+@@ -7580,6 +7581,26 @@ This is therefore both a regression fix and a deliberate AI-strength enhancement
+ 
+ Fixed/improved with the help of GPT-5.6 Thinking thanks.
+ 
++## 198.2 - (Fixed/Improved) Base AdvCiv AI non-combat food-production allocation could stall small growing cities instead of using mature or stagnant food/production pumps (observed with Workers)
++
++Follow-up to KI#198. The underlying allocation behavior is inherited from Base AdvCiv: after a city decided that a food-production civilian was wanted, there was no central cross-city check asking whether that city was a sensible place to freeze growth while training it. AdvCiv-SAS's stronger Worker floor made this long-standing inefficiency much easier to observe because Workers were requested more reliably. A young population-1/2 city could therefore spend 10-40+ turns on a Worker even when a mature city on the same landmass could convert much more food plus production into the same unit in only a few turns. This did not reduce the requested Worker count; it made the empire pay for that Worker with unnecessarily expensive lost growth and delayed use. Workers provide the empirical reproduction, but the optimization belongs at the generic non-combat food-production layer rather than in Worker-specific production branches.
++
++There had been related older work, which explains why this issue could feel familiar without actually having been solved generically. AdvCiv-SAS had already restricted Settler production to the capital/high population specifically to exploit food-is-production efficiently and avoid small cities spending many turns stalled on Settlers. That older Settler rule addresses the same economic principle through a specialized restriction. Conversely, the later KI#198 Worker-floor change deliberately did not restrict Workers to only high-population/capital cities because weaker or stagnant cities can sometimes contribute efficiently and because broad restrictions could slow emergency replacement. What was still missing was a central cross-city comparison after a fresh non-combat food-production choice had already passed its ordinary need/priority/odds logic.
++
++The new allocation rule is therefore a gate rather than a fixed-city restriction. For a fresh non-combat food-production unit, any safe city that can finish within `SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS` (5 Normal-speed-equivalent turns by default, scaled by game-speed `TrainPercent`) is already considered good enough and keeps the choice immediately. This intentionally allows multiple cities to rebuild Workers in parallel after heavy losses. Existing invested production is also always completed. Only a slower fresh choice looks for another safe city on the same landmass that can train the unit at least as quickly; if no such city exists, the current/best available producer still builds instead of waiting.
++
++Among eligible alternatives, population and stagnation choose the preferred food/hammer pump rather than a fragile turns-saved formula. The largest eligible population is the default preference, because larger cities can usually convert much more food and hammer output while the unit freezes growth. However, a currently stagnant city is preferred when it is within `SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_STAGNANT_POPULATION_GAP` of that largest city (3 by default, using a strict comparison: population 8 can beat population 10, population 7 cannot). This makes otherwise-unused food productive and deliberately allows a strong stagnant pump to build several Workers in sequence. Actual production turns only provide the fast-enough/sanity gate and equal-population tie-break; they are not the strategic score.
++
++The implementation is generic for non-combat `isFoodProduction()` units and excludes combat-capable, air-combat and nuclear units so a future modmod that creates a food-production fighter is not unnecessarily constrained. Workers are the important currently affected unit in AdvCiv-SAS. Settlers are conceptually part of the same food-production allocation problem, but `UNITAI_SETTLE` is currently exempt because AdvCiv-SAS separately allows Settlers only from the capital; without the exemption, the capital could defer a Settler to a non-capital that current production policy would never actually request to build it. The existing capital-only Settler rule therefore remains the specialized Settler solution for now. If that restriction is later removed, this generic allocator can take over Settler allocation by removing that one role exemption.
++
++The full `BBAI_20260809T054807Z_load1.log` / `SASGameRecord_20260809T054807Z_load1.log` validation ran through turn 391. The new allocator produced 87 actual `DEFER_TO_PREFERRED_CITY` decisions. Their median source city was population 2 with a 9-turn Worker, while the median preferred city was population 8 with a 3-turn Worker. Representative cases included Memphis population 1 / 12 turns -> Thebes population 5 / 4 turns, New York population 1 / 15 -> Washington population 5 / 3, Nippur population 1 / 15 -> Babylon population 8 / 4, and Huamanga population 1 / 45 -> Cuzco population 11 / 3. Of the 87 redirects, 48 selected a stagnant preferred city, showing that the stagnation preference materially affects allocation rather than merely documenting intent.
++
++The opposite safety behavior was also directly visible. There were 63 KEEP decisions from population-4-or-smaller cities that could complete the Worker within the 5-turn Normal-speed gate, confirming that efficient side cities still participate in rapid replacement. The allocator also did not create a waiting deadlock: of 85 deferrals with enough later log history to observe another allocation event before game end, all 85 saw that empire reach a later KEEP Worker decision within 5 turns and 80 did so within 2 turns. Worker availability remained high in the GameRecord as well; for example, the USA had 11 Workers for 6 cities at turn 100 with 9 actively building improvements, while India later had 24 Workers at turn 300. The change therefore improves which city pays the food-production growth cost rather than lowering the KI#198 Worker force.
++
++`FOOD_PRODUCTION_ALLOCATION` remains available through the dedicated Worker BBAI log: level 2 records the unusual deferrals, while level 3 can additionally record ordinary KEEP decisions. The turn-391 diagnostic run temporarily used Worker log level 3 and produced a very large BBAI file mostly because the existing full Worker scan diagnostics are intentionally exhaustive; the committed/default Worker log level is restored to 0.
++
++Fixed/improved with the help of GPT-5.6 Thinking thanks.
++
+ ## 199 - (Fixed/Improved) Base AdvCiv/K-Mod generic UnitAI fallback could use dedicated land anti-air units as ordinary attackers or reserves
+ 
+ Primary empirical reproduction and validation: save file 459.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 281ba9219..12c5bc513 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -228,6 +228,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ - **Optional first economic unit before the capital's first defender:** when the first and only capital is not in danger, it can produce one immediately useful Work Boat or required land Worker before filling an empty city garrison. This should be more efficient because it avoids delaying the first improvement and the growth, production, and bonuses it unlocks, and animals are not a serious city-capture threat. However, because a human can try an unusually early rush against the temporarily empty capital, this tradeoff is XML-tunable and can be disabled to restore Base AdvCiv's defender-first behavior. This is as of now only applicable to the first city, so the unchanged no-defender priority resumes after this first economic unit.
+ - **Prioritize useful Work Boats for seafood before land Workers:** after producing an immediate defender when needed, a safe AI city now builds a Work Boat before its land Worker when it has seafood that can be improved now (unless immediate defense and danger/Turtle safeguards take precedence). This is more efficient because improving seafood increases food without stopping city growth during production, and this extra food helps the following Worker and later production be produced faster. Note: the AI does not waste a Work Boat on unavailable improvements such as Whale before the required technology like as of now `TECH_SEAFARING` is discovered. Note: also remove the Base AdvCiv population-3 cutoff that stopped Work Boat production midway (See [KI#174](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#174---fixedimproved-base-advciv-work-boat-icitypopulation--3-cutoff-in-cvcityaiai_chooseproduction-interrupted-seafood-production-for-a-land-worker)). After these changes, in save file 443 BBAI tests, Seoul successfully selected a Work Boat for its available Molluscs on turn 5 instead of delaying it until about turn 17 (to produce a worker before it), while Mutal correctly built its Worker first because Maya lacked the as of now required `TECH_FISHING` for Molluscs and Fish, then selected a Work Boat on turn 12 when this tech was discovered and thus these bonuses became improvable.
+ - (Requires AdvCiv-SAS 6060+) **Isolated cities no longer produce land civilian units that cannot perform their role:** for example, in save file 450, BBAI logging showed the one-tile island city Bactra producing a Worker that remained idle because none of its plots could be improved; the same could happen, for example, on a landmass containing only plots the AI cannot improve. To fix this, the Worker-demand calculation no longer creates a minimum need when no local plot can be improved, and the AI now also refuses a Worker when its landmass already has enough, as well as land Explorer units when no exploration remains there, and land Spy units in a secondary isolated colony with neither a known rival city nor an adjacent Spy transport. Primary landmasses remain eligible so an overseas empire can still produce Spies and their transports. Note: this check is central in `CvCityAI::AI_chooseUnit` to make sure no short-circuit or unexpected logic bypasses it, as with AdvCiv-SAS's central unit-scrapping safeguards. See [KI#192](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#192---fixedimproved-base-advcivk-mod-island-worker-logistics-and-advciv-sas-production-safety-gap-could-strand-workers-and-other-land-civilians-where-they-had-no-use).
++- (Requires AdvCiv-SAS 6095+) **Produce non-combat food-production units in suitable cities instead of stalling small/remote city growth:** small or newly founded cities could spend a very long time producing units for which food counts as production (`<bFood>` / `bFoodIsProduction`) (in AdvCiv-SAS, especially Workers), stopping their population growth even when a larger city could supply the same unit very quickly from its much higher total food yield (due to high population) and generally higher hammer yield. This was particularly wasteful when a mature city was already stagnant, because using it as the producer costs little or no growth there. In save file 460 BBAI testing, examples included population-1 Huamanga needing 45 turns for a Worker while population-11 Cuzco could finish one in 3 turns; across the full turn-391 validation run, 87 slow Worker choices were redirected, with the median source at population 2 / 9 turns and the median preferred producer at population 8 / 3 turns. The AI now keeps any fresh choice that is already fast enough (5 Normal-speed-equivalent turns by default, scaled by game speed), so several capable cities can still produce Workers in parallel after heavy losses; otherwise it looks for a safe same-area city that can produce the unit at least as fast, preferring a stagnant city when it is within 3 population of the largest eligible producer and otherwise preferring the largest population. If all cities are slow, the best available producer still builds it, and existing invested production is never abandoned. This logic is generic for non-combat food-production units rather than Worker-specific; Settlers have the same underlying production/growth tradeoff but are currently handled by AdvCiv-SAS's existing capital-only Settler rule and therefore remain exempt from this allocator. The same validation run also had 63 population-4-or-smaller cities correctly keep Workers they could complete within the fast-production gate. See [KI#198.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1982---fixedimproved-base-advciv-ai-non-combat-food-production-allocation-could-stall-small-growing-cities-instead-of-using-mature-or-stagnant-foodproduction-pumps-observed-with-workers).
+ - **Emergency water-food / water-hammer buildings (pre-fallback):** Before the "no-production" fallback runs, if a **coastal (ocean-connected)** city is **low food per turn**, force a **water-food building class** (e.g., **Harbor** or civ variants that give +1 food on water tiles) to jump-start growth. Also force the **water-hammer building class** (e.g., **Port**) for **high-enough pop** (enough headcount so it is worth investing on water plots) coastal cities unless they are very good and don't need it: cities that **still have fairly low production** or **not too high food surplus**; Port can take significant time, but these cities are **unlikely to contribute much short-term production anyway**, and hammer on water tiles makes their later infrastructure and future building time **more helpful later on**. Immediate danger / defense logic still runs earlier, so Walls/Castle can still go first when needed, otherwise the **risk is deemed worth the delay** to produce these buildings. Runs in `CvCity::doTurn`.
+ - **Emergency defense priority (risk-aware):** When invasion risk is high—enemy team **significantly stronger**, **nearby danger** detected, or **at war** with an opponent not significantly weaker—**force-build** **Walls**, then **Castle** (if missing) at top priority. Triggers are conservative to avoid growth drag. Implemented in `CvCity::AI_doTurn`. Early autoplay suggests fewer snowball steamrolls. **Update:** Skip this emergency defense path for **very low-hammer** cities (scaled by era) or cities whose inner BFC is **mostly water tiles**, as these are better used as economy cities and unlikely to hold the main front; this also prevents triggering fallback-unit / emergency-defense builds too early and avoids stalling early growth. **Update 2:** For **water-heavy cities**, this emergency-defense path is **disabled**; see the related Update 2 note below.
+ - **"No production" stall — worked around / fixed**: AI cities no longer sit on **no production**. Added a robust fallback: produce the **most expensive suitable land combat unit**; if a candidate is **extremely overpriced for the era**, switch to the **cheapest suitable** instead. **Civilians** (e.g., scouts) are excluded. This prevents idle turns (e.g., will build an archer in the Ancient era) and cuts wasted hammers. Added in `CvCity::AI_doTurn`. See [KI#51](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-if-im-not-mistaken-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure). Related: handicap settings were **slightly reduced** to keep difficulty even with the new efficiency. **Update:** Added **offense-only** and **defense-only** selection modes inside this fallback (auto-reverting to "any suitable land unit" if no candidates exist). This is intended to avoid bypassing `CvCityAI::AI_chooseUnit` limits and to reduce excessive **Longbowmen** when the fallback triggers. **Update 2:** For **water-heavy cities**, when the **no-production fallback** in `CvCity::AI_doTurn` triggers, try to use key **water-focused economic buildings** (food / hammers / gold) as the fallback instead of a generic land-unit fallback; this is usually more efficient for growth/economy, and such cities are less likely to be main land-attack targets. See also [Buildings](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#buildings) or Sevopedia/XML.
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=30755

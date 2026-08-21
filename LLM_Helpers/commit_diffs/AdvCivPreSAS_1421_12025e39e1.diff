@@ -1,0 +1,210 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1421
+# Commit: 12025e39e1c2f001853ecfe4630359a36a12f3e0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c24d361ed834781e78aaaa1b3ec673526c6b8b9f
+# Title: Some issues with German translations fixed
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/Python/Screens/CvExoticForeignAdvisor.py
+2	1	Assets/Python/Screens/IconGrid_BUG.py
+8	4	Assets/xml/Text/BUG_CIV4GameText.xml
+63	3	Assets/xml/Text/CIV4GameText_advc.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index b1a0e6469..02f44af98 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -1377,7 +1377,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ #		self.techIconGrid.setHeader( iTechColStatus, "" )
+ 		self.techIconGrid.setTextColWidth( iTechColStatus, self.TECH_STATUS_COL_WIDTH )
+ 		self.techIconGrid.setHeader( iTechColWants, localText.getText("TXT_KEY_FOREIGN_ADVISOR_WANTS", ()) )
+-		self.techIconGrid.setHeader( iTechColCantYou, localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ()) )
++		# advc.004g: was TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE
++		self.techIconGrid.setHeader( iTechColCantYou, localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_RECEIVE", ()) )
+ 		self.techIconGrid.setHeader( iTechColResearch, localText.getText("TXT_KEY_FOREIGN_ADVISOR_CAN_RESEARCH", ()) )
+ 		self.techIconGrid.setHeader( iTechColGold, (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()) )
+ 		self.techIconGrid.setTextColWidth( iTechColGold, self.TECH_GOLD_COL_WIDTH )
+
+diff --git a/Assets/Python/Screens/IconGrid_BUG.py b/Assets/Python/Screens/IconGrid_BUG.py
+index 9fe046734..bf3ab50e6 100644
+--- a/Assets/Python/Screens/IconGrid_BUG.py
++++ b/Assets/Python/Screens/IconGrid_BUG.py
+@@ -119,7 +119,8 @@ class IconGrid_BUG:
+ 		self.scrollSpace = 3
+ 
+ 		iTemp = [0, 0, 35, 30, 0]
+-		self.iconColWidth = 55 + iTemp[CyGame().getCurrentLanguage()]
++		# advc.073: The language-based adjustment breaks the German and Italian formatting by allowing only two resource icons per column (which results in even less space for the column headings).
++		self.iconColWidth = 55# + iTemp[CyGame().getCurrentLanguage()]
+ 
+ 		self.groupBorder = 10
+ 		self.groupLabelOffset = "  "
+
+diff --git a/Assets/xml/Text/BUG_CIV4GameText.xml b/Assets/xml/Text/BUG_CIV4GameText.xml
+index bfe5ff535..a85b18aad 100644
+--- a/Assets/xml/Text/BUG_CIV4GameText.xml
++++ b/Assets/xml/Text/BUG_CIV4GameText.xml
+@@ -835,19 +835,21 @@
+ 	</TEXT>
+ 	
+ 	<!-- Situation Report Tab -->
++	<!-- advc.002b: Changed German to "Erz-" (was empty) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MILITARY_SITREP_WORST</Tag>
+ 		<English>Worst</English>
+ 		<French>Worst</French>
+-		<German></German><!-- This is supposed to stay empty. -->
++		<German>Erz-</German>
+ 		<Italian>Peggior</Italian>
+ 		<Spanish>Peor</Spanish>
+ 	</TEXT>
++	<!-- advc.002b: German "Erzfeind" was too long -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MILITARY_SITREP_ENEMY</Tag>
+ 		<English>Enemy</English>
+ 		<French>Enemy</French>
+-		<German>Erzfeind</German>
++		<German>Feind</German>
+ 		<Italian>Nemico</Italian>
+ 		<Spanish>Enemigo</Spanish>
+ 	</TEXT>
+@@ -923,19 +925,21 @@
+ 		<Italian>Patti Difensivi</Italian>
+ 		<Spanish>Pactos Defensivos</Spanish>
+ 	</TEXT>
++	<!-- advc.004g: German was "Gering"; use that for MINOR -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MILITARY_THREAT_INDEX_LOW</Tag>
+ 		<English>Low</English>
+ 		<French>Bas</French>
+-		<German>Gering</German>
++		<German>Keine Bedrohung</German>
+ 		<Italian>Rischio Basso</Italian>
+ 		<Spanish>Bajo</Spanish>
+ 	</TEXT>
++	<!-- advc.004g: German was "Moll" (LOL) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MILITARY_THREAT_INDEX_MINOR</Tag>
+ 		<English>Minor</English>
+ 		<French>Mineure</French>
+-		<German>Moll</German>
++		<German>Gering</German>
+ 		<Italian>Minore</Italian>
+ 		<Spanish>Menor</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index f8b499eb3..5ccf74cc3 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -847,6 +847,17 @@
+ 		<Spanish>Nueva l&#237;nea</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.002b: FromCIV4GameTextInfos.xml. German was "Bevorzugte
++		 Staatsformen", Italian "Forme di governo preferite". -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_FAV_CIVIC</Tag>
++		<English>Favorite Civics</English>
++		<French>Doctrines pr&#233;f&#233;r&#233;es</French>
++		<German>Lieblingsstaatsform</German>
++		<Italian>Governo preferito</Italian>
++		<Spanish>Principios favoritos</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.004g: Originally in CIV4GameText_BTS.xml
+ 		 Was:
+ 		 "The unit disrupts the trade route so that no intercontinental trade
+@@ -4820,7 +4831,7 @@
+ 		<Tag>TXT_KEY_FOREIGN_ADVISOR_EXPORTING</Tag>
+ 		<English>Exporting</English>
+ 		<French>Exportant</French>
+-		<German>Wir erhalten</German>
++		<German>Liefert</German>
+ 		<Italian>Esportando</Italian>
+ 		<Spanish>Exportando</Spanish>
+ 	</TEXT>
+@@ -4829,11 +4840,11 @@
+ 		<Tag>TXT_KEY_FOREIGN_ADVISOR_IMPORTING</Tag>
+ 		<English>Importing</English>
+ 		<French>Important</French>
+-		<German>Wir liefern</German>
++		<German>Erh�lt</German>
+ 		<Italian>Importando</Italian>
+ 		<Spanish>Importando</Spanish>
+ 	</TEXT>
+-	<!-- To replace the group headings, but I've actually disabled these now,
++	<!-- To replace the group headings. I've actually disabled these now,
+ 		 so: unused. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_FOREIGN_ADVISOR_EXPORT</Tag>
+@@ -4869,5 +4880,54 @@
+ 		<Italian>Nessun bisogno</Italian>
+ 		<Spanish>No necesitamos</Spanish>
+ 	</TEXT>
++	<!-- German translation "Staatsoberhaupt" was too long -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_LEADER</Tag>
++		<English>Leader</English>
++		<French>Chef</French>
++		<German>Gegner</German>
++		<Italian>Leader</Italian>
++		<Spanish>L&#237;der</Spanish>
++	</TEXT>
++	
++	<!-- advc.004g: New key to replace the first "Can't Trade" heading on the
++		 "Technologies" tab. Based on TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE
++		 (CIV4GameText_BTS.xml), and I've kept the Romance translations from
++		 there. -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_CANT_RECEIVE</Tag>
++		<English>Can't Receive</English>
++		<French>Commerce impossible</French>
++		<German>Vorbed. fehlt</German>
++		<Italian>Non pu&#242; commerciare</Italian>
++		<Spanish>No intercambia</Spanish>
++	</TEXT>
++	<!-- advc.004g: Was "Will Trade" -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_FOR_TRADE_2</Tag>
++		<English>Will Share</English>
++		<French>Echangera</French>
++		<German>Bietet</German>
++		<Italian>Commercer&#224;</Italian>
++		<Spanish>Intercambia</Spanish>
++	</TEXT>
++	<!-- advc.004g: Was "Won't Trade" -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_NOT_FOR_TRADE_2</Tag>
++		<English>Won't Share</English>
++		<French>N'&#233;changera pas</French>
++		<German>H�lt zur�ck</German>
++		<Italian>Non commercer&#224;</Italian>
++		<Spanish>No intercambia</Spanish>
++	</TEXT>
++	<!-- advc.004g: Was "Can't Trade" -->
++	<TEXT>
++		<Tag>TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE</Tag>
++		<English>Can't Share</English>
++		<French>Commerce impossible</French>
++		<German>Unm�glich</German>
++		<Italian>Non pu&#242; commerciare</Italian>
++		<Spanish>No intercambia</Spanish>
++	</TEXT>
+ 	
+ </Civ4GameText>
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=6782

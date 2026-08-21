@@ -1,0 +1,1228 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5014
+# Commit: 735b01651faa243293648088665877c0108295c4
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: dbbe97d9fbe18d7ccc2129fe9e2484361310e00a
+# Title: migrate most if not all advciv-sas knobs/tunables of AIFoundValue::evaluate to GlobalDefines_advciv_sas.xml, fix a few bug(s? Anywys etc) and tweak code anyw...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	.vscode/settings.json
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+340	6	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+2	2	Assets/XML/Units/CIV4UnitInfos.xml
+147	103	CvGameCoreDLL/CitySiteEvaluator.cpp
+3	3	CvGameCoreDLL/CvCityAI.cpp
+4	4	CvGameCoreDLL/CvUnitAI.cpp
+1	1	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+6	4	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+
+[PATCHES]
+
+diff --git a/.vscode/settings.json b/.vscode/settings.json
+index d5c8dc890..351b3039d 100644
+--- a/.vscode/settings.json
++++ b/.vscode/settings.json
+@@ -15,7 +15,7 @@
+         "reportUnusedImport": "none", // sometimes noisy
+         "reportUnusedVariable": "none" // let Ruff handle these
+     },
+-    // <!-- custom: even though pylance is not ideal it seems as quite slow sometimes and doesn't detect some imports if i am not mistaken too anyways etc, still much faster than jedi for example which i tested quick anyways etc, and it is still useful to navigate code so add it, minus all noise if i may say of import errors, so we can also see all linter of ruff (see ruff.toml for details anyways etc) as of now anyways etc very nice messages anyways etc and also other real code erros so we can fix them easier too anyways etc -->
++    // <!-- custom: even though pylance is not ideal it seems as quite slow sometimes and doesn't detect some imports if i am not mistaken too anyways etc, still much faster than jedi for example which i tested quick anyways etc, and it is still useful to navigate code so add it, minus all noise if i may say of import errors, so we can also see all linter of ruff (see ruff.toml for details anyways etc) as of now anyways etc very nice messages anyways etc and also other real code errors so we can fix them easier too anyways etc -->
+     // Ensure we’re using Pylance (optional if already default)
+     "python.languageServer": "Pylance",
+     // <!-- custom: these seem to be default enabled by vs code, keep them as is -->
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index a31230e72..851075cc7 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -17,7 +17,7 @@
+ # - placeFreePBBS,
+ # - placeFreeWith,
+ # - enhanced or beautified or tweaked or and other or and not some if not most or maybe even or not or maybe or and anyways etc all functions/methods of this py file, anyways etc.
+-#  thanks a lot Claude AI! (and the other mod too ("!" too or ! too or maye rather !"" or "!" or rather ! or "!" too but anyways etc anyways etc anyways thanks too in short maybe anyways etc anywas etc anyways etc...) Anyways etc anyways etc anyways etc... -->
++#  thanks a lot Claude AI! (and the other mod too ("!" too or ! too or maybe rather !"" or "!" or rather ! or "!" too but anyways etc anyways etc anyways thanks too in short maybe anyways etc anywas etc anyways etc...) Anyways etc anyways etc anyways etc... -->
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 6d24923ab..b6c1272dc 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -274,7 +274,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 
+ 	def pediaJump(self, iCategory, iItem, bRemoveFwdList, bIsLink):
+-		# <!-- custom: note: fixed a (seemingly base advciv anyways etc) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely but anyways etc, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too but anyways etc anyways etc anyways etc ; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed if i am not mistaken anywyas etc so reverted everything as base advciv code was minus this extra code comment if i may say but anyways etc, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or/and known issue number 22 as of now anywyas etc in known issues of advciv-sas readme for details as well anyways etc -->
++		# <!-- custom: note: fixed a (seemingly base advciv anyways etc) bug in in CvDLLWidgetData.cpp where iItem was -1 for obsolete bonuses redirecting from tech advisor, unlike obsolete buildings which didn't have the issue weirdly/strangely but anyways etc, with chatgpt's help and thanks to my prompt too and observation of the issue and or such but also chatgpt's help in guiding me bit too but anyways etc anyways etc anyways etc ; i had put a workaround here to use a placeholder for iItem but no needed anymore now that this is fixed if i am not mistaken anyways etc so reverted everything as base advciv code was minus this extra code comment if i may say but anyways etc, see also code comment at WIDGET_HELP_BONUS_REVEAL in CvDLLWidgetData.cpp or/and known issue number 22 as of now anyways etc in known issues of advciv-sas readme for details as well anyways etc -->
+ 		bAddToHistory = False
+ 		if (not self.pediaHistory):
+ 			bAddToHistory = True
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index c033cc856..d7fa86263 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -14807,7 +14807,7 @@
+ 			<iMaxLatitude>90</iMaxLatitude>
+ 			<!-- custom: was 0 -->
+ 			<iGreatPeopleRateModifier>25</iGreatPeopleRateModifier>
+-			<!-- custom: since this is cumulative if i am not mistaken and according to a web search i asked chatgpt to do about it which linked to https://forums.civfanatics.com/threads/do-great-general-bonuses-stack.352203/?utm_source=chatgpt.com among other sources it seems too if i am not mistaken but anyways etc (it also told me at first that it is not cumulative even with kujira's japanese (no pun or intended but why not as i told it but anyways etc) that it was not cumulative, but after asking it to do a web search to be sure i found this at least i mean it found it for me xd if i may say and thanks to me too my prompt or critical thinking or such (its critical thinking too maybe evn though is different to criticize its previous diea maybe or just regurgitate this other new one but anywyas etc it helped in this case at least but anyways etc)), so choosing a lower value so that several doujous would be needed to make a difference rather than one or it being otherwise op, also this is or should be maybe if i am not mistaken culturally consistent or thematically consistent but anyways etc with the fact that there are several "schools" of doujous or such from something like that so maybe each symbolically improves the rate by its own contribution or and such or not at least i imagine it so at least in advciv-sas if i may say but anyways etc, so choosing a quite small in this case but anyways etc value that should hopefully in this case but anyways etc still be significant but anyways etc ; or so it seem sif i am not mistaken that it seemms to stack (didn't check lot but hopefully correct but anwyays etc anyways etc anyways etc), was 0 -->
++			<!-- custom: since this is cumulative if i am not mistaken and according to a web search i asked chatgpt to do about it which linked to https://forums.civfanatics.com/threads/do-great-general-bonuses-stack.352203/?utm_source=chatgpt.com among other sources it seems too if i am not mistaken but anyways etc (it also told me at first that it is not cumulative even with kujira's japanese (no pun or intended but why not as i told it but anyways etc) that it was not cumulative, but after asking it to do a web search to be sure i found this at least i mean it found it for me xd if i may say and thanks to me too my prompt or critical thinking or such (its critical thinking too maybe evn though is different to criticize its previous diea maybe or just regurgitate this other new one but anyways etc it helped in this case at least but anyways etc)), so choosing a lower value so that several doujous would be needed to make a difference rather than one or it being otherwise op, also this is or should be maybe if i am not mistaken culturally consistent or thematically consistent but anyways etc with the fact that there are several "schools" of doujous or such from something like that so maybe each symbolically improves the rate by its own contribution or and such or not at least i imagine it so at least in advciv-sas if i may say but anyways etc, so choosing a quite small in this case but anyways etc value that should hopefully in this case but anyways etc still be significant but anyways etc ; or so it seem sif i am not mistaken that it seemms to stack (didn't check lot but hopefully correct but anwyays etc anyways etc anyways etc), was 0 -->
+ 			<iGreatGeneralRateModifier>25</iGreatGeneralRateModifier>
+ 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+ 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 6241b5cf6..b3550daaa 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1,18 +1,21 @@
+ <?xml version="1.0"?>
+ 
+-<!-- custom: adding our own AdvCiv-SAS knobs so that players or me xd but anyways etc can tweak/modify them without having to recompile each time which is tedious anyways etc; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know i mean but anyways etc) or/and check in code of relevant function(s) anyways etc -->
++<!-- custom: adding our own AdvCiv-SAS knobs/tunables anyways etc so that players or me xd but anyways etc can tweak/modify them without having to recompile each time which is tedious anyways etc; general warning: do not put weird values like negative or very big ones, i didn't put any safeguard about this as is tedious and needless, as long as value is sane and around reasonably expected values should be fine, if in doubt ask in forum or such although i may not always be available to reply but maybe someone else might in that case maybe (i don't know i mean but anyways etc) or/and check in code of relevant function(s) anyways etc -->
+ <!-- custom: note: using the prefix is a bit cringe xd if i may say but anyways etc but at same time cool and does some publicity if i may say but anyways etc, but most importantly it gives us freedom while being compact but anyways etc to name freely our tunables without risking overriding existing ones and having to check them, as recommended by chatgpt 5 (i had considered it at first then thought meh xd if i may say but anyways etc but now think it makes sense in this case i mean but anyways etc), check if accurate, anyways etc -->
+ <!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such if i may say but anyways etc) but check to be sure if in doubt anyways etc -->
+ <!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings anyways etc) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or/and add other global define files, make sure they are added there as well if i am not mistaken and chatgpt 5 confirms it, or it won't load as it didn't seem to (load anyways etc) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders anyways etc), check to be sure anyways etc -->
+ 
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+ 
+-	<!-- custom: very bad tiles management knobs in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should but anyways etc) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
++	<!-- custom: beware: AIFoundValue::evaluate returns a short not an int, so value can only up to 32 000 to -32 000 before overflowing, what this means is try to not put too extreme value changes. Although i think we compute in int and only at the end cast to short so maybe safe although i don't know a lot about these, still keep it in mind when using extremely high values that risk gogin beyond said scope (more than +32 000 or less than -32 000 total site value more or less anyways etc); ideally function would be changed so it would return an int instead to grow much larger (and according to chatgpt 5 if i remember it correctly but anyways etc may be even faster with int actually possibly due to it being optiized for such but check if accurate and i could or not be mistaken and is just a hypothesis but may be right or not but anyways etc) but is how it is i mean, there should be plenty room hopefully as long as valuation and devaluation is not extreme (try to not increase more than few thousands max, as other parts fo the function also change the value anyways etc.) -->
++
++	<!-- custom: these are the very bad tiles management knobs/tunables in AIFoundValue::evaluate function. Tweaking these allows to change the code we added that tells AI how very bad tiles are valued. Changing it will (at least should but anyways etc) change AI settling preferences and recommended sites in UI as well if i'm not mistaken anyways etc. Are accounted as very bad tiles (check if not updated in code anyways etc), in BFC (excluding home plot (i.e. plot where we settle/found/plant our city anyways etc)):
+ 		- peak tiles
+ 		- ice cap tiles
+ 		- desert tiles that are not hill and have no bonus
+ 		- snow (i.e. ice sheet) tiles that are not hill and have no bonus
+ 	Start phase is before our first city is planted/settled/founded but anyways etc.
++	Note: these max tolerated tiles defines are checked with a >, not >=, so if you choose a value for example of 3, it means 4+ triggers the effect anyways etc
+ 	-->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START</DefineName>
+@@ -22,13 +25,344 @@
+ 		<DefineName>SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: the higher this positive number is, the more we penalize and think this tile is very very bad, for example 75 would mean a harsher evaluation of this tile and thus likeliness to avoid the city site that has this tile in BFC than say 50 if i'm not mistaken but anyways etc. This value is multiplied by the number of bad tiles if we are past the max tolerated threshold, for example if we have 4 very bad tiles in BFC and we are at start game and the start very bad base value is 100, the currently evaluated city site that has these in BFC would have a penalty in value (and thus likeliness to consider it our best site to settle) of 4 * 100 = - 400 to its value which is as of now a bit more than what iron would give for example so quite big but anyways etc. -->
++	<!-- custom: the higher this positive number is, the more we penalize and think this tile is very very bad, for example 75 would mean a harsher evaluation of this tile and thus likeliness to avoid the city site that has this tile in BFC than say 50 if i'm not mistaken but anyways etc. This value is multiplied by the number of bad tiles if we are past the strict max tolerated threshold, for example if we have 4 very bad tiles in BFC and we are at start game and the start very bad base value is 100, the currently evaluated city site that has these in BFC would have a penalty in value (and thus likeliness to consider it our best site to settle) of 4 * (-100) = - 400 to its value which is as of now a bit more than what iron would give for example so quite big but anyways etc. -->
+ 	<Define>
+-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_VERY_BAD_TILE_START</DefineName>
+-		<iDefineIntVal>75</iDefineIntVal>
++		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_START</DefineName>
++		<iDefineIntVal>-100</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_LATER</DefineName>
++		<iDefineIntVal>-75</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: add home plot health valorization of fresh water, as it seems to be missing if i am not mistaken anyways etc; or if not missing somehow then not strongly enough applied, as AIs blatantly avoid in range fresh water home plot that is arguably better, most likely to not seeing its value if i may say in this case but anyways etc, so opening its eyes or trying to without going overboard and in this case i mean too if i may say but anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_EXTRA_VALUE_HOME_FRESH_WATER_RIVER</DefineName>
++		<iDefineIntVal>150</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: bonus home tiles/plots (note: home plot/tile is the tile where we will settle on if we choose this site among all others anyways etc) below anyways etc -->
++	<!-- custom: if equal or higher than this value, we start to penalize. E.g. if value is 1 and the bonus specific improvement (e.g. plantation for spices, mine for iron, farm for maize, etc.) gives 1 or more food, we penalize settling on it, anyways etc -->
++	<!-- custom: food anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_FOOD_MIN_IMPROVE_WORTH</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: lower (e.g. -700 is lower than -600 anyways etc) means settling on a bonus that gives food when improved is more penalized at least in theory anyways etc; note: multiplied by GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_FOOD), so if i'm not mistaken if the bonus specific improvement (e.g. plantation for spices, mine for iron, farm for maize, etc.) (e.g. farm) gives 2 more food, and value is 600, then site would lose 2 * 600 = 1200 value which is big and a strong discouragement from settling on this tile -->
++	<Define>
++		<DefineName>SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_FOOD</DefineName>
++		<iDefineIntVal>-600</iDefineIntVal>
++	</Define>
++	<!-- custom: production anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION_MIN_IMPROVE_WORTH</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION</DefineName>
++		<iDefineIntVal>-350</iDefineIntVal>
++	</Define>
++	<!-- custom: if very low food tile, it may be better to settle on it, so penalty is not as high. The higher (e.g. 200 is higher than 150 anyways etc) this is, the more we value settling on this tile anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION_VERY_LOW_FOOD</DefineName>
++		<iDefineIntVal>150</iDefineIntVal>
++	</Define>
++	<!-- custom: but if the bonus yields a lot of production (i.e. hammer but anyways etc), then devalue settling on it. E.g. if value is 75 and for example a bonus specific improvement gives 4 hammer, then we will devalue settling on this tile by 4 * 150 = 600 which is a strong discouragement, as it is better not to settle on this tile and collect the yields even if in low food tile anyways etc. The lower this is the more we penalize settling on this tile anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_PRODUCTION_VERY_LOW_FOOD</DefineName>
++		<iDefineIntVal>-75</iDefineIntVal>
++	</Define>
++	<!-- custom: commerce anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_COMMERCE_MIN_IMPROVE_WORTH</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_COMMERCE</DefineName>
++		<iDefineIntVal>-300</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_ON_BONUS_COMMERCE_VERY_LOW_FOOD</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_COMMERCE_VERY_LOW_FOOD</DefineName>
++		<iDefineIntVal>-50</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: non-bonus home tiles (note: home plot/tile is the tile where we will settle on if we choose this site among all others anyways etc) below anyways etc -->
++	<!-- custom: the higher these values, the more we value settling on this plot, so if for example tile is flood plains and value is -150, it means we will apply a reduction of 150 to the site value making it less valuable in our eyes, vs if it is hill desert and value of 50 for example anyways etc, then it means we value this tile 50 value more (addition anyways etc), making it more desirable in our eyes to settle on, as hill desert is a bad tile, plus gives defensive bonus further more, so valuing it more for example. The higher this is the more we value settling on said tile, the lower it is the less we value. 0 in particular is neutral for example anyways etc. Anyways etc -->
++	<!-- custom: don't settle here, unless locally extremely good otherwise, higher as some still dont listen anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_FLOOD_PLAINS</DefineName>
++		<iDefineIntVal>-150</iDefineIntVal>
++	</Define>
++	<!-- custom: if not floodplains (note: as of now we can't settle on oasis so not accounted for in code if i'm not mistaken but anyways etc), consider adding it there if you want to allow it in your modmod and then put a knob/tunable here, not done in advciv-sas as we don't need it, and to avoid errors or such (since or because we don't use it but anyways etc) but anyways etc -->
++	<!-- custom: then if not floodplains anyways etc -->
++	<!-- custom: still good as is low-food, although not as good as settling on hill plains ideally but anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_DESERT</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++	<!-- custom: locally optimal if we can, but don't devalue otherwise nice tile anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_DESERT</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++	<!-- custom: even more valuable than flatland grass, the hammer yield for low food cost is extremely good, early and even later in game too if i am not mistaken still quite good anyways etc, absolutely avoid settling on this unless really the best locally otherwise -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_GRASS</DefineName>
++		<iDefineIntVal>-75</iDefineIntVal>
++	</Define>
++	<!-- custom: very valuable, better avoid settling on this plot if we can unless otherwise the best or/and very good locally anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_GRASS</DefineName>
++		<iDefineIntVal>-50</iDefineIntVal>
+ 	</Define>
++	<!-- custom: extremely good, we remove a low-food tile and get a free extra hammer, plus defensive bonus, ideal starting plot when it comes to terrain if i am not mistaken anyways etc ; one minus than fresh water, would be as good otherwise anyways etc ; try higher value as some cities still don't listen anyways etc, not too high as 10 plains + settle on hill plains is not better than 10 grass + settle on grass -->
+ 	<Define>
+-		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_VERY_BAD_TILE_LATER</DefineName>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_PLAINS</DefineName>
++		<iDefineIntVal>250</iDefineIntVal>
++	</Define>
++	<!-- custom: still quite good, we remove a bad low food tile after all, but not too good to overlook otherwise good local other plot concurrents -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_PLAINS</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++	<!-- custom: quite good similarly, just not as good as say hill plains but very good otherwise as a starter -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_TUNDRA</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++	<!-- custom: still good, especially in low food environments where every food yield counts, and maybe there is grass near us to not settle on or similar anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_TUNDRA</DefineName>
+ 		<iDefineIntVal>25</iDefineIntVal>
+ 	</Define>
++	<!-- custom: note: snow is ice sheet (i.e. ice (terrain)) if i am not mistaken anyways etc -->
++	<!-- custom: quite good similarly, just not as good as say hill plains but very good otherwise as a starter -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_HILL_SNOW</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++	<!-- custom: same as desert, low food tile, try hard to settle on it rather unless extremely good otherwise to do else -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_FLATLAND_SNOW</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: AI still often / quite often ignores water bonus in range and settles as a non-coastal city rather, so try to enforce or strengthen this bonus, especially considering water bonuses are often if not entirely food yield related in advciv-sas at least but anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_HOME_WATER_BONUS_NO_COAST</DefineName>
++		<iDefineIntVal>-400</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: non-bonus non-home tiles (note: home plot/tile is the tile where we will settle on if we choose this site among all others anyways etc) below anyways etc -->
++	<!-- custom: for each plot/tile in the candidate BFC, if they are of the type below, we add to candidate city site this value. For example, if BFC has 4 flatland (i.e. not hill anyways etc) grassland tiles and the value for non-bonus non-home grassland tiles is 60, then it means the combined value of these sites to choose our BFC but anyways etc is 4 * 60 = 240. But if we have say 2 tundra tiles in our BFC and the value for non-bonus non-home plot/tile is for example -25, then the value for these tiles in our BFC would be in total 2 * (-25) = -50, which means our candidate site would be devalued (-50 added to its value), which is much worse than having 4 flatland grass tiles for example. Adjust these values as you see fit to tweak AI settler preferences/evaluation if i am not mistaken but anyways etc -->
++	<!-- custom: high food and great cottage candidate, very strong -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLOOD_PLAINS</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
++	<!-- custom: can't grow as much as flood plains with a cottage as it cannot be improved if i am not mistaken, but we have no health penalty, and we get the extra commerce yield immediately, plus it provides fresh water as well if i am not mistaken but anyways etc. I assume (hope but anyways etc) fresh water code is handled elsewhere that supports oasis too hopefully, but even if not and in all cases, maybe this valorization can help. -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_OASIS</DefineName>
++		<iDefineIntVal>90</iDefineIntVal>
++	</Define>
++	<!-- custom: then if not flood plains nor oasis anyways etc -->
++	<!-- custom: low food but at least we can mine it, avoid but not like flatland desert, defensive bonus is locally not too bad maybe as well if someone invades us (but harder to attack them there as well so so so anyways etc) -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_DESERT</DefineName>
++		<iDefineIntVal>-25</iDefineIntVal>
++	</Define>
++	<!-- custom: low food and cannot be improve, strongly avoid -->
++	<!-- custom: note: now handled by the verybadtiles code rather as we handle the tolerance for a certain number of tiles and other such things like ice cap, peak that may not possibly be accounted for in the loop that handles this, so handled there rather directly, so left as 0 here instead as of now anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_DESERT</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: very good, low food cost high hammer, a tile we'd want to mine very early for high yields even in stone age, very high value tile to have in city radius if i'm not mistaken anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_GRASS</DefineName>
++		<iDefineIntVal>75</iDefineIntVal>
++	</Define>
++	<!-- custom: very valuable for flatland as well, a great tile to start near in our city radius if i am not mistaken anyways etc, slightly worse than floodplains, but since it doesn't have health penalty maybe we can count it as about the same anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_GRASS</DefineName>
++		<iDefineIntVal>60</iDefineIntVal>
++	</Define>
++	<!-- custom: quite good tile with hammer yield but food is really too low, value but not a lot, we want to grow most after all, but this is not too bad either -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_PLAINS</DefineName>
++		<iDefineIntVal>10</iDefineIntVal>
++	</Define>
++	<!-- custom: low-food, has a base hammer though, but we'd need to irrigate it to get the equivalent of a grass tile, and if we cottage it it drains our food growth. This is quite good later in the game with workshops that don't cost food or such, but assume it to be bad as a general rule as most game and cities are settled early anyway if i'm not mistaken anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_PLAINS</DefineName>
++		<iDefineIntVal>-20</iDefineIntVal>
++	</Define>
++	<!-- custom: worse than plains hill yield for same low-food food, this is really bad, especially in a tundra environment where food is scarce already, but if needed the hammer yield is not too bad -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_TUNDRA</DefineName>
++		<iDefineIntVal>-30</iDefineIntVal>
++	</Define>
++	<!-- custom: not too bad with as of now the tundra base commerce yield buff we added, still weaker than a base hammer of the plains, avoid more than flatland plains -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_TUNDRA</DefineName>
++		<iDefineIntVal>-25</iDefineIntVal>
++	</Define>
++	<!-- custom: note: snow is ice sheet (i.e. ice (terrain)) if i am not mistaken anyways etc -->
++	<!-- custom: same as tundra hill if i am not mistaken, this is really not great, and i am not sure the less base commerce yield makes too much of a difference. We could mine it though maybe if i'm not mistaken or some other improvements maybe too although i didn't check, but it would be costly in food if i'm not mistaken, so not a great choice to have in our city radius (great to settle on though otherwise if i'm not mistaken but is not handled here, as we are in the non-home-plot code if i am not mistaken if i may say but anyways etc) -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_HILL_SNOW</DefineName>
++		<iDefineIntVal>-35</iDefineIntVal>
++	</Define>
++	<!-- custom: low-food same as desert, i am not sure we can do anything with this in our city radius, maybe find a way to buff in our mod somehow, but for now if not always or not, this is really low value tile to have in our city radius, better avoid if i am not mistaken but anyways etc -->
++	<!-- custom: same as flatland desert for this very bad tile anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_SNOW</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: water tiles are considered neutral as of now, ideally we would penalize 0 food ones but left as such for now anyways etc -->
++	<!-- custom: note: peak, ice cap are handled in very bad tiles similarly to desert and snow, plus they may not be in the part of the loop where we use this define so maybe best as such and is if i'm not mistaken i mean but anyways etc but in all cases anyways etc -->
++
++
++
++	<!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal anyways etc -->
++	<!-- custom: if we have less than threshold, no value change to candidate city site, but if beyond, then value is updated by amount. E.g. anyways etc if we have 9 low food tiles, it is beyond our threshold of max 7 or less, so for example if base value coastal low food is -75 then value of the candidate city site but anyways etc is updated by 9 * (-75) = -675 which is a huge devaluation. Note that coastal sites are unaffected by this so they would indirectly be favoured if no other better tile exists anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_MAX_TOLERATED_COASTAL_LOW_FOOD_TILES</DefineName>
++		<iDefineIntVal>7</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_BASE_VALUE_COASTAL_LOW_FOOD</DefineName>
++		<iDefineIntVal>-75</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: regardless of coastal status if i am not mistaken but anyways etc, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better but anyways etc ; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages but anyways etc, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion if i am not mistaken but anyways etc ; as for value we have 20 bfc tiles (minus home plot) if i'm not mistaken, so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site, anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_MIN_REQUIRED_GOOD_BFC_TILES_START</DefineName>
++		<iDefineIntVal>13</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or/and didn't accomodate/account for food desert bonuses or such. Since i don't like interferences if i may say but anyways etc, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details anyways etc
++	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
++	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
++	-->
++	<!-- custom: 1) distance to nearest city penalties (as per our previous refactor/change but enhanced/simplified thanks to chatgpt 5 too if i may say but anyways etc) -->
++	<!-- - SAS inline distance shaping (simple & bounded) - -->
++	<!-- Derive from city radius so mods changing radius stay sane. -->
++	<Define>
++		<DefineName>SAS_EVALUATE_DISTANCE_CITYR_ADD</DefineName>
++		<iDefineIntVal>5</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_DISTANCE_CITYR_DIVIDE</DefineName>
++		<iDefineIntVal>2</iDefineIntVal>
++	</Define>
++	<!-- ≤ MIN_OK-1 = “too close” -->
++	<Define>
++		<DefineName>SAS_EVALUATE_DISTANCE_MIN_OK_ADD</DefineName>
++		<iDefineIntVal>-1</iDefineIntVal>
++	</Define>
++	<!-- MAX_OK+1 = “too far” -->
++	<Define>
++		<DefineName>SAS_EVALUATE_DISTANCE_MAX_OK_ADD</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- % per tile inside MIN_OK -->
++	<Define>
++		<DefineName>SAS_EVALUATE_DISTANCE_CLOSE_STEP</DefineName>
++		<iDefineIntVal>15</iDefineIntVal>
++	</Define>
++	<!-- % per tile beyond MAX_OK -->
++	<Define>
++		<DefineName>SAS_EVALUATE_DISTANCE_FAR_STEP</DefineName>
++		<iDefineIntVal>10</iDefineIntVal>
++	</Define>
++	<!-- max close penalty -->
++	<Define>
++		<DefineName>SAS_EVALUATE_DISTANCE_CLOSE_CAP</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++	<!-- allow hard kill -->
++	<Define>
++		<DefineName>SAS_EVALUATE_DISTANCE_FAR_CAP</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: 2) anyways etc
++	- SAS: super-simple culture pressure gate (no cheat, cheap) -
++	Goal: it's fine if a site is a *little* pressed, but skip it if it's *too* pressed.
++	Notes
++	- No-cheat preserved: foreign cities only counted if KNOWN_TO and AI_deduceCitySite says we could infer them.
++	- Cheap: one pass, integer math, no squares or fixed-point.
++	- Behavior:
++		- A little culture nearby? Ignore it.
++		- Medium pressure? Keep the site but down-weight it.
++		- Heavy pressure (e.g., right next to a big foreign border)? Return 0 so it drops out.
++	-->
++	<!-- Tuning: "soft" tolerance vs "hard" refusal -->
++	<!-- <35: ignore pressure -->
++	<Define>
++		<DefineName>SAS_EVALUATE_CULTURE_PRESSURE_SOFT</DefineName>
++		<iDefineIntVal>35</iDefineIntVal>
++	</Define>
++	<!-- >=70: too pressed → reject site outright -->
++	<Define>
++		<DefineName>SAS_EVALUATE_CULTURE_PRESSURE_HARD</DefineName>
++		<iDefineIntVal>70</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: this only matters for our first city that we want to grow fast, but when we have a lot of workers, not a big problem, especially if site is overall better long term potential, do not discard it then and bet on long term value rather if i am not mistaken and if i may say but anyways etc ; logic is that as long we don't reach threshold all is as good as no health, but as soon as we reach it, all unhealthiness is bad and more the more unhealthy we are as explained to clarify to chapt 5 but anyways etc ; also be more lenient for later cities, we'd have workers by then to handle chopping or such, and capital would have grown fine
++	// iValue = adjustToBadHealth(iValue, iHealth);
++	// // <advc.031>
++	-->
++	<!-- custom: for example as of now 7 jungle tiles is -50 * 7 = -350, or 8 jungle tiles and 2 forest tiles is (8 * (-50)) + ((2 * 50)) = -400 + 100 = -300 if i am not mistaken anyways etc -->
++	<!-- custom: if <= this value at start phase, we apply unhealthiness value correction anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_MIN_CAUTIOUS_HEALTH_PERCENT_START</DefineName>
++		<iDefineIntVal>-300</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_LOSS_PERCENT_PER_BAD_UNHEALTHINESS_START</DefineName>
++		<iDefineIntVal>10</iDefineIntVal>
++	</Define>
++	<!-- custom: example of calculation at start phase anyways etc: -->
++	<!-- custom: e.g. with a iValue of 500: (100 - ((-1) * (-3.5 * 10)) * 500 / 100 = (100 - 35) * 500 / 100 = 65 * 500 / 100 = 325 ; so value lost 35% value as intended if i am not mistaken, added to clarify calculation to chatgpt 5 or proof it to myself hehe but anyways etc -->
++	<Define>
++		<DefineName>SAS_EVALUATE_MIN_CAUTIOUS_HEALTH_PERCENT_LATER</DefineName>
++		<iDefineIntVal>-450</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_EVALUATE_VALUE_LOSS_PERCENT_PER_BAD_UNHEALTHINESS_LATER</DefineName>
++		<iDefineIntVal>5</iDefineIntVal>
++	</Define>
++
++
++
++	<!-- custom: let's add a guard against too high values as well just in case, as recommended by chatgpt 5 when i asked it about this risk that it could happen too hehe, i adjusted the code it provided to for that end and i saw fit too if i may say but anyways etc, check if accurate anyways etc ; also refactored a bit otherwise our already changed code as commented below anyways etc -->
++	<!-- leave headroom under 32767 -->
++	<Define>
++		<DefineName>SAS_EVALUATE_GUARD_KMAXFOUND</DefineName>
++		<iDefineIntVal>32765</iDefineIntVal>
++	</Define>
+ </Civ4Defines>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 9d3284242..c7c55a0c1 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -494,7 +494,7 @@
+ 
+ 
+ 
+-	<!-- custom: the more i learn the more i am upset about how usa-centric and appalingly forgetful it is sometimes, if not blatantly propagandist, even though rare, but for example see the ecology entry vs new one from wikipedia but anyways etc, the base civ4 +/- advciv version seems to totally obscure i mean anyways etc the fact that the mount was stolen from the indigenous people that was there, i mean technically it wasn't "there's" per se as it belongs to nature i.e. anyone that can control it, still glorifying it without any mention of past owner is simply disgusting, but anyways etc, hopefully some truth is restored even though i didn't know at all before and barely looked now whiel reworking this building but anyways etc, hopefully this is not a too widespread problem in civ4 and i fixed some entries but anyways etc ; nevermind it's even more disgusting that i thought, with lines like "remarkably, no one was killed during construction", i wonder who even wrote those fucking lines??? If this is is not self-glorifying propaganda, but anyways etc, i am glad i learned the "truth" if i may say even though it is relative to one's point of view whatever that means, but my view of it is this is disgustingly concealed if i may say but anyways etc, entry now from https://en.wikipedia.org/wiki/Mount_Rushmore anyways etc -->
++	<!-- custom: the more i learn the more i am upset about how usa-centric and appalingly forgetful it is sometimes, if not blatantly propagandist, even though rare, but for example see the ecology entry vs new one from wikipedia but anyways etc, the base civ4 +/- advciv version seems to totally obscure i mean anyways etc the fact that the mount was stolen from the indigenous people that was there, i mean technically it wasn't "there's" per se as it belongs to nature i.e. anyone that can control it, still glorifying it without any mention of past owner is simply disgusting, but anyways etc, hopefully some truth is restored even though i didn't know at all before and barely looked now while reworking this building but anyways etc, hopefully this is not a too widespread problem in civ4 and i fixed some entries but anyways etc ; nevermind it's even more disgusting that i thought, with lines like "remarkably, no one was killed during construction", i wonder who even wrote those fucking lines??? If this is is not self-glorifying propaganda, but anyways etc, i am glad i learned the "truth" if i may say even though it is relative to one's point of view whatever that means, but my view of it is this is disgustingly concealed if i may say but anyways etc, entry now from https://en.wikipedia.org/wiki/Mount_Rushmore anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_MT_RUSHMORE_PEDIA</Tag>
+ 		<English>[TAB]The Mount Rushmore National Memorial is a national memorial centered on a colossal sculpture carved into the granite face of Mount Rushmore (Lakota: Thunkasila S�kpe, or Six Grandfathers) in the Black Hills near Keystone, South Dakota, United States. The sculptor, Gutzon Borglum, named it the Shrine of Democracy, and oversaw the execution from 1927 to 1941 with the help of his son, Lincoln Borglum. The sculpture features the 60-foot-tall (18 m) heads of four United States presidents: George Washington, Thomas Jefferson, Theodore Roosevelt, and Abraham Lincoln, respectively chosen to represent the nation's foundation, expansion, development, and preservation. Mount Rushmore attracts more than two million visitors annually to the memorial park which covers 1,278 acres (2.00 sq mi; 5.17 km2). The mountain's elevation is 5,725 feet (1,745 m) above sea level.[PARAGRAPH:1]Borglum chose Mount Rushmore in part because it faces southeast for maximum sun exposure. The carving was the idea of Doane Robinson, South Dakota's state historian. Robinson originally wanted the sculpture to feature American West heroes, such as Lewis and Clark, their expedition guide Sacagawea, Oglala Lakota chief Red Cloud, Buffalo Bill Cody, and Oglala Lakota chief Crazy Horse. Borglum chose the four presidents instead.[PARAGRAPH:1]Peter Norbeck, U.S. senator from South Dakota, sponsored the project and secured federal funding. Construction began in 1927 and the presidents' faces were completed between 1934 and 1939. After Gutzon Borglum died in March 1941, his son Lincoln took over as leader of the construction project. Each president was originally to be depicted from head to waist, but lack of funding forced construction to end on October 31, 1941, and only Washington's sculpture includes any detail below chin level.[PARAGRAPH:1]The sculpture at Mount Rushmore is built on land that was illegally taken from the Sioux Nation in the 1870s. The Sioux continue to demand return of the land, and in 1980 the US Supreme Court ruled in United States v. Sioux Nation of Indians that the taking of the Black Hills required just compensation, and awarded the tribe $102 million. The Sioux have refused the money, and demand the return of the land. This conflict continues, leading some critics of the monument to refer to it as a "Shrine of Hypocrisy".</English>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index b6b56d008..85fd32604 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -13923,7 +13923,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: upgrade the anti tank to a unit that is good against tanks but anyways etc... ; also this allows the gunship to appear on the units tree so nice for that effect as well if i may say but anywyas etc, was UNITCLASS_MECHANIZED_INFANTRY 1 -->
++			<!-- custom: upgrade the anti tank to a unit that is good against tanks but anyways etc... ; also this allows the gunship to appear on the units tree so nice for that effect as well if i may say but anyways etc, was UNITCLASS_MECHANIZED_INFANTRY 1 -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_GUNSHIP</UnitClassUpgradeType>
+@@ -15451,7 +15451,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+-			<!-- custom: do/give anyways etc milder penalties than the mounted_melee units, as they can still attack fine from a distance as they are ranged if i am not mistaken anyways etc, but may have trouble to take cover or navigate the terrain still and/or may find it hard to hide or protect their heavy in size in this case anyways etc mount so more targetable by ennemies if i may say anywyas etc, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded if i am not mistaken but anyways etc, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry if i may say anyways etc, was empty -->
++			<!-- custom: do/give anyways etc milder penalties than the mounted_melee units, as they can still attack fine from a distance as they are ranged if i am not mistaken anyways etc, but may have trouble to take cover or navigate the terrain still and/or may find it hard to hide or protect their heavy in size in this case anyways etc mount so more targetable by ennemies if i may say anyways etc, so give as of now only a penalty to simplify and represent this accurately, as it shouldn't affect too much warfare since cities are not built on forest or jungle in their inner tile after they are founded if i am not mistaken but anyways etc, still maybe may help especially human players who take advantage of this, or maybe may change AI combat if odds become lower, and rebalance otherwise a bit op mounted infantry if i may say anyways etc, was empty -->
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 9c76f6495..6915976b9 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -399,8 +399,8 @@ short AIFoundValue::evaluate()
+ 	static const int iMaxToleratedVeryBadTilesStart = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_START");
+ 	static const int iMaxToleratedVeryBadTilesLater = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_NOT_HOME_VERY_BAD_TILES_LATER");
+ 
+-	static const int iBaseValueVeryBadTileStart = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_VERY_BAD_TILE_START");
+-	static const int iBaseValueVeryBadTileLater = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_VERY_BAD_TILE_LATER");
++	static const int iBaseValueVeryBadTileStart = GC.getDefineINT("SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_START");
++	static const int iBaseValueVeryBadTileLater = GC.getDefineINT("SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_LATER");
+ 
+ 	int iCautiousHealthPercent = 0;
+ 
+@@ -476,12 +476,54 @@ short AIFoundValue::evaluate()
+ 	// <!-- custom: count low-food tiles in our environment, if there are more than a few, assume environment is poor in food and valorize water settling -->
+ 	int iLowFoodLocationCount = 0;
+ 
++	static const int iExtraValueHomeFreshWaterRiver = GC.getDefineINT("SAS_EVALUATE_EXTRA_VALUE_HOME_FRESH_WATER_RIVER");
++
+ 	// <!-- custom: no need to make the cached CvGlobals defines into static const according to chatgpt 5, but hoist them as recommended by chatgpt 5 if i am not mistaken but anyways etc, check if accurate anyways etc -->
+ 	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+ 	// Hoist once per call; no need for static
+ 	const bool bGlobalsOwnExclusiveRadius = GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS);
+ 	const int iGlobalsExtraYield = GC.getDefineINT(CvGlobals::EXTRA_YIELD);
+ 
++	static const int iMinOnBonusFoodImproveWorth = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_ON_BONUS_FOOD_MIN_IMPROVE_WORTH");
++	static const int iBaseValueOnBonusFood = GC.getDefineINT("SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_FOOD");
++
++	static const int iMinOnBonusProductionImproveWorth = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION_MIN_IMPROVE_WORTH");
++	static const int iBaseValueOnBonusProduction = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION");
++	static const int iValueVeryLowFoodOnBonusProduction = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_ON_BONUS_PRODUCTION_VERY_LOW_FOOD");
++	static const int iBaseValueVeryLowFoodOnBonusProduction = GC.getDefineINT("SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_PRODUCTION_VERY_LOW_FOOD");
++
++	static const int iMinOnBonusCommerceImproveWorth = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_ON_BONUS_COMMERCE_MIN_IMPROVE_WORTH");
++	static const int iBaseValueOnBonusCommerce = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_ON_BONUS_COMMERCE");
++	static const int iValueVeryLowFoodOnBonusCommerce = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_ON_BONUS_COMMERCE_VERY_LOW_FOOD");
++	static const int iBaseValueVeryLowFoodOnBonusCommerce = GC.getDefineINT("SAS_EVALUATE_BASE_VALUE_HOME_ON_BONUS_COMMERCE_VERY_LOW_FOOD");
++
++	static const int iValueHomeFloodPlains = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLOOD_PLAINS");
++	static const int iValueHomeHillDesert = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_HILL_DESERT");
++	static const int iValueHomeFlatlandDesert = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLATLAND_DESERT");
++	static const int iValueHomeHillGrass = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_HILL_GRASS");
++	static const int iValueHomeFlatlandGrass = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLATLAND_GRASS");
++	static const int iValueHomeHillPlains = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_HILL_PLAINS");
++	static const int iValueHomeFlatlandPlains = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLATLAND_PLAINS");
++	static const int iValueHomeHillTundra = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_HILL_TUNDRA");
++	static const int iValueHomeFlatlandTundra = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLATLAND_TUNDRA");
++	static const int iValueHomeHillSnow = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_HILL_SNOW");
++	static const int iValueHomeFlatlandSnow = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_FLATLAND_SNOW");
++
++	static const int iValueHomeWaterBonusNoCoast = GC.getDefineINT("SAS_EVALUATE_VALUE_HOME_WATER_BONUS_NO_COAST");
++
++	static const int iValueNotHomeFloodPlains = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_FLOOD_PLAINS");
++	static const int iValueNotHomeFloodOasis = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_OASIS");
++	static const int iValueNotHomeHillDesert = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_HILL_DESERT");
++	static const int iValueNotHomeFlatlandDesert = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_DESERT");
++	static const int iValueNotHomeHillGrass = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_HILL_GRASS");
++	static const int iValueNotHomeFlatlandGrass = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_GRASS");
++	static const int iValueNotHomeHillPlains = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_HILL_PLAINS");
++	static const int iValueNotHomeFlatlandPlains = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_PLAINS");
++	static const int iValueNotHomeHillTundra = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_HILL_TUNDRA");
++	static const int iValueNotHomeFlatlandTundra = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_TUNDRA");
++	static const int iValueNotHomeHillSnow = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_HILL_SNOW");
++	static const int iValueNotHomeFlatlandSnow = GC.getDefineINT("SAS_EVALUATE_VALUE_NOT_HOME_FLATLAND_SNOW");
++
+ 	FOR_EACH_ENUM(CityPlot)
+ 	{
+ 		// <!-- custom: refactor below and adding our new logic(s? But anyways etc) anyways etc -->
+@@ -522,7 +564,7 @@ short AIFoundValue::evaluate()
+ 						++iTileCountNoPeakLand;
+ 
+ 						// <!-- custom: do not count camel desert tiles, and do not count to simplify for example stone or any bonus tiles; although camel is more worthwhile, we simply want to get a general estimate of how many very bad tiles we have here if i may say but anyways etc, so simplify as such should be accurate enough for our needs in this case i mean but anyways etc -->
+-						if (eBonusPlot != NO_BONUS)
++						if (eBonusPlot == NO_BONUS)
+ 						{
+ 							if (eTerrainPlot == eTerrainDesert)
+ 							{
+@@ -535,10 +577,11 @@ short AIFoundValue::evaluate()
+ 							{
+ 								++iTileCountVeryBadSnowNoBonus;
+ 							}
+-							else if (eFeaturePlot == eFeatureIceCap)
+-							{
+-								++iTileCountIceCap;
+-							}
++						}
++
++						if (eFeaturePlot == eFeatureIceCap)
++						{
++							++iTileCountIceCap;
+ 						}
+ 					}
+ 					else
+@@ -683,10 +726,10 @@ short AIFoundValue::evaluate()
+ 			iSpecialFoodPlus += std::max(0, aiNatureYield[YIELD_FOOD] -
+ 					GC.getFOOD_CONSUMPTION_PER_POPULATION());
+ 
+-			// <!-- custom: add home plot health valorization of fresh water, as it seems to be missing if i am not mistaken anyways etc ; or if not missing somehow then not strongly enough applied, as AIs blatantly avoid in range fresh water home plot that is arguably better, most likely to not seeing its value if i may say in this case but anyways etc, so opening its eyes or trying to without going overboard and in this case i mean too if i may say but anyways etc -->
++			// <!-- custom: add home plot health valorization of fresh water, as it seems to be missing if i am not mistaken anyways etc; or if not missing somehow then not strongly enough applied, as AIs blatantly avoid in range fresh water home plot that is arguably better, most likely to not seeing its value if i may say in this case but anyways etc, so opening its eyes or trying to without going overboard and in this case i mean too if i may say but anyways etc -->
+ 			if (!p.isWater())
+ 			{
+-				iPlotValue += ((p.isRiver() || p.isFreshWater()) ? 150 : 0);
++				iPlotValue += ((p.isRiver() || p.isFreshWater()) ? iExtraValueHomeFreshWaterRiver : 0);
+ 			}
+ 		}
+ 		else
+@@ -774,40 +817,40 @@ short AIFoundValue::evaluate()
+ 					cImp = GC.getInfo(eBonusSpecificImprovement).getImprovementBonusYield(eBonus, YIELD_COMMERCE);
+ 
+ 					// <!-- custom: use this to detect food bonuses, as according to chatgpt 5 nature yield is not reliable in accurately assessing a tile's yield of a bonus is indeed food bonus or not something else like the city base's tile yield from little in this case i mean but anyways etc i understood of it, check if accurate anyways etc ; also note: for food any food is extremely valuable, even if a commerce bonus that happens to give some improved food, value it much still anyways etc as recommended by chatgpt 5 and what i udnerstood got the idea to do of it too i mean if i may say but anyways etc -->
+-					if (fImp >= 1)
++					if (fImp >= iMinOnBonusFoodImproveWorth)
+ 					{
+-						// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such if i am not mistaken but anyways etc, 400 may seem high but even 300 was not enough although it fluctuated a bit before (all this is with the old formula, not this new one below as untested with old file to know but anyways etc) staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses ; update: the other new issue i had of ai settling on camel desert is now averted to much later with our new change to imrpvoed yield rather than nature ones, but although ai doesn't settle at turn 50, it considers it at turn 100 when other sites are taken, nearby home plots should be much mroe attractive, so i guess we are not valuing it enough or something, testing and see hopefully not causing ai to chosoe worse sites just to avoid settling on bonus too much but even if it were to happen that may still be better in most cases although not ideal than settling on food bonuses, ideally i would dig why this happens or such and fix this more cleanly, but hopefully this helps anyways etc (since issue only happens on desert camel, maybe base desert food yield being so low interferes or some other logics conflicts somewhere else? These are just guesses, could be mistaken or not, check if accurate anyways etc) -->
++						// <!-- custom: it seems we sometimes still found on deer tundra in autoplay, try to increase the penalty further, while trying not to increase it too much in case it is locally best to found as such if i am not mistaken but anyways etc, 400 may seem high but even 300 was not enough although it fluctuated a bit before (all this is with the old formula, not this new one below as untested with old file to know but anyways etc) staying there, i could try 350 maybe but since 400 does fine keep as is for possible edge cases, hopefully this doesn't prevent locally good spots where settling on food is ideal, but even if then, statistically should be better for ai to avoid settling on food bonuses ; update: the other new issue i had of ai settling on camel desert is now averted to much later with our new change to improved yield rather than nature ones, but although ai doesn't settle at turn 50, it considers it at turn 100 when other sites are taken, nearby home plots should be much mroe attractive, so i guess we are not valuing it enough or something, testing and see hopefully not causing ai to chosoe worse sites just to avoid settling on bonus too much but even if it were to happen that may still be better in most cases although not ideal than settling on food bonuses, ideally i would dig why this happens or such and fix this more cleanly, but hopefully this helps anyways etc (since issue only happens on desert camel, maybe base desert food yield being so low interferes or some other logics conflicts somewhere else? These are just guesses, could be mistaken or not, check if accurate anyways etc) -->
+ 						// <!-- custom: be careful we return short which is very constraining, it seems we convert negative values to -1 as a safety, but just in case don't make the penalty extremely extremely high xd if i may say but anyways etc, for now i'm investigating why we over settle on food bonuses when penalty is so high (like 1500 * food), could it be overflow with an early return that was before the final return 1 safety, then our value would be positive i guess in some cases (like -33 000 becomes a positive int or something hence the issue of AIs suddenly loving to settle on any food bonus maybe?), reducing it a bit because of that risk and weird behaviour we had anyways etc -->
+-						int const iOnBonusFoodPenalty = 600 * fImp;
++						int const iOnBonusFoodPenalty = iBaseValueOnBonusFood * fImp;
+ 						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract anyways etc -->
+ 						r += iOnBonusFoodPenalty;
+ 						IFLOG logBBAI("%d penalty for founding on food bonus", iOnBonusFoodPenalty);
+ 					}
+ 					// <!-- custom: use combinatory rather than else if in case some weird bonuses have a mix of several effects (e.g. quite high hammer and quite high commerce overall but each itself is just a bit above average not so good yet when combined gold + hammer is very nice for example anyways etc, then we want to take both into account in such cases anyways etc) -->
+-					if (hImp >= 2)
++					if (hImp >= iMinOnBonusProductionImproveWorth)
+ 					{
+-						int iOnBonusProductionPenalty = 350;
++						int iOnBonusProductionPenalty = iBaseValueOnBonusProduction;
+ 
+ 						// <!-- custom: but if bonus is very low-food, and yield is not too high, this is attractive, especially on a hill, but the higher the yields, the more we'd rather hve low food and high yields than settle on the bonus to save food anyways etc -->
+ 						if (bVeryLowFoodBonusPlot)
+ 						{
+-							iOnBonusProductionPenalty -= 150;
+-							iOnBonusProductionPenalty += 75 * hImp;
++							iOnBonusProductionPenalty += iValueVeryLowFoodOnBonusProduction;
++							iOnBonusProductionPenalty += iBaseValueVeryLowFoodOnBonusProduction * hImp;
+ 						}
+ 
+ 						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract anyways etc -->
+ 						r += iOnBonusProductionPenalty;
+ 						IFLOG logBBAI("%d penalty for founding on production bonus", iOnBonusProductionPenalty);
+ 					}
+-					if (cImp >= 2)
++					if (cImp >= iMinOnBonusCommerceImproveWorth)
+ 					{
+-						int iOnBonusCommercePenalty = 300;
++						int iOnBonusCommercePenalty = iBaseValueOnBonusCommerce;
+ 
+ 						// <!-- custom: but if bonus is very low-food, and yield is not too high, this is attractive, especially on a hill ; note: although a bit redundant, it gives flexibility to tweak values anyways etc -->
+ 						if (bVeryLowFoodBonusPlot)
+ 						{
+-							iOnBonusCommercePenalty -= 100;
+-							iOnBonusCommercePenalty += 50 * cImp;
++							iOnBonusCommercePenalty += iValueVeryLowFoodOnBonusCommerce;
++							iOnBonusCommercePenalty += iBaseValueVeryLowFoodOnBonusCommerce * cImp;
+ 						}
+ 
+ 						// <!-- custom: be careful to not mix up as noted by chatgpt 5, we add the cumulative penalty here (a positive number if we penalize, a negative number if we for some reason don't penalize but valorize weirdly instead), then later at the end we subract to iValue this positive penalty number so add penalty to r, do not substract anyways etc -->
+@@ -836,9 +879,11 @@ short AIFoundValue::evaluate()
+ 				// 	doesn't settle in a particular tile. Try -a little bit- to respect that. */
+ 				// if (kGame.isScenario())
+ 				// 	r -= 13;
+-
+-				iValue -= r;
+-				IFLOG logBBAI("Penalty (substracted to iValue) %d for founding on bonus", r);
++				// iValue -= r;
++				// IFLOG logBBAI("Penalty (substracted to iValue) %d for founding on bonus", r);
++				// <!-- custom: note: opposite sign now, adding a negative value is clearer than substracting then guessing or constantly checking if we're substracting or not if i'm not mistaken in my guess/thinking (no pun but anyways etc...) -->
++				iValue += r;
++				IFLOG logBBAI("Penalty (added to iValue) %d for founding on bonus", r); // adds a negative -> penalty ✅
+ 			}
+ 			// <!-- custom: for non-bonus for home plot (i.e. the exact tile where we settle our city if i'm not mistaken anyways etc) tiles, also add home plot optimization, low-food is juicy (e.g. desert or hill plains better than floodplains or hill grass if i am not mistaken anyways etc) -->
+ 			else
+@@ -847,20 +892,18 @@ short AIFoundValue::evaluate()
+ 				{
+ 					if (eFeature == eFeatureFloodPlains)
+ 					{
+-						// <!-- custom: don't settle here, unless locally extremely good otherwise, higher as some still dont listen anyways etc -->
+-						iValue -= 150;
++						iValue += iValueHomeFloodPlains;
+ 					}
++					// <!-- custom: if not floodplains (note: as of now we can't settle on oasis so not accounted for in code if i'm not mistaken but anyways etc), consider adding it there if you want to allow it in your modmod and then put a knob/tunable here, not done in advciv-sas as we don't need it, and to avoid errors or such (since or because we don't use it but anyways etc) but anyways etc -->
+ 					else 
+ 					{
+ 						if (pIsHills)
+ 						{
+-							// <!-- custom: still good as is low-food, although not as good as settling on hill plains ideally but anyways etc -->
+-							iValue += 50;
++							iValue += iValueHomeHillDesert;
+ 						}
+ 						else
+ 						{
+-							// <!-- custom: locally optimal if we can, but don't devalue otherwise nice tile anyways etc -->
+-							iValue += 50;
++							iValue += iValueHomeFlatlandDesert;
+ 						}
+ 					}
+ 				}
+@@ -868,52 +911,44 @@ short AIFoundValue::evaluate()
+ 				{
+ 					if (pIsHills)
+ 					{
+-						// <!-- custom: even more valuable than flatland grass, the hammer yield for low food cost is extremely good, early and even later in game too if i am not mistaken still quite good anyways etc, absolutely avoid settling on this unless really the best locally otherwise -->
+-						iValue -= 75;
++						iValue += iValueHomeHillGrass;
+ 					}
+ 					else
+ 					{
+-						// <!-- custom: very valuable, better avoid settling on this plot if we can unless otherwise the best or/and very good locally anyways etc -->
+-						iValue -= 50;
++						iValue += iValueHomeFlatlandGrass;
+ 					}
+ 				}
+ 				else if (eTerrain == eTerrainPlains)
+ 				{
+ 					if (pIsHills)
+ 					{
+-						// <!-- custom: extremely good, we remove a low-food tile and get a free extra hammer, plus defensive bonus, ideal starting plot when it comes to terrain if i am not mistaken anyways etc ; one minus than fresh water, would be as good otherwise anyways etc ; try higher value as some cities still don't listen anyways etc, not too high as 10 plains + settle on hill plains is not better than 10 grass + settle on grass -->
+-						iValue += 250;
++						iValue += iValueHomeHillPlains;
+ 					}
+ 					else
+ 					{
+-						// <!-- custom: still quite good, we remove a bad low food tile after all, but not too good to overlook otherwise good local other plot concurrents -->
+-						iValue += 50;
++						iValue += iValueHomeFlatlandPlains;
+ 					}
+ 				}
+ 				else if (eTerrain == eTerrainTundra)
+ 				{
+ 					if (pIsHills)
+ 					{
+-						// <!-- custom: quite good similarly, just not as good as say hill plains but very good otherwise as a starter -->
+-						iValue += 50;
++						iValue += iValueHomeHillTundra;
+ 					}
+ 					else
+ 					{
+-						// <!-- custom: still good, especially in low food environments where every food yield counts, and maye there is grass near us to not settle on or similar anyways etc -->
+-						iValue += 25;
++						iValue += iValueHomeFlatlandTundra;
+ 					}
+ 				}
+ 				else if (eTerrain == eTerrainSnow)
+ 				{
+ 					if (pIsHills)
+ 					{
+-						// <!-- custom: quite good similarly, just not as good as say hill plains but very good otherwise as a starter -->
+-						iValue += 50;
++						iValue += iValueHomeHillSnow;
+ 					}
+ 					else
+ 					{
+-						// <!-- custom: same as desert, low food tile, try hard to settle on it rather unless extremely good otherwise to do else -->
+-						iValue += 50;
++						iValue += iValueHomeFlatlandSnow;
+ 					}
+ 				}
+ 			}
+@@ -963,11 +998,12 @@ short AIFoundValue::evaluate()
+ 			// <advc.031> Replacing the above
+ 			if (p.isWater() && !bCoastal)
+ 			{
+-				// <!-- custom: AI still often / quite often ignores water bonus in range and settles as a non-coastal city rather, so try to enforce or strengthen this bonus, especially considering water bonuses are often if not entirely food yield related in advciv-sas at least but anyways etc -->
+ 				//int const iPenalty = 165;
+-				int const iPenalty = 400;
+-				IFLOG logBBAI("-%d from water resource near non-coastal site", iPenalty);
+-				iValue -= iPenalty;
++				// IFLOG logBBAI("-%d from water resource near non-coastal site", iPenalty);
++				// iValue -= iPenalty;
++				// <!-- custom: note: opposite sign here (addition vs substraction before anyways etc) unlike in base advciv but anyways etc, so value as of now also has opposite sign in global defines anyways etc -->
++				iValue += iValueHomeWaterBonusNoCoast;
++				IFLOG logBBAI("-%d from water resource near non-coastal site", iValueHomeWaterBonusNoCoast);
+ 			} // </advc.031>
+ 		}
+ 		else
+@@ -993,25 +1029,23 @@ short AIFoundValue::evaluate()
+ 				{
+ 					if (eFeature == eFeatureFloodPlains)
+ 					{
+-						// <!-- custom: high food and great cottage candidate, very strong -->
+-						iValue += 100;
++						iValue += iValueNotHomeFloodPlains;
+ 					}
+ 					else if (eFeature == eFeatureOasis)
+ 					{
+-						// <!-- custom: can't grow as much as flood plains with a cottage as it cannot be improved if i am not mistaken, but we have no health penalty, and we get the extra commerce yield immediately, plus it provides fresh water as well if i am not mistaken but anyways etc. I assume (hope but anyways etc) fresh water code is handled elsewhere that supports oasis too hopefully, but even if not and in all cases, maybe this valorization can help. -->
+-						iValue += 90;
++						iValue += iValueNotHomeFloodOasis;
+ 					}
+ 					else 
+ 					{
+ 						if (pIsHills)
+ 						{
+-							// <!-- custom: low food but at least we can mine it, avoid but not like flatland desert, defensive bonus is locally not too bad maybe as well if someone invades us (but harder to attack them there as well so so so anyways etc) -->
+-							iValue -= 25 ;
++							iValue += iValueNotHomeHillDesert ;
+ 						}
+ 						else
+ 						{
+-							// <!-- custom: low food and cannot be improve, strongly avoid -->
+-							iValue -= 75;
++							// iValue += (-75);
++							// <!-- custom: note: now handled by the verybadtiles code rather as we handle the tolerance for a certain number of tiles and other such things like ice cap, peak that may not possibly be accounted for in this loop there rather directly, so left as 0 here instead as of now anyways etc -->
++							iValue += iValueNotHomeFlatlandDesert;
+ 						}
+ 					}
+ 				}
+@@ -1019,54 +1053,50 @@ short AIFoundValue::evaluate()
+ 				{
+ 					if (pIsHills)
+ 					{
+-						// <!-- custom: very good, low food cost high hammer, a tile we'd want to mine very early for high yields even in stone age, very high value tile to have in city radius if i'm not mistaken anyways etc -->
+-						iValue += 75;
++						iValue += iValueNotHomeHillGrass;
+ 					}
+ 					else
+ 					{
+-						// <!-- custom: very valuable for flatland as well, a great tile to start near in our city radius if i am not mistaken anyways etc, slightly worse than floodplains, but since it doesn't have health penalty maybe we can count it as about the same anyways etc -->
+-						iValue += 60;
++						iValue += iValueNotHomeFlatlandGrass;
+ 					}
+ 				}
+ 				else if (eTerrain == eTerrainPlains)
+ 				{
+ 					if (pIsHills)
+ 					{
+-						// <!-- custom: quite good tile with hammer yield but food is really too low, value but not a lot, we want to grow most after all, but this is not too bad either -->
+-						iValue += 10;
++						iValue += iValueNotHomeHillPlains;
+ 					}
+ 					else
+ 					{
+-						// <!-- custom: low-food, has a base hammer though, but we'd need to irrigate it to get the equivalent of a grass tile, and if we cottage it it drains our food growth. This is quite good later in the game with workshops that don't cost food or such, but assume it to be bad as a general rule as most game and cities are settled early anyway if i'm not mistaken anyways etc -->
+-						iValue -= 20;
++						iValue += iValueNotHomeFlatlandPlains;
+ 					}
+ 				}
+ 				else if (eTerrain == eTerrainTundra)
+ 				{
+ 					if (pIsHills)
+ 					{
+-						// <!-- custom: worse than plains hill yield for same low-food food, this is really bad, especially in a tundra environment where food is scarce already, but if needed the hammer yield is not too bad  -->
+-						iValue -= 30;
++						iValue += iValueNotHomeHillTundra;
+ 					}
+ 					else
+ 					{
+-						// <!-- custom: not too bad with as of now the tundra base commerce yield buff we added, still weaker than a base hammer of the plains, avoid more than flatland plains -->
+-						iValue -= 25;
++						iValue += iValueNotHomeFlatlandTundra;
+ 					}
+ 				}
+ 				else if (eTerrain == eTerrainSnow)
+ 				{
+ 					if (pIsHills)
+ 					{
+-						// <!-- custom: same as tundra hill if i am not mistaken, this is really not great, and i am not sure the less base commerce yield makes too much of a difference. We could mine it though maybe if i'm not mistaken or some other improvements maybe too although i didn't check, but it would be costly in food if i'm not mistaken, so not a great choice to have in our city radius (great to settle on though otherwise if i'm not mistaken but is not handled here, as we are in the non-home-plot code if i am not mistaken if i may say but anyways etc) -->
+-						iValue -= 35;
++						iValue += iValueNotHomeHillSnow;
+ 					}
+ 					else
+ 					{
+-						// <!-- custom: low-food same as desert, i am not sure we can do anything with this in our city radius, maybe find a way to buff in our mod somehow, but for now if not always or not, this is really low value tile to have in our city radius, better avoid if i am not mistaken but anyways etc -->
+-						iValue -= 75;
++						// iValue -= 75;
++						// <!-- custom: same as flatland desert for this very bad tile anyways etc -->
++						iValue += iValueNotHomeFlatlandSnow;
+ 					}
+ 				}
++				// <!-- custom: water tiles are considered neutral as of now, ideally we would penalize 0 food ones but left as such for now anyways etc -->
++				// <!-- custom: note: peak, ice cap are handled in very bad tiles similarly to desert and snow, plus they may not be in the part of the loop where we use this define so maybe best as such and is if i'm not mistaken i mean but anyways etc but in all cases anyways etc -->
+ 			}
+ 
+ 			int iSpecialYieldModifier = calculateSpecialYieldModifier(iCultureModifier,
+@@ -1115,14 +1145,18 @@ short AIFoundValue::evaluate()
+ 				scaled(4 * (1 + iGreenTiles + iSpecialFoodPlus), 18)), fixp(0.1), 2),
+ 				iLandTiles); // </advc.031>
+ 	}
++
+ 	// <!-- custom: discourage non-coastal location for low-food terrain environments: better settle on coast and make profit than starve soon by settling in non-coastal anyways etc -->
+ 	else
+ 	{
+-		if (iLowFoodLocationCount >= 8)
++		static const int iMaxToleratedCoastalLowFoodTiles = GC.getDefineINT("SAS_EVALUATE_MAX_TOLERATED_COASTAL_LOW_FOOD_TILES");
++		static const int iBaseValueCoastalLowFood = GC.getDefineINT("SAS_EVALUATE_BASE_VALUE_COASTAL_LOW_FOOD");
++
++		if (iLowFoodLocationCount > iMaxToleratedCoastalLowFoodTiles)
+ 		{
+-			// <!-- custom: sometimes this is still ignored, although it shows to have helped in some cities already and at first, increase penalty quite a bit more if i may say anyways etc, which solved on testing successfully the issue, see known issue for details  -->
+-			// iValue -= 50 * iLowFoodLocationCount;
+-			iValue -= 75 * iLowFoodLocationCount;
++			// <!-- custom: sometimes with old value it was still ignored, although it shows to have helped in some cities already and at first, increase penalty quite a bit more if i may say anyways etc, which solved on testing successfully the issue, see known issue for details -->
++			// iValue += (-50) * iLowFoodLocationCount;
++			iValue += iBaseValueCoastalLowFood * iLowFoodLocationCount;
+ 		}
+ 	}
+ 
+@@ -1136,7 +1170,9 @@ short AIFoundValue::evaluate()
+ 		// <!-- custom: regardless of coastal status if i am not mistaken but anyways etc, tolerate some low number of non land non bonus tiles, but past a certain threshold, strongly penalize it so AIs wouldn't take this city site unless nothing at all is better but anyways etc ; also for our first city we don't want to be too close to the coast anyway and more like closer to the center for more radial expansion or possibilities, better city distance to capital cost, stronger early position for later expansions, etc if any other advantages but anyways etc, and if the spot is good, keep it for city 2 not for starting one where we really want nice yields on land and a closer to center position for later expansion if i am not mistaken but anyways etc ; as for value we have 20 bfc tiles (minus home plot) if i'm not mistaken, so if it has more than 8 water tiles no bonus, or equivalent, so less than 12 good tiles, change site, anyways etc -->
+ 		const int iGoodBFCTiles = iTileCountNoPeakLand + iTileCountWaterWithBonus;
+ 
+-		if (iGoodBFCTiles <= 12)
++		static const int iMinRequiredGoodBFCTilesStart = GC.getDefineINT("SAS_EVALUATE_MIN_REQUIRED_GOOD_BFC_TILES_START");
++
++		if (iGoodBFCTiles < iMinRequiredGoodBFCTilesStart)
+ 		{
+ 			// <!-- custom: attempt to prevent overflow if any while still sorting our values and by extension if i may say but anyways etc settling spots form worst lowest value to least worst highest or not lowest value if i am not mistaken anyways etc -->
+ 			// <!-- custom: finally some code fixed it, so now doing it cleaner, and since iValue modifying seems to not work for moscow AI (see known issue as of now 44 for details anyways etc, early return rather anyways etc, to not settle here unless really hard worst if i am not mistaken but anyways etc -->
+@@ -1159,7 +1195,7 @@ short AIFoundValue::evaluate()
+ 			if (iTotalVeryBadTiles > iMaxToleratedVeryBadTilesStart)
+ 			{
+ 				const int iTotalValueVeryBadTiles = iBaseValueVeryBadTileStart * iTotalVeryBadTiles;
+-				iValue -= iTotalValueVeryBadTiles;
++				iValue += iTotalValueVeryBadTiles;
+ 			}
+ 		}
+ 	}
+@@ -1168,7 +1204,7 @@ short AIFoundValue::evaluate()
+ 		if (iTotalVeryBadTiles > iMaxToleratedVeryBadTilesLater)
+ 		{
+ 			const int iTotalValueVeryBadTiles = iBaseValueVeryBadTileLater * iTotalVeryBadTiles;
+-			iValue -= iTotalValueVeryBadTiles;
++			iValue += iTotalValueVeryBadTiles;
+ 		}
+ 	}
+ 
+@@ -1231,18 +1267,18 @@ short AIFoundValue::evaluate()
+ 	// 	iValue = adjustToBarbarianSurroundings(iValue);
+ 	// else if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
+ 
+-	// <!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, whiel having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or/and didn't accomodate/account for food desert bonuses or such. Since i don't like interferences if i may say but anyways etc, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details anyways etc -->
++	// <!-- custom: through trial and error, while trying to find why we settle on camel desert in middle game (turns 50+, while having saner choices earlier in map view ingame (circled tiles), i have found that commenting the block below causes the issue to be solved, AI has sane sites as always and now settles around or near this but no AI player considers settling on camel desert or near it anymore, so i assume something is majorly faulty in it or/and didn't accomodate/account for food desert bonuses or such. Since i don't like interferences if i may say but anyways etc, commented out since i have found it to be reproducible that uncommenting it triggers again the error, replaced with a very simplified version of the logic we want, inline in this function that is its only caller, with the help of chatgpt 5, check if accurate, see known issue as of now 54 for details anyways etc -->
+ 	// if (!kSet.isStartingLoc() /* advc.031e: */ && !kSet.isNormalizing())
+ 	// 	iValue = adjustToCivSurroundings(iValue, iStealPercent);
+-	// --- SAS inline distance shaping (simple & bounded) ---
+-	// C++03-safe, integer math only, overflow-safe via percent scaling.
+-	// Notes
+-	// Setting FAR_CAP = 100 + the early return 0; gives you the hard “nope” at extreme distances.
+-	// I left the “too close” branch clamped at 50% so proximity never kills a locally amazing site.
+-	// This keeps your logic simple, deterministic, and aligned with your “better no city than a split empire” philosophy.
+ 	if (!kSet.isStartingLoc() && !kSet.isNormalizing())
+ 	{
+ 		// <!-- custom: 1) distance to nearest city penalties (as per our previous refactor/change but enhanced/simplified thanks to chatgpt 5 too if i may say but anyways etc) -->
++		// --- SAS inline distance shaping (simple & bounded) ---
++		// C++03-safe, integer math only, overflow-safe via percent scaling.
++		// Notes
++		// Setting FAR_CAP = 100 + the early return 0; gives you the hard “nope” at extreme distances.
++		// I left the “too close” branch clamped at 50% so proximity never kills a locally amazing site.
++		// This keeps your logic simple, deterministic, and aligned with your “better no city than a split empire” philosophy.
+ 		// <!-- custom: added const* for efficiency but then chatgpt 5 said to add another one xd, check if accurate and thanks anyways etc -->
+ 		// const on the left (CvCity const*) means you won’t mutate the city via this pointer.
+ 		// const on the right (* const) means you won’t reassign pNearest.
+@@ -1252,14 +1288,18 @@ short AIFoundValue::evaluate()
+ 			const int iDistRaw = ::plotDistance(iX, iY, pNearest->getX(), pNearest->getY());
+ 
+ 			// Derive from city radius so mods changing radius stay sane.
+-			static const int CITYR   = (5 + CITY_PLOTS_DIAMETER) / 2; // default 5
+-			static const int MIN_OK  = CITYR - 1; // ≤ MIN_OK-1 = “too close”
+-			static const int MAX_OK  = CITYR;     // ≥ MAX_OK+1 = “too far”
+-
+-			static const int CLOSE_STEP = 15; // % per tile inside MIN_OK
+-			static const int FAR_STEP   = 10; // % per tile beyond MAX_OK
+-			static const int CLOSE_CAP  = 50; // max close penalty
+-			static const int FAR_CAP    = 100; // allow hard kill
++			static const int CITYR_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_CITYR_ADD");
++			static const int CITYR_DIVIDE = std::max(1, GC.getDefineINT("SAS_EVALUATE_DISTANCE_CITYR_DIVIDE"));
++			static const int CITYR   = (CITYR_ADD + CITY_PLOTS_DIAMETER) / CITYR_DIVIDE; // default 5 <!-- custom: or so claims chatgpt.. 5.. could be accurate though i really don't know, its code helped me lot in all cases thanks if i may say but anyways etc-->
++			static const int MIN_OK_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_MIN_OK_ADD");
++			static const int MAX_OK_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_MAX_OK_ADD");
++			static const int MIN_OK  = CITYR + MIN_OK_ADD; // ≤ MIN_OK-1 = “too close”
++			static const int MAX_OK  = CITYR + MAX_OK_ADD; // ≥ MAX_OK+1 = “too far”
++
++			static const int CLOSE_STEP = GC.getDefineINT("SAS_EVALUATE_DISTANCE_CLOSE_STEP"); // % per tile inside MIN_OK
++			static const int FAR_STEP   = GC.getDefineINT("SAS_EVALUATE_DISTANCE_FAR_STEP"); // % per tile beyond MAX_OK
++			static const int CLOSE_CAP  = GC.getDefineINT("SAS_EVALUATE_DISTANCE_CLOSE_CAP"); // max close penalty
++			static const int FAR_CAP    = GC.getDefineINT("SAS_EVALUATE_DISTANCE_FAR_CAP"); // allow hard kill
+ 
+ 			int mult = 100; // 100% = no change
+ 
+@@ -1339,8 +1379,8 @@ short AIFoundValue::evaluate()
+ 		}
+ 
+ 		// Tuning: "soft" tolerance vs "hard" refusal
+-		const int SOFT = 35; // <=35: ignore pressure
+-		const int HARD = 70; // >=70: too pressed → reject site outright
++		static const int SOFT = GC.getDefineINT("SAS_EVALUATE_CULTURE_PRESSURE_SOFT"); // <35: ignore pressure
++		static const int HARD = GC.getDefineINT("SAS_EVALUATE_CULTURE_PRESSURE_HARD"); // >=70: too pressed → reject site outright
+ 
+ 		if (iMaxPressure >= HARD)
+ 		{
+@@ -1375,22 +1415,26 @@ short AIFoundValue::evaluate()
+ 	if (bStartPhase)
+ 	{
+ 		// <!-- custom: for example as of now 7 jungle tiles is -50 * 7 = -350, or 8 jungle tiles and 2 forest tiles is (8 * (-50)) + ((2 * 50)) = -400 + 100 = -300 if i am not mistaken anyways etc -->
+-		if (iCautiousHealthPercent <= -300)
++		static const int iMinCautiousHealthPercentStart = GC.getDefineINT("SAS_EVALUATE_MIN_CAUTIOUS_HEALTH_PERCENT_START");
++
++		if (iCautiousHealthPercent <= iMinCautiousHealthPercentStart)
+ 		{
+-			int const iValueLossPercentPerBadUnhealthiness = 10;
++			static const int iValueLossPercentPerBadUnhealthinessStart = GC.getDefineINT("SAS_EVALUATE_VALUE_LOSS_PERCENT_PER_BAD_UNHEALTHINESS_START");
+ 			// <!-- custom: e.g -3.5 total health points / bad unhealthiness in city, to clarify to chatgpt 5 so may as well add here if helps and me too helps me maybe hehe maybe but anyways etc -->
+ 			int const iBadUnhealthiness = (iCautiousHealthPercent / 100);
+ 			// <!-- custom: note: addition not substraction, so that we reduce iValue the more unhealthy we are, not the opposite (-350 should reduce iValue, not increase it with a (- (- 350) etc.. which would be (+350) etc.. and not what we want as nicely noted by chatgpt 5 hehe thanks but anyways etc-->
+ 			// <!-- custom: e.g. with a iValue of 500: (100 - ((-1) * (-3.5 * 10)) * 500 / 100 = (100 - 35) * 500 / 100 = 65 * 500 / 100 = 325 ; so value lost 35% value as intended if i am not mistaken, added to clarify calculation to chatgpt 5 or proof it to myself hehe but anyways etc -->
+-			int const iValueAdjustedForBadUnhealthiness = ((100 - std::min(100, ((-1) * iValueLossPercentPerBadUnhealthiness * iBadUnhealthiness))) * iValue) / 100;
++			int const iValueAdjustedForBadUnhealthiness = ((100 - std::min(100, ((-1) * iValueLossPercentPerBadUnhealthinessStart * iBadUnhealthiness))) * iValue) / 100;
+ 			iValue = iValueAdjustedForBadUnhealthiness;
+ 		}
+ 	}
+ 	else
+ 	{
+-		if (iCautiousHealthPercent <= -450)
++		static const int iMinCautiousHealthPercentLater = GC.getDefineINT("SAS_EVALUATE_MIN_CAUTIOUS_HEALTH_PERCENT_LATER");
++
++		if (iCautiousHealthPercent <= iMinCautiousHealthPercentLater)
+ 		{
+-			int const iValueLossPercentPerBadUnhealthiness = 5;
++			int const iValueLossPercentPerBadUnhealthiness = GC.getDefineINT("SAS_EVALUATE_VALUE_LOSS_PERCENT_PER_BAD_UNHEALTHINESS_LATER");
+ 			int const iBadUnhealthiness = (iCautiousHealthPercent / 100);
+ 			int const iValueAdjustedForBadUnhealthiness = ((100 - std::min(100, ((-1) * iValueLossPercentPerBadUnhealthiness * iBadUnhealthiness))) * iValue) / 100;
+ 			iValue = iValueAdjustedForBadUnhealthiness;
+@@ -1404,7 +1448,7 @@ short AIFoundValue::evaluate()
+ 	// (disabled by K-Mod. This kind of stuff is already taken into account.)
+ 
+ 	// <!-- custom: let's add a guard against too high values as well just in case, as recommended by chatgpt 5 when i asked it about this risk that it could happen too hehe, i adjusted the code it provided to for that end and i saw fit too if i may say but anyways etc, check if accurate anyways etc ; also refactored a bit otherwise our already changed code as commented below anyways etc -->
+-	static const int kMaxFound = 32765; // leave headroom under 32767
++	static const int kMaxFound = GC.getDefineINT("SAS_EVALUATE_GUARD_KMAXFOUND"); // leave headroom under 32767
+ 	// // <!-- custom: move this below to attempt to / in case it better avoid / avoids (but anyways etc) overflow, as chatgpt 5 seems to rightfully if i may say but anyways etc be concerned about it but check if accurate i mean, i also refactored it a bit, anyways etc -->
+ 	// if (iValue <= 0)
+ 	// 	return 1;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index caf695fd2..6429d5d80 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4809,7 +4809,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			}
+ 
+ 			const bool bProductionBuilding = (
+-				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well anywyas etc -->
++				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well anyways etc -->
+ 				// <!-- custom: for now only tweak the early game as is most important and where most gains can be made i think but anyways etc, later production should be high enough and civilization developped enough to be able to more freely choose without too much consequences in this case i mean but anyways etc -->
+ 				//kBuilding.isPower() ||                                  // Plant gives power
+ 				//kBuilding.isAreaCleanPower()
+@@ -5405,7 +5405,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 
+ 			// <!-- custom: for production modifier wonders (e.g city increases by +25% hammer or such but anyways etc), only do so in top cities. Note: could handle other yields but would be tedious and we don't necessarily have too many if at all such wonders -->
+ 			const bool bProductionWonder = (
+-				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well anywyas etc -->
++				iTotalHammersModifier >= 20 // || // Forge/Factory <!-- custom: or weird variants if some mods implement bonus based hammer modifiers in regular buildings (as the ironworks does for example anyways etc), so account for that as well anyways etc -->
+ 				// <!-- custom: for now only tweak the early game as is most important and where most gains can be made i think but anyways etc, later production should be high enough and civilization developped enough to be able to more freely choose without too much consequences in this case i mean but anyways etc -->
+ 				//kBuilding.isPower() ||                                  // Plant gives power
+ 				//kBuilding.isAreaCleanPower()
+@@ -11270,7 +11270,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 		// <!-- custom: also make a copy of our unit right now so we don't have to recheck everytime later if we changed it or not anyways etc -->
+ 		UnitTypes   eChangedUnit   = eUnit;
+ 		UnitAITypes eChangedUnitAI = eUnitAI;
+-		// <!-- custom: use a pointer (pUnitInfo) rather than a reference (kUnitInfo) so that if we change the unit, we can just refresh the pointer itself, while refreshing the reference is risky according to chatgpt 5 (for example if reference is a const by GC (i don't know too much about it but it's what i understood of it anywyas etc), check if accurate anyways etc -->
++		// <!-- custom: use a pointer (pUnitInfo) rather than a reference (kUnitInfo) so that if we change the unit, we can just refresh the pointer itself, while refreshing the reference is risky according to chatgpt 5 (for example if reference is a const by GC (i don't know too much about it but it's what i understood of it anyways etc), check if accurate anyways etc -->
+ 		// CvUnitInfo& kUnitInfo = GC.getInfo(eChangedUnit);
+ 		const CvUnitInfo* pUnitInfo = &GC.getInfo(eChangedUnit);
+ 		// <!-- custom: info below by chatgpt 5 for reminder, check if accurate anyways etc -->
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index edee894df..73ef1c7b7 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -250,7 +250,7 @@ bool CvUnitAI::AI_update()
+ 					const int iHave   = pHere->getPlot().plotCount(PUF_canDefendGroupHead, -1, -1, getOwner());
+ 					const int iMinHere = pHere->AI_minDefenders();
+ 
+-					// <!-- custom: this seemingly works very well, all cities at least most i looked at but anyways etc properly now have 2 defenders not 1 defender per new city anymore or so it seems in cities that had the issue, but we can probably enhance this, maybe make it a general rule as well, also we can actually count on capital to replenish its units faster, so make it give more units rather anyways etc at trying to do so anyways etc ; update: not much change after increasing iExtraWant from 1 to 2, and to be hoenst i don't know too much or exactly what and hwo this does what it does xd, but results are not worse, perhaps slightly better with the window removed or capital check (as i said i want capitals in particular to pump and give units if i may say but anywyas etc as they can replenish faster, hopefully this doesn't make capital cities too weak if ever applied but at least smaller cities are better guarded and less barbarian invasions it seems, but check if accurate as i don't know too much about these anyways etc-->
++					// <!-- custom: this seemingly works very well, all cities at least most i looked at but anyways etc properly now have 2 defenders not 1 defender per new city anymore or so it seems in cities that had the issue, but we can probably enhance this, maybe make it a general rule as well, also we can actually count on capital to replenish its units faster, so make it give more units rather anyways etc at trying to do so anyways etc ; update: not much change after increasing iExtraWant from 1 to 2, and to be hoenst i don't know too much or exactly what and hwo this does what it does xd, but results are not worse, perhaps slightly better with the window removed or capital check (as i said i want capitals in particular to pump and give units if i may say but anyways etc as they can replenish faster, hopefully this doesn't make capital cities too weak if ever applied but at least smaller cities are better guarded and less barbarian invasions it seems, but check if accurate as i don't know too much about these anyways etc-->
+ 					// Early barbarian buffer: ask every non-capital for +1 (for shuffling only)
+ 					// int iBarbWindowTurns = 60 * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent() / 100; // ~60 @ Normal
+ 					// bool bEarlyBarbs = (!GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS) &&
+@@ -1080,7 +1080,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 		if (eBonus != NO_BONUS)
+ 		{
+ 			// <!-- custom: note : flexibly chop, instead of bonus flexible build, we'll choose same best plot again, but advantage is we can better respond, say to invasion, and finish chopping (getting production too and worker availability) if we need to interrupt it mid way, more efficient this way, frees also some move speed if flatland for mobile units if i am not mistaken anyways etc -->
+-			// <!-- custom: note 2: even if chopping is important, do not change plot value at all, so that highest value bonus is chopped first, then at next step it is still highest value so it is improved, then it has now an improvement that is correct so it is moved out of our plots in all cases, then 2nd best bonus is chopped if needed, else improved, then 3rd bonus choped if needed then improved etc, then the rest of the plots :) Hehe a very elegant solution as gemini ai said from idea i nicely got but it helped me lot, so making chopping more important by not making it more important (else with a multiplier AI would rush in theory at least but anyways etc from chopping one bonus to directly chopping bonus 2 without imrpvoing bonus 1 before that which would defeat the purpose and be very inefficient, only goal was to chop before actual improve for flexibility of AI workers and such anyways etc) if i may say but anyways etc... -->
++			// <!-- custom: note 2: even if chopping is important, do not change plot value at all, so that highest value bonus is chopped first, then at next step it is still highest value so it is improved, then it has now an improvement that is correct so it is moved out of our plots in all cases, then 2nd best bonus is chopped if needed, else improved, then 3rd bonus choped if needed then improved etc, then the rest of the plots :) Hehe a very elegant solution as gemini ai said from idea i nicely got but it helped me lot, so making chopping more important by not making it more important (else with a multiplier AI would rush in theory at least but anyways etc from chopping one bonus to directly chopping bonus 2 without imprvoing bonus 1 before that which would defeat the purpose and be very inefficient, only goal was to chop before actual improve for flexibility of AI workers and such anyways etc) if i may say but anyways etc... -->
+ 			if (eFeature == eFeatureForest)
+ 			{
+ 				// <!-- custom: no need to remove feature yet, first get the yields from the camp, +/- early connection in this case i mean but anyways etc if a river or route or such is already there luckily/conveniently as well anyways etc -->
+@@ -1212,7 +1212,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					// Give a <!-- custom: very high value (avoid multiplying for any weird bug or such, addition by a big number would produce more consistent or/and reliable results i think if i may say and if i am not mistaken anyways etc) --> for any unimproved bonus.
+ 					iValue += 20000;
+ 
+-					// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maye bit too at least in this case or in real life or both or only in real life or not or yes or etc but anyways etc...) if i may say anyways etc, so multiply it even further than the base any unimproved bonus multiplier if i am not mistaken in my understanding anyways etc -->
++					// <!-- custom: the more food the higher priority hehe (not in real life or why not but quality maybe bit too at least in this case or in real life or both or only in real life or not or yes or etc but anyways etc...) if i may say anyways etc, so multiply it even further than the base any unimproved bonus multiplier if i am not mistaken in my understanding anyways etc -->
+ 					// Give an even bigger multiplier if the bonus is a FOOD bonus.
+ 					if (bonusFoodYieldChange > 0)
+ 						iValue += (8 * bonusFoodYieldChange * 500);
+@@ -3135,7 +3135,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 		// <!-- custom: accounting for specialists and the need to develop other cities soon and sooner, which we still don't do soon enough as of now, reduce buffer from 1 to 0 as a test to see what happens anyways etc -->
+ 		// <!-- custom: add an extra tolerance and leeway for small cities, indeed they can be expected to grow fast, so stay longer in these even if we have a few more plots than our current pop (e.g. if city pop is 2, continue improving tiles until we have >= 0 + 2 pop + 2 extra tiles = 4 plots improved in city radius if i am not mistaken but anyways etc), hopefully this also helps if cities share tiles and in case they are counted as belonging to city B when in fact it is worked by city A (just a guess/theory but hopefully this helps too but anyways etc) -->
+ 		const int iCityPopulation = pCity->getPopulation();
+-		// <!-- custom: make the extra plot count a bit larger to account for (no pun but anyways etc) plot overlapping between cities, so if city A and city B share 2 plots, and these were improved in city A, we don't want the AI worker to think "hey, city B already has 2 tiles improved and its pop is 1, not too much more to do if threshold plots ot imrpove vs city population is reached, so make it a bit larger to account for that anyways etc, as of now here 3 (see below at iBufferForAllCities anyways etc) rather than say 2 anyways etc." -->
++		// <!-- custom: make the extra plot count a bit larger to account for (no pun but anyways etc) plot overlapping between cities, so if city A and city B share 2 plots, and these were improved in city A, we don't want the AI worker to think "hey, city B already has 2 tiles improved and its pop is 1, not too much more to do if threshold plots ot improve vs city population is reached, so make it a bit larger to account for that anyways etc, as of now here 3 (see below at iBufferForAllCities anyways etc) rather than say 2 anyways etc." -->
+ 		const int iBufferExtraForSmallCities = (iCityPopulation <= 4 ? 2 : 0);
+ 		// <!-- custom: note: even for big cities, the extra is not 0, to help reduce oscillation, so workers would stay a bit longer in city (if pop is 7 they'd stay until 8 plots are improved, so city A is ready for its next citizen, and when workers are in city B, they can stay longer as city A already has a few more/extra improvements to grow, even if not no big deal it is already developped, but don't overimprove city A, as city B is more urgent, but just a little bit extra in city A to avoid the back and forth / oscillation as discussed with chatgpt 5 with the idea i got hehe, so in short improve big cities a bit more than needed so we can comeback to them later and they'll still grow fine for a while, but don't overimprove, so that we move sooner to city B that is smaller and much needing early improvements, which we currently don't do or not enough (small cities take too logn to be improved by AI workers as of now anyways etc), and when we are in city B, improve a lot more plots than needed as it will grow fast, and do not leave city B until a few extra plots have been developped (if city pop 1, dont leave until 4 plots are improved for example if i'm not mistaken but anyways etc, then don't come back for a while if i'm not mistkane and in this case i mean but anyways etc)) -->
+ 		const int iBufferForAllCities = 1;
+
+diff --git a/README.md b/README.md
+index 1058892e9..4ca2532eb 100644
+--- a/README.md
++++ b/README.md
+@@ -478,7 +478,7 @@ it too though unless i'm mistaken)
+ - removebg (free version limit is 500 x 500 as of now it seems, but more than enough for our 64 x 64 buttons in dds, recommended by chatgpt even though i knew about it but anyways etc i didnt know it was ai based for example as chatgpt told me if not mistaken/inaccurate thanks a lot for the info :) if i may say, anyways etc)
+ - DXTBmp, useful for example (in my case at least or not or yes or and other or and not anyways etc) to modify [GameFont tga file(s) in the AdvCiv-SAS's Fonts folder](/Assets/Res/Fonts/), a good tutorial on CFC forum [is there](https://forums.civfanatics.com/threads/how-to-modify-gamefonts-tga-for-free.181119/) for example (that) i followed as well or tried to if it helps or not or and other or and not hopefully or not hopefully or hopefully anyways etc, example of how i used it in [this google drive folder link](https://drive.google.com/drive/folders/1zgu0hgOtBIjWfUpqTSKnw95ryVnagnbx?usp=sharing) (a bit if not lot or maybe bit but anwyays happily in the end or not or yes anyways etc succeeded in) successfully doing, so maybe these steps or/and screenshots can help as well, may not have followed all recommended or best practices, but it works quite well and i am satisfied with it, so maybe is good enough if not simply good maybe or not but anyways etc hopefully helpful or not or yes or and other or and not at least to me maybe or and other or maybe not others or and other or and not etc or yes or not or other or etc or and not or ye sor etc anyways etc anyways anyways etc...
+ - Dragon UnPACKer to view inside .fpk files and do operations such as file search or/and such if there operations (i didn't check so i don't know too anyways etc), for example finding all "tao" (search) assests in a base civ4 .fpk [(Google Drive preview example here)](https://drive.google.com/drive/folders/1lFqJ0LLa03a0oDTrJO9ahYigY6yjesTj?usp=sharing) (thanks a lot too anyways etc!! :) gogo anyways etc, useful if want to see what/how other mods did (and compare with what i could or would want to do or not in AdvCiv-SAS or most importantly how in technicality of how to do/implement it in the code and way of processing (image for example) and such files, among other possible things or not, (for example i know it's 64 x 64 as ChatGPT advised (with also advising 80x80 though, anyways), and i notice they use rounded edges for example which i may do or not, among other things or not such as if it is stretched without ratio or not but is just mentions and examples and i don't know all these so may be (entirely) accurate or not (entirely), at least for now, refer to other sources for more details, but anyways, is just an example to illustrate, hopefully helpful or not, but anyways, anyways, ), for example Realism Invictus, as i was/am doing or not the LeaderHead Button (Buttons) of Igoso Igodo for example, after i have done NIF .dds file
+-- PakBuild (note: i don't know the details, but it seems not recommended to use PakBuild at all to pack (not unpack) your assets into .fpk files according to [this discussion at least in civfanatics forum](https://forums.civfanatics.com/threads/utilizing-pakbuild-for-faster-mod-load.679925/) i glanced quick at and other things i read, but since here we use it only to unpack existing .fpk files from other mods, not pack our files into an .fpk file, then it might be fine to do so for us and as part of this unpacking (not packing) explanation if i may say and if i am not mistaken but anyways etc), very useful to unpack fpks where it is more convenient to manipulate files directly for modding anyways etc, especially for mods like realism invictus ("for example anyways etc" anyways etc) anyways etc where there are many sub fpks and the assets are spread across several fpks sometimes, easier to extract all fpks in one folder and access files directly, see this [google drive folder example for details](https://drive.google.com/drive/folders/1cvNRH86cSrsaagsqlvoNRxjFAeHQfX0H?usp=sharing) (note: should not be necessary if your/the mod only has a few fpks but as you prefer, but if the mod has a few dozen fpks like ri mod for example as said before anyways etc, it would save a lot of time if you often import their assets to unpack/merge them all in one folder the access directly with wiztree anyways etc) (note: i found to "just" / "only" anyways etc even though takes bit times but saves lot later and pain/heart-/brainache but anyways etc... hopefully helps but anyways etc, that indeed just the "structures" and "interface" fpks unpack(ed but anyways etc) are enough for my needs at least now no need to unpack all may or not later if need but anyways etc anyways etc anyways etc hopefully helps/is helpful but anyways etc..., note 2: be careful if unpacking all fpks in same folder may create erros/issues/missing files, see link above in this paragraph/bullet point i mean for details anyways etc anyways etc)
++- PakBuild (note: i don't know the details, but it seems not recommended to use PakBuild at all to pack (not unpack) your assets into .fpk files according to [this discussion at least in civfanatics forum](https://forums.civfanatics.com/threads/utilizing-pakbuild-for-faster-mod-load.679925/) i glanced quick at and other things i read, but since here we use it only to unpack existing .fpk files from other mods, not pack our files into an .fpk file, then it might be fine to do so for us and as part of this unpacking (not packing) explanation if i may say and if i am not mistaken but anyways etc), very useful to unpack fpks where it is more convenient to manipulate files directly for modding anyways etc, especially for mods like realism invictus ("for example anyways etc" anyways etc) anyways etc where there are many sub fpks and the assets are spread across several fpks sometimes, easier to extract all fpks in one folder and access files directly, see this [google drive folder example for details](https://drive.google.com/drive/folders/1cvNRH86cSrsaagsqlvoNRxjFAeHQfX0H?usp=sharing) (note: should not be necessary if your/the mod only has a few fpks but as you prefer, but if the mod has a few dozen fpks like ri mod for example as said before anyways etc, it would save a lot of time if you often import their assets to unpack/merge them all in one folder the access directly with wiztree anyways etc) (note: i found to "just" / "only" anyways etc even though takes bit times but saves lot later and pain/heart-/brainache but anyways etc... hopefully helps but anyways etc, that indeed just the "structures" and "interface" fpks unpack(ed but anyways etc) are enough for my needs at least now no need to unpack all may or not later if need but anyways etc anyways etc anyways etc hopefully helps/is helpful but anyways etc..., note 2: be careful if unpacking all fpks in same folder may create errors/issues/missing files, see link above in this paragraph/bullet point i mean for details anyways etc anyways etc)
+ - NifSkope to read .nif files if need(ed) (see [Google Drive preview examples here](https://drive.google.com/drive/folders/1StBDHqJ6LfOf8yxFuRxfkYUuKu6QgZz2?usp=drive_link)) helps too even though some people seem to say it's not too good if i am not mistaken but seems to do the trick i.e. or/and maybe rather be helpful for civ4 at least advciv-sas, for example anyways etc viewing the HR mod's baal(ism) (Generic found i assume for many other religions) religion .nif file which if i am not mistaken is the religion's movie file as said in description if i understand it bit or lot or both or not or and other or and not anyways etc correctly or not or yes or and other or and not anyways etc)(anyways etc), or the civ4's tao/dao ism one anyways etc or also the HR mod's asatru (viking (/scandiavian?) one for example for comparison that is quite characteristic and helps understand how it works (image seems frozen but maybe is intended this way and works as is maybe (not guaranteed but anyways etc) or the very pretty :o but anyways etc pesdejet found, or the shamanism one that we finally choose for paganism anyways etc after consideration of all or most of these or and other ones or and not anyways etc anyways etc anyways etc
+ - [Diffchecker website](https://www.diffchecker.com/), seems to work extremely well at spotting differences even in quite long texts and nice display and all, for example useful when for example trying to investiage why the git(hub) diff was different ([not visible in the github preview in website in this linked commit's diff (it seems but anyways etc anyways etc) for example('s url anyways etc)](https://github.com/wonderingabout/AdvCiv-SAS/commit/277746f4154a2424d763d9cc385d6a6bc8ef92bc?diff=split#diff-55db1d87967dd9a8a331adbb123e77ea20972a1b5ac44c8114c9f4d3ae24071eR39)) anyways etc, but can quickly see where and why with diffchecker (see [Google Drive preview examples here](https://drive.google.com/drive/folders/10vaaNidNwt2a2B-1EZa9SEGxYEOYhTxX?usp=sharing)) website where and why the difference(s) are, based on which (i.e. from this (info) anyways etc) i could assess i don't need to reupload the screenshot after i had automatically fixed with global (quite careful maybe(and in current doc only in vs code anyways etc)) replace the paganism religion description that is quite deep nested as in far in the text so not visible in our first screenshot anyway if i may say but anyways etc, is also a bit faster that doing a manual diff on vs code unless i don't know how, or maybe could have some other uses or and not anyways etc, thanks a lot, anyways etc, thanks, i like it very much, and still love vs code, as in continuously hehe at least as of now, as for future whatever happens or maybe not or yes but anyways etc anyways etc, in all cases anyways etc, for diffchecker website to go back to it more specifically anyways etc anyways etc, thanks,
+ - Wikipedia, a lot of very amazing, informative, quite if not lot and very accurate and neutral but just a bit and enough opiniated, and very exhaustive and all, thanks a big big lot! For making wikipedia and all and letting me and others or not but at least for me use it, good if helps others or maybe not or yes or both or not or and other or maybe yes or not or other anyways speaking about me etc thanks anyways anyways etc, thanks,
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 99beeb14e..56954a492 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -144,7 +144,7 @@ Note: be very careful!(!!! but anyways etc anyways etc anyways etc) Need to remo
+ 
+ ### trick to capture fast actions in same turn: press print screen super fast many times if you don't want to bother recording a video
+ 
+-If you have an issue that happens only for split seconds or even shorter in this case i mean but anyways etc and hard to view in one screenshot, and if recording a video is too much trouble, you can try pressing print screen many times super fast whiel the behaviour you want to capture in screenshot happens.
++If you have an issue that happens only for split seconds or even shorter in this case i mean but anyways etc and hard to view in one screenshot, and if recording a video is too much trouble, you can try pressing print screen many times super fast while the behaviour you want to capture in screenshot happens.
+ 
+ I noticed this accidentally or rather unconsciously xd, and it helped me identify an issue that we can only for like 0.2 seconds or such, but that can be captured in a screenshot this way.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 0a7e5db35..b3e9d9d85 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -985,6 +985,8 @@ Added code in `AIFoundValue::evaluate()` to handle that, see there for details,
+ 
+ Result ingame is very good as shown in screenshots, we now choose the correct best site, and future city north is also better, avoiding the coast camel desert site that has too many desert tiles, in favour of a coastal to the east desert plant that has iron and stone in its BFC as we need, but plenty coast to nicely benefit from it if we settle there. AI should be stronger as a result of this, especially if it leverages well this better site if i'm not mistaken but anyways etc.
+ 
++Update: upon further review, the site it chose was actually best as per our criteria xd, as ai values the extra west grassland even if it has to incurr a few very bad tiles that were not so penalized before if at all due to a bug xd in my code if i'm not mistaken in the past. Also, to fix/enhance this i had actually used a bug to count very bad tiles with a bonus as bad, so it avoided the desert stone, but didn't mind going towards the desert no bonus xd unless we penalized it otherwise which we didn't or maybe did not sure but anyways etc. Still, after fixing the bug, ai prefer its starting location to settle on xddd, unless we penalize extremely heavily the very bad tiles (like -300 base value at start phase which is way too high and likely to cause issues in other sites but anyways etc in our new global defines but anyways etc so better not anyways etc), and i finally figured why: i think it simply values the non-home flatland and hill grass tiles west rather than the coast ones that we count as neutral as of now but anyways etc). It makes it so that the west grass tiles are about equal to the southeast ones we wanted to move towards, and all other things being equal, the start site that has desert stone in its bfc is valued much more than the south east site i wanted to move towards that ditched as in ignored in this case i mean but anyways etc the stone to go for a few more hill grassland tiles. I think my site is slightly better though, but difference is small, and this is because i don't value stone at all xd. I think it's a healthy habit for ais to value bonuses as a general rule though, and now making it aware of a few extra more bad tiles with fixed bugs and knobs/tunables, so left as such. Also, skewing too much the values will make us forsake very good sites just to optimize this local one. A better way should be to hierarchize bonuses (iron super important, stone soso especially considering we barely build any wonders, but i think it's better to keep this good habit for ai and should help much more in general sites, so ai should be stronger thanks to our changes although it started from a bug and went back to locally same site, if i am not mistaken hehe but anyways etc).
++
+ ## 27 - (now fixed) Some promotions are missing in sevopedia unit's placePromotions
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1hRe5rR9DPBH6XzwllwTLSnh9kbIQwkEG?usp=sharing)
+@@ -1025,7 +1027,7 @@ So back to the resize canvas, choose 1920 x (1080 + 180) = 1920 x 1260 if i am n
+ 
+ Then, move your image (the drawing/real image you want to see) to the bottom of the Paint.NET image, so the fake empty pixels that were on the bottom would now be on top (to do that ctrl+a then ctrl+x then ctrl+v then use bottom keyboard arrow, and when close to end/bottom edge, zoom a lot to align it perfectly if i may say but anyways etc).
+ 
+-2- After that, we need to add the bottom fake pixels. To do that, redo again the resize canvas, but this time choose a resolution of 1920 x (1260 + 180) = 1920 x 1440, and also here as well untick/disable the maintain aspect ratio of Paint.NET resize canvas feature if i may say but anyways etc. Then finally save as .dds. If you are satisfied with the ingame result, i'd recommend restarting from your original image (in case you tinkered a bit with the values as i did, else may not be necessary) and do the same steps of this entire section (keep a backup of oyur original image as well in case or if needed but anyways etc), but save after all steps directly as .dds from your original image (say .jp to .dds directly), i am not sure, but maybe quality would be higher than compressing and recompressing a .dds voer and over whiel doing trial and error as i did. Again may or not change anything, but as a theoretical and to be safe if i may say in this case at least and to have best potential rendering in case it helps (again not sure but maybe it does or not but anyways etc), i'd recommend doing it cleanly again after you have found your dimensions that suit your image from your native image directly to .dds but anyways etc (in my case for example i use Paint.NET DXT1 with mipmaps (mimaps seems to have been recommended in some civfanatics forums or/and by chatgpt too xd if i remember it correctly but anyways etc when i (had? But anyways etc...) started developping this mod a few months ago xd if i may say but anywyas etc...) which seems to work-function fine (i don't know if it's best, but it seems to work well here or not too bad so maybe fine to do so but check to be sure in case there is better info or such but anyways etc))
++2- After that, we need to add the bottom fake pixels. To do that, redo again the resize canvas, but this time choose a resolution of 1920 x (1260 + 180) = 1920 x 1440, and also here as well untick/disable the maintain aspect ratio of Paint.NET resize canvas feature if i may say but anyways etc. Then finally save as .dds. If you are satisfied with the ingame result, i'd recommend restarting from your original image (in case you tinkered a bit with the values as i did, else may not be necessary) and do the same steps of this entire section (keep a backup of oyur original image as well in case or if needed but anyways etc), but save after all steps directly as .dds from your original image (say .jp to .dds directly), i am not sure, but maybe quality would be higher than compressing and recompressing a .dds voer and over while doing trial and error as i did. Again may or not change anything, but as a theoretical and to be safe if i may say in this case at least and to have best potential rendering in case it helps (again not sure but maybe it does or not but anyways etc), i'd recommend doing it cleanly again after you have found your dimensions that suit your image from your native image directly to .dds but anyways etc (in my case for example i use Paint.NET DXT1 with mipmaps (mimaps seems to have been recommended in some civfanatics forums or/and by chatgpt too xd if i remember it correctly but anyways etc when i (had? But anyways etc...) started developping this mod a few months ago xd if i may say but anyways etc...) which seems to work-function fine (i don't know if it's best, but it seems to work well here or not too bad so maybe fine to do so but check to be sure in case there is better info or such but anyways etc))
+ 
+ Note: at some values for some reason the screen may appear entirely white, i don't know why exactly if at all, but i have noticed slightly increasing the value or decreasing it solves it, so if say 1920 x 1440 causes an issues (imaginary but for example), try 1920 x 1442 or 1920 x 1438 etc and adjust based on your display or increase / decrease a bit more if still white screen but anyways etc, solved it for me when some values such as 1238,1232, 1250 didn't work-function i.e. also had the white screen weird issue but for example 1240 or 1236 worked-functionned fine if i am not mistaken and remember it correctly anyways etc. I have again no idea why, just use a slightly higher or lower value like in my case 1236 while i was doing trial and error displays fine if i am not mistaken, anyways etc.
+ 
+@@ -1294,7 +1296,7 @@ See screenshots and files about/related(ing? Anyways etc) to this issue in this
+ 
+ As can be seen in existing screenshots between 1742 and 1745, AI, here China AI but anyways etc, had a major problem with tile allocation, here choosing to allocate a juicy 0 food 6 hammer tile from about turn 50 to close to turn 100. Although the hammer is nice though, it is better to capitalize on food early (which can be symbolized very well as having happiness surplus (e.g. 9 happy and 1 unhappy is 8 happiness surplus anyways etc)).
+ 
+-So thanks to chatgpt 3-o, and my prompt and adjustments or not or yes or etc but anyways etc but it helped me lot too but anywyas etc, i added a patch/fix/tweak in as of now `CvCityAI::AI_yieldValue`, to value food yields in plots the more happiness we have (for example as of now if i'm not mistaken but anyways etc with 9 happy and 1 unhappy so 9 - 1 = 8 happy surplus, we'd have the food value now being multiplied by 8, but if happy surplus is only 2 (say 9 happy 7 unhappy for example but anyways etc) then the food multiplier would only be 2 which seems fine as it is quite mild maybe (i don't know but i assume seeing very quickly other mulitplicative calculations if i may say but anyways etc in this function but only glanced and from my memory of it so check to be sure but anyways etc) but still encouraging growth if i may say but anyways etc).
++So thanks to chatgpt 3-o, and my prompt and adjustments or not or yes or etc but anyways etc but it helped me lot too but anyways etc, i added a patch/fix/tweak in as of now `CvCityAI::AI_yieldValue`, to value food yields in plots the more happiness we have (for example as of now if i'm not mistaken but anyways etc with 9 happy and 1 unhappy so 9 - 1 = 8 happy surplus, we'd have the food value now being multiplied by 8, but if happy surplus is only 2 (say 9 happy 7 unhappy for example but anyways etc) then the food multiplier would only be 2 which seems fine as it is quite mild maybe (i don't know but i assume seeing very quickly other mulitplicative calculations if i may say but anyways etc in this function but only glanced and from my memory of it so check to be sure but anyways etc) but still encouraging growth if i may say but anyways etc).
+ 
+ As an extra nice addition suggested by chatgpt 3-o if i may say but anyways etc, and that i tweaked too if i may say but anyways etc, if we are happy to very happy (as of now 3+ happiness surplus (e.g. 7 happy - 4 unhappy = 3 happiness surplus if i'm not mistaken but anyways etc)), then we also reduce the value of hammer/production, as indeed, it is more valuable to grow, we'd allocate the high production tiles naturally as we have more population, and as long as we have extra happiness, better use it.
+ 
+@@ -1353,7 +1355,7 @@ This is very nice and hopefully we'd get less false positives, and although it w
+ 
+ So then i removed the iNeed and iHave code base advciv +/- civ4 code (whoever wrote it), which is incredibly shitty and needless, we don't care if AI workers hover back and forth from one city to another, we already have a fine tuned and very straightforward and easy system telling them if they should go to city B or city C or not. They can always come back to city A if needed later (e.g. if city A has grown since then AND city C is now improved enough, for now).
+ 
+-Note: slightly related note: now that we use one worker per tile, originally for efficiency, AI workers are now very hard to capture/hoard :) So this is a very nice side effect, no need to be so scared about losing workers, just go for it if i may say but anyways etc. In the late game anyway, workers are not worth too much so fine if they are captured or destroyed, may even be good for economy actually (or worse to whoever captures them if an AI and it doesn't gift them or destroy them but anyways etc), and early ennemies are often not mobile enough and even if they are fine or not too bad, at least not worth the disadvantage of running away from nice to imrpove tiles that could directly benefit the city(ies) but anyways etc. Hopefully this helps reduce if not solve the issue of AI workers always interrupting their builds, which is very inefficient too, but i didn't test it, they do seem less mobile as in interrupting then resuming very inefficiently same builds, which would be nice if true, but i didn't test it too much nor looked into it to know for sure, so i can only assume it hopefully helps but check to be sure anyways etc. No more worker stacks to fear being cpatured for the AI or to protect or snatch for human players, i believe it's all in all much better on top of efficiency gains for AI workers but anyways etc.
++Note: slightly related note: now that we use one worker per tile, originally for efficiency, AI workers are now very hard to capture/hoard :) So this is a very nice side effect, no need to be so scared about losing workers, just go for it if i may say but anyways etc. In the late game anyway, workers are not worth too much so fine if they are captured or destroyed, may even be good for economy actually (or worse to whoever captures them if an AI and it doesn't gift them or destroy them but anyways etc), and early ennemies are often not mobile enough and even if they are fine or not too bad, at least not worth the disadvantage of running away from nice to improve tiles that could directly benefit the city(ies) but anyways etc. Hopefully this helps reduce if not solve the issue of AI workers always interrupting their builds, which is very inefficient too, but i didn't test it, they do seem less mobile as in interrupting then resuming very inefficiently same builds, which would be nice if true, but i didn't test it too much nor looked into it to know for sure, so i can only assume it hopefully helps but check to be sure anyways etc. No more worker stacks to fear being cpatured for the AI or to protect or snatch for human players, i believe it's all in all much better on top of efficiency gains for AI workers but anyways etc.
+ 
+ Again situation if i may say but anyways etc seems to have improved a bit, no overly improving core cities anymore as well if not already done before, but still jungle tiles in these a bit far cities are still not improved. Then i noticed by a glance somehow xd in this case but anyways etc, as shown in screenshots 1941 and 1942 but anyways etc , that in city A of persia AI, there are 5 workers parked. They are doing nothing since we told them don't overimprove city A, which is good, but now they don't go either to city C?? (city B is improved enough too), so it means our logic is working great, but something else is interferring.
+ 
+@@ -2383,7 +2385,7 @@ A few notes now that this is seemingly solved reliably and nicely enhanced it se
+ >}
+ >```
+ 
+-Now all cities of all AI players are improved and roaded fine and fast enough nicely it seems if i am not mistaken but anyways etc, except elephantine city that is not imrpoved nor roaded at all at turn 200+, then after it is roaded gets nicely improved a very nice and strong city, but a bit too late, so trying to make workers move there faster as our next known issue but anyways etc.
++Now all cities of all AI players are improved and roaded fine and fast enough nicely it seems if i am not mistaken but anyways etc, except elephantine city that is not improved nor roaded at all at turn 200+, then after it is roaded gets nicely improved a very nice and strong city, but a bit too late, so trying to make workers move there faster as our next known issue but anyways etc.
+ 
+ See also: [60 - (Fixed) Seemingly rare reproducible crash at turn 283 in CvUnitAI::AI_nextCityToImprove, by adding a bunch of seemingly conservative safeties (as chatgpt 5 did anyways etc, check if accurate anyways etc)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#60---fixed-seemingly-rare-reproducible-crash-at-turn-283-in-cvunitaiai_nextcitytoimprove-by-adding-a-bunch-of-seemingly-conservative-safeties-as-chatgpt-5-did-anyways-etc-check-if-accurate-anyways-etc)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 2db7cbf10..1a7f836f3 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -98,7 +98,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### Sevopedia reworks and other related changes
+ 
+-- for sevoedpia new content and most reworks, see above in this readme or in more detail at [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)
++- for sevopedia new content and most reworks, see above in this readme or in more detail at [README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks](/README.md#sevopedia-reworks-ai-personality-panel-and-other-sevopedia-reworks)
+ - additionally, also expanded sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc
+ - reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.
+ - in particular replaced some pedia entries of religions in particular but not only (also of some techs, buildings, units, bonuses, a few terrains/features as of now too, etc.), with wikipedia based entries (unless stated otherwise in the pedia entry or in code comments or docs), so that it is more accurate and possibly if i may say anyways etc instructive or/and informative or/and neutral/objective or/and perhaps also enjoyable anyways etc.
+@@ -373,7 +373,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ 
+ ### Civilian Units
+ 
+-- increased DOW_UNIT_CAPTURE_CHANCE from 0 to 50, this means even at the turn where war is declared, chance to capture workers is 50%, no reason to explicitly discourage capturing workers as suprise attacks and opportunistic/efficient attacks as well are an important and natural component of war i think, would help and reward AIs and the human player for behaving as such. It would be the same, otherwise, than having a no capture city at first turn, or such unrealistic limitations i would say. I find best at least in advciv-sas to set this to same number as BASE_UNIT_CAPTURE_CHANCE (as of now and in base advciv as of now too is 50 meaning 50% capture chance if i am not mistaken anywyas etc). So now the worker capture chance in all turns is also extended to being the same capture chance at the turn where/when war is declared too, not 0 anymore at this turn anyways etc.
++- increased DOW_UNIT_CAPTURE_CHANCE from 0 to 50, this means even at the turn where war is declared, chance to capture workers is 50%, no reason to explicitly discourage capturing workers as suprise attacks and opportunistic/efficient attacks as well are an important and natural component of war i think, would help and reward AIs and the human player for behaving as such. It would be the same, otherwise, than having a no capture city at first turn, or such unrealistic limitations i would say. I find best at least in advciv-sas to set this to same number as BASE_UNIT_CAPTURE_CHANCE (as of now and in base advciv as of now too is 50 meaning 50% capture chance if i am not mistaken anyways etc). So now the worker capture chance in all turns is also extended to being the same capture chance at the turn where/when war is declared too, not 0 anymore at this turn anyways etc.
+ - the settler is now a national unit: only one allowed per player. This helps AI efficiency a lot (no more building 2 settlers at same time, or one when one already exists (hammer +/- food (used as produciton too for the settler if i am not mistaken but anyways etc) saved while the existing settler unit travels too if i am not mistaken but anyways etc)), but also adds a layer of strategy for all players, as targetting settlers is worth more, also the timing of when to build settlers, whether to slave or not (see slaving changes, that is now buffed in the general or such changes in this readme as well for extra info or details anyways etc) and at which timing and in which city. All these become more important to manage, as well as better escorting settlers too. Since AI has as of now handicap advantages at higher difficulties, it shouldn't be as affected but still greatly benefit in most cases from the increased effiency, as the amount of hammer saved or optimized now could be used to build many things, and if unfortunately as of now its settler is destroyed, then no big deal it can build a new one, as well as prepare for war better or build something else instead of building too many settlers. There may be other related changes in the way to approach settlers strategically thanks to or with this change, but i believe it's interesting also not too sure but looks very good or/and interesting to me. See also [README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player) for details and extra info (although most should be here but maybe screenshots or such extra info if any there, hopefully helpful or not or yes or etc but anyways etc)
+ 
+ ### Military and some civilian units related info (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 7a57d6397..0ff0fe388 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -136,7 +136,7 @@ Also added later iConquestProb display in placeSpecial, idea i got from watching
+ 
+ ## example 9: terrains category
+ 
+-Done much later in development of advciv-sas mod, added in particular new placeRelevantUnits and placeUnitsImpassable if i am not mistaken anywyas etc panels that these methods handle anyways etc. They show which units can walk on which tiles, including peak (some code to display some peak information is taken from rfc doc mod for example), but most of the new code is written by me and/with chatgpt's help and my prompts too anyways etc.
++Done much later in development of advciv-sas mod, added in particular new placeRelevantUnits and placeUnitsImpassable if i am not mistaken anyways etc panels that these methods handle anyways etc. They show which units can walk on which tiles, including peak (some code to display some peak information is taken from rfc doc mod for example), but most of the new code is written by me and/with chatgpt's help and my prompts too anyways etc.
+ 
+ So now we also show Peak and Hill as new "terrains" even though they are both plot types and terrains if i am not mistaken in civ4 anyways etc. Such info is added using as of now the "Plot Type / Terrain" alternative identifier, reusing the former RFC DOC mod's "Terrain" harcoded identifier, now more flexible and perhaps informative, and info about that in the pedia entry even though not too clean maybe exhaustive or/and informative anyways etc.
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=15 omittedFiles=1 embeddedPatchBytes=140052

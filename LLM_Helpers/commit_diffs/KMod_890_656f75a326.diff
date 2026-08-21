@@ -1,0 +1,103 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 890
+# Commit: 656f75a32693717d6f503ba65df735a260e1e131
+# History segment: K-Mod history
+# Parent used for diff: c3ce246a81e2e3267aee12c4f824e282f61e8cb3
+# Title: Made some further adjustments to CvTeamAI::AI_surrenderTrade.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	19	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 682e55305..1b049d062 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2778,8 +2778,9 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier) c
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-		int iMasterPower = GET_TEAM(eTeam).getPower(false);
+-		int iVassalPower = (getPower(true) * (iPowerMultiplier + iPersonalityModifier / std::max(1, iMembers))) / 100;
++		int iMasterPower = kMasterTeam.getPower(false);
++		int iOurPower = getPower(true); // K-Mod (this value is used a bunch of times separately)
++		int iVassalPower = (iOurPower * (iPowerMultiplier + iPersonalityModifier / std::max(1, iMembers))) / 100;
+ 
+ 		if (isAtWar(eTeam))
+ 		{
+@@ -2825,6 +2826,10 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier) c
+ 			}
+ 		}
+ 
++		// K-Mod. (condition moved here from lower down; for efficiency.)
++		if (3 * iVassalPower > 2 * iMasterPower)
++			return DENIAL_POWER_US;
++		// K-Mod end
+ 
+ 		for (int iLoopTeam = 0; iLoopTeam < MAX_CIV_TEAMS; iLoopTeam++)
+ 		{
+@@ -2838,22 +2843,25 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier) c
+ 					{
+ 						if (iLoopTeam != eTeam)
+ 						{
+-							if (kLoopTeam.getPower(true) > getPower(true))
++							int iLoopPower = kLoopTeam.getPower(true); // K-Mod
++							if (iLoopPower > iOurPower)
+ 							{
+ 								//if (kLoopTeam.isAtWar(eTeam) && !kLoopTeam.isAtWar(getID()))
+-								if (kLoopTeam.isAtWar(eTeam) && !kLoopTeam.isAtWar(getID()) && (!isAtWar(eTeam) || kMasterTeam.getPower(true) < 2 * kLoopTeam.getPower(true))) // K-Mod
++								if (kLoopTeam.isAtWar(eTeam) && !kLoopTeam.isAtWar(getID()) && (!isAtWar(eTeam) || iMasterPower < 2 * iLoopPower)) // K-Mod
+ 								{
+ 									return DENIAL_POWER_YOUR_ENEMIES;
+ 								}
+ 
+-								iAveragePower = (2 * iAveragePower * kLoopTeam.getPower(true)) / std::max(1, kLoopTeam.getPower(true) + getPower(true));
++								iAveragePower = (2 * iAveragePower * iLoopPower) / std::max(1, iLoopPower + iOurPower);
+ 
+-								iAttitudeModifier += (3 * kLoopTeam.getPower(true)) / std::max(1, getPower(true)) - 2;
++								//iAttitudeModifier += (3 * kLoopTeam.getPower(true)) / std::max(1, getPower(true)) - 2;
++								iAttitudeModifier += (6 * iLoopPower / std::max(1, iOurPower) - 5)/2; // K-Mod. (effectively -2.5 instead of 2)
+ 							}
+ 
+ 							if (!kLoopTeam.isAtWar(eTeam) && kLoopTeam.isAtWar(getID()))
+ 							{
+-								iAveragePower = (iAveragePower * (getPower(true) + GET_TEAM(eTeam).getPower(false))) / std::max(1, getPower(true));
++								//iAveragePower = (iAveragePower * (getPower(true) + GET_TEAM(eTeam).getPower(false))) / std::max(1, getPower(true));
++								iAveragePower = iAveragePower * (iOurPower + iMasterPower) / std::max(1, iOurPower + std::max(iOurPower, iLoopPower)); // K-Mod
+ 							}
+ 						}
+ 					}
+@@ -2878,18 +2886,8 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier) c
+ 			return DENIAL_POWER_US;
+ 		}
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      06/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* War Strategy AI                                                                              */
+-/************************************************************************************************/
+-/* original bts code
+-		if (iVassalPower > iAveragePower || 3 * iVassalPower > 2 * iMasterPower)
+-*/
+-		if (5*iVassalPower > 4*iAveragePower || 3 * iVassalPower > 2 * iMasterPower)
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++		// if (iVassalPower > iAveragePower || 3 * iVassalPower > 2 * iMasterPower)
++		if (5*iVassalPower > 4*iAveragePower) // K-Mod. (second condition already checked)
+ 		{
+ 			return DENIAL_POWER_US;
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4494

@@ -1,0 +1,150 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3051
+# Commit: 8ae887bcc5de42db50ea7b65dd1e20f70ce7e762
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f0152a7f6c4420e02f9dc2bc54b67996a051cf36
+# Title: Some tweaks to CvXMLInfo class
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	6	CvGameCoreDLL/CvInfo_Base.cpp
+21	8	CvGameCoreDLL/CvInfo_Base.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.cpp b/CvGameCoreDLL/CvInfo_Base.cpp
+index d5b5753d6..5ede42f0d 100644
+--- a/CvGameCoreDLL/CvInfo_Base.cpp
++++ b/CvGameCoreDLL/CvInfo_Base.cpp
+@@ -275,12 +275,12 @@ void CvHotkeyInfo::write(FDataStreamBase* pStream)
+ 	pStream->WriteString(m_szHotKeyString);
+ }
+ #endif
+-// <advc.tag>
++// advc.tag:
+ void CvHotkeyInfo::addElements(std::vector<XMLElement*>& r) const
+ {
+ 	CvXMLInfo::addElements(r);
+ 	// (Could add CvHotKeyInfo elements here)
+-} // </advc.tag>
++}
+ 
+ int CvHotkeyInfo::getActionInfoIndex() const
+ {
+@@ -399,7 +399,7 @@ bool CvXMLInfo::XMLElement::isMandatory() const { return m_bMandatory; }
+ CvXMLInfo::IntElement::IntElement(int iEnumValue, CvString szName) :
+ 		XMLElement(iEnumValue, szName), m_iDefaultValue(0) {}
+ 
+-CvXMLInfo::IntElement::IntElement(int iEnumValue, CvString szName, int iDefault) :
++CvXMLInfo::IntElement::IntElement(int iEnumValue, CvString szName, short iDefault) :
+ 		XMLElement(iEnumValue, szName, false), m_iDefaultValue(iDefault) {}
+ 
+ CvXMLInfo::ElementDataType CvXMLInfo::IntElement::getDataType() const
+@@ -407,7 +407,7 @@ CvXMLInfo::ElementDataType CvXMLInfo::IntElement::getDataType() const
+ 	return INT_ELEMENT;
+ }
+ 
+-int CvXMLInfo::IntElement::getDefaultValue() const { return m_iDefaultValue; }
++short CvXMLInfo::IntElement::getDefaultValue() const { return m_iDefaultValue; }
+ 
+ CvXMLInfo::BoolElement::BoolElement(int iEnumValue, CvString szName) :
+ 		XMLElement(iEnumValue, szName), m_bDefaultValue(false) {}
+@@ -430,7 +430,7 @@ void CvXMLInfo::addElements(std::vector<XMLElement*>& r) const
+ void CvXMLInfo::set(IntElementTypes e, int iNewValue)
+ {
+ 	FAssertBounds(0, m_aiData.size(), e);
+-	m_aiData[e] = iNewValue;
++	m_aiData[e] = toShort(iNewValue);
+ }
+ 
+ void CvXMLInfo::set(BoolElementTypes e, bool bNewValue)
+@@ -478,7 +478,7 @@ bool CvXMLInfo::read(CvXMLLoadUtility* pXML)
+ 						static_cast<IntElement&>(kElement).getDefaultValue());
+ 			}
+ 			FAssertBounds(0, m_aiData.size(), iEnumValue);
+-			m_aiData[iEnumValue] = iTmp;
++			m_aiData[iEnumValue] = toShort(iTmp);
+ 			break;
+ 		case BOOL_ELEMENT:
+ 			szName.insert(0, "b");
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index 053081660..fe32d50f0 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -115,7 +115,8 @@ protected:
+ };
+ 
+ /*	advc.tag: Abstract class that allows XML elements to be added
+-	and accessed through enum values */
++	and accessed through enum values
++	For elements that map an enum key to a value, see CvInfo_EnumMap.h. */
+ class CvXMLInfo : public CvInfoBase
+ {
+ public:
+@@ -128,12 +129,12 @@ public:
+ 	{
+ 		NUM_BOOL_ELEMENT_TYPES
+ 	};
+-	__forceinline int get(IntElementTypes e) const
++	__forceinline short get(IntElementTypes e) const
+ 	{
+ 		FAssertBounds(0, m_aiData.size(), e);
+ 		return m_aiData[e];
+ 	}
+-	__forceinline int get(BoolElementTypes e) const
++	__forceinline bool get(BoolElementTypes e) const
+ 	{
+ 		FAssertBounds(0, m_abData.size(), e);
+ 		return m_abData[e];
+@@ -169,11 +170,11 @@ protected:
+ 	{
+ 	public:
+ 		IntElement(int iEnumValue, CvString szName);
+-		IntElement(int iEnumValue, CvString szName, int iDefault);
++		IntElement(int iEnumValue, CvString szName, short iDefault);
+ 		ElementDataType getDataType() const;
+-		int getDefaultValue() const;
++		short getDefaultValue() const;
+ 	private:
+-		int m_iDefaultValue;
++		short m_iDefaultValue;
+ 	};
+ 	class BoolElement : public XMLElement
+ 	{
+@@ -194,10 +195,22 @@ protected:
+ 	void set(BoolElementTypes e, bool bNewValue);
+ 
+ private:
+-	std::vector<int> m_aiData;
+-	std::vector<bool> m_abData;
++	std::vector<short> m_aiData;
++	std::vector<bool> m_abData; // Should use a dynamic bitfield internally
+ };
+ 
++/*	advc.tag: (To expose a tag to Python, this macro needs to be called in the
++	public section of the concrete XML info class that defines the tag, and a
++	py_get... def needs to be added in the appropriate CyInfoPythonInterface*.cpp.) */
++#define PY_GET_ELEMENT(ReturnType, TagName) \
++	private: \
++		FRIEND_CY_INFO_PYTHON_INTERFACE; \
++		ReturnType py_get##TagName() const \
++		{ \
++			return get(TagName); \
++		} \
++	public:
++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //  class : CvHotkeyInfo
+ //  holds the hotkey info for an info class
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4291

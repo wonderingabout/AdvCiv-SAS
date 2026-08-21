@@ -1,0 +1,75 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3703
+# Commit: e4c770bfb42c59400f9e9ca94c293f00db7ed609
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f0755d19d591e49e94a0c117a1affed0ddfd7a30
+# Title: Save compatibility fix for very old savegames
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	0	CvGameCoreDLL/CvGame.cpp
+18	0	CvGameCoreDLL/CvInitCore.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 89efedc82..430651fd5 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9731,6 +9731,15 @@ void CvGame::onAllGameDataRead()
+ 		m_iCivTeamsEverAlive = countCivTeamsEverAlive();
+ 	// </advc.opt>
+ 	GC.getAgents().gameStart(true); // advc.agent
++	// <advc.250a> Cf. CvInitCore::read
++	if (m_uiSaveFlag <= 1)
++	{
++		if (getHandicapType() >= GC.getNumHandicapInfos())
++		{
++			setHandicapType(GET_PLAYER(getActivePlayer()).getHandicapType());
++			initGameHandicap();
++		}
++	} // </advc.250a>
+ 	// <advc.003m>
+ 	for (TeamIter<> it; it.hasNext(); ++it)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index c70ab4d0c..c4d6ba23a 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -1961,6 +1961,24 @@ void CvInitCore::read(FDataStreamBase* pStream)
+ 		m_aeColor.readArray<int>(pStream);
+ 		m_aeArtStyle.readArray<int>(pStream);
+ 	}
++	/*	<advc.250a> Looks like I hadn't taken care of save compatibility
++		when I did away with the "King" handicap. Game handicap will have to be
++		handled by CvGame. */
++	if (uiFlag <= 1)
++	{
++		FOR_EACH_ENUM(Player)
++		{
++			if (getHandicap(eLoopPlayer) >= GC.getNumHandicapInfos())
++			{
++				FErrorMsg("Invalid handicap ID loaded");
++				HandicapTypes eReplacement = (HandicapTypes)
++						GC.getInfoTypeForString("HANDICAP_EMPEROR");
++				if (eReplacement == NO_HANDICAP)
++					eReplacement = (HandicapTypes)(GC.getNumHandicapInfos() - 1);
++				setHandicap(eLoopPlayer, eReplacement);
++			}
++		}
++	} // </advc.250a>
+ 	// <advc.190c>
+ 	if (uiFlag >= 5)
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1632

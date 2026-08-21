@@ -1,0 +1,589 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1327
+# Commit: 6af01f82d3296666a2a16ef16ca77b559040231d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5e6aa1c42d7fe86cd234a1a15b109cd6e2bd945a
+# Title: Moved developer settings from GlobalDefines_advc.xml into a new file GlobalDefines_devel.xml. [advc.009]
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	Assets/Config/BUG Core.xml
+1	1	Assets/Config/BULL Core.xml
+4	2	Assets/Python/BUG/BugEventManager.py
+10	2	Assets/Python/BUG/BugOptionsScreen.py
+84	0	Assets/XML/GlobalDefines_devel.xml
+0	60	Assets/xml/GlobalDefines_advc.xml
+8	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+59	17	CvGameCoreDLL/CvGame.cpp
+2	1	CvGameCoreDLL/CvGame.h
+13	3	CvGameCoreDLL/CvGameInterface.cpp
+3	2	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.cpp
+3	1	CvGameCoreDLL/CvTeamAI.cpp
+2	0	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+-	-	manual_0.92e.odt
+ create mode 100644 Assets/XML/GlobalDefines_devel.xml
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Core.xml b/Assets/Config/BUG Core.xml
+index 598f210ad..f286c7a2d 100644
+--- a/Assets/Config/BUG Core.xml	
++++ b/Assets/Config/BUG Core.xml	
+@@ -113,4 +113,6 @@
+ 		 BugOptionsScreen module (although it affects a player option,
+ 		 not a BUG option). -->
+ 	<shortcut module="BugOptionsScreen" function="toggleShowFriendlyMoves" keys="Shift M"/>
++	<!-- advc.135c -->
++	<shortcut module="BugOptionsScreen" function="toggleDebugMode" keys="Ctrl Z"/>
+ </mod>
+
+diff --git a/Assets/Config/BULL Core.xml b/Assets/Config/BULL Core.xml
+index 502b4c78a..cb6f1c607 100644
+--- a/Assets/Config/BULL Core.xml	
++++ b/Assets/Config/BULL Core.xml	
+@@ -7,7 +7,7 @@
+ 
+ 	Copyright (c) 2010 The BUG Mod.
+ -->
+-<!-- advc.003d: getUserDirStr added -->
++<!-- advc.003d: getUserDir added -->
+ <mod id="BULL" 
+ 	 name="BULL Core" 
+ 	 module="BugDll"
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index 5d89850d1..9d7b95029 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -597,8 +597,10 @@ def configure(logging=None, noLogEvents=None):
+ 	# K-Mod end
+ 
+ 	# --------- Better BTS AI (2/2) (moved by K-Mod) -------------
+-	# K-Mod, only enable these feature if the cheat mode is enabled.
+-	if getChtLvl():
++	# K-Mod, only enable these features if the cheat mode is enabled.
++	#if getChtLvl():
++	# advc.127: Replacing the above. ChtLvl is always 0 in multiplayer.
++	if getChtLvl() or (CyGame().isGameMultiPlayer() and gc.getDefineINT("ENABLE_AUTOPLAY_MULTIPLAYER") > 0):
+ 		AIAutoPlay.AIAutoPlay(g_eventManager)
+ 		ChangePlayer.ChangePlayer(g_eventManager)
+ 		Tester.Tester(g_eventManager)
+
+diff --git a/Assets/Python/BUG/BugOptionsScreen.py b/Assets/Python/BUG/BugOptionsScreen.py
+index 3ca22e8e3..1fc4e281c 100644
+--- a/Assets/Python/BUG/BugOptionsScreen.py
++++ b/Assets/Python/BUG/BugOptionsScreen.py
+@@ -29,7 +29,7 @@ CoreOpt = BugCore.game.Core
+ MainOpt = BugCore.game.MainInterface
+ 
+ 
+-## <advc.102>
++# <advc.102>
+ def toggleShowFriendlyMoves(argsList=None):
+ 	gc = BugUtil.gc
+ 	game = gc.getGame()
+@@ -37,7 +37,15 @@ def toggleShowFriendlyMoves(argsList=None):
+ 	o = PlayerOptionTypes.PLAYEROPTION_SHOW_FRIENDLY_MOVES
+ 	currentlyEnabled = p.isOption(o)
+ 	p.setOption(o, not currentlyEnabled)
+-## </advc.102>
++# </advc.102>
++# <advc.135c>
++def toggleDebugMode(argsList=None):
++	gc = BugUtil.gc
++	game = gc.getGame()
++	# The built-in shortcut (also Ctrl+Z) works iff ChtLvl>0. Let CvGame::toggleDebugMode decide whether ChtLvl should matter.
++	if getChtLvl() <= 0:
++		game.toggleDebugMode()
++# </advc.135c>
+ 
+ 
+ ## Using and Showing
+
+diff --git a/Assets/XML/GlobalDefines_devel.xml b/Assets/XML/GlobalDefines_devel.xml
+new file mode 100644
+index 000000000..e9638b0c4
+--- /dev/null
++++ b/Assets/XML/GlobalDefines_devel.xml
+@@ -0,0 +1,84 @@
++<?xml version="1.0"?>
++
++<!-- [advc.009] AdvCiv settings for development purposes -->
++
++<Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
++
++	<!-- [advc.104]
++		 If logging is enabled in /My Games/
++		 Beyond The Sword/CivilizationIV.ini, a log file is written to
++		 /My Games/Beyond The Sword/Logs every REPORT_INTERVAL turns.
++		 It's not necessary to compile a debug DLL in order
++		 to see the reports. Each report records the war planning of all
++		 AI civs during a single turn. Set to 0 or less to disable logging. -->
++    <Define>
++        <DefineName>REPORT_INTERVAL</DefineName>
++        <iDefineIntVal>0</iDefineIntVal>
++    </Define>
++	
++	<!-- [advc.104]
++		 If UWAI reports are enabled (see above), no details about a AI war plan
++		 are logged unless that war plan has greater utility than this
++		 threshold. There's a separate threshold for war plans against
++		 human players. Recommended: -10/-50; use sth. like -1000/-1000 to log
++		 details always. -->
++    <Define>
++        <DefineName>UWAI_REPORT_THRESH</DefineName>
++        <iDefineIntVal>-10</iDefineIntVal>
++    </Define>
++    <Define>
++        <DefineName>UWAI_REPORT_THRESH_HUMAN</DefineName>
++        <iDefineIntVal>-50</iDefineIntVal>
++    </Define>
++
++	<!-- [advc.104v]
++		 If this is set to 1 and the Debug mode has been enabled (Ctrl+Z), then
++		 messages about AI war preparations are shown during AI Auto Play. If set
++		 to 0 (default), no such messages are shown. -->
++	<Define>
++        <DefineName>UWAI_SPECTATOR_ENABLED</DefineName>
++        <iDefineIntVal>0</iDefineIntVal>
++    </Define>
++	
++	<!-- [advc.104]
++		If set to 1 or greater, and UWAI is enabled in Game Options
++		(i.e. "Aggressive AI" not checked), UWAI runs in the background and
++		writes a logfile (depending in REPORT_INTERVAL), but lets the K-Mod AI
++		make all decisions. No impact if UWAI disabled in Game Options ("Aggressive AI" checked), or through DISABLE_UWAI.
++		For testing, or for (temporarily or permanently) switching off UWAI
++		mid-game, otherwise, recommended: 0 -->
++	<Define>
++		<DefineName>UWAI_IN_BACKGROUND</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
++	<!-- [advc.104] Fully disables UWAI if set to 1 or greater (unlike
++		 UWAI_IN_BACKGROUND which still lets it run in the background).
++		 Same effect as selecting "Aggressive AI (K-Mod) in the Custom Game
++		 screen, but can use this XML switch to disable UWAI in a running game.
++		 There's no way to (re-)enable UWAI in a running game once it has been
++		 disabled.
++		 Recommended: 0 -->
++	<Define>
++		<DefineName>DISABLE_UWAI</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
++	<!-- [advc.127] If set to 1, AI Auto Play can be activated in multiplayer
++		 games. Exception: Doesn't work with Simultaneous Turns. -->
++	<Define>
++		<DefineName>ENABLE_AUTOPLAY_MULTIPLAYER</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
++	<!-- [advc.135c] If set to 1, Debug mode (Ctrl+Z) and WorldBuilder can be
++		 accessed in Hotseat. In networked multiplayer, the game needs to be
++		 named "chipotle" in addition and WorldBuilder will (unfortunately)
++		 make the game go out of sync. (Whether CheatCode is set in
++		 CivilizationIV.ini doesn't matter for multiplayer.) -->
++	<Define>
++		<DefineName>ENABLE_DEBUG_TOOLS_MULTIPLAYER</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
++</Civ4Defines>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 76f1bb9d8..7042ce69c 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -6,54 +6,6 @@
+ 
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+ 	
+-	<!-- [advc.104]
+-		 If logging is enabled in /My Games/
+-		 Beyond The Sword/CivilizationIV.ini, a log file is written to
+-		 /My Games/Beyond The Sword/Logs every REPORT_INTERVAL turns.
+-		 It's not necessary to compile a debug DLL in order
+-		 to see the reports. Each report records the war planning of all
+-		 AI civs during a single turn. It's only intended for developers. Set to 0 or less to disable logging. -->
+-    <Define>
+-        <DefineName>REPORT_INTERVAL</DefineName>
+-        <iDefineIntVal>0</iDefineIntVal>
+-    </Define>
+-	
+-	<!-- [advc.104]
+-		 If UWAI reports are enabled (see above), no details about a AI war plan
+-		 are logged unless that war plan has greater utility than this
+-		 threshold. There's a separate threshold for war plans against
+-		 human players. Recommended: -10/-50; use sth. like -1000/-1000 to log
+-		 details always. -->
+-    <Define>
+-        <DefineName>UWAI_REPORT_THRESH</DefineName>
+-        <iDefineIntVal>-10</iDefineIntVal>
+-    </Define>
+-    <Define>
+-        <DefineName>UWAI_REPORT_THRESH_HUMAN</DefineName>
+-        <iDefineIntVal>-50</iDefineIntVal>
+-    </Define>
+-
+-	<!-- [advc.104v]
+-		 If this is set to 1 and the Debug mode has been enabled (Ctrl+Z), then
+-		 messages about AI war preparations are shown during AI Auto Play. If set
+-		 to 0 (default), no such messages are shown. -->
+-	<Define>
+-        <DefineName>UWAI_SPECTATOR_ENABLED</DefineName>
+-        <iDefineIntVal>0</iDefineIntVal>
+-    </Define>
+-	
+-	<!-- [advc.104]
+-		If set to 1 or greater, and UWAI is enabled in Game Options
+-		(i.e. "Aggressive AI" not checked), UWAI runs in the background and
+-		writes a logfile (depending in REPORT_INTERVAL), but lets the K-Mod AI
+-		make all decisions. No impact if UWAI disabled in Game Options ("Aggressive AI" checked), or through DISABLE_UWAI.
+-		For testing, or for (temporarily or permanently) switching off UWAI
+-		mid-game, otherwise, recommended: 0 -->
+-	<Define>
+-		<DefineName>UWAI_IN_BACKGROUND</DefineName>
+-		<iDefineIntVal>0</iDefineIntVal>
+-	</Define>
+-	
+ 	<!-- [advc.104, advc.019]
+ 		A value of 1 or greater enables K-Mod's AI for decisions on war
+ 		and peace (instead of UWAI), and disables the "Aggressive AI" option.
+@@ -69,18 +21,6 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- [advc.104] Fully disables UWAI if set to 1 or greater (unlike
+-		 UWAI_IN_BACKGROUND which still lets it run in the background).
+-		 Same effect as selecting "Aggressive AI (K-Mod) in the Custom Game
+-		 screen, but can use this XML switch to disable UWAI in a running game.
+-		 There's no way to (re-)enable UWAI in a running game once it has been
+-		 disabled.
+-		 Recommended: 0 -->
+-	<Define>
+-		<DefineName>DISABLE_UWAI</DefineName>
+-		<iDefineIntVal>0</iDefineIntVal>
+-	</Define>
+-
+ 	<!-- [advc.104]
+ 		 When computing per-civ power values (which play an important role
+ 		 in decisions on war and peace), the power value of each individual
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 76486f62d..a6308cbe4 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -4767,11 +4767,17 @@ void CvDLLWidgetData::parseUnitModelHelp(CvWidgetDataStruct &widgetDataStruct, C
+ void CvDLLWidgetData::parseFlagHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
+ 	CvWString szTempBuffer;
+-
++	// <advc.135c>
++	CvGame const& g = GC.getGame();
++	if(g.isNetworkMultiPlayer() && g.isDebugToolsAllowed(false)) {
++		szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_WARNING_TEXT"),
++				L"Cheats enabled");
++		szBuffer.append(szTempBuffer);
++		szBuffer.append(NEWLINE);
++	} // </advc.135c>
+ 	szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), GC.getCivilizationInfo(GC.getGameINLINE().getActiveCivilizationType()).getDescription());
+ 	szBuffer.append(szTempBuffer);
+ 	// <advc.700>
+-	CvGame const& g = GC.getGame();
+ 	if(g.isOption(GAMEOPTION_RISE_FALL)) {
+ 		std::pair<int,int> rfCountdown = g.getRiseFall().getChapterCountdown();
+ 		if(rfCountdown.second >= 0)
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index bad970792..6dad613b8 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -776,6 +776,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 		bResourceLayer = false;
+ 	} // </advc.004m>
+ 	resourceLayerSet = false; // advc.003d
++	feignSP = false; // advc.135c
+ }
+ 
+ 
+@@ -3910,7 +3911,9 @@ bool CvGame::isNetworkMultiPlayer() const
+ 
+ 
+ bool CvGame::isGameMultiPlayer() const																 
+-{
++{	// <advc.135c>
++	if(feignSP)
++		return false; // </advc.135c>
+ 	return (isNetworkMultiPlayer() || isPbem() || isHotSeat());
+ }
+ 
+@@ -4560,7 +4563,11 @@ int CvGame::getAIAutoPlay() const // advc.003: made const
+ 
+ void CvGame::setAIAutoPlay(int iNewValue
+ 		, bool changePlayerStatus) // advc.127
+-{
++{	// <advc.127> Goes OOS and doesn't stop properly
++	if(isNetworkMultiPlayer() && isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
++		/*  Should perhaps also return if !isDebugToolsAllowed. Then again,
++			AI Auto Play can't be used as a cheat ... */
++		return; // </advc.127>
+ 	m_iAIAutoPlay = std::max(0, iNewValue);
+ 	// <advc.127>
+ 	if(!changePlayerStatus)
+@@ -4571,18 +4578,16 @@ void CvGame::setAIAutoPlay(int iNewValue
+ /*                                                                                              */
+ /************************************************************************************************/
+ // Multiplayer compatibility idea from Jeckel
+-/* original code
+-	if ((iOldValue == 0) && (getAIAutoPlay() > 0))
+-	{
+-		GET_PLAYER(getActivePlayer()).killUnits();
+-		GET_PLAYER(getActivePlayer()).killCities();
+-	}
+-*/
++	// <advc.127> To make sure I'm not breaking anything in singleplayer
++	if(!isGameMultiPlayer())
++		GET_PLAYER(getActivePlayer()).setHumanDisabled((getAIAutoPlay() != 0));
++	// </advc.127>
+ 	for( int iI = 0; iI < MAX_CIV_PLAYERS; iI++ )
+ 	{
+ 		if( GET_PLAYER((PlayerTypes)iI).isHuman() || GET_PLAYER((PlayerTypes)iI).isHumanDisabled() )
+-		{
+-			GET_PLAYER(getActivePlayer()).setHumanDisabled((getAIAutoPlay() != 0));
++		{	/*  advc.127: Was GET_PLAYER(getActivePlayer()).
++				Tagging advc.001 because that was probably a bug. */
++			GET_PLAYER((PlayerTypes)iI).setHumanDisabled((getAIAutoPlay() != 0));
+ 		}
+ 	}
+ /************************************************************************************************/
+@@ -5142,7 +5147,9 @@ bool CvGame::isDebugMode() const
+ 
+ 
+ void CvGame::toggleDebugMode()
+-{
++{	// <advc.135c>
++	if(!m_bDebugMode && !isDebugToolsAllowed(false))
++		return; // </advc.135c>
+ 	m_bDebugMode = ((m_bDebugMode) ? false : true);
+ 	updateDebugModeCache();
+ 
+@@ -5176,7 +5183,10 @@ void CvGame::toggleDebugMode()
+ 
+ void CvGame::updateDebugModeCache()
+ {
+-	if ((gDLL->getChtLvl() > 0) || (gDLL->GetWorldBuilderMode()))
++	//if ((gDLL->getChtLvl() > 0) || (gDLL->GetWorldBuilderMode()))
++	/*  advc.135c: Replacing the above (should perhaps just remove the check
++		b/c toggleDebugMode already checks isDebugToolsAllowed) */
++	if(isDebugToolsAllowed(false))
+ 	{
+ 		m_bDebugModeCache = m_bDebugMode;
+ 	}
+@@ -5186,6 +5196,30 @@ void CvGame::updateDebugModeCache()
+ 	}
+ }
+ 
++// <advc.135c>
++bool CvGame::isDebugToolsAllowed(bool wb) const {
++
++	if(gDLL->getInterfaceIFace()->isInAdvancedStart())
++		return false;
++	if(gDLL->GetWorldBuilderMode())
++		return true;
++	if(isGameMultiPlayer()) {
++		if(GC.getDefineINT("ENABLE_DEBUG_TOOLS_MULTIPLAYER") <= 0)
++			return false;
++		if(isHotSeat())
++			return true;
++		// (CvGame::getName isn't const)
++		CvWString const& gameName = GC.getInitCore().getGameName();
++		return (gameName.compare(L"chipotle") == 0);
++	}
++	if(wb) {
++		// Cut and pasted from canDoControl (CvGameInterface.cpp)
++		return GC.getInitCore().getAdminPassword().empty();
++	}
++	return gDLL->getChtLvl() > 0;
++} // </advc.135c>
++
++
+ int CvGame::getPitbossTurnTime() const
+ {
+ 	return GC.getInitCore().getPitbossTurnTime();
+@@ -6604,8 +6638,13 @@ void CvGame::doTurn()
+ 	// <advc.700>
+ 	if(isOption(GAMEOPTION_RISE_FALL))
+ 		riseFall.autoSave();
+-	else // </advc.700>
+-		gDLL->getEngineIFace()->AutoSave();
++	else {// </advc.700>
++		/*  <advc.127> Avoid overlapping auto-saves in test games played on a
++			single machine. Don't know how to check this properly. */
++		if(!isNetworkMultiPlayer() || getAIAutoPlay() <= 0 || getActivePlayer() == NO_PLAYER ||
++				getActivePlayer() % 2 == 0) // </advc.127>
++			gDLL->getEngineIFace()->AutoSave();
++	}
+ }
+ 
+ // <advc.106b>
+@@ -10808,18 +10847,21 @@ void CvGame::doVoteResults()
+ 				if (bPassed && (bShow // <advc.127>
+ 						|| kPlayer.isSpectator()))
+ 				{	
+-					if(bShow || szMessage.empty()) { // Else use the replay msg
++					if(bShow || szMessage.empty() || kVote.isSecretaryGeneral()) {
+ 						// </advc.127>
+ 						szMessage = gDLL->getText("TXT_KEY_VOTE_RESULTS",
+ 								GC.getVoteSourceInfo(eVoteSource).getTextKeyWide(),
+ 								subd.szText.GetCString());
++						// Else use the replay msg
+ 					}
+ 					// <advc.127b>
+ 					BuildingTypes vsBuilding = getVoteSourceBuilding(eVoteSource);
+ 					std::pair<int,int> xy = getVoteSourceXY(eVoteSource);
+ 					// </advc.127b>
+ 					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szMessage, "AS2D_NEW_ERA",
+-							MESSAGE_TYPE_MAJOR_EVENT, // advc.127: was MINOR
++							// <advc.127> was always MINOR
++							kVote.isSecretaryGeneral() ? MESSAGE_TYPE_MINOR_EVENT :
++							MESSAGE_TYPE_MAJOR_EVENT, // </advc.127>
+ 							// <advc.127b>
+ 							vsBuilding == NO_BUILDING ? NULL :
+ 							GC.getBuildingInfo(vsBuilding).getButton(),
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 7e6ebf6f4..3363c49a4 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -308,7 +308,7 @@ public:
+ 	DllExport bool isDebugMode() const;																			// Exposed to Python
+ 	DllExport void toggleDebugMode();																				// Exposed to Python
+ 	DllExport void updateDebugModeCache();
+-
++	bool isDebugToolsAllowed(bool wb) const; // advc.135c
+ 	DllExport int getPitbossTurnTime() const;																			// Exposed to Python
+ 	DllExport void setPitbossTurnTime(int iHours);																			// Exposed to Python
+ 
+@@ -800,6 +800,7 @@ protected:
+ 	// Use of PRNG makes this non-const
+ 	UnitTypes randomBarbUnit(UnitAITypes ai, CvArea const& a);
+ 	// </advc.300>
++	bool feignSP; // advc.135c
+ 
+ 	void verifyCivics();
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 2a01dc193..236f58d86 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1614,10 +1614,11 @@ bool CvGame::canDoControl(ControlTypes eControl) const
+ 		break;
+ 
+ 	case CONTROL_WORLD_BUILDER:
+-		if (!(isGameMultiPlayer()) && GC.getInitCore().getAdminPassword().empty() && !gDLL->getInterfaceIFace()->isInAdvancedStart())
++		return isDebugToolsAllowed(true); // advc.135c
++		/*if (!(isGameMultiPlayer()) && GC.getInitCore().getAdminPassword().empty() && !gDLL->getInterfaceIFace()->isInAdvancedStart())
+ 		{
+ 			return true;
+-		}
++		}*/
+ 		break;
+ 
+ 	case CONTROL_ENDTURN:
+@@ -2138,8 +2139,17 @@ void CvGame::enterWorldBuilder()
+ {
+ 	FAssert(canDoControl(CONTROL_WORLD_BUILDER));
+ 	if (GC.getInitCore().getAdminPassword().empty())
+-	{
++	{	// <advc.315c>
++		/*  setChtLvl doesn't work in multiplayer; need to make the EXE believe
++			that we're in singleplayer. */
++		feignSP = true;
++		/*  If the player was able to access the button (or Ctrl+W), then cheats
++			should be enabled. */
++		gDLL->setChtLvl(1); // </advc.315c>
+ 		gDLL->getInterfaceIFace()->setWorldBuilder(!(gDLL->GetWorldBuilderMode()));
++		/*  advc.315c: This will also set ChtLvl back to 0 in multiplayer.
++			Can't be helped; can't permanently feign singleplayer. */
++		feignSP = false;
+ 	}
+ 	else
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index e177eb0f4..3fd7f481c 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -19403,8 +19403,9 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThre
+ 		} // <advc.106b>
+ 		InterfaceMessageTypes msgType = MESSAGE_TYPE_MINOR_EVENT;
+ 		// Only birth of own GP is major
+-		if(msgTarget.getID() == gpOwner.getID())
+-			msgType = MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY; // </advc.106b>
++		// ^On second thought, make all GP births minor.
++		/*if(msgTarget.getID() == gpOwner.getID())
++			msgType = MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY;*/ // </advc.106b>
+ 		gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)i), false,
+ 				GC.getEVENT_MESSAGE_TIME(), szMessage, "AS2D_UNIT_GREATPEOPLE",
+ 				msgType, pGreatPeopleUnit->getButton(),
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a2729dd22..bba4b5e54 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11290,6 +11290,7 @@ bool CvPlayerAI::AI_considerOfferBulk(PlayerTypes ePlayer,
+ 	// <advc.136b>
+ 	else {
+ 		if(iTheirValue < 2 * GC.getDIPLOMACY_VALUE_REMAINDER() &&
++				!bVassalTrade &&
+ 				!AI_goldDeal(pTheirList) && (pTheirList->getLength() <= 0 ||
+ 				!CvDeal::isDual(pTheirList->head()->m_data.m_eItemType)))
+ 			return false;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 4aae03465..09eda178a 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2759,11 +2759,13 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier,
+ 	}
+ 	// K-Mod end
+ 
+-
+ 	if (isHuman() && kMasterTeam.isHuman())
+ 	{
+ 		return NO_DENIAL;
+ 	}
++	/*  advc.112 (comment): When this team is human (i.e. BBAI_HUMAN_AS_VASSAL_
++		OPTION enabled), DENIAL_POWER_US and DENIAL_POWER_YOU seem to become
++		swapped outside the SDK. */
+ 	// <advc.112>
+ 	if(AI_isAnyMemberDoVictoryStrategyLevel3())
+ 		return DENIAL_VICTORY;
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 7b3d74a36..cd81ff99f 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -201,6 +201,8 @@ bool CvXMLLoadUtility::SetGlobalDefines()
+ 	   configuration file something_GlobalDefines.xml.
+ 	   I can't get that to work, though, and it appears neither could
+ 	   the other modders. Hence: hard-coded filenames. */
++	if(!ReadGlobalDefines("xml\\GlobalDefines_devel.xml", cache))
++		return false;
+ 	if(!ReadGlobalDefines("xml\\GlobalDefines_advc.xml", cache))
+ 		return false; // </advc.009>
+
+[PATCH OMITTED] file=a/manual_0.92e.odt b/manual_0.92e.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=14 omittedFiles=1 embeddedPatchBytes=20959

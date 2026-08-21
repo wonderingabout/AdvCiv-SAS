@@ -1,0 +1,79 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1978
+# Commit: f64f39f57c44d16ac33a20e2261f2454fdbf2530
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5944f424a60f4041980f7b05d704de2cf28db109
+# Title: Fix a minor issue with AI city evacuation checks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	9	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5ba9db108..86d812378 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13817,6 +13817,9 @@ int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAtt
+ 					// <advc.315> See comment in AI_adjacentPotentialAttackers
+ 					if (kLoopUnit.getUnitInfo().isMostlyDefensive())
+ 						continue; // </advc.315>
++					// <advc.139> Can happen when the call comes from AI_attackMadeAgainst
++					if (kLoopUnit.isDead())
++						continue; // </advc.139>
+ 					if (bCheckMoves)
+ 					{
+ 						// can't use the global pathfinder here (see comment in AI_localDefenceStrength)
+@@ -13907,8 +13910,9 @@ int CvPlayerAI::AI_cityTargetStrengthByPath(CvCity const* pCity,  // advc: const
+ 	should still be acurate. */
+ void CvPlayerAI::AI_attackMadeAgainst(CvUnit const& kDefender)
+ {
+-	// Same checks as in AI_localAttackStrength essentially
+-	if (kDefender.getDomainType() != DOMAIN_LAND || !kDefender.canAttack() ||
++	if (isBarbarian() ||
++		// Same checks as in AI_localAttackStrength essentially
++		kDefender.getDomainType() != DOMAIN_LAND || !kDefender.canAttack() ||
+ 		kDefender.getUnitInfo().isMostlyDefensive() || // advc.315
+ 		kDefender.getPlot().isCity())
+ 	{
+@@ -13922,12 +13926,10 @@ void CvPlayerAI::AI_attackMadeAgainst(CvUnit const& kDefender)
+ 		if (kPlot.getOwner() == getID() && kPlot.isCity())
+ 		{
+ 			CvCityAI& kCity = *kPlot.AI_getPlotCity();
+-			if (!kCity.AI_isSafe()) // It's only going to get safer
+-			{
+-				// advc.test:
+-				FAssertMsg(false, "Only to see how frequently this happens (or rather: just how rarely)");
++			/*	Unlikely that an attack from within the city will
++				tip the scales from safe to unsafe */
++			if (!kCity.AI_isSafe())
+ 				kCity.AI_updateSafety();
+-			}
+ 		}
+ 	}
+ } // </advc.139>
+@@ -13950,9 +13952,10 @@ int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit const* pUnit, MissionAITypes* aeM
+ 	FOR_EACH_GROUPAI(pLoopSelectionGroup, *this)
+ 	{
+ 		if (pLoopSelectionGroup == pSkipSelectionGroup ||
+-				pLoopSelectionGroup->AI_getMissionAIUnit() != pUnit)
++			pLoopSelectionGroup->AI_getMissionAIUnit() != pUnit)
++		{
+ 			continue;
+-
++		}
+ 		MissionAITypes eGroupMissionAI = pLoopSelectionGroup->AI_getMissionAIType();
+ 		// advc.opt: Moved up b/c this ought to be cheaper than generatePath
+ 		bool bValid = false;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2375

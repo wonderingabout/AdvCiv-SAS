@@ -1,0 +1,148 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4342
+# Commit: 4ec04f6cccabe178809319439711a6fb81c58322
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 58d0dc879f956d04327d3a8708a27fb2d06790fb
+# Title: Fix lack of popups when AI teammate finishes tech
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	Assets/Python/CvEventManager.py
+2	1	CvGameCoreDLL/CvPopupInfo.cpp
+46	10	CvGameCoreDLL/CvTeam.cpp
+1	0	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvEventManager.py b/Assets/Python/CvEventManager.py
+index 2cf60d223..e23d1c427 100644
+--- a/Assets/Python/CvEventManager.py
++++ b/Assets/Python/CvEventManager.py
+@@ -644,6 +644,7 @@ class CvEventManager:
+ 		# Note that iPlayer may be NULL (-1) and not a refer to a player object
+ 		
+ 		# Show tech splash when applicable
++		# (advc - note: CvTeam::setHasTech may now also show the tech splash)
+ 		if (iPlayer > -1 and bAnnounce and not CyInterface().noTechSplash()):
+ 			if (gc.getGame().isFinalInitialized() and not gc.getGame().GetWorldBuilderMode()):
+ 				if ((not gc.getGame().isNetworkMultiPlayer()) and (iPlayer == gc.getGame().getActivePlayer())):
+
+diff --git a/CvGameCoreDLL/CvPopupInfo.cpp b/CvGameCoreDLL/CvPopupInfo.cpp
+index 0778a373f..7ff998b05 100644
+--- a/CvGameCoreDLL/CvPopupInfo.cpp
++++ b/CvGameCoreDLL/CvPopupInfo.cpp
+@@ -7,7 +7,8 @@
+ 	disable all popups by overloading operator new. That said, it looks
+ 	like one could also disable all popups in CvPlayer::addPopup.
+ 	So I'm not sure if that was really the idea and whether those NULL checks
+-	serve any reasonable purpose. */
++	serve any reasonable purpose. Even if they do, wrapping those checks
++	into a factory function would be much better. */
+ 
+ CvPopupInfo::CvPopupInfo(
+ 	ButtonPopupTypes eButtonPopupType,
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 4bc73d847..63e9eb472 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4368,15 +4368,29 @@ CvWString const CvTeam::tradeItemString(TradeableItems eItem, int iData, TeamTyp
+ 	return L"";
+ }
+ 
++// advc (from Taurus):
++bool CvTeam::isTechSplash() const
++{
++	CvGame const& kGame = GC.getGame();
++	// Cut from announceTechToPlayers
++	if (GC.getGame().isNetworkMultiPlayer() || gDLL->UI().noTechSplash())
++		return false;
++	// Never makes sense to show popups to AI teams
++	if (!isHuman())
++		return false;
++	// Queueing them for a (currently) nonactive team in Hot Seat can make sense
++	if (!isActive() && !kGame.isHotSeat())
++		return false;
++	return true;
++}
++
+ void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes eDiscoverPlayer,
+ 	bool bPartial)
+ {
+-	CvGame const& kGame = GC.getGame();
+-	bool bSound = ((kGame.isNetworkMultiPlayer() ||
++	bool bSound = ((!isTechSplash() ||
+ 			/*  advc.156: I think HotSeat doesn't play sounds along with messages,
+ 				but let's try. */
+-			kGame.isHotSeat() ||
+-			gDLL->UI().noTechSplash()) && !bPartial);
++			GC.getGame().isHotSeat()) && !bPartial);
+ 	for (MemberIter it(getID()); it.hasNext(); ++it)
+ 	{
+ 		CvPlayer const& kPlayer = *it;
+@@ -4762,13 +4776,35 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,
+ 		} // </advc.106>
+ 	}
+ 
+-	if (bNewValue && bAnnounce && kGame.isFinalInitialized() &&
+-		!gDLL->GetWorldBuilderMode())
++	if (bNewValue && bAnnounce && /* advc: */ isHuman() &&
++		kGame.isFinalInitialized() && !gDLL->GetWorldBuilderMode())
+ 	{
+-		FAssert(ePlayer != NO_PLAYER);
+-		if (GET_PLAYER(ePlayer).isResearch() &&
+-			GET_PLAYER(ePlayer).getCurrentResearch() == NO_TECH &&
+-			GET_PLAYER(ePlayer).isHuman()) // K-Mod
++		// <advc.001> (from Taurus) Humans always do the choosing in human-AI teams
++		if (!GET_PLAYER(ePlayer).isHuman())
++		{
++			CvPlayer& kLeader = GET_PLAYER(getLeaderID());
++			if (kLeader.isActive() || kGame.isHotSeat()) // Avoid multiple popups
++			{
++				ePlayer = kLeader.getID();
++				/*	Easier to handle the missing tech splash popup here than in
++					CvEventManager.py. Debatable whether this is really a bugfix;
++					also tagging advc.155. */
++				if (isTechSplash())
++				{
++					CvPopupInfo* pTechSplash = new CvPopupInfo();
++					if (pTechSplash != NULL)
++					{
++						pTechSplash->setButtonPopupType(BUTTONPOPUP_PYTHON_SCREEN);
++						pTechSplash->setData1(eTech);
++						pTechSplash->setText(L"showTechSplash");
++						kLeader.addPopup(pTechSplash);
++					}
++				}
++			}
++		} // </advc.001>
++		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
++		if (kPlayer.isResearch() && kPlayer.getCurrentResearch() == NO_TECH &&
++			kPlayer.isHuman()) // K-Mod
+ 		{
+ 			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_WHAT_TO_RESEARCH_NEXT");
+ 			GET_PLAYER(ePlayer).chooseTech(0, szBuffer);
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index ebb4c5ca4..e42f04de2 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -714,6 +714,7 @@ protected:
+ 	// <advc.039>
+ 	CvWString const tradeItemString(TradeableItems eItem, int iData,
+ 			TeamTypes eFrom) const; // </advc.039>
++	bool isTechSplash() const; // advc
+ 	void announceTechToPlayers(TechTypes eIndex,
+ 			PlayerTypes eDiscoverPlayer, // advc.156
+ 			bool bPartial = false);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=4697

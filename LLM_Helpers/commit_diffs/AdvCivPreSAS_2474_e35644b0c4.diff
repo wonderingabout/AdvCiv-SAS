@@ -1,0 +1,110 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2474
+# Commit: e35644b0c49b03b77b1bd75f84c6479d851287e5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a467b2e9211868d6442038b6d9562c55de7b063b
+# Title: Show partial score graphs only optionally
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	Assets/Config/BUG Advisors.xml
+5	3	Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+1	1	Assets/Python/Screens/CvInfoScreen.py
+18	0	Assets/XML/Text/BUG Advisors Options.xml
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Advisors.xml b/Assets/Config/BUG Advisors.xml
+index 664e70d8e..ac6418fcc 100644
+--- a/Assets/Config/BUG Advisors.xml	
++++ b/Assets/Config/BUG Advisors.xml	
+@@ -95,6 +95,11 @@
+ 					type="boolean" default="False" 
+ 					get="isMembers"/>
+ 	
++			<!-- advc.091: -->
++			<option id="PartialScoreGraphs" key="Partial Score Graphs" 
++					type="boolean" default="False" 
++					get="isPartialScoreGraphs"/>
++
+ 			<!-- BUG Info Screen (F9) by Ruff_Hi -->
+ 			<option id="BugGraphsTab" key="Graphs" 
+ 					type="boolean" default="False"
+
+diff --git a/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py b/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+index c4bd5a6d6..5c91a18b3 100644
+--- a/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugAdvisorOptionsTab.py
+@@ -80,12 +80,14 @@ class BugAdvisorOptionsTab(BugOptionsTab.BugOptionsTab):
+ 
+ 		# K-Mod, info stuff moved from center panel to right
+ 		self.addLabel(screen, right, "Info_Screens", "Info [F9]:")
+-		# <advc.004> Moved up b/c the sub-option looked strange at the end of the block
++		# <advc.004>
++		# Moved up b/c the sub-option looked strange at the end of the block
+ 		self.addCheckbox(screen, right, "Advisors__BugInfoWonders")
+ 		self.addCheckbox(screen, right, "Advisors__BugInfoWondersPlayerColor", True)
+-		# </advc.004>
+-		# advc.004: Put this one before GraphsTab to make clear that GraphsTab isn't a prereq
++		# Put this one before GraphsTab to make clear that GraphsTab isn't a prereq
+ 		self.addCheckbox(screen, right, "Advisors__BugGraphsLogScale")
++		# </advc.004>
++		self.addCheckbox(screen, right, "Advisors__PartialScoreGraphs") # advc.091
+ 		self.addCheckbox(screen, right, "Advisors__BugGraphsTab")
+ 		self.addCheckbox(screen, right, "Advisors__BugStatsTab")
+ 		# advc.004: No longer optional
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 9593bc526..142564471 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -1408,7 +1408,7 @@ class CvInfoScreen:
+ 
+ 	# advc.091:
+ 	def showTotalScoreGraph(self, iPlayer):
+-		return gc.getGame().getGameTurn() - self.pActiveTeam.getHasMetTurn(gc.getPlayer(iPlayer).getTeam()) >= 5 or self.pActivePlayer.hasEverSeenDemographics(iPlayer)
++		return ((gc.getGame().getGameTurn() - self.pActiveTeam.getHasMetTurn(gc.getPlayer(iPlayer).getTeam()) >= 5 and AdvisorOpt.isPartialScoreGraphs()) or self.pActivePlayer.hasEverSeenDemographics(iPlayer))
+ 
+ #############################################################################################################
+ ################################################# DEMOGRAPHICS ##############################################
+
+diff --git a/Assets/XML/Text/BUG Advisors Options.xml b/Assets/XML/Text/BUG Advisors Options.xml
+index b6ae1ae19..5e0dc5022 100644
+--- a/Assets/XML/Text/BUG Advisors Options.xml	
++++ b/Assets/XML/Text/BUG Advisors Options.xml	
+@@ -343,6 +343,24 @@
+ 
+ <!-- Info Screen -->
+ 
++	<!-- advc.091: -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__PARTIALSCOREGRAPHS_TEXT</Tag>
++		<English>Partial Score Graphs</English>
++		<French>Partial Score Graphs</French>
++		<German>Teilweise Punktzahlkurve</German>
++		<Italian>Partial Score Graphs</Italian>
++		<Spanish>Partial Score Graphs</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_ADVISORS__PARTIALSCOREGRAPHS_HOVER</Tag>
++		<English>For players whose full score history has never been visible to you, display a score graph that only shows the player's game scores since the turn that you've first met. (This partial graph won't appear until you've known a player for at least 5 turns, and, in savegames from AdvCiv 0.97 and earlier, players are assumed to have just been met.)</English>
++		<French>For players whose full score history has never been visible to you, display a score graph that only shows the player's game scores since the turn that you've first met. (This partial graph won't appear until you've known a player for at least 5 turns, and, in savegames from AdvCiv 0.97 and earlier, players are assumed to have just been met.)</French>
++		<German>Zeigt f�r Spieler, deren Punktehistorie Ihnen unbekannt ist, die Punktest�nde seit Ihrer ersten Begegnung an. (Dieser Kurvenabschnitt wird aber erst angezeigt, wenn Sie einen Spieler seit wenigstens 5 Z�gen kennen. In Spielst�nden, die vor AdvCiv 0.98 entstanden sind, wird angenommen, dass Sie alle Gegner gerade erst kennengelernt haben.)</German>
++		<Italian>For players whose full score history has never been visible to you, display a score graph that only shows the player's game scores since the turn that you've first met. (This partial graph won't appear until you've known a player for at least 5 turns, and, in savegames from AdvCiv 0.97 and earlier, players are assumed to have just been met.)</Italian>
++		<Spanish>For players whose full score history has never been visible to you, display a score graph that only shows the player's game scores since the turn that you've first met. (This partial graph won't appear until you've known a player for at least 5 turns, and, in savegames from AdvCiv 0.97 and earlier, players are assumed to have just been met.)</Spanish>
++	</TEXT>
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__BUGGRAPHSLOGSCALE_TEXT</Tag>
+ 		<English>Graphs Log Scale</English>
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5342

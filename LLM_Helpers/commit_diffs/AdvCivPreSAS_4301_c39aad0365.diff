@@ -1,0 +1,82 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4301
+# Commit: c39aad0365f06e189235ae17605fcca3f3f18ab0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a11e35b5e6159a00df53661bb2feaea5f3ed61f0
+# Title: Fix a few errors in CitySiteEvaluator logging
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	8	CvGameCoreDLL/CitySiteEvaluator.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 82c8528ad..ed426fad1 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -284,7 +284,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
+ 			int iNextX = pNextBestSite->getX();
+ 			int iNextY = pNextBestSite->getY();
+ 			logBBAI("\nNext best site: %d (%d,%d)", iBest, iNextX, iNextY);
+-			evaluateWithLogging(kPlot);
++			evaluateWithLogging(*pNextBestSite);
+ 		}
+ 	}
+ 	{
+@@ -304,7 +304,7 @@ void CitySiteEvaluator::log(CvPlot const& kPlot)
+ 			int iAdjX = pBestAdjSite->getX();
+ 			int iAdjY = pBestAdjSite->getY();
+ 			logBBAI("\nBest site adjacent to (%d,%d): %d (%d,%d)", kPlot.getX(), kPlot.getY(), iBest, iAdjX, iAdjY);
+-			evaluateWithLogging(kPlot);
++			evaluateWithLogging(*pBestAdjSite);
+ 		}
+ 	}
+ }
+@@ -2217,7 +2217,7 @@ int AIFoundValue::adjustToFood(int iValue, int iSpecialFoodPlus, int iSpecialFoo
+ // (adjustToBadHealth deals with short-term health)
+ int AIFoundValue::evaluateLongTermHealth(int& iHealthPercent) const
+ {
+-	int r = 0;
++	int iR = 0;
+ 	int iFreshWaterHealth = 0;
+ 	if (kPlot.isFreshWater())
+ 	{
+@@ -2228,14 +2228,14 @@ int AIFoundValue::evaluateLongTermHealth(int& iHealthPercent) const
+ 	/*  <advc.031> The above may have accounted for feature production; now
+ 		evaluated separately elsewhere. */
+ 	if (iHealthPercent > 0 || eEra >= CvEraInfo::AI_getAgeOfPestilence())
+-		r += std::min(iHealthPercent, 350) / 6;
++		iR += std::min(iHealthPercent, 350) / 6;
+ 	// Extra bonus for persistent health (as in BtS/ K-Mod): // </advc.031> 
+-	r += iFreshWaterHealth * 30;
++	iR += iFreshWaterHealth * 30;
+ 	// (K-Mod (commented this out, compensated by the river bonuses I added.)
+ 	/*if (iFreshWaterHealth > 0)
+ 		r += 40;*/
+-	IFLOG if(r!=0) logBBAI("+%d from %d/100 health", r, iHealthPercent);
+-	return r;
++	IFLOG if(iR!=0) logBBAI("+%d from %d/100 health", iR, iHealthPercent);
++	return iR;
+ }
+ 
+ // advc.031:
+@@ -2247,7 +2247,7 @@ int AIFoundValue::evaluateFeatureProduction(int iProduction) const
+ 	if (rAIEraFactor <= 0)
+ 		r /= 4;
+ 	else r /= rAIEraFactor + 2;
+-	IFLOG if(r!=0) logBBAI("+%d from %d feature production", r, iProduction);
++	IFLOG if(r!=0) logBBAI("+%d from %d feature production", r.round(), iProduction);
+ 	return r.round();
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2309

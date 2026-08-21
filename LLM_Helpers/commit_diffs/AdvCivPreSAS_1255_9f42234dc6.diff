@@ -1,0 +1,127 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1255
+# Commit: 9f42234dc633a5f7418e58836063f71f706e9e55
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 56f77570436c07b63867b084fd5076af0b271824
+# Title: A few things I thought of when I went through the v0.8 changelog again.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+10	0	Assets/xml/Text/CIV4GameText_advc.xml
+2	2	Assets/xml/buildings/CIV4BuildingInfos.xml
+1	1	CvGameCoreDLL/CvCityAI.cpp
+9	6	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index d27092beb..ff02f1913 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -1577,4 +1577,14 @@
+ 		<Spanish>[ICON_BULLET]Almacena el %d1_Mod%% de los [ICON_FOOD] tras el crecimiento o inanici�n.</Spanish>
+ 	</TEXT>
+ 
++	<!-- [advc.104t] Warning added; hopefully temporary -->
++	<TEXT>
++		<Tag>TXT_KEY_GAME_OPTION_PERMANENT_ALLIANCES_HELP</Tag>
++		<English>(WARNING: This option hasn't been tested with the AdvCiv mod.) Two civilizations can form a Permanent Alliance which lasts the rest of the game.</English>
++		<French>(WARNING: This option hasn't been tested with the AdvCiv mod.) Deux civilisations peuvent former une alliance permanente qui dure jusqu'&#224; la fin du jeu.</French>
++		<German>(WARNING: This option hasn't been tested with the AdvCiv mod.) Zwei Zivilisationen k&#246;nnen eine Allianz schlie&#223;en, die die restliche Spielzeit &#252;berdauert.</German>
++		<Italian>(WARNING: This option hasn't been tested with the AdvCiv mod.) Due civilt&#224; possono formare una alleanza permanente che duri fino alla fine della partita.</Italian>
++		<Spanish>(WARNING: This option hasn't been tested with the AdvCiv mod.) Dos civilizaciones pueden formar una alianza permanente que dure hasta que acabe la partida.</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+\ No newline at end of file
+
+diff --git a/Assets/xml/buildings/CIV4BuildingInfos.xml b/Assets/xml/buildings/CIV4BuildingInfos.xml
+index 186767a82..0069c274f 100644
+--- a/Assets/xml/buildings/CIV4BuildingInfos.xml
++++ b/Assets/xml/buildings/CIV4BuildingInfos.xml
+@@ -21821,8 +21821,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- advc.310: Back to 200 as in BtS (was 300 in K-Mod) -->
+-			<iCost>200</iCost>
++			<!-- advc.310: was 300 in K-Mod, 200 in BtS -->
++			<iCost>240</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 7692e04d0..d9c736497 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10331,7 +10331,7 @@ int CvCityAI::AI_experienceWeight()
+ 	//return ((getProductionExperience() + getDomainFreeExperience(DOMAIN_SEA)) * 2);
+ 	// K-Mod
+ 	return 2 * getProductionExperience() + getDomainFreeExperience(DOMAIN_LAND) + getDomainFreeExperience(DOMAIN_SEA)
+-			- 5; /*  advc.017: Barracks are pretty ubiquitous; shouldn't add 6
++			- 4; /*  advc.017: Barracks are pretty ubiquitous; shouldn't add 6
+ 					 to buildUnitProb. Rather make cities w/o Barracks hesitant
+ 					 to train units. */
+ 	// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 4a9d538e3..eac1d938b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -8517,22 +8517,25 @@ int CvPlayerAI::AI_getMemoryAttitude(PlayerTypes ePlayer, MemoryTypes eMemory) c
+ 	CvLeaderHeadInfo const& lh = GC.getLeaderHeadInfo(getLeaderType());
+ 	if(eMemory == MEMORY_ACCEPTED_CIVIC) {
+ 		CivicTypes fav = (CivicTypes)lh.getFavoriteCivic();
+-		if(fav != NO_CIVIC && !GET_PLAYER(ePlayer).isCivic(fav))
++		if(fav != NO_CIVIC && (!GET_PLAYER(ePlayer).isCivic(fav) ||
++				!isCivic(fav)))
+ 			return 0;
+ 	}
+ 	if(eMemory == MEMORY_ACCEPTED_RELIGION) {
+ 		ReligionTypes fav = (ReligionTypes)lh.getFavoriteReligion();
+-		if(fav != NO_RELIGION && GET_PLAYER(ePlayer).getStateReligion() != fav)
++		if(fav != NO_RELIGION && (GET_PLAYER(ePlayer).getStateReligion() != fav ||
++				getStateReligion() != fav))
+ 			return 0;
+ 	}
+ 	if(eMemory == MEMORY_DENIED_CIVIC) {
+ 		CivicTypes fav = (CivicTypes)lh.getFavoriteCivic();
+-		if(fav == NO_CIVIC || GET_PLAYER(ePlayer).isCivic(fav))
++		if(fav == NO_CIVIC || GET_PLAYER(ePlayer).isCivic(fav) || !isCivic(fav))
+ 			return 0;
+ 	}
+ 	if(eMemory == MEMORY_DENIED_RELIGION) {
+ 		ReligionTypes fav = (ReligionTypes)lh.getFavoriteReligion();
+-		if(fav == NO_RELIGION || GET_PLAYER(ePlayer).getStateReligion() == fav)
++		if(fav == NO_RELIGION || GET_PLAYER(ePlayer).getStateReligion() == fav ||
++				getStateReligion() != fav)
+ 			return 0;
+ 	} // </advc.145>
+ 	/* <advc.130j> Was 100. Effect halved b/c diplo actions now counted twice.
+@@ -21709,9 +21712,9 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 			multiplier *= ::dRange(iCloseness / 100.0, 0.0, 1.0) + 0.3;;
+ 			// <advc.022> Reduced paranoia if resistance futile
+ 			double powRatio = iTheirPower / (double)iOurDefensivePower;
+-			/*  No change if ratio is 160% or less; 210% -> 50% reduced paranoia;
++			/*  No change if ratio is 165% or less; 215% -> 50% reduced paranoia;
+ 				260% -> 0 paranoia */
+-			multiplier *= std::max(0.0, 1 - std::max(0.0, powRatio - 1.6));
++			multiplier *= std::max(0.0, 1 - std::max(0.0, powRatio - 1.65));
+ 			iTempParanoia = ::round(iTempParanoia * multiplier);
+ 			// </advc.022>
+ 			iParanoia += iTempParanoia;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=5046

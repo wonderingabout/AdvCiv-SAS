@@ -1,0 +1,416 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3776
+# Commit: eed5e3b09739596c7aec19f0965443dbc804aaab
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c6a452827144c062900f58f08b609b8c4664eb07
+# Title: Can't nuke cities culturally owned by a neutral party
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/XML/GlobalDefines_advc.xml
+16	0	Assets/XML/Text/CIV4GameText_advc.xml
+4	1	CvGameCoreDLL/CvGameInterface.cpp
+27	12	CvGameCoreDLL/CvGameTextMgr.cpp
+6	2	CvGameCoreDLL/CvSelectionGroup.cpp
+30	16	CvGameCoreDLL/CvUnit.cpp
+6	3	CvGameCoreDLL/CvUnit.h
+9	5	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index cb2d9c8ce..cf043d5c1 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -922,7 +922,8 @@
+ 		 of the nuke owner is at least this high.
+ 		 Recommended: Same as CITY_TRADE_CULTURE_THRESH,
+ 		 use 101 (or a higher value) for BtS behavior. Still won't be able to
+-		 nuke any cities owned politically by the nuke owner. -->
++		 nuke cities culturally owned by a neutral party or politically owned
++		 by the nuke owner. -->
+ 	<Define>
+ 		<DefineName>CITY_NUKE_CULTURE_THRESH</DefineName>
+ 		<iDefineIntVal>10</iDefineIntVal>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index cd858fe65..9e2232e93 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -4951,6 +4951,22 @@
+ 		<Italian>[COLOR_WARNING_TEXT]Impossibile colpire con armi nucleari le citt&#224; con il %d1_Thresh%% di nazionalit� amica[COLOR_REVERT]</Italian>
+ 		<Spanish>[COLOR_WARNING_TEXT]No se pueden hacer bombardeos nucleares contra las ciudades con un %d1_Thresh%% de nacionalidad amiga[COLOR_REVERT]</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CANT_NUKE_NEUTRAL_POP</Tag>
++		<English>[COLOR_WARNING_TEXT]Can only Strike Cities Culturally Owned by an Enemy[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXT]Ne peut frapper que les villes culturellement poss�d�es par un ennemi.[COLOR_REVERT]</French>
++		<German>[COLOR_WARNING_TEXT]Nur St�dte mit mehrheitlich feindlicher Nationalit�t d�rfen getroffen werden[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Pu� colpire solo le citt&#224; culturalmente possedute da un nemico[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]S�lo puede hacer bombardeos nucleares contra las ciudades que pertenecen culturalmente a un enemigo[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CANT_NUKE_UNREVEALED</Tag>
++		<English>[COLOR_WARNING_TEXT]All Affected Tiles must be Explored[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXT]Toutes les cases affect�es doivent �tre explor�es[COLOR_REVERT]</French>
++		<German>[COLOR_WARNING_TEXT]Alle betroffenen Felder m�ssen erkundet sein[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Tutte le caselle danneggiate devono essere esplorate[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]Todas las casillas afectadas deben ser exploradas[COLOR_REVERT]</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.072: Based on TXT_KEY_TRADE_PEACE_TREATY_STRING in
+ 		 CIV4GameTextInfos.xml -->
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 6d87a7b7e..1963374f7 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2198,8 +2198,11 @@ bool CvGame::updateNukeAreaOfEffect(CvPlot const* pCenter) const
+ 	gDLL->getEngineIFace()->clearAreaBorderPlots(AREA_BORDER_LAYER_NUKE);
+ 	if (pCenter == NULL || gDLL->UI().getInterfaceMode() != INTERFACEMODE_NUKE)
+ 		return false;
+-	if (!pNuke->canNukeAt(pNuke->getPlot(), pCenter->getX(), pCenter->getY()))
++	if (!pNuke->canNukeAt(pNuke->getPlot(), pCenter->getX(), pCenter->getY(),
++		pNuke->getTeam()))
++	{
+ 		return false;
++	}
+ 	NiColorA const& kColor = GC.getInfo(GC.getColorType("YELLOW")).getColor();
+ 	for (SquareIter itPlot(*pCenter, pNuke->nukeRange()); itPlot.hasNext(); ++itPlot)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index ce5b28b3d..2cd6b1c60 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -20371,11 +20371,12 @@ void CvGameTextMgr::getRebasePlotHelp(CvPlot const& kPlot,
+ void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot,
+ 	CvUnit& kNuke, CvWString& szHelp)
+ {
+-	if (kNuke.canNukeAt(kNuke.getPlot(), kPlot.getX(), kPlot.getY()))
++	if (kNuke.canNukeAt(kNuke.getPlot(), kPlot.getX(), kPlot.getY(),
++		kNuke.getTeam())) // kekm.7 (advc)
+ 	{	// <advc.650>
+ 		TeamTypes eInterceptTeam=NO_TEAM;
+ 		int iInterceptChance = kNuke.nukeInterceptionChance(
+-				kPlot, &eInterceptTeam);
++				kPlot, kNuke.getTeam(), &eInterceptTeam);
+ 		if (eInterceptTeam != NO_TEAM)
+ 		{
+ 			FAssert(iInterceptChance > 0);
+@@ -20385,26 +20386,38 @@ void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot,
+ 		} // </advc.650>
+ 		return; // advc
+ 	}
+-	// <kekm.7> (advc): Prioritize the explanations
++	// <kekm.7> (advc)
+ 	CvWString szExplain;
+-	for (int iPass = 0; iPass < 3 && szExplain.empty(); iPass++) // </kekm.7>
++	// To prevent info leaks
++	for (SquareIter it(kPlot, kNuke.nukeRange());
++		it.hasNext() && szExplain.empty(); ++it)
++	{
++		if (!it->isRevealed(kNuke.getTeam()))
++			szExplain.append(gDLL->getText("TXT_KEY_CANT_NUKE_UNREVEALED"));
++	}
++	// Prioritize the explanations
++	for (int iPass = 0; iPass < 4 && szExplain.empty(); iPass++) // </kekm.7>
+ 	{
+ 		for (TeamIter<ALIVE> it; it.hasNext(); ++it)
+ 		{
+ 			TeamTypes const eVictimTeam = it->getID();
+-			if (!kNuke.isNukeVictim(&kPlot, eVictimTeam))
++			if (!kNuke.isNukeVictim(&kPlot, eVictimTeam, kNuke.getTeam()))
+ 				continue;
+ 			// <kekm.7> (advc)
+ 			if (kNuke.isEnemy(eVictimTeam))
+ 			{
+-				if (iPass == 0)
++				if (iPass <= 1)
+ 				{
+ 					bool bCityFound = false;
+ 					for (SquareIter it(kPlot, kNuke.nukeRange()); it.hasNext(); ++it)
+ 					{
+-						if (it->isCity() && kNuke.isEnemy(it->getTeam()) &&
++						if (it->isCity() &&
++							(iPass == 0 ?
++							(kNuke.isEnemy(it->getTeam()) &&
+ 							it->calculateFriendlyCulturePercent(kNuke.getTeam()) >=
+-							GC.getDefineINT(CvGlobals::CITY_NUKE_CULTURE_THRESH))
++							GC.getDefineINT(CvGlobals::CITY_NUKE_CULTURE_THRESH)) :
++							!GET_TEAM(it->calculateCulturalOwner(true)).
++							isAtWar(kNuke.getTeam())))
+ 						{
+ 							bCityFound = true;
+ 							break;
+@@ -20412,8 +20425,10 @@ void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot,
+ 					}
+ 					if (bCityFound)
+ 					{
+-						szExplain.append(gDLL->getText("TXT_KEY_CANT_NUKE_OWN_POP",
+-								GC.getDefineINT(CvGlobals::CITY_NUKE_CULTURE_THRESH)));
++						szExplain.append(iPass == 0 ?
++								gDLL->getText("TXT_KEY_CANT_NUKE_OWN_POP",
++								GC.getDefineINT(CvGlobals::CITY_NUKE_CULTURE_THRESH)) :
++								gDLL->getText("TXT_KEY_CANT_NUKE_NEUTRAL_POP"));
+ 						break;
+ 					}
+ 				}
+@@ -20422,10 +20437,10 @@ void CvGameTextMgr::getNukePlotHelp(CvPlot const& kPlot,
+ 			{
+ 				if (eVictimTeam == kNuke.getTeam())
+ 				{
+-					if (iPass == 2)
++					if (iPass == 3)
+ 						szExplain.append(gDLL->getText("TXT_KEY_CANT_NUKE_OWN_TEAM"));
+ 				}
+-				else if (iPass == 1) // </kekm.7>
++				else if (iPass == 2) // </kekm.7>
+ 					szExplain.append(gDLL->getText("TXT_KEY_CANT_NUKE_FRIENDS"));
+ 				break;
+ 			}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index c60f0e8bc..ae62d4f01 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1945,8 +1945,11 @@ bool CvSelectionGroup::canDoInterfaceModeAt(InterfaceModeTypes eInterfaceMode, C
+ 				return true;
+ 			break;
+ 		case INTERFACEMODE_NUKE:
+-			if (pUnit->canNukeAt(pUnit->getPlot(), pPlot->getX(), pPlot->getY()))
++			if (pUnit->canNukeAt(pUnit->getPlot(), pPlot->getX(), pPlot->getY(),
++				pUnit->getTeam())) // kekm.7 (advc)
++			{
+ 				return true;
++			}
+ 			break;
+ 		case INTERFACEMODE_RECON:
+ 			if (pUnit->canReconAt(pUnit->plot(), pPlot->getX(), pPlot->getY()))
+@@ -3393,7 +3396,8 @@ bool CvSelectionGroup::canDoMission(MissionTypes eMission, int iData1, int iData
+ 			break;
+ 
+ 		case MISSION_NUKE:
+-			if (pUnit->canNukeAt(*pPlot, iData1, iData2) &&
++			if (pUnit->canNukeAt(*pPlot, iData1, iData2,
++				pUnit->getTeam()) && // kekm.7 (advc)
+ 				(!bCheckMoves || pUnit->canMove()))
+ 			{
+ 				return true;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 9c0c7411c..534d0b5f5 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3695,7 +3695,8 @@ bool CvUnit::airlift(int iX, int iY)
+ }
+ 
+ // advc (comment): Says whether eTeam is a victim of this (nuke) unit if it nukes pPlot
+-bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const
++bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam,
++	TeamTypes eObs) const // kekm.7 (advc)
+ {
+ 	// kekm.7 (advc): Not OK to nuke our own cities or units
+ 	if (!GET_TEAM(eTeam).isAlive()/* || eTeam == getTeam()*/)
+@@ -3704,17 +3705,22 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const
+ 	for (SquareIter it(*pPlot, nukeRange()); it.hasNext(); ++it)
+ 	{
+ 		CvPlot const& kLoopPlot	= *it;
+-		if (kLoopPlot.getTeam() == eTeam &&
++		// <kekm.7> (advc): Respect the fog of war
++		TeamTypes const ePlotTeam = (eObs == NO_TEAM ? kLoopPlot.getTeam() :
++				kLoopPlot.getRevealedTeam(eObs, false)); // </kekm.7>
++		if (ePlotTeam == eTeam &&
+ 			// kekm.7 (advc): OK to nuke our own land
+ 			(eTeam != getTeam() || kLoopPlot.isCity()))
+ 		{
+ 			return true;
+ 		}
+ 		// <kekm.7> (advc)
+-		// Can't nuke culturally owned population
+-		if (kLoopPlot.isCity() &&
++		// Can't nuke too much non-enemy population
++		if (kLoopPlot.isCity() && !isEnemy(eTeam) &&
++			((eTeam == getTeam() &&
+ 			kLoopPlot.calculateFriendlyCulturePercent(eTeam) >=
+-			GC.getDefineINT(CvGlobals::CITY_NUKE_CULTURE_THRESH))
++			GC.getDefineINT(CvGlobals::CITY_NUKE_CULTURE_THRESH)) ||
++			eTeam == TEAMID(kLoopPlot.calculateCulturalOwner(true))))
+ 		{
+ 			return true;
+ 		}
+@@ -3731,7 +3737,8 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const
+ }
+ 
+ 
+-bool CvUnit::canNukeAt(CvPlot const& kFrom, int iX, int iY) const
++bool CvUnit::canNukeAt(CvPlot const& kFrom, int iX, int iY,
++	TeamTypes eObs) const // kekm.7 (advc)
+ {
+ 	if (!canNuke(&kFrom))
+ 		return false;
+@@ -3742,26 +3749,33 @@ bool CvUnit::canNukeAt(CvPlot const& kFrom, int iX, int iY) const
+ 
+ 	if (airRange() > 0 && iDistance > airRange())
+ 		return false;
++	// <kekm.7> (advc) Can't nuke blindly
++	for (SquareIter itPlot(iX, iY, nukeRange()); itPlot.hasNext(); ++itPlot)
++	{
++		if (!itPlot->isRevealed(getTeam()))
++			return false;
++	} // </kekm.7>
+ 
+ 	CvPlot* pTargetPlot = GC.getMap().plot(iX, iY);
+ 	for (TeamIter<MAJOR_CIV> itTeam; itTeam.hasNext(); ++itTeam)
+ 	{
+-		if (isNukeVictim(pTargetPlot, itTeam->getID()) &&
++		if (isNukeVictim(pTargetPlot, itTeam->getID(), eObs) &&
+ 			!isEnemy(itTeam->getID(), kFrom))
+ 		{
+ 			return false;
+ 		}
+ 	}
+-
+ 	return true;
+ }
+ 
+ 
+ bool CvUnit::nuke(int iX, int iY)
+ {
+-	if(!canNukeAt(getPlot(), iX, iY))
++	if (!canNukeAt(getPlot(), iX, iY,
++		getTeam())) // kekm.7 (advc)
++	{
+ 		return false;
+-
++	}
+ 	CvWString szBuffer;
+ 	CvPlot& kPlot = GC.getMap().getPlot(iX, iY);
+ 
+@@ -3774,14 +3788,14 @@ bool CvUnit::nuke(int iX, int iY)
+ 		if (abTeamsAffected.get(it->getID()) && !isEnemy(it->getID()))
+ 		{
+ 			//GET_TEAM(getTeam()).declareWar(it->getID(), false, WARPLAN_LIMITED);
+-			// kekm.26:
+-			CvTeam::queueWar(getTeam(), it->getID(), false, WARPLAN_LIMITED);
++			CvTeam::queueWar(getTeam(), it->getID(), false, WARPLAN_LIMITED); // kekm.26
+ 		}
+ 		CvTeam::triggerWars(); // kekm.26
+ 	}
+ 	// <advc.650> Moved into subroutine
+ 	TeamTypes eBestTeam=NO_TEAM;
+-	int iBestInterception = nukeInterceptionChance(kPlot, &eBestTeam, &abTeamsAffected);
++	int iBestInterception = nukeInterceptionChance(kPlot, NO_TEAM,
++			&eBestTeam, &abTeamsAffected);
+ 	// </advc.650>
+ 	setReconPlot(&kPlot);
+ 	// <advc.002m>
+@@ -3970,7 +3984,7 @@ bool CvUnit::nuke(int iX, int iY)
+ }
+ 
+ // advc.650:
+-int CvUnit::nukeInterceptionChance(CvPlot const& kTarget,
++int CvUnit::nukeInterceptionChance(CvPlot const& kTarget, TeamTypes eObs,
+ 	TeamTypes* pBestTeam, // Optional out-param
+ 	// Allow caller to provide set of affected teams (just to save time)
+ 	EagerEnumMap<TeamTypes,bool> const* pTeamsAffected) const
+@@ -3980,7 +3994,7 @@ int CvUnit::nukeInterceptionChance(CvPlot const& kTarget,
+ 	if (pTeamsAffected == NULL)
+ 	{
+ 		for (TeamIter<ALIVE> it; it.hasNext(); ++it)
+-			abTeamsAffected_local.set(it->getID(), isNukeVictim(&kTarget, it->getID()));
++			abTeamsAffected_local.set(it->getID(), isNukeVictim(&kTarget, it->getID(), eObs));
+ 	}
+ 	EagerEnumMap<TeamTypes,bool> const& abTeamsAffected = (pTeamsAffected == NULL ?
+ 			abTeamsAffected_local : *pTeamsAffected);
+@@ -4000,7 +4014,7 @@ int CvUnit::nukeInterceptionChance(CvPlot const& kTarget,
+ 		{
+ 			int iMasterChance = GET_TEAM(kInterceptTeam.getMasterTeam()).
+ 					getNukeInterception();
+-			if(iMasterChance > iBestInterception)
++			if (iMasterChance > iBestInterception)
+ 			{
+ 				iBestInterception = iMasterChance;
+ 				eBestTeam = kInterceptTeam.getMasterTeam();
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index ac4e21e83..2fe94123b 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -142,12 +142,15 @@ public:
+ 	bool canAirliftAt(const CvPlot* pPlot, int iX, int iY) const;											// Exposed to Python
+ 	bool airlift(int iX, int iY);
+ 
+-	bool isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const;											// Exposed to Python
++	bool isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam,													// Exposed to Python
++			TeamTypes eObs = NO_TEAM) const; // kekm.7 (advc)
+ 	bool canNuke(CvPlot const* pFrom) const { return (nukeRange() != -1); }									// Exposed to Python
+-	bool canNukeAt(CvPlot const& kFrom, int iX, int iY) const;												// Exposed to Python
++	bool canNukeAt(CvPlot const& kFrom, int iX, int iY,														// Exposed to Python
++			TeamTypes eObs = NO_TEAM) const; // kekm.7 (advc)
+ 	bool nuke(int iX, int iY);
+ 	// <advc.650>
+-	int nukeInterceptionChance(CvPlot const& kTarget, TeamTypes* pBestTeam = NULL,
++	int nukeInterceptionChance(CvPlot const& kTarget, TeamTypes eObs = NO_TEAM,
++			TeamTypes* pBestTeam = NULL,
+ 			EagerEnumMap<TeamTypes,bool> const* pTeamsAffected = NULL) const;
+ 	// <advc.650>
+ 	bool canRecon(const CvPlot* pPlot) const;																// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index b413eaaf9..3ef3c6770 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -20050,8 +20050,9 @@ bool CvUnitAI::AI_nuke()
+ 			/*	we could use "AI_deduceCitySite" here, but, if we can't see
+ 				the city, then we can't properly judge its target value. */
+ 			if (pLoopCity->isRevealed(getTeam()) &&
+-				canNukeAt(getPlot(), pLoopCity->getX(), pLoopCity->getY()))
+-			{	// <advc.650>
++				canNukeAt(getPlot(), pLoopCity->getX(), pLoopCity->getY(),
++				getTeam())) // advc.kekm.7 (advc)
++			{
+ 				apiPotentialTargets.push_back(std::make_pair(
+ 						/*	advc.650 (note): Not crucial anymore to search the
+ 							nuke range around the city b/c we're now considering
+@@ -20077,7 +20078,7 @@ bool CvUnitAI::AI_nuke()
+ 			if (kLoopPlot.isVisible(kTeam.getID()) &&
+ 				// Units in or near cities are already taken care of
+ 				aeTargetEvaluated.count(kLoopPlot.plotNum()) <= 0 &&
+-				canNukeAt(getPlot(), kLoopPlot.getX(), kLoopPlot.getY()))
++				canNukeAt(getPlot(), kLoopPlot.getX(), kLoopPlot.getY(), getTeam()))
+ 			{
+ 				apiPotentialTargets.push_back(std::make_pair(
+ 						/*	0 search range - let's not bother with max damage to
+@@ -20102,7 +20103,7 @@ bool CvUnitAI::AI_nuke()
+ 				iValue /= 2;
+ 			// <advc.650>
+ 			scaled rInterceptChance = scaled::max(0,
+-					per100(nukeInterceptionChance(*pTarget))
++					per100(nukeInterceptionChance(*pTarget, getTeam()))
+ 					/*	If everyone can intercept, then there's no point in
+ 						holding on to our nukes. */
+ 					- fixp(0.75) * rMeanInterceptChance);
+@@ -20170,8 +20171,11 @@ int CvUnitAI::AI_nukeValue(CvPlot const& kCenterPlot, int iSearchRange,
+ 	for (SquareIter itTarget(kCenterPlot, iSearchRange); itTarget.hasNext(); ++itTarget)
+ 	{
+ 		CvPlot& kLoopTarget = *itTarget;
+-		if (!canNukeAt(getPlot(), kLoopTarget.getX(), kLoopTarget.getY()))
++		if (!canNukeAt(getPlot(), kLoopTarget.getX(), kLoopTarget.getY(),
++			getTeam())) // advc.650
++		{
+ 			continue;
++		}
+ 		/*	Note: canNukeAt checks that we aren't hitting any 3rd party targets,
+ 			so we don't have to worry about checking that elsewhere */
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=16024

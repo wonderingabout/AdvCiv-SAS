@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3802
+# Commit: fe72cec49d4c29890fde736235429f296e2fa921
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2c364d8c797728b59e832af26bd740560e60a251
+# Title: BUG help for Tech Splash option says that restart needed
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/XML/Text/TechWindow Options.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/TechWindow Options.xml b/Assets/XML/Text/TechWindow Options.xml
+index 7240e9adc..4c1608698 100644
+--- a/Assets/XML/Text/TechWindow Options.xml	
++++ b/Assets/XML/Text/TechWindow Options.xml	
+@@ -22,8 +22,8 @@
+ 		 I can tell, or mostly untrue. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_TECHWINDOW__VIEWTYPE_HOVER</Tag>
+-		<English>The layout of the popup ("splash screen") shown after discovering a new technology. The [COLOR_HIGHLIGHT_TEXT]Extended[COLOR_REVERT] layout spreads the information across five panes instead of two. [COLOR_HIGHLIGHT_TEXT]Wide[COLOR_REVERT] is the same as Extended, but in a larger (wider) window.</English>
+-		<German>Das Layout des Popups, das nach Erforschung einer Technologie angezeigt wird. Das [COLOR_HIGHLIGHT_TEXT]ausf�hrliche[COLOR_REVERT] Layout verteilt die Informationen auf f�nf Bereiche (anstatt zwei). [COLOR_HIGHLIGHT_TEXT]Verbreitert[COLOR_REVERT] ist eine breitere Version des ausf�hrlichen Layouts.</German>
++		<English>The layout of the popup ("splash screen") shown after discovering a new technology. The [COLOR_HIGHLIGHT_TEXT]Extended[COLOR_REVERT] layout spreads the information across five panes instead of two. [COLOR_HIGHLIGHT_TEXT]Wide[COLOR_REVERT] is the same as Extended, but in a larger (wider) window.[NEWLINE]Restart required.</English>
++		<German>Das Layout des Popups, das nach Erforschung einer Technologie angezeigt wird. Das [COLOR_HIGHLIGHT_TEXT]ausf�hrliche[COLOR_REVERT] Layout verteilt die Informationen auf f�nf Bereiche (anstatt zwei). [COLOR_HIGHLIGHT_TEXT]Verbreitert[COLOR_REVERT] ist eine breitere Version des ausf�hrlichen Layouts.[NEWLINE]Neustart erforderlich.</German>
+ 		<Italian>Determina quale visualizzazione mostrare quando viene scoperta una nuova Tecnologia:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Originale[COLOR_REVERT] - visualizzazione minima standard di Civ4;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Dettagliata[COLOR_REVERT] - aggiunge informazioni pi� dettagliate;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Ampia[COLOR_REVERT] - versione estesa della visualizzazione dettagliata.</Italian>
+ 		<Spanish>Determina la vista a mostrar cuando descubres una tecnolog�a.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Original[COLOR_REVERT] - Vista por defecto.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Detallada[COLOR_REVERT] - Informaci�n detallada.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Wide[COLOR_REVERT] - Versi�n mas ancha de la vista detallada.</Spanish>
+ 	</TEXT>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2514

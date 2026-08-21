@@ -1,0 +1,36 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2578
+# Commit: 6fc06023e4b6613e534acee1c0e0a154412ca8ba
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 21f12b96d524bb5ab500d5cc70c0b69a876bdb4f
+# Title: Minor amendment to a static assertion
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvInitCore.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvInitCore.h b/CvGameCoreDLL/CvInitCore.h
+index e7585059e..035011e43 100644
+--- a/CvGameCoreDLL/CvInitCore.h
++++ b/CvGameCoreDLL/CvInitCore.h
+@@ -400,6 +400,6 @@ BOOST_STATIC_ASSERT(NUM_MPOPTION_TYPES <= 32 && NUM_FORCECONTROL_TYPES <= 32);
+ 	assertion). Just make sure that new data members are added in the right place. */
+ BOOST_STATIC_ASSERT(sizeof(CvInitCore) ==
+ 		// EnumMap<PlayerTypes,bool> has size 8 then
+-		(MAX_CIV_PLAYERS > 32 && MAX_CIV_PLAYERS <= 64 ? 440 : 416)); 
++		(MAX_PLAYERS > 32 && MAX_PLAYERS <= 64 ? 440 : 416)); 
+ 
+ #endif
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=576

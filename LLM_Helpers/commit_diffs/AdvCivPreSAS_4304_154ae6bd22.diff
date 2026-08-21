@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4304
+# Commit: 154ae6bd22ecee96adc06faa525d23dc4c546325
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f4028ec1b95ed37cde0d57ae66e578106da18269
+# Title: Cancel random event popup if trigger conditions no longer met
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	2	CvGameCoreDLL/CvDLLButtonPopup.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index d2d47af4e..eed452ecc 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -2607,7 +2607,13 @@ bool CvDLLButtonPopup::launchEventPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 		return false;
+ 	if (pTriggeredData->m_eTrigger == NO_EVENTTRIGGER)
+ 		return false;
+-
++	// <advc.001> Double-check trigger conditions
++	if (kActivePlayer.initTriggeredData(pTriggeredData->m_eTrigger) == NULL)
++	{
++		kActivePlayer.deleteEventTriggered(pTriggeredData->getID());
++		FErrorMsg("Canceling event; is this legit (recently added code)?"); // advc.test
++		return false;
++	} // </advc.001>
+ 	CvEventTriggerInfo& kTrigger = GC.getInfo(pTriggeredData->m_eTrigger);
+ 
+ 	gDLL->UI().popupSetBodyString(pPopup, pTriggeredData->m_szText);
+@@ -2634,8 +2640,10 @@ bool CvDLLButtonPopup::launchEventPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	}
+ 
+ 	if (!bEventAvailable)
++	{	// advc.001: Don't count this as having been triggered
++		kActivePlayer.deleteEventTriggered(pTriggeredData->getID());
+ 		return false;
+-
++	}
+ 	if (kTrigger.isPickCity())
+ 	{
+ 		CvCity* pCity = kActivePlayer.getCity(pTriggeredData->m_iCityId);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1218

@@ -1,0 +1,77 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3507
+# Commit: c725833fed6b81a4bdab658cc1edcf0dc87cdc3c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2ff44cd670672584c7f50f94fa57ad70a2997137
+# Title: Make UWAI more pessimistic about possible tech trades
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	7	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 15b3fe662..896b3024b 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -473,6 +473,8 @@ scaled WarUtilityAspect::remainingCityRatio(PlayerTypes ePlayer) const
+ scaled WarUtilityAspect::partnerUtilFromTech() const
+ {
+ 	// Some overlap with the "Tech Groundbreaker" code in CvPlayerAI::AI_techValue
++	if (m_kGame.isOption(GAMEOPTION_NO_TECH_TRADING))
++		return 0;
+ 	// How good our and their attitude needs to be at least to allow tech trade
+ 	AttitudeTypes eOurAttitudeThresh = techRefuseThresh(eWe);
+ 	AttitudeTypes eTheirAttitudeThresh = techRefuseThresh(eThey);
+@@ -516,15 +518,15 @@ scaled WarUtilityAspect::partnerUtilFromTech() const
+ 			(kOurTeam.AI_estimateYieldRate(eWe, YIELD_COMMERCE) + scaled::epsilon());
+ 	if (rTheyToUsCommerceRatio > 1)
+ 		rTheyToUsCommerceRatio.flipFraction();
+-	scaled r = SQR(rTheyToUsCommerceRatio) * (20 + iHumanExtra);
+-	int iNearFutureTrades = std::min(iWeCanOffer, iTheyCanOffer);
+-	if (iNearFutureTrades > 1) // Just 1 isn't likely to result in a trade
++	scaled r = SQR(rTheyToUsCommerceRatio) * (17 + iHumanExtra);
++	scaled rNearFutureTrades = std::min(iWeCanOffer, iTheyCanOffer);
++	if (rNearFutureTrades > 1) // Just 1 isn't likely to result in a trade
+ 	{
+-		log("Added utility for %d foreseeable trades", iNearFutureTrades);
++		log("Added utility for %d foreseeable trades", rNearFutureTrades.floor());
+ 		// Humans tend to make trades immediately, and avoid certain techs entirely.
+ 		if (kThey.isHuman())
+-			iNearFutureTrades /= 2;
+-		r += 4 * std::min(3, iNearFutureTrades);
++			rNearFutureTrades /= 2;
++		r += fixp(10/3.) * scaled::min(3, rNearFutureTrades);
+ 	}
+ 	if (r > 0)
+ 		log("Tech trade utility: %d", r.round());
+@@ -536,6 +538,8 @@ scaled WarUtilityAspect::partnerUtilFromTech() const
+ 		log("Tech trade utility halved for distrust");
+ 		r /= 2;
+ 	}
++	if (m_kGame.isOption(GAMEOPTION_NO_TECH_BROKERING))
++		r *= fixp(2/3.);
+ 	return r * kWeAI.amortizationMultiplier();
+ }
+ 
+@@ -2726,7 +2730,7 @@ int Effort::preEvaluate()
+ 			/*	Reduced cost for long-distance war; less disturbance of Workers
+ 				and Settlers, and less danger of pillaging. */
+ 			rUtility += militAnalyst().turnsSimulated() /
+-					((bAllWarsLongDist ? 8 : fixp(5.5)) +
++					((bAllWarsLongDist ? 10 : 7) +
+ 					// Workers not much of a concern later on
+ 					kWe.AI_getCurrEraFactor() / 2);
+ 			log("Cost for wartime economy and ravages: %d%s", rUtility.uround(),
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2526

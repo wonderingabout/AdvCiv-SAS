@@ -1,0 +1,78 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 800
+# Commit: 36b04c0c46f33caf2e3514043bc18ac81fd75fff
+# History segment: K-Mod history
+# Parent used for diff: 209efdc6b1c9170265cdd436b1b2c30b203faf30
+# Title: Dead players will no longer try to update their border attitude.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	2	CvGameCoreDLL/CvGame.cpp
+3	2	CvGameCoreDLL/CvGlobals.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 82d2ca4ff..7b71f4e35 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -5918,8 +5918,12 @@ void CvGame::doTurn()
+ 	// K-Mod. Attitude cache. (Note: CvTeamAI::AI_doCounter has some things which affect attitude, so this update should be done after that function is called.)
+ 	for (PlayerTypes i = (PlayerTypes)0; i < MAX_PLAYERS; i=(PlayerTypes)(i+1))
+ 	{
+-		GET_PLAYER(i).AI_updateCloseBorderAttitudeCache();
+-		GET_PLAYER(i).AI_updateAttitudeCache();
++		CvPlayerAI& kLoopPlayer = GET_PLAYER(i);
++		if (kLoopPlayer.isAlive())
++		{
++			GET_PLAYER(i).AI_updateCloseBorderAttitudeCache();
++			GET_PLAYER(i).AI_updateAttitudeCache();
++		}
+ 	}
+ 	//
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 91241da52..8b14604d7 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -3641,11 +3641,12 @@ int CvGlobals::getInfoTypeForString(const char* szType, bool hideAssert) const
+ 		return it->second;
+ 	}
+ 
+-	if(!hideAssert)
++	//if(!hideAssert)
++	if (!hideAssert && !(strcmp(szType, "NONE")==0 || strcmp(szType, "")==0)) // K-Mod
+ 	{
+ 		CvString szError;
+ 		szError.Format("info type %s not found, Current XML file is: %s", szType, GC.getCurrentXMLFile().GetCString());
+-		FAssertMsg(strcmp(szType, "NONE")==0 || strcmp(szType, "")==0, szError.c_str());
++		//FAssertMsg(strcmp(szType, "NONE")==0 || strcmp(szType, "")==0, szError.c_str());
+ 		gDLL->logMsg("xml.log", szError);
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 603a8121c..0f9bea4b3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7559,7 +7559,8 @@ void CvPlayerAI::AI_updateCloseBorderAttitudeCache(PlayerTypes ePlayer)
+ 	const CvTeamAI& kOurTeam = GET_TEAM(getTeam());
+ 	TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
+ 
+-	if (getTeam() == eTheirTeam || kOurTeam.isVassal(eTheirTeam) || GET_TEAM(eTheirTeam).isVassal(getTeam()))
++	if (!isAlive() || !GET_PLAYER(ePlayer).isAlive() ||
++		getTeam() == eTheirTeam || kOurTeam.isVassal(eTheirTeam) || GET_TEAM(eTheirTeam).isVassal(getTeam()))
+ 	{
+ 		m_aiCloseBordersAttitudeCache[ePlayer] = 0;
+ 		return;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2219

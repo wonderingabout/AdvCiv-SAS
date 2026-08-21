@@ -1,0 +1,58 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2110
+# Commit: cc691f7c9ff084884fdae6fcb8e3e9977d55586b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e79b00d769652d60a5b0a8992c90ebd2eb7813a7
+# Title: Fix minor Pedia bug (spy specialist vs. unit mixed up)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	9	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index fab4cd648..d982ad69e 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -7934,16 +7934,20 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
+ 
+ 	bool bFirst = true;
+ 
+-	for (iI = 0; iI < GC.getNumSpecialistInfos(); ++iI)
++	FOR_EACH_ENUM(Specialist)
+ 	{
+-		if (ci.isSpecialistValid(iI))
+-		{
+-			szFirstBuffer.Format(L"%s%s", NEWLINE, gDLL->getText("TXT_KEY_CIVIC_UNLIMTED").c_str());
+-			CvWString szSpecialist;
+-			szSpecialist.Format(L"<link=literal>%s</link>", GC.getInfo((SpecialistTypes)iI).getDescription());
+-			setListHelp(szHelpText, szFirstBuffer, szSpecialist, L", ", bFirst);
+-			bFirst = false;
+-		}
++		if (!kCivic.isSpecialistValid(eLoopSpecialist))
++			continue; // advc
++		szFirstBuffer.Format(L"%s%s", NEWLINE, gDLL->getText("TXT_KEY_CIVIC_UNLIMTED").c_str());
++		CvWString szSpecialist;
++		//szSpecialist.Format(L"<link=literal>%s</link>",
++		/*	<advc.001> Link explicitly to the specialist type so that SPECIALIST_SPY
++			gets used and not UNIT_SPY. */
++		szSpecialist.Format(L"<link=%s>%s</link>",
++				CvWString(GC.getInfo(eLoopSpecialist).getType()).c_str(), // </advc.001>
++				GC.getInfo(eLoopSpecialist).getDescription());
++		setListHelp(szHelpText, szFirstBuffer, szSpecialist, L", ", bFirst);
++		bFirst = false;
+ 	}
+ 
+ 	//	Great People Modifier...
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1427

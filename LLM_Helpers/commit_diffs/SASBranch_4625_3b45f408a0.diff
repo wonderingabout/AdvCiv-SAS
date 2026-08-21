@@ -1,0 +1,149 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4625
+# Commit: 3b45f408a0ab4b28167b934f9b95df8e78306009
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 79e6a90410ff867b859e3dcfcc4e934203cdffc1
+# Title: rename promotion_march to promotion_medic_ambulatory and quite minor other changes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Events/CIV4EventInfos.xml
+1	1	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+3	3	Assets/XML/Units/CIV4PromotionInfos.xml
+7	14	Assets/XML/Units/CIV4UnitInfos.xml
+3	1	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+
+[PATCHES]
+
+diff --git a/Assets/XML/Events/CIV4EventInfos.xml b/Assets/XML/Events/CIV4EventInfos.xml
+index c003c047b..f7b9da3ca 100644
+--- a/Assets/XML/Events/CIV4EventInfos.xml
++++ b/Assets/XML/Events/CIV4EventInfos.xml
+@@ -21380,7 +21380,7 @@
+ 			<UnitCombatPromotions>
+ 				<UnitCombatPromotion>
+ 					<UnitCombat>UNITCOMBAT_GUN</UnitCombat>
+-					<UnitPromotion>PROMOTION_MARCH</UnitPromotion>
++					<UnitPromotion>PROMOTION_DRILL1</UnitPromotion>
+ 				</UnitCombatPromotion>
+ 			</UnitCombatPromotions>
+ 			<UnitClassPromotions/>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index aa3e4b9c4..8bd892141 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -1097,7 +1097,7 @@
+ 		<Spanish>Medic 4</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_PROMOTION_MARCH</Tag>
++		<Tag>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Tag>
+ 		<English>Medic (Ambulatory)</English>
+ 		<French>
+ 			<Text>Medic (Ambulatory)</Text>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 9df76fabc..473bcaec4 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1597,7 +1597,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>PROMOTION_MEDIC2</PromotionPrereq>
+-			<PromotionPrereqOr1>PROMOTION_MARCH</PromotionPrereqOr1>
++			<PromotionPrereqOr1>PROMOTION_MEDIC_AMBULATORY</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+ 			<TechPrereq>TECH_MEDICINE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+@@ -1774,8 +1774,8 @@ full order to take from for quick editing or/and copy/paste:
+ 			<Button>,Art/Interface/Buttons/Promotions/Combat5.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,16</Button>
+ 		</PromotionInfo>
+ 		<PromotionInfo>
+-			<Type>PROMOTION_MARCH</Type>
+-			<Description>TXT_KEY_PROMOTION_MARCH</Description>
++			<Type>PROMOTION_MEDIC_AMBULATORY</Type>
++			<Description>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 3879ed5e3..3c1cabacc 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -5532,8 +5532,7 @@ for example for the archer
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- advc.907a: was 8 -->
+-			<iCombat>7</iCombat>
++			<iCombat>6</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -5593,10 +5592,13 @@ for example for the archer
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- advc.907a: was none -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+-					<PromotionType>PROMOTION_MARCH</PromotionType>
++					<PromotionType>PROMOTION_COMBAT1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_COMBAT2</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
+@@ -10652,10 +10654,6 @@ for example for the archer
+ 					<PromotionType>PROMOTION_AMPHIBIOUS</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_MARCH</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+ 			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+@@ -11008,12 +11006,7 @@ for example for the archer
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_MARCH</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index e90661942..40ef8b280 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -554,4 +554,6 @@ correctly that i read quite some time ago, hopefully clearer or at least smoothe
+ 
+ - nuclear submarines are submarines powered by nuclear energy, not necessarily having nuclear weapons https://en.wikipedia.org/wiki/Nuclear_submarine , due to their high cost, removing them to simplify end game and also less things to implement, but main reason is they make less sense, i had assumed ignorantly but as it is that it had nuclear weapon, is thanks to realism invictus that i noticed they have (it seems) no submarines, removed them before that, then added them for exhaustiveness, then after checking for realism invictus models and seeing they seemingly don't have them ((thanks to their very nice search bar i am thankful for but anyways) but don't want to implement at least not yet, partly because it may be quite laggy or cause bugs but or/and other reasons maybe i don't know but anyways), so now reverting back to only one type of submarine, and put back (nuclear) submarine in robotic era (9)
+ 
+-- first sea plane carrier in 1912: https://en.wikipedia.org/wiki/History_of_the_aircraft_carrier ; to simplify make them available at flight but add another tech requirement so it's slightly later but not a lot (for example flight + assembly line but would need to check so this is just an example, it may be wrong as a result, see latest sevopedia implementation if i don't forget to do it, for the accurate and updated version i chose if i didn't forget it)
++- first sea plane carrier in 1912: https://en.wikipedia.org/wiki/History_of_the_aircraft_carrier ; to simplify make them available at flight but add another tech requirement so it's slightly later but not a lot (for example flight + assembly line but would need to check so this is just an example, it may be wrong as a result, see latest sevopedia implementation if i don't forget to do it, for the accurate and updated version i chose if i didn't forget to do it)
++
++- legionaries both good at defense and offense, changing effect to adjust that (remove old named "march" promotion) https://en.wikipedia.org/wiki/Legionary
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6719

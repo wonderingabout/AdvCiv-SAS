@@ -1,0 +1,178 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3415
+# Commit: f84dd0bb4be8b77d5b5b8f8fb58c60e25f00a184
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 02a30151ec585e2abc717ff170677f2a15db8729
+# Title: Make AI much more reluctant to liberate cities to vassals
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+38	11	CvGameCoreDLL/CvPlayerAI.cpp
+10	9	CvGameCoreDLL/CvTeam.cpp
+2	1	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 05b429369..ae4fab1dc 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -22033,29 +22033,51 @@ bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer,
+ 	bool const bCoop = (getMasterTeam() == kToPlayer.getMasterTeam() &&
+ 			!GET_TEAM(kToPlayer.getTeam()).isVassal(getTeam()));
+ 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
++	CvTeam const& kToTeam = GET_TEAM(eToPlayer);
++	bool const bNonColonialVassal = (kToTeam.isVassal(getTeam()) &&
++			!kOurTeam.isParent(kToTeam.getID()));
++	if (bNonColonialVassal && kToTeam.isCapitulated() &&
++		/*	Even if they pay for the city, it's probably not worth letting a
++			a capitulated vassal go free. */
++		kToTeam.canVassalRevolt(getTeam(), false, NUM_CITY_PLOTS, kCity.getPopulation()))
++	{
++		return false;
++	}
+ 	int iAttitudeLevel = AI_getAttitude(eToPlayer, !bCoop);
+ 	bool bCede = false;
+ 	if (bLiberateForFree) // Some fast checks upfront
+-	{	/*	Vassal who reconquers its master's or sibling vassal's city
++	{
++		if (bNonColonialVassal)
++		{
++			int iToTeamCities = kToTeam.getNumCities() + 1; // incl. kCity
++			// This is a useful check also for voluntary vassals
++			if (kToTeam.canVassalRevolt(getTeam(), false,
++				// (Should perhaps play it less safely when iKeepVal is negative?)
++				(3 * NUM_CITY_PLOTS) / 2 + iToTeamCities * 4,
++				kCity.getPopulation() + iToTeamCities * 4))
++			{
++				return false;
++			}
++		}
++		/*	Vassal who reconquers its master's or sibling vassal's city
+ 			shouldn't stubbornly hold onto it */
+-		if (bCoop)
++		else if (bCoop)
+ 			bCede = true;
+ 		else
+ 		{
+ 			if (isAVassal()) // Can happen through AI_conquerCity
+ 				return false;
+-			if (kOurTeam.AI_getWarPlan(kToPlayer.getTeam()) != NO_WARPLAN)
++			if (kOurTeam.AI_getWarPlan(kToTeam.getID()) != NO_WARPLAN)
+ 				return false;
+ 			if (getUWAI().isEnabled())
+ 			{
+-				if (uwai().getCache().warUtilityIgnoringDistraction(kToPlayer.getTeam()) > 0)
++				if (uwai().getCache().warUtilityIgnoringDistraction(kToTeam.getID()) > 0)
+ 					return false;
+ 			}
+ 			else
+ 			{
+-				if (!kOurTeam.AI_isAvoidWar(kToPlayer.getTeam(), true) &&
+-					5 * kOurTeam.getPower(true) >
+-					4 * GET_TEAM(eToPlayer).getPower(true))
++				if (!kOurTeam.AI_isAvoidWar(kToTeam.getID(), true) &&
++					5 * kOurTeam.getPower(true) > 4 * kToTeam.getPower(true))
+ 				{
+ 					return false;
+ 				}
+@@ -22069,15 +22091,20 @@ bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer,
+ 		int const iAcquireVal = kToPlayer.AI_cityTradeVal(
+ 				kCity, eToPlayer, LIBERATION_WEIGHT_FULL);
+ 		bool const bGreatEnmity = (iAttitudeLevel == ATTITUDE_FURIOUS ||
+-				kOurTeam.AI_getWorstEnemy() == kToPlayer.getMasterTeam() ||
++				kOurTeam.AI_getWorstEnemy() == kToTeam.getMasterTeam() ||
+ 				kToPlayer.AI_getAttitude(getID()) == ATTITUDE_FURIOUS);
+ 				/*	(If we're their worst enemy at annoyed or better,
+ 					ceding a city might help.) */
+ 		if (bLiberateForFree)
+ 		{
+-			// Has to be significantly more valuable to them
+-			if (4 * iKeepVal > 3 * iAcquireVal)
++			/*	Has to be significantly more valuable to them -
++				especially if they're our vassal b/c then it's mostly
++				about empowering them rather than charming them. */
++			if ((bNonColonialVassal ? 15 : (kOurTeam.isParent(kToTeam.getID()) ? 12 : 8)) *
++				iKeepVal > 6 * iAcquireVal)
++			{
+ 				return false;
++			}
+ 			/*	Anticipate diplo penalties. Not a problem
+ 				when the trade value is very small. */
+ 			scaled rEnemyTradeFactor = 1;
+@@ -22098,7 +22125,7 @@ bool CvPlayerAI::AI_intendsToCede(CvCityAI const& kCity, PlayerTypes eToPlayer,
+ 						continue;
+ 					}
+ 					rTotalResentment += kThirdParty.AI_enemyTradeResentmentFactor(
+-							kToPlayer.getTeam(), getTeam());
++							kToTeam.getID(), getTeam());
+ 				}
+ 				rEnemyTradeFactor += (2 * rTotalResentment) /
+ 						scaled(TeamIter<EVER_ALIVE>::count()).sqrt();
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 36f39bde6..5524e9987 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1833,25 +1833,26 @@ int CvTeam::getVassalCount(TeamTypes eObs) const
+ }
+ 
+ 
+-bool CvTeam::canVassalRevolt(TeamTypes eMaster) const
++bool CvTeam::canVassalRevolt(TeamTypes eMaster,
++	bool bCheckLosses, int iExtraLand, int iExtraPop) const // advc.ctr
+ {
+ 	FAssert(NO_TEAM != eMaster);
+ 
+-	CvTeam& kMaster = GET_TEAM(eMaster);
++	CvTeam const& kMaster = GET_TEAM(eMaster);
+ 
+-	// <advc.112>
+-	if(isLossesAllowRevolt(eMaster))
+-		return true; // </advc.112>
++	if (bCheckLosses && isLossesAllowRevolt(eMaster))
++		return true;
+ 
+-	int const iFREE_VASSAL_LAND_PERCENT = GC.getDefineINT(CvGlobals::FREE_VASSAL_LAND_PERCENT); // advc
++	int const iFREE_VASSAL_LAND_PERCENT = GC.getDefineINT(CvGlobals::FREE_VASSAL_LAND_PERCENT);
+ 	if (iFREE_VASSAL_LAND_PERCENT < 0 ||
+-		100 * std::max(10, getTotalLand(false)) < // advc.112: Lower bound added
++		100 * std::max(10, getTotalLand(false) + iExtraLand) < // advc.112: Lower bound added
+ 		kMaster.getTotalLand(false) * iFREE_VASSAL_LAND_PERCENT)
+ 	{
+ 		return false;
+ 	}
+-	int const iFREE_VASSAL_POPULATION_PERCENT = GC.getDefineINT(CvGlobals::FREE_VASSAL_POPULATION_PERCENT); // advc
+-	if (iFREE_VASSAL_POPULATION_PERCENT < 0 || 100 * getTotalPopulation(false) <
++	int const iFREE_VASSAL_POPULATION_PERCENT = GC.getDefineINT(CvGlobals::FREE_VASSAL_POPULATION_PERCENT);
++	if (iFREE_VASSAL_POPULATION_PERCENT < 0 ||
++		100 * (getTotalPopulation(false) + iExtraPop) <
+ 		kMaster.getTotalPopulation(false) * iFREE_VASSAL_POPULATION_PERCENT)
+ 	{
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index d012af74b..49d4025fe 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -111,7 +111,8 @@ public:
+ 	int getVassalCount(TeamTypes eObs = NO_TEAM) const;
+ 	// advc.opt:
+ 	bool isAVassal() const { return (m_eMaster != NO_TEAM); }											// Exposed to Python
+-	bool canVassalRevolt(TeamTypes eMaster) const;
++	bool canVassalRevolt(TeamTypes eMaster,
++			bool bCheckLosses = true, int iExtraLand = 0, int iExtraPop = 0) const; // advc.ctr
+ 	bool isLossesAllowRevolt(TeamTypes eMaster) const; // advc.112
+ 	int getUnitClassMaking(UnitClassTypes eUnitClass) const;											// Exposed to Python
+ 	int getUnitClassCountPlusMaking(UnitClassTypes eIndex) const										// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6386

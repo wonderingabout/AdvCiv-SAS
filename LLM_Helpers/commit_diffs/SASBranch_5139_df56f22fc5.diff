@@ -1,0 +1,382 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5139
+# Commit: df56f22fc5dbe5a50fc2c5a7eb41976adb3ce7f2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 88657f2f724cec543df53774fec3ba2491347c21
+# Title: (Improved) Whenever we want to contact players outside of our master-vassal(s) locus for a tech trade, first check if a member of does not already have the t...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+13	3	Assets/XML/GlobalDefines_advciv_sas.xml
+105	6	CvGameCoreDLL/CvPlayerAI.cpp
+5	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+36	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
+4	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 7ce51ed74..6c4104a6a 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1002,7 +1002,7 @@
+ 	<!-- Yeah, that’s a really sensible enhancement for that situation – you basically want:
+ 			- Masters to value “vassal-known” techs less for self-research, and
+ 			- Masters (and vassals) to lean more on tech trades between each other when those techs already exist on the vassal team. -->
+-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc.  -->
++	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1038,7 +1038,7 @@
+ 	// 	- The master picking techs the vassal doesn’t have, or at least heavily downweighting ones the vassal already holds.
+ 	// 	- The vassal not wasting time duplicating the master’s techs either.
+ 	// 	- More tech trades along that axis whenever there’s a reasonable deal. -->
+-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc.  -->
++	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1062,6 +1062,16 @@
+ 
+ 
+ 
++	<!-- SAS vassalMasterTechTrade: Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
++	<!-- This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source.” So it’s conservative: it can only reduce external tech trades, never block internal ones. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
++	<Define>
++		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_PREFER_MASTER_VASSAL_CLUSTER_OPTIMIZE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: how much more we'd value switching to a civic that gives anger to us if other rivals have it (used to be the former civic_emancipation's effect). Old logic resulted in a civic_emancipation auto pick almost and the anger civic effect being way too overevaluated based on autoplay results and according to chatgpt 5's review as well i mean (check if accurate anyways etc). Changed old logic with these new toggles thanks to chatgpt 5's help too i mean thanks etc really if i may say i mean but anyways etc; also i mean check if accurate and thanks for help i mean too but anyways etc. -->
+ 	<!-- custom: as for these new knobs, for this one the higher the value, the more we want to switch to this civic for each of our cities that are unhappy (it may be worth to change to such a civic if city is unhappy and we have some unhappiness in this city that is due to this civic not being adopted). -->
+ 	<Define>
+@@ -1230,7 +1240,7 @@
+ 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: if city has less than this amount of culture per turn, and still no BFC, force an artist specialist regardless of previous rules (like no specialist if low pop, now ignored anyways etc). Example: < 3 culture per turn is too slow so we want an artist specialist until we have our BFC.  -->
++	<!-- custom: if city has less than this amount of culture per turn, and still no BFC, force an artist specialist regardless of previous rules (like no specialist if low pop, now ignored anyways etc). Example: < 3 culture per turn is too slow so we want an artist specialist until we have our BFC. -->
+ 	<Define>
+ 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5908ef8df..fec48b8b6 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -22159,6 +22159,10 @@ void CvPlayerAI::AI_doDiplo()
+ 					// <!-- custom: After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech anyways etc.), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issues as of now 77 and 78 for details anyways etc. -->
+ 					// SAS vassalMasterTechTrade
+ 					static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE");
++					const TeamTypes eOurTeam = getTeam();
++					const TeamTypes eTheirTeam = kPlayer.getTeam();
++					const TeamTypes eMasterTeam = kOurTeam.getMasterTeam();
++
+ 					if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE)
+ 					{
+ 						// Prefer tech trades with master/vassal partners.
+@@ -22175,20 +22179,16 @@ void CvPlayerAI::AI_doDiplo()
+ 						// 	- The master picking techs the vassal doesn’t have, or at least heavily downweighting ones the vassal already holds.
+ 						// 	- The vassal not wasting time duplicating the master’s techs either.
+ 						// 	- More tech trades along that axis whenever there’s a reasonable deal.
+-						const TeamTypes eOurTeam = getTeam();
+-						const TeamTypes eTheirTeam = kPlayer.getTeam();
+ 						// (1) When we are the master and ePlayer is our vassal → your MASTER_TO_VASSAL_CONTACT_PERCENT multiplies our chance to contact that vassal with a tech-trade proposal.
+ 						if (GET_TEAM(eTheirTeam).isVassal(eOurTeam))
+ 						{
+ 							static const int iSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT");
+-
+ 							rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT, 100);
+ 						}
+ 						// (2) When we are the vassal and ePlayer is our master → your VASSAL_TO_MASTER_CONTACT_PERCENT multiplies our chance to contact that master with a tech-trade proposal.
+ 						else if (kOurTeam.isVassal(eTheirTeam))
+ 						{
+ 							static const int iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT");
+-
+ 							rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT, 100);
+ 						}
+ 						// (3) Sibling vassals of the same master: vassal ↔ vassal
+@@ -22198,11 +22198,9 @@ void CvPlayerAI::AI_doDiplo()
+ 						// 	- No stacking: each pair hits at most one of (master→vassal, vassal→master, vassal↔vassal).
+ 						else if (kOurTeam.isAVassal())
+ 						{
+-							TeamTypes const eMasterTeam = kOurTeam.getMasterTeam();
+ 							if (eMasterTeam != NO_TEAM && GET_TEAM(eTheirTeam).isVassal(eMasterTeam) && eTheirTeam != eOurTeam) // safety; shouldn't ever be equal here
+ 							{
+ 								static const int iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT");
+-
+ 								rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT, 100);
+ 							}
+ 						}
+@@ -22278,6 +22276,107 @@ void CvPlayerAI::AI_doDiplo()
+ 								}
+ 							}
+ 						}
++
++						// <!-- SAS vassalMasterTechTrade: Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
++						// Conceptually:
++						// 	- For each potential trade partner ePlayer, the AI already:
++						// 	- Rolls for contact (AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult)),
++						// 	- Picks a best tech we’d like to receive from them (eBestReceiveTech),
++						// Then tries to find something to give in return.
++						// We add a “cluster redirect” step:
++						// 	- If this partner is outside our master–vassal locus,
++						// 	- And if any of our locus partners (master or vassals / sibling vassals) has that same eBestReceiveTech and is willing to trade it,
++						// 	- Then we drop eBestReceiveTech for this outsider and let the normal logic later pick up a trade with the locus partner instead (helped by the contact multipliers we already added).
++						// This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source.” So it’s conservative: it can only reduce external tech trades, never block internal ones.
++						static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_PREFER_MASTER_VASSAL_CLUSTER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_PREFER_MASTER_VASSAL_CLUSTER_OPTIMIZE");
++						if (bSAS_AI_DO_DIPLO_TECH_TRADE_PREFER_MASTER_VASSAL_CLUSTER_OPTIMIZE && eBestReceiveTech != NO_TECH)
++						{
++							// Only re-route when ePlayer is truly "outside" our locus:
++							//  - not our team,
++							//  - not our vassal,
++							//  - not our master.
++							if (eTheirTeam != eOurTeam && !GET_TEAM(eTheirTeam).isVassal(eOurTeam) && !kOurTeam.isVassal(eTheirTeam))
++							{
++								bool bClusterHasAlternative = false;
++
++								// (1) If we are a vassal: check our master and sibling vassals
++								if (kOurTeam.isAVassal())
++								{
++									if (eMasterTeam != NO_TEAM)
++									{
++										// <!-- custom: fix compile error by using a CvTeamAI instead of undeclared GET_TEAM(eMasterTeam) anyways etc.
++										// 1>..\CvPlayerAI.cpp(22321): error C2039: 'AI_techTrade' : is not a member of 'CvTeam'
++										// 1>          c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
++										// 1>..\CvPlayerAI.cpp(22346): error C2039: 'AI_techTrade' : is not a member of 'CvTeam'
++										// 1>          c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
++										// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2' -->
++										CvTeamAI const& kMaster = GET_TEAM(eMasterTeam);
++										if (kMaster.isHasTech(eBestReceiveTech) && kMaster.AI_techTrade(eBestReceiveTech, eOurTeam) == NO_DENIAL)
++										{
++											bClusterHasAlternative = true;
++										}
++										else
++										{
++											// Sibling vassals of the same master
++											// <!-- custom: fix compile error, use TeamAIIter instead of TeamIter anyways etc.
++											// 1>..\CvPlayerAI.cpp(22323): error C2440: 'initializing' : cannot convert from 'CvTeam' to 'const CvTeamAI &'
++											// 1>          Reason: cannot convert from 'CvTeam' to 'const CvTeamAI'
++											// 1>          No constructor could take the source type, or constructor overload resolution was ambiguous
++											// 1>..\CvPlayerAI.cpp(22343): error C2440: 'initializing' : cannot convert from 'CvTeam' to 'const CvTeamAI &'
++											// 1>          Reason: cannot convert from 'CvTeam' to 'const CvTeamAI'
++											// 1>          No constructor could take the source type, or constructor overload resolution was ambiguous
++											// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'-->
++											for (TeamAIIter<ALIVE, VASSAL_OF> itSibling(eMasterTeam); itSibling.hasNext() && !bClusterHasAlternative; ++itSibling)
++											{
++												CvTeamAI const& kSibling = *itSibling; // <-- CvTeamAI, not CvTeam
++												if (kSibling.getID() == eOurTeam)
++													continue; // skip ourselves
++												if (!kSibling.isHasTech(eBestReceiveTech))
++													continue;
++												if (kSibling.AI_techTrade(eBestReceiveTech, eOurTeam) == NO_DENIAL)
++												{
++													bClusterHasAlternative = true;
++													break;
++												}
++											}
++										}
++									}
++								}
++
++								// (2) If we are a master: check our vassals
++								if (!bClusterHasAlternative && kOurTeam.getVassalCount(NO_TEAM) > 0)
++								{
++									// <!-- custom: fix compile error, use TeamAIIter instead of TeamIter anyways etc. -->
++									for (TeamAIIter<ALIVE, VASSAL_OF> itVassal(eOurTeam); itVassal.hasNext(); ++itVassal)
++									{
++										CvTeamAI const& kVassal = *itVassal; // <-- CvTeamAI
++										TeamTypes eVassalTeam = kVassal.getID();
++
++										// Sanity; shouldn't normally be the outsider we're currently talking to
++										if (eVassalTeam == eTheirTeam)
++											continue;
++
++										if (!kVassal.isHasTech(eBestReceiveTech))
++											continue;
++
++										if (kVassal.AI_techTrade(eBestReceiveTech, eOurTeam) == NO_DENIAL)
++										{
++											bClusterHasAlternative = true;
++											break;
++										}
++									}
++								}
++
++								// If someone in the master–vassal cluster can trade this tech to us,
++								// don't buy it from the outsider; leave it for a "cluster" deal.
++								if (bClusterHasAlternative)
++								{
++									eBestReceiveTech = NO_TECH;
++								}
++							}
++						}
++						// End - SAS vassalMasterTechTrade: prefer locus over outsiders
++
+ 						if (eBestReceiveTech != NO_TECH)
+ 						{
+ 							TechTypes eBestGiveTech = NO_TECH;
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index dbf0e82f0..9042432c1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -217,11 +217,14 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ Note: most if not all of the diplomacy ai changes affect both ai vs ai behaviour as well as ai vs human behaviour (e.g. if master is human and vassal is ai or vice versa, etc.).
+ 
++Note 2: master-vassal(s) changes are made with the aim that they in most cases would also benefit the vassal rather than over-strenghthening their master in a way that would in most cases be bad for the vassal's winning odds. Similarly, a stronger vassal is also more likely to be more useful so this is intended to be in the interest of the master in most cases as well but anyways etc. Hopefully AI would be stronger thanks to these changes both for the vassal(s) and their master.
++
+ - Seemingly tremendously improved multi-war threat management by adding sanity "emergency peace" pre-checks in `UWAI::Team::considerPeace` in `UWAIAgent.cpp`, so that AI makes peace if it fights too many wars or not that many but against a combined strong enough total enemy power ratio (vs ours as base anyways etc). This should make AI much stronger as it did in the sample testing where at turn 150 Hatshepsut AI who was strongest leader in the game at this stage could keep its lead until turn 200 thanks to our changes and make targeted campaigns in this sample i mean but anyways etc, instead of being badly dogpiled on and actually dying before turn 200 before our changes. Hopefully these are lax enough that plenty wars still happen, but the focus is on AI survivability and efficiency, not entertainment xd if i may say in this case i mean but anyways etc, see [65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc) for details anyways etc.
+ - Fixed and greatly enhanced issue of AI overvaluing low effect bonuses such as pig (gives only +1 health) that it would value at same price than some higher effect bonuses such as maize (+2 health effectively (+1, then +1 from granary we almost always have)), by adding a pre-check in `CvPlayerAI::AI_bonusTradeVal` so that as soon as our trading partner if i may say but anyways etc has the tech, then we assume said party also has granaries in all cities and thus would gain +2 health from maize, then price accordingly. Therefore bonuses are not valued too high too soon (until tech is unlocked, accounts for obsolte buildings too such as as of now the byzantine empire's civ-specific stable giving happiness from horse, that would be cancelled when said building is obsoleted if i'm not mistaken but anyways etc). Does not account wonders and cathedrals to simplify (not present in enough cities to matter), and slightly accounts for temples and monasteries to simplify as well if they were to have such bonus effects. As a result of these changes, AI should undersatnd much better the value for example of its maize or wheat or grapes (from grocer if i'm not mistaken anyways etc), and value it more in trade in gold per turn, while pig or cattle or such should be valued less, so it should no longer be possible to cheese it if i may say but anyways etc and trade suepr aggressively junk or low-value bonuses if i may say but anyways etc for high gpt or other bonuses as easily as was (was quite broken tbh but anyways etc) or such anyways etc. Hopefully leads to stronger AI trading, and fairer AI vs AI trade as well so they don't throw away their nice bonuses to lower value ones even to other AIs. Some bonuses like iron as a result would also be valued less now as they don't have happiness or health from buildings from example, but hopefully its value should still be high enough, and it's maybe fine as such as there are other paths than having iron maybe at least early (else the human player may trade it too easily or something maybe (i am not sure about this change change but maybe it will work out well in overall diplomacy and allow for more startegy rather than easy trade abuse/exploit anyways etc)). Note: coastal bonuses have a more moderate version of this as we assume many cities are not coastal so they would not gain the building related bonus's extra effect quite often. We count it as such even in water heavy maps (treated the same to simplify anyways etc), so fish would be worth more than pig (with as of now harbor but anyways etc) but less than maize or wheat for example anyways etc. See [66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early anyways etc) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd if i may say but anyways etc, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now if i may say but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc) for details anyways etc.
+ - Added AI logic in `CvPlayerAI::AI_bonusTradeVal`to value iAI Objective bonuses more and this valuing is higher the higher `iAIObjective` is anyways etc.
+ - Independently from this, added logic in `CvPlayerAI::AI_bonusTradeVal` to tell AI how to relatively value some key bonuses like as of now Copper, Iron, Horse, Camel, Elephants, depending on if buyer has one and not the other and at which era ingame. For example iron is very nice at medieval era (value x2) if buyer has horse or camel but no iron (in order to build knights), but at renaissance such a combination is not valuable as there are other units instead (musketmen for example that don't require any bonus, and cannons only requiring iron as of now but anyways etc). Similarly, elephants bonus is valuable at ancient and classical era, but not in medieval (war elephants fall behind so it would be at most only for building (value x0.5 i.e. half value now in trading with buyer anyways etc)). Or iron/copper are not so valuable at classical if we have camel or horse or elephants (vice versa more or less), but this changes at other eras. Also horse not being valuable at ancient and classical (to simplify (camels are not useful pre-classical but to simplify anyways etc)) if we have camel and vice versa for example, but not same at other eras. Hopefully leads to smarter AI trading although i didn't test it too much so far if at all hehe but at glance seems bit better in this case i mean but anyways etc.
+ - (Requires AdvCiv-SAS 5135+) Implemented preferrential master<->vassal(s) tech trading (we are heavily more willing to tech trade with our master/vassal(s)), in `CvPlayerAI::AI_doDiplo`. This synergises the previous devalue techs we can get from our master/vassal(s) change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-ai)) and expands on it, not just techs that overlap with what our master/vassal(s) already know. In autoplay, this results for example in the master having 4 more techs and one less tech from turn 250 to turn 300 (vassal was mostly way ahead in tech) and the vassal having 2 more techs and 0 less techs, which is a massive improvement it seems, just from this change. Added a bugfix to `AI_contactRoll(CONTACT_TRADE_TECH` (was missing a second parameter according to chatgpt 5.1) which may have or not contributed to this skew in behaviour. See for details [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51). (Requires AdvCiv-SAS 5138+) Update: also added vassal<->vassal siblings extra tech trading chance similarly, which leads in autoplay (since Ewuare has 2 vassals at t250) to seemingly more or less identical results, which is fine as long as not clearly harmful, and this only boosts chance, not reduces trade which may be less predictable in terms of is this beneficial or harmful.
++- (Requires AdvCiv-SAS 5139+) Whenever we want to contact players outside of our master-vassal(s) locus for a tech trade, first check if a member of does not already have the tech, and if so do not contact outsiders (in the hope we indirectly trade more with players within our locus rather). In autoplay, this helps Ewuare win sooner seemingly due to unlocking the military tech for dragoons one of his vassal had long ago but that he didn't have in other runs at turn 300; tech pace is otherwise more or less mostly the same. Change in `CvPlayerAI::AI_doDiplo`. See for details [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
+ 
+ #### Military (AI)
+ 
+@@ -444,11 +447,11 @@ Note: please see note here as well in this custom main changes guide about the .
+ - unit promotions are reworked or/and rebalanced: woodsman for example is buffed, some other like Hills Master 2 and 3 (guerilla) are rebalanced or nerfed, and other some promotions have also their requirements changed, for example archers have access to city bombard promotion (units are reworked too, see below), or "Logistics" (named "Commando" before) is now accessible after Combat 1 or City Raider 1, or City Raider 3 or City Garrison 3 or First Strike 3 as of now also require (i.e. additionally, on top of previous prereq if i'm not mistaken but anyways etc) Combat 2 before that not only the previous level (else was a bit too op before i think but anyways etc). Some are available sooner too, for example "Logistics" is available at "The Wheel", not "Military Science" anymore, since we understand roads we can use them, maybe, more strategic importance now too maybe hopefully.
+ - removed some promotions such as PROMOTION_TACTICS, as effect is redundant with retreat 1 and retreat 2 plus bypassing it, having too high retreat chance would be broken as well and inefficient as a promotion tree maybe anyways etc
+ - military units are reworked: for example the holy roman empire special unit, to better accomodate its history and stats, can be built starting from a different tech, and the french_musketeer has 1 move not 2 anymore but instead has as of now now anti mounted and small collateral kit which is much stronger and relevant for renaissance plus anyways etc, which is nice as the unit was way too weak and underwhelming if i may say but anyways etc.
+-- military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (dragoon based), the mongol khishigten (medieval horse knight based as of now anyways etc (replaces the mongol keshik anyways etc)), the english yeoman archer (crossbow based, better match with the english empire's overall defensive profile, plus nice cover if no early bonus anyways etc), or the holy roman houfnice (cannon-based, better match with holy roman empire's aggressive profile, medieval window was too tight, and the old landsknetch was obsolete too soon in combat by the time it was produced, as well as hard to balance (effective against melee which are obsolete too, effective against mounted melee that are also not relevant but useless against cuirassiers mostly, hopefully much better with the houfnice but anyways etc)); also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values.
++- military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and dragoons are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (dragoon based), the mongol khishigten (medieval horse knight based as of now anyways etc (replaces the mongol keshik anyways etc)), the english yeoman archer (crossbow based, better match with the english empire's overall defensive profile, plus nice cover if no early bonus anyways etc), or the holy roman houfnice (cannon-based, better match with holy roman empire's aggressive profile, medieval window was too tight, and the old landsknetch was obsolete too soon in combat by the time it was produced, as well as hard to balance (effective against melee which are obsolete too, effective against mounted melee that are also not relevant but useless against cuirassiers mostly, hopefully much better with the houfnice but anyways etc)); also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values.
+ - some units have been removed: sometimes for gameplay reasons: for example the nuclear_submarine is not relevant enough and does not actually hold nuclear weapons, only is nuclear powered if i am not mistaken, but effect is not strong enough to justify the hassle so just remove them anyways etc; or for example the caravel as it was not very sensical / nonsensical to me at least anyways etc that openly nation-specific and announced caravels could freely travel in outer borders even if borders are not open (and send annoying spies and such) without declaring war while doing so, so now this ability is now specific only to the privateer, among visible units at least (unlike the (normal) submarine for example if i am not mistaken anyways etc), and the privateer is now also buffed, see sevopedia for latest values and effects anyways etc, as for the caravel its transportation effect or faster mobility (if i am not mistaken about it being faster due to it being smaller if i am not mistaken about this as well anyways etc) is not worth the hassle of having 2 naval units (i.e. than the galleon anyways etc) at same era that do otherwise about the same thing anyways etc
+ - some military units have no military support cost such as for example as of now for example the robotic_infantry or the robotic_tank we added in advciv-sas anyways etc, and some no longer have a free cost such as of now the privateer that was free, but now costs like all or almost all military units (even if it has nationality, it would still cost gold/money to run if i may say but anyways etc, but the AI can be considered cheap labor enough that can be considered free to maintain after it has been produced at least in our mod and as of now if i may say but anyways etc). This information is displayed in sevopedia (As of now "No military support cost"), see also [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) for related info anyways etc
+ - the stealth ability has been removed from some units where i felt/thought it didn't make sense if any more have this ability that i'd want to be removed, except for units such as submarines, spies, stealth bombers too as it would be tedious to add many new air units, and perhaps complicate needlessly the game, they fit fine as an upgrade to the bomber in civ4 terms i think for both efficient and progressive/gradual strategy maybe anyways etc, and maybe other units too if any other units anyways etc.
+-- for simplicity most unit upgrades are fairly straightforward and relaxed, for example all mounted units can upgrade to the next mounted tier without much restriction, for example chariots upgrade to horse_archers now not to knights anymore, war elephants upgrade to knights not to cuirassiers anymore, a horse archer can become a camel knight or a horse knight, and a camel archer can become a horse knight or a camel knight as well. I assume that the riders themselves can transition to another mount type so it would make sense to reinvest their skills in new mounts hence them being upgradeable if i am not mistaken anyways etc. In particular, longbows and crossbows, as well as macemen, and pikemen, now upgrade to musketmen not to riflemen anymore, which makes a lot of sense and is historically more accurate, as well as a lot more balanced as cuirassiers and such other gun units can't abuse these early ranged or melee units that would have no problem and be just as suited if not more anyways etc to have a gun as well, should help mostly AIs as they tend to build many longbowmen and macemen and such but perhaps also human players depending on strategy. Cuirassiers are a bit stronger (even though quite a bit more expensive too anyways etc) to compensate and rebalance them. Also note that as of now for similar reasons, cavalry units have been reworked, and now in particular anyways etc upgrade to tanks. There are also other unit upgrade and such related changes to other units as of now too anyways etc, see sevopedia ingame or/and tech tree view or/and xml for accurate/updated value(s) anyways etc
++- for simplicity most unit upgrades are fairly straightforward and relaxed, for example all mounted units can upgrade to the next mounted tier without much restriction, for example chariots upgrade to horse_archers now not to knights anymore, war elephants upgrade to knights not to cuirassiers anymore, a horse archer can become a camel knight or a horse knight, and a camel archer can become a horse knight or a camel knight as well. I assume that the riders themselves can transition to another mount type so it would make sense to reinvest their skills in new mounts hence them being upgradeable if i am not mistaken anyways etc. In particular, longbows and crossbows, as well as macemen, and pikemen, now upgrade to musketmen not to riflemen anymore, which makes a lot of sense and is historically more accurate, as well as a lot more balanced as cuirassiers and such other gun units can't abuse these early ranged or melee units that would have no problem and be just as suited if not more anyways etc to have a gun as well, should help mostly AIs as they tend to build many longbowmen and macemen and such but perhaps also human players depending on strategy. Cuirassiers are a bit stronger (even though quite a bit more expensive too anyways etc) to compensate and rebalance them. Also note that as of now for similar reasons, dragoon units have been reworked, and now in particular anyways etc upgrade to tanks. There are also other unit upgrade and such related changes to other units as of now too anyways etc, see sevopedia ingame or/and tech tree view or/and xml for accurate/updated value(s) anyways etc
+ - similarly, also changed/reworked upgrade paths for naval units if i may say anyways etc, and while doing so in particular found the very inconsistent or/and nonsensical ironclad not being able to "walk" on ocean tiles??????? Wtf if i may say but anyways etc.. So disabled this and now ironclad can "walk" on ocean tiles as all naval units of its era or around it if i am not mistaken, i didn't check if accurate but would be surprised if not, buffed ironclad too so it is now an upgrade to frigates for example anyways etc, see [README.md#military-tree-and-changes](/README.md#military-tree-and-changes) for details or/and for all upgrade changes, or/and sevopedia entries of the units or/and related sevopedia entries, or/and xml or docs in advciv-sas mod folder hopefully helpful and most importantly more balanced this way and making sense if i may say but anyways etc anyways etc anyways etc
+ - relaxed some bonus requirements as well when relevant and not breaking balance too much or strategic value of the bonuses. For example, the japanese samurai can now also be built with copper, not only iron, as the macemen are. Without this the civ-specific unit would be weaker than the generic one which doesn't make sense, especially considering we can't build the generic one as a fallback if we are japan, even if we have copper. Or civ-specific variants of the swordsman class, now also use copper as an alternative bonus prereq: the gallic_warrior was, so no reason the roman_legionary or as of now the incan_quechua_warrior can't as well (note: as of now the generic swordsman still requires iron as the only posssible bonus, to keep the strategic importance of iron at that era / stage of the game anyways etc); similarly also for civ-specific variants of the crossbowman class (UNIT_CHINA_ZHUGE_NU and UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN) as it is relevant enough (according to chatgpt 5 and as i asked it as well i mean for the benin bronzes but anyways etc: "Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel)") and they were a bit too weak otherwise so hopefully helps buff them as well but anyways etc. The Holy Roman Houfnice can as well for example (historically plausible bronze artillery). Plus, historically for all these units, not nonsensical to value copper/bronze as a main or an alternative material for weapons from what i saw about iron vs copper information in a quick search if i may say in this case but anyways etc. Not overdoing it either as i want bonuses to otherwise stay very valuable and critical strategically, but not in a painful or maybe rather non-sensical way in this case i mean anyways etc.
+ - in [BBAI_Game_Options_GlobalDefines.xml](/Assets/XML/BBAI_Game_Options_GlobalDefines.xml), disabled BBAI_DEFENSIVE_PACT_BEHAVIOR to restore default BTS behavior of defensive pacts between players being broken when a player has declared war on the other if i understood it correctly and am not mistaken in my understanding anyways etc, was 1, now 0 (see xml for updated value anyways etc), anyways etc anyways etc anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index eb9afdbb8..cde6e3736 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -112,6 +112,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [76 - (Tremendously Improved) AIs almost always picking civic_caste_system and then almost never changing it no matter what (unlimited specialists logic favoured only culture as well and much needed an improvement and generalization), in CvPlayerAI::AI_civicValue](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue)  
+ [77 - (Improved) Devalue researching techs our master or vassal(s) already knows as this is very inefficient anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc)  
+ [78 - (Tremendously Improved) Trade techs preferentially with our vassal(s) or master (synergises with the no-overlap previous master<->vassal(s) tweak) + bugfix missing second parameter now AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult) according to chatgpt 5.1](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51)  
++[79 - (Improved) Before contacting other players for tech trades, first check if we don't already have the tech in our master-vassal(s) locus, and if so don't contact the other players](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -2281,7 +2282,7 @@ Although in some other cases it doesn't seem applied, like khmer ai still going
+ 
+ While making this new code, i also tried to enforce picking (extra valuing) civ-specific units on the assumptions they are nice (war chariots very cheap and effective for example rather than a horse archer), and avoid otherwise weak units to avoid high unit costs and low effectiveness of the military anyways etc.
+ 
+-I then tried another autoplay run and it was very very brutal, with ewuare ai having 150+ cavalry at turn 260 (in a standard monarch pangea normal game speed map if i am not mistaken but anyways etc) more or less and other units in lower number but anyways etc where he won! Despite not having train percent discounts per era anymore in advciv-sas as of now! I think the good offensive start helped convert it easier to a middle game offensive stack although i didn't check in detail but anyways etc. If you're curious about this run, i shared some / a few of the screenshots [there in this CFC advciv-sas post anyways etc](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16866658).
++I then tried another autoplay run and it was very very brutal, with ewuare ai having 150+ cavalry (update note: since then reframed as dragoon units anyways etc.) at turn 260 (in a standard monarch pangea normal game speed map if i am not mistaken but anyways etc) more or less and other units in lower number but anyways etc where he won! Despite not having train percent discounts per era anymore in advciv-sas as of now! I think the good offensive start helped convert it easier to a middle game offensive stack although i didn't check in detail but anyways etc. If you're curious about this run, i shared some / a few of the screenshots [there in this CFC advciv-sas post anyways etc](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16866658).
+ 
+ So overall very good results it seems!
+ 
+@@ -2986,3 +2987,37 @@ As for hammurabi (vassal of Ewuare), he has 2 more techs and no tech less, so th
+ All in all, it looks like they mutually benefited from this change, be from the preferential trading change, or the contact_tech_trade bugfix (i don't know which, the results are very good!), which is a massive improvement!
+ 
+ Update: after [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc)'s update change (vassal<->vassal change/addition anyways etc.), also added vassal<->vassal(s) siblings extra tech trading chance similarly, since Ewuare has 2 vassals at t250. Results in Ewuare having 1 more tech and 1 less tech at t300, Hammurabi having 0 more techs and 0.5 less techs, and Rameses 2 (the other vassal at Ewuare) having 0 more tech and 0.5 less techs at t300. So seems more or less identical in this run/map possibly due to noise/variation. As long as not clearly detrimental, may be fine to add since this only boosts contact and does not reduce it which might have then led to possibly less predictable results i would guess (like it being detrimental or possibly beneficial more situationally or such) but not the case here so adding this i think i mean but anyways etc.
++
++## 79 - (Improved) Before contacting other players for tech trades, first check if we don't already have the tech in our master-vassal(s) locus, and if so don't contact the other players
++
++See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1mv377xdPwZFVtOqVZdMAzEqIBdFCktHC?usp=sharing) anyways etc.
++
++After [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51)'s update change, it still seems we are slow to trade military science (for dragoons) to our master, even though rameses vassal has it long ago.
++
++Added with the help of chatgpt 5.1 logic in `CvPlayerAI::AI_doDiplo` so that before contacting a player for any tech trade, we first consider if the tech does not already exist in our master-vasssal(s) locus, and if so do not contact players that are not part of it. Hopefully this indirectly helps contact players of our locus first for a tech we don't have.
++
++In autoplay, the results seem very good, we win sooner seemingly due to our master Ewuare upgrading much sooner to dragoons (which he has 150 of (+ 103 cannons as well but anyways etc.) at turn 300! But anyways etc) (win at turn 294 vs turn 305-335 in various previous changes). As for techs Ewuare has 2.5 more techs and 3 less techs, Hammurabi has 0.5 more techs and 0 less techs, and Rameses has 1 more tech and 2 less techs. All in all, this seems to greatly benefit our locus.
++
++Note: it is tricky to determine if this change is in the interest of the vassal or not. Because it might be in the interest of the vassal that its master grows weaker, perhaps to free itself from its master (if not voluntary vassal as as of now in advciv-sas these are permanent if i'm not mistaken but anyways etc). But at the same time, vassal would be force involved in any war the master wages or is victim of, be it a winning or a losing one. And reliably gaining things from a close-knit partner involvment i mean if i may say but anyways etc doesn't seem too bad but anyways etc. All in all or/and overall, it may possibly, generally be in the best interest of the vassal to help boost its master in hopes of indirectly benefitting from it, rather that hoping for its demise in a way that would not affect the vassal as well, which seems quite unlikely.
++
++I asked chatgpt 5.1 about this which said:
++
++>In pure theory, yes, a vassal might sometimes benefit from a weaker master to break free.
++>
++>In Civ4 as it’s actually structured, and especially for AI:
++>
++>	- The vassal’s day-to-day best interest is to have a strong, tech-advanced master who:
++>	 	- Protects it,
++>	 	- Wins wars,
++>	 	- And makes the cluster hard to exploit.
++>
++>So your current master–vassal cluster-first tech logic is fully consistent with a sane vassal “interest model” in this engine.
++
++Similarly, a stronger vassal is also more likely to be more useful to its master, as gemini 3 pro highlighted when i asked it about it:
++
++> The Master's Calculation: "The Force Multiplier"
++>The note states the goal is to "strengthen overall AI play". In a strategy game like Civ4, a weak vassal is a liability—they get invaded easily, dragging the Master into wars, and they contribute nothing to the war effort.
++>
++>	- Rational Logic: By sharing tech, the Master isn't being "nice"; they are upgrading their own buffer state. A Vassal with Riflemen (via trade) can actually defend the Master's borders, whereas a Vassal stuck with Longbows is just dead weight. It turns the Vassal into a functional asset.
++
++So all in all it does seem like a suitable change in most cases to bet on i mean if i may say but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
+index 31bbda96d..e89a72b04 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Less_Generic_Neutral_Unit_Names.md
+@@ -8,7 +8,7 @@ I think some unit names are very lousy, for example for "spearman" it's basicall
+ 
+ I found these possibly more epic and badass (i think but anyways) names after a quick bit of research or intutiion/idea of mien or and such or that i saw somewhere or something similar anyways etc, so using this instead, see below, anyways.
+ 
+-Some other units also have a more problematic name, as they are very inaccurate. For example a Knight is a title if i am not mistaken, not any medieval horse. Some medieval horse warriors/fighters were not knights probably (did not check, anyways). The teutonic knight (around germany) for example may have been a foot unit maybe for example? (need to check, anyways is just my initial notes on it abridged and without sources so i can share it and get it out of my mind, (and also because i like, but anyways), but anyways,). Similarly cavalry could be in any era if i'm not mistaken but need to check too or/and more, anyways:
++Some other units also have a more problematic name, as they are very inaccurate. For example a Knight is a title if i am not mistaken, not any medieval horse. Some medieval horse warriors/fighters were not knights probably (did not check, anyways). The teutonic knight (around germany) for example may have been a foot unit maybe for example? (need to check, anyways is just my initial notes on it abridged and without sources so i can share it and get it out of my mind, (and also because i like, but anyways), but anyways,). Similarly cavalry (update note: since then reframed as dragoon units anyways etc.) could be in any era if i'm not mistaken but need to check too or/and more, anyways:
+ 
+ - Spearman: Lancer (Light, Medium, Heavy), similar reasoning maybe at a different era instead not sure anyways etc
+ - Axeman: Battle Axe Warrior
+@@ -27,7 +27,7 @@ Some other units also have a more problematic name, as they are very inaccurate.
+ - Camel Lancer Knight
+ - Camel Swordsfighter Knight
+ 
+-- Cavalry: Napoleonian Flank Cavalry (Offense) + Royal Guard Cavalry (Defense)
++- Cavalry (update note: since then reframed as dragoon units anyways etc.): Napoleonian Flank Cavalry (Offense) + Royal Guard Cavalry (Defense)
+ 
+ Maybe will add new units that are knight units, more expensive and stronger version of the regular ones, such as camel knight lancer stronger than camel knight, elite troops maybe but could be replaced by exp system and less linked to history, anyways, will see, may or not, will see or not, etc or not etc, anyways, For example:
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 5b196624e..786c93645 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -207,11 +207,14 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ Note: Most, if not all, diplomacy AI changes apply both to **AI–AI** and **AI–human** interactions (e.g. human master with AI vassal, or vice versa).
+ 
++Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by improving cooperation between masters and vassals, rather than simply over-boosting one party. The aim is that, in many cases, they also benefit vassals (or at least do not clearly reduce their own chances of winning) while being in the master's interest, since a stronger vassal is more likely to be useful.
++
+ - **Multi-war threat management — “emergency peace” pre-checks**: In `UWAI::Team::considerPeace` (`UWAIAgent.cpp`), add sanity checks to **seek peace** when either (a) the team is fighting **too many simultaneous wars** or (b) the enemies’ **combined power ratio** vs. us is high enough. Goal: **survivability and focus** (fewer dogpiles, more targeted campaigns) while keeping thresholds lax so plenty of wars still occur. In a sample run, Hatshepsut, strongest at ~turn 150, kept the lead to ~turn 200 with these checks (previously died before 200). See **[KI#65](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc)**.
+ - **Fair bonus trade pricing (building-effect aware).** In `CvPlayerAI::AI_bonusTradeVal`, add a quick pre-check that scales a bonus’s trade value by how many **citywide building effects it actually unlocks with current techs** (granary/market/grocer/harbor/temple/monastery, etc.). Wonders/cathedrals ignored; less pronounced for coastal-building effects, as we assume to simplify many cities aren’t coastal and thus wouldn’t benefit. **Practical result (examples):** Maize/Wheat/Grapes are priced noticeably higher than Pigs/Cows; Molluscs beat low-impact foods; Iron is valued slightly less than before when it has no building bonuses (should still be valuable for units). **Effect:** shuts down early GPT farming, makes AI↔AI swaps fairer, and strengthens AI openings/midgame. See **[KI#66](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc)**.
+ - **Bonus trade valuation uses `iAIObjective`:** In `CvPlayerAI::AI_bonusTradeVal`, the AI now factors each bonus’s `iAIObjective` weight directly into price—higher-priority strategic bonuses (per your weights) command more value in trades.
+ - **Era- & inventory-aware relative pricing for key strategic bonuses (Horse↔Camel, Camel↔Horse, ±Elephants):** Also in `CvPlayerAI::AI_bonusTradeVal`, trade values now adjust by what the buyer already has and by era. Examples: Medieval buyer with **Horse/Camel** but no **Iron** values Iron ≈ x2 (to unlock Knights); by Renaissance that premium fades (Muskets don’t need any bonus; Cannons only need Iron). **Elephants** are valued in Ancient/Classical, but discounted in Medieval (≈ x0.5, for buildings at most). **Copper/Iron** are discounted in Classical if the buyer already has Camel/Horse/Elephants; Horse and Camel are treated as partial substitutes early on.
+ - (Requires AdvCiv-SAS 5135+) **Preferential master–vassal tech trading:** Heavily increase willingness to trade techs with our **master/vassal(s)**; change in `CvPlayerAI::AI_doDiplo`. This synergises with the earlier “devalue techs your master/vassal already knows” change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-ai)) and extends it **to *all* techs**, not just techs that overlap with what our master/vassal(s) already know. In one autoplay sample this led to noticeably **less overlap** and better sharing (e.g. a master gaining ~4 more and 1 fewer tech, a vassal ~2 more and 0 fewer over T250–300 compared to before). Also fixed a missing second parameter in `AI_contactRoll(CONTACT_TRADE_TECH` (according to ChatGPT 5.1), which may have contributed to earlier skew. Details: [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51). - (Requires AdvCiv-SAS 5135+) Implemented preferrential master<->vassal(s) tech trading (we are heavily more willing to tech trade with our master/vassal(s)), in `CvPlayerAI::AI_doDiplo`. This synergises the previous devalue techs we can get from our master/vassal(s) change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-ai)) and expands on it, not just techs that overlap with what our master/vassal(s) already know. In autoplay, this results for example in the master having 4 more techs and one less tech from turn 250 to turn 300 (vassal was mostly way ahead in tech) and the vassal having 2 more techs and 0 less techs, which is a massive improvement it seems, just from this change. Added a bugfix to `AI_contactRoll(CONTACT_TRADE_TECH` (was missing a second parameter according to chatgpt 5.1) which may have or not contributed to this skew in behaviour. See for details [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51). (Requires AdvCiv-SAS 5138+) **Update:** Extend the same extra trade bias to **sibling vassal↔vassal** trades. In autoplay (Ewuare with two vassals at T250), this produced broadly similar outcomes to the master–vassal–only version, which is acceptable since the change only increases trade chances (doesn’t remove any) and is therefore less likely to be harmful.
++- (Requires AdvCiv-SAS 5139+) **Master–vassal(s) locus first for tech trades:** When evaluating tech trades in `CvPlayerAI::AI_doDiplo`, the AI now **first checks** whether a desired tech is already tradeable inside its own master–vassal locus (master, vassals, sibling vassals). If so, it **does not ask outside civilizations for that tech**, nudging trades to stay within the group instead. In one autoplay sample this *seemed* to help Ewuare win earlier by finally picking up the Dragoon-related military tech from a vassal, while the locus kept a similar overall tech pace to previous runs. See [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
+ 
+ #### Military (AI)
+ 
+@@ -436,7 +439,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+   - Mounted tiers upgrade along mounted lines (e.g., **Chariot → Horse Archer**; **War Elephant → Knight**).
+   - Cross-mount upgrades allowed (**Horse ↔ Camel** where logical).
+   - **Longbows/Crossbows/Macemen/Pikemen → Musketmen** (more historical/balanced; reduces abuse by **Cuirassiers**, which are slightly stronger but more expensive).
+-  - **Cavalry → Tanks** now.
++  - **Dragoons → Tanks** now.
+ - **Naval upgrades** cleaned up; **Ironclad** can enter ocean and is buffed, serving as a real upgrade from Frigates. See [README: military tree](/README.md#military-tree-and-changes) for full upgrade maps.
+ - **Bonus requirements relaxed (selective):** Some units now accept additional **bonus** prerequisites where appropriate (to avoid odd lockouts). Examples: **Samurai** can use **Copper** as well as Iron; **Swordsman-class civ-specific variants** (e.g., **Roman Legionary**, **Incan Quechua**) can also use **Copper** (only the **Gallic Warrior** could before; which seemed inconsistent and unbalanced without a clear reason why: now equalized); **Crossbowman-class civ-specific variants** (e.g., **Zhuge Nu**, **Disciplined Crossbowman**) Bronze/copper hardware was common (Benin bronzes; Chinese bronze/iron mix long before ubiquitous steel) and to buff them; Holy Roman **Houfnice** can also use **Copper** (historically plausible bronze artillery). The **generic Swordsman** and the **generic Cannon** remain **Iron-only** to preserve strategic pressure. Thematically consistent. See Sevopedia/XML.
+ - `BBAI_DEFENSIVE_PACT_BEHAVIOR` **disabled (0)** to restore default BTS behavior (pacts break on DoW).
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=61681

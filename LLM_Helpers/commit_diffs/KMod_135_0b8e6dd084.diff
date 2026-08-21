@@ -1,0 +1,78 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 135
+# Commit: 0b8e6dd0841119b51d616c6b3a255ea914e0ea46
+# History segment: K-Mod history
+# Parent used for diff: 2efeb1f80301da4a09ddc74598641a47bbb8eb48
+# Title: The AI will now try to avoid unnecessary chopping once the GW threshold has been reached.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	0	CvGameCoreDLL/CvCityAI.cpp
+15	0	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 8ab36e71e..61dd9a2ad 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6449,6 +6449,13 @@ int CvCityAI::AI_clearFeatureValue(int iIndex)
+ 	}
+ 	iValue += iHealthValue;
+ 
++	// K-Mod
++	if (GC.getGame().getGwEventTally() >= 0) // if GW Threshold has been reached
++	{
++		iValue += kFeatureInfo.getWarmingDefense() * (100 + 2 * GET_PLAYER(getOwner()).getGwPercentAnger()) / 100;
++	}
++	// K-Mod end
++	
+ 	if (iValue > 0)
+ 	{
+ 		if (pPlot->getImprovementType() != NO_IMPROVEMENT)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1b3ac6ef3..7744c7bd0 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -18825,6 +18825,8 @@ bool CvUnitAI::AI_irrigateTerritory()
+ 									{
+ 										bValid = true;
+ 
++										// K-Mod. (I didn't want it to be this way...)
++										/* original bts code
+ 										if (GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_LEAVE_FORESTS))
+ 										{
+ 											if (pLoopPlot->getFeatureType() != NO_FEATURE)
+@@ -18837,7 +18839,20 @@ bool CvUnitAI::AI_irrigateTerritory()
+ 													}
+ 												}
+ 											}
++										} */
++										if (pLoopPlot->getFeatureType() != NO_FEATURE)
++										{
++											if (GC.getBuildInfo(eBestTempBuild).isFeatureRemove(pLoopPlot->getFeatureType()))
++											{
++												const CvFeatureInfo& kFeatureInfo = GC.getFeatureInfo(pLoopPlot->getFeatureType());
++												if ((GC.getGame().getGwEventTally() >= 0 && kFeatureInfo.getWarmingDefense() > 0) ||
++													(GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_LEAVE_FORESTS) && kFeatureInfo.getYieldChange(YIELD_PRODUCTION) > 0))
++												{
++													bValid = false;
++												}
++											}
+ 										}
++										// K-Mod end
+ 
+ 										if (bValid)
+ 										{
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1869

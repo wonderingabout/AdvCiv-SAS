@@ -1,0 +1,48 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3590
+# Commit: 3f744abad50c2645afc44267f1ba6c9f78912f52
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: dc74b32b3d503ce948d60c39d16d8782d2247ee1
+# Title: Support for unique Great Generals
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	5	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 28ad5dec1..34497b411 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -8526,11 +8526,14 @@ void CvPlayer::setCombatExperience(int iExperience)
+ 
+ 		if (pBestCity != NULL)
+ 		{
+-			int iRandOffset = SyncRandNum(GC.getNumUnitInfos());
+-			FOR_EACH_ENUM(Unit)
+-			{
+-				UnitTypes eRandUnit = (UnitTypes)
+-						((eLoopUnit + iRandOffset) % GC.getNumUnitInfos());
++			/*	<advc.001> Pick a civ-specific unit type so that mods can create
++				unique Great Generals. Inspired by code by edead. */
++			CvCivilization const& kCiv = getCivilization();
++			int iRandOffset = SyncRandNum(kCiv.getNumUnits());
++			for (int i = 0; i < kCiv.getNumUnits(); i++)
++			{
++				UnitTypes eRandUnit = kCiv.unitAt(
++						(i + iRandOffset) % kCiv.getNumUnits()); // </advc.001>
+ 				if (GC.getInfo(eRandUnit).getLeaderExperience() > 0 ||
+ 					GC.getInfo(eRandUnit).getLeaderPromotion() != NO_PROMOTION)
+ 				{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=990

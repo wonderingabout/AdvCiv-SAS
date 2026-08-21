@@ -1,0 +1,113 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4293
+# Commit: f0448a4508430c579bdd1119eb6d1516ab8556de
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8bd500d498d90c7fa1e2f0b3dcb5894938d39924
+# Title: UWAI less hesitant to capitulate to war-weary enemy
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+30	5	CvGameCoreDLL/CvTeamAI.cpp
+14	13	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index e221af5e9..a49a0a14f 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2842,13 +2842,38 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 				The cached utility values don't account for the peace with 3rd parties
+ 				(implied by capitulation), and it's out of date on a human master's turn,
+ 				so this is all a bit fuzzy. */
+-			if (uwai().leaderUWAI().getCache().
+-				warUtilityIgnoringDistraction(eMasterTeam) > -40 ||
+-				// Expect to tire master out
+-				kMasterTeam.uwai().leaderUWAI().getCache().
++			int iOurUtil = uwai().leaderUWAI().getCache().
++					warUtilityIgnoringDistraction(eMasterTeam);
++			if (iOurUtil > -40)
++			{
++				// Let's better sum up all our negative utility values
++				for (TeamIter<MAJOR_CIV, ENEMY_OF> itEnemy(getID()); itEnemy.hasNext();
++					++itEnemy)
++				{
++					if (!itEnemy->isAVassal() && itEnemy->getID() != eMasterTeam)
++					{
++						iOurUtil += std::min(0, uwai().leaderUWAI().getCache().
++								warUtilityIgnoringDistraction(itEnemy->getID()));
++						if (iOurUtil > -50)
++							return DENIAL_POWER_US;
++					}
++				}
++			}
++			if (kMasterTeam.uwai().leaderUWAI().getCache().
+ 				warUtilityIgnoringDistraction(getID()) < -25)
+ 			{
+-				return DENIAL_POWER_US;
++				// Expect to tire master out - if we can hold out.
++				if (getNumMembers() > 1 ||
++					(getNumCities() > 1 && getNumCities() * 3 > kMasterTeam.getNumCities()))
++				{
++					return DENIAL_POWER_US;
++				}
++				CvCity const* pCapital = GET_PLAYER(getLeaderID()).getCapital();
++				if (pCapital != NULL &&
++					pCapital->getArea().getCitiesPerPlayer(getLeaderID()) != getNumCities())
++				{
++					return DENIAL_POWER_US;
++				}
+ 			}
+ 			// </advc.104>  <advc.104o> Take into account past wars
+ 			int iPastWarScore = GET_PLAYER(getLeaderID()).uwai().getCache().
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 5f4f0cc6a..462c954a9 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -778,20 +778,21 @@ bool UWAI::Team::considerCapitulation(TeamTypes eMaster, int iAgentWarUtility,
+ 			}
+ 		}
+ 	}
+-	/*  Low reluctance to peace can just mean that there isn't much left for
+-		them to conquer; doesn't have to mean that they'll soon offer peace.
+-		Probability test to ensure that we eventually capitulate even if
+-		master's reluctance remains low. */
+-	scaled rSkipProb = 1 - (iMasterReluctancePeace * fixp(0.015) + fixp(0.3));
++	scaled rSkipProb;
+ 	int const iAgentCities = GET_TEAM(m_eAgent).getNumCities();
+-	rSkipProb.clamp(0,
+-			// Reduce maximal waiting time in the late game
+-			fixp(0.87) - fixp(0.04) * GET_TEAM(eMaster).AI_getCurrEraFactor());
+-	// If few cities remain, we can't afford to wait.
+-	if (iAgentCities <= 2)
+-		rSkipProb -= fixp(0.2);
+-	if (iAgentCities <= 1)
+-		rSkipProb -= fixp(0.1);
++	if (iAgentCities > 1) // Can't afford to wait with just 1 city left
++	{
++		/*  Low reluctance to peace can just mean that there isn't much left for
++			them to conquer; doesn't have to mean that they'll soon offer peace.
++			Probability test to ensure that we eventually capitulate even if
++			master's reluctance remains low. */
++		rSkipProb = 1 - (iMasterReluctancePeace * fixp(0.015) + fixp(0.3));
++		rSkipProb.clamp(0,
++				// Reduce maximal waiting time in the late game
++				fixp(0.87) - fixp(0.04) * GET_TEAM(eMaster).AI_getCurrEraFactor());
++		if (iAgentCities <= 2)
++			rSkipProb -= fixp(0.25);
++	}
+ 	m_pReport->log("%d percent probability to delay capitulation based on master's "
+ 			"reluctance to peace (%d)", rSkipProb.getPercent(), iMasterReluctancePeace);
+ 	if (SyncRandSuccess(rSkipProb))
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3730

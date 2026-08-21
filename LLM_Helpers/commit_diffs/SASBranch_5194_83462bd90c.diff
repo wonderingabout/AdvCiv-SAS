@@ -1,0 +1,254 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5194
+# Commit: 83462bd90c6a9447abaae2d5203b7abcf8ba7c1b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 905b71dc7e653deac04b779526a931ba563d159a
+# Title: tech tree adjustments 2 - BUILDINGCLASS_MILITARY_ACADEMY's tech prereq from TECH_CONSTITUTION to TECH_MILITARY_SCIENCE (civ4's default as per chatgpt 5.2's r...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	14	Assets/XML/Buildings/CIV4BuildingInfos.xml
+20	15	Assets/XML/Technologies/CIV4TechInfos.xml
+5	1	Assets/XML/Units/CIV4UnitInfos.xml
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 13bde3440..2244925aa 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -26285,9 +26285,9 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: moved here so it can be built sooner, also seems to fit the theme and historical accuracy quite well, and as per our reworked tech tree and as i'd want to balance the building too anyways etc, was TECH_RADIO -->
++			<!-- custom: moved here so it can be built sooner, also seems to fit the theme and historical accuracy quite well (they used many factories or some related techniques only 250 or such land workers i mean based on a quick search it seems but anyways etc.), and as per our reworked tech tree and as i'd want to balance the building too anyways etc, was TECH_RADIO -->
+ 			<!-- advc.200: -->
+-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
++			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -26327,7 +26327,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: now sooner and reworked so adjust(ing for this building/wonder but anyways etc anyways etc) cost anyways etc, was 1250 -->
+-			<iCost>600</iCost>
++			<iCost>625</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -27599,8 +27599,7 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_MASS_MEDIA -->
+-			<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
++			<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -29946,7 +29945,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- K-Mod: was MEDICINE -->
+-			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
++			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -30480,7 +30479,7 @@
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: changed to another / to account for anyways etc tech to accomodate reworked tech tree if i may say anyways etc, was the now removed TECH_RAILROAD anyways etc -->
+-			<PrereqTech>TECH_MARINE_TECHNOLOGY</PrereqTech>
++			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -30834,14 +30833,9 @@
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_CORPORATION only anyways etc -->
+ 			<!-- K-Mod: was MASS_MEDIA and CORPORATION -->
+-			<PrereqTech>TECH_GAME_THEORY</PrereqTech>
+-			<TechTypes>
+-				<PrereqTech>TECH_CORPORATION</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+-			</TechTypes>
++			<PrereqTech>TECH_CORPORATION</PrereqTech>
++			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 76c186c26..9d223f9a3 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -1789,7 +1789,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>18</iGridX>
+-			<iGridY>3</iGridY>
++			<iGridY>13</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -1813,9 +1813,11 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_RADIO</PrereqTech>
++				<PrereqTech>TECH_COMMUNISM</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs/>
++			<AndPreReqs>
++				<PrereqTech>TECH_RADIO</PrereqTech>
++			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_MASS_MEDIA_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_MASS_MEDIA</Sound>
+ 			<SoundMP>AS2D_TECH_MP_MASS_MEDIA</SoundMP>
+@@ -3444,8 +3446,8 @@
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_INDUSTRIAL -->
+ 			<Era>ERA_RENAISSANCE</Era>
+-			<!-- custom: was UNITCLASS_GREAT_SCIENTIST -->
+-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
++			<!-- custom: this rewards non military paths more relatively anyways etc, and the tech is quite bare otherwise so maybe hopefully fine/balanced and makes quite i mean makes sense in terms of lore or theme so hopefully fine as such at least i want to do so in advciv-sas but anyways etc, as in base civ4 or advciv coincidentally xd but anyways etc.: more balanced as such, boosts weak non-military physics tech anyways etc, and a reference i guess to newton/copernic or such so very relevant thematically i think but anyways etc. -->
++			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -3859,7 +3861,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
++				<PrereqTech>TECH_RADIO</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_ARTILLERY</PrereqTech>
+@@ -5630,7 +5632,7 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+-			<!-- custom: _COMMUNISM effect seems more relevant here anyways etc (also consistent, why not in fascism the same effect as well like for defensive pacts and overall similar game theme if i am not mistaken but anyways etc, so easier and more consistent to theme and tech to remove it as well as give it to communism only or fascism only or both then is redundant in this case anyways etc, also this balances and buffs non-main military tech path relatively more which i find interesting to reward in this case at least if i may say anyways etc anyways etc anyways etc ; as for fascism's great person first discover effect, move it sooner in tech is maybe more neutral and also stronger as it may have a higher impact in the game, i hadn't notice this effect when adding the communism remove great spy comment, but this change of moving it to another tech earlier one maybe makes sense too anyways etc, at least is how i'd/i want to do it in advciv-sas and where it seems relevant/worth/good if i may say whatever that means or not or yes or other but anyways etc), removed it from tech_communism anyways etc -->
++			<!-- custom: _COMMUNISM effect seems more relevant here anyways etc (also consistent, why not in fascism the same effect as well like for defensive pacts and overall similar game theme if i am not mistaken but anyways etc, so easier and more consistent to theme and tech to remove it as well as give it to communism only or fascism only or both then is redundant in this case anyways etc, also this balances and buffs non-main military tech path relatively more which i find interesting to reward in this case at least if i may say anyways etc anyways etc anyways etc ; as for fascism's great person first discover effect, move it sooner in tech is maybe more neutral and also stronger as it may have a higher impact in the game, i hadn't notice this effect when adding the communism remove great spy comment, but this change of moving it to another tech earlier one maybe makes sense too anyways etc, at least is how i'd/i want to do it in advciv-sas and where it seems relevant/worth/good if i may say whatever that means or not or yes or other but anyways etc), removed it from TECH_COMMUNISM anyways etc -->
+ 			<FirstFreeUnitClass>UNITCLASS_GREAT_SPY</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+@@ -5660,7 +5662,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>18</iGridX>
+-			<iGridY>19</iGridY>
++			<iGridY>15</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -5685,7 +5687,7 @@
+ 			<!-- custom: got the idea while i was asking chatgpt 5, to prevent a beeline that would be bit op or suboptimal depending on tech path maybe i mean but anyways etc, here i mean. Hopefully more balanced as such, and is also thematically relevant i think. Trying not to restrict strategic options (in particular this also preserves the tech_theory_of_evolution gambit i mean as well but anyways etc)  too much here for variety or such i mean as well but anyways etc -->
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
+-				<PrereqTech>TECH_NATIONALISM</PrereqTech>
++				<PrereqTech>TECH_COMMUNISM</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_GAME_THEORY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_GAME_THEORY</Sound>
+@@ -6038,7 +6040,7 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: was FLAVOR_MILITARY 3 -->
++			<!-- custom: was FLAVOR_MILITARY 3, FLAVOR_CULTURE 0 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -6048,6 +6050,10 @@
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+ 					<iFlavor>3</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>3</iFlavor>
++				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+@@ -6373,8 +6379,7 @@
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_MODERN -->
+ 			<Era>ERA_INDUSTRIAL</Era>
+-			<!-- custom: this rewards non military paths more relatively anyways etc, and the tech is quite bare otherwise so maybe hopefully fine/balanced and makes quite i mean makes sense in terms of lore or theme so hopefully fine as such at least i want to do so in advciv-sas but anyways etc, was NONE -->
+-			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
++			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -6559,11 +6564,11 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+-			</OrPreReqs>
+-			<AndPreReqs>
+ 				<PrereqTech>TECH_GAME_THEORY</PrereqTech>
+ 				<PrereqTech>TECH_MASS_MEDIA</PrereqTech>
++			</OrPreReqs>
++			<AndPreReqs>
++				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_COMPUTERS_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_COMPUTERS</Sound>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 18eb3099d..6f18adf4a 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -23070,7 +23070,11 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+ 			<!-- advc.905b: was STEAM_POWER -->
+ 			<!-- custom: was NONE NONE NONE -->
+-			<TechTypes/>
++			<TechTypes>
++				<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>BONUS_IRON</BonusType>
+ 			<PrereqBonuses>
+ 				<BonusType>BONUS_COAL</BonusType>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 6d12d4a73..fc0022c9b 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 8e16159d8..d0264e774 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index bc427093a..4f8eea1f4 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 0b9a02065..76abaa528 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=12835

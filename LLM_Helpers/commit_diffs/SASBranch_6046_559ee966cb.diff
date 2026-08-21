@@ -1,0 +1,1073 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6046
+# Commit: 559ee966cbc17bcf6b9891acf367a9e0bfa10f24
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bad9bfb0ca7eaaed972a4abe8db2c7b32963562f
+# Title: Log in SASGameSummary and BBAI diagnostics army concentration, attack-stack decisions, Great Person use, and espionage actions
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	0	CvGameCoreDLL/CvEventReporter.cpp
+1	0	CvGameCoreDLL/CvPlayer.cpp
+99	15	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnit.h
+131	46	CvGameCoreDLL/CvUnitAI.cpp
+261	5	CvGameCoreDLL/SASGameSummaryLog.cpp
+11	0	CvGameCoreDLL/SASGameSummaryLog.h
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvEventReporter.cpp b/CvGameCoreDLL/CvEventReporter.cpp
+index 5a7aedde1..d1de4d0ea 100644
+--- a/CvGameCoreDLL/CvEventReporter.cpp
++++ b/CvGameCoreDLL/CvEventReporter.cpp
+@@ -364,6 +364,7 @@ void CvEventReporter::unitLost(CvUnit *pUnit)
+ void CvEventReporter::unitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit* pNewUnit)
+ {
+ 	// <!-- custom: forward actual capture creation to Python so battle history records captured workers/civilians instead of inferring from the earlier combatResult. (GPT-5.5) -->
++	if (gGameSummaryLogLevel >= 2) logSASGameSummaryUnitCaptured(eOldOwner, eOldUnitType, pNewUnit);
+ 	m_kPythonEventMgr.reportUnitCaptured(eOldOwner, eOldUnitType, pNewUnit);
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 26d6c15d2..7f0c16b1d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7519,6 +7519,7 @@ void CvPlayer::killGoldenAgeUnits(CvUnit* pUnitAlive)
+ 		if (pBestUnit != NULL)
+ 		{
+ 			abUnitUsed.set(pBestUnit->getUnitType(), true);
++			if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonGoldenAgeConsumed(pBestUnit);
+ 			pBestUnit->kill(true);
+ 			//play animations
+ 			if (pBestUnit->getPlot().isActiveVisible(false))
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 458be49a7..7c5848627 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -677,12 +677,12 @@ void CvUnit::doTurn()
+ 			if (GET_TEAM(getTeam()).isOpenBorders(eTeam))
+ 			{
+ 				testSpyIntercepted(kPlot.getOwner(), false,
+-						GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_NO_INTRUDE_INTERCEPT_MOD));
++						GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_NO_INTRUDE_INTERCEPT_MOD), "TRAVEL");
+ 			}
+ 			else
+ 			{
+ 				testSpyIntercepted(kPlot.getOwner(), false,
+-						GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_INTERCEPT_MOD));
++						GC.getDefineINT(CvGlobals::ESPIONAGE_SPY_INTERCEPT_MOD), "TRAVEL");
+ 			}
+ 		}
+ 	}
+@@ -6256,6 +6256,7 @@ bool CvUnit::construct(BuildingTypes eBuilding)
+ 	{
+ 		pCity->setNumRealBuilding(eBuilding, pCity->getNumRealBuilding(eBuilding) + 1);
+ 		CvEventReporter::getInstance().buildingBuilt(pCity, eBuilding);
++		if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonConstructed(this, pCity, eBuilding);
+ 	}
+ 	if (getPlot().isActiveVisible(false))
+ 		NotifyEntity(MISSION_CONSTRUCT);
+@@ -6299,10 +6300,11 @@ bool CvUnit::discover()
+ 	if (!canDiscover(plot()))
+ 		return false;
+ 
+-	TechTypes eDiscoveryTech = getDiscoveryTech();
++	TechTypes const eDiscoveryTech = getDiscoveryTech();
+ 	FAssertMsg(eDiscoveryTech != NO_TECH, "DiscoveryTech is not assigned a valid value");
++	int const iResearch = getDiscoverResearch(eDiscoveryTech);
+ 
+-	GET_TEAM(getTeam()).changeResearchProgress(eDiscoveryTech, getDiscoverResearch(eDiscoveryTech), getOwner());
++	GET_TEAM(getTeam()).changeResearchProgress(eDiscoveryTech, iResearch, getOwner());
+ 
+ 	// K-Mod. If the AI bulbs something, let them reconsider their current research.
+ 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+@@ -6312,6 +6314,7 @@ bool CvUnit::discover()
+ 
+ 	if (getPlot().isActiveVisible(false))
+ 		NotifyEntity(MISSION_DISCOVER);
++	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonDiscovered(this, eDiscoveryTech, iResearch);
+ 
+ 	kill(true);
+ 
+@@ -6366,11 +6369,14 @@ bool CvUnit::hurry()
+ {
+ 	if (!canHurry(plot()))
+ 		return false;
+-	CvCity* pCity = getPlot().getPlotCity();
++	CvCity* const pCity = getPlot().getPlotCity();
++	int const iProduction = getHurryProduction(plot());
++	BuildingTypes const eBuilding = (pCity == NULL ? NO_BUILDING : pCity->getProductionBuilding());
+ 	if (pCity != NULL)
+-		pCity->changeProduction(getHurryProduction(plot()));
++		pCity->changeProduction(iProduction);
+ 	if (getPlot().isActiveVisible(false))
+ 		NotifyEntity(MISSION_HURRY);
++	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonHurried(this, pCity, eBuilding, iProduction);
+ 	kill(true);
+ 	return true;
+ }
+@@ -6417,9 +6423,12 @@ bool CvUnit::trade()
+ {
+ 	if (!canTrade(plot()))
+ 		return false;
+-	GET_PLAYER(getOwner()).changeGold(getTradeGold(plot()));
++	CvCity* const pCity = getPlot().getPlotCity();
++	int const iGold = getTradeGold(plot());
++	GET_PLAYER(getOwner()).changeGold(iGold);
+ 	if (getPlot().isActiveVisible(false))
+ 		NotifyEntity(MISSION_TRADE);
++	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonTradeMission(this, pCity, iGold);
+ 	kill(true);
+ 	return true;
+ }
+@@ -6465,7 +6474,8 @@ bool CvUnit::greatWork()
+ 		pCity->setCultureUpdateTimer(0);
+ 		pCity->setOccupationTimer(0);
+ 
+-		int iCultureToAdd = 100 * getGreatWorkCulture(plot());
++		int const iCulture = getGreatWorkCulture(plot());
++		int const iCultureToAdd = 100 * iCulture;
+ 		/*int iNumTurnsApplied = (GC.getDefineINT("GREAT_WORKS_CULTURE_TURNS") * GC.getInfo(GC.getGame().getGameSpeedType()).getUnitGreatWorkPercent()) / 100;
+ 		for (int i = 0; i < iNumTurnsApplied; ++i)
+ 			pCity->changeCultureTimes100(getOwner(), iCultureToAdd / iNumTurnsApplied, true, true);
+@@ -6476,6 +6486,7 @@ bool CvUnit::greatWork()
+ 		pCity->changeCultureTimes100(getOwner(), iCultureToAdd, true, true);
+ 		GET_PLAYER(getOwner()).AI_updateCommerceWeights(); // significant culture change may cause signficant weight changes.
+ 		// K-Mod end
++		if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonGreatWork(this, pCity, iCulture);
+ 	}
+ 	if (getPlot().isActiveVisible(false))
+ 		NotifyEntity(MISSION_GREAT_WORK);
+@@ -6516,11 +6527,13 @@ bool CvUnit::infiltrate()
+ {
+ 	if (!canInfiltrate(plot()))
+ 		return false;
+-	int iPoints = getEspionagePoints(NULL);
++	int const iPoints = getEspionagePoints(NULL);
++	CvCity* const pCity = getPlot().getPlotCity();
+ 	GET_TEAM(getTeam()).changeEspionagePointsAgainstTeam(TEAMID(getPlot().getOwner()), iPoints);
+ 	GET_TEAM(getTeam()).changeEspionagePointsEver(iPoints);
+ 	if (getPlot().isActiveVisible(false))
+ 		NotifyEntity(MISSION_INFILTRATE);
++	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonInfiltrated(this, pCity, iPoints);
+ 	kill(true);
+ 	return true;
+ }
+@@ -6584,21 +6597,86 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
+ 	else
+ 	{
+ 		CvEspionageMissionInfo const& kMission = GC.getInfo(eMission);
+-		if (testSpyIntercepted(eTargetPlayer, true, kMission.getDifficultyMod()))
++		if (testSpyIntercepted(eTargetPlayer, true, kMission.getDifficultyMod(), "BEFORE_MISSION"))
+ 		{
+ 			return false;
+ 		}
+ 
++		CvPlot* const pMissionPlot = plot();
++		bool const bLogEspionageMission = (gGameSummaryLogLevel >= 2);
++		int iMissionCost = -1;
++		int iEPBefore = -1;
++		ImprovementTypes eTargetImprovement = NO_IMPROVEMENT;
++		RouteTypes eTargetRoute = NO_ROUTE;
++		UnitTypes eTargetUnit = NO_UNIT;
++		int iEffectValue = -1;
++		char const* szEffectKind = "-";
++		if (bLogEspionageMission)
++		{
++			CvCity* const pTargetCity = pMissionPlot->getPlotCity();
++			TeamTypes const eTargetTeam = TEAMID(eTargetPlayer);
++			iMissionCost = GET_PLAYER(getOwner()).getEspionageMissionCost(eMission, eTargetPlayer, pMissionPlot, iData, this);
++			iEPBefore = GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(eTargetTeam);
++			eTargetImprovement = pMissionPlot->getImprovementType();
++			eTargetRoute = pMissionPlot->getRouteType();
++			if ((kMission.getDestroyUnitCostFactor() > 0 || kMission.getBuyUnitCostFactor() > 0) && iData >= 0)
++			{
++				CvUnit const* pTargetUnit = GET_PLAYER(eTargetPlayer).getUnit(iData);
++				if (pTargetUnit != NULL)
++					eTargetUnit = pTargetUnit->getUnitType();
++			}
++			if (kMission.getDestroyProductionCostFactor() > 0 && pTargetCity != NULL)
++			{
++				iEffectValue = pTargetCity->getProduction();
++				szEffectKind = "productionDestroyed";
++			}
++			else if (kMission.getStolenGoldPercent() > 0 && pTargetCity != NULL)
++			{
++				iEffectValue = GET_PLAYER(getOwner()).getEspionageGoldQuantity(eMission, eTargetPlayer, pTargetCity);
++				szEffectKind = "goldStolen";
++			}
++			else if (kMission.getCityInsertCultureCostFactor() > 0 && pTargetCity != NULL)
++			{
++				iEffectValue = pTargetCity->cultureTimes100InsertedByMission(eMission);
++				szEffectKind = "cultureInsertedX100";
++			}
++			else if (kMission.getCityPoisonWaterCounter() > 0)
++			{
++				iEffectValue = kMission.getCityPoisonWaterCounter();
++				szEffectKind = "poisonTurns";
++			}
++			else if (kMission.getCityUnhappinessCounter() > 0)
++			{
++				iEffectValue = kMission.getCityUnhappinessCounter();
++				szEffectKind = "unhappinessTurns";
++			}
++			else if (kMission.getCityRevoltCounter() > 0)
++			{
++				iEffectValue = kMission.getCityRevoltCounter();
++				szEffectKind = "revoltTurns";
++			}
++			else if (kMission.getPlayerAnarchyCounter() > 0)
++			{
++				iEffectValue = kMission.getPlayerAnarchyCounter() * GC.getInfo(GC.getGame().getGameSpeedType()).getAnarchyPercent() / 100;
++				szEffectKind = "anarchyTurns";
++			}
++			else if (kMission.getCounterespionageNumTurns() > 0)
++			{
++				iEffectValue = kMission.getCounterespionageNumTurns() * GC.getInfo(GC.getGame().getGameSpeedType()).getResearchPercent() / 100;
++				szEffectKind = "counterespionageTurns";
++			}
++		}
+ 		if (GET_PLAYER(getOwner()).doEspionageMission(eMission, eTargetPlayer,
+-			plot(), iData, this))
++			pMissionPlot, iData, this))
+ 		{
++			if (bLogEspionageMission) logSASGameSummaryEspionageMission(this, eMission, eTargetPlayer, pMissionPlot, iData, iMissionCost, iEPBefore, GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(TEAMID(eTargetPlayer)), eTargetImprovement, eTargetRoute, eTargetUnit, iEffectValue, szEffectKind);
+ 			if (getPlot().isActiveVisible(false))
+ 				NotifyEntity(MISSION_ESPIONAGE);
+ 
+ 			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+ 			static const int iESPIONAGE_SPY_MISSION_ESCAPE_MOD = GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD");
+ 
+-			if (!testSpyIntercepted(eTargetPlayer, true, iESPIONAGE_SPY_MISSION_ESCAPE_MOD))
++			if (!testSpyIntercepted(eTargetPlayer, true, iESPIONAGE_SPY_MISSION_ESCAPE_MOD, "AFTER_MISSION"))
+ 			{
+ 				setFortifyTurns(0);
+ 				setMadeAttack(true);
+@@ -6631,14 +6709,14 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
+ 	return false;
+ }
+ 
+-bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iModifier)
++bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iModifier, char const* szSummaryPhase)
+ {
+ 	CvPlayer& kTargetPlayer = GET_PLAYER(eTargetPlayer);
+ 	if (kTargetPlayer.isBarbarian())
+ 		return false;
+ 
+-	if (!SyncRandSuccess10000((100 + iModifier) *
+-		getSpyInterceptPercent(kTargetPlayer.getTeam(), bMission)))
++	int const iInterceptChanceX100 = (100 + iModifier) * getSpyInterceptPercent(kTargetPlayer.getTeam(), bMission);
++	if (!SyncRandSuccess10000(iInterceptChanceX100))
+ 	{
+ 		return false;
+ 	}
+@@ -6698,6 +6776,11 @@ bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iM
+ 	if (getPlot().isActiveVisible(false))
+ 		NotifyEntity(MISSION_SURRENDER);
+ 
++	if (gGameSummaryLogLevel >= 2)
++	{
++		logSASGameSummarySpyIntercepted(this, eTargetPlayer, szSummaryPhase, iModifier, iInterceptChanceX100);
++		logSASGameSummaryGreatPersonDied(this, eTargetPlayer, "SPY_INTERCEPTED");
++	}
+ 	kill(true);
+ 	return true;
+ }
+@@ -6785,6 +6868,7 @@ bool CvUnit::goldenAge()
+ 	if (!canGoldenAge(plot()))
+ 		return false;
+ 
++	if (gGameSummaryLogLevel >= 2) logSASGameSummaryGreatPersonGoldenAgeConsumed(this);
+ 	GET_PLAYER(getOwner()).killGoldenAgeUnits(this);
+ 	GET_PLAYER(getOwner()).changeGoldenAgeTurns(GET_PLAYER(getOwner()).getGoldenAgeLength());
+ 	GET_PLAYER(getOwner()).changeNumUnitGoldenAges(1);
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 86ce79183..301da3816 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -225,7 +225,7 @@ public:
+ 
+ 	bool canEspionage(const CvPlot* pPlot, bool bTestVisible = false) const;
+ 	bool espionage(EspionageMissionTypes eMission, int iData);
+-	bool testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iModifier); // (K-Mod added bMission)
++	bool testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iModifier, char const* szSummaryPhase); // (K-Mod added bMission)
+ 	int getSpyInterceptPercent(TeamTypes eTargetTeam, bool bMission) const; // (K-Mod added bMission)
+ 	bool isIntruding() const;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 2461e3a19..87329e659 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -866,6 +866,39 @@ static void SAS_logAttackCityBarbOpportunity(CvUnitAI& kUnit, CvCity const* pTar
+ 		(pBestPathableBarbCity == NULL ? L"-" : pBestPathableBarbCity->getName().GetCString()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getX()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getY()), (pBestPathableBarbCity == NULL ? -1 : pBestPathableBarbCity->getPopulation()), iBestPathableDefenders, iBestPathableValue, iBestPathableTargetValue, iBestPathablePathTurns, iBestPathableStepDistance, kUnit.getArea().getAreaAIType(kUnit.getTeam()), GET_TEAM(kUnit.getTeam()).getNumWars(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan(), kOwner.AI_isFinancialTrouble());
+ }
+ 
++// <!-- custom: SASGameSummary showed peaceful UNITAI_ATTACK_CITY groups containing most of an AI's military even when ATTACK_CITY_PARKING had no row, which means the group either never entered AI_attackCityMove or returned before its explicit wait/final-skip branches.
++// Trace only groups with at least 16 units and 20% of the owner's military at UNIT level 2; these diagnostic-only thresholds keep the log narrow and do not affect AI behavior.
++// Record persistent activity/mission state, incoming joiners, and selected early-return actions so the next run can identify the unlogged route before a grouping cure. (GPT-5.6-Sol) -->
++static bool SAS_isLargeAttackCityStackDiagnostic(CvUnitAI const& kUnit)
++{
++	if (kUnit.AI_getUnitAIType() != UNITAI_ATTACK_CITY || kUnit.getGroup() == NULL)
++		return false;
++	int const iGroupUnits = kUnit.getGroup()->getNumUnits();
++	int const iTotalMilitary = GET_PLAYER(kUnit.getOwner()).getNumMilitaryUnits();
++	return (iGroupUnits >= 16 && 100 * iGroupUnits / std::max(1, iTotalMilitary) >= 20);
++}
++
++static void SAS_logLargeAttackCityStackAction(CvUnitAI const& kUnit, char const* szAction, CvCity const* pTargetCity = NULL)
++{
++	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
++	if (pGroup == NULL)
++		return;
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	CvPlot const* pMissionPlot = pGroup->AI_getMissionAIPlot();
++	CvUnitAI const* pMissionUnit = pGroup->AI_getMissionAIUnit();
++	int iWounded = 0;
++	FOR_EACH_UNIT_IN(pLoopUnit, *pGroup)
++	{
++		if (pLoopUnit->getDamage() > 0) iWounded++;
++	}
++	int const iTotalMilitary = kOwner.getNumMilitaryUnits();
++	int const iIncomingJoiners = kOwner.AI_unitTargetMissionAIs(kUnit, MISSIONAI_GROUP);
++	logBBAI("    ATTACK_CITY_LARGE_STACK_ACTION turn=%d player=%d %S action=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d wounded=%d at=(%d,%d) city=%S activity=%d mission=%s missionAI=%d missionPlot=(%d,%d) missionUnitOwner=%d missionUnitId=%d missionQueue=%d incomingJoiners=%d movesLeft=%d target=%S target=(%d,%d) wars=%d anyWarPlan=%d",
++		GC.getGame().getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), szAction, kUnit.getID(), pGroup->getID(), pGroup->getNumUnits(), iTotalMilitary, 100 * pGroup->getNumUnits() / std::max(1, iTotalMilitary), iWounded,
++		kUnit.getX(), kUnit.getY(), (kUnit.getPlot().getPlotCity() == NULL ? L"-" : kUnit.getPlot().getPlotCity()->getName().GetCString()), pGroup->getActivityType(), SAS_getMissionTypeName(pGroup->getMissionType(0)), pGroup->AI_getMissionAIType(), (pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), (pMissionUnit == NULL ? -1 : pMissionUnit->getOwner()), (pMissionUnit == NULL ? -1 : pMissionUnit->getID()), pGroup->getLengthMissionQueue(),
++		iIncomingJoiners, kUnit.movesLeft(), (pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), GET_TEAM(kUnit.getTeam()).getNumWars(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan());
++}
++
+ // <!-- custom: Diagnostic logging for suspected large army parking in remote conquered cities. Keep this narrow:
+ // only large city-attack groups already sitting in an owned city are logged, and only when AI_attackCityMove decides
+ // to skip/wait instead of leaving. This should let BBAI logs identify whether the stack is waiting for joiners,
+@@ -873,11 +906,12 @@ static void SAS_logAttackCityBarbOpportunity(CvUnitAI& kUnit, CvCity const* pTar
+ // change behavior. The same remote captured-city test is used below to stop upgrade waits from freezing a ready stack
+ // that has a valid target. Logs showed Boston-style false negatives when a nearby owned city was also a captured/front
+ // city, so the behavior test is based on distance from core rather than any nearby owned city. See KI#155. (GPT-5.5 + ChatGPT-5.5) -->
+-static void SAS_logAttackCityParking(CvUnitAI const& kUnit, CvCity const* pTargetCity, char const* szReason, bool bReadyToAttack, bool bTargetTooStrong, bool bLandWar, bool bEnemyTerritory, int iJoiners, int iPathTurns)
++static void SAS_logAttackCityParking(CvUnitAI const& kUnit, CvCity const* pTargetCity, char const* szReason, bool bReadyToAttack, bool bTargetTooStrong, bool bLandWar, bool bEnemyTerritory, int iJoiners, int iPathTurns, bool bTurtle, bool bHuntBarbs, bool bHuntOnlyBarbs, int iBarbarianGarrison, int iWarStackNeeded, int iMinStackSize)
+ {
+ 	CvSelectionGroup const* pGroup = kUnit.getGroup();
+ 	CvCity const* pCurrentCity = kUnit.getPlot().getPlotCity();
+-	int const iTotalMilitaryUnits = GET_PLAYER(kUnit.getOwner()).getNumMilitaryUnits();
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	int const iTotalMilitaryUnits = kOwner.getNumMilitaryUnits();
+ 	int const iGroupMilitaryPercent = 100 * pGroup->getNumUnits() / std::max(1, iTotalMilitaryUnits);
+ 	int iOwnedCitiesSameArea = 0;
+ 	int iOwnedCitiesWithin6 = 0;
+@@ -887,6 +921,9 @@ static void SAS_logAttackCityParking(CvUnitAI const& kUnit, CvCity const* pTarge
+ 	int iWoundedUnits = 0;
+ 	int iCanAttackUnits = 0;
+ 	int iCityCaptureUnits = 0;
++	int iQualifyingAttackUnits = 0;
++	int iQualifyingCityCaptureUnits = 0;
++	int iNoCombatLimitUnits = 0;
+ 	FOR_EACH_UNIT_IN(pLoopUnit, *pGroup)
+ 	{
+ 		if (pLoopUnit->getDamage() > 0)
+@@ -894,15 +931,34 @@ static void SAS_logAttackCityParking(CvUnitAI const& kUnit, CvCity const* pTarge
+ 		if (pLoopUnit->canAttack())
+ 		{
+ 			iCanAttackUnits++;
+-			if (!pLoopUnit->isNoCityCapture())
+-				iCityCaptureUnits++;
++			if (!pLoopUnit->isNoCityCapture()) iCityCaptureUnits++;
++			if (!pLoopUnit->getUnitInfo().isMostlyDefensive())
++			{
++				iQualifyingAttackUnits++;
++				if (!pLoopUnit->isNoCityCapture()) iQualifyingCityCaptureUnits++;
++				if (pLoopUnit->combatLimit() >= 100) iNoCombatLimitUnits++;
++			}
+ 		}
+ 	}
+-	logBBAI("    ATTACK_CITY_PARKING turn=%d player=%d %S reason=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d wounded=%d canAttack=%d cityCapture=%d city=%S city=(%d,%d) cityArea=%d captured=%d foreignCaptured=%d remoteCapturedTrap=%d connectedCapital=%d acquiredAge=%d previousOwner=%d originalOwner=%d ownedCitiesSameArea=%d ownedCitiesWithin6=%d nearestOwnedSameArea=%d nearestCoreSameArea=%d target=%S target=(%d,%d) targetArea=%d ready=%d targetTooStrong=%d landWar=%d enemyTerritory=%d wars=%d joiners=%d pathTurns=%d missionAI=%d areaAI=%d",
++	// <!-- custom: ATTACK_CITY_PARKING diagnostics need this as a whole-unit threshold. Directly assigning AI_neededCityAttackersVsBarbarians() caused compile error C2440 because it returns scaled; its ceiling is also the minimum whole number of units that can satisfy the readiness comparison. (GPT-5.6-Sol) -->
++	int const iBarbarianAttackersNeeded = (bHuntOnlyBarbs ? kOwner.AI_neededCityAttackersVsBarbarians().ceil() : -1);
++	char const* szReadinessReason = "ready";
++	if (!bReadyToAttack)
++	{
++		if (bTurtle) szReadinessReason = "turtle";
++		else if (bHuntOnlyBarbs && pGroup->getNumUnits() < iBarbarianAttackersNeeded) szReadinessReason = "barbarian_below_min";
++		else if (bHuntOnlyBarbs && pGroup->getNumUnits() >= 3 * iBarbarianGarrison) szReadinessReason = "barbarian_above_max";
++		else if (!bHuntOnlyBarbs && pGroup->getNumUnits() < iWarStackNeeded) szReadinessReason = "war_below_needed";
++		else if (!bHuntOnlyBarbs && pGroup->getNumUnits() < iMinStackSize) szReadinessReason = "below_sas_min";
++		else szReadinessReason = "composition";
++	}
++	// <!-- custom: Large stacks logged ready=0 despite many apparent city-capturing units. Record the mutually exclusive readiness reason and the exact strategy, size, and composition inputs so barbarian-size rejection can be distinguished from turtle strategy, insufficient war-stack size, and the mostly-defensive/combat-limit filters before changing grouping behavior. This work remains inside the UNIT logging gate. (GPT-5.6-Sol) -->
++	logBBAI("    ATTACK_CITY_PARKING turn=%d player=%d %S reason=%s unitId=%d groupId=%d groupUnits=%d totalMilitary=%d groupMilitaryPercent=%d wounded=%d canAttack=%d cityCapture=%d city=%S city=(%d,%d) cityArea=%d captured=%d foreignCaptured=%d remoteCapturedTrap=%d connectedCapital=%d acquiredAge=%d previousOwner=%d originalOwner=%d ownedCitiesSameArea=%d ownedCitiesWithin6=%d nearestOwnedSameArea=%d nearestCoreSameArea=%d target=%S target=(%d,%d) targetArea=%d ready=%d readinessReason=%s turtle=%d alert1=%d huntBarbs=%d huntOnlyBarbs=%d sneakAttackReady=%d anyWarPlan=%d warStackNeeded=%d minStack=%d barbarianGarrison=%d barbarianAttackersNeeded=%d qualifyingAttack=%d qualifyingCityCapture=%d noCombatLimit=%d targetTooStrong=%d landWar=%d enemyTerritory=%d wars=%d joiners=%d pathTurns=%d missionAI=%d areaAI=%d",
+ 		GC.getGame().getGameTurn(), kUnit.getOwner(), GET_PLAYER(kUnit.getOwner()).getCivilizationDescription(0), szReason, kUnit.getID(), pGroup->getID(), pGroup->getNumUnits(), iTotalMilitaryUnits, iGroupMilitaryPercent, iWoundedUnits, iCanAttackUnits, iCityCaptureUnits,
+ 		pCurrentCity->getName().GetCString(), pCurrentCity->getX(), pCurrentCity->getY(), pCurrentCity->getArea().getID(), pCurrentCity->getPreviousOwner() != NO_PLAYER, pCurrentCity->getPreviousOwner() != NO_PLAYER && pCurrentCity->getOriginalOwner() != kUnit.getOwner(), bRemoteCapturedTrap, pCurrentCity->isConnectedToCapital(kUnit.getOwner()), GC.getGame().getGameTurn() - pCurrentCity->getGameTurnAcquired(), pCurrentCity->getPreviousOwner(), pCurrentCity->getOriginalOwner(), iOwnedCitiesSameArea, iOwnedCitiesWithin6, iNearestOwnedCityDistanceSameArea, iNearestCoreCityDistanceSameArea,
+ 		(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), (pTargetCity == NULL ? -1 : pTargetCity->getArea().getID()),
+-		bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, GET_TEAM(kUnit.getTeam()).getNumWars(), iJoiners, iPathTurns, kUnit.AI_getGroup()->AI_getMissionAIType(), kUnit.getArea().getAreaAIType(kUnit.getTeam()));
++		bReadyToAttack, szReadinessReason, bTurtle, kOwner.AI_isDoStrategy(AI_STRATEGY_ALERT1), bHuntBarbs, bHuntOnlyBarbs, GET_TEAM(kUnit.getTeam()).AI_isSneakAttackReady(), GET_TEAM(kUnit.getTeam()).AI_isAnyWarPlan(), iWarStackNeeded, iMinStackSize, iBarbarianGarrison, iBarbarianAttackersNeeded, iQualifyingAttackUnits, iQualifyingCityCaptureUnits, iNoCombatLimitUnits,
++		bTargetTooStrong, bLandWar, bEnemyTerritory, GET_TEAM(kUnit.getTeam()).getNumWars(), iJoiners, iPathTurns, kUnit.AI_getGroup()->AI_getMissionAIType(), kUnit.getArea().getAreaAIType(kUnit.getTeam()));
+ 	if (bRemoteCapturedTrap)
+ 	{
+ 		// <!-- custom: Diagnostic-only follow-up for KI#155: upgrade-wait remote traps are fixed, but logs still showed remote captured stacks parking for joiners or with no target. Add city defense pressure, area target, and nearest revealed enemy-city distances so the next log review can distinguish useful staging from a stranded army before changing behavior. (GPT-5.5 + ChatGPT-5.5) -->
+@@ -6042,6 +6098,8 @@ void CvUnitAI::AI_attackCityMove()
+ 
+ 	AreaAITypes const eAreaAI = getArea().getAreaAIType(getTeam());
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
++	bool const bLogLargeAttackCityStack = (gUnitLogLevel >= 2 && SAS_isLargeAttackCityStackDiagnostic(*this));
++	if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "entry");
+ 	//bool bLandWar = !isBarbarian() && ((eAreaAIType == AREAAI_OFFENSIVE) || (eAreaAIType == AREAAI_DEFENSIVE) || (eAreaAIType == AREAAI_MASSING));
+ 	bool const bLandWar = (isBarbarian() ?
+ 			// advc: moved up
+@@ -6064,10 +6122,16 @@ void CvUnitAI::AI_attackCityMove()
+ 			return;
+ 		}*/ // <advc.299>
+ 		if (AI_singleUnitHeal(0, 0))
+-			return; // </advc.299>
++		{
++			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_single_unit_heal");
++			return;
++		} // </advc.299>
+ 		// <advc.114e> (from MNAI)
+ 		if (AI_leaveAttack(1, 70, 150))
+-			return; // </advc.114e>
++		{
++			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_leave_attack");
++			return;
++		} // </advc.114e>
+ 		/*if (bIgnoreFaster) {
+ 			// BBAI TODO: split out slow units ... will need to test to make sure this doesn't cause loops
+ 		}*/
+@@ -6078,22 +6142,35 @@ void CvUnitAI::AI_attackCityMove()
+ 			CvSelectionGroupAI* pOldGroup = AI_getGroup();
+ 			pOldGroup->AI_separateNonAI(UNITAI_ATTACK_CITY);
+ 			if (pOldGroup != getGroup())
++			{
++				if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_separate_non_attack_city");
+ 				return;
++			}
+ 		}
+ 		// note. this will eject a unit to defend the city rather than using the whole group
+ 		if (AI_guardCity(false))
++		{
++			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_guard_city");
+ 			return;
++		}
+ 		//if ((eAreaAIType == AREAAI_ASSAULT) || (eAreaAIType == AREAAI_ASSAULT_ASSIST))
+ 		if (bAssault) // K-Mod
+ 		{
+ 			if (AI_offensiveAirlift())
++			{
++				if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_offensive_airlift");
+ 				return;
++			}
+ 		}
+ 	}
+ 
+ 	bool const bEnemyTerritory = isEnemy(getPlot()); // advc: renamed from "bAtWar"
+ 
+ 	bool bHuntBarbs = false;
++	bool bHuntOnlyBarbs = false;
++	int iBarbarianGarrison = -1;
++	int iWarStackNeeded = (isBarbarian() ? 3 : -1);
++	int iMinStackSize = -1;
+ 	bool bReadyToAttack = false;
+ 	if (isBarbarian())
+ 		bReadyToAttack = (getGroup()->getNumUnits() >= 3);
+@@ -6101,33 +6178,20 @@ void CvUnitAI::AI_attackCityMove()
+ 	else if (!bTurtle)
+ 	{
+ 		int const iGroupSz = getGroup()->getNumUnits();
+-		int iBarbarianGarrison = kOwner.AI_estimateBarbarianGarrisonSize();
+-		if ((eAreaAI != AREAAI_DEFENSIVE && eAreaAI != AREAAI_OFFENSIVE && !bAlert1) ||
+-			iBarbarianGarrison < 2 * kOwner.AI_getCurrEraFactor())
+-		{
+-			bHuntBarbs = true;
+-		}
++		iWarStackNeeded = AI_stackOfDoomExtra();
++		static int const iSASMinStackSize = GC.getDefineINT("SAS_MIN_ATTACK_CITY_STACK_UNITS");
++		iMinStackSize = iSASMinStackSize;
++		iBarbarianGarrison = kOwner.AI_estimateBarbarianGarrisonSize();
++		if ((eAreaAI != AREAAI_DEFENSIVE && eAreaAI != AREAAI_OFFENSIVE && !bAlert1) || iBarbarianGarrison < 2 * kOwner.AI_getCurrEraFactor()) bHuntBarbs = true;
+ 		//bReadyToAttack = (iGroupSz >= (bHuntBarbs ? 3 : AI_stackOfDoomExtra())); // BtS
+ 		/*  Don't yet know if we'll actually target a Barbarian city, so it's hard to
+ 			decide on the proper size of the attack stack. But if there is nothing else
+ 			to attack, it's easy. */
+-		bool const bHuntOnlyBarbs = (bHuntBarbs &&
+-				!GET_TEAM(getTeam()).AI_isSneakAttackReady() &&
+-				GET_TEAM(getTeam()).getNumWars() <= 0);
++		bHuntOnlyBarbs = (bHuntBarbs && !GET_TEAM(getTeam()).AI_isSneakAttackReady() && GET_TEAM(getTeam()).getNumWars() <= 0);
+ 		// <!-- custom: simple sanity check - require minimum stack size before considering "ready to attack". Prevents premature wars where small stacks advance then retreat ("weird back and forth"). See KI#104 (Claude code Opus 4.5) -->
+-		static int const iMinStackSize = GC.getDefineINT("SAS_MIN_ATTACK_CITY_STACK_UNITS");
+-		if (!bHuntOnlyBarbs && iGroupSz >= AI_stackOfDoomExtra() &&
+-			iGroupSz >= iMinStackSize)
+-		{
+-			bReadyToAttack = true;
+-		}
+-		else if (bHuntOnlyBarbs &&
+-			iGroupSz >= kOwner.AI_neededCityAttackersVsBarbarians() &&
+-			// Don't send a giant stack. (Tbd.: Should perhaps split the group up then.)
+-			iGroupSz < 3 * iBarbarianGarrison)
+-		{
+-			bReadyToAttack = true;
+-		}
++		if (!bHuntOnlyBarbs && iGroupSz >= iWarStackNeeded && iGroupSz >= iMinStackSize) bReadyToAttack = true;
++		// Don't send a giant stack. (Tbd.: Should perhaps split the group up then.)
++		else if (bHuntOnlyBarbs && iGroupSz >= kOwner.AI_neededCityAttackersVsBarbarians() && iGroupSz < 3 * iBarbarianGarrison) bReadyToAttack = true;
+ 	} // </advc.300>
+ 
+ 	if (bReadyToAttack)
+@@ -6179,6 +6243,7 @@ void CvUnitAI::AI_attackCityMove()
+ 	if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags,
+ 		0, true, false, bIgnoreFaster))
+ 	{
++		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_omni_group_same_plot");
+ 		return;
+ 	}
+ 
+@@ -6385,6 +6450,7 @@ void CvUnitAI::AI_attackCityMove()
+ 			}
+ 		}
+ 	}
++	if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "checkpoint_after_target", pTargetCity);
+ 	if ((gUnitLogLevel >= 2 || gPlayerLogLevel >= 2) && !isBarbarian() && getGroup()->getNumUnits() >= 3)
+ 		SAS_logAttackCityBarbOpportunity(*this, pTargetCity, bHuntBarbs, bReadyToAttack, bTargetTooStrong, eMoveFlags);
+ 
+@@ -6423,6 +6489,7 @@ void CvUnitAI::AI_attackCityMove()
+ 		if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI,
+ 			-1, -1, -1, -1, eMoveFlags, /*iMaxPath=*/6)) // was 4
+ 		{
++			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_load_assault", pTargetCity);
+ 			return;
+ 		}
+ 	} // K-Mod end
+@@ -6456,11 +6523,15 @@ void CvUnitAI::AI_attackCityMove()
+ 		if (AI_omniGroup(UNITAI_ATTACK_CITY, -1, -1, true, eMoveFlags, iMaxGroupPath,
+ 			true, false, bIgnoreFaster))
+ 		{
++			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_omni_group_staging_range", pTargetCity);
+ 			return;
+ 		}
+ 	}
+ 	if (AI_heal(30, 1))
++	{
++		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_heal_30", pTargetCity);
+ 		return;
++	}
+ 
+ 	/*if (collateralDamage() > 0 && getPlot().getOwner() == getOwner()) {
+ 		if (AI_anyAttack(1, 45, eMoveFlags, 3, false, false))
+@@ -6475,7 +6546,10 @@ void CvUnitAI::AI_attackCityMove()
+ 	/*	K-Mod (changed to allow cities, and to only use a single unit,
+ 		but it is still a questionable move) */
+ 	if (AI_anyAttack(1, 60, eMoveFlags | MOVE_SINGLE_ATTACK))
++	{
++		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_opportunistic_attack", pTargetCity);
+ 		return;
++	}
+ 
+ 	// K-Mod - replacing some stuff I moved / removed from the BBAI code
+ 	if (pTargetCity != NULL && bTargetTooStrong &&
+@@ -6573,13 +6647,11 @@ void CvUnitAI::AI_attackCityMove()
+ 				iMaxWaitTurns = (iPathTurns+1) / 3;
+ 			}
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+-			int iJoiners = (iMaxWaitTurns > 0 ? kOwner.AI_unitTargetMissionAIs(
+-					*this, &eMissionAIType, 1, getGroup(), iMaxWaitTurns) : 0);
++			int iJoiners = (iMaxWaitTurns > 0 ? kOwner.AI_unitTargetMissionAIs(*this, &eMissionAIType, 1, getGroup(), iMaxWaitTurns) : 0);
+ 
+ 			if (iJoiners * range(iPathTurns-1, 2, 5) > getGroup()->getNumUnits())
+ 			{	// (the mission is just for debug feedback)
+-				if (bLogAttackCityParking)
+-					SAS_logAttackCityParking(*this, pTargetCity, "wait_joiners_ready", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iJoiners, iPathTurns);
++				if (bLogAttackCityParking) SAS_logAttackCityParking(*this, pTargetCity, "wait_joiners_ready", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iJoiners, iPathTurns, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
+ 				getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
+ 						false, false, MISSIONAI_GROUP);
+ 				return;
+@@ -6614,29 +6686,36 @@ void CvUnitAI::AI_attackCityMove()
+ 			if (iTargetCount * 5 > getGroup()->getNumUnits())
+ 			{
+ 				MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+-				int iJoiners = kOwner.AI_unitTargetMissionAIs(
+-						*this, &eMissionAIType, 1, getGroup(), 2);
++				int iJoiners = kOwner.AI_unitTargetMissionAIs(*this, &eMissionAIType, 1, getGroup(), 2);
+ 				if (iJoiners * 5 > getGroup()->getNumUnits())
+ 				{	// K-Mod (for debug feedback)
+-					if (bLogAttackCityParking)
+-						SAS_logAttackCityParking(*this, pTargetCity, "wait_joiners_not_ready", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iJoiners, -1);
++					if (bLogAttackCityParking) SAS_logAttackCityParking(*this, pTargetCity, "wait_joiners_not_ready", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iJoiners, -1, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
+ 					getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
+ 							false, false, MISSIONAI_GROUP);
+ 					return;
+ 				}
+ 				if (AI_moveToStagingCity())
++				{
++					if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_move_to_staging_city", pTargetCity);
+ 					return;
++				}
+ 			}
+ 		}
+ 	}
+ 
+ 	if (AI_heal(50, 3))
++	{
++		if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_heal_50", pTargetCity);
+ 		return;
++	}
+ 
+ 	if (!bEnemyTerritory)
+ 	{
+ 		if (AI_heal())
++		{
++			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_heal_any", pTargetCity);
+ 			return;
++		}
+ 		if (getGroup()->getNumUnits() == 1 && getTeam() != getPlot().getTeam())
+ 		{
+ 			if (AI_retreatToCity())
+@@ -6647,7 +6726,10 @@ void CvUnitAI::AI_attackCityMove()
+ 	if (!bReadyToAttack && !noDefensiveBonus())
+ 	{
+ 		if (AI_guardCity(false, false, MAX_INT, eMoveFlags))
++		{
++			if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_guard_city_not_ready", pTargetCity);
+ 			return;
++		}
+ 	}
+ 
+ 	if (bReadyToAttack /* advc.083: */ && !bTargetTooStrong)
+@@ -6670,7 +6752,10 @@ void CvUnitAI::AI_attackCityMove()
+ 		{
+ 			// target city has already been calculated.
+ 			if (pTargetCity != NULL && AI_goToTargetCity(eMoveFlags, 12, pTargetCity))
++			{
++				if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_move_to_barbarian_target", pTargetCity);
+ 				return;
++			}
+ 			// <advc.300>
+ 			int iSearchRange = 3;
+ 			if (getArea().getAreaAIType(getTeam()) == AREAAI_ASSAULT)
+@@ -6730,8 +6815,7 @@ void CvUnitAI::AI_attackCityMove()
+ 						bool const bSkipUpgradeWaitForReadyAttack = (bSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE && bReadyToAttack && !bTargetTooStrong && iCanUpgradeNowUnits <= 0 && (kGroup.getNumUnits() >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS || iGroupMilitaryPercent >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT) && iTargetPathTurns >= 0 && iTargetPathTurns <= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS);
+ 						if (bLogAttackCityParking)
+ 						{
+-							if (!bSkipUpgradeWaitForReadyAttack)
+-								SAS_logAttackCityParking(*this, pTargetCity, "wait_upgrade", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNeedUpgradeCount, iTargetPathTurns);
++							if (!bSkipUpgradeWaitForReadyAttack) SAS_logAttackCityParking(*this, pTargetCity, "wait_upgrade", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNeedUpgradeCount, iTargetPathTurns, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
+ 							int iEstimatedUpgradeCost = 0;
+ 							int iBestUpgradePriceMax = 0;
+ 							FOR_EACH_UNIT_IN(pUpgradeLogUnit, kGroup)
+@@ -6789,6 +6873,7 @@ void CvUnitAI::AI_attackCityMove()
+ 					if (AI_load(UNITAI_ASSAULT_SEA, MISSIONAI_LOAD_ASSAULT, NO_UNITAI,
+ 						-1, -1, -1, -1, eMoveFlags, iLoadTurns, iMaxTransportTurns))
+ 					{
++						if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_load_for_target", pTargetCity);
+ 						return;
+ 					}
+ 				}
+@@ -6805,7 +6890,10 @@ void CvUnitAI::AI_attackCityMove()
+ 				if (!bTargetTooStrong)
+ 				{
+ 					if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
++					{
++						if (bLogLargeAttackCityStack) SAS_logLargeAttackCityStackAction(*this, "return_move_to_target", pTargetCity);
+ 						return;
++					}
+ 				}
+ 
+ 				if (bAnyWarPlan)
+@@ -6936,12 +7024,10 @@ void CvUnitAI::AI_attackCityMove()
+ 		if (6 * iTargetCount > getGroup()->getNumUnits())
+ 		{
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+-			int iNearbyJoiners = kOwner.AI_unitTargetMissionAIs(
+-					*this, &eMissionAIType, 1, getGroup(), 2);
++			int iNearbyJoiners = kOwner.AI_unitTargetMissionAIs(*this, &eMissionAIType, 1, getGroup(), 2);
+ 			if (4*iNearbyJoiners > getGroup()->getNumUnits())
+ 			{
+-				if (bLogAttackCityParking)
+-					SAS_logAttackCityParking(*this, pTargetCity, "wait_nearby_joiners", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNearbyJoiners, -1);
++				if (bLogAttackCityParking) SAS_logAttackCityParking(*this, pTargetCity, "wait_nearby_joiners", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNearbyJoiners, -1, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
+ 				getGroup()->pushMission(MISSION_SKIP);
+ 				return;
+ 			}
+@@ -7014,8 +7100,7 @@ void CvUnitAI::AI_attackCityMove()
+ 	// K-Mod end
+ 	if (AI_safety())
+ 		return;
+-	if (bLogAttackCityParking)
+-		SAS_logAttackCityParking(*this, pTargetCity, "final_skip", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, -1, -1);
++	if (bLogAttackCityParking) SAS_logAttackCityParking(*this, pTargetCity, "final_skip", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, -1, -1, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
+ 	getGroup()->pushMission(MISSION_SKIP);
+ }
+
+diff --git a/CvGameCoreDLL/SASGameSummaryLog.cpp b/CvGameCoreDLL/SASGameSummaryLog.cpp
+index 522a91519..9abb7f3aa 100644
+--- a/CvGameCoreDLL/SASGameSummaryLog.cpp
++++ b/CvGameCoreDLL/SASGameSummaryLog.cpp
+@@ -3,6 +3,7 @@
+ #include "CvGame.h" // <!-- custom: Needed for game-summary turn, game-state, victory, RNG, and map-classification context rows. (GPT-5.5) -->
+ #include "CvCity.h" // <!-- custom: Needed by game-summary city action/BFC rows; SASGameSummaryLog.h only forward-declares CvCity. (GPT-5.5) -->
+ #include "CvUnit.h" // <!-- custom: Needed by game-summary battle rows; SASGameSummaryLog.h only forward-declares CvUnit. (GPT-5.5) -->
++#include "CvUnitAI.h" // <!-- custom: Needed to inspect the head unit of large city groups and its UnitAI role; the base unit header only forward-declares CvUnitAI. (GPT-5.6-Sol) -->
+ #include "CityPlotIterator.h" // <!-- custom: Needed by compact game-summary BFC composition rows. (ChatGPT-5.5) -->
+ #include "CvPlot.h" // <!-- custom: Needed by game-summary BFC and unit posture rows. (ChatGPT-5.5) -->
+ #include "CvInfo_Build.h" // <!-- custom: Needed for worker build-type names and build target classification in game-summary rows. (ChatGPT-5.5) -->
+@@ -18,6 +19,7 @@
+ #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
+ #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
+ #include "CvSelectionGroup.h" // <!-- custom: Needed to inspect worker/settler mission queues in game-summary rows. (ChatGPT-5.5) -->
++#include "CvSelectionGroupAI.h" // <!-- custom: Needed for large city-group mission targets and MissionAI state; the base group header only forward-declares CvSelectionGroupAI. (GPT-5.6-Sol) -->
+ #include "CvPlotGroup.h" // <!-- custom: Needed to identify connected city networks in game-summary city rows. (ChatGPT-5.5) -->
+ #include "CvArea.h" // <!-- custom: Needed for area-wide city happiness/health detail rows. (ChatGPT-5.5) -->
+ #include "CvPlayerAI.h" // <!-- custom: Needed for attitude/glance values in game-summary advisor rows. (ChatGPT-5.5) -->
+@@ -631,6 +633,11 @@ static const char* getSASGameSummaryMissionType(MissionTypes eMission)
+ 	return (eMission == NO_MISSION ? "-" : GC.getInfo(eMission).getType());
+ }
+ 
++static const char* getSASGameSummaryEspionageMissionType(EspionageMissionTypes eMission)
++{
++	return (eMission == NO_ESPIONAGEMISSION ? "-" : GC.getInfo(eMission).getType());
++}
++
+ static const char* getSASGameSummaryUnitAIType(UnitAITypes eUnitAI)
+ {
+ 	return (eUnitAI == NO_UNITAI ? "-" : GC.getInfo(eUnitAI).getType());
+@@ -1097,6 +1104,47 @@ static void logSASGameSummaryEspionage(PlayerTypes ePlayer, int iGameTurn)
+ 	CvString szWeights;
+ 	CvString szPoints;
+ 	CvString szModifiers;
++	// <!-- custom: EP totals alone do not show whether Spies are reaching rivals or remaining idle at home. At periodic level-2 snapshots, summarize foreign deployment, city infiltration, stationary cost-reduction preparation, and current rival targets without logging movement choices. (GPT-5.6-Sol) -->
++	CvString szSpyTargets;
++	std::vector<int> aiSpiesAgainstPlayer(MAX_PLAYERS, 0);
++	int iSpies = 0;
++	int iGreatSpies = 0;
++	int iSpiesInForeignTerritory = 0;
++	int iSpiesInForeignCities = 0;
++	int iStationarySpies = 0;
++	int iMaxFortifyTurns = 0;
++	int iUnitLoop = 0;
++	for (CvUnit const* pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
++	{
++		UnitAITypes const eUnitAI = pLoopUnit->AI_getUnitAIType();
++		if (!pLoopUnit->isSpy() && eUnitAI != UNITAI_GREAT_SPY)
++			continue;
++		iSpies++;
++		if (eUnitAI == UNITAI_GREAT_SPY)
++			iGreatSpies++;
++		if (pLoopUnit->getFortifyTurns() > 0)
++		{
++			iStationarySpies++;
++			iMaxFortifyTurns = std::max(iMaxFortifyTurns, pLoopUnit->getFortifyTurns());
++		}
++		CvPlot const& kPlot = pLoopUnit->getPlot();
++		PlayerTypes const ePlotOwner = kPlot.getOwner();
++		if (ePlotOwner != NO_PLAYER && kPlot.getTeam() != kPlayer.getTeam())
++		{
++			iSpiesInForeignTerritory++;
++			if (kPlot.isCity())
++				iSpiesInForeignCities++;
++			aiSpiesAgainstPlayer[ePlotOwner]++;
++		}
++	}
++	for (int iI = 0; iI < MAX_PLAYERS; iI++)
++	{
++		if (aiSpiesAgainstPlayer[iI] <= 0)
++			continue;
++		CvString szItem;
++		szItem.Format(szSpyTargets.empty() ? "%d:%d" : ",%d:%d", iI, aiSpiesAgainstPlayer[iI]);
++		szSpyTargets += szItem;
++	}
+ 	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 	{
+ 		TeamTypes eLoopTeam = (TeamTypes)iI;
+@@ -1128,8 +1176,8 @@ static void logSASGameSummaryEspionage(PlayerTypes ePlayer, int iGameTurn)
+ 	const int iEspionagePercent = kPlayer.getCommercePercent(COMMERCE_ESPIONAGE);
+ 	const int iTeamEP = kTeam.getEspionagePointsEver();
+ 	const int iUnspentEP = kTeam.getTotalUnspentEspionage();
+-	logSASGameSummary("GAME_SUMMARY_ESPIONAGE turn=%d player=%d team=%d espionageRate=%d espionagePercent=%d teamEP=%d unspentEP=%d weights=%s pointsAgainst=%s modifiers=%s",
+-			iGameTurn, ePlayer, kPlayer.getTeam(), iEspionageRate, iEspionagePercent, iTeamEP, iUnspentEP, getSASGameSummaryOrDash(szWeights).GetCString(), getSASGameSummaryOrDash(szPoints).GetCString(), getSASGameSummaryOrDash(szModifiers).GetCString());
++	logSASGameSummary("GAME_SUMMARY_ESPIONAGE turn=%d player=%d team=%d espionageRate=%d espionagePercent=%d teamEP=%d unspentEP=%d weights=%s pointsAgainst=%s modifiers=%s spies=%d greatSpies=%d spiesInForeignTerritory=%d spiesInForeignCities=%d stationarySpies=%d maxFortifyTurns=%d spyTargets=%s",
++			iGameTurn, ePlayer, kPlayer.getTeam(), iEspionageRate, iEspionagePercent, iTeamEP, iUnspentEP, getSASGameSummaryOrDash(szWeights).GetCString(), getSASGameSummaryOrDash(szPoints).GetCString(), getSASGameSummaryOrDash(szModifiers).GetCString(), iSpies, iGreatSpies, iSpiesInForeignTerritory, iSpiesInForeignCities, iStationarySpies, iMaxFortifyTurns, getSASGameSummaryOrDash(szSpyTargets).GetCString());
+ 	logSASGameSummary("GAME_SUMMARY_ESPIONAGE_DELTAS turn=%d player=%d deltaValid=%d espionageRateDelta=%+d espionagePercentDelta=%+d teamEPDelta=%+d unspentEPDelta=%+d",
+ 			iGameTurn, ePlayer, kPrevious.bValid, getSASGameSummaryDelta(kPrevious.bValid, iEspionageRate, kPrevious.iEspionageRate), getSASGameSummaryDelta(kPrevious.bValid, iEspionagePercent, kPrevious.iEspionagePercent), getSASGameSummaryDelta(kPrevious.bValid, iTeamEP, kPrevious.iTeamEP), getSASGameSummaryDelta(kPrevious.bValid, iUnspentEP, kPrevious.iUnspentEP));
+ 	kPrevious.iEspionageRate = iEspionageRate;
+@@ -2127,12 +2175,81 @@ static void logSASGameSummaryCityDetail(CvCity const& kCity, int iGameTurn)
+ 	SASGameSummaryPlotUnitCounts kCityUnits;
+ 	collectSASGameSummaryPlotUnitCounts(kCity.getPlot(), kCity.getOwner(), kCityUnits);
+ 	logSASGameSummary("GAME_SUMMARY_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
+-			iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameSummaryQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCityUnits.iUnits, kCityUnits.iMilitaryUnits, kCityUnits.iCivilianUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iSettlers, kCityUnits.iWorkers, kCityUnits.iAttackers, kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), kCity.getTradeRoutes(), iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE), getSASGameSummaryCityProductionKind(kCity), getSASGameSummaryCityProductionType(kCity), kCity.getProductionTurnsLeft(), kCity.getProduction(), kCity.getProductionNeeded(), kCity.getOverflowProduction(), kCity.getFeatureProduction(), getSASGameSummaryCitySpecialists(kCity, false).GetCString(), getSASGameSummaryCitySpecialists(kCity, true).GetCString(), kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameSummaryCityGPOdds(kCity).GetCString());
++			iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameSummaryQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE),
++			kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCityUnits.iUnits, kCityUnits.iMilitaryUnits, kCityUnits.iCivilianUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iSettlers, kCityUnits.iWorkers, kCityUnits.iAttackers,
++			kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), kCity.getTradeRoutes(), iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE),
++			getSASGameSummaryCityProductionKind(kCity), getSASGameSummaryCityProductionType(kCity), kCity.getProductionTurnsLeft(), kCity.getProduction(), kCity.getProductionNeeded(), kCity.getOverflowProduction(), kCity.getFeatureProduction(), getSASGameSummaryCitySpecialists(kCity, false).GetCString(), getSASGameSummaryCitySpecialists(kCity, true).GetCString(),
++			kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameSummaryCityGPOdds(kCity).GetCString());
+ 	logSASGameSummary("GAME_SUMMARY_CITY_HAPPINESS turn=%d player=%d cityId=%d happy=%d unhappy=%d surplus=%d happySources=%s flatUnhappySources=%s angerPercentSources=%s",
+-			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.happyLevel(), kCity.unhappyLevel(), kCity.happyLevel() - kCity.unhappyLevel(), getSASGameSummaryCityHappySources(kCity).GetCString(), getSASGameSummaryCityFlatUnhappySources(kCity).GetCString(), getSASGameSummaryCityAngerPercentSources(kCity).GetCString());
++			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.happyLevel(), kCity.unhappyLevel(), kCity.happyLevel() - kCity.unhappyLevel(),
++			getSASGameSummaryCityHappySources(kCity).GetCString(), getSASGameSummaryCityFlatUnhappySources(kCity).GetCString(), getSASGameSummaryCityAngerPercentSources(kCity).GetCString());
+ 	logSASGameSummary("GAME_SUMMARY_CITY_HEALTH turn=%d player=%d cityId=%d goodHealth=%d badHealth=%d surplus=%d healthySources=%s unhealthySources=%s",
+-			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.goodHealth(), kCity.badHealth(), kCity.goodHealth() - kCity.badHealth(), getSASGameSummaryCityHealthySources(kCity).GetCString(), getSASGameSummaryCityUnhealthySources(kCity).GetCString());
++			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.goodHealth(), kCity.badHealth(), kCity.goodHealth() - kCity.badHealth(),
++			getSASGameSummaryCityHealthySources(kCity).GetCString(), getSASGameSummaryCityUnhealthySources(kCity).GetCString());
+ 	if (gGameSummaryLogLevel >= 3) logSASGameSummary("GAME_SUMMARY_CITY_TRADE_PARTNERS turn=%d player=%d cityId=%d partners=%s", iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameSummaryCityTradePartners(kCity).GetCString());
++	// <!-- custom: Large city garrisons in autoplay logs did not reveal whether an army was one parked attack stack or many defensive/miscellaneous groups. At game-summary level 3, record compact group and UnitAI composition for cities with at least six military units; BBAI UNIT logging remains responsible for the groups' decision reasons. (GPT-5.6-Sol) -->
++	if (gGameSummaryLogLevel >= 3 && kCityUnits.iMilitaryUnits >= 6)
++	{
++		std::vector<int> aiUnitTypes(GC.getNumUnitInfos(), 0);
++		std::vector<int> aiUnitAI(NUM_UNITAI_TYPES, 0);
++		std::vector<int> aiGroupIds;
++		CvSelectionGroup const* pLargestGroup = NULL;
++		for (CLLNode<IDInfo> const* pUnitNode = kCity.getPlot().headUnitNode(); pUnitNode != NULL; pUnitNode = kCity.getPlot().nextUnitNode(pUnitNode))
++		{
++			CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
++			if (pLoopUnit == NULL || pLoopUnit->getOwner() != kCity.getOwner() || !isSASGameSummaryMilitaryUnit(*pLoopUnit))
++				continue;
++			if (pLoopUnit->getUnitType() != NO_UNIT)
++				aiUnitTypes[pLoopUnit->getUnitType()]++;
++			UnitAITypes const eUnitAI = pLoopUnit->AI_getUnitAIType();
++			if (eUnitAI >= 0 && eUnitAI < NUM_UNITAI_TYPES)
++				aiUnitAI[eUnitAI]++;
++			CvSelectionGroup const* pGroup = pLoopUnit->getGroup();
++			if (pGroup == NULL)
++				continue;
++			bool bGroupAlreadyCounted = false;
++			for (size_t iI = 0; iI < aiGroupIds.size(); iI++)
++			{
++				if (aiGroupIds[iI] == pGroup->getID())
++				{
++					bGroupAlreadyCounted = true;
++					break;
++				}
++			}
++			if (!bGroupAlreadyCounted)
++				aiGroupIds.push_back(pGroup->getID());
++			if (pLargestGroup == NULL || pGroup->getNumUnits() > pLargestGroup->getNumUnits())
++				pLargestGroup = pGroup;
++		}
++		CvString szUnitTypes;
++		CvString szUnitAI;
++		for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
++			appendSASGameSummaryTypeCount(szUnitTypes, getSASGameSummaryUnitType((UnitTypes)iI), aiUnitTypes[iI]);
++		for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
++			appendSASGameSummaryTypeCount(szUnitAI, getSASGameSummaryUnitAIType((UnitAITypes)iI), aiUnitAI[iI]);
++		CvSelectionGroupAI const* pLargestGroupAI = (pLargestGroup == NULL ? NULL : &pLargestGroup->AI());
++		CvUnitAI const* pLargestGroupHead = (pLargestGroupAI == NULL ? NULL : pLargestGroupAI->AI_getHeadUnit());
++		CvPlot const* pLargestGroupMissionPlot = (pLargestGroupAI == NULL ? NULL : pLargestGroupAI->AI_getMissionAIPlot());
++		CvUnitAI const* pLargestGroupMissionUnit = (pLargestGroupAI == NULL ? NULL : pLargestGroupAI->AI_getMissionAIUnit());
++		int iLargestGroupWounded = 0;
++		if (pLargestGroup != NULL)
++		{
++			FOR_EACH_UNIT_IN(pLoopUnit, *pLargestGroup)
++			{
++				if (pLoopUnit->getDamage() > 0) iLargestGroupWounded++;
++			}
++		}
++		// <!-- custom: Ordinary city-detail calculations above use CvPlayer, but incoming group-mission queries are available only through CvPlayerAI. Keep the derived reference scoped to this level-3 diagnostic. (GPT-5.6-Sol) -->
++		CvPlayerAI const& kOwnerAI = GET_PLAYER(kCity.getOwner());
++		int const iLargestGroupIncomingJoiners = (pLargestGroupHead == NULL ? -1 : kOwnerAI.AI_unitTargetMissionAIs(*pLargestGroupHead, MISSIONAI_GROUP));
++		// <!-- custom: A peaceful Aztec attack-city group grew to 86 of 137 military units but stopped appearing in ATTACK_CITY_PARKING, so its persistent state or an earlier return path was invisible.
++		// At level 3, preserve the largest city group's activity, queued mission, MissionAI target, wounded count, and incoming joiners alongside composition; paired UNIT diagnostics trace AI_attackCityMove when it is actually entered. (GPT-5.6-Sol) -->
++		logSASGameSummary("GAME_SUMMARY_CITY_UNIT_COMPOSITION turn=%d player=%d cityId=%d city=%S militaryUnits=%d groups=%d largestGroupId=%d largestGroupUnits=%d largestGroupHeadAI=%s largestGroupActivity=%d largestGroupMission=%s largestGroupMissionAI=%d largestGroupMissionPlot=(%d,%d) largestGroupMissionUnitOwner=%d largestGroupMissionUnitId=%d largestGroupMissionQueue=%d largestGroupWounded=%d largestGroupIncomingJoiners=%d unitTypes=%s unitAI=%s",
++				iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameSummaryQuotedCityName(&kCity).GetCString(), kCityUnits.iMilitaryUnits, (int)aiGroupIds.size(), (pLargestGroup == NULL ? -1 : pLargestGroup->getID()), (pLargestGroup == NULL ? 0 : pLargestGroup->getNumUnits()), (pLargestGroupHead == NULL ? "-" : getSASGameSummaryUnitAIType(pLargestGroupHead->AI_getUnitAIType())),
++				(pLargestGroup == NULL ? NO_ACTIVITY : pLargestGroup->getActivityType()), (pLargestGroup == NULL ? "-" : getSASGameSummaryMissionType(pLargestGroup->getMissionType(0))), (pLargestGroupAI == NULL ? NO_MISSIONAI : pLargestGroupAI->AI_getMissionAIType()),
++				(pLargestGroupMissionPlot == NULL ? -1 : pLargestGroupMissionPlot->getX()), (pLargestGroupMissionPlot == NULL ? -1 : pLargestGroupMissionPlot->getY()), (pLargestGroupMissionUnit == NULL ? -1 : pLargestGroupMissionUnit->getOwner()), (pLargestGroupMissionUnit == NULL ? -1 : pLargestGroupMissionUnit->getID()), (pLargestGroup == NULL ? 0 : pLargestGroup->getLengthMissionQueue()),
++				iLargestGroupWounded, iLargestGroupIncomingJoiners, getSASGameSummaryOrDash(szUnitTypes).GetCString(), getSASGameSummaryOrDash(szUnitAI).GetCString());
++	}
+ }
+ 
+ static void logSASGameSummaryCities(PlayerTypes ePlayer, int iGameTurn)
+@@ -2687,6 +2804,136 @@ void logSASGameSummaryGreatPersonJoined(CvUnit const* pUnit, CvCity const* pCity
+ 			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameSummaryUnitType(pUnit->getUnitType()), pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), eSpecialist == NO_SPECIALIST ? "-" : GC.getInfo(eSpecialist).getType(), pCity->getFreeSpecialistCount(eSpecialist));
+ }
+ 
++// <!-- custom: Great Person births and city joining were already recorded, but other completed Great Person missions disappeared from the summary when the unit was consumed. Record the rare completed outcome and its concrete gain without logging AI candidate values or reasoning. (GPT-5.6-Sol) -->
++void logSASGameSummaryGreatPersonConstructed(CvUnit const* pUnit, CvCity const* pCity, BuildingTypes eBuilding)
++{
++	if (pUnit == NULL || pCity == NULL || eBuilding == NO_BUILDING)
++		return;
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=GREAT_PERSON_USED use=CONSTRUCT_BUILDING player=%d unitId=%d unit=%s cityId=%d city=%S building=%s",
++			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameSummaryUnitType(pUnit->getUnitType()), pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), getSASGameSummaryBuildingType(eBuilding));
++}
++
++void logSASGameSummaryGreatPersonDiscovered(CvUnit const* pUnit, TechTypes eTech, int iResearch)
++{
++	if (pUnit == NULL || eTech == NO_TECH)
++		return;
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=GREAT_PERSON_USED use=DISCOVER_TECH player=%d unitId=%d unit=%s x=%d y=%d tech=%s research=%d",
++			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameSummaryUnitType(pUnit->getUnitType()), pUnit->getX(), pUnit->getY(), getSASGameSummaryTechType(eTech), iResearch);
++}
++
++void logSASGameSummaryGreatPersonHurried(CvUnit const* pUnit, CvCity const* pCity, BuildingTypes eBuilding, int iProduction)
++{
++	if (pUnit == NULL || pCity == NULL || eBuilding == NO_BUILDING)
++		return;
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=GREAT_PERSON_USED use=HURRY_BUILDING player=%d unitId=%d unit=%s cityId=%d city=%S building=%s production=%d",
++			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameSummaryUnitType(pUnit->getUnitType()), pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), getSASGameSummaryBuildingType(eBuilding), iProduction);
++}
++
++void logSASGameSummaryGreatPersonTradeMission(CvUnit const* pUnit, CvCity const* pCity, int iGold)
++{
++	if (pUnit == NULL || pCity == NULL)
++		return;
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=GREAT_PERSON_USED use=TRADE_MISSION player=%d unitId=%d unit=%s targetPlayer=%d cityId=%d city=%S gold=%d",
++			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameSummaryUnitType(pUnit->getUnitType()), pCity->getOwner(), pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), iGold);
++}
++
++void logSASGameSummaryGreatPersonGreatWork(CvUnit const* pUnit, CvCity const* pCity, int iCulture)
++{
++	if (pUnit == NULL || pCity == NULL)
++		return;
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=GREAT_PERSON_USED use=GREAT_WORK player=%d unitId=%d unit=%s cityId=%d city=%S culture=%d",
++			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameSummaryUnitType(pUnit->getUnitType()), pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), iCulture);
++}
++
++void logSASGameSummaryGreatPersonInfiltrated(CvUnit const* pUnit, CvCity const* pCity, int iEspionage)
++{
++	if (pUnit == NULL || pCity == NULL)
++		return;
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=GREAT_PERSON_USED use=INFILTRATE player=%d unitId=%d unit=%s targetPlayer=%d targetTeam=%d cityId=%d city=%S espionage=%d",
++			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameSummaryUnitType(pUnit->getUnitType()), pCity->getOwner(), pCity->getTeam(), pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), iEspionage);
++}
++
++void logSASGameSummaryGreatPersonGoldenAgeConsumed(CvUnit const* pUnit)
++{
++	if (pUnit == NULL)
++		return;
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=GREAT_PERSON_USED use=GOLDEN_AGE player=%d unitId=%d unit=%s x=%d y=%d",
++			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameSummaryUnitType(pUnit->getUnitType()), pUnit->getX(), pUnit->getY());
++}
++
++void logSASGameSummaryGreatPersonDied(CvUnit const* pUnit, PlayerTypes eResponsiblePlayer, char const* szCause)
++{
++	if (pUnit == NULL || (!pUnit->isGoldenAge() && pUnit->getUnitInfo().getLeaderExperience() <= 0))
++		return;
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=GREAT_PERSON_DIED player=%d unitId=%d unit=%s x=%d y=%d cause=%s responsiblePlayer=%d",
++			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameSummaryUnitType(pUnit->getUnitType()), pUnit->getX(), pUnit->getY(), szCause, eResponsiblePlayer);
++}
++
++// <!-- custom: Periodic espionage totals showed investment against each rival but not what those points accomplished. Record only completed missions and actual interceptions at game-summary level 2; mission selection and movement reasoning remain BBAI diagnostics. Resolve iExtraData to XML types so stolen technologies and sabotaged buildings/projects/units are readable. (GPT-5.6-Sol) -->
++void logSASGameSummaryEspionageMission(CvUnit const* pUnit, EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot, int iExtraData, int iCost, int iEPBefore, int iEPAfter, ImprovementTypes eTargetImprovement, RouteTypes eTargetRoute, UnitTypes eTargetUnit, int iEffectValue, char const* szEffectKind)
++{
++	if (pUnit == NULL || eMission == NO_ESPIONAGEMISSION)
++		return;
++	CvEspionageMissionInfo const& kMission = GC.getInfo(eMission);
++	char const* szTargetKind = "-";
++	char const* szTargetType = "-";
++	if (kMission.isDestroyImprovement())
++	{
++		if (eTargetImprovement != NO_IMPROVEMENT)
++		{
++			szTargetKind = "improvement";
++			szTargetType = getSASGameSummaryImprovementType(eTargetImprovement);
++		}
++		else if (eTargetRoute != NO_ROUTE)
++		{
++			szTargetKind = "route";
++			szTargetType = getSASGameSummaryRouteType(eTargetRoute);
++		}
++	}
++	else if (kMission.getDestroyBuildingCostFactor() > 0)
++	{
++		szTargetKind = "building";
++		szTargetType = getSASGameSummaryBuildingType((BuildingTypes)iExtraData);
++	}
++	else if (kMission.getDestroyProjectCostFactor() > 0)
++	{
++		szTargetKind = "project";
++		szTargetType = getSASGameSummaryProjectType((ProjectTypes)iExtraData);
++	}
++	else if (kMission.getDestroyUnitCostFactor() > 0 || kMission.getBuyUnitCostFactor() > 0)
++	{
++		szTargetKind = "unit";
++		szTargetType = getSASGameSummaryUnitType(eTargetUnit);
++	}
++	else if (kMission.getBuyTechCostFactor() > 0)
++	{
++		szTargetKind = "tech";
++		szTargetType = getSASGameSummaryTechType((TechTypes)iExtraData);
++	}
++	else if (kMission.getSwitchCivicCostFactor() > 0)
++	{
++		szTargetKind = "civic";
++		szTargetType = getSASGameSummaryCivicType((CivicTypes)iExtraData);
++	}
++	else if (kMission.getSwitchReligionCostFactor() > 0)
++	{
++		szTargetKind = "religion";
++		szTargetType = getSASGameSummaryReligionType((ReligionTypes)iExtraData);
++	}
++	CvCity const* pCity = (pPlot == NULL ? NULL : pPlot->getPlotCity());
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=ESPIONAGE_MISSION player=%d spyId=%d spy=%s spyAI=%s targetPlayer=%d targetTeam=%d mission=%s cost=%d epBefore=%d epAfter=%d cityId=%d city=%S x=%d y=%d targetKind=%s target=%s effectKind=%s effectValue=%d extraData=%d fortifyTurns=%d",
++			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameSummaryUnitType(pUnit->getUnitType()), getSASGameSummaryUnitAIType(pUnit->AI_getUnitAIType()), eTargetPlayer, eTargetPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eTargetPlayer).getTeam(), getSASGameSummaryEspionageMissionType(eMission), iCost, iEPBefore, iEPAfter, pCity == NULL ? -1 : pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), pPlot == NULL ? -1 : pPlot->getX(), pPlot == NULL ? -1 : pPlot->getY(), szTargetKind, szTargetType, szEffectKind, iEffectValue, iExtraData, pUnit->getFortifyTurns());
++}
++
++void logSASGameSummarySpyIntercepted(CvUnit const* pUnit, PlayerTypes eTargetPlayer, char const* szPhase, int iModifier, int iInterceptChanceX100)
++{
++	if (pUnit == NULL)
++		return;
++	CvCity const* pCity = pUnit->getPlot().getPlotCity();
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=SPY_INTERCEPTED player=%d spyId=%d spy=%s spyAI=%s targetPlayer=%d targetTeam=%d phase=%s x=%d y=%d cityId=%d city=%S modifier=%d interceptChanceX100=%d fortifyTurns=%d",
++			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameSummaryUnitType(pUnit->getUnitType()), getSASGameSummaryUnitAIType(pUnit->AI_getUnitAIType()), eTargetPlayer, eTargetPlayer == NO_PLAYER ? NO_TEAM : GET_PLAYER(eTargetPlayer).getTeam(), szPhase, pUnit->getX(), pUnit->getY(), pCity == NULL ? -1 : pCity->getID(), getSASGameSummaryQuotedCityName(pCity).GetCString(), iModifier, iInterceptChanceX100, pUnit->getFortifyTurns());
++}
++
+ void logSASGameSummaryGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit const* pTargetUnit, PromotionTypes ePromotion)
+ {
+ 	if (pGreatGeneral == NULL || pTargetUnit == NULL)
+@@ -2712,6 +2959,14 @@ void logSASGameSummaryUnitUpgraded(CvUnit const* pOldUnit, CvUnit const* pNewUni
+ 			GC.getGame().getGameTurn(), pOldUnit->getOwner(), pOldUnit->getID(), pNewUnit->getID(), getSASGameSummaryUnitType(pOldUnit->getUnitType()), getSASGameSummaryUnitType(pNewUnit->getUnitType()), getSASGameSummaryUnitAIType(pNewUnit->AI_getUnitAIType()), pNewUnit->getX(), pNewUnit->getY(), iCost, pOldUnit->getExperience(), pNewUnit->getExperience(), pOldUnit->getLevel(), pNewUnit->getLevel());
+ }
+ 
++void logSASGameSummaryUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit const* pNewUnit)
++{
++	if (pNewUnit == NULL)
++		return;
++	logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=UNIT_CAPTURED oldOwner=%d newOwner=%d oldUnit=%s newUnitId=%d newUnit=%s newUnitAI=%s x=%d y=%d",
++			GC.getGame().getGameTurn(), eOldOwner, pNewUnit->getOwner(), getSASGameSummaryUnitType(eOldUnitType), pNewUnit->getID(), getSASGameSummaryUnitType(pNewUnit->getUnitType()), getSASGameSummaryUnitAIType(pNewUnit->AI_getUnitAIType()), pNewUnit->getX(), pNewUnit->getY());
++}
++
+ void logSASGameSummaryCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
+ {
+ 	if (pWinner == NULL || pLoser == NULL)
+@@ -2746,6 +3001,7 @@ void logSASGameSummaryCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
+ 		logSASGameSummary("GAME_SUMMARY_ACTION turn=%d type=GREAT_GENERAL_UNIT_DIED player=%d unitId=%d unit=%s attachedGreatGeneral=%s winnerPlayer=%d winnerUnitId=%d winnerUnit=%s x=%d y=%d",
+ 				GC.getGame().getGameTurn(), eLoser, pLoser->getID(), getSASGameSummaryUnitType(pLoser->getUnitType()), getSASGameSummaryUnitType(pLoser->getLeaderUnitType()), eWinner, pWinner->getID(), getSASGameSummaryUnitType(pWinner->getUnitType()), pLoser->getX(), pLoser->getY());
+ 	}
++	logSASGameSummaryGreatPersonDied(pLoser, eWinner, "COMBAT");
+ 	if (gGameSummaryLogLevel >= 3)
+ 	{
+ 		logSASGameSummary("GAME_SUMMARY_BATTLE turn=%d winner=%d loser=%d winnerUnit=%s loserUnit=%s x=%d y=%d cityPlot=%d winnerBaseStr=%d loserBaseStr=%d winnerDamage=%d loserDamage=%d winnerLeaderUnit=%s loserLeaderUnit=%s",
+
+diff --git a/CvGameCoreDLL/SASGameSummaryLog.h b/CvGameCoreDLL/SASGameSummaryLog.h
+index 40cfb3943..cb3f5c613 100644
+--- a/CvGameCoreDLL/SASGameSummaryLog.h
++++ b/CvGameCoreDLL/SASGameSummaryLog.h
+@@ -38,9 +38,20 @@ void logSASGameSummaryPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived);
+ void logSASGameSummaryAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus);
+ void logSASGameSummaryGreatPersonBorn(CvUnit const* pUnit, PlayerTypes ePlayer, CvCity const* pCity);
+ void logSASGameSummaryGreatPersonJoined(CvUnit const* pUnit, CvCity const* pCity, SpecialistTypes eSpecialist);
++void logSASGameSummaryGreatPersonConstructed(CvUnit const* pUnit, CvCity const* pCity, BuildingTypes eBuilding);
++void logSASGameSummaryGreatPersonDiscovered(CvUnit const* pUnit, TechTypes eTech, int iResearch);
++void logSASGameSummaryGreatPersonHurried(CvUnit const* pUnit, CvCity const* pCity, BuildingTypes eBuilding, int iProduction);
++void logSASGameSummaryGreatPersonTradeMission(CvUnit const* pUnit, CvCity const* pCity, int iGold);
++void logSASGameSummaryGreatPersonGreatWork(CvUnit const* pUnit, CvCity const* pCity, int iCulture);
++void logSASGameSummaryGreatPersonInfiltrated(CvUnit const* pUnit, CvCity const* pCity, int iEspionage);
++void logSASGameSummaryGreatPersonGoldenAgeConsumed(CvUnit const* pUnit);
++void logSASGameSummaryGreatPersonDied(CvUnit const* pUnit, PlayerTypes eResponsiblePlayer, char const* szCause);
++void logSASGameSummaryEspionageMission(CvUnit const* pUnit, EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot, int iExtraData, int iCost, int iEPBefore, int iEPAfter, ImprovementTypes eTargetImprovement, RouteTypes eTargetRoute, UnitTypes eTargetUnit, int iEffectValue, char const* szEffectKind);
++void logSASGameSummarySpyIntercepted(CvUnit const* pUnit, PlayerTypes eTargetPlayer, char const* szPhase, int iModifier, int iInterceptChanceX100);
+ void logSASGameSummaryGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit const* pTargetUnit, PromotionTypes ePromotion);
+ void logSASGameSummaryUnitScrapped(CvUnit const* pUnit);
+ void logSASGameSummaryUnitUpgraded(CvUnit const* pOldUnit, CvUnit const* pNewUnit, int iCost);
++void logSASGameSummaryUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit const* pNewUnit);
+ void logSASGameSummaryCombatResult(CvUnit const* pWinner, CvUnit const* pLoser);
+ void logSASGameSummaryBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus);
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=69775

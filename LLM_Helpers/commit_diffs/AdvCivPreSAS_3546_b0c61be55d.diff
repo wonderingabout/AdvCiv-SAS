@@ -1,0 +1,71 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3546
+# Commit: b0c61be55d485aee9a35f23a48d49f4827eef586
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8f8d4558d9188ea2367396e7f8c3cba8c55834fc
+# Title: Expose CvGame::setVictoryValid to Python
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGame.h
+7	0	CvGameCoreDLL/CyGame.cpp
+1	0	CvGameCoreDLL/CyGame.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 6c797946f..2a0094034 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -621,7 +621,7 @@ public:
+ 	{
+ 		return GC.getInitCore().getVictory(eIndex);
+ 	}
+-	void setVictoryValid(VictoryTypes eVict, bool bValid);
++	void setVictoryValid(VictoryTypes eVict, bool bValid); // (advc: Exposed to Python)
+ 
+ 	bool isSpecialUnitValid(SpecialUnitTypes eIndex) const;														// Exposed to Python
+ 	void makeSpecialUnitValid(SpecialUnitTypes eIndex);													// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index c6c6e13d6..b808f1d93 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -720,6 +720,13 @@ int CyGame::getTeamScore(int /*TeamTypes*/ eTeam)
+ 	return m_kGame.getTeamScore((TeamTypes)eTeam);
+ }
+ 
++/*	advc: Exposed so that players can fix accidental settings
++	through the Python console */
++void CyGame::setVictoryValid(int iVictory, bool b)
++{
++	m_kGame.setVictoryValid((VictoryTypes)iVictory, b);
++}
++
+ bool CyGame::isOption(int /*GameOptionTypes*/ eIndex)
+ {
+ 	return m_kGame.isOption((GameOptionTypes)eIndex);
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index 5cb909423..0bb03f5e1 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -187,6 +187,7 @@ public:
+ 	int /*TeamTypes*/ getRankTeam(int iRank);
+ 	int getTeamRank(int /*TeamTypes*/ iIndex);
+ 	int getTeamScore(int /*TeamTypes*/ iIndex);
++	void setVictoryValid(int /*VictoryTypes*/ iVictory, bool bValid); // advc
+ 	bool isOption(int /*GameOptionTypes*/ eIndex);
+ 	void setOption(int /*GameOptionTypes*/ eIndex, bool bEnabled);
+ 	bool isMPOption(int /*MultiplayerOptionTypes*/ eIndex);
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1725

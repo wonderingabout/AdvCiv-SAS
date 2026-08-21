@@ -1,0 +1,67 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6078
+# Commit: 10c6e91c1d0aa0ad5bc0a7900b3fb89e6332f721
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b80afdad17c550772150ccfc41ed01067897335c
+# Title: Bump the github-actions group across 1 directory with 2 updates
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	.github/workflows/aip-predump-refresh.yml
+1	1	.github/workflows/build.yml
+1	1	.github/workflows/python-ruff.yml
+
+[PATCHES]
+
+diff --git a/.github/workflows/aip-predump-refresh.yml b/.github/workflows/aip-predump-refresh.yml
+index d38888ded..a4a7775fe 100644
+--- a/.github/workflows/aip-predump-refresh.yml
++++ b/.github/workflows/aip-predump-refresh.yml
+@@ -31,7 +31,7 @@ jobs:
+       - uses: actions/<hidden-email>
+         with:
+           fetch-depth: 0
+-      - uses: actions/<hidden-email>
++      - uses: actions/<hidden-email>
+         with:
+           python-version: "3.x"
+       # <!-- custom: Bot helper: rebuild the committed AIP predump with the same deterministic writer used locally. A following diff step decides whether there is anything worth proposing as a PR. Runs manually, and also automatically after pushes to AIP dependency files. (GPT-5.5) -->
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index 87f519ded..153a631f3 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -14,7 +14,7 @@ jobs:
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/<hidden-email>
+-      - uses: actions/<hidden-email>
++      - uses: actions/<hidden-email>
+         with:
+           python-version: "3.x"
+       - run: python .github/workflows/build/temp_files.py
+
+diff --git a/.github/workflows/python-ruff.yml b/.github/workflows/python-ruff.yml
+index 35fa15615..0bdeeba13 100644
+--- a/.github/workflows/python-ruff.yml
++++ b/.github/workflows/python-ruff.yml
+@@ -23,7 +23,7 @@ jobs:
+     steps:
+       - uses: actions/<hidden-email>
+       - name: Install Ruff
+-        uses: astral-sh/<hidden-email>
++        uses: astral-sh/<hidden-email>
+         with:
+           version: "latest"
+           args: "--version"
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1654

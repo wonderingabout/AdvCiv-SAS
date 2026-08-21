@@ -1,0 +1,137 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3177
+# Commit: a9fde73b885a603fe65c776e530d274b506c21cd
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 92218e82051b074d8f4fd5ed3b720e5d84c0d084
+# Title: Refactor AI Auto Play adjustments for interface messages
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+34	30	CvGameCoreDLL/CvDLLInterfaceIBase.cpp
+8	7	CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLInterfaceIBase.cpp b/CvGameCoreDLL/CvDLLInterfaceIBase.cpp
+index 027cb77fc..6eca5545f 100644
+--- a/CvGameCoreDLL/CvDLLInterfaceIBase.cpp
++++ b/CvGameCoreDLL/CvDLLInterfaceIBase.cpp
+@@ -21,40 +21,44 @@ void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
+ 	if (eFlashColor == NO_COLOR)
+ 		eFlashColor = GC.getColorType("WHITE"); // </advc>
+ 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+-	if(kPlayer.isHuman() ||
+-		/*  <advc.700> Want message archive to be available when human
+-			takes over. AI messages expire just like human messages. */
+-		(GC.getGame().isOption(GAMEOPTION_RISE_FALL) &&
+-		!kPlayer.isHumanDisabled() &&
+-		GC.getGame().getRiseFall().isDeliverMessages(ePlayer)))
+-	{	// </advc.700>
+-		addMessageExternal(ePlayer, bForce
+-				&& !gDLL->getEngineIFace()->isGlobeviewUp(), // advc.106
+-				iLength, szString, pszSound, eType, pszIcon, eFlashColor, iFlashX, iFlashY,
+-				bShowOffScreenArrows, bShowOnScreenArrows);
+-	}
+-	//else if (GC.getGame().getActivePlayer() == ePlayer)
+-	// advc.700: Replacing the above
+-	else if(!kPlayer.isHuman() && kPlayer.isHumanDisabled())
++	// <advc.700>
++	bool const bRiseFall = GC.getGame().isOption(GAMEOPTION_RISE_FALL);
++	// Adjustments for AI Auto Play
++	if (kPlayer.isHumanDisabled()) // Replacing getActivePlayer check
+ 	{
+-		// this means ePlayer is human, but currently using auto-play (K-Mod)
+-		if(eType == MESSAGE_TYPE_MAJOR_EVENT || eType == MESSAGE_TYPE_CHAT ||
+-				eType == MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY) // advc.106b
++		if (bRiseFall) // Silent AI Auto Play in R&F games
++			return; // </advc.700>
++		if (eType != MESSAGE_TYPE_MAJOR_EVENT && eType != MESSAGE_TYPE_CHAT && // K-Mod
++			eType != MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY) // advc.106b
+ 		{
+-			addMessageExternal(ePlayer,
+-				/*  advc.127: bForce=true causes the event to be announced immediately,
+-					whereas bForce=false delays the announcement until the start of the next turn.
+-					bForce=true should make Auto Play easier to follow.
+-					Also set pszSound to NULL; no sounds during Auto Play. */
+-					true, iLength, szString, NULL, eType, NULL,
+-					//NO_COLOR, -1, -1, // (K-Mod)
+-					/*  advc.127: Don't want stuff to flash during Auto Play,
+-						but pszIcon=NULL is enough to prevent this. No need to
+-						discard the color and coordinates. */
+-					eFlashColor, iFlashX, iFlashY,
+-					false, false);
++			return;
+ 		}
++		// <advc.127>
++		// Announce immediately; don't wait until the active player's next turn.
++		bForce = true;
++		// Don't exceed the default display time
++		iLength = std::min(iLength, GC.getEVENT_MESSAGE_TIME());
++		pszSound = NULL;
++		/*	K-Mod had also discarded the "flash" info. That's used for the
++			text color and coordinates stored in the Turn Log -- not just
++			for the (disabled) icon. */
++		// </advc.127>
++		pszIcon = NULL;
++		bShowOffScreenArrows = bShowOnScreenArrows = false;
++	}
++	else if (!kPlayer.isHuman() &&
++		/*  advc.700: Want message archive to be available when human
++			takes over. AI messages expire just like human messages. */
++		!(bRiseFall && GC.getGame().getRiseFall().isDeliverMessages(ePlayer)))
++	{
++		return;
+ 	}
++	// <advc.106>
++	if (!gDLL->getEngineIFace()->isGlobeviewUp())
++		bForce = true; // </advc.106>
++	addMessageExternal(ePlayer, bForce, iLength, szString,
++			pszSound, eType, pszIcon, eFlashColor, iFlashX, iFlashY,
++			bShowOffScreenArrows, bShowOnScreenArrows);
+ }
+ 
+ void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
+
+diff --git a/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h b/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+index cfccc928f..694056d8e 100644
+--- a/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+@@ -84,19 +84,20 @@ public:
+ 		return const_cast<CvDLLInterfaceIFaceBase*>(this)->nextSelectedCitiesNode(const_cast<CLLNode<IDInfo>*>(pNode));
+ 	} // </advc>
+ 	virtual CLLNode<IDInfo>* headSelectedCitiesNode() = 0;
+-	// advc.127: Renamed from "addMessage"; protected.
+-protected: virtual void addMessageExternal(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, LPCTSTR pszSound = NULL,
+-		InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
+-		int iFlashX = -1, int iFlashY = -1, bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false) = 0;
++	// <advc.127> Renamed from "addMessage", protected, default values removed.
++protected:
++	virtual void addMessageExternal(PlayerTypes, bool, int, CvWString, LPCTSTR,
++			InterfaceMessageTypes, LPCSTR, ColorTypes, int, int, bool, bool) = 0;
+ public:
+-	// K-Mod - block messages from being send to AI players. (because the game doesn't ever clear AI messages)
+-	// advc.127: Renamed from "addHumanMessage"
++	/*	K-Mod - block messages from being send to AI players
++		(because the game doesn't ever clear AI messages). */
++	/*	(Had been named "addHumanMessage" in K-Mod;
++		Definition moved into CvDLLInterfaceIFaceBase.cpp.) */ // </advc.127>
+ 	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString,
+ 			LPCTSTR pszSound = NULL, InterfaceMessageTypes eType = MESSAGE_TYPE_INFO,
+ 			LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
+ 			int iFlashX = -1, int iFlashY = -1,
+ 			bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false);
+-		// advc.127: Definition moved into a new file: CvDLLInterfaceIBase2.cpp
+ 	// advc: Wrapper for passing iFlashX, iFlashY more conveniently
+ 	void addMessage(PlayerTypes ePlayer, bool bForce, int iLength,
+ 			CvWString szString, CvPlot const& kPlot,
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5593

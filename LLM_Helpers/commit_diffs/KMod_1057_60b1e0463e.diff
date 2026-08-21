@@ -1,0 +1,108 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1057
+# Commit: 60b1e0463e36cf0189d8935e201da1e762a18d49
+# History segment: K-Mod history
+# Parent used for diff: d71a8b36828a4fa463fc29ad4eae3179bfab1de7
+# Title: Added CvTeamAI::AI_refuseWar, to check if war would be acceptable.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+31	21	CvGameCoreDLL/CvTeamAI.cpp
+1	0	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index b5bc48d5d..29773f5d4 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2647,28 +2647,10 @@ DenialTypes CvTeamAI::AI_vassalTrade(TeamTypes eTeam) const
+ 
+ 				// K-Mod. New rule: AI civs won't accept a vassal if it would mean joining a war they would never otherwise join.
+ 				// Note: the following denials actually come from kMasterTeam, not this team. This is just the only way to do it.
+-				if (!kMasterTeam.isHuman())
+-				{
+-					AttitudeTypes eAttitude = kMasterTeam.AI_getAttitude(i);
++				if (kMasterTeam.AI_refuseWar(i))
++					return DENIAL_ATTITUDE_THEM;
+ 
+-					if (kMasterTeam.AI_noWarAttitudeProb(eAttitude) >= 100)
+-					{
+-						// ok, so we wouldn't independantly choose this war, but could we be bought into it?
+-						// If any of our team would refuse, then the team refuses. (cf. AI_declareWarTrade)
+-						for (PlayerTypes j = (PlayerTypes)0; j < MAX_CIV_PLAYERS; j=(PlayerTypes)(j+1))
+-						{
+-							const CvPlayerAI& kLoopPlayer = GET_PLAYER(j);
+-							if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == getID())
+-							{
+-								if (eAttitude > GC.getLeaderHeadInfo(kLoopPlayer.getPersonalityType()).getDeclareWarThemRefuseAttitudeThreshold())
+-								{
+-									return DENIAL_ATTITUDE_THEM;
+-								}
+-							}
+-						}
+-					}
+-					// (note: if we're concerned about AI_startWarVal, then that should be checked in the trade value part; not the trade denial part.)
+-				}
++				// (if we're concerned about AI_startWarVal, then that should be checked in the trade value part; not the trade denial part.)
+ 			}
+ 			//
+ 		}
+@@ -3294,6 +3276,34 @@ bool CvTeamAI::AI_refusePeace(TeamTypes ePeaceTeam) const
+ 	}
+ 	return false;
+ }
++
++bool CvTeamAI::AI_refuseWar(TeamTypes eWarTeam) const
++{
++	if (isHuman())
++		return false;
++
++	AttitudeTypes eAttitude = AI_getAttitude(eWarTeam);
++
++	if (AI_noWarAttitudeProb(eAttitude) >= 100)
++	{
++		// ok, so we wouldn't independantly choose this war, but could we be bought into it?
++		// If any of our team would refuse, then the team refuses. (cf. AI_declareWarTrade)
++		for (PlayerTypes i = (PlayerTypes)0; i < MAX_CIV_PLAYERS; i=(PlayerTypes)(i+1))
++		{
++			const CvPlayerAI& kLoopPlayer = GET_PLAYER(i);
++			if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == getID())
++			{
++				if (eAttitude > GC.getLeaderHeadInfo(kLoopPlayer.getPersonalityType()).getDeclareWarThemRefuseAttitudeThreshold())
++				{
++					return true;
++				}
++			}
++		}
++	}
++
++	// otherwise, war is acceptable
++	return false;
++}
+ // K-Mod end
+ 
+ // the following is a bbai function which has been edited for K-Mod (most of the K-Mod changes are unmarked)
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 64bca71c5..3962a127e 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -116,6 +116,7 @@ public:
+ 	int AI_getAirPower() const; // K-Mod
+ 	int AI_getRivalAirPower( ) const;
+ 	bool AI_refusePeace(TeamTypes ePeaceTeam) const; // K-Mod. (refuse peace when we need war for conquest victory.)
++	bool AI_refuseWar(TeamTypes eWarTeam) const; // K-Mod. (is war an acceptable side effect for event choices, vassal deals, etc)
+ 	bool AI_acceptSurrender( TeamTypes eSurrenderTeam ) const;
+ 	bool AI_isOkayVassalTarget( TeamTypes eTeam ) const;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3326

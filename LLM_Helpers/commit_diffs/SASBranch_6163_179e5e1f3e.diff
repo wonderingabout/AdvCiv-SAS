@@ -1,0 +1,366 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6163
+# Commit: 179e5e1f3e000cae44d24bf2be0ed8f7fc0d6ffa
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0f6627db846ffc17fdb58a60fc278674f506d2fe
+# Title: (Fixed K-Mod bug) AI random-event building-change valuation missed percent normalization, making building creation or destruction worth 100 times the intende...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	.gitattributes
+-	-	Assets/CvGameCoreDLL.dll
+2	2	Assets/XML/GlobalDefines_advciv_sas.xml
+5	4	Assets/XML/Units/CIV4UnitInfos.xml
+2	0	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+107	0	_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt
+3	3	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+25	2	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 _1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index af37f65bb..e905fd3bc 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -45,6 +45,9 @@
+ # <!-- custom: Keep the reusable release-changelog example tracked for clones, future release work, and LLM/AI helpers, but exclude it from player/download archives. (ChatGPT-5.6-Sol) -->
+ /_1_AdvCiv-SAS/Docs/Modding_Ressources/changelog_release_example_6020.txt  export-ignore
+ 
++# <!-- custom: Keep the AdvCiv/K-Mod archaeology progress tracked so future clones and LLM/AI helpers can resume the systematic history audit, but exclude it from player/download archives. (ChatGPT-5.6-Sol) -->
++/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt  export-ignore
++
+ # <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5 + GPT-5.5) -->
+ /.github/             export-ignore
+ /.gitattributes       export-ignore
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 2a109baef..7a13f83ef 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1808,10 +1808,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_WORKER_FIRST_CITY_ADDITIONAL_MIN_HIGHEST_POPULATION</DefineName>
+ 		<iDefineIntVal>5</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Maximum fresh build time, expressed in Normal-speed-equivalent turns, that is considered fast enough for an AI city to train a non-combat food-production unit locally. The DLL scales this gate by the current game speed's TrainPercent, matching the same game-speed factor used in unit production costs: for example, the default 5 becomes about 10 turns on Marathon (200%). A city at or below the adjusted gate keeps the choice immediately, allowing several capable cities to rebuild Workers in parallel after losses. A slower city normally defers to the preferred same-area food/hammer pump, but if every city is slow the preferred available city still builds instead of waiting. 0 disables this allocation optimization. (GPT-5.6 Thinking) -->
++	<!-- custom: Maximum fresh build time, expressed in Normal-speed-equivalent turns, that is considered fast enough for an AI city to train a non-combat food-production unit locally. The DLL scales this gate by the current game speed's TrainPercent, matching the same game-speed factor used in unit production costs: for example, the default 6 becomes about 12 turns on Marathon (200%). A city at or below the adjusted gate keeps the choice immediately, allowing several capable cities to rebuild Workers in parallel after losses. A slower city normally defers to the preferred same-area food/hammer pump, but if every city is slow the preferred available city still builds instead of waiting. 0 disables this allocation optimization. See KI#198.2. (ChatGPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
+-		<iDefineIntVal>5</iDefineIntVal>
++		<iDefineIntVal>6</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Population tolerance for preferring a currently stagnant city over the largest eligible same-area city when a slow AI city delegates a non-combat food-production unit. The comparison is strict: 3 lets a stagnant population-8 city beat a population-10 city, but not population 7. Cities already training a food-production unit count as stagnant, intentionally allowing an efficient large city to produce several Workers or similar units in sequence. If no stagnant city is this close to the largest candidate, highest population wins. 0 disables the stagnant-city preference. (GPT-5.6 Thinking) -->
+ 	<Define>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 033eae140..7c98a86f4 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -1097,7 +1097,8 @@
+ 			</ProductionTraits>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>50</iCost>
++			<!-- custom: Worker cost was initially reduced from the Civ4/K-Mod 60-production baseline to 50 in AdvCiv-SAS, but 60 makes producing another Worker a more meaningful strategic investment once cities become productive instead of an almost automatic cheap choice. (ChatGPT-5.6-Sol) -->
++			<iCost>60</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -1350,7 +1351,7 @@
+ 			</ProductionTraits>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>50</iCost>
++			<iCost>60</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -1604,7 +1605,7 @@
+ 			</ProductionTraits>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>50</iCost>
++			<iCost>60</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -1858,7 +1859,7 @@
+ 			</ProductionTraits>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>50</iCost>
++			<iCost>60</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3026547f2..5d7f1f3dc 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -25370,6 +25370,8 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
+ 
+ 				iBuildingValue *= GC.getInfo(kGame.getGameSpeedType()).
+ 						getConstructPercent();
++				// <!-- custom: Fix inherited K-Mod/Base AdvCiv bug: ConstructPercent is a percentage, so normalize after applying it. Without /100, building-change event value is 100x too large. See KI#206. (ChatGPT-5.6-Sol) -->
++				iBuildingValue /= 100;
+ 				iValue += kEvent.getBuildingChange() * iBuildingValue;
+ 			}
+ 		}
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index e864af8c5..115617c9f 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -7,6 +7,7 @@ This is a non-exhaustive page containing some ressources i found helpful and gen
+ [Modding disclaimer and general information](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#modding-disclaimer-and-general-information)\
+ [DLL compilation guide (command-line workflow primarily for LLM/AI helpers)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md)\
+ [Release preparation/checklist (for user + LLM/AI helpers)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Release_Process.md)\
++[AdvCiv/K-Mod historical bug-archeology progress tracker](/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt)\
+ [A few useful tips](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#a-few-useful-tips)\
+ &emsp;[Insert a google drive image link in an html tag](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-a-google-drive-image-link-in-an-html-tag)\
+ &emsp;[Download media assets for example on youtube](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube)\
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt b/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt
+new file mode 100644
+index 000000000..49f31c7ca
+--- /dev/null
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt
+@@ -0,0 +1,107 @@
++AdvCiv / K-Mod historical bug archaeology progress
++Created 2026-08-19
++Maintained by wonderingabout + LLM/AI helpers
++
++Purpose
++-------
++Systematically review the historical AdvCiv and then K-Mod commit diffs for inherited bugs, regressions, suspicious behavior changes, and useful fixes that may still matter to AdvCiv-SAS.
++
++Primary source
++--------------
++The light-source ZIP's generated:
++  _SNAPSHOT_CONTEXT/commit_diffs/INDEX.txt
++  _SNAPSHOT_CONTEXT/commit_diffs/PATH_HISTORY_INDEX.txt
++  _SNAPSHOT_CONTEXT/commit_diffs/<segment>_<practical-count>_<short-sha>.diff
++
++The progress file itself is tracked so a future clone/LLM can resume the audit, but is export-ignored from player/release archives. The generated commit-diff archive does not need to be tracked in Git.
++
++History inventory at tracker creation
++-------------------------------------
++AdvCivPreSAS: 3,094 commits, practical 4343 -> 1250
++  full=2,737, partial=202, summary-only=155
++KMod: 1,249 commits, practical 1249 -> 1
++  full=1,249
++Total historical commits in planned systematic sweep: 4,343
++
++Default sweep order
++-------------------
++1. AdvCivPreSAS newest -> oldest: practical 4343 down to 1250.
++2. KMod newest -> oldest: practical 1249 down to 1.
++3. When a finding points across a lineage boundary, trace that specific code farther immediately rather than waiting for the broad sweep to reach it.
++4. Do not "fix" a merely suspicious historical choice without understanding current semantics and gameplay impact.
++
++Counters
++--------
++Systematic historical commits reviewed: 0 / 4,343
++Targeted lineage traces completed: 3 (KI#205, KI#206, S002)
++Confirmed defects tracked here: 3
++  inherited/pre-SAS defects: 2
++  SAS-specific regressions: 1
++Confirmed defects fixed: 3
++Resolved non-defect/currently-safe audit candidates: 2
++Open current-tree suspects awaiting archaeology/semantic decision: 0
++Confirmed defects newly found by the current XML-cost audit: 1 (KI#206)
++Prior reference defects already found before this tracker: 2 (the two independent KI#205 defects)
++
++Confirmed findings / lineage references
++---------------------------------------
++F001 - KI#205 K-Mod World-Wonder production-rank bug - FIXED
++  Classification: inherited K-Mod/Base AdvCiv bug
++  Historical origin traced to KMod practical 1030, SHA 418581f6bd:
++    "Made some large style adjustments to CvCityAI::AI_buildingValue"
++  The World-Wonder focus gate used the inverted production-rank condition and rejected the strongest production cities.
++  Fixed in SAS practical 6127, SHA 8951d71560.
++
++F002 - KI#205 cheap-Wonder game-speed cap regression - FIXED
++  Classification: AdvCiv-SAS regression
++  Regression traced to SAS practical 5477, SHA b33174f828.
++  The cheap-Wonder gate compared effective getProductionNeeded(Building) against a Normal-speed/raw-style cap without scaling the cap by ConstructPercent.
++  Fixed in SAS practical 6127, SHA 8951d71560.
++
++F003 - KI#206 AI random-event building-change percent normalization - FIXED
++  Classification: inherited K-Mod/Base AdvCiv bug
++  Discovery route: found by ChatGPT-5.6-Sol in the current-tree XML/raw-cost semantic audit after KI#205, before the systematic historical sweep started.
++  Current Base AdvCiv 1.14 still multiplies iBuildingValue by ConstructPercent without the required /100.
++  KMod practical 3, SHA 2414225e64 (initial source-bearing K-Mod commit, 27 Dec 2010), already contains the missing normalization in AI_eventValue.
++  KMod practical 478, SHA bfc3c3cca7:
++    "Added some missing components to the AI's evaluation of event options."
++  added /=100 to both analogous unit-event paths but left the building-event path unnormalized.
++  Practical 478 is therefore a revealing partial correction, not claimed as the origin of the bug.
++  This proves the issue is pre-SAS. The available history does not establish whether the original omission was introduced by K-Mod or inherited from BtS/BBAI before K-Mod practical 3.
++  The K-Mod trace was done locally from the light-source ZIP commit-diff archive without Internet lookup.
++  Fixed in the current post-6162 audit commit (expected practical 6163).
++
++Resolved audit candidates
++-------------------------
++S001 - CvUnit::gift / AI_processPeacetimeGrantValue game-speed semantics - NO FIX
++  Classification: currently safe under AdvCiv-SAS game-speed data; no SAS defect found.
++  Unit gifts feed raw XML unit cost into a common peacetime trade/grant normalization path that divides by ResearchPercent.
++  Every current SAS game speed uses the same TrainPercent and ResearchPercent (and also the same ConstructPercent and BuildPercent): 33, 50, 67, 100, 150, 200, 300 and 400 respectively across the eight speeds.
++  Therefore the production-vs-research percentage distinction does not create game-speed drift in current SAS. Revisit only if those speed percentages are deliberately decoupled in the future.
++
++S002 - CvPlayerAI::AI_espionageVal mixed production-cost semantics - NO FIX
++  Classification: inherited K-Mod rough valuation design; mixed cost APIs alone do not establish a bug.
++  KMod practical 161, SHA f9e8a3c4ce, deliberately increased project-destruction valuation while retaining getProductionNeeded(Project).
++  KMod practical 960, SHA c4a6ecbc7a, deliberately rewrote destroy-building valuation around raw building cost plus production turns and AI_buildingValue.
++  KMod practical 973, SHA 2bbcecb994, refined that formula again and explicitly described AI_espionageVal as a rough commerce-value heuristic; it also replaced the disabled buy-unit mission's relative AI_unitValue component with raw unit production cost.
++  The current building formula's important time/utility term already contains production-turn scaling, while projects intentionally use their effective production cost and special strategic multipliers. The buy-unit espionage mission remains disabled.
++  Conclusion: the formulas are heterogeneous by design and no current SAS correction is justified merely to make their cost APIs syntactically uniform. Revisit if espionage valuation itself is redesigned, not as an XMLCost bug.
++
++Systematic sweep progress
++-------------------------
++AdvCivPreSAS: NOT STARTED
++  Next: practical 4343, SHA 9679091523
++  Title: "Standalone bugfix for Tectonics' improperly disabled climate menu"
++
++KMod: WAITING FOR ADVCIV SWEEP
++  First planned: practical 1249, SHA d0a60f8b90
++  Title: "Improved German language text. (by Zholef)"
++
++Recording rules
++---------------
++- Record clean progress as ranges rather than one line per harmless commit.
++- For every suspect/finding worth preserving, record segment, practical commit number, SHA, title, relevant file/function, classification and final disposition.
++- Keep separate counts for open suspects, confirmed defects, actual fixes, inherited/pre-SAS bugs and SAS-specific regressions.
++- A summary-only or partial archived diff is not automatically "clean"; if its title/path is relevant, inspect adjacent history/current source or obtain fuller source before closing it.
++- Update Known Issues only for findings that deserve durable player/developer documentation; this tracker can hold weaker suspects and dead ends.
++- Prefer accuracy over finding a bug in every commit. Most commits should be harmless.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index 597da3e4d..70c98fd2e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -379,7 +379,7 @@ As of now, playable civilizations intentionally have no naval civ-specific units
+ | Carthage | CARTHAGE_NUMIDIAN_CAVALRY (HORSE_ARCHER; MOUNTED) → Keep (Keep; **MOUNTED_MELEE**) | Old → SAS: str 5→6; tech HORSEBACK_RIDING, ARCHERY→MOUNTED_COMBAT, HUNTING; free FLANKING1→RETREAT1; mods Withdraw 20→15; loses vsCombat MELEE 50; vs SAS HORSE_ARCHER: free none→RETREAT1; mods Withdraw 20→15 | Raises Numidian to Horse Archer-level strength and shifts from narrow anti-melee gimmick to more general mobile skirmisher/withdraw unit. |
+ | Celts | CELTIC_GALLIC_WARRIOR (SWORDSMAN; MELEE) → Keep (Keep; **MELEE_SHOCK**) | Old → SAS: h 40→42; free GUERILLA1→FIRST_STRIKE1; vs SAS SWORDSMAN: res IRON→COPPER, IRON; free none→FIRST_STRIKE1 | Guerilla hill-defense was too situational and a bad match for Brennus/Boudica aggressive profile; first-strike sword role is more generally useful; copper/iron access improves flexibility. |
+ | China | CHINA_CHOKONU (CROSSBOWMAN; ARCHER) → **CHINA_ZHUGE_NU** (Keep; **ARCHER_CROSSBOW**) | Old → SAS: h 60→65; tech MACHINERY, ARCHERY→ENGINEERING; bonus IRON→COPPER, IRON; free none→COLLATERAL_DAMAGE1; mods Collateral 50→15, FirstStrikes 2→1, FirstStrikeChance 0→1; loses vsCombat MELEE 50; vs SAS CROSSBOWMAN: res IRON→COPPER, IRON; free none→COLLATERAL_DAMAGE1; mods Collateral 0→15, CollateralMaxUnits 3→5, FirstStrikeChance 0→1 | Lower and less deterministic collateral/first-strike burst than the old Cho-Ko-Nu. Mixed first strikes and collateral remain useful against different targets (in particular firstStrike-immune ones), while free Collateral I can persist through upgrades. |
+-| Netherlands | NETHERLANDS_OOSTINDIEVAARDER (FRIGATE; NAVAL) → **NETHERLANDS_SWIFT_WORKER** (**WORKER**; **NONE**) | Old → SAS: str 8→0, h 90→50, mv 5→3; tech CHEMISTRY, ASTRONOMY→none; gains WorkRate 100; loses Bombard 12, Cargo 3; vs SAS WORKER: mv 2→3 | Late naval UU was too weak/situational; early Worker is useful on every map, better fits Dutch economy/growth, restores old BTS Fast Worker effect, and gives India real worker-UU company. And unlike India, the fairly late and situational Dutch civ-specific building counterbalances this civ-specific unit being quite strong. |
++| Netherlands | NETHERLANDS_OOSTINDIEVAARDER (FRIGATE; NAVAL) → **NETHERLANDS_SWIFT_WORKER** (**WORKER**; **NONE**) | Replaced the old Frigate UU (str 8, h 90, mv 5; CHEMISTRY + ASTRONOMY; Bombard 12, Cargo 3) with a new Worker UU (str 0, h 60, mv 3; no tech prerequisite; WorkRate 100); vs SAS WORKER: mv 2→3 | Late naval UU was too weak/situational; early Worker is useful on every map, better fits Dutch economy/growth, restores old BTS Fast Worker effect, and gives India real worker-UU company. And unlike India, the fairly late and situational Dutch civ-specific building counterbalances this civ-specific unit being quite strong. |
+ | Egypt | EGYPT_WARCHARIOT (CHARIOT; MOUNTED) → **EGYPTIAN_WAR_CHARIOT** (Keep; **MOUNTED_MELEE**) | Old → SAS: mods vsClass AXEMAN 100→75; vs SAS CHARIOT: str 4→5 | Keeps the War Chariot as a stronger early Chariot while reducing the old extreme anti-Axeman spike from +100% to +75%, preserving a threatening early unit without making its favored matchup too deterministic. |
+ | England | ENGLISH_REDCOAT (RIFLEMAN; GUN) → **ENGLISH_YEOMAN_ARCHER** (**CROSSBOWMAN**; **ARCHER_BOW_LONG**) | Old → SAS: str 14→7, h 110→60; tech RIFLING→ENGINEERING; mods Withdraw 0→25; gains FirstStrikes 1, vsCombat MELEE_SHOCK 30; loses vsCombat GUN 25, vsCombat MOUNTED 25; vs SAS CROSSBOWMAN: str 6→7, h 65→60; bonus IRON→none; mods vsCombat MELEE_SHOCK 50→30 | Moves England's civ-specific unit from late Rifleman timing to the Crossbowman slot. No Iron requirement, higher base strength and lower cost make the Yeoman more versatile than the generic Crossbowman and more relevant to England's earlier military window, while still fitting a defensive/economic civ profile. |
+ | Ethiopia | ETHIOPIAN_OROMO_WARRIOR (MUSKETMAN; GUN) → Keep | Old → SAS: str 9→13, h 80→100; tech GUNPOWDER→FIREARMS; free DRILL1, DRILL2→FIRST_STRIKE1; FirstStrikes 1->0; vs SAS MUSKETMAN: str 12→13, free none→FIRST_STRIKE1 | An overall stronger unit than the SAS musketman and the base musketman, rather than being overly first-strike specialized (keep the promotion rather than iFirstStrikes so later units can inherit it). |
+@@ -388,12 +388,12 @@ As of now, playable civilizations intentionally have no naval civ-specific units
+ | Greece | GREEK_PHALANX (AXEMAN; MELEE) → **GREEK_HOPLITE** (**SPEARMAN**; **MELEE_POLEARM**) | Old → SAS: gains CityDef 10; loses defVsClass CHARIOT 100, vsCombat MELEE 50; vs SAS SPEARMAN: mods vsCombat MELEE_SHOCK 10→25; gains CityDef 10 | Spear/polearm Hoplite is more accurate; SAS Spearman buff makes it better outside cities too, especially vs melee, while still guarding stacks against horse/camel archers and War Elephants. |
+ | Holy Rome | HOLY_ROMAN_LANDSKNECHT (PIKEMAN; MELEE) → **HOLY_ROMAN_HOUFNICE** (**CANNON**; **SIEGE**) | Old → SAS: str 6→13, h 60→130; tech ENGINEERING→CHEMISTRY, MACHINERY; bonus IRON→COPPER, IRON; gains Bombard 12, Collateral 100, CollateralLimit 200, CollateralMaxUnits 6; loses vsCombat MELEE 100, vsCombat MOUNTED 100; vs SAS CANNON: h 140→130; bonus IRON→COPPER, IRON | Old Landsknecht was a weak late defensive melee unit near guns; the cheaper Houfnice gives Charlemagne mobile offensive siege that stays useful into the Renaissance. City Bombard Damage remains selectable with experience rather than automatic, requiring a tradeoff against City Raider or other siege promotions. |
+ | Inca | INCAN_QUECHUA (WARRIOR; MELEE) → Keep (**SWORDSMAN**; **MELEE_SHOCK**) | Old → SAS: str 2→6, h 15→42; tech none→IRON_WORKING; bonus none→COPPER, IRON; bCanMoveImpassable 0->1; free COMBAT1→SENTRY; gains CityAtk 10; loses CityDef 25; vs SAS SWORDSMAN: res IRON→COPPER, IRON; bCanMoveImpassable 0->1; free none→SENTRY | AdvCiv Quechua was too weak and obsolete too quickly in the very early Warrior slot; later Swordsman-slot Quechua fits Inca's builder/economy profile and later historical identity better. Peak walking and Sentry-style scouting add gameplay variety at a stage where the extra mobility/vision is less likely to dominate the opening game. |
+-| India | INDIAN_FAST_WORKER (WORKER; NONE) → Keep | Old → SAS: h 60→50 | — |
++| India | INDIAN_FAST_WORKER (WORKER; NONE) → Keep | — | — |
+ | Japan | JAPAN_SAMURAI (MACEMAN; MELEE) → Keep (Keep; **MELEE_SHOCK**) | Old → SAS: h 70→65; tech CIVIL_SERVICE, MACHINERY→CIVIL_SERVICE, IRON_WORKING; bonus IRON→COPPER, IRON; free DRILL1→COMBAT2; gains FirstStrikeChance 1; loses FirstStrikes 2, vsCombat MELEE 50; vs SAS MACEMAN: free none→COMBAT2; mods vsCombat MELEE_SHOCK 25→50; gains FirstStrikeChance 1 | At this stage most units may already have COMBAT1 which is fairly ubiquitous, or we may inherit it from one of our upgraded units, or annoyingly purposely avoid to do so for human players: would make it too weak/useless; give a stronger one instead |
+ | Khmer | KHMER_BALLISTA_ELEPHANT (WAR_ELEPHANT; MOUNTED) → Keep (Keep; **MOUNTED_RANGED**) | Old → SAS: tech CONSTRUCTION, HORSEBACK_RIDING→MOUNTED_COMBAT, ANIMAL_HUSBANDRY; bonus IVORY→ELEPHANTS; loses vsCombat MOUNTED 50; vs SAS WAR_ELEPHANT: mods; gains FirstStrikes 1 | Ranged War Elephant gives different matchups than base melee War Elephant, especially vs Spearman/Pikeman and broader polearm counters. |
+ | Korea | KOREAN_HWACHA (CATAPULT; SIEGE) → Keep (**CANNON**; Keep) | Old → SAS: str 5→13, h 50→140; tech CONSTRUCTION→CHEMISTRY, MACHINERY; free none→COLLATERAL_DAMAGE1; mods Bombard 8→12, CollateralLimit 50→200, CollateralMaxUnits 6→7; loses vsCombat MELEE 50; vs SAS CANNON: res IRON→none; free none→COLLATERAL_DAMAGE1; mods CollateralMaxUnits 6→7 | Catapult/Trebuchet window is short; Cannon-slot Hwacha stays useful much longer and better fits Korean gunpowder/fire-arrow technology. |
+ | Mali | MALI_SKIRMISHER (ARCHER; ARCHER) → Keep (**LONGBOWMAN**; **ARCHER_BOW_SHORT**) | Old → SAS: str 4→5, h 25→45; tech ARCHERY→CONSTRUCTION, HUNTING; free none→FIRST_STRIKE1; mods CityDef 50→10; gains FirstStrikes 1; vs SAS LONGBOWMAN: str 4→5; free RETREAT1→FIRST_STRIKE1; mods CityDef 25→10, Withdraw 25→50 | Skirmisher becomes an active field defender/harasser instead of an early city garrison. |
+-| Maya | MAYA_HOLKAN (SPEARMAN; MELEE) → **MAYA_QUICK_WORKER** (**WORKER**; **NONE**) | Replace the military UU with a civilian Worker UU; vs SAS WORKER: WorkRate 100→125; cost 50 and movement 2 unchanged | Pacal/Maya have often underperformed or lost early in autoplay. The very weak base Civ4/AdvCiv Holkan, and the later SAS attempt to make it a more useful Spearman/skirmisher, still leave Maya with a narrow early military role and short usefulness window; the culture-oriented Ball Court is also relatively specialized rather than a broad compensating power spike. Moving the UU to an otherwise unused work-rate Worker role is therefore primarily an attempt to strengthen Maya more generally rather than force one military niche. The +25% work rate is compatible with Pacal's usual peaceful development but remains strategically open-ended: faster resources, roads, improvements and chops can support military logistics, expansion, economy or wonder building, making his Financial/Industrious profile more versatile. The theme also fits well: Maya agriculture and infrastructure relied on sustained landscape management and organized labor, while the design remains distinct from India's terrain-cost immunity and the Dutch Swift Worker's extra movement. It additionally gives a loose Civilization-series callback to Civ3's worker-oriented Maya, where the Agricultural/Industrious civilization could generate Workers from Javelin Thrower victories through Enslave. |
++| Maya | MAYA_HOLKAN (SPEARMAN; MELEE) → **MAYA_QUICK_WORKER** (**WORKER**; **NONE**) | Replace the military UU with a civilian Worker UU; vs SAS WORKER: WorkRate 100→125; cost 60 and movement 2 unchanged | Pacal/Maya have often underperformed or lost early in autoplay. The very weak base Civ4/AdvCiv Holkan, and the later SAS attempt to make it a more useful Spearman/skirmisher, still leave Maya with a narrow early military role and short usefulness window; the culture-oriented Ball Court is also relatively specialized rather than a broad compensating power spike. Moving the UU to an otherwise unused work-rate Worker role is therefore primarily an attempt to strengthen Maya more generally rather than force one military niche. The +25% work rate is compatible with Pacal's usual peaceful development but remains strategically open-ended: faster resources, roads, improvements and chops can support military logistics, expansion, economy or wonder building, making his Financial/Industrious profile more versatile. The theme also fits well: Maya agriculture and infrastructure relied on sustained landscape management and organized labor, while the design remains distinct from India's terrain-cost immunity and the Dutch Swift Worker's extra movement. It additionally gives a loose Civilization-series callback to Civ3's worker-oriented Maya, where the Agricultural/Industrious civilization could generate Workers from Javelin Thrower victories through Enslave. |
+ | Mongolia | MONGOL_KESHIK (HORSE_ARCHER; MOUNTED) → **MONGOL_KHISHIGTEN** (**HORSE_KNIGHT**; **MOUNTED_MELEE**) | Old → SAS: str 6→10, h 50→105; tech HORSEBACK_RIDING, ARCHERY→CHIVALRY, MOUNTED_COMBAT; bonus HORSE→HORSE, IRON; free none→BLITZKRIEG, RETREAT1; mods Withdraw 20→15; loses FirstStrikes 1, vsClass CATAPULT 50; vs SAS HORSE_KNIGHT: h 95→105; free none→BLITZKRIEG, RETREAT1; mods Withdraw 10→15; Ignores Terrain Movement Costs | Keshik window was too short before Knights; Horse Knight slot gives Mongolia a longer medieval cavalry window toward its historical peak. Free terrain movement, retreat, and Blitz emphasize tactical control over Cataphract-style raw strength. |
+ | Native America | NATIVE_AMERICA_DOG_SOLDIER (AXEMAN; MELEE) → Keep (Keep; **MELEE_SHOCK**) | Old → SAS: str 4→5; free none→FIRST_STRIKE1; loses vsCombat MELEE 100; vs SAS AXEMAN: res COPPER, IRON→none; free none→FIRST_STRIKE1 | No-metal anti-sword pressure without locking Dog Soldier into pure defense. |
+ | Ottomans | OTTOMAN_JANISSARY (MUSKETMAN; GUN) → Keep | Old → SAS: str 9→12, h 80→100; tech GUNPOWDER→FIREARMS; free none→COMBAT3; gains CityAtk 10; loses vsCombat ARCHER 25, vsCombat MELEE 25, vsCombat MOUNTED 25; vs SAS MUSKETMAN: free none→COMBAT3; gains CityAtk 10 | Keeps the Janissary as a strong Ottoman Musketman power spike through elite training rather than raw base strength. Free Combat III is less likely than a low Combat promotion to be redundant on experienced upgraded units and modestly accelerates later Combat ranks, while +10% city attack gives an Ottoman assault lean without making the unit a dedicated city attacker. Its small Plains/Desert affinities remain the separate terrain identity. |
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index f0fa4249d..650148a6f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -265,6 +265,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [203 - (Improved) AI Auto Play could pause behind harmless informational popups, and its logs could not reliably explain why a run ended](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#203---improved-ai-auto-play-could-pause-behind-harmless-informational-popups-and-its-logs-could-not-reliably-explain-why-a-run-ended)\
+ [204 - (Fixed/Improved) Base AdvCiv Great General birth, safety and reporting gaps could waste free Great Generals, including unsafe birth-city selection and an inverted Military Academy city-safety test](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#204---fixedimproved-base-advciv-great-general-birth-safety-and-reporting-gaps-could-waste-free-great-generals-including-unsafe-birth-city-selection-and-an-inverted-military-academy-city-safety-test)\
+ [205 - (Fixed/Improved) Major K-Mod World-Wonder focus refactor bug rejected the AI's best production cities, while an AdvCiv-SAS game-speed regression could almost disable cheap-Wonder catch-up on slow speeds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#205---fixedimproved-major-k-mod-world-wonder-focus-refactor-bug-rejected-the-ais-best-production-cities-while-an-advciv-sas-game-speed-regression-could-almost-disable-cheap-wonder-catch-up-on-slow-speeds)\
++[206 - (Fixed K-Mod bug) AI random-event building-change valuation missed percent normalization, making building creation or destruction worth 100 times the intended production-cost component](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#206---fixed-k-mod-bug-ai-random-event-building-change-valuation-missed-percent-normalization-making-building-creation-or-destruction-worth-100-times-the-intended-production-cost-component)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7721,7 +7722,7 @@ Follow-up to KI#198. The underlying allocation behavior is inherited from Base A
+ 
+ There had been related older work, which explains why this issue could feel familiar without actually having been solved generically. AdvCiv-SAS had already restricted Settler production to the capital/high population specifically to exploit food-is-production efficiently and avoid small cities spending many turns stalled on Settlers. That older Settler rule addresses the same economic principle through a specialized restriction. Conversely, the later KI#198 Worker-floor change deliberately did not restrict Workers to only high-population/capital cities because weaker or stagnant cities can sometimes contribute efficiently and because broad restrictions could slow emergency replacement. What was still missing was a central cross-city comparison after a fresh non-combat food-production choice had already passed its ordinary need/priority/odds logic.
+ 
+-The new allocation rule is therefore a gate rather than a fixed-city restriction. For a fresh non-combat food-production unit, any safe city that can finish within `SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS_NORMAL_GAMESPEED` (5 Normal-speed-equivalent turns by default, scaled by game-speed `TrainPercent`) is already considered good enough and keeps the choice immediately. This intentionally allows multiple cities to rebuild Workers in parallel after heavy losses. Existing invested production is also always completed. Only a slower fresh choice looks for another safe city on the same landmass that can train the unit at least as quickly; if no such city exists, the current/best available producer still builds instead of waiting.
++The new allocation rule is therefore a gate rather than a fixed-city restriction. For a fresh non-combat food-production unit, any safe city that can finish within `SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS_NORMAL_GAMESPEED` (6 Normal-speed-equivalent turns by default after the Worker-cost restoration, originally 5 while the standard Worker cost was 50, scaled by game-speed `TrainPercent`) is already considered good enough and keeps the choice immediately. This intentionally allows multiple cities to rebuild Workers in parallel after heavy losses. Existing invested production is also always completed. Only a slower fresh choice looks for another safe city on the same landmass that can train the unit at least as quickly; if no such city exists, the current/best available producer still builds instead of waiting.
+ 
+ Among eligible alternatives, population and stagnation choose the preferred food/hammer pump rather than a fragile turns-saved formula. The largest eligible population is the default preference, because larger cities can usually convert much more food and hammer output while the unit freezes growth. However, a currently stagnant city is preferred when it is within `SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_STAGNANT_POPULATION_GAP` of that largest city (3 by default, using a strict comparison: population 8 can beat population 10, population 7 cannot). This makes otherwise-unused food productive and deliberately allows a strong stagnant pump to build several Workers in sequence. Actual production turns only provide the fast-enough/sanity gate and equal-population tie-break; they are not the strategic score.
+ 
+@@ -7733,6 +7734,8 @@ The opposite safety behavior was also directly visible. There were 63 KEEP decis
+ 
+ `FOOD_PRODUCTION_ALLOCATION` remains available through the dedicated Worker BBAI log: level 2 records the unusual deferrals, while level 3 can additionally record ordinary KEEP decisions. The turn-391 diagnostic run temporarily used Worker log level 3 and produced a very large BBAI file mostly because the existing full Worker scan diagnostics are intentionally exhaustive; the committed/default Worker log level is restored to 0.
+ 
++Update: The default was raised from 5 to 6 when the normal Worker cost was restored from 50 to 60, preserving the same approximate 10 production-equivalent-per-turn "fast enough" threshold (50 / 5 = 60 / 6 = 10) instead of accidentally making secondary Worker pumps 20% harder to qualify.
++
+ Fixed/improved with the help of GPT-5.6 Thinking thanks.
+ 
+ ## 199 - (Fixed/Improved) Base AdvCiv/K-Mod generic UnitAI fallback could use dedicated land anti-air units as ordinary attackers or reserves
+@@ -7836,7 +7839,7 @@ Fixed/improved and documented with the help of ChatGPT-5.6-Sol thanks.
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/17qDbSL6xRE-NA4KgIs7sdexsgZv6uS9y?usp=sharing).
+ 
+-A player had previously reported that the AI seemed not to build ordinary World Wonders, especially on a slow game speed. That report predated many later AdvCiv-SAS balance changes and initially looked likely to be obsolete because recent Normal-speed autoplays do build and contest many World Wonders. A fresh Huge Donut / Slow-speed autoplay nevertheless reproduced the concern dramatically: through turn 601 with 16 players, SASGameRecord in save file 477 (Huge, Donut, Slow) contained 11 `WONDER_BUILT` rows by T601 (1406 AD), but these were only 4 religious shrines, 6 Heroic Epics and 1 National Epic. No ordinary World Wonder was completed. The Info Screen likewise showed only the four shrines in the World Wonders table.
++[A player had previously reported](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16971507) that the AI seemed not to build ordinary World Wonders, especially on a slow game speed. That report predated many later AdvCiv-SAS balance changes and initially looked likely to be obsolete because recent Normal-speed autoplays do build and contest many World Wonders. A fresh Huge Donut / Slow-speed autoplay nevertheless reproduced the concern dramatically: through turn 601 with 16 players, SASGameRecord in save file 477 (Huge, Donut, Slow) contained 11 `WONDER_BUILT` rows by T601 (1406 AD), but these were only 4 religious shrines, 6 Heroic Epics and 1 National Epic. No ordinary World Wonder was completed. The Info Screen likewise showed only the four shrines in the World Wonders table.
+ 
+ The investigation found two independent World-Wonder AI defects:
+ 
+@@ -7851,3 +7854,23 @@ This investigation also provided a practical validation of the recently expanded
+ The combined fix was then validated with another Huge Donut / Slow-speed autoplay through turn 601 (`SASGameRecord_20260818T193115Z_load1.log`). The completed-Wonder result already gives a clear before/after: the pre-fix run (`SASGameRecord_20260818T184659Z_new1.log`) had zero ordinary World Wonders, while the post-fix log has 17 `WONDER_BUILT` rows consisting of 4 religious shrines, 6 Heroic/National Epics and 7 ordinary World Wonders: Stonehenge (England), Pyramids and Colossus (Kingdom of Benin), Great Wall and Great Lighthouse (Egypt), Statue of Zeus (Arabia), and Great Library (Egypt). The periodic city snapshots make the recovery even clearer: at turn 600 the pre-fix log had zero cities with `productionKind=WONDER`, while the post-fix log had 15 ordinary World-Wonder builds active across 9 civilizations (9 Parthenons and 6 Temples of Kukulkan), plus 1 Heroic Epic. This is strong confirmation that the AI World-Wonder selection path itself is functioning again on Slow speed rather than a few Wonders merely completing by chance. The two corrections remain conceptually separable: the game-speed fix leaves Normal-speed thresholds unchanged, while the K-Mod production-rank fix restores intended World-Wonder focus behavior on all speeds.
+ 
+ Fixed/improved, validated in a repeat Slow/Donut autoplay, and documented with the help of ChatGPT-5.6-Sol thanks.
++
++## 206 - (Fixed K-Mod bug) AI random-event building-change valuation missed percent normalization, making building creation or destruction worth 100 times the intended production-cost component
++
++A systematic current-tree audit of raw XML `iCost` / `getProductionCost()` uses was started after KI#205 exposed a game-speed regression caused by confusing raw XML cost with `getProductionNeeded`. Most current raw production-cost uses are intentional: they are buildability sentinels, tactical/relative cost proxies, drafting formulas defined directly from XML cost, explicit SAS XML-cost gates, logging/UI values, or ratios where applying the common game-speed production multiplier would either cancel out or incorrectly make tactical behavior depend on game speed.
++
++The audit nevertheless found a separate definite arithmetic error in `CvPlayerAI::AI_eventValue`. The unit-event valuation path converts raw unit production cost to the current game speed by multiplying by `TrainPercent` and then dividing by 100. The analogous building-event path multiplied raw building production cost by `ConstructPercent` but never divided by 100.
++
++For example, before the fix a positive building-value component of 200 raw units became `200 * 100 = 20,000` on Normal speed rather than remaining 200, and became `200 * 300 = 60,000` on Slow rather than the intended 600. The error was therefore a constant 100x overvaluation after the intended game-speed scaling, not merely a Slow-speed imbalance.
++
++This affects real random-event outcomes in the current XML with nonzero `iBuildingChange`, including events that create or destroy Forges, Theatres, Factories, Military Academies, Academies, Hydro Plants and Broadcast Towers. Depending on the sign of the building change, the inflated term could make the AI grossly overvalue receiving a building or grossly over-penalize losing one relative to the event's other effects.
++
++The fix simply adds the missing `iBuildingValue /= 100` immediately after applying `ConstructPercent`, matching the already-correct unit-event calculation. This changes only AI event-option valuation; it does not alter actual building production costs or event effects.
++
++The lineage check confirms that this is not an AdvCiv-SAS regression. The same missing normalization is present in Base AdvCiv 1.14. The light-source history also shows it already in K-Mod practical commit 3 (`2414225e64`, the initial source-bearing K-Mod commit from 27 December 2010), where `AI_eventValue` multiplies both unit and building production values by the corresponding game-speed percentages without dividing by 100. More revealingly, K-Mod practical commit 478 (`bfc3c3cca7`, "Added some missing components to the AI's evaluation of event options.") added the missing `/= 100` to both unit-event paths but left the analogous building-event path unchanged. No later K-Mod or Base AdvCiv change corrected that building branch, and it remains present in AdvCiv 1.14.
++
++KI#206 is therefore classified as an inherited K-Mod/Base AdvCiv bug, not an SAS-specific issue. K-Mod practical 478 is not claimed as the origin: it is the especially useful historical point where K-Mod corrected the two adjacent unit-event normalization paths but missed the building path. The bug is already present in practical 3, the first source-bearing K-Mod commit available in this repository history. The available history does not establish whether K-Mod originally introduced the omission or inherited it from BtS/BBAI before that boundary, so no stronger pre-K-Mod origin claim is made.
++
++ChatGPT-5.6-Sol found the defect while locally auditing current-tree XML/raw-cost semantics after KI#205, rather than during the later systematic historical sweep. The Base AdvCiv 1.14 source supplied alongside the SAS source confirmed that the bug is pre-SAS, and ChatGPT-5.6-Sol then traced the K-Mod lineage entirely from the light-source ZIP's generated `_SNAPSHOT_CONTEXT/commit_diffs` archive, without needing an Internet lookup. This is the same kind of local Git-history archaeology that proved useful for KI#205 and motivated keeping a resumable archaeology suite.
++
++Fixed and lineage-traced with the help of ChatGPT-5.6-Sol thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 29c6ad9f3..5b0e8f964 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -243,7 +243,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ - **Optional first economic unit before the capital's first defender:** when the first and only capital is not in danger, it can produce one immediately useful Work Boat or required land Worker before filling an empty city garrison. This should be more efficient because it avoids delaying the first improvement and the growth, production, and bonuses it unlocks, and animals are not a serious city-capture threat. However, because a human can try an unusually early rush against the temporarily empty capital, this tradeoff is XML-tunable and can be disabled to restore Base AdvCiv's defender-first behavior. This is as of now only applicable to the first city, so the unchanged no-defender priority resumes after this first economic unit.
+ - **Prioritize useful Work Boats for seafood before land Workers:** after producing an immediate defender when needed, a safe AI city now builds a Work Boat before its land Worker when it has seafood that can be improved now (unless immediate defense and danger/Turtle safeguards take precedence). This is more efficient because improving seafood increases food without stopping city growth during production, and this extra food helps the following Worker and later production be produced faster. Note: the AI does not waste a Work Boat on unavailable improvements such as Whale before the required technology like as of now `TECH_SEAFARING` is discovered. Note: also remove the Base AdvCiv population-3 cutoff that stopped Work Boat production midway (See [KI#174](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#174---fixedimproved-base-advciv-work-boat-icitypopulation--3-cutoff-in-cvcityaiai_chooseproduction-interrupted-seafood-production-for-a-land-worker)). After these changes, in save file 443 BBAI tests, Seoul successfully selected a Work Boat for its available Molluscs on turn 5 instead of delaying it until about turn 17 (to produce a worker before it), while Mutal correctly built its Worker first because Maya lacked the as of now required `TECH_FISHING` for Molluscs and Fish, then selected a Work Boat on turn 12 when this tech was discovered and thus these bonuses became improvable.
+ - (Requires AdvCiv-SAS 6060+) **Isolated cities no longer produce land civilian units that cannot perform their role:** for example, in save file 450, BBAI logging showed the one-tile island city Bactra producing a Worker that remained idle because none of its plots could be improved; the same could happen, for example, on a landmass containing only plots the AI cannot improve. To fix this, the Worker-demand calculation no longer creates a minimum need when no local plot can be improved, and the AI now also refuses a Worker when its landmass already has enough, as well as land Explorer units when no exploration remains there, and land Spy units in a secondary isolated colony with neither a known rival city nor an adjacent Spy transport. Primary landmasses remain eligible so an overseas empire can still produce Spies and their transports. Note: this check is central in `CvCityAI::AI_chooseUnit` to make sure no short-circuit or unexpected logic bypasses it, as with AdvCiv-SAS's central unit-scrapping safeguards. See [KI#192](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#192---fixedimproved-base-advcivk-mod-island-worker-logistics-and-advciv-sas-production-safety-gap-could-strand-workers-and-other-land-civilians-where-they-had-no-use).
+-- (Requires AdvCiv-SAS 6095+) **Produce non-combat food-production units in suitable cities instead of stalling small/remote city growth:** small or newly founded cities could spend a very long time producing units for which food counts as production (`<bFood>` / `bFoodIsProduction`) (in AdvCiv-SAS, especially Workers), stopping their population growth even when a larger city could supply the same unit very quickly from its much higher total food yield (due to high population) and generally higher hammer yield. This was particularly wasteful when a mature city was already stagnant, because using it as the producer costs little or no growth there. In save file 460 BBAI testing, examples included population-1 Huamanga needing 45 turns for a Worker while population-11 Cuzco could finish one in 3 turns; across the full turn-391 validation run, 87 slow Worker choices were redirected, with the median source at population 2 / 9 turns and the median preferred producer at population 8 / 3 turns. The AI now keeps any fresh choice that is already fast enough (5 Normal-speed-equivalent turns by default, scaled by game speed), so several capable cities can still produce Workers in parallel after heavy losses; otherwise it looks for a safe same-area city that can produce the unit at least as fast, preferring a stagnant city when it is within 3 population of the largest eligible producer and otherwise preferring the largest population. If all cities are slow, the best available producer still builds it, and existing invested production is never abandoned. This logic is generic for non-combat food-production units rather than Worker-specific; Settlers have the same underlying production/growth tradeoff but are currently handled by AdvCiv-SAS's existing capital-only Settler rule and therefore remain exempt from this allocator. The same validation run also had 63 population-4-or-smaller cities correctly keep Workers they could complete within the fast-production gate. See [KI#198.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1982---fixedimproved-base-advciv-ai-non-combat-food-production-allocation-could-stall-small-growing-cities-instead-of-using-mature-or-stagnant-foodproduction-pumps-observed-with-workers).
++- (Requires AdvCiv-SAS 6095+) **Produce non-combat food-production units in suitable cities instead of stalling small/remote city growth:** small or newly founded cities could spend a very long time producing units for which food counts as production (`<bFood>` / `bFoodIsProduction`) (in AdvCiv-SAS, especially Workers), stopping their population growth even when a larger city could supply the same unit very quickly from its much higher total food yield (due to high population) and generally higher hammer yield. This was particularly wasteful when a mature city was already stagnant, because using it as the producer costs little or no growth there. In save file 460 BBAI testing, examples included population-1 Huamanga needing 45 turns for a Worker while population-11 Cuzco could finish one in 3 turns; across the full turn-391 validation run, 87 slow Worker choices were redirected, with the median source at population 2 / 9 turns and the median preferred producer at population 8 / 3 turns. The AI now keeps any fresh choice that is already fast enough (6 Normal-speed-equivalent turns by default, scaled by game speed), so several capable cities can still produce Workers in parallel after heavy losses; otherwise it looks for a safe same-area city that can produce the unit at least as fast, preferring a stagnant city when it is within 3 population of the largest eligible producer and otherwise preferring the largest population. If all cities are slow, the best available producer still builds it, and existing invested production is never abandoned. This logic is generic for non-combat food-production units rather than Worker-specific; Settlers have the same underlying production/growth tradeoff but are currently handled by AdvCiv-SAS's existing capital-only Settler rule and therefore remain exempt from this allocator. The same validation run also had 63 population-4-or-smaller cities correctly keep Workers they could complete within the fast-production gate. See [KI#198.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1982---fixedimproved-base-advciv-ai-non-combat-food-production-allocation-could-stall-small-growing-cities-instead-of-using-mature-or-stagnant-foodproduction-pumps-observed-with-workers).
+ - **Emergency water-food / water-hammer buildings (pre-fallback):** Before the "no-production" fallback runs, if a **coastal (ocean-connected)** city is **low food per turn**, force a **water-food building class** (e.g., **Harbor** or civ variants that give +1 food on water tiles) to jump-start growth. Also force the **water-hammer building class** (e.g., **Port**) for **high-enough pop** (enough headcount so it is worth investing on water plots) coastal cities unless they are very good and don't need it: cities that **still have fairly low production** or **not too high food surplus**; Port can take significant time, but these cities are **unlikely to contribute much short-term production anyway**, and hammer on water tiles makes their later infrastructure and future building time **more helpful later on**. Immediate danger / defense logic still runs earlier, so Walls/Castle can still go first when needed, otherwise the **risk is deemed worth the delay** to produce these buildings. Runs in `CvCity::doTurn`.
+ - **Emergency defense priority (risk-aware):** When invasion risk is high—enemy team **significantly stronger**, **nearby danger** detected, or **at war** with an opponent not significantly weaker—**force-build** **Walls**, then **Castle** (if missing) at top priority. Triggers are conservative to avoid growth drag. Implemented in `CvCity::AI_doTurn`. Early autoplay suggests fewer snowball steamrolls. **Update:** Skip this emergency defense path for **very low-hammer** cities (scaled by era) or cities whose inner BFC is **mostly water tiles**, as these are better used as economy cities and unlikely to hold the main front; this also prevents triggering fallback-unit / emergency-defense builds too early and avoids stalling early growth. **Update 2:** For **water-heavy cities**, this emergency-defense path is **disabled**; see the related Update 2 note below.
+ - **"No production" stall — worked around / fixed**: AI cities no longer sit on **no production**. Added a robust fallback: produce the **most expensive suitable land combat unit**; if a candidate is **extremely overpriced for the era**, switch to the **cheapest suitable** instead. **Civilians** (e.g., scouts) are excluded. This prevents idle turns (e.g., will build an archer in the Ancient era) and cuts wasted hammers. Added in `CvCity::AI_doTurn`. See [KI#51](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#51---worked-around--fixed-massive-seemingly-base-advciv---civ4-issue-of-many-cities-entering-no-production-early-for-1-or-several-turns-many-times-during-the-game-early-and-possibly-later-this-is-why-many-cities-have-a-process-rather-than-no-production-as-processes-are-not-available-early-and-are-listed-among-fallbacks-if-production-fails-it-seems-but-check-to-be-sure). Related: handicap settings were **slightly reduced** to keep difficulty even with the new efficiency. **Update:** Added **offense-only** and **defense-only** selection modes inside this fallback (auto-reverting to "any suitable land unit" if no candidates exist). This is intended to avoid bypassing `CvCityAI::AI_chooseUnit` limits and to reduce excessive **Longbowmen** when the fallback triggers. **Update 2:** For **water-heavy cities**, when the **no-production fallback** in `CvCity::AI_doTurn` triggers, try to use key **water-focused economic buildings** (food / hammers / gold) as the fallback instead of a generic land-unit fallback; this is usually more efficient for growth/economy, and such cities are less likely to be main land-attack targets. See also [Buildings](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#buildings) or Sevopedia/XML.
+@@ -841,7 +841,6 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+ ## Civilian Units
+ 
+ - `DOW_UNIT_CAPTURE_CHANCE` **0 → 50**: workers can be captured **on the turn war is declared**, same as other turns. Aligns with the base capture chance and rewards opportunistic warfare.
+-- **Worker cost reduced** (see XML/Sevopedia).
+ - **Settler** is now a **national unit** (**max 1 per player**). This prevents AI from building two at once or building a new one while an existing settler is travelling, improves hammer/food efficiency, and raises the stakes on timing/escorts. See [KI#37](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#37---workaround-and-rebalanced-ai-building-2-settlers-very-inefficiently-at-same-time-or-when-a-settler-unit-already-exists---now-settler-is-a-national-unit-only-1-allowed-per-player).
+ - **Scouts**, **Explorers**, **Airships**, and **Robotic Recon Drones** are now **national units** (**max 2 each per player**): reduces AI scout overproduction, keeps unit maintenance more efficient, and makes early scouting choices a bit more strategic.
+ - **Explorer-class** units can **attack**, but with low strength.
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=9 omittedFiles=1 embeddedPatchBytes=55580

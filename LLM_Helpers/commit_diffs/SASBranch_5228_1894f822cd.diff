@@ -1,0 +1,278 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5228
+# Commit: 1894f822cd704e71325ca1b40a288a1bd9ffa65b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1fd378ad9704a2168b846d0179cfa1fd4456173c
+# Title: refactor: reorder code
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+43	44	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index b5abcb105..630468468 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -535,6 +535,16 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		screen.updateListBox(self.CATEGORY_LIST_ID)
+ 
+ 
++	def placeTechs(self):
++		self.list = self.getTechList()
++		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, gc.getTechInfo)
++
++		# <!-- custom: similarly to how we did in placeLeaders, precompute only once the list as string of untradeable techs for display in sevopedia tech, since it is always the same, and precompute it only after first time list is displayed so it is smoother/faster maybe even if a bit if not a lot but anyways etc anyways etc anyways etc ; also do not build it needlessly if we never access sevopedia tech same as in/for the leaders_info_cached code but anyways etc -->
++		if not self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT:
++			SevoPediaTech.UNTRADEABLE_TECHS_TEXT = SevoPediaTech.getPrecomputedUntradeableTechsText()
++			self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = True
++			print("Sevopedia Tech Untradeable techs list prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT=%s)." % str(self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT))
++
+ 	# Helper to group techs by era (single-pass bucketing).
+ 	# Yep — techs are the easiest one to refactor “like buildings/units”, because a tech already has its era (getEra()), so we just do a single pass, bucket into groups[iEra], then emit era headers in era order.
+ 	def SAS_getTechsGroupedByEra(self):
+@@ -577,16 +587,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		return techsList
+ 
+-	def placeTechs(self):
+-		self.list = self.getTechList()
+-		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, gc.getTechInfo)
+-
+-		# <!-- custom: similarly to how we did in placeLeaders, precompute only once the list as string of untradeable techs for display in sevopedia tech, since it is always the same, and precompute it only after first time list is displayed so it is smoother/faster maybe even if a bit if not a lot but anyways etc anyways etc anyways etc ; also do not build it needlessly if we never access sevopedia tech same as in/for the leaders_info_cached code but anyways etc -->
+-		if not self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT:
+-			SevoPediaTech.UNTRADEABLE_TECHS_TEXT = SevoPediaTech.getPrecomputedUntradeableTechsText()
+-			self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT = True
+-			print("Sevopedia Tech Untradeable techs list prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT=%s)." % str(self.IS_UNTRADEABLE_TECHS_TEXT_PREBUILT))
+-	
+ 	def getTechList(self):
+ 		if self.SAS_cacheTechsTuple is None:
+ 			if self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA:
+@@ -743,6 +743,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		upgradesGraph.drawGraph()
+ 
+ 
++	def placeBuildings(self):
++		self.list = self.getBuildingList()
++		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingInfo)
++
+ 	# Compute the "availability era" for a building, factoring in tech prereqs, special building tech, and religion founding tech.
+ 	def SAS_getBuildingAvailabilityEra(self, iBuilding, iNumAndTechs):
+ 		info = gc.getBuildingInfo(iBuilding)
+@@ -843,11 +847,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		return buildingsList
+ 
+-
+-	def placeBuildings(self):
+-		self.list = self.getBuildingList()
+-		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, gc.getBuildingInfo)
+-	
+ 	# <!-- custom: similarly, in sevopedia buildings, group techs by era (based on prereq tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getBuildingList(self):
+ 		if self.SAS_cacheRegularBuildingsTuple is None:
+@@ -893,6 +892,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			return self.SAS_cacheWorldWondersTuple
+ 
+ 
++	def placeProjects(self):
++		self.list = self.getProjectList()
++		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, gc.getProjectInfo)
++
+ 	# Compute the "availability era" for a project, factoring in its tech prereq.
+ 	def SAS_getProjectAvailabilityEra(self, iProject):
+ 		info = gc.getProjectInfo(iProject)
+@@ -955,10 +958,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		return projectsList
+ 
+-	def placeProjects(self):
+-		self.list = self.getProjectList()
+-		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROJECT, gc.getProjectInfo)
+-
+ 	# <!-- custom: similarly, in sevopedia projects, group projects by era instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getProjectList(self):
+ 		if self.SAS_cacheProjectsTuple is None:
+@@ -970,6 +969,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		return self.SAS_cacheProjectsTuple
+ 
+ 
++	def placeSpecialists(self):
++		self.list = self.getSpecialistList()
++		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, gc.getSpecialistInfo)
++
+ 	# Helper to group specialists by type (e.g. Engineer vs Great Engineer). Great specialists are identified by "GREAT_" in SpecialistInfo.getType(), matching RFC DoC's convention.
+ 	def SAS_getSpecialistsGroupedByType(self):
+ 		specialistsList = []
+@@ -1011,10 +1014,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		return outList
+ 
+-	def placeSpecialists(self):
+-		self.list = self.getSpecialistList()
+-		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, gc.getSpecialistInfo)
+-
+ 	# <!-- custom: in sevopedia specialists, group specialists by type: regular specialists vs great specialists (those whose <Type> contains "GREAT_"), based on RFC DOC mod's code thanks but anyways etc. Added with the help of chatgpt 5.2 thanks but anyways etc. -->
+ 	# Notes (kept conservative)
+ 	# 	- “Great specialists” detection is exactly RFC’s convention: getType().find("GREAT_") > -1. 
+@@ -1061,6 +1060,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		return self.getSortedList(gc.getNumFeatureInfos(), gc.getFeatureInfo)
+ 
+ 
++	def placeBonuses(self):
++		self.list = self.getBonusList()
++		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, gc.getBonusInfo)
++
+ 	# Helper: get ALL improvements that make a bonus tradable (i.e. "improve/connect" it).
+ 	# This is used for Sevopedia Main list grouping, similar to RFC DoC's Resource grouping.
+ 	# Unlike a "primary improvement" heuristic, we keep multi-improvement cases exhaustive by using
+@@ -1162,10 +1165,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		return bonusesList
+ 
+-	def placeBonuses(self):
+-		self.list = self.getBonusList()
+-		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, gc.getBonusInfo)
+-	
+ 	def getBonusList(self):
+ 		if self.SAS_cacheBonusesTuple is None:
+ 			baseList = self.getSortedList(gc.getNumBonusInfos(), gc.getBonusInfo)
+@@ -1176,6 +1175,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		return self.SAS_cacheBonusesTuple
+ 
+ 
++	def placeImprovements(self):
++		self.list = self.getImprovementList()
++		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, gc.getImprovementInfo)
++
+ 	def SAS_isBonusCapableImprovement(self, iImprovement):
+ 		info = gc.getImprovementInfo(iImprovement)
+ 		if not info or info.isGraphicalOnly():
+@@ -1297,10 +1300,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		return r
+ 
+-	def placeImprovements(self):
+-		self.list = self.getImprovementList()
+-		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, gc.getImprovementInfo)
+-	
+ 	def getImprovementList(self):
+ 		if self.SAS_cacheImprovementsTuple is None:
+ 			imprList = self.getSortedList(gc.getNumImprovementInfos(), gc.getImprovementInfo)
+@@ -1394,6 +1393,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	def isTraitInfo(self, info):
+ 		return info.getType().find("_TRAIT_") != -1
+ 
++	def placeCivics(self):
++		self.list = self.getCivicList()
++		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, gc.getCivicInfo)
++
+ 	# <!-- custom: helper we can reuse for civics grouping, with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def SAS_getCivicsGroupedByCivicOption(self):
+ 		civicsList = []
+@@ -1429,10 +1432,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		return civicsList
+ 
+-	def placeCivics(self):
+-		self.list = self.getCivicList()
+-		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, gc.getCivicInfo)
+-
+ 	# <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	# Step 2: Replace getCivicList() with “category + era tiers” (behind a SAS define)
+ 	# Right now your civics list is just getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo) (optionally alphabetical via BUG).
+@@ -1446,6 +1445,10 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		return self.SAS_cacheCivicsTuple
+ 
+ 
++	def placeReligions(self):
++		self.list = self.getReligionList()
++		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, gc.getReligionInfo)
++
+ 	# Compute the "availability era" for a religion, based on its founding tech prereq.
+ 	def SAS_getReligionAvailabilityEra(self, iReligion):
+ 		info = gc.getReligionInfo(iReligion)
+@@ -1458,7 +1461,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		return -1  # no tech prereq bucket
+ 
+-
+ 	# Helper we can reuse for religions.
+ 	def SAS_getReligionsGroupedByEra_fromBaseList(self, baseList):
+ 		religionsList = []
+@@ -1508,10 +1510,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		return religionsList
+ 
+-	def placeReligions(self):
+-		self.list = self.getReligionList()
+-		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, gc.getReligionInfo)
+-
+ 	# <!-- custom: similarly, in sevopedia religions, group religions by era (based on their founding tech) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getReligionList(self):
+ 		baseList = self.getSortedList(gc.getNumReligionInfos(), gc.getReligionInfo)
+@@ -1522,6 +1520,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				self.SAS_cacheReligionsTuple = tuple(baseList)
+ 		return self.SAS_cacheReligionsTuple
+ 
++
++	def placeCorporations(self):
++		self.list = self.getCorporationList()
++		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, gc.getCorporationInfo)
++
+ 	# In AdvCiv-SAS, your corporations are effectively gated by the founding building (the BUILDING_CORPORATION_X that has <FoundsCorporation>CORPORATION_X</FoundsCorporation> and has <PrereqTech> / <TechTypes>), while the corresponding CIV4CorporationInfo.xml often has <TechPrereq>NONE</TechPrereq>. So the clean “era” for a corporation should be the availability era of its founding building.
+ 	# This reuses your existing SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs) helper (the one that already accounts for SpecialBuilding tech + religion founding tech).
+ 	# Map each corporation to its founding (HQ) building once, then reuse; used for grouping corporations by era.
+@@ -1601,10 +1604,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		return corpsList
+ 
+-	def placeCorporations(self):
+-		self.list = self.getCorporationList()
+-		self.placeItems(WidgetTypes.WIDGET_PEDIA_JUMP_TO_CORPORATION, gc.getCorporationInfo)
+-	
+ 	# <!-- custom: similarly, in sevopedia corporations, group corporations by era (based on founding building prereq tech era) instead of one long list. Code added with the help of chatgpt 5.2 thanks anyways etc. -->
+ 	def getCorporationList(self):
+ 		if self.SAS_cacheCorporationsTuple is None:
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 55580155b..92fada0d6 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -221,7 +221,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - tightened or/and reworked wonders 's (world wonders, and national wonders although a bit lenient threshold anyways etc) keep building thresholds in `CvCityAI::AI_chooseProduction`, so that AIs are now more inclined to ditch wonders we (i.e. the AI itself, i.e. from its point of view anyways etc) are currently building if they are not close from completion, if i am not mistaken anyways etc, if in a war context (at war, or/and planning war, or/and in danger), especially if AI is weaker militarily, then the threshold to ditch the wonder is highest (e.g. as of now 80% completion minimum or ditch it if at war and weaker than the enemy, vs seemingly less at least in some related cases such as danger or such, check code to be sure and have updated values anyways etc). Hopefully this helps AI better react to war threats and not invest too much in wonders when our enemy is about or threatening to conquer city anyway: don't build the wonder for our enemy. Attempt to use the hammer for anything else, perhaps a few extra longbowmen, or walls or something. Hopefully AI has a sharper use of its hammer and more responsive building choices as a result anyways etc.
+ - Do not build **Anti-Barbarian Border Blocking** (`bBorderObstacle`) **Wonders** (e.g. Great Wall) past a certain **era** (e.g. Classical era, meaning we will not build Great Wall or equivalent wonders from the Medieval and onwards). Change in `CvCityAI::AI_buildingValue`.
+ - added quite a lot of pre-filtering to help guide AI building choices, in `CvCityAI::AI_buildingValue`. These aim to help AI better use responsively and more efficiently its hammers. For example if we are not at war or we are strong, we don't need walls (e.g. build swordsmen or a granary or anything instead, just we have more hammer for that). Or if we are behind/weaker, do not build wonders (especially world wonders), just for our neighbours to capture them later, except for those relevant to such war or danger or planning war or such circumstances that we would then value more, and in our core cities only not low hammer ones anyways etc: use instead the hammer for more urgent tasks, especially walls/castle for example or/and other tasks. Culture buildings early only being important for BFC no need for extra, etc. But don't block economy or growth building either, as it can be hard to tell if barracks or a granary or a library are most often better early, let AI pick these if our pre-filtering new rules don't reject the buildings. So after these pre-filtering rules say ok do the base advciv +/- civ4 existing rules apply if possible. In testing, AI behaves massively differently: it still develops its economy and gets most base buildings, but much less wonders are built, although it seems they start to build a bit more later in the game. They are not hardly forbidden, only told to not value it if ROI is low or time to build too long or danger or such. AI should behave much more as a human as a result of these, and i expect their military is quite a bit stronger as well as a result of the better invested hammers or/and economy (more workers/settlers or such or for other buildings instead). Interestingly, heroic epics and national epics in particular seem to be valued much more by the AI, at least by most of them, and i told them to build the military related ones in their top hammer cities only (not necessarily capital but among best anyways etc). See [48 - (Enhanced/Reworked) AI building walls when they are stronger and don't need it, or wonders when they are weaker or in danger (don't build wonders for our neighbours when they capture us), and overall added a lot of extra buildingValue reject or/and always build first logic depending on building type and/or such anyways etc; and reworked as well the ditching wonders logic to be seemingly stricter and more war/danger focused anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc) for details, with .md tables of the as of now rules summarized there and screenshots of the autoplay runs before/after i tested it on but anyways etc and/or such for details anyways etc. Does **not** affect Buildings with a **negative or equal to 0 XML `iCost` (Shrines, Corporations, etc.)**, since we don't need to save hammer for free of cost buildings, and they would otherwise not be built or heavily delayed if affected by any SAS `CvCityAI::AI_buildingValue` gate.
+-- Regardless of the aforementionned pre-filtering rules, **cheap World Wonders ASAP** (hammer `iCost` gates tunable by era in SAS defines): early, we want to prioritize most hammer towards early urgent growth (settlers, workers, etc.) or military (urgent rush or defense); later on they **cheap cost** (e.g. Pyramids not yet built Medieval era) makes it attractive and worth having ~1-2 less units or similar. Change in `CvCityAI::AI_buildingValue`. Note: about Wonders generally, AdvCiv-SAS uses a fairly strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build world wonders as we risk being overrun by our rivals and building world wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it), but this should not be necessary and not recommended to change SAS building wonder defaults to have an optimal AI play, as this build cheap wonders ASAP change causes most wonders to built by turn 200 (when it is more efficient to do so). Adjust as you see fit.
++- Regardless of the aforementionned pre-filtering rules, build **cheap World Wonders ASAP** (hammer `iCost` gates tunable by era in SAS defines): early, we want to prioritize most hammer towards early urgent growth (settlers, workers, etc.) or military (urgent rush or defense); later on they **cheap cost** (e.g. Pyramids not yet built Medieval era) makes it attractive and worth having ~1-2 less units or similar. Change in `CvCityAI::AI_buildingValue`. Note: about Wonders generally, AdvCiv-SAS uses a fairly strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build world wonders as we risk being overrun by our rivals and building world wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it), but this should not be necessary and not recommended to change SAS building wonder defaults to have an optimal AI play, as this build cheap wonders ASAP change causes most wonders to built by turn 200 (when it is more efficient to do so). Adjust as you see fit.
+ - Since then, i enhanced it to better account for which buildings are strict and urgent happiness buildings, by replacing in our prechecks in `CvCityAI::AI_buildingValue` the use of the too broad and unreliable base advciv +/- civ4's `CvCity::getAdditionalHappinessByBuilding` with our new `AI_strictAdditionalHappy`, as well as better account the expected food gains from them after removing unhappy citizens; these changes yielded (no pun but anyways etc) great results as well, see [48.2 - (Greatly Enhanced and Fixed) Kish city of gilgamesh AI building a theatre instead of a hindu temple despite having unhappy citizens (and health room to grow otherwise anyways etc), and theatre not giving any reliable happiness (almost anything else would have been much better), fixed by fixed by correcting the happiness building formula in our pre-check in CvCityAI::AI_buildingValue, and in particular replacing the too broad and unreliable CvCity::getAdditionalHappinessByBuilding with our own AI_strictAdditionalHappy anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc) for details anyways etc.
+ 
+ #### Leaders (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 37342fbe3..29a4e7ba9 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -213,7 +213,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - Tightened/reworked **wonder-keep** thresholds in `CvCityAI::AI_chooseProduction`: if at war/planning war/in danger and not close to completion, AIs will **ditch world wonders** (highest threshold when weaker) and redirect hammers to urgent needs (e.g., walls/units). See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**.
+ - Do not build **Anti-Barbarian Border Blocking** (`bBorderObstacle`) **Wonders** (e.g. Great Wall) past a certain **era** (e.g. Classical era, meaning we will not build Great Wall or equivalent wonders from the Medieval and onwards). Change in `CvCityAI::AI_buildingValue`.
+ - Added **pre-filtering** rules in `CvCityAI::AI_buildingValue` so hammers go where they matter: skip walls when safe/strong; avoid wonders when weak/in danger (focus on core cities if relevant); keep early culture to BFC needs; do **not** block economy/growth buildings; fall back to base logic after the pre-filters. AIs tend to value **Heroic/National Epics** more and build them in top-hammer cities. See **[KI#48](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#48---enhancedreworked-ai-building-walls-when-they-are-stronger-and-dont-need-it-or-wonders-when-they-are-weaker-or-in-danger-dont-build-wonders-for-our-neighbours-when-they-capture-us-and-overall-added-a-lot-of-extra-buildingvalue-reject-orand-always-build-first-logic-depending-on-building-type-andor-such-anyways-etc--and-reworked-as-well-the-ditching-wonders-logic-to-be-seemingly-stricter-and-more-wardanger-focused-anyways-etc)**. Does **not** affect Buildings with a **negative or equal to 0 XML `iCost` (Shrines, Corporations, etc.)**, since we don't need to save hammer for free of cost buildings, and they would otherwise not be built or heavily delayed if affected by any SAS `CvCityAI::AI_buildingValue` gate.
+-- Regardless of the aforementionned pre-filtering rules, **cheap World Wonders ASAP** (hammer `iCost` gates tunable by era in SAS defines): early, we want to prioritize most hammer towards early urgent growth (settlers, workers, etc.) or military (urgent rush or defense); later on they **cheap cost** (e.g. Pyramids not yet built Medieval era) makes it attractive and worth having ~1-2 less units or similar. Change in `CvCityAI::AI_buildingValue`. Note: about Wonders generally, AdvCiv-SAS uses a fairly strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build world wonders as we risk being overrun by our rivals and building world wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it), but this should not be necessary and not recommended to change SAS building wonder defaults to have an optimal AI play, as this build cheap wonders ASAP change causes most wonders to built by turn 200 (when it is more efficient to do so). Adjust as you see fit.
++- Regardless of the aforementionned pre-filtering rules, build **cheap World Wonders ASAP** (hammer `iCost` gates tunable by era in SAS defines): early, we want to prioritize most hammer towards early urgent growth (settlers, workers, etc.) or military (urgent rush or defense); later on they **cheap cost** (e.g. Pyramids not yet built Medieval era) makes it attractive and worth having ~1-2 less units or similar. Change in `CvCityAI::AI_buildingValue`. Note: about Wonders generally, AdvCiv-SAS uses a fairly strict low wonder policy, as early settlers and workers are more valuable generally and a stronger choice; plus later on we have little time to build world wonders as we risk being overrun by our rivals and building world wonders for them as they conquer us, which is a poor choice. A mostly Base AdvCiv-like behaviour of AIs building many wonders can be restored in SAS defines by disabling `SAS_AI_BUILDING_VALUE_WORLD_WONDERS_OPTIMIZE` (e.g. 0 vs 6 wonders at turn 100 in an autoplay sample with vs without it), but this should not be necessary and not recommended to change SAS building wonder defaults to have an optimal AI play, as this build cheap wonders ASAP change causes most wonders to built by turn 200 (when it is more efficient to do so). Adjust as you see fit.
+ - **Happiness buildings — urgency & growth accounting**: Improved AI building selection to (1) correctly flag **strict/urgent happiness** buildings (now using, in our prechecks, the new `AI_strictAdditionalHappy` instead of the too-broad `CvCity::getAdditionalHappinessByBuilding`) and (2) factor in the **expected food regained** once unhappy citizens become workable again. Result: noticeably better choices and pacing. See **[KI#48.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#482---greatly-enhanced-and-fixed-kish-city-of-gilgamesh-ai-building-a-theatre-instead-of-a-hindu-temple-despite-having-unhappy-citizens-and-health-room-to-grow-otherwise-anyways-etc-and-theatre-not-giving-any-reliable-happiness-almost-anything-else-would-have-been-much-better-fixed-by-fixed-by-correcting-the-happiness-building-formula-in-our-pre-check-in-cvcityaiai_buildingvalue-and-in-particular-replacing-the-too-broad-and-unreliable-cvcitygetadditionalhappinessbybuilding-with-our-own-ai_strictadditionalhappy-anyways-etc)**.
+ 
+ #### Leaders (AI)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=27919

@@ -1,0 +1,38 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3693
+# Commit: 4805abe77e6be51c20e1ebef7f8d133b2e873267
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f5cb4da6e9ccecdac76a2a7e6fd11669fb74a4de
+# Title: Amend Snow/Ice terrain change
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	Assets/XML/Terrain/CIV4TerrainInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Terrain/CIV4TerrainInfos.xml b/Assets/XML/Terrain/CIV4TerrainInfos.xml
+index ffb1817ce..ea07fd420 100644
+--- a/Assets/XML/Terrain/CIV4TerrainInfos.xml
++++ b/Assets/XML/Terrain/CIV4TerrainInfos.xml
+@@ -596,8 +596,7 @@
+ 		</TerrainInfo>
+ 		<TerrainInfo>
+ 			<Type>TERRAIN_SNOW</Type>
+-			<!-- advc.004g: Was ..._ICE. Snow gets its own name. -->
+-			<Description>TXT_KEY_TERRAIN_SNOW</Description>
++			<Description>TXT_KEY_TERRAIN_ICE</Description>
+ 			<Civilopedia>TXT_KEY_TERRAIN_ICE_PEDIA</Civilopedia>
+ 			<ArtDefineTag>ART_DEF_TERRAIN_SNOW</ArtDefineTag>
+ 			<Yields/>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=594

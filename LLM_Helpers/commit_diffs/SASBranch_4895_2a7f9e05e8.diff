@@ -1,0 +1,585 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4895
+# Commit: 2a7f9e05e8ecc4300cda1e76d25966f2c528cc90
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0c8c5d8906ba50d94e463a782022da256885a991
+# Title: add initial future era techs 's/' anyways etc effects anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+98	103	Assets/XML/Technologies/CIV4TechInfos.xml
+6	6	Assets/XML/Terrain/CIV4BonusInfos.xml
+24	13	Assets/XML/Units/CIV4UnitInfos.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 6e8509d26..ffe2dcf74 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -649,9 +649,7 @@
+ 			<CommerceFlexible>
+ 				<bFlexible>0</bFlexible>
+ 				<bFlexible>0</bFlexible>
+-				<!-- custom: now that culture can be built from aesthetics, music can be
+-				more worthwhile to use to control the slider now maybe instead, was 1 -->
+-				<bFlexible>0</bFlexible>
++				<bFlexible>1</bFlexible>
+ 				<bFlexible>0</bFlexible>
+ 			</CommerceFlexible>
+ 			<TerrainTrades/>
+@@ -4053,8 +4051,8 @@
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>0</iHealth>
+-			<iHappiness>0</iHappiness>
++			<iHealth>-5</iHealth>
++			<iHappiness>-5</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>48</iAsset>
+ 			<iPower>0</iPower>
+@@ -4085,15 +4083,15 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -4187,19 +4185,18 @@
+ 			<Civilopedia>TXT_KEY_TECH_ALIEN_LIFE_PEDIA</Civilopedia>
+ 			<Help/>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_MILITARY</Advisor>
++			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>8000</iCost>
++			<iCost>16000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
++			<FirstFreeUnitClass>UNITCLASS_GREAT_MERCHANT</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>0</iHealth>
++			<iHealth>2</iHealth>
+ 			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>48</iAsset>
+@@ -4230,12 +4227,12 @@
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -4332,18 +4329,17 @@
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>7500</iCost>
++			<iCost>10000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
++			<FirstFreeUnitClass>UNITCLASS_GREAT_ARTIST</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
++			<iWorkerSpeedModifier>50</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>0</iHealth>
+-			<iHappiness>0</iHappiness>
++			<iHealth>1</iHealth>
++			<iHappiness>2</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>48</iAsset>
+ 			<iPower>0</iPower>
+@@ -4374,11 +4370,19 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>1</iFlavor>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>9</iFlavor>
++					<iFlavor>8</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>4</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -4401,17 +4405,16 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>8000</iCost>
++			<iCost>13000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+-			<!-- custom: was UNITCLASS_GREAT_ENGINEER -->
+-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+-			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
++			<FirstFreeUnitClass>UNITCLASS_GREAT_SCIENTIST</FirstFreeUnitClass>
++			<iFeatureProductionModifier>50</iFeatureProductionModifier>
++			<iWorkerSpeedModifier>50</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iHealth>0</iHealth>
+-			<iHappiness>0</iHappiness>
++			<iHappiness>1</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>48</iAsset>
+ 			<iPower>0</iPower>
+@@ -4435,18 +4438,35 @@
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>22</iGridX>
+ 			<iGridY>5</iGridY>
+-			<DomainExtraMoves/>
++			<DomainExtraMoves>
++				<DomainExtraMove>
++					<DomainType>DOMAIN_LAND</DomainType>
++					<iExtraMoves>1</iExtraMoves>
++				</DomainExtraMove>
++				<DomainExtraMove>
++					<DomainType>DOMAIN_SEA</DomainType>
++					<iExtraMoves>1</iExtraMoves>
++				</DomainExtraMove>
++			</DomainExtraMoves>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -6079,15 +6099,15 @@
+ 			<Civilopedia>TXT_KEY_TECH_QUANTUM_MECHANICS_PEDIA</Civilopedia>
+ 			<Help/>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_ECONOMY</Advisor>
++			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+-			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>4500</iCost>
++			<iAITradeModifier>0</iAITradeModifier>
++			<iCost>16000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
+-			<iFeatureProductionModifier>0</iFeatureProductionModifier>
++			<FirstFreeUnitClass>UNITCLASS_GREAT_ENGINEER</FirstFreeUnitClass>
++			<iFeatureProductionModifier>100</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iHealth>0</iHealth>
+@@ -6120,25 +6140,13 @@
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>7</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>3</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>1</iFlavor>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>4</iFlavor>
++					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -6523,7 +6531,8 @@
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MODERN</Era>
+-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
++			<!-- custom: was NONE -->
++			<FirstFreeUnitClass>UNITCLASS_GREAT_ENGINEER</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -6594,17 +6603,16 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>7000</iCost>
++			<iCost>16000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<!-- custom: was ERA_MODERN -->
+ 			<Era>ERA_FUTURE</Era>
+-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
++			<FirstFreeUnitClass>UNITCLASS_GREAT_SPY</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iHealth>0</iHealth>
+-			<iHappiness>0</iHappiness>
++			<iHappiness>1</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>48</iAsset>
+ 			<iPower>10</iPower>
+@@ -6628,18 +6636,27 @@
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>23</iGridX>
+ 			<iGridY>1</iGridY>
+-			<DomainExtraMoves/>
++			<DomainExtraMoves>
++				<DomainExtraMove>
++					<DomainType>DOMAIN_AIR</DomainType>
++					<iExtraMoves>1</iExtraMoves>
++				</DomainExtraMove>
++			</DomainExtraMoves>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>9</iFlavor>
++					<iFlavor>8</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>5</iFlavor>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -6801,21 +6818,19 @@
+ 			<Civilopedia>TXT_KEY_TECH_ROBOTIC_RIGHTS_PEDIA</Civilopedia>
+ 			<Help/>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_SCIENCE</Advisor>
++			<Advisor>ADVISOR_CULTURE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>8000</iCost>
++			<iCost>13000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+-			<!-- custom: was NONE -->
+-			<FirstFreeUnitClass>UNITCLASS_GREAT_ENGINEER</FirstFreeUnitClass>
++			<FirstFreeUnitClass>UNITCLASS_GREAT_PROPHET</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iHealth>0</iHealth>
+-			<iHappiness>0</iHappiness>
++			<iHappiness>1</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>48</iAsset>
+ 			<iPower>0</iPower>
+@@ -6845,20 +6860,16 @@
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>1</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
+ 					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>1</iFlavor>
++					<FlavorType>FLAVOR_RELIGION</FlavorType>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -6877,23 +6888,23 @@
+ 			<Civilopedia>TXT_KEY_TECH_TRANSHUMANISM_PEDIA</Civilopedia>
+ 			<Help/>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_SCIENCE</Advisor>
++			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>10000</iCost>
++			<iCost>13000</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_FUTURE</Era>
+-			<FirstFreeUnitClass>NONE</FirstFreeUnitClass>
++			<FirstFreeUnitClass>UNITCLASS_GREAT_GENERAL</FirstFreeUnitClass>
+ 			<iFeatureProductionModifier>0</iFeatureProductionModifier>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+-			<iHealth>1</iHealth>
+-			<iHappiness>1</iHappiness>
++			<iHealth>2</iHealth>
++			<iHappiness>0</iHappiness>
+ 			<iFirstFreeTechs>0</iFirstFreeTechs>
+ 			<iAsset>64</iAsset>
+ 			<iPower>0</iPower>
+-			<bRepeat>1</bRepeat>
++			<bRepeat>0</bRepeat>
+ 			<bTrade>0</bTrade>
+ 			<bDisable>0</bDisable>
+ 			<bGoodyTech>0</bGoodyTech>
+@@ -6918,29 +6929,13 @@
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>1</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_RELIGION</FlavorType>
+-					<iFlavor>1</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>1</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>1</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>1</iFlavor>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>1</iFlavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index 7c9ff6ced..618da3afa 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -1997,9 +1997,9 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 			<BonusClassType>BONUSCLASS_DISABLED</BonusClassType>
+ 			<ArtDefineTag>ART_DEF_BONUS_DRAMA</ArtDefineTag>
+ 			<!-- custom: was NONE NONE NONE -->
+-			<TechReveal>TECH_TRANSHUMANISM</TechReveal>
+-			<TechCityTrade>TECH_TRANSHUMANISM</TechCityTrade>
+-			<TechObsolete>TECH_TRANSHUMANISM</TechObsolete>
++			<TechReveal>TECH_ALIEN_LIFE</TechReveal>
++			<TechCityTrade>TECH_ALIEN_LIFE</TechCityTrade>
++			<TechObsolete>TECH_ALIEN_LIFE</TechObsolete>
+ 			<YieldChanges/>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iAIObjective>0</iAIObjective>
+@@ -2040,9 +2040,9 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 			<BonusClassType>BONUSCLASS_DISABLED</BonusClassType>
+ 			<ArtDefineTag>ART_DEF_BONUS_MUSIC</ArtDefineTag>
+ 			<!-- custom: was NONE NONE NONE -->
+-			<TechReveal>TECH_TRANSHUMANISM</TechReveal>
+-			<TechCityTrade>TECH_TRANSHUMANISM</TechCityTrade>
+-			<TechObsolete>TECH_TRANSHUMANISM</TechObsolete>
++			<TechReveal>TECH_ALIEN_LIFE</TechReveal>
++			<TechCityTrade>TECH_ALIEN_LIFE</TechCityTrade>
++			<TechObsolete>TECH_ALIEN_LIFE</TechObsolete>
+ 			<YieldChanges/>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<iAIObjective>0</iAIObjective>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index e0b214252..437bd08c5 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -7653,7 +7653,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<iCityAttack>10</iCityAttack>
++			<!-- custom: was 10 -->
++			<iCityAttack>25</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+@@ -21026,8 +21027,26 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_OCEAN</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_COAST</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_OCEAN</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_COAST</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+@@ -22773,17 +22792,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
++			<!-- custom: since the unit doesn't appear to have any modifier in sevopedia and the base advciv code comment seems clear enough if i may say in this case but anyways etc, use simply an empty tag rather if i am not mistaken anyways etc -->
+ 			<!-- advc.906: both 25 in K-Mod 1.45 -->
+-			<TerrainAttacks>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_OCEAN</TerrainType>
+-					<iTerrainAttack>0</iTerrainAttack>
+-				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_COAST</TerrainType>
+-					<iTerrainAttack>0</iTerrainAttack>
+-				</TerrainAttack>
+-			</TerrainAttacks>
++			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 00141061a..882ae374a 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -98,6 +98,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - air explore units for example the dirigible (old airship) can move through all terrains, including peaks and water tiles (they have additionally on top of `bCanMoveImpassable` also `bCanMoveAllTerrain` enabled in xml anyways etc)
+ - some units have terrain or/and feature movement restrictions, for example chariot units and some siege units cannot as of now move in jungle or forest feature tiles. Note: this only applies to tiles outside of cultural borders (not me who made it so, civ4 or and base advciv, reusing such logic as it is a fine logic i have no objection against in this case anyways etc). This effect applies to these tiles even if they are roaded (again base civ4 or/and advciv if i am not mistaken, i would like to ideally change this part, leaving as is for convenience as easiest, may or not change it if i find how but not guaranteed may not as well though as i said for convenience ease to keep as is even though not ideal, but anyways etc). Clarified info about it in sevopedia unit, and added this missing info ingame in map view of the unit's bullet point effects, see docs in particular known issues doc for details (link in main readme.md anyways etc) if interested anyways etc, or/and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details i mean too if i may say but anyways etc
+ - some other units like mounted_melee (for example the generic horse knight, etc.) units now have forest and jungle penalties to represent how they are handicapped in such dense features for their movement and combat ; some other units such as for example mounted_ranged have milder or in this case more limited penalties, only in defense as they can attack fine from a distance but may not be able to take cover wit their heavy mount or/and navigate the terrain or and such anyways etc, see code comments in xml for detailed reasoning anyways etc, as well as modifiers values in sevopedia terrain jungle or forest entries or and in xml, see also [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details on sevopedia feature category rework that now displays this info for all units (modifier of each unit also available in sevopedia unit category page of any unit if i am not mistaken too but anyways etc anyways etc anyways etc) anyways etc.
++- terrains and features have a higher importance in military, more units have terrain/feature bonuses, and sometimes rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless i think it is relevant (quite strongly) anyways etc... ; as it is also tedious and less intuitive mostly if i may say too and not necessarily worth it or as i would want it maybe but anyways etc). Civ-specific units in particular as of now all have terrain +/- feature modifiers, see sevopedia entry of each unit for details about each unit's modifiers, or see sevopedia terrain or/and sevopedia feature page to see all units modifiers for said terrain/feature (see for more details [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) anyways etc). For example the camel knight or the zulu impi are stronger in desert or/and other terrains as well. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the balance and as is quite needless, only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. See also [README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units) for additional info anyways etc
+ - buff build_jungle: now gives hammer on chop, as of now increased from 0 to 20, see `BUILD_REMOVE_JUNGLE` in [CIV4BuildInfos.xml](/Assets/XML/Units/CIV4BuildInfos.xml) for updated value, anyways etc
+ - rework feature_jungle: now does not give any food penalty as according to the few websites or such i visited, jungle is vegetation and animal(s? But anyways etc) rich, and since it is so much weaker than feature_forest, removing the food yield penalty to compensate and rebalance it. As part of this change, also increasing health penalty from jungle tiles ; so although jungle is still weaker than forest for balance (giving it food yield would make jungle op and not necessarily realistic nor immersive for example anyways etc) hopefully it is closer now and jungle tiles can have some use at least they are not too bad as compared to forest as of now at least now anyways etc, as of now iHealthPercent has been increased from -25 to -50 (now and as of now i mean anyways etc same as of the forest health positive modifier but negative here anyways etc), see sevopedia feature category's jungle entry or/and xml for details anyways etc
+ 
+@@ -195,7 +196,6 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - Unit combat types refers to unit categories/types, for example in Civ4 BTS/base AdvCiv these were for example archery units, recon units (scout, explorer), melee units (spearman, axeman, swordsman, maceman, pikeman, etc.), etc. There are many new unit combat types, still a todo as of now but some have been implemented already (not sure will be done further or/and immediately nor soon if at all, may or may not anyways etc), see the sevopedia entry "Unit Combat Types" for details. This allows to give specific bonuses to specific combat types. For example, there are now new combat types of units (and modified existing ones too), for example the archers combat type is now subdivided instead into new archers (bow, short), archers (long), and archers (crossbow) if one wants to give specific combat modifiers based on these types more specifically if i may say anyways etc (i.e. modifier vs crossbows but not vs longbowmen, or vs short bows and longbows but not vs crossbows or a different modifier i mean anyways etc) ; as of now if i am not mistaken though there should not be much if at all differences between how these units are handled so this is as of now only a functional difference if i may say but ideally one may want to add differences between them maybe, for example crossbows defending first or such against units, but not implemented in advciv-sas as of now if i am not mistaken (didn't check but i don't remember such a change or type of change if i am not mistaken anyways etc).
+ - This also changes warfare tactics and such for some other unit combat where i made such small or not modifications in this case but anyways etc anyways etc, for example mounted units are now split into mounted melee and mounted range units, so for example pikemen as of now are strong against mounted melee (like the horse knight) but not against the mounted ranged (such as the horse archer or cuirassier for example anyways etc). Also note that some civ-specific units are not in same combat type than their generic "parent" if i may say anyways etc, for example the ballista elephant is mounted ranged vs the war elephant being mounted melee if i may say anyways etc. I have tweaked a bit the advantages of most of the mounted melee units to buff them relatively a bit as they would be a bit weaker otherwise if i am not mistaken anyways etc as of now at least anyways etc, also there are other small or not differences anyways etc such as the defend order or such too if i am not mistaken.
+ - new camel units related to the BONUS_CAMEL changes, as an alternative mount to the horse. Also reworked the arabian empire's civ-specific unit as well
+-- terrains and features have a higher importance in military, more units have terrain/feature bonuses, and sometimes rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless i think it is relevant (quite strongly) anyways etc... ; as it is also tedious and less intuitive mostly if i may say too and not necessarily worth it or as i would want it maybe but anyways etc). Civ-specific units in particular as of now almost all have terrain +/- feature modifiers, see sevopedia entry of each unit for details about each unit's modifiers, or see sevopedia terrain or/and sevopedia feature page to see all units modifiers for said terrain/feature (see for more details [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) anyways etc). For example the camel knight or the zulu impi are stronger in desert or/and other terrains as well. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the balance and as is quite needless, only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. See also [README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units) for additional info anyways etc
+ - All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) [https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense](https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense) for details (too anyways etc(.)) anyways etc...
+ - some units are buildable at different times/tech, also for historical accuracy, see tech tree i.e. tech advisor for details anyways etc
+ - explore units can attack: but their strength should be quite low
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 6ae35efac..797f8ceb7 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index ab3b903c1..ce83b0d28 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 6ddb082e8..4f5407037 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index dd4ff3374..56de4fbf8 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=29937

@@ -1,0 +1,896 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1846
+# Commit: 4af9d5d04626e3673044a6b216a1026e2ec0b91c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ff6e4300937a8c876cd3e490f18b84d50e16f13d
+# Title: Refactor UWAI handling of aspect ids
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	38	CvGameCoreDLL/UWAI.cpp
+43	2	CvGameCoreDLL/UWAI.h
+1	0	CvGameCoreDLL/WarEvaluator.cpp
+7	154	CvGameCoreDLL/WarUtilityAspect.cpp
+78	80	CvGameCoreDLL/WarUtilityAspect.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/UWAI.cpp b/CvGameCoreDLL/UWAI.cpp
+index 80543713e..1885f113d 100644
+--- a/CvGameCoreDLL/UWAI.cpp
++++ b/CvGameCoreDLL/UWAI.cpp
+@@ -82,48 +82,26 @@ bool UWAI::isUpdated() const {
+ 	return (!g.isScenario() || g.getElapsedGameTurns() > 1);
+ }
+ 
++#define MAKE_TAG_NAME(VAR) "UWAI_WEIGHT_"#VAR,
++#define MAKE_REPORT_NAME(VAR) #VAR,
++
+ void UWAI::doXML() {
+ 
+-	/*  Would be so much more elegant to store the weights in the WarUtilityAspect
+-		objects, but these are only initialized during war evaluation, whereas
+-		the caching should happen just once at game start. The way I'm implementing
+-		it now, the numbers returned by WarUtilityAspect::xmlId need to correspond
+-		to the call order in this function - which sucks. */
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_GREED_FOR_ASSETS"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_GREED_FOR_VASSALS"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_GREED_FOR_SPACE"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_GREED_FOR_CASH"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_LOATHING"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_MILITARY_VICTORY"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_PRESERVATION_OF_PARTNERS"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_RECONQUISTA"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_REBUKE"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_FIDELITY"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_HIRED_HAND"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_BORDER_DISPUTES"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_SUCKING_UP"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_PREEMPTIVE_WAR"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_KING_MAKING"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_EFFORT"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_RISK"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_ILL_WILL"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_AFFECTION"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_DISTRACTION"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_PUBLIC_OPPOSITION"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_REVOLTS"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_ULTERIOR_MOTIVES"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_FAIR_PLAY"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_BELLICOSITY"));
+-	xmlWeights.push_back(GC.getDefineINT("UWAI_WEIGHT_TACTICAL_SITUATION"));
++	char const* const aszAspectTagNames[] = {
++		DO_FOR_EACH_WAR_UTILITY_ASPECT(MAKE_TAG_NAME)
++	};
++	FAssert(sizeof(aszAspectTagNames) / sizeof(char*) == NUM_ASPECTS);
++	for (int i = 0; i < NUM_ASPECTS; i++)
++		xmlWeights.push_back(GC.getDefineINT(aszAspectTagNames[i]));
+ 
+-	applyPersonalityWeight();
+-}
++	char const* const aszAspectReportNames[] = {
++		DO_FOR_EACH_WAR_UTILITY_ASPECT(MAKE_REPORT_NAME)
++	};
++	FAssert(sizeof(aszAspectReportNames) / sizeof(char*) == NUM_ASPECTS);
++	for (int i = 0; i < NUM_ASPECTS; i++)
++		aszAspectNames.push_back(aszAspectReportNames[i]);
+ 
+-double UWAI::aspectWeight(int xmlId) const {
+-
+-	if(xmlId < 0 ||  xmlWeights.size() <= (size_t)xmlId)
+-		return 1;
+-	return xmlWeights[xmlId] / 100.0;
++	applyPersonalityWeight();
+ }
+ 
+ void UWAI::applyPersonalityWeight() {
+
+diff --git a/CvGameCoreDLL/UWAI.h b/CvGameCoreDLL/UWAI.h
+index aa854276e..f7b09ab8d 100644
+--- a/CvGameCoreDLL/UWAI.h
++++ b/CvGameCoreDLL/UWAI.h
+@@ -42,8 +42,7 @@ public:
+ 	int maxLandDist() const;
+ 	int maxSeaDist() const;
+ 	bool isUpdated() const;
+-	void doXML(); // Can't do this in constructor b/c not yet loaded
+-	double aspectWeight(int xmlId) const;
++
+ 	static int const preparationTimeLimited = 8;
+ 	static int const preparationTimeLimitedNaval = 10;
+ 	static int const preparationTimeTotal = 15;
+@@ -55,8 +54,50 @@ public:
+ 	static int const reparationsHumanPercent = 75;
+ 	static int const dwtUtilityThresh = -35;
+ 
++	void doXML();
++	#define DO_FOR_EACH_WAR_UTILITY_ASPECT(DO)\
++		DO(GREED_FOR_ASSETS) \
++		DO(GREED_FOR_VASSALS) \
++		DO(GREED_FOR_SPACE) \
++		DO(GREED_FOR_CASH) \
++		DO(LOATHING) \
++		DO(MILITARY_VICTORY) \
++		DO(PRESERVATION_OF_PARTNERS) \
++		DO(RECONQUISTA) \
++		DO(REBUKE) \
++		DO(FIDELITY) \
++		DO(HIRED_HAND) \
++		DO(BORDER_DISPUTES) \
++		DO(SUCKING_UP) \
++		DO(PREEMPTIVE_WAR) \
++		DO(KING_MAKING) \
++		DO(EFFORT) \
++		DO(RISK) \
++		DO(ILL_WILL) \
++		DO(AFFECTION) \
++		DO(DISTRACTION) \
++		DO(PUBLIC_OPPOSITION) \
++		DO(REVOLTS) \
++		DO(ULTERIOR_MOTIVES) \
++		DO(FAIR_PLAY) \
++		DO(BELLICOSITY) \
++		DO(TACTICAL_SITUATION)
++	enum AspectTypes {
++		DO_FOR_EACH_WAR_UTILITY_ASPECT(MAKE_ENUMERATOR)
++		NUM_ASPECTS
++	};
++	double aspectWeight(AspectTypes eAspect) const {
++		FAssertBounds(0, NUM_ASPECTS, eAspect);
++		return xmlWeights[eAspect] / 100.0;
++	}
++	char const* aspectName(AspectTypes eAspect) const {
++		FAssertBounds(0, NUM_ASPECTS, eAspect);
++		return aszAspectNames[eAspect];
++	}
++
+ private:
+ 	std::vector<int> xmlWeights;
++	std::vector<char const*> aszAspectNames;
+ 	bool enabled; // true iff K-Mod AI disabled through Game Options
+ 	bool inBackgr; // status of the XML flag
+
+diff --git a/CvGameCoreDLL/WarEvaluator.cpp b/CvGameCoreDLL/WarEvaluator.cpp
+index 30c83bb8c..b0f322899 100644
+--- a/CvGameCoreDLL/WarEvaluator.cpp
++++ b/CvGameCoreDLL/WarEvaluator.cpp
+@@ -313,6 +313,7 @@ void WarEvaluator::fillWithAspects(vector<WarUtilityAspect*>& v) {
+ 	v.push_back(new TacticalSituation(params));
+ 	v.push_back(new Bellicosity(params));
+ 	v.push_back(new FairPlay(params));
++	FAssert(UWAI::NUM_ASPECTS - (params.isIgnoreDistraction() ? 1 : 0) == (int)v.size());
+ }
+ 
+ void WarEvaluator::evaluate(PlayerTypes weId, vector<WarUtilityAspect*>& aspects) {
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 9cefb5f3a..1b2d91fbe 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -127,6 +127,13 @@ int WarUtilityAspect::preEvaluate() { return 0; }
+ 
+ bool WarUtilityAspect::concernsOnlyWarParties() const { return true; }
+ 
++char const* WarUtilityAspect::aspectName() const {
++
++	/*  Tbd.(?): Convert from upper case to mixed case and replace underscores with spaces.
++		Will need some static buffer for that. */
++	return getUWAI.aspectName(xmlId());
++}
++
+ void WarUtilityAspect::log(char const* fmt, ...) {
+ 
+ 	/*  The time spent in this function is negligible when the report is muted,
+@@ -554,12 +561,6 @@ bool WarUtilityBroaderAspect::concernsOnlyWarParties() const {
+ 	return false;
+ }
+ 
+-GreedForAssets::GreedForAssets(WarEvalParameters& params)
+-	: WarUtilityAspect(params), ourDist(-1) {}
+-
+-char const* GreedForAssets::aspectName() const { return "Greed for assets"; }
+-int GreedForAssets::xmlId() const { return 0; }
+-
+ void GreedForAssets::evaluate() {
+ 
+ 	PROFILE_FUNC();
+@@ -805,12 +806,6 @@ void GreedForAssets::freeCitiesPerArea() {
+ 		SAFE_DELETE(citiesPerArea[it->getID()]);
+ }
+ 
+-GreedForVassals::GreedForVassals(WarEvalParameters& params)
+-	: WarUtilityAspect(params) {}
+-
+-char const* GreedForVassals::aspectName() const { return "Greed for vassals"; }
+-int GreedForVassals::xmlId() const { return 1; }
+-
+ void GreedForVassals::evaluate() {
+ 
+ 	// Military analysis already checks if vassal states disabled in options
+@@ -897,12 +892,6 @@ void GreedForVassals::evaluate() {
+ 	u += std::max(0, ::round(totalUtility));
+ }
+ 
+-GreedForSpace::GreedForSpace(WarEvalParameters& params)
+-	: WarUtilityAspect(params) {}
+-
+-char const* GreedForSpace::aspectName() const { return "Greed for space"; }
+-int GreedForSpace::xmlId() const { return 2; }
+-
+ void GreedForSpace::evaluate() {
+ 
+ 	/*  If they lose cities, but aren't eliminated, they'll try to settle sites
+@@ -935,11 +924,6 @@ void GreedForSpace::evaluate() {
+ 	}
+ }
+ 
+-GreedForCash::GreedForCash(WarEvalParameters& params)
+-	: WarUtilityAspect(params) {}
+-char const* GreedForCash::aspectName() const { return "Greed for cash"; }
+-int GreedForCash::xmlId() const { return 3; }
+-
+ void GreedForCash::evaluate() {
+ 
+ 	int theyLoseToUs = 0;
+@@ -960,9 +944,6 @@ void GreedForCash::evaluate() {
+ 	}
+ }
+ 
+-Loathing::Loathing(WarEvalParameters& params)
+-	: WarUtilityAspect(params) {}
+-
+ void Loathing::evaluate() {
+ 
+ 	PROFILE_FUNC();
+@@ -1085,16 +1066,6 @@ double Loathing::lossRating() {
+ 		and balances. */
+ }
+ 
+-char const* Loathing::aspectName() const { return "Loathing"; }
+-int Loathing::xmlId() const { return 4; }
+-
+-MilitaryVictory::MilitaryVictory(WarEvalParameters& params)
+-	: WarUtilityAspect(params) {
+-
+-	votesToGo = -1;
+-	enoughVotes = false;
+-}
+-
+ void MilitaryVictory::evaluate() {
+ 
+ 	PROFILE_FUNC();
+@@ -1455,12 +1426,6 @@ void MilitaryVictory::addConquestsByPartner(map<int,double>& r,
+ 	}
+ }
+ 
+-char const* MilitaryVictory::aspectName() const { return "Military Victory"; }
+-int MilitaryVictory::xmlId() const { return 5; }
+-
+-Assistance::Assistance(WarEvalParameters& params)
+-	: WarUtilityAspect(params) {}
+-
+ void Assistance::evaluate() {
+ 
+ 	PROFILE_FUNC();
+@@ -1538,13 +1503,6 @@ double Assistance::assistanceRatio() {
+ 	return r;
+ }
+ 
+-char const* Assistance::aspectName() const {
+-
+-	// "Assistance" isn't distinct enough from Fidelity and SuckingUp
+-	return "Preservation of partners";
+-}
+-int Assistance::xmlId() const { return 6; }
+-
+ Reconquista::Reconquista(WarEvalParameters& params)
+ 	: WarUtilityAspect(params) {}
+ 
+@@ -1575,12 +1533,6 @@ void Reconquista::evaluate() {
+ 	u += ::round(uPlus);
+ }
+ 
+-char const* Reconquista::aspectName() const { return "Reconquista"; }
+-int Reconquista::xmlId() const { return 7; }
+-
+-Rebuke::Rebuke(WarEvalParameters& params)
+-	: WarUtilityAspect(params) {}
+-
+ void Rebuke::evaluate() {
+ 	// <advc.134a>
+ 	if(we->AI_getContactTimer(theyId, CONTACT_PEACE_TREATY) > 0) {
+@@ -1627,12 +1579,6 @@ void Rebuke::evaluate() {
+ 	}
+ }
+ 
+-char const* Rebuke::aspectName() const { return "Rebuke"; }
+-int Rebuke::xmlId() const { return 8; }
+-
+-Fidelity::Fidelity(WarEvalParameters& params)
+-	: WarUtilityAspect(params) {}
+-
+ void Fidelity::evaluate() {
+ 
+ 	PROFILE_FUNC();
+@@ -1677,12 +1623,6 @@ void Fidelity::evaluate() {
+ 	u += ::round(leaderFactor * 10);
+ }
+ 
+-char const* Fidelity::aspectName() const { return "Fidelity"; }
+-int Fidelity::xmlId() const { return 9; }
+-
+-HiredHand::HiredHand(WarEvalParameters& params)
+-	: WarUtilityAspect(params) {}
+-
+ void HiredHand::evaluate() {
+ 
+ 	if(!params.isConsideringPeace() || !agent.isAtWar(TEAMID(theyId)) ||
+@@ -1785,12 +1725,6 @@ double HiredHand::eval(PlayerTypes allyId, int originalUtility, int obligationTh
+ 	return uPlus;
+ }
+ 
+-char const* HiredHand::aspectName() const { return "Hired hand"; }
+-int HiredHand::xmlId() const { return 10; }
+-
+-BorderDisputes::BorderDisputes(WarEvalParameters& params)
+-	: WarUtilityAspect(params) {}
+-
+ void BorderDisputes::evaluate() {
+ 
+ 	PROFILE_FUNC();
+@@ -1861,12 +1795,6 @@ void BorderDisputes::evaluate() {
+ 	u += ::round(uPlus);
+ }
+ 
+-char const* BorderDisputes::aspectName() const { return "Border disputes"; }
+-int BorderDisputes::xmlId() const { return 11; }
+-
+-SuckingUp::SuckingUp(WarEvalParameters& params)
+-	: WarUtilityAspect(params) {}
+-
+ void SuckingUp::evaluate() {
+ 
+ 	/*  Similar to Assistance and Fidelity, but this one is only about improving
+@@ -1924,12 +1852,6 @@ void SuckingUp::evaluate() {
+ 	u += ::round(uPlus / std::sqrt((double)std::min(4, nAlive)));
+ }
+ 
+-char const* SuckingUp::aspectName() const { return "Sucking up"; }
+-int SuckingUp::xmlId() const { return 12; }
+-
+-PreEmptiveWar::PreEmptiveWar(WarEvalParameters& params)
+-	: WarUtilityBroaderAspect(params) {}
+-
+ void PreEmptiveWar::evaluate() {
+ 
+ 	/*  If an unfavorable war with them seems likely in the long run, we rather take
+@@ -2015,12 +1937,6 @@ void PreEmptiveWar::evaluate() {
+ 	u += ::round(uPlus * distrustFactor);
+ }
+ 
+-char const* PreEmptiveWar::aspectName() const { return "Pre-emptive War"; }
+-int PreEmptiveWar::xmlId() const { return 13; }
+-
+-KingMaking::KingMaking(WarEvalParameters& params)
+-	: WarUtilityBroaderAspect(params) {}
+-
+  double const KingMaking::scoreMargin = 0.25;
+ 
+ int KingMaking::preEvaluate() {
+@@ -2324,12 +2240,6 @@ double KingMaking::theirRelativeLoss() {
+ 	return theirLosses / theirAssets;
+ }
+ 
+-char const* KingMaking::aspectName() const { return "Kingmaking"; }
+-int KingMaking::xmlId() const { return 14; }
+-
+-Effort::Effort(WarEvalParameters& params)
+-	: WarUtilityAspect(params) {}
+-
+ int Effort::preEvaluate() {
+ 
+ 	/*  Not nice to put all code into this supposedly preparatory function.
+@@ -2509,11 +2419,6 @@ int Effort::preEvaluate() {
+ 
+ void Effort::evaluate() {}
+ 
+-char const* Effort::aspectName() const { return "Effort"; }
+-int Effort::xmlId() const { return 15; }
+-
+-Risk::Risk(WarEvalParameters& params) : WarUtilityAspect(params) {}
+-
+ int Risk::preEvaluate() {
+ 
+ 	// Handle potential losses of our vassals here
+@@ -2630,15 +2535,6 @@ void Risk::evaluate() {
+ 	u -= ::round(uMinus);
+ }
+ 
+-char const* Risk::aspectName() const { return "Risk"; }
+-int Risk::xmlId() const { return 16; }
+-
+-IllWill::IllWill(WarEvalParameters& params) : WarUtilityBroaderAspect(params) {
+-
+-	uMinus = -1;
+-	altPartnerFactor = -1;
+-}
+-
+ int IllWill::preEvaluate() {
+ 
+ 	int hostiles = 0;
+@@ -2891,9 +2787,6 @@ void IllWill::evalAngeredPartners() {
+ 	}
+ }
+ 
+-char const* IllWill::aspectName() const { return "Ill Will"; }
+-int IllWill::xmlId() const { return 17; }
+-
+ Affection::Affection(WarEvalParameters& params) : WarUtilityAspect(params) {
+ 
+ 	gameProgressFactor = 1 - 0.2 * GC.getGame().gameTurnProgress();
+@@ -3008,11 +2901,6 @@ void Affection::evaluate() {
+ 	}
+ }
+ 
+-char const* Affection::aspectName() const { return "Affection"; }
+-int Affection::xmlId() const { return 18; }
+-
+-Distraction::Distraction(WarEvalParameters& params) : WarUtilityAspect(params) {}
+-
+ void Distraction::evaluate() {
+ 
+ 	if(agent.isAVassal() || GET_TEAM(theyId).isAVassal() || !m->isWar(weId, theyId))
+@@ -3125,9 +3013,6 @@ void Distraction::evaluate() {
+ 	u -= ::round(uMinus);
+ }
+ 
+-char const* Distraction::aspectName() const { return "Distraction"; }
+-int Distraction::xmlId() const { return 19; }
+-
+ double WarUtilityAspect::normalizeUtility(double utilityTeamOnTeam, TeamTypes other) {
+ 
+ 	if(other == NO_TEAM)
+@@ -3136,8 +3021,6 @@ double WarUtilityAspect::normalizeUtility(double utilityTeamOnTeam, TeamTypes ot
+ 			(GET_TEAM(other).getNumMembers() * agent.getNumMembers());
+ }
+ 
+-PublicOpposition::PublicOpposition(WarEvalParameters& params) : WarUtilityAspect(params) {}
+-
+ void PublicOpposition::evaluate() {
+ 
+ 	if(we->isAnarchy() || !m->isWar(weId, theyId) || m->isEliminated(weId))
+@@ -3182,11 +3065,6 @@ void PublicOpposition::evaluate() {
+ 	u -= ::round(uMinus);
+ }
+ 
+-char const* PublicOpposition::aspectName() const { return "Public opposition"; }
+-int PublicOpposition::xmlId() const { return 20; }
+-
+-Revolts::Revolts(WarEvalParameters& params) : WarUtilityAspect(params) {}
+-
+ void Revolts::evaluate() {
+ 
+ 	/*  The war against theyId occupies our units, and rebels are taking advantage
+@@ -3240,12 +3118,6 @@ void Revolts::evaluate() {
+ 	u -= ::round(uMinus);
+ }
+ 
+-char const* Revolts::aspectName() const { return "Revolts"; }
+-int Revolts::xmlId() const { return 21; }
+-
+-UlteriorMotives::UlteriorMotives(WarEvalParameters& params) :
+-	WarUtilityBroaderAspect(params) {} // Need to evaluate for theyId==sponsorId
+-
+ void UlteriorMotives::evaluate() {
+ 
+ 	if (we->isHuman())
+@@ -3307,11 +3179,6 @@ void UlteriorMotives::evaluate() {
+ 	}
+ }
+ 
+-char const* UlteriorMotives::aspectName() const { return "Ulterior motives"; }
+-int UlteriorMotives::xmlId() const { return 22; }
+-
+-FairPlay::FairPlay(WarEvalParameters& params) : WarUtilityAspect(params) {}
+-
+ void FairPlay::evaluate() {
+ 
+ 	if(GET_TEAM(theyId).isAVassal() ||
+@@ -3470,11 +3337,6 @@ void FairPlay::evaluate() {
+ 			(civ.isHuman() ? 0 : h.getAIStartingDefenseUnits());
+ }*/
+ 
+-char const* FairPlay::aspectName() const { return "Fair play"; }
+-int FairPlay::xmlId() const { return 23; }
+-
+-Bellicosity::Bellicosity(WarEvalParameters& params) : WarUtilityAspect(params) {}
+-
+ void Bellicosity::evaluate() {
+ 
+ 	if(we->isHuman() || !m->isWar(agentId, TEAMID(theyId)) ||
+@@ -3517,12 +3379,6 @@ void Bellicosity::evaluate() {
+ 	u += ::round(2 * bellicosity * gloryRate);
+ }
+ 
+-char const* Bellicosity::aspectName() const { return "Bellicosity"; }
+-int Bellicosity::xmlId() const { return 24; }
+-
+-TacticalSituation::TacticalSituation(WarEvalParameters& params)
+-		: WarUtilityAspect(params) {}
+-
+ void TacticalSituation::evaluate() {
+ 
+ 	if(!m->isWar(weId, theyId))
+@@ -3793,6 +3649,3 @@ void TacticalSituation::evalOperational() {
+ 				report.leaderName(theyId));
+ 	u -= uMinus;
+ }
+-
+-char const* TacticalSituation::aspectName() const { return "Tactical situation"; }
+-int TacticalSituation::xmlId() const { return 25; }
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.h b/CvGameCoreDLL/WarUtilityAspect.h
+index a5ba023d1..c3e9bff90 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.h
++++ b/CvGameCoreDLL/WarUtilityAspect.h
+@@ -23,9 +23,9 @@ public:
+ 		Sets some protected data members that subclasses should find useful.
+ 		Concrete subclasses should therefore overwrite evaluate(void) instead. */
+ 	virtual int evaluate(MilitaryAnalyst const& m);
+-	virtual char const* aspectName() const=0;
++	char const* aspectName() const;
+ 	// Needs to correspond to the call order in UWAI::cacheXML
+-	virtual int xmlId() const=0;
++	virtual UWAI::AspectTypes xmlId() const=0;
+ 	/*  Caller needs to call evaluate first, which computes war utility. This is
+ 		just a getter. */
+ 	int utility() const { return u; }
+@@ -136,15 +136,15 @@ private:
+ class WarUtilityBroaderAspect : public WarUtilityAspect {
+ protected:
+ 	WarUtilityBroaderAspect(WarEvalParameters& params);
+-	bool concernsOnlyWarParties() const;
++	bool concernsOnlyWarParties() const; // override
+ };
+ 
+ class GreedForAssets : public WarUtilityAspect {
+ public:
+-	GreedForAssets(WarEvalParameters& params);
++	GreedForAssets(WarEvalParameters& params) :
++			WarUtilityAspect(params), ourDist(-1) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::GREED_FOR_ASSETS; }
+ private:
+ 	void initCitiesPerArea();
+ 	void freeCitiesPerArea();
+@@ -161,37 +161,37 @@ private:
+ 
+ class GreedForVassals : public WarUtilityAspect {
+ public:
+-	GreedForVassals(WarEvalParameters& params);
++	GreedForVassals(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::GREED_FOR_VASSALS; }
+ };
+ 
+ 
+ class GreedForSpace : public WarUtilityAspect {
+ public:
+-	GreedForSpace(WarEvalParameters& params);
++	GreedForSpace(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::GREED_FOR_SPACE; }
+ };
+ 
+ 
+ class GreedForCash : public WarUtilityAspect {
+ public:
+-	GreedForCash(WarEvalParameters& params);
++	GreedForCash(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::GREED_FOR_CASH; }
+ };
+ 
+ 
+ class Loathing : public WarUtilityAspect {
+ public:
+-	Loathing(WarEvalParameters& params);
++	Loathing(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::LOATHING; }
+ private:
+ 	double lossRating();
+ };
+@@ -199,11 +199,11 @@ private:
+ 
+ class MilitaryVictory : public WarUtilityAspect {
+ public:
+-	MilitaryVictory(WarEvalParameters& params);
++	MilitaryVictory(WarEvalParameters& params)
++			: WarUtilityAspect(params), votesToGo(-1), enoughVotes(false) {}
+ 	int preEvaluate();
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::MILITARY_VICTORY; }
+ private:
+ 	double progressRatingConquest();
+ 	double progressRatingDomination();
+@@ -217,10 +217,10 @@ private:
+ 
+ class Assistance : public WarUtilityAspect {
+ public:
+-	Assistance(WarEvalParameters& params);
++	Assistance(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::PRESERVATION_OF_PARTNERS; }
+ private:
+ 	double assistanceRatio();
+ };
+@@ -230,35 +230,34 @@ class Reconquista : public WarUtilityAspect {
+ public:
+ 	Reconquista(WarEvalParameters& params);
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::RECONQUISTA; }
+ };
+ 
+ 
+ class Rebuke : public WarUtilityAspect {
+ public:
+-	Rebuke(WarEvalParameters& params);
++	Rebuke(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::REBUKE; }
+ };
+ 
+ 
+ class Fidelity : public WarUtilityAspect {
+ public:
+-	Fidelity(WarEvalParameters& params);
++	Fidelity(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::FIDELITY; }
+ };
+ 
+ 
+ class HiredHand : public WarUtilityAspect {
+ public:
+-	HiredHand(WarEvalParameters& params);
++	HiredHand(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::HIRED_HAND; }
+ private:
+ 	double eval(PlayerTypes allyId, int originalUtility, int obligationThresh);
+ };
+@@ -266,38 +265,38 @@ private:
+ 
+ class BorderDisputes : public WarUtilityAspect {
+ public:
+-	BorderDisputes(WarEvalParameters& params);
++	BorderDisputes(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::BORDER_DISPUTES; }
+ };
+ 
+ 
+ class SuckingUp : public WarUtilityAspect {
+ public:
+-	SuckingUp(WarEvalParameters& params);
++	SuckingUp(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::SUCKING_UP; }
+ };
+ 
+ 
+ class PreEmptiveWar : public WarUtilityBroaderAspect {
+ public:
+-	PreEmptiveWar(WarEvalParameters& params);
++	PreEmptiveWar(WarEvalParameters& params)
++			: WarUtilityBroaderAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::PREEMPTIVE_WAR; }
+ };
+ 
+ 
+ class KingMaking : public WarUtilityBroaderAspect {
+ public:
+-	KingMaking(WarEvalParameters& params);
++	KingMaking(WarEvalParameters& params)
++			: WarUtilityBroaderAspect(params) {}
+ 	int preEvaluate();
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::KING_MAKING; }
+ private:
+ 	void addWinning(std::set<PlayerTypes>& r, bool bPredict);
+ 	bool anyVictory(PlayerTypes civId, int iVictoryFlags, int stage,
+@@ -313,31 +312,31 @@ private:
+ 
+ class Effort : public WarUtilityAspect {
+ public:
+-	Effort(WarEvalParameters& params);
++	Effort(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	int preEvaluate();
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::EFFORT; }
+ };
+ 
+ 
+ class Risk : public WarUtilityAspect {
+ public:
+-	Risk(WarEvalParameters& params);
++	Risk(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	int preEvaluate();
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::RISK; }
+ };
+ 
+ 
+ class IllWill : public WarUtilityBroaderAspect {
+ public:
+-	IllWill(WarEvalParameters& params);
++	IllWill(WarEvalParameters& params)
++		: WarUtilityBroaderAspect(params), uMinus(-1), altPartnerFactor(-1) {}
+ 	int preEvaluate();
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::ILL_WILL; }
+ private:
+ 	void evalLostPartner();
+ 	void evalRevenge();
+@@ -353,8 +352,7 @@ class Affection : public WarUtilityAspect {
+ public:
+ 	Affection(WarEvalParameters& params);
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::AFFECTION; }
+ private:
+ 	double gameProgressFactor;
+ };
+@@ -362,48 +360,48 @@ private:
+ 
+ class Distraction : public WarUtilityAspect {
+ public:
+-	Distraction(WarEvalParameters& params);
++	Distraction(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::DISTRACTION; }
+ };
+ 
+ 
+ class PublicOpposition : public WarUtilityAspect {
+ public:
+-	PublicOpposition(WarEvalParameters& params);
++	PublicOpposition(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::PUBLIC_OPPOSITION; }
+ };
+ 
+ 
+ class Revolts : public WarUtilityAspect {
+ public:
+-	Revolts(WarEvalParameters& params);
++	Revolts(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::REVOLTS; }
+ private:
+ 	std::set<int> countedCities;
+ };
+ 
+-
++// BroaderAspect: need to evaluate for theyId==sponsorId
+ class UlteriorMotives : public WarUtilityBroaderAspect {
+ public:
+-	UlteriorMotives(WarEvalParameters& params);
++	UlteriorMotives(WarEvalParameters& params)
++			: WarUtilityBroaderAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::ULTERIOR_MOTIVES; }
+ };
+ 
+ 
+ class FairPlay : public WarUtilityAspect {
+ public:
+-	FairPlay(WarEvalParameters& params);
++	FairPlay(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::FAIR_PLAY; }
+ private:
+ 	int initialMilitaryUnits(PlayerTypes civId);
+ };
+@@ -411,19 +409,19 @@ private:
+ 
+ class Bellicosity : public WarUtilityAspect {
+ public:
+-	Bellicosity(WarEvalParameters& params);
++	Bellicosity(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::BELLICOSITY; }
+ };
+ 
+ 
+ class TacticalSituation : public WarUtilityAspect {
+ public:
+-	TacticalSituation(WarEvalParameters& params);
++	TacticalSituation(WarEvalParameters& params)
++			: WarUtilityAspect(params) {}
+ 	void evaluate();
+-	char const* aspectName() const;
+-	int xmlId() const;
++	UWAI::AspectTypes xmlId() const { return UWAI::TACTICAL_SITUATION; }
+ private:
+ 	void evalEngagement();
+ 	void evalOperational();
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=27161

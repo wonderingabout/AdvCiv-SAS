@@ -1,0 +1,78 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1950
+# Commit: 82a7a78f51cd8db1f39aeb0c09ca3a4926c77312
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1f0b08f5a12671b20c147a95f003a5e90e71c6fc
+# Title: Don't include CvTalkingHeadMessage.h in CvPlayer.h
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvPlayer.cpp
+3	3	CvGameCoreDLL/CvPlayer.h
+1	0	CvGameCoreDLL/RiseFall.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 562df5b5a..2a9c14184 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5,6 +5,7 @@
+ #include "CvAgents.h" // advc.agent
+ #include "CoreAI.h"
+ #include "CvDealList.h" // advc.003s
++#include "CvTalkingHeadMessage.h"
+ #include "UWAIAgent.h" // advc.104
+ #include "PlotRange.h"
+ #include "CvAreaList.h" // advc.003s
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 14fca63ff..ae1eb1d11 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -6,8 +6,8 @@
+ #define CIV4_PLAYER_H
+ 
+ #include "CvPlotGroup.h"
+-#include "CvTalkingHeadMessage.h"
+ 
++class CvTalkingHeadMessage;
+ class CvDiploParameters;
+ class CvPopupInfo;
+ class CvEventTriggerInfo;
+@@ -1409,9 +1409,9 @@ protected:  // <advc.210>
+ 
+ 	FFreeListTrashArray<CvPlotGroup> m_plotGroups;
+ 	//FFreeListTrashArray<CvCityAI> m_cities;
+-	//FFreeListTrashArray<CvUnitAI>
++	//FFreeListTrashArray<CvUnitAI> m_units;
+ 	//FFreeListTrashArray<CvSelectionGroupAI> m_selectionGroups;
+-	// <advc.003u> Replacing the above to avoid having to include the AI headers
++	// <advc.003u> Replacing the above
+ 	CvCityList* m_cities;
+ 	CvUnitList* m_units;
+ 	CvSelectionGroupList* m_selectionGroups; // </advc.003u>
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 509c79a90..a37c8a960 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -6,6 +6,7 @@
+ #include "CoreAI.h"
+ #include "CvDeal.h"
+ #include "UWAIAgent.h" // advc.104
++#include "CvTalkingHeadMessage.h"
+ #include "CvPopupInfo.h"
+ #include "CvReplayInfo.h"
+ #include "CvPlot.h"
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1655

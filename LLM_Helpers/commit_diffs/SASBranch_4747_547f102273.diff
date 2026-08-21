@@ -1,0 +1,237 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4747
+# Commit: 547f102273ee137d6694b8691bfb14f8e62b28e9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5db8b73f51279037cb4ff20344c46c135276adcb
+# Title: add replaced by in sevopedia unit (import from RFC DOC mod), further beautify, make coordinates even more relative also update docs removed DLL lines about "...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+35	5	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+4	0	Assets/XML/Text/RFC_DOC_Interface_Custom.xml
+8	7	CvGameCoreDLL/CvGameTextMgr.cpp
+13	0	README.md
+-	-	_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (5).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (6).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (4).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (5).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (6).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 6b95cde66..f79fd0f46 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -8,6 +8,10 @@
+ #
+ # additional work by Gaurav, Progor, Ket, Vovan, Fitchn, LunarMongoose
+ #
++# <!-- custom: part of the code here (placeReplacedBy (renamed from placeReplacements of: ) in particular, but not exhaustive or maybe exhaustive or not, anyways, is imported from RFC DOC mod:
++# C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Python\Pedia\CvPediaUnit.py
++# which may be modified or not for AdvCiv-SAS
++# -->
+ 
+ from CvPythonExtensions import *
+ import CvUtil
+@@ -31,7 +35,7 @@ class SevoPediaUnit:
+ 		self.Y_UNIT_PANE = self.top.Y_PEDIA_PAGE
+ 		# <!-- custom: no margins to merge edges with promo pane for nicer display maybe i mean anyways etc -->
+ 		self.W_UNIT_PANE = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE) / 4
+-		self.H_UNIT_PANE = 200
++		self.H_UNIT_PANE = 190
+ 
+ 		# <!-- custom: no margins to merge edges with unit pane for nicer display maybe i mean anyways etc -->
+ 		# <!-- custom: merge effect by partially joining their borders, i accidentally found or/and maybe got the idea and looks very nice, just is slightly not centered maybe fixable or not but and in all cases anyways etc anyways etc -->
+@@ -67,8 +71,13 @@ class SevoPediaUnit:
+ 		self.W_PREREQ_PANE = self.W_UNIT_PANE * 2
+ 		self.H_PREREQ_PANE = 110
+ 
+-		self.X_UPGRADES_TO_PANE = self.X_UNIT_PANE
+-		self.Y_UPGRADES_TO_PANE = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + self.SMALL_MARGIN
++		self.X_REPLACED_BY = self.X_PREREQ_PANE
++		self.Y_REPLACED_BY = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + self.SMALL_MARGIN
++		self.W_REPLACED_BY = self.W_PREREQ_PANE
++		self.H_REPLACED_BY = self.H_PREREQ_PANE
++
++		self.X_UPGRADES_TO_PANE = self.X_PREREQ_PANE
++		self.Y_UPGRADES_TO_PANE = self.Y_REPLACED_BY + self.H_REPLACED_BY + self.SMALL_MARGIN
+ 		self.W_UPGRADES_TO_PANE = self.W_PREREQ_PANE
+ 		self.H_UPGRADES_TO_PANE = self.H_PREREQ_PANE
+ 
+@@ -80,14 +89,14 @@ class SevoPediaUnit:
+ 		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_SPECIAL_PANE + self.MEDIUM_MARGIN
+ 		self.Y_UNIT_ANIMATION = self.Y_UNIT_PANE + 7
+ 		self.W_UNIT_ANIMATION = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE) / 2
+-		self.H_UNIT_ANIMATION = 400
++		self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_PREREQ_PANE + self.SMALL_MARGIN + self.H_REPLACED_BY - 7
+ 
+ 		self.X_ROTATION_UNIT_ANIMATION = -20
+ 		self.Z_ROTATION_UNIT_ANIMATION = 30
+ 		self.SCALE_ANIMATION = 1.0
+ 
+ 		self.X_HISTORY_PANE = self.X_UNIT_ANIMATION
+-		self.Y_HISTORY_PANE = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.MEDIUM_MARGIN
++		self.Y_HISTORY_PANE = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.MEDIUM_MARGIN + 17
+ 		self.W_HISTORY_PANE = self.W_UNIT_ANIMATION
+ 		self.H_HISTORY_PANE = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE
+ 
+@@ -111,6 +120,7 @@ class SevoPediaUnit:
+ 		self.placeStats()
+ 		self.placeUpgradesTo()
+ 		self.placeRequires()
++		self.placeReplacedBy()
+ 		self.placeSpecial()
+ 		self.placePromotions()
+ 		self.placeHistory()
+@@ -226,6 +236,26 @@ class SevoPediaUnit:
+ 
+ 
+ 
++	def placeReplacedBy(self):
++		screen = self.top.getScreen()
++		panel = self.top.getNextWidgetName()
++		screen.addPanel(panel, CyTranslator().getText("TXT_KEY_PEDIA_REPLACED_BY_CUSTOM", ()), "", False, True, self.X_REPLACED_BY, self.Y_REPLACED_BY, self.W_REPLACED_BY, self.H_REPLACED_BY, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panel, "", "  ")
++		
++		iUnitClass = gc.getUnitInfo(self.iUnit).getUnitClassType()
++		iBaseUnit = gc.getUnitClassInfo(iUnitClass).getDefaultUnitIndex()
++		
++		if self.iUnit != iBaseUnit:
++			screen.attachImageButton(panel, "", gc.getUnitInfo(iBaseUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iBaseUnit, 1, False)
++			return
++		
++		for iUnit in xrange(gc.getNumUnitInfos()):
++			if self.iUnit != iUnit and not gc.getUnitInfo(iUnit).isGraphicalOnly():
++				if iUnitClass == gc.getUnitInfo(iUnit).getUnitClassType():
++					screen.attachImageButton(panel, "", gc.getUnitInfo(iUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++
++
++
+ 	def placeUpgradesTo(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/XML/Text/RFC_DOC_Interface_Custom.xml b/Assets/XML/Text/RFC_DOC_Interface_Custom.xml
+index 79b1253c9..4d3e8ca38 100644
+--- a/Assets/XML/Text/RFC_DOC_Interface_Custom.xml
++++ b/Assets/XML/Text/RFC_DOC_Interface_Custom.xml
+@@ -20,4 +20,8 @@ and modified for our needs if needed.
+ 		<Tag>TXT_KEY_PEDIA_FAVOURITE_CIVICS_AND_RELIGIONS</Tag>
+ 		<English>Favourite Civics and Religions</English>
+ 	</TEXT>
++		<TEXT>
++		<Tag>TXT_KEY_PEDIA_REPLACED_BY_CUSTOM</Tag>
++		<English>Replaced By</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 4a143e0cc..6cbdff591 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9666,10 +9666,10 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 						GC.getInfo(eLoopCivilization).getTextKeyWide()));
+ 			}
+ 		}
+-
+-		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT",
+-				GC.getInfo(eDefaultUnit).getTextKeyWide()));
++		// <!-- custom: we now have a replaced by panel, so we don't need and don't want anymore this extra replaces field/line anyways etc (see sevopediaunit.py for details) -->
++		//szBuffer.append(NEWLINE);
++		//szBuffer.append(gDLL->getText("TXT_KEY_REPLACES_UNIT",
++		//		GC.getInfo(eDefaultUnit).getTextKeyWide()));
+ 	}
+ 
+ 	if (kUnitClass.isWorldUnit())
+@@ -10033,9 +10033,10 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 				if (eLoopUnit != eUnit &&
+ 					eUnitClass == GC.getInfo(eLoopUnit).getUnitClassType())
+ 				{
+-					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_REPLACED_BY_UNIT",
+-							GC.getInfo(eLoopUnit).getTextKeyWide()));
++					// <!-- custom: we now have a replaced by panel, so we don't need and don't want anymore this extra replaced by field/line anyways etc (see sevopediaunit.py for details) -->
++					//szBuffer.append(NEWLINE);
++					//szBuffer.append(gDLL->getText("TXT_KEY_REPLACED_BY_UNIT",
++					//		GC.getInfo(eLoopUnit).getTextKeyWide()));
+ 				}
+ 			}
+ 		}
+
+diff --git a/README.md b/README.md
+index 23c307c29..6db63eee4 100644
+--- a/README.md
++++ b/README.md
+@@ -122,6 +122,19 @@ new Cities (based on Middle-earth mod's (very amazing!!!!!! (Not that others are
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images_In_General/0.670_sevopedia_civilization_sample (3).JPG" width="250"></img>
+ 
++##### example 6: unit list category
++
++Reordered and beautified the original AdvCiv Sevopedia code while trying to keep its original structure, but added relative positioning everywhere or almost if not everywhere, this means that ideally the panels sizes should/would/will respond/adjust/adapt maybe indeed but anyways etc... to the screen resolution, removing the old harcoded logic, hopefully cleaner now (not tested at smaller resolutions).
++
++Finally and most importantly, as something simialr as said in the paragraph just above (relative dimensioning in other panels even though still cool but anyways etc), new Replaced By imported from RFC DOC and adjusted or not or yes or and other or and not but anyways etc:
++
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (5).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (6).JPG" width="250"></img>
++
+ ## Sex-neutral unit names or/and combat types (todo and non-exhaustive)
+ 
+ Yet to be done, but i want (more at least) sex-neutral terms for units. Tbh i don't care much if at all (but is maybe nice, anyways), but i intend to implement some women units, especially light units where i think women make more sense (less strength required and they are more agile perhaps too, anyways). I also think they (some of them at least anyways) were very lousy (names), for example for "spearman" it's basically just weapon-man, i am not even sure it's a proper word for most units but i don't know much about this, anyways. Also, unless the unit was strongly masculine, i see no reason to use weaponman specifically, anyways.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG
+new file mode 100644
+index 000000000..4ec444172
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (2).JPG
+new file mode 100644
+index 000000000..b3c0e4c73
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (3).JPG
+new file mode 100644
+index 000000000..842183894
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (4).JPG b/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (4).JPG
+new file mode 100644
+index 000000000..1f288fd3d
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (5).JPG b/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (5).JPG
+new file mode 100644
+index 000000000..40bdab28a
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (5).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (6).JPG b/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (6).JPG
+new file mode 100644
+index 000000000..337f90120
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/0.680_sevopedia_unit_sample (6).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=10 omittedFiles=1 embeddedPatchBytes=10874

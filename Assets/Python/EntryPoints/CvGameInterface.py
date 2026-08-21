@@ -1,9 +1,7 @@
 ## Sid Meier's Civilization 4
 ## Copyright Firaxis Games 2005
 # WARNING - The DLL specifically calls the functions as they are named
-# advc.003y: I've copied this file from BtS only to add the missing
-# cannotSpreadReligion function. For adding new Python callbacks,
-# BUG\BugGameUtils.py (or BugEventManager.py) should be used instead.
+# advc.003y: I've copied this file from BtS only to add the missing cannotSpreadReligion function. For adding new Python callbacks, BUG\BugGameUtils.py (or BugEventManager.py) should be used instead.
 
 import CvUtil
 import CvGameUtils
@@ -18,7 +16,7 @@ normalGameUtils = CvGameInterfaceFile.GameUtils
 def gameUtils():
 	' replace normalGameUtils with your mod version'
 	return normalGameUtils
-		
+
 def isVictoryTest():
 	#CvUtil.pyPrint( "CvGameInterface.isVictoryTest" )
 	return gameUtils().isVictoryTest()
@@ -280,10 +278,10 @@ def getBuildingCostMod(argsList):
 
 def canUpgradeAnywhere(argsList):
 	return gameUtils().canUpgradeAnywhere(argsList)
-	
+
 def getWidgetHelp(argsList):
 	return gameUtils().getWidgetHelp(argsList)
-	
+
 def getUpgradePriceOverride(argsList):
 	return gameUtils().getUpgradePriceOverride(argsList)
 

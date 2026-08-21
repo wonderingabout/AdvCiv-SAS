@@ -1,0 +1,167 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5743
+# Commit: 93b9a144a91472ea4c347bd013192162019de36a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4779445d433ecb4bf41930f324dff4462b012a71
+# Title: make 48 civs DLL the default 18 civ DLL provided as an alternative
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+-	-	Assets/{CvGameCoreDLL_48_civs_DLL.dll => CvGameCoreDLL_18_civs_DLL.dll}
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+4	16	Assets/XML/Text/AdvCiv-SAS_main.xml
+2	2	CvGameCoreDLL/CvEnums.h
+6	6	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+ rename Assets/{CvGameCoreDLL_48_civs_DLL.dll => CvGameCoreDLL_18_civs_DLL.dll} (50%)
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL_48_civs_DLL.dll b/Assets/CvGameCoreDLL_18_civs_DLL.dll reason=binary/generated-file changedLines=0 bytes=341
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+index 31c2c9593..26587bf81 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+@@ -332,7 +332,7 @@ class SevoPediaWorldSizeChart:
+ 			if iDefaultPlayers > 18:
+ 				parsed_data[world_type]["RecommendedDLL"] = "48 civs"
+ 			else:
+-				parsed_data[world_type]["RecommendedDLL"] = "18 civs"
++				parsed_data[world_type]["RecommendedDLL"] = "Either"
+ 
+ 		header = []
+ 		if self.IS_SAS_SEVOPEDIA_WORLD_SIZE_CHART_HEADER_ICONS:
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index d1d9af3ac..f507cbf69 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -1717,27 +1717,15 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MAIN_MENU_SELECT_WORLD_SETUP</Tag>
+-		<English>WORLD SIZE (Base/48 civs DLL)</English>
++		<English>WORLD SIZE</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MAIN_MENU_SELECT_WORLD_SIZE_TITLE</Tag>
+-		<English>WORLD SIZE (Base/48 civs DLL)</English>
++		<English>WORLD SIZE</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MENU_SIZE</Tag>
+-		<English>Size (Base/48):</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_WORLD_SIZES_CHART_RECOMMENDED_DLL_FIELD</Tag>
+-		<English>Recommended DLL</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_WORLD_SIZES_CHART_BASE_DLL</Tag>
+-		<English>Base</English>
+-	</TEXT>
+-	<TEXT>
+-		<Tag>TXT_KEY_PEDIA_WORLD_SIZES_CHART_48_CIVS_DLL</Tag>
+-		<English>48 civs</English>
++		<English>Size:</English>
+ 	</TEXT>
+ 
+ 
+@@ -1764,7 +1752,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_WORLD_ARENA_HELP</Tag>
+-		<English>An extra-small World Size smaller than Base AdvCiv's Duel World Size. Requires the 48 civs DLL for default player counts.</English>
++		<English>An extra-small World Size smaller than Base AdvCiv's Duel World Size.</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_WORLD_SAS24_HELP</Tag>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index beaafa75a..aeafdab9d 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -25,8 +25,8 @@ enum PlayerTypes
+ 	/*  advc.056 (note): Scenario (WB) files are now compatible so long
+ 		as the player ids in the WB file don't exceed MAX_CIV_PLAYERS in the DLL.
+ 		Savegames are still incompatible. */
+-	MAX_CIV_PLAYERS = 18,
+-	// MAX_CIV_PLAYERS = 48,
++	MAX_CIV_PLAYERS = 48,
++	// MAX_CIV_PLAYERS = 18,
+ 	BARBARIAN_PLAYER = MAX_CIV_PLAYERS,
+ 	MAX_PLAYERS
+ };
+
+diff --git a/README.md b/README.md
+index 786291756..ef13b5016 100644
+--- a/README.md
++++ b/README.md
+@@ -663,19 +663,19 @@ The changes before/after with rationale tables are synthethized in .md tables in
+ 
+ ### How to use
+ 
+-A 48 Civs DLL is also available and provided in this mod. (As of now named "CvGameCoreDLL_48_civs_dll.dll").
++48 Civs DLL is provided and is now the default in AdvCiv-SAS, because we ship world sizes (e.g., SAS24/SAS32/SAS40/SAS48) that support such higher player counts, but using the old 18 civs DLL would result in map never being populated. It is easier to have a uniform DLL as well
+ 
+-To use it, rename old base 18 `MAX_CIV_PLAYERS` DLL file named "CvGameCoreDLL.dll" to any name you like as long as it's another name, for example to "CvGameCoreDLL_18_civs_dll.dll", and rename the "CvGameCoreDLL_48_civs_dll.dll" to ""CvGameCoreDLL.dll" (vice versa to revert to old 18 players DLL).
++For compatibility or performance or such, a 18 civs DLL is also available and provided in this mod. (As of now named "CvGameCoreDLL_18_civs_dll.dll").
+ 
+-All in all, prefer using the default DLL unless you want to use 19+ max players, then after game is finished if you want to use 18 max players or less, consider reverting to old DLL for your next map.
++To use it, rename current base 48 `MAX_CIV_PLAYERS` DLL file named "CvGameCoreDLL.dll" to any name you like as long as it's another name, for example to "CvGameCoreDLL_48_civs_dll.dll", and rename the "CvGameCoreDLL_18_civs_dll.dll" to ""CvGameCoreDLL.dll" (vice versa to revert to old 48 players DLL).
+ 
+-Note: it seems that savegames are not compatible when switching from 18 civ DLL to 48 civ DLL (or vice versa i assume) though based on the [related code comments in CvEnums.h](https://github.com/wonderingabout/AdvCiv-SAS/blob/2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source).
++Note: it seems that savegames are not compatible when switching from 48 civ DLL to 18 civ DLL (or vice versa i assume) though based on the [related code comments in CvEnums.h](https://github.com/wonderingabout/AdvCiv-SAS/blob/2a453a1f3f0a8eb4ca9be538ec9553c12d49cc1c/CvGameCoreDLL/CvEnums.h#L24-L27), so make sure you finish the games you started using the same DLL, and switch back or forth whichever xd only after you want to play a new game (i.e. don't switch DLLs then reload same save file/map based on this code comment but i don't know and am only reporting what the base advciv code comment says, check if in doubt some other source).
+ 
+-Note 2: in the [development version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#development-version), i don't update the 48 civs DLL as often after each change i make, because it is bit more tedious to do it and test the DLL to make sure it runs well or well enough (no compile error or crash or weird stuff or error at a glance), so i you want latest features in the development version, consider using the default (i.e. not 48 civs DLL) DLL.
++Note 2: in the [development version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#development-version), i don't update the 18 civs DLL as often after each change i make, because it is bit more tedious to do it and test the DLL to make sure it runs well or well enough (no compile error or crash or weird stuff or error at a glance), so i you want latest features in the development version, consider using the default (i.e. not 18 civs DLL) DLL.
+ 
+ ### New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)
+ 
+-This DLL is the recommended DLL for the new World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) added in AdvCiv-SAS based on the XXL World mod's world sizes. For the larger than huge world sizes, as their Default Player number is higher than the 18 `MAX_CIV_PLAYERS` in the base DLL, it is recommended to use the 48 civs DLL to play them (else the Map may never get populated with too few players relative to world size).
++This DLL is the recommended DLL for the new World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) added in AdvCiv-SAS based on the XXL World mod's world sizes. For the larger than huge world sizes, as their Default Player number is higher than the 18 `MAX_CIV_PLAYERS` in the old base 18 DLL, it is recommended to use the 48 civs DLL to play them (else the Map may never get populated with too few players relative to world size).
+ 
+ The adjustment of the XXL World Mod's World sizes was made by GPT-5.2-Codex. For information, here is a comparative .md table showing how the XXL World's World Sizes compare to the AdvCiv-SAS' new World Sizes, and notes, by GPT-5.2-Codex as well.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 1339e9129..3ffa8902f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -124,7 +124,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ 
+ ### 48 Civs DLL
+ 
+-- **48 Civs DLL** is also provided and available for use in AdvCiv-SAS, **tested to run**. See the main [README.md → 48 Civs DLL](/README.md#48-civs-dll) for details.
++- (Requires AdvCiv-SAS 5743+) **48 Civs DLL** is  **48 civs DLL** is now the **default DLL** (since we ship world sizes such as SAS24/SAS32/SAS40/SAS48 and mapscripts that support them, making this DLL the default is easier, more consistent, and reduces tedium). A 18 civs DLL is provided for compatiblity or performance or such other purposes. See the main [README.md → 48 Civs DLL](/README.md#48-civs-dll) for details for how to switch from the 48 civs DLL to the 18 civs DLL or vice versa and for details.
+ - (Requires AdvCiv-SAS 5742+) Add a **notification** at **game start** (once per session) if the max **number of players** of the current **DLL** is lower than the **default player** number of the **selected world size** (e.g., playing SAS48 world size (default players: 48) with the 18 civs DLL (max players: 18)) telling users to switch to a higher player number DLL (e.g., from the 18civsDLL to the 48civs DLL). Change in [CvEventManager.py](Assets/Python/CvEventManager.py). See [KI#127](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#127---worked-around-dll-max-players--worldsize-default-players-mismatch-causing-very-sparse-games-and-players-not-being-notified-of-it).
+ 
+ ## AI
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+index 68ae4b251..2981206e1 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md
+@@ -50,7 +50,7 @@ To download the development version, go to the [mod's github main page](https://
+ 
+ <img src="../Images/misc_0.x/0.250_download-zip-github.png" alt="0.250_download-zip-github.png" width="250"></img>
+ 
+-Note: the 48 civs DLL may often not be updated in this version as it is tedious to do so at every development version change, but the default 18 civs DLL should be; see [README.md#48-civs-dll](/README.md#48-civs-dll) for details and to be sure.
++Note: the 18 civs DLL may often not be updated in this version as it is tedious to do so at every development version change, but the as of now default 48 civs DLL should be; see [README.md#48-civs-dll](/README.md#48-civs-dll) for details and to be sure.
+ 
+ Note 2: if you want to modify AdvCiv-SAS, this player development version is missing some files, see [Modify AdvCiv-SAS (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-advciv-sas-its-development-version) for details.
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=6 omittedFiles=2 embeddedPatchBytes=10625

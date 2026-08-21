@@ -1,0 +1,1442 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5617
+# Commit: f21276c11ac7547c8b9db23202f76bd365f699d8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: aa02dc468f3c1198d77462b481c6ffdc4a954ce7
+# Title: cache in domestic advisor, policy advisor, foreign advisor, military advisor (non-bug), tech chooser, info screen, victory screen
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+66	35	Assets/Python/Screens/CvDomesticAdvisor.py
+37	19	Assets/Python/Screens/CvForeignAdvisor.py
+57	27	Assets/Python/Screens/CvInfoScreen.py
+38	16	Assets/Python/Screens/CvMilitaryAdvisor.py
+44	20	Assets/Python/Screens/CvPolicyAdvisorScreen.py
+100	47	Assets/Python/Screens/CvTechChooser.py
+27	13	Assets/Python/Screens/CvVictoryScreen.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index d4f82934f..da443bae7 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -93,6 +93,37 @@ class CvDomesticAdvisor:
+ 		self.TEXT_EXIT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+ 		self.TEXT_TAB_FINANCE = localText.getText("TXT_KEY_ECONOMICS_ADVISOR_FINANCE_TAB", ()).upper()
+ 		self.PAGE_NAME_LIST = [self.TEXT_TAB_OVERVIEW, self.TEXT_TAB_FINANCE]
++		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
++		self.COLOR_POSITIVE_PREFIX = localText.getText("TXT_KEY_COLOR_POSITIVE", ())
++		self.COLOR_NEGATIVE_PREFIX = localText.getText("TXT_KEY_COLOR_NEGATIVE", ())
++		self.COLOR_REVERT_SUFFIX = localText.getText("TXT_KEY_COLOR_REVERT", ())
++		self.ART_SCREEN_BG_OPAQUE = ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath()
++		self.ART_CITY_SELECTION_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
++
++		# <!-- custom: cache finance-tab deterministic labels in initText (language-dependent only) to avoid repeated lookup on each redraw. (GPT-5.3-Codex) -->
++		self.TEXT_FIN_COMMERCE = localText.getText("TXT_KEY_CONCEPT_COMMERCE", ())
++		self.TEXT_FIN_INCOME_HEADER = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_INCOME_HEADER", ())
++		self.TEXT_FIN_EXPENSES_HEADER = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_EXPENSES_HEADER", ())
++		self.TEXT_FIN_DOMESTIC_TRADE = localText.getText("TXT_KEY_CONCEPT_DOMESTIC_TRADE", ())
++		self.TEXT_FIN_TRADE = localText.getText("TXT_KEY_CONCEPT_TRADE", ())
++		self.TEXT_FIN_FOREIGN_TRADE = localText.getText("TXT_KEY_CONCEPT_FOREIGN_TRADE", ())
++		self.TEXT_FIN_CORPORATIONS = localText.getText("TXT_KEY_CONCEPT_CORPORATIONS", ())
++		self.TEXT_FIN_SPECIALISTS = localText.getText("TXT_KEY_CONCEPT_SPECIALISTS", ())
++		self.TEXT_FIN_BUILDINGS = localText.getText("TXT_KEY_CONCEPT_BUILDINGS", ())
++		self.TEXT_FIN_CIVICS_MULTIPLIERS = localText.getText("TXT_KEY_MISC_CIVICS_MULTIPLIERS", ())
++		self.TEXT_FIN_BUG_COMMERCE = localText.getText("TXT_KEY_BUG_FINANCIAL_ADVISOR_COMMERCE", ())
++		self.TEXT_FIN_TAXES = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_TAXES", ())
++		self.TEXT_FIN_HQ = localText.getText("TXT_KEY_CORPORATION_HEADQUARTERS", ())
++		self.TEXT_FIN_SHRINES = localText.getText("TXT_KEY_CONCEPT_RELIGIOUS_SHRINES", ())
++		self.TEXT_FIN_WEALTH = localText.getText("TXT_KEY_PROCESS_WEALTH", ())
++		self.TEXT_FIN_PER_TURN = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_PER_TURN", ())
++		self.TEXT_FIN_INCOME = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_INCOME", ())
++		self.TEXT_FIN_UNIT_COST = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_UNITCOST", ())
++		self.TEXT_FIN_UNIT_SUPPLY = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_UNITSUPPLY", ())
++		self.TEXT_FIN_MAINTENANCE = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_MAINTENANCE", ())
++		self.TEXT_FIN_CIVICS = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_CIVICS", ())
++		self.TEXT_FIN_COST_PER_TURN = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_COST_PER_TURN", ())
++		self.TEXT_FIN_EXPENSES = localText.getText("TXT_KEY_FINANCIAL_ADVISOR_EXPENSES", ())
+ 
+ 	def updateRuntimeLayout(self, screen):
+ 		self.X_SCREEN, self.Y_SCREEN, self.nScreenWidth, self.nScreenHeight = getAdvisorRuntimeBounds(
+@@ -148,7 +179,7 @@ class CvDomesticAdvisor:
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+ 	
+ 		# Here we set the background widget and exit button, and we show the screen
+-		screen.addDrawControl("DomesticAdvisorBackground", ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.nScreenWidth, self.nScreenHeight, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.addDrawControl("DomesticAdvisorBackground", self.ART_SCREEN_BG_OPAQUE, 0, 0, self.nScreenWidth, self.nScreenHeight, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		screen.addPanel( "DomesticTopPanel", u"", u"", True, False, 0, 0, self.nScreenWidth, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+ 		screen.addPanel( "DomesticBottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.nScreenWidth, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+ 		screen.showWindowBackground(False)
+@@ -167,7 +198,7 @@ class CvDomesticAdvisor:
+ 		for iPage in range(len(self.PAGE_NAME_LIST)):
+ 			szLabel = self.PAGE_NAME_LIST[iPage]
+ 			if self.iPage == iPage:
+-				szLabel = localText.changeTextColor(szLabel, gc.getInfoTypeForString("COLOR_YELLOW"))
++				szLabel = localText.changeTextColor(szLabel, self.COLOR_YELLOW)
+ 			szText = SAS_FONT_TAG_TITLE + szLabel + SAS_FONT_TAG_CLOSE
+ 			screen.setText(self.PAGE_TAB_IDS[iPage], "", szText, CvUtil.FONT_CENTER_JUSTIFY, iX + self.PAGE_LINK_WIDTH[iPage] / 2, self.Y_LINK, -0.1, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, iPage, -1)
+ 			iX += self.PAGE_LINK_WIDTH[iPage]
+@@ -377,15 +408,15 @@ class CvDomesticAdvisor:
+ 
+ 		szCommercePanel = self.getNextFinanceWidgetName()
+ 		screen.addPanel(szCommercePanel, u"", "", True, True, X_LEFT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+-		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_COMMERCE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  SAS_FONT_TAG_LABEL + self.TEXT_FIN_COMMERCE.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 				
+ 		szIncomePanel = self.getNextFinanceWidgetName()
+ 		screen.addPanel(szIncomePanel, u"", "", True, True, X_MIDDLE_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+-		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_INCOME_HEADER", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  SAS_FONT_TAG_LABEL + self.TEXT_FIN_INCOME_HEADER.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		
+ 		szExpensePanel = self.getNextFinanceWidgetName()
+ 		screen.addPanel(szExpensePanel, u"", "", True, True, X_RIGHT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN )
+-		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_EXPENSES_HEADER", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextFinanceWidgetName(), "Background",  SAS_FONT_TAG_LABEL + self.TEXT_FIN_EXPENSES_HEADER.upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		# Commerce
+ 		yLocation = Y_LOCATION
+@@ -415,10 +446,10 @@ class CvDomesticAdvisor:
+ 		if TradeUtil.isFractionalTrade():
+ 			iDomesticTrade //= 100
+ 		yLocation += Y_SPACING
+-		szDomesticTrade = localText.getText("TXT_KEY_CONCEPT_DOMESTIC_TRADE", ())
++		szDomesticTrade = self.TEXT_FIN_DOMESTIC_TRADE
+ 		# advc.086: Call it just "Trade" if there is no foreign trade to show
+ 		if iForeignTrade <= 0:
+-			szDomesticTrade = localText.getText("TXT_KEY_CONCEPT_TRADE", ())
++			szDomesticTrade = self.TEXT_FIN_TRADE
+ 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + szDomesticTrade + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_DOMESTIC_TRADE, self.iFinanceActiveLeader, 1)
+ 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iDomesticTrade) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_DOMESTIC_TRADE, self.iFinanceActiveLeader, 1)
+ 		iCommerce += iDomesticTrade
+@@ -427,7 +458,7 @@ class CvDomesticAdvisor:
+ 			if TradeUtil.isFractionalTrade():
+ 				iForeignTrade //= 100
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_FOREIGN_TRADE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_TRADE, self.iFinanceActiveLeader, 1)
++			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_FOREIGN_TRADE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_TRADE, self.iFinanceActiveLeader, 1)
+ 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iForeignTrade) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_TRADE, self.iFinanceActiveLeader, 1)
+ 			iCommerce += iForeignTrade
+ 
+@@ -438,7 +469,7 @@ class CvDomesticAdvisor:
+ 
+ 		if iCorporations > 0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_CORPORATIONS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_CORPORATIONS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iCorporations) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			iCommerce += iCorporations
+ 
+@@ -450,7 +481,7 @@ class CvDomesticAdvisor:
+ 
+ 		if iSpecialists > 0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_SPECIALISTS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_SPECIALISTS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iSpecialists) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			iCommerce += iSpecialists
+ 
+@@ -459,16 +490,16 @@ class CvDomesticAdvisor:
+ 		iBuildings = iTotalCommerce - iCommerce
+ 		if iBuildings != 0:
+ 			yLocation += Y_SPACING
+-			suLabel = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_BUILDINGS", ())
++			suLabel = SAS_FONT_TAG_LABEL + self.TEXT_FIN_BUILDINGS
+ 			if bMultipliers:
+-				suLabel += u", " + localText.getText("TXT_KEY_MISC_CIVICS_MULTIPLIERS", ())
++				suLabel += u", " + self.TEXT_FIN_CIVICS_MULTIPLIERS
+ 			suLabel += SAS_FONT_TAG_CLOSE
+ 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", suLabel, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iBuildings) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			iCommerce += iBuildings
+ 
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_BUG_FINANCIAL_ADVISOR_COMMERCE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_BUG_COMMERCE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iCommerce) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		yLocation += 0.5 * Y_SPACING
+@@ -560,32 +591,32 @@ class CvDomesticAdvisor:
+ 		# The 'total minus taxes' was wrong. We don't need to use that anyway
+ 		# I've changed the 'taxes' output to use fTaxes instead of goldcommerce - totalminustaxes
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_TAXES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_TAXES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fTaxes)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		if fBuildings > 0.0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_BUILDINGS", ()) + " (%d)" % iBuildingCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_BUILDINGS + " (%d)" % iBuildingCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fBuildings)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		if fHeadquarters > 0.0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CORPORATION_HEADQUARTERS", ()) + " (%d)" % iHeadquartersCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_HQ + " (%d)" % iHeadquartersCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fHeadquarters)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		if fCorporations > 0.0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_CORPORATIONS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_CORPORATIONS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fCorporations)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		if fShrines > 0.0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_RELIGIOUS_SHRINES", ()) + " (%d)" % iShrinesCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_SHRINES + " (%d)" % iShrinesCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fShrines)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		if fSpecialists > 0.0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_SPECIALISTS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_SPECIALISTS, self.iFinanceActiveLeader, 1)
++			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_SPECIALISTS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_SPECIALISTS, self.iFinanceActiveLeader, 1)
+ 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fSpecialists)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_SPECIALISTS, self.iFinanceActiveLeader, 1)
+ 
+ 		for eBldg, iMultiplier, iCount, fGold in multipliers:
+@@ -598,50 +629,50 @@ class CvDomesticAdvisor:
+ 
+ 		if fWealth > 0.0 and iWealthCount > 0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_PROCESS_WEALTH", ()) + " (%d)" % iWealthCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_WEALTH + " (%d)" % iWealthCount + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(int(fWealth)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		iIncome = goldCommerce
+ 		if goldFromCivs > 0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_PER_TURN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
++			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_PER_TURN + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
+ 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(goldFromCivs) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
+ 			iIncome += goldFromCivs
+ 
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_INCOME", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_INCOME + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iIncome) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		# Expenses
+ 		yLocation = Y_LOCATION
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_UNITCOST", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_UNIT_COST, self.iFinanceActiveLeader, 1)
++		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_UNIT_COST + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_UNIT_COST, self.iFinanceActiveLeader, 1)
+ 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalUnitCost) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_UNIT_COST, self.iFinanceActiveLeader, 1)
+ 		yLocation += Y_SPACING
+-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_UNITSUPPLY", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_AWAY_SUPPLY, self.iFinanceActiveLeader, 1)
++		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_UNIT_SUPPLY + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_AWAY_SUPPLY, self.iFinanceActiveLeader, 1)
+ 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalUnitSupply) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_AWAY_SUPPLY, self.iFinanceActiveLeader, 1)
+ 		yLocation += Y_SPACING
+-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_MAINTENANCE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CITY_MAINT, self.iFinanceActiveLeader, 1)
++		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_MAINTENANCE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CITY_MAINT, self.iFinanceActiveLeader, 1)
+ 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalMaintenance) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CITY_MAINT, self.iFinanceActiveLeader, 1)
+ 		yLocation += Y_SPACING
+-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_CIVICS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CIVIC_UPKEEP, self.iFinanceActiveLeader, 1)
++		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_CIVICS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CIVIC_UPKEEP, self.iFinanceActiveLeader, 1)
+ 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalCivicUpkeep) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_CIVIC_UPKEEP, self.iFinanceActiveLeader, 1)
+ 
+ 		if goldFromCivs < 0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_COST_PER_TURN", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
++			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_COST_PER_TURN + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
+ 			screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(-goldFromCivs) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_FOREIGN_INCOME, self.iFinanceActiveLeader, 1)
+ 
+ 		# advc: Unmarked K-Mod 1.45 change; inflation now already included
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_FINANCIAL_ADVISOR_EXPENSES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_FIN_EXPENSES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(totalInflatedCosts) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS, self.iFinanceActiveLeader, 1 )
+ 
+ 	def updateTable(self, pLoopCity, i):
+ 
+ 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
+ 
+-		screen.setTableText( "CityListBackground", 0, i, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath(), WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
++		screen.setTableText( "CityListBackground", 0, i, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		# <advc.193>
+ 		iCellFontSize = getSASUIFontBody()
+@@ -683,27 +714,27 @@ class CvDomesticAdvisor:
+ 		iNetHappy = pLoopCity.happyLevel() - pLoopCity.unhappyLevel(0)
+ 		szText = unicode(iNetHappy)
+ 		if iNetHappy > 0:
+-			szText = localText.getText("TXT_KEY_COLOR_POSITIVE", ()) + szText + localText.getText("TXT_KEY_COLOR_REVERT", ())
++			szText = self.COLOR_POSITIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
+ 		elif iNetHappy < 0:
+-			szText = localText.getText("TXT_KEY_COLOR_NEGATIVE", ()) + szText + localText.getText("TXT_KEY_COLOR_REVERT", ())
++			szText = self.COLOR_NEGATIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
+ 		screen.setTableInt( "CityListBackground", 3, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Health...
+ 		iNetHealth = pLoopCity.goodHealth() - pLoopCity.badHealth(0)
+ 		szText = unicode(iNetHealth)
+ 		if iNetHealth > 0:
+-			szText = localText.getText("TXT_KEY_COLOR_POSITIVE", ()) + szText + localText.getText("TXT_KEY_COLOR_REVERT", ())
++			szText = self.COLOR_POSITIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
+ 		elif iNetHealth < 0:
+-			szText = localText.getText("TXT_KEY_COLOR_NEGATIVE", ()) + szText + localText.getText("TXT_KEY_COLOR_REVERT", ())
++			szText = self.COLOR_NEGATIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
+ 		screen.setTableInt( "CityListBackground", 4, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 
+ 		# Food status...
+ 		iNetFood = pLoopCity.foodDifference(true)
+ 		szText = unicode(iNetFood)
+ 		if iNetFood > 0:
+-			szText = localText.getText("TXT_KEY_COLOR_POSITIVE", ()) + szText + localText.getText("TXT_KEY_COLOR_REVERT", ())
++			szText = self.COLOR_POSITIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
+ 		elif iNetFood < 0:
+-			szText = localText.getText("TXT_KEY_COLOR_NEGATIVE", ()) + szText + localText.getText("TXT_KEY_COLOR_REVERT", ())
++			szText = self.COLOR_NEGATIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
+ 		screen.setTableInt( "CityListBackground", 5, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		
+ 		# Production status...
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 5854b1d28..bccc569ac 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -348,6 +348,19 @@ class CvForeignAdvisor:
+ 		self.TEXT_NO_TECH_TRADING = localText.getText("TXT_KEY_FOREIGN_ADVISOR_NO_TECH_TRADING", ())
+ 		self.TEXT_MORE_CITIES = localText.getText("TXT_KEY_FOREIGN_ADVISOR_MORE_CITIES", (0,))  # format later with actual count
+ 		self.TEXT_FAVORITES = localText.getText("TXT_KEY_PEDIA_FAVORITES", ())
++		self.TEXT_REL_CONTACT = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CONTACT", ())
++		self.TEXT_CONCEPT_WAR = localText.getText("TXT_KEY_CONCEPT_WAR", ())
++		self.TEXT_TRADE_DEFENSIVE_PACT = localText.getText("TXT_KEY_TRADE_DEFENSIVE_PACT_STRING", ())
++		self.TEXT_TRADE_OPEN_BORDERS = localText.getText("TXT_KEY_TRADE_OPEN_BORDERS_STRING", ())
++		self.TEXT_PITBOSS_TEAM = localText.getText("TXT_KEY_PITBOSS_TEAM", ())
++		self.TEXT_MISC_VASSAL_SHORT = localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ())
++		self.TEXT_MISC_MASTER = localText.getText("TXT_KEY_MISC_MASTER", ())
++		self.LABEL_REL_CONTACT = SAS_FONT_TAG_BODY + self.TEXT_REL_CONTACT + SAS_FONT_TAG_CLOSE
++		self.LABEL_CONCEPT_WAR = SAS_FONT_TAG_BODY + self.TEXT_CONCEPT_WAR + SAS_FONT_TAG_CLOSE
++		self.LABEL_TRADE_DEFENSIVE_PACT = SAS_FONT_TAG_BODY + self.TEXT_TRADE_DEFENSIVE_PACT + SAS_FONT_TAG_CLOSE
++		self.LABEL_TRADE_OPEN_BORDERS = SAS_FONT_TAG_BODY + self.TEXT_TRADE_OPEN_BORDERS + SAS_FONT_TAG_CLOSE
++		self.LABEL_PITBOSS_TEAM = SAS_FONT_TAG_BODY + self.TEXT_PITBOSS_TEAM + SAS_FONT_TAG_CLOSE
++		self.LABEL_MISC_VASSAL_SHORT = SAS_FONT_TAG_BODY + self.TEXT_MISC_VASSAL_SHORT + SAS_FONT_TAG_CLOSE
+ 
+ 		# <!-- custom: precompute commonly used icon symbols (claude code sonnet 4.5) -->
+ 		self.iReligionIcon = CyGame().getSymbolID(FontSymbols.RELIGION_CHAR)
+@@ -391,6 +404,11 @@ class CvForeignAdvisor:
+ 		self.SAS_TRADE_ICON_DEFENSIVE_PACT = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_DEFENSIVEPACT").getPath()
+ 		self.SAS_TRADE_ICON_PERMANENT_ALLIANCE = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_PERMALLIANCE").getPath()
+ 		self.SAS_TRADE_ICON_VASSAL = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath()
++		self.SAS_ART_SCREEN_BG_OPAQUE = ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath()
++		self.SAS_ART_BUTTON_HILITE_SQUARE = ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath()
++		self.SAS_ART_WHITE_CIRCLE_40 = ArtFileMgr.getInterfaceArtInfo("WHITE_CIRCLE_40").getPath()
++		self.SAS_ART_BUTTON_PLUS = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_PLUS").getPath()
++		self.SAS_ART_BUTTON_MINUS = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_MINUS").getPath()
+ 		self.TEXT_CANT_TRADE = localText.getText("TXT_KEY_FOREIGN_ADVISOR_CANT_TRADE", ())
+ 
+ 	def updateRuntimeLayout(self, screen):
+@@ -560,7 +578,7 @@ class CvForeignAdvisor:
+ 		
+ 		# Set the background and exit button, and show the screen
+ 		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
+-		screen.addDrawControl(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.addDrawControl(self.BACKGROUND_ID, self.SAS_ART_SCREEN_BG_OPAQUE, 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		screen.addPanel( "TopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+ 		screen.addPanel( "BottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+ 		##########################################
+@@ -887,27 +905,27 @@ class CvForeignAdvisor:
+ 		screen.addPanel(self.getNextWidgetName(), u"", u"", True, False, self.X_LEGEND, self.Y_LEGEND, self.W_LEGEND, self.H_LEGEND, PanelStyles.PANEL_STYLE_IN)
+ 		x = self.X_LEGEND + self.MARGIN_LEGEND
+ 		y = self.Y_LEGEND + self.MARGIN_LEGEND
+-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_FOREIGN_ADVISOR_CONTACT", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_REL_CONTACT, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		y += self.MARGIN_LEGEND
+ 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_WHITE"))
+ 		y += 2 * self.MARGIN_LEGEND
+-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_CONCEPT_WAR", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_CONCEPT_WAR, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		y += self.MARGIN_LEGEND
+ 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_RED"))
+ 		y += 2 * self.MARGIN_LEGEND
+-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_TRADE_DEFENSIVE_PACT_STRING", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_TRADE_DEFENSIVE_PACT, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		y += self.MARGIN_LEGEND
+ 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_BLUE"))
+ 		y += 2 * self.MARGIN_LEGEND
+-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_TRADE_OPEN_BORDERS_STRING", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_TRADE_OPEN_BORDERS, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		y += self.MARGIN_LEGEND
+ 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_CITY_GREEN"))
+ 		y += 2 * self.MARGIN_LEGEND
+-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_PITBOSS_TEAM", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_PITBOSS_TEAM, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		y += self.MARGIN_LEGEND
+ 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_YELLOW"))
+ 		y += 2 * self.MARGIN_LEGEND
+-		screen.setLabel(self.getNextWidgetName(), "", SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.setLabel(self.getNextWidgetName(), "", self.LABEL_MISC_VASSAL_SHORT, CvUtil.FONT_LEFT_JUSTIFY, x, y-10, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		y += self.MARGIN_LEGEND
+ 		screen.addLineGFC(self.BACKGROUND_ID, self.getNextLineName(), x, y, x + self.W_LEGEND - 2*self.MARGIN_LEGEND, y, gc.getInfoTypeForString("COLOR_CYAN"))
+ 	
+@@ -922,8 +940,8 @@ class CvForeignAdvisor:
+ 		playerBase = gc.getPlayer(iBaseLeader)
+ 		# K-Mod end
+ 		szLeaderHead = self.getNextWidgetName()
+-		#screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(playerActive.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+-		screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(playerActive.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, iBaseLeader, ButtonStyles.BUTTON_STYLE_LABEL) # K-Mod
++		#screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(playerActive.getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, -1, ButtonStyles.BUTTON_STYLE_LABEL)
++		screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(playerActive.getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.X_LEADER_CIRCLE_TOP - iLeaderWidth/2, int(fLeaderTop), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, self.iActiveLeader, iBaseLeader, ButtonStyles.BUTTON_STYLE_LABEL) # K-Mod
+ 		if (self.iActiveLeader in self.listSelectedLeaders):
+ 			screen.setState(szLeaderHead, True)
+ 		else:
+@@ -938,9 +956,9 @@ class CvForeignAdvisor:
+ 		player = playerActive
+ 		if iBaseLeader != self.iActiveLeader and gc.getTeam(player.getTeam()).isHasMet(playerBase.getTeam()):
+ 			if (gc.getTeam(player.getTeam()).isVassal(playerBase.getTeam())):
+-				szText += localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ())
++				szText += self.TEXT_MISC_VASSAL_SHORT
+ 			elif (gc.getTeam(playerBase.getTeam()).isVassal(player.getTeam())):
+-				szText += localText.getText("TXT_KEY_MISC_MASTER", ())
++				szText += self.TEXT_MISC_MASTER
+ 			if not playerActive.isHuman():
+ 				if szText != "":
+ 					szText += ", "
+@@ -966,7 +984,7 @@ class CvForeignAdvisor:
+ 			fY = int(fLeaderArcTop + fRadius * math.sin(deltaTheta * leaderMap[iPlayer]) - iLeaderHeight/2)
+ 
+ 			szLeaderHead = self.getNextWidgetName()
+-			screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(player.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), int(fX), int(fY), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, iPlayer, iBaseLeader, ButtonStyles.BUTTON_STYLE_LABEL)
++			screen.addCheckBoxGFC(szLeaderHead, gc.getLeaderHeadInfo(player.getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, int(fX), int(fY), iLeaderWidth, iLeaderHeight, WidgetTypes.WIDGET_LEADERHEAD, iPlayer, iBaseLeader, ButtonStyles.BUTTON_STYLE_LABEL)
+ 			if (iPlayer in self.listSelectedLeaders):
+ 				screen.setState(szLeaderHead, True)
+ 			else:
+@@ -981,9 +999,9 @@ class CvForeignAdvisor:
+ 			szText = u""
+ 			if iBaseLeader != iPlayer and gc.getTeam(player.getTeam()).isHasMet(playerBase.getTeam()):
+ 				if (gc.getTeam(player.getTeam()).isVassal(playerBase.getTeam())):
+-					szText += localText.getText("TXT_KEY_MISC_VASSAL_SHORT", ())
++					szText += self.TEXT_MISC_VASSAL_SHORT
+ 				elif (gc.getTeam(playerBase.getTeam()).isVassal(player.getTeam())):
+-					szText += localText.getText("TXT_KEY_MISC_MASTER", ())
++					szText += self.TEXT_MISC_MASTER
+ 				if not gc.getPlayer(iPlayer).isHuman():
+ 					if szText != "":
+ 						szText += ", "
+@@ -1550,7 +1568,7 @@ class CvForeignAdvisor:
+ 			if self.ltPlayerMet[iLoopPlayer]:
+ 				if (iLoopPlayer != self.iActiveLeader):
+ 					szName = self.getNextWidgetName()
+-					screen.addCheckBoxGFCAt(panelName, szName, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), self.X_GLANCE_OFFSET + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET, self.GLANCE_BUTTON_SIZE, self.GLANCE_BUTTON_SIZE, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, ButtonStyles.BUTTON_STYLE_LABEL, False)
++					screen.addCheckBoxGFCAt(panelName, szName, gc.getLeaderHeadInfo(currentPlayer.getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.X_GLANCE_OFFSET + (self.X_Spread * nCount), self.Y_GLANCE_OFFSET, self.GLANCE_BUTTON_SIZE, self.GLANCE_BUTTON_SIZE, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader, ButtonStyles.BUTTON_STYLE_LABEL, False)
+ 					if (self.iSelectedLeader == iLoopPlayer):
+ 						screen.setState(szName, True)
+ 					else:
+@@ -1855,7 +1873,7 @@ class CvForeignAdvisor:
+ 				# Can't do the same for the amounts, so don't do this after all:
+ 				#if iIndex > maxIconsPerRow:
+ 				#	circleY += self.RESOURCE_ICON_SIZE
+-				screen.addDDSGFC( self.availableTable + "Circle" + str(iIndex), ArtFileMgr.getInterfaceArtInfo("WHITE_CIRCLE_40").getPath(), self.SURPLUS_CIRCLE_X_START + iIndex * self.RESOURCE_ICON_SIZE, circleY, 16, 16, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				screen.addDDSGFC( self.availableTable + "Circle" + str(iIndex), self.SAS_ART_WHITE_CIRCLE_40, self.SURPLUS_CIRCLE_X_START + iIndex * self.RESOURCE_ICON_SIZE, circleY, 16, 16, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		
+ 		# add the table showing the amounts
+ 		screen.addTableControlGFC( self.availableTable, len(listSurplus), self.SURPLUS_TABLE_X, self.SURPLUS_TABLE_Y, len(listSurplus) * self.RESOURCE_ICON_SIZE, self.TABLE_CONTROL_HEIGHT, False, False, 16, 16, TableStyles.TABLE_STYLE_EMPTY )
+@@ -2588,7 +2606,7 @@ class CvForeignAdvisor:
+ 				self.ESP_iLeaderImagesID = 456
+ 				szName = "LeaderImage%d" %(iPlayerID)
+ 
+-				screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(),
++				screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE,
+ 					iX +21, iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
+ 				if (self.ESP_iTargetPlayer == iPlayerID):
+ 					screen.setState(szName, true)
+@@ -2630,10 +2648,10 @@ class CvForeignAdvisor:
+ 				iSize = 16
+ 				self.ESP_iIncreaseButtonID = 555
+ 				szName = "IncreaseButton%d" %(iPlayerID)
+-				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_PLUS").getPath(), self.ESP_ROW_X_BUTTON_PLUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
++				screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_PLUS, self.ESP_ROW_X_BUTTON_PLUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
+ 				self.ESP_iDecreaseButtonID = 556
+ 				szName = "DecreaseButton%d" %(iPlayerID)
+-				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_MINUS").getPath(), self.ESP_ROW_X_BUTTON_MINUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
++				screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_MINUS, self.ESP_ROW_X_BUTTON_MINUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
+ 
+ 
+ 				iPlayerLoop += 1
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 4669f3bc0..ac8b18263 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -498,6 +498,36 @@ class CvInfoScreen:
+ 		self.szReligionIconStats = "Art/Interface/Buttons/General/ConvertReligion.dds"
+ 		self.szGoldenAgeIconStats = "Art/Interface/Buttons/Actions/GoldenAge.dds"
+ 
++		# <!-- custom: cache deterministic art paths/text used every render in Graph/Environment tabs to avoid repeated lookups. (GPT-5.3-Codex) -->
++		self.ART_MAINMENU_SLIDESHOW_LOAD = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
++		self.ART_POPUPS_BACKGROUND_TRANSPARENT = ArtFileMgr.getInterfaceArtInfo("POPUPS_BACKGROUND_TRANSPARENT").getPath()
++		self.ART_SCREEN_BG = ArtFileMgr.getInterfaceArtInfo("SCREEN_BG").getPath()
++		self.ART_INTERFACE_BUTTON_NULL = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTON_NULL").getPath()
++
++		self.TEXT_GW_SEVERITY_RATING = localText.getText("TXT_KEY_GW_SEVERITY_RATING", ()).upper()
++		self.TEXT_ENV_POLLUTION = localText.getText("TXT_KEY_POLLUTION", ())
++		self.TEXT_ENV_TOTAL = localText.getText("TXT_KEY_TOTAL", ())
++		self.TEXT_ENV_CHANCES = localText.getText("TXT_KEY_CHANCES", ())
++		self.TEXT_ENV_POPULATION = localText.getText("TXT_KEY_DEMO_SCREEN_POPULATION_TEXT", ())
++		self.TEXT_ENV_BUILDINGS = localText.getText("TXT_KEY_CONCEPT_BUILDINGS", ())
++		self.TEXT_ENV_RESOURCES = localText.getText("TXT_KEY_CONCEPT_RESOURCES", ())
++		self.TEXT_ENV_ELECTRICITY = localText.getText("TXT_KEY_TECH_ELECTRICITY", ())
++		self.TEXT_ENV_TOTAL_OFFSETS = localText.getText("TXT_KEY_ENVIRONMENT_TOTAL_OFFSETS", ())
++		self.TEXT_ENV_TOTAL_IMPACT = localText.getText("TXT_KEY_ENVIRONMENT_TOTAL_IMPACT", ())
++		self.TEXT_ENV_LOCAL_THRESHOLD = localText.getText("TXT_KEY_ENVIRONMENT_LOCAL_THRESHOLD", ())
++		self.TEXT_ENV_TOTAL_POLLUTION = localText.getText("TXT_KEY_ENVIRONMENT_TOTAL_POLLUTION", ())
++		self.TEXT_ENV_THRESHOLD = localText.getText("TXT_KEY_ENVIRONMENT_THRESHOLD", ())
++		self.TEXT_ENV_GW_CHANGE_RATE = localText.getText("TXT_KEY_ENVIRONMENT_GW_CHANGE_RATE", ())
++		self.TEXT_ENV_RELATIVE_CONTRIBUTION = localText.getText("TXT_KEY_ENVIRONMENT_RELATIVE_CONTRIBUTION", ())
++		self.TEXT_ENV_GW_INDEX = localText.getText("TXT_KEY_ENVIRONMENT_GW_INDEX", ())
++		self.TEXT_ENV_EXPECTED_EVENTS = localText.getText("TXT_KEY_ENVIRONMENT_EXPECTED_EVENTS", ())
++		self.TEXT_ENV_EVENT_TALLY = localText.getText("TXT_KEY_ENVIRONMENT_EVENT_TALLY", ())
++		self.TEXT_ENV_LOCAL_ANGER_LEVEL = localText.getText("TXT_KEY_ENVIRONMENT_LOCAL_ANGER_LEVEL", ())
++
++		self.LABEL_ENV_DOMESTIC = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_DOMESTIC", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.LABEL_ENV_GLOBAL = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_GLOBAL", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.LABEL_ENV_EFFECTS = SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_EFFECTS", ()).upper() + SAS_FONT_TAG_CLOSE
++
+ 		# <!-- custom: not strictly for text but use this to compute cheaply our sas defines once -->
+ 		self.IS_SAS_CV_INFO_SCREEN_HISTORY_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)
+ 		# <!-- custom: cache toggle; when disabled, history entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
+@@ -820,7 +850,7 @@ class CvInfoScreen:
+ 		self.deleteAllWidgets()
+ 
+ 		# Set the background widget and exit button
+-		screen.addDDSGFC("DemographicsScreenBackground", ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.addDDSGFC("DemographicsScreenBackground", self.ART_MAINMENU_SLIDESHOW_LOAD, 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, self.PANEL_HEIGHT, PanelStyles.PANEL_STYLE_TOPBAR )
+ 		# <!-- custom: in the foreign advisor and similar screens, too many players do not fit in one view, and the window does not use the full game window space. Make it larger like Sevopedia to reduce scrolling. Credit: Gemini 3 Pro; fixes reviewed by Claude Sonnet 4.5. (GPT-5.2-Codex (summarized)) -->
+ 		# Top panels cutting off content: The TopPanel and BottomPanel are positioned at y=0 and y=713 respectively. These need updating:
+@@ -841,7 +871,7 @@ class CvInfoScreen:
+ 		screen.setLabel(self.szHeaderWidget, "Background", self.SCREEN_TITLE, CvUtil.FONT_CENTER_JUSTIFY, self.X_TITLE, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		# Help area for tooltips
+-		screen.setHelpTextArea(self.W_HELP_AREA, FontTypes.SMALL_FONT, self.X_SCREEN, self.Y_SCREEN, self.Z_HELP_AREA, 1, ArtFileMgr.getInterfaceArtInfo("POPUPS_BACKGROUND_TRANSPARENT").getPath(), True, True, CvUtil.FONT_LEFT_JUSTIFY, 0 )
++		screen.setHelpTextArea(self.W_HELP_AREA, FontTypes.SMALL_FONT, self.X_SCREEN, self.Y_SCREEN, self.Z_HELP_AREA, 1, self.ART_POPUPS_BACKGROUND_TRANSPARENT, True, True, CvUtil.FONT_LEFT_JUSTIFY, 0 )
+ 
+ 		self.DEBUG_DROPDOWN_ID = ""
+ 
+@@ -1944,9 +1974,9 @@ class CvInfoScreen:
+ 
+ 		# Draw the graph widget
+ 		zsGRAPH_CANVAS_ID = self.getNextWidgetName()
+-		screen.addDrawControl(zsGRAPH_CANVAS_ID, ArtFileMgr.getInterfaceArtInfo("SCREEN_BG").getPath(), iX_GRAPH, iY_GRAPH, iW_GRAPH, iH_GRAPH, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.addDrawControl(zsGRAPH_CANVAS_ID, self.ART_SCREEN_BG, iX_GRAPH, iY_GRAPH, iW_GRAPH, iH_GRAPH, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+-		sButton = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTON_NULL").getPath()
++		sButton = self.ART_INTERFACE_BUTTON_NULL
+ 		screen.addCheckBoxGFC(self.sGraphBGWidget[vGraphID_Locn], sButton, sButton, iX_GRAPH, iY_GRAPH, iW_GRAPH, iH_GRAPH, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+ 
+ #		self.timer.log("drawGraph - init")
+@@ -4225,7 +4255,7 @@ class CvInfoScreen:
+ 		iGwEventTally = game.getGwEventTally()
+ 		iSeverityRating = game.calculateGwSeverityRating()
+ 
+-		szText = localText.getText("TXT_KEY_GW_SEVERITY_RATING", ()).upper() + ": "
++		szText = self.TEXT_GW_SEVERITY_RATING + ": "
+ 		# advc.137: Better use separate keys
+ 		if iSeverityRating < 30:
+ 			szText += localText.getColorText("TXT_KEY_LOW", (), gc.getInfoTypeForString("COLOR_GREEN")).upper()
+@@ -4239,15 +4269,15 @@ class CvInfoScreen:
+ 
+ 		szLeftPanel = self.getNextWidgetName()
+ 		screen.addPanel(szLeftPanel, u"", "", True, True, X_LEFT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_DOMESTIC", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", self.LABEL_ENV_DOMESTIC, CvUtil.FONT_CENTER_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		szMiddlePanel = self.getNextWidgetName()
+ 		screen.addPanel(szMiddlePanel, u"", "", True, True, X_MIDDLE_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_GLOBAL", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", self.LABEL_ENV_GLOBAL, CvUtil.FONT_CENTER_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		szRightPanel = self.getNextWidgetName()
+ 		screen.addPanel(szRightPanel, u"", "", True, True, X_RIGHT_PANEL, Y_LOCATION, PANE_WIDTH, PANE_HEIGHT, PanelStyles.PANEL_STYLE_MAIN)
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_EFFECTS", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", self.LABEL_ENV_EFFECTS, CvUtil.FONT_CENTER_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH / 2, Y_LOCATION + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		# Left panel: domestic
+ 		yLocation = Y_LOCATION
+@@ -4261,36 +4291,36 @@ class CvInfoScreen:
+ 		iLocalDefence = game.calculateGwLandDefence(self.iActivePlayer)
+ 
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLLUTION", ()) + ":" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_POLLUTION + ":" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
+ 
+ 		if iPopulation != 0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_DEMO_SCREEN_POPULATION_TEXT", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POPULATION, -1)
++			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_POPULATION + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POPULATION, -1)
+ 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iPopulation) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POPULATION, -1)
+ 		if iBuildings != 0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_BUILDINGS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BUILDINGS, -1)
++			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_BUILDINGS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BUILDINGS, -1)
+ 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iBuildings) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BUILDINGS, -1)
+ 		if iResources != 0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CONCEPT_RESOURCES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BONUSES, -1)
++			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_RESOURCES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BONUSES, -1)
+ 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iResources) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_BONUSES, -1)
+ 		if iPower != 0:
+ 			yLocation += Y_SPACING
+-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_TECH_ELECTRICITY", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POWER, -1)
++			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_ELECTRICITY + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + 2 * TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POWER, -1)
+ 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iPower) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_POWER, -1)
+ 
+ 		yLocation += Y_SPACING
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_TOTAL", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
+ 		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iLocalPollution) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_TOTAL_OFFSETS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL_OFFSETS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+ 		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(-iLocalDefence) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_TOTAL_IMPACT", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL_IMPACT + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iLocalPollution - iLocalDefence) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_LOCAL_THRESHOLD", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_LOCAL_THRESHOLD + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
+ 		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iLocalThreshold) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_LEFT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
+ 
+ 		# Middle panel: Global
+@@ -4301,16 +4331,16 @@ class CvInfoScreen:
+ 		iChangeRate = iGlobalPollution - iGlobalDefence - iThreshold - iGlobalWarmingIndex * gc.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE") / 100
+ 
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_TOTAL_POLLUTION", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL_POLLUTION + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
+ 		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGlobalPollution) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_TOTAL_OFFSETS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_TOTAL_OFFSETS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+ 		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(-iGlobalDefence) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_OFFSETS, -1, -1)
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_THRESHOLD", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_THRESHOLD + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
+ 		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iThreshold) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_SUSTAINABILITY_THRESHOLD, -1, -1)
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_GW_CHANGE_RATE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_GW_CHANGE_RATE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(max(0, iChangeRate)) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		iResponsibility = 100 * (iLocalPollution - iLocalDefence)
+@@ -4319,30 +4349,30 @@ class CvInfoScreen:
+ 		iResponsibility /= max(1, iGlobalPollution - iGlobalDefence)
+ 		if iGwEventTally >= 0 or CyGame().isDebugMode():
+ 			yLocation += 1.5 * Y_SPACING
+-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_RELATIVE_CONTRIBUTION", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_RELATIVE_CONTRIBUTION, -1, -1)
++			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_RELATIVE_CONTRIBUTION + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_RELATIVE_CONTRIBUTION, -1, -1)
+ 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iResponsibility) + u"%" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_RELATIVE_CONTRIBUTION, -1, -1)
+ 
+ 		# Right panel: Effects
+ 		yLocation = Y_LOCATION
+ 		yLocation += 1.5 * Y_SPACING
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_GW_INDEX", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_GW_INDEX + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
+ 		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGlobalWarmingIndex) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
+ 		yLocation += 1.5 * Y_SPACING
+ 		fExpectedEvents = 1.0 * iGlobalWarmingChances * gc.getDefineINT("GLOBAL_WARMING_PROB") / (10.0 * gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
+-		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_EXPECTED_EVENTS", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_EXPECTED_EVENTS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + u"%0.1f" % fExpectedEvents + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		if iGwEventTally >= 0:
+ 			yLocation += 1.5 * Y_SPACING
+-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_EVENT_TALLY", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_EVENT_TALLY + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGwEventTally) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		iGwPercentAnger = player.getGwPercentAnger()
+ 		if iGwPercentAnger >= 2:
+ 			yLocation += 1.5 * Y_SPACING
+-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_ENVIRONMENT_LOCAL_ANGER_LEVEL", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_UNHAPPY, -1, -1)
++			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_LOCAL_ANGER_LEVEL + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_UNHAPPY, -1, -1)
+ 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(iGwPercentAnger) + u"%" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_UNHAPPY, -1, -1)
+ 		if CyGame().isDebugMode():
+ 			yLocation += 1.5 * Y_SPACING
+-			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_CHANCES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + self.TEXT_ENV_CHANCES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(game.getGlobalWarmingChances()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 	def getLog10(self, x):
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 08a162433..f8b170a74 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -96,6 +96,7 @@ class CvMilitaryAdvisor:
+ 		self.selectedPlayerList = []
+ 		self.selectedGroupList = []
+ 		self.selectedUnitList = []
++		self.iLanguageLoaded = -1
+ 
+ 		# <!-- custom: expand/layout elements (e.g., great general bar) to use the new screen size. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ 		self.SIDE_MARGIN = 40
+@@ -151,6 +152,28 @@ class CvMilitaryAdvisor:
+ 		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS") > 0)
+ 
+ 
++	def initText(self):
++		# <!-- custom: cache Military Advisor language-dependent text and deterministic art/color lookups once to avoid repeated calls on refresh paths. (GPT-5.3-Codex) -->
++		if not CyGame().isFinalInitialized():
++			return
++		if self.iLanguageLoaded == CyGame().getCurrentLanguage():
++			return
++		self.iLanguageLoaded = CyGame().getCurrentLanguage()
++		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_MILITARY_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.TEXT_COMBAT_EXPERIENCE = localText.getText("TXT_KEY_MISC_COMBAT_EXPERIENCE", ())
++		self.TEXT_ALL_UNITS = localText.getText("TXT_KEY_PEDIA_ALL_UNITS", ()).upper()
++		self.TEXT_UNIT_TOGGLE_ON = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_ON", ())
++		self.TEXT_UNIT_TOGGLE_OFF = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_OFF", ())
++		self.ART_MAINMENU_SLIDESHOW_LOAD = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
++		self.ART_BUTTON_HILITE_SQUARE = ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath()
++		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
++		self.COLOR_RED = gc.getInfoTypeForString("COLOR_RED")
++		self.COLOR_WHITE = gc.getInfoTypeForString("COLOR_WHITE")
++		self.COLOR_GREAT_PEOPLE_STORED = gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED")
++		self.COLOR_GREAT_PEOPLE_RATE = gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE")
++		self.COLOR_EMPTY = gc.getInfoTypeForString("COLOR_EMPTY")
++
+ 
+ 	def getScreen(self):
+ 		return CyGInterfaceScreen(self.MILITARY_SCREEN_NAME, self.screenId)
+@@ -169,8 +192,7 @@ class CvMilitaryAdvisor:
+ 		screen.setRenderInterfaceOnly(True)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+ 
+-		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
+-		self.TITLE = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_MILITARY_ADVISOR_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.initText()
+ 
+ 		self.nWidgetCount = 0
+ 	
+@@ -180,7 +202,7 @@ class CvMilitaryAdvisor:
+ 		# <!-- custom: unlike Foreign Advisor, we must set X/Y directly or the screen stays centered. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ 		screen.setDimensions(self.X_SCREEN, self.Y_SCREEN, self.W_SCREEN, self.H_SCREEN)
+ 
+-		screen.addDDSGFC(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.addDDSGFC(self.BACKGROUND_ID, self.ART_MAINMENU_SLIDESHOW_LOAD, 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		# <!-- custom: update panel positions to match the expanded screen size. Credit: Gemini 3 Pro; Claude Sonnet 4.5 review. (GPT-5.2-Codex (summarized)) -->
+ 		# Top panels cutting off content: The TopPanel and BottomPanel are positioned at y=0 and y=713 respectively. These need updating:
+@@ -239,12 +261,12 @@ class CvMilitaryAdvisor:
+ 			
+ 			screen = self.getScreen()
+ 			screen.addStackedBarGFC(self.GREAT_GENERAL_BAR_ID, self.X_GREAT_GENERAL_BAR, self.Y_GREAT_GENERAL_BAR, self.W_GREAT_GENERAL_BAR, self.H_GREAT_GENERAL_BAR, InfoBarTypes.NUM_INFOBAR_TYPES, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
+-			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
+-			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_RATE, gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE"))
+-			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_RATE_EXTRA, gc.getInfoTypeForString("COLOR_EMPTY"))
+-			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_EMPTY, gc.getInfoTypeForString("COLOR_EMPTY"))
++			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_STORED, self.COLOR_GREAT_PEOPLE_STORED)
++			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_RATE, self.COLOR_GREAT_PEOPLE_RATE)
++			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_RATE_EXTRA, self.COLOR_EMPTY)
++			screen.setStackedBarColors(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_EMPTY, self.COLOR_EMPTY)
+ 			screen.setBarPercentage(self.GREAT_GENERAL_BAR_ID, InfoBarTypes.INFOBAR_STORED, float(iExperience) / float(gc.getPlayer(self.iActivePlayer).greatPeopleThreshold(true)))
+-			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_MISC_COMBAT_EXPERIENCE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
++			screen.setLabel(self.GREAT_GENERAL_LABEL_ID, "", SAS_FONT_TAG_LABEL + self.TEXT_COMBAT_EXPERIENCE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_GREAT_GENERAL_BAR + self.W_GREAT_GENERAL_BAR/2, self.Y_GREAT_GENERAL_BAR + 6, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GREAT_GENERAL, -1, -1)
+ 					
+ 																									
+ 	# returns a unique ID for a widget in this screen
+@@ -348,21 +370,21 @@ class CvMilitaryAdvisor:
+ 		if (bReload):
+ 			if (self.bUnitDetails):
+ 				iButtonStyle = ButtonStyles.BUTTON_STYLE_CITY_MINUS
+-				szButtonTextKey = "TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_OFF"
++				szButtonText = self.TEXT_UNIT_TOGGLE_OFF
+ 			else:
+ 				iButtonStyle = ButtonStyles.BUTTON_STYLE_CITY_PLUS
+-				szButtonTextKey = "TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_ON"
++				szButtonText = self.TEXT_UNIT_TOGGLE_ON
+ 			screen.setButtonGFC(self.UNIT_BUTTON_ID, u"", "", self.X_TEXT + self.MAP_MARGIN, self.Y_TEXT + self.MAP_MARGIN/2, 20, 20, WidgetTypes.WIDGET_GENERAL, -1, -1, iButtonStyle )
+-			screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", SAS_FONT_TAG_LABEL + localText.getText(szButtonTextKey, ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.MAP_MARGIN + 22, self.Y_TEXT + self.MAP_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setLabel(self.UNIT_BUTTON_LABEL_ID, "", SAS_FONT_TAG_LABEL + szButtonText + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.X_TEXT + self.MAP_MARGIN + 22, self.Y_TEXT + self.MAP_MARGIN/2 + 2, 0, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		# self.unitsList[iUnit][0] is the UnitCombatGroup (e.g. Melee)
+ 		# self.unitsList[iUnit][1] is the unit type (e.g. Warrior)
+ 		# self.unitsList[iUnit][2] is a list of the active player's actual units
+ 		# self.unitsList[iUnit][3] is the total number of those units seen by the active player (not only his own)
+ 		
+-		iColorYellow = gc.getInfoTypeForString("COLOR_YELLOW")
+-		iColorRed = gc.getInfoTypeForString("COLOR_RED")
+-		iColorWhite = gc.getInfoTypeForString("COLOR_WHITE")
++		iColorYellow = self.COLOR_YELLOW
++		iColorRed = self.COLOR_RED
++		iColorWhite = self.COLOR_WHITE
+ 		iWidget = WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT
+ 		iFont = CvUtil.FONT_LEFT_JUSTIFY
+ 
+@@ -432,7 +454,7 @@ class CvMilitaryAdvisor:
+ 			# sort by unit combat type
+ 			self.unitsList.sort()
+ 		
+-		szText = localText.getText("TXT_KEY_PEDIA_ALL_UNITS", ()).upper()
++		szText = self.TEXT_ALL_UNITS
+ 		bAllSelected = (-1 in self.selectedGroupList)
+ 		szText = formatSelection(u"", szText, bAllSelected, bAllSelected)
+ 		if (bReload):
+@@ -573,7 +595,7 @@ class CvMilitaryAdvisor:
+ 					szButton = "Art/Interface/Buttons/Civilizations/Barbarian.dds"
+ 				else:
+ 					szButton = gc.getLeaderHeadInfo(gc.getPlayer(iLoopPlayer).getLeaderType()).getButton()
+-				screen.addCheckBoxGFC(self.getLeaderButton(iLoopPlayer), szButton, ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), x, y, iButtonSize, iButtonSize, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 2, iLoopPlayer, ButtonStyles.BUTTON_STYLE_LABEL)
++				screen.addCheckBoxGFC(self.getLeaderButton(iLoopPlayer), szButton, self.ART_BUTTON_HILITE_SQUARE, x, y, iButtonSize, iButtonSize, WidgetTypes.WIDGET_MINIMAP_HIGHLIGHT, 2, iLoopPlayer, ButtonStyles.BUTTON_STYLE_LABEL)
+ 				screen.setState(self.getLeaderButton(iLoopPlayer), (iLoopPlayer in self.selectedPlayerList))				
+ 		
+ 		self.refreshUnitSelection(bReload)
+
+diff --git a/Assets/Python/Screens/CvPolicyAdvisorScreen.py b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+index 230e1c44d..9ddc7f1ec 100644
+--- a/Assets/Python/Screens/CvPolicyAdvisorScreen.py
++++ b/Assets/Python/Screens/CvPolicyAdvisorScreen.py
+@@ -208,7 +208,30 @@ class CvPolicyAdvisorScreen:
+ 		self.PAGE_NAME_LIST = [self.TEXT_TAB_POLICY, self.TEXT_TAB_RELIGION, self.TEXT_TAB_CORPORATION]
+ 		self.EXIT_TEXT = self.TEXT_EXIT
+ 		self.CONVERT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_RELIGION_CONVERT", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.TEXT_RELIGION_NO_STATE = localText.getText("TXT_KEY_RELIGION_SCREEN_NO_STATE", ())
++		self.TEXT_RELIGION_DATE_FOUNDED = localText.getText("TXT_KEY_RELIGION_SCREEN_DATE_FOUNDED", ())
++		self.TEXT_RELIGION_HOLY_CITY = localText.getText("TXT_KEY_RELIGION_SCREEN_HOLY_CITY", ())
++		self.TEXT_RELIGION_INFLUENCE = localText.getText("TXT_KEY_RELIGION_SCREEN_INFLUENCE", ())
++		self.TEXT_CORP_ROW_BUILT_BY = localText.getText("TXT_KEY_POLICY_CORP_ROW_BUILT_BY", ())
++		self.TEXT_CORP_ROW_CONSUMES = localText.getText("TXT_KEY_POLICY_CORP_ROW_CONSUMES", ())
++		self.TEXT_CORP_ROW_GENERATES = localText.getText("TXT_KEY_POLICY_CORP_ROW_GENERATES", ())
++		self.TEXT_CORP_ROW_GENERATES_2 = localText.getText("TXT_KEY_POLICY_CORP_ROW_GENERATES_2", ())
++		self.TEXT_CORP_ROW_FOUNDED = localText.getText("TXT_KEY_POLICY_CORP_ROW_FOUNDED", ())
++		self.TEXT_CORP_ROW_HQ_ID = localText.getText("TXT_KEY_POLICY_CORP_ROW_HQ_ID", ())
++		self.TEXT_NOT_FOUNDED = localText.getText("TXT_KEY_RELIGION_SCREEN_NOT_FOUNDED", ())
++		self.LABEL_RELIGION_NO_STATE = SAS_FONT_TAG_LABEL + self.TEXT_RELIGION_NO_STATE + SAS_FONT_TAG_CLOSE
++		self.LABEL_RELIGION_DATE_FOUNDED = SAS_FONT_TAG_LABEL + self.TEXT_RELIGION_DATE_FOUNDED + SAS_FONT_TAG_CLOSE
++		self.LABEL_RELIGION_HOLY_CITY = SAS_FONT_TAG_LABEL + self.TEXT_RELIGION_HOLY_CITY + SAS_FONT_TAG_CLOSE
++		self.LABEL_RELIGION_INFLUENCE = SAS_FONT_TAG_LABEL + self.TEXT_RELIGION_INFLUENCE + SAS_FONT_TAG_CLOSE
++		self.LABEL_CORP_ROW_BUILT_BY = SAS_FONT_TAG_LABEL + self.TEXT_CORP_ROW_BUILT_BY + SAS_FONT_TAG_CLOSE
++		self.LABEL_CORP_ROW_CONSUMES = SAS_FONT_TAG_LABEL + self.TEXT_CORP_ROW_CONSUMES + SAS_FONT_TAG_CLOSE
++		self.LABEL_CORP_ROW_GENERATES = SAS_FONT_TAG_LABEL + self.TEXT_CORP_ROW_GENERATES + SAS_FONT_TAG_CLOSE
++		self.LABEL_CORP_ROW_GENERATES_2 = SAS_FONT_TAG_LABEL + self.TEXT_CORP_ROW_GENERATES_2 + SAS_FONT_TAG_CLOSE
++		self.LABEL_CORP_ROW_FOUNDED = SAS_FONT_TAG_LABEL + self.TEXT_CORP_ROW_FOUNDED + SAS_FONT_TAG_CLOSE
++		self.LABEL_CORP_ROW_HQ_ID = SAS_FONT_TAG_LABEL + self.TEXT_CORP_ROW_HQ_ID + SAS_FONT_TAG_CLOSE
+ 		self.NO_STATE_BUTTON_ART = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath()
++		self.BUTTON_HILITE_SQUARE_ART = ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath()
++		self.BACKGROUND_ART = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
+ 
+ 	def updateRuntimeLayout(self, screen):
+ 		self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN = getAdvisorRuntimeBounds(
+@@ -309,7 +332,7 @@ class CvPolicyAdvisorScreen:
+ 		# Set the background and exit button, and show the screen
+ 		screen.setDimensions(self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN)
+ 		# advc.002b (note): The background image has 2:1 dimensions, so the increased W_SCREEN value makes it less distorted than in BtS. (Except maybe on very high resolutions.)
+-		screen.addDDSGFC(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.addDDSGFC(self.BACKGROUND_ID, self.BACKGROUND_ART, 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		screen.addPanel( "PolicyTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+ 		screen.addPanel( "PolicyBottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+ 		screen.showWindowBackground(False)
+@@ -531,7 +554,7 @@ class CvPolicyAdvisorScreen:
+ 				if (gc.getCivicInfo(j).getCivicOptionType() == i):										
+ 					fY += 2 * self.TEXT_MARGIN
+ 
+-					screen.addCheckBoxGFC(self.getPolicyButtonName(j), gc.getCivicInfo(j).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), fX + self.BUTTON_SIZE/2, fY, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
++					screen.addCheckBoxGFC(self.getPolicyButtonName(j), gc.getCivicInfo(j).getButton(), self.BUTTON_HILITE_SQUARE_ART, fX + self.BUTTON_SIZE/2, fY, self.BUTTON_SIZE, self.BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL)
+ 
+ 					screen.setText(self.getPolicyTextName(j), "", SAS_FONT_TAG_LABEL + gc.getCivicInfo(j).getDescription() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, fX + self.BUTTON_SIZE + self.TEXT_MARGIN, fY, 0, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+@@ -728,21 +751,21 @@ class CvPolicyAdvisorScreen:
+ 		for iRel in self.RELIGIONS:
+ 			szButtonName = self.getReligionButtonName(iRel)
+ 			if gc.getGame().getReligionGameTurnFounded(iRel) >= 0:
+-				screen.addCheckBoxGFCAt(szArea, szButtonName, gc.getReligionInfo(iRel).getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - iButtonOffset, 5, self.RELIGION_BUTTON_SIZE, self.RELIGION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
++				screen.addCheckBoxGFCAt(szArea, szButtonName, gc.getReligionInfo(iRel).getButton(), self.BUTTON_HILITE_SQUARE_ART, xLoop - iButtonOffset, 5, self.RELIGION_BUTTON_SIZE, self.RELIGION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+ 			else:
+ 				screen.setImageButtonAt(szButtonName, szArea, gc.getReligionInfo(iRel).getButtonDisabled(), xLoop - iButtonOffset, 5, self.RELIGION_BUTTON_SIZE, self.RELIGION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			screen.setLabelAt(self.getReligionTextName(iRel), szArea, SAS_FONT_TAG_LABEL + gc.getReligionInfo(iRel).getDescription() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			xLoop += self.DX_RELIGION
+ 
+ 		szButtonName = self.getReligionButtonName(gc.getNumReligionInfos())
+-		screen.addCheckBoxGFCAt(szArea, szButtonName, self.NO_STATE_BUTTON_ART, ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - iButtonOffset, 5, self.RELIGION_BUTTON_SIZE, self.RELIGION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+-		screen.setLabelAt(self.getReligionTextName(gc.getNumReligionInfos()), szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_NO_STATE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.addCheckBoxGFCAt(szArea, szButtonName, self.NO_STATE_BUTTON_ART, self.BUTTON_HILITE_SQUARE_ART, xLoop - iButtonOffset, 5, self.RELIGION_BUTTON_SIZE, self.RELIGION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
++		screen.setLabelAt(self.getReligionTextName(gc.getNumReligionInfos()), szArea, self.LABEL_RELIGION_NO_STATE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_RELIGION_NAME, self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 	def drawHelpInfo(self):
+ 		screen = self.getScreen()
+ 		szArea = self.RELIGION_SCROLL_PANEL_ID
+ 
+-		screen.setLabelAt(self.RELIGION_HEADER_FOUNDED_ID, szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_DATE_FOUNDED", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabelAt(self.RELIGION_HEADER_FOUNDED_ID, szArea, self.LABEL_RELIGION_DATE_FOUNDED, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		xLoop = self.X_RELIGION_START
+ 		for iRel in self.RELIGIONS:
+@@ -751,7 +774,7 @@ class CvPolicyAdvisorScreen:
+ 				screen.setLabelAt("ReligionFoundedValue" + str(iRel), szArea, SAS_FONT_TAG_LABEL + szFounded + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			xLoop += self.DX_RELIGION
+ 
+-		screen.setLabelAt(self.RELIGION_HEADER_HOLY_CITY_ID, szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_HOLY_CITY", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabelAt(self.RELIGION_HEADER_HOLY_CITY_ID, szArea, self.LABEL_RELIGION_HOLY_CITY, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_HOLY_CITY, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		screen.setLabelAt(self.RELIGION_HEADER_OWNER_ID, szArea, SAS_FONT_TAG_LABEL + u"Leader (ID)" + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		xLoop = self.X_RELIGION_START
+@@ -773,7 +796,7 @@ class CvPolicyAdvisorScreen:
+ 					screen.setLabelAt("ReligionHolyCityOwner" + str(iRel), szArea, SAS_FONT_TAG_LABEL + szHolyCityOwner + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_OWNER, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			xLoop += self.DX_RELIGION
+ 
+-		screen.setLabelAt(self.RELIGION_HEADER_INFLUENCE_ID, szArea, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_RELIGION_SCREEN_INFLUENCE", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_INFLUENCE, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabelAt(self.RELIGION_HEADER_INFLUENCE_ID, szArea, self.LABEL_RELIGION_INFLUENCE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_INFLUENCE, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		xLoop = self.X_RELIGION_START
+ 		for iRel in self.RELIGIONS:
+@@ -1112,25 +1135,26 @@ class CvPolicyAdvisorScreen:
+ 		for iCorp in range(gc.getNumCorporationInfos()):
+ 			szButtonName = self.getCorporationButtonName(iCorp)
+ 			kCorpInfo = gc.getCorporationInfo(iCorp)
+-			screen.addCheckBoxGFCAt(self.CORPORATION_PANEL_ID, szButtonName, kCorpInfo.getButton(), ArtFileMgr.getInterfaceArtInfo("BUTTON_HILITE_SQUARE").getPath(), xLoop - iButtonOffset, self.Y_CORPORATION_BUTTONS - iButtonOffset, self.CORPORATION_BUTTON_SIZE, self.CORPORATION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
++			screen.addCheckBoxGFCAt(self.CORPORATION_PANEL_ID, szButtonName, kCorpInfo.getButton(), self.BUTTON_HILITE_SQUARE_ART, xLoop - iButtonOffset, self.Y_CORPORATION_BUTTONS - iButtonOffset, self.CORPORATION_BUTTON_SIZE, self.CORPORATION_BUTTON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_LABEL, False)
+ 			xLoop += self.DX_CORPORATION
+ 
+ 		xLoop = self.X_CORPORATION_START
+ 		for iCorp in range(gc.getNumCorporationInfos()):
+-			szGreatPerson = ""
++			szGreatPerson = u""
+ 			iFoundingUnit = -1
+ 			for iBuilding in range(gc.getNumBuildingInfos()):
+ 				if gc.getBuildingInfo(iBuilding).getFoundsCorporation() == iCorp:
+ 					break
+ 			for iUnit in range(gc.getNumUnitInfos()):
+-				if gc.getUnitInfo(iUnit).getBuildings(iBuilding) or gc.getUnitInfo(iUnit).getForceBuildings(iBuilding):
++				kUnitInfo = gc.getUnitInfo(iUnit)
++				if kUnitInfo.getBuildings(iBuilding) or kUnitInfo.getForceBuildings(iBuilding):
+ 					iFoundingUnit = iUnit
+-					szGreatPerson = gc.getUnitInfo(iUnit).getDescription()
++					szGreatPerson = kUnitInfo.getDescription()
+ 					break
+ 			iBuiltByLeftX = xLoop - 44
+ 			if iFoundingUnit != -1:
+ 				# <!-- custom: render Built by as a true inline pair (icon + text) by using one shared left anchor per column. (GPT-5.3-Codex) -->
+-				screen.setImageButtonAt(self.getCorporationTextName(iCorp) + "GreatPersonIcon", self.CORPORATION_PANEL_ID, gc.getUnitInfo(iFoundingUnit).getButton(), iBuiltByLeftX, self.Y_CORPORATION_GREAT_PERSON, 24, 24, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setImageButtonAt(self.getCorporationTextName(iCorp) + "GreatPersonIcon", self.CORPORATION_PANEL_ID, kUnitInfo.getButton(), iBuiltByLeftX, self.Y_CORPORATION_GREAT_PERSON, 24, 24, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			screen.setLabelAt(self.getCorporationTextName(iCorp) + "GreatPerson", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + szGreatPerson + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, iBuiltByLeftX + 22, self.Y_CORPORATION_GREAT_PERSON, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			xLoop += self.DX_CORPORATION
+ 
+@@ -1144,22 +1168,22 @@ class CvPolicyAdvisorScreen:
+ 			xLoop += self.DX_CORPORATION
+ 
+ 		# <!-- custom: explicit row labels for corporation effects to keep top-panel semantics clear after tab integration and row reordering. (GPT-5.3-Codex) -->
+-		screen.setLabelAt(self.CORPORATION_HEADER_BUILT_BY_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_BUILT_BY", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GREAT_PERSON, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-		screen.setLabelAt(self.CORPORATION_HEADER_CONSUMES_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_CONSUMES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_CONSUMES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-		screen.setLabelAt(self.CORPORATION_HEADER_GENERATES_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_GENERATES", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GENERATES_BONUS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-		screen.setLabelAt(self.CORPORATION_HEADER_GENERATES_YIELDS_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_GENERATES_2", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GENERATES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-		screen.setLabelAt(self.CORPORATION_HEADER_FOUNDED_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_FOUNDED", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabelAt(self.CORPORATION_HEADER_BUILT_BY_ID, self.CORPORATION_PANEL_ID, self.LABEL_CORP_ROW_BUILT_BY, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GREAT_PERSON, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabelAt(self.CORPORATION_HEADER_CONSUMES_ID, self.CORPORATION_PANEL_ID, self.LABEL_CORP_ROW_CONSUMES, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_CONSUMES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabelAt(self.CORPORATION_HEADER_GENERATES_ID, self.CORPORATION_PANEL_ID, self.LABEL_CORP_ROW_GENERATES, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GENERATES_BONUS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabelAt(self.CORPORATION_HEADER_GENERATES_YIELDS_ID, self.CORPORATION_PANEL_ID, self.LABEL_CORP_ROW_GENERATES_2, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_GENERATES, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabelAt(self.CORPORATION_HEADER_FOUNDED_ID, self.CORPORATION_PANEL_ID, self.LABEL_CORP_ROW_FOUNDED, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		xLoop = self.X_CORPORATION_START
+ 		for iCorp in range(gc.getNumCorporationInfos()):
+ 			if gc.getGame().getCorporationGameTurnFounded(iCorp) < 0:
+-				szFounded = localText.getText("TXT_KEY_RELIGION_SCREEN_NOT_FOUNDED", ())
++				szFounded = self.TEXT_NOT_FOUNDED
+ 			else:
+ 				szFounded = CyGameTextMgr().getTimeStr(gc.getGame().getCorporationGameTurnFounded(iCorp), false)
+ 			screen.setLabelAt(self.getCorporationTextName(iCorp) + "Founded", self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + szFounded + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLoop, self.Y_CORPORATION_FOUNDED, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			xLoop += self.DX_CORPORATION
+ 
+ 		# <!-- custom: use one-line HQ values with owner ID (no separate nationality line) to match Religion-style concise ownership display and reduce vertical crowding. (GPT-5.3-Codex) -->
+-		screen.setLabelAt(self.CORPORATION_HEADER_HEADQUARTERS_ID, self.CORPORATION_PANEL_ID, SAS_FONT_TAG_LABEL + localText.getText("TXT_KEY_POLICY_CORP_ROW_HQ_ID", ()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabelAt(self.CORPORATION_HEADER_HEADQUARTERS_ID, self.CORPORATION_PANEL_ID, self.LABEL_CORP_ROW_HQ_ID, CvUtil.FONT_LEFT_JUSTIFY, self.LEFT_EDGE_TEXT, self.Y_CORPORATION_HEADQUARTERS, self.DZ, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		xLoop = self.X_CORPORATION_START
+ 		for iCorp in range(gc.getNumCorporationInfos()):
+ 			pHeadquarters = gc.getGame().getHeadquarters(iCorp)
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index 144418d8c..10b84721f 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -174,6 +174,64 @@ class CvTechChooser:
+ 		self.iSAS_CV_TECH_CHOOSER_TOP_SPACE_FOR_TECH_BAR_LOW_RES = None
+ 		self.PREF_ICON_LEFT = self.iX_LEFT_START + PREF_ICON_LEFT_OFFSET
+ 		self.PREF_ICON_BOTTOM = 0
++		self.iLanguageLoaded = -1
++		self.bTechChooserArtCached = False
++
++	def initText(self):
++		# <!-- custom: this file had no shared text/art cache before; add one-time language/art caching and reuse it in hot tech-tree loops to avoid repeated lookup work on redraw. (GPT-5.3-Codex) -->
++		# <!-- custom: keep first-call cache init available even before final init because Tech Chooser can be entered early; only skip repeated pre-final-init calls once language cache fields already exist. (GPT-5.3-Codex) -->
++		if (not CyGame().isFinalInitialized() and self.iLanguageLoaded != -1):
++			return
++		if self.iLanguageLoaded != CyGame().getCurrentLanguage():
++			self.iLanguageLoaded = CyGame().getCurrentLanguage()
++			self.TEXT_WB_AS_ADD_TECH = localText.getText("TXT_KEY_WB_AS_ADD_TECH", ())
++			self.TEXT_TECH_CHOOSER_TITLE = localText.getText("TXT_KEY_TECH_CHOOSER_TITLE", ()).upper()
++			self.TEXT_PEDIA_SCREEN_EXIT = localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper()
++			self.TEXT_TECH_CHOOSER_EXIT = SAS_FONT_TAG_TITLE + self.TEXT_PEDIA_SCREEN_EXIT + SAS_FONT_TAG_CLOSE
++			self.TEXT_TECH_CHOOSER_TITLE_FMT = SAS_FONT_TAG_TITLE_BOLD + self.TEXT_TECH_CHOOSER_TITLE + SAS_FONT_TAG_CLOSE
++
++		if self.bTechChooserArtCached:
++			return
++		self.bTechChooserArtCached = True
++		# BUG - GP Tech Prefs - start
++		self.NO_TECH_ART = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath()
++		# BUG - GP Tech Prefs - end
++		self.ART_SCREEN_BG_OPAQUE = ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath()
++		self.ART_RED_X = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_RED_X").getPath()
++		self.ART_TECH_MOVE_BONUS = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MOVE_BONUS").getPath()
++		self.ART_TECH_FEATURE_PRODUCTION = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_FEATURE_PRODUCTION").getPath()
++		self.ART_TECH_WORKER_SPEED = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_WORKER_SPEED").getPath()
++		self.ART_TECH_TRADE_ROUTES = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_TRADE_ROUTES").getPath()
++		self.ART_TECH_HEALTH = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_HEALTH").getPath()
++		self.ART_TECH_HAPPINESS = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_HAPPINESS").getPath()
++		self.ART_TECH_CULTURE = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_CULTURE").getPath()
++		self.ART_TECH_ESPIONAGE = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_ESPIONAGE").getPath()
++		self.ART_GENERAL_QUESTIONMARK = ArtFileMgr.getInterfaceArtInfo("INTERFACE_GENERAL_QUESTIONMARK").getPath()
++		self.ART_TECH_FREETECH = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_FREETECH").getPath()
++		self.ART_TECH_LOS = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_LOS").getPath()
++		self.ART_TECH_MAPCENTER = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MAPCENTER").getPath()
++		self.ART_TECH_MAPREVEAL = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MAPREVEAL").getPath()
++		self.ART_TECH_MAPTRADING = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MAPTRADING").getPath()
++		self.ART_TECH_TECHTRADING = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_TECHTRADING").getPath()
++		self.ART_TECH_GOLDTRADING = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_GOLDTRADING").getPath()
++		self.ART_TECH_OPENBORDERS = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_OPENBORDERS").getPath()
++		self.ART_TECH_DEFENSIVEPACT = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_DEFENSIVEPACT").getPath()
++		self.ART_TECH_PERMALLIANCE = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_PERMALLIANCE").getPath()
++		self.ART_TECH_VASSAL = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath()
++		self.ART_TECH_BRIDGEBUILDING = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_BRIDGEBUILDING").getPath()
++		self.ART_TECH_IRRIGATION = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath()
++		self.ART_TECH_NOIRRIGATION = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_NOIRRIGATION").getPath()
++		self.ART_TECH_WATERWORK = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_WATERWORK").getPath()
++		self.ART_TECH_WATERMOVES = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_WATERMOVES").getPath()
++		self.ART_TECH_RIVERTRADE = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_RIVERTRADE").getPath()
++		self.ART_POPUPBUTTON_RELIGION = ArtFileMgr.getInterfaceArtInfo("INTERFACE_POPUPBUTTON_RELIGION").getPath()
++		self.ARROW_X = ArtFileMgr.getInterfaceArtInfo("ARROW_X").getPath()
++		self.ARROW_Y = ArtFileMgr.getInterfaceArtInfo("ARROW_Y").getPath()
++		self.ARROW_MXMY = ArtFileMgr.getInterfaceArtInfo("ARROW_MXMY").getPath()
++		self.ARROW_XY = ArtFileMgr.getInterfaceArtInfo("ARROW_XY").getPath()
++		self.ARROW_MXY = ArtFileMgr.getInterfaceArtInfo("ARROW_MXY").getPath()
++		self.ARROW_XMY = ArtFileMgr.getInterfaceArtInfo("ARROW_XMY").getPath()
++		self.ARROW_HEAD = ArtFileMgr.getInterfaceArtInfo("ARROW_HEAD").getPath()
+ 
+ 	def getScreen(self):
+ 		return CyGInterfaceScreen( "TechChooser", CvScreenEnums.TECH_CHOOSER )
+@@ -234,10 +292,7 @@ class CvTechChooser:
+ 		screen.hide("AddTechButton")
+ 		screen.hide("ASPointsLabel")
+ 		screen.hide("SelectedTechLabel")
+-
+-# BUG - GP Tech Prefs - start
+-		self.NO_TECH_ART = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CANCEL").getPath()
+-# BUG - GP Tech Prefs - end
++		self.initText()
+ 
+ 		if ( CyGame().isDebugMode() ):
+ 			screen.addDropDownBoxGFC( "CivDropDown", 22, 12, 192, WidgetTypes.WIDGET_GENERAL, -1, -1, FontTypes.SMALL_FONT )
+@@ -273,7 +328,7 @@ class CvTechChooser:
+ 			self.H_ADD_TECH_BUTTON = 30
+ 			self.X_ADVANCED_START_TEXT = self.X_ADD_TECH_BUTTON + self.W_ADD_TECH_BUTTON + 20
+ 
+-			szText = localText.getText("TXT_KEY_WB_AS_ADD_TECH", ())
++			szText = self.TEXT_WB_AS_ADD_TECH
+ 			screen.setButtonGFC( "AddTechButton", szText, "", self.X_ADD_TECH_BUTTON, self.Y_ADD_TECH_BUTTON, self.W_ADD_TECH_BUTTON, self.H_ADD_TECH_BUTTON, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD )
+ 			screen.hide("AddTechButton")
+ 
+@@ -291,16 +346,14 @@ class CvTechChooser:
+ # BUG - Tech Screen Resolution - end
+ 
+ 		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, xPanelWidth, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+-		screen.addDDSGFC("TechBG", ArtFileMgr.getInterfaceArtInfo("SCREEN_BG_OPAQUE").getPath(), 0, 51, xPanelWidth, yPanelHeight - 96, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.addDDSGFC("TechBG", self.ART_SCREEN_BG_OPAQUE, 0, 51, xPanelWidth, yPanelHeight - 96, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, yPanelHeight - 55, xPanelWidth, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+-		screen.setText( "TechChooserExit", "Background", SAS_FONT_TAG_TITLE + CyTranslator().getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, xPanelWidth - 30, yPanelHeight - 42, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
++		screen.setText( "TechChooserExit", "Background", self.TEXT_TECH_CHOOSER_EXIT, CvUtil.FONT_RIGHT_JUSTIFY, xPanelWidth - 30, yPanelHeight - 42, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
+ 		screen.setActivation( "TechChooserExit", ActivationTypes.ACTIVATE_MIMICPARENTFOCUS )
+ 
+ 		# Header...
+ 		# <!-- custom: keep Tech Chooser title styling/vertical anchor aligned with migrated advisor screens (bold title + shared screen-independent Y title constant). (GPT-5.3-Codex) -->
+-		szText = SAS_FONT_TAG_TITLE_BOLD
+-		szText = szText + localText.getText("TXT_KEY_TECH_CHOOSER_TITLE", ()).upper()
+-		szText = szText + SAS_FONT_TAG_CLOSE
++		szText = self.TEXT_TECH_CHOOSER_TITLE_FMT
+ 		screen.setLabel( "TechTitleHeader", "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, xPanelWidth / 2, SAS_ADVISOR_TITLE_Y, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 		# <!-- custom: simplify code since this was disabled anyway. (GPT-5.2-Codex (summarized)) -->
+@@ -569,7 +622,7 @@ class CvTechChooser:
+ 					szObsoleteButton = self.getNextWidgetName("Obsolete")
+ 					szObsoleteX = self.getNextWidgetName("ObsoleteX")
+ 					screen.addDDSGFCAt( szObsoleteButton, szTechRecord, gc.getBuildingInfo(eLoopBuilding).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OBSOLETE, eLoopBuilding, -1, False )
+-					screen.addDDSGFCAt( szObsoleteX, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_RED_X").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OBSOLETE, eLoopBuilding, -1, False )
++					screen.addDDSGFCAt( szObsoleteX, szTechRecord, self.ART_RED_X, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OBSOLETE, eLoopBuilding, -1, False )
+ 					fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -582,7 +635,7 @@ class CvTechChooser:
+ 				szObsoleteButton = self.getNextWidgetName("ObsoleteBonus")
+ 				szObsoleteX = self.getNextWidgetName("ObsoleteXBonus")
+ 				screen.addDDSGFCAt( szObsoleteButton, szTechRecord, gc.getBonusInfo(j).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OBSOLETE_BONUS, j, -1, False )
+-				screen.addDDSGFCAt( szObsoleteX, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_RED_X").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OBSOLETE_BONUS, j, -1, False )
++				screen.addDDSGFCAt( szObsoleteX, szTechRecord, self.ART_RED_X, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OBSOLETE_BONUS, j, -1, False )
+ 				fX += X_INCREMENT
+ 					
+ 		j = 0
+@@ -595,7 +648,7 @@ class CvTechChooser:
+ 					szObsoleteSpecialButton = self.getNextWidgetName("ObsoleteSpecial")
+ 					szObsoleteSpecialX = self.getNextWidgetName("ObsoleteSpecialX")
+ 					screen.addDDSGFCAt( szObsoleteSpecialButton, szTechRecord, gc.getSpecialBuildingInfo(j).getButton(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OBSOLETE_SPECIAL, j, -1, False )
+-					screen.addDDSGFCAt( szObsoleteSpecialX, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_RED_X").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OBSOLETE_SPECIAL, j, -1, False )
++					screen.addDDSGFCAt( szObsoleteSpecialX, szTechRecord, self.ART_RED_X, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OBSOLETE_SPECIAL, j, -1, False )
+ 					fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -605,7 +658,7 @@ class CvTechChooser:
+ 		for j in range(gc.getNumRouteInfos()):
+ 			if ( gc.getRouteInfo(j).getTechMovementChange(i) != 0 ):
+ 				szMoveButton = self.getNextWidgetName("Move")
+-				screen.addDDSGFCAt( szMoveButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MOVE_BONUS").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_MOVE_BONUS, i, -1, False )
++				screen.addDDSGFCAt( szMoveButton, szTechRecord, self.ART_TECH_MOVE_BONUS, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_MOVE_BONUS, i, -1, False )
+ 				fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -639,7 +692,7 @@ class CvTechChooser:
+ 		# Feature production modifier
+ 		if ( gc.getTechInfo(i).getFeatureProductionModifier() != 0 ):
+ 			szFeatureProductionButton = self.getNextWidgetName("FeatureProduction")
+-			screen.addDDSGFCAt( szFeatureProductionButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_FEATURE_PRODUCTION").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_FEATURE_PRODUCTION, i, -1, False )
++			screen.addDDSGFCAt( szFeatureProductionButton, szTechRecord, self.ART_TECH_FEATURE_PRODUCTION, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_FEATURE_PRODUCTION, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -648,7 +701,7 @@ class CvTechChooser:
+ 		# Worker speed
+ 		if ( gc.getTechInfo(i).getWorkerSpeedModifier() != 0 ):
+ 			szWorkerModifierButton = self.getNextWidgetName("Worker")
+-			screen.addDDSGFCAt( szWorkerModifierButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_WORKER_SPEED").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_WORKER_RATE, i, -1, False )
++			screen.addDDSGFCAt( szWorkerModifierButton, szTechRecord, self.ART_TECH_WORKER_SPEED, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_WORKER_RATE, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -657,7 +710,7 @@ class CvTechChooser:
+ 		# Trade Routes per City change
+ 		if ( gc.getTechInfo(i).getTradeRoutes() != 0 ):
+ 			szTradeRouteButton = self.getNextWidgetName("TradeRoutes")
+-			screen.addDDSGFCAt( szTradeRouteButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_TRADE_ROUTES").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_TRADE_ROUTES, i, -1, False )
++			screen.addDDSGFCAt( szTradeRouteButton, szTechRecord, self.ART_TECH_TRADE_ROUTES, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_TRADE_ROUTES, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -666,7 +719,7 @@ class CvTechChooser:
+ 		# Health Rate bonus from this tech...
+ 		if ( gc.getTechInfo(i).getHealth() != 0 ):
+ 			szHealthRateButton = self.getNextWidgetName("HealthRate")
+-			screen.addDDSGFCAt( szHealthRateButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_HEALTH").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_HEALTH_RATE, i, -1, False )
++			screen.addDDSGFCAt( szHealthRateButton, szTechRecord, self.ART_TECH_HEALTH, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_HEALTH_RATE, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -675,7 +728,7 @@ class CvTechChooser:
+ 		# Happiness Rate bonus from this tech...
+ 		if ( gc.getTechInfo(i).getHappiness() != 0 ):
+ 			szHappinessRateButton = self.getNextWidgetName("HappinessRate")
+-			screen.addDDSGFCAt( szHappinessRateButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_HAPPINESS").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_HAPPINESS_RATE, i, -1, False )
++			screen.addDDSGFCAt( szHappinessRateButton, szTechRecord, self.ART_TECH_HAPPINESS, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_HAPPINESS_RATE, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -687,11 +740,11 @@ class CvTechChooser:
+ 			if (gc.getTechInfo(i).isCommerceFlexible(j) and (not gc.getPlayer(self.iCivSelected).isCommerceFlexible(j) or gc.getTeam(gc.getPlayer(self.iCivSelected).getTeam()).isCommerceFlexible(j))):
+ 				szAdjustButton = self.getNextWidgetName("AdjustButton")
+ 				if ( j == CommerceTypes.COMMERCE_CULTURE ):
+-					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_CULTURE").getPath()
++					szFileName = self.ART_TECH_CULTURE
+ 				elif ( j == CommerceTypes.COMMERCE_ESPIONAGE ):
+-					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_ESPIONAGE").getPath()
++					szFileName = self.ART_TECH_ESPIONAGE
+ 				else:
+-					szFileName = ArtFileMgr.getInterfaceArtInfo("INTERFACE_GENERAL_QUESTIONMARK").getPath()
++					szFileName = self.ART_GENERAL_QUESTIONMARK
+ 				screen.addDDSGFCAt( szAdjustButton, szTechRecord, szFileName, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_ADJUST, i, j, False )
+ 				fX += X_INCREMENT
+ 
+@@ -701,7 +754,7 @@ class CvTechChooser:
+ 		# Free Techs
+ 		if ( gc.getTechInfo(i).getFirstFreeTechs() > 0 ):
+ 			szFreeTechButton = self.getNextWidgetName("FreeTech")
+-			screen.addDDSGFCAt( szFreeTechButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_FREETECH").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_FREE_TECH, i, -1, False )
++			screen.addDDSGFCAt( szFreeTechButton, szTechRecord, self.ART_TECH_FREETECH, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_FREE_TECH, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -718,7 +771,7 @@ class CvTechChooser:
+ 		# Line of Sight bonus...
+ 		if ( gc.getTechInfo(i).isExtraWaterSeeFrom() ):
+ 			szLOSButton = self.getNextWidgetName("LOS")
+-			screen.addDDSGFCAt( szLOSButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_LOS").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_LOS_BONUS, i, -1, False )
++			screen.addDDSGFCAt( szLOSButton, szTechRecord, self.ART_TECH_LOS, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_LOS_BONUS, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -727,7 +780,7 @@ class CvTechChooser:
+ 		# Map Center Bonus...
+ 		if ( gc.getTechInfo(i).isMapCentering() ):
+ 			szMapCenterButton = self.getNextWidgetName("MapCenter")
+-			screen.addDDSGFCAt( szMapCenterButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MAPCENTER").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_MAP_CENTER, i, -1, False )
++			screen.addDDSGFCAt( szMapCenterButton, szTechRecord, self.ART_TECH_MAPCENTER, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_MAP_CENTER, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -736,7 +789,7 @@ class CvTechChooser:
+ 		# Map Reveal...
+ 		if ( gc.getTechInfo(i).isMapVisible() ):
+ 			szMapRevealButton = self.getNextWidgetName("MapReveal")
+-			screen.addDDSGFCAt( szMapRevealButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MAPREVEAL").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_MAP_REVEAL, i, -1, False )
++			screen.addDDSGFCAt( szMapRevealButton, szTechRecord, self.ART_TECH_MAPREVEAL, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_MAP_REVEAL, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -745,7 +798,7 @@ class CvTechChooser:
+ 		# Map Trading
+ 		if (gc.getTechInfo(i).isMapTrading()):
+ 			szMapTradeButton = self.getNextWidgetName("MapTrade")
+-			screen.addDDSGFCAt( szMapTradeButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_MAPTRADING").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_MAP_TRADE, i, -1, False )
++			screen.addDDSGFCAt( szMapTradeButton, szTechRecord, self.ART_TECH_MAPTRADING, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_MAP_TRADE, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -754,7 +807,7 @@ class CvTechChooser:
+ 		# Tech Trading
+ 		if ( gc.getTechInfo(i).isTechTrading() ):
+ 			szTechTradeButton = self.getNextWidgetName("TechTrade")
+-			screen.addDDSGFCAt( szTechTradeButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_TECHTRADING").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_TECH_TRADE, i, -1, False )
++			screen.addDDSGFCAt( szTechTradeButton, szTechRecord, self.ART_TECH_TECHTRADING, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_TECH_TRADE, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -763,7 +816,7 @@ class CvTechChooser:
+ 		# Gold Trading
+ 		if ( gc.getTechInfo(i).isGoldTrading() ):
+ 			szGoldTradeButton = self.getNextWidgetName("GoldTrade")
+-			screen.addDDSGFCAt( szGoldTradeButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_GOLDTRADING").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_GOLD_TRADE, i, -1, False )
++			screen.addDDSGFCAt( szGoldTradeButton, szTechRecord, self.ART_TECH_GOLDTRADING, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_GOLD_TRADE, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -772,7 +825,7 @@ class CvTechChooser:
+ 		# Open Borders
+ 		if ( gc.getTechInfo(i).isOpenBordersTrading() ):
+ 			szOpenBordersButton = self.getNextWidgetName("OpenBorders")
+-			screen.addDDSGFCAt( szOpenBordersButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_OPENBORDERS").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OPEN_BORDERS, i, -1, False )
++			screen.addDDSGFCAt( szOpenBordersButton, szTechRecord, self.ART_TECH_OPENBORDERS, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_OPEN_BORDERS, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -781,7 +834,7 @@ class CvTechChooser:
+ 		# Defensive Pact
+ 		if ( gc.getTechInfo(i).isDefensivePactTrading() ):
+ 			szDefensivePactButton = self.getNextWidgetName("DefensivePact")
+-			screen.addDDSGFCAt( szDefensivePactButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_DEFENSIVEPACT").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_DEFENSIVE_PACT, i, -1, False )
++			screen.addDDSGFCAt( szDefensivePactButton, szTechRecord, self.ART_TECH_DEFENSIVEPACT, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_DEFENSIVE_PACT, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -790,7 +843,7 @@ class CvTechChooser:
+ 		# Permanent Alliance
+ 		if ( gc.getTechInfo(i).isPermanentAllianceTrading() ):
+ 			szPermanentAllianceButton = self.getNextWidgetName("PermanentAlliance")
+-			screen.addDDSGFCAt( szPermanentAllianceButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_PERMALLIANCE").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_PERMANENT_ALLIANCE, i, -1, False )
++			screen.addDDSGFCAt( szPermanentAllianceButton, szTechRecord, self.ART_TECH_PERMALLIANCE, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_PERMANENT_ALLIANCE, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -799,7 +852,7 @@ class CvTechChooser:
+ 		# Vassal States
+ 		if ( gc.getTechInfo(i).isVassalStateTrading() ):
+ 			szVassalStateButton = self.getNextWidgetName("VassalState")
+-			screen.addDDSGFCAt( szVassalStateButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_VASSAL").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_VASSAL_STATE, i, -1, False )
++			screen.addDDSGFCAt( szVassalStateButton, szTechRecord, self.ART_TECH_VASSAL, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_VASSAL_STATE, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -808,7 +861,7 @@ class CvTechChooser:
+ 		# Bridge Building
+ 		if ( gc.getTechInfo(i).isBridgeBuilding() ):
+ 			szBuildBridgeButton = self.getNextWidgetName("BuildBridge")
+-			screen.addDDSGFCAt( szBuildBridgeButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_BRIDGEBUILDING").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_BUILD_BRIDGE, i, -1, False )
++			screen.addDDSGFCAt( szBuildBridgeButton, szTechRecord, self.ART_TECH_BRIDGEBUILDING, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_BUILD_BRIDGE, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -817,7 +870,7 @@ class CvTechChooser:
+ 		# Irrigation unlocked...
+ 		if ( gc.getTechInfo(i).isIrrigation() ):
+ 			szIrrigationButton = self.getNextWidgetName("Irrigation")
+-			screen.addDDSGFCAt( szIrrigationButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_IRRIGATION, i, -1, False )
++			screen.addDDSGFCAt( szIrrigationButton, szTechRecord, self.ART_TECH_IRRIGATION, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_IRRIGATION, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -826,7 +879,7 @@ class CvTechChooser:
+ 		# Ignore Irrigation unlocked...
+ 		if ( gc.getTechInfo(i).isIgnoreIrrigation() ):
+ 			szIgnoreIrrigationButton = self.getNextWidgetName("IgnoreIrrigation")
+-			screen.addDDSGFCAt( szIgnoreIrrigationButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_NOIRRIGATION").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_IGNORE_IRRIGATION, i, -1, False )
++			screen.addDDSGFCAt( szIgnoreIrrigationButton, szTechRecord, self.ART_TECH_NOIRRIGATION, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_IGNORE_IRRIGATION, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -835,7 +888,7 @@ class CvTechChooser:
+ 		# Coastal Work unlocked...
+ 		if ( gc.getTechInfo(i).isWaterWork() ):
+ 			szWaterWorkButton = self.getNextWidgetName("WaterWork")
+-			screen.addDDSGFCAt( szWaterWorkButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_WATERWORK").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_WATER_WORK, i, -1, False )
++			screen.addDDSGFCAt( szWaterWorkButton, szTechRecord, self.ART_TECH_WATERWORK, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_WATER_WORK, i, -1, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -874,7 +927,7 @@ class CvTechChooser:
+ 		for j in range( DomainTypes.NUM_DOMAIN_TYPES ):
+ 			if (gc.getTechInfo(i).getDomainExtraMoves(j) != 0):
+ 				szDomainExtraMovesButton = self.getNextWidgetName("DomainExtraMoves")
+-				screen.addDDSGFCAt( szDomainExtraMovesButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_WATERMOVES").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_DOMAIN_EXTRA_MOVES, i, j, False )
++				screen.addDDSGFCAt( szDomainExtraMovesButton, szTechRecord, self.ART_TECH_WATERMOVES, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_DOMAIN_EXTRA_MOVES, i, j, False )
+ 				fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -933,7 +986,7 @@ class CvTechChooser:
+ 			# advc.124: Ability not used currently, but still, for consistency:
+ 			#and not (gc.getTeam(gc.getPlayer(self.iCivSelected).getTeam()).isRiverTrade()):
+ 			szTerrainTradeButton = self.getNextWidgetName("TerrainTradeButton")
+-			screen.addDDSGFCAt( szTerrainTradeButton, szTechRecord, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_RIVERTRADE").getPath(), iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_TERRAIN_TRADE, i, j, False )
++			screen.addDDSGFCAt( szTerrainTradeButton, szTechRecord, self.ART_TECH_RIVERTRADE, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_TERRAIN_TRADE, i, j, False )
+ 			fX += X_INCREMENT
+ 
+ 		j = 0
+@@ -1008,7 +1061,7 @@ class CvTechChooser:
+ 			if ( gc.getReligionInfo(j).getTechPrereq() == i ):
+ 				szFoundReligion = self.getNextWidgetName("FoundReligionButton")
+ 				if gc.getGame().isOption(GameOptionTypes.GAMEOPTION_PICK_RELIGION):
+-					szButton = ArtFileMgr.getInterfaceArtInfo("INTERFACE_POPUPBUTTON_RELIGION").getPath()
++					szButton = self.ART_POPUPBUTTON_RELIGION
+ 				else:
+ 					szButton = gc.getReligionInfo(j).getButton()
+ 				screen.addDDSGFCAt( szFoundReligion, szTechRecord, szButton, iX + fX, iY + Y_ROW, TEXTURE_SIZE, TEXTURE_SIZE, WidgetTypes.WIDGET_HELP_FOUND_RELIGION, i, j, False )
+@@ -1130,13 +1183,13 @@ class CvTechChooser:
+ 
+ 		iLoop = 0
+ 
+-		ARROW_X = ArtFileMgr.getInterfaceArtInfo("ARROW_X").getPath()
+-		ARROW_Y = ArtFileMgr.getInterfaceArtInfo("ARROW_Y").getPath()
+-		ARROW_MXMY = ArtFileMgr.getInterfaceArtInfo("ARROW_MXMY").getPath()
+-		ARROW_XY = ArtFileMgr.getInterfaceArtInfo("ARROW_XY").getPath()
+-		ARROW_MXY = ArtFileMgr.getInterfaceArtInfo("ARROW_MXY").getPath()
+-		ARROW_XMY = ArtFileMgr.getInterfaceArtInfo("ARROW_XMY").getPath()
+-		ARROW_HEAD = ArtFileMgr.getInterfaceArtInfo("ARROW_HEAD").getPath()
++		ARROW_X = self.ARROW_X
++		ARROW_Y = self.ARROW_Y
++		ARROW_MXMY = self.ARROW_MXMY
++		ARROW_XY = self.ARROW_XY
++		ARROW_MXY = self.ARROW_MXY
++		ARROW_XMY = self.ARROW_XMY
++		ARROW_HEAD = self.ARROW_HEAD
+ 
+ 		for i in range(gc.getNumTechInfos()):
+ 			bFirst = 1
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 2d12e9341..c66a98723 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -216,6 +216,7 @@ class CvVictoryScreen:
+ 		# <!-- custom: precompute trophy icon for Highest Score row (claude opus 4.5) -->
+ 		szTrophyIconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_TROPHY").getPath()
+ 		self.szTrophyImgTag = u"<img=%s size=%d></img>" % (szTrophyIconPath, self.iEmojiAsIconIconSize)
++		self.ART_MAINMENU_SLIDESHOW_LOAD = ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath()
+ 
+ 		# <!-- custom: thousand separator, based on Info Screen pattern (claude opus 4.5) -->
+ 		self.szSepBase = localText.getText("TXT_KEY_THOUSANDS_SEPARATOR", ())
+@@ -240,6 +241,19 @@ class CvVictoryScreen:
+ 		self.TEXT_VOTE_SOURCE_NOT_ACTIVE = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_VOTE_SOURCE_NOT_ACTIVE", ())
+ 		self.TEXT_MEMBERS_NO_VOTING_YET = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET", ())
+ 		self.TEXT_NOT_ACTIVE_SHORT = localText.getText("TXT_KEY_SAS_NOT_ACTIVE_SHORT", ())
++		self.COLOR_YELLOW = gc.getInfoTypeForString("COLOR_YELLOW")
++		self.EXIT_TEXT = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.HEADER_TEXT = SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_VICTORY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE
++		self.TAB_VICTORIES = localText.getText("TXT_KEY_MAIN_MENU_VICTORIES", ()).upper()
++		self.TAB_SETTINGS = localText.getText("TXT_KEY_MAIN_MENU_SETTINGS", ()).upper()
++		self.TAB_VOTING = localText.getText("TXT_KEY_VOTING_TITLE", ()).upper()
++		self.TAB_MEMBERS = localText.getText("TXT_KEY_MEMBERS_TITLE", ()).upper()
++		self.TAB_SCORE = localText.getText("TXT_KEY_GAME_SCORE", ()).upper()
++		self.TAB_VICTORIES_ACTIVE = localText.getColorText("TXT_KEY_MAIN_MENU_VICTORIES", (), self.COLOR_YELLOW).upper()
++		self.TAB_SETTINGS_ACTIVE = localText.getColorText("TXT_KEY_MAIN_MENU_SETTINGS", (), self.COLOR_YELLOW).upper()
++		self.TAB_VOTING_ACTIVE = localText.getColorText("TXT_KEY_VOTING_TITLE", (), self.COLOR_YELLOW).upper()
++		self.TAB_MEMBERS_ACTIVE = localText.getColorText("TXT_KEY_MEMBERS_TITLE", (), self.COLOR_YELLOW).upper()
++		self.TAB_SCORE_ACTIVE = localText.getColorText("TXT_KEY_GAME_SCORE", (), self.COLOR_YELLOW).upper()
+ 
+ 		# <!-- custom: precompute fully formatted strings that never change (claude opus 4.5) -->
+ 		self.szConquestText = u"%c %s" % (self.iStrengthIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_ELIMINATE_ALL", ()))
+@@ -328,15 +342,15 @@ class CvVictoryScreen:
+ 			self.iScreen = VICTORY_CONDITION_SCREEN
+ 
+ 		# Set the background widget and exit button
+-		screen.addDDSGFC(self.BACKGROUND_ID, ArtFileMgr.getInterfaceArtInfo("MAINMENU_SLIDESHOW_LOAD").getPath(), 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		screen.addDDSGFC(self.BACKGROUND_ID, self.ART_MAINMENU_SLIDESHOW_LOAD, 0, 0, self.W_SCREEN, self.H_SCREEN, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		screen.addPanel( "TechTopPanel", u"", u"", True, False, 0, 0, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_TOPBAR )
+ 		screen.addPanel( "TechBottomPanel", u"", u"", True, False, 0, self.Y_BOTTOM_PANEL, self.W_SCREEN, 55, PanelStyles.PANEL_STYLE_BOTTOMBAR )
+ 		screen.showWindowBackground( False )
+ 		screen.setDimensions(self.L_SCREEN, self.T_SCREEN, self.W_SCREEN, self.H_SCREEN)
+-		screen.setText(self.EXIT_ID, "Background", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
++		screen.setText(self.EXIT_ID, "Background", self.EXIT_TEXT, CvUtil.FONT_RIGHT_JUSTIFY, self.X_EXIT, self.Y_EXIT, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_CLOSE_SCREEN, -1, -1 )
+ 
+ 		# Header...
+-		screen.setLabel(self.HEADER_ID, "Background", SAS_FONT_TAG_TITLE_BOLD + localText.getText("TXT_KEY_VICTORY_SCREEN_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		screen.setLabel(self.HEADER_ID, "Background", self.HEADER_TEXT, CvUtil.FONT_CENTER_JUSTIFY, self.X_SCREEN, self.Y_TITLE, self.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		if self.iScreen == VICTORY_CONDITION_SCREEN:
+ 			self.showVictoryConditionScreen()
+@@ -356,34 +370,34 @@ class CvVictoryScreen:
+ 
+ 		xLink = self.X_LINK
+ 		if (self.iScreen != VICTORY_CONDITION_SCREEN):
+-			screen.setText(self.VC_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_MAIN_MENU_VICTORIES", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setText(self.VC_TAB_ID, "", SAS_FONT_TAG_TITLE + self.TAB_VICTORIES + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		else:
+-			screen.setText(self.VC_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_MAIN_MENU_VICTORIES", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setText(self.VC_TAB_ID, "", SAS_FONT_TAG_TITLE + self.TAB_VICTORIES_ACTIVE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		xLink += self.DX_LINK
+ 
+ 		if (self.iScreen != GAME_SETTINGS_SCREEN):
+-			screen.setText(self.SETTINGS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_MAIN_MENU_SETTINGS", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setText(self.SETTINGS_TAB_ID, "", SAS_FONT_TAG_TITLE + self.TAB_SETTINGS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		else:
+-			screen.setText(self.SETTINGS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_MAIN_MENU_SETTINGS", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setText(self.SETTINGS_TAB_ID, "", SAS_FONT_TAG_TITLE + self.TAB_SETTINGS_ACTIVE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		xLink += self.DX_LINK
+ 
+ 		# <!-- custom: always show Voting/Members tabs for exhaustive navigation, even when no vote source is currently active; empty screens are preferable to hidden tabs so users can discover all sections. (GPT-5.3-Codex) -->
+ 		if (self.iScreen != UN_RESOLUTION_SCREEN):
+-			screen.setText(self.UN_RESOLUTION_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_VOTING_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setText(self.UN_RESOLUTION_TAB_ID, "", SAS_FONT_TAG_TITLE + self.TAB_VOTING + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		else:
+-			screen.setText(self.UN_RESOLUTION_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_VOTING_TITLE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setText(self.UN_RESOLUTION_TAB_ID, "", SAS_FONT_TAG_TITLE + self.TAB_VOTING_ACTIVE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		xLink += self.DX_LINK
+ 		if (self.iScreen != UN_MEMBERS_SCREEN):
+-			screen.setText(self.UN_MEMBERS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_MEMBERS_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setText(self.UN_MEMBERS_TAB_ID, "", SAS_FONT_TAG_TITLE + self.TAB_MEMBERS + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		else:
+-			screen.setText(self.UN_MEMBERS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_MEMBERS_TITLE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setText(self.UN_MEMBERS_TAB_ID, "", SAS_FONT_TAG_TITLE + self.TAB_MEMBERS_ACTIVE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		xLink += self.DX_LINK
+ 		# <advc.703>
+ 		if gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
+ 			if self.iScreen != RF_SCORE_SCREEN:
+-				screen.setText(self.RF_SCORE_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_GAME_SCORE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setText(self.RF_SCORE_TAB_ID, "", SAS_FONT_TAG_TITLE + self.TAB_SCORE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			else:
+-				screen.setText(self.RF_SCORE_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_GAME_SCORE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.setText(self.RF_SCORE_TAB_ID, "", SAS_FONT_TAG_TITLE + self.TAB_SCORE_ACTIVE + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			xLink += self.DX_LINK
+ 		# </advc.703>
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=141517

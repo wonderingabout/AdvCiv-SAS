@@ -16,10 +16,11 @@
 			<bVisible>1</bVisible>
 			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+			<!-- custom: this is mostly to help the AI that may allocate a lot of them inefficiently, as well as buff the citizen that is still too weak even without that, also considering the 2 food cost of a specialist, this is probably balanced and still not better than working any tile, just more even as in less penalizing to choose the citizen specialist over any other or working a tile, was 0 / 1 / 0 -->
 			<Yields>
 				<iYield>0</iYield>
 				<iYield>1</iYield>
-				<iYield>0</iYield>
+				<iYield>1</iYield>
 			</Yields>
 			<Commerces/>
 			<iExperience>0</iExperience>
@@ -39,17 +40,18 @@
 			<Help/>
 			<Texture>Art/Interface/MainScreen/CityScreen/Priest.dds</Texture>
 			<bVisible>1</bVisible>
-			<GreatPeopleUnitClass>UNITCLASS_PROPHET</GreatPeopleUnitClass>
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<Yields>
 				<iYield>0</iYield>
 				<iYield>1</iYield>
 				<iYield>0</iYield>
 			</Yields>
+			<!-- custom: was 1 / 0 / 0 -->
 			<Commerces>
 				<iCommerce>1</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>0</iCommerce>
+				<iCommerce>1</iCommerce>
 			</Commerces>
 			<iExperience>0</iExperience>
 			<Flavors/>
@@ -68,7 +70,7 @@
 			<Help/>
 			<Texture>Art/Interface/MainScreen/CityScreen/Artist.dds</Texture>
 			<bVisible>1</bVisible>
-			<GreatPeopleUnitClass>UNITCLASS_ARTIST</GreatPeopleUnitClass>
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<Yields/>
 			<Commerces>
@@ -93,7 +95,7 @@
 			<Help/>
 			<Texture>Art/Interface/MainScreen/CityScreen/scientist.dds</Texture>
 			<bVisible>1</bVisible>
-			<GreatPeopleUnitClass>UNITCLASS_SCIENTIST</GreatPeopleUnitClass>
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<Yields/>
 			<Commerces>
@@ -118,7 +120,7 @@
 			<Help/>
 			<Texture>Art/Interface/MainScreen/CityScreen/merchant.dds</Texture>
 			<bVisible>1</bVisible>
-			<GreatPeopleUnitClass>UNITCLASS_MERCHANT</GreatPeopleUnitClass>
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_MERCHANT</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
 			<Yields/>
 			<Commerces>
@@ -143,11 +145,12 @@
 			<Help/>
 			<Texture>Art/Interface/MainScreen/CityScreen/engineer.dds</Texture>
 			<bVisible>1</bVisible>
-			<GreatPeopleUnitClass>UNITCLASS_ENGINEER</GreatPeopleUnitClass>
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
 			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
+			<!-- custom: was 0 / 2 / 0 -->
 			<Yields>
 				<iYield>0</iYield>
-				<iYield>2</iYield>
+				<iYield>3</iYield>
 				<iYield>0</iYield>
 			</Yields>
 			<Commerces/>
@@ -216,6 +219,7 @@
 			<iHotKeyPriority>0</iHotKeyPriority>
 			<Button>Art/Interface/MainScreen/CityScreen/Great_Priest.dds</Button>
 		</SpecialistInfo>
+		<!-- custom: increase/buff longterm great artist value for cultural victory path or make it worse more, nerf cultural bomb as well, commerces was 3 / 0 / 12 -->
 		<SpecialistInfo>
 			<Type>SPECIALIST_GREAT_ARTIST</Type>
 			<Description>TXT_KEY_SPECIALIST_GREAT_ARTIST</Description>
@@ -230,7 +234,7 @@
 			<Commerces>
 				<iCommerce>3</iCommerce>
 				<iCommerce>0</iCommerce>
-				<iCommerce>12</iCommerce>
+				<iCommerce>18</iCommerce>
 			</Commerces>
 			<iExperience>0</iExperience>
 			<Flavors/>

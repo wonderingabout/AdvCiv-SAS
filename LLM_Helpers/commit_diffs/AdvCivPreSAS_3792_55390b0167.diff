@@ -1,0 +1,754 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3792
+# Commit: 55390b0167fbcd54258cf9ca1a9af5cb0584612f
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 91e1f2153a6e0adbbe6bfae88a9a0dae41f28b0b
+# Title: Modify EXE at runtime for smaller plot indicators
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	0	Assets/Config/BUG Main Interface.xml
+-	-	Assets/CvGameCoreDLL.dll
+4	2	Assets/Python/BUG/InputUtil.py
+25	19	Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+8	10	Assets/XML/Misc/CIV4DetailManager.xml
+33	2	Assets/XML/Text/BUG Main Interface Options.xml
+2	2	Assets/XML/Text/BULL Misc Hovers Options.xml
+2	2	Assets/XML/Text/CIV4GameText_advc_hints.xml
+1	1	Assets/XML/Text/Shortcuts_CIV4GameText.xml
+2	2	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+16	5	CvGameCoreDLL/CvGameInterface.cpp
+2	2	CvGameCoreDLL/CvGameTextMgr.cpp
+9	3	CvGameCoreDLL/CvPlayer.cpp
+2	0	CvGameCoreDLL/CvStructs.h
+6	0	CvGameCoreDLL/CyGameCoreUtils.cpp
+1	0	CvGameCoreDLL/CyGameCoreUtils.h
+2	0	CvGameCoreDLL/CyGameCoreUtilsInterface.cpp
+2	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+200	0	CvGameCoreDLL/SelfMod.cpp
+23	0	CvGameCoreDLL/SelfMod.h
+ create mode 100644 CvGameCoreDLL/SelfMod.cpp
+ create mode 100644 CvGameCoreDLL/SelfMod.h
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index 0fcf02be5..082468534 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -270,6 +270,26 @@
+ 				<choice id="CityCross"/>
+ 			</list>
+ 
++			<!-- advc.092b (Caveat: The DLL doesn't have access to the IDs
++				 of these choices. The behavior is implemented only based on
++				 the order of the choices.) -->
++			<list   id="PlotIndicatorSize" key="Plot Indicator Size"
++					type="int" default="0" listType="string"
++					dirtyBit="GlobeLayer">
++				<change module="InputUtil" function="updatePlotIndicatorSize"/>
++				<choice id="Auto"/> <choice id="BtS"/>
++				<choice id="25"/> <choice id="30"/> <choice id="35"/>
++				<choice id="40"/> <choice id="45"/> <choice id="50"/> <choice id="55"/>
++				<choice id="60"/> <choice id="65"/>
++			</list>
++			<list   id="OffScreenUnitSizeMult" key="Off Screen Unit Size Mult"
++					type="int" default="4" listType="string">
++				<change module="InputUtil" function="updatePlotIndicatorSize"/>
++				<choice id="0.8"/> <choice id="1.0"/> <choice id="1.2"/> <choice id="1.4"/>
++				<choice id="1.6"/> <choice id="1.8"/> <choice id="2.0"/> <choice id="2.2"/>
++				<choice id="Disable"/>
++			</list>
++
+ 			<!-- advc.002f: -->
+ 			<option id="AvoidGrowthIcon" key="Avoid Growth Icon" 
+ 					type="boolean" default="True" dirtyBit="CityInfo"/>
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/BUG/InputUtil.py b/Assets/Python/BUG/InputUtil.py
+index badecc882..3c8acce92 100644
+--- a/Assets/Python/BUG/InputUtil.py
++++ b/Assets/Python/BUG/InputUtil.py
+@@ -243,7 +243,9 @@ def toggleDebugMode(argsList=None):
+ def updateDefaultCamDistance(option, value):
+ 	import CvScreensInterface
+ 	CvScreensInterface.updateCameraStartDistance()
+-
+-# <advc.095:
++# advc.095:
+ def updateCityBarWidth(option, value):
+ 	gc.getGame().setCityBarWidth(value)
++# advc.092b:
++def updatePlotIndicatorSize(option, value):
++	cyUpdatePlotIndicatorSize()
+
+diff --git a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+index 9a00f519b..efcd9866f 100644
+--- a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+@@ -22,27 +22,27 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		left, center, right = self.addThreeColumnLayout(screen, column, "Top", True)
+ 		# advc.004:
+ 		self.addLabel(screen, left, "Layers", "Layers:")
+-		# <advc.004z>
++		# <advc.004h>
++		self.addCheckbox(screen, left, "MainInterface__FoundingYields")
++		self.addTextDropdown(screen, left, left, "MainInterface__FoundingBorder")
++		# </advc.004h>  <advc.004z>
+ 		self.addCheckbox(screen, left, "MainInterface__ScoresInGlobeView")
+ 		self.addCheckbox(screen, left, "MainInterface__ResourceIconOptions")
+ 		self.addCheckbox(screen, left, "MainInterface__TribalVillageIcons")
+ 		# </advc.004z>
+ 		# advc.004m:
+ 		self.addCheckbox(screen, left, "MainInterface__StartWithResourceIcons")
+-		# <advc.004h>
+-		self.addCheckbox(screen, left, "MainInterface__FoundingYields")
+-		self.addTextDropdown(screen, left, left, "MainInterface__FoundingBorder")
+-		# </advc.004h>
+-		self.addSpacer(screen, left, "SpacerLeft1") # advc.004
+-		self.addLabel(screen, left, "StrategyOverlay", "Dot Map Overlay:")
+-		self.addCheckbox(screen, left, "StrategyOverlay__Enabled")
+-		# advc.004: Disabled; Ctrl+X should suffice.
+-		#self.addCheckbox(screen, left, "StrategyOverlay__ShowDotMap")
+-		self.addCheckbox(screen, left, "StrategyOverlay__DotMapDrawDots")
+-		leftL, leftR = self.addTwoColumnLayout(screen, left, "DotMapBrightness")
+-		#self.addTextEdit(screen, leftL, leftR, "StrategyOverlay__DotMapDotIcon")
+-		self.addSlider(screen, leftL, leftR, "StrategyOverlay__DotMapBrightness", False, False, False, "up", 0, 100)
+-		self.addSlider(screen, leftL, leftR, "StrategyOverlay__DotMapHighlightBrightness", False, False, False, "up", 0, 100)
++		# <advc.092b> Plot indicator size options
++		self.addTextDropdown(screen, left, left, "MainInterface__PlotIndicatorSize")
++		self.addTextDropdown(screen, left, left, "MainInterface__OffScreenUnitSizeMult")
++		# Not enough room here for the Strategy Overlay options anymore. Moved those
++		# to the right column. Instead place misc. options here. </advc.092b>
++		self.addSpacer(screen, left, "SpacerLeft1")
++		self.addLabel(screen, left, "Misc", "Misc:")
++		self.addCheckbox(screen, left, "EventSigns__Enabled")
++		# advc.savem
++		self.addCheckbox(screen, left, "MainInterface__EnableSavemap")
++
+ 		#self.addLabel(screen, center, "CityBar", "CityBar:")
+ 		#self.addCheckbox(screen, center, "CityBar__StarvationTurns")
+ 		# <advc.011b>
+@@ -95,10 +95,16 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, right, "MainInterface__UnitsOnMinimap")
+ 		self.addSpacer(screen, right, "SpacerRight2")
+ 		# </advc.002a>
+-		self.addLabel(screen, right, "Misc", "Misc:")
+-		self.addCheckbox(screen, right, "EventSigns__Enabled")
+-		# advc.savem
+-		self.addCheckbox(screen, right, "MainInterface__EnableSavemap")
++		# advc.092b: Moved from the left column, and made more compact.
++		self.addLabel(screen, right, "StrategyOverlay", "Dot Map Overlay:")
++		rightL, rightR = self.addTwoColumnLayout(screen, right, "DotMapBrightness")
++		self.addCheckbox(screen, rightL, "StrategyOverlay__Enabled")
++		# advc.004: Disabled; Ctrl+X should suffice.
++		#self.addCheckbox(screen, right, "StrategyOverlay__ShowDotMap")
++		self.addCheckbox(screen, rightR, "StrategyOverlay__DotMapDrawDots")
++		#self.addTextEdit(screen, rightL, rightR, "StrategyOverlay__DotMapDotIcon")
++		self.addSlider(screen, rightL, rightR, "StrategyOverlay__DotMapBrightness", False, False, False, "up", 0, 100)
++		self.addSlider(screen, rightL, rightR, "StrategyOverlay__DotMapHighlightBrightness", False, False, False, "up", 0, 100)
+ 		
+ 		#self.addCheckbox(screen, right, "Actions__IgnoreHarmlessBarbarians")
+
+diff --git a/Assets/XML/Misc/CIV4DetailManager.xml b/Assets/XML/Misc/CIV4DetailManager.xml
+index f8b51fe8f..74cd6551b 100644
+--- a/Assets/XML/Misc/CIV4DetailManager.xml
++++ b/Assets/XML/Misc/CIV4DetailManager.xml
+@@ -60,20 +60,18 @@
+ 		<Key>3000.0, 0.9</Key>
+ 		<Key>5000.0, 1.2</Key>
+ 	</Fader>
+-	<!-- advc.004z: These values seem to refer only to Globe view. The last
+-		 value, changed by me from 1.0 to 0.75, sets the size of the indicator
+-		 bubbles. The values in the second column of the first and second row
+-		 can also be used to control the size, but only if the values in the
+-		 first column are increased. What's the difference between the rows?
+-		 Seems to have something to do with the sphere effect; certain
+-		 combinations of values lead to misplaced bubbles when zooming all the
+-		 way out. No combination I tried had any impact on the bubble size at
+-		 close camera distances (non-Globe view). -->
++	<!-- advc.092b: Only affects Globe view. The last value, changed by me
++		 from originally 1.0, is the only one that has a straightforward effect.
++		 The values in the second column of the first and second row seem to
++		 have an effect only if the values in the first column are increased.
++		 What's the difference between the rows? Seems to have something to do
++		 with the sphere effect; certain combinations of values lead to
++		 misplaced indicators when zooming all the way out. -->
+ 	<Fader>
+ 		<Name>F_PLOTINDICATOR_SCALE</Name>
+ 		<Key>0.0,  0.0</Key>
+ 		<Key>0.2,  0.9</Key>
+-		<Key>1.0,  0.75</Key>
++		<Key>1.0,  0.8</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>F_PLOTINDICATOR_ALPHA</Name>
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 5761033ec..7425f3567 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -546,12 +546,12 @@
+ 		<German>Diese Farbe wird anstatt der obigen verwendet, wenn eine Bef�rderung allen Einheiten des Verbandes gemeinsam ist.</German>
+ 	</TEXT>
+ 	
+-	<!-- advc.061 -->
++	<!-- advc.061 (German: not enough space for "Einheiten nach Besitzer gruppieren") -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__LISTUNITSPEROWNER_TEXT</Tag>
+ 		<English>List Units per Owner</English>
+ 		<French>Grouper les unit�s par propri�taire</French>
+-		<German>Einheiten nach Besitzer gruppieren</German>
++		<German>Einheiten pro Besitzer</German>
+ 		<Italian>Elenca unit� per proprietario</Italian>
+ 		<Spanish>Agrupar unidades por propietario</Spanish>
+ 	</TEXT>
+@@ -747,6 +747,37 @@
+ 		<Spanish>Activa las marcas de recursos al inicio del juego.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.092b: Plot indicator size options -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__PLOTINDICATORSIZE_TEXT</Tag>
++		<English>Balloon Size</English>
++		<German>Ballon-Gr��e</German>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__PLOTINDICATORSIZE_LIST</Tag>
++		<English>Auto|BtS|25|30|35|40|45|50|55|60|65</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__PLOTINDICATORSIZE_HOVER</Tag>
++		<English>The size of the balloon icons that the game uses for the Resource and Unit Display and for indicating tiles where some event has occurred. [COLOR_HIGHLIGHT_TEXT]Auto[COLOR_REVERT] sets the size based on the camera's [COLOR_HIGHLIGHT_TEXT]Field of View[COLOR_REVERT] value, [COLOR_HIGHLIGHT_TEXT]BtS[COLOR_REVERT] sets it based on the screen resolution. The other choices aim at (approximately) a specific diameter in pixels.</English>
++		<German>Die Gr��e der "Sprechblasen" in denen Ressourcen-, Einheiten- und Ereignis-Symbole angezeigt werden. [COLOR_HIGHLIGHT_TEXT]Auto[COLOR_REVERT] bedeutet, dass die Gr��e abh�ngig von der [COLOR_HIGHLIGHT_TEXT]Sichtfeld[COLOR_REVERT]-Gr��e gew�hlt wird, [COLOR_HIGHLIGHT_TEXT]BtS[COLOR_REVERT], dass sie von der Bildaufl�sung abh�ngt. Es kann auch ein bestimmter Durchmesser in Pixeln (ungef�hr) eingestellt werden.</German>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__OFFSCREENUNITSIZEMULT_TEXT</Tag>
++		<English>Off-Screen Balloon Size</English>
++		<German>Ballon-Gr��e Bildrand</German>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__OFFSCREENUNITSIZEMULT_LIST</Tag>
++		<English>0.8|1.0|1.2|1.4|1.6|1.8|2.0|Disable</English>
++		<German>0.8|1.0|1.2|1.4|1.6|1.8|2.0|Keine</German>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__OFFSCREENUNITSIZEMULT_HOVER</Tag>
++		<English>Multiplier for the [COLOR_HIGHLIGHT_TEXT]Balloon Size[COLOR_REVERT] when the currently selected unit is off-screen. (Off-screen indicators shown for certain events are not affected by this multiplier.) [COLOR_HIGHLIGHT_TEXT]1.4[COLOR_REVERT] is the AdvCiv default, [COLOR_HIGHLIGHT_TEXT]1.6[COLOR_REVERT] is closest to the original behavior. [COLOR_HIGHLIGHT_TEXT]Disable[COLOR_REVERT] means that no balloon is shown for off-screen units. Changes won't take effect until a different unit is selected.</English>
++		<German>Faktor, mit dem die [COLOR_HIGHLIGHT_TEXT]Ballon-Gr��e[COLOR_REVERT] multipliziert wird, wenn die derzeit ausgew�hlte Einheit nicht im Bild ist. Standard in AdvCiv ist [COLOR_HIGHLIGHT_TEXT]1.4[COLOR_REVERT], in BtS betrug der Faktor ca. [COLOR_HIGHLIGHT_TEXT]1.6[COLOR_REVERT]. Die Einheiten-Ballons am Bildrand k�nnen auch ganz deaktiviert werden ([COLOR_HIGHLIGHT_TEXT]Keine[COLOR_REVERT]). �nderungen werden erst nach Auswahl einer anderen Einheit wirksam. (Ein Ballon am Bildrand wird auch bei manchen Ereignis-Meldungen angezeigt; diese Option hier betrifft aber nur Einheiten.)</German>
++	</TEXT>
++	
+ 	<!-- advc.002f: -->
+ 	<!-- Based on TXT_KEY_EMPHASIZE_AVOID_GROWTH.
+ 		 There is very little space for German. -->
+
+diff --git a/Assets/XML/Text/BULL Misc Hovers Options.xml b/Assets/XML/Text/BULL Misc Hovers Options.xml
+index d9d143592..d7714812e 100644
+--- a/Assets/XML/Text/BULL Misc Hovers Options.xml	
++++ b/Assets/XML/Text/BULL Misc Hovers Options.xml	
+@@ -87,11 +87,11 @@
+ 		<Italian>Quando � selezionato, posizionare il cursore su una casella che contiene costruzioni (miglioramenti, strade, eccetera) parzialmente completate mostrer� quanti turni di lavoro sono necessari per completare l'opera.</Italian>
+ 		<Spanish>Dejar el rat�n sobre una casilla con mejoras no terminadas mostarar� el n�mero de turnos necesarios para terminar.</Spanish>
+ 	</TEXT-->
+-	<!-- advc.011b -->
++	<!-- advc.011b (German: not enough room for "stets anzeigen") -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MISCHOVER__PARTIALBUILDSALWAYS_TEXT</Tag>
+ 		<English>Always Show Partial Builds</English>
+-		<German>Unfertige Arbeiten stets anzeigen</German>
++		<German>Unfertige Arbeiten anzeigen</German>
+ 		<Italian>Sempre mostra costruzione parziale</Italian>
+ 		<Spanish>Siempre muestra Construcci�n Parcial</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index 4b18491e0..fca9c68b8 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -750,7 +750,7 @@
+ <!-- advc.004z: "Flag Resources view" isn't the proper term -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_INTERFACE_25</Tag>
+-	<English>Press [CTRL + R] to toggle the Resource Display (indicator "bubbles").</English>
++	<English>Press [CTRL + R] to toggle the Resource Display ("balloons").</English>
+ 	<French>Appuyez sur [CTRL + R] pour afficher ou masquer les ressources.</French>
+ 	<German>Dr&#252;cken Sie [STRG + R], um in die Ressourcen-Symbole ein- oder auszublenden.</German>
+ 	<Italian>Premi [CTRL + R] per visualizzare/nascondere la segnalazione risorse.</Italian>
+@@ -761,7 +761,7 @@
+ 	 -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_INTERFACE_48</Tag>
+-	<English>Press [ALT + U] to toggle the Unit Display (indicator "bubbles").</English>
++	<English>Press [ALT + U] to toggle the Unit Display ("balloons").</English>
+ 	<French>Appuyez sur [ALT + U] pour afficher ou masquer les unit�s.</French>
+ 	<German>Dr&#252;cken Sie [ALT + U], um in die Einheiten-Marker ein- oder auszublenden.</German>
+ 	<Italian>Premi [ALT + U] per visualizzare/nascondere la segnalazione unit&#224;.</Italian>
+
+diff --git a/Assets/XML/Text/Shortcuts_CIV4GameText.xml b/Assets/XML/Text/Shortcuts_CIV4GameText.xml
+index 97879c177..03f403f38 100644
+--- a/Assets/XML/Text/Shortcuts_CIV4GameText.xml
++++ b/Assets/XML/Text/Shortcuts_CIV4GameText.xml
+@@ -152,7 +152,7 @@
+ 	<!-- advc.004y: Ping moved to Multiplayer; Alt+U added. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SHORTCUTS_MAP_PEDIA</Tag>
+-		<English>[H1]Map[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Remove user interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Minimize user interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle bare map on/off[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle resource display (indicator "bubbles")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+U[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle unit display (indicator "bubbles")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle tile grid[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Y[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle yield display (yield icons)[NEWLINE]</English>
++		<English>[H1]Map[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Remove user interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Minimize user interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle bare map on/off[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle resource display ("balloons")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+U[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle unit display ("balloons")[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle tile grid[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Y[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle yield display (yield icons)[NEWLINE]</English>
+ 		<French>[H1]Map[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Ping the map[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Remove interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Minimize interface[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Toggle bare map on/off[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Flag resources on/off[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Turn grid on/off[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Y[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Turn tile yields on/off[NEWLINE]</French>
+ 		<German>[H1]Hauptbildschirm[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Karte anpingen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Interface entfernen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Interface minimieren[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Leere Karte ein/aus[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Ressourcen anzeigen ein/aus[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Rasterlinien anzeigen ein/aus[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Z[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Gel�ndefeld-Ertr�ge anzeigen ein/aus[NEWLINE]</German>
+ 		<Italian>[H1]Mappa[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Segna un punto sulla mappa[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Visualizza/Nasconde l'interfaccia[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+I[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Minimizza l'interfaccia[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+B[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Attiva/Disattiva la mappa semplificata[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+R[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Visualizza/Nasconde gli indicatori delle Risorse[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+T[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Visualizza/Nasconde la griglia[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+U[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Visualizza/Nasconde gli indicatori delle Unit�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Y[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Visualizza/Nasconde la produzione delle caselle[NEWLINE]</Italian>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index f7bc9cee4..e476285dd 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2836,8 +2836,8 @@ void CvGame::update()
+ 			{
+ 				autoSave(true); // advc.106l
+ 			}
+-			/*	<advc.004m> This seems to be the earliest place where bubbles can
+-				be enabled w/o crashing. */
++			/*	<advc.004m> This seems to be the earliest place where plot indicators
++				can be enabled w/o crashing. */
+ 			if (BUGOption::isEnabled("MainInterface__StartWithResourceIcons", true))
+ 				gDLL->getEngineIFace()->setResourceLayer(true);
+ 			// </advc.004m>
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index a9d1b9e73..1b275e9c6 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -517,7 +517,7 @@ public:
+ 	void setDawnOfManShown(bool b);
+ 	bool isAboutToShowDawnOfMan() const; // </advc.004x>
+ 	// <advc.061>
+-	void setScreenDimensions(int x, int y); // (exposed to Python)
++	void setScreenDimensions(int iWidth, int iHeight); // (exposed to Python)
+ 	int getScreenWidth() const;
+ 	int getScreenHeight() const;
+ 	// </advc.061>  <advc.004n>
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 493a7ed7d..558b0a5e7 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -16,6 +16,7 @@
+ #include "CvGameTextMgr.h"
+ #include "CvMessageControl.h"
+ #include "CvBugOptions.h"
++#include "SelfMod.h" // advc.092b
+ #include <fstream> // advc.003d
+ 
+ /*  advc: This file was added by patch 3.17, moving some UI functionality
+@@ -2831,11 +2832,21 @@ bool CvGame::isAboutToShowDawnOfMan() const
+ 	return (!m_bDoMShown && getElapsedGameTurns() <= 0);
+ } // </advc.004x>
+ 
+-// <advc.061>
+-void CvGame::setScreenDimensions(int x, int y)
+-{
+-	m_iScreenWidth = x;
+-	m_iScreenHeight = y;
++/*	<advc.061> Could get this through winuser.h, but that's not trivial.
++	Let's just let Python provide the info to us. */
++void CvGame::setScreenDimensions(int iWidth, int iHeight)
++{	// <advc.001> Avoid warped plot indicators upon changing resolution
++	if (m_iScreenWidth != iWidth || m_iScreenHeight != iHeight)
++		gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true); // </advc.001>
++	m_iScreenWidth = iWidth;
++	if (m_iScreenHeight != iHeight)
++	{
++		m_iScreenHeight = iHeight;
++		/*	<advc.092b> Do this as soon as we know the screen dimensions, before
++			a plot indicator gets created for the initially selected units. */
++		if (m_iScreenHeight > 0)
++			smc::BtS_EXE.patchPlotIndicatorSize(); // </advc.092b>
++	}
+ }
+ 
+ int CvGame::getScreenWidth() const
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 942c68e5a..44cf627f7 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1575,7 +1575,7 @@ void CvGameTextMgr::setPlotListHelpPerOwner(CvWStringBuffer& szString,
+ 	int iScreenHeight = kGame.getScreenHeight();
+ 	int iLineLimit = (iScreenHeight == 0 ? 25 :
+ 			fmath::round(32 * dFontFactor * kGame.getScreenHeight() / 1000.0 - 5));
+-	/*  When hovering over an indicator bubble (unit layer), only info about units
++	/*  When hovering over a plot indicator (unit layer), only info about units
+ 		in kPlot is shown. This means more space. Same when hovering over a flag
+ 		(bShort). */
+ 	if(bIndicator || bShort)
+@@ -1905,7 +1905,7 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot const& kPl
+ 
+ 	if (//(gDLL->getChtLvl() > 0)
+ 		GC.getGame().isDebugMode() &&// advc.135c
+-		!bIndicator && // advc.007: Don't attach debug info to indicator bubbles
++		!bIndicator && // advc.007: Don't attach debug info to plot indicators
+ 		GC.ctrlKey())
+ 	{
+ 		/*  advc: Moved into subroutine. (Note: bShort and bOneLine are unused
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 8cb9f0654..54075668c 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -21,6 +21,7 @@
+ #include "CvDLLFlagEntityIFaceBase.h" // BBAI
+ #include "BBAILog.h"
+ #include "RiseFall.h" // advc.708: Needed only for savegame compatibility
++#include "SelfMod.h" // advc.092b
+ 
+ // advc.003u: Statics moved from CvPlayerAI
+ CvPlayerAI** CvPlayer::m_aPlayers = NULL;
+@@ -19212,9 +19213,14 @@ void CvPlayer::getGlobeLayerColors(GlobeLayerTypes eGlobeLayerType, int iOption,
+ {
+ 	PROFILE_FUNC(); // advc.opt
+ 	CvGame const& kGame = GC.getGame();
+-	// <advc.004z> Too early; player options haven't been set yet.
+-	if (kGame.getTurnSlice() <= 0)
+-		return; // </advc.004z>
++	// <advc.004z>
++	if (kGame.getTurnSlice() <= 0 || // Too early; player options not yet set.
++		!smc::BtS_EXE.isPlotIndicatorSizePatched()) // advc.092b
++	{	/*	(No use in setting the GlobeLayer_DIRTY_BIT - caller won't have cleared
++			it yet. But the dirty bit seems to get set again at least once before
++			initialization is through. So we're actually saving a little time here.) */
++		return;
++	} // </advc.004z>
+ 	/*  <advc> These get cleared by some of the subroutines, but should be
+ 		empty to begin with. If not, there could be a memory leak. */
+ 	FAssert(aColors.empty() && aIndicators.empty());
+
+diff --git a/CvGameCoreDLL/CvStructs.h b/CvGameCoreDLL/CvStructs.h
+index 4817c90e8..e69e25d45 100644
+--- a/CvGameCoreDLL/CvStructs.h
++++ b/CvGameCoreDLL/CvStructs.h
+@@ -449,6 +449,8 @@ struct CvWidgetDataStruct
+ 	WidgetTypes m_eWidgetType;			//	What the 'type' of this widget is (for parsing help and executing actions)
+ };
+ 
++/*	advc (note, fwiw): I've noticed while inspecting disassembly that the EXE
++	calls the auto-generated copy ctor of this struct. */
+ struct DllExport CvPlotIndicatorData
+ {
+ 	CvPlotIndicatorData()
+
+diff --git a/CvGameCoreDLL/CyGameCoreUtils.cpp b/CvGameCoreDLL/CyGameCoreUtils.cpp
+index d55cff838..a5f8c43f8 100644
+--- a/CvGameCoreDLL/CyGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CyGameCoreUtils.cpp
+@@ -11,6 +11,7 @@
+ // For functions moved from CvGameCoreUtils to CvInfos
+ #include "CvInfo_Building.h"
+ #include "CvInfo_Terrain.h" // </advc>
++#include "SelfMod.h" // advc.092b
+ 
+ int cyIntRange(int iNum, int iLow, int iHigh)
+ {
+@@ -264,3 +265,8 @@ int cyGetEspionageModifier(int iOurTeam, int iTargetTeam)
+ 	return CvTeam::getTeam((TeamTypes)iOurTeam).getEspionageModifier((TeamTypes)iTargetTeam);
+ }
+ 
++// advc.092b:
++void cyUpdatePlotIndicatorSize()
++{
++	smc::BtS_EXE.patchPlotIndicatorSize();
++}
+
+diff --git a/CvGameCoreDLL/CyGameCoreUtils.h b/CvGameCoreDLL/CyGameCoreUtils.h
+index f6af58dea..535d0a0c8 100644
+--- a/CvGameCoreDLL/CyGameCoreUtils.h
++++ b/CvGameCoreDLL/CyGameCoreUtils.h
+@@ -70,5 +70,6 @@ bool cyIsTeamProject(int /*ProjectTypes*/ eProject);
+ bool cyIsLimitedProject(int /*ProjectTypes*/ eProject);
+ int cyGetCombatOdds(CyUnit* pAttacker, CyUnit* pDefender);
+ int cyGetEspionageModifier(int /*TeamTypes*/ iOurTeam, int /*TeamTypes*/ iTargetTeam);
++void cyUpdatePlotIndicatorSize(); // advc.092b
+ 
+ #endif	// CyGameCoreUtils_h
+
+diff --git a/CvGameCoreDLL/CyGameCoreUtilsInterface.cpp b/CvGameCoreDLL/CyGameCoreUtilsInterface.cpp
+index af7cda24f..9acb06d18 100644
+--- a/CvGameCoreDLL/CyGameCoreUtilsInterface.cpp
++++ b/CvGameCoreDLL/CyGameCoreUtilsInterface.cpp
+@@ -68,4 +68,6 @@ void CyGameCoreUtilsPythonInterface()
+ 	python::def("isLimitedProject", cyIsLimitedProject, "bool (int /*ProjectTypes*/ eProject)");
+ 	python::def("getCombatOdds", cyGetCombatOdds, "int (CyUnit* pAttacker, CyUnit* pDefender)");
+ 	python::def("getEspionageModifier", cyGetEspionageModifier, "int (int /*TeamTypes*/ iOurTeam, int /*TeamTypes*/ iTargetTeam)");
++
++	python::def("cyUpdatePlotIndicatorSize", cyUpdatePlotIndicatorSize, "void (void)"); // advc.092b
+ }
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 033de57cc..d31d0431c 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -187,6 +187,7 @@
+     <ClCompile Include="..\RFTotalScore.cpp" />
+     <ClCompile Include="..\RiseFall.cpp" />
+     <ClCompile Include="..\ScaledNumTest.cpp" />
++    <ClCompile Include="..\SelfMod.cpp" />
+     <ClCompile Include="..\Shelf.cpp" />
+     <ClCompile Include="..\StartingPositionIteration.cpp" />
+     <ClCompile Include="..\StartPointsAsHandicap.cpp" />
+@@ -359,6 +360,7 @@
+     <ClInclude Include="..\PlotRange.h" />
+     <ClInclude Include="..\ScaledNum.h" />
+     <ClInclude Include="..\ScaledNumFwd.h" />
++    <ClInclude Include="..\SelfMod.h" />
+     <ClInclude Include="..\StartingPositionIteration.h" />
+     <ClInclude Include="..\TeamPathFinder.h" />
+     <ClInclude Include="..\Trigonometry.h" />
+
+diff --git a/CvGameCoreDLL/SelfMod.cpp b/CvGameCoreDLL/SelfMod.cpp
+new file mode 100644
+index 000000000..e71627251
+--- /dev/null
++++ b/CvGameCoreDLL/SelfMod.cpp
+@@ -0,0 +1,200 @@
++#include "CvGameCoreDLL.h"
++#include "SelfMod.h"
++#include "CvGame.h"
++#include "CvBugOptions.h"
++
++// advc.092b: New implementation file; see comment in header.
++
++Civ4BeyondSwordMods smc::BtS_EXE;
++
++namespace
++{
++	bool unprotectPage(LPVOID pAddress, SIZE_T uiSize,
++		DWORD ulNewProtect = PAGE_EXECUTE_READWRITE)
++	{
++		/*	Getting a segmentation fault when writing to the code section under
++			Win 8.1. Probably the same on all Windows versions that anyone still uses.
++			Need to unprotect the virtual memory page first. Let's hope that this
++			long outdated version of VirtualProtect from WinBase.h (nowadays located
++			in Memoryapi.h) will still do the trick on recent Win versions (and that
++			it won't make our DLL look suspicious to virus scanners). */
++		DWORD uiOldProtect; // I get PAGE_EXECUTE_READ here
++		if (VirtualProtect(reinterpret_cast<LPVOID>(pAddress),
++			/*	Will affect an entire page, not just the few bytes we need. Through
++				SYSTEM_INFO sysInfo; GetSystemInfo(&sysInfo); sysInfo.dwPageSize;
++				I see a page size of 4 KB. */
++			uiSize, ulNewProtect, &uiOldProtect) == 0)
++		{
++			FErrorMsg("Failed to unprotect memory for runtime patch (plot indicator size)");
++			return false;
++		}
++		return true;
++	}
++
++	struct PlotIndicatorSize
++	{
++		PlotIndicatorSize(float fOnScreen = 0, float fOffScreen = 0)
++		:	onScreen(fOnScreen), offScreen(fOffScreen) {}
++		float onScreen, offScreen;
++	};
++	bool operator==(PlotIndicatorSize const& kFirst, PlotIndicatorSize const& kSecond)
++	{	// Exact floating point comparison
++		return (kFirst.onScreen == kSecond.onScreen &&
++				kFirst.offScreen == kSecond.offScreen);
++	}
++}
++
++
++void Civ4BeyondSwordMods::patchPlotIndicatorSize()
++{
++	int const iScreenHeight = GC.getGame().getScreenHeight();
++	if (iScreenHeight <= 0)
++	{
++		FErrorMsg("Caller should've ensured that screen dims are set");
++		return;
++	}
++	// (If we fail, there won't be any point in trying again.)
++	m_bPlotIndicatorSizePatched = true;
++	// Cache for performance (though probably not a concern)
++	static PlotIndicatorSize ffMostRecentBaseSize;
++
++	/*	Size values for plot indicators shown onscreen and offscreen that are
++		hardcoded in the EXE. These go through a bunch of calculations,
++		only part of which I've located in the debugger. Essentially,
++		there appears to be an adjustment proportional to the screen height. */
++	PlotIndicatorSize ffBaseSize(42, 68);
++	bool bAdjustToFoV = true;
++	bool bAdjustToRes = false;
++	{
++		int iUserChoice = BUGOption::getValue("MainInterface__PlotIndicatorSize");
++		switch (iUserChoice)
++		{
++		case 0: ffBaseSize.onScreen -= 2; break; // "automatic" behavior
++		case 1: std::swap(bAdjustToFoV, bAdjustToRes); break; // BtS behavior
++		/*	Note that this formula ignores how the choices are labeled.
++			That menu text needs to be kept consistent with our code here. */
++		default: ffBaseSize.onScreen = 15 + 5 * static_cast<float>(iUserChoice);
++		}
++	}
++	/*	The EXE will adjust to height. Rather than try to change that in the EXE,
++		we'll proactively cancel out the adjustment. */
++	if (!bAdjustToRes)
++	{
++		/*	Current screen height relative to the height that the UI was
++			most optimized for */
++		float fHeightRatio = iScreenHeight / 768.f;
++		ffBaseSize.onScreen = ffBaseSize.onScreen / fHeightRatio;
++				/*	Could use this divisor to not cancel it out entirely -
++					but the adjustment really just seems to be a bad idea. */
++				// std::pow(fHeightRatio, 0.85f)
++	}
++	/*	Players who use a big FoV tend to zoom in farther, I think, but I still
++		expect there to be less space per plot when the FoV is larger. (But I'm
++		not going to dirty the globe layer in response to a FoV change - that
++		would probably cause stuttering while the player adjusts the FoV slider.) */
++	if (bAdjustToFoV)
++	{
++		float fTypicalFoV = 40;
++		ffBaseSize.onScreen *= std::min(2.f, std::max(0.5f,
++				std::sqrt(fTypicalFoV / GC.getFIELD_OF_VIEW())));
++	}
++	{
++		int iUserChoice = BUGOption::getValue("MainInterface__OffScreenUnitSizeMult");
++		if (iUserChoice == 7)
++		{	// Meaning "disable". 0 size seems to do accomplish that.
++			ffBaseSize.offScreen = 0;
++		}
++		else ffBaseSize.offScreen = ffBaseSize.onScreen * (0.8f + 0.2f * iUserChoice);
++	}
++
++	if (ffBaseSize == ffMostRecentBaseSize)
++		return;
++	ffMostRecentBaseSize = ffBaseSize;
++
++	/*	The onscreen size is hardcoded as an immediate operand (in FP32 format)
++		in three places and the offscreen size in one place.
++		|Code addr.|Disassembly							|Machine code
++		------------------------------------------------------------------------------
++		 00464A08	push 42280000h						 68 00 00 28 42
++		 004B76F4		(same as above)
++		 00496DEB	mov dword ptr [esi+17Ch],42280000h	 C7 86 7C 01 00 00 00 00 28 42
++		 0049905F	push 42880000h						 68 00 00 88 42
++		------------------------------------------------------------------------------
++		One can get the debugger close to the first location by setting a breakpoint
++		at the end of CvPlayer::getGlobeLayerColors. The second is triggered by
++		interface messages that show a plot indicator; a breakpoint in
++		CvTalkingHeadMessage::getOnScreenArrows should help. The third one seems
++		to be reached in all cases, look for a call to 00496DB0.
++		The fourth one is triggered by selecting any unit. */
++	uint aCodeAdresses[] = {
++		0x00464A08, 0x004B76F4, 0x00496DEB, 0x0049905F
++	};
++	// The data we need to change is not right at the start
++	uint aOperandOffsets[ARRAYSIZE(aCodeAdresses)] = {
++				1,			1,			6,			1
++	};
++
++	/*	Earlier attempt, kept for future reference. Since I hadn't been able
++		to locate the offscreen size yet, I was instead overwriting a register
++		that the size value passes through in any case. I.e. this was not going
++		to use different sizes for the onscreen and offscreen case.
++		 004973D5	mov edx,dword ptr [esp+84h]			 8B 94 24 84 00 00 00
++		The suitable x86 move instruction is: B8+ rd id
++		That's B8 + 2 = 0xBA combining the opcode and the EDX register and
++		4 byte for the second operand. That leaves 2 byte to be filled with
++		nops: 90 90 */
++	/*	This data is actually still useful for confirming that the
++		memory layout of the EXE is what we expect */
++	byte aOrigCode[] =		{ 0x8B, 0x94, 0x24, 0x84, 0x00, 0x00, 0x00 };
++	byte* pCodeLoc = reinterpret_cast<byte*>(0x004973D5);
++	/*byte aPatchedCode[] =	{ 0xBA, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90 };
++	*reinterpret_cast<float*>(aPatchedCode + 1) = ffBaseSize.onScreen;
++	for (int i = 0; i < ARRAYSIZE(aOrigCode); i++)
++	{
++		if (aOrigCode[i] == pCodeLoc[i])
++			continue;
++		// Re-applying our patch (fNewBaseSize having changed) is fine
++		bool bAlreadyPatched = true;
++		for (int j = 0; j < ARRAYSIZE(aPatchedCode); j++)
++		{
++			if ((j == 0 || j > 4) && aPatchedCode[j] != pCodeLoc[j])
++			{
++				bAlreadyPatched = false;
++				break;
++			}
++		}
++		if (bAlreadyPatched)
++			break;
++		FAssert(bAlreadyPatched);
++		return;
++	}
++	unprotectPage(reinterpret_cast<LPVOID>(pCodeLoc), ARRAYSIZE(aOrigCode));
++	for (int i = 0; i < ARRAYSIZE(aOrigCode); i++)
++	{
++		pCodeLoc[i] = aPatchedCode[i];
++	}*/
++	for (int i = 0; i < ARRAYSIZE(aOrigCode); i++)
++	{
++		if (aOrigCode[i] != pCodeLoc[i])
++		{
++			/*	NB: Large address awareness shouldn't be an issue, I've tested that
++				both ways. Steam MP version isn't going to work with our DLL anyway.
++				Wine should be tested, unusual languages also, especially Russian.
++				Could still search the EXE for the proper code locations if those
++				versions have slightly different virtual addresses. */
++			FErrorMsg("Unexpected memory layout; EXE statically patched somehow?"
++					" Wine? Non-MULTI5 version?");
++			return;
++		}
++	}
++
++	// Finally apply the actual patch
++	for (int i = 0; i < ARRAYSIZE(aCodeAdresses); i++)
++	{
++		float fSize = (i >= 3 ? ffBaseSize.offScreen : ffBaseSize.onScreen);
++		uint uiCodeAddress = aCodeAdresses[i] + aOperandOffsets[i];
++		if (!unprotectPage(reinterpret_cast<LPVOID>(uiCodeAddress), sizeof(float)))
++			return;
++		*reinterpret_cast<float*>(uiCodeAddress) = fSize;
++	}
++}
+
+diff --git a/CvGameCoreDLL/SelfMod.h b/CvGameCoreDLL/SelfMod.h
+new file mode 100644
+index 000000000..19970524b
+--- /dev/null
++++ b/CvGameCoreDLL/SelfMod.h
+@@ -0,0 +1,23 @@
++#pragma once
++#ifndef SELF_MOD_H
++#define SELF_MOD_H
++
++/*	advc.092b: Let's put all runtime patches for Civ4BeyondSword.exe (v3.19)
++	in a single place. (But, so far, there's only one.) For the time being,
++	functions are exposed to Python through CyGameCoreUtils. */
++
++class Civ4BeyondSwordMods : private boost::noncopyable
++{
++public:
++	bool isPlotIndicatorSizePatched() const { return m_bPlotIndicatorSizePatched; }
++	void patchPlotIndicatorSize(); // (exposed to Python)
++private:
++	bool m_bPlotIndicatorSizePatched;
++};
++
++namespace smc
++{
++	extern Civ4BeyondSwordMods BtS_EXE;
++};
++
++#endif
+
+[PATCH COVERAGE]
+patchFiles=21 embeddedFiles=20 omittedFiles=1 embeddedPatchBytes=35961

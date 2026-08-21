@@ -1,0 +1,160 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 62
+# Commit: a38bb9c915d0605ec70fa67c6c9436145f8f63c9
+# History segment: K-Mod history
+# Parent used for diff: 5127501eef1f36fb1dd250e55e9927047735c136
+# Title: Environmentalism is now high upkeep (up from medium). Tweaked some civic evaluation code. Changed the way LFB weight scales. (changed from quadratic scaling...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/GameInfo/CIV4CivicInfos.xml
+1	1	Assets/xml/LeadFromBehind_GlobalDefines.xml
+6	3	CvGameCoreDLL/CvCityAI.cpp
+16	1	CvGameCoreDLL/CvPlayerAI.cpp
+3	2	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4CivicInfos.xml b/Assets/xml/GameInfo/CIV4CivicInfos.xml
+index 84e7517e3..c1d204753 100644
+--- a/Assets/xml/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/xml/GameInfo/CIV4CivicInfos.xml
+@@ -1368,7 +1368,7 @@
+ 			<Button>,Art/Interface/Buttons/Civics/Environmentalism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,7,1</Button>
+ 			<TechPrereq>TECH_MEDICINE</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+-			<Upkeep>UPKEEP_MEDIUM</Upkeep>
++			<Upkeep>UPKEEP_HIGH</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+ 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+
+diff --git a/Assets/xml/LeadFromBehind_GlobalDefines.xml b/Assets/xml/LeadFromBehind_GlobalDefines.xml
+index 9793672ec..9737baf81 100644
+--- a/Assets/xml/LeadFromBehind_GlobalDefines.xml
++++ b/Assets/xml/LeadFromBehind_GlobalDefines.xml
+@@ -35,7 +35,7 @@
+ 	</Define>
+ 	<Define>
+ 		<DefineName>LFB_ADJUSTDENOMINATOR</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>6</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>LFB_USECOMBATODDS</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e3ab36d21..983508473 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2751,11 +2751,11 @@ void CvCityAI::AI_chooseProduction()
+ 	}
+ 
+ 	bChooseUnit = false;
+-	if (!bUnitExempt && iUnitCostPercentage < iMaxUnitSpending + 5)
++	if (iUnitCostPercentage < iMaxUnitSpending + 5)
+ 	{
+ 		if ((bLandWar) ||
+ 			  ((kPlayer.getNumCities() <= 3) && (GC.getGameINLINE().getElapsedGameTurns() < 60)) ||
+-			  (GC.getGameINLINE().getSorenRandNum(100, "AI Build Unit Production") < AI_buildUnitProb()) ||
++			  (!bUnitExempt && GC.getGameINLINE().getSorenRandNum(100, "AI Build Unit Production") < AI_buildUnitProb()) ||
+ 				(isHuman() && (getGameTurnFounded() == GC.getGameINLINE().getGameTurn())))
+ 		{
+ 			if (AI_chooseUnit())
+@@ -10107,7 +10107,10 @@ int CvCityAI::AI_buildUnitProb()
+ 	}
+ 
+ 	if (GET_PLAYER(getOwnerINLINE()).getCurrentEra() < GC.getGameINLINE().getCurrentEra())
+-		iProb /= 2;
++	{
++		iProb *= std::max(40, 100 - 20 * (GC.getGameINLINE().getCurrentEra() - GET_PLAYER(getOwnerINLINE()).getCurrentEra()));
++		iProb /= 100;
++	}
+ 
+ 	iProb *= (100 + 2*getMilitaryProductionModifier());
+ 	iProb /= 100;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b11b1563b..1d4aa7bf0 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12622,6 +12622,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	// K-Mod: count bonus specialists,
+ 	// so that we can more accurately gauge the representation bonus
+ 	int iTotalBonusSpecialists = 0;
++	int iTotalCurrentSpecialists = 0;
+ 
+ 	{
+ 		int iLoop;
+@@ -12630,6 +12631,9 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		{
+ 			iTotalBonusSpecialists += pLoopCity->getNumGreatPeople();
+ 			iTotalBonusSpecialists += pLoopCity->totalFreeSpecialists();
++
++			iTotalCurrentSpecialists += pLoopCity->getNumGreatPeople();
++			iTotalCurrentSpecialists += pLoopCity->getSpecialistPopulation();
+ 		}
+ 	}
+ 	// K-Mod end
+@@ -12654,7 +12658,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		// Representation
+ 		//iTempValue += ((kCivic.getSpecialistExtraCommerce(iI) * getTotalPopulation()) / 15);
+ 		// K-Mod
+-		iTempValue += AI_averageCommerceMultiplier((CommerceTypes)iI)*((kCivic.getSpecialistExtraCommerce(iI) * (getTotalPopulation()+10*iTotalBonusSpecialists)) / 10);
++		iTempValue += AI_averageCommerceMultiplier((CommerceTypes)iI)*(kCivic.getSpecialistExtraCommerce(iI) * std::max((getTotalPopulation()+10*iTotalBonusSpecialists) / 10, iTotalCurrentSpecialists));
+ 
+ 		iTempValue /= 100; // (for the 3 things above)
+ 
+@@ -12676,6 +12680,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	for (iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+ 	{
+ 		iTempValue = kCivic.getBuildingHappinessChanges(iI);
++		/* original bts code
+ 		if (iTempValue != 0)
+ 		{
+ 			// Nationalism
+@@ -12684,6 +12689,16 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 				iValue += (iTempValue * iCities)/2;
+ 			}
+ 			iValue += (iTempValue * getBuildingClassCountPlusMaking((BuildingClassTypes)iI) * 2);
++		}*/
++		// K-Mod
++		if (iTempValue != 0)
++		{
++			int iExpectedBuildings = 0;
++			if (canConstruct((BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iI)))
++			{
++				iExpectedBuildings = (iCities + getBuildingClassCountPlusMaking((BuildingClassTypes)iI))/2;
++			}
++			iValue += (12 * iExpectedBuildings * iS * AI_getHappinessWeight(iS * iTempValue, 1))/100;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index a7311a3e6..82fe3279e 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -13488,9 +13488,10 @@ int CvUnit::LFBgetValueAdjustedOdds(int iOdds, bool bDefender) const
+ 		iAdjustment = (iOdds - 990);
+ 	// Value Adjustment = (odds-990)*(value*num/denom)^2
+ 	long iValueAdj = (long)(iValue * GC.getLFBAdjustNumerator());
+-	iValueAdj *= iValueAdj;
++	//iValueAdj *= iValueAdj;
+ 	iValueAdj *= iAdjustment;
+-	iValueAdj /= (long)(GC.getLFBAdjustDenominator() * GC.getLFBAdjustDenominator());
++	//iValueAdj /= (long)(GC.getLFBAdjustDenominator() * GC.getLFBAdjustDenominator());
++	iValueAdj /= (long)GC.getLFBAdjustDenominator();
+ 	int iRank = iOdds + iValueAdj + 10000;
+ 	// Note that the +10000 is just to try keeping it > 0 - doesn't really matter, other than that -1
+ 	// would be interpreted later as not computed yet, which would cause us to compute it again each time
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=5629

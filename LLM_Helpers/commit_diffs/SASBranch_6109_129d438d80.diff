@@ -1,0 +1,370 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6109
+# Commit: 129d438d80ac106aa77b3acebe613eb9fab3b6e2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 404d43461d2c67af87862341b7609ac882782b0e
+# Title: Expand SASGameRecord ASCII previews with bonus maps and quantitative legends
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+7	2	Assets/XML/GlobalDefines_advciv_sas.xml
+111	18	CvGameCoreDLL/SASGameRecordLog.cpp
+3	2	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_6.PNG
+28035	27617	_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log
+0	0	_1_AdvCiv-SAS/SASGameRecord_log/{chatgpt_sas_game_record_review.md => chatgpt_sasgamerecord_review.md}
+ create mode 100644 _1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_6.PNG
+ rename _1_AdvCiv-SAS/SASGameRecord_log/{chatgpt_sas_game_record_review.md => chatgpt_sasgamerecord_review.md} (100%)
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index dc57a7fcd..7e610eac5 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1510,7 +1510,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Maximum map-content character columns (excluding the two pipe frame characters) and rows of each level-3 SASGameRecord ASCII map layer. Geography and terrain are normally stable and therefore recorded once at setup/load; exact later exceptions remain available through coordinate-bearing map-change rows. Features are recorded initially because they affect settling, movement, health, and yields, then features and political borders repeat at full interval and victory snapshots because they change frequently. Generated maps are evenly reduced with one scale so horizontal SAS_Longworld and possible vertical/tower maps preserve their aspect ratio. Native plot resolution requires enough width for each plot's repeated horizontal characters below; set either maximum to 0 to omit all ASCII previews without disabling other level-3 rows. (GPT-5.6-Sol) -->
++	<!-- custom: Maximum map-content character columns (excluding the two pipe frame characters) and rows of each level-3 SASGameRecord ASCII map layer. Geography, terrain, and bonuses are normally stable and therefore recorded once at setup/load; exact later exceptions remain available through coordinate-bearing map/bonus-change rows. Features are recorded initially because they affect settling, movement, health, and yields, then features and political borders repeat at full interval and victory snapshots because they change frequently. Each layer-end row counts logical preview cells before horizontal character repetition and gives the exact drawing-character total including its pipe frame. Generated maps are evenly reduced with one scale so horizontal SAS_Longworld and possible vertical/tower maps preserve their aspect ratio. Native plot resolution requires enough width for each plot's repeated horizontal characters below; set either maximum to 0 to omit all ASCII previews without disabling other level-3 rows. (GPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH</DefineName>
+ 		<iDefineIntVal>160</iDefineIntVal>
+@@ -1529,7 +1529,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_SYMBOLS</DefineName>
+ 		<DefineTextVal>SPACE,~,.,h,^,COMMA,COLON,SEMICOLON,#</DefineTextVal>
+ 	</Define>
+-	<!-- custom: Terrain-map symbols corresponding in order to every TerrainInfo loaded by the mod, followed by an ice override. Ice is technically a feature, but it is not ordinarily removable, blocks naval paths, and forms recognizable strategic geography. One character cannot show both ice and its underlying Coast/Ocean terrain, so # replaces * or blank water because blocked access is strategically decisive. The legend records the exact symbol-to-type mapping; resampled cells show their dominant terrain unless ice covers at least half the cell. The number of symbols must exactly match the runtime terrain count plus one so reordered or added XML types cannot silently produce a misleading map. (GPT-5.6-Sol) -->
++	<!-- custom: Terrain-map symbols corresponding in order to every TerrainInfo loaded by the mod, followed by an ice override. Ice is technically a feature, but it is not ordinarily removable, blocks naval paths, and forms recognizable strategic geography. One character cannot show both ice and its underlying Coast/Ocean terrain, so # replaces * or blank water because blocked access is strategically decisive and the obscured Coast shape is normally inferable from adjacent Coast and land. The legend records the exact symbol-to-type mapping; resampled cells show their dominant terrain unless ice covers at least half the cell. The number of symbols must exactly match the runtime terrain count plus one so reordered or added XML types cannot silently produce a misleading map. (GPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_GAME_RECORD_MAP_ASCII_TERRAIN_SYMBOLS</DefineName>
+ 		<DefineTextVal>g,p,d,t,s,*,SPACE,^,h,#</DefineTextVal>
+@@ -1539,6 +1539,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_GAME_RECORD_MAP_ASCII_FEATURE_SYMBOLS</DefineName>
+ 		<DefineTextVal>SPACE,.,#,j,o,f,F,X</DefineTextVal>
+ 	</Define>
++	<!-- custom: Bonus-map symbols in this order: bonus-free water, bonus-free land, every BonusInfo loaded by the mod, then multiple different bonus types within one resampled cell. Defaults use unique, case-sensitive mnemonics where possible (e.g. I=Iron, H=Horse, S=Silver, s=Silk); the generated legend remains authoritative and records every runtime ID/type. Bonuses are sparse, so one type overrides surrounding empty plots; + marks a collision rather than hiding one type arbitrarily. Exact setup coordinates and later bonus-change rows preserve every identity/location. The number of symbols must exactly match the runtime bonus count plus three. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_GAME_RECORD_MAP_ASCII_BONUS_SYMBOLS</DefineName>
++		<DefineTextVal>SPACE,.,A,C,c,H,I,M,O,T,U,B,L,Z,t,R,D,F,P,r,h,W,Y,f,J,G,N,E,s,S,z,u,g,w,d,m,a,+</DefineTextVal>
++	</Define>
+ 	<!-- custom: Political-map symbols in this order: unowned water, unowned land, mixed unowned water/land, civilization city, Barbarian city, mixed civilization/Barbarian cities, multiple starting players, Barbarian territory. Keep this layer purely political: Coast or ice overriding a player symbol would hide owned water, while showing them only on unowned plots would make physical geography inconsistent as borders expand. Terrain, Geography, and Features preserve that context separately. It uses the same comma-separated character and named-token rules as the geography palette, and symbols must be unique within this layer. (GPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_GAME_RECORD_MAP_ASCII_POLITICAL_SYMBOLS</DefineName>
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index 0722985e3..7d9c66815 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -2585,11 +2585,13 @@ struct SASGameRecordMapAsciiPalette
+ 	char acPolitical[SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT];
+ 	std::vector<char> acTerrain;
+ 	std::vector<char> acFeatures;
++	std::vector<char> acBonuses;
+ 	CvString szPlayers;
+ 	CvString szGeographyDefine;
+ 	CvString szPoliticalDefine;
+ 	CvString szTerrainDefine;
+ 	CvString szFeatureDefine;
++	CvString szBonusDefine;
+ 	CvString szError;
+ };
+ 
+@@ -2599,6 +2601,7 @@ static bool parseSASGameRecordMapAsciiSymbol(CvString const& szToken, char& cSym
+ 	else if (szToken == "COMMA") cSymbol = ',';
+ 	else if (szToken == "COLON") cSymbol = ':';
+ 	else if (szToken == "SEMICOLON") cSymbol = ';';
++	else if (szToken == "EQUALS") cSymbol = '=';
+ 	else if (szToken.length() == 1) cSymbol = szToken[0];
+ 	else return false;
+ 	return (cSymbol >= 32 && cSymbol <= 126 && cSymbol != '"' && cSymbol != '\\' && cSymbol != '|');
+@@ -2619,7 +2622,7 @@ static bool parseSASGameRecordMapAsciiPaletteDefine(char const* szDefineName, in
+ 	{
+ 		if (!parseSASGameRecordMapAsciiSymbol(aszTokens[iSymbol], acSymbols[iSymbol]))
+ 		{
+-			szError.Format("%s symbol %d must be one safe printable character or SPACE/COMMA/COLON/SEMICOLON", szDefineName, iSymbol);
++			szError.Format("%s symbol %d must be one safe printable character or SPACE/COMMA/COLON/SEMICOLON/EQUALS", szDefineName, iSymbol);
+ 			return false;
+ 		}
+ 		unsigned char const ucSymbol = (unsigned char)acSymbols[iSymbol];
+@@ -2643,10 +2646,12 @@ static SASGameRecordMapAsciiPalette const& getSASGameRecordMapAsciiPalette()
+ 	kPalette.bValid = false;
+ 	kPalette.acTerrain.resize(GC.getNumTerrainInfos() + 1);
+ 	kPalette.acFeatures.resize(GC.getNumFeatureInfos() + 2);
++	kPalette.acBonuses.resize(GC.getNumBonusInfos() + 3);
+ 	if (!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_SYMBOLS", SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, kPalette.acGeography, kPalette.szGeographyDefine, kPalette.szError) ||
+ 			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_POLITICAL_SYMBOLS", SAS_MAP_ASCII_POLITICAL_SYMBOL_COUNT, kPalette.acPolitical, kPalette.szPoliticalDefine, kPalette.szError) ||
+ 			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_TERRAIN_SYMBOLS", (int)kPalette.acTerrain.size(), &kPalette.acTerrain[0], kPalette.szTerrainDefine, kPalette.szError) ||
+-			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_FEATURE_SYMBOLS", (int)kPalette.acFeatures.size(), &kPalette.acFeatures[0], kPalette.szFeatureDefine, kPalette.szError))
++			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_FEATURE_SYMBOLS", (int)kPalette.acFeatures.size(), &kPalette.acFeatures[0], kPalette.szFeatureDefine, kPalette.szError) ||
++			!parseSASGameRecordMapAsciiPaletteDefine("SAS_GAME_RECORD_MAP_ASCII_BONUS_SYMBOLS", (int)kPalette.acBonuses.size(), &kPalette.acBonuses[0], kPalette.szBonusDefine, kPalette.szError))
+ 		return kPalette;
+ 	kPalette.szPlayers = GC.getDefineSTRING("SAS_GAME_RECORD_MAP_ASCII_PLAYER_SYMBOLS");
+ 	if ((int)kPalette.szPlayers.length() != MAX_CIV_PLAYERS)
+@@ -2695,31 +2700,84 @@ static void appendSASGameRecordMapAsciiSymbol(CvString& szRow, char cSymbol)
+ 	szRow += acSymbol;
+ }
+ 
++static CvString getSASGameRecordMapAsciiSymbolToken(char cSymbol)
++{
++	if (cSymbol == ' ') return "SPACE";
++	if (cSymbol == ',') return "COMMA";
++	if (cSymbol == ':') return "COLON";
++	if (cSymbol == ';') return "SEMICOLON";
++	if (cSymbol == '=') return "EQUALS";
++	CvString szToken;
++	szToken.Format("%c", cSymbol);
++	return szToken;
++}
++
+ static void appendSASGameRecordMapAsciiLegendEntry(CvString& szLegend, char cSymbol, char const* szType)
+ {
+ 	CvString szEntry;
+-	if (cSymbol == ' ') szEntry.Format("SPACE=%s", szType);
+-	else szEntry.Format("%c=%s", cSymbol, szType);
++	szEntry.Format("%s=%s", getSASGameRecordMapAsciiSymbolToken(cSymbol).GetCString(), szType);
+ 	if (!szLegend.empty()) szLegend += ";";
+ 	szLegend += szEntry;
+ }
+ 
++static void appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(CvString& szLegend, char cSymbol, int iType, char const* szType)
++{
++	// <!-- custom: Runtime XML order can differ in another mod, so record the numeric ID with the stable type name and readable map symbol. (GPT-5.6-Sol) -->
++	CvString szIdAndType;
++	szIdAndType.Format("%d:%s", iType, szType);
++	appendSASGameRecordMapAsciiLegendEntry(szLegend, cSymbol, szIdAndType.GetCString());
++}
++
++static CvString getSASGameRecordMapAsciiSymbolCounts(int const aiCounts[127])
++{
++	CvString szCounts;
++	for (int iSymbol = 32; iSymbol <= 126; iSymbol++)
++	{
++		if (aiCounts[iSymbol] <= 0) continue;
++		CvString szEntry;
++		szEntry.Format("%s=%d", getSASGameRecordMapAsciiSymbolToken((char)iSymbol).GetCString(), aiCounts[iSymbol]);
++		if (!szCounts.empty()) szCounts += ";";
++		szCounts += szEntry;
++	}
++	return szCounts;
++}
++
+ static CvString getSASGameRecordMapAsciiTerrainLegend(SASGameRecordMapAsciiPalette const& kPalette)
+ {
+ 	CvString szLegend;
+ 	for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+-		appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acTerrain[iTerrain], getSASGameRecordTerrainType((TerrainTypes)iTerrain));
++		appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, kPalette.acTerrain[iTerrain], iTerrain, getSASGameRecordTerrainType((TerrainTypes)iTerrain));
+ 	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acTerrain[GC.getNumTerrainInfos()], "FEATURE_ICE_OVERRIDE");
+ 	return szLegend;
+ }
+ 
++static CvString getSASGameRecordMapAsciiGeographyLegend(SASGameRecordMapAsciiPalette const& kPalette)
++{
++	static char const* const aszTypes[SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT] = { "WATER", "LAKE", "FLAT_OR_MOSTLY_FLAT_LAND", "MOSTLY_HILLS", "MOSTLY_PEAKS", "MOSTLY_WATER_MIXED_LAND", "BALANCED_WATER_LAND", "MOSTLY_LAND_MIXED_WATER", "ICE" };
++	CvString szLegend;
++	for (int iType = 0; iType < SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT; iType++)
++		appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acGeography[iType], aszTypes[iType]);
++	return szLegend;
++}
++
+ static CvString getSASGameRecordMapAsciiFeatureLegend(SASGameRecordMapAsciiPalette const& kPalette)
+ {
+ 	CvString szLegend;
+ 	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acFeatures[0], "NO_FEATURE_WATER");
+ 	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acFeatures[1], "NO_FEATURE_LAND");
+ 	for (int iFeature = 0; iFeature < GC.getNumFeatureInfos(); iFeature++)
+-		appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acFeatures[iFeature + 2], getSASGameRecordFeatureType((FeatureTypes)iFeature));
++		appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, kPalette.acFeatures[iFeature + 2], iFeature, getSASGameRecordFeatureType((FeatureTypes)iFeature));
++	return szLegend;
++}
++
++static CvString getSASGameRecordMapAsciiBonusLegend(SASGameRecordMapAsciiPalette const& kPalette)
++{
++	CvString szLegend;
++	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acBonuses[0], "NO_BONUS_WATER");
++	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acBonuses[1], "NO_BONUS_LAND");
++	for (int iBonus = 0; iBonus < GC.getNumBonusInfos(); iBonus++)
++		appendSASGameRecordMapAsciiRuntimeTypeLegendEntry(szLegend, kPalette.acBonuses[iBonus + 2], iBonus, getSASGameRecordBonusType((BonusTypes)iBonus));
++	appendSASGameRecordMapAsciiLegendEntry(szLegend, kPalette.acBonuses[GC.getNumBonusInfos() + 2], "MULTIPLE_BONUS_TYPES");
+ 	return szLegend;
+ }
+ 
+@@ -2783,7 +2841,9 @@ static char getSASGameRecordMapAsciiTerrainSymbol(CvMap const& kMap, SASGameReco
+ 			if (eTerrain >= 0 && eTerrain < GC.getNumTerrainInfos()) aiCounts[eTerrain]++;
+ 		}
+ 	}
+-	// <!-- custom: Ice is technically a feature, but it is not ordinarily removable and blocks naval paths, so it reads as part of the strategic surface alongside Coast, land and peaks. One character cannot show both ice and its underlying Coast/Ocean terrain; prefer ice because blocked access is the strategically decisive state. Show exact ice at native resolution and an ice-majority cell after resampling; geography and features retain it for their separate shape/history purposes. (GPT-5.6-Sol) -->
++	// <!-- custom: Ice is technically a feature, but it is not ordinarily removable and blocks naval paths, so it reads as part of the strategic surface alongside Coast, land and peaks.
++	// One character cannot show both ice and its underlying Coast/Ocean terrain; prefer ice because blocked access is the strategically decisive state, while the obscured Coast shape is normally inferable from adjacent Coast and land.
++	// Show exact ice at native resolution and an ice-majority cell after resampling; geography and features retain it for their separate shape/history purposes. (GPT-5.6-Sol) -->
+ 	int const iPlotCount = (iMaxX - iMinX) * (iMaxY - iMinY);
+ 	if (iIce > 0 && 2 * iIce >= iPlotCount) return kPalette.acTerrain[GC.getNumTerrainInfos()];
+ 	TerrainTypes eDominant = NO_TERRAIN;
+@@ -2821,6 +2881,31 @@ static char getSASGameRecordMapAsciiFeatureSymbol(CvMap const& kMap, SASGameReco
+ 	return kPalette.acFeatures[iDominant];
+ }
+ 
++static char getSASGameRecordMapAsciiBonusSymbol(CvMap const& kMap, SASGameRecordMapAsciiPalette const& kPalette, int iMinX, int iMaxX, int iMinY, int iMaxY)
++{
++	int iNoBonusWater = 0;
++	int iNoBonusLand = 0;
++	BonusTypes eOnlyBonus = NO_BONUS;
++	for (int iY = iMinY; iY < iMaxY; iY++)
++	{
++		for (int iX = iMinX; iX < iMaxX; iX++)
++		{
++			CvPlot const& kPlot = *kMap.plot(iX, iY);
++			BonusTypes const eBonus = kPlot.getBonusType(NO_TEAM);
++			if (eBonus == NO_BONUS)
++			{
++				if (kPlot.isWater()) iNoBonusWater++;
++				else iNoBonusLand++;
++			}
++			else if (eOnlyBonus == NO_BONUS) eOnlyBonus = eBonus;
++			else if (eOnlyBonus != eBonus) return kPalette.acBonuses[GC.getNumBonusInfos() + 2];
++		}
++	}
++	// <!-- custom: Bonuses are sparse, so any bonus is more informative than the surrounding empty plots in a resampled cell. Different bonus types collapse to the dedicated multiple marker; exact setup coordinates and later BONUS_CHANGE rows preserve every identity and location. (GPT-5.6-Sol) -->
++	if (eOnlyBonus != NO_BONUS) return kPalette.acBonuses[eOnlyBonus + 2];
++	return kPalette.acBonuses[iNoBonusWater >= iNoBonusLand ? 0 : 1];
++}
++
+ static char getSASGameRecordMapAsciiPoliticalSymbol(CvMap const& kMap, SASGameRecordMapAsciiPalette const& kPalette, std::vector<PlayerTypes> const& aeStartingPlayers, int iMinX, int iMaxX, int iMinY, int iMaxY)
+ {
+ 	// <!-- custom: Keep this layer purely political. Coast or ice overriding a player symbol would hide owned water, while showing them only on unowned plots would make physical geography inconsistent as borders expand; Terrain/Geography/Features preserve that context separately. (GPT-5.6-Sol) -->
+@@ -2878,10 +2963,10 @@ static char getSASGameRecordMapAsciiPoliticalSymbol(CvMap const& kMap, SASGameRe
+ 
+ // <!-- custom: A bounded text map gives external LLMs and text-only reviewers the broad spatial relationships that aggregate landmass statistics cannot show. Fit the generated map, rather than the selected XML world size, into the tunable box with one scale so Tiny maps remain exact while horizontal SAS_Longworld and possible vertical/tower maps preserve their shapes.
+ // Monospace characters are usually much taller than wide, so repeat each map cell horizontally by a tunable amount. Keep metadata outside the pipe-framed drawing rows so humans and LLMs can parse each layer as one uninterrupted picture.
+-// Geography and terrain are normally stable enough to record once at setup/load; structured map-change rows preserve later exceptions. Record features initially because jungle, forest, flood plains, oases, and ice affect settling, movement, health, and yields; repeat features and political borders at level-3 snapshots to show Forest/Jungle clearing and regrowth, fallout, expansion, conquest, and collapse. (GPT-5.6-Sol) -->
++// Geography, terrain, and bonuses are normally stable enough to record once at setup/load; structured map-change rows preserve later exceptions. Record features initially because jungle, forest, flood plains, oases, and ice affect settling, movement, health, and yields; repeat features and political borders at level-3 snapshots to show Forest/Jungle clearing and regrowth, fallout, expansion, conquest, and collapse. (GPT-5.6-Sol) -->
+ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szReason)
+ {
+-	int const iLayerCount = (bIncludeStaticLayers ? 4 : 2);
++	int const iLayerCount = (bIncludeStaticLayers ? 5 : 2);
+ 	int const iMaxWidth = getSASGameRecordMapAsciiMaxWidth();
+ 	int const iMaxHeight = getSASGameRecordMapAsciiMaxHeight();
+ 	if (iMaxWidth <= 0 || iMaxHeight <= 0)
+@@ -2934,21 +3019,25 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
+ 		szPlayerSymbols += szPlayerSymbol;
+ 	}
+ 	CvString const szPlayerSymbolsQuoted = getSASGameRecordQuoted(getSASGameRecordOrDash(szPlayerSymbols).GetCString());
+-	logSASGameRecord("GAME_RECORD_MAP_ASCII_BEGIN turn=%d reason=%s layers=%d source=%dx%d previewCells=%dx%d outputCharacters=%dx%d maxCharacters=%dx%d horizontalCharactersPerCell=%d aspectRatioPreserved=1 resampled=%d wrapX=%d wrapY=%d topRowFirst=1 rowFrame=PIPE",
++	logSASGameRecord("GAME_RECORD_MAP_ASCII_BEGIN turn=%d reason=%s layers=%d source=%dx%d previewCells=%dx%d outputCharacters=%dx%d maxCharacters=%dx%d horizontalCharactersPerCell=%d aspectRatioPreserved=1 resampled=%d wrapX=%d wrapY=%d topRowFirst=1 rowFrame=PIPE informationScope=omniscient_actual_map",
+ 			GC.getGame().getGameTurn(), szReason, iLayerCount, iSourceWidth, iSourceHeight, iPreviewWidth, iPreviewHeight, iOutputWidth, iPreviewHeight, iMaxWidth, iMaxHeight, iHorizontalCharsPerCell, iPreviewWidth != iSourceWidth || iPreviewHeight != iSourceHeight, kMap.isWrapX(), kMap.isWrapY());
+ 	if (bIncludeStaticLayers)
+ 	{
+-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=GEOGRAPHY palette=%s order=water,lake,flat_or_mostly_flat_land,mostly_hills,mostly_peaks,mostly_water_mixed_land,balanced_water_land,mostly_land_mixed_water,ice", getSASGameRecordQuoted(kPalette.szGeographyDefine.GetCString()).GetCString());
+-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=TERRAIN palette=%s symbolTypes=%s resampledCell=dominant_type", getSASGameRecordQuoted(kPalette.szTerrainDefine.GetCString()).GetCString(), getSASGameRecordQuoted(getSASGameRecordMapAsciiTerrainLegend(kPalette).GetCString()).GetCString());
++		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=GEOGRAPHY symbolTypeCount=%d symbolTypes=%s sourcePlotTypeCount=%d sourcePlotTypes=\"%d:PLOT_PEAK;%d:PLOT_HILLS;%d:PLOT_LAND;%d:PLOT_OCEAN\" resampledCell=derived_plot_mix",
++				SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, getSASGameRecordQuoted(getSASGameRecordMapAsciiGeographyLegend(kPalette).GetCString()).GetCString(), NUM_PLOT_TYPES, PLOT_PEAK, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN);
++		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=TERRAIN runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=dominant_type", GC.getNumTerrainInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiTerrainLegend(kPalette).GetCString()).GetCString());
++		// <!-- custom: getBonusType(NO_TEAM) intentionally records the actual map, including bonuses that no civilization has the technology to reveal yet. State this explicitly so an analyst does not mistake diagnostic knowledge for contemporary AI knowledge. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
++		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=BONUSES runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=bonus_type_or_multiple includesUnrevealedBonuses=1", GC.getNumBonusInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiBonusLegend(kPalette).GetCString()).GetCString());
+ 	}
+-	logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=FEATURES palette=%s symbolTypes=%s resampledCell=dominant_type", getSASGameRecordQuoted(kPalette.szFeatureDefine.GetCString()).GetCString(), getSASGameRecordQuoted(getSASGameRecordMapAsciiFeatureLegend(kPalette).GetCString()).GetCString());
++	logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=FEATURES runtimeTypeCount=%d runtimeTypeFormat=SYMBOL=ID:TYPE symbolTypes=%s resampledCell=dominant_type", GC.getNumFeatureInfos(), getSASGameRecordQuoted(getSASGameRecordMapAsciiFeatureLegend(kPalette).GetCString()).GetCString());
+ 	// <!-- custom: GAME_RECORD_PLAYER_SETUP already stores each player ID's quoted civilization and display name. Keep this repeated map legend to unambiguous SYMBOL=PLAYER_ID pairs so user-controlled punctuation in names cannot break an embedded mini-format or duplicate long names at every snapshot. (ChatGPT-5.5 + GPT-5.6-Sol) -->
+ 	logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=POLITICAL palette=%s order=unowned_water,unowned_land,mixed_unowned_water_land,civilization_city,Barbarian_city,civilization_and_Barbarian_cities,multiple_starting_players,Barbarian_territory playerSymbolFormat=SYMBOL=PLAYER_ID playerSymbols=%s playerDetailsRows=GAME_RECORD_PLAYER_SETUP startingPlotsMarked=%d",
+ 			getSASGameRecordQuoted(kPalette.szPoliticalDefine.GetCString()).GetCString(), szPlayerSymbolsQuoted.GetCString(), bMarkStartingPlots);
+-	for (int iLayer = 0; iLayer < 4; iLayer++)
++	for (int iLayer = 0; iLayer < 5; iLayer++)
+ 	{
+-		if (iLayer < 2 && !bIncludeStaticLayers) continue;
+-		char const* szLayer = (iLayer == 0 ? "GEOGRAPHY" : iLayer == 1 ? "TERRAIN" : iLayer == 2 ? "FEATURES" : "POLITICAL");
++		if (iLayer < 3 && !bIncludeStaticLayers) continue;
++		char const* szLayer = (iLayer == 0 ? "GEOGRAPHY" : iLayer == 1 ? "TERRAIN" : iLayer == 2 ? "BONUSES" : iLayer == 3 ? "FEATURES" : "POLITICAL");
++		int aiSymbolCounts[127] = { 0 };
+ 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_BEGIN layer=%s rows=%d columns=%d sourceYTop=%d sourceYBottom=0", szLayer, iPreviewHeight, iOutputWidth, iSourceHeight - 1);
+ 		for (int iRow = 0; iRow < iPreviewHeight; iRow++)
+ 		{
+@@ -2963,15 +3052,19 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
+ 				char cSymbol;
+ 				if (iLayer == 0) cSymbol = getSASGameRecordMapAsciiGeographySymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
+ 				else if (iLayer == 1) cSymbol = getSASGameRecordMapAsciiTerrainSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
+-				else if (iLayer == 2) cSymbol = getSASGameRecordMapAsciiFeatureSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
++				else if (iLayer == 2) cSymbol = getSASGameRecordMapAsciiBonusSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
++				else if (iLayer == 3) cSymbol = getSASGameRecordMapAsciiFeatureSymbol(kMap, kPalette, iMinX, iMaxX, iMinY, iMaxY);
+ 				else cSymbol = getSASGameRecordMapAsciiPoliticalSymbol(kMap, kPalette, aeStartingPlayers, iMinX, iMaxX, iMinY, iMaxY);
++				aiSymbolCounts[(unsigned char)cSymbol]++;
+ 				for (int iRepeat = 0; iRepeat < iHorizontalCharsPerCell; iRepeat++)
+ 					appendSASGameRecordMapAsciiSymbol(szPlots, cSymbol);
+ 			}
+ 			szPlots += "|";
+ 			logSASGameRecord("%s", szPlots.GetCString());
+ 		}
+-		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END layer=%s", szLayer);
++		int const iPreviewCells = iPreviewWidth * iPreviewHeight;
++		int const iDrawingCharacters = (iOutputWidth + 2) * iPreviewHeight;
++		logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END layer=%s previewCells=%d drawingCharacters=%d previewCellCounts=%s", szLayer, iPreviewCells, iDrawingCharacters, getSASGameRecordQuoted(getSASGameRecordMapAsciiSymbolCounts(aiSymbolCounts).GetCString()).GetCString());
+ 	}
+ 	logSASGameRecord("GAME_RECORD_MAP_ASCII_END turn=%d reason=%s layers=%d rowsPerLayer=%d", GC.getGame().getGameTurn(), szReason, iLayerCount, iPreviewHeight);
+ }
+
+diff --git a/README.md b/README.md
+index a03e24419..16e9943b6 100644
+--- a/README.md
++++ b/README.md
+@@ -923,13 +923,13 @@ BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1
+ 
+ ### SASGameRecord log
+ 
+-`SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, Barbarian cities and pressure, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed Barbarian positions/combat and air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces. Level 3 also includes compact initial geography/terrain pictures and changing feature/political pictures so spatial, environmental, and territorial changes can be understood without screenshots.
++`SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, Barbarian cities and pressure, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed Barbarian positions/combat and air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces. Level 3 also includes compact initial geography/terrain/bonus pictures and changing feature/political pictures so spatial, strategic, environmental, and territorial changes can be understood without screenshots.
+ 
+ Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
+ 
+ The record includes the active mod folder itself. For stronger LLM analysis, also provide source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) is compact so it is easier to upload or share, and contains the useful source, XML/data, docs, helper context, and full `SASGameRecord` examples an LLM needs for analysis.
+ 
+-See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log) and [ChatGPT SASGameRecord review example](/_1_AdvCiv-SAS/SASGameRecord_log/chatgpt_sas_game_record_review.md) for an example of an external LLM using the `SASGameRecord` log to review an autoplay run.
++See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log) and [ChatGPT SASGameRecord review example](/_1_AdvCiv-SAS/SASGameRecord_log/chatgpt_sasgamerecord_review.md) for an example of an external LLM using the `SASGameRecord` log to review an autoplay run.
+ 
+ For example, `SASGameRecord_*.log` starts with comparable run setup lines and then adds compact turn snapshots:
+ 
+@@ -955,6 +955,7 @@ GAME_RECORD_ACTION turn=198 type=PLAYER_ELIMINATED player=9 team=9 civ=CIVILIZAT
+ <img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_3.PNG" alt="SASGameRecord_text_art_map_3" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_4.PNG" alt="SASGameRecord_text_art_map_4" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_5.PNG" alt="SASGameRecord_text_art_map_5" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_6.PNG" alt="SASGameRecord_text_art_map_6" width="250"></img>
+ 
+ ## CuCuGS
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index a0aa927ef..67b29a2dc 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -182,7 +182,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 6100+) It also records compact production and military interval flows plus exact civic, effective state-religion, and war-plan transitions. (Requires AdvCiv-SAS 6101+) Technology-acquisition rows also identify whether each technology came from research, trade, a free choice, a goody hut, a Great Person, espionage, a random event, technology sharing, a team merge, inheritance, Advanced Start, Barbarian research, game setup, debug tools, or an unknown Python/script source. (Requires AdvCiv-SAS 6102+) Each log also identifies whether the session is a new or loaded single-player, scenario, network, Hotseat, PBEM, Pitboss, or replay game, including its multiplayer turn options. (Requires AdvCiv-SAS 6103+) It also synthesizes one summary for every war between civilization teams, including declaration and peace context, elapsed turns, war-success changes, units destroyed and their total production cost, city-plot battle wins, and cities/population captured. Wars already active when a save is loaded are explicitly partial, while wars still active at victory or autoplay end remain marked ongoing rather than being misreported as peace. A full turn-474 test matched all 115 declarations to exactly 91 ordinary-peace summaries, 4 capitulations, 13 state-change/elimination summaries, and 7 wars still ongoing at victory.
+ - (Requires AdvCiv-SAS 6105+) Setup context also records the calendar, starting turn/year, and each player's actual assigned color with its primary RGB values, which helps connect the text record to maps and screenshots. When the game is won, one final row per civilization pairs its ordinary score with Civ4's normalized final score. (Requires AdvCiv-SAS 6104+) Full interval and victory snapshots also record UTC to milliseconds, total real milliseconds since the log session began, and milliseconds since the previous snapshot. This makes autoplay speed and late-game slowdown directly comparable without external timing or timestamp subtraction; real time includes pauses and user interaction. Anonymous process-memory, system memory-load percentage, available 32-bit address space, and exact foreground/minimized samples can be disabled separately without disabling timing or gameplay records. A separate privacy/detail level defaults to display context (resolution, fullscreen/windowed state, and graphics options), Windows versus Wine/Proton, and pointer width; it can be lowered to hide these or raised to add logical processor count and total RAM.
+ - (Requires AdvCiv-SAS 6106+) Barbarian activity is also preserved without forcing ordinary civilization economy/diplomacy rows onto the Barbarian player. Interval snapshots record Barbarian cities, animals, unit types/roles, and how many units are in Barbarian, unowned, or civilization-owned territory; concise city rows show their development and defenses. At level 3, exact positions, fog/goody-hut/cargo spawn causes, and Barbarian combat outcomes make pressure on nearby civilizations traceable. In a confirming full run, these rows captured 84 spawns, 182 combats, Barbarian city development, and eventual eradication, while adding only about 350-400 rows to an 18.5 MB record.
+-- (Requires AdvCiv-SAS 6107+) **Level-3 text-map previews:** `SASGameRecord` includes separate geography, terrain, feature, and political pictures so humans and LLMs can immediately see landmass shapes, islands, ice barriers, narrow passages, environmental cover, and player positions instead of reconstructing them from coordinates. The terrain picture distinguishes Coast from Ocean and overlays ice: one character cannot show both ice and its underlying water terrain, and blocked access matters more strategically. Geography shows broad land/water and plot shapes plus ice barriers without duplicating Coast terrain. The political picture intentionally remains ownership-only, because physical symbols would either hide owned water or appear inconsistently only outside borders. Normally stable geography and terrain appear once at setup/load, with exact later exceptions preserved by coordinate-bearing map-change rows. The initial feature picture shows how jungle, forest, flood plains, oases, and ice affect settling, movement, health, and yields; feature and political pictures then repeat at each full interval and victory snapshot to show forest/jungle clearing and regrowth, late-game fallout, territorial expansion, conquest, and collapse across the run. Blank water and dotted featureless land keep each feature picture readable without overlaying the geography map. Separate structured rows directly record player pollution, its sources, city health, and global warming; the maps supply the spatial context when terrain or features change. Clean fixed-width rows preserve the generated map's proportions in horizontal, square, or vertical maps; legends map configurable symbols to terrain/feature types and political symbols to player IDs, whose setup rows provide the civilization and displayed player name. XML defines control the picture bounds, monospace-width correction, and validated symbols.
++- (Requires AdvCiv-SAS 6108+) **Level-3 text-map previews:** `SASGameRecord` includes separate geography, terrain, bonus, feature, and political pictures so humans and LLMs can immediately see landmass shapes, islands, ice barriers, narrow passages, resource distribution, environmental cover, and player positions instead of reconstructing them from coordinates. The terrain picture distinguishes Coast from Ocean and overlays ice: one character cannot show both ice and its underlying water terrain, but blocked naval access matters more strategically and the obscured Coast shape is normally inferable from adjacent Coast and land. Geography shows broad land/water and plot shapes plus ice barriers without duplicating Coast terrain. The political picture intentionally remains ownership-only, because physical symbols would either hide owned water or appear inconsistently only outside borders. Normally stable geography, terrain, and bonuses appear once at setup/load, with exact later exceptions preserved by coordinate-bearing map/bonus-change rows. When different bonuses share one resampled cell, `+` exposes the collision while exact setup rows retain their identities and coordinates. The pictures are omniscient diagnostic maps rather than a civilization's contemporary knowledge; notably, the bonus picture includes resources that no civilization has the technology to reveal yet. The initial feature picture shows how jungle, forest, flood plains, oases, and ice affect settling, movement, health, and yields; feature and political pictures then repeat at each full interval and victory snapshot to show forest/jungle clearing and regrowth, late-game fallout, territorial expansion, conquest, and collapse across the run. Blank water and dotted featureless land keep feature and bonus pictures readable without overlaying geography. Each layer also reports its logical-cell total, exact drawing-character total, and per-symbol cell counts, so broad composition and change can be measured without manually counting the picture; horizontal visual repetition does not inflate these cell counts. Separate structured rows directly record player pollution, its sources, city health, global warming, and exact bonuses; the maps supply spatial context. Clean fixed-width rows preserve the generated map's proportions in horizontal, square, or vertical maps; legends map configurable symbols and runtime numeric IDs to terrain/feature/bonus types, while political symbols map to player IDs whose setup rows provide the civilization and displayed player name. XML defines control the picture bounds, monospace-width correction, and validated symbols.
+ - (Requires AdvCiv-SAS 6022+) Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, `SASGameRecord` log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context and full `SASGameRecord` examples while staying compact enough to upload and share. See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log), and [README.md (DLL Logging)](/README.md#dll-logging).
+ 
+ ### 48 Civs DLL
+
+diff --git a/_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_6.PNG b/_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_6.PNG
+new file mode 100644
+index 000000000..9b5fdb1ef
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/LLM/SASGameRecord_text_art_map_6.PNG differ
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log b/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log reason=known-generated/noisy-history changedLines=55652 bytes=17692920
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/SASGameRecord_log/chatgpt_sas_game_record_review.md b/_1_AdvCiv-SAS/SASGameRecord_log/chatgpt_sasgamerecord_review.md reason=known-generated/noisy-history changedLines=0 bytes=318
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=5 omittedFiles=3 embeddedPatchBytes=40044

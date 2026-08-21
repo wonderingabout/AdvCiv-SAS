@@ -1,0 +1,869 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3204
+# Commit: 4ee50e1f9072916e2af596935472176b6d83116a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8eec729405fd4992a8f429d628d1df0d5fa00c55
+# Title: Place Barbarian units based on per-tile weights
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	7	CvGameCoreDLL/AIStrengthMemoryMap.cpp
+2	1	CvGameCoreDLL/AIStrengthMemoryMap.h
+73	0	CvGameCoreDLL/BarbarianWeightMap.cpp
+51	0	CvGameCoreDLL/BarbarianWeightMap.h
+3	1	CvGameCoreDLL/CvCity.cpp
+35	43	CvGameCoreDLL/CvGame.cpp
+6	1	CvGameCoreDLL/CvGame.h
+52	4	CvGameCoreDLL/CvGameCoreUtils.h
+30	17	CvGameCoreDLL/CvMap.cpp
+12	1	CvGameCoreDLL/CvMap.h
+8	0	CvGameCoreDLL/CvPlayerAI.cpp
+17	2	CvGameCoreDLL/CvUnit.cpp
+7	4	CvGameCoreDLL/CvUnitAI.cpp
+4	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+17	13	CvGameCoreDLL/Shelf.cpp
+2	1	CvGameCoreDLL/Shelf.h
+ create mode 100644 CvGameCoreDLL/BarbarianWeightMap.cpp
+ create mode 100644 CvGameCoreDLL/BarbarianWeightMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AIStrengthMemoryMap.cpp b/CvGameCoreDLL/AIStrengthMemoryMap.cpp
+index fe36384cd..bb96d30dd 100644
+--- a/CvGameCoreDLL/AIStrengthMemoryMap.cpp
++++ b/CvGameCoreDLL/AIStrengthMemoryMap.cpp
+@@ -111,10 +111,11 @@ void AIStrengthMemoryMap::decay()
+ 	/*if (m_aiMap.size() != GC.getMap().numPlots())
+ 		return;*/
+ 	CvTeam const& kTeam = CvTeam::getTeam(m_eTeam);
+-	/*	Barbarian strength memory disabled for now. (The set calls are disabled
+-		at the call location.) */
+-	if (kTeam.isBarbarian())
+-		return;
++	/*	advc.304: Barbarians shouldn't use strength memory.
++		They use activity memory instead. */
++	FAssert(!kTeam.isBarbarian() || m_map.empty());
++	// K-Mod: reduce by 4% (arbitrary number), rounding down.
++	int const iDecayPercent = 4;
+ 	/*for (int i = 0; i < GC.getMap().numPlots(); i++)
+ 	{
+ 		if (m_aiMap[i] == 0)
+@@ -131,11 +132,10 @@ void AIStrengthMemoryMap::decay()
+ 			it = m_map.erase(it);
+ 			//m_aiMap[i] = 0;
+ 		}
+-		// K-Mod: reduce by 4% (arbitrary number), rounding down.
+-		//else m_aiMap[i] = (96 * m_aiMap[i]) / 100;
++		//else m_aiMap[i] = ((100 - iDecayPercent) * m_aiMap[i]) / 100;
+ 		else
+ 		{
+-			it->second = (96 * it->second) / 100;
++			it->second = ((100 - iDecayPercent) * it->second) / 100;
+ 			++it;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/AIStrengthMemoryMap.h b/CvGameCoreDLL/AIStrengthMemoryMap.h
+index 869dbea7e..f36a3279e 100644
+--- a/CvGameCoreDLL/AIStrengthMemoryMap.h
++++ b/CvGameCoreDLL/AIStrengthMemoryMap.h
+@@ -15,7 +15,8 @@ class AIStrengthMemoryMap
+ 	//std::vector<int> m_aiMap;
+ 	/*	It's a pretty sparse map, often entirely empty.
+ 		K-Mod had used a std::vector, which was faster than std::map in my tests,
+-		but not quite as fast as hash_map. I'm keeping the vector code in comments. */
++		but not quite as fast as hash_map. I'm keeping the vector code in comments.
++		(Haven't tried ListEnumMap b/c that class didn't exist yet.) */
+ 	typedef stdext::hash_map<PlotNumTypes,int> PlotStrengthMap;
+ 	PlotStrengthMap m_map;
+ 	TeamTypes m_eTeam;
+
+diff --git a/CvGameCoreDLL/BarbarianWeightMap.cpp b/CvGameCoreDLL/BarbarianWeightMap.cpp
+new file mode 100644
+index 000000000..3c6f025d8
+--- /dev/null
++++ b/CvGameCoreDLL/BarbarianWeightMap.cpp
+@@ -0,0 +1,73 @@
++#include "CvGameCoreDLL.h"
++#include "BarbarianWeightMap.h"
++#include "PlotRadiusIterator.h"
++#include "CvGame.h"
++
++// advc.304: New implementation file; see comment in header.
++
++int BarbarianWeightMap::get(CvPlot const& kPlot) const
++{
++	/*	Note: We assume that invalid plots have already been filtered out
++		through RandPlotFlags */
++	int iWeight = RandPlotWeightMap::getProbWeight(kPlot);
++	// <advc.300> Reduced weight for land plots with poor yield
++	if (!kPlot.isWater())
++	{
++		int const iTargetYieldScore = 4;
++		int iYieldScore = 0;
++		FOR_EACH_ENUM(Yield)
++		{
++			iYieldScore += (eLoopYield == YIELD_COMMERCE ? 1 : 2) * std::min(
++					/*	Kind of costly, but this is still early in the game
++						when turns are fast. And using getYield could leak info
++						about unrevealed resources. */
++					kPlot.calculateNatureYield(eLoopYield, BARBARIAN_TEAM, true),
++					kPlot.calculateNatureYield(eLoopYield, BARBARIAN_TEAM, false));
++			if (iYieldScore >= iTargetYieldScore)
++				break;
++		}
++		if (iYieldScore < iTargetYieldScore)
++		{	/*	A fairly big decrease. Note that strength memory will have
++				a bit of a leveling effect. */
++			iWeight /= 5;
++		}
++	} // </advc.300>
++	iWeight *= std::max(0, 100
++			/*	The higher the memory value of nearby Barbarian defeats,
++				the less likely are new Barbarians. */
++			- m_activityMap.get(kPlot));
++	iWeight /= 100;
++	return iWeight;
++}
++
++
++void BarbarianActivityMap::decay()
++{
++	if (!GC.getGame().isBarbarianCreationEra())
++	{
++		m_map.reset(); // free memory
++		return;
++	}
++	int const iDecayPercent = 15;
++	FOR_EACH_NON_DEFAULT_PAIR(m_map, PlotNum, int)
++	{
++		perPlotNumVal.second *= 100 - iDecayPercent;
++		perPlotNumVal.second /= 100;
++		m_map.set(perPlotNumVal.first, perPlotNumVal.second);
++	}
++}
++
++
++void BarbarianActivityMap::change(CvPlot const& kPlot, int iChange,
++	int iPlotRange)
++{
++	for (PlotCircleIter itPlot(kPlot, iPlotRange); itPlot.hasNext(); ++itPlot)
++	{
++		if (itPlot->isWater() == kPlot.isWater())
++		{
++			m_map.set(kPlot.plotNum(), std::min(iMAX_STR, get(*itPlot) +
++					// Geometric progression. Stopping at iPlotRange mainly saves time.
++					iChange / std::max(1, itPlot.currPlotDist())));
++		}
++	}
++}
+
+diff --git a/CvGameCoreDLL/BarbarianWeightMap.h b/CvGameCoreDLL/BarbarianWeightMap.h
+new file mode 100644
+index 000000000..888837ac2
+--- /dev/null
++++ b/CvGameCoreDLL/BarbarianWeightMap.h
+@@ -0,0 +1,51 @@
++#pragma once
++#ifndef BARBARIAN_WEIGHT_MAP_H
++#define BARBARIAN_WEIGHT_MAP_H
++
++/*	advc.304: Memory of Barbarian activity and (based on that past activity)
++	weighted probability distribution for plots where Barbarians get placed. */
++
++#include "CvMap.h"
++
++class FDataStreamBase;
++
++class BarbarianActivityMap
++{
++public:
++	void reset()
++	{
++		m_map.reset();
++	}
++	void read(FDataStreamBase* pStream) { m_map.read(pStream); }
++	void write(FDataStreamBase* pStream) const { m_map.write(pStream); }
++	int get(CvPlot const& kPlot) const
++	{
++		return m_map.get(kPlot.plotNum());
++	}
++	void decay();
++	void change(CvPlot const& kPlot, int iChange = iMAX_STR, int iPlotRange = 5);
++	static int maxStrength() { return iMAX_STR; }
++
++private:
++	ArrayEnumMap<PlotNumTypes,int,short> m_map;
++	/*	120 is more easily divisible than 100. CvGame will trigger decay
++		before placing Barbarian units, so the max strength will be ca. 100 then. */
++	static int const iMAX_STR = 120;
++};
++
++class BarbarianWeightMap : public RandPlotWeightMap
++{
++public:
++	int getProbWeight(CvPlot const& kPlot) const // override
++	{
++		return get(kPlot);
++	}
++	int get(CvPlot const& kPlot) const;
++	BarbarianActivityMap& getActivityMap() { return m_activityMap; }
++	BarbarianActivityMap const& getActivityMap() const { return m_activityMap; }
++
++private:
++	BarbarianActivityMap m_activityMap;
++};
++
++#endif
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 7a6cdd06b..f4ee77fb7 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -10870,7 +10870,9 @@ void CvCity::doGreatPeople()
+ 		{
+ 			iTotalGreatPeopleUnitProgress += getGreatPeopleUnitProgress(kCiv.unitAt(i));
+ 		}
+-		// <advc> Should only happen in old savegames (due to a bug in AdvCiv 0.97)
++		/*	<advc> Should only happen in old savegames (due to a bug in AdvCiv 0.97).
++			NB: If we break savegame compatibility, then we should call
++			::weightedRandChoice here (to avoid code duplication). */
+ 		bool const bOverflow = (iTotalGreatPeopleUnitProgress > CvRandom::getRange());
+ 		if (bOverflow)
+ 			iTotalGreatPeopleUnitProgress = per100(iTotalGreatPeopleUnitProgress).ceil(); // </advc>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 329a1ab18..471c74453 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -20,6 +20,7 @@
+ #include "CvReplayInfo.h"
+ #include "CvGameTextMgr.h"
+ #include "CvMessageControl.h"
++#include "BarbarianWeightMap.h" // advc.304
+ #include "StartingPositionIteration.h" // advc.027
+ #include "StartPointsAsHandicap.h" // advc.250b
+ #include "RiseFall.h" // advc.700
+@@ -35,7 +36,8 @@
+ 
+ CvGame::CvGame() :
+ 	m_pRiseFall(new RiseFall()), // advc.700
+-	m_pSpah(new StartPointsAsHandicap()) // advc.250b
++	m_pSpah(new StartPointsAsHandicap()), // advc.250b
++	m_pBarbarianWeightMap(new BarbarianWeightMap()) // advc.304
+ {
+ 	m_aiRankPlayer = new int[MAX_PLAYERS];        // Ordered by rank...
+ 	m_aiPlayerRank = new int[MAX_PLAYERS];        // Ordered by player ID...
+@@ -83,8 +85,9 @@ CvGame::~CvGame()
+ 	SAFE_DELETE_ARRAY(m_aiTeamRank);
+ 	SAFE_DELETE_ARRAY(m_aiTeamScore);
+ 
+-	SAFE_DELETE(m_pSpah); // advc.250b
+ 	SAFE_DELETE(m_pRiseFall); // advc.700
++	SAFE_DELETE(m_pSpah); // advc.250b
++	SAFE_DELETE(m_pBarbarianWeightMap); // advc.304
+ }
+ 
+ void CvGame::init(HandicapTypes eHandicap)
+@@ -682,6 +685,8 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 			m_aiSecretaryGeneralTimer[iI] = 0;
+ 			m_aiVoteTimer[iI] = 0;
+ 		}
++
++		getBarbarianWeightMap().getActivityMap().reset(); // advc.304
+ 	}
+ 
+ 	m_deals.removeAll();
+@@ -6535,6 +6540,7 @@ void CvGame::doTurn()
+ 
+ 	GC.getMap().doTurn();
+ 
++	getBarbarianWeightMap().getActivityMap().decay(); // advc.304
+ 	createBarbarianCities();
+ 	createBarbarianUnits();
+ 
+@@ -7924,33 +7930,10 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, CvArea& kArea, Shelf* pShel
+ 	} // </advc.306>
+ 
+ 	for (int i = 0; i < iUnitsToCreate; i++) 
+-	{
+-		// <advc.300>
+-		CvPlot* pPlot = NULL;
+-		// Reroll twice if the tile has poor yield
+-		for (int j = 0; j < 3; j++)
+-		{
+-			pPlot = randomBarbarianPlot(kArea, pShelf);
+-			/*  If we can't find a plot once, we won't find one in a later
+-				iteration either. */
+-			if (pPlot == NULL)
+-				return iCreated;
+-			int iTotalYield = 0;
+-			FOR_EACH_ENUM(Yield)
+-				iTotalYield += pPlot->getYield(eLoopYield);
+-			// Want to re-roll flat Tundra Forest as well
+-			if (iTotalYield == 2 && !pPlot->isImproved())
+-			{
+-				iTotalYield = 0;
+-				FOR_EACH_ENUM(Yield)
+-				{
+-					iTotalYield += pPlot->calculateNatureYield(eLoopYield, NO_TEAM,
+-							/* bIgnoreFeature=*/true);
+-				}
+-			}
+-			if (iTotalYield >= 2)
+-				break;
+-		}
++	{	// <advc.300>
++		CvPlot* pPlot = randomBarbarianPlot(kArea, pShelf);
++		if (pPlot == NULL)
++			return iCreated;
+ 		UnitAITypes eUnitAI = UNITAI_ATTACK;
+ 		if (pShelf != NULL)
+ 			eUnitAI = UNITAI_ATTACK_SEA;
+@@ -7960,21 +7943,24 @@ int CvGame::createBarbarianUnits(int iUnitsToCreate, CvArea& kArea, Shelf* pShel
+ 			return iCreated;
+ 		CvUnit* pNewUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnitType,
+ 				pPlot->getX(), pPlot->getY(), eUnitAI);
+-		if (pNewUnit != NULL && !pPlot->isWater())
++		if (!pPlot->isWater())
+ 			iCreated++;
+ 		// </advc.300>
+ 		// K-Mod. Give a combat penalty to barbarian boats.
+-		if (pNewUnit && pPlot->isWater() &&
+-				!pNewUnit->getUnitInfo().isHiddenNationality()) // kekm.12
++		if (pPlot->isWater() &&
++			!pNewUnit->getUnitInfo().isHiddenNationality()) // kekm.12
+ 		{	// find the "disorganized" promotion. (is there a better way to do this?)
+ 			PromotionTypes eDisorganized = (PromotionTypes)
+ 					GC.getInfoTypeForString("PROMOTION_DISORGANIZED", true);
+ 			if (eDisorganized != NO_PROMOTION)
+-			{	/*	sorry, barbarians. Free boats are just too dangerous for
++			{	/*	Sorry, barbarians. Free ships are just too dangerous for
+ 					real civilizations to defend against. */
+ 				pNewUnit->setHasPromotion(eDisorganized, true);
+ 			}
+ 		} // K-Mod end
++		// <advc.304> Discourage nearby unit placement for some time
++		getBarbarianWeightMap().getActivityMap().change(*pPlot,
++				BarbarianActivityMap::maxStrength() / 2, 2); // </advc.304>
+ 	}
+ 	return iCreated; // advc.306
+ }
+@@ -7994,23 +7980,29 @@ CvPlot* CvGame::randomBarbarianPlot(CvArea const& kArea, Shelf const* pShelf)
+ 		no longer apply to Barbarians previously spawned; see
+ 		CvPlot::isVisibleToCivTeam, CvMap::isCivUnitNearby. */
+ 	static int const iDist = GC.getDefineINT("MIN_BARBARIAN_STARTING_DISTANCE");
+-	// <advc.304> Sometimes don't pick a plot if there are few legal plots
+-	int iLegal = 0;
++	// <advc.304>
++	int iValid = 0; // Sometimes don't pick a plot if there are few valid plots
+ 	CvPlot* pRandPlot = NULL;
+ 	if (pShelf == NULL)
+-		pRandPlot = GC.getMap().syncRandPlot(eFlags, &kArea, iDist, -1, &iLegal);
++	{
++		pRandPlot = GC.getMap().syncRandPlot(eFlags, &kArea, iDist, -1,
++				&iValid, &getBarbarianWeightMap());
++	}
+ 	else
+ 	{
+-		pRandPlot = pShelf->randomPlot(eFlags, iDist, &iLegal);
+-		if (pRandPlot != NULL && iLegal * 100 < pShelf->size())
++		pRandPlot = pShelf->randomPlot(eFlags, iDist,
++				&iValid, &getBarbarianWeightMap());
++		if (pRandPlot != NULL && iValid * 100 < pShelf->size())
+ 			pRandPlot = NULL;
+ 	}
+-	if (pRandPlot != NULL && iLegal > 0 && iLegal < 4)
++	int const iFewValidThresh = 5; // (Should perhaps be based on a.getNumTiles()?)
++	if (pRandPlot != NULL && iValid > 0 && iValid < iFewValidThresh)
+ 	{
+-		// Tbd.: Should perhaps be based on a.getNumTiles()
+-		scaled rSkipProb = 1 - scaled(1, 5 - iLegal);
+-		if(rSkipProb.bernoulliSuccess(getSRand(), "randomBarbarianPlot"))
+-		pRandPlot = NULL;
++		scaled rSkipProb = 1 - scaled(1, 1 + iFewValidThresh - iValid);
++		// Especially don't want a constant stream of units from low-weight plots
++		rSkipProb *= scaled::max(1, 2 - per100(getBarbarianWeightMap().get(*pRandPlot)));
++		if (rSkipProb.bernoulliSuccess(getSRand(), "randomBarbarianPlot skip"))
++			pRandPlot = NULL;
+ 	}
+ 	return pRandPlot; // </advc.304>
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index f3a83c6fc..f2f9a02aa 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -15,6 +15,7 @@ class CvDeal;
+ class CvCivilization; // advc.003w
+ class NormalizationTarget; // advc.027
+ class Shelf; // advc.300
++class BarbarianWeightMap; // advc.304
+ class StartPointsAsHandicap; // advc.250b
+ class RiseFall; // advc.700
+ 
+@@ -866,7 +867,10 @@ public:
+ 	StartPointsAsHandicap const& startPointsAsHandicap() const;
+ 	int getBarbarianStartTurn() const; // advc.300		(exposed to Python)
+ 	bool isBarbarianCreationEra() const; // advc.307
+-	// <advc.703>
++	// <advc.304>
++	BarbarianWeightMap& getBarbarianWeightMap() { return *m_pBarbarianWeightMap; }
++	BarbarianWeightMap const& getBarbarianWeightMap() const { return *m_pBarbarianWeightMap; }
++	// </advc.304>  <advc.703>
+ 	RiseFall const& getRiseFall() const { return *m_pRiseFall; }
+ 	RiseFall& getRiseFall() { return *m_pRiseFall; }
+ 	// </advc.703>
+@@ -1011,6 +1015,7 @@ protected:
+ 	int m_iNumSessions;
+ 	CvHallOfFameInfo* m_pHallOfFame; // advc.106i
+ 
++	BarbarianWeightMap* m_pBarbarianWeightMap; // advc.304 (serialized by CvMap)
+ 	std::vector<PlotExtraYield> m_aPlotExtraYields;
+ 	std::vector<PlotExtraCost> m_aPlotExtraCosts;
+ 	// advc: Replacing a hash_map
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 1ce24129c..fb5da386d 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -182,10 +182,58 @@ namespace fmath
+ 	}
+ } // </advc.003g>
+ 
+-DllExport int* shuffle(int iNum, CvRandom& rand);
+-// advc (tbd.): Move these two to CvRandom (as it's done by Civ4Col too)
+-void shuffleArray(int* piShuffle, int iNum, CvRandom& rand);
+-void shuffleVector(std::vector<int>& aiIndices, CvRandom& rand); // advc.enum
++DllExport int* shuffle(int iNum, CvRandom& kRand);
++/*	advc (tbd.): Move these two to CvRandom (as it's done by Civ4Col too).
++	And also shuffle (with a global wrapper the EXE) and weightedRandChoice. */
++void shuffleArray(int* piShuffle, int iNum, CvRandom& kRand);
++void shuffleVector(std::vector<int>& aiIndices, CvRandom& kRand); // advc.enum
++// advc.304 (may find other uses too):
++template<class Item>
++Item* weightedRandChoice(CvRandom& kRand, std::vector<Item*> const& kItems,
++	/*	NULL means uniform weights. Uniform choice isn't what this function is for,
++		but it's convenient to have as an option. */
++	std::vector<int> const* pWeights = NULL)
++{
++	std::vector<int> aiLowPrecisionWeights;
++	int iTotal = 0;
++	if (pWeights == NULL)
++		iTotal = (int)kItems.size();
++	else
++	{
++		FAssert(pWeights->size() == kItems.size());
++		for (size_t i = 0; i < pWeights->size(); i++)
++			iTotal += (*pWeights)[i];
++		FAssertMsg(iTotal >= 0, "overflow?");
++		// This we'll need to be able to recover from I think:
++		if (iTotal > kRand.getRange())
++		{
++			scaled rDownScaleFactor(kRand.getRange(), iTotal);
++			aiLowPrecisionWeights = *pWeights; // copy
++			pWeights = &aiLowPrecisionWeights;
++			iTotal = 0; // recompute
++			for (size_t i = 0; i < aiLowPrecisionWeights.size(); i++)
++			{
++				aiLowPrecisionWeights[i] = (aiLowPrecisionWeights[i] *
++						rDownScaleFactor).floor();
++				iTotal += aiLowPrecisionWeights[i];
++			}
++			FAssert(iTotal > 0 && iTotal <= kRand.getRange());
++		}
++	}
++	if (iTotal == 0)
++		return NULL;
++	int iRoll = kRand.get(iTotal, "weightedRandChoice");
++	if (pWeights == NULL)
++		return kItems[iRoll];
++	for (size_t i = 0; i < kItems.size(); i++)
++	{
++		iRoll -= (*pWeights)[i];
++		if (iRoll < 0)
++			return kItems[i];
++	}
++	FErrorMsg("Negative weights?");
++	return NULL;
++}
+ 
+ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed);
+ int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed);
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index aada534f2..d621f2769 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -22,6 +22,7 @@
+ #include "CvInfo_Terrain.h" // advc.pf (for pathfinder initialization)
+ #include "CvInfo_GameOption.h"
+ #include "CvReplayInfo.h" // advc.106n
++#include "BarbarianWeightMap.h" // advc.304
+ #include "CvDLLIniParserIFaceBase.h"
+ 
+ 
+@@ -518,9 +519,13 @@ void CvMap::combinePlotGroups(PlayerTypes ePlayer, CvPlotGroup* pPlotGroup1, CvP
+ CvPlot* CvMap::syncRandPlot(RandPlotFlags eFlags, CvArea const* pArea,
+ 	int iMinCivUnitDistance, // advc.300: Renamed from iMinUnitDistance
+ 	int iTimeout,
+-	int* piValidCount) // advc.304: Number of valid tiles
++	/* <advc.304> */ int* piValidCount, // Number of valid tiles
++	RandPlotWeightMap const* pWeights)
+ {
+-	/*  <advc.304> Look exhaustively for a valid plot by default. Rationale:
++	int iValid_local = 0;
++	int& iValid = (piValidCount == NULL ? iValid_local : *piValidCount);
++	iValid = 0;
++	/*  Look exhaustively for a valid plot by default. Rationale:
+ 		The biggest maps have about 10000 plots. If there is only one valid plot,
+ 		then the BtS default of considering 100 plots drawn at random has only a
+ 		(ca.) 1% chance of success. 10000 trials - slower than exhaustive search! -
+@@ -530,20 +535,23 @@ CvPlot* CvMap::syncRandPlot(RandPlotFlags eFlags, CvArea const* pArea,
+ 	if (iTimeout < 0)
+ 	{
+ 		std::vector<CvPlot*> apValidPlots;
+-		for(int i = 0; i < numPlots(); i++)
++		std::vector<int> aiWeights;
++		for (int i = 0; i < numPlots(); i++)
+ 		{
+ 			CvPlot& kPlot = getPlotByIndex(i);
+ 			if (isValidRandPlot(kPlot, eFlags, pArea, iMinCivUnitDistance))
++			{
+ 				apValidPlots.push_back(&kPlot);
++				if (pWeights != NULL)
++					aiWeights.push_back(pWeights->getProbWeight(kPlot));
++			}
+ 		}
+-		int iValid = (int)apValidPlots.size();
+-		if(piValidCount != NULL)
+-			*piValidCount = iValid;
+-		if(iValid == 0)
+-			return NULL;
+-		return apValidPlots[GC.getGame().getSorenRandNum(iValid, "advc.304")];
++		iValid = (int)apValidPlots.size();
++		return weightedRandChoice(GC.getGame().getSRand(), apValidPlots,
++				pWeights == NULL ? NULL : &aiWeights);
+ 	}
+ 	FAssert(iTimeout != 0);
++	FAssert(pWeights == NULL); // Not compatible with limited trials
+ 	/*  BtS code (refactored): Limited number of trials
+ 		(can be faster or slower than the above; that's not really the point) */
+ 	// </advc.304>
+@@ -553,15 +561,12 @@ CvPlot* CvMap::syncRandPlot(RandPlotFlags eFlags, CvArea const* pArea,
+ 				GC.getGame().getSorenRandNum(getGridWidth(), "Rand Plot Width"),
+ 				GC.getGame().getSorenRandNum(getGridHeight(), "Rand Plot Height"));
+ 		if (isValidRandPlot(kTestPlot, eFlags, pArea, iMinCivUnitDistance))
+-		{	/*  <advc.304> Not useful, but want to make sure it doesn't stay
+-				uninitialized. 1 since we found only 1 valid plot. */
+-			if(piValidCount != NULL)
+-				*piValidCount = 1; // </advc.304>
++		{	/*  <advc.304> Not going to be useful ...
++				Use 1 to indicate that we found one valid plot. */
++			iValid = 1; // </advc.304>
+ 			return &kTestPlot;
+ 		}
+-	} // <advc.304>
+-	if(piValidCount != NULL)
+-		*piValidCount = 0; // </advc.304>
++	}
+ 	return NULL;
+ }
+ 
+@@ -1155,6 +1160,10 @@ void CvMap::read(FDataStreamBase* pStream)
+ 		m_aiNumBonus.readArray<int>(pStream);
+ 		m_aiNumBonusOnLand.readArray<int>(pStream);
+ 	}
++	// <advc.304>
++	if (uiFlag >= 5)
++		GC.getGame().getBarbarianWeightMap().getActivityMap().read(pStream);
++	// </advc.304>
+ 	if (numPlots() > 0)
+ 	{
+ 		m_pMapPlots = new CvPlot[numPlots()];
+@@ -1205,7 +1214,8 @@ void CvMap::write(FDataStreamBase* pStream)
+ 	//uiFlag = 1; // advc.106n
+ 	//uiFlag = 2; // advc.opt: CvPlot::m_bAnyIsthmus
+ 	//uiFlag = 3; // advc.opt: m_ePlots
+-	uiFlag = 4; // advc.enum: new enum map save behavior
++	//uiFlag = 4; // advc.enum: new enum map save behavior
++	uiFlag = 5; // advc.304: Barbarian weight map
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iGridWidth);
+@@ -1223,6 +1233,9 @@ void CvMap::write(FDataStreamBase* pStream)
+ 	FAssertMsg((0 < GC.getNumBonusInfos()), "GC.getNumBonusInfos() is not greater than zero but an array is being allocated");
+ 	m_aiNumBonus.write(pStream);
+ 	m_aiNumBonusOnLand.write(pStream);
++	/*	advc.304: Serialize this for CvGame b/c the map size isn't known
++		when CvGame gets deserialized. (kludge) */
++	GC.getGame().getBarbarianWeightMap().getActivityMap().write(pStream);
+ 	REPRO_TEST_END_WRITE();
+ 	for (int i = 0; i < numPlots(); i++)
+ 		m_pMapPlots[i].write(pStream);
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 07fb90ebd..16071e580 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -283,7 +283,10 @@ public: // advc: made several functions const
+ 	CvPlot* syncRandPlot(RandPlotFlags eFlags = RANDPLOT_ANY,								// Exposed to Python
+ 			CvArea const* pArea = NULL, // advc: was iArea
+ 			int iMinCivUnitDistance = -1,
+-			int iTimeout = -1, int* piValidCount = NULL); // advc.304 (default timeout was 100)
++			// <advc.304> Default timeout was 100
++			int iTimeout = -1, int* piValidCount = NULL,
++			// NULL means uniform
++			RandPlotWeightMap const* pWeights = NULL); // </advc.304>
+ 	// <advc>
+ 	bool isValidRandPlot(CvPlot const& kPlot, RandPlotFlags eFlags,
+ 			CvArea const* pArea, int iMinCivUnitDistance) const; // </advc>
+@@ -569,6 +572,14 @@ protected:
+ 	void updateNumPlots(); // advc.opt
+ };
+ 
++/*	advc.304: Interface for CvMap::syncRandPlot weights. Would prefer to
++	nest this in CvMap, but that leads to trouble with fwd declarations. */
++class RandPlotWeightMap
++{
++public:
++	virtual int getProbWeight(CvPlot const& kPlot) const { return 100; }
++};
++
+ // advc.enum:
+ namespace plot_num_traits
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 81777a30f..e7a44e6dd 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -12,6 +12,7 @@
+ #include "RiseFall.h" // advc.705
+ #include "PlotRange.h"
+ #include "CvArea.h"
++#include "BarbarianWeightMap.h" // advc.304
+ #include "CvDiploParameters.h"
+ #include "CvInfo_City.h"
+ #include "CvInfo_Terrain.h"
+@@ -3036,6 +3037,13 @@ int CvPlayerAI::AI_targetCityValue(CvCity const& kCity, bool bRandomize,
+ 	/*if (kCity.isAutoRaze(getID()))
+ 		iValue = intdiv::round(iValue + 2, 3);*/ // K-Mod
+ 	// </advc.104d>
++	/*	<advc.304> (On a side note, some adjustments for Barbarians
++		in the code above might not be a bad idea.) */
++	if (isBarbarian())
++	{	/*	Relucant to hit cities where Barbarian units were recently killed
++			(or created; also avoids cities on poor terrain - fair enough). */
++		iValue += GC.getGame().getBarbarianWeightMap().get(kCity.getPlot()) / 10;
++	} // </advc.304>
+ 	return iValue;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 006a6081d..805a66e51 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -10,6 +10,7 @@
+ #include "RiseFall.h" // advc.705
+ #include "PlotRange.h"
+ #include "CvArea.h"
++#include "BarbarianWeightMap.h" // advc.304
+ #include "CvInfo_Command.h"
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+@@ -1449,8 +1450,15 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted)
+ 	if (isDead())
+ 	{
+ 		if (isBarbarian())
++		{
+ 			GET_PLAYER(pDefender->getOwner()).changeWinsVsBarbs(1);
+-
++			// <advc.304>
++			if (!isAnimal())
++			{
++				GC.getGame().getBarbarianWeightMap().getActivityMap().change(
++						getPlot());
++			} // </advc.304>
++		}
+ 		if (!m_pUnitInfo->isHiddenNationality() &&
+ 			!pDefender->getUnitInfo().isHiddenNationality())
+ 		{
+@@ -1498,8 +1506,15 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted)
+ 	else if (pDefender->isDead())
+ 	{
+ 		if (pDefender->isBarbarian())
++		{
+ 			GET_PLAYER(getOwner()).changeWinsVsBarbs(1);
+-
++			// <advc.304>
++			if (!pDefender->isAnimal())
++			{
++				GC.getGame().getBarbarianWeightMap().getActivityMap().change(
++						pDefender->getPlot());
++			} // </advc.304>
++		}
+ 		if (!m_pUnitInfo->isHiddenNationality() &&
+ 			!pDefender->getUnitInfo().isHiddenNationality())
+ 		{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d60759c58..2c3d041bc 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -9,6 +9,7 @@
+ #include "CvPlotGroup.h" // (just for AI_betterPlotBuild)
+ #include "PlotRange.h"
+ #include "CvArea.h"
++#include "BarbarianWeightMap.h" // advc.304
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+ #include "CvInfo_Building.h" // advc.003x: Only needed for the special buildings that GP can construct
+@@ -12473,9 +12474,10 @@ bool CvUnitAI::AI_patrol() // advc: refactored
+ 				iValue += 20000;
+ 			if (!kAdj.isAdjacentOwned())
+ 				iValue += 10000;
+-			// <advc.300>
+-			if (kAdj.isHabitable())
+-				iValue += 5000; // </advc.300>
++			// <advc.304>
++			if (!isAnimal())
++				iValue += GC.getGame().getBarbarianWeightMap().get(kAdj) * 60;
++			// </advc.304>
+ 		}
+ 		else
+ 		{
+@@ -13235,7 +13237,8 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 				/*	Reduce the value if we can see, or remember,
+ 					that the city is well defended.
+ 					Note. This adjustment can be more heavy-handed
+-					because it is harder to feign strong defence than weak defence. */
++					because it is harder to feign strong defence than weak defence.
++					advc (note): Barbarians are never dissuaded (no strength memory). */
+ 				iEnemyDefence = kOurTeam.AI_strengthMemory().get(pLoopCity->getPlot());
+ 				if (iEnemyDefence > iTotalOffence)
+ 				{
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index ab0af9fa0..07792ec3f 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -41,6 +41,7 @@
+     <ClCompile Include="..\AgentIteratorTest.cpp" />
+     <ClCompile Include="..\AIStrengthMemoryMap.cpp" />
+     <ClCompile Include="..\ArmamentForecast.cpp" />
++    <ClCompile Include="..\BarbarianWeightMap.cpp" />
+     <ClCompile Include="..\BBAILog.cpp" />
+     <ClCompile Include="..\CitySiteEvaluator.cpp" />
+     <ClCompile Include="..\CombatOdds.cpp" />
+@@ -207,6 +208,7 @@
+     <ClInclude Include="..\ArithmeticTraits.h" />
+     <ClInclude Include="..\ArithmeticUtils.h" />
+     <ClInclude Include="..\ArmamentForecast.h" />
++    <ClInclude Include="..\BarbarianWeightMap.h" />
+     <ClInclude Include="..\BBAILog.h" />
+     <ClInclude Include="..\BitUtil.h" />
+     <ClInclude Include="..\BoostPythonPCH.h" />
+@@ -594,6 +596,8 @@ nmake clean /NOLOGO</NMakeCleanCommandLine>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-fast|Win32'">
+     <LocalDebuggerEnvironment>_NO_DEBUG_HEAP=1</LocalDebuggerEnvironment>
+     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
++    <LibraryPath>$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib;C:\Program Files (x86)\Visual Leak Detector\lib\Win32</LibraryPath>
++    <ExecutablePath>$(VCInstallDir)bin;$(WindowsSdkDir)bin\NETFX 4.0 Tools;$(WindowsSdkDir)bin;$(VSInstallDir)Common7\Tools\bin;$(VSInstallDir)Common7\tools;$(VSInstallDir)Common7\ide;$(ProgramFiles)\HTML Help Workshop;$(FrameworkSDKDir)\bin;$(MSBuildToolsPath32);$(VSInstallDir);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-opt|Win32'">
+     <LocalDebuggerEnvironment>_NO_DEBUG_HEAP=1</LocalDebuggerEnvironment>
+
+diff --git a/CvGameCoreDLL/Shelf.cpp b/CvGameCoreDLL/Shelf.cpp
+index 94aaac4a4..39b5fe238 100644
+--- a/CvGameCoreDLL/Shelf.cpp
++++ b/CvGameCoreDLL/Shelf.cpp
+@@ -3,7 +3,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "Shelf.h"
+ #include "CvGame.h"
+-#include "CvPlot.h"
++#include "CvMap.h"
+ #include "CvUnit.h"
+ #include "CvPlayer.h"
+ 
+@@ -15,18 +15,19 @@ void Shelf::add(CvPlot* pPlot)
+ 
+ 
+ CvPlot* Shelf::randomPlot(RandPlotFlags eRestrictions, int iUnitDistance,
+-	int* piLegalCount) const
++	int* piValidCount, RandPlotWeightMap const* pWeights) const
+ {
+-	int iLegal_local=0;
+-	int& iLegal = (piLegalCount == NULL ? iLegal_local : *piLegalCount);
++	int iValid_local=0;
++	int& iValid = (piValidCount == NULL ? iValid_local : *piValidCount);
+ 	/*	Based on CvMap::syncRandPlot, but shelves are (normally) so small
+-		that random sampling isn't efficient. Instead, compute the legal
++		that random sampling isn't efficient. Instead, compute the valid
+ 		plots first, then return one of those at random (NULL if none). */
+-	std::vector<CvPlot*> apLegal;
++	std::vector<CvPlot*> apValid;
++	std::vector<int> aiWeights;
+ 	for (size_t i = 0; i < m_apPlots.size(); i++)
+ 	{
+ 		CvPlot& p = *m_apPlots[i];
+-		bool isLegal = (
++		bool const bValid = (
+ 				!(RANDPLOT_LAND & eRestrictions) &&
+ 				(!(RANDPLOT_UNOWNED & eRestrictions) || !p.isOwned()) &&
+ 				(!(RANDPLOT_ADJACENT_UNOWNED & eRestrictions) || !p.isAdjacentOwned()) &&
+@@ -37,13 +38,16 @@ CvPlot* Shelf::randomPlot(RandPlotFlags eRestrictions, int iUnitDistance,
+ 				!p.isUnit());
+ 		/*	RANDPLOT_PASSIBLE, RANDPLOT_ADJACENT_LAND, RANDPLOT_HABITABLE:
+ 			Ensured by CvMap::computeShelves. */
+-		if (isLegal)
+-			apLegal.push_back(&p);
++		if (bValid)
++		{
++			apValid.push_back(&p);
++			if (pWeights != NULL)
++				aiWeights.push_back(pWeights->getProbWeight(p));
++		}
+ 	}
+-	iLegal = (int)apLegal.size();
+-	if (iLegal == 0)
+-		return NULL;
+-	return apLegal[GC.getGame().getSorenRandNum(iLegal, "random shelf plot")];
++	iValid = apValid.size();
++	return weightedRandChoice(GC.getGame().getSRand(), apValid,
++			pWeights == NULL ? NULL : &aiWeights);
+ }
+
+diff --git a/CvGameCoreDLL/Shelf.h b/CvGameCoreDLL/Shelf.h
+index f50298724..9279eb87f 100644
+--- a/CvGameCoreDLL/Shelf.h
++++ b/CvGameCoreDLL/Shelf.h
+@@ -5,6 +5,7 @@
+ 
+ class CvPlot;
+ class CvUnit;
++class RandPlotWeightMap; // (see CvMap::syncRandPlot)
+ enum RandPlotFlags;
+ 
+ /*	advc.300: New class representing a continental shelf, akin to a CvArea
+@@ -17,7 +18,7 @@ public:
+ 
+ 	void add(CvPlot* pPlot);
+ 	CvPlot* randomPlot(RandPlotFlags eRestrictions, int iUnitDistance,
+-			int* piLegalCount = NULL) const;
++			int* piValidCount = NULL, RandPlotWeightMap const* pWeights = NULL) const;
+ 	int size() const { return (int)m_apPlots.size(); }
+ 	int countUnownedPlots() const;
+ 	int countBarbarians() const;
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=16 omittedFiles=0 embeddedPatchBytes=30680

@@ -1,0 +1,324 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 338
+# Commit: 66d500f77a8ec949a98e892b9dfe9ac3b7a1ad50
+# History segment: K-Mod history
+# Parent used for diff: a7bdd03af78a1d2355cf78b4a8aa0fe44cc2d8f7
+# Title: Added the stack promotions option from the latest version of the BUG mod.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	0	Assets/Config/BUG Main Interface.xml
+20	2	Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+78	12	Assets/Python/Screens/CvMainInterface.py
+65	0	Assets/xml/Text/BUG Main Interface Options.xml
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index a15b10684..eb8660a50 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -85,6 +85,20 @@
+ 					type="boolean" default="False" 
+ 					get="isShowStackMovementPoints" dirtyBit="InfoPane"/>
+ 
++			<!-- Stack Promotions -->
++			<option id="StackPromotions" key="Stack Promotions"
++					type="boolean" default="False"
++					get="isShowStackPromotions" dirtyBit="InfoPane"/>
++			<option id="StackPromotionCounts" key="Stack Promotion Counts"
++					type="boolean" default="False"
++					get="isShowStackPromotionCounts" dirtyBit="InfoPane"/>
++			<option id="StackPromotionColor" key="Stack Promotion Color"
++					type="color" default="COLOR_GREEN"
++					get="getStackPromotionColor" dirtyBit="InfoPane"/>
++			<option id="StackPromotionColorAll" key="Stack Promotion Color All"
++					type="color" default="COLOR_MAGENTA"
++					get="getStackPromotionColorAll" dirtyBit="InfoPane"/>
++
+ 			<!-- Build/Action Icon Size by EmperorFool -->
+ 			<list   id="BuildIconSize" key="Build Icon Size" 
+ 					type="int" default="1" listType="string"
+
+diff --git a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+index ebad2db91..daf03120b 100644
+--- a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+@@ -31,7 +31,12 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addSpacer(screen, center, "General3")
+ 		#self.createActionsPanel(screen, center)
+ 
++		self.createInfoPanePanel(screen, center)
++		self.addSpacer(screen, right, "General4")
+ 		self.createMiscellaneousPanel(screen, right)
++#		if Buffy.isEnabled():
++#			self.addSpacer(screen, right, "General5")
++#			self.createBuffyPanel(screen, right)
+ 
+ 	def createGreatPersonGeneralPanel(self, screen, panel):
+ 		self.addLabel(screen, panel, "ProgressBars", "Progress Bars:")
+@@ -66,13 +71,26 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addTextDropdown(screen, panel, panel, "TechWindow__ViewType", True)
+ 		self.addCheckbox(screen, panel, "TechWindow__CivilopediaText")
+ 
++#	def createBuffyPanel(self, screen, panel):
++#		self.addLabel(screen, panel, "BUFFY", "BUFFY:")
++#		self.addCheckbox(screen, panel, "BUFFY__WarningsDawnOfMan")
++#		self.addCheckbox(screen, panel, "BUFFY__WarningsSettings")
++
++	def createInfoPanePanel(self, screen, panel):
++		self.addLabel(screen, panel, "InfoPane", "Unit/Stack Info:")
++		self.addCheckbox(screen, panel, "MainInterface__UnitMovementPointsFraction")
++		self.addCheckbox(screen, panel, "MainInterface__StackMovementPoints")
++		self.addCheckbox(screen, panel, "MainInterface__StackPromotions")
++		left, center, right = self.addThreeColumnLayout(screen, panel, "StackPromotionColors")
++		self.addCheckbox(screen, left, "MainInterface__StackPromotionCounts", True)
++		self.addColorDropdown(screen, center, right, "MainInterface__StackPromotionColor", False)
++		self.addColorDropdown(screen, center, right, "MainInterface__StackPromotionColorAll", False)
++		
+ 	def createMiscellaneousPanel(self, screen, panel):
+ 		self.addLabel(screen, panel, "Misc", "Misc:")
+ 		self.addCheckbox(screen, panel, "MainInterface__GoldRateWarning")
+ 		self.addCheckbox(screen, panel, "MainInterface__MinMax_Commerce")
+ 		self.addCheckbox(screen, panel, "MainInterface__ProgressBarsTickMarks")
+-		self.addCheckbox(screen, panel, "MainInterface__UnitMovementPointsFraction")
+-		self.addCheckbox(screen, panel, "MainInterface__StackMovementPoints")
+ 		self.addTextDropdown(screen, panel, panel, "MainInterface__BuildIconSize", True)
+ 		self.addCheckbox(screen, panel, "MainInterface__CityArrows")
+ 		self.addCheckbox(screen, panel, "MainInterface__RapidUnitCycling")
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 106945004..7cdee291f 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -29,13 +29,6 @@ import ReligionUtil
+ # BUG - Limit/Extra Religions - end
+ 
+ # BUG - PLE - start
+-import MonkeyTools as mt
+-import string
+-from AStarTools import *
+-import PyHelpers 
+-import UnitUtil
+-PyPlayer = PyHelpers.PyPlayer
+-
+ PleOpt = BugCore.game.PLE
+ # BUG - PLE - end
+ 
+@@ -990,10 +983,17 @@ class CvMainInterface:
+ 		# *********************************************************************************
+ 
+ 		i = 0
++		szCircleArt = ArtFileMgr.getInterfaceArtInfo("WHITE_CIRCLE_40").getPath()
+ 		for i in range(gc.getNumPromotionInfos()):
+ 			szName = "PromotionButton" + str(i)
+-			screen.addDDSGFC( szName, gc.getPromotionInfo(i).getButton(), 180, yResolution - 18, 24, 24, WidgetTypes.WIDGET_ACTION, gc.getPromotionInfo(i).getActionInfoIndex(), -1 )
++			screen.addDDSGFC( szName, gc.getPromotionInfo(i).getButton(), 180, yResolution - 18, 24, 24, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, i, -1 )
++			screen.hide( szName )
++# BUG - Stack Promotions - start
++			szName = "PromotionButtonCircle" + str(i)
++			x, y = self.calculatePromotionButtonPosition(screen, i)
++			screen.addDDSGFC( szName, szCircleArt, x + 10, y + 10, 16, 16, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, i, -1 )
+ 			screen.hide( szName )
++# BUG - Stack Promotions - end
+ 
+ # BUG - PLE - begin
+ 			szName = self.PLE.PLE_PROMO_BUTTONS_UNITINFO + str(i)
+@@ -1818,6 +1818,14 @@ class CvMainInterface:
+ 		for i in range(gc.getNumPromotionInfos()):
+ 			szName = "PromotionButton" + str(i)
+ 			screen.moveToFront( szName )
++# BUG - Stack Promotions - start
++		for i in range(gc.getNumPromotionInfos()):
++			szName = "PromotionButtonCircle" + str(i)
++			screen.moveToFront( szName )
++		for i in range(gc.getNumPromotionInfos()):
++			szName = "PromotionButtonCount" + str(i)
++			screen.moveToFront( szName )
++# BUG - Stack Promotions - end
+ 
+ 		screen.hide( "PlotListMinus" )
+ 		screen.hide( "PlotListPlus" )
+@@ -1940,6 +1948,14 @@ class CvMainInterface:
+ 		for i in range(gc.getNumPromotionInfos()):
+ 			szName = "PromotionButton" + str(i)
+ 			screen.moveToFront( szName )
++# BUG - Stack Promotions - start
++		for i in range(gc.getNumPromotionInfos()):
++			szName = "PromotionButtonCircle" + str(i)
++			screen.moveToFront( szName )
++		for i in range(gc.getNumPromotionInfos()):
++			szName = "PromotionButtonCount" + str(i)
++			screen.moveToFront( szName )
++# BUG - Stack Promotions - end
+ 
+ #		screen.hide( "PlotListMinus" )
+ #		screen.hide( "PlotListPlus" )
+@@ -4477,6 +4493,12 @@ class CvMainInterface:
+ 		for i in range(gc.getNumPromotionInfos()):
+ 			szName = "PromotionButton" + str(i)
+ 			screen.hide( szName )
++# BUG - Stack Promotions - start
++			szName = "PromotionButtonCircle" + str(i)
++			screen.hide( szName )
++			szName = "PromotionButtonCount" + str(i)
++			screen.hide( szName )
++# BUG - Stack Promotions - end
+ 		
+ 		if CyEngine().isGlobeviewUp():
+ 			return
+@@ -4603,6 +4625,46 @@ class CvMainInterface:
+ 				screen.setText( "SelectedUnitLabel", "Background", szBuffer, CvUtil.FONT_LEFT_JUSTIFY, 18, yResolution - 137, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_UNIT_NAME, -1, -1 )
+ # BUG - Stack Movement Display - end
+ 				
++# BUG - Stack Promotions - start
++				if MainOpt.isShowStackPromotions():
++					iNumPromotions = gc.getNumPromotionInfos()
++					lPromotionCounts = [0] * iNumPromotions
++					iNumUnits = CyInterface().getLengthSelectionList()
++					for i in range(iNumUnits):
++						pUnit = CyInterface().getSelectionUnit(i)
++						if (pUnit is not None):
++							for j in range(iNumPromotions):
++								if (pUnit.isHasPromotion(j)):
++									lPromotionCounts[j] += 1
++					
++					iSPColor = MainOpt.getStackPromotionColor()
++					iSPColorAll = MainOpt.getStackPromotionColorAll()
++					iPromotionCount = 0
++					bShowCount = MainOpt.isShowStackPromotionCounts()
++					for i, iCount in enumerate(lPromotionCounts):
++						if (iCount > 0):
++							szName = "PromotionButton" + str(i)
++							x, y = self.setPromotionButtonPosition( szName, iPromotionCount )
++							screen.moveToFront( szName )
++							screen.show( szName )
++							if (bShowCount and iCount > 1):
++								szName = "PromotionButtonCircle" + str(i)
++								screen.moveItem( szName, x + 10, y + 10, -0.3 )
++								screen.moveToFront( szName )
++								screen.show( szName )
++								szName = "PromotionButtonCount" + str(iPromotionCount)
++								szText = u"<font=2>%d</font>" % iCount
++								if iCount == iNumUnits:
++									szText = BugUtil.colorText(szText, iSPColorAll)
++								else:
++									szText = BugUtil.colorText(szText, iSPColor)
++								screen.setText( szName, "Background", szText, CvUtil.FONT_CENTER_JUSTIFY, x + 17, y + 7, -0.2, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, i, -1 )
++								screen.setHitTest( szName, HitTestTypes.HITTEST_NOHIT )
++								screen.moveToFront( szName )
++								screen.show( szName )
++							iPromotionCount += 1
++# BUG - Stack Promotions - end
++				
+ 				if ((pSelectedGroup == 0) or (pSelectedGroup.getLengthMissionQueue() <= 1)):
+ 					if (pHeadSelectedUnit):
+ 						for i in range(gc.getNumUnitInfos()):
+@@ -5140,11 +5202,15 @@ class CvMainInterface:
+ 		
+ 		screen = CyGInterfaceScreen( "MainInterface", CvScreenEnums.MAIN_INTERFACE )
+ 		
+-		# Find out our resolution
+-		yResolution = screen.getYResolution()
++# BUG - Stack Promotions - start
++		x, y = self.calculatePromotionButtonPosition(screen, iPromotionCount)
++		screen.moveItem( szName, x, y, -0.3 )
++		return x, y
++# BUG - Stack Promotions - end
+ 	
+-		if ( CyInterface().getShowInterface() == InterfaceVisibility.INTERFACE_SHOW ):
+-			screen.moveItem( szName, 266 - (24 * (iPromotionCount / 6)), yResolution - 144 + (24 * (iPromotionCount % 6)), -0.3 )
++	def calculatePromotionButtonPosition( self, screen, iPromotionCount ):
++		yResolution = screen.getYResolution()
++		return (266 - (24 * (iPromotionCount / 6)), yResolution - 144 + (24 * (iPromotionCount % 6)))
+ 
+ 	# Will set the selection button position
+ 	def setResearchButtonPosition( self, szButtonID, iCount ):
+
+diff --git a/Assets/xml/Text/BUG Main Interface Options.xml b/Assets/xml/Text/BUG Main Interface Options.xml
+index 9ae69bf07..bea79ed37 100644
+--- a/Assets/xml/Text/BUG Main Interface Options.xml	
++++ b/Assets/xml/Text/BUG Main Interface Options.xml	
+@@ -241,6 +241,71 @@
+ 		<Spanish>When checked, shows the minimum and maximum Movement Points for all selected units in the Info Pane.</Spanish>
+ 	</TEXT>
+ 	
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONS_TEXT</Tag>
++		<English>Stack Promotions</English>
++		<French>Stack Promotions</French>
++		<German>Einheitenverband-Bef�rderungen</German>
++		<Italian>Stack Promotions</Italian>
++		<Spanish>Stack Promotions</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONS_HOVER</Tag>
++		<English>When checked, shows the promotions possessed by at least one unit in the stack.</English>
++		<French>When checked, shows the promotions possessed by at least one unit in the stack.</French>
++		<German>Zeigt die Bef�rderungen an, �ber die mindestens eine Einheit in einem Einheitenverband verf�gt</German>
++		<Italian>When checked, shows the promotions possessed by at least one unit in the stack.</Italian>
++		<Spanish>When checked, shows the promotions possessed by at least one unit in the stack.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOUNTS_TEXT</Tag>
++		<English>Counts</English>
++		<French>Counts</French>
++		<German>Anzahl anzeigen</German>
++		<Italian>Counts</Italian>
++		<Spanish>Counts</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOUNTS_HOVER</Tag>
++		<English>When checked, shows the number of units in a stack that possess each promotion if more than one.</English>
++		<French>When checked, shows the number of units in a stack that possess each promotion if more than one.</French>
++		<German>Zeigt die Anzahl der Einheiten in einem Einheitenverband an, die �ber eine bestimmte Bef�rderung verf�gen, falls dies bei mehr als einer der Fall ist</German>
++		<Italian>When checked, shows the number of units in a stack that possess each promotion if more than one.</Italian>
++		<Spanish>When checked, shows the number of units in a stack that possess each promotion if more than one.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOLOR_TEXT</Tag>
++		<English>Some</English>
++		<French>Some</French>
++		<German>Manche</German>
++		<Italian>Some</Italian>
++		<Spanish>Some</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOLOR_HOVER</Tag>
++		<English>When checked, shows the number of units in a stack that possess each promotion if more than one.</English>
++		<French>When checked, shows the number of units in a stack that possess each promotion if more than one.</French>
++		<German>Zeigt die Anzahl der Einheiten in einem Einheitenverband an, die �ber eine bestimmte Bef�rderung verf�gen, falls dies bei mehr als einer der Fall ist</German>
++		<Italian>When checked, shows the number of units in a stack that possess each promotion if more than one.</Italian>
++		<Spanish>When checked, shows the number of units in a stack that possess each promotion if more than one.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOLORALL_TEXT</Tag>
++		<English>All</English>
++		<French>All</French>
++		<German>Alle</German>
++		<Italian>All</Italian>
++		<Spanish>All</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOLORALL_HOVER</Tag>
++		<English>When checked, shows the number of units in a stack that possess each promotion if more than one.</English>
++		<French>When checked, shows the number of units in a stack that possess each promotion if more than one.</French>
++		<German>Zeigt die Anzahl der Einheiten in einem Einheitenverband an, die �ber eine bestimmte Bef�rderung verf�gen, falls dies bei mehr als einer der Fall ist</German>
++		<Italian>When checked, shows the number of units in a stack that possess each promotion if more than one.</Italian>
++		<Spanish>When checked, shows the number of units in a stack that possess each promotion if more than one.</Spanish>
++	</TEXT>
++	
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__BUILDICONSIZE_TEXT</Tag>
+ 		<English>Build/Action Icon Size</English>
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=14335

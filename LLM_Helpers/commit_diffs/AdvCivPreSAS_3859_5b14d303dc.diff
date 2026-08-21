@@ -1,0 +1,523 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3859
+# Commit: 5b14d303dc82db2936b088bad70b2826be91fe8e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b637f0a08d8bab98fcc452eeca4b589a474794d0
+# Title: Refactor/ rewrite init of unit action type IDs
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	0	Assets/XML/Text/CIV4GameText_advc.xml
+1	0	Assets/XML/Units/CIV4UnitSchema.xml
+1	1	CvGameCoreDLL/CvEnums.h
+30	30	CvGameCoreDLL/CvInfo_Command.cpp
+6	3	CvGameCoreDLL/CvInfo_Command.h
+88	111	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 0ef3d7ab6..ea982d3f8 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -1096,6 +1096,18 @@
+ 		<Spanish>Nueva l&#237;nea</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004g: Originally in CIV4GameTextInfos.xml, saying "creates a group"
++		 which I find confusing as only one unit is selected. Translations based
++		 on TXT_KEY_WIDGET_DELETE_GROUP in the same original file. -->
++	<TEXT> <!-- redefine -->
++		<Tag>TXT_KEY_WIDGET_CREATE_GROUP</Tag>
++		<English>Separate from Group</English>
++		<French>S�parer du groupe</French>
++		<German>Aus der Gruppe l�sen</German>
++		<Italian>Separa dal gruppo</Italian>
++		<Spanish>Separa del grupo</Spanish>
++	</TEXT>
++
+ 	<!-- advc.004: To be appended to TXT_KEY_MISC_*CREASE_RATE_HINT -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_INCREASE_RATE_HINT</Tag>
+
+diff --git a/Assets/XML/Units/CIV4UnitSchema.xml b/Assets/XML/Units/CIV4UnitSchema.xml
+index 3d5d4e821..652beb209 100644
+--- a/Assets/XML/Units/CIV4UnitSchema.xml
++++ b/Assets/XML/Units/CIV4UnitSchema.xml
+@@ -41,6 +41,7 @@
+ 	<ElementType name="bShiftDownAlt" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="bCtrlDownAlt" content="textOnly" dt:type="boolean"/>
+ 	<ElementType name="iHotKeyPriorityAlt" content="textOnly" dt:type="int"/>
++	<!-- advc (note): Set to 5 by default in the DLL -->
+ 	<ElementType name="iOrderPriority" content="textOnly" dt:type="int"/>
+ 	<ElementType name="BuildInfo" content="eltOnly">
+ 		<element type="Type"/>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 41346df49..9ba08fb12 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -991,7 +991,7 @@ ENUM_START(Command, COMMAND)
+ 	COMMAND_UNLOAD,
+ 	COMMAND_UNLOAD_ALL,
+ 	COMMAND_HOTKEY,
+-	// Any additions need to be reflected in Civ4CommandInfos.xml
++	// Any changes need to be reflected in Civ4CommandInfos.xml
+ ENUM_END(Command, COMMAND)
+ 
+ ENUM_START(Control, CONTROL)
+
+diff --git a/CvGameCoreDLL/CvInfo_Command.cpp b/CvGameCoreDLL/CvInfo_Command.cpp
+index ee5b588ad..008672058 100644
+--- a/CvGameCoreDLL/CvInfo_Command.cpp
++++ b/CvGameCoreDLL/CvInfo_Command.cpp
+@@ -92,7 +92,7 @@ bool CvAutomateInfo::read(CvXMLLoadUtility* pXML)
+ }
+ 
+ CvActionInfo::CvActionInfo() :
+-m_iOriginalIndex(-1),
++m_iSubID(-1),
+ m_eSubType(NO_ACTIONSUBTYPE)
+ {}
+ 
+@@ -104,7 +104,7 @@ int CvActionInfo::getMissionData() const
+ 		ACTIONSUBTYPE_SPECIALIST == m_eSubType	||
+ 		ACTIONSUBTYPE_BUILDING == m_eSubType)
+ 	{
+-		return m_iOriginalIndex;
++		return m_iSubID;
+ 	}
+ 	return -1;
+ }
+@@ -115,11 +115,11 @@ int CvActionInfo::getCommandData() const
+ 	{
+ 	case ACTIONSUBTYPE_PROMOTION:
+ 	case ACTIONSUBTYPE_UNIT:
+-		return m_iOriginalIndex;
++		return m_iSubID;
+ 	case ACTIONSUBTYPE_COMMAND:
+-		return GC.getInfo((CommandTypes)m_iOriginalIndex).getAutomate();
++		return GC.getInfo((CommandTypes)m_iSubID).getAutomate();
+ 	case ACTIONSUBTYPE_AUTOMATE:
+-		return GC.getInfo((AutomateTypes)m_iOriginalIndex).getAutomate();
++		return GC.getInfo((AutomateTypes)m_iSubID).getAutomate();
+ 	default:
+ 		return -1;
+ 	}
+@@ -130,9 +130,9 @@ int CvActionInfo::getAutomateType() const
+ 	switch(getSubType())
+ 	{
+ 	case ACTIONSUBTYPE_COMMAND:
+-		return GC.getInfo((CommandTypes)m_iOriginalIndex).getAutomate();
++		return GC.getInfo((CommandTypes)m_iSubID).getAutomate();
+ 	case ACTIONSUBTYPE_AUTOMATE:
+-		return GC.getInfo((AutomateTypes)m_iOriginalIndex).getAutomate();
++		return GC.getInfo((AutomateTypes)m_iSubID).getAutomate();
+ 	default:
+ 		return NO_AUTOMATE;
+ 	}
+@@ -141,7 +141,7 @@ int CvActionInfo::getAutomateType() const
+ int CvActionInfo::getInterfaceModeType() const
+ {
+ 	if (ACTIONSUBTYPE_INTERFACEMODE == m_eSubType)
+-		return m_iOriginalIndex;
++		return m_iSubID;
+ 
+ 	return NO_INTERFACEMODE;
+ }
+@@ -151,17 +151,17 @@ int CvActionInfo::getMissionType() const
+ 	switch(getSubType())
+ 	{
+ 	case ACTIONSUBTYPE_BUILD:
+-		return (MissionTypes)GC.getInfo((BuildTypes)m_iOriginalIndex).getMissionType();
++		return (MissionTypes)GC.getInfo((BuildTypes)m_iSubID).getMissionType();
+ 	case ACTIONSUBTYPE_RELIGION:
+-		return GC.getInfo((ReligionTypes)m_iOriginalIndex).getMissionType();
++		return GC.getInfo((ReligionTypes)m_iSubID).getMissionType();
+ 	case ACTIONSUBTYPE_CORPORATION:
+-		return GC.getInfo((CorporationTypes)m_iOriginalIndex).getMissionType();
++		return GC.getInfo((CorporationTypes)m_iSubID).getMissionType();
+ 	case ACTIONSUBTYPE_SPECIALIST:
+-		return (MissionTypes)GC.getInfo((SpecialistTypes)m_iOriginalIndex).getMissionType();
++		return (MissionTypes)GC.getInfo((SpecialistTypes)m_iSubID).getMissionType();
+ 	case ACTIONSUBTYPE_BUILDING:
+-		return GC.getInfo((BuildingTypes)m_iOriginalIndex).getMissionType();
++		return GC.getInfo((BuildingTypes)m_iSubID).getMissionType();
+ 	case ACTIONSUBTYPE_MISSION:
+-		return (MissionTypes)m_iOriginalIndex;
++		return (MissionTypes)m_iSubID;
+ 	default:
+ 		return NO_MISSION;
+ 	}
+@@ -172,13 +172,13 @@ int CvActionInfo::getCommandType() const
+ 	switch(getSubType())
+ 	{
+ 	case ACTIONSUBTYPE_PROMOTION:
+-		return (CommandTypes)GC.getInfo((PromotionTypes)m_iOriginalIndex).getCommandType();
++		return (CommandTypes)GC.getInfo((PromotionTypes)m_iSubID).getCommandType();
+ 	case ACTIONSUBTYPE_UNIT:
+-		return (CommandTypes)GC.getInfo((UnitTypes)m_iOriginalIndex).getCommandType();
++		return (CommandTypes)GC.getInfo((UnitTypes)m_iSubID).getCommandType();
+ 	case ACTIONSUBTYPE_AUTOMATE:
+-		return (CommandTypes)GC.getInfo((AutomateTypes)m_iOriginalIndex).getCommand();
++		return (CommandTypes)GC.getInfo((AutomateTypes)m_iSubID).getCommand();
+ 	case ACTIONSUBTYPE_COMMAND:
+-		return (CommandTypes)m_iOriginalIndex;
++		return (CommandTypes)m_iSubID;
+ 	default:
+ 		return NO_COMMAND;
+ 	}
+@@ -187,19 +187,19 @@ int CvActionInfo::getCommandType() const
+ int CvActionInfo::getControlType() const
+ {
+ 	if (ACTIONSUBTYPE_CONTROL == m_eSubType)
+-		return m_iOriginalIndex;
++		return m_iSubID;
+ 
+ 	return -1;
+ }
+ 
+-int CvActionInfo::getOriginalIndex() const
++int CvActionInfo::getSubID() const
+ {
+-	return m_iOriginalIndex;
++	return m_iSubID;
+ }
+ 
+-void CvActionInfo::setOriginalIndex(int i)
++void CvActionInfo::setSubID(int i)
+ {
+-	m_iOriginalIndex = i;
++	m_iSubID = i;
+ }
+ 
+ bool CvActionInfo::isConfirmCommand() const
+@@ -207,9 +207,9 @@ bool CvActionInfo::isConfirmCommand() const
+ 	switch(getSubType()) // advc (replacing if/else)
+ 	{
+ 	case ACTIONSUBTYPE_COMMAND:
+-		return GC.getInfo((CommandTypes)m_iOriginalIndex).getConfirmCommand();
++		return GC.getInfo((CommandTypes)m_iSubID).getConfirmCommand();
+ 	case ACTIONSUBTYPE_AUTOMATE:
+-		return GC.getInfo((AutomateTypes)m_iOriginalIndex).getConfirmCommand();
++		return GC.getInfo((AutomateTypes)m_iSubID).getConfirmCommand();
+ 	default:
+ 		return false;
+ 	}
+@@ -222,13 +222,13 @@ bool CvActionInfo::isVisible() const
+ 	case ACTIONSUBTYPE_CONTROL:
+ 		return false;
+ 	case ACTIONSUBTYPE_COMMAND:
+-		return GC.getInfo((CommandTypes)m_iOriginalIndex).getVisible();
++		return GC.getInfo((CommandTypes)m_iSubID).getVisible();
+ 	case ACTIONSUBTYPE_AUTOMATE:
+-		return GC.getInfo((AutomateTypes)m_iOriginalIndex).getVisible();
++		return GC.getInfo((AutomateTypes)m_iSubID).getVisible();
+ 	case ACTIONSUBTYPE_MISSION:
+-		return GC.getInfo((MissionTypes)m_iOriginalIndex).getVisible();
++		return GC.getInfo((MissionTypes)m_iSubID).getVisible();
+ 	case ACTIONSUBTYPE_INTERFACEMODE:
+-		return GC.getInfo((InterfaceModeTypes)m_iOriginalIndex).getVisible();
++		return GC.getInfo((InterfaceModeTypes)m_iSubID).getVisible();
+ 	default:
+ 		return true;
+ 	}
+@@ -246,7 +246,7 @@ void CvActionInfo::setSubType(ActionSubTypes eSubType)
+ 
+ CvHotkeyInfo* CvActionInfo::getHotkeyInfo() const
+ {
+-	int const iData = m_iOriginalIndex;
++	int const iData = m_iSubID;
+ 	switch(getSubType())
+ 	{
+ 		case ACTIONSUBTYPE_INTERFACEMODE:
+
+diff --git a/CvGameCoreDLL/CvInfo_Command.h b/CvGameCoreDLL/CvInfo_Command.h
+index 7cc9f4439..539003cb2 100644
+--- a/CvGameCoreDLL/CvInfo_Command.h
++++ b/CvGameCoreDLL/CvInfo_Command.h
+@@ -98,8 +98,11 @@ public:
+ 	DllExport int getMissionType() const; // Exposed to Python
+ 	int getCommandType() const; // Exposed to Python
+ 	int getControlType() const; // Exposed to Python
+-	int getOriginalIndex() const;
+-	void setOriginalIndex(int i);
++	/*	<advc> Renamed from "OriginalIndex". It's what the user is supposed to
++		cast to the enum type indicated by getSubType. E.g. MISSION_SLEEP
++		if this action represents the Sleep mission. */
++	int getSubID() const;
++	void setSubID(int i); // </advc>
+ 
+ 	bool isConfirmCommand() const; // Exposed to Python
+ 	DllExport bool isVisible() const; // Exposed to Python
+@@ -114,7 +117,7 @@ public:
+ 	DllExport bool isCtrlDownAlt() const;
+ 
+ protected:
+-	int m_iOriginalIndex;
++	int m_iSubID;
+ 	ActionSubTypes m_eSubType;
+ 
+ private:
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 02aaead50..c5a9c3588 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -940,59 +940,48 @@ namespace // advc: To get rid of some duplicate code in SetGlobalActionInfo
+ 				hotkeyDescr::hotKeyFromDescription(kInfo.getHotKey(),
+ 				kInfo.isShiftDown(), kInfo.isAltDown(), kInfo.isCtrlDown()));
+ 	}
+-}
+-
+-
+-struct OrderIndex {int m_iPriority; int m_iIndex;}; // helper sort predicate
+-bool sortHotkeyPriority(OrderIndex const orderIndex1, OrderIndex const orderIndex2)
+-{
+-	return (orderIndex1.m_iPriority > orderIndex2.m_iPriority);
++	// Replacing OrderIndex struct, sortHotkeyPriority function.
++	struct ActionData
++	{
++		ActionData(int iPriority, ActionSubTypes eSubType, int iSubID)
++			:	m_iPriority(iPriority), m_eSubType(eSubType), m_iSubID(iSubID) {}
++		int m_iPriority;
++		ActionSubTypes m_eSubType; // e.g. ACTIONSUBTYPE_MISSION
++		int m_iSubID; // e.g. MISSION_SLEEP
++	};
++	bool operator<(ActionData const& kFirst, ActionData const& kSecond)
++	{
++		// Let stable_sort handle ties
++		return (kFirst.m_iPriority > kSecond.m_iPriority);
++	}
+ }
+ 
+ /*	Looks for szTagName in XML and, if it exists, loads its value into ppActionInfo
+-	and sets iNumVals to the total number of occurrences of szTagName in XML.
+-	advc: Refactored using vectors, macros. */
++	and sets iNumVals to the total number of occurrences of szTagName in XML. */
+ void CvXMLLoadUtility::SetGlobalActionInfo()
+ {
++	/*	advc: Pasted the body of orderHotkeyInfo here, then deleted that function.
++		Also deleted the pre-BtS functions (already commented out) orderHotkeyInfoOld,
++		sortHotkeyPriorityOld. Then rewrote SetGlobalActionInfo in a less clumsy way.
++		With CvActionInfo::getSubType exported from the DLL, the approach of
++		explicitly storing (sub-)type IDs can't easily be abandoned. */
+ 	PROFILE_FUNC();
+ 	logMsg("SetGlobalActionInfo\n");
+ 
+-	int const iOldActionInfos = GC.getNumActionInfos();
+-	int const iActionInfos = iOldActionInfos +
+-			NUM_INTERFACEMODE_TYPES +
+-			GC.getNumBuildInfos() +
+-			GC.getNumPromotionInfos() +
+-			GC.getNumReligionInfos() +
+-			GC.getNumCorporationInfos() +
+-			GC.getNumUnitInfos() +
+-			GC.getNumSpecialistInfos() +
+-			GC.getNumBuildingInfos() +
+-			NUM_CONTROL_TYPES +
+-			NUM_COMMAND_TYPES +
+-			NUM_AUTOMATE_TYPES +
+-			NUM_MISSION_TYPES;
+-	std::vector<int> aiIndexList(iActionInfos);
+-	std::vector<int> aiPriorityList(iActionInfos);
+-	std::vector<int> aiActionInfoTypeList(iActionInfos);
+-	int iTotalActionInfos = 0;
++	// Originally named "iOldActionInfos". Not sure what this is for, modular loading?
++	int const iMissionOffset = GC.getNumActionInfos();
++
++	std::vector<ActionData> aActionData;
+ 	#define SET_ACTION_DATA(EnumName, ActionSubTypeName) \
+ 		FOR_EACH_ENUM(EnumName) \
+ 		{ \
+-		int iLength = enum_traits<EnumName##Types>::length(); \
+-			if (iLength <= 0) \
+-			{ \
+-				char szMessage[1024]; \
+-				sprintf(szMessage, \
+-						"%d is not greater than zero in CvXMLLoadUtility::SetGlobalActionInfo.\nCurrent XML file is: %s", \
+-						iLength, GC.getCurrentXMLFile().GetCString()); \
+-				errorMessage(szMessage); \
+-			} \
+-			/* Safer to use vector::at here (rather than operator[]) */ \
+-			aiIndexList.at(iTotalActionInfos) = eLoop##EnumName; \
+-			aiPriorityList.at(iTotalActionInfos) = GC.getInfo(eLoop##EnumName).getOrderPriority(); \
+-			aiActionInfoTypeList.at(iTotalActionInfos) = ACTIONSUBTYPE_##ActionSubTypeName; \
+-			iTotalActionInfos++; \
++			aActionData.push_back(ActionData( \
++					GC.getInfo(eLoop##EnumName).getOrderPriority(), \
++					ACTIONSUBTYPE_##ActionSubTypeName, \
++					eLoop##EnumName)); \
+ 		}
++	/*	The order of these calls serves as a tie-breaker for action priorities
++		(which determine the order in which actions are displayed on the HUD. */
+ 	SET_ACTION_DATA(Command, COMMAND);
+ 	SET_ACTION_DATA(InterfaceMode, INTERFACEMODE);
+ 	SET_ACTION_DATA(Build, BUILD);
+@@ -1006,97 +995,85 @@ void CvXMLLoadUtility::SetGlobalActionInfo()
+ 	SET_ACTION_DATA(Automate, AUTOMATE);
+ 	SET_ACTION_DATA(Mission, MISSION);
+ 	#undef SET_ACTION_DATA
+-	FAssert(iTotalActionInfos == iActionInfos);
+-
+-	/*	advc: Cut from deleted function orderHotkeyInfo. Also deleted
+-		pre-BtS functions orderHotkeyInfoOld, sortHotkeyPriorityOld that had
+-		already been commented out. */
+-	std::vector<int> aiOrderedIndex(iActionInfos);
+-	std::vector<OrderIndex> aiOrderPriority;
+-	aiOrderPriority.resize(aiOrderedIndex.size());
+-	for (size_t i = 0; i < aiOrderPriority.size(); i++)
+-	{
+-		aiOrderPriority[i].m_iPriority = aiPriorityList[i];
+-		aiOrderPriority[i].m_iIndex = i;
+-	}
+-	std::sort(aiOrderPriority.begin(), aiOrderPriority.end(), sortHotkeyPriority);
+-	for (size_t i = 0; i < aiOrderedIndex.size(); i++)
+-		aiOrderedIndex[i] = aiOrderPriority[i].m_iIndex;
+-
+-	for (int i = 0; i < iActionInfos; i++)
++	/*	Bugfix? Was std::sort. That runs counter to the idea of breaking ties
++		in a deliberate way. */
++	std::stable_sort(aActionData.begin(), aActionData.end());
++	for (int iAction = 0; iAction < (int)aActionData.size(); iAction++)
+ 	{
+ 		CvActionInfo* pActionInfo = new CvActionInfo;
+-		int const iOrdered = aiOrderedIndex[i];
+-		int const iInfo = aiIndexList[iOrdered];
+-		pActionInfo->setOriginalIndex(iInfo);
+-		pActionInfo->setSubType((ActionSubTypes)aiActionInfoTypeList[iOrdered]);
+-		if ((ActionSubTypes)aiActionInfoTypeList[iOrdered] == ACTIONSUBTYPE_COMMAND)
++		pActionInfo->setSubID(aActionData[iAction].m_iSubID);
++		pActionInfo->setSubType(aActionData[iAction].m_eSubType);
++		int const iSubID = pActionInfo->getSubID();
++		switch (pActionInfo->getSubType())
+ 		{
+-			GC.getInfo((CommandTypes)iInfo).setActionInfoIndex(i);
+-		}
+-		else if ((ActionSubTypes)aiActionInfoTypeList[iOrdered] == ACTIONSUBTYPE_INTERFACEMODE)
+-		{
+-			GC.getInfo((InterfaceModeTypes)iInfo).setActionInfoIndex(i);
+-		}
+-		else if ((ActionSubTypes)aiActionInfoTypeList[iOrdered] == ACTIONSUBTYPE_BUILD)
+-		{
+-			GC.getInfo((BuildTypes)iInfo).setMissionType(FindInInfoClass("MISSION_BUILD"));
+-			GC.getInfo((BuildTypes)iInfo).setActionInfoIndex(i);
+-		}
+-		else if ((ActionSubTypes)aiActionInfoTypeList[iOrdered] == ACTIONSUBTYPE_CONTROL)
+-		{
+-			GC.getControlInfo((ControlTypes)iInfo).setActionInfoIndex(i);
+-		}
+-		else if ((ActionSubTypes)aiActionInfoTypeList[iOrdered] == ACTIONSUBTYPE_AUTOMATE)
+-		{
+-			GC.getAutomateInfo((AutomateTypes)iInfo).setActionInfoIndex(i);
+-		}
+-		else if ((ActionSubTypes)aiActionInfoTypeList[iOrdered] == ACTIONSUBTYPE_MISSION)
+-		{
+-			GC.getMissionInfo((MissionTypes)iInfo).setActionInfoIndex(i + iOldActionInfos);
+-		}
+-		else if ((ActionSubTypes)aiActionInfoTypeList[iOrdered] == ACTIONSUBTYPE_PROMOTION)
++		case ACTIONSUBTYPE_COMMAND:
++			GC.getInfo((CommandTypes)iSubID).setActionInfoIndex(iAction);
++			break;
++		case ACTIONSUBTYPE_INTERFACEMODE:
++			GC.getInfo((InterfaceModeTypes)iSubID).setActionInfoIndex(iAction);
++			break;
++		case ACTIONSUBTYPE_BUILD:
++			GC.getInfo((BuildTypes)iSubID).setMissionType(FindInInfoClass("MISSION_BUILD"));
++			GC.getInfo((BuildTypes)iSubID).setActionInfoIndex(iAction);
++			break;
++		case ACTIONSUBTYPE_CONTROL:
++			GC.getControlInfo((ControlTypes)iSubID).setActionInfoIndex(iAction);
++			break;
++		case ACTIONSUBTYPE_AUTOMATE:
++			GC.getAutomateInfo((AutomateTypes)iSubID).setActionInfoIndex(iAction);
++			break;
++		case ACTIONSUBTYPE_MISSION:
++			GC.getMissionInfo((MissionTypes)iSubID).setActionInfoIndex(iAction + iMissionOffset);
++			break;
++		case ACTIONSUBTYPE_PROMOTION:
+ 		{
+-			CvPromotionInfo& kPromo = GC.getInfo((PromotionTypes)iInfo);
++			CvPromotionInfo& kPromo = GC.getInfo((PromotionTypes)iSubID);
+ 			kPromo.setCommandType(FindInInfoClass("COMMAND_PROMOTION"));
+-			setActionData(kPromo, i, (CommandTypes)kPromo.getCommandType());
++			setActionData(kPromo, iAction, (CommandTypes)kPromo.getCommandType());
++			break;
+ 		}
+-		else if ((ActionSubTypes)aiActionInfoTypeList[iOrdered] == ACTIONSUBTYPE_UNIT)
++		case ACTIONSUBTYPE_UNIT:
+ 		{
+-			CvUnitInfo& kUnit = GC.getInfo((UnitTypes)iInfo);
++			CvUnitInfo& kUnit = GC.getInfo((UnitTypes)iSubID);
+ 			kUnit.setCommandType((CommandTypes)FindInInfoClass("COMMAND_UPGRADE"));
+-			kUnit.setActionInfoIndex(i);
+-			setActionData(kUnit, i, kUnit.getCommandType());
++			kUnit.setActionInfoIndex(iAction);
++			setActionData(kUnit, iAction, kUnit.getCommandType());
++			break;
+ 		}
+-		else if ((ActionSubTypes)aiActionInfoTypeList[iOrdered] == ACTIONSUBTYPE_RELIGION)
++		case ACTIONSUBTYPE_RELIGION:
+ 		{
+-			CvReligionInfo& kReligion = GC.getInfo((ReligionTypes)iInfo);
++			CvReligionInfo& kReligion = GC.getInfo((ReligionTypes)iSubID);
+ 			kReligion.setMissionType(FindInInfoClass("MISSION_SPREAD"));
+-			kReligion.setActionInfoIndex(i);
+-			setActionData(kReligion, i, (MissionTypes)kReligion.getMissionType());
++			kReligion.setActionInfoIndex(iAction);
++			setActionData(kReligion, iAction, kReligion.getMissionType());
++			break;
+ 		}
+-		else if ((ActionSubTypes)aiActionInfoTypeList[iOrdered] == ACTIONSUBTYPE_CORPORATION)
++		case ACTIONSUBTYPE_CORPORATION:
+ 		{
+-			CvCorporationInfo& kCorp = GC.getInfo((CorporationTypes)iInfo);
++			CvCorporationInfo& kCorp = GC.getInfo((CorporationTypes)iSubID);
+ 			kCorp.setMissionType(FindInInfoClass("MISSION_SPREAD_CORPORATION"));
+-			kCorp.setActionInfoIndex(i);
+-			setActionData(kCorp, i, (MissionTypes)kCorp.getMissionType());
++			kCorp.setActionInfoIndex(iAction);
++			setActionData(kCorp, iAction, kCorp.getMissionType());
++			break;
+ 		}
+-		else if ((ActionSubTypes)aiActionInfoTypeList[iOrdered] == ACTIONSUBTYPE_SPECIALIST)
++		case ACTIONSUBTYPE_SPECIALIST:
+ 		{
+-			CvSpecialistInfo& kSpecialist = GC.getInfo((SpecialistTypes)iInfo);
++			CvSpecialistInfo& kSpecialist = GC.getInfo((SpecialistTypes)iSubID);
+ 			kSpecialist.setMissionType(FindInInfoClass("MISSION_JOIN"));
+-			kSpecialist.setActionInfoIndex(i);
+-			setActionData(kSpecialist, i, (MissionTypes)kSpecialist.getMissionType());
++			kSpecialist.setActionInfoIndex(iAction);
++			setActionData(kSpecialist, iAction, (MissionTypes)kSpecialist.getMissionType());
++			break;
+ 		}
+-		else if ((ActionSubTypes)aiActionInfoTypeList[iOrdered] == ACTIONSUBTYPE_BUILDING)
++		case ACTIONSUBTYPE_BUILDING:
+ 		{
+-			CvBuildingInfo& kBuilding = GC.getInfo((BuildingTypes)iInfo);
++			CvBuildingInfo& kBuilding = GC.getInfo((BuildingTypes)iSubID);
+ 			kBuilding.setMissionType((MissionTypes)FindInInfoClass("MISSION_CONSTRUCT"));
+-			kBuilding.setActionInfoIndex(i);
+-			//setActionData(kBuilding, i, (MissionTypes)kBuilding.getMissionType());
++			kBuilding.setActionInfoIndex(iAction);
++			setActionData(kBuilding, iAction, kBuilding.getMissionType());
++			break;
++		}
++		default: FErrorMsg("Unrecognized action subtype");
+ 		}
+-
+ 		GC.m_paActionInfo.push_back(pActionInfo);
+ 	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=19587

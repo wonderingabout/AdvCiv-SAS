@@ -1,0 +1,222 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 731
+# Commit: ed87b233f0674d32a7cad276ec74e80f8dd30d15
+# History segment: K-Mod history
+# Parent used for diff: a38e2befe3e774ac8966f5bc72643c9167de2217
+# Title: Units will once again wake up when forming a group. This prevents an exploit which could allow players to bypass the movement check on air patrol and sea pat...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+30	29	CvGameCoreDLL/CvSelectionGroup.cpp
+6	3	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index e1276e500..9bdd0e4c6 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -971,13 +971,6 @@ void CvSelectionGroup::startMission()
+ {
+ 	//PROFILE_FUNC();
+ 
+-	CLLNode<IDInfo>* pUnitNode;
+-	CvUnit* pLoopUnit;
+-	bool bDelete;
+-	bool bAction;
+-	bool bNuke;
+-	bool bNotify;
+-
+ 	FAssert(!isBusy());
+ 	FAssert(getOwnerINLINE() != NO_PLAYER);
+ 	FAssert(headMissionQueueNode() != NULL);
+@@ -1009,10 +1002,10 @@ void CvSelectionGroup::startMission()
+ 	}
+ 
+ 
+-	bDelete = false;
+-	bAction = false;
+-	bNuke = false;
+-	bNotify = false;
++	bool bDelete = false;
++	bool bAction = false;
++	bool bNuke = false;
++	bool bNotify = false;
+ 
+ 	if (!canStartMission(headMissionQueueNode()->m_data.eMissionType, headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2, plot()))
+ 	{
+@@ -1130,11 +1123,11 @@ void CvSelectionGroup::startMission()
+ 		{
+ 			// Fast units pillage first
+ 			std::vector<std::pair<int, int> > unit_list;
+-			pUnitNode = headUnitNode();
++			CLLNode<IDInfo>* pUnitNode = headUnitNode();
+ 
+ 			while (pUnitNode != NULL)
+ 			{
+-				pLoopUnit = ::getUnit(pUnitNode->m_data);
++				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 				pUnitNode = nextUnitNode(pUnitNode);
+ 
+ 				if (pLoopUnit->canMove() && pLoopUnit->canPillage(plot()))
+@@ -1156,12 +1149,12 @@ void CvSelectionGroup::startMission()
+ 			CvPlayer& kOwner = GET_PLAYER(getOwnerINLINE());
+ 			for (size_t i = 0; i < unit_list.size(); i++)
+ 			{
+-				pLoopUnit = kOwner.getUnit(unit_list[i].second);
++				CvUnit* pLoopUnit = kOwner.getUnit(unit_list[i].second);
+ 
+ 				if (pLoopUnit->pillage())
+ 				{
+ 					bAction = true;
+-					if (isHuman() || canAllMove())
++					if (!isHuman() && canAllMove()) // AI groups might want to reconsider their action after pillaging.
+ 						break;
+ 				}
+ 				if (pLoopUnit->isAttacking())
+@@ -1176,7 +1169,7 @@ void CvSelectionGroup::startMission()
+ 
+ 			while (pUnitNode != NULL)
+ 			{
+-				pLoopUnit = ::getUnit(pUnitNode->m_data);
++				CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+ 				pUnitNode = nextUnitNode(pUnitNode);
+ 
+ 				if (pLoopUnit->canMove())
+@@ -1274,10 +1267,11 @@ void CvSelectionGroup::startMission()
+ 						break;
+ 
+ 					case MISSION_PILLAGE:
+-						if (pLoopUnit->pillage())
++						/*if (pLoopUnit->pillage())
+ 						{
+ 							bAction = true;
+-						}
++						}*/
++						FAssertMsg(false, "MISSION_PILLAGE handled incorrectly."); // K-mod (see above)
+ 						break;
+ 
+ 					case MISSION_PLUNDER:
+@@ -1443,6 +1437,8 @@ void CvSelectionGroup::startMission()
+ 			// K-Mod
+ 			if (!units_left_behind.empty())
+ 			{
++				FAssert(isHuman()); // This isn't a problem. I just don't want the AI to choose missions which cause the group to separate.
++				FAssert((int)units_left_behind.size() < getNumUnits()); // we should never leave _everyone_ behind!
+ 				units_left_behind[0]->joinGroup(NULL, true);
+ 				CvSelectionGroup* pNewGroup = units_left_behind[0]->getGroup();
+ 				for (size_t i = 1; i < units_left_behind.size(); i++)
+@@ -1476,20 +1472,23 @@ void CvSelectionGroup::startMission()
+ 		{
+ 			if (bDelete)
+ 			{
+-				if (getOwnerINLINE() == GC.getGameINLINE().getActivePlayer())
++				deleteMissionQueueNode(headMissionQueueNode());
++
++				if (getOwnerINLINE() == GC.getGameINLINE().getActivePlayer() && IsSelected())
+ 				{
+-					if (IsSelected())
+-					{
+-						GC.getGameINLINE().cycleSelectionGroups_delayed(GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_QUICK_MOVES) ? 1 : 2, true);
+-					}
++					GC.getGameINLINE().cycleSelectionGroups_delayed(GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_QUICK_MOVES) ? 1 : 2, true, readyToSelect(true));
+ 				}
+-
+-				deleteMissionQueueNode(headMissionQueueNode());
+ 			}
+ 			else if (getActivityType() == ACTIVITY_MISSION)
+ 			{
+ 				continueMission();
+ 			}
++			// K-Mod
++			else if (getOwnerINLINE() == GC.getGameINLINE().getActivePlayer() && IsSelected() && !canAnyMove())
++			{
++				GC.getGameINLINE().cycleSelectionGroups_delayed(GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_QUICK_MOVES) ? 1 : 2, true);
++			}
++			// K-Mod end
+ 		}
+ 	}
+ }
+@@ -1548,6 +1547,7 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 
+ 	// extra crash protection, should never happen (but a previous bug in groupAttack was causing a NULL here)
+ 	// while that bug is fixed, no reason to not be a little more careful
++	// K-Mod note: Actually, the mission queue is always cleared after combat. So this is required regardless of any bugs.
+ 	if (headMissionQueueNode() == NULL)
+ 	{
+ 		setActivityType(ACTIVITY_AWAKE);
+@@ -1843,16 +1843,17 @@ bool CvSelectionGroup::continueMission_bulk(int iSteps)
+ 				deleteMissionQueueNode(headMissionQueueNode());
+ 			} */
+ 			// K-Mod. If rapid-unit-cycling is enabled, I want to cycle as soon a possible. Otherwise, I want to mimic the original behaviour.
++			// Note: I've removed cycleSelectionGroups_delayed(1, true, canAnyMove()) from inside CvSelectionGroup::deactivateHeadMission
+ 			if (getOwnerINLINE() == GC.getGameINLINE().getActivePlayer() && IsSelected())
+ 			{
+ 				if ((headMissionQueueNode()->m_data.eMissionType == MISSION_MOVE_TO ||
+ 					headMissionQueueNode()->m_data.eMissionType == MISSION_ROUTE_TO ||
+ 					headMissionQueueNode()->m_data.eMissionType == MISSION_MOVE_TO_UNIT) && !isBusy())
+ 				{
+-					GC.getGameINLINE().cycleSelectionGroups_delayed(GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_QUICK_MOVES) ? 1 : 2, true, canAnyMove());
++					GC.getGameINLINE().cycleSelectionGroups_delayed(GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_QUICK_MOVES) ? 2 : 3, true, canAnyMove()); // (? 1 : 2) + 1
+ 				}
+ 				else
+-					GC.getGameINLINE().cycleSelectionGroups_delayed(0, true, canAnyMove()); // this should cycle if RUC is enabled, and do nothing if it isn't.
++					GC.getGameINLINE().cycleSelectionGroups_delayed(1, true, canAnyMove());
+ 			}
+ 
+ 			if (!isBusy())
+@@ -5058,12 +5059,12 @@ void CvSelectionGroup::deactivateHeadMission()
+ 
+ 		setMissionTimer(0);
+ 
+-		if (getOwnerINLINE() == GC.getGameINLINE().getActivePlayer())
++		/* if (getOwnerINLINE() == GC.getGameINLINE().getActivePlayer())
+ 		{
+ 			if (IsSelected())
+ 			{
+ 				GC.getGameINLINE().cycleSelectionGroups_delayed(1, true, canAnyMove());
+ 			}
+-		}
++		} */
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index ee5d3df60..bfa749745 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -9544,17 +9544,20 @@ void CvUnit::joinGroup(CvSelectionGroup* pSelectionGroup, bool bRemoveSelected,
+ 			{
+ 				/* original bts code
+ 				getGroup()->setActivityType(ACTIVITY_AWAKE); */
+-				// K-Mod. For human players, clear existing missions when new units are added to a group; otherwise the group might run away from us as soon as the units are added.
++				// K-Mod
+ 				// For the AI, only wake the group in particular circumstances. This is to avoid AI deadlocks where they just keep grouping and ungroup indefinitely.
++				// If the activity type is not changed at all, then that would enable exploits such as adding new units to air patrol groups to bypass the movement conditions.
+ 				if (isHuman())
+ 				{
+ 					getGroup()->setAutomateType(NO_AUTOMATE);
+-					// On second thought, I'm not going to clear the mission queue. I'm just going to change to rules so that "automoves" won't start while the group is selected.
+-					//getGroup()->setActivityType(ACTIVITY_AWAKE);
++					getGroup()->setActivityType(ACTIVITY_AWAKE);
++					// I'm not going to clear the mission queue. I'm just going to change to rules so that "automoves" won't start while the group is selected.
+ 					//getGroup()->clearMissionQueue();
+ 				}
+ 				else if (getGroup()->AI_getMissionAIType() == MISSIONAI_GROUP || getLastMoveTurn() == GC.getGameINLINE().getTurnSlice())
+ 					getGroup()->setActivityType(ACTIVITY_AWAKE);
++				else if (getGroup()->getActivityType() != ACTIVITY_AWAKE)
++					getGroup()->setActivityType(ACTIVITY_HOLD); // don't let them cheat.
+ 				// K-Mod end
+ 			}
+ 			/* original bts code
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=8072

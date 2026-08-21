@@ -1,0 +1,57 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1598
+# Commit: 1c40a739e7b3fa874ad10cf3c53558aab8cf3ede
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5cc92bd17b69e25e76e04e2838548cd24171e062
+# Title: Amendment to the Kek-Mod merge
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	5	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index a268a3c9b..b62a90375 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -3327,18 +3327,16 @@ void CvTeam::changeAliveCount(int iChange)
+ {
+ 	m_iAliveCount += iChange;
+ 	FAssert(getAliveCount() >= 0);
+-	if(isBarbarian())
+-		return; // advc.003
+ 
+ 	// free vassals
+ 	if (m_iAliveCount == 0)
+ 	{
+-		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++)
++		for (int iTeam = 0; iTeam < MAX_TEAMS; iTeam++)
+ 		{
+ 			if (iTeam != getID())
+ 			{
+ 				CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeam);
+-				if (kLoopTeam.isAlive())
++				if (kLoopTeam.isAlive() && !kLoopTeam.isBarbarian() && !isBarbarian())
+ 				{
+ 					if (kLoopTeam.isVassal(getID()))
+ 						kLoopTeam.setVassal(getID(), false, false);
+@@ -3354,7 +3352,7 @@ void CvTeam::changeAliveCount(int iChange)
+ 			}
+ 		}
+ 	} // <advc.003b>
+-	if(m_iAliveCount - iChange <= 0 && m_iAliveCount > 0)
++	if(!isBarbarian() && m_iAliveCount - iChange <= 0 && m_iAliveCount > 0)
+ 		GC.getGame().changeCivTeamsEverAlive(1); // </advc.003b>
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1071

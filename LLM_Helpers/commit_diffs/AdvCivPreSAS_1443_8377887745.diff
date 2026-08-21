@@ -1,0 +1,2108 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1443
+# Commit: 8377887745ada5ea0f27339964f3e3c3a0ee1bda
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b4e3bad24ad0a325e8ba77cb010ed595ea488b42
+# Title: Some misc. tweaks, mostly to AdvCiv changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	5	Assets/Python/CvDiplomacy.py
+11	0	Assets/xml/Text/CIV4GameText_advc.xml
+4	4	CvGameCoreDLL/CvDLLWidgetData.cpp
+19	11	CvGameCoreDLL/CvDeal.cpp
+7	3	CvGameCoreDLL/CvDeal.h
+3	3	CvGameCoreDLL/CvGame.cpp
+7	7	CvGameCoreDLL/CvGameAI.cpp
+2	2	CvGameCoreDLL/CvGameAI.h
+125	119	CvGameCoreDLL/CvGlobals.cpp
+3	1	CvGameCoreDLL/CvGlobals.h
+1	1	CvGameCoreDLL/CvInfos.cpp
+41	50	CvGameCoreDLL/CvPlayer.cpp
+46	35	CvGameCoreDLL/CvPlayerAI.cpp
+9	1	CvGameCoreDLL/CvSelectionGroup.cpp
+14	14	CvGameCoreDLL/CvTeam.cpp
+12	0	CvGameCoreDLL/CvTeam.h
+2	2	CvGameCoreDLL/CyPlayer.cpp
+10	9	CvGameCoreDLL/WarAndPeaceAI.cpp
+1	0	CvGameCoreDLL/WarAndPeaceAI.h
+17	2	CvGameCoreDLL/WarEvaluator.cpp
+9	4	CvGameCoreDLL/WarEvaluator.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/CvDiplomacy.py b/Assets/Python/CvDiplomacy.py
+index 6d999f92a..0ce0f08a2 100644
+--- a/Assets/Python/CvDiplomacy.py
++++ b/Assets/Python/CvDiplomacy.py
+@@ -575,17 +575,19 @@ class CvDiplomacy:
+ 
+ 		# if we are asking for something
+ 		# advc.155: Treat DEMAND_TEAM here as well
+-		elif (self.isComment(eComment, "USER_DIPLOCOMMENT_ASK")  or self.isComment(eComment, "USER_DIPLOCOMMENT_DEMAND_TEAM")):
+-			diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_ASK_HELP, -1, -1)
+-			if (diploScreen.offerDeal()):
++		elif (self.isComment(eComment, "USER_DIPLOCOMMENT_ASK") or self.isComment(eComment, "USER_DIPLOCOMMENT_DEMAND_TEAM")):
++			bAccept = diploScreen.offerDeal() # advc.144: Put acceptance flag in iData1
++			diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_ASK_HELP, bAccept, -1)
++			if bAccept:
+ 				self.setAIComment(self.getCommentID("AI_DIPLOCOMMENT_ACCEPT_ASK"))
+ 			else:
+ 				self.setAIComment(self.getCommentID("AI_DIPLOCOMMENT_REJECT_ASK"))
+ 
+ 		# if we are demanding something
+ 		elif (self.isComment(eComment, "USER_DIPLOCOMMENT_DEMAND")):
+-			diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_MADE_DEMAND, -1, -1)
+-			if (diploScreen.offerDeal()):
++			bAccept = diploScreen.offerDeal() # advc.144: Put acceptance flag in iData1
++			diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_MADE_DEMAND, bAccept, -1)
++			if bAccept:
+ 				self.setAIComment(self.getCommentID("AI_DIPLOCOMMENT_ACCEPT_DEMAND"))
+ 			else:
+ 				self.setAIComment(self.getCommentID("AI_DIPLOCOMMENT_REJECT_DEMAND"))
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index fe3b9f8b6..20bc1726e 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -5263,4 +5263,15 @@
+ 		<Spanish>[COLOR_WARNING_TEXT]No se puede acelerar porque ya hay suficiente [ICON_PRODUCTION] para terminar la producci�n.[COLOR_REVERT]</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004: From CIV4GameTextInfos.xml. The DLL passes the city name,
++		 but the Vanilla text didn't display it. -->
++	<TEXT>
++		<Tag>TXT_KEY_POPUP_WHAT_TO_BUILD</Tag>
++		<English>What would you like %s1_CityName to work on?</English>
++		<French>Que souhaitez-vous construire dans cette ville ?</French>
++		<German>Was wollt Ihr in %s1_CityName errichten?</German>
++		<Italian>Cosa vuoi creare in questa citt&#224;?</Italian>
++		<Spanish>&#191;Qu&#233; os gustar&#237;a construir en esta ciudad?</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index f0ed81142..5a09eeeb2 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3550,10 +3550,10 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 		} */
+ 		// K-Mod
+ 		// <advc.104l>
+-		WarEvaluator::checkCache = true;
++		WarEvaluator::enableCache();
+ 		// Don't check this twice; potentially costly.
+ 		bool willTalk = kPlayer.AI_isWillingToTalk(eActivePlayer);
+-		WarEvaluator::checkCache = false; // </advc.104l>
++		WarEvaluator::disableCache(); // </advc.104l>
+ 		if (!willTalk)
+ 		{
+ 			szBuffer.append(NEWLINE);
+@@ -4852,9 +4852,9 @@ void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct, CvWSt
+ 			widgetDataStruct.m_iData2);
+ 	/*  advc.104l: Can't easily move this code elsewhere b/c the cache should
+ 		only be used when TradeDenial is checked by this class. */
+-	WarEvaluator::checkCache = true;
++	WarEvaluator::enableCache();
+ 	DenialTypes eDenial = GET_PLAYER(eWhoFrom).getTradeDenial(eWhoTo, item);
+-	WarEvaluator::checkCache = false; // advc.104l
++	WarEvaluator::disableCache(); // advc.104l
+ 	if (eDenial == NO_DENIAL)
+ 		return;
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 1563268cb..f2914beba 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -73,7 +73,7 @@ void CvDeal::reset(int iID, PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer)
+ }
+ 
+ 
+-void CvDeal::kill(bool bKillTeam)
++void CvDeal::kill(bool bKillTeam, /* advc.130p: */ PlayerTypes eCancelPlayer)
+ {
+ 	if (getLengthFirstTrades() > 0 || getLengthSecondTrades() > 0)
+ 	{	// <advc.106j>
+@@ -126,25 +126,25 @@ void CvDeal::kill(bool bKillTeam)
+ 		}
+ 	}
+ 	// <advc.036>
+-	killSilent(bKillTeam);
++	killSilent(bKillTeam, /* advc.130p: */ true, eCancelPlayer);
+ }
+ 
+-void CvDeal::killSilent(bool bKillTeam, bool bUpdateAttitude) { // </advc.036>
++void CvDeal::killSilent(bool bKillTeam, bool bUpdateAttitude, // </advc.036>
++		PlayerTypes eCancelPlayer) { // advc.130p
+ 
+ 	CLLNode<TradeData>* pNode;
+-
+ 	for (pNode = headFirstTradesNode(); (pNode != NULL); pNode = nextFirstTradesNode(pNode))
+ 	{
+ 		endTrade(pNode->m_data, getFirstPlayer(), getSecondPlayer(), bKillTeam,
+-				bUpdateAttitude); // advc.036
++				bUpdateAttitude, // advc.036
++				eCancelPlayer); // advc.130p
+ 	}
+-
+ 	for (pNode = headSecondTradesNode(); (pNode != NULL); pNode = nextSecondTradesNode(pNode))
+ 	{
+ 		endTrade(pNode->m_data, getSecondPlayer(), getFirstPlayer(), bKillTeam,
+-				bUpdateAttitude); // advc.036
++				bUpdateAttitude, // advc.036
++				eCancelPlayer); // advc.130p
+ 	}
+-
+ 	GC.getGameINLINE().deleteDeal(getID());
+ }
+ 
+@@ -1091,8 +1091,8 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
+ 
+ // <advc.003> Refactored this function
+ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+-		PlayerTypes eToPlayer, bool bTeam,
+-		bool bUpdateAttitude) { // advc.036
++		PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude,
++		PlayerTypes eCancelPlayer) { // advc.130p
+ 
+ 	bool teamTradeEnded = false; // advc.133
+ 	switch(trade.m_eItemType) {
+@@ -1143,8 +1143,16 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,
+ 		if(bTeam) {
+ 			endTeamTrade(TRADE_OPEN_BORDERS, TEAMID(eFromPlayer), TEAMID(eToPlayer));
+ 			teamTradeEnded = true; // advc.133
+-			// advc.130p:
++			/*  <advc.130p> This class really shouldn't be adding cancellation
++				memory as this is an AI thing; but BtS does it that way too. */
++			/*  Don't check this after all -- if the other side loses all visible
++				territory and then regains some, they may still not really be worth
++				trading with. */
++			/*if(eCancelPlayer == NULL || TEAMREF(eCancelPlayer).AI_openBordersTrade(
++					TEAMID(eCancelPlayer == eToPlayer ? eFromPlayer : eToPlayer)) !=
++					DENIAL_NO_GAIN)*/
+ 			addEndTradeMemory(eFromPlayer, eToPlayer, TRADE_OPEN_BORDERS);
++			// </advc.130p>
+ 		}
+ 		break;
+
+diff --git a/CvGameCoreDLL/CvDeal.h b/CvGameCoreDLL/CvDeal.h
+index c140ec2d8..f7f47111f 100644
+--- a/CvGameCoreDLL/CvDeal.h
++++ b/CvGameCoreDLL/CvDeal.h
+@@ -20,9 +20,12 @@ public:
+ 	void uninit();
+ 	void reset(int iID = 0, PlayerTypes eFirstPlayer = NO_PLAYER, PlayerTypes eSecondPlayer = NO_PLAYER);
+ 
+-	DllExport void kill(bool bKillTeam = true);
++	DllExport void kill(bool bKillTeam = true) { // <advc.130p>
++			kill(bKillTeam, NO_PLAYER); }
++	void kill(bool bKillTeam, PlayerTypes eCancelPlayer); // </advc.130p>
+ 	// advc.036:
+-	void killSilent(bool bKillTeam = true, bool bUpdateAttitude = true);
++	void killSilent(bool bKillTeam = true, bool bUpdateAttitude = true,
++			PlayerTypes eCancelPlayer = NO_PLAYER); // advc.130p
+ 	void addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* pSecondList, bool bCheckAllowed);
+ 
+ 	void doTurn();
+@@ -86,7 +89,8 @@ protected:
+ 
+ 	bool startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+ 	void endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam,
+-			bool bUpdateAttitude = true); // advc.036
++			bool bUpdateAttitude = true, // advc.036
++			PlayerTypes eCancelPlayer = NO_PLAYER); // advc.130p
+ 	// <advc.130p>
+ 	static void addEndTradeMemory(PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
+ 			TradeableItems dealType);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 777abcb58..dc0cda418 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2547,7 +2547,7 @@ void CvGame::update()
+ 		AI_updateAssignWork();
+ 
+ 		testAlive();
+-
++		AI().warAndPeaceAI().invalidateUICache(); // advc.104l
+ 		if ((getAIAutoPlay() == 0) && !(gDLL->GetAutorun()) && GAMESTATE_EXTENDED != getGameState())
+ 		{
+ 			if (countHumanPlayersAlive() == 0
+@@ -9720,7 +9720,7 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	m_sorenRand.read(pStream);
+ 	// <advc.250b>
+ 	if(isOption(GAMEOPTION_SPAH))
+-		m_spah.read(pStream); // </advc.250b><advc.701>
++		m_spah.read(pStream); // </advc.250b> <advc.701>
+ 	if(uiFlag >= 2) {
+ 		if(isOption(GAMEOPTION_RISE_FALL))
+ 			m_riseFall.read(pStream);
+@@ -9953,7 +9953,7 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	m_sorenRand.write(pStream);
+ 	// <advc.250b>
+ 	if(isOption(GAMEOPTION_SPAH))
+-		m_spah.write(pStream); // </advc.250b><advc.701>
++		m_spah.write(pStream); // </advc.250b> <advc.701>
+ 	if(isOption(GAMEOPTION_RISE_FALL))
+ 		m_riseFall.write(pStream); // </advc.701>
+ 	ReplayMessageList::_Alloc::size_type iSize = m_listReplayMessages.size();
+
+diff --git a/CvGameCoreDLL/CvGameAI.cpp b/CvGameCoreDLL/CvGameAI.cpp
+index d8c669012..e0536b727 100644
+--- a/CvGameCoreDLL/CvGameAI.cpp
++++ b/CvGameCoreDLL/CvGameAI.cpp
+@@ -71,24 +71,24 @@ void CvGameAI::AI_initScenario() {
+ void CvGameAI::AI_sortOutWPAIOptions(bool bFromSaveGame) {
+ 
+ 	if(GC.getDefineINT("USE_KMOD_AI_NONAGGRESSIVE")) {
+-		wpai.setUseKModAI(true);
++		m_wpai.setUseKModAI(true);
+ 		setOption(GAMEOPTION_AGGRESSIVE_AI, false);
+ 		return;
+ 	}
+ 	if(GC.getDefineINT("DISABLE_UWAI")) {
+-		wpai.setUseKModAI(true);
++		m_wpai.setUseKModAI(true);
+ 		setOption(GAMEOPTION_AGGRESSIVE_AI, true);
+ 		return;
+ 	}
+-	wpai.setInBackground(GC.getDefineINT("UWAI_IN_BACKGROUND") > 0);
++	m_wpai.setInBackground(GC.getDefineINT("UWAI_IN_BACKGROUND") > 0);
+ 	if(bFromSaveGame) {
+-		if(wpai.isEnabled() || wpai.isEnabled(true))
++		if(m_wpai.isEnabled() || m_wpai.isEnabled(true))
+ 			setOption(GAMEOPTION_AGGRESSIVE_AI, true);
+ 		return;
+ 	}
+ 	// If still not returned: settings according to Custom Game screen
+ 	bool bUseKModAI = isOption(GAMEOPTION_AGGRESSIVE_AI);
+-	wpai.setUseKModAI(bUseKModAI);
++	m_wpai.setUseKModAI(bUseKModAI);
+ 	if(!bUseKModAI)
+ 		setOption(GAMEOPTION_AGGRESSIVE_AI, true);
+ } // </advc.104>
+@@ -182,7 +182,7 @@ void CvGameAI::read(FDataStreamBase* pStream)
+ 
+ 	pStream->Read(&m_iPad);
+ 	// <advc.104>
+-	wpai.read(pStream);
++	m_wpai.read(pStream);
+ 	AI_sortOutWPAIOptions(true);
+ 	// </advc.104>
+ }
+@@ -197,7 +197,7 @@ void CvGameAI::write(FDataStreamBase* pStream)
+ 
+ 	pStream->Write(m_iPad);
+ 
+-	wpai.write(pStream); // advc.104
++	m_wpai.write(pStream); // advc.104
+ }
+ 
+ // Protected Functions...
+
+diff --git a/CvGameCoreDLL/CvGameAI.h b/CvGameCoreDLL/CvGameAI.h
+index e6227af26..5eef1df27 100644
+--- a/CvGameCoreDLL/CvGameAI.h
++++ b/CvGameCoreDLL/CvGameAI.h
+@@ -31,14 +31,14 @@ public:
+   virtual void read(FDataStreamBase* pStream);
+   virtual void write(FDataStreamBase* pStream);
+ 
+-  inline WarAndPeaceAI& warAndPeaceAI() { return wpai; } // advc.104
++  inline WarAndPeaceAI& warAndPeaceAI() { return m_wpai; } // advc.104
+ 
+ protected:
+ 
+   int m_iPad;
+   // <advc.104>
+   void AI_sortOutWPAIOptions(bool bFromSaveGame);
+-  WarAndPeaceAI wpai; // </advc.104>
++  WarAndPeaceAI m_wpai; // </advc.104>
+ };
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 737f3bcf6..8b466d17b 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -43,7 +43,7 @@ template <class T>
+ bool readInfoArray(FDataStreamBase* pStream, std::vector<T*>& array, const char* szClassName)
+ {
+ #if SERIALIZE_CVINFOS
+-	GC.addToInfosVectors(&array);
++	addToInfosVectors(&array);
+ 
+ 	int iSize;
+ 	pStream->Read(&iSize);
+@@ -63,7 +63,7 @@ bool readInfoArray(FDataStreamBase* pStream, std::vector<T*>& array, const char*
+ 	for (std::vector<T*>::iterator it = array.begin(); it != array.end(); ++it)
+ 	{
+ 		(*it)->read(pStream);
+-		GC.setInfoTypeFromString((*it)->getType(), iIndex);
++		setInfoTypeFromString((*it)->getType(), iIndex);
+ 		++iIndex;
+ 	}
+ 
+@@ -792,7 +792,7 @@ std::vector<CvWorldInfo*>& CvGlobals::getWorldInfo()
+ CvWorldInfo& CvGlobals::getWorldInfo(WorldSizeTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumWorldInfos());
++	FAssert(e < getNumWorldInfos());
+ 	return *(m_paWorldInfo[e]);
+ }
+ 
+@@ -813,7 +813,7 @@ std::vector<CvClimateInfo*>& CvGlobals::getClimateInfo()
+ CvClimateInfo& CvGlobals::getClimateInfo(ClimateTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumClimateInfos());
++	FAssert(e < getNumClimateInfos());
+ 	return *(m_paClimateInfo[e]);
+ }
+ 
+@@ -834,7 +834,7 @@ std::vector<CvSeaLevelInfo*>& CvGlobals::getSeaLevelInfo()
+ CvSeaLevelInfo& CvGlobals::getSeaLevelInfo(SeaLevelTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumSeaLevelInfos());
++	FAssert(e < getNumSeaLevelInfos());
+ 	return *(m_paSeaLevelInfo[e]);
+ }
+ 
+@@ -888,10 +888,10 @@ CvColorInfo& CvGlobals::getColorInfo(ColorTypes e)
+ 	FAssert(e > -1);
+ 	/*  <advc.106i> So that AdvCiv is able to show replays from mods with
+ 		extra colors. And anyway, a bad color value shouldn't lead to a crash. */
+-	if(e >= GC.getNumColorInfos()) {
+-		FAssert(m_bHoFScreenUp || e < GC.getNumColorInfos());
++	if(e >= getNumColorInfos()) {
++		FAssert(m_bHoFScreenUp || e < getNumColorInfos());
+ 		// +7: Skip COLOR_CLEAR to COLOR_LIGHT_GREY
+-		e = (ColorTypes)((e + 7) % GC.getNumColorInfos());
++		e = (ColorTypes)((e + 7) % getNumColorInfos());
+ 	} // </advc.106i>
+ 	return *(m_paColorInfo[e]);
+ }
+@@ -910,7 +910,7 @@ std::vector<CvPlayerColorInfo*>& CvGlobals::getPlayerColorInfo()
+ CvPlayerColorInfo& CvGlobals::getPlayerColorInfo(PlayerColorTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumPlayerColorInfos());
++	FAssert(e < getNumPlayerColorInfos());
+ 	return *(m_paPlayerColorInfo[e]);
+ }
+ 
+@@ -927,7 +927,7 @@ std::vector<CvAdvisorInfo*>& CvGlobals::getAdvisorInfo()
+ CvAdvisorInfo& CvGlobals::getAdvisorInfo(AdvisorTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumAdvisorInfos());
++	FAssert(e < getNumAdvisorInfos());
+ 	return *(m_paAdvisorInfo[e]);
+ }
+ 
+@@ -944,7 +944,7 @@ std::vector<CvRouteModelInfo*>& CvGlobals::getRouteModelInfo()
+ CvRouteModelInfo& CvGlobals::getRouteModelInfo(int i)
+ {
+ 	FAssert(i > -1);
+-	FAssert(i < GC.getNumRouteModelInfos());
++	FAssert(i < getNumRouteModelInfos());
+ 	return *(m_paRouteModelInfo[i]);
+ }
+ 
+@@ -961,7 +961,7 @@ std::vector<CvRiverInfo*>& CvGlobals::getRiverInfo()
+ CvRiverInfo& CvGlobals::getRiverInfo(RiverTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumRiverInfos());
++	FAssert(e < getNumRiverInfos());
+ 	return *(m_paRiverInfo[e]);
+ }
+ 
+@@ -978,7 +978,7 @@ std::vector<CvRiverModelInfo*>& CvGlobals::getRiverModelInfo()
+ CvRiverModelInfo& CvGlobals::getRiverModelInfo(int i)
+ {
+ 	FAssert(i > -1);
+-	FAssert(i < GC.getNumRiverModelInfos());
++	FAssert(i < getNumRiverModelInfos());
+ 	return *(m_paRiverModelInfo[i]);
+ }
+ 
+@@ -995,7 +995,7 @@ std::vector<CvWaterPlaneInfo*>& CvGlobals::getWaterPlaneInfo()		// For Moose - C
+ CvWaterPlaneInfo& CvGlobals::getWaterPlaneInfo(int i)
+ {
+ 	FAssert(i > -1);
+-	FAssert(i < GC.getNumWaterPlaneInfos());
++	FAssert(i < getNumWaterPlaneInfos());
+ 	return *(m_paWaterPlaneInfo[i]);
+ }
+ 
+@@ -1012,7 +1012,7 @@ std::vector<CvTerrainPlaneInfo*>& CvGlobals::getTerrainPlaneInfo()
+ CvTerrainPlaneInfo& CvGlobals::getTerrainPlaneInfo(int i)
+ {
+ 	FAssert(i > -1);
+-	FAssert(i < GC.getNumTerrainPlaneInfos());
++	FAssert(i < getNumTerrainPlaneInfos());
+ 	return *(m_paTerrainPlaneInfo[i]);
+ }
+ 
+@@ -1029,7 +1029,7 @@ std::vector<CvCameraOverlayInfo*>& CvGlobals::getCameraOverlayInfo()
+ CvCameraOverlayInfo& CvGlobals::getCameraOverlayInfo(int i)
+ {
+ 	FAssert(i > -1);
+-	FAssert(i < GC.getNumCameraOverlayInfos());
++	FAssert(i < getNumCameraOverlayInfos());
+ 	return *(m_paCameraOverlayInfo[i]);
+ }
+ 
+@@ -1046,7 +1046,7 @@ std::vector<CvAnimationPathInfo*>& CvGlobals::getAnimationPathInfo()
+ CvAnimationPathInfo& CvGlobals::getAnimationPathInfo(AnimationPathTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumAnimationPathInfos());
++	FAssert(e < getNumAnimationPathInfos());
+ 	return *(m_paAnimationPathInfo[e]);
+ }
+ 
+@@ -1063,7 +1063,7 @@ std::vector<CvAnimationCategoryInfo*>& CvGlobals::getAnimationCategoryInfo()
+ CvAnimationCategoryInfo& CvGlobals::getAnimationCategoryInfo(AnimationCategoryTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumAnimationCategoryInfos());
++	FAssert(e < getNumAnimationCategoryInfos());
+ 	return *(m_paAnimationCategoryInfo[e]);
+ }
+ 
+@@ -1080,7 +1080,7 @@ std::vector<CvEntityEventInfo*>& CvGlobals::getEntityEventInfo()
+ CvEntityEventInfo& CvGlobals::getEntityEventInfo(EntityEventTypes e)
+ {
+ 	FAssert( e > -1 );
+-	FAssert( e < GC.getNumEntityEventInfos() );
++	FAssert( e < getNumEntityEventInfos() );
+ 	return *(m_paEntityEventInfo[e]);
+ }
+ 
+@@ -1097,7 +1097,7 @@ std::vector<CvEffectInfo*>& CvGlobals::getEffectInfo()
+ CvEffectInfo& CvGlobals::getEffectInfo(int i)
+ {
+ 	FAssert(i > -1);
+-	FAssert(i < GC.getNumEffectInfos());
++	FAssert(i < getNumEffectInfos());
+ 	return *(m_paEffectInfo[i]);
+ }
+ 
+@@ -1115,7 +1115,7 @@ std::vector<CvAttachableInfo*>& CvGlobals::getAttachableInfo()
+ CvAttachableInfo& CvGlobals::getAttachableInfo(int i)
+ {
+ 	FAssert(i > -1);
+-	FAssert(i < GC.getNumAttachableInfos());
++	FAssert(i < getNumAttachableInfos());
+ 	return *(m_paAttachableInfo[i]);
+ }
+ 
+@@ -1147,7 +1147,7 @@ std::vector<CvUnitFormationInfo*>& CvGlobals::getUnitFormationInfo()		// For Moo
+ CvUnitFormationInfo& CvGlobals::getUnitFormationInfo(int i)
+ {
+ 	FAssert(i > -1);
+-	FAssert(i < GC.getNumUnitFormationInfos());
++	FAssert(i < getNumUnitFormationInfos());
+ 	return *(m_paUnitFormationInfo[i]);
+ }
+ 
+@@ -1176,7 +1176,7 @@ std::vector<CvLandscapeInfo*>& CvGlobals::getLandscapeInfo()
+ CvLandscapeInfo& CvGlobals::getLandscapeInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+-	FAssert(iIndex < GC.getNumLandscapeInfos());
++	FAssert(iIndex < getNumLandscapeInfos());
+ 	return *(m_paLandscapeInfo[iIndex]);
+ }
+ 
+@@ -1204,7 +1204,7 @@ std::vector<CvTerrainInfo*>& CvGlobals::getTerrainInfo()		// For Moose - XML Loa
+ CvTerrainInfo& CvGlobals::getTerrainInfo(TerrainTypes eTerrainNum)
+ {
+ 	FAssert(eTerrainNum > -1);
+-	FAssert(eTerrainNum < GC.getNumTerrainInfos());
++	FAssert(eTerrainNum < getNumTerrainInfos());
+ 	return *(m_paTerrainInfo[eTerrainNum]);
+ }
+ 
+@@ -1221,7 +1221,7 @@ std::vector<CvBonusClassInfo*>& CvGlobals::getBonusClassInfo()	// For Moose - XM
+ CvBonusClassInfo& CvGlobals::getBonusClassInfo(BonusClassTypes eBonusNum)
+ {
+ 	FAssert(eBonusNum > -1);
+-	FAssert(eBonusNum < GC.getNumBonusClassInfos());
++	FAssert(eBonusNum < getNumBonusClassInfos());
+ 	return *(m_paBonusClassInfo[eBonusNum]);
+ }
+ 
+@@ -1239,7 +1239,7 @@ std::vector<CvBonusInfo*>& CvGlobals::getBonusInfo()	// For Moose - XML Load Uti
+ CvBonusInfo& CvGlobals::getBonusInfo(BonusTypes eBonusNum)
+ {
+ 	FAssert(eBonusNum > -1);
+-	FAssert(eBonusNum < GC.getNumBonusInfos());
++	FAssert(eBonusNum < getNumBonusInfos());
+ 	return *(m_paBonusInfo[eBonusNum]);
+ }
+ 
+@@ -1256,7 +1256,7 @@ std::vector<CvFeatureInfo*>& CvGlobals::getFeatureInfo()	// For Moose - XML Load
+ CvFeatureInfo& CvGlobals::getFeatureInfo(FeatureTypes eFeatureNum)
+ {
+ 	FAssert(eFeatureNum > -1);
+-	FAssert(eFeatureNum < GC.getNumFeatureInfos());
++	FAssert(eFeatureNum < getNumFeatureInfos());
+ 	return *(m_paFeatureInfo[eFeatureNum]);
+ }
+ 
+@@ -1283,7 +1283,7 @@ std::vector<CvCivilizationInfo*>& CvGlobals::getCivilizationInfo()	// For Moose
+ CvCivilizationInfo& CvGlobals::getCivilizationInfo(CivilizationTypes eCivilizationNum)
+ {
+ 	FAssert(eCivilizationNum > -1);
+-	FAssert(eCivilizationNum < GC.getNumCivilizationInfos());
++	FAssert(eCivilizationNum < getNumCivilizationInfos());
+ 	return *(m_paCivilizationInfo[eCivilizationNum]);
+ }
+ 
+@@ -1301,7 +1301,7 @@ std::vector<CvLeaderHeadInfo*>& CvGlobals::getLeaderHeadInfo()	// For Moose - XM
+ CvLeaderHeadInfo& CvGlobals::getLeaderHeadInfo(LeaderHeadTypes eLeaderHeadNum)
+ {
+ 	FAssert(eLeaderHeadNum > -1);
+-	FAssert(eLeaderHeadNum < GC.getNumLeaderHeadInfos());
++	FAssert(eLeaderHeadNum < getNumLeaderHeadInfos());
+ 	return *(m_paLeaderHeadInfo[eLeaderHeadNum]);
+ }
+ 
+@@ -1319,7 +1319,7 @@ std::vector<CvTraitInfo*>& CvGlobals::getTraitInfo()	// For Moose - XML Load Uti
+ CvTraitInfo& CvGlobals::getTraitInfo(TraitTypes eTraitNum)
+ {
+ 	FAssert(eTraitNum > -1);
+-	FAssert(eTraitNum < GC.getNumTraitInfos());
++	FAssert(eTraitNum < getNumTraitInfos());
+ 	return *(m_paTraitInfo[eTraitNum]);
+ }
+ 
+@@ -1337,7 +1337,7 @@ std::vector<CvCursorInfo*>& CvGlobals::getCursorInfo()	// For Moose - XML Load U
+ CvCursorInfo& CvGlobals::getCursorInfo(CursorTypes eCursorNum)
+ {
+ 	FAssert(eCursorNum > -1);
+-	FAssert(eCursorNum < GC.getNumCursorInfos());
++	FAssert(eCursorNum < getNumCursorInfos());
+ 	return *(m_paCursorInfo[eCursorNum]);
+ }
+ 
+@@ -1354,7 +1354,7 @@ std::vector<CvThroneRoomCamera*>& CvGlobals::getThroneRoomCamera()	// For Moose
+ CvThroneRoomCamera& CvGlobals::getThroneRoomCamera(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+-	FAssert(iIndex < GC.getNumThroneRoomCameras());
++	FAssert(iIndex < getNumThroneRoomCameras());
+ 	return *(m_paThroneRoomCamera[iIndex]);
+ }
+ 
+@@ -1371,7 +1371,7 @@ std::vector<CvThroneRoomInfo*>& CvGlobals::getThroneRoomInfo()	// For Moose - XM
+ CvThroneRoomInfo& CvGlobals::getThroneRoomInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+-	FAssert(iIndex < GC.getNumThroneRoomInfos());
++	FAssert(iIndex < getNumThroneRoomInfos());
+ 	return *(m_paThroneRoomInfo[iIndex]);
+ }
+ 
+@@ -1388,7 +1388,7 @@ std::vector<CvThroneRoomStyleInfo*>& CvGlobals::getThroneRoomStyleInfo()	// For
+ CvThroneRoomStyleInfo& CvGlobals::getThroneRoomStyleInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+-	FAssert(iIndex < GC.getNumThroneRoomStyleInfos());
++	FAssert(iIndex < getNumThroneRoomStyleInfos());
+ 	return *(m_paThroneRoomStyleInfo[iIndex]);
+ }
+ 
+@@ -1405,7 +1405,7 @@ std::vector<CvSlideShowInfo*>& CvGlobals::getSlideShowInfo()	// For Moose - XML
+ CvSlideShowInfo& CvGlobals::getSlideShowInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+-	FAssert(iIndex < GC.getNumSlideShowInfos());
++	FAssert(iIndex < getNumSlideShowInfos());
+ 	return *(m_paSlideShowInfo[iIndex]);
+ }
+ 
+@@ -1422,7 +1422,7 @@ std::vector<CvSlideShowRandomInfo*>& CvGlobals::getSlideShowRandomInfo()	// For
+ CvSlideShowRandomInfo& CvGlobals::getSlideShowRandomInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+-	FAssert(iIndex < GC.getNumSlideShowRandomInfos());
++	FAssert(iIndex < getNumSlideShowRandomInfos());
+ 	return *(m_paSlideShowRandomInfo[iIndex]);
+ }
+ 
+@@ -1439,7 +1439,7 @@ std::vector<CvWorldPickerInfo*>& CvGlobals::getWorldPickerInfo()	// For Moose -
+ CvWorldPickerInfo& CvGlobals::getWorldPickerInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+-	FAssert(iIndex < GC.getNumWorldPickerInfos());
++	FAssert(iIndex < getNumWorldPickerInfos());
+ 	return *(m_paWorldPickerInfo[iIndex]);
+ }
+ 
+@@ -1456,7 +1456,7 @@ std::vector<CvSpaceShipInfo*>& CvGlobals::getSpaceShipInfo()	// For Moose - XML
+ CvSpaceShipInfo& CvGlobals::getSpaceShipInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+-	FAssert(iIndex < GC.getNumSpaceShipInfos());
++	FAssert(iIndex < getNumSpaceShipInfos());
+ 	return *(m_paSpaceShipInfo[iIndex]);
+ }
+ 
+@@ -1473,7 +1473,7 @@ std::vector<CvUnitInfo*>& CvGlobals::getUnitInfo()	// For Moose - XML Load Util,
+ CvUnitInfo& CvGlobals::getUnitInfo(UnitTypes eUnitNum)
+ {
+ 	FAssert(eUnitNum > -1);
+-	FAssert(eUnitNum < GC.getNumUnitInfos());
++	FAssert(eUnitNum < getNumUnitInfos());
+ 	return *(m_paUnitInfo[eUnitNum]);
+ }
+ 
+@@ -1490,7 +1490,7 @@ std::vector<CvSpecialUnitInfo*>& CvGlobals::getSpecialUnitInfo()	// For Moose -
+ CvSpecialUnitInfo& CvGlobals::getSpecialUnitInfo(SpecialUnitTypes eSpecialUnitNum)
+ {
+ 	FAssert(eSpecialUnitNum > -1);
+-	FAssert(eSpecialUnitNum < GC.getNumSpecialUnitInfos());
++	FAssert(eSpecialUnitNum < getNumSpecialUnitInfos());
+ 	return *(m_paSpecialUnitInfo[eSpecialUnitNum]);
+ }
+ 
+@@ -1508,7 +1508,7 @@ std::vector<CvInfoBase*>& CvGlobals::getConceptInfo()	// For Moose - XML Load Ut
+ CvInfoBase& CvGlobals::getConceptInfo(ConceptTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumConceptInfos());
++	FAssert(e < getNumConceptInfos());
+ 	return *(m_paConceptInfo[e]);
+ }
+ 
+@@ -1526,7 +1526,7 @@ std::vector<CvInfoBase*>& CvGlobals::getNewConceptInfo()	// For Moose - XML Load
+ CvInfoBase& CvGlobals::getNewConceptInfo(NewConceptTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumNewConceptInfos());
++	FAssert(e < getNumNewConceptInfos());
+ 	return *(m_paNewConceptInfo[e]);
+ }
+ 
+@@ -1544,7 +1544,7 @@ std::vector<CvInfoBase*>& CvGlobals::getCityTabInfo()	// For Moose - XML Load Ut
+ CvInfoBase& CvGlobals::getCityTabInfo(CityTabTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumCityTabInfos());
++	FAssert(e < getNumCityTabInfos());
+ 	return *(m_paCityTabInfo[e]);
+ }
+ 
+@@ -1562,7 +1562,7 @@ std::vector<CvInfoBase*>& CvGlobals::getCalendarInfo()
+ CvInfoBase& CvGlobals::getCalendarInfo(CalendarTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumCalendarInfos());
++	FAssert(e < getNumCalendarInfos());
+ 	return *(m_paCalendarInfo[e]);
+ }
+ 
+@@ -1580,7 +1580,7 @@ std::vector<CvInfoBase*>& CvGlobals::getSeasonInfo()	// For Moose - XML Load Uti
+ CvInfoBase& CvGlobals::getSeasonInfo(SeasonTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumSeasonInfos());
++	FAssert(e < getNumSeasonInfos());
+ 	return *(m_paSeasonInfo[e]);
+ }
+ 
+@@ -1598,7 +1598,7 @@ std::vector<CvInfoBase*>& CvGlobals::getMonthInfo()	// For Moose - XML Load Util
+ CvInfoBase& CvGlobals::getMonthInfo(MonthTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumMonthInfos());
++	FAssert(e < getNumMonthInfos());
+ 	return *(m_paMonthInfo[e]);
+ }
+ 
+@@ -1616,7 +1616,7 @@ std::vector<CvInfoBase*>& CvGlobals::getDenialInfo()	// For Moose - XML Load Uti
+ CvInfoBase& CvGlobals::getDenialInfo(DenialTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumDenialInfos());
++	FAssert(e < getNumDenialInfos());
+ 	return *(m_paDenialInfo[e]);
+ }
+ 
+@@ -1634,7 +1634,7 @@ std::vector<CvInfoBase*>& CvGlobals::getInvisibleInfo()	// For Moose - XML Load
+ CvInfoBase& CvGlobals::getInvisibleInfo(InvisibleTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumInvisibleInfos());
++	FAssert(e < getNumInvisibleInfos());
+ 	return *(m_paInvisibleInfo[e]);
+ }
+ 
+@@ -1652,7 +1652,7 @@ std::vector<CvVoteSourceInfo*>& CvGlobals::getVoteSourceInfo()	// For Moose - XM
+ CvVoteSourceInfo& CvGlobals::getVoteSourceInfo(VoteSourceTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumVoteSourceInfos());
++	FAssert(e < getNumVoteSourceInfos());
+ 	return *(m_paVoteSourceInfo[e]);
+ }
+ 
+@@ -1670,7 +1670,7 @@ std::vector<CvInfoBase*>& CvGlobals::getUnitCombatInfo()
+ CvInfoBase& CvGlobals::getUnitCombatInfo(UnitCombatTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumUnitCombatInfos());
++	FAssert(e < getNumUnitCombatInfos());
+ 	return *(m_paUnitCombatInfo[e]);
+ }
+ 
+@@ -1740,7 +1740,7 @@ std::vector<CvGameOptionInfo*>& CvGlobals::getGameOptionInfo()
+ CvGameOptionInfo& CvGlobals::getGameOptionInfo(GameOptionTypes eGameOptionNum)
+ {
+ 	FAssert(eGameOptionNum >= 0);
+-	FAssert(eGameOptionNum < GC.getNumGameOptionInfos());
++	FAssert(eGameOptionNum < getNumGameOptionInfos());
+ 	return *(m_paGameOptionInfos[eGameOptionNum]);
+ }
+ 
+@@ -1757,7 +1757,7 @@ std::vector<CvMPOptionInfo*>& CvGlobals::getMPOptionInfo()
+ CvMPOptionInfo& CvGlobals::getMPOptionInfo(MultiplayerOptionTypes eMPOptionNum)
+ {
+ 	FAssert(eMPOptionNum >= 0);
+-	FAssert(eMPOptionNum < GC.getNumMPOptionInfos());
++	FAssert(eMPOptionNum < getNumMPOptionInfos());
+ 	return *(m_paMPOptionInfos[eMPOptionNum]);
+ }
+ 
+@@ -1774,7 +1774,7 @@ std::vector<CvForceControlInfo*>& CvGlobals::getForceControlInfo()
+ CvForceControlInfo& CvGlobals::getForceControlInfo(ForceControlTypes eForceControlNum)
+ {
+ 	FAssert(eForceControlNum >= 0);
+-	FAssert(eForceControlNum < GC.getNumForceControlInfos());
++	FAssert(eForceControlNum < getNumForceControlInfos());
+ 	return *(m_paForceControlInfos[eForceControlNum]);
+ }
+ 
+@@ -1841,7 +1841,7 @@ std::vector<CvRouteInfo*>& CvGlobals::getRouteInfo()	// For Moose - XML Load Uti
+ CvRouteInfo& CvGlobals::getRouteInfo(RouteTypes eRouteNum)
+ {
+ 	FAssert(eRouteNum > -1);
+-	FAssert(eRouteNum < GC.getNumRouteInfos());
++	FAssert(eRouteNum < getNumRouteInfos());
+ 	return *(m_paRouteInfo[eRouteNum]);
+ }
+ 
+@@ -1858,7 +1858,7 @@ std::vector<CvImprovementInfo*>& CvGlobals::getImprovementInfo()	// For Moose -
+ CvImprovementInfo& CvGlobals::getImprovementInfo(ImprovementTypes eImprovementNum)
+ {
+ 	FAssert(eImprovementNum > -1);
+-	FAssert(eImprovementNum < GC.getNumImprovementInfos());
++	FAssert(eImprovementNum < getNumImprovementInfos());
+ 	return *(m_paImprovementInfo[eImprovementNum]);
+ }
+ 
+@@ -1875,7 +1875,7 @@ std::vector<CvGoodyInfo*>& CvGlobals::getGoodyInfo()	// For Moose - XML Load Uti
+ CvGoodyInfo& CvGlobals::getGoodyInfo(GoodyTypes eGoodyNum)
+ {
+ 	FAssert(eGoodyNum > -1);
+-	FAssert(eGoodyNum < GC.getNumGoodyInfos());
++	FAssert(eGoodyNum < getNumGoodyInfos());
+ 	return *(m_paGoodyInfo[eGoodyNum]);
+ }
+ 
+@@ -1892,7 +1892,7 @@ std::vector<CvBuildInfo*>& CvGlobals::getBuildInfo()	// For Moose - XML Load Uti
+ CvBuildInfo& CvGlobals::getBuildInfo(BuildTypes eBuildNum)
+ {
+ 	FAssert(eBuildNum > -1);
+-	FAssert(eBuildNum < GC.getNumBuildInfos());
++	FAssert(eBuildNum < getNumBuildInfos());
+ 	return *(m_paBuildInfo[eBuildNum]);
+ }
+ 
+@@ -1909,7 +1909,7 @@ std::vector<CvHandicapInfo*>& CvGlobals::getHandicapInfo()	// Do NOT export outs
+ CvHandicapInfo& CvGlobals::getHandicapInfo(HandicapTypes eHandicapNum)
+ {
+ 	FAssert(eHandicapNum > -1);
+-	FAssert(eHandicapNum < GC.getNumHandicapInfos());
++	FAssert(eHandicapNum < getNumHandicapInfos());
+ 	return *(m_paHandicapInfo[eHandicapNum]);
+ }
+ 
+@@ -1926,7 +1926,7 @@ std::vector<CvGameSpeedInfo*>& CvGlobals::getGameSpeedInfo()	// Do NOT export ou
+ CvGameSpeedInfo& CvGlobals::getGameSpeedInfo(GameSpeedTypes eGameSpeedNum)
+ {
+ 	FAssert(eGameSpeedNum > -1);
+-	FAssert(eGameSpeedNum < GC.getNumGameSpeedInfos());
++	FAssert(eGameSpeedNum < getNumGameSpeedInfos());
+ 	return *(m_paGameSpeedInfo[eGameSpeedNum]);
+ }
+ 
+@@ -1943,7 +1943,7 @@ std::vector<CvTurnTimerInfo*>& CvGlobals::getTurnTimerInfo()	// Do NOT export ou
+ CvTurnTimerInfo& CvGlobals::getTurnTimerInfo(TurnTimerTypes eTurnTimerNum)
+ {
+ 	FAssert(eTurnTimerNum > -1);
+-	FAssert(eTurnTimerNum < GC.getNumTurnTimerInfos());
++	FAssert(eTurnTimerNum < getNumTurnTimerInfos());
+ 	return *(m_paTurnTimerInfo[eTurnTimerNum]);
+ }
+ 
+@@ -1960,7 +1960,7 @@ std::vector<CvProcessInfo*>& CvGlobals::getProcessInfo()
+ CvProcessInfo& CvGlobals::getProcessInfo(ProcessTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumProcessInfos());
++	FAssert(e < getNumProcessInfos());
+ 	return *(m_paProcessInfo[e]);
+ }
+ 
+@@ -1977,7 +1977,7 @@ std::vector<CvVoteInfo*>& CvGlobals::getVoteInfo()
+ CvVoteInfo& CvGlobals::getVoteInfo(VoteTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumVoteInfos());
++	FAssert(e < getNumVoteInfos());
+ 	return *(m_paVoteInfo[e]);
+ }
+ 
+@@ -1994,7 +1994,7 @@ std::vector<CvProjectInfo*>& CvGlobals::getProjectInfo()
+ CvProjectInfo& CvGlobals::getProjectInfo(ProjectTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumProjectInfos());
++	FAssert(e < getNumProjectInfos());
+ 	return *(m_paProjectInfo[e]);
+ }
+ 
+@@ -2011,7 +2011,7 @@ std::vector<CvBuildingClassInfo*>& CvGlobals::getBuildingClassInfo()	// For Moos
+ CvBuildingClassInfo& CvGlobals::getBuildingClassInfo(BuildingClassTypes eBuildingClassNum)
+ {
+ 	FAssert(eBuildingClassNum > -1);
+-	FAssert(eBuildingClassNum < GC.getNumBuildingClassInfos());
++	FAssert(eBuildingClassNum < getNumBuildingClassInfos());
+ 	return *(m_paBuildingClassInfo[eBuildingClassNum]);
+ }
+ 
+@@ -2028,7 +2028,7 @@ std::vector<CvBuildingInfo*>& CvGlobals::getBuildingInfo()	// For Moose - XML Lo
+ CvBuildingInfo& CvGlobals::getBuildingInfo(BuildingTypes eBuildingNum)
+ {
+ 	FAssert(eBuildingNum > -1);
+-	FAssert(eBuildingNum < GC.getNumBuildingInfos());
++	FAssert(eBuildingNum < getNumBuildingInfos());
+ 	return *(m_paBuildingInfo[eBuildingNum]);
+ }
+ 
+@@ -2045,7 +2045,7 @@ std::vector<CvSpecialBuildingInfo*>& CvGlobals::getSpecialBuildingInfo()	// For
+ CvSpecialBuildingInfo& CvGlobals::getSpecialBuildingInfo(SpecialBuildingTypes eSpecialBuildingNum)
+ {
+ 	FAssert(eSpecialBuildingNum > -1);
+-	FAssert(eSpecialBuildingNum < GC.getNumSpecialBuildingInfos());
++	FAssert(eSpecialBuildingNum < getNumSpecialBuildingInfos());
+ 	return *(m_paSpecialBuildingInfo[eSpecialBuildingNum]);
+ }
+ 
+@@ -2062,7 +2062,7 @@ std::vector<CvUnitClassInfo*>& CvGlobals::getUnitClassInfo()	// For Moose - XML
+ CvUnitClassInfo& CvGlobals::getUnitClassInfo(UnitClassTypes eUnitClassNum)
+ {
+ 	FAssert(eUnitClassNum > -1);
+-	FAssert(eUnitClassNum < GC.getNumUnitClassInfos());
++	FAssert(eUnitClassNum < getNumUnitClassInfos());
+ 	return *(m_paUnitClassInfo[eUnitClassNum]);
+ }
+ 
+@@ -2150,7 +2150,7 @@ std::vector<CvPromotionInfo*>& CvGlobals::getPromotionInfo()	// For Moose - XML
+ CvPromotionInfo& CvGlobals::getPromotionInfo(PromotionTypes ePromotionNum)
+ {
+ 	FAssert(ePromotionNum > -1);
+-	FAssert(ePromotionNum < GC.getNumPromotionInfos());
++	FAssert(ePromotionNum < getNumPromotionInfos());
+ 	return *(m_paPromotionInfo[ePromotionNum]);
+ }
+ 
+@@ -2167,7 +2167,7 @@ std::vector<CvTechInfo*>& CvGlobals::getTechInfo()	// For Moose - XML Load Util,
+ CvTechInfo& CvGlobals::getTechInfo(TechTypes eTechNum)
+ {
+ 	FAssert(eTechNum > -1);
+-	FAssert(eTechNum < GC.getNumTechInfos());
++	FAssert(eTechNum < getNumTechInfos());
+ 	return *(m_paTechInfo[eTechNum]);
+ }
+ 
+@@ -2184,7 +2184,7 @@ std::vector<CvReligionInfo*>& CvGlobals::getReligionInfo()	// For Moose - XML Lo
+ CvReligionInfo& CvGlobals::getReligionInfo(ReligionTypes eReligionNum)
+ {
+ 	FAssert(eReligionNum > -1);
+-	FAssert(eReligionNum < GC.getNumReligionInfos());
++	FAssert(eReligionNum < getNumReligionInfos());
+ 	return *(m_paReligionInfo[eReligionNum]);
+ }
+ 
+@@ -2201,7 +2201,7 @@ std::vector<CvCorporationInfo*>& CvGlobals::getCorporationInfo()	// For Moose -
+ CvCorporationInfo& CvGlobals::getCorporationInfo(CorporationTypes eCorporationNum)
+ {
+ 	FAssert(eCorporationNum > -1);
+-	FAssert(eCorporationNum < GC.getNumCorporationInfos());
++	FAssert(eCorporationNum < getNumCorporationInfos());
+ 	return *(m_paCorporationInfo[eCorporationNum]);
+ }
+ 
+@@ -2218,7 +2218,7 @@ std::vector<CvSpecialistInfo*>& CvGlobals::getSpecialistInfo()	// For Moose - XM
+ CvSpecialistInfo& CvGlobals::getSpecialistInfo(SpecialistTypes eSpecialistNum)
+ {
+ 	FAssert(eSpecialistNum > -1);
+-	FAssert(eSpecialistNum < GC.getNumSpecialistInfos());
++	FAssert(eSpecialistNum < getNumSpecialistInfos());
+ 	return *(m_paSpecialistInfo[eSpecialistNum]);
+ }
+ 
+@@ -2235,7 +2235,7 @@ std::vector<CvCivicOptionInfo*>& CvGlobals::getCivicOptionInfo()	// For Moose -
+ CvCivicOptionInfo& CvGlobals::getCivicOptionInfo(CivicOptionTypes eCivicOptionNum)
+ {
+ 	FAssert(eCivicOptionNum > -1);
+-	FAssert(eCivicOptionNum < GC.getNumCivicOptionInfos());
++	FAssert(eCivicOptionNum < getNumCivicOptionInfos());
+ 	return *(m_paCivicOptionInfo[eCivicOptionNum]);
+ }
+ 
+@@ -2252,7 +2252,7 @@ std::vector<CvCivicInfo*>& CvGlobals::getCivicInfo()	// For Moose - XML Load Uti
+ CvCivicInfo& CvGlobals::getCivicInfo(CivicTypes eCivicNum)
+ {
+ 	FAssert(eCivicNum > -1);
+-	FAssert(eCivicNum < GC.getNumCivicInfos());
++	FAssert(eCivicNum < getNumCivicInfos());
+ 	return *(m_paCivicInfo[eCivicNum]);
+ }
+ 
+@@ -2286,7 +2286,7 @@ std::vector<CvEraInfo*>& CvGlobals::getEraInfo()	// For Moose - XML Load Util, C
+ CvEraInfo& CvGlobals::getEraInfo(EraTypes eEraNum)
+ {
+ 	FAssert(eEraNum > -1);
+-	FAssert(eEraNum < GC.getNumEraInfos());
++	FAssert(eEraNum < getNumEraInfos());
+ 	return *(m_aEraInfo[eEraNum]);
+ }
+ 
+@@ -2303,7 +2303,7 @@ std::vector<CvHurryInfo*>& CvGlobals::getHurryInfo()	// For Moose - XML Load Uti
+ CvHurryInfo& CvGlobals::getHurryInfo(HurryTypes eHurryNum)
+ {
+ 	FAssert(eHurryNum > -1);
+-	FAssert(eHurryNum < GC.getNumHurryInfos());
++	FAssert(eHurryNum < getNumHurryInfos());
+ 	return *(m_paHurryInfo[eHurryNum]);
+ }
+ 
+@@ -2320,7 +2320,7 @@ std::vector<CvEmphasizeInfo*>& CvGlobals::getEmphasizeInfo()	// For Moose - XML
+ CvEmphasizeInfo& CvGlobals::getEmphasizeInfo(EmphasizeTypes eEmphasizeNum)
+ {
+ 	FAssert(eEmphasizeNum > -1);
+-	FAssert(eEmphasizeNum < GC.getNumEmphasizeInfos());
++	FAssert(eEmphasizeNum < getNumEmphasizeInfos());
+ 	return *(m_paEmphasizeInfo[eEmphasizeNum]);
+ }
+ 
+@@ -2337,7 +2337,7 @@ std::vector<CvUpkeepInfo*>& CvGlobals::getUpkeepInfo()	// For Moose - XML Load U
+ CvUpkeepInfo& CvGlobals::getUpkeepInfo(UpkeepTypes eUpkeepNum)
+ {
+ 	FAssert(eUpkeepNum > -1);
+-	FAssert(eUpkeepNum < GC.getNumUpkeepInfos());
++	FAssert(eUpkeepNum < getNumUpkeepInfos());
+ 	return *(m_paUpkeepInfo[eUpkeepNum]);
+ }
+ 
+@@ -2354,7 +2354,7 @@ std::vector<CvCultureLevelInfo*>& CvGlobals::getCultureLevelInfo()	// For Moose
+ CvCultureLevelInfo& CvGlobals::getCultureLevelInfo(CultureLevelTypes eCultureLevelNum)
+ {
+ 	FAssert(eCultureLevelNum > -1);
+-	FAssert(eCultureLevelNum < GC.getNumCultureLevelInfos());
++	FAssert(eCultureLevelNum < getNumCultureLevelInfos());
+ 	return *(m_paCultureLevelInfo[eCultureLevelNum]);
+ }
+ 
+@@ -2371,7 +2371,7 @@ std::vector<CvVictoryInfo*>& CvGlobals::getVictoryInfo()	// For Moose - XML Load
+ CvVictoryInfo& CvGlobals::getVictoryInfo(VictoryTypes eVictoryNum)
+ {
+ 	FAssert(eVictoryNum > -1);
+-	FAssert(eVictoryNum < GC.getNumVictoryInfos());
++	FAssert(eVictoryNum < getNumVictoryInfos());
+ 	return *(m_paVictoryInfo[eVictoryNum]);
+ }
+ 
+@@ -2389,7 +2389,7 @@ std::vector<CvQuestInfo*>& CvGlobals::getQuestInfo()
+ CvQuestInfo& CvGlobals::getQuestInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+-	FAssert(iIndex < GC.getNumQuestInfos());
++	FAssert(iIndex < getNumQuestInfos());
+ 	return *(m_paQuestInfo[iIndex]);
+ }*/
+ 
+@@ -2406,7 +2406,7 @@ std::vector<CvTutorialInfo*>& CvGlobals::getTutorialInfo()
+ CvTutorialInfo& CvGlobals::getTutorialInfo(int iIndex)
+ {
+ 	FAssert(iIndex > -1);
+-	FAssert(iIndex < GC.getNumTutorialInfos());
++	FAssert(iIndex < getNumTutorialInfos());
+ 	return *(m_paTutorialInfo[iIndex]);
+ }
+ 
+@@ -2423,7 +2423,7 @@ std::vector<CvEventTriggerInfo*>& CvGlobals::getEventTriggerInfo()
+ CvEventTriggerInfo& CvGlobals::getEventTriggerInfo(EventTriggerTypes eEventTrigger)
+ {
+ 	FAssert(eEventTrigger > -1);
+-	FAssert(eEventTrigger < GC.getNumEventTriggerInfos());
++	FAssert(eEventTrigger < getNumEventTriggerInfos());
+ 	return *(m_paEventTriggerInfo[eEventTrigger]);
+ }
+ 
+@@ -2440,7 +2440,7 @@ std::vector<CvEventInfo*>& CvGlobals::getEventInfo()
+ CvEventInfo& CvGlobals::getEventInfo(EventTypes eEvent)
+ {
+ 	FAssert(eEvent > -1);
+-	FAssert(eEvent < GC.getNumEventInfos());
++	FAssert(eEvent < getNumEventInfos());
+ 	return *(m_paEventInfo[eEvent]);
+ }
+ 
+@@ -2457,7 +2457,7 @@ std::vector<CvEspionageMissionInfo*>& CvGlobals::getEspionageMissionInfo()
+ CvEspionageMissionInfo& CvGlobals::getEspionageMissionInfo(EspionageMissionTypes eEspionageMissionNum)
+ {
+ 	FAssert(eEspionageMissionNum > -1);
+-	FAssert(eEspionageMissionNum < GC.getNumEspionageMissionInfos());
++	FAssert(eEspionageMissionNum < getNumEspionageMissionInfos());
+ 	return *(m_paEspionageMissionInfo[eEspionageMissionNum]);
+ }
+ 
+@@ -2474,7 +2474,7 @@ CvString*& CvGlobals::getEntityEventTypes()
+ CvString& CvGlobals::getEntityEventTypes(EntityEventTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumEntityEventTypes());
++	FAssert(e < getNumEntityEventTypes());
+ 	return m_paszEntityEventTypes[e];
+ }
+ 
+@@ -2491,7 +2491,7 @@ CvString*& CvGlobals::getAnimationOperatorTypes()
+ CvString& CvGlobals::getAnimationOperatorTypes(AnimationOperatorTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumAnimationOperatorTypes());
++	FAssert(e < getNumAnimationOperatorTypes());
+ 	return m_paszAnimationOperatorTypes[e];
+ }
+ 
+@@ -2520,7 +2520,7 @@ CvString*& CvGlobals::getFlavorTypes()
+ CvString& CvGlobals::getFlavorTypes(FlavorTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumFlavorTypes());
++	FAssert(e < getNumFlavorTypes());
+ 	return m_paszFlavorTypes[e];
+ }
+ 
+@@ -2537,7 +2537,7 @@ CvString*& CvGlobals::getArtStyleTypes()
+ CvString& CvGlobals::getArtStyleTypes(ArtStyleTypes e)
+ {
+ 	FAssert(e > -1);
+-	FAssert(e < GC.getNumArtStyleTypes());
++	FAssert(e < getNumArtStyleTypes());
+ 	return m_paszArtStyleTypes[e];
+ }
+ 
+@@ -2554,7 +2554,7 @@ std::vector<CvUnitArtStyleTypeInfo*>& CvGlobals::getUnitArtStyleTypeInfo()
+ CvUnitArtStyleTypeInfo& CvGlobals::getUnitArtStyleTypeInfo(UnitArtStyleTypes eUnitArtStyleTypeNum)
+ {
+ 	FAssert(eUnitArtStyleTypeNum > -1);
+-	FAssert(eUnitArtStyleTypeNum < GC.getNumUnitArtStyleTypeInfos());
++	FAssert(eUnitArtStyleTypeNum < getNumUnitArtStyleTypeInfos());
+ 	return *(m_paUnitArtStyleTypeInfo[eUnitArtStyleTypeNum]);
+ }
+ 
+@@ -2678,7 +2678,7 @@ void CvGlobals::setCurrentXMLFile(const TCHAR* szFileName)
+ 	m_szCurrentXMLFile = szFileName;
+ }
+ 
+-CvString& CvGlobals::getCurrentXMLFile()
++CvString const& CvGlobals::getCurrentXMLFile() const
+ {
+ 	return m_szCurrentXMLFile;
+ }
+@@ -2707,7 +2707,7 @@ void CvGlobals::cacheGlobals()
+ 	m_iTECH_COST_TOTAL_KNOWN_TEAM_MODIFIER = getDefineINT("TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER");
+ 	// </advc.003b>
+ 	// advc.210:
+-	m_iRESEARCH_MODIFIER_EXTRA_TEAM_MEMBER = GC.getDefineINT("RESEARCH_MODIFIER_EXTRA_TEAM_MEMBER");
++	m_iRESEARCH_MODIFIER_EXTRA_TEAM_MEMBER = getDefineINT("RESEARCH_MODIFIER_EXTRA_TEAM_MEMBER");
+ 	// advc.099b:
+ 	m_iCITY_RADIUS_DECAY = getDefineINT("CITY_RADIUS_DECAY");
+ 	// advc.005f:
+@@ -2717,15 +2717,15 @@ void CvGlobals::cacheGlobals()
+ 	// advc.104:
+ 	m_iUWAI_MULTI_WAR_RELUCTANCE = getDefineINT("UWAI_MULTI_WAR_RELUCTANCE");
+ 	// advc.122:
+-	m_iCITY_TRADE_CULTURE_THRESH = GC.getDefineINT("CITY_TRADE_CULTURE_THRESH");
++	m_iCITY_TRADE_CULTURE_THRESH = getDefineINT("CITY_TRADE_CULTURE_THRESH");
+ 	// advc.002a:
+-	m_iMINIMAP_WATER_MODE = GC.getDefineINT("MINIMAP_WATER_MODE");
++	m_iMINIMAP_WATER_MODE = getDefineINT("MINIMAP_WATER_MODE");
+ 	// advc.011:
+-	m_iDELAY_UNTIL_BUILD_DECAY = GC.getDefineINT("DELAY_UNTIL_BUILD_DECAY");
++	m_iDELAY_UNTIL_BUILD_DECAY = getDefineINT("DELAY_UNTIL_BUILD_DECAY");
+ 	// advc.910:
+-	m_iBASE_RESEARCH_RATE = GC.getDefineINT("BASE_RESEARCH_RATE");
++	m_iBASE_RESEARCH_RATE = getDefineINT("BASE_RESEARCH_RATE");
+ 	// advc.003b:
+-	m_iNEW_HURRY_MODIFIER = GC.getDefineINT("NEW_HURRY_MODIFIER");
++	m_iNEW_HURRY_MODIFIER = getDefineINT("NEW_HURRY_MODIFIER");
+ 	m_iMOVE_DENOMINATOR = getDefineINT("MOVE_DENOMINATOR");
+ 	m_iNUM_UNIT_PREREQ_OR_BONUSES = getDefineINT("NUM_UNIT_PREREQ_OR_BONUSES");
+ 	m_iNUM_BUILDING_PREREQ_OR_BONUSES = getDefineINT("NUM_BUILDING_PREREQ_OR_BONUSES");
+@@ -2886,7 +2886,7 @@ int CvGlobals::getDefineINT( const char * szName, const int iDefault ) const
+ {
+ 	int iReturn = 0;
+ 
+-	if( GC.getDefinesVarSystem()->GetValue( szName, iReturn ) )
++	if( getDefinesVarSystemINLINE()->GetValue( szName, iReturn ) )
+ 	{
+ 		return iReturn;
+ 	}
+@@ -2901,41 +2901,47 @@ int CvGlobals::getDefineINT( const char * szName, const int iDefault ) const
+ int CvGlobals::getDefineINT( const char * szName ) const
+ {
+ 	int iReturn = 0;
+-	bool success = // advc.003c
+-			GC.getDefinesVarSystem()->GetValue( szName, iReturn );
+-	FAssert(success); // advc.003c
++	bool bSuccess = // advc.003c
++			getDefinesVarSystemINLINE()->GetValue( szName, iReturn );
++	FAssert(bSuccess); // advc.003c
+ 	return iReturn;
+ }
+ 
+ float CvGlobals::getDefineFLOAT( const char * szName ) const
+ {
+ 	float fReturn = 0;
+-	GC.getDefinesVarSystem()->GetValue( szName, fReturn );
++	bool bSuccess = // advc.003c
++			getDefinesVarSystemINLINE()->GetValue( szName, fReturn );
++	/*  advc.003c: The EXE queries CAMERA_MIN_DISTANCE during startup, which
++		fails but doesn't cause any problems. */
++	FAssert(bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
+ 	return fReturn;
+ }
+ 
+ const char * CvGlobals::getDefineSTRING( const char * szName ) const
+ {
+ 	const char * szReturn = NULL;
+-	GC.getDefinesVarSystem()->GetValue( szName, szReturn );
++	bool bSuccess = // advc.003c
++			getDefinesVarSystemINLINE()->GetValue( szName, szReturn );
++	FAssert(bSuccess); // advc.003c
+ 	return szReturn;
+ }
+ 
+ void CvGlobals::setDefineINT( const char * szName, int iValue )
+ {
+-	GC.getDefinesVarSystem()->SetValue( szName, iValue );
++	getDefinesVarSystem()->SetValue( szName, iValue );
+ 	cacheGlobals();
+ }
+ 
+ void CvGlobals::setDefineFLOAT( const char * szName, float fValue )
+ {
+-	GC.getDefinesVarSystem()->SetValue( szName, fValue );
++	getDefinesVarSystem()->SetValue( szName, fValue );
+ 	cacheGlobals();
+ }
+ 
+ void CvGlobals::setDefineSTRING( const char * szName, const char * szValue )
+ {
+-	GC.getDefinesVarSystem()->SetValue( szName, szValue );
++	getDefinesVarSystem()->SetValue( szName, szValue );
+ 	cacheGlobals();
+ }
+ 
+@@ -3700,18 +3706,18 @@ void CvGlobals::deleteInfoArrays()
+ 	deleteInfoArray(m_paCivicOptionInfo);
+ 	deleteInfoArray(m_paCursorInfo);
+ 
+-	SAFE_DELETE_ARRAY(GC.getEntityEventTypes());
+-	SAFE_DELETE_ARRAY(GC.getAnimationOperatorTypes());
+-	SAFE_DELETE_ARRAY(GC.getFunctionTypes());
+-	SAFE_DELETE_ARRAY(GC.getFlavorTypes());
+-	SAFE_DELETE_ARRAY(GC.getArtStyleTypes());
+-	SAFE_DELETE_ARRAY(GC.getCitySizeTypes());
+-	SAFE_DELETE_ARRAY(GC.getContactTypes());
+-	SAFE_DELETE_ARRAY(GC.getDiplomacyPowerTypes());
+-	SAFE_DELETE_ARRAY(GC.getAutomateTypes());
+-	SAFE_DELETE_ARRAY(GC.getDirectionTypes());
+-	SAFE_DELETE_ARRAY(GC.getFootstepAudioTypes());
+-	SAFE_DELETE_ARRAY(GC.getFootstepAudioTags());
++	SAFE_DELETE_ARRAY(getEntityEventTypes());
++	SAFE_DELETE_ARRAY(getAnimationOperatorTypes());
++	SAFE_DELETE_ARRAY(getFunctionTypes());
++	SAFE_DELETE_ARRAY(getFlavorTypes());
++	SAFE_DELETE_ARRAY(getArtStyleTypes());
++	SAFE_DELETE_ARRAY(getCitySizeTypes());
++	SAFE_DELETE_ARRAY(getContactTypes());
++	SAFE_DELETE_ARRAY(getDiplomacyPowerTypes());
++	SAFE_DELETE_ARRAY(getAutomateTypes());
++	SAFE_DELETE_ARRAY(getDirectionTypes());
++	SAFE_DELETE_ARRAY(getFootstepAudioTypes());
++	SAFE_DELETE_ARRAY(getFootstepAudioTags());
+ 	//deleteInfoArray(m_paQuestInfo); // advc.003j
+ 	deleteInfoArray(m_paTutorialInfo);
+ 
+@@ -3755,7 +3761,7 @@ int CvGlobals::getInfoTypeForString(const char* szType, bool hideAssert) const
+ 	//if(!hideAssert)
+ 	if (!hideAssert && !(strcmp(szType, "NONE")==0 || strcmp(szType, "")==0)) // K-Mod
+ 	{	// <advc.006>
+-		char const* szCurrentXMLFile = GC.getCurrentXMLFile().GetCString();
++		char const* szCurrentXMLFile = getCurrentXMLFile().GetCString();
+ 		/*  This function gets called from Python with szType=PLOT_PEAK etc.
+ 			These are PlotTypes, which don't have associated info objects. Results
+ 			in an error message in the xml.log. Perhaps the WB plot types in
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 9e74c110b..c674a1345 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -676,7 +676,7 @@ public:
+ 	CvString*& getFootstepAudioTags();
+ 	DllExport CvString& getFootstepAudioTags(int i);
+ 
+-	CvString& getCurrentXMLFile();
++	CvString const& getCurrentXMLFile() const; // advc.003: 2x const
+ 	void setCurrentXMLFile(const TCHAR* szFileName);
+ 
+ 	//
+@@ -685,6 +685,8 @@ public:
+ 	//
+ 
+ 	DllExport FVariableSystem* getDefinesVarSystem();
++	// advc.003: Needed a const version
++	FVariableSystem const* getDefinesVarSystemINLINE() const { return m_VarSystem; }
+ 	void cacheGlobals();
+ 
+ 	// ***** EXPOSED TO PYTHON *****
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index 03b0316a4..b1418141b 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -2162,7 +2162,7 @@ void CvPromotionInfo::write(FDataStreamBase* stream)
+ 	stream->Write(m_iExperiencePercent);
+ 	stream->Write(m_iKamikazePercent);
+ 	stream->Write(m_bLeader);
+-	stream->Write(&m_iBlitz); // advc.164
++	stream->Write(m_iBlitz); // advc.164
+ 	stream->Write(m_bAmphib);
+ 	stream->Write(m_bRiver);
+ 	stream->Write(m_bEnemyRoute);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index ac9d25620..93c446975 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3554,7 +3554,7 @@ void CvPlayer::doTurn()
+ 	   doTurn contains the entire sequence of an AI turn, but is also called when
+ 	   a human player ends his/her turn. */
+ 	g.setAITurn(true);
+-	if(isHuman() && getStartOfTurnMessageLimit() >= 0 &&
++	if(isHuman() && //getStartOfTurnMessageLimit() >= 0 && // The message should be helpful even if the log doesn't auto-open
+ 			g.getElapsedGameTurns() > 0 && !m_listGameMessages.empty()) {
+ 		CvWString endTurnMsg = gDLL->getText("TXT_KEY_END_TURN_MSG");
+ 		gDLL->getInterfaceIFace()->addHumanMessage(getID(), false, 0, endTurnMsg,
+@@ -4602,10 +4602,6 @@ void CvPlayer::contact(PlayerTypes ePlayer)
+ 
+ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer, int iData1, int iData2)
+ {
+-	CivicTypes* paeNewCivics;
+-	CvCity* pCity;
+-	int iI;
+-
+ 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
+ 
+ 	switch (eDiploEvent)
+@@ -4627,18 +4623,18 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 
+ 	case DIPLOEVENT_GIVE_HELP:
+ 		// advc.130j:
+-		GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_GIVE_HELP);
++		AI().AI_rememberEvent(ePlayer, MEMORY_GIVE_HELP);
+ 		forcePeace(ePlayer);
+ 		break;
+ 
+ 	case DIPLOEVENT_REFUSED_HELP:
+ 		// advc.130j:
+-		GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_REFUSED_HELP);
++		AI().AI_rememberEvent(ePlayer, MEMORY_REFUSED_HELP);
+ 		break;
+ 
+ 	case DIPLOEVENT_ACCEPT_DEMAND:
+ 		// advc.130j:
+-		GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_ACCEPT_DEMAND);
++		AI().AI_rememberEvent(ePlayer, MEMORY_ACCEPT_DEMAND);
+ 		/*  advc.130o, advc.104: So that the AI can tell if a demand was
+ 			_recently_ accepted. Don't call AI_rememberEvent b/c I want only
+ 			a "half" memory (for 10 turns instead of 20). */
+@@ -4659,7 +4655,7 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 	case DIPLOEVENT_REJECTED_DEMAND:
+ 		FAssertMsg(GET_PLAYER(ePlayer).getTeam() != getTeam(), "shouldn't call this function on our own team");
+ 		// advc.130j:
+-		GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_REJECTED_DEMAND);
++		AI().AI_rememberEvent(ePlayer, MEMORY_REJECTED_DEMAND);
+ 		if (AI_demandRebukedSneak(ePlayer))
+ 		{
+ 			GET_TEAM(getTeam()).AI_setWarPlan(GET_PLAYER(ePlayer).getTeam(), WARPLAN_PREPARING_LIMITED);
+@@ -4685,21 +4681,20 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 
+ 	case DIPLOEVENT_CONVERT:
+ 		// advc.130j:
+-		GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_ACCEPTED_RELIGION);
++		AI().AI_rememberEvent(ePlayer, MEMORY_ACCEPTED_RELIGION);
+ 		GET_PLAYER(ePlayer).convert(getStateReligion());
+ 		break;
+ 
+ 	case DIPLOEVENT_NO_CONVERT:
+ 		// advc.130j:
+-		GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_DENIED_RELIGION);
++		AI().AI_rememberEvent(ePlayer, MEMORY_DENIED_RELIGION);
+ 		break;
+ 
+-	case DIPLOEVENT_REVOLUTION:
++	case DIPLOEVENT_REVOLUTION: {
+ 		AI_changeMemoryCount(ePlayer, MEMORY_ACCEPTED_CIVIC, 1);
+ 
+-		paeNewCivics = new CivicTypes[GC.getNumCivicOptionInfos()];
+-
+-		for (iI = 0; iI < GC.getNumCivicOptionInfos(); iI++)
++		CivicTypes* paeNewCivics = new CivicTypes[GC.getNumCivicOptionInfos()];
++		for (int iI = 0; iI < GC.getNumCivicOptionInfos(); iI++)
+ 		{
+ 			paeNewCivics[iI] = GET_PLAYER(ePlayer).getCivics((CivicOptionTypes)iI);
+ 		}
+@@ -4712,15 +4707,15 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 
+ 		SAFE_DELETE_ARRAY(paeNewCivics);
+ 		break;
+-
++	}
+ 	case DIPLOEVENT_NO_REVOLUTION:
+ 		// advc.130j:
+-		GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_DENIED_CIVIC);
++		AI().AI_rememberEvent(ePlayer, MEMORY_DENIED_CIVIC);
+ 		break;
+ 
+ 	case DIPLOEVENT_JOIN_WAR:
+ 		// advc.130j:
+-		GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_ACCEPTED_JOIN_WAR);
++		AI().AI_rememberEvent(ePlayer, MEMORY_ACCEPTED_JOIN_WAR);
+ 		// advc.146:
+ 		GET_TEAM(getTeam()).signPeaceTreaty(TEAMID(ePlayer));
+ /************************************************************************************************/
+@@ -4737,7 +4732,7 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ /************************************************************************************************/
+ 		TEAMREF(ePlayer).declareWar((TeamTypes)iData1, false, WARPLAN_DOGPILE,
+ 				true, getID()); // advc.100
+-		for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++		for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 		{
+ 			CvPlayerAI& attacked = GET_PLAYER((PlayerTypes)iI); // <advc.003>
+ 			if(!attacked.isAlive() || attacked.getTeam() != (TeamTypes)iData1)
+@@ -4749,17 +4744,17 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 
+ 	case DIPLOEVENT_NO_JOIN_WAR:
+ 		// advc.130j:
+-		GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_DENIED_JOIN_WAR);
++		AI().AI_rememberEvent(ePlayer, MEMORY_DENIED_JOIN_WAR);
+ 		break;
+ 
+ 	case DIPLOEVENT_STOP_TRADING:
+ 		// advc.130j:
+-		GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_ACCEPTED_STOP_TRADING);
++		AI().AI_rememberEvent(ePlayer, MEMORY_ACCEPTED_STOP_TRADING);
+ 		GET_PLAYER(ePlayer).stopTradingWithTeam((TeamTypes)iData1);
+ 		// <advc.130f> We also stop trading (unless ePlayer is our capitulated vassal)
+ 		if(!TEAMREF(ePlayer).isCapitulated() || !TEAMREF(ePlayer).isVassal(getTeam()))
+ 			stopTradingWithTeam((TeamTypes)iData1, false); // </advc.130f>
+-		for (iI = 0; iI < MAX_PLAYERS; iI++)
++		for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 			{
+@@ -4773,7 +4768,7 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 
+ 	case DIPLOEVENT_NO_STOP_TRADING:
+ 		// advc.130j:
+-		GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_DENIED_STOP_TRADING);
++		AI().AI_rememberEvent(ePlayer, MEMORY_DENIED_STOP_TRADING);
+ 		break;
+ 
+ 	case DIPLOEVENT_ASK_HELP:
+@@ -4786,11 +4781,17 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 			// <advc.130j>
+ 			int demandRecentMem = AI_getMemoryCount(ePlayer, MEMORY_MADE_DEMAND_RECENT);
+ 			if(demandRecentMem <= 0)
+-				GET_PLAYER(getID()).AI_rememberEvent(ePlayer, MEMORY_MADE_DEMAND_RECENT);
++				AI().AI_rememberEvent(ePlayer, MEMORY_MADE_DEMAND_RECENT);
+ 			// Only remember it half if already remembered as recent, and cap at 2
+ 			else if(demandRecentMem < 2)
+ 				AI_changeMemoryCount(ePlayer, MEMORY_MADE_DEMAND_RECENT, 1);
+ 		} // </advc.130o></advc.130j>
++		// <advc.144>
++		if(iData1 > 0) { // Let proxy AI remember when a human request is granted
++			GET_PLAYER(ePlayer).AI_rememberEvent(getID(), // advc.130j
++					eDiploEvent == DIPLOEVENT_ASK_HELP ?
++					MEMORY_GIVE_HELP : MEMORY_ACCEPT_DEMAND);
++		} // </advc.144>
+ 		break;
+ 
+ 	case DIPLOEVENT_MADE_DEMAND_VASSAL:
+@@ -4800,16 +4801,16 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 		pushResearch(((TechTypes)iData1), true);
+ 		break;
+ 
+-	case DIPLOEVENT_TARGET_CITY:
+-		pCity = GET_PLAYER((PlayerTypes)iData1).getCity(iData2);
++	case DIPLOEVENT_TARGET_CITY: {
++		CvCity* pCity = GET_PLAYER((PlayerTypes)iData1).getCity(iData2);
+ 		if (pCity != NULL)
+ 		{
+ 			pCity->area()->setTargetCity(getID(), pCity);
+ 			// K-Mod. (I'd make it a virtual function, but that causes problems.)
+-			GET_PLAYER(getID()).AI_setCityTargetTimer(GC.getPEACE_TREATY_LENGTH());
++			AI().AI_setCityTargetTimer(GC.getPEACE_TREATY_LENGTH());
+ 		}
+ 		break;
+-	// K-Mod
++	} // K-Mod
+ 	case DIPLOEVENT_SET_WARPLAN:
+ 	{
+ 		CvTeamAI& kOurTeam = GET_TEAM(getTeam());
+@@ -9437,10 +9438,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
+ 			changeAnarchyTurns(-getAnarchyTurns());
+ 			// K-Mod. Allow the AI to reconsider their civics. (a golden age is a good time for reform!)
+ 			if (!isHuman() && getMaxAnarchyTurns() != 0 && getAnarchyModifier() + 100 > 0)
+-			{
+-				GET_PLAYER(getID()).AI_setCivicTimer(0); // silly, I know. But what else can I do?
+-			}
+-			// K-Mod end
++				AI().AI_setCivicTimer(0); // K-Mod end
+ 		}
+ 
+ 		updateYield();
+@@ -11388,7 +11386,7 @@ void CvPlayer::setAlive(bool bNewValue)
+ 			for (PlayerTypes i = (PlayerTypes)0; i < MAX_CIV_PLAYERS; i=(PlayerTypes)(i+1))
+ 			{
+ 				GET_PLAYER(i).AI_updateAttitudeCache(getID());
+-				GET_PLAYER(getID()).AI_updateAttitudeCache(i);
++				AI().AI_updateAttitudeCache(i);
+ 			}
+ 		// K-Mod end
+ 		}
+@@ -11539,7 +11537,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 	if (isTurnActive())
+ 	{
+ 		// K-Mod
+-		GET_PLAYER(getID()).updateCacheData();
++		AI().updateCacheData();
+ 		onTurnLogging(); // bbai logging
+ 		// K-Mod end
+ 
+@@ -11789,11 +11787,8 @@ void CvPlayer::onTurnLogging() const
+ 		CvWStringBuffer szBuffer;
+ 
+ 		logBBAI("    Player %d (%S) has %d cities, %d pop, %d power, %d tech percent", getID(), getCivilizationDescription(0), getNumCities(), getTotalPopulation(), getPower(), GET_TEAM(getTeam()).getBestKnownTechScorePercent());
+-
+-		if( GET_PLAYER(getID()).AI_isFinancialTrouble() )
+-		{
++		if( AI().AI_isFinancialTrouble() )
+ 			logBBAI("    Financial trouble!");
+-		}
+ 
+ 		szBuffer.append(CvWString::format(L"    Team %d has met: ", getTeam()));
+ 
+@@ -12202,11 +12197,10 @@ void CvPlayer::setLastStateReligion(ReligionTypes eNewValue)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).getStateReligion() != NO_RELIGION)
+ 		{
+-			GET_PLAYER(getID()).AI_updateAttitudeCache((PlayerTypes)iI);
++			AI().AI_updateAttitudeCache((PlayerTypes)iI);
+ 			GET_PLAYER((PlayerTypes)iI).AI_updateAttitudeCache(getID());
+ 		}
+-	}
+-	// K-Mod end
++	} // K-Mod end
+ }
+ 
+ PlayerTypes CvPlayer::getParent() const
+@@ -12301,11 +12295,10 @@ void CvPlayer::setTeam(TeamTypes eTeam)
+ 			&& !isBarbarian()) { // advc.003n
+ 		for (PlayerTypes i = (PlayerTypes)0; i < MAX_CIV_PLAYERS; i=(PlayerTypes)(i+1))
+ 		{
+-			GET_PLAYER(getID()).AI_updateAttitudeCache(i);
++			AI().AI_updateAttitudeCache(i);
+ 			GET_PLAYER(i).AI_updateAttitudeCache(getID());
+ 		}
+-	}
+-	// K-Mod end
++	} // K-Mod end
+ }
+ 
+ 
+@@ -12607,9 +12600,8 @@ bool CvPlayer::setCommercePercent(CommerceTypes eIndex, int iNewValue, bool bFor
+ 	updateCommerce();
+ 	// K-Mod. For human players, update commerce weight immediately so that they can see effects on working plots, etc.
+ 	if (isHuman() && isTurnActive())
+-		GET_PLAYER(getID()).AI_updateCommerceWeights();
++		AI().AI_updateCommerceWeights();
+ 	// K-Mod end
+-
+ 	AI_makeAssignWorkDirty();
+ 
+ 	/* original bts code
+@@ -13804,7 +13796,7 @@ void CvPlayer::setCivics(CivicOptionTypes eIndex, CivicTypes eNewValue)
+ 	if(!isBarbarian()) { // advc.003n
+ 		for (PlayerTypes i = (PlayerTypes)0; i < MAX_CIV_PLAYERS; i=(PlayerTypes)(i+1))
+ 		{
+-			GET_PLAYER(getID()).AI_updateAttitudeCache(i);
++			AI().AI_updateAttitudeCache(i);
+ 			GET_PLAYER(i).AI_updateAttitudeCache(getID());
+ 		} // K-Mod end
+ 	}
+@@ -18202,7 +18194,7 @@ void CvPlayer::processCivics(CivicTypes eCivic, int iChange)
+ 	// <advc.912c>
+ 	changeLuxuryModifier(GC.getCivicInfo(eCivic).getLuxuryModifier() * iChange);
+ 	if(GC.getCivicInfo(eCivic).getLuxuryModifier() != 0)
+-		GET_PLAYER(getID()).AI_updateBonusValue(); // </advc.912c>
++		AI().AI_updateBonusValue(); // </advc.912c>
+ 	changeMilitaryFoodProductionCount((GC.getCivicInfo(eCivic).isMilitaryFoodProduction()) ? iChange : 0);
+ 	changeMaxConscript(getWorldSizeMaxConscript(eCivic) * iChange);
+ 	//changeNoUnhealthyPopulationCount((GC.getCivicInfo(eCivic).isNoUnhealthyPopulation()) ? iChange : 0);
+@@ -22380,10 +22372,9 @@ bool CvPlayer::splitEmpire(int iAreaId)
+ 			2 * GC.getLeaderHeadInfo(getPersonalityType()).getFreedomAppreciation());
+ 
+ 	GC.getGameINLINE().updatePlotGroups();
+-
+ 	// K-Mod
+ 	GET_PLAYER(eNewPlayer).AI_updateAttitudeCache(getID());
+-	GET_PLAYER(getID()).AI_updateAttitudeCache(eNewPlayer);
++	AI().AI_updateAttitudeCache(eNewPlayer);
+ 	// K-Mod end
+ 	// <advc.104r>
+ 	if(getWPAI.isEnabled())
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 978e7eef4..1daa3b7b5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2425,6 +2425,9 @@ int CvPlayerAI::AI_yieldWeight(YieldTypes eYield, const CvCity* pCity) const //
+ 	case YIELD_PRODUCTION:
+ 		iWeight *= 210; // advc.110: 270 in K-Mod, 200 in BtS
+ 		iWeight /= 100;
++		// <advc.110>
++		if(!canPopRush())
++			iWeight += 7; // </advc.110>
+ 		break;
+ 	case YIELD_COMMERCE:
+ 		if (AI_isFinancialTrouble())
+@@ -12882,10 +12885,8 @@ int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled,
+ 			// advc.036: Cover all strange cases here
+ 			|| iChange + iBonusCount < 1) {
+ 		//This is assuming the none-to-one or one-to-none case.
+-		iValue += AI_baseBonusVal(eBonus,
+-				bTrade); // advc.036
+-		iValue += AI_corporationBonusVal(eBonus,
+-				bTrade); // advc.036
++		iValue += AI_baseBonusVal(eBonus, /* advc.036: */ bTrade);
++		iValue += AI_corporationBonusVal(eBonus, /* advc.036: */ bTrade);
+ 		if(!bTrade)
+ 			iValue = std::max(iValue, iTradeVal); // advc.036
+ 		// K-Mod.
+@@ -13157,9 +13158,11 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 				getCivilizationType()).getCivilizationBuildings(iI);
+ 		if(eLoopBuilding == NO_BUILDING)
+ 			continue;
++
++		BuildingClassTypes eBuildingClass = (BuildingClassTypes)iI;
+ 		CvBuildingInfo& kLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
+-		int iTempValue = 0;
+ 
++		int iTempValue = 0;
+ 		if(kLoopBuilding.getPrereqAndBonus() == eBonus)
+ 			iTempValue += 25; // advc.036: was 30
+ 
+@@ -13167,7 +13170,6 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 			if (kLoopBuilding.getPrereqOrBonuses(iJ) == eBonus)
+ 				iTempValue += 15; // advc.036: was 20
+ 		}
+-
+ 		iTempValue += kLoopBuilding.getBonusProductionModifier(eBonus) / 10;
+ 
+ 		if(kLoopBuilding.getPowerBonus() == eBonus)
+@@ -13184,7 +13186,7 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 							we may not be able to build it at all ...
+ 							Too tedious to check getPrereqNumOfBuildingClass,
+ 							so just use a constant divisor. */
+-						(::isNationalWonderClass((BuildingClassTypes)iI) ? 5 :
++						(::isNationalWonderClass(eBuildingClass) ? 5 :
+ 						2);
+ 			}
+ 			if (kLoopBuilding.getPowerBonus() == eBonus)
+@@ -13221,12 +13223,20 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus,
+ 			if(bTrade && !bCanConstruct)
+ 				iTempValue = 0; // </advc.036>
+ 			// if non-limited water building, weight by coastal cities
+-			if(kLoopBuilding.isWater() && !isLimitedWonderClass(
+-					(BuildingClassTypes)kLoopBuilding.getBuildingClassType())) {
++			if(kLoopBuilding.isWater() && !::isLimitedWonderClass(eBuildingClass)) {
+ 				iTempValue *= iCoastalCityCount;
+ 				iTempValue /= std::max(1, iCityCount/2);
+-			}
+-			if(kLoopBuilding.getPrereqAndTech() != NO_TECH) {
++			} // <advc.036>
++			int iMaking = getBuildingClassMaking(eBuildingClass);
++			if(iMaking > 0) {
++				iTempValue *= 20; // +100% for wonders, +43% to +100% otherwise.
++				if(::isMundaneBuildingClass(eBuildingClass))
++					iTempValue /= std::max(10, 15 - iMaking);
++				else iTempValue /= 10;	
++			} /* Even if it's from an earlier era, if we're constructing it,
++				 then it's apparently useful. */
++			else // </advc.036>
++				if(kLoopBuilding.getPrereqAndTech() != NO_TECH) {
+ 				int iDiff = abs(GC.getTechInfo((TechTypes)
+ 						kLoopBuilding.getPrereqAndTech()).getEra() - getCurrentEra());
+ 				if(iDiff == 0) {
+@@ -19152,6 +19162,12 @@ void CvPlayerAI::AI_changeMemoryCount(PlayerTypes eIndex1, MemoryTypes eIndex2,
+ // <advc.130j>
+ void CvPlayerAI::AI_rememberEvent(PlayerTypes civId, MemoryTypes mem) {
+ 
++	int delta = 2;
++	// Need a finer granularity for DoW
++	if(mem == MEMORY_DECLARED_WAR)
++		delta = 3;
++// This disables the bulk of change 130j:
++#if 0
+ 	int sign = 0; // 0 means it's a neutral event, 1 is good, -1 bad
+ 	/*  Random events should have the effects that the event dialogs say they have.
+ 		(E.g. "... you gain +1 attitude with ...")
+@@ -19165,12 +19181,6 @@ void CvPlayerAI::AI_rememberEvent(PlayerTypes civId, MemoryTypes mem) {
+ 		if(memAtt > 0)
+ 			sign = 1;
+ 	}
+-	int delta = 2;
+-	// Need a finer granularity for DoW
+-	if(mem == MEMORY_DECLARED_WAR)
+-		delta = 3;
+-// This disables the bulk of change 130j:
+-#if 0
+ 	// We're surprised by the actions of civId
+ 	if((sign < 0 && (AI_getAttitude(civId) >= ATTITUDE_FRIENDLY ||
+ 			// <advc.130o> Surprised by war despite tribute
+@@ -21052,24 +21062,19 @@ void CvPlayerAI::AI_doDiplo()
+ 				if (!abContacted[civ.getTeam()] &&
+ 						// advc.130v:
+ 						(!ourTeam.isAVassal() || ourTeam.getMasterTeam() == civ.getTeam())) {
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/12/10                                jdog5000      */
+-/*                                                                                              */
+-/* Diplomacy                                                                                    */
+-/************************************************************************************************/
+ 					int iRand = GC.getLeaderHeadInfo(getPersonalityType()).
+ 							getContactRand(CONTACT_ASK_FOR_HELP);
++					// BETTER_BTS_AI_MOD, Diplomacy, 02/12/10, jdog5000: START
+ 					int iTechPerc = ourTeam.getBestKnownTechScorePercent();
+-					if( iTechPerc < 90 )
++					if (iTechPerc < 90)
+ 					{
+ 						iRand *= std::max(1, iTechPerc - 60);
+ 						iRand /= 30;
+-					}
+-					
+-				if (g.getSorenRandNum(iRand, "AI Diplo Ask For Help") == 0)
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++					} // BETTER_BTS_AI_MOD: END
++					// <advc.104m> Reduce pr to 80% b/c UWAI also calls AI_askHelp
++					if(getWPAI.isEnabled())
++						iRand = (iRand * 5) / 4; // </advc.104m>
++					if (g.getSorenRandNum(iRand, "AI Diplo Ask For Help") == 0)
+ 					{
+ 						abContacted[civ.getTeam()] = AI_askHelp(civId);
+ 					}
+@@ -21095,7 +21100,9 @@ void CvPlayerAI::AI_doDiplo()
+ 							for(int i = 0; i < 5; i++) {
+ 								if(g.getSorenRandNum(
+ 										GC.getLeaderHeadInfo(getPersonalityType()).
+-										getContactRand(CONTACT_DEMAND_TRIBUTE),
++										getContactRand(CONTACT_DEMAND_TRIBUTE)
++										// advc.104m: Probability halved b/c UWAI also calls AI_demandTribute
++										* (getWPAI.isEnabled() ? 2 : 1),
+ 										"AI Diplo Demand Tribute") == 0) {
+ 									abContacted[civ.getTeam()] = AI_demandTribute(civId, i);
+ 									if(abContacted[civ.getTeam()])
+@@ -22033,9 +22040,12 @@ bool CvPlayerAI::AI_askHelp(PlayerTypes humanId) {
+ 
+ 	// <advc.104m>
+ 	if(GET_TEAM(getTeam()).AI_isSneakAttackReady(TEAMID(humanId)))
+-		return false;
+-	if(getWPAI.isEnabled() && ::bernoulliSuccess(0.2, "advc.130m"))
+ 		return false; // </advc.104m>
++	/*  <advc.144> Don't ask for help during a peace treaty unless human has been
++		given help (which may well be the reason for the peace treaty) */
++	if(GET_TEAM(getTeam()).isForcePeace(TEAMID(humanId)) && GET_PLAYER(humanId).
++			AI_getMemoryCount(getID(), MEMORY_GIVE_HELP) <= 0)
++		return false; // </advc.144>
+ 	// <advc.705>
+ 	CvGame const& g = GC.getGameINLINE();
+ 	if(g.isOption(GAMEOPTION_RISE_FALL) && g.getRiseFall().
+@@ -22085,9 +22095,10 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes humanId, int tributeType) {
+ 	if(GET_TEAM(getTeam()).AI_isSneakAttackReady(TEAMID(humanId))) {
+ 		FAssert(false); // Callers ensure this I think
+ 		return false;
+-	}
+-	if(getWPAI.isEnabled() && ::bernoulliSuccess(0.5, "advc.104m"))
+-		return false; // </advc.104m>
++	} // </advc.104m>
++	// <advc.144> Not during a peace treaty
++	if(!GET_TEAM(getTeam()).canDeclareWar(TEAMID(humanId)))
++		return false; // </advc.144>
+ 	if(AI_getContactTimer(humanId, CONTACT_DEMAND_TRIBUTE) > 0 ||
+ 			AI_getAttitude(humanId) > GC.getLeaderHeadInfo(getPersonalityType()).
+ 			getDemandTributeAttitudeThreshold())
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index facc0ac47..f8b3b1cfd 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -5077,10 +5077,18 @@ void CvSelectionGroup::handleBoarded() {
+ 
+ 	std::vector<CvSelectionGroup*> aLandCargoGroups;
+ 	getLandCargoGroups(aLandCargoGroups);
++	std::vector<CvSelectionGroup*> aAwake;
+ 	for(size_t i = 0; i < aLandCargoGroups.size(); i++) {
+ 		CvSelectionGroup& kGroup = *aLandCargoGroups[i];
+ 		if(kGroup.getActivityType() == ACTIVITY_BOARDED && kGroup.canDisembark())
+-			kGroup.setActivityType(ACTIVITY_AWAKE);
++			aAwake.push_back(&kGroup);
++	} // Putting all awoken units in one group should be more convenient
++	if(!aAwake.empty())
++		aAwake[0]->setActivityType(ACTIVITY_AWAKE);
++	for(size_t i = 1; i < aAwake.size(); i++) {
++		if(aAwake[i]->getDomainType() == aAwake[0]->getDomainType())
++			aAwake[i]->mergeIntoGroup(aAwake[0]);
++		// One of the doDelayedDeath calls will clean the empty groups up
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index ad37d1569..8c3c9a65b 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -867,7 +867,7 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 	AI_updateWorstEnemy();
+ 	// <advc.104t>
+ 	if(getWPAI.isEnabled()) {
+-		GET_TEAM(getID()).warAndPeaceAI().addTeam(eTeamLeader);
++		AI().warAndPeaceAI().addTeam(eTeamLeader);
+ 		getWPAI.update();
+ 	} // </advc.104t>
+ 	AI_updateAreaStrategies();
+@@ -1558,7 +1558,7 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 		think that the war duration plus the time war was imminent is worth
+ 		tracking. */
+ 	if(!isAtWar(eTeam)) {
+-		GET_TEAM(getID()).AI_setWarPlanStateCounter(eTeam, 0);
++		AI().AI_setWarPlanStateCounter(eTeam, 0);
+ 		GET_TEAM(eTeam).AI_setWarPlanStateCounter(getID(), 0);
+ 	} // </advc.104q>
+ 
+@@ -1894,12 +1894,11 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 		}
+ 	}
+ 
++	// dlph.26 (advc): EventReporter call moved down
+ 	// K-Mod / BBAI.
+ 	// This section includes some customization options from BBAI.
+ 	// The code has been modified for K-Mod, so that it uses "bPrimaryDoW" rather than the BBAI parameter.
+ 	// The original BtS code has been deleted.
+-	CvEventReporter::getInstance().changeWar(true, getID(), eTeam);
+-
+ 	/* dlph.3: ``BBAI option 1 didn't work because if clauses for canceling pacts
+ 	   were wrong. BBAI otpion 2 needs further fixing. When all players have
+ 	   defensive pacts with all other players and someone declares war the
+@@ -1978,10 +1977,12 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 		for (PlayerTypes i = (PlayerTypes)0; i < MAX_CIV_PLAYERS; i=(PlayerTypes)(i+1))
+ 			GET_PLAYER(i).AI_updateAttitudeCache();
+ 	}*/ // K-Mod end
+-	// dlph.26: The above is "updated when the war queue is emptied."
++	// <dlph.26> The above is "updated when the war queue is emptied."
+ 	/*  advc (bugfix): But not unless this function communicates to tiggerWars that
+ 		a (primary) DoW has already occurred. */
+ 	triggerWars(true);
++	// advc: Moved down so that war status has already changed when event reported
++	CvEventReporter::getInstance().changeWar(true, getID(), eTeam); // </dlph.26>
+ }
+ 
+ 
+@@ -2000,14 +2001,14 @@ void CvTeam::makePeace(TeamTypes eTeam, bool bBumpUnits,
+ 	if(!isAtWar(eTeam))
+ 		return; // </advc.003>
+ 	// <advc.104> To record who won the war, before war success is reset.
+-	GET_TEAM(getID()).warAndPeaceAI().reportWarEnding(eTeam, reparations, NULL);
++	AI().warAndPeaceAI().reportWarEnding(eTeam, reparations, NULL);
+ 	GET_TEAM(eTeam).warAndPeaceAI().reportWarEnding(getID(), NULL, reparations);
+ 	// </advc.104>
+ 	/*  <advc.130y> Don't know if they started the war, but if we did, and they had
+ 		started a war against us some time earlier, we may as well forgive them for
+ 		that. (If there's no declared-war-on-us memory, then this call has no effect.)
+ 		advc.104i also does sth. in forgiveEnemy. */
+-	GET_TEAM(getID()).AI_forgiveEnemy(eTeam, isCapitulated(), false);
++	AI().AI_forgiveEnemy(eTeam, isCapitulated(), false);
+ 	GET_TEAM(eTeam).AI_forgiveEnemy(getID(), GET_TEAM(eTeam).isCapitulated(), false);
+ 	// </advc.130y>
+ 	// <advc.130i>
+@@ -4513,9 +4514,8 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bNewDiplo,
+ 	// <advc.071> ^Moved EventReporter call up // advc.001n:
+ 	if(eIndex == getID() || isBarbarian() || GET_TEAM(eIndex).isBarbarian())
+ 		return; // </advc.071>
+-	// K-Mod. Initialize attitude cache for players on our team towards player's on their team.
+-	GET_TEAM(getID()).AI_updateAttitudeCache(eIndex); // advc.003: Loop replaced
+-	// K-Mod end
++	// K-Mod: Initialize attitude cache for players on our team towards player's on their team.
++	AI().AI_updateAttitudeCache(eIndex); // advc.003: Loop replaced
+ 
+ 	if (getID() == GC.getGameINLINE().getActiveTeam() || eIndex == GC.getGameINLINE().getActiveTeam())
+ 		gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+@@ -4803,7 +4803,7 @@ void CvTeam::setOpenBorders(TeamTypes eIndex, bool bNewValue)
+ 		}
+ 	} // <advc.034>
+ 	if(bNewValue)
+-		GET_TEAM(getID()).cancelDisengage(eIndex); // </advc.034>
++		AI().cancelDisengage(eIndex); // </advc.034>
+ }
+ 
+ // <advc.034>
+@@ -5295,12 +5295,12 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 		}
+ 		// <advc.130y>
+ 		// Don't forgive if it's apparent that we haven't fought wars as a vassal
+-		if(m_bCapitulated && GET_TEAM(getID()).AI_getSharedWarSuccess(eIndex) +
++		if(m_bCapitulated && AI().AI_getSharedWarSuccess(eIndex) +
+ 				GET_TEAM(eIndex).AI_getSharedWarSuccess(getID()) > 0) {
+ 			for(int i = 0; i < MAX_CIV_TEAMS; i++) {
+ 				CvTeamAI& t = GET_TEAM((TeamTypes)i);
+ 				if(t.isAlive() && t.getID() != getID() && t.getID() != eIndex) {
+-					GET_TEAM(getID()).AI_forgiveEnemy(t.getID(), true, true);
++					AI().AI_forgiveEnemy(t.getID(), true, true);
+ 					t.AI_forgiveEnemy(getID(), true, true);
+ 				}
+ 			}
+@@ -5321,7 +5321,7 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 			CvTeamAI const& t = GET_TEAM((TeamTypes)i);
+ 			if(t.isAlive() && t.getID() != getID() && t.getID() != eIndex &&
+ 					!t.isMinorCiv() && !t.isAtWar(getID()))
+-				GET_TEAM(getID()).AI_setWarPlan(t.getID(), NO_WARPLAN);
++				AI().AI_setWarPlan(t.getID(), NO_WARPLAN);
+ 		}// </advc.104j>
+ 	}
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 20ae309c9..df9998a61 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -447,6 +447,18 @@ public:
+ 	// </advc.127b>
+ 	void makeUnwillingToTalk(TeamTypes otherId); // advc.104i
+ 
++	// <advc.003> A bit nicer than GET_TEAM(getID())
++	inline CvTeamAI& AI() {
++		//return *static_cast<CvTeamAI*>(const_cast<CvTeam*>(this));
++		/*  The above won't work in an inline function b/c the compiler doesn't know
++			that CvTeamAI is derived from CvTeam */
++		return *reinterpret_cast<CvTeamAI*>(this);
++	}
++	inline CvTeamAI const& AI() const {
++		//return *static_cast<CvTeamAI const*>(this);
++		return *reinterpret_cast<CvTeamAI const*>(this);
++	} // </advc.003>
++
+ 	virtual void AI_init() = 0;
+ 	virtual void AI_reset(bool bConstructor) = 0;
+ 	virtual void AI_doTurnPre() = 0;
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 6aaceb822..4c0fc41c1 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -2140,9 +2140,9 @@ bool CyPlayer::AI_isWillingToTalk(int /*PlayerTypes*/ ePlayer) {
+ 	if(p.getNumCities() <= 0 && p.getNumUnits() <= 0)
+ 		return false; // </advc.001>
+ 	// Gets called dozens of time already when loading a savegame
+-	WarEvaluator::checkCache = true;
++	WarEvaluator::enableCache();
+ 	bool r = m_pPlayer->AI_isWillingToTalk(p.getID());
+-	WarEvaluator::checkCache = false;
++	WarEvaluator::disableCache();
+ 	return r;
+ } // </advc.104l>
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 417ad1d6b..007d685f9 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -19,6 +19,11 @@ using std::pair;
+ 
+ WarAndPeaceAI::WarAndPeaceAI() : enabled(false), inBackgr(false) {}
+ 
++void WarAndPeaceAI::invalidateUICache() {
++
++	WarEvaluator::clearCache();
++}
++
+ void WarAndPeaceAI::setUseKModAI(bool b) {
+ 
+ 	enabled = !b;
+@@ -1885,7 +1890,7 @@ double WarAndPeaceAI::Team::reparationsToHuman(double u) const {
+ 
+ void WarAndPeaceAI::Team::respondToRebuke(TeamTypes targetId, bool prepare) {
+ 
+-	/*  Caveat: Mustn't use PRNG here b/c this is called from both async (perpare=false)
++	/*  Caveat: Mustn't use PRNG here b/c this is called from both async (prepare=false)
+ 		and sync (prepare=true) contexts */
+ 	CvTeamAI& agent = GET_TEAM(agentId);
+ 	if(!canSchemeAgainst(targetId, true) || (prepare ?
+@@ -2391,11 +2396,9 @@ bool WarAndPeaceAI::Civ::amendTensions(PlayerTypes humanId) const {
+ 		for(int i = 0; i < 4; i++) {
+ 			int cr = lh.getContactRand(CONTACT_DEMAND_TRIBUTE);
+ 			if(cr > 0) {
+-				/*  demandTribute applies another probability test; halves
+-					the probability. */
+-				double pr = (8.5 - era) / cr;
+-				// Excludes Gandhi (cr=10000 => pr=0.001)
+-				if(pr > 0.005 && ::bernoulliSuccess(pr, "advc.104 (trib)") &&
++				double pr = (8.5 - era) / (2 * cr);
++				// Excludes Gandhi (cr=10000 => pr<0.0005)
++				if(pr > 0.001 && ::bernoulliSuccess(pr, "advc.104 (trib)") &&
+ 						we.AI_demandTribute(humanId, i))
+ 				return true;
+ 			}
+@@ -2405,8 +2408,7 @@ bool WarAndPeaceAI::Civ::amendTensions(PlayerTypes humanId) const {
+ 	else {
+ 		int cr = lh.getContactRand(CONTACT_ASK_FOR_HELP);
+ 		if(cr > 0) {
+-			// test in askHelp halves this probability
+-			double pr = (5.5 - era) / cr;
++			double pr = (5.5 - era) / (1.25 * cr);
+ 			if(::bernoulliSuccess(pr, "advc.104 (help)") && we.AI_askHelp(humanId))
+ 				return true;
+ 		}
+@@ -2416,7 +2418,6 @@ bool WarAndPeaceAI::Civ::amendTensions(PlayerTypes humanId) const {
+ 	int crCivics = lh.getContactRand(CONTACT_CIVIC_PRESSURE);
+ 	if(crReligion <= crCivics) {
+ 		if(crReligion > 0) {
+-			// Doesn't get reduced further in contactReligion
+ 			double pr = (8.0 - era) / crReligion;
+ 			if(::bernoulliSuccess(pr, "advc.104 (relig)") &&
+ 					we.AI_contactReligion(humanId))
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.h b/CvGameCoreDLL/WarAndPeaceAI.h
+index 834694feb..7d6928772 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.h
++++ b/CvGameCoreDLL/WarAndPeaceAI.h
+@@ -25,6 +25,7 @@ class WarAndPeaceAI
+ public:
+ 
+ 	WarAndPeaceAI();
++	void invalidateUICache();
+ 	// excluded: barbarians, minor civs, dead civs
+ 	 std::vector<PlayerTypes>& properCivs();
+ 	 std::vector<TeamTypes>& properTeams();
+
+diff --git a/CvGameCoreDLL/WarEvaluator.cpp b/CvGameCoreDLL/WarEvaluator.cpp
+index 1e3dbd4a2..4270061b7 100644
+--- a/CvGameCoreDLL/WarEvaluator.cpp
++++ b/CvGameCoreDLL/WarEvaluator.cpp
+@@ -15,11 +15,12 @@ using std::ostringstream;
+ 	several times in a row (usually about a dozen times), which is enough to cause
+ 	a noticeable delay. Therefore this primitive caching mechanism. The cache is
+ 	always used on the Trade screen; in other UI contexts, it has to be enabled
+-	through the useCache param of the constructor, or the static checkCache flag.
+-	As for the latter, it's important to set it back to false once war evaluations
++	through the useCache param of the constructor, or the static enableCache.
++	As for the latter, it's important to call disableCache once war evaluations
+ 	have finished b/c the cache doesn't work in all situations
+ 	(see WarEvalParameters::id) and isn't stored in savegames. */
+ bool WarEvaluator::checkCache = false;
++bool WarEvaluator::cacheCleared = true;
+ /*  Cache size: Calls alternate between naval/ non-naval,
+ 	limited/ total or mutual war utility of two civs,
+ 	so caching just the last result isn't effective. */
+@@ -28,8 +29,22 @@ static long lastCallParams[cacheSz];
+ static int lastCallResult[cacheSz];
+ static int lastIndex;
+ 
++void WarEvaluator::enableCache() {
++
++	checkCache = true;
++	cacheCleared = false;
++}
++
++void WarEvaluator::disableCache() {
++
++	checkCache = false;
++}
++
+ void WarEvaluator::clearCache() {
+ 
++	if(cacheCleared) // Just to make sure that repeated clears don't waste time
++		return;
++	cacheCleared = true;
+ 	for(int i = 0; i < cacheSz; i++)
+ 		lastCallResult[i] = INT_MIN;
+ }
+
+diff --git a/CvGameCoreDLL/WarEvaluator.h b/CvGameCoreDLL/WarEvaluator.h
+index e99fafc06..75e5f89de 100644
+--- a/CvGameCoreDLL/WarEvaluator.h
++++ b/CvGameCoreDLL/WarEvaluator.h
+@@ -59,10 +59,15 @@ private:
+ 	bool atTotalWarWithTarget() const;
+ 	void gatherCivsAndTeams();
+ 
+-	/*  If (or while) set, all WarEvaluator objects use the cache, not just those
+-		with useCache=true. See constructor in WarEvaluator.cpp for more info. */
+-	public: static bool checkCache;
+-			static void clearCache();
++	public: 
++		/*  If (or while) enabled, all WarEvaluator objects use the cache, not just
++			those with useCache=true. See constructor in WarEvaluator.cpp for more info. */
++		static void enableCache();
++		static void disableCache();
++		static void clearCache(); // Invalidates the cache (which disableCache does not do)
++	private:
++		static bool checkCache;
++		static bool cacheCleared;
+ };
+ 
+ // </advc.104>
+
+[PATCH COVERAGE]
+patchFiles=21 embeddedFiles=21 omittedFiles=0 embeddedPatchBytes=80737

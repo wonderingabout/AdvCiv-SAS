@@ -1,0 +1,437 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3680
+# Commit: b2709079f382d51015aedffae338fba399644174
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b3041dc76dadb9dd5a67f856b7498d82a6070718
+# Title: Vassalage civic sets colony maintenance to 0
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	Assets/XML/GameInfo/CIV4CivicInfos.xml
+4	0	Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+20	0	Assets/XML/Text/CIV4GameText_advc.xml
+23	26	CvGameCoreDLL/CvCity.cpp
+2	1	CvGameCoreDLL/CvCity.h
+16	1	CvGameCoreDLL/CvGameTextMgr.cpp
+5	0	CvGameCoreDLL/CvInfo_Civics.cpp
+4	1	CvGameCoreDLL/CvInfo_Civics.h
+31	1	CvGameCoreDLL/CvPlayer.cpp
+5	1	CvGameCoreDLL/CvPlayer.h
+18	0	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index 97c75cf34..37cba787b 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -428,6 +428,8 @@
+ 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+ 			<iStateReligionGreatPeopleRateModifier>0</iStateReligionGreatPeopleRateModifier>
+ 			<iDistanceMaintenanceModifier>0</iDistanceMaintenanceModifier>
++			<!-- advc.912g -->
++			<iColonyMaintenanceModifier>-100</iColonyMaintenanceModifier>
+ 			<!-- K-Mod: was 0 -->
+ 			<iNumCitiesMaintenanceModifier>-25</iNumCitiesMaintenanceModifier>
+ 			<iCorporationMaintenanceModifier>0</iCorporationMaintenanceModifier>
+
+diff --git a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+index 9ec5689ca..62c0c5e83 100644
+--- a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
++++ b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+@@ -679,6 +679,8 @@
+ 	<ElementType name="iDomesticGreatGeneralRateModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iStateReligionGreatPeopleRateModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iDistanceMaintenanceModifier" content="textOnly" dt:type="int"/>
++	<!-- advc.912g -->
++	<ElementType name="iColonyMaintenanceModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iNumCitiesMaintenanceModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iCorporationMaintenanceModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iExtraHealth" content="textOnly" dt:type="int"/>
+@@ -822,6 +824,8 @@
+ 		<element type="iDomesticGreatGeneralRateModifier"/>
+ 		<element type="iStateReligionGreatPeopleRateModifier"/>
+ 		<element type="iDistanceMaintenanceModifier"/>
++		<!-- advc.912g -->
++		<element type="iColonyMaintenanceModifier" minOccurs="0"/>
+ 		<element type="iNumCitiesMaintenanceModifier"/>
+ 		<element type="iCorporationMaintenanceModifier"/>
+ 		<element type="iExtraHealth"/>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index b341ca054..f97da01fd 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -7338,4 +7338,24 @@
+ 		<Spanish>[ICON_BULLET]Ning�n [ICON_UNHAPPY] en las ciudades que carecen de protecci�n militar</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.912g: Based on TXT_KEY_CIVIC_DISTANCE_MAINT[_MOD] in
++		 Civ4GameTextInfos.xml and TXT_KEY_MISC_COLONY_MAINT_FLOAT in
++		 CIV4GameText_BTS.xml. -->
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_COLONY_MAINT</Tag>
++		<English>[ICON_BULLET]No Colonial Expenses</English>
++		<French>[ICON_BULLET]Aucun d&#233;penses coloniales</French>
++		<German>[ICON_BULLET]Keine Kolonialausgaben</German>
++		<Italian>[ICON_BULLET]Nessuna spese per le colonie</Italian>
++		<Spanish>[ICON_BULLET]Sin gastos coloniales</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CIVIC_COLONYE_MAINT_MOD</Tag>
++		<English>[ICON_BULLET]%D1_Mod%% Colonial Expenses</English>
++		<French>[ICON_BULLET]%D1_Mod%% d&#233;penses coloniales</French>
++		<German>[ICON_BULLET]%D1_Mod%% Kolonialausgaben</German>
++		<Italian>[ICON_BULLET]%D1_Mod%% spese per le colonie</Italian>
++		<Spanish>[ICON_BULLET]%D1_Mod%% gastos coloniales</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 20c246e1c..bccca4ff1 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -13021,7 +13021,7 @@ int CvCity::initialPopulation()
+ 
+ // advc.004b, advc.104: Parameters added
+ int CvCity::calculateDistanceMaintenanceTimes100(CvPlot const& kCityPlot,
+-	PlayerTypes eOwner, int iPopulation)
++	PlayerTypes eOwner, int iPopulation, bool bNoPlayerModifiers)
+ {
+ 	if(iPopulation < 0)
+ 		iPopulation = initialPopulation();
+@@ -13045,20 +13045,20 @@ int CvCity::calculateDistanceMaintenanceTimes100(CvPlot const& kCityPlot,
+ 			GC.getDefineINT(CvGlobals::MAX_DISTANCE_CITY_MAINTENANCE) *	
+ 			// K-Mod: Moved the search for maintenance distance to a separate function
+ 			calculateMaintenanceDistance(&kCityPlot, eOwner);
+-	// unaltered bts code
+ 	{
+ 		iTempMaintenance *= (iPopulation + 7);
+ 		iTempMaintenance /= 10;
+-
+-		iTempMaintenance *= std::max(0, (GET_PLAYER(eOwner).getDistanceMaintenanceModifier() + 100));
+-		iTempMaintenance /= 100;
+-
++		if (!bNoPlayerModifiers) // advc
++		{
++			iTempMaintenance *= std::max(0, GET_PLAYER(eOwner).
++					getDistanceMaintenanceModifier() + 100);
++			iTempMaintenance /= 100;
++			iTempMaintenance *= GC.getInfo(GET_PLAYER(eOwner).
++					getHandicapType()).getDistanceMaintenancePercent();
++			iTempMaintenance /= 100;
++		}
+ 		iTempMaintenance *= GC.getInfo(GC.getMap().getWorldSize()).getDistanceMaintenancePercent();
+ 		iTempMaintenance /= 100;
+-
+-		iTempMaintenance *= GC.getInfo(GET_PLAYER(eOwner).getHandicapType()).getDistanceMaintenancePercent();
+-		iTempMaintenance /= 100;
+-
+ 		iTempMaintenance /= GC.getMap().maxTypicalDistance(); // advc.140: was maxPlotDistance
+ 	}
+ 	/*iWorstCityMaintenance = std::max(iWorstCityMaintenance, iTempMaintenance);
+@@ -13169,25 +13169,22 @@ int CvCity::calculateColonyMaintenanceTimes100(CvPlot const& kCityPlot,
+ 	//iMaintenance = std::min(iMaintenance, (GC.getInfo(getHandicapType()).getMaxColonyMaintenance() * calculateDistanceMaintenanceTimes100()) / 100);
+ 	/*  K-Mod, 17/dec/10: Changed colony maintenance cap to not include
+ 		distance maintenance modifiers (such as state property) */
+-	int iMaintenanceCap = 100 * GC.getDefineINT(CvGlobals::MAX_DISTANCE_CITY_MAINTENANCE) *
+-			calculateMaintenanceDistance(&kCityPlot, eOwner);
+-
+-	iMaintenanceCap *= (iPopulation + 7);
+-	iMaintenanceCap /= 10;
+-
+-	iMaintenanceCap *= GC.getInfo(GC.getMap().getWorldSize()).getDistanceMaintenancePercent();
+-	iMaintenanceCap /= 100;
+-
+-	iMaintenanceCap *= GC.getInfo(eOwnerHandicap).getDistanceMaintenancePercent();
+-	iMaintenanceCap /= 100;
+-
+-	iMaintenanceCap /= GC.getMap().maxTypicalDistance(); // advc.140: was maxPlotDistance
+-
++	// advc: Let's do that without duplicating code
++	int iMaintenanceCap = GC.getDefineINT(CvGlobals::MAX_DISTANCE_CITY_MAINTENANCE) *
++			calculateDistanceMaintenanceTimes100(kCityPlot, eOwner, iPopulation,
++			true); // advc
+ 	iMaintenanceCap *= GC.getInfo(eOwnerHandicap).getMaxColonyMaintenance();
+ 	iMaintenanceCap /= 100;
+-
++	// <advc.912g>
++	iMaintenanceCap *= std::max(0, GET_PLAYER(eOwner).
++			getColonyMaintenanceModifier() + 100);
++	iMaintenanceCap /= 100;
++	// </advc.912g>
+ 	iMaintenance = std::min(iMaintenance, iMaintenanceCap);
+-	// K-Mod end
++	/*	<advc.exp.3> Alt. idea to the civic-based modifier: High colony maintenance
++		only in faraway cities (overall proportional to square of maintenance dist). */
++	/*iMaintenance *= calculateMaintenanceDistance(&kCityPlot, eOwner);
++	iMaintenance /= GC.getMap().maxMaintenanceDistance();*/ // </advc.exp.3>
+ 	FAssert(iMaintenance >= 0);
+ 	return iMaintenance;
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 7369cc248..2e587ad27 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -424,7 +424,8 @@ public:
+ 	// </advc.104>
+ 	// <advc.004b> A projection for cities yet to be founded
+ 	static int calculateDistanceMaintenanceTimes100(CvPlot const& kCityPlot,
+-			PlayerTypes eOwner, int iPopulation = -1);
++			PlayerTypes eOwner, int iPopulation = -1,
++			bool bNoPlayerModifiers = false);
+ 	static int calculateNumCitiesMaintenanceTimes100(CvPlot const& kCityPlot,
+ 			PlayerTypes eOwner, int iPopulation = -1, int iExtraCities = 0);
+ 	static int calculateColonyMaintenanceTimes100(CvPlot const& kCityPlot,
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index f6c294e9d..5d4861efb 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -7218,7 +7218,22 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
+ 					kCivic.getCorporationMaintenanceModifier()));
+ 		}
+ 	}
+-
++	// <advc.912g>
++	if (kCivic.getColonyMaintenanceModifier() != 0)
++	{
++		if (kCivic.getColonyMaintenanceModifier() <= -100)
++		{
++			szHelpText.append(NEWLINE);
++			szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_COLONY_MAINT"));
++		}
++		else
++		{
++			szHelpText.append(NEWLINE);
++			szHelpText.append(gDLL->getText(
++					"TXT_KEY_CIVIC_COLONY_MAINT_MOD",
++					kCivic.getColonyMaintenanceModifier()));
++		}
++	} // </advc.912g>
+ 	//	Extra Health
+ 	if (kCivic.getExtraHealth() != 0)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.cpp b/CvGameCoreDLL/CvInfo_Civics.cpp
+index c872f9bfd..6ce0ec915 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.cpp
++++ b/CvGameCoreDLL/CvInfo_Civics.cpp
+@@ -16,6 +16,7 @@ m_iGreatGeneralRateModifier(0),
+ m_iDomesticGreatGeneralRateModifier(0),
+ m_iStateReligionGreatPeopleRateModifier(0),
+ m_iDistanceMaintenanceModifier(0),
++m_iColonyMaintenanceModifier(0), // advc.912g
+ m_iNumCitiesMaintenanceModifier(0),
+ m_iCorporationMaintenanceModifier(0),
+ m_iExtraHealth(0),
+@@ -221,6 +222,7 @@ void CvCivicInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_iDomesticGreatGeneralRateModifier);
+ 	stream->Read(&m_iStateReligionGreatPeopleRateModifier);
+ 	stream->Read(&m_iDistanceMaintenanceModifier);
++	stream->Read(&m_iColonyMaintenanceModifier); // advc.exmp.3
+ 	stream->Read(&m_iNumCitiesMaintenanceModifier);
+ 	stream->Read(&m_iCorporationMaintenanceModifier);
+ 	stream->Read(&m_iExtraHealth);
+@@ -326,6 +328,7 @@ void CvCivicInfo::write(FDataStreamBase* stream)
+ 	stream->Write(m_iDomesticGreatGeneralRateModifier);
+ 	stream->Write(m_iStateReligionGreatPeopleRateModifier);
+ 	stream->Write(m_iDistanceMaintenanceModifier);
++	stream->Write(m_iColonyMaintenanceModifier); // advc.912g
+ 	stream->Write(m_iNumCitiesMaintenanceModifier);
+ 	stream->Write(m_iCorporationMaintenanceModifier);
+ 	stream->Write(m_iExtraHealth);
+@@ -401,6 +404,8 @@ bool CvCivicInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iDomesticGreatGeneralRateModifier, "iDomesticGreatGeneralRateModifier");
+ 	pXML->GetChildXmlValByName(&m_iStateReligionGreatPeopleRateModifier, "iStateReligionGreatPeopleRateModifier");
+ 	pXML->GetChildXmlValByName(&m_iDistanceMaintenanceModifier, "iDistanceMaintenanceModifier");
++	// advc.912g:
++	pXML->GetChildXmlValByName(&m_iColonyMaintenanceModifier, "iColonyMaintenanceModifier", 0);
+ 	pXML->GetChildXmlValByName(&m_iNumCitiesMaintenanceModifier, "iNumCitiesMaintenanceModifier");
+ 	pXML->GetChildXmlValByName(&m_iCorporationMaintenanceModifier, "iCorporationMaintenanceModifier");
+ 	pXML->GetChildXmlValByName(&m_iExtraHealth, "iExtraHealth");
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.h b/CvGameCoreDLL/CvInfo_Civics.h
+index 49bea5cbf..07c4ebb2e 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.h
++++ b/CvGameCoreDLL/CvInfo_Civics.h
+@@ -15,7 +15,7 @@
+ class CvCivicInfo : public CvInfoBase
+ {
+ 	typedef CvInfoBase base_t;
+-public: // The const functions are exposed to Python except those (to be) added by AdvCiv
++public: // The const functions are exposed to Python except those added by AdvCiv
+ 	CvCivicInfo();
+ 	~CvCivicInfo();
+ 
+@@ -29,6 +29,8 @@ public: // The const functions are exposed to Python except those (to be) added
+ 	int getDomesticGreatGeneralRateModifier() const { return m_iDomesticGreatGeneralRateModifier; }
+ 	int getStateReligionGreatPeopleRateModifier() const { return m_iStateReligionGreatPeopleRateModifier; }
+ 	int getDistanceMaintenanceModifier() const { return m_iDistanceMaintenanceModifier; }
++	// advc.912g:
++	int getColonyMaintenanceModifier() const { return m_iColonyMaintenanceModifier; }
+ 	int getNumCitiesMaintenanceModifier() const { return m_iNumCitiesMaintenanceModifier; }
+ 	int getCorporationMaintenanceModifier() const { return m_iCorporationMaintenanceModifier; }
+ 	int getExtraHealth() const { return m_iExtraHealth; }
+@@ -113,6 +115,7 @@ protected:
+ 	int m_iDomesticGreatGeneralRateModifier;
+ 	int m_iStateReligionGreatPeopleRateModifier;
+ 	int m_iDistanceMaintenanceModifier;
++	int m_iColonyMaintenanceModifier; // advc.912g
+ 	int m_iNumCitiesMaintenanceModifier;
+ 	int m_iCorporationMaintenanceModifier;
+ 	int m_iExtraHealth;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 4ee4afda9..cb0e0c308 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -373,6 +373,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_iExpInBorderModifier = 0;
+ 	m_iBuildingOnlyHealthyCount = 0;
+ 	m_iDistanceMaintenanceModifier = 0;
++	m_iColonyMaintenanceModifier = 0; // advc.912g
+ 	m_iNumCitiesMaintenanceModifier = 0;
+ 	m_iCorporationMaintenanceModifier = 0;
+ 	m_iTotalMaintenance = 0;
+@@ -7973,6 +7974,16 @@ void CvPlayer::changeDistanceMaintenanceModifier(int iChange)
+ 	}
+ }
+ 
++// advc.912g:
++void CvPlayer::changeColonyMaintenanceModifier(int iChange)
++{
++	if (iChange != 0)
++	{
++		m_iColonyMaintenanceModifier += iChange;
++		updateMaintenance();
++	}
++}
++
+ 
+ void CvPlayer::changeNumCitiesMaintenanceModifier(int iChange)
+ {
+@@ -13834,6 +13845,8 @@ void CvPlayer::processCivics(CivicTypes eCivic, int iChange)
+ 	changeDomesticGreatGeneralRateModifier(GC.getInfo(eCivic).getDomesticGreatGeneralRateModifier() * iChange);
+ 	changeStateReligionGreatPeopleRateModifier(GC.getInfo(eCivic).getStateReligionGreatPeopleRateModifier() * iChange);
+ 	changeDistanceMaintenanceModifier(GC.getInfo(eCivic).getDistanceMaintenanceModifier() * iChange);
++	// advc.912g:
++	changeColonyMaintenanceModifier(GC.getInfo(eCivic).getColonyMaintenanceModifier() * iChange);
+ 	changeNumCitiesMaintenanceModifier(GC.getInfo(eCivic).getNumCitiesMaintenanceModifier() * iChange);
+ 	changeCorporationMaintenanceModifier(GC.getInfo(eCivic).getCorporationMaintenanceModifier() * iChange);
+ 	changeExtraHealth(GC.getInfo(eCivic).getExtraHealth() * iChange);
+@@ -14044,6 +14057,9 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iExpInBorderModifier);
+ 	pStream->Read(&m_iBuildingOnlyHealthyCount);
+ 	pStream->Read(&m_iDistanceMaintenanceModifier);
++	// <advc.912g>
++	if (uiFlag >= 20)
++		pStream->Read(&m_iColonyMaintenanceModifier); // </advc.912g>
+ 	pStream->Read(&m_iNumCitiesMaintenanceModifier);
+ 	pStream->Read(&m_iCorporationMaintenanceModifier);
+ 	pStream->Read(&m_iTotalMaintenance);
+@@ -14271,6 +14287,18 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	// <advc> Future-proofing
+ 	if (isBarbarian())
+ 		m_abLoyalMember.setAll(false); // </advc>
++	// <advc.912g>
++	if (uiFlag < 20)
++	{
++		FOR_EACH_ENUM(Civic)
++		{
++			if (isCivic(eLoopCivic))
++			{
++				changeColonyMaintenanceModifier(GC.getInfo(eLoopCivic).
++						getColonyMaintenanceModifier());
++			}
++		}
++	} // </advc.912g>
+ 	m_groupCycle.Read(pStream);
+ 	m_researchQueue.Read(pStream);
+ 
+@@ -14572,7 +14600,8 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	//uiFlag = 16; // advc.enum: new enum map save behavior
+ 	//uiFlag = 17; // advc.157
+ 	//uiFlag = 18; // advc.251 (city maintenance changed in handicap XML)
+-	uiFlag = 19; // advc.708
++	//uiFlag = 19; // advc.708
++	uiFlag = 20; // advc.912g
+ 	pStream->Write(uiFlag);
+ 
+ 	// <advc.027>
+@@ -14643,6 +14672,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iExpInBorderModifier);
+ 	pStream->Write(m_iBuildingOnlyHealthyCount);
+ 	pStream->Write(m_iDistanceMaintenanceModifier);
++	pStream->Write(m_iColonyMaintenanceModifier); // advc.912g
+ 	pStream->Write(m_iNumCitiesMaintenanceModifier);
+ 	pStream->Write(m_iCorporationMaintenanceModifier);
+ 	pStream->Write(m_iTotalMaintenance);
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 8bd50e44d..8b914e477 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -680,7 +680,10 @@ public:
+ 
+ 	int getDistanceMaintenanceModifier() const { return m_iDistanceMaintenanceModifier; }							// Exposed to Python
+ 	void changeDistanceMaintenanceModifier(int iChange);
+-
++	// <advc.912g>
++	int getColonyMaintenanceModifier() const { return m_iColonyMaintenanceModifier; }
++	void changeColonyMaintenanceModifier(int iChange);
++	// </advc.912g>
+ 	int getNumCitiesMaintenanceModifier() const { return m_iNumCitiesMaintenanceModifier; }							// Exposed to Python
+ 	void changeNumCitiesMaintenanceModifier(int iChange);
+ 
+@@ -1516,6 +1519,7 @@ protected:  // <advc.210>
+ 	int m_iExpInBorderModifier;
+ 	int m_iBuildingOnlyHealthyCount;
+ 	int m_iDistanceMaintenanceModifier;
++	int m_iColonyMaintenanceModifier; // advc.912g
+ 	int m_iNumCitiesMaintenanceModifier;
+ 	int m_iCorporationMaintenanceModifier;
+ 	int m_iTotalMaintenance;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2e21569aa..7362db6a8 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -16620,6 +16620,24 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		iValue -= iTemp * kCivic.getDistanceMaintenanceModifier() / 10000;
+ 	}
+ 	// K-Mod end
++	// <advc.912g>
++	if (kCivic.getColonyMaintenanceModifier() != 0)
++	{
++		PROFILE("civicValue: ColonyMaintenance");
++		int iTemp = 0;
++		FOR_EACH_CITY(pLoopCity, *this)
++		{
++			iTemp += pLoopCity->calculateColonyMaintenanceTimes100() *
++					(pLoopCity->getMaintenanceModifier() + 100) / 100;
++		}
++		iTemp *= 100;
++		iTemp /= std::max(1, getColonyMaintenanceModifier() + 100);
++
++		iTemp *= iMaintenanceFactor;
++		iTemp /= 100;
++
++		iValue -= iTemp * kCivic.getColonyMaintenanceModifier() / 10000;
++	} // </advc.912g>
+ 
+ 	/*iValue += ((kCivic.getWorkerSpeedModifier() * AI_getNumAIUnits(UNITAI_WORKER)) / 15);
+ 	iValue += ((kCivic.getImprovementUpgradeRateModifier() * iCities) / 50);
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=17438

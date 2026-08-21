@@ -1,0 +1,109 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 762
+# Commit: 5b6e46abb42e62222b9fd27f1fe7a8e384cd134f
+# History segment: K-Mod history
+# Parent used for diff: 4cdd4428a78d5520f100738f6d1abb688d2b548f
+# Title: Autoplay, change player, and 'tester' functionality is now only enabled if getChtLvl() is true. (ie. it requires 'chipotle', and it will always be disabled i...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	3	Assets/Python/BUG/BugEventManager.py
+5	5	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index 978810d51..ed049f9b5 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -184,9 +184,11 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 			self.setEventHandler(eventType, eventHandler)
+ 		
+ 		# --------- Better BTS AI (2/2) -------------
+-		AIAutoPlay.AIAutoPlay(self)
+-		ChangePlayer.ChangePlayer(self)
+-		Tester.Tester(self)
++		# K-Mod, only enable these feature if the cheat mode is enabled.
++		if getChtLvl():
++			AIAutoPlay.AIAutoPlay(self)
++			ChangePlayer.ChangePlayer(self)
++			Tester.Tester(self)
+ 		# --
+ 		
+ 		# add new core events; see unused sample handlers below for argument lists
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 1674171d6..9acb7d609 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1391,7 +1391,7 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bo
+ 						for (uint i = 0; i < aCargoUnits.size(); ++i)
+ 						{
+ 							CvUnit* pCargoUnit = aCargoUnits[i];
+-							if (!pCargoUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), GC.getGameINLINE().isDebugMode()))
++							if (!pCargoUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), true))
+ 							{
+ 								// name and unitai
+ 								szString.append(CvWString::format(SETCOLR L"\n %s" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"), pCargoUnit->getName().GetCString()));
+@@ -1419,7 +1419,7 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bo
+ 							pUnitNode3 = pPlot->nextUnitNode(pUnitNode3);
+ 
+ 							// is this unit not head, in head's group and visible?
+-							if (pUnit && (pUnit != pHeadUnit) && (pUnit->getGroupID() == pHeadUnit->getGroupID()) && !pUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), GC.getGameINLINE().isDebugMode()))
++							if (pUnit && (pUnit != pHeadUnit) && (pUnit->getGroupID() == pHeadUnit->getGroupID()) && !pUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), true))
+ 							{
+ 								FAssertMsg(!pUnit->isCargo(), "unit is cargo but head unit is not cargo");
+ 								// name and unitai
+@@ -1444,7 +1444,7 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bo
+ 								for (uint i = 0; i < aLoopCargoUnits.size(); ++i)
+ 								{
+ 									CvUnit* pCargoUnit = aLoopCargoUnits[i];
+-									if (!pCargoUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), GC.getGameINLINE().isDebugMode()))
++									if (!pCargoUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), true))
+ 									{
+ 										// name and unitai
+ 										szString.append(CvWString::format(SETCOLR L"\n %s" ENDCOLR, TEXT_COLOR("COLOR_ALT_HIGHLIGHT_TEXT"), pCargoUnit->getName().GetCString()));
+@@ -1658,7 +1658,7 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bo
+ 	GC.getGameINLINE().getPlotUnits(pPlot, plotUnits);
+ 
+ 	int iNumVisibleUnits = 0;
+-	if (pPlot->isVisible(GC.getGameINLINE().getActiveTeam(), GC.getGameINLINE().isDebugMode()))
++	if (pPlot->isVisible(GC.getGameINLINE().getActiveTeam(), true))
+ 	{
+ 		CLLNode<IDInfo>* pUnitNode5 = pPlot->headUnitNode();
+ 		while(pUnitNode5 != NULL)
+@@ -1666,7 +1666,7 @@ void CvGameTextMgr::setPlotListHelp(CvWStringBuffer &szString, CvPlot* pPlot, bo
+ 			CvUnit* pUnit = ::getUnit(pUnitNode5->m_data);
+ 			pUnitNode5 = pPlot->nextUnitNode(pUnitNode5);
+ 
+-			if (pUnit && !pUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), GC.getGameINLINE().isDebugMode()))
++			if (pUnit && !pUnit->isInvisible(GC.getGameINLINE().getActiveTeam(), true))
+ 			{
+ 				++iNumVisibleUnits;
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index a783bd812..d5bef73a7 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -22878,7 +22878,7 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector
+ 						CvUnit* pUnit = ::getUnit(pUnitNode->m_data);
+ 						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+ 
+-						if (pUnit->getVisualOwner() == iPlayer && !pUnit->isInvisible(getTeam(), GC.getGameINLINE().isDebugMode()))
++						if (pUnit->getVisualOwner() == iPlayer && !pUnit->isInvisible(getTeam(), true))
+ 						{
+ 							// now, is this unit of interest?
+ 							bool bIsMilitary = pUnit->baseCombatStr() > 0;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4371

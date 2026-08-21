@@ -1,0 +1,354 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5080
+# Commit: b2ed0d14d96748ae2549345efb0c6df042b6b807
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1787dea4ff0991ee4c0926f25760b40e3e08a98c
+# Title: (Tremendously improved/addressed) fix/address AI settlers staying parked for a very long time in cities when it should be safe enough or urgent enough to do...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+29	0	Assets/XML/GlobalDefines_advciv_sas.xml
+57	37	CvGameCoreDLL/CvCity.cpp
+30	9	CvGameCoreDLL/CvUnitAI.cpp
+8	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index a7389b5fb..8e6ce11e0 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -438,6 +438,25 @@
+ 
+ 
+ 
++	<!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate anyways etc; results are very good ingame, now spain ai has 3 cities at turn 100, and they are well guarded with 2 units per city each, other ais seem to have a few more cities as well, see known issue as of now 68 for details anyways etc -->
++	<!-- custom: 1 to enable (recommended), 0 to disable -->
++	<Define>
++		<DefineName>SAS_FOUND_OPTIMIZE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: e.g. turn 80 at normal game speed is turn 80 * 1.5 = 120 at gamespeed epic, etc. -->
++	<Define>
++		<DefineName>SAS_FOUND_BSAFE_IGNORE_TURN_NORMAL</DefineName>
++		<iDefineIntVal>75</iDefineIntVal>
++	</Define>
++	<!-- custom: e.g. ignore safety restrictions if we have this number of cities (idea is to settle them fast when it is early and safe enough to do so to not fall behind as we overly do anyways etc) -->
++	<Define>
++		<DefineName>SAS_FOUND_BSAFE_IGNORE_NUM_CITIES</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: if unit has enough city attack, it can be assumed the rest of its stats are otherwise bad, else would be broken for balance. Use to detect as of now trebuchet units, but also similar profile of high city bombard but weak otherwise type of units if i'm not mistaken anyways etc -->
+ 	<!-- custom: hopefully enough just with the modifier that trebuchets use if i am not mistaken as of now (but check if accurate as i didn't check in detail but anyways etc) but anyways etc -->
+ 	<Define>
+@@ -914,10 +933,20 @@
+ 		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME</DefineName>
+ 		<DefineTextVal>BUILDINGCLASS_WALLS</DefineTextVal>
+ 	</Define>
++	<!-- custom: don't force walls or whichever building you set too soon, threats are not high, and we risk halting key settler units. Turn 100 at normal is for example turn 100 * 1.5 = turn 150 at gamespeed epic anyways etc -->
++	<Define>
++		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL</DefineName>
++		<iDefineIntVal>80</iDefineIntVal>
++	</Define>
+ 	<Define>
+ 		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_BUILDINGCLASS_FULL_NAME</DefineName>
+ 		<DefineTextVal>BUILDINGCLASS_CASTLE</DefineTextVal>
+ 	</Define>
++	<!-- custom: don't force castle or whichever building you set too soon similarly anyways etc -->
++	<Define>
++		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
+ 	<!-- custom: note 3: higher increments like 3, 4, 5, etc. not supported in current code, implement logic in .cpp or such files if you want such defines in your mod mod if you have extra building class defense buildings you want AIs to build urgently when needed anyways etc. -->
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 5a26f7da5..6638d5cbf 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -569,6 +569,13 @@ void CvCity::doTurn()
+ 
+ 	doProduction(!bForceProduction);
+ 
++	// <!-- custom: also cache these as is done in this file in other functions since we reuse them if i'm not mistaken in doing so but anyways etc -->
++	CvGame const& kGame = GC.getGame();
++
++	// Early-game window (scaled by game speed TrainPercent)
++	const int iCurrentTurn = kGame.getGameTurn();
++	const int iTrainPct = GC.getInfo(kGame.getGameSpeedType()).getTrainPercent();
++
+ 	// <!-- custom: forcing buildings in chooseproduction is sometimes ignored or slow to fire in autoplay, put it here in doturn for max effectiveness and reliability if i'm not mistaken but anyways etc -->
+ 	const bool bHuman = isHuman();
+ 
+@@ -619,49 +626,66 @@ void CvCity::doTurn()
+ 			static const BuildingClassTypes eWallsClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_BUILDINGCLASS_FULL_NAME"));
+ 			static const BuildingClassTypes eCastleClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_BUILDINGCLASS_FULL_NAME"));
+ 
+-			BuildingTypes eWalls = NO_BUILDING;
+-			if (eWallsClass != NO_BUILDINGCLASS)
+-			{
+-				eWalls = (BuildingTypes)kCivInfo.getCivilizationBuildings(eWallsClass);
+-			}
+-			BuildingTypes eCastle = NO_BUILDING;
+-			if (eCastleClass != NO_BUILDINGCLASS)
+-			{
+-				eCastle = (BuildingTypes)kCivInfo.getCivilizationBuildings(eCastleClass);
+-			}
++			// 
++			static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL");
++			static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL");
++
++			const int iEarlyCutoff1 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL * iTrainPct) / 100;
++			const int iEarlyCutoff2 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL * iTrainPct) / 100;
++
++			const bool bEarlyBuildingClassName1 = (iCurrentTurn <= iEarlyCutoff1);
++			const bool bEarlyBuildingClassName2 = (iCurrentTurn <= iEarlyCutoff2);
+ 
+ 			// First: Walls
+-			if ((eWalls != NO_BUILDING) &&
+-				(getNumBuilding(eWalls) == 0) &&
+-				canConstruct(eWalls, false, false, true))
++			if (!bEarlyBuildingClassName1)
+ 			{
+-				if (getProductionBuilding() == eWalls)
++				BuildingTypes eWalls = NO_BUILDING;
++				if (eWallsClass != NO_BUILDINGCLASS)
+ 				{
+-					bEmergencyBuilding = true; // already doing it
++					eWalls = (BuildingTypes)kCivInfo.getCivilizationBuildings(eWallsClass);
+ 				}
+-				else
++
++				if ((eWalls != NO_BUILDING) &&
++					(getNumBuilding(eWalls) == 0) &&
++					canConstruct(eWalls, false, false, true))
+ 				{
+-					clearOrderQueue();                         // hard override
+-					pushOrder(ORDER_CONSTRUCT, eWalls);        // head of queue
+-					setChooseProductionDirty(false);           // keep it next turn
+-					bEmergencyBuilding = true;
++					if (getProductionBuilding() == eWalls)
++					{
++						bEmergencyBuilding = true; // already doing it
++					}
++					else
++					{
++						clearOrderQueue();                         // hard override
++						pushOrder(ORDER_CONSTRUCT, eWalls);        // head of queue
++						setChooseProductionDirty(false);           // keep it next turn
++						bEmergencyBuilding = true;
++					}
+ 				}
+ 			}
+ 			// Otherwise: Castle (requires Walls anyway; canConstruct handles it)
+-			else if ((eCastle != NO_BUILDING) &&
+-					(getNumBuilding(eCastle) == 0) &&
+-					canConstruct(eCastle, false, false, true))
++			else if (!bEarlyBuildingClassName2)
+ 			{
+-				if (getProductionBuilding() == eCastle)
++				BuildingTypes eCastle = NO_BUILDING;
++				if (eCastleClass != NO_BUILDINGCLASS)
+ 				{
+-					bEmergencyBuilding = true;
++					eCastle = (BuildingTypes)kCivInfo.getCivilizationBuildings(eCastleClass);
+ 				}
+-				else
++
++				if ((eCastle != NO_BUILDING) &&
++					(getNumBuilding(eCastle) == 0) &&
++					canConstruct(eCastle, false, false, true))
+ 				{
+-					clearOrderQueue();
+-					pushOrder(ORDER_CONSTRUCT, eCastle);
+-					setChooseProductionDirty(false);
+-					bEmergencyBuilding = true;
++					if (getProductionBuilding() == eCastle)
++					{
++						bEmergencyBuilding = true;
++					}
++					else
++					{
++						clearOrderQueue();
++						pushOrder(ORDER_CONSTRUCT, eCastle);
++						setChooseProductionDirty(false);
++						bEmergencyBuilding = true;
++					}
+ 				}
+ 			}
+ 		}
+@@ -868,20 +892,16 @@ void CvCity::doTurn()
+ 
+ 			// <!-- custom: note: use these map checks with else if to make sure both are not true according to chatgpt 5 and so to not run both corresponding blocks in case we made a mistake somehow (even though if so our priority should rather be to fix code but this is just in theory and as a less worse solution if it were o be true which i think isn't even with 2 if but check to be sure but anyways etc, and if -> else if -> else is preferable anyway for clarity and/or performance as well if i am not mistaken but anyways etc) -->
+ 			// <!-- custom: trying to save some computing power by condtionally checking naval maps only if not land map (which also btw in most cases shouldn't be for players i think but anyways etc) -->
+-			bool const bLandHeavyMapname = GC.getGame().isLandHeavyMapnameCached();
++			bool const bLandHeavyMapname = kGame.isLandHeavyMapnameCached();
+ 			bool bNavalHeavyMapname = false;
+ 			if (!bLandHeavyMapname)
+ 			{
+-				bNavalHeavyMapname = GC.getGame().isNavalHeavyMapnameCached();
++				bNavalHeavyMapname = kGame.isNavalHeavyMapnameCached();
+ 			}
+ 
+-			// Early-game window (scaled by game speed TrainPercent)
+-			const int iTrainPct = GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent();
+ 			// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die if i am not mistaken anyways etc -->
+-			// const int iEarlyCutoff = (150 * iTrainPct) / 100; // ~T150 @ Normal
+ 			static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
+ 			const int iEarlyCutoff = (iEarlyTurnNoExcessDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
+-			const int iCurrentTurn = GC.getGame().getGameTurn();
+ 			const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
+ 
+ 			static const int TH_ANC      = GC.getDefineINT("SAS_NO_EXCESS_VERY_CHEAP_MILITARY_UNITS_XML_COST_ANCIENT_TIER_THRESHOLD");
+@@ -1264,7 +1284,7 @@ void CvCity::doTurn()
+ 	{
+ 		if(bHuman && !isProduction() && !isProductionAutomated() &&
+ 			kOwner.getAnarchyTurns() == 1 &&
+-			GC.getGame().getGameState() != GAMESTATE_EXTENDED)
++			kGame.getGameState() != GAMESTATE_EXTENDED)
+ 		{
+ 			UnitTypes eMostRecentUnit = NO_UNIT;
+ 			BuildingTypes eMostRecentBuilding = NO_BUILDING;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index e9e44759c..6799f084b 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -17217,25 +17217,46 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ //		...
+ //	}
+ 
++	// <!-- custom: also cache these as is done in this file in other functions since we reuse them if i'm not mistaken in doing so but anyways etc -->
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++	CvGame const& kGame = GC.getGame();
++
+ 	CvPlot* pBestPlot = NULL;
+ 	CvPlot* pBestFoundPlot = NULL;
+ 	int iBestFoundValue = 0;
+-	bool const bRandomize = (!isHuman() && GC.getGame().isScenario()); // advc.052
++	bool const bRandomize = (!isHuman() && kGame.isScenario()); // advc.052
++
++	// <!-- custom: we have an issue of AI having a settler parked in capital at turn +/- 45 at normal gamespeed, and still having only 1 city (the capital) at turn 100 in autoplay. The candidate city sites were more than safe enough, relaxing this with the help of claude sonnet 4.5 and chatgpt 5's idea as well, check if accurate anyways etc -->
++	// Looking at your issue, the AI settler is getting stuck in the capital because the safety check is too strict.
++	// Solution 1: Time-Based Override (Easiest)
++	// Add a grace period where safety is ignored early game
++	// Solution 2: Conditional Safety (Better)
++	// Only require safety after the first city
+ 	bool const bSafe = (getGroup()->canDefend() ||
+-			getInvisibleType() != NO_INVISIBLE); // advc.057b
+-	for (int i = 0; i < GET_PLAYER(getOwner()).AI_getNumCitySites(); i++)
++	 		getInvisibleType() != NO_INVISIBLE); // advc.057b
++	static const bool bSAS_FOUND_OPTIMIZE = GC.getDefineBOOL("SAS_FOUND_OPTIMIZE");
++	static const int iSAS_FOUND_BSAFE_IGNORE_TURN_NORMAL = GC.getDefineINT("SAS_FOUND_BSAFE_IGNORE_TURN_NORMAL");
++	const int iTrainPct = GC.getInfo(kGame.getGameSpeedType()).getTrainPercent();
++	const int iEarlyCutoff = (iSAS_FOUND_BSAFE_IGNORE_TURN_NORMAL * iTrainPct) / 100; // e.g. ~T80 @ Normal
++	const int iCurrentTurn = kGame.getGameTurn();
++	const bool bEarly = (iCurrentTurn <= iEarlyCutoff); // Allow risky settling early
++	static const int iSAS_FOUND_BSAFE_IGNORE_NUM_CITIES = GC.getDefineINT("SAS_FOUND_BSAFE_IGNORE_NUM_CITIES");
++	const bool bNotEnoughCities = kOwner.getNumCities() <= 1; // Always allow 2nd city
++	const bool bSafeOverride = (bSAS_FOUND_OPTIMIZE && (bEarly || bNotEnoughCities));
++	const bool bGoSettleAnyway = (bSafe || bSafeOverride);
++	for (int i = 0; i < kOwner.AI_getNumCitySites(); i++)
+ 	{
+-		CvPlot& kSite = GET_PLAYER(getOwner()).AI_getCitySite(i);
++		CvPlot& kSite = kOwner.AI_getCitySite(i);
+ 		if (AI_canEnterByLand(kSite.getArea()) || // advc.030 (replacing same-area check)
+ 			// BETTER_BTS_AI_MOD, Settler AI, 10/23/09, jdog5000:
+ 			canMoveAllTerrain())
+ 		{
+ 			if (canFound(&kSite) &&
+-				!GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++				!kOwner.AI_isAnyPlotTargetMissionAI(
+ 				kSite, MISSIONAI_FOUND, getGroup()))
+ 			{
+-				if (bSafe ||
+-					GET_PLAYER(getOwner()).AI_isAnyPlotTargetMissionAI(
++				if (bGoSettleAnyway ||
++					kOwner.AI_isAnyPlotTargetMissionAI(
+ 					kSite, MISSIONAI_GUARD_CITY))
+ 				{
+ 					int iPathTurns;
+@@ -17243,7 +17264,7 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 					{
+ 						if (!kSite.isVisible(getTeam()) || // K-Mod
+ 							!kSite.isVisibleEnemyUnit(this) ||
+-							(iPathTurns > 1 && bSafe)) // K-Mod
++							(iPathTurns > 1 && bGoSettleAnyway)) // K-Mod
+ 						{
+ 							int iValue = kSite.getFoundValue(getOwner());
+ 							// <advc.052>
+@@ -17256,7 +17277,7 @@ bool CvUnitAI::AI_found(MovementFlags eFlags)
+ 							} // </advc.052>
+ 							iValue *= 1000;
+ 							//iValue /= (iPathTurns + 1);
+-							iValue /= iPathTurns + (bSafe ? 4 : 1); // K-Mod
++							iValue /= iPathTurns + (bGoSettleAnyway ? 4 : 1); // K-Mod
+ 							if (iValue > iBestFoundValue)
+ 							{
+ 								iBestFoundValue = iValue;
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 0995a29e6..876aeaf5c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -99,6 +99,8 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc)  
+ [66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early anyways etc) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd if i may say but anyways etc, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now if i may say but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc)  
+ [67 - (Fixed/Enhanced) An ancient maceman 18 hammer costs 20 hammer ingame, and a swordsman 42 hammer costs 40 while a swordsman 43 hammer costs 45 which is a mess. Fixed by removing per 5 rounding in CvPlayer::getProductionNeeded and other related functions/issues anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc)  
++[68 - (Tremendously Improved) AI having a settler parked from turn +/- 45 to turn 100 and still didn't found any city, fixed/addressed in CvUnitAI::AI_found](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#68---tremendously-improved-ai-having-a-settler-parked-from-turn---45-to-turn-100-and-still-didnt-found-any-city-fixedaddressed-in-cvunitaiai_found)  
++
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -2718,3 +2720,9 @@ Also what was even more annoying is that even outside of handicap or such settin
+ I don't know what intent was, insanity, or maybe more honestly or fairly i guess making it prettier to the eye xd, but fuck that i really don't care xd. Since i find it nonsensical and don't care about pretty numbers in this case at least i mean but anyways etc, disabled it entirely, anyways etc.
+ 
+ Hopefully clearer/saner less frustration generating/inducing xd if i may say, also i find it cool to tweak per hammer costs like 40-41-42-43-44-45 vs 45 or 40 so i find it nice to be able to do so, and am glad it is restored as such in this case i mean but anyways etc.
++
++## 68 - (Tremendously Improved) AI having a settler parked from turn +/- 45 to turn 100 and still didn't found any city, fixed/addressed in CvUnitAI::AI_found
++
++See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1Eip4H2dji_1fxmw2HmShhoa_1I4JnISF?usp=sharing) anyways etc.
++
++For some reason we were very slow to produce our first settler after the change, but after we had our first settler, 2nd spain AI city was founded soon after which is nice and addresses this issue: we now have 3 cities at turn 100, and so do other ais more or less as well, which seems like a nice and quite safe enhancement since cities seem guarded more than enough (2 units per city it seems) but check to be sure as i only glanced through autoplay i mean anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 6f519e919..4552f147e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -155,6 +155,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - make AI settlers take longer to decide which site to start at for its first city to found, thanks to changes in ``CvUnitAI::AI_foundFirstCity``. In summary, now AI will take a free window of 5 turns of path from its spawn location without any penalty to any potential city site considered in that range, vs 2 with immediate penalties per turn if not found at turn 0 in base advciv if i'm not mistaken and base advciv having 2 turns max even on top of that. Also, non-coastal sites are no longer discarded now in our mod even if coastal ones are in range if i am not mistaken but anyways etc, and non-rivers and non-fresh water ones are no longer discarded as well if rivers or fresh water ones are in range: just pick the best, if it happens to be a coast, great, a river, great, if not, great too, simply pick best without bias or much less or less than before ideally but anyways etc. Our system allows for much better site selection, although in most games AI settlers should sitll choose best site they start on already, but in some cases, like low food tundra or such, if grassland is nearby at a few turns of walk, the AI would probably have settled there in base advciv regardless but not in our mod, where it would instead attempt to hopefully have a stronger, no emergency, and no strong starting type of city bias and discarding potentially locally better ones (if river is best all good, but don't discard a better site just because it doesn't have a river or fresh water, and rivers aand such are valorized already at evaluate part of the code of bets site anyway for all cities to found during the game if i am not mistaken not just first one so no need to overdo it if i am not mistaken but anyways etc) first city site, so hopefully AI has stronger starting city sites thanks to these changes, especially if starting site is somehow really bad; see for details [43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes)
+ - since, then further enhanced AI settler preferences in `AIFoundValue::evaluate`, by discouraging them from settling on too watery starts. As of now, if a city site has less than 12 good starter bfc tiles (what we consider to be any land tile (including peak), or water tiles with bonuses (such as coast fish)), excluding the home plot/tile (i.e. where the city is planted/founded/settled but anyways etc), which would mean if we account for the BFC having 20 plots/tiles (21 minus home plot is 20 if i'm not mistaken but anyways etc), this would mean that 20 - 12 = max 8 water non bonus tiles are tolerated without penalty, after/past that threshold a strong penalty is applied so they are encouraged to explore any site with other settings i didn't change as too messy xd but anyways, up to 5 path turns away as explained in known issue as of now 43 before (see as of now above anyways etc). This behaviour is opposite of base advciv +/- civ4 one which would instead encourage if not enforce starting on coast if i'm not mistaken. Our/this change results in AI having a more central start, securing a later nice city spot, having a more radial empire with a stronger capital that can better defend the empire and expand towards rivals early settling. Economically land tiles allow the capital to grow cottages/workshops etc more than water tiles, so the high water site that may have been fine for city 3/c or 4/d etc is not so good for the capital city. AI is much stronger now, see [44 - (Enhanced) Make/Encourage AI settlers walk away from bad starting sites in this case i mean but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but-anyways-etc) for details, with screenshots about moscow AI having a very nice expansion and early and middle game as a result of moving 5 tiles away from its start 17 non bonus water tile edge. I also did while doing these other changes such as making AI like hill plains a lot more, etc, should be explained in other changes but tedious xd to track all, will do for some though but not all anyways etc, hopefully AI is more competitive now as well and enjoyable to play against anyways etc. Note: this change only applies to capital city, as i think it really needs land and a more central position and such for its growth etc, but other cities don't have this restriction, so they can take these sites better as in screenshots, see known issue link as of now 44 as mentionned here for details, hopefully helpful or not or yes or etc but anyways etc.
+ - other changes in batch in `AIFoundValue::evaluate` (non-exhaustive) and other related functions to AI settler preferences if i am not mistaken anyways etc: value fresh water more for city site by refactoring, simplifying and merging + reworking `AIFoundValue::evaluateFreshWater` in `AIFoundValue::evaluate` with other related changes too if i'm not mistaken but anyways etc, value settling on hill plains extra lot more (extra yield, one less low food tile, defense modifier, no blocking irrigation if i am not mistaken too, etc if any other advantages), disable `AIFoundValue::adjustToCivSurroundings` anti-crowd policy, we don't mind it, simply pick best site and don't interfere with our choice if i'm not mistaken and if i may say anyways etc
++- (Requires AdvCiv-SAS 5080+) tremendously improved/addressed the issue of AI settlers staying parked for a very long time in cities when it should be safe enough or urgent enough to do so (in the early game as of now in our patch). For example Spain AI would have its first settler at turn +/- 45, and it would stay parked even at turn 100 in capital city, so it had only 1 city at turn 100!! Now after the change we get a settler later (random variation), but settle our 2nd city soon after around turn 60-70, and 3rd city around turn 80-90, so that we have 3 cities at turn 100 which is much nicer (settler production varies somehow, but we move much sooner after we have it now). They are also guarded enough it seems, and early we don't have that much threats, but a big priority to expand (quite safely but anyways etc). Changes made in `CvUnitAI::AI_found`. See [KI#68](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#68---tremendously-improved-ai-having-a-settler-parked-from-turn---45-to-turn-100-and-still-didnt-found-any-city-fixedaddressed-in-cvunitaiai_found) for details anyways etc.
+ 
+ #### Workers (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index c55233560..c42fb99fd 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -143,6 +143,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **First city logic:** settlers consider a larger no-penalty scouting radius for founding the capital (`CvUnitAI::AI_foundFirstCity`), and no longer auto-reject non-coastal/non-river sites if a worse “preferred” site exists. It’ll just pick the **best** overall site. See [KI#43](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes).
+ - **Avoid excessively watery capitals:** if fewer than **12** “good starter BFC tiles” (land + coastal bonus tiles, excluding the city tile), apply a strong penalty so the capital doesn’t start surrounded by mostly low-yield coast. Other cities may still take such sites later. See [KI#44](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but-anyways-etc).
+ - **Additional tweaks:** value fresh water more (logic refactored/merged), value settling on **hill-plains** much more, and disable legacy “anti-crowd” biases so the choice stays yield-driven.
++- (Requires AdvCiv-SAS 5080+) **Parking addressed (early game):** Reduced cases of settlers idling in the capital despite safe/urgent expansion, by updating `CvUnitAI::AI_found` to found sooner when conditions allow. In autoplay samples, Spain shifted from **1 city @T100** to **~2 by T60–70** and **~3 by T80–90** (settler production varies somehow, but we move much sooner after we have it now). See [KI#68](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#68---tremendously-improved-ai-having-a-settler-parked-from-turn---45-to-turn-100-and-still-didnt-found-any-city-fixedaddressed-in-cvunitaiai_found).
+ 
+ #### Workers (AI)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=29292

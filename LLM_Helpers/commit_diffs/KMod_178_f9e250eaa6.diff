@@ -1,0 +1,75 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 178
+# Commit: f9e250eaa6c4638d6fd0cac6ed54fdf61a3e0946
+# History segment: K-Mod history
+# Parent used for diff: cf4b1892d89a43869ba8364da308fc13849106ab
+# Title: Fixed a bug which prevented religions from being removed as intended. This is version 1.00b.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/CvUnit.cpp
+6	1	changelog.txt
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 1d3dd82b0..46f7d5e08 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -5734,7 +5734,7 @@ bool CvUnit::spread(ReligionTypes eReligion)
+ 		int iPresentReligions = pCity->getReligionCount();
+ 		int iMissingReligions = GC.getNumReligionInfos() - iPresentReligions;
+ 		int iSpreadProb = iPresentReligions * (m_pUnitInfo->getReligionSpreads(eReligion) + pCity->getPopulation())
+-			+ iMissingReligions * std::max(100, 100 - 10 * iPresentReligions + pCity->getPopulation());
++			+ iMissingReligions * std::max(100, 100 - 10 * iPresentReligions);
+ 		iSpreadProb /= GC.getNumReligionInfos();
+ 
+ 		bool bSuccess;
+@@ -5761,11 +5761,11 @@ bool CvUnit::spread(ReligionTypes eReligion)
+ 				{
+ 					if (pCity != GC.getGame().getHolyCity((ReligionTypes)iI)) // holy city can't lose its religion!
+ 					{
+-						int iInfluence = pCity->getReligionGrip(eReligion);
++						int iInfluence = pCity->getReligionGrip((ReligionTypes)iI);
+ 						iInfluence += GC.getGameINLINE().getSorenRandNum(iRandomWeight, "Religion influence");
+ 						iInfluence += (iI == eReligion) ? m_pUnitInfo->getReligionSpreads(eReligion)/2 : 0;
+ 
+-						rankedReligions.push_back(std::make_pair(iInfluence, eReligion));
++						rankedReligions.push_back(std::make_pair(iInfluence, (ReligionTypes)iI));
+ 					}
+ 				}
+ 			}
+
+diff --git a/changelog.txt b/changelog.txt
+index bd4b3bdc1..82f2c90a2 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,4 +1,4 @@
+-This is K-Mod version 1.00.
++This is K-Mod version 1.00b.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
+ --
+@@ -32,6 +32,11 @@ NOTE: This patch changes the save file format. K-Mod saves from previous version
+ + Added four new AI mission types (these are just names that are useful when writing AI code).
+ + Reduced the use of mutable variables in the cache system. Restructured when and where cache is refreshed. (This should have no effect on gameplay, but I think it will make it harder to create OOS bugs.)
+ 
++v1.00b
+++ Fixed a bug which prevented religions from being removed as intended.
+++ Added a missing factor of 100 in gold value for AI_cityValue.
+++ Adjusted the AI's decision making regarding unit spending to bring the probability of war back down closer to standard BtS levels.
++
+ --
+ 
+ v0.99 changelist
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2413

@@ -31,8 +31,8 @@
 #-----------------------------------------------------------------------------
 #
 
-
 from CvPythonExtensions import *
+from SAS_WorldSizeUtils import *
 import CvUtil
 import CvMapGeneratorUtil
 from CvMapGeneratorUtil import TerrainGenerator
@@ -56,6 +56,8 @@ def getNumPlotsPercent(argsList):
 	if iWorldSize < 0:
 		return 100
 	sizeModifiers = {
+		# <!-- custom: Arena was absent from this direct dictionary, causing KeyError; the shifted length guard also bypassed the stored Huge value. Use the established Duel percentage for Arena. See KI#282.3. (GPT-5.6-Sol) -->
+		WorldSizeTypes.WORLDSIZE_ARENA:		100,
 		WorldSizeTypes.WORLDSIZE_DUEL:		100,
 		WorldSizeTypes.WORLDSIZE_TINY:		98,
 		WorldSizeTypes.WORLDSIZE_SMALL:		95,
@@ -69,11 +71,10 @@ def getNumPlotsPercent(argsList):
 
 def isAdvancedMap():
 	"This map should not show up in simple mode"
-	return 0
+	return 1
 
 def getNumCustomMapOptions():
 	return 5 # advc.mxc
-
 
 def getCustomMapOptionName(argsList):
 	[iOption] = argsList
@@ -91,9 +92,10 @@ def getCustomMapOptionName(argsList):
 		#6:	"Reduce Desert",
 		#7:	"Add Plains",
 		}
+	if not option_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
 	return translated_text
-
 
 def getNumCustomMapOptionValues(argsList):
 	[iOption] = argsList
@@ -108,7 +110,6 @@ def getNumCustomMapOptionValues(argsList):
 		#7:	6
 		}
 	return option_values[iOption]
-
 
 def getCustomMapOptionDescAt(argsList):
 	[iOption, iSelection] = argsList
@@ -170,9 +171,10 @@ def getCustomMapOptionDescAt(argsList):
 		#	5: "75%"
 		#	}
 		}
+	if not selection_names.has_key(iOption):
+		sas_warn_simple_game_stale_option_once(iOption, getNumCustomMapOptions())
 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
 	return translated_text
-
 
 def getCustomMapOptionDefault(argsList):
 	[iOption] = argsList
@@ -188,11 +190,9 @@ def getCustomMapOptionDefault(argsList):
 		}
 	return option_defaults[iOption]
 
-
 # <advc.mxc>
 def getWrapX():
 	return (CyMap().getCustomMapOption(3) >= 1)
-
 
 def getWrapY():
 	return (CyMap().getCustomMapOption(3) == 2)
@@ -209,7 +209,6 @@ def beforeGeneration():
 	# Binary shift roll (for horizontal shifting if Island Region Separate).
 	xShiftRoll = dice.get(2, "Region Shift, Horizontal - Big and Small PYTHON")
 	print("xShiftRoll", xShiftRoll)
-
 
 class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	def generatePlotsByRegion(self):
@@ -261,7 +260,8 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 				tinyWestLon = 0.01 * self.dice.get(85, "Tiny Longitude - Custom Continents PYTHON")
 				tinyWestX = int(self.iW * tinyWestLon)
 				tinySouthLat = 0.01 * self.dice.get(85, "Tiny Latitude - Custom Continents PYTHON")
-				tinySouthY = int(self.iH * tinyWestLon)
+				# <!-- custom: The inherited script rolled an independent latitude but derived Y from longitude, diagonally correlating supposedly random tiny-island patches. Use the latitude roll while preserving RNG order. See KI#262. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				tinySouthY = int(self.iH * tinySouthLat)
 				tinyWidth = int(self.iW * 0.15)
 				tinyHeight = int(self.iH * 0.15)
 				# advc.mxc: was 3 - which is an unusually coarse grain. Probably the opposite was intended.
@@ -325,27 +325,25 @@ class BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 		#print "Done"
 		return self.wholeworldPlotTypes
 
-
-'''
-Regional Variables Key:   (params of generatePlotsInRegion)
-
-iWaterPercent,
-iRegionWidth, iRegionHeight,
-iRegionWestX, iRegionSouthY,
-iRegionGrain, iRegionHillsGrain,
-iRegionPlotFlags, iRegionTerrainFlags,
-iRegionFracXExp, iRegionFracYExp,
-bShift, iStrip,
-rift_grain, has_center_rift,
-invert_heights
-'''
+#
+# Regional Variables Key:   (params of generatePlotsInRegion)
+#
+# iWaterPercent,
+# iRegionWidth, iRegionHeight,
+# iRegionWestX, iRegionSouthY,
+# iRegionGrain, iRegionHillsGrain,
+# iRegionPlotFlags, iRegionTerrainFlags,
+# iRegionFracXExp, iRegionFracYExp,
+# bShift, iStrip,
+# rift_grain, has_center_rift,
+# invert_heights
+#
 
 def generatePlotTypes():
 	NiTextOut("Setting Plot Types (Python Custom Continents) ...")
 	fractal_world = BnSMultilayeredFractal()
 	plotTypes = fractal_world.generatePlotsByRegion()
 	return plotTypes
-
 
 def generateTerrainTypes():
 
@@ -393,7 +391,6 @@ def generateTerrainTypes():
 
 	terrainTypes = terraingen.generateTerrain()
 	return terrainTypes
-
 
 def addFeatures():
 	NiTextOut("Adding Features (Python Custom Continents) ...")

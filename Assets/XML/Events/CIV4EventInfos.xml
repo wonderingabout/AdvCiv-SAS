@@ -1437,7 +1437,7 @@
 			<iTechCostPercent>0</iTechCostPercent>
 			<iTechMinTurnsLeft>0</iTechMinTurnsLeft>
 			<PrereqTech>NONE</PrereqTech>
-			<UnitClass>UNITCLASS_ARTIST</UnitClass>
+			<UnitClass>UNITCLASS_GREAT_ARTIST</UnitClass>
 			<iNumFreeUnits>1</iNumFreeUnits>
 			<bDisbandUnit>0</bDisbandUnit>
 			<iUnitExperience>0</iUnitExperience>
@@ -2519,7 +2519,7 @@
 			<iTechCostPercent>0</iTechCostPercent>
 			<iTechMinTurnsLeft>0</iTechMinTurnsLeft>
 			<PrereqTech>NONE</PrereqTech>
-			<UnitClass>UNITCLASS_PROPHET</UnitClass>
+			<UnitClass>UNITCLASS_GREAT_PROPHET</UnitClass>
 			<iNumFreeUnits>1</iNumFreeUnits>
 			<bDisbandUnit>0</bDisbandUnit>
 			<iUnitExperience>0</iUnitExperience>
@@ -6182,7 +6182,7 @@
 			<RouteType>NONE</RouteType>
 			<iRouteChange>0</iRouteChange>
 			<BonusRevealed>NONE</BonusRevealed>
-			<BonusGift>BONUS_IVORY</BonusGift>
+			<BonusGift>BONUS_ELEPHANTS</BonusGift>
 			<PlotExtraYields/>
 			<iConvertOwnCities>0</iConvertOwnCities>
 			<iConvertOtherCities>0</iConvertOtherCities>
@@ -9736,9 +9736,19 @@
 			<iUnitImmobileTurns>0</iUnitImmobileTurns>
 			<UnitPromotion/>
 			<UnitName/>
+			<!-- custom: new archer combat types -->
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
-					<UnitCombat>UNITCOMBAT_ARCHER</UnitCombat>
+					<UnitCombat>UNITCOMBAT_ARCHER_BOW_SHORT</UnitCombat>
+					<UnitPromotion>PROMOTION_COMBAT1</UnitPromotion>
+				</UnitCombatPromotion>
+				<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_ARCHER_BOW_LONG</UnitCombat>
+					<UnitPromotion>PROMOTION_COMBAT1</UnitPromotion>
+				<!-- custom: add other types of archer units maybe too -->
+				</UnitCombatPromotion>
+					<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_ARCHER_CROSSBOW</UnitCombat>
 					<UnitPromotion>PROMOTION_COMBAT1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
@@ -9824,8 +9834,12 @@
 			<UnitName/>
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
-					<UnitCombat>UNITCOMBAT_MOUNTED</UnitCombat>
-					<UnitPromotion>PROMOTION_FLANKING1</UnitPromotion>
+					<UnitCombat>UNITCOMBAT_MOUNTED_MELEE</UnitCombat>
+					<UnitPromotion>PROMOTION_RETREAT1</UnitPromotion>
+				</UnitCombatPromotion>
+				<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_MOUNTED_RANGED</UnitCombat>
+					<UnitPromotion>PROMOTION_RETREAT1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
 			<UnitClassPromotions/>
@@ -11567,7 +11581,7 @@
 			<iFeatureChange>0</iFeatureChange>
 			<ImprovementType>NONE</ImprovementType>
 			<iImprovementChange>0</iImprovementChange>
-			<BonusType>BONUS_WINE</BonusType>
+			<BonusType>BONUS_GRAPES</BonusType>
 			<iBonusChange>1</iBonusChange>
 			<RouteType>NONE</RouteType>
 			<iRouteChange>0</iRouteChange>
@@ -11648,7 +11662,7 @@
 			<iFeatureChange>0</iFeatureChange>
 			<ImprovementType>NONE</ImprovementType>
 			<iImprovementChange>1</iImprovementChange>
-			<BonusType>BONUS_WINE</BonusType>
+			<BonusType>BONUS_GRAPES</BonusType>
 			<iBonusChange>1</iBonusChange>
 			<RouteType>ROUTE_ROAD</RouteType>
 			<iRouteChange>1</iRouteChange>
@@ -11746,10 +11760,12 @@
 			<AdditionalEvents/>
 			<EventTimes/>
 			<ClearEvents/>
-			<PythonCallback>doIndependentFilms</PythonCallback>
+			<!-- custom: was <PythonCallback>doIndependentFilms</PythonCallback> -->
+			<PythonCallback/>
 			<PythonExpireCheck/>
 			<PythonCanDo/>
-			<PythonHelp>getHelpIndependentFilms</PythonHelp>
+			<!-- custom: BONUS_MOVIES removed and replaced with BONUS_CAMEL, so so disabling this old movies related code, was <PythonHelp>getHelpIndependentFilms</PythonHelp> -->
+			<PythonHelp/>
 			<Button>,Art/Interface/Buttons/Process/Blank.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,8,5</Button>
 			<iAIValue>1000</iAIValue>
 		</EventInfo>
@@ -12440,7 +12456,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_AXEMAN</UnitClass>
-					<UnitPromotion>PROMOTION_SHOCK</UnitPromotion>
+					<UnitPromotion>PROMOTION_COUNTER_MELEE</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -12524,8 +12540,12 @@
 			<UnitName/>
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
-					<UnitCombat>UNITCOMBAT_MELEE</UnitCombat>
-					<UnitPromotion>PROMOTION_COVER</UnitPromotion>
+					<UnitCombat>UNITCOMBAT_MELEE_POLEARM</UnitCombat>
+					<UnitPromotion>PROMOTION_COUNTER_ARCHER</UnitPromotion>
+				</UnitCombatPromotion>
+				<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_MELEE_SHOCK</UnitCombat>
+					<UnitPromotion>PROMOTION_COUNTER_ARCHER</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
 			<UnitClassPromotions/>
@@ -12612,7 +12632,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_MUSKETMAN</UnitClass>
-					<UnitPromotion>PROMOTION_PINCH</UnitPromotion>
+					<UnitPromotion>PROMOTION_COUNTER_GUN</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -12784,7 +12804,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_GRENADIER</UnitClass>
-					<UnitPromotion>PROMOTION_PINCH</UnitPromotion>
+					<UnitPromotion>PROMOTION_COUNTER_GUN</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -12956,7 +12976,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_CARRIER</UnitClass>
-					<UnitPromotion>PROMOTION_DRILL3</UnitPromotion>
+					<UnitPromotion>PROMOTION_FIRST_STRIKE3</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -13042,7 +13062,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_FIGHTER</UnitClass>
-					<UnitPromotion>PROMOTION_RANGE1</UnitPromotion>
+					<UnitPromotion>PROMOTION_AIR_RANGE1</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -13128,7 +13148,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_PIKEMAN</UnitClass>
-					<UnitPromotion>PROMOTION_SHOCK</UnitPromotion>
+					<UnitPromotion>PROMOTION_COUNTER_MELEE</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -16244,7 +16264,11 @@
 			<UnitName/>
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
-					<UnitCombat>UNITCOMBAT_MOUNTED</UnitCombat>
+					<UnitCombat>UNITCOMBAT_MOUNTED_MELEE</UnitCombat>
+					<UnitPromotion>PROMOTION_SENTRY</UnitPromotion>
+				</UnitCombatPromotion>
+				<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_MOUNTED_RANGED</UnitCombat>
 					<UnitPromotion>PROMOTION_SENTRY</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
@@ -16692,7 +16716,7 @@
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
 					<UnitCombat>UNITCOMBAT_NAVAL</UnitCombat>
-					<UnitPromotion>PROMOTION_NAVIGATION1</UnitPromotion>
+					<UnitPromotion>PROMOTION_NAVIGATOR</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
 			<UnitClassPromotions/>
@@ -17296,7 +17320,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_SWORDSMAN</UnitClass>
-					<UnitPromotion>PROMOTION_SHOCK</UnitPromotion>
+					<UnitPromotion>PROMOTION_COUNTER_MELEE</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -17557,7 +17581,11 @@
 			<UnitName/>
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
-					<UnitCombat>UNITCOMBAT_MELEE</UnitCombat>
+					<UnitCombat>UNITCOMBAT_MELEE_POLEARM</UnitCombat>
+					<UnitPromotion>PROMOTION_CITY_GARRISON1</UnitPromotion>
+				</UnitCombatPromotion>
+				<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_MELEE_SHOCK</UnitCombat>
 					<UnitPromotion>PROMOTION_CITY_GARRISON1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
@@ -21370,7 +21398,7 @@
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
 					<UnitCombat>UNITCOMBAT_GUN</UnitCombat>
-					<UnitPromotion>PROMOTION_MARCH</UnitPromotion>
+					<UnitPromotion>PROMOTION_FIRST_STRIKE1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
 			<UnitClassPromotions/>
@@ -22212,10 +22240,15 @@
 			<iUnitImmobileTurns>0</iUnitImmobileTurns>
 			<UnitPromotion/>
 			<UnitName/>
+			<!-- custom: seems polearm is also relevant for this event at a glance at the text description so put both polearm and shock melee combat types but check to be sure if want to be sure -->
 			<UnitCombatPromotions>
 				<UnitCombatPromotion>
-					<UnitCombat>UNITCOMBAT_MELEE</UnitCombat>
-					<UnitPromotion>PROMOTION_DRILL1</UnitPromotion>
+					<UnitCombat>UNITCOMBAT_MELEE_POLEARM</UnitCombat>
+					<UnitPromotion>PROMOTION_FIRST_STRIKE1</UnitPromotion>
+				</UnitCombatPromotion>
+				<UnitCombatPromotion>
+					<UnitCombat>UNITCOMBAT_MELEE_SHOCK</UnitCombat>
+					<UnitPromotion>PROMOTION_FIRST_STRIKE1</UnitPromotion>
 				</UnitCombatPromotion>
 			</UnitCombatPromotions>
 			<UnitClassPromotions/>
@@ -22652,7 +22685,7 @@
 			<UnitClassPromotions>
 				<UnitClassPromotion>
 					<UnitClass>UNITCLASS_MUSKETMAN</UnitClass>
-					<UnitPromotion>PROMOTION_PINCH</UnitPromotion>
+					<UnitPromotion>PROMOTION_COUNTER_GUN</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -22993,10 +23026,15 @@
 			<UnitPromotion/>
 			<UnitName/>
 			<UnitCombatPromotions/>
+			<!-- custom: add camel units as a separate class in this event too -->
 			<UnitClassPromotions>
 				<UnitClassPromotion>
-					<UnitClass>UNITCLASS_KNIGHT</UnitClass>
-					<UnitPromotion>PROMOTION_FLANKING1</UnitPromotion>
+					<UnitClass>UNITCLASS_HORSE_KNIGHT</UnitClass>
+					<UnitPromotion>PROMOTION_RETREAT1</UnitPromotion>
+				</UnitClassPromotion>
+				<UnitClassPromotion>
+					<UnitClass>UNITCLASS_CAMEL_KNIGHT</UnitClass>
+					<UnitPromotion>PROMOTION_RETREAT1</UnitPromotion>
 				</UnitClassPromotion>
 			</UnitClassPromotions>
 			<BuildingClass>NONE</BuildingClass>
@@ -28230,7 +28268,7 @@
 					<iExtraCommerce>2</iExtraCommerce>
 				</BuildingExtraCommerce>
 				<BuildingExtraCommerce>
-					<BuildingClass>BUILDINGCLASS_CONFUCIAN_CATHEDRAL</BuildingClass>
+					<BuildingClass>BUILDINGCLASS_PAGAN_CATHEDRAL</BuildingClass>
 					<CommerceType>COMMERCE_GOLD</CommerceType>
 					<iExtraCommerce>2</iExtraCommerce>
 				</BuildingExtraCommerce>
@@ -28240,7 +28278,7 @@
 					<iExtraCommerce>2</iExtraCommerce>
 				</BuildingExtraCommerce>
 				<BuildingExtraCommerce>
-					<BuildingClass>BUILDINGCLASS_TAOIST_CATHEDRAL</BuildingClass>
+					<BuildingClass>BUILDINGCLASS_DAOIST_CATHEDRAL</BuildingClass>
 					<CommerceType>COMMERCE_GOLD</CommerceType>
 					<iExtraCommerce>2</iExtraCommerce>
 				</BuildingExtraCommerce>

@@ -1,0 +1,247 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3299
+# Commit: e4462d2409d17d028648d1b7c0d6657bbb1d07c0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bb74d154685648b5d012f3927879fd4951dd098e
+# Title: Difficulty-based adjustment for foreign culture strength
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+18	0	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+4	2	Assets/XML/GlobalDefines_advc.xml
+2	3	CvGameCoreDLL/CvCity.cpp
+3	3	CvGameCoreDLL/CvInfo_GameOption.cpp
+22	2	CvGameCoreDLL/CvInfo_GameOption.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+index a850739e6..9ec5689ca 100644
+--- a/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
++++ b/Assets/XML/GameInfo/CIV4GameInfoSchema.xml
+@@ -345,6 +345,8 @@
+ 	<ElementType name="iHurryPercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iHurryConscriptAngerPercent" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iInflationPercent" content="textOnly" dt:type="int"/>
++	<!-- advc.101 -->
++	<ElementType name="iForeignCultureStrength" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iHealthBonus" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iHappyBonus" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iAttitudeChange" content="textOnly" dt:type="int"/>
+@@ -442,6 +444,8 @@
+ 		<element type="iCorporationMaintenancePercent"/>
+ 		<element type="iCivicUpkeepPercent"/>
+ 		<element type="iInflationPercent"/>
++		<!-- advc.101 -->
++		<element type="iForeignCultureStrength"/>
+ 		<element type="iHealthBonus"/>
+ 		<element type="iHappyBonus"/>
+ 		<element type="iAttitudeChange"/>
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index d1c38f668..bbf320887 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -48,6 +48,8 @@
+ 			<!-- advc.251: was 50 -->
+ 			<iCivicUpkeepPercent>60</iCivicUpkeepPercent>
+ 			<iInflationPercent>60</iInflationPercent>
++			<!-- advc.101 -->
++			<iForeignCultureStrength>10</iForeignCultureStrength>
+ 			<!-- advc.251: was 4 -->
+ 			<iHealthBonus>3</iHealthBonus>
+ 			<!-- advc.251: was 6 -->
+@@ -225,6 +227,8 @@
+ 			<!-- advc.251: was 60 -->
+ 			<iCivicUpkeepPercent>70</iCivicUpkeepPercent>
+ 			<iInflationPercent>70</iInflationPercent>
++			<!-- advc.101 -->
++			<iForeignCultureStrength>15</iForeignCultureStrength>
+ 			<iHealthBonus>3</iHealthBonus>
+ 			<iHappyBonus>5</iHappyBonus>
+ 			<!-- advc.148: was 1 -->
+@@ -377,6 +381,8 @@
+ 			<!-- advc.251: was 70 -->
+ 			<iCivicUpkeepPercent>80</iCivicUpkeepPercent>
+ 			<iInflationPercent>80</iInflationPercent>
++			<!-- advc.101 -->
++			<iForeignCultureStrength>20</iForeignCultureStrength>
+ 			<iHealthBonus>2</iHealthBonus>
+ 			<iHappyBonus>4</iHappyBonus>
+ 			<!-- advc.148: was 0 -->
+@@ -505,6 +511,8 @@
+ 			<!-- advc.251: was 80 -->
+ 			<iCivicUpkeepPercent>90</iCivicUpkeepPercent>
+ 			<iInflationPercent>90</iInflationPercent>
++			<!-- advc.101 -->
++			<iForeignCultureStrength>25</iForeignCultureStrength>
+ 			<iHealthBonus>2</iHealthBonus>
+ 			<iHappyBonus>4</iHappyBonus>
+ 			<!-- advc.148: was -1 -->
+@@ -626,6 +634,8 @@
+ 			<!-- advc.251: was 90 -->
+ 			<iCivicUpkeepPercent>95</iCivicUpkeepPercent>
+ 			<iInflationPercent>95</iInflationPercent>
++			<!-- advc.101 -->
++			<iForeignCultureStrength>29</iForeignCultureStrength>
+ 			<iHealthBonus>2</iHealthBonus>
+ 			<iHappyBonus>4</iHappyBonus>
+ 			<!-- advc.148: was -1 -->
+@@ -751,6 +761,8 @@
+ 			<!-- advc.251: was 95 -->
+ 			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
+ 			<iInflationPercent>100</iInflationPercent>
++			<!-- advc.101 -->
++			<iForeignCultureStrength>32</iForeignCultureStrength>
+ 			<iHealthBonus>2</iHealthBonus>
+ 			<iHappyBonus>4</iHappyBonus>
+ 			<!-- advc.148: was -1 -->
+@@ -903,6 +915,8 @@
+ 			<iCorporationMaintenancePercent>115</iCorporationMaintenancePercent>
+ 			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
+ 			<iInflationPercent>100</iInflationPercent>
++			<!-- advc.101 -->
++			<iForeignCultureStrength>35</iForeignCultureStrength>
+ 			<iHealthBonus>2</iHealthBonus>
+ 			<iHappyBonus>4</iHappyBonus>
+ 			<!-- advc.148: was -1 -->
+@@ -1060,6 +1074,8 @@
+ 			<iCorporationMaintenancePercent>120</iCorporationMaintenancePercent>
+ 			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
+ 			<iInflationPercent>100</iInflationPercent>
++			<!-- advc.101 -->
++			<iForeignCultureStrength>38</iForeignCultureStrength>
+ 			<iHealthBonus>2</iHealthBonus>
+ 			<iHappyBonus>4</iHappyBonus>
+ 			<!-- advc.148: was -1 -->
+@@ -1223,6 +1239,8 @@
+ 			<iCorporationMaintenancePercent>130</iCorporationMaintenancePercent>
+ 			<iCivicUpkeepPercent>100</iCivicUpkeepPercent>
+ 			<iInflationPercent>100</iInflationPercent>
++			<!-- advc.101 -->
++			<iForeignCultureStrength>40</iForeignCultureStrength>
+ 			<iHealthBonus>2</iHealthBonus>
+ 			<iHappyBonus>4</iHappyBonus>
+ 			<!-- advc.148: was -1 -->
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index b9547e42c..84fb57e47 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -152,10 +152,12 @@
+ 		<DefineName>FOREIGN_CULTURE_STRENGTH_EXPONENT</DefineName>
+ 		<iDefineIntVal>135</iDefineIntVal>
+     </Define>
+-	<Define>
++	<!-- Moved this to Civ4HandicapInfos.xml in AdvCiv 1.0.
++		 35 is used there for Emperor difficulty. -->
++	<!--Define>
+ 		<DefineName>FOREIGN_CULTURE_STRENGTH_FACTOR</DefineName>
+ 		<iDefineIntVal>35</iDefineIntVal>
+-    </Define>
++    </Define-->
+ 
+ 	<!-- These two are from the original GlobalDefines. -->
+ 	<!-- advc.101: Was 100, meaning that foreign culture strength is doubled
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 7756dafb7..dcdd9db6d 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4122,10 +4122,9 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
+ 		that the UI communicates to the player). */
+ 	static scaled const rFOREIGN_CULTURE_STRENGTH_EXPONENT = per100(
+ 			GC.getDefineINT("FOREIGN_CULTURE_STRENGTH_EXPONENT"));
+-	static scaled const rFOREIGN_CULTURE_STRENGTH_FACTOR = per100(
+-			GC.getDefineINT("FOREIGN_CULTURE_STRENGTH_FACTOR"));
+ 	rStrength.exponentiate(rFOREIGN_CULTURE_STRENGTH_EXPONENT);
+-	rStrength *= rFOREIGN_CULTURE_STRENGTH_FACTOR;
++	rStrength *= per100(GC.getInfo(kOwner.getHandicapType()).get(
++			CvHandicapInfo::ForeignCultureStrength));
+ 
+ 	static scaled const rREVOLT_OFFENSE_STATE_RELIGION_MODIFIER = per100(
+ 			GC.getDefineINT("REVOLT_OFFENSE_STATE_RELIGION_MODIFIER"));
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.cpp b/CvGameCoreDLL/CvInfo_GameOption.cpp
+index 035e5d10c..39735fa52 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.cpp
++++ b/CvGameCoreDLL/CvInfo_GameOption.cpp
+@@ -1037,7 +1037,7 @@ bool CvHandicapInfo::isAIFreeTechs(int i) const // advc.003t: Return type was in
+ #if ENABLE_XML_FILE_CACHE
+ void CvHandicapInfo::read(FDataStreamBase* stream)
+ {
+-	CvInfoBase::read(stream);
++	base_t::read(stream); // advc.tag
+ 	uint uiFlag=0;
+ 	stream->Read(&uiFlag);
+ 
+@@ -1131,7 +1131,7 @@ void CvHandicapInfo::read(FDataStreamBase* stream)
+ 
+ void CvHandicapInfo::write(FDataStreamBase* stream)
+ {
+-	CvInfoBase::write(stream);
++	base_t::write(stream); // advc.tag
+ 	uint uiFlag = 0;
+ 	stream->Write(uiFlag);
+ 	stream->Write(m_iFreeWinsVsBarbs);
+@@ -1218,7 +1218,7 @@ void CvHandicapInfo::write(FDataStreamBase* stream)
+ #endif
+ bool CvHandicapInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	if (!CvInfoBase::read(pXML))
++	if (!base_t::read(pXML)) // advc.tag
+ 		return false;
+ 
+ 	pXML->GetChildXmlValByName(&m_iFreeWinsVsBarbs, "iFreeWinsVsBarbs");
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index cf13d6bfe..022723d19 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -365,12 +365,32 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //  class : CvHandicapInfo
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-class CvHandicapInfo : public CvInfoBase
++class CvHandicapInfo : public /* <advc.tag> */ CvXMLInfo
+ {
+-public: // The const functions are exposed to Python except functions added by mods
++	typedef CvXMLInfo base_t;
++protected:
++	void addElements(ElementList& kElements) const
++	{
++		base_t::addElements(kElements);
++		/*	(Didn't have this framework when I implemented change advc.251,
++			otherwise, I would've used it for that too.) */
++		kElements.addInt(ForeignCultureStrength, "ForeignCultureStrength"); // advc.101
++	}
++public:
++	enum IntElementTypes
++	{
++		ForeignCultureStrength = base_t::NUM_INT_ELEMENT_TYPES, // advc.101
++		NUM_INT_ELEMENT_TYPES
++	};
++	int get(IntElementTypes e) const
++	{
++		return CvXMLInfo::get(static_cast<base_t::IntElementTypes>(e));
++	} // </advc.tag>
++
+ 	CvHandicapInfo();
+ 	~CvHandicapInfo();
+ 
++	// (The const functions are exposed to Python except functions added by mods)
+ 	int getFreeWinsVsBarbs() const;
+ 	int getAnimalAttackProb() const;
+ 	int getStartingLocationPercent() const;
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=8524

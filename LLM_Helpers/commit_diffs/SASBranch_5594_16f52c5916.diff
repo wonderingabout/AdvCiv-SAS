@@ -1,0 +1,217 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5594
+# Commit: 16f52c5916663c6ab73aea189b8890d1be7b1ad3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0ace3d709edbc24ddc7dd9b64b45d6cee07e6012
+# Title: Victory screen: always show the Resolutions and Members tab so now all tabs are shown even if they are empty, and add a fallback table showing required wonde...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+85	14	Assets/Python/Screens/CvVictoryScreen.py
+13	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 335d0c409..dd4950000 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -197,6 +197,9 @@ class CvVictoryScreen:
+ 		self.TEXT_LEGENDARY_CITIES = localText.getText("TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES", ())
+ 		self.TEXT_POPUP_PASSED = localText.getText("TXT_KEY_POPUP_PASSED", ())
+ 		self.TEXT_NOT_YET_BUILT = localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ())
++		self.TEXT_VOTE_SOURCE_NOT_ACTIVE = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_VOTE_SOURCE_NOT_ACTIVE", ())
++		self.TEXT_MEMBERS_NO_VOTING_YET = localText.getText("TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET", ())
++		self.TEXT_NOT_ACTIVE_SHORT = localText.getText("TXT_KEY_SAS_NOT_ACTIVE_SHORT", ())
+ 
+ 		# <!-- custom: precompute fully formatted strings that never change (claude opus 4.5) -->
+ 		self.szConquestText = u"%c %s" % (self.iStrengthIcon, localText.getText("TXT_KEY_VICTORY_SCREEN_ELIMINATE_ALL", ()))
+@@ -323,19 +326,17 @@ class CvVictoryScreen:
+ 			screen.setText(self.SETTINGS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_MAIN_MENU_SETTINGS", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 		xLink += self.DX_LINK
+ 
+-		if self.bVoteTab:
+-			if (self.iScreen != UN_RESOLUTION_SCREEN):
+-				screen.setText(self.UN_RESOLUTION_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_VOTING_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			else:
+-				screen.setText(self.UN_RESOLUTION_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_VOTING_TITLE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			xLink += self.DX_LINK
+-			# advc.703: Merge Members into Resolutions when R&F enabled
+-			if not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
+-				if (self.iScreen != UN_MEMBERS_SCREEN):
+-					screen.setText(self.UN_MEMBERS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_MEMBERS_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-				else:
+-					screen.setText(self.UN_MEMBERS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_MEMBERS_TITLE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-				xLink += self.DX_LINK
++		# <!-- custom: always show Voting/Members tabs for exhaustive navigation, even when no vote source is currently active; empty screens are preferable to hidden tabs so users can discover all sections. (GPT-5.3-Codex) -->
++		if (self.iScreen != UN_RESOLUTION_SCREEN):
++			screen.setText(self.UN_RESOLUTION_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_VOTING_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		else:
++			screen.setText(self.UN_RESOLUTION_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_VOTING_TITLE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		xLink += self.DX_LINK
++		if (self.iScreen != UN_MEMBERS_SCREEN):
++			screen.setText(self.UN_MEMBERS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_MEMBERS_TITLE", ()).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		else:
++			screen.setText(self.UN_MEMBERS_TAB_ID, "", SAS_FONT_TAG_TITLE + localText.getColorText("TXT_KEY_MEMBERS_TITLE", (), gc.getInfoTypeForString("COLOR_YELLOW")).upper() + SAS_FONT_TAG_CLOSE, CvUtil.FONT_CENTER_JUSTIFY, xLink, self.Y_LINK, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++		xLink += self.DX_LINK
+ 		# <advc.703>
+ 		if gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
+ 			if self.iScreen != RF_SCORE_SCREEN:
+@@ -345,6 +346,64 @@ class CvVictoryScreen:
+ 			xLink += self.DX_LINK
+ 		# </advc.703>
+ 
++	def drawVoteSourceInactiveFallback(self, szIntroText, aiVoteBuildingClass):
++		screen = self.getScreen()
++		screen.addPanel(self.getNextWidgetName(), "", "", False, False, self.X_AREA-10, self.Y_AREA-15, self.W_AREA+20, self.H_AREA+30, PanelStyles.PANEL_STYLE_BLUE50)
++		szTable = self.getNextWidgetName()
++		screen.addTableControlGFC(szTable, 2, self.X_AREA, self.Y_AREA, self.W_AREA, self.H_AREA, False, False, self.iLeaderButtonSize, self.iLeaderButtonSize, TableStyles.TABLE_STYLE_STANDARD)
++		screen.enableSelect(szTable, False)
++		screen.setTableColumnHeader(szTable, 0, "", self.TABLE2_WIDTH_0)
++		screen.setTableColumnHeader(szTable, 1, "", self.TABLE2_WIDTH_1)
++
++		# <!-- custom: shared fallback table for empty vote-source tabs (Voting/Members). Keep exhaustive tab navigation, show caller-specific intro text, and list required vote wonders with built/active state. (GPT-5.3-Codex) -->
++		iRow = screen.appendTableRow(szTable)
++		self.setTableTextScaled(screen, szTable, 0, iRow, szIntroText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		dRequirements = {}
++		for (iVoteSource, iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass:
++			if not dRequirements.has_key(iVoteSource):
++				dRequirements[iVoteSource] = (iVoteBuildingClass, iUNTeam, bUnknown)
++
++		if len(dRequirements) == 0:
++			for iBuilding in range(gc.getNumBuildingInfos()):
++				iVoteSource = gc.getBuildingInfo(iBuilding).getVoteSourceType()
++				if iVoteSource >= 0 and not dRequirements.has_key(iVoteSource):
++					iBuildingClass = gc.getBuildingInfo(iBuilding).getBuildingClassType()
++					iUNTeam = -1
++					bUnknown = true
++					for iLoopTeam in range(gc.getMAX_CIV_TEAMS()):
++						if (gc.getTeam(iLoopTeam).isAlive() and not gc.getTeam(iLoopTeam).isMinorCiv() and not gc.getTeam(iLoopTeam).isBarbarian()):
++							if (gc.getTeam(iLoopTeam).getBuildingClassCount(iBuildingClass) > 0):
++								iUNTeam = iLoopTeam
++								if (iLoopTeam == gc.getPlayer(self.iActivePlayer).getTeam() or gc.getGame().isDebugMode() or gc.getTeam(gc.getPlayer(self.iActivePlayer).getTeam()).isHasMet(iLoopTeam)):
++									bUnknown = false
++								break
++					dRequirements[iVoteSource] = (iBuildingClass, iUNTeam, bUnknown)
++
++		aiVoteSources = dRequirements.keys()
++		aiVoteSources.sort()
++		for iVoteSource in aiVoteSources:
++			iVoteBuildingClass, iUNTeam, bUnknown = dRequirements[iVoteSource]
++			iBuildingType = gc.getBuildingClassInfo(iVoteBuildingClass).getDefaultBuildingIndex()
++			szBuildingButton = gc.getBuildingInfo(iBuildingType).getButton()
++			szSource = gc.getVoteSourceInfo(iVoteSource).getDescription()
++			iRow = screen.appendTableRow(szTable)
++			self.setTableTextScaled(screen, szTable, 0, iRow, szSource, szBuildingButton, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			if gc.getGame().isDiploVote(iVoteSource):
++				if iUNTeam != -1:
++					if bUnknown:
++						szTeamName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
++					else:
++						szTeamName = gc.getTeam(iUNTeam).getName()
++					szStatus = localText.getText("TXT_KEY_VICTORY_SCREEN_BUILT", (szTeamName, ))
++				else:
++					szStatus = self.TEXT_NOT_YET_BUILT
++			else:
++				szStatus = self.TEXT_NOT_ACTIVE_SHORT
++			self.setTableTextScaled(screen, szTable, 1, iRow, szStatus, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		self.drawTabs()
++
+ 	def showVotingScreen(self):
+ 		self.deleteAllWidgets()
+ 
+@@ -369,6 +428,7 @@ class CvVictoryScreen:
+ 					aiVoteBuildingClass.append((j, gc.getBuildingInfo(i).getBuildingClassType(), iUNTeam, bUnknown)) # K-Mod
+ 
+ 		if (len(aiVoteBuildingClass) == 0):
++			self.drawVoteSourceInactiveFallback(self.TEXT_VOTE_SOURCE_NOT_ACTIVE, aiVoteBuildingClass)
+ 			return
+ 
+ 		screen = self.getScreen()
+@@ -393,8 +453,10 @@ class CvVictoryScreen:
+ 				# self.setTableTextScaled(screen, szTable, 1, iRow, localText.getText("TXT_KEY_VICTORY_SCREEN_NOT_BUILT", ()), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		#for i in range(gc.getNumVoteSourceInfos()):
++		bHasVotingRows = false
+ 		for (i, iVoteBuildingClass, iUNTeam, bUnknown) in aiVoteBuildingClass: # K-Mod
+ 			if gc.getGame().isDiploVote(i): # K-Mod (previously no condition)
++				bHasVotingRows = true
+ 				# K-Mod
+ 				kVoteSource = gc.getVoteSourceInfo(i)
+ 				iRow = screen.appendTableRow(szTable)
+@@ -464,6 +526,10 @@ class CvVictoryScreen:
+ 		# Remove the final empty row (K-Mod)
+ 		if screen.getTableNumRows(szTable) > 0:
+ 			screen.setTableNumRows(szTable, screen.getTableNumRows(szTable)-1)
++		if not bHasVotingRows:
++			self.deleteAllWidgets()
++			self.drawVoteSourceInactiveFallback(self.TEXT_VOTE_SOURCE_NOT_ACTIVE, aiVoteBuildingClass)
++			return
+ 		#
+ 		# <advc.703> Add info from Members tab
+ 		if not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
+@@ -477,8 +543,13 @@ class CvVictoryScreen:
+ 
+ # BUG Additions Start
+ 	def showMembersScreen(self):
++		iRelVote, iRelVoteIdx, iUNVote, iUNVoteIdx  = self.getVoteAvailable()
++		if (iRelVote == -1 and iUNVote == -1):
++			self.deleteAllWidgets()
++			self.drawVoteSourceInactiveFallback(self.TEXT_MEMBERS_NO_VOTING_YET, [])
++			return
++
+ 		if AdvisorOpt.isMembers():
+-			iRelVote, iRelVoteIdx, iUNVote, iUNVoteIdx  = self.getVoteAvailable()
+ 			if  iRelVote == -1:
+ 				self.VoteBody = 2 # AP Not active
+ 			elif iUNVote == -1:
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 5812bd8e1..d34aed747 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -719,6 +719,19 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES</Tag>
+ 		<English>Legendary cities</English>
+ 	</TEXT>
++	<!-- custom: fallback texts for Victory Advisor vote-source tabs when AP/UN entries are unavailable; keep tabs exhaustive and explain status clearly. (GPT-5.3-Codex) -->
++	<TEXT>
++		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_VOTE_SOURCE_NOT_ACTIVE</Tag>
++		<English>No resolution yet: requires one of the below.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_VICTORY_SCREEN_MEMBERS_NO_VOTING_YET</Tag>
++		<English>No voting members yet: requires one of the below.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_NOT_ACTIVE_SHORT</Tag>
++		<English>Not active</English>
++	</TEXT>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 04c264c9b..9acd07c01 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -334,7 +334,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Did a similar rework of the **Info Screen** in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons (plus **change default ordering** from alphabetical to **from most to least Built/Current** (avoids tedious manual user ordering each time)), and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**). Also added other information (e.g., turn numbers in the Graph tab).
+ - Additionally, added in the **Info Screen** a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: History Tab](/README.md#history-tab-in-the-info-screen-advisor).
+ - Added in the **Info Screen** a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M. Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**. Note that unlike military ratios, PowT and PoT/C are shown even for the human player, since these vary every turn. If table has more than max rows, table expands and Legend link moves to top right. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Score Tab](/README.md#score-tab-in-the-info-screen-advisor).
+-- Beautified the **Victory Screen** in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)).
++- Beautified the **Victory Screen**: **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)). (Requires AdvCiv-SAS 5523+) **Always show** the **Resolutions** and **Members** tab so now all tabs are shown **even if they are empty**, and add a **fallback table** showing **required wonders** (as of now Apostolic Palace or United Nations) to make these tabs active. Change in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**. Show **Era text default ON** (as of now on top left). See [Main interface rework](/README.md#main-interface-rework).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=16005

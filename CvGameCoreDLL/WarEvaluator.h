@@ -32,6 +32,8 @@ public:
 	int evaluate(WarPlanTypes eWarPlan = NO_WARPLAN, int iPreparationTime = -1);
 	int evaluate(WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime);
 	int defaultPreparationTime(WarPlanTypes eWarPlan = NO_WARPLAN);
+	// <!-- custom: Enable focused aspect logging only on the evaluator that supplies an actual peace review; alternative war simulations otherwise duplicate the same diagnostic many times. (GPT-5.6-Sol) -->
+	void enableSASBBAISuspiciousPeaceLog() { m_bSASLogSuspiciousPeace = true; }
 
 private:
 	void reportPreamble();
@@ -49,6 +51,7 @@ private:
 	UWAIReport& m_kReport;
 	bool m_bPeaceScenario;
 	bool m_bUseCache;
+	bool m_bSASLogSuspiciousPeace;
 
 	bool atTotalWarWithTarget() const;
 	void gatherCivsAndTeams();

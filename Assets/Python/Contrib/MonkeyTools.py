@@ -28,7 +28,7 @@ def debug(argsList):
 	if (printToLog):
 		CvUtil.pyPrint(message)
 	return 0
-	
+
 ######################################################
 ### 	Class used for Re-Init Interceptor Mission 
 ######################################################
@@ -79,7 +79,7 @@ def GetPossiblePromotions(iXP1, iXP2):
 	iIdx1 = GetIdxOfXP(iXP1)
 	iIdx2 = GetIdxOfXP(iXP2)
 	return iIdx2-iIdx1+1
-	
+
 ######################################################
 ### 	creates a list of possible upgrades for a unit
 ######################################################
@@ -101,7 +101,7 @@ def getPossiblePromos(pUnit):
 		if pUnit.canAcquirePromotion(i):
 			lList.append(i)
 	return lList
-	
+
 ######################################################
 ### 	checks if there are any possible upgrade for the unit
 ######################################################
@@ -113,7 +113,7 @@ def checkAnyUpgrade(pUnit):
 ### 	function returns a string which contains all the 
 ###		units characteristics the units get by promotions
 ######################################################
-	
+
 def getPromotionInfoText(pUnit):
 	szPromotionInfo = u""
 	iBlitz = 0 # advc.164
@@ -223,7 +223,7 @@ def getPromotionInfoText(pUnit):
 					iTemp = gc.getPromotionInfo(i).getUnitCombatModifierPercent(ii)
 					if iTemp > 0:
 						lUnitCombatModifierPercent[ii] += iTemp
-				
+
 	#if bBlitz:
 	#	szPromotionInfo += localText.getText("TXT_KEY_PROMOTION_BLITZ_TEXT", ()) + "\n"
 	# <advc.164>
@@ -304,7 +304,7 @@ def getPromotionInfoText(pUnit):
 			szTemp = gc.getUnitCombatInfo(ii).getDescription()
 			szPromotionInfo += localText.getText("TXT_KEY_PROMOTION_VERSUS_TEXT", (iTemp, szTemp, )) + "\n"		
 	return u"<font=2>" + szPromotionInfo + u"</font>"
-	
+
 ######################################################
 ### 	removes the pedia links from a string
 ######################################################	
@@ -332,7 +332,7 @@ def removeFonts(szText):
 	# replace link ends
 	szText = szText.replace("</font>", "")		
 	return szText
-	
+
 ######################################################
 ### 	removes the color literals from a texts
 ######################################################
@@ -346,7 +346,7 @@ def removeColor(szText):
 	# replace link ends
 	szText = szText.replace("</color>", "")		
 	return szText
-	
+
 ######################################################
 ### 	calculates the heal factor per round for a unit. 
 ###		Takes consideration of city-buildings and 
@@ -363,7 +363,6 @@ def getPlotHealFactor(pUnit):
 	FRIENDLY_HEAL_RATE			= 15
 	CITY_HEAL_RATE				= 20
 
-	
 	# set/reset some variables
 	pPlot = pUnit.plot()
 	iSameTileHealFactor 		= 0
@@ -376,7 +375,7 @@ def getPlotHealFactor(pUnit):
 	pActivePlayer 				= gc.getPlayer(iActivePlayer)
 	iActivePlayerTeam 			= pActivePlayer.getTeam()
 	eDomain 					= gc.getUnitInfo(pUnit.getUnitType()).getDomainType()
-	
+
 	# a sea or air unit in a city, behaves like a land unit
 	if pPlot.isCity():
 		eDomain = DomainTypes.DOMAIN_LAND
@@ -399,7 +398,7 @@ def getPlotHealFactor(pUnit):
 						if (pLoopUnit.getTeam() == iActivePlayerTeam):
 							if (pLoopUnit.getAdjacentTileHeal() > iAdjacentTileHealFactor):
 								iAdjacentTileHealFactor = pLoopUnit.getAdjacentTileHeal()
-	
+
 	# calculate the same-tile heal-factor caused by other or same unit (only the unit with the highest factor counts)
 	# the same-tile healing is also a kind of self-healing. Means : the promotion Medic I has also effect on the owner unit
 	for i in range(pPlot.getNumUnits()):
@@ -413,7 +412,7 @@ def getPlotHealFactor(pUnit):
 			if (pLoopUnit.getTeam() == iActivePlayerTeam):
 				if (pLoopUnit.getSameTileHeal() > iSameTileHealFactor):
 					iSameTileHealFactor = pLoopUnit.getSameTileHeal()
-				
+
 	# only the highest value counts
 	iTileHealFactor = max(iAdjacentTileHealFactor, iSameTileHealFactor)
 
@@ -432,7 +431,7 @@ def getPlotHealFactor(pUnit):
 		if (pTeam.isAtWar(iActivePlayerTeam)):
 			iSelfHealFactor 		= ENEMY_HEAL_RATE
 			iPromotionHealFactor 	= pUnit.getExtraEnemyHeal()
-	
+
 	# calculate the heal factor by city buildings
 	if pPlot.isCity():
 		if (pPlot.getTeam() == iActivePlayerTeam):
@@ -456,7 +455,7 @@ def getPlotHealFactor(pUnit):
 ###			2 : all units of the same type on the same plot
 ###			3 : all player units of the same type all over the map
 ######################################################
-		
+
 def getUpgradePrice(pUnit, iToUnitType, nMode):
 	# single unit
 	if nMode == 0:
@@ -502,7 +501,7 @@ def bCtrl():
 
 def bAlt():
 	return CvEventInterface.getEventManager().bAlt
-		
+
 ######################################################
 ### 	END 
 ######################################################

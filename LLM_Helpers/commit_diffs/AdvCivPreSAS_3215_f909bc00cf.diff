@@ -1,0 +1,159 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3215
+# Commit: f909bc00cfb9b6f6fb0be90e6792fac0b259694d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ddafce8aab383220704fc57176ae855888ac6f1f
+# Title: Bit of misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/CvPlot.cpp
+1	2	CvGameCoreDLL/CvSelectionGroup.cpp
+8	5	CvGameCoreDLL/CvUnitAI.cpp
+8	8	CvGameCoreDLL/GroupPathFinder.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 4d0a7a4a2..158feea6a 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3232,11 +3232,11 @@ bool CvPlot::canHaveFeature(FeatureTypes eFeature,
+ 	return true;
+ }
+ 
+-
+-bool CvPlot::isValidRoute(const CvUnit* pUnit, /* advc.001i: */ bool bAssumeRevealed) const  // advc: rewritten
++// advc: rewritten
++bool CvPlot::isValidRoute(CvUnit const* pUnit,
++	/* <advc.001i> */ bool bAssumeRevealed) const
+ {
+ 	//if (!isRoute()) return false;
+-	// <advc.001i>
+ 	CvTeam const& kTeam = GET_TEAM(pUnit->getOwner());
+ 	RouteTypes const eRoute = (bAssumeRevealed ? getRouteType() :
+ 			getRevealedRouteType(kTeam.getID()));
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 4c9f4d871..791aabb37 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3830,8 +3830,7 @@ bool CvSelectionGroup::generatePath(CvPlot const& kFrom, CvPlot const& kTo,
+ 	/*	Not getClearPathFinder -- want bTempFinder to work correctly even when called
+ 		while generating a path. */
+ 	GroupPathFinder tempFinder;
+-	GroupPathFinder& kPathFinder = (!bUseTempFinder ?
+-			pathFinder() : tempFinder);
++	GroupPathFinder& kPathFinder = (bUseTempFinder ? tempFinder : pathFinder());
+ 	// </advc.128>
+ 	/*if (!bReuse)
+ 		pathFinder().Reset();*/
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 69596a344..28f4d30af 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1956,11 +1956,11 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 	if (bCanRoute && AI_routeTerritory())
+ 		return; // </advc.113>
+ 
+-	if(AI_improveLocalPlot(3, NULL, /* advc.117: */ iMissingWorkersInArea))
++	if (AI_improveLocalPlot(3, NULL, /* advc.117: */ iMissingWorkersInArea))
+ 		return;
+ 	/*  <advc.113> Want to base the scrap decision on the working city. Try retreating
+ 		before scrapping if there is none. */
+-	if(pCity == NULL && bCanRetreat)
++	if (pCity == NULL && bCanRetreat)
+ 	{
+ 		if (AI_retreatToCity(false, true))
+ 			return;
+@@ -18167,7 +18167,7 @@ bool CvUnitAI::AI_travelToUpgradeCity()
+ 	but other cities are still accepted. */
+ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMaxPath)
+ {
+-	PROFILE_FUNC();
++	PROFILE_FUNC(); // (advc: iMaxPath mostly unused here; changing that could save time.)
+ 
+ 	//int iCurrentDanger = GET_PLAYER(getOwner()).AI_getPlotDanger(plot());
+ 	int const iCurrentDanger = getGroup()->alwaysInvisible() ? 0 : // K-Mod
+@@ -18256,7 +18256,7 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
+ 						Don't just want to use MOVE_IGNORE_DANGER b/c then a single enemy could
+ 						stop a dozen units from evacuating. Using era isn't much better ...
+ 						Moreover, I'm only considering the fastest path, not any detours
+-						that could be safer. Adding a maxDanger parameter to generatePath
++						that could be safer. Adding a iMaxDanger parameter to generatePath
+ 						(or generalizing MOVE_IGNORE_DANGER) could help. */
+ 						(!bEvac ||
+ 						kOwner.AI_getPlotDanger(getPathEndTurnPlot()) <=
+@@ -18284,11 +18284,14 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
+ 			getGroup()->pushMission(MISSION_SKIP, -1, -1, NO_MOVEMENT_FLAGS,
+ 					false, false, MISSIONAI_RETREAT);
+ 		}
+-		else pushGroupMoveTo(*pBestPlot,
++		else
++		{
++			pushGroupMoveTo(*pBestPlot,
+ 					/*	was iPass >= 3
+ 						advc (caveat): Flags here need to be consistent with those in the loop */
+ 					iPass >= 2 ? MOVE_IGNORE_DANGER : NO_MOVEMENT_FLAGS,
+ 					false, false, MISSIONAI_RETREAT);
++		}
+ 		return true;
+ 	}
+
+diff --git a/CvGameCoreDLL/GroupPathFinder.cpp b/CvGameCoreDLL/GroupPathFinder.cpp
+index 297e02dd0..7881c334f 100644
+--- a/CvGameCoreDLL/GroupPathFinder.cpp
++++ b/CvGameCoreDLL/GroupPathFinder.cpp
+@@ -48,7 +48,7 @@ bool GroupStepMetric::canStepThrough(CvPlot const& kPlot, CvSelectionGroup const
+ 			return false;
+ 	}
+ 	// <advc.pf> No new AI routes in human territory (but upgrade to railroad OK)
+-	if(eFlags & MOVE_ROUTE_TO)
++	if (eFlags & MOVE_ROUTE_TO)
+ 	{
+ 		if(kPlot.getRevealedRouteType(kGroup.getHeadTeam()) == NO_ROUTE &&
+ 			!kGroup.isHuman())
+@@ -228,16 +228,16 @@ bool GroupStepMetric::isValidDest(CvPlot const& kPlot, CvSelectionGroup const& k
+ 
+ //#define PATH_MOVEMENT_WEIGHT    (1024) // advc: moved to the header (for inline function)
+ // advc.pf: Was 20 in K-Mod, 100 in BtS.
+-#define PATH_RIVER_WEIGHT         (32) // river crossing penalty
++#define PATH_RIVER_WEIGHT	(32) // river crossing penalty
+ // advc.pf: Was 200 in K-Mod, 100 in BtS.
+-#define PATH_CITY_WEIGHT         (225) // K-Mod
++#define PATH_CITY_WEIGHT			(225) // K-Mod
+ // advc.pf: Was 4 in K-Mod, 10 in BtS.
+-#define PATH_DEFENSE_WEIGHT        (7) // defence bonus
++#define PATH_DEFENSE_WEIGHT			(7) // defence bonus
+ // advc.pf: Was 5 in K-Mod, 3 in BtS.
+-#define PATH_TERRITORY_WEIGHT      (9)
+-#define PATH_DOW_WEIGHT	           (7) // advc.082
++#define PATH_TERRITORY_WEIGHT		(9)
++#define PATH_DOW_WEIGHT				(7) // advc.082
+ // advc.pf: Was 4 in K-Mod, 2 in BtS.
+-#define PATH_STEP_WEIGHT           (7)
++#define PATH_STEP_WEIGHT			(7)
+ #define PATH_STRAIGHT_WEIGHT       (2) // K-Mod: was 1
+ //#define PATH_ASYMMETRY_WEIGHT    (1) // K-Mod
+ 
+@@ -455,7 +455,7 @@ int GroupStepMetric::cost(CvPlot const& kFrom, CvPlot const& kTo,
+ 	/*  The AVOID_ENEMY code in the no-moves-left branch below doesn't stop the AI
+ 		from trying to move _through_ enemy territory and thus declaring war
+ 		earlier than necessary */
+-	if(bAIControl && (eFlags & MOVE_DECLARE_WAR) && eToPlotTeam != NO_TEAM &&
++	if (bAIControl && (eFlags & MOVE_DECLARE_WAR) && eToPlotTeam != NO_TEAM &&
+ 		eToPlotTeam != eTeam && GET_TEAM(eTeam).AI_isSneakAttackReady(eToPlotTeam))
+ 	{
+ 		iWorstCost += PATH_DOW_WEIGHT;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5870

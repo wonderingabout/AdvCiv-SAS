@@ -1,0 +1,117 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1485
+# Commit: e44b359db224bf0b6bc373ebfdb2e6bb65e64eba
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c4616081114400a360df4070114ea38e0003812f
+# Title: Changes to resource script
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/Project/AdvCiv.vcxproj
+5	6	CvGameCoreDLL/Project/CvGameCoreDLL.rc
+3	0	CvGameCoreDLL/Project/Makefile
+0	1	CvGameCoreDLL/Project/Makefile.settings
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 83fb029f0..91b148538 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -261,7 +261,7 @@
+     <ClInclude Include="..\LinkedList.h" />
+     <ClInclude Include="..\MilitaryAnalyst.h" />
+     <ClInclude Include="..\MilitaryBranch.h" />
+-    <ClInclude Include="..\resource.h" />
++    <ClInclude Include="resource.h" />
+     <ClInclude Include="..\RFChapter.h" />
+     <ClInclude Include="..\RFChapterScore.h" />
+     <ClInclude Include="..\RFTotalScore.h" />
+@@ -283,7 +283,7 @@
+     <None Include="Makefile.settings" />
+   </ItemGroup>
+   <ItemGroup>
+-    <ResourceCompile Include="..\CvGameCoreDLL.rc" />
++    <ResourceCompile Include="CvGameCoreDLL.rc" />
+   </ItemGroup>
+   <PropertyGroup Label="Globals">
+     <ProjectGuid>{3021AF0E-699D-4232-86F6-FC374A0C9957}</ProjectGuid>
+
+diff --git a/CvGameCoreDLL/Project/CvGameCoreDLL.rc b/CvGameCoreDLL/Project/CvGameCoreDLL.rc
+index a073a4acd..c6a2635b0 100644
+--- a/CvGameCoreDLL/Project/CvGameCoreDLL.rc
++++ b/CvGameCoreDLL/Project/CvGameCoreDLL.rc
+@@ -54,8 +54,8 @@ END
+ //
+ 
+ VS_VERSION_INFO VERSIONINFO
+- FILEVERSION 3,1,7,0
+- PRODUCTVERSION 3,1,7,0
++ FILEVERSION 0,9,5,0
++ PRODUCTVERSION 3,1,9,0
+  FILEFLAGSMASK 0x17L
+ #ifdef _DEBUG
+  FILEFLAGS 0x1L
+@@ -70,15 +70,14 @@ BEGIN
+     BEGIN
+         BLOCK "040904b0"
+         BEGIN
+-            VALUE "Comments", "Use the SDK to override the default game rules"
+             VALUE "CompanyName", "Firaxis Games"
+-            VALUE "FileDescription", "Game core DLL for Sid Meier's Civilization 4 : Beyond The Sword"
+-            VALUE "FileVersion", "3, 1, 7, 0"
++            VALUE "FileDescription", "Modified game core DLL for Sid Meier's Civilization 4: Beyond The Sword (Advanced Civ mod)"
++            VALUE "FileVersion", "0, 9, 5, 0"
+             VALUE "InternalName", "Sid Meier's Civilization 4 : Beyond The Sword Game Core DLL"
+             VALUE "LegalCopyright", "Copyright (C) Firaxis Games.  All Rights Reserved."
+             VALUE "OriginalFilename", "CvGameCoreDLL.dll"
+             VALUE "ProductName", "Sid Meier's Civilization 4 : Beyond The Sword"
+-            VALUE "ProductVersion", "3, 1, 7, 0"
++            VALUE "ProductVersion", "3, 1, 9, 0"
+         END
+     END
+     BLOCK "VarFileInfo"
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+index 3be57480e..97260eb9e 100644
+--- a/CvGameCoreDLL/Project/Makefile
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -12,6 +12,7 @@
+ # Debug build to obscure accesses to uninitialized memory.
+ # YOURMOD2 and YOURLOGS (see under "Paths"). WX added to GLOBAL_CFLAGS.
+ # Internal profiler enabled (FP_PROFILE_ENABLE, USE_INTERNAL_PROFILER).
++# CvGameCoreDLL.rc used only for final release.
+ # devolution (Erik) has added the target 'Final_Release' with additional optimizations.
+ 
+ ## User setup
+@@ -142,8 +143,10 @@ Target_BIN=$(TARGET)\CvGameCoreDLL.dll
+ Target_BIN_TEMP=$(TEMP_TARGET_FILES)\CvGameCoreDLL.dll
+ 
+ !IF [IF NOT EXIST CvGameCoreDLL.rc EXIT 1] == 0
++!IF "$(TARGET)" == "Final_Release"
+ Target_RESOURCE=$(TEMP_TARGET_FILES)\CvGameCoreDLL.res
+ !ENDIF
++!ENDIF
+ 
+ Target_STATICLIB=$(TEMP_TARGET_FILES)\CvGameCoreDLL.lib
+
+diff --git a/CvGameCoreDLL/Project/Makefile.settings b/CvGameCoreDLL/Project/Makefile.settings
+index 8eb85c953..fa0d49b04 100644
+--- a/CvGameCoreDLL/Project/Makefile.settings
++++ b/CvGameCoreDLL/Project/Makefile.settings
+@@ -1,4 +1,3 @@
+ TOOLKIT=
+ PSDK=
+ CIV4_PATH=
+-YOURMOD=
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3522

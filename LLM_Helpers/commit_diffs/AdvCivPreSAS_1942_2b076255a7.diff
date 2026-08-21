@@ -1,0 +1,200 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1942
+# Commit: 2b076255a70c3c5f76560bf2ada4608dd4f68318
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 60e9fadec36f192ed2d06cae2f233078571e6ab3
+# Title: Cap city count in maintenance formula
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	12	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+14	0	Assets/XML/GlobalDefines_advc.xml
+17	9	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 6c481fe88..8d5f487f9 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -33,9 +33,9 @@
+ 			<!-- advc.251 (end) -->
+ 			<iDistanceMaintenancePercent>45</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>40</iNumCitiesMaintenancePercent>
+-			<!-- advc (note, concerning all handicaps): Unused b/c K-Mod lifts
+-				 the limit on number-of-cities maintenance. -->
+-			<iMaxNumCitiesMaintenance>4</iMaxNumCitiesMaintenance>
++			<!-- advc.exp.1: Essentially disabled this upper bound. Can re-enable
++				 it by setting it back to the original value of 4. -->
++			<iMaxNumCitiesMaintenance>4000</iMaxNumCitiesMaintenance>
+ 			<iColonyMaintenancePercent>60</iColonyMaintenancePercent>
+ 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
+ 			<iCorporationMaintenancePercent>60</iCorporationMaintenancePercent>
+@@ -206,7 +206,8 @@
+ 			<!-- advc.251 (end) -->
+ 			<iDistanceMaintenancePercent>55</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>50</iNumCitiesMaintenancePercent>
+-			<iMaxNumCitiesMaintenance>4</iMaxNumCitiesMaintenance>
++			<!-- advc.exp.1: was 4 -->
++			<iMaxNumCitiesMaintenance>4000</iMaxNumCitiesMaintenance>
+ 			<iColonyMaintenancePercent>80</iColonyMaintenancePercent>
+ 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
+ 			<iCorporationMaintenancePercent>80</iCorporationMaintenancePercent>
+@@ -351,7 +352,8 @@
+ 			<!-- advc.251 (end) -->
+ 			<iDistanceMaintenancePercent>65</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>60</iNumCitiesMaintenancePercent>
+-			<iMaxNumCitiesMaintenance>5</iMaxNumCitiesMaintenance>
++			<!-- advc.exp.1: was 5 -->
++			<iMaxNumCitiesMaintenance>5000</iMaxNumCitiesMaintenance>
+ 			<iColonyMaintenancePercent>90</iColonyMaintenancePercent>
+ 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
+ 			<iCorporationMaintenancePercent>90</iCorporationMaintenancePercent>
+@@ -472,7 +474,8 @@
+ 			<!-- advc.251 (end) -->
+ 			<iDistanceMaintenancePercent>75</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>70</iNumCitiesMaintenancePercent>
+-			<iMaxNumCitiesMaintenance>5</iMaxNumCitiesMaintenance>
++			<!-- advc.exp.1: was 5 -->
++			<iMaxNumCitiesMaintenance>5000</iMaxNumCitiesMaintenance>
+ 			<iColonyMaintenancePercent>100</iColonyMaintenancePercent>
+ 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
+ 			<iCorporationMaintenancePercent>100</iCorporationMaintenancePercent>
+@@ -586,7 +589,8 @@
+ 			<!-- advc.251 (end) -->
+ 			<iDistanceMaintenancePercent>85</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>80</iNumCitiesMaintenancePercent>
+-			<iMaxNumCitiesMaintenance>6</iMaxNumCitiesMaintenance>
++			<!-- advc.exp.1: was 6 -->
++			<iMaxNumCitiesMaintenance>6000</iMaxNumCitiesMaintenance>
+ 			<!-- advc.251: was 110 -->
+ 			<iColonyMaintenancePercent>105</iColonyMaintenancePercent>
+ 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
+@@ -708,7 +712,8 @@
+ 			<!-- advc.251 (end) -->
+ 			<iDistanceMaintenancePercent>90</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>85</iNumCitiesMaintenancePercent>
+-			<iMaxNumCitiesMaintenance>6</iMaxNumCitiesMaintenance>
++			<!-- advc.exp.1: was 6 -->
++			<iMaxNumCitiesMaintenance>6000</iMaxNumCitiesMaintenance>
+ 			<!-- advc.251: was 120 -->
+ 			<iColonyMaintenancePercent>110</iColonyMaintenancePercent>
+ 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
+@@ -858,7 +863,8 @@
+ 			<!-- advc.251 (end) -->
+ 			<iDistanceMaintenancePercent>95</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>90</iNumCitiesMaintenancePercent>
+-			<iMaxNumCitiesMaintenance>7</iMaxNumCitiesMaintenance>
++			<!-- advc.exp.1: was 7 -->
++			<iMaxNumCitiesMaintenance>7000</iMaxNumCitiesMaintenance>
+ 			<!-- advc.251: was 115 -->
+ 			<iColonyMaintenancePercent>115</iColonyMaintenancePercent>
+ 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
+@@ -1013,7 +1019,8 @@
+ 			<!-- advc.251 (end) -->
+ 			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>95</iNumCitiesMaintenancePercent>
+-			<iMaxNumCitiesMaintenance>7</iMaxNumCitiesMaintenance>
++			<!-- advc.exp.1: was 7 -->
++			<iMaxNumCitiesMaintenance>7000</iMaxNumCitiesMaintenance>
+ 			<!-- advc.251: was 140 -->
+ 			<iColonyMaintenancePercent>120</iColonyMaintenancePercent>
+ 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
+@@ -1174,7 +1181,8 @@
+ 			<!-- advc.251 (end) -->
+ 			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>100</iNumCitiesMaintenancePercent>
+-			<iMaxNumCitiesMaintenance>8</iMaxNumCitiesMaintenance>
++			<!-- advc.exp.1: was 8000 -->
++			<iMaxNumCitiesMaintenance>8000</iMaxNumCitiesMaintenance>
+ 			<!-- advc.251: was 150 -->
+ 			<iColonyMaintenancePercent>130</iColonyMaintenancePercent>
+ 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
+@@ -1355,7 +1363,7 @@
+ 			<iCreatePercent>100</iCreatePercent>
+ 			<iDistanceMaintenancePercent>90</iDistanceMaintenancePercent>
+ 			<iNumCitiesMaintenancePercent>90</iNumCitiesMaintenancePercent>
+-			<iMaxNumCitiesMaintenance>6</iMaxNumCitiesMaintenance>
++			<iMaxNumCitiesMaintenance>6000</iMaxNumCitiesMaintenance>
+ 			<iColonyMaintenancePercent>115</iColonyMaintenancePercent>
+ 			<iMaxColonyMaintenance>200</iMaxColonyMaintenance>
+ 			<iCorporationMaintenancePercent>115</iCorporationMaintenancePercent>
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 663dd5e99..3fb0760b4 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1151,4 +1151,18 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.exp.1: In the formula for the number-of-cities maintenance cost,
++		 the player's city count (including half the number of vassal cities)
++		 gets capped at an upper bound equal to MAX_CITY_COUNT_FOR_MAINTENANCE
++		 divided by (100+iNumCitiesMaintenancePercent); see Civ4WorldInfo
++		 about the divisor. Recommended: 45 (not tested much; should only
++		 matter for military victories on Huge and possibly Large maps).
++		 BtS behavior (a cap between 4 and 8) can be restored through
++		 Civ4HandicapInfos.xml and MAX_CITY_COUNT_FOR_MAINTENANCE > 7.
++		 Use a very high value, say, 1000, for K-Mod behavior (no cap). -->
++	<Define>
++		<DefineName>MAX_CITY_COUNT_FOR_MAINTENANCE</DefineName>
++		<iDefineIntVal>45</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 17967090d..b7c05acdf 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -12772,8 +12772,8 @@ int CvCity::calculateNumCitiesMaintenanceTimes100(CvPlot const& kCityPlot,
+ 	iNumCitiesPercent *= (iPopulation + 17);
+ 	iNumCitiesPercent /= 18;
+ 
+-	iNumCitiesPercent *= GC.getInfo(GC.getMap().getWorldSize()).
+-			getNumCitiesMaintenancePercent();
++	CvWorldInfo const& kWorld = GC.getInfo(GC.getMap().getWorldSize());
++	iNumCitiesPercent *= kWorld.getNumCitiesMaintenancePercent();
+ 	iNumCitiesPercent /= 100;
+ 
+ 	CvPlayer const& kOwner = GET_PLAYER(eOwner);
+@@ -12784,13 +12784,21 @@ int CvCity::calculateNumCitiesMaintenanceTimes100(CvPlot const& kCityPlot,
+ 	for (PlayerIter<ALIVE,VASSAL_OF> it(kOwner.getTeam()); it.hasNext(); ++it)
+ 		iNumVassalCities += it->getNumCities();
+ 	iNumVassalCities /= std::max(1, MemberIter::count(kOwner.getTeam()));
+-	/*int iNumCitiesMaintenance = (kOwner.getNumCities() + iNumVassalCities) * iNumCitiesPercent;
+-	iNumCitiesMaintenance = std::min(iNumCitiesMaintenance, GC.getInfo(getHandicapType()).getMaxNumCitiesMaintenance() * 100);*/ // BtS
+-	// K-Mod, 04/sep/10, karadoc
+-	// Reduced vassal maintenance and removed maintenance cap
+-	int iNumCitiesMaintenance = (kOwner.getNumCities() +
+-			iExtraCities + iNumVassalCities / 2) * iNumCitiesPercent;
+-	// K-Mod end
++	int iMaintenanceCities = kOwner.getNumCities() + iExtraCities +
++			// K-Mod, 04/sep/10: Reduced vassal maintenance
++			iNumVassalCities / 2;
++	// K-Mod: Removed maintenance cap  // advc.exp: I've disabled it through XML instead
++	int iMaxMaintenanceCities = GC.getInfo(GET_PLAYER(eOwner).getHandicapType()).
++			getMaxNumCitiesMaintenance();
++	// <advc.exp.1> Upper bound set through GlobalDefines
++	static int const iMAX_CITY_COUNT_FOR_MAINTENANCE = GC.getDefineINT("MAX_CITY_COUNT_FOR_MAINTENANCE");
++	iMaxMaintenanceCities = std::min(iMaxMaintenanceCities,
++			(iMAX_CITY_COUNT_FOR_MAINTENANCE * 100) /
++			(100 + kWorld.getNumCitiesMaintenancePercent()));
++	iMaintenanceCities = std::min(iMaintenanceCities, iMaxMaintenanceCities);
++	// </advc.exp.1>
++	int iNumCitiesMaintenance = iMaintenanceCities * iNumCitiesPercent;
++
+ 	iNumCitiesMaintenance *= std::max(0, kOwner.getNumCitiesMaintenanceModifier() + 100);
+ 	iNumCitiesMaintenance /= 100;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=8854

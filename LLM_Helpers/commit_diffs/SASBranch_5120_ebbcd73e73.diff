@@ -1,0 +1,666 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5120
+# Commit: ebbcd73e739d29079e48923a4e24b48d18e7f475
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 47c291335055e154dac7f7338281566098f81c90
+# Title: german_hussar is now dragoon based; rebalance the russian_cossack - move the german_hussar from being horse cuirassier based to being dragoon based - rebalan...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	26	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+1	1	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+1	1	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+112	114	Assets/XML/Units/CIV4UnitInfos.xml
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 8c736a259..235094d54 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -1942,32 +1942,6 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+-		<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", art import from RFC DOC mod's very very nice fpk really anyways etc, art based originally on base advciv's +/- civ4 art def of the cuirassier as the old panzer one seems to have many at least some extra fields we may not need for the hussar so basing on the base cuirassier instead even for art def, then importing/basing the hussar one on RFC DOC mod's one (ART_DEF_UNIT_HUSSAR) as well on top of it if i may say anyways etc, some assets like kfm or such being base civ4 ones if i am not mistaken anyways etc -->
+-		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_GERMAN_HUSSAR</Type>
+-			<Button>Art/AdvCiv_SAS/Units/German_Hussar/Hussar.dds</Button>
+-			<fScale>0.42</fScale>
+-			<fInterfaceScale>1.0</fInterfaceScale>
+-			<bActAsLand>0</bActAsLand>
+-			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif</NIF>
+-			<KFM>Art/Units/Unique/Russia/Cossack/RussianCossack.kfm</KFM>
+-			<SHADERNIF>Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif</SHADERNIF>
+-			<ShadowDef>
+-				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
+-				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+-				<fShadowScale>1.0</fShadowScale>
+-			</ShadowDef>
+-			<fBattleDistance>0.35</fBattleDistance>
+-			<fRangedDeathTime>0.31</fRangedDeathTime>
+-			<bActAsRanged>0</bActAsRanged>
+-			<!-- BBAI: was ..._UNIQUE_UNIT -->
+-			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+-			<AudioRunSounds>
+-				<AudioRunTypeLoop/>
+-				<AudioRunTypeEnd/>
+-			</AudioRunSounds>
+-		</UnitArtInfo>
+ 		<!-- custom: new unit CAMEL_CUIRASSIER based on the cuirassier camel version of it anyways etc, art import similarly from the very nice FPK "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\RFC Dawn of Civilization\Assets\Units.fpk" of RFC DOC 's mod, of/from the art asset ART_DEF_UNIT_CAMEL_GUNNER too anyways etc and adjusted or not or yes or other or and other or etc or and etc anyways etc for advciv-sas anyways etc -->
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CAMEL_CUIRASSIER</Type>
+@@ -2043,6 +2017,32 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", art import from RFC DOC mod's very very nice fpk really anyways etc; import / based on the hussar one on RFC DOC mod's one (ART_DEF_UNIT_HUSSAR) and adjusted or not for advciv-sas anyways etc; some assets like kfm or such being base civ4 ones if i am not mistaken anyways etc -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_GERMAN_HUSSAR</Type>
++			<Button>Art/AdvCiv_SAS/Units/German_Hussar/Hussar.dds</Button>
++			<fScale>0.42</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif</NIF>
++			<KFM>Art/Units/Unique/Russia/Cossack/RussianCossack.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/German_Hussar/nif/hussar.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/HorseShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.31</fRangedDeathTime>
++			<bActAsRanged>0</bActAsRanged>
++			<!-- BBAI: was ..._UNIQUE_UNIT -->
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_TANK</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Tank.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,11</Button>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 9ff5c97bd..174bc56b2 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1554,7 +1554,7 @@
+ 			</Buildings>
+ 			<Units>
+ 				<Unit>
+-					<UnitClassType>UNITCLASS_HORSE_CUIRASSIER</UnitClassType>
++					<UnitClassType>UNITCLASS_DRAGOON</UnitClassType>
+ 					<UnitType>UNIT_GERMAN_HUSSAR</UnitType>
+ 				</Unit>
+ 			</Units>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 09d9077fb..0640252b3 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -235,7 +235,7 @@
+ 
+ 
+ 
+-	<!-- custom: replace "_CAVALRY" (unit after as of now cuirassier units anyways etc) with "_DRAGOON" (was way too generic, era aspecific, and old unit's art was inaccurate for target advciv-sas early-industrial tech tree time anyways etc), as nicely recommended to me by chatgpt 5.1 thanks anyways etc; entry based on https://en.wikipedia.org/wiki/Dragoon anyways etc -->
++	<!-- custom: replace "_CAVALRY" (unit after as of now cuirassier units anyways etc) with "_DRAGOON" (was way too generic, era-aspecific, and old unit's art was inaccurate for target advciv-sas early-industrial tech tree time anyways etc), as nicely recommended to me by chatgpt 5.1 thanks anyways etc; entry based on https://en.wikipedia.org/wiki/Dragoon anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_DRAGOON_PEDIA</Tag>
+ 		<English>[TAB]Dragoons were originally a class of mounted infantry, who used horses for mobility, but dismounted to fight on foot. From the early 17th century onward, dragoons were increasingly also employed as conventional cavalry and trained for combat with swords and firearms from horseback. While their use goes back to the late 16th century, dragoon regiments were established in most European armies during the 17th and early 18th centuries; they provided greater mobility than regular infantry but were far less expensive than cavalry.[PARAGRAPH:1]The name reputedly derives from a type of firearm, called a dragon, which was a handgun version of a blunderbuss, carried by dragoons of the French Army. The title has been retained in modern times by a number of armoured or ceremonial mounted regiments.</English>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 4f175b7e2..18eb3099d 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -17802,10 +17802,10 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<!-- custom: "GERMAN_PANZER" removed and replaced with the "GERMAN_HUSSAR", based on the "CUIRASSIER" and tweaked from there anyways etc, one of the main reasons is to have civ-specific units earlier so they are more imapctful anyways etc anyways etc anyways etc -->
+-		<UnitInfo> <!-- custom: class: UNITCLASS_HORSE_CUIRASSIER, type: UNIT_GERMAN_HUSSAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_HORSE_CUIRASSIER</Class>
+-			<Type>UNIT_GERMAN_HUSSAR</Type>
++		<!-- custom: add new unit CAMEL_CUIRASSIER camel version of the CUIRASSIER anyways etc -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_CUIRASSIER, type: UNIT_CAMEL_CUIRASSIER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_CAMEL_CUIRASSIER</Class>
++			<Type>UNIT_CAMEL_CUIRASSIER</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -17814,8 +17814,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_GERMAN_HUSSAR</Description>
+-			<Civilopedia>TXT_KEY_UNIT_GERMAN_HUSSAR_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_CAMEL_CUIRASSIER</Description>
++			<Civilopedia>TXT_KEY_UNIT_CAMEL_CUIRASSIER_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -17901,7 +17901,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>BONUS_HORSE</BonusType>
++			<BonusType>BONUS_CAMEL</BonusType>
+ 			<PrereqBonuses>
+ 				<BonusType>BONUS_IRON</BonusType>
+ 				<BonusType>NONE</BonusType>
+@@ -17912,7 +17912,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 100 -->
+-			<iCost>140</iCost>
++			<iCost>130</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -17958,27 +17958,26 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in europe due to it being only forestic with no obvious terrain in the world maps i saw but anyways etc, but eastern europe is cold, so symbolize as having if relevant enough a bit of tundra in civ4 terms but anyways etc (see for example this Köppen climate classification map https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification for details or maybe rather info or such hopefully helpful if i may say but anyways etc...) -->
++			<!-- custom: make camel units better/stronger in desert and such terrains, but not buffing them too much as they are the generic unit and it may skew warfare too much to use them both for offense or defense against stronger units they shouldn't win again, so buff it moderately but quite a bit in this case at least if i may say but anyways etc -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; removing the forest penalty due to their geography favouring forest if i am not mistaken in doing so at least i want so hopefully helpful or not or yes or etc but anyways etc, see also as of now the korean civ-specific unit for similar example / type of example if i may say but anyways etc -->
+-			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
+-				</FeatureAttack>
+-			</FeatureAttacks>
++			<FeatureAttacks/>
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+ 			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>-25</iFeatureDefense>
++				</FeatureDefense>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<iFeatureDefense>-25</iFeatureDefense>
+@@ -18009,7 +18008,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_GERMAN_HUSSAR</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_CAMEL_CUIRASSIER</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -18018,20 +18017,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: they seem at least originally a lighter/harass unit type, give them greater mobility with this promotion i mean anyways etc -->
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_RETREAT1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<!-- custom: add new unit CAMEL_CUIRASSIER camel version of the CUIRASSIER anyways etc -->
+-		<UnitInfo> <!-- custom: class: UNITCLASS_CAMEL_CUIRASSIER, type: UNIT_CAMEL_CUIRASSIER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_CAMEL_CUIRASSIER</Class>
+-			<Type>UNIT_CAMEL_CUIRASSIER</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_DRAGOON, type: UNIT_DRAGOON (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_DRAGOON</Class>
++			<Type>UNIT_DRAGOON</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -18040,8 +18032,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_CAMEL_CUIRASSIER</Description>
+-			<Civilopedia>TXT_KEY_UNIT_CAMEL_CUIRASSIER_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_DRAGOON</Description>
++			<Civilopedia>TXT_KEY_UNIT_DRAGOON_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -18064,7 +18056,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<bFound>0</bFound>
+ 			<bGoldenAge>0</bGoldenAge>
+ 			<bInvisible>0</bInvisible>
+-			<bFirstStrikeImmune>1</bFirstStrikeImmune>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
+ 			<bNoDefensiveBonus>1</bNoDefensiveBonus>
+ 			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
+ 			<bCanMoveImpassable>0</bCanMoveImpassable>
+@@ -18078,9 +18070,10 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
++			<!-- custom: no reason to not allow cavalries to upgrade to tanks as well, some of the riding skills should translate, plus would help AIs, perhaps to a lesser extent human players, who have invested in them, anyways etc, was empty -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_DRAGOON</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_TANK</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -18120,25 +18113,19 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_MILITARY_TRADITION and techTypes TECH_GUNPOWDER and TECH_MOUNTED_COMBAT -->
+-			<PrereqTech>TECH_FIREARMS</PrereqTech>
++			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 			<TechTypes>
++				<PrereqTech>TECH_FIREARMS</PrereqTech>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>BONUS_CAMEL</BonusType>
+-			<PrereqBonuses>
+-				<BonusType>BONUS_IRON</BonusType>
+-				<BonusType>NONE</BonusType>
+-				<BonusType>NONE</BonusType>
+-				<BonusType>NONE</BonusType>
+-			</PrereqBonuses>
++			<BonusType>BONUS_HORSE</BonusType>
++			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 100 -->
+-			<iCost>130</iCost>
++			<!-- custom: was 120 -->
++			<iCost>150</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -18162,8 +18149,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 12 -->
+-			<iCombat>13</iCombat>
++			<iCombat>16</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -18173,10 +18159,10 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>15</iWithdrawalProb>
++			<iWithdrawalProb>30</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
++			<iCollateralDamageMaxUnits>7</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+@@ -18184,19 +18170,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: make camel units better/stronger in desert and such terrains, but not buffing them too much as they are the generic unit and it may skew warfare too much to use them both for offense or defense against stronger units they shouldn't win again, so buff it moderately but quite a bit in this case at least if i may say but anyways etc -->
+-			<TerrainAttacks>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
+-				</TerrainAttack>
+-			</TerrainAttacks>
+-			<TerrainDefenses>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>10</iTerrainDefense>
+-				</TerrainDefense>
+-			</TerrainDefenses>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+ 			<FeatureDefenses>
+@@ -18209,7 +18184,12 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 					<iFeatureDefense>-25</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+-			<UnitClassAttackMods/>
++			<UnitClassAttackMods>
++				<UnitClassAttackMod>
++					<UnitClassType>UNITCLASS_CANNON</UnitClassType>
++					<iUnitClassMod>50</iUnitClassMod>
++				</UnitClassAttackMod>
++			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+@@ -18221,11 +18201,11 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<iCultureGarrison>7</iCultureGarrison>
++			<iCultureGarrison>8</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>3</iAsset>
+-			<!-- custom: was 12 -->
+-			<iPower>15</iPower>
++			<!-- custom: was 15 -->
++			<iPower>18</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -18234,7 +18214,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_CAMEL_CUIRASSIER</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_DRAGOON</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -18247,9 +18227,9 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_DRAGOON, type: UNIT_DRAGOON (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_DRAGOON, type: UNIT_RUSSIA_COSSACK (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_DRAGOON</Class>
+-			<Type>UNIT_DRAGOON</Type>
++			<Type>UNIT_RUSSIA_COSSACK</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -18258,8 +18238,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_DRAGOON</Description>
+-			<Civilopedia>TXT_KEY_UNIT_DRAGOON_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_RUSSIA_COSSACK</Description>
++			<Civilopedia>TXT_KEY_UNIT_RUSSIA_COSSACK_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -18375,6 +18355,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
++			<!-- custom: was 15 -->
+ 			<iCombat>16</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+@@ -18396,15 +18377,35 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
+-			<FeatureDefenses>
+-				<FeatureDefense>
++			<!-- custom: although i didn't check too much, russia seems a bit better at defense than offense based on some comments  found online but anyways etc, but it's also to not make tundra too op while making sure to buff it enough though but anyways etc -->
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_SNOW</TerrainType>
++					<iTerrainAttack>50</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainDefense>35</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_SNOW</TerrainType>
++					<iTerrainDefense>50</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; also remove the forest penalty due to civ's world map advantage, see other units 's code comments for details anyways etc -->
++			<FeatureAttacks>
++				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>-25</iFeatureDefense>
+-				</FeatureDefense>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<iFeatureDefense>-25</iFeatureDefense>
+@@ -18417,7 +18418,16 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 				</UnitClassAttackMod>
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -18440,7 +18450,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_DRAGOON</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_RUSSIA_COSSACK</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -18453,9 +18463,9 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_DRAGOON, type: UNIT_RUSSIA_COSSACK (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_DRAGOON, type: UNIT_GERMAN_HUSSAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_DRAGOON</Class>
+-			<Type>UNIT_RUSSIA_COSSACK</Type>
++			<Type>UNIT_GERMAN_HUSSAR</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -18464,8 +18474,8 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_RUSSIA_COSSACK</Description>
+-			<Civilopedia>TXT_KEY_UNIT_RUSSIA_COSSACK_PEDIA</Civilopedia>
++			<Description>TXT_KEY_UNIT_GERMAN_HUSSAR</Description>
++			<Civilopedia>TXT_KEY_UNIT_GERMAN_HUSSAR_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -18556,7 +18566,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 120 -->
++			<!-- custom: was 120 in the base advciv old unit anyways etc -->
+ 			<iCost>140</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -18581,8 +18591,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 15 -->
+-			<iCombat>15</iCombat>
++			<iCombat>16</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -18603,28 +18612,20 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: although i didn't check too much, russia seems a bit better at defense than offense based on some comments  found online but anyways etc, but it's also to not make tundra too op while making sure to buff it enough though but anyways etc -->
++			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in europe due to it being only forestic with no obvious terrain in the world maps i saw but anyways etc, but eastern europe is cold, so symbolize as having if relevant enough a bit of tundra in civ4 terms but anyways etc (see for example this Köppen climate classification map https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification for details or maybe rather info or such hopefully helpful if i may say but anyways etc...) -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
+-				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_SNOW</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainDefense>35</iTerrainDefense>
+-				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_SNOW</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>10</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; also remove the forest penalty due to civ's world map advantage, see other units 's code comments for details anyways etc -->
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; removing the forest penalty due to their geography favouring forest if i am not mistaken in doing so at least i want so hopefully helpful or not or yes or etc but anyways etc, see also as of now the korean civ-specific unit for similar example / type of example if i may say but anyways etc -->
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+@@ -18644,16 +18645,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 				</UnitClassAttackMod>
+ 			</UnitClassAttackMods>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -18676,7 +18668,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_RUSSIA_COSSACK</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_GERMAN_HUSSAR</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -18685,7 +18677,13 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: they seem at least originally a lighter/harass unit type, give them greater mobility with this promotion i mean anyways etc -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_RETREAT1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index ad9242c85..4425b2b82 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -2223,6 +2223,8 @@ So i implemented a logic in `CvCityAI::AI_chooseUnit`, that i then generalized a
+ 
+ The results ingame are very good. The game took a different turn (no pun but anyways etc...) starting just before olmec was razed in the early game (for example mongol AI got an early big conquest even though was beaten down later if i may say but anyways etc), and at turn 200 instead of having useless extra trebuchets, we have a strong 16 unit stack of macemen, horse knights, etc, attacaking julius caesar AI, exactly as we wanted but anyways etc.
+ 
++note: was before german hussars were moved to a later mounted unit anyways etc.
++
+ Also, german AI seems to benefit more from these changes, as in the mid-late game he produces hussars instead (of cannons or whatever he produced then i guess but anyways etc), and secures a conquest win 50 turns sooner!! (around turn 280 instead of turn 330 before the changes), with a very impressive production and unit count with our current balance settings (that don't give per era freebies or exponential reduction to cost or such anymore if i'm not mistaken but anyways etc), with a very impressive composition at turn 285 where he wins but anyways etc of 54 hussars, 26 camel cuirassiers, 26 pikemen, 5 cannons, 25 musketmen, 26 pikemen, and a bunch of / few other units in small count anyways etc. (Another difference is also julius caesar ai was much stronger this run, securing several/many cities instead of shriking if i am not mistaken but anyways etc).
+ 
+ Downside is we seem to underproduce siege units a bit, but this is fine, especially early, where they shouldn't be too efficient to use if not for attacking cities, so as long as we have a bit of enough should be hopefully fine, else we can tone it down (or up (in this case i mean but anyways etc)) anyways etc. Left as such for now anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 0f8e31b7a..40b3cdf8f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -97,7 +97,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - religion "taoism" has been renamed to "daoism" and all related entries (temple and other buildings, units such as missionary etc, and description/history in sevopedia and such), i have heard many times of the "Dao" (or read maybe rather anyways etc) in manhua (translated) but never ever saw "Tao", while both seem correct as chinese translitterations if am not mistaken, it seemed that Dao is perhaps more fit, but in all cases even if not i'd rather use this one i'm more famililar with and that makes more sense to me, hopefully clearer for others or/and maybe not anyways etc
+ - renamed "Cho-Ko-Nu" (was non-standard/incorrect Wade–Giles romanization based on quick search results i found and on chatgpt 5.1's info anyways etc) to "Zhuge Nu" (modern pinyin as confirmed by chatgpt 5.1 thanks but anyways etc) quite similarly but anyways etc.
+ - unique units are now renamed civilization units, as they are not unique and can be built many times, just by only one civ in AdvCiv-SAS (and in base civ4 BTS/AdvCiv too if i am not mistaken) if i am not mistaken. Could be shortened to civ units maybe too as i may or not or not always do further in this doc or/and other docs, hopefully the meaning of this expression would be clear enough (fast worker for india for example)
+-- renamed "Cavalry" with "Dragoon" (was way too generic, era aspecific, and old unit's art was inaccurate for target advciv-sas early-industrial tech tree time anyways etc)
++- renamed "Cavalry" with "Dragoon" (was way too generic, era-aspecific, and old unit's art was inaccurate for target advciv-sas early-industrial tech tree time anyways etc)
+ - unit promotions have clearer names now too: for example Counter-Archer, counter Siege, Counter-Tank. Or another example is "City Bombard Damage" (instead of barrage). Numeric naming has been changed too for clarity and ease of read: for example "Combat III" is now "Combat 3" too.
+ 
+ ### Sevopedia reworks and other related changes
+@@ -430,7 +430,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - unit promotions are reworked or/and rebalanced: woodsman for example is buffed, some other like Hills Master 2 and 3 (guerilla) are rebalanced or nerfed, and other some promotions have also their requirements changed, for example archers have access to city bombard promotion (units are reworked too, see below), or "Logistics" (named "Commando" before) is now accessible after Combat 1 or City Raider 1, or City Raider 3 or City Garrison 3 or First Strike 3 as of now also require (i.e. additionally, on top of previous prereq if i'm not mistaken but anyways etc) Combat 2 before that not only the previous level (else was a bit too op before i think but anyways etc). Some are available sooner too, for example "Logistics" is available at "The Wheel", not "Military Science" anymore, since we understand roads we can use them, maybe, more strategic importance now too maybe hopefully.
+ - removed some promotions such as PROMOTION_TACTICS, as effect is redundant with retreat 1 and retreat 2 plus bypassing it, having too high retreat chance would be broken as well and inefficient as a promotion tree maybe anyways etc
+ - military units are reworked: for example the holy roman empire special unit, to better accomodate its history and stats, can be built starting from a different tech, and the french_musketeer has 1 move not 2 anymore but instead has as of now now anti mounted and small collateral kit which is much stronger and relevant for renaissance plus anyways etc, which is nice as the unit was way too weak and underwhelming if i may say but anyways etc.
+-- military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (cuirassier based), the mongol khishigten (medieval horse knight based as of now anyways etc (replaces the mongol keshik anyways etc)), the english yeoman archer (crossbow based, better match with the english empire's overall defensive profile, plus nice cover if no early bonus anyways etc), or the holy roman houfnice (cannon-based, better match with holy roman empire's aggressive profile, medieval window was too tight, and the old landsknetch was obsolete too soon in combat by the time it was produced, as well as hard to balance (effective against melee which are obsolete too, effective against mounted melee that are also not relevant but useless against cuirassiers mostly, hopefully much better with the houfnice but anyways etc)); also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values.
++- military and some civilian related units are rebalanced: some op units (according to me) are nerfed slightly (for example the cuirassiers and cavalry are slightly more expensive (but also with some small boosts sometimes, some other times not though anyways etc) than in advciv as of now anyways etc (see sevopedia or xml for updated values anyways etc)), some weaker ones buffed quite a lot (for example the jaguar warrior), while some others have been reworked if too weak or/and not relevant or as i wanted in advciv-sas or found it interesting or most competitive/strategic to be anyways etc: for example the dutch east indiaman (naval unit) has been removed and replaced with the dutch swift worker (functionally same as the old bts indian fast worker, not functionally like the advciv indian fast worker) which should be much stronger (naval units have low impact in terms of gameplay and win chance generally so better choose a land unit for civ-specific units ideally or make it strong enough if not anyways etc). Or some other units have been reworked or replaced if too late to be effective, for example the german panzer has been replaced with the german hussar (dragoon based), the mongol khishigten (medieval horse knight based as of now anyways etc (replaces the mongol keshik anyways etc)), the english yeoman archer (crossbow based, better match with the english empire's overall defensive profile, plus nice cover if no early bonus anyways etc), or the holy roman houfnice (cannon-based, better match with holy roman empire's aggressive profile, medieval window was too tight, and the old landsknetch was obsolete too soon in combat by the time it was produced, as well as hard to balance (effective against melee which are obsolete too, effective against mounted melee that are also not relevant but useless against cuirassiers mostly, hopefully much better with the houfnice but anyways etc)); also increased costs for most air units, see sevopedia ingame for updated values or/and xml for updated values.
+ - some units have been removed: sometimes for gameplay reasons: for example the nuclear_submarine is not relevant enough and does not actually hold nuclear weapons, only is nuclear powered if i am not mistaken, but effect is not strong enough to justify the hassle so just remove them anyways etc; or for example the caravel as it was not very sensical / nonsensical to me at least anyways etc that openly nation-specific and announced caravels could freely travel in outer borders even if borders are not open (and send annoying spies and such) without declaring war while doing so, so now this ability is now specific only to the privateer, among visible units at least (unlike the (normal) submarine for example if i am not mistaken anyways etc), and the privateer is now also buffed, see sevopedia for latest values and effects anyways etc, as for the caravel its transportation effect or faster mobility (if i am not mistaken about it being faster due to it being smaller if i am not mistaken about this as well anyways etc) is not worth the hassle of having 2 naval units (i.e. than the galleon anyways etc) at same era that do otherwise about the same thing anyways etc
+ - some military units have no military support cost such as for example as of now for example the robotic_infantry or the robotic_tank we added in advciv-sas anyways etc, and some no longer have a free cost such as of now the privateer that was free, but now costs like all or almost all military units (even if it has nationality, it would still cost gold/money to run if i may say but anyways etc, but the AI can be considered cheap labor enough that can be considered free to maintain after it has been produced at least in our mod and as of now if i may say but anyways etc). This information is displayed in sevopedia (As of now "No military support cost"), see also [README_Sevopedia_Reworks.md#example-7-unit-list-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-7-unit-list-category) for related info anyways etc
+ - the stealth ability has been removed from some units where i felt/thought it didn't make sense if any more have this ability that i'd want to be removed, except for units such as submarines, spies, stealth bombers too as it would be tedious to add many new air units, and perhaps complicate needlessly the game, they fit fine as an upgrade to the bomber in civ4 terms i think for both efficient and progressive/gradual strategy maybe anyways etc, and maybe other units too if any other units anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+index b040f8dc4..1d7771dbe 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+index 6cd54a816..e0530db0c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG
+index 59b3b4c21..1956d03e5 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=45454

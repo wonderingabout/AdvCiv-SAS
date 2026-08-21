@@ -1,0 +1,54 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3777
+# Commit: 603e37d586cb6f6eafd7362e10e4145e6c1c796c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: eed5e3b09739596c7aec19f0965443dbc804aaab
+# Title: Click on city tile toggles citizen automation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Text/Shortcuts_CIV4GameText.xml
+3	1	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/Shortcuts_CIV4GameText.xml b/Assets/XML/Text/Shortcuts_CIV4GameText.xml
+index 4de6b531e..97879c177 100644
+--- a/Assets/XML/Text/Shortcuts_CIV4GameText.xml
++++ b/Assets/XML/Text/Shortcuts_CIV4GameText.xml
+@@ -116,7 +116,7 @@
+ 	<!-- advc.004t: Added click on minimap, citizen automation -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SHORTCUTS_CITYSCREEN_PEDIA</Tag>
+-		<English>[H1]City Screen[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Middle mouse button[COLOR_REVERT][\BOLD][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Left-click on minimap[COLOR_REVERT][\BOLD][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Left-click on city tile[COLOR_REVERT][\BOLD][TAB][TAB]Enable citizen automation[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click item[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Produce item indefinitely[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click item[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Add item to front of queue[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click item[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Add item to back of queue[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Bind production queue to a number key[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]NUM arrows[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Cycle to city (if any) in arrow direction[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Fwd/Back mouse button[COLOR_REVERT][\BOLD][TAB]Cycle through cities[NEWLINE]</English>
++		<English>[H1]City Screen[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Middle mouse button[COLOR_REVERT][\BOLD][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Left-click on minimap[COLOR_REVERT][\BOLD][TAB][TAB]Exit city screen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Left-click on city tile[COLOR_REVERT][\BOLD][TAB][TAB]Toggle citizen automation[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click item[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Produce item indefinitely[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click item[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Add item to front of queue[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click item[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Add item to back of queue[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Bind production queue to a number key[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]NUM arrows[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Cycle to city (if any) in arrow direction[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Fwd/Back mouse button[COLOR_REVERT][\BOLD][TAB]Cycle through cities[NEWLINE]</English>
+ 		<German>[H1]Stadt-Bildschirm[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Eingabe, 3. Maustaste[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Stadt-Bildschirm verlassen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Klick auf ein Bauprojekt[COLOR_REVERT][\BOLD][TAB][TAB]Bauprojekt in Endlosschleife produzieren[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Klick auf ein Bauprojekt[COLOR_REVERT][\BOLD][TAB][TAB]Bauprojekt an den Anfang der Produktionsliste [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]setzen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+Klick auf ein Bauprojekt[COLOR_REVERT][\BOLD][TAB]Bauprojekt ans Ende der Produktionsliste [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]setzen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Zifferntaste[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Produktionsliste speichern[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Zifferntaste[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Gespeicherte Produktionsliste laden[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Einfg[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Stadt-Bildschirm der n�chsten verb�ndeten [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Stadt �ffnen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Pfeiltaste links/rechts, Mausrad[COLOR_REVERT][\BOLD][TAB]Zur n�chsten Stadt springen[NEWLINE]</German>
+ 		<Italian>[H1]Schermata cittadina[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Invio[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Esci dalla schermata cittadina[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Aggiunta nella coda di costruzione[COLOR_REVERT][\BOLD][TAB]Costruisci all'infinito l'oggetto aggiunto[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Aggiunta nella coda di costruzione[COLOR_REVERT][\BOLD][TAB]Aggiungi l'oggetto all'inizio della coda[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Aggiunta nella coda di costruzione[COLOR_REVERT][\BOLD][TAB]Aggiungi l'oggetto alla fine della coda[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Salva la coda di costruzione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT](#)[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Carica la coda di costruzione[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Frecce del Tastierino numerico[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Scorrono fra le Citt�[NEWLINE]</Italian>
+ 		<Spanish>[H1]Pantalla de ciudad[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Salir de la pantalla de ciudad[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Click en producci�n[COLOR_REVERT][\BOLD][TAB]Construir objeto indefinidamente[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+Click en producci�n[COLOR_REVERT][\BOLD][TAB]A�adir al principio de la cola[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Click en producci�n[COLOR_REVERT][\BOLD][TAB]A�adir al final de la cola[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+(#)[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Guardar una cola de producci�n. Restaurar con el mismo n�mero[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Insert[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Abrir la ciudad m�s cercanaNEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Boton medio del rat�n[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Salir de la pantalla de ciudad[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Flechas de Numpad[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Alternar entre ciudades[NEWLINE]</Spanish>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 3a576d2f9..fc41f5b68 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8883,7 +8883,9 @@ void CvCity::alterWorkingPlot(CityPlotTypes ePlot)
+ {
+ 	if (ePlot == CITY_HOME_PLOT)
+ 	{
+-		setCitizensAutomated(true);
++		setCitizensAutomated(//true
++				// advc.004t: toggle
++				!isCitizensAutomated());
+ 		return;
+ 	}
+ 	CvPlot* pPlot = getCityIndexPlot(ePlot);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6565

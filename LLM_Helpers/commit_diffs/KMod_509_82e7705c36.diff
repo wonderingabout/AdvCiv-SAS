@@ -1,0 +1,94 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 509
+# Commit: 82e7705c36ea1fb5a0e7113834b1afd941ad4e15
+# History segment: K-Mod history
+# Parent used for diff: ad6f3c01a5d6a03efa231de8c6073c95e00d60d4
+# Title: Fixed a minor bug in the original BtS code for loading xml. (If the final entry in an xml file was commented out, this bug would try to load the comment - an...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	17	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 459b047ea..7bd22ca66 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -1342,23 +1342,23 @@ void CvXMLLoadUtility::SetGlobalClassInfo(std::vector<T*>& aInfos, const char* s
+ 		// loop through each tag
+ 		do
+ 		{
+-			SkipToNextVal();	// skip to the next non-comment node
++			//SkipToNextVal();	// skip to the next non-comment node
+ 
+-				T* pClassInfo = new T;
++			T* pClassInfo = new T;
+ 
+-				FAssert(NULL != pClassInfo);
+-				if (NULL == pClassInfo)
+-				{
+-					break;
+-				}
++			FAssert(NULL != pClassInfo);
++			if (NULL == pClassInfo)
++			{
++				break;
++			}
+ 
+-				bool bSuccess = pClassInfo->read(this);
+-				FAssert(bSuccess);
+-				if (!bSuccess)
+-				{
+-					delete pClassInfo;
+-					break;
+-				}
++			bool bSuccess = pClassInfo->read(this);
++			FAssert(bSuccess);
++			if (!bSuccess)
++			{
++				delete pClassInfo;
++				break;
++			}
+ 
+ 			int iIndex = -1;
+ 			if (NULL != pClassInfo->getType())
+@@ -1381,7 +1381,8 @@ void CvXMLLoadUtility::SetGlobalClassInfo(std::vector<T*>& aInfos, const char* s
+ 			}
+ 
+ 
+-		} while (gDLL->getXMLIFace()->NextSibling(m_pFXml));
++		//} while (gDLL->getXMLIFace()->NextSibling(m_pFXml));
++		} while (gDLL->getXMLIFace()->NextSibling(m_pFXml) && SkipToNextVal()); // K-Mod
+ 
+ 		if (bTwoPass)
+ 		{
+@@ -1421,7 +1422,7 @@ void CvXMLLoadUtility::SetDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfo
+ 		// loop through each tag
+ 		do
+ 		{
+-			SkipToNextVal();	// skip to the next non-comment node
++			//SkipToNextVal();	// skip to the next non-comment node
+ 
+ 			CvString szType;
+ 			GetChildXmlValByName(szType, "Type");
+@@ -1449,7 +1450,8 @@ void CvXMLLoadUtility::SetDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfo
+ 				DiploInfos[iIndex]->read(this);
+ 			}
+ 
+-		} while (gDLL->getXMLIFace()->NextSibling(m_pFXml));
++		//} while (gDLL->getXMLIFace()->NextSibling(m_pFXml));
++		} while (gDLL->getXMLIFace()->NextSibling(m_pFXml) && SkipToNextVal()); // K-Mod
+ 	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2060

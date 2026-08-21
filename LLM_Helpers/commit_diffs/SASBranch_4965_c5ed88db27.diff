@@ -1,0 +1,176 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4965
+# Commit: c5ed88db27cb2bf47b7f1897c64d4e7b5f5f8dc2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fc87dcc3015942880662be9e6df6ba411009f9d2
+# Title: add harbord and such water food buildings priority always first if low food or etc anyways etc, buff barbarians as AIs are s strong now to help them grow ear...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+2	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+14	0	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+5	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 4ff12394d..eaf068510 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -291,7 +291,8 @@
+ 			<iStateReligionHappiness>0</iStateReligionHappiness>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<!-- custom: barbarians now don't lose/waste a lot of time building uneeded buildings if they ever did, so they can be stronger, but i don't want them as a result to have an unfair advantage, so make them produce units slightly slower; this also includes/accounts for settlers and workers that barbarians don't have to produce or at 1 hammer and similar that take a lot of time as well and that i would want the other players (non-barbarians anyways etc) to have the time and space to build in this case at least i mean but anyways etc so accomodating for that while making barbarians otherwise stronger than in base advciv with a pure military focus if i may say or if i am not mistaken i mean but anyways etc anyways etc anyways etc ; also adjusted considering there are lone barbarians already so barbarian cities don't need to produce too much extra else cnanot be so easily be met especially by AI players if they create settlers or buildings or such in particular, not making barbarians too weak but significantly decreasing their early impact that is already additive to lone barbairans but anyways etc, was 0 -->
+-			<iMilitaryProductionModifier>-40</iMilitaryProductionModifier>
++			<!-- custom: update, since last change, and all enhancements to AI efficiency we added now but anyways etc, AIs produce too much units, and much of them are early defenders or units like ancient macemen, archers, longbowmen, etc if any more but mostly these, that cripple their growth. Some barbarian pressure would be much needed to trim their defenses while offering more challenge as well, now that they have enough units, hopefully they can use them efficiently enough to guard their cities. Their economy should hopefully improve as well due to savings on military unit cost and/or such, plus faster tech pace indirectly too, and so stronger military later in the game as a result if i'm not mistaken but anyways etc, was -40 after our change to nerf barbarians as were too op, maybe manageable now, trying and see(ing in this case i mean but anyways etc) in this case i mean but anyways etc  -->
++			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+ 			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6dfd2cc00..8fa58b5c6 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4531,6 +4531,19 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 
+ 		if (!bWonder)
+ 		{
++			// <!-- custom: 0) but anyways etc; always build the harbor (or whichever buildings give food) no matter what. I have noticed many cities being stagnant and low food, or even if growing they could greatly benefit from it. Including one tile or 2 tile island cities building a needless worker or such. I don't know if our logic prevents that, but at least in very simple terms, build the harbor or any building (not wonders as hammer costly but anyways etc, at least if we'd add them we'd handle them elsewhere but as of now not handled specifically meaning AI will not reject them with same rules as other wonders as of now if i'm not mistaken but anyways etc) with such an effect asap if city can, don't complicate logic with needless things otherwise. This may help island cities 1-2 tiles in particular quickly reach their potential and not astray in particular if i may say but not only the cities i mean in this case but anyways etc. Also ignore even war checks or conditions as AIs produce too much units as of now which is good but it is also good that this helps them mitigate it even if a bit and to not go abnkrupt too soon with unit excess but anyways etc -->
++			// --- Fast path: water-food buildings (Harbor in AdvCiv-SAS) always first ---
++			const bool bWaterFoodBuilding = (
++				(kBuilding.getSeaPlotYieldChange(YIELD_FOOD) > 0) ||
++				(kBuilding.getGlobalSeaPlotYieldChange(YIELD_FOOD) > 0)
++			);
++
++			if (bWaterFoodBuilding && iFoodDifference <= 1 && !isFoodProduction())
++			{
++				return AI_BUILDING_ALWAYS_PICK_FIRST;
++			}
++			// --- end fast path ---
++
+ 			// Is this building primarily defensive in cities (local or global) <!-- custom: e.g. walls, castle, chichen itza of the base civ4 for example too if i am not mistaken anyways etc ; also use a value threshold of 25 or such anyways etc to remove false positives, in case a building gives small defense modifier but is not actually a defense building (e.g. not directly related to this but similar but anyways etc: ikhanda gives maybe like 10-15% maintenance reduction but is a military building, and skipping it based on economic criteria may be bad, so using a similar logic here with a quite high base threshold to make sure we flag actually defensive buildings if i am not mistaken anyways etc) --> ?
+ 			const bool bDefenseBuilding = (
+ 				(kBuilding.getDefenseModifier() >= 25) ||
+@@ -4856,6 +4869,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 
+ 			// <!-- custom: note: among remaining buildings, the effects get more often intertwinned if i may say in this case but anyways etc, so i mean but anyways etc execute this before last such buildings (but before the final unknown or/and uncovered buildings tail after it) so that we don't classify other buildings as cultural ones for example (e.g. as of now the spain civ-specific castle) if they happen to have culture in them as many buildings do but it would not be their main function and may interfere with our previous rules, so do these last and excluding previously covered ones just to be safe about this if i may say but anyways etc -->
+ 			const bool bPreviousBuildings = (
++				bWaterFoodBuilding ||
+ 				bDefenseBuilding ||
+ 				bCityMaintenanceBuilding ||
+ 				bFoodKeptBuilding ||
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 8038d984a..dd11ed9fe 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -10418,7 +10418,7 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+ 
+ 		static const PromotionTypes ePromotionSentry = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_SENTRY", true);
+ 
+-		// <!-- custom: note: for some reason woodsman and medic are super popular among AI units as a promotion if i may say but anyways etc, yet these are among if not the most inefficient ones in war ; this is one of the core promotions motivating this change, so making sure only most effective and very rarely most liekly fit with these can choose them/these for AI players i mean but anyways etc, also thanks to the ideas or information/feedback of chatgpt 5 on top of ideas i had gotten too before but anyways etc -->
++		// <!-- custom: note: for some reason woodsman and medic are super popular among AI units as a promotion if i may say but anyways etc, yet these are among if not the most inefficient ones in war ; this is one of the core promotions motivating this change, so making sure only most effective and very rarely most likely fit with these can choose them/these for AI players i mean but anyways etc, also thanks to the ideas or information/feedback of chatgpt 5 on top of ideas i had gotten too before but anyways etc -->
+ 		static const PromotionTypes ePromotionWoodsman1 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_WOODSMAN1",  true);
+ 		static const PromotionTypes ePromotionWoodsman2 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_WOODSMAN2", true);
+ 		static const PromotionTypes ePromotionWoodsman3 = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_WOODSMAN3", true);
+@@ -19185,7 +19185,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 			continue;
+ 		// <!-- custom: be careful, commenting out the null and no build check i added below causes the crash again at turn 77; update: very good results!! We now don't need this hacky failsafe that according to chatgpt 5 would cause workers to skip improving cities, cleanly fixed now no crash at turn 77 so we can disable it, but if you see a crash again, consider enabling it to see if helps even if issue may not be directly cause here but this could prevent it perhaps, seems fine though now but check to be sure anyways etc -->
+ 		// <!-- custom: update 2: although the crash at turn 77 was fixed, we get another crash (in another save file, at turn 68 now) fixed by uncommenting this, so until this is found kept as such i.e. uncommented anyways etc. Update 3: fixed by commenting out our old reliance on line `eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);` below in this CvUnitAI::AI_nextCityToImprove function: since we return nice builds and all and also optimized ones that should also be reliable, no need to rely on the old AI_betterPlotBuild function that here caused an issue as well. Tricky bug found by chatgpt 5 thanks to my prompts and such too hehe, so disabling this below guard/safety again. At this point i think it's better to crash and fix whatever flawed logic we have cleanly than avoiding it and having suboptimal, not necessarily visible issue(s? But anyways etc). If you have a crash again, consider adding or/and reenabling such checks in or near our rewritten AI_bestCityBuild callers which are very few as of now at least but anyways etc and see if it helps or tinker around this (or/and ask a chatbot or whatever ai you have xd helped lot for me at least but do as you prefer i mean xd hopefully helpful or not or yes or etc anyways etc). See also known issue as of now 55 for extra info if needed and if any info is there anyways etc. -->
+-		// <!-- custom: update 3: after fixing crash at turn 68 issue, we now have a crash at turn 156, which happens rarely depending on autoplay settings in same map. I suspect it's a rare type of crash, and our logic otherwise works fine. It is hard to pinpoint exactly what failed, but the below "guard" or rather hard reject actually from what i understand thanks to chatgpt 5's explanation too i mean and my prompts too xd but anyways etc, is that this avoided the crashes at turn 68 and now turn 156 after we fixed the old betterplotbuild wrong for us now but anyways etc (if i'm not mistaken in this case i mean but anyways etc) reliance, by simply hard rejecting any candidate to be chosen rather than actually cleanly guarding against an issue. Indeed, at city loop selection stage pBestPlot and eBestBuild are still null/NO_BUILD, it is only the current candidates pPlot and eBuild for the current cityai in loop that are assigned and that we should guard. So effectively, we would never choose anything here at all, therefore this guard is wrong and should be removed although it helped fix the rare turn 156 crash and others due to hard rejecting everything. A softer solution is ideally to find where the crash happens and fix it there, and not ruin 99%+ of the valid choices (actually probably 99.9%+ (or 99.99+%? Maybe but anyways etc...) but anyways etc xd if not more. If i can't find where or why, i'll have to reenable this, but ideally if i can fix it i'd rather not use this very extreme hard reject here. -->
++		// <!-- custom: update 3: after fixing crash at turn 68 issue, we now have a crash at turn 156, which happens rarely depending on autoplay settings in same map. I suspect it's a rare type of crash, and our logic otherwise works fine. It is hard to pinpoint exactly what failed, but the below "guard" or rather hard reject actually from what i understand thanks to chatgpt 5's explanation too i mean and my prompts too xd but anyways etc, is that this avoided the crashes at turn 68 and now turn 156 after we fixed the old betterplotbuild wrong for us now but anyways etc (if i'm not mistaken in this case i mean but anyways etc) reliance, by simply hard rejecting any candidate to be chosen rather than actually cleanly guarding against an issue. Indeed, at city loop selection stage pBestPlot and eBestBuild are still null/NO_BUILD, it is only the current candidates pPlot and eBuild for the current cityai in loop that are assigned and that we should guard. So effectively, we would never choose anything here at all, therefore this guard is wrong and should be removed although it helped fix the rare turn 156 crash and others due to hard rejecting everything. A softer solution is ideally to find where the crash happens and fix it there, and not ruin 99%+ of the valid choices (actually probably 99.9%+ (or 99.99+%? Maybe but anyways etc...) but anyways etc xd if not more. If i can't find where or why, i'll have to reenable this, but ideally if i can fix it i'd rather not use this very extreme hard reject here. Updated info about this: now solved, see known issue as of now 56 for details and code below too in the else block anyways etc -->
+ 		// if (pBestPlot == NULL || eBestBuild == NO_BUILD)
+ 		// 	continue;
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 515032db6..e73dcc340 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -1220,7 +1220,7 @@ See screenshots and files about/related(ing? Anyways etc) to this issue in this
+ 
+ Another very weird weird weird! Xd if i may say but anyways etc... But this is definitely weird i mean.
+ 
+-I compile the DLL while solving an issue or attempting to (related to a crash ingame at turn 156 with bestycitybuild function fixed by a guard i was trying to remove, but this is not the point i mean anyways etc, the point is read after brackets if i may say anyways etc to see it i mean but anyways) i got very weird XML errors at game launch as in screenshots. I thought maybe i had changed something or whatever, but it should have been exact same DLL as one of the versions of the code i had tried just a very little in this case i mean but anyways etc while before anyways etc.
++I compiled the DLL while solving an issue or attempting to (related to a crash ingame at turn 156 with bestycitybuild function fixed by a guard i was trying to remove, but this is not the point i mean anyways etc, the point is read after brackets if i may say anyways etc to see it i mean but anyways) but then i got very weird XML errors at game launch as in screenshots. I thought maybe i had changed something or whatever, but it should have been exact same DLL as one of the versions of the code i had tried just a very little in this case i mean but anyways etc while before anyways etc.
+ 
+ So i exited VS 2010 C++ Express (what i use to compile but anyways etc), recompiled the DLL, and boom magically solved xd.
+ 
+@@ -1228,7 +1228,7 @@ I believe this may have been one of these comsic ray issues or whatever, the err
+ 
+ So continuing to fix my issues in this case i mean but anyways etc now that this recompile solved this very weird and behaviour i never had before but anyways etc.
+ 
+-Note: i made sure as usual it's not a fast compile (i delete the temp_files always if not then almost always before recompiling as i don't trust fast compile issues due to issues (no pun but anyways etc) i had with it, unless for fast testing or such but anyways etc), but still issue happened, so if i didn't make a huge mistake or something very unexpected there most liekly seems to be something very wrong here if i'm not mistaken but anyways etc, but as long as i can compile whatever xd maybe if i may say but anyways etc.
++Note: i made sure as usual it's not a fast compile (i delete the temp_files always if not then almost always before recompiling as i don't trust fast compile issues due to issues (no pun but anyways etc) i had with it, unless for fast testing or such but anyways etc), but still issue happened, so if i didn't make a huge mistake or something very unexpected there most likely seems to be something very wrong here if i'm not mistaken but anyways etc, but as long as i can compile whatever xd maybe if i may say but anyways etc.
+ 
+ ## 39 - (Seemingly fixed or/and enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it
+ 
+@@ -1550,6 +1550,7 @@ It only documents logic that exists in the code we just reviewed (no speculation
+ |---|---:|---|
+ | Enemy strong threshold | 120 | When ≥, prefer static defense / skip econ; kill WW. |
+ | Enemy weak threshold | 80 | When ≤ and at war, allow barracks/stable pushes. |
++| Harbor trigger (food) | `iFoodDifference <= 1` | Permissive gate to force Harbor first unless city is in food-as-production mode. |
+ | Pump gate (hpt) | 8 | Min hammers to justify early unit-pump buildings. |
+ | Granary “rush” gate | happy≥4 & iEffectiveFood≥4 | Force-first for food-kept buildings. |
+ | Health “rush” gate | iHealthLevel≤1 & happy≥2 & iEffectiveFood≥2 | Force-first for net health buildings. |
+@@ -1564,6 +1565,7 @@ It only documents logic that exists in the code we just reviewed (no speculation
+ 
+ | Category | Detection (code) | Gates / Actions | Thresholds & scaling | Rationale / Notes |
+ |---|---|---|---|---|
++| **Water-food on sea (Harbor)** | `getSeaPlotYieldChange(YIELD_FOOD) > 0` \|\| `getGlobalSeaPlotYieldChange(YIELD_FOOD) > 0` | If `iFoodDifference <= 1` **and** `!isFoodProduction()` → **ALWAYS\_PICK\_FIRST**; otherwise fall through to normal logic | Uses raw surplus; no growth/war checks; only in `!bWonder` | Prevents stagnant/low-food coastal and island cities from stalling on low-value builds; settler/worker mode is exempt |
+ | **Defensive (Walls/Castle/…​)** | `getDefenseModifier>=25` \|\| `getBombardDefenseModifier>=20` \|\| `RaiseDefense>=15` \|\| `getAllCityDefenseModifier>=10` | If **not at war** → **skip**. If **at war & enemy weak & !danger** → **skip**. If **enemy strong** → **ALWAYS_PICK_FIRST**. | Enemy strong ≥120%; enemy weak ≤80%. | Avoid static defense spam in peace; build urgently only when truly threatened. |
+ | **Land‑unit pumps (Barracks‑like)** | Land XP ≥2 **or** land prod mod ≥20 | If `iBaseHammersPerTurn < 8` → no special push. If **at war & enemy strong/danger** → **skip**. If **war plan** **or** (**at war & enemy weak**) → **ALWAYS_PICK_FIRST**. | `iPumpGate=8` hpt. | Don’t delay units when weak; do invest when pressing or advantaged. |
+ | **Stable** | BuildingClass == STABLE | Require **TECH_MOUNTED_COMBAT**. If no **Horse/Camel/Elephants** connected → **skip**. If **enemy strong** → **skip**. If **war plan** or **at war & enemy weak** → **ALWAYS_PICK_FIRST**. | — | Never build without mounts; prioritize when we’ll field mounted. |
+@@ -1864,7 +1866,7 @@ As for after our changes, the difference is massive. Despite save file being alr
+ 
+ So i am very happy and satisfied of these changes, now below the detail by chatgpt 5, check if accurate as always if i may say, but i hope these are very informative, we'll go over changes, as of now, in `CvUnit::canScrap()` and `CvCityAI::AI_chooseUnit`. Unlikely i'll update them so remember they are general info if not updated (i could but not guaranteed, i may or may not do so anyways etc). Also about below chatgpt 5 explanation that helps very nicely thanks a lot chatgpt 5 but anyways etc, i have formatted it a bit as well but otherwise didn't check much if at all, check if accurate anyways etc.
+ 
+-Note: i went beyond fixing the issue at hand and added some nice extra sanity cheks liek icbm or worker max count per era and such as shown below, i hope AI is a lot more competitive, possibly silent issues like unknown scrapping or loops are solved by now, check for economic bankruptcy as i didn't guard against it assuming AI is rich enough or threatened enough to make it compensate its excess or/and handicap lowered enough so it can't overproduce so easily which is a win for us at least me xd if not some other players or not or etc but anyways etc.
++Note: i went beyond fixing the issue at hand and added some nice extra sanity cheks like icbm or worker max count per era and such as shown below, i hope AI is a lot more competitive, possibly silent issues like unknown scrapping or loops are solved by now, check for economic bankruptcy as i didn't guard against it assuming AI is rich enough or threatened enough to make it compensate its excess or/and handicap lowered enough so it can't overproduce so easily which is a win for us at least me xd if not some other players or not or etc but anyways etc.
+ 
+ ### canScrap() — AI scrapping policy
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 6d757aac1..4f5c83f3f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -290,7 +290,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ 
+ ### Barbarians (non-exhaustive, see sevopedia or/and xml for details)
+ 
+-- barbarians are now stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will quite gradually fade anyways etc. They should also spawn cities more often and be relevant a bit longer in the game anyways etc, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Since i made this change i had to tone it down, as once they captured the entire map in emperor difficulty/handicap autoplay, and other times they interferred enough with the game that other civilizations didn't play as much of a role which defeated the purpose a bit xd so they are as of now a bit weaker than stated here even though i updated it again but anyways etc. But generally, among the ways in which they are now stronger, their overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible but anwyays etc)) is gradual with difficulties, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See the Barbarians Sevopedia Civilization entry for details ingame or/and the XML for example for the Steam version of the game [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml) and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such, and the .csv table files that compare handicap settings in advciv-sas, with a similar file also being provided about/for base advciv settings even though not related to our mod but as a comparison point if it helps anyways etc.
++- barbarians are now stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will quite gradually fade anyways etc. They should also spawn cities more often and be relevant a bit longer in the game anyways etc, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a more important part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Among the ways in which they are now stronger, their overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible but anwyays etc)) is gradual with difficulties, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See the Barbarians Sevopedia Civilization entry for details ingame or/and the XML for example for the Steam version of the game [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml) and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such, and the .csv table files that compare handicap settings in advciv-sas, with a similar file also being provided about/for base advciv settings even though not related to our mod but as a comparison point if it helps anyways etc. Since AIs are so efficient now in their hammer usage and availability (as of now no scrapping or weird no production bugs (or almost none if any but anyways etc) (at least much more than in base advciv +/- civ4 if i'm not mistaken but anyways etc)), they produce too much units, so barbarians are a nice help for that goal so that AIs don't go bankrupt too soon and that they can grow more earlier due to having less units as counter intuitive as it may seem, especially since barbarians shoudl burn a bunch of the early and not so useful later units like ancient macemen, archers, longbowmen, etc, so should hopefully help a lot, and AIs are now seemingly (more than in this case i mean but anyways etc) strong enough to defend well or well enough even against such strong barbarians so hopefully helpful but anyways etc.
+ - added a code in `CvCityAI::AI_chooseBuilding` so barbarians don't waste hammer attempting to or building world wonders, which they sometimes could successfully do before other players due to their economic strength improvement. I suspect/assume issue was also in base advciv, and they just are now able to actually complete them before other players, unless some other xml change i did somehow triggered this, but most likely not and it was already there although i am not 100% sure but anyways etc. As a result of this no world wonder for barbarians change, barbarians may be more efficient with their hammers if they sank some of these in base advciv into attempting to build world wonders rather than say units but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#3---now-fixed-with-a-dll-patch-barbarians-cities-building-wonders-in-particular-now-fixed-ie-disabled-for-world-wonders-anyways-etc) for details anyways etc
+ - the barbarian workers are now a civ-specific unit that cannot be captured (this avoids worker farming abuse and is perhaps thematically relevant as well anyways etc), see sevopedia unit where this info has now been added, or `<Capture>` in XML for updated values anyways etc. (Note: the barbarian workboat is a civ-specific unit as of now but only for balance and lower costs purpose to help barbarians catch up, as of now no special effect otherwise from the base workboat if i'm not mistaken, check if accurate, anyways etc)
+ - the barbarian leader now has a distinct button (i.e. mini-image / "icon" (even though icons in civ4 are more like textual characters not mages if i am not mistaken but is to explain if i may say but anyways etc)) to make it distinct from genghis khan as was very inaccurately shown, visible in sevopedia civilization category mostly but also sevopedia leaders category to a esser extent if i may say in this case but anyways etc, button import from ri mod thanks anways etc thanks anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index ae8e80a8a..26a152efd 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -207,7 +207,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ 
+ ### Barbarians (non-exhaustive)
+ 
+-- Barbarians are **economically stronger** early and grow closer to normal AIs until midgame, then fade. They spawn cities more often and can fill unsettled areas more realistically. Early versions were too strong (map-wide conquest in Emperor autoplay); they’re toned down.
++- **Barbarians — stronger early game & smarter aggression**: economically **stronger in the early game**, growing at a pace closer to human/AI civs and **founding cities more often**, so they stay **relevant longer** before gradually fading by midgame. They still aren’t a full player (**no diplomacy**; **scattered independent cities** that collectively count as the Barbarian civilization). Difficulty scaling is adjusted so players have **less to no combat bonus vs. barbarians** (never a reverse bonus for barbs), with strength **rising gradually by difficulty**. Barbarians also **fill unclaimed land** if it’s left open, tend to **target weaker rivals**, and may **raze cities** more than base AdvCiv/Civ4. This pairs with the AI’s improved **hammer efficiency and availability** (far fewer scrapping/no-production issues): by engaging and “burning off” surplus early units (e.g., **ancient macemen, archers, longbowmen**), barbarians help prevent runaway over-production and early bankruptcies while empires keep growing. For definitions and exact knobs, see the Sevopedia **Barbarian Civilization** entry and XML: [CIV4CivilizationInfos.xml](/Assets/XML/Civilizations/CIV4CivilizationInfos.xml), [CIV4BuildingInfos.xml](/Assets/XML/Buildings/CIV4BuildingInfos.xml), and [CIV4HandicapInfo.xml](/Assets/XML/GameInfo/CIV4HandicapInfo.xml); also see the SAS **handicap tables** in the repo for comparative values.
+ - Combat bonuses **against** barbarians are reduced/removed in a difficulty-scaled way (never a reverse bonus **to** barbarians). They choose targets more carefully and **raze** cities more often than base AdvCiv/Civ4. See Sevopedia and XML (e.g., `CIV4CivilizationInfos.xml`, building/handicap XML) and the SAS handicap comparison tables.
+ - Barbarian **workers** are civ-specific and **cannot be captured** (prevents worker farming).  
+ - Barbarian **workboat** is civ-specific mainly for cost/balance.
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=31547

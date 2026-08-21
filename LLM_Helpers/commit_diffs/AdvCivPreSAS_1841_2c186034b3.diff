@@ -1,0 +1,78 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1841
+# Commit: 2c186034b37496f50cd3aafae693a9f6e4afc118
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8cd5a498cfb33f035393333903c604d49410673c
+# Title: Rename UWAI source code files
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	0	CvGameCoreDLL/{WarAndPeaceAI.cpp => UWAI.cpp}
+0	0	CvGameCoreDLL/{WarAndPeaceAI.h => UWAI.h}
+0	0	CvGameCoreDLL/{WarAndPeaceAgent.cpp => UWAIAgent.cpp}
+0	0	CvGameCoreDLL/{WarAndPeaceAgent.h => UWAIAgent.h}
+0	0	CvGameCoreDLL/{WarAndPeaceCache.cpp => UWAICache.cpp}
+0	0	CvGameCoreDLL/{WarAndPeaceCache.h => UWAICache.h}
+0	0	CvGameCoreDLL/{WarAndPeaceReport.cpp => UWAIReport.cpp}
+0	0	CvGameCoreDLL/{WarAndPeaceReport.h => UWAIReport.h}
+ rename CvGameCoreDLL/{WarAndPeaceAI.cpp => UWAI.cpp} (100%)
+ rename CvGameCoreDLL/{WarAndPeaceAI.h => UWAI.h} (100%)
+ rename CvGameCoreDLL/{WarAndPeaceAgent.cpp => UWAIAgent.cpp} (100%)
+ rename CvGameCoreDLL/{WarAndPeaceAgent.h => UWAIAgent.h} (100%)
+ rename CvGameCoreDLL/{WarAndPeaceCache.cpp => UWAICache.cpp} (100%)
+ rename CvGameCoreDLL/{WarAndPeaceCache.h => UWAICache.h} (100%)
+ rename CvGameCoreDLL/{WarAndPeaceReport.cpp => UWAIReport.cpp} (100%)
+ rename CvGameCoreDLL/{WarAndPeaceReport.h => UWAIReport.h} (100%)
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/UWAI.cpp
+similarity index 100%
+rename from CvGameCoreDLL/WarAndPeaceAI.cpp
+rename to CvGameCoreDLL/UWAI.cpp
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.h b/CvGameCoreDLL/UWAI.h
+similarity index 100%
+rename from CvGameCoreDLL/WarAndPeaceAI.h
+rename to CvGameCoreDLL/UWAI.h
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+similarity index 100%
+rename from CvGameCoreDLL/WarAndPeaceAgent.cpp
+rename to CvGameCoreDLL/UWAIAgent.cpp
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAgent.h b/CvGameCoreDLL/UWAIAgent.h
+similarity index 100%
+rename from CvGameCoreDLL/WarAndPeaceAgent.h
+rename to CvGameCoreDLL/UWAIAgent.h
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/UWAICache.cpp
+similarity index 100%
+rename from CvGameCoreDLL/WarAndPeaceCache.cpp
+rename to CvGameCoreDLL/UWAICache.cpp
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.h b/CvGameCoreDLL/UWAICache.h
+similarity index 100%
+rename from CvGameCoreDLL/WarAndPeaceCache.h
+rename to CvGameCoreDLL/UWAICache.h
+
+diff --git a/CvGameCoreDLL/WarAndPeaceReport.cpp b/CvGameCoreDLL/UWAIReport.cpp
+similarity index 100%
+rename from CvGameCoreDLL/WarAndPeaceReport.cpp
+rename to CvGameCoreDLL/UWAIReport.cpp
+
+diff --git a/CvGameCoreDLL/WarAndPeaceReport.h b/CvGameCoreDLL/UWAIReport.h
+similarity index 100%
+rename from CvGameCoreDLL/WarAndPeaceReport.h
+rename to CvGameCoreDLL/UWAIReport.h
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=1416

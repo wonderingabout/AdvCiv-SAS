@@ -40,7 +40,7 @@ with GFC_Control_ComboBox
 			// Item renderers					
 			.TextItem							=	GFC_CtrlTheme_Bitmap_Control_ComboBox_Renderer_TextItem;
 		}
-												
+
 		with .Child								
 		{									
 			.OuterBorder						=	GFC_CtrlTheme_Bitmap_Control_ComboBox_Child_OuterBorder;
@@ -73,7 +73,7 @@ with GFC_Control_ComboBox
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-											
+
 			// Control flag change masks	
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_MODAL, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER, GFC_CF_FORCE_ROLLOVER);
 		}
@@ -95,23 +95,23 @@ with GFC_Control_ComboBox
 		with .Size
 		{
 			.EditMargin							=	GRectMargin(0,0,0,0);	
-			
+
 			.PopupMinimum						=	GSize(60,2);
 			.PopupUpMargin						=	GRectMargin(0,0,0,0);
 			.PopupDownMargin					=	GRectMargin(0,0,0,0);
 			.PopupCenterMargin					=	GRectMargin(0,1,0,1);
-			
+
 			.PopupItem_ContentMargin			=	GRectMargin(2,0,0,0);
 			.ViewItem_ContentMargin				=	GRectMargin(0,0,0,0);
 
 			.ItemSpace							=	10;
 			.TextMinimum						=	20;
 			.TextMargin							=	GRectMargin(10,2,10,2);
-			
+
 			.ImageColumn						=	20;
 			.ImageMargin						=	GRectMargin(8,5,-2,4);
 			.ImageNoTextMargin					=	GRectMargin(8,5,8,4);
-			
+
 			.Default							=	GSize(96,31);			
 		}
 
@@ -130,12 +130,12 @@ with GFC_Control_ComboBox
 				.Image_Rollover						=	GFC_Control_Color_Image_Default;			
 				.Image_Select						=	GFC_Control_Color_Image_Select;
 				.Image_Disable						=	GFC_Control_Color_Image_Disable;
-		
+
 				.Text_Default						=	SF_CtrlTheme_Civ4_Control_Color_AltText;
 				.Text_Rollover						=	.Text_Default;
 				.Text_Select						=	.Text_Default;			
 				.Text_Disable						=	SF_CtrlTheme_Civ4_Control_Color_AltTextDisable;			
-				
+
 				.TextShadow_Default					=	SF_CtrlTheme_Civ4_Control_Color_AltTextShadow;
 				.TextShadow_Rollover				=	.TextShadow_Default;
 				.TextShadow_Select					=	.TextShadow_Default;			
@@ -153,12 +153,12 @@ with GFC_Control_ComboBox
 				.Image_Select						=	GFC_Control_Color_Image_Select;
 				.Image_Disable						=	GFC_Control_Color_Image_Disable;
 				.Image_DisableSelect				=	GFC_Control_Color_Image_DisableSelect;
-				
+
 				.Text_Default						=	GFC_Control_Color_Text_Default;
 				.Text_Select						=	SF_CtrlTheme_Civ4_Control_Color_SelectText;			
 				.Text_Disable						=	GFC_Control_Color_Text_Disable;			
 				.Text_DisableSelect					=	GFC_Control_Color_Text_DisableSelect;			
-				
+
 				.TextShadow_Default					=	GFC_Control_Color_TextShadow_Default;
 				.TextShadow_Select					=	GFC_Control_Color_TextShadow_Default;			
 				.TextShadow_Disable					=	GFC_Control_Color_TextShadow_Disable;			
@@ -256,14 +256,14 @@ with GFC_Control_ComboBox
 			.ViewItem_SelectRollover				=	0;
 			.ViewItem_Popupselect 					=	0;
 			.ViewItem_Disable 						=	0;
-													
+
 			.EditItem_Default 						=	0;
 			.EditItem_Rollover 						=	0;
 			.EditItem_Select 						=	0;
 			.EditItem_SelectRollover				=	0;
 			.EditItem_Popupselect 					=	0;
 			.EditItem_Disable 						=	0;
-												
+
 			.PopupItem_Default 						=	0;
 			.PopupItem_Select 						=	0;
 			.PopupItem_Disable 						=	0;
@@ -273,17 +273,17 @@ with GFC_Control_ComboBox
 		map GFC_Control			=	GFC_Control_DefaultControl_Style;
 	}	// end GFC_Control_DefaultComboBox_Style
 
-	
+
 
 // *** Popup Button style
 
 style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_PopupButton_Style
 {
 	GFC_Control_Renderer_Control						=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
-	
+
 	// No content offset
 	GFC_Control_Flag_Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_WINDOWACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER, GFC_CF_FORCE_ROLLOVER);
-	
+
 	GFC_Control_Button_Flag_DownOffset					=	GFlags(GButtonCtrl, GFC_CF_BUTTON_DOWNOFFSET_CONTENT);
 	GFC_Control_Button_Size_DownOffset_Content			=	GPoint(0,0);
 	GFC_Control_Button_Size_Default						=	GSize(25,30);
@@ -417,9 +417,9 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_PopupButton_Style
 style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_UpButton_Style
 {
 	GFC_Control_Renderer_Control			= GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;		
-	
+
 	GFC_Control_Button_Size_Default			=	GSize(8,30);
-	
+
 	with GFC_CtrlTheme_Bitmap_Control_Button_Skin
 	{
 		.Default
@@ -493,7 +493,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_UpButton_Style
 		.Disable				=	GBitmap("../../../../Resource/Civ4/Table_Scrollarrows.tga", HVGrid, 4, 4, 3, 0);
 		}*/
 
-	
+
 	// Map the rest of the properties to default
 	map GFC_CtrlTheme_Bitmap_Control_Button		=	GFC_Control_DefaultButton_Style;
 	map GFC_Control								=	GFC_Control_DefaultButton_Style;
@@ -503,7 +503,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_UpButton_Style
 style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_DownButton_Style
 {
 	GFC_Control_Renderer_Control			= GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
-	
+
 	GFC_Control_Button_Size_Default			=	GSize(8,30);
 
 	with GFC_CtrlTheme_Bitmap_Control_Button_Skin
@@ -588,7 +588,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_DownButton_Style
 style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_LeftButton_Style
 {
 	GFC_Control_Renderer_Control			= GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;		
-	
+
 	GFC_Control_Button_Size_Default			=	GSize(30,8);
 
 	with GFC_CtrlTheme_Bitmap_Control_Button_Skin
@@ -674,7 +674,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_LeftButton_Style
 style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_RightButton_Style
 {
 	GFC_Control_Renderer_Control			= GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;		
-	
+
 	GFC_Control_Button_Size_Default			= GSize(30,8);
 
 	with GFC_CtrlTheme_Bitmap_Control_Button_Skin
@@ -761,10 +761,10 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_VGrip_Style
 {
 	GFC_Control_Renderer_Control			= GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
 	//GFC_Control_Renderer_Control			= GFC_CtrlTheme_Bitmap_Control_Renderer_ScrollButton;
-	
+
 	GFC_Control_Button_Size_BorderMargin	=	GRectMargin(4,4,4,4);
 	GFC_Control_Button_Size_Default			=	GSize(4,4);
-	
+
 	GFC_Control_Button_Flag_TrackedPress	= GFlags(GButtonCtrl, GFC_CF_BUTTON_TRACKEDPRESS);
 
 	with GFC_CtrlTheme_Bitmap_Control_Button_Skin
@@ -821,9 +821,9 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_HGrip_Style
 {
 	GFC_Control_Renderer_Control			= GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
 	//GFC_Control_Renderer_Control			= GFC_CtrlTheme_Bitmap_Control_Renderer_ScrollButton;
-	
+
 	GFC_Control_Button_Size_Default			=	GSize(8,8);
-	
+
 	GFC_Control_Button_Flag_TrackedPress	= GFlags(GButtonCtrl, GFC_CF_BUTTON_TRACKEDPRESS);
 
 	with GFC_CtrlTheme_Bitmap_Control_Button_Skin
@@ -922,7 +922,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_HGrip_Style
 			Indent			= GRectMargin(5,5,5,5);
 		}
 	}
-		
+
 	// Vertical shaft skins
 	skin SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_Skin_VShaft_Default
 	{
@@ -974,7 +974,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_HGrip_Style
 
 style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_Style
 {
-	
+
 	with GFC_Control_Scroll
 	{
 		with .Size
@@ -989,7 +989,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_Style
 			.VDefault				=	7;					//Find GFC_Control_Table_Size_Scroll
 		}
 	}
-	
+
 	GFC_Control_Flag_Transparent			= GFlags(GCtrl); //, GFC_CF_TRANSPARENT);
 
 	// Shaft skins
@@ -1113,7 +1113,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_PopupBoxTable_Style
 	GFC_Control_Table_StyleId_OuterBorder  		=	GPropertyId(SF_CtrlTheme_Civ4_Control_ComboBox_Standard_PopupBoxTableBorder_Style);
 	GFC_Control_Table_StyleId_VScroll			=	GPropertyId(SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_Style);
 	GFC_Control_Table_StyleId_HScroll			=	GPropertyId(SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Scroll_Style);
-	
+
 	GFC_Control_Flag_Transparent				=	GFlags(GCtrl, GFC_CF_TRANSPARENT);
 	GFC_Control_Flag_NoExternalWindow			=	GFlags(GCtrl, GFC_CF_NOEXTERNALWINDOW);
 	GFC_Control_Flag_RegionClip					=	GFlags(GCtrl, GFC_CF_REGIONCLIP);
@@ -1153,7 +1153,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_PopupBoxTable_Style
 style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Border_Style
 {
 	GFC_Control_Flag_Mask_InvalidateControl			=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
-	
+
 	GFC_Control_Border_Size_Margin					=	GRectMargin(0,0,0,0);
 
 	with GFC_CtrlTheme_Bitmap_Control_Border_Skin
@@ -1180,13 +1180,13 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_Border_Style
 	map GFC_CtrlTheme_Bitmap_Control_Border		=	GFC_Control_DefaultBorder_Style;
 	map GFC_Control								=	GFC_Control_DefaultBorder_Style;
 }
-	
-	
+
+
 style SF_CtrlTheme_Civ4_Control_ComboBox_Standard_ItemEdit_Style
 {
 	GFC_Control_Edit_Color_Text_Default			=	SF_CtrlTheme_Civ4_Control_Color_AltText;
 	GFC_Control_Edit_Color_Text_Disable			= 	SF_CtrlTheme_Civ4_Control_Color_AltTextDisable;
-	
+
 	map GFC_CtrlTheme_Bitmap_Control_Edit		= 	GFC_Control_ClearEdit_Style;
 	map GFC_Control 							= 	GFC_Control_ClearEdit_Style;
 }
@@ -1195,7 +1195,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Edit_ItemEdit_Style
 {
 	GFC_Control_Edit_Color_Text_Default			=	GFC_Control_Color_Text_Default;
 	GFC_Control_Edit_Color_Text_Disable			= 	GFC_Control_Color_Text_Disable;
-	
+
 	map GFC_CtrlTheme_Bitmap_Control_Edit		= 	GFC_Control_ClearEdit_Style;
 	map GFC_Control 							= 	GFC_Control_ClearEdit_Style;
 }
@@ -1205,7 +1205,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Edit_ItemEdit_Style
 style SF_CtrlTheme_Civ4_Control_ComboBox_Edit_Border_Style
 {
 	GFC_Control_Flag_Mask_InvalidateControl			=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
-	
+
 	GFC_Control_Border_Size_Margin					=	GRectMargin(0,0,0,0);
 
 	with GFC_CtrlTheme_Bitmap_Control_Border_Skin
@@ -1248,7 +1248,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Edit_Border_Style
 			.PopupBoxTable		=	GPropertyId(SF_CtrlTheme_Civ4_Control_ComboBox_Standard_PopupBoxTable_Style);
 		}
 
-		
+
 		// **NOTE: This is the combobox background.**
 		with GFC_CtrlTheme_Bitmap_Control_ComboBox_Skin
 		{
@@ -1322,7 +1322,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Edit_Border_Style
 					}
 				}	
 			}
-			
+
 			with .EditItem
 			{
 				.Default 				=	GFC_CtrlTheme_Bitmap_Control_ComboBox_Skin_ViewItem_Default;
@@ -1371,30 +1371,30 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Edit_Border_Style
 		map GFC_CtrlTheme_Bitmap_Control_ComboBox					=	GFC_Control_DefaultComboBox_Style;
 		map GFC_Control												=	GFC_Control_DefaultComboBox_Style;
 	}																	
-																			
+
 	GFC_Control_EditComboBox_Style											
 	{
 		.Flag_Popup_VStyle				=	GFlags(GComboBoxCtrl, GFC_CF_COMBOBOX_POPUP_DOWN);
-		
+
 		with .StyleId
 		{
 			.OuterBorder				=	GPropertyId(SF_CtrlTheme_Civ4_Control_ComboBox_Edit_Border_Style);
 			.ItemEdit					=	GPropertyId(SF_CtrlTheme_Civ4_Control_ComboBox_Edit_ItemEdit_Style);
 		}
-		
+
 		with .Color_ViewItem
 		{
 			.Text_Default						=	GFC_Control_Color_Text_Default;
 			.Text_Rollover						=	.Text_Default;
 			.Text_Select						=	.Text_Default;			
 			.Text_Disable						=	GFC_Control_Color_Text_Disable;			
-			
+
 			.TextShadow_Default					=	GFC_Control_Color_TextShadow_Default;
 			.TextShadow_Rollover				=	.TextShadow_Default;
 			.TextShadow_Select					=	.TextShadow_Default;			
 			.TextShadow_Disable					=	GFC_Control_Color_TextShadow_Disable;	
 		}
-		
+
 		with .Combine_ViewItem
 		{
 			.TextShadow_Default_Dest			=	GColorCombine(Disable,Disable);	//GFC_Control_Combine_TextShadow_Default_Dest;
@@ -1406,7 +1406,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Edit_Border_Style
 			.TextShadow_Disable_Dest			=	GColorCombine(Disable,Disable);	//GFC_Control_Combine_TextShadow_Disable_Dest;
 			.TextShadow_Disable_Factor			=	GColorCombine(Disable,Disable);	//GFC_Control_Combine_TextShadow_Disable_Factor;
 		}
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_ComboBox_Skin
 		{
 			with .ViewItem
@@ -1444,7 +1444,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Edit_Border_Style
 				}
 			}
 		}
-		
+
 		map SF_CtrlTheme_Civ4_Control_ComboBox					=	GFC_Control_StandardComboBox_Style;
 		map GFC_CtrlTheme_Bitmap_Control_ComboBox				=	GFC_Control_StandardComboBox_Style;
 		map GFC_Control											=	GFC_Control_StandardComboBox_Style;
@@ -1455,10 +1455,10 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Edit_Border_Style
 style SF_CtrlTheme_Civ4_Control_ComboBox_Flat_PopupButton_Style
 {
 	GFC_Control_Renderer_Control						=	GFC_CtrlTheme_Bitmap_Control_Button_Renderer_ControlStandard;
-	
+
 	// No content offset
 	GFC_Control_Flag_Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_ACTIVE, GFC_CF_WINDOWACTIVE, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER, GFC_CF_FORCE_ROLLOVER);
-	
+
 	GFC_Control_Button_Flag_DownOffset					=	GFlags(GButtonCtrl, GFC_CF_BUTTON_DOWNOFFSET_CONTENT);
 	GFC_Control_Button_Size_DownOffset_Content			=	GPoint(0,0);
 	GFC_Control_Button_Size_Default						=	GSize(25,30);
@@ -1544,7 +1544,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Flat_PopupButton_Style
 	map GFC_CtrlTheme_Bitmap_Control_Button		=	GFC_Control_DefaultButton_Style;
 	map GFC_Control								=	GFC_Control_DefaultButton_Style;
 }
-																			
+
 	GFC_Control_FlatComboBox_Style											
 	{																	
 
@@ -1563,13 +1563,13 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Flat_PopupButton_Style
 			.Text_Rollover						=	.Text_Default;
 			.Text_Select						=	.Text_Default;			
 			.Text_Disable						=	GFC_Control_Color_Text_Disable;			
-			
+
 			.TextShadow_Default					=	GFC_Control_Color_TextShadow_Default;
 			.TextShadow_Rollover				=	.TextShadow_Default;
 			.TextShadow_Select					=	.TextShadow_Default;			
 			.TextShadow_Disable					=	GFC_Control_Color_TextShadow_Disable;	
 		}
-		
+
 		// **NOTE: This is the combobox background.**
 		with GFC_CtrlTheme_Bitmap_Control_ComboBox_Skin
 		{
@@ -1610,7 +1610,7 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Flat_PopupButton_Style
 					}
 				}	
 			}
-			
+
 			with .EditItem
 			{
 				.Default 				=	GFC_CtrlTheme_Bitmap_Control_ComboBox_Skin_ViewItem_Default;
@@ -1629,4 +1629,4 @@ style SF_CtrlTheme_Civ4_Control_ComboBox_Flat_PopupButton_Style
 }
 
 
-	
+

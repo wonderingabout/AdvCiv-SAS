@@ -1,0 +1,522 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 455
+# Commit: f0339ec71d354e396a3b6592ce1fdf52783da473
+# History segment: K-Mod history
+# Parent used for diff: a7864d54b8c2e6f04e44273efecad78299b0fdb6
+# Title: Renamed AI_getWarSuccessCapitulationRatio to AI_getWarSuccessRating. (It has nothing to do with capiluation, and it isn't a basic ratio.)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	21	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+16	24	CvGameCoreDLL/CvPlayerAI.cpp
+19	43	CvGameCoreDLL/CvTeamAI.cpp
+5	17	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 426fc34c1..abcb3ab8d 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -936,7 +936,7 @@ void CvCityAI::AI_chooseProduction()
+ 	int iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
+     int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
+ 
+-	int iWarSuccessRatio = GET_TEAM(getTeam()).AI_getWarSuccessCapitulationRatio();
++	int iWarSuccessRating = GET_TEAM(getTeam()).AI_getWarSuccessRating();
+ 	int iEnemyPowerPerc = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+ 	/* int iWarTroubleThreshold = 0;
+ 
+@@ -1470,7 +1470,7 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	if( !(bDefenseWar && iWarSuccessRatio < -50) && !bDanger )
++	if( !(bDefenseWar && iWarSuccessRating < -50) && !bDanger )
+ 	{
+ 		if ((iExistingWorkers == 0))
+ 		{
+@@ -1563,7 +1563,7 @@ void CvCityAI::AI_chooseProduction()
+     
+     if (bMaybeWaterArea)
+ 	{
+-		if( !(bLandWar && iWarSuccessRatio < -30) && !bDanger && !bFinancialTrouble )
++		if( !(bLandWar && iWarSuccessRating < -30) && !bDanger && !bFinancialTrouble )
+ 		{
+ 			if (kPlayer.AI_getNumTrainAIUnits(UNITAI_ATTACK_SEA) + kPlayer.AI_getNumTrainAIUnits(UNITAI_PIRATE_SEA) + kPlayer.AI_getNumTrainAIUnits(UNITAI_RESERVE_SEA) < std::min(3,kPlayer.getNumCities()))
+ 			{
+@@ -1691,7 +1691,7 @@ void CvCityAI::AI_chooseProduction()
+ 	//if( bLandWar && (iWarSuccessRatio < -30 || iEnemyPowerPerc > 150) )
+ 	// K-Mod. I've changed the condition on this; but to be honest, I'm thinking it should just be completely removed.
+ 	// The noraml unit selection function should know what kind of units we should be building...
+-	if (bLandWar && iWarSuccessRatio < -10 && iEnemyPowerPerc - iWarSuccessRatio > 150)
++	if (bLandWar && iWarSuccessRating < -10 && iEnemyPowerPerc - iWarSuccessRating > 150)
+ 	{
+ 		UnitTypeWeightArray defensiveTypes;
+ 		defensiveTypes.push_back(std::make_pair(UNITAI_COUNTER, 100));
+@@ -1706,13 +1706,13 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 
+ 		int iOdds = iBuildUnitProb;
+-		if( iWarSuccessRatio < -50 )
++		if( iWarSuccessRating < -50 )
+ 		{
+-			iOdds += abs(iWarSuccessRatio/3);
++			iOdds += abs(iWarSuccessRating/3);
+ 		}
+ 		// K-Mod
+-		iOdds *= (-iWarSuccessRatio+20 + iBestBuildingValue);
+-		iOdds /= (-iWarSuccessRatio + 2 * iBestBuildingValue);
++		iOdds *= (-iWarSuccessRating+20 + iBestBuildingValue);
++		iOdds /= (-iWarSuccessRating + 2 * iBestBuildingValue);
+ 		// K-Mod end
+ 		if( bDanger )
+ 		{
+@@ -1726,7 +1726,7 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	if( !(bDefenseWar && iWarSuccessRatio < -50) )
++	if( !(bDefenseWar && iWarSuccessRating < -50) )
+ 	{
+ /***
+ **** K-Mod, 10/sep/10, Karadoc
+@@ -1758,7 +1758,7 @@ void CvCityAI::AI_chooseProduction()
+ ***/
+     if (!bDanger && iExistingWorkers == 0 && (isCapital() || (iNeededWorkers > 0) || (iNeededSeaWorkers > iExistingSeaWorkers)))
+     {
+-		if( !(bDefenseWar && iWarSuccessRatio < -30) && !(kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE)) )
++		if( !(bDefenseWar && iWarSuccessRating < -30) && !(kPlayer.AI_isDoStrategy(AI_STRATEGY_TURTLE)) )
+ 		{
+ 			if ((AI_countNumBonuses(NO_BONUS, /*bIncludeOurs*/ true, /*bIncludeNeutral*/ true, -1, /*bLand*/ true, /*bWater*/ false) > 0) || 
+ 				(isCapital() && (getPopulation() > 3) && iNumCitiesInArea > 1))
+@@ -1782,7 +1782,7 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+     }
+ 
+-	if( !(bDefenseWar && iWarSuccessRatio < -30) )
++	if( !(bDefenseWar && iWarSuccessRating < -30) )
+ 	{
+ 		if (!bWaterDanger && iNeededSeaWorkers > iExistingSeaWorkers)
+ 		{
+@@ -1875,7 +1875,7 @@ void CvCityAI::AI_chooseProduction()
+ 	if (!bDanger && (!hasActiveWorldWonder()) && (kPlayer.getNumCities() <= 3))
+ 	{
+ 		// For small civ at war, don't build wonders unless winning
+-		if( !bLandWar || (iWarSuccessRatio > 30) )
++		if( !bLandWar || (iWarSuccessRating > 30) )
+ 		{
+ 			int iWonderTime = GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
+ 			iWonderTime /= 5;
+@@ -1892,7 +1892,7 @@ void CvCityAI::AI_chooseProduction()
+ 	{
+ 		// BBAI TODO:  This check should be done by player, not by city and optimize placement
+ 		// If losing badly in war, don't build big things
+-		if( !bLandWar || (iWarSuccessRatio > -30) )
++		if( !bLandWar || (iWarSuccessRating > -30) )
+ 		{
+ 			if( kPlayer.getCapitalCity() == NULL || area()->getPopulationPerPlayer(getOwnerINLINE()) > kPlayer.getCapitalCity()->area()->getPopulationPerPlayer(getOwnerINLINE()) )
+ 			{
+@@ -1915,7 +1915,7 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	if( bLandWar )
+ 	{
+-		iSpreadUnitThreshold += 800 - 10*iWarSuccessRatio;
++		iSpreadUnitThreshold += 800 - 10*iWarSuccessRating;
+ 	}
+ 	iSpreadUnitThreshold += 300*plot()->plotCount(PUF_isUnitAIType, UNITAI_MISSIONARY, -1, getOwnerINLINE());
+ 
+@@ -1945,7 +1945,7 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 	
+-	if( !(bLandWar && iWarSuccessRatio < 30) )
++	if( !(bLandWar && iWarSuccessRating < 30) )
+ 	{
+ 		if (!bDanger && (iProductionRank <= ((kPlayer.getNumCities() / 5) + 1)))
+ 		{
+@@ -1982,7 +1982,7 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 	
+-	if( !(bDefenseWar && iWarSuccessRatio < -50) )
++	if( !(bDefenseWar && iWarSuccessRating < -50) )
+ 	{
+ 		if ((iAreaBestFoundValue > iMinFoundValue) || (iWaterAreaBestFoundValue > iMinFoundValue))
+ 		{
+@@ -2127,7 +2127,7 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 		// K-Mod end
+ 
+-		if( bDefenseWar || (bLandWar && (iWarSuccessRatio < -30)) )
++		if( bDefenseWar || (bLandWar && (iWarSuccessRating < -30)) )
+ 		{
+ 			UnitTypeWeightArray panicDefenderTypes;
+ 			panicDefenderTypes.push_back(std::make_pair(UNITAI_RESERVE, 100));
+@@ -2135,7 +2135,7 @@ void CvCityAI::AI_chooseProduction()
+ 			panicDefenderTypes.push_back(std::make_pair(UNITAI_COLLATERAL, 100));
+ 			panicDefenderTypes.push_back(std::make_pair(UNITAI_ATTACK, 100));
+ 
+-        	if (AI_chooseLeastRepresentedUnit(panicDefenderTypes, (bGetBetterUnits ? 40 : 60) - iWarSuccessRatio/3))
++        	if (AI_chooseLeastRepresentedUnit(panicDefenderTypes, (bGetBetterUnits ? 40 : 60) - iWarSuccessRating/3))
+         	{
+ 				if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose panic defender", getName().GetCString());
+         		return;
+@@ -2154,7 +2154,7 @@ void CvCityAI::AI_chooseProduction()
+ 	if (!bDanger && (!hasActiveWorldWonder() || (kPlayer.getNumCities() > 3)))
+ 	{
+ 		// For civ at war, don't build wonders if losing
+-		if (!bTotalWar && (!bLandWar || iWarSuccessRatio > -30))
++		if (!bTotalWar && (!bLandWar || iWarSuccessRating > -30))
+ 		{	
+ 			int iWonderTime = GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
+ 			iWonderTime /= 5;
+@@ -2204,7 +2204,7 @@ void CvCityAI::AI_chooseProduction()
+ 	}
+ 
+ 	// note: this is the only worker test that allows us to reach the full number of needed workers.
+-	if (!(bLandWar && iWarSuccessRatio < -30) && !bDanger)
++	if (!(bLandWar && iWarSuccessRating < -30) && !bDanger)
+ 	{
+ 		if (iExistingWorkers < iNeededWorkers)
+ 		{
+@@ -3310,7 +3310,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 			if (bLandWar && !bDefense && GET_TEAM(getTeam()).getWarPlanCount(WARPLAN_TOTAL, true))
+ 			{
+ 				// if we're winning, then focus on capturing cities.
+-				int iSuccessRatio = GET_TEAM(getTeam()).AI_getWarSuccessCapitulationRatio();
++				int iSuccessRatio = GET_TEAM(getTeam()).AI_getWarSuccessRating();
+ 				if (iSuccessRatio > 0)
+ 				{
+ 					aiUnitAIVal[UNITAI_ATTACK] += iSuccessRatio * iMilitaryWeight / 1200;
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index ee98270a4..db96f06c3 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3585,8 +3585,8 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 		}
+ 		if (bHadAny)
+ 		{
+-			int iWarSuccessRatio = kTeam.AI_getWarSuccessCapitulationRatio();
+-			szBuffer.append(CvWString::format(SETCOLR L"\nWar Success Ratio: %d" ENDCOLR, TEXT_COLOR((iWarSuccessRatio > 0) ? "COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT"), iWarSuccessRatio));
++			int iWarSuccessRating = kTeam.AI_getWarSuccessRating();
++			szBuffer.append(CvWString::format(SETCOLR L"\nWar Success Ratio: %d" ENDCOLR, TEXT_COLOR((iWarSuccessRating > 0) ? "COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT"), iWarSuccessRating));
+ 		}
+ 		if (bHadAny || kTeam.getAnyWarPlanCount(true) > 0)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 118dec475..31d9ac93d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1748,18 +1748,18 @@ void CvPlayerAI::AI_doCentralizedProduction()
+ 
+ 	if( bAtWar )
+ 	{
+-		int iWarCapRatio = GET_TEAM(getTeam()).AI_getWarSuccessCapitulationRatio();
+-		if( iWarCapRatio < -90 )
++		int iWarSuccessRating = GET_TEAM(getTeam()).AI_getWarSuccessRating();
++		if( iWarSuccessRating < -90 )
+ 		{
+ 			iMaxNumWonderCities = 0;
+ 		}
+ 		else 
+ 		{
+-			if( iWarCapRatio < 30 )
++			if( iWarSuccessRating < 30 )
+ 			{
+ 				iMaxNumWonderCities -= 1;
+ 			}
+-			if( iWarCapRatio < -50 )
++			if( iWarSuccessRating < -50 )
+ 			{
+ 				iMaxNumWonderCities /= 2;
+ 			}
+@@ -4654,7 +4654,7 @@ int CvPlayerAI::AI_goldTarget(bool bUpgradeBudgetOnly) const
+ 	}
+ 	else
+ 	{
+-		if (GET_TEAM(getTeam()).AI_getWarSuccessCapitulationRatio() < -10)
++		if (GET_TEAM(getTeam()).AI_getWarSuccessRating() < -10)
+ 			iUpgradeBudget *= 2; // cf. iTargetTurns in AI_doCommerce
+ 		else if (AI_isFinancialTrouble())
+ 		{
+@@ -13088,10 +13088,10 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 				iTempValue *= iCombatValue;
+ 				iTempValue /= 75;
+ 
+-				int iWarSuccessRatio = kTeam.AI_getWarSuccessCapitulationRatio();
+-				if( iWarSuccessRatio < -25 )
++				int iWarSuccessRating = kTeam.AI_getWarSuccessRating();
++				if( iWarSuccessRating < -25 )
+ 				{
+-					iTempValue *= 75 + range(-iWarSuccessRatio, 25, 100);
++					iTempValue *= 75 + range(-iWarSuccessRating, 25, 100);
+ 					iTempValue /= 100;
+ 				}
+ 				// K-Mod (maybe I'll do some more tweaking later)
+@@ -14765,7 +14765,7 @@ void CvPlayerAI::AI_doMilitary()
+ 		}
+ 	} */
+ 	// K-Mod. (a bit slower, but better - I think.)
+-	if (!isAnarchy() && AI_isFinancialTrouble() && GET_TEAM(getTeam()).AI_getWarSuccessCapitulationRatio() > -50)
++	if (!isAnarchy() && AI_isFinancialTrouble() && GET_TEAM(getTeam()).AI_getWarSuccessRating() > -50)
+ 	{
+ 		while (AI_unitCostPerMil() > AI_maxUnitCostPerMil() || calculateGoldRate() < 0)
+ 		{
+@@ -18317,11 +18317,6 @@ bool CvPlayerAI::AI_disbandUnit(int iExpThreshold, bool bObsolete)
+ 
+ 	if (pBestUnit != NULL)
+ 	{
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/12/10                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+ 		if( gPlayerLogLevel >= 2 )
+ 		{
+ 			CvWString szString;
+@@ -18329,9 +18324,6 @@ bool CvPlayerAI::AI_disbandUnit(int iExpThreshold, bool bObsolete)
+ 
+ 			logBBAI("    Player %d (%S) disbanding %S with UNITAI %S to save cash", getID(), getCivilizationDescription(0), pBestUnit->getName().GetCString(), szString.GetCString());
+ 		}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 		pBestUnit->kill(false);
+ 		return true;
+ 	}
+@@ -18556,8 +18548,8 @@ int CvPlayerAI::AI_getCultureVictoryStage() const
+ 				iDemoninator += AI_cultureVictoryTechValue(getCurrentResearch()) > 100 ? 80 : 0;
+ 				iDemoninator += AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS)? 80 : 0;
+ 				iDemoninator += GET_TEAM(getTeam()).getAnyWarPlanCount(true)>0 ? 30 : 0;
+-				int iWarRatio = GET_TEAM(getTeam()).AI_getWarSuccessCapitulationRatio();
+-				iDemoninator += iWarRatio < 0 ? -2*iWarRatio : 0;
++				int iWarSuccessRating = GET_TEAM(getTeam()).AI_getWarSuccessRating();
++				iDemoninator += iWarSuccessRating < 0 ? -2*iWarSuccessRating : 0;
+ 				// and a little bit of personal variation.
+ 				iDemoninator += 50 - GC.getLeaderHeadInfo(getPersonalityType()).getCultureVictoryWeight();
+ 
+@@ -19407,7 +19399,7 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 	int iAverageEnemyUnit = 0;
+ 	int iTypicalAttack = getTypicalUnitValue(UNITAI_ATTACK);
+ 	int iTypicalDefence = getTypicalUnitValue(UNITAI_CITY_DEFENSE);
+-	int iWarSuccessRatio = kTeam.AI_getWarSuccessCapitulationRatio();
++	int iWarSuccessRating = kTeam.AI_getWarSuccessRating();
+ 	// K-Mod end
+ 
+ 	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+@@ -19636,8 +19628,8 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 		// the value here is unaffected because the strategy hash has been cleared.
+ 		iTempValue += kTeam.getBestKnownTechScorePercent() < 85 ? 3 : 0;
+ 		iTempValue += kTeam.getAnyWarPlanCount(true) > kTeam.getAtWarCount(true) ? 2 : 0; // build up espionage before the start of a war
+-		if (iWarSuccessRatio < 0)
+-			iTempValue += iWarSuccessRatio/15 - 1;
++		if (iWarSuccessRating < 0)
++			iTempValue += iWarSuccessRating/15 - 1;
+ 		iTempValue += AI_getStrategyRand(10) % 8;
+ 		// K-Mod end
+ 
+@@ -19677,7 +19669,7 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 		}
+ 
+ 		// Are we losing badly or recently attacked?
+-		if( iWarSuccessRatio < -50 || iMaxWarCounter < 10 )
++		if( iWarSuccessRating < -50 || iMaxWarCounter < 10 )
+ 		{
+ 			if( kTeam.AI_getEnemyPowerPercent(true) > std::max(150, GC.getDefineINT("BBAI_TURTLE_ENEMY_POWER_RATIO")) )
+ 			{
+@@ -19993,7 +19985,7 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 		//iCrushValue += (iNonsense % 3000) / (400+GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand());
+ 	// On second thought, lets try this
+ 		iCrushValue += AI_getStrategyRand(13) % (4 + AI_getFlavorValue(FLAVOR_MILITARY)/2);
+-		iCrushValue += std::min(0, kTeam.AI_getWarSuccessCapitulationRatio()/15);
++		iCrushValue += std::min(0, kTeam.AI_getWarSuccessRating()/15);
+ 		// note: flavor military is between 0 and 10
+ 		// K-Mod end
+ 		if (AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST3))
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 5f84acce2..0f8b08e6f 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -405,7 +405,7 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 
+ 	// int iOffensiveThreshold = (bPreparingTotal ? 25 : 20); // K-Mod, I don't use this.
+ 	int iAreaCities = countNumCitiesByArea(pArea);
+-	int iWarSuccessRatio = AI_getWarSuccessCapitulationRatio(); // K-Mod
++	int iWarSuccessRating = AI_getWarSuccessRating(); // K-Mod
+ 
+ 	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 	{
+@@ -456,7 +456,7 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 			int iPower = countPowerByArea(pArea);
+ 			int iEnemyPower = countEnemyPowerByArea(pArea);
+ 			
+-			iPower *= 100 + iWarSuccessRatio + (bChosenTargets ? 100 : 50);
++			iPower *= 100 + iWarSuccessRating + (bChosenTargets ? 100 : 50);
+ 			iEnemyPower *= 100;
+ 			// it would be nice to put some personality modifiers into this. But this is a Team function. :(
+ 			if (iPower < iEnemyPower)
+@@ -520,7 +520,7 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea* pArea, bool bPreparingTotal
+ 		// K-Mod. I'm not sure how best to do this yet. Let me just try a rough idea for now.
+ 		// I'm using AI_countMilitaryWeight; but what I really want is "border terriory which needs defending"
+ 		int iOurRelativeStrength = 100 * countPowerByArea(pArea) / (AI_countMilitaryWeight(pArea) + 20);
+-		iOurRelativeStrength *= 100 + (bDeclaredTargets ? 30 : 0) + (bPreparingTotal ? -20 : 0) + iWarSuccessRatio/2;
++		iOurRelativeStrength *= 100 + (bDeclaredTargets ? 30 : 0) + (bPreparingTotal ? -20 : 0) + iWarSuccessRating/2;
+ 		iOurRelativeStrength /= 100;
+ 		int iEnemyRelativeStrength = 0;
+ 		bool bEnemyCities = false;
+@@ -2343,43 +2343,14 @@ bool CvTeamAI::AI_isAnyMemberDoVictoryStrategyLevel3() const
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/20/10                                jdog5000      */
+-/*                                                                                              */
+-/* War Strategy AI                                                                              */
+-/************************************************************************************************/
+-/// \brief Compute how close our wars are to capitulation.
+-///
+-/// At -99, this means we're losing on net enough to capitulate.  At +99, we're winning enough
+-/// to perhaps have another player capitulate to us.
+-int CvTeamAI::AI_getWarSuccessCapitulationRatio() const
+-{
+-	/* original BBAI code
+-	int iSumWarSuccess = 0;
+ 
+-	for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
+-	{
+-		if( iI != getID() )
+-		{
+-			if( GET_TEAM((TeamTypes)iI).isAlive() && isAtWar((TeamTypes)iI) )
+-			{
+-				iSumWarSuccess += AI_getWarSuccess((TeamTypes)iI);
+-				iSumWarSuccess -= GET_TEAM((TeamTypes)iI).AI_getWarSuccess(getID());
+-			}
+-		}
+-	}
+-
+-	int iDivisor = std::max(25, std::min(getNumCities(), 4) * GC.getWAR_SUCCESS_CITY_CAPTURING());
+-
+-	iSumWarSuccess = range((100*iSumWarSuccess)/iDivisor, -99, 99);
+-
+-	return iSumWarSuccess; */
++// K-Mod. return a rating of our war success between -99 and 99.
++// -99 means we losing and have very little hope of surviving. 99 means we are soundly defeating our enemies. Zero is neutral (eg. no wars being fought).
++int CvTeamAI::AI_getWarSuccessRating() const
++{
++	PROFILE_FUNC();
++	// (Based on my code for Force Peace diplomacy voting.)
+ 
+-	// K-Mod
+-	// I swear, more often than not the AI at minus 99 would be the one demanding cities for peace.
+-	// The original version of this function was so completely off the mark that I pretty much anything
+-	// would be an improvement. So let me have a shot at it, without trying to be too fancy.
+-	// Based on my code for Force Peace diplomacy voting.
+ 	int iMilitaryUnits = 0;
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+@@ -2410,9 +2381,14 @@ int CvTeamAI::AI_getWarSuccessCapitulationRatio() const
+ 	}
+ 	iScore = range((100*iScore)/std::max(1, iThisTeamPower*iSuccessScale*5), -99, 99);
+ 	return iScore;
+-// K-Mod end
+ }
++// K-Mod end
+ 
++/************************************************************************************************/
++/* BETTER_BTS_AI_MOD                      03/20/10                                jdog5000      */
++/*                                                                                              */
++/* War Strategy AI                                                                              */
++/************************************************************************************************/
+ /// \brief Compute power of enemies as percentage of our power.
+ ///
+ ///
+@@ -2525,7 +2501,7 @@ bool CvTeamAI::AI_refusePeace(TeamTypes ePeaceTeam) const
+ 	if (!isHuman() &&
+ 		AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST4 | AI_VICTORY_DOMINATION4) &&
+ 		(AI_isChosenWar(ePeaceTeam) || getAtWarCount(true, true) == 1) &&
+-		AI_getWarSuccessCapitulationRatio() > 0)
++		AI_getWarSuccessRating() > 0)
+ 	{
+ 		return true;
+ 	}
+@@ -2732,8 +2708,8 @@ bool CvTeamAI::AI_acceptSurrender( TeamTypes eSurrenderTeam ) const
+ 		return true;
+ 	}
+ 
+-	int iOurWarSuccessRatio = AI_getWarSuccessCapitulationRatio();
+-	if( iOurWarSuccessRatio < -30 )
++	int iOurWarSuccessRating = AI_getWarSuccessRating();
++	if( iOurWarSuccessRating < -30 )
+ 	{
+ 		// We're doing badly overall, need to be done with this war and gain an ally
+ 		return true;
+@@ -2757,7 +2733,7 @@ bool CvTeamAI::AI_acceptSurrender( TeamTypes eSurrenderTeam ) const
+ 		}
+ 	}
+ 
+-	if( iWarCount > 0 && iOurWarSuccessRatio < 50 )
++	if( iWarCount > 0 && iOurWarSuccessRating < 50 )
+ 	{
+ 		// Accept if we have other wars to fight
+ 		return true;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 258ee1834..586f875e3 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -99,24 +99,14 @@ public:
+ 	int AI_surrenderTradeVal(TeamTypes eTeam) const;
+ 	DenialTypes AI_surrenderTrade(TeamTypes eTeam, int iPowerMultiplier = 100) const;
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/20/10                                jdog5000      */
+-/*                                                                                              */
+-/* Victory Strategy AI                                                                          */
+-/************************************************************************************************/
++	// bbai
+ 	int AI_countMembersWithStrategy(int iStrategy) const; // K-Mod
+ 	bool AI_isAnyMemberDoVictoryStrategy( int iVictoryStrategy ) const;
+ 	bool AI_isAnyMemberDoVictoryStrategyLevel4() const;
+ 	bool AI_isAnyMemberDoVictoryStrategyLevel3() const;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
+-/*                                                                                              */
+-/* War Strategy AI                                                                              */
+-/************************************************************************************************/
+-	int AI_getWarSuccessCapitulationRatio() const;
++
++	int AI_getWarSuccessRating() const; // K-Mod
++
+ 	int AI_getEnemyPowerPercent( bool bConsiderOthers = false ) const;
+ 	int AI_getAirPower() const; // K-Mod
+ 	int AI_getRivalAirPower( ) const;
+@@ -127,9 +117,7 @@ public:
+ 	void AI_getWarRands( int &iMaxWarRand, int &iLimitedWarRand, int &iDogpileWarRand ) const;
+ 	void AI_getWarThresholds( int &iMaxWarThreshold, int &iLimitedWarThreshold, int &iDogpileWarThreshold ) const;
+ 	int AI_getTotalWarOddsTimes100( ) const;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++	// bbai end
+ 
+ 	int AI_makePeaceTradeVal(TeamTypes ePeaceTeam, TeamTypes eTeam) const;
+ 	DenialTypes AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eTeam) const;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=23469

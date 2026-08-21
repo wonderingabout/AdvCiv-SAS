@@ -1,0 +1,1421 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5693
+# Commit: d6c6e0bbb578b6fefee7cee1156a2ef576a611f9
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fb18bad9c46e52dd2f7b30e6a7677f1a7c35b817
+# Title: refactor sevopedia and rename long filenames
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AGENTS.md
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{SevopediaLead_derExamplesOfOutputs.txt => _SevopediaLeader-debug.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaBonus-gc-inner-debug-content.txt => __SevoPediaBonus-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaBuilding-gc-inner-debug-content.txt => __SevoPediaBuilding-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaCivic-gc-inner-debug-content.txt => __SevoPediaCivic-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaCivilization-gc-inner-debug-content.txt => __SevoPediaCivilization-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaCorporation-gc-inner-debug-content.txt => __SevoPediaCorporation-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaFeature-gc-buildinfo-debug-content.txt => __SevoPediaFeature-gc-buildinfo.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaFeature-gc-inner-debug-content.txt => __SevoPediaFeature-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaImprovement-gc-inner-debug-content.txt => __SevoPediaImprovement-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaLeader-gc-inner-debug-content.txt => __SevoPediaLeader-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaTech-gc-inner-debug-content.txt => __SevoPediaTech-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaTrait-gc-inner-debug-content.txt => __SevoPediaTrait-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaUnit-gc-inner-debug-content.txt => __SevoPediaUnit-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaVote-gc-inner-debug-content.txt => __SevoPediaVote-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaVoteSource-gc-inner-debug-content.txt => __SevoPediaVoteSource-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{__SevopediaProject-gc-inner-debug-content.txt => __SevopediaProject-gc-inner.txt}
+0	0	Assets/Python/Contrib/Sevopedia/Debug/{___SevoPedia-gc-common-gc-debug-content.txt => ___SevoPedia-gc-common-gc.txt}
+15	18	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+9	12	Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+17	20	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+8	11	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+16	20	Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+7	10	Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+10	13	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+14	17	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+10	12	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+6	9	Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+10	15	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+7	10	Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+10	13	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+9	12	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+15	18	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+12	15	Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+4	0	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+ rename Assets/Python/Contrib/Sevopedia/Debug/{SevopediaLead_derExamplesOfOutputs.txt => _SevopediaLeader-debug.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaBonus-gc-inner-debug-content.txt => __SevoPediaBonus-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaBuilding-gc-inner-debug-content.txt => __SevoPediaBuilding-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaCivic-gc-inner-debug-content.txt => __SevoPediaCivic-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaCivilization-gc-inner-debug-content.txt => __SevoPediaCivilization-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaCorporation-gc-inner-debug-content.txt => __SevoPediaCorporation-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaFeature-gc-buildinfo-debug-content.txt => __SevoPediaFeature-gc-buildinfo.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaFeature-gc-inner-debug-content.txt => __SevoPediaFeature-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaImprovement-gc-inner-debug-content.txt => __SevoPediaImprovement-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaLeader-gc-inner-debug-content.txt => __SevoPediaLeader-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaTech-gc-inner-debug-content.txt => __SevoPediaTech-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaTrait-gc-inner-debug-content.txt => __SevoPediaTrait-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaUnit-gc-inner-debug-content.txt => __SevoPediaUnit-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaVote-gc-inner-debug-content.txt => __SevoPediaVote-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevoPediaVoteSource-gc-inner-debug-content.txt => __SevoPediaVoteSource-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{__SevopediaProject-gc-inner-debug-content.txt => __SevopediaProject-gc-inner.txt} (100%)
+ rename Assets/Python/Contrib/Sevopedia/Debug/{___SevoPedia-gc-common-gc-debug-content.txt => ___SevoPedia-gc-common-gc.txt} (100%)
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index ad2ada13c..6b0eac18f 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -70,7 +70,7 @@ Compile errors (e.g., for a "Release" build) at:
+ 
+ When a Python getter seems missing or unclear (e.g., the culture breakdown error where `CvCivicInfo` has no `getCommerceChange`), use Sevopedia debug dumps to verify what Python can actually access without having to guess if a getter is exposed in Python or requires DLL changes; these debug logs are usually our first and preferred source of truth since they are real inspect logs, although they might be slightly outdated if DLL changes were made since then.
+ 
+-- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\Debug" (example file: [__SevoPediaCivic-gc-inner-debug-content.txt](/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner-debug-content.txt)).
++- "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\Debug" (example file: [__SevoPediaCivic-gc-inner.txt](/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner.txt)).
+ 
+ Alternatively, the Civ4 BUG documentation is also provided as .txt, may be helpful, consider reading it for double check or grep needs if in doubt or such. It helped us find the `Destroy2DSound` python function for example, doc is helpful as reference (but lengthy):
+
+[PATCH OMITTED] file=a/Assets/Python/Contrib/Sevopedia/Debug/SevopediaLead_derExamplesOfOutputs.txt b/Assets/Python/Contrib/Sevopedia/Debug/_SevopediaLeader-debug.txt reason=known-generated/noisy-history changedLines=0 bytes=342
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBonus-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBonus-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBonus-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBonus-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBuilding-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBuilding-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBuilding-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaBuilding-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivic-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivilization-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivilization-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivilization-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCivilization-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCorporation-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCorporation-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCorporation-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaCorporation-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-buildinfo-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-buildinfo.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-buildinfo-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-buildinfo.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaFeature-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaImprovement-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaImprovement-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaImprovement-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaImprovement-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaLeader-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaLeader-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaLeader-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaLeader-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTech-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTech-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTech-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTech-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTrait-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTrait-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTrait-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaTrait-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaUnit-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaUnit-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaUnit-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaUnit-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVote-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevoPediaVoteSource-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/__SevopediaProject-gc-inner-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/__SevopediaProject-gc-inner.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/__SevopediaProject-gc-inner-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/__SevopediaProject-gc-inner.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/Debug/___SevoPedia-gc-common-gc-debug-content.txt b/Assets/Python/Contrib/Sevopedia/Debug/___SevoPedia-gc-common-gc.txt
+similarity index 100%
+rename from Assets/Python/Contrib/Sevopedia/Debug/___SevoPedia-gc-common-gc-debug-content.txt
+rename to Assets/Python/Contrib/Sevopedia/Debug/___SevoPedia-gc-common-gc.txt
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 21200216c..8140ec9da 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -40,12 +40,9 @@ class SevoPediaBonus:
+ 		self.bContentExpanded = False
+ 		self.top = main
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		self.X_BONUS_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_BONUS_PANE = self.top.Y_PEDIA_PAGE
+-		self.W_BONUS_PANE = (self.top.R_PEDIA_PAGE - self.X_BONUS_PANE - self.MEDIUM_MARGIN) / 2
++		self.W_BONUS_PANE = (self.top.R_PEDIA_PAGE - self.X_BONUS_PANE - MEDIUM_MARGIN) / 2
+ 		self.H_BONUS_PANE = 250
+ 
+ 		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
+@@ -74,34 +71,34 @@ class SevoPediaBonus:
+ 		self.W_TOTAL_EFFECTIVE_BONUS_PANE = self.W_BONUS_PANE
+ 
+ 		self.X_IMPROVEMENTS = self.X_BONUS_PANE
+-		self.Y_IMPROVEMENTS = self.Y_BONUS_PANE + self.H_BONUS_PANE + self.SMALL_MARGIN
++		self.Y_IMPROVEMENTS = self.Y_BONUS_PANE + self.H_BONUS_PANE + SMALL_MARGIN
+ 		self.W_IMPROVEMENTS = self.W_TOTAL_EFFECTIVE_BONUS_PANE
+ 		self.H_IMPROVEMENTS = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.X_UNITS = self.X_BONUS_PANE
+ 		self.W_UNITS = self.top.R_PEDIA_PAGE - self.X_UNITS
+-		self.Y_UNITS = self.Y_IMPROVEMENTS + self.H_IMPROVEMENTS + self.SMALL_MARGIN
++		self.Y_UNITS = self.Y_IMPROVEMENTS + self.H_IMPROVEMENTS + SMALL_MARGIN
+ 		self.H_UNITS = self.H_IMPROVEMENTS
+ 
+ 		# <!-- custom: put the buildings panel under the units panel so easier to refer to it directly, it will also be identical in dimensions (or very close) so we will not need to change much (coordinates or other things) this way -->
+ 		self.X_BUILDINGS_AND_PROJECTS = self.X_BONUS_PANE
+-		self.Y_BUILDINGS_AND_PROJECTS = self.Y_UNITS + self.H_UNITS + self.SMALL_MARGIN
++		self.Y_BUILDINGS_AND_PROJECTS = self.Y_UNITS + self.H_UNITS + SMALL_MARGIN
+ 		self.W_BUILDINGS_AND_PROJECTS = self.W_UNITS
+ 		self.H_BUILDINGS_AND_PROJECTS = self.H_IMPROVEMENTS
+ 
+ 		self.X_TERRAINS = self.X_BONUS_PANE
+-		self.Y_TERRAINS = self.Y_BUILDINGS_AND_PROJECTS + self.H_BUILDINGS_AND_PROJECTS + self.SMALL_MARGIN
++		self.Y_TERRAINS = self.Y_BUILDINGS_AND_PROJECTS + self.H_BUILDINGS_AND_PROJECTS + SMALL_MARGIN
+ 		self.W_TERRAINS = self.W_IMPROVEMENTS
+ 		self.H_TERRAINS = self.H_IMPROVEMENTS
+ 
+ 		self.X_SPECIAL = self.X_BONUS_PANE
+-		self.Y_SPECIAL = self.Y_TERRAINS + self.H_TERRAINS + self.SMALL_MARGIN
++		self.Y_SPECIAL = self.Y_TERRAINS + self.H_TERRAINS + SMALL_MARGIN
+ 		self.W_SPECIAL = self.W_TOTAL_EFFECTIVE_BONUS_PANE
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+ 		self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE = 7
+ 
+-		self.X_BONUS_ANIMATION = self.X_BONUS_PANE + self.W_TOTAL_EFFECTIVE_BONUS_PANE + self.MEDIUM_MARGIN
++		self.X_BONUS_ANIMATION = self.X_BONUS_PANE + self.W_TOTAL_EFFECTIVE_BONUS_PANE + MEDIUM_MARGIN
+ 		self.Y_BONUS_ANIMATION = self.Y_BONUS_PANE + self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+ 		self.W_BONUS_ANIMATION = self.W_TOTAL_EFFECTIVE_BONUS_PANE
+ 		self.H_BONUS_ANIMATION = self.H_BONUS_PANE - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+@@ -110,34 +107,34 @@ class SevoPediaBonus:
+ 		self.Z_ROTATION_BONUS_ANIMATION = 30
+ 		self.SCALE_ANIMATION = 0.7
+ 
+-		# <!-- custom: since we split this right side width in 3 panels, (each) and it is separated by 2 self.MEDIUM_MARGINS, substract these before diving -->
++		# <!-- custom: since we split this right side width in 3 panels, (each) and it is separated by 2 MEDIUM_MARGINS, substract these before diving -->
+ 		self.X_REVEALED_BY = self.X_BONUS_ANIMATION
+-		self.Y_REVEALED_BY = self.Y_BONUS_ANIMATION + self.H_BONUS_ANIMATION + self.SMALL_MARGIN
+-		self.W_REVEALED_BY = (self.W_BONUS_PANE - (2 * self.MEDIUM_MARGIN)) / 3
++		self.Y_REVEALED_BY = self.Y_BONUS_ANIMATION + self.H_BONUS_ANIMATION + SMALL_MARGIN
++		self.W_REVEALED_BY = (self.W_BONUS_PANE - (2 * MEDIUM_MARGIN)) / 3
+ 		self.H_REVEALED_BY = self.H_IMPROVEMENTS
+ 
+-		self.X_TRADEABLE_SINCE = self.X_REVEALED_BY + self.W_REVEALED_BY + self.MEDIUM_MARGIN
++		self.X_TRADEABLE_SINCE = self.X_REVEALED_BY + self.W_REVEALED_BY + MEDIUM_MARGIN
+ 		self.Y_TRADEABLE_SINCE = self.Y_REVEALED_BY
+ 		self.W_TRADEABLE_SINCE = self.W_REVEALED_BY
+ 		self.H_TRADEABLE_SINCE = self.H_IMPROVEMENTS
+ 
+-		self.X_OBSOLETE_WITH = self.X_TRADEABLE_SINCE + self.W_TRADEABLE_SINCE + self.MEDIUM_MARGIN
++		self.X_OBSOLETE_WITH = self.X_TRADEABLE_SINCE + self.W_TRADEABLE_SINCE + MEDIUM_MARGIN
+ 		self.Y_OBSOLETE_WITH = self.Y_REVEALED_BY
+ 		self.W_OBSOLETE_WITH = self.W_REVEALED_BY
+ 		self.H_OBSOLETE_WITH = self.H_IMPROVEMENTS
+ 
+ 		self.X_FEATURES = self.X_BONUS_ANIMATION
+ 		self.Y_FEATURES = self.Y_TERRAINS
+-		self.W_FEATURES = (self.W_BONUS_ANIMATION / 2) - self.MEDIUM_MARGIN
++		self.W_FEATURES = (self.W_BONUS_ANIMATION / 2) - MEDIUM_MARGIN
+ 		self.H_FEATURES = self.H_IMPROVEMENTS
+ 
+-		self.X_FEATURE_TERRAIN_BOOLEANS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
++		self.X_FEATURE_TERRAIN_BOOLEANS = self.X_FEATURES + self.W_FEATURES + MEDIUM_MARGIN
+ 		self.Y_FEATURE_TERRAIN_BOOLEANS = self.Y_FEATURES
+ 		self.W_FEATURE_TERRAIN_BOOLEANS = self.W_FEATURES
+ 		self.H_FEATURE_TERRAIN_BOOLEANS = self.H_IMPROVEMENTS
+ 
+ 		self.X_HISTORY = self.X_BONUS_ANIMATION
+-		self.Y_HISTORY = self.Y_FEATURES + self.H_FEATURES + self.SMALL_MARGIN
++		self.Y_HISTORY = self.Y_FEATURES + self.H_FEATURES + SMALL_MARGIN
+ 		self.W_HISTORY = self.W_BONUS_ANIMATION
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+index f522f8f5c..f1c025c26 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+@@ -31,9 +31,6 @@ class SevoPediaBuild:
+ 		self.SAS_iBuildRoad = getInfoTypeOrFail("BUILD_ROAD")
+ 		self.SAS_iBuildRailroad = getInfoTypeOrFail("BUILD_RAILROAD")
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		self.X_BUILD_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_BUILD_PANE = self.top.Y_PEDIA_PAGE
+ 		self.W_BUILD_PANE = 330
+@@ -49,37 +46,37 @@ class SevoPediaBuild:
+ 		self.W_INFO_TEXT = self.W_BUILD_PANE - 120
+ 		self.H_INFO_TEXT = self.H_BUILD_PANE - 20
+ 
+-		self.X_REQUIRES = self.X_BUILD_PANE + self.W_BUILD_PANE + self.MEDIUM_MARGIN
++		self.X_REQUIRES = self.X_BUILD_PANE + self.W_BUILD_PANE + MEDIUM_MARGIN
+ 		self.Y_REQUIRES = self.Y_BUILD_PANE
+ 		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_REQUIRES = self.H_BUILD_PANE
+ 
+-		self.X_FEATURE_PRODUCTION = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
++		self.X_FEATURE_PRODUCTION = self.X_REQUIRES + self.W_REQUIRES + MEDIUM_MARGIN
+ 		self.Y_FEATURE_PRODUCTION = self.Y_BUILD_PANE
+ 		self.W_FEATURE_PRODUCTION = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_FEATURE_PRODUCTION = self.H_BUILD_PANE
+ 
+-		self.X_IMPROVEMENTS = self.X_FEATURE_PRODUCTION + self.W_FEATURE_PRODUCTION + self.MEDIUM_MARGIN
++		self.X_IMPROVEMENTS = self.X_FEATURE_PRODUCTION + self.W_FEATURE_PRODUCTION + MEDIUM_MARGIN
+ 		self.Y_IMPROVEMENTS = self.Y_BUILD_PANE
+ 		self.W_IMPROVEMENTS = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_IMPROVEMENTS = self.H_BUILD_PANE
+ 
+-		self.X_UNITS_BUILD = self.X_IMPROVEMENTS + self.W_IMPROVEMENTS + self.MEDIUM_MARGIN
++		self.X_UNITS_BUILD = self.X_IMPROVEMENTS + self.W_IMPROVEMENTS + MEDIUM_MARGIN
+ 		self.Y_UNITS_BUILD = self.Y_BUILD_PANE
+ 		self.W_UNITS_BUILD = self.top.R_PEDIA_PAGE - self.X_UNITS_BUILD
+ 		self.H_UNITS_BUILD = self.H_BUILD_PANE
+ 
+ 		self.X_FEATURE_STRUCTS = self.X_BUILD_PANE
+-		self.Y_FEATURE_STRUCTS = self.Y_BUILD_PANE + self.H_BUILD_PANE + self.SMALL_MARGIN
++		self.Y_FEATURE_STRUCTS = self.Y_BUILD_PANE + self.H_BUILD_PANE + SMALL_MARGIN
+ 		self.W_FEATURE_STRUCTS = self.top.R_PEDIA_PAGE - self.X_FEATURE_STRUCTS
+ 		self.H_FEATURE_STRUCTS = 350
+ 
+ 		self.X_SPECIAL = self.X_BUILD_PANE
+-		self.Y_SPECIAL = self.Y_FEATURE_STRUCTS + self.H_FEATURE_STRUCTS + self.SMALL_MARGIN
++		self.Y_SPECIAL = self.Y_FEATURE_STRUCTS + self.H_FEATURE_STRUCTS + SMALL_MARGIN
+ 		self.W_SPECIAL = self.W_BUILD_PANE
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+-		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
++		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + MEDIUM_MARGIN
+ 		self.Y_HISTORY = self.Y_SPECIAL
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+ 		self.H_HISTORY = self.H_SPECIAL
+@@ -256,7 +253,7 @@ class SevoPediaBuild:
+ 			return
+ 
+ 		panelCount = len(featureStructs)
+-		panelW = (self.W_FEATURE_STRUCTS - ((panelCount - 1) * self.MEDIUM_MARGIN)) / panelCount
++		panelW = (self.W_FEATURE_STRUCTS - ((panelCount - 1) * MEDIUM_MARGIN)) / panelCount
+ 		panelH = self.H_FEATURE_STRUCTS
+ 		panelY = self.Y_FEATURE_STRUCTS
+ 		textMarginX = 7
+@@ -268,7 +265,7 @@ class SevoPediaBuild:
+ 
+ 		for i, (iFeature, featureTech, featureTime, featureProduction, bRemove) in enumerate(featureStructs):
+ 			featureInfo = gc.getFeatureInfo(iFeature)
+-			panelX = self.X_FEATURE_STRUCTS + (i * (panelW + self.MEDIUM_MARGIN))
++			panelX = self.X_FEATURE_STRUCTS + (i * (panelW + MEDIUM_MARGIN))
+ 			panelTitle = u"%s: %s" % (localText.getText("TXT_KEY_PEDIA_BUILD_FEATURE_STRUCT_INFO", ()), featureInfo.getDescription())
+ 			panelName = self.top.getNextWidgetName()
+ 			screen.addPanel(panelName, panelTitle, "", False, True, panelX, panelY, panelW, panelH, PanelStyles.PANEL_STYLE_BLUE50)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index f71d0a896..e3ac21d26 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -42,12 +42,9 @@ class SevoPediaBuilding:
+ 		self.bContentExpanded = False
+ 		self.top = main
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		self.X_BUILDING_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_BUILDING_PANE = self.top.Y_PEDIA_PAGE
+-		self.W_BUILDING_PANE = (self.top.R_PEDIA_PAGE - self.X_BUILDING_PANE - self.MEDIUM_MARGIN) / 2
++		self.W_BUILDING_PANE = (self.top.R_PEDIA_PAGE - self.X_BUILDING_PANE - MEDIUM_MARGIN) / 2
+ 		self.H_BUILDING_PANE = 190
+ 
+ 		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
+@@ -83,49 +80,49 @@ class SevoPediaBuilding:
+ 		self.W_MOVIE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+ 		self.X_REQUIRES = self.X_BUILDING_PANE
+-		self.Y_REQUIRES = self.Y_BUILDING_PANE + self.H_BUILDING_PANE + self.SMALL_MARGIN
+-		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_MOVIE - self.MEDIUM_MARGIN
++		self.Y_REQUIRES = self.Y_BUILDING_PANE + self.H_BUILDING_PANE + SMALL_MARGIN
++		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_MOVIE - MEDIUM_MARGIN
+ 		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.W_OBSOLETE_WITH = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_MOVIE = self.H_REQUIRES
+ 
+-		self.X_MOVIE = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
++		self.X_MOVIE = self.X_REQUIRES + self.W_REQUIRES + MEDIUM_MARGIN
+ 		self.Y_MOVIE = self.Y_REQUIRES
+ 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 		self.powerButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_POWER").getPath()
+ 
+ 		self.X_REQUIRED_FOR = self.X_BUILDING_PANE
+-		self.Y_REQUIRED_FOR = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+-		self.W_REQUIRED_FOR = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_OBSOLETE_WITH - self.MEDIUM_MARGIN
++		self.Y_REQUIRED_FOR = self.Y_REQUIRES + self.H_REQUIRES + SMALL_MARGIN
++		self.W_REQUIRED_FOR = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_OBSOLETE_WITH - MEDIUM_MARGIN
+ 		self.H_REQUIRED_FOR = self.H_REQUIRES
+ 
+-		self.X_OBSOLETE_WITH = self.X_REQUIRED_FOR + self.W_REQUIRED_FOR + self.MEDIUM_MARGIN
++		self.X_OBSOLETE_WITH = self.X_REQUIRED_FOR + self.W_REQUIRED_FOR + MEDIUM_MARGIN
+ 		self.Y_OBSOLETE_WITH = self.Y_REQUIRED_FOR
+ 		self.H_OBSOLETE_WITH = self.H_REQUIRED_FOR
+ 
+ 		self.W_FREE_WITH = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+ 		self.X_FREE_PBBS = self.X_BUILDING_PANE
+-		self.Y_FREE_PBBS = self.Y_REQUIRED_FOR + self.H_REQUIRED_FOR + self.SMALL_MARGIN
+-		self.W_FREE_PBBS = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_FREE_WITH - self.MEDIUM_MARGIN
++		self.Y_FREE_PBBS = self.Y_REQUIRED_FOR + self.H_REQUIRED_FOR + SMALL_MARGIN
++		self.W_FREE_PBBS = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_FREE_WITH - MEDIUM_MARGIN
+ 		self.H_FREE_PBBS = self.H_REQUIRES
+ 
+-		self.X_FREE_WITH = self.X_FREE_PBBS + self.W_FREE_PBBS + self.MEDIUM_MARGIN
++		self.X_FREE_WITH = self.X_FREE_PBBS + self.W_FREE_PBBS + MEDIUM_MARGIN
+ 		self.Y_FREE_WITH = self.Y_FREE_PBBS
+ 		self.H_FREE_WITH = self.H_REQUIRES
+ 
+ 		self.X_SPECIAL = self.X_BUILDING_PANE
+-		self.Y_SPECIAL = self.Y_FREE_PBBS + self.H_FREE_PBBS + self.SMALL_MARGIN
++		self.Y_SPECIAL = self.Y_FREE_PBBS + self.H_FREE_PBBS + SMALL_MARGIN
+ 		self.W_SPECIAL = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+ 		self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE = 7
+ 
+-		self.X_BUILDING_ANIMATION = self.X_BUILDING_PANE + self.W_TOTAL_EFFECTIVE_BUILDING_PANE + self.MEDIUM_MARGIN
++		self.X_BUILDING_ANIMATION = self.X_BUILDING_PANE + self.W_TOTAL_EFFECTIVE_BUILDING_PANE + MEDIUM_MARGIN
+ 		self.Y_BUILDING_ANIMATION = self.Y_BUILDING_PANE + self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+ 		self.W_BUILDING_ANIMATION = self.W_TOTAL_EFFECTIVE_BUILDING_PANE
+-		self.H_BUILDING_ANIMATION = self.H_BUILDING_PANE + self.SMALL_MARGIN + self.H_REQUIRES + self.SMALL_MARGIN + self.H_FREE_PBBS - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
++		self.H_BUILDING_ANIMATION = self.H_BUILDING_PANE + SMALL_MARGIN + self.H_REQUIRES + SMALL_MARGIN + self.H_FREE_PBBS - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+ 		
+ 		self.X_ROTATION_BUILDING_ANIMATION = -20
+ 		self.Z_ROTATION_BUILDING_ANIMATION = 30
+@@ -134,16 +131,16 @@ class SevoPediaBuilding:
+ 		self.W_CIVILIZATIONS = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+ 		self.X_REPLACE = self.X_BUILDING_ANIMATION
+-		self.Y_REPLACE = self.Y_BUILDING_ANIMATION + self.H_BUILDING_ANIMATION + self.SMALL_MARGIN
+-		self.W_REPLACE = self.W_BUILDING_ANIMATION - self.MEDIUM_MARGIN - self.W_CIVILIZATIONS
++		self.Y_REPLACE = self.Y_BUILDING_ANIMATION + self.H_BUILDING_ANIMATION + SMALL_MARGIN
++		self.W_REPLACE = self.W_BUILDING_ANIMATION - MEDIUM_MARGIN - self.W_CIVILIZATIONS
+ 		self.H_REPLACE = self.H_REQUIRES
+ 
+-		self.X_CIVILIZATIONS = self.X_BUILDING_ANIMATION + self.W_REPLACE + self.MEDIUM_MARGIN
++		self.X_CIVILIZATIONS = self.X_BUILDING_ANIMATION + self.W_REPLACE + MEDIUM_MARGIN
+ 		self.Y_CIVILIZATIONS = self.Y_REPLACE
+ 		self.H_CIVILIZATIONS = self.H_REPLACE
+ 
+ 		self.X_HISTORY = self.X_BUILDING_ANIMATION
+-		self.Y_HISTORY = self.Y_CIVILIZATIONS + self.H_CIVILIZATIONS + self.SMALL_MARGIN
++		self.Y_HISTORY = self.Y_CIVILIZATIONS + self.H_CIVILIZATIONS + SMALL_MARGIN
+ 		self.W_HISTORY = self.W_BUILDING_ANIMATION
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 8aaaaa313..4e8b5c30b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -36,9 +36,6 @@ class SevoPediaCivic:
+ 		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		# <!-- custom: multilist favorites panel width from helper so callers can switch button count per row without redoing panel math. (GPT-5.3-Codex) -->
+ 		self.W_FAVORITES = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+ 		self.X_FAVORITES = self.top.R_PEDIA_PAGE - self.W_FAVORITES
+@@ -67,22 +64,22 @@ class SevoPediaCivic:
+ 		# <!-- custom: left-to-right civic page layout:
+ 		# civic pane -> effects -> requires (top) / vote source + force votes (bottom) -> favorites.
+ 		# Effects width is computed from the remaining horizontal space after placing right-side panels. (GPT-5.4?) -->
+-		self.X_SPECIAL = self.X_CIVIC_PANE + self.W_CIVIC_PANE + self.MEDIUM_MARGIN
++		self.X_SPECIAL = self.X_CIVIC_PANE + self.W_CIVIC_PANE + MEDIUM_MARGIN
+ 
+ 		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.W_VOTE_SOURCE = self.W_REQUIRES
+ 		self.W_VOTES = self.W_REQUIRES
+-		xRightEdgeBeforeFavorites = self.X_FAVORITES - self.MEDIUM_MARGIN
+-		self.W_RIGHT_BLOCK = self.W_REQUIRES + self.MEDIUM_MARGIN + self.W_VOTE_SOURCE
++		xRightEdgeBeforeFavorites = self.X_FAVORITES - MEDIUM_MARGIN
++		self.W_RIGHT_BLOCK = self.W_REQUIRES + MEDIUM_MARGIN + self.W_VOTE_SOURCE
+ 		self.X_REQUIRES = xRightEdgeBeforeFavorites - self.W_RIGHT_BLOCK
+-		self.X_VOTE_SOURCE = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
++		self.X_VOTE_SOURCE = self.X_REQUIRES + self.W_REQUIRES + MEDIUM_MARGIN
+ 		self.X_VOTES = self.X_VOTE_SOURCE
+-		self.W_SPECIAL = self.X_REQUIRES - self.MEDIUM_MARGIN - self.X_SPECIAL
++		self.W_SPECIAL = self.X_REQUIRES - MEDIUM_MARGIN - self.X_SPECIAL
+ 		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 		self.Y_REQUIRES = self.Y_CIVIC_PANE
+ 		self.Y_VOTE_SOURCE = self.Y_REQUIRES
+ 		self.H_VOTE_SOURCE = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+-		self.Y_VOTES = self.Y_VOTE_SOURCE + self.H_VOTE_SOURCE + self.SMALL_MARGIN
++		self.Y_VOTES = self.Y_VOTE_SOURCE + self.H_VOTE_SOURCE + SMALL_MARGIN
+ 		self.H_VOTES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.Y_SPECIAL = self.Y_CIVIC_PANE
+@@ -90,8 +87,8 @@ class SevoPediaCivic:
+ 		self.H_SPECIAL = self.H_CIVIC_PANE
+ 
+ 		self.X_HISTORY = self.X_CIVIC_PANE
+-		self.Y_HISTORY = self.Y_CIVIC_PANE + self.H_CIVIC_PANE + self.SMALL_MARGIN
+-		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - (self.W_FAVORITES + self.MEDIUM_MARGIN)
++		self.Y_HISTORY = self.Y_CIVIC_PANE + self.H_CIVIC_PANE + SMALL_MARGIN
++		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - (self.W_FAVORITES + MEDIUM_MARGIN)
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+index c07bdf3f7..44220f741 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+@@ -36,15 +36,11 @@ class SevoPediaCivilization:
+ 		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+ 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+-		rowH = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+-
+ 		self.X_CIVILIZATION_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_CIVILIZATION_PANE = self.top.Y_PEDIA_PAGE
+-		self.H_CIVILIZATION_PANE = (2 * rowH) + self.SMALL_MARGIN
++		self.H_CIVILIZATION_PANE = (2 * NON_MULTILIST_PANEL_STANDARD_HEIGHT) + SMALL_MARGIN
+ 		self.W_CIVILIZATION_PANE = self.H_CIVILIZATION_PANE
+ 
+ 		self.W_CITIES = 290
+@@ -53,22 +49,22 @@ class SevoPediaCivilization:
+ 		self.H_CITIES = self.top.B_PEDIA_PAGE - self.Y_CITIES
+ 
+ 		# <!-- custom: Music panel uses helper-computed one-button width, right of Civilization Pane. -->
+-		self.X_MUSIC = self.X_CIVILIZATION_PANE + self.W_CIVILIZATION_PANE + self.MEDIUM_MARGIN
++		self.X_MUSIC = self.X_CIVILIZATION_PANE + self.W_CIVILIZATION_PANE + MEDIUM_MARGIN
+ 		self.Y_MUSIC = self.Y_CIVILIZATION_PANE
+ 		self.W_MUSIC = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+-		self.H_MUSIC = rowH
++		self.H_MUSIC = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+-		halfRowW = (self.top.R_PEDIA_PAGE - self.X_MUSIC - self.W_CITIES - (2 * self.MEDIUM_MARGIN)) / 2
++		halfRowW = (self.top.R_PEDIA_PAGE - self.X_MUSIC - self.W_CITIES - (2 * MEDIUM_MARGIN)) / 2
+ 
+-		self.X_TECH = self.X_MUSIC + self.W_MUSIC + self.MEDIUM_MARGIN
++		self.X_TECH = self.X_MUSIC + self.W_MUSIC + MEDIUM_MARGIN
+ 		self.Y_TECH = self.Y_CIVILIZATION_PANE
+-		self.W_TECH = halfRowW - self.W_MUSIC - self.MEDIUM_MARGIN
+-		self.H_TECH = rowH
++		self.W_TECH = halfRowW - self.W_MUSIC - MEDIUM_MARGIN
++		self.H_TECH = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.X_LEADER = self.X_MUSIC
+-		self.Y_LEADER = self.Y_MUSIC + rowH + self.SMALL_MARGIN
++		self.Y_LEADER = self.Y_MUSIC + NON_MULTILIST_PANEL_STANDARD_HEIGHT + SMALL_MARGIN
+ 		self.W_LEADER = halfRowW
+-		self.H_LEADER = rowH
++		self.H_LEADER = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.W_ICON = 150
+ 		self.H_ICON = 150
+@@ -77,19 +73,19 @@ class SevoPediaCivilization:
+ 		self.Y_ICON = self.Y_CIVILIZATION_PANE + iconCenter
+ 		self.ICON_SIZE = 64
+ 
+-		self.X_BUILDING = self.X_TECH + self.W_TECH + self.MEDIUM_MARGIN
++		self.X_BUILDING = self.X_TECH + self.W_TECH + MEDIUM_MARGIN
+ 		self.Y_BUILDING = self.Y_TECH
+ 		self.W_BUILDING = halfRowW
+-		self.H_BUILDING = rowH
++		self.H_BUILDING = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+-		self.X_UNIT = self.X_LEADER + self.W_LEADER + self.MEDIUM_MARGIN
+-		self.Y_UNIT = self.Y_BUILDING + rowH + self.SMALL_MARGIN
++		self.X_UNIT = self.X_LEADER + self.W_LEADER + MEDIUM_MARGIN
++		self.Y_UNIT = self.Y_BUILDING + NON_MULTILIST_PANEL_STANDARD_HEIGHT + SMALL_MARGIN
+ 		self.W_UNIT = halfRowW
+-		self.H_UNIT = rowH
++		self.H_UNIT = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.X_HISTORY = self.X_CIVILIZATION_PANE
+-		self.Y_HISTORY = self.Y_CIVILIZATION_PANE + self.H_CIVILIZATION_PANE + self.MEDIUM_MARGIN
+-		self.W_HISTORY = self.W_CIVILIZATION_PANE + self.MEDIUM_MARGIN + self.W_LEADER + self.MEDIUM_MARGIN + self.W_UNIT
++		self.Y_HISTORY = self.Y_CIVILIZATION_PANE + self.H_CIVILIZATION_PANE + MEDIUM_MARGIN
++		self.W_HISTORY = self.W_CIVILIZATION_PANE + MEDIUM_MARGIN + self.W_LEADER + MEDIUM_MARGIN + self.W_UNIT
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+index e4f854296..e84bdea3f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+@@ -35,9 +35,6 @@ class SevoPediaCorporation:
+ 		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		self.X_CORPORATION_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_CORPORATION_PANE = self.top.Y_PEDIA_PAGE
+ 		self.W_CORPORATION_PANE = 200
+@@ -51,7 +48,7 @@ class SevoPediaCorporation:
+ 		self.X_ICON = self.X_CORPORATION_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2 + 19
+ 		self.Y_ICON = self.Y_CORPORATION_PANE + (self.H_CORPORATION_PANE - self.H_ICON) / 2 + 3
+ 
+-		self.X_RIGHT = self.X_CORPORATION_PANE + self.W_CORPORATION_PANE + self.MEDIUM_MARGIN
++		self.X_RIGHT = self.X_CORPORATION_PANE + self.W_CORPORATION_PANE + MEDIUM_MARGIN
+ 		self.H_TOP_ROW = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.W_REQUIRES = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+@@ -61,10 +58,10 @@ class SevoPediaCorporation:
+ 
+ 		self.W_COMPETES = self.W_REQUIRES
+ 		self.X_COMPETES = self.X_REQUIRES
+-		self.Y_COMPETES = self.Y_REQUIRES + self.H_TOP_ROW + self.SMALL_MARGIN
++		self.Y_COMPETES = self.Y_REQUIRES + self.H_TOP_ROW + SMALL_MARGIN
+ 		self.H_COMPETES = self.H_TOP_ROW
+ 
+-		self.X_BONUSES_CONSUMED = self.X_REQUIRES + self.W_REQUIRES + self.SMALL_MARGIN
++		self.X_BONUSES_CONSUMED = self.X_REQUIRES + self.W_REQUIRES + SMALL_MARGIN
+ 		self.Y_BONUSES_CONSUMED = self.Y_REQUIRES
+ 		self.W_BONUSES_CONSUMED = self.top.R_PEDIA_PAGE - self.X_BONUSES_CONSUMED
+ 		self.H_BONUSES_CONSUMED = self.H_TOP_ROW
+@@ -76,17 +73,17 @@ class SevoPediaCorporation:
+ 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+ 		self.X_BONUSES_GENERATED = self.X_BONUSES_CONSUMED
+-		self.Y_BONUSES_GENERATED = self.Y_BONUSES_CONSUMED + self.H_TOP_ROW + self.SMALL_MARGIN
+-		self.W_BONUSES_GENERATED = self.X_MOVIE - self.SMALL_MARGIN - self.X_BONUSES_GENERATED
++		self.Y_BONUSES_GENERATED = self.Y_BONUSES_CONSUMED + self.H_TOP_ROW + SMALL_MARGIN
++		self.W_BONUSES_GENERATED = self.X_MOVIE - SMALL_MARGIN - self.X_BONUSES_GENERATED
+ 		self.H_BONUSES_GENERATED = self.H_TOP_ROW
+ 
+ 		self.X_SPECIAL = self.X_CORPORATION_PANE
+-		self.Y_SPECIAL = self.Y_BONUSES_GENERATED + self.H_BONUSES_GENERATED + self.SMALL_MARGIN
++		self.Y_SPECIAL = self.Y_BONUSES_GENERATED + self.H_BONUSES_GENERATED + SMALL_MARGIN
+ 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
+ 		self.H_SPECIAL = 300
+ 
+ 		self.X_HISTORY = self.X_CORPORATION_PANE
+-		self.Y_HISTORY = self.Y_SPECIAL + self.H_SPECIAL + self.SMALL_MARGIN
++		self.Y_HISTORY = self.Y_SPECIAL + self.H_SPECIAL + SMALL_MARGIN
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 30c3be557..c7f847e98 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -71,9 +71,6 @@ class SevoPediaFeature:
+ 		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		self.W_LEFT_COLUMN = get_panel_width_for_buttons(5, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+ 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
+@@ -93,54 +90,54 @@ class SevoPediaFeature:
+ 		self.W_INFO_TEXT = 260
+ 		self.H_INFO_TEXT = self.H_INFO_PANE - 20
+ 
+-		self.X_BUILD_REMOVES = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
++		self.X_BUILD_REMOVES = self.X_INFO_PANE + self.W_INFO_PANE + MEDIUM_MARGIN
+ 		self.Y_BUILD_REMOVES = self.Y_INFO_PANE
+ 		self.W_BUILD_REMOVES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_BUILD_REMOVES = self.H_INFO_PANE
+ 
+-		self.X_FEATURE_PRODUCTION = self.X_BUILD_REMOVES + self.W_BUILD_REMOVES + self.MEDIUM_MARGIN
++		self.X_FEATURE_PRODUCTION = self.X_BUILD_REMOVES + self.W_BUILD_REMOVES + MEDIUM_MARGIN
+ 		self.Y_FEATURE_PRODUCTION = self.Y_INFO_PANE
+ 		self.W_FEATURE_PRODUCTION = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_FEATURE_PRODUCTION = self.H_INFO_PANE
+ 
+-		self.X_UNITS_REMOVE = self.X_FEATURE_PRODUCTION + self.W_FEATURE_PRODUCTION + self.MEDIUM_MARGIN
++		self.X_UNITS_REMOVE = self.X_FEATURE_PRODUCTION + self.W_FEATURE_PRODUCTION + MEDIUM_MARGIN
+ 		self.Y_UNITS_REMOVE = self.Y_INFO_PANE
+ 		self.W_UNITS_REMOVE = self.top.R_PEDIA_PAGE - self.X_UNITS_REMOVE
+ 		self.H_UNITS_REMOVE = self.H_INFO_PANE
+ 
+ 		self.X_FEATURES = self.X_INFO_PANE
+-		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
++		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + SMALL_MARGIN
+ 		self.W_FEATURES = self.W_LEFT_COLUMN
+ 		self.H_FEATURES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+-		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
++		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + MEDIUM_MARGIN
+ 		self.Y_IMPROVEMENTS = self.Y_FEATURES
+ 		self.W_IMPROVEMENTS = self.top.R_PEDIA_PAGE - self.X_IMPROVEMENTS
+ 		self.H_IMPROVEMENTS = self.H_FEATURES
+ 
+ 		self.X_BONUSES_ON_ANY_TERRAIN = self.X_FEATURES
+-		self.Y_BONUSES_ON_ANY_TERRAIN = self.Y_FEATURES + self.H_FEATURES + self.SMALL_MARGIN
++		self.Y_BONUSES_ON_ANY_TERRAIN = self.Y_FEATURES + self.H_FEATURES + SMALL_MARGIN
+ 		self.W_BONUSES_ON_ANY_TERRAIN = self.top.R_PEDIA_PAGE - self.X_BONUSES_ON_ANY_TERRAIN
+ 		self.H_BONUSES_ON_ANY_TERRAIN = self.H_FEATURES
+ 
+ 		# <!-- custom: new placeRelevantUnits and placeUnitsImpassable based on the new sevopedia terrain implementation -->
+ 		self.X_RELEVANT_UNITS = self.X_BONUSES_ON_ANY_TERRAIN
+-		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ON_ANY_TERRAIN + self.H_BONUSES_ON_ANY_TERRAIN + self.SMALL_MARGIN
++		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ON_ANY_TERRAIN + self.H_BONUSES_ON_ANY_TERRAIN + SMALL_MARGIN
+ 		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_BONUSES_ON_ANY_TERRAIN
+ 		# <!-- custom: see code comment at self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE in sevopedia unit for details -->
+ 		self.H_RELEVANT_UNITS = self.H_FEATURES + MULTILIST_BUTTON_SIZE
+ 
+ 		self.X_UNITS_IMPASSABLE = self.X_RELEVANT_UNITS
+-		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + self.SMALL_MARGIN
++		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + SMALL_MARGIN
+ 		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
+ 		self.H_UNITS_IMPASSABLE = self.H_FEATURES + HIDE_SECOND_ROW_MULTI_LIST
+ 
+ 		self.X_SPECIAL = self.X_INFO_PANE
+-		self.Y_SPECIAL = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
++		self.Y_SPECIAL = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + SMALL_MARGIN
+ 		self.W_SPECIAL = self.W_LEFT_COLUMN
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+-		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
++		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + MEDIUM_MARGIN
+ 		self.Y_HISTORY = self.Y_SPECIAL
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+ 		self.H_HISTORY = self.H_SPECIAL
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index ca9c2aa9b..e51b0b340 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -86,13 +86,10 @@ class SevoPediaImprovement:
+ 		self.I_CONCEPT_IRRIGATION = getInfoTypeOrFail("CONCEPT_IRRIGATION")
+ 		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL")
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		self.X_IMPROVEMENT_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_IMPROVEMENT_PANE = self.top.Y_PEDIA_PAGE
+ 		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+-		self.H_IMPROVEMENT_PANE = (2 * self.H_REQUIRES) + self.SMALL_MARGIN
++		self.H_IMPROVEMENT_PANE = (2 * self.H_REQUIRES) + SMALL_MARGIN
+ 		self.W_IMPROVEMENT_PANE = self.H_IMPROVEMENT_PANE
+ 
+ 		self.W_ICON = 150
+@@ -112,56 +109,56 @@ class SevoPediaImprovement:
+ 		self.Y_BONUS_YIELDS = self.Y_IMPROVEMENT_PANE
+ 		self.H_BONUS_YIELDS = self.top.B_PEDIA_PAGE - self.Y_BONUS_YIELDS
+ 
+-		self.X_MOST_YIELDS = self.X_BONUS_YIELDS - self.W_MOST_YIELDS - self.MEDIUM_MARGIN
++		self.X_MOST_YIELDS = self.X_BONUS_YIELDS - self.W_MOST_YIELDS - MEDIUM_MARGIN
+ 		self.Y_MOST_YIELDS = self.Y_BONUS_YIELDS
+ 		self.H_MOST_YIELDS = self.H_BONUS_YIELDS
+ 
+-		leftAreaRight = self.X_MOST_YIELDS - self.MEDIUM_MARGIN
++		leftAreaRight = self.X_MOST_YIELDS - MEDIUM_MARGIN
+ 		self.W_LEFT_AREA = leftAreaRight - self.X_IMPROVEMENT_PANE
+ 
+ 		self.W_BUILD_PANEL = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_BUILD_PANEL = self.H_REQUIRES
+ 		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+-		self.X_BUILD_PANEL = self.X_IMPROVEMENT_PANE + self.W_IMPROVEMENT_PANE + self.MEDIUM_MARGIN
++		self.X_BUILD_PANEL = self.X_IMPROVEMENT_PANE + self.W_IMPROVEMENT_PANE + MEDIUM_MARGIN
+ 		self.Y_BUILD_PANEL = self.Y_IMPROVEMENT_PANE
+ 
+ 		self.X_REQUIRES = self.X_BUILD_PANEL
+-		self.Y_REQUIRES = self.Y_BUILD_PANEL + self.H_BUILD_PANEL + self.SMALL_MARGIN
++		self.Y_REQUIRES = self.Y_BUILD_PANEL + self.H_BUILD_PANEL + SMALL_MARGIN
+ 
+-		self.X_TERRAIN_MAKES_VALIDS = self.X_BUILD_PANEL + self.W_BUILD_PANEL + self.MEDIUM_MARGIN
++		self.X_TERRAIN_MAKES_VALIDS = self.X_BUILD_PANEL + self.W_BUILD_PANEL + MEDIUM_MARGIN
+ 		self.Y_TERRAIN_MAKES_VALIDS = self.Y_IMPROVEMENT_PANE
+ 		self.H_TERRAIN_MAKES_VALIDS = self.H_REQUIRES
+ 
+ 		self.X_FEATURE_MAKES_VALIDS = self.X_TERRAIN_MAKES_VALIDS
+-		self.Y_FEATURE_MAKES_VALIDS = self.Y_TERRAIN_MAKES_VALIDS + self.H_TERRAIN_MAKES_VALIDS + self.SMALL_MARGIN
++		self.Y_FEATURE_MAKES_VALIDS = self.Y_TERRAIN_MAKES_VALIDS + self.H_TERRAIN_MAKES_VALIDS + SMALL_MARGIN
+ 		self.H_FEATURE_MAKES_VALIDS = self.H_REQUIRES
+ 
+-		self.H_TOP_RIGHT_STACK = max(self.H_TERRAIN_MAKES_VALIDS + self.SMALL_MARGIN + self.H_FEATURE_MAKES_VALIDS, self.H_BUILD_PANEL + self.SMALL_MARGIN + self.H_REQUIRES)
++		self.H_TOP_RIGHT_STACK = max(self.H_TERRAIN_MAKES_VALIDS + SMALL_MARGIN + self.H_FEATURE_MAKES_VALIDS, self.H_BUILD_PANEL + SMALL_MARGIN + self.H_REQUIRES)
+ 		availableAfterTerrain = leftAreaRight - self.X_TERRAIN_MAKES_VALIDS
+ 		if availableAfterTerrain < 0:
+ 			availableAfterTerrain = 0
+ 
+ 		self.W_TERRAIN_MAKES_VALIDS = get_panel_width_for_buttons(5, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.W_FEATURE_MAKES_VALIDS = self.W_TERRAIN_MAKES_VALIDS
+-		self.X_IMPROVEMENT_ANIMATION = self.X_TERRAIN_MAKES_VALIDS + self.W_TERRAIN_MAKES_VALIDS + self.MEDIUM_MARGIN
++		self.X_IMPROVEMENT_ANIMATION = self.X_TERRAIN_MAKES_VALIDS + self.W_TERRAIN_MAKES_VALIDS + MEDIUM_MARGIN
+ 		self.Y_IMPROVEMENT_ANIMATION = self.Y_IMPROVEMENT_PANE
+ 		self.W_IMPROVEMENT_ANIMATION = leftAreaRight - self.X_IMPROVEMENT_ANIMATION
+ 		if self.W_IMPROVEMENT_ANIMATION < 120:
+ 			self.W_IMPROVEMENT_ANIMATION = 120
+-			maxTerrainValidsW = leftAreaRight - self.MEDIUM_MARGIN - self.X_TERRAIN_MAKES_VALIDS - self.W_IMPROVEMENT_ANIMATION
++			maxTerrainValidsW = leftAreaRight - MEDIUM_MARGIN - self.X_TERRAIN_MAKES_VALIDS - self.W_IMPROVEMENT_ANIMATION
+ 			if maxTerrainValidsW < 120:
+ 				maxTerrainValidsW = 120
+ 			self.W_TERRAIN_MAKES_VALIDS = min(self.W_TERRAIN_MAKES_VALIDS, maxTerrainValidsW)
+ 			self.W_FEATURE_MAKES_VALIDS = self.W_TERRAIN_MAKES_VALIDS
+-			self.X_IMPROVEMENT_ANIMATION = self.X_TERRAIN_MAKES_VALIDS + self.W_TERRAIN_MAKES_VALIDS + self.MEDIUM_MARGIN
++			self.X_IMPROVEMENT_ANIMATION = self.X_TERRAIN_MAKES_VALIDS + self.W_TERRAIN_MAKES_VALIDS + MEDIUM_MARGIN
+ 			self.W_IMPROVEMENT_ANIMATION = leftAreaRight - self.X_IMPROVEMENT_ANIMATION
+ 		self.H_IMPROVEMENT_ANIMATION = self.W_IMPROVEMENT_ANIMATION
+ 
+ 		self.H_TOP_ROW = max(self.H_IMPROVEMENT_PANE, self.H_TOP_RIGHT_STACK, self.H_IMPROVEMENT_ANIMATION)
+ 
+ 		self.X_IMPROVEMENT_LEADERS = self.X_IMPROVEMENT_PANE
+-		self.Y_IMPROVEMENT_LEADERS = self.Y_IMPROVEMENT_PANE + self.H_TOP_ROW + self.SMALL_MARGIN
++		self.Y_IMPROVEMENT_LEADERS = self.Y_IMPROVEMENT_PANE + self.H_TOP_ROW + SMALL_MARGIN
+ 		self.W_IMPROVEMENT_LEADERS = leftAreaRight - self.X_IMPROVEMENT_PANE
+ 
+ 		self.H_SPECIAL = 289
+@@ -169,12 +166,12 @@ class SevoPediaImprovement:
+ 		self.Y_SPECIAL = self.top.B_PEDIA_PAGE - self.H_SPECIAL
+ 		self.X_SPECIAL = self.X_IMPROVEMENT_PANE
+ 		self.W_SPECIAL = min(360, (self.W_IMPROVEMENT_LEADERS / 3) + 100)
+-		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
++		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + MEDIUM_MARGIN
+ 		self.Y_HISTORY = self.Y_SPECIAL
+ 		self.W_HISTORY = leftAreaRight - self.X_HISTORY
+ 		self.H_HISTORY = self.H_SPECIAL
+ 
+-		self.H_IMPROVEMENT_LEADERS = self.Y_SPECIAL - self.SMALL_MARGIN - self.Y_IMPROVEMENT_LEADERS
++		self.H_IMPROVEMENT_LEADERS = self.Y_SPECIAL - SMALL_MARGIN - self.Y_IMPROVEMENT_LEADERS
+ 		if self.H_IMPROVEMENT_LEADERS < 0:
+ 			self.H_IMPROVEMENT_LEADERS = 0
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 369661c65..c6d3463a4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -161,8 +161,6 @@ class SevoPediaLeader:
+ 
+ 		# <!-- custom: 1) (most) absolute dimensions first -->
+ 		self.W_AI_PERSONALITY = 290 + iAIPPanelGain
+-		self.SMALL_MARGIN = 10
+-		self.MEDIUM_MARGIN = 20
+ 		# <!-- custom: we also need this information sooner, move it here with the more absolute dimensions of some elements
+ 		self.W_CIV = 64
+ 		self.H_CIV = 64
+@@ -177,14 +175,14 @@ class SevoPediaLeader:
+ 		self.X_LEADERHEAD = self.X_LEADERHEAD_PANE + (self.W_LEADERHEAD_PANE - self.W_LEADERHEAD) / 2
+ 		self.Y_LEADERHEAD = self.Y_LEADERHEAD_PANE + (self.H_LEADERHEAD_PANE - self.H_LEADERHEAD) / 2 + 3
+ 
+-		self.W_AI_TOTAL_TABLES_WIDTH = self.N_AI_TABLE_NUM * self.W_AI_PERSONALITY + self.N_AI_TABLE_NUM * self.MEDIUM_MARGIN
++		self.W_AI_TOTAL_TABLES_WIDTH = self.N_AI_TABLE_NUM * self.W_AI_PERSONALITY + self.N_AI_TABLE_NUM * LARGE_MARGIN
+ 
+-		self.Y_FAVORITES = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + self.SMALL_MARGIN
++		self.Y_FAVORITES = self.Y_LEADERHEAD_PANE + self.H_LEADERHEAD_PANE + SMALL_MARGIN
+ 
+ 		# <!-- custom: we need self.W_HISTORY before the favourites coordinates, (even though the history panel is placed under/after the favourites panel when i constructed the page's "spacing" and dimensions of (and between) panels, anyways) because/as the favourites panel uses/needs/is based on the history panel's (relative) position, anyways -->
+ 		# <!-- custom: might as well put the other/rest/remaining HISTORY coordinates if doesn't harm and they are perhaps needed too, anyways -->
+ 		self.X_HISTORY = self.X_LEADERHEAD_PANE
+-		self.Y_HISTORY = self.Y_FAVORITES + self.H_FAVORITES + self.SMALL_MARGIN
++		self.Y_HISTORY = self.Y_FAVORITES + self.H_FAVORITES + SMALL_MARGIN
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_TOTAL_TABLES_WIDTH - self.X_LEADERHEAD_PANE
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+@@ -195,19 +193,19 @@ class SevoPediaLeader:
+ 		self.W_FAVORITES = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		# <!-- custom: layout order tweak: Favorites at left, then Music, then civ icon at far right. (GPT-5.3-Codex) -->
+ 		self.X_FAVORITES = self.X_LEADERHEAD_PANE
+-		self.X_MUSIC = self.X_HISTORY + self.W_HISTORY - self.W_CIV - self.SMALL_MARGIN - self.W_MUSIC
++		self.X_MUSIC = self.X_HISTORY + self.W_HISTORY - self.W_CIV - SMALL_MARGIN - self.W_MUSIC
+ 		self.Y_MUSIC = self.Y_FAVORITES
+ 		self.H_MUSIC = self.H_FAVORITES
+-		self.X_ATTITUDES = self.X_FAVORITES + self.W_FAVORITES + self.SMALL_MARGIN
++		self.X_ATTITUDES = self.X_FAVORITES + self.W_FAVORITES + SMALL_MARGIN
+ 		self.Y_ATTITUDES = self.Y_FAVORITES
+-		self.W_ATTITUDES = self.X_MUSIC - self.X_ATTITUDES - self.SMALL_MARGIN
++		self.W_ATTITUDES = self.X_MUSIC - self.X_ATTITUDES - SMALL_MARGIN
+ 		self.H_ATTITUDES = self.H_FAVORITES
+ 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+ 		# <!-- custom: the rest of the coordinates here, as it is dependent on other coordinates we need first that (i.e. before being able to add these) -->
+ 		self.X_AI_PERSONALITY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY 
+ 		self.Y_AI_PERSONALITY = self.Y_LEADERHEAD_PANE
+-		self.H_AI_PERSONALITY = self.H_LEADERHEAD_PANE + self.SMALL_MARGIN + self.H_FAVORITES + self.SMALL_MARGIN + self.H_HISTORY
++		self.H_AI_PERSONALITY = self.H_LEADERHEAD_PANE + SMALL_MARGIN + self.H_FAVORITES + SMALL_MARGIN + self.H_HISTORY
+ 
+ 		# <!-- custom: AI Personality Panel(s) column widths -->
+ 		self.W_AI_VALUE = 35 + iAIPValueGain
+@@ -224,9 +222,9 @@ class SevoPediaLeader:
+ 		self.AI_PANEL_MIDDLE_TXT_KEY = "TXT_KEY_AI_PERSONALITY_MIDDLE_PANEL"
+ 		self.AI_PANEL_LEFT_TXT_KEY = "TXT_KEY_AI_PERSONALITY_LEFT_PANEL"
+ 
+-		self.X_TRAITS = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + self.SMALL_MARGIN
++		self.X_TRAITS = self.X_LEADERHEAD_PANE + self.W_LEADERHEAD_PANE + SMALL_MARGIN
+ 		self.Y_TRAITS = self.Y_LEADERHEAD_PANE
+-		self.W_TRAITS = self.W_HISTORY - self.W_LEADERHEAD_PANE - self.SMALL_MARGIN
++		self.W_TRAITS = self.W_HISTORY - self.W_LEADERHEAD_PANE - SMALL_MARGIN
+ 		self.H_TRAITS = self.H_LEADERHEAD_PANE
+ 
+ 		self.X_CIV = self.X_HISTORY + self.W_HISTORY - self.CIV_MARGIN - self.W_CIV
+@@ -641,7 +639,7 @@ class SevoPediaLeader:
+ 
+ 
+ 	def getXAIPanelCoordinate(self, tableId):
+-		return self.X_AI_PERSONALITY - tableId * self.W_AI_PERSONALITY - tableId * self.MEDIUM_MARGIN
++		return self.X_AI_PERSONALITY - tableId * self.W_AI_PERSONALITY - tableId * LARGE_MARGIN
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+index 8f85d6cfe..9950e69ff 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+@@ -35,9 +35,6 @@ class SevoPediaPromotion:
+ 		self.iPromotion = -1
+ 		self.top = main
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		self.X_PROMOTION_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_PROMOTION_PANE = self.top.Y_PEDIA_PAGE
+ 		self.W_PROMOTION_PANE = 250
+@@ -49,32 +46,32 @@ class SevoPediaPromotion:
+ 		self.Y_ICON = self.Y_PROMOTION_PANE + (self.H_PROMOTION_PANE - self.H_ICON) / 2
+ 		self.ICON_SIZE = 64
+ 
+-		self.X_REQUIRES = self.X_PROMOTION_PANE + self.W_PROMOTION_PANE + self.MEDIUM_MARGIN
++		self.X_REQUIRES = self.X_PROMOTION_PANE + self.W_PROMOTION_PANE + MEDIUM_MARGIN
+ 		self.Y_REQUIRES = self.Y_PROMOTION_PANE
+ 		self.W_REQUIRES = self.top.R_PEDIA_PAGE - self.X_REQUIRES
+ 		self.H_REQUIRES = 116
+ 
+ 		self.X_LEADS_TO = self.X_PROMOTION_PANE
+-		self.Y_LEADS_TO = self.Y_PROMOTION_PANE + self.H_PROMOTION_PANE + self.SMALL_MARGIN
++		self.Y_LEADS_TO = self.Y_PROMOTION_PANE + self.H_PROMOTION_PANE + SMALL_MARGIN
+ 		self.W_LEADS_TO = self.top.R_PEDIA_PAGE - self.X_LEADS_TO
+ 		self.H_LEADS_TO = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.X_FREE_PROMOTIONS_UNITS = self.X_PROMOTION_PANE
+-		self.Y_FREE_PROMOTIONS_UNITS = self.Y_LEADS_TO + self.H_LEADS_TO + self.SMALL_MARGIN
++		self.Y_FREE_PROMOTIONS_UNITS = self.Y_LEADS_TO + self.H_LEADS_TO + SMALL_MARGIN
+ 		self.W_FREE_PROMOTIONS_UNITS = self.top.R_PEDIA_PAGE - self.X_FREE_PROMOTIONS_UNITS
+ 		self.H_FREE_PROMOTIONS_UNITS = self.H_LEADS_TO
+ 
+ 		self.X_FREE_PROMOTION_BUILDINGS = self.X_PROMOTION_PANE
+-		self.Y_FREE_PROMOTION_BUILDINGS = self.Y_FREE_PROMOTIONS_UNITS + self.H_FREE_PROMOTIONS_UNITS + self.SMALL_MARGIN
++		self.Y_FREE_PROMOTION_BUILDINGS = self.Y_FREE_PROMOTIONS_UNITS + self.H_FREE_PROMOTIONS_UNITS + SMALL_MARGIN
+ 		self.W_FREE_PROMOTION_BUILDINGS = self.top.R_PEDIA_PAGE - self.X_FREE_PROMOTION_BUILDINGS
+ 		self.H_FREE_PROMOTION_BUILDINGS = self.H_LEADS_TO
+ 
+ 		self.X_SPECIAL = self.X_PROMOTION_PANE
+-		self.Y_SPECIAL = self.Y_FREE_PROMOTION_BUILDINGS + self.H_FREE_PROMOTION_BUILDINGS + self.SMALL_MARGIN
++		self.Y_SPECIAL = self.Y_FREE_PROMOTION_BUILDINGS + self.H_FREE_PROMOTION_BUILDINGS + SMALL_MARGIN
+ 		self.W_SPECIAL = self.top.W_PEDIA_PAGE / 2 - 5
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+-		self.X_UNIT_COMBATS = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
++		self.X_UNIT_COMBATS = self.X_SPECIAL + self.W_SPECIAL + MEDIUM_MARGIN
+ 		self.Y_UNIT_COMBATS = self.Y_SPECIAL
+ 		self.W_UNIT_COMBATS = self.W_SPECIAL
+ 		self.H_UNIT_COMBATS = self.H_SPECIAL
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 91723506d..154de926f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -36,11 +36,6 @@ class SevoPediaReligion:
+ 		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+-		# <!-- custom: based on sevopediabuilding's code, see there for details and differences of implementation --> 
+-
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		# <!-- custom: multilist favorites panel width from helper so callers can switch button count per row without redoing panel math. (GPT-5.3-Codex) -->
+ 		self.W_FAVORITES = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+ 		self.X_FAVORITES = self.top.R_PEDIA_PAGE - self.W_FAVORITES
+@@ -64,12 +59,12 @@ class SevoPediaReligion:
+ 		self.X_ICON = self.X_RELIGION_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2 + 19
+ 		self.Y_ICON = self.Y_RELIGION_PANE + (self.H_RELIGION_PANE - self.H_ICON) / 2 + 3
+ 
+-		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_FAVORITES + self.MEDIUM_MARGIN) - self.MEDIUM_MARGIN - (self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN)
++		self.W_REMAINING_CENTER_SPACE = self.top.R_PEDIA_PAGE - (self.W_FAVORITES + MEDIUM_MARGIN) - MEDIUM_MARGIN - (self.X_RELIGION_PANE + self.W_RELIGION_PANE + MEDIUM_MARGIN)
+ 		self.W_LEFT_COLUMN = self.W_REMAINING_CENTER_SPACE / 2
+ 
+-		self.X_BUILDINGS = self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN
++		self.X_BUILDINGS = self.X_RELIGION_PANE + self.W_RELIGION_PANE + MEDIUM_MARGIN
+ 		self.Y_BUILDINGS = self.Y_RELIGION_PANE
+-		self.W_BUILDINGS = self.W_LEFT_COLUMN - 84 - self.MEDIUM_MARGIN
++		self.W_BUILDINGS = self.W_LEFT_COLUMN - 84 - MEDIUM_MARGIN
+ 		self.H_BUILDINGS = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+@@ -77,27 +72,27 @@ class SevoPediaReligion:
+ 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+ 		self.X_UNITS = self.X_BUILDINGS
+-		self.Y_UNITS = self.Y_BUILDINGS + self.H_BUILDINGS + self.SMALL_MARGIN
++		self.Y_UNITS = self.Y_BUILDINGS + self.H_BUILDINGS + SMALL_MARGIN
+ 		self.W_UNITS = self.W_BUILDINGS
+ 		self.H_UNITS = self.H_BUILDINGS
+ 
+ 		self.H_REQUIRES = self.H_BUILDINGS
+ 
+-		self.X_MOVIE = self.X_BUILDINGS + self.W_BUILDINGS + self.MEDIUM_MARGIN
++		self.X_MOVIE = self.X_BUILDINGS + self.W_BUILDINGS + MEDIUM_MARGIN
+ 		self.Y_MOVIE = self.Y_BUILDINGS
+ 		self.H_MOVIE = self.H_REQUIRES
+ 
+ 		self.X_REQUIRES = self.X_MOVIE
+ 		self.Y_REQUIRES = self.Y_UNITS
+ 
+-		self.X_SPECIAL = self.X_BUILDINGS + self.W_LEFT_COLUMN + self.MEDIUM_MARGIN
++		self.X_SPECIAL = self.X_BUILDINGS + self.W_LEFT_COLUMN + MEDIUM_MARGIN
+ 		self.Y_SPECIAL = self.Y_BUILDINGS
+-		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL - self.W_FAVORITES - self.MEDIUM_MARGIN
+-		self.H_SPECIAL = self.H_BUILDINGS + self.SMALL_MARGIN + self.H_UNITS
++		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL - self.W_FAVORITES - MEDIUM_MARGIN
++		self.H_SPECIAL = self.H_BUILDINGS + SMALL_MARGIN + self.H_UNITS
+ 
+ 		self.X_HISTORY = self.X_RELIGION_PANE
+-		self.Y_HISTORY = self.Y_UNITS + self.H_UNITS + self.SMALL_MARGIN
+-		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - self.W_FAVORITES - self.MEDIUM_MARGIN
++		self.Y_HISTORY = self.Y_UNITS + self.H_UNITS + SMALL_MARGIN
++		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY - self.W_FAVORITES - MEDIUM_MARGIN
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+index bfd8454e0..0e9b9f481 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaSpecialist.py
+@@ -38,9 +38,6 @@ class SevoPediaSpecialist:
+ 		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		self.H_TOP_PANEL = 200
+ 		self.W_ICON_PANEL = 200
+ 
+@@ -48,27 +45,27 @@ class SevoPediaSpecialist:
+ 		self.Y_ICON_PANEL = self.top.Y_PEDIA_PAGE
+ 
+ 		self.X_LEFT = self.X_ICON_PANEL
+-		self.W_LEFT = (self.top.R_PEDIA_PAGE - self.X_LEFT - self.MEDIUM_MARGIN) / 2
+-		self.X_RIGHT = self.X_LEFT + self.W_LEFT + self.MEDIUM_MARGIN
++		self.W_LEFT = (self.top.R_PEDIA_PAGE - self.X_LEFT - MEDIUM_MARGIN) / 2
++		self.X_RIGHT = self.X_LEFT + self.W_LEFT + MEDIUM_MARGIN
+ 		self.W_RIGHT = self.top.R_PEDIA_PAGE - self.X_RIGHT
+ 
+-		self.X_EFFECTS_PANEL = self.X_ICON_PANEL + self.W_ICON_PANEL + self.MEDIUM_MARGIN
++		self.X_EFFECTS_PANEL = self.X_ICON_PANEL + self.W_ICON_PANEL + MEDIUM_MARGIN
+ 		self.Y_EFFECTS_PANEL = self.Y_ICON_PANEL
+-		self.W_EFFECTS_PANEL = self.W_LEFT - self.W_ICON_PANEL - self.MEDIUM_MARGIN
++		self.W_EFFECTS_PANEL = self.W_LEFT - self.W_ICON_PANEL - MEDIUM_MARGIN
+ 
+-		self.W_EXTRA_SLOTS = (self.W_RIGHT - self.SMALL_MARGIN) / 2
++		self.W_EXTRA_SLOTS = (self.W_RIGHT - SMALL_MARGIN) / 2
+ 		self.W_EXTRA_YIELDS = self.W_EXTRA_SLOTS
+ 
+ 		self.X_EXTRA_SLOTS = self.X_RIGHT
+ 		self.Y_EXTRA_SLOTS = self.top.Y_PEDIA_PAGE
+ 		self.H_EXTRA_SLOTS = self.top.B_PEDIA_PAGE - self.Y_EXTRA_SLOTS
+ 
+-		self.X_EXTRA_YIELDS = self.X_EXTRA_SLOTS + self.W_EXTRA_SLOTS + self.SMALL_MARGIN
++		self.X_EXTRA_YIELDS = self.X_EXTRA_SLOTS + self.W_EXTRA_SLOTS + SMALL_MARGIN
+ 		self.Y_EXTRA_YIELDS = self.Y_EXTRA_SLOTS
+ 		self.H_EXTRA_YIELDS = self.H_EXTRA_SLOTS
+ 
+ 		self.X_HISTORY = self.X_ICON_PANEL
+-		self.Y_HISTORY = self.Y_ICON_PANEL + self.H_TOP_PANEL + self.SMALL_MARGIN
++		self.Y_HISTORY = self.Y_ICON_PANEL + self.H_TOP_PANEL + SMALL_MARGIN
+ 		self.W_HISTORY = self.W_LEFT
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index d7d9b4659..13ab4982d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -188,9 +188,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.bHistoryExpanded = False
+ 		self.top = main
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		# <!-- custom: SevopediaTech layout rework (starting-tech stats tables)
+ 		# Row 1: Tech Pane (left) | Requires | Leads To
+ 		# Row 2: First to D (one-button) | Obsoletes (wide) | Music (one-button)
+@@ -220,22 +217,22 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 		self.W_LEADS_TO = get_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.X_LEADS_TO = self.top.R_PEDIA_PAGE - self.W_LEADS_TO
+-		self.X_REQUIRES = self.X_TECH_PANE + self.W_TECH_PANE + self.MEDIUM_MARGIN
+-		self.W_REQUIRES = self.X_LEADS_TO - self.MEDIUM_MARGIN - self.X_REQUIRES
++		self.X_REQUIRES = self.X_TECH_PANE + self.W_TECH_PANE + MEDIUM_MARGIN
++		self.W_REQUIRES = self.X_LEADS_TO - MEDIUM_MARGIN - self.X_REQUIRES
+ 		if self.W_REQUIRES < 50:
+ 			# Safety fallback if the page is too narrow.
+ 			self.W_REQUIRES = 50
+ 
+ 		# Row 2: First to D | Tradeable | Obsoletes | Music
+ 		self.H_ROW = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+-		self.Y_FIRST_TO_DISCOVER = self.Y_TECH_PANE + self.H_TECH_PANE + self.SMALL_MARGIN
++		self.Y_FIRST_TO_DISCOVER = self.Y_TECH_PANE + self.H_TECH_PANE + SMALL_MARGIN
+ 		self.X_FIRST_TO_DISCOVER = self.X_TECH_PANE
+ 
+ 		self.W_FIRST_TO_DISCOVER = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_FIRST_TO_DISCOVER = self.H_ROW
+ 
+ 		# <!-- custom: Tradeable panel showing if tech can be traded (Claude Opus 4.5) -->
+-		self.X_TRADEABLE = self.X_FIRST_TO_DISCOVER + self.W_FIRST_TO_DISCOVER + self.MEDIUM_MARGIN
++		self.X_TRADEABLE = self.X_FIRST_TO_DISCOVER + self.W_FIRST_TO_DISCOVER + MEDIUM_MARGIN
+ 		self.Y_TRADEABLE = self.Y_FIRST_TO_DISCOVER
+ 		self.W_TRADEABLE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_TRADEABLE = self.H_ROW
+@@ -248,8 +245,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.noEntryButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_NO_ENTRY").getPath()
+ 
+ 		self.Y_OBSOLETES = self.Y_FIRST_TO_DISCOVER
+-		self.X_OBSOLETES = self.X_TRADEABLE + self.W_TRADEABLE + self.MEDIUM_MARGIN
+-		self.W_OBSOLETES = self.X_MUSIC - self.MEDIUM_MARGIN - self.X_OBSOLETES
++		self.X_OBSOLETES = self.X_TRADEABLE + self.W_TRADEABLE + MEDIUM_MARGIN
++		self.W_OBSOLETES = self.X_MUSIC - MEDIUM_MARGIN - self.X_OBSOLETES
+ 		self.H_OBSOLETES = self.H_ROW
+ 
+ 		# <!-- custom: note: Now that we switched to the thinner ChatGPT 5.2 based model, 64 is a bit too small, so extending it to fit buttons -->
+@@ -258,14 +255,14 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 		# Row 3: Enables (full width)
+ 		self.X_ENABLES = self.X_TECH_PANE
+-		self.Y_ENABLES = self.Y_FIRST_TO_DISCOVER + self.H_ROW + self.SMALL_MARGIN
++		self.Y_ENABLES = self.Y_FIRST_TO_DISCOVER + self.H_ROW + SMALL_MARGIN
+ 		self.W_ENABLES = self.top.R_PEDIA_PAGE - self.X_ENABLES
+ 		self.H_ENABLES = self.H_ROW
+ 
+ 		# Row 4: Starting tech statistics tables (2 left stacked, 1 right)
+ 		# <!-- custom: Statistics panel - blue panels without headers, tables inside. Left side wider (~200px more than right). (Claude Opus 4.5) -->
+ 		self.X_STATS = self.X_TECH_PANE
+-		self.Y_STATS = self.Y_ENABLES + self.H_ENABLES + self.SMALL_MARGIN
++		self.Y_STATS = self.Y_ENABLES + self.H_ENABLES + SMALL_MARGIN
+ 		self.W_STATS = self.top.R_PEDIA_PAGE - self.X_STATS
+ 		# Stats height - slightly increased to avoid bottom clipping in stats tables.
+ 		self.H_STATS = 384
+@@ -297,11 +294,11 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 		# Bottom row: Special / History (reduced height by 120px)
+ 		self.X_SPECIAL = self.X_TECH_PANE
+-		self.Y_SPECIAL = self.Y_STATS + self.H_STATS + self.SMALL_MARGIN
++		self.Y_SPECIAL = self.Y_STATS + self.H_STATS + SMALL_MARGIN
+ 		self.W_SPECIAL = self.W_TECH_PANE
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+-		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
++		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + MEDIUM_MARGIN
+ 		self.Y_HISTORY = self.Y_SPECIAL
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+ 		self.H_HISTORY = self.H_SPECIAL
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 2c8a25eca..874ea491c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -25,9 +25,6 @@ class SevoPediaTerrain:
+ 		self.top = main
+ 		self.bHistoryExpanded = False
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		self.W_LEFT_COLUMN = get_panel_width_for_buttons(5, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+ 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
+@@ -46,28 +43,28 @@ class SevoPediaTerrain:
+ 		self.W_INFO_TEXT = 260
+ 		self.H_INFO_TEXT = self.H_INFO_PANE - 20
+ 
+-		self.X_BUILD_UNITS = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
++		self.X_BUILD_UNITS = self.X_INFO_PANE + self.W_INFO_PANE + MEDIUM_MARGIN
+ 		self.Y_BUILD_UNITS = self.Y_INFO_PANE
+ 		self.W_BUILD_UNITS = self.top.R_PEDIA_PAGE - self.X_BUILD_UNITS
+ 		self.H_BUILD_UNITS = self.H_INFO_PANE
+ 
+ 		self.X_FEATURES = self.X_INFO_PANE
+-		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
++		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + SMALL_MARGIN
+ 		self.W_FEATURES = self.W_LEFT_COLUMN
+ 		self.H_FEATURES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+-		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
++		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + MEDIUM_MARGIN
+ 		self.Y_IMPROVEMENTS = self.Y_FEATURES
+ 		self.W_IMPROVEMENTS = self.top.R_PEDIA_PAGE - self.X_IMPROVEMENTS
+ 		self.H_IMPROVEMENTS = self.H_FEATURES
+ 
+ 		self.X_BONUSES_WITH_NO_FEATURE = self.X_FEATURES
+-		self.Y_BONUSES_WITH_NO_FEATURE = self.Y_FEATURES + self.H_FEATURES + self.SMALL_MARGIN
++		self.Y_BONUSES_WITH_NO_FEATURE = self.Y_FEATURES + self.H_FEATURES + SMALL_MARGIN
+ 		self.W_BONUSES_WITH_NO_FEATURE = self.top.R_PEDIA_PAGE - self.X_BONUSES_WITH_NO_FEATURE
+ 		self.H_BONUSES_WITH_NO_FEATURE = self.H_FEATURES
+ 
+ 		self.X_BONUSES_ONLY_WITH_FEATURE = self.X_FEATURES
+-		self.Y_BONUSES_ONLY_WITH_FEATURE = self.Y_BONUSES_WITH_NO_FEATURE + self.H_BONUSES_WITH_NO_FEATURE + self.SMALL_MARGIN
++		self.Y_BONUSES_ONLY_WITH_FEATURE = self.Y_BONUSES_WITH_NO_FEATURE + self.H_BONUSES_WITH_NO_FEATURE + SMALL_MARGIN
+ 		self.W_BONUSES_ONLY_WITH_FEATURE = self.top.R_PEDIA_PAGE - self.X_BONUSES_ONLY_WITH_FEATURE
+ 		self.H_BONUSES_ONLY_WITH_FEATURE = self.H_FEATURES
+ 
+@@ -75,21 +72,21 @@ class SevoPediaTerrain:
+ 		self.H_RELEVANT_UNITS = self.H_FEATURES + MULTILIST_BUTTON_SIZE
+ 
+ 		self.X_RELEVANT_UNITS = self.X_FEATURES
+-		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ONLY_WITH_FEATURE + self.H_BONUSES_ONLY_WITH_FEATURE + self.SMALL_MARGIN
++		self.Y_RELEVANT_UNITS = self.Y_BONUSES_ONLY_WITH_FEATURE + self.H_BONUSES_ONLY_WITH_FEATURE + SMALL_MARGIN
+ 		self.W_RELEVANT_UNITS = self.top.R_PEDIA_PAGE - self.X_BONUSES_ONLY_WITH_FEATURE
+ 		self.H_RELEVANT_UNITS = self.H_FEATURES + MULTILIST_BUTTON_SIZE
+ 
+ 		self.X_UNITS_IMPASSABLE = self.X_FEATURES
+-		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + self.SMALL_MARGIN
++		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + SMALL_MARGIN
+ 		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
+ 		self.H_UNITS_IMPASSABLE = self.H_FEATURES + HIDE_SECOND_ROW_MULTI_LIST
+ 
+ 		self.X_SPECIAL = self.X_INFO_PANE
+-		self.Y_SPECIAL = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
++		self.Y_SPECIAL = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + SMALL_MARGIN
+ 		self.W_SPECIAL = self.W_LEFT_COLUMN
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+-		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
++		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + MEDIUM_MARGIN
+ 		self.Y_HISTORY = self.Y_SPECIAL
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+ 		self.H_HISTORY = self.H_SPECIAL
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index d2dea3ebe..c6f3a193e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -44,13 +44,10 @@ class SevoPediaUnit:
+ 		self.bContentExpanded = False
+ 		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL")
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		self.X_UNIT_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_UNIT_PANE = self.top.Y_PEDIA_PAGE
+ 		# <!-- custom: no margins to merge edges with promo pane for nicer display maybe -->
+-		self.W_UNIT_PANE = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE - self.MEDIUM_MARGIN) / 4
++		self.W_UNIT_PANE = (self.top.R_PEDIA_PAGE - self.X_UNIT_PANE - MEDIUM_MARGIN) / 4
+ 		self.H_UNIT_PANE = 190
+ 
+ 		# <!-- custom: import iIconFrameSize from sevopediaunit ((base) advciv's code) and modified it and its logic for advciv-sas or not or yes or and other things or and not -->
+@@ -110,22 +107,22 @@ class SevoPediaUnit:
+ 
+ 		# Requires takes remaining space
+ 		self.X_REQUIRES = self.X_UNIT_PANE
+-		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + self.SMALL_MARGIN
+-		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_UNIT_PANE - self.MEDIUM_MARGIN - self.W_OBSOLETE_WITH - self.MEDIUM_MARGIN - self.W_FREE_PROMOTIONS
++		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + SMALL_MARGIN
++		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_UNIT_PANE - MEDIUM_MARGIN - self.W_OBSOLETE_WITH - MEDIUM_MARGIN - self.W_FREE_PROMOTIONS
+ 		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+-		self.X_OBSOLETE_WITH = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
++		self.X_OBSOLETE_WITH = self.X_REQUIRES + self.W_REQUIRES + MEDIUM_MARGIN
+ 		self.Y_OBSOLETE_WITH = self.Y_REQUIRES
+ 		self.H_OBSOLETE_WITH = self.H_REQUIRES
+ 
+-		self.X_FREE_PROMOTIONS = self.X_OBSOLETE_WITH + self.W_OBSOLETE_WITH + self.MEDIUM_MARGIN
++		self.X_FREE_PROMOTIONS = self.X_OBSOLETE_WITH + self.W_OBSOLETE_WITH + MEDIUM_MARGIN
+ 		self.Y_FREE_PROMOTIONS = self.Y_REQUIRES
+ 		self.H_FREE_PROMOTIONS = self.H_REQUIRES
+ 
+ 		# Row 2 left half: Replaces | Civs | Upgrades To (aligned under Free Promotions)
+ 		self.W_UPGRADES_TO = self.W_SMALL_PANEL
+ 		self.X_UPGRADES_TO = self.X_FREE_PROMOTIONS  # Aligned under Free Promotions
+-		self.Y_UPGRADES_TO = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
++		self.Y_UPGRADES_TO = self.Y_REQUIRES + self.H_REQUIRES + SMALL_MARGIN
+ 		self.H_UPGRADES_TO = self.H_REQUIRES
+ 
+ 		# Civs aligned under Obsolete With
+@@ -135,33 +132,33 @@ class SevoPediaUnit:
+ 
+ 		self.X_REPLACE = self.X_UNIT_PANE
+ 		self.Y_REPLACE = self.Y_UPGRADES_TO
+-		self.W_REPLACE = self.X_CIVILIZATIONS - self.X_REPLACE - self.MEDIUM_MARGIN  # Takes remaining space (same as Requires)
++		self.W_REPLACE = self.X_CIVILIZATIONS - self.X_REPLACE - MEDIUM_MARGIN  # Takes remaining space (same as Requires)
+ 		self.H_REPLACE = self.H_REQUIRES
+ 
+ 		# <!-- custom: adjust this based on your multilist button size; note that this is used only in the _OF_OTHER_UNITS_MODIFIERS related panel, so not applying this everywhere as all other multilist panels as of now only use one row or if they have multiple rows they don't use a numTxt; tested only for a button size of 64 as rest of the multilist code, but it should maybe handle quite well another button size minus perhaps small numTxt adjustments or corrections that may be influenced by button size; currently not implemented since we only use a button size of 64px so as of now using the same variable in all our file rather than declaring and passing a different button size locally in the multilist panels that have many rows, for simplicity. -->
+ 		# self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE = 64
+ 		# Row 3-4: Of Other Units panel (full width, 2 rows height) - under Row 2
+ 		self.X_OF_OTHER_UNITS_MODIFIERS = self.X_UNIT_PANE
+-		self.Y_OF_OTHER_UNITS_MODIFIERS = self.Y_REPLACE + self.H_REPLACE + self.SMALL_MARGIN
++		self.Y_OF_OTHER_UNITS_MODIFIERS = self.Y_REPLACE + self.H_REPLACE + SMALL_MARGIN
+ 		self.W_OF_OTHER_UNITS_MODIFIERS = self.top.R_PEDIA_PAGE - self.X_UNIT_PANE
+ 		# self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES + self.H_MULTILIST_MULTIPLE_ROWS_BUTTON_SIZE
+ 		self.H_OF_OTHER_UNITS_MODIFIERS = self.H_REQUIRES + MULTILIST_BUTTON_SIZE
+ 
+ 		# Row 5: Special panel (left half)
+ 		self.X_SPECIAL = self.X_UNIT_PANE
+-		self.Y_SPECIAL = self.Y_OF_OTHER_UNITS_MODIFIERS + self.H_OF_OTHER_UNITS_MODIFIERS + self.SMALL_MARGIN
++		self.Y_SPECIAL = self.Y_OF_OTHER_UNITS_MODIFIERS + self.H_OF_OTHER_UNITS_MODIFIERS + SMALL_MARGIN
+ 		self.W_SPECIAL = self.W_TOTAL_EFFECTIVE_UNIT_PANE
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+ 		# Right column: Unit Animation
+ 		self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE = 7
+ 
+-		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_TOTAL_EFFECTIVE_UNIT_PANE + self.MEDIUM_MARGIN
++		self.X_UNIT_ANIMATION = self.X_UNIT_PANE + self.W_TOTAL_EFFECTIVE_UNIT_PANE + MEDIUM_MARGIN
+ 		self.Y_UNIT_ANIMATION = self.Y_UNIT_PANE + self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+ 		self.W_UNIT_ANIMATION = self.W_TOTAL_EFFECTIVE_UNIT_PANE
+ 		# <!-- custom: make it one panel height smaller to accomodate the higher placeSpecial panel that we use to display AI information and or such if any other info displayed or to better display the info in cases where the placeSpecial was a bit too short in height -->
+-		# self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_REQUIRES + self.SMALL_MARGIN + self.H_UPGRADES_TO - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+-		self.H_UNIT_ANIMATION = self.H_UNIT_PANE + self.SMALL_MARGIN + self.H_REQUIRES - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
++		# self.H_UNIT_ANIMATION = self.H_UNIT_PANE + SMALL_MARGIN + self.H_REQUIRES + SMALL_MARGIN + self.H_UPGRADES_TO - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
++		self.H_UNIT_ANIMATION = self.H_UNIT_PANE + SMALL_MARGIN + self.H_REQUIRES - self.H_ADJUST_HEIGHT_ANIMATION_TO_MATCH_ADJACENT_PANE
+ 
+ 		self.X_ROTATION_UNIT_ANIMATION = -20
+ 		self.Z_ROTATION_UNIT_ANIMATION = 30
+@@ -172,11 +169,11 @@ class SevoPediaUnit:
+ 		self.H_UNDER_ANIMATION_PANELS = self.H_REQUIRES
+ 
+ 		self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.X_UNIT_ANIMATION
+-		self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + self.SMALL_MARGIN
+-		self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS = (self.W_UNIT_ANIMATION - self.MEDIUM_MARGIN) / 2
++		self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.Y_UNIT_ANIMATION + self.H_UNIT_ANIMATION + SMALL_MARGIN
++		self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS = (self.W_UNIT_ANIMATION - MEDIUM_MARGIN) / 2
+ 		self.H_OF_UNIT_MODIFIERS_AGAINST_OTHERS = self.H_UNDER_ANIMATION_PANELS
+ 
+-		self.X_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.MEDIUM_MARGIN
++		self.X_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS + self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS + MEDIUM_MARGIN
+ 		self.Y_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+ 		self.W_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+ 		self.H_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.H_UNDER_ANIMATION_PANELS
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py b/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+index 1517580c4..3c473c31f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+@@ -23,9 +23,6 @@ class SevoPediaVote:
+ 		self.top = main
+ 		self.bHistoryExpanded = False
+ 
+-		self.MEDIUM_MARGIN = 15
+-		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+-
+ 		self.X_VOTE_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_VOTE_PANE = self.top.Y_PEDIA_PAGE
+ 		self.W_VOTE_PANE = 200
+@@ -39,7 +36,7 @@ class SevoPediaVote:
+ 		self.X_ICON = self.X_VOTE_PANE + (self.ICON_FRAME_SIZE - self.ICON_SIZE) / 2 + 19
+ 		self.Y_ICON = self.Y_VOTE_PANE + (self.H_VOTE_PANE - self.H_ICON) / 2 + 3
+ 
+-		self.X_RIGHT = self.X_VOTE_PANE + self.W_VOTE_PANE + self.MEDIUM_MARGIN
++		self.X_RIGHT = self.X_VOTE_PANE + self.W_VOTE_PANE + MEDIUM_MARGIN
+ 
+ 		self.W_SOURCE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+@@ -47,9 +44,9 @@ class SevoPediaVote:
+ 		# while F.Civics is shown on the mid row to reflect vote-level scope. (GPT-5.4?) -->
+ 		self.X_SOURCE = self.X_RIGHT
+ 		self.Y_SOURCE = self.Y_VOTE_PANE
+-		self.H_SOURCE = (self.H_VOTE_PANE - self.SMALL_MARGIN) / 2
++		self.H_SOURCE = (self.H_VOTE_PANE - SMALL_MARGIN) / 2
+ 
+-		self.X_SOURCE_INFO = self.X_SOURCE + self.W_SOURCE + self.MEDIUM_MARGIN
++		self.X_SOURCE_INFO = self.X_SOURCE + self.W_SOURCE + MEDIUM_MARGIN
+ 		self.Y_SOURCE_INFO = self.Y_VOTE_PANE
+ 		self.X_SOURCE_SPECIALIST = self.top.R_PEDIA_PAGE - self.W_SOURCE
+ 		self.Y_SOURCE_SPECIALIST = self.Y_VOTE_PANE
+@@ -57,23 +54,23 @@ class SevoPediaVote:
+ 		self.H_SOURCE_SPECIALIST = self.H_SOURCE
+ 
+ 		self.X_SOURCE_CIVIC = self.X_SOURCE
+-		self.Y_SOURCE_CIVIC = self.Y_SOURCE + self.H_SOURCE + self.SMALL_MARGIN
++		self.Y_SOURCE_CIVIC = self.Y_SOURCE + self.H_SOURCE + SMALL_MARGIN
+ 		self.W_SOURCE_CIVIC = self.W_SOURCE
+-		self.H_SOURCE_CIVIC = self.H_VOTE_PANE - self.H_SOURCE - self.SMALL_MARGIN
++		self.H_SOURCE_CIVIC = self.H_VOTE_PANE - self.H_SOURCE - SMALL_MARGIN
+ 
+-		self.W_SOURCE_INFO = self.X_SOURCE_SPECIALIST - self.MEDIUM_MARGIN - self.X_SOURCE_INFO
++		self.W_SOURCE_INFO = self.X_SOURCE_SPECIALIST - MEDIUM_MARGIN - self.X_SOURCE_INFO
+ 		self.H_SOURCE_INFO = self.H_VOTE_PANE
+ 
+ 		self.X_VOTE_NAME = self.X_VOTE_PANE
+-		self.Y_VOTE_NAME = self.Y_VOTE_PANE + self.H_VOTE_PANE + self.SMALL_MARGIN
++		self.Y_VOTE_NAME = self.Y_VOTE_PANE + self.H_VOTE_PANE + SMALL_MARGIN
+ 		self.W_VOTE_NAME = self.top.R_PEDIA_PAGE - self.X_VOTE_NAME
+ 		self.H_VOTE_NAME = 75
+ 
+ 		# <!-- custom: mid row is split into Requirements (left) and Effects (right), with the
+ 		# top row dedicated to vote-source panels and the bottom row to Background text. (GPT-5.4?) -->
+ 		self.X_REQUIREMENTS = self.X_VOTE_PANE
+-		self.Y_REQUIREMENTS = self.Y_VOTE_NAME + self.H_VOTE_NAME + self.SMALL_MARGIN
+-		self.W_REQUIREMENTS = (self.top.R_PEDIA_PAGE - self.X_REQUIREMENTS - self.MEDIUM_MARGIN) / 2
++		self.Y_REQUIREMENTS = self.Y_VOTE_NAME + self.H_VOTE_NAME + SMALL_MARGIN
++		self.W_REQUIREMENTS = (self.top.R_PEDIA_PAGE - self.X_REQUIREMENTS - MEDIUM_MARGIN) / 2
+ 		self.H_REQUIREMENTS = 200
+ 
+ 		self.X_FORCE_CIVICS = self.X_SOURCE_SPECIALIST
+@@ -81,13 +78,13 @@ class SevoPediaVote:
+ 		self.W_FORCE_CIVICS = self.W_SOURCE
+ 		self.H_FORCE_CIVICS = self.H_SOURCE
+ 
+-		self.X_SPECIAL = self.X_REQUIREMENTS + self.W_REQUIREMENTS + self.MEDIUM_MARGIN
++		self.X_SPECIAL = self.X_REQUIREMENTS + self.W_REQUIREMENTS + MEDIUM_MARGIN
+ 		self.Y_SPECIAL = self.Y_REQUIREMENTS
+-		self.W_SPECIAL = self.X_FORCE_CIVICS - self.MEDIUM_MARGIN - self.X_SPECIAL
++		self.W_SPECIAL = self.X_FORCE_CIVICS - MEDIUM_MARGIN - self.X_SPECIAL
+ 		self.H_SPECIAL = 200
+ 
+ 		self.X_HISTORY = self.X_VOTE_PANE
+-		self.Y_HISTORY = self.Y_REQUIREMENTS + self.H_REQUIREMENTS + self.SMALL_MARGIN
++		self.Y_HISTORY = self.Y_REQUIREMENTS + self.H_REQUIREMENTS + SMALL_MARGIN
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_VOTE_PANE
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 1d5a84d0e..1f64ec630 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -47,6 +47,10 @@ EXPANDED_OVERLAY_CLOSE_BUTTON_Y_OFFSET = 4
+ EXPANDED_LEADERHEAD_WIDTH_PCT = 80
+ # <!-- custom: Y offset of the EXPAND button inside the collapsed leaderhead pane (placed inside the panel, not above it). (Claude code Sonnet 4.6) -->
+ LEADERHEAD_EXPAND_BUTTON_Y_OFFSET = -16
++# <!-- custom: some constants often used in sevopedia -->
++LARGE_MARGIN = 20
++MEDIUM_MARGIN = 15
++SMALL_MARGIN = 10
+
+[PATCH COVERAGE]
+patchFiles=35 embeddedFiles=34 omittedFiles=1 embeddedPatchBytes=79000

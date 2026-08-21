@@ -1,0 +1,61 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4503
+# Commit: 6b2e69f9cbcd47e3c809604491339eeb9bc2e908
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: dc1f7c9812b4613c1a84bfaa93e9250166d36c69
+# Title: minor code comment(s) cleanup/fixes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	5	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 83ef3f71c..7dfe1bbf3 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -89,9 +89,9 @@ class SevoPediaImprovement:
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		# advc.004y: text key was TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT
+-		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT_YIELD", ()), "", True, True, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT_YIELD", ()), "", True, True, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		listName = self.top.getNextWidgetName()
+-		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
++		screen.attachListBoxGFC(panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY)
+ 		screen.enableSelect(listName, False)
+ 
+ 		# <!-- custom: changes based on the same idea i
+@@ -126,7 +126,7 @@ class SevoPediaImprovement:
+ 			if (iYieldChange != 0):
+ 				# <!-- custom: change here -->
+ 				#szYield = localText.getText("TXT_KEY_PEDIA_IRRIGATED_YIELD", (gc.getYieldInfo(k).getTextKey(), iYieldChange, gc.getYieldInfo(k).getChar()))
+-				# note: event though we don't use the %s1
++				# note: even though we don't use the %s1
+ 				# field anymore, the parameter is needed for
+ 				# localText.getText else the display shows
+ 				# something weird, so since we don't use it,
+@@ -148,8 +148,9 @@ class SevoPediaImprovement:
+ 		# bonuses, but may be useful if someone were to
+ 		# reuse these sevopedia changes i did (quite proudly)
+ 		# if i may say i mean anyways (but my hand or arm
+-		# hurts to i am a contortionist in position while writing xd if i may say, about this at least i mean
+-		# anyways.
++		# hurts too as i am a contortionist in position
++		# while writing xd if i may say, about this at least
++		# i mean anyways.
+ 		for k in range(YieldTypes.NUM_YIELD_TYPES):
+ 			iYieldChange = gc.getImprovementInfo(self.iImprovement).getHillsYieldChange(k)
+ 			if (iYieldChange != 0):
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2369

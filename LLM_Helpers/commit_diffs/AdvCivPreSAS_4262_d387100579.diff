@@ -1,0 +1,410 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4262
+# Commit: d387100579e72648c7aa35ea34a691cfcc08f589
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ea0486d3820a6235f6d56b1c291f687b88c95924
+# Title: Scale and fader adjustments to units, city billboard.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+57	27	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+10	0	Assets/XML/GlobalDefines_advc.xml
+22	11	Assets/XML/Misc/CIV4DetailManager.xml
+5	1	CvGameCoreDLL/CvInfo_Asset.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 69569ed54..d38c0b99b 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -4,6 +4,9 @@
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+ <!-- Unit art path information -->
++<!-- advc.002j (note): The fScale values for horse-mounted units are also
++	 affected by UNIT_MODEL_SCALE_MODIFIER_042 in GlobalDefines_advc.xml, and
++	 the fader settings in CIV4DetailManager.xml scale the size of all units. -->
+ <Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">
+ 	<UnitArtInfos>
+ 		<UnitArtInfo>
+@@ -105,7 +108,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_WORKER</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,5</Button>
+-			<fScale>0.44</fScale>
++			<!-- advc.002j: was 0.44 -->
++			<fScale>0.43</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -129,7 +133,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_WORKERMODERN</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,5</Button>
+-			<fScale>0.44</fScale>
++			<!-- advc.002j: was 0.44 -->
++			<fScale>0.43</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -153,7 +158,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_INDIAN_FAST_WORKER</Type>
+ 			<Button>,Art/Interface/Buttons/Units/FastWorker.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,4</Button>
+-			<fScale>0.44</fScale>
++			<!-- advc.002j: was 0.44 -->
++			<fScale>0.43</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -1326,7 +1332,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CHARIOT</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Chariot.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,7</Button>
+-			<fScale>0.35</fScale>
++			<!-- advc.002j: was 0.35 -->
++			<fScale>0.34</fScale>
+ 			<fInterfaceScale>0.9</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -1361,7 +1368,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_EGYPT_WARCHARIOT</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Chariot_WarChariot.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,6,7</Button>
+-			<fScale>0.37</fScale>
++			<!-- advc.002j: was 0.37 -->
++			<fScale>0.36</fScale>
+ 			<fInterfaceScale>0.8</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -1509,7 +1517,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_ARABIA_CAMELARCHER</Type>
+ 			<Button>,Art/Interface/Buttons/Units/CamelArcher.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,8</Button>
+-			<fScale>0.39</fScale>
++			<!-- advc.002j: was 0.39 -->
++			<fScale>0.38</fScale>
+ 			<fInterfaceScale>0.8</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -1630,7 +1639,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_WAR_ELEPHANT</Type>
+ 			<Button>,Art/Interface/Buttons/Units/WarElephant.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,2</Button>
+-			<fScale>0.32</fScale>
++			<!-- advc.002j: was 0.32 -->
++			<fScale>0.31</fScale>
+ 			<fInterfaceScale>0.6</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -1654,7 +1664,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_KHMER_BALLISTA_ELEPHANT</Type>
+ 			<Button>,Art/Interface/Buttons/Units/ICBM.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,5,10</Button>
+-			<fScale>0.32</fScale>
++			<!-- advc.002j: was 0.32 -->
++			<fScale>0.31</fScale>
+ 			<fInterfaceScale>0.6</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -1811,7 +1822,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CATAPULT</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Catapult.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,8</Button>
+-			<fScale>0.65</fScale>
++			<!-- advc.002j: was 0.65 -->
++			<fScale>0.61</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -1845,7 +1857,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CANNON</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Cannon.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,6,8</Button>
+-			<fScale>0.53</fScale>
++			<!-- advc.002j: was 0.53 -->
++			<fScale>0.51</fScale>
+ 			<fInterfaceScale>0.8</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -3559,7 +3572,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_TREBUCHET</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Catapult.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,6,7</Button>
+-			<fScale>0.40</fScale>
++			<!-- advc.002j: was 0.40 -->
++			<fScale>0.39</fScale>
+ 			<fInterfaceScale>.7</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -3594,7 +3608,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_KOREAN_HWACHA</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Catapult.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,4,10</Button>
+-			<fScale>0.50</fScale>
++			<!-- advc.002j: was 0.50 -->
++			<fScale>0.48</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -3951,7 +3966,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CHARIOT_CHINESE</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Chariot.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,7</Button>
+-			<fScale>0.35</fScale>
++			<!-- advc.002j: was 0.35 -->
++			<fScale>0.34</fScale>
+ 			<fInterfaceScale>0.9</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -4121,7 +4137,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CHARIOT_CELTIC</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Chariot.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,7</Button>
+-			<fScale>0.35</fScale>
++			<!-- advc.002j: was 0.35 -->
++			<fScale>0.34</fScale>
+ 			<fInterfaceScale>0.9</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -4228,7 +4245,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CARTHAGE_WAR_ELEPHANT</Type>
+ 			<Button>,Art/Interface/Buttons/Units/WarElephant.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,2</Button>
+-			<fScale>0.32</fScale>
++			<!-- advc.002j: was 0.32 -->
++			<fScale>0.31</fScale>
+ 			<fInterfaceScale>0.6</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -4493,7 +4511,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_WAR_ELEPHANT_ASIAN</Type>
+ 			<Button>,Art/Interface/Buttons/Units/WarElephant.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,2</Button>
+-			<fScale>0.32</fScale>
++			<!-- advc.002j: was 0.32 -->
++			<fScale>0.31</fScale>
+ 			<fInterfaceScale>0.6</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -4541,7 +4560,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_WORKER_ASIAN</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,5</Button>
+-			<fScale>0.44</fScale>
++			<!-- advc.002j: was 0.44 -->
++			<fScale>0.43</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -4615,7 +4635,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CHARIOT_EUROPEAN</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Chariot.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,7</Button>
+-			<fScale>0.35</fScale>
++			<!-- advc.002j: was 0.35 -->
++			<fScale>0.34</fScale>
+ 			<fInterfaceScale>0.9</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -4894,7 +4915,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_WAR_ELEPHANT_EUROPEAN</Type>
+ 			<Button>,Art/Interface/Buttons/Units/WarElephant.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,2</Button>
+-			<fScale>0.32</fScale>
++			<!-- advc.002j: was 0.32 -->
++			<fScale>0.31</fScale>
+ 			<fInterfaceScale>0.6</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -4918,7 +4940,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_WORKER_EUROPEAN</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,5</Button>
+-			<fScale>0.44</fScale>
++			<!-- advc.002j: was 0.44 -->
++			<fScale>0.43</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -5038,7 +5061,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_WAR_ELEPHANT_GRECO_ROMAN</Type>
+ 			<Button>,Art/Interface/Buttons/Units/WarElephant.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,2</Button>
+-			<fScale>0.32</fScale>
++			<!-- advc.002j: was 0.32 -->
++			<fScale>0.31</fScale>
+ 			<fInterfaceScale>0.6</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -5134,7 +5158,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CHARIOT_MIDDLE_EAST</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Chariot.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,7</Button>
+-			<fScale>0.37</fScale>
++			<!-- advc.002j: was 0.37 -->
++			<fScale>0.36</fScale>
+ 			<fInterfaceScale>0.8</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -5454,7 +5479,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_WAR_ELEPHANT_MIDDLE_EAST</Type>
+ 			<Button>,Art/Interface/Buttons/Units/WarElephant.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,2</Button>
+-			<fScale>0.32</fScale>
++			<!-- advc.002j: was 0.32 -->
++			<fScale>0.31</fScale>
+ 			<fInterfaceScale>0.6</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -5502,7 +5528,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_WORKER_MIDDLE_EAST</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,5</Button>
+-			<fScale>0.44</fScale>
++			<!-- advc.002j: was 0.44 -->
++			<fScale>0.43</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -5575,7 +5602,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_CHARIOT_SOUTH_AMERICA</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Chariot.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,7</Button>
+-			<fScale>0.35</fScale>
++			<!-- advc.002j: was 0.35 -->
++			<fScale>0.34</fScale>
+ 			<fInterfaceScale>0.9</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -5876,7 +5904,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_WAR_ELEPHANT_SOUTH_AMERICA</Type>
+ 			<Button>,Art/Interface/Buttons/Units/WarElephant.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,2</Button>
+-			<fScale>0.32</fScale>
++			<!-- advc.002j: was 0.32 -->
++			<fScale>0.31</fScale>
+ 			<fInterfaceScale>0.6</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+@@ -5924,7 +5953,8 @@
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_WORKER_SOUTH_AMERICA</Type>
+ 			<Button>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,5</Button>
+-			<fScale>0.44</fScale>
++			<!-- advc.002j: was 0.44 -->
++			<fScale>0.43</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 21de10612..2b647e93f 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1393,4 +1393,14 @@
+ 		<iDefineIntVal>1000</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc.002j: This value gets subtracted from all fScale values that
++		 Civ4ArtDefines_Unit.xml sets to exactly 0.42. That should be all the
++		 horse-mounted units (not including chariots or non-horse mounts).
++		 Those probably all should have and retain a consistent scale,
++		 hence this parameter for resizing them all at once. -->
++	<Define>
++		<DefineName>UNIT_MODEL_SCALE_MODIFIER_042</DefineName>
++		<fDefineFloatVal>-0.1</fDefineFloatVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/Assets/XML/Misc/CIV4DetailManager.xml b/Assets/XML/Misc/CIV4DetailManager.xml
+index 74cd6551b..dd4981802 100644
+--- a/Assets/XML/Misc/CIV4DetailManager.xml
++++ b/Assets/XML/Misc/CIV4DetailManager.xml
+@@ -41,24 +41,30 @@
+ 		<Key>7200,	0.00</Key>
+ 		<Key>%CAMERA_MAX_DISTANCE*1.1, 1.00</Key>
+ 	</Fader>
++	<!-- advc.002j, advc.004m:
++		 Was (700, 1), (1500, 1.3), (3000, 1.6), (5000, 2.0) -->
+ 	<Fader>
+ 		<Name>UNIT_SCALE</Name>
+-		<Key>700.0,  1.0</Key>
+-		<Key>1500.0, 1.3</Key>
+-		<Key>3000.0, 1.6</Key>
+-		<Key>5000.0, 2.0</Key>
++		<Key>500.0,  0.85</Key>
++		<Key>1000.0, 1.07</Key>
++		<Key>1500.0, 1.21</Key>
++		<Key>3000.0, 1.45</Key>
++		<Key>4500.0, 1.75</Key>
++		<Key>6000.0, 2.0</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITY_LAYOUT_UNIT_CUT_RADIUS</Name>
+ 		<!-- controls the radius of space to leave around fortified unit in a city layout -->
+ 		<Value>20</Value>
+ 	</Fader>
++	<!-- advc.002j, advc.004m:
++		 Was (700, 0.6), (1500, 0.7), (3000, 0.9), (5000, 1.2) -->
+ 	<Fader>
+ 		<Name>FLAG_SCALE</Name>
+-		<Key>700.0,  0.6</Key>
+-		<Key>1500.0, 0.7</Key>
+-		<Key>3000.0, 0.9</Key>
+-		<Key>5000.0, 1.2</Key>
++		<Key>700.0,  0.5</Key>
++		<Key>1500.0, 0.67</Key>
++		<Key>3000.0, 0.81</Key>
++		<Key>5000.0, 1.15</Key>
+ 	</Fader>
+ 	<!-- advc.092b: Only affects Globe view. The last value, changed by me
+ 		 from originally 1.0, is the only one that has a straightforward effect.
+@@ -88,9 +94,14 @@
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_SCALE</Name>
+ 		<!-- changes the size of the billboards based on the camera distance -->
+-		<Key>700,	 1.5</Key>
+-		<Key>2500,   1.0</Key>
+-		<Key>6000,   0.67</Key>
++		<!-- advc.002b: Was (700, 1.5), (2500, 1.0), (6000, 0.67) -->
++		<Key>500,    1.85</Key>
++		<Key>2500,   1.15</Key>
++		<Key>3800,   0.97</Key>
++		<Key>6000,   0.76</Key>
++		<Key>8500,   0.67</Key>
++		<Key>11500,  0.6</Key>
++		<Key>13500,  0.58</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>CITYBILLBOARD_HEIGHT</Name>
+
+diff --git a/CvGameCoreDLL/CvInfo_Asset.cpp b/CvGameCoreDLL/CvInfo_Asset.cpp
+index 0db513864..b5c4a8e4a 100644
+--- a/CvGameCoreDLL/CvInfo_Asset.cpp
++++ b/CvGameCoreDLL/CvInfo_Asset.cpp
+@@ -287,7 +287,11 @@ bool CvArtInfoUnit::read(CvXMLLoadUtility* pXML)
+ 		m_iRunEndSoundTag = CvGlobals::getInstance().getFootstepAudioTypeByTag(szTextVal);
+ 		gDLL->getXMLIFace()->SetToParent(pXML->GetXML());
+ 	}
+-
++	// <advc.002j>
++	static float const fUNIT_SCALE_MODIFIER_042 = GC.getDefineFLOAT(
++			"UNIT_MODEL_SCALE_MODIFIER_042");
++	if (abs(m_fScale - 0.42f) < 0.0001f)
++		m_fScale += fUNIT_SCALE_MODIFIER_042; // </advc.002j>
+ 	return true;
+ }
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=14404

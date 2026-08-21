@@ -1,0 +1,240 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5143
+# Commit: 42a2184744723c979afa021edd0fbe6c2bbb26a1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 96934bd1bda2d55ccefc34c6e7654bd5096e7c54
+# Title: (Improved) Value key military techs more in tech trades if we are weaker - When we are evaluating the value of techs in tech trades, with players outside of...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+24	4	Assets/XML/GlobalDefines_advciv_sas.xml
+5	4	CvGameCoreDLL/CvPlayerAI.cpp
+44	0	CvGameCoreDLL/CvTeamAI.cpp
+2	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+3	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index e0671c242..a02adf42b 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1032,26 +1032,46 @@
+ 	<!-- custom: weaker anyways etc. -->
+ 	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
+ 	<Define>
+-		<DefineName>SAS_AI_TECH_VALUE_MILITARY_DANGER_OPTIMIZE</DefineName>
++		<DefineName>SAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-
+ 	<!-- Consider tech "key military" if its FLAVOR_MILITARY is at least this. -->
+ 	<!-- custom: e.g. if flavor military of a tech is 8, then this is considered a key military tech for our below tech value changes anyways etc -->
+ 	<Define>
+ 		<DefineName>SAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN</DefineName>
+ 		<iDefineIntVal>6</iDefineIntVal>
+ 	</Define>
+-
+ 	<!-- When in danger, scale the total value of such techs by this percentage. -->
+ 	<!-- custom: e.g. 130 means tech value is increased by 30% anyways etc. -->
+ 	<Define>
+-		<DefineName>SAS_AI_TECH_VALUE_MILITARY_DANGER_PERCENT</DefineName>
++		<DefineName>SAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT</DefineName>
+ 		<iDefineIntVal>150</iDefineIntVal>
+ 	</Define>
+ 
+ 
+ 
++	<!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal anyways etc. -->
++	<!-- bias trade valuation toward key military techs when we're clearly outgunned -->
++	<!-- Because AI_techTradeVal is used for both tech-for-tech and tech-for-gold evaluations, higher rValue for these key military techs means:
++		- When we’re getting such a tech, we treat it as more precious, and we’ll be willing to structure a deal where we “pay” more total value on our side.
++		- When someone else is getting such a tech from us, they’ll see it as more precious as well (since their AI_techTradeVal gets the same logic when they are in danger).
++	This is symmetric and “honest”: no hidden cheat, just a consistent “this is life or death, this tech is worth a lot to us” multiplier. -->
++    <!-- SAS techTradePowerDanger: bias AI tech trade valuation toward key military techs when clearly weaker. -->
++    <!-- Enable/disable the trade-stage danger bias. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
++    <Define>
++        <DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE</DefineName>
++        <iDefineIntVal>1</iDefineIntVal>
++    </Define>
++    <!-- When in danger, scale the trade value of such techs by this percentage. -->
++    <!-- e.g. 130 = +30%, 150 = +50%. -->
++    <Define>
++        <DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT</DefineName>
++        <iDefineIntVal>150</iDefineIntVal>
++    </Define>
++
++
++
+ 	<!-- custom: After we have implemented a tentative fix to this, now also encourage vassal(s)<->master to trade more/preferentially (and not only for techs each other don't own, so this is an extra team play enhancement for any tech anyways etc.), which synergises with this previous tentative fix. Code added with the help of chatgpt 5.1 to patch both of these issues and increase AI efficiency i mean if i may say but anyways etc, check if accurate; see also known issues as of now 77 and 78 for details anyways etc. -->
+ 	<!-- // Prefer tech trades with master/vassal partners.
+ 	// This boosts the chance that we initiate CONTACT_TRADE_TECH
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6a78f0921..b0d77ecf5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6131,8 +6131,8 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	// End - SAS vassalMasterTechResearch
+ 
+ 	// SAS techValuePowerDanger: if we're clearly outgunned, bump key military techs
+-	static const bool bSAS_AI_TECH_VALUE_MILITARY_DANGER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_VALUE_MILITARY_DANGER_OPTIMIZE");
+-	if (bSAS_AI_TECH_VALUE_MILITARY_DANGER_OPTIMIZE && iValue > 0 && eFromPlayer == NO_PLAYER) // only for our own research choice
++	static const bool bSAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE");
++	if (bSAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE && iValue > 0 && eFromPlayer == NO_PLAYER) // only for our own research choice
+ 	{
+ 		const int iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(true);
+ 		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+@@ -6144,11 +6144,12 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 
+ 			if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN)
+ 			{
+-				static const int iSAS_AI_TECH_VALUE_MILITARY_DANGER_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_MILITARY_DANGER_PERCENT");
+-				iSASPercentModifier += (iSAS_AI_TECH_VALUE_MILITARY_DANGER_PERCENT - 100);
++				static const int iSAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT");
++				iSASPercentModifier += (iSAS_AI_TECH_VALUE_MILITARY_WEAKER_PERCENT - 100);
+ 			}
+ 		}
+ 	}
++	// End - SAS techValuePowerDanger
+ 
+ 	// <!-- custom: final compute of our sas modifiers once so it is not exponential anyways etc. -->
+ 	iValue = iValue * iSASPercentModifier / 100;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index f0e5304f8..2c6a8dcae 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2024,6 +2024,50 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
+ 			too much I think. */
+ 		if(rDiscountModifier < 1)
+ 			rValue *= rDiscountModifier;
++
++		// <!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal anyways etc. -->
++		// SAS techTradePowerDanger: bias trade valuation toward key military techs when we're clearly outgunned
++		// Yeah, this is exactly the place I meant: CvTeamAI::AI_techTradeVal is the right hook for “how much do we think this tech is worth in trades”, so it’s the natural spot to add a danger-biased military weighting.
++		// Given what you’ve already done in AI_techValue and how well #81 behaved, I’d mirror that idea here, but in a single, clean block inside AI_techTradeVal, with a separate toggle/knobs for trades.
++		// Because AI_techTradeVal is used for both tech-for-tech and tech-for-gold evaluations, higher rValue for these key military techs means:
++		// 	- When we’re getting such a tech, we treat it as more precious, and we’ll be willing to structure a deal where we “pay” more total value on our side.
++		// 	- When someone else is getting such a tech from us, they’ll see it as more precious as well (since their AI_techTradeVal gets the same logic when they are in danger).
++		// This is symmetric and “honest”: no hidden cheat, just a consistent “this is life or death, this tech is worth a lot to us” multiplier.
++		//
++		// This has a specific behavioral consequence:
++		// Your danger-based military weighting only applies when:
++		// 	- bIgnoreDiscount == false, and
++		// 	- neither side is the other’s vassal.
++		// That means:
++		// 	- It will not run for vassal <-> master trades.
++		// 	- It will not run in contexts where the caller sets bIgnoreDiscount = true
++		// 	(e.g. special cases that ignore the power/tech discount logic).
++		// If that’s what you want (keep master–vassal trade more “neutral” and only bias valuations in “normal” rival trades), then the placement is fine.
++		// If you want “when I’m in real danger, military tech is worth more no matter who offers it”, including:
++		// 	- from your vassal,
++		// 	- to your master,
++		// 	- in peace deals that might call with bIgnoreDiscount = true,
++		// then I’d move your block outside the if (!bIgnoreDiscount && !isVassal…) guard
++		static const bool bSAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE");
++		if (bSAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE)
++		{
++			const int iEnemyPowerPercent = AI_getEnemyPowerPercent(true);
++			static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD");
++			const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
++
++			if (bEnemyStrong)
++			{
++				static const int iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN = GC.getDefineINT("SAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN");
++
++				if (kTech.getFlavorValue(FLAVOR_MILITARY) >= iSAS_AI_TECH_VALUE_MILITARY_FLAVOR_MIN)
++				{
++					static const int iSAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT = GC.getDefineINT("SAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT");
++					// e.g. 130 => +30% trade value, 150 => +50%, etc.
++					rValue *= per100(iSAS_AI_TECH_TRADE_VAL_MILITARY_WEAKER_PERCENT);
++				}
++			}
++		}
++		// End - SAS techTradePowerDanger
+ 	} // </advc.550a>
+ 	// <advc.550g>
+ 	if (!isHuman()) // Don't let the AI gauge the human tech value
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 8118b5b9b..d39b0e2b3 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -192,7 +192,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ - (Requires AdvCiv-SAS 5141+) overhaul `FLAVOR_MILTIARY` of techs so AI better understands/values the military importance of techs (e.g. TECH_CORPORATION 3->0 (not viewed as a military tech anymore), TECH_CIVIL_SERVICE 3->8 (viewed much more as a military tech, which matches our tech tree changes but also more generally should be more in line with its important military role anyways etc.))
+ - (Requires AdvCiv-SAS 5134+) devalue researching techs our vassal(s) or master already knows as this is inefficient, in `CvPlayerAI::AI_techValue`. See [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#diplomacy-ai) anyways etc. (Requires AdvCiv-SAS 5137+) Update: also added vassal<->vassal(s) siblings devaluation to self research logic (if any of our sibling vassal(s) has the tech, devalue researching it ourselves).
+-- (Requires AdvCiv-SAS 5142+) value researching key military techs much more when we are weaker, as economy or such techs are useless at best, or at worst we'd just be researching them for our ennemies after they conquer us. Change in `CvPlayerAI::AI_techValue`. In autoplay, this seemingly results in Ewuare not winning anymore as he usually did even if it was quite hardly so at turn 386, to now getting caught up and defeated by Saladin and Rameses (even though Ewuare has an earlier lead), and the game being a stalemate between these 2 until late into the game where Saladin eventually wins at turn 469. See [KI#81](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#diplomacy-ai) anyways etc.
++- (Requires AdvCiv-SAS 5142+) value researching key military techs (high `FLAVOR_MILITARY`) much more when we are weaker, as economy or such techs are useless at best, or at worst we'd just be researching them for our ennemies after they conquer us. Change in `CvPlayerAI::AI_techValue`. In autoplay, this seemingly results in Ewuare not being able to sustain his early lead anymore. See [KI#81](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#diplomacy-ai) anyways etc.
+ 
+ #### Leaders (AI)
+ 
+@@ -228,6 +228,7 @@ Note 2: master-vassal(s) changes are made with the aim that they in most cases w
+ - (Requires AdvCiv-SAS 5135+) Implemented preferrential master<->vassal(s) tech trading (we are heavily more willing to tech trade with our master/vassal(s)), in `CvPlayerAI::AI_doDiplo`. This synergises the previous devalue techs we can get from our master/vassal(s) change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-ai)) and expands on it, not just techs that overlap with what our master/vassal(s) already know. In autoplay, this results for example in the master having 4 more techs and one less tech from turn 250 to turn 300 (vassal was mostly way ahead in tech) and the vassal having 2 more techs and 0 less techs, which is a massive improvement it seems, just from this change. Added a bugfix to `AI_contactRoll(CONTACT_TRADE_TECH` (was missing a second parameter according to chatgpt 5.1) which may have or not contributed to this skew in behaviour. See for details [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51). (Requires AdvCiv-SAS 5138+) Update: also added vassal<->vassal siblings extra tech trading chance similarly, which leads in autoplay (since Ewuare has 2 vassals at t250) to seemingly more or less identical results, which is fine as long as not clearly harmful, and this only boosts chance, not reduces trade which may be less predictable in terms of is this beneficial or harmful.
+ - (Requires AdvCiv-SAS 5140+) If not between members of the same master-vassal(s) locus, added an alternative military power based tech trade contact chance modifier in `CvPlayerAI::AI_doDiplo`, so that we have a higher chance to trade with militarily weaker players to us (safer, less likely to backstab us) and a lower chance for stronger players to us (more likely to become our ennemies or to bite us back in some way). In autoplay, seemingly results in much closer game, where the runaway Ewuare is now regularly and repeatedly caught up by other rivals and vice versa when these take the lead as well, until late in the game where game ends at turn 419 vs 288 before and was close until the last few or such dozen turns. See for details [KI#80](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental).
+ - (Requires AdvCiv-SAS 5139+) Whenever we want to contact players outside of our master-vassal(s) locus for a tech trade, first check if a member of does not already have the tech, and if so do not contact outsiders (in the hope we indirectly trade more with players within our locus rather). In autoplay, this helps Ewuare win sooner seemingly due to unlocking the military tech for dragoons one of his vassal had long ago but that he didn't have in other runs at turn 300; tech pace is otherwise more or less mostly the same. Change in `CvPlayerAI::AI_doDiplo`. See for details [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
++- (Requires AdvCiv-SAS 5143+) When we are evaluating the value of techs in tech trades, with players outside of our master-vassal(s) locus, extra value key military techs (high `FLAVOR_MILITARY`) if we are weaker than our ennemies/rivals, as this is what we need most to survive, not extra economy techs or such; change in `CvTeamAI::AI_techTradeVal`. As of now, most key military techs are untradeable though, which is consistent with autoplay impact being currently small, but this could help or affect gameplay more if untradeable techs is removed for some or all of the key military techs but anyways etc.
+ 
+ #### Military (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index b8598760b..a869badde 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -3036,7 +3036,7 @@ Note: does not apply if between members of a master-vassal(s) locus.
+ 
+ The effect seems extremely positive and helpful to AI strength, although this is just one autoplay before/after sample and there could be noise, but what seemed to happen is that unlike before the change where Ewuare quickly took a lead and became unstoppable and snowballed to win easily at turn 288, after this change it seems now that anytime a player would take a military or score lead, somehow this score started to shrink and others caught up. It also seemed that weaker rivals were closer at a glance, at least early on but anyways etc. Ewuare eventually won but only at turn 419, and even at turn 300s the game was more or less even between a few rivals/blocs and very close.
+ 
+-So this seems to help a lot, although it could just be noise, but it is not a harmless change so implementing it as such anyways etc.
++So this seems to help a lot, although it could just be noise, but it does not seem to be a clearly harmful change so implementing it as such anyways etc.
+ 
+ ## 81 - (Tremendously Improved) AI not valuing military techs for research enough when weaker
+ 
+@@ -3044,6 +3044,6 @@ See some screenshots and files about/related(ing? Anyways etc) to this issue in
+ 
+ AI seemingly was often too slow or straight up not valuing for research key military techs (with a high enough FLAVOR_MILITARY, see sas defines for details anyways etc.) at all, even when it was weaker and at risk of dying (economy or such techs would be useless to it at best, and at worst they would be researching them for their ennemies when they conquer them (kind of like how AI used to do/be for wonders before our changes i mean if i may say but anyways etc.)).
+ 
+-After our changes in `CvPlayerAI::AI_techValue`, game changed from Ewuare winning at turn 382 quite hardly (but still as he always did in many runs so far) to him finally losing to Saladin and Rameses despite Ewuare having an initial early lead, and the game being even closer, and at a stalemate even at turn 400s between Saladin and Rameses who controlled about half the world each (Saladin eventually won a Space victory at turn 469 and was seemignly stronger eventually even though this was shortly game would have otherwise ended on time not long later but anyways etc.)
++After our changes in `CvPlayerAI::AI_techValue`, game changed from Ewuare winning at turn 382 quite hardly (but still as he always did in many runs so far) to him finally losing to Saladin and Rameses despite Ewuare having an initial early lead (but that he could not sustain after our changes it seems but anyways etc.), and the game being even closer, and at a stalemate even at turn 400s between Saladin and Rameses who controlled about half the world each (Saladin eventually won a Space victory at turn 469 and was seemignly stronger eventually even though this was shortly game would have otherwise ended on time not long later but anyways etc.).
+ 
+ This seems like a good AI improvement at least based on this autoplay comparison sample, and at least a nice sanity to have for AIs if i'm not mistaken but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index a6e527496..d01ee41cd 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -182,7 +182,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - (Requires AdvCiv-SAS 5141+) **Tech military flavor overhaul:** Retuned `FLAVOR_MILITARY` on many techs so the AI better recognizes their true military importance (e.g. `TECH_CORPORATION` **3 → 0** — no longer treated as a military tech; `TECH_CIVIL_SERVICE` **3 → 8** — now strongly flagged as military to better match its role in the reworked tree and its general impact).
+ - (Requires AdvCiv-SAS 5134+) **Master–vassal tech overlap penalty:** In `CvPlayerAI::AI_techValue`, reduce the value of researching techs already known by our vassal(s) or master to discourage redundant research and encourage complementary paths/trades instead. See [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#diplomacy-ai). **Update:** also apply the same devaluation between **sibling vassals** in the self-research logic (if any of our fellow vassal(s) already has the tech, we value researching it less ourselves).
+-- (Requires AdvCiv-SAS 5142+) **Military tech priority when weaker:** In `CvPlayerAI::AI_techValue`, give much more weight to key **military techs** when we’re weaker in power; economic or “peaceful” techs are of limited use if we’re likely to be conquered (and can end up effectively researched *for* our future conqueror). In one autoplay sample this seemingly contributed to Ewuare no longer closing out a hard-fought win at **T386**: he is instead caught and defeated by **Saladin** and **Rameses**, whose struggle then stays roughly balanced until Saladin finally wins at **T469**. See [KI#81](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#diplomacy-ai).
++- (Requires AdvCiv-SAS 5142+) **Military tech priority when weaker:** In `CvPlayerAI::AI_techValue`, give much more weight to key **military techs** when we’re weaker in power; economic or “peaceful” techs are of limited use if we’re likely to be conquered (and can end up effectively researched *for* our future conqueror). In one autoplay sample this seemingly in Ewuare not being able to sustain his early lead anymore. See [KI#81](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#81---tremendously-improved-ai-not-valuing-military-techs-for-research-enough-when-weaker). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#diplomacy-ai).
+ 
+ #### Leaders (AI)
+ 
+@@ -217,7 +217,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Era- & inventory-aware relative pricing for key strategic bonuses (Horse↔Camel, Camel↔Horse, ±Elephants):** Also in `CvPlayerAI::AI_bonusTradeVal`, trade values now adjust by what the buyer already has and by era. Examples: Medieval buyer with **Horse/Camel** but no **Iron** values Iron ≈ x2 (to unlock Knights); by Renaissance that premium fades (Muskets don’t need any bonus; Cannons only need Iron). **Elephants** are valued in Ancient/Classical, but discounted in Medieval (≈ x0.5, for buildings at most). **Copper/Iron** are discounted in Classical if the buyer already has Camel/Horse/Elephants; Horse and Camel are treated as partial substitutes early on.
+ - (Requires AdvCiv-SAS 5135+) **Preferential master–vassal tech trading:** Heavily increase willingness to trade techs with our **master/vassal(s)**; change in `CvPlayerAI::AI_doDiplo`. This synergises with the earlier “devalue techs your master/vassal already knows” change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-ai)) and extends it **to *all* techs**, not just techs that overlap with what our master/vassal(s) already know. In one autoplay sample this led to noticeably **less overlap** and better sharing (e.g. a master gaining ~4 more and 1 fewer tech, a vassal ~2 more and 0 fewer over T250–300 compared to before). Also fixed a missing second parameter in `AI_contactRoll(CONTACT_TRADE_TECH` (according to ChatGPT 5.1), which may have contributed to earlier skew. Details: [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51). - (Requires AdvCiv-SAS 5135+) Implemented preferrential master<->vassal(s) tech trading (we are heavily more willing to tech trade with our master/vassal(s)), in `CvPlayerAI::AI_doDiplo`. This synergises the previous devalue techs we can get from our master/vassal(s) change (see [Technologies (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-ai)) and expands on it, not just techs that overlap with what our master/vassal(s) already know. In autoplay, this results for example in the master having 4 more techs and one less tech from turn 250 to turn 300 (vassal was mostly way ahead in tech) and the vassal having 2 more techs and 0 less techs, which is a massive improvement it seems, just from this change. Added a bugfix to `AI_contactRoll(CONTACT_TRADE_TECH` (was missing a second parameter according to chatgpt 5.1) which may have or not contributed to this skew in behaviour. See for details [KI#78](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#78---tremendously-improved-trade-techs-preferentially-with-our-vassals-or-master-synergises-with-the-no-overlap-previous-master-vassals-tweak--bugfix-missing-second-parameter-now-ai_contactrollcontact_trade_tech-rcontactprobmult-according-to-chatgpt-51). (Requires AdvCiv-SAS 5138+) **Update:** Extend the same extra trade bias to **sibling vassal↔vassal** trades. In autoplay (Ewuare with two vassals at T250), this produced broadly similar outcomes to the master–vassal–only version, which is acceptable since the change only increases trade chances (doesn’t remove any) and is therefore less likely to be harmful.
+ - (Requires AdvCiv-SAS 5140+) **Military-power–aware tech trade targeting:** If a potential tech-trade is *not* between members of the same master–vassal(s) locus, `CvPlayerAI::AI_doDiplo` instead increases tech-trade contact chance toward **militarily weaker** players (safer, less likely to threaten us) and reduces it for **stronger** ones (less free value to future rivals). In one autoplay sample this seemingly produced a much closer game: the former runaway (Ewuare) was repeatedly caught up by rivals, and the game lasted to ~T419 instead of ~T288, with the lead changing hands several times. See [KI#80](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#80---tremendously-improved-ai-contacting-for-tech-trades-players-that-are-stronger-even-though-this-is-more-likely-to-be-detrimental).
+-- (Requires AdvCiv-SAS 5139+) **Master–vassal(s) locus first for tech trades:** When evaluating tech trades in `CvPlayerAI::AI_doDiplo`, the AI now **first checks** whether a desired tech is already tradeable inside its own master–vassal locus (master, vassals, sibling vassals). If so, it **does not ask outside civilizations for that tech**, nudging trades to stay within the group instead. In one autoplay sample this *seemed* to help Ewuare win earlier by finally picking up the Dragoon-related military tech from a vassal, while the locus kept a similar overall tech pace to previous runs. See [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
++- (Requires AdvCiv-SAS 5139+) **Master–vassal(s) locus first for tech trades:** Whenever the AI wants to contact players for a tech trade in `CvPlayerAI::AI_doDiplo`, it now **first checks** whether a desired tech is already tradeable inside its own master–vassal locus (master, vassals, sibling vassals). If so, it **does not ask outside civilizations for that tech**, nudging trades to stay within the group instead. In one autoplay sample this *seemed* to help Ewuare win earlier by finally picking up the Dragoon-related military tech from a vassal, while the locus kept a similar overall tech pace to previous runs. See [KI#79](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#79---improved-before-contacting-other-players-for-tech-trades-first-check-if-we-dont-already-have-the-tech-in-our-master-vassals-locus-and-if-so-dont-contact-the-other-players).
++- (Requires AdvCiv-SAS 5143+) **Military priority in tech trades when behind:** When evaluating the value of techs in trades with players outside our master–vassal(s) locus in `CvTeamAI::AI_techTradeVal`, **key military techs** (high `FLAVOR_MILITARY`) are **valued more highly** if we are **weaker** than our rivals (they matter more for survival than additional economic techs); as of now most key military techs are untradeable, which is consistent with autoplay impact being small, but this may matter more if those techs become tradeable.
+ 
+ #### Military (AI)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=30275

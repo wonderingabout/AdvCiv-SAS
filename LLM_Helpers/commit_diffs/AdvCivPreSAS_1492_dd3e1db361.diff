@@ -1,0 +1,1863 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1492
+# Commit: dd3e1db361932d73c077d018239ba7a7af3694d2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c2853ebbd15026c411458ec4159357134601d291
+# Title: GlobalTradeRoutes XML tag renamed to AreaTradeRoutes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+160	165	Assets/XML/Buildings/CIV4BuildingInfos.xml
+4	2	Assets/XML/Buildings/CIV4BuildingsSchema.xml
+15	16	CvGameCoreDLL/CvArea.cpp
+2	3	CvGameCoreDLL/CvArea.h
+1	1	CvGameCoreDLL/CvCity.cpp
+5	3	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvGame.cpp
+3	2	CvGameCoreDLL/CvGameTextMgr.cpp
+14	14	CvGameCoreDLL/CvInfos.cpp
+5	4	CvGameCoreDLL/CvInfos.h
+2	2	CvGameCoreDLL/CvPlayer.cpp
+4	3	CvGameCoreDLL/CvPlot.cpp
+2	1	CvGameCoreDLL/CyInfoInterface1.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+index 517fb5b9a..314f322ca 100644
+--- a/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py
+@@ -565,9 +565,9 @@ class CvCustomizableDomesticAdvisor:
+ 				or info.getDomainProductionModifier(DomainTypes.DOMAIN_AIR) > 0 \
+ 				or info.getYieldChange(YieldTypes.YIELD_PRODUCTION) > 0:
+ 				icon += self.hammerIcon
+-
++			# advc.310: iGlobalTradeRoutes renamed to iAreaTradeRoutes
+ 			if info.getTradeRouteModifier() > 0 or info.getTradeRoutes() > 0 or info.getCoastalTradeRoutes() > 0 \
+-			or info.getGlobalTradeRoutes() > 0 or info.getForeignTradeRouteModifier() > 0:
++			or info.getAreaTradeRoutes() > 0 or info.getForeignTradeRouteModifier() > 0:
+ 				icon += self.tradeIcon
+ 
+ 			if info.getMaintenanceModifier() < 0:
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index ff23f62cc..c1234aaf3 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -2,13 +2,8 @@
+ <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
+ <!-- Sid Meier's Civilization 4 -->
+ <!-- Copyright Firaxis Games 2005 -->
+-<!-- -->
+ <!-- Building Infos -->
+-
+-<!-- advc.020: Many buildings that had just one type of flavor in Warlords/BtS
+-	 now have two. In these cases, I've usually avoided assigning the full
+-	 10 points to any one flavor type. This is to avoid extreme
+-	 preferences by leaders that match both flavor types. -->
++<!-- advc.310: Renamed iGlobalTradeRoutes to iAreaTradeRoutes -->
+ 
+ <Civ4BuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
+ 	<BuildingInfos>
+@@ -120,7 +115,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -290,7 +285,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -472,7 +467,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -662,7 +657,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -841,7 +836,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -1023,7 +1018,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>1</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -1222,7 +1217,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>1</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -1425,7 +1420,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -1597,7 +1592,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -1768,7 +1763,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -1935,7 +1930,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -2102,7 +2097,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -2269,7 +2264,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -2442,7 +2437,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -2623,7 +2618,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -2816,7 +2811,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -2987,7 +2982,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -3154,7 +3149,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -3320,7 +3315,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -3484,7 +3479,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -3653,7 +3648,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -3823,7 +3818,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -3998,7 +3993,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>50</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -4186,7 +4181,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>1</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>50</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -4361,7 +4356,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>100</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -4528,7 +4523,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>100</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -4710,7 +4705,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -4888,7 +4883,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>1</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -5066,7 +5061,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -5257,7 +5252,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -5453,7 +5448,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -5644,7 +5639,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -5838,7 +5833,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -6005,7 +6000,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -6177,7 +6172,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -6350,7 +6345,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -6517,7 +6512,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -6710,7 +6705,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -6885,7 +6880,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -7071,7 +7066,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -7250,7 +7245,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -7430,7 +7425,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -7593,7 +7588,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -7772,7 +7767,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -7964,7 +7959,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -8157,7 +8152,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -8340,7 +8335,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -8518,7 +8513,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -8688,7 +8683,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -8868,7 +8863,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -9049,7 +9044,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -9239,7 +9234,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -9428,7 +9423,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -9621,7 +9616,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -9818,7 +9813,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -9991,7 +9986,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -10185,7 +10180,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -10357,7 +10352,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -10530,7 +10525,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -10724,7 +10719,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -10916,7 +10911,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -11112,7 +11107,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -11302,7 +11297,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -11493,7 +11488,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -11657,7 +11652,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -11821,7 +11816,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -12008,7 +12003,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -12214,7 +12209,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -12400,7 +12395,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -12587,7 +12582,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -12773,7 +12768,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -12960,7 +12955,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -13147,7 +13142,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -13334,7 +13329,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -13499,7 +13494,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -13667,7 +13662,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -13849,7 +13844,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -14021,7 +14016,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -14201,7 +14196,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -14392,7 +14387,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -14566,7 +14561,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -14755,7 +14750,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -14935,7 +14930,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -15126,7 +15121,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -15300,7 +15295,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -15489,7 +15484,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -15669,7 +15664,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -15860,7 +15855,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -16034,7 +16029,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -16223,7 +16218,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -16403,7 +16398,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -16594,7 +16589,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -16768,7 +16763,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -16957,7 +16952,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -17137,7 +17132,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -17328,7 +17323,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -17502,7 +17497,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -17691,7 +17686,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -17871,7 +17866,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -18062,7 +18057,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -18236,7 +18231,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -18425,7 +18420,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -18605,7 +18600,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -18796,7 +18791,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -18970,7 +18965,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -19159,7 +19154,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -19339,7 +19334,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -19524,7 +19519,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -19719,7 +19714,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -19895,7 +19890,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -20066,7 +20061,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -20259,7 +20254,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -20438,7 +20433,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -20632,7 +20627,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -20800,7 +20795,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -20975,7 +20970,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -21161,7 +21156,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -21328,7 +21323,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -21514,7 +21509,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -21695,7 +21690,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -21889,7 +21884,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>2</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -22075,7 +22070,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>1</iGlobalPopulationChange>
+@@ -22260,7 +22255,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -22449,7 +22444,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -22630,7 +22625,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -22815,7 +22810,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -23008,7 +23003,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -23191,7 +23186,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -23371,7 +23366,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -23558,7 +23553,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -23739,7 +23734,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -23918,7 +23913,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -24107,7 +24102,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -24293,7 +24288,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -24482,7 +24477,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -24673,7 +24668,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -24849,7 +24844,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -25024,7 +25019,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -25199,7 +25194,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -25375,7 +25370,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -25543,7 +25538,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -25712,7 +25707,7 @@
+ 			<iGlobalSpaceProductionModifier>100</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -25889,7 +25884,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -26059,7 +26054,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>100</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -26249,7 +26244,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -26437,7 +26432,7 @@
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+ 			<!-- advc.310: Was 0 -->
+-			<iGlobalTradeRoutes>1</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>1</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -26633,7 +26628,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -26820,7 +26815,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -27013,7 +27008,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -27187,7 +27182,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -27376,7 +27371,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -27562,7 +27557,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -27745,7 +27740,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -27928,7 +27923,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -28111,7 +28106,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -28294,7 +28289,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -28477,7 +28472,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -28662,7 +28657,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+@@ -28842,7 +28837,7 @@
+ 			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iGlobalTradeRoutes>0</iGlobalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+ 			<iTradeRouteModifier>0</iTradeRouteModifier>
+ 			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+ 			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingsSchema.xml b/Assets/XML/Buildings/CIV4BuildingsSchema.xml
+index ae4e5bf68..1210b1ffc 100644
+--- a/Assets/XML/Buildings/CIV4BuildingsSchema.xml
++++ b/Assets/XML/Buildings/CIV4BuildingsSchema.xml
+@@ -158,7 +158,8 @@
+ 	<ElementType name="iGlobalSpaceProductionModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iTradeRoutes" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iCoastalTradeRoutes" content="textOnly" dt:type="int"/>
+-	<ElementType name="iGlobalTradeRoutes" content="textOnly" dt:type="int"/>
++	<!-- advc.310: Was iGlobalTradeRoutes; renamed (and semantics changed too). -->
++	<ElementType name="iAreaTradeRoutes" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iTradeRouteModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iForeignTradeRouteModifier" content="textOnly" dt:type="int"/>
+ 	<ElementType name="iGlobalPopulationChange" content="textOnly" dt:type="int"/>
+@@ -488,7 +489,8 @@
+ 		<element type="iGlobalSpaceProductionModifier"/>
+ 		<element type="iTradeRoutes"/>
+ 		<element type="iCoastalTradeRoutes"/>
+-		<element type="iGlobalTradeRoutes"/>
++		<!-- advc.310: was iGlobalTradeRoutes -->
++		<element type="iAreaTradeRoutes"/>
+ 		<element type="iTradeRouteModifier"/>
+ 		<element type="iForeignTradeRouteModifier"/>
+ 		<element type="iGlobalPopulationChange"/>
+
+diff --git a/CvGameCoreDLL/CvArea.cpp b/CvGameCoreDLL/CvArea.cpp
+index da6e3ef3d..51727789a 100644
+--- a/CvGameCoreDLL/CvArea.cpp
++++ b/CvGameCoreDLL/CvArea.cpp
+@@ -426,16 +426,15 @@ void CvArea::changeNumOwnedTiles(int iChange)
+ // <advc.300>
+ std::pair<int,int> CvArea::countOwnedUnownedHabitableTiles(bool bIgnoreBarb) const {
+ 
+-	std::pair<int,int> r;
+-	r.first = 0; r.second = 0;
+-	CvMap const& map = GC.getMapINLINE();
+-	for(int i = 0; i < map.numPlots(); i++) {
+-		CvPlot* plot = map.plotByIndexINLINE(i);
+-		if(plot == NULL || plot->area() == NULL || plot->area()->getID() != getID()
+-				|| !plot->isHabitable())
++	std::pair<int,int> r(0, 0);
++	CvMap const& kMap = GC.getMapINLINE();
++	for(int i = 0; i < kMap.numPlots(); i++) {
++		CvPlot* pPlot = kMap.plotByIndexINLINE(i);
++		if(pPlot == NULL || pPlot->area() == NULL || pPlot->area()->getID() != getID()
++				|| !pPlot->isHabitable())
+ 			continue;
+-		if(plot->isOwned() && (!bIgnoreBarb ||
+-				plot->getOwnerINLINE() != BARBARIAN_PLAYER))
++		if(pPlot->isOwned() && (!bIgnoreBarb ||
++				pPlot->getOwnerINLINE() != BARBARIAN_PLAYER))
+ 			r.first++;
+ 		else r.second++;
+ 	}
+@@ -456,9 +455,9 @@ int CvArea::countCivs(bool bSubtractOCC) const {
+ 	   aren't cached/ serialized (yet). */
+ 	int r = 0;
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+-		PlayerTypes civId = (PlayerTypes)i;
+-		if(getCitiesPerPlayer(civId) > 0 &&
+-				(!bSubtractOCC || !GET_PLAYER(civId).isHuman() ||
++		PlayerTypes ePlayer = (PlayerTypes)i;
++		if(getCitiesPerPlayer(ePlayer) > 0 &&
++				(!bSubtractOCC || !GET_PLAYER(ePlayer).isHuman() ||
+ 				!GC.getGameINLINE().isOption(GAMEOPTION_ONE_CITY_CHALLENGE)))
+ 			r++;
+ 	}
+@@ -466,12 +465,12 @@ int CvArea::countCivs(bool bSubtractOCC) const {
+ }
+ 
+ 
+-bool CvArea::hasAnyAreaPlayerBonus(BonusTypes bId) const {
++bool CvArea::hasAnyAreaPlayerBonus(BonusTypes eBonus) const {
+ 
+ 	for(int i = 0; i < MAX_PLAYERS; i++) {
+ 		PlayerTypes ePlayer = (PlayerTypes)i;
+ 		// Barbarian, minor civ, anything goes so long as there's a city.
+-		if(getCitiesPerPlayer(ePlayer) > 0 && GET_PLAYER(ePlayer).hasBonus(bId))
++		if(getCitiesPerPlayer(ePlayer) > 0 && GET_PLAYER(ePlayer).hasBonus(eBonus))
+ 			return true;
+ 	}
+ 	return false;
+@@ -482,7 +481,7 @@ int CvArea::getBarbarianCitiesEverCreated() const {
+ 	return m_iBarbarianCitiesEver;
+ }
+ 
+-void CvArea::barbarianCityCreated() {
++void CvArea::reportBarbarianCityCreated() {
+ 
+ 	m_iBarbarianCitiesEver++;
+ } // </advc.300>
+@@ -563,7 +562,7 @@ void CvArea::changeCitiesPerPlayer(PlayerTypes eIndex, int iChange)
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be >= 0");
+ 	FAssertMsg(eIndex < MAX_PLAYERS, "eIndex is expected to be < MAX_PLAYERS");
+ 	m_iNumCities = (m_iNumCities + iChange);
+-	barbarianCityCreated(); // advc.300
++	reportBarbarianCityCreated(); // advc.300
+ 	FAssert(getNumCities() >= 0);
+ 	m_aiCitiesPerPlayer[eIndex] = (m_aiCitiesPerPlayer[eIndex] + iChange);
+ 	FAssert(getCitiesPerPlayer(eIndex, true) >= 0); // advc.030b
+
+diff --git a/CvGameCoreDLL/CvArea.h b/CvGameCoreDLL/CvArea.h
+index 25d87044c..223c301c9 100644
+--- a/CvGameCoreDLL/CvArea.h
++++ b/CvGameCoreDLL/CvArea.h
+@@ -45,11 +45,10 @@ public:
+ 			bool bIgnoreBarb = false) const;
+ 	int countCivCities() const;
+ 	int countCivs(bool bSubtractOCC = false) const; // with at least 1 city
+-	bool hasAnyAreaPlayerBonus(BonusTypes bId) const;
++	bool hasAnyAreaPlayerBonus(BonusTypes eBonus) const;
+ 	int getBarbarianCitiesEverCreated() const;
+-	void barbarianCityCreated();
++	void reportBarbarianCityCreated();
+ 	// </advc.300>
+-																						// Exposed to Python
+ 	void changeNumRiverEdges(int iChange);																								// Exposed to Python
+ 
+ 	int getTotalPopulation() const;																						// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 4dd332ee5..cbe386954 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -12072,7 +12072,7 @@ void CvCity::setNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool b
+ 		if (GC.getBuildingInfo(eIndex).isAreaBorderObstacle()
+ 			/*  advc.310: Show GW as 3D model even when playing w/o Barbarians
+ 				(BorderObstacle ability disabled through CvInfos then). */
+-				|| GC.getBuildingInfo(eIndex).getGlobalTradeRoutes() > 0)
++				|| GC.getBuildingInfo(eIndex).getAreaTradeRoutes() > 0)
+ 		{
+ 			int iCountExisting = 0;
+ 			for (iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ce2750c43..24be1b767 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4234,9 +4234,11 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			iTempValue /= 100;
+ 
+ 			iTempValue += kBuilding.getCoastalTradeRoutes() * std::max((iCitiesTarget+1)/2, kOwner.countNumCoastalCities()) * iGlobalTradeValue;
+-			iTempValue += kBuilding.getGlobalTradeRoutes() *
+-					// advc.310: Same formula as for AreaHappiness (Notre Dame)
+-					(iNumCitiesInArea + iCitiesTarget / 3)//std::max(iCitiesTarget, iNumCities)
++			// <advc.310>
++			iTempValue += kBuilding.getAreaTradeRoutes() *
++					// Same formula as for AreaHappiness (Notre Dame)
++					(iNumCitiesInArea + iCitiesTarget / 3) // </advc.310>
++					//std::max(iCitiesTarget, iNumCities)
+ 					* iGlobalTradeValue;
+ 			// K-Mod end
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 9cdec6f63..53bb6dc97 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1013,7 +1013,7 @@ void CvGame::applyOptionEffects(bool bEnableAll) {
+ 
+ 	CvBuildingInfo::setDomesticGreatGeneralRateModifierEnabled(bEnableAll ||
+ 			isOption(GAMEOPTION_RAGING_BARBARIANS) || isOption(GAMEOPTION_NO_BARBARIANS));
+-	CvBuildingInfo::setGlobalTradeRoutesEnabled(bEnableAll ||
++	CvBuildingInfo::setAreaTradeRoutesEnabled(bEnableAll ||
+ 			!isOption(GAMEOPTION_RAGING_BARBARIANS) || isOption(GAMEOPTION_NO_BARBARIANS));
+ 	CvBuildingInfo::setAreaBorderObstacleEnabled(bEnableAll ||
+ 			!isOption(GAMEOPTION_NO_BARBARIANS));
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index e1e0aec77..346acd8e3 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -11158,10 +11158,11 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_COASTAL_TRADE_ROUTES", kBuilding.getCoastalTradeRoutes()));
+ 	}
+ 
+-	if (kBuilding.getGlobalTradeRoutes() != 0)
++	if (kBuilding.getAreaTradeRoutes() != 0) // advc.310: Renamed; was iGlobalTradeRoutes.
+ 	{
+ 		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_TRADE_ROUTES_ALL_CITIES", kBuilding.getGlobalTradeRoutes()));
++		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_TRADE_ROUTES_ALL_CITIES",
++				kBuilding.getAreaTradeRoutes())); // advc.310
+ 	}
+ 
+ 	if (kBuilding.getTradeRouteModifier() != 0)
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index 4fc8b3b5d..8f106c4f3 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -6631,7 +6631,7 @@ m_iSpaceProductionModifier(0),
+ m_iGlobalSpaceProductionModifier(0),	
+ m_iTradeRoutes(0),									
+ m_iCoastalTradeRoutes(0),						
+-m_iGlobalTradeRoutes(0),						
++m_iAreaTradeRoutes(0), // advc.310
+ m_iTradeRouteModifier(0),						
+ m_iForeignTradeRouteModifier(0),						
+ m_iAssetValue(0),									
+@@ -7074,13 +7074,13 @@ int CvBuildingInfo::getCoastalTradeRoutes() const
+ {
+ 	return m_iCoastalTradeRoutes;
+ }
+-
+-int CvBuildingInfo::getGlobalTradeRoutes() const	
+-{	// <advc.310>
+-	if(!m_bEnabledGlobalTradeRoutes)
+-		return 0; // </advc.310>
+-	return m_iGlobalTradeRoutes;
+-}
++// <advc.310>
++int CvBuildingInfo::getAreaTradeRoutes() const	
++{
++	if(!m_bEnabledAreaTradeRoutes)
++		return 0;
++	return m_iAreaTradeRoutes;
++} // </advc.310>
+ 
+ int CvBuildingInfo::getTradeRouteModifier() const
+ {
+@@ -7892,7 +7892,7 @@ void CvBuildingInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_iGlobalSpaceProductionModifier);
+ 	stream->Read(&m_iTradeRoutes);
+ 	stream->Read(&m_iCoastalTradeRoutes);
+-	stream->Read(&m_iGlobalTradeRoutes);
++	stream->Read(&m_iAreaTradeRoutes); // advc.310
+ 	stream->Read(&m_iTradeRouteModifier);
+ 	stream->Read(&m_iForeignTradeRouteModifier);
+ 	stream->Read(&m_iAssetValue);
+@@ -8237,7 +8237,7 @@ void CvBuildingInfo::write(FDataStreamBase* stream)
+ 	stream->Write(m_iGlobalSpaceProductionModifier);
+ 	stream->Write(m_iTradeRoutes);
+ 	stream->Write(m_iCoastalTradeRoutes);
+-	stream->Write(m_iGlobalTradeRoutes);
++	stream->Write(m_iAreaTradeRoutes); // advc.310
+ 	stream->Write(m_iTradeRouteModifier);
+ 	stream->Write(m_iForeignTradeRouteModifier);
+ 	stream->Write(m_iAssetValue);
+@@ -8599,7 +8599,7 @@ bool CvBuildingInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iGlobalSpaceProductionModifier, "iGlobalSpaceProductionModifier");
+ 	pXML->GetChildXmlValByName(&m_iTradeRoutes, "iTradeRoutes");
+ 	pXML->GetChildXmlValByName(&m_iCoastalTradeRoutes, "iCoastalTradeRoutes");
+-	pXML->GetChildXmlValByName(&m_iGlobalTradeRoutes, "iGlobalTradeRoutes");
++	pXML->GetChildXmlValByName(&m_iAreaTradeRoutes, "iAreaTradeRoutes"); // advc.310
+ 	pXML->GetChildXmlValByName(&m_iTradeRouteModifier, "iTradeRouteModifier");
+ 	pXML->GetChildXmlValByName(&m_iForeignTradeRouteModifier, "iForeignTradeRouteModifier");
+ 	pXML->GetChildXmlValByName(&m_iGlobalPopulationChange, "iGlobalPopulationChange");
+@@ -8962,13 +8962,13 @@ bool CvBuildingInfo::read(CvXMLLoadUtility* pXML)
+ }
+ // <advc.310>
+ bool CvBuildingInfo::m_bEnabledDomesticGreatGeneralRateModifier = true;
+-bool CvBuildingInfo::m_bEnabledGlobalTradeRoutes = true;
++bool CvBuildingInfo::m_bEnabledAreaTradeRoutes = true;
+ bool CvBuildingInfo::m_bEnabledAreaBorderObstacle = true;
+ void CvBuildingInfo::setDomesticGreatGeneralRateModifierEnabled(bool b) {
+ 	m_bEnabledDomesticGreatGeneralRateModifier = b;
+ }
+-void CvBuildingInfo::setGlobalTradeRoutesEnabled(bool b) {
+-	m_bEnabledGlobalTradeRoutes = b;
++void CvBuildingInfo::setAreaTradeRoutesEnabled(bool b) {
++	m_bEnabledAreaTradeRoutes = b;
+ }
+ void CvBuildingInfo::setAreaBorderObstacleEnabled(bool b) {
+ 	m_bEnabledAreaBorderObstacle = b;
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index 2fcc98893..0f782a039 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -1636,7 +1636,8 @@ public:
+ 	int getGlobalSpaceProductionModifier() const;				// Exposed to Python
+ 	int getTradeRoutes() const;				// Exposed to Python
+ 	int getCoastalTradeRoutes() const;				// Exposed to Python
+-	int getGlobalTradeRoutes() const;				// Exposed to Python
++	// advc.310: Renamed; was getGlobalTradeRoutes.
++	int getAreaTradeRoutes() const;				// Exposed to Python
+ 	int getTradeRouteModifier() const;				// Exposed to Python
+ 	int getForeignTradeRouteModifier() const;				// Exposed to Python
+ 	int getAssetValue() const;				// Exposed to Python
+@@ -1792,7 +1793,7 @@ public:
+ 	bool read(CvXMLLoadUtility* pXML);
+ 	// <advc.310>
+ 	static void setDomesticGreatGeneralRateModifierEnabled(bool b);
+-	static void setGlobalTradeRoutesEnabled(bool b);
++	static void setAreaTradeRoutesEnabled(bool b);
+ 	static void setAreaBorderObstacleEnabled(bool b);
+ 	// </advc.310>
+ 	//---------------------------------------PUBLIC MEMBER VARIABLES---------------------------------
+@@ -1851,7 +1852,7 @@ protected:
+ 	int m_iGlobalSpaceProductionModifier;	
+ 	int m_iTradeRoutes;									
+ 	int m_iCoastalTradeRoutes;						
+-	int m_iGlobalTradeRoutes;						
++	int m_iAreaTradeRoutes; // advc.310: was m_iGlobalTradeRoutes
+ 	int m_iTradeRouteModifier;						
+ 	int m_iForeignTradeRouteModifier;						
+ 	int m_iAssetValue;									
+@@ -1970,7 +1971,7 @@ protected:
+ /************************************************************************************************/
+ 	// <advc.310>
+ 	static bool m_bEnabledAreaBorderObstacle;
+-	static bool m_bEnabledGlobalTradeRoutes;
++	static bool m_bEnabledAreaTradeRoutes;
+ 	static bool m_bEnabledDomesticGreatGeneralRateModifier;
+ 	// </advc.310>
+ };
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index f20ea0615..734ed4265 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7367,10 +7367,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, CvArea* pAr
+ 	pArea->changeFreeSpecialist(getID(), (GC.getBuildingInfo(eBuilding).getAreaFreeSpecialist() * iChange));
+ 	changeFreeSpecialist(GC.getBuildingInfo(eBuilding).getGlobalFreeSpecialist() * iChange);
+ 	changeCoastalTradeRoutes(GC.getBuildingInfo(eBuilding).getCoastalTradeRoutes() * iChange);
+-	// <advc.310> Now per area.
++	// <advc.310> Now per area
+ 	//changeTradeRoutes(GC.getBuildingInfo(eBuilding).getGlobalTradeRoutes() * iChange);
+ 	pArea->changeTradeRoutes(getID(),
+-			GC.getBuildingInfo(eBuilding).getGlobalTradeRoutes() * iChange);
++			GC.getBuildingInfo(eBuilding).getAreaTradeRoutes() * iChange);
+ 	// </advc.310>
+ 	if (GC.getBuildingInfo(eBuilding).getAreaHealth() > 0)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index a7482cc80..ef8c751a7 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6349,9 +6349,10 @@ bool CvPlot::isHabitable(bool bIgnoreSea) const {
+ 	int iAdjHabitableLand = 0;
+ 	for(int i = 0; i < GC.getNumDirections(); i++) {
+ 		DirectionTypes dir = (DirectionTypes)i;
+-		CvPlot* adjP = plotDirection(getX_INLINE(), getY_INLINE(), dir);
+-		if(adjP == NULL) continue; CvPlot const& adj = *adjP;
+-		if(adj.isHabitable(true))
++		CvPlot* pAdj = plotDirection(getX_INLINE(), getY_INLINE(), dir);
++		if(pAdj == NULL)
++			continue;
++		if(pAdj->isHabitable(true))
+ 			iAdjHabitableLand++;
+ 		if(iAdjHabitableLand >= 2)
+ 			return true;
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index 3528cfb24..10af96b1f 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -515,7 +515,8 @@ void CyInfoPythonInterface1()
+ 		.def("getGlobalSpaceProductionModifier", &CvBuildingInfo::getGlobalSpaceProductionModifier, "int ()")
+ 		.def("getTradeRoutes", &CvBuildingInfo::getTradeRoutes, "int ()")
+ 		.def("getCoastalTradeRoutes", &CvBuildingInfo::getCoastalTradeRoutes, "int ()")
+-		.def("getGlobalTradeRoutes", &CvBuildingInfo::getGlobalTradeRoutes, "int ()")
++		// advc.310: Renamed; was getGlobalTradeRoutes.
++		.def("getAreaTradeRoutes", &CvBuildingInfo::getAreaTradeRoutes, "int ()")
+ 		.def("getTradeRouteModifier", &CvBuildingInfo::getTradeRouteModifier, "int ()")
+ 		.def("getForeignTradeRouteModifier", &CvBuildingInfo::getForeignTradeRouteModifier, "int ()")
+ 		.def("getAssetValue", &CvBuildingInfo::getAssetValue, "int ()")
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=87260

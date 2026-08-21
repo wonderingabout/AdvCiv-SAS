@@ -1,7 +1,8 @@
 #CvModName.py
 
-modName = "AdvCiv" # advc.009
-displayName = "AdvCiv" #advc.009
+# <!-- custom: change the in-game mod name from "AdvCiv Mod" to "AdvCiv-SAS Mod" so it shows up in the Settings panel too. (GPT-5.2-Codex (summarized)) -->
+modName = "AdvCiv-SAS" # advc.009
+displayName = "AdvCiv-SAS" #advc.009
 modVersion = ""
 
 civName = "BtS"
@@ -21,7 +22,6 @@ def getNameAndVersion():
 
 def getDisplayNameAndVersion():
 	return displayName + " " + modVersion
-
 
 def getCivName():
 	return civName

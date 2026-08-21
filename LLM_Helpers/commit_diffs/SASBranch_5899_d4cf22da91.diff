@@ -1,0 +1,314 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5899
+# Commit: d4cf22da915f58626448f7a252fdf89af8a375df
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c20ef76a649ba50769231232ebd4e9fdd46f097c
+# Title: Adjust the grid size of several map scripts that are too big or too small - Tuned several inherited map scripts after the shared-helper fix made their real H...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	0	PrivateMaps/Big_and_Small.py
+16	0	PrivateMaps/Custom_Continents.py
+16	0	PrivateMaps/Medium_and_Small.py
+9	10	PrivateMaps/Pangaea.py
+46	23	PrivateMaps/RandomScriptMap.py
+4	2	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Big_and_Small.py b/PrivateMaps/Big_and_Small.py
+index 118dea62b..062ec2c48 100644
+--- a/PrivateMaps/Big_and_Small.py
++++ b/PrivateMaps/Big_and_Small.py
+@@ -27,6 +27,22 @@ def isAdvancedMap():
+ 	# <!-- custom: hide this map from Simple Game to keep that list curated; still available in Custom Game. (GPT-5.3-Codex) -->
+ 	return 1
+ 
++def getNumPlotsPercent(argsList):
++	# <!-- custom: Huge tested roughly 10-15% too large after the shared world-size helper leak was fixed; reduce larger tiers without changing the generator's continent/island logic. (GPT-5.5?) -->
++	[eWorldSize] = argsList
++	if eWorldSize < 0:
++		return 100
++	sizeModifiers = {
++		SAS_MAGIC_WORLDSIZE_ARENA: 100,
++		SAS_MAGIC_WORLDSIZE_DUEL: 100,
++		SAS_MAGIC_WORLDSIZE_TINY: 100,
++		SAS_MAGIC_WORLDSIZE_SMALL: 100,
++		SAS_MAGIC_WORLDSIZE_STANDARD: 100,
++		SAS_MAGIC_WORLDSIZE_LARGE: 95,
++		SAS_MAGIC_WORLDSIZE_HUGE: 88
++	}
++	return sas_lookup_world_size(eWorldSize, sizeModifiers)
++
+ def getNumCustomMapOptions():
+ 	return 3
+
+diff --git a/PrivateMaps/Custom_Continents.py b/PrivateMaps/Custom_Continents.py
+index 5a77b4d77..15c03bf1a 100644
+--- a/PrivateMaps/Custom_Continents.py
++++ b/PrivateMaps/Custom_Continents.py
+@@ -26,6 +26,22 @@ balancer = BonusBalancer()
+ def getDescription():
+ 	return "TXT_KEY_MAP_SCRIPT_CUSTOM_CONTINENTS_DESCR"
+ 
++def getNumPlotsPercent(argsList):
++	# <!-- custom: Huge tested quite a bit too large after the shared world-size helper leak was fixed; trim larger tiers while preserving the script's chosen continent count. (GPT-5.5?) -->
++	[eWorldSize] = argsList
++	if eWorldSize < 0:
++		return 100
++	sizeModifiers = {
++		SAS_MAGIC_WORLDSIZE_ARENA: 100,
++		SAS_MAGIC_WORLDSIZE_DUEL: 100,
++		SAS_MAGIC_WORLDSIZE_TINY: 100,
++		SAS_MAGIC_WORLDSIZE_SMALL: 100,
++		SAS_MAGIC_WORLDSIZE_STANDARD: 100,
++		SAS_MAGIC_WORLDSIZE_LARGE: 90,
++		SAS_MAGIC_WORLDSIZE_HUGE: 80
++	}
++	return sas_lookup_world_size(eWorldSize, sizeModifiers)
++
+ def getNumCustomMapOptions():
+ 	return 3
+
+diff --git a/PrivateMaps/Medium_and_Small.py b/PrivateMaps/Medium_and_Small.py
+index d8792787b..21d5b6d26 100644
+--- a/PrivateMaps/Medium_and_Small.py
++++ b/PrivateMaps/Medium_and_Small.py
+@@ -27,6 +27,22 @@ def isAdvancedMap():
+ 	"This map should show up in simple mode"
+ 	return 0
+ 
++def getNumPlotsPercent(argsList):
++	# <!-- custom: Huge tested too crowded because bottom islets usually are not assigned to players, leaving the top continent-style area cramped; increase plot count modestly from Large onward. (GPT-5.5?) -->
++	[eWorldSize] = argsList
++	if eWorldSize < 0:
++		return 100
++	sizeModifiers = {
++		SAS_MAGIC_WORLDSIZE_ARENA: 100,
++		SAS_MAGIC_WORLDSIZE_DUEL: 100,
++		SAS_MAGIC_WORLDSIZE_TINY: 100,
++		SAS_MAGIC_WORLDSIZE_SMALL: 100,
++		SAS_MAGIC_WORLDSIZE_STANDARD: 100,
++		SAS_MAGIC_WORLDSIZE_LARGE: 105,
++		SAS_MAGIC_WORLDSIZE_HUGE: 110
++	}
++	return sas_lookup_world_size(eWorldSize, sizeModifiers)
++
+ def getNumCustomMapOptions():
+ 	return 3
+
+diff --git a/PrivateMaps/Pangaea.py b/PrivateMaps/Pangaea.py
+index 487f0eede..af54b65c0 100644
+--- a/PrivateMaps/Pangaea.py
++++ b/PrivateMaps/Pangaea.py
+@@ -42,18 +42,17 @@ def getNumPlotsPercent(argsList):
+ 	[iWorldSize] = argsList
+ 	if iWorldSize < 0:
+ 		return 100
++	# <!-- custom: AdvCiv-SAS Arena shifts runtime world-size indices, so Huge was using the smaller fallback and tested slightly cramped; use SAS world-size keys and keep Huge at the old explicit Pangaea value. (GPT-5.5?) -->
+ 	sizeModifiers = {
+-		WorldSizeTypes.WORLDSIZE_DUEL:		88,
+-		WorldSizeTypes.WORLDSIZE_TINY:		83,
+-		WorldSizeTypes.WORLDSIZE_SMALL:		78,
+-		WorldSizeTypes.WORLDSIZE_STANDARD:	73,
+-		WorldSizeTypes.WORLDSIZE_LARGE:		67,
+-		WorldSizeTypes.WORLDSIZE_HUGE:		60
++		SAS_MAGIC_WORLDSIZE_ARENA: 88,
++		SAS_MAGIC_WORLDSIZE_DUEL: 88,
++		SAS_MAGIC_WORLDSIZE_TINY: 83,
++		SAS_MAGIC_WORLDSIZE_SMALL: 78,
++		SAS_MAGIC_WORLDSIZE_STANDARD: 73,
++		SAS_MAGIC_WORLDSIZE_LARGE: 67,
++		SAS_MAGIC_WORLDSIZE_HUGE: 60
+ 	}
+-	if iWorldSize >= len(sizeModifiers):
+-		r = 52
+-	else:
+-		r = sizeModifiers[iWorldSize]
++	r = sas_lookup_world_size(iWorldSize, sizeModifiers)
+ 	# Low sea level doesn't have as much impact on this map. Adjust the grid size in order to compensate.
+ 	if CyGlobalContext().getSeaLevelInfo(CyMap().getSeaLevel()).getSeaLevelChange() < 0:
+ 		r = (r * 6) // 5
+
+diff --git a/PrivateMaps/RandomScriptMap.py b/PrivateMaps/RandomScriptMap.py
+index 523ad551d..d2d0af789 100644
+--- a/PrivateMaps/RandomScriptMap.py
++++ b/PrivateMaps/RandomScriptMap.py
+@@ -88,7 +88,7 @@ c_favWeight = 0       # Default: 0; Value not used. Change Weight Directly
+ # c_spacePerCiv for some dicisions regarding start plot placement.
+ # NOTE: Dont Choose both numbers too big - the conditions will be ignored, if
+ # there is not enought space.
+-# [Duell, Tiny, Small, Standard, Large, Huge] Unexpected defaults to Standard.
++# <!-- custom: Legacy 0..5 size-bucket arrays below are still in the original Duel..Huge order; use _sas_world_size_base_index before indexing them. (GPT-5.5?) -->
+ c_minStartAreaSize = [6, 6, 8, 8, 10, 10]   # Default [6, 6, 8, 8, 10, 10]
+ c_spacePerCiv = [40, 50, 50, 75, 75, 90]    # Default [40,50,50,75,75,90]
+ #
+@@ -117,13 +117,15 @@ STA_OLDWORLD = 2
+ STA_OLDCOAST = 3
+ 
+ def _sas_world_size_base_index(eWorldSize):
++	# <!-- custom: AdvCiv-SAS adds Arena before Duel, so runtime world-size IDs are shifted from the old BTS WorldSizeTypes enum. RandomScriptMap's tested Huge dimensions did not change from this fix, but its start-validation thresholds, fractal grain branches, and terrain-size branch were reading shifted size buckets; map them back to the original 0..5 Duel..Huge tuning arrays, with Arena using Duel and larger SAS sizes reusing Huge. (GPT-5.5?) -->
+ 	size_index_values = {
+-		WorldSizeTypes.WORLDSIZE_DUEL: 0,
+-		WorldSizeTypes.WORLDSIZE_TINY: 1,
+-		WorldSizeTypes.WORLDSIZE_SMALL: 2,
+-		WorldSizeTypes.WORLDSIZE_STANDARD: 3,
+-		WorldSizeTypes.WORLDSIZE_LARGE: 4,
+-		WorldSizeTypes.WORLDSIZE_HUGE: 5
++		SAS_MAGIC_WORLDSIZE_ARENA: 0,
++		SAS_MAGIC_WORLDSIZE_DUEL: 0,
++		SAS_MAGIC_WORLDSIZE_TINY: 1,
++		SAS_MAGIC_WORLDSIZE_SMALL: 2,
++		SAS_MAGIC_WORLDSIZE_STANDARD: 3,
++		SAS_MAGIC_WORLDSIZE_LARGE: 4,
++		SAS_MAGIC_WORLDSIZE_HUGE: 5
+ 	}
+ 	return sas_lookup_world_size(eWorldSize, size_index_values)
+ 
+@@ -140,6 +142,25 @@ def isAdvancedMap():
+ 	"This map should not show up in simple mode"
+ 	return 1
+ 
++#-----------------------------------------------------------------------------
++#
++#
++def getNumPlotsPercent(argsList):
++	# <!-- custom: Huge tested slightly too large after fixing the leaked helper getGridSize; trim only larger tiers a little while leaving RandomScriptMap's internal generator choice logic intact. (GPT-5.5?) -->
++	[eWorldSize] = argsList
++	if eWorldSize < 0:
++		return 100
++	sizeModifiers = {
++		SAS_MAGIC_WORLDSIZE_ARENA: 100,
++		SAS_MAGIC_WORLDSIZE_DUEL: 100,
++		SAS_MAGIC_WORLDSIZE_TINY: 100,
++		SAS_MAGIC_WORLDSIZE_SMALL: 100,
++		SAS_MAGIC_WORLDSIZE_STANDARD: 100,
++		SAS_MAGIC_WORLDSIZE_LARGE: 99,
++		SAS_MAGIC_WORLDSIZE_HUGE: 96
++	}
++	return sas_lookup_world_size(eWorldSize, sizeModifiers)
++
+ #-----------------------------------------------------------------------------
+ #
+ #
+@@ -703,7 +724,7 @@ class R_MultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         print("Fractal Continental: cGrain: ", cGrain, "Water % ", iWater, "Subslots: ", subSlot1, subSlot2, subSlot3, subSlot4)
+ 
+         # 0 Duell, 1 Tiny, 2 Small, 3 Standard, 4 Large, 5 Huge
+-        sizekey = self.map.getWorldSize()
++        sizekey = _sas_world_size_base_index(self.map.getWorldSize())
+         if ( sizekey > 3 ) :
+             xExp = 8
+             yExp = 7
+@@ -812,7 +833,7 @@ class R_ArchipelagoMultilayeredFractal(R_MultilayeredFractal):
+         iWater = 80 + sea
+ 
+         # 0 Duell, 1 Tiny, 2 Small, 3 Standard, 4 Large, 5 Huge
+-        sizekey = self.map.getWorldSize()
++        sizekey = _sas_world_size_base_index(self.map.getWorldSize())
+         if ( sizekey > 3 ) :
+             xExp = 8
+             yExp = 7
+@@ -853,12 +874,13 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         # The following grain matrix is specific to Pangaea.py
+         sizekey = self.map.getWorldSize()
+         sizevalues = {
+-            WorldSizeTypes.WORLDSIZE_DUEL:      3,
+-            WorldSizeTypes.WORLDSIZE_TINY:      3,
+-            WorldSizeTypes.WORLDSIZE_SMALL:     4,
+-            WorldSizeTypes.WORLDSIZE_STANDARD:  4,
+-            WorldSizeTypes.WORLDSIZE_LARGE:     4,
+-            WorldSizeTypes.WORLDSIZE_HUGE:      5
++            SAS_MAGIC_WORLDSIZE_ARENA:     3,
++            SAS_MAGIC_WORLDSIZE_DUEL:      3,
++            SAS_MAGIC_WORLDSIZE_TINY:      3,
++            SAS_MAGIC_WORLDSIZE_SMALL:     4,
++            SAS_MAGIC_WORLDSIZE_STANDARD:  4,
++            SAS_MAGIC_WORLDSIZE_LARGE:     4,
++            SAS_MAGIC_WORLDSIZE_HUGE:      5
+             }
+         grain = sas_lookup_world_size(sizekey, sizevalues)
+ 
+@@ -1003,12 +1025,13 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         # The following grain matrix is specific to Terra.py
+         sizekey = self.map.getWorldSize()
+         sizevalues = {
+-            WorldSizeTypes.WORLDSIZE_DUEL:      (3,2,1,2),
+-            WorldSizeTypes.WORLDSIZE_TINY:      (3,2,1,2),
+-            WorldSizeTypes.WORLDSIZE_SMALL:     (4,2,1,2),
+-            WorldSizeTypes.WORLDSIZE_STANDARD:  (4,2,1,2),
+-            WorldSizeTypes.WORLDSIZE_LARGE:     (4,2,1,2),
+-            WorldSizeTypes.WORLDSIZE_HUGE:      (5,2,1,2)
++            SAS_MAGIC_WORLDSIZE_ARENA:     (3,2,1,2),
++            SAS_MAGIC_WORLDSIZE_DUEL:      (3,2,1,2),
++            SAS_MAGIC_WORLDSIZE_TINY:      (3,2,1,2),
++            SAS_MAGIC_WORLDSIZE_SMALL:     (4,2,1,2),
++            SAS_MAGIC_WORLDSIZE_STANDARD:  (4,2,1,2),
++            SAS_MAGIC_WORLDSIZE_LARGE:     (4,2,1,2),
++            SAS_MAGIC_WORLDSIZE_HUGE:      (5,2,1,2)
+             }
+         (archGrain, contGrain, gaeaGrain, eurasiaGrain) = sas_lookup_world_size(sizekey, sizevalues)
+ 
+@@ -1334,7 +1357,7 @@ class R_BnSMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         sea = max(sea, -5)
+         iWater = 80 + sea
+ 
+-        sizekey = self.map.getWorldSize()
++        sizekey = _sas_world_size_base_index(self.map.getWorldSize())
+         if ( sizekey > 3 ) :
+             xExp = 7
+             yExp = 7
+@@ -1838,7 +1861,7 @@ def generateTerrainTypes():
+ 	# sizekey = CyMap().getWorldSize()
+ 	# Using customized TerrainGenerator with lower dert grain (more
+ 	# coherent desert areas), hence the reduced amount.
+-	if( map.getWorldSize() > 2 ) :
++	if( _sas_world_size_base_index(map.getWorldSize()) > 2 ) :
+ 		terraingen = R_TerrainGenerator(iDesertPercent = 27, fSnowLatitude = 0.8, fTundraLatitude = 0.68, fDesertBottomLatitude = 0.27, fDesertTopLatitude = 0.43)
+ 	else :
+ 		terraingen = R_TerrainGenerator(iDesertPercent = 27, fSnowLatitude = 0.78, fTundraLatitude = 0.68, fDesertBottomLatitude = 0.26, fDesertTopLatitude = 0.44)
+
+diff --git a/README.md b/README.md
+index 5863115e5..180d275b5 100644
+--- a/README.md
++++ b/README.md
+@@ -740,10 +740,12 @@ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1
+ 
+ ## Mapscripts
+ 
+-### AdvCiv-SAS original mapscripts (e.g., SAS_Simple_Flat_Grass, SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)
+-
+ Map-script helper logic that is reused by several scripts lives in [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py), not in `PrivateMaps`, because Civ4 treats imported top-level callback names such as `getGridSize` as part of the importing map script. `SAS_Simple_Flat_Grass.py` is the playable simple flat-grass sandbox map that uses that helper profile.
+ 
++Several inherited map scripts were also tuned after the shared-helper fix: RandomScriptMap is slightly trimmed and uses AdvCiv-SAS world-size constants for its internal legacy buckets; Medium and Small is slightly larger because lower islets often are not allocated to players; Pangaea Huge uses the intended Pangaea value again; Big and Small and Custom Continents are trimmed on larger tiers because Huge tested too large. See the Main Changes Guide for details.
++
++### AdvCiv-SAS original mapscripts (e.g., SAS_Simple_Flat_Grass, SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)
++
+ #### SAS_Longworld
+ 
+ We have added our own new mapscripts in AdvCiv-SAS, notably SAS_Longworld with the help of GPT-5.3-Codex thanks, which is based on [Ringworld3 v1.02](https://forums.civfanatics.com/threads/map-script-ringworld3.371831/) but with a heavily simplified code.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 51c98ba8a..933d13ff7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -421,6 +421,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
+ - Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py). See also: [Modding ressources (Mapscripts)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts).
+ - Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py), [Oasis.py](/PrivateMaps/Oasis.py), [Ring.py](/PrivateMaps/Ring.py), [Team_Battleground.py](/PrivateMaps/Team_Battleground.py), [Tilted_Axis.py](/PrivateMaps/Tilted_Axis.py), [Wheel.py](/PrivateMaps/Wheel.py), [Arboria.py](/PrivateMaps/Arboria.py), [Donut.py](/PrivateMaps/Donut.py), [Earth2.py](/PrivateMaps/Earth2.py) (see below), [Global_Highlands.py](/PrivateMaps/Global_Highlands.py), [PerfectMongoose.py](/PrivateMaps/PerfectMongoose.py), [Rainforest.py](/PrivateMaps/Rainforest.py), [RandomScriptMap.py](/PrivateMaps/RandomScriptMap.py), [Terra.py](/PrivateMaps/Terra.py).
+ - (Requires AdvCiv-SAS 5897+) Added shared Mapscript-related world-size helpers. Note: done in [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py) rather than in the [PrivateMaps](/PrivateMaps/) folder as a .py file. This is because such a previous design caused the helper-as-a-playable-mapscript related bug, in AdvCiv-SAS only, of RandomScriptMap and Archipelago, e.g. at Huge world size, being generated far too small (`60 x 44`). After the fix it returned to `120 x 84`, matching base AdvCiv visually at a glance, and not being overly cramped anymore. The same issue may also have affected other map scripts that imported the old helper. The old helper now only keeps the minimal new playable mapscript code, not imported by other mapscripts anymore, in the new **SAS_Simple_Flat_Grass**: a simple sandbox map with almost all land and mostly flat grass tiles. See [SAS_Simple_Flat_Grass.py](/PrivateMaps/SAS_Simple_Flat_Grass.py).
++- (Requires AdvCiv-SAS 5899+) Tuned several inherited map scripts: [RandomScriptMap.py](/PrivateMaps/RandomScriptMap.py) is trimmed slightly; [Medium_and_Small.py](/PrivateMaps/Medium_and_Small.py) is enlarged a little from Large onward because lower islets usually are not assigned to players, leaving the upper continent-style area cramped; [Big_and_Small.py](/PrivateMaps/Big_and_Small.py) and [Custom_Continents.py](/PrivateMaps/Custom_Continents.py) are trimmed on larger tiers because Huge tested too large.
+ - **Reduced the grid size** of some maps that are **almost entirely composed of land** plots: city spacing **was too wide** due to the **excess of land** and **lack of water** plots. See [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py).
+ - **Earth2 start distribution rework:** for Huge and beyond world sizes, keep Earth2 at its existing **Huge-scale sizing** (already large enough), but solve crowding by **populating underused landmasses instead** (e.g., min 16 players before Africa is populated, min 32 players before the whole world is populated) of enlarging the script further. **Thresholds are based on player count** (not world size). See [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ - **Reduce grid size** for each worldsize in [Global_Highlands.py](/PrivateMaps/Global_Highlands.py) by one world size (e.g. World Size Huge was `(38,24)` -> `(32,20)` (old World Size Large's dimensions)): empirically even accounting for the many peaks it has (compensated by a larger grid at each world size than usual), **cities were still too sparse**. See [KI#138](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#138---fixed-base-advciv-issue-global-highlands-map-sizes-were-too-large).
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=17125

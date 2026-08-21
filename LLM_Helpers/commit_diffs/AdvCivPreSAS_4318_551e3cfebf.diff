@@ -1,0 +1,186 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4318
+# Commit: 551e3cfebf4b72e3e850e121939ef4ef3fae5fe4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5da1802da6ed50ca5de6fa1a3addcd33d3fa958c
+# Title: Minor refactoring in CvGameTextMgr (top of screen texts)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+43	49	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index cb25b6ae9..8767e19ee 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -110,17 +110,18 @@ void CvGameTextMgr::setYearStr(CvWString& szString, int iGameTurn, bool bSave,
+ }
+ 
+ 
+-void CvGameTextMgr::setDateStr(CvWString& szString, int iGameTurn, bool bSave, CalendarTypes eCalendar, int iStartYear, GameSpeedTypes eSpeed)
++void CvGameTextMgr::setDateStr(CvWString& szString, int iGameTurn, bool bSave,
++	CalendarTypes eCalendar, int iStartYear, GameSpeedTypes eSpeed)
+ {
+ 	CvWString szYearBuffer;
+-	CvWString szWeekBuffer;
+-
+ 	setYearStr(szYearBuffer, iGameTurn, bSave, eCalendar, iStartYear, eSpeed);
+ 
+ 	switch (eCalendar)
+ 	{
+ 	case CALENDAR_DEFAULT:
+-		if (0 == (getTurnMonthForGame(iGameTurn + 1, iStartYear, eCalendar, eSpeed) - getTurnMonthForGame(iGameTurn, iStartYear, eCalendar, eSpeed)) % GC.getNumMonthInfos())
++		if ((getTurnMonthForGame(iGameTurn + 1, iStartYear, eCalendar, eSpeed)
++			-getTurnMonthForGame(iGameTurn, iStartYear, eCalendar, eSpeed))
++			% GC.getNumMonthInfos() == 0)
+ 		{
+ 			szString = szYearBuffer;
+ 		}
+@@ -144,67 +145,62 @@ void CvGameTextMgr::setDateStr(CvWString& szString, int iGameTurn, bool bSave, C
+ 		break;
+ 
+ 	case CALENDAR_SEASONS:
++	{
++		wchar const* szSeason = GC.getInfo((SeasonTypes)
++					(iGameTurn % GC.getNumSeasonInfos())).getDescription();
+ 		if (bSave)
+-		{
+-			szString = (szYearBuffer + "-" + GC.getInfo((SeasonTypes)(iGameTurn % GC.getNumSeasonInfos())).getDescription());
+-		}
+-		else
+-		{
+-			szString = (GC.getInfo((SeasonTypes)(iGameTurn % GC.getNumSeasonInfos())).getDescription() + CvString(", ") + szYearBuffer);
+-		}
++			szString = szYearBuffer + "-" + szSeason;
++		else szString = szSeason + CvString(", ") + szYearBuffer;
+ 		break;
+-
++	}
+ 	case CALENDAR_MONTHS:
++	{
++		wchar const* szMonth = GC.getInfo((MonthTypes)
++				(iGameTurn % GC.getNumMonthInfos())).getDescription();
+ 		if (bSave)
+-		{
+-			szString = (szYearBuffer + "-" + GC.getInfo((MonthTypes)(iGameTurn % GC.getNumMonthInfos())).getDescription());
+-		}
+-		else
+-		{
+-			szString = (GC.getInfo((MonthTypes)(iGameTurn % GC.getNumMonthInfos())).getDescription() + CvString(", ") + szYearBuffer);
+-		}
++			szString = szYearBuffer + "-" + szMonth;
++		else szString = szMonth + CvString(", ") + szYearBuffer;
+ 		break;
+-
++	}
+ 	case CALENDAR_WEEKS:
+-		szWeekBuffer = gDLL->getText("TXT_KEY_TIME_WEEK", ((iGameTurn % GC.getDefineINT("WEEKS_PER_MONTHS")) + 1));
+-
++	{
++		CvWString szWeekBuffer;
++		static int const iWEEKS_PER_MONTHS = GC.getDefineINT("WEEKS_PER_MONTHS"); // advc.opt
++		szWeekBuffer = gDLL->getText("TXT_KEY_TIME_WEEK",
++				(iGameTurn % iWEEKS_PER_MONTHS) + 1);
++		wchar const* szMonth = GC.getInfo((MonthTypes)
++				((iGameTurn / iWEEKS_PER_MONTHS) % GC.getNumMonthInfos())).
++				getDescription();
+ 		if (bSave)
+-		{
+-			szString = (szYearBuffer + "-" + GC.getInfo((MonthTypes)((iGameTurn / GC.getDefineINT("WEEKS_PER_MONTHS")) % GC.getNumMonthInfos())).getDescription() + "-" + szWeekBuffer);
+-		}
+-		else
+-		{
+-			szString = (szWeekBuffer + ", " + GC.getInfo((MonthTypes)((iGameTurn / GC.getDefineINT("WEEKS_PER_MONTHS")) % GC.getNumMonthInfos())).getDescription() + ", " + szYearBuffer);
+-		}
++			szString = (szYearBuffer + "-" + szMonth + "-" + szWeekBuffer);
++		else szString = (szWeekBuffer + ", " + szMonth + ", " + szYearBuffer);
+ 		break;
+-
++	}
+ 	default:
+-		FAssert(false);
++		FErrorMsg("Unsupported calendar type");
+ 	}
+ }
+ 
+ 
+ void CvGameTextMgr::setTimeStr(CvWString& szString, int iGameTurn, bool bSave)
+ {
+-	setDateStr(szString, iGameTurn, bSave, GC.getGame().getCalendar(), GC.getGame().getStartYear(), GC.getGame().getGameSpeedType());
++	setDateStr(szString, iGameTurn, bSave,
++			GC.getGame().getCalendar(), GC.getGame().getStartYear(),
++			GC.getGame().getGameSpeedType());
+ }
+ 
+ 
+ void CvGameTextMgr::setInterfaceTime(CvWString& szString, PlayerTypes ePlayer)
+ {
+ 	CvWString szTempBuffer;
+-
+ 	if (GET_PLAYER(ePlayer).isGoldenAge())
+ 	{
+-		szString.Format(L"%c(%d) ", gDLL->getSymbolID(GOLDEN_AGE_CHAR), GET_PLAYER(ePlayer).getGoldenAgeTurns());
++		szString.Format(L"%c(%d) ", gDLL->getSymbolID(GOLDEN_AGE_CHAR),
++				GET_PLAYER(ePlayer).getGoldenAgeTurns());
+ 	}
+-	else
+-	{
+-		szString.clear();
+-	}
+-
++	else szString.clear();
+ 	setTimeStr(szTempBuffer, GC.getGame().getGameTurn(), false);
+-	szString += CvWString(szTempBuffer);
++	szString += szTempBuffer;
+ }
+ 
+ 
+@@ -212,27 +208,25 @@ void CvGameTextMgr::setGoldStr(CvWString& szString, PlayerTypes ePlayer)
+ {
+ 	if (GET_PLAYER(ePlayer).getGold() < 0)
+ 	{
+-		szString.Format(L"%c: " SETCOLR L"%d" SETCOLR, GC.getInfo(COMMERCE_GOLD).getChar(), TEXT_COLOR("COLOR_NEGATIVE_TEXT"), GET_PLAYER(ePlayer).getGold());
++		szString.Format(L"%c: " SETCOLR L"%d" SETCOLR,
++				GC.getInfo(COMMERCE_GOLD).getChar(),
++				TEXT_COLOR("COLOR_NEGATIVE_TEXT"),
++				GET_PLAYER(ePlayer).getGold());
+ 	}
+ 	else
+ 	{
+-		szString.Format(L"%c: %d", GC.getInfo(COMMERCE_GOLD).getChar(), GET_PLAYER(ePlayer).getGold());
++		szString.Format(L"%c: %d",
++				GC.getInfo(COMMERCE_GOLD).getChar(),
++				GET_PLAYER(ePlayer).getGold());
+ 	}
+ 
+ 	int iGoldRate = GET_PLAYER(ePlayer).calculateGoldRate();
+ 	if (iGoldRate < 0)
+-	{
+ 		szString += gDLL->getText("TXT_KEY_MISC_NEG_GOLD_PER_TURN", iGoldRate);
+-	}
+ 	else if (iGoldRate > 0)
+-	{
+ 		szString += gDLL->getText("TXT_KEY_MISC_POS_GOLD_PER_TURN", iGoldRate);
+-	}
+-
+ 	if (GET_PLAYER(ePlayer).isStrike())
+-	{
+ 		szString += gDLL->getText("TXT_KEY_MISC_STRIKE");
+-	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=5516

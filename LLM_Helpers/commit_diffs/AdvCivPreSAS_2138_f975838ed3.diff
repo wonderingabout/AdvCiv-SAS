@@ -1,0 +1,64 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2138
+# Commit: f975838ed3bc17c42b2359048b43ea1cad951bfa
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 623f11df34af0f1fe5ebd6c91faab95b086bd3f7
+# Title: Tweak exception handling in BugUtil.py (from MNAI)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	6	Assets/Python/BUG/BugUtil.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugUtil.py b/Assets/Python/BUG/BugUtil.py
+index 00e37bde7..965cb749d 100644
+--- a/Assets/Python/BUG/BugUtil.py
++++ b/Assets/Python/BUG/BugUtil.py
+@@ -621,23 +621,29 @@ def lookupModule(module, log=True):
+ 		debug("BugUtil - looking up %s", module)
+ 	try:
+ 		return __import__(module)
+-	except ImportError:
+-		raise ConfigError("No such module '%s'", module)
++	except ImportError, e:
++		#raise ConfigError("No such module '%s'", module)
++		# advc: Forward e (from MNAI)
++		raise ConfigError("Error while importing module '%s': %s", module, e)
+ 
+ def lookupFunction(module, functionOrClass, log=True):
+ 	if log:
+ 		debug("BugUtil - looking up %s.%s", module, functionOrClass)
+ 	try:
+ 		return getattr(lookupModule(module, False), functionOrClass)
+-	except AttributeError:
+-		raise ConfigError("Module '%s' must define function or class '%s'", module, functionOrClass)
++	except AttributeError, e:
++		#raise ConfigError("Module '%s' must define function or class '%s'", module, functionOrClass)
++		# advc: Forward e (from MNAI)
++		raise ConfigError("Error while looking up function or class '%s' in module '%s': %s", functionOrClass, module, e)
+ 
+ def bindFunction(obj, functionOrAttribute):
+ 	debug("BugUtil - binding %s.%s to %s", obj.__class__, functionOrAttribute, obj)
+ 	try:
+ 		return getattr(obj, functionOrAttribute)
+-	except AttributeError:
+-		raise ConfigError("Class '%s' must define function '%s'", obj.__class__, functionOrAttribute)
++	except AttributeError, e:
++		#raise ConfigError("Class '%s' must define function '%s'", obj.__class__, functionOrAttribute)
++		# advc: Forward e (from MNAI)
++		raise ConfigError("Error while looking up function or attribute '%s' in object of type '%s': %s", functionOrAttribute, obj.__class__, e)
+ 
+ def getFunction(module, functionOrClass, bind=False, *args, **kwargs):
+ 	if bind and not args and not kwargs:
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1885

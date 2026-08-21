@@ -1,0 +1,114 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5482
+# Commit: 8827c3e2d96e7a7fc6944cae2e746326a40ac350
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 42823ae07df0f8e19602467de9df7faa1b5a2fbe
+# Title: change default ordering from from alphabetical to from most to least Built/Current in the Info screen's Statistics tab avoids tedious manual user ordering ea...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	18	Assets/Python/Screens/CvInfoScreen.py
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index 0f5ef5394..3c40c6ab0 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -3701,18 +3701,19 @@ class CvInfoScreen:
+ 
+ 		# Add Units to table
+ 		iRow = 0 # K-Mod
+-		# <advc.004> Sort by name. (Can't tell the table to sort itself.)
+-		unitIDsByName = []
++		# <!-- custom: default stats-tab unit order to "most built first" so the first view is actionable; name remains the tie-breaker and users can still re-sort by clicking headers. (GPT-5.3-Codex) -->
++		unitIDsByBuiltDesc = []
+ 		for iUnitLoop in range(iNumUnits):
+ 			# K-Mod. Hide-rows option.
+ 			if ((True or AdvisorOpt.isNonZeroStatsOnly()) # advc: no longer optional
+ 					and aiUnitsCurrent[iUnitLoop] == 0 and aiUnitsBuilt[iUnitLoop] == 0
+ 					and aiUnitsKilled[iUnitLoop] == 0 and aiUnitsLost[iUnitLoop] == 0):
+ 				continue # K-Mod end
+-			unitIDsByName.append((gc.getUnitInfo(iUnitLoop).getDescription(), iUnitLoop))
+-		unitIDsByName.sort()
+-		for i in range(len(unitIDsByName)):
+-			(szUnitName, iUnitLoop) = unitIDsByName[i] # </advc.004>
++			unitIDsByBuiltDesc.append((-aiUnitsBuilt[iUnitLoop],
++					gc.getUnitInfo(iUnitLoop).getDescription(), iUnitLoop))
++		unitIDsByBuiltDesc.sort()
++		for i in range(len(unitIDsByBuiltDesc)):
++			(iNegBuilt, szUnitName, iUnitLoop) = unitIDsByBuiltDesc[i]
+ 			screen.appendTableRow(szUnitsTable)
+ 			#iRow = iUnitLoop
+ 			iCol = 0
+@@ -3741,16 +3742,17 @@ class CvInfoScreen:
+ 
+ 		# Add Buildings to table
+ 		iRow = 0 # K-Mod
+-		# <advc.004> Sort by name
+-		buildingIDsByName = []
++		# <!-- custom: default stats-tab building order to "most built first" for faster scanning; name is only a stable tie-breaker. (GPT-5.3-Codex) -->
++		buildingIDsByBuiltDesc = []
+ 		for iBuildingLoop in range(iNumBuildings):
+ 			# K-Mod. Hide-rows option.
+ 			if aiBuildingsBuilt[iBuildingLoop] == 0: #and AdvisorOpt.isNonZeroStatsOnly(): # advc: No longer optional
+ 				continue # K-Mod end
+-			buildingIDsByName.append((gc.getBuildingInfo(iBuildingLoop).getDescription(), iBuildingLoop))
+-		buildingIDsByName.sort()
+-		for i in range(len(buildingIDsByName)):
+-			(szBuildingName, iBuildingLoop) = buildingIDsByName[i] # </advc.004>
++			buildingIDsByBuiltDesc.append((-aiBuildingsBuilt[iBuildingLoop],
++					gc.getBuildingInfo(iBuildingLoop).getDescription(), iBuildingLoop))
++		buildingIDsByBuiltDesc.sort()
++		for i in range(len(buildingIDsByBuiltDesc)):
++			(iNegBuilt, szBuildingName, iBuildingLoop) = buildingIDsByBuiltDesc[i]
+ 			screen.appendTableRow(szBuildingsTable)
+ 			#iRow = iBuildingLoop
+ 			iCol = 0
+@@ -3771,14 +3773,15 @@ class CvInfoScreen:
+ 		if True: # advc.004
+ 			# Add Improvements to table	
+ 			iRow = 0
+-			# <advc.004> Sort by name
+-			improvIDsByName = []
++			# <!-- custom: default stats-tab improvement order to "most current first" so the highest-impact rows show immediately; name breaks ties. (GPT-5.3-Codex) -->
++			improvIDsByCurrentDesc = []
+ 			for iImprovementLoop in range(iNumImprovements):
+ 				if aiImprovementsCurrent[iImprovementLoop] > 0:
+-					improvIDsByName.append((gc.getImprovementInfo(iImprovementLoop).getDescription(), iImprovementLoop))
+-			improvIDsByName.sort()
+-			for i in range(len(improvIDsByName)):
+-				(szImprovementName, iImprovementLoop) = improvIDsByName[i] # </advc.004>
++					improvIDsByCurrentDesc.append((-aiImprovementsCurrent[iImprovementLoop],
++							gc.getImprovementInfo(iImprovementLoop).getDescription(), iImprovementLoop))
++			improvIDsByCurrentDesc.sort()
++			for i in range(len(improvIDsByCurrentDesc)):
++				(iNegCurrent, szImprovementName, iImprovementLoop) = improvIDsByCurrentDesc[i]
+ 				screen.appendTableRow(szImprovementsTable) # K-Mod
+ 				iCol = 0
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 77fbd63d4..77088f9fa 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -316,7 +316,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-history-tab-in-the-info-screen-advisor).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5478+) Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**.
+ - Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py).
+-- Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**). Also added other information (e.g., turn numbers in the Graph tab).
++- Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons ((Requires AdvCiv-SAS 5480+) plus **change default ordering** from alphabetical to **from most to least Built/Current** (avoids tedious manual user ordering each time)), and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**). Also added other information (e.g., turn numbers in the Graph tab).
+ - Additionally, added in the **Info Screen** (F9 key) a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: new Advisors](/README.md#new-advisors-eg-history-tab-in-the-info-screen-advisor).
+ - Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=8637

@@ -1,0 +1,424 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5277
+# Commit: dfb0c8489442a6819dc4f8edb634b98596f93467
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f1309cd115130e60e3475fead43e07e21a2a3164
+# Title: (Tremendously Improved) AI always upgrading way too much units and not techning at all, sometimes for dozen turns
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/Python/Screens/CvVictoryScreen.py
+123	7	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	Assets/XML/Text/CIV4GameText_Custom.xml
+2	1	CvGameCoreDLL/CvEnums.h
+63	1	CvGameCoreDLL/CvUnit.cpp
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+9	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 5a49ec115..aa152c0b2 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -1910,7 +1910,7 @@ class CvVictoryScreen:
+ 					eVictoryLevel = victory.getCityCulture()
+ 					iCultureThresh = gc.getGame().getCultureThreshold(eVictoryLevel)
+ 					# <!-- custom: add culture icon before text and use thousand separator (claude opus 4.5) -->
+-					# <!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as aprt of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
++					# <!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as part of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
+ 					# <!-- note: uses TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES instead of TXT_KEY_VICTORY_SCREEN_CITY_CULTURE for cleaner display -->
+ 					szCultureVictoryText = u"%c %d %s (%s)" % (self.iCultureIcon, victory.getNumCultureCities(), self.TEXT_LEGENDARY_CITIES, self.separateThousands(iCultureThresh))
+ 					screen.setTableText(szTable, 0, iRow, szCultureVictoryText, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 420283f2d..a8f57468e 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1111,6 +1111,122 @@
+ 
+ 
+ 
++	<!-- custom: i have noticed AI spends a lot of turns and gold to upgrade units, sometimes for little gain. This is problematic especially in the late game where there are many units to upgrade. Also, the upgrade is often not even worth it, like paying 100 gold per unit or such to gain 2 str, it is much more efficient not to upgrade units at all at such costs. But if it is cheap enough, it is a good move though. Add some minimal returns checks with the help of chatgpt 5.2, to decide if we should upgrade this unit (if valuable enough) or skip doing so (if not worth). Note: similarly to how canScrap controls all possible edge cases at lowest level, using canUpgrade allows to control all possible upgrade calls if i'm not mistaken rather than adding logic in many places or having weird unexpected edge cases. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option. -->
++	<Define>
++		<DefineName>SAS_CAN_UPGRADE_OPTIMIZE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- AI upgrade cost check: maximum gold per 10% strength gain.
++	     Purpose: stop the AI from spending lots of gold on upgrades that give only a tiny strength gain (common in the late game).
++	     How to read this value: "gold per 10% strength gain".
++	     - If a unit gains +10% strength from an upgrade, this value is the max gold the AI is willing to pay.
++	     - If a unit gains +20% strength, the max gold is about double, etc.
++
++	     Example (value = 25 gold per 10% strength gain):
++	     - 50 -> 52 is about +4% strength gain.
++	       Max gold allowed for this strength gain is about:
++	       25 gold per 10% strength gain * (4% strength gain / 10%) = 10 gold.
++	       If the upgrade costs 20 gold: NO (20 > 10) -> skip.
++	     - 3 -> 5 is about +66% strength gain.
++	       Max gold allowed for this strength gain is about:
++	       25 gold per 10% strength gain * (66% strength gain / 10%) = 165 gold.
++	       If the upgrade costs 20 gold: YES (20 <= 165) -> upgrade. -->
++	<Define>
++		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH</DefineName>
++		<iDefineIntVal>25</iDefineIntVal>
++	</Define>
++	<!-- Extra allowance based on unit EXP (experienced units keep valuable promotions, so upgrades for them can justify more gold).
++	     Unit: extra "gold per 10% strength gain" per 1 EXP.
++
++	     Examples (base = 25 gold per 10% strength gain, per EXP = 1 gold per 10% strength gain per 1 EXP):
++
++		 Example 1:
++	     - unit has 13 EXP
++	       extra gold allowance from EXP = 13 EXP * 1 gold per 10% strength gain per 1 EXP
++	                                     = 13 gold per 10% strength gain
++	       effective value = 25 gold per 10% strength gain + 13 gold per 10% strength gain
++	                       = 38 gold per 10% strength gain (then capped below)
++
++	     Example 2:
++	     - unit has 20 EXP
++	     - extra gold allowance from EXP = 20 EXP * 1 gold per 10% strength gain per 1 EXP
++	                                     = 20 gold per 10% strength gain
++	     - effective value = 25 gold per 10% strength gain + 20 gold per 10% strength gain
++	                       = 45 gold per 10% strength gain (then capped below) -->
++	<Define>
++		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- Hard cap for the effective value (base + EXP). Purpose: even a very experienced unit should not justify extreme upgrade spending.
++	     Reason: if upgrades get too expensive, it is often better to build new units instead (early units are cheap to rebuild, late-game tiny gains are not worth big gold).
++	     Unit: max "gold per 10% strength gain" after adding the EXP allowance.
++
++	     Example (cap = 50 gold per 10% strength gain):
++	     - base + EXP would give 120 gold per 10% strength gain
++	     - cap is 50 gold per 10% strength gain
++	     - final effective value becomes 50 gold per 10% strength gain -->
++	<!-- custom: for very strong 50+ str units likethe robotic tnak that has 56 str, 50 gold for 5.6 str is decent i guess! (not too crazy though so about a hard limit i guess), adjust as you see fit -->
++	<Define>
++		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
++	<!-- AI upgrade cost check: maximum gold per +1 flat strength gain (flat strength gain gate).
++	     Purpose: an extra safety gate so upgrades are not expensive even when percent strength gain is large (common for very weak units).
++	     How to read this value: "gold per +1 flat strength gain".
++	     - "flat strength gain" means raw strength points, e.g. 10 -> 13 is +3 flat strength gain.
++	     - If a unit gains +1 flat strength from an upgrade, this value is the max gold the AI is willing to pay.
++	     - If a unit gains +3 flat strength, the max gold is about triple, etc.
++
++	     Important: this gate is also influenced by the EXP allowance below (even at low EXP).
++	     Example (base = 15 gold per +1 flat strength gain, per EXP = 1 gold per +1 flat strength gain per 1 EXP):
++	     - unit has 1 EXP -> effective value is 15 + 1 = 16 gold per +1 flat strength gain
++	     - unit has 13 EXP -> effective value is 15 + 13 = 28 gold per +1 flat strength gain
++
++	     Example (value = 15 gold per +1 flat strength gain):
++	     - 10 -> 13 is +3 flat strength gain (example: Knight -> Cuirassier, strength numbers are only an example).
++	       If unit has 1 EXP:
++	       max gold allowed = 16 gold per +1 flat strength gain * 3 flat strength gain = 48 gold.
++	       If the upgrade costs 60 gold: NO (60 > 48) -> skip.
++	       If unit has 13 EXP:
++	       max gold allowed = 28 gold per +1 flat strength gain * 3 flat strength gain = 84 gold.
++	       If the upgrade costs 60 gold: YES (60 <= 84) -> upgrade. -->
++	<Define>
++		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH</DefineName>
++		<iDefineIntVal>15</iDefineIntVal>
++	</Define>
++	<!-- Extra allowance based on unit EXP.
++	     Purpose: higher-EXP units keep valuable promotions, so the AI can pay more gold to upgrade them for the same flat strength gain.
++	     Unit: extra "gold per +1 flat strength gain" per 1 EXP.
++
++	     Example (per EXP value = 1 gold per +1 flat strength gain per 1 EXP):
++	     - unit has 1 EXP
++	       extra gold allowance from EXP = 1 EXP * 1 gold per +1 flat strength gain per 1 EXP
++	                                     = 1 gold per +1 flat strength gain
++	     - unit has 13 EXP
++	       extra gold allowance from EXP = 13 EXP * 1 gold per +1 flat strength gain per 1 EXP
++	                                     = 13 gold per +1 flat strength gain
++
++	     Effective value used by the flat strength gain gate:
++	     - effective value = base gold per +1 flat strength gain + extra gold allowance from EXP -->
++	<Define>
++		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- Hard cap for the effective value (prevents absurd spending even with very high EXP).
++	     Unit: max "gold per +1 flat strength gain" after adding the EXP allowance.
++
++	     Example (cap = 30 gold per +1 flat strength gain):
++	     - effective value computed as 60 gold per +1 flat strength gain
++	     - cap is 30 gold per +1 flat strength gain
++	     - final effective value becomes 30 gold per +1 flat strength gain -->
++	<Define>
++		<DefineName>SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP</DefineName>
++		<iDefineIntVal>30</iDefineIntVal>
++	</Define>
++
++
++
+ 	<!-- custom: enable this so that multi effect bonuses (e.g. wheat has +1 healh and +1 with granary which is effectively 2 health, moluscs have +1 health and +1 with harbor but not all cities are coastal so +1.5 health effectively in terms of how much we value it more or less for example (see code for updated values anyways etc), or grapes giving +1 happy and +1 happy with grocer so effectively +2 happy) as soon as the buyer has the tech required to build these buildings (we assume that then all his cities have the building to simplify and quite accurate still i think as such but anyways etc). AI prices vary with various factors outside of this code, but generall it could lead for example to wheat being valued 4-5 gold per turn vs cow 2 gold per turn, unlike before where both would be value 2 gold per turn which was nonsensical and easy to abuse. Recommended to keep enabled anyways etc. Note: slightly devalues single or no effect bonuses like iron, although they should still stay mostly valuable. See custom main changes guide for more details or code anyways etc. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES</DefineName>
+@@ -1272,7 +1388,7 @@
+ 	<!-- Yeah, that’s a really sensible enhancement for that situation – you basically want:
+ 			- Masters to value “vassal-known” techs less for self-research, and
+ 			- Masters (and vassals) to lean more on tech trades between each other when those techs already exist on the vassal team. -->
+-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1301,7 +1417,7 @@
+ 
+ 	<!-- SAS techValuePowerDanger: bias research toward key military techs when we're clearly -->
+ 	<!-- custom: weaker anyways etc. -->
+-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_TECH_VALUE_MILITARY_POWER_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1329,7 +1445,7 @@
+ 	This is symmetric and “honest”: no hidden cheat, just a consistent “this is life or death, this tech is worth a lot to us” multiplier. -->
+     <!-- SAS techTradePowerDanger: bias AI tech trade valuation toward key military techs when clearly weaker. -->
+     <!-- Enable/disable the trade-stage danger bias. -->
+-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+     <Define>
+         <DefineName>SAS_AI_TECH_TRADE_VAL_MILITARY_POWER_OPTIMIZE</DefineName>
+         <iDefineIntVal>1</iDefineIntVal>
+@@ -1373,7 +1489,7 @@
+ 	// 	- The master picking techs the vassal doesn’t have, or at least heavily downweighting ones the vassal already holds.
+ 	// 	- The vassal not wasting time duplicating the master’s techs either.
+ 	// 	- More tech trades along that axis whenever there’s a reasonable deal. -->
+-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1399,7 +1515,7 @@
+ 
+ 	<!-- custom: adjust tech trade contact frequency / willingness of contact depending on how strong/dangerous our rival is. -->
+ 	<!-- custom: note: this is not applied between members of a master-vassal(s) locus, as master<->vassal(s) are not in direct and immediate competition but more like trying to come through and not die right away short term so it is not so relevant for them anyways etc. -->
+-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_DO_DIPLO_POWER_TECH_TRADE_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1420,7 +1536,7 @@
+ 	<!-- custom: do not contact players outside our master-vassal(s) locus for a tech trade if any member of our locus have this tech (in the hopes we get it from them rather). -->
+ 	<!-- Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
+ 	<!-- This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source.” So it’s conservative: it can only reduce external tech trades, never block internal ones. -->
+-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1430,7 +1546,7 @@
+ 
+ 	<!-- custom: AI is not good at cheap trading techs when it is beneficial: if more than 1 player has a tech, any other player that has the tech could sell it anytime for super cheap like 40 gold at mid-late classical era, which is still a much better deal than gaining 0 gold if another rival beats us to it. Something like 1 gold would be too low and like purposely sabotaging the other players, so some minimal theshold is needed, but beyond that AI needs to be opportunistic to maximize its gains as a human player would. Code implemented with the help of gemini 3 pro, check if accurate anyways etc. -->
+ 	<!-- Logic: If the tech is not a monopoly (1 or more rivals have it), sell it aggressively cheap. -->
+-	<!-- custom: enable (1) / disable (0) to toggle this option anyways etc. -->
++	<!-- custom: enable (1) / disable (0) to toggle this option. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index 7a82ce0a0..77ff8ca09 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -292,7 +292,7 @@
+ 
+ 
+ 
+-	<!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as aprt of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
++	<!-- custom: The TXT_KEY_VICTORY_SCREEN_CITY_CULTURE's output is hard to handle with numbers sometimes coming or a culture char or whatnot not at the position we want, in the victory screen's Legendary cities header as part of prettifying it. It seems easier to create one if i didn't do a mistake thinking so (check if accurate as i don't know too much about these). Simplified Cultural victory text for Victory Screen (claude opus 4.5). -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_VICTORY_SCREEN_LEGENDARY_CITIES</Tag>
+ 		<English>Legendary cities</English>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 3e5574180..43b38eb36 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -25,7 +25,8 @@ enum PlayerTypes
+ 	/*  advc.056 (note): Scenario (WB) files are now compatible so long
+ 		as the player ids in the WB file don't exceed MAX_CIV_PLAYERS in the DLL.
+ 		Savegames are still incompatible. */
+-	MAX_CIV_PLAYERS = 48,
++	MAX_CIV_PLAYERS = 18,
++	// MAX_CIV_PLAYERS = 48,
+ 	BARBARIAN_PLAYER = MAX_CIV_PLAYERS,
+ 	MAX_PLAYERS
+ };
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 123a02043..99800898c 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7104,8 +7104,70 @@ bool CvUnit::canUpgrade(UnitTypes eUnit, bool bTestVisible) const
+ 
+ 	if (!bTestVisible)
+ 	{
+-		if (GET_PLAYER(getOwner()).getGold() < upgradePrice(eUnit))
++		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++		int const iPrice = upgradePrice(eUnit);
++
++		if (kOwner.getGold() < iPrice)
+ 			return false;
++
++		// <!-- custom: AI upgrade economic checks (gold vs strength gain) (chatgpt 5.2) -->
++		// <!-- custom: note: war gates not implemented as it is not always certain they would be beneficial: they are likely to be harmful depending on how they are implemented. For example, while it is generally good to upgrade units if invaded so our defenses are stronger, if the enemy force is overwhelming, it is better to evacuate (and in SAS as of now we always evacuate doomed cities). But upgrading a unit makes it end its turn if i'm not mistaken, so it will be just destroyed by the enemy forc which is worse than simply escaping. Plus, upgrading at end of move or checking enemy stack's strength is tedious and i don't want to check all sites (and tbh i don't know how to do all of these things or it's tedious xd). Also, upgrading units is not necessarily useful when we are stronger (better tech or gain some other advantage with gold: if we gain an extra tech, not only are we fast but we can also trade it or such for more benefits than doing no teching just to upgrade a unit for 1 turn). And if a war ends, even if we are weaker, it may still be wasted gold, or it won't save us from our doomed defeat, as generally people declare war when they are confident they can win, at least we should assume so. In short, the key point is in autoplay AI techs much faster which is seemingly due to being more efficient with its upgrades instead of a blind "upgrade all units even if we have 100 of them and they cost 1 000 000 gold per upgrade" kind of previous logic (i didn't check, but we keep more of our older units now it seems rather than tech snailing to upgrade them all (check if accurate as i didn't look in detail but it seems to be so in autoplay)). Scores of all AI players are significantly highers, and tech pace much faster especially at later eras, so this is what matters the most. War gates may still have some value, but i'm not sure it's worth the complicated and fragile/versatile implementation it would require (i think), and as it is tedious not done for these then as we are already (very) getting good results in autoplay if i'm not mistaken. See known issue as of now 88 for details. Tune in SAS defines as you see fit. -->
++		if (!isHuman())
++		{
++			static const int iSAS_CAN_UPGRADE_OPTIMIZE = GC.getDefineINT("SAS_CAN_UPGRADE_OPTIMIZE");
++			if (iSAS_CAN_UPGRADE_OPTIMIZE > 0)
++			{
++				CvUnitInfo const& kFromUnit = GC.getInfo(getUnitType());
++				CvUnitInfo const& kToUnit   = GC.getInfo(eUnit);
++
++				int const iFromStrength = std::max(kFromUnit.getCombat(), kFromUnit.getAirCombat());
++				int const iToStrength   = std::max(kToUnit.getCombat(),   kToUnit.getAirCombat());
++				int const iStrengthGain = (iToStrength - iFromStrength);
++
++				// If there is no strength gain, do not block the upgrade (upgrades can also be valuable for non-strength reasons).
++				if (iFromStrength > 0 && iStrengthGain > 0)
++				{
++					int const iExp = getExperience();
++
++					// Gate 1: gold per 10% strength gain.
++					{
++						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH");
++						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP");
++						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP");
++
++						int iMaxGoldPer10Pct = iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH + iExp * iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_PER_FLAT_EXP;
++						if (iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP > 0)
++							iMaxGoldPer10Pct = std::min(iMaxGoldPer10Pct, iSAS_CAN_UPGRADE_MAX_GOLD_PER_10PCT_STRENGTH_CAP);
++
++						int const iPercentStrengthGain = (iStrengthGain * 100) / iFromStrength;
++						if (iPercentStrengthGain > 0)
++						{
++							// allowed gold = (gold per 10%) * (percent gain / 10%)
++							int const iAllowedGold = (iMaxGoldPer10Pct * iPercentStrengthGain + 5) / 10;
++							if (iPrice > iAllowedGold)
++								return false;
++						}
++					}
++
++					// Gate 2: gold per +1 flat strength gain.
++					{
++						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH");
++						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP");
++						static const int iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP = GC.getDefineINT("SAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP");
++
++						int iMaxGoldPerFlatStr = iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH + iExp * iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_PER_FLAT_EXP;
++						if (iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP > 0)
++							iMaxGoldPerFlatStr = std::min(iMaxGoldPerFlatStr, iSAS_CAN_UPGRADE_MAX_GOLD_PER_FLAT_STRENGTH_CAP);
++
++						// allowed gold = (gold per +1 flat strength) * (flat strength gain)
++						int const iAllowedGold = iMaxGoldPerFlatStr * iStrengthGain;
++						if (iPrice > iAllowedGold)
++							return false;
++					}
++				}
++			}
++		}
++		// <!-- custom: end AI upgrade economic checks (chatgpt 5.2) -->
+ 	}
+ 
+ 	if (hasUpgrade(eUnit))
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 20e7aad8e..effc1ac4f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -288,6 +288,7 @@ Note 2: master-vassal(s) changes are made with the aim that they in most cases w
+ - removed `UNITAI_COUNTER` from mounted units that had it (UNIT_CHARIOT, UNIT_EGYPTIAN_WAR_CHARIOT, UNIT_CARTHAGE_NUMIDIAN_CAVALRY) as they are not strong enough defender units to warrant it (doesn't ""receive defense bonuses" (i.e. modifiers if i'm not mistaken but anyways etc), plus takes a longbowman slot inefficiently as well i mean if i may say but anyways etc), and are wasted as a non attacker (stays parked in cities sometimes for example for the egyptian war chariot if i remember it correctly anyways etc) if i'm not mistaken but anyways etc. For chariot class units in particular, it may have made sense when longbows were available much later, but now in our mod but anyways etc they are available at about same time in tech as axeman class units but anyways etc, and are a more versatile, cheap enough and overall stronger defender, so prefer it for that purpose rather and use chariots offensively if in window to do so else don't build them (rather than park them in cities if i am not mistaken but anyways etc).
+ - Tremendously improved AI overbuilding very cheap (as of now 20 or less hammer cost in unitinfo XML (indepent from any trainpercent modifier if i am not mistaken anyways etc)) combat units (ancient macemen only being an issue as of now anyways etc) in the early game, sometimes even at turn 100, which is inefficient, nonsensical since there are so many better options like swordsmen, chariots, longbowmen, anything else basically some of which not requiring any bonus if i'm not mistaken but anyways etc, and easy to overshoot if i may say but anyways etc, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units anyways etc, now limited, especially even more so after as of now turn 50 where they should be especially useless. Since they are easy to overbuild due to being so cheap, they may quickly make us bankrupt, and are not so effective per unit. As in our mod archers are as of now available very soon, fairly cheap, and more versatile and overall stronger, plus since they also help fill our defense needs/quotas sooner so we move to offense focus sooner, it seems very nice to be able to cut down on excess very cheap units, as of now only the ancient maceman (note: this trims down scouts as well since they have combat if i am not mistaken, but we don't seem to overproduce them so fine anyways etc, and even if we were to then would be handled by the same cap if i am not mistaken but anyways etc). As a result of these changes in `CvCityAI::AI_chooseUnit`, ingame, we seem to have much better compositions (e.g. 3 ancient macemen at turn 100-130 vs 11 before in AI players), and much more stronger units in comparison. Hopefully helps being economically efficient as well. AI should be stronger as a result of these changes hopefully if i am not mistaken but anyways etc. See for details [53.4 (Tremendously Improved) AI overbuilding very cheap combat units (ancient macemen only being an issue as of now anyways etc) in the early game, sometimes even at turn 100, which is inefficient and easy to overshoot if i may say but anyways etc, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units anyways etc, now limited, especially even more so after as of now turn 50 where they should be especially useless; much better military compositions and better growth as a result anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc) anyways etc. Update: now the anti excess very cheap units is also included in `CvCity::doTurn` in the no production fallback unit code, as we were producing too many fallback ancient macemen otherwise with the new offense only code (like 19 ancient macemen at turn 100 which is very inefficient and most likely to bankrupt us or ruin our game but anyways etc) anyways etc. Update 2: Also added renaissance plus (anti pikemen or such, but only for land AND direct combat units (no scouts, spies, etc.)) logic as well as these units are ineffective against gun and higher units, and economically very inefficient (high spam and unit cost, low combat potential vs lower unit costs for stronger units or/and possibly more buildings as well i mean but anyways etc).
+ - AI now favours a military instructor specialist rather than a great general leader, as this is much stronger and scales better with late game. Added logic to favour top hammer city decrementially (top 1 hammer city the most, then top 2 city a bit less but still a lot, etc.), and tweaked existing logic to favour top as of now 3 hammer cities tremendously more. Also added logic to favour city especially more if it has or is building the heroic epic effect building (or whichever equivalent is in your mod mod if you modified it and implemented it as such in sas defines as well). Also, removed the military instructor per city limit, so now an AI city can have many military instructors not 1 max, which is much stronger. Changes in `CvCityAI::AI_permanentSpecialistValue` and `CvUnitAI::AI_generalMove`. See [KI#69](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc) for details anyways etc. Note: sometimes it seems to rarely be ignored in autoplay for some reason, although mostly applied it seems anyways etc.
++- (Requires AdvCiv-SAS 5277+) **Unit upgrades - stop wasting gold on tiny gains:** Fix AI tendency to **over-upgrade units** even when the upgrade is **poor value** (high gold cost for a small strength gain), which can burn many turns of **gold** and **slow tech pace**. Before allowing an upgrade, the AI must pass **simple ROI gates** based on **strength** gained vs gold cost: (1) gold per 10% strength gain, and (2) gold per +1 **flat strength** gain; both gates are **more lenient with higher unit EXP** (high-EXP units keep their promotions after being upgraded which is valuable, so spending more gold on them is more justified), while low-EXP units are treated more strictly (often better to let them die and rebuild if needed, unless it is cheap enough to upgrade them). Example (Knight -> Cuirassier): 10 strength -> 13 strength; if one of the gates requires `15 gold per +1 flat strength gain` with `+1 gold per +1 flat strength gain per 1 EXP`, then we won't upgrade the unit if its upgrade cost is more than `15 * 3 = 45 gold` at **0 EXP**, or `((15 + 18) * 3) = 99 gold` at **18 EXP** for this gate. In autoplay, this seemingly leads to **all AIs teching significantly faster**, especially in the **late game** where there are many units and AI would often have its tech pace stall for dozens of turns. Change in `CvUnit::canUpgrade` (single global gate, like `CvUnit::canScrap`); see [KI#88](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#88---tremendously-improved-ai-always-upgrading-way-too-much-units-and-not-techning-at-all-sometimes-for-dozen-turns).
+ 
+ ### General changes (non-exhaustive, see global defines and other unrelated xml files for details)
+ 
+@@ -397,6 +398,7 @@ Note: please see note here as well in this custom main changes guide about the .
+ - reworked techs 's FirstFreeUnitClass i mean, (i.e. the techs at which first player to discover the tech gets a free unit class, here a great person type, for example as of now a great spy at the new tech game theory anyways etc) anyways etc; this is to have greater versatility in strategy and relatively boosting the non-main military path in tech tree if players were to choose/risk to take it and reward it relatively more i mean anyways etc in this case anyways etc, with similarly to the corporations great person change only one great person type per tech so that it is balanced and varied as well anyways etc, generally sooner in tech tree as well so that these have a stronger impact, see xml or tech advisor (i.e. tech tree i mean anyways etc) or/and sevopedia for details or/and updated values anyways etc. Note: the future era is the exception: it has it's own GPs anyways etc.
+ - reworked/rebalanced starting techs after our tech tree rework, in particular due to tech_agriculture and tech_the_wheel no longer being starting techs, while tech_pottery now is, with the very nice and tremedous help of chatgpt 5 as well here thanks. Also used this opportunity to balance tech repartition to be equal ideally or as even and balanced as possible (as of now among the 35 playable civilizations, the techs are exactly split at 14 assignments per starting tech, for a total of 70 starting techs (2 per civ), which is very nice if possible). Changes include when culturally relevant for example giving tech_mining to tech_bronze_working or such leaning civilizations when thematically/historically quite/relevant enough. For example we changed the native american starting techs from tech_agriculture and tech_fishing to tech_hunting and tech_mining (goes well with the dog soldier civ-specific unit, and chatgpt 5 gave this rationale if helpful/more exhaustive: "Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity."). The max occurence of pairs (e.g. tech_hunting + tech_mining is a pair, and tech_mining + tech_hunting is obviously the one and same pair, anyways etc) among all as of now playable 35 civilizations is as of now 4 which is very reasonable and varied enough. I tried to avoid OP combinations but didn't prevent it extra hard either, so gameplay is varied and quite balanced when relevant enough i mean anyways etc. See for details the as of now list of all civs and their current starting techs with rationale is available there too in [README_Tech_Tree.md#after-most-recent-as-of-now-rework-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-most-recent-as-of-now-rework-anyways-etc) for details (not put here for concision but is synthetic and straightforward unlike this message xd but that i hope is sitll helpful i mean but anyways etc)
+ - **Delayed Requirements**: Some techs (e.g. `TECH_MOUNTED_COMBAT`) can optionally be researched fairly early (e.g. at Classical Era) or skipped until significantly later when they become mandatory (e.g. mid-Medieval Era for `TECH_CHIVALRY`). This gives more strategic flexibility and research costs management, as these techs would be cheaper to research later on with a stronger economy, while shorter-term concerns have more room to be addressed sooner if desired.
++- **Hastened Requirements**: Conversely, some techs (e.g. `TECH_CORPORATION`) are available earlier than their column in tech tree would suggest (since their requirements are few), for versatility and diverse strategical choices (thematically, it is also sensical as an alternate reality possibility).
+ 
+ ### Eras
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 24a39d4c7..fef716c7e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -121,6 +121,7 @@ hopefully helpful, thanks, anyways, thanks,
+ [85 - (Corrected Explanation) BUG Tech Advisor's Bulbing Indicators causing preGameStart (CvAppInterface) error at turn 0 so as in base advciv it is disabled at this turn and enabled only from turn 1 onwards, but base advciv's explanation about it affecting very large maps was incorrect: happened on a standard size map as well](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#85---corrected-explanation-bug-tech-advisors-bulbing-indicators-causing-pregamestart-cvappinterface-error-at-turn-0-so-as-in-base-advciv-it-is-disabled-at-this-turn-and-enabled-only-from-turn-1-onwards-but-base-advcivs-explanation-about-it-affecting-very-large-maps-was-incorrect-happened-on-a-standard-size-map-as-well)  
+ [86 - (Fixed) Base AdvCiv bug, in sevopedia bonus, in the aluminium bonus' entry, of all project tooltips showing the Apostolic Palace and redirecting to it instead of showing the project's tooltip and redirecting to said project, with the help of chatgpt 5.2 thanks anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#86---fixed-base-advciv-bug-in-sevopedia-bonus-in-the-aluminium-bonus-entry-of-all-project-tooltips-showing-the-apostolic-palace-and-redirecting-to-it-instead-of-showing-the-projects-tooltip-and-redirecting-to-said-project-with-the-help-of-chatgpt-52-thanks-anyways-etc)  
+ [87 - (Fixed and Generalized) Cannot open BUG Mod Help-ENG.chm on windows in AdvCiv-SAS, but can open it on windows in base AdvCiv, even though path is the same](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)  
++[88 - (Tremendously Improved) AI always upgrading way too much units and not techning at all, sometimes for dozen turns](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#88---tremendously-improved-ai-always-upgrading-way-too-much-units-and-not-techning-at-all-sometimes-for-dozen-turns)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -3211,3 +3212,11 @@ Now fixed with the help of chatgpt 5.2 thanks anyways etc.
+ See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1vFB4Iae35EQlTOaobLDD7Cw4J4OuW_ta?usp=sharing) anyways etc.
+ 
+ Issue and fixed described in [/README.md#external-file-access-in-civ4-ingame-on-windows](/README.md#external-file-access-in-civ4-ingame-on-windows).
++
++## 88 - (Tremendously Improved) AI always upgrading way too much units and not techning at all, sometimes for dozen turns
++
++See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1ahGT4Wdts_EywCgUFjSyOfEFzpDk3ows?usp=sharing) anyways etc.
++
++AI had a problem of spending too much time and gold to upgrade units that are often not worth ugprading at all (better let them die and build new ones than tech snail for dozens of turns sometimes). See rationale and details in code comments in `CvUnit::canUpgrade` or in the related XML SAS defines's code comments as well.
++
++Very good results in autoplay it seems, in short, especially in the later game, as tech pace is seemingly much faster for all AI players, which is especially nice since they had in AdvCiv-SAS a problem of snailing for dozens of turns (possibly in base AdvCiv too from what i remember, although i didn't check to be sure), which should be less of an occurence now (check to be sure, it seemed so at a glance but they still spend some time upgrading units, i'm guessing they are more efficient now or do it less when it is actually worth, but not sure as i didn't check more than that and in autoplay sample, so check if accurate although results do seem good).
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 1792ee7f2..238911555 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -278,6 +278,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Mounted “Counter” role pruning:** Removed `UNITAI_COUNTER` from the mounted units (`UNIT_CHARIOT`, `UNIT_EGYPTIAN_WAR_CHARIOT`, `UNIT_CARTHAGE_NUMIDIAN_CAVALRY`) that had it. Rationale: mounted units don’t "receive defense bonuses" (note: not related to bonuses/ressources) and can be countered by other units; assigning them to COUNTER can park them in cities (e.g. seemingly seen in autoplay with War Chariots) and occupies a slot **Longbowmen** are more fit to fill as they unlock early and are cheap and versatile defenders, so these mounted unit lines are better used for offense roles rather during its window—or skipped outside it.
+ - **Very cheap-combat spam cap (tiered & generalized):** The AI was **overbuilding very cheap combat units**—notably the **Ancient Maceman**—even ~T100. Because they’re so cheap, they pile up, are weak once Archers appear, and can drag the economy. We added conditions in `CvCityAI::AI_chooseUnit` to **limit** these builds, with a **stricter cap after ~T50** when they’re especially poor value. In AdvCiv-SAS, Archers arrive early, are cheap/versatile, and fill defense quotas sooner, letting cities pivot to offense. (Scouts get trimmed incidentally since they’re combat-tagged, though they weren’t the main issue.) **Result:** more varied, stronger stacks (e.g., ~3 Ancient Macemen @T100–130 vs ~11 before) and a **healthier economy**. See [KI#53.4](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#534-tremendously-improved-ai-overbuilding-very-cheap-combat-units-ancient-macemen-only-being-an-issue-as-of-now-anyways-etc-in-the-early-game-sometimes-even-at-turn-100-which-is-inefficient-and-easy-to-overshoot-if-i-may-say-but-anyways-etc-as-they-are-cheap-and-accumulate-quickly-but-are-not-too-effective-especially-as-soon-as-we-get-archer-units-anyways-etc-now-limited-especially-even-more-so-after-as-of-now-turn-50-where-they-should-be-especially-useless-much-better-military-compositions-and-better-growth-as-a-result-anyways-etc). **Update:** The cap in `CvCityAI::AI_chooseUnit` is now **generalized beyond Ancient** using **tier-based (not era-based) thresholds** to avoid era bleed-through (e.g., Ancient Macemen don’t inherit looser Classical caps). This also aims to trim (at least in theory, data lacking to draw a conclusion on an experiment anyways etc) for example **Archers in Classical** and **Longbows/Triremes in Medieval** when they’re too cheap for their tier. In practice we see AI mixes improve (e.g., Japan AI shifting from ~75 Longbows @T200 to ~50–60 Longbows + 10–15 Camel Archers + 20–27 Samurai, run-dependent). **Update (fallback production):** Applied the same cap inside `CvCity::doTurn`’s **no-production fallback** so that the **new offense-only** alternative logic no longer spams **Ancient Macemen** (e.g., ~19 @T100). **Update 2 (Renaissance+ anti-pike / cheap melee):** Added extra gating for **Renaissance+ very-cheap land, direct-combat units** (no scouts, spies, naval units, etc.). Goal: reduce ineffective late-game spam of obsolete counters (e.g. pikes into guns) and improve economic efficiency (lower unit costs, with more hammers available for stronger units and/or additional buildings instead of obsolete high-maintenance units).
+ - **Great Generals — prefer Military Instructor, focus on hammer hubs:** AI now favours settling Great Generals as **Military Instructors** over attaching them as unit leaders, as the instructor bonus scales better into the late game. **Targeting:** strong bias to the **top 3 hammer cities** with **decreasing weights** (top-1 most, then top-2/3 progressively less). Extra preference if the city **has / is building** the **Heroic Epic effect** building. **Limit removed:** cities may host **multiple** Military Instructors (no per-city cap). Implemented in `CvCityAI::AI_permanentSpecialistValue` and `CvUnitAI::AI_generalMove`. See [KI#69](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc). Note: sometimes/rarely ignored in autoplay.
++- (Requires AdvCiv-SAS 5277+) **Unit upgrades - stop wasting gold on tiny gains:** Fix AI tendency to **over-upgrade units** even when the upgrade is **poor value** (high gold cost for a small strength gain), which can burn many turns of **gold** and **slow tech pace**. Before allowing an upgrade, the AI must pass **simple ROI gates** based on **strength** gained vs gold cost: (1) gold per 10% strength gain, and (2) gold per +1 **flat strength** gain; both gates are **more lenient with higher unit EXP** (high-EXP units keep their promotions after being upgraded which is valuable, so spending more gold on them is more justified), while low-EXP units are treated more strictly (often better to let them die and rebuild if needed, unless it is cheap enough to upgrade them). Example (Knight -> Cuirassier): 10 strength -> 13 strength; if one of the gates requires `15 gold per +1 flat strength gain` with `+1 gold per +1 flat strength gain per 1 EXP`, then we won't upgrade the unit if its upgrade cost is more than `15 * 3 = 45 gold` at **0 EXP**, or `((15 + 18) * 3) = 99 gold` at **18 EXP** for this gate. In autoplay, this seemingly leads to **all AIs teching significantly faster**, especially in the **late game** where there are many units and AI would often have its tech pace stall for dozens of turns. Change in `CvUnit::canUpgrade` (single global gate, like `CvUnit::canScrap`); see [KI#88](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#88---tremendously-improved-ai-always-upgrading-way-too-much-units-and-not-techning-at-all-sometimes-for-dozen-turns).
+ 
+ ### General changes (non-exhaustive; see GlobalDefines/XML)
+ 
+@@ -384,6 +385,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - **FirstFreeUnitClass** assignments reshuffled to diversify GP races (one GP type per tech; often earlier). *Exception:* the Future era has its own GP assignments.
+ - **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **“pair”** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **4** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. Details: [Assets Rebalancing table (starting-techs (civ list & rationale))](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Assets_Rebalancing.md#after-most-recent-as-of-now-rework-anyways-etc).
+ - **Delayed Requirements**: Some techs (e.g. `TECH_MOUNTED_COMBAT`) can optionally be researched fairly early (e.g. at Classical Era) or skipped until significantly later when they become mandatory (e.g. mid-Medieval Era for `TECH_CHIVALRY`). This gives more strategic flexibility and research costs management, as these techs would be cheaper to research later on with a stronger economy, while shorter-term concerns have more room to be addressed sooner if desired.
++- **Hastened Requirements**: Conversely, some techs (e.g. `TECH_CORPORATION`) are available earlier than their column in tech tree would suggest (since their requirements are few), for versatility and diverse strategical choices (thematically, it is also sensical as an alternate reality possibility).
+ 
+ ### Eras
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG
+index 54c43e073..1f9a69e05 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.510_foreign_advisor_bonuses.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+index 8eb88a462..44d495488 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+index 4ceb6bfda..e15cd3aaf 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=11 omittedFiles=1 embeddedPatchBytes=48910

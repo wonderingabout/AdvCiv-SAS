@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3578
+# Commit: 25e65f5c7f37503c39c27c5b3aa5f4147e0e0734
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 79fedd55a2a073049056603622f2931929f7eb65
+# Title: Fix minor issue in K-Mod AI code in extended game
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	3	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 17fd1e1d5..346d598cc 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2455,8 +2455,10 @@ void CvPlayerAI::AI_updateCommerceWeights()
+ 		}
+ 	}
+ 	std::sort(city_countdown_list.begin(), city_countdown_list.end());
+-
+-	int const iGameTurn = kGame.getGameTurn();
++	int const iEndTurn = kGame.getEstimateEndTurn();
++	/*	advc.001: Seems that karadoc hadn't thought of exceeding the end turn.
++		Perhaps no real problem, but causes an assertion to fail. */
++	int const iGameTurn = std::min(iEndTurn, kGame.getGameTurn());
+ 	FAssert(city_countdown_list.size() == getNumCities());
+ 	for (size_t i = 0; i < city_countdown_list.size(); i++)
+ 	{
+@@ -2529,7 +2531,7 @@ void CvPlayerAI::AI_updateCommerceWeights()
+ 			{
+ 				int iCultureProgress = pCity->getCultureTimes100(getID()) /
+ 						std::max(1, iLegendaryCulture);
+-				int iTimeProgress = 100 * iGameTurn / kGame.getEstimateEndTurn();
++				int iTimeProgress = 100 * iGameTurn / iEndTurn;
+ 				iTimeProgress *= iTimeProgress;
+ 				iTimeProgress /= 100;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1107

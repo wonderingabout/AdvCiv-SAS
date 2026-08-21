@@ -1,0 +1,70 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 387
+# Commit: 298e12d5bd7c143f532a5e969a2cc50bc86a126d
+# History segment: K-Mod history
+# Parent used for diff: f6caadc1f7fab71cb7809b26b833ad165b0deea7
+# Title: Improved the symmetry breaker in the pathfinder.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	4	CvGameCoreDLL/CvGameCoreUtils.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index c9d860e14..43c2a1e93 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1543,6 +1543,7 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 
+ 	// symmetry breaking. This is meant to prevent two paths from having equal cost.
+ 	// (If two paths have equal cost, sometimes the interface shows one path and the units follow the other. This is bad.)
++	if (parent->m_pParent)
+ 	{
+ 		const int map_width = GC.getMapINLINE().getGridWidthINLINE();
+ 		const int map_height = GC.getMapINLINE().getGridHeightINLINE();
+@@ -1550,8 +1551,8 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ #define WRAP_X(x) ((x) - ((x) > map_width/2 ? map_width : 0) + ((x) < -map_width/2 ? map_width : 0))
+ #define WRAP_Y(y) ((y) - ((y) > map_height/2 ? map_height : 0) + ((y) < -map_height/2 ? map_height : 0))
+ 
+-		int start_x = pSelectionGroup->getX();
+-		int start_y = pSelectionGroup->getY();
++		int start_x = parent->m_pParent->m_iX;
++		int start_y = parent->m_pParent->m_iY;
+ 
+ 		int dx1 = WRAP_X(pFromPlot->getX_INLINE() - start_x);
+ 		int dy1 = WRAP_Y(pFromPlot->getY_INLINE() - start_y);
+@@ -1559,8 +1560,20 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 		int dy2 = WRAP_Y(pToPlot->getY_INLINE() - start_y);
+ 
+ 		// cross product. (greater than zero => sin(angle) > 0 => angle > 0)
+-		if (dx1 * dy2 - dx2 * dy1 > 0)
+-			iWorstCost += PATH_ASYMMETRY_WEIGHT;
++		int cross = dx1 * dy2 - dx2 * dy1;
++		if (cross > 0)
++			iWorstCost += PATH_ASYMMETRY_WEIGHT; // turning left
++		else if (cross < 0)
++			iWorstCost -= PATH_ASYMMETRY_WEIGHT; // turning right
++
++		// woah - hang on. Does that say /minus/ asym weight?
++		// Doesn't this guy know that bad things happen if the total weight is negative?
++		// ...
++		// take a breath.
++#if PATH_STEP_WEIGHT < PATH_ASYMMETRY_WEIGHT
++#error "I'm sorry, but I must demand that step weight be greater than asym weight."
++#endif
++		// I think we're going to be ok.
+ 
+ #undef WRAP_X
+ #undef WRAP_Y
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2146

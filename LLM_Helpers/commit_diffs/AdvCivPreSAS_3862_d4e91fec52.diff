@@ -1,0 +1,171 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3862
+# Commit: d4e91fec5256f3110e22a41a651cc8505abd5e3b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bf88ce17bdf5be12aa3c85b82e0e8a19aa0fe0fe
+# Title: Option for hiding Auto-Explore, Sea Patrol
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	1	Assets/Config/BUG Main Interface.xml
+5	2	Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+6	0	Assets/Python/Screens/CvMainInterface.py
+15	6	Assets/XML/Text/BUG Main Interface Options.xml
+5	10	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index 96113ebdf..69e72d4c6 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -241,7 +241,12 @@
+ 
+ 			<!-- advc.004k -->
+ 			<option id="SeaPatrol" key="Sea Patrol"
+-					type="boolean" default="False" dirtyBit="SelectionButtons"/>
++					get="isShowSeaPatrol"
++					type="boolean" default="True" dirtyBit="SelectionButtons"/>
++			<!-- advc.004k -->
++			<option id="AutoExplore" key="Auto Explore"
++					get="isShowAutoExplore"
++					type="boolean" default="True" dirtyBit="SelectionButtons"/>
+ 			
+ 			<!-- advc.004z -->
+ 			<option id="ScoresInGlobeView" key="Scores in Globe View"
+
+diff --git a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+index 1369ebc44..045e3b079 100644
+--- a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+@@ -82,8 +82,11 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		# </advc.004>
+ 		# advc.154:
+ 		self.addTextDropdown(screen, panel, panel, "MainInterface__UnitCyclingButtons", True)
+-		# advc.004k:
+-		self.addCheckbox(screen, panel, "MainInterface__SeaPatrol")
++		# <advc.004k>
++		left, right = self.addTwoColumnLayout(screen, panel, "CommandCols")
++		self.addCheckbox(screen, left, "MainInterface__SeaPatrol")
++		self.addCheckbox(screen, right, "MainInterface__AutoExplore")
++		# </advc.004k>
+ 		# advc.002m:
+ 		self.addTextDropdown(screen, panel, panel, "MainInterface__NukeMissionTime", True)
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index dda12a7ab..c228a63cb 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -3435,6 +3435,12 @@ class CvMainInterface:
+ 					actions = CyInterface().getActionsToShow()
+ 					for i in actions:
+ 						# <advc.004k>
++						if (gc.getActionInfo(i).getMissionType() == MissionTypes.MISSION_SEAPATROL and
++								not MainOpt.isShowSeaPatrol()):
++							continue
++						if (gc.getActionInfo(i).getAutomateType() == AutomateTypes.AUTOMATE_EXPLORE and
++								not MainOpt.isShowAutoExplore()):
++							continue
+ 						# Show grouping commands before promotions, upgrades
+ 						if (not bGroupButtonsDone and
+ 								(gc.getActionInfo(i).getCommandType() == CommandTypes.COMMAND_PROMOTION or
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index c06888595..b20d595f0 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -649,7 +649,8 @@
+ 		<Spanish>Activada, seleccionando unidades con la tecla [May�s] s�lo a�adir una unidad cada vez.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.004k: same as TXT_KEY_MISSION_SEAPATROL (CIV4GameText_BTS.xml) -->
++	<!-- advc.004k -->
++	<!-- Same as TXT_KEY_MISSION_SEAPATROL (CIV4GameText_BTS.xml) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SEAPATROL_TEXT</Tag>
+ 		<English>Sea Patrol</English>
+@@ -660,11 +661,19 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SEAPATROL_HOVER</Tag>
+-		<English>Enables the "Sea Patrol" mission (except in network games). When disabled, the mission button is removed and the AI won't use the mission either.</English>
+-		<French>Enables the "Patrouille des mers" mission. When unchecked, the mission button is removed and the AI won't use the mission either.</French>
+-		<German>Erlaubt den Einheiten-Befehl "Seepatrouille" (au�er in Netzwerk-Spielen)</German>
+-		<Italian>Enables the "Pattuglia marina" mission. When unchecked, the mission button is removed and the AI won't use the mission either.</Italian>
+-		<Spanish>Enables the "Patrulla mar&#237;tima" mission. When unchecked, the mission button is removed and the AI won't use the mission either.</Spanish>
++		<English>Uncheck this option to hide the (rarely used) Sea Patrol command button. You will still be able to issue the command through the [COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] key.</English>
++		<German>Deaktivieren Sie diese Option, um den (selten gebrauchten) Einheiten-Befehl "Seepatrouille" auszublenden. Das Tataturk�rzel [COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] ist davon nicht betroffen.</German>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__AUTOEXPLORE_TEXT</Tag>
++		<English>Auto-Explore</English>
++		<German>Auto-Erkundung</German>
++	</TEXT>
++	<!-- Based on TXT_KEY_ACTION_AUTOMATE_EXPLORE (CIV4GameText_BTS.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__AUTOEXPLORE_HOVER</Tag>
++		<English>Uncheck this option to hide the "Explore (Automated)" command button. You will still be able to issue the command through the [COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] key. (Recommended if you never automate exploration or sometimes press that button by accident.)</English>
++		<German>Deaktivieren Sie diese Option, um den Automatisierungs-Befehl "Erkunden" auszublenden. Das Tataturk�rzel [COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] ist davon nicht betroffen.</German>
+ 	</TEXT>
+ 	
+ 	<!-- advc.004z -->
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 991b14ca0..59c0459cf 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3444,11 +3444,8 @@ bool CvUnit::canAirPatrol(const CvPlot* pPlot) const
+ }
+ 
+ 
+-bool CvUnit::canSeaPatrol(const CvPlot* pPlot) const
++bool CvUnit::canSeaPatrol(CvPlot const* pPlot) const
+ {
+-	// <advc.004k> To avoid sync issues with the BUG option
+-	if (GC.getGame().isNetworkMultiPlayer())
+-		return false; // </advc.004k>
+ 	if (!pPlot->isWater())
+ 		return false;
+ 
+@@ -3461,8 +3458,7 @@ bool CvUnit::canSeaPatrol(const CvPlot* pPlot) const
+ 	//if (isWaiting())
+ 	if (getGroup()->getActivityType() == ACTIVITY_PATROL) // K-Mod
+ 		return false;
+-	// advc.004k: (Do the cheaper checks first)
+-	return BUGOption::isEnabled("MainInterface__SeaPatrol", false);
++	return true;
+ }
+ 
+ 
+@@ -4554,8 +4550,7 @@ bool CvUnit::pillage()
+ 				return false;
+ 		}
+ 	}
+-	if (kPlot.isWater() &&
+-		BUGOption::isEnabled("MainInterface__SeaPatrol", false)) // advc.004k
++	if (kPlot.isWater())
+ 	{
+ 		CvUnit* pInterceptor = bestSeaPillageInterceptor(this, GC.getCOMBAT_DIE_SIDES() / 2);
+ 		if (pInterceptor != NULL)
+@@ -7800,8 +7795,8 @@ CvUnit* CvUnit::bestSeaPillageInterceptor(CvUnit* pPillager, int iMinOdds) const
+ 		FOR_EACH_UNIT_VAR_IN(pLoopUnit, kLoopPlot)
+ 		{
+ 			if (pLoopUnit == NULL)
+-			{	// advc.test: (would have to enable sea patrol mission to test it though)
+-				FAssertMsg(pLoopUnit != NULL, "Can this happen?");
++			{
++				FAssertMsg(pLoopUnit != NULL, "Can this happen?"); // advc.test
+ 				continue;
+ 			}
+ 			//if (pLoopUnit->sameArea(*pPillager))
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6737

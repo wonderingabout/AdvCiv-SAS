@@ -1,0 +1,315 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1819
+# Commit: 8276f4054e825b118a3747db841518c3c448045c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 854cb8058cbc95f14b4a9e6b70a9782ab9210f2f
+# Title: Don't use stdext::hash_map after all
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/AgentIterator.cpp
+2	2	CvGameCoreDLL/ArmamentForecast.cpp
+0	1	CvGameCoreDLL/CvGameCoreDLL.h
+1	0	CvGameCoreDLL/CvGamePlay.h
+1	1	CvGameCoreDLL/EnumMap.h
+1	1	CvGameCoreDLL/InvasionGraph.cpp
+5	5	CvGameCoreDLL/MilitaryAnalyst.cpp
+1	1	CvGameCoreDLL/UWAISets.h
+3	3	CvGameCoreDLL/WarAndPeaceCache.cpp
+3	2	CvGameCoreDLL/WarAndPeaceCache.h
+0	5	CvGameCoreDLL/WarAndPeaceReport.cpp
+1	1	CvGameCoreDLL/WarAndPeaceReport.h
+1	0	CvGameCoreDLL/WarEvalParameters.cpp
+12	8	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AgentIterator.cpp b/CvGameCoreDLL/AgentIterator.cpp
+index d42914805..ef1b8f228 100644
+--- a/CvGameCoreDLL/AgentIterator.cpp
++++ b/CvGameCoreDLL/AgentIterator.cpp
+@@ -1,7 +1,7 @@
+ // advc.agent: New file; see comment in header.
+ 
+ #include "CvGameCoreDLL.h"
+-//#include "AgentIterator.h"
++#include "AgentIterator.h"
+ #include "CvPlayerAI.h"
+ #include "CvTeamAI.h"
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 3a7077022..f1b65ae9f 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -85,9 +85,9 @@ ArmamentForecast::ArmamentForecast(PlayerTypes civId, MilitaryAnalyst& m,
+ 	bool fictionalScenario = false;
+ 	TeamTypes singleWarEnemy = NO_TEAM; // Only relevant if there is just one enemy
+ 	bool const noWarVsExtra = peaceScenario && params.isNoWarVsExtra();
+-	for(TeamIter<MAJOR_CIV,NOT_SAME_TEAM_AS> it(tId); it.hasNext(); ++it) {
++	for(TeamIter<MAJOR_CIV> it; it.hasNext(); ++it) {
+ 		CvTeamAI& loopTeam = *it;
+-		if(!loopTeam.isHasMet(TEAMID(m.ourId())))
++		if(loopTeam.getID() == tId || !loopTeam.isHasMet(TEAMID(m.ourId())))
+ 			continue;
+ 		TeamTypes loopTeamId = loopTeam.getID();
+ 		TeamTypes loopMaster = loopTeam.getMasterTeam();
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index bf2375419..172bda97f 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -291,7 +291,6 @@ namespace python = boost::python;
+ #include "CyArgsList.h"
+ #include "CyPlot.h"
+ #include "CyUnit.h"
+-#include "AgentIterator.h" // advc.agent
+ 
+ #ifdef FINAL_RELEASE
+ // Undefine OutputDebugString in final release builds
+
+diff --git a/CvGameCoreDLL/CvGamePlay.h b/CvGameCoreDLL/CvGamePlay.h
+index 32f0df78b..5460a29a5 100644
+--- a/CvGameCoreDLL/CvGamePlay.h
++++ b/CvGameCoreDLL/CvGamePlay.h
+@@ -11,6 +11,7 @@
+ #include "CvGame.h"
+ #include "CvTeam.h"
+ #include "CvPlayer.h"
++#include "AgentIterator.h" // advc.agent
+ #include "CvCivilization.h" // advc.003w
+ /*  Not: CvCity.h - not much use without CvCityList, which, in turn, includes
+ 	CvCityAI.h. Same problem with CvUnit.h, CvSelectionGroup.h.
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index f5902fc8e..74f5fed26 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -1256,7 +1256,7 @@ class EnumMap : public EnumMapBase <IndexType, T, EnumMapGetDefault<T>::DEFAULT_
+ template<class IndexType, class T, int DEFAULT = 0>
+ class EnumMapInt : public EnumMapBase <int, T, DEFAULT, IndexType, IndexType> {};
+ 
+-// <advc>
++// <advc> (Will have to explicitly set DEFAULT=-1 when T is an enum type)
+ template<class T, int DEFAULT = 0>
+ class CivPlayerMap : public EnumMapBase <PlayerTypes, T, DEFAULT, CivPlayerTypes, CivPlayerTypes> {};
+ template<class T, int DEFAULT = 0>
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index a98c3eb99..4ca4d5c5f 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -151,7 +151,7 @@ InvasionGraph::Node::Node(PlayerTypes civId, InvasionGraph& outer) :
+ 
+ void InvasionGraph::Node::initMilitary() {
+ 
+-	PROFILE_FUNC();
++	//PROFILE_FUNC(); // Dynamic memory allocation doesn't seem to hurt performance
+ 	// Copy present military from cache and split HOME_GUARD off from ARMY
+ 	std::vector<MilitaryBranch*> const& pm = cache.getPowerValues();
+ 	MilitaryBranch::HomeGuard* hg = new MilitaryBranch::HomeGuard(*pm[HOME_GUARD]);
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index 4423e8417..1e2e43641 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -209,8 +209,9 @@ MilitaryAnalyst::~MilitaryAnalyst() {
+ MilitaryAnalyst::PlayerResult& MilitaryAnalyst::playerResult(PlayerTypes civId) {
+ 
+ 	/*  Lazy creation of playerResults means that NULL needs to be checked when accessing
+-		a PlayerResult and that memory needs to be allocated dynamically. Not sure if this
+-		is better for performance than to create a PlayerResult for every player upfront. */
++		a PlayerResult and that memory needs to be allocated dynamically. Based on a test,
++		this is still faster than creating a PlayerResult for every player upfront and
++		accessing the empty sets of the dummy entries. */
+ 	FASSERT_BOUNDS(0, MAX_CIV_PLAYERS, civId, "MilitaryAnalyst::playerResult");
+ 	if(playerResults[civId] == NULL)
+ 		playerResults[civId] = new PlayerResult();
+@@ -413,9 +414,8 @@ bool MilitaryAnalyst::hasCapitulated(TeamTypes teamId) const {
+ 	for(MemberIter it(teamId); it.hasNext(); ++it) {
+ 		PlayerTypes civId = it->getID();
+ 		InvasionGraph::Node* node = ig->getNode(civId);
+-		if(node != NULL && node->hasCapitulated())
+-		{
+-			FAssert(!t.isAVassal())
++		if(node != NULL && node->hasCapitulated()) {
++			FAssert(!t.isAVassal());
+ 			return true;
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/UWAISets.h b/CvGameCoreDLL/UWAISets.h
+index 2c44844ae..2f4bdf4d8 100644
+--- a/CvGameCoreDLL/UWAISets.h
++++ b/CvGameCoreDLL/UWAISets.h
+@@ -6,7 +6,7 @@
+ /*  advc.104: Types for small sets of (unique) players, teams and cities.
+ 	For wars simulated by the utility-based war AI component (a.k.a war-and-peace AI). */
+ 
+-// Tbd.: Test if flat_set is more efficient
++// flat_set might be more efficient, but that's in Boost 1.35.
+ /*  Would like to derive my set classes from boost::noncopyable (cf. advc.003e)
+ 	to prevent errors like:
+ 	CitySet kMyReference = kAnalyst.lostCities(ePlayer);
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index 7995b7ad4..91e161c36 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -125,7 +125,7 @@ void WarAndPeaceCache::write(FDataStreamBase* stream) {
+ 			it != readyToCapitulate.end(); it++)
+ 		stream->Write(*it);
+ 	stream->Write(latestTurnReachableBySea.size());
+-	for(stdext::hash_map<int,std::pair<int,int> >::iterator it = latestTurnReachableBySea.
++	for(std::map<int,std::pair<int,int> >::iterator it = latestTurnReachableBySea.
+ 			begin(); it != latestTurnReachableBySea.end(); it++) {
+ 		stream->Write(it->first);
+ 		stream->Write(it->second.first);
+@@ -611,7 +611,7 @@ WarAndPeaceCache& WarAndPeaceCache::leaderCache() {
+ 
+ WarAndPeaceCache::City* WarAndPeaceCache::lookupCity(int plotIndex) const {
+ 
+-	stdext::hash_map<int,City*>::const_iterator pos = cityMap.find(plotIndex);
++	std::map<int,City*>::const_iterator pos = cityMap.find(plotIndex);
+ 	// Verify that the city still exists
+ 	if(pos == cityMap.end() || pos->second->city() == NULL)
+ 		return NULL;
+@@ -1040,7 +1040,7 @@ void WarAndPeaceCache::reportCityOwnerChanged(CvCity* c, PlayerTypes oldOwnerId)
+ 	/*  I didn't think I'd need to update the city cache during turns, so this
+ 		is awkward to write ... */
+ 	City* fromCache = NULL;
+-	stdext::hash_map<int,City*>::iterator pos = cityMap.find(c->plotNum());
++	std::map<int,City*>::iterator pos = cityMap.find(c->plotNum());
+ 	if(pos != cityMap.end())
+ 		fromCache = pos->second;
+ 	size_t vIndex = -1;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.h b/CvGameCoreDLL/WarAndPeaceCache.h
+index 19f417554..32ca32b2f 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.h
++++ b/CvGameCoreDLL/WarAndPeaceCache.h
+@@ -164,8 +164,9 @@ private:
+ 
+ 	PlayerTypes ownerId;
+ 	std::vector<City*> v;
+-	stdext::hash_map<int,City*> cityMap;
+-	stdext::hash_map<int,std::pair<int,int> > latestTurnReachableBySea;
++	// I've tried stdext::hash_map for both of these. That was a little bit slower.
++	std::map<int,City*> cityMap;
++	std::map<int,std::pair<int,int> > latestTurnReachableBySea;
+ 	std::vector<MilitaryBranch*> militaryPower;
+ 
+ 	int nNonNavyUnits;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceReport.cpp b/CvGameCoreDLL/WarAndPeaceReport.cpp
+index 5e85b82c7..15f379526 100644
+--- a/CvGameCoreDLL/WarAndPeaceReport.cpp
++++ b/CvGameCoreDLL/WarAndPeaceReport.cpp
+@@ -173,11 +173,6 @@ void WarAndPeaceReport::setMute(bool b) {
+ 	else muted--;
+ }
+ 
+-bool WarAndPeaceReport::isMute() const {
+-
+-	return muted > 0;
+-}
+-
+ void WarAndPeaceReport::setSilent(bool b) {
+ 
+ 	silent = b;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceReport.h b/CvGameCoreDLL/WarAndPeaceReport.h
+index b93e3783c..13913e7a2 100644
+--- a/CvGameCoreDLL/WarAndPeaceReport.h
++++ b/CvGameCoreDLL/WarAndPeaceReport.h
+@@ -37,7 +37,7 @@ public:
+ 	char const* prefix(int level);
+ 	void setMute(bool b);
+ 	// True if muted or if silent to begin with
+-	bool isMute() const;
++	bool isMute() const { return (muted > 0); }
+ 	void setSilent(bool b);
+ 
+ private:
+
+diff --git a/CvGameCoreDLL/WarEvalParameters.cpp b/CvGameCoreDLL/WarEvalParameters.cpp
+index c2a9109cd..32b03e936 100644
+--- a/CvGameCoreDLL/WarEvalParameters.cpp
++++ b/CvGameCoreDLL/WarEvalParameters.cpp
+@@ -4,6 +4,7 @@
+ #include "WarEvalParameters.h"
+ #include "CvGameAI.h"
+ #include "CvTeamAI.h"
++#include "AgentIterator.h"
+ 
+ 
+ WarEvalParameters::WarEvalParameters(TeamTypes agentId,
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 479d18748..1298b91cf 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -35,7 +35,7 @@ WarUtilityAspect::WarUtilityAspect(WarEvalParameters const& params) :
+ 
+ void WarUtilityAspect::reset() {
+ 
+-	PROFILE_FUNC();
++	//PROFILE_FUNC(); // About 100,000 calls per game turn. Not a concern.
+ 	m = NULL; weId = NO_PLAYER; we = NULL; weAI = NULL; ourCache = NULL;
+ 	resetCivOnCiv();
+ }
+@@ -63,16 +63,15 @@ int WarUtilityAspect::evaluate(MilitaryAnalyst const& m) {
+ 			continue;
+ 		int delta = evaluate(theyId);
+ 		if(delta != 0)
+-			report.log("*%s from %s: %d*", aspectName(),
+-					report.leaderName(theyId, 16), delta);
++			log("*%s from %s: %d*", aspectName(), report.leaderName(theyId, 16), delta);
+ 	}
+ 	if(overall != 0) {
+-		report.log("*%s (from no one in particular): %d*", aspectName(), overall);
++		log("*%s (from no one in particular): %d*", aspectName(), overall);
+ 		u += overall;
+ 	}
+ 	double xmlAdjust = getWPAI.aspectWeight(xmlId());
+ 	if(u != 0 && (xmlAdjust < 0.99 || xmlAdjust > 1.01)) {
+-		report.log("Adjustment from XML: %d percent", ::round(xmlAdjust * 100));
++		log("Adjustment from XML: %d percent", ::round(xmlAdjust * 100));
+ 		u = ::round(u * xmlAdjust);
+ 	}
+ 	reset();
+@@ -130,7 +129,13 @@ bool WarUtilityAspect::concernsOnlyWarParties() const { return true; }
+ 
+ void WarUtilityAspect::log(char const* fmt, ...) {
+ 
+-	PROFILE_FUNC();
++	/*  The time spent in this function is negligible when the report is muted,
++		but the call overhead (up to 100,000 calls per game turn) and branching
++		could still be harmful. Can't be helped though so long as the report is
++		enabled and disabled through XML. */
++	//PROFILE_FUNC();
++	if(report.isMute())
++		return;
+ 	va_list args;
+ 	va_start(args, fmt);
+ 	string msg = CvString::formatv(fmt, args);
+@@ -350,8 +355,7 @@ double WarUtilityAspect::conqAssetScore(bool mute) {
+ 			bit high in this case. */
+ 		r *= 1.2;
+ 		if(!mute)
+-			log("Asset score increased to %d b/c enemy culture neutralized",
+-					::round(r));
++			log("Asset score increased to %d b/c enemy culture neutralized", ::round(r));
+ 	}
+ 	return r;
+ }
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=11070

@@ -1,0 +1,647 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2229
+# Commit: 1f7be993eaa4f59170d68527129230606afc39ef
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 382cdaecccf9d920f4f4e93f8ef72fab066dd2c1
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+0	7	CvGameCoreDLL/CvArea.cpp
+4	1	CvGameCoreDLL/CvArea.h
+25	20	CvGameCoreDLL/CvGame.cpp
+3	2	CvGameCoreDLL/CvGameInterface.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+2	1	CvGameCoreDLL/CvMap.cpp
+1	1	CvGameCoreDLL/CvMap.h
+13	8	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+14	22	CvGameCoreDLL/CvSelectionGroup.cpp
+12	2	CvGameCoreDLL/CvSelectionGroup.h
+1	1	CvGameCoreDLL/CvTeam.cpp
+5	4	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvUnit.h
+13	15	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/Shelf.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 60dee9754..8ea643b2b 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -2597,7 +2597,7 @@ int AIFoundValue::adjustToCitiesPerArea(int iValue) const
+ 	if (kTeam.isCapitulated() || iCities <= 0)
+ 		return iValue; // </advc.130v>
+ 
+-	if (kArea.countCivCities() == 0) // advc.031: Had been counting Barbarian cities
++	if (kArea.getNumCivCities() <= 0) // advc.031: Had been counting Barbarian cities
+ 	{
+ 		//iValue *= 2;
+ 		// K-Mod: presumably this is meant to be a bonus for being the first on a new continent.
+
+diff --git a/CvGameCoreDLL/CvArea.cpp b/CvGameCoreDLL/CvArea.cpp
+index 53827a123..724220a7c 100644
+--- a/CvGameCoreDLL/CvArea.cpp
++++ b/CvGameCoreDLL/CvArea.cpp
+@@ -294,13 +294,6 @@ std::pair<int,int> CvArea::countOwnedUnownedHabitableTiles(bool bIgnoreBarb) con
+ 	return r;
+ }
+ 
+-int CvArea::countCivCities() const
+-{
+-	int r = 0;
+-	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
+-		r += getCitiesPerPlayer((PlayerTypes)i);
+-	return r;
+-}
+ 
+ int CvArea::countCivs(bool bSubtractOCC) const
+ {
+
+diff --git a/CvGameCoreDLL/CvArea.h b/CvGameCoreDLL/CvArea.h
+index 9254328f8..9857c3619 100644
+--- a/CvGameCoreDLL/CvArea.h
++++ b/CvGameCoreDLL/CvArea.h
+@@ -54,7 +54,10 @@ public:
+ 	// <advc.300>
+ 	std::pair<int,int> countOwnedUnownedHabitableTiles( // advc.021b: Exposed to Python as getNumHabitableTiles
+ 			bool bIgnoreBarb = false) const;
+-	int countCivCities() const;
++	int getNumCivCities() const
++	{
++		return getNumCities() - getCitiesPerPlayer(BARBARIAN_PLAYER);
++	}
+ 	int countCivs(bool bSubtractOCC = false) const; // with at least 1 city
+ 	bool hasAnyAreaPlayerBonus(BonusTypes eBonus) const;
+ 	int getBarbarianCitiesEverCreated() const;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 514b6a4d9..2eb19ec2d 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7033,7 +7033,7 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
+ 				//a.countOwnedUnownedHabitableTiles(true);
+ 		int iUnowned = iiOwnedUnowned.second;
+ 		std::vector<Shelf*> shelves;
+-		m.getShelves(pArea->getID(), shelves);
++		m.getShelves(*pArea, shelves);
+ 		for(size_t i = 0; i < shelves.size(); i++)
+ 			iUnowned += shelves[i]->countUnownedPlots() / 2;
+ 		unownedPerArea.insert(std::make_pair(pArea->getID(), iUnowned));
+@@ -7146,12 +7146,14 @@ void CvGame::createBarbarianUnits()
+ 	bool bCreateBarbarians = isBarbarianCreationEra(); // advc.307 (checked later now)
+ 	bool bAnimals = false;
+ 	if (getNumCivCities() < (3 * countCivPlayersAlive()) / 2 &&
+-			!isOption(GAMEOPTION_ONE_CITY_CHALLENGE) &&
+-			/*  advc.300: No need to delay Barbarians (bAnimals=true) if they start
+-				slowly (PEAK_PERCENT>=35). For slow game speed settings, there is
+-				now a similar check in CvUnitAI::AI_barbAttackMove. */
+-			GC.getDefineINT(CvGlobals::BARB_PEAK_PERCENT) < 35)
++		!isOption(GAMEOPTION_ONE_CITY_CHALLENGE) &&
++		/*  advc.300: No need to delay Barbarians (bAnimals=true) if they start
++			slowly (PEAK_PERCENT>=35). For slow game speed settings, there is
++			now a similar check in CvUnitAI::AI_barbAttackMove. */
++		GC.getDefineINT(CvGlobals::BARB_PEAK_PERCENT) < 35)
++	{
+ 		bAnimals = true;
++	}
+ 	// advc.300: Moved into new function
+ 	if (getGameTurn() < getBarbarianStartTurn())
+ 		bAnimals = true;
+@@ -7178,7 +7180,7 @@ void CvGame::createBarbarianUnits()
+ 		if (a.isWater() || a.getNumCities() == 0)
+ 			continue;
+ 		int iUnowned = 0, iTiles = 0;
+-		std::vector<Shelf*> shelves; GC.getMap().getShelves(a.getID(), shelves);
++		std::vector<Shelf*> shelves; GC.getMap().getShelves(a, shelves);
+ 		for (size_t i = 0; i < shelves.size(); i++)
+ 		{
+ 			// Shelves also count for land Barbarians, ...
+@@ -7207,9 +7209,11 @@ void CvGame::createBarbarianUnits()
+ 		// NB: Animals are included in this count
+ 		int iLandUnits = a.getUnitsPerPlayer(BARBARIAN_PLAYER);
+ 		//  Kill a Barbarian unit if the area gets crowded
+-		if(killBarbarian(iLandUnits, iTiles, a.getPopulationPerPlayer(BARBARIAN_PLAYER),
+-				a, NULL))
++		if(killBarbarian(iLandUnits, iTiles,
++			a.getPopulationPerPlayer(BARBARIAN_PLAYER), a, NULL))
++		{
+ 			iLandUnits--;
++		}
+ 		if(iUnownedTotal < iBaseTilesPerLandUnit / 2)
+ 			continue;
+ 		int iOwned = iTiles - iUnowned;
+@@ -7241,8 +7245,8 @@ void CvGame::createBarbarianUnits()
+ 		}
+ 		/*  Don't spawn Barbarian units on (or on shelves around) continents where
+ 			civs don't outnumber Barbarians */
+-		int iCivCities = a.countCivCities();
+-		int iBarbarianCities = a.getNumCities() - iCivCities;
++		int const iCivCities = a.getNumCivCities();
++		int const iBarbarianCities = a.getCitiesPerPlayer(BARBARIAN_PLAYER);
+ 		FAssert(iBarbarianCities >= 0);
+ 		if (iCivCities > iBarbarianCities && bCreateBarbarians)
+ 			createBarbarianUnits(iNeededLand, a, NULL);
+@@ -7254,17 +7258,17 @@ void CvGame::createBarbarianUnits()
+ 	{
+ 		if (pLoopUnit->isAnimal() &&
+ 			// advc.309: Don't cull animals where there are no civ cities
+-			pLoopUnit->getArea().countCivCities() > 0)
++			pLoopUnit->getArea().getNumCivCities() > 0)
+ 		{
+ 			pLoopUnit->kill(false);
+ 			break;
+-		}
+-	} // <advc.300>
++		} // <advc.300>
++	}
+ 	FOR_EACH_CITY(c, GET_PLAYER(BARBARIAN_PLAYER))
+ 	{
+ 		/*  Large Barb congregations are only a problem if they have nothing
+ 			to attack */
+-		if(c->getArea().countCivCities() > 0)
++		if(c->getArea().getNumCivCities() > 0)
+ 			continue;
+ 		int iUnits = c->getPlot().getNumDefenders(BARBARIAN_PLAYER);
+ 		double prKill = (iUnits - std::max(1.5 * c->getPopulation(), 4.0)) / 4.0;
+@@ -7276,10 +7280,11 @@ void CvGame::createBarbarianUnits()
+ 
+ void CvGame::createAnimals()  // advc: style changes
+ {
+-	if (GC.getInfo(getCurrentEra()).isNoAnimals()
+-			|| isOption(GAMEOPTION_NO_ANIMALS)) // advc.309
++	if (GC.getInfo(getCurrentEra()).isNoAnimals() ||
++		isOption(GAMEOPTION_NO_ANIMALS)) // advc.309
++	{
+ 		return;
+-
++	}
+ 	CvHandicapInfo const& kGameHandicap = GC.getInfo(getHandicapType());
+ 	if (kGameHandicap.getUnownedTilesPerGameAnimal() <= 0)
+ 		return;
+@@ -7300,7 +7305,7 @@ void CvGame::createAnimals()  // advc: style changes
+ 				kGameHandicap.getUnownedTilesPerGameAnimal();
+ 		/*  <advc.300> Will allow animals to survive longer on landmasses w/o
+ 			civ cities. But only want a couple of animals there. */
+-		if(pLoopArea->countCivCities() == 0)
++		if(pLoopArea->getNumCivCities() <= 0)
+ 			iNeededAnimals /= 2; // </advc.300>
+ 		iNeededAnimals -= pLoopArea->getUnitsPerPlayer(BARBARIAN_PLAYER);
+ 		if (iNeededAnimals <= 0)
+@@ -7532,7 +7537,7 @@ int CvGame::createBarbarianUnits(int n, CvArea& a, Shelf* pShelf, bool bCargoAll
+ 		// </advc.300>
+ 		// K-Mod. Give a combat penalty to barbarian boats.
+ 		if (pNewUnit && pPlot->isWater() &&
+-				 !pNewUnit->getUnitInfo().isHiddenNationality()) // dlph.12
++				!pNewUnit->getUnitInfo().isHiddenNationality()) // dlph.12
+ 		{	// find the "disorganized" promotion. (is there a better way to do this?)
+ 			PromotionTypes eDisorganized = (PromotionTypes)
+ 					GC.getInfoTypeForString("PROMOTION_DISORGANIZED", true);
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 5e94b4c99..0ef58df3f 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1151,9 +1151,10 @@ bool CvGame::canDoControl(ControlTypes eControl) const
+ 	/*  <advc.706> I don't think loading is possible in between turns, but there
+ 		would be no harm in it. */
+ 	if(CvPlot::isAllFog() && eControl != CONTROL_LOAD_GAME &&
+-			eControl != CONTROL_QUICK_LOAD && eControl != CONTROL_OPTIONS_SCREEN)
++		eControl != CONTROL_QUICK_LOAD && eControl != CONTROL_OPTIONS_SCREEN)
++	{
+ 		return false;
+-	// </advc.706>
++	} // </advc.706>
+ 	switch (eControl)
+ 	{
+ 	case CONTROL_SELECTYUNITTYPE:
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index c9b88d123..fa1f4fd3f 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -15487,7 +15487,7 @@ bool CvGameTextMgr::buildPromotionString(CvWStringBuffer &szBuffer, TechTypes eT
+ 	return bFirst;
+ }
+ 
+-// <advc.910> Not much BtS code left unchanged here
++// advc.910: Not much BtS code left unchanged here
+ void CvGameTextMgr::buildSingleLineTechTreeString(CvWStringBuffer &szBuffer,
+ 	TechTypes eTech, bool bPlayerContext)
+ {
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index ba1f9c3e8..dbeb4e701 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -1352,8 +1352,9 @@ void CvMap::calculateAreas_DFS(CvPlot const& kStart)
+ 
+ // <advc.300>
+ // All shelves adjacent to a continent
+-void CvMap::getShelves(int iArea, std::vector<Shelf*>& r) const
++void CvMap::getShelves(CvArea const& kArea, std::vector<Shelf*>& r) const
+ {
++	int iArea = kArea.getID();
+ 	for(std::map<Shelf::Id,Shelf*>::const_iterator it = shelves.begin(); it != shelves.end(); it++)
+ 	{
+ 		if(it->first.first == iArea)
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index e9893058a..536f3fc24 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -458,7 +458,7 @@ public: // advc: made several functions const
+ 	void recalculateAreas();																		// Exposed to Python
+ 	// <advc.300>
+ 	void computeShelves();
+-	void getShelves(int iArea, std::vector<Shelf*>& r) const;
++	void getShelves(CvArea const& kArea, std::vector<Shelf*>& r) const;
+ 	// </advc.300>
+ 	void resetPathDistance();																		// Exposed to Python
+ 	int calculatePathDistance(CvPlot const* pSource, CvPlot const* pDest) const;					// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3cdf15ad4..5513116b9 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6891,9 +6891,11 @@ bool CvPlayer::canSeeResearch(PlayerTypes ePlayer, /* advc.085: */ bool bCheckPo
+ 			CvEspionageMissionInfo& kMissionInfo = GC.getInfo(i);
+ 
+ 			if (kMissionInfo.isSeeResearch() && kMissionInfo.isPassive() &&
+-					canDoEspionageMission(i, ePlayer, NULL, 0, NULL,
+-					bCheckPoints)) // advc.085
++				canDoEspionageMission(i, ePlayer, NULL, 0, NULL,
++				bCheckPoints)) // advc.085
++			{
+ 				return true;
++			}
+ 		}
+ 	}
+ 	return false;
+@@ -6919,14 +6921,16 @@ bool CvPlayer::canSeeDemographics(PlayerTypes ePlayer, /* advc.085: */ bool bChe
+ 		CvEspionageMissionInfo& kMissionInfo = GC.getInfo(i);
+ 
+ 		if (kMissionInfo.isSeeDemographics() && kMissionInfo.isPassive() &&
+-				canDoEspionageMission(i, ePlayer, NULL, 0, NULL,
+-				bCheckPoints)) // advc.085
++			canDoEspionageMission(i, ePlayer, NULL, 0, NULL,
++			bCheckPoints)) // advc.085
++		{
+ 			return true;
++		}
+ 	}
+ 	return false;
+ } // K-Mod end
+ 
+-/*  <advc.085> !bDemographics means: return espionage needed to see research.
++/*  advc.085: !bDemographics means: return espionage needed to see research.
+ 	Mix of code from canSeeDemographics, canSeeResearch and canDoEspionageMission. */
+ int CvPlayer::espionageNeededToSee(PlayerTypes ePlayer, bool bDemographics) const
+ {
+@@ -6948,8 +6952,9 @@ int CvPlayer::espionageNeededToSee(PlayerTypes ePlayer, bool bDemographics) cons
+ 		}
+ 	}
+ 	return r;
+-} // </advc.085>
+-// <advc.550e>
++}
++
++// advc.550e:
+ bool CvPlayer::isSignificantDiscovery(TechTypes eTech) const
+ {
+ 	// (K-Mod comment moved here from CvDeal::startTrade)
+@@ -6961,7 +6966,7 @@ bool CvPlayer::isSignificantDiscovery(TechTypes eTech) const
+ 	return GC.getInfo(eTech).getEra() >= getCurrentEra() - 1 &&
+ 			GET_TEAM(getTeam()).getResearchLeft(eTech) >
+ 			GET_TEAM(getTeam()).getResearchCost(eTech) / 3;
+-} // <advc.550e>
++}
+ 
+ bool CvPlayer::isCivic(CivicTypes eCivic) const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 68841f054..fe6ac333a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1759,7 +1759,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity)  // advc: style changes, advc.0
+ 					/*  <advc.300> The +15 is bad enough if we don't have to
+ 						worry about attacks against the city */
+ 					kCity.getPreviousOwner() != BARBARIAN_PLAYER &&
+-					kCity.getArea().countCivCities() > 1) // </advc.300>
++					kCity.getArea().getNumCivCities() > 1) // </advc.300>
+ 				{
+ 					if (bTotalWar &&
+ 						GET_TEAM(kCity.getPreviousOwner()).AI_isPrimaryArea(kCity.getArea()))
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 349e27fbb..0e64972c4 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -299,19 +299,18 @@ void CvSelectionGroup::doTurnPost()
+ bool CvSelectionGroup::showMoves(/* advc.102: */ CvPlot const& kFromPlot) const
+ {
+ 	if (GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS) ||
+-			GC.getGame().isSimultaneousTeamTurns())
++		GC.getGame().isSimultaneousTeamTurns())
++	{
+ 		return false;
+-	// <advc.102>
++	}  // <advc.102>
+ 	static bool const bShowWorkers = GC.getDefineBOOL("SHOW_FRIENDLY_WORKER_MOVES");
+ 	static bool const bShowShips = GC.getDefineBOOL("SHOW_FRIENDLY_SEA_MOVES");
+ 	// Also refers to Executives; those have the same Unit AI.
+ 	static bool const bShowMissionaries = GC.getDefineBOOL("SHOW_FRIENDLY_MISSIONARY_MOVES");
+ 	// </advc.102>
+-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	for (PlayerIter<HUMAN> it; it.hasNext(); ++it)
+ 	{
+-		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
+-		if(!kLoopPlayer.isAlive() || !kLoopPlayer.isHuman())
+-			continue; // advc
++		CvPlayer& kLoopPlayer = *it;
+ 		CvUnit* pHeadUnit = getHeadUnit();
+ 		if(pHeadUnit == NULL)
+ 			continue;
+@@ -319,7 +318,7 @@ bool CvSelectionGroup::showMoves(/* advc.102: */ CvPlot const& kFromPlot) const
+ 		{
+ 			if (kLoopPlayer.isOption(PLAYEROPTION_SHOW_ENEMY_MOVES))
+ 				return true;
+-			else continue;
++			continue;
+ 		}
+ 		if(!kLoopPlayer.isOption(PLAYEROPTION_SHOW_FRIENDLY_MOVES))
+ 			continue;
+@@ -341,7 +340,8 @@ bool CvSelectionGroup::showMoves(/* advc.102: */ CvPlot const& kFromPlot) const
+ 			return true;
+ 		if(bShowWorkers && bShowShips && bShowMissionaries)
+ 			return true;
+-		for(CLLNode<IDInfo> const* pNode = headUnitNode(); pNode != NULL; pNode = nextUnitNode(pNode))
++		for(CLLNode<IDInfo> const* pNode = headUnitNode(); pNode != NULL;
++			pNode = nextUnitNode(pNode))
+ 		{
+ 			CvUnit const* pLoopUnit = ::getUnit(pNode->m_data);
+ 			if(pLoopUnit == NULL)
+@@ -360,11 +360,15 @@ bool CvSelectionGroup::showMoves(/* advc.102: */ CvPlot const& kFromPlot) const
+ 					(u.cargoSpace() <= 1 || bSeaPatrol));
+ 			bool bMissionary = (u.AI_getUnitAIType() == UNITAI_MISSIONARY);
+ 			if(!bMissionary && bAwayFromHome && (!bSeaUnit ||
+-					!bNonTransportShip || bShowShips || bEnteringOrLeaving))
++				!bNonTransportShip || bShowShips || bEnteringOrLeaving))
++			{
+ 				return true;
++			}
+ 			if((bWorker && bShowWorkers) || (bNonTransportShip && bShowShips &&
+-					bEnteringOrLeaving) || (bMissionary && bShowMissionaries))
++				bEnteringOrLeaving) || (bMissionary && bShowMissionaries))
++			{
+ 				return true;
++			}
+ 			if(!bWorker && !bNonTransportShip && !bMissionary)
+ 				return true;
+ 			// </advc.102>
+@@ -2635,18 +2639,6 @@ int CvSelectionGroup::getY() const
+ }
+ 
+ 
+-bool CvSelectionGroup::at(int iX, int iY) const
+-{
+-	return((getX() == iX) && (getY() == iY));
+-}
+-
+-
+-bool CvSelectionGroup::atPlot( const CvPlot* pPlot) const
+-{
+-	return (plot() == pPlot);
+-}
+-
+-
+ CvPlot* CvSelectionGroup::plot() const
+ {
+ 	CvUnit* pHeadUnit = getHeadUnit();
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 488effa40..971774aa7 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -126,8 +126,18 @@ public:
+ 
+ 	int getX() const;
+ 	int getY() const;
+-	bool at(int iX, int iY) const;																																								// Exposed to Python
+-	bool atPlot(const CvPlot* pPlot) const;																																				// Exposed to Python
++	bool at(int iX, int iY) const																																								// Exposed to Python
++	{
++		return(getX() == iX && getY() == iY);
++	}
++	bool atPlot(CvPlot const* pPlot) const																																				// Exposed to Python
++	{
++		return (plot() == pPlot);
++	}  // advc.inl: (also in-lined the above)
++	__forceinline bool at(CvPlot const& kPlot) const
++	{
++		return atPlot(&kPlot);
++	}
+ 	DllExport CvPlot* plot() const;																																								// Exposed to Python
+ 	inline CvPlot& getPlot() const { return *plot(); } // advc
+ 	//int getArea() const; // advc: removed
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 42777b586..07d720aae 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1982,7 +1982,7 @@ bool CvTeam::isInContactWithBarbarians() const
+ 		if(iBarbarianUnits > iUnitThresh) // Preliminary check to save time
+ 			return true;
+ 		std::vector<Shelf*> shelves;
+-		m.getShelves(pArea->getID(), shelves);
++		m.getShelves(*pArea, shelves);
+ 		for(size_t i = 0; i < shelves.size(); i++)
+ 			iBarbarianUnits += shelves[i]->countBarbarians();
+ 		if(iBarbarianUnits > iUnitThresh) // Actual check incl. ships
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 534494311..f3c135660 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -354,11 +354,12 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea const& kArea, bool bPreparin
+ 
+ 	if (isBarbarian())
+ 	{
+-		if (kArea.getNumCities() - kArea.getCitiesPerPlayer(BARBARIAN_PLAYER) == 0
+-				// advc.300: Make (New World) Barbarians relatively peaceable unless outnumbered
+-				|| kArea.countCivCities() < kArea.getCitiesPerPlayer(BARBARIAN_PLAYER))
++		if (kArea.getNumCities() - kArea.getCitiesPerPlayer(BARBARIAN_PLAYER) == 0 ||
++			// advc.300: Make (New World) Barbarians relatively peaceable unless outnumbered
++			kArea.getNumCivCities() < kArea.getCitiesPerPlayer(BARBARIAN_PLAYER))
++		{
+ 			return AREAAI_ASSAULT;
+-
++		}
+ 		if (countNumAIUnitsByArea(kArea, UNITAI_ATTACK) +
+ 			countNumAIUnitsByArea(kArea, UNITAI_ATTACK_CITY) +
+ 			countNumAIUnitsByArea(kArea, UNITAI_PILLAGE) +
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index bb39a8d46..87aa6daf5 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -1100,7 +1100,7 @@ protected:
+ 
+ 	IDInfo m_combatUnit;
+ 	IDInfo m_transportUnit;
+-	/*	advc.opt (tbd.): These take up 28 byte each; replace with C strings!
++	/*	advc.opt (tbd.): string objects take up 28 byte each; replace with pointers.
+ 		May also want to replace most of the ints with short. That would cut
+ 		the total size of this class in half. */
+ 	CvWString m_szName;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 9794d26f7..12cfa6c0a 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2131,7 +2131,7 @@ void CvUnitAI::AI_barbAttackMove()
+ 	if(getArea().getAreaAIType(getTeam()) != AREAAI_ASSAULT)
+ 	{
+ 		int iCivsInArea = getArea().countCivs(true);
+-		int iCivCitiesInArea = getArea().countCivCities();
++		int iCivCitiesInArea = getArea().getNumCivCities();
+ 		int iBabarianCitiesInArea = getArea().getNumCities() - iCivCitiesInArea;
+ 		int iCivCities = kGame.getNumCivCities();
+ 		int iCivs = kGame.countCivPlayersAlive(); // </advc.300>
+@@ -5991,9 +5991,10 @@ void CvUnitAI::AI_barbAttackSeaMove()
+ 		patrolling an unowned stretch surrounded by borders. (Patrolling Barbarians
+ 		never enter borders.) */
+ 	if((::bernoulliSuccess(0.2, "advc.306") ||
+-			getGroup()->getMissionType(0) == MISSION_MOVE_TO) && AI_safety())
+-		return; // </advc.306>
+-
++		getGroup()->getMissionType(0) == MISSION_MOVE_TO) && AI_safety())
++	{
++		return;
++	} // </advc.306>
+ 	if (AI_patrol())
+ 	{
+ 		return;
+@@ -12567,7 +12568,7 @@ bool CvUnitAI::AI_patrol() // advc: refactored
+ 		iFacedX = pFacedPlot->getX();
+ 		iFacedY = pFacedPlot->getY();
+ 	} // </advc.102>
+-	CvGame& g = GC.getGame();
++	CvGame& kGame = GC.getGame();
+ 
+ 	int iBestValue = 0;
+ 	CvPlot* pBestPlot = NULL;
+@@ -12588,14 +12589,14 @@ bool CvUnitAI::AI_patrol() // advc: refactored
+ 			allowed to patrol into owned tiles at least under some circumstances. */
+ 		if(!isBarbarian() && kAdj.getOwner() == getOwner() &&
+ 			// Make sure not to hamper early exploration (perhaps not an issue)
+-			g.getElapsedGameTurns() >= 25 &&
++			kGame.getElapsedGameTurns() >= 25 &&
+ 			(kAdj.isUnit() || ::bernoulliSuccess(0.9,
+ 			iFirst++ <= 0 ? "advc.102" : NULL))) // advc.007: Don't pollute MPLog
+ 		{
+ 			continue;
+ 		}
+ 		// </advc.102>
+-		int iValue = 1 + g.getSorenRandNum(10000, "AI Patrol");
++		int iValue = 1 + kGame.getSorenRandNum(10000, "AI Patrol");
+ 		// <advc.309>
+ 		if(isAnimal())
+ 		{
+@@ -12604,7 +12605,7 @@ bool CvUnitAI::AI_patrol() // advc: refactored
+ 				getUnitInfo().getFeatureNative(kAdj.getFeatureType()) :
+ 				getUnitInfo().getTerrainNative(kAdj.getTerrainType()))
+ 			{
+-				iValue += g.getSorenRandNum(10000, "advc.309");
++				iValue += kGame.getSorenRandNum(10000, "advc.309");
+ 			}
+ 		}
+ 		else // (Animals shouldn't follow a consistent direction)
+@@ -12615,7 +12616,7 @@ bool CvUnitAI::AI_patrol() // advc: refactored
+ 			int y = kAdj.getY();
+ 			int delta = ::abs(iFacedX - x) + ::abs(iFacedY - y);
+ 			if(delta <= 1)
+-				iValue += g.getSorenRandNum(10000, "advc.102");
++				iValue += kGame.getSorenRandNum(10000, "advc.102");
+ 			/*  Prefer to stay/get out of foreign borders: AI patrols inside
+ 				human borders are annoying */
+ 			PlayerTypes eAdjOwner = kAdj.getOwner();
+@@ -12805,7 +12806,6 @@ bool CvUnitAI::AI_hide()  // advc: style changes
+ 
+ 	CvPlot* pBestPlot = NULL;
+ 	int iBestValue = 0;
+-	CvGame& g = GC.getGame();
+ 	for (SquareIter itPlot(*this, AI_searchRange(1)); itPlot.hasNext(); ++itPlot)
+ 	{
+ 		CvPlot& p = *itPlot;
+@@ -12860,7 +12860,7 @@ bool CvUnitAI::AI_hide()  // advc: style changes
+ 		iValue += AI_plotDefense(&p); // advc.012
+ 		if (at(p))
+ 			iValue += 50;
+-		else iValue += g.getSorenRandNum(50, "AI Hide");
++		else iValue += GC.getGame().getSorenRandNum(50, "AI Hide");
+ 		if (iValue > iBestValue)
+ 		{
+ 			iBestValue = iValue;
+@@ -12895,7 +12895,6 @@ bool CvUnitAI::AI_goody(int iRange)  // advc: style changes
+ 
+ 	CvPlot* pBestPlot = NULL;
+ 	int iBestValue = 0;
+-	CvGame& g = GC.getGame();
+ 	for (SquareIter it(*this, AI_searchRange(iRange), false); it.hasNext(); ++it)
+ 	{
+ 		CvPlot const& p =*it;
+@@ -12909,7 +12908,7 @@ bool CvUnitAI::AI_goody(int iRange)  // advc: style changes
+ 		if (iPathTurns > iRange)
+ 			continue;
+ 
+-		int iValue = 1 + g.getSorenRandNum(10000, "AI Goody");
++		int iValue = 1 + GC.getGame().getSorenRandNum(10000, "AI Goody");
+ 		iValue /= iPathTurns + 1;
+ 		if (iValue > iBestValue)
+ 		{
+@@ -16846,7 +16845,6 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity) // advc.003u: param was CvC
+ 		return false; // advc
+ 	FAssert(pBestPlot != NULL);
+ 	FAssertBounds(0, GC.getNumBuildInfos(), eBestBuild);
+-	FAssert(eBestBuild != NO_BUILD);
+ 
+ 	MissionTypes eMission = MISSION_MOVE_TO;
+ 	if (getPlot().getWorkingCity() != &kCity /*||
+@@ -17937,7 +17935,7 @@ bool CvUnitAI::AI_routeCity()  // advc: some style changes
+ 		{
+ 			bool const bRouteTo = (at(kLoopCity.getPlot()) ||
+ 					!getPlot().isSamePlotGroup(kLoopCity.getPlot(), getOwner()) ||
+-					/*	We might already be in the middle of an incoplete route.
++					/*	We might already be in the middle of an incomplete route.
+ 						Don't move to kLoopCity first then. */
+ 					stepDistance(plot(), pRouteToCity->plot()) <=
+ 					stepDistance(plot(), kLoopCity.plot()));
+
+diff --git a/CvGameCoreDLL/Shelf.cpp b/CvGameCoreDLL/Shelf.cpp
+index dabe3ea34..1fe6e5000 100644
+--- a/CvGameCoreDLL/Shelf.cpp
++++ b/CvGameCoreDLL/Shelf.cpp
+@@ -112,7 +112,7 @@ CvUnit* Shelf::randomBarbarianCargoUnit() const
+ 	vector<CvUnit*> legal;
+ 	for(size_t i = 0; i < plots.size(); i++)
+ 	{
+-		if(plots[i] == NULL) continue; CvPlot const& plot = * plots[i];
++		if(plots[i] == NULL) continue; CvPlot const& plot = *plots[i];
+ 		if(plot.isVisibleToCivTeam())
+ 			continue;
+ 		for(int j = 0; j < plot.getNumUnits(); j++)
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=23872

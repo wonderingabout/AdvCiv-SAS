@@ -1,0 +1,267 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3184
+# Commit: cfccf0596afcd327b5e098b12bc4dea07098e937
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 59a3e3190061b421b117b58d047aa1196259f5fa
+# Title: Minor tweaks to EnumMap
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	5	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+45	28	CvGameCoreDLL/EnumMap.h
+1	1	CvGameCoreDLL/IntegerConversion.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 8377a7b00..362314b85 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -1897,11 +1897,8 @@ template CvXMLLoadUtility::XMLTagPairRateIterator<CommerceChangeMap>;
+ template CvXMLLoadUtility::XMLTagPairRateIterator<CommercePercentMap>;
+ // </advc.enum>
+ 
+-
+-
+-// advc.003t: See SetVariableListTagPair(int**,...) above
+-void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList, TCHAR const* szRootTagName,
+-	int iInfoBaseLength, CvString szDefaultListVal)
++void CvXMLLoadUtility::SetVariableListTagPair(CvString **ppszList,
++	TCHAR const* szRootTagName, int iInfoBaseLength, CvString szDefaultListVal)
+ {
+ 	// <advc.xmldefault>
+ 	if (*ppszList != NULL)
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 6dc3fa219..30038f7b5 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -100,11 +100,24 @@ for (std::pair<TeamTypes,int> perTeamVal;
+ 	template<bool bUNINITIALIZED> \
+ 	void assign(T const& kOther)
+ 
++// Memory shared by all enum map classes
++// Actually, make it a template so that static variables can be defined in the header.
++template<class Dummy>
++class EnumMapNonTempl
++{
++protected:
++	/*	A kind of /dev/null for assignments without any effect.
++		Never read. */
++	static long long m_lDummy;
++};
++template<class Dummy>
++long long EnumMapNonTempl<Dummy>::m_lDummy = 0;
++
+ /*	iDEFAULT can't have type V b/c that wouldn't work for non-integral types.
+ 	Meaning, unfortunately, that fractional default values (for float, ScaledNum)
+ 	aren't possible. */
+ template<class Derived, typename E, class V, class CV, int iDEFAULT>
+-class EnumMapBase
++class EnumMapBase : EnumMapNonTempl
+ {
+ protected:
+ 	// CRT pattern (static polymorphism)
+@@ -331,15 +344,20 @@ public:
+ 	}
+ 
+ protected:
+-	/*	If NULL is returned, then the callers need to be able to handle it,
+-		i.e. setUnsafe(E) and, if the values are arithmetic, then also the
+-		arithmetic functions. The default implementations do not check for NULL.
+-		Tbd.: This pattern may have been a bit ill-considered. It doesn't work
+-		for list-based maps. It does work for array-based maps, but isn't ideal
++	CompactV& cvDummy()
++	{
++		BOOST_STATIC_ASSERT((sizeof(CompactV) <= sizeof(m_lDummy)));
++		return *reinterpret_cast<CompactV*>(&m_lDummy);
++	}
++	/*	Can return cvDummy() if no value exists for eKey; however, the default
++		implementations of the calling functions assume that a reference to a
++		proper value is returned.
++		Tbd.: This pattern has been a bit ill-considered. It doesn't work for
++		list-based maps. It does work for array-based maps, but isn't ideal
+ 		because it'll trigger lazy allocation even when the value isn't changed
+ 		after the lookup (e.g. addition of 0). Should perhaps implement the more
+ 		flexible op code pattern used by ListEnumMap at EnumMapBase instead. */
+-	CompactV* lookup(E eKey)
++	CompactV& lookup(E eKey)
+ 	{
+ 		return derived().lookupUnsafe(eKey);
+ 	}
+@@ -350,7 +368,7 @@ protected:
+ 	}
+ 	void setUnsafe(E eKey, V vValue)
+ 	{
+-		CompactV& cvVal = *derived().lookup(eKey);
++		CompactV& cvVal = derived().lookup(eKey);
+ 		// Specialize for bool
+ 		derived().assignVal<CompactV,V>(cvVal, vValue, eKey);
+ 	}
+@@ -374,7 +392,7 @@ protected:
+ 	{
+ 		_toggle<V>(eKey);
+ 	}
+-	CompactV* lookupUnsafe(E eKey)
++	CompactV& lookupUnsafe(E eKey)
+ 	{
+ 		return derived().lookupCompact(compactKey(eKey));
+ 	}
+@@ -383,7 +401,7 @@ protected:
+ 	{
+ 		return derived().getCompact(ceKey);
+ 	}
+-	CompactV* lookupCompact(CompactE ceKey)
++	CompactV& lookupCompact(CompactE ceKey)
+ 	{
+ 		return derived().lookupCompact(ceKey);
+ 	}
+@@ -462,20 +480,20 @@ protected:
+ 	template<>
+ 	void addCompact<true>(E eKey, CompactV cvAddend)
+ 	{
+-		CompactV& val = *derived().lookup(eKey);
++		CompactV& val = derived().lookup(eKey);
+ 		// Cast b/c CompactV might be an enum type, or e.g. short getting promoted to int.
+ 		val = static_cast<CompactV>(val + cvAddend);
+ 	}
+ 	template<>
+ 	void multiplyCompact<true>(E eKey, CompactV cvMultiplier)
+ 	{
+-		CompactV& val = *derived().lookup(eKey);
++		CompactV& val = derived().lookup(eKey);
+ 		val = static_cast<CompactV>(val * cvMultiplier);
+ 	}
+ 	template<>
+ 	void divideCompact<true>(E eKey, CompactV cvDivisor)
+ 	{
+-		CompactV& val = *derived().lookup(eKey);
++		CompactV& val = derived().lookup(eKey);
+ 		val = static_cast<CompactV>(val / cvDivisor);
+ 	}
+ 
+@@ -877,10 +895,9 @@ protected:
+ 		are too intertwined for the lookup pattern used by the base class;
+ 		will have to do it all in one function. */
+ 	template<Operation OP>
+-	void changeValue(E eKey, V vOperand)
++	void changeValue(E eKey, CompactV cvOperand)
+ 	{
+ 		CompactE const ceKey = compactKey(eKey);
+-		CompactV const cvOperand = compactValue(vOperand);
+ 		short iPos = 0;
+ 		while (bEND_MARKER || iPos < m_iSize)
+ 		{
+@@ -920,7 +937,7 @@ protected:
+ 	}
+ 	void setUnsafe(E eKey, V vValue)
+ 	{
+-		changeValue<OP_ASSIGN>(eKey, vValue);
++		changeValue<OP_ASSIGN>(eKey, compactValue(vValue));
+ 	}
+ 	template<bool bVALID>
+ 	void addCompact(E, CompactV);
+@@ -1014,11 +1031,11 @@ protected:
+ 		return uncompactKey(m_aKeys[iIter++]);
+ 	}
+ private:
+-	CompactV* lookupCompact(CompactE ceKey)
++	CompactV& lookupCompact(CompactE ceKey)
+ 	{	/*	Need to define this function to avoid infinite recusrion warning
+ 			about the base class function */
+ 		FErrorMsg("Should not used by this class");
+-		return NULL;
++		return cvDummy();
+ 	}
+ };
+ #undef ListEnumMapBase
+@@ -1157,10 +1174,10 @@ protected:
+ 		}
+ 		return vDEFAULT;
+ 	}
+-	bool* lookupCompact(CompactE ceKey)
++	bool& lookupCompact(CompactE ceKey)
+ 	{
+ 		FErrorMsg("This enum set can only be modified through the set function");
+-		return NULL; // will crash
++		return cvDummy(); // will crash
+ 	}
+ 
+ 	template<typename ValueType>
+@@ -1391,7 +1408,7 @@ protected:
+ 		}
+ 		return ceKey;
+ 	}
+-	CompactV* lookup(E eKey)
++	CompactV& lookup(E eKey)
+ 	{
+ 		FAssertEnumBounds(eKey);
+ 		return lookupUnsafe(eKey);
+@@ -1402,11 +1419,11 @@ protected:
+ 			return values()[keyToIndex(ceKey)];
+ 		return cvDEFAULT;
+ 	}
+-	CompactV* lookupCompact(CompactE ceKey)
++	CompactV& lookupCompact(CompactE ceKey)
+ 	{
+ 		if (!isAllocated())
+ 			init();
+-		return &(values()[keyToIndex(ceKey)]);
++		return values()[keyToIndex(ceKey)];
+ 	}
+ 	bool isAllocated() const
+ 	{
+@@ -1456,15 +1473,15 @@ protected:
+ 			pDest[i] = pSource[i];
+ 	}
+ 	template<bool bVALID>
+-	V* randAccess(E);
++	V& randAccess(E);
+ 	template<>
+-	V* randAccess<false>(E)
++	V& randAccess<false>(E)
+ 	{	// No V instances exist in this map, only CompactV.
+ 		BOOST_STATIC_ASSERT(false);
+-		return NULL;
++		return cvDummy();
+ 	}
+ 	template<>
+-	V* randAccess<true>(E eKey) // When V and CompactV coincide
++	V& randAccess<true>(E eKey) // When V and CompactV coincide
+ 	{
+ 		return derived().lookupUnsafe(eKey);
+ 	}
+@@ -1513,7 +1530,7 @@ public:
+ 
+ 	compact_t& operator[](E eKey)
+ 	{
+-		return *lookupUnsafe(eKey);
++		return lookupUnsafe(eKey);
+ 	}
+ 	V operator[](E eKey) const
+ 	{	// (I don't think we can unhide this through a using declaration)
+
+diff --git a/CvGameCoreDLL/IntegerConversion.h b/CvGameCoreDLL/IntegerConversion.h
+index 30a77b497..ff88b60f2 100644
+--- a/CvGameCoreDLL/IntegerConversion.h
++++ b/CvGameCoreDLL/IntegerConversion.h
+@@ -29,7 +29,7 @@ struct int_cast
+ {
+ 	BOOST_STATIC_ASSERT(bASSERT || bTRUNCATE); // Should use built in cast otherwise
+ 	/*	Can use these instead when enum types don't need to be supported
+-		(i.e. when porting tbhis header into a different mod). */
++		(i.e. when porting this header into a different mod). */
+ 	//typedef ToType T; typedef FromType F;
+ 	typedef typename choose_type<enum_traits<ToType>::is_enum, int, ToType>::type T;
+ 	typedef typename choose_type<enum_traits<FromType>::is_enum, int, FromType>::type F;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7800

@@ -1,0 +1,104 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 995
+# Commit: 7efa2ba9dcb7d0772c262026e3680625264ddb55
+# History segment: K-Mod history
+# Parent used for diff: 52de62f31243d75c2767b58c00322765199bc798
+# Title: Changed the way building flavour is used in AI_buildingValue, again.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+28	11	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 662f92ee4..2a6298535 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3564,6 +3564,14 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 	// The point is to get the AI to build productiviy buildings quickly, but not if they come with large negative side effects.
+ 	// I may use it for other adjustments in the future.
+ 	int iPriorityFactor = 100;
++
++	// bRemove means that we're evaluating the cost of losing this building rather than adding it.
++	// the definition used here is just a kludge because there currently isn't any other to tell the difference.
++	// Currently, bRemove is only in a few parts of the evaluation where it is particularly important;
++	// for example, bRemove is critical for calculating the lost value of obsoleting walls and castles.
++	// There are several sections which could, in the future, be improved using bRemove -
++	// but I don't see it as a high priority.
++	bool bRemove = getNumBuilding(eBuilding) >= GC.getCITY_MAX_NUM_BUILDINGS();
+ 	// K-Mod end
+ 
+ 	// K-Mod, constructionValue cache
+@@ -3690,12 +3698,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				{
+ 					if (GC.getGameINLINE().getBestLandUnit() == NO_UNIT || !GC.getUnitInfo(GC.getGameINLINE().getBestLandUnit()).isIgnoreBuildingDefense())
+ 					{
+-						// bRemove means that we're evaluating the cost of losing this building rather than adding it.
+-						// the definition used here is just a kludge because there currently isn't any other to tell the difference.
+-						// Also, this isn't the only part of the evaluation that depends on whether we are adding or removing
+-						// but this is a particular important case due to the way walls and castles get obsoleted...
+-						bool bRemove = getNumActiveBuilding(eBuilding) > 0;
+-
+ 						int iTemp = 0;
+ 						// bombard reduction
+ 						int iOldBombardMod = getBuildingBombardDefense() - (bRemove ? kBuilding.getBombardDefenseModifier() : 0);
+@@ -5513,20 +5515,18 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 				}
+ 			}
+ 
++			/* original bts code
+ 			if (iPass > 0 && !isHuman())
+ 			{
+ 				iValue += kBuilding.getAIWeight();
+ 				if (iValue > 0)
+ 				{
+-					int iFlavour = 0; // K-Mod
+ 					for (int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
+ 					{
+-						//iValue += (kOwner.AI_getFlavorValue((FlavorTypes)iI) * kBuilding.getFlavorValue(iI));
+-						iFlavour += kOwner.AI_getFlavorValue((FlavorTypes)iI) * kBuilding.getFlavorValue(iI); // K-Mod
++						iValue += (kOwner.AI_getFlavorValue((FlavorTypes)iI) * kBuilding.getFlavorValue(iI));
+ 					}
+-					iValue = iValue * (150 + iFlavour) / 150; // K-Mod. (This will give +66% for 10-10 flavour matchups.)
+ 				}
+-			}
++			} */ // Moved & changed by K-Mod. (flavour adjustments are now done at the end of this function)
+ 		}
+ 	}
+ 
+@@ -5638,6 +5638,23 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 		iValue /= 100;
+ 	}
+ 
++	// flavour factor
++	if (!isHuman())
++	{
++		iValue += kBuilding.getAIWeight();
++		//if (iValue > 0)
++		if (iValue > 0 && kBuilding.getProductionCost() > 0 && !bRemove) // K-Mod. Only use flavour adjustments for constructing ordinary buildings.
++		{
++			int iFlavour = 0;
++			for (int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
++			{
++				//iValue += (kOwner.AI_getFlavorValue((FlavorTypes)iI) * kBuilding.getFlavorValue(iI));
++				iFlavour += std::min(kOwner.AI_getFlavorValue((FlavorTypes)iI), kBuilding.getFlavorValue(iI)); // K-Mod
++			}
++			iValue = iValue * (10 + iFlavour) / 10; // K-Mod. (This will give +100% for 10-10 flavour matchups.)
++		}
++	}
++
+ 	// constructionValue cache
+ 	if (!bConstCache && iFocusFlags == 0 && iThreshold == 0)
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3831

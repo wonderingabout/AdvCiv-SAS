@@ -1,0 +1,96 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3596
+# Commit: 1fffdf0ae515ceda560d94694a0ad7d9af0997b3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bbab94ffa2376fc3bda02df534e56461580d8873
+# Title: BUG option for disabling city soundscapes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	Assets/Config/BUG City Screen.xml
+2	0	Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+12	0	Assets/XML/Text/BUG City Screen Options.xml
+4	2	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG City Screen.xml b/Assets/Config/BUG City Screen.xml
+index 3018997b8..d96d653ca 100644
+--- a/Assets/Config/BUG City Screen.xml	
++++ b/Assets/Config/BUG City Screen.xml	
+@@ -43,6 +43,10 @@
+ 			<option id="ClickMapToExit" key="Click Map To Exit" 
+ 					type="boolean" default="True"/>
+ 
++			<!-- advc.002q: -->
++			<option id="CitySoundScapes" key="City Soundscapes" 
++					type="boolean" default="True"/>
++			
+ 			<!-- FoodAssist by EmperorFool
+ 				 advc.004: default was False in K-Mod -->
+ 			<option id="FoodAssist" key="FoodAssist"
+
+diff --git a/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py b/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+index 8f1f2a805..3affc332e 100644
+--- a/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugCityScreenOptionsTab.py
+@@ -134,6 +134,8 @@ class BugCityScreenOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addLabel(screen, panel, "Misc", "Miscellaneous:")
+ 		# advc.004t: New option
+ 		self.addCheckbox(screen, panel, "CityScreen__ClickMapToExit")
++		# advc.002q: New option
++		self.addCheckbox(screen, panel, "CityScreen__CitySoundScapes")
+ 		# advc.004: Moved up
+ 		self.addTextDropdown(screen, panel, panel, "CityScreen__Specialists", True)
+ 		#self.addCheckbox(screen, panel, "MiscHover__RemoveSpecialist")
+
+diff --git a/Assets/XML/Text/BUG City Screen Options.xml b/Assets/XML/Text/BUG City Screen Options.xml
+index 1e5b8da85..d7241f3fb 100644
+--- a/Assets/XML/Text/BUG City Screen Options.xml	
++++ b/Assets/XML/Text/BUG City Screen Options.xml	
+@@ -85,6 +85,18 @@
+ 		<German>Schlie�t den Stadtbildschirm bei einem Linksklick auf ein Feld au�erhalb des Stadtradius. (Der Stadtbildschirm kann in jedem Fall auf folgenden Wegen geschlossen werden: Mittlere Maustaste, Doppelklick au�erhalb des Stadtradius, Rechtsklick aufs Stadtfeld, Linksklick auf die Mini-Karte rechts unten, Esc, Eingabe und Leertaste.)</German>
+ 	</TEXT>
+ 
++	<!-- advc.002q: -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__CITYSOUNDSCAPES_TEXT</Tag>
++		<English>City Soundscapes</English>
++		<German>Stadt-Ger�usche</German>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__CITYSOUNDSCAPES_HOVER</Tag>
++		<English>If checked, the music pauses while the city screen is open and urban sounds are played instead (as in BtS). If unchecked, the music continues and no urban sounds are played. However, the change in camera distance will affect the music volume. You may want to experiment with the [COLOR_HIGHLIGHT_TEXT]Default Distance[COLOR_REVERT] option and [COLOR_HIGHLIGHT_TEXT]Field of View[COLOR_REVERT] slider on the "Map" tab to get the volume right. Toggling this option doesn't take effect while the city screen is open.</English>
++		<German>Erlaubt es, die Alltags-Ger�usche abzuschalten, die normalerweise auf dem Stadtbildschirm abgespielt werden. Stattdessen l�uft dann die Musik weiter. Allerdings wirkt sich der Kamera-Abstand auf die Musik-Lautst�rke aus; siehe dazu auch die Optionen [COLOR_HIGHLIGHT_TEXT]Standard-Abstand[COLOR_REVERT] und [COLOR_HIGHLIGHT_TEXT]Sichtfeld[COLOR_REVERT] unter dem Reiter "Karte". Das Ein- und Ausschalten von Stadt-Ger�uschen wirkt sich erst beim n�chsten �ffnen des Stadtbildschirms aus (also nicht bei bereits offenem Stadtbildschirm).</German>
++	</TEXT>
++	
+ 	<!-- advc.004: "Detailed food info" sounds a bit grand (as does "Food
+ 		 Assist") -->
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 63651b77b..852185df9 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -12937,8 +12937,10 @@ int CvCity::getMusicScriptId() const
+ 
+ int CvCity::getSoundscapeScriptId() const
+ {
+-	return GC.getInfo(GET_PLAYER(getOwner()).getCurrentEra()).
+-			getCitySoundscapeScriptId(getCitySizeType());
++	return	// advc.002q:
++			(!BUGOption::isEnabled("CityScreen__CitySoundScapes", true) ? -1 :
++			GC.getInfo(GET_PLAYER(getOwner()).getCurrentEra()).
++			getCitySoundscapeScriptId(getCitySizeType()));
+ }
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3998

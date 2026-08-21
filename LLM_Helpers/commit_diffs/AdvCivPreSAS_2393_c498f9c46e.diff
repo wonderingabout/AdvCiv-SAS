@@ -1,0 +1,77 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2393
+# Commit: c498f9c46e61ec5058222e38182930ee1b06ffef
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 91cf100eb8736c3180bd7433923f4bc65898faf1
+# Title: Slightly increase map grid sizes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	9	Assets/XML/GameInfo/CIV4WorldInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4WorldInfo.xml b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+index 2723a3c75..392bc4931 100644
+--- a/Assets/XML/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+@@ -21,7 +21,7 @@
+ 			<!-- advc.140: was 37 -->
+ 			<iWarWearinessModifier>30</iWarWearinessModifier>
+ 			<!-- advc.137: was 10 -->
+-			<iGridWidth>8</iGridWidth>
++			<iGridWidth>9</iGridWidth>
+ 			<iGridHeight>6</iGridHeight>
+ 			<iTerrainGrainChange>-1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>-1</iFeatureGrainChange>
+@@ -84,8 +84,7 @@
+ 			<iMaxConscriptModifier>0</iMaxConscriptModifier>
+ 			<!-- advc.140: was 10 -->
+ 			<iWarWearinessModifier>12</iWarWearinessModifier>
+-			<!-- advc.137: was 16 -->
+-			<iGridWidth>15</iGridWidth>
++			<iGridWidth>16</iGridWidth>
+ 			<iGridHeight>10</iGridHeight>
+ 			<iTerrainGrainChange>0</iTerrainGrainChange>
+ 			<iFeatureGrainChange>0</iFeatureGrainChange>
+@@ -121,8 +120,7 @@
+ 			<iMaxConscriptModifier>15</iMaxConscriptModifier>
+ 			<!-- advc.140: was -10 -->
+ 			<iWarWearinessModifier>0</iWarWearinessModifier>
+-			<!-- advc.137: was 21 -->
+-			<iGridWidth>20</iGridWidth>
++			<iGridWidth>21</iGridWidth>
+ 			<iGridHeight>13</iGridHeight>
+ 			<iTerrainGrainChange>0</iTerrainGrainChange>
+ 			<iFeatureGrainChange>0</iFeatureGrainChange>
+@@ -156,8 +154,7 @@
+ 			<iWarWearinessModifier>-13</iWarWearinessModifier>
+ 			<!-- advc.137: was 26 -->
+ 			<iGridWidth>25</iGridWidth>
+-			<!-- advc.137: was 16 -->
+-			<iGridHeight>15</iGridHeight>
++			<iGridHeight>16</iGridHeight>
+ 			<iTerrainGrainChange>1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>1</iFeatureGrainChange>
+ 			<!-- advc.910: was 140 -->
+@@ -191,8 +188,7 @@
+ 			<iWarWearinessModifier>-25</iWarWearinessModifier>
+ 			<!-- advc.137: was 32 -->
+ 			<iGridWidth>31</iGridWidth>
+-			<!-- advc.137: was 20 -->
+-			<iGridHeight>19</iGridHeight>
++			<iGridHeight>20</iGridHeight>
+ 			<iTerrainGrainChange>1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>1</iFeatureGrainChange>
+ 			<iResearchPercent>150</iResearchPercent>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2046

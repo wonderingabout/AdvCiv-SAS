@@ -1,0 +1,73 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5169
+# Commit: 437a041a6215a1b83287abd15fe48b27fe279eb4
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3605499185042619d853eeb0e2bca9f9a7b7c550
+# Title: further beautify foreign advisor -> info sub-screen: add in-row spacing and reduce top and side margins, and remove unneeded "Civics:" with the help of gemin...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	4	Assets/Python/Screens/CvExoticForeignAdvisor.py
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.511_foreign_advisor_info.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index f42ab1d49..2e6e80435 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -514,8 +514,12 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 		
+ 		#screen.addPanel(mainPanelName, "", "", True, True, 50, 100, self.W_SCREEN - 100, self.H_SCREEN - 200, PanelStyles.PANEL_STYLE_EMPTY)
+ 		# <advc.066> Replacing the above (same as in drawActive)
+-		leftRightMargin = 25
+-		topBottomMargin = 50
++		# <!-- custom: remove the margins same as in the other foreign advisor sub-screens after our changes anyways etc, similarly to what gemini 3 pro advised in its solution thanks but anyways etc. Note: a negative leftRightMargin value such as -3 allows to remove the last yellow edges that remain at 0 it seems, not applied here for beautification but anyways etc. -->
++		# leftRightMargin = 25
++		# topBottomMargin = 50
++		leftRightMargin = 0
++		# <!-- custom: 43 is a bit nicer as it overflows less on the top and bottom, but we lose one leader row with it with the current inter row spacing as of now, so keep 42 rather despite the slight overflowing outside the top and bottom edges as of now but anyways etc. -->
++		topBottomMargin = 42
+ 		mainPanelWidth = self.W_SCREEN - 2 * leftRightMargin
+ 		mainPanelHeight = self.H_SCREEN - 2 * topBottomMargin
+ 		if not gc.getGame().isDebugMode():
+@@ -561,7 +565,13 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 				# advc.004: BULL widget help enabled
+ 				screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_FOREIGN_ADVISOR_TRADE", (self.calculateTrade (self.iActiveLeader, iLoopPlayer)[0], )), FontTypes.GAME_FONT,  WidgetTypes.WIDGET_TRADE_ROUTES, self.iActiveLeader, iLoopPlayer)
+ 
+-				screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				# <!-- custom: add spacing so the parts of the row is not stuck to the other ones too tight quite similarly to how per gemini 3 pro's suggested as part of its solution thanks but anyways etc. -->
++				# This adds spaces to separate 'Current Civics' from 'Favorites'
++				# szSeparator = ""
++				szSeparator = "                                                                         "
++				# <!-- custom: remove unneeded civics text as it's distracting and the civics listing is already self-explanatory or fairly easily guessable or searchable but anyways etc. -->
++				# screen.attachTextGFC(infoPanelName, "", szSeparator + localText.getText("TXT_KEY_CIVICS_SCREEN_TITLE", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				screen.attachTextGFC(infoPanelName, "", szSeparator, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 				for nCivicOption in ltCivicOptions:
+ 					nCivic = gc.getPlayer(iLoopPlayer).getCivics (nCivicOption)
+@@ -575,7 +585,8 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 				hasFavoriteReligion = (nFavoriteReligion != -1)
+ 
+ 				if (hasFavoriteCivic or hasFavoriteReligion):
+-					screen.attachTextGFC(infoPanelName, "", localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++					# <!-- custom: add spacing so the Favorites part of the row is not stuck to the other ones too tight quite similarly to how per gemini 3 pro's suggested as part of its solution thanks but anyways etc. -->
++					screen.attachTextGFC(infoPanelName, "", szSeparator + localText.getText("TXT_KEY_PEDIA_FAVORITES", ()) + ":", FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 					if hasFavoriteCivic:
+ 						objCivicInfo = gc.getCivicInfo(nFavoriteCivic)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.511_foreign_advisor_info.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.511_foreign_advisor_info.JPG
+index 91cc0af8c..2440e4976 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.511_foreign_advisor_info.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.511_foreign_advisor_info.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4208

@@ -1,0 +1,45 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1152
+# Commit: 71c37415976c14dec34a2ef830459d9964a80289
+# History segment: K-Mod history
+# Parent used for diff: 454d26c2adab58f4ee1ff4ecbf722d1c06450123
+# Title: AI_juggleCitizens now directly compares jobs before switching.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	2	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ba474f0a1..c63a804dc 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -8724,8 +8724,14 @@ void CvCityAI::AI_juggleCitizens()
+ 			{
+ 				bTakeNewJob = false;
+ 			}
+-			// don't remove jobs that were assigned by the juggling process, unless they are lower food.
+-			else if (iCurrentFood >= iNextFood && std::find(new_jobs.begin(), new_jobs.end(), worked_it->second) != new_jobs.end())
++			// don't remove jobs that were assigned by the juggling process
++			else if (std::find(new_jobs.begin(), new_jobs.end(), worked_it->second) != new_jobs.end())
++			{
++				bTakeNewJob = false;
++			}
++			// finally, don't take the new job of a direct comparison shows that it is not more valuable than the old job.
++			// (exception, switching away from zero-value jobs, such as unwanted specialists)
++			else if (worked_it->first > 0 && AI_jobChangeValue(unworked_it->second, worked_it->second, false, false, iGrowthValue) <= 0)
+ 			{
+ 				bTakeNewJob = false;
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1054

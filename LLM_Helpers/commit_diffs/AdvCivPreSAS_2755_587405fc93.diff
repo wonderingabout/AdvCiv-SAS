@@ -1,0 +1,248 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2755
+# Commit: 587405fc93d4399b3182b84f9f2ebc313184d18e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a853e1ec33f8cd18918b8bf3d1eeed9c8b8e3083
+# Title: Some misc. cleanup
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/XML/Text/CIV4GameText_advc_hints.xml
+9	13	CvGameCoreDLL/CvBugOptions.cpp
+2	2	CvGameCoreDLL/CvEnums.h
+1	1	CvGameCoreDLL/CvGame.cpp
+2	3	CvGameCoreDLL/CvGameAI.cpp
+1	1	CvGameCoreDLL/CvGlobals.h
+1	1	CvGameCoreDLL/CvPlayer.cpp
+5	3	CvGameCoreDLL/CvPlayerAI.cpp
+3	2	CvGameCoreDLL/CvPlot.cpp
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index b9af3fc4c..32e36185b 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -1109,11 +1109,11 @@
+ <!-- advc.004m: -->
+ <TEXT>
+ 	<Tag>TXT_KEY_ADVC_HINT_48</Tag>
+-	<English>(AdvCiv) The audio mix is affected by the camera distance. If e.g. the music volume is too low at your preferred camera distance, consider changing the default camera distance on "Map" tab of the BUG menu.</English>
+-	<French>(AdvCiv) The audio mix is affected by the camera distance. If e.g. the music volume is too low at your preferred camera distance, consider changing the default camera distance on "Map" tab of the BUG menu.</French>
++	<English>(AdvCiv) The audio mix is affected by the camera distance. If e.g. the music volume is too low at your preferred camera distance, consider changing the default camera distance on the "Map" tab of the BUG menu.</English>
++	<French>(AdvCiv) The audio mix is affected by the camera distance. If e.g. the music volume is too low at your preferred camera distance, consider changing the default camera distance on the "Map" tab of the BUG menu.</French>
+ 	<German>(AdvCiv) Die Tonmischung h�ngt vom Kameraabstand ab. Falls z.B. die Musik nicht laut genug ist, kann es helfen, im BUG-Men� den Standard-Kameraabstand zu �ndern (unter dem Reiter "Karte").</German>
+-	<Italian>(AdvCiv) The audio mix is affected by the camera distance. If e.g. the music volume is too low at your preferred camera distance, consider changing the default camera distance on "Map" tab of the BUG menu.</Italian>
+-	<Spanish>(AdvCiv) The audio mix is affected by the camera distance. If e.g. the music volume is too low at your preferred camera distance, consider changing the default camera distance on "Map" tab of the BUG menu.</Spanish>
++	<Italian>(AdvCiv) The audio mix is affected by the camera distance. If e.g. the music volume is too low at your preferred camera distance, consider changing the default camera distance on the "Map" tab of the BUG menu.</Italian>
++	<Spanish>(AdvCiv) The audio mix is affected by the camera distance. If e.g. the music volume is too low at your preferred camera distance, consider changing the default camera distance on the "Map" tab of the BUG menu.</Spanish>
+ </TEXT>
+ 
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvBugOptions.cpp b/CvGameCoreDLL/CvBugOptions.cpp
+index eb74b4f1b..580141269 100644
+--- a/CvGameCoreDLL/CvBugOptions.cpp
++++ b/CvGameCoreDLL/CvBugOptions.cpp
+@@ -1,13 +1,8 @@
+ /**********************************************************************
+-
+ File:		CvBugOptions.cpp
+ Author:		EmperorFool
+-Created:	2009-01-21
+-
+-		Copyright (c) 2009 The BUG Mod. All rights reserved.
+-
++Created:	2009-01-21Copyright (c) 2009 The BUG Mod. All rights reserved.
+ **********************************************************************/
+-
+ // This file has been edited for K-Mod
+ 
+ #include "CvGameCoreDLL.h"
+@@ -31,10 +26,11 @@ int getDefineINT(const char* xmlKey, int iDefault) {
+ 	else return iDefault;
+ }*/
+ 
+-// <advc>
+-bool checkBUGStatus(const char* optionKey, bool bWarn) {
+-
+-	if(!GC.IsGraphicsInitialized() || GC.getGame().getActivePlayer() == NO_PLAYER) {
++// advc:
++bool checkBUGStatus(const char* optionKey, bool bWarn)
++{
++	if(!GC.IsGraphicsInitialized() || GC.getGame().getActivePlayer() == NO_PLAYER)
++	{
+ 		if(!bWarn)
+ 			return false;
+ 		CvString szMsg = "BUG option ";
+@@ -45,7 +41,7 @@ bool checkBUGStatus(const char* optionKey, bool bWarn) {
+ 		return false;
+ 	}
+ 	return true;
+-} // </advc>
++}
+ 
+ 
+ bool BUGOption::isEnabled(const char* id, bool bDefault, bool bWarn)
+@@ -74,10 +70,10 @@ int BUGOption::getValue(const char* id, int iDefault, bool bWarn)
+ 	gDLL->getPythonIFace()->callFunction(PYBugOptionsModule, "getOptionINT", argsList.makeFunctionArgs(), &lResult);
+ 	return lResult;
+ }
+-// <advc.003d>
++// advc.003d:
+ CvString BUGOption::userDirPath()
+ {
+ 	CvString r;
+ 	gDLL->getPythonIFace()->callFunction(PYBugOptionsModule, "getUserDirStr", NULL, &r);
+ 	return r;
+-} // </advc.003d>
++}
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 989c82fd0..f14e58c22 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -34,8 +34,8 @@ __forceinline PlayerTypes getEnumLength(PlayerTypes, bool bAllowFOR_EACH = true)
+ enum TeamTypes
+ {
+ 	NO_TEAM = -1,
+-	MAX_CIV_TEAMS = MAX_CIV_PLAYERS,
+-	BARBARIAN_TEAM = MAX_CIV_TEAMS,
++	BARBARIAN_TEAM = MAX_CIV_PLAYERS,
++	MAX_CIV_TEAMS = BARBARIAN_TEAM,
+ 	MAX_TEAMS
+ };
+ __forceinline TeamTypes getEnumLength(TeamTypes, bool bAllowFOR_EACH = true)
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index cd337f58a..92dedb124 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -8563,7 +8563,7 @@ void CvGame::processVote(const VoteTriggeredData& kData, int iChange)
+ 				kNewOwner.acquireCity(pCity, false, true, true);
+ 			}
+ 		}
+-		else FAssert(pCity != NULL);
++		// advc (note): Otherwise, the city has changed owner while the votes were cast.
+ 		setVoteOutcome(kData, NO_PLAYER_VOTE);
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGameAI.cpp b/CvGameCoreDLL/CvGameAI.cpp
+index 121123122..e05b0c5a7 100644
+--- a/CvGameCoreDLL/CvGameAI.cpp
++++ b/CvGameCoreDLL/CvGameAI.cpp
+@@ -33,9 +33,8 @@ void CvGameAI::AI_init()
+ 	AI_sortOutUWAIOptions(false); // advc.104
+ }
+ 
+-// <advc.104u>
+-/*  Parts of the AI don't seem to get properly initialized in scenarios. Not
+-	sure if this has always been the case, if it has to do with K-Mod changes to
++/*	advc.104u: Parts of the AI don't seem to get properly initialized in scenarios.
++	Not sure if this has always been the case, if it has to do with K-Mod changes to
+ 	the turn order (team turns vs. player turns) or is a problem I introduced.
+ 	Amendment: */
+ void CvGameAI::AI_initScenario()
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 9753029c1..74376c01a 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -90,7 +90,7 @@ public:
+ 	DllExport CvInterface* getInterfacePtr();
+ 	DllExport int getMaxCivPlayers() const;
+ 	#ifdef _USRDLL // inlined for perf reasons, do not use outside of dll
+-	// advc.inl: These three were defined in-line, but didn't have any inline keyword.
++	// advc.inl: forceinline just to be sure
+ 	__forceinline CvMap& getMap() const { return *m_map; } // was getMapINLINE
+ 	__forceinline CvGame& getGame() const // was getGameINLINE; advc.003u: return type was CvGameAI&
+ 	{	// Can't be helped; this function has to be inlined, and I won't include CvGameAI.h here.
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c2709a9c7..e5ba66cbf 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -19558,7 +19558,7 @@ double CvPlayer::estimateYieldRate(YieldTypes eYield, int iSamples) const
+ {
+ 	//PROFILE_FUNC(); // Called very frequently; about 1.5% of the turn times (July 2019).
+ 	CvGame const& kGame = GC.getGame();
+-	int iGameTurn = kGame.getGameTurn();
++	int const iGameTurn = kGame.getGameTurn();
+ 	int const iTurnsPlayed = iGameTurn - kGame.getStartTurn();
+ 	iSamples = std::min(iSamples, iTurnsPlayed - 1);
+ 	std::vector<double> adSamples; // double for ::dMedian
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c59fcf48b..37a6efe8a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6921,9 +6921,11 @@ void CvPlayerAI::AI_chooseResearch()
+ 					continue;
+ 				// advc.156: Priority for human members
+ 				if(((iPass == 0) == kOtherMember.isHuman()) &&
+-						kOtherMember.getCurrentResearch() != NO_TECH &&
+-						canResearch(kOtherMember.getCurrentResearch()))
++					kOtherMember.getCurrentResearch() != NO_TECH &&
++					canResearch(kOtherMember.getCurrentResearch()))
++				{
+ 					pushResearch(kOtherMember.getCurrentResearch());
++				}
+ 			}
+ 		}
+ 	}
+@@ -20417,8 +20419,8 @@ void CvPlayerAI::AI_proposeWarTrade(PlayerTypes eHireling)
+ 				int iAcquireVal = kHireling.AI_cityTradeVal(*pCity, kHireling.getID());
+ 				if (iAcquireVal <= 0) // Hireling insisting on liberation
+ 					continue;
+-				FErrorMsg("Just to verify that this line is reachable; hasn't come up in tests yet"); // advc.test
+ 				int iFitness = iKeepVal - iAcquireVal;
++				FErrorMsg("Just for testing the condition below; hasn't been true in tests so far."); // advc.test
+ 				if (iFitness > iBestFitness && (iKeepVal <= 0 ||
+ 					scaled(iAcquireVal, iKeepVal) - 1 > per100(iWSRating)))
+ 				{
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 4d7041863..8a7d21328 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5489,8 +5489,9 @@ void CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange,
+ 
+ 	m_aiVisibilityCount.add(eTeam, iChange);
+ 	//FAssert(getVisibilityCount(eTeam) >= 0);
+-	/*  <advc.006> Had some problems here with the Earth1000AD scenario (as the
+-		initial cities were being placed). The problems remain unresolved. */
++	/*  <advc.006> Had some problems here with the Earth1000AD scenario as the
++		initial cities were being placed and over the first few turns.
++		The problems remain unresolved. */
+ 	/*	advc.001: Also works around a problem with nukeExplosion replacing
+ 		a sight-blocking feature with fallout. To reproduce this bug (in order to
+ 		fix it properly), it should suffice to drop a nuke onto a fogged Forest
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 906922284..3e8e3ef93 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -18638,8 +18638,8 @@ bool CvUnitAI::AI_considerPickup(UnitAITypes eUnitAI, CvCityAI const& kCity) con
+ 	// BETTER_BTS_AI_MOD: END
+ }
+ 
+-// BETTER_BTS_AI_MOD, Naval AI, 02/22/10, jdog5000: START
+-// (this function has been significantly edited for K-Mod)  // advc: minor style changes
++/*	BETTER_BTS_AI_MOD, Naval AI, 02/22/10, jdog5000:
++	(this function has been significantly edited for K-Mod) */
+ bool CvUnitAI::AI_pickupStranded(UnitAITypes eUnitAI, int iMaxPath)
+ {
+ 	PROFILE_FUNC();
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=10066

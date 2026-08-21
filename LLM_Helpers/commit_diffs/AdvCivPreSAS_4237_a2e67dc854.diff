@@ -1,0 +1,46 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4237
+# Commit: a2e67dc85439d441a11935c6b42c9b1e849a3b87
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a54ff30b5e7ed30745af66603571aa88bb19bdb9
+# Title: Comment added to AI tech eval of extra trade routes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	4	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 68fe29eab..639e5eef0 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4844,12 +4844,13 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	/*  K-Mod. A very rough estimate assuming each city has ~2 trade routes;
+ 		new local trade routes worth ~2 commerce, and foreign worth ~6. */
+ 	if (kTech.getTradeRoutes() != 0)
+-	{
++	{	/*	advc (note): Could use the pIgnoreArea param to count intercontinental
++			partners separately, but 6c is already a high estimate. */
+ 		int iConnectedForeignCities = AI_countPotentialForeignTradeCities(
+ 				true, AI_getFlavorValue(FLAVOR_GOLD) == 0);
+-		int iAddedCommerce = 2*iCityCount*kTech.getTradeRoutes() +
+-				4*range(iConnectedForeignCities-2*iCityCount, 0,
+-				iCityCount*kTech.getTradeRoutes()) +
++		int iAddedCommerce = 2 * iCityCount * kTech.getTradeRoutes() +
++				4 * range(iConnectedForeignCities - 2 * iCityCount, 0,
++				iCityCount * kTech.getTradeRoutes()) +
+ 				// <advc.131>
+ 				std::max(0, std::min(AI_getNumCitySites(), getNumCities())
+ 				// Up to one site already covered by iCityCount
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1187

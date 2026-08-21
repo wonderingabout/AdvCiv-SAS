@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2341
+# Commit: 68bb07a6c294c9c40fdc6ced11176391f83e6d96
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ce5a750feace3514d4c8e089e5c8a8d8ac60bc4e
+# Title: Fix AdvCiv bug with Spaceship requirements
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvInfo_Building.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.cpp b/CvGameCoreDLL/CvInfo_Building.cpp
+index af5a1f35b..6948138be 100644
+--- a/CvGameCoreDLL/CvInfo_Building.cpp
++++ b/CvGameCoreDLL/CvInfo_Building.cpp
+@@ -1948,7 +1948,7 @@ int CvProjectInfo::getVictoryMinThreshold(int i) const
+ 	FAssertBounds(0, GC.getNumVictoryInfos(), i);
+ 	// <advc.003t>
+ 	if (m_piVictoryMinThreshold == NULL)
+-		return 0;
++		return getVictoryThreshold(i); // !!
+ 	if (m_piVictoryMinThreshold[i] != 0) // </advc.003t>
+ 		return m_piVictoryMinThreshold[i];
+ 	return getVictoryThreshold(i);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=556

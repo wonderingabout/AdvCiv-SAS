@@ -1,0 +1,134 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3561
+# Commit: ee7bb6c81d76f491a5ffe8d622f1251a71f019f6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 286173489113662ad14c4d8bf1120d48f60f7b03
+# Title: Some comment changes, minor refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+5	5	CvGameCoreDLL/IntegerTraits.h
+4	3	CvGameCoreDLL/ScaledNum.h
+2	2	CvGameCoreDLL/TypeChoice.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 46f65dfaa..33adae5d4 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -5903,7 +5903,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			}
+ 		}
+ 	} // <advc.131>
+-	if (kBuilding.isNationalWonder() && isCapital() &&
++	if (iValue > 0 &&
++		kBuilding.isNationalWonder() && isCapital() &&
+ 		kOwner.AI_getCurrEraFactor() < fixp(3.5) &&
+ 		iTotalImprFreeSpecialists <= 0 &&
+ 		iTotalBonusYieldMod < 40 &&
+@@ -5921,7 +5922,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			if (iSlotsLeft == 2 && bAnySeaPlotYieldChange)
+ 				iSlotsLeft--;
+ 			scaled rSlotMod = scaled::min(1, scaled(iSlotsLeft + 1, 4));
+-			iValue = (iValue * rSlotMod).round();
++			iValue = (iValue * rSlotMod).uround();
+ 			FAssert(iSlotsLeft >= 0);
+ 			/*  0 is also bad, but can happen if canConstruct was only checked
+ 				with bTestVisible=true. */
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0a09023a5..bd3506007 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -21710,7 +21710,7 @@ bool CvPlayerAI::AI_demandTribute(PlayerTypes eHuman, AIDemandTypes eDemand)
+ 		int iBestValue = 0;
+ 		TechTypes eBestReceiveTech = NO_TECH;
+ 		// <advc.144>
+-		TechTypes eMostUsefulTech = (isAnarchy() ? NO_TECH:
++		TechTypes eMostUsefulTech = (isAnarchy() ? NO_TECH :
+ 				AI_bestTech(1, false, false, NO_TECH, NO_ADVISOR, eHuman));
+ 		// </advc.144>
+ 		FOR_EACH_ENUM(Tech)
+
+diff --git a/CvGameCoreDLL/IntegerTraits.h b/CvGameCoreDLL/IntegerTraits.h
+index 238e07268..e3f7559db 100644
+--- a/CvGameCoreDLL/IntegerTraits.h
++++ b/CvGameCoreDLL/IntegerTraits.h
+@@ -40,11 +40,11 @@ typedef wchar_t				wchar;
+ inline float DWtoF( dword n ) { return *(float*)&n; }
+ inline float MaxFloat() { return DWtoF(0x7f7fffff); }*/
+ 
+-/*	advc: Structs that get the limits of an integer type (bool is integral -
+-	but not integer). Replacing boost/integer_traits, so that the
+-	constants above are used and not e.g. INT_MAX. (I don't see why we have
+-	those custom constants, but, since I'm not sure and since some of them
+-	are widely used now, I'm not going to throw them out.) */
++/*	advc: Structs that get the limits of an integer type.
++	Replacing boost/integer_traits, so that the constants above are used
++	and not e.g. INT_MAX. (I don't see why we have those custom constants,
++	but, since I'm not sure and since some of them are widely used now,
++	I'm not going to throw them out.) */
+ template<typename T>
+ struct integer_limits
+ {
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index 6404d11a9..a98aa7a3d 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -10,7 +10,7 @@
+  +	The whole TypeChoice.h header.
+  +	The whole IntegerConversion.h header. Two uses of enum_traits in that header
+ 	can be replaced (see comment there) when porting ScaledNum into another mod.
+- +	intdiv::round, fmath::round  in ArithmeticUtils.h.
++ +	intdiv::round, fmath::round in ArithmeticUtils.h.
+  +	intHash in CvGameCoreUtils.h.
+  +	integer_limits in IntegerTraits.h.
+ 	For precompiling this header, one may have to define NOMINMAX
+@@ -225,13 +225,14 @@ public:
+ 	}
+ 
+ 	/*	Better be explicit about rounding. Since conversion to int should
+-		not be extremely frequent, I recommend using 'round' in most cases. */
++		not be extremely frequent, I recommend rounding in most cases. */
+ 	//int getInt() const { return round(); }
+ 	// Cast operator - again, better to be explicit.
+ 	//operator int() const { return getInt(); }
+ 	int round() const; // Expect this to get inlined for unsigned IntType
+ 	/*	Only for signed IntType. Non-branching, expect this to get inlined always,
+-		but only works on non-negative numbers. */
++		but only works on non-negative numbers. Asserts non-negativity, so using
++		this over round may also help uncover bugs. */
+ 	int uround() const;
+ 	int floor() const
+ 	{
+
+diff --git a/CvGameCoreDLL/TypeChoice.h b/CvGameCoreDLL/TypeChoice.h
+index adc449bfe..6144ce6ea 100644
+--- a/CvGameCoreDLL/TypeChoice.h
++++ b/CvGameCoreDLL/TypeChoice.h
+@@ -36,8 +36,8 @@ struct choose_type { typedef T1 type; };
+ template<typename T1, typename T2>
+ struct choose_type<false,T1,T2> { typedef T2 type; };
+ 
+-/*	Replacement for std::common_type. I need it only for integer types with 4 bytes or fewer
+-	(specifically for advc.fract). Chooses signed over unsigned.
++/*	Replacement for std::common_type. I need it only for integer types with 4 bytes
++	or fewer (specifically for advc.fract). Chooses signed over unsigned.
+ 	If both are signed or both unsigned, the larger type is chosen.
+ 	Usage example: typename choose_int_type<short,uint>::type
+ 	(will resolve to short) */
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=4770

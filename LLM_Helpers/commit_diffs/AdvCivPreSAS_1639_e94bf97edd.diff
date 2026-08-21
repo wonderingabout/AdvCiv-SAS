@@ -1,0 +1,164 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1639
+# Commit: e94bf97eddcf6485745bb99419fe2162f106c6c9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d991f557e010f0ca12e30387bc626dda904f2002
+# Title: Moved some CvPlayer::canTrain checks to CvGame
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+28	2	CvGameCoreDLL/CvGame.cpp
+3	2	CvGameCoreDLL/CvGame.h
+3	37	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 2deba0335..9791f6e01 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -5699,8 +5699,8 @@ void CvGame::setForceControl(ForceControlTypes eIndex, bool bEnabled)
+ }
+ 
+ // advc.003: Mostly cut from CvPlayer::canConstruct
+-bool CvGame::canConstruct(BuildingTypes eBuilding, bool bIgnoreCost, bool bTestVisible) const {
+-
++bool CvGame::canConstruct(BuildingTypes eBuilding, bool bIgnoreCost, bool bTestVisible) const
++{
+ 	CvBuildingInfo const& kBuilding = GC.getBuildingInfo(eBuilding);
+ 
+ 	if(!bIgnoreCost && kBuilding.getProductionCost() == -1)
+@@ -5748,6 +5748,32 @@ bool CvGame::canConstruct(BuildingTypes eBuilding, bool bIgnoreCost, bool bTestV
+ 	return true;
+ }
+ 
++// advc.003: Cut from CvPlayer::canTrain
++bool CvGame::canTrain(UnitTypes eUnit, bool bIgnoreCost, bool bTestVisible) const
++{
++	CvUnitInfo const& kUnit = GC.getUnitInfo(eUnit);
++
++	if (!bIgnoreCost && kUnit.getProductionCost() == -1)
++		return false;
++
++	if (isOption(GAMEOPTION_NO_ESPIONAGE) && (kUnit.isSpy() || kUnit.getEspionagePoints() > 0))
++		return false;
++
++	if (isUnitClassMaxedOut((UnitClassTypes)kUnit.getUnitClassType()))
++		return false;
++
++	if (bTestVisible)
++		return true;
++
++	if ((isNoNukes() || !isNukesValid()) && kUnit.getNukeRange() != -1)
++		return false;
++
++	SpecialUnitTypes eSpecialUnit = (SpecialUnitTypes)kUnit.getSpecialUnitType();
++	if (eSpecialUnit != NO_SPECIALUNIT && !isSpecialUnitValid(eSpecialUnit))
++		return false;
++
++	return true;
++}
+ 
+ int CvGame::getUnitCreatedCount(UnitTypes eIndex) const
+ {
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 1d544a467..3a441f41b 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -409,9 +409,10 @@ public:
+ 
+ 	bool isForcedControl(ForceControlTypes eIndex) const;												// Exposed to Python
+ 	void setForceControl(ForceControlTypes eIndex, bool bEnabled);
+-	// advc.003:
++	// <advc.003>
+ 	bool canConstruct(BuildingTypes eBuilding, bool bIgnoreCost, bool bTestVisible) const;
+-
++	bool canTrain(UnitTypes eUnit, bool bIgnoreCost, bool bTestVisible) const;
++	// </advc.003>
+ 	int getUnitCreatedCount(UnitTypes eIndex) const; // Exposed to Python
+ 	void incrementUnitCreatedCount(UnitTypes eIndex);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index e7281bcb9..eb3e056f1 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5561,14 +5561,6 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
+ 		return false;
+ 	}
+ 
+-	if (!bIgnoreCost)
+-	{
+-		if (GC.getUnitInfo(eUnit).getProductionCost() == -1)
+-		{
+-			return false;
+-		}
+-	}
+-
+ 	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
+ 	{
+ 		if (GC.getUnitInfo(eUnit).isFound())
+@@ -5577,14 +5569,6 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
+ 		}
+ 	}
+ 
+-	if (GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
+-	{
+-		if (GC.getUnitInfo(eUnit).isSpy() || GC.getUnitInfo(eUnit).getEspionagePoints() > 0)
+-		{
+-			return false;
+-		}
+-	}
+-
+ 	if (!(GET_TEAM(getTeam()).isHasTech((TechTypes)(GC.getUnitInfo(eUnit).getPrereqAndTech()))))
+ 	{
+ 		return false;
+@@ -5608,11 +5592,9 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
+ 			return false;
+ 		}
+ 	}
+-
+-	if (GC.getGame().isUnitClassMaxedOut(eUnitClass))
+-	{
+-		return false;
+-	}
++	// <advc.003> Some checks moved to CvGame
++	if (!GC.getGame().canTrain(eUnit, bIgnoreCost, bTestVisible))
++		return false; // </advc.003>
+ 
+ 	/* original bts code
+ 	if (GET_TEAM(getTeam()).isUnitClassMaxedOut(eUnitClass))
+@@ -5638,22 +5620,6 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
+ 		{
+ 			return false;
+ 		}
+-
+-		if (GC.getGame().isNoNukes() || !GC.getGame().isNukesValid())
+-		{
+-			if (GC.getUnitInfo(eUnit).getNukeRange() != -1)
+-			{
+-				return false;
+-			}
+-		}
+-
+-		if (GC.getUnitInfo(eUnit).getSpecialUnitType() != NO_SPECIALUNIT)
+-		{
+-			if (!(GC.getGame().isSpecialUnitValid((SpecialUnitTypes)(GC.getUnitInfo(eUnit).getSpecialUnitType()))))
+-			{
+-				return false;
+-			}
+-		}
+ 	}
+ 
+ 	return true;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4175

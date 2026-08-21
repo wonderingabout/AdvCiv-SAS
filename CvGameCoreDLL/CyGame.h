@@ -138,6 +138,8 @@ public:
 
 	int getAIAutoPlay() const;
 	void setAIAutoPlay(int iNewValue);
+	// <!-- custom: Added for the Python AI Auto Play controller to report an explicit completion cause to the DLL/game record. See KI#203. (GPT-5.6-Sol) -->
+	void endAIAutoPlay(int iEndCause);
 
 	int getGlobalWarmingIndex() const;	// K-Mod
 	int getGlobalWarmingChances() const;	// K-Mod
@@ -164,6 +166,9 @@ public:
 	bool isSimultaneousTeamTurns();
 
 	bool isFinalInitialized();
+	// <!-- custom: expose the cached AI map heaviness classification so Python UI reports the same land/naval-heavy result used by DLL behavior and BBAI logging. (GPT-5.5) -->
+	bool isLandHeavyMapnameCached() const;
+	bool isNavalHeavyMapnameCached() const;
 	void setScreenDimensions(int iWidth, int iHeight); // advc.061
 	int /*PlayerTypes*/ getActivePlayer();
 	void setActivePlayer(int /*PlayerTypes*/ eNewValue, bool bForceHotSeat);

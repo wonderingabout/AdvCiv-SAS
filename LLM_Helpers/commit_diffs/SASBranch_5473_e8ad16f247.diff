@@ -1,0 +1,897 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5473
+# Commit: e8ad16f2471264e0f26a414045ea5dc18e34ce8c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9fee472086cdd5b2525b906f15f3f8c9d192e8a6
+# Title: replace stele with BUILDING_ETHIOPIAN_METSEHAF_BET - "<!-- custom: note: deleted duplicate ART_DEF_BUILDING_MONUMENT that had an obelisk.nif for some reason...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	.editorconfig
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/eldercouncil_button.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/eldercouncil.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/eldercouncil.nif
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/shadowmap.dds
+71	69	Assets/XML/Art/CIV4ArtDefines_Building.xml
+218	191	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+6	1	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+11	7	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	1	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 .editorconfig
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/eldercouncil_button.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/eldercouncil.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/eldercouncil.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/shadowmap.dds
+
+[PATCHES]
+
+diff --git a/.editorconfig b/.editorconfig
+new file mode 100644
+index 000000000..f8cd2dbc9
+--- /dev/null
++++ b/.editorconfig
+@@ -0,0 +1,10 @@
++root = true
++
++[*]
++charset = utf-8
++end_of_line = crlf
++insert_final_newline = true
++
++[Assets/XML/Text/AdvCiv-SAS*.xml]
++# <!-- custom: force ISO-8859-1 (latin1) for AdvCiv-SAS text XML files to avoid VS Code UTF-8 rewrites corrupting accented strings (e.g. "La Tène Smithy" becoming "La T�ne Smithy"). Note: not yet checked whether VS Code may revert this later. (GPT-5.3-Codex) -->
++charset = latin1
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/eldercouncil_button.dds b/Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/eldercouncil_button.dds
+new file mode 100644
+index 000000000..d94209bb7
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/eldercouncil_button.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/eldercouncil.dds b/Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/eldercouncil.dds
+new file mode 100644
+index 000000000..55f09e2f4
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/eldercouncil.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/eldercouncil.nif b/Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/eldercouncil.nif
+new file mode 100644
+index 000000000..38983384e
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/eldercouncil.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/shadowmap.dds b/Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/shadowmap.dds
+new file mode 100644
+index 000000000..89f903446
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/shadowmap.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index a128f1bcb..1408880df 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -322,11 +322,11 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Forge.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,3</Button>
+ 		</BuildingArtInfo>
+-		<!-- custom: nif from ri mod, note: not animated in ri mod it seems but added as seems to work fine; button from Pie's Ancient Europe mod -->
++		<!-- custom: nif from ri mod; button from Pie's Ancient Europe mod -->
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_CELTIC_LA_TENE_SMITHY</Type>
+ 			<LSystem>LSYSTEM_3x2</LSystem>
+-			<bAnimated>1</bAnimated>
++			<bAnimated>0</bAnimated>
+ 			<fScale>0.8</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<NIF>Art/AdvCiv_SAS/Buildings/Celtic_La_Tene_Smithy/nif/Bronzeshop_barb.nif</NIF>
+@@ -383,16 +383,37 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Factory.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,7,8</Button>
+ 		</BuildingArtInfo>
++		<!-- custom: note: deleted duplicate ART_DEF_BUILDING_MONUMENT that had an obelisk.nif for some reason (not sure if our rename in advciv-sas from obelisk to monument is linked to this, but works fine as such with the duplicate removed) -->
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_MONUMENT</Type>
+ 			<LSystem>LSYSTEM_1x1</LSystem>
+ 			<bAnimated>0</bAnimated>
+-			<fScale>1.25</fScale>
++			<fScale>1.0</fScale>
+ 			<fInterfaceScale>0.4</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Obelisk/Obelisk.nif</NIF>
++			<NIF>Art/Structures/Buildings/Monument/Monument.nif</NIF>
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,6,4</Button>
+ 		</BuildingArtInfo>
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_ETHIOPIAN_STELE</Type>
++			<LSystem>LSYSTEM_2x3</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>5.0</fScale>
++			<fInterfaceScale>0.35</fInterfaceScale>
++			<NIF>Art/Structures/Buildings/EthiopianStele/EthiopianStele.nif</NIF>
++			<KFM/>
++			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,8</Button>
++		</BuildingArtInfo>
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_NATIVE_AMERICA_TOTEM</Type>
++			<LSystem>LSYSTEM_2x1</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>1.6</fScale>
++			<fInterfaceScale>0.4</fInterfaceScale>
++			<NIF>Art/Structures/Buildings/NativeAmerican_TotemPole/NativeAmerican_TotemPole.nif</NIF>
++			<KFM/>
++			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,7,7</Button>
++		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_EGYPTIAN_OBELISK</Type>
+ 			<LSystem>LSYSTEM_1x1</LSystem>
+@@ -403,6 +424,26 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Buildings_Atlas.dds,1,5</Button>
+ 		</BuildingArtInfo>
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_AZTEC_SACRIFICIAL_ALTAR</Type>
++			<LSystem>LSYSTEM_3x2</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>1.62</fScale>
++			<fInterfaceScale>0.42</fInterfaceScale>
++			<NIF>Art/Structures/Buildings/Aztec Altar/Aztec_Altar.nif</NIF>
++			<KFM/>
++			<Button>,Art/Interface/Buttons/Buildings/Courthouse.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,2,2</Button>
++		</BuildingArtInfo>
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_SUMERIAN_ZIGGURAT</Type>
++			<LSystem>LSYSTEM_2x3</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>1.0</fScale>
++			<fInterfaceScale>0.6</fInterfaceScale>
++			<NIF>Art/Structures/Buildings/Sumerian_Ziggurat/Sumerian_Ziggurat.nif</NIF>
++			<KFM/>
++			<Button>,Art/Interface/Buttons/Buildings/ChichenItza.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,7</Button>
++		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_ACADEMY</Type>
+ 			<LSystem>LSYSTEM_3x2</LSystem>
+@@ -413,6 +454,16 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Academy.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,5,5</Button>
+ 		</BuildingArtInfo>
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_LIBRARY</Type>
++			<LSystem>LSYSTEM_3x2</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>1.2</fScale>
++			<fInterfaceScale>0.58</fInterfaceScale>
++			<NIF>Art/Structures/Buildings/Library/Library.nif</NIF>
++			<KFM/>
++			<Button>,Art/Interface/Buttons/Buildings/Library.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,4</Button>
++		</BuildingArtInfo>
+ 		<!-- custom: art from the sengoku mod thanks -->
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_KOREAN_GYEONGDANG</Type>
+@@ -424,25 +475,16 @@
+ 			<KFM/>
+ 			<Button>Art/AdvCiv_SAS/Buildings/Korean_Gyeongdang/sengoku_atlas_4_0_cropped.dds</Button>
+ 		</BuildingArtInfo>
++		<!-- custom: art from the FFH2 mod thanks -->
+ 		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_LIBRARY</Type>
+-			<LSystem>LSYSTEM_3x2</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>1.2</fScale>
+-			<fInterfaceScale>0.58</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Library/Library.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Library.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,4</Button>
+-		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_ARABIAN_MADRASSA</Type>
++			<Type>ART_DEF_BUILDING_ETHIOPIAN_METSEHAF_BET</Type>
+ 			<LSystem>LSYSTEM_2x2</LSystem>
+ 			<bAnimated>0</bAnimated>
+-			<fScale>1.8</fScale>
+-			<fInterfaceScale>0.47</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Madrassa/Madrassa.nif</NIF>
++			<fScale>0.5</fScale>
++			<fInterfaceScale>0.8</fInterfaceScale>
++			<NIF>Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/nif/Eldercouncil.nif</NIF>
+ 			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Library.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,2</Button>
++			<Button>Art/AdvCiv_SAS/Buildings/Ethiopian_Metsehaf_Bet/eldercouncil_button.dds</Button>
+ 		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_UNIVERSITY</Type>
+@@ -454,6 +496,16 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/University.dds,Art/Interface/Buttons/Buildings_Atlas.dds,6,7</Button>
+ 		</BuildingArtInfo>
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_ARABIAN_MADRASSA</Type>
++			<LSystem>LSYSTEM_2x2</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>1.8</fScale>
++			<fInterfaceScale>0.47</fInterfaceScale>
++			<NIF>Art/Structures/Buildings/Madrassa/Madrassa.nif</NIF>
++			<KFM/>
++			<Button>,Art/Interface/Buttons/Buildings/Library.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,2</Button>
++		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_FRENCH_SALON</Type>
+ 			<LSystem>LSYSTEM_2x1</LSystem>
+@@ -677,16 +729,6 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Courthouse.dds,Art/Interface/Buttons/Buildings_Atlas.dds,4,2</Button>
+ 		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_AZTEC_SACRIFICIAL_ALTAR</Type>
+-			<LSystem>LSYSTEM_3x2</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>1.62</fScale>
+-			<fInterfaceScale>0.42</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Aztec Altar/Aztec_Altar.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Courthouse.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,2,2</Button>
+-		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_HOLY_ROMAN_RATHAUS</Type>
+ 			<LSystem>LSYSTEM_3x2</LSystem>
+@@ -697,16 +739,6 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Courthouse.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,7</Button>
+ 		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_SUMERIAN_ZIGGURAT</Type>
+-			<LSystem>LSYSTEM_2x3</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>1.0</fScale>
+-			<fInterfaceScale>0.6</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Sumerian_Ziggurat/Sumerian_Ziggurat.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/ChichenItza.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,7</Button>
+-		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_JAIL</Type>
+ 			<LSystem>LSYSTEM_2x1</LSystem>
+@@ -1438,36 +1470,6 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/WestPoint.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,1</Button>
+ 		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_MONUMENT</Type>
+-			<LSystem>LSYSTEM_1x1</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>1.0</fScale>
+-			<fInterfaceScale>0.4</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Monument/Monument.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,6,4</Button>
+-		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_ETHIOPIAN_STELE</Type>
+-			<LSystem>LSYSTEM_2x3</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>5.0</fScale>
+-			<fInterfaceScale>0.35</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/EthiopianStele/EthiopianStele.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,8</Button>
+-		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_NATIVE_AMERICA_TOTEM</Type>
+-			<LSystem>LSYSTEM_2x1</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>1.6</fScale>
+-			<fInterfaceScale>0.4</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/NativeAmerican_TotemPole/NativeAmerican_TotemPole.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,7,7</Button>
+-		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_PUBLIC_TRANSPORTATION</Type>
+ 			<LSystem>LSYSTEM_4x4</LSystem>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 14c4c0697..0fbefc32a 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -8677,182 +8677,6 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: monument, type: ethiopian_stele -->
+-			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
+-			<Type>BUILDING_ETHIOPIAN_STELE</Type>
+-			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_ETHIOPIAN_STELE</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_ETHIOPIAN_STELE_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_CULTURE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_ETHIOPIAN_STELE</ArtDefineTag>
+-			<MovieDefineTag>NONE</MovieDefineTag>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<bStateReligion>0</bStateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<FoundsCorporation>NONE</FoundsCorporation>
+-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+-			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>NONE</FreeStartEra>
+-			<MaxStartEra>NONE</MaxStartEra>
+-			<!-- custom: was some other tech, now disabled to make building stronger as it is otherwise not so strong plus thematically relevant i think -->
+-			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_MYSTICISM</PrereqTech>
+-			<TechTypes/>
+-			<Bonus>NONE</Bonus>
+-			<PrereqBonuses/>
+-			<ProductionTraits/>
+-			<HappinessTraits/>
+-			<NoBonus>NONE</NoBonus>
+-			<PowerBonus>NONE</PowerBonus>
+-			<FreeBonus>NONE</FreeBonus>
+-			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>NONE</FreeBuilding>
+-			<FreePromotion>NONE</FreePromotion>
+-			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+-			<iHurryAngerModifier>0</iHurryAngerModifier>
+-			<bBorderObstacle>0</bBorderObstacle>
+-			<bTeamShare>0</bTeamShare>
+-			<bWater>0</bWater>
+-			<bRiver>0</bRiver>
+-			<bPower>0</bPower>
+-			<bDirtyPower>0</bDirtyPower>
+-			<bAreaCleanPower>0</bAreaCleanPower>
+-			<DiploVoteType>NONE</DiploVoteType>
+-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+-			<bCapital>0</bCapital>
+-			<bGovernmentCenter>0</bGovernmentCenter>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bAllowsNukes>0</bAllowsNukes>
+-			<bMapCentering>0</bMapCentering>
+-			<bNoUnhappiness>0</bNoUnhappiness>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>1</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bCenterInCity>1</bCenterInCity>
+-			<iAIWeight>0</iAIWeight>
+-			<iCost>45</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>0</iConquestProb>
+-			<iCitiesPrereq>0</iCitiesPrereq>
+-			<iTeamsPrereq>0</iTeamsPrereq>
+-			<iLevelPrereq>0</iLevelPrereq>
+-			<iMinLatitude>0</iMinLatitude>
+-			<iMaxLatitude>90</iMaxLatitude>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+-			<iAnarchyModifier>0</iAnarchyModifier>
+-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+-			<iExperience>0</iExperience>
+-			<iGlobalExperience>0</iGlobalExperience>
+-			<iFoodKept>0</iFoodKept>
+-			<iAirlift>0</iAirlift>
+-			<iAirModifier>0</iAirModifier>
+-			<iAirUnitCapacity>0</iAirUnitCapacity>
+-			<iNukeModifier>0</iNukeModifier>
+-			<iNukeExplosionRand>0</iNukeExplosionRand>
+-			<iFreeSpecialist>0</iFreeSpecialist>
+-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+-			<iMaintenanceModifier>0</iMaintenanceModifier>
+-			<iWarWearinessModifier>0</iWarWearinessModifier>
+-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+-			<iHealRateChange>0</iHealRateChange>
+-			<!-- custom: was 0 -->
+-			<iHealth>1</iHealth>
+-			<iAreaHealth>0</iAreaHealth>
+-			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>1</iHappiness>
+-			<iAreaHappiness>0</iAreaHappiness>
+-			<iGlobalHappiness>0</iGlobalHappiness>
+-			<iStateReligionHappiness>0</iStateReligionHappiness>
+-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+-			<iTradeRoutes>0</iTradeRoutes>
+-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+-			<iTradeRouteModifier>0</iTradeRouteModifier>
+-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+-			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>0</iDefense>
+-			<iBombardDefense>0</iBombardDefense>
+-			<iAllCityDefense>0</iAllCityDefense>
+-			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>3</iAsset>
+-			<iPower>0</iPower>
+-			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<SeaPlotYieldChanges/>
+-			<RiverPlotYieldChanges/>
+-			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
+-			<CommerceChanges/>
+-			<ObsoleteSafeCommerceChanges>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>2</iCommerce>
+-			</ObsoleteSafeCommerceChanges>
+-			<CommerceChangeDoubleTimes>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>1000</iCommerce>
+-			</CommerceChangeDoubleTimes>
+-			<CommerceModifiers>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>10</iCommerce>
+-			</CommerceModifiers>
+-			<GlobalCommerceModifiers/>
+-			<SpecialistExtraCommerces/>
+-			<StateReligionCommerces/>
+-			<CommerceHappinesses/>
+-			<ReligionChanges/>
+-			<SpecialistCounts/>
+-			<FreeSpecialistCounts/>
+-			<CommerceFlexibles/>
+-			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_MONUMENT</ConstructSound>
+-			<BonusHealthChanges/>
+-			<BonusHappinessChanges/>
+-			<BonusProductionModifiers/>
+-			<UnitCombatFreeExperiences/>
+-			<DomainFreeExperiences/>
+-			<DomainProductionModifiers/>
+-			<BuildingHappinessChanges/>
+-			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs/>
+-			<SpecialistYieldChanges/>
+-			<BonusYieldModifiers/>
+-			<ImprovementFreeSpecialists/>
+-			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>10</iFlavor>
+-				</Flavor>
+-			</Flavors>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-		</BuildingInfo>
+ 		<BuildingInfo> <!-- custom: class: monument, type: native_america_totem -->
+ 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
+ 			<Type>BUILDING_NATIVE_AMERICA_TOTEM</Type>
+@@ -9769,6 +9593,203 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
++		<BuildingInfo> <!-- custom: class: library, type: library -->
++			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
++			<Type>BUILDING_LIBRARY</Type>
++			<SpecialBuildingType>NONE</SpecialBuildingType>
++			<Description>TXT_KEY_BUILDING_LIBRARY</Description>
++			<Civilopedia>TXT_KEY_BUILDING_LIBRARY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_SCIENCE</Advisor>
++			<ArtDefineTag>ART_DEF_BUILDING_LIBRARY</ArtDefineTag>
++			<MovieDefineTag>NONE</MovieDefineTag>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<bStateReligion>0</bStateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<FoundsCorporation>NONE</FoundsCorporation>
++			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
++			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
++			<VictoryPrereq>NONE</VictoryPrereq>
++			<!-- advc.126: was ERA_MODERN -->
++			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
++			<MaxStartEra>NONE</MaxStartEra>
++			<ObsoleteTech>NONE</ObsoleteTech>
++			<PrereqTech>TECH_WRITING</PrereqTech>
++			<TechTypes/>
++			<Bonus>NONE</Bonus>
++			<PrereqBonuses/>
++			<!-- custom: was TRAIT_CREATIVE 100 -->
++			<ProductionTraits/>
++			<!-- custom: was empty -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_CREATIVE</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
++			<NoBonus>NONE</NoBonus>
++			<PowerBonus>NONE</PowerBonus>
++			<FreeBonus>NONE</FreeBonus>
++			<iNumFreeBonuses>0</iNumFreeBonuses>
++			<FreeBuilding>NONE</FreeBuilding>
++			<FreePromotion>NONE</FreePromotion>
++			<CivicOption>NONE</CivicOption>
++			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
++			<iHurryAngerModifier>0</iHurryAngerModifier>
++			<bBorderObstacle>0</bBorderObstacle>
++			<bTeamShare>0</bTeamShare>
++			<bWater>0</bWater>
++			<bRiver>0</bRiver>
++			<bPower>0</bPower>
++			<bDirtyPower>0</bDirtyPower>
++			<bAreaCleanPower>0</bAreaCleanPower>
++			<DiploVoteType>NONE</DiploVoteType>
++			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
++			<bCapital>0</bCapital>
++			<bGovernmentCenter>0</bGovernmentCenter>
++			<bGoldenAge>0</bGoldenAge>
++			<bAllowsNukes>0</bAllowsNukes>
++			<bMapCentering>0</bMapCentering>
++			<bNoUnhappiness>0</bNoUnhappiness>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
++			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
++			<bNeverCapture>1</bNeverCapture>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bCenterInCity>0</bCenterInCity>
++			<iAIWeight>0</iAIWeight>
++			<!-- custom: reduce a bit the cost of some early buildings, was 90 -->
++			<iCost>80</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iConquestProb>0</iConquestProb>
++			<iCitiesPrereq>0</iCitiesPrereq>
++			<iTeamsPrereq>0</iTeamsPrereq>
++			<iLevelPrereq>0</iLevelPrereq>
++			<iMinLatitude>0</iMinLatitude>
++			<iMaxLatitude>90</iMaxLatitude>
++			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
++			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
++			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
++			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
++			<iAnarchyModifier>0</iAnarchyModifier>
++			<iGoldenAgeModifier>0</iGoldenAgeModifier>
++			<iGlobalHurryModifier>0</iGlobalHurryModifier>
++			<iExperience>0</iExperience>
++			<iGlobalExperience>0</iGlobalExperience>
++			<iFoodKept>0</iFoodKept>
++			<iAirlift>0</iAirlift>
++			<iAirModifier>0</iAirModifier>
++			<iAirUnitCapacity>0</iAirUnitCapacity>
++			<iNukeModifier>0</iNukeModifier>
++			<iNukeExplosionRand>0</iNukeExplosionRand>
++			<iFreeSpecialist>0</iFreeSpecialist>
++			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
++			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
++			<iMaintenanceModifier>0</iMaintenanceModifier>
++			<iWarWearinessModifier>0</iWarWearinessModifier>
++			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
++			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
++			<iHealRateChange>0</iHealRateChange>
++			<iHealth>0</iHealth>
++			<iAreaHealth>0</iAreaHealth>
++			<iGlobalHealth>0</iGlobalHealth>
++			<iHappiness>0</iHappiness>
++			<iAreaHappiness>0</iAreaHappiness>
++			<iGlobalHappiness>0</iGlobalHappiness>
++			<iStateReligionHappiness>0</iStateReligionHappiness>
++			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
++			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
++			<iSpaceProductionModifier>0</iSpaceProductionModifier>
++			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
++			<iTradeRoutes>0</iTradeRoutes>
++			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
++			<iTradeRouteModifier>0</iTradeRouteModifier>
++			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
++			<iGlobalPopulationChange>0</iGlobalPopulationChange>
++			<iFreeTechs>0</iFreeTechs>
++			<iDefense>0</iDefense>
++			<iBombardDefense>0</iBombardDefense>
++			<iAllCityDefense>0</iAllCityDefense>
++			<iEspionageDefense>0</iEspionageDefense>
++			<iAsset>3</iAsset>
++			<iPower>0</iPower>
++			<fVisibilityPriority>1.0</fVisibilityPriority>
++			<SeaPlotYieldChanges/>
++			<RiverPlotYieldChanges/>
++			<GlobalSeaPlotYieldChanges/>
++			<YieldChanges/>
++			<CommerceChanges/>
++			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it so reduce it, was 0 / 0 / 2. Indirectly also makes culture buildings more valuable; also, since everyone builds libraries and such not much point gaining free culture for all players this way. -->
++			<ObsoleteSafeCommerceChanges>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>1</iCommerce>
++			</ObsoleteSafeCommerceChanges>
++			<CommerceChangeDoubleTimes>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>1000</iCommerce>
++			</CommerceChangeDoubleTimes>
++			<CommerceModifiers>
++				<iCommerce>0</iCommerce>
++				<iCommerce>25</iCommerce>
++			</CommerceModifiers>
++			<GlobalCommerceModifiers/>
++			<SpecialistExtraCommerces/>
++			<StateReligionCommerces/>
++			<CommerceHappinesses/>
++			<ReligionChanges/>
++			<SpecialistCounts>
++				<SpecialistCount>
++					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
++					<iSpecialistCount>2</iSpecialistCount>
++				</SpecialistCount>
++			</SpecialistCounts>
++			<FreeSpecialistCounts/>
++			<CommerceFlexibles/>
++			<CommerceChangeOriginalOwners/>
++			<ConstructSound>AS2D_BUILD_LIBRARY</ConstructSound>
++			<BonusHealthChanges/>
++			<BonusHappinessChanges/>
++			<BonusProductionModifiers/>
++			<UnitCombatFreeExperiences/>
++			<DomainFreeExperiences/>
++			<DomainProductionModifiers/>
++			<BuildingHappinessChanges/>
++			<PrereqBuildingClasses/>
++			<BuildingClassNeededs/>
++			<SpecialistYieldChanges/>
++			<BonusYieldModifiers/>
++			<ImprovementFreeSpecialists/>
++			<!-- custom: was flavors science 10 and culture 4 -->
++			<!-- advc.020: Was 10 Science. While Monuments should be the
++				 preferred method of popping borders for Culture-flavored
++				 leaders, they should eventually also be interested in
++				 Libraries (and more so than the average leader). -->
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<iFlavor>10</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++			</Flavors>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++		</BuildingInfo>
+ 		<BuildingInfo> <!-- custom: class: library, type: KOREAN_GYEONGDANG -->
+ 			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
+ 			<Type>BUILDING_KOREAN_GYEONGDANG</Type>
+@@ -9904,7 +9925,6 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<!-- custom: Koren Gyeongdang keeps base Library culture (no extra culture bonus). (GPT-5.3-Codex) -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+@@ -9968,15 +9988,15 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: library, type: library -->
++		<BuildingInfo> <!-- custom: class: library, type: ETHIOPIAN_METSEHAF_BET -->
+ 			<BuildingClass>BUILDINGCLASS_LIBRARY</BuildingClass>
+-			<Type>BUILDING_LIBRARY</Type>
++			<Type>BUILDING_ETHIOPIAN_METSEHAF_BET</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_LIBRARY</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_LIBRARY_PEDIA</Civilopedia>
++			<Description>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET</Description>
++			<Civilopedia>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_LIBRARY</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_ETHIOPIAN_METSEHAF_BET</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -10012,8 +10032,9 @@
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
++			<!-- custom: Metsehaf Bet adds Prophet-focused GP generation for priest-scholar identity. (GPT-5.3-Codex) -->
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>1</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+ 			<bTeamShare>0</bTeamShare>
+@@ -10102,7 +10123,6 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it so reduce it, was 0 / 0 / 2. Indirectly also makes culture buildings more valuable; also, since everyone builds libraries and such not much point gaining free culture for all players this way. -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+@@ -10113,9 +10133,12 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>1000</iCommerce>
+ 			</CommerceChangeDoubleTimes>
++			<!-- custom: give culture but not too much because the library is an almost ubiquitous building -->
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>25</iCommerce>
++				<iCommerce>15</iCommerce>
++				<iCommerce>0</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+@@ -10144,11 +10167,7 @@
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- custom: was flavors science 10 and culture 4 -->
+-			<!-- advc.020: Was 10 Science. While Monuments should be the
+-				 preferred method of popping borders for Culture-flavored
+-				 leaders, they should eventually also be interested in
+-				 Libraries (and more so than the average leader). -->
++			<!-- custom: Metsehaf Bet shifts AI interest toward culture,religion, and growth while keeping science role. (GPT-5.3-Codex) -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -10156,6 +10175,14 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>5</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_RELIGION</FlavorType>
++					<iFlavor>3</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
+ 					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+@@ -10682,7 +10709,7 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it, since we reworked the building to be such and the thematic theme fits the extra culture (same as how it fits the madrassa), use a bit higher value than the base university but i think is good for balance and variety of gameplay or and such -->
++			<!-- custom: science is op enough already and the modifiers are good for that, no need to give too much culture on top of it, since we reworked the building to be such and the thematic theme fits the extra culture (same as how it fits the madrassa), use a bit higher value than the base university but i think is good for balance and variety of gameplay or such -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 575a0bde7..79708c44d 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1189,8 +1189,8 @@
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
+-					<BuildingType>BUILDING_ETHIOPIAN_STELE</BuildingType>
++					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
++					<BuildingType>BUILDING_ETHIOPIAN_METSEHAF_BET</BuildingType>
+ 				</Building>
+ 			</Buildings>
+ 			<Units>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 8e0d5fde0..eee6ce2f0 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -1412,9 +1412,14 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: based on https://en.wikipedia.org/wiki/La_T%C3%A8ne_culture + GPT-5.2-Thinking blurb thanks -->
++	<!-- custom: based on https://en.wikipedia.org/wiki/La_T%C3%A8ne_culture + AI-generated blurb with the help of GPT-5.2-Thinking thanks -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_CELTIC_LA_TENE_SMITHY_PEDIA</Tag>
+ 		<English>[TAB]The La T�ne culture was a European Iron Age culture. It developed and flourished during the late Iron Age (from about 450 BC to the Roman conquest in the 1st century BC), succeeding the early Iron Age Hallstatt culture without any definite cultural break, under considerable Mediterranean influence from the Greeks in pre-Roman Gaul, the Etruscans, and the Golasecca culture, but whose artistic style nevertheless did not depend on those Mediterranean influences.[PARAGRAPH:1]La T�ne culture's territorial extent corresponded to what is now France, Belgium, Switzerland, Austria, England, Southern Germany, the Czech Republic, Northern Italy and Central Italy, Slovenia, Hungary and Liechtenstein, as well as adjacent parts of the Netherlands, Slovakia, Serbia, Croatia, Transylvania (western Romania), and Transcarpathia (western Ukraine). The Celtiberians of western Iberia shared many aspects of the culture, though not generally the artistic style. To the north extended the contemporary Pre-Roman Iron Age of Northern Europe, including the Jastorf culture of Northern Germany and Denmark and all the way to Galatia in Asia Minor (today Turkey).[PARAGRAPH:1]Centered on ancient Gaul, the culture became very widespread, and encompasses a wide variety of local differences. It is often distinguished from earlier and neighbouring cultures mainly by the La T�ne style of Celtic art, characterized by curving "swirly" decoration, especially of metalwork.[PARAGRAPH:1]It is named after the type site of La T�ne on the north side of Lake Neuch�tel in Switzerland, where thousands of objects had been deposited in the lake, as was discovered after the water level dropped in 1857 (due to the Jura water correction).[PARAGRAPH:1]In the popular understanding, La T�ne describes the culture and art of the ancient Celts, a term that is firmly entrenched in the popular understanding, but it is considered controversial by modern scholarship.[PARAGRAPH:2]In the La T�ne world, metalwork was a signature craft, with bronze, iron and gold objects made in the distinctive La T�ne style of curving decoration, spirals and interlace. Archaeological finds include elite jewelry such as torcs and fibulae, but also helmets, shields, and horse trappings, showing that smithing mattered for both prestige and war. A smithy is the working shop of a blacksmith, where heated metal is forged on an anvil and shaped into tools, fittings, and weapons.[PARAGRAPH:1]A La T�ne Smithy represents the skilled labor and workshop tradition behind this culture: turning raw metal into useful equipment and visible status objects. In game terms, access to copper and iron supports the smithy with steady supply, repairs, and replacement gear, which can translate into stronger morale and confidence.</English>
+ 	</TEXT>
++	<!-- custom: AI-generated with the help of GPT-5.2-Thinking thanks -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET_PEDIA</Tag>
++		<English>[TAB]Traditional education in the Ethiopian Orthodox world is organized as a ladder of church schools. Students begin in the Nebab Bet (house of reading), learning to read and memorizing core prayers and the Psalms. Advanced tracks include liturgy, chant, and poetry, and culminate in the Metsehaf Bet, a school centered on deep textual interpretation.[PARAGRAPH:1]Metsehaf Bet is described as a general term for a school of commentaries with four branches: Old Testament (Beluy), New Testament (Haddis), Church Fathers and related studies (Liqawent, including canon law and calendar calculation), and monastic literature (Menekosat). Instruction emphasizes close reading where lines of a text are interpreted and theological, moral, and historical questions are developed from the commentary tradition.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 3a745e2d7..861063445 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3264,6 +3264,13 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<TEXT>
++		<Tag>TXT_KEY_MISC_HELP_OBSOLETE_BUILDING_COMMERCE</Tag>
++		<English>[ICON_BULLET]%D1%F2 from Obsolete Buildings</English>
++	</TEXT>
++
++
++
+ 	<TEXT>
+ 		<Tag>AI_DIPLO_FIRST_CONTACT_LEADER_EWUARE_1</Tag>
+ 		<English>I am [OUR_NAME], Oba of Benin. You enter my court, [CT_NAME]. Speak with respect, and we may prosper.</English>
+@@ -3547,13 +3554,6 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<TEXT>
+-		<Tag>TXT_KEY_MISC_HELP_OBSOLETE_BUILDING_COMMERCE</Tag>
+-		<English>[ICON_BULLET]%D1%F2 from Obsolete Buildings</English>
+-	</TEXT>
+-
+-
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_KOREAN_GYEONGDANG</Tag>
+ 		<English>Gyeongdang</English>
+@@ -3566,4 +3566,8 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_CELTIC_LA_TENE_SMITHY</Tag>
+ 		<English>La T�ne Smithy</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_ETHIOPIAN_METSEHAF_BET</Tag>
++		<English>Metsehaf Bet</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index 5a3302019..d2f9c6ece 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -124,7 +124,7 @@ Note: water buildings are generally avoided as they are too situational (useless
+ | China | Pavillion (Theatre) | **Changpingcang** (Market) | Not so cultural game profile plus it is weaker. This new building leans into a market-management/state-stability theme (price smoothing and social calm) rather than pure food storage. As China in this setup is often health-rich, extra happiness support is valuable and a nice synergy for larger empires and sustained city growth. Identity with happy from Rice capitalizes on such excess health, and food kept fits thematically and is not as op later in the game. |
+ | Egypt | Obelisk (Monument) | **Keep** (Keep) | |
+ | England | Stock Exchange (Bank) | **Keep** (Keep) | |
+-| Ethiopia | Stele (Monument) | **Metsehaf Bet** (Library) | Distinctive theology-to-scholarship identity via Ge'ez manuscript/commentary tradition. Also uses underused library slot, declutters overused monument slot. Incense support fits the Ethiopian Orthodox liturgical context, where incense is central to worship and naturally links ritual life with learned religious institutions; it also aligns with Ethiopia's historical participation in Red Sea aromatics/incense trade networks. |
++| Ethiopia | Stele (Monument) | **Metsehaf Bet** (Library) | Distinctive theology-to-scholarship identity via Ge'ez manuscript/commentary tradition. Also uses underused library slot and declutters the overused monument slot. Strong religious identity (priest-scholar) => as of now GP Priest plus culture-scaling profile. Also aims to go better with Zara Yaqob's trading/diplomat/growth ingame profile |
+ | Ireland | / | **Scriptorium** (University) | New civ: strong monastic-learning thematic fit (scriptoria as centers of manuscript copying/scholarship) and good gameplay/profile match for Irish leaders with gold/diplomatic/science leanings. Paper timing keeps it meaningful without becoming an overpowered early spike like a library would be with the as of now scriptorium's effects. |
+ | Kingdom of Benin | / | **Impluvium** (Aqueduct) | New civ: Thematic fit; plus fits Ewuare's production/growth profile |
+ | France | Salon (Observatory) | **Keep** (University) | Observatory removed (to unclutter); thematic fit with Lumieres theme |
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index bcd372d73..a69d16030 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -111,7 +111,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+ - Make **paths absolute** in **.gitignore** to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
+-- (Requires AdvCiv-SAS 5465+) Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints.
++- (Requires AdvCiv-SAS 5465+) Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints. See also `.editorconfig`.
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+ 
+ ### 48 Civs DLL
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=42906

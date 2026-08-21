@@ -1,0 +1,368 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1323
+# Commit: a948d3dbf4daf8bef303b45b146a070ae536a733
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 54657a47236c070268ed0be9958f552a6ec3a8a6
+# Title: More cosmetic changes to game text:
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/XML/Interface/CIV4ColorVals.xml
+43	2	Assets/XML/Text/CIV4GameText_advc.008e.xml
+27	0	Assets/xml/Text/CIV4GameText_advc.xml
+17	3	CvGameCoreDLL/CvCity.cpp
+6	3	CvGameCoreDLL/CvCityAI.cpp
+7	1	CvGameCoreDLL/CvDLLButtonPopup.cpp
+3	1	CvGameCoreDLL/CvGame.cpp
+9	0	CvGameCoreDLL/CvGameCoreUtils.cpp
+3	1	CvGameCoreDLL/CvGameCoreUtils.h
+1	3	CvGameCoreDLL/CvPlayer.cpp
+13	3	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Interface/CIV4ColorVals.xml b/Assets/XML/Interface/CIV4ColorVals.xml
+index 5db661c6e..e5119f3d5 100644
+--- a/Assets/XML/Interface/CIV4ColorVals.xml
++++ b/Assets/XML/Interface/CIV4ColorVals.xml
+@@ -737,15 +737,15 @@
+ 		<ColorVal>
+ 			<Type>COLOR_PLAYER_LIGHT_ORANGE</Type>
+ 			<fRed>0.88</fRed>
+-			<fGreen>0.61</fGreen>
++			<fGreen>0.63</fGreen>
+ 			<fBlue>0.31</fBlue>
+ 			<fAlpha>1.00</fAlpha>
+ 		</ColorVal>
+ 		<ColorVal>
+ 			<Type>COLOR_PLAYER_LIGHT_ORANGE_TEXT</Type>
+ 			<fRed>0.96</fRed>
+-			<fGreen>0.78</fGreen>
+-			<fBlue>0.43</fBlue>
++			<fGreen>0.80</fGreen>
++			<fBlue>0.42</fBlue>
+ 			<fAlpha>1.00</fAlpha>
+ 		</ColorVal>
+ 		<!-- desaturated -->
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.008e.xml b/Assets/XML/Text/CIV4GameText_advc.008e.xml
+index 5abde9e4a..d9285aa59 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.008e.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.008e.xml
+@@ -1206,14 +1206,55 @@
+ 		<Italian>%s1_PlyrName ha completato [NUM2:il:la] %s2_WndrName a %s3_CityName!</Italian>
+ 		<Spanish>%s1_PlyrName ha terminado [NUM2:el:la] %s2_WndrName en %s3_CityName.</Spanish>
+ 	</TEXT>
+-	<!-- For non-Space projects. Original in CIV4GameText_Misc1.xml -->
+ 	<TEXT>
+-		<Tag>TXT_KEY_MISC_CREATED_PROJECT_IN_LIMITED</Tag>
++		<Tag>TXT_KEY_MISC_COMPLETED_WONDER_CHOOSE_TECH_THE</Tag>
++		<English>You have completed the %s1_BldgName! Choose a free technology...</English>
++		<French>Vous avez achev&#233; : %s1_BldgName ! Choisissez une technologie gratuite...</French>
++		<German>Ihr habt das Geb&#228;ude %s1_BldgName fertig gestellt! W&#228;hlt eine freie Technologie ...</German>
++		<Italian>Hai completato la costruzione dell'edificio %s1_BldgName! Scegli una tecnologia gratuita...</Italian>
++		<Spanish>Hab&#233;is completado [NUM1:el:la] %s1_BldgName. Elegid una tecnolog&#237;a gratis...</Spanish>
++	</TEXT>
++	<!-- Replay -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_COMPLETES_WONDER_THE</Tag>
++		<English>%s1_PlyrName completes the %s2_BldgName</English>
++		<French>%s1_PlyrName ach&#232;ve la construction de : %s2_BldgName</French>
++		<German>%s1_PlyrName stellt das Geb&#228;ude %s2_BldgName fertig</German>
++		<Italian>%s1_PlyrName ha completato la costruzione dell'edificio %s2_BldgName</Italian>
++		<Spanish>%s1_PlyrName ha completado [NUM2:el:la] %s2_BldgName</Spanish>
++	</TEXT>
++	<!-- For world and team projects. Original in CIV4GameText_Misc1.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_CREATED_PROJECT_IN_LIMITED_THE</Tag>
+ 		<English>You have created the %s1_PrjctName in %s2_CityName.</English>
+ 		<French>Vous avez cr&#233;&#233; : %s1_PrjctName &#224; %s2_CityName.</French>
+ 		<German>Das Projekt %s1_PrjctName wurde in %s2_CityName fertig gestellt.</German>
+ 		<Italian>Hai creato il progetto %s1_PrjctName a %s2_CityName.</Italian>
+ 		<Spanish>Hab&#233;is creado [NUM1:el:la] %s1_PrjctName en %s2_CityName.</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_COMPLETES_PROJECT_THE</Tag>
++		<English>%s1_PlyrName completes the %s2_PrjctName!</English>
++		<French>%s1_PlyrName termine the %s2_PrjctName!</French>
++		<German>%s1_PlyrName stellt das  Projekt %s2_PrjctName fertig!</German>
++		<Italian>%s1_PlyrName ha completato [NUM2:il:la] %s2_PrjctName!</Italian>
++		<Spanish>%s1_PlyrName ha completado [NUM2:el:la] %s2_PrjctName</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_MISC_SOMEONE_HAS_COMPLETED_THE</Tag>
++		<English>%s1_PlyrName has completed the %s2_PrjctName!</English>
++		<French>%s1_PlyrName a achev&#233; : %s2_PrjctName !</French>
++		<German>%s1_PlyrName hat das Projekt %s2_PrjctName abgeschlossen!</German>
++		<Italian>%s1_PlyrName ha completato [NUM2:il:la] %s2_PrjctName!</Italian>
++		<Spanish>%s1_PlyrName ha completado [NUM2:el:la] %s2_PrjctName.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_POPUP_CREATED_WORK_ON_NEXT_LIMITED_THE</Tag>
++		<English>You have created the [COLOR_HIGHLIGHT_TEXT]%s1_PrjtName[COLOR_REVERT] in %s2_CityName. What would you like to work on next?</English>
++		<French>Vous avez cr&#233;&#233; : [COLOR_HIGHLIGHT_TEXT]%s1_PrjtName[COLOR_REVERT] &#224; %s2_CityName. Que souhaitez-vous faire ensuite ?</French>
++		<German>Das Projekt [COLOR_HIGHLIGHT_TEXT]%s1_PrjtName[COLOR_REVERT] in %s2_CityName wurde fertig gestellt. Wie lautet Euer n&#228;chster Befehl?</German>
++		<Italian>Hai creato il progetto [COLOR_HIGHLIGHT_TEXT]%s1_PrjtName[COLOR_REVERT] a %s2_CityName. Cosa vuoi realizzare adesso?</Italian>
++		<Spanish>Hab&#233;is creado [NUM1:el:la] [COLOR_HIGHLIGHT_TEXT]%s1_PrjtName[COLOR_REVERT] en %s2_CityName. &#191;Qu&#233; quer&#233;is hacer a continuaci&#243;n?</Spanish>
++	</TEXT>
+ 		 
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index f3567d1f7..c3bf19b79 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -716,6 +716,33 @@
+ 		</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004g: Original in CIV4GameTextInfos_Objects.xml. Was
++		 "Barbarian State". No change to other languages. -->
++	<TEXT>
++		<Tag>TXT_KEY_CIV_BARBARIAN_DESC</Tag>
++		<English>Barbarians</English>
++		<French>
++			<Text>Empire barbare</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</French>
++		<German>
++			<Text>Barbarenreich:Barbarenreich:Barbarenreich</Text>
++			<Gender>Neuter:Neuter:Neuter</Gender>
++			<Plural>0:0:0</Plural>
++		</German>
++		<Italian>
++			<Text>Territorio Barbaro</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Italian>
++		<Spanish>
++			<Text>Territorio de los b&#225;rbaros</Text>
++			<Gender>Male</Gender>
++			<Plural>0</Plural>
++		</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.004s: Originally in CIV4GameTextInfos.xml;
+ 		 says just "(Gold)" there. Translation from TXT_KEY_RESEARCH
+ 		 in CIV4GameText_Misc1.xml.
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index cee1de96b..bd12f1f2d 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11843,14 +11843,23 @@ void CvCity::setNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool b
+ 						}
+ 						else
+ 						{
+-							szBuffer = gDLL->getText("TXT_KEY_MISC_COMPLETED_WONDER_CHOOSE_TECH", GC.getBuildingInfo(eIndex).getTextKeyWide());
++							szBuffer = gDLL->getText( // <advc.008e>
++								::isArticle(eIndex) ?
++								"TXT_KEY_MISC_COMPLETED_WONDER_CHOOSE_TECH_THE" :
++								"TXT_KEY_MISC_COMPLETED_WONDER_CHOOSE_TECH",
++								// </advc.008e>
++								GC.getBuildingInfo(eIndex).getTextKeyWide());
+ 							GET_PLAYER(getOwnerINLINE()).chooseTech(GC.getBuildingInfo(eIndex).getFreeTechs() * iChangeNumRealBuilding, szBuffer.GetCString());
+ 						}
+ 					}
+ 
+ 					if (isWorldWonderClass((BuildingClassTypes)(GC.getBuildingInfo(eIndex).getBuildingClassType())))
+ 					{
+-						szBuffer = gDLL->getText("TXT_KEY_MISC_COMPLETES_WONDER", GET_PLAYER(getOwnerINLINE()).getNameKey(), GC.getBuildingInfo(eIndex).getTextKeyWide());
++						szBuffer = gDLL->getText( // <advc.008e>
++							::isArticle(eIndex) ?
++							"TXT_KEY_MISC_COMPLETES_WONDER_THE" :
++							"TXT_KEY_MISC_COMPLETES_WONDER", // </advc.008e>
++							GET_PLAYER(getOwnerINLINE()).getNameKey(), GC.getBuildingInfo(eIndex).getTextKeyWide());
+ 						GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getOwnerINLINE(), szBuffer, getX_INLINE(), getY_INLINE(), (ColorTypes)GC.getInfoTypeForString("COLOR_BUILDING_TEXT"));
+ 
+ 						// <advc.106>
+@@ -13192,7 +13201,12 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 		}
+ 		else if (eCreateProject != NO_PROJECT)
+ 		{
+-			swprintf(szBuffer, gDLL->getText(((isLimitedProject(eCreateProject)) ? "TXT_KEY_MISC_CREATED_PROJECT_IN_LIMITED" : "TXT_KEY_MISC_CREATED_PROJECT_IN"), GC.getProjectInfo(eCreateProject).getTextKeyWide(), getNameKey()).GetCString());
++			swprintf(szBuffer, gDLL->getText(((isLimitedProject(eCreateProject)) ?
++					// <advc.008e>
++					(::isArticle(eCreateProject) ?
++					"TXT_KEY_MISC_CREATED_PROJECT_IN_LIMITED_THE" :
++					"TXT_KEY_MISC_CREATED_PROJECT_IN_LIMITED") // </advc.008e>
++					: "TXT_KEY_MISC_CREATED_PROJECT_IN"), GC.getProjectInfo(eCreateProject).getTextKeyWide(), getNameKey()).GetCString());
+ 			strcpy(szSound, GC.getProjectInfo(eCreateProject).getCreateSound());
+ 			szIcon = GC.getProjectInfo(eCreateProject).getButton();
+ 		}
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index a605ce5e2..fd57540b0 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4860,7 +4860,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					double ourBuildingCount = estimateReligionBuildings(
+ 							kOwner.getID(), stateRel, relBuildings);
+ 					double tempValue = ourBuildingCount;
+-					double rivalFactor = 1.5 * std::sqrt((double)g.countCivPlayersAlive());
++					double rivalFactor = 1.5 * std::sqrt((double)
++							g.countCivPlayersAlive());
++					int iEverAlive = g.countCivPlayersEverAlive();
+ 					for(int j = 0; j < MAX_CIV_PLAYERS; j++) {
+ 						CvPlayer const& civ = GET_PLAYER((PlayerTypes)j);
+ 						if(!civ.isAlive() || civ.getID() == kOwner.getID() ||
+@@ -4876,14 +4878,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 									(int)ATTITUDE_ANNOYED);
+ 						}
+ 						bool bTheyAhead = (g.getPlayerRank(civ.getID()) <
+-								g.getPlayerRank(kOwner.getID()));
++								std::min(g.getPlayerRank(kOwner.getID()),
++								iEverAlive / 2));
+ 						// Don't care if they benefit from ReligionYield then
+ 						if(!bTheyAhead && towardThem <= ATTITUDE_CAUTIOUS &&
+ 								towardThem > ATTITUDE_FURIOUS)
+ 							continue;
+ 						double loopBuildingCount = estimateReligionBuildings(
+ 								civ.getID(), stateRel, relBuildings);
+-						/*  Don't want to help competitors; let _them_ build
++						/*  Don't want to help competitors win; let _them_ build
+ 							eBuilding. */
+ 						if(bTheyAhead && towardThem < ATTITUDE_FRIENDLY)
+ 							loopBuildingCount *= -1;
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 523b1fd58..ecdb2fee6 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -1125,7 +1125,13 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 			if(GC.getProjectInfo(eCreateProject).isSpaceship())
+ 				szBuffer = gDLL->getText("TXT_KEY_POPUP_CREATED_WORK_ON_NEXT_SPACESHIP", GC.getProjectInfo(eCreateProject).getTextKeyWide(), pCity->getNameKey());
+ 			else
+-				szBuffer = gDLL->getText(((isLimitedProject(eCreateProject)) ? "TXT_KEY_POPUP_CREATED_WORK_ON_NEXT_LIMITED" : "TXT_KEY_POPUP_CREATED_WORK_ON_NEXT"), GC.getProjectInfo(eCreateProject).getTextKeyWide(), pCity->getNameKey());
++				szBuffer = gDLL->getText(((isLimitedProject(eCreateProject)) ?
++						// <advc.108e>
++						(::isArticle(eCreateProject) ?
++						"TXT_KEY_POPUP_CREATED_WORK_ON_NEXT_LIMITED_THE" :
++						"TXT_KEY_POPUP_CREATED_WORK_ON_NEXT_LIMITED")
++						// </advc.108e>
++						: "TXT_KEY_POPUP_CREATED_WORK_ON_NEXT"), GC.getProjectInfo(eCreateProject).getTextKeyWide(), pCity->getNameKey());
+ 		}
+ 		else
+ 		{
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index dbce3287b..0c4cce2f9 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6224,7 +6224,9 @@ void CvGame::setHolyCity(ReligionTypes eIndex, CvCity* pNewValue, bool bAnnounce
+ 				if (isFinalInitialized() && !(gDLL->GetWorldBuilderMode()))
+ 				{
+ 					szBuffer = gDLL->getText("TXT_KEY_MISC_REL_FOUNDED", GC.getReligionInfo(eIndex).getTextKeyWide(), pHolyCity->getNameKey());
+-					addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, pHolyCity->getOwnerINLINE(), szBuffer, pHolyCity->getX_INLINE(), pHolyCity->getY_INLINE(), (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++					addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, pHolyCity->getOwnerINLINE(), szBuffer, pHolyCity->getX_INLINE(), pHolyCity->getY_INLINE());
++							// advc.106: Reserve this color for treaties
++							//(ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 
+ 					for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 					{	// advc.003:
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 7ba93a710..a80f610d0 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -227,6 +227,15 @@ bool isArticle(BuildingTypes bt) {
+ 	/*  If an _NA key exists, then gDLL will return a dot. If it doesn't, then
+ 		an article should be used. */
+ 	return (txt.compare(L".") != 0);
++}
++bool isArticle(ProjectTypes pt) {
++
++	CvProjectInfo const& pi = GC.getProjectInfo(pt);
++	if(!isLimitedProject(pt))
++		return false;
++	CvWString txtKey = pi.getTextKeyWide();
++	CvWString txt = gDLL->getText(txtKey + L"_NA");
++	return (txt.compare(L".") != 0);
+ } // </advc.008e>
+ 
+ CvPlot* plotCity(int iX, int iY, int iIndex)
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 7f6e7053c..a45389a42 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -69,7 +69,9 @@ float hash(long x, PlayerTypes civId = NO_PLAYER);
+ void fatCross(CvPlot const& p, std::vector<CvPlot*>& r);
+ // </advc.003> // advc.035:
+ void contestedPlots(std::vector<CvPlot*>& r, TeamTypes t1, TeamTypes t2);
+-bool isArticle(BuildingTypes bt); // advc.008e
++// <advc.008e>
++bool isArticle(BuildingTypes bt);
++bool isArticle(ProjectTypes pt); // </advc.008e>
+ 
+ //sign function taken from FirePlace - JW
+ template<class T> __forceinline T getSign( T x ) { return (( x < 0 ) ? T(-1) : x > 0 ? T(1) : T(0)); };
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index dc5078d08..e177eb0f4 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -12471,9 +12471,7 @@ void CvPlayer::setLastStateReligion(ReligionTypes eNewValue)
+ 				}
+ 			}
+ 		}
+-		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer,
+-				// advc.106: was NO_COLOR (i.e. white), now same as religion founded.
+-				-1, -1, (ColorTypes) GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szBuffer);
+ 	}
+ 
+ 	// Python Event
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 595db2d9d..f7c7d2398 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4586,7 +4586,8 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
+ 	// <advc.106f> Based on the previous block
+ 	else if(!bNewValue && other.isDefensivePact(getID())) {
+ 		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYERS_CANCEL_DEFENSIVE_PACT",
+-				getReplayName().GetCString(), other.getReplayName().GetCString());
++				getReplayName().GetCString(), other.getReplayName().GetCString(),
++				-1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
+ 				getLeaderID(), szBuffer);
+ 		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+@@ -5430,14 +5431,23 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
+ 
+ 			if (GC.getGameINLINE().isFinalInitialized() && !(gDLL->GetWorldBuilderMode()))
+ 			{
+-				szBuffer = gDLL->getText("TXT_KEY_MISC_COMPLETES_PROJECT", getReplayName().GetCString(), kProject.getTextKeyWide());
++				szBuffer = gDLL->getText( // <advc.008e>
++						::isArticle(eIndex) ?
++						"TXT_KEY_MISC_COMPLETES_PROJECT_THE" :
++						"TXT_KEY_MISC_COMPLETES_PROJECT", // </advc.008e>
++						getReplayName().GetCString(), kProject.getTextKeyWide());
+ 				GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 
+ 				for (iI = 0; iI < MAX_PLAYERS; iI++)
+ 				{
+ 					if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 					{
+-						szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED", getName().GetCString(), kProject.getTextKeyWide());
++						szBuffer = gDLL->getText( // <advc.008e>
++								::isArticle(eIndex) ?
++								"TXT_KEY_MISC_SOMEONE_HAS_COMPLETED_THE" :
++								"TXT_KEY_MISC_SOMEONE_HAS_COMPLETED",
++								// </advc.008e>
++								getName().GetCString(), kProject.getTextKeyWide());
+ 						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_PROJECT_COMPLETED", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
+ 								getCapitalX(), getCapitalY()); // advc.127b
+ 					}
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=16393

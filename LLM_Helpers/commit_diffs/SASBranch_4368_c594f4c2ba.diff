@@ -1,0 +1,57 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4368
+# Commit: c594f4c2bacbf90b61c52b6fc45dfa4a8868f899
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: a781a79362cbedfd8685370db3646f3d960f0b2d
+# Title: Fix minor errors in UWAI logic for naval buildup prediction
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	6	CvGameCoreDLL/ArmamentForecast.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index b9a9e0036..2138a1d31 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -430,7 +430,7 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
+ 		int iRevealedCoast = 0;
+ 		FOR_EACH_CITY(pCity, kPlayer)
+ 		{
+-			if (pCity->isRevealed(kPlayer.getTeam()))
++			if (pCity->isRevealed(TEAMID(m_eAnalyst)))
+ 			{
+ 				iRevealed++;
+ 				if (pCity->isCoastal())
+@@ -442,11 +442,14 @@ void ArmamentForecast::predictArmament(int iTurnsBuildUp, scaled rPerTurnProduct
+ 			if (iRevealed >= kPlayer.getNumCities() && iRevealedCoast <= 0)
+ 				rBranchPortions[FLEET] = 0;
+ 			// Assume little defensive build-up when attacking across the sea
+-			else if (!bDefensive)
+-				rBranchPortions[HOME_GUARD] = fixp(0.12);
+-			scaled rCoastPortion(iRevealedCoast, iRevealed);
+-			rBranchPortions[FLEET] = std::min(fixp(0.35),
+-					fixp(0.08) + rCoastPortion / fixp(2.8));
++			else
++			{
++				if (!bDefensive)
++					rBranchPortions[HOME_GUARD] = fixp(0.12);
++				scaled rCoastPortion(iRevealedCoast, iRevealed);
++				rBranchPortions[FLEET] = std::min(fixp(0.35),
++						fixp(0.08) + rCoastPortion / fixp(2.8));
++			}
+ 		}
+ 		TeamTypes const eAgentTeam = TEAMID(m_kMA.getAgentPlayer());
+ 		scaled rTypicalCargo = m_kMilitary[LOGISTICS]->getTypicalPower(eAgentTeam);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1401

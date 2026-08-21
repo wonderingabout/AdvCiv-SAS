@@ -1,0 +1,785 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5
+# Commit: d63edcad210cdd651b59b2302173ff97ebe53687
+# History segment: K-Mod history
+# Parent used for diff: 593c549b51b5726302484ad8d0e08602b010d4a9
+# Title: changed NoUnhealthyPopulation to UnhealthyPopulationModifier all through the code, with new functionality fully implemented.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+52	7	CvGameCoreDLL/CvCity.cpp
+14	2	CvGameCoreDLL/CvCity.h
+2	1	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvDefines.h
+48	2	CvGameCoreDLL/CvGameTextMgr.cpp
+40	8	CvGameCoreDLL/CvInfos.cpp
+8	4	CvGameCoreDLL/CvInfos.h
+26	7	CvGameCoreDLL/CvPlayer.cpp
+13	2	CvGameCoreDLL/CvPlayer.h
+12	1	CvGameCoreDLL/CvPlayerAI.cpp
+12	0	CvGameCoreDLL/CyCity.cpp
+2	1	CvGameCoreDLL/CyCity.h
+2	1	CvGameCoreDLL/CyCityInterface1.cpp
+4	2	CvGameCoreDLL/CyInfoInterface1.cpp
+12	0	CvGameCoreDLL/CyPlayer.cpp
+2	1	CvGameCoreDLL/CyPlayer.h
+2	1	CvGameCoreDLL/CyPlayerInterface1.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 84e638aae..4be7eacc4 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -441,7 +441,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
+ 	m_iExtraHappiness = 0;
+ 	m_iExtraHealth = 0;
+ 	m_iNoUnhappinessCount = 0;
+-	m_iNoUnhealthyPopulationCount = 0;
++	//m_iNoUnhealthyPopulationCount = 0;
++	m_iUnhealthyPopulationModifier = 0; // K-Mod
+ 	m_iBuildingOnlyHealthyCount = 0;
+ 	m_iFood = 0;
+ 	m_iFoodKept = 0;
+@@ -3825,7 +3826,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolet
+ 		changePowerCount(((GC.getBuildingInfo(eBuilding).isPower()) ? iChange : 0), GC.getBuildingInfo(eBuilding).isDirtyPower());
+ 		changeGovernmentCenterCount((GC.getBuildingInfo(eBuilding).isGovernmentCenter()) ? iChange : 0);
+ 		changeNoUnhappinessCount((GC.getBuildingInfo(eBuilding).isNoUnhappiness()) ? iChange : 0);
+-		changeNoUnhealthyPopulationCount((GC.getBuildingInfo(eBuilding).isNoUnhealthyPopulation()) ? iChange : 0);
++		//changeNoUnhealthyPopulationCount((GC.getBuildingInfo(eBuilding).isNoUnhealthyPopulation()) ? iChange : 0);
++		changeUnhealthyPopulationModifier(GC.getBuildingInfo(eBuilding).getUnhealthyPopulationModifier() * iChange); // K-Mod
+ 		changeBuildingOnlyHealthyCount((GC.getBuildingInfo(eBuilding).isBuildingOnlyHealthy()) ? iChange : 0);
+ 
+ 		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+@@ -4492,12 +4494,25 @@ int CvCity::extraFreeSpecialists() const
+ 
+ int CvCity::unhealthyPopulation(bool bNoAngry, int iExtra) const
+ {
++/*
++** K-Mod, 27/dec/10, karadoc
++** replaced NoUnhealthyPopulation with UnhealthyPopulationModifier
++*/
++	/* original bts code
+ 	if (isNoUnhealthyPopulation())
+ 	{
+ 		return 0;
+ 	}
+ 
+ 	return std::max(0, ((getPopulation() + iExtra - ((bNoAngry) ? angryPopulation(iExtra) : 0))));
++	*/
++	int iUnhealth = getPopulation() + iExtra - ((bNoAngry)? angryPopulation(iExtra) : 0);
++	iUnhealth *= std::max(0, 100+getUnhealthyPopulationModifier());
++	iUnhealth /= 100;
++	return std::max(0, iUnhealth);
++/*
++** K-Mod end
++*/
+ }
+ 
+ 
+@@ -6610,12 +6625,22 @@ int CvCity::getAdditionalHealthByBuilding(BuildingTypes eBuilding, int& iGood, i
+ 			}
+ 		}
+ 	}
+-
++	/*
++	** K-Mod, 27/dec/10, karadoc
++	** replaced NoUnhealthyPopulation with UnhealthyPopulationModifier
++	*/
++	/* original bts code
+ 	// No Unhealthiness from Population
+ 	if (kBuilding.isNoUnhealthyPopulation())
+ 	{
+ 		iBad -= getPopulation();
+-	}
++	} */
++
++	// Modified unhealthiness from population
++	iBad += (getPopulation() * std::max(-100, kBuilding.getUnhealthyPopulationModifier()))/100;
++	/*
++	** K-Mod end
++	*/
+ 
+ 	return iGood - iBad - iStarting;
+ }
+@@ -7030,7 +7055,11 @@ void CvCity::changeNoUnhappinessCount(int iChange)
+ 	}
+ }
+ 
+-
++/*
++** K-Mod, 27/dec/10, karadoc
++** replaced NoUnhealthyPopulation with UnhealthyPopulationModifier
++*/
++/* original bts code
+ int CvCity::getNoUnhealthyPopulationCount()	const																	
+ {
+ 	return m_iNoUnhealthyPopulationCount;
+@@ -7057,9 +7086,23 @@ void CvCity::changeNoUnhealthyPopulationCount(int iChange)
+ 
+ 		AI_setAssignWorkDirty(true);
+ 	}
++} */
++
++int CvCity::getUnhealthyPopulationModifier() const
++{
++	return m_iUnhealthyPopulationModifier + GET_PLAYER(getOwnerINLINE()).getUnhealthyPopulationModifier();
+ }
+ 
+ 
++void CvCity::changeUnhealthyPopulationModifier(int iChange)
++{
++	m_iUnhealthyPopulationModifier += iChange;
++}
++/*
++** K-Mod end
++*/
++
++
+ int CvCity::getBuildingOnlyHealthyCount() const																	
+ {
+ 	return m_iBuildingOnlyHealthyCount;
+@@ -12674,7 +12717,8 @@ void CvCity::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iExtraHappiness);
+ 	pStream->Read(&m_iExtraHealth);
+ 	pStream->Read(&m_iNoUnhappinessCount);
+-	pStream->Read(&m_iNoUnhealthyPopulationCount);
++	//pStream->Read(&m_iNoUnhealthyPopulationCount);
++	pStream->Read(&m_iUnhealthyPopulationModifier); // K-Mod
+ 	pStream->Read(&m_iBuildingOnlyHealthyCount);
+ 	pStream->Read(&m_iFood);
+ 	pStream->Read(&m_iFoodKept);
+@@ -12912,7 +12956,8 @@ void CvCity::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iExtraHappiness);
+ 	pStream->Write(m_iExtraHealth);
+ 	pStream->Write(m_iNoUnhappinessCount);
+-	pStream->Write(m_iNoUnhealthyPopulationCount);
++	//pStream->Write(m_iNoUnhealthyPopulationCount);
++	pStream->Write(m_iUnhealthyPopulationModifier); // K-Mod	
+ 	pStream->Write(m_iBuildingOnlyHealthyCount);
+ 	pStream->Write(m_iFood);
+ 	pStream->Write(m_iFoodKept);
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 846b738a1..f6aa55c33 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -469,9 +469,20 @@ public:
+ 	bool isNoUnhappiness() const;																					// Exposed to Python
+ 	void changeNoUnhappinessCount(int iChange);
+ 
++/*
++** K-Mod, 27/dec/10, karadoc
++** replaced NoUnhealthyPopulation with UnhealthyPopulationModifier
++*/
++	/* original bts code
+ 	int getNoUnhealthyPopulationCount() const;
+ 	bool isNoUnhealthyPopulation() const;																	// Exposed to Python
+-	void changeNoUnhealthyPopulationCount(int iChange);
++	void changeNoUnhealthyPopulationCount(int iChange); */
++	int getUnhealthyPopulationModifier() const; // Exposed to Python
++	void changeUnhealthyPopulationModifier(int iChange);
++/*
++** K-Mod end
++*/
++
+ 
+ 	int getBuildingOnlyHealthyCount() const;
+ 	bool isBuildingOnlyHealthy() const;																		// Exposed to Python
+@@ -1072,7 +1083,8 @@ protected:
+ 	int m_iExtraHappiness;
+ 	int m_iExtraHealth;
+ 	int m_iNoUnhappinessCount;
+-	int m_iNoUnhealthyPopulationCount;
++	//int m_iNoUnhealthyPopulationCount;
++	int m_iUnhealthyPopulationModifier; // K-Mod
+ 	int m_iBuildingOnlyHealthyCount;
+ 	int m_iFood;
+ 	int m_iFoodKept;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6370e772d..1718e27c3 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3694,7 +3694,8 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ /************************************************************************************************/
+ 			}
+ 
+-			if (((iFocusFlags & BUILDINGFOCUS_HEALTHY) || (iPass > 0)) && !isNoUnhealthyPopulation())
++			//if (((iFocusFlags & BUILDINGFOCUS_HEALTHY) || (iPass > 0)) && !isNoUnhealthyPopulation())
++			if ((iFocusFlags & BUILDINGFOCUS_HEALTHY) || iPass > 0) // K-Mod
+ 			{
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      02/24/10                          jdog5000 & Fuyu     */
+
+diff --git a/CvGameCoreDLL/CvDefines.h b/CvGameCoreDLL/CvDefines.h
+index d490928e8..9d22e6d3d 100644
+--- a/CvGameCoreDLL/CvDefines.h
++++ b/CvGameCoreDLL/CvDefines.h
+@@ -31,7 +31,7 @@
+ ** K-Mod, 18/dec/10, karadoc
+ ** global warming pollution flags for use in the CvPlayer::calculateGwPollution function
+ */
+-#define POLLUTION_POPULATION		1
++#define POLLUTION_POPULATION	1
+ #define POLLUTION_BUILDINGS		2
+ #define POLLUTION_BONUS			4
+ #define POLLUTION_POWER			8
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 6fb04ff33..c3f4f0677 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -5229,11 +5229,35 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
+ 	}
+ 
+ 	//	Population Unhealthiness
++/*
++** K-Mod, 27/dec/10, karadoc
++** replaced NoUnhealthyPopulation with UnhealthyPopulationModifier
++*/
++	/* original bts code
+ 	if (GC.getCivicInfo(eCivic).isNoUnhealthyPopulation())
+ 	{
+ 		szHelpText.append(NEWLINE);
+ 		szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_NO_POP_UNHEALTHY"));
+ 	}
++	*/
++	if (GC.getCivicInfo(eCivic).getUnhealthyPopulationModifier() != 0)
++	{
++		// If the modifier is less than -100, display the old NoUnhealth. text
++		// Note: this could be techinically inaccurate if we combine this modifier with a positive modifier
++		if (GC.getCivicInfo(eCivic).getUnhealthyPopulationModifier() <= -100)
++		{
++			szHelpText.append(NEWLINE);
++			szHelpText.append(gDLL->getText("TXT_KEY_CIVIC_NO_POP_UNHEALTHY"));
++		}
++		else
++		{
++			szHelpText.append(NEWLINE);
++			szHelpText.append(gDLL->getText("TXT_KEY_UNHEALTHY_POP_MODIFIER", GC.getCivicInfo(eCivic).getUnhealthyPopulationModifier()));
++		}
++	}
++/*
++** K-Mod end
++*/
+ 
+ 	//	Building Unhealthiness
+ 	if (GC.getCivicInfo(eCivic).isBuildingOnlyHealthy())
+@@ -7539,13 +7563,35 @@ void CvGameTextMgr::setBuildingHelp(CvWStringBuffer &szBuffer, BuildingTypes eBu
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_NO_UNHAPPY"));
+ 	}
+-
++/*
++** K-Mod, 27/dec/10, karadoc
++** replaced NoUnhealthyPopulation with UnhealthyPopulationModifier
++*/
++	/* original bts code
+ 	if (kBuilding.isNoUnhealthyPopulation())
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_NO_UNHEALTHY_POP"));
+ 	}
+-
++	*/
++	if (kBuilding.getUnhealthyPopulationModifier() != 0)
++	{
++		// If the modifier is less than -100, display the old NoUnhealth. text
++		// Note: this could be techinically inaccurate if we combine this modifier with a positive modifier
++		if (kBuilding.getUnhealthyPopulationModifier() <= -100)
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_CIVIC_NO_POP_UNHEALTHY"));
++		}
++		else
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_UNHEALTHY_POP_MODIFIER", kBuilding.getUnhealthyPopulationModifier()));
++		}
++	}
++/*
++** K-Mod end
++*/
+ 	if (kBuilding.isBuildingOnlyHealthy())
+ 	{
+ 		szBuffer.append(NEWLINE);
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index 05798ac7f..e48f24275 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -5289,7 +5289,8 @@ m_iStateReligionBuildingProductionModifier(0),
+ m_iStateReligionFreeExperience(0),
+ m_iExpInBorderModifier(0),
+ m_bMilitaryFoodProduction(false),
+-m_bNoUnhealthyPopulation(false),
++//m_bNoUnhealthyPopulation(false), //...
++m_iUnhealthyPopulationModifier(0), // K-Mod
+ m_bBuildingOnlyHealthy(false),
+ m_bNoForeignTrade(false),
+ m_bNoCorporations(false),
+@@ -5530,10 +5531,22 @@ bool CvCivicInfo::isMilitaryFoodProduction() const
+ 	return m_bMilitaryFoodProduction;
+ }
+ 
++/*
++** K-Mod, 27/dec/10, karadoc
++** replaced NoUnhealthyPopulation with UnhealthyPopulationModifier
++*/
++/* original bts code
+ bool CvCivicInfo::isNoUnhealthyPopulation() const
+ {
+ 	return m_bNoUnhealthyPopulation;
++}*/
++int CvCivicInfo::getUnhealthyPopulationModifier() const
++{
++	return m_iUnhealthyPopulationModifier;
+ }
++/*
++** K-Mod end
++*/
+ 
+ bool CvCivicInfo::isBuildingOnlyHealthy() const
+ {
+@@ -5745,7 +5758,8 @@ void CvCivicInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_iExpInBorderModifier);
+ 
+ 	stream->Read(&m_bMilitaryFoodProduction);
+-	stream->Read(&m_bNoUnhealthyPopulation);
++	//stream->Read(&m_bNoUnhealthyPopulation);
++	stream->Read(&m_iUnhealthyPopulationModifier); // K-Mod
+ 	stream->Read(&m_bBuildingOnlyHealthy);								
+ 	stream->Read(&m_bNoForeignTrade);
+ 	stream->Read(&m_bNoCorporations);
+@@ -5867,7 +5881,8 @@ void CvCivicInfo::write(FDataStreamBase* stream)
+ 	stream->Write(m_iExpInBorderModifier);
+ 
+ 	stream->Write(m_bMilitaryFoodProduction);
+-	stream->Write(m_bNoUnhealthyPopulation);
++	//stream->Write(m_bNoUnhealthyPopulation);
++	stream->Write(m_iUnhealthyPopulationModifier); // K-Mod
+ 	stream->Write(m_bBuildingOnlyHealthy);								
+ 	stream->Write(m_bNoForeignTrade);
+ 	stream->Write(m_bNoCorporations);
+@@ -5944,7 +5959,8 @@ bool CvCivicInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iHappyPerMilitaryUnit, "iHappyPerMilitaryUnit");
+ 	pXML->GetChildXmlValByName(&m_bMilitaryFoodProduction, "bMilitaryFoodProduction");
+ 	pXML->GetChildXmlValByName(&m_iMaxConscript, "iMaxConscript");
+-	pXML->GetChildXmlValByName(&m_bNoUnhealthyPopulation, "bNoUnhealthyPopulation");
++	//pXML->GetChildXmlValByName(&m_bNoUnhealthyPopulation, "bNoUnhealthyPopulation");
++	pXML->GetChildXmlValByName(&m_iUnhealthyPopulationModifier, "iUnhealthyPopulationModifier"); // K-Mod
+ 	pXML->GetChildXmlValByName(&m_bBuildingOnlyHealthy, "bBuildingOnlyHealthy");
+ 	pXML->GetChildXmlValByName(&m_iLargestCityHappiness, "iLargestCityHappiness");
+ 	pXML->GetChildXmlValByName(&m_iWarWearinessModifier, "iWarWearinessModifier");
+@@ -6466,7 +6482,8 @@ m_bGovernmentCenter(false),
+ m_bGoldenAge(false),
+ m_bMapCentering(false),
+ m_bNoUnhappiness(false),
+-m_bNoUnhealthyPopulation(false),
++//m_bNoUnhealthyPopulation(false),
++m_iUnhealthyPopulationModifier(0), // K-Mod
+ m_bBuildingOnlyHealthy(false),			
+ m_bNeverCapture(false),					
+ m_bNukeImmune(false),					
+@@ -7113,10 +7130,22 @@ bool CvBuildingInfo::isNoUnhappiness() const
+ 	return m_bNoUnhappiness;
+ }
+ 
++/*
++** K-Mod, 27/dec/10, karadoc
++** replaced NoUnhealthyPopulation with UnhealthyPopulationModifier
++*/
++/* original bts code
+ bool CvBuildingInfo::isNoUnhealthyPopulation() const
+ {
+ 	return m_bNoUnhealthyPopulation;
++}*/
++int CvBuildingInfo::getUnhealthyPopulationModifier() const
++{
++	return m_iUnhealthyPopulationModifier;
+ }
++/*
++** K-Mod end
++*/
+ 
+ bool CvBuildingInfo::isBuildingOnlyHealthy() const
+ {
+@@ -7718,7 +7747,8 @@ void CvBuildingInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_bGoldenAge);
+ 	stream->Read(&m_bMapCentering);
+ 	stream->Read(&m_bNoUnhappiness);
+-	stream->Read(&m_bNoUnhealthyPopulation);
++	//stream->Read(&m_bNoUnhealthyPopulation);
++	stream->Read(&m_iUnhealthyPopulationModifier); // K-Mod
+ 	stream->Read(&m_bBuildingOnlyHealthy);
+ 	stream->Read(&m_bNeverCapture);
+ 	stream->Read(&m_bNukeImmune);
+@@ -8065,7 +8095,8 @@ void CvBuildingInfo::write(FDataStreamBase* stream)
+ 	stream->Write(m_bGoldenAge);
+ 	stream->Write(m_bMapCentering);
+ 	stream->Write(m_bNoUnhappiness);
+-	stream->Write(m_bNoUnhealthyPopulation);
++	//stream->Write(m_bNoUnhealthyPopulation);
++	stream->Write(m_iUnhealthyPopulationModifier); // K-Mod
+ 	stream->Write(m_bBuildingOnlyHealthy);
+ 	stream->Write(m_bNeverCapture);
+ 	stream->Write(m_bNukeImmune);
+@@ -8318,7 +8349,8 @@ bool CvBuildingInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_bAllowsNukes, "bAllowsNukes");
+ 	pXML->GetChildXmlValByName(&m_bMapCentering, "bMapCentering");
+ 	pXML->GetChildXmlValByName(&m_bNoUnhappiness, "bNoUnhappiness");
+-	pXML->GetChildXmlValByName(&m_bNoUnhealthyPopulation, "bNoUnhealthyPopulation");
++	//pXML->GetChildXmlValByName(&m_bNoUnhealthyPopulation, "bNoUnhealthyPopulation");
++	pXML->GetChildXmlValByName(&m_iUnhealthyPopulationModifier, "iUnhealthyPopulationModifier"); // K-Mod
+ 	pXML->GetChildXmlValByName(&m_bBuildingOnlyHealthy, "bBuildingOnlyHealthy");
+ 	pXML->GetChildXmlValByName(&m_bNeverCapture, "bNeverCapture");
+ 	pXML->GetChildXmlValByName(&m_bNukeImmune, "bNukeImmune");
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index fd261aab0..4564dc15e 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -1336,7 +1336,8 @@ public:
+ 	int getExpInBorderModifier() const;				// Exposed to Python
+ 
+ 	bool isMilitaryFoodProduction() const;				// Exposed to Python
+-	bool isNoUnhealthyPopulation() const;				// Exposed to Python
++	//bool isNoUnhealthyPopulation() const;				// Exposed to Python
++	int getUnhealthyPopulationModifier() const;	// K-Mod, Exposed to Python
+ 	bool isBuildingOnlyHealthy() const;				// Exposed to Python
+ 	bool isNoForeignTrade() const;				// Exposed to Python
+ 	bool isNoCorporations() const;				// Exposed to Python
+@@ -1418,7 +1419,8 @@ protected:
+ 	int m_iExpInBorderModifier;
+ 
+ 	bool m_bMilitaryFoodProduction;
+-	bool m_bNoUnhealthyPopulation;
++	//bool m_bNoUnhealthyPopulation; // ...
++	int m_iUnhealthyPopulationModifier; // K-Mod
+ 	bool m_bBuildingOnlyHealthy;
+ 	bool m_bNoForeignTrade;
+ 	bool m_bNoCorporations;
+@@ -1649,7 +1651,8 @@ public:
+ 	bool isGoldenAge() const;				// Exposed to Python
+ 	bool isMapCentering() const;				// Exposed to Python
+ 	bool isNoUnhappiness() const;				// Exposed to Python
+-	bool isNoUnhealthyPopulation() const;				// Exposed to Python
++	//bool isNoUnhealthyPopulation() const;				// Exposed to Python
++	int getUnhealthyPopulationModifier() const;	// K-Mod, Exposed to Python
+ 	bool isBuildingOnlyHealthy() const;				// Exposed to Python
+ 	bool isNeverCapture() const;				// Exposed to Python
+ 	bool isNukeImmune() const;				// Exposed to Python
+@@ -1856,7 +1859,8 @@ protected:
+ 	bool m_bGoldenAge;
+ 	bool m_bMapCentering;
+ 	bool m_bNoUnhappiness;
+-	bool m_bNoUnhealthyPopulation;
++	//bool m_bNoUnhealthyPopulation; // ...
++	int m_iUnhealthyPopulationModifier; // K-Mod
+ 	bool m_bBuildingOnlyHealthy;			
+ 	bool m_bNeverCapture;					
+ 	bool m_bNukeImmune;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 036fbfa2f..30b11c93d 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -729,7 +729,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_iMaxConscript = 0;
+ 	m_iHighestUnitLevel = 1;
+ 	m_iOverflowResearch = 0;
+-	m_iNoUnhealthyPopulationCount = 0;
++	//m_iNoUnhealthyPopulationCount = 0;
++	m_iUnhealthyPopulationModifier = 0; // K-Mod
+ 	m_iExpInBorderModifier = 0;
+ 	m_iBuildingOnlyHealthyCount = 0;
+ 	m_iDistanceMaintenanceModifier = 0;
+@@ -9622,19 +9623,21 @@ void CvPlayer::changeOverflowResearch(int iChange)
+ 	setOverflowResearch(getOverflowResearch() + iChange);
+ }
+ 
+-
++/*
++** K-Mod, 27/dec/10, karadoc
++** replaced NoUnhealthyPopulation with UnhealthyPopulationModifier
++*/
++/* original bts code
+ int CvPlayer::getNoUnhealthyPopulationCount() const
+ {
+ 	return m_iNoUnhealthyPopulationCount;
+ }
+ 
+-
+ bool CvPlayer::isNoUnhealthyPopulation() const																		
+ {
+ 	return (getNoUnhealthyPopulationCount() > 0);
+ }
+ 
+-
+ void CvPlayer::changeNoUnhealthyPopulationCount(int iChange)
+ {
+ 	if (iChange != 0)
+@@ -9644,9 +9647,22 @@ void CvPlayer::changeNoUnhealthyPopulationCount(int iChange)
+ 
+ 		AI_makeAssignWorkDirty();
+ 	}
++}*/
++
++int CvPlayer::getUnhealthyPopulationModifier() const
++{
++	return m_iUnhealthyPopulationModifier;
+ }
+ 
+ 
++void CvPlayer::changeUnhealthyPopulationModifier(int iChange)
++{
++	m_iUnhealthyPopulationModifier += iChange;
++}
++/*
++** K-Mod end
++*/
++
+ int CvPlayer::getExpInBorderModifier() const
+ {
+ 	return m_iExpInBorderModifier;
+@@ -16898,7 +16914,8 @@ void CvPlayer::processCivics(CivicTypes eCivic, int iChange)
+ 	changeHappyPerMilitaryUnit(GC.getCivicInfo(eCivic).getHappyPerMilitaryUnit() * iChange);
+ 	changeMilitaryFoodProductionCount((GC.getCivicInfo(eCivic).isMilitaryFoodProduction()) ? iChange : 0);
+ 	changeMaxConscript(getWorldSizeMaxConscript(eCivic) * iChange);
+-	changeNoUnhealthyPopulationCount((GC.getCivicInfo(eCivic).isNoUnhealthyPopulation()) ? iChange : 0);
++	//changeNoUnhealthyPopulationCount((GC.getCivicInfo(eCivic).isNoUnhealthyPopulation()) ? iChange : 0);
++	changeUnhealthyPopulationModifier(GC.getCivicInfo(eCivic).getUnhealthyPopulationModifier() * iChange); // K-Mod
+ 	changeBuildingOnlyHealthyCount((GC.getCivicInfo(eCivic).isBuildingOnlyHealthy()) ? iChange : 0);
+ 	changeLargestCityHappiness(GC.getCivicInfo(eCivic).getLargestCityHappiness() * iChange);
+ 	changeWarWearinessModifier(GC.getCivicInfo(eCivic).getWarWearinessModifier() * iChange);
+@@ -17060,7 +17077,8 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iMaxConscript);
+ 	pStream->Read(&m_iHighestUnitLevel);
+ 	pStream->Read(&m_iOverflowResearch);
+-	pStream->Read(&m_iNoUnhealthyPopulationCount);
++	//pStream->Read(&m_iNoUnhealthyPopulationCount);
++	pStream->Read(&m_iUnhealthyPopulationModifier); // K-Mod
+ 	pStream->Read(&m_iExpInBorderModifier);
+ 	pStream->Read(&m_iBuildingOnlyHealthyCount);
+ 	pStream->Read(&m_iDistanceMaintenanceModifier);
+@@ -17523,7 +17541,8 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iMaxConscript);
+ 	pStream->Write(m_iHighestUnitLevel);
+ 	pStream->Write(m_iOverflowResearch);
+-	pStream->Write(m_iNoUnhealthyPopulationCount);
++	//pStream->Write(m_iNoUnhealthyPopulationCount);
++	pStream->Write(m_iUnhealthyPopulationModifier); // K-Mod
+ 	pStream->Write(m_iExpInBorderModifier);
+ 	pStream->Write(m_iBuildingOnlyHealthyCount);
+ 	pStream->Write(m_iDistanceMaintenanceModifier);
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 78c1a1e65..a2ade9ecc 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -511,9 +511,19 @@ public:
+ 	void setOverflowResearch(int iNewValue);																														// Exposed to Python
+ 	void changeOverflowResearch(int iChange);																														// Exposed to Python
+ 
++/*
++** K-Mod, 27/dec/10, karadoc
++** replaced NoUnhealthyPopulation with UnhealthyPopulationModifier
++*/
++	/* original bts code
+ 	int getNoUnhealthyPopulationCount() const;
+ 	bool isNoUnhealthyPopulation() const;																																			// Exposed to Python
+-	void changeNoUnhealthyPopulationCount(int iChange);
++	void changeNoUnhealthyPopulationCount(int iChange); */
++	int getUnhealthyPopulationModifier() const; // Exposed to Python
++	void changeUnhealthyPopulationModifier(int iChange);
++/*
++** K-Mod end
++*/
+ 
+ 	int getExpInBorderModifier() const;
+ 	void changeExpInBorderModifier(int iChange);
+@@ -1162,7 +1172,8 @@ protected:
+ 	int m_iMaxConscript;
+ 	int m_iHighestUnitLevel;
+ 	int m_iOverflowResearch;
+-	int m_iNoUnhealthyPopulationCount;
++	//int m_iNoUnhealthyPopulationCount;
++	int m_iUnhealthyPopulationModifier; // K-Mod
+ 	int m_iExpInBorderModifier;
+ 	int m_iBuildingOnlyHealthyCount;
+ 	int m_iDistanceMaintenanceModifier;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d78e1c3ac..3ddf17186 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11303,7 +11303,18 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 			}
+ 		}
+ 	}
+-	iValue += ((kCivic.isNoUnhealthyPopulation()) ? (getTotalPopulation() / 3) : 0);
++/*
++** K-Mod.
++** The evaluation of my new unhealthiness modifier is just as shonky as everything else here...
++** I guess I'll just test it and see how much the AI likes the new environmentalism!
++** Ideally it should base the value on average unhealthiness, number of cities, and global warming effects
++*/
++	//iValue += ((kCivic.isNoUnhealthyPopulation()) ? (getTotalPopulation() / 3) : 0);
++	//iValue += (-kCivic.getUnhealthyPopulationModifier() * getTotalPopulation()) / 100;
++	iValue += (getNumCities() * 6 * AI_getHealthWeight((20*-kCivic.getUnhealthyPopulationModifier())/100, 1))  / 100;
++	// c.f	iValue += (getNumCities() * 6 * AI_getHealthWeight(kCivic.getExtraHealth(), 1)) / 100;
++	// and just pretend all cities have 20 population. (remember that we also like the reduced polution...)
++// K-Mod end
+ 	if (bWarPlan)
+ 	{
+ 		iValue += ((kCivic.getExpInBorderModifier() * getNumMilitaryUnits()) / 200);
+
+diff --git a/CvGameCoreDLL/CyCity.cpp b/CvGameCoreDLL/CyCity.cpp
+index 23693ac7e..e69eb0231 100644
+--- a/CvGameCoreDLL/CyCity.cpp
++++ b/CvGameCoreDLL/CyCity.cpp
+@@ -1142,10 +1142,22 @@ bool CyCity::isNoUnhappiness()
+ 	return m_pCity ? m_pCity->isNoUnhappiness() : false;
+ }
+ 
++/*
++** K-Mod, 27/dec/10, karadoc
++** replaced NoUnhealthyPopulation with UnhealthyPopulationModifier
++*/
++/* original bts code
+ bool CyCity::isNoUnhealthyPopulation()
+ {
+ 	return m_pCity ? m_pCity->isNoUnhealthyPopulation() : false;
++}*/
++int CyCity::getUnhealthyPopulationModifier()
++{
++	return m_pCity ? m_pCity->getUnhealthyPopulationModifier() : 0;
+ }
++/*
++** K-Mod end
++*/
+ 
+ bool CyCity::isBuildingOnlyHealthy()
+ {
+
+diff --git a/CvGameCoreDLL/CyCity.h b/CvGameCoreDLL/CyCity.h
+index 75babca9d..e0b8b63ac 100644
+--- a/CvGameCoreDLL/CyCity.h
++++ b/CvGameCoreDLL/CyCity.h
+@@ -257,7 +257,8 @@ public:
+ 	int getHappinessTimer();
+ 	void changeHappinessTimer(int iChange);
+ 	bool isNoUnhappiness();
+-	bool isNoUnhealthyPopulation();
++	// bool isNoUnhealthyPopulation();
++	int getUnhealthyPopulationModifier(); // K-Mod
+ 
+ 	bool isBuildingOnlyHealthy();
+
+diff --git a/CvGameCoreDLL/CyCityInterface1.cpp b/CvGameCoreDLL/CyCityInterface1.cpp
+index e8a37b1c9..df668089e 100644
+--- a/CvGameCoreDLL/CyCityInterface1.cpp
++++ b/CvGameCoreDLL/CyCityInterface1.cpp
+@@ -247,7 +247,8 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("getHappinessTimer", &CyCity::getHappinessTimer, "int () - Temporary Happiness timer")
+ 		.def("changeHappinessTimer", &CyCity::changeHappinessTimer, "void (iChange) - adjust Happiness timer by iChange")
+ 		.def("isNoUnhappiness", &CyCity::isNoUnhappiness, "bool () - is the city unaffected by unhappiness?")
+-		.def("isNoUnhealthyPopulation", &CyCity::isNoUnhealthyPopulation, "bool () - is the city unaffected by unhealthiness?")
++		//.def("isNoUnhealthyPopulation", &CyCity::isNoUnhealthyPopulation, "bool () - is the city unaffected by unhealthiness?")
++		.def("getUnhealthyPopulationModifier", &CyCity::getUnhealthyPopulationModifier, "int () - percentage modifier to unhealthiness due to city population") // K-Mod
+ 		.def("isBuildingOnlyHealthy", &CyCity::isBuildingOnlyHealthy, "bool () - is the city ?")
+ 
+ 		.def("getFood", &CyCity::getFood, "int () - stored food")
+
+diff --git a/CvGameCoreDLL/CyInfoInterface1.cpp b/CvGameCoreDLL/CyInfoInterface1.cpp
+index b20ecca6f..7744f11ca 100644
+--- a/CvGameCoreDLL/CyInfoInterface1.cpp
++++ b/CvGameCoreDLL/CyInfoInterface1.cpp
+@@ -416,7 +416,8 @@ void CyInfoPythonInterface1()
+ 		.def("getExpInBorderModifier", &CvCivicInfo::getExpInBorderModifier, "bool ()")
+ 
+ 		.def("isMilitaryFoodProduction", &CvCivicInfo::isMilitaryFoodProduction, "bool ()")
+-		.def("isNoUnhealthyPopulation", &CvCivicInfo::isNoUnhealthyPopulation, "bool ()")
++		//.def("isNoUnhealthyPopulation", &CvCivicInfo::isNoUnhealthyPopulation, "bool ()")
++		.def("getUnhealthyPopulationModifier", &CvCivicInfo::getUnhealthyPopulationModifier, "int ()") // K-Mod
+ 		.def("isBuildingOnlyHealthy", &CvCivicInfo::isBuildingOnlyHealthy, "bool ()")
+ 		.def("isNoForeignTrade", &CvCivicInfo::isNoForeignTrade, "bool ()")
+ 		.def("isNoCorporations", &CvCivicInfo::isNoCorporations, "bool ()")
+@@ -555,7 +556,8 @@ void CyInfoPythonInterface1()
+ 		.def("isGoldenAge", &CvBuildingInfo::isGoldenAge, "bool ()")
+ 		.def("isMapCentering", &CvBuildingInfo::isMapCentering, "bool ()")
+ 		.def("isNoUnhappiness", &CvBuildingInfo::isNoUnhappiness, "bool ()")
+-		.def("isNoUnhealthyPopulation", &CvBuildingInfo::isNoUnhealthyPopulation, "bool ()")
++		//.def("isNoUnhealthyPopulation", &CvBuildingInfo::isNoUnhealthyPopulation, "bool ()")
++		.def("getUnhealthyPopulationModifier", &CvBuildingInfo::getUnhealthyPopulationModifier, "int ()") // K-Mod
+ 		.def("isBuildingOnlyHealthy", &CvBuildingInfo::isBuildingOnlyHealthy, "bool ()")
+ 		.def("isNeverCapture", &CvBuildingInfo::isNeverCapture, "bool ()")
+ 		.def("isNukeImmune", &CvBuildingInfo::isNukeImmune, "bool ()")
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index ac3409664..97bbf4519 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -1174,10 +1174,22 @@ int CyPlayer::getOverflowResearch()
+ 	return m_pPlayer ? m_pPlayer->getOverflowResearch() : 0;
+ }
+ 
++/*
++** K-Mod, 27/dec/10, karadoc
++** replaced NoUnhealthyPopulation with UnhealthyPopulationModifier
++*/
++/* original bts code
+ bool CyPlayer::isNoUnhealthyPopulation()
+ {
+ 	return m_pPlayer ? m_pPlayer->isNoUnhealthyPopulation() : false;
++}*/
++int CyPlayer::getUnhealthyPopulationModifier()
++{
++	return m_pPlayer ? m_pPlayer->getUnhealthyPopulationModifier() : 0;
+ }
++/*
++** K-Mod end
++*/
+ 
+ bool CyPlayer::getExpInBorderModifier()
+ {
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index a0dbcd34f..cfd03af09 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -282,7 +282,8 @@ public:
+ 
+ 	int getMaxConscript();
+ 	int getOverflowResearch();
+-	bool isNoUnhealthyPopulation();
++	//bool isNoUnhealthyPopulation();
++	int getUnhealthyPopulationModifier(); // K-Mod
+ 	bool getExpInBorderModifier();
+ 	bool isBuildingOnlyHealthy();
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index 1bdf14a16..ac9fbfefa 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -269,7 +269,8 @@ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
+ 
+ 		.def("getMaxConscript", &CyPlayer::getMaxConscript, "int ()")
+ 		.def("getOverflowResearch", &CyPlayer::getOverflowResearch, "int ()")
+-		.def("isNoUnhealthyPopulation", &CyPlayer::isNoUnhealthyPopulation, "bool ()")
++		//.def("isNoUnhealthyPopulation", &CyPlayer::isNoUnhealthyPopulation, "bool ()")
++		.def("getUnhealthyPopulationModifier", &CyPlayer::getUnhealthyPopulationModifier, "int ()") // K-Mod
+ 		.def("getExpInBorderModifier", &CyPlayer::getExpInBorderModifier, "bool ()")
+ 		.def("isBuildingOnlyHealthy", &CyPlayer::isBuildingOnlyHealthy, "bool ()")
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=28607

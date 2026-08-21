@@ -1,0 +1,280 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 298
+# Commit: 46741163e3dd46346ad8fed56d7dfe98c5a753d7
+# History segment: K-Mod history
+# Parent used for diff: 9b3ff00f36098e05da77fc1682ac210a46020cfd
+# Title: Made some adjustments to AI_cityThreat. AI_guardBonus will now be willing to put multiple units onto high-value bonuses. (to a limited extent) The AI will no...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	32	CvGameCoreDLL/CvCityAI.cpp
+29	21	CvGameCoreDLL/CvPlayerAI.cpp
+6	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e58a8ac35..28c8a7445 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -11991,37 +11991,40 @@ int CvCityAI::AI_cityThreat(bool bDangerPercent)
+ /************************************************************************************************/
+ 	PROFILE_FUNC();
+ 	int iValue = 0;
+-	bool bCrushStrategy = GET_PLAYER(getOwnerINLINE()).AI_isDoStrategy(AI_STRATEGY_CRUSH);
++	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE()); // K-Mod
++	bool bCrushStrategy = kOwner.AI_isDoStrategy(AI_STRATEGY_CRUSH);
+ 
+ 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+-		if ((iI != getOwner()) && GET_PLAYER((PlayerTypes)iI).isAlive())
++		const CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI); // K-Mod
++		//if ((iI != getOwner()) && GET_PLAYER((PlayerTypes)iI).isAlive())
++		if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() != getTeam()) // K-Mod
+ 		{
+ 			int iTempValue = AI_playerCloseness((PlayerTypes)iI, DEFAULT_PLAYER_CLOSENESS);
+ 			if (iTempValue > 0)
+ 			{
+-				if ((bCrushStrategy) && (GET_TEAM(getTeam()).AI_getWarPlan(GET_PLAYER((PlayerTypes)iI).getTeam()) != NO_WARPLAN))
++				if (bCrushStrategy && GET_TEAM(getTeam()).AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN)
+ 				{
+ 					iTempValue *= 400;						
+ 				}
+-				else if (atWar(getTeam(), GET_PLAYER((PlayerTypes)iI).getTeam()))
++				else if (atWar(getTeam(), kLoopPlayer.getTeam()))
+ 				{
+ 					iTempValue *= 300;
+ 				}
+ 				// Beef up border security before starting war, but not too much
+-				else if ( GET_TEAM(getTeam()).AI_getWarPlan(GET_PLAYER((PlayerTypes)iI).getTeam()) != NO_WARPLAN )
++				else if ( GET_TEAM(getTeam()).AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN )
+ 				{
+ 					iTempValue *= 180;
+ 				}
+ 				// Extra trust of/for Vassals, regardless of relations
+-				else if ( GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isVassal(getTeam()) ||
+-							GET_TEAM(getTeam()).isVassal(GET_PLAYER((PlayerTypes)iI).getTeam()))
++				else if ( GET_TEAM(kLoopPlayer.getTeam()).isVassal(getTeam()) ||
++							GET_TEAM(getTeam()).isVassal(kLoopPlayer.getTeam()))
+ 				{
+ 					iTempValue *= 30;
+ 				}
+ 				else
+ 				{
+-					switch (GET_PLAYER(getOwnerINLINE()).AI_getAttitude((PlayerTypes)iI))
++					switch (kOwner.AI_getAttitude((PlayerTypes)iI))
+ 					{
+ 					case ATTITUDE_FURIOUS:
+ 						iTempValue *= 180;
+@@ -12048,32 +12051,23 @@ int CvCityAI::AI_cityThreat(bool bDangerPercent)
+ 						break;
+ 					}
+ 
+-					// Beef up border security next to powerful rival
+-					if( GET_PLAYER((PlayerTypes)iI).getPower() > GET_PLAYER(getOwnerINLINE()).getPower() )
+-					{
+-						iTempValue *= std::min( 400, (100 * GET_PLAYER((PlayerTypes)iI).getPower())/std::max(1, GET_PLAYER(getOwnerINLINE()).getPower()) );
+-						iTempValue /= 100;
+-					}
+-
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       01/04/09                                jdog5000      */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-/* orginal bts code
+-					if (bCrushStrategy)
+-					{
+-						iValue /= 2;
+-					}
+-*/
+ 					if (bCrushStrategy)
+ 					{
+ 						iTempValue /= 2;
+ 					}
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
+ 				}
++
++				// Beef up border security next to powerful rival. (K-Mod moved this from the block above)
++				if( kLoopPlayer.getPower() > kOwner.getPower() )
++				{
++					//iTempValue *= std::min( 400, (100 * GET_PLAYER((PlayerTypes)iI).getPower())/std::max(1, GET_PLAYER(getOwnerINLINE()).getPower()) );
++					// K-Mod. Use exclude population power.
++					int iLoopPower = kLoopPlayer.getPower() - getPopulationPower(kLoopPlayer.getTotalPopulation());
++					int iOurPower = kOwner.getPower() - getPopulationPower(kOwner.getTotalPopulation());
++					iTempValue *= range(100 * iLoopPower/std::max(1, iOurPower), 100, 400); // K-Mod
++					iTempValue /= 100;
++				}
++
+ 				iTempValue /= 100;
+ 				iValue += iTempValue;
+ 			}
+@@ -12082,13 +12076,13 @@ int CvCityAI::AI_cityThreat(bool bDangerPercent)
+ 	
+ 	if (isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+ 	{
+-		int iCurrentEra = GET_PLAYER(getOwnerINLINE()).getCurrentEra();
++		int iCurrentEra = kOwner.getCurrentEra();
+ 		iValue += std::max(0, ((10 * iCurrentEra) / 3) - 6); //there are better ways to do this
+ 	}
+ 	
+ 	iValue += getNumActiveWorldWonders() * 5;
+ 
+-	if (GET_PLAYER(getOwnerINLINE()).AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3))
++	if (kOwner.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3))
+ 	{
+ 		iValue += 5;
+ 		iValue += getCommerceRateModifier(COMMERCE_CULTURE) / 20;
+@@ -12102,7 +12096,7 @@ int CvCityAI::AI_cityThreat(bool bDangerPercent)
+ 		}
+ 	}
+ 	
+-	iValue += 2 * GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 3, false);
++	iValue += 2 * kOwner.AI_getPlotDanger(plot(), 3, false);
+ 	
+ 	return iValue;
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index ea339dd7f..e6f03eef3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14358,11 +14358,6 @@ void CvPlayerAI::AI_doCommerce()
+ 
+ 	if (isCommerceFlexible(COMMERCE_ESPIONAGE))
+ 	{
+-/********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						9/6/08				jdog5000	    */
+-/* 																			    */
+-/* 	Espionage AI															    */
+-/********************************************************************************/
+ 		/* original BTS code
+ 		if (getCommercePercent(COMMERCE_ESPIONAGE) > 0)
+ 		{
+@@ -14374,24 +14369,15 @@ void CvPlayerAI::AI_doCommerce()
+ 			}
+ 
+ 			bReset = true;
+-		}
+-		*/
+-		
+-		// Reset espionage spending always
+-		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+-		{
+-			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, 0);
+-		}
+-
++		} */
++		//
+ 		if (getCommercePercent(COMMERCE_ESPIONAGE) > 0)
+ 		{
+ 			setCommercePercent(COMMERCE_ESPIONAGE, 0);
+ 
+ 			bReset = true;
+ 		}
+-/********************************************************************************/
+-/* 	BETTER_BTS_AI_MOD						END								    */
+-/********************************************************************************/
++		//
+ 	}
+ 
+ 	if (bReset)
+@@ -14535,7 +14521,7 @@ void CvPlayerAI::AI_doCommerce()
+ 		}
+ 		*/
+ 
+-		// K-Mod, partially based on the changes made by BETTER_BTS_AI_MOD
++	// K-Mod, partially based on the changes made by BETTER_BTS_AI_MOD
+ 	if (isCommerceFlexible(COMMERCE_ESPIONAGE))
+ 	{
+ 		int iEspionageTargetRate = 0;
+@@ -14805,6 +14791,7 @@ void CvPlayerAI::AI_doCommerce()
+ 			//while (getCommerceRate(COMMERCE_ESPIONAGE) < iEspionageTargetRate && getCommercePercent(COMMERCE_ESPIONAGE) < 20)
+ 			// K-Mod
+ 			int iCap = (bCheapTechSteal? 60 :20);
++			iCap += AI_avoidScience() ? 40 : 0;
+ 
+ 			while (getCommerceRate(COMMERCE_ESPIONAGE) < iEspionageTargetRate && getCommercePercent(COMMERCE_ESPIONAGE) < iCap)
+ 			{
+@@ -14830,6 +14817,22 @@ void CvPlayerAI::AI_doCommerce()
+ 			}
+ 		}
+ 	}
++	// K-Mod. prevent the AI from stockpiling excessive amounts of gold while in avoidScience.
++	if (AI_avoidScience())
++	{
++		while (getCommercePercent(COMMERCE_GOLD) > 0 && getGold() + std::min(0, calculateGoldRate()) > iGoldTarget)
++		{
++			if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) && isCommerceFlexible(COMMERCE_CULTURE))
++				changeCommercePercent(COMMERCE_CULTURE, GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
++			else if (isCommerceFlexible(COMMERCE_ESPIONAGE))
++				changeCommercePercent(COMMERCE_ESPIONAGE, GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
++			else if (isCommerceFlexible(COMMERCE_RESEARCH)) // better than nothing...
++				changeCommercePercent(COMMERCE_RESEARCH, GC.getDefineINT("COMMERCE_PERCENT_CHANGE_INCREMENTS"));
++			else
++				break;
++		}
++	}
++	// K-Mod end
+ 	
+ 	if (!bFirstTech && (getGold() < iGoldTarget) && (getCommercePercent(COMMERCE_RESEARCH) > 40))
+ 	{
+@@ -20543,9 +20546,16 @@ int CvPlayerAI::AI_getTotalFloatingDefendersNeeded(CvArea* pArea) const
+ 	
+ 	iCurrentEra = std::max(0, iCurrentEra - GC.getGame().getStartEra() / 2);
+ 	
++	/* original bts code
+ 	iDefenders = 1 + ((iCurrentEra + ((GC.getGameINLINE().getMaxCityElimination() > 0) ? 3 : 2)) * iAreaCities);
+ 	iDefenders /= 3;
+-	iDefenders += pArea->getPopulationPerPlayer(getID()) / 7;
++	iDefenders += pArea->getPopulationPerPlayer(getID()) / 7; */
++	// K-Mod
++	iDefenders = 1 + iAreaCities + AI_totalAreaUnitAIs(pArea, UNITAI_SETTLE);
++	iDefenders += 3 * pArea->getPopulationPerPlayer(getID()) / 7;
++	iDefenders *= iCurrentEra + (GC.getGameINLINE().getMaxCityElimination() > 0 ? 3 : 2);
++	iDefenders /= 3;
++	// K-Mod end
+ 
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      04/01/10                                jdog5000      */
+@@ -20665,8 +20675,6 @@ int CvPlayerAI::AI_getTotalFloatingDefenders(CvArea* pArea) const
+ 	iCount += std::max(0, (AI_totalAreaUnitAIs(pArea, UNITAI_CITY_DEFENSE) - (pArea->getCitiesPerPlayer(getID()) * 2)));
+ 	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_CITY_COUNTER);
+ 	iCount += AI_totalAreaUnitAIs(pArea, UNITAI_CITY_SPECIAL);
+-	// BBAI TODO: Defense air?  Is this outdated?
+-	//iCount += AI_totalAreaUnitAIs(pArea, UNITAI_DEFENSE_AIR); // K-Mod commented this out.
+ 	return iCount;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 042852d1f..2be60c709 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -11730,8 +11730,12 @@ bool CvUnitAI::AI_guardBonus(int iMinValue)
+ 					{
+ 						if (!(pLoopPlot->isVisibleEnemyUnit(this)))
+ 						{
+-							// BBAI TODO: Multiple defenders for higher value resources?
+-							if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_GUARD_BONUS, getGroup()) == 0)
++							//if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_GUARD_BONUS, getGroup()) == 0)
++							// K-Mod
++							iValue *= 2;
++							iValue /= 2 + GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_GUARD_BONUS, getGroup());
++							if (iValue > iMinValue)
++							// K-Mod end
+ 							{
+ 								if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+ 								{
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=10762

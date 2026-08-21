@@ -1,0 +1,160 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4455
+# Commit: f96e016aa0836c6aed249379f34159d31fe52ced
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 427c51763fed2d71926fc3baf94d49d3a7ac8da6
+# Title: remove (hide) the Strategy entries entirely in the pedia They are often inaccurate and a "nightmare (which i agree with after reading an explanation or rathe...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	4	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+21	14	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+10	5	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+7	4	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 5923c1a93..df7d64f17 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -234,11 +234,24 @@ class SevoPediaBuilding:
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel( panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		textName = self.top.getNextWidgetName()
++		# <!-- custom: too much hassle/"nightmare" to maintain (which i agree
++		# with if i may say i mean anyways), + also often inacurate, especially
++		# if someone were to make a mod, changing settings again, or simply in
++		#  AdvCiv or/and existing other mods any balance or rework change about
++		# this i mean anyways, would be hindered/halted by this (not so helpful)
++		# Strategy point, so removing it entirely from the sevopedia.
++		# But no need (i think) to reimport all the assets just to remove base
++		# civ4/BTS descriptions, we can just ignore them, probably much easier
++		# unless we want to do additional modifications to the entry(ies) (if
++		# so we may want to import the specific assets concerned about this
++		# i mean anyways).
++		# Doing so is also much faster i mean anyways about this i mean anyways.
++		# -->
+ 		szText = u""
+-		if len(gc.getBuildingInfo(self.iBuilding).getStrategy()) > 0:
+-			szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+-			szText += gc.getBuildingInfo(self.iBuilding).getStrategy()
+-			szText += u"\n\n"
++		# if len(gc.getBuildingInfo(self.iBuilding).getStrategy()) > 0:
++		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
++		#	szText += gc.getBuildingInfo(self.iBuilding).getStrategy()
++		#	szText += u"\n\n"
+ 		szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
+ 		szText += gc.getBuildingInfo(self.iBuilding).getCivilopedia()
+ 		screen.addMultilineText( textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 4529d9930..0017a9537 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -121,22 +121,29 @@ class SevoPediaCivic:
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "",
+ 				True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT,
+ 				PanelStyles.PANEL_STYLE_BLUE50)
++		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
++		# in SevoPediaBuilding.py (refer to this file for details),
++		# removing (hiding) the entry entirely from the sevopedia. -->
++		szText = u""
++		#if len(gc.getCivicInfo(self.iCivic).getStrategy()) > 0:
++		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
++		#	szText += gc.getCivicInfo(self.iCivic).getStrategy()
+ 		#szText = gc.getCivicInfo(self.iCivic).getCivilopedia()
+ 		# <advc.004y> Show strategy help; same as for units.
+-		szText = u""
+-		if len(gc.getCivicInfo(self.iCivic).getStrategy()) > 0:
+-			szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+-			szText += gc.getCivicInfo(self.iCivic).getStrategy()
+-			# Balance changes need to have a separate key b/c strategy help gets shown in popups; needs to be concise.
+-			# I'm hardcoding the text key here out of laziness - and also b/c it shouldn't be referenced anywhere else.
+-			szKey = "TXT_KEY_CIVIC_"
+-			szKey += gc.getCivicInfo(self.iCivic).getDescription().upper()
+-			szKey += "_CHANGES_PEDIA"
+-			szChanges = localText.getText(str(szKey.replace(" ", "_")), ())
+-			if not szChanges.endswith("PEDIA"):
+-				szText += u"\n\t"
+-				szText += szChanges
+-		szText += u"\n\n"
++		#szText = u""
++		#if len(gc.getCivicInfo(self.iCivic).getStrategy()) > 0:
++		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
++		#	szText += gc.getCivicInfo(self.iCivic).getStrategy()
++		#	# Balance changes need to have a separate key b/c strategy help gets shown in popups; needs to be concise.
++		#	# I'm hardcoding the text key here out of laziness - and also b/c it shouldn't be referenced anywhere else.
++		#	szKey = "TXT_KEY_CIVIC_"
++		#	szKey += gc.getCivicInfo(self.iCivic).getDescription().upper()
++		#	szKey += "_CHANGES_PEDIA"
++		#	szChanges = localText.getText(str(szKey.replace(" ", "_")), ())
++		#	if not szChanges.endswith("PEDIA"):
++		#		szText += u"\n\t"
++		#		szText += szChanges
++		#szText += u"\n\n"
+ 		szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
+ 		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
+ 		# </advc.004y>
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index cec305d55..452e66612 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -250,12 +250,17 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 				self.W_QUOTE_PANE, self.H_QUOTE_PANE,
+ 				PanelStyles.PANEL_STYLE_BLUE50)
+ 		# <advc.004y> Show strategy help too (like for civics)
++		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
++		# in SevoPediaBuilding.py (refer to this file for details),
++		# removing (hiding) the entry entirely from the sevopedia. -->
+ 		szText = u""
+-		if len(gc.getTechInfo(self.iTech).getStrategy()) > 0:
+-			szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+-			szText += gc.getTechInfo(self.iTech).getStrategy()
+-			szText += u"\n\n"
+-			szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
++		#if len(gc.getTechInfo(self.iTech).getStrategy()) > 0:
++		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
++		#	szText += gc.getTechInfo(self.iTech).getStrategy()
++		#	szText += u"\n\n"
++		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
++		# <!-- custom: add this instead only: -->
++		szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
+ 		# </advc.004y>
+ 		szText += gc.getTechInfo(self.iTech).getQuote()
+ 		szText += u"\n\n" + gc.getTechInfo(self.iTech).getCivilopedia()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 67dc7d2a7..b84afea8d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -274,10 +274,13 @@ class SevoPediaUnit:
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_HISTORY_PANE, self.Y_HISTORY_PANE, self.W_HISTORY_PANE, self.H_HISTORY_PANE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		textName = self.top.getNextWidgetName()
+ 		szText = u""
+-		if len(gc.getUnitInfo(self.iUnit).getStrategy()) > 0:
+-			szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
+-			szText += gc.getUnitInfo(self.iUnit).getStrategy()
+-			szText += u"\n\n"
++		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
++		# in SevoPediaBuilding.py (refer to this file for details),
++		# removing (hiding) the entry entirely from the sevopedia. -->
++		#if len(gc.getUnitInfo(self.iUnit).getStrategy()) > 0:
++		#	szText += localText.getText("TXT_KEY_CIVILOPEDIA_STRATEGY", ())
++		#	szText += gc.getUnitInfo(self.iUnit).getStrategy()
++		#	szText += u"\n\n"
+ 		szText += localText.getText("TXT_KEY_CIVILOPEDIA_BACKGROUND", ())
+ 		szText += gc.getUnitInfo(self.iUnit).getCivilopedia()
+ 		screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=7920

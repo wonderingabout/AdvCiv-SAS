@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3481
+# Commit: 5bfa0e9495cf90afb6f8e9a80ee4e8780fb63664
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7b122f840b8acbe9c11dd92db3b3b7e65d631e9f
+# Title: Fix UWAI "kingmaking" aspect failing to reset some data
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 5cfbf27af..97aa8c039 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2290,6 +2290,8 @@ scaled const KingMaking::m_rScoreMargin = fixp(0.25);
+ int KingMaking::preEvaluate()
+ {
+ 	PROFILE_FUNC();
++	m_winningFuture.clear();
++	m_winningPresent.clear();
+ 	/*	(Scoreboard ranks just aren't meaningful off the bat, even if the game
+ 		starts in the Modern era. Leaving m_winningPresent empty causes 0 utility
+ 		to be counted by evaluate.) */
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=570

@@ -1,0 +1,59 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2899
+# Commit: de3cf2f63099e71f376aba0215565d45e42a8735
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e5605112aeaf34a9657a0db85accf3909e01a671
+# Title: Don't let Global Warming desertify (very) cold Plains
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	3	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index bfedf5045..c08ea476d 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -6925,9 +6925,27 @@ void CvGame::doGlobalWarming()
+ 		}
+ 		else if (eTerrain == eDryTerrain &&
+ 			(!bProtectFeature || pProtectedFeature->isTerrain(eBarrenTerrain))) // advc.055
+-		{
+-			pPlot->setTerrainType(eBarrenTerrain);
+-			bChanged = true;
++		{	// <advc.055> Don't desertify (very) cold dry terrain
++			int iColdScore = 0;
++			FOR_EACH_ADJ_PLOT(*pPlot)
++			{
++				int iLoopColdScore = 0;
++				if (pAdj->getTerrainType() == eFrozenTerrain ||
++					pAdj->getFeatureType() == eColdFeature)
++				{
++					iLoopColdScore += 2;
++				}
++				else if (pAdj->getTerrainType() == eColdTerrain)
++					iLoopColdScore++;
++				if (plotDistance(pPlot, pAdj) <= 1)
++					iLoopColdScore *= 2;
++				iColdScore += iLoopColdScore;
++			}
++			if (iColdScore < 3) // </advc.055>
++			{
++				pPlot->setTerrainType(eBarrenTerrain);
++				bChanged = true;
++			}
+ 		}
+ 		/* 5) Sink coastal desert (disabled)
+ 		else if (eTerrain == eBarrenTerrain) {
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1090

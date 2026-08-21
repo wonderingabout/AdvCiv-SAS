@@ -1,0 +1,195 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 159
+# Commit: 07b67596d82ce924b090fa9a8dcea91d8ff27400
+# History segment: K-Mod history
+# Parent used for diff: 8b22d6d7ea0a3dd6494e6d40f735cc65931e905a
+# Title: Made some changes to the AI's macro-economics decision making... unit supply limit, empire splitting, financial trouble. Reverted the GW event reduction from...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/GlobalDefinesAlt.xml
+16	9	CvGameCoreDLL/CvCityAI.cpp
+21	20	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GlobalDefinesAlt.xml b/Assets/xml/GlobalDefinesAlt.xml
+index 66f9b157c..1d6cf88ae 100644
+--- a/Assets/xml/GlobalDefinesAlt.xml
++++ b/Assets/xml/GlobalDefinesAlt.xml
+@@ -66,7 +66,7 @@
+ 	</Define>
+ 	<Define>
+ 		<DefineName>GLOBAL_WARMING_INDEX_PER_CHANCE</DefineName>
+-		<iDefineIntVal>500</iDefineIntVal>
++		<iDefineIntVal>450</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<DefineName>GLOBAL_WARMING_BASE_ANGER_PERCENT</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index cd5d0a155..723ae928c 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10594,15 +10594,19 @@ int CvCityAI::AI_cityValue() const
+ 	iValue += getCommerceRateTimes100(COMMERCE_GOLD);
+ 	iValue += getCommerceRateTimes100(COMMERCE_RESEARCH);
+ 	iValue += 100 * getYieldRate(YIELD_PRODUCTION); */
+-	// K-Mod. The original code fails completely for civs using high espionage or high culture.
+-	// I'm going to use a similar technique for what I did with the fincial trouble code.
+-	const CvPlayer& kOwner = GET_PLAYER(getOwner());
+-	if (kOwner.getCommercePercent(COMMERCE_GOLD) == 0)
+-		return 0; // I assume, based on the code above, that "zero" means the city is good enough to keep.
+-	iValue += 100 * getCommerceRateTimes100(COMMERCE_GOLD) / kOwner.getCommercePercent(COMMERCE_GOLD);
++	// K-Mod. The original code fails for civs using high espionage or high culture.
++	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
++	iValue += getCommerceRateTimes100(COMMERCE_GOLD) * kOwner.AI_commerceWeight(COMMERCE_GOLD);
++	iValue += getCommerceRateTimes100(COMMERCE_RESEARCH) * kOwner.AI_commerceWeight(COMMERCE_RESEARCH);
++	iValue += getCommerceRateTimes100(COMMERCE_ESPIONAGE) * kOwner.AI_commerceWeight(COMMERCE_ESPIONAGE);
++	iValue /= 100;
++	// Culture isn't counted, because its value is local. Unfortunately this will mean that civs running 100% culture
++	// (ie CULTURE4) will give up their non-core cities. It could be argued that this would be good strategy,
++	// but the problem is that CULTURE4 doesn't always run its full course. ... so I'm going to make a small ad hoc adjustment...
+ 	iValue += 100 * getYieldRate(YIELD_PRODUCTION);
++	iValue *= kOwner.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4)? 2 : 1;
+ 	//iValue -= 3 * calculateColonyMaintenanceTimes100(); // original bts code
+-	iValue -= 2 * calculateColonyMaintenanceTimes100();
++	iValue -= 2 * calculateColonyMaintenanceTimes100() + getMaintenanceTimes100() / 2;
+ 	// K-Mod end
+ 
+ /*
+@@ -11234,9 +11238,12 @@ int CvCityAI::AI_yieldMultiplier(YieldTypes eYield)
+ 		int iExtra = 0;
+ 		for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 		{
+-			iExtra += (getTotalCommerceRateModifier((CommerceTypes)iI)-100) * kPlayer.getCommercePercent((CommerceTypes)iI);
++			iExtra += getTotalCommerceRateModifier((CommerceTypes)iI) * kPlayer.getCommercePercent((CommerceTypes)iI);
+ 		}
+-		iMultiplier += iExtra/100;
++		// base commerce modifier compounds with individual commerce modifiers.
++		iMultiplier *= iExtra;
++		iMultiplier /= 10000;
++		// K-Mod end
+ 	}
+ 	
+ 	return iMultiplier;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index db407ae10..9a5646478 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2527,7 +2527,6 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, CvCity* pCity) const
+ 			// K-Mod
+ 			if (AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY) || (isHuman() && getCommercePercent(COMMERCE_ESPIONAGE) >= 60))
+ 			{
+-				iWeight *= 2;
+ 				iWeight = std::max(iWeight, GC.getCommerceInfo(COMMERCE_RESEARCH).getAIWeightPercent());
+ 			}
+ 			else
+@@ -4429,13 +4428,15 @@ bool CvPlayerAI::AI_isFinancialTrouble() const
+ 
+ 	//if (getCommercePercent(COMMERCE_GOLD) > 50)
+ 	{
+-		// K-Mod: have you heard of "cultural victory"? How about "espionage economy"?
+-		// Really we just want to know how much of our commerce slider is used for paying the bills.
+ 		/* original bts code
+ 		int iNetCommerce = 1 + getCommerceRate(COMMERCE_GOLD) + getCommerceRate(COMMERCE_RESEARCH) + std::max(0, getGoldPerTurn()); */
+-		if (getCommercePercent(COMMERCE_GOLD) == 0)
+-			return false; // I can't think of any reason to run 0% gold when short on money...
+-		int iNetCommerce = std::max(0, getGoldPerTurn()) + 100 * getCommerceRate(COMMERCE_GOLD) / getCommercePercent(COMMERCE_GOLD);
++		// K-Mod: have you heard of "cultural victory"? How about "espionage economy"?
++		// Lets try it a more general way. (hopefully this doesn't slow it down too much...)
++		int iTotalRaw = calculateTotalYield(YIELD_COMMERCE);
++
++		int iNetCommerce = iTotalRaw * AI_averageCommerceMultiplier(COMMERCE_GOLD) / 100;
++		iNetCommerce += std::max(0, getGoldPerTurn());
++		iNetCommerce += getCommerceRate(COMMERCE_GOLD) - iTotalRaw * AI_averageCommerceMultiplier(COMMERCE_GOLD) * getCommercePercent(COMMERCE_GOLD) / 10000;
+ 		// K-Mod end
+ /************************************************************************************************/
+ /* UNOFFICIAL_PATCH                       06/11/09                       jdog5000 & DanF5771    */
+@@ -11039,8 +11040,12 @@ int CvPlayerAI::AI_unitCostRating() const
+ 	// If iUnitCostPercentage is calculated as above, decreasing maintenance will actually decrease the max units.
+ 	// If a builds a courthouse or switches to state property, it would then think it needs to get rid of units!
+ 	// It makes no sense, and civs with a surplus of cash still won't want to build units. So lets try it another way...
+-	return calculateUnitCost() * 400 / std::max(1, getGoldPerTurn() - calculateInflatedCosts() + 100*getCommerceRate(COMMERCE_GOLD) / std::max(10, getCommercePercent(COMMERCE_GOLD)));
+-	// this, roughly, is the unit cost divided by our total available funds.
++	int iTotalRaw = calculateTotalYield(YIELD_COMMERCE);
++
++	int iFunds = iTotalRaw * AI_averageCommerceMultiplier(COMMERCE_GOLD) / 100;
++	iFunds += getGoldPerTurn() - calculateInflatedCosts();
++	iFunds += getCommerceRate(COMMERCE_GOLD) - iTotalRaw * AI_averageCommerceMultiplier(COMMERCE_GOLD) * getCommercePercent(COMMERCE_GOLD) / 10000;
++	return calculateUnitCost() * 400 / std::max(1, iFunds);
+ 	// I've set the scale to 400 rather than 100, because the code below that actually uses iUnitCostPercentage is expecting
+ 	// the scale to be roughly the uninflated maintenance, not the total income.
+ }
+@@ -19674,26 +19679,22 @@ void CvPlayerAI::AI_calculateAverages() const
+ {
+ 	CvCity* pLoopCity;
+ 	int iLoop;
+-	int iI;
+ 	
+-	int iPopulation;
+-	int iTotalPopulation;
+-
+-	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 	{
+ 		m_aiAverageYieldMultiplier[iI] = 0;		
+ 	}
+-	for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++	for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 	{
+ 		m_aiAverageCommerceMultiplier[iI] = 0;	
+ 	}
+ 	m_iAverageGreatPeopleMultiplier = 0;
+ 	
+-	iTotalPopulation = 0;
++	int iTotalPopulation = 0;
+ 	
+ 	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
+-		iPopulation = std::max(pLoopCity->getPopulation(), NUM_CITY_PLOTS);
++		int iPopulation = std::max(pLoopCity->getPopulation(), NUM_CITY_PLOTS);
+ 		iTotalPopulation += iPopulation;
+ 			
+ 		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+@@ -19710,12 +19711,12 @@ void CvPlayerAI::AI_calculateAverages() const
+ 	
+ 	if (iTotalPopulation > 0)
+ 	{
+-		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 		{
+ 			m_aiAverageYieldMultiplier[iI] /= iTotalPopulation;
+ 			FAssert(m_aiAverageYieldMultiplier[iI] > 0);
+ 		}
+-		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 		{
+ 			m_aiAverageCommerceMultiplier[iI] /= iTotalPopulation;
+ 			FAssert(m_aiAverageCommerceMultiplier[iI] > 0);	
+@@ -19725,11 +19726,11 @@ void CvPlayerAI::AI_calculateAverages() const
+ 	}
+ 	else
+ 	{
+-		for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
++		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+ 		{
+ 			m_aiAverageYieldMultiplier[iI] = 100;
+ 		}
+-		for (iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
++		for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
+ 		{
+ 			m_aiAverageCommerceMultiplier[iI] = 100;
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=8126

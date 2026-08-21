@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3785
+# Commit: d40b5a0c5c03f6b2a743f011824caf3b42209c84
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e491d6d5762e30d79ae0216c2e16f92467ba369a
+# Title: Adjust city screen camera position to HUD size
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	CvGameCoreDLL/CvGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 1963374f7..493a7ed7d 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2870,7 +2870,9 @@ void CvGame::onCityScreenChange()
+ 			{
+ 				NiPoint3 nOneNorth = pOneNorth->getPoint();
+ 				NiPoint3 nCity = pCityPlot->getPoint();
+-				float const fDisplWeight = 0.27f;
++				float const fDisplWeight = 0.24f +
++						(BUGOption::isEnabled("MainInterface__EnlargeHUD", true) ?
++						0.03f : 0);
+ 				NiPoint3 nLookAt(nCity.x,
+ 						nCity.y + fDisplWeight * (nOneNorth.y - nCity.y), nCity.z);
+ 				gDLL->UI().lookAt(nLookAt, CAMERALOOKAT_CITY_ZOOM_IN);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=674

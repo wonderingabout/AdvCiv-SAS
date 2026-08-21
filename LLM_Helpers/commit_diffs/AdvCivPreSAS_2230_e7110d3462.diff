@@ -1,0 +1,78 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2230
+# Commit: e7110d3462787dd0271061bf33400ccc32dd620c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1f7be993eaa4f59170d68527129230606afc39ef
+# Title: No city trade alert for liberation to prev. owner
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	Assets/XML/Text/CIV4GameText_advc.xml
+7	8	CvGameCoreDLL/AdvCiv4lerts.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 4efd02061..c8ebd095e 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -3430,11 +3430,11 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__CITYTRADE_HOVER</Tag>
+-		<English>Displays an alert whenever another civilization becomes willing to cede a [COLOR_CITY_BLUE]city[COLOR_REVERT] to you or to trade for one of your cities (unless you've just acquired it).</English>
+-		<French>Affiche une alerte lorsqu'un autre civilisation devient pr�t � vous c�der une [COLOR_CITY_BLUE]ville[COLOR_REVERT] ou � �changer pour une de vos villes (sauf si vous venez de l'acqu�rir).</French>
+-		<German>Meldet, wenn eine andere Zivilisation zu einem Handel mit [COLOR_CITY_BLUE]St�dten[COLOR_REVERT] bereit ist. St�dte, die Sie erst seit kurzem besitzen, werden nicht gemeldet.</German>
+-		<Italian>Visualizza un avviso ogni volta che un altra civilt� diventa disposta a cedere una [COLOR_CITY_BLUE]citt�[COLOR_REVERT] a Lei o a scambiare per una delle Sue citt� (se non l'abbia appena acquistata).</Italian>
+-		<Spanish>Muestra una alerta cada vez que un otra civilizaci�n se convierte dispuesto a cederle una [COLOR_CITY_BLUE]ciudad[COLOR_REVERT] o a cambiar por una de sus ciudades (a no ser que reci�n la haya adquirido).</Spanish>
++		<English>Displays an alert whenever another civilization becomes willing to cede a [COLOR_CITY_BLUE]city[COLOR_REVERT] to you or to trade for one of your cities.</English>
++		<French>Affiche une alerte lorsqu'un autre civilisation devient pr�t � vous c�der une [COLOR_CITY_BLUE]ville[COLOR_REVERT] ou � �changer pour une de vos villes.</French>
++		<German>Meldet, wenn eine andere Zivilisation zu einem Handel mit [COLOR_CITY_BLUE]St�dten[COLOR_REVERT] bereit ist.</German>
++		<Italian>Visualizza un avviso ogni volta che un altra civilt� diventa disposta a cedere una [COLOR_CITY_BLUE]citt�[COLOR_REVERT] a Lei o a scambiare per una delle Sue citt�.</Italian>
++		<Spanish>Muestra una alerta cada vez que un otra civilizaci�n se convierte dispuesto a cederle una [COLOR_CITY_BLUE]ciudad[COLOR_REVERT] o a cambiar por una de sus ciudades.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CAN_LIBERATE</Tag>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index c78a254ae..9a3184c9f 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -417,19 +417,18 @@ void CityTradeAlert::check()
+ 						if(bLiberate)
+ 							canLiberateNow.push_back(iCity);
+ 						else willBuyNow.push_back(iCity);
+-						// Don't report cities right after acquisition
+-						if(iGameTurn - pCity->getGameTurnAcquired() > 1 &&
++						if( // Don't report cities right after acquisition
++							//iGameTurn - pCity->getGameTurnAcquired() > 1 &&
+ 							// Don't report possible liberation right after making peace
+-							(!bLiberate || GET_TEAM(kPlayer.getTeam()).
+-							AI_getAtPeaceCounter(kAlertPlayer.getTeam()) > 1))
++							/*(!bLiberate || GET_TEAM(kPlayer.getTeam()).
++							AI_getAtPeaceCounter(kAlertPlayer.getTeam()) > 1)*/
++							//^Try a different tack.
++							(!bLiberate || pCity->getPreviousOwner() != kPlayer.getID()))
+ 						{
+ 							vector<int>& was = (bLiberate ? canLiberate[kPlayer.getID()] :
+ 									willBuy[kPlayer.getID()]);
+ 							if(std::find(was.begin(), was.end(), iCity) == was.end())
+-							{
+-								vector<CvCity const*>& diff = (bLiberate ? diffLiberate : diffBuy);
+-								diff.push_back(pCity);
+-							}
++								(bLiberate ? diffLiberate : diffBuy).push_back(pCity);
+ 						}
+ 					}
+ 				}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3686

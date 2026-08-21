@@ -1,0 +1,119 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 471
+# Commit: e19a0f3d59b785db1f8859118fbe2f8ebf1b61ea
+# History segment: K-Mod history
+# Parent used for diff: 7a92788da0e0564f5710b97da81b356ad8fad8eb
+# Title: Tightened the requirements for the AI to consider starting a second war. Corrected a couple of minor problems related to the AI's early-game defence of cities.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+31	3	CvGameCoreDLL/CvTeamAI.cpp
+4	3	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index ed8f1c446..a2e1a1d6d 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4809,9 +4809,36 @@ void CvTeamAI::AI_doWar()
+ 	iHighUnitSpendingPercent /= iNumMembers;
+ 	iLowUnitSpendingPercent /= iNumMembers; */ // K-Mod, this simply wasn't being used anywhere.
+ 
++	// K-Mod. Gather some data...
++	bool bAtWar = false;
++	bool bTotalWarPlan = false;
++	bool bAnyWarPlan = false;
++	bool bLocalWarPlan = false;
++	for (int i = 0; i < MAX_CIV_TEAMS; i++)
++	{
++		if (GET_TEAM((TeamTypes)i).isAlive() && !GET_TEAM((TeamTypes)i).isMinorCiv())
++		{
++			bAtWar = bAtWar || isAtWar((TeamTypes)i);
++
++			switch (AI_getWarPlan((TeamTypes)i))
++			{
++			case NO_WARPLAN:
++				break;
++			case WARPLAN_PREPARING_TOTAL:
++			case WARPLAN_TOTAL:
++				bTotalWarPlan = true;
++			default: // all other warplans
++				bLocalWarPlan = bLocalWarPlan || AI_isLandTarget((TeamTypes)i);
++				bAnyWarPlan = true;
++				break;
++			}
++		}
++	}
++	// K-Mod end
+ 
+ 	// if at war, check for making peace
+-	if (getAtWarCount(true) > 0) // XXX
++	//if (getAtWarCount(true) > 0) // XXX
++	if (bAtWar) // K-Mod
+ 	{
+ 		if (GC.getGameINLINE().getSorenRandNum(AI_makePeaceRand(), "AI Make Peace") == 0)
+ 		{
+@@ -4922,7 +4949,8 @@ void CvTeamAI::AI_doWar()
+ 	}
+ 
+ 	// if no war plans, consider starting one!
+-	if (getAnyWarPlanCount(true) == 0 || iEnemyPowerPercent < 45)
++	//if (getAnyWarPlanCount(true) == 0 || iEnemyPowerPercent < 45)
++	if (!bAnyWarPlan || (iEnemyPowerPercent < 45 && !(bLocalWarPlan && bTotalWarPlan))) // K-Mod
+ 	{
+ 		bool bAggressive = GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI);
+ 
+@@ -5066,7 +5094,7 @@ void CvTeamAI::AI_doWar()
+ 												FAssertMsg(!(GET_TEAM((TeamTypes)iI).isBarbarian()), "Expected to not be declaring war on the barb civ");
+ 												FAssertMsg(iI != getID(), "Expected not to be declaring war on self (DOH!)");
+ 
+-												if ((iPass > 1) || AI_isLandTarget((TeamTypes)iI) || AI_isAnyCapitalAreaAlone() || GET_TEAM((TeamTypes)iI).AI_isAnyMemberDoVictoryStrategyLevel4())
++												if ((iPass > 1 && !bLocalWarPlan) || AI_isLandTarget((TeamTypes)iI) || AI_isAnyCapitalAreaAlone() || GET_TEAM((TeamTypes)iI).AI_isAnyMemberDoVictoryStrategyLevel4())
+ 												{
+ 													if ((iPass > 0) || (AI_calculateAdjacentLandPlots((TeamTypes)iI) >= ((getTotalLand() * AI_maxWarMinAdjacentLandPercent()) / 100)) || GET_TEAM((TeamTypes)iI).AI_isAnyMemberDoVictoryStrategyLevel4())
+ 													{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a1df88038..e0d281185 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2268,7 +2268,8 @@ void CvUnitAI::AI_attackMove()
+ 			if( area()->getCitiesPerPlayer(getOwnerINLINE()) > kOwner.AI_totalAreaUnitAIs(area(), UNITAI_CITY_DEFENSE) )
+ 			{
+ 				// Defend colonies in new world
+-				if (AI_guardCity(true, true, 3))
++				//if (AI_guardCity(true, true, 3))
++				if (getGroup()->getNumUnits() == 1 ? AI_guardCityMinDefender(true) : AI_guardCity(true, true, 3)) // K-Mod
+ 				{
+ 					return;
+ 				}
+@@ -11305,8 +11306,6 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
+ 		if (getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY)
+ 			iDefendersHave--;
+ 
+-		FAssert(AI_getUnitAIType() == UNITAI_CITY_DEFENSE); // This doesn't really matter, but if other units are going to start using this function, I'll want to make some adjustments.
+-
+ 		if (iDefendersHave < pPlotCity->AI_minDefenders())
+ 		{
+ 			if (iDefendersHave <= 1 || GC.getGame().getSorenRandNum(area()->getNumAIUnits(getOwnerINLINE(), UNITAI_CITY_DEFENSE) + 5, "AI shuffle defender") > 1)
+@@ -11456,6 +11455,8 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, int iFlags)
+ 				// K-Mod
+ 				int iDefendersNeeded = pLoopCity->AI_neededDefenders();
+ 				int iDefendersHave = pLoopCity->plot()->plotCount(PUF_canDefendGroupHead, -1, -1, getOwnerINLINE(), NO_TEAM, AI_isCityAIType() ? PUF_isCityAIType : 0);
++				if (pCity == pLoopCity)
++					iDefendersHave-=getGroup()->getNumUnits();
+ 				if (iDefendersHave < iDefendersNeeded)
+ 				// K-Mod end
+ 				{
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4144

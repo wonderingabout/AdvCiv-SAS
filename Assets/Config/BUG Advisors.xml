@@ -2,7 +2,7 @@
 <!--
 	BUG Advisors
 	by Taelis, Cammagno, Requies, Ruff_Hi, Sevo, EmperorFool
-	
+
 	Collects all of the various advisor-based mods.
 
 	Copyright (c) 2008 The BUG Mod.
@@ -13,17 +13,21 @@
 	 version="3.0" 
 	 date="07/11/2008"
 	 url="http://forums.civfanatics.com/forumdisplay.php?f=268">
-	 
+
 	<options id="Advisors" file="BUG Advisors.ini">
 		<section id="Advisors">
 			<!-- (K-Mod has removed the BugFinanceAdvisor option) -->
-			<!-- Exotic Foreign Advisor (F4) by Requies, Dresden, EmperorFool -->
+			<!-- Foreign Advisor (F4) by Requies, Dresden, EmperorFool -->
 			<!-- advc.004: Set the default to Numbers (was Smilies in K-Mod) -->
-			<option id="EFAGlanceTab" key="EFA Glance" 
+			<!-- custom: AdvCiv-SAS now overrides that and defaults to Both after Large Pangaea/default-player testing showed upscaled Glance cells still fully displayed a long case such as -17 + at-war + worst-enemy icons after the per-page player cap. Higher-player games were not tested here and may behave differently; the tunable Glance players-per-page cap is the adjustment point if needed. (GPT-5.5) -->
+			<!-- custom: updated Foreign Advisor name above: removed "Exotic" since it is now unified in a single file -->
+			<!-- custom: no longer using old Glance (EFAGlanceTab) and Cities (EFACityTrades) visibility options because those tabs are now always shown. (GPT-5.5) -->
+			<!-- <option id="EFAGlanceTab" key="EFA Glance" 
 					type="boolean" default="True" 
-					get="isShowGlance"/>
+					get="isShowGlance"/> -->
+			<!-- custom: EFAGlanceAttitudes remains user-facing: it controls Numbers/Smilies/Both display inside the always-shown Glance tab, so AdvCiv-SAS labels it explicitly instead of leaving it visually attached to Enhanced Info. See KI#139. (GPT-5.5) -->
 			<list   id="EFAGlanceAttitudes" key="EFA Glance Attitudes" 
-					type="int" default="0" listType="string">
+					type="int" default="2" listType="string">
 				<choice id="Numbers" get="isShowGlanceNumbers"/>
 				<choice id="Smilies" get="isShowGlanceSmilies"/>
 				<choice id="Both" get="isShowGlanceNumbers isShowGlanceSmilies"/>
@@ -34,13 +38,15 @@
 					get="isShowGlanceWarTrades"/>
 			<!-- advc.ctr  (Will not realign the tab labels when toggled. No big
 				 deal I think. It's the same with EFAGlanceTab.) -->
-			<option id="EFACityTrades" key="EFA City Trades" 
+			<!-- custom: commented-out now unused EFACityTrade -->
+			<!-- <option id="EFACityTrades" key="EFA City Trades" 
 					type="boolean" default="True" 
-					get="isCityTradesTab"/>
+					get="isCityTradesTab"/> -->
+			<!-- custom: Info tab always uses drawInfoImproved in CvForeignAdvisor, so the old EFAImprovedInfo toggle is obsolete. Base AdvCiv 1.12 also displayed it on the same row as the Glance attitude dropdown, which made that dropdown look like an Info-tab setting; see KI#139. (GPT-5.5) -->
 			<!-- advc.004: default was True in K-Mod -->
-			<option id="EFAImprovedInfo" key="EFA Improved Info" 
+			<!-- <option id="EFAImprovedInfo" key="EFA Improved Info"
 					type="boolean" default="False" 
-					get="isUseImprovedEFAInfo"/>
+					get="isUseImprovedEFAInfo"/> -->
 			<!--option id="EFADealTurnsLeft" key="EFA Deal Turns Left" 
 					type="boolean" default="True" 
 					get="isShowDealTurnsLeft"/-->
@@ -55,14 +61,15 @@
 				<choice id="Both"/>
 				<choice id="Neither"/>
 			</list>
-	
+
 			<!-- BUG Military Advisor (F5) by Ruff_Hi, EmperorFool, Karadoc -->
 			<option id="BugMA" key="BugMilitaryAdvisor"
 					type="boolean" default="False"
 					get="isBUG_MA"/>
-	
+
 			<!-- Technology Advisor (F6) by EmperorFool, Ruff_Hi -->
 			<!-- advc.004e: Disabled by default. -->
+			<!-- custom: invert meaning so unchecked keeps GP bulbing info visible by default; experienced players can opt out. (GPT-5.2-Codex) -->
 			<option id="GPTechPrefs" key="GP Tech Prefs" 
 					type="boolean" default="False" 
 					get="isShowGPTechPrefs"/>
@@ -75,7 +82,7 @@
 			<option id="ShowTechEra" key="Show Tech Era" 
 					type="boolean" default="False"
 					get="isShowTechEra" dirtyBit="Tech_Screen"/>
-	
+
 			<!-- BUG Religion Advisor (F7) by Ruff_Hi -->
 			<option id="BugReligiousTab" key="Religious" 
 					type="boolean" default="False" 
@@ -95,7 +102,7 @@
 			<option id="BugMembersTab" key="Members" 
 					type="boolean" default="False" 
 					get="isMembers"/>
-	
+
 			<!-- advc.091: -->
 			<option id="PartialScoreGraphs" key="Partial Score Graphs" 
 					type="boolean" default="False" 
@@ -132,7 +139,7 @@
 					get="isSortSevopedia"/>
 		</section>
 	</options>
-	
+
 	<widget name="WIDGET_INFO_WORLD_WONDERS" xml="TXT_KEY_TOP_CITIES_SCREEN_WORLD_WONDERS"/>
 	<widget name="WIDGET_INFO_NATIONAL_WONDERS" xml="TXT_KEY_TOP_CITIES_SCREEN_NATIONAL_WONDERS"/>
 	<widget name="WIDGET_INFO_PROJECTS" xml="TXT_KEY_PEDIA_CATEGORY_PROJECT"/>

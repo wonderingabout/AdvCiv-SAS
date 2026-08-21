@@ -1,0 +1,77 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2669
+# Commit: 2a8a73b28a07e66ed16de92c5d3c8f5b053e18c1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bd95b99915830e57cd05f74fcd1a28ba6f047f69
+# Title: Reduce AI value of Iron and other strategic resources
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+32	7	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 522f93e55..1dd1427a6 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -10925,16 +10925,41 @@ int CvPlayerAI::AI_baseBonusVal(BonusTypes eBonus, /* advc.036: */ bool bTrade)
+ 	if(pCoastalCity == NULL && pUnconnectedCoastalCity != NULL)
+ 		pCoastalCity = pUnconnectedCoastalCity;
+ 
+-	// advc: Moved into subroutines
+-	for (int i = 0; i < kCiv.getNumUnits(); i++)
++	// advc: Unit, building, project, route evaluation moved into subroutines ...
++
+ 	{
+-		rValue += AI_baseBonusUnitVal(eBonus, kCiv.unitAt(i), pCapital,
+-				pCoastalCity, bTrade);
++		int iUnitsEnabled = 0; // advc.036b
++		for (int i = 0; i < kCiv.getNumUnits(); i++)
++		{
++			// <advc.036b>
++			scaled rLoopValue = AI_baseBonusUnitVal(eBonus, kCiv.unitAt(i),
++					pCapital, pCoastalCity, bTrade);
++			if (rLoopValue.isPositive())
++				iUnitsEnabled++;
++			if (rLoopValue.isNegative()) // (future-proofing)
++				iUnitsEnabled--; // </advc.036b>
++			rValue += rLoopValue;
++		}
++		/*	<advc.036b> If numerous units become enabled, there will probably be some
++			redundancy (which AI_baseBonusUnitVal can't address). */
++		if (iUnitsEnabled > 1)
++			rValue /= scaled(iUnitsEnabled).pow(fixp(1/8.));
+ 	}
+-	for (int i = 0; i < kCiv.getNumBuildings(); i++)
+ 	{
+-		rValue += AI_baseBonusBuildingVal(eBonus, kCiv.buildingAt(i),
+-				iCities, iCoastalCities, bTrade);
++		int iBuildingsEnabled = 0; // advc.036b
++		for (int i = 0; i < kCiv.getNumBuildings(); i++)
++		{
++			scaled rLoopValue = AI_baseBonusBuildingVal(eBonus, kCiv.buildingAt(i),
++					iCities, iCoastalCities, bTrade);
++			if (rLoopValue.isPositive())
++				iBuildingsEnabled++;
++			if (rLoopValue.isNegative()) // (future-proofing)
++				iBuildingsEnabled--; // </advc.036b>
++			rValue += rLoopValue;
++		}
++		// <advc.036b> 
++		if (iBuildingsEnabled > 1)
++			rValue /= scaled(iBuildingsEnabled).pow(fixp(1/10.)); // </advc.036b>
+ 	}
+ 	FOR_EACH_ENUM(Project)
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1988

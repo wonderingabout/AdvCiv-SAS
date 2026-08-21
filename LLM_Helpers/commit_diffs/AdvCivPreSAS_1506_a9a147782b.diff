@@ -1,0 +1,58 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1506
+# Commit: a9a147782ba4573a5f187c422aaf9135457f8ea2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 077dae13b25c8aad23782e18d83f738d84e5bea6
+# Title: Fixed an old mouse focus glitch
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	1	CvGameCoreDLL/CvGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 5bad7f8d0..ebc6d25ed 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -453,7 +453,7 @@ void CvGame::updateTestEndTurn()  // advc.003: nested else branches replaced w/
+ {
+ 	if (!GET_PLAYER(getActivePlayer()).isTurnActive())
+ 		return;
+-
++	static bool bFocusMaybeStuck = false; // advc.001
+ 	// <advc.003g>
+ 	if(!b_mFPTestDone)
+ 		CvMessageControl::getInstance().sendFPTest(FPChecksum()); // </advc.003g>
+@@ -465,6 +465,13 @@ void CvGame::updateTestEndTurn()  // advc.003: nested else branches replaced w/
+ 	{
+ 		if (GET_PLAYER(getActivePlayer()).hasReadyUnit(bAny))
+ 			gDLL->getInterfaceIFace()->setEndTurnMessage(false);
++		// <advc.001>
++		else if(bFocusMaybeStuck && gDLL->getInterfaceIFace()->getHeadSelectedUnit() == NULL) {
++			// As a side-effect, this gives the focus to the main map.
++			gDLL->getInterfaceIFace()->makeSelectionListDirty();
++		}
++		bFocusMaybeStuck = false;
++		// </advc.001>
+ 		return;
+ 	}
+ 
+@@ -495,6 +502,7 @@ void CvGame::updateTestEndTurn()  // advc.003: nested else branches replaced w/
+ 	if (GET_PLAYER(getActivePlayer()).isOption(PLAYEROPTION_WAIT_END_TURN) || !gDLL->getInterfaceIFace()->isHasMovedUnit() || isHotSeat() || isPbem())
+ 	{
+ 		gDLL->getInterfaceIFace()->setEndTurnMessage(true);
++		bFocusMaybeStuck = true; // advc.001
+ 		return;
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1411

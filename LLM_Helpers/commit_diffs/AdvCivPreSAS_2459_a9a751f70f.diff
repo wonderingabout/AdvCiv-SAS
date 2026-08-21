@@ -1,0 +1,64 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2459
+# Commit: a9a751f70f669dd6ebfec43890c8a8ebae334edb
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4e714bba5c667d160426edd96e40a518f8ea3e04
+# Title: Make the short nuke animation a bit longer
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/XML/Units/CIV4MissionInfos.xml
+4	4	CvGameCoreDLL/CvSelectionGroup.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4MissionInfos.xml b/Assets/XML/Units/CIV4MissionInfos.xml
+index 2c3217ea3..0dae54fd2 100644
+--- a/Assets/XML/Units/CIV4MissionInfos.xml
++++ b/Assets/XML/Units/CIV4MissionInfos.xml
+@@ -238,8 +238,8 @@
+ 			<Help>TXT_KEY_MISSION_NUKE_HELP</Help>
+ 			<Waypoint>NONE</Waypoint>
+ 			<EntityEventType>ENTITY_EVENT_NUKE</EntityEventType>
+-			<!-- advc.002m: Was 40. The DLL will divide the time by 8 when
+-				 in some circumstances. -->
++			<!-- advc.002m: Was 40. The DLL will divide the time by 4
++				 or 8 in some circumstances. -->
+ 			<iTime>32</iTime>
+ 			<bTarget>0</bTarget>
+ 			<bBuild>0</bBuild>
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index cdd6af3d1..917d2179a 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -386,15 +386,15 @@ bool CvSelectionGroup::isNeverShowMoves() const
+ int CvSelectionGroup::nukeMissionTime() const
+ {
+ 	int const iFull = GC.getInfo(MISSION_NUKE).getTime(); // cut from startMission
+-	int const iShortened = iFull / 8;
++	int const iShortened = iFull / 4;
+ 	if (isNeverShowMoves())
+-		return iShortened;
++		return iShortened / 2;
+ 	CvGame const& kGame = GC.getGame();
++	if (getOwner() != kGame.getActivePlayer())
++		return iShortened / 2;
+ 	// Nothing to see when particle effects aren't enabled
+ 	if (gDLL->getGraphicOption(GRAPHICOPTION_EFFECTS_DISABLED))
+ 		return iShortened;
+-	if (getOwner() != kGame.getActivePlayer())
+-		return iShortened;
+ 	return iFull;
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1515

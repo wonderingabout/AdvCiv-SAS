@@ -1,0 +1,197 @@
+<!-- custom: example of output for example for leader gandhi -->
+
+
+
+[DEBUG] For iLeader=15, leader head info debugged as such:
+
+
+
+==== FIRST XML FIELDS PART 1 (from XML order) ====
+
+iWonderConstructRand: 8
+iBaseAttitude: 2
+iBasePeaceWeight: 11
+iPeaceWeightRand: 3
+iWarmongerRespect: 0
+iEspionageWeight: 40
+iRefuseToTalkWarThreshold: 6
+iNoTechTradeThreshold: 16
+iTechTradeKnownPercent: 18
+iMaxGoldTradePercent: 11
+iMaxGoldPerTurnTradePercent: 10
+
+
+
+==== BBAI VICTORY WEIGHTS ====
+
+Culture Victory Weight: 48
+Space Victory Weight: 31
+Conquest Victory Weight: -5
+Domination Victory Weight: 0
+Diplomacy Victory Weight: 79
+
+
+
+==== WAR XML FIELDS (from XML order) ====
+
+iMaxWarRand: 440
+iMaxWarNearbyPowerRatio: 100
+iMaxWarDistantPowerRatio: 60
+iMaxWarMinAdjacentLandPercent: 3
+iLimitedWarRand: 220
+iLimitedWarPowerRatio: 76
+iDogpileWarRand: 110
+iMakePeaceRand: 8
+iDeclareWarTradeRand: 40
+iDemandRebukedSneakProb: -8
+iDemandRebukedWarProb: -2
+iRazeCityProb: 0
+iBuildUnitProb: 12
+
+
+
+==== ATTITUDE MODIFIER FIELDS (from XML order) ====
+
+iBaseAttackOddsChange: 0
+iAttackOddsChangeRand: 8
+iWorseRankDifferenceAttitudeChange: 0
+iBetterRankDifferenceAttitudeChange: 1
+iCloseBordersAttitudeChange: -2
+iLostWarAttitudeChange: -1
+iAtWarAttitudeDivisor: -5
+iAtWarAttitudeChangeLimit: 5
+iAtPeaceAttitudeDivisor: 60
+iAtPeaceAttitudeChangeLimit: 1
+iSameReligionAttitudeChange: 1
+iSameReligionAttitudeDivisor: 10
+iSameReligionAttitudeChangeLimit: 4
+iDifferentReligionAttitudeChange: -1
+iDifferentReligionAttitudeDivisor: -15
+iDifferentReligionAttitudeChangeLimit: -1
+iBonusTradeAttitudeDivisor: 50
+iBonusTradeAttitudeChangeLimit: 2
+iOpenBordersAttitudeDivisor: 25
+iOpenBordersAttitudeChangeLimit: 2
+iDefensivePactAttitudeDivisor: 12
+iDefensivePactAttitudeChangeLimit: 2
+iShareWarAttitudeChange: 1
+iShareWarAttitudeDivisor: 8
+iShareWarAttitudeChangeLimit: 2
+iFavoriteCivicAttitudeChange: 1
+iFavoriteCivicAttitudeDivisor: 10
+iFavoriteCivicAttitudeChangeLimit: 5
+
+
+
+==== ATTITUDE THRESHOLDS ====
+
+getAdoptCivicRefuseAttitudeThreshold: 2 (ATTITUDE_CAUTIOUS)
+getCityRefuseAttitudeThreshold: 3 (ATTITUDE_PLEASED)
+getConvertReligionRefuseAttitudeThreshold: 1 (ATTITUDE_ANNOYED)
+getDeclareWarRefuseAttitudeThreshold: 3 (ATTITUDE_PLEASED)
+getDeclareWarThemRefuseAttitudeThreshold: 1 (ATTITUDE_ANNOYED)
+getDefensivePactRefuseAttitudeThreshold: 3 (ATTITUDE_PLEASED)
+getDemandTributeAttitudeThreshold: 2 (ATTITUDE_CAUTIOUS)
+getHappinessBonusRefuseAttitudeThreshold: -1 (NONE)
+getHealthBonusRefuseAttitudeThreshold: -1 (NONE)
+getMapRefuseAttitudeThreshold: -1 (NONE)
+getNativeCityRefuseAttitudeThreshold: 4 (ATTITUDE_FRIENDLY)
+getNoGiveHelpAttitudeThreshold: 2 (ATTITUDE_CAUTIOUS)
+getOpenBordersRefuseAttitudeThreshold: -1 (NONE)
+getPermanentAllianceRefuseAttitudeThreshold: 3 (ATTITUDE_PLEASED)
+getStopTradingRefuseAttitudeThreshold: 3 (ATTITUDE_PLEASED)
+getStopTradingThemRefuseAttitudeThreshold: 2 (ATTITUDE_CAUTIOUS)
+getStrategicBonusRefuseAttitudeThreshold: 1 (ATTITUDE_ANNOYED)
+getTechRefuseAttitudeThreshold: -1 (NONE)
+getVassalRefuseAttitudeThreshold: 1 (ATTITUDE_ANNOYED)
+
+
+
+==== VASSAL AND FREEDOM FIELDS (from XML order) ====
+
+iVassalPowerModifier: -24
+iFreedomAppreciation: 10
+
+
+
+==== FLAVORS ====
+
+Flavor 0 (FLAVOR_MILITARY): 0
+Flavor 1 (FLAVOR_RELIGION): 0
+Flavor 2 (FLAVOR_PRODUCTION): 0
+Flavor 3 (FLAVOR_GOLD): 0
+Flavor 4 (FLAVOR_SCIENCE): 0
+Flavor 5 (FLAVOR_CULTURE): 12
+Flavor 6 (FLAVOR_GROWTH): 0
+Flavor 7 (FLAVOR_ESPIONAGE): 0
+
+
+
+==== CONTACTS ====
+
+Contact 0 (CONTACT_RELIGION_PRESSURE): Delay 50, Rand 550
+Contact 1 (CONTACT_CIVIC_PRESSURE): Delay 50, Rand 10
+Contact 2 (CONTACT_JOIN_WAR): Delay 20, Rand 20
+Contact 3 (CONTACT_STOP_TRADING): Delay 20, Rand 50
+Contact 4 (CONTACT_GIVE_HELP): Delay 50, Rand 10
+Contact 5 (CONTACT_ASK_FOR_HELP): Delay 50, Rand 10
+Contact 6 (CONTACT_DEMAND_TRIBUTE): Delay 50, Rand -100
+Contact 7 (CONTACT_OPEN_BORDERS): Delay 40, Rand 10
+Contact 8 (CONTACT_DEFENSIVE_PACT): Delay 20, Rand 80
+Contact 9 (CONTACT_PERMANENT_ALLIANCE): Delay 20, Rand 80
+Contact 10 (CONTACT_PEACE_TREATY): Delay 8, Rand 8
+Contact 11 (CONTACT_TRADE_TECH): Delay 30, Rand 1
+Contact 12 (CONTACT_TRADE_BONUS): Delay 20, Rand 1
+Contact 13 (CONTACT_TRADE_MAP): Delay 50, Rand 20
+
+
+
+==== MEMORY ====
+
+Memory 0 (MEMORY_DECLARED_WAR): AttitudePercent -300, Decay 150
+Memory 1 (MEMORY_DECLARED_WAR_ON_FRIEND): AttitudePercent -100, Decay 120
+Memory 2 (MEMORY_HIRED_WAR_ALLY): AttitudePercent -200, Decay 75
+Memory 3 (MEMORY_NUKED_US): AttitudePercent -200, Decay 120
+Memory 4 (MEMORY_NUKED_FRIEND): AttitudePercent -100, Decay 80
+Memory 5 (MEMORY_RAZED_CITY): AttitudePercent -250, Decay 75
+Memory 6 (MEMORY_RAZED_HOLY_CITY): AttitudePercent -200, Decay 150
+Memory 7 (MEMORY_SPY_CAUGHT): AttitudePercent -100, Decay 40
+Memory 8 (MEMORY_GIVE_HELP): AttitudePercent 100, Decay 150
+Memory 9 (MEMORY_REFUSED_HELP): AttitudePercent -100, Decay 100
+Memory 10 (MEMORY_ACCEPT_DEMAND): AttitudePercent 100, Decay 30
+Memory 11 (MEMORY_REJECTED_DEMAND): AttitudePercent -100, Decay 90
+Memory 12 (MEMORY_ACCEPTED_RELIGION): AttitudePercent 100, Decay 100
+Memory 13 (MEMORY_DENIED_RELIGION): AttitudePercent -100, Decay 50
+Memory 14 (MEMORY_ACCEPTED_CIVIC): AttitudePercent 100, Decay 100
+Memory 15 (MEMORY_DENIED_CIVIC): AttitudePercent -100, Decay 50
+Memory 16 (MEMORY_ACCEPTED_JOIN_WAR): AttitudePercent 100, Decay 100
+Memory 17 (MEMORY_DENIED_JOIN_WAR): AttitudePercent -100, Decay 100
+Memory 18 (MEMORY_ACCEPTED_STOP_TRADING): AttitudePercent 50, Decay 50
+Memory 19 (MEMORY_DENIED_STOP_TRADING): AttitudePercent -100, Decay 50
+Memory 20 (MEMORY_STOPPED_TRADING): AttitudePercent -100, Decay 60
+Memory 21 (MEMORY_STOPPED_TRADING_RECENT): AttitudePercent 0, Decay 18
+Memory 22 (MEMORY_HIRED_TRADE_EMBARGO): AttitudePercent -100, Decay 60
+Memory 23 (MEMORY_MADE_DEMAND): AttitudePercent -100, Decay 30
+Memory 24 (MEMORY_CANCELLED_VASSAL_AGREEMENT): AttitudePercent 0, Decay 10
+Memory 25 (MEMORY_MADE_DEMAND_RECENT): AttitudePercent 0, Decay 20
+Memory 26 (MEMORY_CANCELLED_OPEN_BORDERS): AttitudePercent 0, Decay 10
+Memory 27 (MEMORY_CANCELLED_DEFENSIVE_PACT): AttitudePercent 0, Decay 10
+Memory 28 (MEMORY_TRADED_TECH_TO_US): AttitudePercent 10, Decay 25
+Memory 29 (MEMORY_RECEIVED_TECH_FROM_ANY): AttitudePercent 0, Decay 20
+Memory 30 (MEMORY_VOTED_AGAINST_US): AttitudePercent -200, Decay 10
+Memory 31 (MEMORY_VOTED_FOR_US): AttitudePercent 200, Decay 10
+Memory 32 (MEMORY_EVENT_GOOD_TO_US): AttitudePercent 100, Decay 50
+Memory 33 (MEMORY_EVENT_BAD_TO_US): AttitudePercent -100, Decay 50
+Memory 34 (MEMORY_LIBERATED_CITIES): AttitudePercent 150, Decay 150
+Memory 35 (MEMORY_INDEPENDENCE): AttitudePercent 100, Decay 30
+Memory 36 (MEMORY_DECLARED_WAR_RECENT): AttitudePercent 0, Decay 11
+
+
+
+==== NOWARATTITUDEPROBS ====
+
+NoWarAttitudeProb 0 (Furious): 24
+NoWarAttitudeProb 1 (Annoyed): 58
+NoWarAttitudeProb 2 (Cautious): 92
+NoWarAttitudeProb 3 (Pleased): 114
+NoWarAttitudeProb 4 (Friendly): 118

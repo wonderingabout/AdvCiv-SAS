@@ -1,0 +1,128 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3902
+# Commit: 1ceb7fbb21db34bf1f08e7742dc6b7bf2abf8f14
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 07ea5c82099a0e65938bd0b72a2bd2e4ae1a3d86
+# Title: Some very minor comment, refactoring changes.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+5	4	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 5452b6a09..9352484ba 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -13587,7 +13587,7 @@ void CvCityAI::read(FDataStreamBase* pStream)
+ void CvCityAI::write(FDataStreamBase* pStream)
+ {
+ 	CvCity::write(pStream);
+-	uint uiFlag;;
++	uint uiFlag;
+ 	//uiFlag = 1; // K-Mod: m_aiConstructionValue
+ 	//uiFlag = 2; // K-Mod: m_iCultureWeight
+ 	//uiFlag = 3; // advc.139: m_bEvacuate
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index ca1b161ac..360ef2be6 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2005,7 +2005,7 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 	szTemp.Format(SETCOLR L"%s" ENDCOLR , TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"),
+ 			kAction.getHotKeyDescription().c_str());
+ 	szBuffer.assign(szTemp);
+-	CvDLLInterfaceIFaceBase& kUI = *gDLL->getInterfaceIFace(); // advc
++	CvDLLInterfaceIFaceBase& kUI = *gDLL->getInterfaceIFace();
+ 
+ 	CvUnit const* pHeadSelectedUnit = kUI.getHeadSelectedUnit();
+ 	if (pHeadSelectedUnit != NULL)
+@@ -2026,7 +2026,7 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 			}
+ 			else if (kAction.getCommandType() == COMMAND_UPGRADE)
+ 			{
+-				UnitTypes eTo = (UnitTypes)kAction.getCommandData(); // advc
++				UnitTypes const eTo = (UnitTypes)kAction.getCommandData();
+ 				GAMETEXT.setBasicUnitHelp(szBuffer, eTo);
+ 
+ 				// <advc.080>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 68b1e25d4..3dc3c87e2 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -2916,7 +2916,7 @@ void CvGameTextMgr::setCannotAttackHelp(CvWStringBuffer& szHelp,
+ void createTestFontString(CvWStringBuffer& szString)
+ {
+ 	//	advc: Will have to restore this from BtS if it is indeed ever needed.
+-	//	Contains non-ASCII string literals that seem trip up my Git merge tool.
++	//	Contains non-ASCII string literals that seem to trip up my Git merge tool.
+ } }*/
+ 
+ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index de4e9abd5..5b487252b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -6770,7 +6770,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 		// Decrease the value if we are missing other prereqs.
+ 		{
+ 			int iMissingTechs = 0;
+-			if (!kTeam.isHasTech((TechTypes)kLoopUnit.getPrereqAndTech()))
++			if (!kTeam.isHasTech(kLoopUnit.getPrereqAndTech()))
+ 				iMissingTechs++;
+ 			for (int j = 0; j < kLoopUnit.getNumPrereqAndTechs(); j++)
+ 			{
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 32be3cb12..3d105631e 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -249,7 +249,7 @@ scaled CvTeamAI::AI_estimateYieldRate(PlayerTypes ePlayer,
+ 		break;
+ 	}
+ 	FAssert(eHistory != NO_PLAYER_HISTORY);
+-	return AI_estimateDemographic(ePlayer, eHistory, iSamples);;
++	return AI_estimateDemographic(ePlayer, eHistory, iSamples);
+ }
+ 
+ /*	K-Mod: return the total yield of the team, estimated by averaging
+@@ -6515,7 +6515,7 @@ int CvTeamAI::AI_getTechMonopolyValue(TechTypes eTech, TeamTypes eTeam) const
+ {
+ 	PROFILE_FUNC(); // advc: called not that infrequently
+ 	//bool bWarPlan = (getAnyWarPlanCount(eTeam) > 0);
+-	bool bWarPlan = (AI_getWarPlan(eTeam) != NO_WARPLAN); // advc.001
++	bool const bWarPlan = (AI_getWarPlan(eTeam) != NO_WARPLAN); // advc.001
+ 	int iValue = 0;
+ 	// <advc.550c> Evaluate each team member so that UU and UB can be taken into account
+ 	MemberIter it(eTeam);
+@@ -6538,9 +6538,10 @@ int CvTeamAI::AI_getTechMonopolyValue(TechTypes eTech, TeamTypes eTeam) const
+ 				continue;
+ 
+ 			int iNavalValue = 0;
+-			int iCombatRatio = (kUnit.getCombat() * 100) / std::max(1, GC.getGame().getBestLandUnitCombat());
++			int iCombatRatio = (kUnit.getCombat() * 100) /
++					std::max(1, GC.getGame().getBestLandUnitCombat());
+ 			if (iCombatRatio > 50)
+-				iValue += ((bWarPlan ? 100 : 50) * (iCombatRatio - 40)) / 50;
++				iValue += (bWarPlan ? 2 : 1) * (iCombatRatio - 40);
+ 
+ 			switch (kUnit.getDefaultUnitAIType())
+ 			{
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=4291

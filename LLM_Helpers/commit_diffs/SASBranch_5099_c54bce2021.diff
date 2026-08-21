@@ -1,0 +1,790 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5099
+# Commit: c54bce20216cae4dce88d25f3f2b54467949bcd3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f53e5cd9a7fdb824ad766e12594d783698cdf8ac
+# Title: significantly adjust the medieval era and mid game tech tree - split the late medieval era column into 2 columns as was too crowded and not as easy to manage...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+76	80	Assets/XML/Technologies/CIV4TechInfos.xml
+20	5	Assets/XML/Units/CIV4UnitInfos.xml
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index f8e05549d..017aeb694 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -26523,7 +26523,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 1500!!! Anyways etc -->
+-			<iCost>575</iCost>
++			<iCost>550</iCost>
+ 			<iHurryCostModifier>200</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 4ecedd74b..f58dbd4a7 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -257,7 +257,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>21</iGridX>
++			<iGridX>22</iGridX>
+ 			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -1006,7 +1006,7 @@
+ 			<iAIWeight>100</iAIWeight>
+ 			<!-- advc.552: was 10 -->
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>900</iCost>
++			<iCost>1200</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -1037,7 +1037,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>9</iGridX>
++			<iGridX>10</iGridX>
+ 			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -1051,11 +1051,9 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++				<PrereqTech>TECH_FEUDALISM</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+-			</AndPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_CHIVALRY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_CHIVALRY</Sound>
+ 			<SoundMP>AS2D_TECH_MP_CHIVALRY</SoundMP>
+@@ -1187,7 +1185,7 @@
+ 			<bWaterWork>0</bWaterWork>
+ 			<!-- advc.500c -->
+ 			<bNoFearForSafety>1</bNoFearForSafety>
+-			<iGridX>14</iGridX>
++			<iGridX>15</iGridX>
+ 			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -1270,7 +1268,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>13</iGridX>
++			<iGridX>14</iGridX>
+ 			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -1421,7 +1419,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>12</iGridX>
++			<iGridX>13</iGridX>
+ 			<iGridY>9</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -1442,11 +1440,11 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_NATURALISM</PrereqTech>
++				<PrereqTech>TECH_DEMOCRACY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
++				<PrereqTech>TECH_NATURALISM</PrereqTech>
+ 				<PrereqTech>TECH_BANKING</PrereqTech>
+-				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_LIBERALISM_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_LIBERALISM</Sound>
+@@ -1462,7 +1460,7 @@
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1900</iCost>
++			<iCost>1800</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_RENAISSANCE</Era>
+@@ -1494,7 +1492,7 @@
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>12</iGridX>
+-			<iGridY>1</iGridY>
++			<iGridY>9</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -1510,11 +1508,10 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
++				<PrereqTech>TECH_FEUDALISM</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+-				<PrereqTech>TECH_BANKING</PrereqTech>
++				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_DEMOCRACY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_DEMOCRACY</Sound>
+@@ -1562,7 +1559,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>14</iGridX>
++			<iGridX>15</iGridX>
+ 			<iGridY>14</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -1638,7 +1635,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>16</iGridX>
++			<iGridX>17</iGridX>
+ 			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -1721,7 +1718,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>15</iGridX>
++			<iGridX>16</iGridX>
+ 			<iGridY>9</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -1798,7 +1795,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>17</iGridX>
++			<iGridX>18</iGridX>
+ 			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -1873,7 +1870,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>14</iGridX>
++			<iGridX>15</iGridX>
+ 			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -2558,7 +2555,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>11</iGridX>
++			<iGridX>12</iGridX>
+ 			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
+ 			<!-- custom: was missing (and i assume empty but anyways etc (is the effect from the old TECH_SCIENTIFIC_METHOD (now removed anyways etc) but anyways etc)) -->
+@@ -2870,7 +2867,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>15</iGridX>
++			<iGridX>16</iGridX>
+ 			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -2911,7 +2908,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+ 			<!-- advc.910: was 700 -->
+-			<iCost>1400</iCost>
++			<iCost>1200</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -2978,7 +2975,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1400</iCost>
++			<iCost>1200</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3051,7 +3048,7 @@
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1400</iCost>
++			<iCost>1600</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3083,8 +3080,8 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>10</iGridX>
+-			<iGridY>10</iGridY>
++			<iGridX>11</iGridX>
++			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -3108,10 +3105,10 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_FEUDALISM</PrereqTech>
++				<PrereqTech>TECH_MACHINERY</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_MACHINERY</PrereqTech>
++				<PrereqTech>TECH_FEUDALISM</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_PRINTING_PRESS_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_PRINTPRESS</Sound>
+@@ -3159,7 +3156,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>13</iGridX>
++			<iGridX>14</iGridX>
+ 			<iGridY>14</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -3203,7 +3200,7 @@
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+-			<iCost>1400</iCost>
++			<iCost>1600</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -3235,7 +3232,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>10</iGridX>
++			<iGridX>11</iGridX>
+ 			<iGridY>1</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -3265,7 +3262,7 @@
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+-				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
++				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_ASTRONOMY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_ASTRONOMY</Sound>
+@@ -3313,7 +3310,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>11</iGridX>
++			<iGridX>12</iGridX>
+ 			<iGridY>5</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -3333,7 +3330,7 @@
+ 				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_MACHINERY</PrereqTech>
++				<PrereqTech>TECH_BROADER_EDUCATION</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_CHEMISTRY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_CHEMISTRY</Sound>
+@@ -3471,7 +3468,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>12</iGridX>
++			<iGridX>13</iGridX>
+ 			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -3492,10 +3489,10 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_MACHINERY</PrereqTech>
++				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
++				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_PHYSICS_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_PHYSICS</Sound>
+@@ -3545,7 +3542,7 @@
+ 			<!-- custom: was 1 -->
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>13</iGridX>
++			<iGridX>14</iGridX>
+ 			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -3569,7 +3566,7 @@
+ 				<PrereqTech>TECH_NATURALISM</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_PHYSICS</PrereqTech>
++				<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_BIOLOGY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_BIOLOGY</Sound>
+@@ -3698,7 +3695,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>15</iGridX>
++			<iGridX>16</iGridX>
+ 			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -3771,7 +3768,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>15</iGridX>
++			<iGridX>16</iGridX>
+ 			<iGridY>5</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -3844,7 +3841,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>18</iGridX>
++			<iGridX>19</iGridX>
+ 			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -3915,7 +3912,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>17</iGridX>
++			<iGridX>18</iGridX>
+ 			<iGridY>1</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -3996,7 +3993,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>18</iGridX>
++			<iGridX>19</iGridX>
+ 			<iGridY>1</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -4063,7 +4060,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>20</iGridX>
++			<iGridX>21</iGridX>
+ 			<iGridY>8</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -4141,7 +4138,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>19</iGridX>
++			<iGridX>20</iGridX>
+ 			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -4206,7 +4203,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>23</iGridX>
++			<iGridX>24</iGridX>
+ 			<iGridY>9</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -4278,7 +4275,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>18</iGridX>
++			<iGridX>19</iGridX>
+ 			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -4348,7 +4345,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>21</iGridX>
++			<iGridX>22</iGridX>
+ 			<iGridY>10</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -4431,7 +4428,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>22</iGridX>
++			<iGridX>23</iGridX>
+ 			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -4645,7 +4642,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>21</iGridX>
++			<iGridX>22</iGridX>
+ 			<iGridY>1</iGridY>
+ 			<DomainExtraMoves>
+ 				<DomainExtraMove>
+@@ -5332,7 +5329,7 @@
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+ 			<!-- advc.306: was 700 -->
+-			<iCost>1400</iCost>
++			<iCost>1200</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<Era>ERA_MEDIEVAL</Era>
+@@ -5390,9 +5387,7 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs>
+-				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+-			</AndPreReqs>
++			<AndPreReqs/>
+ 			<Quote>TXT_KEY_TECH_MACHINERY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_MACHINERY</Sound>
+ 			<SoundMP>AS2D_TECH_MP_MACHINERY</SoundMP>
+@@ -5567,7 +5562,7 @@
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>10</iAITradeModifier>
+-			<iCost>1400</iCost>
++			<iCost>1600</iCost>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<!-- custom: was ERA_RENAISSANCE -->
+@@ -5600,8 +5595,8 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>10</iGridX>
+-			<iGridY>7</iGridY>
++			<iGridX>11</iGridX>
++			<iGridY>5</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -5621,7 +5616,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_CHIVALRY</PrereqTech>
++				<PrereqTech>TECH_LATER_ABRAHAMISM</PrereqTech>
+ 			</OrPreReqs>
+ 			<!-- custom: as nicely recommended by chatgpt 5 thanks (more balanced as more easily reachable, and also i mean but anyways etc it mentionned very relevantly if i may say thanks but anyways etc alchemy being related to it which historically i guess is more or less the case thanks really i mean i added it as of now as such i mean but anyways etc), instead of my original TECH_BROADER_EDUCATION idea that was too strict/stiff i mean in this case but anyways etc -->
+ 			<AndPreReqs>
+@@ -5674,7 +5669,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>17</iGridX>
++			<iGridX>18</iGridX>
+ 			<iGridY>14</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -5749,7 +5744,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>13</iGridX>
++			<iGridX>14</iGridX>
+ 			<iGridY>5</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -5817,7 +5812,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>11</iGridX>
++			<iGridX>12</iGridX>
+ 			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -5842,6 +5837,7 @@
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_MACHINERY</PrereqTech>
++				<PrereqTech>TECH_CHIVALRY</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_FIREARMS_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_FIREARMS</Sound>
+@@ -5889,7 +5885,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>13</iGridX>
++			<iGridX>14</iGridX>
+ 			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -5966,7 +5962,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>16</iGridX>
++			<iGridX>17</iGridX>
+ 			<iGridY>1</iGridY>
+ 			<DomainExtraMoves>
+ 				<DomainExtraMove>
+@@ -6045,7 +6041,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>14</iGridX>
++			<iGridX>15</iGridX>
+ 			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -6116,7 +6112,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>23</iGridX>
++			<iGridX>24</iGridX>
+ 			<iGridY>3</iGridY>
+ 			<DomainExtraMoves>
+ 				<DomainExtraMove>
+@@ -6202,7 +6198,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>16</iGridX>
++			<iGridX>17</iGridX>
+ 			<iGridY>5</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -6269,7 +6265,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>18</iGridX>
++			<iGridX>19</iGridX>
+ 			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -6347,7 +6343,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>16</iGridX>
++			<iGridX>17</iGridX>
+ 			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -6415,7 +6411,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>14</iGridX>
++			<iGridX>15</iGridX>
+ 			<iGridY>1</iGridY>
+ 			<!-- custom: was DOMAIN_SEA 1 -->
+ 			<DomainExtraMoves/>
+@@ -6487,7 +6483,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>19</iGridX>
++			<iGridX>20</iGridX>
+ 			<iGridY>3</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -6553,7 +6549,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>19</iGridX>
++			<iGridX>20</iGridX>
+ 			<iGridY>10</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -6631,7 +6627,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>23</iGridX>
++			<iGridX>24</iGridX>
+ 			<iGridY>1</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -6704,7 +6700,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>18</iGridX>
++			<iGridX>19</iGridX>
+ 			<iGridY>5</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -6772,7 +6768,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>19</iGridX>
++			<iGridX>20</iGridX>
+ 			<iGridY>1</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -6843,7 +6839,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>22</iGridX>
++			<iGridX>23</iGridX>
+ 			<iGridY>9</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -6917,7 +6913,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>22</iGridX>
++			<iGridX>23</iGridX>
+ 			<iGridY>12</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 844e1088a..1fbb46efd 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -20012,7 +20012,12 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY -->
+ 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: was empty anyways etc -->
++			<TechTypes>
++				<PrereqTech>TECH_MACHINERY</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>BONUS_IRON</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+@@ -20200,7 +20205,12 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_CHEMISTRY in the generic cannon unit anyways etc -->
+ 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: was empty anyways etc -->
++			<TechTypes>
++				<PrereqTech>TECH_MACHINERY</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<!-- custom: was BONUS_IRON in the generic cannon as of now at least if not always or not but anyways etc -->
+ 			<BonusType/>
+ 			<PrereqBonuses/>
+@@ -20418,7 +20428,12 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: moved here as per tech rework anyways etc, also buffs physics tech which is quite weak otherwise at least as of now anyways etc, is a counter to main military gun path too strategically so interesting perhaps from gameplay standpoint to not overcrowd one tech and having alternate (or alternative? but anyways etc) strategies if one may say anyways etc, was TECH_MARINE_TECHNOLOGY -->
+ 			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: was empty anyways etc -->
++			<TechTypes>
++				<PrereqTech>TECH_MACHINERY</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<!-- custom: fine to change according to chatgpt 5 after i asked it about it, reasnoning below, check if accurate anyways etc, was iron only in generic cannon in advciv-sas as of now but anyways etc. Note: for now not changed for all cannons so including the generic cannon but anyways etc, as bit tedious to consider in this case i mean but anyways etc, plus it would remove some of the strategic importance of iron, which is fine in itself but not needed for now if not always or not so left as such as of now for other units but anyways etc -->
+ 			<!-- "The early gunpowder artillery, like bombards and hand cannons, often used bronze (copper alloys) or wrought iron. Bronze was preferred for its mobility and shock resistance, with iron being cheaper but more brittle. The 15th-century Bohemian houfnice, key in the Hussite wars, may have used wrought iron early on but later cast in bronze." -->
+ 			<!-- "Hussite artillery used small field guns and howitzers, often wrought iron but sometimes bronze. By the 16th century, Habsburgs used bronze howitzers more widely, so requiring copper as an alternative to iron in Civ4 fits historically." -->
+@@ -22646,7 +22661,7 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
++			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -22833,9 +22848,9 @@ In your AdvCiv/K-Mod base the effect is “mostly multiplicative”, not simple
+ 			<!-- custom: adjusted as per reworked tech tree to a closer tech if i am not mistaken anyways etc, was TECH_MILITARY_SCIENCE and techTypes TECH_ASTRONOMY -->
+ 			<PrereqTech>TECH_PHYSICS</PrereqTech>
+ 			<TechTypes>
++				<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+ 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+-				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+ 			<!-- advc.200, advc.905b: Removed COPPER -->
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 14990ae14..d0262edc2 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 9b089ec39..0901aa301 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 2c3e286d6..3802c7930 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 122b8e097..c514aed8c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (2).JPG
+index 22fcb87c5..b2d9de82a 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG
+index 9d91a32a8..081962ddd 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.730_sevopedia_promotions_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=27334

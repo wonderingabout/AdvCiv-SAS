@@ -1,0 +1,93 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 437
+# Commit: 89e8064d8964c530bd553eccf857447fcedc8f06
+# History segment: K-Mod history
+# Parent used for diff: b9ae20c229ab752c6c4eab0f093a2a4800c91ede
+# Title: Gave ATTACK_CITY units a few more defensive responsibilities.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	10	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 09bdeb012..7eb338667 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3245,12 +3245,19 @@ void CvUnitAI::AI_attackCityMove()
+ 	if (bAtWar) // recall that "bAtWar" just means we are in enemy territory.
+ 	{
+ 		// note. if we are 2 steps from the target city, this check here is redundant. (see code above)
+-		if (AI_stackVsStack(1, 160, 100, iMoveFlags))
++		if (AI_stackVsStack(1, 160, 95, iMoveFlags))
+ 			return;
+ 	}
+ 	else
+ 	{
+-		if (AI_stackVsStack(4, 130, 60, iMoveFlags))
++		if (eAreaAIType == AREAAI_DEFENSIVE && plot()->getOwnerINLINE() == getOwnerINLINE())
++		{
++			if (AI_stackVsStack(4, 110, 55, iMoveFlags))
++				return;
++			if (AI_stackVsStack(4, 180, 30, iMoveFlags))
++				return;
++		}
++		else if (AI_stackVsStack(4, 130, 60, iMoveFlags))
+ 			return;
+ 	}
+ 	// K-Mod end
+@@ -3394,22 +3401,26 @@ void CvUnitAI::AI_attackCityMove()
+ 		}
+ 		else
+ 		{
+-			if( !isBarbarian() && (eAreaAIType == AREAAI_DEFENSIVE) )
++			if (bTurtle)
+ 			{
+-				// Use smaller attack city stacks on defense
+-				if (AI_guardCity(false, true, 3, iMoveFlags))
++				// K-Mod
++				if (AI_defendTeritory(51, iMoveFlags, 5))
++					return;
++				// K-Mod end
++				if (AI_guardCity(false, true, 7, iMoveFlags))
+ 				{
+ 					return;
+ 				}
+ 			}
+-
+-			if( bTurtle )
++			else if (!isBarbarian() && eAreaAIType == AREAAI_DEFENSIVE)
+ 			{
++				// Use smaller attack city stacks on defense
+ 				// K-Mod
+-				if (AI_defendTeritory(51, iMoveFlags, 5))
++				if (AI_defendTeritory(60, iMoveFlags, 3))
+ 					return;
+ 				// K-Mod end
+-				if (AI_guardCity(false, true, 7, iMoveFlags))
++
++				if (AI_guardCity(false, true, 3, iMoveFlags))
+ 				{
+ 					return;
+ 				}
+@@ -3580,7 +3591,7 @@ void CvUnitAI::AI_attackCityMove()
+ 			MissionAITypes eMissionAIType = MISSIONAI_GROUP;
+ 			int iJoiners = kOwner.AI_unitTargetMissionAIs(this, &eMissionAIType, 1, getGroup(), 2);
+ 			
+-			if( (iJoiners*6) > getGroup()->getNumUnits() )
++			if (5*iJoiners > getGroup()->getNumUnits()) // was 6*
+ 			{
+ 				getGroup()->pushMission(MISSION_SKIP);
+ 				return;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2116

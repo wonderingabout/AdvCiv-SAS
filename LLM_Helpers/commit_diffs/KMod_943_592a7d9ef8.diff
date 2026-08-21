@@ -1,0 +1,137 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 943
+# Commit: 592a7d9ef855e2b67a781e8cc9262eedf79ae8da
+# History segment: K-Mod history
+# Parent used for diff: 89d942d0765767820b3820daab66fd53b9754db9
+# Title: Reverted the K-Mod changes to team tech costs; and fixed a related bug.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+22	30	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeam.h
+1	1	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 081d50060..a8fe3b9b9 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -923,19 +923,25 @@ void CvTeam::shareCounters(TeamTypes eTeam)
+ 
+ 	for (TechTypes eTech = (TechTypes)0; eTech < GC.getNumTechInfos(); eTech=(TechTypes)(eTech+1))
+ 	{
+-		if (!isHasTech(eTech))
++		//if (!isHasTech(eTech))
++		if (!isHasTech(eTech) && !kShareTeam.isHasTech(eTech))
+ 		{
+-			/* if (kShareTeam.getResearchProgress(eTech) > getResearchProgress(eTech))
++			// K-Mod note: it's difficult to do any combined proportionality adjustments here, because if we set
++			// the progress higher than the current cost then we'll get the tech right now before the cost is increased.
++			// We can however adjust for uneven tech costs before the teams are merged.
++			// (eg. suppose techs are more expensive for team 2; if team 2 almost has a tech - and if progress is
++			//  transfered without adjustment, team 1 will immediately get the tech even though team 2 didn't finish it.)
++
++			//if (kShareTeam.getResearchProgress(eTech) > getResearchProgress(eTech))
++			if (kShareTeam.getResearchProgress(eTech) * getResearchCost(eTech) > getResearchProgress(eTech) * kShareTeam.getResearchCost(eTech))
+ 			{
+-				setResearchProgress((eTech), kShareTeam.getResearchProgress(eTech), getLeaderID());
+-			} */
+-			// K-Mod note: the following assumes the tech cost is directly proportional to the size of the team
+-			changeResearchProgress(eTech, kShareTeam.getResearchProgress(eTech), getLeaderID());
++				setResearchProgress(eTech, kShareTeam.getResearchProgress(eTech) * getResearchCost(eTech) / std::max(1, kShareTeam.getResearchCost(eTech)), getLeaderID());
++			}
++			//
++			//else
++			//	kShareTeam.setResearchProgress(eTech, getResearchProgress(eTech) * kShareTeam.getResearchCost(eTech) / std::max(1, getResearchCost(eTech)), kShareTeam.getLeaderID());
++			//
+ 		}
+-		//
+-		//if (!kShareTeam.isHasTech(eTech))
+-		//	setResearchProgress(eTech, getResearchProgress(eTech), getLeaderID());
+-		//
+ 
+ 		// unofficial patch
+ 		if ( kShareTeam.isHasTech(eTech) && !(kShareTeam.isNoTradeTech(eTech)) )
+@@ -2828,7 +2834,7 @@ int CvTeam::getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain) const
+ 	return iMax;
+ }
+ 
+-int CvTeam::getResearchCost(TechTypes eTech, bool bGlobalModifiers) const // K-Mod added bGlobalModifiers
++int CvTeam::getResearchCost(TechTypes eTech, bool bGlobalModifiers, bool bTeamSizeModifiers) const // K-Mod added bGlobalModifiers & bTeamSizeModifiers
+ {
+ 	int iCost;
+ 
+@@ -2849,28 +2855,14 @@ int CvTeam::getResearchCost(TechTypes eTech, bool bGlobalModifiers) const // K-M
+ 
+ 		iCost *= GC.getEraInfo(GC.getGameINLINE().getStartEra()).getResearchPercent();
+ 		iCost /= 100;
++	}
+ 
+-		// K-Mod. Scale the global tech rate based on how many teams their are compared to the default for this map size.
+-		// The cost should be _reduced_ if there are fewer teams than usual. (depending on the xml value. see comment below)
+-		int iEffectiveTeamSizePercent = 100*GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getDefaultPlayers() / std::max(1, GC.getGameINLINE().countCivTeamsEverAlive());
+-		if (iEffectiveTeamSizePercent > 100)
+-		{
+-			iCost *= GC.getDefineINT("TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER") * (iEffectiveTeamSizePercent - 100) + 10000;
+-			iCost /= iEffectiveTeamSizePercent*100;
+-		}
+-		// K-Mod end
++	if (bTeamSizeModifiers) // K-Mod
++	{
++		iCost *= std::max(0, ((GC.getDefineINT("TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER") * (getNumMembers() - 1)) + 100));
++		iCost /= 100;
+ 	}
+ 
+-	/* original bts code
+-	iCost *= std::max(0, ((GC.getDefineINT("TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER") * (getNumMembers() - 1)) + 100));
+-	iCost /= 100; */
+-
+-	iCost *= getNumMembers(); // K-Mod
+-	// K-Mod note: For balance in games with different sized teams, the cost should be proportional to team size.
+-	// But if that was the only factor, it would slow down the global tech-rate in team-based games.
+-	// To deal with this global tech rate issue, I've added an "effective team size" multiplier in the global modifiers
+-	// section. This "effective team size" multiplier combined with the direct # of members multiplier should combine to
+-	// give roughly the same result as the original code in games with even team sizes.
+ 
+ 	return std::max(1, iCost);
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 7d9af4270..f02a71d31 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -120,7 +120,7 @@ public:
+ 	// K-Mod
+ 	int getTypicalUnitValue(UnitAITypes eUnitAI, DomainTypes eDomain = NO_DOMAIN) const;
+ 
+-	int getResearchCost(TechTypes eTech, bool bGlobalModifiers = true) const; // (K-Mod added bGlobalModifiers) Exposed to Python
++	int getResearchCost(TechTypes eTech, bool bGlobalModifiers = true, bool bTeamSizeModifiers = true) const; // (K-Mod added bools) Exposed to Python
+ 	int getResearchLeft(TechTypes eTech) const;																// Exposed to Python
+ 
+ 	bool hasHolyCity(ReligionTypes eReligion) const;																		// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index d5ca3074c..b37ca193b 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2242,7 +2242,7 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eTeam) const
+ 	iValue += (((iCost / 2) * (iPossibleKnownCount - iKnownCount)) / iPossibleKnownCount);
+ 	*/
+ 	// K-Mod. Standardized the modifier for # of teams with the tech; and removed the effect of team size.
+-	int iValue = (150 + AI_knownTechValModifier(eTech)) * std::max(0, (getResearchCost(eTech) - getResearchProgress(eTech))) / (100 * getNumMembers());
++	int iValue = (150 + AI_knownTechValModifier(eTech)) * std::max(0, (getResearchCost(eTech, true, false) - getResearchProgress(eTech))) / 100;
+ 	// K-Mod end
+ 
+ 	iValue *= std::max(0, (GC.getTechInfo(eTech).getAITradeModifier() + 100));
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5917

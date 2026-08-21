@@ -1,0 +1,235 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 587
+# Commit: 3414d5fcabf74b075b1f8388b7c2a3aa49e71156
+# History segment: K-Mod history
+# Parent used for diff: 8db66217c98c856eb5e711ea4a0143fcd84dfeae
+# Title: AI_updateBestBuild no longer prunes improvements that will grow over time. (ie. cottages are no longer considered when looking for low priority builds.) Adde...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	CvGameCoreDLL/CvCity.cpp
+12	7	CvGameCoreDLL/CvCityAI.cpp
+5	0	CvGameCoreDLL/CvPlayer.cpp
+38	7	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvPlot.cpp
+8	0	CvGameCoreDLL/CvTeam.cpp
+2	0	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c6b892d40..4c8bf97a3 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5801,6 +5801,8 @@ int CvCity::getMaintenanceTimes100() const
+ 
+ void CvCity::updateMaintenance()
+ {
++	PROFILE_FUNC();
++
+ 	int iOldMaintenance;
+ 	int iNewMaintenance;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 94d30d6f6..668f803b2 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -8125,15 +8125,20 @@ void CvCityAI::AI_updateBestBuild()
+ 							}
+ 							else if ((pLoopPlot->getImprovementType() != NO_IMPROVEMENT) && (GC.getBuildInfo(m_aeBestBuild[iI]).getImprovement() != NO_IMPROVEMENT))
+ 							{
+-								for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
++								// K-Mod. If the new improvement will upgrade over time, then don't mark it as being low-priority. We want to build it sooner rather than later.
++								if (GC.getImprovementInfo((ImprovementTypes)GC.getBuildInfo(m_aeBestBuild[iI]).getImprovement()).getImprovementUpgrade() == NO_IMPROVEMENT)
++								// K-Mod end
+ 								{
+-									aiYields[iJ] = pLoopPlot->getYield((YieldTypes)iJ);
+-								}
++									for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
++									{
++										aiYields[iJ] = pLoopPlot->getYield((YieldTypes)iJ);
++									}
+ 
+-								iValue = AI_yieldValue(aiYields, NULL, false, false, false, false, true, true);
+-								if (iValue > aiValues[iI])
+-								{
+-									m_aiBestBuildValue[iI] = 1;
++									iValue = AI_yieldValue(aiYields, NULL, false, false, false, false, true, true);
++									if (iValue > aiValues[iI])
++									{
++										m_aiBestBuildValue[iI] = 1;
++									}
+ 								}
+ 							}
+ 						}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 2f0ffcb37..e8ed09389 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4173,6 +4173,11 @@ int CvPlayer::countOwnedBonuses(BonusTypes eBonus) const
+ 	int iI;
+     int iLoop;
+ 
++	// K-Mod. Shortcut.
++	if (!GET_TEAM(getTeam()).isBonusRevealed(eBonus))
++		return 0;
++	// K-Mod end
++    
+     bool bAdvancedStart = (getAdvancedStartPoints() >= 0) && (getCurrentEra() < 3);
+ 
+ 	iCount = 0;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b25a48d92..8f75e90d4 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5166,7 +5166,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 					if (!kImprovement.isImprovementBonusMakesValid(iK) && !kImprovement.isImprovementBonusTrade(iK))
+ 						continue;
+ 
+-					bool bRevealed = kTeam.isHasTech((TechTypes)kBonusInfo.getTechReveal()) || kTeam.isForceRevealedBonus((BonusTypes)iK);
++					bool bRevealed = kTeam.isBonusRevealed((BonusTypes)iK);
+ 
+ 					int iNumBonuses = bRevealed
+ 						? countOwnedBonuses((BonusTypes)iK) // actual count
+@@ -5302,7 +5302,6 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 				// K-Mod. Devalue it if we don't have the resources. (based on my code for unit evaluation)
+ 				bool bMaybeMissing = false; // if we don't know if we have the bonus or not
+ 				bool bDefinitelyMissing = false; // if we can see the bonuses, and we know we don't have any.
+-				const CvTeam& kTeam = GET_TEAM(getTeam());
+ 
+ 				for (int iK = 0; iK < GC.getNUM_ROUTE_PREREQ_OR_BONUSES(); ++iK)
+ 				{
+@@ -5317,7 +5316,7 @@ int CvPlayerAI::AI_techValue( TechTypes eTech, int iPathLength, bool bIgnoreCost
+ 						}
+ 						else
+ 						{
+-							if ((kTeam.isHasTech((TechTypes)(GC.getBonusInfo(ePrereqBonus).getTechReveal())) || kTeam.isForceRevealedBonus(ePrereqBonus)) && countOwnedBonuses(ePrereqBonus) == 0)
++							if (kTeam.isBonusRevealed(ePrereqBonus) && countOwnedBonuses(ePrereqBonus) == 0)
+ 							{
+ 								bDefinitelyMissing = true;
+ 							}
+@@ -12923,6 +12922,7 @@ CivicTypes CvPlayerAI::AI_bestCivic(CivicOptionTypes eCivicOption, int* piBestVa
+ }
+ 
+ // This function has been heavily edited for K-Mod. (some original code deleted, some edited by BBAI)
++// Note: the value is roughly in units of commerce per turn.
+ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ {
+ 	PROFILE_FUNC();
+@@ -13046,8 +13046,41 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	iValue += ((kCivic.getGreatPeopleRateModifier() * iCities) / 10);
+ 	iValue += ((kCivic.getGreatGeneralRateModifier() * getNumMilitaryUnits()) / 50);
+ 	iValue += ((kCivic.getDomesticGreatGeneralRateModifier() * getNumMilitaryUnits()) / 100);
++	/* original bts code
+ 	iValue += -((kCivic.getDistanceMaintenanceModifier() * std::max(0, (iCities - 3))) / 8);
+-	iValue += -((kCivic.getNumCitiesMaintenanceModifier() * std::max(0, (iCities - 3))) / 8);
++	iValue += -((kCivic.getNumCitiesMaintenanceModifier() * std::max(0, (iCities - 3))) / 8); */
++	// K-Mod. After looking at a couple of examples, it's plain to see that the above maintenance estimates are far too big.
++	// Surprisingly, it actually doesn't take much time to calculate the precise magnitude of the maintenance change. So that's what I'll do!
++	if (kCivic.getNumCitiesMaintenanceModifier() != 0)
++	{
++		PROFILE("civicValue: NumCitiesMaintenance");
++		int iTemp = 0;
++		int iLoop;
++		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++		{
++			iTemp += pLoopCity->calculateNumCitiesMaintenanceTimes100() * (pLoopCity->getMaintenanceModifier() + 100) / 100;
++		}
++		iTemp *= 100;
++		iTemp /= std::max(1, getNumCitiesMaintenanceModifier() + 100);
++
++		iValue -= iTemp * kCivic.getNumCitiesMaintenanceModifier() / 10000;
++	}
++	if (kCivic.getDistanceMaintenanceModifier() != 0)
++	{
++		PROFILE("civicValue: DistanceMaintenance");
++		int iTemp = 0;
++		int iLoop;
++		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++		{
++			iTemp += pLoopCity->calculateDistanceMaintenanceTimes100() * (pLoopCity->getMaintenanceModifier() + 100) / 100;
++		}
++		iTemp *= 100;
++		iTemp /= std::max(1, getDistanceMaintenanceModifier() + 100);
++
++		iValue -= iTemp * kCivic.getDistanceMaintenanceModifier() / 10000;
++	}
++	// K-Mod end
++
+ 	if( kCivic.getFreeExperience() > 0 )
+ 	{
+ 		// Free experience increases value of hammers spent on units, population is an okay measure of base hammer production
+@@ -13309,10 +13342,8 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 				BonusTypes eBonus = (BonusTypes)kCorpInfo.getPrereqBonus(i);
+ 				if (NO_BONUS != eBonus)
+ 				{
+-					iBonuses += countOwnedBonuses(eBonus);
++					iBonuses +=	kTeam.isBonusRevealed(eBonus) ? countOwnedBonuses(eBonus) : 1; // expect that we'll get at least one of each unrevealed bonus.
+ 					// maybe use getNumAvailableBonuses ?
+-					iBonuses +=	!kTeam.isHasTech((TechTypes)GC.getBonusInfo(eBonus).getTechReveal()) && !kTeam.isForceRevealedBonus(eBonus)
+-						? 1 : 0; // expect that we'll get at least one of each unrevealed bonus.
+ 				}
+ 			}
+ 			iBonuses += bPlayerHQ ? 1 : 0;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 7e404b272..c8f352e24 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5586,7 +5586,8 @@ BonusTypes CvPlot::getBonusType(TeamTypes eTeam) const
+ 	{
+ 		if (m_eBonusType != NO_BONUS)
+ 		{
+-			if (!GET_TEAM(eTeam).isHasTech((TechTypes)(GC.getBonusInfo((BonusTypes)m_eBonusType).getTechReveal())) && !GET_TEAM(eTeam).isForceRevealedBonus((BonusTypes)m_eBonusType))
++			//if (!GET_TEAM(eTeam).isHasTech((TechTypes)(GC.getBonusInfo((BonusTypes)m_eBonusType).getTechReveal())) && !GET_TEAM(eTeam).isForceRevealedBonus((BonusTypes)m_eBonusType))
++			if (!GET_TEAM(eTeam).isBonusRevealed((BonusTypes)m_eBonusType)) // K-Mod
+ 			{
+ 				return NO_BONUS;
+ 			}
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index ec4861d33..84296ca45 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -6100,6 +6100,14 @@ bool CvTeam::isForceRevealedBonus(BonusTypes eBonus) const
+ 	return false;
+ }
+ 
++// K-Mod
++bool CvTeam::isBonusRevealed(BonusTypes eBonus) const
++{
++	FAssert(eBonus >= 0 && eBonus < GC.getNumBonusInfos());
++	return isHasTech((TechTypes)GC.getBonusInfo(eBonus).getTechReveal()) || isForceRevealedBonus(eBonus);
++}
++// K-Mod end
++
+ int CvTeam::countNumHumanGameTurnActive() const
+ {
+ 	int iCount = 0;
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index ce5ffbcdb..67575ccb5 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -378,6 +378,8 @@ public:
+ 	void setForceRevealedBonus(BonusTypes eBonus, bool bRevealed);
+ 	bool isForceRevealedBonus(BonusTypes eBonus) const;
+ 
++	bool isBonusRevealed(BonusTypes eBonus) const; // K-Mod. (the definitive answer)
++
+ 	DllExport int countNumHumanGameTurnActive() const;
+ 	void setTurnActive(bool bNewValue, bool bTurn = true);
+ 	bool isTurnActive() const;
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=8826

@@ -1,0 +1,624 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3281
+# Commit: b1128b818abf4d3763ae8c297a313f70da8f22f4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7c9275cf3eba138545a83e2062d2c120cc15e9e2
+# Title: R&F: Increase player handicap beyond game handicap
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	1	Assets/Python/Screens/CvVictoryScreen.py
+57	29	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+17	0	Assets/XML/GlobalDefines_advc.xml
+7	0	Assets/XML/Text/CIV4GameText_advc.xml
+18	6	CvGameCoreDLL/CvGame.cpp
+2	1	CvGameCoreDLL/CvGame.h
+2	1	CvGameCoreDLL/CvGlobals.h
+17	1	CvGameCoreDLL/CvPlayer.cpp
+3	2	CvGameCoreDLL/CvReplayInfo.cpp
+7	0	CvGameCoreDLL/CvTeam.cpp
+7	1	CvGameCoreDLL/CyGame.cpp
+1	0	CvGameCoreDLL/CyGame.h
+1	0	CvGameCoreDLL/CyGameInterface.cpp
+19	4	CvGameCoreDLL/RiseFall.cpp
+1	0	CvGameCoreDLL/RiseFall.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 50a96737d..986a3de61 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -980,11 +980,19 @@ class CvVictoryScreen:
+ 		# K-Mod. In multiplayer games, show both the game difficulty and the player difficulty
+ 		if activePlayer.getHandicapType() == g.getHandicapType():
+ 			screen.appendListBoxStringNoUpdate(szSettingsTable, localText.getText("TXT_KEY_SETTINGS_DIFFICULTY", (gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
++		# <advc.708>
++		elif g.isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
++			szBuffer = localText.getText("TXT_KEY_RF_HANDICAP_SETTINGS",
++					(gc.getHandicapInfo(g.getHandicapType()).getTextKey(),
++					gc.getHandicapInfo(activePlayer.getHandicapType()).getTextKey(),
++					gc.getHandicapInfo(g.getAIHandicap()).getTextKey(), ))
++			screen.appendListBoxStringNoUpdate(szSettingsTable, szBuffer,
++					WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# </advc.708>
+ 		else:
+ 			szBuffer = "%s :\n  %s (%s) / %s (%s)" % (localText.getText("TXT_KEY_PITBOSS_DIFFICULTY", ()), gc.getHandicapInfo(activePlayer.getHandicapType()).getText(), localText.getText("TXT_KEY_MAIN_MENU_PLAYER", ()), gc.getHandicapInfo(g.getHandicapType()).getText(), localText.getText("TXT_KEY_OPTIONS_GAME", ()))
+ 			screen.appendListBoxStringNoUpdate(szSettingsTable, szBuffer, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		# K-Mod end
+-
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, " ", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+ 		screen.appendListBoxStringNoUpdate(szSettingsTable, m.getMapScriptName(), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 49277e2cd..5f546b055 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -18,9 +18,11 @@
+ 			<!-- advc.250c: was 150 -->
+ 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+ 			<iGold>0</iGold>
+-			<iFreeUnits>24</iFreeUnits>
+-			<iUnitCostPercent>20</iUnitCostPercent>
+ 			<!-- advc.251 (start) -->
++			<!-- was 24 -->
++			<iFreeUnits>20</iFreeUnits>
++			<!-- was 20 -->
++			<iUnitCostPercent>36</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+ 			<iBaseGrowthThresholdPercent>80</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>80</iGPThresholdPercent>
+@@ -31,9 +33,11 @@
+ 			<!-- was 80 (let's steer beginners away a bit from just playing SimCity) -->
+ 			<iConstructPercent>85</iConstructPercent>
+ 			<iCreatePercent>70</iCreatePercent>
++			<!-- was 45 -->
++			<iDistanceMaintenancePercent>50</iDistanceMaintenancePercent>
++			<!-- was 40 -->
++			<iNumCitiesMaintenancePercent>45</iNumCitiesMaintenancePercent>
+ 			<!-- advc.251 (end) -->
+-			<iDistanceMaintenancePercent>45</iDistanceMaintenancePercent>
+-			<iNumCitiesMaintenancePercent>40</iNumCitiesMaintenancePercent>
+ 			<!-- advc.exp.1: Essentially disabled this upper bound. Can re-enable
+ 				 it by setting it back to the original value of 4. -->
+ 			<iMaxNumCitiesMaintenance>4000</iMaxNumCitiesMaintenance>
+@@ -192,9 +196,11 @@
+ 			<!-- advc.250c: was 130 -->
+ 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+ 			<iGold>0</iGold>
+-			<iFreeUnits>18</iFreeUnits>
+-			<iUnitCostPercent>30</iUnitCostPercent>
+ 			<!-- advc.251 (start) -->
++			<!-- was 18 -->
++			<iFreeUnits>15</iFreeUnits>
++			<!-- was 30 -->
++			<iUnitCostPercent>44</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+ 			<iBaseGrowthThresholdPercent>95</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>95</iGPThresholdPercent>
+@@ -204,9 +210,11 @@
+ 			<iTrainPercent>95</iTrainPercent>
+ 			<iConstructPercent>95</iConstructPercent>
+ 			<iCreatePercent>80</iCreatePercent>
++			<!-- was 55 -->
++			<iDistanceMaintenancePercent>60</iDistanceMaintenancePercent>
++			<!-- was 50 -->
++			<iNumCitiesMaintenancePercent>55</iNumCitiesMaintenancePercent>
+ 			<!-- advc.251 (end) -->
+-			<iDistanceMaintenancePercent>55</iDistanceMaintenancePercent>
+-			<iNumCitiesMaintenancePercent>50</iNumCitiesMaintenancePercent>
+ 			<!-- advc.exp.1: was 4 -->
+ 			<iMaxNumCitiesMaintenance>4000</iMaxNumCitiesMaintenance>
+ 			<iColonyMaintenancePercent>80</iColonyMaintenancePercent>
+@@ -219,7 +227,8 @@
+ 			<iHappyBonus>5</iHappyBonus>
+ 			<!-- advc.148: was 1 -->
+ 			<iAttitudeChange>2</iAttitudeChange>
+-			<iNoTechTradeModifier>90</iNoTechTradeModifier>
++			<!-- advc.251: was 90 -->
++			<iNoTechTradeModifier>85</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>-50</iTechTradeKnownModifier>
+ 			<iUnownedTilesPerGameAnimal>80</iUnownedTilesPerGameAnimal>
+ 			<iUnownedTilesPerBarbarianUnit>100</iUnownedTilesPerBarbarianUnit>
+@@ -339,9 +348,11 @@
+ 			<!-- advc.250c: was 110 -->
+ 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+ 			<iGold>0</iGold>
+-			<iFreeUnits>12</iFreeUnits>
+-			<iUnitCostPercent>40</iUnitCostPercent>
+ 			<!-- advc.251 (start) -->
++			<!-- was 12 -->
++			<iFreeUnits>10</iFreeUnits>
++			<!-- was 40 -->
++			<iUnitCostPercent>52</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+ 			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+@@ -350,9 +361,11 @@
+ 			<iTrainPercent>100</iTrainPercent>
+ 			<iConstructPercent>100</iConstructPercent>
+ 			<iCreatePercent>90</iCreatePercent>
++			<!-- was 65 -->
++			<iDistanceMaintenancePercent>70</iDistanceMaintenancePercent>
++			<!-- was 60 -->
++			<iNumCitiesMaintenancePercent>65</iNumCitiesMaintenancePercent>
+ 			<!-- advc.251 (end) -->
+-			<iDistanceMaintenancePercent>65</iDistanceMaintenancePercent>
+-			<iNumCitiesMaintenancePercent>60</iNumCitiesMaintenancePercent>
+ 			<!-- advc.exp.1: was 5 -->
+ 			<iMaxNumCitiesMaintenance>5000</iMaxNumCitiesMaintenance>
+ 			<iColonyMaintenancePercent>90</iColonyMaintenancePercent>
+@@ -365,7 +378,8 @@
+ 			<iHappyBonus>4</iHappyBonus>
+ 			<!-- advc.148: was 0 -->
+ 			<iAttitudeChange>1</iAttitudeChange>
+-			<iNoTechTradeModifier>80</iNoTechTradeModifier>
++			<!-- advc.251: was 80 -->
++			<iNoTechTradeModifier>75</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>-25</iTechTradeKnownModifier>
+ 			<iUnownedTilesPerGameAnimal>60</iUnownedTilesPerGameAnimal>
+ 			<iUnownedTilesPerBarbarianUnit>80</iUnownedTilesPerBarbarianUnit>
+@@ -458,9 +472,11 @@
+ 			<iStartingLocPercent>49</iStartingLocPercent>
+ 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+ 			<iGold>0</iGold>
+-			<iFreeUnits>8</iFreeUnits>
+-			<iUnitCostPercent>50</iUnitCostPercent>
+ 			<!-- advc.251 (start) -->
++			<!-- was 8 -->
++			<iFreeUnits>7</iFreeUnits>
++			<!-- was 50 -->
++			<iUnitCostPercent>60</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+ 			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+@@ -468,13 +484,15 @@
+ 			<!-- advc.251: Was 100. Note that this doesn't mean that humans
+ 				 have an advantage over the AI; ResearchPercent applies to
+ 				 all civs. -->
+-			<iResearchPercent>95</iResearchPercent>
++			<iResearchPercent>94</iResearchPercent>
+ 			<iTrainPercent>100</iTrainPercent>
+ 			<iConstructPercent>100</iConstructPercent>
+ 			<iCreatePercent>100</iCreatePercent>
++			<!-- was 75 -->
++			<iDistanceMaintenancePercent>80</iDistanceMaintenancePercent>
++			<!-- was 70 -->
++			<iNumCitiesMaintenancePercent>75</iNumCitiesMaintenancePercent>
+ 			<!-- advc.251 (end) -->
+-			<iDistanceMaintenancePercent>75</iDistanceMaintenancePercent>
+-			<iNumCitiesMaintenancePercent>70</iNumCitiesMaintenancePercent>
+ 			<!-- advc.exp.1: was 5 -->
+ 			<iMaxNumCitiesMaintenance>5000</iMaxNumCitiesMaintenance>
+ 			<iColonyMaintenancePercent>100</iColonyMaintenancePercent>
+@@ -487,7 +505,8 @@
+ 			<iHappyBonus>4</iHappyBonus>
+ 			<!-- advc.148: was -1 -->
+ 			<iAttitudeChange>0</iAttitudeChange>
+-			<iNoTechTradeModifier>70</iNoTechTradeModifier>
++			<!-- advc.251: was 70 -->
++			<iNoTechTradeModifier>64</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+ 			<iUnownedTilesPerGameAnimal>50</iUnownedTilesPerGameAnimal>
+ 			<iUnownedTilesPerBarbarianUnit>60</iUnownedTilesPerBarbarianUnit>
+@@ -575,9 +594,11 @@
+ 			<!-- advc.250c: was 95 -->
+ 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+ 			<iGold>0</iGold>
+-			<iFreeUnits>6</iFreeUnits>
+-			<iUnitCostPercent>60</iUnitCostPercent>
+ 			<!-- advc.251 (start) -->
++			<!-- was 6 -->
++			<iFreeUnits>5</iFreeUnits>
++			<!-- was 60 -->
++			<iUnitCostPercent>68</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+ 			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+@@ -604,7 +625,8 @@
+ 			<iHappyBonus>4</iHappyBonus>
+ 			<!-- advc.148: was -1 -->
+ 			<iAttitudeChange>0</iAttitudeChange>
+-			<iNoTechTradeModifier>60</iNoTechTradeModifier>
++			<!-- advc.251: was 60 -->
++			<iNoTechTradeModifier>56</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+ 			<!-- advc.300: was 40 -->
+ 			<iUnownedTilesPerGameAnimal>45</iUnownedTilesPerGameAnimal>
+@@ -698,8 +720,9 @@
+ 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+ 			<iGold>0</iGold>
+ 			<iFreeUnits>4</iFreeUnits>
+-			<iUnitCostPercent>70</iUnitCostPercent>
+ 			<!-- advc.251 (start) -->
++			<!-- was 70 -->
++			<iUnitCostPercent>76</iUnitCostPercent>
+ 			<iBuildTimePercent>100</iBuildTimePercent>
+ 			<iBaseGrowthThresholdPercent>100</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>100</iGPThresholdPercent>
+@@ -727,7 +750,8 @@
+ 			<iHappyBonus>4</iHappyBonus>
+ 			<!-- advc.148: was -1 -->
+ 			<iAttitudeChange>0</iAttitudeChange>
+-			<iNoTechTradeModifier>50</iNoTechTradeModifier>
++			<!-- advc.251: was 50 -->
++			<iNoTechTradeModifier>48</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+ 			<!-- advc.300: was 35 -->
+ 			<iUnownedTilesPerGameAnimal>40</iUnownedTilesPerGameAnimal>
+@@ -851,8 +875,9 @@
+ 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+ 			<iGold>0</iGold>
+ 			<iFreeUnits>3</iFreeUnits>
+-			<iUnitCostPercent>80</iUnitCostPercent>
+ 			<!-- advc.251 (start) -->
++			<!-- was 80 -->
++			<iUnitCostPercent>84</iUnitCostPercent>
+ 			<iBuildTimePercent>110</iBuildTimePercent>
+ 			<iBaseGrowthThresholdPercent>110</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>110</iGPThresholdPercent>
+@@ -1006,8 +1031,9 @@
+ 			<iAdvancedStartPointsMod>100</iAdvancedStartPointsMod>
+ 			<iGold>0</iGold>
+ 			<iFreeUnits>2</iFreeUnits>
+-			<iUnitCostPercent>90</iUnitCostPercent>
+ 			<!-- advc.251 (start) -->
++			<!-- was 90 -->
++			<iUnitCostPercent>92</iUnitCostPercent>
+ 			<iBuildTimePercent>115</iBuildTimePercent>
+ 			<iBaseGrowthThresholdPercent>120</iBaseGrowthThresholdPercent>
+ 			<iGPThresholdPercent>120</iGPThresholdPercent>
+@@ -1033,7 +1059,8 @@
+ 			<iHappyBonus>4</iHappyBonus>
+ 			<!-- advc.148: was -1 -->
+ 			<iAttitudeChange>0</iAttitudeChange>
+-			<iNoTechTradeModifier>30</iNoTechTradeModifier>
++			<!-- advc.251: was 30 -->
++			<iNoTechTradeModifier>32</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+ 			<!-- advc.300: was 25 -->
+ 			<iUnownedTilesPerGameAnimal>30</iUnownedTilesPerGameAnimal>
+@@ -1195,7 +1222,8 @@
+ 			<iHappyBonus>4</iHappyBonus>
+ 			<!-- advc.148: was -1 -->
+ 			<iAttitudeChange>0</iAttitudeChange>
+-			<iNoTechTradeModifier>20</iNoTechTradeModifier>
++			<!-- advc.251: was 20 -->
++			<iNoTechTradeModifier>24</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>0</iTechTradeKnownModifier>
+ 			<!-- advc.300: was 20 -->
+ 			<iUnownedTilesPerGameAnimal>25</iUnownedTilesPerGameAnimal>
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index db320c741..c01369fa3 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -983,6 +983,23 @@
+ 		<DefineName>RF_ENABLE_FINAL_TURN_POPUP</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- advc.708: Gets added to the difficulty level of every player.
++		 A value of e.g. 1 makes the AI civs play on Prince difficulty instead
++		 of Noble and the human player also one level higher than configured
++		 on the Custom Game screen. Meaning that all civs e.g. will have to pay
++		 higher city maintenance. AI-specific effects ("iAI... in Civ4HandicapInfos.xml)
++		 are, however, not affected as those come from the game difficulty level.
++		 Insofar, the handicap adjustment should not make the game easier or harder.
++		 That said, since the difficulty levels aren't evenly spaced apart
++		 in terms of challenge, the adjustment will affect the overall challenge
++		 (in a way that is difficult to predict on paper).
++		 Barbarian creation also won't be affected by the adjustment.
++		 Changes to this parameter won't properly take effect in an ongoing game,
++		 will have to start a new one. -->
++	<Define>
++		<DefineName>RF_PLAYER_HANDICAP_ADJUSTMENT</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ 
+ 	<!-- advc.550d: This modifier is applied to tech costs when playing
+ 		 with the "No Tech Trading" option. The effect of the modifier is
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 385de5572..802da00c8 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -4226,6 +4226,13 @@
+ 		<German>Beginn der Zwischenzeit</German>
+ 	</TEXT>
+ 
++	<!-- advc.708 -->
++	<TEXT>
++		<Tag>TXT_KEY_RF_HANDICAP_SETTINGS</Tag>
++		<English>Game Difficulty (AI discounts):[NEWLINE][TAB]%s1_GameHandicap[NEWLINE]Human Player Difficulty: %s2_HumanPlayerHandicap[NEWLINE]Difficulty for AI Players: %s3_AIPlayerHandicap</English>
++		<German>Schwierigkeitsstufe:[NEWLINE][TAB]KI-Boni, Barbaren: %s1_GameHandicap[NEWLINE][TAB]Kosten f�r Spieler: %s2_HumanPlayerHandicap[NEWLINE][TAB]Kosten f�r KI-Gegner: %s3_AIPlayerHandicap</German>
++	</TEXT>
++
+ 	<!-- advc.004w: Based on keys in CIV4GameTextInfos.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_WORLD_WONDER1</Tag>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index d7f2a115d..27ed7dfea 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -882,15 +882,27 @@ void CvGame::initGameHandicap()
+ 		}
+ 		FAssertMsg(iDiv > 0, "All-AI game. Not necessarily wrong, but unexpected.");
+ 	} // K-Mod end
++	updateAIHandicap();
++	// <advc.708>
++	if (isOption(GAMEOPTION_RISE_FALL))
++	{
++		for (PlayerIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
++			m_pRiseFall->setPlayerHandicap(itPlayer->getID(), itPlayer->isHuman(), true);
++	}
++	updateAIHandicap(); // (again)  </advc.708>
++}
+ 
+-	// Set m_eAIHandicap to the average of AI handicaps
++// advc.127: Set m_eAIHandicap to the average of AI handicaps
++void CvGame::updateAIHandicap()
++{
+ 	int iHandicapSum = 0;
+ 	int iDiv = 0;
+-	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
++	FOR_EACH_ENUM(Player) // Cache for PlayerIter not yet available here
+ 	{
+-		if (!it->isHuman())
++		CvPlayer const& kPlayer = GET_PLAYER(eLoopPlayer);
++		if (kPlayer.isAlive() && !kPlayer.isHuman() && kPlayer.isMajorCiv())
+ 		{
+-			iHandicapSum += it->getHandicapType();
++			iHandicapSum += kPlayer.getHandicapType();
+ 			iDiv++;
+ 		}
+ 	}
+@@ -4735,7 +4747,7 @@ void CvGame::changeAIAutoPlay(int iChange, /* advc.127: */ bool changePlayerStat
+ int CvGame::getCivPlayersEverAlive() const
+ {
+ 	// Could pose a savegame compatibility problem (uiFlag<4)
+-	FAssert(m_bAllGameDataRead); // But it's OK if uiFlag < 9 in CvPlayerAI
++	FAssert(m_bAllGameDataRead || m_iCivPlayersEverAlive > 0);
+ 	if(!m_bAllGameDataRead)
+ 		return countCivPlayersEverAlive();
+ 	return m_iCivPlayersEverAlive;
+@@ -4754,7 +4766,7 @@ void CvGame::changeCivPlayersEverAlive(int iChange)
+ int CvGame::getCivTeamsEverAlive() const
+ {
+ 	// Could pose a savegame compatibility problem (uiFlag<4)
+-	FAssert(m_bAllGameDataRead); // But it's OK if uiFlag < 9 in CvPlayerAI
++	FAssert(m_bAllGameDataRead || m_iCivTeamsEverAlive > 0);
+ 	if(!m_bAllGameDataRead)
+ 		return countCivTeamsEverAlive();
+ 	return m_iCivTeamsEverAlive;
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 242269bf3..3ec13d443 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -64,6 +64,7 @@ public:
+ 	int getScoreComponent(int iRawScore, int iInitial, int iMax, int iMultiplier,
+ 			bool bExponential, bool bFinal, bool bVictory) const; // </advc.003y>
+ 	int getDifficultyForEndScore() const; // advc.250 (exposed to Python; hence public)
++	void updateAIHandicap(); // advc.127
+ 
+ 	DllExport void updateColoredPlots();
+ 	DllExport void updateBlockadedPlots();
+@@ -508,7 +509,7 @@ public:
+ 
+ 	HandicapTypes getHandicapType() const { return m_eHandicap; }
+ 	void setHandicapType(HandicapTypes eHandicap);
+-	HandicapTypes getAIHandicap() const { return m_eAIHandicap; } // advc.127
++	HandicapTypes getAIHandicap() const { return m_eAIHandicap; } // advc.127 (advc.708: exposed to Python)
+ 
+ 	DllExport PlayerTypes getPausePlayer() const;																			// Exposed to Python
+ 	DllExport bool isPaused() const;																									// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 5f481a52b..b8560c78e 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -558,7 +558,8 @@ public:
+ 		DO(LFB_BASEDONLIMITED) DO(LFB_BASEDONHEALER) DO(LFB_DEFENSIVEADJUSTMENT) \
+ 		DO(LFB_USESLIDINGSCALE) DO(LFB_ADJUSTNUMERATOR) DO(LFB_ADJUSTDENOMINATOR) \
+ 		DO(LFB_USECOMBATODDS) /* BETTER_BTS_AI_MOD: END */ \
+-		DO(POWER_CORRECTION) /* advc.104 */
++		DO(POWER_CORRECTION) /* advc.104 */ \
++		DO(RF_PLAYER_HANDICAP_ADJUSTMENT) /* advc.708 */
+ 	#define MAKE_ENUMERATOR(VAR) VAR,
+ 	enum GlobalDefines
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index d1a577648..58f09f6af 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -20,6 +20,7 @@
+ #include "CvBugOptions.h"
+ #include "CvDLLFlagEntityIFaceBase.h" // BBAI
+ #include "BBAILog.h"
++#include "RiseFall.h" // advc.708: Needed only for savegame compatibility
+ 
+ // advc.003u: Statics moved from CvPlayerAI
+ CvPlayerAI** CvPlayer::m_aPlayers = NULL;
+@@ -14417,6 +14418,19 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 			changeLuxuryModifier(kCivic.getLuxuryModifier() - iPreviousLux);
+ 		}
+ 	} // </advc.912c>
++	if (uiFlag < 18)
++		updateMaintenance();
++	// <advc.708>
++	if (uiFlag < 19 && GC.getGame().isOption(GAMEOPTION_RISE_FALL) && isAlive())
++	{
++		if (!isMajorCiv())
++		{
++			// Don't update until all civ player handicaps have been set
++			if (isBarbarian())
++				GC.getGame().updateAIHandicap();
++		}
++		else GC.getGame().getRiseFall().setPlayerHandicap(getID(), isHuman(), true);
++	} // </advc.708>
+ }
+ 
+ // save object to a stream
+@@ -14439,7 +14453,9 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	//uiFlag = 14; // advc.027 (m_bRandomWBStart)
+ 	//uiFlag = 15; // advc.908a (separate tag for nerfed trait effect), advc.908c
+ 	//uiFlag = 16; // advc.enum: new enum map save behavior
+-	uiFlag = 17; // advc.157
++	//uiFlag = 17; // advc.157
++	//uiFlag = 18; // advc.251 (city maintenance changed in handicap XML)
++	uiFlag = 19; // advc.708
+ 	pStream->Write(uiFlag);
+ 
+ 	// <advc.027>
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index dd8782d3f..77a65bbf8 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -94,8 +94,9 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
+ 	if (ePlayer != NO_PLAYER)
+ 	{
+ 		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+-
+-		m_eDifficulty = kPlayer.getHandicapType();
++		// advc.708: Game handicap is the one to display in R&F games
++		m_eDifficulty = (kGame.isOption(GAMEOPTION_RISE_FALL) ? kGame.getHandicapType() :
++				kPlayer.getHandicapType());
+ 		m_szLeaderName = kPlayer.getName();
+ 		m_szCivDescription = kPlayer.getCivilizationDescription();
+ 		m_szShortCivDescription = kPlayer.getCivilizationShortDescription();
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 588e3d75d..67daabd26 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2107,6 +2107,13 @@ int CvTeam::getResearchCost(TechTypes eTech,
+ 			rNoTradeAdjustment.decreaseTo(0); // No Tech Trading can only lower tech costs
+ 			rModifier += rNoTradeAdjustment;
+ 		} // </advc.550d>
++		/*	<advc.708> Tech costs shouldn't (fully) be affected by the
++			player handicap adjustment */
++		if (kGame.isOption(GAMEOPTION_RISE_FALL))
++		{
++			rCost *= 1 - per100(GC.getDefineINT(
++					CvGlobals::RF_PLAYER_HANDICAP_ADJUSTMENT) * 3);
++		} // </advc.708>
+ 	}
+ 
+ 	if (bTeamSizeModifiers) // K-Mod
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index 6cd0ab672..b10171ce2 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -666,7 +666,13 @@ int /*GameStateTypes*/ CyGame::getGameState()
+ 
+ int /* HandicapTypes */ CyGame::getHandicapType()
+ {
+-	return (int) m_kGame.getHandicapType();
++	return m_kGame.getHandicapType();
++}
++
++// advc.708:
++int CyGame::getAIHandicap()
++{
++	return m_kGame.getAIHandicap();
+ }
+ 
+ CalendarTypes CyGame::getCalendar() const
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index d3f353f70..5cb909423 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -177,6 +177,7 @@ public:
+ 	void setWinner(int /*TeamTypes*/ eNewWinner, int /*VictoryTypes*/ eNewVictory);
+ 	int /*GameStateTypes*/ getGameState();
+ 	int /*HandicapTypes*/ getHandicapType();
++	int /*HandicapTypes*/ getAIHandicap(); // advc.708
+ 	CalendarTypes getCalendar() const;
+ 	int /*EraTypes*/ getStartEra();
+ 	int /*GameSpeedTypes*/ getGameSpeedType();
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index f09343293..94e3cab9e 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -171,6 +171,7 @@ void CyGamePythonInterface()
+ 		.def("setWinner", &CyGame::setWinner)
+ 		.def("getGameState", &CyGame::getGameState)
+ 		.def("getHandicapType", &CyGame::getHandicapType, "HandicapType () - difficulty level settings")
++		.def("getAIHandicap", &CyGame::getAIHandicap, "HandicapTypes ()") // advc.708
+ 		.def("getCalendar", &CyGame::getCalendar, "CalendarType ()")
+ 		.def("getStartEra", &CyGame::getStartEra)
+ 		.def("getGameSpeedType", &CyGame::getGameSpeedType)
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 4bda5db80..eef790c86 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -163,6 +163,23 @@ void RiseFall::init() {
+ 	g.showDawnOfMan();
+ }
+ 
++// Needs to happen earlier than init, hence a separate public function.
++void RiseFall::setPlayerHandicap(PlayerTypes civId, bool bHuman, bool bIncrease) {
++
++	HandicapTypes const eGameHandicap = GC.getGame().getHandicapType();
++	int iAdjust = (!bIncrease ? 0 :
++			range(GC.getDefineINT(CvGlobals::RF_PLAYER_HANDICAP_ADJUSTMENT),
++			-eGameHandicap, GC.getNumHandicapInfos() - eGameHandicap - 1));
++	GC.getInitCore().setHandicap(civId, (HandicapTypes)(bHuman ?
++			eGameHandicap + iAdjust : GC.getGame().getAIHandicap() + iAdjust));
++	/*	(Caller will have to call CvGame::updateAIHandicap if several AI player
++		handicaps are changed, i.e. if the avg. handicap may have changed.) */
++	CvPlayerAI& kCiv = GET_PLAYER(civId);
++	kCiv.updateMaintenance();
++	kCiv.AI_makeAssignWorkDirty();
++	// (Further updates might be warranted)
++}
++
+ void RiseFall::write(FDataStreamBase* pStream) {
+ 
+ 	int savegameVersion = 1; // For later changes that may break compatibility
+@@ -465,12 +482,10 @@ void RiseFall::setPlayerControl(PlayerTypes civId, bool b) {
+ 	CvPlayer& civ = GET_PLAYER(civId);
+ 	if(!b || !civ.isHuman()) // Unless human control continues
+ 		gDLL->UI().clearQueuedPopups();
+-	if(b) {
++	setPlayerHandicap(civId, b, /* increase only human handicap here */ b);
++	if(b)
+ 		g.changeHumanPlayer(civId);
+-		GC.getInitCore().setHandicap(civId, g.getHandicapType());
+-	}
+ 	else {
+-		GC.getInitCore().setHandicap(civId, g.getAIHandicap());
+ 		civ.setIsHuman(false, true);
+ 		GC.getInitCore().setLeaderName(civId,
+ 				GC.getInfo(civ.getLeaderType()).getDescription());
+
+diff --git a/CvGameCoreDLL/RiseFall.h b/CvGameCoreDLL/RiseFall.h
+index 0fecf651d..7f442896b 100644
+--- a/CvGameCoreDLL/RiseFall.h
++++ b/CvGameCoreDLL/RiseFall.h
+@@ -21,6 +21,7 @@ public:
+ 	~RiseFall();
+ 	void reset();
+ 	void init();
++	void setPlayerHandicap(PlayerTypes civId, bool bHuman, bool bIncrease);
+ 	void write(FDataStreamBase* pStream);
+ 	void read(FDataStreamBase* pStream);
+ 	void atGameTurnStart();
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=24732

@@ -1,0 +1,80 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3284
+# Commit: 9f981aa0203515c387b24072234bdd61bbcb3af7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5430cec8bef60fdcb477a00bda12c1926a31352d
+# Title: Small tweaks to code that switches control of human civ
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	6	CvGameCoreDLL/CvGame.cpp
+2	0	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 27ed7dfea..1d61d0e84 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9879,15 +9879,30 @@ void CvGame::changeHumanPlayer(PlayerTypes eNewHuman)
+ 	GET_PLAYER(eNewHuman).setIsHuman(true);
+ 	GET_PLAYER(eCurHuman).updateHuman();
+ 	GET_PLAYER(eNewHuman).updateHuman();
+-	for (int iI = 0; iI < NUM_PLAYEROPTION_TYPES; iI++)
++	/*	<advc> Probably not necessary, but seems cleaner to swap the
++		player options of the old and new human rather than just copying
++		from old to new. */
++	EagerEnumMap<PlayerOptionTypes,bool> aeNewHumanOldOptions;
++	FOR_EACH_ENUM(PlayerOption)
++	{
++		aeNewHumanOldOptions.set(eLoopPlayerOption,
++				GET_PLAYER(eNewHuman).isOption(eLoopPlayerOption));
++	} // </advc>
++	FOR_EACH_ENUM(PlayerOption)
+ 	{
+-		GET_PLAYER(eNewHuman).setOption((PlayerOptionTypes)iI,
+-				GET_PLAYER(eCurHuman).isOption((PlayerOptionTypes)iI));
++		GET_PLAYER(eNewHuman).setOption(eLoopPlayerOption,
++				GET_PLAYER(eCurHuman).isOption(eLoopPlayerOption));
+ 	}
+-	for (int iI = 0; iI < NUM_PLAYEROPTION_TYPES; iI++)
++	// <advc>
++	FOR_EACH_ENUM(PlayerOption)
++	{
++		GET_PLAYER(eCurHuman).setOption(eLoopPlayerOption,
++				aeNewHumanOldOptions.get(eLoopPlayerOption));
++	} // </advc>
++	FOR_EACH_ENUM(PlayerOption)
+ 	{
+-		gDLL->sendPlayerOption(((PlayerOptionTypes)iI),
+-				GET_PLAYER(eNewHuman).isOption((PlayerOptionTypes)iI));
++		gDLL->sendPlayerOption(eLoopPlayerOption,
++				GET_PLAYER(eNewHuman).isOption(eLoopPlayerOption));
+ 	} // </advc.127>
+ 	// <advc.001> Otherwise, the selected unit will affect CvPlot::updateCenterUnit.
+ 	gDLL->getInterfaceIFace()->clearSelectionList();
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 901b21470..8a5adeb7b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2374,6 +2374,8 @@ CvSelectionGroup* CvPlayer::cycleSelectionGroups(CvUnit* pUnit, bool bForward,
+ void CvPlayer::setHumanDisabled(bool bNewVal)
+ {
+ 	// <advc.127>
++	if (bNewVal == m_bDisableHuman)
++		return;
+ 	m_bAutoPlayJustEnded = true;
+ 	CvGame& kGame = GC.getGame();
+ 	CvWString szReplayText;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2141

@@ -1,0 +1,56 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5507
+# Commit: 1ef354763ec61a3834c9eea1c6399daf9b47387c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4dc561f90889652796069abe3eb8fc4fe460f438
+# Title: upscale domestic advisor
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	Assets/Python/Screens/CvDomesticAdvisor.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index 367e3ee10..ec47f9685 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -135,11 +135,11 @@ class CvDomesticAdvisor:
+ 		
+ 		# Research Column
+ 		szText = u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_RESEARCH).getChar())
+-		screen.setTableColumnHeader( "CityListBackground", 8, SAS_FONT_TAG_BODY + szText, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
++		screen.setTableColumnHeader( "CityListBackground", 8, SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 		
+ 		# Espionage Column
+ 		szText = u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())
+-		screen.setTableColumnHeader( "CityListBackground", 9, SAS_FONT_TAG_BODY + szText, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
++		screen.setTableColumnHeader( "CityListBackground", 9, SAS_FONT_TAG_BODY + szText + SAS_FONT_TAG_CLOSE, (40 * self.nTableWidth) / self.nNormalizedTableWidth )
+ 		
+ 		# Culture Column
+ 		screen.setTableColumnHeader( "CityListBackground", 10, SAS_FONT_TAG_BODY + (u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_CULTURE).getChar()) + SAS_FONT_TAG_CLOSE, (70 * self.nTableWidth) / self.nNormalizedTableWidth )
+@@ -208,10 +208,10 @@ class CvDomesticAdvisor:
+ 		screen.setTableText( "CityListBackground", 0, i, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath(), WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		# <advc.193>
++		iCellFontSize = getSASUIFontLabel()
+ 		if self.nTableWidth / float(self.nNormalizedTableWidth) > 1.36:
+-			iCellFontSize = 3
+-		else:
+-			iCellFontSize = 2
++			iCellFontSize += 1
++		iCellFontSize = min(4, iCellFontSize)
+ 		# (Uses of these tags in the code below aren't tagged w/ comments)
+ 		szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
+ 		szFontTagClose = SAS_FONT_TAG_CLOSE
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2037

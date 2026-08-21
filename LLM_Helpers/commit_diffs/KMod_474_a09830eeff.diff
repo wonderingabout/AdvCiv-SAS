@@ -1,0 +1,77 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 474
+# Commit: a09830eefff18a7079a251a06d19f1367fcd4856
+# History segment: K-Mod history
+# Parent used for diff: bc499ecb57f1feff460f917b0ad460d1b3f0294d
+# Title: Updated the changelog. This is version 1.16.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+22	1	changelog.txt
+6	1	readme.txt
+
+[PATCHES]
+
+diff --git a/changelog.txt b/changelog.txt
+index 6bfab8741..dfb156d78 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,6 +1,27 @@
+-This is K-Mod version 1.15.
++This is K-Mod version 1.16.
+ If you have any questions, comments, suggestions, bug reports, etc. Post here: http://forums.civfanatics.com/showthread.php?p=10094243
+ 
++--
++v1.16 changelist
++
+++ Amphibious landings can now be executed even if the group isn't ready to move. (eg. if you have a transport on the coast, with no moves left, ordering it to move onto the land will now cause it to unload its cargo.)
+++ Automated units will wait until the "automoves" phase before moving, rather than doing it as soon as it is their turn. (This will require some testing to make sure I haven't messed something up.)
+++ Fixed a problem which sometimes caused automated units to repeated cancel and reorder their commands.
+++ Made some changes to the 'resolutions' tab on the victory screen (F8). Each vote source now has a heading, and displays the number of turns until the next vote and number of votes until the next election. (I've also made a couple of minor changes to other parts of the victory screen.)
+++ Rewrote the code that handles the highlighting of goody-huts and city site recommendations. It should now be more efficient for non-settlers and non-scouts, and it will now show all city sites within 7 turn range, rather than 4 plot range.
+++ Units that fail to move with their group should now stay in a single split-off group rather than being completely separated.
+++ Made some minor efficiency improvements.
++
++AI
++
+++ Completely redesigned the system for handling stranded units. The new system is less likely to cause OOS errors, it is faster, and it fixes several bugs in the old system. For example, with the previous system (from BBAI) stranded units would often fail to recognise that they are being rescued, and thus would not load into the boat.
+++ Tightened the requirements for the AI to consider starting a second war.
+++ Corrected a couple of minor problems related to the AI's early-game defence of cities.
+++ Made some adjustments to the AI's war-time espionage point targets.
+++ CvSelectionGroup::startMission will now allow attack orders with MOVE_DIRECT_ATTACK to be executed even when not all units in the group can move. (This should enable "follow" attacks, which previous would just not happen.)
+++ Tweaked AI_exploreMove to let them pillage bonuses a bit more readily.
+++ Tweaked AI_buildGovernorChooseProduction to be a bit less likely to choose the culture production and to be less likely to build spies.
++
+ --
+ v1.15 changelist
+
+diff --git a/readme.txt b/readme.txt
+index 2c7f1e828..ea863d9f1 100644
+--- a/readme.txt
++++ b/readme.txt
+@@ -30,8 +30,13 @@ Here I'll list a few significant features. See changelog.txt for a more complete
+  + BUG (modified)
+  + "unofficial patch" (well known bugfixes)
+ 
++== Technical improvements ==
++ + K-Mod includes many optimisation to the way the game runs. Although many of the calculations in K-Mod are more complex, the game actually runs a lot faster than standard BtS. In many cases, the time spent waiting between turns is _halved_.
++ + Special care has been taken to make sure K-Mod works correctly in multiplayer mode. Due to various bug-fixes and back-end changes, K-Mod has fewer OOS problems than standard BtS. (In fact, if you see _any_ OOS errors at all, please tell me about it. I suspect that OOS may have been completely eliminated.)
++ + K-Mod includes many bug fixes to the controls and user-interface of the game. For example, units will no longer automatically attack when they are ordered into an unseen enemy unit in the fog-of-war; and using the diplomacy screen to suggest peace will now bring up possible peace-trade deal rather than simply ending the war without negotiations. There are many other such minor improvements.
++
+ == Better AI ==
+-The BBAI mod was used as the starting point for the AI in K-Mod, but each new version of K-Mod comes further AI improvements. The AI in K-Mod is now noticeably stronger than the AI in the BBAI mod. The obvious improvements are that the AI will research faster, fight smarter, and place city more thoughtfully; but there are also some "flavour" changes as well - different AI leaders like to pursue different kinds of strategies. It's also worth noting that the AI in K-Mod actually cheats /less/ than the standard AI; not more. (For those who don't know; the standard AI 'cheats' by sometimes knowing what is on certain plots without actually seeing them. This still sometimes happens in K-Mod, but it happens far less.)
++The BBAI mod was used as the starting point for the AI in K-Mod, but each new version of K-Mod comes further AI improvements. The AI in K-Mod is now noticeably stronger than the AI in the BBAI mod. The obvious improvements are that the AI will research faster, fight smarter, and place cities more thoughtfully; but there are also some "flavour" changes as well - different AI leaders like to pursue different kinds of strategies. It's also worth noting that the AI in K-Mod actually cheats /less/ than the standard AI; not more. (For those who don't know; the standard AI 'cheats' by sometimes knowing what is on certain plots without actually seeing them. This still sometimes happens in K-Mod, but it happens far less.)
+ 
+ == New global warming system ==
+ In standard BtS, global warming is a bit of a joke. It is triggered by the wrong things, you can't really do much to prevent it, and it hits the world in a harsh and unintuitive way. I've completely changed it.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5591

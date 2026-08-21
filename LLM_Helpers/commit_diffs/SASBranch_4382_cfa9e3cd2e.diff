@@ -1,0 +1,56 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4382
+# Commit: cfa9e3cd2edddb71cb88b62ea61182ff38a06588
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0cfbe91b71956d4b28dcf3a728c52d90690e0251
+# Title: Preemptively fix another potential map edge issue in PerfectMongoose
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	PrivateMaps/PerfectMongoose.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index e2b968519..31403cdd6 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -1821,7 +1821,7 @@ class ElevationMap2(FloatMap):
+ 		#initialize maps
+ 		for y in range(mc.hmHeight):
+ 			for x in range(mc.hmWidth):
+-				i = GetHmIndex(x, y)
++				#i = GetHmIndex(x, y) # advc: unused
+ 				self.plateMap.append(PlatePlot(0, maxDistance))
+ 				borderMap.append(False)
+ 				self.plateHeightMap.append(0.0)
+@@ -3802,6 +3802,9 @@ class PangaeaBreaker:
+ 			return
+ 		for x in range(x1, x2 + 1):
+ 			i = GetHmIndex(x, y)
++			# advc.001: Though this might not be an issue.
++			# Or maybe the map edges should be addressed by castMeteorUponTheEarth.
++			if i == -1: continue
+ 			#em.data[i] = 0.0
+ 			# advc: 0 elevation leads to coastal peaks when using the lowest-neighbor slope option.
+ 			em.data[i] *= min(0.88, 0.37 + math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY)) / 7.0)
+@@ -5837,7 +5840,7 @@ class StartingArea:
+ 		# advc: Moved into subroutine
+ 		self.ClearVicinity(3)
+ 		print "Number of final plots in areaID = %(a)3d is %(p)5d" % {"a":self.areaID, "p":len(self.plotList)}
+-		# advc.021b: Moved up:
++		# advc: Moved up:
+ 		for n in range(len(self.plotList)):
+ 			self.rawValue += self.plotList[n].localValue
+ 		# Moved the last third of this function's body into a new function FillDistanceTable
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1429

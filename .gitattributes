@@ -1,0 +1,79 @@
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+# <!-- custom: unclutter the player zip; keep only for cloning or such thanks to chatgpt 5.1's help -->
+# Example: keep in repo, exclude from Download ZIP / archives
+
+# Common image formats (global archive exclude)
+*.png   export-ignore
+*.PNG   export-ignore
+*.jpg   export-ignore
+*.JPG   export-ignore
+*.jpeg  export-ignore
+*.JPEG  export-ignore
+*.gif   export-ignore
+*.GIF   export-ignore
+*.bmp   export-ignore
+*.BMP   export-ignore
+*.webp  export-ignore
+*.WEBP  export-ignore
+*.tif   export-ignore
+*.TIF   export-ignore
+*.tiff  export-ignore
+*.TIFF  export-ignore
+*.svg   export-ignore
+*.SVG   export-ignore
+*.avif  export-ignore
+*.AVIF  export-ignore
+*.heic  export-ignore
+*.HEIC  export-ignore
+# <!-- custom: Paint.NET files in capitalization as well as chatgpt 5.1 confirms and corrected me too thanks -->
+# Paint.NET files in any casing
+*.pdn  export-ignore
+*.PDN  export-ignore
+
+# <!-- custom: config and LLM info -->
+/AGENTS.md            export-ignore
+/.claude/             export-ignore
+/.vscode/             export-ignore
+/.markdownlint.jsonc  export-ignore
+/ruff.toml            export-ignore
+
+# <!-- custom: Keep LLM_Helpers in GitHub/source ZIP downloads because it contains compact review/tuning scripts and docs, notably make_light_source_zip.py, that help LLM/code-agent analysis. Generated LLM_Helpers/outputs files stay out through .gitignore. (GPT-5.5) -->
+
+# <!-- custom: Keep the reusable release-changelog example tracked for clones, future release work, and LLM/AI helpers, but exclude it from player/download archives. (ChatGPT-5.6-Sol) -->
+/_1_AdvCiv-SAS/Docs/Modding_Ressources/changelog_release_example_6020.txt  export-ignore
+
+# <!-- custom: Keep the AdvCiv/K-Mod archaeology progress tracked so future clones and LLM/AI helpers can resume the systematic history audit, but exclude it from player/download archives. (ChatGPT-5.6-Sol) -->
+/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt  export-ignore
+
+# <!-- custom: Keep the greppable historical commit-diff mirror in Git for clones/Codex/LLM archaeology, but never ship it in player archives or count its generated contents as AdvCiv-SAS source on GitHub.
+# Historical *.diff payloads are generated reference data, so suppress ordinary Git textual diff/whitespace treatment for those files. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+/LLM_Helpers/commit_diffs/        export-ignore
+/LLM_Helpers/commit_diffs/**      export-ignore linguist-vendored
+/LLM_Helpers/commit_diffs/*.diff -diff
+
+# <!-- custom: Keep greppable downloaded map-script originals in Git and the dedicated light-source ZIP for inherited-bug archaeology, but exclude this non-runtime third-party corpus from player/GitHub Download ZIP archives.
+# Suppress ordinary diffs/language statistics for the verbatim upstream files while leaving the local README reviewable. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+/LLM_Helpers/map_refs/                export-ignore
+/LLM_Helpers/map_refs/**              export-ignore
+/LLM_Helpers/map_refs/**/*.py         -diff linguist-vendored
+/LLM_Helpers/map_refs/**/*.txt        -diff linguist-vendored
+/LLM_Helpers/map_refs/**/*.properties -diff linguist-vendored
+
+# <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5 + GPT-5.5) -->
+/.github/             export-ignore
+/.gitattributes       export-ignore
+/.gitignore           export-ignore
+
+# <!-- custom: keep the compiler temp_files placeholder in repo for sanity checks, but exclude it from GitHub Download ZIP / git archive release archives. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5) -->
+/CvGameCoreDLL/Project/temp_files     export-ignore
+/CvGameCoreDLL/Project/temp_files/**  export-ignore
+
+# <!-- custom: include most doc or debug as not too heavy and may be useful if downloaded as ZIP (manual.odt, manual.txt, CIV4BUG_Sourceforge_net_All_Classes_Doc, git_logs folders, Modding_Ressources, Sevopedia/Debug/) -->
+/Assets/Res/Fonts/other_mods/                             export-ignore
+
+# <!-- custom: Keep a full raw SASGameRecord sample in git for LLM/dev review, but exclude it from GitHub Download ZIP / release archives because the log is large and diagnostic-only. (GPT-5.6) -->
+/_1_AdvCiv-SAS/SASGameRecord_log/     export-ignore
+/_1_AdvCiv-SAS/SASGameRecord_log/**   export-ignore

@@ -1,0 +1,243 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 228
+# Commit: 285f6c4323e98fe3527a9f6659fcd9a05af9b83c
+# History segment: K-Mod history
+# Parent used for diff: 380e0563e5b25ece0d0cba05b76f9c09db65cb0e
+# Title: AIs using CONQUEST4 or DOMINATION4 will no longer make peace unless they don't want a particular war. Adjusted the peace value modifiers for AI strategies. A...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+21	21	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvPlayer.cpp
+5	5	CvGameCoreDLL/CvPlayerAI.cpp
+25	1	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index f6ab6be25..09b71acb8 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3840,7 +3840,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags) const
+ // XXX should some of these count cities, buildings, etc. based on teams (because wonders are shared...)
+ // XXX in general, this function needs to be more sensitive to what makes this city unique (more likely to build airports if there already is a harbor...)
+ // This function has been heavily edited for K-Mod
+-//int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags, int iThreshold, bool bConstCache) const
+ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iThreshold, bool bConstCache) const
+ {
+ 	PROFILE_FUNC();
+@@ -3867,11 +3866,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 	ReligionTypes eStateReligion = kOwner.getStateReligion();
+ 
+ 	bool bAreaAlone = kOwner.AI_isAreaAlone(area());
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/24/10                        jdog5000 & Fuyu       */
+-/*                                                                                              */
+-/* City AI, Bugfix                                                                              */
+-/************************************************************************************************/
+ 	int iHasMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+ 
+ 	int iFoodDifference = foodDifference(false);
+@@ -3900,9 +3894,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 	}*/
+ 
+ 	bool bProvidesPower = (kBuilding.isPower() || ((kBuilding.getPowerBonus() != NO_BONUS) && hasBonus((BonusTypes)(kBuilding.getPowerBonus()))) || kBuilding.isAreaCleanPower());
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 	int iTotalPopulation = kOwner.getTotalPopulation();
+ 	int iNumCities = kOwner.getNumCities();
+@@ -4104,24 +4095,25 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 						+ (std::max(0, iBuildingActualHappiness - iAngryPopulation) * iHappyModifier);
+ 				}*/
+ 				// K-Mod
++				int iCitValue = 6 + kOwner.getCurrentEra(); // (estimating citizen value to be 6 + era commerce per turn)
+ 				int iAngerDelta = std::max(0, -(iHappinessLevel+iBuildingActualHappiness)) - std::max(0, -iHappinessLevel);
+-				// High value for any immediate change in anger. (estimating citizen value to be 5 + era)
+-				iValue -= iAngerDelta * 4 * (5 + kOwner.getCurrentEra());
++				// High value for any immediate change in anger.
++				iValue -= iAngerDelta * 4 * iCitValue;
+ 				// some extra value if we are still growing (this is a positive change bias)
+ 				if (iAngerDelta < 0 && iFoodDifference > 1)
+ 				{
+ 					iValue -= 10 * iAngerDelta;
+ 				}
+ 				// finally, a little bit of value for happiness which gives us some padding
+-				iValue += 64 * std::max(0, iBuildingActualHappiness)/(4 + std::max(0, iHappinessLevel+iBuildingActualHappiness) + std::max(0, iHappinessLevel));
++				iValue += 16 * iCitValue * std::max(0, iBuildingActualHappiness)/(4 + std::max(0, iHappinessLevel+iBuildingActualHappiness) + std::max(0, iHappinessLevel));
+ 
+ 				// I'll now define the "iHappinessModifer" that some of the other happy effects use.
+-				int iHappyModifier = (iHappinessLevel <= iHealthLevel && iHappinessLevel <= 4) ? 8 : 4;
++				int iHappyModifier = (iHappinessLevel <= iHealthLevel && iHappinessLevel <= 4) ? iCitValue : iCitValue/2;
+ 				if (iHappinessLevel >= 10)
+ 				{
+ 					iHappyModifier = 1;
+ 				}
+-				// K-Mod
++				// K-Mod end
+ 
+ 				iValue += (-kBuilding.getHurryAngerModifier() * getHurryPercentAnger()) / 100;
+ 
+@@ -4136,8 +4128,15 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 					iValue += (-iWarWearinessModifer * iHappyModifier) / 16;
+ 				}
+ 
+-				iValue += (kBuilding.getAreaHappiness() * (iNumCitiesInArea - 1) * 8);
+-				iValue += (kBuilding.getGlobalHappiness() * iNumCities * 8);
++				/*iValue += (kBuilding.getAreaHappiness() * (iNumCitiesInArea - 1) * 8);
++				iValue += (kBuilding.getGlobalHappiness() * iNumCities * 8);*/
++				// K-Mod - just a tweak.. nothing fancy.
++				{
++					int iTargetCities = GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getTargetNumCities();
++					iValue += kBuilding.getAreaHappiness() * (iNumCitiesInArea + iTargetCities/3) * 8;
++					iValue += kBuilding.getGlobalHappiness() * (iNumCities + iTargetCities/2) * 8;
++				}
++				// K-Mod end
+ 
+ 				int iWarWearinessPercentAnger = kOwner.getWarWearinessPercentAnger();
+ 				int iGlobalWarWearinessModifer = kBuilding.getGlobalWarWearinessModifier();
+@@ -4190,18 +4189,19 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 						+ (std::max(0, iBuildingActualHealth - iBadHealth) * iHealthModifier);
+ 				}*/
+ 
++				int iCitValue = 6 + kOwner.getCurrentEra(); // (estimating citizen value to be 6 + era commerce per turn)
+ 				int iWasteDelta = std::max(0, -(iHealthLevel+iBuildingActualHealth)) - std::max(0, -iHealthLevel);
+-				// High value for any change in our food deficit.
+-				iValue -= 20 * (std::max(0, -(iFoodDifference - iWasteDelta)) - std::max(0, -iFoodDifference));
++				// High value for change in our food deficit.
++				iValue -= 2 * iCitValue * (std::max(0, -(iFoodDifference - iWasteDelta)) - std::max(0, -iFoodDifference));
+ 				// medium value for change in waste
+-				iValue -= 8 * iWasteDelta;
++				iValue -= iCitValue * iWasteDelta;
+ 				// some extra value if the change will help us grow (this is a positive change bias)
+ 				if (iWasteDelta < 0 && iHappinessLevel > 1)
+ 				{
+-					iValue -= 8 * iWasteDelta;
++					iValue -= iCitValue * iWasteDelta;
+ 				}
+ 				// finally, a little bit of value for health which gives us some padding
+-				iValue += 36 * std::max(0, iBuildingActualHealth)/(2 + std::max(0, iHealthLevel+iBuildingActualHealth) + std::max(0, iHealthLevel));
++				iValue += 10 * iCitValue * std::max(0, iBuildingActualHealth)/(6 + std::max(0, iHealthLevel+iBuildingActualHealth) + std::max(0, iHealthLevel));
+ 
+ 				// If the GW threshold has been reached,
+ 				// add some additional value for pollution reduction
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index da50b8007..6ea40a001 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3870,12 +3870,12 @@ bool CvPlayer::hasBusyUnit() const
+ 	{
+ 		if (pLoopSelectionGroup->isBusy())
+ 		{
++			/* original bts code
+ 		    if (pLoopSelectionGroup->getNumUnits() == 0)
+ 		    {
+ 		        pLoopSelectionGroup->kill();
+-				FAssertMsg(false, "Karadoc told me this could never happen..."); // K-Mod. (just say'n)
+ 		        return false;
+-		    }
++		    } */ // disabled by K-Mod. isBusy returns false if there are no units in the group.
+ 
+ 			return true;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3b9f0ab35..6bd48fe43 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13215,11 +13215,11 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 		// K-Mod (I didn't comment that line out, btw.)
+ 		const TeamTypes eTeam = GET_PLAYER(eTargetPlayer).getTeam();
+ 		const int iEra = getCurrentEra();
+-		int iCounterValue = 5 + 2*iEra + (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3 || AI_VICTORY_SPACE3) ? 10 : 0);
++		int iCounterValue = 5 + 3*iEra + (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3 || AI_VICTORY_SPACE3) ? 20 : 0);
+ 		// this is pretty bogus. I'll try to come up with something better some other time.
+-		iCounterValue *= 50*iEra*(iEra+1) + GET_TEAM(eTeam).getEspionagePointsAgainstTeam(getTeam());
+-		iCounterValue /= std::max(1, 50*iEra*(iEra+1) + GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(eTeam));
+-		iCounterValue *= AI_getMemoryCount(eTargetPlayer, MEMORY_SPY_CAUGHT) + (GET_TEAM(getTeam()).isAtWar(eTeam)?2 :0) + (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4 | AI_VICTORY_SPACE4)?1 : 0);
++		iCounterValue *= 50*iEra*(iEra+1)/2 + GET_TEAM(eTeam).getEspionagePointsAgainstTeam(getTeam());
++		iCounterValue /= std::max(1, 50*iEra*(iEra+1) + GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(eTeam))/2;
++		iCounterValue *= AI_getMemoryCount(eTargetPlayer, MEMORY_SPY_CAUGHT) + (GET_TEAM(getTeam()).isAtWar(eTeam)?2 :0) + (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4 | AI_VICTORY_SPACE3)?2 : 0);
+ 		iValue += iCounterValue;
+ 	}
+ 
+@@ -14458,7 +14458,7 @@ void CvPlayerAI::AI_doCommerce()
+ 
+ 		// now, the big question is whether or not we can steal techs more easilly than we can research them.
+ 		bool bCheapTechSteal = false;
+-		if (eMinModTeam != NO_TEAM && !AI_avoidScience() && !isNoResearchAvailable())
++		if (eMinModTeam != NO_TEAM && !AI_avoidScience() && !isNoResearchAvailable() && !AI_isDoVictoryStrategy(AI_VICTORY_SPACE3))
+ 		{
+ 			if (eStealTechMission != NO_ESPIONAGEMISSION)
+ 			{
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index af0f41675..fa2933c02 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1419,6 +1419,7 @@ int CvTeamAI::AI_endWarVal(TeamTypes eTeam) const
+ /*                                                                                              */
+ /* War strategy AI, Victory Strategy AI                                                         */
+ /************************************************************************************************/
++	/* original BBAI code
+ 	if( AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CULTURE4) )
+ 	{
+ 		iValue *= 4;
+@@ -1426,8 +1427,22 @@ int CvTeamAI::AI_endWarVal(TeamTypes eTeam) const
+ 	else if( AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CULTURE3) || AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_SPACE4) )
+ 	{
+ 		iValue *= 2;
++	} */
++	// K-Mod
++	if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CULTURE4))
++	{
++		iValue *= 3;
+ 	}
+-
++	else if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_SPACE4))
++	{
++		iValue *= 2;
++	}
++	else if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CULTURE3) || AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_SPACE3))
++	{
++		iValue *= 4;
++		iValue /= 3;
++	}
++	// K-Mod end
+ 
+ 	if ((!(isHuman()) && (eWarPlan == WARPLAN_TOTAL)) ||
+ 		  (!(GET_TEAM(eTeam).isHuman()) && (GET_TEAM(eTeam).AI_getWarPlan(getID()) == WARPLAN_TOTAL)))
+@@ -3013,11 +3028,20 @@ DenialTypes CvTeamAI::AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eTeam) c
+ 		return DENIAL_CONTACT_THEM;
+ 	}
+ 
++	/* original bts code
+     int iLandRatio = ((getTotalLand(true) * 100) / std::max(20, GET_TEAM(eTeam).getTotalLand(true)));
+     if (iLandRatio > 250)
+     {
+ 		return DENIAL_VICTORY;
++	} */
++	// K-Mod
++	if (AI_isAnyMemberDoVictoryStrategy(AI_VICTORY_CONQUEST4 | AI_VICTORY_DOMINATION4) &&
++		(AI_isChosenWar(eTeam) || getAtWarCount(true, true) == 1) &&
++		AI_getWarSuccessCapitulationRatio() > 0)
++	{
++		return DENIAL_VICTORY;
+ 	}
++	// K-Mod end
+ 
+ 	return NO_DENIAL;
+ }
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=11311

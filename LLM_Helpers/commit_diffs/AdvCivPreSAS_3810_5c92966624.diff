@@ -1,0 +1,42 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3810
+# Commit: 5c9296662437d56ba650180dac4a885e0376eea0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9117a042bf68ab51b3036844e05d89ff3c1c25bd
+# Title: Revert a small CvGameTextMgr change accidentally committed
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 4743cbeec..5b614f3a6 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4043,12 +4043,11 @@ void CvGameTextMgr::setPlotHelpDebug_Ctrl(CvWStringBuffer& szString, CvPlot cons
+ 		if (bAlt && !bShift)
+ 		{
+ 			CvTeamAI const& kPlotTeam = GET_TEAM(kPlot.getTeam());
+-			// <advc.opt> Don't compute this over and over as the user inspects the text
++			// <advc.opt> Don't compute this over and over as the user inspects it
+ 			static TeamTypes eCacheTeam = NO_TEAM;
+ 			static bool bHasPath = false;
+ 			static ArrayEnumMap<TeamTypes,bool> abHasPath;
+ 			bool const bUpdCache = (kPlotTeam.getID() != eCacheTeam);
+-			eCacheTeam = kPlotTeam.getID();
+ 			if (bUpdCache)
+ 				bHasPath = kPlotTeam.AI_isHasPathToEnemyCity(kPlot); // </advc.opt>
+ 			if (bHasPath)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=873

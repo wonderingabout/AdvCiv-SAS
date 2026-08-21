@@ -114,7 +114,8 @@ void UWAI::doXML()
 
 void UWAI::applyPersonalityWeight()
 {
-	int const iWeight = GC.getDefineINT("UWAI_PERSONALITY_PERCENT");
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iWeight = GC.getDefineINT("UWAI_PERSONALITY_PERCENT");
 	if (iWeight == 100)
 		return;
 	std::vector<std::vector<int*>*> personalityMatrix;

@@ -1,0 +1,901 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6125
+# Commit: 5f54e562ac775f5055514fe25f6bb0da12b9f8e7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 234f87f13c4d7c23411c83faa13186f4f5bc7823
+# Title: Fix Great General AI asymmetry and Improve light-source Git history (add email-anonymized cache-derived commit diff)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+3	1	CvGameCoreDLL/CvUnitAI.cpp
+22	9	LLM_Helpers/README.md
+610	13	LLM_Helpers/make_light_source_zip.py
+2	0	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 068a176a5..c82abe23d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -17125,7 +17125,9 @@ bool CvUnitAI::AI_join(int iMaxCount)
+ 			if (canJoin(pLoopCity->plot(), eLoopSpecialist))
+ 			{
+ 				// BETTER_BTS_AI_MOD, Unit AI, Efficiency, 08/20/09, jdog5000: was AI_getPlotDanger
+-				if (!GET_PLAYER(getOwner()).AI_isAnyPlotDanger(*pLoopCity->plot(), 2))
++				// <!-- custom: If the General is already in an AI_isSafe city, allow immediate Instructor joining despite radius-2 danger.
++				// Joining consumes it immediately just like AI_construct can immediately build a Military Academy there, so the local danger gate should protect travel/arrival rather than force an Academy fallback solely because enemies are nearby. See KI#204. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
++				if (at(pLoopCity->getPlot()) || !kOwner.AI_isAnyPlotDanger(*pLoopCity->plot(), 2))
+ 				{
+ 					//iValue = pLoopCity->AI_specialistValue(eLoopSpecialist, pLoopCity->AI_avoidGrowth(), false);
+ 					int iValue = pLoopCity->AI_permanentSpecialistValue(eLoopSpecialist); // K-Mod
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index 854e262d6..754fb3079 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -913,18 +913,30 @@ In short: this script is kept as a historical and practical discovery helper, wh
+   - `staged_changes_no_eol.diff`: raw staged tracked changes (`HEAD -> index`) using Git's end-of-line whitespace/CR ignore options so line-ending-only noise does not dominate review. An empty file means there are no staged tracked changes.
+   - `unstaged_changes_no_eol.diff`: raw unstaged tracked changes (`index -> working tree`) with the same end-of-line-noise filtering. An empty file means there are no unstaged tracked changes.
+   - `git_log_since_tracked_advciv_sas_log.txt`: anonymized commit messages after the newest commit already present in [`git_log_anonymized_email_003_AdvCiv-SAS.txt`](/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt) through the snapshot's `HEAD`; the already-recorded boundary commit is excluded to avoid duplication. Unlike the repository's tracked AdvCiv-SAS Git log, which is newest-to-oldest, this generated gap is deliberately chronological (oldest-to-newest), so snapshot `HEAD` is at the bottom. Keeping the full commit-message gap preserves detailed implemented notes that may later be removed from the temporary untracked `changes.md`, without needlessly embedding every potentially huge source/XML patch in the light archive.
++  - `commit_diffs/INDEX.txt` plus `<segment>_<practical-count>_<short-sha>.diff`: filtered textual patch history for every selected commit reachable from the snapshot's current `HEAD` by default, spanning the inherited K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history. Unrelated/unmerged branch refs are not included; commits from side branches that were actually merged remain because they genuinely contribute to current `HEAD`. Each commit is compared with its first parent.
++    - History segments: `KMod` is the K-Mod history; `AdvCivPreSAS` is the base AdvCiv history before the AdvCiv-SAS branch began; `SASBranch` is the later current-branch history.
++    - Post-fork meaning: `SASBranch` is deliberately a history/log segment rather than an authorship label. Upstream AdvCiv development continued after SAS began, so genuine later AdvCiv commits merged/imported into the SAS branch appear there alongside SAS commits. This keeps the existing three anonymized logs intact while clearly distinguishing inherited pre-SAS AdvCiv from the post-fork branch history.
++    - Contents/messages: each commit diff keeps a short title preview, compact change summary, patch coverage marker, and useful textual patches. Full commit messages/metadata are intentionally not duplicated there: use the included anonymized K-Mod, base AdvCiv, and AdvCiv-SAS Git logs, with `_SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt` supplying recent branch messages not yet recorded in the tracked AdvCiv-SAS log.
++    - Index/navigation: `INDEX.txt` is deliberately a lean locator (`segment`, practical count, short SHA, coverage, short title) rather than another Git log. `PATH_HISTORY_INDEX.txt` provides the reverse path -> commits view, so an LLM can narrow a historical investigation to commits that touched a particular file before opening their diff files. Practical counts are useful historical hints but can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
++    - Compactness/filtering: known generated/log/binary or redundant historical payloads such as SASGameRecord logs, copied Git logs/manuals, generated Sevopedia leader caches/data, and old "files to feed ChatGPT" snapshots are summarized rather than embedded. Existing-file patches above 10,000 changed lines are also summarized because they are usually rewrites/import churn rather than useful line-by-line history; a genuinely new functional source/config file is exempt from that line threshold (while the byte cap still applies), so e.g. adding a large real XML source file can remain inspectable. Exceptionally huge individual textual patches still use generous byte caps so one file cannot dominate the handoff.
++    - Diff generation: Git textconv/external diff drivers are explicitly disabled for this history, so local helpers such as `odt2txt` are never launched; redundant document formats such as ODT/PDF are summarized while text/manual equivalents remain available in the current snapshot. Uncached commits use one Git process for summary+patch generation, and practical counts are derived exactly from the already-read reachable commit DAG instead of launching one `rev-list --count` process per commit, including histories with merges.
++    - Cache persistence: rendered commit files are cached locally inside Git metadata under a cache-format-versioned folder and keyed by the commit's immutable full SHA. Normal reruns reuse old commits and render only genuinely new hashes; amend/force-push/hard-reset needs no arbitrary "refresh last N" logic because rewritten commits automatically have new hashes, while unreachable cached hashes are simply not selected into the current ZIP. The cache persists across Windows/Python restarts, and unchanged SHAs can be reused again if a later reset makes them reachable.
++    - Cache migration/cleanup: existing SAS cache entries from the older message-heavy diff layout are upgraded in place to the title-only header instead of forcing Git to re-render them. The cache needs no `.gitignore` entry and is never included as a repository file. After a successful writable history build, superseded helper-owned cache-policy directories are pruned automatically; dry-runs never prune.
++    - Privacy: consistent with the existing anonymized K-Mod/AdvCiv/AdvCiv-SAS Git-log exports, generated commit-history context does not expose Git author/committer email addresses. Email-shaped strings are also redacted from index title previews and embedded historical patches, preventing old copied Git logs or other committed text from re-exposing addresses; repository source files themselves are not rewritten. Older cache entries are sanitized while being upgraded in place instead of forcing Git to re-render the whole history.
++    - Controls: `--commit-diff-count 0` disables history, while a positive `N` limits output to the newest `N` commits reachable from current `HEAD` for an unusually small handoff; the default `-1` keeps the full reachable ancestry.
+   - `README.txt`: short explanation of the generated files for ZIP-only reviewers.
+-  If Git metadata or the tracked AdvCiv-SAS Git-log boundary is unavailable, the relevant generated helper explains that instead of making archive creation fail.
++  If Git metadata or one of the tracked lineage logs is unavailable, the generated context keeps working where possible and reports the missing classification/message source instead of making archive creation fail.
+ - Uses Git's canonical `Assets/Res` casing even if Windows locally displays or accepts `Assets/res`; repository paths are case-sensitive on GitHub/Linux CI, and the generated manifest deliberately preserves the Git spelling.
+-- Prints final ZIP size and write duration by default. Use `--no-duration` if stable/deterministic-looking command output is preferred.
++- Prints final ZIP size plus total, snapshot-context/history, and ZIP-write durations by default. Use `--no-duration` if stable/deterministic-looking command output is preferred.
+ - Default output directory is the mod root. Use `--output-dir` for Downloads or another handoff folder.
+ - Output filename defaults to `<detected-mod-folder-name>_light_source_<timestamp>.zip`, with `UnspecifiedModName` as a fallback. Use `--mod-name` or `--prefix` only for unusual/manual labels.
+ - Includes small source/data/docs folders useful for review: root lone files, selected [Assets](/Assets/) folders, root helper/doc/config folders including [LLM_Helpers](/LLM_Helpers/) itself, top-level [CvGameCoreDLL](/CvGameCoreDLL/) files, top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB, the exact `CvGameCoreDLL/Project/temp_files` folder and any files currently inside it, plus [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/), [_1_AdvCiv-SAS/git_logs](/_1_AdvCiv-SAS/git_logs/), [_1_AdvCiv-SAS/SASGameRecord_log](/_1_AdvCiv-SAS/SASGameRecord_log/) full `SASGameRecord` examples, and selected screenshot folders useful for LLM/UI/rendered-map-text review: [_1_AdvCiv-SAS/Images/advisors](/_1_AdvCiv-SAS/Images/advisors/), [_1_AdvCiv-SAS/Images/main_menu](/_1_AdvCiv-SAS/Images/main_menu/), [_1_AdvCiv-SAS/Images/SASGameRecord_map_text](/_1_AdvCiv-SAS/Images/SASGameRecord_map_text/), [_1_AdvCiv-SAS/Images/sevopedia](/_1_AdvCiv-SAS/Images/sevopedia/), and [_1_AdvCiv-SAS/Images/ui_other](/_1_AdvCiv-SAS/Images/ui_other/). The included `SASGameRecord` sample is a useful illustration of what a full `SASGameRecord` log looks like for external LLM analysis/review and development reference, and is cheap enough after compression: the folder is about 19.4 MB raw but compresses to about 2.7 MB at ZIP level 6. The selected screenshot folders similarly provide practical visual reference for understanding/reviewing the mod and for developing or modding UI changes, by showing what the mod actually looks like in advisors, Sevopedia, the main menu, common UI, and rendered `SASGameRecord` map text. The `SASGameRecord_map_text` screenshots are included because an LLM may read the raw text-map characters without reconstructing the visual/geographical layout as easily. Local agentic tools can inspect these folders directly, while external/ZIP-only LLMs depend on the archive contents; including every image folder currently adds 50+ MB and roughly doubles the archive, so only these key folders are included.
+ - Missing optional folders are skipped with warnings, so the helper can also be run on base AdvCiv or partial comparison folders.
+ - Skips generated/helper outputs such as `LLM_Helpers/outputs`, Python cache files, previous light-source ZIPs, heavy/binary `.dll` and `.fpk`, non-useful compact-review `.tga`, original `manual.pdf`/`manual.odt`, `Assets/res/Cursors`, and large/temporary DLL project artifacts such as `.sdf` or project files over 1 MB.
+ - Does not globally exclude common image files such as `.jpg` or `.png`; small previews can be useful for LLM review, e.g. GameFont previews. Avoid heavy art/image folders by not adding those folders to the include lists instead.
+-- Use `--dry-run` first to review file count, size, target archive path, and included repo-relative paths without writing the ZIP.
++- Use `--dry-run` first to review file count, size, target archive path, and included repo-relative paths without writing the ZIP. Dry-run can reuse existing commit-diff cache entries but deliberately does not persist newly rendered cache entries.
+ - Created/refined with help of ChatGPT-5.5, ChatGPT-5.6-Sol, and Codex.
++- Commit-diff cache performance: the first run that populates uncached history can take noticeably longer because each missing historical SHA has to be rendered once. Existing SAS SHA caches are reused when extending the default scope into older AdvCiv/K-Mod ancestry, so that first expanded run mainly renders the newly included older commits and upgrades the old SAS cache headers in place. Commit files are then reused by immutable SHA, so ordinary later runs normally render only genuinely new or rewritten commits; in the earlier 1,781-commit SAS-only test, the first population took roughly a couple of minutes while an unchanged all-cache-hit rerun completed in about 5 seconds overall. Exact timings depend on the machine/repository, and a cache-format/history-policy change can intentionally require one fresh population.
+ 
+ Tools like here WizTree helped find which folders/files are heavy to exclude.
+ 
+@@ -940,13 +952,14 @@ Example of output (Git Bash):
+ Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
+ Mod name:  AdvCiv-SAS
+ Prefix:    AdvCiv-SAS_light_source
+-Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260817T110520.zip
+-Files:     1137 selected + 7 generated snapshot-context files
+-Size:      128,981,178 bytes before ZIP container overhead
++Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260818T183325.zip
++Files:     1138 selected + 6134 generated snapshot-context files
++Size:      369,579,839 bytes before ZIP container overhead
+ Mode:      ZIP_DEFLATED / compression level 6
+-Wrote:     1144 file(s)
+-ZIP size:  61,387,277 bytes
+-Duration:  2,498 ms
++History:   commit diffs: 6125 included (SASBranch:1782,AdvCivPreSAS:3094,KMod:1249), 6125 cache hit(s), 0 rendered, 0 not cached; versions=dag-from-one-log; cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_5b1c1ce41519
++Wrote:     7272 file(s)
++ZIP size:  118,503,091 bytes
++Duration:  11,823 ms total (4,173 ms snapshot context; 7,421 ms ZIP write)
+ ```
+ 
+ ## Workflow rule for timeline tuning
+
+diff --git a/LLM_Helpers/make_light_source_zip.py b/LLM_Helpers/make_light_source_zip.py
+index 13ba73a74..16ebb80a8 100644
+--- a/LLM_Helpers/make_light_source_zip.py
++++ b/LLM_Helpers/make_light_source_zip.py
+@@ -11,7 +11,10 @@
+ from __future__ import annotations
+ 
+ import argparse
++import hashlib
+ import re
++import shlex
++import shutil
+ import subprocess
+ from datetime import datetime
+ from pathlib import Path
+@@ -64,6 +67,34 @@ DEFAULT_MOD_NAME = "UnspecifiedModName"
+ ARCHIVE_LABEL = "light_source"
+ DEFAULT_ARCHIVE_PREFIX = None
+ DEFAULT_COMPRESSION_LEVEL = 6
++# Full reachable K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history is useful for ZIP-only/LLM investigation.
++# Cache each rendered commit by immutable Git SHA so normal reruns only render newly created commits.
++DEFAULT_COMMIT_DIFF_COUNT = -1  # -1 = all commits reachable from current HEAD; 0 = disabled; N = newest N reachable commits
++COMMIT_DIFF_CACHE_FORMAT_VERSION = 2
++COMMIT_DIFF_CACHE_DIR_NAME = "advciv_sas_light_source_commit_diffs"
++COMMIT_DIFF_MAX_FILE_PATCH_BYTES = 2 * 1024 * 1024
++COMMIT_DIFF_MAX_FILE_CHANGED_LINES = 10_000
++COMMIT_DIFF_MAX_COMMIT_PATCH_BYTES = 16 * 1024 * 1024
++COMMIT_DIFF_ALWAYS_SUMMARIZE_PATH_PARTS = (
++    "/sasgamerecord_log/",
++    "/git_logs/",
++    "/_2.1_doc_files_to_feed_chatgpt_at_each_new_session_not_exhaustive/",
++    "/_2.2_source_files_to_feed_chatgpt_at_each_new_session_not_exhaustive/",
++    "/git_log_repository_full.txt",
++    "/git_log_anonymized_email.txt",
++    "/manual.txt",
++    "/leaders_data.py",
++    "/sevopedialeadercachepredumped.py",
++    "/sevopedialead_derexamplesofoutputs.txt",
++)
++COMMIT_DIFF_LARGE_NEW_FUNCTIONAL_SUFFIXES = (
++    ".cpp", ".h", ".py", ".xml", ".md", ".ini", ".cfg", ".json", ".csv",
++    ".bat", ".cmd", ".ps1", ".sh",
++)
++COMMIT_DIFF_ALWAYS_SUMMARIZE_SUFFIXES = (
++    ".log", ".dll", ".fpk", ".pdb", ".obj", ".lib", ".exe", ".zip",
++    ".odt", ".pdf", ".doc", ".docx", ".rtf",
++)
+ GENERATED_ARCHIVE_MARKER = "_light_source_"
+ # Archive-only snapshot helpers so ZIP-only reviewers can distinguish repository files from
+ # generated context and can recover committed/staged/unstaged changes without `.git`.
+@@ -75,7 +106,23 @@ GENERATED_GIT_IGNORED_TREE_NAME = f"{GENERATED_CONTEXT_DIR}/git_ignored_paths_tr
+ GENERATED_STAGED_DIFF_NAME = f"{GENERATED_CONTEXT_DIR}/staged_changes_no_eol.diff"
+ GENERATED_UNSTAGED_DIFF_NAME = f"{GENERATED_CONTEXT_DIR}/unstaged_changes_no_eol.diff"
+ GENERATED_INCREMENTAL_GIT_LOG_NAME = f"{GENERATED_CONTEXT_DIR}/git_log_since_tracked_advciv_sas_log.txt"
++GENERATED_COMMIT_DIFF_DIR = f"{GENERATED_CONTEXT_DIR}/commit_diffs"
++GENERATED_COMMIT_DIFF_INDEX_NAME = f"{GENERATED_COMMIT_DIFF_DIR}/INDEX.txt"
++GENERATED_PATH_HISTORY_INDEX_NAME = f"{GENERATED_COMMIT_DIFF_DIR}/PATH_HISTORY_INDEX.txt"
++TRACKED_KMOD_GIT_LOG = "_0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt"
++TRACKED_BASE_ADVCIV_GIT_LOG = "_0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt"
+ TRACKED_ADVCIV_SAS_GIT_LOG = "_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt"
++HISTORY_SEGMENTS = (
++    ("KMod", "K-Mod history", TRACKED_KMOD_GIT_LOG),
++    ("AdvCivPreSAS", "pre-SAS AdvCiv history", TRACKED_BASE_ADVCIV_GIT_LOG),
++    ("SASBranch", "AdvCiv-SAS branch history", TRACKED_ADVCIV_SAS_GIT_LOG),
++)
++HISTORY_TITLE_PREVIEW_CHARS = 160
++# Generated Git-history context is meant to preserve code/history, not personal Git identities.
++# Match ordinary Internet addresses plus local Git-style identities such as <hidden-email>
++GENERATED_HISTORY_EMAIL_RE = re.compile(r"(?i)(?<![A-Z0-9._%+\-])<?[A-Z0-9._%+\-]+@[A-Z0-9][A-Z0-9.\-]*>?(?![A-Z0-9._%+\-])")
++GENERATED_HISTORY_EMAIL_PRIVACY_MARKER = "# Email privacy: email-shaped addresses redacted from generated commit-history text."
++GENERATED_HISTORY_LAYOUT_MARKER = "# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs)."
+ 
+ # Skip Python bytecode/cache folders anywhere in the tree.
+ # They are generated, can be heavy, and confuse LLM/code-agent reviews with stale duplicate code.
+@@ -150,6 +197,18 @@ def parse_args() -> argparse.Namespace:
+             f"{DEFAULT_COMPRESSION_LEVEL}. Use 0 for ZIP_STORED / no compression."
+         ),
+     )
++    parser.add_argument(
++        "--commit-diff-count",
++        type=int,
++        default=DEFAULT_COMMIT_DIFF_COUNT,
++        metavar="N",
++        help=(
++            "Committed diffs to expose under _SNAPSHOT_CONTEXT/commit_diffs. "
++            "Default: -1 = every commit reachable from the current HEAD (including K-Mod, pre-SAS AdvCiv and AdvCiv-SAS branch history); "
++            "0 disables; positive N keeps only the newest N reachable commits. Rendered commits are cached "
++            "locally by immutable Git SHA, so normal reruns only generate new commits."
++        ),
++    )
+     parser.add_argument(
+         "--dry-run",
+         action="store_true",
+@@ -158,7 +217,7 @@ def parse_args() -> argparse.Namespace:
+     parser.add_argument(
+         "--no-duration",
+         action="store_true",
+-        help="Do not print ZIP write duration. Useful when stable/deterministic-looking command output is preferred.",
++        help="Do not print total/snapshot-context/ZIP-write durations. Useful when stable/deterministic-looking command output is preferred.",
+     )
+     return parser.parse_args()
+ 
+@@ -436,6 +495,7 @@ def build_git_diff(repo_root: Path, cached: bool) -> bytes:
+     args.extend(
+         [
+             "--no-ext-diff",
++            "--no-textconv",
+             "--no-color",
+             "--ignore-space-at-eol",
+             "--ignore-cr-at-eol",
+@@ -540,10 +600,518 @@ def build_incremental_git_log(repo_root: Path) -> str:
+         return "\n".join(lines) + "\n"
+ 
+     lines.append("[ALL NEWER COMMITS - MESSAGES | OLDEST -> NEWEST]")
+-    lines.append(log_raw.rstrip())
++    lines.append(redact_generated_history_emails(log_raw.rstrip()))
+     return "\n".join(lines) + "\n"
+ 
+ 
++
++def redact_generated_history_emails(text: str) -> str:
++    """Redact email-shaped strings from archive-only Git history without modifying repository files."""
++    return GENERATED_HISTORY_EMAIL_RE.sub("<hidden-email>", text)
++
++def compact_history_title(subject: str, max_chars: int = HISTORY_TITLE_PREVIEW_CHARS) -> str:
++    """Return a short single-line commit-title preview; full messages remain in the canonical Git logs."""
++    title = " ".join(subject.split()) or "(no commit title)"
++    title = redact_generated_history_emails(title)
++    if len(title) <= max_chars:
++        return title
++    return title[: max_chars - 3].rstrip() + "..."
++
++
++def read_tracked_history_segments(repo_root: Path) -> tuple[dict[str, tuple[str, str, str]], list[str]]:
++    """Map hashes recorded in the three anonymized history logs to segment id/label/log path."""
++    by_hash: dict[str, tuple[str, str, str]] = {}
++    warnings: list[str] = []
++    for segment_id, segment_label, log_rel in HISTORY_SEGMENTS:
++        log_path = repo_root / log_rel
++        if not log_path.is_file():
++            warnings.append(f"missing {segment_label} Git log: {log_rel}")
++            continue
++        try:
++            text = log_path.read_text(encoding="utf-8", errors="replace")
++        except OSError as exc:
++            warnings.append(f"unable to read {segment_label} Git log {log_rel}: {exc}")
++            continue
++        for full_hash in re.findall(r"(?m)^commit ([0-9a-fA-F]{40})\s*$", text):
++            by_hash[full_hash.lower()] = (segment_id, segment_label, log_rel)
++    return by_hash, warnings
++
++
++def assign_commit_history_segments(repo_root: Path, commits: list[dict[str, str]]) -> list[str]:
++    """Assign exact history/log segments; these describe ancestry partition, not commit authorship."""
++    tracked, warnings = read_tracked_history_segments(repo_root)
++    recent_sas_hashes: set[str] = set()
++    newest_tracked_sas, newest_error = latest_commit_in_tracked_git_log(repo_root)
++    if newest_tracked_sas:
++        merge_base_raw, merge_base_error = run_git(repo_root, "merge-base", newest_tracked_sas, "HEAD")
++        if merge_base_raw is not None and merge_base_raw.strip().lower() == newest_tracked_sas.lower():
++            raw, error = run_git(repo_root, "rev-list", f"{newest_tracked_sas}..HEAD")
++            if raw is not None:
++                recent_sas_hashes = {value.lower() for value in raw.splitlines() if value.strip()}
++            else:
++                warnings.append(f"unable to identify recent AdvCiv-SAS Git-log gap: {error}")
++        elif merge_base_raw is None:
++            warnings.append(f"unable to verify recent AdvCiv-SAS Git-log boundary: {merge_base_error}")
++        else:
++            warnings.append("newest tracked AdvCiv-SAS Git-log commit is not an ancestor of current HEAD")
++    elif newest_error:
++        warnings.append(newest_error)
++
++    for commit in commits:
++        commit_hash = commit["hash"].lower()
++        tracked_info = tracked.get(commit_hash)
++        if tracked_info is not None:
++            segment_id, segment_label, log_rel = tracked_info
++            message_location = log_rel
++        elif commit_hash in recent_sas_hashes:
++            segment_id, segment_label = "SASBranch", "AdvCiv-SAS branch history"
++            message_location = GENERATED_INCREMENTAL_GIT_LOG_NAME
++        else:
++            segment_id, segment_label = "Other", "Other reachable ancestry"
++            message_location = "the anonymized Git logs and snapshot Git-log context included with this archive"
++        commit["history_segment_id"] = segment_id
++        commit["history_segment_label"] = segment_label
++        commit["message_location"] = message_location
++    return warnings
++
++
++def commit_diff_header(commit: dict[str, str], version: str, parent_label: str) -> list[str]:
++    """Build lean diff metadata; canonical full commit messages stay in the anonymized Git logs."""
++    message_location = commit.get("message_location") or "the anonymized Git logs included with this archive"
++    return [
++        "# AdvCiv-SAS reachable-history commit diff",
++        GENERATED_HISTORY_EMAIL_PRIVACY_MARKER,
++        GENERATED_HISTORY_LAYOUT_MARKER,
++        f"# Cache format: {COMMIT_DIFF_CACHE_FORMAT_VERSION}",
++        f"# Cache policy: {commit_diff_cache_policy_key()}",
++        f"# Practical commit count: {version}",
++        f"# Commit: {commit['hash']}",
++        f"# History segment: {commit.get('history_segment_label', 'Other reachable ancestry')}",
++        f"# Parent used for diff: {parent_label}",
++        f"# Title: {compact_history_title(commit.get('subject', ''))}",
++        f"# Full commit message/metadata: see {message_location}.",
++        "# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.",
++        "# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.",
++        "# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.",
++        "# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.",
++    ]
++
++
++def migrate_cached_commit_diff(cache_path: Path, commit: dict[str, str], write_cache: bool) -> tuple[bytes | Path, bool]:
++    """Upgrade older SHA cache text in place without asking Git to re-render its unchanged patch."""
++    try:
++        with cache_path.open("rb") as handle:
++            header = handle.read(4096).decode("utf-8", errors="replace")
++    except OSError:
++        return cache_path, False
++    if GENERATED_HISTORY_LAYOUT_MARKER in header and GENERATED_HISTORY_EMAIL_PRIVACY_MARKER in header:
++        return cache_path, False
++    try:
++        text = cache_path.read_text(encoding="utf-8", errors="replace")
++    except OSError:
++        return cache_path, False
++
++    version_match = re.search(r"(?m)^# (?:Practical version|Practical commit count): (\d+)$", text)
++    parent_match = re.search(r"(?m)^# Parent used for diff: (.+)$", text)
++    summary_pos = text.find("[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]")
++    if not version_match or summary_pos < 0:
++        # Unknown/very old helper cache layout: let normal validation/rendering recover it instead of guessing.
++        return cache_path, False
++    version = version_match.group(1)
++    parent_label = parent_match.group(1).strip() if parent_match else ((commit.get("parents") or "").split() or ["(root commit)"])[0]
++    body = commit_diff_header(commit, version, parent_label) + ["", text[summary_pos:].rstrip()]
++    sanitized = (redact_generated_history_emails("\n".join(body)).rstrip() + "\n").encode("utf-8")
++    if not write_cache:
++        return sanitized, True
++    temp_path = cache_path.with_suffix(".metadata.tmp")
++    try:
++        temp_path.write_bytes(sanitized)
++        temp_path.replace(cache_path)
++        return cache_path, True
++    except OSError:
++        try:
++            if temp_path.exists():
++                temp_path.unlink()
++        except OSError:
++            pass
++        return sanitized, True
++
++
++def commit_diff_cache_policy_key() -> str:
++    """Fingerprint cache-affecting patch policy constants so tuning caps/exclusions does not reuse stale renderings."""
++    payload = repr((COMMIT_DIFF_CACHE_FORMAT_VERSION, COMMIT_DIFF_MAX_FILE_PATCH_BYTES, COMMIT_DIFF_MAX_FILE_CHANGED_LINES, COMMIT_DIFF_MAX_COMMIT_PATCH_BYTES, COMMIT_DIFF_ALWAYS_SUMMARIZE_PATH_PARTS, COMMIT_DIFF_ALWAYS_SUMMARIZE_SUFFIXES, COMMIT_DIFF_LARGE_NEW_FUNCTIONAL_SUFFIXES)).encode("utf-8")
++    return hashlib.sha1(payload).hexdigest()[:12]
++
++
++def commit_diff_cache_dir(repo_root: Path) -> tuple[Path | None, str | None]:
++    """Return a local cache inside Git metadata, avoiding repository/.gitignore churn."""
++    git_dir_raw, error = run_git(repo_root, "rev-parse", "--git-dir")
++    if git_dir_raw is None:
++        return None, error
++    git_dir = Path(git_dir_raw.strip())
++    if not git_dir.is_absolute():
++        git_dir = (repo_root / git_dir).resolve()
++    return git_dir / COMMIT_DIFF_CACHE_DIR_NAME / f"v{COMMIT_DIFF_CACHE_FORMAT_VERSION}_{commit_diff_cache_policy_key()}", None
++
++
++def prune_superseded_commit_diff_cache_dirs(cache_dir: Path) -> tuple[int, list[str]]:
++    """Remove obsolete helper-owned cache-policy directories after a successful writable build."""
++    removed = 0
++    errors: list[str] = []
++    cache_root = cache_dir.parent
++    try:
++        siblings = list(cache_root.iterdir())
++    except OSError as exc:
++        return 0, [str(exc)]
++    for sibling in siblings:
++        if sibling == cache_dir or not sibling.is_dir() or not re.fullmatch(r"v\d+_[0-9a-f]{12}", sibling.name):
++            continue
++        try:
++            shutil.rmtree(sibling)
++            removed += 1
++        except OSError as exc:
++            errors.append(f"{sibling.name}: {exc}")
++    return removed, errors
++
++
++def parse_commit_history_metadata(repo_root: Path) -> tuple[list[dict[str, str]], str | None]:
++    """Read current-HEAD reachable hashes/parents/titles in one Git process, newest -> oldest."""
++    raw, error = run_git(repo_root, "log", "--no-color", "--format=%H%x1f%P%x1f%s%x1e", "HEAD")
++    if raw is None:
++        return [], error
++    commits: list[dict[str, str]] = []
++    for record in raw.split("\x1e"):
++        record = record.strip("\r\n")
++        if not record:
++            continue
++        parts = record.split("\x1f", 2)
++        if len(parts) != 3:
++            continue
++        full_hash, parents, subject = parts
++        commits.append({"hash": full_hash.strip(), "parents": parents.strip(), "subject": subject.strip()})
++    return commits, None
++
++
++def historical_patch_label(patch_chunk: str) -> str:
++    first_line = patch_chunk.splitlines()[0] if patch_chunk else "diff --git (unknown)"
++    return first_line[len("diff --git "):] if first_line.startswith("diff --git ") else first_line
++
++
++def historical_patch_changed_lines(patch_chunk: str) -> int:
++    """Count real added/deleted hunk lines, excluding diff metadata such as +++/---."""
++    return sum(1 for line in patch_chunk.splitlines() if (line.startswith("+") and not line.startswith("+++")) or (line.startswith("-") and not line.startswith("---")))
++
++
++def should_summarize_historical_patch(patch_label: str, patch_bytes: int, patch_chunk: str) -> tuple[bool, str, int]:
++    """Suppress generated/noisy or huge-history payloads while retaining substantial new functional files."""
++    normalized = "/" + patch_label.lower().replace("\\", "/") + "/"
++    changed_lines = historical_patch_changed_lines(patch_chunk)
++    if any(part in normalized for part in COMMIT_DIFF_ALWAYS_SUMMARIZE_PATH_PARTS):
++        return True, "known-generated/noisy-history", changed_lines
++    label_clean = patch_label.lower().replace('"', "")
++    label_tokens = label_clean.split()
++    if any(token.endswith(COMMIT_DIFF_ALWAYS_SUMMARIZE_SUFFIXES) for token in label_tokens):
++        return True, "binary/generated-file", changed_lines
++    if changed_lines > COMMIT_DIFF_MAX_FILE_CHANGED_LINES:
++        is_new_file = "new file mode " in patch_chunk
++        is_functional_source = label_clean.endswith(COMMIT_DIFF_LARGE_NEW_FUNCTIONAL_SUFFIXES)
++        if not (is_new_file and is_functional_source):
++            return True, "file-patch-too-many-changed-lines", changed_lines
++    if patch_bytes > COMMIT_DIFF_MAX_FILE_PATCH_BYTES:
++        return True, "file-patch-too-large", changed_lines
++    return False, "", changed_lines
++
++
++def cached_commit_info(cache_path: Path, expected_hash: str) -> tuple[str, str] | None:
++    """Validate a cache entry cheaply and return practical version plus patch coverage."""
++    try:
++        with cache_path.open("rb") as handle:
++            header = handle.read(2048).decode("utf-8", errors="replace")
++            handle.seek(0, 2)
++            size = handle.tell()
++            handle.seek(max(0, size - 1024))
++            tail = handle.read().decode("utf-8", errors="replace")
++    except OSError:
++        return None
++    hash_match = re.search(r"(?m)^# Commit: ([0-9a-fA-F]{40})$", header)
++    version_match = re.search(r"(?m)^# (?:Practical version|Practical commit count): (\d+)$", header)
++    cache_match = re.search(r"(?m)^# Cache format: (\d+)$", header)
++    policy_match = re.search(r"(?m)^# Cache policy: ([0-9a-f]+)$", header)
++    if not hash_match or hash_match.group(1).lower() != expected_hash.lower():
++        return None
++    if not cache_match or int(cache_match.group(1)) != COMMIT_DIFF_CACHE_FORMAT_VERSION or not policy_match or policy_match.group(1) != commit_diff_cache_policy_key() or not version_match:
++        return None
++    coverage_match = re.search(r"patchFiles=(\d+) embeddedFiles=(\d+) omittedFiles=(\d+)", tail)
++    if coverage_match:
++        embedded = int(coverage_match.group(2))
++        omitted = int(coverage_match.group(3))
++        coverage = "full" if omitted == 0 else ("partial" if embedded > 0 else "summary-only")
++    else:
++        coverage = "unknown"
++    return version_match.group(1), coverage
++
++
++def render_commit_diff(repo_root: Path, commit: dict[str, str]) -> tuple[bytes, str, str]:
++    """Render one immutable commit patch plus compact metadata, returning bytes/version/status."""
++    full_hash = commit["hash"]
++    parents = [value for value in commit["parents"].split() if value]
++    parent = parents[0] if parents else None
++    version = commit.get("version", "")
++    version_error = None
++    if not version:
++        version_raw, version_error = run_git(repo_root, "rev-list", "--count", full_hash)
++        version = version_raw.strip() if version_raw else "unknown"
++
++    # One Git process supplies both compact change summary and patches. Explicitly disable
++    # textconv as well as external diffs: local/global Git configs can otherwise launch tools
++    # such as odt2txt for historical documents that the light-source archive does not need.
++    common_args = ["--numstat", "--summary", "--patch", "--no-ext-diff", "--no-textconv", "--no-color", "--ignore-space-at-eol", "--ignore-cr-at-eol"]
++    if parent is None:
++        combined_raw, combined_error = run_git(repo_root, "show", "--format=", *common_args, full_hash, "--")
++        parent_label = "(root commit)"
++    else:
++        combined_raw, combined_error = run_git(repo_root, "diff", *common_args, "--find-renames", parent, full_hash, "--")
++        parent_label = parent
++
++    summary_raw = None
++    patch_all_raw = None
++    if combined_raw is not None:
++        patch_start = combined_raw.find("diff --git ")
++        if patch_start >= 0:
++            summary_raw = combined_raw[:patch_start].rstrip()
++            patch_all_raw = combined_raw[patch_start:]
++        else:
++            summary_raw = combined_raw.rstrip()
++            patch_all_raw = ""
++
++    body = commit_diff_header(commit, version, parent_label) + [
++        "",
++        "[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]",
++        (summary_raw if summary_raw is not None else f"(unavailable: {combined_error})").rstrip(),
++        "",
++        "[PATCHES]",
++    ]
++
++    patch_chunks: list[str] = []
++    if patch_all_raw:
++        starts = [match.start() for match in re.finditer(r"(?m)^diff --git ", patch_all_raw)]
++        for i, chunk_start in enumerate(starts):
++            chunk_end = starts[i + 1] if i + 1 < len(starts) else len(patch_all_raw)
++            patch_chunks.append(patch_all_raw[chunk_start:chunk_end].rstrip())
++
++    included = 0
++    omitted = 0
++    embedded_bytes = 0
++    if combined_raw is None:
++        body.append(f"(Patch unavailable: {combined_error})")
++    for patch_chunk in patch_chunks:
++        label = historical_patch_label(patch_chunk)
++        patch_size = len(patch_chunk.encode("utf-8"))
++        summarize, reason, changed_lines = should_summarize_historical_patch(label, patch_size, patch_chunk)
++        if not summarize and embedded_bytes + patch_size > COMMIT_DIFF_MAX_COMMIT_PATCH_BYTES:
++            summarize, reason = True, "commit-patch-budget"
++        if summarize:
++            omitted += 1
++            body.extend(["", f"[PATCH OMITTED] file={label} reason={reason} changedLines={changed_lines} bytes={patch_size}"])
++            continue
++        included += 1
++        embedded_bytes += patch_size
++        body.extend(["", patch_chunk])
++
++    if not patch_chunks:
++        body.extend(["", "(No textual patch after end-of-line-noise filtering; this may be a metadata-only/merge commit or an EOL-only change.)"])
++    status = "full" if omitted == 0 else ("partial" if included > 0 else "summary-only")
++    body.extend(["", "[PATCH COVERAGE]", f"patchFiles={len(patch_chunks)} embeddedFiles={included} omittedFiles={omitted} embeddedPatchBytes={embedded_bytes}"])
++    if version_error and version == "unknown":
++        body.extend(["", f"[VERSION WARNING] {version_error}"])
++    return (redact_generated_history_emails("\n".join(body)).rstrip() + "\n").encode("utf-8"), version, status
++
++
++
++def historical_patch_paths(patch_label: str) -> list[str]:
++    """Return old/new repo-relative paths encoded by one `diff --git` label, including ordinary spaces."""
++    label = patch_label.strip()
++    tokens: list[str]
++    if label.startswith('"'):
++        try:
++            tokens = shlex.split(label)
++        except ValueError:
++            tokens = []
++    elif label.startswith("a/") and " b/" in label:
++        # Git does not quote ordinary spaces in `diff --git` labels. The final ` b/` normally
++        # separates old/new paths; quoted unusual paths use the shlex branch above.
++        split_at = label.rfind(" b/")
++        tokens = [label[:split_at], label[split_at + 1:]]
++    else:
++        tokens = label.split(maxsplit=1)
++    paths: list[str] = []
++    for token in tokens[:2]:
++        if token.startswith("a/") or token.startswith("b/"):
++            token = token[2:]
++        if token and token != "/dev/null" and token not in paths:
++            paths.append(token)
++    return paths
++
++
++def changed_paths_from_commit_diff(value: bytes | Path) -> list[str]:
++    """Extract every included/omitted patch path from one generated first-parent commit diff."""
++    try:
++        text = value.read_text(encoding="utf-8", errors="replace") if isinstance(value, Path) else value.decode("utf-8", errors="replace")
++    except OSError:
++        return []
++    labels = re.findall(r"(?m)^diff --git (.+)$", text)
++    labels.extend(re.findall(r"(?m)^\[PATCH OMITTED\] file=(.*?) reason=", text))
++    paths: list[str] = []
++    for label in labels:
++        for path in historical_patch_paths(label):
++            if path not in paths:
++                paths.append(path)
++    return paths
++
++
++def build_path_history_index(path_history: dict[str, list[tuple[str, str, str]]]) -> bytes:
++    """Build compact path -> commits navigation without duplicating patch text or commit messages."""
++    lines = [
++        "# Reachable path history index",
++        "# Generated automatically by LLM_Helpers/make_light_source_zip.py.",
++        "# Maps each historical path to commits whose generated first-parent diff touched that path.",
++        "# Scope is current HEAD ancestry only; unrelated/unmerged branch refs are not included.",
++        "# Each indented row: <segment> <practical-count> <short-sha>, newest -> oldest.",
++        "# Practical counts can repeat on divergent/merged history; SHA is canonical. Inspect the matching .diff for rename/status details.",
++        "",
++    ]
++    for path in sorted(path_history, key=str.casefold):
++        lines.append(path)
++        for segment_id, version, short_hash in path_history[path]:
++            lines.append(f"  {segment_id} {version} {short_hash}")
++        lines.append("")
++    return ("\n".join(lines).rstrip() + "\n").encode("utf-8")
++
++
++def assign_dag_practical_versions(commits: list[dict[str, str]]) -> bool:
++    """Assign exact `git rev-list --count <commit>` values from the already-read reachable DAG."""
++    if not commits:
++        return False
++    index_by_hash = {commit["hash"].lower(): i for i, commit in enumerate(commits)}
++    reachable_bits: dict[str, int] = {}
++    for commit in reversed(commits):
++        commit_hash = commit["hash"].lower()
++        bits = 1 << index_by_hash[commit_hash]
++        for parent in (value.lower() for value in commit["parents"].split() if value):
++            parent_bits = reachable_bits.get(parent)
++            if parent_bits is None:
++                return False
++            bits |= parent_bits
++        reachable_bits[commit_hash] = bits
++        commit["version"] = str(bits.bit_count())
++    return True
++
++def build_commit_diff_history_context(repo_root: Path, commit_count: int, write_cache: bool) -> tuple[dict[str, bytes | Path], str]:
++    """Build current-HEAD reachable commit-patch ancestry, reusing immutable SHA-keyed local cache entries."""
++    if commit_count == 0:
++        return {}, "commit diff history disabled"
++
++    commits, history_error = parse_commit_history_metadata(repo_root)
++    if not commits:
++        message = f"Git history unavailable: {history_error or 'no commits found'}"
++        index = "# Reachable commit diff index\n# Generated automatically by LLM_Helpers/make_light_source_zip.py.\n\n" + message + "\n"
++        return {GENERATED_COMMIT_DIFF_INDEX_NAME: index.encode("utf-8")}, message
++
++    dag_versions = assign_dag_practical_versions(commits)
++    segment_warnings = assign_commit_history_segments(repo_root, commits)
++    if commit_count > 0:
++        commits = commits[:commit_count]
++
++    cache_dir, cache_error = commit_diff_cache_dir(repo_root)
++    cache_writable = bool(cache_dir and write_cache)
++    if cache_writable:
++        try:
++            cache_dir.mkdir(parents=True, exist_ok=True)
++        except OSError as exc:
++            cache_error = str(exc)
++            cache_writable = False
++
++    generated: dict[str, bytes | Path] = {}
++    index_lines = [
++        "# Reachable commit diff index",
++        "# Generated automatically by LLM_Helpers/make_light_source_zip.py.",
++        "# Scope: selected commits reachable from the snapshot's current HEAD only; unrelated/unmerged branch refs are excluded.",
++        "# Merged side-branch commits remain included because they genuinely contribute to current HEAD ancestry; each commit is diffed against its first parent.",
++        "# Segments: KMod = K-Mod history; AdvCivPreSAS = base AdvCiv history before the SAS branch; SASBranch = post-fork AdvCiv-SAS branch history.",
++        "# SASBranch is a history/log segment, not an authorship label: it includes SAS commits plus later upstream AdvCiv commits merged/imported into the branch.",
++        f"# Full commit messages/metadata: {TRACKED_KMOD_GIT_LOG}; {TRACKED_BASE_ADVCIV_GIT_LOG}; {TRACKED_ADVCIV_SAS_GIT_LOG}.",
++        f"# Recent AdvCiv-SAS messages not yet in the tracked SAS log: {GENERATED_INCREMENTAL_GIT_LOG_NAME}.",
++        "# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.",
++        "# Files are named <segment>_<practical-count>_<short-sha>.diff; coverage is full, partial, summary-only, or unknown.",
++        "# Columns: segment<TAB>practical-count<TAB>short-sha<TAB>coverage<TAB>title-preview",
++    ]
++    if segment_warnings:
++        index_lines.append("# History-segment warning: " + " | ".join(segment_warnings))
++    index_lines.append("")
++
++    path_history: dict[str, list[tuple[str, str, str]]] = {}
++    reused = rendered = in_memory = cache_migrations = 0
++    segment_counts: dict[str, int] = {}
++    for commit in commits:
++        full_hash = commit["hash"]
++        segment_id = commit.get("history_segment_id", "Other")
++        segment_counts[segment_id] = segment_counts.get(segment_id, 0) + 1
++        cache_path = cache_dir / f"{full_hash}.diff" if cache_dir else None
++        cached_info = cached_commit_info(cache_path, full_hash) if cache_path and cache_path.is_file() else None
++        coverage = cached_info[1] if cached_info else "unknown"
++        version = cached_info[0] if cached_info else None
++        value: bytes | Path
++        if version is not None and cache_path is not None:
++            value, cache_migrated = migrate_cached_commit_diff(cache_path, commit, write_cache=cache_writable)
++            cache_migrations += int(cache_migrated)
++            reused += 1
++        else:
++            data, version, coverage = render_commit_diff(repo_root, commit)
++            rendered += 1
++            if cache_writable and cache_path is not None:
++                temp_path = cache_path.with_suffix(".tmp")
++                try:
++                    temp_path.write_bytes(data)
++                    temp_path.replace(cache_path)
++                    value = cache_path
++                except OSError:
++                    try:
++                        if temp_path.exists():
++                            temp_path.unlink()
++                    except OSError:
++                        pass
++                    value = data
++                    in_memory += 1
++            else:
++                value = data
++                in_memory += 1
++        rel_name = f"{GENERATED_COMMIT_DIFF_DIR}/{segment_id}_{version}_{full_hash[:10]}.diff"
++        generated[rel_name] = value
++        safe_subject = compact_history_title(commit.get("subject", ""))
++        index_lines.append(f"{segment_id}\t{version}\t{full_hash[:10]}\t{coverage}\t{safe_subject}")
++        for path in changed_paths_from_commit_diff(value):
++            path_history.setdefault(path, []).append((segment_id, version, full_hash[:10]))
++
++    pruned_cache_dirs = 0
++    prune_errors: list[str] = []
++    if cache_writable and cache_dir is not None and in_memory == 0:
++        pruned_cache_dirs, prune_errors = prune_superseded_commit_diff_cache_dirs(cache_dir)
++
++    generated[GENERATED_COMMIT_DIFF_INDEX_NAME] = ("\n".join(index_lines).rstrip() + "\n").encode("utf-8")
++    generated[GENERATED_PATH_HISTORY_INDEX_NAME] = build_path_history_index(path_history)
++    cache_note = str(cache_dir) if cache_dir else f"unavailable ({cache_error})"
++    version_mode = "dag-from-one-log" if dag_versions else "per-commit-fallback"
++    prune_note = f"; pruned={pruned_cache_dirs} old cache dir(s)" if pruned_cache_dirs else ""
++    if prune_errors:
++        prune_note += f"; prune warnings={len(prune_errors)}"
++    migration_note = f"; cache-migrated={cache_migrations}" if cache_migrations else ""
++    segment_note = ",".join(f"{key}:{segment_counts[key]}" for key in ("SASBranch", "AdvCivPreSAS", "KMod", "Other") if key in segment_counts)
++    if segment_warnings:
++        segment_note += f"; segment warnings={len(segment_warnings)}"
++    summary = f"commit diffs: {len(commits)} included ({segment_note}), {reused} cache hit(s), {rendered} rendered, {in_memory} not cached; versions={version_mode}; cache={cache_note}{migration_note}{prune_note}"
++    return generated, summary
++
++
+ def build_snapshot_context_readme() -> str:
+     """Explain the generated archive-only snapshot context files."""
+     return (
+@@ -572,15 +1140,33 @@ def build_snapshot_context_readme() -> str:
+         f"  Commit messages after the newest commit already recorded in {TRACKED_ADVCIV_SAS_GIT_LOG}\n"
+         "  through this snapshot's HEAD. The boundary commit is not duplicated. Unlike the tracked\n"
+         "  AdvCiv-SAS Git log (newest -> oldest), this generated gap is ordered oldest -> newest,\n"
+-        "  so snapshot HEAD appears at the bottom. Detailed commit messages can preserve implemented\n"
+-        "  notes that were later removed from the temporary untracked changes.md.\n"
++        "  so snapshot HEAD appears at the bottom. Together with the tracked K-Mod, AdvCiv and\n"
++        "  AdvCiv-SAS anonymized Git logs, these are the canonical full commit messages for history review.\n"
++        "\ncommit_diffs/INDEX.txt + <segment>_<practical-count>_<short-sha>.diff\n"
++        "  Filtered first-parent textual diffs for every selected commit reachable from current HEAD by default,\n"
++        "  spanning K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history. The last segment includes SAS work plus\n"
++        "  later upstream AdvCiv commits merged/imported after SAS began. Unrelated/unmerged branch refs are not\n"
++        "  included; merged side-branch commits remain because they genuinely contribute to current HEAD. Diff files\n"
++        "  keep a short title, change summary and useful patches, while full messages/metadata redirect to the tracked\n"
++        "  anonymized Git logs above (or the generated recent SAS gap). This avoids duplicating long commit messages.\n"
++        "  Known generated/log/binary or exceptionally huge historical payloads are summarized instead of embedded.\n"
++        "  Practical commit counts can repeat on divergent/merged history; the full Git SHA is always canonical.\n"
++        "\ncommit_diffs/PATH_HISTORY_INDEX.txt\n"
++        "  Compact reverse navigation from a historical repository path to the commits whose generated first-parent\n"
++        "  diffs touched it. Use it to narrow investigation before opening the matching commit diff files.\n"
++        "\nHistory cache/privacy\n"
++        "  Generated history follows the existing anonymized Git-log email policy and also redacts email-shaped strings\n"
++        "  embedded in historical patch text. The local cache lives inside Git metadata and is keyed by immutable full\n"
++        "  SHA, so normal reruns only render newly created commits. Existing SAS cache entries from the older message-heavy\n"
++        "  layout are upgraded in place instead of re-rendered. Amend/force-push/reset needs no arbitrary last-N refresh.\n"
++        "  Use --commit-diff-count 0 to disable, or a positive N to include only the newest N reachable commits.\n"
+     )
+ 
+ 
+-def build_generated_context(repo_root: Path, selected_files: Iterable[Path]) -> dict[str, bytes]:
++def build_generated_context(repo_root: Path, selected_files: Iterable[Path], commit_diff_count: int, write_cache: bool) -> tuple[dict[str, bytes | Path], str]:
+     """Return every archive-only context file keyed by ZIP-relative path."""
+     selected_files = list(selected_files)
+-    return {
++    context: dict[str, bytes | Path] = {
+         GENERATED_CONTEXT_README_NAME: build_snapshot_context_readme().encode("utf-8"),
+         GENERATED_GIT_MANIFEST_NAME: build_git_manifest(repo_root).encode("utf-8"),
+         GENERATED_GIT_STATE_NAME: build_git_repository_state(repo_root, selected_files).encode("utf-8"),
+@@ -589,6 +1175,9 @@ def build_generated_context(repo_root: Path, selected_files: Iterable[Path]) ->
+         GENERATED_UNSTAGED_DIFF_NAME: build_git_diff(repo_root, cached=False),
+         GENERATED_INCREMENTAL_GIT_LOG_NAME: build_incremental_git_log(repo_root).encode("utf-8"),
+     }
++    commit_context, commit_diff_summary = build_commit_diff_history_context(repo_root, commit_diff_count, write_cache)
++    context.update(commit_context)
++    return context, commit_diff_summary
+ 
+ 
+ def should_skip_dir(path: Path, repo_root: Path) -> bool:
+@@ -710,7 +1299,7 @@ def collect_files(repo_root: Path) -> list[Path]:
+     return sorted(files, key=lambda p: p.relative_to(repo_root).as_posix().lower())
+ 
+ 
+-def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path], compression_level: int, generated_context: dict[str, bytes]) -> int:
++def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path], compression_level: int, generated_context: dict[str, bytes | Path]) -> int:
+     count = 0
+     temp_path = zip_path.with_suffix(zip_path.suffix + ".tmp")
+     if temp_path.exists():
+@@ -726,7 +1315,10 @@ def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path], compressio
+             archive.write(path, rel)
+             count += 1
+         for rel, data in sorted(generated_context.items()):
+-            archive.writestr(rel, data)
++            if isinstance(data, Path):
++                archive.write(data, rel)
++            else:
++                archive.writestr(rel, data)
+             count += 1
+ 
+     temp_path.replace(zip_path)
+@@ -734,14 +1326,17 @@ def write_zip(zip_path: Path, repo_root: Path, files: Iterable[Path], compressio
+ 
+ 
+ def main() -> int:
++    total_start_time = perf_counter()
+     args = parse_args()
+     repo_root = find_repo_root(args.repo_root)
+     mod_name = derive_mod_name(repo_root, args.mod_name)
+     prefix = archive_prefix(mod_name, args.prefix)
+     zip_path = output_path(repo_root, args.output_dir, prefix, not args.dry_run)
+     files = collect_files(repo_root)
+-    generated_context = build_generated_context(repo_root, files)
+-    total_bytes = sum(path.stat().st_size for path in files) + sum(len(data) for data in generated_context.values())
++    context_start_time = perf_counter()
++    generated_context, commit_diff_summary = build_generated_context(repo_root, files, args.commit_diff_count, write_cache=not args.dry_run)
++    context_duration_ms = int((perf_counter() - context_start_time) * 1000)
++    total_bytes = sum(path.stat().st_size for path in files) + sum(data.stat().st_size if isinstance(data, Path) else len(data) for data in generated_context.values())
+     compression_mode = "ZIP_STORED / no compression" if args.compression_level <= 0 else f"ZIP_DEFLATED / compression level {args.compression_level}"
+ 
+     print(f"Repo root: {repo_root}")
+@@ -751,6 +1346,7 @@ def main() -> int:
+     print(f"Files:     {len(files)} selected + {len(generated_context)} generated snapshot-context files")
+     print(f"Size:      {total_bytes:,} bytes before ZIP container overhead")
+     print(f"Mode:      {compression_mode}")
++    print(f"History:   {commit_diff_summary}")
+ 
+     if args.dry_run:
+         for path in files:
+@@ -760,13 +1356,14 @@ def main() -> int:
+         print("Dry run only; no archive written.")
+         return 0
+ 
+-    start_time = perf_counter()
++    zip_start_time = perf_counter()
+     count = write_zip(zip_path, repo_root, files, args.compression_level, generated_context)
+-    duration_ms = int((perf_counter() - start_time) * 1000)
++    zip_duration_ms = int((perf_counter() - zip_start_time) * 1000)
++    total_duration_ms = int((perf_counter() - total_start_time) * 1000)
+     print(f"Wrote:     {count} file(s)")
+     print(f"ZIP size:  {zip_path.stat().st_size:,} bytes")
+     if not args.no_duration:
+-        print(f"Duration:  {duration_ms:,} ms")
++        print(f"Duration:  {total_duration_ms:,} ms total ({context_duration_ms:,} ms snapshot context; {zip_duration_ms:,} ms ZIP write)")
+     return 0
+
+diff --git a/README.md b/README.md
+index 0d8339e83..85b5a7b95 100644
+--- a/README.md
++++ b/README.md
+@@ -130,6 +130,8 @@ About the mod AdvCiv-SAS in general, i added quite a bit of documentation, pictu
+ 
+ Additionally, some extra files can be found on this google drive: [full AdvCiv-SAS google drive folder link](https://drive.google.com/drive/folders/1thBnA_TzWq2psd8Tg8RaorwmPZzqgN9M?usp=sharing).
+ 
++For offline source/history review (notably with external LLMs), [`LLM_Helpers/make_light_source_zip.py`](/LLM_Helpers/make_light_source_zip.py) can create a compact light-source archive containing the current review-relevant source/docs plus generated Git/repository snapshot context and useful filtered textual diffs across the current HEAD's K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history (including later upstream AdvCiv commits merged into that branch), without copying `.git` or complete historical source trees. Very large/generated/binary/redundant historical payloads are summarized instead of embedded; see [`LLM_Helpers/README.md`](/LLM_Helpers/README.md) for details.
++
+ ## How to play?
+ 
+ If you are a new player or want to play this mod and would like a few instructions on how to install it and play it, i have provided a few instructions in the [README_Quick_Install_Setup_Guide.md](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 32b43ba48..52e57d8bd 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -7822,7 +7822,7 @@ A Great General investigation initially looked like it might mainly concern AdvC
+ - **Fixed Base AdvCiv bug - inverted Military Academy city-safety test:** `CvUnitAI::AI_construct` used `pLoopCity->AI_isSafe()` as a reason to reject a city, which skipped safe cities while leaving unsafe cities eligible for Military Academy targeting. This is now corrected to reject cities that are not safe, matching the nearby `AI_join` logic.
+ - **Hardened inherited AdvCiv/K-Mod limitation - movement flags were not tactical safety:** Great General joining relied on `MOVE_SAFE_TERRITORY`, whose pathfinder meaning is ownership/revelation safety rather than protection from attack on the actual end-turn plot; Academy movement had a similar exposure. Instructor/Academy travel now also avoids enemy pressure and checks the actual end-turn radius-2 danger. A General starting from safety will not deliberately end on a dangerous travel tile, while a General already trapped in danger may use a nonzero-danger path only when its end-turn plot is strictly safer than its current plot, avoiding a safety rule that would itself pin the unit in a collapsing city.
+ - **Fixed Base AdvCiv issue - zero-turn unsafe-city retreat trap:** the K-Mod-derived `AI_retreatToCity` could let a threatened defenseless land unit choose its current unsafe city as the best retreat destination. Its path length is zero, so it could beat every genuine escape city and return `MISSION_SKIP`. AdvCiv-SAS now excludes a threatened non-defender's current city while searching for a retreat destination; if no real alternative exists, the existing fallback remains unchanged and can still leave the unit there rather than manufacturing an impossible escape.
+-- **Improved SAS Great General policy - era-tunable Military Instructor-first behavior:** Base AdvCiv can attach a threatened Great General to a combat unit before the normal Academy/Instructor sequence. AdvCiv-SAS deliberately gates weak attachments very heavily because Military Instructors are currently preferred for balance. `SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA` now makes the additional Instructor-first priority tunable: `-1` disables it, nonnegative values apply it through the corresponding era index, and the dynamically resolved `ERA_FUTURE` index or higher applies it in all eras. The ordinary Academy, attachment, retreat and safety fallbacks remain available when a suitable Instructor action cannot be made.
++- **Improved SAS Great General policy - era-tunable Military Instructor-first behavior:** Base AdvCiv can attach a threatened Great General to a combat unit before the normal Academy/Instructor sequence. AdvCiv-SAS deliberately gates weak attachments very heavily because Military Instructors are currently preferred for balance. `SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_PREFER_FIRST_THROUGH_ERA` now makes the additional Instructor-first priority tunable: `-1` disables it, nonnegative values apply it through the corresponding era index, and the dynamically resolved `ERA_FUTURE` index or higher applies it in all eras. The ordinary Academy, attachment, retreat and safety fallbacks remain available when a suitable Instructor action cannot be made. A later autoplay exposed one narrow consistency gap: Portugal's General `1777738` was already standing in Guimarães on turn 277 with `citySafe=1` and `currentPlotDangerR2=2`; `AI_join` rejected the city for radius-2 danger, then the very next Great-General decision selected `AI_construct(1)` and SASGameRecord recorded a Military Academy in that same city. Because both Instructor joining and Academy construction consume the General immediately when it is already on the city plot, only the Instructor was being blocked by a travel-oriented danger gate despite having no travel exposure. `AI_join` now allows that immediate current-city join while keeping the radius-2 danger rejection for destinations that require travel.
+ - **Improved Great General death reporting and Timeline persistence:** Base AdvCiv passed `getNameKey()` to Great General death notifications, so a named casualty could show only its personal name and hide whether it was the free General or e.g. a named Longbowman carrying one. AdvCiv-SAS now uses `getReplayName()` for these messages so unit type and personal name stay together. Player-caused Great General deaths are also persisted as replay major events, allowing the Info Screen Timeline to display them instead of leaving the event only in the transient top-center message stream.
+ - **Improved SASGameRecord/BBAI observability:** a defenseless Great Person destroyed directly through a player-caused `CvUnit::kill` path could bypass the existing combat-result record. That player-kill path now records the death without duplicating ordinary combat rows. Great-Person birth rows also record the newborn `unitId` and spawn coordinates, while dedicated BBAI Great General level-3 diagnostics record candidate rejection reasons and numeric current/city/path-end danger. This allows one General to be followed from birth through AI decisions to Instructor/Academy/attachment/death outcome.
+ - **Post-fix autoplay validation:** a 457-turn test with only Great General BBAI diagnostics enabled produced 91 Great General births, 90 Military Instructor joins, no Academy/attachment outcomes and 1 free-General death. 75 of the 90 successful Generals joined on their birth turn, 12 one turn later and 3 two turns later; 41 settled in a city other than their birth city. All 6 Generals whose first AI decision began with radius-2 danger above zero successfully reached an Instructor outcome, including starts at danger 22 and 28. The sole death was qualitatively different and appears unavoidable by the AI movement fixes: Russia's General `1114142` was born in Rostov on turn 362 and killed there during Rostov's capture on the same turn, after Moscow had already fallen earlier that turn. Rostov was therefore Russia's only remaining city, the safe-birth-city selector had no alternative, and BBAI contains no Great General move for the unit because it died before Russia received an AI turn.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 1c21c691b..2d833436f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -132,7 +132,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Other examples: This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)), and [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)). The checks also run locally with Python 3; see [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
+ - **Python Ruff GitHub workflow:** added [`python-ruff.yml`](/.github/workflows/python-ruff.yml), which prints a full Ruff report and fails on a practical critical gate for syntax/parse errors and Pyflakes bug checks. This helped spot shadowed duplicate callbacks in base Civ4 `Oasis.py` (see [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-actions-workflow)) and a Base AdvCiv bug of dormant undefined `Point` (instead of using `PointLayout`) helper in `RectLayout.py` (see [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-base-advciv-bug-dormant-rectlayout-upperleft-helper-returned-undefined-point-instead-of-pointlayout-found-by-python-ruff-github-actions-workflow)).
+ - **Python 2.4 Docker compile GitHub workflow:** added [`python24-compile.yml`](/.github/workflows/python24-compile.yml), which runs `Assets/Python` and `PrivateMaps` through real CPython 2.4 syntax/bytecode compilation using our separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) GHCR image. This complements Ruff by checking the old parser Civ4 embeds, without launching Civ4 or importing engine-only modules. A deliberate [test confirmed it fails](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27897204427) on Python 2.5+ ternary syntax such as `SAS_MAGIC_PY24_COMPILE_BREAK_TEST = 1 if True else 0` in `SASMagicNumbers.py`. See [`.github/workflows/README.md`](/.github/workflows/README.md#python-24-compile-workflow), and [README.md (Python Scripts)](/README.md#python-scripts) for screenshots.
+-- **Light source archive helper:** added [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), which creates a timestamped compressed AdvCiv-SAS source/data/docs archive under the mod root or a chosen output folder. (Requires AdvCiv-SAS 6118+) A small tracked Git file-tree manifest is also bundled so ZIP-only LLMs can see repository paths intentionally omitted from the archive. This avoids repeatedly manually selecting and tediously creating an updated ZIP of each file/folder each time, of the same useful core files/folders ChatGPT or other LLMs can read or needs, while leaving unneeded or too heavy to use ones (e.g., as of now no .fpk, .tga, .dll, or pycache folders, broad art assets folder), when sharing compact mod context with local tools or LLMs. (Requires AdvCiv-SAS 6105+) Some image folders are included too because advisors, Sevopedia, main menu, common UI, and rendered `SASGameRecord` map text are very useful for LLM development/review and help show what the mod actually looks like. The `SASGameRecord_map_text` screenshots are included because an LLM may read the raw text-map characters without reconstructing the visual/geographical layout as easily. Local agentic tools like Codex can inspect these screenshots directly, while external/ZIP-only LLMs like ChatGPT can only use them if the archive includes them; adding every image folder would currently add 50+ MB and roughly double the archive.
++- **Light source archive helper:** added [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), which creates a timestamped compressed AdvCiv-SAS source/data/docs archive under the mod root or a chosen output folder. (Requires AdvCiv-SAS 6118+) A small tracked Git file-tree manifest is also bundled so ZIP-only LLMs can see repository paths intentionally omitted from the archive. (Requires AdvCiv-SAS 6126+) The archive now also includes generated `_SNAPSHOT_CONTEXT` with the current Git/repository state plus useful filtered textual diffs across the current HEAD's K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history, including later upstream AdvCiv commits merged into that branch, making offline/ZIP-only LLM review and historical investigation much more complete without including the full `.git` repository or historical source trees. This avoids repeatedly manually selecting and tediously creating an updated ZIP of each file/folder each time, of the same useful core files/folders ChatGPT or other LLMs can read or needs, while leaving unneeded or too heavy to use ones (e.g., as of now no .fpk, .tga, .dll, or pycache folders, broad art assets folder), when sharing compact mod context with local tools or LLMs. (Requires AdvCiv-SAS 6105+) Some image folders are included too because advisors, Sevopedia, main menu, common UI, and rendered `SASGameRecord` map text are very useful for LLM development/review and help show what the mod actually looks like. The `SASGameRecord_map_text` screenshots are included because an LLM may read the raw text-map characters without reconstructing the visual/geographical layout as easily. Local agentic tools like Codex can inspect these screenshots directly, while external/ZIP-only LLMs like ChatGPT can only use them if the archive includes them; adding every image folder would currently add 50+ MB and roughly double the archive.
+ - **Dependabot for GitHub Actions:** added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20 (see [<hidden-email>#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24)). This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
+ - **Handicap XML comparison helper:** added [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py), a report-only, mod-agnostic helper that compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, by handicap index; shows missing fields as blanks, includes absolute/percentage numeric deltas, and embeds a spreadsheet-friendly TSV matrix.
+ - **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+@@ -474,7 +474,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **Mounted "Counter" role pruning:** Removed `UNITAI_COUNTER` from the mounted units (`UNIT_CHARIOT`, `UNIT_EGYPTIAN_WAR_CHARIOT`, `UNIT_CARTHAGE_NUMIDIAN_CAVALRY`) that had it. Rationale: mounted units don’t "receive defense bonuses" (note: not related to bonuses/ressources) and can be countered by other units; assigning them to COUNTER can park them in cities (e.g. seemingly seen in autoplay with War Chariots) and occupies a slot **Longbowmen** are more fit to fill as they unlock early and are cheap and versatile defenders, so these mounted unit lines are better used for offense roles rather during its window—or skipped outside it.
+ - **Stack attack order — spend expendables first:** stack attacks now prefer **bombard/collateral** and **low-effective-strength/low-XP** units first (once the stack commits to attack), preserving elite finishers. Rationale: economically efficient (older/weaker units cost upkeep but scale poorly) and strategically safer (keep high-value units for decisive blows or retreats). Change in `CvSelectionGroupAI::AI_getBestGroupAttacker`. Toggle via SAS defines for A/B testing. See [KI#89](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#89---improved-in-an-attack-stack-attack-with-lower-value-effective-strength-xp-health-units-first).
+ - **Great Generals — prefer Military Instructor, focus on hammer hubs:** AI now favours settling Great Generals as **Military Instructors** over attaching them as unit leaders, as the instructor bonus scales better into the late game. **Targeting:** strong bias to the **top 3 hammer cities** with **decreasing weights** (top-1 most, then top-2/3 progressively less). Extra preference if the city **has / is building** the **Heroic Epic effect** building. **Limit removed:** cities may host **multiple** Military Instructors (no per-city cap). Implemented in `CvCityAI::AI_permanentSpecialistValue` and `CvUnitAI::AI_generalMove`. See [KI#69](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc).
+-- Update: (Requires AdvCiv-SAS 6032+) Rarely in games, for example in save file 450 with France AI, a Great General could be attached to a low-value Longbowman at ~T130. BBAI logging showed the cause was Military Instructor joining was blocked by safety/path gates. To fix it, Great General unit-attachment branches now use tunable minimum target gates that default very high, so Great Generals effectively keep preferring Military Instructor or Military Academy unless these thresholds are deliberately lowered. In the retest after fix, those low-value Longbowman attachments were rejected (and another Great General attachment to USA in the same run that newly occurred as well at ~T180 was successfully blocked) and the Great Generals joined cities as Military Instructors instead. See [KI#69 (Update)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc). (Requires AdvCiv-SAS 6032+) Update 2: **Great General safety/reliability:** fixed several inherited Base AdvCiv pitfalls that could spawn, route or leave defenseless Great Generals in danger before the AI could use them, and made the additional Military Instructor-first priority era-tunable. See [KI#204](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#204---fixedimproved-base-advciv-great-general-birth-safety-and-reporting-gaps-could-waste-free-great-generals-including-unsafe-birth-city-selection-and-an-inverted-military-academy-city-safety-test).
++- Update: (Requires AdvCiv-SAS 6032+) Rarely in games, for example in save file 450 with France AI, a Great General could be attached to a low-value Longbowman at ~T130. BBAI logging showed the cause was Military Instructor joining was blocked by safety/path gates. To fix it, Great General unit-attachment branches now use tunable minimum target gates that default very high, so Great Generals effectively keep preferring Military Instructor or Military Academy unless these thresholds are deliberately lowered. In the retest after fix, those low-value Longbowman attachments were rejected (and another Great General attachment to USA in the same run that newly occurred as well at ~T180 was successfully blocked) and the Great Generals joined cities as Military Instructors instead. See [KI#69 (Update)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc). (Requires AdvCiv-SAS 6123+) Update 2: **Great General safety/reliability:** fixed several inherited Base AdvCiv pitfalls that could spawn, route or leave defenseless Great Generals in danger before the AI could use them, made the additional Military Instructor-first priority era-tunable, and allow an immediate Instructor join when the General is already standing in an otherwise safe city even if nearby radius-2 danger would block travel there. See [KI#204](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#204---fixedimproved-base-advciv-great-general-birth-safety-and-reporting-gaps-could-waste-free-great-generals-including-unsafe-birth-city-selection-and-an-inverted-military-academy-city-safety-test).
+ 
+ #### Military - Naval (AI)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=77791

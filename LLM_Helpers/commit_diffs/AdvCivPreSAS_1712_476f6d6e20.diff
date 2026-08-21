@@ -1,0 +1,92 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1712
+# Commit: 476f6d6e20249307b3d4c5144c9d6e703cca73cc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b2cd59e52888b05b65c7db1802727831c706e474
+# Title: Fix some assertions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+1	2	CvGameCoreDLL/CvPlot.h
+1	2	CvGameCoreDLL/WarAndPeaceCache.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 6f8afa771..35ece8c46 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6506,7 +6506,7 @@ void CvCityAI::AI_updateSafety()
+ 			iThresh = ::round(iThresh * (0.5 + relativeCityVal));
+ 		if(kOwner.getNumCities() <= 2 && isCapital())
+ 			iThresh *= 2;
+-		m_bEvacuate = (::round((iAttStrength * 100) / (iDefStrength + 1.0)) > iThresh);
++		m_bEvacuate = ((iAttStrength * 100) / (iDefStrength + 1.0) > iThresh);
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 67f979144..ea55403db 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2494,7 +2494,7 @@ void CvPlayerAI::AI_updateCommerceWeights()  // advc: minor style changes
+ 			int iTheirPoints = kLoopTeam.getEspionagePointsAgainstTeam(getTeam());
+ 			int iOurPoints = kOurTeam.getEspionagePointsAgainstTeam(eLoopTeam);
+ 			iTotalUnspent += iOurPoints;
+-			int iAttitude = ::range(kOurTeam.AI_getAttitudeVal(eLoopTeam),
++			int iAttitude = ::range(kOurTeam.AI_getAttitudeVal(eLoopTeam, true, false),
+ 					-12, 12);
+ 			iTheirPoints -= (iTheirPoints*iAttitude)/(2*12);
+ 
+@@ -8918,7 +8918,7 @@ int CvPlayerAI::AI_getAttitudeVal(PlayerTypes ePlayer, bool bForced,
+ 	if (isHuman())
+ 	{
+ 		/*  It's OK to use it for keeping data members of the proxy AI up to date
+-			(e.g. worst enemy, strategies) */
++			(e.g. worst enemy, commerce weight, strategies) */
+ 		FAssertMsg(!bAssertNonHuman || (GC.getGame().isDebugMode() && GC.ctrlKey()),
+ 				"Attitude of human (proxy) AI shouldn't matter"); 
+ 		return 0;
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 5e188ef0f..ea7ff8a20 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -216,8 +216,7 @@ public:
+ 	DllExport bool isCity(bool bCheckImprovement, TeamTypes eForTeam = NO_TEAM) const;																																		// Exposed to Python
+ 	// advc.003f: Faster version, inlined for CvArea::canBeEntered
+ 	__forceinline bool isCity() const
+-	{	// advc.tmp: (Should perhaps simply turn m_plotCity into a CvCity pointer.)
+-		FAssert((getPlotCity() == NULL) == (m_plotCity.iID == NO_PLAYER));
++	{	// (Should perhaps simply turn m_plotCity into a CvCity pointer.)
+ 		return (m_plotCity.iID != NO_PLAYER); // avoid ::getCity call
+ 	}
+ 	bool isFriendlyCity(const CvUnit& kUnit, bool bCheckImprovement) const;																												// Exposed to Python
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index 701f99e63..e0d1392b4 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -1021,8 +1021,7 @@ double WarAndPeaceCache::teamThreat(TeamTypes tId) const {
+ 
+ 	CvTeamAI const& t = GET_TEAM(tId);
+ 	TeamTypes ownerTeam = TEAMID(ownerId);
+-	AttitudeTypes towardsOwner = t.AI_getAttitude(ownerTeam);
+-	if(t.isHuman()) towardsOwner = ATTITUDE_CAUTIOUS;
++	AttitudeTypes towardsOwner = (t.isHuman() ? ATTITUDE_CAUTIOUS : t.AI_getAttitude(ownerTeam));
+ 	if(t.isAVassal() || towardsOwner >= ATTITUDE_FRIENDLY ||
+ 			// Don't worry about long-term threat if they're already close to victory
+ 			t.AI_isAnyMemberDoVictoryStrategyLevel3())
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3197

@@ -1,0 +1,320 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1444
+# Commit: ce787213a11df1ade03a520e3835e12f6ac79dda
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8377887745ada5ea0f27339964f3e3c3a0ee1bda
+# Title: Set AI Auto Play handicap to the average of AI handicaps
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	6	Assets/xml/GlobalDefinesAlt.xml
+5	0	Assets/xml/Terrain/CIV4YieldInfos.xml
+1	1	CvGameCoreDLL/CvArea.cpp
+19	16	CvGameCoreDLL/CvGame.cpp
+12	6	CvGameCoreDLL/CvGlobals.cpp
+4	3	CvGameCoreDLL/CvGlobals.h
+3	5	CvGameCoreDLL/CvInfos.cpp
+0	1	CvGameCoreDLL/CvInfos.h
+1	2	CvGameCoreDLL/CvInitCore.cpp
+3	3	CvGameCoreDLL/CvMap.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/Assets/xml/GlobalDefinesAlt.xml b/Assets/xml/GlobalDefinesAlt.xml
+index 12eaab2d7..d8aa3d63f 100644
+--- a/Assets/xml/GlobalDefinesAlt.xml
++++ b/Assets/xml/GlobalDefinesAlt.xml
+@@ -5,12 +5,7 @@
+ <!-- -->
+ <!-- Global Defines -->
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+-	<!-- advc.009: 302 in BtS, 303 in K-Mod. Picking 14223 as a unique id
+-		 (that's A-D-V-C in numbers). -->
+-	<Define>
+-		<DefineName>SAVE_VERSION</DefineName>
+-		<iDefineIntVal>14223</iDefineIntVal>
+-	</Define>
++
+ 	<Define>
+ 		<DefineName>INITIAL_GOLD_PER_UNIT</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal> <!-- this is now percent cost, so I've changed it from 1 to 100 -->
+@@ -207,4 +202,16 @@
+ 		<iDefineIntVal>14</iDefineIntVal>
+ 	</Define>
+ 	
++	<!-- advc.009: 302 in BtS, 303 in K-Mod. Picking 14223 as a unique id
++		 (that's A-D-V-C in numbers). Note that this number is only relevant
++		 for savegame version changes within the life cycle of a mod (none so
++		 far for AdvCiv). Setting this to e.g. 303 will not allow K-Mod saves
++		 to be loaded as the mod name is stored in the savegame and the EXE
++		 will reject the savegame if that name doesn't match the (folder) name
++		 of the currently loaded mod. -->
++	<Define>
++		<DefineName>SAVE_VERSION</DefineName>
++		<iDefineIntVal>14223</iDefineIntVal>
++	</Define>
++	
+ </Civ4Defines>
+
+diff --git a/Assets/xml/Terrain/CIV4YieldInfos.xml b/Assets/xml/Terrain/CIV4YieldInfos.xml
+index 5f03e2357..918d7ce03 100644
+--- a/Assets/xml/Terrain/CIV4YieldInfos.xml
++++ b/Assets/xml/Terrain/CIV4YieldInfos.xml
+@@ -4,6 +4,11 @@
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+ <!-- Yield Infos -->
++<!-- advc (comments):
++	 *  The only K-Mod change in this file is that the AI weights were all set
++		to 100%
++	 *	The SymbolPaths aren't used; instead, BtS gets the symbols for the
++		Yield Display from: Art/Interface/Symbols/Vertical_Symbols.dds -->
+ <Civ4YieldInfos xmlns="x-schema:CIV4TerrainSchema.xml">
+ 	<YieldInfos>
+ 		<YieldInfo>
+
+diff --git a/CvGameCoreDLL/CvArea.cpp b/CvGameCoreDLL/CvArea.cpp
+index 701491522..615f35bae 100644
+--- a/CvGameCoreDLL/CvArea.cpp
++++ b/CvGameCoreDLL/CvArea.cpp
+@@ -1074,7 +1074,7 @@ void CvArea::write(FDataStreamBase* pStream)
+ 	int iI;
+ 
+ 	uint uiFlag=0;
+-	uiFlag++; // advc.030
++	uiFlag = 1; // advc.030
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iID);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index dc0cda418..0bf1b6869 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -269,22 +269,7 @@ void CvGame::setInitialItems()
+ 		GC.getMap().recalculateAreas();
+ 	// </advc.030>
+ 	initFreeUnits();
+-	/*  <advc.127> Set m_eAIHandicap to the average of AI handicaps. Scenarios can
+-		assign unequal AI handicaps.
+-		(Then again, scenarios don't call  setInitialItems, so this loop is
+-		really superfluous.) */
+-	int iHandicapSum = 0;
+-	int iDiv = 0;
+-	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+-		CvPlayer& civ = GET_PLAYER((PlayerTypes)i);
+-		if(civ.isAlive() && !civ.isHuman() && !civ.isMinorCiv()) {
+-			iHandicapSum += civ.getHandicapType();
+-			iDiv++;
+-		}
+-	}
+-	if(iDiv > 0) // Leaves it at STANDARD_HANDICAP in all-human games
+-		m_eAIHandicap = (HandicapTypes)::round(iHandicapSum / (double)iDiv);
+-	// </advc.127>
++	setAIHandicap(); // advc.127
+ 	// <advc.250b>
+ 	if(!isOption(GAMEOPTION_ADVANCED_START) || iAI == 0)
+ 		setOption(GAMEOPTION_SPAH, false);
+@@ -848,6 +833,23 @@ void CvGame::initDiplomacy()
+ 	}
+ }
+ 
++// <advc.127>
++void CvGame::setAIHandicap() {
++
++	// Set m_eAIHandicap to the average of AI handicaps
++	int iHandicapSum = 0;
++	int iDiv = 0;
++	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++		CvPlayer& civ = GET_PLAYER((PlayerTypes)i);
++		if(civ.isAlive() && !civ.isHuman() && !civ.isMinorCiv()) {
++			iHandicapSum += civ.getHandicapType();
++			iDiv++;
++		}
++	}
++	if(iDiv > 0) // Leaves it at STANDARD_HANDICAP in all-human games
++		m_eAIHandicap = (HandicapTypes)::round(iHandicapSum / (double)iDiv);
++} // </advc.127>
++
+ 
+ void CvGame::initFreeState()
+ {
+@@ -946,6 +948,7 @@ void CvGame::initFreeState()
+ 
+ void CvGame::initScenario() {
+ 
++	setAIHandicap(); // advc.127
+ 	initFreeState(); // Tech from handicap
+ 	// <advc.030>
+ 	if(GC.getDefineINT("PASSABLE_AREAS") > 0) {
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 8b466d17b..4ac633e38 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -2927,22 +2927,28 @@ const char * CvGlobals::getDefineSTRING( const char * szName ) const
+ 	return szReturn;
+ }
+ 
+-void CvGlobals::setDefineINT( const char * szName, int iValue )
++void CvGlobals::setDefineINT( const char * szName, int iValue,
++		bool bUpdateCache ) // advc.003b
+ {
+ 	getDefinesVarSystem()->SetValue( szName, iValue );
+-	cacheGlobals();
++	if(bUpdateCache) // advc.003b
++		cacheGlobals();
+ }
+ 
+-void CvGlobals::setDefineFLOAT( const char * szName, float fValue )
++void CvGlobals::setDefineFLOAT( const char * szName, float fValue,
++		bool bUpdateCache ) // advc.003b
+ {
+ 	getDefinesVarSystem()->SetValue( szName, fValue );
+-	cacheGlobals();
++	if(bUpdateCache) // advc.003b
++		cacheGlobals();
+ }
+ 
+-void CvGlobals::setDefineSTRING( const char * szName, const char * szValue )
++void CvGlobals::setDefineSTRING( const char * szName, const char * szValue,
++		bool bUpdateCache ) // advc.003b
+ {
+ 	getDefinesVarSystem()->SetValue( szName, szValue );
+-	cacheGlobals();
++	if(bUpdateCache) // advc.003b
++		cacheGlobals();
+ }
+ 
+ int CvGlobals::getMOVE_DENOMINATOR()
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index c674a1345..7ba3a7fb9 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -693,9 +693,10 @@ public:
+ 	DllExport int getDefineINT( const char * szName ) const;
+ 	DllExport float getDefineFLOAT( const char * szName ) const;
+ 	DllExport const char * getDefineSTRING( const char * szName ) const;
+-	void setDefineINT( const char * szName, int iValue );
+-	void setDefineFLOAT( const char * szName, float fValue );
+-	void setDefineSTRING( const char * szName, const char * szValue );
++	// advc.003b: Params for suppressing cache update added
++	void setDefineINT( const char * szName, int iValue, bool bUpdateCache = true);
++	void setDefineFLOAT( const char * szName, float fValue, bool bUpdateCache = true );
++	void setDefineSTRING( const char * szName, const char * szValue, bool bUpdateCache = true );
+ 
+ 	inline int getEXTRA_YIELD() { return m_iEXTRA_YIELD; } // K-Mod (why aren't all these functions inline?)
+ 	// advc.130s: Cached for performance reasons
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index b1418141b..1a785ecaa 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -13611,7 +13611,7 @@ int CvYieldInfo::getColorType() const
+ }
+ 
+ // Arrays
+-
++// advc.003j: This is never called. The paths are unused.
+ const TCHAR* CvYieldInfo::getSymbolPath(int i) const
+ {
+ 	FAssertMsg(i < GC.getDefineINT("MAX_YIELD_STACK"), "Index out of bounds");
+@@ -13621,14 +13621,11 @@ const TCHAR* CvYieldInfo::getSymbolPath(int i) const
+ 
+ bool CvYieldInfo::read(CvXMLLoadUtility* pXML)
+ {
+-	CvString szTextVal;
+ 	if (!CvInfoBase::read(pXML))
+ 	{
+ 		return false;
+ 	}
+ 
+-	int iNumSibs, j;
+-
+ 	pXML->GetChildXmlValByName(&m_iHillsChange, "iHillsChange");
+ 	pXML->GetChildXmlValByName(&m_iPeakChange, "iPeakChange");
+ 	pXML->GetChildXmlValByName(&m_iLakeChange, "iLakeChange");
+@@ -13640,10 +13637,11 @@ bool CvYieldInfo::read(CvXMLLoadUtility* pXML)
+ 	pXML->GetChildXmlValByName(&m_iGoldenAgeYield, "iGoldenAgeYield");
+ 	pXML->GetChildXmlValByName(&m_iGoldenAgeYieldThreshold, "iGoldenAgeYieldThreshold");
+ 	pXML->GetChildXmlValByName(&m_iAIWeightPercent, "iAIWeightPercent");
+-
++	CvString szTextVal;
+ 	pXML->GetChildXmlValByName(szTextVal, "ColorType");
+ 	m_iColorType = pXML->FindInInfoClass(szTextVal);
+ 
++	int iNumSibs, j;
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "SymbolPaths"))
+ 	{
+ 		if (pXML->SkipToNextVal())
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index 1b10dae61..27832ae12 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -3390,7 +3390,6 @@ protected:
+ 	int m_iColorType;
+ 
+ 	CvString* m_paszSymbolPath;
+-
+ };
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index 6e494cfbe..8604db728 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -8,8 +8,7 @@
+ #include "CvGlobals.h"
+ #include "CvDLLUtilityIFaceBase.h"
+ #include "CvGameCoreUtils.h"
+-// advc.001m:
+-#include "CvDLLInterfaceIFaceBase.h"
++#include "CvDLLInterfaceIFaceBase.h" // advc.001m
+ 
+ // Public Functions...
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 984566b8d..41aa2b257 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -1569,10 +1569,10 @@ void CvMap::calculateAreas_DFS(CvPlot const& kStart) {
+ 			CvPlot* t = plot(q.getX_INLINE(), p.getY_INLINE());
+ 			FAssertMsg(s != NULL && t != NULL, "Map appears to be non-convex");
+ 			if(q.getArea() == FFreeList::INVALID_INDEX && p.isWater() == q.isWater() &&
+-					// For water tiles, orthogonal adjacency is unproblematic
+-					(!p.isWater() || x == q.getX_INLINE() || y == q.getY_INLINE()
++					// For water tiles, orthogonal adjacency is unproblematic.
++					(!p.isWater() || x == q.getX_INLINE() || y == q.getY_INLINE() ||
+ 					// Diagonal adjacency only works if either s or t are water 
+-					|| s == NULL || s->isWater() || t == NULL || t->isWater()) &&
++					s == NULL || s->isWater() || t == NULL || t->isWater()) &&
+ 					/*  Depth-first search that doesn't continue at impassables
+ 						except to other impassables so that mountain ranges and
+ 						ice packs end up in one CvArea. */
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index b8c2384ce..c71c99fe2 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -598,7 +598,7 @@ public:
+ 	bool AI_askHelp(PlayerTypes humanId);
+ 	// tribute type: 0 for gold, 1 for map, 2 for tech and 3 for bonus resource
+ 	bool AI_demandTribute(PlayerTypes humanId, int tributeType);
+-	// </advc.104m></advc.003>
++	// </advc.104m> </advc.003>
+ 	double AI_amortizationMultiplier(int iDelay) const; // advc.104, advc.031
+ 	// advc.104r: Made public and param added
+ 	void AI_doSplit(bool bForce = false);
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=10304

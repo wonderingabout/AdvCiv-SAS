@@ -1,0 +1,228 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6048
+# Commit: 29209f5a5b6f8d8c7815c243cfd9a4ce3a9591f1
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1545a3afc856351ffc1ebb278e02abce1f1e44f2
+# Title: Add BBAI diagnostics for potential AI war-expedition leader gaps and missed defensive reinforcement opportunities
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+161	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 8455f0637..4cb53190a 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -837,6 +837,154 @@ static int SAS_getBarbarianCityExpeditionMaxUnits(int iBarbarianGarrison, int iB
+ 	return std::max(std::max(1, iBarbarianAttackersNeeded), iGarrisonMultiplier * std::max(0, iBarbarianGarrison) - 1);
+ }
+ 
++// <!-- custom: The barbarian-expedition fix showed that capable UNITAI_ATTACK units can remain fragmented when an area has no UNITAI_ATTACK_CITY leader. Before extending that behavior to wars against other civilizations, record whether the same organizational gap occurs during active or planned wars, whether a land target is pathable, and how much useful military strength is available.
++// This is called only after ordinary city-defense claims and immediate plot danger have already taken priority. Deduplicate by player, land area, and turn so multiple suitable attackers do not flood BBAI.log; behavior is unchanged. (GPT-5.6-Sol) -->
++static void SAS_logMissingWarCityExpeditionLeaderCandidate(CvUnitAI& kUnit, CvPlayerAI const& kOwner, CvTeamAI const& kTeam, int iAreaAttackCityUnits, int iNumWars, bool bAnyWarPlan, bool bSneakAttackReady, bool bTurtle)
++{
++	static std::map<std::pair<int,int>,int> aiLastLoggedTurn;
++	std::pair<int,int> const key(kUnit.getOwner(), kUnit.getArea().getID());
++	int const iGameTurn = GC.getGame().getGameTurn();
++	std::map<std::pair<int,int>,int>::const_iterator const itLastLogged = aiLastLoggedTurn.find(key);
++	if (itLastLogged != aiLastLoggedTurn.end() && itLastLogged->second == iGameTurn) return;
++	aiLastLoggedTurn[key] = iGameTurn;
++
++	int iAreaAttackUnits = 0;
++	int iAreaAttackCityCaptureCapable = 0;
++	int iAreaCityCaptureCapable = 0;
++	int iAreaAttackGroups = 0;
++	int iLargestAttackGroup = 0;
++	FOR_EACH_UNITAI(pLoopUnit, kOwner)
++	{
++		if (&pLoopUnit->getArea() != &kUnit.getArea()) continue;
++		if (pLoopUnit->AI_getUnitAIType() == UNITAI_ATTACK)
++		{
++			iAreaAttackUnits++;
++			if (pLoopUnit->canAttack() && !pLoopUnit->isNoCityCapture() && !pLoopUnit->getUnitInfo().isMostlyDefensive()) iAreaAttackCityCaptureCapable++;
++			if (pLoopUnit->isGroupHead())
++			{
++				iAreaAttackGroups++;
++				iLargestAttackGroup = std::max(iLargestAttackGroup, pLoopUnit->getGroup()->getNumUnits());
++			}
++		}
++		if (pLoopUnit->canAttack() && !pLoopUnit->isNoCityCapture() && !pLoopUnit->getUnitInfo().isMostlyDefensive()) iAreaCityCaptureCapable++;
++	}
++
++	CvCity const* pAreaTargetCity = kUnit.getArea().AI_getTargetCity(kUnit.getOwner());
++	CvCity const* pBestPathableTarget = NULL;
++	int iTargetCandidates = 0;
++	int iPathableTargets = 0;
++	int iBestPathTurns = MAX_INT;
++	int iBestStepDistance = MAX_INT;
++	int const iMaxTargetPathTurns = 20;
++	MovementFlags const eTargetPathFlags = (MOVE_AVOID_ENEMY_WEIGHT_2 | MOVE_DECLARE_WAR);
++	for (PlayerIter<CIV_ALIVE,NOT_SAME_TEAM_AS> itTarget(kUnit.getTeam()); itTarget.hasNext(); ++itTarget)
++	{
++		TeamTypes const eTargetTeam = itTarget->getTeam();
++		if (!kTeam.isAtWar(eTargetTeam) && kTeam.AI_getWarPlan(eTargetTeam) == NO_WARPLAN) continue;
++		FOR_EACH_CITY(pTargetCity, *itTarget)
++		{
++			if (!pTargetCity->isArea(kUnit.getArea()) || !kOwner.AI_deduceCitySite(*pTargetCity)) continue;
++			iTargetCandidates++;
++			int iPathTurns = MAX_INT;
++			if (!kUnit.generatePath(pTargetCity->getPlot(), eTargetPathFlags, true, &iPathTurns, iMaxTargetPathTurns)) continue;
++			iPathableTargets++;
++			int const iStepDistance = stepDistance(kUnit.getX(), kUnit.getY(), pTargetCity->getX(), pTargetCity->getY());
++			if (iPathTurns < iBestPathTurns || (iPathTurns == iBestPathTurns && iStepDistance < iBestStepDistance))
++			{
++				pBestPathableTarget = pTargetCity;
++				iBestPathTurns = iPathTurns;
++				iBestStepDistance = iStepDistance;
++			}
++		}
++	}
++
++	int const iTargetDefenders = (pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getPlot().plotCount(PUF_canDefend));
++	int const iTargetValue = (pBestPathableTarget == NULL ? -1 : kOwner.AI_targetCityValue(*pBestPathableTarget, false, true, NULL));
++	TeamTypes const eTargetTeam = (pBestPathableTarget == NULL ? NO_TEAM : pBestPathableTarget->getTeam());
++	WarPlanTypes const eTargetWarPlan = (eTargetTeam == NO_TEAM ? NO_WARPLAN : kTeam.AI_getWarPlan(eTargetTeam));
++	int const iAttackCityValue = kOwner.AI_unitValue(kUnit.getUnitType(), UNITAI_ATTACK_CITY, &kUnit.getArea());
++	int const iWarStackNeeded = kOwner.AI_neededCityAttackers(kUnit.getArea(), kUnit.AI_getBirthmark());
++	logBBAI("    ATTACK_CITY_WAR_MISSING_LEADER_CANDIDATE turn=%d player=%d %S area=%d unitId=%d unit=%S groupId=%d groupUnits=%d areaAttackUnits=%d areaAttackCityCaptureCapable=%d areaAttackCityUnits=%d totalAttackCityUnits=%d areaCityCaptureCapable=%d areaAttackGroups=%d largestAttackGroup=%d warStackNeeded=%d attackCityUnitValue=%d cityDefensePassed=1 currentDanger=0 wars=%d anyWarPlan=%d sneakAttackReady=%d turtle=%d areaAI=%d targetCandidates=%d pathableTargets=%d targetMaxPathTurns=%d areaTarget=%S areaTarget=(%d,%d) target=%S targetOwner=%d targetTeam=%d target=(%d,%d) targetPop=%d targetDefenders=%d targetValue=%d targetPathTurns=%d targetStepDistance=%d targetAtWar=%d targetWarPlan=%s",
++		iGameTurn, kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getArea().getID(), kUnit.getID(), kUnit.getName().GetCString(), kUnit.getGroup()->getID(), kUnit.getGroup()->getNumUnits(), iAreaAttackUnits, iAreaAttackCityCaptureCapable, iAreaAttackCityUnits, kOwner.AI_totalUnitAIs(UNITAI_ATTACK_CITY), iAreaCityCaptureCapable, iAreaAttackGroups, iLargestAttackGroup, iWarStackNeeded, iAttackCityValue,
++		iNumWars, bAnyWarPlan, bSneakAttackReady, bTurtle, kUnit.getArea().getAreaAIType(kUnit.getTeam()), iTargetCandidates, iPathableTargets, iMaxTargetPathTurns,
++		(pAreaTargetCity == NULL ? L"-" : pAreaTargetCity->getName().GetCString()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getX()), (pAreaTargetCity == NULL ? -1 : pAreaTargetCity->getY()),
++		(pBestPathableTarget == NULL ? L"-" : pBestPathableTarget->getName().GetCString()), (pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getOwner()), eTargetTeam, (pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getX()), (pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getY()), (pBestPathableTarget == NULL ? -1 : pBestPathableTarget->getPopulation()), iTargetDefenders, iTargetValue, (pBestPathableTarget == NULL ? -1 : iBestPathTurns), (pBestPathableTarget == NULL ? -1 : iBestStepDistance), (eTargetTeam == NO_TEAM ? 0 : kTeam.isAtWar(eTargetTeam)), getSASWarPlanType(eTargetWarPlan));
++}
++
++// <!-- custom: General attackers reach this after current-city, colony, airlift, and one-turn city-defense checks decline them; city-assault groups reach it when the existing parking diagnostic fires. Diagnose whether either a unit or large group could still reinforce an underdefended own city within ten turns, especially whether a faraway stack could split off one defender.
++// Count defenders already assigned to the city before treating the group as useful, and log each UnitAI-role/group-size combination at most once per player, land area, and turn. This is diagnostic only and does not redirect or split units. (GPT-5.6-Sol) -->
++static void SAS_logAttackDefenseReinforcementCandidate(CvUnitAI& kUnit, CvPlayerAI const& kOwner, CvTeamAI const& kTeam)
++{
++	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
++	if (pGroup == NULL || !pGroup->canDefend()) return;
++	CvArea const& kArea = kUnit.getArea();
++	PlayerTypes const eOwner = kUnit.getOwner();
++	int const iGroupUnits = pGroup->getNumUnits();
++	int const iGroupCategory = (iGroupUnits >= 4 ? 1 : 0);
++	int const iUnitAICategory = (kUnit.AI_getUnitAIType() == UNITAI_ATTACK_CITY ? 1 : 0);
++	static std::map<std::pair<int,int>,int> aiLastLoggedTurn;
++	std::pair<int,int> const key(eOwner, 4 * kArea.getID() + 2 * iUnitAICategory + iGroupCategory);
++	int const iGameTurn = GC.getGame().getGameTurn();
++	std::map<std::pair<int,int>,int>::const_iterator const itLastLogged = aiLastLoggedTurn.find(key);
++	if (itLastLogged != aiLastLoggedTurn.end() && itLastLogged->second == iGameTurn) return;
++
++	CvCityAI const* pBestCity = NULL;
++	int iBestValue = MIN_INT;
++	int iBestDefendersNeeded = -1;
++	int iBestDefendersHave = -1;
++	int iBestIncomingDefenders = -1;
++	int iBestRawShortfall = -1;
++	int iBestRemainingShortfall = -1;
++	int iBestPathTurns = -1;
++	int iBestStepDistance = -1;
++	int const iMaxPathTurns = 10;
++	FOR_EACH_CITYAI(pLoopCity, kOwner)
++	{
++		if (!pLoopCity->isArea(kArea)) continue;
++		int const iDefendersNeeded = pLoopCity->AI_neededDefenders(true);
++		int const iDefendersHave = pLoopCity->getPlot().plotCount(PUF_canDefendGroupHead, -1, -1, eOwner);
++		int const iIncomingDefenders = kOwner.AI_plotTargetMissionAIs(pLoopCity->getPlot(), MISSIONAI_GUARD_CITY, pGroup);
++		int const iRawShortfall = iDefendersNeeded - iDefendersHave;
++		int const iRemainingShortfall = iRawShortfall - iIncomingDefenders;
++		if (iRemainingShortfall <= 0) continue;
++		int iPathTurns = MAX_INT;
++		if (!kUnit.generatePath(pLoopCity->getPlot(), NO_MOVEMENT_FLAGS, true, &iPathTurns, iMaxPathTurns)) continue;
++		int const iStepDistance = stepDistance(kUnit.getX(), kUnit.getY(), pLoopCity->getX(), pLoopCity->getY());
++		int const iValue = 1000 * (pLoopCity->AI_isDanger() ? 1 : 0) + 100 * iRemainingShortfall + pLoopCity->getPopulation() - 10 * iPathTurns;
++		if (iValue <= iBestValue) continue;
++		pBestCity = pLoopCity;
++		iBestValue = iValue;
++		iBestDefendersNeeded = iDefendersNeeded;
++		iBestDefendersHave = iDefendersHave;
++		iBestIncomingDefenders = iIncomingDefenders;
++		iBestRawShortfall = iRawShortfall;
++		iBestRemainingShortfall = iRemainingShortfall;
++		iBestPathTurns = iPathTurns;
++		iBestStepDistance = iStepDistance;
++	}
++	if (pBestCity == NULL) return;
++
++	int iGroupDefenders = 0;
++	int iGroupHealthyDefenders = 0;
++	FOR_EACH_UNIT_IN(pLoopUnit, *pGroup)
++	{
++		if (!pLoopUnit->canDefend(pBestCity->plot())) continue;
++		iGroupDefenders++;
++		if (pLoopUnit->getDamage() <= 25) iGroupHealthyDefenders++;
++	}
++	if (iGroupDefenders <= 0) return;
++	aiLastLoggedTurn[key] = iGameTurn;
++	int const iTotalMilitary = kOwner.getNumMilitaryUnits();
++	CvCity const* pSourceCity = kUnit.getPlot().getPlotCity();
++	int const iTargetCityThreat = pBestCity->AI_cityThreat();
++	int const iTargetPlotDanger = kOwner.AI_getPlotDanger(pBestCity->getPlot(), 2);
++	bool const bSplitOnePossible = (iGroupUnits > 1 && iGroupDefenders > 0);
++	bool const bAllGroupDefendersNeeded = (iBestRemainingShortfall >= iGroupDefenders);
++	logBBAI("    ATTACK_DEFENSE_REINFORCEMENT_CANDIDATE turn=%d player=%d %S area=%d unitId=%d unit=%S unitAI=%d groupId=%d groupUnits=%d groupDefenders=%d groupHealthyDefenders=%d totalMilitary=%d groupMilitaryPercent=%d source=(%d,%d) sourceCity=%S sourceOwner=%d sourceDanger=%d existingDefenseLogicDidNotUseGroup=1 target=%S targetId=%d target=(%d,%d) targetPop=%d targetCapital=%d targetDanger=%d targetCityThreat=%d targetPlotDanger=%d targetEvacuating=%d defendersNeeded=%d defendersHave=%d incomingDefenders=%d rawShortfall=%d remainingShortfall=%d targetPathTurns=%d targetStepDistance=%d targetMaxPathTurns=%d splitOnePossible=%d allGroupDefendersNeeded=%d wars=%d anyWarPlan=%d areaAI=%d",
++		iGameTurn, eOwner, kOwner.getCivilizationDescription(0), kArea.getID(), kUnit.getID(), kUnit.getName().GetCString(), kUnit.AI_getUnitAIType(), pGroup->getID(), iGroupUnits, iGroupDefenders, iGroupHealthyDefenders, iTotalMilitary, 100 * iGroupUnits / std::max(1, iTotalMilitary), kUnit.getX(), kUnit.getY(), (pSourceCity == NULL ? L"-" : pSourceCity->getName().GetCString()), kUnit.getPlot().getOwner(), kOwner.AI_getPlotDanger(kUnit.getPlot()),
++		pBestCity->getName().GetCString(), pBestCity->getID(), pBestCity->getX(), pBestCity->getY(), pBestCity->getPopulation(), pBestCity->isCapital(), pBestCity->AI_isDanger(), iTargetCityThreat, iTargetPlotDanger, pBestCity->AI_isEvacuating(), iBestDefendersNeeded, iBestDefendersHave, iBestIncomingDefenders, iBestRawShortfall, iBestRemainingShortfall, iBestPathTurns, iBestStepDistance, iMaxPathTurns, bSplitOnePossible, bAllGroupDefendersNeeded, kTeam.getNumWars(), kTeam.AI_isAnyWarPlan(), kArea.getAreaAIType(kUnit.getTeam()));
++}
++
+ // <!-- custom: SASGameSummary testing found early armies with 9-14 UNITAI_ATTACK units but no UNITAI_ATTACK_CITY unit. Those units can capture cities, but K-Mod normally splits friendly-territory attack groups down to two and only occasionally sends them toward cities, so raw military strength cannot become a coordinated expedition without the missing organizational role.
+ // After ordinary city-defense claims have had priority, convert one actually suitable floating attacker when the area has enough attackers and a pathable barbarian city. AI_setUnitAIType detaches that unit so it can become the attack-city group leader and recruit the remaining broad attacker roles through the normal grouping logic. See KI#188. (GPT-5.6-Sol) -->
+ static bool SAS_createMissingBarbarianCityExpeditionLeader(CvUnitAI& kUnit)
+@@ -846,7 +994,16 @@ static bool SAS_createMissingBarbarianCityExpeditionLeader(CvUnitAI& kUnit)
+ 		return false;
+ 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+ 	CvTeamAI const& kTeam = GET_TEAM(kUnit.getTeam());
+-	if (kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE) || kTeam.getNumWars() > 0 || kTeam.AI_isSneakAttackReady() || kOwner.AI_totalAreaUnitAIs(kUnit.getArea(), UNITAI_ATTACK_CITY) > 0)
++	int const iAreaAttackCityUnits = kOwner.AI_totalAreaUnitAIs(kUnit.getArea(), UNITAI_ATTACK_CITY);
++	int const iNumWars = kTeam.getNumWars();
++	bool const bSneakAttackReady = kTeam.AI_isSneakAttackReady();
++	bool const bTurtle = kOwner.AI_isDoStrategy(AI_STRATEGY_TURTLE);
++	if (gUnitLogLevel >= 2 && iAreaAttackCityUnits == 0)
++	{
++		bool const bAnyWarPlan = kTeam.AI_isAnyWarPlan();
++		if (iNumWars > 0 || bAnyWarPlan) SAS_logMissingWarCityExpeditionLeaderCandidate(kUnit, kOwner, kTeam, iAreaAttackCityUnits, iNumWars, bAnyWarPlan, bSneakAttackReady, bTurtle);
++	}
++	if (bTurtle || iNumWars > 0 || bSneakAttackReady || iAreaAttackCityUnits > 0)
+ 		return false;
+ 	int const iAttackersNeeded = kOwner.AI_neededCityAttackersVsBarbarians().ceil();
+ 	int const iAreaAttackUnits = kOwner.AI_totalAreaUnitAIs(kUnit.getArea(), UNITAI_ATTACK);
+@@ -947,7 +1104,7 @@ static void SAS_logLargeAttackCityStackAction(CvUnitAI const& kUnit, char const*
+ // change behavior. The same remote captured-city test is used below to stop upgrade waits from freezing a ready stack
+ // that has a valid target. Logs showed Boston-style false negatives when a nearby owned city was also a captured/front
+ // city, so the behavior test is based on distance from core rather than any nearby owned city. See KI#155. (GPT-5.5 + ChatGPT-5.5) -->
+-static void SAS_logAttackCityParking(CvUnitAI const& kUnit, CvCity const* pTargetCity, char const* szReason, bool bReadyToAttack, bool bTargetTooStrong, bool bLandWar, bool bEnemyTerritory, int iJoiners, int iPathTurns, bool bTurtle, bool bHuntBarbs, bool bHuntOnlyBarbs, int iBarbarianGarrison, int iWarStackNeeded, int iMinStackSize)
++static void SAS_logAttackCityParking(CvUnitAI& kUnit, CvCity const* pTargetCity, char const* szReason, bool bReadyToAttack, bool bTargetTooStrong, bool bLandWar, bool bEnemyTerritory, int iJoiners, int iPathTurns, bool bTurtle, bool bHuntBarbs, bool bHuntOnlyBarbs, int iBarbarianGarrison, int iWarStackNeeded, int iMinStackSize)
+ {
+ 	CvSelectionGroup const* pGroup = kUnit.getGroup();
+ 	CvCity const* pCurrentCity = kUnit.getPlot().getPlotCity();
+@@ -1038,6 +1195,7 @@ static void SAS_logAttackCityParking(CvUnitAI const& kUnit, CvCity const* pTarge
+ 			(pNearestEnemyCitySameArea == NULL ? L"-" : pNearestEnemyCitySameArea->getName().GetCString()), (pNearestEnemyCitySameArea == NULL ? -1 : pNearestEnemyCitySameArea->getX()), (pNearestEnemyCitySameArea == NULL ? -1 : pNearestEnemyCitySameArea->getY()),
+ 			iNearestEnemyDistanceAnyArea, iNearestEnemyDistanceSameArea, iNearestOwnedCityDistanceSameArea, iNearestCoreCityDistanceSameArea, pGroup->getNumUnits(), iGroupMilitaryPercent, iCanAttackUnits, iCityCaptureUnits, iWoundedUnits, iJoiners, iPathTurns);
+ 	}
++	SAS_logAttackDefenseReinforcementCandidate(kUnit, kOwner, GET_TEAM(kUnit.getTeam()));
+ }
+ 
+ // Instead of having CvUnit::init call CvUnitAI::AI_init. finalizeInit split off.
+@@ -5606,6 +5764,7 @@ void CvUnitAI::AI_attackMove()
+ 		{
+ 			return;
+ 		}
++		if (gUnitLogLevel >= 2 && !bDanger && getGroup()->canDefend()) SAS_logAttackDefenseReinforcementCandidate(*this, kOwner, GET_TEAM(getTeam()));
+ 		if (!bDanger && SAS_createMissingBarbarianCityExpeditionLeader(*this))
+ 			return;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=16723

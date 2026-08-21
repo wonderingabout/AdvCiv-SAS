@@ -1,0 +1,112 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 873
+# Commit: e9499eae2918e37377f2e848b556739655b79a07
+# History segment: K-Mod history
+# Parent used for diff: 56ecb35ec3e02ef081d1900989e3b2960204e930
+# Title: Just removed / tidied some comments.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	8	CvGameCoreDLL/CvPlayer.cpp
+3	9	CvGameCoreDLL/CvPlayer.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index d784de2ea..3cc59a114 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3985,11 +3985,6 @@ int CvPlayer::upgradeAllPrice(UnitTypes eUpgradeUnit, UnitTypes eFromUnit)
+ 	return iPrice;
+ }
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      11/14/09                                jdog5000      */
+-/*                                                                                              */
+-/* General AI                                                                                   */
+-/************************************************************************************************/
+ int CvPlayer::countReligionSpreadUnits(CvArea* pArea, ReligionTypes eReligion, bool bIncludeTraining) const
+ {
+ 	PROFILE_FUNC();
+@@ -4011,6 +4006,7 @@ int CvPlayer::countReligionSpreadUnits(CvArea* pArea, ReligionTypes eReligion, b
+ 		}
+ 	}
+ 
++	// bbai
+ 	if( bIncludeTraining )
+ 	{
+ 		CvCity* pLoopCity;
+@@ -4027,6 +4023,7 @@ int CvPlayer::countReligionSpreadUnits(CvArea* pArea, ReligionTypes eReligion, b
+ 			}
+ 		}
+ 	}
++	// bbai end
+ 
+ 	return iCount;
+ }
+@@ -4049,6 +4046,7 @@ int CvPlayer::countCorporationSpreadUnits(CvArea* pArea, CorporationTypes eCorpo
+ 		}
+ 	}
+ 
++	// bbai
+ 	if (bIncludeTraining)
+ 	{
+ 		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+@@ -4067,12 +4065,10 @@ int CvPlayer::countCorporationSpreadUnits(CvArea* pArea, CorporationTypes eCorpo
+ 			}
+ 		}
+ 	}
++	// bbai end
+ 
+ 	return iCount;
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ int CvPlayer::countNumCoastalCities() const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 1573c8604..02a06db8a 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -175,16 +175,10 @@ public:
+ 
+ 	int upgradeAllPrice(UnitTypes eUpgradeUnit, UnitTypes eFromUnit);
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      11/14/09                                jdog5000      */
+-/*                                                                                              */
+-/* General AI                                                                                   */
+-/************************************************************************************************/
++	// note: bbai added bIncludeTraining to the following two functions.
+ 	int countReligionSpreadUnits(CvArea* pArea, ReligionTypes eReligion, bool bIncludeTraining = false) const;														// Exposed to Python
+ 	int countCorporationSpreadUnits(CvArea* pArea, CorporationTypes eCorporation, bool bIncludeTraining = false) const;														// Exposed to Python
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++
+ 	int countNumCoastalCities() const;																																		// Exposed to Python
+ 	int countNumCoastalCitiesByArea(CvArea* pArea) const;																									// Exposed to Python
+ 	int countTotalCulture() const;																																				// Exposed to Python
+@@ -1370,7 +1364,7 @@ protected:
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+ 	
+-	void doUpdateCacheOnTurn();	// adopted by K-Mod (originally was empty)
++	void doUpdateCacheOnTurn();
+ 	int getResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow) const;
+ 
+ 	void getTradeLayerColors(std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const;  // used by Globeview trade layer
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4170

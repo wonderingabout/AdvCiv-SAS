@@ -1,0 +1,110 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 737
+# Commit: c127ada99f54ac4bffdcfdb44986d9fd3c5e083a
+# History segment: K-Mod history
+# Parent used for diff: 311a46576f5df1eb8ae43a4b82b91a4d1c020666
+# Title: Changed mercantilism upkeep from 'medium' to 'low'. [This civic is often worse than decentralization. I think it deserves to be a bit stronger.] Made some mi...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/xml/GameInfo/CIV4CivicInfos.xml
+3	1	CvGameCoreDLL/CvGame.cpp
+3	2	CvGameCoreDLL/CvGameCoreUtils.cpp
+3	2	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4CivicInfos.xml b/Assets/xml/GameInfo/CIV4CivicInfos.xml
+index d8105b213..366c69d70 100644
+--- a/Assets/xml/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/xml/GameInfo/CIV4CivicInfos.xml
+@@ -1168,7 +1168,7 @@
+ 			<Button>,Art/Interface/Buttons/Civics/Mercantilism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,4,3</Button>
+ 			<TechPrereq>TECH_BANKING</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+-			<Upkeep>UPKEEP_MEDIUM</Upkeep>
++			<Upkeep>UPKEEP_LOW</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+ 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 5b1f708fb..6d5052534 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -7254,8 +7254,10 @@ void CvGame::updateMoves()
+ 								break;
+ 							}
+ 						}
++						// Refresh the gorup cycle for human players.
++						// Non-human players can wait for their units to wake up, or regain moves - group cycle isn't very important for them anyway.
++						player.refreshGroupCycleList();
+ 					}
+-					player.refreshGroupCycleList(); // This is the primary update for the group cycle ordering. (it use to be done inside CvUnit::setXY, but now it isn't.)
+ 					// K-Mod end
+ 
+ 					if (!(player.hasBusyUnit()))
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 9d49d1904..563d9609d 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -286,8 +286,9 @@ int groupCycleDistance(const CvSelectionGroup* pFirstGroup, const CvSelectionGro
+ 	int iDistance = plotDistance(pFirstHead->getX_INLINE(), pFirstHead->getY_INLINE(), pSecondHead->getX_INLINE(), pSecondHead->getY_INLINE());
+ 	iPenalty = std::min(5, iPenalty * (1+iDistance) / iBaseScale);
+ 
+-	//if (iDistance == 0 && !isBeforeUnitCycle(pFirstHead, pSecondHead))
+-	if (iDistance == 0 && !isBeforeUnitOnPlot(pFirstHead, pSecondHead))	// use the unit order that the plot actually has, not the order it _should_ have. (unfortunately, this is a bit slower.)
++	// For human players, use the unit order that the plot actually has, not the order it _should_ have.
++	// For AI players, use the preferred ordering, because it's slightly faster.
++	if (iDistance == 0 && !(pFirstHead->isHuman() ? isBeforeUnitOnPlot(pFirstHead, pSecondHead) : isBeforeUnitCycle(pFirstHead, pSecondHead)))
+ 		iPenalty += iPenalty > 0 ? 1 : 5;
+ 
+ 	return iDistance + iPenalty;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index cc0607032..e8ec37f3a 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -13407,12 +13407,13 @@ bool CvUnit::LFBisBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAtt
+ 		iTheirRanking = pDefender->LFBgetDefenderRank(pAttacker);
+ 
+ 	// In case of equal value, fall back on unit cycle order
++	// (K-Mod. _reversed_ unit cycle order, so that inexperienced units defend first.)
+ 	if (iOurRanking == iTheirRanking)
+ 	{
+ 		if (isBeforeUnitCycle(this, pDefender))
+-			iTheirRanking--;
+-		else
+ 			iTheirRanking++;
++		else
++			iTheirRanking--;
+ 	}
+ 
+ 	// Retain the basic rank (before value adjustment) for the best defender
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 052e5ddde..b26b97987 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -25019,7 +25019,7 @@ void CvUnitAI::LFBgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bo
+ 	}
+ 
+ 	// Compare our adjusted value with the current best
+-	if (iValue >= iAttackerValue)
++	if (iValue > iAttackerValue)
+ 	{
+ 		(*ppAttacker) = pThis;
+ 		iAIAttackOdds = iAIOdds;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=3694

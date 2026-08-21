@@ -1,0 +1,268 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1429
+# Commit: 729352db6c7f5eec3eeb7ee0dcf4c946d762832e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: dbc56e848f991de78a804a7472ea0fe8c789ce9e
+# Title: A few very minor changes (vassal tribute)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+7	0	Assets/xml/GameInfo/CIV4Hints.xml
+4	4	Assets/xml/Text/CIV4GameText_advc.008d.xml
+10	0	Assets/xml/Text/CIV4GameText_advc.xml
+10	0	Assets/xml/Text/K-Mod hints.xml
+1	1	Assets/xml/Text/Shortcuts_CIV4GameText.xml
+13	10	CvGameCoreDLL/CvDLLButtonPopup.cpp
+6	2	CvGameCoreDLL/CvGame.cpp
+5	6	CvGameCoreDLL/CvPlayerAI.cpp
+3	2	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 2b371c14e..ff23f62cc 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -9661,7 +9661,7 @@
+ 			<SpecialistCounts>
+ 				<SpecialistCount>
+ 					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+-					<!-- advc.200 -->
++					<!-- advc.913a: Was 0 in BtS, 2 in K-Mod. -->
+ 					<iSpecialistCount>1</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index fbc72b119..87fe6befc 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -479,6 +479,10 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_KMOD_HINT_16</Description>
+ 		</HintInfo>
++		<!-- advc.008c: Vassal war preparations -->
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_17</Description>
++		</HintInfo>
+ 		
+ 		<!-- advc.008d: Copied K-Mod hints to increase their probability: -->
+ 		<HintInfo>
+@@ -529,6 +533,9 @@
+ 			<Description>TXT_KEY_KMOD_HINT_15</Description>
+ 		</HintInfo>
+ 		<!-- Skip 16 b/c it's rarely useful -->
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_17</Description>
++		</HintInfo>
+ 		<!-- These have been replaced or updated; should receive higher
+ 			 probability too. -->
+ 		<HintInfo>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index c796f103a..bea48bf46 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -58,11 +58,11 @@
+ 	 routes." Not news anymore. -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_56</Tag>
+-	<English>(UWAI) Some leaders are known not to wage war against civs they're pleased with; however, don't count on it if the target is a large civ that looks like very easy pickings.</English>
+-	<French>(UWAI) Some leaders are known not to wage war against civs they're pleased with; however, don't count on it if the target is a large civ that looks like very easy pickings.</French>
++	<English>(UWAI) Some leaders are known not to wage war against civs they're pleased with (+4 relations); however, don't depend on it if the target is a large civ that looks like very easy pickings.</English>
++	<French>(UWAI) Some leaders are known not to wage war against civs they're pleased with (+4 relations); however, don't depend on it if the target is a large civ that looks like very easy pickings.</French>
+ 	<German>(UWAI) Von manchen Herrschern ist bekannt, dass sie keinen Krieg anfangen solange sie "erfreut" sind. Verlassen Sie sich darauf aber nicht, wenn die Beute gro� ist und der zu erwartende Widerstand gering.</German>
+-	<Italian>(UWAI) Some leaders are known not to wage war against civs they're pleased with; however, don't count on it if the target is a large civ that looks like very easy pickings.</Italian>
+-	<Spanish>(UWAI) Some leaders are known not to wage war against civs they're pleased with; however, don't count on it if the target is a large civ that looks like very easy pickings.</Spanish>
++	<Italian>(UWAI) Some leaders are known not to wage war against civs they're pleased with (+4 relations); however, don't depend on it if the target is a large civ that looks like very easy pickings.</Italian>
++	<Spanish>(UWAI) Some leaders are known not to wage war against civs they're pleased with (+4 relations); however, don't depend on it if the target is a large civ that looks like very easy pickings.</Spanish>
+ </TEXT>
+ 
+ <!-- "Oil-based navies are a huge step up from coal-powered ironclads. If you
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index cc5b14b72..534897309 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -4921,4 +4921,14 @@
+ 		<Spanish>CIVILOPEDIA</Spanish>
+ 	</TEXT>
+ 	
++	<!-- advc.002b: From CIV4GameText_BTS.xml. Was too long. -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_COMBAT_LIMIT</Tag>
++		<English>[ICON_BULLET]Max. %d1%% damage to enemy on attack</English>
++		<French>[ICON_BULLET]D&#233;g&#226;ts de %d1%% maximum inflig&#233;s &#224; l'ennemi lors d'une attaque</French>
++		<German>[ICON_BULLET]Maximal %d1%% Angriffsschaden auf Gegner</German>
++		<Italian>[ICON_BULLET]Al massimo %d1%% di danni al nemico per attacco</Italian>
++		<Spanish>[ICON_BULLET]Da&#241;o m&#225;ximo de %d1%% al enemigo en ataque</Spanish>
++	</TEXT>
++	
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index 0842039b7..35a482fa1 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -196,4 +196,14 @@
+ 	<Spanish>Los esp&#237;as que saben esperar tienen sus ventajas. Dejar un esp&#237;a en una casilla reducir&#225; los costes de todas las misiones de espionaje realizadas contra los objetos de dicha casilla. Por tanto, dejar un esp&#237;a en una ciudad enemiga abaratar&#225; significativamente el coste de tus misiones en dicha ciudad.</Spanish>
+ </TEXT>
+ 
++<!-- advc.008c: New hint (about a K-Mod feature) -->
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_17</Tag>
++	<English>(K-Mod) Your vassals will join you in preparing for war if you inform them of your war plans through "Let's discuss something else." You can also tell them to abandon their preparations.</English>
++	<French>(K-Mod) Your vassals will join you in preparing for war if you inform them of your war plans through "Let's discuss something else." You can also tell them to abandon their preparations.</French>
++	<German>(K-Mod) Wenn Sie Ihre Vasallenstaaten �ber einen geplanten Krieg in Kenntnis setzen, werden diese verst�rkt Milit�reinheiten produzieren. Sie finden diese Option unter "Reden wir �ber etwas anderes".</German>
++	<Italian>(K-Mod) Your vassals will join you in preparing for war if you inform them of your war plans through "Let's discuss something else." You can also tell them to abandon their preparations.</Italian>
++	<Spanish>(K-Mod) Your vassals will join you in preparing for war if you inform them of your war plans through "Let's discuss something else." You can also tell them to abandon their preparations.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/Shortcuts_CIV4GameText.xml b/Assets/xml/Text/Shortcuts_CIV4GameText.xml
+index 1819e3952..4692775a7 100644
+--- a/Assets/xml/Text/Shortcuts_CIV4GameText.xml
++++ b/Assets/xml/Text/Shortcuts_CIV4GameText.xml
+@@ -127,7 +127,7 @@
+ 	<!-- advc.004z: "Scoreboard instead of "Score display" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SHORTCUTS_MOUSE_PEDIA</Tag>
+-		<English>[H1]Mouse Shortcuts[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click on city bar[COLOR_REVERT][\BOLD][TAB][TAB]Select all cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click on scoreboard [COLOR_REVERT][\BOLD][TAB]Declare war[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+right-click on tile[COLOR_REVERT][\BOLD][NEWLINE][TAB][TAB]Move the selected unit and all units in the same tile to the clicked tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click on city bar[COLOR_REVERT][\BOLD][TAB][TAB]Select all cities on same continent[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click on scoreboard[COLOR_REVERT][\BOLD][TAB]Open trade window[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+roll mouse wheel[COLOR_REVERT][\BOLD][TAB][TAB]Cycle units in selected tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click city bars[COLOR_REVERT][\BOLD][TAB][TAB]Select multiple cities (to change production)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+right-click city bars[COLOR_REVERT][\BOLD][TAB]Set rally point for multiple cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click on tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Open context menu[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Right Click city bars[COLOR_REVERT][\BOLD][TAB]Set rally point for those cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Hold both mouse buttons[COLOR_REVERT][\BOLD][TAB]Drag map[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Hold right mouse button[COLOR_REVERT][\BOLD][TAB]Display combat odds[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click empty tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Center camera on that tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Fwd/Back mouse buttons[COLOR_REVERT][\BOLD][TAB]Cycle through units in selected tile[NEWLINE]</English>
++		<English>[H1]Mouse Shortcuts[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click on city bar[COLOR_REVERT][\BOLD][TAB][TAB]Select all cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click on scoreboard [COLOR_REVERT][\BOLD][TAB]Declare war or demand tribute from a vassal[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+right-click on tile[COLOR_REVERT][\BOLD][NEWLINE][TAB][TAB]Move the selected unit and all units in the same tile to the clicked tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click on city bar[COLOR_REVERT][\BOLD][TAB][TAB]Select all cities on same continent[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click on scoreboard[COLOR_REVERT][\BOLD][TAB]Open trade window[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+roll mouse wheel[COLOR_REVERT][\BOLD][TAB][TAB]Cycle units in selected tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click city bars[COLOR_REVERT][\BOLD][TAB][TAB]Select multiple cities (to change production)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+right-click city bars[COLOR_REVERT][\BOLD][TAB]Set rally point for multiple cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click on tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Open context menu[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Right Click city bars[COLOR_REVERT][\BOLD][TAB]Set rally point for those cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Hold both mouse buttons[COLOR_REVERT][\BOLD][TAB]Drag map[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Hold right mouse button[COLOR_REVERT][\BOLD][TAB]Display combat odds[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click empty tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Center camera on that tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Fwd/Back mouse buttons[COLOR_REVERT][\BOLD][TAB]Cycle through units in selected tile[NEWLINE]</English>
+ 		<French>[H1]Mouse Shortcuts[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click on city bar[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Select all player's cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click on Civ in score display[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Declare war on that Civ[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+right-click a tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Move all units from same tile to selected tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click on city bar[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Select all cities on same continent[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click on Civ in score display[COLOR_REVERT][\BOLD][TAB][TAB]Open trade window with that Civ[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+roll mouse wheel[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Cycle units on tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click any city bars[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Select multiple cities (to change production)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+right-click any city bars[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Set rally point for multiple cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click on city bars[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Select those cities to change queue[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click any tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Open context menu for that tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+Right Click city bars[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Set rally point for those cities[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Roll mouse wheel[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Zoom in/out[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click+hold left and right mouse buttons[COLOR_REVERT][\BOLD][TAB]Drag map[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click+hold right mouse button over enemy[COLOR_REVERT][\BOLD][TAB]Display combat odds[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click any tile[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB]Center the map on that tile[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click Fwd and Back mouse buttons[COLOR_REVERT][\BOLD][TAB][TAB]Cycle through units on the same tile[NEWLINE]</French>
+ 		<German>[H1]Maussteuerung[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Klick auf Stadtleiste[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Alle eigenen St�dte ausw�hlen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Klick auf Gegnername in der [NEWLINE]Punkteanzeige[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Zivilisation den Krieg erkl�ren[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+Rechtsklick auf Gel�ndefeld[COLOR_REVERT][\BOLD][TAB]Alle Einheiten eines Gel�ndefeldes zum [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]gew�hlten Gel�ndefeld bewegen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Klick auf Stadtleiste[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Alle eigenen St�dte auf demselben [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Kontinent ausw�hlen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Klick auf Gegnername in der [NEWLINE]Punkteanzeige[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Handelsfenster �ffnen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Strg+Mausrad, Seitentasten[COLOR_REVERT][\BOLD][TAB][TAB]Zur vorherigen/n�chsten Einheit wechseln [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB](gleiches Feld)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+Klick auf Stadtleiste[COLOR_REVERT][\BOLD][TAB][TAB]Mehrere St�dte ausw�hlen (um die dezeitigen [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]Bauprojekte simultan zu �ndern)[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+Rechtsklick auf [NEWLINE]Stadtleiste[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Einheitensammelpunkt f�r mehrere St�dte [NEWLINE][TAB][TAB][TAB][TAB][TAB][TAB][TAB]setzen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Umschalt+Klick auf Gel�ndefeld[COLOR_REVERT][\BOLD][TAB]Kontextmen� des Gel�ndefeldes[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Mausrad[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB]Zoomfaktor verringern/erh�hen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Linke und rechte Maustaste [NEWLINE]dr�cken und halten[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Karte ziehen[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Rechte Maustaste halten und �ber [NEWLINE]feindliche Einheit scrollen[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Anzeige der Siegchance[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Klick auf Gel�ndefeld[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Auf Gel�ndefeld zentrieren[NEWLINE]</German>
+ 		<Italian>[H1]Scorciatoie per il mouse[\H1][NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click su una Barra cittadina[COLOR_REVERT][\BOLD][TAB]Seleziona tutte le Citt� del giocatore[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click su una Barra cittadina[COLOR_REVERT][\BOLD][TAB]Seleziona tutte le Citt� del giocatore nel continente[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click su pi� Barre cittadine[COLOR_REVERT][\BOLD][TAB]Seleziona le corrispondenti Citt�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click-d su Barre cittadine[COLOR_REVERT][\BOLD][TAB]Imposta una destinazione per tali Citt�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click su una Civilt�[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Dichiara guerra alla Civilt�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+click su una Civilt�[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Apre l'interfaccia diplomatica con la Civilt�[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Click su una casella[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB]Centra la mappa sulla casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Shift+click su una casella[COLOR_REVERT][\BOLD][TAB][TAB][TAB]Apre il men� contestuale della casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Alt+click-d su una casella[COLOR_REVERT][\BOLD][TAB][TAB]Muove insieme tutte le Unit� nella casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Ctrl+rotellina[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB]Scorre fra le Unit� nella casella[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Rotellina[COLOR_REVERT][\BOLD][TAB][TAB][TAB][TAB][TAB][TAB]Zoom[NEWLINE][BOLD][COLOR_HIGHLIGHT_TEXT]Muovere il mouse con i tasti premuti[COLOR_REVERT][\BOLD][TAB]Sposta la mappa[NEWLINE]</Italian>
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 3e9623ec4..314126f63 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -2579,27 +2579,30 @@ bool CvDLLButtonPopup::launchKickedPopup(CvPopup* pPopup, CvPopupInfo &info)
+ bool CvDLLButtonPopup::launchVassalDemandTributePopup(CvPopup* pPopup, CvPopupInfo &info)
+ {
+ 	if (info.getData1() == NO_PLAYER)
+-	{
+ 		return false;
+-	}
+ 
++	CvGame const& g = GC.getGameINLINE();
+ 	CvPlayer& kVassal = GET_PLAYER((PlayerTypes)info.getData1());
+-	if (!GET_TEAM(kVassal.getTeam()).isVassal(GC.getGameINLINE().getActiveTeam()))
+-	{
++	if (!GET_TEAM(kVassal.getTeam()).isVassal(g.getActiveTeam()))
+ 		return false;
+-	}
+ 
+ 	int iNumResources = 0;
+-	if (kVassal.canTradeNetworkWith(GC.getGameINLINE().getActivePlayer()))
++	if (kVassal.canTradeNetworkWith(g.getActivePlayer()))
+ 	{
+-		gDLL->getInterfaceIFace()->popupSetBodyString(pPopup, gDLL->getText("TXT_KEY_VASSAL_DEMAND_TRIBUTE", kVassal.getNameKey()));
+-
++		gDLL->getInterfaceIFace()->popupSetBodyString(pPopup,
++				gDLL->getText("TXT_KEY_VASSAL_DEMAND_TRIBUTE", kVassal.getNameKey()));
+ 		for (int iBonus = 0; iBonus < GC.getNumBonusInfos(); iBonus++)
+ 		{
+-			if (kVassal.getNumTradeableBonuses((BonusTypes)iBonus) > 0 && GET_PLAYER(GC.getGameINLINE().getActivePlayer()).getNumAvailableBonuses((BonusTypes)iBonus) == 0)
++			//if (kVassal.getNumTradeableBonuses((BonusTypes)iBonus) > 0 && GET_PLAYER(GC.getGameINLINE().getActivePlayer()).getNumAvailableBonuses((BonusTypes)iBonus) == 0)
++			// <advc.036> Replacing the above
++			TradeData item;
++			::setTradeItem(&item, TRADE_RESOURCES, iBonus);
++			if(kVassal.canTradeItem(g.getActivePlayer(), item, true)) // </advc.036>
+ 			{	
+ 				CvBonusInfo& info = GC.getBonusInfo((BonusTypes)iBonus);
+-				gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup, info.getDescription(), info.getButton(), iBonus, WIDGET_GENERAL, iBonus, -1, true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
++				gDLL->getInterfaceIFace()->popupAddGenericButton(pPopup,
++						info.getDescription(), info.getButton(), iBonus,
++						WIDGET_GENERAL, iBonus, -1, true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
+ 				++iNumResources;
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 84aac92c3..da2ab0097 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4624,7 +4624,9 @@ void CvGame::changeAIAutoPlay(int iChange,
+ int CvGame::getCivPlayersEverAlive() const {
+ 
+ 	// Could pose a savegame compatibility problem (uiFlag<4)
+-	FAssert(m_bAllGameDataRead);
++	FAssert(m_bAllGameDataRead); // But it's OK if uiFlag < 9 in CvPlayerAI
++	if(!m_bAllGameDataRead)
++		return countCivPlayersEverAlive();
+ 	return m_iCivPlayersEverAlive;
+ }
+ 
+@@ -4641,7 +4643,9 @@ void CvGame::changeCivPlayersEverAlive(int iChange) {
+ int CvGame::getCivTeamsEverAlive() const {
+ 
+ 	// Could pose a savegame compatibility problem (uiFlag<4)
+-	FAssert(m_bAllGameDataRead);
++	FAssert(m_bAllGameDataRead); // But it's OK if uiFlag < 9 in CvPlayerAI
++	if(!m_bAllGameDataRead)
++		return countCivTeamsEverAlive();
+ 	return m_iCivTeamsEverAlive;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 617c4c0cc..d281b2212 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5264,12 +5264,7 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves,
+ 					if (!bTestMoves)
+ 						return true;
+ 					else
+-					{
+-						int iDangerRange = pLoopUnit->baseMoves();
+-						if(pLoopPlot->isValidRoute(pLoopUnit,
+-								false)) // advc.001i
+-							iDangerRange++;
+-						// <advc.128>
++					{	// <advc.128>
+ 						if(isHuman()) {
+ 							return (iDistance <= 3 && pLoopUnit->generatePath(
+ 									pPlot, MOVE_MAX_MOVES | MOVE_IGNORE_DANGER,
+@@ -5282,6 +5277,10 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves,
+ 									pPlot, MOVE_MAX_MOVES | MOVE_IGNORE_DANGER,
+ 									false, NULL, 1, true);
+ 						} // </advc.128>
++						int iDangerRange = pLoopUnit->baseMoves();
++						if(pLoopPlot->isValidRoute(pLoopUnit,
++								false)) // advc.001i
++							iDangerRange++;
+ 						if(iDangerRange >= iDistance)
+ 							return true;
+ 					}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 67e926cb7..989bc1e76 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -15810,10 +15810,11 @@ bool CvUnitAI::AI_goToTargetCity(int iFlags, int iMaxPathTurns, CvCity* pTargetC
+ 					return false; // </advc.139>
+ 				// <advc.001t>
+ 				if(!isEnemy(pEndTurnPlot->getTeam())) {
+-					FAssertMsg(isEnemy(pEndTurnPlot->getTeam()),
++					// This triggers a few times in most games
++					/*FAssertMsg(isEnemy(pEndTurnPlot->getTeam()),
+ 						"Known issue: AI may change its mind about the path to"
+ 						" the target city after declaring war; temporary fix:"
+-						" stick to the original path.");
++						" stick to the original path.");*/
+ 					if(isEnemy(pEnemyPlot->getTeam()))
+ 						pEndTurnPlot = pEnemyPlot;
+ 					else FAssert(isEnemy(pEnemyPlot->getTeam()));
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=21220

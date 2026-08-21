@@ -1,0 +1,74 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 582
+# Commit: bad8e25b809c28b1bf9d8aaa4a9450e67d664eda
+# History segment: K-Mod history
+# Parent used for diff: b03213eb175464007efc843c078c104491a0e490
+# Title: Adjusted the culture value scaling for the AI's cultural victory strategy. (This should help the 3rd culture city build up faster.)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	6	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c1faa0c5e..b25a48d92 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2373,11 +2373,11 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, const CvCity* pCity)
+ 			}
+ 			// Slider check works for detection of whether human player is going for cultural victory
+ 			// (all weights changed for K-Mod)
+-			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2) || getCommercePercent(COMMERCE_CULTURE) >= 70)
++			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2) || getCommercePercent(COMMERCE_CULTURE) >= 60)
+ 			{
+ 				int iCultureRateRank = pCity->findCommerceRateRank(COMMERCE_CULTURE);
+ 				int iCulturalVictoryNumCultureCities = GC.getGameINLINE().culturalVictoryNumCultureCities();
+-				bool bC3 = AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) || getCommercePercent(COMMERCE_CULTURE); // K-Mod
++				bool bC3 = AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) || getCommercePercent(COMMERCE_CULTURE) >= 80; // K-Mod
+ 				
+ 				// if one of the currently best cities, then focus hard
+ 				if (iCultureRateRank <= iCulturalVictoryNumCultureCities)
+@@ -2385,26 +2385,27 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, const CvCity* pCity)
+ 					if (bC3)
+ 					{
+ 						// culture3
+-						iWeight *= 4 + iCultureRateRank;
++						iWeight *= 2 + 2*iCultureRateRank + (iCultureRateRank == iCulturalVictoryNumCultureCities ? 1 : 0);
+ 					}
+ 					else
+ 					{
+ 						// culture2
+-						iWeight *= 7;
++						iWeight *= 6 + iCultureRateRank;
+ 						iWeight /= 2;
+ 					}
+ 				}
+ 				// if one of the 3 close to the top, then still emphasize culture some
+ 				else if (iCultureRateRank <= iCulturalVictoryNumCultureCities + 3)
+ 				{
+-					iWeight *= bC3 ? 4 : 3;
++					//iWeight *= bC3 ? 4 : 3;
++					iWeight *= 3;
+ 				}
+ 				else
+ 				{
+ 					iWeight *= 2;
+ 				}
+ 			}
+-			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1) || getCommercePercent(COMMERCE_CULTURE) >= 50)
++			else if (AI_isDoVictoryStrategy(AI_VICTORY_CULTURE1) || getCommercePercent(COMMERCE_CULTURE) >= 30)
+ 			{
+ 				iWeight *= 2;
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2131

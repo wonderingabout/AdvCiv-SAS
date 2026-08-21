@@ -1,0 +1,594 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 148
+# Commit: 49492c73ab86124e160e7ac0bd129d81aa702b76
+# History segment: K-Mod history
+# Parent used for diff: a1d367cd1f1dac3db815b8b7b8ba86a5a316b4ea
+# Title: Added some loading tips (hints) for K-Mod.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+455	0	Assets/xml/GameInfo/CIV4Hints.xml
+83	0	Assets/xml/Text/K-Mod hints.xml
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+ create mode 100644 Assets/xml/GameInfo/CIV4Hints.xml
+ create mode 100644 Assets/xml/Text/K-Mod hints.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+new file mode 100644
+index 000000000..da854bf7c
+--- /dev/null
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -0,0 +1,455 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by Eric MacDonald (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Hints Infos -->
++<Civ4Hints xmlns="x-schema:CIV4GameInfoSchema.xml">
++	<HintInfos>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_1</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_2</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_3</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_4</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_5</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_6</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_7</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_8</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_9</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_10</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_11</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_12</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_13</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_14</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_15</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_16</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_17</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_18</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_19</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_20</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_21</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_22</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_23</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_24</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_25</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_26</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_27</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_28</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_29</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_30</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_31</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_32</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_33</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_34</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_35</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_36</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_37</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_38</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_39</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_40</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_41</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_42</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_43</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_44</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_45</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_46</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_47</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_48</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_49</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_50</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_51</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_52</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_53</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_54</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_55</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_56</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_57</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_58</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_59</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_60</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_61</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_62</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_63</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_64</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_65</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_66</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_67</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_INTERFACE_68</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_1</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_2</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_3</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_4</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_5</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_6</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_7</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_8</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_9</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_10</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_11</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_12</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_13</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_14</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_15</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_16</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_17</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_18</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_19</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_20</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_21</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_22</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_23</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_24</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_25</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_26</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_27</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_28</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_29</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_30</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_31</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_32</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_33</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_34</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_35</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_36</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_37</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_38</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_39</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_40</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_41</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_42</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_43</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_44</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_45</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_46</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_47</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_48</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_49</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_50</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_51</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_52</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_53</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_54</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_55</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_56</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_57</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_58</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_59</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_60</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_61</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_62</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_63</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_64</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_65</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_67</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_68</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_69</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_70</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_71</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_72</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_HINT_73</Description>
++		</HintInfo>
++<!-- K-Mod hints -->
++		<HintInfo>
++			<Description>TXT_KEY_BUG_HINT_INTERFACE_1</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_1</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_2</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_3</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_4</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_5</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_6</Description>
++		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_KMOD_HINT_7</Description>
++		</HintInfo>
++	</HintInfos>
++</Civ4Hints>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+new file mode 100644
+index 000000000..4667670cb
+--- /dev/null
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -0,0 +1,83 @@
++<?xml version="1.0" encoding="ISO-8859-1"?>
++<!-- K-Mod hints -->
++	<!-- Style guidelines (from CIV4GameText_Strategy.xml): -->
++	<!-- Technologies should be colored COLOR_TECH_TEXT (example: [COLOR_TECH_TEXT]Bronze Working[COLOR_REVERT]) -->
++	<!-- Unit should be colored COLOR_UNIT_TEXT (example: [COLOR_UNIT_TEXT]Archers[COLOR_REVERT]) -->
++	<!-- Buildings should be colored COLOR_BUILDING_TEXT (example: [COLOR_BUILDING_TEXT]Theatre[COLOR_REVERT]) -->
++	<!-- Projects should be colored COLOR_PROJECT_TEXT (example: [COLOR_PROJECT_TEXT]SS Engine[COLOR_REVERT]) -->
++	<!-- Anything else official (that should be capitalized) should be colored COLOR_HIGHLIGHT_TEXT (example: [COLOR_HIGHLIGHT_TEXT]Trade Mission[COLOR_HIGHLIGHT_TEXT] or [COLOR_HIGHLIGHT_TEXT]Islam[COLOR_HIGHLIGHT_TEXT]) -->
++<Civ4GameText xmlns="http://www.firaxis.com">
++<TEXT>
++	<Tag>TXT_KEY_BUG_HINT_INTERFACE_1</Tag>
++	<English>Press [ALT + CTRL + O] to open The BUG options screen.</English>
++	<French>Pressez [ALT + CTRL + O] pour acc�der aux �crans d'options du BUG Mod.</French>
++	<German>Mit der Tastenkombination [STRG + ALT + O] l�sst sich das Optionsmen� der BUG Mod aufrufen.</German>
++	<Italian>Premi [ALT + CTRL + O] per accedere alla schermata di configurazione del BUG Mod.</Italian>
++	<Spanish>Press [ALT + CTRL + O] to open The BUG options screen.</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_1</Tag>
++	<English>An aqueduct or a hospital will increase a city's health, but public transport or a recycling center will reduce its pollution...</English>
++	<French>An aqueduct or a hospital will increase a city's health, but public transport or a recycling center will reduce its pollution...</French>
++	<German>An aqueduct or a hospital will increase a city's health, but public transport or a recycling center will reduce its pollution...</German>
++	<Italian>An aqueduct or a hospital will increase a city's health, but public transport or a recycling center will reduce its pollution...</Italian>
++	<Spanish>An aqueduct or a hospital will increase a city's health, but public transport or a recycling center will reduce its pollution...</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_2</Tag>
++	<English>The cultural influence of a city extends beyond the city's cultural border. If you are being culturally pressured by another civilization, consider getting more culture in all nearby cities; not just the cities being pressed.</English>
++	<French>The cultural influence of a city extends beyond the city's cultural border. If you are being culturally pressured by another civilization, consider getting more culture in all nearby cities; not just the cities being pressed.</French>
++	<German>The cultural influence of a city extends beyond the city's cultural border. If you are being culturally pressured by another civilization, consider getting more culture in all nearby cities; not just the cities being pressed.</German>
++	<Italian>The cultural influence of a city extends beyond the city's cultural border. If you are being culturally pressured by another civilization, consider getting more culture in all nearby cities; not just the cities being pressed.</Italian>
++	<Spanish>The cultural influence of a city extends beyond the city's cultural border. If you are being culturally pressured by another civilization, consider getting more culture in all nearby cities; not just the cities being pressed.</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_3</Tag>
++	<English>Forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to help "save the planet" in the future.</English>
++	<French>Forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to help "save the planet" in the future.</French>
++	<German>Forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to help "save the planet" in the future.</German>
++	<Italian>Forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to help "save the planet" in the future.</Italian>
++	<Spanish>Forests and jungles help offset the pollution caused by your civilization. If you don't need to chop them down, consider keeping them to help "save the planet" in the future.</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_4</Tag>
++	<English>If a rival civilization becomes fixated on world domination - beware! They may decide to attack you even if they appear friendly.</English>
++	<French>If a rival civilization becomes fixated on world domination - beware! They may decide to attack you even if they appear friendly.</French>
++	<German>If a rival civilization becomes fixated on world domination - beware! They may decide to attack you even if they appear friendly.</German>
++	<Italian>If a rival civilization becomes fixated on world domination - beware! They may decide to attack you even if they appear friendly.</Italian>
++	<Spanish>If a rival civilization becomes fixated on world domination - beware! They may decide to attack you even if they appear friendly.</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_5</Tag>
++	<English>Factories and assembly lines create extra pollution with coal and oil. If aren't using your fossil fuels, then consider removing them from your civilization to make your people healthier.</English>
++	<French>Factories and assembly lines create extra pollution with coal and oil. If aren't using your fossil fuels, then consider removing them from your civilization to make your people healthier.</French>
++	<German>Factories and assembly lines create extra pollution with coal and oil. If aren't using your fossil fuels, then consider removing them from your civilization to make your people healthier.</German>
++	<Italian>Factories and assembly lines create extra pollution with coal and oil. If aren't using your fossil fuels, then consider removing them from your civilization to make your people healthier.</Italian>
++	<Spanish>Factories and assembly lines create extra pollution with coal and oil. If aren't using your fossil fuels, then consider removing them from your civilization to make your people healthier.</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_6</Tag>
++	<English>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</English>
++	<French>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</French>
++	<German>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</German>
++	<Italian>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</Italian>
++	<Spanish>Units with the "leadership" warlord promotion will greatly reduce the chance of cultural revolts in their city.</Spanish>
++</TEXT>
++<TEXT>
++	<Tag>TXT_KEY_KMOD_HINT_7</Tag>
++	<English>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. The total experience points to be shared is bigger for bigger groups.</English>
++	<French>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. The total experience points to be shared is bigger for bigger groups.</French>
++	<German>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. The total experience points to be shared is bigger for bigger groups.</German>
++	<Italian>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. The total experience points to be shared is bigger for bigger groups.</Italian>
++	<Spanish>When a Great General chooses to lead a unit as a warlord, it shares an immediate experience boost to all units in the group. The total experience points to be shared is bigger for bigger groups.</Spanish>
++</TEXT>
++<!-- replacement text for the inaccurate barbarian tip (changed english only)-->
++<TEXT>
++	<Tag>TXT_KEY_HINT_12</Tag>
++	<English>Barbarians will not spawn within two steps of any player's units. With careful positioning of scouts you can completely block barbarian raiding parties from forming in your area.</English>
++	<French>Les barbares peuvent appara&#238;tre sur toutes les cases recouvertes par le brouillard de guerre. Vous ne saurez donc jamais ce qu'il y a sur celles qui sont invisibles, m&#234;me si vous avez d&#233;j&#224; v&#233;rifi&#233; au tour pr&#233;c&#233;dent !</French>
++	<German>Barbaren k&#246;nnen auf allen vom Nebel des Krieges verh&#252;llten Gel&#228;ndefeldern lauern. Gehen Sie also nie davon aus, dass ein Feld, das Sie nicht sehen k&#246;nnen, sicher ist ... auch wenn Sie es in der vorherigen Runde &#252;berpr&#252;ft haben!</German>
++	<Italian>I Barbari possono apparire in un qualsiasi spazio oscurato dalla nebbia di guerra. Non essere mai certo che uno spazio non visibile sia sicuro, anche se hai controllato durante il turno precedente!</Italian>
++	<Spanish>Los b&#225;rbaros pueden aparecer en cualquier lugar en el que una casilla est&#233; oscurecida por la niebla de la guerra, as&#237; que no supong&#225;is que una casilla que no pod&#225;is ver es segura, aunque la hay&#225;is comprobado en el turno anterior.</Spanish>
++</TEXT>
++</Civ4GameText>
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 19248711f..b62c6f6a8 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14793,7 +14793,7 @@ void CvPlayerAI::AI_doDiplo()
+ 
+ 															if (GET_PLAYER((PlayerTypes)iI).isHuman())
+ 															{
+-																if (!(abContacted[GET_PLAYER((PlayerTypes)iI).getTeam()])) // uncommented by K-Mod
++																//if (!(abContacted[GET_PLAYER((PlayerTypes)iI).getTeam()]))
+ 																{
+ 																	pDiplo = new CvDiploParameters(getID());
+ 																	FAssertMsg(pDiplo != NULL, "pDiplo must be valid");
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=22956

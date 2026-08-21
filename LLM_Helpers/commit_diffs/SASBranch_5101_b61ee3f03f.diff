@@ -1,0 +1,110 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5101
+# Commit: b61ee3f03fc0c2b96b9fb20e7722b18265fe2796
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e00669db510e8baa9c26d9a466b22f3da0e6c9dd
+# Title: patch/fix tech beelines at tech_physics (to tech_steam_power), and tech_theory_of_evolution (to tech_genetics and tech_game_theory) and tweak tech tree as we...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	1	Assets/XML/Technologies/CIV4TechInfos.xml
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+1	1	README.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+
+[PATCHES]
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index fe2ee17e7..81fa76432 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -3491,8 +3491,10 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+ 			</OrPreReqs>
++			<!-- custom: nicely fits copernic theme and fighting previous religious or such preconceptions with the power of reality i mean if i may say for better or worse xd i mean but anyways etc -->
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_ASTRONOMY</PrereqTech>
++				<PrereqTech>TECH_NATURALISM</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_PHYSICS_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_PHYSICS</Sound>
+@@ -4299,7 +4301,10 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs/>
++			<!-- custom: added this extra as of now tech_electricity prereq nicely i mean if i may say but anyways etc recommended by chatgpt 5 but i also mean i mean that i got same idea independently while asking it and it was replying i mean if i may say but anyways etc, thanks for help and confirming lot! I mean if i may say but anyways etc. Also, as i explained to chatgpt 5 as it asked me i mean if i may say but anyways etc, it (i.e. tech_nationalism i mean but anyways etc) also seems to be a great fit i mean but anyways etc as this is a 1900s tech and actually a bit more, plus it is military themed and gives as of now permanent alliances in particular so we may want a far enough gate to prevent researching it (tech_theory of evolution is still available early for versatility or strategic variation (also preserves the tech_theory_of_evolution gambit (i.e. going for a tech_theory_of_evolution rush for later gains, skipping military path for some time) i mean as well but anyways etc) though i mean if i may say but anyways etc), and tech_liberalism is a bit too soon for that (tech chatgpt 5 sugegsted as an or to tech_nationalism) unlike tech_nationalism which fits thematically and in year time i mean if i may say but anyways etc. -->
++			<AndPreReqs>
++				<PrereqTech>TECH_ELECTRICITY</PrereqTech>
++			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_GENETICS_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_GENETICS</Sound>
+ 			<SoundMP>AS2D_TECH_MP_GENETICS</SoundMP>
+@@ -5692,8 +5697,10 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_THEORY_OF_EVOLUTION</PrereqTech>
+ 			</OrPreReqs>
++			<!-- custom: got the idea while i was asking chatgpt 5, to prevent a beeline that would be bit op or suboptimal depending on tech path maybe i mean but anyways etc, here i mean. Hopefully more balanced as such, and is also thematically relevant i think. Trying not to restrict strategic options (in particular this also preserves the tech_theory_of_evolution gambit i mean as well but anyways etc)  too much here for variety or such i mean as well but anyways etc -->
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_CORPORATION</PrereqTech>
++				<PrereqTech>TECH_NATIONALISM</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_GAME_THEORY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_GAME_THEORY</Sound>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 9c624dd81..ff38624a6 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1023,7 +1023,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 
+ 	// <!-- custom: rewrite / refactor this heavily by gemini ai (with my prompts and feedback and such adjustments as well or not or yes or etc anyways etc for advciv-sas too anyways etc anyways etc anyways etc) to fix fatal flaw of not returning any best plot if our selected best plot happens to be unpathable, plus other seemingly bugs as well (see code comments below in this function for details anyways etc) -->
+ 	// <!-- custom: make sure AI workers always improve bonuses before anything else. This attempts to fix/address the "Boston screenshot" issue, where AI in a tundra environment mined two hill tiles and did not improve a nearby deer in city radius at all at turn 75, which would have helped the city grow, and even build the current worker city was building just as fast if i am not mistaken anyways etc (see screenshot and doc at known issues readme as of now number 30 for details anyways etc).
+-	// Prioritizing to always improve bonuses first before anything else should always be a good move if not then almost always, for the AI in particular, it should be much more efficient than improving any other tile. I hope that the added slightly increased computation in below code does not decrease too much performance ideally (i think very minimal if not neglectible, but i don't know i mean so stating this to be sure and i would suggest to check this as well to be sure as this is just a guess on my end that i can make easily i mean as i don't know too much how to precisely check these or/and would be too tedious for a same end-goal of implementing these unless they are drastically or significantly +/ much in this case at least but anyways etc slower). I have measured to be sure since gemini ai insisted our code is better thanks a lot gemini ai hehe for caring if imay say in this case at least maybe or so it seems i mena but thanks still but anyways etc really thanks anyways etc, actually our new code is seemingly faster: 45.185s for old DLL before rewrite, vs 43.008s with our new rewritten DLL in a 100 turn autoplay of a quite large pangea (didn't check exactly how). Of course some variation may occur, but our DLL shouldn't be slower or significantly slower, hopefully even a bit faster, at elast it felt so watching turns span even if a bit, and seems confirmed with this, but check to be sure anyways etc.
++	// Prioritizing to always improve bonuses first before anything else should always be a good move if not then almost always, for the AI in particular, it should be much more efficient than improving any other tile. I hope that the added slightly increased computation in below code does not decrease too much performance ideally (i think very minimal if not neglectible, but i don't know i mean so stating this to be sure and i would suggest to check this as well to be sure as this is just a guess on my end that i can make easily i mean as i don't know too much how to precisely check these or/and would be too tedious for a same end-goal of implementing these unless they are drastically or significantly +/ much in this case at least but anyways etc slower). I have measured to be sure since gemini ai insisted our code is better thanks a lot gemini ai hehe for caring if imay say in this case at least maybe or so it seems i mean but thanks still but anyways etc really thanks anyways etc, actually our new code is seemingly faster: 45.185s for old DLL before rewrite, vs 43.008s with our new rewritten DLL in a 100 turn autoplay of a quite large pangea (didn't check exactly how). Of course some variation may occur, but our DLL shouldn't be slower or significantly slower, hopefully even a bit faster, at elast it felt so watching turns span even if a bit, and seems confirmed with this, but check to be sure anyways etc.
+ 	// Most importantly, even if it were to be slower, but i hope and think it shouldn't be by a big lot if at all (even though i don't know too much about these but hopefully and seemingly to me based on this code i mean and what i can understand or guess of it but anyways etc) it may help AI strength/competitiveness so this should be valued at least i think so in this case at least but anyways etc. To simplify logic, include all bonuses in cultural borders (i.e. any reachable bonus), not just those in cities (at least do not restrict to that, and there should be some benefits to improving a bonus even if outside of a city radius, so hopefully efficient enough in this case and simple enough to handle in code if i am not mistaken as well anyways etc), if i am not mistaken and this code does this ; code provided thanks to / by gemini ai with chatgpt's help too and thanks to my prompt too anyways etc, and adjustments i did as well or not for advciv-sas anyways etc, anyways etc -->
+ 	// <!-- custom: also, the rewrite addresses one or a few suboptimal behaviours the code had, as reviewed quite extensively with gemini ai from quite little in this case i mean but anyways etc i know about these but can guess quite a bit in this case at least with gemini ai's help too thanks and thanks to me too maybe but anyways etc, in particular that regardless of the pathfinding computation performed at pass 1 (line `if (iPass > 0 || eBestBuild == NO_BUILD)` anyways etc), the best plot found if any would be pathfinding recomputed (or even computed at all since we only need one best plot, so computing it decrementally from best candidate plot to worse until one is found then early return it seems much more efficient as we do rather than compute all plots even the ones which in the end / ultimately in this case but anyways etc not will be our best so no need to needlessly (needless repetition (no pun xd or maybe yes or not but not consiously purposeful of me maybe whatever that means or not or yes or etc but anyways etc) but anyways etc...)) which is inefficient unless i am mistaken (but i don't know too much about these so check to be sure anyways etc) which seems to me to be inefficiently written if i am not mistaken now that i understand it better from all this thining hehe but hopefully, but again i could overlooked some other parts of the explanation or misunderstood some of the logic, so check to be sure, hopefully new code is much cleaner now and much easier to customize to add other enhancements as well anyways etc -->
+
+diff --git a/README.md b/README.md
+index de5f095d9..a8215cadb 100644
+--- a/README.md
++++ b/README.md
+@@ -607,7 +607,7 @@ I also have experimented briefly if i may say but anyways etc as i had the oppor
+ 
+ Here is a [google drive folder link](https://drive.google.com/drive/folders/12Eek72K1_vDJ7_2xViYpLdy_eEAgLOaS?usp=sharing) of for example how i implemented a part of this functionality with deepseek ai to experiment with it if i may say at least in this case but anyways etc, it seems to have understood surprisingly well my request and replied to it well as well in this case at least i mean but anyways etc... Hopefully helpful, but anyways etc anyways etc anyways etc...
+ 
+-Note: asking it more complex tasks like adding links as i didn't know how to, it seems to quickly get confused and lost and do unnecessary and inefficient things, in the end helped investigate and explore how to do the task but ended up not doing it in this case at least but anyways etc as too complicated and not worth it if i may say but anyways etc (would have for example to calculate/estimate total height or line count of each szSpecialText if i am not mistaken, then display at each line with its own iTech just to have the links clickable, when list is already accessible since we are in sevopedia tech, and would be computationally super or needlessly expensive but anyways etc, at least i think so in this case at least but anyways etc ; not shown in screenshots in the google drive either as well but anyways etc), but it is still helpful though and i only evaluated it on this task, it may do better or not in other tasks i don't know but anyways etc, if i may say still is to provide feedback at least to myself if not to others or not but anyways etc ; but in the end it helped me and is friendly at least friendly enough if not lot or not or yes or etc but anyways etc each as they are or want or do or be or not but anyways etc thanks anyways etc anyways etc anyways etc... And it is also surprisingly good at teaching at least japanese if i may say or so it seems it spontaneously helped and translated instead of overwhelm me with all data xd thanks i mena in this case at least but anyways etc... Thanks deepseek (but or not but or yes but but?) anyways etc anyways etc anyways etc...
++Note: asking it more complex tasks like adding links as i didn't know how to, it seems to quickly get confused and lost and do unnecessary and inefficient things, in the end helped investigate and explore how to do the task but ended up not doing it in this case at least but anyways etc as too complicated and not worth it if i may say but anyways etc (would have for example to calculate/estimate total height or line count of each szSpecialText if i am not mistaken, then display at each line with its own iTech just to have the links clickable, when list is already accessible since we are in sevopedia tech, and would be computationally super or needlessly expensive but anyways etc, at least i think so in this case at least but anyways etc ; not shown in screenshots in the google drive either as well but anyways etc), but it is still helpful though and i only evaluated it on this task, it may do better or not in other tasks i don't know but anyways etc, if i may say still is to provide feedback at least to myself if not to others or not but anyways etc ; but in the end it helped me and is friendly at least friendly enough if not lot or not or yes or etc but anyways etc each as they are or want or do or be or not but anyways etc thanks anyways etc anyways etc anyways etc... And it is also surprisingly good at teaching at least japanese if i may say or so it seems it spontaneously helped and translated instead of overwhelm me with all data xd thanks i mean in this case at least but anyways etc... Thanks deepseek (but or not but or yes but but?) anyways etc anyways etc anyways etc...
+ 
+ #### V3.1
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index d0262edc2..99f12f632 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 81f478c37..66a304587 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 3802c7930..7f3cc4b73 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index c514aed8c..050c02e32 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=15029

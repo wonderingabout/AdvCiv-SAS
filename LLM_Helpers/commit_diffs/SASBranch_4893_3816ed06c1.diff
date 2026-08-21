@@ -1,0 +1,119 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4893
+# Commit: 3816ed06c12bb80365b1fb8dd9d2e689783f4d6b
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b09ba3d5109ebbe8a24a34d1ab87483f827e9be6
+# Title: tweak settling on high production bonuses logic to give a small boost on snow terrain as well and other tweaks/fixes anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+17	19	CvGameCoreDLL/CitySiteEvaluator.cpp
+8	9	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index bf140ebc4..759527f9c 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -656,29 +656,18 @@ short AIFoundValue::evaluate()
+ 
+ 			// <!-- custom: see also code comment(s) and code at int AIFoundValue::foundOnResourceValue(int const* aiBonusImprovementYield) const, for food bonuses anyways etc -->
+ 
+-			// <!-- custom: if i understand it correctly, first we need to devalue/discourage settling on metals or high production bonuses, except on low lood tiles such as hills or desert where it may be profitable to do so -->
++			// <!-- custom: if i understand it correctly, first we need to devalue/discourage settling on metals or high production bonuses, except on low food tiles such as hills +/- with desert where it may be profitable to do so -->
+ 			if (iBonusProduction >= 2)
+ 			{
+ 				// <!-- custom: on hill, should be mostly good to plant on a metal or high production bonus on a hill, give a quite big boost to that including the defense bonus as of now too if i am not mistaken but anyways etc, except if tile is grassland where food advantage of having high yield improving the tile rather for 1 food cost seems more profitable but anyways etc so in these cases instead give a penalty to discourage the AI to settle/found its city there if i am not mistaken but anyways etc -->
+ 				// <!-- custom: else on high food hill tiles such as in advciv-sas only hill grassland, capitalize rather on the other yields for low food cost and do not settle there, but do not penalize here, since we penalize regardless of tile being hill or not all grass terrain tiles, which would also apply there for hill grassland, so no need to double penalize, as noticed or hinted by chatgpt which(/who? But anyways etc) advised to reduce the penalty, so i got this idea, thanks a lot chatgpt but anyways etc too i mean really but anyways etc anyways etc anyways etc -->
+-				if (p.isHills())
++				if (p.isHills() && (eTerrain != eGrass))
+ 				{
+-					if (eTerrain != eGrass)
+-					{
+-						// Mild bonus if on hill (good production) <!-- custom: and tile is low food -->
+-						// <!-- custom: note: other high food terrain(s)/feature(s) than grass, such as potentially flood plains on hills in mod mods maybe is not supported for computational effiency and since we don't use it in advciv-sas, add it here or/and tweak code to support it, see code at the non-bonus/ressource part of the terrain tweaks we added in advciv-sas in this .cpp file for details hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc -->
+-						int const iHighProductionBonusHillLowFoodValorization = 100 * iBonusProduction;
+-						IFLOG logBBAI("+%d valorization: metal or high production bonus on hill with low food terrain/feature (%S)", iHighProductionBonusHillLowFoodValorization, GC.getInfo(eBonus).getDescription());
+-						iValue += iHighProductionBonusHillLowFoodValorization;
+-					}
+-					// <!-- custom: desert should be profitable to plant on as it is low food at least shouldn't be too bad to do so for metals and high production bonuses, to a lesser degree, so encourage it quite a bit anyways etc, handle it independently before considering whether tile has plot type hill or not, if i am not mistaken in doing so anyways etc ; note: flood plains not supported in desert logic in advciv-sas as computationally cheaper to do so and most importantly if i may say but anyways etc we don't have bonuses on flood plains, implement it in your mod mod here as well or and other relevant places we added in advciv-sas if you don't want the AI settling on flood plains where you have allowed some bonuses, see the code comments at non-bonus tiles tweaks we did in advciv-sas or/and the readme of known issues for details if any are there, hopefully helpful or not or yes or etc but anyways etc -->
+-					// <!-- custom: add an exception for camel type of bonuses that spawns on desert as of now in advciv-sas but anyways etc and that may have a high production modifier on top of a high enough food one -->
+-					else if (eTerrain == eDesert && iBonusFood < 1)
+-					{
+-						int const iHighProductionBonusDesertValorization = 25;
+-						IFLOG logBBAI("+%d valorization: metal or high production bonus on desert where the bonus does not have a high enough food yield (%S)", iHighProductionBonusDesertValorization, GC.getInfo(eBonus).getDescription());
+-						iValue += iHighProductionBonusDesertValorization;
+-					}
++					// Mild bonus if on hill (good production) <!-- custom: and tile is low food -->
++					// <!-- custom: note: other high food terrain(s)/feature(s) than grass, such as potentially flood plains on hills in mod mods maybe is not supported for computational effiency and since we don't use it in advciv-sas, add it here or/and tweak code to support it, see code at the non-bonus/ressource part of the terrain tweaks we added in advciv-sas in this .cpp file for details hopefully helpful or not or yes or other or etc but anyways etc anyways etc anyways etc -->
++					int const iHighProductionBonusHillLowFoodValorization = 100 * iBonusProduction;
++					IFLOG logBBAI("+%d valorization: metal or high production bonus on hill (%S)", iHighProductionBonusHillLowFoodValorization, GC.getInfo(eBonus).getDescription());
++					iValue += iHighProductionBonusHillLowFoodValorization;
+ 				}
+ 				// <!-- custom: as a general rule, discourage settling at all on production bonuses, outside of these exceptions or other edge cases especially covered before in this block if i am not mistaken and with chatgpt's bit help and my ideas too and such but anyways etc -->
+ 				else
+@@ -690,12 +679,21 @@ short AIFoundValue::evaluate()
+ 				}
+ 
+ 				// <!-- custom: apply an additional penalty for grass and other if any high food terrains (in advciv-sas there is only grass if i am not mistaken that can have bonuses on it but anyways etc), in particular iron or copper flatland grass should be improved for a nice production yield with no food cost, this also penalizes hill grassland for example if i am not mistaken too as intended anyways etc -->
++				// <!-- custom: in case it computationally helps, put grass first as it is more a likely terrain than desert or snow combined if i am not mistaken so we skip the else if checks more often maybe as also agreed on by chatgpt if i may say while notifying it about it it kindly spontaneously also shared its agreement with me in this case if i may say thanks etc but anyways etc anyways etc anyways etc -->
+ 				if (eTerrain == eGrass)
+ 				{
+ 					int const iHighProductionBonusGrassAdditionalPenalty = 100 * iBonusProduction;
+-					IFLOG logBBAI("-%d additional penalty: metal or high production bonus on grass (%S)", iHighProductionBonusGrassAdditionalPenalty, GC.getInfo(eBonus).getDescription());
++					IFLOG logBBAI("-%d additional penalty: metal or high production bonus on high-food terrain (as of now only grass is supported as intended) (%S)", iHighProductionBonusGrassAdditionalPenalty, GC.getInfo(eBonus).getDescription());
+ 					iValue -= iHighProductionBonusGrassAdditionalPenalty;
+ 				}
++				// <!-- custom: desert and other low food terrains should be profitable to plant on as they are low food at least shouldn't be too bad to do so for metals and high production bonuses, to a lesser degree, so encourage it quite a bit more anyways etc ; note: flood plains not supported in desert logic in advciv-sas as computationally cheaper to do so and most importantly if i may say but anyways etc we don't have bonuses on flood plains, implement it in your mod mod here as well or and other relevant places we added in advciv-sas if you don't want the AI settling on flood plains where you have allowed some bonuses, see the code comments at non-bonus tiles tweaks we did in advciv-sas or/and the readme of known issues for details if any are there, hopefully helpful or not or yes or etc but anyways etc -->
++				// <!-- custom: add an exception for camel type of bonuses that spawns on desert as of now in advciv-sas but anyways etc and that may have a high production modifier on top of a high enough food one -->
++				else if ((eTerrain == eDesert || eTerrain == eSnow) && iBonusFood < 1)
++				{
++					int const iHighProductionBonusLowFoodAdditionalValorization = 25;
++					IFLOG logBBAI("+%d additional valorization: metal or high production bonus on low-food terrain where the bonus does not have a high enough food yield (desert, snow) (%S)", iHighProductionBonusLowFoodAdditionalValorization, GC.getInfo(eBonus).getDescription());
++					iValue += iHighProductionBonusLowFoodAdditionalValorization;
++				}
+ 
+ 			}
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 9d4123b77..010d7496a 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -731,15 +731,14 @@ The current code should also make AIs less likely (apply a penalty on this plot
+ - on hills grassland, discourage the AI to plant there as production is lower, may not get the extra hammer or may want to improve it rather for only 1 food cost but anyways etc
+ - if as said before not on hills at all nor on desert, discourage the AI to plant there as well
+ 
+-Overall and as of now, if still updated, here is how it works as kidnly provided by chatgpt thanks without me askign xd thanks chatgpt if i may say maybe me too thanks to me too i mean in this case but anyways etc, which (the table in this case but anyways etc anyways etc anyways etc...) formatted in this case to fit in the docs a bit easier if i may say but anyways etc:
+-
+-| Case                                 | Handled? | What Happens                       |
+-| ------------------------------------ | -------- | ---------------------------------- |
+-| Hill & not Grass                     | Yes      | Valorized                          |
+-| Hill & Grass                         | Yes      | Not valorized, but penalized below |
+-| Desert & low food (on hill)          | Yes      | Valorized modestly                 |
+-| Flatland or other terrain (not hill) | Yes      | General penalty                    |
+-| Grass (anywhere)                     | Yes      | Always gets additional penalty     |
++Overall and as of now, if still updated, here is how it works as kidnly provided by chatgpt thanks without me askign xd thanks chatgpt if i may say maybe me too thanks to me too i mean in this case but anyways etc, which (the table in this case but anyways etc anyways etc anyways etc...) formatted and with some corrections or modifications i added as well but anyways etc:
++
++| Case                                                | Handled? | What Happens                                                  |
++| --------------------------------------------------- | -------- | ------------------------------------------------------------- |
++| Hill & not Grass                                    | Yes      | Valorized (encouraged to settle)                              |
++| Non-Hill                                            | Yes      | General penalty (discouraged to settle)                       |
++| Any Grass (including Hill Grass)                    | Yes      | Always gets additional penalty (high food tile)               |
++| Low Food terrain (Desert or Snow) & low food bonus  | Yes      | Mild additional valorization if bonus also has low food yield |
+ 
+ ### For bonuses with a high total commerce yield
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=11705

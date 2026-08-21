@@ -1,0 +1,88 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3396
+# Commit: cf04fab33508d521365dfd233ddb5fc674fd6078
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e54a501f95f0b9719d715ab5eed1a3c0d27b2021
+# Title: Foreign Advisor can no longer cause scoreboard to expand
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/BUG/Scoreboard.py
+2	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	0	CvGameCoreDLL/CvEnums.h
+1	0	CvGameCoreDLL/CyEnumsInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index 0db4e712e..06e1c8e13 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -287,7 +287,7 @@ class Scoreboard:
+ 		self._set(ESPIONAGE)
+ 		
+ 	def setTrade(self): # advc.004: BULL widget help enabled
+-		self._set(TRADE, True, (WidgetTypes.WIDGET_TRADE_ROUTES, self._activePlayer, self._currPlayerScore.getID()))
++		self._set(TRADE, True, (WidgetTypes.WIDGET_TRADE_ROUTES_SCOREBOARD, self._activePlayer, self._currPlayerScore.getID()))
+ 		
+ 	def setBorders(self):
+ 		self._set(BORDERS, True, self._getDealWidget(TradeableItems.TRADE_OPEN_BORDERS))
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 33547de31..6e37f48e6 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -693,6 +693,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 		break; // </advc.106i>
+ 	// BULL - Trade Hover - start
+ 	case WIDGET_TRADE_ROUTES:
++	case WIDGET_TRADE_ROUTES_SCOREBOARD: // advc.085
+ 		parseTradeRoutes(widgetDataStruct, szBuffer);
+ 		break; // BULL - Trade Hover - end
+ 	// BULL - Food Rate Hover - start
+@@ -738,7 +739,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 		if((widgetDataStruct.m_eWidgetType == aeExpandTypes[i] &&
+ 			widgetDataStruct.m_iData2 == 0) ||
+ 			// Need iData2 for sth. else; must only use these WidgetTypes on the scoreboard.
+-			widgetDataStruct.m_eWidgetType == WIDGET_TRADE_ROUTES ||
++			widgetDataStruct.m_eWidgetType == WIDGET_TRADE_ROUTES_SCOREBOARD ||
+ 			widgetDataStruct.m_eWidgetType == WIDGET_POWER_RATIO)
+ 		{
+ 			GET_PLAYER(getActivePlayer()).setScoreboardExpanded(true);
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index e1e29d7dd..9e05ee803 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -500,6 +500,7 @@ ENUM_START(Widget, WIDGET)
+ 	WIDGET_LEADERHEAD_RELATIONS, // BULL - Leaderhead Relations
+ 	WIDGET_FOOD_MOD_HELP, // BULL - Food Rate Hover
+ 	// <advc.085>
++	WIDGET_TRADE_ROUTES_SCOREBOARD,
+ 	WIDGET_EXPAND_SCORES,
+ 	WIDGET_POWER_RATIO,
+ 	WIDGET_GOLDEN_AGE,
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 9c9bf2459..ceb3eb4f4 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -422,6 +422,7 @@ void CyEnumsPythonInterface()
+ 		// BULL - Food Rate Hover:
+ 		.value("WIDGET_FOOD_MOD_HELP", WIDGET_FOOD_MOD_HELP)
+ 		// <advc.085>
++		.value("WIDGET_TRADE_ROUTES_SCOREBOARD", WIDGET_TRADE_ROUTES_SCOREBOARD)
+ 		.value("WIDGET_EXPAND_SCORES", WIDGET_EXPAND_SCORES)
+ 		.value("WIDGET_POWER_RATIO", WIDGET_POWER_RATIO)
+ 		.value("WIDGET_GOLDEN_AGE", WIDGET_GOLDEN_AGE)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=2781

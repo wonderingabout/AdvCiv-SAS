@@ -1,0 +1,2105 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4781
+# Commit: f50ab80096a352ae0f6ae7e562870f9b73957a32
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 24da5c34731a4e7139d39cf4d3bbaea49f97afd4
+# Title: rebalance the great artist culture bomb effect (nerfed now) and the culture per turn (buffed now) effect, rework the ziggurat now based on the monument, rena...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/XML/Audio/Audio2DScripts.xml
+2	2	Assets/XML/Audio/AudioDefines.xml
+210	196	Assets/XML/Buildings/CIV4BuildingInfos.xml
+9	4	Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+1	1	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+1	1	Assets/XML/GameInfo/CIV4CivicInfos.xml
+2	2	Assets/XML/GameInfo/CIV4ProcessInfo.xml
+2	1	Assets/XML/GameInfo/CIV4ReligionInfo.xml
+2	1	Assets/XML/GameInfo/CIV4SpecialistInfos.xml
+100	99	Assets/XML/Technologies/CIV4TechInfos.xml
+1	1	Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+8	0	Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+8	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+16	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+2	1	Assets/XML/Units/CIV4UnitInfos.xml
+1	1	README.md
+81	0	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+8	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+9	1	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_buildings_civ4_to_remove_or_replace_or_add.txt
+89	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices.txt
+5	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_indirect_associations.txt
+102	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt
+14	0	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_techs_civ4_to_remove_or_replace_or_add.txt
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_v18_tech_tree_mini_temp.png
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.32_Techtree_default_modified.png
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_indirect_associations.txt
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_techs_civ4_to_remove_or_replace_or_add.txt
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_v18_tech_tree_mini_temp.png
+
+[PATCHES]
+
+diff --git a/Assets/XML/Audio/Audio2DScripts.xml b/Assets/XML/Audio/Audio2DScripts.xml
+index 51b36b5e5..e37c7d88f 100644
+--- a/Assets/XML/Audio/Audio2DScripts.xml
++++ b/Assets/XML/Audio/Audio2DScripts.xml
+@@ -12162,8 +12162,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_UTOPIA</ScriptID>
+-		<SoundID>SND_TECH_UTOPIA</SoundID>
++		<ScriptID>AS2D_TECH_COMMUNISM</ScriptID>
++		<SoundID>SND_TECH_COMMUNISM</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+@@ -14278,8 +14278,8 @@
+ 		<iNotPlayPercent>0</iNotPlayPercent>
+ 	</Script2DSound>
+ 	<Script2DSound>
+-		<ScriptID>AS2D_TECH_MP_UTOPIA</ScriptID>
+-		<SoundID>SND_TECH_MP_UTOPIA</SoundID>
++		<ScriptID>AS2D_TECH_MP_COMMUNISM</ScriptID>
++		<SoundID>SND_TECH_MP_COMMUNISM</SoundID>
+ 		<SoundType>GAME_SPEECH</SoundType>
+ 		<iMinVolume>100</iMinVolume>
+ 		<iMaxVolume>100</iMaxVolume>
+
+diff --git a/Assets/XML/Audio/AudioDefines.xml b/Assets/XML/Audio/AudioDefines.xml
+index 0d5c6f4d8..0d75bbade 100644
+--- a/Assets/XML/Audio/AudioDefines.xml
++++ b/Assets/XML/Audio/AudioDefines.xml
+@@ -8451,7 +8451,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_UTOPIA</SoundID>
++			<SoundID>SND_TECH_COMMUNISM</SoundID>
+ 			<Filename>Sounds/Tech/Tech_Communism</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+@@ -9095,7 +9095,7 @@
+ 			<bInGeneric>1</bInGeneric>
+ 		</SoundData>
+ 		<SoundData>
+-			<SoundID>SND_TECH_MP_UTOPIA</SoundID>
++			<SoundID>SND_TECH_MP_COMMUNISM</SoundID>
+ 			<Filename>Sounds/Tech/Tech_MP_Communism</Filename>
+ 			<LoadType>DYNAMIC_RES</LoadType>
+ 			<bIsCompressed>1</bIsCompressed>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 5f86af500..49a61eeb7 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -3041,7 +3041,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
++			<PrereqTech>NONE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -3208,7 +3208,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_POTTERY</PrereqTech>
++			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not anywyas etc -->
++			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -3389,7 +3390,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_POTTERY</PrereqTech>
++			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not anywyas etc -->
++			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -3570,7 +3572,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_POTTERY</PrereqTech>
++			<!-- custom: tech agriculture makes more sense with our new tech tree than tech pottery, perhaps even in general or not anywyas etc -->
++			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -8549,7 +8552,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<Description>TXT_KEY_BUILDING_NATIVE_AMERICA_TOTEM</Description>
+ 			<Civilopedia>TXT_KEY_BUILDING_NATIVE_AMERICA_TOTEM_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_BUILDING_NATIVE_AMERICA_TOTEM_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_CULTURE</Advisor>
++			<Advisor>ADVISOR_ECONOMY</Advisor>
+ 			<ArtDefineTag>ART_DEF_BUILDING_NATIVE_AMERICA_TOTEM</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+@@ -8752,8 +8755,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>ERA_MODERN</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>TECH_LIBERALISM</ObsoleteTech>
+-			<!-- custom: make it based/require on/ tech_calendar as per/according to the wikipedia info, would be much more relevant after(/if and hopefully yes for the calendar of the aztecs but anyways etc) we rework tech tree as calendar would be much sooner in tech tree, see docs or/and tech tree view in docs as well for details, anyways etc -->
+-			<PrereqTech>TECH_MYSTICISM</PrereqTech>
++			<!-- custom: with our tech rework sacrificial_altar is now based on tech_calendar as per/according to the wikipedia info, much more relevant as calendar is much sooner in tech tree, see docs or/and tech tree view in docs as well for details, anyways etc -->
++			<PrereqTech>TECH_CALENDAR</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -8913,6 +8916,204 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
++		<!-- custom: reworked based on: https://en.wikipedia.org/wiki/Ziggurat -->
++		<BuildingInfo> <!-- custom: class: monument, type: ziggurat (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
++			<Type>BUILDING_SUMERIAN_ZIGGURAT</Type>
++			<SpecialBuildingType>NONE</SpecialBuildingType>
++			<Description>TXT_KEY_BUILDING_SUMERIAN_ZIGGURAT</Description>
++			<Civilopedia>TXT_KEY_BUILDING_SUMERIAN_ZIGGURAT_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_BUILDING_SUMERIAN_ZIGGURAT_STRATEGY</Strategy>
++			<Advisor>ADVISOR_CULTURE</Advisor>
++			<ArtDefineTag>ART_DEF_BUILDING_SUMERIAN_ZIGGURAT</ArtDefineTag>
++			<MovieDefineTag>NONE</MovieDefineTag>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<bStateReligion>0</bStateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<FoundsCorporation>NONE</FoundsCorporation>
++			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
++			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
++			<VictoryPrereq>NONE</VictoryPrereq>
++			<FreeStartEra>ERA_MODERN</FreeStartEra>
++			<MaxStartEra>NONE</MaxStartEra>
++			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
++			<!-- custom: until we do and if we do ideally but anyways etc our full full tech tree rework, for now construction is too far, use polytheism instead for the ziggurat anyways etc -->
++			<!-- custom: with our tech tree rework, now based on construction, see docs including but not only or only or not the notes .txt type of files and ctrl+f "ziggurat" for example for details or wikipedia online or such or and other sources or and not anyways etc -->
++			<PrereqTech>TECH_POLYTHEISM</PrereqTech>
++			<TechTypes/>
++			<Bonus>NONE</Bonus>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<HappinessTraits/>
++			<NoBonus>NONE</NoBonus>
++			<PowerBonus>NONE</PowerBonus>
++			<FreeBonus>NONE</FreeBonus>
++			<iNumFreeBonuses>0</iNumFreeBonuses>
++			<FreeBuilding>NONE</FreeBuilding>
++			<FreePromotion>NONE</FreePromotion>
++			<CivicOption>NONE</CivicOption>
++			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
++			<iHurryAngerModifier>0</iHurryAngerModifier>
++			<bBorderObstacle>0</bBorderObstacle>
++			<bTeamShare>0</bTeamShare>
++			<bWater>0</bWater>
++			<bRiver>0</bRiver>
++			<bPower>0</bPower>
++			<bDirtyPower>0</bDirtyPower>
++			<bAreaCleanPower>0</bAreaCleanPower>
++			<DiploVoteType>NONE</DiploVoteType>
++			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
++			<bCapital>0</bCapital>
++			<bGovernmentCenter>0</bGovernmentCenter>
++			<bGoldenAge>0</bGoldenAge>
++			<bAllowsNukes>0</bAllowsNukes>
++			<bMapCentering>0</bMapCentering>
++			<bNoUnhappiness>0</bNoUnhappiness>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
++			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
++			<bNeverCapture>1</bNeverCapture>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bCenterInCity>1</bCenterInCity>
++			<iAIWeight>0</iAIWeight>
++			<iCost>40</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iConquestProb>0</iConquestProb>
++			<iCitiesPrereq>0</iCitiesPrereq>
++			<iTeamsPrereq>0</iTeamsPrereq>
++			<iLevelPrereq>0</iLevelPrereq>
++			<iMinLatitude>0</iMinLatitude>
++			<iMaxLatitude>90</iMaxLatitude>
++			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
++			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
++			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
++			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
++			<iAnarchyModifier>0</iAnarchyModifier>
++			<iGoldenAgeModifier>0</iGoldenAgeModifier>
++			<iGlobalHurryModifier>0</iGlobalHurryModifier>
++			<iExperience>0</iExperience>
++			<iGlobalExperience>0</iGlobalExperience>
++			<iFoodKept>0</iFoodKept>
++			<iAirlift>0</iAirlift>
++			<iAirModifier>0</iAirModifier>
++			<iAirUnitCapacity>0</iAirUnitCapacity>
++			<iNukeModifier>0</iNukeModifier>
++			<iNukeExplosionRand>0</iNukeExplosionRand>
++			<iFreeSpecialist>0</iFreeSpecialist>
++			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
++			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
++			<iMaintenanceModifier>0</iMaintenanceModifier>
++			<iWarWearinessModifier>0</iWarWearinessModifier>
++			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
++			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
++			<iHealRateChange>0</iHealRateChange>
++			<iHealth>0</iHealth>
++			<iAreaHealth>0</iAreaHealth>
++			<iGlobalHealth>0</iGlobalHealth>
++			<iHappiness>1</iHappiness>
++			<iAreaHappiness>0</iAreaHappiness>
++			<iGlobalHappiness>0</iGlobalHappiness>
++			<iStateReligionHappiness>0</iStateReligionHappiness>
++			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
++			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
++			<iSpaceProductionModifier>0</iSpaceProductionModifier>
++			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
++			<iTradeRoutes>0</iTradeRoutes>
++			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
++			<iTradeRouteModifier>0</iTradeRouteModifier>
++			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
++			<iGlobalPopulationChange>0</iGlobalPopulationChange>
++			<iFreeTechs>0</iFreeTechs>
++			<iDefense>0</iDefense>
++			<iBombardDefense>0</iBombardDefense>
++			<iAllCityDefense>0</iAllCityDefense>
++			<iEspionageDefense>0</iEspionageDefense>
++			<iAsset>2</iAsset>
++			<iPower>0</iPower>
++			<fVisibilityPriority>1.0</fVisibilityPriority>
++			<SeaPlotYieldChanges/>
++			<RiverPlotYieldChanges/>
++			<GlobalSeaPlotYieldChanges/>
++			<YieldChanges/>
++			<CommerceChanges/>
++			<ObsoleteSafeCommerceChanges>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>2</iCommerce>
++			</ObsoleteSafeCommerceChanges>
++			<CommerceChangeDoubleTimes>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>1000</iCommerce>
++			</CommerceChangeDoubleTimes>
++			<CommerceModifiers>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>10</iCommerce>
++			</CommerceModifiers>
++			<GlobalCommerceModifiers/>
++			<SpecialistExtraCommerces/>
++			<StateReligionCommerces/>
++			<CommerceHappinesses/>
++			<ReligionChanges/>
++			<!-- custom: was 2 spy(ies) anyways etc, now with the rework is 2 priest(s) now anyways etc -->
++			<!-- advc.911a: was 1 spy -->
++			<SpecialistCounts>
++				<SpecialistCount>
++					<SpecialistType>SPECIALIST_PRIEST</SpecialistType>
++					<iSpecialistCount>2</iSpecialistCount>
++				</SpecialistCount>
++			</SpecialistCounts>
++			<FreeSpecialistCounts/>
++			<CommerceFlexibles/>
++			<CommerceChangeOriginalOwners/>
++			<ConstructSound>AS2D_BUILD_MONUMENT</ConstructSound>
++			<BonusHealthChanges/>
++			<BonusHappinessChanges/>
++			<BonusProductionModifiers/>
++			<UnitCombatFreeExperiences/>
++			<DomainFreeExperiences/>
++			<DomainProductionModifiers/>
++			<BuildingHappinessChanges/>
++			<PrereqBuildingClasses/>
++			<BuildingClassNeededs/>
++			<SpecialistYieldChanges/>
++			<BonusYieldModifiers/>
++			<ImprovementFreeSpecialists/>
++			<!-- custom: was 5 military, 3 gold, 3 espionage, now reworked into a religious type of building (but all religions though (gives priest specialists and such, anyways etc) -->
++			<!-- advc.020: was 10 Gold, 3 Espionage -->
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_RELIGION</FlavorType>
++					<iFlavor>4</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_CULTURE</FlavorType>
++					<iFlavor>3</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GOLD</FlavorType>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++			</Flavors>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++		</BuildingInfo>
+ 		<BuildingInfo> <!-- custom: class: public_transportation, type: public_transportation (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_PUBLIC_TRANSPORTATION</BuildingClass>
+ 			<Type>BUILDING_PUBLIC_TRANSPORTATION</Type>
+@@ -14081,193 +14282,6 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: courthouse, type: ziggurat (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<BuildingClass>BUILDINGCLASS_COURTHOUSE</BuildingClass>
+-			<Type>BUILDING_SUMERIAN_ZIGGURAT</Type>
+-			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_SUMERIAN_ZIGGURAT</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_SUMERIAN_ZIGGURAT_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_SUMERIAN_ZIGGURAT_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_ECONOMY</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_SUMERIAN_ZIGGURAT</ArtDefineTag>
+-			<MovieDefineTag>NONE</MovieDefineTag>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<bStateReligion>0</bStateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<FoundsCorporation>NONE</FoundsCorporation>
+-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+-			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>ERA_MODERN</FreeStartEra>
+-			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_PRIESTHOOD</PrereqTech>
+-			<TechTypes/>
+-			<Bonus>NONE</Bonus>
+-			<PrereqBonuses/>
+-			<ProductionTraits>
+-				<ProductionTrait>
+-					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
+-					<iProductionTrait>100</iProductionTrait>
+-				</ProductionTrait>
+-			</ProductionTraits>
+-			<HappinessTraits/>
+-			<NoBonus>NONE</NoBonus>
+-			<PowerBonus>NONE</PowerBonus>
+-			<FreeBonus>NONE</FreeBonus>
+-			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>NONE</FreeBuilding>
+-			<FreePromotion>NONE</FreePromotion>
+-			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+-			<iHurryAngerModifier>0</iHurryAngerModifier>
+-			<bBorderObstacle>0</bBorderObstacle>
+-			<bTeamShare>0</bTeamShare>
+-			<bWater>0</bWater>
+-			<bRiver>0</bRiver>
+-			<bPower>0</bPower>
+-			<bDirtyPower>0</bDirtyPower>
+-			<bAreaCleanPower>0</bAreaCleanPower>
+-			<DiploVoteType>NONE</DiploVoteType>
+-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+-			<bCapital>0</bCapital>
+-			<bGovernmentCenter>0</bGovernmentCenter>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bAllowsNukes>0</bAllowsNukes>
+-			<bMapCentering>0</bMapCentering>
+-			<bNoUnhappiness>0</bNoUnhappiness>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>0</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bCenterInCity>0</bCenterInCity>
+-			<iAIWeight>0</iAIWeight>
+-			<iCost>90</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>66</iConquestProb>
+-			<iCitiesPrereq>0</iCitiesPrereq>
+-			<iTeamsPrereq>0</iTeamsPrereq>
+-			<iLevelPrereq>0</iLevelPrereq>
+-			<iMinLatitude>0</iMinLatitude>
+-			<iMaxLatitude>90</iMaxLatitude>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+-			<iAnarchyModifier>0</iAnarchyModifier>
+-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+-			<iExperience>0</iExperience>
+-			<iGlobalExperience>0</iGlobalExperience>
+-			<iFoodKept>0</iFoodKept>
+-			<iAirlift>0</iAirlift>
+-			<iAirModifier>0</iAirModifier>
+-			<iAirUnitCapacity>0</iAirUnitCapacity>
+-			<iNukeModifier>0</iNukeModifier>
+-			<iNukeExplosionRand>0</iNukeExplosionRand>
+-			<iFreeSpecialist>0</iFreeSpecialist>
+-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+-			<iMaintenanceModifier>-50</iMaintenanceModifier>
+-			<iWarWearinessModifier>0</iWarWearinessModifier>
+-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+-			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>0</iHealth>
+-			<iAreaHealth>0</iAreaHealth>
+-			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>0</iHappiness>
+-			<iAreaHappiness>0</iAreaHappiness>
+-			<iGlobalHappiness>0</iGlobalHappiness>
+-			<iStateReligionHappiness>0</iStateReligionHappiness>
+-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+-			<iTradeRoutes>0</iTradeRoutes>
+-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+-			<iTradeRouteModifier>0</iTradeRouteModifier>
+-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+-			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>0</iDefense>
+-			<iBombardDefense>0</iBombardDefense>
+-			<iAllCityDefense>0</iAllCityDefense>
+-			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>4</iAsset>
+-			<iPower>0</iPower>
+-			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<SeaPlotYieldChanges/>
+-			<RiverPlotYieldChanges/>
+-			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
+-			<CommerceChanges>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>2</iCommerce>
+-			</CommerceChanges>
+-			<ObsoleteSafeCommerceChanges/>
+-			<CommerceChangeDoubleTimes/>
+-			<CommerceModifiers/>
+-			<GlobalCommerceModifiers/>
+-			<SpecialistExtraCommerces/>
+-			<StateReligionCommerces/>
+-			<CommerceHappinesses/>
+-			<ReligionChanges/>
+-			<!-- advc.911a: was 1 spy -->
+-			<SpecialistCounts>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_SPY</SpecialistType>
+-					<iSpecialistCount>2</iSpecialistCount>
+-				</SpecialistCount>
+-			</SpecialistCounts>
+-			<FreeSpecialistCounts/>
+-			<CommerceFlexibles/>
+-			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_COURTHOUSE</ConstructSound>
+-			<BonusHealthChanges/>
+-			<BonusHappinessChanges/>
+-			<BonusProductionModifiers/>
+-			<UnitCombatFreeExperiences/>
+-			<DomainFreeExperiences/>
+-			<DomainProductionModifiers/>
+-			<BuildingHappinessChanges/>
+-			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs/>
+-			<SpecialistYieldChanges/>
+-			<BonusYieldModifiers/>
+-			<ImprovementFreeSpecialists/>
+-			<!-- advc.020: was 10 Gold, 3 Espionage -->
+-			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>5</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>3</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+-					<iFlavor>3</iFlavor>
+-				</Flavor>
+-			</Flavors>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-		</BuildingInfo>
+ 		<BuildingInfo> <!-- custom: class: jail, type: jail (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
+ 			<Type>BUILDING_JAIL</Type>
+@@ -15012,7 +15026,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_UTOPIA</PrereqTech>
++			<PrereqTech>TECH_COMMUNISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25481,7 +25495,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>TECH_FIBER_OPTICS</ObsoleteTech>
+-			<PrereqTech>TECH_UTOPIA</PrereqTech>
++			<PrereqTech>TECH_COMMUNISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+
+diff --git a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+index 1a90634ae..8f9cd5deb 100644
+--- a/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4SpecialBuildingInfos.xml
+@@ -7,21 +7,24 @@
+ <!-- custom: file imported cleanly from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Buildings and modified or not for AdvCiv-SAS anyways etc -->
+ <Civ4SpecialBuildingInfos xmlns="x-schema:CIV4BuildingsSchema.xml">
+ 	<SpecialBuildingInfos>
++		<!-- custom: move the tech prereq of bomb shelter from buildinginfos to specialbuildinginfos for consistency with other special buildings (may adjust if needed(ed) else keep as is anyways etc), was none -->
++		<!-- custom: also change the prereq, was electricity, should be later or/and at another more relevant tech maybe in tech though -->
+ 		<SpecialBuildingInfo>
+ 			<Type>SPECIALBUILDING_BOMB_SHELTER</Type>
+ 			<Description>TXT_KEY_SPECIALBUILDING_BOMB_SHELTER</Description>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<TechPrereq>NONE</TechPrereq>
++			<TechPrereq>TECH_ASSEMBLY_LINE</TechPrereq>
+ 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
+ 			<bValid>0</bValid>
+ 			<ProductionTraits/>
+ 			<Button>Art/Interface/Buttons/Buildings/BombShelters.dds</Button>
+ 		</SpecialBuildingInfo>
++		<!-- custom: temple prerequirement moved/changed to polytheism (requires masonry to add or not? Anyways etc) so they can be built earlier anyways etc -->
+ 		<SpecialBuildingInfo>
+ 			<Type>SPECIALBUILDING_TEMPLE</Type>
+ 			<Description>TXT_KEY_SPECIALBUILDING_TEMPLE</Description>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
++			<TechPrereq>TECH_POLYTHEISM</TechPrereq>
+ 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
+ 			<bValid>1</bValid>
+ 			<ProductionTraits>
+@@ -32,21 +35,23 @@
+ 			</ProductionTraits>
+ 			<Button>Art/Interface/Buttons/Buildings/Temple.dds</Button>
+ 		</SpecialBuildingInfo>
++		<!-- custom: cathedral tech requirement changed to priesthood same as the monastery, also so they can be built sooner now thta music position is changed in our tech tree anyways etc anyways etc anyways etc... Should not affect gameplay due to many temples still being required, but allowing it to be sooner if needed and player meets the conditions sooner or/and wants to pursue a cultural path sooner or/and other reasons or not or yes or and other or and not anyways etc, to also match the multiple pagan holy sites (/shrines ,in a general term way not civ4 building specific term way specifically,?) anyways etc throughout history anyways etc -->
+ 		<SpecialBuildingInfo>
+ 			<Type>SPECIALBUILDING_CATHEDRAL</Type>
+ 			<Description>TXT_KEY_SPECIALBUILDING_CATHEDRAL</Description>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<TechPrereq>TECH_MUSIC</TechPrereq>
++			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
+ 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
+ 			<bValid>1</bValid>
+ 			<ProductionTraits/>
+ 			<Button>Art/Interface/Buttons/Buildings/Cathedral.dds</Button>
+ 		</SpecialBuildingInfo>
++		<!-- custom: monastery tech requirement changed to priesthood (makes more sense with our new tech tree where meditation will be much later where it is too late to start build monasteries anyways etc) -->
+ 		<SpecialBuildingInfo>
+ 			<Type>SPECIALBUILDING_MONASTERY</Type>
+ 			<Description>TXT_KEY_SPECIALBUILDING_MONASTERY</Description>
+ 			<ObsoleteTech>TECH_SCIENTIFIC_METHOD</ObsoleteTech>
+-			<TechPrereq>TECH_MEDITATION</TechPrereq>
++			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
+ 			<TechPrereqAnyone>NONE</TechPrereqAnyone>
+ 			<bValid>1</bValid>
+ 			<ProductionTraits/>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 262fb8f25..74359da2c 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -3687,7 +3687,7 @@
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_COURTHOUSE</BuildingClassType>
++					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
+ 					<BuildingType>BUILDING_SUMERIAN_ZIGGURAT</BuildingType>
+ 				</Building>
+ 			</Buildings>
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index 38ac0de7e..5cdba72cc 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -1279,7 +1279,7 @@
+ 			<Civilopedia>TXT_KEY_CIVIC_STATE_PROPERTY_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_CIVIC_STATE_PROPERTY_STRATEGY</Strategy>
+ 			<Button>,Art/Interface/Buttons/Civics/State_Property.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,5,3</Button>
+-			<TechPrereq>TECH_UTOPIA</TechPrereq>
++			<TechPrereq>TECH_COMMUNISM</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<Upkeep>UPKEEP_LOW</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+
+diff --git a/Assets/XML/GameInfo/CIV4ProcessInfo.xml b/Assets/XML/GameInfo/CIV4ProcessInfo.xml
+index 7a98c1fa0..3ee4c4798 100644
+--- a/Assets/XML/GameInfo/CIV4ProcessInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ProcessInfo.xml
+@@ -39,10 +39,10 @@
+ 			<Type>PROCESS_CULTURE</Type>
+ 			<Description>TXT_KEY_PROCESS_CULTURE</Description>
+ 			<Strategy>TXT_KEY_PROCESS_CULTURE_STRATEGY</Strategy>
+-			<!-- custom: aesthetics now instead of drama, maybe is more accurate/realistic
++			<!-- custom: mysticism now instead of drama, maybe is more accurate/realistic
+ 			on top of maybe helping calm revolts sooner? Or/and more diverse strategies
+ 			possible now? Trying this as it may fit better in AdvCiv-SAS. -->
+-			<TechPrereq>TECH_AESTHETICS</TechPrereq>
++			<TechPrereq>TECH_MYSTICISM</TechPrereq>
+ 			<ProductionToCommerceModifiers>
+ 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+ 				<iProductionToCommerceModifier>0</iProductionToCommerceModifier>
+
+diff --git a/Assets/XML/GameInfo/CIV4ReligionInfo.xml b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+index e83a08e54..472eb630d 100644
+--- a/Assets/XML/GameInfo/CIV4ReligionInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ReligionInfo.xml
+@@ -52,12 +52,13 @@
+ 			<MovieSound>AS2D_BUILD_PAGAN_MOVIE</MovieSound>
+ 			<Sound>AS2D_BUILD_PAGAN</Sound>
+ 		</ReligionInfo>
++		<!-- custom: change tech prerequirement of hinduism to TECH_PRIESTHOOD, historically more accurate in terms of year founded/started (around 4 000 BCE if i am not mistaken from the little or lot or not or yes or and other or and not i did (or did not or did or (not or yes or etc anyways etc) and other or and not on it anyways etc)), also as TECH_POLYTHEISM is too soon in our tech tree now (around 10 000 BCE) for that, anyways etc, was TECH_POLYTHEISM -->
+ 		<ReligionInfo>
+ 			<Type>RELIGION_HINDUISM</Type>
+ 			<Description>TXT_KEY_RELIGION_HINDUISM</Description>
+ 			<Adjective>TXT_KEY_RELIGION_HINDUISM_ADJECTIVE</Adjective>
+ 			<Civilopedia>TXT_KEY_RELIGION_HINDUISM_PEDIA</Civilopedia>
+-			<TechPrereq>TECH_POLYTHEISM</TechPrereq>
++			<TechPrereq>TECH_PRIESTHOOD</TechPrereq>
+ 			<FreeUnitClass>UNITCLASS_HINDU_MISSIONARY</FreeUnitClass>
+ 			<iFreeUnits>0</iFreeUnits>
+ 			<iSpreadFactor>100</iSpreadFactor>
+
+diff --git a/Assets/XML/GameInfo/CIV4SpecialistInfos.xml b/Assets/XML/GameInfo/CIV4SpecialistInfos.xml
+index 45b523db2..260435fee 100644
+--- a/Assets/XML/GameInfo/CIV4SpecialistInfos.xml
++++ b/Assets/XML/GameInfo/CIV4SpecialistInfos.xml
+@@ -216,6 +216,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>Art/Interface/MainScreen/CityScreen/Great_Priest.dds</Button>
+ 		</SpecialistInfo>
++		<!-- custom: increase/buff longterm great artist value for cultural victory path or make it worse more, nerf cultural bomb as well, commerces was 3 / 0 / 12 -->
+ 		<SpecialistInfo>
+ 			<Type>SPECIALIST_GREAT_ARTIST</Type>
+ 			<Description>TXT_KEY_SPECIALIST_GREAT_ARTIST</Description>
+@@ -230,7 +231,7 @@
+ 			<Commerces>
+ 				<iCommerce>3</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>12</iCommerce>
++				<iCommerce>20</iCommerce>
+ 			</Commerces>
+ 			<iExperience>0</iExperience>
+ 			<Flavors/>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 84b5afe29..9bce73c01 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -7,7 +7,7 @@
+ <!-- Tech Infos -->
+ <Civ4TechInfos xmlns="x-schema:CIV4TechnologiesSchema.xml">
+ 	<TechInfos>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_MYSTICISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MYSTICISM</Type>
+ 			<Description>TXT_KEY_TECH_MYSTICISM</Description>
+ 			<Civilopedia>TXT_KEY_TECH_MYSTICISM_PEDIA</Civilopedia>
+@@ -78,7 +78,7 @@
+ 			<SoundMP>AS2D_TECH_MP_MYSTICISM</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Mysticism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,11</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_MEDITATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MEDITATION</Type>
+ 			<Description>TXT_KEY_TECH_MEDITATION</Description>
+ 			<Civilopedia>TXT_KEY_TECH_MEDITATION_PEDIA</Civilopedia>
+@@ -147,7 +147,7 @@
+ 			<SoundMP>AS2D_TECH_MP_MEDITATION</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Meditation.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,5</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_POLYTHEISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_POLYTHEISM</Type>
+ 			<Description>TXT_KEY_TECH_POLYTHEISM</Description>
+ 			<Civilopedia>TXT_KEY_TECH_POLYTHEISM_PEDIA</Civilopedia>
+@@ -212,7 +212,7 @@
+ 			<SoundMP>AS2D_TECH_MP_POLYTHEISM</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Polytheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,6</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_PRIESTHOOD (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_PRIESTHOOD</Type>
+ 			<Description>TXT_KEY_TECH_PRIESTHOOD</Description>
+ 			<Civilopedia>TXT_KEY_TECH_PRIESTHOOD_PEDIA</Civilopedia>
+@@ -286,7 +286,7 @@
+ 			<SoundMP>AS2D_TECH_MP_PRIESTHOOD</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Priesthood.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,11</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_MONOTHEISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MONOTHEISM</Type>
+ 			<Description>TXT_KEY_TECH_MONOTHEISM</Description>
+ 			<Civilopedia>TXT_KEY_TECH_MONOTHEISM_PEDIA</Civilopedia>
+@@ -358,7 +358,7 @@
+ 			<SoundMP>AS2D_TECH_MP_MONOTHEISM</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Monotheism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,11</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_MONARCHY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MONARCHY</Type>
+ 			<Description>TXT_KEY_TECH_MONARCHY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_MONARCHY_PEDIA</Civilopedia>
+@@ -437,7 +437,7 @@
+ 			<SoundMP>AS2D_TECH_MP_MONARCHY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Monarchy.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,11</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_LITERATURE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_LITERATURE</Type>
+ 			<Description>TXT_KEY_TECH_LITERATURE</Description>
+ 			<Civilopedia>TXT_KEY_TECH_LITERATURE_PEDIA</Civilopedia>
+@@ -509,7 +509,7 @@
+ 			<SoundMP>AS2D_TECH_MP_LITERATURE</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Literature.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,10</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_CODE_OF_LAWS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_CODE_OF_LAWS</Type>
+ 			<Description>TXT_KEY_TECH_CODE_OF_LAWS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_CODE_OF_LAWS_PEDIA</Civilopedia>
+@@ -589,7 +589,7 @@
+ 			<SoundMP>AS2D_TECH_MP_CODE_OF_LAWS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Code of Laws.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,2</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_DRAMA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_DRAMA</Type>
+ 			<Description>TXT_KEY_TECH_DRAMA</Description>
+ 			<Civilopedia>TXT_KEY_TECH_DRAMA_PEDIA</Civilopedia>
+@@ -671,7 +671,7 @@
+ 			<SoundMP>AS2D_TECH_MP_DRAMA</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Drama.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,3</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_FEUDALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_FEUDALISM</Type>
+ 			<Description>TXT_KEY_TECH_FEUDALISM</Description>
+ 			<Civilopedia>TXT_KEY_TECH_FEUDALISM_PEDIA</Civilopedia>
+@@ -758,7 +758,7 @@
+ 			<SoundMP>AS2D_TECH_MP_FEUDALISM</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Feudalism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,10</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_THEOLOGY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_THEOLOGY</Type>
+ 			<Description>TXT_KEY_TECH_THEOLOGY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_THEOLOGY_PEDIA</Civilopedia>
+@@ -829,7 +829,7 @@
+ 			<SoundMP>AS2D_TECH_MP_THEOLOGY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Theology.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,12</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_MUSIC (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MUSIC</Type>
+ 			<Description>TXT_KEY_TECH_MUSIC</Description>
+ 			<Civilopedia>TXT_KEY_TECH_MUSIC_PEDIA</Civilopedia>
+@@ -905,7 +905,7 @@
+ 			<SoundMP>AS2D_TECH_MP_MUSIC</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Music.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,11</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_CIVIL_SERVICE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_CIVIL_SERVICE</Type>
+ 			<Description>TXT_KEY_TECH_CIVIL_SERVICE</Description>
+ 			<Civilopedia>TXT_KEY_TECH_CIVIL_SERVICE_PEDIA</Civilopedia>
+@@ -995,7 +995,7 @@
+ 			<SoundMP>AS2D_TECH_MP_CIVIL_SERVICE</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Civil Service.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,2</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_GUILDS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_GUILDS</Type>
+ 			<Description>TXT_KEY_TECH_GUILDS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_GUILDS_PEDIA</Civilopedia>
+@@ -1071,7 +1071,7 @@
+ 			<SoundMP>AS2D_TECH_MP_GUILDS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Guilds.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,4</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_DIVINE_RIGHT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_DIVINE_RIGHT</Type>
+ 			<Description>TXT_KEY_TECH_DIVINE_RIGHT</Description>
+ 			<Civilopedia>TXT_KEY_TECH_DIVINE_RIGHT_PEDIA</Civilopedia>
+@@ -1146,7 +1146,7 @@
+ 			<SoundMP>AS2D_TECH_MP_DIVINE_RIGHT</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Divine Right.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,3</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_NATIONALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_NATIONALISM</Type>
+ 			<Description>TXT_KEY_TECH_NATIONALISM</Description>
+ 			<Civilopedia>TXT_KEY_TECH_NATIONALISM_PEDIA</Civilopedia>
+@@ -1229,7 +1229,7 @@
+ 			<SoundMP>AS2D_TECH_MP_NATIONALISM</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Nationalism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,6</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_MILITARY_TRADITION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MILITARY_TRADITION</Type>
+ 			<Description>TXT_KEY_TECH_MILITARY_TRADITION</Description>
+ 			<Civilopedia>TXT_KEY_TECH_MILITARY_TRADITION_PEDIA</Civilopedia>
+@@ -1301,7 +1301,7 @@
+ 			<SoundMP>AS2D_TECH_MP_MILITARY_TRADITION</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,16</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_CONSTITUTION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_CONSTITUTION</Type>
+ 			<Description>TXT_KEY_TECH_CONSTITUTION</Description>
+ 			<Civilopedia>TXT_KEY_TECH_CONSTITUTION_PEDIA</Civilopedia>
+@@ -1377,7 +1377,7 @@
+ 			<SoundMP>AS2D_TECH_MP_CONSTITUTION</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Constitution.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,2</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_LIBERALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_LIBERALISM</Type>
+ 			<Description>TXT_KEY_TECH_LIBERALISM</Description>
+ 			<Civilopedia>TXT_KEY_TECH_LIBERALISM_PEDIA</Civilopedia>
+@@ -1449,7 +1449,7 @@
+ 			<SoundMP>AS2D_TECH_MP_LIBERALISM</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Liberalism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,10</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_DEMOCRACY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_DEMOCRACY</Type>
+ 			<Description>TXT_KEY_TECH_DEMOCRACY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_DEMOCRACY_PEDIA</Civilopedia>
+@@ -1516,7 +1516,7 @@
+ 			<SoundMP>AS2D_TECH_MP_DEMOCRACY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Democracy.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,9</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_CORPORATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_CORPORATION</Type>
+ 			<Description>TXT_KEY_TECH_CORPORATION</Description>
+ 			<Civilopedia>TXT_KEY_TECH_CORPORATION_PEDIA</Civilopedia>
+@@ -1591,7 +1591,7 @@
+ 			<SoundMP>AS2D_TECH_MP_CORPORATION</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,9</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_FASCISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_FASCISM</Type>
+ 			<Description>TXT_KEY_TECH_FASCISM</Description>
+ 			<Civilopedia>TXT_KEY_TECH_FASCISM_PEDIA</Civilopedia>
+@@ -1670,12 +1670,13 @@
+ 			<SoundMP>AS2D_TECH_MP_FASCISM</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Fascism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,3</Button>
+ 		</TechInfo>
+-		<TechInfo>
+-			<Type>TECH_UTOPIA</Type>
+-			<Description>TXT_KEY_TECH_UTOPIA</Description>
+-			<Civilopedia>TXT_KEY_TECH_UTOPIA_PEDIA</Civilopedia>
++		<!-- custom: rename _UTOPIA to _COMMUNISM -->
++		<TechInfo> <!-- custom: type: TECH_COMMUNISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Type>TECH_COMMUNISM</Type>
++			<Description>TXT_KEY_TECH_COMMUNISM</Description>
++			<Civilopedia>TXT_KEY_TECH_COMMUNISM_PEDIA</Civilopedia>
+ 			<Help/>
+-			<Strategy>TXT_KEY_TECH_UTOPIA_STRATEGY</Strategy>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_GROWTH</Advisor>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iAITradeModifier>0</iAITradeModifier>
+@@ -1740,12 +1741,12 @@
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_LIBERALISM</PrereqTech>
+ 			</AndPreReqs>
+-			<Quote>TXT_KEY_TECH_UTOPIA_QUOTE</Quote>
+-			<Sound>AS2D_TECH_UTOPIA</Sound>
+-			<SoundMP>AS2D_TECH_MP_UTOPIA</SoundMP>
++			<Quote>TXT_KEY_TECH_COMMUNISM_QUOTE</Quote>
++			<Sound>AS2D_TECH_COMMUNISM</Sound>
++			<SoundMP>AS2D_TECH_MPTECH_COMMUNISM</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Communism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,2</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_MASS_MEDIA (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MASS_MEDIA</Type>
+ 			<Description>TXT_KEY_TECH_MASS_MEDIA</Description>
+ 			<Civilopedia>TXT_KEY_TECH_MASS_MEDIA_PEDIA</Civilopedia>
+@@ -1819,7 +1820,7 @@
+ 			<SoundMP>AS2D_TECH_MP_MASS_MEDIA</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/MassMedia.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,5</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_ECOLOGY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ECOLOGY</Type>
+ 			<Description>TXT_KEY_TECH_ECOLOGY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_ECOLOGY_PEDIA</Civilopedia>
+@@ -1892,7 +1893,7 @@
+ 			<SoundMP>AS2D_TECH_MP_ECOLOGY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Ecology.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,3</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_FISHING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_FISHING</Type>
+ 			<Description>TXT_KEY_TECH_FISHING</Description>
+ 			<Civilopedia>TXT_KEY_TECH_FISHING_PEDIA</Civilopedia>
+@@ -1963,7 +1964,7 @@
+ 			<SoundMP>AS2D_TECH_MP_FISHING</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Fishing.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,10</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_THE_WHEEL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_THE_WHEEL</Type>
+ 			<Description>TXT_KEY_TECH_THE_WHEEL</Description>
+ 			<Civilopedia>TXT_KEY_TECH_THE_WHEEL_PEDIA</Civilopedia>
+@@ -2040,7 +2041,7 @@
+ 			<SoundMP>AS2D_TECH_MP_THE_WHEEL</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/The Wheel.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,12</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_AGRICULTURE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_AGRICULTURE</Type>
+ 			<Description>TXT_KEY_TECH_AGRICULTURE</Description>
+ 			<Civilopedia>TXT_KEY_TECH_AGRICULTURE_PEDIA</Civilopedia>
+@@ -2111,7 +2112,7 @@
+ 			<SoundMP>AS2D_TECH_MP_AGRICULTURE</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Agriculture.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,1</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_POTTERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_POTTERY</Type>
+ 			<Description>TXT_KEY_TECH_POTTERY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_POTTERY_PEDIA</Civilopedia>
+@@ -2184,7 +2185,7 @@
+ 			<SoundMP>AS2D_TECH_MP_POTTERY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Pottery.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,6</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_AESTHETICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_AESTHETICS</Type>
+ 			<Description>TXT_KEY_TECH_AESTHETICS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_AESTHETICS_PEDIA</Civilopedia>
+@@ -2253,7 +2254,7 @@
+ 			<SoundMP>SND_TECH_MP_AESTHETICS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,16</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_SAILING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_SAILING</Type>
+ 			<Description>TXT_KEY_TECH_SAILING</Description>
+ 			<Civilopedia>TXT_KEY_TECH_SAILING_PEDIA</Civilopedia>
+@@ -2341,7 +2342,7 @@
+ 			<SoundMP>AS2D_TECH_MP_SAILING</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Sailing.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,7</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_WRITING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_WRITING</Type>
+ 			<Description>TXT_KEY_TECH_WRITING</Description>
+ 			<Civilopedia>TXT_KEY_TECH_WRITING_PEDIA</Civilopedia>
+@@ -2420,7 +2421,7 @@
+ 			<SoundMP>AS2D_TECH_MP_WRITING</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Writing.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,12</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_MATHEMATICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MATHEMATICS</Type>
+ 			<Description>TXT_KEY_TECH_MATHEMATICS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_MATHEMATICS_PEDIA</Civilopedia>
+@@ -2493,7 +2494,7 @@
+ 			<SoundMP>AS2D_TECH_MP_MATHEMATICS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Mathematics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,5</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_ALPHABET (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ALPHABET</Type>
+ 			<Description>TXT_KEY_TECH_ALPHABET</Description>
+ 			<Civilopedia>TXT_KEY_TECH_ALPHABET_PEDIA</Civilopedia>
+@@ -2570,7 +2571,7 @@
+ 			<SoundMP>AS2D_TECH_MP_ALPHABET</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Alphabet.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,1</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_CALENDAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_CALENDAR</Type>
+ 			<Description>TXT_KEY_TECH_CALENDAR</Description>
+ 			<Civilopedia>TXT_KEY_TECH_CALENDAR_PEDIA</Civilopedia>
+@@ -2650,7 +2651,7 @@
+ 			<SoundMP>AS2D_TECH_MP_CALENDAR</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Calendar.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,9</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_CURRENCY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_CURRENCY</Type>
+ 			<Description>TXT_KEY_TECH_CURRENCY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_CURRENCY_PEDIA</Civilopedia>
+@@ -2724,7 +2725,7 @@
+ 			<SoundMP>AS2D_TECH_MP_CURRENCY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Currency.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,9</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_PHILOSOPHY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_PHILOSOPHY</Type>
+ 			<Description>TXT_KEY_TECH_PHILOSOPHY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_PHILOSOPHY_PEDIA</Civilopedia>
+@@ -2796,7 +2797,7 @@
+ 			<SoundMP>AS2D_TECH_MP_PHILOSOPHY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Philosophy.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,6</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_PAPER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_PAPER</Type>
+ 			<Description>TXT_KEY_TECH_PAPER</Description>
+ 			<Civilopedia>TXT_KEY_TECH_PAPER_PEDIA</Civilopedia>
+@@ -2871,7 +2872,7 @@
+ 			<SoundMP>AS2D_TECH_MP_PAPER</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Paper.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,6</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_BANKING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_BANKING</Type>
+ 			<Description>TXT_KEY_TECH_BANKING</Description>
+ 			<Civilopedia>TXT_KEY_TECH_BANKING_PEDIA</Civilopedia>
+@@ -2939,7 +2940,7 @@
+ 			<SoundMP>AS2D_TECH_MP_BANKING</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Banking.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,1</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_EDUCATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_EDUCATION</Type>
+ 			<Description>TXT_KEY_TECH_EDUCATION</Description>
+ 			<Civilopedia>TXT_KEY_TECH_EDUCATION_PEDIA</Civilopedia>
+@@ -3008,7 +3009,7 @@
+ 			<SoundMP>AS2D_TECH_MP_EDUCATION</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Education.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,3</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_PRINTING_PRESS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_PRINTING_PRESS</Type>
+ 			<Description>TXT_KEY_TECH_PRINTING_PRESS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_PRINTING_PRESS_PEDIA</Civilopedia>
+@@ -3084,7 +3085,7 @@
+ 			<SoundMP>AS2D_TECH_MP_PRINTPRESS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Printing Press.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,11</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_ECONOMICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ECONOMICS</Type>
+ 			<Description>TXT_KEY_TECH_ECONOMICS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_ECONOMICS_PEDIA</Civilopedia>
+@@ -3159,7 +3160,7 @@
+ 			<SoundMP>AS2D_TECH_MP_ECONOMICS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Economics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,3</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_ASTRONOMY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ASTRONOMY</Type>
+ 			<Description>TXT_KEY_TECH_ASTRONOMY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_ASTRONOMY_PEDIA</Civilopedia>
+@@ -3234,7 +3235,7 @@
+ 			<SoundMP>AS2D_TECH_MP_ASTRONOMY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Astronomy.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,1</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_CHEMISTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_CHEMISTRY</Type>
+ 			<Description>TXT_KEY_TECH_CHEMISTRY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_CHEMISTRY_PEDIA</Civilopedia>
+@@ -3302,7 +3303,7 @@
+ 			<SoundMP>AS2D_TECH_MP_CHEMISTRY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Chemistry.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,9</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_SCIENTIFIC_METHOD (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_SCIENTIFIC_METHOD</Type>
+ 			<Description>TXT_KEY_TECH_SCIENTIFIC_METHOD</Description>
+ 			<Civilopedia>TXT_KEY_TECH_SCIENTIFIC_METHOD_PEDIA</Civilopedia>
+@@ -3387,7 +3388,7 @@
+ 			<SoundMP>AS2D_TECH_MP_SCIMETHOD</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Scientific Method.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,7</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_PHYSICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_PHYSICS</Type>
+ 			<Description>TXT_KEY_TECH_PHYSICS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_PHYSICS_PEDIA</Civilopedia>
+@@ -3458,7 +3459,7 @@
+ 			<SoundMP>AS2D_TECH_MP_PHYSICS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,6</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_BIOLOGY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_BIOLOGY</Type>
+ 			<Description>TXT_KEY_TECH_BIOLOGY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_BIOLOGY_PEDIA</Civilopedia>
+@@ -3530,7 +3531,7 @@
+ 			<SoundMP>AS2D_TECH_MP_BIOLOGY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Biology.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,9</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_MEDICINE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MEDICINE</Type>
+ 			<Description>TXT_KEY_TECH_MEDICINE</Description>
+ 			<Civilopedia>TXT_KEY_TECH_MEDICINE_PEDIA</Civilopedia>
+@@ -3609,7 +3610,7 @@
+ 			<SoundMP>AS2D_TECH_MP_MEDICINE</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Medicine.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,5</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_ELECTRICITY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ELECTRICITY</Type>
+ 			<Description>TXT_KEY_TECH_ELECTRICITY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_ELECTRICITY_PEDIA</Civilopedia>
+@@ -3683,7 +3684,7 @@
+ 			<SoundMP>AS2D_TECH_MP_ELECTRICITY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Electricity.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,3</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_COMBUSTION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_COMBUSTION</Type>
+ 			<Description>TXT_KEY_TECH_COMBUSTION</Description>
+ 			<Civilopedia>TXT_KEY_TECH_COMBUSTION_PEDIA</Civilopedia>
+@@ -3752,7 +3753,7 @@
+ 			<SoundMP>AS2D_TECH_MP_COMBUSTION</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Combustion.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,2</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_FISSION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_FISSION</Type>
+ 			<Description>TXT_KEY_TECH_FISSION</Description>
+ 			<Civilopedia>TXT_KEY_TECH_FISSION_PEDIA</Civilopedia>
+@@ -3821,7 +3822,7 @@
+ 			<SoundMP>AS2D_TECH_MP_FISSION</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Fission.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,10</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_FLIGHT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_FLIGHT</Type>
+ 			<Description>TXT_KEY_TECH_FLIGHT</Description>
+ 			<Civilopedia>TXT_KEY_TECH_FLIGHT_PEDIA</Civilopedia>
+@@ -3899,7 +3900,7 @@
+ 			<SoundMP>AS2D_TECH_MP_FLIGHT</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Flight.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,10</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_ADVANCED_FLIGHT (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ADVANCED_FLIGHT</Type>
+ 			<Description>TXT_KEY_TECH_ADVANCED_FLIGHT</Description>
+ 			<Civilopedia>TXT_KEY_TECH_ADVANCED_FLIGHT_PEDIA</Civilopedia>
+@@ -3968,7 +3969,7 @@
+ 			<SoundMP>AS2D_TECH_MP_ADVANCED_FLIGHT</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,3,16</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_PLASTICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_PLASTICS</Type>
+ 			<Description>TXT_KEY_TECH_PLASTICS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_PLASTICS_PEDIA</Civilopedia>
+@@ -4039,7 +4040,7 @@
+ 			<SoundMP>AS2D_TECH_MP_PLASTICS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Plastics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,6</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_COMPOSITES (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_COMPOSITES</Type>
+ 			<Description>TXT_KEY_TECH_COMPOSITES</Description>
+ 			<Civilopedia>TXT_KEY_TECH_COMPOSITES_PEDIA</Civilopedia>
+@@ -4107,7 +4108,7 @@
+ 			<SoundMP>AS2D_TECH_MP_COMPOSITES</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Composites.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,2</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_STEALTH (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_STEALTH</Type>
+ 			<Description>TXT_KEY_TECH_STEALTH</Description>
+ 			<Civilopedia>TXT_KEY_TECH_STEALTH_PEDIA</Civilopedia>
+@@ -4175,7 +4176,7 @@
+ 			<SoundMP>AS2D_TECH_MP_STEALTH</SoundMP>
+ 			<Button>,Art/Interface/Buttons/Units/StealthBomber.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,10</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_GENETICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_GENETICS</Type>
+ 			<Description>TXT_KEY_TECH_GENETICS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_GENETICS_PEDIA</Civilopedia>
+@@ -4247,7 +4248,7 @@
+ 			<SoundMP>AS2D_TECH_MP_GENETICS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Genetics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,4</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_FIBER_OPTICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_FIBER_OPTICS</Type>
+ 			<Description>TXT_KEY_TECH_FIBER_OPTICS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_FIBER_OPTICS_PEDIA</Civilopedia>
+@@ -4314,7 +4315,7 @@
+ 			<SoundMP>AS2D_TECH_MP_FIBER_OPTICS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/FiberOptics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,8</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_FUSION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_FUSION</Type>
+ 			<Description>TXT_KEY_TECH_FUSION</Description>
+ 			<Civilopedia>TXT_KEY_TECH_FUSION_PEDIA</Civilopedia>
+@@ -4381,7 +4382,7 @@
+ 			<SoundMP>AS2D_TECH_MP_FUSION</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Fusion.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,4</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_HUNTING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_HUNTING</Type>
+ 			<Description>TXT_KEY_TECH_HUNTING</Description>
+ 			<Civilopedia>TXT_KEY_TECH_HUNTING_PEDIA</Civilopedia>
+@@ -4456,7 +4457,7 @@
+ 			<SoundMP>AS2D_TECH_MP_HUNTING</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Hunting.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,4</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_MINING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MINING</Type>
+ 			<Description>TXT_KEY_TECH_MINING</Description>
+ 			<Civilopedia>TXT_KEY_TECH_MINING_PEDIA</Civilopedia>
+@@ -4523,7 +4524,7 @@
+ 			<SoundMP>AS2D_TECH_MP_MINING</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Mining.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,5</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_ARCHERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ARCHERY</Type>
+ 			<Description>TXT_KEY_TECH_ARCHERY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_ARCHERY_PEDIA</Civilopedia>
+@@ -4593,7 +4594,7 @@
+ 			<SoundMP>AS2D_TECH_MP_ARCHERY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Archery.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,1</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_MASONRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MASONRY</Type>
+ 			<Description>TXT_KEY_TECH_MASONRY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_MASONRY_PEDIA</Civilopedia>
+@@ -4671,7 +4672,7 @@
+ 			<SoundMP>AS2D_TECH_MP_MASONRY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Masonry.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,5</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_ANIMAL_HUSBANDRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ANIMAL_HUSBANDRY</Type>
+ 			<Description>TXT_KEY_TECH_ANIMAL_HUSBANDRY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_ANIMAL_HUSBANDRY_PEDIA</Civilopedia>
+@@ -4756,7 +4757,7 @@
+ 			<SoundMP>AS2D_TECH_MP_ANIMALHUSB</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Animal Husbandry.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,1</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_BRONZE_WORKING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_BRONZE_WORKING</Type>
+ 			<Description>TXT_KEY_TECH_BRONZE_WORKING</Description>
+ 			<Civilopedia>TXT_KEY_TECH_BRONZE_WORKING_PEDIA</Civilopedia>
+@@ -4832,7 +4833,7 @@
+ 			<SoundMP>AS2D_TECH_MP_BRONZEWORK</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Bronze Working.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,9</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_HORSEBACK_RIDING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_HORSEBACK_RIDING</Type>
+ 			<Description>TXT_KEY_TECH_HORSEBACK_RIDING</Description>
+ 			<Civilopedia>TXT_KEY_TECH_HORSEBACK_RIDING_PEDIA</Civilopedia>
+@@ -4912,7 +4913,7 @@
+ 			<SoundMP>AS2D_TECH_MP_HORSERIDING</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Horseback Riding.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,4</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_IRON_WORKING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_IRON_WORKING</Type>
+ 			<Description>TXT_KEY_TECH_IRON_WORKING</Description>
+ 			<Civilopedia>TXT_KEY_TECH_IRON_WORKING_PEDIA</Civilopedia>
+@@ -4989,7 +4990,7 @@
+ 			<SoundMP>AS2D_TECH_MP_IRONWORK</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Iron Working.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,10</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_METAL_CASTING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_METAL_CASTING</Type>
+ 			<Description>TXT_KEY_TECH_METAL_CASTING</Description>
+ 			<Civilopedia>TXT_KEY_TECH_METAL_CASTING_PEDIA</Civilopedia>
+@@ -5074,7 +5075,7 @@
+ 			<SoundMP>AS2D_TECH_MP_METALCAST</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Metal Casting.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,5</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_COMPASS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_COMPASS</Type>
+ 			<Description>TXT_KEY_TECH_COMPASS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_COMPASS_PEDIA</Civilopedia>
+@@ -5149,7 +5150,7 @@
+ 			<SoundMP>AS2D_TECH_MP_COMPASS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Compass.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,2</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_CONSTRUCTION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_CONSTRUCTION</Type>
+ 			<Description>TXT_KEY_TECH_CONSTRUCTION</Description>
+ 			<Civilopedia>TXT_KEY_TECH_CONSTRUCTION_PEDIA</Civilopedia>
+@@ -5232,7 +5233,7 @@
+ 			<SoundMP>AS2D_TECH_MP_CONSTRUCTION</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Construction.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,9</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_MACHINERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MACHINERY</Type>
+ 			<Description>TXT_KEY_TECH_MACHINERY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_MACHINERY_PEDIA</Civilopedia>
+@@ -5307,7 +5308,7 @@
+ 			<SoundMP>AS2D_TECH_MP_MACHINERY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Machinery.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,10</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_ENGINEERING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ENGINEERING</Type>
+ 			<Description>TXT_KEY_TECH_ENGINEERING</Description>
+ 			<Civilopedia>TXT_KEY_TECH_ENGINEERING_PEDIA</Civilopedia>
+@@ -5386,7 +5387,7 @@
+ 			<SoundMP>AS2D_TECH_MP_ENGINEERING</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Engineering.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,3</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_OPTICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_OPTICS</Type>
+ 			<Description>TXT_KEY_TECH_OPTICS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_OPTICS_PEDIA</Civilopedia>
+@@ -5462,7 +5463,7 @@
+ 			<SoundMP>AS2D_TECH_MP_OPTICS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Optics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,6</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_GUNPOWDER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_GUNPOWDER</Type>
+ 			<Description>TXT_KEY_TECH_GUNPOWDER</Description>
+ 			<Civilopedia>TXT_KEY_TECH_GUNPOWDER_PEDIA</Civilopedia>
+@@ -5532,7 +5533,7 @@
+ 			<SoundMP>AS2D_TECH_MP_GUNPOWDER</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Gunpowder.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,4</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_REPLACEABLE_PARTS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_REPLACEABLE_PARTS</Type>
+ 			<Description>TXT_KEY_TECH_REPLACEABLE_PARTS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_REPLACEABLE_PARTS_PEDIA</Civilopedia>
+@@ -5607,7 +5608,7 @@
+ 			<SoundMP>AS2D_TECH_MP_REPLACE_PARTS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Replaceable Parts.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,7</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_MILITARY_SCIENCE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_MILITARY_SCIENCE</Type>
+ 			<Description>TXT_KEY_TECH_MILITARY_SCIENCE</Description>
+ 			<Civilopedia>TXT_KEY_TECH_MILITARY_SCIENCE_PEDIA</Civilopedia>
+@@ -5673,7 +5674,7 @@
+ 			<SoundMP>AS2D_TECH_MP_MILITARY_SCIENCE</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Military Tradition.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,5</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_RIFLING (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_RIFLING</Type>
+ 			<Description>TXT_KEY_TECH_RIFLING</Description>
+ 			<Civilopedia>TXT_KEY_TECH_RIFLING_PEDIA</Civilopedia>
+@@ -5744,7 +5745,7 @@
+ 			<SoundMP>AS2D_TECH_MP_RIFLING</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Rifling.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,7</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_STEAM_POWER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_STEAM_POWER</Type>
+ 			<Description>TXT_KEY_TECH_STEAM_POWER</Description>
+ 			<Civilopedia>TXT_KEY_TECH_STEAM_POWER_PEDIA</Civilopedia>
+@@ -5823,7 +5824,7 @@
+ 			<SoundMP>AS2D_TECH_MP_STEAMPOWER</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Steam Power.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,12</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_STEEL (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_STEEL</Type>
+ 			<Description>TXT_KEY_TECH_STEEL</Description>
+ 			<Civilopedia>TXT_KEY_TECH_STEEL_PEDIA</Civilopedia>
+@@ -5894,7 +5895,7 @@
+ 			<SoundMP>AS2D_TECH_MP_STEEL</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Steel.dds,Art/Interface/Buttons/TechTree_Atlas.dds,2,12</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_ASSEMBLY_LINE (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ASSEMBLY_LINE</Type>
+ 			<Description>TXT_KEY_TECH_ASSEMBLY_LINE</Description>
+ 			<Civilopedia>TXT_KEY_TECH_ASSEMBLY_LINE_PEDIA</Civilopedia>
+@@ -5965,7 +5966,7 @@
+ 			<SoundMP>AS2D_TECH_MP_ASSEMBLINE</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Assembly Line.dds,Art/Interface/Buttons/TechTree_Atlas.dds,6,1</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_RAILROAD (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_RAILROAD</Type>
+ 			<Description>TXT_KEY_TECH_RAILROAD</Description>
+ 			<Civilopedia>TXT_KEY_TECH_RAILROAD_PEDIA</Civilopedia>
+@@ -6044,7 +6045,7 @@
+ 			<SoundMP>AS2D_TECH_MP_RAILROAD</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Railroad.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,11</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_ARTILLERY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ARTILLERY</Type>
+ 			<Description>TXT_KEY_TECH_ARTILLERY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_ARTILLERY_PEDIA</Civilopedia>
+@@ -6112,7 +6113,7 @@
+ 			<SoundMP>AS2D_TECH_MP_ARTILLERY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Artillery.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,1</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_INDUSTRIALISM (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_INDUSTRIALISM</Type>
+ 			<Description>TXT_KEY_TECH_INDUSTRIALISM</Description>
+ 			<Civilopedia>TXT_KEY_TECH_INDUSTRIALISM_PEDIA</Civilopedia>
+@@ -6187,7 +6188,7 @@
+ 			<SoundMP>AS2D_TECH_MP_INDUSTRIALISM</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Industrialism.dds,Art/Interface/Buttons/TechTree_Atlas.dds,8,4</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_RADIO (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_RADIO</Type>
+ 			<Description>TXT_KEY_TECH_RADIO</Description>
+ 			<Civilopedia>TXT_KEY_TECH_RADIO_PEDIA</Civilopedia>
+@@ -6256,7 +6257,7 @@
+ 			<SoundMP>AS2D_TECH_MP_RADIO</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Radio.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,11</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_REFRIGERATION (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_REFRIGERATION</Type>
+ 			<Description>TXT_KEY_TECH_REFRIGERATION</Description>
+ 			<Civilopedia>TXT_KEY_TECH_REFRIGERATION_PEDIA</Civilopedia>
+@@ -6332,7 +6333,7 @@
+ 			<SoundMP>AS2D_TECH_MP_REFRIGERATION</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Refrigeration.dds,Art/Interface/Buttons/TechTree_Atlas.dds,1,7</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_SUPERCONDUCTORS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_SUPERCONDUCTORS</Type>
+ 			<Description>TXT_KEY_TECH_SUPERCONDUCTORS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_SUPERCONDUCTORS_PEDIA</Civilopedia>
+@@ -6398,7 +6399,7 @@
+ 			<SoundMP>AS2D_TECH_MP_SUPERCONDUCTOR</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Superconductor.dds,Art/Interface/Buttons/TechTree_Atlas.dds,3,12</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_COMPUTERS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_COMPUTERS</Type>
+ 			<Description>TXT_KEY_TECH_COMPUTERS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_COMPUTERS_PEDIA</Civilopedia>
+@@ -6473,7 +6474,7 @@
+ 			<SoundMP>AS2D_TECH_MP_COMPUTERS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Computers.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,2</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_LASER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_LASER</Type>
+ 			<Description>TXT_KEY_TECH_LASER</Description>
+ 			<Civilopedia>TXT_KEY_TECH_LASER_PEDIA</Civilopedia>
+@@ -6540,7 +6541,7 @@
+ 			<SoundMP>AS2D_TECH_MP_LASER</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Corporation.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,4,16</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_ROCKETRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ROCKETRY</Type>
+ 			<Description>TXT_KEY_TECH_ROCKETRY</Description>
+ 			<Civilopedia>TXT_KEY_TECH_ROCKETRY_PEDIA</Civilopedia>
+@@ -6608,7 +6609,7 @@
+ 			<SoundMP>AS2D_TECH_MP_ROCKETRY</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Rocketry.dds,Art/Interface/Buttons/TechTree_Atlas.dds,5,7</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_SATELLITES (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_SATELLITES</Type>
+ 			<Description>TXT_KEY_TECH_SATELLITES</Description>
+ 			<Civilopedia>TXT_KEY_TECH_SATELLITES_PEDIA</Civilopedia>
+@@ -6680,7 +6681,7 @@
+ 			<SoundMP>AS2D_TECH_MP_SATELLITES</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Satellites.dds,Art/Interface/Buttons/TechTree_Atlas.dds,7,7</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_ROBOTICS (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_ROBOTICS</Type>
+ 			<Description>TXT_KEY_TECH_ROBOTICS</Description>
+ 			<Civilopedia>TXT_KEY_TECH_ROBOTICS_PEDIA</Civilopedia>
+@@ -6754,7 +6755,7 @@
+ 			<SoundMP>AS2D_TECH_MP_ROBOTICS</SoundMP>
+ 			<Button>,Art/Interface/Buttons/TechTree/Robotics.dds,Art/Interface/Buttons/TechTree_Atlas.dds,4,7</Button>
+ 		</TechInfo>
+-		<TechInfo>
++		<TechInfo> <!-- custom: type: TECH_FUTURE_TECH (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Type>TECH_FUTURE_TECH</Type>
+ 			<Description>TXT_KEY_TECH_FUTURE_TECH</Description>
+ 			<Civilopedia>TXT_KEY_TECH_FUTURE_TECH_PEDIA</Civilopedia>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+index e9573cd60..9bd8d9395 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+@@ -121,7 +121,7 @@
+ 
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR</Tag>
+-		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, please visit:[NEWLINE]- if online, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there (also appended/included as a text .md file in AdvCiv-SAS). If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this pull request compare: https://github.com/wonderingabout/AdvCiv-SAS/pull/13 . Be warned though it can be very lengthy, so read rather the quick start guide mentionned above preferably for the shorter and less exhaustive version if you'd prefer.[NEWLINE]- if offline: you can also view most (almost all) of the information above by navigating the docs in your AdvCiv-SAS folder (for example if you have the Steam version of the game,it would be here (else adapt to where your civ4 and advciv-sas install paths are): "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\"), and opening them with a text editor (i recommend Notepad++, but the default Windows Notepad.exe can also open .txt and .md files too just with less display features (but still all info unless i'm mistaken anyways)).[NEWLINE][NEWLINE][BOLD]Translations[\BOLD][NEWLINE]- For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. If your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry in Mods\AdvCiv-SAS\Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml[NEWLINE][NEWLINE][BOLD]Sevopedia[\BOLD][NEWLINE]- New feature in sevopedia leader: AI Personality Panels, that aim to represent each Leader's behavorial tendencies and preferences quite exhaustively, and their ranking of such tendencies vs what other leaders ((would) tend to do) anyways, as represented in their XML data, see for example [LINK=LEADER_GANDHI]Gandhi's leader page for example[\LINK]. Extensive documentation has been written as well to help you navigate these and understand how they work. Please read for more details the general introduction to such documents(ation(s?)) in Mods Info [LINK=CONCEPT_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO].4_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO[\LINK][NEWLINE]- Cleanup or adding more features in other Sevopedia categories, such as SevopediaReligion (add Leaders panel (based on History Rewritten's code (modified for AdvCiv-SAS)) and Buildings panel too (based on RFC DOC's code modified for AdvCiv-SAS too anyways etc)), or the SevopediaLeader in general (reordered the size and position of the other panels in SevopediaLeader with or not with other mods's code, or/and other Sevopedia Categories too).[NEWLINE]- Expanded Sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc[NEWLINE]- Reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the Sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.[NEWLINE]- Added a few or many or at least some wikipedia real entries or from some other source (see code comments or/and docs for the info if it is, but as a general rule unless specified otherwise most if not all but at least most pedia type of content comes from wikipedia and generally in english (version of it(i.e. of wikipedia)), thanks wikipedia, anyways etc, for example the [LINK=RELIGION_BUDDHISM]Buddhism[\LINK][NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/ [NEWLINE]- Renamed [LINK=TERRAIN_SNOW]"Ice" (Terrain) to "Ice Sheet"[\LINK], and [LINK=FEATURE_ICE]"Ice" (Feature) to "Ice Cap"[\LINK], hopefully clearer and more accurate, see their Sevopedia entries for details.[NEWLINE]- Renamed "Ressource" to "Bonus" for shorter Sevopedia category width, but also perhaps a good opportunity to match code name and game name maybe at least is how i would want to do it an AdvCiv-SAS if hopefully fine as in functionning well anyways etc.[NEWLINE]- Renamed [LINK=BONUS_GRAPES]"Wine" (Bonus) to "Grapes"[\LINK], see below at "Balance" changes in AdvCiv-SAS for details.[NEWLINE]- Renamed [LINK=BONUS_CATTLE]"Cow" (Ressource/Bonus) to "Cattle"[\LINK], and renamed [LINK=BONUS_ELEPHANTS]"Ivory" (Ressource) to "Elephants"[\LINK], hopefully clearer and more accurate (and immersive maybe), see the Sevopedia entry for details.[NEWLINE]- Renamed Religion "Taoism" to "Daoism" and all related entires (units, buildings, descriptions/history, etc), see the Sevopedia page for details or example(s) [LINK=RELIGION_DAOISM]"Daoism"[\LINK] or project/mod docs for more details[NEWLINE]- Renamed "great wonders" to "world wonders", but functionally the exact same if i am not mistaken, i hope it is clearer, more intutiive, and in line with "world project", hinting more strongly at the fact that only one is possible in the entire world if i am not mistaken, anyways etc.[NEWLINE][NEWLINE][BOLD]Rules[\BOLD][NEWLINE]- All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details (too anyways etc(.)) anyways etc... .[NEWLINE]- Air explore units (for example the [LINK=UNIT_AIRSHIP]Dirigible[\LINK] (old airship)) can move through all terrains, including peaks and water tiles.[NEWLINE]- Not tested if i may say but anyways etc, in theory AIs should value Iron bonus/ressource especially more, and horse more too, as an objective, using iAIObjective 10 (was 0), (ideally not restricting trade if uneeded extra in possession but not tested nor do i know too much about it anyways etc but hopefully maybe would work as intended maybe not guaranteed though anyways etc may or not anyways etc) if they don't have it, was 0.[NEWLINE][NEWLINE][BOLD]Balance (non-exhaustive)[\BOLD][NEWLINE]- As part of renaming wine to grapes, additionally reworked grapes: now improved by [LINK=IMPROVEMENT_FARM]IMPROVEMENT_FARM[\LINK], not anymore by the old improvement_winery now removed. This matches historicality better if i may say and if it's a word anyways etc, as wine was consumed much before 4000 BC. Also, some wines are not made from grapes at all if i am not mistaken, and grapes can be eaten out of the wine usage. Updated bonus's description with a wikipedia based one as often if not always done when updating pedia entries of/in advciv-sas or and other mods using this mod's (i.e. this advciv-sas's code anyways etc). Also, the winery/happiness part of wine is transferred to the grocer building instead, now grapes gives happiness not health anymore. Similarly although not directly related, sugar now also gives happiness not health anymore through grocer. Hopefully buffes these mid game bonus effects while making these ressources more relevant as they were (a) bit (anyways etc) weak compared to say wheat or corn. See code comments for details or the [LINK=BONUS_GRAPES]ingame sevopedia entry of the grapes[\LINK] with also maybe or not or yes anyways etc latest updated info if anything changed since i wrote (am writing currently but anyways etc also wrote when viewing from later the new now maybe or not or yes anyways etc) but this should be the bulk of it and hopefully makes gameplay more accurate or/and interesting perhaps or/and enjoyable or not anyways etc.[NEWLINE]- Technically a balance change mixed with rules, but easier to put it all here for simplicity anyways etc: adjusted the name and repartition and spawn chance as well as yields of many ressources, please view sevopedia bonus for latest info and this commit (see README_Quick_Get_Started_Guide.md that also has the commit link in the docs of this mod, at bullet point mentioning content similar to this one you are reading here and now i mean if still updated or/and accurate here or there or/and other or and not anyways etc) for details. In general, to get the main idea of it, some ressources that were weak are now stronger (for example silver, [LINK=BONUS_DEER]deer[\LINK], etc.), some are a bit weaker (for example gold, but it could barely be considered a nerf anyways etc), ressources/bonuses overall give less gpt to make game more gradual. Food land ressources spawn significantly less but after various testing increased it to values where they still spawn enough for game not to be boring or tedious, the idea is there will be more compeititon around them, as a result they also generally have a bit stronger bonuses, as well as reworked ones (for example sugar gives base hammer (productivity, horse gives base food but then improved gives only hammer, etc, see sevopedia bonus for details)), and deer in particular spawns much more as it is the only representative of snow or rather tundra ressources, its bonuses are strongest which seems accurate as it is both a very healthy and rich food. As a result, tundra cities if they have deer near them should be a lot more viable, example that may not be accurate in the future of me writing this, but for example as of now these screenshots from the drive for example show how it looks (view around screenshot 5235 to 5249 of the google drive for other samples of that time of this rework now finalized as of me writing this anyways etc): view for example screenshots 5238 of the drive (see/view anyways etc docs of the mod (README.md and such for the link anyways etc) and 5241 of the drive as well for example (same) anyways etc). Also, water ressources spawn more, especially for the now renamed clam into [LINK=BONUS_MOLLUSCS]the more general molluscs[\LINK] and fish as they are general ressources. Similarly, i have run a few tests to make sure (or at least try to (as best as i could or and wanted anyways etc hopefully accurate enough or not or yes or and other or and not anyways etc)) they don't spawn too much, so these are quite conservative tweaks but significant. With also buildings like the [LINK=BUILDING_HARBOR]harbor[\LINK] quite strongly buffed (view sevopedia for details) now, water planting should be a strong alternative to purely land ones, especially to complete an otherwise nice land location but poorer in ressources. I tried to make sure naval planting doesn't become too op or the opposite for land, i hope more versatility and strategy(ies? Anyways etc) can be used now as part of this rework, as well as more accurate gameplay. On that note, some pedia entries have been updated, [LINK=BONUS_WHALE]whales[\LINK] have been buffed too, etc, please view for details sevopedia bonus or/and docs or/and other pages anyways etc (or don't blame me if not accurate info you have hehe if i may say but do as you prefer here is all the info i have or most that was not too tedious or forgetted or rather forgotten xd if i may say but anyways etc of me to say but anyways etc... I hope gameplay will or and can be more interesting now with these balance changes without skewing too much at one side or the other, and that now there are more possibilities to play civ4 in a balanced perhaps competitive way, at least in theory and to best i could do at least of now, hopefully enjoyable or and helpful or not at least to me, may be tweaked in the future or and not, anyways etc.[NEWLINE]- Made ressources/bonuses generally spawn more towards the edges of the map, it was a bit too skewed towards central spawning for most bonuses, giving central start too big of an advantage over edge start, hopefully and with other bonuses and changes to spawn rate and such a bit closer now or/and balanced anyways etc[NEWLINE]- Shrines now require to also have the corresponding religion as a prequirement to build them (and not only just the holy city as before, which is still required now), this means for example that if you conquer a holy city that doesn't have a shrine, you can't build the shrine until/unless you have the matching religion if i am not mistaken (for example to build the [LINK=BUILDING_DAOIST_SHRINE]Daoist Shrine (Currently named "The Dai Miao" as of now (i.e. (as of?) me writing this (sevopedia) doc) anyways etc)[\LINK] you need to have the [LINK=RELIGION_DAOISM]"Daoism"[\LINK] religion too. This allows to display shrines in sevopedia and perhaps also makes more sense in terms of gameplay if it doesn't create issues hopefully, trying it to see anyways etc, see sevopedia entries or/and project/mod docs for details[NEWLINE]- Removed religion "confucianism", added [LINK=RELIGION_PAGANISM]religion "paganism"[\LINK], more popular and relevant for civ4 maybe as many leaders were religious if i am not mistaken but with no religion, see notes_about_religious_design.txt for details in the docs online on github or(/and(anyways etc)) offline in this project files too for details[NEWLINE]- Fixed and ajusted many religious inaccuracies of favourite religions, at least those i spotted with (being) certainty (certain enough) maybe anwyas etc (or not or/and other or/and not anways etc), for example frederick the great was agnostic not christian, brennus more leaning non religous than pagan (not inaccurate since paganism didn't exist but may fix other xml related fields or maybe not such as religion preference or not anwyays etc), and genghis khan, while tengrist something and not strictly daoist, expressed or/and showed(?) a strong respect(/liking?) for (a(/the?)) daoist leader, so his favourite religion can be assessed to be daoism, especially if he had to choose between civ4 only religions, here being none or daoism, he leans more strongly -much mroe if i am not mistake but anyways etc) towrds daoism), so a leader can have a favourite religion without it being their religion of themselves, see notes mentionned above for details, and this is all if i am not mistaken, but (i thnk)(and hope but anyways etc) if this is (and i was) accurate enouh (but anyways etc) hopefuly accurate enough and (much maybe(?) maybe or not or/and other or not anyways etc) accurate now hopefully maybe or not or/and other or/and not (but) anwyays etc[NEWLINE]- Barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will gradually fade. They should also spawn cities more often and be relevant longer in the game, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details ingame or/and the XML for example for the Steam version of the game (adjust to where your AdvCiv-SAS mod is if path is different or/and you don't use the Steam version of the game) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such.[NEWLINE][NEWLINE][BOLD]Fixes[\BOLD][NEWLINE]- Fixed a seemingly AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob were pleased(110) / pleased(115) instead of (seemingly how should be if i am not mistaken anyways etc) pleased(110) / friendly(115)[NEWLINE]- (Seemingly now) Fixed a seemingly bug in base AdvCiv/Civ4 where barbarians could build shwedagon paya or mausolleum of mausollos for example (maybe other wonders too, and national wonders too like moai and hermitage etc) as happened in auto play, sometimes even completing them, by using iBuildUnitProb 100 or a similar high value (was 0 in base AdvCiv code or/and civ4 code anyways etc but anyways etc), seems to be extremely effective, testing more to be sure. Note: I had(have? Anyways etc) tried other approaches like iWonderConstructRand -9999 on LEADER_BARBARIAN in leader head infos xml file, or FLAVOR_MILITARY 10 but did not work at all it seems. I also removed all old logic of buildingclass NONE that seemed to not have any effect on wonder building whether it was here (national wonders) or not (removed it for world wonders, but sitll exact same results it seems of wonders being built, sometimes completed even anyways etc), maybe such barbarian wonder building behaviour/tendency/possibility was just suppressed because barbarians did not grow fast enough to support as in encourage as in do wonder building (activites) anyways etc, but now that they grow fast enough at human and other player's pace, they can make wonders or attempt to, which "derails" from their original warmongering goal and intent in AdvCiv-SAS but anyways, so refraining them from doing it, anyways etc anyways etc...[NEWLINE]- Fixed a seemingly AdvCiv/Civ 4 bug of Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc), by replacing, in sevopediaunit py file, in placeRequires function/method (of this file anyways etc), WidgetTypes.WIDGET_HELP_RELIGION with WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION(,) as is done already by base advciv and successfully in sevopedia building, anyways etc anyways etc anyways etc</English>
++		<English>[H1]AdvCiv to AdvCiv-SAS Core Changes[\H1][PARAGRAPH:2]Non-exhaustive list of changes in AdvCiv-SAS as compared to AdvCiv (excluding balance changes, for that please refer to the Sevopedia entries of the items you want to see, for example "Units", "Technologies", or "Traits" to have the latest updated version of their effects.)[PARAGRAPH:1]For more details, in particular about the changes, please visit:[NEWLINE]- if online, https://github.com/wonderingabout/AdvCiv-SAS/, in particular the "Quick Start Guide" there (also appended/included as a text .md file in AdvCiv-SAS). If you want to see the full very exhaustive code changes between AdvCiv current latest stable, for example 1.12 here, and AdvCiv-SAS, please visit this pull request compare: https://github.com/wonderingabout/AdvCiv-SAS/pull/13 . Be warned though it can be very lengthy, so read rather the quick start guide mentionned above preferably for the shorter and less exhaustive version if you'd prefer.[NEWLINE]- if offline: you can also view most (almost all) of the information above by navigating the docs in your AdvCiv-SAS folder (for example if you have the Steam version of the game,it would be here (else adapt to where your civ4 and advciv-sas install paths are): "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\"), and opening them with a text editor (i recommend Notepad++, but the default Windows Notepad.exe can also open .txt and .md files too just with less display features (but still all info unless i'm mistaken anyways)).[NEWLINE][NEWLINE][BOLD]Translations[\BOLD][NEWLINE]- For the new content or modified one in this mod (AdvCiv-SAS), only English translations are provided. If your game is in another language, you will still see some text, but in English. For modders, see the detailed explanation (code comment), mostly provided by ChatGPT and which was very helpful (to me at least, anyways, ) on how this is implemented at TXT_KEY_ADVCIV_SAS_CORE_CHANGES_PEDIA_SR 's entry in Mods\AdvCiv-SAS\Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml[NEWLINE][NEWLINE][BOLD]Sevopedia[\BOLD][NEWLINE]- New feature in sevopedia leader: AI Personality Panels, that aim to represent each Leader's behavorial tendencies and preferences quite exhaustively, and their ranking of such tendencies vs what other leaders ((would) tend to do) anyways, as represented in their XML data, see for example [LINK=LEADER_GANDHI]Gandhi's leader page for example[\LINK]. Extensive documentation has been written as well to help you navigate these and understand how they work. Please read for more details the general introduction to such documents(ation(s?)) in Mods Info [LINK=CONCEPT_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO].4_ADVCIV_SAS_CORE_AI_PERSONALITY_PANEL_INTRO[\LINK][NEWLINE]- Cleanup or adding more features in other Sevopedia categories, such as SevopediaReligion (add Leaders panel (based on History Rewritten's code (modified for AdvCiv-SAS)) and Buildings panel too (based on RFC DOC's code modified for AdvCiv-SAS too anyways etc)), or the SevopediaLeader in general (reordered the size and position of the other panels in SevopediaLeader with or not with other mods's code, or/and other Sevopedia Categories too).[NEWLINE]- Expanded Sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc[NEWLINE]- Reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the Sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.[NEWLINE]- Added a few or many or at least some wikipedia real entries or from some other source (see code comments or/and docs for the info if it is, but as a general rule unless specified otherwise most if not all but at least most pedia type of content comes from wikipedia and generally in english (version of it(i.e. of wikipedia)), thanks wikipedia, anyways etc, for example the [LINK=RELIGION_BUDDHISM]Buddhism[\LINK][NEWLINE][NEWLINE][BOLD]Renaming[\BOLD][NEWLINE]- "We fear you are becoming too advanced" (WFYABTA) has been renamed to "We fear you are trading more than us" (WFYATMTU), as WFYABTA is misleading, and not related at all to your tech progress but to how much you trade if i'm not mistaken, and you can get WFYABTA even if you are lagging behind in tech progress, hopefully clearer now.[NEWLINE]- (Air) interception chance for nukes is now named "Adjusted Air Interception Chance", as it also accounts for Nuke's Air evasion chance if i am not mistaken, see also this for details: https://forums.civfanatics.com/threads/sdi-icbm-and-tactical-nukes.239415/ [NEWLINE]- Renamed [LINK=TERRAIN_SNOW]"Ice" (Terrain) to "Ice Sheet"[\LINK], and [LINK=FEATURE_ICE]"Ice" (Feature) to "Ice Cap"[\LINK], hopefully clearer and more accurate, see their Sevopedia entries for details.[NEWLINE]- Renamed "Ressource" to "Bonus" for shorter Sevopedia category width, but also perhaps a good opportunity to match code name and game name maybe at least is how i would want to do it an AdvCiv-SAS if hopefully fine as in functionning well anyways etc.[NEWLINE]- Renamed [LINK=BONUS_GRAPES]"Wine" (Bonus) to "Grapes"[\LINK], see below at "Balance" changes in AdvCiv-SAS for details.[NEWLINE]- Renamed [LINK=BONUS_CATTLE]"Cow" (Ressource/Bonus) to "Cattle"[\LINK], and renamed [LINK=BONUS_ELEPHANTS]"Ivory" (Ressource) to "Elephants"[\LINK], hopefully clearer and more accurate (and immersive maybe), see the Sevopedia entry for details.[NEWLINE]- Renamed Religion "Taoism" to "Daoism" and all related entires (units, buildings, descriptions/history, etc), see the Sevopedia page for details or example(s) [LINK=RELIGION_DAOISM]"Daoism"[\LINK] or project/mod docs for more details[NEWLINE]- Renamed "great wonders" to "world wonders", but functionally the exact same if i am not mistaken, i hope it is clearer, more intutiive, and in line with "world project", hinting more strongly at the fact that only one is possible in the entire world if i am not mistaken, anyways etc.[NEWLINE][NEWLINE][BOLD]Rules[\BOLD][NEWLINE]- All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense for details (too anyways etc(.)) anyways etc... .[NEWLINE]- Air explore units (for example the [LINK=UNIT_AIRSHIP]Dirigible[\LINK] (old airship)) can move through all terrains, including peaks and water tiles.[NEWLINE]- Not tested if i may say but anyways etc, in theory AIs should value Iron bonus/ressource especially more, and horse more too, as an objective, using iAIObjective 10 (was 0), (ideally not restricting trade if uneeded extra in possession but not tested nor do i know too much about it anyways etc but hopefully maybe would work as intended maybe not guaranteed though anyways etc may or not anyways etc) if they don't have it, was 0.[NEWLINE][NEWLINE][BOLD]Balance (non-exhaustive)[\BOLD][NEWLINE]- As part of renaming wine to grapes, additionally reworked grapes: now improved by [LINK=IMPROVEMENT_FARM]IMPROVEMENT_FARM[\LINK], not anymore by the old improvement_winery now removed. This matches historicality better if i may say and if it's a word anyways etc, as wine was consumed much before 4000 BC. Also, some wines are not made from grapes at all if i am not mistaken, and grapes can be eaten out of the wine usage. Updated bonus's description with a wikipedia based one as often if not always done when updating pedia entries of/in advciv-sas or and other mods using this mod's (i.e. this advciv-sas's code anyways etc). Also, the winery/happiness part of wine is transferred to the grocer building instead, now grapes gives happiness not health anymore. Similarly although not directly related, sugar now also gives happiness not health anymore through grocer. Hopefully buffes these mid game bonus effects while making these ressources more relevant as they were (a) bit (anyways etc) weak compared to say wheat or corn. See code comments for details or the [LINK=BONUS_GRAPES]ingame sevopedia entry of the grapes[\LINK] with also maybe or not or yes anyways etc latest updated info if anything changed since i wrote (am writing currently but anyways etc also wrote when viewing from later the new now maybe or not or yes anyways etc) but this should be the bulk of it and hopefully makes gameplay more accurate or/and interesting perhaps or/and enjoyable or not anyways etc.[NEWLINE]- Technically a balance change mixed with rules, but easier to put it all here for simplicity anyways etc: adjusted the name and repartition and spawn chance as well as yields of many ressources, please view sevopedia bonus for latest info and this commit (see README_Quick_Get_Started_Guide.md that also has the commit link in the docs of this mod, at bullet point mentioning content similar to this one you are reading here and now i mean if still updated or/and accurate here or there or/and other or and not anyways etc) for details. In general, to get the main idea of it, some ressources that were weak are now stronger (for example silver, [LINK=BONUS_DEER]deer[\LINK], etc.), some are a bit weaker (for example gold, but it could barely be considered a nerf anyways etc), ressources/bonuses overall give less gpt to make game more gradual. Food land ressources spawn significantly less but after various testing increased it to values where they still spawn enough for game not to be boring or tedious, the idea is there will be more compeititon around them, as a result they also generally have a bit stronger bonuses, as well as reworked ones (for example sugar gives base hammer (productivity, horse gives base food but then improved gives only hammer, etc, see sevopedia bonus for details)), and deer in particular spawns much more as it is the only representative of snow or rather tundra ressources, its bonuses are strongest which seems accurate as it is both a very healthy and rich food. As a result, tundra cities if they have deer near them should be a lot more viable, example that may not be accurate in the future of me writing this, but for example as of now these screenshots from the drive for example show how it looks (view around screenshot 5235 to 5249 of the google drive for other samples of that time of this rework now finalized as of me writing this anyways etc): view for example screenshots 5238 of the drive (see/view anyways etc docs of the mod (README.md and such for the link anyways etc) and 5241 of the drive as well for example (same) anyways etc). Also, water ressources spawn more, especially for the now renamed clam into [LINK=BONUS_MOLLUSCS]the more general molluscs[\LINK] and fish as they are general ressources. Similarly, i have run a few tests to make sure (or at least try to (as best as i could or and wanted anyways etc hopefully accurate enough or not or yes or and other or and not anyways etc)) they don't spawn too much, so these are quite conservative tweaks but significant. With also buildings like the [LINK=BUILDING_HARBOR]harbor[\LINK] quite strongly buffed (view sevopedia for details) now, water planting should be a strong alternative to purely land ones, especially to complete an otherwise nice land location but poorer in ressources. I tried to make sure naval planting doesn't become too op or the opposite for land, i hope more versatility and strategy(ies? Anyways etc) can be used now as part of this rework, as well as more accurate gameplay. On that note, some pedia entries have been updated, [LINK=BONUS_WHALE]whales[\LINK] have been buffed too, etc, please view for details sevopedia bonus or/and docs or/and other pages anyways etc (or don't blame me if not accurate info you have hehe if i may say but do as you prefer here is all the info i have or most that was not too tedious or forgetted or rather forgotten xd if i may say but anyways etc of me to say but anyways etc... I hope gameplay will or and can be more interesting now with these balance changes without skewing too much at one side or the other, and that now there are more possibilities to play civ4 in a balanced perhaps competitive way, at least in theory and to best i could do at least of now, hopefully enjoyable or and helpful or not at least to me, may be tweaked in the future or and not, anyways etc.[NEWLINE]- Made ressources/bonuses generally spawn more towards the edges of the map, it was a bit too skewed towards central spawning for most bonuses, giving central start too big of an advantage over edge start, hopefully and with other bonuses and changes to spawn rate and such a bit closer now or/and balanced anyways etc[NEWLINE]- Shrines now require to also have the corresponding religion as a prequirement to build them (and not only just the holy city as before, which is still required now), this means for example that if you conquer a holy city that doesn't have a shrine, you can't build the shrine until/unless you have the matching religion if i am not mistaken (for example to build the [LINK=BUILDING_DAOIST_SHRINE]Daoist Shrine (Currently named "The Dai Miao" as of now (i.e. (as of?) me writing this (sevopedia) doc) anyways etc)[\LINK] you need to have the [LINK=RELIGION_DAOISM]"Daoism"[\LINK] religion too. This allows to display shrines in sevopedia and perhaps also makes more sense in terms of gameplay if it doesn't create issues hopefully, trying it to see anyways etc, see sevopedia entries or/and project/mod docs for details[NEWLINE]- Removed religion "confucianism", added [LINK=RELIGION_PAGANISM]religion "paganism"[\LINK], more popular and relevant for civ4 maybe as many leaders were religious if i am not mistaken but with no religion, see notes_about_religious_design.txt for details in the docs online on github or(/and(anyways etc)) offline in this project files too for details[NEWLINE]- Fixed and ajusted many religious inaccuracies of favourite religions, at least those i spotted with (being) certainty (certain enough) maybe anwyas etc (or not or/and other or/and not anways etc), for example frederick the great was agnostic not christian, brennus more leaning non religous than pagan (not inaccurate since paganism didn't exist but may fix other xml related fields or maybe not such as religion preference or not anwyays etc), and genghis khan, while tengrist something and not strictly daoist, expressed or/and showed(?) a strong respect(/liking?) for (a(/the?)) daoist leader, so his favourite religion can be assessed to be daoism, especially if he had to choose between civ4 only religions, here being none or daoism, he leans more strongly -much mroe if i am not mistake but anyways etc) towrds daoism), so a leader can have a favourite religion without it being their religion of themselves, see notes mentionned above for details, and this is all if i am not mistaken, but (i thnk)(and hope but anyways etc) if this is (and i was) accurate enouh (but anyways etc) hopefuly accurate enough and (much maybe(?) maybe or not or/and other or not anyways etc) accurate now hopefully maybe or not or/and other or/and not (but) anwyays etc[NEWLINE]- Barbarians are now much stronger in the early game economically, they should now grow at a similar pace than human and other players too until the middle game where they will gradually fade. They should also spawn cities more often and be relevant longer in the game, even though for now at least if not always or not they have trouble to grow past a certain size, and are still not a real player (no diplomacy and scattered cities that are independent, but that contribute together to the "barbarian(s?)((,)'s) civilization"), and become a key part in politics or invasion decisions, maybe i mean or not or/and other or not anyways etc. Their (now new)(anyways etc) overall strength increase (for example they are also harder to kill at all difficulties (less to no combat bonus against them, but never reverse bonus to them to make the game fair and balanced and fun as much as possible at least to me or and maybe (to) others ideally or maybe not (and or maybe not ideally or not or other or and not anyways etc) but anwyays etc) is gradual with difficulties), and they should not be (too) op though so hopefully not overbearing either but demanding more strategy or/and attention to hopefully make the game interesting, while filling some unsettled areas if not claimed fast enough in a quite realistic way too maybe anyways etc. They are also more calculating in who they attack, may raze cities much more than in base AdvCiv/Civ4 if am not mistaken anyways, and are more calculating in who they attack target the weak not the strong, anyways etc, or/and other changes or and not anyways etc. See [LINK=CIVILIZATION_BARBARIAN]Barbarians (Civilization)[\LINK] for details ingame or/and the XML for example for the Steam version of the game (adjust to where your AdvCiv-SAS mod is if path is different or/and you don't use the Steam version of the game) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml and related files like CIV4BuildingInfos.xml and CIV4HandicapInfo.xml or/and such.[NEWLINE][NEWLINE][BOLD]Fixes[\BOLD][NEWLINE]- Fixed a seemingly AdvCiv/Civ 4 bug where Gandhi's nowar attitude prob were pleased(110) / pleased(115) instead of (seemingly how should be if i am not mistaken anyways etc) pleased(110) / friendly(115)[NEWLINE]- (Seemingly now) Fixed a seemingly bug in base AdvCiv/Civ4 where barbarians could build shwedagon paya or mausolleum of mausollos for example (maybe other wonders too, and national wonders too like moai and hermitage etc) as happened in auto play, sometimes even completing them, by using iBuildUnitProb 100 or a similar high value (was 0 in base AdvCiv code or/and civ4 code anyways etc but anyways etc), seems to be extremely effective, testing more to be sure. Note: I had(have? Anyways etc) tried other approaches like iWonderConstructRand -9999 on LEADER_BARBARIAN in leader head infos xml file, or FLAVOR_MILITARY 10 but did not work at all it seems. I also removed all old logic of buildingclass NONE that seemed to not have any effect on wonder building whether it was here (national wonders) or not (removed it for world wonders, but sitll exact same results it seems of wonders being built, sometimes completed even anyways etc), maybe such barbarian wonder building behaviour/tendency/possibility was just suppressed because barbarians did not grow fast enough to support as in encourage as in do wonder building (activites) anyways etc, but now that they grow fast enough at human and other player's pace, they can make wonders or attempt to, which "derails" from their original warmongering goal and intent in AdvCiv-SAS but anyways, so refraining them from doing it, anyways etc anyways etc...[NEWLINE]- Fixed a seemingly AdvCiv/Civ 4 bug of Sevopedia Unit's placeRequires's Religion button (for example any religious missionary unit) not redirecting to sevopedia religion (nothing happens on click anyways etc), by replacing, in sevopediaunit py file, in placeRequires function/method (of this file anyways etc), WidgetTypes.WIDGET_HELP_RELIGION with WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION(,) as is done already by base advciv and successfully in sevopedia building, anyways etc anyways etc anyways etc[NEWLINE]- Rebalanced great artist: nerf/reduce early bomb culture instant culture gain from 700 to 500 per era, and increase culture per turn for long term victory culture path or and other uses from 12 to 20 per turn, see sevopedia ingame or xml for latest values if they changed in the meantime and i didn't (re)update them here anyways etc (anyways etc), anyways etc</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+index bd4163617..81b3bdeb5 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+@@ -194,4 +194,12 @@
+ 		<Tag>TXT_KEY_UNIT_EVADE_INTERCEPTION</Tag>
+ 		<English>[ICON_BULLET]Can Air Evade Air Interception (%d1_Amount%% Chance)</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: rename _UTOPIA to _COMMUNISM, this asset is a part that is extracted from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Assets\XML\Text\CIV4GameTextInfos.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_COMMUNISM_QUOTE</Tag>
++		<English>"When I give food to the poor, they call me a saint. When I ask why the poor have no food, they call me a communist." - Dom Helder Camara</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 5c3a875ad..2aa3d8e08 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -549,4 +549,12 @@
+ 		<Tag>TXT_KEY_PROMOTION_MEDIC_AMBULATORY</Tag>
+ 		<English>Medic (Ambulatory)</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: rename _UTOPIA to _COMMUNISM anyways etc anyways etc anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_COMMUNISM</Tag>
++		<English>Communism</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 61ce5ddcf..239b812cc 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -331,6 +331,14 @@
+ 
+ 
+ 
++	<!-- custom: from https://en.wikipedia.org/wiki/Ziggurat anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_SUMERIAN_ZIGGURAT_PEDIA</Tag>
++		<English>[TAB]A ziggurat (/_/; Cuneiform: _, Akkadian: ziqqurratum, D-stem of zaqarum 'to protrude, to build high', cognate with other Semitic languages like Hebrew zaqar (_) 'protrude'), (Persian: Chogha Zanbil _) is a type of massive structure built in ancient Mesopotamia. It has the form of a terraced compound of successively receding stories or levels. Notable ziggurats include the Great Ziggurat of Ur near Nasiriyah, the Ziggurat of Aqar Quf near Baghdad, the no longer extant Etemenanki in Babylon, Chogha Zanbil in Khuzestan and Sialk. The Sumerians believed that the gods lived in the temple at the top of the ziggurats, so only priests and other highly-respected individuals could enter. Sumerian society offered these individuals such gifts as music, harvested produce, and the creation of devotional statues to entice them to live in the temple.[PARAGRAPH:2]The word ziggurat comes from ziqqurratum (height, pinnacle), in ancient Assyrian. From zaqarum, to be high up. The Ziggurat of Ur is a Neo-Sumerian ziggurat built by King Ur-Nammu, who dedicated it in honor of Nanna/S�n in approximately the 21st century BC during the Third Dynasty of Ur.[PARAGRAPH:2]Ziggurats were built by ancient Sumerians, Akkadians, Elamites, Eblaites and Babylonians for local religions. Each ziggurat was part of a temple complex with other buildings. Before the ziggurats there were raised platforms that date from the Ubaid period during the sixth millennium BCE. The ziggurats began as platforms (usually oval, rectangular or square). The ziggurat was a mastaba-like structure with a flat top. The sun-baked bricks made up the core of the ziggurat with facings of fired bricks on the outside. Each step was slightly smaller than the step below it. The facings were often glazed in different colors and may have had astrological significance. Kings sometimes had their names engraved on these glazed bricks. The number of floors ranged from two to seven.[PARAGRAPH:1]According to archaeologist Harriet Crawford,[PARAGRAPH:1]"It is usually assumed that the ziggurats supported a shrine, though the only evidence for this comes from Herodotus, and physical evidence is non-existent ... The likelihood of such a shrine ever being found is remote. Erosion has usually reduced the surviving ziggurats to a fraction of their original height, but textual evidence may yet provide more facts about the purpose of these shrines. In the present state of our knowledge it seems reasonable to adopt as a working hypothesis the suggestion that the ziggurats developed out of the earlier temples on platforms and that small shrines stood on the highest stages ..."[PARAGRAPH:1]Access to the shrine would have been by a series of ramps on one side of the ziggurat or by a spiral ramp from base to summit. The Mesopotamian ziggurats were not places for public worship or ceremonies. They were believed to be dwelling places for the gods, and each city had its own patron god. Only priests were permitted on the ziggurat or in the rooms at its base, and it was their responsibility to care for the gods and attend to their needs. The priests were very powerful members of Sumerian and Assyro-Babylonian society.[PARAGRAPH:1]One of the best-preserved ziggurats is Chogha Zanbil in western Iran. The Sialk ziggurat, in Kashan, Iran, is the oldest known ziggurat, dating to the early 3rd millennium BCE. Ziggurat designs ranged from simple bases upon which a temple sat, to marvels of mathematics and construction which spanned several terraced stories and were topped with a temple.[PARAGRAPH:1]An example of a simple ziggurat is the White Temple of Uruk, in ancient Sumer. The ziggurat itself is the base on which the White Temple is set. Its purpose is to get the temple closer to the heavens, and provide access from the ground to it via steps. The Mesopotamians believed that these pyramid temples connected heaven and earth. In fact, the ziggurat at Babylon was known as Etemenanki, which means "House of the foundation of heaven and earth" in Sumerian.[PARAGRAPH:1]The date of its original construction is unknown, with suggested dates ranging from the fourteenth to the ninth century BC, with textual evidence suggesting it existed in the second millennium. Unfortunately, not much of even the base is left of this massive structure, yet archeological findings and historical accounts put this tower at seven multicolored tiers, topped with a temple of exquisite proportions. The temple is thought to have been painted and maintained an indigo color, matching the tops of the tiers. It is known that there were three staircases leading to the temple, two of which (side flanked) were thought to have only ascended half the ziggurat's height.[PARAGRAPH:2]According to Herodotus, at the top of each ziggurat was a shrine, although none of these shrines have survived. Functionally, ziggurats offered a high place on which priests could escape rising water that annually inundated lowlands and occasionally flooded for hundreds of kilometers. They also offered security; since the shrine was accessible only by way of three stairways, a small number of guards could prevent non-priests from spying on the rituals at the shrine on top of the ziggurat, such as initiation rituals like the Eleusinian mysteries, cooking of sacrificial food and burning of sacrificial animals. Each ziggurat was part of a temple complex that included a courtyard, storage rooms, bathrooms, and living quarters, around which a city spread, as well as a place for the people to worship. It was considered to be a sacred structure.[PARAGRAPH:2]The biblical account of the Tower of Babel has been associated by modern scholars to the massive construction undertakings of the ziggurats of Mesopotamia, and in particular to the ziggurat of Etemenanki in Babylon in light of the Tower of Babel Stele describing its restoration by Nebuchadnezzar II.[PARAGRAPH:1]According to some historians the design of Egyptian pyramids, especially the stepped designs of the oldest pyramids (Pyramid of Zoser at Saqqara, 2600 BCE), may have been an evolution from the ziggurats built in Mesopotamia. Others say the Pyramid of Zoser and the earliest Egyptian pyramids may have been derived locally from the bench-shaped mastaba tomb.[PARAGRAPH:1]The shape of the ziggurat experienced a revival in modern architecture and Brutalist architecture starting in the 1970s. The Al Zaqura Building is a government building situated in Baghdad. It serves the office of the prime minister of Iraq. The Babylon Hotel in Baghdad is also inspired by the ziggurat. The Chet Holifield Federal Building is colloquially known as "the Ziggurat" due to its form. It is a United States government building in Laguna Niguel, California, built between 1968 and 1971. Further examples include The Ziggurat in West Sacramento, California, the SIS Building in London and Linnahall building in Tallinn, Estonia.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: add Ogiso Igodo, leader of the Kingdom Of Benin, copy pasted from:
+ 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml then modified to fit this leader
+ 	Mention of Ogiso Igodo also here:
+@@ -375,4 +383,12 @@
+ 		<Tag>TXT_KEY_UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN_PEDIA</Tag>
+ 		<English>[TAB]A crossbow is a ranged weapon using an elastic launching device consisting of a bow-like assembly called a prod, mounted horizontally on a main frame called a tiller, which is hand-held in a similar fashion to the stock of a long gun. Crossbows shoot arrow-like projectiles called bolts or quarrels. A person who shoots crossbow is called a crossbowman, an arbalister or an arbalist (after the arbalest, a European crossbow variant used during the 12th century).[PARAGRAPH:1][TAB]On top of the usual info that can be found on the [LINK=UNIT_CROSSBOWMAN]Crossbowman's page[\LINK], military operations in the Kingdom Of Benin relied on a well trained disciplined force. Formations were broken down into sub-units under designated commanders. Foreign observers often commented favorably on Benin's discipline and organization as "better disciplined than any other Guinea nation", contrasting them with the slacker troops from the Gold Coast.[PARAGRAPH:1][TAB]Before the coming of the gun, guilds of blacksmiths were charged with war production-particularly swords and iron spearheads. In addition, crossbowmen formed a specialized unit of the Benin army. Archers and crossbowmen were trained in target and field archery.Benin's tactics were well organized, with preliminary plans weighed by the Oba and his sub-commanders. Logistics were organized to support missions from the usual porter forces, water transport via canoe, and requisitioning from localities the army passed through. Movement of troops via canoes was critically important in the lagoons, creeks and rivers of the Niger Delta, a key area of Benin's domination.</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: rename _UTOPIA to _COMMUNISM, also pedia entry from: https://en.wikipedia.org/wiki/Communism similarly, anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_TECH_COMMUNISM_PEDIA</Tag>
++		<English>[TAB]Communism (from Latin communis 'common, universal') is a sociopolitical, philosophical, and economic ideology within the socialist movement, whose goal is the creation of a communist society, a socioeconomic order centered on common ownership of the means of production, distribution, and exchange that allocates products in society based on need. A communist society entails the absence of private property and social classes, and ultimately money and the state.[PARAGRAPH:1]Communists often seek a voluntary state of self-governance but disagree on the means to this end. This reflects a distinction between a libertarian socialist approach of communization, revolutionary spontaneity, and workers' self-management, and an authoritarian socialist, vanguardist, or party-driven approach to establish a socialist state, which is expected to wither away. Communist parties have been described as radical left or far-left. There are many variants of communism, such as anarchist communism, Marxist schools of thought (including Leninism and its offshoots), and religious communism. These ideologies share the analysis that the current order of society stems from the capitalist economic system and mode of production; they believe that there are two major social classes, that the relationship between them is exploitative, and that it can only be resolved through social revolution. The two classes are the proletariat (working class), who make up most of the population and sell their labor power to survive, and the bourgeoisie (owning class), a minority that derives profit from employing the proletariat through private ownership of the means of production. According to this, a communist revolution would put the working class in power, and establish common ownership of property, the primary element in the transformation of society towards a socialist mode of production.[PARAGRAPH:1]Modern communism grew out of the aftermath of the French Revolution. In 1848, Karl Marx and Friedrich Engels offered a new definition of communism in The Communist Manifesto. In the 20th century, Communist governments espousing Marxism-Leninism came to power, first in the Soviet Union with the 1917 Russian Revolution, then in Eastern Europe, Asia, and other regions after World War II. By the 1920s, communism had become one of the two dominant types of socialism in the world, the other being social democracy. For most of the 20th century, a third of the world's population lived under Communist governments. These were characterized by one-party rule, rejection of private property and capitalism, state control of economic activity and mass media, restrictions on freedom of religion, and suppression of opposition. With the dissolution of the Soviet Union in 1991, many governments abolished Communist rule. Only a few nominally Communist governments remain, such as China, Cuba, Laos, North Korea, and Vietnam. Except North Korea, these have allowed more economic competition while maintaining one-party rule. Communism's decline has been attributed to economic inefficiency and to authoritarianism and bureaucracy within Communist governments.[PARAGRAPH:1]While the emergence of the Soviet Union as the first nominally Communist state led to communism's association with the Soviet economic model, several scholars argue that in practice this model functioned as a form of state capitalism. Public memory of 20th-century Communist states has been described as a battleground between anti anti-communism and anti-communism. Authors have written about mass killings under communist regimes and mortality rates, which remain controversial, polarized, and debated topics in academia, historiography, and politics when discussing communism and the legacy of Communist states.[PARAGRAPH:2]Communism derives from the French word communisme, a combination of the Latin word communis (which literally means common) and the suffix -isme (an act, practice, or process of doing something). Semantically, communis can be translated to "of or for the community", while isme is a suffix that indicates the abstraction into a state, condition, action, or doctrine. Communism may be interpreted as "the state of being of or for the community"; this semantic constitution has led to numerous usages of the word in its evolution. Prior to becoming associated with its more modern conception of an economic and political organization, it was initially used to designate various social situations. After 1848, communism came to be primarily associated with Marxism, most specifically embodied in The Communist Manifesto, which proposed a particular type of communism.[PARAGRAPH:1]One of the first uses of the word in its modern sense is in a letter sent by Victor d'Hupay to Nicolas Restif de la Bretonne around 1785, in which d'Hupay describes himself as an auteur communiste ("communist author"). In 1793, Restif first used communisme to describe a social order based on egalitarianism and the common ownership of property. Restif would go on to use the term frequently in his writing and was the first to describe communism as a form of government. John Goodwyn Barmby is credited with the first use of communism in English, around 1840.[PARAGRAPH:2]Since the 1840s, the term communism has usually been distinguished from socialism. The modern definition and usage of the term socialism was settled by the 1860s, becoming predominant over alternative terms such as associationism (Fourierism), mutualism, or co-operative, which had previously been used as synonyms. Meanwhile, the term communism fell out of use during this period.[PARAGRAPH:1]An early distinction between communism and socialism was that the latter aimed to only socialize production, whereas the former aimed to socialize both production and consumption (in the form of common access to final goods). This distinction can be observed in Marx's communism, where the distribution of products is based on the principle of "to each according to his needs", in contrast to a socialist principle of "to each according to his contribution". Socialism has been described as a philosophy seeking distributive justice, and communism as a subset of socialism that prefers economic equality as its form of distributive justice.[PARAGRAPH:1]In 19th century Europe, the use of the terms communism and socialism eventually accorded with the cultural attitude of adherents and opponents towards religion. In European Christendom, communism was believed to be the atheist way of life. In Protestant England, communism was too phonetically similar to the Roman Catholic communion rite, hence English atheists denoted themselves socialists. Friedrich Engels stated that in 1848, at the time when The Communist Manifesto was first published, socialism was respectable on the continent, while communism was not; the Owenites in England and the Fourierists in France were considered respectable socialists, while working-class movements that "proclaimed the necessity of total social change" denoted themselves communists. This latter branch of socialism produced the communist work of �tienne Cabet in France and Wilhelm Weitling in Germany. While liberal democrats looked to the Revolutions of 1848 as a democratic revolution, which in the long run ensured liberty, equality, and fraternity, Marxists denounced 1848 as a betrayal of working-class ideals by a bourgeoisie indifferent to the legitimate demands of the proletariat.[PARAGRAPH:1]By 1888, Marxists employed the term socialism in place of communism, which had come to be considered an old-fashioned synonym for the former. It was not until 1917, with the October Revolution, that socialism came to be used to refer to a distinct stage between capitalism and communism. This intermediate stage was a concept introduced by Vladimir Lenin as a means to defend the Bolshevik seizure of power against traditional Marxist criticism that Russia's productive forces were not sufficiently developed for socialist revolution. A distinction between communist and socialist as descriptors of political ideologies arose in 1918 after the Russian Social Democratic Labour Party renamed itself as the Communist Party of the Soviet Union, which resulted in the adjective Communist being used to refer to socialists who supported the politics and theories of Bolshevism, Leninism, and later in the 1920s those of Marxism-Leninism. In spite of this common usage, Communist parties also continued to describe themselves as socialists dedicated to socialism.[PARAGRAPH:1]According to The Oxford Handbook of Karl Marx, "Marx used many terms to refer to a post-capitalist society - positive humanism, socialism, Communism, realm of free individuality, free association of producers, etc. He used these terms completely interchangeably. The notion that 'socialism' and 'Communism' are distinct historical stages is alien to his work and only entered the lexicon of Marxism after his death." According to the Encyclop�dia Britannica, "Exactly how communism differs from socialism has long been a matter of debate, but the distinction rests largely on the communists' adherence to the revolutionary socialism of Karl Marx."[PARAGRAPH:2]In the United States, communism is widely used as a pejorative term as part of a Red Scare, much like socialism, and mainly in reference to authoritarian socialism and Communist states. The emergence of the Soviet Union as the world's first nominally Communist state led to the term's widespread association with Marxism-Leninism and the Soviet-type economic planning model. In his essay "Judging Nazism and Communism", Martin Malia defines a "generic Communism" category as any Communist political party movement led by intellectuals; this umbrella term allows grouping together such different regimes as radical Soviet industrialism and the Khmer Rouge's anti-urbanism. According to Alexander Dallin, the idea to group together different countries, such as Afghanistan and Hungary, has no adequate explanation.[PARAGRAPH:1]While the term Communist state is used by Western historians, political scientists, and news media to refer to countries ruled by Communist parties, these socialist states themselves did not describe themselves as communist or claim to have achieved communism; they referred to themselves as being a socialist state that is in the process of constructing communism. Terms used by Communist states include national-democratic, people's democratic, socialist-oriented, and workers and peasants' states.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 8fcd96a4e..5ce3f1689 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -23011,9 +23011,10 @@ then adjust maybe anyways):
+ 			<iHurryMultiplier>0</iHurryMultiplier>
+ 			<iBaseTrade>0</iBaseTrade>
+ 			<iTradeMultiplier>0</iTradeMultiplier>
++			<!-- custom: increase/buff longterm great artist value for cultural victory path or make it worse more, nerf cultural bomb as well, was 700 -->
+ 			<!-- advc.251: Was 4000 in BtS, 800 in K-Mod and counted per era,
+ 				 starting at 0. Starting at 1 in AdvCiv. -->
+-			<iGreatWorkCulture>700</iGreatWorkCulture>
++			<iGreatWorkCulture>500</iGreatWorkCulture>
+ 			<iEspionagePoints>0</iEspionagePoints>
+ 			<TerrainImpassables/>
+ 			<FeatureImpassables/>
+
+diff --git a/README.md b/README.md
+index c951654d8..9232cac64 100644
+--- a/README.md
++++ b/README.md
+@@ -39,7 +39,7 @@ These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They
+ 
+ <img src="./_1_AdvCiv-SAS/Images_In_General/sevopedia_mods_info/0.610_sevopedia_advciv_sas_core_changes (1).JPG" width="250"></img>
+ 
+-For more Mods Info AdvCiv-SAS Core changes screenshot preview/samples (if any), see also the [full sevopedia Mods Info ssamples google drive folder link](https://drive.google.com/drive/folders/1XGOQSTlPljw29yc0lWjarkKgrtFzRJTI?usp=sharing)
++For more Mods Info AdvCiv-SAS Core changes screenshot preview/samples (if any), see also the [full sevopedia Mods Info samples google drive folder link](https://drive.google.com/drive/folders/1XGOQSTlPljw29yc0lWjarkKgrtFzRJTI?usp=sharing)
+ 
+ ### Python Scripts
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index d2b792f34..aa0114807 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -119,6 +119,87 @@ Great people AIs:
+ For unit AIs that are correct in the OP, I didn't write anything.
+ "
+ 
++## Civ4 ProcessInfos XML info
++
++From: [modiki's website, wayback archive version latest i found anyways etc](https://web.archive.org/web/20230330010924/https://modiki.civfanatics.com/index.php?title=Civ4ProcessInfo) since was/is down the website as of/for now anyways etc
++
++adjusted for advciv-sas or not anyways etc:
++
++"
++Civ4ProcessInfo
++
++The Civ4ProcessInfo file defines what commerce types can be created from production in a city (by default, 100% of production to wealth, research, and culture). This can also be used to create an option to have a city build nothing (by setting all of the commerce types so that no production is applied to them).
++
++All tags must be opened and closed; the first is the "open", the second the "close" tag. If nothing goes inside a "list tag", then it should just be the opening tag with a "/" before the closing bracket. The following tables contain all available tags, as well as their purpose and accepted values.
++
++
++
++
++Contents
++1	Tags
++1.1	Headers
++1.2	Text
++1.3	Lists (Multi-line)
++1.4	Art
++2	Example
++
++Tags
++
++Headers
++
++These tags typically bracket other tags, sometimes the entire file, and are generally used to specify more than one piece of data.
++
++Tag Name						Description
++ProcessInfos					This tag surrounds all entries in the file
++ProcessInfo						Main bracket for each entry
++
++
++Text
++
++Tag Name						Description
++Type							How the process is referred to in other files
++Description						Text for the process in the game
++Strategy						Strategy text for the process in the game
++TechPrereq						Tech required to build the process in the city
++
++
++Lists (Multi-line)
++
++All List tags consist of an opening/closing tag, which is shown here, and then each entry within it is another tag with the same name as the parent tag, minus the "s" (i.e. singular, rather than plural).
++
++Tag Name						Description
++ProductionToCommerceModifiers	The percent of the city's production applied to each commerce type; top is gold, then research, then culture, then espionage <iProductionToCommerceModifier>100</iProductionToCommerceModifier>
++
++
++
++Art
++
++These tags are directly related to the rendering of art for the entry.
++
++Tag Name						Description
++Button							The button for the process in the city screen and city production popup
++
++
++Example
++
++In the following example of code, please note that there is a specific order of all of the tags. You must list the tags in this order for the game to properly interpret your file.
++
++```
++<ProcessInfo>
++ <Type>PROCESS_WEALTH</Type>
++ <Description>TXT_KEY_PROCESS_WEALTH</Description>
++ <Strategy>TXT_KEY_PROCESS_WEALTH_STRATEGY</Strategy>
++ <TechPrereq>TECH_CURRENCY</TechPrereq>
++ <ProductionToCommerceModifiers>
++  <iProductionToCommerceModifier>100</iProductionToCommerceModifier>
++  <iProductionToCommerceModifier>0</iProductionToCommerceModifier>
++  <iProductionToCommerceModifier>0</iProductionToCommerceModifier>
++ </ProductionToCommerceModifiers>
++ <Button>Art/Interface/Buttons/Process/ProcessWealth.dds</Button>
++</ProcessInfo>
++```
++"
++
+ ## Copy of the tutorial on how to modify GameFonts.tga for FREE
+ 
+ Note: you may want to read all this at least the end before you start doing it, in case you see something that makes you change your mind/choose another approach instead, but do as you prefer anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index c4dc180b7..adab06559 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -394,3 +394,11 @@ And some characters like `–` seem to cause the text to be weird and inconsiste
+ The solution i use is to simplify these chars generally, for example rename `–` to `-`, or using `_` instead of `खण्ड` to signify it is a language char (some other approaches may work like romanizing, it is an example i went with most simple and accurate in my case/need anyways etc anyways etc anyways etc...), or rename for example `Phāṇita` to `Phanita`, or for example also `Dačice` to `Dacice` (again is an example do as you prefer or not or do or not or and other or and not anyways etc anyways etc anyways etc...)
+ 
+ Adjust this advice/feedback as you see fit or not fit or not see or not adjust or not or yes or and other or and not, hopefully helpful or not or yes or and other or and not anyways etc anyways etc anyways etc...
++
++## 11 - In Debug mode, in map view, unexplored tile by the active player (if i am not mistaken see below anyways etc) if improved, shows as red for example "with Road" or "with Pasture", even though a road is already there and text should be white instead or removed entirely if i am not mistaken anyways etc
++
++This is a small bug so just mentionning it, and perhaps it is even intended to be this way, but ideally in debug mode (ctrl+z and "chipotle" anyways etc), an unexplored tile by the tile active player (if i am not mistaken about what an active player is or seems to be (the current player, at least our autoplayed on player anyways etc)), even if unexplored but anyways etc, if improved, should should its improvement requirement as white not red or simply remove the improvement (or road too if i am not mistaken? Anyways etc) line entirely (i assume DLL handles this like in sevopedia? Anyways etc)
++
++As this is debug-only, and to not cause further issues, only mentionning it for now and not fixing it, screenshots about this issue, may be useful someday or not but anyways etc
++
++A few screenshots of the current issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1lXQ8pyE0A6TJGqlnf4In3V7QuJ0lBhIR?usp=sharing)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 8ebedbb82..6a9d3722c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -389,6 +389,7 @@ gameplay, i would want the difficulty to be elsewhere, not in such tedious thing
+ - voluntary vassals are permanent, think of their culture being absorbed by the empire,
+ and them merging with the empire, becoming its citizens, so pay attention to that, and
+ if you don't want it to happen to other rivals, plan your strategy based on that maybe
++- rebalanced great artist: nerf/reduce early bomb culture instant culture gain from 700 to 500 per era, and increase culture per turn for long term victory culture path or and other uses from 12 to 20 per turn anyways etc
+ - unlike in AdvCiv, we love the king chance is restored, i think it's a cool mechanic
+ and also pleasant for the player, maybe realistic too, so if it can happen all good
+ (feels good in civ3 for example at least from/in my experience playing it)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_buildings_civ4_to_remove_or_replace_or_add.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_buildings_civ4_to_remove_or_replace_or_add.txt
+index 9060f64f5..319f54bb8 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_buildings_civ4_to_remove_or_replace_or_add.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_buildings_civ4_to_remove_or_replace_or_add.txt
+@@ -24,6 +24,7 @@ buildings:
+ - russian research institute to (russian) ? Anyways etc
+ - jewish/hebrew ('s civilization anyways etc): ?
+ - ziggurat maybe rework or rebalance anyways etc (religious building now or more or and other ot and not? Anyways etc)
++- stonehedge replace with newgrange as linked with construction tech and religious history and monuments? https://en.wikipedia.org/wiki/Newgrange, or maybe not as stonehedge seems to have more details or/and improtance about it and its construction anyways etc
+ 
+ wonders:
+ - oxford university: University of al-Qarawiyyin (https://en.wikipedia.org/wiki/University_of_al-Qarawiyyin)
+@@ -38,6 +39,13 @@ buildings:
+ 
+ wonders:
+ - Venus of Laussel
++- Ishtar Gate (art import from RFC DOC) (for the no barbarians effect of the great wall now moved later in history/tech tree or removed anyways etc)
++- Hollywood (art import from HR mod or other similar mods anyways etc
++)
++- Hanging gardens (art import from RFC DOC)
++- Tomb of Queen Iden (who is (a) queen of the kingdom of Bening anyways etc), using tomb of emendil or tomb of cyrus asset? 
++
++- Moai statues: now a world wonder or removed with reworked buffed or and changed effect anyways etc
+ - Petra?
+ - Great Sphinx of Giza?
+ - Tower of Pisa? (NW, ) Anyways etc
+@@ -46,7 +54,7 @@ wonders:
+ - Machu Pichu?
+ - Sun Tzu Art?
+ - The Ancient Walls of Benin
+-- Tomb of Queen Iden (who is (a) queen of the kingdom of Bening anyways etc), using tomb of emendil or tomb of cyrus asset? Anyways etc
++Anyways etc
+ - theory of evolution? But more as a tech maybe rather? ANyways etc
+ - Big Ben
+ - brooklyn bridge?
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices.txt
+index 24d95e1c5..03a537eee 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_choices.txt
+@@ -246,3 +246,92 @@ I hope players like this change though, it's a fun sound, maybe will add more si
+ opinion/thought/feel or other or not i am sharing here or not (but yes am technically sharing here, but anyways), anyways,
+ May extend this logic on more techs but not necessarily (and most likely) not all (especially the cattle sound i mentionned (animal husbandry if
+ i am (and i don't think but anyways) mistaken but anyways)) most likely but not guaranteed, may or not, anyways,
++
++- apparently kings/states appeared earlier than i originally estimated or found rather, for example https://en.wikipedia.org/wiki/State_formation#Ancient_state_formation, so extending by putting monarchy a bit earlier, which (/may help) helps us position the zigurat (sumerian building) we are currently reworking at a time around which it is more relevant (around priesthood not necessarily requiring the tech itself but ideally would, but at least around it and not too far from it anyways etc.), specifically ziggurats were also sooner than i thought (https://en.wikipedia.org/wiki/Sumer#City-states_in_Mesopotamia), quote:
++
++"
++Anu ziggurat and White Temple at Uruk. The original pyramidal structure, the "Anu Ziggurat", dates to around 4000 BC, and the White Temple was built on top of it c. 3500 BC.[45] The design of the ziggurat was probably a precursor to that of the Egyptian pyramids, the earliest of which dates to c. 2600 BC.
++"
++
++Based on this, ziggurat and priesthood are moved earlier in history of our tech tree as suits us (conveniently (and nicely but anyways etc) but anyways etc to do so) anyways etc
++
++- oldest temple is around 11 600 (+/- - 10 000 BCE grossly anyways etc) according to https://www.civitatis.com/blog/en/oldest-temples-in-the-world/#:~:text=G%C3%B6bekli%20Tepe%20is%20famous%20for,of%20agriculture%20and%20animal%20husbandry. (Göbekli Tepe, Turkey), so moving temple prerequirement there which works well with our new reordered tech tree anyways etc
++
++- it seems that lighthouses appeared after harbours, according to this https://en.wikipedia.org/wiki/History_of_lighthouses they appeared quite late at least well into bronze age if not later if i am not mistaken, while our previous research/bit of digging has shown harbours appeared before (see harbor/harbour rework docs or code comments, anyways etc), so inverting the lighthouse and harbor effect or/and positions anyways etc
++
++- construction around 4000 BCE if i am not mistaken and before that is according to this anyways etc: https://en.wikipedia.org/wiki/History_of_construction, with this change ziggurat is now based on construction https://en.wikipedia.org/wiki/History_of_construction#Civilizations
++
++- mounted riding around 3500 BCE https://en.wikipedia.org/wiki/Equestrianism#History_of_horse_use , later for horse archers and such, anyways etc
++
++- feudalism already existing in the early medieval era https://en.wikipedia.org/wiki/Feudalism#Classic_feudalism and https://en.wikipedia.org/wiki/Feudalism_in_England perhaps even before as a more primitive type of hierarchical relationship indeed if i may say indeed anyways etc, as i also read in some wikipedia places too anyways etc, so simplifying it to 500 - 1000 in our tech tree anyways etc
++
++- engeeniring simplified to be some time after construction https://en.wikipedia.org/wiki/History_of_engineering#Ancient_era in the classical era or big iron age in our mod if we (still (anyways etc)) include classical era in the (bigger (big) iron age anyways etc)
++
++- first machinery such as windmill and such appeared around islamic golden age around 800 AD if i am not mistaken according to https://en.wikipedia.org/wiki/Machine#History, simplifying it to be around islamic golden age tech in our mod anyways etc
++
++- music could be placed in many eras in history, but according to https://en.wikipedia.org/wiki/History_of_music#Antiquity, place(placing anyways etc) it around classical era (same great iron age or classical separated to be determined anyways etc if i may say or not or yes or etc other or not or etc or other or not etc or not or yes or and other or and not anyways etc...), helps dilute the early religious push of monotheism, links it to china history too where there is daoism and civil service, looks quite good or and maybe rather first is maybe a nice association or maybe not but is how i want to do it anyways etc anyways etc anyways etc looks nice enough to me or not or yes or and other or and not or etc but etc or anyways etc...
++
++- according to https://www.quora.com/Was-ancient-Greece-a-democracy-or-a-republic-and-what-is-the-difference (more) specifically this https://www.quora.com/Was-ancient-Greece-a-democracy-or-a-republic-and-what-is-the-difference/answer/Matt-Riggsby anyways etc anyways etc anyways etc..., ancient greece was (more of) a republic anyways etc and not so much if at all a democracy from what i understand of this, still this is good enough for our mod's needs to have republic sooner as nicely fits our new tech tree, so moving consitution tech and representation civic there as well anyways etc ; also by cross-checking for example with https://www.quora.com/Did-ancient-Greece-have-a-democracy/answer/Brian-Overland-1 the confusion or rather maybe anyways etc the border between republic and democracy is blurrier at least from a quick search and my moderate? Or rather maybe modest?? Or not or yes or both or none or and other or and not anyways etc understanding of it, still good enough at least for now if not always or not anyways etc to have a republic tech, but ideally i'd do a bit more research on it at least for our mod's needs if i may say so and also for myself but not lot for myself jsut the core detail(s) of the distinction maybe or not or yes or other anyways etc anyways etc, from this below especially https://www.quora.com/Was-ancient-Greece-a-democracy-or-a-republic-and-what-is-the-difference/answer/Robin-Levin-3 i make the link as was is kindly shared anyways etc that plato seemingly favoured republic, so for our mod we can make the link between tech philosophy and and tech republic which is quite nice, actually keep it as constitution maybe even, and link it further with monarchy tech anyways etc, so all this is quite nice, ideally i'd do more research but maybe this is good enough or not too bad or yes or not or other anyways etc...
++
++- history of navigation (name from civ3 but era sooner than in civ3 for our mod anyways etc as this covers antiquity or and such too anyways etc and is after seafaring to boost water tiles/techs too anyways etc) linked with music and also stars observation if i am not mistaken etc in https://en.wikipedia.org/wiki/History_of_navigation#Indo-Pacific so putting music before navigation tech (old optics tech)
++
++- drama is linked quite strongly to greek classical story so trying to move it there too anyways etc, in (i.e. info about this tech from wikipedia or and such anyways etc (source) anyways etc in (i.e. (also) (anyways etc) according to anyways etc)): https://en.wikipedia.org/wiki/Drama#Classical_Greek_drama
++
++- aesthetics tied to ancient greece history too anyways etc https://en.wikipedia.org/wiki/History_of_aesthetics#Ancient_Greek_aesthetics
++
++- medicine around 2000 +/- 1000 BCE linked to writing and such anyways etc should read more of this ideally and i would want to, but, anyways etc anyways etc anyways etc... https://en.wikipedia.org/wiki/History_of_medicine#Ancient_medicine, also for the medical wonder but anyways etc anyways etc anyways etc...
++
++- theory of evolution in 1859 linked also to tech biology before it too according to https://en.wikipedia.org/wiki/History_of_evolutionary_thought, ideally should research more of this but this is (accurate (and informative)) enough (anyways etc) to place these techs (for now if not always or not adjust with more details or not anyways etc or keep as is first impression as they say or not anyways or not or yes or etc or and other or and not anyways etc) as biology then theory of evolution techs and refine later or and not or and yes or and other or and not or etc anyways etc
++
++- oldest bank around 1500s - 28 + 90/168 approx anyways etc https://en.wikipedia.org/wiki/List_of_oldest_banks_in_continuous_operation#:~:text=The%20world's%20oldest%20bank%20is,of%20piety%20founded%20in%201472. , did not look in detail but should be accurate enough for our mod, ideally should and i'd want, but this maybe helps us place the tech in the tech tree for now maybe anyways etc, can relook later or maybe not or yes or etc or not or other or etc or and othe ror and not anyways etc
++
++- astronomy (can be) linked to islamic golden age (maybe) maybe according to https://en.wikipedia.org/wiki/History_of_astronomy#Middle_Ages anyways etc, just a bit after the tech so sooner than in civ4 if i am not mistaken and before banking too unlike what is if i am not mistaken anyways etc, hopefully clearer or and ideally more accurate too hopefully or not or yes or and also helpful hopefully or and not or and yes or and other or and not but or not but but anyways etc anyways etc anyways etc...
++
++- gunpowder around 800 AD and linked to chinese empire/nation/or and other or and not anyways etc name anyways etc https://en.wikipedia.org/wiki/History_of_gunpowder, so link it with civil service
++
++- printing press around 1440 AD in germany, so put it after gunpowder, ideally linekd to western (part of (the( or not the anywyas etc)) anyways etc) history https://en.wikipedia.org/wiki/Printing_press anyways etc
++
++- replaceable parts seems like an inefficient tech , https://en.wikipedia.org/wiki/Interchangeable_parts#Origins_of_the_modern_concept , just like paper we'll probably remove it too anyways etc anyways etc anyways etc..., anyways etc
++
++- chemistry is linked to fire, mining (metal/ores etc. if any etc more anyways etc), pottery, medicine, etc, so we can link it put it facing these crafting techs perhaps in our tech tree depending on history anyways etc, "alchemy" seems also linked to philosopher's stone and forgot my idea but anyways etc here is the link https://en.wikipedia.org/wiki/History_of_chemistry#The_philosopher's_stone anyways etc... (As) F(f)or our tech tree (anyways etc), but before that then in https://en.wikipedia.org/wiki/History_of_chemistry#17th_and_18th_centuries:_Early_chemistry modern or more modern base of chemistry anyways etc removed mysticism, so maybe chemistry can be linked to liberalism tech and around it, as for timeline around 1500s-1600s AD it seems in our tech tree at least anyways etc
++
++- from the quick read at https://en.wikipedia.org/wiki/Cavalry#Renaissance_Europe and before that https://en.wikipedia.org/wiki/Military_tradition#In_fiction hehe but anyways etc anyways etc anyways etc..., it seems military tradition is not so much of a real or clear concept from the quick read we had of or that i had rathe rof it idk why i said we hehe or not hehe or yes hehe but anyways etc... In all cases, we can maybe use it as a symbol of napolenic times or some future as in further era about more advanced guns than say arquebusiers or that time of history from the very little i glanced or oversaw of it but know a bit or from culture or experience or and such but anyways etc anyways etc anyways etc... ; so more specifically anyways etc... For our mod it would be some longer time after gunpowder though, perhaps a few techs, and after another gunner tech but this is maybe too inefficient (to have so many techs anyways etc for the same thing (but or not but or yes but but) anyways etc...) so will see but general idea would be 1 to 3 ideally or 2 may be betetr idk for our mods need anyways etc techs about gunpowder units, we could more easily add the gunpowder ressource too as we wanted maybe too anyways etc if doesn't clutter gameplay too much anyways etc.
++
++- rifling around 1500s -20 + 100 or less than 100 but anyways etc in https://en.wikipedia.org/wiki/Rifling#History , so we can put it around that era and before military tradition not after, would be for arquebusiers, then maybe a later tech for more advanced riflemen if such a thing indeed exists as i suspect but would need to see to be sure but in all cases anyways etc ; perhaps we can also link it to astronomy, i don't know if firearms were used (maybe we can rename rifling to firearms actually anyways etc but it would be less general or maybe would not of a name but anyways etc) in the conquest of aztecs? I did a bit of very quick research about it and found this interesting info, about aztec warriors anyways etc during conquistadors conquista or such time or not if i am not mistaken anyways etc, from https://www.reddit.com/r/AskHistorians/comments/1e1e893/comment/lcvvjcq/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button anyways etc, quote:
++
++"
++JMer806
++•
++1y ago
++No - Aztecs used weapons both ranged and up close. They had bows and arrows, they threw javelins aided by a weapon called the atlatl, and they had clubs, spears, and most famously the macuahuitl which is a club that has had obsidian or other stone chips embedded along the edges to create a cutting weapon. Relatively few examples of Aztec weaponry survive, but they are attested to in native art and eyewitness accounts. There was a macuahuitl in the armory of the Spanish royal family until 1884 when it was destroyed by fire.
++
++These weapons were not unique to the Aztecs - we know from the accounts of conquistadors that they were used widely across Central America, including by the native auxiliaries that the Spanish employed. The macuahuitl specifically is known from Mayan carvings dating centuries before the Aztec Empire was born.
++
++The accounts of the conquistadors are very clear about the use of the these weapons by Aztecs and others. They were impressed by the power of the macuahuitl, which according to several accounts could sever the head of a horse in a single blow. Just for an example, here is a passage from Francisco de Aguilar that I pulled off Wikipedia since I can’t find my book on Cortez:
++
++They used ... cudgels and swords and a great many bows and arrows ... One Indian at a single stroke cut open the whole neck of Cristóbal de Olid’s horse, killing the horse. The Indian on the other side slashed at the second horseman and the blow cut through the horse’s pastern, whereupon this horse also fell dead. As soon as this sentry gave the alarm, they all ran out with their weapons to cut us off, following us with great fury, shooting arrows, spears and stones, and wounding us with their swords.
++
++However, that said, Aztecs did place a high value on captives, and we know that entry into the elite warrior societies required taking a number of live captives. Macuahuitl could be modified by removing some of the blades to make them less lethal, or simply used as a club in a pinch. So to an extent your information is correct, since they did ritualize warfare and place a premium on the capture of living enemies.
++
++Sources: several museums in Mexico City as well as The Conquistadors: First-Person Accounts of the Conquest of Mexico by Patricia de Fuentes.
++"
++
++Also then according to this very modest (of me) or not (of me to hehe or not hehe or yes hehe but anyways etc) research of me or mine rather but anyways etc, guns were seemingly used to conquer the american continent by european(s?) or and other westerners or other if any anywyas etc in https://www.google.com/search?q=did+christopher+cvolumbus+use+guns&rlz=1C1GCEA_enFR1111FR1111&oq=did+christopher+cvolumbus+use+guns&gs_lcrp=EgZjaHJvbWUyBggAEEUYOdIBCDU2MTRqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8 :
++
++quote:
++"Answer and Explanation: Weapons used by Christopher Columbus and his crew included matchlock rifles such as the arquebus, hand cannons, and wrought-iron cannons. Matchlock rifles like the arquebus could be fired by contacting a lit match to the gunpowder using the gun's firing mechanism.
++What weapons did Christopher Columbus use?
++"
++
++Source: Homework.Study.com
++https://homework.study.com › explanation › what-weap... (from google), but as website needs a registration it seems, this (bit of info that is not bit to me but anyways etc is quite lot hehe but anyways etc anyways etc anyways etc...) is maybe indeed enough for our mod to put rifling/firearms near astronomy, is quite nicely linked anyways etc, in our tech tree, anyways etc.
++
++But as this is indirect, and a bit too far off (from gunpowder anyways etc), and not the only association (between firearms tech renamed from rifling now anyways etc, and other techs like gunpowder obviously if i may say but anyways etc, and not only is with astronomy i mean anyways etc), then putting it rather next to i.e. facing gunpowder anyways etc, remembering in a separate notes .txt file the indirect association when/if we ideally do the arrows and such but or not but but etc anyways etc anyways etc anyways etc anyways etc...
++
++- history of economics is around 1700s approx from very quick glance at/in anyways etc https://en.wikipedia.org/wiki/Economics#History_of_economic_thought and hisotry of banking is around 1400s if i am not mistaken too anyways etc (link it to Rome's history in our mod also with the Medici Bank as linked/hinted in wiki(pedia (of internet online i mean anyways etc)?) anyways etc) in https://en.wikipedia.org/wiki/History_of_banking ; so for our mod('s purposes (but or not but etc anyways etc but) (but) anyways etc (anyways etc anyways etc anyways etc...)) making banking before economics hopefully accurate enough or/and interesting or not or yes or and other or and not or etc or other or not or yes or not or other or not or yes or other or anyways etc ; also from the first link ((about) (but anyways etc) economic thing anyways etc) it seems economics is a scientific thing so maybe link it to scientific method, ideally scientific method would be sooner or around this time but would need to do search on it though anyways etc, for now putting economics or rather banking before or rather economics after the banking tech maybe seems like a good starting point or rather maybe banking before economics tech but anyways etc... ; also from this link('s very quick glance but anyways etc...) linked to ancient greece and such so make it face constitution tech anyways etc
++
++- liberalism around revolution techs (democracy maybe and such) and around 1700s if i am not mistaken so move it a bit later in tech tree maybe anyways etc, info in https://en.wikipedia.org/wiki/History_of_liberalism#Early_history anyways etc
++
++- scientific method around islamic golden age so moving it much sooner in tech as i had suspected but now (more if at all and yes but anyways etc anyways etc or and other or and not or etc or yes or other or not or etc or yes but anyways etc anyways etc...) in https://en.wikipedia.org/wiki/History_of_scientific_method#Emergence_of_inductive_experimental_method from very quick glance but should be enough but anyways etc at least for our tech tree's needs but anyways etc...
++
++- naturalism new tech replaces alphabet, from https://en.wikipedia.org/wiki/Naturalism_(philosophy)#Modern_philosophy and https://en.wikipedia.org/wiki/Sociological_naturalism , influences later history science to be more rational and such, perhaps also although i did not check anyways etc, indirectly war and democracy and such but anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_indirect_associations.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_indirect_associations.txt
+new file mode 100644
+index 000000000..cb552f282
+--- /dev/null
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_indirect_associations.txt
+@@ -0,0 +1,5 @@
++Not exhaustive:
++
++- Music with navigation tech anyways etc
++- Islamic golden age with astronomy
++- Astronomy with Firearms (rifling renamed tech)
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt
+new file mode 100644
+index 000000000..b724dfd52
+--- /dev/null
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_tech_design_swapped_simplified_tree.txt
+@@ -0,0 +1,102 @@
++minimally exhaustive full early tech rework/inversions/+/- additions or not or yes or and other or and not anyways etc:
++
++- invert monarchy with monotheism (also monotheism should be a bit later than hinduism as well anyways etc)
++- invert monarchy with priesthood (so monarchy leads to code of laws while priesthood leads to monotheism anyways etc)
++- invert calendar with meditation (as calendar should be much sooner in history see american continent prehistory for details or and docs which includes notes .txt type of files or not or yes or and other doc files or and wikipedia online or other files or not and if i am not mistaken indeed and is how i want to do it still anyways etc but hopefully still accurate enough or not or yes or and other or and not or yes or other anyways etc anyways etc anyways etc)
++- invert currency with alphabet (currency was sooner if i am not mistaken see info same for details anyways etc), and we want to remove/replace alphabet anyway(s?), perhaps now is a good time (while also creating tech seafaring that we need if we can maybe too anyways etc (see below for details anyways etc)), anyways etc
++- invert alphabet with litterature (aligns quite nicely with our goal, now alphabet to be seafaring if i am not mistaken anyways etc is "north" if i may say anyways etc i.e. near sailing and such techs anyways etc, and litterature is before code of laws and tech writing which matches our tech tree anyways etc) and also matches better our new tech tree anyways etc, is also nice because plantations can be built so much sooner but todo check if accurate if we (hopefully) todo check (if it is accurate anyways etc) anyways etc anyways etc...
++- invert bronze working with metal casting as is more accurate with our tech tree anyways etc see docs or/and such or and other or and not anyways etc. (will have to greatly reduce metal casting's cost for that change though which may be good for early game smooth/fast pace maybe anyways etc)
++- note: make litterature and monarchy prereq ors not ands for code of laws to have code of laws faster and as both are not strictly necessary for code of laws but perhaps different possible historical approaches to it anyways etc
++
++- invert iron working with machinery
++- invert currency with machinery (not exactly like our (new) (anyways etc) tech tree where currency is before bronze working but hopefully accurate enough and not too nonsensical, also from a gameplay standpoint with current tech tree allows to have bronze working fast enough as well to not slow down the game pace too much with current tree at least anyways etc
++- invert machinery with litterature (now litterature just after writing nice anyways etc anyways etc anyways etc as wanted anyways etc anyways etc anyways etc...)
++- invert construction with mathematics (now more accurate with our tech tree and what we have(/had anyways etc) assessed to be historicaly accurate anyways etc
++- invert machinery with code of laws
++- invert guilds with machinery (closer to our tech tree as well where/when guild is/was assessed to be much sooner in history if i am/ oa and was not mistaken anywyas see also docs for details or not or yes or etc or and other or and not anyways etcetc, (does) not exactly matches (match) our tech tree but hopefully accurate enough (quite if not lot anyways etc) without reordering the whole tech tree and positions and such arrows and such anyways etc anyways etc anyways etc...)
++- invert guilds with meditation (now meditation is farther (in tech tree anyways etc) and guilds is closer (same) as we want as per our tech tree if i may say anyways etc)
++- invert philosophy with meditation, now philosphy (daoism) is before meditation as we want, also around the classical era (that we group with iron age as of now and to simplify or not anyways etc so maybe always or not or yes or other or not or etc anyways etc), good because all religions are not all lined up, so one can't just farm them all, and maybe daoism started a bit independently from buddhism? (i don't know would need to check, but for the needs of our mod is a better placement at least anyways etc), also now daoism now lines nicely with civil service and the ancient history of china anyways etc, see docs for details or and other internal or external to our mods or any or not or yes or other or etc or ot or yes or etc sources anyways etc
++- invert divine right and paper, now islam tech is more directly aligned with theology (need to be careful to not line all religions, but it was too isolated before, also we can now move feudalism later as historically more accurate if i am not mistaken anyways etc at least try to anyways etc, also divine right tech is now aligned with education tech as we wanted (as per our tech tree reworked in image anyways etc) anyways etc
++- invert paper and machinery (better association of these techs anyways etc, now machinery leads to printing press, while paper leads to banking which is quite nice and paper is linked with islam tech in tree view anyways etc)
++- invert compass (now is seafaring) with alphabet (to be replaced with another new tech)
++- invert aesthetics with compass (now seafaring)
++- invert feudalism with paper
++- invert civil service with paper (now civil service appears a bit earlier in history as we want it (to) anyways etc)
++- reinvert paper and/with civil service anyways etc, then invert paper with music anyways etc (see docs and etc simiarly as before said in brackets about docs and or such and or other and or not or yes or and other or and not anyways etc).
++- invert guilds and/with alphabet (unknown tech to assign to it instead anyways etc) (guilds connected to crafting and trading (currency and metal casting now) makes sense, see docs for details anyways etc), now we can/trying to place our new port tech (other and after seafaring but not necessarily linked/tied to it, ideally yes for consistency but maybe not will see about this tech i mean anyways etc)
++- invert civil service and meditation (now civil service is closer to meditation, and most importantly we gain room to link tech_constitition (see docs notes.txt and such anyways etc for details as said before or not said before hopefully clearer this way i mean with this info to understand if i may say indeed anyways etc) with philosophy and ancient greece story more too and or such anyways etc, also now civil service faces nationalism in tech tree i mean anyways etc which is quite nice anyways etc
++- remove paper from tech tree, is an inefficient tech even in civ4, we can boost tech progress a bit by removing it, plus or and put another tech instead anyways etc (such as the port tech or medicine or such anyways etc or othe ror nto anyways etc)
++- invert nationalism and democracy, nationalism is way too soon, democracy can be before nationalism maybe too if i am not mistaken, for example also in civ3, but hisotrically revolutions and such happened maybe a bit before nationalism todo check anyways etc, currently nationalism is lined with islam tech and education tech which is way too soon anyways etc, so putting ti (i.e. nationalism later anyways etc)
++- move meditation at the top empty space so not linked to philosophy (and daoism not aligned), and now constitution is after philosophy as we want anywyas etc
++- move drama to the empty space after construction
++- move meditation at/to anyways etc the empty anyways etc space after drama
++- move navigation (optics renamed, see docs notes.txt and such similar or not such or yes such or and other or and not anyways etc for details anyways etc) at the empty space after meditation and aesthetics that share this space too anyways etc
++- invert meditation and music to have the association between music and navigation see docs for details anyways etc
++- invert aesthetics and seafaring anyways etc
++- invert seafaring and navigation buttons but not the names: i.e. now seafaring is navigation and navigation is seafaring (names swapped effects and buttons same anyways etc)
++- move meditation to the empty space after guilds, nicely separated from the other religious tech paths, is an end tech path in the simplified current tech tree reworked quite nicely still even just quite nicely anyways etc, and we can summon it as a prequirement (i.e. tech meditation if need too anyways etc), and that ((i.e. )meditation tech anyways etc) is still lined similarly i.e. in face of / facing in same column philosophy for daoism as they appeared at about same time so veyr nice too anyways etc
++- move seafaring to the empty space just after writing so we have it soon enough anyways etc and frees later paths or maybe rather anyways etc tech spots for other techs we may want to add or not or yes or and other or etc or and not anyways etc
++- move music to the empty spot after seafaring and before navigation
++- invert seafaring and guilds
++- invert meditation and navigation
++- add medicine at the place where guilds is, after writing (see docs and such for details as said before i.e. in a similar or not similar anyways etc as you prefer or not anyways etc way for details anyways etc hopefully helpful or not or yes or and other or and not anyways etc), move guilds to an unallocated out of tech tree space (to reallocate (a bit anyways etc if not which should not be but who knows or i know or not or yes but anyways etc hopefully not long for guilds tech anyways etc) later anyways etc)
++- move drama to the empty space before meditation and after medicine
++- invert meditation and drama (now drama lined more closely to philosophy and ancient greece history or part of it which we assed it (i.e. drama) to be related to (i.e. to philosophy tech anyways etc), also meditation is closer to daoism now in same column, and drama faces nationalism and democracyy and military tradition a bit too so quite nice (national culture early bits of it maybe anyways etc), and is before music too which is cool i think anyways etc
++- reinsert guilds at the empty space after construction (ideally would have liked to link it to craftsmen and such but hopefulyl accurate enough here and soon enough too as we want the tech soon enough around 2000 to 2200 BCE from memory of my notes .txt see them or and other docs or and not for details anyways etc, and should still be (quite if not lot or bit or bit more or not or yes or etc or and other or and not anyways etc) accurate as construction is not too unrelated to craftsmanship maybe anyways etc, at least we didnt change tech tree much to acheive this if i may say i mean anyways etc which is good or maybe rather at least if i may say anyways etc a pleasant result anyways etc
++- move democracy to the empty space before nationalism since we have the room, should be more accurate but didnt check in detail but should be anyways etc
++- add new tech after biology: theory of evolution (replaces paper)
++- move printing press to the empty space just before democracy, now (printing press) is not weirdly too close to islamic golden age, plus just before democracy which is quite nice i think anyways etc at leats hoepfully a bit more acucrate in chronology or history or year or and such anyways etc (did not do the detailed research, putting it for now for simplicity anyways etc) (note: i also like that music is inbetween in columns seafaring and navigation, as we want music to be an or require to navigation if doesn't mess the arrows too much if i am not mistaken too that they are automatic anyways etc)
++- invert astronomy and banking, see docs notes.txt similarly or and other links or outside/external sources or and not if need(ed) and this my quick glances or more longer glances or not sources or not or yes or and other or and not are accurate enough or exhaustive enough or rather if they are not but maybe they are or maybe not or yes or etc or and other or and not as you prefer but anyways etc anyways etc anyways etc...
++- move replaceable parts away from tech tree, we'll probably not use it in our mod as it is an inefficient tech at least for our needs also from docs history very quick read or/and maybe glance rather or yes or not or other or nto or yes or etc anyways etc.
++- move firearms (rifling renamed) to earlier in tech tree at the empty space before it (see docs etc for details similarly etc anyways etc...)
++- move military tradition to the empty space where firearms was (see docs for details same etc), now military tradition is after firearms which is more coherent from a historical standpoint, see docs etc for details anyways etc thanks anyways etc
++- move printing to the empty space under democracy anyways etc more accurate historically as printing press happened a bit later around renaissance see docs for details anyways etc
++- move gunpowder before firearms at the empty space, as gunpowder happened much sooner if i am not mistaken too around islamic golden age but from china's continent or rather part of history if i am not mistaken and or from docs see docs for details anyways etc
++- move astronomy to the empty space before firearms, and after islamic golden age tech, as astronomy is linked to islamic golden age while gupowder is more linked to china's history symbolized by the civil service part of tech tree anyways etc, but both around same time according to docs or/and also which are part of my research or quick or longer glances at it or not or yes or and other or and not anyways etc
++- move machinery to the empty space under/after feudalism anyways etc
++- move printing press to the empty space after feudalism, now linked to european history (german printing press, western/european feudalism at least partly anyways etc if if i am not mistaken too anyways etc)
++- move firearms to after gunpowder more logical like this and making more sense if ideally possible so trying it in our tech tree but anyways etc anyways etc anyways etc...
++- invert banking and economics as is or and should be more (historically if i am not mistaken anyways etc) accurate (see docs for details too or and other or and not to double or triple or more check if need if i didn't make a mistake in understanding these or and from quick glance or maybe not (i.e. maybe i did not or i.e. maybe not check? But as you prefer etc anyways etc) but anyways etc)
++- put back machinery at the empty space before gunpowder
++- put/move banking to the empty space after/under feudalism now free anyways etc
++- move printing press to the empty space after education, now printing press is directly after education tech (to maybe rename to another name than education that happened before as we wanted to (rename) before or maybe not or yes or and other or and not but anyways etc anyways etc anyways etc)
++- move back banking to the empty space after/at the right anyways etc of feudalism anyways etc
++- move astronomy to the empty space after/under feudalism anyways etc
++- move education above at the empty space (above it) anyways etc
++- move scientifc method to the empty space after/under islamic golden age anyways etc (see docs for details similarly anyways etc)
++- move corporation to the empty space after economics (did not research on it, we may or not keep this tech in our finalized tech tree (we may remove corporations entirely) anyways etc, so only (adjusted in this) in this simplified tech at least for now if not always or not anyways etc
++- invert banking with astronomy again anyways etc...
++- invert astronomy with education
++- remove tech steel from our tech tree, is probably an inefficient tech for our tech tree (plus existed before and earlier) although i did not recheck, anyways etc
++- move corporation to where tech steel was and which is now an empty space anyways etc (we need the space for naturalism, scientifc revolution, (see wikipedia for details "scientific revolution" anyways etc))
++- reinsert alphabet as the naturalism tech anyways etc after economics anyways etc (see also docs etc similarly for details anyways etc)
++- invert naturalism and chemistry
++- move printing press to the empty space after astronomy anyways etc
++- move education to the empty space after scientific method anyways etc
++- move printing press to the empty space after feudalism anyways etc (and /at the right of it (i.e. of feudalism) anyways etc)
++- move liberalism to the empty space after education and put chemistry there at this new empty space after scientific method anyways etc
++- move nationalism to the empty space after economics
++- move economics after astronomy (empty space)
++- move democracy after it(self anyways etc) (empty space)
++- invert nationalism with military science, but not actually remove military science entirely (inefficient tech for our mod if not for civ4 at least for our mod anyways etc)
++- reinsert replaceable parts as scientific revolution todo research on it even if bit or and glance but later anyways etc
++- invert corporation with steam (did not do research on them is todo if i do ideally but for now proceeding anyways etc)
++- reinsert military science as rifle tech (did not do research todo or not but anyways etc) before scientifc revolution)
++- reremove replaceable parts now renamed to scientific revolution but removed now again anyways etc
++- move naturalism to the emptytech spot after education
++- invert nationalism and physics (did not search much if at all anyways etc)
++- move democracy to the empty space after democracy (same (did not search much if at all anyways etc))
++- invert steam power with democracy
++- invert democracy with physics
++- invert biology / theory of evolution with railroad / combustion, but while doing that also move physics to the rightmost anyways etc, now biology / theory of evolution would be left of it (i.e. of physics anyways etc) anyways etc
++- move democracy back at the top empty anyways etc space above military tradition
++- move military tradition after liberalism at the empty space after it (i.e. after liberalism (anyways etc))
++- move military science (at the empty space after) (anyways etc) after economics anyways etc
++- move economics under military science and also above naturalism anyways etc
++- invert military tradition and economics
++
++- move physics to after gunpowder anyways etc (did not do much research is absed on civ3 (my memory of it anyways etc) and newton from my memory (and quick read too but anyways etc) and/but/or anyways etc own intuition i also had maybe too so divergent from our final tree but to simplify and fit quite nicely maybe too or not ro yes or not or etc or other or and not anyways etc in our mod anyways etc 's simplified hack tree anyways etc, is quite nice still though but anyways etc anyways etc anyways etc...
++- move corporation to where physics was now empty spot anyways etc
++- invert physics and magnetism (not did much research too i mean i did not anyways etc ideally would but maybe would not and or reevaluate this for the big tech tree i mean but anyways etc...)
++- move radio to the empty space to the left (didnt do any research at all on it anyways etc) hopefully accurate enough even tohugh bit random but anyways etc and but maybe is or maybe is not or maybe is or yes not yes not or yes or other or not or other or other or etc anyways etc...
++- add tech globalization replaces steel anyways etc, hopefully enough for this hack tech tree, looks quite cool and nice would need to balance it now, then add camel and gunpowder maybe too as new bonuses/ressources in another commit maybe or and maybe also other changes etc or not but anyways etc phewww hehe, anwyays etc :) but it does look nice from my memory of it but anywyas etc... resting a bit then doing next or rather maybe rest of it or not or yes or not or yes or etc or and othe ror and not (but) (or not but or yes but) but anyways etc...
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_techs_civ4_to_remove_or_replace_or_add.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_techs_civ4_to_remove_or_replace_or_add.txt
+new file mode 100644
+index 000000000..4a179d9be
+--- /dev/null
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_techs_civ4_to_remove_or_replace_or_add.txt
+@@ -0,0 +1,14 @@
++techs
++
++removed:
++see tech tree preview for details
++
++
++
++replaced:
++see tech tree preview for details
++
++
++
++added:
++see tech tree preview for details
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_v18_tech_tree_mini_temp.png b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_v18_tech_tree_mini_temp.png
+new file mode 100644
+index 000000000..28fc6ae9e
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.30b_v18_tech_tree_mini_temp.png differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.32_Techtree_default_modified.png b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.32_Techtree_default_modified.png
+index f13137698..c833b13f1 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.32_Techtree_default_modified.png and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.32_Techtree_default_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png
+index ee123c9aa..054815c00 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.33_Techtree_modified.png differ
+
+[PATCH COVERAGE]
+patchFiles=27 embeddedFiles=27 omittedFiles=0 embeddedPatchBytes=193928

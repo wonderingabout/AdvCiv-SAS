@@ -60,9 +60,10 @@
 ## Civ install path
 ## Path to the directory where boost and python is stored
 ## Overwritten by enviroment variable CIV4_LIB_INSTALL_PATH
+# <!-- custom: also add steam path if helps for reference even though we also list it at least as of now in Makefile.user. Note: i am not sure if i should set this as the Beyond the Sword subfolder or the root civ4 one but this seems to work-function as is so keeping as is the steam link we added -->
 #CIV4_PATH=$(PROGRAMFILES)\Sid Meier's Civilization 4\Beyond the Sword
 #CIV4_PATH=$(PROGRAMFILES)\2K Games\Firaxis Games\Sid Meier's Civilization IV Colonization\CvGameCoreDLL
-#
+#CIV4_PATH=$(PROGRAMFILES)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword
 ## Optional:
 # To have newly compiled dlls copied to your mod's Assets directory
 #YOURMOD=..
@@ -360,7 +361,7 @@ $(Target_BIN_TEMP): $(OBJS) $(Target_RESOURCE)
 	@ECHO.>"$*.obj.@"
 	@$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH4)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<
 	@DEL "$*.obj.@"
-	
+
 {$(SOURCE_DIR)\$(SUBDIR5)}.cpp{$(TEMP_TARGET_FILES)\$(SUBDIR5)}.obj:
 	@ECHO.>"$*.obj.@"
 	@$(CPP) /nologo $(CFLAGS) $(PRECOMPILE_CFLAGS1)$(SUBDIRPATH5)$(PRECOMPILE_CFLAGS2) $(INCS) /Fo$*.obj /c $<

@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      # <!-- custom: Daily for initial testing so outdated GitHub Actions are found quickly.
+      # Switch to weekly/monthly later if Dependabot becomes noisy. (ChatGPT-5.5) -->
+      interval: "daily"
+    open-pull-requests-limit: 10
+    groups:
+      github-actions:
+        patterns:
+          - "*"

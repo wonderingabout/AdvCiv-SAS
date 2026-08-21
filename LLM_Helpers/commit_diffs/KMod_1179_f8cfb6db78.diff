@@ -1,0 +1,322 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1179
+# Commit: f8cfb6db7827aa7a6d3c56f89818f405d917d527
+# History segment: K-Mod history
+# Parent used for diff: 552c3738bfddfbc1fc53b185fe2a203891eb24b1
+# Title: Inflation rate now increases with global tech state.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+49	7	CvGameCoreDLL/CvPlayer.cpp
+4	1	CvGameCoreDLL/CvPlayer.h
+3	3	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+3	2	CvGameCoreDLL/CyPlayer.cpp
+2	1	CvGameCoreDLL/CyPlayer.h
+2	1	CvGameCoreDLL/CyPlayerInterface1.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 5c06719ab..7fd8ff202 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -6148,7 +6148,11 @@ int CvCity::calculateCorporationMaintenanceTimes100(CorporationTypes eCorporatio
+ 	iMaintenance *= std::max(0, (GET_PLAYER(getOwnerINLINE()).getCorporationMaintenanceModifier() + 100));
+ 	iMaintenance /= 100;
+ 
+-	int iInflation = GET_PLAYER(getOwnerINLINE()).calculateInflationRate() + 100;
++	// K-Mod note. This division by inflation effectively cancels with the inflation factor in calculateInflatedCosts.
++	// I'm not sure I agree with having corp mainenance be free of inflation.
++	// Corp output gets boosted as cities' yield multiplayers improve, so perhaps the costs should inflate...
++	// But I'll leave it as is for now.
++	int iInflation = GET_PLAYER(getOwnerINLINE()).getInflationRate() + 100;
+ 	if (iInflation > 0)
+ 	{
+ 		iMaintenance *= 100;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index e840b682d..02e78ec62 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -14525,7 +14525,7 @@ void CvGameTextMgr::buildFinanceInflationString(CvWStringBuffer& szBuffer, Playe
+ 	}
+ 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+ 
+-	int iInflationRate = kPlayer.calculateInflationRate();
++	int iInflationRate = kPlayer.getInflationRate();
+ 	if (iInflationRate != 0)
+ 	{
+ 		int iPreInflation = kPlayer.calculatePreInflatedCosts();
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 0a01fbdde..3eae4f4e5 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -743,6 +743,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_iCombatExperience = 0;
+ 	m_iPopRushHurryCount = 0;
+ 	m_iInflationModifier = 0;
++	m_iInflationRate = 0; // K-Mod
+ 	m_uiStartTime = 0;
+ 
+ 	m_bAlive = false;
+@@ -3419,6 +3420,8 @@ void CvPlayer::doTurn()
+ 
+ 	updateWarWearinessPercentAnger();
+ 
++	updateInflationRate(); // K-Mod
++
+ 	doEvents();
+ 
+ 	updateEconomyHistory(GC.getGameINLINE().getGameTurn(), calculateTotalCommerce());
+@@ -7002,7 +7005,7 @@ int CvPlayer::getBuildCost(const CvPlot* pPlot, BuildTypes eBuild) const
+ 		return 0;
+ 	}
+ 
+-	return std::max(0, GC.getBuildInfo(eBuild).getCost() * (100 + calculateInflationRate())) / 100;
++	return std::max(0, GC.getBuildInfo(eBuild).getCost() * (100 + getInflationRate())) / 100;
+ }
+ 
+ 
+@@ -7384,7 +7387,8 @@ int CvPlayer::calculatePreInflatedCosts() const
+ }
+ 
+ 
+-int CvPlayer::calculateInflationRate() const
++//int CvPlayer::calculateInflationRate() const
++void CvPlayer::updateInflationRate()
+ {
+ 	int iTurns = ((GC.getGameINLINE().getGameTurn() + GC.getGameINLINE().getElapsedGameTurns()) / 2);
+ 
+@@ -7393,12 +7397,42 @@ int CvPlayer::calculateInflationRate() const
+ 		iTurns = std::min(GC.getGameINLINE().getMaxTurns(), iTurns);
+ 	}
+ 
++	// K-Mod. Advance the effective turn proportionally to have many techs have been discovered;
++	// so that games which lots of tech trading will still have a reasonable inflation rate.
++	// Note. This is an experimental change. I might have to revise it in the future.
++	{
++		PROFILE("tech inflation");
++		long iPotentialTech = 0;
++		long iCurrentTech = 0;
++		for (TechTypes eTech = (TechTypes)0; eTech < GC.getNumTechInfos(); eTech=(TechTypes)(eTech+1))
++		{
++			for (PlayerTypes j = (PlayerTypes)0; j < MAX_CIV_PLAYERS; j=(PlayerTypes)(j+1))
++			{
++				const CvPlayer& kLoopPlayer = GET_PLAYER(j);
++				if (kLoopPlayer.isAlive() &&
++					!kLoopPlayer.isMinorCiv() &&
++					kLoopPlayer.canEverResearch(eTech))
++				{
++					iPotentialTech+=kLoopPlayer.getTotalPopulation();
++					if (GET_TEAM(kLoopPlayer.getTeam()).isHasTech(eTech))
++						iCurrentTech+=kLoopPlayer.getTotalPopulation();
++				}
++			}
++		}
++		iTurns += iCurrentTech*GC.getGameINLINE().getEstimateEndTurn()*4/(3*std::max(1L, iPotentialTech)); // based on full tech at 3/4 of max time.
++		iTurns /= 2;
++	}
++	// K-Mod end
++
+ 	iTurns += GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getInflationOffset();
+ 
+ 	if (iTurns <= 0)
+ 	{
+-		return 0;
++		//return 0;
++		m_iInflationRate = 0;
++		return;
+ 	}
++	/****************************/
+ 
+ 	int iInflationPerTurnTimes10000 = GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getInflationPercent();
+ 	iInflationPerTurnTimes10000 *= GC.getHandicapInfo(getHandicapType()).getInflationPercent();
+@@ -7423,7 +7457,8 @@ int CvPlayer::calculateInflationRate() const
+ 
+ 	FAssert(iRatePercent >= 0);
+ 
+-	return iRatePercent;
++	//return iRatePercent;
++	m_iInflationRate = iRatePercent;
+ }
+ 
+ 
+@@ -7435,7 +7470,7 @@ int CvPlayer::calculateInflatedCosts() const
+ 
+ 	iCosts = calculatePreInflatedCosts();
+ 
+-	iCosts *= std::max(0, (calculateInflationRate() + 100));
++	iCosts *= std::max(0, (getInflationRate() + 100));
+ 	iCosts /= 100;
+ 
+ 	return iCosts;
+@@ -17689,6 +17724,12 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 
+ 	pStream->Read(&m_iPopRushHurryCount);
+ 	pStream->Read(&m_iInflationModifier);
++	// K-Mod
++	if (uiFlag >= 5)
++		pStream->Read(&m_iInflationRate);
++	else
++		m_iInflationRate = 0; // We can't use updateInflationRate, because that relies on game-state which may not have been loaded yet.
++	// K-Mod end
+ }
+ 
+ //
+@@ -17699,7 +17740,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ {
+ 	int iI;
+ 
+-	uint uiFlag = 4;
++	uint uiFlag = 5;
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iStartingX);
+@@ -18110,6 +18151,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 
+ 	pStream->Write(m_iPopRushHurryCount);
+ 	pStream->Write(m_iInflationModifier);
++	pStream->Write(m_iInflationRate); // K-Mod, uiFlag >= 5
+ }
+ 
+ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThreshold, bool bIncrementExperience, int iX, int iY)
+@@ -20112,7 +20154,7 @@ int CvPlayer::getEventCost(EventTypes eEvent, PlayerTypes eOtherPlayer, bool bRa
+ 		iGold += kEvent.getRandomGold();
+ 	}
+ 	
+-	iGold *= std::max(0, calculateInflationRate() + 100);
++	iGold *= std::max(0, getInflationRate() + 100);
+ 	iGold /= 100;
+ 
+ 	TechTypes eBestTech = getBestEventTech(eEvent, eOtherPlayer);
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 9e25788d2..c2abde96c 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -267,7 +267,9 @@ public:
+ 	int calculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost) const;																	// Exposed to Python
+ 	int calculateUnitSupply() const;																																			// Exposed to Python
+ 	int calculatePreInflatedCosts() const;																																// Exposed to Python
+-	int calculateInflationRate() const;																																		// Exposed to Python
++	//int calculateInflationRate() const;	// (was exposed to python. Use getInflationRate instead.)
++	void updateInflationRate(); // K-Mod
++	int getInflationRate() const { return m_iInflationRate; } // K-Mod, exposed to Python.
+ 	int calculateInflatedCosts() const;																																		// Exposed to Python
+ 
+ 	//int calculateBaseNetGold() const; // disabled by K-Mod
+@@ -1223,6 +1225,7 @@ protected:
+ 	int m_iCombatExperience;
+ 	int m_iPopRushHurryCount;
+ 	int m_iInflationModifier;
++	int m_iInflationRate; // K-Mod
+ 
+ 	uint m_uiStartTime;  // XXX save these?
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f7c978880..c887c3c3a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4897,7 +4897,7 @@ int CvPlayerAI::AI_goldTarget(bool bUpgradeBudgetOnly) const
+ 		}
+ 		if (iSpreadCost > 0)
+ 		{
+-			iSpreadCost *= 100 + calculateInflationRate();
++			iSpreadCost *= 100 + getInflationRate();
+ 			iSpreadCost /= 100;
+ 			iGold += iSpreadCost;
+ 		}
+@@ -12333,7 +12333,7 @@ int CvPlayerAI::AI_unitCostPerMil() const
+ 	// If iUnitCostPercentage is calculated as above, decreasing maintenance will actually decrease the max units.
+ 	// If a builds a courthouse or switches to state property, it would then think it needs to get rid of units!
+ 	// It makes no sense, and civs with a surplus of cash still won't want to build units. So lets try it another way...
+-	int iUnitCost = calculateUnitCost() * std::max(0, calculateInflationRate() + 100) / 100;
++	int iUnitCost = calculateUnitCost() * std::max(0, getInflationRate() + 100) / 100;
+ 	if (iUnitCost <= getNumCities()/2) // cf with the final line
+ 		return 0;
+ 
+@@ -13566,7 +13566,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	// K-Mod note. max war rand is between 50 and 400, so I've renamed the above number from iWarmongerPercent to iWarmongerFactor.
+ 	// I don't know what it is meant to be a percentage of. It's a number roughly between 56 and 167.
+ 
+-	int iMaintenanceFactor =  AI_commerceWeight(COMMERCE_GOLD) * std::max(0, calculateInflationRate() + 100) / 100; // K-Mod
++	int iMaintenanceFactor =  AI_commerceWeight(COMMERCE_GOLD) * std::max(0, getInflationRate() + 100) / 100; // K-Mod
+ 
+ 	int iValue = (iCities * 6);
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 36f4c75e3..2ecae70ee 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -5971,7 +5971,7 @@ bool CvUnit::canSpreadCorporation(const CvPlot* pPlot, CorporationTypes eCorpora
+ 
+ int CvUnit::spreadCorporationCost(CorporationTypes eCorporation, CvCity* pCity) const
+ {
+-	int iCost = std::max(0, GC.getCorporationInfo(eCorporation).getSpreadCost() * (100 + GET_PLAYER(getOwnerINLINE()).calculateInflationRate()));
++	int iCost = std::max(0, GC.getCorporationInfo(eCorporation).getSpreadCost() * (100 + GET_PLAYER(getOwnerINLINE()).getInflationRate()));
+ 	iCost /= 100;
+ 
+ 	if (NULL != pCity)
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 22d8537c9..08ae7b661 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -521,9 +521,10 @@ int CyPlayer::calculatePreInflatedCosts()
+ 	return m_pPlayer ? m_pPlayer->calculatePreInflatedCosts() : -1;
+ }
+ 
+-int CyPlayer::calculateInflationRate()
++//int CyPlayer::calculateInflationRate()
++int CyPlayer::getInflationRate()
+ {
+-	return m_pPlayer ? m_pPlayer->calculateInflationRate() : -1;
++	return m_pPlayer ? m_pPlayer->getInflationRate() : -1;
+ }
+ 
+ int CyPlayer::calculateInflatedCosts()
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index 4dd25e4c2..4022553ad 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -146,7 +146,8 @@ public:
+ 	int calculateUnitCost();
+ 	int calculateUnitSupply();
+ 	int calculatePreInflatedCosts();
+-	int calculateInflationRate();
++	//int calculateInflationRate();
++	int getInflationRate(); // K-Mod
+ 	int calculateInflatedCosts();
+ 	int calculateGoldRate();
+ 	int calculateTotalCommerce();
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index 1caaee111..24e0b3863 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -134,7 +134,8 @@ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
+ 		.def("calculateUnitCost", &CyPlayer::calculateUnitCost, "int ()")
+ 		.def("calculateUnitSupply", &CyPlayer::calculateUnitSupply, "int ()")
+ 		.def("calculatePreInflatedCosts", &CyPlayer::calculatePreInflatedCosts, "int ()")
+-		.def("calculateInflationRate", &CyPlayer::calculateInflationRate, "int ()")
++		//.def("calculateInflationRate", &CyPlayer::calculateInflationRate, "int ()")
++		.def("getInflationRate", &CyPlayer::getInflationRate, "int ()") // K-Mod
+ 		.def("calculateInflatedCosts", &CyPlayer::calculateInflatedCosts, "int ()")
+ 		.def("calculateGoldRate", &CyPlayer::calculateGoldRate, "int ()")
+ 		.def("calculateTotalCommerce", &CyPlayer::calculateTotalCommerce, "int ()")
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=11661

@@ -1,0 +1,70 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4286
+# Commit: 2ad740480370d2cd155c4d0a5fe6bb2645bd9905
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 30989e29abaed60761e3d3feb5dd5c00ad9b70e4
+# Title: Fix WorldBuilder's regenerate-map button
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	7	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 5b6aed70b..987054e67 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -345,9 +345,9 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
+ 	setStartTurnYear();
+ 	m_iElapsedGameTurns = 0;
+ 	// </advc.251>
+-	/*	advc.001: Reset minutesPlayed to 0. Note: Would cause a (redundant)
+-		autosave in CvGame::update if I hadn't added a re-gen check there. */
+-	setTurnSlice(0);
++	/*	advc.001: Reset minutesPlayed to (almost) 0. All the way to 0 causes the EXE
++		to hang when regenerating via WIDGET_WB_REGENERATE_MAP (WorldBuilder). */
++	setTurnSlice(1);
+ 	CvEventReporter::getInstance().resetStatistics();
+ 	// <advc.tsl>
+ 	m_iMapRegens++;
+@@ -2887,10 +2887,9 @@ void CvGame::updateUnprofiled()
+ 	if (getTurnSlice() == 0) // advc (note): Implies 0 elapsed game turns
+ 	{	// <advc.700> Delay initial auto-save until RiseFall is initialized
+ 		if (!isOption(GAMEOPTION_RISE_FALL) && // </advc.700>
+-			m_iTurnLoadedFromSave != m_iElapsedGameTurns && // advc.044
+-			// advc: Necessary now that re-gen resets turn slice
+-			m_iMapRegens <= 0)
+-		{
++			m_iTurnLoadedFromSave != m_iElapsedGameTurns) // advc.044
++		{	// Map regen should only reset TurnSlice to sth. greater than 0
++			FAssert(m_iMapRegens <= 0);
+ 			autoSave(true); // advc.106l
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index a48e41567..95fe545dc 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -40,7 +40,7 @@ public:
+ 	DllExport void reset(HandicapTypes eHandicap, bool bConstructorCall = false);
+ 
+ 	DllExport void setInitialItems();
+-	DllExport void regenerateMap()
++	DllExport void regenerateMap() // call from WorldBuilder
+ 	{	// <advc.tsl>
+ 		regenerateMap(false);
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1780

@@ -1,0 +1,106 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2367
+# Commit: 6102c9181ff39e45daffa060675b89dc21c5d69c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f429f6e13054084feaa84c996cc891e55abc6243
+# Title: Prefer starting sites with a resource just out of reach
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+46	4	CvGameCoreDLL/CitySiteEvaluator.cpp
+1	0	CvGameCoreDLL/CitySiteEvaluator.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 0d8781276..d533ad198 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -723,10 +723,12 @@ short AIFoundValue::evaluate()
+ 		iValue /= 100;
+ 		IFLOG if(iModifier!=100) logBBAI("Times %d percent for starting on a resource", iModifier);
+ 	}
+-	if ((kSet.isStartingLoc() || /* advc.031e: */ kSet.isNormalizing()) &&
+-		!kSet.isIgnoreStartingSurroundings()) // advc.027
+-	{
+-		iValue = adjustToStartingSurroundings(iValue); // (advc: Moved down a bit)
++	if (kSet.isStartingLoc() || /* advc.031e: */ kSet.isNormalizing())
++	{	// <advc.027
++		if (kSet.isIgnoreStartingSurroundings())
++			iValue = adjustToStartingChoices(iValue);
++		else // </advc.027>
++			iValue = adjustToStartingSurroundings(iValue); // (advc: Moved down a bit)
+ 	}
+ 	if (bBarbarian)
+ 		iValue = adjustToBarbarianSurroundings(iValue);
+@@ -2424,6 +2426,46 @@ int AIFoundValue::adjustToStartingSurroundings(int iValue) const
+ 	return r;
+ }
+ 
++/*	advc.027:  (Not sure how to name this function. It's supposed to encourage
++	-some- strong tiles in the first ring of tiles outside the city radius
++	in order to make the choice whether to settle in place more interesting.) */
++int AIFoundValue::adjustToStartingChoices(int iValue) const
++{
++	int iResources = 0;
++	int iHighYield = 0;
++	int iLowYield = 0;
++	for (PlotCircleIter it(kPlot, CITY_PLOTS_RADIUS + 1, false); it.hasNext(); ++it)
++	{
++		if (it.currPlotDist() <= CITY_PLOTS_RADIUS)
++			continue;
++		CvPlot const& p = *it;
++		// Off the cuff ...
++		if (getBonus(p) != NO_BONUS)
++		{
++			iResources++; // Don't care about the yield or other specifics
++			continue;
++		}
++		int iYieldVal = 0;
++		FOR_EACH_ENUM(Yield)
++		{
++			iYieldVal += (eLoopYield == YIELD_COMMERCE ? 1 : 2) *
++					p.calculateNatureYield(eLoopYield);
++		}
++		if (p.isRiver())
++			iYieldVal++;
++		if (iYieldVal > 4) // E.g. Plains tile as a baseline
++			iHighYield++;
++		else if (iYieldVal < 4)
++			iLowYield++;
++	}
++	iLowYield = std::max(0, iLowYield - 4); // A few low-yield tiles aren't a problem
++	// One resource and one high-yield tile is plenty
++	int iModifier = std::min(10, 4 * iHighYield - 2 * iLowYield + 7 * iResources);
++	if (iModifier < 0)
++		iModifier /= 2;
++	return (iValue * (100 + iModifier / 2)) / 100;
++}
++
+ 
+ int AIFoundValue::adjustToProduction(int iValue, scaled rBaseProduction) const
+ {
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.h b/CvGameCoreDLL/CitySiteEvaluator.h
+index e381e3c36..cf0480fb7 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.h
++++ b/CvGameCoreDLL/CitySiteEvaluator.h
+@@ -185,6 +185,7 @@ private:
+ 	int evaluateDefense() const;
+ 	int evaluateGoodies(int iGoodies) const;
+ 	int adjustToStartingSurroundings(int iValue) const;
++	int adjustToStartingChoices(int iValue) const;
+ 	int adjustToFood(int iValue, int iSpecialFoodPlus, int iSpecialFoodMinus,
+ 			int iGreenTiles) const;
+ 	int adjustToProduction(int iValue, scaled rBaseProduction) const;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3003

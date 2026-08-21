@@ -1,0 +1,95 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2296
+# Commit: 83adc4c82094ba75456b621ecb82518d0fef4109
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b82eaf91d6a4df10b14ad7715eda30a7010fe0a5
+# Title: Fix crash at startup when audio devices disabled
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	CvGameCoreDLL/CvGlobals.cpp
+6	5	CvGameCoreDLL/CvGlobals.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 8eaf4bf62..b554b6e6f 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -92,7 +92,8 @@ m_iNumFlavorTypes(0),
+ m_iNumArtStyleTypes(0),
+ m_iNumFootstepAudioTypes(0),
+ // </advc>  <advc.opt>
+-m_im_eRUINS_IMPROVEMENT(NO_IMPROVEMENT),
++m_iEventMessageTime(-1),
++m_eRUINS_IMPROVEMENT(NO_IMPROVEMENT),
+ m_eDEFAULT_SPECIALIST(NO_SPECIALIST)
+ {
+ 	m_aeWATER_TERRAIN[0] = m_aeWATER_TERRAIN[1] = NO_TERRAIN; // </advc.opt>
+@@ -660,6 +661,8 @@ void CvGlobals::cacheGlobalInts(char const* szChangedDefine, int iNewValue)
+ 				break;
+ 			}
+ 		}
++		if (strcmp(szChangedDefine, "EVENT_MESSAGE_TIME") == 0)
++			m_iEventMessageTime = iNewValue; // (See m_iEventMessageTime in header)
+ 		return;
+ 	}
+ 
+@@ -699,6 +702,7 @@ void CvGlobals::cacheGlobalInts(char const* szChangedDefine, int iNewValue)
+ 		}
+ 		m_aiGlobalDefinesCache[i] = getDefineINT(aszGlobalDefinesTagNames[i], iDefault);
+ 	}
++	m_iEventMessageTime = getDefineINT("EVENT_MESSAGE_TIME");
+ } // </advc.opt>
+ 
+ void CvGlobals::cacheGlobalFloats()
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index ff9525600..ece5fe3b5 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -515,7 +515,7 @@ public:
+ 		DO(MAX_HIT_POINTS) \
+ 		DO(MAX_PLOT_LIST_ROWS) \
+ 		DO(UNIT_MULTISELECT_MAX) \
+-		DO(EVENT_MESSAGE_TIME) \
++		/*DO(EVENT_MESSAGE_TIME) \ (cached separately) */ \
+ 		DO(EVENT_MESSAGE_TIME_LONG) \
+ 		DO(NUM_UNIT_PREREQ_OR_BONUSES) \
+ 		DO(NUM_UNIT_AND_TECH_PREREQS) \
+@@ -566,9 +566,9 @@ public:
+ 	inline int getMAX_PLOT_LIST_ROWS() const { return getDefineINT(MAX_PLOT_LIST_ROWS); }
+ 	DllExport inline int getUNIT_MULTISELECT_MAX() { CvGlobals const& kThis = *this; return kThis.getUNIT_MULTISELECT_MAX(); }
+ 	inline int getUNIT_MULTISELECT_MAX() const { return getDefineINT(UNIT_MULTISELECT_MAX); }
++	// Note: The EXE calls this during audio init if all audio devices are disabled
+ 	DllExport inline int getEVENT_MESSAGE_TIME() { CvGlobals const& kThis = *this; return kThis.getEVENT_MESSAGE_TIME(); }
+-	inline int getEVENT_MESSAGE_TIME() const { return getDefineINT(EVENT_MESSAGE_TIME); }
+-	inline int getEVENT_MESSAGE_TIME_LONG() const { return getDefineINT(EVENT_MESSAGE_TIME_LONG); } // advc: Treat these two the same
++	inline int getEVENT_MESSAGE_TIME() const { return m_iEventMessageTime; }
+ 	// BETTER_BTS_AI_MOD, Efficiency, Options, 02/21/10, jdog5000: START
+ 	inline int getWAR_SUCCESS_CITY_CAPTURING() const { return getDefineINT(WAR_SUCCESS_CITY_CAPTURING); }
+ 	inline int getCOMBAT_DIE_SIDES() const { return getDefineINT(COMBAT_DIE_SIDES); }
+@@ -925,9 +925,10 @@ protected:
+ 	bool m_bHoFScreenUp; // advc.106i
+ 
+ 	FVariableSystem* m_VarSystem;
+-
++	// <advc.opt>
+ 	int* m_aiGlobalDefinesCache;
+-		ImprovementTypes m_eRUINS_IMPROVEMENT;
++	int m_iEventMessageTime; // Cached separately b/c the EXE can access it before XML loading
++	ImprovementTypes m_eRUINS_IMPROVEMENT;
+ 	SpecialistTypes m_eDEFAULT_SPECIALIST;
+ 	TerrainTypes m_aeWATER_TERRAIN[2]; // </advc.opt>
+ 	float m_fPOWER_CORRECTION; // advc.104
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3103

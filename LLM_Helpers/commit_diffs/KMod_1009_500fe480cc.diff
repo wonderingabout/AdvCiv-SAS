@@ -1,0 +1,64 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1009
+# Commit: 500fe480cc485bd8b6aeb0de807d6b1e87fded1c
+# History segment: K-Mod history
+# Parent used for diff: a1b791123da87023768097598a1473abd957d622
+# Title: Rescaled collateral damage protection of Drill promotions.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/xml/Units/CIV4PromotionInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/Units/CIV4PromotionInfos.xml b/Assets/xml/Units/CIV4PromotionInfos.xml
+index 26347345b..7d4bd66ab 100644
+--- a/Assets/xml/Units/CIV4PromotionInfos.xml
++++ b/Assets/xml/Units/CIV4PromotionInfos.xml
+@@ -2527,7 +2527,7 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+ 			<iRevoltProtection>0</iRevoltProtection>
+-			<iCollateralDamageProtection>0</iCollateralDamageProtection>
++			<iCollateralDamageProtection>15</iCollateralDamageProtection>
+ 			<iPillageChange>0</iPillageChange>
+ 			<iUpgradeDiscount>0</iUpgradeDiscount>
+ 			<iExperiencePercent>0</iExperiencePercent>
+@@ -2615,7 +2615,7 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+ 			<iRevoltProtection>0</iRevoltProtection>
+-			<iCollateralDamageProtection>20</iCollateralDamageProtection>
++			<iCollateralDamageProtection>15</iCollateralDamageProtection>
+ 			<iPillageChange>0</iPillageChange>
+ 			<iUpgradeDiscount>0</iUpgradeDiscount>
+ 			<iExperiencePercent>0</iExperiencePercent>
+@@ -2707,7 +2707,7 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+ 			<iRevoltProtection>0</iRevoltProtection>
+-			<iCollateralDamageProtection>20</iCollateralDamageProtection>
++			<iCollateralDamageProtection>15</iCollateralDamageProtection>
+ 			<iPillageChange>0</iPillageChange>
+ 			<iUpgradeDiscount>0</iUpgradeDiscount>
+ 			<iExperiencePercent>0</iExperiencePercent>
+@@ -2799,7 +2799,7 @@
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+ 			<iRevoltProtection>0</iRevoltProtection>
+-			<iCollateralDamageProtection>20</iCollateralDamageProtection>
++			<iCollateralDamageProtection>15</iCollateralDamageProtection>
+ 			<iPillageChange>0</iPillageChange>
+ 			<iUpgradeDiscount>0</iUpgradeDiscount>
+ 			<iExperiencePercent>0</iExperiencePercent>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1851

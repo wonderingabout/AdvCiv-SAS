@@ -1,0 +1,103 @@
+AI, UI, or other modifications
+Created as part of AdvCiv-SAS improvements
+(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+
+in sevopediaproject, after having imported the sevopedia_debuggers (`from _sevopedia_debuggers import *`), in interfaceScreen:
+printObjAttrs(gc.getProjectInfo(self.iProject)),
+outputs this in C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonDbg.log:
+
+
+
+__class__
+
+__delattr__
+
+__dict__ = {}
+
+__doc__ = None
+
+__getattribute__
+
+__hash__
+
+__init__
+
+__instance_size__ = 484
+
+__module__ = CvPythonExtensions
+
+__new__
+
+__reduce__
+
+__reduce_ex__
+
+__repr__
+
+__setattr__
+
+__str__
+
+__weakref__ = None
+
+getAnyoneProjectPrereq
+
+getBonusProductionModifier
+
+getButton
+
+getCivilopedia
+
+getCreateSound
+
+getDescription
+
+getDescriptionForm
+
+getEveryoneSpecialBuilding
+
+getEveryoneSpecialUnit
+
+getHelp
+
+getMaxGlobalInstances
+
+getMaxTeamInstances
+
+getMovieArtDef
+
+getNukeInterception
+
+getProductionCost
+
+getProjectsNeeded
+
+getStrategy
+
+getSuccessRate
+
+getTechPrereq
+
+getTechShare
+
+getText
+
+getTextKey
+
+getType
+
+getVictoryDelayPercent
+
+getVictoryMinThreshold
+
+getVictoryPrereq
+
+getVictoryThreshold
+
+isAllowsNukes
+
+isGraphicalOnly
+
+isMatchForLink
+
+isSpaceship

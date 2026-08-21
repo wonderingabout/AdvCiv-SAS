@@ -1,0 +1,79 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2585
+# Commit: 995dd5760d2ccbe3048e62c8c1e46ba93fbc0201
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6317f8a402bcddd635b6fd2334be6a1f2058f973
+# Title: Amend memory corruption fix (files I forgot to commit)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	4	CvGameCoreDLL/CvDLLLogger.cpp
+6	1	CvGameCoreDLL/CvDLLLogger.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLLogger.cpp b/CvGameCoreDLL/CvDLLLogger.cpp
+index 99da0df5c..3be01b109 100644
+--- a/CvGameCoreDLL/CvDLLLogger.cpp
++++ b/CvGameCoreDLL/CvDLLLogger.cpp
+@@ -17,9 +17,10 @@ CvDLLLogger::CvDLLLogger(bool bEnabled, bool bRandEnabled)
+ // Cut from CvRandom::getInt
+ void CvDLLLogger::logRandomNumber(const TCHAR* szMsg, unsigned short usNum,
+ 	unsigned long ulSeed, int iData1, int iData2,
+-	CvString const& szFileName) // advc.007b
++	CvString const* pszFileName) // advc.007b
+ {
+-	if (!isEnabledRand() || szMsg == NULL)
++	FAssert(isEnabledRand()); // Caller should handle this, for performance reasons.
++	if (szMsg == NULL)
+ 		return;
+ 	int const iTurnSlice = GC.getGame().getTurnSlice();
+ 	if (iTurnSlice <= 0)
+@@ -43,8 +44,8 @@ void CvDLLLogger::logRandomNumber(const TCHAR* szMsg, unsigned short usNum,
+ 	std::sprintf(szOut, "Rand = %ul / %hu (%s%s) on %s%d\n", ulSeed, usNum,
+ 			szMsg, szData.c_str(), bNetworkMP ? "" : "t", iOn);
+ 	// <advc.007b>
+-	if (!szFileName.empty())
+-		gDLL->logMsg(szFileName.c_str(), szOut, false, false); // </advc.007b>
++	if (pszFileName != NULL)
++		gDLL->logMsg(pszFileName->c_str(), szOut, false, false); // </advc.007b>
+ 	if (GC.getDefineBOOL(CvGlobals::PER_PLAYER_MESSAGE_CONTROL_LOG) && bNetworkMP)
+ 	{
+ 		CvString logName = CvString::format("MPLog%d.log",
+
+diff --git a/CvGameCoreDLL/CvDLLLogger.h b/CvGameCoreDLL/CvDLLLogger.h
+index 943b99dab..0a689334e 100644
+--- a/CvGameCoreDLL/CvDLLLogger.h
++++ b/CvGameCoreDLL/CvDLLLogger.h
+@@ -13,7 +13,7 @@ public:
+ 	CvDLLLogger(bool bEnabled, bool bRandEnabled);
+ 	// Requires "RandLog" to be set in addition to "MessageLog"
+ 	void logRandomNumber(const TCHAR* szMsg, unsigned short usNum, unsigned long ulSeed,
+-			int iData1, int iData2, /* advc.007b: */ CvString const& szFileName);
++			int iData1, int iData2, /* advc.007b: */ CvString const* pszFileName = NULL);
+ 	void logTurnActive(PlayerTypes ePlayer);
+ 	void logCityBuilt(CvCity const& kCity);
+ 	void logCombat(CvUnit const& kAttacker, CvUnit const& kDefender);
+@@ -24,6 +24,11 @@ private:
+ 	bool m_bEnabled;
+ 	bool m_bRandEnabled;
+ 
++	/*	Generally, the public log... functions should handle the is-enabled checks,
++		but, for CvRandom, I'd like to avoid the overhead of calling a non-inline
++		function when the RandLog is disabled. */
++	friend class CvRandom;
++
+ 	inline bool isEnabled() const
+ 	{
+ 		return m_bEnabled;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2385

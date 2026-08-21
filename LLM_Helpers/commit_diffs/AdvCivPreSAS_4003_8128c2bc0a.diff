@@ -1,0 +1,160 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4003
+# Commit: 8128c2bc0aa7b3382e0d4125fd74983377529e8a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ab7e3ab4d78f6d12ee225a3c508f00b64eea4246
+# Title: Further amend attacker odds messages
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	3	CvGameCoreDLL/CombatOdds.cpp
+2	1	CvGameCoreDLL/CombatOdds.h
+35	21	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CombatOdds.cpp b/CvGameCoreDLL/CombatOdds.cpp
+index 99c0b122f..7b2cd5748 100644
+--- a/CvGameCoreDLL/CombatOdds.cpp
++++ b/CvGameCoreDLL/CombatOdds.cpp
+@@ -144,9 +144,10 @@ int setupCombatantsImpl(CvUnit const& kAttacker, CvUnit const& kDefender,
+ 	the combatants (it's assumed that the caller won't need them when the
+ 	odds are trivial). */
+ int setupCombatants(CvUnit const& kAttacker, CvUnit const& kDefender,
+-	Combatant& att, Combatant& def)
++	Combatant& att, Combatant& def,
++	bool bHideFreeWins = true) // advc.048c
+ {
+-	return setupCombatantsImpl<false>(kAttacker, kDefender, att, def);
++	return setupCombatantsImpl<false>(kAttacker, kDefender, att, def, bHideFreeWins);
+ }
+ 
+ float fBinomial(int iN, int iK) // advc: for convenience
+@@ -690,7 +691,8 @@ void combat_odds::initCombatants(CvUnit const& kAttacker, CvUnit const& kDefende
+ /*	Calculates combat odds, given two units
+ 	Returns value from 0-1000
+ 	Written by DeepO (advc: gutted) */
+-int calculateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender)
++int calculateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender,
++	bool bHideFreeWins) // advc.048c
+ {
+ 	PROFILE_FUNC(); // advc: OK - not called all that frequently.
+ 	// setup battle, calculate strengths and odds
+
+diff --git a/CvGameCoreDLL/CombatOdds.h b/CvGameCoreDLL/CombatOdds.h
+index b2d2ba22f..f2c472ba0 100644
+--- a/CvGameCoreDLL/CombatOdds.h
++++ b/CvGameCoreDLL/CombatOdds.h
+@@ -8,7 +8,8 @@
+ class CvUnit;
+ 
+ // advc: Renamed from "getCombatOdds"
+-int calculateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender); // Exposed to Python
++int calculateCombatOdds(CvUnit const& kAttacker, CvUnit const& kDefender, // Exposed to Python
++		bool bHideFreeWins = true); // advc.048c
+ 
+ // <advc>
+ namespace combat_odds
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index ca3347406..567864e83 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1053,10 +1053,25 @@ void CvUnit::updateAirCombat(bool bQuick)
+ 	be changed if the combat resolution rules are changed. */
+ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ {
+-	#ifdef LOG_COMBAT_OUTCOMES
+-		int iLoggedOdds = calculateCombatOdds(*this, *pDefender);
+-		iLoggedOdds += (1000 - iLoggedOdds) * withdrawalProbability() / 100;
+-	#endif
++	// <advc.048c> Preserve info for interface message (based on K-Mod code)
++	m_iAttackOdds = -1;
++#ifndef LOG_COMBAT_OUTCOMES
++	if (GC.getDefineBOOL(CvGlobals::SHOW_ODDS_IN_COMBAT_MESSAGES) &&
++		/*	To save time. addMessage will sometimes deliver messages to AI players,
++			but it's OK (with me) to omit odds from those messages. */
++		(isHuman() || pDefender->isHuman()))
++	{
++#endif
++		m_iAttackOdds = calculateCombatOdds(*this, *pDefender,
++				false); // Do reveal free wins vs. Barbarians
++		m_iAttackOdds += ((GC.getCOMBAT_DIE_SIDES() - m_iAttackOdds) *
++				withdrawalProbability()) / 100;
++		m_iPreCombatHP = currHitPoints();
++		pDefender->m_iPreCombatHP = pDefender->currHitPoints();
++#ifndef LOG_COMBAT_OUTCOMES
++	}
++#endif
++	// </advc.048c>
+ 
+ 	// K-Mod. Initialize battle info.
+ 	// Note: kBattle is only relevant if we are going to show the battle animation.
+@@ -1084,12 +1099,6 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ 			iDefenderOdds, iDefenderStrength, iAttackerDamage, iDefenderDamage,
+ 			&cdDefenderDetails);
+ 	int iAttackerKillOdds = iDefenderOdds * (100 - withdrawalProbability()) / 100;
+-	// <advc.048c> Preserve info for interface message
+-	m_iAttackOdds = pDefender->m_iAttackOdds = GC.getCOMBAT_DIE_SIDES()
+-			- iAttackerKillOdds;
+-	m_iPreCombatHP = currHitPoints();
+-	pDefender->m_iPreCombatHP = pDefender->currHitPoints(); // </advc.048c>
+-
+ 	// advc.001: Replacing isHuman checks
+ 	if (isActiveOwned() || pDefender->isActiveOwned())
+ 	{
+@@ -1252,14 +1261,17 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ 			gDLL->getEntityIFace()->AddMission(&kBattle);
+ 		}
+ 	}
+-	#ifdef LOG_COMBAT_OUTCOMES
+-		if (!isBarbarian() && !pDefender->isBarbarian()) // don't log barb battles, because they have special rules.
+-		{
+-			TCHAR message[20];
+-			_snprintf(message, 20, "%.2f\t%d\n", (float)iLoggedOdds/1000, isDead() ? 0 : 1);
+-			gDLL->logMsg("combat.txt", message ,false, false);
+-		}
+-	#endif
++#ifdef LOG_COMBAT_OUTCOMES
++	// (don't log barb battles, because they have special rules.)
++	if (!isBarbarian() && !pDefender->isBarbarian())
++	{
++		TCHAR message[20];
++		_snprintf(message, 20, "%.2f\t%d\n",
++				m_iAttackOdds / (float)GC.getCOMBAT_DIE_SIDES(),
++				isDead() ? 0 : 1);
++		gDLL->logMsg("combat.txt", message ,false, false);
++	}
++#endif
+ }
+ 
+ 
+@@ -1684,12 +1696,14 @@ void CvUnit::addWithdrawalMessages(CvUnit const& kDefender) const
+ void CvUnit::setHasBeenDefendedAgainstMessage(CvWString& kBuffer,
+ 	CvUnit const& kDefender, int iAttackSuccess) const
+ {
+-	static bool const bOdds = (GC.getDefineBOOL("SHOW_ODDS_IN_COMBAT_MESSAGES") &&
+-			kDefender.canDefend());
++	bool const bOdds = (GC.getDefineBOOL(CvGlobals::SHOW_ODDS_IN_COMBAT_MESSAGES) &&
++			m_iAttackOdds >= 0 && kDefender.canDefend());
+ 	CvWString szOdds, szDefStrength;
+ 	if (bOdds)
+ 	{
+-		szOdds.Format(L"%.1f", (m_iAttackOdds * 100.f) / GC.getCOMBAT_DIE_SIDES());
++		szOdds.Format(L"%.1f", (std::min(
++				GC.getCOMBAT_DIE_SIDES() - 1, // Don't claim that the odds were 100%
++				m_iAttackOdds) * 100.f) / GC.getCOMBAT_DIE_SIDES());
+ 		if (kDefender.m_iPreCombatHP < kDefender.maxHitPoints())
+ 		{
+ 			CvWString szHurtStr;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5521

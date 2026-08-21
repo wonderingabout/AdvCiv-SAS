@@ -1,0 +1,143 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 272
+# Commit: 449e51466dc52913dd86c3ce8aba6b3fe0bf0897
+# History segment: K-Mod history
+# Parent used for diff: e745dfee1d384288bf67d42ec5c3706819db7d43
+# Title: Tightened the AI's rules for when to disband workers. Fixed a bug in AI_disbandUnit for workers. (but this is not currently being used, as far as I can tell....
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	0	CvGameCoreDLL/CvPlayerAI.cpp
+15	8	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 26736f2a5..7c961cc83 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2189,6 +2189,22 @@ bool CvPlayerAI::AI_acceptUnit(CvUnit* pUnit) const
+ 		{
+ 			return true; //XXX
+ 		}
++
++		// K-Mod
++		switch (pUnit->AI_getUnitAIType())
++		{
++		case UNITAI_PROPHET:
++		case UNITAI_ARTIST:
++		case UNITAI_SCIENTIST:
++		case UNITAI_GENERAL:
++		case UNITAI_MERCHANT:
++		case UNITAI_ENGINEER:
++		case UNITAI_GREAT_SPY:
++			return true;
++		default:
++			break;
++		}
++		// K-Mod end
+ 		return false;
+ 	}
+ 
+@@ -17411,6 +17427,7 @@ bool CvPlayerAI::AI_disbandUnit(int iExpThreshold, bool bObsolete)
+ 								break;
+ 
+ 							case UNITAI_WORKER:
++								/* original bts code
+ 								if ((GC.getGame().getGameTurn() - pLoopUnit->getGameTurnCreated()) > 10)
+ 								{
+ 									if (pLoopUnit->plot()->isCity())
+@@ -17420,7 +17437,15 @@ bool CvPlayerAI::AI_disbandUnit(int iExpThreshold, bool bObsolete)
+ 											iValue *= 10;
+ 										}
+ 									}
++								} */
++								// K-Mod. The original code seems to be backwards...
++								if (GC.getGame().getGameTurn() - pLoopUnit->getGameTurnCreated() <= 10 ||
++									!pLoopUnit->plot()->isCity() ||
++									pLoopUnit->plot()->getPlotCity()->AI_getWorkersNeeded() > 0)
++								{
++									iValue *= 10;
+ 								}
++								// K-Mod end
+ 								break;
+ 
+ 							case UNITAI_ATTACK:
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f30986f95..28955c055 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1573,6 +1573,8 @@ void CvUnitAI::AI_workerMove()
+ 	bCanRoute = canBuildRoute();
+ 	bNextCity = false;
+ 
++	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
++
+ 	// XXX could be trouble...
+ 	if (plot()->getOwnerINLINE() != getOwnerINLINE())
+ 	{
+@@ -1595,7 +1597,7 @@ void CvUnitAI::AI_workerMove()
+ 
+     if (!(getGroup()->canDefend()))
+ 	{
+-		if (GET_PLAYER(getOwnerINLINE()).AI_isPlotThreatened(plot(), 2))
++		if (kOwner.AI_isPlotThreatened(plot(), 2))
+ 		{
+ 			if (AI_retreatToCity()) // XXX maybe not do this??? could be working productively somewhere else...
+ 			{
+@@ -1718,9 +1720,8 @@ void CvUnitAI::AI_workerMove()
+ 	if (GC.getGame().getSorenRandNum(5, "AI Worker build Fort with Priority"))
+ 	{
+ 		bool bCanal = ((100 * area()->getNumCities()) / std::max(1, GC.getGame().getNumCities()) < 85);
+-		CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
+ 		bool bAirbase = false;
+-		bAirbase = (kPlayer.AI_totalUnitAIs(UNITAI_PARADROP) || kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_AIR) || kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR));
++		bAirbase = (kOwner.AI_totalUnitAIs(UNITAI_PARADROP) || kOwner.AI_totalUnitAIs(UNITAI_ATTACK_AIR) || kOwner.AI_totalUnitAIs(UNITAI_MISSILE_AIR));
+ 		
+ 		if (bCanal || bAirbase)
+ 		{
+@@ -1814,9 +1815,8 @@ void CvUnitAI::AI_workerMove()
+ 	if (!bBuildFort)
+ 	{
+ 		bool bCanal = ((100 * area()->getNumCities()) / std::max(1, GC.getGame().getNumCities()) < 85);
+-		CvPlayerAI& kPlayer = GET_PLAYER(getOwnerINLINE());
+ 		bool bAirbase = false;
+-		bAirbase = (kPlayer.AI_totalUnitAIs(UNITAI_PARADROP) || kPlayer.AI_totalUnitAIs(UNITAI_ATTACK_AIR) || kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR));
++		bAirbase = (kOwner.AI_totalUnitAIs(UNITAI_PARADROP) || kOwner.AI_totalUnitAIs(UNITAI_ATTACK_AIR) || kOwner.AI_totalUnitAIs(UNITAI_MISSILE_AIR));
+ 		
+ 		if (bCanal || bAirbase)
+ 		{
+@@ -1881,11 +1881,18 @@ void CvUnitAI::AI_workerMove()
+ 
+ 	if (!(isHuman()) && (AI_getUnitAIType() == UNITAI_WORKER))
+ 	{			
+-		if (GC.getGameINLINE().getElapsedGameTurns() > 10)
++		/*if (GC.getGameINLINE().getElapsedGameTurns() > 10)
++		{
++			if (GET_PLAYER(getOwnerINLINE()).AI_totalUnitAIs(UNITAI_WORKER) > GET_PLAYER(getOwnerINLINE()).getNumCities()) */
++
++		// K-Mod
++		if (GC.getGameINLINE().getElapsedGameTurns() > GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getResearchPercent()/6)
+ 		{
+-			if (GET_PLAYER(getOwnerINLINE()).AI_totalUnitAIs(UNITAI_WORKER) > GET_PLAYER(getOwnerINLINE()).getNumCities())
++			if (kOwner.AI_totalUnitAIs(UNITAI_WORKER) > kOwner.getNumCities() &&
++				area()->getNumAIUnits(getOwnerINLINE(), UNITAI_WORKER) > kOwner.AI_neededWorkers(area()))
++		// K-Mod end
+ 			{
+-				if (GET_PLAYER(getOwnerINLINE()).calculateUnitCost() > 0)
++				if (kOwner.calculateUnitCost() > 0)
+ 				{
+ 					scrap();
+ 					return;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4371

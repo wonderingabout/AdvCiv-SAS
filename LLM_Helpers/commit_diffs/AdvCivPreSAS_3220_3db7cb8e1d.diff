@@ -1,0 +1,529 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3220
+# Commit: 3db7cb8e1d8a2e113a0b21594e2adca978c759cc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: aa818c7ce5878db003a0b1e2665378d53df8ddb6
+# Title: Restore CvXMLLoadUtility::SetYields, SetCommerce
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	CvGameCoreDLL/CvInfo_City.cpp
+7	7	CvGameCoreDLL/CvInfo_Civics.cpp
+4	4	CvGameCoreDLL/CvInfo_Civilization.cpp
+6	6	CvGameCoreDLL/CvInfo_Organization.cpp
+2	2	CvGameCoreDLL/CvInfo_Tech.cpp
+14	14	CvGameCoreDLL/CvInfo_Terrain.cpp
+1	1	CvGameCoreDLL/CvInitCore.cpp
+16	12	CvGameCoreDLL/CvXMLLoadUtility.h
+7	7	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvInfo_City.cpp b/CvGameCoreDLL/CvInfo_City.cpp
+index 8f922cad3..1abbeb076 100644
+--- a/CvGameCoreDLL/CvInfo_City.cpp
++++ b/CvGameCoreDLL/CvInfo_City.cpp
+@@ -32,7 +32,7 @@ bool CvProcessInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"ProductionToCommerceModifiers"))
+ 	{
+-		pXML->SetCommerce(&m_aiProductionToCommerceModifier);
++		pXML->SetCommerceArray(&m_aiProductionToCommerceModifier);
+ 	}
+ 	else pXML->InitList(&m_aiProductionToCommerceModifier, NUM_COMMERCE_TYPES);
+ 
+@@ -129,10 +129,10 @@ bool CvSpecialistInfo::read(CvXMLLoadUtility* pXML)
+ 	}
+ 	pXML->GetChildXmlValByName(&m_iGreatPeopleRateChange, "iGreatPeopleRateChange");
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "Yields"))
+-		pXML->SetYields(&m_piYieldChange);
++		pXML->SetYieldArray(&m_piYieldChange);
+ 	else pXML->InitList(&m_piYieldChange, NUM_YIELD_TYPES);
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), "Commerces"))
+-		pXML->SetCommerce(&m_piCommerceChange);
++		pXML->SetCommerceArray(&m_piCommerceChange);
+ 	else pXML->InitList(&m_piCommerceChange, NUM_COMMERCE_TYPES);
+ 	pXML->GetChildXmlValByName(&m_iExperience, "iExperience");
+ 	pXML->SetVariableListTagPair(&m_piFlavorValue, "Flavors", GC.getNumFlavorTypes());
+@@ -217,14 +217,14 @@ bool CvEmphasizeInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"YieldModifiers"))
+ 	{
+-		pXML->SetYields(&m_piYieldModifiers);
++		pXML->SetYieldArray(&m_piYieldModifiers);
+ 	}
+ 	else pXML->InitList(&m_piYieldModifiers, NUM_YIELD_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"CommerceModifiers"))
+ 	{
+-		pXML->SetCommerce(&m_piCommerceModifiers);
++		pXML->SetCommerceArray(&m_piCommerceModifiers);
+ 	}
+ 	else pXML->InitList(&m_piCommerceModifiers, NUM_COMMERCE_TYPES);
+
+diff --git a/CvGameCoreDLL/CvInfo_Civics.cpp b/CvGameCoreDLL/CvInfo_Civics.cpp
+index 11c5d8029..76fdb3874 100644
+--- a/CvGameCoreDLL/CvInfo_Civics.cpp
++++ b/CvGameCoreDLL/CvInfo_Civics.cpp
+@@ -443,42 +443,42 @@ bool CvCivicInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"YieldModifiers"))
+ 	{
+-		pXML->SetYields(&m_piYieldModifier);
++		pXML->SetYieldArray(&m_piYieldModifier);
+ 	}
+ 	else pXML->InitList(&m_piYieldModifier, NUM_YIELD_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"CapitalYieldModifiers"))
+ 	{
+-		pXML->SetYields(&m_piCapitalYieldModifier);
++		pXML->SetYieldArray(&m_piCapitalYieldModifier);
+ 	}
+ 	else pXML->InitList(&m_piCapitalYieldModifier, NUM_YIELD_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"TradeYieldModifiers"))
+ 	{
+-		pXML->SetYields(&m_piTradeYieldModifier);
++		pXML->SetYieldArray(&m_piTradeYieldModifier);
+ 	}
+ 	else pXML->InitList(&m_piTradeYieldModifier, NUM_YIELD_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"CommerceModifiers"))
+ 	{
+-		pXML->SetCommerce(&m_piCommerceModifier);
++		pXML->SetCommerceArray(&m_piCommerceModifier);
+ 	}
+ 	else pXML->InitList(&m_piCommerceModifier, NUM_COMMERCE_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"CapitalCommerceModifiers"))
+ 	{
+-		pXML->SetCommerce(&m_piCapitalCommerceModifier);
++		pXML->SetCommerceArray(&m_piCapitalCommerceModifier);
+ 	}
+ 	else pXML->InitList(&m_piCapitalCommerceModifier, NUM_COMMERCE_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"SpecialistExtraCommerces"))
+ 	{
+-		pXML->SetCommerce(&m_piSpecialistExtraCommerce);
++		pXML->SetCommerceArray(&m_piSpecialistExtraCommerce);
+ 	}
+ 	else pXML->InitList(&m_piSpecialistExtraCommerce, NUM_COMMERCE_TYPES);
+ 
+@@ -512,7 +512,7 @@ bool CvCivicInfo::read(CvXMLLoadUtility* pXML)
+ 							if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 								"ImprovementYields"))
+ 							{
+-								pXML->SetYields(&m_ppiImprovementYieldChanges[iIndex]);
++								pXML->SetYieldArray(&m_ppiImprovementYieldChanges[iIndex]);
+ 							}
+ 							else pXML->InitList(&m_ppiImprovementYieldChanges[iIndex], NUM_YIELD_TYPES);
+ 						}
+
+diff --git a/CvGameCoreDLL/CvInfo_Civilization.cpp b/CvGameCoreDLL/CvInfo_Civilization.cpp
+index 39bc4f09f..2bcb85af3 100644
+--- a/CvGameCoreDLL/CvInfo_Civilization.cpp
++++ b/CvGameCoreDLL/CvInfo_Civilization.cpp
+@@ -1245,7 +1245,7 @@ bool CvTraitInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"ExtraYieldThresholds"))
+ 	{
+-		pXML->SetYields(&m_paiExtraYieldThreshold);
++		pXML->SetYieldArray(&m_paiExtraYieldThreshold);
+ 	}
+ 	else pXML->InitList(&m_paiExtraYieldThreshold, NUM_YIELD_TYPES);
+ 	// <advc.908a>
+@@ -1259,21 +1259,21 @@ bool CvTraitInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"TradeYieldModifiers"))
+ 	{
+-		pXML->SetYields(&m_paiTradeYieldModifier);
++		pXML->SetYieldArray(&m_paiTradeYieldModifier);
+ 	}
+ 	else pXML->InitList(&m_paiTradeYieldModifier, NUM_YIELD_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"CommerceChanges"))
+ 	{
+-		pXML->SetCommerce(&m_paiCommerceChange);
++		pXML->SetCommerceArray(&m_paiCommerceChange);
+ 	}
+ 	else pXML->InitList(&m_paiCommerceChange, NUM_COMMERCE_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"CommerceModifiers"))
+ 	{
+-		pXML->SetCommerce(&m_paiCommerceModifier);
++		pXML->SetCommerceArray(&m_paiCommerceModifier);
+ 	}
+ 	else pXML->InitList(&m_paiCommerceModifier, NUM_COMMERCE_TYPES);
+
+diff --git a/CvGameCoreDLL/CvInfo_Organization.cpp b/CvGameCoreDLL/CvInfo_Organization.cpp
+index 28d38040c..14f054523 100644
+--- a/CvGameCoreDLL/CvInfo_Organization.cpp
++++ b/CvGameCoreDLL/CvInfo_Organization.cpp
+@@ -173,21 +173,21 @@ bool CvReligionInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"GlobalReligionCommerces"))
+ 	{
+-		pXML->SetCommerce(&m_paiGlobalReligionCommerce);
++		pXML->SetCommerceArray(&m_paiGlobalReligionCommerce);
+ 	}
+ 	else pXML->InitList(&m_paiGlobalReligionCommerce, NUM_COMMERCE_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"HolyCityCommerces"))
+ 	{
+-		pXML->SetCommerce(&m_paiHolyCityCommerce);
++		pXML->SetCommerceArray(&m_paiHolyCityCommerce);
+ 	}
+ 	else pXML->InitList(&m_paiHolyCityCommerce, NUM_COMMERCE_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"StateReligionCommerces"))
+ 	{
+-		pXML->SetCommerce(&m_paiStateReligionCommerce);
++		pXML->SetCommerceArray(&m_paiStateReligionCommerce);
+ 	}
+ 	else pXML->InitList(&m_paiStateReligionCommerce, NUM_COMMERCE_TYPES);
+ 
+@@ -286,21 +286,21 @@ bool CvCorporationInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"HeadquarterCommerces"))
+ 	{
+-		pXML->SetCommerce(&m_paiHeadquarterCommerce);
++		pXML->SetCommerceArray(&m_paiHeadquarterCommerce);
+ 	}
+ 	else pXML->InitList(&m_paiHeadquarterCommerce, NUM_COMMERCE_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"CommercesProduced"))
+ 	{
+-		pXML->SetCommerce(&m_paiCommerceProduced);
++		pXML->SetCommerceArray(&m_paiCommerceProduced);
+ 	}
+ 	else pXML->InitList(&m_paiCommerceProduced, NUM_COMMERCE_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"YieldsProduced"))
+ 	{
+-		pXML->SetYields(&m_paiYieldProduced);
++		pXML->SetYieldArray(&m_paiYieldProduced);
+ 	}
+ 	else pXML->InitList(&m_paiYieldProduced, NUM_YIELD_TYPES);
+
+diff --git a/CvGameCoreDLL/CvInfo_Tech.cpp b/CvGameCoreDLL/CvInfo_Tech.cpp
+index e1d7586a3..5685d7c8a 100644
+--- a/CvGameCoreDLL/CvInfo_Tech.cpp
++++ b/CvGameCoreDLL/CvInfo_Tech.cpp
+@@ -320,7 +320,7 @@ bool CvTechInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"SpecialistExtraCommerces"))
+ 	{
+-		pXML->SetCommerce(&m_piSpecialistExtraCommerce);
++		pXML->SetCommerceArray(&m_piSpecialistExtraCommerce);
+ 	}
+ 	else pXML->InitList(&m_piSpecialistExtraCommerce, NUM_COMMERCE_TYPES);
+ 	// K-Mod end
+@@ -328,7 +328,7 @@ bool CvTechInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"CommerceFlexible"))
+ 	{
+-		pXML->SetCommerce(&m_pbCommerceFlexible);
++		pXML->SetCommerceArray(&m_pbCommerceFlexible);
+ 	}
+ 	else pXML->InitList(&m_pbCommerceFlexible, NUM_COMMERCE_TYPES);
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.cpp b/CvGameCoreDLL/CvInfo_Terrain.cpp
+index db3431b59..97a0f6821 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.cpp
++++ b/CvGameCoreDLL/CvInfo_Terrain.cpp
+@@ -76,21 +76,21 @@ bool CvTerrainInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"Yields"))
+ 	{
+-		pXML->SetYields(&m_piYields);
++		pXML->SetYieldArray(&m_piYields);
+ 	}
+ 	else pXML->InitList(&m_piYields, NUM_YIELD_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"RiverYieldChange"))
+ 	{
+-		pXML->SetYields(&m_piRiverYieldChange);
++		pXML->SetYieldArray(&m_piRiverYieldChange);
+ 	}
+ 	else pXML->InitList(&m_piRiverYieldChange, NUM_YIELD_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"HillsYieldChange"))
+ 	{
+-		pXML->SetYields(&m_piHillsYieldChange);
++		pXML->SetYieldArray(&m_piHillsYieldChange);
+ 	}
+ 	else pXML->InitList(&m_piHillsYieldChange, NUM_YIELD_TYPES);
+ 
+@@ -327,7 +327,7 @@ bool CvFeatureInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"YieldChanges"))
+ 	{
+-		pXML->SetYields(&m_piYieldChange);
++		pXML->SetYieldArray(&m_piYieldChange);
+ 	}
+ 	else
+ 	{
+@@ -337,7 +337,7 @@ bool CvFeatureInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"RiverYieldChange"))
+ 	{
+-		pXML->SetYields(&m_piRiverYieldChange);
++		pXML->SetYieldArray(&m_piRiverYieldChange);
+ 	}
+ 	else
+ 	{
+@@ -347,7 +347,7 @@ bool CvFeatureInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"HillsYieldChange"))
+ 	{
+-		pXML->SetYields(&m_piHillsYieldChange);
++		pXML->SetYieldArray(&m_piHillsYieldChange);
+ 	}
+ 	else pXML->InitList(&m_piHillsYieldChange, NUM_YIELD_TYPES);
+ 
+@@ -730,7 +730,7 @@ bool CvBonusInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"YieldChanges"))
+ 	{
+-		pXML->SetYields(&m_piYieldChange);
++		pXML->SetYieldArray(&m_piYieldChange);
+ 	}
+ 	else pXML->InitList(&m_piYieldChange, NUM_YIELD_TYPES);
+ 
+@@ -917,7 +917,7 @@ bool CvRouteInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"Yields"))
+ 	{
+-		pXML->SetYields(&m_piYieldChange);
++		pXML->SetYieldArray(&m_piYieldChange);
+ 	}
+ 	else pXML->InitList(&m_piYieldChange, NUM_YIELD_TYPES);
+ 
+@@ -1343,35 +1343,35 @@ bool CvImprovementInfo::read(CvXMLLoadUtility* pXML)
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"PrereqNatureYields"))
+ 	{
+-		pXML->SetYields(&m_piPrereqNatureYield);
++		pXML->SetYieldArray(&m_piPrereqNatureYield);
+ 	}
+ 	else pXML->InitList(&m_piPrereqNatureYield, NUM_YIELD_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"YieldChanges"))
+ 	{
+-		pXML->SetYields(&m_piYieldChange);
++		pXML->SetYieldArray(&m_piYieldChange);
+ 	}
+ 	else pXML->InitList(&m_piYieldChange, NUM_YIELD_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"RiverSideYieldChange"))
+ 	{
+-		pXML->SetYields(&m_piRiverSideYieldChange);
++		pXML->SetYieldArray(&m_piRiverSideYieldChange);
+ 	}
+ 	else pXML->InitList(&m_piRiverSideYieldChange, NUM_YIELD_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"HillsYieldChange"))
+ 	{
+-		pXML->SetYields(&m_piHillsYieldChange);
++		pXML->SetYieldArray(&m_piHillsYieldChange);
+ 	}
+ 	else pXML->InitList(&m_piHillsYieldChange, NUM_YIELD_TYPES);
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),
+ 		"IrrigatedYieldChange"))
+ 	{
+-		pXML->SetYields(&m_piIrrigatedChange);
++		pXML->SetYieldArray(&m_piIrrigatedChange);
+ 	}
+ 	else pXML->InitList(&m_piIrrigatedChange, NUM_YIELD_TYPES);
+ 
+@@ -1439,7 +1439,7 @@ bool CvImprovementInfo::read(CvXMLLoadUtility* pXML)
+ 								if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(), bTech ?
+ 									"TechYields": "RouteYields"))
+ 								{
+-									pXML->SetYields(&(*pppiYieldChanges)[iIndex]);
++									pXML->SetYieldArray(&(*pppiYieldChanges)[iIndex]);
+ 								}
+ 								else pXML->InitList(&(*pppiYieldChanges)[iIndex], NUM_YIELD_TYPES);
+ 							}
+
+diff --git a/CvGameCoreDLL/CvInitCore.cpp b/CvGameCoreDLL/CvInitCore.cpp
+index bf6428a37..befac9b6e 100644
+--- a/CvGameCoreDLL/CvInitCore.cpp
++++ b/CvGameCoreDLL/CvInitCore.cpp
+@@ -892,7 +892,7 @@ void CvInitCore::clearCustomMapOptions()
+ 	m_iNumCustomMapOptions = 0;
+ }
+ 
+-void CvInitCore::refreshCustomMapOptions()  // advc.003y: refactored
++void CvInitCore::refreshCustomMapOptions()
+ {
+ 	clearCustomMapOptions();
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.h b/CvGameCoreDLL/CvXMLLoadUtility.h
+index 51d8d43ec..609a5a07b 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.h
++++ b/CvGameCoreDLL/CvXMLLoadUtility.h
+@@ -130,9 +130,15 @@ public:
+ 	#ifdef _USRDLL
+ 	FXml* GetXML() { return m_pFXml; }
+ 	#endif
+-
++	/*	advc: Wrapper that calls SetToParent. SetYields remains (functionally)
++		unchanged - to avoid breaking XML loading code in mod-mods. Such errors
++		would be difficult to debug b/c the parser level is stored in the EXE. */
++	int SetYieldArray(int** ppiYield);
+ 	int SetYields(int** ppiYield);
+ 	#ifdef _USRDLL
++	// <advc> See comment above
++	template <class T>
++	int SetCommerceArray(T** ppiCommerce); // </advc>
+ 	template <class T>
+ 	int SetCommerce(T** ppiCommerce);
+ 	#endif
+@@ -292,14 +298,15 @@ public:
+ 			kMap.insert(pair.first, pair.second);
+ 		}
+ 	}
+-	// Wrappers for the SetYields (int only), SetCommerce (bool only) functions ...
++	/*	Wrappers for the SetYieldArray (int only) and
++		SetCommerceArray (bool only) functions ... */
+ 	template<class InfoMap>
+ 	void SetVariableListPerYield(InfoMap& kMap, TCHAR const* szRootTagName)
+ 	{
+ 		if (!gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szRootTagName))
+ 			return;
+ 		int* piTmp = NULL;
+-		int iSet = SetYields(&piTmp);
++		int iSet = SetYieldArray(&piTmp);
+ 		if (piTmp != NULL)
+ 		{
+ 			FOR_EACH_ENUM(Yield)
+@@ -319,7 +326,7 @@ public:
+ 		if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml, szRootTagName))
+ 		{
+ 			bool* pbTmp = NULL;
+-			int iSet = SetCommerce(&pbTmp);
++			int iSet = SetCommerceArray(&pbTmp);
+ 			if (pbTmp != NULL)
+ 			{
+ 				FOR_EACH_ENUM(Commerce)
+@@ -359,7 +366,7 @@ public:
+ 		if (gDLL->getXMLIFace()->SetToChildByTagName(GetXML(), szTagName))
+ 		{
+ 			int* piArray=NULL;
+-			int iValuesSet = (bYIELD ? SetYields(&piArray) : SetCommerce(&piArray));
++			int iValuesSet = (bYIELD ? SetYieldArray(&piArray) : SetCommerceArray(&piArray));
+ 			for (int i = 0; i < iValuesSet; i++)
+ 			{
+ 				kMap.insert(i, piArray[i]);
+@@ -395,10 +402,7 @@ private:
+ 	//ProgressCB m_pCBFxn;// Also unused, but have no other use for that memory, so:
+ 	void* m_pDummy;
+ 	Data* m; // additional members
+-	// <advc.003t> Wrappers that call SetToParent 
+-	template <class T>
+-	int SetCommerceImpl(T** ppiCommerce);
+-	int SetYieldsImpl(int** ppiYield); // </advc.003t>
++
+ 	// <advc.006j> Helper struct for asserting bounds of enum values read from XML
+ 	template<typename T, bool bENUM = enum_traits<T>::is_enum>
+ 	struct InfoIDFromChild;
+@@ -495,15 +499,15 @@ void CvXMLLoadUtility::InitList(T **ppList, int iListLen, T val)
+ /*	advc: All call locations call SetToParent after SetCommerce, so let's do that
+ 	only once in a single place. */
+ template <class T>
+-int CvXMLLoadUtility::SetCommerce(T** ppbCommerce)
++int CvXMLLoadUtility::SetCommerceArray(T** ppbCommerce)
+ {
+-	int iSet = SetCommerceImpl(ppbCommerce);
++	int iSet = SetCommerce(ppbCommerce);
+ 	gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 	return iSet;
+ }
+ 
+ template <class T>
+-int CvXMLLoadUtility::SetCommerceImpl(T** ppbCommerce)
++int CvXMLLoadUtility::SetCommerce(T** ppbCommerce)
+ {
+ 	T *pbCommerce; // local pointer for the Commerce memory
+ 	// Skip any comments and stop at the next value we might want
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 362314b85..2085f71d6 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -1536,16 +1536,16 @@ void CvXMLLoadUtility::LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInf
+ 
+ /*	advc: All call locations call SetToParent after SetYields, so let's do that
+ 	only once in a single place. */
+-int CvXMLLoadUtility::SetYields(int** ppiYield)
++int CvXMLLoadUtility::SetYieldArray(int** ppiYield)
+ {
+-	int iSet = SetYieldsImpl(ppiYield);
++	int iSet = SetYields(ppiYield);
+ 	gDLL->getXMLIFace()->SetToParent(m_pFXml);
+ 	return iSet;
+ }
+ 
+ /*  Allocate memory for the yield parameter and set it to the values in XML.
+ 	The current/last located node must be the first child of the yield changes node */
+-int CvXMLLoadUtility::SetYieldsImpl(int** ppiYield)
++int CvXMLLoadUtility::SetYields(int** ppiYield)
+ {
+ 	if (!SkipToNextVal()) // Skip any comments and stop at the next value we might want
+ 		return 0;
+@@ -1685,7 +1685,7 @@ void CvXMLLoadUtility::SetImprovementBonuses(CvImprovementBonusInfo** ppImprovem
+ 							if (gDLL->getXMLIFace()->SetToChildByTagName(m_pFXml,
+ 								"YieldChanges"))
+ 							{
+-								SetYields(&paImprovementBonus[iBonusIndex].m_piYieldChange);
++								SetYieldArray(&paImprovementBonus[iBonusIndex].m_piYieldChange);
+ 							}
+ 							else InitList(&paImprovementBonus[iBonusIndex].m_piYieldChange, NUM_YIELD_TYPES);
+ 						}
+@@ -1864,13 +1864,13 @@ CvXMLLoadUtility::XMLTagPairRateIterator<EncodableMap>::next()
+ 					}
+ 					setToParent();
+ 				}
+-				// Increases parser depth; the SetYields/Commerce call will undo that.
++				// Increases parser depth; the SetYield/CommerceArray call will undo that.
+ 				else if (gDLL->getXMLIFace()->SetToChildByTagName(m_pParser, m_szRateTagName))
+ 				{
+ 					// Not beautiful ...
+ 					if (is_same_type<typename EncodableMap::EnumType,YieldTypes>::value)
+-						iValuesSet = m_util.SetYields(&m_aiRates);
+-					else iValuesSet = m_util.SetCommerce(&m_aiRates);
++						iValuesSet = m_util.SetYieldArray(&m_aiRates);
++					else iValuesSet = m_util.SetCommerceArray(&m_aiRates);
+ 				}
+ 				if (iValuesSet > 0)
+ 				{
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=18415

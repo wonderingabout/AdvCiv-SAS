@@ -1,0 +1,847 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1973
+# Commit: 9b3ea57b2b00f426eef90d4e8094c81b5da25b1a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: df88df417033ffd2d00d11f1e76599a76ceb3af3
+# Title: Add some more functions to scaled_int
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+27	27	CvGameCoreDLL/CitySiteEvaluator.cpp
+47	21	CvGameCoreDLL/CvGameAI.cpp
+6	1	CvGameCoreDLL/CvGameAI.h
+45	19	CvGameCoreDLL/CvPlayerAI.cpp
+3	1	CvGameCoreDLL/CvPlayerAI.h
+0	47	CvGameCoreDLL/CvPlot.cpp
+3	7	CvGameCoreDLL/CvPlot.h
+2	2	CvGameCoreDLL/CvUnitAI.cpp
+77	10	CvGameCoreDLL/ScaledInt.h
+13	6	CvGameCoreDLL/ScaledIntTest.cpp
+1	2	CvGameCoreDLL/UWAICache.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 8ba5f0d18..a3523674a 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1356,14 +1356,14 @@ int AIFoundValue::calculateCultureModifier(CvPlot const& p, bool bForeignOwned,
+ 	bool bShare, bool bCityRadius, bool bSteal, bool bFlip, bool bOwnExcl,
+ 	int& iTakenTiles, int& iStealPercent) const
+ {
+-	int r = 100;
++	scaled_int r = 100;
+ 	/*  K-Mod note: iClaimThreshold is bigger for bEasyCulture and bAmbitious civs.
+ 		Also note, if the multiplier was to be properly used for unowned plots,
+ 		it would need to take into account the proximity of foreign cities and so on.
+ 		(similar to the iForeignProximity calculation) */
+ 	// advc.031: I'm including unowned plots, but only those in a foreign city radius.
+ 	if ((!bForeignOwned && (bShare || !bCityRadius)) /* advc.035: */ || bFlip)
+-		return r;
++		return r.getInt();
+ 
+ 	int iOurCulture = p.getCulture(ePlayer);
+ 	int iOtherCulture = std::max(1,
+@@ -1385,29 +1385,28 @@ int AIFoundValue::calculateCultureModifier(CvPlot const& p, bool bForeignOwned,
+ 			iOtherCulture = (3 * iOtherCulture) / 2;
+ 		}
+ 	} // </advc.031>
+-	r = 100 * (iOurCulture + kSet.getClaimThreshold());
+-	r /= iOtherCulture + kSet.getClaimThreshold();
++	r.mulDiv(iOurCulture + kSet.getClaimThreshold(), iOtherCulture + kSet.getClaimThreshold());
+ 	if (!bOwnExcl) // advc.035: The above is OK if cities own their exclusive radius ...
+ 	{	// <advc.031>
+ 		// ... but w/o that rule, it's too optimistic when iOurCulture is small.
+ 		r = (r + (iOurCulture * 100) / kSet.getClaimThreshold()) / 2;
+ 	}
+ 	// Take into account at least some factors that determine each side's culture rate
+-	double rateModifier = 1;
++	scaled_int rRateModifier = 1;
+ 	/*	Don't be _too_ optimistic against Barbarians - a civ (a rival - or us) will
+ 		probably conquer pForeignCity eventually and might not raze it. */
+ 	if (bForeignOwned && p.isBarbarian())
+-		rateModifier *= 1.55;
++		rRateModifier *= fixp(1.55);
+ 	else if(pForeignCity != NULL &&
+ 		// advc.303: Barbarian borders won't expand
+ 		!adjacentOrSame(p, *pForeignCity->plot()))
+ 	{
+-		rateModifier *= 1.8;
++		rRateModifier *= fixp(1.8);
+ 	}
+ 	if (!p.isArea(kArea))
+-		rateModifier /= 1.3;
++		rRateModifier /= fixp(1.3);
+ 	else if (pForeignCity != NULL && !pForeignCity->isArea(p.getArea()))
+-		rateModifier *= 1.3;
++		rRateModifier *= fixp(1.3);
+ 	/*  K-Mod had done *5/4 if EasyCulture; I think only free culture will really
+ 		swing culture wars. */
+ 	int iFreeForeignCulture = (bForeignOwned ? GET_PLAYER(p.getOwner()).
+@@ -1429,30 +1428,30 @@ int AIFoundValue::calculateCultureModifier(CvPlot const& p, bool bForeignOwned,
+ 					getObsoleteSafeCommerceChange(COMMERCE_CULTURE);
+ 		}
+ 	}
+-	double const freeForeignCultureModifier = (iFreeForeignCulture + 7) / 7.0;
++	scaled_int const rFreeForeignCultureModifier(iFreeForeignCulture + 7, 7);
+ 	// Extra pessimism about tiles that another civ is able to work (borders already expanded)
+ 	if (bSteal)
+ 	{
+-		rateModifier = 0.62;
++		rRateModifier = fixp(0.62);
+ 		if (pForeignCity != NULL && adjacentOrSame(p, *pForeignCity->plot()))
+-			rateModifier /= 1.5;
++			rRateModifier /= fixp(1.5);
+ 		if (bForeignOwned)
+-			rateModifier *= freeForeignCultureModifier;
++			rRateModifier *= rFreeForeignCultureModifier;
+ 	}
+ 	if (adjacentOrSame(p, kPlot))
+-		rateModifier *= 1.5; // as in K-Mod
+-	else rateModifier *= freeForeignCultureModifier;	
++		rRateModifier *= fixp(1.5); // as in K-Mod
++	else rRateModifier *= rFreeForeignCultureModifier;	
+ 	if (bCityRadius && !bShare)
+ 	{
+-		r = ::round(r * rateModifier * 0.8);
+-		iStealPercent += std::min(75, r);
++		r *= rRateModifier * fixp(0.8);
++		iStealPercent += scaled_int::min(75, r);
+ 	}
+-	else r = ::round(r * rateModifier);
++	else r *= rRateModifier;
+ 	// </advc.031>
+-	r = std::min(100, r);
++	r.decreaseTo(100);
+ 	// advc.031: Moved up
+-	if (r < (iAreaCities > 0 ? 25 : 50)
+-		&& !bSteal) // advc.031: Already counted as iTakenTiles
++	if (r < (iAreaCities > 0 ? 25 : 50) &&
++		!bSteal) // advc.031: Already counted as iTakenTiles
+ 	{
+ 		//discourage hopeless cases, especially on other continents.
+ 		iTakenTiles += (iAreaCities > 0 ? 1 : 2);
+@@ -1460,17 +1459,18 @@ int AIFoundValue::calculateCultureModifier(CvPlot const& p, bool bForeignOwned,
+ 	// <advc.099b>
+ 	if (!bCityRadius && bForeignOwned)
+ 	{
+-		double exclRadiusWeight = kPlayer.AI_exclusiveRadiusWeight(
++		scaled_int rExclRadiusWeight = GC.AI_getGame().AI_exclusiveRadiusWeight(
+ 				::plotDistance(&p, &kPlot));
+-		r = std::min(100, ::round(r * (1 + exclRadiusWeight)));
+-		// </advc.099b>
++		r *= 1 + rExclRadiusWeight;
++		r.decreaseTo(100);
++		// </advc.099b>  <advc.035>
+ 		if (bOwnExcl)
+ 		{
+-			// <advc.035> (The discouragement above is still useful for avoiding revolts)
+-			r = std::max(r, 65);
++			// (The discouragement above is still useful for avoiding revolts)
++			r.increaseTo(65);
+ 		} // </advc.035>
+ 	}
+-	return r;
++	return r.getInt();
+ }
+ 
+ /*	An estimate of how much production an improvement might add
+
+diff --git a/CvGameCoreDLL/CvGameAI.cpp b/CvGameCoreDLL/CvGameAI.cpp
+index b45af6001..5637a819f 100644
+--- a/CvGameCoreDLL/CvGameAI.cpp
++++ b/CvGameCoreDLL/CvGameAI.cpp
+@@ -6,11 +6,13 @@
+ #include "CvCityAI.h"
+ #include "UWAIAgent.h"
+ #include "CvInfo_Unit.h"
++#include "CvInfo_GameOption.h"
+ 
+ 
+ CvGameAI::CvGameAI()
+ {
+-	AI_reset();
++	m_arExclusiveRadiusWeight.resize(3);
++	AI_reset(true);
+ }
+ 
+ 
+@@ -23,7 +25,6 @@ CvGameAI::~CvGameAI()
+ void CvGameAI::AI_init()
+ {
+ 	AI_reset();
+-	AI_sortOutUWAIOptions(false); // advc.104
+ }
+ 
+ // <advc.104u>
+@@ -88,11 +89,15 @@ void CvGameAI::AI_sortOutUWAIOptions(bool bFromSaveGame)
+ void CvGameAI::AI_uninit() {}
+ 
+ 
+-void CvGameAI::AI_reset()
++void CvGameAI::AI_reset(/* advc (as in CvGame): */ bool bConstructor)
+ {
+ 	AI_uninit();
+-
+ 	m_iPad = 0;
++	if (!bConstructor)
++	{
++		AI_sortOutUWAIOptions(false); // advc.104
++		AI_updateExclusiveRadiusWeight(); // advc.099b
++	}
+ }
+ 
+ 
+@@ -101,9 +106,7 @@ void CvGameAI::AI_makeAssignWorkDirty()
+ 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 	{
+ 		if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-		{
+ 			GET_PLAYER((PlayerTypes)iI).AI_makeAssignWorkDirty();
+-		}
+ 	}
+ }
+ 
+@@ -114,9 +117,7 @@ void CvGameAI::AI_updateAssignWork()
+ 	{
+ 		CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
+ 		if (GET_TEAM(kLoopPlayer.getTeam()).isHuman() && kLoopPlayer.isAlive())
+-		{
+ 			kLoopPlayer.AI_updateAssignWork();
+-		}
+ 	}
+ }
+ 
+@@ -124,21 +125,17 @@ void CvGameAI::AI_updateAssignWork()
+ int CvGameAI::AI_combatValue(UnitTypes eUnit) /* K-Mod: */ const
+ {
+ 	int iValue = 100;
+-
+ 	if (GC.getInfo(eUnit).getDomainType() == DOMAIN_AIR)
+-	{
+ 		iValue *= GC.getInfo(eUnit).getAirCombat();
+-	}
+ 	else
+ 	{
+ 		iValue *= GC.getInfo(eUnit).getCombat();
+ 
+-		iValue *= ((((GC.getInfo(eUnit).getFirstStrikes() * 2) + GC.getInfo(eUnit).getChanceFirstStrikes()) * (GC.getCOMBAT_DAMAGE() / 5)) + 100);
++		iValue *= 100 + ((GC.getInfo(eUnit).getFirstStrikes() * 2 +
++				GC.getInfo(eUnit).getChanceFirstStrikes()) * (GC.getCOMBAT_DAMAGE() / 5));
+ 		iValue /= 100;
+ 	}
+-
+ 	iValue /= getBestLandUnitCombat();
+-
+ 	return iValue;
+ }
+ 
+@@ -151,23 +148,53 @@ int CvGameAI::AI_turnsPercent(int iTurns, int iPercent)
+ 		iTurns *= (iPercent);
+ 		iTurns /= 100;
+ 	}
+-
+ 	return std::max(1, iTurns);
+ }
+ 
+ 
++/*	advc.099b: Between 0 and 1. Expresses AI confidence about winning culturally
++	contested tiles that are within the working radius of its cities exclusively.
++	Since the decay of tile culture isn't based on game speed, that confidence
++	is greater on the slower speed settings. */
++scaled_int CvGameAI::AI_exclusiveRadiusWeight(int iDist) const
++{
++	if(iDist >= (int)m_arExclusiveRadiusWeight.size())
++		return 0;
++	FAssert(iDist >= 0);
++	return m_arExclusiveRadiusWeight[iDist];
++}
++
++// advc.00b:
++ void CvGameAI::AI_updateExclusiveRadiusWeight()
++ {
++	FAssert(m_arExclusiveRadiusWeight.size() == 3);
++	for (int iDist = 0; iDist < (int)m_arExclusiveRadiusWeight.size(); iDist++)
++	{
++		scaled_int rDistMultiplier;
++		if(iDist == 0 || iDist == 1)
++			rDistMultiplier = 2;
++		else rDistMultiplier = 1;
++		// High exponent; better use higher precision than usual.
++		ScaledInt<32*1024> rBase = 1 - rDistMultiplier *
++				per1000(GC.getDefineINT(CvGlobals::CITY_RADIUS_DECAY));
++		FAssertMsg(rBase > 0, "CITY_RADIUS_DECAY too great; negative base for scaled_int::pow.");
++		m_arExclusiveRadiusWeight[iDist] = 1 - rBase.pow(
++				25 * per100(GC.getInfo(getGameSpeedType()).getGoldenAgePercent()));
++	}
++ }
++
++
+ void CvGameAI::read(FDataStreamBase* pStream)
+ {
+ 	CvGame::read(pStream);
+ 
+-	uint uiFlag=0;
+-	pStream->Read(&uiFlag);	// flags for expansion
++	uint uiFlag;
++	pStream->Read(&uiFlag);
+ 
+ 	pStream->Read(&m_iPad);
+ 	// <advc.104>
+ 	m_uwai.read(pStream);
+-	AI_sortOutUWAIOptions(true);
+-	// </advc.104>
++	AI_sortOutUWAIOptions(true); // </advc.104>
+ }
+ 
+ 
+@@ -176,9 +203,8 @@ void CvGameAI::write(FDataStreamBase* pStream)
+ 	CvGame::write(pStream);
+ 
+ 	uint uiFlag=0;
+-	pStream->Write(uiFlag);		// flag for expansion
++	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iPad);
+-
+ 	m_uwai.write(pStream); // advc.104
+ }
+
+diff --git a/CvGameCoreDLL/CvGameAI.h b/CvGameCoreDLL/CvGameAI.h
+index 866aeab03..967a1220a 100644
+--- a/CvGameCoreDLL/CvGameAI.h
++++ b/CvGameCoreDLL/CvGameAI.h
+@@ -5,6 +5,7 @@
+ 
+ #include "CvGame.h"
+ #include "UWAI.h" // advc.104
++#include "ScaledInt.h" // advc.tmp (Move to precompiled header eventually)
+ 
+ 
+ class CvGameAI : public CvGame
+@@ -17,7 +18,7 @@ public:
+   void AI_init();
+   void AI_initScenario(); // advc.104u
+   void AI_uninit();
+-  void AI_reset();
++  void AI_reset(bool bConstructor = false);
+ 
+   void AI_makeAssignWorkDirty();
+   void AI_updateAssignWork();
+@@ -25,6 +26,7 @@ public:
+   int AI_combatValue(UnitTypes eUnit) const;
+ 
+   int AI_turnsPercent(int iTurns, int iPercent);
++  scaled_int AI_exclusiveRadiusWeight(int iDist = -1) const; // advc.099b
+ 
+   void read(FDataStreamBase* pStream);
+   void write(FDataStreamBase* pStream);
+@@ -37,6 +39,9 @@ protected:
+   // <advc.104>
+   void AI_sortOutUWAIOptions(bool bFromSaveGame);
+   UWAI m_uwai; // </advc.104>
++  std::vector<scaled_int> m_arExclusiveRadiusWeight; // advc.099b
++
++  void AI_updateExclusiveRadiusWeight(); // advc.009b
+ };
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 219481bf7..5ba9db108 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -20283,26 +20283,52 @@ void CvPlayerAI::AI_doSplit(/* advc.104r: */ bool bForce)  // advc: some style c
+ 	}
+ }
+ 
+-// <advc.099b>
+-double CvPlayerAI::AI_exclusiveRadiusWeight(int iDist) const
++// advc.035:
++bool CvPlayerAI::AI_isPlotContestedByRival(CvPlot const& kPlot, PlayerTypes eRival) const
+ {
+-	if(iDist > 2)
+-		return 0;
+-	double distMultiplier = 1.5;
+-	if(iDist == 0 || iDist == 1)
+-		distMultiplier = 2;
+-	else if(iDist == 2)
+-		distMultiplier = 1;
+-	double base = 1 - (distMultiplier * GC.getDefineINT(CvGlobals::CITY_RADIUS_DECAY) /
+-			1000.0);
+-	FAssertMsg(base > 0, "CITY_RADIUS_DECAY too great; negative base for std::pow.");
+-	/*  Between 0 and 1. Expresses our confidence about winning culturally
+-		contested tiles that are within the working radius of our cities
+-		exclusively. Since the decay of tile culture isn't based on game speed,
+-		that confidence is greater on the slower speed settings. */
+-	return 1 - std::pow(base, 25 * GC.getInfo(GC.getGame().
+-			getGameSpeedType()).getGoldenAgePercent() / 100.0);
+-} // </advc.099b>
++	if (kPlot.getOwner() != getID())
++		return false;
++	if(GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS))
++	{
++		PlayerTypes eSecondOwner = kPlot.getSecondOwner();
++		return eSecondOwner != NO_PLAYER && getID() != eSecondOwner &&
++				(eRival == NO_PLAYER || eSecondOwner == eRival || getID() == eRival) &&
++				getMasterTeam() != GET_TEAM(eSecondOwner).getMasterTeam();
++	} // <advc.099b>
++	else if(GC.getDefineINT(CvGlobals::CITY_RADIUS_DECAY) > 0)
++	{
++		if(getID() == eRival) // No longer contested; they own it.
++			return false;
++		int iTotalCulture = kPlot.getTotalCulture();
++		scaled_int rExclWeight = GC.AI_getGame().AI_exclusiveRadiusWeight();
++		int iOurCulture = kPlot.getCulture(getID());
++		// Just for efficiency
++		if(iOurCulture * rExclWeight * 2 >= iTotalCulture)
++			return false;
++		if(eRival != NO_PLAYER)
++		{
++			if(kPlot.getCulture(eRival) >= iOurCulture * rExclWeight &&
++				kPlot.exclusiveRadius(eRival) >= 0)
++			{
++				return true;
++			}
++			return false;
++		}
++		for (PlayerIter<ALIVE> it; it.hasNext(); ++it)
++		{
++			if(it->getID() == getID())
++				continue;
++			int iDist = kPlot.exclusiveRadius(it->getID());
++			if(iDist >= 0 && kPlot.getCulture(it->getID()) >=
++				iOurCulture * GC.AI_getGame().AI_exclusiveRadiusWeight(iDist))
++			{
++				return true;
++			}
++		}
++		return false;
++	} // </advc.099b>
++	return false;
++} // </advc.035>
+ 
+ 
+ void CvPlayerAI::AI_launch(VictoryTypes eVictory)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 1e7031b0b..b72a1886e 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -108,7 +108,9 @@ public:
+ 	int AI_commerceWeight(CommerceTypes eCommerce, const CvCityAI* pCity = NULL) const;
+ 	void AI_updateCommerceWeights(); // K-Mod
+ 
+-	double AI_exclusiveRadiusWeight(int iDist = -1) const; // advc.099b
++	// <advc.035>
++	bool AI_isPlotContestedByRival(CvPlot const& kPlot,
++			PlayerTypes eRival = NO_PLAYER) const; // </advc.035>
+ 	short AI_foundValue(int iX, int iY, int iMinRivalRange = -1, bool bStartingLoc = false) const;		// Exposed to Python
+ 	// advc: Replaced by the CitySiteEvaluator class
+ 	//struct CvFoundSettings { ... } // K-Mod
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index a9d9bd895..026b1494d 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -4193,53 +4193,6 @@ PlayerTypes CvPlot::getSecondOwner() const
+ void CvPlot::setSecondOwner(PlayerTypes eNewValue)
+ {
+ 	m_eSecondOwner = (char)eNewValue;
+-}
+-
+-
+-bool CvPlot::isContestedByRival(PlayerTypes eRival) const
+-{
+-	PlayerTypes eFirstOwner = getOwner();
+-	if(eFirstOwner == NO_PLAYER)
+-		return false;
+-	if(GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS))
+-	{
+-		PlayerTypes eSecondOwner = getSecondOwner();
+-		return eSecondOwner != NO_PLAYER && eFirstOwner != NO_PLAYER &&
+-				eFirstOwner != eSecondOwner && (eRival == NO_PLAYER ||
+-				eSecondOwner == eRival || eFirstOwner == eRival) &&
+-				GET_TEAM(eFirstOwner).getMasterTeam() !=
+-				GET_TEAM(eSecondOwner).getMasterTeam();
+-	} // <advc.099b>
+-	else if(GC.getDefineINT(CvGlobals::CITY_RADIUS_DECAY) > 0)
+-	{
+-		if(eFirstOwner == eRival) // No longer contested; they own it.
+-			return false;
+-		int iTotalCulture = getTotalCulture();
+-		double exclWeight = GET_PLAYER(eFirstOwner).AI_exclusiveRadiusWeight();
+-		int iOurCulture = getCulture(eFirstOwner);
+-		// Just for efficiency
+-		if(iOurCulture * exclWeight >= 0.5 * iTotalCulture)
+-			return false;
+-		if(eRival != NO_PLAYER)
+-		{
+-			if(getCulture(eRival) >= iOurCulture * exclWeight &&
+-					exclusiveRadius(eRival) >= 0)
+-				return true;
+-			return false;
+-		}
+-		for(int i = 0; i < MAX_PLAYERS; i++)
+-		{
+-			CvPlayerAI const& pl = GET_PLAYER((PlayerTypes)i);
+-			if(!pl.isAlive() || i == getOwner())
+-				continue;
+-			int iDist = exclusiveRadius(pl.getID());
+-			if(iDist >= 0 && getCulture(pl.getID()) >=
+-					iOurCulture * pl.AI_exclusiveRadiusWeight(iDist))
+-				return true;
+-		}
+-		return false;
+-	} // </advc.099b>
+-	return false;
+ } // </advc.035>
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 06cb9d753..ec99a79cd 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -377,9 +377,8 @@ public:
+ 	/*  <advc.035> The returned player becomes the owner if war/peace changes
+ 		between that player and the current owner */
+ 	PlayerTypes getSecondOwner() const;
+-	void setSecondOwner(PlayerTypes eNewValue);
+-	bool isContestedByRival(PlayerTypes eRival = NO_PLAYER) const;
+-	// </advc.035>
++	void setSecondOwner(PlayerTypes eNewValue); // </advc.035>
++	int exclusiveRadius(PlayerTypes ePlayer) const; // advc.099b
+ 	// advc.inl: inline all plotType accessors
+ 	inline PlotTypes getPlotType() const																																			// Exposed to Python
+ 	{
+@@ -818,10 +817,7 @@ protected:
+ 	void processArea(CvArea& kArea, int iChange);
+ 	char calculateLatitude() const; // advc.tsl
+ 	void doImprovementUpgrade();
+-	// <advc.099b>
+-	void doCultureDecay();
+-	int exclusiveRadius(PlayerTypes ePlayer) const;
+-	// </advc.099b>
++	void doCultureDecay(); // advc.099b
+ 	ColorTypes plotMinimapColor();
+ 
+ 	// added so under cheat mode we can access protected stuff
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index f46357223..9b4155718 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -17223,7 +17223,7 @@ bool CvUnitAI::AI_fortTerritory(bool bCanal, bool bAirbase)
+ 		{
+ 			continue;
+ 		}
+-		if (kPlot.isImproved() || /* advc.035: */ kPlot.isContestedByRival()) 
++		if (kPlot.isImproved()) 
+ 			continue;
+ 		int iValue = 0;
+ 		iValue += (bCanal ? kOwner.AI_getPlotCanalValue(kPlot) : 0);
+@@ -20945,7 +20945,7 @@ int CvUnitAI::AI_connectBonusCost(CvPlot const& p, BuildTypes eBuild, int iMissi
+ 	int iDefenseValue = kImpr.getDefenseModifier();
+ 	// The AI isn't going to station units on an island without cities
+ 	if(p.getArea().getCitiesPerPlayer(getOwner()) <= 0 ||  /* <advc.035> */
+-		p.isContestedByRival())
++		GET_PLAYER(getOwner()).AI_isPlotContestedByRival(p))
+ 	{
+ 		iDefenseValue = 0;
+ 	} // </advc.035>
+
+diff --git a/CvGameCoreDLL/ScaledInt.h b/CvGameCoreDLL/ScaledInt.h
+index 4dd83d51d..665cdf45d 100644
+--- a/CvGameCoreDLL/ScaledInt.h
++++ b/CvGameCoreDLL/ScaledInt.h
+@@ -33,9 +33,9 @@
+ 
+ 	INT is the type of the underlying integer variable. Has to be an integral type.
+ 	Both parameters are mostly internal to the implementation of ScaledInt. The public
+-	interface assumes that the client code works mostly with int and with types that
+-	can be cast implicitly to int and double literals (see fixp macro).
+-	There are no operators allowing ScaledInt instances of different SCALE types or
++	interface assumes that the client code works mostly with int, with types that
++	can be cast implicitly to int and with double literals (see fixp macro).
++	There are no operators allowing ScaledInt instances of different SCALE values or
+ 	different INT types to be mixed. That said, there is a non-explicit constructor
+ 	for conversion, so some of the existing operators will work for operands with
+ 	differing template parameters.
+@@ -54,10 +54,11 @@ template<int SCALE, class INT = int> // (uint SCALE leads to trouble w/ signed/u
+ class ScaledInt
+ {
+ public:
+-	/*	Factory function for creating fractions (with wrapper macros).
++	/*	Factory function for creating fractions (with wrapper macros per100).
+ 		Numerator and denominator as template parameters ensure
+ 		that the conversion to SCALE happens at compile time, so that
+-		floating-point math can be used for maximal accuracy. */
++		floating-point math can be used for maximal accuracy.
++		When the denominator isn't known at compile time, use ctor(int,int). */
+ 	template<int iNUM, int iDEN>
+ 	static inline ScaledInt<SCALE,INT> fromRational()
+ 	{
+@@ -76,6 +77,11 @@ public:
+ 	{
+ 		return std::max(r1, r2);
+ 	}
++	__forceinline static ScaledInt<SCALE,INT> min(
++		ScaledInt<SCALE,INT> r1, ScaledInt<SCALE,INT> r2)
++	{
++		return std::min(r1, r2);
++	}
+ 
+ 	__forceinline ScaledInt() : m_i(0) {}
+ 	__forceinline ScaledInt(int i) : m_i(SCALE * i)
+@@ -87,6 +93,10 @@ public:
+ 		FAssert(u <= MAX / SCALE);
+ 	}
+ 	// Conversion between scales and int types
++	__forceinline ScaledInt(int iNum, int iDen)
++	{
++		m_i = toScale(iNum, iDen);
++	}
+ 	template<int FROM_SCALE, class FROM_T>
+ 	__forceinline ScaledInt(ScaledInt<FROM_SCALE,FROM_T> rOther)
+ 	{
+@@ -112,6 +122,10 @@ public:
+ 	{
+ 		return getInt();
+ 	}*/
++	bool isInt() const
++	{
++		return (m_i % SCALE == 0);
++	}
+ 	__forceinline int getPercent() const
+ 	{
+ 		return ScaledInt<100,INT>(*this).m_i;
+@@ -128,6 +142,22 @@ public:
+ 	{
+ 		return m_i / static_cast<float>(SCALE);
+ 	}
++	char const* str(int iDen = SCALE)
++	{
++		if (iDen == 1)
++			_snprintf(szBuf, 32, "%s%d", isInt() ? "" : "ca. ", getInt());
++		else if (iDen == 100)
++			_snprintf(szBuf, 32, "%d percent", getPercent());
++		else if (iDen == 1000)
++			_snprintf(szBuf, 32, "%d permille", getPermille());
++		else _snprintf(szBuf, 32, "%d/%d", toScale(m_i, SCALE, iDen), iDen);
++		return szBuf;
++	}
++
++	__forceinline void mulDiv(int iMultiplier, int iDivisor)
++	{
++		m_i = toScale(m_i, iDivisor, iMultiplier);
++	}
+ 
+ 	// Bernoulli trial (coin flip) with success probability equal to m_i/SCALE
+ 	bool bernoulliSuccess(CvRandom& kRand, char const* szLog,
+@@ -144,8 +174,8 @@ public:
+ 	ScaledInt<SCALE,INT> pow(int iExp) const
+ 	{
+ 		if (iExp < 0)
+-			return 1 / powNonNegative(static_cast<INT>(-iExp));
+-		return powNonNegative(static_cast<INT>(iExp));
++			return 1 / powNonNegative(-iExp);
++		return powNonNegative(iExp);
+ 	}
+ 	ScaledInt<SCALE,INT> pow(ScaledInt<SCALE,INT> rExp) const
+ 	{
+@@ -154,6 +184,11 @@ public:
+ 			return 1 / powNonNegative(-rExp);
+ 		return powNonNegative(rExp);
+ 	}
++	__forceinline ScaledInt<SCALE,INT> sqrt() const
++	{
++		FAssert(!isNegative());
++		return powNonNegative(fromRational<1,2>());
++	}
+ 
+ 	__forceinline ScaledInt<SCALE,INT> abs() const
+ 	{
+@@ -208,6 +243,10 @@ public:
+ 	{
+ 		return (m_i == rOther.m_i);
+ 	}
++	__forceinline bool operator!=(ScaledInt<SCALE,INT> rOther) const
++	{
++		return (m_i != rOther.m_i);
++	}
+ 	__forceinline bool operator<=(ScaledInt<SCALE,INT> rOther) const
+ 	{
+ 		return (m_i <= rOther.m_i);
+@@ -231,6 +270,10 @@ public:
+ 	{
+ 		return (m_i == scaleForComparison(i));
+ 	}
++	__forceinline bool operator!=(int i) const
++	{
++		return (m_i != scaleForComparison(i));
++	}
+ 	__forceinline bool operator<=(int i) const
+ 	{
+ 		return (m_i <= scaleForComparison(i));
+@@ -272,13 +315,15 @@ public:
+ 		{
+ 			/*	According to my tests, MulDiv is slower than spelling the 32b/64b
+ 				conversion out. Perhaps MulDiv loses some time checking for overflow?
+-				I don't even see how there could be overflow. */
++				I'll check in an assertion, but if the 64b-to-32b conversion fails,
++				that's really the caller's responsibility. */
+ 			/*int iNum = MulDiv(m_i, rOther.m_i, SCALE);
+ 			//	-1 is how MulDiv indicates overflow, but could also be the legit result
+ 			//	of -1/SCALE times 1/SCALE.
+ 			FAssert(iNum != -1 || (m_i * rOther.m_i) / SCALE == -1);
+ 			m_i = iNum;*/
+ 			long long lNum = (m_i * rOther.m_i + (bSIGNED ? 0 : SCALE / 2)) / SCALE;
++			FAssert(lNum >= MIN && lNum <= MAX);
+ 			m_i = static_cast<INT>(lNum);
+ 		}
+ 		else
+@@ -306,6 +351,7 @@ public:
+ 		m_i *= SCALE;
+ 		if (!bSIGNED) // Round to nearest when sign doesn't need to be checked
+ 			m_i += rOther.m_i / 2;
++		// (For signed rounding, see ROUND_DIVIDE in CvGameCoreUtils.h)
+ 		m_i /= rOther.m_i;
+ 		return *this;
+ 	}
+@@ -426,17 +472,30 @@ public:
+ private:
+ 	INT m_i;
+ 
++	static char szBuf[32]; // for str function
++
+ 	template<int OTHER_SCALE,class OTHER_INT>
+ 	friend class ScaledInt;
+ 
+-	ScaledInt<SCALE,INT> powNonNegative(INT uExp) const
++	__forceinline INT toScale(int iNum, int iFromScale, int iToScale = SCALE) const
++	{
++		// Akin to code in ctor(ScaledInt) and operator*=(ScaledInt)
++		long long lNum = iNum * iToScale;
++		if (!bSIGNED)
++			lNum += iFromScale / 2;
++		lNum /= iFromScale;
++		FAssert(lNum >= MIN && lNum <= MAX);
++		return static_cast<INT>(lNum);
++	}
++
++	ScaledInt<SCALE,INT> powNonNegative(int iExp) const
+ 	{
+ 		ScaledInt<SCALE,INT> rCopy(*this);
+ 		/*  This can be done faster in general by squaring.
+ 			However, I doubt that it would be faster for
+ 			the small exponents I'm expecting to deal with*/
+ 		ScaledInt<SCALE,INT> r = 1;
+-		for (INT i = 0; i < uExp; i++)
++		for (int i = 0; i < iExp; i++)
+ 			r *= rCopy;
+ 		return r;
+ 	}
+@@ -522,6 +581,9 @@ INT const ScaledInt<SCALE,INT>::MAX = std::numeric_limits<INT>::max();
+ template<int SCALE, class INT>
+ INT const ScaledInt<SCALE,INT>::MIN = std::numeric_limits<INT>::min();
+ 
++template<int SCALE, class INT>
++char ScaledInt<SCALE,INT>::szBuf[] = {};
++
+ template<int SCALE, class INT>
+ __forceinline ScaledInt<SCALE,INT> operator+(
+ 	ScaledInt<SCALE,INT> rLeft, ScaledInt<SCALE,INT> rRight)
+@@ -635,6 +697,11 @@ template<int SCALE, class INT>
+  __forceinline bool operator==(int i, ScaledInt<SCALE,INT> r)
+ {
+ 	return (r == i);
++}
++ template<int SCALE, class INT>
++ __forceinline bool operator!=(int i, ScaledInt<SCALE,INT> r)
++{
++	return (r != i);
+ }
+ template<int SCALE, class INT>
+ __forceinline bool operator<=(int i, ScaledInt<SCALE,INT> r)
+
+diff --git a/CvGameCoreDLL/ScaledIntTest.cpp b/CvGameCoreDLL/ScaledIntTest.cpp
+index 79ce0823b..82773e8d6 100644
+--- a/CvGameCoreDLL/ScaledIntTest.cpp
++++ b/CvGameCoreDLL/ScaledIntTest.cpp
+@@ -13,9 +13,9 @@
+ 	at compile time.) */
+ void TestScaledInt()
+ {
+-	#ifndef SCALED_INT_TEST
++#ifndef SCALED_INT_TEST
+ 	return;
+-	#else
++#else
+ 
+ 	// These numbers match the running example commented on in pow.
+ 	FAssert(fixp(5.2).pow(fixp(2.1)).getInt() == 32);
+@@ -34,7 +34,7 @@ void TestScaledInt()
+ 	FAssertBounds(360, 440, iSuccesses);
+ 	FAssert(scaled_int(2).pow(10) == 1024);
+ 	FAssert(scaled_int(10).pow(-2) == per100(1));
+-	FAssert((scaled_int(2).pow(fixp(0.5)) * 100).getInt() == 141);
++	FAssert((scaled_int(2).sqrt() * 100).getInt() == 141);
+ 	FAssert((fixp(0.3).pow(fixp(1.7))*100).getInt() == 13);
+ 	FAssert(scaled_int(24).pow(0) == 1);
+ 	FAssert(scaled_int(0).pow(24) == 0);
+@@ -42,7 +42,7 @@ void TestScaledInt()
+ 	scaled_int rTest = fixp(2.4);
+ 	rTest.increaseTo(3);
+ 	FAssert(rTest == 3);
+-	rTest.decreaseTo(fixp(0.5));
++	rTest.decreaseTo(scaled_int(1, 2));
+ 	FAssert(rTest == fixp(0.5));
+ 	rTest.clamp(1, 2);
+ 	FAssert(rTest == 1);
+@@ -53,12 +53,19 @@ void TestScaledInt()
+ 	FAssert(rTest > fixp(0.999));
+ 	FAssert(rTest.approxEquals(fixp(1.01), fixp(0.05)));
+ 	rTest -= fixp(2.5);
+-	rTest.approxEquals(fixp(1.5), fixp(0.01));
++	FAssert(rTest.approxEquals(fixp(-1.5), fixp(0.01)));
++	rTest = per100(250u);
++	rTest.mulDiv(4, 5);
++	FAssert(rTest == 2);
++	FAssert(std::strcmp(scaled_int(2).str(100), "200 percent") == 0);
++	FAssert(std::strcmp(ScaledInt<1024>(2).str(), "2048/1024") == 0);
++	FAssert(std::strcmp(scaled_int(2).str(1), "2") == 0);
++	FAssert(std::strcmp(fixp(2.2).str(1), "ca. 2") == 0);
+ 
+ 	/*	Will do something "non-const" at the end based on the value of iDummy.
+ 		To prevent the compiler from discarding code, results of test computations
+ 		can be added to iDummy. */
+-	int iDummy = -1;
++	int iDummy = scaled_int(1, 2).getInt();
+ 
+ 	// Speed measurements
+ 	// (CPU cycles noted in comments can be out of date)
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index c22299e3a..526a9f0c1 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -1721,8 +1721,7 @@ void UWAICache::City::updateAssetScore() {
+ 			slow. Instead, only increase cultureModifier for tiles in the
+ 			inner ring, and increase it based on the weight for the outer ring. */
+ 		if(::stepDistance(&p, &centerPlot) == 1) {
+-			double exclMult = 1 + 0.5 * GET_PLAYER(cityOwnerId).
+-					AI_exclusiveRadiusWeight(2);
++			double exclMult = (1 + GC.AI_getGame().AI_exclusiveRadiusWeight(2) / 2).getDouble();
+ 			cultureModifier = std::min(1.0, cultureModifier * exclMult);
+ 		} // </advc.099b>
+ 		r += baseTileScore * cultureModifier;
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=27439

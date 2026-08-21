@@ -1,0 +1,521 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 56
+# Commit: 2034aebc356ff90d54dd05effd2610154d5d887c
+# History segment: K-Mod history
+# Parent used for diff: 9a1796760ac809cf73be7c428f08c61e4631b47d
+# Title: NOTE: This patch changes the save file format. All saves will be invalidated. GwPercentAnger is now cached. Average (K-Mod) culture pressure factor is now ca...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Screens/EconomicsAdvisor.py
+11	2	CvGameCoreDLL/CvCity.cpp
+12	3	CvGameCoreDLL/CvCityAI.cpp
+55	4	CvGameCoreDLL/CvGame.cpp
+1	0	CvGameCoreDLL/CvGame.h
+1	1	CvGameCoreDLL/CvGameTextMgr.cpp
+16	28	CvGameCoreDLL/CvPlayer.cpp
+3	1	CvGameCoreDLL/CvPlayer.h
+28	1	CvGameCoreDLL/CvPlayerAI.cpp
+3	0	CvGameCoreDLL/CvPlayerAI.h
+2	2	CvGameCoreDLL/CyPlayer.cpp
+1	1	CvGameCoreDLL/CyPlayer.h
+1	1	CvGameCoreDLL/CyPlayerInterface1.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/EconomicsAdvisor.py b/Assets/Python/Screens/EconomicsAdvisor.py
+index adf918668..da0dd829e 100644
+--- a/Assets/Python/Screens/EconomicsAdvisor.py
++++ b/Assets/Python/Screens/EconomicsAdvisor.py
+@@ -673,7 +673,7 @@ class EconomicsAdvisor:
+ 			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Event Tally" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + unicode(iGwEventTally) + "</font>", CvUtil.FONT_RIGHT_JUSTIFY, self.X_RIGHT_PANEL + self.PANE_WIDTH - self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 		
+-		iGwPercentAnger = player.calculateGwPercentAnger()
++		iGwPercentAnger = player.getGwPercentAnger()
+ 		if (iGwPercentAnger >= 2):
+ 			yLocation += 1.5 * self.Y_SPACING
+ 			screen.setLabel(self.getNextWidgetName(), "Background", u"<font=3>" + "Local Anger Level" + "</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_RIGHT_PANEL + self.TEXT_MARGIN, yLocation + self.TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_UNHAPPY, -1, -1 )
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 3a5431e45..290d99eb1 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4386,7 +4386,7 @@ int CvCity::unhappyLevel(int iExtra) const
+ ** Unfortunately, people who made the rest of the game used anger percent to mean part per 1000
+ ** so I have to multiply my GwPercentAnger by 10 to make it fit in.
+ */
+-		iAngerPercent += std::max(0, GET_PLAYER(getOwnerINLINE()).calculateGwPercentAnger()*10);
++		iAngerPercent += std::max(0, GET_PLAYER(getOwnerINLINE()).getGwPercentAnger()*10);
+ // K-Mod end
+ 
+ 		for (iI = 0; iI < GC.getNumCivicInfos(); iI++)
+@@ -6690,7 +6690,16 @@ int CvCity::getAdditionalHealthByBuilding(BuildingTypes eBuilding, int& iGood, i
+ 	} */
+ 
+ 	// Modified unhealthiness from population
+-	iBad += ROUND_DIVIDE(getPopulation() * std::max(-100, kBuilding.getUnhealthyPopulationModifier()), 100);
++	int iEffectiveModifier = 0;
++	if (kBuilding.getUnhealthyPopulationModifier()+getUnhealthyPopulationModifier() < -100)
++	{
++		iEffectiveModifier = std::min(0, -100 - getUnhealthyPopulationModifier());
++	}
++	else
++	{
++		iEffectiveModifier = std::max(-100, kBuilding.getUnhealthyPopulationModifier());
++	}
++	iBad += ROUND_DIVIDE(getPopulation() * iEffectiveModifier, 100);
+ 	/*
+ 	** K-Mod end
+ 	*/
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 7ff3e08a3..458c086e6 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -697,6 +697,7 @@ void CvCityAI::AI_chooseProduction()
+ 	bool bDanger;
+ 	bool bChooseUnit;
+ 	int iProductionRank;
++	int iCommerceRank; // K-Mod
+ 	int iCulturePressure;
+ 
+ 	bDanger = AI_isDanger();
+@@ -939,6 +940,7 @@ void CvCityAI::AI_chooseProduction()
+ 	}
+ 
+ 	iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
++	iCommerceRank = findYieldRateRank(YIELD_COMMERCE);
+ 
+ 	if( gCityLogLevel >= 3 ) logBBAI("      City %S pop %d considering new production: iProdRank %d, iBuildUnitProb %d", getName().GetCString(), getPopulation(), iProductionRank, iBuildUnitProb);
+ 
+@@ -1467,7 +1469,13 @@ void CvCityAI::AI_chooseProduction()
+ 	
+ 	if (iTotalFloatingDefenders < ((iNeededFloatingDefenders + 1) / (bGetBetterUnits ? 3 : 2)))
+ 	{
+-		if (AI_chooseLeastRepresentedUnit(floatingDefenderTypes))
++		// K-Mod, military exemption for commerce cities
++		if (iProductionRank > kPlayer.getNumCities()/2 && iCommerceRank - iProductionRank < 0)
++		{
++			// exempt
++		}
++		// K-Mod end
++		else if (AI_chooseLeastRepresentedUnit(floatingDefenderTypes))
+ 		{
+ 			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses choose floating defender 1", getName().GetCString());
+ 			return;
+@@ -2497,10 +2505,11 @@ void CvCityAI::AI_chooseProduction()
+ 	// K-Mod
+ 	if (kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE))
+ 		iNeededSpies *= 2;
++	// K-Mod end
+ 	if (iNumSpies < iNeededSpies)
+ 	{
+ 		//if (AI_chooseUnit(UNITAI_SPY, 5 + 50 / (1 + iNumSpies)))
+-		if (AI_chooseUnit(UNITAI_SPY, 30*iNeededSpies / (3*iNumSpies+iNeededSpies)))
++		if (AI_chooseUnit(UNITAI_SPY, 30*iNeededSpies / (3*iNumSpies+iNeededSpies))) // K-Mod
+ 		{
+ 			return;
+ 		}
+@@ -3796,7 +3805,7 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 				{
+ 					int iCleanValue = -2*iBad;
+ 
+-					iCleanValue *= (100 + 5*kOwner.calculateGwPercentAnger());
++					iCleanValue *= (100 + 5*kOwner.getGwPercentAnger());
+ 					iCleanValue /= 100;
+ 
+ 					FAssert(iCleanValue >= 0);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index a55c6568b..166f4f17c 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2290,6 +2290,60 @@ void CvGame::updateTradeRoutes()
+ 	}
+ }
+ 
++/*
++** K-Mod
++** calculate unhappiness due to the state of global warming
++*/
++void CvGame::updateGwPercentAnger()
++{
++	int iGlobalPollution;
++	int iGwSeverityRating;
++	int iGlobalDefence;
++
++	int iGwIndex = getGlobalWarmingIndex();
++
++	if (iGwIndex > 0)
++	{
++		iGlobalPollution = calculateGlobalPollution();
++		iGwSeverityRating = calculateGwSeverityRating();
++		iGlobalDefence = calculateGwLandDefence(NO_PLAYER);
++	}
++
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	{
++		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
++
++		if (kPlayer.isAlive() && !kPlayer.isBarbarian() && !kPlayer.isMinorCiv())
++		{
++			int iAngerPercent;
++			if (iGwIndex > 0)
++			{
++				// player unhappiness = base rate * severity rating * responsibility factor
++
++				int iLocalDefence = calculateGwLandDefence((PlayerTypes)iI);
++				int iResponsibilityFactor =	100*(kPlayer.calculatePollution() - iLocalDefence);
++
++				iResponsibilityFactor /= std::max(1, calculateGwSustainabilityThreshold((PlayerTypes)iI));
++				iResponsibilityFactor *= calculateGwSustainabilityThreshold();
++				iResponsibilityFactor /= std::max(1, iGlobalPollution - iGlobalDefence);
++				// amplify the affects of responsibility
++				iResponsibilityFactor = std::max(0, 2*iResponsibilityFactor-100);
++
++				int iAngerPercent = GC.getDefineINT("GLOBAL_WARMING_BASE_ANGER_PERCENT") * iGwSeverityRating * iResponsibilityFactor;
++				iAngerPercent = ROUND_DIVIDE(iAngerPercent, 10000);// div, 100 * 100
++			}
++			else
++			{
++				iAngerPercent = 0;
++			}
++
++			kPlayer.setGwPercentAnger(iAngerPercent);
++		}
++	}
++}
++/*
++** K-Mod end
++*/
+ 
+ void CvGame::testExtendedGame()
+ {
+@@ -4042,14 +4096,10 @@ int CvGame::calculateGwLandDefence(PlayerTypes ePlayer) const
+ 		{
+ 			if (ePlayer == NO_PLAYER || ePlayer == pPlot->getOwner())
+ 			{
+-				//int iFeatureWarmingDefense = GC.getFeatureInfo(pPlot->getFeatureType()).getWarmingDefense();
+-				//if (iFeatureWarmingDefense > 0)
+ 				iTotal += GC.getFeatureInfo(pPlot->getFeatureType()).getWarmingDefense();
+ 			}
+ 		}
+ 	}
+-	// iFeatureWarmingDefense has the full defense value. So no need to multiply the total.
+-	//iGlobalWarmingDefense = iTotal * GC.getDefineINT("GLOBAL_WARMING_FOREST") / std::max(1, GC.getMapINLINE().getLandPlots());
+ 	return iTotal;
+ }
+ 
+@@ -6292,6 +6342,7 @@ void CvGame::doGlobalWarming()
+ 			}
+ 		}
+ 	}
++	updateGwPercentAnger();
+ }
+ 
+ // Choose the best plot for global warming to strike from a set of iPool random plots
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 1f1b06767..bae34081d 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -53,6 +53,7 @@ public:
+ 	DllExport void updateBuildingCommerce();
+ 	DllExport void updateCitySight(bool bIncrement);
+ 	DllExport void updateTradeRoutes();
++	void updateGwPercentAnger(); // K-Mod
+ 
+ 	DllExport void updateSelectionList();
+ 	DllExport void updateTestEndTurn();
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 84a189016..18fbc8ab1 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9500,7 +9500,7 @@ iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_D
+ */
+ 		// when I say 'percent' I mean 1/100. Unfortunately, people who made the rest of the game meant something else...
+ 		// so I have to multiply my GwPercentAnger by 10 to make it fit in.
+-		iNewAngerPercent += std::max(0, GET_PLAYER(city.getOwnerINLINE()).calculateGwPercentAnger()*10);
++		iNewAngerPercent += std::max(0, GET_PLAYER(city.getOwnerINLINE()).getGwPercentAnger()*10);
+ 		iNewAnger += (((iNewAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()) - ((iOldAngerPercent * city.getPopulation()) / GC.getPERCENT_ANGER_DIVISOR()));
+ 		iAnger = ((iNewAnger - iOldAnger) + std::min(0, iOldAnger));
+ 		if (iAnger > 0)
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index eee4e612e..10627ef36 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -747,6 +747,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 	m_iLargestCityHappiness = 0;
+ 	m_iWarWearinessPercentAnger = 0;
+ 	m_iWarWearinessModifier = 0;
++	m_iGwPercentAnger = 0; // K-Mod
+ 	m_iFreeSpecialist = 0;
+ 	m_iNoForeignTradeCount = 0;
+ 	m_iNoCorporationsCount = 0;
+@@ -7223,7 +7224,7 @@ int CvPlayer::calculateTotalCityUnhealthiness() const
+ }
+ 
+ /*
+-** K-Mod, 18/dec/10, karadoc
++** K-Mod
+ ** calculate the pollution output of a civ.
+ ** iTypes is a bit-field whos members are POLLUTION_POPULTION, _BUILDINGS, _BONUS, _POWER. (and _ALL)
+ */
+@@ -7250,36 +7251,20 @@ int CvPlayer::calculatePollution(int iTypes) const
+ 	return iTotal;
+ }
+ 
+-/*
+-** calculate unhappiness due to the state of global warming
+-*/
+-int CvPlayer::calculateGwPercentAnger() const
++int CvPlayer::getGwPercentAnger() const
+ {
+-	//PROFILE_FUNC();
+-
+-	if (GC.getGameINLINE().getGlobalWarmingIndex() <= 0)
+-		return 0;
+-
+-	// player unhappiness = base rate * severity rating * responsibility factor
+-
+-	int iGlobalPollution = GC.getGameINLINE().calculateGlobalPollution();
+-	int iGwSeverityRating = GC.getGameINLINE().calculateGwSeverityRating();
+-	int iLocalDefence = GC.getGameINLINE().calculateGwLandDefence(getID());
+-	int iGlobalDefence = GC.getGameINLINE().calculateGwLandDefence(NO_PLAYER);
+-
+-
+-	int iResponsibilityFactor =	100*(calculatePollution() - iLocalDefence);
+-	iResponsibilityFactor /= std::max(1, GC.getGameINLINE().calculateGwSustainabilityThreshold(getID()));
+-	iResponsibilityFactor *= GC.getGameINLINE().calculateGwSustainabilityThreshold();
+-	iResponsibilityFactor /= std::max(1, iGlobalPollution - iGlobalDefence);
+-	// amplify the affects
+-	iResponsibilityFactor = std::max(0, 2*iResponsibilityFactor-100);
+-
+-	int iAngerPercent = GC.getDefineINT("GLOBAL_WARMING_BASE_ANGER_PERCENT") * iGwSeverityRating * iResponsibilityFactor;
+-	iAngerPercent = ROUND_DIVIDE(iAngerPercent, 10000);// div, 100 * 100
++	return m_iGwPercentAnger;
++}
+ 
+-	return iAngerPercent;
++void CvPlayer::setGwPercentAnger(int iNewValue)
++{
++	if (iNewValue != m_iGwPercentAnger)
++	{
++		m_iGwPercentAnger = iNewValue;
++		AI_makeAssignWorkDirty();
++	}
+ }
++
+ /*
+ ** K-Mod end
+ */
+@@ -13004,6 +12989,7 @@ void CvPlayer::setCivics(CivicOptionTypes eIndex, CivicTypes eNewValue)
+ 					}
+ 				}
+ 			}
++			GC.getGameINLINE().updateGwPercentAnger(); // K-Mod. (environmentalism can change this. It's nice to see the effects immediately.)
+ 		}
+ 
+ /************************************************************************************************/
+@@ -17127,6 +17113,7 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iLargestCityHappiness);
+ 	pStream->Read(&m_iWarWearinessPercentAnger);
+ 	pStream->Read(&m_iWarWearinessModifier);
++	pStream->Read(&m_iGwPercentAnger); // K-Mod
+ 	pStream->Read(&m_iFreeSpecialist);
+ 	pStream->Read(&m_iNoForeignTradeCount);
+ 	pStream->Read(&m_iNoCorporationsCount);
+@@ -17591,6 +17578,7 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iLargestCityHappiness);
+ 	pStream->Write(m_iWarWearinessPercentAnger);
+ 	pStream->Write(m_iWarWearinessModifier);
++	pStream->Write(m_iGwPercentAnger); // K-Mod
+ 	pStream->Write(m_iFreeSpecialist);
+ 	pStream->Write(m_iNoForeignTradeCount);
+ 	pStream->Write(m_iNoCorporationsCount);
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index caf3c6c92..e51e4dfc1 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -267,7 +267,8 @@ public:
+ 	int calculateTotalCityUnhealthiness() const;																													// Exposed to Python
+ 
+ 	int calculatePollution(int iTypes = POLLUTION_ALL) const; // K-Mod, Exposed to Python
+-	int calculateGwPercentAnger() const; // K-Mod, Exposed to Python
++	int getGwPercentAnger() const; // K-Mod, Exposed to Python
++	void setGwPercentAnger(int iNewValue); // K-Mod
+ 
+ 	int calculateUnitCost(int& iFreeUnits, int& iFreeMilitaryUnits, int& iPaidUnits, int& iPaidMilitaryUnits, int& iBaseUnitCost, int& iMilitaryCost, int& iExtraCost) const;
+ 	int calculateUnitCost() const;																																				// Exposed to Python
+@@ -1192,6 +1193,7 @@ protected:
+ 	int m_iLargestCityHappiness;
+ 	int m_iWarWearinessPercentAnger;
+ 	int m_iWarWearinessModifier;
++	int m_iGwPercentAnger; // K-Mod
+ 	int m_iFreeSpecialist;
+ 	int m_iNoForeignTradeCount;
+ 	int m_iNoCorporationsCount;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 712ad670b..6f313604a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -294,6 +294,7 @@ void CvPlayerAI::AI_reset(bool bConstructor)
+ 		m_aiAverageCommerceExchange[iI] = 0;
+ 	}
+ 	m_iAverageGreatPeopleMultiplier = 0;
++	m_iAverageCulturePressure = 0;
+ 	m_iAveragesCacheTurn = -1;
+ 	
+ 	m_iStrategyHash = 0;
+@@ -12214,7 +12215,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		// Unfortunately, since adopting this civic will lower the very same anger percent that is giving the civic value...
+ 		// the civic will be valued lower as soon as it is adopted. :(
+ 		// Fixing this problem (and others like it) is a bit tricky. For now, I'll just try to fudge around it.
+-		int iGwAnger = calculateGwPercentAnger();
++		int iGwAnger = getGwPercentAnger();
+ 		if (isCivic(eCivic)) // Fudge factor
+ 		{
+ 			iGwAnger *= 100;
+@@ -12294,6 +12295,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 			int iCorpCities = countCorporations(eCorp);
+ 			int iMaintenance = 0;
+ 			// If the HQ is ours, assume we will spread the corp. If it is not our, assume we don't care.
++			// (Note: this doesn't take into account the posibility of competing corps. Sorry.)
+ 			if (bTeamHQ)
+ 			{
+ 				iCorpCities += (bPlayerHQ ?2 :1)*iCities;
+@@ -16189,6 +16191,7 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ /************************************************************************************************/		
+ 	pStream->Read(&m_iAveragesCacheTurn);
+ 	pStream->Read(&m_iAverageGreatPeopleMultiplier);
++	pStream->Read(&m_iAverageCulturePressure); // K-Mod
+ 
+ 	pStream->Read(NUM_YIELD_TYPES, m_aiAverageYieldMultiplier);
+ 	pStream->Read(NUM_COMMERCE_TYPES, m_aiAverageCommerceMultiplier);
+@@ -16302,6 +16305,7 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ /************************************************************************************************/		
+ 	pStream->Write(m_iAveragesCacheTurn);
+ 	pStream->Write(m_iAverageGreatPeopleMultiplier);
++	pStream->Write(m_iAverageCulturePressure); // K-Mod
+ 
+ 	pStream->Write(NUM_YIELD_TYPES, m_aiAverageYieldMultiplier);
+ 	pStream->Write(NUM_COMMERCE_TYPES, m_aiAverageCommerceMultiplier);
+@@ -19570,6 +19574,16 @@ int CvPlayerAI::AI_averageGreatPeopleMultiplier() const
+ 	return m_iAverageGreatPeopleMultiplier;	
+ }
+ 
++// K-Mod
++int CvPlayerAI::AI_AverageCulturePressure() const
++{
++	if (m_iAveragesCacheTurn != GC.getGameINLINE().getGameTurn())
++	{
++		AI_calculateAverages();
++	}
++	return m_iAverageCulturePressure;	
++}
++
+ //"100 eCommerce is worth (return) raw YIELD_COMMERCE
+ int CvPlayerAI::AI_averageCommerceExchange(CommerceTypes eCommerce) const
+ {
+@@ -19692,6 +19706,19 @@ void CvPlayerAI::AI_calculateAverages() const
+ 		}
+ 	}
+ 
++	// K-Mod Culture pressure
++
++	int iTotal = 0;
++	int iWeightedTotal = 0;
++
++	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++	{
++		int iCultureRate = pLoopCity->getCommerceRateTimes100(COMMERCE_CULTURE);
++		iTotal += iCultureRate;
++		iWeightedTotal += iCultureRate * pLoopCity->culturePressureFactor();
++	}
++	m_iAverageCulturePressure = iWeightedTotal / iTotal;
++
+ 	m_iAveragesCacheTurn = GC.getGameINLINE().getGameTurn();
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index be09851d0..b5addf356 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -354,6 +354,7 @@ public:
+ 	int AI_averageYieldMultiplier(YieldTypes eYield) const;
+ 	int AI_averageCommerceMultiplier(CommerceTypes eCommerce) const;
+ 	int AI_averageGreatPeopleMultiplier() const;
++	int AI_AverageCulturePressure() const; // K-Mod
+ 	int AI_averageCommerceExchange(CommerceTypes eCommerce) const;
+ 	
+ 	int AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance) const;
+@@ -460,6 +461,8 @@ protected:
+ 	
+ 	mutable int m_iAverageGreatPeopleMultiplier;
+ 
++	mutable int m_iAverageCulturePressure; // K-Mod
++	
+ 	mutable int *m_aiAverageYieldMultiplier;
+ 	mutable int *m_aiAverageCommerceMultiplier;
+ 	mutable int *m_aiAverageCommerceExchange;
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index ad9a84769..0a804c361 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -569,9 +569,9 @@ int CyPlayer::calculatePollution(int iTypes) const
+ 	return m_pPlayer ? m_pPlayer->calculatePollution(iTypes) : 0;
+ }
+ 
+-int CyPlayer::calculateGwPercentAnger() const
++int CyPlayer::getGwPercentAnger() const
+ {
+-	return m_pPlayer ? m_pPlayer->calculateGwPercentAnger() : 0;
++	return m_pPlayer ? m_pPlayer->getGwPercentAnger() : 0;
+ }
+ /*
+ ** K-Mod end
+
+diff --git a/CvGameCoreDLL/CyPlayer.h b/CvGameCoreDLL/CyPlayer.h
+index 63a94a741..3257fe4c9 100644
+--- a/CvGameCoreDLL/CyPlayer.h
++++ b/CvGameCoreDLL/CyPlayer.h
+@@ -153,7 +153,7 @@ public:
+ 	int calculateResearchRate(int /*TechTypes*/ eTech);
+ 	int calculateResearchModifier(int /*TechTypes*/ eTech);
+ 	int calculatePollution(int iTypes) const; // K-Mod
+-	int calculateGwPercentAnger() const; // K-Mod
++	int getGwPercentAnger() const; // K-Mod
+ 	int calculateBaseNetResearch();
+ 	bool isResearch();
+ 	bool canEverResearch(int /*TechTypes*/ eTech);
+
+diff --git a/CvGameCoreDLL/CyPlayerInterface1.cpp b/CvGameCoreDLL/CyPlayerInterface1.cpp
+index f9ff0d974..29a0fe26c 100644
+--- a/CvGameCoreDLL/CyPlayerInterface1.cpp
++++ b/CvGameCoreDLL/CyPlayerInterface1.cpp
+@@ -140,7 +140,7 @@ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x)
+ 		.def("calculateTotalCommerce", &CyPlayer::calculateTotalCommerce, "int ()")
+ 		.def("calculateResearchRate", &CyPlayer::calculateResearchRate, "int (int /*TechTypes*/ eTech)")
+ 		.def("calculatePollution", &CyPlayer::calculatePollution, "int (int /*PollutionFlags*/ iTypes)") // K-Mod
+-		.def("calculateGwPercentAnger", &CyPlayer::calculateGwPercentAnger, "int ()") // K-Mod
++		.def("getGwPercentAnger", &CyPlayer::getGwPercentAnger, "int ()") // K-Mod
+ 		.def("calculateBaseNetResearch", &CyPlayer::calculateBaseNetResearch, "int ()")
+ 		.def("calculateResearchModifier", &CyPlayer::calculateResearchModifier, "int (int /*TechTypes*/ eTech)")
+ 		.def("isResearch", &CyPlayer::isResearch, "bool ()")
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=19454

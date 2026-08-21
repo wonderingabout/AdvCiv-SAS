@@ -1,0 +1,131 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1580
+# Commit: fab33727926733ed9467558422dbc86c06ee62a4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 11fae87ab9160c55bfa16c154046b96b23f7c571
+# Title: Removed type parameters from std::make_pair calls
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	1	CvGameCoreDLL/CvGame.cpp
+4	3	CvGameCoreDLL/InvasionGraph.cpp
+1	1	CvGameCoreDLL/RiseFall.cpp
+3	3	CvGameCoreDLL/WarAndPeaceCache.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index a248505e3..24e9d113d 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -6169,8 +6169,7 @@ CvWString CvDLLWidgetData::getDiscoverPathText(UnitTypes eUnit, PlayerTypes ePla
+ 		std::set<TechTypes>* discoverSet = NULL;
+ 		if(discoverMap.find(eNextDiscover) == discoverMap.end()) {
+ 			discoverSet = new std::set<TechTypes>();
+-			discoverMap.insert(std::make_pair<TechTypes,std::set<TechTypes>*>(
+-					eNextDiscover, discoverSet));
++			discoverMap.insert(std::make_pair(eNextDiscover, discoverSet));
+ 		}
+ 		else discoverSet = discoverMap.find(eNextDiscover)->second;
+ 		discoverSet->insert(eResearchOption);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 81afc784b..2da444731 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1234,7 +1234,7 @@ void CvGame::assignStartingPlots()
+ 		int val = civ.AI_foundValue(p->getX(), p->getY(), -1, true);
+ 		FAssertMsg(val > 0, "Bad starting position");
+ 		// minus val for descending order
+-		startPlots.push_back(std::make_pair<int,CvPlot*>(-val, p));
++		startPlots.push_back(std::make_pair(-val, p));
+ 	}
+ 	FAssert(startPlots.size() == playerOrder.size());
+ 	std::sort(startPlots.begin(), startPlots.end());
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 241de92bd..ca3e29b6c 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -2214,7 +2214,8 @@ std::pair<double,double> InvasionGraph::Node::clashLossesWinnerLoser(double powA
+ 
+ 	double lesserPow = std::min(powAtt, powDef);
+ 	double greaterPow = std::max(powAtt, powDef);
+-	if(greaterPow < 1) return std::make_pair<double,double>(0, 0);
++	if(greaterPow < 1)
++		return std::make_pair(0, 0);
+ 	double cpw = clashPortion, cpl = clashPortion;
+ 	/*  Since I've gotten rid of the attack=true case for non-naval
+ 		attacks, the initial clash needs to produce higher losses;
+@@ -2226,11 +2227,11 @@ std::pair<double,double> InvasionGraph::Node::clashLossesWinnerLoser(double powA
+ 		cpl = clashPortion + 0.35;
+ 	}
+ 	if(!att || powAtt > powDef)
+-		return std::make_pair<double,double>(
++		return std::make_pair(
+ 			0.5 * cpw * lesserPow * lesserPow / greaterPow,
+ 			0.5 * cpl * lesserPow
+ 		);
+-	return std::make_pair<double,double>(
++	return std::make_pair(
+ 		0.5 * stake(powAtt, powDef) * powAtt,
+ 		0.8 * stake(powAtt, powDef) * powAtt
+ 	);
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index ac707fc22..15b6e3e70 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -722,7 +722,7 @@ pair<int,int> RiseFall::getChapterCountdown() const {
+ 		r1 = GC.getGame().getGameTurn() - ch.getStartTurn() + 1;
+ 		r2 = ch.getLength();
+ 	}
+-	return make_pair<int,int>(r1, r2);
++	return make_pair(r1, r2);
+ }
+ 
+ bool RiseFall::isBlockPopups() const {
+
+diff --git a/CvGameCoreDLL/WarAndPeaceCache.cpp b/CvGameCoreDLL/WarAndPeaceCache.cpp
+index 51a962da9..7ba6f2c59 100644
+--- a/CvGameCoreDLL/WarAndPeaceCache.cpp
++++ b/CvGameCoreDLL/WarAndPeaceCache.cpp
+@@ -168,7 +168,7 @@ void WarAndPeaceCache::read(FDataStreamBase* stream) {
+ 	for(int i = 0; i < n; i++) {
+ 		v.push_back(new City(ownerId));
+ 		v[i]->read(stream);
+-		cityMap.insert(std::make_pair<int,City*>(v[i]->id(), v[i]));
++		cityMap.insert(std::make_pair(v[i]->id(), v[i]));
+ 	}
+ 	stream->Read(MAX_CIV_PLAYERS, nReachableCities);
+ 	stream->Read(MAX_CIV_PLAYERS, targetMissionCounts);
+@@ -274,7 +274,7 @@ void WarAndPeaceCache::updateCities(PlayerTypes civId) {
+ 		if(TEAMREF(ownerId).AI_deduceCitySite(c)) {
+ 			City* cacheCity = new City(ownerId, c);
+ 			v.push_back(cacheCity);
+-			cityMap.insert(std::make_pair<int,City*>(cacheCity->id(), cacheCity));
++			cityMap.insert(std::make_pair(cacheCity->id(), cacheCity));
+ 			if(civId != ownerId && cacheCity->canReach())
+ 				nReachableCities[civId]++;
+ 		}
+@@ -1260,7 +1260,7 @@ void WarAndPeaceCache::reportCityOwnerChanged(CvCity* c, PlayerTypes oldOwnerId)
+ 		//FAssertMsg(oldOwnerId == BARBARIAN_PLAYER);
+ 	}
+ 	else v[vIndex] = toCache;
+-	cityMap.insert(std::make_pair<int,City*>(toCache->id(), toCache));
++	cityMap.insert(std::make_pair(toCache->id(), toCache));
+ 	if(toCache->canReach())
+ 		nReachableCities[c->getOwner()]++;
+ 	sortCitiesByAttackPriority();
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=4334

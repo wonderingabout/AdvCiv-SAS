@@ -1,0 +1,154 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 561
+# Commit: 7854a7a56142a6823ea53a570b7750b52a2e56ee
+# History segment: K-Mod history
+# Parent used for diff: cb86b19e33c02c34d16725de57c931c32f3dd9d2
+# Title: Tidied up some code in CvGame::normalizeAddFoodBonuses. When normalizing food bonuses, the city plot is no longer counted. (ie. floodplains on the city plot...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+26	30	CvGameCoreDLL/CvGame.cpp
+2	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 6ebebd8a2..fcf2fd596 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1454,22 +1454,25 @@ void CvGame::normalizeAddFoodBonuses()
+ 
+ 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+ 	{
+-		if (GET_PLAYER((PlayerTypes)iI).isAlive())
++		const CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI); // K-Mod
++
++		if (kLoopPlayer.isAlive())
+ 		{
+-			CvPlot* pStartingPlot = GET_PLAYER((PlayerTypes)iI).getStartingPlot();
++			CvPlot* pStartingPlot = kLoopPlayer.getStartingPlot();
+ 
+ 			if (pStartingPlot != NULL)
+ 			{
+ 				int iFoodBonus = 0;
+ 				int iGoodNatureTileCount = 0;
+ 
+-				for (int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
++				//for (int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
++				for (int iJ = 1; iJ < NUM_CITY_PLOTS; iJ++) // K-Mod. Don't count the city plot.
+ 				{
+ 					CvPlot* pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
+ 
+ 					if (pLoopPlot != NULL)
+ 					{
+-						BonusTypes eBonus = pLoopPlot->getBonusType(GET_PLAYER((PlayerTypes)iI).getTeam());
++						BonusTypes eBonus = pLoopPlot->getBonusType(kLoopPlayer.getTeam());
+ 
+ 						if (eBonus != NO_BONUS)
+ 						{
+@@ -1493,14 +1496,14 @@ void CvGame::normalizeAddFoodBonuses()
+ 									}
+ 								}
+ 							}
+-							else if (pLoopPlot->calculateBestNatureYield(YIELD_FOOD, GET_PLAYER((PlayerTypes)iI).getTeam()) >= 2)
++							else if (pLoopPlot->calculateBestNatureYield(YIELD_FOOD, kLoopPlayer.getTeam()) >= 2)
+ 						    {
+ 						        iGoodNatureTileCount++;
+ 						    }
+ 						}
+ 						else
+ 						{
+-                            if (pLoopPlot->calculateBestNatureYield(YIELD_FOOD, GET_PLAYER((PlayerTypes)iI).getTeam()) >= 3)
++                            if (pLoopPlot->calculateBestNatureYield(YIELD_FOOD, kLoopPlayer.getTeam()) >= 3)
+ 						    {
+ 						        iGoodNatureTileCount++;
+ 						    }
+@@ -1512,7 +1515,8 @@ void CvGame::normalizeAddFoodBonuses()
+ 				//iTargetFoodBonusCount += (iGoodNatureTileCount == 0) ? 2 : 0;
+ 				iTargetFoodBonusCount += std::max(0, 2-iGoodNatureTileCount); // K-Mod
+ 
+-				for (int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
++				// K-Mod. I've rearranged a couple of things to make it a bit more efficient and easier to read.
++				for (int iJ = 1; iJ < NUM_CITY_PLOTS; iJ++)
+ 				{
+ 					if (iFoodBonus >= iTargetFoodBonusCount)
+ 					{
+@@ -1521,37 +1525,29 @@ void CvGame::normalizeAddFoodBonuses()
+ 
+ 					CvPlot* pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
+ 
+-					if (pLoopPlot != NULL)
++					if (pLoopPlot && pLoopPlot->getBonusType() == NO_BONUS)
+ 					{
+-						if (pLoopPlot != pStartingPlot)
++						for (int iK = 0; iK < GC.getNumBonusInfos(); iK++)
+ 						{
+-							if (pLoopPlot->getBonusType() == NO_BONUS)
++							const CvBonusInfo& kLoopBonus = GC.getBonusInfo((BonusTypes)iK);
++							if (kLoopBonus.isNormalize() && kLoopBonus.getYieldChange(YIELD_FOOD) > 0)
+ 							{
+-								for (int iK = 0; iK < GC.getNumBonusInfos(); iK++)
++								if ((kLoopBonus.getTechCityTrade() == NO_TECH) || (GC.getTechInfo((TechTypes)(kLoopBonus.getTechCityTrade())).getEra() <= getStartEra()))
+ 								{
+-									if (GC.getBonusInfo((BonusTypes)iK).isNormalize())
++									if (GET_TEAM(kLoopPlayer.getTeam()).isHasTech((TechTypes)kLoopBonus.getTechReveal()))
+ 									{
+-										if (GC.getBonusInfo((BonusTypes)iK).getYieldChange(YIELD_FOOD) > 0)
++										if (pLoopPlot->canHaveBonus(((BonusTypes)iK), bIgnoreLatitude))
+ 										{
+-											if ((GC.getBonusInfo((BonusTypes)iK).getTechCityTrade() == NO_TECH) || (GC.getTechInfo((TechTypes)(GC.getBonusInfo((BonusTypes)iK).getTechCityTrade())).getEra() <= getStartEra()))
++											pLoopPlot->setBonusType((BonusTypes)iK);
++											if (pLoopPlot->isWater())
+ 											{
+-												if (GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).isHasTech((TechTypes)(GC.getBonusInfo((BonusTypes)iK).getTechReveal())))
+-												{
+-													if (pLoopPlot->canHaveBonus(((BonusTypes)iK), bIgnoreLatitude))
+-													{
+-														pLoopPlot->setBonusType((BonusTypes)iK);
+-														if (pLoopPlot->isWater())
+-														{
+-															iFoodBonus += 2;
+-														}
+-														else
+-														{
+-															iFoodBonus += 3;
+-														}
+-														break;
+-													}
+-												}
++												iFoodBonus += 2;
++											}
++											else
++											{
++												iFoodBonus += 3;
+ 											}
++											break;
+ 										}
+ 									}
+ 								}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 7f038f460..f33c8d270 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -14452,7 +14452,8 @@ bool CvUnitAI::AI_defend()
+ /************************************************************************************************/
+ 		if( !(pBestPlot->isCity()) && (getGroup()->getNumUnits() > 1) )
+ 		{
+-			getGroup()->AI_makeForceSeparate();
++			//getGroup()->AI_makeForceSeparate();
++			joinGroup(0); // K-Mod. (AI_makeForceSeparate is a complete waste of time here.)
+ 		}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5299

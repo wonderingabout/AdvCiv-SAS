@@ -1,0 +1,321 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5129
+# Commit: 380d155ab048a2439b1b18ca8a84a70af586bb7a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9d5a1a113d22683ac03a34654a30262c6876b094
+# Title: significantly reduced and possibly now fixed/addressed the instances of the bug of forcing an artist even when it is invalid - also add more asserts for debu...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	.gitignore
+-	-	Assets/CvGameCoreDLL.dll
+7	1	Assets/XML/GlobalDefines_advciv_sas.xml
+36	5	CvGameCoreDLL/CvCity.cpp
+8	6	CvGameCoreDLL/CvCityAI.cpp
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+54	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/.gitignore b/.gitignore
+index b54ffc937..fdbb00875 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -23,3 +23,4 @@ temp_files/
+ /tests/__pycache__/
+ /Assets/Python/Contrib/Sevopedia/__pycache__/
+ /leaders_data.py
++/Assets/CvGameCoreDLL_d.dll
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 84790e9f1..cdd1967e5 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -490,7 +490,7 @@
+ 
+ 
+ 
+-	<!-- custom: tunables to configure advciv-sas optimizations in CvCityAI::AI_BuildingValue function, that aims to help choose best building to build in most cases if i understood it correctly i mean from what i saw of it i mean too but anyways etc. Set to 1 (strongly recommended, else AI often builds suboptimal or very stupid buildings rarely as well if i may say i mean but anyways etc), 0 to disable. See also below defines for more selective settings instead of the global disable (or enable to test difference with/without it in autoplay or your games or such maybe to test or such i mean maybe or not but anyways etc) -->
++	<!-- custom: tunables to configure advciv-sas optimizations in CvCityAI::AI_buildingValue function, that aims to help choose best building to build in most cases if i understood it correctly i mean from what i saw of it i mean too but anyways etc. Set to 1 (strongly recommended, else AI often builds suboptimal or very stupid buildings rarely as well if i may say i mean but anyways etc), 0 to disable. See also below defines for more selective settings instead of the global disable (or enable to test difference with/without it in autoplay or your games or such maybe to test or such i mean maybe or not but anyways etc) -->
+ 	<Define>
+ 		<DefineName>SAS_BUILDING_VALUE_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -1113,6 +1113,12 @@
+ 		<DefineName>SAS_JOB_CHANGE_VALUE_OPTIMIZE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
++	<!-- custom: low enough value so that the citizen specialist is ideally never chosen in this function anyways etc. -->
++	<!-- decisively low, far from overflow/underflow -->
++	<Define>
++		<DefineName>SAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN</DefineName>
++		<iDefineIntVal>-100000</iDefineIntVal>
++	</Define>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 2b9d942d1..c6823fd5f 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1293,11 +1293,14 @@ void CvCity::doTurn()
+ 						const int iForcedArtists = getForceSpecialistCount(eArtist);
+ 						if (iForcedArtists < 1)
+ 						{
+-							changeForceSpecialistCount(eArtist, 1);			
++							if (isSpecialistValid(eArtist, 1))
++							{
++								changeForceSpecialistCount(eArtist, 1);
++							}
+ 						}
+ 					}
+ 				}
+-				// <!-- custom: else let CvCityAI::AI_JobChangeValue handle the unassignment as it is maybe (check if accurate as this is a guess of mine and i don't know too much about these but anyways etc) easier as such anyways etc. -->
++				// <!-- custom: else let CvCityAI::AI_jobChangeValue handle the unassignment as it is maybe (check if accurate as this is a guess of mine and i don't know too much about these but anyways etc) easier as such anyways etc. -->
+ 			}
+ 			else if (bHuman && bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
+ 			{
+@@ -1313,11 +1316,14 @@ void CvCity::doTurn()
+ 					{
+ 						if (iForcedArtists < 1)
+ 						{
+-							changeForceSpecialistCount(eArtist, 1);			
++							if (isSpecialistValid(eArtist, 1))
++							{
++								changeForceSpecialistCount(eArtist, 1);
++							}
+ 						}
+ 					}
+ 				}
+-				// <!-- custom: remove the artist specialist after we have our BFC, in a way that does not conflict with the human player's choices anyways etc. We can't rely on CvCityAI::AI_JobChangeValue to do that for us as this is an AI function and we don't want to use it for the human player's settings (if it is ever possible or/and easily) if i'm not mistaken. Check if accurate as i don't know too much about these, done with the help of chatgpt 5.1 anyways etc. -->
++				// <!-- custom: remove the artist specialist after we have our BFC, in a way that does not conflict with the human player's choices anyways etc. We can't rely on CvCityAI::AI_jobChangeValue to do that for us as this is an AI function and we don't want to use it for the human player's settings (if it is ever possible or/and easily) if i'm not mistaken. Check if accurate as i don't know too much about these, done with the help of chatgpt 5.1 anyways etc. -->
+ 				else
+ 				{
+ 					// <!-- custom: only do so when not conflicting with human player's choices (later we may want to run one or many forced artists for whatever reason (maybe? I don't know too much about these, is just a guess, check if accurate / to be sure anyways etc.) so do not prevent that here anyways etc), i.e. very early for BFC and if artist was forced anyways etc. -->
+@@ -1345,7 +1351,10 @@ void CvCity::doTurn()
+ 					{
+ 						if (iForcedArtists > 0)
+ 						{
+-							changeForceSpecialistCount(eArtist, -1);
++							if (isSpecialistValid(eArtist, -1))
++							{
++								changeForceSpecialistCount(eArtist, -1);
++							}
+ 						}
+ 					}
+ 					// else: do nothing, we’re far past BFC; don’t fight human choices.
+@@ -9475,6 +9484,28 @@ void CvCity::setSpecialistCount(SpecialistTypes eSpecialist, int iNewValue)
+ 
+ void CvCity::changeSpecialistCount(SpecialistTypes eSpecialist, int iChange)
+ {
++	#ifdef _DEBUG
++	// <!-- custom: add debug info here to be sure or sure enough we do it correctly anyways etc. -->
++	// SAS debug: catch any unexpected citizen assignment
++	if (iChange > 0)
++	{
++		static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
++		CvPlayer& kOwner = GET_PLAYER(getOwner());
++
++		if (eSpecialist == eDefaultSpecialist)
++		{
++			FAssertMsg(false, CvString::format(
++				"SAS citizen debug: T%d city=%S (%d,%d) owner=%S adding %+d default specialist (citizen).",
++				GC.getGame().getGameTurn(),
++				getName().GetCString(),
++				getX(), getY(),
++				kOwner.getName(),
++				iChange
++			).c_str());
++		}
++	}
++	#endif
++
+ 	setSpecialistCount(eSpecialist, getSpecialistCount(eSpecialist) + iChange);
+ }
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 87ee61d88..b0a0559fd 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -140,9 +140,10 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
+ 			// <!-- custom: adding a more detailed assert here just in case if it helps or if it fires too but anyways etc -->
+ 			// FAssert(isSpecialistValid(e));
+ 			FAssertMsg(isSpecialistValid(e),
+-				CvString::format("T%03d %S %s e=%d value=%d",
++				CvString::format("T%d city=%S owner=%S type=%s e=%d value=%d",
+ 					GC.getGame().getGameTurn(),
+ 					getName().GetCString(),
++					GET_PLAYER(getOwner()).getName(),
+ 					GC.getInfo(e).getType(), // gives e.g. SPECIALIST_CITIZEN
+ 					(int)e,
+ 					getSpecialistCount(e)   // <- 'value'. swap to isSpecialistValid(e) or getMaxSpecialistCount(e) if you prefer
+@@ -221,9 +222,10 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
+ 				// <!-- custom: this very often fires with a debug dll at turn 0 and turn 1, detailing the assert to investigate, added with the help of chatgpt 5, check if accurate anyways etc -->
+ 				// FAssert(isSpecialistValid(e));
+ 				FAssertMsg(isSpecialistValid(e),
+-					CvString::format("T%03d %S %s e=%d value=%d",
++					CvString::format("T%d city=%S owner=%S type=%s e=%d value=%d",
+ 						GC.getGame().getGameTurn(),
+ 						getName().GetCString(),
++						GET_PLAYER(getOwner()).getName(),
+ 						GC.getInfo(e).getType(), // gives e.g. SPECIALIST_CITIZEN
+ 						(int)e,
+ 						getSpecialistCount(e)   // <- 'value'. swap to isSpecialistValid(e) or getMaxSpecialistCount(e) if you prefer
+@@ -14344,7 +14346,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 		const bool bWantBFCArtist = (bBelowCultureLevel && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE);
+ 
+ 		// <!-- custom: update: recommended by chatgpt 5 to use a high negative value such as -100000 instead of 1 in case other values could be lower and then our specialist unwantingly still being chosen if i understood its explanation correctly. To avoid that, use a very negative value, still high enough to avoid overflow according to my understanding of chatgpt's explanation, check if accurate and relevant here anyways etc -->
+-		static const int AI_JOB_FORBIDDEN = -100000; // decisively low, far from overflow/underflow
++		static const int iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN = GC.getDefineINT("SAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN");
+ 
+ 		if (!bWantBFCArtist && (eSpecialistArtist != NO_SPECIALIST))
+ 		{
+@@ -14355,7 +14357,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 			{
+ 				if (new_job.first /* hiring any specialist */)
+ 				{
+-					return AI_JOB_FORBIDDEN;
++					return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+ 				}
+ 			}
+ 			// <!-- custom: also disable/discourage AI from choosing a specialist for any bigger size city if they can still grow before that, hopefully also helps them be more efficient and stronger without killing versatility if i am not mistaken anyways etc -->
+@@ -14376,7 +14378,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 
+ 					if (iFoodSurplus >= 2 && new_job.first)
+ 					{
+-						return AI_JOB_FORBIDDEN;
++						return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+ 					}
+ 				}
+ 			}
+@@ -14394,7 +14396,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 
+ 			if ((eSpecialistScientist != NO_SPECIALIST) && new_job.first && (new_job.second != eSpecialistScientist))
+ 			{
+-				return AI_JOB_FORBIDDEN;
++				return iSAS_JOB_CHANGE_VALUE_AI_JOB_FORBIDDEN;
+ 			}
+ 		} 
+ 	}
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 9ac6833f2..94b6fb4a8 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -177,7 +177,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ #### Specialists (AI)
+ 
+-- make the AI never ever choose the citizen specialist as it is too inefficient (change in the DLL in `CvCityAI::AI_jobChangeValue` thanks to gemini ai and chatgpt's help too anyways etc and adjusted for advciv-sas too or not anyways etc), that as a side effect may also slightly increase performance due to early return in the function anyways etc. Hopefully this also and most importantly helps increase AI efficiency and strength/competitiveness in the game i mean anyways etc; added with the help of gemini ai too thanks hehe if i may say but anyways etc.
++- make the AI never ever choose the citizen specialist as it is too inefficient (change in the DLL in `CvCityAI::AI_jobChangeValue` thanks to gemini ai and chatgpt's help too anyways etc and adjusted for advciv-sas too or not anyways etc), that as a side effect may also slightly increase performance due to early return in the function anyways etc. Hopefully this also and most importantly helps increase AI efficiency and strength/competitiveness in the game i mean anyways etc; added with the help of gemini ai too thanks hehe if i may say but anyways etc. See for details: [KI#44.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#445---disallow-citizen-specialist-as-it-is-a-really-bad-choice-unless-absolutely-necessary).
+ - since then, added a few extra sanity rules as of now in `CvCityAI::AI_jobChangeValue` for assigning specialists for AI players, such as no specialist in low pop cities (favour growth, as there were quite a few size 2 cities stagnating with food available and all for growth due to too early specialist). After cities are bigger than this size if i may say in this case but anyways etc, all cities, with extra conditions such as having enough food to grow and extra happiness to accomodate it, will now not assign ever a specialist until they can grow no more. This is because even at size 11, some cities would still stagnate when they could have grown more before assigning a specialist and stagnating. And finally, for barbarians, on top of these rules, also never allow any specialist other than the scientist. Hopefully these sanity rules, added with the help of chatgpt 5 too but anyways etc, help AI be stronger and more reliable in its specialist or rather maybe non-specialist choices in most cases especially those that had these major issues, while also not killing versatility while doing so if i am not mistaken but anyways etc. See [45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc) for details anyways etc.
+ - exception to the above and additional AI enhancement: if we don't have our BFC, force assign one and only one artist until we do, in `CvCity::AI_doTurn`.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index b699d6c05..bfa19c486 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -63,6 +63,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-if-im-not-mistaken-too-but-anyways-etc-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-if-i-am-not-mistaken-for-example-anyways-etc-general-suicide-or-such-tendencies-etc)  
+ [43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0 if i am not mistaken anyways etc), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#43---attemptingly-improvedenhanced-ai-settlers-for-the-first-city-found-ie-at-turn-0-if-i-am-not-mistaken-anyways-etc-settling-too-soon-instead-of-digging-a-bit-for-better-sites-and-other-related-changes)  
+ [44 - (Enhanced) Make/Encourage AI settlers walk away from bad starting sites in this case i mean but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#44---enhanced-makeencourage-ai-settlers-walk-away-from-bad-starting-sites-in-this-case-i-mean-but-anyways-etc)  
++[44.5 - Disallow citizen specialist as it is a really bad choice (unless absolutely necessary)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#445---disallow-citizen-specialist-as-it-is-a-really-bad-choice-unless-absolutely-necessary)  
+ [45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc)  
+ [46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result)  
+ [47 - (Fixed / Addressed / Enhanced) AI choosing poorly promotions for its units: now added a set of hard rules in which case some promotions are not good and to ignore as is most efificient in most times, and rarely cases where some promotions are best to always go first](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more-anyways-etc)  
+@@ -1437,11 +1438,39 @@ Note: thanks to our/these changes but anyways etc, the game turned much better f
+ 
+ Note: these are done at emperor difficulty, before changing all tech prereqs, so tech tree is still mostly base advciv one minus many changes we made but no deep reordering yet, so hopefully quite representative of how strong or how AI behaves now vs base advciv, which i'd like to think is stronger now even though base advciv was not too bad and i have other ideas to improve ours further while fixing issues i added or remaining from base advciv +/- civ, not guaranteed i would though, i deally i would want ot, may or may not, in this case i mean but anyways etc.
+ 
++## 44.5 - Disallow citizen specialist as it is a really bad choice (unless absolutely necessary)
++
++See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/13QF4EHJMAg8Eur-H6N0qYVd_nvWXgupS?usp=sharing).
++
++Disallow the citizen specialist as it is really a bad choice that AIs would often go for, in `CvCityAI::AI_jobChangeValue`, also added a few extra sanity rules in this function for specialist allocation, which attempt to patch the logic rather than globally or tediously enhance it in an uncertain to be or/and easily reliable and better.
++
++Hopefully this also and most importantly helps increase AI efficiency and strength/competitiveness in the game i mean anyways etc.
++
++Update: seems mostly effective, but sometimes the AI still assigns a citizen even though it seems like it is not the best choice (other plots can be allocated or/and other possibilities if any, etc.)
++
++Example:
++
++```txt
++Assert Failed
++
++File:  ..\.\CvCity.cpp
++Line:  9504
++Func:  CvCity::changeSpecialistCount
++Expression:  false
++Message:  SAS citizen debug: T51 city=Mecca (44,25) owner=Saladin adding +1 default specialist (citizen).
++```
++
++Added this assert to help track these (with a debug or such if any such DLL anyways etc).
++
++However, most of these seem to be either false positives or never effectively added, as when i stop autoplay i almost never find a citizen specialist in said cities the next turn. Although sometimes they are still assigned as citizen specialists the next turn which helps show it anyways etc.
++
++Ideally, would also implement something like this for auto assigned human citizen specialists, as it is an annoying issue for human players as well and having to auto check it every while, as of now not done anyways etc.
++
+ ## 45 - (Addressed / Patched / Worked around) AI cities assigning too soon or/and too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist anyways etc
+ 
+ See screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1f58Su5b-Y3Vgu1th8K3EYWZvuYC47u_t?usp=sharing). Note: these are not exhaustive, i noticed the issue happen in many cities as well at least quite a few, prompting me to do this/these changes which hopefully help the AI be stronger and more reliable in its specialist choices (or non-choices if i may say in this case but anyways etc), see as of now if i may say but anyways etc below for details anyways etc.
+ 
+-In continuation with the changes to disallow the citizen specialist as it is really a bad choice (see [README_Custom_Main_Changes_Guide.md#specialists-ai](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#specialists-ai) for details anyways etc) that AIs would often go for, in `CvCityAI::AI_jobChangeValue`, also added a few extra sanity rules in this function for specialist allocation, which attempt to patch the logic rather than globally or tediously enhance it in an uncertain to be or/and easily reliable and better.
++In continuation with the changes to disallow the citizen specialist as it is really a bad choice (see [KI#44.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#445---disallow-citizen-specialist-as-it-is-a-really-bad-choice-unless-absolutely-necessary) for details anyways etc.) that AIs would often go for, in `CvCityAI::AI_jobChangeValue`, also added a few extra sanity rules in this function for specialist allocation, which attempt to patch the logic rather than globally or tediously enhance it in an uncertain to be or/and easily reliable and better.
+ 
+ So adding, rather and instead some sanity checks that hopefully help the AI be more efficient with its choice, making saner ones if i may say or statistically going to be most often helpful, while not killing versatility hopefully but anyways etc, which as of now are (see `CvCityAI::AI_jobChangeValue` or/and related functions if any for updates on these (as of now only in this function if i am not mistaken but anyways etc), hopefully helpful as in clearer if i may say or not or yes but anyways etc) (and also added thanks to / with the help of chatgpt 5 too thanks as well if i may say but anyways etc):
+ 
+@@ -2754,6 +2783,30 @@ Update/note: most likely was caused by the forced artist code we added (see [Spe
+ 
+ Update 2: this causes issues sometimes or always so we can't anymore force an artist so reverted and now disabled it, gated via a define if want to experiment with it i mean but anyways etc (see as of now `SAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST` for details) i mean if i may say but anyways etc. May want to investigate further why the assert fires and propose a cleaner fix, however it's maybe fine to leave it as is as long as works for now if not always or not but anyways etc.
+ 
++Update 3: significantly reduced the invalid artist being forced issue by obviously adding an invalid specialist check.. (`isSpecialistValid`) before forcing an artist or unforcing one. Obvious but which i had no idea of xd if i may say but anyways etc. For some reason did not entirely disappear but fires much less now with these added anyways etc.
++
++Sometimes with a debug DLL it still fires as such though as of now but anyways etc:
++
++```txt
++Assert Failed
++
++File: ..\.\CvCityAI.cpp
++Line: 230
++Func: CvCityAI::AI_assignWorkingPlots
++Expression: isSpecialistValid(e)
++Message: T100 Rheims SPECIALIST_ARTIST e=2 value=1
++```
++
++But should be better than what it was and should have been added as a pre-check as chatgpt 5.1 recommends as well (and which was my mistake) thanks but anyways etc.
++
++Also, according to chatgpt 5.1, these asserts firing are no longer the result of issues with our code and may be fine (check if accurate as i don't know too much about these anyways etc), so treated as not a bug for advciv-sas (ideally would find how to silence the message if it is really safe but not a priority i mean if i may say but anyways etc):
++
++>So, short version: that Rheims T100 assert just means:
++>“Rheims still had a forced artist recorded at a moment when no artist was legally allowed there anymore.”
++>It’s not your original BFC-artist bug coming back; it’s a side-effect of the general forced specialist mechanism being a bit looser than the invariant your assert is trying to enforce.
++
++It thought for almost 13 minutes with the relevant .cpp files so i'd tend to think it is accurate, check to be sure anyways etc.
++
+ ## 71 - (Seemingly fixed) Base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert
+ 
+ See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1grZBqkHYUqtXAhdqRxpSqqa759_Q7gsI?usp=sharing) anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 9570a6f04..56d956540 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -165,7 +165,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ #### Specialists (AI)
+ 
+-- Never pick **Citizen** specialist (very inefficient). Implemented in `CvCityAI::AI_jobChangeValue`.
++- Never pick **Citizen** specialist (very inefficient). Implemented in `CvCityAI::AI_jobChangeValue`. See [KI#44.5](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#445---disallow-citizen-specialist-as-it-is-a-really-bad-choice-unless-absolutely-necessary).
+ - Add **sanity guards**: in small cities (and larger ones with headroom), don’t run specialists at all until growth caps are reached (with food/happiness checks). **Barbarian** cities, on top of these rules, may only run **Scientist** specialists when they must run any. See [KI#45](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist-anyways-etc).
+ - Exception to the previous rule, and AI enhancement: If a city hasn’t expanded to its **BFC** yet, auto-assign exactly **one Artist** to pop borders, then stop once secured. Implemented in `CvCity::AI_doTurn`.
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=26633

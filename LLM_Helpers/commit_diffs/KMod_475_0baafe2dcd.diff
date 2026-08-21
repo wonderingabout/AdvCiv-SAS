@@ -1,0 +1,147 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 475
+# Commit: 0baafe2dcd87f0a3e19d69bc51b14d8be02509ee
+# History segment: K-Mod history
+# Parent used for diff: a09830eefff18a7079a251a06d19f1367fcd4856
+# Title: Fixed a couple of problems with the way BUG detects the BtS user documents directory. (The original system was unable to expand environment variables in the...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	Assets/Config/BUG Core.xml
+34	20	Assets/Python/BUG/BugPath.py
+1	1	Assets/Python/BUG/BugUtil.py
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Core.xml b/Assets/Config/BUG Core.xml
+index aa665be9a..25678d6b4 100644
+--- a/Assets/Config/BUG Core.xml	
++++ b/Assets/Config/BUG Core.xml	
+@@ -63,9 +63,8 @@
+ 			<option id="RepositoryVersion" key="Repository Revision" 
+ 					type="int" default="0"
+ 					title="Repository Revision"/>
++			<option id="LastSvnCheck" type="float" default="0"/>
+ 		</section>
+-		
+-		<option id="LastSvnCheck" type="float" default="0"/>
+ 	</options>
+ 	
+ 	<init module="BugUtil" function="readLoggingOptions" immediate="true"/>
+
+diff --git a/Assets/Python/BUG/BugPath.py b/Assets/Python/BUG/BugPath.py
+index 019e9c7da..70c1deda9 100644
+--- a/Assets/Python/BUG/BugPath.py
++++ b/Assets/Python/BUG/BugPath.py
+@@ -494,6 +494,11 @@ def initRootFolder():
+ 	except OSError, (errno, strerror):
+ 		BugUtil.trace("Error accessing directory from CvAltRoot.py: [%d] %s", errno, strerror)
+ 
++	# K-Mod. I'd like to set the user directory like this:
++#	if not setUserDir(os.path.expanduser(join("~", MY_GAMES_FOLDER))):
++#		BugUtil.debug("BugPath - default user dir failed ('%s')" % (os.path.expanduser(join("~", MY_GAMES_FOLDER))))
++	# but unfortunately, this misses the "documents" part of the path name. Oh well.
++
+ 	# user dir
+ 	if isMac():
+ 		# Mac OS X
+@@ -502,10 +507,17 @@ def initRootFolder():
+ 	else:
+ 		# Windows
+ 		import _winreg
++		import re # used in a bugfix by K-Mod
+ 		def getRegValue(root, subkey, name):
+ 			key = _winreg.OpenKey(root, subkey)
+ 			try:
+ 				value = _winreg.QueryValueEx(key, name)
++				# K-Mod. We may need to expand environment variables.
++				# unfortuantely, expandvars in this particular version of python can't handle %variables%, so we need to first translate...
++				if value[1] == _winreg.REG_EXPAND_SZ:
++					# here we go...
++					return os.path.expandvars(re.sub(r'%([a-zA-Z_]+)%', r'${\1}', value[0]))
++				# K-Mod end
+ 				return value[0]
+ 			finally:
+ 				key.Close()
+@@ -521,6 +533,7 @@ def initRootFolder():
+ 					break
+ 		else:
+ 			BugUtil.debug("BugPath - no valid My Documents registry key")
++			BugUtil.warn("Cannot find user's Documents folder")
+ 
+ 	# try to determine missing dir from other dir
+ 	if not _rootDir:
+@@ -574,28 +587,29 @@ def initDataFolder():
+ 
+ 	# K-Mod. If it doesn't already exist, create the folder in the user directory.
+ 	dir = join(getRootDir(), getModName(), SETTINGS_FOLDER)
+-	if not isdir(dir):
+-		# copy the default settings from the K-Mod folder.
+-		default_dir = join(getModDir(), SETTINGS_FOLDER)
+-		if isdir(default_dir):
+-			try:
+-				safeInfoPath("BugPath - copying settings to '%s'", dir)
+-				# copytree is suppose to create the missing parent directores, but apparently it doesn't work. So I need to do this:
++	if dir != None:
++		if not isdir(dir):
++			# copy the default settings from the K-Mod folder.
++			default_dir = join(getModDir(), SETTINGS_FOLDER)
++			if isdir(default_dir):
+ 				try:
+-					os.makedirs(join(getRootDir(), getModName()))
+-				except OSError:
+-					pass
+-				# sucks.
+-				shutil.copytree(default_dir, dir)
++					safeInfoPath("BugPath - copying settings to '%s'", dir)
++					# copytree is suppose to create the missing parent directores, but apparently it doesn't work. So I need to do this:
++					try:
++						os.makedirs(join(getRootDir(), getModName()))
++					except OSError:
++						pass
++					# sucks.
++					shutil.copytree(default_dir, dir)
++				except:
++					BugUtil.trace("Failed to copy settings")
++		if not isdir(dir):
++			# Second attempt: create the directory manually
++			try:
++				safeInfoPath("BugPath - creating '%s'", dir)
++				os.makedirs(dir)
+ 			except OSError:
+-				BugUtil.trace("Failed to copy settings")
+-	if not isdir(dir):
+-		# Second attempt: create the directory manually
+-		try:
+-			safeInfoPath("BugPath - creating '%s'", dir)
+-			os.makedirs(dir)
+-		except OSError:
+-			BugUtil.trace("Failed to create directory '%s'", dir)
++				BugUtil.trace("Failed to create directory '%s'", dir)
+ 	# K-Mod end
+ 	
+ 	dataDirs = (
+
+diff --git a/Assets/Python/BUG/BugUtil.py b/Assets/Python/BUG/BugUtil.py
+index 170949d2b..4c4387138 100644
+--- a/Assets/Python/BUG/BugUtil.py
++++ b/Assets/Python/BUG/BugUtil.py
+@@ -232,7 +232,7 @@ LEVEL_PREFIXES = (
+ 	"ERROR: ",
+ )
+ 
+-screenLogLevel = ERROR
++screenLogLevel = WARN
+ fileLogLevel = DEBUG
+ minimumLogLevel = min(screenLogLevel, fileLogLevel)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4306

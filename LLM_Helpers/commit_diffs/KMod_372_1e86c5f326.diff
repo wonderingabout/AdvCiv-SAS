@@ -1,0 +1,407 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 372
+# Commit: 1e86c5f32679cbe21bc3d6cc69c23560ce375ffc
+# History segment: K-Mod history
+# Parent used for diff: 93ef8e7bc278d940b0d80bded9945496d979c836
+# Title: Fixed a potential crash bug in the new SPACE3 code (a missing initializer). groupAttack and groupPathTo now use a temporary pathfinder rather than the defaul...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	18	CvGameCoreDLL/CvCityAI.cpp
+17	16	CvGameCoreDLL/CvPlayerAI.cpp
+33	9	CvGameCoreDLL/CvSelectionGroup.cpp
+1	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+20	0	CvGameCoreDLL/KmodPathFinder.cpp
+1	0	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 31c5d5deb..16a7e62ff 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2155,7 +2155,7 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	// K-Mod, short-circuit 2 - a strong chance to build some high value buildings.
+ 	{
+-		int iOdds = std::max(0, (bLandWar ? 70 : 120) * iBestBuildingValue / (iBestBuildingValue + 20 + iBuildUnitProb) - 25);
++		int iOdds = std::max(0, (bLandWar || (bAssault && pWaterArea) ? 70 : 120) * iBestBuildingValue / (iBestBuildingValue + 20 + iBuildUnitProb) - 25);
+ 		if (AI_chooseBuilding(0, INT_MAX, 0, iOdds))
+ 		{
+ 			if( gCityLogLevel >= 2 ) logBBAI("      City %S uses building value short-circuit 2 (odds: %d)", getName().GetCString(), iOdds);
+@@ -2264,7 +2264,7 @@ void CvCityAI::AI_chooseProduction()
+ 				FAssert(false);
+ 		}
+ 	} */
+-	int iMaxUnitSpending = kPlayer.AI_maxUnitCostPerMil(area(), iBuildUnitProb); // K-Mod
++	int iMaxUnitSpending = kPlayer.AI_maxUnitCostPerMil(area(), iBuildUnitProb); // K-Mod. (note: this has a different scale to the original code).
+ 
+ 	int iCarriers = kPlayer.AI_totalUnitAIs(UNITAI_CARRIER_SEA);
+ 	
+@@ -2339,7 +2339,7 @@ void CvCityAI::AI_chooseProduction()
+ 			//training so many ships on the assumption that those out at sea
+ 			//will return...
+ 
+-			int iTransports = iLocalTransports + (bPrimaryArea ? iTransportsAtSea : iTransportsAtSea/4);
++			int iTransports = iLocalTransports + (bPrimaryArea ? iTransportsAtSea/2 : iTransportsAtSea/4);
+ 			int iTransportCapacity = iBestSeaAssaultCapacity*(iTransports);
+ 
+ 			if (NULL != pAssaultWaterArea)
+@@ -2636,24 +2636,25 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 	// Assault case now completely handled above
+ 	if (!bAssault && (!bImportantCity || bDefenseWar) && (iUnitSpending < iMaxUnitSpending))
+-    {
+-        if (!bFinancialTrouble && (bLandWar || (kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER) && !bGetBetterUnits)))
+-        {
+-        	int iTrainInvaderChance = iBuildUnitProb + 10;
++	{
++		if (!bFinancialTrouble && (bLandWar || (kPlayer.AI_isDoStrategy(AI_STRATEGY_DAGGER) && !bGetBetterUnits)))
++		{
++			//int iTrainInvaderChance = iBuildUnitProb + 10;
++			int iTrainInvaderChance = iBuildUnitProb + (bTotalWar ? 16 : 8); // K-Mod
+ 
+-        	if (bAggressiveAI)
+-        	{
+-        		iTrainInvaderChance += 15;
+-        	}
++			if (bAggressiveAI)
++			{
++				iTrainInvaderChance += 15;
++			}
+ 
+ 			if( bGetBetterUnits )
+ 			{
+ 				iTrainInvaderChance /= 2;
+ 			}
+-        	else if ((pArea->getAreaAIType(getTeam()) == AREAAI_MASSING) || (pArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT_MASSING))
+-        	{
+-        		iTrainInvaderChance = (100 - ((100 - iTrainInvaderChance) / (bCrushStrategy ? 6 : 3)));
+-        	}        	
++			else if ((pArea->getAreaAIType(getTeam()) == AREAAI_MASSING) || (pArea->getAreaAIType(getTeam()) == AREAAI_ASSAULT_MASSING))
++			{
++				iTrainInvaderChance = (100 - ((100 - iTrainInvaderChance) / (bCrushStrategy ? 6 : 3)));
++			}        	
+ 
+ 			if (AI_chooseBuilding(BUILDINGFOCUS_EXPERIENCE, 20, 0, bDefenseWar ? 10 : 30))
+ 			{
+@@ -2694,7 +2695,7 @@ void CvCityAI::AI_chooseProduction()
+ 			{
+ 				return;
+ 			}
+-        }
++		}
+ 	}
+ 
+ 	if ((pWaterArea != NULL) && !bDefenseWar && !bAssault)
+@@ -8104,7 +8105,7 @@ void CvCityAI::AI_doDraft(bool bForce)
+ 
+ 			// Don't go broke from drafting
+ 			//if( !bDanger && kOwner.AI_isFinancialTrouble() )
+-			if (!bDanger && iUnitCostPerMil > kOwner.AI_maxUnitCostPerMil(area(), AI_buildUnitProb())) // K-Mod
++			if (!bDanger && iUnitCostPerMil > kOwner.AI_maxUnitCostPerMil(area(), 50)) // K-Mod. (cf. conditions for scraping units in AI_doTurnUnitPost)
+ 			{
+ 				return;
+ 			}
+@@ -8121,7 +8122,7 @@ void CvCityAI::AI_doDraft(bool bForce)
+ 			// one more thing... it's not "good value" if we already have too many troops.
+ 			if (!bLandWar && bGoodValue)
+ 			{
+-				bGoodValue = iUnitCostPerMil <= kOwner.AI_maxUnitCostPerMil(area(), AI_buildUnitProb()/2) + kOwner.AI_getFlavorValue(FLAVOR_MILITARY);
++				bGoodValue = iUnitCostPerMil <= kOwner.AI_maxUnitCostPerMil(area(), 20) + kOwner.AI_getFlavorValue(FLAVOR_MILITARY);
+ 			}
+ 			// K-Mod end - although, I've put a bunch of 'bGoodValue' conditions in all through the rest of this function.
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c7c4a8710..96c561ab5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -671,17 +671,17 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 									}
+ 								} */
+ 								// K-Mod
+-								if (iExp < iCityExp)
++								if (iExp < iCityExp && GC.getGameINLINE().getGameTurn() - pLoopUnit->getGameTurnCreated() > 8)
+ 								{
+ 									int iDefenders = pLoopUnit->plot()->plotCount(PUF_canDefendGroupHead, -1, -1, getID(), NO_TEAM, PUF_isCityAIType);
+ 									if (iDefenders > pPlotCity->AI_minDefenders() && !AI_getAnyPlotDanger(pLoopUnit->plot(), 2, false))
+ 									{
+-										if (iCostPerMil > AI_maxUnitCostPerMil(pLoopUnit->area()) + 2*iExp + 4*std::max(0, pPlotCity->AI_neededDefenders() - iDefenders))
++										if (iCostPerMil > AI_maxUnitCostPerMil(pLoopUnit->area(), 100) + 2*iExp + 4*std::max(0, pPlotCity->AI_neededDefenders() - iDefenders))
+ 										{
+ 											if (gUnitLogLevel > 2)
+-												logBBAI("    %S scraps %S, with %d exp, and %d / %d spending.", getCivilizationDescription(0), pLoopUnit->getName(0).GetCString(), iExp, iCostPerMil, AI_maxUnitCostPerMil(pLoopUnit->area()));
++												logBBAI("    %S scraps %S, with %d exp, and %d / %d spending.", getCivilizationDescription(0), pLoopUnit->getName(0).GetCString(), iExp, iCostPerMil, AI_maxUnitCostPerMil(pLoopUnit->area(), 100));
+ 											pLoopUnit->scrap();
+-											pLoopUnit->doDelayedDeath(); // I could have just done kill(), but who know what extra work scrap() wants to do for us?
++											pLoopUnit->doDelayedDeath(); // I could have just done kill(), but who knows what extra work scrap() wants to do for us?
+ 											bKilled = true;
+ 											pLastUpgradePlot = NULL;
+ 											iCostPerMil = AI_unitCostPerMil(); // recalculate
+@@ -11584,11 +11584,11 @@ int CvPlayerAI::AI_maxUnitCostPerMil(CvArea* pArea, int iBuildProb) const
+ 
+ 	if (AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST4))
+ 	{
+-		iMaxUnitSpending += 20;
++		iMaxUnitSpending += 25;
+ 	}
+ 	else if (AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST3 | AI_VICTORY_DOMINATION3))
+ 	{
+-		iMaxUnitSpending += 10;
++		iMaxUnitSpending += 15;
+ 	}
+ 	else if (AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST1))
+ 	{
+@@ -11597,18 +11597,18 @@ int CvPlayerAI::AI_maxUnitCostPerMil(CvArea* pArea, int iBuildProb) const
+ 
+ 	if (AI_isDoStrategy(AI_STRATEGY_FINAL_WAR))
+ 	{
+-		iMaxUnitSpending += 200;
++		iMaxUnitSpending += 300;
+ 	}
+ 	else
+ 	{
+-		iMaxUnitSpending += bTotalWar ? 10 + iBuildProb / 2 : 0;
++		iMaxUnitSpending += bTotalWar ? 20 + iBuildProb / 2 : 0;
+ 		iMaxUnitSpending += AI_isDoStrategy(AI_STRATEGY_DAGGER) ? 10 + AI_getFlavorValue(FLAVOR_MILITARY) : 0;
+ 		if (pArea)
+ 		{
+ 			switch (pArea->getAreaAIType(getTeam()))
+ 			{
+ 			case AREAAI_OFFENSIVE:
+-				iMaxUnitSpending += 20;
++				iMaxUnitSpending += 25;
+ 				break;
+ 
+ 			case AREAAI_DEFENSIVE:
+@@ -11616,7 +11616,7 @@ int CvPlayerAI::AI_maxUnitCostPerMil(CvArea* pArea, int iBuildProb) const
+ 				break;
+ 
+ 			case AREAAI_MASSING:
+-				iMaxUnitSpending += 40;
++				iMaxUnitSpending += 45;
+ 				break;
+ 
+ 			case AREAAI_ASSAULT:
+@@ -11624,11 +11624,11 @@ int CvPlayerAI::AI_maxUnitCostPerMil(CvArea* pArea, int iBuildProb) const
+ 				break;
+ 
+ 			case AREAAI_ASSAULT_MASSING:
+-				iMaxUnitSpending += 40;
++				iMaxUnitSpending += 45;
+ 				break;
+ 
+ 			case AREAAI_ASSAULT_ASSIST:
+-				iMaxUnitSpending += 15;
++				iMaxUnitSpending += 20;
+ 				break;
+ 
+ 			case AREAAI_NEUTRAL:
+@@ -11639,7 +11639,7 @@ int CvPlayerAI::AI_maxUnitCostPerMil(CvArea* pArea, int iBuildProb) const
+ 		}
+ 		else
+ 		{
+-			iMaxUnitSpending += GET_TEAM(getTeam()).getAnyWarPlanCount(true) ? 25 : 0;
++			iMaxUnitSpending += GET_TEAM(getTeam()).getAnyWarPlanCount(true) ? 35 : 0;
+ 		}
+ 	}
+ 	return iMaxUnitSpending;
+@@ -14516,7 +14516,8 @@ void CvPlayerAI::AI_doCommerce()
+ 	iTargetTurns /= 100;
+ 	iTargetTurns = std::max(3, iTargetTurns);
+ 	// K-Mod. make it faster on the way down
+-	if (getGold() > iGoldTarget)
++	bool bFinancialTrouble = AI_isFinancialTrouble();
++	if (!bFinancialTrouble && getGold() > iGoldTarget)
+ 		iTargetTurns = (iTargetTurns + 1)/2;
+ 	// K-Mod end
+ 
+@@ -14977,7 +14978,7 @@ void CvPlayerAI::AI_doCommerce()
+ 
+ 		//if economy is weak, neglect espionage spending.
+ 		//instead invest hammers into espionage via spies/builds
+-		if (AI_isFinancialTrouble() || AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) || !bFirstTech) // K-Mod
++		if (bFinancialTrouble || AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) || !bFirstTech) // K-Mod
+ 		{
+ 			//can still get trickle espionage income
+ 			iEspionageTargetRate = 0;
+@@ -18453,7 +18454,7 @@ int CvPlayerAI::AI_getSpaceVictoryStage() const
+ 		}
+ 		int iKnownTeams = 0;
+ 		int iSpaceTeams = 0; // teams ahead of us in the space race
+-		for (int iTeam; iTeam < MAX_CIV_TEAMS; iTeam++)
++		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; iTeam++)
+ 		{
+ 			const CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeam);
+ 			if (iTeam != getTeam() && kLoopTeam.isAlive() && kLoopTeam.isHasMet(getTeam()))
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 52f903e50..3e84b3c94 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -1659,7 +1659,7 @@ void CvSelectionGroup::continueMission(int iSteps)
+ /* original bts code
+ 							if( (pTargetUnit->plot()->isWater() || pTargetUnit->plot()->isFriendlyCity(*getHeadUnit(), true)) && generatePath(plot(), pTargetUnit->plot(), 0, false, &iPathTurns) )
+ */
+-							if( (canMoveAllTerrain() || pTargetUnit->plot()->isWater() || pTargetUnit->plot()->isFriendlyCity(*getHeadUnit(), true)) && generatePath(plot(), pTargetUnit->plot(), 0, false, &iPathTurns) )
++							if( (canMoveAllTerrain() || pTargetUnit->plot()->isWater() || pTargetUnit->plot()->isFriendlyCity(*getHeadUnit(), true)) && generatePath(plot(), pTargetUnit->plot(), 0, true, &iPathTurns) )
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -1682,7 +1682,7 @@ void CvSelectionGroup::continueMission(int iSteps)
+ 
+ 										if( pAdjacentPlot->isWater() || pAdjacentPlot->isFriendlyCity(*getHeadUnit(), true) )
+ 										{
+-											if( generatePath(plot(), pAdjacentPlot, 0, true, &iPathTurns) )
++											if( generatePath(plot(), pAdjacentPlot, 0, true, &iPathTurns, iBestPathTurns) )
+ 											{
+ 												if( iPathTurns < iBestPathTurns )
+ 												{
+@@ -3528,14 +3528,27 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 
+ 	CvPlot* pDestPlot = GC.getMapINLINE().plotINLINE(iX, iY);
+ 
+-	//if (iFlags & MOVE_THROUGH_ENEMY)
+-	if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK)) // K-Mod
++	// K-Mod. Rather than clearing the existing path data; use a temporary pathfinder.
++	KmodPathFinder final_path;
++	final_path.SetSettings(this, iFlags & ~MOVE_DECLARE_WAR);
++
++	/* original bts code
++	if (iFlags & MOVE_THROUGH_ENEMY)
+ 	{
+ 		if (generatePath(plot(), pDestPlot, iFlags))
+ 		{
+ 			pDestPlot = getPathFirstPlot();
+ 		}
++	} */
++	// K-Mod
++	if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK))
++	{
++		if (final_path.GeneratePath(pDestPlot))
++		{
++			pDestPlot = final_path.GetPathFirstPlot();
++		}
+ 	}
++	// K-Mod end
+ 
+ 	FAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
+ 
+@@ -3549,7 +3562,7 @@ bool CvSelectionGroup::groupAttack(int iX, int iY, int iFlags, bool& bFailedAlre
+ 		if ((getDomainType() == DOMAIN_AIR) || (stepDistance(getX(), getY(), pDestPlot->getX_INLINE(), pDestPlot->getY_INLINE()) == 1))
+ 		{
+ 			//if ((iFlags & MOVE_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (iFlags & MOVE_THROUGH_ENEMY) || (generatePath(plot(), pDestPlot, iFlags) && (getPathFirstPlot() == pDestPlot)))
+-			if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK | MOVE_DIRECT_ATTACK) || getDomainType() == DOMAIN_AIR || (generatePath(plot(), pDestPlot, iFlags) && getPathFirstPlot() == pDestPlot)) // K-Mod
++			if (iFlags & (MOVE_THROUGH_ENEMY | MOVE_ATTACK_STACK | MOVE_DIRECT_ATTACK) || getDomainType() == DOMAIN_AIR || (final_path.GeneratePath(pDestPlot) && final_path.GetPathFirstPlot() == pDestPlot)) // K-Mod
+ 			{
+ 				int iAttackOdds;
+ 				CvUnit* pBestAttackUnit = AI_getBestGroupAttacker(pDestPlot, true, iAttackOdds);
+@@ -3743,16 +3756,27 @@ bool CvSelectionGroup::groupPathTo(int iX, int iY, int iFlags)
+ 	}
+ 	else
+ 	{
+-		// K-Mod. I've added & ~MOVE_DECLARE_WAR so that if we need to declare war at this point, and haven't yet done so,
+-		// the move will fail here rather than splitting the group inside groupMove
++		/* original bts code
+ 		if (!generatePath(plot(), pDestPlot, iFlags & ~MOVE_DECLARE_WAR))
+ 		{
+ 			return false;
+ 		}
+ 
+-		pPathPlot = getPathFirstPlot();
++		pPathPlot = getPathFirstPlot(); */
++		// K-Mod. I've added & ~MOVE_DECLARE_WAR so that if we need to declare war at this point, and haven't yet done so,
++		// the move will fail here rather than splitting the group inside groupMove.
++		// Also, I've change it to use a different pathfinder, to avoid clearing the path data - and to avoid OOS errors.
++		KmodPathFinder final_path;
++		final_path.SetSettings(this, iFlags & ~MOVE_DECLARE_WAR);
++		if (!final_path.GeneratePath(pDestPlot))
++		{
++			return false;
++		}
++
++		pPathPlot = final_path.GetPathFirstPlot();
++		// K-Mod end
+ 
+-		if (groupAmphibMove(pPathPlot, iFlags & ~MOVE_DECLARE_WAR))
++		if (groupAmphibMove(pPathPlot, iFlags))
+ 		{
+ 			return false;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index a4347a801..281f1139e 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -283,7 +283,7 @@ bool CvSelectionGroupAI::AI_update()
+ 				break;
+ 			}
+ 
+-			resetPath();
++			//resetPath(); // disabled by K-Mod (testing)
+ 
+ 			if (pHeadUnit->AI_update())
+ 			{
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.cpp b/CvGameCoreDLL/KmodPathFinder.cpp
+index 0338fe9ea..117b2e266 100644
+--- a/CvGameCoreDLL/KmodPathFinder.cpp
++++ b/CvGameCoreDLL/KmodPathFinder.cpp
+@@ -43,6 +43,7 @@ bool KmodPathFinder::OpenList_sortPred::operator()(const boost::shared_ptr<FASta
+ 
+ bool KmodPathFinder::GeneratePath(int x1, int y1, int x2, int y2)
+ {
++	PROFILE_FUNC();
+ 	end_node.reset();
+ 
+ 	if (!settings.pGroup)
+@@ -126,6 +127,25 @@ bool KmodPathFinder::GeneratePath(const CvPlot* pToPlot)
+ 		pToPlot->getX_INLINE(), pToPlot->getY_INLINE());
+ }
+ 
++CvPlot* KmodPathFinder::GetPathFirstPlot() const
++{
++	FAssert(end_node);
++	if (!end_node)
++		return NULL;
++
++	FAStarNode* node = end_node.get();
++
++	if (!node->m_pParent)
++		return GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY);
++
++	while (node->m_pParent->m_pParent)
++	{
++		node = node->m_pParent;
++	}
++
++	return GC.getMapINLINE().plotSorenINLINE(node->m_iX, node->m_iY);
++}
++
+ void KmodPathFinder::SetSettings(const CvPathSettings& new_settings)
+ {
+ 	// some flags are not relevant to pathfinder. We should try to strip those out to avoid unnecessary resets.
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index 4b98a145e..73a9ddbe7 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -24,6 +24,7 @@ public:
+ 	bool GeneratePath(int x1, int y1, int x2, int y2);
+ 	bool GeneratePath(const CvPlot* pToPlot); // just a wrapper for convenience
+ 	FAStarNode* GetEndNode() { FAssert(end_node); return end_node.get(); }
++	CvPlot* GetPathFirstPlot() const;
+ 	void SetSettings(const CvPathSettings& new_settings);
+ 	void SetSettings(const CvSelectionGroup* pGroup, int iFlags = 0, int iMaxPath = -1) { SetSettings(CvPathSettings(pGroup, iFlags, iMaxPath)); }
+ 	void Reset();
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=16087

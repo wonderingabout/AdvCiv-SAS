@@ -1,0 +1,1465 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1318
+# Commit: 9c2f251278b9882f796f5ed4f8bea57997f24bc9
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: df5d7725763ecdc8673fcd43cb9f88c2542083d9
+# Title: Changes to announcements, mostly for AI Auto Play
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	0	Assets/xml/GameInfo/CIV4Hints.xml
+10	0	Assets/xml/Text/CIV4GameText_advc.008d.xml
+62	57	Assets/xml/Text/CIV4GameText_advc.xml
+10	4	CvGameCoreDLL/AdvCiv4lerts.cpp
+1	1	CvGameCoreDLL/CvCity.cpp
+46	0	CvGameCoreDLL/CvDLLInterfaceIBase2.cpp
+8	25	CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+10	2	CvGameCoreDLL/CvDeal.cpp
+59	4	CvGameCoreDLL/CvGame.cpp
+5	1	CvGameCoreDLL/CvGame.h
+3	3	CvGameCoreDLL/CvGameTextMgr.cpp
+60	20	CvGameCoreDLL/CvPlayer.cpp
+4	1	CvGameCoreDLL/CvPlayer.h
+115	44	CvGameCoreDLL/CvTeam.cpp
+5	1	CvGameCoreDLL/CvTeam.h
+7	4	CvGameCoreDLL/CvUnit.cpp
+13	5	CvGameCoreDLL/CvUnitAI.cpp
+2	1	CvGameCoreDLL/RiseFall.cpp
+4	1	CvGameCoreDLL/WarAndPeaceAI.cpp
+ create mode 100644 CvGameCoreDLL/CvDLLInterfaceIBase2.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index bf9584f6a..d8defd3f1 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -643,6 +643,9 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_29</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_30</Description>
++		</HintInfo>
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_1</Description>
+ 		</HintInfo>
+@@ -725,5 +728,8 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_29</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_30</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index 461753dd4..cbe08985b 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -450,4 +450,14 @@
+ 	<Spanish>If you zoom out into Globe View, the Unit Layer will indicate unit stack sizes through color: The larger the stack in a tile, the more opaque the tile color.</Spanish>
+ </TEXT>
+ 
++<!-- advc.008c: (related to advc.127b) -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_30</Tag>
++	<English>Most announcements can be located on the map by opening the Event Log [Ctrl+Tab] and clicking on the announcement text.</English>
++	<French>Most announcements can be located on the map by opening the Event Log [Ctrl+Tab] and clicking on the announcement text.</French>
++	<German>Die meisten Nachrichten lassen sich durch das Ereignis-Log [Strg+Tab] auf der Karte verorten. Klicken Sie auf den Text einer Nachricht, um zum Ort des Geschehens zu springen.</German>
++	<Italian>Most announcements can be located on the map by opening the Event Log [Ctrl+Tab] and clicking on the announcement text.</Italian>
++	<Spanish>Most announcements can be located on the map by opening the Event Log [Ctrl+Tab] and clicking on the announcement text.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 6fe16cbb4..55611cc09 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -2,7 +2,7 @@
+ <!-- advc: This file contains only in-game text added by the mod. -->
+ <Civ4GameText>
+ 
+-	<!-- [advc.100] In-game text for displaying and logging messages about
++	<!-- advc.100: In-game text for displaying and logging messages about
+ 		 hired DoW. Original BtS text bits pertaining to DoW are located in
+ 		 CIV4GameTextInfos.xml. -->
+ 	<TEXT>
+@@ -22,7 +22,7 @@
+ 		<Spanish>%s1_PlyrName le declara la guerra a %s2_PlyrName. (A petici&#243;n de %s3_PlyrName.)</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.100b] Replay message for brokered peace. Based on
++	<!-- advc.100b: Replay message for brokered peace. Based on
+ 		 TXT_KEY_MISC_SOMEONE_MADE_PEACE from CIV4GameTextInfos.xml.
+ 		 I'm reusing the "on request" translations from above. -->
+ 	<TEXT>
+@@ -34,7 +34,7 @@
+ 		<Spanish>%s1_PlyrName ha firmado la paz con %s2_PlyrName. (A petici&#243;n de %s3_PlyrName.)</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.101] Additional text for Nationality help. Similar BtS keys
++	<!-- advc.101: Additional text for Nationality help. Similar BtS keys
+ 		 are located in CIV4GameTextInfos.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_PRIOR_REVOLTS</Tag>
+@@ -70,7 +70,7 @@
+ 	</TEXT>
+ 
+ 
+-	<!-- [advc.101] Originally in CIV4GameTextInfos.xml. Adding the
++	<!-- advc.101: Originally in CIV4GameTextInfos.xml. Adding the
+ 		 pre-revolt owner of the city. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_CITY_REVOLTS_JOINS</Tag>
+@@ -89,8 +89,7 @@
+ 		<Spanish>%s1_CityName (%s3_CivName) se ha rebelado y se ha unido al %s2_CivName.</Spanish>
+ 	</TEXT>
+ 
+-    <!-- [advc.104]
+-		 Renaming the Aggressive AI option to indicate that it's now
++    <!-- advc.104: Renaming the Aggressive AI option to indicate that it's now
+ 		 linked with K-Mod's war-and-peace AI. Originally named
+ 		 in Civ4\Assets\CIV4GameTextInfos.xml. -->
+     <TEXT>
+@@ -102,8 +101,8 @@
+ 		<Spanish>IA agresiva (K-Mod)</Spanish>
+     </TEXT>
+ 
+-    <!-- [advc.104]
+-		 New help text for the Aggressive AI option. Original text in CIV4GameText_Misc1.xml. -->
++    <!-- advc.104: New help text for the Aggressive AI option. Original text in
++		 CIV4GameText_Misc1.xml. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_AGGRESSIVE_AI_HELP</Tag>
+ 		<English>Use the K-Mod AI for decisions on war and peace (instead of the newer and less aggressive AdvCiv AI). </English>
+@@ -113,7 +112,7 @@
+ 		<Spanish>Emplea IA de K-Mod por las decisiones de guerra e paz.</Spanish>
+     </TEXT>
+ 	
+-	<!-- [advc.250b] New game option. -->
++	<!-- advc.250b: New game option. -->
+     <TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_SPAH</Tag>
+ 		<English>Start Points as Handicap</English>
+@@ -131,7 +130,7 @@
+ 		<Spanish>Asigna los puntos de inicio solo a la IA por handicapar los jugadores humanos.</Spanish>
+     </TEXT>
+ 	
+-	<!-- [advc.250b] Dawn-of-Man text from Civ4GameTextInfos.xml split
++	<!-- advc.250b: Dawn-of-Man text from Civ4GameTextInfos.xml split
+ 		 in two. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_DAWN_OF_MAN_TEXT1</Tag>
+@@ -150,8 +149,7 @@
+ 		<Spanish>%s1_leader, vuestro pueblo os ha conferido poder absoluto, confiando en que pod&#225;is desarrollar una civilizaci&#243;n que supere los retos del tiempo.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.250a]
+-	     Help text for added difficulty setting King.
++	<!-- advc.250a: Help text for added difficulty setting King.
+ 	     Help text for the other (unmodded) handicaps is located in
+ 		 CIV4GameText_Help.xml. -->
+ 	<TEXT>
+@@ -164,8 +162,7 @@
+         <Spanish>Ventajas sutiles per l'IA similar a Pr&#237;ncipe e Monarca; dif&#237;cil posici&#243;n inicial por el jugador (como Deidad); l'IA comenza con un Operario, Alfarer&#237;a y un adicional Guerrero</Spanish>
+     </TEXT>
+ 
+-    <!-- [advc.250a]
+-	     The names of the other (unmodded) handicaps are defined in
++    <!-- advc.250a: The names of the other (unmodded) handicaps are defined in
+ 		 CIV4GameTextInfos_Objects.xml -->
+     <TEXT>
+         <Tag>TXT_KEY_HANDICAP_KING</Tag>
+@@ -217,8 +214,7 @@
+ 		</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.004a]
+-	     Used in help text of promotion buttons.
++	<!-- advc.004a: Used in help text of promotion buttons.
+ 	     Akin to TXT_KEY_PEDIA_LEADS_TO in CIV4GameTextInfos.xml.
+          The "Leads to" translations are taken from there. -->
+ 	<TEXT>
+@@ -238,7 +234,7 @@
+ 		<Spanish>Necesario por </Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.004a]
++	<!-- advc.004a
+ 	     Text fragments used for showing bulb paths as help text
+ 		 when a GP is selected.
+ 		 Flavor types: Don't have text keys; presumably,
+@@ -388,9 +384,8 @@
+ 		<Spanish>o</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.106]
+-	     Auto-save messages are triggered outside of the DLL. The best
+-         modders can do is to set the message to be empty. 
++	<!-- advc.106: Auto-save messages are triggered outside of the DLL.
++		 The best that modders can do is to set the message to be empty. 
+ 		 The original definition is in CIV4GameText_Misc1.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_AUTOSAVING</Tag>
+@@ -408,7 +403,18 @@
+ 		<Spanish>%s1_CityName (%s2_PlyrName) fue [NUM1:golpeado:golpeada] por una ojiva nuclear lanzada por %s3_PlyrName.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.004b]
++	<!-- advc.106f: Based on TXT_KEY_MISC_PLAYERS_SIGN_DEFENSIVE_PACT in
++		 CIV4GameText_Misc1.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_MISC_PLAYERS_CANCEL_DEFENSIVE_PACT</Tag>
++		<English>%s1 cancels defensive pact with %s2</English>
++		<French>%s1 annule son pacte de d&#233;fense avec %s2</French>
++		<German>%s1 k�ndigt [NUM1:sein:ihr] Verteidigungsabkommen mit %s2</German>
++		<Italian>%s1 annulla la sua alleanza difensiva con %s2</Italian>
++		<Spanish>%s1 revoca su acuerdo de protecci&#243;n con %s2.</Spanish>
++	</TEXT>
++
++	<!-- advc.004b
+ 		 Help text for projected city costs (city maintenance, civic upkeep,
+ 		 unit cost, inflation) before founding a city. -->
+ 	<TEXT>
+@@ -460,7 +466,7 @@
+ 		<Spanish>Esta orden hace que el [COLOR_UNIT_TEXT]Colono[COLOR_REVERT] construya una ciudad en el lugar en que se encuentre. El [COLOR_UNIT_TEXT]Colono[COLOR_REVERT] se consumir&#225; en el proceso.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.550]
++	<!-- advc.550
+ 		 Just added the word "better"; the rest is copied from vanilla
+          Civ4GameTextInfos.xml. -->
+ 	<TEXT>
+@@ -1489,7 +1495,7 @@
+ 		</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.004l] Similar to TXT_KEY_MISSION_SENTRY and
++	<!-- advc.004l: Similar to TXT_KEY_MISSION_SENTRY and
+ 		 TXT_KEY_MISSION_HEAL in Civ4GameTextInfos.xml.
+ 		 Name of Sentry-Heal mission. -->
+ 	<TEXT>
+@@ -1512,7 +1518,7 @@
+ 		<Spanish>La unidad permanecer&#225; inactiva hasta que recobre el total de su fuerza o una unidad enemiga se sit&#250;e al alcance de la visibilidad.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.106] Spelling "faraway" vs. "far away".
++	<!-- advc.106: Spelling "faraway" vs. "far away".
+ 		 Copied from Civ4GameTextInfos.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN</Tag>
+@@ -1523,7 +1529,7 @@
+ 		<Spanish>Han construido %s1_WndrName en una tierra muy lejana.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.106] New keys for birth in unknown city of known civ,
++	<!-- advc.106: New keys for birth in unknown city of known civ,
+ 		 and wonder in known city. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_GP_BORN_CIV</Tag>
+@@ -1626,7 +1632,7 @@
+ 		<Spanish>Ha aparecido [COLOR_UNIT_TEXT]%s1_GreatPersonName[COLOR_REVERT] en el campo de batalla</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.124] Originally defined in Civ4GameTextInfos.xml.
++	<!-- advc.124: Originally defined in Civ4GameTextInfos.xml.
+ 		 I'm adding "outside own borders" b/c this key is currently only
+ 		 used for trade abilities, and these always work within own
+ 		 borders. -->
+@@ -1639,7 +1645,7 @@
+ 		<Spanish>[ICON_BULLET]Permite %F1_Icon en %s2:2_TerrainName fuera de propios fronteras</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.004n] Sets key from Civ4GameTextInfos.xml to an empty
++	<!-- advc.004n: Sets key from Civ4GameTextInfos.xml to an empty
+ 		 string. Original value: "CTRL to shift by ...". Ctrl no longer
+ 		 makes a difference. Button just shows all units; shouldn't req.
+ 		 help text. -->
+@@ -1652,7 +1658,7 @@
+ 		<Spanish></Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.005c] Based on TXT_KEY_IMPROVEMENT_CITY_RUINS in
++	<!-- advc.005c: Based on TXT_KEY_IMPROVEMENT_CITY_RUINS in
+ 	Civ4GameTextInfos_Objects.xml. First attempt (weird for tribal
+ 	city names like Saxons):
+ 		Ruins of %s1City_Name
+@@ -1669,7 +1675,7 @@
+ 		<Spanish>Ruinas de ciudad (%s1City_Name)</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.130r] Copied from TXT_KEY_MISC_ATTITUDE_FREEDOM
++	<!-- advc.130r: Copied from TXT_KEY_MISC_ATTITUDE_FREEDOM
+ 		 (CIV4GameText_BTS.xml) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MEMORY_INDEPENDENCE</Tag>
+@@ -1680,7 +1686,7 @@
+ 		<Spanish>"Nos hab&#233;is concedido la independencia."</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.130v] Based on TXT_KEY_ATTITUDE_VASSAL_OF and
++	<!-- advc.130v: Based on TXT_KEY_ATTITUDE_VASSAL_OF and
+ 		 TXT_KEY_MISC_CAPITULATE_AGREEMENT in CIV4GameText_Warlords.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ATTITUDE_VASSAL_CAP_OF</Tag>
+@@ -1699,7 +1705,7 @@
+ 		<Spanish>Vasallo (volontario) del %s1_CivDesc</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.130w] Explanation text for new diplo modifier -->
++	<!-- advc.130w] Explanation text for new diplo modifier -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_ATTITUDE_EXPANSIONIST</Tag>
+ 		<English>%D1: "We oppose your ruthless expansionism!"</English>
+@@ -1709,7 +1715,7 @@
+ 		<Spanish>%D1: "Nos oponemos a vuestro expansionismo agresivo."</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.907a] Rename Praetorian to Legionary in English texts.
++	<!-- advc.907a: Rename Praetorian to Legionary in English texts.
+ 		 See CIV4GameText_advc.008.xml for the Civilopedia changes. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_ROME_PRAETORIAN</Tag>
+@@ -1796,7 +1802,7 @@
+ 		<Spanish>[NEWLINE][SPACE][SPACE][ICON_BULLET]+1 %F1_yield en las casillas con un rendimiento natural de %d2%F3_yield o un rendimiento total de %d4%F5_yield.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.012] Plot help text to be used along with TXT_KEY_PLOT_BONUS
++	<!-- advc.012: Plot help text to be used along with TXT_KEY_PLOT_BONUS
+ 		 (Civ4GameTextInfos.xml). -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_FEATUREDEF</Tag>
+@@ -1815,7 +1821,7 @@
+ 		<Spanish>Bonificaci&#243;n de defensa: </Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.005d] Originally in Civ4GameTextInfos.xml.
++	<!-- advc.005d: Originally in Civ4GameTextInfos.xml.
+ 		 Adding "ascribed" where the author is probably wrong. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_FLIGHT_QUOTE</Tag>
+@@ -1884,7 +1890,7 @@
+ 		<Spanish>"-&#191;Usted har&#237;a barcos que navegaran contra las corrientes y los vientos con solo encender una caldera bajo la cubierta? &#173;Disc&#250;lpeme, no tengo tiempo para escuchar tonter&#237;as." - Napole&#243;n, hablando del barco a vapor de Robert Fulton</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.004i] Originally in CIV4GameText_BTS.xml. Added a variable
++	<!-- advc.004i: Originally in CIV4GameText_BTS.xml. Added a variable
+ 		 for the amount of gold. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ESPIONAGE_TARGET_STEAL_TREASURY</Tag>
+@@ -1895,7 +1901,7 @@
+ 		<Spanish>&#161;Los enemigos infiltrados han saqueado %d1[ICON_GOLD] de nuestro tesoro!</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.021a] Originally in CIV4GameText_BTS_PatchText.xml.
++	<!-- advc.021a: Originally in CIV4GameText_BTS_PatchText.xml.
+ 		 The percentages in the TXT_KEY names are way off. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MAP_SCRIPT_EARTH_70</Tag>
+@@ -2043,7 +2049,7 @@
+ 		</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.130o] (No longer used)  -->
++	<!-- advc.130o (No longer used)  -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MEMORY_EXACTED_TRIBUTE</Tag>
+ 		<English>"You've exacted tribute from us."</English>
+@@ -2053,7 +2059,7 @@
+ 		<Spanish>"Nos forzasteis a pagar un tributo."</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.210a] Translations based on TXT_KEY_MISC_SHIFT_ALT_PREPARE_WAR
++	<!-- advc.210a: Translations based on TXT_KEY_MISC_SHIFT_ALT_PREPARE_WAR
+ 		 in CIV4GameText_BetterBTSAI.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__WARTRADE_TEXT</Tag>
+@@ -2090,7 +2096,7 @@
+ 		<Spanish>%s1_TeamName ya no es dispuesto a una guerra contra %s2_TeamName.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.210b] -->
++	<!-- advc.210b -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__REVOLT_TEXT</Tag>
+ 		<English>Revolts</English>
+@@ -2138,7 +2144,7 @@
+ 		<Spanish>%s1 ha sido pacificada.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.023] Based on INTERFACE_CITY_GROWING in Civ4GameTextInfos.xml -->
++	<!-- advc.023: Based on INTERFACE_CITY_GROWING in Civ4GameTextInfos.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_OCCUPATION_TIMER</Tag>
+ 		<English>Occupation timer: %d1 [NUM1:Turn:Turns]</English>
+@@ -2156,7 +2162,7 @@
+ 		<Spanish>Probabilidad de disminuir el timer: %d1%%</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.210d] -->
++	<!-- advc.210d -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CIV4LERTS__BONUSTHIRDPARTIES_TEXT</Tag>
+ 		<English>Third parties</English>
+@@ -2248,7 +2254,7 @@
+ 		<Spanish>%s1 ya no est� exportando recursos a %s2 (cancelado: %s3).</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.004q] Based on TXT_KEY_ATTITUDE_TOWARDS in
++	<!-- advc.004q] Based on TXT_KEY_ATTITUDE_TOWARDS in
+ 		 CIV4GameText_Misc1.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GOOD_ATTITUDE_TOWARDS</Tag>
+@@ -2275,7 +2281,7 @@
+ 		<Spanish>Actitud hacia %s3_leader: %s1_attitude (+/- 0)</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.002b] Overwrites values in CIV4GameText_Objects_BTS.xml. -->
++	<!-- advc.002b: Overwrites values in CIV4GameText_Objects_BTS.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_NATIVE_AMERICA_DESC</Tag>
+ 		<English>Amerindian Empire</English>
+@@ -2301,7 +2307,7 @@
+ 		</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.004r] Based on TXT_KEY_MISC_YOU_DISCOVERED_BONUSin
++	<!-- advc.004r: Based on TXT_KEY_MISC_YOU_DISCOVERED_BONUSin
+ 		 Vanilla CIV4GameTextInfos.xml	-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_DISCOVERED_NO_BONUS</Tag>
+@@ -2312,7 +2318,7 @@
+ 		<Spanish>No se ha descubierto ninguna fuente disponible de [COLOR_HIGHLIGHT_TEXT]%s1_BonusName[COLOR_REVERT].</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.160] Originally in CIV4GameTextInfos.xml -->
++	<!-- advc.160 Originally in CIV4GameTextInfos.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_STORES_FOOD</Tag>
+ 		<English>[ICON_BULLET]Stores %d1_Mod%% of [ICON_FOOD] after Growth or Starvation</English>
+@@ -2322,7 +2328,7 @@
+ 		<Spanish>[ICON_BULLET]Almacena el %d1_Mod%% de los [ICON_FOOD] tras el crecimiento o inanici�n.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.104t] Warning added; hopefully temporary -->
++	<!-- advc.104t: Warning added; hopefully temporary. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_PERMANENT_ALLIANCES_HELP</Tag>
+ 		<English>(WARNING: This option hasn't been tested with the AdvCiv mod.) Two civilizations can form a Permanent Alliance which lasts the rest of the game.</English>
+@@ -2332,7 +2338,7 @@
+ 		<Spanish>(WARNING: This option hasn't been tested with the AdvCiv mod.) Dos civilizaciones pueden formar una alianza permanente que dure hasta que acabe la partida.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.004t] Shortened version of TXT_KEY_POPUP_RECOMMENDED in
++	<!-- advc.004t: Shortened version of TXT_KEY_POPUP_RECOMMENDED in
+ 		 CIV4GameTextInfos.xml. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_POPUP_NO_RECOMMENDATION</Tag>
+@@ -2343,7 +2349,7 @@
+ 		<Spanish>%s1_ProdName (%d2_NumTurns [NUM2:turno:turnos])</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.004u] Originally in CIV4GameText_Warlords.xml without the Civ
++	<!-- advc.004u: Originally in CIV4GameText_Warlords.xml without the Civ
+ 		 variables. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_GENERAL_KILLED</Tag>
+@@ -2371,7 +2377,7 @@
+ 		<Spanish>&#161;%s1_warlord (%s2_Civ) ha muerto en combate en contra de nosotros!</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.004v] Originally in CIV4GameTextInfos.xml. Shortened. -->
++	<!-- advc.004v: Originally in CIV4GameTextInfos.xml. Shortened. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_CTRL_TRADE</Tag>
+ 		<English>[CTRL] for trade table</English>
+@@ -2389,7 +2395,7 @@
+ 		<Spanish>[ALT] para declarar la guerra</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.700] -->
++	<!-- advc.700 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_REPLAY_NEXT_CHAPTER</Tag>
+ 		<English>Start of Chapter %d1_Num: Player controls %s2.</English>
+@@ -2439,7 +2445,7 @@
+ 		<Spanish>[NEWLINE][NEWLINE]Before Chapter %d1_Chpt, there's an intermediate period of %d2_Trns turns on Auto Play.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.701] -->
++	<!-- advc.701 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_GAME_OPTION_RISE_FALL</Tag>
+ 		<English>Rise and Fall</English>
+@@ -2457,7 +2463,7 @@
+ 		<Spanish>Divides the game into chapters; at the end of each chapter, you take over an AI civ and the AI takes over your previous civ. (Singleplayer only, and Large or Huge map recommended.)</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.702] -->
++	<!-- advc.702 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_SINGLEPL_ONLY</Tag>
+ 		<English>The Rise and Fall option is only for singleplayer games.</English>
+@@ -2507,7 +2513,7 @@
+ 		<Spanish>The Rise and Fall option has been disabled.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- [advc.703] -->
++	<!-- advc.703 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_CHAPTER_PLURAL</Tag>
+ 		<English>Chapters</English>
+@@ -2751,10 +2757,9 @@
+ 		<Spanish>The sun rises on the year %s1_year. For %d2 turns, the %s3_civ are vesting absolute power in you, trusting that you can lead their Civilization to its zenith.[NEWLINE][NEWLINE]All units have been awoken for a roll call. You may want to investigate your cities, and confer with your advisors about ongoing/ potential deals, civics, espionage, finances and current research.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- [advc.706]
+-		 The Retire action needs slightly different text. Could be done more
+-		 nicely by showing help text dynamically depending on game settings
+-		 (but I'm not going to). -->
++	<!-- advc.706: The Retire action needs slightly different text. Could be
++		 done more nicely by showing help text dynamically depending on game
++		 settings (but I'm not going to). -->
+ 	<!-- From CIV4GameText_Help.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ACTION_CONTROL_RETIRE_HELP</Tag>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index e740acff7..db8479395 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -102,16 +102,22 @@ void WarTradeAlert::check() {
+ 			if(newValue == willWar[i][j])
+ 				continue;
+ 			willWar[i][j] = newValue;
+-			if(newValue)
++			if(newValue) {
+ 				msg(gDLL->getText("TXT_KEY_CIV4LERTS_TRADE_WAR",
+ 						warTeam.getName().GetCString(),
+-						victim.getName().GetCString()));
++						victim.getName().GetCString()),
++						// advc.127b:
++						NULL, warTeam.getCapitalX(), warTeam.getCapitalY());
++			}
+ 			/*  Obviously can't hire warTeam if it has already declared war
+ 				or if victim has been eliminated. */
+-			else if(victim.isAlive() && !warTeam.isAtWar(victim.getID()))
++			else if(victim.isAlive() && !warTeam.isAtWar(victim.getID())) {
+ 				msg(gDLL->getText("TXT_KEY_CIV4LERTS_NO_LONGER_TRADE_WAR",
+ 						warTeam.getName().GetCString(),
+-						victim.getName().GetCString()));
++						victim.getName().GetCString()),
++						// advc.127b:
++						NULL, warTeam.getCapitalX(), warTeam.getCapitalY());
++			}
+ 		}
+ 	}
+ } // </advc.210a>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 6e58f27d4..3b57ab46e 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11858,7 +11858,7 @@ void CvCity::setNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool b
+ 							CvPlayer& msgTarget = GET_PLAYER((PlayerTypes)i);
+ 							if(!msgTarget.isAlive())
+ 								continue;
+-							bool isRev = isRevealed(msgTarget.getTeam(), false);
++							bool isRev = isRevealed(msgTarget.getTeam(), true);
+ 							bool isMet = TEAMREF(msgTarget.getID()).isHasMet(
+ 									TEAMID(getOwner()));
+ 							if(isRev ||
+
+diff --git a/CvGameCoreDLL/CvDLLInterfaceIBase2.cpp b/CvGameCoreDLL/CvDLLInterfaceIBase2.cpp
+new file mode 100644
+index 000000000..9b558bfd0
+--- /dev/null
++++ b/CvGameCoreDLL/CvDLLInterfaceIBase2.cpp
+@@ -0,0 +1,46 @@
++/*  <advc.127> Cut and pasted from CvDLLInterfaceIFaceBase.h; this function
++	is getting too large for an inline definition. */
++
++#include "CvGameCoreDLL.h"
++#include "CvDLLInterfaceIFaceBase.h" // </advc.127>
++
++void CvDLLInterfaceIFaceBase::addHumanMessage(PlayerTypes ePlayer, bool bForce,
++		int iLength, CvWString szString, LPCTSTR pszSound,
++		InterfaceMessageTypes eType, LPCSTR pszIcon, ColorTypes eFlashColor,
++		int iFlashX, int iFlashY, bool bShowOffScreenArrows,
++		bool bShowOnScreenArrows) {
++
++	CvPlayer& pl = GET_PLAYER(ePlayer);
++	if(pl.isHuman() ||
++		/*  <advc.700> Want message archive to be available when human
++			takes over. AI messages expire just like human messages. */
++			(GC.getGameINLINE().isOption(GAMEOPTION_RISE_FALL) &&
++			!pl.isHumanDisabled() &&
++			GC.getGameINLINE().getRiseFall().isDeliverMessages(ePlayer))) {
++			// </advc.700>
++		addMessage(ePlayer, bForce, iLength, szString, pszSound, eType,
++				pszIcon, eFlashColor, iFlashX, iFlashY, bShowOffScreenArrows,
++				bShowOnScreenArrows);
++	}
++	//else if (GC.getGameINLINE().getActivePlayer() == ePlayer)
++	// advc.700: Replacing the above
++	else if(!pl.isHuman() && pl.isHumanDisabled()) {
++		// this means ePlayer is human, but currently using auto-play (K-Mod)
++		if(eType == MESSAGE_TYPE_MAJOR_EVENT || eType == MESSAGE_TYPE_CHAT ||
++				eType == MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY) { // advc.106b
++			addMessage(ePlayer,
++				/*  advc.127: bForce=true causes the event to be announced
++					immediately, whereas bForce=false seems to delay the
++					announcement until the start of the next turn (until the
++					preceding event has been on display long enough?).
++					bForce=true should make Auto Play easier to follow. */
++					true, iLength, szString, pszSound, eType, NULL,
++					//NO_COLOR, -1, -1, // (K-Mod)
++					/*  advc.127: Don't want stuff to flash during Auto Play,
++						but pszIcon=NULL is enough to prevent this. No need to
++						discard the color and coordinates. */
++					eFlashColor, iFlashX, iFlashY,
++					false, false);
++		}
++	}
++}
+
+diff --git a/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h b/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+index d20db20bb..a3acd40b3 100644
+--- a/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLInterfaceIFaceBase.h
+@@ -82,31 +82,14 @@ public:
+ 		InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
+ 		int iFlashX = -1, int iFlashY = -1, bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false) = 0;
+ 	// K-Mod - block messages from being send to AI players. (because the game doesn't ever clear AI messages)
+-	inline void addHumanMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, LPCTSTR pszSound = NULL,
+-		InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
+-		int iFlashX = -1, int iFlashY = -1, bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false)
+-	{
+-		if (GET_PLAYER(ePlayer).isHuman()
+-				/*  <advc.700> Want message archive to be available when human
+-					takes over. AI messages expire just like human messages. */
+-				|| (GC.getGameINLINE().isOption(GAMEOPTION_RISE_FALL) &&
+-				!GET_PLAYER(ePlayer).isHumanDisabled() &&
+-				GC.getGameINLINE().getRiseFall().isDeliverMessages(ePlayer)))
+-				// </advc.700>
+-		{
+-			addMessage(ePlayer, bForce, iLength, szString, pszSound, eType, pszIcon, eFlashColor, iFlashX, iFlashY, bShowOffScreenArrows, bShowOnScreenArrows);
+-		}
+-		//else if (GC.getGameINLINE().getActivePlayer() == ePlayer)
+-		// advc.700: Replacing the above
+-		else if(!GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).isHumanDisabled())
+-		{
+-			// this means ePlayer is human, but currently using auto-play
+-			if (eType == MESSAGE_TYPE_MAJOR_EVENT || eType == MESSAGE_TYPE_CHAT ||
+-					eType == MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY) // advc.106b
+-				addMessage(ePlayer, bForce, iLength, szString, pszSound, eType, NULL, NO_COLOR, -1, -1, false, false);
+-		}
+-	}
+-	// K-Mod end
++	void addHumanMessage(PlayerTypes ePlayer, bool bForce, int iLength,
++			CvWString szString, LPCTSTR pszSound = NULL,
++			InterfaceMessageTypes eType = MESSAGE_TYPE_INFO,
++			LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
++			int iFlashX = -1, int iFlashY = -1, bool bShowOffScreenArrows = false,
++			bool bShowOnScreenArrows = false);
++		// advc.127: Definition moved into a new file: CvDLLInterfaceIBase2.cpp
++
+ 	virtual void addCombatMessage(PlayerTypes ePlayer, CvWString szString) = 0;
+ 	virtual void addQuestMessage(PlayerTypes ePlayer, CvWString szString, int iQuestId) = 0;
+ 	virtual void showMessage(CvTalkingHeadMessage& msg) = 0;
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 79d1fccaa..ddaa90069 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -87,7 +87,11 @@ void CvDeal::kill(bool bKillTeam)
+ 			GAMETEXT.getDealString(szDealString, *this, getFirstPlayer(),
+ 					true); // advc.004w
+ 			szString.Format(L"%s: %s", szCancelString.GetCString(), szDealString.getCString());
+-			gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)getFirstPlayer(), true, GC.getEVENT_MESSAGE_TIME(), szString, "AS2D_DEAL_CANCELLED");
++			gDLL->getInterfaceIFace()->addHumanMessage(getFirstPlayer(), true, GC.getEVENT_MESSAGE_TIME(), szString, "AS2D_DEAL_CANCELLED",
++					// <advc.127b>
++					MESSAGE_TYPE_INFO, NULL, NO_COLOR,
++					GET_PLAYER(getSecondPlayer()).getCapitalX(),
++					GET_PLAYER(getSecondPlayer()).getCapitalY()); // </advc.127b>
+ 		}
+ 
+ 		if (GET_TEAM(GET_PLAYER(getSecondPlayer()).getTeam()).isHasMet(GET_PLAYER(getFirstPlayer()).getTeam()))
+@@ -96,7 +100,11 @@ void CvDeal::kill(bool bKillTeam)
+ 			GAMETEXT.getDealString(szDealString, *this, getSecondPlayer(),
+ 					true); // advc.004w
+ 			szString.Format(L"%s: %s", szCancelString.GetCString(), szDealString.getCString());
+-			gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)getSecondPlayer(), true, GC.getEVENT_MESSAGE_TIME(), szString, "AS2D_DEAL_CANCELLED");
++			gDLL->getInterfaceIFace()->addHumanMessage(getSecondPlayer(), true, GC.getEVENT_MESSAGE_TIME(), szString, "AS2D_DEAL_CANCELLED",
++					// <advc.127b>
++					MESSAGE_TYPE_INFO, NULL, NO_COLOR,
++					GET_PLAYER(getFirstPlayer()).getCapitalX(),
++					GET_PLAYER(getFirstPlayer()).getCapitalY()); // </advc.127b>
+ 		}
+ 	}
+ 	// <advc.036>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 491990a47..50290c426 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -10131,8 +10131,10 @@ void CvGame::setVoteSourceReligion(VoteSourceTypes eVoteSource, ReligionTypes eR
+ 			for (int iI = 0; iI < MAX_PLAYERS; iI++)
+ 			{
+ 				if (GET_PLAYER((PlayerTypes)iI).isAlive())
+-				{
+-					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getReligionInfo(eReligion).getSound(), MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++				{	// advc.127b:
++					std::pair<int,int> xy = getVoteSourceXY(eVoteSource);
++					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, GC.getReligionInfo(eReligion).getSound(), MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++								xy.first, xy.second); // advc.127b
+ 				}
+ 			}
+ 		}
+@@ -10542,7 +10544,10 @@ void CvGame::doVoteResults()
+ 				{
+ 					CvWString szMessage;
+ 					szMessage.Format(L"%s: %s", gDLL->getText("TXT_KEY_ELECTION_CANCELLED").GetCString(), GC.getVoteInfo(eVote).getDescription());
+-					gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)iPlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage, "AS2D_NEW_ERA", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));					
++					// advc.127b:
++					std::pair<int,int> xy = getVoteSourceXY(eVoteSource);
++					gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)iPlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage, "AS2D_NEW_ERA", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++							xy.first, xy.second); // advc.127b
+ 				}
+ 			}
+ 		}
+@@ -10729,7 +10734,17 @@ void CvGame::doVoteResults()
+ 					if (bShow && bPassed)
+ 					{
+ 						CvWString szMessage = gDLL->getText("TXT_KEY_VOTE_RESULTS", GC.getVoteSourceInfo(eVoteSource).getTextKeyWide(), pVoteTriggered->kVoteOption.szText.GetCString());
+-						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szMessage, "AS2D_NEW_ERA", MESSAGE_TYPE_MINOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++						// <advc.127b>
++						BuildingTypes vsBuilding = getVoteSourceBuilding(eVoteSource);
++						std::pair<int,int> xy = getVoteSourceXY(eVoteSource);
++						// </advc.127b>
++						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szMessage, "AS2D_NEW_ERA", MESSAGE_TYPE_MINOR_EVENT,
++								// <advc.127b>
++								vsBuilding == NO_BUILDING ? NULL :
++								GC.getBuildingInfo(vsBuilding).getButton(),
++								// </advc.127b>
++								(ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++								xy.first, xy.second); // advc.127b
+ 						/*  <advc.150b> Throw out everything after parentheses
+ 							(votes for and against). */
+ 						szMessage = szMessage.substr(0, szMessage.find(L")") + 1);
+@@ -11008,6 +11023,46 @@ void CvGame::reportResourceLayerToggled() {
+ 	bResourceLayer = !bResourceLayer;
+ }
+ // </advc.004m>
++
++// <advc.127b>
++std::pair<int,int> CvGame::getVoteSourceXY(VoteSourceTypes vs) const {
++
++	CvCity* vsCity = getVoteSourceCity(vs);
++	std::pair<int,int> r = std::make_pair<int,int>(-1,-1);
++	if(vsCity == NULL)
++		return r;
++	r.first = vsCity->getX_INLINE();
++	r.second = vsCity->getY_INLINE();
++	return r;
++}
++
++CvCity* CvGame::getVoteSourceCity(VoteSourceTypes vs) const {
++
++	BuildingTypes vsBuilding = getVoteSourceBuilding(vs);
++	if(vsBuilding == NO_BUILDING)
++		return NULL;
++	for(int i = 0; i < MAX_PLAYERS; i++) { int foo=-1;
++		CvPlayer const& pl = GET_PLAYER((PlayerTypes)i);
++		if(!pl.isAlive())
++			continue;
++		for(CvCity* c = pl.firstCity(&foo); c != NULL; c = pl.nextCity(&foo)) {
++			if(c->getNumBuilding(vsBuilding) > 0)
++				return c;
++		}
++	}
++	return NULL;
++}
++
++BuildingTypes CvGame::getVoteSourceBuilding(VoteSourceTypes vs) const {
++
++	for(int i = 0; i < GC.getNumBuildingInfos(); i++) {
++		BuildingTypes bt = (BuildingTypes)i;
++		if(GC.getBuildingInfo(bt).getVoteSourceType() == vs)
++			return bt;
++	}
++	return NO_BUILDING;
++} // </advc.127b>
++
+ // advc.104:
+ bool CvGame::useKModAI() const { return !GC.getGame().warAndPeaceAI().isEnabled(); }
+ // advc.250b:
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index a9ac1cb0c..7e6ebf6f4 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -625,6 +625,11 @@ public:
+ 	bool isResourceLayer() const;
+ 	void reportResourceLayerToggled();
+ 	// </advc.004m>
++	// <advc.127b> Both return -1 if 'vs' doesn't exist in any city
++	std::pair<int,int> getVoteSourceXY(VoteSourceTypes vs) const;
++	BuildingTypes getVoteSourceBuilding(VoteSourceTypes vs) const;
++	CvCity* getVoteSourceCity(VoteSourceTypes vs) const;
++	// </advc.127b>
+ 	/* advc.104: Doesn't belong here, but I didn't want to add Python wrapper
+ 	   classes just for that one function. */
+ 	bool useKModAI() const; // Exposed to Python
+@@ -637,7 +642,6 @@ public:
+ 	// <advc.703>
+ 	RiseFall const& getRiseFall() const;
+ 	RiseFall& getRiseFall(); // </advc.703>
+-
+ 	/* <advc.108>: Three levels of start plot normalization:
+ 	   1: low (weak starting plots on average, high variance);
+ 	      for single-player
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d2e475707..d499fc714 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -14336,14 +14336,14 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(szTempBuffer);
+ 		}
+-
+-		iAttitudeChange = GET_PLAYER(ePlayer).AI_getColonyAttitude(eTargetPlayer);
++		// advc.130r: Commented out
++		/*iAttitudeChange = GET_PLAYER(ePlayer).AI_getColonyAttitude(eTargetPlayer);
+ 		if ((iPass == 0) ? (iAttitudeChange > 0) : (iAttitudeChange < 0))
+ 		{
+ 			szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR((iAttitudeChange > 0) ? "COLOR_POSITIVE_TEXT" : "COLOR_NEGATIVE_TEXT"), gDLL->getText("TXT_KEY_MISC_ATTITUDE_FREEDOM", iAttitudeChange).GetCString());
+ 			szBuffer.append(NEWLINE);
+ 			szBuffer.append(szTempBuffer);
+-		}
++		}*/
+ 
+ 		iAttitudeChange = GET_PLAYER(ePlayer).AI_getAttitudeExtra(eTargetPlayer);
+ 		if ((iPass == 0) ? (iAttitudeChange > 0) : (iAttitudeChange < 0))
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index dea1d6bc5..9e11b44f9 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9724,12 +9724,14 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
+ 							szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_GOLDEN_AGE_HAS_BEGUN", getNameKey());
+ 							gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), (((PlayerTypes)iI) == getID()), GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_GOLDAGESTART",
+ 									MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
+-									NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++									NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++									getCapitalX(), getCapitalY()); // advc.127b
+ 						}
+ 						else
+ 						{
+ 							szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_GOLDEN_AGE_ENDED", getNameKey());
+-							gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_GOLDAGEEND", MESSAGE_TYPE_MINOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++							gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_GOLDAGEEND", MESSAGE_TYPE_MINOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++									getCapitalX(), getCapitalY()); // advc.127b
+ 						}
+ 					}
+ 				}
+@@ -9810,12 +9812,14 @@ void CvPlayer::changeAnarchyTurns(int iChange)
+ 			{
+ 				gDLL->getInterfaceIFace()->addHumanMessage(getID(), true, GC.getEVENT_MESSAGE_TIME(), gDLL->getText("TXT_KEY_MISC_REVOLUTION_HAS_BEGUN").GetCString(), "AS2D_REVOLTSTART",
+ 						MESSAGE_TYPE_MINOR_EVENT, // advc.106b: was MAJOR
+-						NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
++						NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"),
++						getCapitalX(), getCapitalY()); // advc.127b
+ 			}
+ 			else
+ 			{
+ 				gDLL->getInterfaceIFace()->addHumanMessage(getID(), false, GC.getEVENT_MESSAGE_TIME(), gDLL->getText("TXT_KEY_MISC_REVOLUTION_OVER").GetCString(), "AS2D_REVOLTEND", MESSAGE_TYPE_MINOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString(
+-						"COLOR_WHITE")); // advc.004g: Was COLOR_WARNING_TEXT
++						"COLOR_WHITE"), // advc.004g: Was COLOR_WARNING_TEXT
++						getCapitalX(), getCapitalY()); // advc.127b
+ 				// K-Mod. trigger production/research popups that have been suppressed.
+ 				if (isHuman())
+ 				{
+@@ -12461,7 +12465,9 @@ void CvPlayer::setLastStateReligion(ReligionTypes eNewValue)
+ 				if (GET_TEAM(getTeam()).isHasMet(civ.getTeam())
+ 						|| civ.isSpectator()) // advc.127
+ 				{
+-					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_RELIGION_CONVERT", MESSAGE_TYPE_MAJOR_EVENT);
++					gDLL->getInterfaceIFace()->addHumanMessage(civ.getID(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_RELIGION_CONVERT", MESSAGE_TYPE_MAJOR_EVENT,
++							// advc.127b:
++							NULL, NO_COLOR, getCapitalX(), getCapitalY());
+ 				}
+ 			}
+ 		}
+@@ -14018,7 +14024,9 @@ void CvPlayer::setCivics(CivicOptionTypes eIndex, CivicTypes eNewValue)
+ 								if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
+ 								{
+ 									gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_CIVIC_ADOPT",
+-											MESSAGE_TYPE_MINOR_EVENT); // advc.106b
++											MESSAGE_TYPE_MINOR_EVENT, // advc.106b
++											// advc.127b:
++											NULL, NO_COLOR, getCapitalX(), getCapitalY());
+ 								}
+ 							}
+ 						}
+@@ -19378,7 +19386,7 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit, bool bIncrementThre
+ 		CvPlayer& msgTarget = GET_PLAYER((PlayerTypes)i);
+ 		if(!msgTarget.isAlive())
+ 			continue;
+-		bool isRev = pPlot->isRevealed(msgTarget.getTeam(), false);
++		bool isRev = pPlot->isRevealed(msgTarget.getTeam(), true);
+ 		if(!TEAMREF(msgTarget.getID()).isHasMet(TEAMID(gpOwner.getID())))
+ 			continue;
+ 		if(!isRev) {
+@@ -22215,6 +22223,7 @@ bool CvPlayer::splitEmpire(int iAreaId)
+ 
+ 	bool bPlayerExists = GET_TEAM(GET_PLAYER(eNewPlayer).getTeam()).isAlive();
+ 	FAssert(!bPlayerExists);
++	CvWString szMessage; // advc.127b
+ 	if (!bPlayerExists)
+ 	{
+ 		int iBestValue = -1;
+@@ -22248,19 +22257,9 @@ bool CvPlayer::splitEmpire(int iAreaId)
+ 			return false;
+ 		}
+ 
+-		CvWString szMessage = gDLL->getText("TXT_KEY_MISC_EMPIRE_SPLIT", getNameKey(), GC.getCivilizationInfo(eBestCiv).getShortDescriptionKey(), GC.getLeaderHeadInfo(eBestLeader).getTextKeyWide());
+-		for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
+-		{
+-			CvPlayer const& civ = GET_PLAYER((PlayerTypes)i);
+-			if (civ.isAlive())
+-			{
+-				if (i == getID() || i == eNewPlayer || GET_TEAM(getTeam()).isHasMet(civ.getTeam()) ||
+-						civ.isSpectator()) // advc.127
+-				{
+-					gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)i, false, GC.getEVENT_MESSAGE_TIME(), szMessage, "AS2D_REVOLTEND", MESSAGE_TYPE_MAJOR_EVENT, ARTFILEMGR.getInterfaceArtInfo("INTERFACE_CITY_BAR_CAPITAL_TEXTURE")->getPath());
+-				}
+-			}
+-		}
++		szMessage = gDLL->getText("TXT_KEY_MISC_EMPIRE_SPLIT", getNameKey(), GC.getCivilizationInfo(eBestCiv).getShortDescriptionKey(), GC.getLeaderHeadInfo(eBestLeader).getTextKeyWide());
++		// advc.127b: Announcement loop moved down
++		
+ 		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getID(), szMessage, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 
+ /************************************************************************************************/
+@@ -22422,6 +22421,30 @@ bool CvPlayer::splitEmpire(int iAreaId)
+ 		for(int j = 0; j < GC.getDefineINT("COLONY_NUM_FREE_DEFENDERS"); j++)
+ 			acquiredCities[i]->initConscriptedUnit();
+ 	// </advc.104r>
++	/*  <advc.127b> Cut and pasted here b/c I want the announcement to point
++		to the new capital */
++	if(!bPlayerExists && eNewPlayer != NO_PLAYER) {
++		FAssert(!szMessage.empty());
++		CvCity* newCapital = GET_PLAYER(eNewPlayer).getCapitalCity();
++		for (int i = 0; i < MAX_CIV_PLAYERS; ++i) {
++			CvPlayer const& civ = GET_PLAYER((PlayerTypes)i);
++			if(!civ.isAlive())
++				continue;
++			if (i == getID() || i == eNewPlayer || GET_TEAM(getTeam()).isHasMet(civ.getTeam()) ||
++					civ.isSpectator()) // advc.127
++			{
++				bool isRev = (newCapital != NULL && newCapital->isRevealed(
++						civ.getTeam(), true));
++				LPCSTR button = (isRev ? ARTFILEMGR.getInterfaceArtInfo(
++						"INTERFACE_CITY_BAR_CAPITAL_TEXTURE")->getPath() : NULL);
++				gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)i, false,
++						GC.getEVENT_MESSAGE_TIME(), szMessage, "AS2D_REVOLTEND",
++						MESSAGE_TYPE_MAJOR_EVENT,
++						button, NO_COLOR, isRev ? newCapital->getX() : -1,
++						isRev ? newCapital->getY() : -1);
++			}
++		}
++	} // </advc.127b>
+ 	return true;
+ }
+ 
+@@ -24706,6 +24729,23 @@ double CvPlayer::estimateYieldRate(YieldTypes yield, int nSamples) const {
+ 	return ::median(samples);
+ } // </advc.104>
+ 
++// <advc.127b>
++int CvPlayer::getCapitalX() const {
++
++	CvCity* cap = getCapitalCity();
++	if(cap == NULL)
++		return -1;
++	return cap->getX_INLINE();
++}
++
++int CvPlayer::getCapitalY() const {
++
++	CvCity* cap = getCapitalCity();
++	if(cap == NULL)
++		return -1;
++	return cap->getY_INLINE();
++} // </advc.127b>
++
+ // <advc.004x>
+ void CvPlayer::killAll(ButtonPopupTypes bpt, int data1) {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 08da38671..4e5f21440 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1114,7 +1114,10 @@ public:
+ 	void checkAlert(int alertId, bool silent); // advc.210
+ 	// advc.104, advc.038, advc.132; exposed to Python.
+ 	double estimateYieldRate(YieldTypes yield, int nSamples = 5) const;
+-
++	// <advc.127b> Both return -1 if no capital
++	int getCapitalX() const;
++	int getCapitalY() const;
++	// </advc.127b>
+ 	DllExport void buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& ourList) const;
+ 	DllExport bool getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eItem, CvWString& szString, CvString& szIcon) const;
+ 	DllExport bool getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer, bool bShowingCurrent, const TradeData& zTradeData, CvWString& szString, CvString& szIcon) const;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index bf41f5e78..595db2d9d 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -444,7 +444,8 @@ void CvTeam::addTeam(TeamTypes eTeam)
+ 					szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYER_PERMANENT_ALLIANCE", getName().GetCString(), GET_TEAM(eTeam).getName().GetCString());
+ 					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_THEIRALLIANCE",
+ 							MESSAGE_TYPE_MAJOR_EVENT, // advc.106b
+-							NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++							NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++							getCapitalX(), getCapitalY()); // advc.127b
+ 				}
+ 			}
+ 		}
+@@ -1673,7 +1674,10 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 					if (observer.getTeam() == getID())
+ 					{
+ 						szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_DECLARED_WAR_ON", GET_TEAM(eTeam).getName().GetCString());
+-						gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)iI, true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
++						gDLL->getInterfaceIFace()->addHumanMessage(observer.getID(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"),
++								// <advc.127b>
++								GET_TEAM(eTeam).getCapitalX(),
++								GET_TEAM(eTeam).getCapitalY()); // </advc.127b>
+ 					}
+ 					else if (observer.getTeam() == eTeam)
+ 					{	// <advc.100> Inform the target of the DoW about the sponsor
+@@ -1682,7 +1686,8 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 									getName().GetCString(), sponsorName);
+ 						else // </advc.100>
+ 						szBuffer = gDLL->getText("TXT_KEY_MISC_DECLARED_WAR_ON_YOU", getName().GetCString());
+-						gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)iI, true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
++						gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)iI, true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_DECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"),
++								getCapitalX(), getCapitalY()); // advc.127b
+ 					}
+ 					else if ((isHasMet(observer.getTeam()) && GET_TEAM(eTeam).isHasMet(observer.getTeam()))
+ 								|| observer.isSpectator()) // advc.127
+@@ -1696,12 +1701,13 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 									sponsorName);
+ 						else // </advc.100>
+ 							szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_DECLARED_WAR", getName().GetCString(), GET_TEAM(eTeam).getName().GetCString());
+-						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_THEIRDECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
++						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_THEIRDECLAREWAR", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_WARNING_TEXT"),
++								getCapitalX(), getCapitalY()); // advc.127b
+ 					}
+ 				}
+ 			}
+ 
+-			// <advc.100> Put info on hired wars in the replay log
++			// <advc.100> Put info about hired wars in the replay log
+ 			if(sponsor != NO_PLAYER) {
+ 				szSponsorName = GET_PLAYER(sponsor).getReplayName();
+ 				sponsorName = szSponsorName.GetCString();
+@@ -1954,12 +1960,15 @@ void CvTeam::makePeaceBulk(TeamTypes eTeam, bool bBumpUnits, TeamTypes broker,
+ 		bool bWarTeam = false; // advc.039
+ 		if(civ.getTeam() == getID()) {
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_MADE_PEACE_WITH", GET_TEAM(eTeam).getName().GetCString());
+-			gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_MAKEPEACE", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++			gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_MAKEPEACE", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++					// advc.127b:
++					GET_TEAM(eTeam).getCapitalX(), GET_TEAM(eTeam).getCapitalY());
+ 			bWarTeam = true; // advc.039
+ 		}
+ 		else if(civ.getTeam() == eTeam) {
+ 			szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_MADE_PEACE_WITH", getName().GetCString());
+-			gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_MAKEPEACE", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++			gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_MAKEPEACE", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++					getCapitalX(), getCapitalY()); // advc.127b
+ 			/*  <advc.039> Show message about reparations also to non-leading
+ 				members of a (human) team (in addition to YOU_MADE_PEACE) */
+ 			bWarTeam = true;
+@@ -1998,7 +2007,8 @@ void CvTeam::makePeaceBulk(TeamTypes eTeam, bool bBumpUnits, TeamTypes broker,
+ 			}
+ 			gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_THEIRMAKEPEACE", MESSAGE_TYPE_MAJOR_EVENT, NULL,
+ 					(bReparations ? NO_COLOR : // advc.039
+-					(ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")));
++					(ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")),
++					getCapitalX(), getCapitalY()); // advc.127b
+ 		}
+ 	}
+ 	szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_MADE_PEACE", getReplayName().GetCString(), GET_TEAM(eTeam).getReplayName().GetCString());
+@@ -4544,47 +4554,64 @@ void CvTeam::setDefensivePact(TeamTypes eIndex, bool bNewValue)
+ {
+ 	FAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+ 	FAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+-
+-	if (isDefensivePact(eIndex) != bNewValue)
++	// <advc.003>
++	if (isDefensivePact(eIndex) == bNewValue)
++		return;
++	m_abDefensivePact[eIndex] = bNewValue;
++	if(getID() == GC.getGameINLINE().getActiveTeam() ||
++			eIndex == GC.getGameINLINE().getActiveTeam())
++		gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
++	CvTeam const& other = GET_TEAM(eIndex); // </advc.003>
++	if (bNewValue && !other.isDefensivePact(getID()))
+ 	{
+-		m_abDefensivePact[eIndex] = bNewValue;
++		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYERS_SIGN_DEFENSIVE_PACT", getReplayName().GetCString(), other.getReplayName().GetCString());
+ 
+-		if ((getID() == GC.getGameINLINE().getActiveTeam()) || (eIndex == GC.getGameINLINE().getActiveTeam()))
+-		{
+-			gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+-		}
+-
+-		if (bNewValue && !GET_TEAM(eIndex).isDefensivePact(getID()))
+-		{
+-			CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYERS_SIGN_DEFENSIVE_PACT", getReplayName().GetCString(), GET_TEAM(eIndex).getReplayName().GetCString());
+-
+-			GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), szBuffer, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+ 
+ 
+-			for (int iI = 0; iI < MAX_PLAYERS; iI++)
++		for (int iI = 0; iI < MAX_PLAYERS; iI++)
++		{
++			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
++			if (kPlayer.isAlive())
+ 			{
+-				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+-				if (kPlayer.isAlive())
++				if ((isHasMet(kPlayer.getTeam()) && other.isHasMet(kPlayer.getTeam()))
++					|| kPlayer.isSpectator()) // advc.127
+ 				{
+-					if ((isHasMet(kPlayer.getTeam()) && GET_TEAM(eIndex).isHasMet(kPlayer.getTeam()))
+-							|| kPlayer.isSpectator()) // advc.127
+-					{
+-						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_THEIRALLIANCE", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+-					}
++					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_THEIRALLIANCE", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++						getCapitalX(), getCapitalY()); // advc.127b
+ 				}
+ 			}
+ 		}
+-
+-		// K-Mod. update attitude
+-		if (GC.getGameINLINE().isFinalInitialized())
+-		{
+-			for (PlayerTypes i = (PlayerTypes)0; i < MAX_CIV_PLAYERS; i=(PlayerTypes)(i+1))
+-			{
+-				GET_PLAYER(i).AI_updateAttitudeCache();
++	}
++	// <advc.106f> Based on the previous block
++	else if(!bNewValue && other.isDefensivePact(getID())) {
++		CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_PLAYERS_CANCEL_DEFENSIVE_PACT",
++				getReplayName().GetCString(), other.getReplayName().GetCString());
++		GC.getGameINLINE().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
++				getLeaderID(), szBuffer);
++		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++			CvPlayer& civ = GET_PLAYER((PlayerTypes)i);
++			if(!civ.isAlive())
++				continue;
++			if((isHasMet(civ.getTeam()) && other.isHasMet(civ.getTeam()))
++					|| civ.isSpectator()) { // advc.127
++				gDLL->getInterfaceIFace()->addHumanMessage(civ.getID(), false,
++						GC.getEVENT_MESSAGE_TIME(), szBuffer, NULL,
++						//"AS2D_DEAL_CANCELLED" // Rather use no sound
++						MESSAGE_TYPE_MAJOR_EVENT, NULL, NO_COLOR,
++						getCapitalX(), getCapitalY()); // advc.127b
+ 			}
+ 		}
+-		// K-Mod end
++	} // </advc.106f>
++	// K-Mod. update attitude
++	if (GC.getGameINLINE().isFinalInitialized())
++	{
++		for (PlayerTypes i = (PlayerTypes)0; i < MAX_CIV_PLAYERS; i=(PlayerTypes)(i+1))
++		{
++			GET_PLAYER(i).AI_updateAttitudeCache();
++		}
+ 	}
++	// K-Mod end
+ }
+ 
+ 
+@@ -4897,7 +4924,8 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 					if ((isHasMet(kPlayer.getTeam()) && GET_TEAM(eIndex).isHasMet(kPlayer.getTeam()))
+ 							|| kPlayer.isSpectator()) // advc.127
+ 					{
+-						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szReplayMessage, "AS2D_WELOVEKING", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szReplayMessage, "AS2D_WELOVEKING", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++							 getCapitalX(), getCapitalY()); // advc.127b
+ 					}
+ 				}
+ 			}
+@@ -4937,7 +4965,8 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 
+ 					if (!szBuffer.empty())
+ 					{
+-						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_REVOLTSTART", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_REVOLTSTART", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++								getCapitalX(), getCapitalY()); // advc.127b
+ 					}
+ 				}
+ 			}
+@@ -5409,7 +5438,8 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
+ 					if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 					{
+ 						szBuffer = gDLL->getText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED", getName().GetCString(), kProject.getTextKeyWide());
+-						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_PROJECT_COMPLETED", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++						gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_PROJECT_COMPLETED", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++								getCapitalX(), getCapitalY()); // advc.127b
+ 					}
+ 				}
+ 			}
+@@ -5850,7 +5880,9 @@ void CvTeam::resetVictoryProgress()
+ 				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iJ);
+ 				if (kPlayer.isAlive())
+ 				{
+-					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iJ), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_MELTDOWN", MESSAGE_TYPE_MAJOR_EVENT);
++					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iJ), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_MELTDOWN", MESSAGE_TYPE_MAJOR_EVENT,
++							// advc.127b:
++							NULL, NO_COLOR, getCapitalX(), getCapitalY());
+ 
+ 					if (kPlayer.getTeam() == getID())
+ 					{
+@@ -5993,7 +6025,7 @@ void CvTeam::announceTechToPlayers(TechTypes eIndex, bool bPartial)
+ 				// <advc.201> BtS code restored
+ 				gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)iI, false, (bSound ? GC.getEVENT_MESSAGE_TIME() : -1), szBuffer,
+ 						(bSound ? GC.getTechInfo(eIndex).getSoundMP() : NULL),
+-						MESSAGE_TYPE_MAJOR_EVENT_LOG_ONLY, // advc.106b
++						MESSAGE_TYPE_MINOR_EVENT, // advc.106b
+ 						NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_TECH_TEXT"));
+ 				// K-Mod. Play the quote sound always, the "MP" sound is boring.
+ 				//gDLL->getInterfaceIFace()->addHumanMessage((PlayerTypes)iI, false, (bSound ? GC.getEVENT_MESSAGE_TIME() : -1), szBuffer, (bSound ? GC.getTechInfo(eIndex).getSound() : NULL), MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_TECH_TEXT"));
+@@ -6349,7 +6381,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 									(bMajor ? "AS2D_FIRSTTOTECH" : 0),
+ 									(bMajor ? MESSAGE_TYPE_MAJOR_EVENT :
+ 									MESSAGE_TYPE_MINOR_EVENT), NULL, (ColorTypes)
+-									GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++									GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++									getCapitalX(), getCapitalY()); // advc.127b
+ 						}
+ 					} // </advc.004>
+ 					if (bFirstBonus)
+@@ -7097,7 +7130,8 @@ void CvTeam::testCircumnavigated()
+ 					{
+ 						szBuffer = gDLL->getText("TXT_KEY_MISC_UNKNOWN_CIRC_GLOBE");
+ 					}
+-					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_GLOBECIRCUMNAVIGATED", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
++					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_GLOBECIRCUMNAVIGATED", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"),
++							getCapitalX(), getCapitalY()); // advc.127b
+ 				}
+ 			}
+ 
+@@ -7107,6 +7141,43 @@ void CvTeam::testCircumnavigated()
+ 	}
+ }
+ 
++// <advc.127b>
++CvCity* CvTeam::getLeaderCapital() const {
++
++	CvCity* r = GET_PLAYER(getLeaderID()).getCapitalCity();
++	if(r != NULL)
++		return r;
++	int minRank = INT_MAX;
++	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++		CvPlayer const& member = GET_PLAYER((PlayerTypes)i);
++		if(member.isAlive() && member.getTeam() == getID()) {
++			CvCity* cap = member.getCapitalCity();
++			int rank = GC.getGameINLINE().getPlayerRank(member.getID());
++			if(cap != NULL && rank < minRank) {
++				r = cap;
++				minRank = rank;
++			}
++		}
++	}
++	return r;
++}
++
++int CvTeam::getCapitalX() const {
++
++	CvCity* cap = getLeaderCapital();
++	if(cap == NULL)
++		return -1;
++	return cap->getX_INLINE();
++}
++
++int CvTeam::getCapitalY() const {
++
++	CvCity* cap = getLeaderCapital();
++	if(cap == NULL)
++		return -1;
++	return cap->getY_INLINE();
++} // </advc.127b>
++
+ void CvTeam::processTech(TechTypes eTech, int iChange)
+ {
+ 	PROFILE_FUNC();
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index ea5515db1..237083223 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -427,7 +427,11 @@ public:
+ 
+ 	// advc.136a: Made public
+ 	void testCircumnavigated();
+-
++	// <advc.127b> Both return -1 if no team member has a capital
++	int getCapitalX() const;
++	int getCapitalY() const;
++	private: CvCity* getLeaderCapital() const; public:
++	// </advc.127b>
+ 	virtual void AI_init() = 0;
+ 	virtual void AI_reset(bool bConstructor) = 0;
+ 	virtual void AI_doTurnPre() = 0;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index aa0a95d5d..f46c730c0 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -286,7 +286,8 @@ void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOw
+ 				else
+ 				{
+ 					szBuffer = gDLL->getText("TXT_KEY_MISC_UNKNOWN_CREATED_UNIT", getNameKey());
+-					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_WONDER_UNIT_BUILD", MESSAGE_TYPE_MAJOR_EVENT, getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT"));
++					gDLL->getInterfaceIFace()->addHumanMessage(((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_WONDER_UNIT_BUILD", MESSAGE_TYPE_MAJOR_EVENT, getButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT"),
++							getX_INLINE(), getY_INLINE()); // advc.127b
+ 				}
+ 			}
+ 		}
+@@ -610,7 +611,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
+ 						sound = "AS2D_INTERCEPTED";
+ 					}
+ 					else continue;
+-					bool isRev = plot()->isRevealed(TEAMID(i), false);
++					bool isRev = plot()->isRevealed(TEAMID(i), true);
+ 					// </advc.004u>
+ 					gDLL->getInterfaceIFace()->addHumanMessage(i, false, GC.getEVENT_MESSAGE_TIME(), szBuffer,
+ 							sound, // advc.004u
+@@ -5912,10 +5913,12 @@ bool CvUnit::destroy()
+ 	else
+ 	{
+ 		szBuffer = gDLL->getText("TXT_KEY_MISC_SPY_CAUGHT_AND_KILLED", GET_PLAYER(getOwnerINLINE()).getCivilizationAdjective(), getNameKey());
+-		gDLL->getInterfaceIFace()->addHumanMessage(pCity->getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_EXPOSE", MESSAGE_TYPE_INFO);
++		gDLL->getInterfaceIFace()->addHumanMessage(pCity->getOwnerINLINE(), false, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_EXPOSE", MESSAGE_TYPE_INFO,
++				NULL, NO_COLOR, plot()->getX(), plot()->getY()); // advc.127b
+ 
+ 		szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_SPY_CAUGHT", getNameKey());
+-		gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_EXPOSED", MESSAGE_TYPE_INFO);
++		gDLL->getInterfaceIFace()->addHumanMessage(getOwnerINLINE(), true, GC.getEVENT_MESSAGE_TIME(), szBuffer, "AS2D_EXPOSED", MESSAGE_TYPE_INFO,
++				NULL, NO_COLOR, plot()->getX(), plot()->getY()); // advc.127b
+ 
+ 		if (plot()->isActiveVisible(false))
+ 		{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 69d8a1eaa..6e7bd308a 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -7019,7 +7019,9 @@ void CvUnitAI::AI_attackSeaMove()
+ 	}
+ 	// K-Mod / BBAI end
+ 	
+-	if (plot()->isOwned() && (isEnemy(plot()->getTeam())))
++	if (plot()->isOwned() && isEnemy(plot()->getTeam())
++			// advc.033: Don't blockade Barbs
++			&& plot()->getTeam() != BARBARIAN_TEAM)
+ 	{
+ 		if (AI_blockade())
+ 		{
+@@ -16731,7 +16733,7 @@ bool CvUnitAI::AI_blockade()
+ 
+ 
+ // Returns true if a mission was pushed...
+-// K-Mod todo: this function is very slow on large maps. Consider rewritting it!
++// K-Mod todo: this function is very slow on large maps. Consider rewriting it!
+ // k146, advc.003b (comment): Performance might be OK now
+ bool CvUnitAI::AI_pirateBlockade()
+ {
+@@ -16833,7 +16835,8 @@ bool CvUnitAI::AI_pirateBlockade()
+ 			{
+ 				CvPlot* pRangePlot = plotXY(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), iX, iY);
+ 				// <advc.003>
+-				if(pRangePlot == NULL)
++				if(pRangePlot == NULL
++						|| pRangePlot->isBarbarian()) // advc.033
+ 					continue; // </advc.003>
+ 				bool bPlotBlockaded = false;
+ 				if (pRangePlot->isWater() && pRangePlot->isOwned() && isEnemy(pRangePlot->getTeam(), pLoopPlot))
+@@ -17027,7 +17030,9 @@ bool CvUnitAI::AI_seaBombardRange(int iMaxRange)
+ 				CvCity* pBombardCity = bombardTarget(pLoopPlot);
+ 				/*  <advc.004c> Don't bombard cities at 0 (even if there is nothing
+ 					better to do b/c it spams the message log) */
+-				if(pBombardCity != NULL && pBombardCity->getDefenseModifier(false) <= 0) 
++				if(pBombardCity != NULL && (pBombardCity->getDefenseModifier(false) <= 0 ||
++						// advc.033:
++						(pBombardCity->isBarbarian() && pBombardCity->getDefenseModifier(true) <= 0)))
+ 					pBombardCity = NULL; // </advc.004c>
+ 				if (pBombardCity != NULL && isEnemy(pBombardCity->getTeam(), pLoopPlot) && pBombardCity->getDefenseDamage() < GC.getMAX_CITY_DEFENSE_DAMAGE())
+ 				{
+@@ -17097,7 +17102,10 @@ bool CvUnitAI::AI_seaBombardRange(int iMaxRange)
+ 
+ 						// Consider city even if fully bombarded, causes ship to camp outside blockading instead of twitching between
+ 						// cities after bombarding to 0
+-						if (pBombardCity != NULL && isEnemy(pBombardCity->getTeam(), pLoopPlot) && pBombardCity->getTotalDefense(false) > 0)
++						if (pBombardCity != NULL && isEnemy(pBombardCity->getTeam(), pLoopPlot) && pBombardCity->getTotalDefense(false) > 0
++								/*  advc.033: Barbs normally have only building defense.
++									If that's the case, don't sea-bombard them. */
++								&& (!pBombardCity->isBarbarian() || pBombardCity->getTotalDefense(true) > 0))
+ 						{
+ 							int iPathTurns;
+ 							if (generatePath(pLoopPlot, 0, true, &iPathTurns, 1 + iMaxRange/baseMoves()))
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 98d91397a..05fbda8e8 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -563,7 +563,8 @@ void RiseFall::showDoW() {
+ 				GC.getEVENT_MESSAGE_TIME(),
+ 				gDLL->getText("TXT_KEY_YOU_AT_WAR", enemy.getName()),
+ 				NULL, MESSAGE_TYPE_INFO, NULL, (ColorTypes)
+-				GC.getInfoTypeForString("COLOR_WARNING_TEXT"));
++				GC.getInfoTypeForString("COLOR_WARNING_TEXT"),
++				enemy.getCapitalX(), enemy.getCapitalY()); // advc.127b
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index d322ffbeb..6166712cc 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -1772,7 +1772,10 @@ void WarAndPeaceAI::Team::showWarPlanMsg(TeamTypes targetId, char const* txtKey)
+ 			GET_TEAM(agentId).getName().GetCString(),
+ 			GET_TEAM(targetId).getName().GetCString());
+ 	gDLL->getInterfaceIFace()->addHumanMessage(activePl.getID(), false,
+-			GC.getEVENT_MESSAGE_TIME(), szBuffer, 0, MESSAGE_TYPE_MAJOR_EVENT);
++			GC.getEVENT_MESSAGE_TIME(), szBuffer, 0, MESSAGE_TYPE_MAJOR_EVENT,
++			// <advc.127b>
++			NULL, NO_COLOR, GET_TEAM(agentId).getCapitalX(),
++			GET_TEAM(agentId).getCapitalY()); // </advc.127b>
+ }
+ 
+ double WarAndPeaceAI::Team::confidenceFromWarSuccess(TeamTypes targetId) const {
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=19 omittedFiles=0 embeddedPatchBytes=65907

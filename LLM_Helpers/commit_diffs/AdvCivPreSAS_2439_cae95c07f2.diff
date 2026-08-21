@@ -1,0 +1,69 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2439
+# Commit: cae95c07f255996ef0cd34a7009742ae22ce6093
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 8aab6ddd80272abaf81e271207f05fc1d43d3690
+# Title: Make colonial vassals less willing to break free
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+13	3	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 51063c3bf..98e997635 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2403,6 +2403,12 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 		iPersonalityModifier += GC.getInfo(itMember->getPersonalityType()).
+ 				getVassalPowerModifier();
+ 	}
++	// <advc.112>
++	if (bColony)
++	{
++		iPersonalityModifier /= 2;
++		iPersonalityModifier -= 10;
++	} // </advc.112>
+ 	scaled rVassalPower = per100(iOurPower * (iPowerMultiplier + iPersonalityModifier /
+ 			std::max(1, itMember.nextIndex())));
+ 	if (bWar)
+@@ -2434,13 +2440,15 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 			rMasterPower *= per100(90); // was 75%
+ 		// </advc.112>
+ 	}
+-	else if (kMasterTeam.AI_isLandTarget(getID())
++	else if (/* advc.112: */ !bColony &&
++		!kMasterTeam.AI_isLandTarget(getID()))
++	{
+ 		rMasterPower /= 2;
+-
++	}
+ 	// K-Mod. (condition moved here from lower down; for efficiency.)
+ 	// <advc.112> Special treatment of vassal-master power ratio if colony
+ 	if ((!bColony && 3 * rVassalPower > 2 * rMasterPower) ||
+-		(bColony && 5 * getPower(true) > 4 * rMasterPower)) // </advc.112>
++		(bColony && 13 * getPower(true) > 10 * rMasterPower)) // </advc.112>
+ 	{
+ 		return DENIAL_POWER_US;
+ 	} // K-Mod end
+@@ -2624,6 +2632,8 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 			// <advc.112> Handled higher up
+ 			int iAttitudeThresh = GC.getInfo(kOurMember.getPersonalityType()).
+ 					getVassalRefuseAttitudeThreshold();
++			if (bColony)
++				iAttitudeThresh -= 3;
+ 			/*  Don't apply thresh worse than Cautious, only increase the
+ 				relations modifier. */
+ 			if(iAttitudeThresh < ATTITUDE_CAUTIOUS)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1787

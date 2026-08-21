@@ -1,0 +1,989 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5338
+# Commit: 3eaae094a9b5dcb6f6a17cffc5f0fd27958e3ea8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fb9054847f6ae68379383a1331e7296de5a6ae3d
+# Title: add Remove and Units (Any Build) panels in Sevopedia Features and Terrains - performance optimizations - update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	AGENTS.md
+114	28	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+4	2	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+7	9	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+101	64	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+2	1	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+3	1	Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+2	1	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+8	0	Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+2	2	CvGameCoreDLL/CvCityAI.cpp
+2	2	Long_Comments/Long_Comments_XML.txt
+3	3	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+1	1	_1_AdvCiv-SAS/Docs/README_References.md
+5	1	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (3).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (3).JPG
+35	61	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 7f979153b..38873a660 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -93,6 +93,8 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - For AI or gameplay logic changes, include a slightly more verbose rationale (why it helps efficiency or outcomes), not just what changed.
+ - When adding rationale, focus on the economic/strategic reasoning (efficiency, versatility, risk, maintenance) and capture the thought process behind the change.
+ - Do not commit changes unless the user explicitly approves; prefer review/discussion before commits.
++- When doing performance optimizations, checking only, checking quotes only on one side is handy to spot all string lookups we could potentially cache. E.g. `gc.getInfoTypeForString("` has this result `iHill = gc.getInfoTypeForString("TERRAIN_HILL")`.
++- When doing performance optimizations, use local variables only is enough and best if we don't use this variable elsewhere. E.g. `eYellow = gc.getInfoTypeForString("COLOR_YELLOW")` at init in SevoPediaMain.py.
+ 
+ ### Python (Civ4)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 8604ae839..7db675d57 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -72,7 +72,7 @@ class SevoPediaFeature:
+ 
+ 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
+-		self.W_INFO_PANE = 290
++		self.W_INFO_PANE = 330
+ 		# <!-- custom: make some room for the new fields we added in placeSpecial and align display horizontally with placeSpecial, was 120 -->
+ 		self.H_INFO_PANE = 127
+ 
+@@ -84,13 +84,18 @@ class SevoPediaFeature:
+ 
+ 		self.X_INFO_TEXT = self.X_INFO_PANE + 110
+ 		self.Y_INFO_TEXT = self.Y_ICON + 15
+-		self.W_INFO_TEXT = 220
++		self.W_INFO_TEXT = 260
+ 		self.H_INFO_TEXT = self.H_INFO_PANE - 20
+ 
+-		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
+-		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
+-		self.H_SPECIAL = self.H_INFO_PANE
+-		self.Y_SPECIAL = self.Y_INFO_PANE
++		self.X_BUILD_REMOVES = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
++		self.Y_BUILD_REMOVES = self.Y_INFO_PANE
++		self.W_BUILD_REMOVES = 84
++		self.H_BUILD_REMOVES = self.H_INFO_PANE
++
++		self.X_UNITS_ANY_BUILD = self.X_BUILD_REMOVES + self.W_BUILD_REMOVES + self.MEDIUM_MARGIN
++		self.Y_UNITS_ANY_BUILD = self.Y_INFO_PANE
++		self.W_UNITS_ANY_BUILD = self.top.R_PEDIA_PAGE - self.X_UNITS_ANY_BUILD
++		self.H_UNITS_ANY_BUILD = self.H_INFO_PANE
+ 
+ 		self.X_FEATURES = self.X_INFO_PANE
+ 		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
+@@ -119,12 +124,25 @@ class SevoPediaFeature:
+ 		self.X_UNITS_IMPASSABLE = self.X_RELEVANT_UNITS
+ 		self.Y_UNITS_IMPASSABLE = self.Y_RELEVANT_UNITS + self.H_RELEVANT_UNITS + self.SMALL_MARGIN
+ 		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
+-		self.H_UNITS_IMPASSABLE = self.H_FEATURES
++		self.H_UNITS_IMPASSABLE = self.H_FEATURES + HIDE_SECOND_ROW_MULTI_LIST
++
++		self.X_SPECIAL = self.X_INFO_PANE
++		self.Y_SPECIAL = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
++		self.W_SPECIAL = self.W_INFO_PANE
++		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+-		self.X_HISTORY = self.X_UNITS_IMPASSABLE
++		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
++		self.Y_HISTORY = self.Y_SPECIAL
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+-		self.Y_HISTORY = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
+-		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
++		self.H_HISTORY = self.H_SPECIAL
++
++		self.I_FEATURE_ICE = getInfoTypeOrFail("FEATURE_ICE", gc)
++		self.I_FEATURE_FOREST = getInfoTypeOrFail("FEATURE_FOREST", gc)
++		self.I_FEATURE_JUNGLE = getInfoTypeOrFail("FEATURE_JUNGLE", gc)
++
++		self.I_PROMOTION_WOODSMAN1 = getInfoTypeOrFail("PROMOTION_WOODSMAN1", gc)
++		self.I_PROMOTION_WOODSMAN2 = getInfoTypeOrFail("PROMOTION_WOODSMAN2", gc)
++		self.I_PROMOTION_WOODSMAN3 = getInfoTypeOrFail("PROMOTION_WOODSMAN3", gc)
+ 
+ 
+ 
+@@ -132,12 +150,13 @@ class SevoPediaFeature:
+ 		self.iFeature = iFeature
+ 
+ 		self.placeInfo()
+-		self.placeSpecial()
++		self.placeBuildUnits()
+ 		self.placeTerrain()
+ 		self.placeImprovements()
+ 		self.placeBonusesOnAnyTerrain()
+ 		self.placeRelevantUnits()
+ 		self.placeUnitsImpassable()
++		self.placeSpecial()
+ 		self.placeHistory()
+ 
+ 
+@@ -173,6 +192,81 @@ class SevoPediaFeature:
+ 
+ 
+ 
++	def placeBuildUnits(self):
++		screen = self.top.getScreen()
++		iActivePlayer = gc.getGame().getActivePlayer()
++
++		removalBuilds = []
++		improvementBuilds = []
++
++		for iBuild in xrange(gc.getNumBuildInfos()):
++			buildInfo = gc.getBuildInfo(iBuild)
++			iImprovement = buildInfo.getImprovement()
++			if iImprovement != -1:
++				improvementInfo = gc.getImprovementInfo(iImprovement)
++				if improvementInfo.isGoody():
++					continue
++				if improvementInfo.getFeatureMakesValid(self.iFeature):
++					improvementBuilds.append(iBuild)
++			elif buildInfo.isFeatureRemove(self.iFeature):
++				removalBuilds.append(iBuild)
++
++		if len(removalBuilds) == 0 and len(improvementBuilds) == 0:
++			return
++
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_FEATURE_BUILD_REMOVE", ()), "", False, True, self.X_BUILD_REMOVES, self.Y_BUILD_REMOVES, self.W_BUILD_REMOVES, self.H_BUILD_REMOVES, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++
++		if len(removalBuilds) > 0:
++			for iBuild in removalBuilds:
++				buildInfo = gc.getBuildInfo(iBuild)
++				# <!-- custom: show build buttons for feature-removal actions; WIDGET_HELP_IMPROVEMENT keeps the build hover and right-click redirect to the feature page since no build pedia exists (GPT-5.2-Codex) -->
++				screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_IMPROVEMENT, -1, iBuild, False)
++		else:
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = self.Y_BUILD_REMOVES + (self.H_BUILD_REMOVES / 2)
++			screen.addMultilineText(textName, szText, self.X_BUILD_REMOVES + 7, yPanelCenter, self.W_BUILD_REMOVES - 14, self.H_BUILD_REMOVES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_UNITS_ANY_BUILD", ()), "", False, True, self.X_UNITS_ANY_BUILD, self.Y_UNITS_ANY_BUILD, self.W_UNITS_ANY_BUILD, self.H_UNITS_ANY_BUILD, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++
++		bUnitFound = False
++		for iUnit in xrange(gc.getNumUnitInfos()):
++			unitInfo = gc.getUnitInfo(iUnit)
++			if unitInfo.isGraphicalOnly():
++				continue
++
++			bCanBuild = False
++			for iBuild in improvementBuilds:
++				if unitInfo.getBuilds(iBuild):
++					bCanBuild = True
++					break
++			if not bCanBuild:
++				for iBuild in removalBuilds:
++					if unitInfo.getBuilds(iBuild):
++						bCanBuild = True
++						break
++
++			if bCanBuild:
++				szButton = unitInfo.getButton()
++				if iActivePlayer >= 0:
++					szButton = gc.getPlayer(iActivePlayer).getUnitButton(iUnit)
++				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++				bUnitFound = True
++
++		if not bUnitFound:
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = self.Y_UNITS_ANY_BUILD + (self.H_UNITS_ANY_BUILD / 2)
++			screen.addMultilineText(textName, szText, self.X_UNITS_ANY_BUILD + 7, yPanelCenter, self.W_UNITS_ANY_BUILD - 14, self.H_UNITS_ANY_BUILD - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
+ 	# <!-- custom: code provided with the help of claude ai and chatgpt too -->
+ 	def placeSpecial(self):
+ 		screen = self.top.getScreen()
+@@ -180,7 +274,7 @@ class SevoPediaFeature:
+ 		text = self.top.getNextWidgetName()
+ 		info = gc.getFeatureInfo(self.iFeature)
+ 
+-		screen.addPanel(panel, "", "", True, True, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, True, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+ 		szSpecialText = info.getHelp()
+ 		szSpecialText += CyGameTextMgr().getFeatureHelp(self.iFeature, True)
+ 
+@@ -208,7 +302,7 @@ class SevoPediaFeature:
+ 				break
+ 
+ 		szSpecialText = szSpecialText.replace("\n\n", "\n").strip()
+-		screen.addMultilineText(text, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 10, self.W_SPECIAL - 10, self.H_SPECIAL - 15, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(text, szSpecialText, self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -297,11 +391,8 @@ class SevoPediaFeature:
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+ 
+ 		# <!-- custom: handle feature(s) that is (are) impassable such as of now only the ice cap feature quite similarly than the peak terrain was handled in sevopedia terrain's placeRelevantUnits, with some differences, see code comments at sevopedia feature's placeUnitsImpassable -->
+-		iIce = getInfoTypeOrFail("FEATURE_ICE", gc)
+ 		# <!-- custom: handle features with promotions or other specific effects separately, similar to how was done in sevopedia terrain previous new placeRelevantUnits and placeUnitsImpassable this new features code is based on -->
+-		iForest = getInfoTypeOrFail("FEATURE_FOREST", gc)
+-		iJungle = getInfoTypeOrFail("FEATURE_JUNGLE", gc)
+-
++		iIce = self.I_FEATURE_ICE
+ 		if self.iFeature == iIce:
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				unitInfo = gc.getUnitInfo(iUnit)
+@@ -333,11 +424,7 @@ class SevoPediaFeature:
+ 					iButtonIndex += 1
+ 
+ 		# <!-- custom: in advciv-sas as of now at least if not always or not, woodsman promotions apply both to jungle but also to forest tiles as well, seems more sensical to me, adjust below logic depending on which features have promotions applying to them or some other effects you'd want to display in the numTxt or not -->
+-		elif self.iFeature == iForest or self.iFeature == iJungle:
+-			# <!-- custom: raise an error if asset does not exist -->
+-			iPromotionWoodsman1 = getInfoTypeOrFail("PROMOTION_WOODSMAN1", gc)
+-			iPromotionWoodsman2 = getInfoTypeOrFail("PROMOTION_WOODSMAN2", gc)
+-			iPromotionWoodsman3 = getInfoTypeOrFail("PROMOTION_WOODSMAN3", gc)
++		elif self.iFeature == self.I_FEATURE_FOREST or self.iFeature == self.I_FEATURE_JUNGLE:
+ 
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				unitInfo = gc.getUnitInfo(iUnit)
+@@ -348,9 +435,9 @@ class SevoPediaFeature:
+ 				iFeatureAttack = unitInfo.getFeatureAttackModifier(self.iFeature)
+ 				iFeatureDefense = unitInfo.getFeatureDefenseModifier(self.iFeature)
+ 
+-				isHasW1 = unitInfo.getFreePromotions(iPromotionWoodsman1)
+-				isHasW2 = unitInfo.getFreePromotions(iPromotionWoodsman2)
+-				isHasW3 = unitInfo.getFreePromotions(iPromotionWoodsman3)
++				isHasW1 = unitInfo.getFreePromotions(self.I_PROMOTION_WOODSMAN1)
++				isHasW2 = unitInfo.getFreePromotions(self.I_PROMOTION_WOODSMAN2)
++				isHasW3 = unitInfo.getFreePromotions(self.I_PROMOTION_WOODSMAN3)
+ 
+ 				if ((iFeatureAttack != 0) or (iFeatureDefense != 0) or isHasW1 or isHasW2 or isHasW3):
+ 					# Column index (always 0 when numLists=1)
+@@ -415,9 +502,7 @@ class SevoPediaFeature:
+ 		txtKeyPanel = "TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE"
+ 
+ 		# <!-- custom: https://forums.civfanatics.com/threads/make-ice-workable.462809/?utm_source=chatgpt.com based on this provided to me by chatgpt thanks, it seems the ice feature (called as of now "ice cap" feature in advciv-sas is impassable but can be walked on if a unit has such a flag, so using a code similar to the terrain_peak handling in sevopedia terrain's as of now placeUnitsImpassable -->
+-		iIce = getInfoTypeOrFail("FEATURE_ICE", gc)
+-
+-		if self.iFeature == iIce:
++		if self.iFeature == self.I_FEATURE_ICE:
+ 			txtKeyPanel = "TXT_KEY_PEDIA_FEATURE_UNITS_IMPASSABLE_ICE"
+ 
+ 		screen = self.top.getScreen()
+@@ -442,6 +527,7 @@ class SevoPediaFeature:
+ 		buttonCalculate = 1
+ 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
++		iIce = self.I_FEATURE_ICE
+ 		if self.iFeature == iIce:
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				unitInfo = gc.getUnitInfo(iUnit)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 2f85ac5c2..7ec421d12 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -33,6 +33,8 @@ class SevoPediaImprovement:
+ 	def __init__(self, main):
+ 		self.iImprovement = -1
+ 		self.top = main
++		self.I_CONCEPT_IRRIGATION = gc.getInfoTypeForString("CONCEPT_IRRIGATION")
++		self.I_TERRAIN_HILL = gc.getInfoTypeForString("TERRAIN_HILL")
+ 
+ 		self.MEDIUM_MARGIN = 15
+ 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+@@ -251,7 +253,7 @@ class SevoPediaImprovement:
+ 			if iYieldChange != 0:
+ 				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+ 		if len(sText) > 0:
+-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, gc.getInfoTypeForString("CONCEPT_IRRIGATION"))
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, ArtFileMgr.getInterfaceArtInfo("INTERFACE_TECH_IRRIGATION").getPath(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, self.I_CONCEPT_IRRIGATION)
+ 			screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			iY += (iButtonSize + 8)
+ 
+@@ -262,7 +264,7 @@ class SevoPediaImprovement:
+ 			if iYieldChange != 0:
+ 				sText += u"%+d%c" % (iYieldChange, gc.getYieldInfo(k).getChar())
+ 		if len(sText) > 0:
+-			iHill = gc.getInfoTypeForString("TERRAIN_HILL")
++			iHill = self.I_TERRAIN_HILL
+ 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, gc.getTerrainInfo(iHill).getButton(), 0, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iHill, 1)
+ 			screen.setLabelAt(self.top.getNextWidgetName(), panelName, u"<font=4>" + sText + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, iButtonSize + 8, iY + iButtonSize/2 - 8, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 			iY += (iButtonSize + 8)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index f3289060d..04c7629a9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -698,6 +698,11 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		# These are terrain TYPES that should be classified under the "GraphicalOnly (High)" header rather than "Land". This is purely a UI grouping choice.
+ 		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
++		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS = []
++		for szType in self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES:
++			iT = getInfoTypeOrFail(szType, gc)
++			if iT >= 0:
++				self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS.append(iT)
+ 
+ 		self.categoryList = []
+ 		self.SAS_categoryEnumToIndex = {}
+@@ -1319,11 +1324,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		water = []
+ 
+ 		# Terrain IDs considered "GraphicalOnly (High)" purely for UI grouping (e.g. Hills/Peaks).
+-		highIds = []
+-		for szType in self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES:
+-			iT = getInfoTypeOrFail(szType, gc)
+-			if iT >= 0:
+-				highIds.append(iT)
++		highIds = self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS
+ 
+ 		for (szName, iTerrain) in baseList:
+ 			info = gc.getTerrainInfo(iTerrain)
+@@ -1403,10 +1404,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		water = []
+ 
+ 		# Exclude our GraphicalOnly (High) terrains (e.g. Hill/Peak) even if XML marks them as water.
+-		graphicalOnlyHighIds = []
+-		for szType in self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES:
+-			iT = getInfoTypeOrFail(szType, gc)
+-			graphicalOnlyHighIds.append(iT)
++		graphicalOnlyHighIds = self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS
+ 
+ 		# Build list of "true water terrains" for feature classification.
+ 		waterTerrainIds = []
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index b7fd35caf..4a7d9a6e0 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -26,7 +26,7 @@ class SevoPediaTerrain:
+ 
+ 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
+-		self.W_INFO_PANE = 290
++		self.W_INFO_PANE = 330
+ 		self.H_INFO_PANE = 120
+ 
+ 		self.W_ICON = 100
+@@ -37,13 +37,13 @@ class SevoPediaTerrain:
+ 
+ 		self.X_INFO_TEXT = self.X_INFO_PANE + 110
+ 		self.Y_INFO_TEXT = self.Y_ICON + 15
+-		self.W_INFO_TEXT = 220
++		self.W_INFO_TEXT = 260
+ 		self.H_INFO_TEXT = self.H_INFO_PANE - 20
+ 
+-		self.X_SPECIAL = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
+-		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
+-		self.H_SPECIAL = self.H_INFO_PANE
+-		self.Y_SPECIAL = self.Y_INFO_PANE
++		self.X_BUILD_UNITS = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
++		self.Y_BUILD_UNITS = self.Y_INFO_PANE
++		self.W_BUILD_UNITS = self.top.R_PEDIA_PAGE - self.X_BUILD_UNITS
++		self.H_BUILD_UNITS = self.H_INFO_PANE
+ 
+ 		self.X_FEATURES = self.X_INFO_PANE
+ 		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
+@@ -78,10 +78,25 @@ class SevoPediaTerrain:
+ 		self.W_UNITS_IMPASSABLE = self.top.R_PEDIA_PAGE - self.X_RELEVANT_UNITS
+ 		self.H_UNITS_IMPASSABLE = self.H_FEATURES
+ 
+-		self.X_HISTORY = self.X_FEATURES
++		self.X_SPECIAL = self.X_INFO_PANE
++		self.Y_SPECIAL = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
++		self.W_SPECIAL = self.W_INFO_PANE
++		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
++
++		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
++		self.Y_HISTORY = self.Y_SPECIAL
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.X_HISTORY
+-		self.Y_HISTORY = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
+-		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
++		self.H_HISTORY = self.H_SPECIAL
++
++		self.I_TERRAIN_PEAK = getInfoTypeOrFail("TERRAIN_PEAK", gc)
++		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL", gc)
++		self.I_TERRAIN_COAST = getInfoTypeOrFail("TERRAIN_COAST", gc)
++		self.I_TERRAIN_OCEAN = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
++
++		self.I_PROMOTION_HILLS_MASTER1 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER1", gc)
++		self.I_PROMOTION_HILLS_MASTER2 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER2", gc)
++		self.I_PROMOTION_HILLS_MASTER3 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER3", gc)
++		self.I_PROMOTION_NAVIGATOR = getInfoTypeOrFail("PROMOTION_NAVIGATOR", gc)
+ 
+ 
+ 
+@@ -89,13 +104,14 @@ class SevoPediaTerrain:
+ 		self.iTerrain = iTerrain
+ 
+ 		self.placeInfo()
+-		self.placeSpecial()
++		self.placeBuildUnits()
+ 		self.placeFeatures()
+ 		self.placeImprovements()
+ 		self.placeBonusesWithNoFeature()
+ 		self.placeBonusesOnlyWithFeature()
+ 		self.placeRelevantUnits()
+ 		self.placeUnitsImpassable()
++		self.placeSpecial()
+ 		self.placeHistory()
+ 
+ 
+@@ -117,18 +133,14 @@ class SevoPediaTerrain:
+ 
+ 		# <!-- custom: add missing txt key "Terrain" not in RFC DOC mod (didn't recheck but i assume it was as such seeing it is as of now hardcoded), instead of hardcoded one, now moved to its own txt key -->
+ 		# <!-- custom: also display some terrains as plot types / terrains, see xml txt key code comment for details. -->
+-		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+-		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+-		iOcean = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
+-
+-		if self.iTerrain == iPeak or self.iTerrain == iHill or self.iTerrain == iOcean:
++		if self.iTerrain == self.I_TERRAIN_PEAK or self.iTerrain == self.I_TERRAIN_HILL or self.iTerrain == self.I_TERRAIN_OCEAN:
+ 			txtKeyTerrainPlotTypeLabel = "TXT_KEY_PEDIA_PLOT_TYPE_TERRAIN_CUSTOM"
+ 		else:
+ 			txtKeyTerrainPlotTypeLabel = "TXT_KEY_PEDIA_TERRAIN_CUSTOM"
+ 
+ 		screen.appendListBoxString(panel, localText.getText(txtKeyTerrainPlotTypeLabel, ()), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+-		if self.iTerrain == iHill:
++		if self.iTerrain == self.I_TERRAIN_HILL:
+ 			szStats = (u"%d%c  " % (-1, gc.getYieldInfo(YieldTypes.YIELD_FOOD).getChar()))
+ 			szStats += (u"+%d%c  " % (1, gc.getYieldInfo(YieldTypes.YIELD_PRODUCTION).getChar()))
+ 		else:
+@@ -142,6 +154,57 @@ class SevoPediaTerrain:
+ 
+ 
+ 
++	def placeBuildUnits(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		iActivePlayer = gc.getGame().getActivePlayer()
++
++		improvementBuilds = []
++
++		for iBuild in xrange(gc.getNumBuildInfos()):
++			buildInfo = gc.getBuildInfo(iBuild)
++			iImprovement = buildInfo.getImprovement()
++			if iImprovement != -1:
++				improvementInfo = gc.getImprovementInfo(iImprovement)
++				if improvementInfo.isGoody():
++					continue
++				if improvementInfo.getTerrainMakesValid(self.iTerrain):
++					improvementBuilds.append(iBuild)
++
++		if len(improvementBuilds) == 0:
++			return
++
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_UNITS_ANY_BUILD", ()), "", False, True, self.X_BUILD_UNITS, self.Y_BUILD_UNITS, self.W_BUILD_UNITS, self.H_BUILD_UNITS, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++
++		bUnitFound = False
++		for iUnit in xrange(gc.getNumUnitInfos()):
++			unitInfo = gc.getUnitInfo(iUnit)
++			if unitInfo.isGraphicalOnly():
++				continue
++
++			bCanBuild = False
++			for iBuild in improvementBuilds:
++				if unitInfo.getBuilds(iBuild):
++					bCanBuild = True
++					break
++
++			if bCanBuild:
++				szButton = unitInfo.getButton()
++				if iActivePlayer >= 0:
++					szButton = gc.getPlayer(iActivePlayer).getUnitButton(iUnit)
++				screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
++				bUnitFound = True
++
++		if not bUnitFound:
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = self.Y_BUILD_UNITS + (self.H_BUILD_UNITS / 2)
++			screen.addMultilineText(textName, szText, self.X_BUILD_UNITS + 7, yPanelCenter, self.W_BUILD_UNITS - 14, self.H_BUILD_UNITS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++
+ 	def placeSpecial(self):
+ 		xPanel = self.X_SPECIAL
+ 		yPanel = self.Y_SPECIAL
+@@ -153,13 +216,10 @@ class SevoPediaTerrain:
+ 		text = self.top.getNextWidgetName()
+ 		info = gc.getTerrainInfo(self.iTerrain)
+ 
+-		screen.addPanel(panel, "", "", True, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+-
+-		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+-		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
++		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+ 		# <!-- custom: the entry seems garbage or info about terrain_peak perhaps? But/so leaving it as rfc doc mod did just with minor refactor of iHill above as of now; the peak info is also incomplete, not mentioning for example the impassable info so also not displaying it for peak in doing so-->
+-		if self.iTerrain == iPeak or self.iTerrain == iHill:
++		if self.iTerrain == self.I_TERRAIN_PEAK or self.iTerrain == self.I_TERRAIN_HILL:
+ 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE_WITH_EXPLANATION"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoDisplay, ())
+@@ -172,7 +232,7 @@ class SevoPediaTerrain:
+ 			szText = info.getHelp()
+ 			szText += CyGameTextMgr().getTerrainHelp(self.iTerrain, True)
+ 			szText = szText.replace("\n\n", "\n").strip()
+-			screen.addMultilineText(text, szText, self.X_SPECIAL + 5, self.Y_SPECIAL + 10, self.W_SPECIAL - 10, self.H_SPECIAL - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.addMultilineText(text, szText, self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 
+@@ -189,10 +249,7 @@ class SevoPediaTerrain:
+ 		screen.attachLabel(panel, "", "  ")
+ 
+ 		# <!-- custom: not sure we have a reason to as display is currently empty, but just in case or for consistency, also exclude from display here -->
+-		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+-		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+-
+-		if self.iTerrain == iPeak or self.iTerrain == iHill:
++		if self.iTerrain == self.I_TERRAIN_PEAK or self.iTerrain == self.I_TERRAIN_HILL:
+ 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoDisplay, ())
+@@ -223,9 +280,7 @@ class SevoPediaTerrain:
+ 		screen.attachLabel(panel, "", "  ")
+ 
+ 		# <!-- custom: add a logic that excludes hills from this as output is unreliable, see below code comment as of now, as for peak exclude it as well as it shouldn't have improvements at least as of now -->
+-		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+-		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+-		if self.iTerrain == iPeak or self.iTerrain == iHill:
++		if self.iTerrain == self.I_TERRAIN_PEAK or self.iTerrain == self.I_TERRAIN_HILL:
+ 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoDisplay, ())
+@@ -237,7 +292,7 @@ class SevoPediaTerrain:
+ 				ImprovementInfo = gc.getImprovementInfo(iImprovement)
+ 				if ImprovementInfo.isGoody():
+ 					continue
+-				elif ImprovementInfo.getTerrainMakesValid(self.iTerrain):
++				elif ImprovementInfo.getTerrainMakesValid(self.iTerrain) or (ImprovementInfo.isWater() and (self.iTerrain == self.I_TERRAIN_COAST or self.iTerrain == self.I_TERRAIN_OCEAN)):
+ 					screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
+ 				# <!-- custom: the output is not reliable for hills improvements (missing forts, also cottages are conditionally dependent on terrain having enough food according to https://civilization.fandom.com/wiki/Hill_(Civ4), missing forest preserve too dependent on forest or jungle according to this link as well, so disabling the display entirely rather)
+ 				# elif self.iTerrain == iHill and ImprovementInfo.isHillsMakesValid():
+@@ -255,19 +310,17 @@ class SevoPediaTerrain:
+ 		panel = self.top.getNextWidgetName()
+ 
+ 		# <!-- custom: refactor/tweak/change to test for the existence of terrain_hill 's id explicitly else raise an error not silently pass as is also done in several other parts of the sevopedia reworked/refactored code, and or such other tweaks to rfc doc mod's code for peak -->
+-		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+-		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+ 		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_WITH_NO_FEATURE"
+-		if self.iTerrain == iPeak:
++		if self.iTerrain == self.I_TERRAIN_PEAK:
+ 			txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_NOT_APPLICABLE_FOR_THIS_PLOT_TYPE"
+-		elif self.iTerrain == iHill:
++		elif self.iTerrain == self.I_TERRAIN_HILL:
+ 			txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_HILL"
+ 
+ 		screen.addPanel(panel, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panel, "", "  ")
+ 
+ 		# <!-- custom: not applicable for this plot type / terrain, so show an alternative text instead -->
+-		if self.iTerrain == iPeak:
++		if self.iTerrain == self.I_TERRAIN_PEAK:
+ 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoDisplay, ())
+@@ -280,7 +333,7 @@ class SevoPediaTerrain:
+ 				if bonusInfo.isGraphicalOnly():
+ 					continue
+ 				# <!-- custom: minor refactor fromr rfc doc mod since output seems to be the same, check for both all terrains and then specifically for hill (with the more general check first so it is executed faster even if a micro bit in this case (but still! If i may say too (reference to baten kaitos's kalas line...))) -->
+-				elif (bonusInfo.isTerrain(self.iTerrain)) or (self.iTerrain == iHill and bonusInfo.isHills()):
++				elif (bonusInfo.isTerrain(self.iTerrain)) or (self.iTerrain == self.I_TERRAIN_HILL and bonusInfo.isHills()):
+ 					screen.attachImageButton(panel, "", bonusInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
+ 
+ 
+@@ -295,16 +348,14 @@ class SevoPediaTerrain:
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+ 
+-		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+-		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+ 		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_FEATURE_TERRAIN_BOOLEANS"
+-		if self.iTerrain == iHill or self.iTerrain == iPeak:
++		if self.iTerrain == self.I_TERRAIN_HILL or self.iTerrain == self.I_TERRAIN_PEAK:
+ 			txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_BONUSES_NOT_APPLICABLE_FOR_THIS_PLOT_TYPE"
+ 
+ 		screen.addPanel(panel, localText.getText(txtKeyPanel, ()), "", False, True, xPanel, yPanel, wPanel, hPanel, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panel, "", "  ")
+ 
+-		if self.iTerrain == iHill or self.iTerrain == iPeak:
++		if self.iTerrain == self.I_TERRAIN_HILL or self.iTerrain == self.I_TERRAIN_PEAK:
+ 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
+ 			textName = self.top.getNextWidgetName()
+ 			szText = localText.getText(txtKeyNoDisplay, ())
+@@ -360,13 +411,9 @@ class SevoPediaTerrain:
+ 		# <!-- custom: buttonCalculate --> =1 in your case (auto-fit); <!-- custom: so we calculate --> column layout manually
+ 		maxButtonsPerRow = get_multilist_max_buttons_per_row(multiListW, BUTTON_SIZE)
+ 
++		iPeak = self.I_TERRAIN_PEAK
+ 		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or think this is more informative -->
+-		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+ 		# <!-- custom: terrain_hill uses its own kind of modifier, plus also i'd want to show guerilla promotion as well, so handle its display separately -->
+-		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+-		iCoast = getInfoTypeOrFail("TERRAIN_COAST", gc)
+-		iOcean = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
+-
+ 		if self.iTerrain == iPeak:
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				unitInfo = gc.getUnitInfo(iUnit)
+@@ -403,12 +450,8 @@ class SevoPediaTerrain:
+ 						#isButtonFound = True
+ 						iButtonIndex += 1
+ 
+-		elif self.iTerrain == iHill:
++		elif self.iTerrain == self.I_TERRAIN_HILL:
+ 			# <!-- custom: raise an error if asset does not exist (in advciv-sas we have renamed PROMOTION_GUERILLA1 to PROMOTION_HILLS_MASTER1 and such) -->
+-			iPromotionHillsMaster1 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER1", gc)
+-			iPromotionHillsMaster2 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER2", gc)
+-			iPromotionHillsMaster3 = getInfoTypeOrFail("PROMOTION_HILLS_MASTER3", gc)
+-
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				unitInfo = gc.getUnitInfo(iUnit)
+ 
+@@ -418,9 +461,9 @@ class SevoPediaTerrain:
+ 				iHillsAttack = unitInfo.getHillsAttackModifier()
+ 				iHillsDefense = unitInfo.getHillsDefenseModifier()
+ 
+-				isHasHM1 = unitInfo.getFreePromotions(iPromotionHillsMaster1)
+-				isHasHM2 = unitInfo.getFreePromotions(iPromotionHillsMaster2)
+-				isHasHM3 = unitInfo.getFreePromotions(iPromotionHillsMaster3)
++				isHasHM1 = unitInfo.getFreePromotions(self.I_PROMOTION_HILLS_MASTER1)
++				isHasHM2 = unitInfo.getFreePromotions(self.I_PROMOTION_HILLS_MASTER2)
++				isHasHM3 = unitInfo.getFreePromotions(self.I_PROMOTION_HILLS_MASTER3)
+ 
+ 				if ((iHillsAttack != 0) or (iHillsDefense != 0) or isHasHM1 or isHasHM2 or isHasHM3):
+ 					# Column index (always 0 when numLists=1)
+@@ -453,10 +496,8 @@ class SevoPediaTerrain:
+ 					#isButtonFound = True
+ 					iButtonIndex += 1
+ 
+-		elif self.iTerrain == iCoast or self.iTerrain == iOcean:
++		elif self.iTerrain == self.I_TERRAIN_COAST or self.iTerrain == self.I_TERRAIN_OCEAN:
+ 			# <!-- custom: raise an error if asset does not exist (in advciv-sas we have renamed PROMOTION_GUERILLA1 to PROMOTION_HILLS_MASTER1 and such) -->
+-			iPromotionNavigator = getInfoTypeOrFail("PROMOTION_NAVIGATOR", gc)
+-
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				unitInfo = gc.getUnitInfo(iUnit)
+ 
+@@ -466,7 +507,7 @@ class SevoPediaTerrain:
+ 				iTerrainAttack = unitInfo.getTerrainAttackModifier(self.iTerrain)
+ 				iTerrainDefense = unitInfo.getTerrainDefenseModifier(self.iTerrain)
+ 
+-				isHasN = unitInfo.getFreePromotions(iPromotionNavigator)
++				isHasN = unitInfo.getFreePromotions(self.I_PROMOTION_NAVIGATOR)
+ 
+ 				if (unitInfo.isCanMoveAllTerrain() or ((unitInfo.getDomainType() == DomainTypes.DOMAIN_SEA) and (not unitInfo.getTerrainImpassable(self.iTerrain)) and (unitInfo.getTerrainPassableTech(self.iTerrain) == -1)) or (iTerrainAttack != 0) or (iTerrainDefense != 0) or isHasN):
+ 					columnIndex = 0
+@@ -516,9 +557,7 @@ class SevoPediaTerrain:
+ 
+ 		txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE"
+ 
+-		iPeak = getInfoTypeOrFail("TERRAIN_PEAK", gc)
+-
+-		if self.iTerrain == iPeak:
++		if self.iTerrain == self.I_TERRAIN_PEAK:
+ 			txtKeyPanel = "TXT_KEY_PEDIA_TERRAIN_UNITS_IMPASSABLE_PEAK"
+ 
+ 		screen = self.top.getScreen()
+@@ -543,9 +582,7 @@ class SevoPediaTerrain:
+ 		buttonCalculate = 1
+ 		screen.addMultiListControlGFC(rowListName, "", multiListX, multiListY, multiListW, multiListH, buttonCalculate, BUTTON_SIZE, BUTTON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
+ 
+-		iCoast = getInfoTypeOrFail("TERRAIN_COAST", gc)
+-		iOcean = getInfoTypeOrFail("TERRAIN_OCEAN", gc)
+-
++		iPeak = self.I_TERRAIN_PEAK
+ 		# <!-- custom: for peak we display units that can walk on the tile rather than those that have modifier, i find this or think this is more informative -->
+ 		if self.iTerrain == iPeak:
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+@@ -574,7 +611,7 @@ class SevoPediaTerrain:
+ 					columnIndex = 0
+ 					screen.appendMultiListButton(rowListName, unitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+-		elif self.iTerrain == iCoast or self.iTerrain == iOcean:
++		elif self.iTerrain == self.I_TERRAIN_COAST or self.iTerrain == self.I_TERRAIN_OCEAN:
+ 			for iUnit in xrange(gc.getNumUnitInfos()):
+ 				unitInfo = gc.getUnitInfo(iUnit)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 20da016f0..7eb7a2688 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -37,6 +37,7 @@ class SevoPediaUnit:
+ 	def __init__(self, main):
+ 		self.iUnit = -1
+ 		self.top = main
++		self.I_TERRAIN_HILL = getInfoTypeOrFail("TERRAIN_HILL", gc)
+ 
+ 		self.MEDIUM_MARGIN = 15
+ 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+@@ -686,7 +687,7 @@ class SevoPediaUnit:
+ 		# <!-- custom: include negative values as well and after having asked chatgpt to be sure or quite more sure -->
+ 		if iHillsAttack != 0 or iHillsDefense != 0:
+ 			widgetType = WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN
+-			iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
++			iHill = self.I_TERRAIN_HILL
+ 			widgetID2 = -1
+ 
+ 			# Column index (always 0 when numLists=1)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+index 46660ac98..f34ebd4bb 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnitChart.py
+@@ -25,6 +25,8 @@ class SevoPediaUnitChart:
+ 	def __init__(self, main):
+ 		self.iGroup = -1
+ 		self.top = main
++		self.I_UNITCOMBAT_AIR_BOMBER = getInfoTypeOrFail("UNITCOMBAT_AIR_BOMBER", gc)
++		self.I_UNITCOMBAT_AIR_FIGHTER = getInfoTypeOrFail("UNITCOMBAT_AIR_FIGHTER", gc)
+ 
+ 		self.X_TABLE = self.top.X_PEDIA_PAGE
+ 		self.Y_TABLE = self.top.Y_PEDIA_PAGE
+@@ -55,7 +57,7 @@ class SevoPediaUnitChart:
+ 		screen = self.top.getScreen()
+ 		table = self.top.getNextWidgetName()
+ 
+-		isAirCombatType = (self.iGroup == getInfoTypeOrFail("UNITCOMBAT_AIR_BOMBER", gc) or self.iGroup == getInfoTypeOrFail("UNITCOMBAT_AIR_FIGHTER", gc))
++		isAirCombatType = (self.iGroup == self.I_UNITCOMBAT_AIR_BOMBER or self.iGroup == self.I_UNITCOMBAT_AIR_FIGHTER)
+ 
+ 		if not isAirCombatType:
+ 			self.N_COLUMNS = 8
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 5100af077..e99eea2d3 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -19,7 +19,8 @@ HYPOTHESIZED_MULTI_LIST_EDGE_PADDING = 9
+ HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING = 2
+ # <!-- custom: note: below line not yet tested. -->
+ HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
+-
++# <!-- custom: when displaying only one row, adjust height to hide the 2nd row's buttons so it is prettier/clearer to read -->
++HIDE_SECOND_ROW_MULTI_LIST = - 4
+ 
+ 
+ def get_leaders_index_to_type_map(gc):
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index e6b761c08..09a43dbd8 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -876,7 +876,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_REPLACE_UNIT</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: if no good candidate, attempt to hijack the unitai rather, so for example instead of having a longbowman with unitai_city_defense, we'd have a longbowman with unitai_counter or whatever else it supports that is less defensive, in the hope these roaming units would help attack someone especially if we have many of them, and hopefulyl capture a city, lose some units so our economy improves, rather than waiting to die with too many longbows (or if not too many buildings or whatever else AI would otherwise do), used to help a lot tested ingame, but it seems not effective as of now (not sure if i refactored it wrong or something else might(?) have changed or not), or maybe it's an edge case i saw, i recommend keeping it enabled -->
++	<!-- custom: if no good candidate, attempt to hijack the unitai rather, so for example instead of having a longbowman with unitai_city_defense, we'd have a longbowman with unitai_counter or whatever else it supports that is less defensive, in the hope these roaming units would help attack someone especially if we have many of them, and hopefully capture a city, lose some units so our economy improves, rather than waiting to die with too many longbows (or if not too many buildings or whatever else AI would otherwise do), used to help a lot tested ingame, but it seems not effective as of now (not sure if i refactored it wrong or something else might(?) have changed or not), or maybe it's an edge case i saw, i recommend keeping it enabled -->
+ 	<Define>
+ 		<DefineName>SAS_AI_CHOOSE_UNIT_NO_EXCESS_STRICT_DEFENDERS_UNITAIS_ATTEMPT_HIJACK_UNITAI</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+index 6524baf0e..acc211143 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+@@ -12,7 +12,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
+-	<!-- custom: rename "BtS Rules Changes" to "0_BtS Rules Changes (Outdated)", really important to not confuse the user/player about how this data is unrelated to us, but they may still want to access it, espcially if they are in knowledge of that/aware of that, as they prefer maybe or not etc but etc anyways" -->
++	<!-- custom: rename "BtS Rules Changes" to "0_BtS Rules Changes (Outdated)" -->
+ 	<!-- advc.002b: Shortening "Beyond the Sword" to "BtS" so that the page
+ 		 names can be displayed despite the increased font size.
+ 		 Originally in CIV4GameText_BTS.xml and CIV4GameText_Objects_BTS.xml. -->
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+index 465c4b81f..a58a6f24d 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+@@ -33,6 +33,14 @@ Assets\XML\Text\CIV4GameText_advc_pedia_Lengthy_Custom.xml -->
+ 		<Tag>TXT_KEY_PEDIA_NO_TECH_PREREQUISITE</Tag>
+ 		<English>No Tech Prerequisite</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_FEATURE_BUILD_REMOVE</Tag>
++		<English>Remove</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_UNITS_ANY_BUILD</Tag>
++		<English>Units (Any Build)</English>
++	</TEXT>
+ 	<!-- custom: shared Sevopedia no-button-found strings for None/Never/Nothing/Always (GPT-5.2-Codex) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE</Tag>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e853f8721..ace168d51 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4726,7 +4726,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 		static int  s_aiNumCitiesHighM100[MAX_PLAYERS];
+ 
+ 		// <!-- custom: always pick these first if in this specific case especially relevant-->
+-		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, eveyrthing else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure) -->
++		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, everything else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure) -->
+ 		// Good news / bad news: your dump is actually screaming “integer blow-up → bogus index” rather than a bad pointer to game data.
+ 		// Why I’m confident:
+ 		// - EIP is inside CvGameCoreDLL at +0x4E043 and WinDbg labels it CvCity::cheat+0x15B3, but the instruction is mov eax, [ebp+eax*4]. That pattern is classic for indexing a small local jump/lookup table with eax. Your eax is 0x618063D8 (!), so the index is astronomically out of range → AV.
+@@ -14641,7 +14641,7 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 
+ 		const bool bHuman = kOwner.isHuman();
+ 
+-		// <!-- custom: code provided with the help of gemini ai and then chatgpt thanks, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, espcially crippling in the early game i think. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable. Originally this code returned 1 as gemini ai did and had suggested in code comment below, but then as per chatgpt 5's review now released hehe with available code samples, and while adding the strict population limit to address AI cities wrongly assigning inefficiently/too early sometimes specialists and then stagnating (see below for details) or such similar or relatded issue, use a lower value to be safe and better cover edge cases, unlike what is written below from gemini ai, kept for exhaustiveness and just in case -->
++		// <!-- custom: code provided with the help of gemini ai and then chatgpt thanks, to prevent AI from choosing the citizen specialist, which is generally if not almost always a bad or inefficient choice, especially crippling in the early game i think. As gemini AI did, it is also more efficient computationally to early return at beginning of function rather than do all computation just to return an int without any computation.  Early return and drastic disallowing is more efficient computationally and strategically, i can barely see cases where the citizen specialist would be valuable. Originally this code returned 1 as gemini ai did and had suggested in code comment below, but then as per chatgpt 5's review now released hehe with available code samples, and while adding the strict population limit to address AI cities wrongly assigning inefficiently/too early sometimes specialists and then stagnating (see below for details) or such similar or relatded issue, use a lower value to be safe and better cover edge cases, unlike what is written below from gemini ai, kept for exhaustiveness and just in case -->
+ 		// <!-- custom: it seems we deleted the no citizen logic or it is missing here for some reason, adding it again as recommended by chatgpt 5.1; i adjusted its code by removing some extra other stuff -->
+         // -----------------------------------------------------------------
+         // 0) Citizen guard – only as LAST RESORT
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 08079dcce..8f610f3f8 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -175,7 +175,7 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 
+ ===== .\Assets\XML\Buildings\CIV4SpecialBuildingInfos.xml =====
+ ----- Comment #16 -----
+-<!-- custom: reworked monasteries, also for better or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed); also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for better or worse (i am not a fan too but society (perhaps societies) function as such so there must be a reason or reasons i mean in this case), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage in terms of gameplay and modding as well at least for me maybe for others or not or yes or other, was TECH_SCIENTIFIC_METHOD (now removed) -->
++<!-- custom: reworked monasteries, also for better or worse religion is still relevant in modern era (i am not a big fan of it but each do as they please maybe as long as they don't harm or maybe too ideally not annoy me as well..., even though it is for me to handle, at least don't act in an actively harmful way to me maybe if i may say maybe indeed); also remove scientific effect which doesn't make sense for a religious building, in fact it should be the opposite effect, religion makes dumber and further away from science for better or worse (i am not a fan too but society (perhaps societies) function as such so there must be a reason or reasons i mean in this case), so no reason to obsolete this building anymore which is easier to handle/follow/grasp/manage in terms of gameplay and modding as well, was TECH_SCIENTIFIC_METHOD (now removed) -->
+ 
+ ===== .\Assets\XML\Civilizations\CIV4CivilizationInfos.xml =====
+ ----- Comment #17 -----
+@@ -283,7 +283,7 @@ And i didn't want to recompile so i asked it as such too, and it confirmed i mea
+ 
+ ===== .\Assets\XML\GameInfo\CIV4HurryInfo.xml =====
+ ----- Comment #21 -----
+-<!-- custom: currently, even in emperor in base advciv from my experience, it seems that slaving provides no benefits almost to the point it is easier to not slave at all and gain long term benefits of increased population and no anger, (but) the immediate cost of losing population and having anger should give more, equal rewards ideally, to the advantage of keeping yours or the player's, so increasing to 26, may increase it further. As for the association with the granary that is hinted or highlighted in base advciv docs or code comments making it a too strong combo slavery + granary, i feel/think the problem is on the granary rather, slavery itself is costly and should be quite strong, it also would help AIs that choose to slave for a short term strategy not fall behind on their costly gamble (idk if the aztecs do for example, but they'd need if they do a proper strategy framework where it's worth to do so more than to not slave at all), it is also a bit too comfortable, even though more pleasant for sure at least for/to me, to not slave and have a peaceful game. But to not make it too tedious or painful for me at least if not for others or not, increasing it, as i had intended despite that consideration to 26 (i thought 25 first but after all the cost of slaving is quite high and should give more benefits). In exchange, the granary is nerfed, which may also align/gives quite well/with the benefits//goals of having a more gradual game experience as in in terms of game pace, i also believe it is fairer this way, and in fact it is the granary that is a bit too strong for an early building, so nerfing the granary rather and reducing its cost, while keeping civ-specific versions of the granary stronger, so the incans for example may have more of a growth advantage with their civ-specific building (qullqa if still the same (building) in our advciv-sas mod stays same in advciv-sas), this may be adjusted further, but it was my experience in base advciv at emperor and mostly monarch difficulty; update: increasing it from 26 to 27 as with the recent military changes favouring mostly AIs due to many new unit upgrades and sooner ones too, there needs to be more strategic options to match and compete with these, 26 is probably not enough for that as 24 was way too low, so increase a bit more to 27; it's also maybe a nice middle ground between base advciv and BTS settings too, even though i would not mind to increase more or reduce it, was 24 -->
++<!-- custom: currently, even in emperor in base advciv from my experience, it seems that slaving provides no benefits almost to the point it is easier to not slave at all and gain long term benefits of increased population and no anger, (but) the immediate cost of losing population and having anger should give more, equal rewards ideally, to the advantage of keeping yours or the player's, so increasing to 26, may increase it further. As for the association with the granary that is hinted or highlighted in base advciv docs or code comments making it a too strong combo slavery + granary, i feel/think the problem is on the granary rather, slavery itself is costly and should be quite strong, it also would help AIs that choose to slave for a short term strategy not fall behind on their costly gamble (idk if the aztecs do for example, but they'd need if they do a proper strategy framework where it's worth to do so more than to not slave at all), it is also a bit too comfortable, even though more pleasant for sure at least for/to me, to not slave and have a peaceful game. But to not make it too tedious or painful, increasing it, as i had intended despite that consideration to 26 (i thought 25 first but after all the cost of slaving is quite high and should give more benefits). In exchange, the granary is nerfed, which may also align/gives quite well/with the benefits//goals of having a more gradual game experience as in in terms of game pace, i also believe it is fairer this way, and in fact it is the granary that is a bit too strong for an early building, so nerfing the granary rather and reducing its cost, while keeping civ-specific versions of the granary stronger, so the incans for example may have more of a growth advantage with their civ-specific building (qullqa if still the same (building) in our advciv-sas mod stays same in advciv-sas), this may be adjusted further, but it was my experience in base advciv at emperor and mostly monarch difficulty; update: increasing it from 26 to 27 as with the recent military changes favouring mostly AIs due to many new unit upgrades and sooner ones too, there needs to be more strategic options to match and compete with these, 26 is probably not enough for that as 24 was way too low, so increase a bit more to 27; it's also maybe a nice middle ground between base advciv and BTS settings too, even though i would not mind to increase more or reduce it, was 24 -->
+ 
+ ===== .\Assets\XML\GameInfo\CIV4ProcessInfo.xml =====
+ ----- Comment #22 -----
+
+diff --git a/README.md b/README.md
+index ee6803b53..961d233d8 100644
+--- a/README.md
++++ b/README.md
+@@ -16,6 +16,8 @@ AdvCiv-SAS is now generally stable, but if issues were to arise such as bugs or
+ 
+ Also most importantly AIs like ChatGPT, Claude AI, Gemini AI, Deepseek AI, Grok AI, have helped me a lot to do this, and i probably would not have completed (or extremely harder) without them and all i mean so thanks again and thanks a lot!
+ 
++For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
++
+ ## Menu
+ 
+ [Tech Tree](/README.md#tech-tree)  
+@@ -618,9 +620,7 @@ See [Some Useful tools while doing this](/_1_AdvCiv-SAS/Docs/README_References.m
+ 
+ Written by chatgpt and adjusted bit by me wonderingabout.
+ 
+-This mod is free to use, modify, and share.
+-
+-While i cannot enforce it, i strongly appreciate that if you reuse part of our work, you'd credit us. Example:
++You can reuse our work in your projects, but we ask that you credit us. Example:
+ 
+ ```txt
+ the AdvCiv-SAS mod by wonderingabout and AI helpers
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+index 9fa59d48f..ba8a6ea2d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+@@ -167,7 +167,7 @@ Currently, again as of me now writing this doc, there are a few attirbutes missi
+ 
+ - Attitude changes +/- limits +/- divisors aggregation (may aggregate them too for easier read), or move some of them in (other categories (like "core personality, etc))
+ - improvements (would be nice if i could (we? with chatgpt)) also display leader preferences for which improvements (such values exist in xml), for example some leaders prefer mines, others farms etc, with their scale and before that normalized score too (plus raw value in label too ideally) would be even nicer, but there are many improvements, wouuld need to find a way to comapct the view, perhaps only showing values > 0.
+-- unitais (which ai leaders build for example more ai settle units, or more ai sea explore units for example if i'm not mistaken, etc.) with scales and normalized score(s) (before that) and ranking (as thus if that is a word/expression anyways) would be very nice too, perhaps in a compact way like for improvements, especially if some room is freed somewhere in the panel (or writing under the panel xd.. works too maybe indeed, but etc anyways...)
++- unitais (which ai leaders build for example more ai settle units, or more ai sea explore units for example if i'm not mistaken, etc.) with scales and normalized score(s) (before that) and ranking (as thus if that is a word/expression anyways) would be very nice too, perhaps in a compact way like for improvements, especially if some room is freed somewhere in the panel (or writing under the panel xd.. works too maybe indeed)
+ 
+ ## Note about the value of 0 not always being 0, and a value > 0 sometimes being 0
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_References.md b/_1_AdvCiv-SAS/Docs/README_References.md
+index 29c22a4db..486438b0a 100644
+--- a/_1_AdvCiv-SAS/Docs/README_References.md
++++ b/_1_AdvCiv-SAS/Docs/README_References.md
+@@ -31,7 +31,7 @@ For mods we took from, i mention them in more detail, hopefully exhaustive but i
+ - `LEADER_ALEXANDER`: The Companions (Ancient Macedon Battle Music - Alexander the Great) (Composed by Tyler Cunningham) ([youtube link of it for example](https://www.youtube.com/watch?v=qw8OqQUkRB0)), seems safe to use according to a youtube comment by the author seemingly, thanks a lot
+ - `LEADER_BOUDICA`: Epic Celtic/Scottish  War Drums - The Highland Warriors © Copyright: Music composed by Paul Daniel (Pawl.D Beats) [youtube link of it for example](https://www.youtube.com/watch?v=kenexJF5sSc), seems safe too based on their website, it is up to me to notify them of such use according to website though (which i did), but should be mostly safe otherwise thankfully/hopefully, thanks
+ - `LEADER_CYRUS`: Persian Battle (Royalty Free Music) (Composed by Ivan Duch (check to be sure)) ([youtube link from Ivan Duch's channel (check to be sure)](https://www.youtube.com/watch?v=KibCABcsAy0)), seems safe as is royalty-free or so it seems (i.e. ) but check to be sure
+-- `LEADER_EWUARE`: African Tribal Music (BackgroundMusicForVideos) - Music by [Maksym Malko](https://pixabay.com/users/backgroundmusicforvideos-46459014/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=342635) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=342635), i personally also found it by searching it again since not easy to find via main link of credit above but try it first too maybe as is official one i mean from their website of the credits, here if helps as well although is not the formal credit link in their website else tell me to remove it but if fine here it is i mean in [pixabay's website - link where it can be found too](https://pixabay.com/music/world-african-tribal-music-342635/)
++- `LEADER_EWUARE`: African Tribal Music (BackgroundMusicForVideos) - Music by [Maksym Malko](https://pixabay.com/users/backgroundmusicforvideos-46459014/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=342635) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=342635), here if helps as well although is not the formal credit link in their website else tell me to remove it but if fine here it is i mean in [pixabay's website - link where it can be found too](https://pixabay.com/music/world-african-tribal-music-342635/)
+ - `LEADER_GENGHIS_KHAN`: Original track [Tömörbaatar, the Iron Hero] by Kaiji [youtube link seemingly from creator too](https://www.youtube.com/watch?v=6mErFCHsi1g), seems royalty-free too and according to chatgpt's answer to my prompt about it, thanks
+ - `LEADER_JULIUS_CAESAR`: Epic Roman Music – Battle March (~ Music by Derek Fiechter ~) [youtube link of it for example](https://www.youtube.com/watch?v=EW8fI6N6szs), should be safe if i'm not mistaken as well as it seems to come from same author than what we reviewed as of now for LEADER_BOUDICA too, thanks,
+ - `LEADER_MEHMED`: Old Ottoman turkish Music - Şehnaz Longa - Composer Santuri Ethem Efendi *1855 (start at 0:03.000) [youtube link of it for example](https://www.youtube.com/watch?v=7MN4DN06xc8), seems copyright safe according to chatgpt as well (it said to be exhaustive or bit more"Composition: Definitely public domain (composer died over 140 years ago)." and then right after it reformatted to fit in this sentence"Recording: Likely non-commercial and personal uploads, with no rights enforcement to date. Unknown exact performer or recording date/release, so slight unknowns persist—but no red flags.")
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 53f4dcf23..d1e9f80d3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -183,6 +183,8 @@ Note: ice feature (named "ice cap" feature as of now in advciv-sas) which is imp
+ 
+ Also added Land/Water grouping similarly than for sevopedia terrain entries, and then i also got the idea to subdivide Land entries into as of now Land (Removable) and Land (Other), reads much clearer like how as of now Land (Growth) was for cottages and such i mean if i may say but anyways, done with the help of chatgpt 5.2 thanks.
+ 
++Since then, also added a new Remove as well as a new Units (Any Build) panel with the help of GPT-5.2-Codex thanks a lot :) Hellow fellow AIs btw, although i'm human xd but why not. Thanks for help in designing this :)
++
+ <img src="../Images/sevopedia/0.640_sevopedia_features (1).JPG" alt="0.640_sevopedia_features (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.640_sevopedia_features (2).JPG" alt="0.640_sevopedia_features (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.640_sevopedia_features (3).JPG" alt="0.640_sevopedia_features (3).JPG" width="250"></img>
+@@ -292,7 +294,9 @@ This code uses our latest as of now refactor that uses the multilist code as was
+ 
+ Also more recently added as wellthe featureterrainbooleans (see [README_Sevopedia_Reworks.md#example-4-bonuses-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-4-bonuses-category) for details) additionally to what was in rfc doc mod's code/logic, as a separate with clarified explicitly headers now in advciv-sas if may say but their code helped lot too especially at the time xd thanks.
+ 
+-Update: i have recently found with the help of chatgpt 5.2 that these `TERRAIN_HILL` and `TERRAIN_PEAK` already existed, but they were hidden in Base AdvCiv in `getSortedList` in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). Some info about them is incorrect like them having the `<bWater>1</bWater>` property (even though it is incorrect; they are not watery, but we don't need to change it, only reveal the entry for our needs, without affecting or bothering how the other entries work fine as they are), but the entry is still useful, so as we did keep it displayed in sevopedia terrain, but now no longer do hardcoded index additions, just unreveal it specifically in sevopedia terrain and handle the grouping as of now in the "Land (High)" subgroup with the help of chatgpt 5.2, the rest remaining the same if i'm not mistaken i mean.
++Update: i have recently found with the help of chatgpt 5.2 that these `TERRAIN_HILL` and `TERRAIN_PEAK` already existed, but they were hidden in Base AdvCiv in `getSortedList` in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py). Some info about them is incorrect like them having the `<bWater>1</bWater>` property (even though it is incorrect; they are not watery, but we don't need to change it, only reveal the entry for our needs, without affecting or bothering how the other entries work fine as they are), but the entry is still useful, so as we did keep it displayed in sevopedia terrain, but now no longer do hardcoded index additions, just unreveal it specifically in sevopedia terrain and handle the grouping as of now in the "Land (High)" subgroup with the help of chatgpt 5.2, the rest remaining the same.
++
++Since then, also added a new Units (Any Build) panel with the help of GPT-5.2-Codex thanks a lot :)
+ 
+ <img src="../Images/sevopedia/0.700_sevopedia_terrains (1).JPG" alt="0.700_sevopedia_terrains (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.700_sevopedia_terrains (2).JPG" alt="0.700_sevopedia_terrains (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (1).JPG
+index f8623cd90..3104fec66 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (2).JPG
+index 993225472..503afbe4b 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (3).JPG
+index f04b1d370..7c9fd1ef8 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.640_sevopedia_features (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (1).JPG
+index ae045074d..ef4c97be9 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (2).JPG
+index 4a219f7c1..267743fde 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (3).JPG
+index 80e00388b..a371c4b0b 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.700_sevopedia_terrains (3).JPG differ
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt reason=known-generated/noisy-history changedLines=96 bytes=49131
+
+[PATCH COVERAGE]
+patchFiles=24 embeddedFiles=23 omittedFiles=1 embeddedPatchBytes=67489

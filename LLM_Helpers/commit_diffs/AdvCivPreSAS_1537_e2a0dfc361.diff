@@ -1,0 +1,252 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1537
+# Commit: e2a0dfc361ed96f137393b0ee06c0c5bd48333c2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f9630f66c1dcc549553de7855f669364394e2323
+# Title: Full-screen Sevopedia completed; can't found cities on Fallout.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	1	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+4	1	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+6	2	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+2	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+12	5	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+15	3	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+4	2	Assets/XML/Terrain/CIV4FeatureInfos.xml
+20	0	Assets/XML/Text/Sevopedia_CIV4GameText.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 17805d410..5923c1a93 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -63,7 +63,16 @@ class SevoPediaBuilding:
+ 		self.X_HISTORY_PANE = self.X_SPECIAL_PANE
+ 		self.W_HISTORY_PANE = self.W_SPECIAL_PANE
+ 		self.Y_HISTORY_PANE = self.Y_SPECIAL_PANE + self.H_SPECIAL_PANE + 10
+-		self.H_HISTORY_PANE = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE
++		#self.H_HISTORY_PANE = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE
++		# <advc.004y> (see SevoPediaUnit.py)
++		self.H_HISTORY_PANE = 190
++		iSpaceLeft = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE - self.H_HISTORY_PANE
++		if iSpaceLeft < 0:
++			self.H_HISTORY_PANE += iSpaceLeft
++		else:
++			self.H_SPECIAL_PANE += iSpaceLeft
++			self.Y_HISTORY_PANE += iSpaceLeft
++		# </advc.004y>
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 4a7da55d9..0e606ef18 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -50,7 +50,10 @@ class SevoPediaCivic:
+ 		self.Y_SPECIAL = self.Y_MAIN_PANE + self.H_MAIN_PANE + 10
+ 		self.W_SPECIAL = self.top.R_PEDIA_PAGE - self.X_SPECIAL
+ 		self.H_SPECIAL = 160
+-
++		# <advc.004y>
++		if self.top.bFullScreen:
++			self.H_SPECIAL += 40
++		# </advc.004y>
+ 		self.X_TEXT = self.X_MAIN_PANE
+ 		self.Y_TEXT = self.Y_SPECIAL + self.H_SPECIAL + 10
+ 		self.W_TEXT = self.top.R_PEDIA_PAGE - self.X_TEXT
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 165811ca9..479ae82f5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -48,7 +48,10 @@ class SevoPediaImprovement:
+ 		self.Y_IMPROVEMENTS_PANE = self.Y_UPPER_PANE + self.H_UPPER_PANE + 10
+ 		self.W_IMPROVEMENTS_PANE = 340
+ 		self.H_IMPROVEMENTS_PANE = 180
+-
++		# <advc.004y>
++		if self.top.bFullScreen:
++			self.H_IMPROVEMENTS_PANE += 45
++		# </advc.004y>
+ 		self.X_REQUIRES = self.X_UPPER_PANE
+ 		self.Y_REQUIRES = self.Y_IMPROVEMENTS_PANE + self.H_IMPROVEMENTS_PANE + 10
+ 		self.W_REQUIRES = self.W_IMPROVEMENTS_PANE
+@@ -85,7 +88,8 @@ class SevoPediaImprovement:
+ 	def placeYield(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ()), "", True, True, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
++		# advc.004y: text key was TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT
++		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_IMPROVEMENT_YIELD", ()), "", True, True, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		listName = self.top.getNextWidgetName()
+ 		screen.attachListBoxGFC( panelName, listName, "", TableStyles.TABLE_STYLE_EMPTY )
+ 		screen.enableSelect(listName, False)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index e8f1eaf07..4f61fb913 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -923,7 +923,8 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		list = []
+ 		for i in range(numInfos):
+ 			item = getInfo(i)
+-			if item:
++			# advc.004y: GraphicalOnly check added
++			if item and not item.isGraphicalOnly():
+ 				list.append((item.getDescription(), i))
+ 		if self.isSortLists() and not noSort:
+ 			list.sort()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 2c158c124..5b296545b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -49,12 +49,22 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.X_QUOTE_PANE = self.X_TECH_PANE
+ 		self.Y_QUOTE_PANE = self.Y_TECH_PANE + self.H_TECH_PANE + 10
+ 		self.W_QUOTE_PANE = self.top.R_PEDIA_PAGE - self.X_QUOTE_PANE
+-		self.H_QUOTE_PANE = 110
++
++		# <advc.004y>
++		# Move some height settings up:
++		self.H_PREREQ_PANE = 124
++		self.H_BUILDING_PANE = self.H_PREREQ_PANE
++		self.H_UNIT_PANE = self.H_PREREQ_PANE
++		#self.H_SPECIAL_PANE = self.top.B_PEDIA_PAGE - self.Y_SPECIAL_PANE
++		# Instead use any extra space for the QUOTE_PANE
++		self.H_SPECIAL_PANE = self.H_BUILDING_PANE + self.H_UNIT_PANE + 10
++		# was 110
++		self.H_QUOTE_PANE = self.top.B_PEDIA_PAGE - self.H_SPECIAL_PANE - self.H_PREREQ_PANE - self.Y_QUOTE_PANE - 20
++		# </advc.004y>
+ 
+ 		self.X_PREREQ_PANE = self.X_TECH_PANE
+ 		self.Y_PREREQ_PANE = self.Y_QUOTE_PANE + self.H_QUOTE_PANE + 10
+ 		self.W_PREREQ_PANE = self.top.W_PEDIA_PAGE / 2 - 5
+-		self.H_PREREQ_PANE = 124
+ 
+ 		self.X_LEADS_TO_PANE = self.X_PREREQ_PANE + self.W_PREREQ_PANE + 10
+ 		self.Y_LEADS_TO_PANE = self.Y_PREREQ_PANE
+@@ -64,17 +74,14 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.X_SPECIAL_PANE = self.X_TECH_PANE
+ 		self.W_SPECIAL_PANE = self.W_PREREQ_PANE
+ 		self.Y_SPECIAL_PANE = self.Y_PREREQ_PANE + self.H_PREREQ_PANE + 10
+-		self.H_SPECIAL_PANE = self.top.B_PEDIA_PAGE - self.Y_SPECIAL_PANE
+ 
+ 		self.X_UNIT_PANE = self.X_LEADS_TO_PANE
+ 		self.W_UNIT_PANE = self.W_LEADS_TO_PANE
+ 		self.Y_UNIT_PANE = self.Y_SPECIAL_PANE
+-		self.H_UNIT_PANE = self.H_PREREQ_PANE
+ 
+ 		self.X_BUILDING_PANE = self.X_UNIT_PANE
+ 		self.W_BUILDING_PANE = self.W_UNIT_PANE
+ 		self.Y_BUILDING_PANE = self.Y_UNIT_PANE + self.H_UNIT_PANE + 10
+-		self.H_BUILDING_PANE = self.H_PREREQ_PANE
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 2a8570b79..d39765957 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -33,8 +33,8 @@ class SevoPediaUnit:
+ 		# <advc.004y>
+ 		if bWideScreen:
+ 			self.W_UNIT_PANE = (self.W_UNIT_PANE * X_RESOLUTION) // 1024
++		self.H_UNIT_PANE = 175 # advc.002b: was 145
+ 		# </advc.004y>
+-		self.H_UNIT_PANE = 145
+ 
+ 		# advc.004y: Move the button and icon size settings up
+ 		self.ICON_SIZE = 64
+@@ -48,8 +48,9 @@ class SevoPediaUnit:
+ 		iIconFrameSize = max(100, self.ICON_SIZE)
+ 		self.W_ICON = iIconFrameSize # was 100
+ 		self.H_ICON = iIconFrameSize # was 100
++		# Divisor was 2; don't want the button to touch the unit stats.
++		self.X_ICON = self.X_UNIT_PANE + (self.H_UNIT_PANE - self.H_ICON) / 4
+ 		# </advc.004y>
+-		self.X_ICON = self.X_UNIT_PANE + (self.H_UNIT_PANE - self.H_ICON) / 2
+ 		self.Y_ICON = self.Y_UNIT_PANE + (self.H_UNIT_PANE - self.H_ICON) / 2
+ 
+ 		self.X_STATS_PANE = self.X_UNIT_PANE + 130
+@@ -96,7 +97,18 @@ class SevoPediaUnit:
+ 		self.X_HISTORY_PANE = self.X_UNIT_PANE
+ 		self.Y_HISTORY_PANE = self.Y_SPECIAL_PANE + self.H_SPECIAL_PANE + 10
+ 		self.W_HISTORY_PANE = self.top.R_PEDIA_PAGE - self.X_HISTORY_PANE
+-		self.H_HISTORY_PANE = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE
++		#self.H_HISTORY_PANE = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE
++		# <advc.004y> If there's space left, I want to use it for the SPECIAL_PANE.
++		self.H_HISTORY_PANE = 190
++		iSpaceLeft = self.top.B_PEDIA_PAGE - self.Y_HISTORY_PANE - self.H_HISTORY_PANE
++		if iSpaceLeft < 0:
++			self.H_HISTORY_PANE += iSpaceLeft
++		else:
++			self.H_SPECIAL_PANE += iSpaceLeft
++			# Need to update these as well (not nice)
++			self.H_PROMO_PANE += iSpaceLeft
++			self.Y_HISTORY_PANE += iSpaceLeft
++		# </advc.004y>
+
+diff --git a/Assets/XML/Terrain/CIV4FeatureInfos.xml b/Assets/XML/Terrain/CIV4FeatureInfos.xml
+index 3c1a1d018..010bc8c03 100644
+--- a/Assets/XML/Terrain/CIV4FeatureInfos.xml
++++ b/Assets/XML/Terrain/CIV4FeatureInfos.xml
+@@ -28,7 +28,8 @@
+ 			<bRequiresRiverSide>0</bRequiresRiverSide>
+ 			<bAddsFreshWater>0</bAddsFreshWater>
+ 			<bImpassable>1</bImpassable>
+-			<bNoCity>0</bNoCity>
++			<!-- advc.651: was 0 -->
++			<bNoCity>1</bNoCity>
+ 			<bNoImprovement>0</bNoImprovement>
+ 			<bVisibleAlways>0</bVisibleAlways>
+ 			<bNukeImmune>0</bNukeImmune>
+@@ -639,7 +640,8 @@
+ 			<bRequiresRiverSide>0</bRequiresRiverSide>
+ 			<bAddsFreshWater>0</bAddsFreshWater>
+ 			<bImpassable>0</bImpassable>
+-			<bNoCity>0</bNoCity>
++			<!-- advc.651: was 0 -->
++			<bNoCity>1</bNoCity>
+ 			<!-- dlph.9: was 1 -->
+ 			<bNoImprovement>0</bNoImprovement>
+ 			<bVisibleAlways>0</bVisibleAlways>
+
+diff --git a/Assets/XML/Text/Sevopedia_CIV4GameText.xml b/Assets/XML/Text/Sevopedia_CIV4GameText.xml
+index 759443d55..28d32137b 100644
+--- a/Assets/XML/Text/Sevopedia_CIV4GameText.xml
++++ b/Assets/XML/Text/Sevopedia_CIV4GameText.xml
+@@ -80,4 +80,24 @@
+ 		<Italian>Forme di governo e Religioni preferite</Italian>
+ 		<Spanish>Principio y religi�n favoritos</Spanish>
+ 	</TEXT>
++	<!-- advc.004y: To replace TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT.
++		 I've kept the FrItSp translations from there. -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_IMPROVEMENT_YIELD</Tag>
++		<English>Improvement Yields</English>
++		<French>Am&#233;nagements</French>
++		<German>Gesteigerte Ertr�ge</German>
++		<Italian>Miglioramenti</Italian>
++		<Spanish>Mejoras</Spanish>
++	</TEXT>
++	<!-- advc.004y: From CIV4GameTextInfos.xml. Only English and German
++		 changed. -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS</Tag>
++		<English>Bonus Resources</English>
++		<French>Rendement bonus</French>
++		<German>Bonusressourcen</German>
++		<Italian>Prodotti bonus</Italian>
++		<Spanish>Rendim. bonif.</Spanish>
++	</TEXT>
+ </Civ4GameText>
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=9659

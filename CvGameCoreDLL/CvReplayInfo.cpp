@@ -178,8 +178,12 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
 	//m_listReplayMessages.clear();
 	FAssert(m_listReplayMessages.empty()); // advc: The above would leak memory
 	// <advc.106h>
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iSETTINGS_IN_REPLAYS = GC.getDefineINT("SETTINGS_IN_REPLAYS");
+
 	if(kGame.getGameState() == GAMESTATE_OVER &&
-		GC.getDefineINT("SETTINGS_IN_REPLAYS") > 0)
+		iSETTINGS_IN_REPLAYS > 0)
 	{
 		addSettingsMsg();
 	} // </advc.106h>
@@ -241,13 +245,17 @@ void CvReplayInfo::addSettingsMsg()
 	PlayerTypes ePlayer = GC.getGame().getInitialActivePlayer();
 	if(ePlayer == NO_PLAYER)
 		return;
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+
 	CvReplayMessage* pSettingsMsg = new CvReplayMessage(0,
 			REPLAY_MESSAGE_MAJOR_EVENT, ePlayer);
 	CvWString szSettings(gDLL->getText("TXT_KEY_MISC_RELOAD", 1) + L". " +
 			gDLL->getText("TXT_KEY_MAIN_MENU_SETTINGS") + L":\n");
 	appendSettingsMsg(szSettings, ePlayer);
 	pSettingsMsg->setText(szSettings);
-	pSettingsMsg->setColor(GC.getColorType("WHITE"));
+	pSettingsMsg->setColor(eColorWhite);
 	FAssert(m_listReplayMessages.empty());
 	m_listReplayMessages.push_back(pSettingsMsg);
 }
@@ -682,9 +690,16 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 		int iVersion;
 		stream.Read(&iVersion);
 		// <advc.106i> Unpack mod id and version
-		int iAdvCivID = GC.getDefineINT("SAVE_VERSION");
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iAdvCivID = GC.getDefineINT("SAVE_VERSION");
+
 		int iModID = -1;
-		m->bDisplayOtherMods = (GC.getDefineINT("HOF_DISPLAY_OTHER_MOD_REPLAYS") > 0);
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const int iHOF_DISPLAY_OTHER_MOD_REPLAYS = GC.getDefineINT("HOF_DISPLAY_OTHER_MOD_REPLAYS");
+
+		m->bDisplayOtherMods = (iHOF_DISPLAY_OTHER_MOD_REPLAYS > 0);
 		if(iVersion >= 100 * iAdvCivID)
 		{
 			iModID = iVersion / 100;
@@ -849,7 +864,10 @@ bool CvReplayInfo::read(FDataStreamBase& stream)
 			}
 			if(m_szModName.empty())
 			{
-				if(iModID < 0 && GC.getDefineINT("HOF_DISPLAY_BTS_REPLAYS") <= 0)
+				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+				static const int iHOF_DISPLAY_BTS_REPLAYS = GC.getDefineINT("HOF_DISPLAY_BTS_REPLAYS");
+
+				if(iModID < 0 && iHOF_DISPLAY_BTS_REPLAYS <= 0)
 					return false;
 			}
 			else if(!m->bDisplayOtherMods &&
@@ -877,7 +895,11 @@ void CvReplayInfo::write(FDataStreamBase& stream)
 {
 	//stream.Write(REPLAY_VERSION);
 	// <advc.106i> Fold AdvCiv's (hopefully) globally unique id into the replay version
-	stream.Write(GC.getDefineINT("SAVE_VERSION") * 100 + REPLAY_VERSION);
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iSAVE_VERSION = GC.getDefineINT("SAVE_VERSION");
+
+	stream.Write(iSAVE_VERSION * 100 + REPLAY_VERSION);
 	// <advc.106m> Fold minimap resolution into active player ID
 	if (!isStoringReplaysAsBtS())
 	{
@@ -1003,52 +1025,57 @@ bool CvReplayInfo::checkBounds(int iValue, int iLower, int iUpper) const
 
 bool CvReplayInfo::isStoringReplaysAsBtS() const
 {
-	if (BUGOption::isEnabled("MainInterface__ModNameInReplays", false,
-		false)) // BUG not being available is OK, we'll get another call later.
-	{
-		return false;
-	}
-	// <advc.106m>
-	if (GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE) != 512)
-	{
-		FErrorMsg("MINIMAP_RENDER_SIZE incompatible with BtS replay format;"
-				" Mod-Name-in-Replays option ignored");
-		return false;
-	} // </advc.106m>
-	/*	The option says to store as BtS, but we'll ignore that if running the replay
-		might crash BtS. AdvCiv won't have that problem, but a mod-mod might. */
-	if (getWorldSize() > 5)
-	{
-		FErrorMsg("World size incompatible with BtS replay format");
-		return false;
-	}
-	if (getGameSpeed() > 3)
-	{
-		FErrorMsg("Game speed incompatible with BtS replay format");
-		return false;
-	}
-	for (int iVictory = 7; iVictory < GC.getNumVictoryInfos(); iVictory++)
-	{
-		if (isVictoryCondition((VictoryTypes)iVictory))
-		{
-			FErrorMsg("Enabled victory incompatible with BtS replay format");
-			return false;
-		}
-	}
-	if (getDifficulty() > 8)
-	{
-		FErrorMsg("Difficulty level (handicap) incompatible with BtS replay format");
-		return false;
-	}
-	FOR_EACH_ENUM(Player)
-	{
-		if (GET_PLAYER(eLoopPlayer).isEverAlive() && getColor(eLoopPlayer) > 126)
-		{
-			FErrorMsg("Player (text) color incompatible with BtS replay format");
-			return false;
-		}
-	}
-	/*	(Not going to check getReplayMessageColor for every replay message;
-		there can be a lot of messages, seems a little excessive.) */
-	return true;		
+	// <!-- custom: AdvCiv-SAS intentionally changes raw XML info order for replay-stored values such as game speeds, world sizes, and handicaps. Always store the normal mod replay format instead of pretending an AdvCiv-SAS replay is vanilla BtS-compatible. This still writes normal AdvCiv-SAS replays; it only disables the optional BtS-compatible replay export path. See KI#166. (ChatGPT-5.5); we do not need nor support reading AdvCiv-SAS replay/Hall of Fame data from unmodded BTS, nor do we need or support reading unmodded BTS replay/Hall of Fame data into AdvCiv-SAS. -->
+	return false;
+
+	// <!-- custom: Old AdvCiv BtS-compatible replay checks kept below for reference, but disabled/commented-out in AdvCiv-SAS because shifted raw XML ids would need a full remapping layer to be truly compatible. See KI#166. (ChatGPT-5.5) -->
+	// if (BUGOption::isEnabled("MainInterface__ModNameInReplays", false,
+	// 	false)) // BUG not being available is OK, we'll get another call later.
+	// {
+	// 	return false;
+	// }
+	// // <advc.106m>
+	// if (GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE) != 512)
+	// {
+	// 	FErrorMsg("MINIMAP_RENDER_SIZE incompatible with BtS replay format;"
+	// 			" Mod-Name-in-Replays option ignored");
+	// 	return false;
+	// } // </advc.106m>
+	// /*	The option says to store as BtS, but we'll ignore that if running the replay
+	// 	might crash BtS. AdvCiv won't have that problem, but a mod-mod might. */
+	// if (getWorldSize() > 5)
+	// {
+	// 	FErrorMsg("World size incompatible with BtS replay format");
+	// 	return false;
+	// }
+	// if (getGameSpeed() > 3)
+	// {
+	// 	FErrorMsg("Game speed incompatible with BtS replay format");
+	// 	return false;
+	// }
+	// for (int iVictory = 7; iVictory < GC.getNumVictoryInfos(); iVictory++)
+	// {
+	// 	if (isVictoryCondition((VictoryTypes)iVictory))
+	// 	{
+	// 		FErrorMsg("Enabled victory incompatible with BtS replay format");
+	// 		return false;
+	// 	}
+	// }
+	// if (getDifficulty() > 8)
+	// {
+	// 	FErrorMsg("Difficulty level (handicap) incompatible with BtS replay format");
+	// 	return false;
+	// }
+	// FOR_EACH_ENUM(Player)
+	// {
+	// 	if (GET_PLAYER(eLoopPlayer).isEverAlive() && getColor(eLoopPlayer) > 126)
+	// 	{
+	// 		FErrorMsg("Player (text) color incompatible with BtS replay format");
+	// 		return false;
+	// 	}
+	// }
+	// /*	(Not going to check getReplayMessageColor for every replay message;
+	// 	there can be a lot of messages, seems a little excessive.) */
+	// return true;		
+
 } // </advc.106i>

@@ -1,0 +1,336 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3939
+# Commit: 5104e569eb814997df286681e3f322f977dcfba7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 80f875fef49a798ffb7dca43ea8d9aa8e74ec6a3
+# Title: Fix memory use of bool-valued dynamic ArrayEnumMap
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	3	CvGameCoreDLL/CvCity.cpp
+19	5	CvGameCoreDLL/CvGame.cpp
+8	3	CvGameCoreDLL/CvPlayer.cpp
+18	5	CvGameCoreDLL/CvTeam.cpp
+4	3	CvGameCoreDLL/CvUnit.cpp
+69	3	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index f6ec7d6c2..fd2daddb5 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11256,8 +11256,16 @@ void CvCity::read(FDataStreamBase* pStream)
+ 		m_aiNumRealBuilding.read(pStream);
+ 		m_aiNumFreeBuilding.read(pStream);
+ 		m_abWorkingPlot.read(pStream);
+-		m_abHasReligion.read(pStream);
+-		m_abHasCorporation.read(pStream);
++		if (uiFlag >= 17)
++		{
++			m_abHasReligion.read(pStream);
++			m_abHasCorporation.read(pStream);
++		}
++		else
++		{
++			LegacyArrayEnumMap<ReligionTypes,bool>::convert(m_abHasReligion, pStream);
++			LegacyArrayEnumMap<CorporationTypes,bool>::convert(m_abHasCorporation, pStream);
++		}
+ 	}
+ 	else
+ 	{
+@@ -11624,7 +11632,8 @@ void CvCity::write(FDataStreamBase* pStream)
+ 	//uiFlag = 13; // advc.201: Cathedrals restored to BtS stats
+ 	//uiFlag = 14; // advc.179, advc.exp.1, advc.exp.2
+ 	//uiFlag = 15; // advc.912d: Partly reverted, adjust MaxFoodKept.
+-	uiFlag = 16; // advc.enum: m_aiShrine
++	//uiFlag = 16; // advc.enum: m_aiShrine
++	uiFlag = 17; // advc.enum: Bugfix in bool-valued ArrayEnumMap
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iID);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 4e1ef17a3..eeb9a32b8 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -8861,9 +8861,18 @@ void CvGame::read(FDataStreamBase* pStream)
+ 		m_aiSecretaryGeneralTimer.read(pStream);
+ 		m_aiVoteTimer.read(pStream);
+ 		m_aiDiploVote.read(pStream);
+-		m_abSpecialUnitValid.read(pStream);
+-		m_abSpecialBuildingValid.read(pStream);
+-		m_abReligionSlotTaken.read(pStream);
++		if (uiFlag >= 24)
++		{
++			m_abSpecialUnitValid.read(pStream);
++			m_abSpecialBuildingValid.read(pStream);
++			m_abReligionSlotTaken.read(pStream);
++		}
++		else
++		{
++			LegacyArrayEnumMap<SpecialUnitTypes,bool>::convert(m_abSpecialUnitValid, pStream);
++			LegacyArrayEnumMap<SpecialBuildingTypes,bool>::convert(m_abSpecialBuildingValid, pStream);
++			LegacyArrayEnumMap<ReligionTypes,bool>::convert(m_abReligionSlotTaken, pStream);
++		}
+ 		m_aeHolyCity.read(pStream);
+ 		m_aeHeadquarters.read(pStream);
+ 	}
+@@ -9034,7 +9043,11 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	if (uiFlag >= 21)
+ 	{
+ 		if (!isOption(GAMEOPTION_NO_EVENTS))
+-			m_abInactiveTriggers.read(pStream);
++		{
++			if (uiFlag >= 24)
++				m_abInactiveTriggers.read(pStream);
++			else LegacyArrayEnumMap<EventTriggerTypes,bool>::convert(m_abInactiveTriggers, pStream);
++		}
+ 	}
+ 	else
+ 	{
+@@ -9120,7 +9133,8 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	//uiFlag = 20; // advc.130r: Update war attitude
+ 	//uiFlag = 21; // advc.enum
+ 	//uiFlag = 22; // advc.130n: Bugfix in fave-civic attitude calc
+-	uiFlag = 23; // advc.124b: Need a plot group update for compatibility
++	//uiFlag = 23; // advc.124b: Need a plot group update for compatibility
++	uiFlag = 24; // advc.enum: Bugfix in bool-valued ArrayEnumMap
+ 	pStream->Write(uiFlag);
+ 	REPRO_TEST_BEGIN_WRITE("Game pt1");
+ 	pStream->Write(m_iElapsedGameTurns);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index cf149f58f..c9e2a1b30 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14214,7 +14214,9 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 		m_aiHasCorporationCount.read(pStream);
+ 		m_aiUpkeepCount.read(pStream);
+ 		m_aiSpecialistValidCount.read(pStream);
+-		m_abResearchingTech.read(pStream);
++		if (uiFlag >= 21)
++			m_abResearchingTech.read(pStream);
++		else LegacyArrayEnumMap<TechTypes,bool>::convert(m_abResearchingTech, pStream);
+ 	}
+ 	else
+ 	{
+@@ -14260,7 +14262,9 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	} // </advc.091>
+ 	if (uiFlag >= 16)
+ 	{
+-		m_abLoyalMember.read(pStream);
++		if (uiFlag >= 21)
++			m_abLoyalMember.read(pStream);
++		else LegacyArrayEnumMap<VoteSourceTypes,bool,void*,true>::convert(m_abLoyalMember, pStream);
+ 		m_aeCivics.read(pStream);
+ 		m_aeeiSpecialistExtraYield.read(pStream);
+ 		m_aeeiImprovementYieldChange.read(pStream);
+@@ -14589,7 +14593,8 @@ void CvPlayer::write(FDataStreamBase* pStream)
+ 	//uiFlag = 17; // advc.157
+ 	//uiFlag = 18; // advc.251 (city maintenance changed in handicap XML)
+ 	//uiFlag = 19; // advc.708
+-	uiFlag = 20; // advc.912g
++	//uiFlag = 20; // advc.912g
++	uiFlag = 21; // advc.enum: Bugfix in bool-valued ArrayEnumMap
+ 	pStream->Write(uiFlag);
+ 
+ 	// <advc.027>
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index ef97244fd..58efc95f9 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -5872,7 +5872,9 @@ void CvTeam::read(FDataStreamBase* pStream)
+ 	// </advc.opt>
+ 	if (uiFlag >= 16)
+ 	{
+-		m_abCanLaunch.read(pStream);
++		if (uiFlag >= 19)
++			m_abCanLaunch.read(pStream);
++		else LegacyArrayEnumMap<VictoryTypes,bool>::convert(m_abCanLaunch, pStream);
+ 		m_aiRouteChange.read(pStream);
+ 		m_aiProjectCount.read(pStream);
+ 	}
+@@ -5940,7 +5942,11 @@ void CvTeam::read(FDataStreamBase* pStream)
+ 		}
+ 	} // </advc.opt>
+ 	if (uiFlag >= 16)
+-		m_abHasTech.read(pStream);
++	{
++		if (uiFlag >= 19)
++			m_abHasTech.read(pStream);
++		else LegacyArrayEnumMap<TechTypes,bool>::convert(m_abHasTech, pStream);
++	}
+ 	else m_abHasTech.readArray<bool>(pStream);
+ 	// <advc.101>
+ 	if (uiFlag >= 10)
+@@ -5955,7 +5961,9 @@ void CvTeam::read(FDataStreamBase* pStream)
+ 	} // </advc.101>
+ 	if (uiFlag >= 16)
+ 	{
+-		m_abNoTradeTech.read(pStream);
++		if (uiFlag >= 19)
++			m_abNoTradeTech.read(pStream);
++		else LegacyArrayEnumMap<TechTypes,bool>::convert(m_abNoTradeTech, pStream);
+ 		m_aaiImprovementYieldChange.read(pStream);
+ 	}
+ 	else
+@@ -5964,7 +5972,11 @@ void CvTeam::read(FDataStreamBase* pStream)
+ 		m_aaiImprovementYieldChange.readArray<int>(pStream);
+ 	}
+ 	if (uiFlag >= 16)
+-		m_abRevealedBonuses.read(pStream);
++	{
++		if (uiFlag >= 19)
++			m_abRevealedBonuses.read(pStream);
++		else LegacyArrayEnumMap<BonusTypes,bool>::convert(m_abRevealedBonuses, pStream);
++	}
+ 	else
+ 	{
+ 		int iSize;
+@@ -6035,7 +6047,8 @@ void CvTeam::write(FDataStreamBase* pStream)
+ 	//uiFlag = 15; // advc (for kekm.38)
+ 	//uiFlag = 16; // advc.enum: new enum map save behavior
+ 	//uiFlag = 17; // advc.130k
+-	uiFlag = 18; // advc.500c
++	//uiFlag = 18; // advc.500c
++	uiFlag = 19; // advc.enum: Bugfix in bool-valued ArrayEnumMap
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iNumMembers);
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 98b63b79d..928894322 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -10429,8 +10429,9 @@ void CvUnit::read(FDataStreamBase* pStream)
+ 	if (uiFlag >= 8)
+ 		m_abHasPromotion.read(pStream);
+ 	else if (uiFlag == 7)
+-	{	// Skip loading Disorganized promo
+-		m_abHasPromotion.read(pStream, -1);
++	{
++		// Skip loading Disorganized promo
++		LegacyArrayEnumMap<PromotionTypes,bool>::convert(m_abHasPromotion, pStream, -1);
+ 		/*	Promo effects get cached in m_iExtra... members, which get saved.
+ 			This is good for the extra moves, not good for the strength modifier
+ 			b/c that gets applied on the fly now. */
+@@ -10473,7 +10474,7 @@ void CvUnit::write(FDataStreamBase* pStream)
+ 	//uiFlag = 5; // advc.164
+ 	//uiFlag = 6; // advc.opt (m_bFlatMovement)
+ 	//uiFlag = 7; // advc.enum: new enum map save behavior
+-	uiFlag = 8; // advc.313: Disorganized promo removed
++	uiFlag = 8; // advc.313: Disorganized promo removed, advc.enum: bugfix.
+ 	pStream->Write(uiFlag);
+ 
+ 	pStream->Write(m_iID);
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index c483b1e98..32db3eb55 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -1284,7 +1284,15 @@ protected:
+ 			(enum_traits<E>::len + BITSIZE(BitBlock) - 1) / BITSIZE(BitBlock)); // round up
+ 	static int arraySize()
+ 	{
+-		return (bSTATIC_MEMORY ? iSTATIC_ARRAY_SIZE : getLength());
++		if (bSTATIC_MEMORY)
++			return iSTATIC_ARRAY_SIZE;
++		int iLen = getLength();
++		if (bBIT_BLOCKS)
++		{
++			iLen += BITSIZE(BitBlock) - 1;
++			iLen /= BITSIZE(BitBlock);
++		}
++		return iLen;
+ 	}
+ 	/*	Allow derived classes to handle initial values.
+ 		(Cleaner solution might be to make this class CRT-poolymorphic.) */
+@@ -1413,8 +1421,7 @@ public:
+ 	}
+ 	void read(FDataStreamBase* pStream, int iSubtrahend = 0)
+ 	{
+-// Fixme: arraySize function is not taking into account bBIT_BLOCKS when !bSTATIC_MEMORY
+-//		FAssert(!bBIT_BLOCKS || iSubtrahend == 0);
++		FAssert(!bBIT_BLOCKS || iSubtrahend == 0);
+ 		bool bAnyNonDefault;
+ 		pStream->Read(&bAnyNonDefault);
+ 		if (bAnyNonDefault)
+@@ -1525,6 +1532,65 @@ protected:
+ };
+ #undef ArrayEnumMapBase
+ 
++/*	This version retains a bug that got fixed in AdvCiv 1.08.
++	To facilitate save-compatibility. The arraySize function can't really be
++	overridden, so this is a hack-y class that should be retained only so long
++	as it is needed. */
++template<typename E, class V,
++	class CV = void*,
++	int iDEFAULT = (int)enum_traits<V>::none>
++class LegacyArrayEnumMap : public ArrayEnumMap<E,V,CV,iDEFAULT,false,8>
++{
++private: // We're only here for converting old savegames
++	LegacyArrayEnumMap() { m_aValues = NULL; }
++	~LegacyArrayEnumMap() { SAFE_DELETE_ARRAY(m_aValues); }
++public:
++	template<class OtherEnumMap>
++	static convert(OtherEnumMap& kOther, FDataStreamBase* pStream, int iSubtrahend = 0)
++	{
++		LegacyArrayEnumMap tmp;
++		tmp.read(pStream, iSubtrahend);
++		if (tmp.isAllocated())
++		{
++			FOR_EACH_KEY(eKey)
++			{
++				kOther.set(eKey, tmp.get(eKey));
++			}
++		}
++	}
++	static int arraySize()
++	{
++		/*	The bug is that, for
++			bBIT_BLOCKS && !bSTATIC_MEMORY
++			the array will contain one 4-byte block per boolean value
++			rather than 1 bit per value. */
++		return (isStaticMemory ? iSTATIC_ARRAY_SIZE : getLength());
++	}
++	/*	On the bright side, this bugged version can be easily
++		instructed to read fewer or more values. */
++	void read(FDataStreamBase* pStream, int iSubtrahend = 0)
++	{
++		//FAssert(!bBIT_BLOCKS || iSubtrahend == 0);
++		/*	Instead, assert that we have (possibly) a good reason for using
++			this legacy version. */
++		FAssert(bBIT_BLOCKS && !isStaticMemory);
++		// Copy-pasted from ArrayEnumMap ...
++		bool bAnyNonDefault;
++		pStream->Read(&bAnyNonDefault);
++		if (bAnyNonDefault)
++		{
++			if (!isAllocated())
++			{
++				//allocate();
++				/*	arraySize is not polymorphic, so we need to call it
++					directly, not via the base class's allocate function. */
++				m_aValues = new CompactV[arraySize()];
++			}
++			pStream->Read(arraySize() - iSubtrahend, values());
++		}
++	}
++};
++
+ // For convenience - as the bEAGER_ALLOC param is pretty far down the list.
+ template<typename E, class V,
+ 	class CV = void*,
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=10519

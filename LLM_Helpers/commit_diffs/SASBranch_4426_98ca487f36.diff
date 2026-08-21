@@ -1,0 +1,124 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4426
+# Commit: 98ca487f3684d6f4f2b05fc843e9d00998e552a6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bd4e118e6a3f9bf9101230062685cc82a8429f99
+# Title: remove music, add music, add cut times would need to cut the audio files but can do later maybe, also i would need to know/have the software for that i mean...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+-	-	_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/{Prehistoric Age 3 - Art of Primitive Sound [Ttnb4ZlHv2s].opus => Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus}
+-	-	_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Neanderthal Bone Flute Music [sHy9FOblt7Y].opus
+-	-	_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 4 - Aka Forest People [HRVPieyKv8M].opus
+-	-	_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 3 - Nordic Bronze Age Lures [Ld6Dt-Lce6M].opus
+9	6	_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt
+-	-	_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/{Unsorted Music - need to edit +- cut it/_African Voices [YtrouhSprzA].opus => Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus}
+1	0	_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Game/Game music credits.txt
+ rename _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/{Prehistoric Age 3 - Art of Primitive Sound [Ttnb4ZlHv2s].opus => Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus} (100%)
+ delete mode 100644 _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Neanderthal Bone Flute Music [sHy9FOblt7Y].opus
+ delete mode 100644 _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 4 - Aka Forest People [HRVPieyKv8M].opus
+ delete mode 100644 _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 3 - Nordic Bronze Age Lures [Ld6Dt-Lce6M].opus
+ rename _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/{Unsorted Music - need to edit +- cut it/_African Voices [YtrouhSprzA].opus => Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus} (100%)
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary b/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+index d7a07a2dc..f591cdd29 100644
+--- a/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
++++ b/_1_AdvCiv_SBAIMTOCO_content/Civs/Kingdom_Of_Benin/Kingdom_Of_Benin_Summary
+@@ -22,8 +22,9 @@ credit for the image: https://fr.pinterest.com/pin/412290540863776580/
+ - relationship with leaders: love hate with britain, good relationship with african leaders?, growth temperament i think but easy to defend/attack if threatened, contact with Jao's portugal traders i mean, good contact with dutch travelevers too
+ - based on: Zara Yaqob seems to fit quite well from the little i know i mean anywyas, and i could
+ tweak it from there if i may say i mean anyways
+-- music diplomacy: _African Voices [YtrouhSprzA]
+-source:https://www.youtube.com/watch?v=YtrouhSprzA&list=RDQMsP4ztQIr7S4&start_radio=1
++- music diplomacy: Iron Age 1 + 2 (cuts) African Voices [YtrouhSprzA]
++(but cut this file at 02:29)
++source: https://www.youtube.com/watch?v=YtrouhSprzA&list=RDQMsP4ztQIr7S4&start_radio=1
+ downloaded with yt-dlp
+ - picture: 
+ full: https://www.google.com/imgres?q=Ogiso%20Igodo&imgurl=https%3A%2F%2Flookaside.instagram.com%2Fseo%2Fgoogle_widget%2Fcrawler%2F%3Fmedia_id%3D3285326410148945280&imgrefurl=https%3A%2F%2Fwww.instagram.com%2Fhistorylovers_001%2Fp%2FC2X0vjAIfAN%2F&docid=q7Q1Dp0uU2tR_M&tbnid=PY9QsZmqx6syPM&vet=12ahUKEwiM5tH-16uMAxVnUqQEHWzzPEsQM3oECGkQAA..i&w=673&h=673&hcb=2&ved=2ahUKEwiM5tH-16uMAxVnUqQEHWzzPEsQM3oECGkQAA#imgrc=PY9QsZmqx6syPM&imgdii=CJTvEIPbz2mqNM
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 3 - Art of Primitive Sound [Ttnb4ZlHv2s].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 3 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Art of Primitive Sound [Ttnb4ZlHv2s].opus
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Neanderthal Bone Flute Music [sHy9FOblt7Y].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Neanderthal Bone Flute Music [sHy9FOblt7Y].opus
+deleted file mode 100644
+index ee18dc4a4..000000000
+Binary files a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 2 - Neanderthal Bone Flute Music [sHy9FOblt7Y].opus and /dev/null differ
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 4 - Aka Forest People [HRVPieyKv8M].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 4 - Aka Forest People [HRVPieyKv8M].opus
+deleted file mode 100644
+index b842c6b3a..000000000
+Binary files a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/0 - Prehistoric Age/Prehistoric Age 4 - Aka Forest People [HRVPieyKv8M].opus and /dev/null differ
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 3 - Nordic Bronze Age Lures [Ld6Dt-Lce6M].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 3 - Nordic Bronze Age Lures [Ld6Dt-Lce6M].opus
+deleted file mode 100644
+index f43281489..000000000
+Binary files a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/2 - Bronze Age/Bronze Age 3 - Nordic Bronze Age Lures [Ld6Dt-Lce6M].opus and /dev/null differ
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt
+index 4fd155843..cb0ebcaa2 100644
+--- a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt	
++++ b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Music eras credits.txt	
+@@ -3,22 +3,25 @@ Downloaded thanks to yt-dlp
+ Prehistoric Age
+ 
+ Prehistoric Age 1 - Ancient Music – Cavemen [j5xo5yGX3UY] 
+-Prehistoric Age 2 - Neanderthal Bone Flute Music [sHy9FOblt7Y] cut at 4:18
+-Prehistoric Age 3 - Art of Primitive Sound - Musical Instruments From Prehistory： The Paleolithic [Ttnb4ZlHv2s].opus cut at (4:04)
+-Prehistoric Age 4 - Aka Forest People, yelli and group song, 1995 recording [HRVPieyKv8M] cut at 2:04
++Prehistoric Age 2 - Art of Primitive Sound - Musical Instruments From Prehistory： The Paleolithic [Ttnb4ZlHv2s].opus cut at 4:04
+ 
+ Stone Age 
+ 
+ 1 - Stone Age 1 - The Sumerian Silver Lyre [JU4QRxsZhjg]
++2 - Stone Age 2 - African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa [YtrouhSprzA] from 2:30 to 7:44
++2 - Stone Age 3 - African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa [YtrouhSprzA] from 7:43 to 10:22 (fade a few seconds sooner)  
++3 - Stone Age 4 (Empiorum!!) - African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa from 27:59 to 29:23 (fade a few seconds sooner)
++4 - Stone Age 5 - African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa from 32:40 to 35:56 (fade a few seconds sooner)
++
+ 
+ Bronze Age
+ 
+ Bronze Age 1 - PHARAOH ｜ Deep Ancient Egyptian Music ｜ Middle Eastern Background Music ｜ Beautiful Duduk & Darbuka [1rSStqL267c] (cut around 7:02 few seconds sooner with fade time)
+ (but need to cut it a bit shorten it)
+-Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs] (cut from 0:14 to the end
+-Bronze Age 3 - Nordic Bronze Age Lures 1700-500 BC and the Kings grave [Ld6Dt-Lce6M]
++Bronze Age 2 - The Epic Of Gilgamesh In Sumerian [QUcTsFe1PVs] (cut from 0:14 to the end)
++Bronze Age 3 - African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa from 21:02 to 24:15 (fade time a few seconds sooner)
+ Bronze Age 4 - 
+ 
+ Iron Age
+ 
+-Iron Age 1 - Kingdom_Of_Benin_Music from 2:30 to 7:44
+\ No newline at end of file
++
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/_African Voices [YtrouhSprzA].opus b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus
+similarity index 100%
+rename from _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Unsorted Music - need to edit +- cut it/_African Voices [YtrouhSprzA].opus
+rename to _1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Eras/Unsorted and need cuts/African Voices [YtrouhSprzA].opus
+
+diff --git a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Game/Game music credits.txt b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Game/Game music credits.txt
+index c619b0f52..89555856b 100644
+--- a/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Game/Game music credits.txt	
++++ b/_1_AdvCiv_SBAIMTOCO_content/Music_Civ4_Mod/Game/Game music credits.txt	
+@@ -1 +1,2 @@
+ Main Menu:
++African Voices:Spiritual, Relaxing, Tribal - Music N'Chant Nguru - Sounds of Africa from 15:50 to 21:02
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=7087

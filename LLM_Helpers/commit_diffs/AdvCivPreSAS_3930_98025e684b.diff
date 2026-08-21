@@ -1,0 +1,50 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3930
+# Commit: 98025e684bdb56277e270c9b0ddb721f2588f0a0
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e2686d498434d098dedbab4ed31bfb3ba6c721b1
+# Title: Tweak population check for extra Barbarian defenders
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index a31443be7..7f58167ee 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6739,18 +6739,18 @@ int CvCityAI::AI_neededDefenders(/* advc.139: */ bool bIgnoreEvac,
+ 			getArea().getAreaAIType(getTeam()) == AREAAI_MASSING);
+ 	bool const bDefenseWar = (getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE);
+ 	CvGame const& kGame = GC.getGame();
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	int iDefenders = 1;
+ 	if (isBarbarian())
+ 	{
+ 		iDefenders = GC.getInfo(kGame.getHandicapType()).getBarbarianInitialDefenders();
+-		iDefenders += (getPopulation() + 2) / 7;
++		// advc.300: Numerator was pop+2
++		iDefenders += (getPopulation() + kOwner.getCurrentEra()) / 7;
+ 		return iDefenders;
+ 	} // advc.003n: Switched the order of these two branches
+ 	if (!GET_TEAM(getTeam()).AI_isWarPossible())
+ 		return iDefenders;
+ 
+-	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+-
+ 	if (hasActiveWorldWonder() || isCapital() || isHolyCity())
+ 	{
+ 		iDefenders++;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1059

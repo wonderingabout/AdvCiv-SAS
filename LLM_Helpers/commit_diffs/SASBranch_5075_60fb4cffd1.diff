@@ -1,0 +1,134 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5075
+# Commit: 60fb4cffd1feb2fc98fa18bbe4304844238dd7cd
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 37fdd430a54fd250d99c47fabad867e77a154e8e
+# Title: Seemingly reduce AI worker parking and improve their efficiency conservative change that seems to yield better results ingame in autoplay, check if accurate...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+45	5	CvGameCoreDLL/CvUnitAI.cpp
+0	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d16c8c75a..65da21cf9 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2972,13 +2972,24 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 	bool bCanRetreat = true; // advc.opt: Try only once (uses of this variable not marked with comments)
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 
++	// <!-- custom: cache this since we seem to check it many times, if i'm not mistaken in my thinking but anyways etc -->
++	const bool bWeOwnThisPlot = (getPlot().getOwner() == getOwner());
++
+ 	// <!-- custom: in rare cases, workers still get parked in cities, seeming with MISSIONAI_RETREAT + ACTIVITY_HOLD, as also noticed by chatgpt 5 in the screenshot i showed it about it. Trying to fix that with the help of chatgpt 5 now, check if accurate anyways etc, and see for details known issue as of now 50 with screenshots and such but anyways etc -->
+ 	// two small patches that fix it
+ 	// 2) Unstick “retreaters” at the start of the turn
+ 	// Right at the top of AI_workerMove (after you build kOwner), add:
+ 	// Unstick previous retreats: if we’re in our land and not threatened, wake up.
+-	if (getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT &&
+-		getPlot().getOwner() == getOwner() &&
++	// <!-- custom: update: we still have some workers that are on hold when cities could be improved, add an additional HOLD wake up as well if i understood it correctly as recommended by chatgpt 5, check if accurate, in autoplay they do appear to be on HOLD activity though it seems if i remember it correctly but anyways etc -->
++	// Wake safe retreaters (expand your existing un-sticker):
++	// You already clear MISSIONAI_RETREAT when safe. Do the same if the group is just on HOLD, even if its MissionAI isn’t RETREAT.
++	// if (getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT &&
++	const bool bWorkerSleeping = (
++		(getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT) ||
++		(getGroup()->getActivityType() == ACTIVITY_HOLD)
++	);
++	if (bWorkerSleeping &&
++		bWeOwnThisPlot &&
+ 		!kOwner.AI_isPlotThreatened(plot(), 1)) // adjacent only
+ 	{
+ 		getGroup()->setActivityType(ACTIVITY_AWAKE);
+@@ -2988,7 +2999,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 
+ 	// <!-- custom: disable this as this may cause unintended retreats or interfere with our own logic, chatgpt 5 recommends removing or narrowing it, i'll comment it out then as i got the idea to do myself as well if i may say but thanks a lot for help and confirmation / expertise if i may say thanks a lot anyways etc -->
+ 	// // XXX could be trouble...
+-	// if (getPlot().getOwner() != getOwner())
++	// if (!bWeOwnThisPlot)
+ 	// {
+ 	// 	if (AI_retreatToCity())
+ 	// 		return;
+@@ -2997,7 +3008,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 
+ 	if (!isHuman())
+ 	{
+-		if (getPlot().getOwner() == getOwner())
++		if (bWeOwnThisPlot)
+ 		{
+ 			if (AI_load(UNITAI_SETTLER_SEA, MISSIONAI_LOAD_SETTLER, UNITAI_SETTLE,
+ 				2, -1, -1, 0, MOVE_SAFE_TERRITORY))
+@@ -3099,7 +3110,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 		}
+ 	}
+ 
+-	if (bCanRoute && getPlot().getOwner() == getOwner()) // XXX team???
++	if (bCanRoute && bWeOwnThisPlot) // XXX team???
+ 	{
+ 		BonusTypes eNonObsoleteBonus = getPlot().getNonObsoleteBonusType(getTeam());
+ 		if (eNonObsoleteBonus != NO_BONUS)
+@@ -3489,6 +3500,35 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 	if (AI_safety())
+ 		return;
+ 
++	// <!-- custom: tentative safety if workers are still on HOLD or such, try to manually reset them so they do something, anything, as recommended by chatgpt 5 (check if accurate) anyways etc; note: refresh the value to another bWorkerSleeping2 variable in case it changed since then anyways etc  -->
++	// Bottom-of-function failsafe (“do something, anything”)
++	// At the very end of AI_workerMove (just before returning with no action), add:
++	const bool bWorkerSleeping2 = (
++		(getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT) ||
++		(getGroup()->getActivityType() == ACTIVITY_HOLD)
++	);
++	if (bWorkerSleeping2 && bWeOwnThisPlot)
++	{
++		getGroup()->setActivityType(ACTIVITY_AWAKE);
++		getGroup()->AI().AI_setMissionAI(NO_MISSIONAI, NULL, NULL);
++
++		CvCityAI* pCityToImprove = AI_getCityToImprove();
++		if (pCityToImprove != NULL && AI_improveCity(*pCityToImprove))
++		{
++			return;
++		}
++		if (AI_nextCityToImprove(NULL))
++		{
++			return;
++		}
++	}
++	// Put the failsafe before the final MISSION_SKIP
++	// <!-- custom: then after i asked it why only to understand/guess xd but anyways etc that our fallback would not be reached or fail due to the skip or such, it added this info, check if accurate anyways etc -->
++	// yep — your intuition is right.
++	// pushMission(MISSION_SKIP) queues a “do nothing this turn” for the group (effectively HOLD/skip-turn).
++	// Once you’ve queued that, any logic after it is either not reached (if you return;) or will be overwritten by the queued skip (the group will still execute the skip you just pushed).
++	// So if you put your wake-up + reassignment after MISSION_SKIP, it neuters the sanity checks. They must run before any skip is pushed.
++
+ 	getGroup()->pushMission(MISSION_SKIP);
+ }
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 1f6e811d1..4a7a5892e 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -152,7 +152,6 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - Greatly simplified `AI_betterPlotBuild`: hard **de-prioritization of roads/routes** early; build them only when they’re truly the best move. Focus is on **yields first**. See [KI#31](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases).
+ - **Overhaul: `AI_bestCityBuild` (full routine):** “holy” improvements (never overwrite: **hamlet, village, town, workshop**) and “semi-holy” (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense ((Requires AdvCiv-SAS 5069+) Tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml))); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the “now” move would be inferior. See [KI#33](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild).
+ - **Mobility:** workers leave “over-improved” cities sooner to help weaker ones; later pass further improves cross-city mobility and bravery within borders (less idle parking). See [KI#39](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it) and [KI#41](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc). Update: **AI workers: favor low-pop cities (untested in a before/after save file compare):** `CvUnitAI::AI_nextCityToImprove` now weights smaller cities higher so workers rotate to underdeveloped hubs sooner—spreading early tile improvements, jump-starting growth, and avoiding over-investment in already-strong capitals.
+-
+ - **Retreat logic:** fix excessive retreat → “parking in city” edge cases with a wake-from-retreat and saner thresholds. See [KI#50](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean-anyways-etc).
+ 
+ #### City Plots (AI)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=2 omittedFiles=1 embeddedPatchBytes=9219

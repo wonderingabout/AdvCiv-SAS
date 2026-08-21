@@ -1,0 +1,203 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4680
+# Commit: 21cadeb89a782948a8ef3074376ebde28c63e69a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ab03b41277c2562ea889941cbe69e591730b3e3d
+# Title: greatly improve ai personality panel in leader page of sevopedia thans to chatgpt, thanks a lot, update docs as well to display a few of these sevopedia updates
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+78	41	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+18	0	README.md
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.62_sevopedia_AI_Personality_sample.JPG
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.63_sevopedia_unit_chart.JPG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/0.62_sevopedia_AI_Personality_sample.JPG
+ create mode 100644 _1_AdvCiv-SAS/Docs_And_Appendixes/0.63_sevopedia_unit_chart.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index c2d4814a8..a3d56d1d0 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -155,54 +155,91 @@ class SevoPediaLeader:
+ 		# <!-- custom: based on placeHistory then tweaked or/and modified or/and not
+ 		# also data fetching logic mostly if not entirely provided by ChatGPT, or/and with
+ 		# some additions or modifications or removals or other i did or did not, anyways
+-		leader = gc.getLeaderHeadInfo(iLeader)
+-
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, "", "", True, True, self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY , self.H_AI_PERSONALITY, PanelStyles.PANEL_STYLE_BLUE50)
+ 
+-		historyTextName = self.top.getNextWidgetName()
+ 		text = u"<font=3b>AI Personality</font>\n\n"
+ 
+-		# AI-related fields to display
+-		aiValues = [
+-			("Max War Rand", leader.getMaxWarRand()),
+-			("Max War Nearby Power Ratio", leader.getMaxWarNearbyPowerRatio()),
+-			("Max War Distant Power Ratio", leader.getMaxWarDistantPowerRatio()),
+-			("Max War Min Adjacent Land Percent", leader.getMaxWarMinAdjacentLandPercent()),
+-			("Limited War Rand", leader.getLimitedWarRand()),
+-			("Limited War Power Ratio", leader.getLimitedWarPowerRatio()),
+-			("Dogpile War Rand", leader.getDogpileWarRand()),
+-			("Declare War Trade Rand", leader.getDeclareWarTradeRand()),
+-			("Demand Tribute Attitude Threshold", leader.getDemandTributeAttitudeThreshold()),
+-			("No War Attitude Threshold", leader.getNoWarAttitudeProb(AttitudeTypes.ATTITUDE_FURIOUS)),
+-			("Build Unit Prob", leader.getBuildUnitProb()),
+-			("Base Attack Odds Change", leader.getBaseAttackOddsChange()),
+-			("Wonder Construct Rand", leader.getWonderConstructRand()),
+-			("Peace Weight", leader.getPeaceWeight()),
+-			("Warmonger Respect", leader.getWarmongerRespect()),
+-			("Civic Weight", leader.getCivicWeight()),
+-			("Religion Weight", leader.getReligionWeight()),
+-			("Espionage Weight", leader.getEspionageWeight()),  # AdvCiv-specific
+-			("Favorite Civic", gc.getCivicInfo(leader.getFavoriteCivic()).getDescription() if leader.getFavoriteCivic() != -1 else "None"),
+-			("Favorite Religion", gc.getReligionInfo(leader.getFavoriteReligion()).getDescription() if leader.getFavoriteReligion() != -1 else "None"),
+-		]
+-		
+-		# Add each stat with tier label
+-		for label, value in aiValues:
+-			if value >= 100:
+-				level = "Very High"
+-			elif value >= 70:
+-				level = "High"
+-			elif value >= 40:
+-				level = "Medium"
+-			elif value >= 1:
+-				level = "Low"
++		leader = gc.getLeaderHeadInfo(iLeader)
++		numLeaders = gc.getNumLeaderHeadInfos()
++
++		def get_threshold_label(val, min_val, max_val):
++			if max_val == min_val:
++				return "N/A"
++			ratio = float(val - min_val) / float(max_val - min_val)
++			if ratio < 0.2:
++				return "Very Low"
++			elif ratio < 0.4:
++				return "Low"
++			elif ratio < 0.6:
++				return "Medium"
++			elif ratio < 0.8:
++				return "High"
+ 			else:
+-				level = "None"
+-			text += "%s: %d (%s)\n" % (label, value, level)
+-
+-			screen.addMultilineText(self.top.getNextWidgetName(), text, self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY , self.H_AI_PERSONALITY, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				return "Very High"
++
++		# === Categories and attributes ===
++		attribute_categories = {
++			"War Strategy": [
++				("Max War Rand", "getMaxWarRand"),
++				("Max War Nearby Power Ratio", "getMaxWarNearbyPowerRatio"),
++				("Max War Distant Power Ratio", "getMaxWarDistantPowerRatio"),
++				("Max War Min Adjacent Land Percent", "getMaxWarMinAdjacentLandPercent"),
++				("Limited War Rand", "getLimitedWarRand"),
++				("Limited War Power Ratio", "getLimitedWarPowerRatio"),
++				("Dogpile War Rand", "getDogpileWarRand"),
++				("Make Peace Rand", "getMakePeaceRand"),
++			],
++			"Diplomacy": [
++				("Base Attitude", "getBaseAttitude"),
++				("Peace Weight", "getBasePeaceWeight"),
++				("Warmonger Respect", "getWarmongerRespect"),
++				("Demand Sneak Prob", "getDemandRebukedSneakProb"),
++				("Demand War Prob", "getDemandRebukedWarProb"),
++				("Refuse Talk Threshold", "getRefuseToTalkWarThreshold"),
++				("No Tech Trade Threshold", "getNoTechTradeThreshold"),
++				("Tech Trade Known %", "getTechTradeKnownPercent"),
++				("Declare War Trade Rand", "getDeclareWarTradeRand"),
++			],
++			"Economic Preferences": [
++				("Espionage Weight", "getEspionageWeight"),
++				("Build Unit Prob", "getBuildUnitProb"),
++				("Base Attack Odds", "getBaseAttackOddsChange"),
++				("Attack Odds Rand", "getAttackOddsChangeRand"),
++				("Wonder Construct Rand", "getWonderConstructRand"),
++				("Max Gold Trade %", "getMaxGoldTradePercent"),
++				("Max GPT Trade %", "getMaxGoldPerTurnTradePercent"),
++			],
++			"Victory Strategy": [
++				("Culture Victory Weight", "getCultureVictoryWeight"),
++				("Space Victory Weight", "getSpaceVictoryWeight"),
++				("Conquest Victory Weight", "getConquestVictoryWeight"),
++				("Domination Victory Weight", "getDominationVictoryWeight"),
++				("Diplomacy Victory Weight", "getDiplomacyVictoryWeight"),
++			],
++		}
++
++		for category, attributes in attribute_categories.items():
++			text += u"\n<font=3b>%s</font>\n" % category
++			for label, funcName in attributes:
++				try:
++					values = []
++					for i in range(numLeaders):
++						try:
++							val = getattr(gc.getLeaderHeadInfo(i), funcName)()
++							values.append(val)
++						except:
++							continue
++					value = getattr(leader, funcName)()
++					min_val = min(values)
++					max_val = max(values)
++					level = get_threshold_label(value, min_val, max_val)
++					text += u"%s: %d (%s)\n" % (label, value, level)
++				except:
++					pass  # Failsafe if tag is missing
++
++		screen.addMultilineText(self.top.getNextWidgetName(), text, self.X_AI_PERSONALITY, self.Y_AI_PERSONALITY, self.W_AI_PERSONALITY , self.H_AI_PERSONALITY, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/README.md b/README.md
+index 16e1e0783..e630ae39a 100644
+--- a/README.md
++++ b/README.md
+@@ -48,6 +48,24 @@ I am not doing the ingame art though, just the icons, unless i would unexpectedl
+ 
+ Hopefully helpful and interesting.
+ 
++## Example of Sevopedia reworks (click on the images below to view them full size)
++
++example 1: AI personality panel (data fetched directly from xml in live, auto updated to latest current in your mod folder), thanks a lot ChatGPT and all who helped me directly or indirectly or not or yes etc anyways:
++
++<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.62_sevopedia_AI_Personality_sample.JPG" width="250"></img>
++
++example 2: Unit Chart (Unit Combat Types expanded page when you click on a combat type), thanks a lot to RFC DOC mod's code which i used quite heavily, then base AdvCiv which i sued to enhance it (blue background, margin), then i rewrote it heavily again to tweak it and add dynamic table size based on unit combat type (for example air units have 10 columns (air interception and air range), while other unit combat types only have 8, click to view these images full size:
++
++<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.63_sevopedia_unit_chart.JPG" width="250"></img>
++
++example 3: AdvCiv-SAS core changes coming from AdvCiv (thanks to [@f1rpo](https://github.com/f1rpo), main (only one i think actually? But anyways) maintainer of AdvCiv for the help in achieving that in particular). It is one of the cases where ChatGPT could not help so i especially appreciate it in this case even more, thanks a lot if i may say i mean anyways, thanks, really, thanks,
++
++(note: this one is also available on the [Quick Get Started Guide](/_1_AdvCiv-SAS/Quick_Get_Started_Guide.md) that i recommend you to read (but not obligated, anyways), if you haven't and want to start playing AdvCiv-SAS)
++
++Except and on top of these examples, i also rewrote, quite modestly or more proudly (often proud and bit cocky but in friednly way whatever that means maybe but bit humble too anyways) other entries in the sevopedia, based on other mods or advciv or/and ChatGPT or/and other ressources or not or/and myself or/and other indirect helps or not or yes or not or etc, anyways, please visit it to have latest data if interested, anyways.
++
++<img src="./_1_AdvCiv-SAS/Docs_And_Appendixes/0.61_sevopedia_advciv_sas_core_changes.JPG" width="250"></img>
++
+ ## Project Goals and global view on gameplay changes
+ 
+ The more general gameplay type of changes consist of
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.62_sevopedia_AI_Personality_sample.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.62_sevopedia_AI_Personality_sample.JPG
+new file mode 100644
+index 000000000..91bdd543e
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.62_sevopedia_AI_Personality_sample.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.63_sevopedia_unit_chart.JPG b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.63_sevopedia_unit_chart.JPG
+new file mode 100644
+index 000000000..b0c6e23af
+Binary files /dev/null and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.63_sevopedia_unit_chart.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=9203

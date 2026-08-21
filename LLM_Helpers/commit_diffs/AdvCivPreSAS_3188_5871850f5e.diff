@@ -1,0 +1,211 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3188
+# Commit: 5871850f5efb1770f7b5eea00602c43ed87d9162
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 91ab4a808321b27157595a9b1c7d3aa6e22e57fa
+# Title: Replace a std::map of std::sets with a 2D enum map
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+38	41	CvGameCoreDLL/CvDLLWidgetData.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index d97885a64..418f58669 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -6138,32 +6138,25 @@ CvWString CvDLLWidgetData::getDiscoverPathText(UnitTypes eUnit,
+ 	szRetVal.append(gDLL->getText(szFlavorKey));
+ 	szRetVal.append(L". ");
+ 	CvTeam& kTeam = GET_TEAM(ePlayer);
+-	/*  The same discovery could be enabled by multiple currently researchable techs.
++	/*	The same discovery could be enabled by multiple currently researchable techs.
+ 		The map lists the alt. reqs for each target tech. */
+-	std::map<TechTypes,std::set<TechTypes>*> discoverMap;
++	ArrayEnumMap2D<TechTypes,TechTypes,bool> discoverMap;
+ 	FOR_EACH_ENUM2(Tech, eResearchOption)
+ 	{
+-		if(!kPlayer.canResearch(eResearchOption))
++		if (!kPlayer.canResearch(eResearchOption))
+ 			continue;
+ 		kTeam.setHasTechTemporarily(eResearchOption, true);
+ 		TechTypes eNextDiscover = kPlayer.getDiscoveryTech(eUnit);
+ 		kTeam.setHasTechTemporarily(eResearchOption, false);
+-		if(eNextDiscover == eCurrentDiscover || eNextDiscover == NO_TECH)
+-			continue;
+-		std::set<TechTypes>* pDiscoverSet = NULL;
+-		if(discoverMap.find(eNextDiscover) == discoverMap.end())
+-		{
+-			pDiscoverSet = new std::set<TechTypes>();
+-			discoverMap.insert(std::make_pair(eNextDiscover, pDiscoverSet));
+-		}
+-		else pDiscoverSet = discoverMap.find(eNextDiscover)->second;
+-		pDiscoverSet->insert(eResearchOption);
++		if (eNextDiscover != eCurrentDiscover && eNextDiscover != NO_TECH)
++			discoverMap.set(eNextDiscover, eResearchOption, true);
+ 	}
+-	if(discoverMap.empty())
++	int iSize = discoverMap.numNonDefault();
++	if (iSize <= 0)
+ 		return szRetVal;
+ 	szRetVal.append(gDLL->getText("TXT_KEY_MISSION_DISCOVER_HELP2"));
+ 	szRetVal.append(L" ");
+-	if(discoverMap.size() == 1)
++	if (iSize == 1)
+ 		szRetVal.append(gDLL->getText(szFlavorKey));
+ 	else
+ 	{
+@@ -6171,12 +6164,15 @@ CvWString CvDLLWidgetData::getDiscoverPathText(UnitTypes eUnit,
+ 		szRetVal.append(gDLL->getText(szPluralKey));
+ 	}
+ 	szRetVal.append(L": ");
+-	for(std::map<TechTypes,std::set<TechTypes>*>::iterator it = discoverMap.begin();
+-		it != discoverMap.end(); ++it)
++	bool bFirst = true;
++	FOR_EACH_ENUM2(Tech, eNextDiscover)
+ 	{
+-		if(it != discoverMap.begin())
+-			szRetVal.append(L", ");
+-		CvTechInfo const& kNextDiscover = GC.getInfo(it->first);
++		if (discoverMap.get(eNextDiscover) == NULL)
++			continue;
++		if (bFirst)
++			bFirst = false;
++		else szRetVal.append(L", ");
++		CvTechInfo const& kNextDiscover = GC.getInfo(eNextDiscover);
+ 		CvWString szTemp;
+ 		szTemp.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_TECH_TEXT"),
+ 				kNextDiscover.getDescription());
+@@ -6184,23 +6180,24 @@ CvWString CvDLLWidgetData::getDiscoverPathText(UnitTypes eUnit,
+ 		szRetVal.append(L" (");
+ 		szRetVal.append(gDLL->getText("TXT_KEY_MISSION_DISCOVER_REQ"));
+ 		szRetVal.append(L" ");
+-		std::set<TechTypes> discoverSet = *it->second;
+-		for(std::set<TechTypes>::iterator sit = discoverSet.begin();
+-			sit != discoverSet.end(); ++sit)
++		bool bFirstInner = true;
++		FOR_EACH_ENUM2(Tech, eReqTech)
+ 		{
+-			if(sit != discoverSet.begin())
++			if (!discoverMap.get(eNextDiscover, eReqTech))
++				continue;
++			if (bFirstInner)
++				bFirstInner = false;
++			else
+ 			{
+ 				szRetVal.append(L" ");
+ 				szRetVal.append(gDLL->getText("TXT_KEY_MISSION_DISCOVER_OR"));
+ 				szRetVal.append(L" ");
+ 			}
+-			CvTechInfo const& kReqTech = GC.getInfo(*sit);
+ 			szTemp.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_TECH_TEXT"),
+-					kReqTech.getDescription());
++					GC.getInfo(eReqTech).getDescription());
+ 			szRetVal.append(szTemp);
+ 		}
+ 		szRetVal.append(L")");
+-		delete it->second;
+ 	}
+ 	szRetVal.append(L".");
+ 	return szRetVal;
+@@ -6209,14 +6206,14 @@ CvWString CvDLLWidgetData::getDiscoverPathText(UnitTypes eUnit,
+ // <advc.004b>
+ CvWString CvDLLWidgetData::getFoundCostText(CvPlot const& p, PlayerTypes eOwner) const
+ {
+-	CvPlayer& kOwner = GET_PLAYER(eOwner);
+-	if(kOwner.isAnarchy())
++	CvPlayer const& kOwner = GET_PLAYER(eOwner);
++	if (kOwner.isAnarchy())
+ 		return "";
+ 	int iProjPreInfl = 0;
+ 	// New city increases other cities' maintenance
+-	FOR_EACH_CITY(c, kOwner)
++	FOR_EACH_CITY (c, kOwner)
+ 	{
+-		if(c->isDisorder()) // Can't account for these
++		if (c->isDisorder()) // Can't account for these
+ 			continue;
+ 		int iProjected = // Distance and corp. maintenance stay the same
+ 				c->calculateDistanceMaintenanceTimes100() +
+@@ -6264,15 +6261,15 @@ CvWString CvDLLWidgetData::getNetFeatureHealthText(CvPlot const& kCityPlot,
+ 	for (CityPlotIter it(kCityPlot, false); it.hasNext(); ++it)
+ 	{
+ 		CvPlot const& p = *it;
+-		if(!p.isFeature() || !p.isRevealed(TEAMID(eOwner)))
++		if (!p.isFeature() || !p.isRevealed(TEAMID(eOwner)))
+ 			continue;
+ 		int iHealthPercent = GC.getInfo(p.getFeatureType()).getHealthPercent();
+-		if(iHealthPercent > 0)
++		if (iHealthPercent > 0)
+ 			iGoodHealthPercent += iHealthPercent;
+ 		else iBadHealthPercent -= iHealthPercent;
+ 	}
+ 	CvWString szRetVal;
+-	if(kCityPlot.isFreshWater())
++	if (kCityPlot.isFreshWater())
+ 	{
+ 		szRetVal.append(NEWLINE);
+ 		szRetVal.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_FRESH_WATER",
+@@ -6280,12 +6277,12 @@ CvWString CvDLLWidgetData::getNetFeatureHealthText(CvPlot const& kCityPlot,
+ 	}
+ 	int iGoodHealth = iGoodHealthPercent / 100;
+ 	int iBadHealth = iBadHealthPercent / 100;
+-	if(iGoodHealth > 0 || iBadHealth > 0)
++	if (iGoodHealth > 0 || iBadHealth > 0)
+ 	{
+ 		szRetVal.append(NEWLINE);
+ 		szRetVal.append(L"+");
+ 		int iIcon = 0;
+-		if(iGoodHealth > 0)
++		if (iGoodHealth > 0)
+ 		{
+ 			iIcon = gDLL->getSymbolID(HEALTHY_CHAR);
+ 			/*  Turns out good and bad health are rounded individually;
+@@ -6295,9 +6292,9 @@ CvWString CvDLLWidgetData::getNetFeatureHealthText(CvPlot const& kCityPlot,
+ 			//		L"%.1f%c" : L"%.2f%c"), fGoodHealth, iIcon));
+ 			szRetVal.append(CvWString::format(L"%d%c", iGoodHealth, iIcon));
+ 		}
+-		if(iBadHealth > 0)
++		if (iBadHealth > 0)
+ 		{
+-			if(iGoodHealth > 0)
++			if (iGoodHealth > 0)
+ 				szRetVal.append(CvWString::format(L", "));
+ 			iIcon = gDLL->getSymbolID(UNHEALTHY_CHAR);
+ 			szRetVal.append(CvWString::format(L"%d%c", iBadHealth, iIcon));
+@@ -6305,12 +6302,12 @@ CvWString CvDLLWidgetData::getNetFeatureHealthText(CvPlot const& kCityPlot,
+ 		szRetVal.append(gDLL->getText("TXT_KEY_FROM_FEATURES"));
+ 	}
+ 	int iExtraHealth = GET_PLAYER(eOwner).getExtraHealth();
+-	if(iExtraHealth != 0)
++	if (iExtraHealth != 0)
+ 	{
+ 		szRetVal.append(NEWLINE);
+ 		int iIcon = 0;
+ 		szRetVal.append(L"+");
+-		if(iExtraHealth > 0)
++		if (iExtraHealth > 0)
+ 		{
+ 			iIcon = gDLL->getSymbolID(HEALTHY_CHAR);
+ 			szRetVal.append(CvWString::format(L"%d%c", iExtraHealth, iIcon));
+@@ -6334,7 +6331,7 @@ CvWString CvDLLWidgetData::getHomePlotYieldText(CvPlot const& p, PlayerTypes eOw
+ 		int iYieldRate = p.calculateNatureYield(eLoopYield, TEAMID(eOwner), true);
+ 		CvYieldInfo const& kLoopYield = GC.getInfo(eLoopYield);
+ 		iYieldRate = std::max(iYieldRate, kLoopYield.getMinCity());
+-		if(iYieldRate == 0)
++		if (iYieldRate == 0)
+ 			continue;
+ 		CvWString szYield = CvWString::format(L", %d%c", iYieldRate, kLoopYield.getChar());
+ 		szRetVal.append(szYield);
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=7190

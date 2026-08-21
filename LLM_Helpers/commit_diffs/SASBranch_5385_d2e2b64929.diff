@@ -1,0 +1,1634 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5385
+# Commit: d2e2b649298af276986bfa8990dc0da24f6450cc
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 978e8252b37b85a8093cdfaba29c4aa84e14fd8a
+# Title: update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/2nd_Place_Medal/1f948_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/3rd_Place_Medal/1f949_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Axe/1fa93_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Brain/1f9e0_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Broken_Heart/1f494_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Chart_Decreasing/1f4c9_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Crossed_Swords/2694_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Dove/1f54a_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Fire/1f525_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Gear/2699_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Herb/1f33f_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Hourglass_Not_Done/23f3_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Lion_Face/1f981_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Megaphone/1f4e3_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Money_Bag/1f4b0_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/No_Entry/26d4_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Play_Button/25b6_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Red_Heart/2764_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Skull/1f480_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Trophy/1f3c6_64px.dds
+-	-	Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Wrench/1f527_64px.dds
+4	11	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+3	4	Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+15	15	Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+12	15	Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+7	11	Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+3	4	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+32	33	Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+3	3	Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py
+3	4	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+3	3	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+2	6	Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+3	6	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+4	9	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+2	1	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+7	9	Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+1	26	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+10	10	Assets/Python/Screens/CvInfoScreen.py
+1	1	Assets/Python/Screens/CvVictoryScreen.py
+129	2	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+0	174	Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml
+0	20	Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml
+2	7	Long_Comments/Long_Comments_XML.txt
+13	87	README.md
+4	8	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+1	1	_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+3	3	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+4	4	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+3	3	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/2nd_Place_Medal/1f948_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/3rd_Place_Medal/1f949_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Axe/1fa93_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Brain/1f9e0_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Broken_Heart/1f494_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Chart_Decreasing/1f4c9_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Crossed_Swords/2694_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Dove/1f54a_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Fire/1f525_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Gear/2699_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Herb/1f33f_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Hourglass_Not_Done/23f3_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Lion_Face/1f981_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Megaphone/1f4e3_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Money_Bag/1f4b0_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/No_Entry/26d4_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Play_Button/25b6_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Red_Heart/2764_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Skull/1f480_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Trophy/1f3c6_64px.dds (100%)
+ rename Assets/Art/AdvCiv_SAS/{Images_As_Buttons => Emojis}/Wrench/1f527_64px.dds (100%)
+ delete mode 100644 Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml
+ delete mode 100644 Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/2nd_Place_Medal/1f948_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/2nd_Place_Medal/1f948_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/2nd_Place_Medal/1f948_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/2nd_Place_Medal/1f948_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/3rd_Place_Medal/1f949_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/3rd_Place_Medal/1f949_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/3rd_Place_Medal/1f949_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/3rd_Place_Medal/1f949_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Axe/1fa93_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Axe/1fa93_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Axe/1fa93_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Axe/1fa93_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Brain/1f9e0_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Brain/1f9e0_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Brain/1f9e0_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Brain/1f9e0_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Broken_Heart/1f494_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Broken_Heart/1f494_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Broken_Heart/1f494_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Broken_Heart/1f494_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Chart_Decreasing/1f4c9_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Chart_Decreasing/1f4c9_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Chart_Decreasing/1f4c9_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Chart_Decreasing/1f4c9_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Crossed_Swords/2694_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Crossed_Swords/2694_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Crossed_Swords/2694_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Crossed_Swords/2694_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Dove/1f54a_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Dove/1f54a_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Dove/1f54a_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Dove/1f54a_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Fire/1f525_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Fire/1f525_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Fire/1f525_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Fire/1f525_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Gear/2699_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Gear/2699_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Gear/2699_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Gear/2699_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Herb/1f33f_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Herb/1f33f_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Herb/1f33f_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Herb/1f33f_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Hourglass_Not_Done/23f3_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Hourglass_Not_Done/23f3_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Lion_Face/1f981_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Lion_Face/1f981_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Lion_Face/1f981_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Lion_Face/1f981_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Megaphone/1f4e3_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Megaphone/1f4e3_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Megaphone/1f4e3_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Megaphone/1f4e3_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Money_Bag/1f4b0_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Money_Bag/1f4b0_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Money_Bag/1f4b0_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Money_Bag/1f4b0_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/No_Entry/26d4_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/No_Entry/26d4_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/No_Entry/26d4_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/No_Entry/26d4_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Play_Button/25b6_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Play_Button/25b6_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Play_Button/25b6_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Play_Button/25b6_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Red_Heart/2764_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Red_Heart/2764_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Red_Heart/2764_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Red_Heart/2764_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Skull/1f480_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Skull/1f480_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Skull/1f480_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Skull/1f480_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Trophy/1f3c6_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Trophy/1f3c6_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Trophy/1f3c6_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Trophy/1f3c6_64px.dds
+
+diff --git a/Assets/Art/AdvCiv_SAS/Images_As_Buttons/Wrench/1f527_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Wrench/1f527_64px.dds
+similarity index 100%
+rename from Assets/Art/AdvCiv_SAS/Images_As_Buttons/Wrench/1f527_64px.dds
+rename to Assets/Art/AdvCiv_SAS/Emojis/Wrench/1f527_64px.dds
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 4f2c9c8db..db5c2b325 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -88,6 +88,8 @@ class SevoPediaBuilding:
+ 
+ 		self.X_MOVIE = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+ 		self.Y_MOVIE = self.Y_REQUIRES
++		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
++		self.powerButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_POWER").getPath()
+ 
+ 		self.X_REQUIRED_FOR = self.X_BUILDING_PANE
+ 		self.Y_REQUIRED_FOR = self.Y_REQUIRES + self.H_REQUIRES + self.SMALL_MARGIN
+@@ -278,12 +280,8 @@ class SevoPediaBuilding:
+ 					szText1 += szPowerSign + str(iPowerYieldModifier) + "% w/"
+ 					
+ 					# Add power button
+-					configButtonPathSTxtKey = "TXT_KEY_BUTTON_PATH_HARDCODED_POWER_BUTTON_PATH"
+-					resolvedButtonPath = localText.getText(configButtonPathSTxtKey, ())
+-					buttonHeader = "Power Button in Sevopedia Building's placeStats"
+-					check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey)
+ 					buttonSize = 24
+-					szButtonText = u"<img=%s size=%s></img>" % (resolvedButtonPath, str(buttonSize))
++					szButtonText = u"<img=%s size=%s></img>" % (self.powerButtonPath, str(buttonSize))
+ 					szText1 += szButtonText
+ 
+ 				szText2 = u"%c  %s" % (gc.getYieldInfo(k).getChar(), szText1)
+@@ -645,11 +643,6 @@ class SevoPediaBuilding:
+ 
+ 		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_WONDER
+ 		if self.top.pediaMovies.hasMovie(iMovieType, self.iBuilding):
+-			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
+-			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
+-			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+-			check_button_path_is_valid("Sevopedia Building Movie button", buttonPath, buttonPathTxtKey)
+-
+ 			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iBuilding)
+ 			buttonSize = 64
+ 			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
+@@ -657,7 +650,7 @@ class SevoPediaBuilding:
+ 			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
+ 			buttonX = (self.W_MOVIE - buttonSize) / 2
+ 			buttonY = 10
+-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+ 		else:
+ 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+index 06210dee7..2ab5b390f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+@@ -34,6 +34,7 @@ class SevoPediaCivilization:
+ 
+ 		self.MEDIUM_MARGIN = 15
+ 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
++		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+ 		rowH = 110
+ 
+@@ -136,17 +137,15 @@ class SevoPediaCivilization:
+ 		# <!-- custom: use attachLabel for padding similar to other 84px panels -->
+ 		screen.attachLabel(panelName, "", "  ")
+ 
+-		buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
+-		buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+ 		buttonSize = 64
+ 		buttonX = (self.W_MUSIC - buttonSize) / 2
+ 		buttonY = 10
+ 		# <!-- custom: redirect to the first civ-specific sound entry in Sevopedia Music. (GPT-5.2-Codex (summarized)) -->
+ 		iMusicKey = self.top.SAS_getFirstCivMusicKey(self.iCivilization)
+ 		if iMusicKey != -1:
+-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
+ 		else:
+-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+index fccaa9e6a..1843f6e95 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaEraChart.py
+@@ -13,6 +13,7 @@ import SevoScreenEnums
+ from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+ 
+@@ -33,6 +34,9 @@ class SevoPediaEraChart:
+ 		# <!-- custom: Toggle to show/hide era button row above the table. (Claude Opus 4.5) -->
+ 		self.SHOW_ERA_BUTTONS = (gc.getDefineINT("SAS_SEVOPEDIA_ERA_CHART_SHOW_ERA_BUTTONS") > 0)
+ 
++		# <!-- custom: Cache emoji icon path for performance. (GPT-5.2-Codex (summarized)) -->
++		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
++
+ 	def interfaceScreen(self):
+ 		screen = self.top.getScreen()
+ 		self._drawTable(screen)
+@@ -89,15 +93,14 @@ class SevoPediaEraChart:
+ 			else:
+ 				buttonRowStartX = tableX + self.W_FIELD
+ 
+-			playButtonPath = CvUtil.convertToStr(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH", ()))
+-			if playButtonPath:
++			if self.playButtonPath:
+ 				playButtonX = buttonRowStartX - wNum
+ 				# <!-- custom: redirect to first era track (Track 01 of Ancient era) in Sevopedia Music category -->
+ 				iFirstEraMusicKey = self.top.SAS_getFirstEraMusicKey()
+ 				if iFirstEraMusicKey != -1:
+-					screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iFirstEraMusicKey)
++					screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iFirstEraMusicKey)
+ 				else:
+-					screen.setImageButton(self.top.getNextWidgetName(), playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
++					screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, playButtonX, buttonRowY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
+ 
+ 			era_count = gc.getNumEraInfos()
+ 			for iEra in xrange(era_count):
+@@ -230,20 +233,17 @@ class SevoPediaEraChart:
+ 
+ 		game = CyGame()
+ 		btn_by_name = {}
+-		def _btn_path(szTxtKey):
+-			return CvUtil.convertToStr(localText.getText(szTxtKey, ()))
+ 
+ 		_btn_defs = (
+-			# (name, TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
+-			("lion",   "TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH"),
+-			("skull",  "TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH"),
+-			("swords", "TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH"),
+-			("fire",   "TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH"),
+-			("gear",   "TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH"),
+-			("brain",  "TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH"),
++			("lion",   "SAS_EMOJI_LION_FACE"),
++			("skull",  "SAS_EMOJI_SKULL"),
++			("swords", "SAS_EMOJI_CROSSED_SWORDS"),
++			("fire",   "SAS_EMOJI_FIRE"),
++			("gear",   "SAS_EMOJI_GEAR"),
++			("brain",  "SAS_EMOJI_BRAIN"),
+ 		)
+-		for i, (name, txtKey) in enumerate(_btn_defs):
+-			btn_by_name[name] = (_btn_path(txtKey), (i + 1) * 10)
++		for i, (name, artKey) in enumerate(_btn_defs):
++			btn_by_name[name] = (ArtFileMgr.getInterfaceArtInfo(artKey).getPath(), (i + 1) * 10)
+ 
+ 		glyph_by_name = {}
+ 		_glyph_defs = (
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+index a75435b8b..b7c0582aa 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaGameSpeedChart.py
+@@ -12,6 +12,7 @@ import CvUtil
+ from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+ 
+@@ -146,7 +147,7 @@ class SevoPediaGameSpeedChart:
+ 		#
+ 		# icon_spec:
+ 		#   None
+-		#   ("btn",   <name>)   -> IconsAsButtons.xml (resolved via TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
++		# <!-- custom: ("btn", <name>) -> ArtFileMgr interface art (SAS_EMOJI_*). (GPT-5.2-Codex (summarized)) -->
+ 		#   ("glyph", <name>)   -> GameFont glyph (yield/commerce/symbol char)
+ 		row_specs = (
+ 			("iGrowthPercent",              "getGrowthPercent",              ("glyph", "food")),
+@@ -206,23 +207,19 @@ class SevoPediaGameSpeedChart:
+ 		# renumbering everything; only relative order matters.
+ 
+ 		btn_by_name = {}
+-		# Button icons resolved via TXT_KEY_IMAGE_AS_BUTTON_*_PATH (IconsAsButtons.xml).
+-		def _btn_path(szTxtKey):
+-			return CvUtil.convertToStr(localText.getText(szTxtKey, ()))
+ 
+ 		_btn_defs = (
+-			# (name, TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
+-			("dove",      "TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH"),
+-			("swords",    "TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH"),
+-			("skull",     "TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH"),
+-			("gear",      "TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH"),
+-			("brain",     "TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH"),
+-			("hourglass", "TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH"),
+-			("fire",      "TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH"),
+-			("trophy",    "TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH"),
++			("dove",      "SAS_EMOJI_DOVE"),
++			("swords",    "SAS_EMOJI_CROSSED_SWORDS"),
++			("skull",     "SAS_EMOJI_SKULL"),
++			("gear",      "SAS_EMOJI_GEAR"),
++			("brain",     "SAS_EMOJI_BRAIN"),
++			("hourglass", "SAS_EMOJI_HOURGLASS_NOT_DONE"),
++			("fire",      "SAS_EMOJI_FIRE"),
++			("trophy",    "SAS_EMOJI_TROPHY"),
+ 		)
+-		for i, (name, txtKey) in enumerate(_btn_defs):
+-			btn_by_name[name] = (_btn_path(txtKey), (i + 1) * 10)
++		for i, (name, artKey) in enumerate(_btn_defs):
++			btn_by_name[name] = (ArtFileMgr.getInterfaceArtInfo(artKey).getPath(), (i + 1) * 10)
+ 
+ 		glyph_by_name = {}
+ 		# GameFont glyph icons (yields/commerce/symbols).
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+index c1180986f..e92c1a8f0 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+@@ -15,6 +15,7 @@ import re
+ from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+ 
+@@ -389,23 +390,18 @@ class SevoPediaHandicapChart:
+ 		icon_cell_for_key = None
+ 		if self.IS_SAS_SEVOPEDIA_HANDICAP_CHART_HEADER_ICONS:
+ 			game = CyGame()
+-
+-			# Button icons resolved via TXT_KEY_IMAGE_AS_BUTTON_*_PATH (IconsAsButtons.xml).
+ 			btn_by_name = {}
+-			def _btn_path(szTxtKey):
+-				return CvUtil.convertToStr(localText.getText(szTxtKey, ()))
+ 
+ 			_btn_defs = (
+-				# (name, TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
+-				("dove",   "TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH"),
+-				("lion",   "TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH"),
+-				("skull",  "TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH"),
+-				("swords", "TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH"),
++				("dove",   "SAS_EMOJI_DOVE"),
++				("lion",   "SAS_EMOJI_LION_FACE"),
++				("skull",  "SAS_EMOJI_SKULL"),
++				("swords", "SAS_EMOJI_CROSSED_SWORDS"),
+ 			)
+-			for i, (name, txtKey) in enumerate(_btn_defs):
++			for i, (name, artKey) in enumerate(_btn_defs):
+ 				# Group id only affects sorting by the icon column.
+ 				# Reorder _btn_defs to change the icon-theme sort order.
+-				btn_by_name[name] = (_btn_path(txtKey), (i + 1) * 10)
++				btn_by_name[name] = (ArtFileMgr.getInterfaceArtInfo(artKey).getPath(), (i + 1) * 10)
+ 
+ 			glyph_by_name = {}
+ 			# GameFont glyph icons (yields/commerce/symbols).
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index b3e799cc7..b0d715243 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -110,6 +110,7 @@ class SevoPediaLeader:
+ 		self.X_MUSIC = self.X_FAVORITES + self.W_FAVORITES + self.SMALL_MARGIN
+ 		self.Y_MUSIC = self.Y_FAVORITES
+ 		self.H_MUSIC = self.H_FAVORITES
++		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+ 		# <!-- custom: the rest of the coordinates here, as it is dependent on other coordinates we need first that (i.e. before being able to add these) -->
+ 		self.X_AI_PERSONALITY = self.top.R_PEDIA_PAGE - self.W_AI_PERSONALITY 
+@@ -202,17 +203,15 @@ class SevoPediaLeader:
+ 		# <!-- custom: use attachLabel for padding similar to other 84px panels -->
+ 		screen.attachLabel(panelName, "", "  ")
+ 
+-		buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
+-		buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+ 		buttonSize = 64
+ 		buttonX = (self.W_MUSIC - buttonSize) / 2
+ 		buttonY = 10
+ 		# <!-- custom: redirect to leader's peace music entry in Sevopedia Music category -->
+ 		iMusicKey = self.top.SAS_getLeaderPeaceMusicKey(self.iLeader)
+ 		if iMusicKey != -1:
+-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iMusicKey)
+ 		else:
+-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MUSIC, -1)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+index ec4423e1b..61d74ce78 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+@@ -14,6 +14,7 @@ from _sevopedia_helpers import *
+ 
+ 
+ gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+ 
+@@ -1074,17 +1075,17 @@ def _compute_leader_cache_internal():
+ 
+ 
+ 
+-	def get_ai_category_header_line_with_or_without_button_and_x_offset(icon_button_path_txt_key, ai_category_header):
++	def get_ai_category_header_line_with_or_without_button_and_x_offset(icon_button_art_key, ai_category_header):
+ 		if not IS_DISPLAY_AI_CATEGORY_HEADERS:
+ 			return (None, 0)
+ 		# If the header is disabled (None), keep the exact same "no header" tuple semantics.
+ 		if ai_category_header is None:
+ 			return (None, 0)
+ 
+-		if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS and icon_button_path_txt_key:
+-			button_path = localText.getText(icon_button_path_txt_key, ())
++		if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS and icon_button_art_key:
+ 			button_size = 16
+-			line_button_txt = u"<img=%s size=%s></img>" % (button_path, str(button_size))
++			# <!-- custom: No caching needed here since this precomputes to a file (not called repeatedly during gameplay). (GPT-5.2-Codex (summarized)) -->
++			line_button_txt = u"<img=%s size=%s></img>" % (ArtFileMgr.getInterfaceArtInfo(icon_button_art_key).getPath(), str(button_size))
+ 			ai_category_header_line_with_button = u"%s <font=3b>%s</font>" % (line_button_txt, ai_category_header)
+ 
+ 			# <!-- custom: add x offset (negative) so we can push button a bit left and reduce whitespace -->
+@@ -1097,11 +1098,10 @@ def _compute_leader_cache_internal():
+ 
+ 			return (ai_category_header_line_without_button, ai_category_x_offset_without_button)
+ 
+-	def get_ai_category(icon_button_path_txt_key, ai_category_header, ai_category_key_order):
++	def get_ai_category(icon_button_art_key, ai_category_header, ai_category_key_order):
+ 		ai_category_header_line, ai_category_x_offset = get_ai_category_header_line_with_or_without_button_and_x_offset(
+-			icon_button_path_txt_key,
+-			ai_category_header,
+-			localText
++			icon_button_art_key,
++			ai_category_header
+ 		)
+ 
+ 		return (ai_category_header_line, ai_category_x_offset, ai_category_key_order)
+@@ -1323,44 +1323,43 @@ def _compute_leader_cache_internal():
+ 			return header_key_or_text
+ 
+ 		# === AI Panel's Categories (display order) ===
+-		# Note: icon_button_path_txt_key values are TXT_KEYs that resolve via localText to an image path.
+-		# We keep them local here for clarity and to avoid any global "emoji mapping" state.
++		# <!-- custom: We keep icon_button_art_key values local here for clarity and to avoid any global "emoji mapping" state. (GPT-5.2-Codex (summarized)) -->
+ 
+ 		right_defs = (
+ 			# <!-- custom: Economic Preferences. (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_MONEY_BAG_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES", get_ai_category_order_economic_preferences()),
++			("SAS_EMOJI_MONEY_BAG", "TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES", get_ai_category_order_economic_preferences()),
+ 			# <!-- custom: Contact Offer Probabilities. (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", get_ai_category_order_contact_probs(True)),
++			("SAS_EMOJI_DOVE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", get_ai_category_order_contact_probs(True)),
+ 			# <!-- custom: Contact Demand Probabilities. (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_MEGAPHONE_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", get_ai_category_order_contact_probs(False)),
++			("SAS_EMOJI_MEGAPHONE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", get_ai_category_order_contact_probs(False)),
+ 			# <!-- custom: Offer Refuse Attitude Thresholds. (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_NO_ENTRY_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", get_ai_category_order_refusal_thresholds(True)),
++			("SAS_EMOJI_NO_ENTRY", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", get_ai_category_order_refusal_thresholds(True)),
+ 			# <!-- custom: Demand Refuse Attitude Thresholds. (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_AXE_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", get_ai_category_order_refusal_thresholds(False)),
++			("SAS_EMOJI_AXE", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", get_ai_category_order_refusal_thresholds(False)),
+ 			# <!-- custom: Misc Modifiers. (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_WRENCH_PATH", "TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS", get_ai_category_order_misc_modifiers()),
++			("SAS_EMOJI_WRENCH", "TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS", get_ai_category_order_misc_modifiers()),
+ 		)
+ 
+ 		middle_defs = (
+ 			# <!-- custom: Positive Memory Affections. (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_RED_HEART_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS", get_ai_category_order_positive_memory_affections_or_resentments("Positive", "Affection")),
++			("SAS_EMOJI_RED_HEART", "TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS", get_ai_category_order_positive_memory_affections_or_resentments("Positive", "Affection")),
+ 			# <!-- custom: Negative Memory Resentments. (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS", get_ai_category_order_negative_memory_affections_or_resentments("Negative", "Resentment")),
++			("SAS_EMOJI_SKULL", "TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS", get_ai_category_order_negative_memory_affections_or_resentments("Negative", "Resentment")),
+ 			# <!-- custom: No War At. (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT", get_ai_category_order_no_war_at()),
++			("SAS_EMOJI_HERB", "TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT", get_ai_category_order_no_war_at()),
+ 			# <!-- custom: Attitude Changes +/- Lims +/- Divs. (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_CHART_DECREASING_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES", get_ai_category_order_attitude_changes()),
++			("SAS_EMOJI_CHART_DECREASING", "TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES", get_ai_category_order_attitude_changes()),
+ 		)
+ 
+ 		left_defs = (
+ 			# <!-- custom: Core Personality. (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY", get_ai_category_order_core_personality()),
++			("SAS_EMOJI_BRAIN", "TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY", get_ai_category_order_core_personality()),
+ 			# <!-- custom: Victory Weights (BBAI-style). (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS", get_ai_category_order_victory_weights()),
++			("SAS_EMOJI_TROPHY", "TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS", get_ai_category_order_victory_weights()),
+ 			# <!-- custom: Flavors. (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_FLAVORS", get_ai_category_order_flavors()),
++			("SAS_EMOJI_GEAR", "TXT_KEY_LEADER_AI_PANEL_FLAVORS", get_ai_category_order_flavors()),
+ 			# <!-- custom: War Strategy. (GPT-5.2-Codex) -->
+-			("TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH", "TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY", get_ai_category_order_war_strategy()),
++			("SAS_EMOJI_CROSSED_SWORDS", "TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY", get_ai_category_order_war_strategy()),
+ 		)
+ 
+ 		right_categories = []
+@@ -1368,18 +1367,18 @@ def _compute_leader_cache_internal():
+ 		left_categories = []
+ 
+ 		if IS_DISPLAY_AI_CATEGORY_HEADERS:
+-			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in right_defs:
+-				right_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order))
+-			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in middle_defs:
+-				middle_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order))
+-			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in left_defs:
+-				left_categories.append(get_ai_category(icon_button_path_txt_key, get_header_text(header_key_or_text), ai_category_key_order))
++			for icon_button_art_key, header_key_or_text, ai_category_key_order in right_defs:
++				right_categories.append(get_ai_category(icon_button_art_key, get_header_text(header_key_or_text), ai_category_key_order))
++			for icon_button_art_key, header_key_or_text, ai_category_key_order in middle_defs:
++				middle_categories.append(get_ai_category(icon_button_art_key, get_header_text(header_key_or_text), ai_category_key_order))
++			for icon_button_art_key, header_key_or_text, ai_category_key_order in left_defs:
++				left_categories.append(get_ai_category(icon_button_art_key, get_header_text(header_key_or_text), ai_category_key_order))
+ 		else:
+-			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in right_defs:
++			for icon_button_art_key, header_key_or_text, ai_category_key_order in right_defs:
+ 				right_categories.append(get_ai_category(None, None, ai_category_key_order))
+-			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in middle_defs:
++			for icon_button_art_key, header_key_or_text, ai_category_key_order in middle_defs:
+ 				middle_categories.append(get_ai_category(None, None, ai_category_key_order))
+-			for icon_button_path_txt_key, header_key_or_text, ai_category_key_order in left_defs:
++			for icon_button_art_key, header_key_or_text, ai_category_key_order in left_defs:
+ 				left_categories.append(get_ai_category(None, None, ai_category_key_order))
+ 
+ 		return (tuple(right_categories), tuple(middle_categories), tuple(left_categories))
+
+[PATCH OMITTED] file=a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py reason=known-generated/noisy-history changedLines=6 bytes=14341
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+index 5cddd401c..7aa07fc59 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -14,6 +14,7 @@ import SevoScreenEnums
+ from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ UserProfile = CyUserProfile()
+ 
+@@ -49,6 +50,7 @@ class SevoPediaMovie:
+ 		self.H_BUTTON = 64
+ 		self.X_BUTTON = self.X_HEADER + self.W_HEADER - self.W_BUTTON - 10
+ 		self.Y_BUTTON = self.Y_HEADER + (self.H_HEADER - self.H_BUTTON) / 2
++		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+ 		self.X_TEXT = self.X_HEADER
+ 		self.Y_TEXT = self.Y_HEADER + self.H_HEADER + 10
+@@ -89,10 +91,7 @@ class SevoPediaMovie:
+ 		screen.setLabel(self.top.getNextWidgetName(), "Background", szTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		if self.hasMovie(iMovieType, iMovieId):
+-			# <!-- custom: use image button with play emoji instead of text button. (Claude Opus 4.5) -->
+-			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
+-			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+-			screen.setImageButton(self.top.getNextWidgetName(), buttonPath, self.X_BUTTON, self.Y_BUTTON, self.W_BUTTON, self.H_BUTTON, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_PLAY, self.iMovie)
++			screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, self.X_BUTTON, self.Y_BUTTON, self.W_BUTTON, self.H_BUTTON, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_PLAY, self.iMovie)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index 585beed07..d92554356 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -12,6 +12,7 @@ import SevoScreenEnums
+ from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+ 
+@@ -50,6 +51,7 @@ class SevoPediaMusic:
+ 		self.H_BUTTON = 64
+ 		self.X_BUTTON = self.X_HEADER + self.W_HEADER - self.W_BUTTON - 10
+ 		self.Y_BUTTON = self.Y_HEADER + (self.H_HEADER - self.H_BUTTON) / 2
++		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+ 		self.X_TEXT = self.X_HEADER
+ 		self.Y_TEXT = self.Y_HEADER + self.H_HEADER + 10
+@@ -102,9 +104,7 @@ class SevoPediaMusic:
+ 		screen.setLabel(self.top.getNextWidgetName(), "Background", szTitle, CvUtil.FONT_LEFT_JUSTIFY, self.X_TITLE, self.Y_TITLE, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 		if self.hasMusic(self.iMusic):
+-			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
+-			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+-			screen.setImageButton(self.top.getNextWidgetName(), buttonPath, self.X_BUTTON, self.Y_BUTTON, self.W_BUTTON, self.H_BUTTON, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_PLAY, self.iMusic)
++			screen.setImageButton(self.top.getNextWidgetName(), self.playButtonPath, self.X_BUTTON, self.Y_BUTTON, self.W_BUTTON, self.H_BUTTON, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_PLAY, self.iMusic)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+index acc9437e2..e77e6b2a4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+@@ -42,6 +42,7 @@ class SevoPediaProject:
+ 		self.X_MOVIE = self.X_REQUIRES - self.W_MOVIE - 10
+ 		self.Y_MOVIE = self.Y_REQUIRES
+ 		self.H_MOVIE = self.H_REQUIRES
++		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+ 		self.X_PROJECT_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_PROJECT_PANE = self.top.Y_PEDIA_PAGE
+@@ -147,11 +148,6 @@ class SevoPediaProject:
+ 
+ 		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_PROJECT
+ 		if self.top.pediaMovies.hasMovie(iMovieType, self.iProject):
+-			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
+-			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
+-			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+-			check_button_path_is_valid("Sevopedia Project Movie button", buttonPath, buttonPathTxtKey)
+-
+ 			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iProject)
+ 			buttonSize = 64
+ 			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
+@@ -159,7 +155,7 @@ class SevoPediaProject:
+ 			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
+ 			buttonX = (self.W_MOVIE - buttonSize) / 2
+ 			buttonY = 10
+-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+ 		else:
+ 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index a7ac4af84..ff6016a0c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -73,6 +73,7 @@ class SevoPediaReligion:
+ 
+ 		self.W_REQUIRES = 84
+ 		self.W_MOVIE = 84
++		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+ 		self.X_UNITS = self.X_BUILDINGS
+ 		self.Y_UNITS = self.Y_BUILDINGS + self.H_BUILDINGS + self.SMALL_MARGIN
+@@ -211,19 +212,15 @@ class SevoPediaReligion:
+ 
+ 		iMovieType = self.top.SAS_PEDIA_MOVIE_TYPE_RELIGION
+ 		if self.top.pediaMovies.hasMovie(iMovieType, self.iReligion):
+-			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
+-			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
+-			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+-			check_button_path_is_valid("Sevopedia Religion Movie button", buttonPath, buttonPathTxtKey)
+-
+ 			iPackedMovie = self.top.SAS_packMovieKey(iMovieType, self.iReligion)
++
+ 			buttonSize = 64
+ 			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
+ 			# X: Standard centering works correctly.
+ 			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
+ 			buttonX = (self.W_MOVIE - buttonSize) / 2
+ 			buttonY = 10
+-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+ 		else:
+ 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 76fbb62ff..f04826780 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -228,6 +228,8 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.W_MUSIC = 84
+ 		self.H_MUSIC = self.H_ROW
+ 		self.X_MUSIC = self.top.R_PEDIA_PAGE - self.W_MUSIC
++		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
++		self.noEntryButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_NO_ENTRY").getPath()
+ 
+ 		self.Y_OBSOLETES = self.Y_FIRST_TO_DISCOVER
+ 		self.X_OBSOLETES = self.X_TRADEABLE + self.W_TRADEABLE + self.MEDIUM_MARGIN
+@@ -350,17 +352,13 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		iPackedMusic = self.top.SAS_packMusicKey(iMusicType, self.iTech)
+ 
+ 		if self.top.pediaMusic.hasMusic(iPackedMusic):
+-			# <!-- custom: setImageButtonAt requires str() wrapper (not unicode) for button path - discovered via debugging C++ signature mismatch error. (Claude Code Sonnet 4.5) -->
+-			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH"
+-			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+-
+ 			buttonSize = 64
+ 			# <!-- custom: setImageButtonAt positions relative to panel content area (below header).
+ 			# X: Standard centering works correctly.
+ 			# Y: Must be set to 10 (not calculated from panelHeaderHeight) - empirically determined positioning fix. (Claude Code Sonnet 4.5) -->
+ 			buttonX = (self.W_MUSIC - buttonSize) / 2
+ 			buttonY = 10
+-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iPackedMusic)
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iPackedMusic)
+ 		else:
+ 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+ 			textName = self.top.getNextWidgetName()
+@@ -462,13 +460,10 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 			screen.addMultilineText(txtName, szText, self.X_TRADEABLE + 7, yPanelCenter, self.W_TRADEABLE - 14, self.H_TRADEABLE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 		else:
+ 			# Tech is not tradeable - show emoji icon
+-			buttonPathTxtKey = "TXT_KEY_IMAGE_AS_BUTTON_NO_ENTRY_BUTTON_PATH"
+-			buttonPath = str(localText.getText(buttonPathTxtKey, ()))
+-
+ 			buttonSize = 64
+ 			buttonX = (self.W_TRADEABLE - buttonSize) / 2
+ 			buttonY = 10
+-			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, buttonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
++			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.noEntryButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 0561635cd..5dd03bc8e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -175,6 +175,7 @@ class SevoPediaUnit:
+ 		self.Y_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.Y_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+ 		self.W_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.W_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+ 		self.H_PEAK_HILL_CITY_TERRAINS_FEATURES_MODIFIERS = self.H_UNDER_ANIMATION_PANELS
++		self.citiesButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_CITIES_LANDSCAPE").getPath()
+ 
+ 		self.H_ADJUST_Y_AFTER_ANIMATION_NO_HEADER = 22
+ 
+@@ -725,7 +726,7 @@ class SevoPediaUnit:
+ 
+ 			# Column index (always 0 when numLists=1)
+ 			columnIndex = 0
+-			screen.appendMultiListButton(rowListName, get_citiesResolvedButtonPath(), columnIndex, widgetType, widgetID1, widgetID2, False)
++			screen.appendMultiListButton(rowListName, self.citiesButtonPath, columnIndex, widgetType, widgetID1, widgetID2, False)
+ 
+ 			numTxt = get_numTxt_attack_defense_modifiers(iCityAttack, iCityDefense)
+ 			extraCorrectionX = get_extra_correction_x(numTxt)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+index e5d336f2e..68fc411d7 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaWorldSizeChart.py
+@@ -12,6 +12,7 @@ import CvUtil
+ from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+ 
+@@ -182,20 +183,17 @@ class SevoPediaWorldSizeChart:
+ 
+ 		game = CyGame()
+ 		btn_by_name = {}
+-		# Button icons resolved via TXT_KEY_IMAGE_AS_BUTTON_*_PATH (IconsAsButtons.xml).
+-		def _btn_path(szTxtKey):
+-			return CvUtil.convertToStr(localText.getText(szTxtKey, ()))
+ 
+ 		_btn_defs = (
+-			# (name, TXT_KEY_IMAGE_AS_BUTTON_*_PATH)
+-			("swords", "TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH"),
+-			("herb",   "TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH"),
+-			("fire",   "TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH"),
++			# <!-- custom: (name, SAS_EMOJI_* interface art key). (GPT-5.2-Codex (summarized)) -->
++			("swords", "SAS_EMOJI_CROSSED_SWORDS"),
++			("herb",   "SAS_EMOJI_HERB"),
++			("fire",   "SAS_EMOJI_FIRE"),
+ 		)
+-		for i, (name, txtKey) in enumerate(_btn_defs):
++		for i, (name, artKey) in enumerate(_btn_defs):
+ 			# Group id only affects sorting by the icon column.
+ 			# Reorder _btn_defs to change the icon-theme sort order.
+-			btn_by_name[name] = (_btn_path(txtKey), (i + 1) * 10)
++			btn_by_name[name] = (ArtFileMgr.getInterfaceArtInfo(artKey).getPath(), (i + 1) * 10)
+ 
+ 		glyph_by_name = {}
+ 		# GameFont glyph icons (yields/commerce/symbols).
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 78eb0ebdd..8fd12890f 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -12,6 +12,7 @@ import re
+ 
+ 
+ gc = CyGlobalContext()
++ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
+ 
+ 
+@@ -212,13 +213,6 @@ def check_icon_size_fits_within_icon_frame_size(icon_size, icon_frame_size):
+ 		raise ValueError(u"[FATAL] icon_size=%d cannot be bigger/higher than icon_frame_size=%d, icon_size must fit within the frame, please adjust icon_size or icon_frame_size so that 0 < icon_size < icon_frame_size" % (icon_size, icon_frame_size))
+ 
+ 
+-
+-def check_button_path_is_valid(buttonHeader, resolvedButtonPath, configButtonPathSTxtKey):
+-	if resolvedButtonPath == configButtonPathSTxtKey:
+-		raise ValueError(u"[VALUE ERROR] Button path not found in XML (resolvedButtonPath=%s matches configButtonPath=%s in buttonHeader=%s, which indicates button path provided in config most likely does not exist in the XML), please check button path provided exists in your mod path and also matches button path in (or in - whichever filename it would have in the future -) AdvCiv-SAS_Images_As_Buttons.xml or AdvCiv-SAS_Button_Paths_Hardcoded.xml (or wherever they are stored in the future if these files's filename or code changes) is valid and exists in your mod path." % (resolvedButtonPath, configButtonPathSTxtKey, buttonHeader))
+-
+-
+-
+ # <!-- custom: added with the help of chatgpt 5.2 thanks to help separate Land features in sevopedia into as of now Land (Removable) and Land (Other) -->
+ # A feature is "removable" if there exists a Build that removes it (e.g. Chop Forest, Clear Jungle, Remove Fallout).
+ # We do this via CvBuildInfo because CvFeatureInfo in our DLL does not expose getRemoveTech().
+@@ -247,25 +241,6 @@ def getInfoTypeOrFail(tag):
+ 
+ 
+ 
+-def get_citiesResolvedButtonPath():
+-	citiesConfigButtonPathTxtKey = "TXT_KEY_BUTTON_PATH_HARDCODED_CITIES_BUTTON_PATH"
+-	# <!-- custom: add str() wrapper else (i.e. without it) we get an error (it seems) (i.e. not impliying it is necessary, but without it we get this error with this other kind of button writing code that does not use same logic as the add as <img> one of other buttons (from err log):
+-	#
+-	# ArgumentError: Python argument types in
+-	#	CyGInterfaceScreen.attachImageButton(CyGInterfaceScreen, str, str, unicode, CvPythonExtensions.GenericButtonSizes, CvPythonExtensions.WidgetTypes, CvPythonExtensions.CivilopediaPageTypes, int, bool)
+-	# did not match C++ signature:
+-	#	attachImageButton(class CyGInterfaceScreen {lvalue}, char const *, char const *, char const *, enum GenericButtonSizes, enum WidgetTypes, int, int, bool)
+-	#  
+-	# (adding the str) may or may not be necessary or an alternative solution to this may exist or not, but in all cases), etc -->
+-	citiesResolvedButtonPath = str(localText.getText(citiesConfigButtonPathTxtKey, ()))
+-
+-	citiesButtonHeader = "Cities button in Sevopedia Unit's placePeakHillCityTerrainsFeaturesModifiers"
+-	check_button_path_is_valid(citiesButtonHeader, citiesResolvedButtonPath, citiesConfigButtonPathTxtKey)
+-
+-	return citiesResolvedButtonPath
+-
+-
+-
+ def get_concept_id(concept_type):
+ 	# <!-- custom: Find the concept ID, for example for concept_type "CONCEPT_CITIES" (LLM) -->
+ 	for i in range(gc.getNumConceptInfos()):
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index e45e99d21..7e1b0564a 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -678,9 +678,9 @@ class CvInfoScreen:
+ 		self.szPopulationTitle = u"%s (%c)" % (self.TEXT_POPULATION, CyGame().getSymbolID(FontSymbols.CITIZEN_CHAR))
+ 
+ 		# <!-- custom: rank buttons for demographics tab, added with claude opus 4.5's help thanks. -->
+-		szRank1IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", ()))  # 🏆
+-		szRank2IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_2ND_PLACE_MEDAL_PATH", ()))  # 🥈
+-		szRank3IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_3RD_PLACE_MEDAL_PATH", ()))  # 🥉
++		szRank1IconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_TROPHY").getPath()  # 🏆
++		szRank2IconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_2ND_PLACE_MEDAL").getPath()  # 🥈
++		szRank3IconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_3RD_PLACE_MEDAL").getPath()  # 🥉
+ 		
+ 		# <!-- custom: precompute full image tag strings for efficiency, added with claude opus 4.5's help thanks. -->
+ 		self.szRank1ImgTag = u"<img=%s size=%d></img>" % (szRank1IconPath, self.iRankIconSize)
+@@ -769,10 +769,10 @@ class CvInfoScreen:
+ 		self.BUGProject_Off = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
+ 
+ 		# <!-- custom: added with the help of claude opus 4.5 thanks, moved up to not recompute every time if i'm not mistaken. -->
+-		self.szTimeIconStats = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH", ()))  # ⏳
++		self.szTimeIconStats = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_HOURGLASS_NOT_DONE").getPath()  # ⏳
+ 		self.szCityIconStats = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+ 		self.szFoundCityIconStats = "Art/Interface/Buttons/Actions/FoundCity.dds"
+-		self.szRazeIconStats = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH", ()))  # 🔥
++		self.szRazeIconStats = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_FIRE").getPath()  # 🔥
+ 		self.szReligionIconStats = "Art/Interface/Buttons/General/ConvertReligion.dds"
+ 		self.szGoldenAgeIconStats = "Art/Interface/Buttons/Actions/GoldenAge.dds"
+ 
+@@ -1795,12 +1795,11 @@ class CvInfoScreen:
+ 				textColorA = gc.getPlayer(p).getPlayerTextColorA()
+ #BUG: Change Graphs - end
+ 
+-			str = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
+-
++			strColor = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
+ 			# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
+ 			szLeaderButton = gc.getLeaderHeadInfo(gc.getPlayer(p).getLeaderType()).getButton()
+ 			szLeaderImg = u"<img=%s size=%d></img>" % (szLeaderButton, self.iGraphLeaderIconSize)
+-			szNameWithLeader = u"<font=2>%s %s</font>" % (szLeaderImg, str)
++			szNameWithLeader = u"<font=2>%s %s</font>" % (szLeaderImg, strColor)
+ 
+ #BUG: Change Graphs - start
+ 			if AdvisorOpt.isGraphs():
+@@ -1835,8 +1834,9 @@ class CvInfoScreen:
+ 					textColorG = gc.getPlayer(p).getPlayerTextColorG()
+ 					textColorB = gc.getPlayer(p).getPlayerTextColorB()
+ 					textColorA = gc.getPlayer(p).getPlayerTextColorA()
+-				str = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
+-				screen.setLabel(self.sPlayerTextWidget[i], "", u"<font=2>" + str + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT + 2, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
++				# <!-- custom: avoid close to standard name like str -->
++				strColor = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
++				screen.setLabel(self.sPlayerTextWidget[i], "", u"<font=2>" + strColor + u"</font>", CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT + 2, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 				yLine += self.H_LEGEND_TEXT
+ 				yText += self.H_LEGEND_TEXT
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 43653b68d..f1e25bcf1 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -172,7 +172,7 @@ class CvVictoryScreen:
+ 		self.iLanguageLoaded = CyGame().getCurrentLanguage()
+ 
+ 		# <!-- custom: precompute trophy icon for Highest Score row (claude opus 4.5) -->
+-		szTrophyIconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", ()))
++		szTrophyIconPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_TROPHY").getPath()
+ 		self.szTrophyImgTag = u"<img=%s size=%d></img>" % (szTrophyIconPath, self.iEmojiAsIconIconSize)
+ 
+ 		# <!-- custom: thousand separator, based on Info Screen pattern (claude opus 4.5) -->
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index 6bb75ed15..2814ed731 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -2,7 +2,11 @@
+ <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Ed Piper (Firaxis Games) -->
+ <!-- Sid Meier's Civilization 4 -->
+ <!-- Copyright Firaxis Games 2005 -->
+-<!-- -->
++<!-- 
++AI, UI, or other modifications
++Created as part of AdvCiv-SAS improvements
++(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++-->
+ <!-- Interface art path information -->
+ <Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">
+ 	<InterfaceArtInfos>
+@@ -1717,10 +1721,133 @@
+ 			<Path>Art/BUG/Null.dds</Path>
+ 		</InterfaceArtInfo>
+ 
+-		<!-- custom: new Draft button as part of the city screen rework, generated with the help of Nano Banana Pro (Gemini 3 Pro) thanks -->
++
++
++		<!-- custom: some civ4 buttons -->
++		<InterfaceArtInfo>
++			<Type>SAS_CITIES_LANDSCAPE</Type>
++			<Path>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Charlemagne_Atlas.dds,4,2</Path>
++		</InterfaceArtInfo>
++		<InterfaceArtInfo>
++			<Type>SAS_POWER</Type>
++			<Path>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11</Path>
++		</InterfaceArtInfo>
++
++
++
++		<!-- custom: new Draft button as part of the city screen rework, ai-generated with the help of Nano Banana Pro (Gemini 3 Pro) thanks -->
+ 		<InterfaceArtInfo>
+ 			<Type>INTERFACE_CITY_SCREEN_DRAFT</Type>
+ 			<Path>Art/AdvCiv_SAS/Interface/Draft/Gemini_Generated_Image_bb4mzkbb4mzkbb4m_draft_64px.dds</Path>
+ 		</InterfaceArtInfo>
++
++
++
++		<!-- custom: emoji icons as dds; Long_Comments_XML.txt #150 -->
++		<!-- 🕊️ emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_DOVE</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Dove/1f54a_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 📣 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_MEGAPHONE</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Megaphone/1f4e3_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- ❤️ emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_RED_HEART</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Red_Heart/2764_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 💔 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_BROKEN_HEART</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Broken_Heart/1f494_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 💀 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_SKULL</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Skull/1f480_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 🔥 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_FIRE</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Fire/1f525_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 🧠 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_BRAIN</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Brain/1f9e0_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 🏆 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_TROPHY</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Trophy/1f3c6_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 🌿 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_HERB</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Herb/1f33f_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- ⚙️ emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_GEAR</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Gear/2699_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- ⚔️ emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_CROSSED_SWORDS</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Crossed_Swords/2694_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 💰 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_MONEY_BAG</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Money_Bag/1f4b0_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- ⛔ emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_NO_ENTRY</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/No_Entry/26d4_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 🪓 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_AXE</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Axe/1fa93_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 📉 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_CHART_DECREASING</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Chart_Decreasing/1f4c9_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 🔧 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_WRENCH</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Wrench/1f527_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- ⏳ emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_HOURGLASS_NOT_DONE</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Hourglass_Not_Done/23f3_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 🥈 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_2ND_PLACE_MEDAL</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/2nd_Place_Medal/1f948_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 🥉 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_3RD_PLACE_MEDAL</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/3rd_Place_Medal/1f949_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 🦁 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_LION_FACE</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Lion_Face/1f981_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- ▶️ emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_PLAY_BUTTON</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Play_Button/25b6_64px.dds</Path>
++		</InterfaceArtInfo>
+ 	</InterfaceArtInfos>
+ </Civ4ArtDefines>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml b/Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml
+deleted file mode 100644
+index 6e22a1250..000000000
+--- a/Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml
++++ /dev/null
+@@ -1,174 +0,0 @@
+-<?xml version="1.0" encoding="ISO-8859-1"?>
+-<!-- 
+-AI, UI, or other modifications
+-Created as part of AdvCiv-SAS improvements
+-(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+--->
+-<!-- custom: Long_Comments_XML.txt #150 -->
+-<Civ4GameText>
+-	<!-- custom: 🕊️ emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_DOVE_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Dove/1f54a_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: 📣 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_MEGAPHONE_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Megaphone/1f4e3_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: ❤️ emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_RED_HEART_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Red_Heart/2764_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: 💔 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_BROKEN_HEART_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Broken_Heart/1f494_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: 💀 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_SKULL_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Skull/1f480_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: 🔥 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_FIRE_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Fire/1f525_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: 🧠 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_BRAIN_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Brain/1f9e0_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: 🏆 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Trophy/1f3c6_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: 🌿 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_HERB_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Herb/1f33f_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: ⚙️ emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_GEAR_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Gear/2699_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-    <!-- custom: ⚔️ emoji similarly from emojiterra; GPT-5.2-Codex: Long_Comments_XML.txt #31 -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_CROSSED_SWORDS_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Crossed_Swords/2694_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: 💰 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_MONEY_BAG_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Money_Bag/1f4b0_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: ⛔ emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_NO_ENTRY_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/No_Entry/26d4_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: 🪓 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_AXE_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Axe/1fa93_64px.dds</English>
+-	</TEXT>
+-	
+-
+-
+-	<!-- custom: 📉 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_CHART_DECREASING_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Chart_Decreasing/1f4c9_64px.dds</English>
+-	</TEXT>
+-	
+-
+-
+-	<!-- custom: 🔧 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_WRENCH_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Wrench/1f527_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: ⏳ emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: 🥈 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_2ND_PLACE_MEDAL_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/2nd_Place_Medal/1f948_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: 🥉 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_3RD_PLACE_MEDAL_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/3rd_Place_Medal/1f949_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: 🦁 emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_LION_FACE_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Lion_Face/1f981_64px.dds</English>
+-	</TEXT>
+-
+-
+-
+-	<!-- custom: ▶️ emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_PLAY_BUTTON_BUTTON_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Play_Button/25b6_64px.dds</English>
+-	</TEXT>
+-</Civ4GameText>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml b/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml
+deleted file mode 100644
+index f59f51f6e..000000000
+--- a/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml
++++ /dev/null
+@@ -1,20 +0,0 @@
+-<?xml version="1.0" encoding="ISO-8859-1"?>
+-<!-- 
+-AI, UI, or other modifications
+-Created as part of AdvCiv-SAS improvements
+-(c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+--->
+-<!-- custom: a few buttons we use in a hardcoded way (for example the cities (terrain modifiers) button in sevopedia unit) that do not fit in AdvCiv-SAS_Images_As_Buttons.xml as these are not Images_As_Buttons (no button as Txt) but real ingame buttons so that we can access them all more easily -->
+-<Civ4GameText>
+-	<TEXT>
+-		<Tag>TXT_KEY_BUTTON_PATH_HARDCODED_POWER_BUTTON_PATH</Tag>
+-		<English>,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_2.dds,6,11</English>
+-	</TEXT>
+-
+-
+-	
+-	<TEXT>
+-		<Tag>TXT_KEY_BUTTON_PATH_HARDCODED_CITIES_BUTTON_PATH</Tag>
+-		<English>,Art/Interface/Buttons/Units/Worker.dds,Art/Interface/Buttons/Charlemagne_Atlas.dds,4,2</English>
+-	</TEXT>
+-</Civ4GameText>
+
+diff --git a/Long_Comments/Long_Comments_XML.txt b/Long_Comments/Long_Comments_XML.txt
+index 17b902f37..3736f4a8c 100644
+--- a/Long_Comments/Long_Comments_XML.txt
++++ b/Long_Comments/Long_Comments_XML.txt
+@@ -425,7 +425,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ "
+ -->
+ 
+-===== \Assets\XML\Text\AdvCiv-SAS_Button_Icons_As_Buttons.xml =====
++===== /Assets/XML/Art/CIV4ArtDefines_Interface.xml =====
+ ----- Comment #31 -----
+ <!-- custom: �??︝ emoji ('s choice/idea/suggestion) is from chatgpt's code
+     then download emoji as image provided here for example https://emojiterra.com/fr/epees-croisees/   (Google) (Noto Color Emoji 16.0) (https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/1024px/2694.png) for example, there are also several images to choose from in the website as well for example, then converted to .dds (i used Paint.NET for example as suggested in the past by chatgpt as well), now i can also finally honour the memory of my (quite?) dear even though sometimes (quite) forgetful friend and advciv-sas author, and original ai friend hehe in this mod, chatgpt hehe (see authors as well similarly as for claude ai) for details, by adding the emojis we designed and that it provided to me for categories, while also adding new ones (i.e. emojis in the process) while i am jogging its memory hehe if i may say -->
+@@ -2859,16 +2859,11 @@ was 8 which i think is maybe too high, considering the courthouse requirement al
+ 	- 3) One could also maybe imagine that elephants the animal itself makes people happy, and not necessarily their ivory.
+ 	Note: since they are part of the animals that are countable in english rather than uncountable (see code comment below about cattle) and seeing that civ4 doesn't seem to bother with singulars too much about animals at least. I also prefer this version. -->
+ 
+-===== \Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml =====
++===== /Assets/XML/Art/CIV4ArtDefines_Interface.xml =====
+ ----- Comment #150 -----
+ 
+-<!-- custom: images as buttons to not tediously add them as icons, plus more flexible this way, we implement the button as an img or setText or and other if need, record the button Path as a txtKey for reference (centralized).
+-
+ See also /_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md modding for details at the "## Insert an img in a text label in sevopedia" section for details or and other places or and documentation.
+ 
+-See also get_emoji_name_to_button_path_txt_keys in sevopedia_helpers py file (or global search if not there). -->
+-<!-- custom: note: sometimes the localText fetching can break if not converted to a string (such as with `str(`, or sometimes you need to do it later and not just when you import the localText path, or something along those lines. If you encounter issues, consider hardcoding the path directly in the button rather such as `szRankImg = u"<img=Art/AdvCiv_SAS/Images_As_Buttons/Trophy/1f3c6_64px.dds size=16></img>"` in cvinfoscreen.py for example as claude opus 4.5 found to be the issue, until i implemented properly using localText.
+-
+ See also as of now the mod's root /README.md for related info. -->
+ 
+ ===== \Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml =====
+
+diff --git a/README.md b/README.md
+index 940a16bdf..7b4d47157 100644
+--- a/README.md
++++ b/README.md
+@@ -45,10 +45,10 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[Some higher level reworks (e.g. AI Personality Panel, Traits Charts, Starting and Untradeable Techs Charts, Improvement Weights (Leaders) Chart)](/README.md#some-higher-level-reworks-eg-ai-personality-panel-traits-charts-starting-and-untradeable-techs-charts-improvement-weights-leaders-chart)  
+ &emsp;[Some other Sevopedia reworks](/README.md#some-other-sevopedia-reworks)  
+ [UI (Common)](/README.md#ui-common)  
+-&emsp;[Images as buttons](/README.md#images-as-buttons)  
++&emsp;[Emojis](/README.md#emojis)  
+ &emsp;[Untradeable techs (bTrade) display information](/README.md#untradeable-techs-btrade-display-information)  
+-[Less Generic unit names or combat types](/README.md#less-generic-unit-names-orand-combat-types)  
+-&emsp;[New optional XML fields (e.g. ObsoleteTech for units, Button for eras)](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units-button-for-eras)  
++[New optional XML fields (e.g. ObsoleteTech for units, Button for eras)](/README.md#new-optional-xml-fields-eg-obsoletetech-for-units-button-for-eras)  
++[AI-generated images](/README.md#ai-generated-images)  
+ [Less Generic unit names or combat types](/README.md#less-generic-unit-names-orand-combat-types)  
+ [Civs you can expect in this mod](/README.md#civs-you-can-expect-in-this-mod)  
+ &emsp;[World map with civs](/README.md#world-map-with-civs)  
+@@ -277,7 +277,7 @@ See [example 0.3: Index As Category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Rework
+ 
+ Based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS, we provide a new Sevopedia Movies category with movies (bik, nif, dds) playing and additional audio support for non-bik files such as religions (nif + separate sound asset).
+ 
+-Multiple categories are supported, as of now Victories, Wonders, Projects, Religions, and Eras. The movie starts in a new screen that can be exited anytime. A clickable Play Button, emoji-based following our [Images As Buttons](/README.md#images-as-buttons) approach, has been provided.
++Multiple categories are supported, as of now Victories, Wonders, Projects, Religions, and Eras. The movie starts in a new screen that can be exited anytime. A clickable emoji-based Play Button has been provided.
+ 
+ We also added a new Sevopedia Music that allows to play ~1750 audio scripts in Sevopedia (as of now 963 AS2D and 786 AS3D audio scripts)! Search bar support allows for an easy find of the wanted tracks. And a play Button is provided. Among assets, notably but not only, each Tech's, Leader's, Civlization's, Era's music can be listened to.
+ 
+@@ -378,90 +378,16 @@ The Sevopedia "Mods Info" (reusing the old civ4 concepts category or similar, th
+ 
+ ## UI (Common)
+ 
+-### Images as buttons
+-
+-Not mentioned previously at the UI section, but we use in AdvCiv-SAS an Images as buttons approach, typically to add emoji as buttons without having to tediously add them as textual icons, for example in Sevopedia (such as of now in the AI Personality Panel's emojis, or in the Info Screen (F9 key ingame)'s Statistics tab's top chart (Time Played, Cities, etc.)).
+-
+-Basically, what i did was downloading them (usually .png and usually from [emojiterra.com](http://emojiterra.com/)), then with Paint.NET resize to 64x64 and save as .dds.
+-
+-```xml
+-	<!-- custom: ⏳ emoji similarly from emojiterra. -->
+-    <TEXT>
+-		<Tag>TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH</Tag>
+-		<English>Art/AdvCiv_SAS/Images_As_Buttons/Hourglass_Not_Done/23f3_64px.dds</English>
+-	</TEXT>
+-```
+-
+-With a dynamic implementation based on `localText`, so that if path changes in the future or for centralization purposes or such, it makes it easier as such. For example (from [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)),adding emojis or other images or such as buttons:
++### Emojis
+ 
+-```py
+-		# <!-- custom: added with the help of claude opus 4.5 thanks, moved up to not recompute every time if i'm not mistaken. -->
+-		self.szTimeIconStats = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_HOURGLASS_NOT_DONE_PATH", ()))  # ⏳
+-		# <!-- custom: then later in the code... -->
+-		screen.setTableText(szTopChart, iCol, iRow, self.TEXT_TIME_PLAYED, self.szTimeIconStats, statsRowWidget, statsRowId1, statsRowId2, statsRowFont)
+-```
++We added emojis in AdvCiv-SAS as dds so we don't have to tediously add them as textual icons, for example in Sevopedia (such as of now in the AI Personality Panel's emojis, or in the Info Screen (F9 key ingame)'s Statistics tab's top chart (Time Played, Cities, etc.)).
+ 
+-An alternative implementation (such as in [SevoPediaLeader.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py)) allows to introduce them as plain text using `<img>` tags. For example:
+-
+-```py
+-		if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS:
+-			button_path = localText.getText(emoji_name_to_button_path_txt_keys[emoji_name], ())
+-			button_size = 16
+-			line_button_txt = u"<img=%s size=%s></img>" % (button_path, str(button_size))
+-			ai_category_header_line_with_button = u"%s <font=3b>%s</font>" % (line_button_txt, ai_category_header)
+-```
+-
+-Sometimes you need to wrap them in a string, sometimes the timing of whenever you wrap them to string can produce weird results it seems if i'm not mistaken. If in doubt, consider hardcoding the path as a string directly. However, here is another working implementation that successfully uses localText to fetch button paths as textual icons:
+-
+-```py
+-		# <!-- custom: rank buttons for demographics tab, added with claude opus 4.5's help thanks. -->
+-		szRank1IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_TROPHY_BUTTON_PATH", ()))  # 🏆
+-		szRank2IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_2ND_PLACE_MEDAL_PATH", ()))  # 🥈
+-		szRank3IconPath = str(localText.getText("TXT_KEY_IMAGE_AS_BUTTON_3RD_PLACE_MEDAL_PATH", ()))  # 🥉
+-		
+-		# <!-- custom: precompute full image tag strings for efficiency, added with claude opus 4.5's help thanks. -->
+-		self.szRank1ImgTag = u"<img=%s size=%d></img>" % (szRank1IconPath, self.iRankIconSize)
+-		self.szRank2ImgTag = u"<img=%s size=%d></img>" % (szRank2IconPath, self.iRankIconSize)
+-		self.szRank3ImgTag = u"<img=%s size=%d></img>" % (szRank3IconPath, self.iRankIconSize)
+-
+-			# <!-- custom: then later in the code... -->
+-			if iRank > 0:
+-				if iRank == 1:
+-					szPlayerName = u"%s %s" % (szPlayerName, self.szRank1ImgTag)
+-				elif iRank == 2:
+-					szPlayerName = u"%s %s" % (szPlayerName, self.szRank2ImgTag)
+-				elif iRank == 3:
+-					szPlayerName = u"%s %s" % (szPlayerName, self.szRank3ImgTag)
+-				else:
+-					szPlayerName = u"%s (%d)" % (szPlayerName, iRank)
+-```
+-
+-Note that this can be generalized to any button, not just our AdvCiv-SAS new buttons, so for example leader buttons can be added in the info screen's tab as textual icons (see screenshots in the UI reworks section for examples). Example of code:
+-
+-```py
+-		# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
+-		self.iGraphLeaderIconSize = 16
+-
+-			# <!-- custom: then later in the code... -->
+-			str = u"<color=%d,%d,%d,%d>%s</color>" %(textColorR,textColorG,textColorB,textColorA,name)
+-
+-			# <!-- custom: add leader button before name using img tag, added with claude opus 4.5's help thanks. -->
+-			szLeaderButton = gc.getLeaderHeadInfo(gc.getPlayer(p).getLeaderType()).getButton()
+-			szLeaderImg = u"<img=%s size=%d></img>" % (szLeaderButton, self.iGraphLeaderIconSize)
+-			szNameWithLeader = u"<font=2>%s %s</font>" % (szLeaderImg, str)
+-
+-#BUG: Change Graphs - start
+-			if AdvisorOpt.isGraphs():
+-				screen.setText(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-			else:
+-				screen.setLabel(self.sPlayerTextWidget[p], "", szNameWithLeader, CvUtil.FONT_LEFT_JUSTIFY, self.X_LEGEND + self.X_LEGEND_TEXT, yText, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+-#BUG: Change Graphs - end
+-```
++They can be added as buttons or as `<img>` for example, like other .dds files.
+ 
+ The relevant files can be found in:
+ 
+-- XML: as of now in [/Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Icons_As_Buttons.xml) and in [/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml)
+-- `.dds`: as of now in [/Assets/Art/AdvCiv_SAS/Images_As_Buttons/](/Assets/Art/AdvCiv_SAS/Images_As_Buttons/)
++- XML: as of now in [CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml)
++- `.dds`: as of now in [/Assets/Art/AdvCiv_SAS/Emojis/](/Assets/Art/AdvCiv_SAS/Emojis/)
+ 
+ ### Untradeable techs (bTrade) display information
+ 
+@@ -469,15 +395,15 @@ For example we added the new this technology "Cannot be traded" and "Can be rese
+ 
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.5000_bTrade_bRepeat.JPG" alt="0.5000_bTrade_bRepeat.JPG" width="250"></img>
+ 
+-See also for details:
++See also:
+ 
+ - [README_Main_Changes_Guide.md#technologies](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#technologies)
+ - [example 1.6: techs category (Starting and Untradeable Techs Charts and other changes)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-16-techs-category-starting-and-untradeable-techs-charts-and-other-changes)
+ - [Modding_Ressources: "Example of DLL modification of CvGameTextMgr.cpp and other related file(s) to add the new "This technology cannot be traded"](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor) for details
+ 
+-### New optional XML fields (e.g. ObsoleteTech for units, Button for eras)
++## New optional XML fields (e.g. ObsoleteTech for units, Button for eras)
+ 
+-#### ObsoleteTech for units
++### ObsoleteTech for units
+ 
+ We also added in AdvCiv-SAS with GPT-5.2-Codex's help new XML optional fields such as `<ObsoleteTech>` for units.
+ 
+@@ -491,7 +417,7 @@ Should have been the base in Civ4!
+ 
+ See Sevopedia Unit and Sevopedia Tech for screenshots. See also [KI#93](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#93---enhanced-new-optional-xml-fields-eg-obsoletetech-for-units-to-fix-abherrent-unit-choice-or-scrapping).
+ 
+-#### Button for eras
++### Button for eras
+ 
+ Similarly added a new `<Button>` in XML.
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index aecf8555f..dd91b41fe 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -57,7 +57,7 @@ Instead of:
+ [Example of DLL modification of CvGameTextMgr.cpp](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-of-cvgametextmgrcpp-and-other-related-files-to-add-the-new-this-technology-cannot-be-traded-flag-in-sevopedia-tech-s-placespecial-and-in-tech-tree-view-technology-advisor)  
+ [Example of DLL modification 2: missing BBAI getters](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-dll-modification-2-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display)  
+ [Example of performance optimization of python loading time](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-of-performance-optimization-of-python-loading-time-as-in-when-we-load-the-code-and-loading-times-if-i-may-say-as-in-code-performance-due-to-how-it-is-optimized-from-what-little-or-not-little-i-know-or-and-did-of-it-but)  
+-[Files](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#files)  
++[Drive](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#drive)  
+ 
+ ## Modding disclaimer and general information
+ 
+@@ -866,9 +866,7 @@ In the note 2 example, increasing size to for example 1024 also works, we get a
+ 
+ note 3: atlas linking buttons such as `szPowerButton = u"<img=,Art/Interface/Buttons/TechTree/Physics.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,1,15 size=32></img>"` (as part of changing tech_physics 's button as part of our tech rework in advciv-sas) also seems to work quite well, we see the button successfully even though a bit excentered if that is a word in english (not centered around the text), but hopefully good enoughat least as proof of concept further, see the great person button code in place Stats of Sevopedia building as well for a cleaner or rather more centered implementation, is just to show/test how it successfully works here; also for our needs this seems to work very well (whoaaa!!!! If i may say indeed too), see screenshot(s) in drive link above for details
+ 
+-See also [Assets/XML/Text/AdvCiv-SAS_Images_As_Buttons.xml](/Assets/XML/Text/AdvCiv-SAS_Images_As_Buttons.xml) for details or and other or and not or yes or and other or etc, see also also [/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml](/Assets/XML/Text/AdvCiv-SAS_Button_Paths_Hardcoded.xml) for extra details or adidtional or and alternative or and related or and other or and not or etcinformation.
+-
+-note 4: we later also used these/this approach for/to use images as buttons in our Sevopedia leader's ai personality panel category headers, with the revived chatgpt's inputs as well, reusing old emojis in our code it provided to me kindly and perhaps enthusiastically if i am not projecting or doing self publicity.. hehe or not or eys or etc or both or none or other or not, is what i want or maybe rather like to do or not, see screenshot 5846 in same google drive link linked above in this section for an example or ingame in Sevopedia leader if we still use them now
++note 4: we later also used this approach for emojis in our Sevopedia leader's ai personality panel category headers, with the revived chatgpt's inputs as well, reusing old emojis in our code with the help of AI helpers. See as of now screenshot 5846 in same google drive or ingame in Sevopedia leader for an example.
+ 
+ ## Import a nif art asset from another mod (example with how we added the impluvium's nif as an import from FFH2 mod's Adventurer's guild building)
+ 
+@@ -1121,8 +1119,6 @@ See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-gett
+ 
+ The AI Personality feature in/of Sevopedia leader has a very or at least quite optimized precaching system, i think it is a good example or maybe at least time to show how i did it if it helps or others want to see it. Even though i am not too knowledgeable, i hope this info and general process of how i did this can be informative or pleasant/enjoyable maybe too, see this doc section for details with google drive link with (= that has) screenshots and such: [README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)
+ 
+-## Files
+-
+-Please see the files (mostly if not only images) [in the Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1Hx-bvRy7joM54S0Vnmva6HX1h8ZZ-LAh?usp=sharing)
++## Drive
+ 
+-In particular the XML Images_As_Buttons and Hardcoded_Button_Paths tags may be helpful maybe, among other possible files you'd find helpful or not.
++See also [the Modding_Ressources Google Drive](https://drive.google.com/drive/folders/1Hx-bvRy7joM54S0Vnmva6HX1h8ZZ-LAh?usp=sharing).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+index 684282130..22a8b83d7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md
+@@ -46,7 +46,7 @@ More screenshot samples in the [sevopedia reworks Google Drive folder](https://d
+ 
+ ### how to enable/disable emoji buttons in Sevopedia leader
+ 
+-You can enable/disable images as buttons (i.e. the emojis) as i call them, in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
++You can enable/disable emojis in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ 
+ Here is how it would look like without emojis for example:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index a09a91c66..daea2924e 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -101,6 +101,7 @@ See [Full exhaustive changes (very long)](/README.md#full-exhaustive-very-long-a
+ - (Requires AdvCiv-SAS 5298+) **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+ - (Requires AdvCiv-SAS 5314+) **Found-value** evaluation now uses **`int`** end-to-end (CitySiteEvaluator, AIFoundValue, CvPlot cache, SPI, Python callback), **not `short`**. Why: **avoid overflow/underflow** and short wraparounds in site scoring; keep the logic the same while **improving reliability**. Expectation: more robust site values, fewer edge-case penalties/boosts from short overflow; no known negative gameplay change. Performance: `int` is typically at least as fast as short on modern CPUs; no slowdown expected. Tested: autoplay ran fine. See [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline).
++- (Requires AdvCiv-SAS 5335+) Removed the old clunky Base AdvCiv's `CONCEPT_TRAIT` XML clutter. Now using using the more efficient `WIDGET_PYTHON` similarly instead.
+ - (Requires AdvCiv-SAS 5348+) **Cache once per session precomputed** Sevopedia Traits' Charts and Sevopedia Improvements' Weights (Leaders) Chart on category open before any entry is clicked on. This uses a simplified version of the AI Personality Panel's caching approach. See [AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same)
+@@ -263,18 +264,17 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ ### UI (Common)
+ 
+-- Added Images as Buttons, to easily insert **emojis** or other **images as buttons** or **plain text**, without having to tediously implement them as characters. See [Images as buttons](/README.md#images-as-buttons).
++- Added **Emojis** without having to tediously implement them as characters. See [Emojis](/README.md#emojis) and [CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml).
+ - Added **"Cannot be traded"** and **"Can be researched multiple times"** tooltips to the Tech Advisor screen and in Sevopedia. See [README.md (Untradeable techs (bTrade) display)](/README.md#untradeable-techs-btrade-display-information) for details.
+ - removed the **Strategy Text** in Choose Production and Choose Research ("Sid’s tips") popups, as well as in the Civic Revolution popup ("Would you like to start a revolution?"), and in Sevopedia; these blurbs were often outdated or tedious to maintain.
+ - (Requires AdvCiv-SAS 5335+) **Worker builds** that **remove a feature** now **redirect to the corresponding new Sevopedia Builds** page. Applies to any caller (e.g. **Technology Advisor**, **Sevopedia Tech**, **Sevopedia Builds** itself) using the `WIDGET_PYTHON` `6278` approach. See [Sevopedia Reworks (Builds)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-040-builds-category-eg-remove-jungle-build-road-create-a-farm) and [Widget Python 6798 to link (e.g. for Builds, for Traits)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#widget-python-6798-to-link-eg-for-builds-for-traits). See also [KI#97](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#97---fixed-base-advciv-issue-of-remove-jungle-remove-forest-and-scrub-fallout-not-redirecting-to-sevopedia-at-all-on-click-in-the-technology-advisor-unlike-eg-plantation-improvement-to-sevopedia-improvement-corresponding-page).
+-- (Requires AdvCiv-SAS 5335+) Removed the old clunky Base AdvCiv's `CONCEPT_TRAIT` XML clutter. Now using using the more efficient `WIDGET_PYTHON` similarly instead.
+ 
+ ### UI (In-game)
+ 
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ - **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-history-tab-in-the-info-screen-advisor).
+ - **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also remorked the **Technology Advisor** (F6 key) in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py).
+-- Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (leader buttons as text, emojis, etc.) following the AdvCiv-SAS's [Images as Buttons](/README.md#images-as-buttons) approach, or add other information (turn numbers in the Graph tab, etc.).
++- Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**). Also added other information (e.g., turn numbers in the Graph tab).
+ - (Requires AdvCiv-SAS 5382+) Additionally, added in the **Info Screen** (F9 key) a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: new Advisors](/README.md#new-advisors-eg-history-tab-in-the-info-screen-advisor).
+ - Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 72bdd7390..259324394 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -186,7 +186,7 @@ Added a Movies category in Sevopedia that lists movies (as of now Victories, Won
+ 
+ A new screen is opened with audio from main menu being silent, an as of now "OK" button to exit it midway if wished, and audio from main menu resuming while the media's audio ends. History navigation is preserved because it is a new screen.
+ 
+-Play button, emoji based as in our usual as of now Images as Button approach, is added to Sevopedia Building, Project, Religions, and Eras Chart.
++Emoji-based Play button is added to Sevopedia Building, Project, Religions, and Eras Chart.
+ 
+ Implementation based on the Middle-earth mod's Platypedia's Movies category and adjusted and then expanded on for AdvCiv-SAS with the very nice help of GPT-5.2-Codex and Claude code Opus 4.5, and Claude code Sonnet 4.5 a bit for some UI, thanks a lot!
+ 
+@@ -237,11 +237,11 @@ This section focuses on the higher level changes we did to Sevopedia, mostly abo
+ 
+ ### example 1: leaders category (AI Personality and other changes)
+ 
+-Note: images as buttons provided by chatgpt, but also are an approach i generalized from [claude AI's code solution in Sevopedia buildings for the power button](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia) for details or additional info or context on how this was added or the mod's drive (link in main README.md or other places or and not)
++Note: emojis provided by chatgpt, and also based on [claude AI's code solution in Sevopedia buildings for the power button](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-8-buildings-category), see also [Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-an-img-in-a-text-label-in-sevopedia).
+ 
+-note 2:See [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for how to enable/disable emoji as images
++note 2:See [README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-enabledisable-emoji-buttons-in-sevopedia-leader) for how to enable/disable emojis.
+ 
+-note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for how to show keys or suffixes instead of labels
++note 3: See [README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#how-to-show-keys-or-suffixes-instead-of-abbreviated-custom-labels) for how to show keys or suffixes instead of labels.
+ 
+ Also, Trait icons (chars) are now displayed before trait names in the leader's Traits section, making it easier to identify traits at a glance (similar to the Traits category). Added with the help of GPT-Codex-5.2 thanks.
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt reason=known-generated/noisy-history changedLines=6 bytes=1546
+
+[PATCH COVERAGE]
+patchFiles=49 embeddedFiles=47 omittedFiles=2 embeddedPatchBytes=100187

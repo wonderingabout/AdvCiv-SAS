@@ -1,0 +1,78 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2513
+# Commit: ce5a1fd4dd07704477d42ab390fdc37be1910cc1
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 87b95e1e2be047dbcadda3f1212f6e42b284644f
+# Title: Fix script reload issue with Default Cam Distance option
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Config/BUG Main Interface.xml
+6	0	Assets/Python/BUG/InputUtil.py
+1	4	Assets/Python/EntryPoints/CvScreensInterface.py
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index 18f0ada8d..11aca2ccb 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -124,7 +124,7 @@
+ 					type="int" default="0" listType="string" 
+ 					values="Automatic|Close|Medium|Far|Custom (XML)"
+ 					get="getDefaultCamDistance">
+-				<change module="CvScreensInterface" function="updateDefaultCamDistance"/>
++				<change module="InputUtil" function="updateDefaultCamDistance"/>
+ 				<choice id="Automatic"/>
+ 				<choice id="Close"/>
+ 				<choice id="Medium"/>
+
+diff --git a/Assets/Python/BUG/InputUtil.py b/Assets/Python/BUG/InputUtil.py
+index d10d05845..439600468 100644
+--- a/Assets/Python/BUG/InputUtil.py
++++ b/Assets/Python/BUG/InputUtil.py
+@@ -244,3 +244,9 @@ def toggleDebugMode(argsList=None):
+ def unselectAll(argsList=None):
+ 	CyInterface().clearSelectionList()
+ # </advc.088>
++
++# <advc.004m> Called by BugOptions when dirty. Defining this handler directly in CvScreensInterface.py leads to problems when reloading scripts, specifically in ChangeHandler.handle (BugOptions.py).
++def updateDefaultCamDistance(option, value):
++	import CvScreensInterface
++	CvScreensInterface.updateCameraStartDistance()
++# </advc.004m>
+
+diff --git a/Assets/Python/EntryPoints/CvScreensInterface.py b/Assets/Python/EntryPoints/CvScreensInterface.py
+index a0e1d8cb2..f8d1e70b5 100644
+--- a/Assets/Python/EntryPoints/CvScreensInterface.py
++++ b/Assets/Python/EntryPoints/CvScreensInterface.py
+@@ -1027,7 +1027,7 @@ def refreshOptionsScreen():
+ 	optionsScreen.refreshScreen()
+ 
+ # <advc.004m>
+-def updateCameraStartDistance(): # Called by DLL
++def updateCameraStartDistance(): # Called by DLL and by InputUtil.updateCameraStartDistance
+ 	MainOpt = BugCore.game.MainInterface
+ 	choice = MainOpt.getDefaultCamDistance()
+ 	newVal = None
+@@ -1045,9 +1045,6 @@ def updateCameraStartDistance(): # Called by DLL
+ 		gc.updateCameraStartDistance(True)
+ 	if not newVal is None:
+ 		gc.setDefineFLOAT('CAMERA_START_DISTANCE', newVal)
+-
+-def updateDefaultCamDistance(option, value): # Called by BugOptions when dirty
+-	updateCameraStartDistance()
+ # </advc.004m>
+ 
+ def cityWarningOnClickedCallback(argsList):
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2221

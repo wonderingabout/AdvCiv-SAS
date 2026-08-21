@@ -1,0 +1,91 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 438
+# Commit: 80e49a59e1c98a691f429a3dee399e9b778e162d
+# History segment: K-Mod history
+# Parent used for diff: 89e8064d8964c530bd553eccf857447fcedc8f06
+# Title: K-Mod will now automatically create its settings folder inside the user folder 'Documents\My Games\Beyond the Sword'. This allows settings to be saved even w...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+30	3	Assets/Python/BUG/BugPath.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugPath.py b/Assets/Python/BUG/BugPath.py
+index 5c9f3fe99..019e9c7da 100644
+--- a/Assets/Python/BUG/BugPath.py
++++ b/Assets/Python/BUG/BugPath.py
+@@ -72,6 +72,7 @@ import os.path
+ import sys
+ import BugConfigTracker
+ import BugUtil
++import shutil
+ 
+ 
+ ## Constants
+@@ -294,7 +295,7 @@ def makeDir(name):
+ 			safeInfoPath("BugPath - creating '%s'", path)
+ 			os.makedirs(path)
+ 			return path
+-		except IOError:
++		except OSError:
+ 			BugUtil.trace("Cannot create directory '%s' in '%s", name, getDataDir())
+ 	return path
+ 
+@@ -490,7 +491,7 @@ def initRootFolder():
+ 		BugUtil.debug("BugPath - CvAltRoot module not present")
+ 	except AttributeError:
+ 		BugUtil.error("CvAltRoot.py module has no rootDir setting")
+-	except IOError, (errno, strerror):
++	except OSError, (errno, strerror):
+ 		BugUtil.trace("Error accessing directory from CvAltRoot.py: [%d] %s", errno, strerror)
+ 	
+ 	# user dir
+@@ -571,9 +572,35 @@ def initDataFolder():
+ 		return
+ 	BugUtil.debug("BugPath - initializing data folder")
+ 
++	# K-Mod. If it doesn't already exist, create the folder in the user directory.
++	dir = join(getRootDir(), getModName(), SETTINGS_FOLDER)
++	if not isdir(dir):
++		# copy the default settings from the K-Mod folder.
++		default_dir = join(getModDir(), SETTINGS_FOLDER)
++		if isdir(default_dir):
++			try:
++				safeInfoPath("BugPath - copying settings to '%s'", dir)
++				# copytree is suppose to create the missing parent directores, but apparently it doesn't work. So I need to do this:
++				try:
++					os.makedirs(join(getRootDir(), getModName()))
++				except OSError:
++					pass
++				# sucks.
++				shutil.copytree(default_dir, dir)
++			except OSError:
++				BugUtil.trace("Failed to copy settings")
++	if not isdir(dir):
++		# Second attempt: create the directory manually
++		try:
++			safeInfoPath("BugPath - creating '%s'", dir)
++			os.makedirs(dir)
++		except OSError:
++			BugUtil.trace("Failed to create directory '%s'", dir)
++	# K-Mod end
++	
+ 	dataDirs = (
+-		join(getUserDir(), getModName()),	# My Games\BUG Mod
+ 		join(getRootDir(), getModName()),	# My Games\BTS\BUG Mod
++		join(getUserDir(), getModName()),	# My Games\BUG Mod
+ 		join(getAppDir(), getModName()),	 # Civ4\BTS\BUG Mod
+ 		join(getModDir(), DATA_FOLDER),	  # Civ4\BTS\Mods\BUG Mod 3.6\Data
+ 		join(getModDir()),				   # Civ4\BTS\Mods\BUG Mod 3.6
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2341

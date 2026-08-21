@@ -1,0 +1,266 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 728
+# Commit: 77a9b8d5542b3a0290127f373517f55c7dcff04e
+# History segment: K-Mod history
+# Parent used for diff: 8b477812967907bc8ca876e22fec2eb21a262f6e
+# Title: Added a new bool array to CvTeam: m_abHasSeen. This tracks which teams have been seen. It's similar to "has met", except that it will also be set true due to...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	6	Assets/Python/Screens/CvMainInterface.py
+33	3	CvGameCoreDLL/CvPlayer.cpp
+2	0	CvGameCoreDLL/CvPlayer.h
+4	0	CvGameCoreDLL/CvPlot.cpp
+13	1	CvGameCoreDLL/CvTeam.cpp
+6	0	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index eae2cb282..7a91f77bd 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -4914,7 +4914,8 @@ class CvMainInterface:
+ 														scores.setWaiting()
+ 	
+ # BUG - Dead Civs - start
+-											if (ScoreOpt.isUsePlayerName()):
++											#if (ScoreOpt.isUsePlayerName()):
++											if ScoreOpt.isUsePlayerName() or (not gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(eTeam) and not gc.getGame().isDebugMode()): # K-Mod
+ 												szPlayerName = gc.getPlayer(ePlayer).getName()
+ 											else:
+ 												szPlayerName = gc.getLeaderHeadInfo(gc.getPlayer(ePlayer).getLeaderType()).getDescription()
+@@ -4987,11 +4988,18 @@ class CvMainInterface:
+ 												if (bAlignIcons):
+ 													scores.setAlive()
+ 												# BUG: Rest of Dead Civs change is merely indentation by 1 level ...
+-												if (gc.getTeam(eTeam).isAlive()):
+-													if ( not (gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(eTeam)) ):
+-														szBuffer = szBuffer + (" ?")
+-														if (bAlignIcons):
+-															scores.setNotMet()
++												#if (gc.getTeam(eTeam).isAlive()):
++													# if ( not (gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(eTeam)) ):
++														# szBuffer = szBuffer + (" ?")
++														# if (bAlignIcons):
++															# scores.setNotMet()
++												# K-Mod
++												if gc.getTeam(eTeam).isAlive() and not gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(eTeam):
++													szBuffer = szBuffer + (" ?")
++													if (bAlignIcons):
++														scores.setNotMet()
++												if gc.getTeam(eTeam).isAlive() and (gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(eTeam) or gc.getGame().isDebugMode()):
++												# K-Mod end
+ 													if (gc.getTeam(eTeam).isAtWar(gc.getGame().getActiveTeam())):
+ 														szBuffer = szBuffer + "("  + localText.getColorText("TXT_KEY_CONCEPT_WAR", (), gc.getInfoTypeForString("COLOR_RED")).upper() + ")"
+ 														if (bAlignIcons):
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 63bc1c5d1..45dbd42df 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3109,10 +3109,18 @@ bool CvPlayer::isBarbarian() const
+ 
+ const wchar* CvPlayer::getName(uint uiForm) const
+ {
+-
+ 	if (GC.getInitCore().getLeaderName(getID(), uiForm).empty() || (GC.getGameINLINE().isMPOption(MPOPTION_ANONYMOUS) && isAlive() && GC.getGameINLINE().getGameState() == GAMESTATE_ON))
+ 	{
+-		return GC.getLeaderHeadInfo(getLeaderType()).getDescription(uiForm);
++		//return GC.getLeaderHeadInfo(getLeaderType()).getDescription(uiForm);
++		// K-Mod. Conceal the leader name of unmet players.
++		if (gDLL->getChtLvl() > 0 || GET_TEAM(GC.getGameINLINE().getActiveTeam()).isHasSeen(getTeam()))
++			return GC.getLeaderHeadInfo(getLeaderType()).getDescription(uiForm);
++		else
++		{
++			static CvWString string = gDLL->getText("TXT_KEY_UNKNOWN"); // hack to stop the string from going out of scope.
++			return string;
++		}
++		// K-Mod end
+ 	}
+ 	else
+ 	{
+@@ -3136,6 +3144,14 @@ const wchar* CvPlayer::getNameKey() const
+ 
+ const wchar* CvPlayer::getCivilizationDescription(uint uiForm) const
+ {
++	// K-Mod. Conceal the civilization of unmet players.
++	if (gDLL->getChtLvl() == 0 && !GET_TEAM(GC.getGameINLINE().getActiveTeam()).isHasSeen(getTeam()))
++	{
++		static CvWString string = gDLL->getText("TXT_KEY_TOPCIVS_UNKNOWN"); // hack to stop the string from going out of scope.
++		return string;
++	}
++	// K-Mod end
++
+ 	if (GC.getInitCore().getCivDescription(getID(), uiForm).empty())
+ 	{
+ 		return GC.getCivilizationInfo(getCivilizationType()).getDescription(uiForm);
+@@ -3162,6 +3178,14 @@ const wchar* CvPlayer::getCivilizationDescriptionKey() const
+ 
+ const wchar* CvPlayer::getCivilizationShortDescription(uint uiForm) const
+ {
++	// K-Mod. Conceal the civilization of unmet players.
++	if (!GET_TEAM(GC.getGameINLINE().getActiveTeam()).isHasSeen(getTeam()))
++	{
++		static CvWString string = gDLL->getText("TXT_KEY_UNKNOWN"); // hack to stop the string from going out of scope.
++		return string;
++	}
++	// K-Mod end
++
+ 	if (GC.getInitCore().getCivShortDesc(getID(), uiForm).empty())
+ 	{
+ 		return GC.getCivilizationInfo(getCivilizationType()).getShortDescription(uiForm);
+@@ -11678,7 +11702,13 @@ void CvPlayer::setTeam(TeamTypes eTeam)
+ 
+ PlayerColorTypes CvPlayer::getPlayerColor() const
+ {
+-	return GC.getInitCore().getColor(getID());
++	//return GC.getInitCore().getColor(getID());
++	// K-Mod. Conceal the player colour of unmet players.
++	if (gDLL->getChtLvl() > 0 || GET_TEAM(GC.getGameINLINE().getActiveTeam()).isHasSeen(getTeam()))
++		return GC.getInitCore().getColor(getID());
++	else
++		return GC.getInitCore().getColor(BARBARIAN_PLAYER);
++	// K-Mod end
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 6d6c63bf9..8507505fb 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -111,6 +111,8 @@ public:
+ 	DllExport void updateHuman();
+ 	DllExport bool isBarbarian() const;																																					// Exposed to Python						
+ 
++	// K-Mod note: I've changed getName, getCivilizationDescription, and getCivilizationShortDescription to only give accurate information if the active player has met this player.
++	// The "key" versions of those functions are unchanged. This is important because getNameKey and so on are used to create messages for the replay.
+ 	DllExport const wchar* getName(uint uiForm = 0) const;																											// Exposed to Python
+ 	DllExport const wchar* getNameKey() const;																																	// Exposed to Python
+ 	DllExport const wchar* getCivilizationDescription(uint uiForm = 0) const;																		// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 27864c037..45d44f52e 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -7311,6 +7311,10 @@ void CvPlot::setRevealedOwner(TeamTypes eTeam, PlayerTypes eNewValue)
+ 		}
+ 
+ 		m_aiRevealedOwner[eTeam] = eNewValue;
++		// K-Mod
++		if (eNewValue != NO_PLAYER)
++			GET_TEAM(eTeam).makeHasSeen(GET_PLAYER(eNewValue).getTeam());
++		// K-Mod end
+ 
+ 		if (eTeam == GC.getGameINLINE().getActiveTeam())
+ 		{
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index f74bf168b..699a7adfc 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -47,6 +47,7 @@ CvTeam::CvTeam()
+ 
+ 	m_abAtWar = new bool[MAX_TEAMS];
+ 	m_abHasMet = new bool[MAX_TEAMS];
++	m_abHasSeen = new bool[MAX_TEAMS]; // K-Mod
+ 	m_abPermanentWarPeace = new bool[MAX_TEAMS];
+ 	m_abOpenBorders = new bool[MAX_TEAMS];
+ 	m_abDefensivePact = new bool[MAX_TEAMS];
+@@ -91,6 +92,7 @@ CvTeam::~CvTeam()
+ 	SAFE_DELETE_ARRAY(m_aiCounterespionageModAgainstTeam);
+ 	SAFE_DELETE_ARRAY(m_abAtWar);
+ 	SAFE_DELETE_ARRAY(m_abHasMet);
++	SAFE_DELETE_ARRAY(m_abHasSeen); // K-Mod
+ 	SAFE_DELETE_ARRAY(m_abPermanentWarPeace);
+ 	SAFE_DELETE_ARRAY(m_abOpenBorders);
+ 	SAFE_DELETE_ARRAY(m_abDefensivePact);
+@@ -223,6 +225,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
+ 		m_aiCounterespionageTurnsLeftAgainstTeam[iI] = 0;
+ 		m_aiCounterespionageModAgainstTeam[iI] = 0;
+ 		m_abHasMet[iI] = false;
++		m_abHasSeen[iI] = false; // K-Mod
+ 		m_abAtWar[iI] = false;
+ 		m_abPermanentWarPeace[iI] = false;
+ 		m_abOpenBorders[iI] = false;
+@@ -240,6 +243,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
+ 			kLoopTeam.m_aiCounterespionageTurnsLeftAgainstTeam[getID()] = 0;
+ 			kLoopTeam.m_aiCounterespionageModAgainstTeam[getID()] = 0;
+ 			kLoopTeam.m_abHasMet[getID()] = false;
++			kLoopTeam.m_abHasSeen[getID()] = false; // K-Mod
+ 			kLoopTeam.m_abAtWar[getID()] = false;
+ 			kLoopTeam.m_abPermanentWarPeace[getID()] = false;
+ 			kLoopTeam.m_abOpenBorders[getID()] = false;
+@@ -3871,6 +3875,7 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bNewDiplo)
+ 
+ 	if (!isHasMet(eIndex))
+ 	{
++		makeHasSeen(eIndex); // K-mod
+ 		m_abHasMet[eIndex] = true;
+ 
+ 		updateTechShare();
+@@ -6628,6 +6633,12 @@ void CvTeam::read(FDataStreamBase* pStream)
+ 	pStream->Read(GC.getNumVoteSourceInfos(), m_aiForceTeamVoteEligibilityCount);
+ 
+ 	pStream->Read(MAX_TEAMS, m_abHasMet);
++	// K-mod
++	if (uiFlag >= 1)
++		pStream->Read(MAX_TEAMS, m_abHasSeen);
++	else
++		memcpy(m_abHasSeen, m_abHasMet, sizeof(*m_abHasSeen)*MAX_TEAMS);
++	// K-Mod end
+ 	pStream->Read(MAX_TEAMS, m_abAtWar);
+ 	pStream->Read(MAX_TEAMS, m_abPermanentWarPeace);
+ 	pStream->Read(MAX_TEAMS, m_abOpenBorders);
+@@ -6684,7 +6695,7 @@ void CvTeam::write(FDataStreamBase* pStream)
+ {
+ 	int iI;
+ 
+-	uint uiFlag = 0;
++	uint uiFlag = 1;
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iNumMembers);
+@@ -6728,6 +6739,7 @@ void CvTeam::write(FDataStreamBase* pStream)
+ 	pStream->Write(GC.getNumVoteSourceInfos(), m_aiForceTeamVoteEligibilityCount);
+ 
+ 	pStream->Write(MAX_TEAMS, m_abHasMet);
++	pStream->Write(MAX_TEAMS, m_abHasSeen); // K-Mod. uiFlag >= 1
+ 	pStream->Write(MAX_TEAMS, m_abAtWar);
+ 	pStream->Write(MAX_TEAMS, m_abPermanentWarPeace);
+ 	pStream->Write(MAX_TEAMS, m_abOpenBorders);
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index ddc19ba1c..8e0f321eb 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -255,6 +255,11 @@ public:
+ 	bool isHasMet(TeamTypes eIndex) const;																		// Exposed to Python
+ 	void makeHasMet(TeamTypes eIndex, bool bNewDiplo);
+ 
++	// K-Mod
++	bool isHasSeen(TeamTypes eIndex) const { return m_abHasSeen[eIndex]; };
++	void makeHasSeen(TeamTypes eIndex) { m_abHasSeen[eIndex] = true; };
++	// K-Mod end
++
+ 	DllExport bool isAtWar(TeamTypes eIndex) const;																			// Exposed to Python
+ 	DllExport void setAtWar(TeamTypes eIndex, bool bNewValue);
+ 
+@@ -464,6 +469,7 @@ protected:
+ 
+ 	bool* m_abAtWar;
+ 	bool* m_abHasMet;
++	bool* m_abHasSeen; // K-Mod
+ 	bool* m_abPermanentWarPeace;
+ 	bool* m_abOpenBorders;
+ 	bool* m_abDefensivePact;
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=9958

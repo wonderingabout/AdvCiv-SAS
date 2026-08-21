@@ -1,0 +1,49 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5861
+# Commit: 4c2f880fadeb9dd574cf428c2a1fb07d798f2749
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1548510c785183e31222d43bd06dc1b2a919920a
+# Title: update docs
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+2506	0	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt
+
+[PATCHES]
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index ca8bea1f6..fcd257155 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -166,7 +166,7 @@ To create a git log based on past commits using a comand line, plus also anonymi
+ ```shell
+ # 1. Set your commit hashes here
+ start=b421b9e33ff43349b4983398279c4f33dcfa94f3 # old (excluded): e.g. AdCiv-SAS 5500.
+-end=dd8a672712beb770d73c510766067a484464fad2   # new (included), e.g.: AdCiv-SAS 5860.
++end=1548510c785183e31222d43bd06dc1b2a919920a   # new (included), e.g.: AdCiv-SAS 5860.
+ 
+ # 2. Run the command (uses the variables above)
+ cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && 
+@@ -250,7 +250,7 @@ git fetch origin
+ # choose names
+ # new tag
+ TAG=5860
+-SHA=e4258f6c012121e4916ed105071014d348423db5  # <- the TAG commit
++SHA=1548510c785183e31222d43bd06dc1b2a919920a  # <- the TAG commit
+ OLDNAME="AdvCiv-SAS 5500"                     # quote because of spaces
+ BASE=b421b9e33ff43349b4983398279c4f33dcfa94f3 # <- the OLDNAME commit
+ WHEN=$(git show -s --format=%cI "$SHA")       # or %aI if you prefer author date
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt reason=known-generated/noisy-history changedLines=2506 bytes=97762
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=1280

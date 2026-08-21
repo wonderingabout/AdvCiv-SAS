@@ -1,0 +1,80 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 879
+# Commit: 53c6812d59f03e687da69ce90fc2720e4c9e1dad
+# History segment: K-Mod history
+# Parent used for diff: d406f6c64a8e185979578e528fedbddccb647ed4
+# Title: The "EXTRA_YIELD" xml value is now cached, for slightly faster access.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	CvGameCoreDLL/CvGlobals.cpp
+2	0	CvGameCoreDLL/CvGlobals.h
+1	1	CvGameCoreDLL/CvPlot.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 202c918fc..d621ca470 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -139,6 +139,7 @@ m_aeTurnRightDirection(NULL),
+ //m_aPlayerOptionsInfo(NULL),
+ m_Profiler(NULL),
+ m_VarSystem(NULL),
++m_iEXTRA_YIELD(0), // K-Mod
+ m_iMOVE_DENOMINATOR(0),
+ m_iNUM_UNIT_PREREQ_OR_BONUSES(0),
+ m_iNUM_BUILDING_PREREQ_OR_BONUSES(0),
+@@ -2643,6 +2644,7 @@ FVariableSystem* CvGlobals::getDefinesVarSystem()
+ 
+ void CvGlobals::cacheGlobals()
+ {
++	m_iEXTRA_YIELD = getDefineINT("EXTRA_YIELD"); // K-Mod
+ 	m_iMOVE_DENOMINATOR = getDefineINT("MOVE_DENOMINATOR");
+ 	m_iNUM_UNIT_PREREQ_OR_BONUSES = getDefineINT("NUM_UNIT_PREREQ_OR_BONUSES");
+ 	m_iNUM_BUILDING_PREREQ_OR_BONUSES = getDefineINT("NUM_BUILDING_PREREQ_OR_BONUSES");
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 04397400a..c2042b11d 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -715,6 +715,7 @@ public:
+ 	DllExport void setDefineFLOAT( const char * szName, float fValue );
+ 	DllExport void setDefineSTRING( const char * szName, const char * szValue );
+ 
++	inline int getEXTRA_YIELD() { return m_iEXTRA_YIELD; } // K-Mod (why aren't all these functions inline?)
+ 	int getMOVE_DENOMINATOR();
+ 	int getNUM_UNIT_PREREQ_OR_BONUSES();
+ 	int getNUM_BUILDING_PREREQ_OR_BONUSES();
+@@ -1162,6 +1163,7 @@ protected:
+ 
+ 	FVariableSystem* m_VarSystem;
+ 
++	int m_iEXTRA_YIELD; // K-Mod
+ 	int m_iMOVE_DENOMINATOR;
+ 	int m_iNUM_UNIT_PREREQ_OR_BONUSES;
+ 	int m_iNUM_BUILDING_PREREQ_OR_BONUSES;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index a31fe458b..07e86d429 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6439,7 +6439,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay) const
+ 		{
+ 			if (iYield >= GET_PLAYER(ePlayer).getExtraYieldThreshold(eYield))
+ 			{
+-				iYield += GC.getDefineINT("EXTRA_YIELD");
++				iYield += GC.getEXTRA_YIELD();
+ 			}
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1998

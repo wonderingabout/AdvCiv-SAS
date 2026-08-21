@@ -1,0 +1,47 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4130
+# Commit: d51243547a261e5d057b9e0d0d2c332bf1880190
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7291f524ab36ed6aa944407dfc3c1a7744c1f53d
+# Title: Amend recalc of cached commerce upon loading savegame
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	3	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 6cdf6d565..738c54526 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9809,9 +9809,7 @@ void CvPlayer::updateCommerceRates()
+ {
+ 		int iTotalRate = 0;
+ 		FOR_EACH_CITY(pCity, *this)
+-		{
+ 			iTotalRate += pCity->getCommerceRateTimes100(eCommerce);
+-		}
+ 		FAssertMsg(iTotalRate == iRate, "Player's special commerce did not equal the sum of their cities'");
+ }
+ #endif
+@@ -14622,7 +14620,7 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 	if (uiFlag < 18)
+ 		updateMaintenance();
+ 	// <advc>
+-	if (uiFlag < 22 && isMajorCiv())
++	if (uiFlag < 22)
+ 	{
+ 		FOR_EACH_ENUM(Commerce)
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=685

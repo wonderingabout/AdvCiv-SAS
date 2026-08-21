@@ -1,0 +1,259 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5904
+# Commit: 505f032cedab434a8a847c6ffae81e14d6829c00
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fb8304563cefcafb82c2a9a5d0d17c7e5034a851
+# Title: Perf opt: Guard runtime BBAI log call paths and related changes
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+20	0	CvGameCoreDLL/CitySiteEvaluator.cpp
+14	10	CvGameCoreDLL/CvCityAI.cpp
+15	4	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	README.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index f412c9fba..08348b822 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -242,6 +242,10 @@ void CitySiteEvaluator::setDebug(bool b)
+ // <advc.031c>
+ int CitySiteEvaluator::evaluateWithLogging(CvPlot const& kPlot) const
+ {
++	// <!-- custom: avoid the logging pass and log-argument evaluation when found-value logging is disabled. (ChatGPT 5.5) -->
++	if (gFoundLogLevel <= 0)
++		return evaluate(kPlot);
++
+ 	AIFoundValue::setLoggingEnabled(true);
+ 	int r = evaluate(kPlot);
+ 	AIFoundValue::setLoggingEnabled(false);
+@@ -251,6 +255,10 @@ int CitySiteEvaluator::evaluateWithLogging(CvPlot const& kPlot) const
+ 
+ void CitySiteEvaluator::log(CvPlot const& kPlot)
+ {
++	// <!-- custom: callers normally check gFoundLogLevel already; keep this guard so this entry point stays cheap if reached directly. (ChatGPT 5.5) -->
++	if (gFoundLogLevel <= 0)
++		return;
++
+ 	/*  Important to ignore other city sites. Because, when CvPlayerAI::
+ 		AI_updateCitySites computes the found value of the best site,
+ 		none of the other sites are chosen yet. Here, all sites are chosen. */
+@@ -3923,6 +3931,10 @@ bool AIFoundValue::isDeadlockedBonus(CvPlot const& kBonusPlot, int iMinRange) co
+ // <advc.031c>
+ void CitySiteEvaluator::logSettings() const
+ {
++	// <!-- custom: These helpers are normally reached through IFLOG or log() guards; keep local guards too so future direct calls cannot leak found-value output into unrelated BBAI categories. (GPT-5.5 + ChatGPT 5.5) -->
++	if (gFoundLogLevel <= 0 || !AIFoundValue::isLoggingEnabled())
++		return;
++
+ 	logBBAI("Found parameters for %S:", isStartingLoc() ?
+ 			L"starting location" : getPlayer().getName());
+ 	logBBAI("Culture claim treshold: %d", getClaimThreshold());
+@@ -3968,6 +3980,10 @@ void CitySiteEvaluator::logSettings() const
+ 
+ void AIFoundValue::logSite() const
+ {
++	// <!-- custom: same found-value logging self-guard as logSettings. (GPT-5.5 + ChatGPT 5.5) -->
++	if (gFoundLogLevel <= 0 || !isLoggingEnabled())
++		return;
++
+ 	logBBAI("Computing found value for %S", kPlot.debugStr());
+ 	if (bCoastal)
+ 		logBBAI("Site is coastal");
+@@ -3981,6 +3997,10 @@ void AIFoundValue::logPlot(CvPlot const& p, int iPlotValue, int const* aiYield,
+ 	bool bCanSoonImproveBonus, bool bEasyAccess,
+ 	int iFeatureProduction, bool bPersistentFeature, bool bRemovableFeature) const
+ {
++	// <!-- custom: same found-value logging self-guard as logSettings. (GPT-5.5 + ChatGPT 5.5) -->
++	if (gFoundLogLevel <= 0 || !isLoggingEnabled())
++		return;
++
+ 	int const F = YIELD_FOOD, P = YIELD_PRODUCTION, C = YIELD_COMMERCE;
+ 	if (isHome(p))
+ 		logBBAI("Home plot: val=%d, %dF%dP%dC", iPlotValue, aiYield[F], aiYield[P], aiYield[C]);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index fa0cadec7..84b1b818c 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1968,7 +1968,7 @@ void CvCityAI::AI_chooseProduction()
+ 				// <advc.031b> Store the result for "build settler 2"
+ 				iSettlerPriority = AI_calculateSettlerPriority(iNumAreaCitySites,
+ 						iAreaBestFoundValue, iNumWaterAreaCitySites, iWaterAreaBestFoundValue);
+-				// <!-- custom: first-settler stalls are hard to diagnose from the normal BBAI "build settler 1" success log. Log the gate state for one-city capitals before the choice, so replaying a save shows whether danger, financial trouble, defense/offense mode, site value, or the pop/growth gate blocked first expansion. This helped show that Bibracte's outer first-settler gate was open while the lower concrete-unit gate still rejected Settler; and ingame fixed the issue of building first settler at t90 on normal game speed (now has city 2 at t~40-50 and 3 cities at t100 instead of only 1). (GPT-5.5? + GPT-5.5-Thinking) -->
++				// <!-- custom: first-settler stalls are hard to diagnose from the normal BBAI "build settler 1" success log. Log the gate state for one-city capitals before the choice, so replaying a save shows whether danger, financial trouble, defense/offense mode, site value, or the pop/growth gate blocked first expansion. This helped show that Bibracte's outer first-settler gate was open while the lower concrete-unit gate still rejected Settler; and ingame fixed the issue of building first settler at t90 on normal game speed (now has city 2 at t~40-50 and 3 cities at t100 instead of only 1). (GPT-5.5 + GPT-5.5-Thinking) -->
+ 				if (gCityLogLevel >= 2 && isCapital() && iNumCities == 1 && iNumSettlers == 0)
+ 				{
+ 					logBBAI("      City %S first-settler gate: pop=%d freeWindow=%d stagnant=%d danger=%d financial=%d defenseMode=%d offenseMode=%d noSettler=%d workerReplaces=%d areaSites=%d areaBest=%d waterSites=%d waterBest=%d minFound=%d settlers=%d/%d priority=%d plotSettlers=%d",
+@@ -11769,9 +11769,11 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
+ 
+ 	// <!-- custom: performance optimization: cache repetitive calls -->
+ 	CvGame const& kGame = GC.getGame();
++	// <!-- custom: Settler diagnostics use the same city-log gate several times; cache the combined condition so non-settler calls avoid repeated log-level checks and all settler logs stay category-gated. (GPT-5.5) -->
++	const bool bLogSettler = (eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2);
+ 
+-	// <!-- custom: first-settler outer gate can allow UNITAI_SETTLE while the lower choose-unit layer still rejects it. Log the concrete best unit and odds path so the BBAI replay shows whether the failure is no trainable/value settler, random odds, or the later concrete-unit gate; this showed Bibracte had Settler available but was rejected later by bWarPlan. (GPT-5.5? + GPT-5.5-Thinking) -->
+-	if (eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2)
++	// <!-- custom: first-settler outer gate can allow UNITAI_SETTLE while the lower choose-unit layer still rejects it. Log the concrete best unit and odds path so the BBAI replay shows whether the failure is no trainable/value settler, random odds, or the later concrete-unit gate; this showed Bibracte had Settler available but was rejected later by bWarPlan. (GPT-5.5 + GPT-5.5-Thinking) -->
++	if (bLogSettler)
+ 	{
+ 		logBBAI("      City %S settler chooseUnit: bestUnit=%S odds=%d totalSettlers=%d",
+ 				getName().GetCString(), eBestUnit == NO_UNIT ? L"NO_UNIT" : GC.getInfo(eBestUnit).getDescription(), iOdds, GET_PLAYER(getOwner()).AI_totalUnitAIs(UNITAI_SETTLE));
+@@ -11804,16 +11806,16 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
+ 			// return true;
+ 			// Funnel through the (UnitTypes, UnitAITypes) overload and propagate success/failure.
+ 			const bool bChosen = AI_chooseUnit(eBestUnit, eUnitAI);
+-			if (!bChosen && eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2)
++			if (!bChosen && bLogSettler)
+ 				logBBAI("      City %S settler chooseUnit rejected concrete unit %S", getName().GetCString(), GC.getInfo(eBestUnit).getDescription());
+ 			return bChosen;
+ 		}
+-		else if (eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2)
++		else if (bLogSettler)
+ 		{
+ 			logBBAI("      City %S settler chooseUnit rejected by random odds", getName().GetCString());
+ 		}
+ 	}
+-	else if (eUnitAI == UNITAI_SETTLE && gCityLogLevel >= 2)
++	else if (bLogSettler)
+ 	{
+ 		logBBAI("      City %S settler chooseUnit rejected: AI_bestUnitAI returned NO_UNIT", getName().GetCString());
+ 	}
+@@ -12894,24 +12896,26 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 						int iMaxUnits = 1;
+ 						const int iTotalUnitAIs = kPlayer.AI_totalUnitAIs(UNITAI_SETTLE);
+ 						const bool bEarlyExpansionSettler = (iNumCities < 3 && iTotalUnitAIs <= 0);
++						// <!-- custom: Same local settler-log gate as the UnitAITypes overload; this concrete-unit branch already knows it is handling UNITAI_SETTLE. (GPT-5.5) -->
++						const bool bLogSettler = (gCityLogLevel >= 2);
+ 
+-						if (gCityLogLevel >= 2)
++						if (bLogSettler)
+ 						{
+ 							logBBAI("      City %S settler land-unit gate: atWar=%d enemyStrong=%d danger=%d warPlan=%d earlyExpansion=%d totalSettlers=%d maxSettlers=%d",
+ 									getName().GetCString(), bAtWar, bEnemyStrong, bDanger, bWarPlan, bEarlyExpansionSettler, iTotalUnitAIs, iMaxUnits);
+ 						}
+ 
+-						// <!-- custom: Bibracte's first settler was delayed until around turn 90 because the outer first-settler gate allowed expansion, but this lower concrete-unit gate rejected it only because bWarPlan was true despite no war, no strong enemy, and no local danger. Keep hard tactical blockers, but do not let a generic war plan alone block early expansion before the AI has at least 3 cities. This fixed the reproduced case: city 2 moved to around turn 40-50, city 3 followed soon after, and Brennus had 3 cities by turn 100. (GPT-5.5? + GPT-5.5-Thinking) -->
++						// <!-- custom: Bibracte's first settler was delayed until around turn 90 because the outer first-settler gate allowed expansion, but this lower concrete-unit gate rejected it only because bWarPlan was true despite no war, no strong enemy, and no local danger. Keep hard tactical blockers, but do not let a generic war plan alone block early expansion before the AI has at least 3 cities. This fixed the reproduced case: city 2 moved to around turn 40-50, city 3 followed soon after, and Brennus had 3 cities by turn 100. (GPT-5.5 + GPT-5.5-Thinking) -->
+ 						if (bAtWar || bEnemyStrong || bDanger || (bWarPlan && !bEarlyExpansionSettler))
+ 						{
+-							if (gCityLogLevel >= 2)
++							if (bLogSettler)
+ 								logBBAI("      City %S rejects settler in AI_chooseUnit: threat gate", getName().GetCString());
+ 							return false;
+ 						}
+ 
+ 						if (iTotalUnitAIs >= iMaxUnits)
+ 						{
+-							if (gCityLogLevel >= 2)
++							if (bLogSettler)
+ 								logBBAI("      City %S rejects settler in AI_chooseUnit: settler cap %d/%d", getName().GetCString(), iTotalUnitAIs, iMaxUnits);
+ 							return false;
+ 						}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3d909b9a4..f1f57faec 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1726,7 +1726,9 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
+ 						DOMAIN_LAND, 3);
+ 				if(5 * iAttStr > 4 * iDefStr)
+ 					bRaze = true;
+-				if(bRaze) logBBAI("  Razing enemy cultural victory city");
++				// <!-- custom: logBBAI now has only a global runtime gate, so player-AI conquest details still need player-log guards to avoid leaking into unrelated BBAI categories. (GPT-5.5 + ChatGPT 5.5) -->
++				if (bRaze && gPlayerLogLevel >= 1)
++					logBBAI("  Razing enemy cultural victory city");
+ 			}
+ 		} // </advc.116>
+ 	}  // <advc.ctr>
+@@ -1984,11 +1986,13 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
+ 				iRazeValue -= 5;
+ 			} // K-Mod end
+ 
++			// <!-- custom: The following conquest/raze details are player-AI diagnostics; guard them explicitly now that logBBAI itself only checks the global runtime BBAI switch. (GPT-5.5 + ChatGPT 5.5) -->
+ 			FOR_EACH_ENUM(Religion)
+ 			{
+ 				if (kCity.isHolyCity(eLoopReligion))
+ 				{
+-					logBBAI("      Reduction for holy city");
++					if (gPlayerLogLevel >= 1)
++						logBBAI("      Reduction for holy city");
+ 					if(getStateReligion() == eLoopReligion)
+ 						iRazeValue -= 150;
+ 					else iRazeValue -= 5 + kGame.calculateReligionPercent(eLoopReligion);
+@@ -2001,7 +2005,8 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
+ 			{
+ 				if (kCity.isHeadquarters(eCorp))
+ 				{
+-					logBBAI("      Reduction for corp headquarters");
++					if (gPlayerLogLevel >= 1)
++						logBBAI("      Reduction for corp headquarters");
+ 					iRazeValue -= 10 + 100 * kGame.countCorporationLevels(eCorp) /
+ 							kGame.getNumCities();
+ 				}
+@@ -2113,7 +2118,9 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
+ 				}
+ 				if (bLiberate)
+ 				{
+-					logBBAI("    Player %d (%S) decides to liberate city %S to player %d (%S)", getID(), getCivilizationDescription(0), kCity.getName().GetCString(), GET_PLAYER(eLiberationPlayer).getID(), GET_PLAYER(eLiberationPlayer).getCivilizationDescription(0));
++					// <!-- custom: same player-log category guard as the nearby conquest/raze diagnostics. (GPT-5.5 + ChatGPT 5.5) -->
++					if (gPlayerLogLevel >= 1)
++						logBBAI("    Player %d (%S) decides to liberate city %S to player %d (%S)", getID(), getCivilizationDescription(0), kCity.getName().GetCString(), GET_PLAYER(eLiberationPlayer).getID(), GET_PLAYER(eLiberationPlayer).getCivilizationDescription(0));
+ 					CvEventReporter::getInstance().cityAcquiredAndKept(getID(), &kCity);
+ 					kCity.liberate(true);
+ 				}
+@@ -31147,6 +31154,10 @@ void CvPlayerAI::AI_setHuman(bool b)
+ // advc.031c:
+ void CvPlayerAI::logFoundValue(CvPlot const& kPlot, bool bStartingLoc) const
+ {
++	// <!-- custom: most callers already check this; keep the guard here too so the helper never constructs the found-value logger when disabled. (ChatGPT 5.5) -->
++	if (gFoundLogLevel <= 0)
++		return;
++
+ 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+ 	static const int iMIN_BARBARIAN_CITY_STARTING_DISTANCE = GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE");
+ 	CitySiteEvaluator eval(*this, isBarbarian() ?
+
+diff --git a/README.md b/README.md
+index a70b72571..0ac1381cb 100644
+--- a/README.md
++++ b/README.md
+@@ -18,7 +18,7 @@ Content overall addition is minimal, as of now mostly in the future era (like th
+ 
+ All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv 1.12 at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
+ 
+-Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). Note: Since BBAI.log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now does not not consume our agentic tokens (e.g., Codex, Claude Code).
++Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate `BBAI.log` files for review. Note: Since BBAI.log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now does not not consume our agentic tokens (e.g., Codex, Claude Code).
+ 
+ Also most importantly LLMs like GPT Thinking (i.e. ChatGPT), GPT Codex, Claude code, Gemini AI, Deepseek AI, Grok AI, have helped me a lot to do this, and i probably would not have completed (or extremely harder) without them and all i mean so thanks again and thanks a lot!
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 8f7cec23e..f886bdf96 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -135,7 +135,8 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - Make **paths absolute** in **.gitignore** to fix folders with an identical name being incorrectly ignored; add **.gitattributes** for more precise archiving.
+ - Fix/cleanup **incorrect char formatting**: e.g.; `"Berang�r"` -> `"Beranger"`; removed non-English hints.
+ - Consolidated **long, unneeded, or unused comments** into [Long_Comments/](/Long_Comments/) and replaced them with short custom markers or files to keep code clean, lean, and readable. > ~500k characters reduced and still ongoing.
+-- (Requires AdvCiv-SAS 5903+) **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write `BBAI.log`. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis.
++- (Requires AdvCiv-SAS 5903+) **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write `BBAI.log`. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis.
++- (Requires AdvCiv-SAS 5904+) **BBAI logging guard cleanup:** now that BBAI logging is runtime-tunable rather than compile-gated, some older logging-only code paths are **guarded more explicitly** through the relevant log-level defines. This avoids running logging passes or expensive/unneeded evaluation and formatting of **log parameters** that ultimately won't be used when that log category is disabled.
+ 
+ ### 48 Civs DLL
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=18406

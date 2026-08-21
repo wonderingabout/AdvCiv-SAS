@@ -1,0 +1,118 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1935
+# Commit: b70f1e4d926d84873600969bc130926af3806ca4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ac8e56fe515222713a39417d0ab1427dc66cc761
+# Title: Help text for GW protection ability; fix recent Civilopedia bug.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+17	0	Assets/XML/Text/CIV4GameText_advc.xml
+3	3	CvGameCoreDLL/CvDLLWidgetData.cpp
+15	3	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index b25bd0c51..78361ac6c 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5911,6 +5911,23 @@
+ 		<Italian>[ICON_BULLET]D&#224; alle caratteristiche del terreno una minore probabilit&#224; di espandersi</Italian>
+ 		<Spanish>[ICON_BULLET]Da a los accidentes del terreno una menor posibilidad de propagaci�n</Spanish>
+ 	</TEXT>
++	<!-- advc.055 -->
++	<TEXT>
++		<Tag>TXT_KEY_IMPROVEMENT_AND_PROTECT_FROM_GW</Tag>
++		<English>and protects it from Global Warming</English>
++		<French>et les prot�ge du r�chauffement plan�taire</French>
++		<German>und bewahrt sie vor globaler Erw�rmung</German>
++		<Italian>e le protegge dal riscaldamento globale</Italian>
++		<Spanish>y los protege del calentamiento global</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_IMPROVEMENT_PROTECTS_FEATURE_FROM_GW</Tag>
++		<English>[ICON_BULLET]%d%% chance of protecting vegetation from Global Warming</English>
++		<French>[ICON_BULLET]%d%% de chance de prot�ger des caract&#233;ristiques du terrain du r�chauffement plan�taire</French>
++		<German>[ICON_BULLET]sch�tzt die Vegetation %d%% vor globaler Erw�rmung</German>
++		<Italian>[ICON_BULLET]%d%% di possibilit� di proteggere le caratteristiche del terreno dal riscaldamento globale</Italian>
++		<Spanish>[ICON_BULLET]%d%% de probabilidad de proteger los accidentes del terreno del calentamiento global</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.901: Replacing TXT_KEY_MISC_FEATURES 
+ 		 (CIV4GameTextInfos_Objects.xml) -->
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index a9b57d1c9..936f3fbc4 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -1111,8 +1111,8 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataStruct)
+ 		BuildTypes eBuild = (BuildTypes)widgetDataStruct.m_iData2;
+ 		if (eBuild != NO_BUILD)
+ 			eImprovement = GC.getInfo(eBuild).getImprovement();
+-		if (NO_IMPROVEMENT != eImprovement)
+-			py.jumpToPedia(iData1, "Improvement");
++		if (eImprovement != NO_IMPROVEMENT)
++			py.jumpToPedia(eImprovement, "Improvement");
+ 		break;
+ 	}
+ 	case WIDGET_HELP_YIELD_CHANGE:
+@@ -2883,7 +2883,7 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 		}
+ 		if (eImprovement != NO_IMPROVEMENT)
+ 		{
+-			if (kMissionPlot..isImproved())
++			if (kMissionPlot.isImproved())
+ 			{
+ 				szBuffer.append(NEWLINE);
+ 				szBuffer.append(gDLL->getText("TXT_KEY_ACTION_WILL_DESTROY_IMP",
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b5c5dbec8..1733aabfb 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -15915,18 +15915,30 @@ void CvGameTextMgr::setImprovementHelp(CvWStringBuffer &szBuffer, ImprovementTyp
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_DEFENSE_MODIFIER_EXTRA"));
+ 	}
+-
++	int iGWFeatureProtection = info.get(CvImprovementInfo::GWFeatureProtection); // advc.055
+ 	if (info.getFeatureGrowthProbability() > 0)
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_MORE_GROWTH"));
++		// <advc.055>
++		if (iGWFeatureProtection >= 100)
++		{
++			szBuffer.append(L" ");
++			szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_AND_PROTECT_FROM_GW"));
++			iGWFeatureProtection = 0; // Don't display again
++		} // </advc.055>
+ 	}
+ 	else if (info.getFeatureGrowthProbability() < 0)
+ 	{
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_LESS_GROWTH"));
+-	}
+-
++	}  // <advc.055>
++	if (iGWFeatureProtection > 0)
++	{
++		szBuffer.append(NEWLINE);
++		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_PROTECTS_FEATURE_FROM_GW",
++				iGWFeatureProtection));
++	} // </advc.055>
+ 	if (bCivilopediaText)
+ 	{
+ 		if (info.getPillageGold() > 0)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3910

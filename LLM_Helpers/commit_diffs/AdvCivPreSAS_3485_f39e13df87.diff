@@ -1,0 +1,1015 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3485
+# Commit: f39e13df870c036c2e5d0db26437254760898bdf
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9cbf0315917777326c63abb4f15a7e9a54141cb3
+# Title: Add ThirdPartyIntervention war utility aspect
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	1	Assets/XML/AI_Variables_GlobalDefines.xml
+255	244	CvGameCoreDLL/CvPlayerAI.cpp
+2	0	CvGameCoreDLL/CvPlayerAI.h
+2	1	CvGameCoreDLL/UWAI.h
+2	0	CvGameCoreDLL/UWAIAgent.cpp
+1	0	CvGameCoreDLL/WarEvaluator.cpp
+302	3	CvGameCoreDLL/WarUtilityAspect.cpp
+13	0	CvGameCoreDLL/WarUtilityAspect.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index 9126b1ec4..7f07209f7 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -5,7 +5,7 @@
+ 		 GlobalDefines.xml; now also contains UWAI parameters.
+ 
+ 		 UWAI breaks down the computation of AI war utility into a sum of
+-		 26 "aspects", most of which are either in favor of war (added to the
++		 27 "aspects", most of which are either in favor of war (added to the
+ 		 total war utility) or against war (subtracted). There are a few mixed
+ 		 aspects that could either increase or decrease war utility.
+ 		 Each aspect corresponds to one particular motivation for or against war.
+@@ -210,6 +210,12 @@
+ 		<DefineName>UWAI_WEIGHT_LOVE_OF_PEACE</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
++	<Define>
++	<!-- We're wary of waging war when a dangerous third party appears likely
++		 to intervene against us. -->
++		<DefineName>UWAI_WEIGHT_THIRD_PARTY_INTERVENTION</DefineName>
++		<iDefineIntVal>100</iDefineIntVal>
++	</Define>
+ 
+ 	<Define>
+ 		<!-- Recommended: 100 (BtS behavior)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3205c8ed1..2215a1d54 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -9585,6 +9585,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 					/*  ePlayer is human; could still let the proxy AI remember,
+ 						but that gets confusing in R&F games when a human demands
+ 						tribute from a civ and later takes control of that civ.
++						Would also affect AI_paranoiaRating (advc.022).
+ 						So don't do this after all: */
+ 					  //GET_PLAYER(ePlayer).AI_rememberEvent(getID(), MEMORY_ACCEPT_DEMAND);
+ 					AI_rememberEvent(ePlayer, MEMORY_MADE_DEMAND);
+@@ -24828,156 +24829,14 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 	}
+ 	log_strat(AI_STRATEGY_TURTLE)
+ 
+-	int iCurrentEra = getCurrentEra();
+ 	int iParanoia = 0;
+-	int iCloseTargets = 0;
+-	int iOurDefensivePower = kTeam.getDefensivePower();
+-	// advc.022: Don't include our master as a possible cause for paranoia
+-	for (PlayerAIIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itOther(getTeam());
+-		itOther.hasNext(); ++itOther)
+ 	{
+-		CvPlayerAI const& kLoopPlayer = *itOther;
+-		CvTeamAI const& kLoopTeam = GET_TEAM(kLoopPlayer.getTeam());
+-		// <advc.022> Don't fear (AI) civs that are busy
+-		if(!kLoopPlayer.isHuman() && kLoopPlayer.AI_isFocusWar() &&
+-			kLoopTeam.getNumWars() > 0 &&
+-			kLoopTeam.AI_getWarSuccessRating() < 50)
+-		{
+-			continue;
+-		} // </advc.022>
+-		// K-Mod:
+-		bool bCitiesInPrime = kTeam.AI_hasCitiesInPrimaryArea(kLoopPlayer.getTeam());
+-
+-		if (kTeam.AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN)
+-		{
+-			iCloseTargets++;
+-			continue; // advc
+-		}
+-		// Are they a threat?
+-		int iTempParanoia = 0;
+-
+-		int iTheirPower = kLoopTeam.getPower(true);
+-		if (4*iTheirPower > 3*iOurDefensivePower)
+-		{
+-			if (//kLoopTeam.getAtWarCount(true) == 0
+-				!kLoopPlayer.AI_isFocusWar() || // advc.105
+-				kLoopTeam.AI_getEnemyPowerPercent(false) < 140)
+-			{
+-				// Memory of them declaring on us and our friends
+-				int iWarMemory = AI_getMemoryCount(kLoopPlayer.getID(),
+-						MEMORY_DECLARED_WAR);
+-				iWarMemory += (AI_getMemoryCount(kLoopPlayer.getID(),
+-						MEMORY_DECLARED_WAR_ON_FRIEND) + 1) / 2;
+-				iWarMemory = (iWarMemory / fixp(2.5)).ceil(); // advc.130j
+-				if (iWarMemory > 0)
+-				{
+-					//they are a snake
+-					iTempParanoia += 50 + 50 * iWarMemory;
+-					if (gPlayerLogLevel >= 2) logBBAI( "    Player %d (%S) wary of %S because of war memory %d", getID(), getCivilizationDescription(0), kLoopPlayer.getCivilizationDescription(0), iWarMemory);
+-				}
+-			}
+-		}
+-
+-		// Do we think our relations are bad?
+-		int iCloseness = AI_playerCloseness(kLoopPlayer.getID(), DEFAULT_PLAYER_CLOSENESS);
+-		// <advc.022>
+-		if(!AI_hasSharedPrimaryArea(kLoopPlayer.getID()))
+-		{
+-			int iNoSharePenalty = 99;
+-			int const iLoopEra = kLoopPlayer.getCurrentEra();
+-			int const iExploreEra = CvEraInfo::AI_getAgeOfExploration();
+-			if (iLoopEra >= iExploreEra)
+-				iNoSharePenalty -= 33;
+-			if (iLoopEra >= iExploreEra + 1)
+-				iNoSharePenalty -= 33;
+-			if (iLoopEra >= std::min(iExploreEra + 2, GC.getNumEraInfos() - 1))
+-				iNoSharePenalty -= 33;
+-			iCloseness = std::max(0, iCloseness - iNoSharePenalty);
+-		} // </advc.022>
+-		// if (iCloseness > 0)
+-		if (iCloseness > 0 || bCitiesInPrime) // K-Mod
+-		{	// <advc.022>
+-			// Humans tend to reciprocate our feelings
+-			int iHumanWarProb = 70 - AI_getAttitude(kLoopPlayer.getID()) * 10;
+-			int iAttitudeWarProb = (kLoopPlayer.isHuman() ? iHumanWarProb :
+-					// Now based on kLoopPlayer's personality and attitude
+-					100 - GET_TEAM(kLoopPlayer.getTeam()).
+-					AI_noWarProbAdjusted(getTeam())); // advc.104y
+-			// </advc.022>
+-			// (original BBAI code deleted) // advc
+-			// K-Mod. Paranoia gets scaled by relative power anyway...
+-			iTempParanoia += std::max(0, iAttitudeWarProb/2);
+-			/*  <advc.022> This is about us attacking someone (not relevant for
+-				Paranoia, but for Dagger), so our attitude should be used.
+-				K-Mod already did that, but iAttitudeWarProb now refers to
+-				kLoopPlayer. */
+-			//if (iAttitudeWarProb > 10 && iCloseness > 0)
+-			if(iCloseness > 0 && 100 - GET_TEAM(getTeam()).
+-				AI_noWarProbAdjusted(kLoopPlayer.getTeam()) > 10) // advc.104y
+-			{ // </advc.022>
+-				iCloseTargets++;
+-			}
+-			// K-Mod end
+-			/*  advc.022: Commented out. Defensive measures make most sense
+-				around 150% power ratio; 200% is probably a lost cause. */
+-			/*if (iTheirPower > 2*iOurDefensivePower) {
+-				//if (AI_getAttitude(kLoopPlayer.getID()) != ATTITUDE_FRIENDLY)
+-				// advc.022: Replacing the above
+-				if(iAttitudeWarProb > 0)
+-					iTempParanoia += 25;
+-			}*/
+-		}
+-
+-		if (iTempParanoia > 0)
+-		{
+-			iTempParanoia *= std::min(iTheirPower,
+-					// advc.022: At most double paranoia based on power ratio
+-					2 * iOurDefensivePower);
+-			iTempParanoia /= std::max(1, iOurDefensivePower);
+-			// K-Mod
+-			if (kLoopTeam.AI_getWorstEnemy() == getTeam())
+-			{
+-				//iTempParanoia *= 2;
+-				/*  advc.022: Don't give their attitude too much weight (replacing
+-					the above) */
+-				iTempParanoia = intdiv::round(3 * iTempParanoia, 2);
+-			}
+-			// K-Mod end
+-		}
+-
+-		// Do they look like they're going for militaristic victory?
+-		// advc.022: New temp variable
+-		int iVictStratParanoia = 0;
+-		if (kLoopPlayer.AI_atVictoryStage(AI_VICTORY_CONQUEST4))
+-			iVictStratParanoia += 200;
+-		else if (kLoopPlayer.AI_atVictoryStage(AI_VICTORY_CONQUEST3))
+-			iVictStratParanoia += 100;
+-		else if (kLoopPlayer.AI_atVictoryStage(AI_VICTORY_DOMINATION3))
+-			iVictStratParanoia += 50;
+-		/*  advc.022: Too high in K-Mod I think; who knows when they'll get around
+-			to attack us. (Could count the alternative targets I guess ...). */
+-		iTempParanoia += iVictStratParanoia / 2;
+-		if (iTempParanoia > 0)
+-		{	// <advc.022> Replace this with something smoother
+-			/*if (iCloseness == 0)
+-				iTempParanoia /= 2;*/
+-			scaled rMultiplier = 2;
+-			/*  I don't think closeness is intended to be a percentage, but based on
+-				some sample values (Ctrl key on the capital in debug mode; closeness
+-				is shown in square brackets), it tends to be between 0 and 100. */
+-			rMultiplier *= scaled::clamp(per100(iCloseness), 0, 1) + fixp(0.3);
+-			// <advc.022> Reduced paranoia if resistance futile
+-			scaled rPowRatioFactor(iTheirPower, iOurDefensivePower);
+-			/*  No change if ratio is 165% or less; 215% -> 50% reduced paranoia;
+-				260% -> 0 paranoia */
+-			rPowRatioFactor -= fixp(1.65);
+-			rPowRatioFactor.increaseTo(0);
+-			rPowRatioFactor = 1 - rPowRatioFactor;
+-			rPowRatioFactor.increaseTo(0);
+-			rMultiplier *= rPowRatioFactor;
+-			iTempParanoia = (iTempParanoia * rMultiplier).round();
+-			// </advc.022>
+-			iParanoia += iTempParanoia;
++		int const iOurDefensivePower = kTeam.getDefensivePower();
++		// advc.022: Don't include our master as a possible cause for paranoia
++		for (PlayerAIIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itRival(getTeam());
++			itRival.hasNext(); ++itRival)
++		{	// advc: Calculation moved into new function
++			iParanoia += AI_paranoiaRating(itRival->getID(), iOurDefensivePower);
+ 		}
+ 	}
+ 	/*  advc.022: Commented out. BETTER_UNITS is supposed to make us train fewer
+@@ -24986,7 +24845,7 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 		iParanoia *= 3;
+ 		iParanoia /= 2;
+ 	}*/
+-
++	int const iCurrentEra = getCurrentEra();
+ 	// Scale paranoia in later eras/larger games
+ 	//iParanoia -= (100*(iCurrentEra + 1)) / std::max(1, GC.getNumEraInfos());
+ 	/*	K-Mod. You call that scaling for "later eras/larger games"?
+@@ -25037,119 +24896,126 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 			GET_TEAM(getTeam()).AI_isAnyChosenWar()); // </advc.104f>
+ 
+ 	/*	BBAI TODO: Integrate Dagger with new conquest victory strategy,
+-		have Dagger focus on early rushes */
+-	//dagger
+-	if (!AI_atVictoryStage(AI_VICTORY_CULTURE2) &&
++		have Dagger focus on early rushes. (advc.104f: UWAI doesn't use Dagger,
++		so don't bother with that to-do comment.) */
++	if (!bNoDagger && // advc.104f
++		!AI_atVictoryStage(AI_VICTORY_CULTURE2) &&
+ 		!(m_eStrategyHash & AI_STRATEGY_MISSIONARY) &&
+-		AI_getCurrEraFactor() <= (2 + (AI_getStrategyRand(11) % 2)) &&
+-		iCloseTargets > 0 &&
+-		!bNoDagger) // advc.104f
+-	{
+-		int iDagger = 0;
+-		iDagger += 12000 / std::max(100,
+-				50 + GC.getInfo(getPersonalityType()).getMaxWarRand());
+-		iDagger *= (AI_getStrategyRand(12) % 11);
+-		iDagger /= 10;
+-		iDagger += 5 * std::min(8, AI_getFlavorValue(FLAVOR_MILITARY));
+-
+-		for (int i = 0; i < kCiv.getNumUniqueUnits(); i++)
+-		{
+-			UnitTypes eUnit = kCiv.uniqueUnitAt(i);
+-			CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+-			if (kUnit.getCombat() <= 0)
+-				continue;
+-			UnitClassTypes eLoopUnitClass = kUnit.getUnitClassType();
+-			/*  (advc: A little crazy to have all this code just for counting
+-				unique units for Dagger - which UWAI bypasses anyway -,
+-				but that's how it was and is.) */
+-			//if ((GC.getInfo(eLoopUnitClass).getDefaultUnitIndex()) != (GC.getInfo(getCivilizationType()).getCivilizationUnits(eLoopUnitClass))) {
+-			bool bDefensive = (kUnit.getUnitAIType(UNITAI_CITY_DEFENSE) &&
+-					!kUnit.getUnitAIType(UNITAI_RESERVE));
+-
+-			iDagger += bDefensive ? -10 : 0;
+-
+-			if (getCapital()->canTrain(eUnit))
++		AI_getCurrEraFactor() <= (2 + (AI_getStrategyRand(11) % 2)))
++	{
++		/*	<advc> Counting of close targets moved out of the paranoia calculation.
++			(playerCloseness gets cached, so this shouldn't matter for performance.) */
++		int iCloseTargets = 0;
++		for (PlayerAIIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itRival(getTeam());
++			itRival.hasNext(); ++itRival)
++		{
++			if (kTeam.AI_getWarPlan(itRival->getTeam()) != NO_WARPLAN ||
++				(AI_playerCloseness(itRival->getID()) > 0 && // K-Mod
++				//GC.getInfo(getPersonalityType()).getNoWarAttitudeProb(AI_getAttitude(itRival->getID())) // BBAI
++				// advc.104y:
++				GET_TEAM(getTeam()).AI_noWarProbAdjusted(itRival->getTeam()) < 90))
+ 			{
+-				iDagger += bDefensive ? 10 : 40;
+-
+-				int iUUStr = kUnit.getCombat();
+-				int iNormalStr = GC.getInfo(GC.getInfo(eLoopUnitClass).
+-						getDefaultUnit()).getCombat();
+-				iDagger += 20 * range(iUUStr - iNormalStr, 0, 2);
+-				if (kUnit.getPrereqAndTech() == NO_TECH)
+-					iDagger += 20;
++				iCloseTargets++;
+ 			}
+-			else
++		}
++		if (iCloseTargets > 0) // </advc>
++		{
++			int iDagger = 0;
++			iDagger += 12000 / std::max(100,
++					50 + GC.getInfo(getPersonalityType()).getMaxWarRand());
++			iDagger *= (AI_getStrategyRand(12) % 11);
++			iDagger /= 10;
++			iDagger += 5 * std::min(8, AI_getFlavorValue(FLAVOR_MILITARY));
++			// advc (note): This whole loop is just for counting unique units
++			for (int i = 0; i < kCiv.getNumUniqueUnits(); i++)
+ 			{
+-				if (kUnit.getPrereqAndTech() != NO_TECH &&
+-					GC.getInfo(kUnit.getPrereqAndTech()).getEra() <= iCurrentEra + 1)
+-				{
+-					if (kTeam.isHasTech((TechTypes)kUnit.getPrereqAndTech()))
+-					{
+-						//we have the tech but can't train the unit, dejection.
+-						iDagger += 10;
+-					}
+-					else
+-					{
+-						//we don't have the tech, it's understandable we can't train.
+-						iDagger += 30;
+-					}
++				UnitTypes eUnit = kCiv.uniqueUnitAt(i);
++				CvUnitInfo const& kUnit = GC.getInfo(eUnit);
++				if (kUnit.getCombat() <= 0)
++					continue;
++				UnitClassTypes eLoopUnitClass = kUnit.getUnitClassType();
++				//if ((GC.getInfo(eLoopUnitClass).getDefaultUnitIndex()) != (GC.getInfo(getCivilizationType()).getCivilizationUnits(eLoopUnitClass))) {
++				bool bDefensive = (kUnit.getUnitAIType(UNITAI_CITY_DEFENSE) &&
++						!kUnit.getUnitAIType(UNITAI_RESERVE));
++				if (bDefensive)
++					iDagger -= 10;
++				if (getCapital()->canTrain(eUnit))
++				{
++					iDagger += (bDefensive ? 10 : 40);
++					int iUUStr = kUnit.getCombat();
++					int iNormalStr = GC.getInfo(GC.getInfo(eLoopUnitClass).
++							getDefaultUnit()).getCombat();
++					iDagger += 20 * range(iUUStr - iNormalStr, 0, 2);
++					if (kUnit.getPrereqAndTech() == NO_TECH)
++						iDagger += 20;
+ 				}
+-
+-				bool bNeedsAndBonus = false;
+-				int iOrBonusCount = 0;
+-				int iOrBonusHave = 0;
+-
+-				FOR_EACH_ENUM(Bonus)
++				else
+ 				{
+-					if (eLoopBonus != NO_BONUS)
++					if (kUnit.getPrereqAndTech() != NO_TECH &&
++						GC.getInfo(kUnit.getPrereqAndTech()).getEra() <= iCurrentEra + 1)
+ 					{
+-						if (kUnit.getPrereqAndBonus() == eLoopBonus)
+-						{
+-							if (getNumTradeableBonuses(eLoopBonus) == 0)
+-								bNeedsAndBonus = true;
++						if (kTeam.isHasTech((TechTypes)kUnit.getPrereqAndTech()))
++						{	//we have the tech but can't train the unit, dejection.
++							iDagger += 10;
+ 						}
+-						for (int j = 0; j < kUnit.getNumPrereqOrBonuses(); j++)
++						else
++						{	//we don't have the tech, it's understandable we can't train.
++							iDagger += 30;
++						}
++					}
++					bool bNeedsAndBonus = false;
++					int iOrBonusCount = 0;
++					int iOrBonusHave = 0;
++					FOR_EACH_ENUM(Bonus)
++					{
++						if (eLoopBonus != NO_BONUS)
+ 						{
+-							if (kUnit.getPrereqOrBonuses(j) == eLoopBonus)
++							if (kUnit.getPrereqAndBonus() == eLoopBonus)
+ 							{
+-								iOrBonusCount++;
+-								if (getNumTradeableBonuses(eLoopBonus) > 0)
+-									iOrBonusHave++;
++								if (getNumTradeableBonuses(eLoopBonus) == 0)
++									bNeedsAndBonus = true;
++							}
++							for (int j = 0; j < kUnit.getNumPrereqOrBonuses(); j++)
++							{
++								if (kUnit.getPrereqOrBonuses(j) == eLoopBonus)
++								{
++									iOrBonusCount++;
++									if (getNumTradeableBonuses(eLoopBonus) > 0)
++										iOrBonusHave++;
++								}
+ 							}
+ 						}
+ 					}
++					iDagger += 20;
++					if (bNeedsAndBonus)
++						iDagger -= 20;
++					if (iOrBonusCount > 0 && iOrBonusHave == 0)
++						iDagger -= 20;
+ 				}
+-				iDagger += 20;
+-				if (bNeedsAndBonus)
+-					iDagger -= 20;
+-				if (iOrBonusCount > 0 && iOrBonusHave == 0)
+-					iDagger -= 20;
+ 			}
+-		}
+-		if (!kGame.isOption(GAMEOPTION_AGGRESSIVE_AI))
+-		{
+-			iDagger += range(100 - GC.getInfo(kGame.getHandicapType()).
+-					getAITrainPercent(), 0, 15);
+-		}
+-		if (getCapital()->getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE ||
+-			(getCapital()->getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
+-		{
+-			iDagger += (iAttackUnitCount > 0 ? 40 : 20);
+-		}
+-		if (iDagger >= AI_DAGGER_THRESHOLD)
+-			m_eStrategyHash |= AI_STRATEGY_DAGGER;
+-		else
+-		{
+-			//if (eLastStrategyHash &= AI_STRATEGY_DAGGER)
+-			if (eLastStrategyHash & AI_STRATEGY_DAGGER) // advc.001
++			if (!kGame.isOption(GAMEOPTION_AGGRESSIVE_AI))
+ 			{
+-				if (iDagger >= (9 * AI_DAGGER_THRESHOLD) / 10)
+-					m_eStrategyHash |= AI_STRATEGY_DAGGER;
++				iDagger += range(100 - GC.getInfo(kGame.getHandicapType()).
++						getAITrainPercent(), 0, 15);
+ 			}
++			if (getCapital()->getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE ||
++				(getCapital()->getArea().getAreaAIType(getTeam()) == AREAAI_DEFENSIVE))
++			{
++				iDagger += (iAttackUnitCount > 0 ? 40 : 20);
++			}
++			if (iDagger >= AI_DAGGER_THRESHOLD)
++				m_eStrategyHash |= AI_STRATEGY_DAGGER;
++			else
++			{
++				//if (eLastStrategyHash &= AI_STRATEGY_DAGGER)
++				if (eLastStrategyHash & AI_STRATEGY_DAGGER) // advc.001
++				{
++					if (iDagger >= (9 * AI_DAGGER_THRESHOLD) / 10)
++						m_eStrategyHash |= AI_STRATEGY_DAGGER;
++				}
++			}
++			log_strat2(AI_STRATEGY_DAGGER, iDagger)
+ 		}
+-
+-		log_strat2(AI_STRATEGY_DAGGER, iDagger)
+ 	}
+ 
+ 	if (!(m_eStrategyHash & AI_STRATEGY_ALERT2) && !(m_eStrategyHash & AI_STRATEGY_TURTLE))
+@@ -25996,6 +25862,151 @@ int CvPlayerAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance,
+ 	return iValue;
+ }
+ 
++/*	advc: Cut from AI_updateStrategyHash (so that advc.104 can re-use it).
++	The rating expresses how much this player worries about a DoW by eRival
++	in the near future. 0 means no fear. Based on how the BtS code uses
++	the result, let's say that 500 means that we're certain that a
++	major attack is imminent and 250 that it's a strong possibility. At 100,
++	we're worried, but probably shouldn't act on it much (unless we're worried
++	about several rivals). */
++int CvPlayerAI::AI_paranoiaRating(PlayerTypes eRival, int iOurDefPow,
++	bool bReduceWhenHopeless) const // advc.104
++{
++	CvPlayerAI const& kRival = GET_PLAYER(eRival);
++	CvTeamAI const& kRivalTeam = GET_TEAM(eRival);
++	if (GET_TEAM(getTeam()).AI_getWarPlan(kRivalTeam.getID()) != NO_WARPLAN)
++		return 0;
++	bool const bRivalFocusWar = kRival.AI_isFocusWar();
++	// <advc.022> Don't fear (AI) civs that are busy
++	if (!kRivalTeam.isHuman() && bRivalFocusWar &&
++		kRivalTeam.getNumWars() > 0 &&
++		kRivalTeam.AI_getWarSuccessRating() < 50)
++	{
++		return 0;
++	} // </advc.022>
++	int iValue = 0;
++	// K-Mod:
++	int const iTheirPower = kRivalTeam.getPower(true);
++	if (4*iTheirPower > 3*iOurDefPow)
++	{
++		if (//kRivalTeam.getAtWarCount(true) == 0
++			!bRivalFocusWar || // advc.105
++			kRivalTeam.AI_getEnemyPowerPercent(false) < 140)
++		{
++			// Memory of them declaring on us and our friends
++			/*int iWarMemory = AI_getMemoryCount(eRival, MEMORY_DECLARED_WAR);
++			iWarMemory += intdiv::uceil(
++					AI_getMemoryCount(eRival, MEMORY_DECLARED_WAR_ON_FRIEND), 2);
++			// advc.130j: One is counted at times-2 scale, the other at times-3 scale.
++			iWarMemory = (iWarMemory / fixp(2.5)).ceil();*/
++			// <advc.022> Let's simply use memory attitude
++			scaled rWarMem = AI_getMemoryAttitude(eRival, MEMORY_DECLARED_WAR) +
++					AI_getMemoryAttitude(eRival, MEMORY_DECLARED_WAR_ON_FRIEND) +
++					// (Note that humans don't remember rejected demands)
++					kRival.AI_getMemoryAttitude(getID(), MEMORY_REJECTED_DEMAND);
++			rWarMem.decreaseTo(4); // </advc.022>
++			if (rWarMem > 0) //they are a snake [advc: a bully, I'd say]
++			{
++				//iValue += 50 + 50 * iWarMemory;
++				iValue += 40 + (20 * rWarMem).round(); // advc.022
++				if (gPlayerLogLevel >= 2) logBBAI( "    Player %d (%S) wary of %S because of war memory %d", getID(), getCivilizationDescription(0), kRival.getCivilizationDescription(0), rWarMem.round());
++			}
++		}
++	}
++	int iCloseness = AI_playerCloseness(eRival);
++	// <advc.022>
++	if (!AI_hasSharedPrimaryArea(eRival))
++	{
++		int iNoSharePenalty = 99;
++		int const iRivalEra = kRival.getCurrentEra();
++		int const iExploreEra = CvEraInfo::AI_getAgeOfExploration();
++		if (iRivalEra >= iExploreEra)
++			iNoSharePenalty -= 33;
++		if (iRivalEra >= iExploreEra + 1)
++			iNoSharePenalty -= 33;
++		if (iRivalEra >= std::min(iExploreEra + 2, GC.getNumEraInfos() - 1))
++			iNoSharePenalty -= 33;
++		iCloseness = std::max(0, iCloseness - iNoSharePenalty);
++	}
++	else
++	{	/*	Adjust for increasing mobility over the course of a game.
++			Maybe also for increasing volatility in power ratios.
++			(Perhaps this should be handled by the closeness functions?) */
++		iCloseness = (iCloseness * (kRival.AI_getCurrEraFactor() + 1).
++				pow(fixp(0.23))).round();
++	} // </advc.022>
++	if (iCloseness > 0 ||
++		GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea(kRivalTeam.getID())) // K-Mod
++	{
++		// <advc.022>
++		// Humans tend to reciprocate our feelings
++		int iHumanWarProb = 70 - AI_getAttitude(eRival) * 10;
++		int iAttitudeWarProb = (kRival.isHuman() ? iHumanWarProb :
++				// Now based on rival's personality and attitude
++				100 - kRivalTeam.AI_noWarProbAdjusted(getTeam()));
++		// (BBAI military power check deleted)
++		//iValue += std::max(0, iAttitudeWarProb/2); // K-Mod
++		iValue += std::max(0, (3 * iAttitudeWarProb) / 4);
++		// </advc.022>	
++		/*  advc.022: Commented out. Defensive measures make most sense
++			around 150% power ratio; 200% is probably a lost cause. */
++		/*if (iTheirPower > 2*iOurDefensivePower) {
++			//if (AI_getAttitude(kLoopPlayer.getID()) != ATTITUDE_FRIENDLY)
++			if (iAttitudeWarProb > 0) // advc.022
++				iTempParanoia += 25;
++		}*/
++	}
++	if (iValue > 0)
++	{
++		iValue *= std::min(iTheirPower,
++				// advc.022: At most double paranoia based on power ratio
++				2 * iOurDefPow);
++		iValue /= std::max(1, iOurDefPow);
++		// <K-Mod>
++		if (kRivalTeam.AI_getWorstEnemy() == getTeam())
++		{
++			//iTempParanoia *= 2;
++			// advc.022: Don't give their attitude too much weight
++			iValue = intdiv::uround(3 * iValue, 2);
++		} // </K-Mod>
++	}
++	// Do they look like they're going for militaristic victory?
++	int iVictStratParanoia = 0; // advc.022: New temp variable
++	if (kRival.AI_atVictoryStage(AI_VICTORY_CONQUEST4))
++		iVictStratParanoia += 200;
++	else if (kRival.AI_atVictoryStage(AI_VICTORY_CONQUEST3))
++		iVictStratParanoia += 100;
++	else if (kRival.AI_atVictoryStage(AI_VICTORY_DOMINATION3))
++		iVictStratParanoia += 75; // advc.022: was 50
++	/*  advc.022: Too high in K-Mod I think; who knows when they'll get around
++		to attacking us. (Could count the alternative targets I guess ...). */
++	iValue += iVictStratParanoia / 2;
++	if (iValue <= 0)
++		return 0;
++	/*if (iCloseness == 0)
++		iTempParanoia /= 2;*/
++	// <advc.022> Do something smoother
++	scaled rMultiplier = 2;
++	/*  I don't think closeness is intended to be a percentage, but based on some
++		sample values (Ctrl key on the capital in debug mode; closeness is shown
++		in square brackets), it tends to be between 0 and 100, up to 200 at times. */
++	rMultiplier *= scaled::clamp(per100(iCloseness), 0, 1) + fixp(0.3);
++	scaled rPowRatioFactor(iTheirPower, iOurDefPow);
++	// Don't worry too much about closeness if they're weak
++	rMultiplier.decreaseTo(2 * rPowRatioFactor);
++	if (bReduceWhenHopeless) // advc.104: Don't want this for war planning
++	{
++		/*  Reduced paranoia if resistance futile. No change if ratio is
++			165% or less; 240% -> 50% reduced paranoia; 265% -> 0 paranoia. */
++		rPowRatioFactor -= fixp(1.65);
++		rPowRatioFactor.clamp(0, 1);
++		rPowRatioFactor = (1 - rPowRatioFactor).sqrt();
++		rMultiplier *= rPowRatioFactor;
++		iValue = (iValue * rMultiplier).round();
++	} // </advc.022>	
++	return iValue;
++}
++
+ 
+ int CvPlayerAI::AI_getTotalAreaCityThreat(CvArea const& kArea) const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 326965949..c642eebd3 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -607,6 +607,8 @@ public:
+ 	int AI_playerCloseness(PlayerTypes eIndex,
+ 			int iMaxDistance /* advc: */ = DEFAULT_PLAYER_CLOSENESS,
+ 			bool bConstCache = false) const; // advc.001n
++	int AI_paranoiaRating(PlayerTypes eRival, int iOurDefPow, // advc
++			bool bReduceWhenHopeless = true) const; // advc.104
+ 
+ 	int AI_getTotalCityThreat() const;
+ 	int AI_getTotalFloatingDefenseNeeded() const;
+
+diff --git a/CvGameCoreDLL/UWAI.h b/CvGameCoreDLL/UWAI.h
+index 3ea3fcda8..ee6b33526 100644
+--- a/CvGameCoreDLL/UWAI.h
++++ b/CvGameCoreDLL/UWAI.h
+@@ -82,7 +82,8 @@ public:
+ 		DO(FAIR_PLAY) \
+ 		DO(BELLICOSITY) \
+ 		DO(TACTICAL_SITUATION) \
+-		DO(LOVE_OF_PEACE)
++		DO(LOVE_OF_PEACE) \
++		DO(THIRD_PARTY_INTERVENTION)
+ 	enum AspectTypes
+ 	{
+ 		DO_FOR_EACH_WAR_UTILITY_ASPECT(MAKE_ENUMERATOR)
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 48836ee8f..34a28da3c 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -2811,6 +2811,8 @@ scaled UWAI::Player::confidenceFromPastWars(TeamTypes eTarget) const
+ 
+ scaled UWAI::Player::distrustRating() const
+ {
++	if (GET_PLAYER(m_eAgent).isHuman())
++		return 1;
+ 	int iR = GC.getInfo(GET_PLAYER(m_eAgent).getPersonalityType()).
+ 			getEspionageWeight() - 10;
+ 	if (m_cache.hasDefensiveTrait())
+
+diff --git a/CvGameCoreDLL/WarEvaluator.cpp b/CvGameCoreDLL/WarEvaluator.cpp
+index a3fcd0322..6e067efb0 100644
+--- a/CvGameCoreDLL/WarEvaluator.cpp
++++ b/CvGameCoreDLL/WarEvaluator.cpp
+@@ -354,6 +354,7 @@ void WarEvaluator::fillWithAspects(vector<WarUtilityAspect*>& kAspects)
+ 	v.push_back(new Bellicosity(params));
+ 	v.push_back(new FairPlay(params));
+ 	v.push_back(new LoveOfPeace(params));
++	v.push_back(new ThirdPartyIntervention(params));
+ 	FAssert(UWAI::NUM_ASPECTS - (params.isIgnoreDistraction() ? 1 : 0) == (int)v.size());
+ }
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 464aa10a3..6423115cd 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2278,9 +2278,7 @@ void PreEmptiveWar::evaluate()
+ 		rThreatChange.flipSign();
+ 	log("Change in threat: %d percent", rThreatChange.getPercent());
+ 	scaled rUtility = -90 * rCurrThreat * rThreatChange;
+-	scaled rDistrustFactor = 1;
+-	if (!kWe.isHuman())
+-		rDistrustFactor = kWeAI.distrustRating();
++	scaled rDistrustFactor = kWeAI.distrustRating();
+ 	log("Our distrust: %d percent", rDistrustFactor.getPercent());
+ 	m_iU += (rUtility * rDistrustFactor).round();
+ }
+@@ -4502,3 +4500,304 @@ void LoveOfPeace::evaluate()
+ 	}
+ 	m_iU -= iLoPCost;
+ }
++
++
++int ThirdPartyIntervention::preEvaluate()
++{
++	scaled rOurLostPow = militAnalyst().lostPower(eWe, ARMY) +
++			militAnalyst().lostPower(eWe, HOME_GUARD) +
++			/*	Squared b/c logistics power is only the cargo capacity.
++				(Fixme: should track power of cargo ships separately.) */
++			SQR(militAnalyst().lostPower(eWe, LOGISTICS));
++	/*	The timing of the intervention is difficult to predict. They may or may not
++		need to build up units, and we may be weakest early in the simulation or
++		late, but, even in the latter case, they might attack early b/c we already
++		appear weak enough ... I'm just going to look at the current power values
++		b/c that's easy to implement. */
++	m_rDefPow = /*(militAnalyst().gainedPower(eWe, ARMY) +
++			militAnalyst().gainedPower(eWe, HOME_GUARD)) / 2 +*/ // Count gains half?
++			// The cache includes HOME_GUARD in ARMY
++			ourCache().getPowerValues()[ARMY]->power();
++	m_rDefPow.increaseTo(scaled::epsilon());
++	for (PlayerAIIter<MAJOR_CIV,OTHER_KNOWN_TO> itAlly(eOurTeam);
++		itAlly.hasNext(); ++itAlly)
++	{
++		if(militAnalyst().isEliminated(itAlly->getID()))
++			continue;
++		if (itAlly->getMasterTeam() == kOurTeam.getMasterTeam() ||
++			(kOurTeam.isDefensivePact(itAlly->getTeam()) &&
++			// This distinction should make us reluctant to kill our DPs
++			militAnalyst().getWarsDeclaredBy(eWe).empty()))
++		{
++			m_rDefPow += itAlly->uwai().getCache().
++					getPowerValues()[ARMY]->power() / 2;
++			// Let's not bother with their guard units, but count army fully.
++			rOurLostPow += militAnalyst().lostPower(itAlly->getID(), ARMY);
++		}
++	}
++	m_rLostDefPowRatio = rOurLostPow / m_rDefPow;
++	m_rLostDefPowRatio.clamp(0, fixp(0.5));
++	return 0;
++}
++
++
++void ThirdPartyIntervention::evaluate()
++{
++	/*	For setting a debugger breakpoint, may want to use this condition:
++		m_kAgentTeam.m_eID == x && m_kParams.m_eTarget == y && m_pRivalPlayer->m_eID == z
++	*/
++	// Mustn't modify those members here
++	scaled rOurPow = m_rDefPow;
++	scaled rOurLostPowRatio = m_rLostDefPowRatio;
++	TeamTypes const eTarget = m_kParams.getTarget();
++	/*	Count this cost only when we're actually incurring losses from fighting
++		against a 2nd party. Otherwise, we'd veer into the lane of the
++		PreEmptiveWar aspect. If we're not incurring losses, then we're doing
++		all that we can to avoid exposing us to the 3rd party (eThey). Active
++		preparations for an anticipated DoW are handled by the Alert AI strategy. */
++	if (rOurLostPowRatio <= 0 ||
++		// War against them is already covered by the military analysis
++		militAnalyst().isOnTheirSide(eTheirTeam, true) ||
++		/*	They're busy fighting someone else. Need to be careful not to use a
++			narrow check here - like them conquering cities - b/c that could
++			indirectly encourage us to support their war effort. */
++		militAnalyst().lostPower(eThey, ARMY) >= 1 ||
++		/*	When already at war and winning decisively, try to wrap it up
++			before worrying about 3rd parties. */
++		(m_kParams.isConsideringPeace() && eTarget != NO_TEAM &&
++		(militAnalyst().isEliminated(GET_TEAM(eTarget).getLeaderID()) ||
++		!militAnalyst().getCapitulationsAccepted(eOurTeam).empty())) ||
++		// Vassals are covered when evaluating their master
++		!kTheirTeam.uwai().canSchemeAgainst(eOurTeam, true) ||
++		!kTheirTeam.uwai().isLandTarget(eOurTeam))
++	{
++		return;
++	}
++	{	/*	Our losses should be small if our enemies are weak, but perhaps
++			better not to rely on that. Fear of 3rd parties should not stop
++			us from waging minor wars. (Well, having our troops away from
++			home could actually hurt us a lot, but I'm more worried about
++			the AI just sitting there in tonic immobility.) */
++		bool bAllPushOver = true;
++		for (TeamIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itEnemy(eOurTeam);
++			itEnemy.hasNext(); ++itEnemy)
++		{
++			if (militAnalyst().isWar(eOurTeam, itEnemy->getID()) &&
++				!kOurTeam.AI_isPushover(itEnemy->getID()))
++			{
++				bAllPushOver = false;
++				break;
++			}
++		}
++		if (bAllPushOver)
++		{
++			log("Not considering 3rd-party interventions b/c all enemies are weak");
++			return;
++		}
++	}
++	// Sending troops abroad is dangerous; will take long to redeploy.
++	if (!militAnalyst().isPeaceScenario() && eTarget != NO_TEAM &&
++		!kOurTeam.uwai().isLandTarget(eTarget) &&
++		!GET_TEAM(eTarget).AI_hasSharedPrimaryArea(eTheirTeam))
++	{
++		log("Losses treated as higher b/c of overseas deployment");
++		rOurLostPowRatio *= 2;
++		rOurLostPowRatio.decreaseTo(fixp(0.6));
++	}
++	scaled rInterventionProb;
++	/*	(If we applied different measures in the war/peace scenario, we could
++		get inconsistent results, making us feel safer in the war scenario.) */
++	if (//militAnalyst().isPeaceScenario() ||
++		m_kParams.isConsideringPeace())
++	{
++		/*	In this case, all relevant wars are already reflected by their
++			war utility against us. No worries if that utility is 0.
++			Not sure if war utility _including_ Distraction would be better here;
++			well, that's not cached and it shouldn't matter much. */
++		scaled rUtilityVsUs = kThey.uwai().getCache().
++				warUtilityIgnoringDistraction(eOurTeam);
++		/*	We're not supposed to know everything that enters their war utility
++			calculation. Add some noise. Hashing rank should result in a somewhat
++			stable error. */
++		scaled rNoise = 30 *
++				(scaled::hash(m_kGame.getPlayerRank(eWe), eWe) - fixp(0.5));
++		rUtilityVsUs += rNoise;
++		if (rUtilityVsUs > 0)
++		{
++			log("Their war utility: %d (%d from noise)",
++					rUtilityVsUs.uround(), rNoise.round());
++			rUtilityVsUs.decreaseTo(94);
++			rInterventionProb = fixp(0.8) * rUtilityVsUs / 100;
++		}
++	}
++	else
++	{	/*	If there are undeclared wars, it's really difficult to say how much
++			higher their war utility will be after those DoW. Not worth letting
++			the AI cheat more. Better just rely on paranoia. */
++		int iOurDefPow = kOurTeam.getDefensivePower();
++		iOurDefPow = (iOurDefPow * (1 - rOurLostPowRatio)).uround();
++		int iParanoia = kWe.AI_paranoiaRating(eThey, iOurDefPow, false);
++		iParanoia = std::min(iParanoia, 190);
++		rInterventionProb = scaled(iParanoia - 25, 215);
++		if (rInterventionProb > 0)
++		{
++			log("Our paranoia rating: %d", iParanoia);
++			if (!kTheirTeam.isHuman() &&
++				!m_kGame.isOption(GAMEOPTION_RANDOM_PERSONALITIES))
++			{
++				scaled rWarRand = kTheirTeam.AI_dogpileWarRand();
++				log("Adjusting paranoia based on DogpileWarRand=%d", rWarRand.floor());
++				rWarRand.mulDiv(4, 3);
++				rWarRand.clamp(25, 200);
++				// War rands matter less when war utility is high
++				rInterventionProb /= (rWarRand / 100 + 5 * rInterventionProb) /
++						(5 * rInterventionProb + 1);
++			}
++		}
++	}
++	if (rInterventionProb < per100(1))
++		return;
++	/*	(Would be nice to do this also when there has been no war, but there
++		is no counter for the number of turns that we've been considering
++		war against the target or have been afraid of an intervention.) */
++	if (kWe.AI_getMemoryCount(eThey, MEMORY_DECLARED_WAR) +
++		kThey.AI_getMemoryCount(eWe, MEMORY_DECLARED_WAR) > 0)
++	{	// Avoid stalemates: don't be afraid of interventions forever
++		int iAtPeaceTurns = kOurTeam.AI_getAtPeaceCounter(eTheirTeam);
++		int iThresh = (5 * GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH)) / 3 - 1;
++		if (iAtPeaceTurns > iThresh)
++		{
++			scaled rAtPeaceTurns = fixp(1.5) * iAtPeaceTurns /
++					(per100(m_kSpeed.getGoldenAgePercent()) + fixp(0.5));
++			scaled rMult = std::max(fixp(1/3.), 1 - scaled(iAtPeaceTurns - iThresh, 30));
++			log("Taking intervention prob times %d percent b/c peace has lasted %d turns",
++					rMult.getPercent(), iAtPeaceTurns);
++			rInterventionProb *= rMult;
++		}
++	}
++	if (!kTheirTeam.isHuman() &&
++		!m_kGame.isOption(GAMEOPTION_RANDOM_PERSONALITIES))
++	{	/*	(DogpileWarRand is already accounted for above;
++			is part of the war utility calc.) */
++		int iLimitedWarRand = kTheirTeam.AI_limitedWarRand();
++		scaled rWarRand(iLimitedWarRand +
++				std::min(iLimitedWarRand, kTheirTeam.AI_maxWarRand()), 2);
++		log("Adjusting intervention prob based on WarRand=%d", rWarRand.round());
++		rWarRand.clamp(25, 200);
++		rInterventionProb /= (rWarRand / 100 + 5 * rInterventionProb) /
++				(5 * rInterventionProb + 1);
++	}
++	if (rInterventionProb < per100(1))
++		return;
++	/*	(Would be nice to anticipate war trades, but the request frequency is the
++		same for almost all leaders anyway, and checking attitude thresholds -
++		not to mention trade items - gets pretty complicated, especially
++		considering that all parties involved could be human.) */
++	/*	(Better not to create an incentive for joining the wars of civs
++		that we fear. Let the SuckingUp aspect deal with that.) */
++	/*if (militAnalyst().isOnOurSide(eTheirTeam))
++		rInterventionProb *= fixp(2/3.);*/
++	rInterventionProb.decreaseTo(fixp(0.85));
++	log("Probability of intervention by %s: %d percent", m_kReport.leaderName(eThey),
++			rInterventionProb.getPercent());
++	scaled rTheirPow = kThey.uwai().getCache().
++			getPowerValues()[ARMY]->power();
++	if (kWe.isHuman())
++		rTheirPow *= kThey.uwai().confidenceAgainstHuman();
++	for (PlayerAIIter<MAJOR_CIV,VASSAL_OF> itTheirVassal(eTheirTeam);
++		itTheirVassal.hasNext(); ++itTheirVassal)
++	{
++		rTheirPow += itTheirVassal->uwai().getCache().
++				getPowerValues()[ARMY]->power() / 2;
++	}
++	rTheirPow.increaseTo(scaled::epsilon());
++	// Preserve for later
++	scaled const rTheirCurPowToOurs = rTheirPow / rOurPow;
++	{
++		// (Ignore their losses in home guard; we know that they haven't lost cities.)
++		scaled rTheirLostPowMult = rTheirPow - militAnalyst().lostPower(eThey, ARMY);
++		for (PlayerAIIter<MAJOR_CIV,VASSAL_OF> itTheirVassal(eTheirTeam);
++			itTheirVassal.hasNext(); ++itTheirVassal)
++		{
++			rTheirLostPowMult -= militAnalyst().lostPower(
++					itTheirVassal->getID(), ARMY) / 2;
++		}
++		rTheirLostPowMult /= rTheirPow;
++		rTheirLostPowMult.increaseTo(fixp(0.6));
++		rTheirPow *= rTheirLostPowMult;
++	}
++	if (kThey.isHuman())
++		rOurPow *= kWeAI.confidenceAgainstHuman();
++	rOurPow *= 1 - rOurLostPowRatio;
++	scaled rTheirPowToOurs = rTheirPow / rOurPow;
++	scaled const rPowRatioFloor = fixp(0.5);
++	if (rTheirPowToOurs <= rPowRatioFloor)
++		return;
++	log("Our loss ratio from fighting 2nd parties: %d percent",
++			rOurLostPowRatio.getPercent());
++	log("Power ratio (they:we) %d:%d=%d percent", rTheirPow.uround(),
++			rOurPow.uround(), rTheirPowToOurs.getPercent());
++	/*	Proportional to the square of our losses (which are in the unit interval,
++		hence sqrt). We want to avoid any tough fights with 2nd parties, when a
++		dangerous 3rd-party intervention looms. */
++	scaled rCost = rInterventionProb * 85 * rOurLostPowRatio.sqrt();
++	{	// These formulas are a mess
++		scaled const rPowRatioThresh = 2;
++		if (rTheirPowToOurs > rPowRatioThresh)
++		{
++			rTheirPowToOurs = rPowRatioThresh +
++					(rTheirPowToOurs - rPowRatioThresh + 1).sqrt() - 1;
++		}
++		else if (rTheirPowToOurs < 1)
++			rTheirPowToOurs.exponentiate(fixp(0.5));
++		rCost *= rTheirPowToOurs - rPowRatioThresh + 1 + rPowRatioFloor;
++		rCost /= 1 + rPowRatioFloor;
++		/*	If we can't stand up to them in any case, then we might as well
++			expose ourselves and hope for the best. That said, even if we can't
++			win, us being able to put up a fight may dissuade them on the
++			bottom line. Important only to look at current power values for
++			this - to avoid an incentive for incurring greater losses. */
++		scaled rThresh = fixp(5/3.);
++		if (rTheirCurPowToOurs > rThresh)
++		{
++			scaled rMult = rThresh / rTheirCurPowToOurs;
++			log("Cost reduced by a factor of %d percent b/c 3rd party very powerful",
++					rMult.getPercent());
++			rCost *= rMult;
++		}
++	}
++	if (kOurTeam.isHuman())
++	{	// Humans tend to not worry much about being backstabbed
++		rCost *= fixp(2/3.);
++	}
++	else
++	{
++		log("Our distrust rating: %d percent", kWeAI.distrustRating().getPercent());
++		rCost *= kWeAI.distrustRating().sqrt();
++	}
++	if (kWe.hasCapital() && kThey.hasCapital() &&
++		!kWe.getCapital()->sameArea(*kThey.getCapital()))
++	{
++		log("Cost decreased for differing capital areas");
++		rCost /= 2;
++	}
++	if (!militAnalyst().getWarsDeclaredBy(eWe).empty() &&
++		!kOurTeam.AI_isSneakAttackPreparing())
++	{	/*	Not starting war preparations should be less of an inconvenience
++			than abandoning preparations or ending an ongoing war. */
++		log("Cost increased for our DoW");
++		rCost *= fixp(4/3.);
++	}
++	{
++		int iThresh = 35;
++		if (rCost > iThresh)
++			rCost = iThresh + (rCost - iThresh).sqrt();
++	}
++	{
++		rCost *= 2;
++		rCost /= (kOurTeam.getNumMembers() + kTheirTeam.getNumMembers());
++	}
++	if (rCost < fixp(0.5))
++		log("(Not a relevant threat: %s)", m_kReport.leaderName(eThey));
++	else m_iU -= rCost.uround();
++}
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.h b/CvGameCoreDLL/WarUtilityAspect.h
+index add964577..3ea2ae04d 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.h
++++ b/CvGameCoreDLL/WarUtilityAspect.h
+@@ -483,4 +483,17 @@ public:
+ 	UWAI::AspectTypes xmlID() const { return UWAI::LOVE_OF_PEACE; }
+ };
+ 
++class ThirdPartyIntervention : public WarUtilityBroaderAspect
++{
++public:
++	ThirdPartyIntervention(WarEvalParameters const& kParams)
++	:	WarUtilityBroaderAspect(kParams) {}
++	int preEvaluate();
++	void evaluate();
++	UWAI::AspectTypes xmlID() const { return UWAI::THIRD_PARTY_INTERVENTION; }
++private:
++	scaled m_rDefPow;
++	scaled m_rLostDefPowRatio;
++};
++
+ #endif
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=39027

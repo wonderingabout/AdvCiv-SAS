@@ -1,0 +1,161 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3494
+# Commit: 51f728a2f65a110e41a6821af63ab768789a12b8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ae1a3c662d58e1cc6c15f87ab895d18f5dcd6a3f
+# Title: Fix overflow in CvTeamAI::AI_endWarVal (from Kek-Mod)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	7	CvGameCoreDLL/CvPlayerAI.cpp
+18	24	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a4e99ea28..47cede380 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5363,19 +5363,19 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 
+ 		FOR_EACH_ENUM(Commerce)
+ 		{
+-			int iTempValue = (kLoopProcess.getProductionToCommerceModifier(eLoopCommerce) * 4);
+-
+-			if (iTempValue <= 0) // K-Mod (check out what would happen to "bGoodProcess" without this bit.  "oops.")
++			int iTempValue = kLoopProcess.getProductionToCommerceModifier(eLoopCommerce) * 4;
++			/*	<K-Mod> (check out what would happen to "bGoodProcess" without this bit.
++				"oops.") */
++			if (iTempValue <= 0)
++			{
+ 				continue;
+-
++			} // </K-Mod>
+ 			iTempValue *= AI_commerceWeight(eLoopCommerce);
+ 			iTempValue /= 100;
+-
+ 			if (eLoopCommerce == COMMERCE_GOLD || eLoopCommerce == COMMERCE_RESEARCH)
+ 				bGoodProcess = true;
+ 			else if (eLoopCommerce == COMMERCE_CULTURE && AI_atVictoryStage(AI_VICTORY_CULTURE1))
+ 				iTempValue *= 2; // k146: was 3
+-
+ 			iValue += iTempValue * iCityCount / 100;
+ 		}
+ 	}
+@@ -8968,7 +8968,7 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 		else if (eWarTeam == getTeam() || kOurTeam.isVassal(eWarTeam))
+ 		{	// Explicit rejection by all who will definitely be attacked
+ 			bValid = false;
+-		} // <kekm.25/advc> Try to honor peace treaty
++		}  // <kekm.25/advc> Try to honor peace treaty
+ 		else if (kOurTeam.isForcePeace(eWarTeam))
+ 			bValid = false; // </kekm.25/advc>
+ 		else if (kOurTeam.AI_getWarPlan(eWarTeam) != NO_WARPLAN) // BETTER_BTS_AI_MOD: END
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 2375a66f1..4470963a2 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1747,7 +1747,7 @@ int CvTeamAI::AI_warDiplomacyCost(TeamTypes eTarget) const
+ 	This function computes the value of starting a war against eTeam.
+ 	The returned value should be compared against other possible targets
+ 	to pick the best target. */ // advc.104: UWAI bypasses this function
+-// K-Mod. Complete remake of the function.
++// K-Mod: Complete remake of the function.
+ int CvTeamAI::AI_startWarVal(TeamTypes eTarget, WarPlanTypes eWarPlan,
+ 	bool bConstCache) const // advc.001n
+ {
+@@ -1783,7 +1783,7 @@ int CvTeamAI::AI_startWarVal(TeamTypes eTarget, WarPlanTypes eWarPlan,
+ 		}
+ 	}
+ 	return iTotalValue;
+-} // K-Mod end
++}
+ 
+ 
+ int CvTeamAI::AI_endWarVal(TeamTypes eTeam) const // XXX this should consider area power...
+@@ -1791,32 +1791,27 @@ int CvTeamAI::AI_endWarVal(TeamTypes eTeam) const // XXX this should consider ar
+ 	FAssert(eTeam != getID());
+ 	FAssert(isAtWar(eTeam));
+ 
+-	const CvTeamAI& kWarTeam = GET_TEAM(eTeam); // K-Mod
++	CvTeamAI const& kWarTeam = GET_TEAM(eTeam); // K-Mod
+ 
+ 	int iValue = 100;
+-
+-	iValue += (getNumCities() * 3);
+-	iValue += (kWarTeam.getNumCities() * 3);
+-
++	iValue += getNumCities() * 3;
++	iValue += kWarTeam.getNumCities() * 3;
+ 	iValue += getTotalPopulation();
+ 	iValue += kWarTeam.getTotalPopulation();
++	iValue += kWarTeam.AI_getWarSuccess(getID()) * 20;
+ 
+-	iValue += (kWarTeam.AI_getWarSuccess(getID()) * 20);
+-
+-	int iOurPower = std::max(1, getPower(true));
+-	int iTheirPower = std::max(1, kWarTeam.getDefensivePower(getID()));
+-
+-	iValue *= iTheirPower + 10;
+-	iValue /= std::max(1, iOurPower + iTheirPower + 10);
+-
++	int const iOurPower = std::max(1, getPower(true));
++	int const iTheirPower = std::max(1, kWarTeam.getDefensivePower(getID()));
++	{	// <kekm.39> Multiplying by iTheirPower can overflow
++		scaled rPowMult(iTheirPower + 10, iOurPower + iTheirPower + 10);
++		iValue = (iValue * rPowMult).uround(); // </kekm.39>
++	}
+ 	WarPlanTypes const eWarPlan = AI_getWarPlan(eTeam);
+-
+-	// if we are not human, do we want to continue war for strategic reasons?
+-	// only check if our power is at least 120% of theirs
++	/*	if we are not human, do we want to continue war for strategic reasons?
++		only check if our power is at least 120% of theirs */
+ 	if (!isHuman() && iOurPower > 120 * iTheirPower / 100)
+ 	{
+ 		bool bDagger = false;
+-
+ 		bool bAnyFinancialTrouble = false;
+ 		for (MemberAIIter it(getID()); it.hasNext(); ++it)
+ 		{
+@@ -1826,16 +1821,14 @@ int CvTeamAI::AI_endWarVal(TeamTypes eTeam) const // XXX this should consider ar
+ 			if (kMember.AI_isFinancialTrouble())
+ 				bAnyFinancialTrouble = true;
+ 		}
+-
+-		// if dagger, value peace at 90% * power ratio
+ 		if (bDagger)
+ 		{
+ 			iValue *= 9 * iTheirPower;
+ 			iValue /= 10 * iOurPower;
+ 		}
+ 
+-		// for now, we will always do the land mass check for domination
+-		// if we have more than half the land, then value peace at 90% * land ratio
++		/*	for now, we will always do the land mass check for domination
++			if we have more than half the land, then value peace at 90% * land ratio */
+ 		int iLandRatio = getTotalLand(true) * 100 / std::max(1, kWarTeam.getTotalLand(true));
+ 		if (iLandRatio > 120)
+ 		{
+@@ -1902,7 +1895,8 @@ int CvTeamAI::AI_endWarVal(TeamTypes eTeam) const // XXX this should consider ar
+ 		iValue *= 2;
+ 	}
+ 	else if ((!isHuman() && eWarPlan == WARPLAN_DOGPILE && kWarTeam.getNumWars() > 1) ||
+-			(!kWarTeam.isHuman() && kWarTeam.AI_getWarPlan(getID()) == WARPLAN_DOGPILE && getNumWars() > 1))
++		(!kWarTeam.isHuman() &&
++		kWarTeam.AI_getWarPlan(getID()) == WARPLAN_DOGPILE && getNumWars() > 1))
+ 	{
+ 		iValue *= 3;
+ 		iValue /= 2;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5403

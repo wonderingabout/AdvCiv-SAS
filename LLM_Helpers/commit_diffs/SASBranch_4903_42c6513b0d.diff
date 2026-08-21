@@ -1,0 +1,396 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4903
+# Commit: 42c6513b0d3e451eef7563a9ba362d5a3207499f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: eb42b210a7abdc2492a3d09ab7de121deecc7064
+# Title: add robotic_infantry (import from c2c mod adjusted for advciv-sas or not anyways etc) - + "<!-- custom: import from c2c mod's ART_DEF_UNIT_SENTROID_INFANTRY...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/environment_fx_greymetal.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/marines_fx.nif
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/t600_skin_red eye.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/t800_full1.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/w_minigun.dds
+-	-	Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/sentroid_infantry.dds
+25	0	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+4	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+8	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+9	0	Assets/XML/Units/CIV4UnitClassInfos.xml
+208	2	Assets/XML/Units/CIV4UnitInfos.xml
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/environment_fx_greymetal.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/marines_fx.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/t600_skin_red eye.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/t800_full1.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/w_minigun.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/sentroid_infantry.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/environment_fx_greymetal.dds b/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/environment_fx_greymetal.dds
+new file mode 100644
+index 000000000..e6b3f9188
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/environment_fx_greymetal.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/marines_fx.nif b/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/marines_fx.nif
+new file mode 100644
+index 000000000..41be51ea0
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/marines_fx.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/t600_skin_red eye.dds b/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/t600_skin_red eye.dds
+new file mode 100644
+index 000000000..5c320a690
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/t600_skin_red eye.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/t800_full1.dds b/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/t800_full1.dds
+new file mode 100644
+index 000000000..f954acc22
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/t800_full1.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/w_minigun.dds b/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/w_minigun.dds
+new file mode 100644
+index 000000000..49bfd121f
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/w_minigun.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/sentroid_infantry.dds b/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/sentroid_infantry.dds
+new file mode 100644
+index 000000000..84c2621c8
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Units/Robotic_Infantry/sentroid_infantry.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 8243e0ba5..4a6c3db03 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -1373,6 +1373,31 @@
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
++		<!-- custom: import from c2c mod's ART_DEF_UNIT_SENTROID_INFANTRY (and some missing files based on nif from unit "androidinfantry"), as a result there may be a bit more .dds or such extra files than needed or maybe not but at least the unit is functionnal and overhead if i may say and am not mistaken in saying/thinking (that is) so but anyways etc should be overall minimal if any and if i am not mistaken but anyways etc,  and adjusted or not for advciv-sas anyways etc -->
++		<UnitArtInfo>
++			<Type>ART_DEF_UNIT_ROBOTIC_INFANTRY</Type>
++			<Button>Art/AdvCiv_SAS/Units/Robotic_Infantry/sentroid_infantry.dds</Button>
++			<fScale>0.44</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<bActAsLand>0</bActAsLand>
++			<bActAsAir>0</bActAsAir>
++			<NIF>Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/marines_fx.nif</NIF>
++			<KFM>Art/Units/Marine/Marines.kfm</KFM>
++			<SHADERNIF>Art/AdvCiv_SAS/Units/Robotic_Infantry/nif/marines_fx.nif</SHADERNIF>
++			<ShadowDef>
++				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
++				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
++				<fShadowScale>1.0</fShadowScale>
++			</ShadowDef>
++			<fBattleDistance>0.35</fBattleDistance>
++			<fRangedDeathTime>0.05</fRangedDeathTime>
++			<bActAsRanged>1</bActAsRanged>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<AudioRunSounds>
++				<AudioRunTypeLoop/>
++				<AudioRunTypeEnd/>
++			</AudioRunSounds>
++		</UnitArtInfo>
+ 		<UnitArtInfo>
+ 			<Type>ART_DEF_UNIT_MECHANIZED_INFANTRY</Type>
+ 			<Button>,Art/Interface/Buttons/Units/MechanizedInfantry.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,8,8</Button>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 5556ad39e..a0989adee 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -444,6 +444,10 @@
+ 		<Tag>TXT_KEY_UNIT_MODERN_INFANTRY</Tag>
+ 		<English>Modern Infantry</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_ROBOTIC_INFANTRY</Tag>
++		<English>Robotic Infantry</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 7029a35bc..c401240d7 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -277,6 +277,14 @@
+ 
+ 
+ 
++	<!-- custom: pedia entry based on https://en.wikipedia.org/wiki/Military_robot anyways etc anyways etc anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_UNIT_ROBOTIC_INFANTRY_PEDIA</Tag>
++		<English>[TAB]Military robots are autonomous robots or remote-controlled mobile robots designed for military applications, from transport to search and rescue and attack.[PARAGRAPH:1]Some such systems are currently in use, and many are under development. The difference between military robots and military drones is unclear as of 2025: some say that lethal autonomous weapons are robots whereas others describe "fully autonomous military drones".[PARAGRAPH:2]Autonomous robotics would save and preserve soldiers' lives by removing serving soldiers, who might otherwise be killed, from the battlefield. Lt. Gen. Richard Lynch of the United States Army Installation Management Command and assistant Army chief of staff for installation stated at a 2011 conference:[PARAGRAPH:1]"As I think about what's happening on the battlefield today ... I contend there are things we could do to improve the survivability of our service members. And you all know that's true."[PARAGRAPH:1]Major Kenneth Rose of the US Army's Training and Doctrine Command outlined some of the advantages of robotic technology in warfare:[PARAGRAPH:1]"Machines don't get tired. They don't close their eyes. They don't hide under trees when it rains and they don't talk to their friends ... A human's attention to detail on guard duty drops dramatically in the first 30 minutes ... Machines know no fear."[PARAGRAPH:1]Increasing attention is also paid to how to make the robots more autonomous, with a view of eventually allowing them to operate on their own for extended periods of time, possibly behind enemy lines. For such functions, systems like the Energetically Autonomous Tactical Robot are being tried, which is intended to gain its own energy by foraging for plant matter. The majority of military robots are tele-operated and not equipped with weapons; they are used for reconnaissance, surveillance, sniper detection, neutralizing explosive devices, etc. Current robots that are equipped with weapons are tele-operated so they are not capable of taking lives autonomously. Advantages regarding the lack of emotion and passion in robotic combat is also taken into consideration as a beneficial factor in significantly reducing instances of unethical behavior in wartime. Autonomous machines are created not to be "truly 'ethical' robots", yet ones that comply with the laws of war (LOW) and rules of engagement (ROE). Hence the fatigue, stress, emotion, adrenaline, etc. that affect a human soldier's rash decisions are removed; there will be no effect on the battlefield caused by the decisions made by the individual.[PARAGRAPH:2]Human rights groups and NGOs such as Human Rights Watch and the Campaign to Stop Killer Robots have started urging governments and the United Nations to issue policy to outlaw the development of so-called "lethal autonomous weapons systems" (LAWS). The United Kingdom opposed such campaigns, with the Foreign Office declaring that "international humanitarian law already provides sufficient regulation for this area".[PARAGRAPH:1]In July 2015, over 1,000 experts in artificial intelligence signed a letter calling for a ban on autonomous weapons. The letter was presented in Buenos Aires at the 24th International Joint Conference on Artificial Intelligence (IJCAI-15) and was co-signed by Stephen Hawking, Elon Musk, Steve Wozniak, Noam Chomsky, Skype co-founder Jaan Tallinn and Google DeepMind co-founder Demis Hassabis, among others.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: taken from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml and then modified for AdvCiv-SAS -->
+ 	<!-- custom: description from: https://en.wikipedia.org/wiki/Paganism and https://en.wikipedia.org/wiki/Polytheism -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Units/CIV4UnitClassInfos.xml b/Assets/XML/Units/CIV4UnitClassInfos.xml
+index cf8123750..f84ed8dcb 100644
+--- a/Assets/XML/Units/CIV4UnitClassInfos.xml
++++ b/Assets/XML/Units/CIV4UnitClassInfos.xml
+@@ -350,6 +350,15 @@
+ 			<iInstanceCostModifier>0</iInstanceCostModifier>
+ 			<DefaultUnit>UNIT_PARATROOPER</DefaultUnit>
+ 		</UnitClassInfo>
++		<UnitClassInfo>
++			<Type>UNITCLASS_ROBOTIC_INFANTRY</Type>
++			<Description>TXT_KEY_UNIT_ROBOTIC_INFANTRY</Description>
++			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
++			<iMaxTeamInstances>-1</iMaxTeamInstances>
++			<iMaxPlayerInstances>-1</iMaxPlayerInstances>
++			<iInstanceCostModifier>0</iInstanceCostModifier>
++			<DefaultUnit>UNIT_ROBOTIC_INFANTRY</DefaultUnit>
++		</UnitClassInfo>
+ 		<UnitClassInfo>
+ 			<Type>UNITCLASS_MECHANIZED_INFANTRY</Type>
+ 			<Description>TXT_KEY_UNIT_MECHANIZED_INFANTRY</Description>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 5d818295e..4632d030a 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -12860,7 +12860,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades/>
++			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_ROBOTIC_INFANTRY</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+@@ -13072,7 +13077,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<UnitClassUpgrades/>
++			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_ROBOTIC_INFANTRY</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+@@ -13193,6 +13203,202 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
++<UnitInfo> <!-- custom: class: UNITCLASS_ROBOTIC_INFANTRY, type: UNIT_ROBOTIC_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_ROBOTIC_INFANTRY</Class>
++			<Type>UNIT_ROBOTIC_INFANTRY</Type>
++			<UniqueNames/>
++			<Special>NONE</Special>
++			<Capture>NONE</Capture>
++			<Combat>UNITCOMBAT_GUN</Combat>
++			<Domain>DOMAIN_LAND</Domain>
++			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
++			<Invisible>NONE</Invisible>
++			<SeeInvisible>NONE</SeeInvisible>
++			<Description>TXT_KEY_UNIT_ROBOTIC_INFANTRY</Description>
++			<Civilopedia>TXT_KEY_UNIT_ROBOTIC_INFANTRY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<bAnimal>0</bAnimal>
++			<bFood>0</bFood>
++			<bNoBadGoodies>0</bNoBadGoodies>
++			<bOnlyDefensive>0</bOnlyDefensive>
++			<bNoCapture>0</bNoCapture>
++			<bQuickCombat>0</bQuickCombat>
++			<bRivalTerritory>0</bRivalTerritory>
++			<bMilitaryHappiness>1</bMilitaryHappiness>
++			<!-- custom: not sure if fully robotic units should cost unit maintenance, but to fit the theme, and to make the unit somewhat op or at least relevant vs other units, making it free support -->
++			<bMilitarySupport>0</bMilitarySupport>
++			<bMilitaryProduction>1</bMilitaryProduction>
++			<bPillage>1</bPillage>
++			<bSpy>0</bSpy>
++			<bSabotage>0</bSabotage>
++			<bDestroy>0</bDestroy>
++			<bStealPlans>0</bStealPlans>
++			<bInvestigate>0</bInvestigate>
++			<bCounterSpy>0</bCounterSpy>
++			<bFound>0</bFound>
++			<bGoldenAge>0</bGoldenAge>
++			<bInvisible>0</bInvisible>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bNoDefensiveBonus>0</bNoDefensiveBonus>
++			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
++			<bCanMoveImpassable>0</bCanMoveImpassable>
++			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
++			<bFlatMovementCost>0</bFlatMovementCost>
++			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqBonuses>0</bPrereqBonuses>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bMechanized>0</bMechanized>
++			<bSuicide>0</bSuicide>
++			<bHiddenNationality>0</bHiddenNationality>
++			<bAlwaysHostile>0</bAlwaysHostile>
++			<UnitClassUpgrades/>
++			<UnitClassTargets/>
++			<UnitCombatTargets/>
++			<UnitClassDefenders/>
++			<UnitCombatDefenders/>
++			<FlankingStrikes/>
++			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs/>
++			<Builds/>
++			<ReligionSpreads/>
++			<CorporationSpreads/>
++			<GreatPeoples/>
++			<Buildings/>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<PrereqBuilding>NONE</PrereqBuilding>
++			<!-- custom: making it out of main scientific path so that military path is not too rewarded and other strategies are just as vlaid or at least worth profits if i may say but anyways etc -->
++			<PrereqTech>TECH_TRANSHUMANISM</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_AI</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<Flavors/>
++			<iAIWeight>0</iAIWeight>
++			<iCost>160</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iMoves>1</iMoves>
++			<bNoRevealMap>0</bNoRevealMap>
++			<iAirRange>0</iAirRange>
++			<iAirUnitCap>0</iAirUnitCap>
++			<iDropRange>0</iDropRange>
++			<iNukeRange>-1</iNukeRange>
++			<iWorkRate>0</iWorkRate>
++			<iBaseDiscover>0</iBaseDiscover>
++			<iDiscoverMultiplier>0</iDiscoverMultiplier>
++			<iBaseHurry>0</iBaseHurry>
++			<iHurryMultiplier>0</iHurryMultiplier>
++			<iBaseTrade>0</iBaseTrade>
++			<iTradeMultiplier>0</iTradeMultiplier>
++			<iGreatWorkCulture>0</iGreatWorkCulture>
++			<iEspionagePoints>0</iEspionagePoints>
++			<TerrainImpassables/>
++			<FeatureImpassables/>
++			<TerrainPassableTechs/>
++			<FeaturePassableTechs/>
++			<iCombat>35</iCombat>
++			<iCombatLimit>100</iCombatLimit>
++			<iAirCombat>0</iAirCombat>
++			<iAirCombatLimit>0</iAirCombatLimit>
++			<iXPValueAttack>4</iXPValueAttack>
++			<iXPValueDefense>2</iXPValueDefense>
++			<iFirstStrikes>0</iFirstStrikes>
++			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<iInterceptionProbability>0</iInterceptionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
++			<iWithdrawalProb>0</iWithdrawalProb>
++			<iCollateralDamage>0</iCollateralDamage>
++			<iCollateralDamageLimit>200</iCollateralDamageLimit>
++			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>0</iCityDefense>
++			<iAnimalCombat>0</iAnimalCombat>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<TerrainNatives/>
++			<FeatureNatives/>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
++			<UnitClassAttackMods/>
++			<UnitClassDefenseMods/>
++			<!-- custom: make it strong vs humans in particular if i may say but or not but or yes but but anyways etc -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
++			<UnitCombatCollateralImmunes/>
++			<DomainMods/>
++			<BonusProductionModifiers/>
++			<iBombRate>0</iBombRate>
++			<iBombardRate>0</iBombardRate>
++			<SpecialCargo>NONE</SpecialCargo>
++			<DomainCargo>NONE</DomainCargo>
++			<iCargo>0</iCargo>
++			<iConscription>1</iConscription>
++			<iCultureGarrison>12</iCultureGarrison>
++			<iExtraCost>0</iExtraCost>
++			<iAsset>4</iAsset>
++			<iPower>35</iPower>
++			<UnitMeshGroups>
++				<iGroupSize>3</iGroupSize>
++				<fMaxSpeed>1.75</fMaxSpeed>
++				<fPadTime>1</fPadTime>
++				<iMeleeWaveSize>3</iMeleeWaveSize>
++				<iRangedWaveSize>0</iRangedWaveSize>
++				<UnitMeshGroup>
++					<iRequired>3</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_ROBOTIC_INFANTRY</EarlyArtDefineTag>
++				</UnitMeshGroup>
++			</UnitMeshGroups>
++			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- custom: simulate it being able to walk at day and night non-stop at minimal energetic cost anyways etc -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_MOBILITY_COST</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
++			<LeaderPromotion>NONE</LeaderPromotion>
++			<iLeaderExperience>0</iLeaderExperience>
++		</UnitInfo>
+ 		<UnitInfo> <!-- custom: class: UNITCLASS_MECHANIZED_INFANTRY, type: UNIT_MECHANIZED_INFANTRY (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_MECHANIZED_INFANTRY</Class>
+ 			<Type>UNIT_MECHANIZED_INFANTRY</Type>
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=18401

@@ -1,0 +1,77 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2955
+# Commit: 446b94fba224b8190709800c9a7935545bb13e94
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ee0ddea124b64cc8e18f5e29ad693d81b5298545
+# Title: Cache CvCity::plotNum (to save time)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	8	CvGameCoreDLL/CvCity.cpp
+2	1	CvGameCoreDLL/CvCity.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index f10a46b78..3583f422d 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4306,13 +4306,6 @@ void CvCity::setID(int iID)
+ 	m_iID = iID;
+ }
+ 
+-/*	advc.104: getID is unique for a given player.
+-	plotNum can serve as a globally unique id. */
+-PlotNumTypes CvCity::plotNum() const
+-{
+-	return GC.getMap().plotNum(m_iX, m_iY);
+-}
+-
+ // <advc.inl>
+ int CvCity::getXExternal() const
+ {
+@@ -4325,10 +4318,11 @@ int CvCity::getYExternal() const
+ 	return getY();
+ } // </advc.inl>
+ 
+-// advc.opt: Update cached CvPlot and CvArea pointer
++// advc.opt: Update cached CvPlot, CvArea pointer and plot index.
+ void CvCity::updatePlot()
+ {
+ 	m_pPlot = GC.getMap().plotSoren(getX(), getY());
++	m_ePlot = GC.getMap().plotNum(getX(), getY());
+ 	updateArea();
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index ee2ebdcd3..81f643240 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -311,7 +311,7 @@ public:
+ 	DllExport inline IDInfo getIDInfo() const { return IDInfo(getOwner(), getID()); }
+ 	// </advc.inl>
+ 	void setID(int iID);
+-	PlotNumTypes plotNum() const; // advc.104
++	inline int plotNum() const { return m_ePlot; } // advc.104
+ 
+ 	int getXExternal() const; // advc.inl: Exported through .def file											// Exposed to Python
+ 	inline int getX() const { return m_iX; } // advc.inl: Renamed from getX_INLINE
+@@ -1281,6 +1281,7 @@ protected:
+ 	int m_iID;
+ 	int m_iX;
+ 	int m_iY;
++	PlotNumTypes m_ePlot; // advc.104: Cached b/c frequently accessed by UWAI
+ 	int m_iRallyX;
+ 	int m_iRallyY;
+ 	int m_iGameTurnFounded;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1630

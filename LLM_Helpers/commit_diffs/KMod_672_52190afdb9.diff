@@ -1,0 +1,267 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 672
+# Commit: 52190afdb911b7c0bbe78dd0e77f7b1ff7859df0
+# History segment: K-Mod history
+# Parent used for diff: 51b40ab853bdbe71bee0eaa6728e712ef2ad0be8
+# Title: Added new AI to evaluate and consider using a 'process' (eg. build wealth) instead of constructing a building. (This will probably need some adjustments in t...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCity.cpp
+64	34	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvCityAI.h
+1	1	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index fe48092ce..64d4c7d58 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8150,7 +8150,7 @@ void CvCity::setProductionAutomated(bool bNewValue, bool bClear)
+ 
+ 		if (!isProduction())
+ 		{
+-		    AI_chooseProduction();		    
++			AI_chooseProduction();
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index d12d52584..f010fff03 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -762,7 +762,8 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	if (isHuman() && isProductionAutomated())
++	//if (isHuman() && isProductionAutomated())
++	if (isHuman())
+ 	{
+ 		AI_buildGovernorChooseProduction();
+ 		return;
+@@ -2648,11 +2649,15 @@ void CvCityAI::AI_chooseProduction()
+ 	if (eBestProcess != NO_PROCESS)
+ 	{
+ 		// unfortunately, the evaluation of eBestProcess is duplicated.
+-		int iProcessValue = AI_processValue(eBestProcess);
+-		// note: process value has units of 1x commerce; building value has units of 4x commerce.
+-		// but building value is ongoing, whereas processes are temporary.
+-		// Also, note that as soon as we start working the process, our citizens will rearrange in a way that is likely to devalue the process for the next turn.
+-		int iOdds = 100*(iProcessValue - iBestBuildingValue/2)/std::max(1, iBestBuildingValue/2);
++		// Here we calculate roughly how many turns it would take for the building to pay itself back, where the cost it the value we could have had from building a process.. 
++		// Note that as soon as we start working the process, our citizens will rearrange in a way that is likely to devalue the process for the next turn.
++		int iOdds = 100;
++		if (eBestBuilding != NO_BUILDING)
++		{
++			int iBuildingCost = AI_processValue(eBestProcess) * getProductionTurnsLeft(eBestBuilding, 0);
++			int iScaledTime = 10000 * iBuildingCost / (std::max(1, iBestBuildingValue) * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getConstructPercent());
++			iOdds = 100*(iScaledTime - 400)/(iScaledTime + 600); // <= 4 turns means 0%. 20 turns ~ 61%.
++		}
+ 		if (iOdds > 0 && GC.getGameINLINE().getSorenRandNum(100, "AI choose process") < iOdds)
+ 		{
+ 			pushOrder(ORDER_MAINTAIN, eBestProcess);
+@@ -4485,17 +4490,19 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 						}
+ 					}
+ 					//
+-					for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
++					for (BuildingClassTypes eLoopClass = (BuildingClassTypes)0; eLoopClass < GC.getNumBuildingClassInfos(); eLoopClass = (BuildingClassTypes)(eLoopClass+1))
+ 					{
+-						BuildingTypes eLoopBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings((BuildingClassTypes)iI); // K-Mod
++						BuildingTypes eLoopBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(eLoopClass); // K-Mod
+ 
+ 						if (eLoopBuilding == NO_BUILDING)
+ 							continue;
+ 
+ 						int iPrereqBuildings = 0; // number of eBuilding required to build eLoopBuilding
+ 						const CvBuildingInfo& kLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
++						int iLimitForLoopBuilding = limitedWonderClassLimit(eLoopClass);
+ 
+ 						if ((kLoopBuilding.getPrereqNumOfBuildingClass(eBuildingClass) <= 0 && !kLoopBuilding.isBuildingClassNeededInCity(kBuilding.getBuildingClassType())) ||
++							(iLimitForLoopBuilding > 0 && kOwner.getBuildingClassMaking(eLoopClass) >= iLimitForLoopBuilding) ||
+ 							!kOwner.canConstruct(eLoopBuilding, false, true, false))
+ 						{
+ 							// either we don't need eBuilding in order to build eLoopBuilding, or we can't construct eLoopBuilding anyway
+@@ -4505,8 +4512,6 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 
+ 						if (kLoopBuilding.getPrereqNumOfBuildingClass(eBuildingClass) > 0)
+ 						{
+-							BuildingClassTypes eLoopClass = (BuildingClassTypes)kLoopBuilding.getBuildingClassType();
+-
+ 							// calculate how many more of eBuilding we actually need, given that we might be constructing some eLoopBuilding already.
+ 							iPrereqBuildings = kOwner.getBuildingClassPrereqBuilding(eLoopBuilding, eBuildingClass, kOwner.getBuildingClassMaking(eLoopClass));
+ 							FAssert(iPrereqBuildings > 0);
+@@ -5851,7 +5856,7 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject)
+ 	return iValue;
+ }
+ 
+-ProcessTypes CvCityAI::AI_bestProcess(CommerceTypes eCommerceType)
++ProcessTypes CvCityAI::AI_bestProcess(CommerceTypes eCommerceType) const
+ {
+ 	int iBestValue = 0;
+ 	ProcessTypes eBestProcess = NO_PROCESS;
+@@ -5874,49 +5879,69 @@ ProcessTypes CvCityAI::AI_bestProcess(CommerceTypes eCommerceType)
+ }
+ 
+ // K-Mod. I've rearranged / rewriten most of this function.
+-// units of ~1x commerce
+-int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType)
++// units of ~4x commerce
++int CvCityAI::AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType) const
+ {
++	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE());
+ 	bool bValid = (eCommerceType == NO_COMMERCE);
+ 	
+ 	int iValue = 0;
+ 
+-	if (GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_GOLD) && GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble())
++	/* if (GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_GOLD) && GET_PLAYER(getOwnerINLINE()).AI_isFinancialTrouble())
+ 	{
+ 		iValue += GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_GOLD);
+-	}
++	} */
+ 
+-	// if we own less than 50%, or we need to pop borders
+-	if (GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE) && (plot()->calculateCulturePercent(getOwnerINLINE()) < 50 || getCultureLevel() <= 1))
++	// pop borders
++	if (getCultureLevel() <= 1)
+ 	{
+ 		iValue += GC.getProcessInfo(eProcess).getProductionToCommerceModifier(COMMERCE_CULTURE);
+ 	}
+ 
++	int iAdjustFactor = 0;
++	for (CommerceTypes i = (CommerceTypes)0; i < NUM_COMMERCE_TYPES; i = (CommerceTypes)(i+1))
++	{
++		iAdjustFactor += kOwner.getCommercePercent(i) * kOwner.AI_averageCommerceMultiplier(i);
++	}
++	iAdjustFactor /= 100;
++
+ 	for (CommerceTypes i = (CommerceTypes)0; i < NUM_COMMERCE_TYPES; i = (CommerceTypes)(i+1))
+ 	{
+ 		int iTempValue = GC.getProcessInfo(eProcess).getProductionToCommerceModifier(i);
+-		if (iTempValue != 0)
++
++		if (iTempValue == 0)
++			continue;
++
++		if (i == eCommerceType && iTempValue > 0)
+ 		{
+-			if (!bValid && i == eCommerceType && iTempValue > 0)
+-			{
+-				bValid = true;
+-				iTempValue *= 2;
+-			}
++			bValid = true;
++			iTempValue *= 2;
++		}
+ 
+-			// K-Mod. culture is local, the other commerce types are non-local.
+-			// We don't want the non-local commerceWeights in this function, because maintaining a process is just a short-term arrangement.
+-			iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_commerceWeight(i, i == COMMERCE_CULTURE ? this : 0);
+-			iTempValue /= 100;
+-			// K-Mod end
++		// K-Mod. Calculate the number of commerce produced.
++		iTempValue *= getYieldRate(YIELD_PRODUCTION);
++		//iTempValue /= 100; // keep this 100 for now.
++		// Culture is local, the other commerce types are non-local.
++		// We don't want the non-local commerceWeights in this function, because maintaining a process is just a short-term arrangement.
++		iTempValue *= kOwner.AI_commerceWeight(i, i == COMMERCE_CULTURE ? this : 0);
++		iTempValue /= 100;
++		// K-Mod end
+ 
+-			iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange(i);
+-			iTempValue /= 60;
++		/* iTempValue *= GET_PLAYER(getOwnerINLINE()).AI_averageCommerceExchange(i);
++		iTempValue /= 60; */
++		// K-Mod. Check this shit.
++		if (kOwner.isCommerceFlexible(i) && kOwner.getCommercePercent(i) > 0)
++		{
++			iTempValue *= 100 + kOwner.getCommercePercent(i) * (iAdjustFactor - 100) / 100;
++			iTempValue /= std::max(100, 100 + kOwner.getCommercePercent(i) * (kOwner.AI_averageCommerceMultiplier(i) - 100) / 100);
+ 		}
++		// K-Mod end
+ 
+ 		iValue += iTempValue;
+ 	}
+ 
+-	return (bValid ? iValue : 0);
++	// note, currently iValue has units of 100x commerce. We want to return 4x commerce.
++	return (bValid ? iValue/25 : 0);
+ }
+ 
+ 
+@@ -11022,9 +11047,14 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 	ProcessTypes eBestProcess = AI_bestProcess();
+ 	if (eBestProcess != NO_PROCESS)
+ 	{
+-		// same as in AI_chooseProduction. (as of the time of writing).
+-		int iProcessValue = AI_processValue(eBestProcess);
+-		int iOdds = 100*(iProcessValue - iBestBuildingValue/2)/std::max(1, iBestBuildingValue/2);
++		// similar to AI_chooseProduction
++		int iOdds = 100;
++		if (eBestBuilding != NO_BUILDING)
++		{
++			int iBuildingCost = AI_processValue(eBestProcess) * getProductionTurnsLeft(eBestBuilding, 0);
++			int iScaledTime = 10000 * iBuildingCost / (std::max(1, iBestBuildingValue) * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getConstructPercent());
++			iOdds = 100*(iScaledTime - 400)/(iScaledTime + 600); // <= 4 turns means 0%. 20 turns ~ 61%.
++		}
+ 		if (iOdds > 0 && GC.getGameINLINE().getSorenRandNum(100, "AI choose process") < iOdds)
+ 		{
+ 			pushOrder(ORDER_MAINTAIN, eBestProcess);
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index a54774700..04e7907cc 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -47,8 +47,8 @@ public:
+ 	int AI_projectValue(ProjectTypes eProject);
+ 
+ 	// K-Mod note, I've deleted the single-argument version of the following two functions. They were completely superfluous.
+-	ProcessTypes AI_bestProcess(CommerceTypes eCommerceType = NO_COMMERCE);
+-	int AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType = NO_COMMERCE);
++	ProcessTypes AI_bestProcess(CommerceTypes eCommerceType = NO_COMMERCE) const;
++	int AI_processValue(ProcessTypes eProcess, CommerceTypes eCommerceType = NO_COMMERCE) const;
+ 
+ 	int AI_neededSeaWorkers();
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 2a57c92f9..a6be3edb4 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2387,7 +2387,7 @@ void CvGame::cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData, bool bAl
+ 	else
+ 	{
+ 		//CvMessageControl::getInstance().sendPushOrder(pCity->getID(), eOrder, iData, bAlt, bShift, bCtrl);
+-		CvMessageControl::getInstance().sendPushOrder(pCity->getID(), eOrder, iData, bAlt, !(bShift || bCtrl), bCtrl ? 0 : -1);
++		CvMessageControl::getInstance().sendPushOrder(pCity->getID(), eOrder, iData, bAlt, !(bShift || bCtrl), bShift ? -1 : 0);
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a49976e59..26c23d570 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -119,7 +119,7 @@ bool CvUnitAI::AI_update()
+ 				//if (pTransportUnit->getGroup()->hasMoved() || (pTransportUnit->getGroup()->headMissionQueueNode() != NULL))
+ 				// K-Mod. Note: transport units with cargo always have their turn before the cargo does - so... well... I've changed the skip condition.
+ 				if (pTransportUnit->getGroup()->headMissionQueueNode() != NULL ||
+-					(pTransportUnit->getGroup()->AI_getMissionAIType() == MISSIONAI_ASSAULT && !atPlot(pTransportUnit->getGroup()->AI_getMissionAIPlot())))
++					(pTransportUnit->getGroup()->AI_getMissionAIPlot() && !atPlot(pTransportUnit->getGroup()->AI_getMissionAIPlot())))
+ 				// K-Mod end
+ 				{
+ 					getGroup()->pushMission(MISSION_SKIP);
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=11344

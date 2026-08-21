@@ -40,8 +40,7 @@ void CvFractal::reset()
 	m_iXInc = m_iYInc = -1; // advc: better initialize
 }
 
-void CvFractal::fracInit(int iNewXs, int iNewYs, int iGrain, CvRandom& random,
-	int iFlags, CvFractal* pRifts, int iFracXExp/*=7*/, int iFracYExp/*=6*/)
+void CvFractal::fracInit(int iNewXs, int iNewYs, int iGrain, CvRandom& random, int iFlags, CvFractal* pRifts, int iFracXExp/*=7*/, int iFracYExp/*=6*/)
 {
 	fracInitInternal(iNewXs, iNewYs, iGrain, random, NULL, -1,
 			(Flags)iFlags, pRifts, iFracXExp, iFracYExp);
@@ -53,18 +52,14 @@ void CvFractal::fracInit(int iNewXs, int iNewYs, int iGrain, CvRandom& random,
 	where minExp = std::min(iFracXExp, iFracYExp)
 	Note above that an extra value is required in a dimension
 	in which the map does not wrap. */
-void CvFractal::fracInitHinted(int iNewXs, int iNewYs, int iGrain, CvRandom& random,
-	byte* pbyHints, int iHintsLength, int iFlags, CvFractal* pRifts,
-	int iFracXExp, int iFracYExp)
+void CvFractal::fracInitHinted(int iNewXs, int iNewYs, int iGrain, CvRandom& random, byte* pbyHints, int iHintsLength, int iFlags, CvFractal* pRifts, int iFracXExp, int iFracYExp)
 {
 	Flags eFlagsNonPolar = ((Flags)iFlags) & (~FRAC_POLAR);
 	fracInitInternal(iNewXs, iNewYs, iGrain, random, pbyHints, iHintsLength,
 			eFlagsNonPolar, pRifts, iFracXExp, iFracYExp);
 }
 
-void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& random,
-	byte* pbyHints, int iHintsLength, Flags eFlags, CvFractal* pRifts,
-	int iFracXExp, int iFracYExp)
+void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& random, byte* pbyHints, int iHintsLength, Flags eFlags, CvFractal* pRifts, int iFracXExp, int iFracYExp)
 {
 	PROFILE("CvFractal::fracInit()");
 

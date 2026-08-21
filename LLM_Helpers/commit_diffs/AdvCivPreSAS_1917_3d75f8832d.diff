@@ -1,0 +1,76 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1917
+# Commit: 3d75f8832d19c852523f92904e19fe39fcd6d1fe
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 085ab2c9b697b5690ba398ef31899cb27e2a8a77
+# Title: Fix recently introduced bug in startHumansOnSameTile Python call
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	CvGameCoreDLL/CvPlayer.cpp
+3	2	CvGameCoreDLL/CvPythonCaller.cpp
+1	1	CvGameCoreDLL/CvPythonCaller.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 9b7949257..e07d5c7e2 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1370,8 +1370,9 @@ void CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 	//if (isHuman())
+ 	if(eUnitAI == UNITAI_EXPLORE && // advc.108
+ 		!GC.getInfo(eUnit).isFound() &&
+-		GC.getPythonCaller()->isExplorerPlacementRandomized())
+-	{ // advc: style changes in this block
++		(GC.getPythonCaller()->isHumanExplorerPlacementRandomized() ||
++		!isHuman())) // advc.108
++	{
+ 		int iRandOffset = GC.getGame().getSorenRandNum(NUM_CITY_PLOTS, "Place Units (Player)");
+ 		FOR_EACH_ENUM(CityPlot)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.cpp b/CvGameCoreDLL/CvPythonCaller.cpp
+index c5f2abf0b..cac2bbd20 100644
+--- a/CvGameCoreDLL/CvPythonCaller.cpp
++++ b/CvGameCoreDLL/CvPythonCaller.cpp
+@@ -1434,11 +1434,12 @@ void CvPythonCaller::riverStartCardinalDirection(CvPlot const& kPlot,
+ 	r = (CardinalDirectionTypes)toInt(lResult);
+ }
+ 
+-bool CvPythonCaller::isExplorerPlacementRandomized() const
++bool CvPythonCaller::isHumanExplorerPlacementRandomized() const
+ {
+ 	long lResult = false;
+ 	call("startHumansOnSameTile", lResult, m_python.getMapScriptModule(), false);
+-	return toBool(lResult);
++	// If they don't start on the same tile, then placement is randomized.
++	return !toBool(lResult);
+ }
+ 
+ int CvPythonCaller::minStartingDistanceMod() const
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.h b/CvGameCoreDLL/CvPythonCaller.h
+index 4bee13905..0d5700997 100644
+--- a/CvGameCoreDLL/CvPythonCaller.h
++++ b/CvGameCoreDLL/CvPythonCaller.h
+@@ -157,7 +157,7 @@ public:
+ 	bool addLakes() const;
+ 	bool addRivers() const;
+ 	void riverStartCardinalDirection(CvPlot const& kPlot, CardinalDirectionTypes& r) const;
+-	bool isExplorerPlacementRandomized() const;
++	bool isHumanExplorerPlacementRandomized() const;
+ 	int minStartingDistanceMod() const;
+ 	CvArea* findStartingArea(PlayerTypes eStartingPlayer) const;
+ 	CvPlot* findStartingPlot(PlayerTypes eStartingPlayer) const;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2041

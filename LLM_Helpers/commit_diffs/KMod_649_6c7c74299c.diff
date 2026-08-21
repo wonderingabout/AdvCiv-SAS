@@ -1,0 +1,319 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 649
+# Commit: 6c7c74299c23264c8ea62456d0e40d5f29f5527c
+# History segment: K-Mod history
+# Parent used for diff: 8e32f7c06c82bb4af12db83a880b1e2f41f81a9a
+# Title: Rewrote some parts of AI_attackMove. In particular, the AI will now be a bit less likely to send solo units into enemy territory. Deleted some obsolete code.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+13	188	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f415a4eef..25eb4ea8d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -20013,7 +20013,7 @@ void CvPlayerAI::AI_updateStrategyHash()
+     {
+ 		const CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
+ 		const CvTeamAI& kLoopTeam = GET_TEAM(kLoopPlayer.getTeam());
+-		if (kLoopPlayer.isAlive() && !kLoopPlayer.isMinorCiv() && !kLoopPlayer.isBarbarian() )
++		if (kLoopPlayer.isAlive() && !kLoopPlayer.isMinorCiv())
+ 		{
+ 			if (kLoopPlayer.getTeam() != getTeam() && kTeam.isHasMet(kLoopPlayer.getTeam()))
+ 			{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index c845555b4..46fb309e4 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -2169,47 +2169,15 @@ void CvUnitAI::AI_barbAttackMove()
+ 	return;
+ }
+ 
+-
++// This function has been heavily edited by K-Mod
+ void CvUnitAI::AI_attackMove()
+ {
+ 	PROFILE_FUNC();
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwnerINLINE()); // K-Mod
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      05/14/10                                jdog5000      */
+-/*                                                                                              */
+-/* Unit AI, Settler AI, Efficiency                                                              */
+-/************************************************************************************************/
+ 	bool bDanger = (kOwner.AI_getAnyPlotDanger(plot(), 3));
+ 
+-	/* if( getGroup()->getNumUnits() > 2 )
+-	{
+-		UnitAITypes eGroupAI = getGroup()->getHeadUnitAI();
+-		if( eGroupAI == AI_getUnitAIType() )
+-		{
+-			if( plot()->getOwnerINLINE() == getOwnerINLINE() && !bDanger )
+-			{
+-				// Shouldn't have groups of > 2 attack units
+-				if( getGroup()->countNumUnitAIType(UNITAI_ATTACK) > 2 )
+-				{
+-					getGroup()->AI_separate(); // will change group
+-
+-					FAssert( eGroupAI == getGroup()->getHeadUnitAI() );
+-				}
+-
+-				// Should never have attack city group lead by attack unit
+-				if( getGroup()->countNumUnitAIType(UNITAI_ATTACK_CITY) > 0 )
+-				{
+-					getGroup()->AI_separateAI(UNITAI_ATTACK_CITY); // will change group
+-
+-					// Since ATTACK can try to joing ATTACK_CITY again, need these units to
+-					// take a break to let ATTACK_CITY group move and avoid hang
+-					getGroup()->pushMission(MISSION_SKIP);
+-					return;
+-				}
+-			}
+-		}
+-	} */ // disabled by K-Mod. We'll split the group up later if we need to.
++	// K-Mod note. We'll split the group up later if we need to. (bbai group splitting code deleted.)
+ 	FAssert(getGroup()->countNumUnitAIType(UNITAI_ATTACK_CITY) == 0); // K-Mod. (I'm pretty sure this can't happen.)
+ 
+ 	// Attack choking units
+@@ -2433,23 +2401,17 @@ void CvUnitAI::AI_attackMove()
+ 
+ 		if (bDanger)
+ 		{
+-			// K-Mod - slightly more reckless than last time
++			// K-Mod. This block has been rewriten. (original code deleted)
++
++			// slightly more reckless than last time
+ 			if (getGroup()->getNumUnits() > 1 && AI_stackVsStack(3, 90, 40, 0))
+ 				return;
+-			// K-Mod end
+ 
+-			if (AI_pillageRange(1, 10)) // was 20
+-			{
+-				return;
+-			}
++			bool bAggressive = area()->getAreaAIType(getTeam()) != AREAAI_DEFENSIVE || getGroup()->getNumUnits() > 1 || plot()->getTeam() != getTeam();
+ 
+-			/* original bts code
+-			if (AI_cityAttack(1, 35))
+-			{
++			if (bAggressive && AI_pillageRange(1, 10))
+ 				return;
+-			}*/
+ 
+-			// K-Mod
+ 			if (plot()->getTeam() == getTeam())
+ 			{
+ 				if (AI_defendTeritory(55, 0, 2, true))
+@@ -2457,20 +2419,17 @@ void CvUnitAI::AI_attackMove()
+ 					return;
+ 				}
+ 			}
+-			else
+-			// K-Mod end
+-			if (AI_anyAttack(1, 45))
++			else if (AI_anyAttack(1, 45))
+ 			{
+ 				return;
+ 			}
+ 
+-			if (AI_pillageRange(3, 10)) // was 20
++			if (bAggressive && AI_pillageRange(3, 10))
+ 			{
+ 				return;
+ 			}
+ 
+-
+-			if( getGroup()->getNumUnits() < 4 )
++			if (getGroup()->getNumUnits() < 4)
+ 			{
+ 				if (AI_choke(1))
+ 				{
+@@ -2478,20 +2437,8 @@ void CvUnitAI::AI_attackMove()
+ 				}
+ 			}
+ 
+-			/* original bts code
+-			if (AI_cityAttack(4, 30))
+-			{
+-				return;
+-			}
+-
+-			if (AI_anyAttack(2, 40))
+-			{
++			if (bAggressive && AI_anyAttack(3, 40))
+ 				return;
+-			} */
+-			// K-Mod
+-			if (AI_anyAttack(3, 40))
+-				return;
+-			// K-Mod end
+ 		}
+ 
+ 		if (!isEnemy(plot()->getTeam()))
+@@ -2660,12 +2607,12 @@ void CvUnitAI::AI_attackMove()
+ 			return;
+ 		// K-Mod end
+ 
+-		if( !bDanger && !isHuman() && plot()->isCoastalLand() && kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_PICKUP) > 0 )
++		/* if( !bDanger && !isHuman() && plot()->isCoastalLand() && kOwner.AI_unitTargetMissionAIs(this, MISSIONAI_PICKUP) > 0 )
+ 		{
+ 			// If no other desireable actions, wait for pickup
+ 			getGroup()->pushMission(MISSION_SKIP);
+ 			return;
+-		}
++		} */ // disabled by K-Mod. We don't need this.
+ 
+ 		if (AI_patrol())
+ 		{
+@@ -2685,9 +2632,6 @@ void CvUnitAI::AI_attackMove()
+ 
+ 	getGroup()->pushMission(MISSION_SKIP);
+ 	return;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ }
+ 
+ 
+@@ -15526,125 +15470,6 @@ bool CvUnitAI::AI_goToTargetCity(int iFlags, int iMaxPathTurns, CvCity* pTargetC
+ 	return false;
+ }
+ 
+-// Returns true if a mission was pushed...
+-/* K-Mod. I've disabled this function, because it's basically just duplicating the normal "goToTargetCity" code.
+-bool CvUnitAI::AI_goToTargetBarbCity(int iMaxPathTurns)
+-{
+-	PROFILE_FUNC();
+-
+-	CvCity* pLoopCity;
+-	CvCity* pBestCity;
+-	CvPlot* pAdjacentPlot;
+-	CvPlot* pBestPlot;
+-	int iPathTurns;
+-	int iValue;
+-	int iBestValue;
+-	int iLoop;
+-	int iI;
+-
+-	if (isBarbarian())
+-	{
+-		return false;
+-	}
+-
+-	iBestValue = 0;
+-	pBestCity = NULL;
+-
+-	for (pLoopCity = GET_PLAYER(BARBARIAN_PLAYER).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(BARBARIAN_PLAYER).nextCity(&iLoop))
+-	{
+-		if (AI_plotValid(pLoopCity->plot()))
+-		{
+-			// BBAI efficiency: check area for land units before generating path
+-			if( (getDomainType() == DOMAIN_LAND) && (pLoopCity->area() != area()) && !(getGroup()->canMoveAllTerrain()) )
+-			{
+-				continue;
+-			}
+-			if (pLoopCity->isRevealed(getTeam(), false))
+-			{
+-				if (!atPlot(pLoopCity->plot()) && generatePath(pLoopCity->plot(), 0, true, &iPathTurns))
+-				{
+-					if (iPathTurns < iMaxPathTurns)
+-					{
+-						iValue = GET_PLAYER(getOwnerINLINE()).AI_targetCityValue(pLoopCity, false);
+-
+-						iValue *= 1000;
+-
+-						iValue /= (iPathTurns + 1);
+-
+-						if (iValue > iBestValue)
+-						{
+-							iBestValue = iValue;
+-							pBestCity = pLoopCity;
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-
+-	if (pBestCity != NULL)
+-	{
+-		iBestValue = 0;
+-		pBestPlot = NULL;
+-
+-		for (iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+-		{
+-			pAdjacentPlot = plotDirection(pBestCity->getX_INLINE(), pBestCity->getY_INLINE(), ((DirectionTypes)iI));
+-
+-			if (pAdjacentPlot != NULL)
+-			{
+-				if (AI_plotValid(pAdjacentPlot))
+-				{
+-					if (!(pAdjacentPlot->isVisibleEnemyUnit(this)))
+-					{
+-						if (generatePath(pAdjacentPlot, 0, true, &iPathTurns))
+-						{
+-							if( iPathTurns <= iMaxPathTurns )
+-							{
+-								iValue = std::max(0, (pAdjacentPlot->defenseModifier(getTeam(), false) + 100));
+-
+-								if (!(pAdjacentPlot->isRiverCrossing(directionXY(pAdjacentPlot, pBestCity->plot()))))
+-								{
+-									iValue += (10 * -(GC.getRIVER_ATTACK_MODIFIER()));
+-								}
+-
+-								iValue = std::max(1, iValue);
+-
+-								iValue *= 1000;
+-
+-								iValue /= (iPathTurns + 1);
+-
+-								if (iValue > iBestValue)
+-								{
+-									iBestValue = iValue;
+-									pBestPlot = getPathEndTurnPlot();
+-								}
+-							}
+-						}
+-					}
+-				}
+-			}
+-		}
+-
+-		if (pBestPlot != NULL)
+-		{
+-			FAssert(!(pBestCity->at(pBestPlot))); // no suicide missions...
+-			if (atPlot(pBestPlot))
+-			{
+-				getGroup()->pushMission(MISSION_SKIP);
+-				return true;
+-			}
+-			else
+-			{
+-				getGroup()->pushMission(MISSION_MOVE_TO, pBestPlot->getX_INLINE(), pBestPlot->getY_INLINE());
+-				return true;
+-			}
+-		}
+-	}
+-
+-	return false;
+-}*/
+-
+ bool CvUnitAI::AI_pillageAroundCity(CvCity* pTargetCity, int iBonusValueThreshold, int iFlags, int iMaxPathTurns)
+ {
+ 	PROFILE_FUNC();
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=8427

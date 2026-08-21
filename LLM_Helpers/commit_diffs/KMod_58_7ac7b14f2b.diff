@@ -1,0 +1,41 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 58
+# Commit: 7ac7b14f2b5828628bbd13aadc0e40bb512bf00b
+# History segment: K-Mod history
+# Parent used for diff: cdfa07682c2a7a87a07bb384e21924345ba3f2d4
+# Title: Barbarian culture no longer contributes to the culture pressure factor.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	2	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 290d99eb1..40b95a2ae 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5004,9 +5004,10 @@ int CvCity::culturePressureFactor() const
+ 		{
+ 			for (int iP = 0; iP < MAX_PLAYERS; iP++)
+ 			{
+-				if (GET_PLAYER((PlayerTypes)iP).isAlive() && GET_PLAYER((PlayerTypes)iP).getTeam() != getTeam())
++				const CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iP);
++				if (kPlayer.isAlive() && kPlayer.getTeam() != getTeam() && !kPlayer.isBarbarian())
+ 				{
+-					int iForeignCulture = pLoopPlot->calculateCulturePercent((PlayerTypes)iP) / ((!pLoopPlot->isWithinCultureRange((PlayerTypes)iP) || GET_TEAM(GET_PLAYER((PlayerTypes)iP).getTeam()).isVassal(getTeam()))?2 :1);
++					int iForeignCulture = pLoopPlot->calculateCulturePercent((PlayerTypes)iP) / ((!pLoopPlot->isWithinCultureRange((PlayerTypes)iP) || GET_TEAM(kPlayer.getTeam()).isVassal(getTeam()))?2 :1);
+ 					iAnswer += iForeignCulture * iForeignCulture;
+ 				}
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1009

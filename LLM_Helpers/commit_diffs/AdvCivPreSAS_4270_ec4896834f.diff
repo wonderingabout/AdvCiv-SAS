@@ -1,0 +1,158 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4270
+# Commit: ec4896834f84d38c221b8bf5c70723fd1dca4317
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 816e0823862ccde548e1b7a2b98fb2169e1979bb
+# Title: Move getHelpFontSize function to CvGameTextMgr (refactor)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	1	CvGameCoreDLL/CvGame.h
+0	20	CvGameCoreDLL/CvGameInterface.cpp
+29	1	CvGameCoreDLL/CvGameTextMgr.cpp
+3	0	CvGameCoreDLL/CvGameTextMgr.h
+2	1	CvGameCoreDLL/SelfMod.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index dc409e279..a48e41567 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -960,7 +960,6 @@ public:
+ 			bool bAlt, bool bShift, bool bCtrl) const;
+ 	DllExport void handleMiddleMouse(bool bCtrl, bool bAlt, bool bShift);
+ 	DllExport void handleDiplomacySetAIComment(DiploCommentTypes eComment) const;
+-	int getHelpFontSize() const; // advc.002b
+ 	void setHelpTextAreaWidth(float fWidth); // advc.092c (exposed to Python)
+ 
+ 	scaled goodyHutEffectFactor(bool bSpeedAdjust = true) const; // advc.314
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 70bce3c05..0b26ba251 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2827,26 +2827,6 @@ void CvGame::handleDiplomacySetAIComment(DiploCommentTypes eComment) const
+ 	m_bShowingCurrentDeals = (eComment == GC.getAIDiploCommentType("CURRENT_DEALS"));
+ }
+ 
+-// advc.002b:
+-int CvGame::getHelpFontSize() const
+-{
+-	// Default for Size2Normal (the smallest size used) when there is no custom theme
+-	int iFontSize = 14;
+-	CvArtInfoMisc const* pTheme = ARTFILEMGR.getMiscArtInfo("DEFAULT_THEME_NAME");
+-	if (pTheme != NULL && pTheme->getPath() != NULL)
+-	{
+-		CvString szThemePath(pTheme->getPath());
+-		/*  Don't know how to look up the font size. Would perhaps have to
+-			(re-)parse the theme files (no, thanks). Instead, the DLL is told
+-			through XML what font size to assume.
+-			I do know how to check if the mod's theme has been removed, and I don't
+-			want to rely on players changing the XML setting after removing it. */
+-		if (szThemePath.find("Mods") != CvString::npos)
+-			iFontSize = ::range(GC.getDefineINT("HELP_FONT_SIZE", 16), 8, 22);
+-	}
+-	return iFontSize;
+-}
+-
+ // advc.092c:
+ void CvGame::setHelpTextAreaWidth(float fWidth)
+ {
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 51936c783..e79a908a3 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -1608,7 +1608,7 @@ void CvGameTextMgr::setPlotListHelpPerOwner(CvWStringBuffer& szString,
+ 		return;
+ 	/*	advc.002b: This function was written with size 16 in mind, so needs to
+ 		adjust (only) when a different size is used. */
+-	double const dFontFactor = 16.0 / GC.getGame().getHelpFontSize();
++	double const dFontFactor = 16.0 / getHelpFontSize();
+ 	CvGame const& kGame = GC.getGame();
+ 	int iScreenHeight = kGame.getScreenHeight();
+ 	int iLineLimit = (iScreenHeight == 0 ? 25 :
+@@ -21557,6 +21557,34 @@ void CvGameTextMgr::getCorporationDataForWB(bool bHeadquarters, std::vector<CvWB
+ 	}
+ }
+ 
++// <advc.002b>
++bool CvGameTextMgr::isGfcThemeModified() const
++{
++	CvArtInfoMisc const* pTheme = ARTFILEMGR.getMiscArtInfo("DEFAULT_THEME_NAME");
++	if (pTheme != NULL && pTheme->getPath() != NULL)
++	{
++		CvString szThemePath(pTheme->getPath());
++		if (szThemePath.find("Mods") != CvString::npos)
++			return true;
++	}
++	return false;
++}
++
++
++int CvGameTextMgr::getHelpFontSize() const
++{
++	// Default for Size2Normal (the smallest size used) when there is no custom theme
++	int iFontSize = 14;
++	/*  Don't know how to look up the font size. Would perhaps have to (re-)parse
++		the theme files (no, thanks). Instead, the DLL is told through XML what
++		font size to assume. I do know how to check if the mod's theme has been
++		removed, and I don't want to rely on players changing the XML setting
++		after removing it. */
++	if (isGfcThemeModified())
++		iFontSize = ::range(GC.getDefineINT("HELP_FONT_SIZE", 16), 8, 22);
++	return iFontSize;
++} // </advc.002b>
++
+ // <advc> Based on BtS and ACO code originally in setCombatPlotHelp
+ void CvGameTextMgr::appendCombatModifiers(CvWStringBuffer& szBuffer,
+ 	CvPlot const& kPlot, CvUnit const& kAttacker, CvUnit const& kDefender,
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index e3a7fd90d..b5769a3da 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -343,6 +343,9 @@ public:
+ 	DllExport void getImprovementDataForWB(std::vector<CvWBData>& mapImprovementData);
+ 	DllExport void getReligionDataForWB(bool bHolyCity, std::vector<CvWBData>& mapReligionData);
+ 	DllExport void getCorporationDataForWB(bool bHeadquarters, std::vector<CvWBData>& mapCorporationData);
++	// <advc.002b>
++	bool isGfcThemeModified() const;
++	int getHelpFontSize() const; // </advc.002b>
+ 
+ private:
+ 	void eventTechHelp(CvWStringBuffer& szBuffer, EventTypes eEvent, TechTypes eTech, PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
+
+diff --git a/CvGameCoreDLL/SelfMod.cpp b/CvGameCoreDLL/SelfMod.cpp
+index c41de2a3c..aa4e19c03 100644
+--- a/CvGameCoreDLL/SelfMod.cpp
++++ b/CvGameCoreDLL/SelfMod.cpp
+@@ -3,6 +3,7 @@
+ #include "SelfMod.h"
+ #include "CvGame.h"
+ #include "CvBugOptions.h"
++#include "CvGameTextMgr.h"
+ 
+ Civ4BeyondSwordPatches smc::BtS_EXE;
+ 
+@@ -422,7 +423,7 @@ private:
+ 	{
+ 		/*	The EXE seems to convert the font size set by the theme to a somewhat
+ 			smaller scale, perhaps one expressing the horizontal space taken up. */
+-		double dFontFactorInternal = floor(GC.getGame().getHelpFontSize() / 1.5);
++		double dFontFactorInternal = floor(GAMETEXT.getHelpFontSize() / 1.5);
+ 		/*	The total width seems to get calculated as a hardcoded constant times
+ 			the font size factor */
+ 		double const dMultiplicandInternal = 29;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=5352

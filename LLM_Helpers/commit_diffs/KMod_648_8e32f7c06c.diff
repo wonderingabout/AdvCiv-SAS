@@ -1,0 +1,154 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 648
+# Commit: 8e32f7c06c82bb4af12db83a880b1e2f41f81a9a
+# History segment: K-Mod history
+# Parent used for diff: 4b1a00edd21153ba0468c895a3455f0451978263
+# Title: Barbarians will no longer start making progress towards a tech until they have the prerequisites. (This may or may not significantly slow the barbarian tech...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	33	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeam.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index dc625e867..1ada083bd 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -947,28 +947,26 @@ void CvTeam::doTurn()
+ {
+ 	PROFILE("CvTeam::doTurn()")
+ 
+-	int iCount;
+-	int iPossibleCount;
+-	int iI, iJ;
+-
+-	FAssertMsg(isAlive(), "isAlive is expected to be true");
++	FAssert(isAlive());
+ 
+ 	AI_doTurnPre();
+ 
+ 	if (isBarbarian())
+ 	{
+-		for (iI = 0; iI < GC.getNumTechInfos(); iI++)
++		//for (int iI = 0; iI < GC.getNumTechInfos(); iI++)
++		for (TechTypes i = (TechTypes)0; i < GC.getNumTechInfos(); i = (TechTypes)(i+1)) // K-Mod (this helps me avoid casting mistakes)
+ 		{
+-			if (!isHasTech((TechTypes)iI))
++			//if (!isHasTech((TechTypes)iI))
++			if (!isHasTech(i) && GET_PLAYER(getLeaderID()).canResearch(i, 0, true)) // K-Mod. Make no progress on techs until prereqs are researched.
+ 			{
+-				iCount = 0;
+-				iPossibleCount = 0;
++				int iCount = 0;
++				int iPossibleCount = 0;
+ 
+-				for (iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
++				for (int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
+ 				{
+ 					if (GET_TEAM((TeamTypes)iJ).isAlive())
+ 					{
+-						if (GET_TEAM((TeamTypes)iJ).isHasTech((TechTypes)iI))
++						if (GET_TEAM((TeamTypes)iJ).isHasTech(i))
+ 						{
+ 							iCount++;
+ 						}
+@@ -981,25 +979,16 @@ void CvTeam::doTurn()
+ 				{
+ 					FAssertMsg(iPossibleCount > 0, "iPossibleCount is expected to be greater than 0");
+ 
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       03/01/10                     Mongoose & jdog5000      */
+-/*                                                                                              */
+-/* Bugfix                                                                                       */
+-/************************************************************************************************/
+-/* original bts code
+-					changeResearchProgress(((TechTypes)iI), ((getResearchCost((TechTypes)iI) * ((GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT") * iCount) / iPossibleCount)) / 100), getLeaderID());
+-*/
+-					// From Mongoose SDK, BarbarianPassiveTechFix
+-					changeResearchProgress((TechTypes)iI, std::max((getResearchCost((TechTypes)iI) * GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT") * iCount) / (100 * iPossibleCount), 1), getLeaderID());
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
++					//changeResearchProgress(((TechTypes)iI), ((getResearchCost((TechTypes)iI) * ((GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT") * iCount) / iPossibleCount)) / 100), getLeaderID());
++					// K-Mod. Adjust research rate for game-speed & world-size & start-era, and fix the rounding error.
++					changeResearchProgress(i, std::max(1, getResearchCost(i, false) * GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT") * iCount / (100 * iPossibleCount)), getLeaderID());
++					// K-Mod end
+ 				}
+ 			}
+ 		}
+ 	}
+ 
+-	for (iI = 0; iI < MAX_TEAMS; iI++)
++	for (int iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+ 		if (GET_TEAM((TeamTypes)iI).isAlive())
+ 		{
+@@ -1022,7 +1011,7 @@ void CvTeam::doTurn()
+ 
+ 	if (!GC.getGameINLINE().isOption(GAMEOPTION_NO_TECH_BROKERING))
+ 	{
+-		for (iI = 0; iI < GC.getNumTechInfos(); iI++)
++		for (int iI = 0; iI < GC.getNumTechInfos(); iI++)
+ 		{
+ 			setNoTradeTech(((TechTypes)iI), false);
+ 		}
+@@ -2933,7 +2922,7 @@ int CvTeam::getTypicalUnitValue(UnitAITypes eUnitAI) const
+ 	return iMax;
+ }
+ 
+-int CvTeam::getResearchCost(TechTypes eTech) const
++int CvTeam::getResearchCost(TechTypes eTech, bool bGlobalModifiers) const // K-Mod added bGlobalModifiers
+ {
+ 	int iCost;
+ 
+@@ -2944,14 +2933,17 @@ int CvTeam::getResearchCost(TechTypes eTech) const
+ 	iCost *= GC.getHandicapInfo(getHandicapType()).getResearchPercent();
+ 	iCost /= 100;
+ 
+-	iCost *= GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getResearchPercent();
+-	iCost /= 100;
++	if (bGlobalModifiers) // K-Mod
++	{
++		iCost *= GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getResearchPercent();
++		iCost /= 100;
+ 
+-	iCost *= GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getResearchPercent();
+-	iCost /= 100;
++		iCost *= GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getResearchPercent();
++		iCost /= 100;
+ 
+-	iCost *= GC.getEraInfo(GC.getGameINLINE().getStartEra()).getResearchPercent();
+-	iCost /= 100;
++		iCost *= GC.getEraInfo(GC.getGameINLINE().getStartEra()).getResearchPercent();
++		iCost /= 100;
++	}
+ 
+ 	iCost *= std::max(0, ((GC.getDefineINT("TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER") * (getNumMembers() - 1)) + 100));
+ 	iCost /= 100;
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 67575ccb5..ddc19ba1c 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -127,7 +127,7 @@ public:
+ 	// K-Mod
+ 	int getTypicalUnitValue(UnitAITypes eUnitAI) const;
+ 
+-	int getResearchCost(TechTypes eTech) const;																// Exposed to Python
++	int getResearchCost(TechTypes eTech, bool bGlobalModifiers = true) const; // (K-Mod added bGlobalModifiers) Exposed to Python
+ 	int getResearchLeft(TechTypes eTech) const;																// Exposed to Python
+ 
+ 	bool hasHolyCity(ReligionTypes eReligion) const;																		// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5435

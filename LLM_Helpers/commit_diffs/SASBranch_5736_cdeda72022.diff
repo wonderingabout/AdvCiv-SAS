@@ -1,0 +1,862 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5736
+# Commit: cdeda7202222067e38291e4936842a9fd0ccaa13
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 026e21d6fa3ced82ff034b64c50828bfc6c4092c
+# Title: refactor to draw_none_text
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	39	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+4	20	Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+7	34	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+3	15	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+4	19	Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+3	15	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+5	19	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+1	5	Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+3	3	Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+1	5	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+6	30	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+5	21	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+7	34	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+4	9	Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+3	2	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index 75bec1338..3811c823d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -270,10 +270,7 @@ class SevoPediaBonus:
+ 				xOffset += 1
+ 		
+ 		if not bAnyFound:
+-			yPanelCenter = self.Y_IMPROVEMENTS + (self.H_IMPROVEMENTS / 2)
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_IMPROVEMENTS + 7, yPanelCenter, self.W_IMPROVEMENTS - 14, self.H_IMPROVEMENTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS)
+ 
+ 
+ 
+@@ -316,10 +313,7 @@ class SevoPediaBonus:
+ 		# advc.905b: Allowed buildings moved to placeBuildings
+ 
+ 		if not bAnyFound:
+-			yPanelCenter = self.Y_UNITS + (self.H_UNITS / 2)
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_UNITS + 7, yPanelCenter, self.W_UNITS - 14, self.H_UNITS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_UNITS, self.Y_UNITS, self.W_UNITS, self.H_UNITS)
+ 
+ 
+ 
+@@ -373,10 +367,7 @@ class SevoPediaBonus:
+ 		# </advc.004y>
+ 
+ 		if not bAnyDisplayed:
+-			yPanelCenter = self.Y_BUILDINGS_AND_PROJECTS + (self.H_BUILDINGS_AND_PROJECTS / 2)
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_BUILDINGS_AND_PROJECTS + 7, yPanelCenter, self.W_BUILDINGS_AND_PROJECTS - 14, self.H_BUILDINGS_AND_PROJECTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_BUILDINGS_AND_PROJECTS, self.Y_BUILDINGS_AND_PROJECTS, self.W_BUILDINGS_AND_PROJECTS, self.H_BUILDINGS_AND_PROJECTS)
+ 
+ 
+ 
+@@ -419,11 +410,7 @@ class SevoPediaBonus:
+ 				#iButtonIndex += 1
+ 		
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -465,11 +452,7 @@ class SevoPediaBonus:
+ 				#iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -511,11 +494,7 @@ class SevoPediaBonus:
+ 				#iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -571,10 +550,7 @@ class SevoPediaBonus:
+ 			# think was very inaccurate, now fixed -->
+ 			#screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_APPEARANCE", ()) + u")")
+ 		else:
+-			yPanelCenter = self.Y_REVEALED_BY + (self.H_REVEALED_BY / 2)
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS", ())
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REVEALED_BY + 7, yPanelCenter, self.W_REVEALED_BY - 14, self.H_REVEALED_BY - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_REVEALED_BY, self.Y_REVEALED_BY, self.W_REVEALED_BY, self.H_REVEALED_BY, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS")
+ 
+ 
+ 
+@@ -591,10 +567,7 @@ class SevoPediaBonus:
+ 			# <!-- custom: same as in placeRevealedBy -->
+ 			#screen.attachLabel(panelName, "", u"(" + localText.getText("TXT_KEY_PEDIA_BONUS_TRADE", ()) + u")")
+ 		else:
+-			yPanelCenter = self.Y_TRADEABLE_SINCE + (self.H_TRADEABLE_SINCE / 2)
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS", ())
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_TRADEABLE_SINCE + 7, yPanelCenter, self.W_TRADEABLE_SINCE - 14, self.H_TRADEABLE_SINCE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_TRADEABLE_SINCE, self.Y_TRADEABLE_SINCE, self.W_TRADEABLE_SINCE, self.H_TRADEABLE_SINCE, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_ALWAYS")
+ 
+ 
+ 
+@@ -618,10 +591,7 @@ class SevoPediaBonus:
+ 			szButton = techInfo.getButton()
+ 			screen.attachImageButton(panelName, "", szButton, GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTechObsolete, 1, False)
+ 		else:
+-			yPanelCenter = self.Y_OBSOLETE_WITH + (self.H_OBSOLETE_WITH / 2)
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER", ())
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_OBSOLETE_WITH + 7, yPanelCenter, self.W_OBSOLETE_WITH - 14, self.H_OBSOLETE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER")
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+index 0c39febca..8d544f576 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+@@ -141,11 +141,7 @@ class SevoPediaBuild:
+ 			bFound = True
+ 
+ 		if not bFound:
+-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNone, ())
+-			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
+ 
+ 
+ 	def placeImprovements(self):
+@@ -177,11 +173,7 @@ class SevoPediaBuild:
+ 			bFound = True
+ 
+ 		if not bFound:
+-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNone, ())
+-			yPanelCenter = self.Y_IMPROVEMENTS + (self.H_IMPROVEMENTS / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_IMPROVEMENTS + 7, yPanelCenter, self.W_IMPROVEMENTS - 14, self.H_IMPROVEMENTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS)
+ 
+ 
+ 	def placeFeatureProduction(self):
+@@ -192,11 +184,7 @@ class SevoPediaBuild:
+ 
+ 		techModifiers = self._getBuildFeatureProductionModifierTechs()
+ 		if len(techModifiers) <= 0:
+-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNone, ())
+-			yPanelCenter = self.Y_FEATURE_PRODUCTION + (self.H_FEATURE_PRODUCTION / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_FEATURE_PRODUCTION + 7, yPanelCenter, self.W_FEATURE_PRODUCTION - 14, self.H_FEATURE_PRODUCTION - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION)
+ 			return
+ 
+ 		for iTech, unused_iModifier in techModifiers:
+@@ -224,11 +212,7 @@ class SevoPediaBuild:
+ 				bUnitFound = True
+ 
+ 		if not bUnitFound:
+-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNone, ())
+-			yPanelCenter = self.Y_UNITS_BUILD + (self.H_UNITS_BUILD / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_UNITS_BUILD + 7, yPanelCenter, self.W_UNITS_BUILD - 14, self.H_UNITS_BUILD - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_UNITS_BUILD, self.Y_UNITS_BUILD, self.W_UNITS_BUILD, self.H_UNITS_BUILD)
+ 
+ 
+ 	def placeFeatureStructs(self):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index cb31f47bd..52b1b1e15 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -605,11 +605,7 @@ class SevoPediaBuilding:
+ 					iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -632,11 +628,7 @@ class SevoPediaBuilding:
+ 			buttonY = 10
+ 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+ 		else:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
+ 
+ 
+ 	# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas -->  
+@@ -751,11 +743,7 @@ class SevoPediaBuilding:
+ 			iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING")
+ 
+ 
+ 
+@@ -791,10 +779,7 @@ class SevoPediaBuilding:
+ 		else:
+ 			# <!-- custom: prettier display -->
+ 			#screen.attachLabel(panelName, "", localText.getText("TXT_KEY_PEDIA_NEVER_OBSOLETE", ()))
+-			yPanelCenter = self.Y_OBSOLETE_WITH + (self.H_OBSOLETE_WITH / 2)
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER", ())
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_OBSOLETE_WITH + 7, yPanelCenter, self.W_OBSOLETE_WITH - 14, self.H_OBSOLETE_WITH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_OBSOLETE_WITH, self.Y_OBSOLETE_WITH, self.W_OBSOLETE_WITH, self.H_OBSOLETE_WITH, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NEVER")
+ 
+ 
+ 
+@@ -887,11 +872,7 @@ class SevoPediaBuilding:
+ 				iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -1007,11 +988,7 @@ class SevoPediaBuilding:
+ 					screen.attachImageButton(panelName, "", gc.getBuildingInfo(iBuildingLoop).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuildingLoop, -1, False)
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -1058,11 +1035,7 @@ class SevoPediaBuilding:
+ 						screen.attachImageButton(panel, "", gc.getBuildingInfo(iBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING")
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 6d4356c81..8f3e2df8f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -205,11 +205,7 @@ class SevoPediaCivic:
+ 		if (iTech > -1):
+ 			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
+ 		else:
+-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNone, ())
+-			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
+ 
+ 
+ 
+@@ -238,11 +234,7 @@ class SevoPediaCivic:
+ 					bFound = True
+ 				break
+ 		if not bFound:
+-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNone, ())
+-			yPanelCenter = self.Y_VOTES + (self.H_VOTES / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_VOTES + 7, yPanelCenter, self.W_VOTES - 14, self.H_VOTES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_VOTES, self.Y_VOTES, self.W_VOTES, self.H_VOTES)
+ 
+ 
+ 
+@@ -266,11 +258,7 @@ class SevoPediaCivic:
+ 				if bFound:
+ 					break
+ 		if not bFound:
+-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNone, ())
+-			yPanelCenter = self.Y_VOTE_SOURCE + (self.H_VOTE_SOURCE / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_VOTE_SOURCE + 7, yPanelCenter, self.W_VOTE_SOURCE - 14, self.H_VOTE_SOURCE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_VOTE_SOURCE, self.Y_VOTE_SOURCE, self.W_VOTE_SOURCE, self.H_VOTE_SOURCE)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+index b172cb418..a9cafb446 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+@@ -168,11 +168,7 @@ class SevoPediaCorporation:
+ 				bFound = True
+ 
+ 		if not bFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_COMPETES + (self.H_COMPETES / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_COMPETES + 7, yPanelCenter, self.W_COMPETES - 14, self.H_COMPETES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_COMPETES, self.Y_COMPETES, self.W_COMPETES, self.H_COMPETES)
+ 
+ 
+ 
+@@ -187,11 +183,7 @@ class SevoPediaCorporation:
+ 			screen.attachImageButton(panelName, "", gc.getBonusInfo(iBonus).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, 1, False)
+ 
+ 		if len(prereqs) == 0:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_BONUSES_CONSUMED + (self.H_BONUSES_CONSUMED / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_BONUSES_CONSUMED + 7, yPanelCenter, self.W_BONUSES_CONSUMED - 14, self.H_BONUSES_CONSUMED - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_BONUSES_CONSUMED, self.Y_BONUSES_CONSUMED, self.W_BONUSES_CONSUMED, self.H_BONUSES_CONSUMED)
+ 
+ 
+ 
+@@ -206,10 +198,7 @@ class SevoPediaCorporation:
+ 		if iBonusProduced > -1:
+ 			screen.attachImageButton(panelName, "", gc.getBonusInfo(iBonusProduced).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonusProduced, 1, False)
+ 		else:
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
+-			yPanelCenter = self.Y_BONUSES_GENERATED + (self.H_BONUSES_GENERATED / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_BONUSES_GENERATED + 7, yPanelCenter, self.W_BONUSES_GENERATED - 14, self.H_BONUSES_GENERATED - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_BONUSES_GENERATED, self.Y_BONUSES_GENERATED, self.W_BONUSES_GENERATED, self.H_BONUSES_GENERATED)
+ 
+ 
+ 
+@@ -226,11 +215,7 @@ class SevoPediaCorporation:
+ 			buttonY = 10
+ 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+ 		else:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index f2a9af276..c0f41b1d1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -245,11 +245,7 @@ class SevoPediaFeature:
+ 				# <!-- custom: use WIDGET_HELP_IMPROVEMENT for build hover text; click routing to Builds pedia is handled centrally in SevoPediaMain.handleInput. See KI#113. (GPT-5.3-Codex) -->
+ 				screen.attachImageButton(panelName, "", buildInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_HELP_IMPROVEMENT, buildInfo.getTechPrereq(), iBuild, False)
+ 		else:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_BUILD_REMOVES + (self.H_BUILD_REMOVES / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_BUILD_REMOVES + 7, yPanelCenter, self.W_BUILD_REMOVES - 14, self.H_BUILD_REMOVES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_BUILD_REMOVES, self.Y_BUILD_REMOVES, self.W_BUILD_REMOVES, self.H_BUILD_REMOVES)
+ 
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_FEATURE_PRODUCTION_PANEL", ()), "", False, True, self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION, PanelStyles.PANEL_STYLE_BLUE50)
+@@ -260,11 +256,7 @@ class SevoPediaFeature:
+ 			for iTech, unused_iModifier in techModifiers:
+ 				screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
+ 		else:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_FEATURE_PRODUCTION + (self.H_FEATURE_PRODUCTION / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_FEATURE_PRODUCTION + 7, yPanelCenter, self.W_FEATURE_PRODUCTION - 14, self.H_FEATURE_PRODUCTION - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION)
+ 
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_UNITS_REMOVE", ()), "", False, True, self.X_UNITS_REMOVE, self.Y_UNITS_REMOVE, self.W_UNITS_REMOVE, self.H_UNITS_REMOVE, PanelStyles.PANEL_STYLE_BLUE50)
+@@ -295,11 +287,7 @@ class SevoPediaFeature:
+ 				bUnitFound = True
+ 
+ 		if not bUnitFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_UNITS_REMOVE + (self.H_UNITS_REMOVE / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_UNITS_REMOVE + 7, yPanelCenter, self.W_UNITS_REMOVE - 14, self.H_UNITS_REMOVE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_UNITS_REMOVE, self.Y_UNITS_REMOVE, self.W_UNITS_REMOVE, self.H_UNITS_REMOVE)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index 366fb318d..a96223b48 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -337,11 +337,7 @@ class SevoPediaImprovement:
+ 				bButtonFound = True
+ 
+ 		if not bButtonFound:
+-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNone, ())
+-			yPanelCenter = self.Y_BUILD_PANEL + (self.H_BUILD_PANEL / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_BUILD_PANEL + 7, yPanelCenter, self.W_BUILD_PANEL - 14, self.H_BUILD_PANEL - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_BUILD_PANEL, self.Y_BUILD_PANEL, self.W_BUILD_PANEL, self.H_BUILD_PANEL)
+ 
+ 
+ 
+@@ -359,11 +355,7 @@ class SevoPediaImprovement:
+ 					bButtonFound = True
+ 
+ 		if not bButtonFound:
+-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNone, ())
+-			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
+ 
+ 
+ 
+@@ -473,7 +465,7 @@ class SevoPediaImprovement:
+ 		weightToLeaders, weightsSorted, maxLeaders = cache["improvements"].get(self.iImprovement, (None, (), 0))
+ 
+ 		if not weightToLeaders:
+-			inchart_show_no_content_text(screen, self.top, innerPanelX, innerPanelY, innerPanelW, innerPanelH)
++			draw_none_text(screen, self.top, innerPanelX, innerPanelY, innerPanelW, innerPanelH)
+ 			return
+ 
+ 		tableMargin = INCHART_TABLE_MARGIN
+@@ -526,10 +518,7 @@ class SevoPediaImprovement:
+ 
+ 		if not isButtonFound:
+ 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_TERRAIN_MAKES_VALIDS_NO_RESTRICTION"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -553,10 +542,7 @@ class SevoPediaImprovement:
+ 
+ 		if not isButtonFound:
+ 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_FEATURE_MAKES_VALIDS_NO_RESTRICTION"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+index 5e816c4ec..ffcd8b963 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+@@ -159,11 +159,7 @@ class SevoPediaProject:
+ 			buttonY = 10
+ 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+ 		else:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+index 5a76aa20d..efa07924c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+@@ -153,7 +153,7 @@ class SevoPediaPromotion:
+ 				screen.attachImageButton(panelName, "", gc.getPromotionInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, j, 1, False)
+ 				isButtonFound = True
+ 		if not isButtonFound:
+-			inchart_show_no_content_text(screen, self.top, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO)
++			draw_none_text(screen, self.top, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO)
+ 
+ 
+ 
+@@ -198,7 +198,7 @@ class SevoPediaPromotion:
+ 				#iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			inchart_show_no_content_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -243,7 +243,7 @@ class SevoPediaPromotion:
+ 				#iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			inchart_show_no_content_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 31c23b2f9..452a9c355 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -212,11 +212,7 @@ class SevoPediaReligion:
+ 			buttonY = 10
+ 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MOVIE_ENTRY, iPackedMovie)
+ 		else:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_MOVIE + (self.H_MOVIE / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_MOVIE + 7, yPanelCenter, self.W_MOVIE - 14, self.H_MOVIE - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_MOVIE, self.Y_MOVIE, self.W_MOVIE, self.H_MOVIE)
+ 
+ 
+ 	def placeUnit(self):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index 1bd02dcfb..d36dbfa92 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -370,11 +370,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 			buttonY = 10
+ 			screen.setImageButtonAt(self.top.getNextWidgetName(), panelName, self.playButtonPath, buttonX, buttonY, buttonSize, buttonSize, WidgetTypes.WIDGET_PYTHON, self.top.SAS_PEDIA_PYTHON_MUSIC_ENTRY, iPackedMusic)
+ 		else:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_MUSIC + (self.H_MUSIC / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_MUSIC + 7, yPanelCenter, self.W_MUSIC - 14, self.H_MUSIC - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_MUSIC, self.Y_MUSIC, self.W_MUSIC, self.H_MUSIC)
+ 
+ 
+ 
+@@ -444,11 +440,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 		if not bButtonFound:
+ 			# No first-to-discover effects - display "None" text
+-			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNone, ())
+-			yPanelCenter = self.Y_FIRST_TO_DISCOVER + (self.H_FIRST_TO_DISCOVER / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_FIRST_TO_DISCOVER + 7, yPanelCenter, self.W_FIRST_TO_DISCOVER - 14, self.H_FIRST_TO_DISCOVER - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_FIRST_TO_DISCOVER, self.Y_FIRST_TO_DISCOVER, self.W_FIRST_TO_DISCOVER, self.H_FIRST_TO_DISCOVER)
+ 
+ 
+ 
+@@ -623,11 +615,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		
+ 		else:
+ 			# No obsolete items - display "None" text
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_OBSOLETES + (self.H_OBSOLETES / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_OBSOLETES + 7, yPanelCenter, self.W_OBSOLETES - 14, self.H_OBSOLETES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_OBSOLETES, self.Y_OBSOLETES, self.W_OBSOLETES, self.H_OBSOLETES)
+ 
+ 
+ 
+@@ -652,11 +640,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 					bButtonFound = True
+ 
+ 		if not bButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_LEADS_TO + (self.H_LEADS_TO / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_LEADS_TO + 7, yPanelCenter, self.W_LEADS_TO - 14, self.H_LEADS_TO - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO)
+ 
+ 
+ 
+@@ -705,11 +689,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 			screen.attachLabel(panelName, "", SASTextScale.labelText(szRightDelimeter))
+ 
+ 		if not bButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
+ 
+ 
+ 
+@@ -907,11 +887,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 			bButtonFound = True
+ 
+ 		if not bButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_ENABLES + (self.H_ENABLES / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_ENABLES + 7, yPanelCenter, self.W_ENABLES - 14, self.H_ENABLES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_ENABLES, self.Y_ENABLES, self.W_ENABLES, self.H_ENABLES)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index ff8591127..54eaf6249 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -202,11 +202,7 @@ class SevoPediaTerrain:
+ 				bUnitFound = True
+ 
+ 		if not bUnitFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = self.Y_BUILD_UNITS + (self.H_BUILD_UNITS / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_BUILD_UNITS + 7, yPanelCenter, self.W_BUILD_UNITS - 14, self.H_BUILD_UNITS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_BUILD_UNITS, self.Y_BUILD_UNITS, self.W_BUILD_UNITS, self.H_BUILD_UNITS)
+ 
+ 
+ 
+@@ -256,10 +252,7 @@ class SevoPediaTerrain:
+ 		# <!-- custom: not sure we have a reason to as display is currently empty, but just in case or for consistency, also exclude from display here -->
+ 		if self.iTerrain == self.I_TERRAIN_PEAK or self.iTerrain == self.I_TERRAIN_HILL:
+ 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoDisplay, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 		else:
+ 			for iFeature in xrange(gc.getNumFeatureInfos()):
+@@ -287,10 +280,7 @@ class SevoPediaTerrain:
+ 		# <!-- custom: exclude peak (no improvements), but show hills using improvement rules instead of skipping; hills were previously hidden because output was unreliable (forts missing, cottages conditional on food, forest preserve dependent on forest/jungle). Now we show improvements that explicitly allow hills (isHillsMakesValid) or that become valid via a feature that can appear on hills, which is closer to actual in-game placement while still avoiding false positives. (GPT-5.2-Codex (summarized)) -->
+ 		if self.iTerrain == self.I_TERRAIN_PEAK:
+ 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoDisplay, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 		else:
+ 			isHillTerrain = (self.iTerrain == self.I_TERRAIN_HILL)
+@@ -337,10 +327,7 @@ class SevoPediaTerrain:
+ 		# <!-- custom: not applicable for this plot type / terrain, so show an alternative text instead -->
+ 		if self.iTerrain == self.I_TERRAIN_PEAK:
+ 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoDisplay, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 		else:
+ 			for iBonus in xrange(gc.getNumBonusInfos()):
+@@ -372,10 +359,7 @@ class SevoPediaTerrain:
+ 
+ 		if self.iTerrain == self.I_TERRAIN_HILL or self.iTerrain == self.I_TERRAIN_PEAK:
+ 			txtKeyNoDisplay = "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoDisplay, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 		else:
+ 			for iBonus in xrange(gc.getNumBonusInfos()):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 65b765b90..5dcabd583 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -424,10 +424,7 @@ class SevoPediaUnit:
+ 			isButtonFound = True
+ 
+ 		if not isButtonFound:
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
+-			yPanelCenter = self.Y_REQUIRES + (self.H_REQUIRES / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_REQUIRES + 7, yPanelCenter, self.W_REQUIRES - 14, self.H_REQUIRES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, self.X_REQUIRES, self.Y_REQUIRES, self.W_REQUIRES, self.H_REQUIRES)
+ 
+ 
+ 
+@@ -468,11 +465,7 @@ class SevoPediaUnit:
+ 
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING")
+ 
+ 
+ 
+@@ -505,11 +498,7 @@ class SevoPediaUnit:
+ 				screen.attachImageButton(panelName, "", gc.getPromotionInfo(iPromotion).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iPromotion, -1, False)
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -586,11 +575,7 @@ class SevoPediaUnit:
+ 					iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -663,11 +648,7 @@ class SevoPediaUnit:
+ 					iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -775,11 +756,7 @@ class SevoPediaUnit:
+ 				iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -920,11 +897,7 @@ class SevoPediaUnit:
+ 						screen.attachImageButton(panel, "", gc.getUnitInfo(iUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iUnit, 1, False)
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, SASTextScale.labelText(szText), xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NOTHING")
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py b/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+index 48f123bcb..bcf99503c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaVote.py
+@@ -159,7 +159,7 @@ class SevoPediaVote:
+ 			bi = gc.getBuildingInfo(iBuilding)
+ 			screen.attachImageButton(panelName, "", bi.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, 1, False)
+ 		else:
+-			self._drawNoneText(screen, self.X_SOURCE, self.Y_SOURCE, self.W_SOURCE, self.H_SOURCE)
++			draw_none_text(screen, self.top, self.X_SOURCE, self.Y_SOURCE, self.W_SOURCE, self.H_SOURCE)
+ 
+ 
+ 
+@@ -252,7 +252,7 @@ class SevoPediaVote:
+ 				if iSpecialist > -1:
+ 					screen.attachImageButton(panelName, "", gc.getSpecialistInfo(iSpecialist).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_SPECIALIST, iSpecialist, 1, False)
+ 					return
+-		self._drawNoneText(screen, self.X_SOURCE_SPECIALIST, self.Y_SOURCE_SPECIALIST, self.W_SOURCE_SPECIALIST, self.H_SOURCE_SPECIALIST)
++		draw_none_text(screen, self.top, self.X_SOURCE_SPECIALIST, self.Y_SOURCE_SPECIALIST, self.W_SOURCE_SPECIALIST, self.H_SOURCE_SPECIALIST)
+ 
+ 
+ 
+@@ -270,7 +270,7 @@ class SevoPediaVote:
+ 				if iCivic > -1:
+ 					screen.attachImageButton(panelName, "", gc.getCivicInfo(iCivic).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
+ 					return
+-		self._drawNoneText(screen, self.X_SOURCE_CIVIC, self.Y_SOURCE_CIVIC, self.W_SOURCE_CIVIC, self.H_SOURCE_CIVIC)
++		draw_none_text(screen, self.top, self.X_SOURCE_CIVIC, self.Y_SOURCE_CIVIC, self.W_SOURCE_CIVIC, self.H_SOURCE_CIVIC)
+ 
+ 
+ 
+@@ -292,7 +292,7 @@ class SevoPediaVote:
+ 					screen.attachImageButton(panelName, "", ci.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIVIC, iCivic, 1, False)
+ 					bFound = True
+ 		if not bFound:
+-			self._drawNoneText(screen, self.X_FORCE_CIVICS, self.Y_FORCE_CIVICS, self.W_FORCE_CIVICS, self.H_FORCE_CIVICS)
++			draw_none_text(screen, self.top, self.X_FORCE_CIVICS, self.Y_FORCE_CIVICS, self.W_FORCE_CIVICS, self.H_FORCE_CIVICS)
+ 
+ 
+ 
+@@ -373,11 +373,6 @@ class SevoPediaVote:
+ 		szText = SASTextScale.normalizeLabelText(gc.getVoteInfo(self.iVote).getCivilopedia())
+ 		szTitle = localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ())
+ 		draw_expandable_text_panel(screen, self.top, szTitle, self.X_HISTORY, self.Y_HISTORY, self.W_HISTORY, self.H_HISTORY, szText, self.bHistoryExpanded, self.top.SAS_PEDIA_PYTHON_HISTORY_EXPAND)
+-	def _drawNoneText(self, screen, iX, iY, iW, iH):
+-		textName = self.top.getNextWidgetName()
+-		szText = localText.getText("TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE", ())
+-		yCenter = iY + (iH / 2)
+-		screen.addMultilineText(textName, SASTextScale.labelText(szText), iX + 7, yCenter, iW - 14, iH - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 797ff2792..38ee70a75 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -989,8 +989,9 @@ def inchart_set_icon_column_headers(screen, tableName, startCol, numCols, colWid
+ 
+ 
+ 
+-def inchart_show_no_content_text(screen, selfTop, panelX, panelY, panelW, panelH, txtKey=None):
+-	# Display "None" or custom text when a panel has no content to show.
++def draw_none_text(screen, selfTop, panelX, panelY, panelW, panelH, txtKey=None):
++	# <!-- custom: place a centered "None" (or custom-keyed) message inside a panel that has no buttons/content
++	# to show. Replaces the ~5-line addMultilineText boilerplate scattered across pedia files. (Claude code Opus 4.7) -->
+ 	# screen: CyGInterfaceScreen
+ 	# selfTop: reference to main pedia class (for getNextWidgetName)
+ 	# panelX, panelY, panelW, panelH: panel dimensions
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=47746

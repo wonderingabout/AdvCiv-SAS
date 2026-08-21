@@ -1,0 +1,349 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1457
+# Commit: 67af656a80e9559885ba0b1bb5be6895e22380f2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4ff9ac45196d90fe3a9996df2cfe83e2c904a372
+# Title: A few minor corrections (performance, comments)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	0	Assets/xml/GameInfo/CIV4Hints.xml
+20	24	Assets/xml/GlobalDefines_advc.xml
+10	0	Assets/xml/Text/CIV4GameText_advc.008d.xml
+3	0	CvGameCoreDLL/CvGlobals.cpp
+3	0	CvGameCoreDLL/CvGlobals.h
+3	4	CvGameCoreDLL/CvPlot.cpp
+11	13	CvGameCoreDLL/CvPlot.h
+4	5	CvGameCoreDLL/CvUnitAI.cpp
+1	2	CvGameCoreDLL/InvasionGraph.cpp
+1	1	CvGameCoreDLL/WarAndPeaceAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index ee866e6ed..b8f52bf63 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -663,6 +663,9 @@
+ 			<Description>TXT_KEY_ADVC_HINT_36</Description>
+ 		</HintInfo>
+ 		<!-- Skip 37 -->
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_38</Description>
++		</HintInfo>
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_1</Description>
+ 		</HintInfo>
+@@ -769,5 +772,8 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_37</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_38</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 7a8b2f30a..aa9653c66 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -357,9 +357,10 @@
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- advc.106e: 0 (recommended) means that there is no announcement to
+-		 other civs when a civ's state religion spreads in one of that civ's
+-		 cities. Set to 1 to receive such announcements. -->
++	<!-- advc.106e: 0 (recommended) means that there is no announcement when a
++		 religion spreads in a foreign city whose owner already has that
++		 religion as his or her state religion. Set to 1 to receive such
++		 announcements. -->
+ 	<Define>
+ 		<DefineName>ANNOUNCE_STATE_RELIGION_SPREAD</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -455,17 +456,12 @@
+ 		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- [advc.099]
+-	     The percent-anger parameters are actually divided by 1000,
+-		 and the original value of 400 means that 40% of a foreign
+-		 population are angry/ cause anger (more without Open Borders, see
+-		 above).
+-		 Because foreign culture is never 100%, and due to rounding,
+-		 exactly 40% would never result in 40% of the population causing anger,
+-		 which is counterintuitive.
+-		 Recommended: 415, originally 400.
++	<!-- advc.099: Actually a permillage, not a percentage.
++		 The original value of 400 means that 40% of a city's foreign
++		 population are angry (more without Open Borders, see above).
++		 I've slightly increased the value (to 415) to even out rounding errors.
+ 		 I've tried 50% (520), which is a nice even value and results in 100%
+-		 culture anger at wartime, but it seemed a bit too punishing. -->
++		 culture anger at wartime, but that seemed a bit too punishing. -->
+ 	<Define>
+ 		<DefineName>CULTURE_PERCENT_ANGER</DefineName>
+ 		<iDefineIntVal>415</iDefineIntVal>
+@@ -477,7 +473,7 @@
+ 		 city nearby. If set to 1 (recommended), revolts can occur in any
+ 		 cities with high foreign culture, even if the owner of that culture
+ 		 is no longer alive.
+-		 Either way, the the revolt can only flip the city if the foreign
++		 Either way, the revolt can only flip the city if the foreign
+ 		 culture is alive and nearby. -->
+ 	<Define>
+ 		<DefineName>REVOLTS_IGNORE_CULTURE_RANGE</DefineName>
+@@ -513,10 +509,9 @@
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+ 	
+-	<!-- [advc.300]
+-	     Determines at which percentage of owned tiles (per continent)
+-		 Barbarian spawning peaks. In AdvCiv, the formula for the target
+-		 number B of Barbarian units on a continent (or shelf) is 
++	<!-- advc.300: The percentage of owned tiles per landmass at which
++		 Barbarian activity reaches its peak. AdvCiv computes the target
++		 number B of Barbarian units on a landmass (or shelf) as
+ 		 B = ownedTiles / (peak * tilesPerUnit)
+ 		 if ownedTiles / totalTiles < peak, and otherwise
+ 		 B = unownedTiles / ((1 - peak) * tilesPerUnit), where
+@@ -524,16 +519,16 @@
+ 		   positive food yield plus half the number of coastal water tiles
+ 		   on the shelf surrounding the continent;
+ 		 * ownedTiles is the number of tiles as above that are also
+-		   within any cultural borders (could be barbarian borders too);
++		   within any cultural borders (could be Barbarian borders too);
+ 		 * unownedTiles = totalTiles - ownedTiles;
+ 		 * tilesPerUnit = "iUnownedTilesPerBarbarianUnit" in
+ 		   Civ4HandicapInfo.xml; and
+ 		 * peak = BARB_PEAK_PERCENT / 100.
+ 		 The idea is to make B maximal when the ratio of owned tiles equals
+-		 the peak percentage. Setting BARB_PEAK_PERCENT to 0 results in the BtS
++		 the peak percentage. Setting BARB_PEAK_PERCENT to 0 results in BtS
+ 		 behavior, with B maximal when Barbarians first appear and then
+ 		 decreasing as the civs expand.
+-		 Recommended: 67. -->
++		 Recommended: 67 -->
+     <Define>
+         <DefineName>BARB_PEAK_PERCENT</DefineName>
+         <iDefineIntVal>67</iDefineIntVal>
+@@ -571,10 +566,11 @@
+ 	</Define>
+ 	
+ 	<!-- [advc.314] Settings for goody hut outcomes. See also Civ4GoodyInfo.xml
+-		 and Civ4HandicapInfo.xml. -->
++		 and Civ4HandicapInfo.xml. Turn numbers are adjusted to the game speed
++		 by the DLL. -->
+ 	<!-- Turn after which effects of goody huts begin to increase. Recommended:
+-		 50; use a high value like 5000 for BtS behavior (hut effects not based
+-		 on game turn), and increase GOODY_BUFF_PEAK_TURN accordingly. -->
++		 50; for BtS behavior, use a high value like 5000 (hut effects not based
++		 on game turn) and increase GOODY_BUFF_PEAK_TURN accordingly. -->
+ 	<Define>
+ 		<DefineName>GOODY_BUFF_START_TURN</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index 7df6c7585..b23f054ab 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -968,4 +968,14 @@
+ 	<Spanish>Replays created by the AdvCiv mod (v0.95 or later) can be viewed with any BtS installation; the mod isn't required.</Spanish>
+ </TEXT>
+ 
++<!-- advc.164 -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_38</Tag>
++	<English>(AdvCiv) Ships can reach the [COLOR_HIGHLIGHT_TEXT]Blitz[COLOR_REVERT] promotion via [COLOR_HIGHLIGHT_TEXT]Drill I[COLOR_REVERT]. This gives them one extra attack per turn, which can make a great difference when a group of enemy transports has almost reached your shore.</English>
++	<French>(AdvCiv) Ships can reach the [COLOR_HIGHLIGHT_TEXT]Blitz[COLOR_REVERT] promotion via [COLOR_HIGHLIGHT_TEXT]Drill I[COLOR_REVERT]. This gives them one extra attack per turn, which can make a great difference when a group of enemy transports has almost reached your shore.</French>
++	<German>(AdvCiv) Schiffe mit [COLOR_HIGHLIGHT_TEXT]Drill I[COLOR_REVERT] k�nnen die Bef�rderung [COLOR_HIGHLIGHT_TEXT]Blitzkrieg[COLOR_REVERT] erhalten - und damit einen zus�tzlichen Angriff pro Runde. Dies kann entscheidend sein, wenn ein Verband feindlicher Transportschiffe auf Ihre K�ste zusteuert.</German>
++	<Italian>(AdvCiv) Ships can reach the [COLOR_HIGHLIGHT_TEXT]Blitz[COLOR_REVERT] promotion via [COLOR_HIGHLIGHT_TEXT]Drill I[COLOR_REVERT]. This gives them one extra attack per turn, which can make a great difference when a group of enemy transports has almost reached your shore.</Italian>
++	<Spanish>(AdvCiv) Ships can reach the [COLOR_HIGHLIGHT_TEXT]Blitz[COLOR_REVERT] promotion via [COLOR_HIGHLIGHT_TEXT]Drill I[COLOR_REVERT]. This gives them one extra attack per turn, which can make a great difference when a group of enemy transports has almost reached your shore.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 4ac633e38..e5f2e9771 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -177,6 +177,7 @@ m_iMINIMAP_WATER_MODE(0), // advc.002a
+ m_iDELAY_UNTIL_BUILD_DECAY(0), // advc.011
+ m_iBASE_RESEARCH_RATE(0), // advc.910
+ m_iNEW_HURRY_MODIFIER(0), // advc.003b
++m_fPOWER_CORRECTION(0), // advc.104
+ m_iMOVE_DENOMINATOR(0),
+ m_iNUM_UNIT_PREREQ_OR_BONUSES(0),
+ m_iNUM_BUILDING_PREREQ_OR_BONUSES(0),
+@@ -2726,6 +2727,8 @@ void CvGlobals::cacheGlobals()
+ 	m_iBASE_RESEARCH_RATE = getDefineINT("BASE_RESEARCH_RATE");
+ 	// advc.003b:
+ 	m_iNEW_HURRY_MODIFIER = getDefineINT("NEW_HURRY_MODIFIER");
++	// advc.104:
++	m_fPOWER_CORRECTION = getDefineFLOAT("POWER_CORRECTION");
+ 	m_iMOVE_DENOMINATOR = getDefineINT("MOVE_DENOMINATOR");
+ 	m_iNUM_UNIT_PREREQ_OR_BONUSES = getDefineINT("NUM_UNIT_PREREQ_OR_BONUSES");
+ 	m_iNUM_BUILDING_PREREQ_OR_BONUSES = getDefineINT("NUM_BUILDING_PREREQ_OR_BONUSES");
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 0d5b2856e..c9a4997d9 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -735,6 +735,8 @@ public:
+ 	inline int getBASE_RESEARCH_RATE() { return m_iBASE_RESEARCH_RATE; }
+ 	// advc.003b:
+ 	inline int getNEW_HURRY_MODIFIER() { return m_iNEW_HURRY_MODIFIER; }
++	// advc.104:
++	inline float getPOWER_CORRECTION() { return m_fPOWER_CORRECTION; }
+ 	
+ 	int getMOVE_DENOMINATOR();
+ 	int getNUM_UNIT_PREREQ_OR_BONUSES();
+@@ -1209,6 +1211,7 @@ protected:
+ 	int m_iDELAY_UNTIL_BUILD_DECAY; // advc.011
+ 	int m_iBASE_RESEARCH_RATE; // advc.910
+ 	int m_iNEW_HURRY_MODIFIER; // advc.003b
++	float m_fPOWER_CORRECTION; // advc.104
+ 	int m_iMOVE_DENOMINATOR;
+ 	int m_iNUM_UNIT_PREREQ_OR_BONUSES;
+ 	int m_iNUM_BUILDING_PREREQ_OR_BONUSES;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 6ac7087e1..7fecb5d0e 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -201,7 +201,6 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
+ 	m_iLatitude = -1; // advc.tsl
+ 
+ 	m_bStartingPlot = false;
+-	m_bHills = false;
+ 	m_bNOfRiver = false;
+ 	m_bWOfRiver = false;
+ 	m_bIrrigated = false;
+@@ -9003,8 +9002,8 @@ void CvPlot::read(FDataStreamBase* pStream)
+ 
+ 	pStream->Read(&bVal);
+ 	m_bStartingPlot = bVal;
+-	pStream->Read(&bVal);
+-	m_bHills = bVal;
++	if(uiFlag < 4) // advc.003b: m_bHills removed
++		pStream->Read(&bVal);
+ 	pStream->Read(&bVal);
+ 	m_bNOfRiver = bVal;
+ 	pStream->Read(&bVal);
+@@ -9246,6 +9245,7 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	uiFlag = 1; // advc.035
+ 	uiFlag = 2; // advc.003b
+ 	uiFlag = 3; // advc.tsl
++	uiFlag = 4; // advc.003b: m_bHills removed
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iX);
+@@ -9265,7 +9265,6 @@ void CvPlot::write(FDataStreamBase* pStream)
+ 	pStream->Write(m_iLatitude); // advc.tsl
+ 
+ 	pStream->Write(m_bStartingPlot);
+-	pStream->Write(m_bHills);
+ 	pStream->Write(m_bNOfRiver);
+ 	pStream->Write(m_bWOfRiver);
+ 	pStream->Write(m_bIrrigated);
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index b4e98dd19..a19c66f75 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -617,19 +617,17 @@ protected:
+ 	short m_iReconCount;
+ 	short m_iRiverCrossingCount;
+ 	short m_iLatitude; // advc.tsl
+-	/*  <advc.003b> These were bitfields (e.g. 'bool m_bStartingPlot:1;').
+-		I doubt that this is a good memory/speed tradeoff on modern hardware. */
+-	bool m_bStartingPlot;
+-	bool m_bHills; // (unused; m_ePlotType says whether it's a hill)
+-	bool m_bNOfRiver;
+-	bool m_bWOfRiver;
+-	bool m_bIrrigated;
+-	bool m_bPotentialCityWork;
+-	bool m_bShowCitySymbols;
+-	bool m_bFlagDirty;
+-	bool m_bPlotLayoutDirty;
+-	bool m_bLayoutStateWorked;
+-	// </advc.003b>
++
++	bool m_bStartingPlot:1;
++	bool m_bNOfRiver:1;
++	bool m_bWOfRiver:1;
++	bool m_bIrrigated:1;
++	bool m_bPotentialCityWork:1;
++	bool m_bShowCitySymbols:1;
++	bool m_bFlagDirty:1;
++	bool m_bPlotLayoutDirty:1;
++	bool m_bLayoutStateWorked:1;
++
+ 	char /*PlayerTypes*/ m_eOwner;
+ 	short /*PlotTypes*/ m_ePlotType;
+ 	short /*TerrainTypes*/ m_eTerrainType;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index deb15cf62..e2b264561 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -15191,16 +15191,15 @@ bool CvUnitAI::AI_exploreRange(int iRange) // advc.003: refactored
+ 
+ 			if (pLoopPlot->isVisibleEnemyUnit(this))
+ 				continue;
+-
+-			PROFILE("AI_exploreRange 3");
++			{ PROFILE("AI_exploreRange 3");
+ 			if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot,
+ 					MISSIONAI_EXPLORE, getGroup(), 3) > 0)
+-				continue;
+-			PROFILE("AI_exploreRange 4");
++				continue; }
+ 			int iPathTurns;
++			{ PROFILE("AI_exploreRange 4");
+ 			if (atPlot(pLoopPlot) || !generatePath(pLoopPlot,
+ 					MOVE_NO_ENEMY_TERRITORY, true, &iPathTurns, iRange))
+-				continue;
++				continue; }
+ 			if (iPathTurns > iRange)
+ 				continue;
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 0d8d4ad9f..2893a3b4f 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -1845,8 +1845,7 @@ bool InvasionGraph::Node::isContinuedWar(Node const& other) const {
+ 
+ double InvasionGraph::Node::powerCorrect(double multiplier) {
+ 
+-	return std::pow(multiplier,
+-			(double)GC.getDefineFLOAT("POWER_CORRECTION"));
++	return std::pow(multiplier, (double)GC.getPOWER_CORRECTION());
+ }
+ 
+ double InvasionGraph::Node::getLostPower(MilitaryBranchTypes mb) const {
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 92f0f9ed5..f08890c49 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -2654,7 +2654,7 @@ double WarAndPeaceAI::Civ::militaryPower(CvUnitInfo const& u,
+ 
+ 	/*  Combat odds don't increase linearly with strength. Use a power law
+ 		with a power between 1.5 and 2 (configured in XML; 1.7 for now). */
+-	r = pow(r, (double)GC.getDefineFLOAT("POWER_CORRECTION"));
++	r = pow(r, (double)GC.getPOWER_CORRECTION());
+ 	return r;
+ }
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=13338

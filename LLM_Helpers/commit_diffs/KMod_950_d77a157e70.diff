@@ -1,0 +1,161 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 950
+# Commit: d77a157e705c7de972e7677cbf36eae2db0bd778
+# History segment: K-Mod history
+# Parent used for diff: 2fd3cd1c4792993ea432155ee95933ac1b6d2f90
+# Title: Deleted some comments.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+0	44	CvGameCoreDLL/CvGameCoreUtils.cpp
+0	12	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index d01efc6a5..b8fcbebc4 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -761,29 +761,14 @@ int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender)
+ 	FAssert((iAttackerStrength + iDefenderStrength) > 0);
+ 	FAssert((iAttackerFirepower + iDefenderFirepower) > 0);
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/21/10                                jdog5000      */
+-/*                                                                                              */
+-/* Efficiency, Lead From Behind                                                                 */
+-/************************************************************************************************/
+-	// From Lead From Behind by UncutDragon
+-	// original
+-	//iDefenderOdds = ((GC.getDefineINT("COMBAT_DIE_SIDES") * iDefenderStrength) / (iAttackerStrength + iDefenderStrength));
+-	// modified
+ 	iDefenderOdds = ((GC.getCOMBAT_DIE_SIDES() * iDefenderStrength) / (iAttackerStrength + iDefenderStrength));
+-	// /UncutDragon
+ 
+ 	if (iDefenderOdds == 0)
+ 	{
+ 		return 1000;
+ 	}
+ 
+-	// UncutDragon
+-	// original
+-	//iAttackerOdds = GC.getDefineINT("COMBAT_DIE_SIDES") - iDefenderOdds;	
+-	// modified
+ 	iAttackerOdds = GC.getCOMBAT_DIE_SIDES() - iDefenderOdds;	
+-	// /UncutDragon
+ 
+ 	if (iAttackerOdds == 0)
+ 	{
+@@ -795,14 +780,8 @@ int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender)
+ 	// calculate damage done in one round
+ 	//////
+ 
+-	// UncutDragon
+-	// original
+-	//iDamageToAttacker = std::max(1,((GC.getDefineINT("COMBAT_DAMAGE") * (iDefenderFirepower + iStrengthFactor)) / (iAttackerFirepower + iStrengthFactor)));
+-	//iDamageToDefender = std::max(1,((GC.getDefineINT("COMBAT_DAMAGE") * (iAttackerFirepower + iStrengthFactor)) / (iDefenderFirepower + iStrengthFactor)));
+-	// modified
+ 	iDamageToAttacker = std::max(1,((GC.getCOMBAT_DAMAGE() * (iDefenderFirepower + iStrengthFactor)) / (iAttackerFirepower + iStrengthFactor)));
+ 	iDamageToDefender = std::max(1,((GC.getCOMBAT_DAMAGE() * (iAttackerFirepower + iStrengthFactor)) / (iDefenderFirepower + iStrengthFactor)));
+-	// /UncutDragon
+ 
+ 	// calculate needed rounds.
+ 	// Needed rounds = round_up(health/damage)
+@@ -863,12 +842,7 @@ int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender)
+ 					// this needs to be in floating point math
+ 					//////
+ 
+-					// UncutDragon
+-					// original
+-					//fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * pow((((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES")), iI3) * pow((1.0f - (((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES"))), (iFirstStrikes - iI3));
+-					// modified
+ 					fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI3) * pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), (iFirstStrikes - iI3));
+-					// /UncutDragon
+ 
+ 					// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
+ 					//////
+@@ -893,12 +867,7 @@ int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender)
+ 							// this needs to be in floating point math
+ 							//////
+ 
+-							// UncutDragon
+-							// original
+-							//fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * pow((((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES")), iI4) * pow((1.0f - (((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES"))), ((iMaxRounds - iI3) - iI4));
+-							// modified
+ 							fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI4) * pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), ((iMaxRounds - iI3) - iI4));
+-							// /UncutDragon
+ 						}
+ 					}
+ 
+@@ -937,12 +906,7 @@ int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender)
+ 						// this needs to be in floating point math
+ 						//////
+ 
+-						// UncutDragon
+-						// original
+-						//fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * pow((((float)iDefenderOdds) / GC.getDefineINT("COMBAT_DIE_SIDES")), iI3) * pow((1.0f - (((float)iDefenderOdds) / GC.getDefineINT("COMBAT_DIE_SIDES"))), (iFirstStrikes - iI3));
+-						// modified
+ 						fOddsEvent = ((float)getBinomialCoefficient(iFirstStrikes, iI3)) * pow((((float)iDefenderOdds) / GC.getCOMBAT_DIE_SIDES()), iI3) * pow((1.0f - (((float)iDefenderOdds) / GC.getCOMBAT_DIE_SIDES())), (iFirstStrikes - iI3));
+-						// /UncutDragon
+ 
+ 						// calculate chance assuming iI3 first strike hits: fOddsAfterEvent
+ 						//////
+@@ -962,12 +926,7 @@ int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender)
+ 							// this needs to be in floating point math
+ 							//////
+ 
+-							// UncutDragon
+-							// original
+-							//fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * pow((((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES")), iI4) * pow((1.0f - (((float)iAttackerOdds) / GC.getDefineINT("COMBAT_DIE_SIDES"))), ((iMaxRounds - iI3) - iI4));
+-							// modified
+ 							fOddsAfterEvent += ((float)getBinomialCoefficient((iMaxRounds - iI3), iI4)) * pow((((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES()), iI4) * pow((1.0f - (((float)iAttackerOdds) / GC.getCOMBAT_DIE_SIDES())), ((iMaxRounds - iI3) - iI4));
+-							// /UncutDragon
+ 						}
+ 
+ 						// Multiply these together, round them properly, and add 
+@@ -980,9 +939,6 @@ int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender)
+ 			}
+ 		}
+ 	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
+ 	// Weigh the total to the number of possible combinations of first strikes events
+ 	// note: the integer math breaks down when #FS > 656 (with a die size of 1000)
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 5b485c108..984e6dbd2 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -12355,19 +12355,7 @@ void CvUnit::flankingStrikeCombat(const CvPlot* pPlot, int iAttackerStrength, in
+ 
+ 							getDefenderCombatValues(*pLoopUnit, pPlot, iAttackerStrength, iAttackerFirepower, iFlankedDefenderOdds, iFlankedDefenderStrength, iAttackerDamage, iFlankedDefenderDamage);
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      02/21/10                                jdog5000      */
+-/*                                                                                              */
+-/* Efficiency                                                                                   */
+-/************************************************************************************************/
+-							// From Lead From Behind by UncutDragon
+-							// original
+-							//if (GC.getGameINLINE().getSorenRandNum(GC.getDefineINT("COMBAT_DIE_SIDES"), "Flanking Combat") >= iDefenderOdds)
+-							// modified
+ 							if (GC.getGameINLINE().getSorenRandNum(GC.getCOMBAT_DIE_SIDES(), "Flanking Combat") >= iDefenderOdds)
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 							{
+ 								int iCollateralDamage = (iFlankingStrength * iDefenderDamage) / 100;
+ 								int iUnitDamage = std::max(pLoopUnit->getDamage(), std::min(pLoopUnit->getDamage() + iCollateralDamage, collateralDamageLimit()));
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=7973

@@ -1,0 +1,133 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1164
+# Commit: c8b2dc8f599d7b3328bb07c9984b3f5a8a4e3f79
+# History segment: K-Mod history
+# Parent used for diff: e8f6f2c093afca33676675e0bac0bc8a6c7202af
+# Title: Added gold slider estimate for use in cultural victory strategies.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+37	12	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5489a2d1d..64c3cef9a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2404,18 +2404,20 @@ void CvPlayerAI::AI_updateCommerceWeights()
+ 
+ 	std::vector<std::pair<int,int> > city_countdown_list; // (turns, city id)
+ 	{
++		int iGoldCommercePercent = bUseCultureRank ? AI_estimateBreakEvenGoldPercent() : getCommercePercent(COMMERCE_GOLD);
++		// Note: we only need the gold commerce percent if bUseCultureRank;
++		// but I figure that I might as well put in a useful placeholder value just in case.
++
+ 		int iLoop;
+-		CvCity* pLoopCity;
+-		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 		{
+ 			int iCountdown = -1;
+ 			if (bUseCultureRank)
+ 			{
+-				//if (pLoopCity->getBaseCommerceRate(COMMERCE_CULTURE) > 100)
+-				// K-Mod. Try to tell us what the culture would be like if we were to turn up the slider...
++				// K-Mod. Try to tell us what the culture would be like if we were to turn up the slider. (cf. AI_calculateCultureVictoryStage)
++				// (current culture rate, minus what we're current getting from raw commerce, plus what we would be getting from raw commerce at maximum percentage.)
+ 				int iEstimatedRate = pLoopCity->getCommerceRate(COMMERCE_CULTURE);
+-				iEstimatedRate -= getCommercePercent(COMMERCE_CULTURE) * pLoopCity->getYieldRate(YIELD_COMMERCE) * pLoopCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 10000;
+-				iEstimatedRate += (100 - getCommercePercent(COMMERCE_GOLD)) * pLoopCity->getYieldRate(YIELD_COMMERCE) * pLoopCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 10000;
++				iEstimatedRate += (100 - iGoldCommercePercent - getCommercePercent(COMMERCE_CULTURE)) * pLoopCity->getYieldRate(YIELD_COMMERCE) * pLoopCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 10000;
+ 				iCountdown = (iLegendaryCulture - pLoopCity->getCulture(getID())) / std::max(1, iEstimatedRate);
+ 			}
+ 			city_countdown_list.push_back(std::make_pair(iCountdown, pLoopCity->getID()));
+@@ -19259,6 +19261,8 @@ void CvPlayerAI::AI_doCheckFinancialTrouble()
+ // heavily edited by K-Mod and bbai
+ int CvPlayerAI::AI_calculateCultureVictoryStage() const
+ {
++	PROFILE_FUNC();
++
+ 	if( GC.getDefineINT("BBAI_VICTORY_STRATEGY_CULTURE") <= 0 )
+ 	{
+ 		return 0;
+@@ -19289,20 +19293,20 @@ int CvPlayerAI::AI_calculateCultureVictoryStage() const
+ 	iHighCultureMark *= GC.getGameSpeedInfo(GC.getGame().getGameSpeedType()).getVictoryDelayPercent();
+ 	iHighCultureMark /= 100;
+ 
++	int iGoldCommercePercent = AI_estimateBreakEvenGoldPercent();
++
+ 	std::vector<int> countdownList;
+ 	// K-Mod end
+ 
+ 	int iLoop;
+-	CvCity* pLoopCity;
+-	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 	{
+ 		if (pLoopCity->getCultureLevel() >= (GC.getGameINLINE().culturalVictoryCultureLevel() - 1))
+ 		{
+-			//if (pLoopCity->getBaseCommerceRate(COMMERCE_CULTURE) > 100)
+-			// K-Mod. Try to tell us what the culture would be like if we were to turn up the slider...
++			// K-Mod. Try to tell us what the culture would be like if we were to turn up the slider. (cf. AI_updateCommerceWeights)
++			// (current culture rate, minus what we're current getting from raw commerce, plus what we would be getting from raw commerce at maximum percentage.)
+ 			int iEstimatedRate = pLoopCity->getCommerceRate(COMMERCE_CULTURE);
+-			iEstimatedRate -= getCommercePercent(COMMERCE_CULTURE) * pLoopCity->getYieldRate(YIELD_COMMERCE) * pLoopCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 10000;
+-			iEstimatedRate += (100 - getCommercePercent(COMMERCE_GOLD)) * pLoopCity->getYieldRate(YIELD_COMMERCE) * pLoopCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 10000;
++			iEstimatedRate += (100 - iGoldCommercePercent - getCommercePercent(COMMERCE_CULTURE)) * pLoopCity->getYieldRate(YIELD_COMMERCE) * pLoopCity->getTotalCommerceRateModifier(COMMERCE_CULTURE) / 10000;
+ 			int iCountdown = (iLegendaryCulture - pLoopCity->getCulture(getID())) / std::max(1, iEstimatedRate);
+ 			countdownList.push_back(iCountdown);
+ 			if (iCountdown < iHighCultureMark)
+@@ -21553,6 +21557,27 @@ void CvPlayerAI::AI_updateAvailableIncome()
+ 	m_iAvailableIncome += std::max(0, getGoldPerTurn());
+ 	m_iAvailableIncome += getCommerceRate(COMMERCE_GOLD) - iTotalRaw * AI_averageCommerceMultiplier(COMMERCE_GOLD) * getCommercePercent(COMMERCE_GOLD) / 10000;
+ }
++
++// Estimate what percentage of commerce is needed on gold to cover our expenses
++int CvPlayerAI::AI_estimateBreakEvenGoldPercent() const
++{
++	PROFILE_FUNC();
++	//int iGoldCommerceRate = kPlayer.getCommercePercent(COMMERCE_GOLD); // (rough approximation)
++
++	// (detailed approximation)
++	int iTotalRaw = calculateTotalYield(YIELD_COMMERCE);
++	int iExpenses = calculateInflatedCosts() * 12 / 10; // (20% increase to approximate other costs)
++
++	// estimate how much gold we get from specialists & buildings by taking our current gold rate and subtracting what it would be from raw commerce alone.
++	iExpenses -= getCommerceRate(COMMERCE_GOLD) - iTotalRaw * AI_averageCommerceMultiplier(COMMERCE_GOLD) * getCommercePercent(COMMERCE_GOLD) / 10000;
++
++	// divide what's left to determine what our gold slider would need to be to break even.
++	int iGoldCommerceRate = 10000 * iExpenses / (iTotalRaw * AI_averageCommerceMultiplier(COMMERCE_GOLD));
++
++	iGoldCommerceRate = range(iGoldCommerceRate, 0, 100); // (perhaps it would be useful to just return the unbounded value?)
++
++	return iGoldCommerceRate;
++}
+ // K-Mod end
+ 
+ int CvPlayerAI::AI_goldTradeValuePercent() const
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index f7b090038..a2c47cf1f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -369,6 +369,7 @@ public:
+ 	void AI_updateGoldToUpgradeAllUnits();
+ 	inline int AI_getAvailableIncome() const { return m_iAvailableIncome; }
+ 	void AI_updateAvailableIncome();
++	int AI_estimateBreakEvenGoldPercent() const;
+ 	// K-Mod end
+ 
+ 	int AI_goldTradeValuePercent() const;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6214

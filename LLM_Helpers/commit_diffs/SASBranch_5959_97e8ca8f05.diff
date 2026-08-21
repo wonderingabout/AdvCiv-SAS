@@ -1,0 +1,742 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5959
+# Commit: 97e8ca8f0537e0abcc40448d448c63d0057766de
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 37f1ae8823866fbf769c67cad6f19736d86a5099
+# Title: rework/rebalance civ-specific monuments 2; add more GithHub Workflow checks - BUILDING_EGYPTIAN_OBELISK: culture per turn 2->1, new effect: BonusHappinessCha...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	.gitattributes
+122	23	.github/workflows/README.md
+3	1	.github/workflows/build.yml
+116	0	.github/workflows/build/global_defines_nonempty.py
+132	0	.github/workflows/build/temp_files.py
+1	1	.gitignore
+1	1	AGENTS.md
+31	20	Assets/XML/Buildings/CIV4BuildingInfos.xml
+0	0	CvGameCoreDLL/Project/temp_files/.gitkeep
+7	5	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+3	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 .github/workflows/build/global_defines_nonempty.py
+ create mode 100644 .github/workflows/build/temp_files.py
+ create mode 100644 CvGameCoreDLL/Project/temp_files/.gitkeep
+
+[PATCHES]
+
+diff --git a/.gitattributes b/.gitattributes
+index 62fcec267..d336d6030 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -43,11 +43,15 @@
+ # <!-- custom: LLM helpers are not needed in released archives of the mod -->
+ /LLM_Helpers/         export-ignore
+ 
+-# <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5) -->
++# <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5 + GPT-5.5) -->
+ /.github/             export-ignore
+ /.gitattributes       export-ignore
+ /.gitignore           export-ignore
+ 
++# <!-- custom: keep the compiler temp_files placeholder in repo for sanity checks, but exclude it from GitHub Download ZIP / git archive release archives. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5) -->
++/CvGameCoreDLL/Project/temp_files     export-ignore
++/CvGameCoreDLL/Project/temp_files/**  export-ignore
++
+ /_0_Common_Docs/AdvCiv_Base_Doc/manual.odt                export-ignore
+ /_0_Common_Docs/AdvCiv_Base_Doc/manual.txt                export-ignore
+ /_0_Common_Docs/CIV4BUG_Sourceforge_net_All_Classes_Doc/  export-ignore
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 13cd9ef83..8707f4617 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -22,29 +22,128 @@ For example, this helped spot [map scripts that were previously unclassified in
+ 
+ ## Current build checks
+ 
+-- `build/launch_guard.py`: verifies `SASDefineGuard.py` exists and its int/string sentinel constants match `GlobalDefines_advciv_sas.xml`.
+-- `build/assets_dlls.py`: recursively verifies `Assets` contains only the two expected DLL files (`Assets/CvGameCoreDLL.dll` for the main/48-civ DLL and `Assets/CvGameCoreDLL_18_civs_DLL.dll` for the 18-civ DLL), and verifies the 18-civ DLL is not larger than the main DLL by byte size.
+-- `build/xml_comments.py`: verifies XML comments under `Assets/XML` do not contain illegal double hyphen `--` and are not left unclosed.
+-- `build/xml_suspicious_angle_tags.py`: verifies raw XML files under `Assets/XML` do not contain suspicious malformed-looking tag punctuation such as doubled opening angles or extra closing angles after tags, catching valid-but-wrong text like `<French>>...`. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) and fix suspicious malformed-looking XML tag punctuation. See [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check).
+-- `build/xml_suspicious_text_chars.py`: verifies XML text does not contain high-confidence corrupted characters such as `?` inside a word-like token, Unicode replacement characters in active/non-ignored text, common mojibake fragments, or raw control characters; inherited non-English replacement-character noise is hidden by default and can be listed with `--show-ignored`. This intentionally does not enforce broader typography policy such as em dashes, curly quotes, or accented letters. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) and fix the corresponding errors. See [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check).
+-- `build/xml_sas_text_english.py`: verifies AdvCiv-SAS-owned GameText XML files (`Assets/XML/Text/AdvCiv-SAS*.xml`) only use `<English>` language entries, except a narrow whitelist for inherited/renamed diplomacy text entries that intentionally keep old non-English fields.
+-- `build/xml_text_duplicate_tags.py`: verifies each GameText `TXT_KEY`-style `<TEXT>/<Tag>` entry under `Assets/XML/Text` is defined only once, with source line numbers for duplicate definitions. Inspired by the old AdvCiv-SAS blind [scan_xml_duplicates-3.3.py](/LLM_Helpers/scan_xml_duplicates-3.3.py) (see [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](/LLM_Helpers/README.md#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)). This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894) and fix XML text duplicate errors. See [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check).
+-- `build/xml_parent_duplicate_keys.py`: verifies parent-style XML objects are not defined twice with the same key, such as duplicate `*Info` `<Type>` values or duplicate audio `ScriptID` / `SoundID` entries. This intentionally does not check child/list duplicate semantics, which can be more context-dependent.
+-- `build/xml_child_duplicates.py`: checks suspicious duplicate child/list XML entries inside the same parent object, failing on high-confidence duplicates such as duplicate flavors, leader memory/contact keys, civilization city names, and unit/promotion lists; reports lower-confidence duplicates such as exact duplicate event trigger `Text + Era` entries without failing, prints source line numbers, and hides known allowed/noisy duplicates such as weighted goody huts and reused world-picker art paths unless run with `--show-ignored`. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) and fix XML text duplicate errors. See [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check).
+-- `build/tech_columns.py`: verifies all techs in the same tech-tree column (`iGridX`) share the same core column values, currently `iCost` and `iAsset`; different `iGrid` column rows in the same column are allowed, but same-timing techs should normally have identical research cost and asset/trade valuation.
+-- `build/civ_specific_asset_techs.py`: verifies civ-specific building and unit assets do not require a later starting tech-tree column (`iGridX`) or an earlier obsolete tech-tree column than the generic asset they replace; same-column parallel tech variation is allowed for flavor. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27463441180/job/81181382278) and fix corresponding errors; e.g., `iGridX=3 has multiple iAsset values: iAsset=8: TECH_THE_WHEEL(GridY=5), TECH_WRITING(GridY=7), TECH_MONARCHY(GridY=11), TECH_METAL_CASTING(GridY=19); iAsset=16: TECH_SAILING(GridY=1)`.
+-- `build/civ_specific_asset_techs.py`: verifies civ-specific building and unit assets do not require a later starting tech-tree column (`iGridX`) or an earlier obsolete tech-tree column than the generic asset they replace; same-column parallel tech variation is allowed for flavor. For example, this helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27461191223/job/81175197986) and fix `BUILDING_AZTEC_SACRIFICIAL_ALTAR: building class BUILDINGCLASS_MONUMENT replacement uses later tech column than default BUILDING_MONUMENT: TECH_CALENDAR (GridX=2, GridY=11) after TECH_MYSTICISM (GridX=1, GridY=11)`, but `BUILDING_JAPAN_DOUJOU` (JAIL) requiring `TECH_MEDITATION` parallel (`iGridY=9`) to `TECH_CONSTITUTION` required by the generic `BUILDING_JAIL` is fine so it does not need a fix. Similarly for `BUILDING_EGYPTIAN_OBELISK: building class BUILDINGCLASS_MONUMENT replacement uses earlier ObsoleteTech column than default BUILDING_MONUMENT: TECH_BROADER_EDUCATION (GridX=10, GridY=11) before TECH_LIBERALISM (GridX=13, GridY=11)` being obsolete sooner and so weaker than the generic monument so fixed it (obsolete is now same `GridY` or later).
+-- `build/civ_specific_not_weaker.py`: verifies civ-specific unit/building replacements are not weaker than their generic class defaults. Unit replacements fail if their `iCombat` or `iPower` is lower than the default unit for the same `UnitClass`; building replacements fail if their `iPower` is lower than the default building for the same `BuildingClass`.
+-- `build/define_tag_refs.py`: verifies any SAS `DefineTextVal` token that looks like a known Civ4 XML tag (e.g. bonuses, techs, building classes, units, promotions) references a real XML `<Type>` value; successful matches are printed by default, and `--quiet` suppresses them.
+-- `build/raw_getinfotype.py`: verifies runtime Python files do not add raw `getInfoTypeForString(...)` or `CvUtil.findInfoTypeNum(...)` lookups outside strict helper implementations and narrow legacy/dynamic exceptions. Use `getInfoTypeOrFail(...)` or `findInfoTypeNumOrFail(...)` for literal/static XML tag lookups so missing or renamed tags fail loudly. Python comments and string literals are ignored, so code-generation strings such as those in `savemap.py` are not flagged by this check. This allowed to [find](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27464773794/job/81185039717) this alternative lookup and that it needed an or fail handling too: now fixed.
+-- `build/define_int_bounds.py`: verifies `GlobalDefines_advciv_sas.xml` integer values stay within `[-100000, 100000]`, except the launch-guard sentinel checked separately by `build/launch_guard.py`.
+-- `build/opening_music.py`: verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed script, and if shuffle is enabled, at least one valid non-`NONE` shuffle script.
+-- `build/bbai_log.py`: verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`.
+-- `build/fonts.py`: verifies shared UI font defaults are `1 / 2 / 3 / 4 / 3`.
+-- `build/detail_manager.py`: verifies `Assets/XML/Misc/CIV4DetailManager.xml` `CITYBILLBOARD_SCALE` keys match the committed shared UI font/default billboard-scale defines and the base values used by `Assets/Python/SASBillboardScale.py`, catching stale rewritten billboard scales after temporary UI upscaling.
+-- `build/aip.py`: verifies the Sevopedia Leader AI Personality Panel is enabled, uses the predumped cache by default, does not dump recomputed cache data to the log by default, and has a non-empty predumped cache file.
+-- `build/worldsizes.py`: verifies `SAS_MAGIC_WORLDSIZE_*` constants in `Assets/Python/SASMagicNumbers.py` match the `Assets/XML/GameInfo/CIV4WorldInfo.xml` order.
+-- `build/mapscripts.py`: verifies every playable `PrivateMaps/*.py` script is listed exactly once across the SAS map-script heaviness/coverage defines, and every listed map script exists in `PrivateMaps/`. `SAS_MAP_SCRIPT_NAMES_HEAVINESS_UNSPECIFIED` is coverage-only and is not read by the DLL; it documents map scripts intentionally left outside the explicit land-heavy / almost-all-land / naval-heavy override lists.
++- [`build/temp_files.py`](#buildtemp_filespy)
++- [`build/assets_dlls.py`](#buildassets_dllspy)
++- [`build/global_defines_nonempty.py`](#buildglobal_defines_nonemptypy)
++- [`build/launch_guard.py`](#buildlaunch_guardpy)
++- [`build/define_int_bounds.py`](#builddefine_int_boundspy)
++- [`build/xml_comments.py`](#buildxml_commentspy)
++- [`build/xml_suspicious_angle_tags.py`](#buildxml_suspicious_angle_tagspy)
++- [`build/xml_suspicious_text_chars.py`](#buildxml_suspicious_text_charspy)
++- [`build/xml_sas_text_english.py`](#buildxml_sas_text_englishpy)
++- [`build/xml_text_duplicate_tags.py`](#buildxml_text_duplicate_tagspy)
++- [`build/xml_parent_duplicate_keys.py`](#buildxml_parent_duplicate_keyspy)
++- [`build/xml_child_duplicates.py`](#buildxml_child_duplicatespy)
++- [`build/tech_columns.py`](#buildtech_columnspy)
++- [`build/civ_specific_asset_techs.py`](#buildciv_specific_asset_techspy)
++- [`build/civ_specific_not_weaker.py`](#buildciv_specific_not_weakerpy)
++- [`build/define_tag_refs.py`](#builddefine_tag_refspy)
++- [`build/raw_getinfotype.py`](#buildraw_getinfotypepy)
++- [`build/opening_music.py`](#buildopening_musicpy)
++- [`build/bbai_log.py`](#buildbbai_logpy)
++- [`build/fonts.py`](#buildfontspy)
++- [`build/detail_manager.py`](#builddetail_managerpy)
++- [`build/aip.py`](#buildaippy)
++- [`build/worldsizes.py`](#buildworldsizespy)
++- [`build/mapscripts.py`](#buildmapscriptspy)
++
++### `build/temp_files.py`
++
++Verifies `CvGameCoreDLL/Project/temp_files/` exists through its zero-byte tracked placeholder file and is otherwise empty, verifies `.gitignore` does not hide it, and allows only the matching `.gitattributes` `export-ignore` rules used to keep it out of GitHub Download ZIP / git archive release archives. This helps catch stale fast-compile temp files. We check this because we suspect fast compiles can be unreliable, and also helps catch forgetting to replace the committed DLL after compiling (see also [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-but-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwith-but-exact-same-source-files-if-i-am-not-mistaken-but) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe-but)).
++
++### `build/assets_dlls.py`
++
++Recursively verifies `Assets` contains only the two expected DLL files (`Assets/CvGameCoreDLL.dll` for the main/48-civ DLL and `Assets/CvGameCoreDLL_18_civs_DLL.dll` for the 18-civ DLL), and verifies the 18-civ DLL is not larger than the main DLL by byte size.
++
++### `build/global_defines_nonempty.py`
++
++Verifies GlobalDefines XML files under `Assets/XML` have `<Define>` entries with non-empty `<DefineName>` values, unique define names within each file, and exactly one non-empty value field (normally `iDefineIntVal`, `fDefineFloatVal`, or `DefineTextVal`). This preventively catches accidental blank define values. We check this because we suspect they may possibly cause unclear errors; for intentional "empty" string-like behavior, explicit values such as `NONE` are clearer and more reliable.
++
++### `build/launch_guard.py`
++
++Verifies `SASDefineGuard.py` exists and its int/string sentinel constants match `GlobalDefines_advciv_sas.xml`.
++
++### `build/define_int_bounds.py`
++
++Verifies `GlobalDefines_advciv_sas.xml` integer values stay within `[-100000, 100000]`, except specific intentional outliers such as the launch-guard sentinel checked by [`build/launch_guard.py`](#buildlaunch_guardpy) and the high bonus-Fallout scrub worker value.
++
++### `build/xml_comments.py`
++
++Verifies XML comments under `Assets/XML` do not contain illegal double hyphen `--` and are not left unclosed.
++
++### `build/xml_suspicious_angle_tags.py`
++
++Verifies raw XML files under `Assets/XML` do not contain suspicious malformed-looking tag punctuation such as doubled opening angles or extra closing angles after tags, catching valid-but-wrong text like `<French>>...`. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) and fix suspicious malformed-looking XML tag punctuation. See [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check).
++
++### `build/xml_suspicious_text_chars.py`
++
++Verifies XML text does not contain high-confidence corrupted characters such as `?` inside a word-like token, Unicode replacement characters in active/non-ignored text, common mojibake fragments, or raw control characters; inherited non-English replacement-character noise is hidden by default and can be listed with `--show-ignored`. This intentionally does not enforce broader typography policy such as em dashes, curly quotes, or accented letters. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) and fix the corresponding errors. See [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check).
++
++### `build/xml_sas_text_english.py`
++
++Verifies AdvCiv-SAS-owned GameText XML files (`Assets/XML/Text/AdvCiv-SAS*.xml`) only use `<English>` language entries, except a narrow whitelist for inherited/renamed diplomacy text entries that intentionally keep old non-English fields.
++
++### `build/xml_text_duplicate_tags.py`
++
++Verifies each GameText `TXT_KEY`-style `<TEXT>/<Tag>` entry under `Assets/XML/Text` is defined only once, with source line numbers for duplicate definitions. Inspired by the old AdvCiv-SAS blind [scan_xml_duplicates-3.3.py](/LLM_Helpers/scan_xml_duplicates-3.3.py) (see [Legacy XML duplicate discovery scanner (``scan_xml_duplicates-3.3.py``)](/LLM_Helpers/README.md#legacy-xml-duplicate-discovery-scanner-scan_xml_duplicates-33py)). This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894) and fix XML text duplicate errors. See [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check).
++
++### `build/xml_parent_duplicate_keys.py`
++
++Verifies parent-style XML objects are not defined twice with the same key, such as duplicate `*Info` `<Type>` values or duplicate audio `ScriptID` / `SoundID` entries. This intentionally does not check child/list duplicate semantics, which can be more context-dependent.
++
++### `build/xml_child_duplicates.py`
++
++Checks suspicious duplicate child/list XML entries inside the same parent object, failing on high-confidence duplicates such as duplicate flavors, leader memory/contact keys, civilization city names, and unit/promotion lists; reports lower-confidence duplicates such as exact duplicate event trigger `Text + Era` entries without failing, prints source line numbers, and hides known allowed/noisy duplicates such as weighted goody huts and reused world-picker art paths unless run with `--show-ignored`. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) and fix XML text duplicate errors. See [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check).
++
++### `build/tech_columns.py`
++
++Verifies all techs in the same tech-tree column (`iGridX`) share the same core column values, currently `iCost` and `iAsset`; different `iGrid` column rows in the same column are allowed, but same-timing techs should normally have identical research cost and asset/trade valuation.
++
++### `build/civ_specific_asset_techs.py`
++
++Verifies civ-specific building and unit assets do not require a later starting tech-tree column (`iGridX`) or an earlier obsolete tech-tree column than the generic asset they replace; same-column parallel tech variation is allowed for flavor. This helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27463441180/job/81181382278) and fix corresponding errors; e.g., `iGridX=3 has multiple iAsset values: iAsset=8: TECH_THE_WHEEL(GridY=5), TECH_WRITING(GridY=7), TECH_MONARCHY(GridY=11), TECH_METAL_CASTING(GridY=19); iAsset=16: TECH_SAILING(GridY=1)`.
++
++Verifies civ-specific building and unit assets do not require a later starting tech-tree column (`iGridX`) or an earlier obsolete tech-tree column than the generic asset they replace; same-column parallel tech variation is allowed for flavor. For example, this helped [spot](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27461191223/job/81175197986) and fix `BUILDING_AZTEC_SACRIFICIAL_ALTAR: building class BUILDINGCLASS_MONUMENT replacement uses later tech column than default BUILDING_MONUMENT: TECH_CALENDAR (GridX=2, GridY=11) after TECH_MYSTICISM (GridX=1, GridY=11)`, but `BUILDING_JAPAN_DOUJOU` (JAIL) requiring `TECH_MEDITATION` parallel (`iGridY=9`) to `TECH_CONSTITUTION` required by the generic `BUILDING_JAIL` is fine so it does not need a fix. Similarly for `BUILDING_EGYPTIAN_OBELISK: building class BUILDINGCLASS_MONUMENT replacement uses earlier ObsoleteTech column than default BUILDING_MONUMENT: TECH_BROADER_EDUCATION (GridX=10, GridY=11) before TECH_LIBERALISM (GridX=13, GridY=11)` being obsolete sooner and so weaker than the generic monument so fixed it (obsolete is now same `GridY` or later).
++
++### `build/civ_specific_not_weaker.py`
++
++Verifies civ-specific unit/building replacements are not weaker than their generic class defaults. Unit replacements fail if their `iCombat` or `iPower` is lower than the default unit for the same `UnitClass`; building replacements fail if their `iPower` is lower than the default building for the same `BuildingClass`.
++
++### `build/define_tag_refs.py`
++
++Verifies any SAS `DefineTextVal` token that looks like a known Civ4 XML tag (e.g. bonuses, techs, building classes, units, promotions) references a real XML `<Type>` value; successful matches are printed by default, and `--quiet` suppresses them.
++
++### `build/raw_getinfotype.py`
++
++Verifies runtime Python files do not add raw `getInfoTypeForString(...)` or `CvUtil.findInfoTypeNum(...)` lookups outside strict helper implementations and narrow legacy/dynamic exceptions. Use `getInfoTypeOrFail(...)` or `findInfoTypeNumOrFail(...)` for literal/static XML tag lookups so missing or renamed tags fail loudly. Python comments and string literals are ignored, so code-generation strings such as those in `savemap.py` are not flagged by this check. This allowed to [find](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27464773794/job/81185039717) this alternative lookup and that it needed an or fail handling too: now fixed.
++
++### `build/opening_music.py`
++
++Verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed script, and if shuffle is enabled, at least one valid non-`NONE` shuffle script.
++
++### `build/bbai_log.py`
++
++Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`.
++
++### `build/fonts.py`
++
++Verifies shared UI font defaults are `1 / 2 / 3 / 4 / 3`.
++
++### `build/detail_manager.py`
++
++Verifies `Assets/XML/Misc/CIV4DetailManager.xml` `CITYBILLBOARD_SCALE` keys match the committed shared UI font/default billboard-scale defines and the base values used by `Assets/Python/SASBillboardScale.py`, catching stale rewritten billboard scales after temporary UI upscaling.
++
++### `build/aip.py`
++
++Verifies the Sevopedia Leader AI Personality Panel is enabled, uses the predumped cache by default, does not dump recomputed cache data to the log by default, and has a non-empty predumped cache file.
++
++### `build/worldsizes.py`
++
++Verifies `SAS_MAGIC_WORLDSIZE_*` constants in `Assets/Python/SASMagicNumbers.py` match the `Assets/XML/GameInfo/CIV4WorldInfo.xml` order.
++
++### `build/mapscripts.py`
++
++Verifies every playable `PrivateMaps/*.py` script is listed exactly once across the SAS map-script heaviness/coverage defines, and every listed map script exists in `PrivateMaps/`. `SAS_MAP_SCRIPT_NAMES_HEAVINESS_UNSPECIFIED` is coverage-only and is not read by the DLL; it documents map scripts intentionally left outside the explicit land-heavy / almost-all-land / naval-heavy override lists.
+ 
+ ## Run Locally
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index 490ab3d47..3d807ef95 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -17,8 +17,11 @@ jobs:
+       - uses: actions/<hidden-email>
+         with:
+           python-version: "3.x"
++      - run: python .github/workflows/build/temp_files.py
+       - run: python .github/workflows/build/assets_dlls.py
++      - run: python .github/workflows/build/global_defines_nonempty.py
+       - run: python .github/workflows/build/launch_guard.py
++      - run: python .github/workflows/build/define_int_bounds.py
+       - run: python .github/workflows/build/xml_comments.py
+       - run: python .github/workflows/build/xml_suspicious_angle_tags.py
+       - run: python .github/workflows/build/xml_suspicious_text_chars.py
+@@ -31,7 +34,6 @@ jobs:
+       - run: python .github/workflows/build/civ_specific_not_weaker.py
+       - run: python .github/workflows/build/define_tag_refs.py
+       - run: python .github/workflows/build/raw_getinfotype.py
+-      - run: python .github/workflows/build/define_int_bounds.py
+       - run: python .github/workflows/build/opening_music.py
+       - run: python .github/workflows/build/bbai_log.py
+       - run: python .github/workflows/build/fonts.py
+
+diff --git a/.github/workflows/build/global_defines_nonempty.py b/.github/workflows/build/global_defines_nonempty.py
+new file mode 100644
+index 000000000..593ee0b35
+--- /dev/null
++++ b/.github/workflows/build/global_defines_nonempty.py
+@@ -0,0 +1,116 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: GlobalDefines XML entries should have a non-empty name and exactly one non-empty value.
++
++from pathlib import Path
++import argparse
++import sys
++import xml.etree.ElementTree as ET
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, local_name, child_text_by_local_name
++
++
++GLOBAL_DEFINES_RELATIVE_GLOB = "Assets/XML/*GlobalDefines*.xml"
++# <!-- custom: Civ4 usually stores boolean defines as integer 0/1 values, but keep this here so a future schema/helper variant fails cleanly instead of looking value-less. (ChatGPT-5.5) -->
++VALUE_FIELD_NAMES = ("iDefineIntVal", "fDefineFloatVal", "DefineTextVal", "bDefineBoolVal")
++
++
++def direct_child_values_by_local_name(node: ET.Element, child_name: str) -> list[str]:
++	values: list[str] = []
++
++	for child in list(node):
++		if local_name(child.tag) != child_name:
++			continue
++
++		values.append((child.text or "").strip())
++
++	return values
++
++
++def check_global_defines_file(relative_path: Path, absolute_path: Path) -> list[str]:
++	failures: list[str] = []
++
++	try:
++		tree = ET.parse(absolute_path)
++	except ET.ParseError as exc:
++		return [f"{relative_path}: XML parse error: {exc}"]
++
++	define_nodes = [node for node in tree.getroot().iter() if local_name(node.tag) == "Define"]
++	if not define_nodes:
++		failures.append(f"{relative_path}: no <Define> entries found")
++		return failures
++
++	seen_names: dict[str, int] = {}
++
++	for index, define in enumerate(define_nodes, 1):
++		name = child_text_by_local_name(define, "DefineName")
++		label = name or f"<Define> #{index}"
++
++		if not name:
++			failures.append(f"{relative_path}: <Define> #{index} has empty or missing <DefineName>")
++		else:
++			previous_index = seen_names.get(name)
++			if previous_index is not None:
++				failures.append(f"{relative_path}: {name} duplicate <DefineName> also used by <Define> #{previous_index}")
++			else:
++				seen_names[name] = index
++
++		present_value_fields: list[str] = []
++		nonempty_value_fields: list[str] = []
++		empty_value_fields: list[str] = []
++
++		for field_name in VALUE_FIELD_NAMES:
++			for value in direct_child_values_by_local_name(define, field_name):
++				present_value_fields.append(field_name)
++				if value:
++					nonempty_value_fields.append(field_name)
++				else:
++					empty_value_fields.append(field_name)
++
++		if not present_value_fields:
++			failures.append(f"{relative_path}: {label} has no recognized define value field")
++		elif empty_value_fields:
++			failures.append(f"{relative_path}: {label} has empty value field(s): {', '.join(empty_value_fields)}")
++		elif len(nonempty_value_fields) > 1:
++			failures.append(f"{relative_path}: {label} has more than one non-empty value field: {', '.join(nonempty_value_fields)}")
++
++	return failures
++
++
++def check_global_defines_nonempty(repo_root: Path) -> list[str]:
++	failures: list[str] = []
++	paths = sorted(repo_root.glob(GLOBAL_DEFINES_RELATIVE_GLOB))
++
++	if not paths:
++		return [f"{GLOBAL_DEFINES_RELATIVE_GLOB}: no GlobalDefines XML files found"]
++
++	for path in paths:
++		failures.extend(check_global_defines_file(path.relative_to(repo_root), path))
++
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS GlobalDefines XML entries have non-empty names and values.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	failures = check_global_defines_nonempty(args.repo_root)
++
++	if failures:
++		print("FAIL GlobalDefines non-empty entries")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS GlobalDefines non-empty entries")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.github/workflows/build/temp_files.py b/.github/workflows/build/temp_files.py
+new file mode 100644
+index 000000000..5d11da72c
+--- /dev/null
++++ b/.github/workflows/build/temp_files.py
+@@ -0,0 +1,132 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: CvGameCoreDLL/Project/temp_files must stay effectively empty.
++#
++# <!-- custom: Git only tracks files, not empty folders, so keep a zero-byte placeholder file inside temp_files.
++# We suspect fast-compile temp files can produce unreliable DLLs; failing on any other file/subfolder catches stale temp files and helps catch forgetting to replace the committed DLL after compiling.
++# The placeholder/folder may be export-ignored from GitHub Download ZIP / git archive release archives. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5) -->
++
++from pathlib import Path
++import argparse
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root
++
++
++TEMP_FILES_REL_PATH = Path("CvGameCoreDLL/Project/temp_files")
++TEMP_FILES_MARKER = ".gitkeep"
++GIT_FILTER_REL_PATHS = (
++	Path(".gitignore"),
++	Path(".gitattributes"),
++)
++ALLOWED_GITATTRIBUTES_EXPORT_IGNORE_RULES = {
++	"/cvgamecoredll/project/temp_files",
++	"/cvgamecoredll/project/temp_files/**",
++	"cvgamecoredll/project/temp_files",
++	"cvgamecoredll/project/temp_files/**",
++}
++
++
++def relative_posix(path: Path, repo_root: Path) -> str:
++	return path.relative_to(repo_root).as_posix()
++
++
++def is_allowed_gitattributes_export_ignore_rule(normalized: str) -> bool:
++	parts = normalized.split()
++	if len(parts) != 2:
++		return False
++	path, attribute = parts
++	return path in ALLOWED_GITATTRIBUTES_EXPORT_IGNORE_RULES and attribute == "export-ignore"
++
++
++def active_temp_files_filter_rules(repo_root: Path) -> list[str]:
++	failures: list[str] = []
++
++	for rel_path in GIT_FILTER_REL_PATHS:
++		path = repo_root / rel_path
++		if not path.exists():
++			failures.append(f"missing repository filter file: {rel_path.as_posix()}")
++			continue
++		if not path.is_file():
++			failures.append(f"repository filter path is not a file: {rel_path.as_posix()}")
++			continue
++
++		for line_number, line in enumerate(path.read_text(encoding="utf-8", errors="replace").splitlines(), start=1):
++			stripped = line.strip()
++			if not stripped or stripped.startswith("#"):
++				continue
++			normalized = stripped.replace("\\", "/").lower()
++			if "temp_files" not in normalized:
++				continue
++			if rel_path == Path(".gitattributes") and is_allowed_gitattributes_export_ignore_rule(normalized):
++				continue
++			failures.append(f"{rel_path.as_posix()}: line {line_number}: remove active temp_files rule: {stripped}")
++
++	return failures
++
++
++def check_temp_files_folder(repo_root: Path) -> list[str]:
++	failures: list[str] = []
++	temp_dir = repo_root / TEMP_FILES_REL_PATH
++	marker = temp_dir / TEMP_FILES_MARKER
++
++	if not temp_dir.exists():
++		return [
++			f"{TEMP_FILES_REL_PATH.as_posix()}: missing folder; commit {TEMP_FILES_REL_PATH.as_posix()}/{TEMP_FILES_MARKER} "
++			"so Git preserves this sanity-check folder"
++		]
++	if not temp_dir.is_dir():
++		return [f"{TEMP_FILES_REL_PATH.as_posix()}: exists but is not a folder"]
++
++	if not marker.is_file():
++		failures.append(f"{TEMP_FILES_REL_PATH.as_posix()}/{TEMP_FILES_MARKER}: missing zero-byte tracking marker")
++	elif marker.stat().st_size != 0:
++		failures.append(f"{TEMP_FILES_REL_PATH.as_posix()}/{TEMP_FILES_MARKER}: marker should be zero bytes")
++
++	unexpected_entries = []
++	for entry in sorted(temp_dir.rglob("*"), key=lambda path: path.as_posix().lower()):
++		if entry == marker:
++			continue
++		unexpected_entries.append(relative_posix(entry, repo_root))
++
++	if unexpected_entries:
++		failures.append(
++			"unexpected compiler temp_files content; clean these before committing/replacing the DLL: "
++			+ ", ".join(unexpected_entries)
++		)
++
++	return failures
++
++
++def check_temp_files(repo_root: Path) -> list[str]:
++	failures: list[str] = []
++	failures.extend(check_temp_files_folder(repo_root))
++	failures.extend(active_temp_files_filter_rules(repo_root))
++	return failures
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check that CvGameCoreDLL/Project/temp_files is tracked only as an empty marker folder.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	failures = check_temp_files(args.repo_root)
++
++	if failures:
++		print("FAIL compiler temp_files hygiene")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print("PASS compiler temp_files hygiene")
++	print(f"  - {TEMP_FILES_REL_PATH.as_posix()} contains only {TEMP_FILES_MARKER}")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/.gitignore b/.gitignore
+index 22a7f19c2..30761b07c 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -15,7 +15,7 @@
+ /CvGameCoreDLL/Project/Profile-fast/
+ /CvGameCoreDLL/Project/Release/
+ /CvGameCoreDLL/Project/_Release-fast/
+-/CvGameCoreDLL/Project/temp_files/
++# <!-- custom: do not ignore /CvGameCoreDLL/Project/temp_files/; keep only a tracked placeholder file inside it so workflow/local status checks can catch stale fast-compile temp files before commit; `.gitattributes` may export-ignore this marker from release archives. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5) -->
+ *.opensdf
+ *.sdf
+ *.suo
+
+diff --git a/AGENTS.md b/AGENTS.md
+index be11e6b33..52ac434b1 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -175,7 +175,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - When caching defines or XML variables, we need to init to `None` and cache explictly later when the variable is used or somewhere at call time. This is because empirically aggressive initialization at init is fragile and can cause crashes. For helper files, we use the `global` and if `None` pattern. Since this new pattern is a recent addition, we are not changing them all right now but rather as we go or implement new stuff. See [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#128---seemingly-fixed--worked-around-runtime-ui-definestyle-changes-could-produce-crashy-python-like-behavior).
+ - It seems definebool does not exist in python, so use boolean comparison on int rather; e.g., `IS_SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_HISTORY_LOG_BUTTON_ENABLE") > 0)`. Does not apply to C++ though that has defineBOOL.
+ - Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
+-- Prefer strict XML lookup helpers from `SASUtils` over raw lookups for static/literal tags: use `getInfoTypeOrFail("TAG")` instead of raw `gc.getInfoTypeForString("TAG")`, and use `findInfoTypeNumOrFail(gc.getXInfo, gc.getNumXInfos, "TAG")` instead of raw `CvUtil.findInfoTypeNum(...)`. This keeps missing or renamed XML tags loud instead of silently returning `-1`; it helped catch incorrect direction-string usage in Planet Generator map (e.g., `getInfoTypeOrFail("DIRECTION_NORTH")` instead of `DirectionTypes.DIRECTION_NORTH*`) and incorrect plot/terrain-style lookups (e.g., `getInfoTypeOrFail("PLOT_PEAK")` instead of `PlotTypes.PLOT_PEAK` in Peirce map). Dynamic/guarded legacy lookups can stay raw only when intentionally allowed by `.github/workflows/build/raw_getinfotype.py`.
++- Prefer strict XML lookup helpers from `SASUtils` over raw lookups for static/literal tags: use `getInfoTypeOrFail("TAG")` instead of raw `gc.getInfoTypeForString("TAG")`, and use `findInfoTypeNumOrFail(gc.getXInfo, gc.getNumXInfos, "TAG")` instead of raw `CvUtil.findInfoTypeNum(...)`. This keeps missing or renamed XML tags loud instead of silently returning `-1`; it helped catch incorrect direction-string usage in Planet Generator map (e.g., `getInfoTypeOrFail("DIRECTION_NORTH")` instead of `DirectionTypes.DIRECTION_NORTH*`) and incorrect plot/terrain-style lookups (e.g., `getInfoTypeOrFail("PLOT_PEAK")` instead of `PlotTypes.PLOT_PEAK` in Peirce map). Dynamic/guarded legacy lookups can stay raw only when intentionally allowed by [`.github/workflows/build/raw_getinfotype.py`](/.github/workflows/README.md#buildraw_getinfotypepy).
+ - When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
+ - Use `from module import *` for helper modules to reduce import tedium and make future additions seamless.
+ - For map scripts, keep reusable helper modules outside `PrivateMaps` (e.g., in `Assets/Python/SAS_WorldSizeUtils.py`) when they define or might define names that Civ4 treats as map-script callbacks (`getGridSize`, `getNumPlotsPercent`, `getDescription`, etc.). The old playable `PrivateMaps/SAS_WorldSizes.py` helper leaked its compact `getGridSize` through `from SAS_WorldSizes import *`, making RandomScriptMap Huge generate empirically too small (`60 x 44`). Fix: moved helpers to `Assets/Python/SAS_WorldSizeUtils.py`; result: RandomScriptMap Huge returned to `120 x 84`. The playable sandbox wrapper is now `PrivateMaps/SAS_Simple_Flat_Grass.py`.
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 15b777528..511e313a9 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -8815,11 +8815,10 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<!-- custom: was 1 in the generic monument -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>2</iCommerce>
++				<iCommerce>1</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -8844,7 +8843,13 @@
+ 			<CommerceChangeOriginalOwners/>
+ 			<ConstructSound>AS2D_BUILD_MONUMENT</ConstructSound>
+ 			<BonusHealthChanges/>
+-			<BonusHappinessChanges/>
++			<!-- custom: new effect with the help of ChatGPT-5.5 thanks. Fits thematic builder profile and helps having varied civ-specific monument buildings, that here preserves some early happiness without making it too OP. Nice thematic fit i think too but anyway. -->
++			<BonusHappinessChanges>
++				<BonusHappinessChange>
++					<BonusType>BONUS_STONE</BonusType>
++					<iHappinessChange>1</iHappinessChange>
++				</BonusHappinessChange>
++			</BonusHappinessChanges>
+ 			<BonusProductionModifiers/>
+ 			<UnitCombatFreeExperiences/>
+ 			<DomainFreeExperiences/>
+@@ -8861,15 +8866,15 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -9011,10 +9016,11 @@
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
++			<!-- custom: was 1 in the generic monument -->
+ 			<ObsoleteSafeCommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>1</iCommerce>
++				<iCommerce>2</iCommerce>
+ 			</ObsoleteSafeCommerceChanges>
+ 			<CommerceChangeDoubleTimes>
+ 				<iCommerce>0</iCommerce>
+@@ -9134,10 +9140,9 @@
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+-			<!-- custom: this should be very valuable for aztecs to build, make sure they build it, will also help their warmongering and such maybe too -->
+-			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 30 in generic monument -->
+-			<iCost>35</iCost>
++			<!-- custom: this should be very valuable for aztecs to build, help increase likeliness they build it; will also help their warmongering and such maybe too -->
++			<iAIWeight>20</iAIWeight>
++			<iCost>30</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -9251,11 +9256,11 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>1</iFlavor>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -9401,11 +9406,7 @@
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>1000</iCommerce>
+ 			</CommerceChangeDoubleTimes>
+-			<CommerceModifiers>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>10</iCommerce>
+-			</CommerceModifiers>
++			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+ 			<StateReligionCommerces/>
+@@ -9423,7 +9424,13 @@
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+ 			<ConstructSound>AS2D_BUILD_MONUMENT</ConstructSound>
+-			<BonusHealthChanges/>
++			<!-- custom: new effect for variety and balance; ChatGPT-5.5 also says this about it thanks: "Yes, Sheep is probably the most relevant Civ4 bonus for a Ziggurat-style Mesopotamian temple economy, mostly because Civ4 has no Goat. The historical hook is not “ziggurats magically make sheep healthy,” but temple livestock administration, offerings, and redistribution. A University of Chicago dissertation on the Eanna temple at Uruk notes that the temple controlled herds of tens of thousands of sheep and goats in the 7th-6th centuries BCE" -->
++			<BonusHealthChanges>
++				<BonusHealthChange>
++					<BonusType>BONUS_SHEEP</BonusType>
++					<iHealthChange>1</iHealthChange>
++				</BonusHealthChange>
++			</BonusHealthChanges>
+ 			<BonusHappinessChanges/>
+ 			<BonusProductionModifiers/>
+ 			<UnitCombatFreeExperiences/>
+@@ -9444,7 +9451,11 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>5</iFlavor>
++					<iFlavor>3</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+
+diff --git a/CvGameCoreDLL/Project/temp_files/.gitkeep b/CvGameCoreDLL/Project/temp_files/.gitkeep
+new file mode 100644
+index 000000000..e69de29bb
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 4861f669d..c6cc693f4 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -1290,6 +1290,8 @@ At this point, or in general, i'd say my best guess would be a cosmic ray fell o
+ 
+ But in all cases, and more seriously really, even though my previous guess was quite serious too, i'd recommend if all seems good otherwise, to make sure you remove all content in temp_files folder (as i have found fast compile seems to cause issues and i strictly avoid it unless doing quick testing never for final dll as of now at least, as mentioned in [README_Known_Issues.md#5---seemingly-worked-around-now-player-name-same-as-windows-10s-for-example-username-causes-new-game-screen-to-be-stuck-unless-a-custom-name-is-chosen-ifafterwhile-dll-has-been-fastdep-compiled)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#5---seemingly-worked-around-now-player-name-same-as-windows-10s-for-example-username-causes-new-game-screen-to-be-stuck-unless-a-custom-name-is-chosen-ifafterwhile-dll-has-been-fastdep-compiled) too; and note too: i think i also made extra sure here that i did delete it as well just before launching the faulty compile, hence my guess that it would be something else like a cosmic ray or something else maybe like a quantic ray xd maybe?? Added this extra clarification as part of reading claude ai's answer or the beginning of it, which gave me the idea to add this, hopefully clearer with this although maybe uneeded or maybe needed in this case i mean but in all cases), and compile again, which in this case, again strangely but all goood maybe xd if i may say although i would have liked to know how maybe too indeed. So adding this info for reference if helps.
+ 
++Update: added a GitHub workflow sanity check for `CvGameCoreDLL/Project/temp_files/` (see [`build/temp_files.py`](/.github/workflows/README.md#buildtemp_filespy)). Git cannot track an empty folder directly, so the folder is kept visible with a zero-byte tracked placeholder file inside it. `.gitignore` no longer hides the folder, `.gitattributes` keeps it out of GitHub Download ZIP / git archive release archives, and the workflow fails if any other temp file or subfolder appears there. This does not prove a compiled DLL is good, but it makes stale fast-compile leftovers harder to miss. We check this because we suspect fast compiles can be unreliable, and it also helps catch forgetting to replace the committed DLL after compiling.
++
+ ## 38.2 - (Weird DLL XML errors at launch, solved by recompiling) The exact same DLL (cosmic ray 2? Or something else maybe or whatever maybe)
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1BnMPUrCSNI2q_yBj6ooC-xhoWT-vguxm?usp=sharing).
+@@ -5476,7 +5478,7 @@ Observed Pangaea Large save 360 example: the change produced different settling
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1L5ubYioq_8I4hejIZbdV0uRhSKj3FS38?usp=sharing).
+ 
+-While adding `build/xml_parent_duplicate_keys.py` to the GitHub workflow checks, [the first CI run](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912) correctly failed and exposed several duplicate parent XML identifiers. This was a useful validation that the check works, because it caught both old inherited XML duplicates and one AdvCiv-SAS art duplicate.
++While adding [`build/xml_parent_duplicate_keys.py`](/.github/workflows/README.md#buildxml_parent_duplicate_keyspy) to the GitHub workflow checks, [the first CI run](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912) correctly failed and exposed several duplicate parent XML identifiers. This was a useful validation that the check works, because it caught both old inherited XML duplicates and one AdvCiv-SAS art duplicate.
+ 
+ GitHub Actions output:
+ 
+@@ -5516,7 +5518,7 @@ Note: the workflow intentionally checks only parent-style XML identifiers, such
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1IVfRbgHLfXdELtT5a6W20fFegfC1O1DG?usp=sharing).
+ 
+-While adding `build/xml_text_duplicate_tags.py` to the GitHub workflow checks, the [first failing](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894) run found duplicate `<TEXT>/<Tag>` entries across the XML text files. This was useful because duplicate text keys can silently make one entry shadow another, and the active value can depend on XML load order rather than intent.
++While adding [`build/xml_text_duplicate_tags.py`](/.github/workflows/README.md#buildxml_text_duplicate_tagspy) to the GitHub workflow checks, the [first failing](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894) run found duplicate `<TEXT>/<Tag>` entries across the XML text files. This was useful because duplicate text keys can silently make one entry shadow another, and the active value can depend on XML load order rather than intent.
+ 
+ GitHub Actions output included these duplicate text tags:
+ 
+@@ -5549,7 +5551,7 @@ Note: for the hint ones it's only in AdvCiv-SAS that we don't want them duplicat
+ 
+ ## 150 - (Fixed) Base AdvCiv issue (and some AdvCiv-SAS): Priority duplicate XML child/list entries found by new GitHub workflow check
+ 
+-After the text duplicate check was fixed, `build/xml_child_duplicates.py` [exposed](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) priority duplicate child/list entries. These are not parent XML keys like KI#148; they are repeated child values inside one parent object where duplication is very likely accidental and semantically harmful or useless.
++After the text duplicate check was fixed, [`build/xml_child_duplicates.py`](/.github/workflows/README.md#buildxml_child_duplicatespy) [exposed](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) priority duplicate child/list entries. These are not parent XML keys like KI#148; they are repeated child values inside one parent object where duplication is very likely accidental and semantically harmful or useless.
+ 
+ GitHub Actions output:
+ 
+@@ -5579,7 +5581,7 @@ After these changes, `python .github/workflows/build/xml_child_duplicates.py` pa
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1u_l6UkCpRFe0oGhf4Z_43FK-fP7pcEuW?usp=sharing).
+ 
+-While adding `build/xml_suspicious_angle_tags.py` to the GitHub workflow checks, the [first failing run](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) found XML text entries with extra `>` characters near language tags. These are valid enough for a normal XML parser because the extra angle can be interpreted as text, but they are still almost certainly malformed text data and can show an unintended leading or trailing `>` in-game.
++While adding [`build/xml_suspicious_angle_tags.py`](/.github/workflows/README.md#buildxml_suspicious_angle_tagspy) to the GitHub workflow checks, the [first failing run](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) found XML text entries with extra `>` characters near language tags. These are valid enough for a normal XML parser because the extra angle can be interpreted as text, but they are still almost certainly malformed text data and can show an unintended leading or trailing `>` in-game.
+ 
+ GitHub Actions output:
+ 
+@@ -5608,7 +5610,7 @@ After these changes, `python .github/workflows/build/xml_suspicious_angle_tags.p
+ 
+ ## 152 - (Fixed) Suspicious replacement question marks in lengthy Sevopedia XML found by new GitHub workflow check
+ 
+-While adding `build/xml_suspicious_text_chars.py` to the GitHub workflow checks, the [first failing](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) run found suspicious `?` characters inside word-like tokens in `AdvCiv-SAS_Sevopedia_Lengthy.xml`. This was an AdvCiv-SAS lengthy text issue, not a base AdvCiv inheritance issue. The check also reported 182 inherited non-English replacement-character findings as ignored by default, so the actionable failure stayed focused on active English/SAS text.
++While adding [`build/xml_suspicious_text_chars.py`](/.github/workflows/README.md#buildxml_suspicious_text_charspy) to the GitHub workflow checks, the [first failing](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) run found suspicious `?` characters inside word-like tokens in `AdvCiv-SAS_Sevopedia_Lengthy.xml`. This was an AdvCiv-SAS lengthy text issue, not a base AdvCiv inheritance issue. The check also reported 182 inherited non-English replacement-character findings as ignored by default, so the actionable failure stayed focused on active English/SAS text.
+ 
+ GitHub Actions output:
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 091bae49a..fd9ff3159 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -113,8 +113,9 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Fail-fast XML lookup hardening:** replaced almost all `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values. Notably allowed to detect and fix incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` instead of correct `DirectionTypes.DIRECTION_NORTH` (in Planet Generator map), or incorrect `getInfoTypeOrFail("PLOT_PEAK")` failing instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map). (Requires AdvCiv-SAS 5940+) Also added `findInfoTypeNumOrFail(...)` for older `CvUtil.findInfoTypeNum(...)` callsites that need getter/count function. Note: now also double-checked by a GitHub workflow check which now blocks new raw static/literal Python info-type lookups unless they are explicitly listed as dynamic/guarded legacy exceptions.
+ - **Static define-key audit:** added [`audit_define_keys.py`](/LLM_Helpers/audit_define_keys.py), which statically greps every literal `getDefine{BOOL,FLOAT,INT,STRING}("X")` call across Python and DLL and verifies `X` is declared in mod XML, base BTS XML, or vanilla Civ4 XML. Catches **per-key drift** (renamed/removed XML entries) before runtime. A runtime fail-loud wrapper isn't practical here because `getDefine*` returns `0`/`""` for both missing and legitimately zero/empty keys (unlike `getInfoTypeForString` which has a clean `-1` sentinel); a static grep is also **cheaper and simpler to maintain** than wrapping every call site. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - **Unused-text-key audit + cleanup:** added [`audit_unused_text_keys.py`](/LLM_Helpers/audit_unused_text_keys.py), which flags mod GameText `<Tag>TXT_KEY_*` entries referenced **nowhere** in the mod, base BTS, or vanilla Civ4 (Python + DLL + XML); dynamically-built (`"TXT_KEY_BUG_OPT_"+id`) and engine-derived (`_PEDIA/_HELP/...`) key families are routed to a separate review bucket to avoid false positives. Used it to **remove confirmed dead GameText entries** from [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml). See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+-- (Requires AdvCiv-SAS 5930+) **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `SAS_MAGIC_WORLDSIZE_*` constants matching `CIV4WorldInfo.xml` order, and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change). (Requires AdvCiv-SAS 5935+) This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)), and [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)). The checks also run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md).
+-- (Requires AdvCiv-SAS 5931+) **Dependabot for GitHub Actions:** added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20 (see [<hidden-email>#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24)). This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md`](/.github/workflows/README.md).
++- (Requires AdvCiv-SAS 5930+) **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `SAS_MAGIC_WORLDSIZE_*` constants matching `CIV4WorldInfo.xml` order, `CvGameCoreDLL/Project/temp_files/` staying effectively empty (only its tracked placeholder file), not being ignored by `.gitignore`, and being allowed only as an archive-excluded development marker through `.gitattributes` (helps catch stale fast-compile temp files. We check this because we suspect fast compiles can be unreliable, and also helps catch forgetting to replace the committed DLL after compiling; see [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-but-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwith-but-exact-same-source-files-if-i-am-not-mistaken-but) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe-but)), and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
++- Other examples: (Requires AdvCiv-SAS 5935+) This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)), and [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)). The checks also run locally with Python 3; see [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
++- (Requires AdvCiv-SAS 5931+) **Dependabot for GitHub Actions:** added Dependabot tracking for GitHub Actions versions to help address Node.js runtime deprecation warnings such as `actions/<hidden-email>` and `actions/<hidden-email>` still using Node.js 20 (see [<hidden-email>#24](https://github.com/wonderingabout/AdvCiv-SAS/pull/24)). This should reduce manual maintenance and make future action-version updates easier to notice and apply. See [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
+ - **Handicap XML comparison helper:** added [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py), a report-only, mod-agnostic helper that compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, by handicap index; shows missing fields as blanks, includes absolute/percentage numeric deltas, and embeds a spreadsheet-friendly TSV matrix. The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) compares base AdvCiv 1.12 vs AdvCiv-SAS. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+ - **Remove screen-dependent geometry computation** from `__init__` in advisors because this advisor object is created before a reliable screen context exists; doing layout in `interfaceScreen` **ensures correct values for the current resolution**. Keeping **only screen-independent edge constants** in `__init__` ensures **no redundant recomputation** is made again in `interfaceScreen`, and **catches loud screen-dependent errors** in `__init__`.
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=64348

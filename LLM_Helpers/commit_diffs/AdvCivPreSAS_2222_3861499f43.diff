@@ -1,0 +1,752 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2222
+# Commit: 3861499f43011ac1057ad25f8c78ff52b72c0eab
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3a65e047fce3a9e36692655aa8cb6fe8a76ed29d
+# Title: Move CvString implementations into CvString.cpp
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+273	0	CvGameCoreDLL/CvString.cpp
+23	307	CvGameCoreDLL/CvString.h
+3	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+ create mode 100644 CvGameCoreDLL/CvString.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvString.cpp b/CvGameCoreDLL/CvString.cpp
+new file mode 100644
+index 000000000..44e097c79
+--- /dev/null
++++ b/CvGameCoreDLL/CvString.cpp
+@@ -0,0 +1,273 @@
++// advc: New implementation file for function definitions moved from CvString.h
++
++#include "CvGameCoreDLL.h"
++#include "CvString.h"
++
++
++void CvWString::Copy(const char* s)
++{
++	if (s == NULL)
++		return;
++
++	int iLen = strlen(s);
++	if (iLen > 0)
++	{
++		wchar *w = new wchar[iLen+1];
++		swprintf(w, L"%S", s);	// convert
++		assign(w);
++		delete [] w;
++	}
++}
++
++
++void CvWStringBuffer::append(const wchar *szCharacters)
++{
++	if(szCharacters == NULL)
++		return;
++
++	int inputLength = wcslen(szCharacters);
++	int newLength = m_iLength + inputLength;
++	ensureCapacity(newLength + 1);
++
++	//append data
++	memcpy(m_pBuffer + m_iLength, szCharacters, sizeof(wchar) * (inputLength + 1)); //null character
++	m_iLength = newLength;
++}
++
++
++void CvWStringBuffer::ensureCapacity(int newCapacity)
++{
++	if(newCapacity <= m_iCapacity)
++		return;
++
++	m_iCapacity = 2 * newCapacity; //grow by %100
++	wchar *newBuffer = new wchar [m_iCapacity];
++
++	//copy data
++	if(m_pBuffer != NULL)
++	{
++		memcpy(newBuffer, m_pBuffer, sizeof(wchar) * (m_iLength + 1)); //null character
++		//erase old memory
++		SAFE_DELETE_ARRAY(m_pBuffer);
++	}
++	else newBuffer[0] = 0; //null character
++	m_pBuffer = newBuffer;
++}
++
++
++void CvString::Copy(const wchar* w)
++{
++	if (w == NULL)
++		return;
++
++	int iLen = wcslen(w);
++	if (iLen > 0)
++	{
++		char *s = new char[iLen+1];
++		sprintf(s, "%S", w);	// convert
++		assign(s);
++		delete [] s;
++	}
++}
++
++
++int CvString::Replace(char chOld, char chNew)
++{
++	int iCnt = 0;
++	for(int i = 0; i < (int)size(); i++)
++	{
++		if ((*this)[i] == chOld)
++		{
++			replace(i, 1, std::string(1, chNew));
++			iCnt++;
++		}
++	}
++	return iCnt;
++}
++
++
++void CvString::getTokens(const CvString& delimiters, std::vector<CvString>& tokensOut) const
++{
++	//tokenizer code taken from http://www.digitalpeer.com/id/simple
++
++	// skip delimiters at beginning.
++	size_type lastPos = find_first_not_of(delimiters, 0);
++
++	// find first "non-delimiter".
++	size_type pos = find_first_of(delimiters, lastPos);
++
++	while (CvString::npos != pos || CvString::npos != lastPos)
++	{
++		// found a token, parse it.
++		CvString token = substr(lastPos, pos - lastPos);
++		tokensOut.push_back(token);
++
++		// skip delimiters.  Note the "not_of"
++		lastPos = find_first_not_of(delimiters, pos);
++
++		// find next "non-delimiter"
++		pos = find_first_of(delimiters, lastPos);
++	}
++}
++
++
++bool CvString::formatv(std::string & out, const char * fmt, va_list args)
++{
++	char buf[2048];
++	char * pbuf = buf;
++	int len = 0;
++	int attempts = 0;
++	bool success = false;
++	const int kMaxAttempts = 40;
++
++	do
++	{
++		int maxlen = 2047+2048*attempts;
++		len = _vsnprintf(pbuf,maxlen,fmt,args);
++		attempts++;
++		success = (len>=0 && len<=maxlen);
++		if (!success)
++		{
++			if (pbuf!=buf)
++				delete [] pbuf;
++			pbuf = new char[2048+2048*attempts];
++		}
++	}
++	while (!success && attempts<kMaxAttempts);
++
++	if (attempts==kMaxAttempts)
++	{
++		// dxPrintNL("CvString::formatv - Max reallocs occurred while formatting string. Result is likely truncated!", 0);
++	}
++
++	if (success)
++		out = pbuf;
++	else
++		out = "";
++
++	if (pbuf!=buf)
++		delete [] pbuf;
++
++	return success;
++}
++
++
++bool CvWString::formatv(std::wstring & out, const wchar * fmt, va_list args)
++{
++	wchar buf[2048];
++	wchar * pbuf = buf;
++	int len = 0;
++	int attempts = 0;
++	bool success = false;
++	const int kMaxAttempts = 40;
++
++	do
++	{
++		int maxlen = 2047+2048*attempts;
++		len = _vsnwprintf(pbuf,maxlen,fmt,args);
++		attempts++;
++		success = (len>=0 && len<=maxlen);
++		if (!success)
++		{
++			if (pbuf!=buf)
++				delete [] pbuf;
++			pbuf = new wchar[2048+2048*attempts];
++		}
++	}
++	while (!success && attempts<kMaxAttempts);
++
++	if (attempts==kMaxAttempts)
++	{
++		// dxPrintNL("CvString::formatv - Max reallocs occurred while formatting string. Result is likely truncated!", 0);
++	}
++
++	if (success)
++		out = pbuf;
++	else
++		out = L"";
++
++	if (pbuf!=buf)
++		delete [] pbuf;
++
++	return success;
++}
++
++
++std::wstring CvWString::formatv(const wchar * fmt, va_list args)
++{
++	std::wstring result;
++	formatv(result, fmt, args);
++	return result;
++}
++
++
++CvWString CvWString::format(const wchar * fmt, ...)
++{
++	std::wstring result;
++	va_list args;
++	va_start(args,fmt);
++	formatv(result,fmt,args);
++	va_end(args);
++	return CvWString(result);
++}
++
++
++bool CvWString::format(std::wstring & out, const wchar * fmt, ...)
++{
++	va_list args;
++	va_start(args,fmt);
++	bool r = formatv(out,fmt,args);
++	va_end(args);
++	return r;
++}
++
++
++void CvWString::Format( LPCWSTR lpszFormat, ...)
++{
++	std::wstring result;
++	va_list args;
++	va_start(args,lpszFormat);
++	formatv(result,lpszFormat,args);
++	va_end(args);
++	*this = result;
++}
++
++
++std::string CvString::formatv(const char * fmt, va_list args)
++{
++	std::string result;
++	formatv(result, fmt, args);
++	return result;
++}
++
++
++CvString CvString::format(const char * fmt, ...)
++{
++	std::string result;
++	va_list args;
++	va_start(args,fmt);
++	formatv(result,fmt,args);
++	va_end(args);
++	return CvString(result);
++}
++
++
++bool CvString::format(std::string & out, const char * fmt, ...)
++{
++	va_list args;
++	va_start(args,fmt);
++	bool r = formatv(out,fmt,args);
++	va_end(args);
++	return r;
++}
++
++
++void CvString::Format( LPCSTR lpszFormat, ...)
++{
++	std::string result;
++	va_list args;
++	va_start(args,lpszFormat);
++	formatv(result,lpszFormat,args);
++	va_end(args);
++	*this = result;
++}
+
+diff --git a/CvGameCoreDLL/CvString.h b/CvGameCoreDLL/CvString.h
+index 8bc08c089..a63d15913 100644
+--- a/CvGameCoreDLL/CvString.h
++++ b/CvGameCoreDLL/CvString.h
+@@ -2,11 +2,9 @@
+ 
+ #ifndef CvString_h
+ #define CvString_h
+-// advc.make: Needed for _USRDLL definition
+-#include "CvDefines.h"
+ 
+ #include <string>
+-#pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
++//#pragma warning( disable: 4251 ) // needs to have dll-interface to be used by clients of class
+ 
+ //
+ // simple string classes, based on stl, but with a few helpers
+@@ -28,27 +26,14 @@ public:
+ 	CvWString(const wchar* s) { if (s) *this = s; }
+ //	CvWString(const __wchar_t* s) { if (s) *this = s; }
+ 	CvWString(const std::wstring& s) { assign(s.c_str()); }
+-#ifndef _USRDLL
++//#ifndef _USRDLL
+ 	// FString conversion, if not in the DLL
+-	CvWString(const FStringA& s) { Copy(s.GetCString()); }
+-	CvWString(const FStringW& s) { assign(s.GetCString()); }
+-#endif
++//	CvWString(const FStringA& s) { Copy(s.GetCString()); }
++//	CvWString(const FStringW& s) { assign(s.GetCString()); }
++//#endif // advc (the EXE doesn't even use these)
+ 	~CvWString() {}
+ 
+-	void Copy(const char* s)
+-	{
+-		if (s)
+-		{
+-			int iLen = strlen(s);
+-			if (iLen)
+-			{
+-				wchar *w = new wchar[iLen+1];
+-				swprintf(w, L"%S", s);	// convert
+-				assign(w);
+-				delete [] w;
+-			}
+-		}
+-	}
++	void Copy(const char* s); // advc: Definition moved into implementation file
+ 
+ 	// FString compatibility
+ 	const wchar* GetCString() const 	{ return c_str(); }
+@@ -64,11 +49,11 @@ public:
+ 	const CvWString& operator=( const std::wstring& s) { assign(s.c_str());	return *this; }
+ 	const CvWString& operator=( const std::string& w) { Copy(w.c_str());	return *this; }
+ 	const CvWString& operator=( const CvWString& w) { assign(w.c_str());	return *this; }
+-#ifndef _USRDLL
++//#ifndef _USRDLL
+ 	// FString conversion, if not in the DLL
+-	const CvWString& operator=( const FStringW& s) { assign(s.GetCString());	return *this; }
+-	const CvWString& operator=( const FStringA& w) { Copy(w.GetCString());	return *this; }
+-#endif
++//	const CvWString& operator=( const FStringW& s) { assign(s.GetCString());	return *this; }
++//	const CvWString& operator=( const FStringA& w) { Copy(w.GetCString());	return *this; }
++//#endif // advc (the EXE doesn't even use these)
+ 	const CvWString& operator=( const char* w) { Copy(w);	return *this; }
+ 
+ 	void Format(LPCWSTR lpszFormat, ...);
+@@ -112,19 +97,7 @@ public:
+ 		m_iLength = newLength;
+ 	}
+ 
+-	void append(const wchar *szCharacters)
+-	{
+-		if(szCharacters == NULL)
+-			return;
+-
+-		int inputLength = wcslen(szCharacters);
+-		int newLength = m_iLength + inputLength;
+-		ensureCapacity(newLength + 1);
+-
+-		//append data
+-		memcpy(m_pBuffer + m_iLength, szCharacters, sizeof(wchar) * (inputLength + 1)); //null character
+-		m_iLength = newLength;
+-	}
++	void append(const wchar *szCharacters); // advc: Definition moved into implementation file
+ 
+ 	void append(const CvWString &szString)
+ 	{
+@@ -158,10 +131,7 @@ public:
+ 
+ 	bool isEmpty() const
+ 	{
+-		if(m_iLength == 0)
+-			return true;
+-		else
+-			return false;
++		return (m_iLength == 0);
+ 	}
+ 
+ 	const wchar *getCString()
+@@ -171,35 +141,14 @@ public:
+ 	}
+ 
+ private:
+-	void ensureCapacity(int newCapacity)
+-	{
+-		if(newCapacity > m_iCapacity)
+-		{
+-			m_iCapacity = 2 * newCapacity; //grow by %100
+-			wchar *newBuffer = new wchar [m_iCapacity];
+-
+-			//copy data
+-			if(m_pBuffer != NULL)
+-			{
+-				memcpy(newBuffer, m_pBuffer, sizeof(wchar) * (m_iLength + 1)); //null character
+-				//erase old memory
+-				SAFE_DELETE_ARRAY(m_pBuffer);
+-			}
+-			else
+-			{
+-				newBuffer[0] = 0; //null character
+-			}
+-
+-			m_pBuffer = newBuffer;
+-		}
+-	}
++	void ensureCapacity(int newCapacity); // advc: Definition moved into implementation file
+ 
+ 	wchar *m_pBuffer;
+ 	int m_iLength;
+ 	int m_iCapacity;
+ };
+ 
+-//
++
+ class CvString : public std::string
+ {
+ public:
+@@ -207,24 +156,12 @@ public:
+ 	CvString(int iLen) { reserve(iLen); }
+ 	CvString(const char* s) { operator=(s); }
+ 	CvString(const std::string& s) { assign(s.c_str()); }
+-	explicit CvString(const std::wstring& s) { Copy(s.c_str()); }		// don't want accidental conversions down to narrow strings
++	// don't want accidental conversions down to narrow strings
++	explicit CvString(const std::wstring& s) { Copy(s.c_str()); }
+ 	~CvString() {}
+ 
+ 	void Convert(const std::wstring& w) { Copy(w.c_str());	}
+-	void Copy(const wchar* w)
+-	{
+-		if (w)
+-		{
+-			int iLen = wcslen(w);
+-			if (iLen)
+-			{
+-				char *s = new char[iLen+1];
+-				sprintf(s, "%S", w);	// convert
+-				assign(s);
+-				delete [] s;
+-			}
+-		}
+-	}
++	void Copy(const wchar* w); // advc: Definition moved into implementation file
+ 
+ 	// implicit conversion
+ 	operator const char*() const 	{ return c_str(); }
+@@ -236,12 +173,13 @@ public:
+ 	const char operator[](int i) const { return std::string::operator[](i);	}
+ 	const CvString& operator=( const char* s) { if (s) assign(s); else clear();	return *this; }
+ 	const CvString& operator=( const std::string& s) { assign(s.c_str());	return *this; }
+-//	const CvString& operator=( const std::wstring& w) { Copy(w.c_str());	return *this; }		// don't want accidental conversions down to narrow strings
++	// don't want accidental conversions down to narrow strings
++//	const CvString& operator=( const std::wstring& w) { Copy(w.c_str());	return *this; }
+ //	const CvString& operator=( const wchar* w) { Copy(w);	return *this; }
+ 
+ 	// FString compatibility
+ 	bool IsEmpty() const { return empty();	}
+-	const char* GetCString() const 	{ return c_str(); }							// convert
++	const char* GetCString() const 	{ return c_str(); }	// convert
+ 	int CompareNoCase(const char* lpsz) const { return stricmp(lpsz, c_str()); }
+ 	int CompareNoCase(const char* lpsz, int iLength) const { return strnicmp(lpsz, c_str(), iLength);  }
+ 	void Format(LPCSTR lpszFormat, ...);
+@@ -257,231 +195,9 @@ public:
+ 	static std::string formatv(const char * fmt, va_list args);
+ };
+ 
+-//////////////////////////////////////////////////////////////////////////
++
+ // INLINES
+ // Don't move these into a cpp file, since I don't want CvString to be part of the DLL, MT
+-//////////////////////////////////////////////////////////////////////////
+-
+-inline int CvString::Replace(char chOld, char chNew)
+-{
+-	int iCnt = 0;
+-	for(int i = 0; i < (int)size(); i++)
+-	{
+-		if ((*this)[i] == chOld)
+-		{
+-			replace(i, 1, std::string(1, chNew));
+-			iCnt++;
+-		}
+-	}
+-	return iCnt;
+-}
+-
+-inline void CvString::getTokens(const CvString& delimiters, std::vector<CvString>& tokensOut) const
+-{
+-	//tokenizer code taken from http://www.digitalpeer.com/id/simple
+-
+-	// skip delimiters at beginning.
+-	size_type lastPos = find_first_not_of(delimiters, 0);
+-
+-	// find first "non-delimiter".
+-	size_type pos = find_first_of(delimiters, lastPos);
+-
+-	while (CvString::npos != pos || CvString::npos != lastPos)
+-	{
+-		// found a token, parse it.
+-		CvString token = substr(lastPos, pos - lastPos);
+-		tokensOut.push_back(token);
+-
+-		// skip delimiters.  Note the "not_of"
+-		lastPos = find_first_not_of(delimiters, pos);
+-
+-		// find next "non-delimiter"
+-		pos = find_first_of(delimiters, lastPos);
+-	}
+-}
+-
+-//
+-// static
+-//
+-inline bool CvString::formatv(std::string & out, const char * fmt, va_list args)
+-{
+-	char buf[2048];
+-	char * pbuf = buf;
+-	int len = 0;
+-	int attempts = 0;
+-	bool success = false;
+-	const int kMaxAttempts = 40;
+-
+-	do
+-	{
+-		int maxlen = 2047+2048*attempts;
+-		len = _vsnprintf(pbuf,maxlen,fmt,args);
+-		attempts++;
+-		success = (len>=0 && len<=maxlen);
+-		if (!success)
+-		{
+-			if (pbuf!=buf)
+-				delete [] pbuf;
+-			pbuf = new char[2048+2048*attempts];
+-		}
+-	}
+-	while (!success && attempts<kMaxAttempts);
+-
+-	if (attempts==kMaxAttempts)
+-	{
+-		// dxPrintNL("CvString::formatv - Max reallocs occurred while formatting string. Result is likely truncated!", 0);
+-	}
+-
+-	if (success)
+-		out = pbuf;
+-	else
+-		out = "";
+-
+-	if (pbuf!=buf)
+-		delete [] pbuf;
+-
+-	return success;
+-}
+-
+-//
+-// static
+-//
+-inline bool CvWString::formatv(std::wstring & out, const wchar * fmt, va_list args)
+-{
+-	wchar buf[2048];
+-	wchar * pbuf = buf;
+-	int len = 0;
+-	int attempts = 0;
+-	bool success = false;
+-	const int kMaxAttempts = 40;
+-
+-	do
+-	{
+-		int maxlen = 2047+2048*attempts;
+-		len = _vsnwprintf(pbuf,maxlen,fmt,args);
+-		attempts++;
+-		success = (len>=0 && len<=maxlen);
+-		if (!success)
+-		{
+-			if (pbuf!=buf)
+-				delete [] pbuf;
+-			pbuf = new wchar[2048+2048*attempts];
+-		}
+-	}
+-	while (!success && attempts<kMaxAttempts);
+-
+-	if (attempts==kMaxAttempts)
+-	{
+-		// dxPrintNL("CvString::formatv - Max reallocs occurred while formatting string. Result is likely truncated!", 0);
+-	}
+-
+-	if (success)
+-		out = pbuf;
+-	else
+-		out = L"";
+-
+-	if (pbuf!=buf)
+-		delete [] pbuf;
+-
+-	return success;
+-}
+-
+-
+-//
+-// static
+-//
+-inline std::wstring CvWString::formatv(const wchar * fmt, va_list args)
+-{
+-	std::wstring result;
+-	formatv(result, fmt, args);
+-	return result;
+-}
+-
+-//
+-// static
+-//
+-inline CvWString CvWString::format(const wchar * fmt, ...)
+-{
+-	std::wstring result;
+-	va_list args;
+-	va_start(args,fmt);
+-	formatv(result,fmt,args);
+-	va_end(args);
+-	return CvWString(result);
+-}
+-
+-//
+-// static
+-//
+-inline bool CvWString::format(std::wstring & out, const wchar * fmt, ...)
+-{
+-	va_list args;
+-	va_start(args,fmt);
+-	bool r = formatv(out,fmt,args);
+-	va_end(args);
+-	return r;
+-}
+-
+-//
+-//
+-//
+-inline void CvWString::Format( LPCWSTR lpszFormat, ...)
+-{
+-	std::wstring result;
+-	va_list args;
+-	va_start(args,lpszFormat);
+-	formatv(result,lpszFormat,args);
+-	va_end(args);
+-	*this = result;
+-}
+-
+-//
+-// static
+-//
+-inline std::string CvString::formatv(const char * fmt, va_list args)
+-{
+-	std::string result;
+-	formatv(result, fmt, args);
+-	return result;
+-}
+-//
+-// static
+-//
+-inline CvString CvString::format(const char * fmt, ...)
+-{
+-	std::string result;
+-	va_list args;
+-	va_start(args,fmt);
+-	formatv(result,fmt,args);
+-	va_end(args);
+-	return CvString(result);
+-}
+-
+-//
+-// static
+-//
+-inline bool CvString::format(std::string & out, const char * fmt, ...)
+-{
+-	va_list args;
+-	va_start(args,fmt);
+-	bool r = formatv(out,fmt,args);
+-	va_end(args);
+-	return r;
+-}
+-
+-
+-//
+-//
+-//
+-inline void CvString::Format( LPCSTR lpszFormat, ...)
+-{
+-	std::string result;
+-	va_list args;
+-	va_start(args,lpszFormat);
+-	formatv(result,lpszFormat,args);
+-	va_end(args);
+-	*this = result;
+-}
+-
+-#endif	// CvString_h
++// advc: I've done just that - since CvString is part of the DLL.
+ 
++#endif
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index b65534ed3..92cbdbf22 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -104,6 +104,7 @@
+     <ClCompile Include="..\CvSelectionGroup.cpp" />
+     <ClCompile Include="..\CvSelectionGroupAI.cpp" />
+     <ClCompile Include="..\CvStatistics.cpp" />
++    <ClCompile Include="..\CvString.cpp" />
+     <ClCompile Include="..\CvStructs.cpp" />
+     <ClCompile Include="..\CvTalkingHeadMessage.cpp" />
+     <ClCompile Include="..\CvTeam.cpp" />
+@@ -161,6 +162,7 @@
+     <ClCompile Include="..\CyTeamInterface.cpp" />
+     <ClCompile Include="..\CyUnit.cpp" />
+     <ClCompile Include="..\CyUnitInterface1.cpp" />
++    <ClCompile Include="..\ReproTest.cpp" />
+     <ClCompile Include="..\EnumMapTest.cpp" />
+     <ClCompile Include="..\FDialogTemplate.cpp" />
+     <ClCompile Include="..\FFreeListTrashArray.cpp" />
+@@ -305,6 +307,7 @@
+     <ClInclude Include="..\CySelectionGroup.h" />
+     <ClInclude Include="..\CyTeam.h" />
+     <ClInclude Include="..\CyUnit.h" />
++    <ClInclude Include="..\ReproTest.h" />
+     <ClInclude Include="..\EnumMap.h" />
+     <ClInclude Include="..\EnumMap2D.h" />
+     <ClInclude Include="..\FAssert.h" />
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=17292

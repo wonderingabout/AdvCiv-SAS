@@ -1,0 +1,130 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5124
+# Commit: e7fa40612fbca182e8afd2eb2ddf1e80106d9ef8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 51eea11e7c3fe8d1d4d1b2bcdb05a271246d98d9
+# Title: Convenience for human player(s?): add the force artist until BFC effect (tunable) + bugfix force artist not working (sometimes or always?) (revert KI#70) any...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+11	0	Assets/XML/GlobalDefines_advciv_sas.xml
+4	1	CvGameCoreDLL/CvCity.cpp
+9	4	CvGameCoreDLL/CvCityAI.cpp
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 6179dec9c..a8505dd06 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1097,6 +1097,17 @@
+ 		<DefineName>SAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD</DefineName>
+ 		<iDefineIntVal>2</iDefineIntVal>
+ 	</Define>
++	<!-- custom: since it is always the artist that is being forced early when invalid, adding this fix thanks to chatgpt 5, check if accurate anyways etc -->
++	<!-- custom: update: it seems that in some cases we lose the artist bfc ability we had, gating it with an xml define/toggle to see if it selectively loses/restores the bfc ability anyways etc, recommended to disable it until/unless it is determined safe if at all to enable anyways etc; update 2: tested in autoplay and we indeed selectively lose the ability to force an artist for bfc after enabling this, so disabling this entirely, kept a toggle if want to experiement or test it i mean but anyways etc. Recommended to keep this disabled anyways etc. May want to investigate further why the assert fires and propose a cleaner fix, however it's maybe fine to leave it as is as long as works for now if not always or not but anyways etc. -->
++	<Define>
++		<DefineName>SAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- custom: also give the option for human players to have it for their convenience anyways etc (1 to enable, 0 to disable anyways etc). -->
++	<Define>
++		<DefineName>SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 0c5fda42a..b09ccf696 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1268,7 +1268,10 @@ void CvCity::doTurn()
+ 	// <!-- custom: force an artist if we don't have our BFC and city's culture per turn is low -->
+ 	// --- BEGIN: SAS hard patch: force 1 Artist for fast BFC when culture/turn is low ---
+ 	static const bool bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
+-	if (!bHuman && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
++	// <!-- custom: also give the option for human players to have it for their convenience anyways etc. -->
++	static const bool bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE = GC.getDefineBOOL("SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE");
++	const bool bConvenienceHumanForceArtist = (bHuman && bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE);
++	if ((!bHuman || bConvenienceHumanForceArtist) && bSAS_DO_TURN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
+ 	{
+ 		static const int iLowCpt = GC.getDefineINT("SAS_DO_TURN_FORCE_ARTIST_FOR_BFC_MIN_NO_CULTURE_PER_TURN_THRESHOLD");
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 19c843086..0b384aa2f 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -204,10 +204,15 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
+ 			int iForcedSpecialistCount = getForceSpecialistCount(e);
+ 
+ 			// <!-- custom: since it is always the artist that is being forced early when invalid, adding this fix thanks to chatgpt 5, check if accurate anyways etc -->
+-			// simple rule: never force an invalid specialist
+-			if (!isSpecialistValid(e)) continue;
+-			// don't exceed available slots
+-			iForcedSpecialistCount = std::min(iForcedSpecialistCount, getMaxSpecialistCount(e));
++			// <!-- custom: update: it seems that in some cases we lose the artist bfc ability we had, gating it with an xml define/toggle to see if it selectively loses/restores the bfc ability anyways etc, recommended to disable it until/unless it is determined safe if at all to enable anyways etc; update 2: tested in autoplay and we indeed selectively lose the ability to force an artist for bfc after enabling this, so disabling this entirely, kept a toggle if want to experiement or test it i mean but anyways etc. Recommended to keep this disabled anyways etc. May want to investigate further why the assert fires and propose a cleaner fix, however it's maybe fine to leave it as is as long as works for now if not always or not but anyways etc. -->
++			static const bool bSAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST = GC.getDefineBOOL("SAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST");
++			if (bSAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST)
++			{
++				// simple rule: never force an invalid specialist
++				if (!isSpecialistValid(e)) continue;
++				// don't exceed available slots
++				iForcedSpecialistCount = std::min(iForcedSpecialistCount, getMaxSpecialistCount(e));
++			}
+ 
+ 			if (getSpecialistCount(e) < iForcedSpecialistCount)
+ 			{
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index c63e2ccac..35036695d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -2752,6 +2752,8 @@ See code comments i.e. in `CvCityAI::AI_assignWorkingPlots` there for details, s
+ 
+ Update/note: most likely was caused by the forced artist code we added (see [Specialists (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#specialists-ai) for details anyways etc), although i am not totally sure, as it fires only for artists, and in the early game only in first turns, which aligns with it stopping to fire after we have our BFC, which is when we stop forcing an artist in our code and so it seems likely our code caused it and not base advciv itself, although this is just a guess of mine so check to be sure if want i mean but anyways etc. Still, this is a nice fix and guard to have regardless as sanity i'd say maybe if i may say and guess i mean, but i don't know too much about these, also the extra assert info in the message detailed i mean is nice too i mean but anyways etc.
+ 
++Update 2: this causes issues sometimes or always so we can't anymore force an artist so reverted and now disabled it, gated via a define if want to experiment with it i mean but anyways etc (see as of now `SAS_ASSIGN_WORKING_PLOTS_EXPERIMENTAL_TOGGLE_FORCE_ARTIST` for details) i mean if i may say but anyways etc. May want to investigate further why the assert fires and propose a cleaner fix, however it's maybe fine to leave it as is as long as works for now if not always or not but anyways etc.
++
+ ## 71 - (Seemingly fixed) Base advciv bug of calling CvBuildInfo::isFeatureRemove when eFeature is not a valid feature, then firing a failed assert
+ 
+ See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1grZBqkHYUqtXAhdqRxpSqqa759_Q7gsI?usp=sharing) anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index e20a606b1..2429d9bd4 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -277,6 +277,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - buff the citizen, as of now to give one gold (so total 1 hammer and 1 gold), this was at first mostly to help the AI as it used to allocate a lot of them inefficiently, but may now in all cases anyways etc also help buff the citizen that is still too weak even without that i mean anyways etc, also considering the 2 food cost of a specialist, this is probably balanced and still not better than working any tile, just more even as in i mean anyways etc less penalizing to choose the citizen specialist over any other or working a tile if i am not mistaken anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+ - also buff the priest that as of now also gives one extra culture (so total 1 hammer 2 gold 1 culture if i am not mistaken as of now anyways if i am not mistaken i mean anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+ - also buff the engineer that as of now also gives one extra hammer (so total 3 hammers as of now anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
++- (Requires AdvCiv-SAS 5124+) extend the force an artist if we can until we have our BFC to human players as well for convenience. Tunable in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). (see as of now `SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE` option to enable/disable it (default and recommended: enabled))
+ 
+ ### Terrains / Features (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 0b925ed40..f6857f7dc 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -259,6 +259,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - **Citizen**: now adds **+1 commerce** (total **+1 hammer, +1 commerce**). See Sevopedia/XML.
+ - **Priest**: now adds **+1 culture** (total **+1 hammer, +2 commerce, +1 culture**).
+ - **Engineer**: now adds **+1 hammer** (total **+3 hammers**).
++- (Requires AdvCiv-SAS 5124+) Extend the “force one Artist until BFC” helper to **human** players for convenience; toggle via `SAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml) (default/recommended: enabled).
+ 
+ ### Terrains / Features (non-exhaustive)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=10210

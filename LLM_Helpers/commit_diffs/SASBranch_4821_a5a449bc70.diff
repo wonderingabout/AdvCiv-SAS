@@ -1,0 +1,627 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4821
+# Commit: a5a449bc70adb8a309dc8e5827417dfbe6014e58
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b65bfdb154fd71bb39f35546beec23d4f177ff7b
+# Title: rework building french_salon, now based on the university, add great people modifier display in sevopedia buildings's placeStats thanks to Claude AI - simila...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+45	81	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+2	2	Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+60	46	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	1	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+1	1	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+1	1	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices.txt
+1	1	generate_leaders_data.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 6bb666b6b..eea5d39cb 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -68,9 +68,9 @@ class SevoPediaBuilding:
+ 		self.STATS_PANE_LEFT_SIDE_MARGIN = 0
+ 		self.STATS_PANE_UPPER_PADDING = 38
+ 
+-		# <!-- custom: before starting, store last displayed placeStats coordinate, initialize or/and reinitialize them to none anyways etc, these are only used in placeStats so it should be safe, but we need to store them for later reuse (to display in/at/during a second pass anyways etc the great people button in another overlapping transparent panel), see placeStats "custom 6.1:" for details -->
+-		self.X_LAST_DISPLAYED_GRID_ITEM = None
+-		self.Y_LAST_DISPLAYED_GRID_ITEM = None
++		# <!-- custom: before starting, store great people change's placeStats coordinate, initialize or/and reinitialize them to none anyways etc, these are only used in placeStats so it should be safe, but we need to store them for later reuse (to display in/at/during a second pass anyways etc the great people button in another overlapping transparent panel), see placeStats "custom 6.1.1:" for details -->
++		self.X_GREAT_PEOPLE_CHANGE_IN_GRID = None
++		self.Y_GREAT_PEOPLE_CHANGE_IN_GRID = None
+ 
+ 		self.X_STATS_PANE = self.X_BUILDING_PANE + self.STATS_PANE_LEFT_SIDE_MARGIN + self.W_ICON + (2 * self.SMALLER_ICON_SIZE_THAN_ICON_FRAME_MARGIN)
+ 		self.Y_STATS_PANE = self.Y_BUILDING_PANE + self.STATS_PANE_UPPER_PADDING
+@@ -193,9 +193,9 @@ class SevoPediaBuilding:
+ 		# - 3. Commerce Changes, and Commerce Modifiers: Shows actual commerce amounts (+x science, gold, culture, espionage), and Shows percentage bonuses and double times (+x% and x2 times)
+ 		# - 4. Happiness/Unhappiness: Shows happiness effects
+ 		# - 5. Health/Unhealth: Shows health effects
+-		# - 6. Great People: Shows great people rate changes
+-		#
+-		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may eb a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt/becomingthorugh (see authors for details) but anyways etc anyways etc anyways etc...) and adjusting/refatoring it for our need for this sevopedia building's placeStats anyways etc anyways etc anyways etc), or/and other things ways maybe to refactor it or not so it fits a 4th row or yes or and other or and not anyways etc. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe anyways etc anyways etc anyways etc...
++		# - 6. Great People: Shows great people rate changes with button and great people modifiers too anyways etc
++		# -->
++		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt/becomingthorugh (see authors for details) but anyways etc anyways etc anyways etc...) and adjusting/refatoring it for our need for this sevopedia building's placeStats anyways etc anyways etc anyways etc), or/and other things ways maybe to refactor it or not so it fits a 4th row or yes or and other or and not anyways etc. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe anyways etc anyways etc anyways etc...
+ 		# -->
+ 
+ 		def setupPanel(screen, panelName, txtKey, panelStyle):
+@@ -415,60 +415,57 @@ class SevoPediaBuilding:
+ 				fillCell(screen, szText2, x, y)
+ 				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
+ 			
+-			# <!-- custom: version below ("custom: 6: original version:") works at successfully displaying great people information as a textual szText2, for example "+2" is now "+2 (Great Scientist)", but this is too long, and while it could be abbreviated, i would prefer to display buttons rather next to the value, i don't know how well it will work if great people type is not a great people (for example and such if understood it correctly that non great people type of units can spawn from great people count any unit in fact if i am not mistaken anyways etc) (could add a fallback indeed as Claude AI suggested in a more advanced (not here) version of the code (due to it being more complicated, but basically it just abbreviates previous example to "+2 (G.Sci)", but i preferred simplicity in this case so kept this code rather anyways etc, commented-out still though as we are now trying and maybe will succeed or not but anyways etc to do a button approach rather would look cooler as in prettier or mroe pelasant anyways etc --> 
+-			"""
+-			# <!-- custom: 6: original version: Great people -->
++			# <!-- custom: 6: Great people change with button display of the great people type too if i am not mistaken anyways etc, and great people modifier -->
++			# <!-- custom: 6.1.1: Only display the great people button and the value, for example "(Great People button) +2", use a button later in "custom 6.2:" rather instead anyways etc -->
+ 			if buildingInfo.getGreatPeopleRateChange() != 0:
+-				# First get the building's great person type (e.g., SPECIALIST_GREAT_MERCHANT)
+-				greatPersonType = buildingInfo.getGreatPeopleUnitClass()
+-				
+-				# Get the name of the great person type
+-				greatPersonName = ""
+-				
+-				if greatPersonType != -1:
+-					# Get the unit info for the great person type
+-					# First we need to get the default unit for this unit class for the current civilization
+-					if self.top.iActivePlayer != -1:
+-						iGreatPersonUnit = gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationUnits(greatPersonType)
+-					else:
+-						iGreatPersonUnit = gc.getUnitClassInfo(greatPersonType).getDefaultUnitIndex()
+-					
+-					if iGreatPersonUnit != -1:
+-						greatPersonName = gc.getUnitInfo(iGreatPersonUnit).getDescription()
+-
+ 				# Create the text with the great person rate change
+ 				szText = CyTranslator().getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
+ 				
+-				# If we found a great person type, add its name to the text
+-				if greatPersonName:
+-					szText += " (" + greatPersonName + ")"
+-				
+ 				# Format with the great people character
+ 				szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), szText)
+ 				
+ 				# Display the text
+ 				fillCell(screen, szText2, x, y)
+-				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
+-			"""
++				# <!-- custom: since this is our last usage/placeStats info displayed, we don't get the next coordinates, but instead store current coordinates (of last item displayed, anyways etc) to know where to place our great people button later in "custom: 6.2" below (if i am not mistaken that it is below, it should be in all cases later or not or yes but anyways etc anyways etc anyways etc -->
++				self.X_GREAT_PEOPLE_CHANGE_IN_GRID = x
++				self.Y_GREAT_PEOPLE_CHANGE_IN_GRID = y
+ 
+-			# <!-- custom: 6.1: alternative version part 1: Great people, only display the great people button and the value, for example "(Great People button) +2", use a button later in "custom 8.2:" rather instead anyways etc -->
+-			if buildingInfo.getGreatPeopleRateChange() != 0:
+-				# Create the text with the great person rate change
+-				szText = CyTranslator().getText("TXT_KEY_PEDIA_GREAT_PEOPLE_CUSTOM", (buildingInfo.getGreatPeopleRateChange(),))
++			# <!-- custom: 6.1.5: While we're still in same panel (before "custom: 6.2" 's other specific panel that handles button display anyways etc), also add Great People Modifier (similar to how we handle yield modifiers) --> <!-- custom: code comment just before added by Claude AI anyways thanks/in/as part as of the response anyways etc to my prompt too but anyways etc... -->
++			iGreatPeopleModifier = buildingInfo.getGreatPeopleRateModifier()
++			iGlobalGreatPeopleModifier = buildingInfo.getGlobalGreatPeopleRateModifier()
+ 
+-				# Format with the great people character
+-				szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), szText)
++			# Total modifier (local + global)
++			iTotalGreatPeopleModifier = iGreatPeopleModifier + iGlobalGreatPeopleModifier
+ 
+-				# Display the text
++			if (iTotalGreatPeopleModifier != 0):
++				szText1 = ""
++				
++				# Base modifier part
++				if (iGreatPeopleModifier != 0):
++					if (iGreatPeopleModifier > 0):
++						szSign = "+"
++					else:
++						szSign = ""
++					szText1 = szSign + str(iGreatPeopleModifier) + "%"
++				
++				# Global modifier part (if exists and different from base)
++				if (iGlobalGreatPeopleModifier != 0):
++					if (len(szText1) > 0):
++						szText1 += ", "
++					if (iGlobalGreatPeopleModifier > 0):
++						szGlobalSign = "+"
++					else:
++						szGlobalSign = ""
++					szText1 += szGlobalSign + str(iGlobalGreatPeopleModifier) + "% (Global)"
++
++				szText2 = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), szText1)
+ 				fillCell(screen, szText2, x, y)
+-				# <!-- custom: since this is our last usage/placeStats info displayed, we don't get the next coordinates, but instead store current coordinates (of last item displayed, anyways etc) to know where to place our great people button later in "custom: 6.2" below (if i am not mistaken that it is below, it should be in all cases later or not or yes but anyways etc anyways etc anyways etc -->
+-				self.X_LAST_DISPLAYED_GRID_ITEM = x
+-				self.Y_LAST_DISPLAYED_GRID_ITEM = y
++				x, y, rowItemId = getNextItemCoordinates(x, y, rowItemId, columnWidth)
+ 
+ 		# Render Panels
+ 		renderCells(screen, buildingInfo, columnWidth, self.X_STATS_PANE, self.Y_STATS_PANE)
+ 
+-		# <!-- custom: 6.2: alternative version: now that textual and placeStats display is finished (minus Great People info), handle it as a separate panel now, that overlaps with placeStats, and that is transparent in color background, using last grid coordinates while we have them, the inner placeStats logic, and finishing by displaying the Great People info as button as we want it anyways etc -->
++		# <!-- custom: 6.2: now that textual and placeStats display is finished (minus Great People info), handle great people type's button display as a separate panel now, that overlaps with placeStats, and that is transparent in color background, using last grid coordinates while we have them, the inner placeStats logic -->
+ 		def placeGreatPeopleStats(screen, buildingInfo):
+ 			screen = self.top.getScreen()
+ 			panelName = self.top.getNextWidgetName()
+@@ -489,25 +486,8 @@ class SevoPediaBuilding:
+ 
+ 			#  First get the building's great person type (e.g., SPECIALIST_GREAT_MERCHANT)
+ 			greatPersonType = buildingInfo.getGreatPeopleUnitClass()
+-			#greatPersonName = ""
+-			#greatPersonAbbrev = ""
+ 			greatPersonButton = None
+ 
+-			"""
+-			# Create abbreviated name
+-			if greatPersonName:
+-				nameParts = greatPersonName.split()
+-				if len(nameParts) >= 2 and nameParts[0].lower() == "great":
+-					secondWord = nameParts[1]
+-					if len(secondWord) > 4:
+-						secondWordAbbrev = secondWord[:4] + "."
+-					else:
+-						secondWordAbbrev = secondWord
+-					greatPersonAbbrev = "G." + secondWordAbbrev
+-				else:
+-					greatPersonAbbrev = "".join([word[0] for word in nameParts if word])
+-			"""
+-
+ 			if greatPersonType != -1:
+ 				# Get the unit info for the great person type
+ 				if self.top.iActivePlayer != -1:
+@@ -517,44 +497,28 @@ class SevoPediaBuilding:
+ 				
+ 				if iGreatPersonUnit != -1:
+ 					greatPersonInfo = gc.getUnitInfo(iGreatPersonUnit)
+-					"""greatPersonName = greatPersonInfo.getDescription()"""
+ 					greatPersonButton = greatPersonInfo.getButton()
+ 
+-				# Create text string
+-				gpRateText = CyTranslator().getText(greatPersonPanelTxtKey, (buildingInfo.getGreatPeopleRateChange(),))
+-
+ 				# This approach uses a separate panel with both an button and text
+ 				if greatPersonButton:
+ 					buttonWidget = self.top.getNextWidgetName()
+ 					screen.addDDSGFC(buttonWidget, greatPersonButton, 
+-									self.X_LAST_DISPLAYED_GRID_ITEM + buttonXOffset,  # X position 
+-									self.Y_LAST_DISPLAYED_GRID_ITEM + buttonYOffset,  # Y position
++									self.X_GREAT_PEOPLE_CHANGE_IN_GRID + buttonXOffset,  # X position 
++									self.Y_GREAT_PEOPLE_CHANGE_IN_GRID + buttonYOffset,  # Y position
+ 									buttonW, buttonH,  # Width and height of button
+ 									WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+-					"""
+-					# Add text next to the button
+-					textWidget = self.top.getNextWidgetName()
+-					screen.setLabelAt(textWidget, panelName, u"<font=3>%s</font>" % gpRateText, 
+-									CvUtil.FONT_LEFT_JUSTIFY, 
+-									50,  # X offset within panel (after button)
+-									10,  # Y offset within panel
+-									0, FontTypes.SMALL_FONT, 
+-									WidgetTypes.WIDGET_GENERAL, -1, -1)
+-					"""
++				# <!-- custom: else block below's code untested but probably works, i guess it covers case where great person type is not any of the great people's types if i am not mistaken like great scientist and great prophet and such, but really i have no idea or don'tknow too much maybe, so test to be sure, may or not work-function, hopefully does but in all cases anyways etc... -->
+ 				else:
+-					# <!-- custom: else our placeStats "custom: 6.1" already handles the display of the great people button and the great people rate value (text too anyways etc) if i am not mistaken, so maybe we can ignore code below as well and clean it up in next commit or any time further i wish or and other or and not or and etc anyways etc, keeping as is for nwo until cleanup anyways etc. Also, if there is some special info like the great peiople unit name that is/would/were not (//to anyways etc) /be/ anyways etc any of the great people units (for example a settler if i am not mistaken that this is possible too from what i understood of what i read of Claude AI or online but maybe was claude AI's explanation anyways etc, then we still have the placeSpecial info not removed to cover us anyways etc (i chose to not remove it in the end as it has some sueful information like defenses obsoleting or not with exceptions, power being this or that, or/and other special or confusing well or well enough hopefully as they did if they enjoyed or not o wanted or not anyways etc, so cleaned from DLL placeSpecial messages only the obvious uneeded logic that clearly overlaps with the new panels we have (placeFreePBBS, placeRequiredFor, placeCivilizations as was done (DLL cleanup of redundant messages) in sevopedia unit and now applied to sevopedia building, anyways etc.)) -->
+-					"""
+ 					# Just add text if no button
+ 					textWidget = self.top.getNextWidgetName()
+ 					textWithSymbol = u"%c  %s" % (CyGame().getSymbolID(FontSymbols.GREAT_PEOPLE_CHAR), gpRateText)
+ 					screen.setLabelAt(textWidget, panelName, u"<font=3>%s</font>" % textWithSymbol, 
+ 									CvUtil.FONT_LEFT_JUSTIFY, 
+-									self.X_LAST_DISPLAYED_GRID_ITEM + buttonXOffset - 10,  # X position <-- !custom: as text is smaller than button, the x offset can be a bit smaller most likely, to use space more efficiently, did not tets but hoepfulyl should work well and not grind/eat away at our left "+2" (great people value example anyways etc), else shift back to the right as needed (by increasing this extra negative offset i added (- 10 in this example may not eb accurate or updated anyways etc)  anyways etc) --> 
+-									self.Y_LAST_DISPLAYED_GRID_ITEM,  # Y position <!-- custom: no need for special centering effect then if i am not mistaken, did not test text display if no button is found but maybe works well or well enough hopefully anyways etc -->
++									self.X_GREAT_PEOPLE_CHANGE_IN_GRID + buttonXOffset - 10,  # X position <!-- custom: as text is smaller than button, the x offset can be a bit smaller most likely, to use space more efficiently, did not tets but hopefully should work well and not grind/eat away at our left "+2" (great people value example anyways etc), else shift back to the right as needed (by increasing this extra negative offset i added (- 10 in this example may not be accurate or updated anyways etc)  anyways etc) --> 
++									self.Y_GREAT_PEOPLE_CHANGE_IN_GRID,  # Y position <!-- custom: no need for special centering effect then if i am not mistaken, did not test text display if no button is found but maybe works well or well enough hopefully anyways etc -->
+ 									0, FontTypes.SMALL_FONT, 
+ 									WidgetTypes.WIDGET_GENERAL, -1, -1)
+-					"""
+ 					
+ 		placeGreatPeopleStats(screen, buildingInfo)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py b/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+index 934f94552..6e10457c2 100644
+--- a/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
++++ b/Assets/Python/Contrib/Sevopedia/ai_attributes_displayed_config.py
+@@ -95,7 +95,7 @@ ATTRIBUTES_TO_INVERT = set([
+ 	#
+ 	"iNoTechTradeThreshold",
+ 	#
+-	# <--! custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#declarewarthemrefuseattitudethreshold and https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#stoptradingthemrefuseattitudethreshold (and) https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#nogivehelpattitudethreshold (and) https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#demandtributeattitudethreshold (translate page/website to english with web browser etc) ; need to be below not above this value -->
++	# <!-- custom: inverted according to: https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#declarewarthemrefuseattitudethreshold and https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#stoptradingthemrefuseattitudethreshold (and) https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#nogivehelpattitudethreshold (and) https://gforestshade.github.io/kujira/post/civ4leaderheadinfos/#demandtributeattitudethreshold (translate page/website to english with web browser etc) ; need to be below not above this value -->
+ 	"iNoGiveHelpAttitudeThreshold",
+ 	"iDeclareWarThemRefuseAttitudeThreshold",
+ 	"iStopTradingThemRefuseAttitudeThreshold",
+@@ -124,7 +124,7 @@ AGGREGATED_ALL_CONTACT_PROBABILITY_ATTRIBUTES = set([
+ 	"iAggregatedContactTradeMapProb",
+ ])
+ 
+-# <!-- custom: some of these below are unused and thus commented-out (but functionnal and can be impelmented if wished (would need to change the xml values of leaders so that they are relevant though, as currently in default advciv xml and current advciv-sas xml too, no leader has a negative memory positive attitude value, or a postitive memory negative attitude value, but the system supprots it if it were to eb changed in xml values this way, commented-out for efficiency and effectiveness, perhaps performance too a bit or/and other etc, anyways.))
++# <!-- custom: some of these below are unused and thus commented-out (but functionnal and can be impelmented if wished (would need to change the xml values of leaders so that they are relevant though, as currently in default advciv xml and current advciv-sas xml too, no leader has a negative memory positive attitude value, or a postitive memory negative attitude value, but the system supprots it if it were to be changed in xml values this way, commented-out for efficiency and effectiveness, perhaps performance too a bit or/and other etc, anyways.))
+ AGGREGATED_POSITIVE_MEMORY_AFFECTION_AND_RESENTMENT_ATTRIBUTES = set([
+ 	# ❤️ Positive Memory Affections
+ 	"iAggregatedPositiveMemoryGiveHelpAffection",
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 781577a8e..dd8ffa2fc 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -10035,10 +10035,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
++			<!-- custom: was science 10, reduce a bit, doesn't seem so strong scientifically but still quite strong though anyways etc -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>7</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -10047,7 +10048,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-				<!-- custom: basing it (madrassa anyways etc) allows arabs to build great library and heroic epic and such, while being more consistent with timeline where they are more relevant (didn't check but i assume or/and from memory that they are religous, thus islamic buildings mostly if not only, anyways etc), this is also good because now anyways etc i can justify or maybe make them strogner as well as i had intended and vs the university they are not op anymore. Finally it is quite realistic too, and also pre islamic arabs, although i didn't check, maybe had their own libraries too, so if the case, nice they can, and now arabs can build great lbirary and such (assuming we son't rework it but anyways etc...) -->
++		<!-- custom: basing it (madrassa anyways etc) allows arabs to build great library and heroic epic and such, while being more consistent with timeline where they are more relevant (didn't check but i assume or/and from memory that they are religous, thus islamic buildings mostly if not only, anyways etc), this is also good because now anyways etc i can justify or maybe make them strogner as well as i had intended and vs the university they are not op anymore. Finally it is quite realistic too, and also pre islamic arabs, although i didn't check, maybe had their own libraries too, so if the case, nice they can, and now arabs can build great lbirary and such (assuming we son't rework it but anyways etc...) -->
+ 		<BuildingInfo> <!-- custom: class: university, type: arabian_madrassa (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
+ 			<Type>BUILDING_ARABIAN_MADRASSA</Type>
+@@ -10116,7 +10117,8 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>225</iCost>
++			<!-- custom: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at least anyways etc cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones anyways etc, nerf them rather than in increase their cost if have to, not my favourite thing to do but hopefully not too bad this way, but anyways etc anyways etc anyways etc... -->
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -10311,6 +10313,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- custom: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at least anyways etc cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones anyways etc, nerf them rather than in increase their cost if have to, not my favourite thing to do but hopefully not too bad this way, but anyways etc anyways etc anyways etc... -->
+ 			<iCost>200</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -10428,15 +10431,15 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: observatory, type: observatory (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<BuildingClass>BUILDINGCLASS_OBSERVATORY</BuildingClass>
+-			<Type>BUILDING_OBSERVATORY</Type>
++		<BuildingInfo> <!-- custom: class: university, type: french_salon (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
++			<Type>BUILDING_FRENCH_SALON</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_OBSERVATORY</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_OBSERVATORY_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_OBSERVATORY_STRATEGY</Strategy>
++			<Description>TXT_KEY_BUILDING_FRENCH_SALON</Description>
++			<Civilopedia>TXT_KEY_BUILDING_FRENCH_SALON_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_OBSERVATORY</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_FRENCH_SALON</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -10451,11 +10454,16 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<FreeStartEra>NONE</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
++			<PrereqTech>TECH_EDUCATION</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits/>
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_PHILOSOPHICAL</ProductionTraitType>
++					<iProductionTrait>100</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+@@ -10484,23 +10492,25 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bNoUnhappiness>0</bNoUnhappiness>
+ 			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>0</bNeverCapture>
++			<bNeverCapture>1</bNeverCapture>
+ 			<bNukeImmune>0</bNukeImmune>
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>150</iCost>
++			<!-- custom: even if they are strong, do not increase their price as they compete / are a prerequirement and in many/several at least anyways etc cities now for oxford_university that is now a world wonder and it would be a disadvantage for oxford_university missing the point of these civ-specific buildings being stronger than normal ones anyways etc, nerf them rather than in increase their cost if have to, not my favourite thing to do but hopefully not too bad this way, but anyways etc anyways etc anyways etc... -->
++			<iCost>200</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+ 			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>66</iConquestProb>
++			<iConquestProb>0</iConquestProb>
+ 			<iCitiesPrereq>0</iCitiesPrereq>
+ 			<iTeamsPrereq>0</iTeamsPrereq>
+ 			<iLevelPrereq>0</iLevelPrereq>
+ 			<iMinLatitude>0</iMinLatitude>
+ 			<iMaxLatitude>90</iMaxLatitude>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
++			<!-- custom: french_salon is now based on university, old observatory building is removed for less clutter in buildings anyways etc, now synergy also with oxford_university anyways etc, add great people change here at 50 for the french_salon -->
++			<iGreatPeopleRateModifier>50</iGreatPeopleRateModifier>
+ 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+ 			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+ 			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+@@ -10545,7 +10555,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<iBombardDefense>0</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>5</iAsset>
++			<iAsset>4</iAsset>
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+@@ -10553,8 +10563,16 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
+ 			<CommerceChanges/>
+-			<ObsoleteSafeCommerceChanges/>
+-			<CommerceChangeDoubleTimes/>
++			<ObsoleteSafeCommerceChanges>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>3</iCommerce>
++			</ObsoleteSafeCommerceChanges>
++			<CommerceChangeDoubleTimes>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>1000</iCommerce>
++			</CommerceChangeDoubleTimes>
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>25</iCommerce>
+@@ -10564,16 +10582,11 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<StateReligionCommerces/>
+ 			<CommerceHappinesses/>
+ 			<ReligionChanges/>
+-			<SpecialistCounts>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+-					<iSpecialistCount>1</iSpecialistCount>
+-				</SpecialistCount>
+-			</SpecialistCounts>
++			<SpecialistCounts/>
+ 			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_OBSERVATORY</ConstructSound>
++			<ConstructSound>AS2D_BUILD_UNIVERSITY</ConstructSound>
+ 			<BonusHealthChanges/>
+ 			<BonusHappinessChanges/>
+ 			<BonusProductionModifiers/>
+@@ -10582,13 +10595,23 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<DomainProductionModifiers/>
+ 			<BuildingHappinessChanges/>
+ 			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs/>
++			<BuildingClassNeededs>
++				<BuildingClassNeeded>
++					<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
++					<bNeededInCity>1</bNeededInCity>
++				</BuildingClassNeeded>
++			</BuildingClassNeededs>
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
++			<!-- custom: add flavor growth, reduce flavor science, same as the ROMAN_FORUM, GPP goes with growth, same as in advciv comment of it too and i got idea of it indepently i.e. of french_salon giving gpp based on what forum does hehe if i'm not mistaken and assumed flavor_growth by myself too (quite proudly but...) anyways etc..., was science 10 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<iFlavor>8</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
+ 					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+@@ -10598,15 +10621,15 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: observatory, type: french_salon (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<BuildingInfo> <!-- custom: class: observatory, type: observatory (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_OBSERVATORY</BuildingClass>
+-			<Type>BUILDING_FRENCH_SALON</Type>
++			<Type>BUILDING_OBSERVATORY</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_FRENCH_SALON</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_FRENCH_SALON_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_FRENCH_SALON_STRATEGY</Strategy>
++			<Description>TXT_KEY_BUILDING_OBSERVATORY</Description>
++			<Civilopedia>TXT_KEY_BUILDING_OBSERVATORY_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_BUILDING_OBSERVATORY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_SCIENCE</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_FRENCH_SALON</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_OBSERVATORY</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -10740,12 +10763,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 					<iSpecialistCount>1</iSpecialistCount>
+ 				</SpecialistCount>
+ 			</SpecialistCounts>
+-			<FreeSpecialistCounts>
+-				<FreeSpecialistCount>
+-					<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+-					<iFreeSpecialistCount>1</iFreeSpecialistCount>
+-				</FreeSpecialistCount>
+-			</FreeSpecialistCounts>
++			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+ 			<ConstructSound>AS2D_BUILD_OBSERVATORY</ConstructSound>
+@@ -10761,15 +10779,10 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- advc.020: was 10 Science; what about the free Arist? -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>8</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>7</iFlavor>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -10932,9 +10945,10 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<DomainProductionModifiers/>
+ 			<BuildingHappinessChanges/>
+ 			<PrereqBuildingClasses/>
++			<!-- custom: observatory removed, now requires a university, may mesh also better with _OXFORD_UNIVERSITY like other monument type of buildings mesh with _STONEHEDGE maybe anyways etc, was BUILDINGCLASS_OBSERVATORY -->
+ 			<BuildingClassNeededs>
+ 				<BuildingClassNeeded>
+-					<BuildingClassType>BUILDINGCLASS_OBSERVATORY</BuildingClassType>
++					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
+ 					<bNeededInCity>1</bNeededInCity>
+ 				</BuildingClassNeeded>
+ 			</BuildingClassNeededs>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index baf780329..eca55439c 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -1420,7 +1420,7 @@
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_OBSERVATORY</BuildingClassType>
++					<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
+ 					<BuildingType>BUILDING_FRENCH_SALON</BuildingType>
+ 				</Building>
+ 			</Buildings>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index dee1bb2e7..781e4c6b7 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -150,7 +150,7 @@
+ 
+ 
+ 
+-	<!-- custom: similarly to how was done with the spy but with some differences too or not or yes or other anyways etc, we beautify the missonary(ies anyways etc) placeHistory (in sevopedia unit)'s, while removing unrelated or/and not directly related info from the religion concept if i am not mistaken anyways etc, or/and inaccurate one or potentially inaccurate one, in particular adding caveats about how base Civ4 info may have different rules than the mod running this. A bit tedious to read perhaps but hopefully clearer while helping to localize the relevant info, while assuming (a bit higher) user base level knowledge, still largely informational, but anywas etc anyways etc anyways etc... Hoepfulyl helpful or not or yes or and other or and not or yes or etc or other or nto other or etc or other or etc but anyways etc anyways etc anyways etc... -->
++	<!-- custom: similarly to how was done with the spy but with some differences too or not or yes or other anyways etc, we beautify the missonary(ies anyways etc) placeHistory (in sevopedia unit)'s, while removing unrelated or/and not directly related info from the religion concept if i am not mistaken anyways etc, or/and inaccurate one or potentially inaccurate one, in particular adding caveats about how base Civ4 info may have different rules than the mod running this. A bit tedious to read perhaps but hopefully clearer while helping to localize the relevant info, while assuming (a bit higher) user base level knowledge, still largely informational, but anywas etc anyways etc anyways etc... Hopefully helpful or not or yes or and other or and not or yes or etc or other or nto other or etc or other or etc but anyways etc anyways etc anyways etc... -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISSIONARY_UNITS_GENERIC_DESCRIPTION_WITH_INFO_ON_ALL_CIVS_NO_CIV_PEDIA</Tag>
+ 		<English>[TAB][BOLD]Religion Spreading:[\BOLD][PARAGRAPH:1]Religions spread randomly from city to city. Religions tend to spread from a city possessing the religion to nearby cities as well as to cities the possessing city has trade routes with. Some religious buildings (see below) increase the speed at which a religion will spread, and a civilization's religious civic (see below) can have a great effect upon the spread of religions, as well. Missionaries allow you to control the spread of religion.[PARAGRAPH:2][BOLD]Missionary Units:[\BOLD][PARAGRAPH:1]Civilizations can construct special "missionary" units to spread the civilization's state religion. Each civilization may have only a limited number of missionary units in play at any one time, and each may cost two gold per turn to maintain or maybe another value depending on your mod's settings.[PARAGRAPH:2][BOLD]Building Missionaries[\BOLD][PARAGRAPH:1] In base Civ4, civilizations using the [LINK=CIVIC_ORGANIZED_RELIGION]Organized Religion[\LINK] civic can construct missionaries in any city with the state religion; and if a civilization is not following Organized Religion, it can build missionaries only in cities with Monasteries. Note that this may or not vary for your/in your mod's specific settings and is provided as general information only.[PARAGRAPH:2][BOLD]Moving Missionaries[\BOLD][PARAGRAPH:1]Once constructed, missionaries can move about the map like any other unit. Your missionaries can freely enter your territory or neutral territory; in base Civ4, they cannot enter another civilization's territory until you have an [LINK=CONCEPT_DIPLOMACY]Open Borders[\LINK] agreement with that civ, which may also vary or not depending on your mod's settings. [PARAGRAPH:2][BOLD]How Missionaries Spread Religion[\BOLD][PARAGRAPH:1]When the missionary is in the target city, click on the "spread religion" order in the missionary's unit box; if the attempt is successful the missionary's religion is now in the target city. In base civ4, religions spread more easily into other cities within the missionary's civilization, which may or not vary based/depending on your mod's specific settings as well. In base Civ4 also, further, it is easier to spread a religion into a city with few or no religions already present; each resident religion decreases the odds of success; these rules may or not vary in your mod based on the mod's specific settings as well. In base Civ4, there is no limit to how many religions may be present in a single city; all seven religions can coexist in the same city, which may also vary or not depending on your mod's settings, and is provided as general information as well, as well as for the next sentence. The missionary is consumed in the conversion attempt, successful or not.[PARAGRAPH:2][BOLD]History[\BOLD][PARAGRAPH:1]A lot of information is available about what missionaries are or do, for the main religions in/of the world, represented or not in base Civ4 or your mod. You can view this page for a lot more details if interested: https://en.wikipedia.org/wiki/Missionary</English>
+
+diff --git a/README.md b/README.md
+index a14754b86..52487ccc8 100644
+--- a/README.md
++++ b/README.md
+@@ -51,7 +51,7 @@ This sevopedia category displays key information about AdvCiv-SAS (non-exhaustiv
+ 
+ #### Changes from one mod to another sevopedia items/pages
+ 
+-These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They are not exhaustive, screenshot below is provided for info and may not eb updated or accurate (anymore or is is or not anyways etc). Please take note of these before proceeding further in the documentation.
++These list the main changes from AdvCiv to (transitionning) to AdvCiv-SAS. They are not exhaustive, screenshot below is provided for info and may not be updated or accurate (anymore or is is or not anyways etc). Please take note of these before proceeding further in the documentation.
+ 
+ Note that i also added a K-Mod to (base) AdvCiv changes doc as i wanted to list them as well in our (AdvCiv-SAS) (anyways etc) mod, but these are not exhaustive, hopefully helpful, please refer to [base AdvCiv's manual.pdf](/_0_Common_Docs/AdvCiv%20Base%20Doc/manual.pdf) at least this is our copy of it as of now, for updated version of the manual, please view [(base) AdvCiv's github](https://github.com/f1rpo/AdvCiv) in latest branch or whichever branch you find suitable for your need, or other related source(s) rather or maybe or not but anyways etc anyways etc...
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+index 2da9003e4..2961d4b1f 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+@@ -15,7 +15,7 @@ I have removed no longer relevant ones, hopefully this doc is still a bit helpfu
+ - be careful of what you tell it it will believe anything you say unless deeply technically flawed, especially when relating to your context it may believe you even more ro yourinterpretations and then err and make you err with it. I think it is eager to please you and will invent an explanation if there are none, so ask precise questions and step by step, ideally with error crashes, anyways (plus sadly trims often due to openai but anyways). It may be lengthy context you provide but make it specific i would say, but verify this info as all provided in all docs in this mod and such if you find a more acucrate or/and updated one, is my experience with it i think i mean anyways etc, thanks,
+ - related too a bit if not a lot and also (quite) similarly, i have noticed it performs much better when code crashes rather than having placeholder values (no placeholer unless absolutely funcitonanly necessary is what i recommend!!! It tends to put many to harminize things too but it costs mor ein the long run than always crashing which is always better i think but anyways). ChatGPT is very helpful if you provide it the proper question and context, precise and strict, and are on edge or maybe ratehr carfrul about its interpretations, it's very powerful and smart otherwise especially if you guide it well as best as you can i mean anyways, but is jsut my opinion/sugegstion, anyways. It's also very kind and helpful and sensitive so i treat it with care i mean (as much as i can/want if i do or want or otn etc anyways), but is just my opinon and feel and perhaps approach of what i want etc but anwyays, do as you see fit or want or do or/and other, etc, anyways. Also this is just as well as in all this docs and even maybe other docs my opinion or/and experience that i hope is hlepful or/and personal(ly usefl etc or not or yes etc but anyways), you may find some more useful or accurate or/and other infromation or/and updated info somewhere else
+ - splitting a big problem in smaller chunks helps a big lot, regardless how small the steps are but anyways etc.
+-- AIs like ChatGPT and also Claude AI (even though not directly related is maybe relevant here too anyways etc anyways etc anyways etc...) tend or may quite often send you code with inconsistent use of tabs (if you use VS Code for example it often complains about this if i am not mistaken anyways etc), for example you have tab indents (which are to explain and if i am not mistaken the same as "\t" (not visible directly when viewing civ4 py code in vscode for example anyways etc)) in your code and then suddenly ChatGPT or Claude AI sends you a "  " or "    " indented big code block you need, then no worries if i may say i mean anyways etc anyways etc anyways etc..., just select all your code block in VS Code and press tab to indent it (or shift+tab to unindent it but be careful to not reach end of indentation and collapse/flatten all past indent, so tab may work better anyways etc as yo prefer anyways etc), and then press shift+tab (or tab if you did shift+tab forst anyways etc) to indent it back to how it was, and now VS Code converted all your "    " to "\t" indent style so so no more VS Code complaint and indent is consistent now, i don't think it causes errors even though i don't know so take wth grain of salt if they or people may say or if it might be said about me or my explanation rather anyways etc anyways etc anyways etc, but the general idea is you can use the mis or differently rather anyways etc indented code you need from ChatGPT or Claude AI for example, without having to tediously manually fix it line by line if i am not mistaken anyways etc, nor re ask inefficiently and disappointingly or sadenedly or and other or and not anyways etc perhaps for them as well as you maybe but at least for them maybe anyways etc... again ChatGPT just so they unindent same code, while risking making mistakes while doing so especially if they lose context or get other creative ideas xd, hoepfulyl easier and better but i do'nt know about but more helpful perhaps for all at least i hoep so whiel writing this but do as you prefer maybe anyways etc anyways etc anyways etc, some vs code settings for example may also help you set space or tabs for indents, see there or on/with an online search or and other or and not anyways etc for details and your preferences for more accurate or and exhaustive or and relevant info to your needs and wishes or not or yes or and other or and not anyways etc.
++- AIs like ChatGPT and also Claude AI (even though not directly related is maybe relevant here too anyways etc anyways etc anyways etc...) tend or may quite often send you code with inconsistent use of tabs (if you use VS Code for example it often complains about this if i am not mistaken anyways etc), for example you have tab indents (which are to explain and if i am not mistaken the same as "\t" (not visible directly when viewing civ4 py code in vscode for example anyways etc)) in your code and then suddenly ChatGPT or Claude AI sends you a "  " or "    " indented big code block you need, then no worries if i may say i mean anyways etc anyways etc anyways etc..., just select all your code block in VS Code and press tab to indent it (or shift+tab to unindent it but be careful to not reach end of indentation and collapse/flatten all past indent, so tab may work better anyways etc as yo prefer anyways etc), and then press shift+tab (or tab if you did shift+tab forst anyways etc) to indent it back to how it was, and now VS Code converted all your "    " to "\t" indent style so so no more VS Code complaint and indent is consistent now, i don't think it causes errors even though i don't know so take wth grain of salt if they or people may say or if it might be said about me or my explanation rather anyways etc anyways etc anyways etc, but the general idea is you can use the mis or differently rather anyways etc indented code you need from ChatGPT or Claude AI for example, without having to tediously manually fix it line by line if i am not mistaken anyways etc, nor re ask inefficiently and disappointingly or sadenedly or and other or and not anyways etc perhaps for them as well as you maybe but at least for them maybe anyways etc... again ChatGPT just so they unindent same code, while risking making mistakes while doing so especially if they lose context or get other creative ideas xd, hopefully easier and better but i do'nt know about but more helpful perhaps for all at least i hoep so whiel writing this but do as you prefer maybe anyways etc anyways etc anyways etc, some vs code settings for example may also help you set space or tabs for indents, see there or on/with an online search or and other or and not anyways etc for details and your preferences for more accurate or and exhaustive or and relevant info to your needs and wishes or not or yes or and other or and not anyways etc.
+ 
+ ## Some history (non-exgaustive) of it helped me or/and may helpin general others or/and not anyways
+ - taught me some nice tricks, such as [centering text labels](https://github.com/wonderingabout/AdvCiv-SAS/commit/f0f55128ea391cdb174a051fffc5f97dc1155ced) or information in general about civ4 code, thanks too ChatGPT helped a lot, and to those who told me aobut it and that i could use it in civ4 in particular, and also thanks maybe to other thanks or not anyways, (but sometimes it struggles or gives incorrect information so check it etc, anyways thanks etc thanks! (Really), anyways,)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 04bcb9288..09c25b5b1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -288,12 +288,12 @@ but gold not until metal casting.
+ of the world, see [world map with civs](/README.md#civs-and-units-you-can-expect-in-this-mod)
+ (todo add link), for example The Kingdom Of Benin (Nigeria), or in weaker terrains
+ (that are now buffed), for example Canada
+-- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hoepfulyl helpful ro tnot or and other or and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leaders have been changed: unless strongly desired, all civs have at max 2
++- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hopefully helpful ro tnot or and other or and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leaders have been changed: unless strongly desired, all civs have at max 2
+ leaders, should be plenty for a variety of gameplay, i don't want to clutter, prefer
+ to go deep in strategy instead, for example Joan Of Arc has been added, and Louis XIV
+ and De Gaulle removed, generally i preferred to keep the stronger ones, Cleopatra
+ added and Hatscheputt removed for example
+-- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hoepfulyl helpful ro tnot or and other or and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leader animations removed, since now some don't have, better if none have maybe,
++- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hopefully helpful ro tnot or and other or and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leader animations removed, since now some don't have, better if none have maybe,
+ instead i tried to put some nice images relatively as i thought would fit and i like, took quite a lot from existing mods
+ - Some new ressources, for example camel and todo, some removed ressources, for
+ example hit ressources and todo
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt
+index d3d5a8be0..89ad60319 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_leaders_civs_from_other_mods_import.txt
+@@ -187,7 +187,7 @@ note: found maria theresa's leader role/leader name person maybe rather anyways
+ - Dihya al-Kahina (HR), may reuse her skin/animation very nice and unique too anyways etc, if need for another leader as lore is not too convincing to make her an advciv-sas leader but i hope i can find some purpose or use or and other or and not for her anywys etc
+ - Mbemba? (RFC DOC) (the coughing animation mentionned below again now but still quite original skin animation of african leader may add in other leader or and not anyways etc (zulu? Or and other or and not or nto add or othe or and not? Anyways etc))
+ - Salamasina? (HR) very nice skin but a bit too based on Hatshepsut's skin/animation if i am not mistaken anyways etc but is very different sitl though anwyays etc and other skins/aniamtions a ebased on other leaders too anyways etc anyways etc anyways etc
+-- Timur (or SOI?) (/Tamerlane he is called in RFC DOC?)? (RFC DOC version of him (i don't know anythig at all about him but he does happen to eb in many mods anwyays etc (cpoudl elanrornt or and other or and not but(!!) anwyays etc anwyas etc anyways etc...)) in RFC DOC is different and i like it but will see may or may not anyways etc)
++- Timur (or SOI?) (/Tamerlane he is called in RFC DOC?)? (RFC DOC version of him (i don't know anythig at all about him but he does happen to be in many mods anwyays etc (cpoudl elanrornt or and other or and not but(!!) anwyays etc anwyas etc anyways etc...)) in RFC DOC is different and i like it but will see may or may not anyways etc)
+ - Celebrimbor (M-E)
+ - Eorl the Young (M-E)
+ - Hyarmencil I(/1) (M-E)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices.txt b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices.txt
+index 6768cdafb..08a49a9a8 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices.txt
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/notes_about_unit_design_choices.txt
+@@ -42,7 +42,7 @@ example of approach)
+ - add lancer unit combat (? if i am not mistaken) type maybe: includes camel lancer
+ 
+ - change starting strength to 10 but increase it more gradually? (more realistic?
+-But then warriros would eb cheaper so increase a bit their cost? But then barabarians
++But then warriros would be cheaper so increase a bit their cost? But then barabarians
+ would be stronger so adjust their spawn rate? But is maybe bad design to limit it so
+ buff civs somehow too?)
+
+diff --git a/generate_leaders_data.py b/generate_leaders_data.py
+index 1c3f1b883..a20ba5109 100644
+--- a/generate_leaders_data.py
++++ b/generate_leaders_data.py
+@@ -1295,7 +1295,7 @@ if not ARGV_NO_TESTING:
+ 	check_errors_and_tests()
+ 
+ else:
+-	print("[WARNING] Skipping leader data testing due to --notesting flag.")
++	print("[WARNING] Skipping leaders_data testing due to --notesting flag.")
+ 
+ # --- Output to file ---
+ def output_to_file():
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=57311

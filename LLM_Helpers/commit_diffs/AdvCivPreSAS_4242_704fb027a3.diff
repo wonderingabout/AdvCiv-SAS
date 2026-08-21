@@ -1,0 +1,188 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4242
+# Commit: 704fb027a33a8078bbfcca0694bedc0ce3882fde
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 366a1e496b20acb2628ee782cd086cf6fff2fcf6
+# Title: Ensure that disabled map script options have no impact
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+76	17	CvGameCoreDLL/CvMapGenerator.cpp
+2	0	CvGameCoreDLL/CvMapGenerator.h
+12	0	CvGameCoreDLL/CvPythonCaller.cpp
+2	0	CvGameCoreDLL/CvPythonCaller.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 97adb67f9..374013633 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -922,24 +922,40 @@ void CvMapGenerator::generateRandomMap()
+ 	PROFILE_FUNC();
+ 
+ 	CvPythonCaller const& py = *GC.getPythonCaller();
++	CvMap& kMap = GC.getMap();
++	// <advc.194> Ensure that selections for disabled map options have no impact
++	CvInitCore& kInitCore = GC.getInitCore();
++	/*ClimateTypes const eSelectedClimate = kMap.getClimate();
++	SeaLevelTypes const eSelectedSeaLevel = kMap.getSeaLevel();*/ // not needed after all
++	bool bClimateFlexible, bSeaLevelFlexible;
++	py.mapDefaultOptionAvailability(bClimateFlexible, bSeaLevelFlexible);
++	if (!bClimateFlexible)
++		kInitCore.setClimate(findStandardClimate());
++	if (!bSeaLevelFlexible)
++		kInitCore.setSeaLevel(findStandardSeaLevel());
++	// </advc.194>
+ 	py.callMapFunction("beforeGeneration");
+-	if (py.generateRandomMap()) // will call applyMapData when done
+-		return;
+-
+-	char buf[256];
+-
+-	sprintf(buf, "Generating Random Map %S, %S...", gDLL->getMapScriptName().GetCString(), GC.getInfo(GC.getMap().getWorldSize()).getDescription());
+-	gDLL->NiTextOut(buf);
+-
+-	generatePlotTypes();
+-	generateTerrain();
+-	/* advc.300: Already done in CvMap::calculateAreas, but when calculateAreas
+-	   is called during map generation, tile yields aren't yet set. */
+-	GC.getMap().computeShelves();
+-	// <advc.108>
+-	if (GC.getMap().isCustomMapOption(gDLL->getText("TXT_KEY_MAP_BALANCED")))
+-		GC.getGame().setStartingPlotNormalizationLevel(CvGame::NORMALIZE_HIGH);
+-	// </advc.108>
++	if (!py.generateRandomMap()) // will call applyMapData when done
++	{
++		char buf[256];
++		sprintf(buf, "Generating Random Map %S, %S...",
++				gDLL->getMapScriptName().GetCString(),
++				GC.getInfo(kMap.getWorldSize()).getDescription());
++		gDLL->NiTextOut(buf);
++		generatePlotTypes();
++		generateTerrain();
++		/* advc.300: Already done in CvMap::calculateAreas, but when calculateAreas
++		   is called during map generation, tile yields aren't yet set. */
++		kMap.computeShelves();
++		// <advc.108>
++		if (kMap.isCustomMapOption(gDLL->getText("TXT_KEY_MAP_BALANCED")))
++			GC.getGame().setStartingPlotNormalizationLevel(CvGame::NORMALIZE_HIGH);
++		// </advc.108>
++	}
++	/*	<advc.194> Restore selection so that the game setup screens remember it?
++		We shouldn't b/c these settings can also affect rules and AI decisions. */
++	/*kInitCore.setClimate(eSelectedClimate);
++	kInitCore.setSeaLevel(eSelectedSeaLevel);*/ // </advc.194>
+ }
+ 
+ void CvMapGenerator::generatePlotTypes()
+@@ -1120,3 +1136,46 @@ int CvMapGenerator::calculateNumBonusesToAdd(BonusTypes eBonus)
+ 	int iBonusCount = (iMult * (iFromTiles + rFromPlayers.round())) / 100;
+ 	return std::max(1, iBonusCount);
+ }
++
++// <advc.194> To avoid hardcoding the types considered standard
++ClimateTypes CvMapGenerator::findStandardClimate() const
++{
++	float fBestScore = arithm_traits<float>::min;
++	ClimateTypes eBestClimate = NO_CLIMATE;
++	FOR_EACH_ENUM(Climate)
++	{
++		CvClimateInfo const& kLoopClimate = GC.getInfo(eLoopClimate);
++		float fLoopScore = 0;
++		fLoopScore -= abs(kLoopClimate.getDesertBottomLatitudeChange());
++		fLoopScore -= abs(kLoopClimate.getDesertTopLatitudeChange());
++		fLoopScore -= abs(kLoopClimate.getGrassLatitudeChange());
++		fLoopScore -= abs(kLoopClimate.getSnowLatitudeChange());
++		fLoopScore -= abs(kLoopClimate.getTundraLatitudeChange());
++		if (fLoopScore > fBestScore)
++		{
++			fBestScore = fLoopScore;
++			eBestClimate = eLoopClimate;
++		}
++		else FAssertMsg(fLoopScore < 0, "Multiple climates with 0 latitude changes?");
++	}
++	FAssert(eBestClimate != NO_CLIMATE);
++	return eBestClimate;
++}
++
++SeaLevelTypes CvMapGenerator::findStandardSeaLevel() const
++{
++	int iBestScore = arithm_traits<int>::min;
++	SeaLevelTypes eBestSeaLevel = NO_SEALEVEL;
++	FOR_EACH_ENUM(SeaLevel)
++	{
++		int iLoopScore = -abs(GC.getInfo(eLoopSeaLevel).getSeaLevelChange());
++		if (iLoopScore > iBestScore)
++		{
++			iBestScore = iLoopScore;
++			eBestSeaLevel = eLoopSeaLevel;
++		}
++		else FAssertMsg(iLoopScore < 0, "Multiple sea levels with 0 change?");
++	}
++	FAssert(eBestSeaLevel != NO_SEALEVEL);
++	return eBestSeaLevel;
++} // </advc.194>
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.h b/CvGameCoreDLL/CvMapGenerator.h
+index ad44a4dbd..9038f45db 100644
+--- a/CvGameCoreDLL/CvMapGenerator.h
++++ b/CvGameCoreDLL/CvMapGenerator.h
+@@ -54,6 +54,8 @@ protected:
+ 	// advc.129: To avoid duplicate code in addUniqueBonus and addNonUniqueBonus
+ 	int placeGroup(BonusTypes eBonus, CvPlot const& kCenter,
+ 			bool bIgnoreLatitude, int iLimit = 100);
++	ClimateTypes findStandardClimate() const; // advc.194
++	SeaLevelTypes findStandardSeaLevel() const; // advc.194
+ 
+ private:
+ 	static CvMapGenerator* m_pInst;
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.cpp b/CvGameCoreDLL/CvPythonCaller.cpp
+index 315152e24..46da79a4c 100644
+--- a/CvGameCoreDLL/CvPythonCaller.cpp
++++ b/CvGameCoreDLL/CvPythonCaller.cpp
+@@ -1314,6 +1314,18 @@ void CvPythonCaller::mapWraps(bool& bWrapX, bool& bWrapY) const
+ 	bWrapY = (lResult != 0);
+ }
+ 
++// advc.194:
++void CvPythonCaller::mapDefaultOptionAvailability(bool& bClimateFlexible,
++	bool& bSeaLevelFlexible) const
++{
++	long lResult = 1;
++	call("isClimateMap", lResult, m_python.getMapScriptModule(), false);
++	bClimateFlexible = toBool(lResult);
++	lResult = 1;
++	call("isSeaLevelMap", lResult, m_python.getMapScriptModule(), false);
++	bSeaLevelFlexible = toBool(lResult);
++}
++
+ bool CvPythonCaller::generateRandomMap() const
+ {
+ 	call("generateRandomMap", m_python.getMapScriptModule(), false);
+
+diff --git a/CvGameCoreDLL/CvPythonCaller.h b/CvGameCoreDLL/CvPythonCaller.h
+index 48e81c168..1e2ff2586 100644
+--- a/CvGameCoreDLL/CvPythonCaller.h
++++ b/CvGameCoreDLL/CvPythonCaller.h
+@@ -143,6 +143,8 @@ public:
+ 	bool mapPlotsPercent(WorldSizeTypes eWorldSize, int& iModifier) const; // advc.165
+ 	void mapLatitudeExtremes(int& iTop, int& iBottom) const;
+ 	void mapWraps(bool& bWrapX, bool& bWrapY) const;
++	// advc.194:
++	void mapDefaultOptionAvailability(bool& bClimateFlexible, bool& bSeaLevelFlexible) const;
+ 	bool generateRandomMap() const;
+ 	// Caller needs to initialize the array
+ 	bool generatePlotTypes(int* aiPlotTypes, size_t uiSize) const;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=6264

@@ -1,0 +1,1398 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 73
+# Commit: 26af73be454b397800c5f55a25fa13b0bd4420ea
+# History segment: K-Mod history
+# Parent used for diff: 7265253f19630d7f64a9e8e0e8737d76b8dbcdf9
+# Title: Added CIV4EspionageMissionInfo.xml and CIV4UpKeepInfo.xml (upkeepinfo should have been added several version ago. Sorry.) Changed the way stolen gold is calc...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+640	0	Assets/xml/GameInfo/CIV4EspionageMissionInfo.xml
+31	0	Assets/xml/GameInfo/CIV4UpKeepInfo.xml
+6	3	CvGameCoreDLL/CvGameTextMgr.cpp
+33	8	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+118	120	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.h
+18	3	CvGameCoreDLL/CvUnitAI.cpp
+ create mode 100644 Assets/xml/GameInfo/CIV4EspionageMissionInfo.xml
+ create mode 100644 Assets/xml/GameInfo/CIV4UpKeepInfo.xml
+
+[PATCHES]
+
+diff --git a/Assets/xml/GameInfo/CIV4EspionageMissionInfo.xml b/Assets/xml/GameInfo/CIV4EspionageMissionInfo.xml
+new file mode 100644
+index 000000000..7ce169f09
+--- /dev/null
++++ b/Assets/xml/GameInfo/CIV4EspionageMissionInfo.xml
+@@ -0,0 +1,640 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- EspionageMissionMission Infos -->
++<Civ4EspionageMissionInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
++	<EspionageMissionInfos>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_SEE_DEMOGRAPHICS</Type>
++			<Description>TXT_KEY_ESPIONAGE_CAN_SEE_DEMOGRAPHICS</Description>
++			<iCost>30</iCost>
++			<bIsPassive>1</bIsPassive>
++			<bIsTwoPhases>0</bIsTwoPhases>
++			<bTargetsCity>0</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>1</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>0</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_CITY_VISIBILITY</Type>
++			<Description>TXT_KEY_ESPIONAGE_CITY_VISIBILITY</Description>
++			<iCost>120</iCost>
++			<bIsPassive>1</bIsPassive>
++			<bIsTwoPhases>0</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>1</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>0</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_INVESTIGATE_CITY</Type>
++			<Description>TXT_KEY_ESPIONAGE_INVESTIGATE_CITY</Description>
++			<iCost>200</iCost>
++			<bIsPassive>1</bIsPassive>
++			<bIsTwoPhases>0</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>1</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>0</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_SEE_RESEARCH</Type>
++			<Description>TXT_KEY_ESPIONAGE_SEE_RESEARCH</Description>
++			<iCost>75</iCost>
++			<bIsPassive>1</bIsPassive>
++			<bIsTwoPhases>0</bIsTwoPhases>
++			<bTargetsCity>0</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>1</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>0</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_NO_ACTIVE_MISSIONS</Type>
++			<Description>TXT_KEY_ESPIONAGE_NO_ACTIVE_MISSIONS</Description>
++			<iCost>-1</iCost>
++			<bIsPassive>1</bIsPassive>
++			<bIsTwoPhases>0</bIsTwoPhases>
++			<bTargetsCity>0</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>1</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>0</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_DESTROY_IMPROVEMENT</Type>
++			<Description>TXT_KEY_ESPIONAGE_DESTROY_IMPROVEMENT</Description>
++			<iCost>75</iCost>
++			<bIsPassive>0</bIsPassive>
++			<bIsTwoPhases>0</bIsTwoPhases>
++			<bTargetsCity>0</bTargetsCity>
++			<bSelectPlot>1</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>1</bDestroyImprovement>
++			<iDifficultyMod>0</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_DESTROY_BUILDING</Type>
++			<Description>TXT_KEY_ESPIONAGE_DESTROY_BUILDING</Description>
++			<iCost>0</iCost>
++			<bIsPassive>0</bIsPassive>
++			<bIsTwoPhases>1</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>10</iDifficultyMod>
++			<iDestroyBuildingCostFactor>500</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_DESTROY_PROJECT</Type>
++			<Description>TXT_KEY_ESPIONAGE_DESTROY_PROJECT</Description>
++			<iCost>0</iCost>
++			<bIsPassive>0</bIsPassive>
++			<bIsTwoPhases>1</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>25</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>500</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_DESTROY_PRODUCTION</Type>
++			<Description>TXT_KEY_ESPIONAGE_DESTROY_PRODUCTION</Description>
++			<iCost>0</iCost>
++			<bIsPassive>0</bIsPassive>
++			<bIsTwoPhases>0</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>0</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>500</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_STEAL_TREASURY</Type>
++			<Description>TXT_KEY_ESPIONAGE_STEAL_TREASURY</Description>
++			<iCost>300</iCost>
++			<bIsPassive>0</bIsPassive>
++			<bIsTwoPhases>0</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>25</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>20</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_CITY_INSERT_CULTURE</Type>
++			<Description>TXT_KEY_ESPIONAGE_CITY_INSERT_CULTURE</Description>
++			<iCost>0</iCost>
++			<bIsPassive>0</bIsPassive>
++			<bIsTwoPhases>0</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>0</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>5</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>300</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_CITY_POISON_WATER</Type>
++			<Description>TXT_KEY_ESPIONAGE_CITY_POISON_WATER</Description>
++			<iCost>120</iCost>
++			<bIsPassive>0</bIsPassive>
++			<bIsTwoPhases>0</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>-50</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>8</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_CITY_UNHAPPINESS</Type>
++			<Description>TXT_KEY_ESPIONAGE_CITY_UNHAPPINESS</Description>
++			<iCost>120</iCost>
++			<bIsPassive>0</bIsPassive>
++			<bIsTwoPhases>0</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>-50</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>8</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_CITY_REVOLT</Type>
++			<Description>TXT_KEY_ESPIONAGE_CITY_REVOLT</Description>
++			<iCost>650</iCost>
++			<bIsPassive>0</bIsPassive>
++			<bIsTwoPhases>0</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>0</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>1</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_BUY_TECH</Type>
++			<Description>TXT_KEY_ESPIONAGE_BUY_TECH</Description>
++			<iCost>0</iCost>
++			<bIsPassive>0</bIsPassive>
++			<bIsTwoPhases>1</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>25</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>50</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_SWITCH_CIVIC</Type>
++			<Description>TXT_KEY_ESPIONAGE_SWITCH_CIVIC</Description>
++			<iCost>0</iCost>
++			<bIsPassive>0</bIsPassive>
++			<bIsTwoPhases>1</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>50</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>500</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_SWITCH_RELIGION</Type>
++			<Description>TXT_KEY_ESPIONAGE_SWITCH_RELIGION</Description>
++			<iCost>0</iCost>
++			<bIsPassive>0</bIsPassive>
++			<bIsTwoPhases>1</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>50</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>500</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>0</iCounterespionageNumTurns>
++			<iCounterespionageMod>0</iCounterespionageMod>
++		</EspionageMissionInfo>
++		<EspionageMissionInfo>
++			<Type>ESPIONAGEMISSION_COUNTERESPIONAGE</Type>
++			<Description>TXT_KEY_ESPIONAGE_COUNTERESPIONAGE</Description>
++			<iCost>100</iCost>
++			<bIsPassive>0</bIsPassive>
++			<bIsTwoPhases>0</bIsTwoPhases>
++			<bTargetsCity>1</bTargetsCity>
++			<bSelectPlot>0</bSelectPlot>
++			<TechPrereq>NONE</TechPrereq>
++			<iVisibilityLevel>0</iVisibilityLevel>
++			<bInvestigateCity>0</bInvestigateCity>
++			<bSeeDemographics>0</bSeeDemographics>
++			<bNoActiveMissions>0</bNoActiveMissions>
++			<bSeeResearch>0</bSeeResearch>
++			<bDestroyImprovement>0</bDestroyImprovement>
++			<iDifficultyMod>-100</iDifficultyMod>
++			<iDestroyBuildingCostFactor>0</iDestroyBuildingCostFactor>
++			<iDestroyUnitCostFactor>0</iDestroyUnitCostFactor>
++			<iDestroyProjectCostFactor>0</iDestroyProjectCostFactor>
++			<iDestroyProductionCostFactor>0</iDestroyProductionCostFactor>
++			<iBuyUnitCostFactor>0</iBuyUnitCostFactor>
++			<iBuyCityCostFactor>0</iBuyCityCostFactor>
++			<iStealTreasuryTypes>0</iStealTreasuryTypes>
++			<iCityInsertCultureAmountFactor>0</iCityInsertCultureAmountFactor>
++			<iCityInsertCultureCostFactor>0</iCityInsertCultureCostFactor>
++			<iCityPoisonWaterCounter>0</iCityPoisonWaterCounter>
++			<iCityUnhappinessCounter>0</iCityUnhappinessCounter>
++			<iCityRevoltCounter>0</iCityRevoltCounter>
++			<iBuyTechCostFactor>0</iBuyTechCostFactor>
++			<iSwitchCivicCostFactor>0</iSwitchCivicCostFactor>
++			<iSwitchReligionCostFactor>0</iSwitchReligionCostFactor>
++			<iPlayerAnarchyCounter>0</iPlayerAnarchyCounter>
++			<iCounterespionageNumTurns>10</iCounterespionageNumTurns>
++			<iCounterespionageMod>200</iCounterespionageMod>
++		</EspionageMissionInfo>
++	</EspionageMissionInfos>
++</Civ4EspionageMissionInfo>
+
+diff --git a/Assets/xml/GameInfo/CIV4UpKeepInfo.xml b/Assets/xml/GameInfo/CIV4UpKeepInfo.xml
+new file mode 100644
+index 000000000..afde86d56
+--- /dev/null
++++ b/Assets/xml/GameInfo/CIV4UpKeepInfo.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jesse Smith (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Upkeep -->
++<Civ4UpkeepInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
++	<UpkeepInfos>
++		<UpkeepInfo>
++			<Type>UPKEEP_LOW</Type>
++			<Description>TXT_KEY_UPKEEP_LOW</Description>
++			<Strategy>TXT_KEY_UPKEEP_LOW_HELP</Strategy>
++			<iPopulationPercent>8</iPopulationPercent>
++			<iCityPercent>30</iCityPercent>
++		</UpkeepInfo>
++		<UpkeepInfo>
++			<Type>UPKEEP_MEDIUM</Type>
++			<Description>TXT_KEY_UPKEEP_MEDIUM</Description>
++			<Strategy>TXT_KEY_UPKEEP_MEDIUM_HELP</Strategy>
++			<iPopulationPercent>14</iPopulationPercent>
++			<iCityPercent>40</iCityPercent>
++		</UpkeepInfo>
++		<UpkeepInfo>
++			<Type>UPKEEP_HIGH</Type>
++			<Description>TXT_KEY_UPKEEP_HIGH</Description>
++			<Strategy>TXT_KEY_UPKEEP_HIGH_HELP</Strategy>
++			<iPopulationPercent>20</iPopulationPercent>
++			<iCityPercent>50</iCityPercent>
++		</UpkeepInfo>
++	</UpkeepInfos>
++</Civ4UpkeepInfo>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 85c85852c..9af1f9e19 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -14705,7 +14705,8 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 	{
+ 		if (NO_PLAYER != eTargetPlayer)
+ 		{
+-			int iNumTotalGold = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
++			//int iNumTotalGold = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
++			int iNumTotalGold;
+ 
+ 			if (NULL != pPlot)
+ 			{
+@@ -14713,8 +14714,10 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 
+ 				if (NULL != pCity)
+ 				{
+-					iNumTotalGold *= pCity->getPopulation();
+-					iNumTotalGold /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation());
++					/* iNumTotalGold *= pCity->getPopulation();
++					iNumTotalGold /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation());*/
++					// K-Mod					
++					iNumTotalGold = kPlayer.getEspionageGoldQuantity(eMission, eTargetPlayer, pCity);
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index abcf41822..4154dc0d8 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14391,12 +14391,15 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
+ 	if (kMission.getStealTreasuryTypes() > 0)
+ 	{
+ 		// Steal Treasury
+-		int iNumTotalGold = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
++		//int iNumTotalGold = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
++		int iNumTotalGold;
+ 
+ 		if (NULL != pCity)
+ 		{
+-			iNumTotalGold *= pCity->getPopulation();
+-			iNumTotalGold /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation());
++			/* iNumTotalGold *= pCity->getPopulation();
++			iNumTotalGold /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation()); */
++			// K-Mod
++			iNumTotalGold = getEspionageGoldQuantity(eMission, eTargetPlayer, pCity);
+ 		}
+ 
+ 		if (iNumTotalGold > 0)
+@@ -14459,7 +14462,9 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
+ 		{
+ 			if (canForceCivics(eTargetPlayer, eCivic))
+ 			{
+-				iMissionCost = iBaseMissionCost + (kMission.getSwitchCivicCostFactor() * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getAnarchyPercent()) / 10000;
++				//iMissionCost = iBaseMissionCost + (kMission.getSwitchCivicCostFactor() * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getAnarchyPercent()) / 10000;
++				// K-Mod
++				iMissionCost = iBaseMissionCost + (kMission.getSwitchCivicCostFactor() * GET_PLAYER(eTargetPlayer).getTotalPopulation() * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getAnarchyPercent()) / 10000;
+ 			}
+ 		}
+ 	}
+@@ -14484,7 +14489,9 @@ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, Player
+ 		{
+ 			if (canForceReligion(eTargetPlayer, eReligion))
+ 			{
+-				iMissionCost = iBaseMissionCost + (kMission.getSwitchReligionCostFactor() * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getAnarchyPercent()) / 10000;
++				//iMissionCost = iBaseMissionCost + (kMission.getSwitchReligionCostFactor() * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getAnarchyPercent()) / 10000;
++				// K-Mod
++				iMissionCost = iBaseMissionCost + (kMission.getSwitchReligionCostFactor() * GET_PLAYER(eTargetPlayer).getTotalPopulation() * GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getAnarchyPercent()) / 10000;				
+ 			}
+ 		}
+ 	}
+@@ -15175,7 +15182,8 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 	{
+ 		if (NO_PLAYER != eTargetPlayer)
+ 		{
+-			int iNumTotalGold = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
++			//int iNumTotalGold = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
++			int iNumTotalGold;
+ 
+ 			if (NULL != pPlot)
+ 			{
+@@ -15183,8 +15191,10 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 
+ 				if (NULL != pCity)
+ 				{
+-					iNumTotalGold *= pCity->getPopulation();
+-					iNumTotalGold /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation());
++					/* iNumTotalGold *= pCity->getPopulation();
++					iNumTotalGold /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation()); */
++					// K-Mod. Make stealing gold still worthwhile against large civs.
++					iNumTotalGold = getEspionageGoldQuantity(eMission, eTargetPlayer, pCity);
+ 				}
+ 			}
+ 
+@@ -21892,6 +21902,21 @@ bool CvPlayer::canSpyDestroyProject(PlayerTypes eTarget, ProjectTypes eProject)
+ 	return true;
+ }
+ 
++// K-Mod
++int CvPlayer::getEspionageGoldQuantity(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvCity* pCity) const
++{
++	if (!pCity || pCity->getOwnerINLINE() != eTargetPlayer)
++		return 0;
++
++	CvEspionageMissionInfo& kMission = GC.getEspionageMissionInfo(eMission);
++	int iGoldStolen = (GET_PLAYER(eTargetPlayer).getGold() * kMission.getStealTreasuryTypes()) / 100;
++
++	iGoldStolen *= 2*pCity->getPopulation();
++	iGoldStolen /= std::max(1, pCity->getPopulation() + GET_PLAYER(eTargetPlayer).getAveragePopulation());
++
++	return std::min(iGoldStolen, GET_PLAYER(eTargetPlayer).getGold());
++}
++
+ void CvPlayer::forcePeace(PlayerTypes ePlayer)
+ {
+ 	if (!GET_TEAM(getTeam()).isAVassal())
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index d63ac694e..e861a146c 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -368,6 +368,7 @@ public:
+ 	bool canSpyBribeUnit(PlayerTypes eTarget, CvUnit& kUnit) const;
+ 	bool canSpyDestroyBuilding(PlayerTypes eTarget, BuildingTypes eBuilding) const;
+ 	bool canSpyDestroyProject(PlayerTypes eTarget, ProjectTypes eProject) const;
++	int getEspionageGoldQuantity(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvCity* pCity) const; // K-Mod
+ 
+ 	DllExport void doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd);
+ 	DllExport int getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot = NULL) const;																													// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index c3a028f56..111f3a03f 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5866,6 +5866,13 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 							iMilitaryValue /= 3;
+ 						}
+ 
++						// K-Mod
++						if (AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS))
++						{
++							iMilitaryValue *= 3;
++							iMilitaryValue /= 2;
++						}
++
+ 						iUnitValue += iMilitaryValue;
+ 					}
+ 					
+@@ -13096,19 +13103,8 @@ EspionageMissionTypes CvPlayerAI::AI_bestPlotEspionage(CvPlot* pSpyPlot, PlayerT
+ 	{
+ 		if (pSpyPlot->getTeam() != getTeam())
+ 		{
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       09/05/08                                jdog5000      */
+-/*                                                                                              */
+-/* Bugfix				                                                                         */
+-/************************************************************************************************/
+-/* original BTS code
++			/* original BTS code
+ 			if (!AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) && (GET_TEAM(getTeam()).AI_getWarPlan(pSpyPlot->getTeam()) != NO_WARPLAN || AI_getAttitudeWeight(pSpyPlot->getOwner()) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 50 : 1)))
+-*/
+-			// Attitude weight < 50 is equivalent to < 1, < 51 is clearly what was intended
+-			if (!AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) && (GET_TEAM(getTeam()).AI_getWarPlan(pSpyPlot->getTeam()) != NO_WARPLAN || AI_getAttitudeWeight(pSpyPlot->getOwner()) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 51 : 1)))
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
+ 			{
+ 				//Destroy Improvement.
+ 				if (pSpyPlot->getImprovementType() != NO_IMPROVEMENT)
+@@ -13138,19 +13134,8 @@ EspionageMissionTypes CvPlayerAI::AI_bestPlotEspionage(CvPlot* pSpyPlot, PlayerT
+ 			if (pCity != NULL)
+ 			{
+ 				//Something malicious
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       09/05/08                                jdog5000      */
+-/*                                                                                              */
+-/* Bugfix				                                                                         */
+-/************************************************************************************************/
+-/* original BTS code
+-				if (AI_getAttitudeWeight(pSpyPlot->getOwner()) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 50 : 1))
+-*/
+-				// Attitude weight < 50 is equivalent to < 1, < 51 is clearly what was intended
+-				if (AI_getAttitudeWeight(pSpyPlot->getOwner()) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 51 : 1))
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
++				//if (AI_getAttitudeWeight(pSpyPlot->getOwner()) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 50 : 1))
++				if (isMaliciousEspionageTarget(pSpyPlot->getOwnerINLINE()))
+ 				{
+ 					//Destroy Building.
+ 					if (!AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE))
+@@ -13276,7 +13261,43 @@ EspionageMissionTypes CvPlayerAI::AI_bestPlotEspionage(CvPlot* pSpyPlot, PlayerT
+ 						}
+ 					}
+ 				}
++			} */
++			// K-Mod, one espionage mission loop to rule them all...
++			for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
++			{
++				CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
++				if (kMissionInfo.getCounterespionageMod() > 0 && kMissionInfo.getCounterespionageNumTurns() > 0)
++				{
++					int iTestData = 1;
++					if (kMissionInfo.getBuyTechCostFactor() > 0)
++					{
++						iTestData = GC.getNumTechInfos();
++					}
++					else if (kMissionInfo.getDestroyProjectCostFactor() > 0)
++					{
++						iTestData = GC.getNumProjectInfos();
++					}
++					else if (kMissionInfo.getDestroyBuildingCostFactor() > 0)
++					{
++						iTestData = GC.getNumBuildingInfos();
++					}
++
++					for ( ; iTestData >= 0; iTestData--)
++					{							
++						int iValue = AI_espionageVal(pSpyPlot->getOwnerINLINE(), (EspionageMissionTypes)iMission, pSpyPlot, iTestData);
++							
++						if (iValue > iBestValue)
++						{
++							iBestValue = iValue;
++							eBestMission = (EspionageMissionTypes)iMission;
++							eTargetPlayer = pSpyPlot->getOwnerINLINE();
++							pPlot = pSpyPlot;
++							iData = iTestData;
++						}
++					}
++				}
+ 			}
++			// K-Mod end
+ 		}
+ 	}
+ 	
+@@ -13286,11 +13307,6 @@ EspionageMissionTypes CvPlayerAI::AI_bestPlotEspionage(CvPlot* pSpyPlot, PlayerT
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/23/09                                jdog5000      */
+-/*                                                                                              */
+-/* Espionage AI                                                                                 */
+-/************************************************************************************************/					
+ /// \brief Value of espionage mission at this plot.
+ ///
+ /// Assigns value to espionage mission against ePlayer at pPlot, where iData can provide additional information about mission.
+@@ -13310,7 +13326,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 		return 0;
+ 	}
+ 
+-	bool bMalicious = (AI_getAttitudeWeight(pPlot->getOwner()) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 51 : 1) || GET_TEAM(getTeam()).AI_getWarPlan(eTargetTeam) != NO_WARPLAN);
++	bool bMalicious = isMaliciousEspionageTarget(eTargetPlayer);	
+ 
+ 	int iValue = 0;
+ 	if (bMalicious && GC.getEspionageMissionInfo(eMission).isDestroyImprovement())
+@@ -13357,15 +13373,6 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 						CvBuildingInfo& kBuilding = GC.getBuildingInfo((BuildingTypes)iData);
+ 						if ((kBuilding.getProductionCost() > 1) && !isWorldWonderClass((BuildingClassTypes)kBuilding.getBuildingClassType()))
+ 						{
+-							// BBAI TODO: Should this be based on production cost of building?  Others are
+-							/*int iEspionageFlags = 0;
+-							iEspionageFlags |= BUILDINGFOCUS_FOOD;
+-							iEspionageFlags |= BUILDINGFOCUS_PRODUCTION;
+-							iEspionageFlags |= BUILDINGFOCUS_DEFENSE;
+-							iEspionageFlags |= BUILDINGFOCUS_HAPPY;
+-							iEspionageFlags |= BUILDINGFOCUS_HEALTHY;
+-							iEspionageFlags |= BUILDINGFOCUS_GOLD;
+-							iEspionageFlags |= BUILDINGFOCUS_RESEARCH;*/
+ 							iValue += pCity->AI_buildingValue((BuildingTypes)iData);
+ 							// K-Mod
+ 							iValue *= 60 + kBuilding.getProductionCost();
+@@ -13449,9 +13456,11 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 	{
+ 		if( pPlot != NULL && pPlot->getPlotCity() != NULL )
+ 		{
+-			int iGoldStolen = (GET_PLAYER(eTargetPlayer).getGold() * GC.getEspionageMissionInfo(eMission).getStealTreasuryTypes()) / 100;
++			/* int iGoldStolen = (GET_PLAYER(eTargetPlayer).getGold() * GC.getEspionageMissionInfo(eMission).getStealTreasuryTypes()) / 100;
+ 			iGoldStolen *= pPlot->getPlotCity()->getPopulation();
+-			iGoldStolen /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation());
++			iGoldStolen /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation());*/
++			// K-Mod
++			int iGoldStolen = getEspionageGoldQuantity(eMission, eTargetPlayer, pPlot->getPlotCity());
+ 			iValue += ((GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble()) ? 4 : 2) * (2 * std::max(0, iGoldStolen - iCost));
+ 		}
+ 	}
+@@ -13592,12 +13601,19 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 		// AI doesn't use Player Anarchy
+ 	}
+ 
++	// K-Mod
++	if (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) && iValue < 800 && iValue < 2*getEspionageMissionCost(eMission, eTargetPlayer, pPlot, iData))
++	{
++		return 0;		
++	}
++
+ 	return iValue;
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 
++bool CvPlayerAI::isMaliciousEspionageTarget(PlayerTypes eTarget) const
++{
++	return (AI_getAttitudeWeight(eTarget) < (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 51 : 1) || GET_TEAM(getTeam()).AI_getWarPlan(GET_PLAYER(eTarget).getTeam()) != NO_WARPLAN);
++}
+ 
+ int CvPlayerAI::AI_getPeaceWeight() const
+ {
+@@ -14540,14 +14556,28 @@ void CvPlayerAI::AI_doCommerce()
+ 							int iModifier = 0;
+ 							for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+ 							{
+-								iModifier += getEspionageMissionCostModifier(NO_ESPIONAGEMISSION, GET_TEAM((TeamTypes)iTeam).getLeaderID(), pLoopCity->plot());
++								iModifier += getEspionageMissionCostModifier(NO_ESPIONAGEMISSION, kLoopTeam.getLeaderID(), pLoopCity->plot());
+ 							}
+ 							iModifier /= kLoopPlayer.getNumCities();
+ 
+ 							if (iModifier < iMinModifier ||
+ 								(iModifier == iMinModifier && GET_TEAM(getTeam()).AI_getAttitudeVal((TeamTypes)iTeam) < GET_TEAM(getTeam()).AI_getAttitudeVal(eMinModTeam)))
+ 							{
+-								if (getTechScore() < kLoopPlayer.getTechScore())
++								bool bValid = getTechScore() < kLoopPlayer.getTechScore();
++								if (!bValid)
++								{
++									// do they have _any_ techs we can steal?
++									for (int iT = 0; iT < GC.getNumTechInfos(); iT++)
++									{
++										if (canStealTech((PlayerTypes)iPlayer, (TechTypes)iT))
++										{
++											bValid = true;
++											break;
++										}
++									}
++
++								}
++								if (bValid)
+ 								{
+ 									iMinModifier = iModifier;
+ 									eMinModTeam = (TeamTypes)iTeam;
+@@ -16396,39 +16426,11 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 
+ 	pStream->Read(&m_iStrategyHash);
+ 	pStream->Read(&m_iStrategyHashCacheTurn);
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/18/10                                jdog5000      */
+-/*                                                                                              */
+-/* Victory Strategy AI, War strategy AI                                                         */
+-/************************************************************************************************/
+-	if( uiFlag < 3 )
+-	{
+-		m_iStrategyHash = 0;
+-		m_iStrategyHashCacheTurn = -1;
+-	}
+-
+-	if( uiFlag > 2 )
+-	{
+-		pStream->Read(&m_iStrategyRand);
+-	}
+-	else
+-	{
+-		m_iStrategyRand = 0;
+-	}
+-
+-	if( uiFlag > 0 )
+-	{
+-		pStream->Read(&m_iVictoryStrategyHash);
+-		pStream->Read(&m_iVictoryStrategyHashCacheTurn);
+-	}
+-	else
+-	{
+-		m_iVictoryStrategyHash = 0;
+-		m_iVictoryStrategyHashCacheTurn = -1;
+-	}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/		
++// BBAI (edited for K-Mod)
++	pStream->Read(&m_iStrategyRand);
++	pStream->Read(&m_iVictoryStrategyHash);
++	pStream->Read(&m_iVictoryStrategyHashCacheTurn);
++// BBAI end
+ 	pStream->Read(&m_iAveragesCacheTurn);
+ 	pStream->Read(&m_iAverageGreatPeopleMultiplier);
+ 	pStream->Read(&m_iAverageCulturePressure); // K-Mod
+@@ -16508,19 +16510,11 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ {
+ 	CvPlayer::write(pStream);	// write base class data first
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/18/10                                jdog5000      */
+-/*                                                                                              */
+-/* Victory Strategy AI                                                                          */
+-/************************************************************************************************/
+ /*
+ 	uint uiFlag=0;
+ */
+ 	// Flag for type of save
+ 	uint uiFlag=3;
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/		
+ 	pStream->Write(uiFlag);		// flag for expansion
+ 
+ 	pStream->Write(m_iPeaceWeight);
+@@ -17757,15 +17751,15 @@ int CvPlayerAI::AI_getCultureVictoryStage() const
+ 	}
+ 	*/
+ 
+-	int iNonsense = AI_getStrategyRand() + 10;
+-	iValue += (iNonsense % 100);
++	//int iNonsense = AI_getStrategyRand() + 10;
++	iValue += (AI_getStrategyRand(0) % 100);
+ 
+ 	if (iValue < 100)
+ 	{
+ 		return 0;
+ 	}
+     
+-    if (getCurrentEra() >= (GC.getNumEraInfos() - (2 + iNonsense % 2)))
++    if (getCurrentEra() >= (GC.getNumEraInfos() - (2 + AI_getStrategyRand(1) % 2)))
+     {
+ 		bool bAt3 = false;
+         
+@@ -17795,7 +17789,7 @@ int CvPlayerAI::AI_getCultureVictoryStage() const
+ 		}
+     }
+ 
+-	if (getCurrentEra() >= ((GC.getNumEraInfos() / 3) + iNonsense % 2))
++	if (getCurrentEra() >= ((GC.getNumEraInfos() / 3) + AI_getStrategyRand(2) % 2))
+ 	{
+ 	    return 2;
+ 	}
+@@ -17936,8 +17930,8 @@ int CvPlayerAI::AI_getSpaceVictoryStage() const
+ 
+ 		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? -20 : 0);
+ 
+-		int iNonsense = AI_getStrategyRand() + 50;
+-		iValue += (iNonsense % 100);
++		//int iNonsense = AI_getStrategyRand() + 50;
++		iValue += (AI_getStrategyRand(3) % 100);
+ 
+ 		if (iValue >= 100)
+ 		{
+@@ -18071,8 +18065,7 @@ int CvPlayerAI::AI_getConquestVictoryStage() const
+ 		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 20 : 0);
+ 
+ 		//int iNonsense = AI_getStrategyRand() + 30;
+-		int iNonsense = AI_getStrategyRand() + 8191; // K-Mod, a prime number, and bigger than 100.
+-		iValue += (iNonsense % 100);
++		iValue += (AI_getStrategyRand(4) % 100);
+ 
+ 		if (iValue >= 100)
+ 		{
+@@ -18159,8 +18152,8 @@ int CvPlayerAI::AI_getDominationVictoryStage() const
+ 		
+ 		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 20 : 0);
+ 
+-		int iNonsense = AI_getStrategyRand() + 70;
+-		iValue += (iNonsense % 100);
++		//int iNonsense = AI_getStrategyRand() + 70;
++		iValue += (AI_getStrategyRand(5) % 100);
+ 
+ 		if (iValue >= 100)
+ 		{
+@@ -18230,8 +18223,8 @@ int CvPlayerAI::AI_getDiplomacyVictoryStage() const
+ 		
+ 		iValue += (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? -20 : 0);
+ 
+-		int iNonsense = AI_getStrategyRand() + 90;
+-		iValue += (iNonsense % 100);
++		//int iNonsense = AI_getStrategyRand() + 90;
++		iValue += (AI_getStrategyRand(6) % 100);
+ 
+ 		// BBAI TODO: Level 2?
+ 
+@@ -18490,22 +18483,24 @@ int CvPlayerAI::AI_getVictoryStrategyHash() const
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      03/18/10                                jdog5000      */
+-/*                                                                                              */
+-/* War Strategy AI                                                                              */
+-/************************************************************************************************/
+-int CvPlayerAI::AI_getStrategyRand() const
++// K-Mod, based on BBAI
++int CvPlayerAI::AI_getStrategyRand(int iShift) const
+ {
++	const unsigned iBits = 16;
++
++	iShift += getCurrentEra();
++	while (iShift < 0)
++		iShift += iBits;
++	iShift %= iBits;
++
+     if( m_iStrategyRand <= 0 )
+ 	{
+-		m_iStrategyRand = 1 + GC.getGameINLINE().getSorenRandNum(100000, "AI Strategy Rand");
++		m_iStrategyRand = GC.getGameINLINE().getSorenRandNum((1<<(iBits+1))-1, "AI Strategy Rand");
+ 	}
+ 
+-	return m_iStrategyRand;
++	return (m_iStrategyRand << iShift) + (m_iStrategyRand >> (iBits - iShift));
+ }
+ 
+-
+ bool CvPlayerAI::AI_isDoStrategy(int iStrategy) const
+ {
+     if (isHuman())
+@@ -18560,7 +18555,7 @@ int CvPlayerAI::AI_getStrategyHash() const
+         return m_iStrategyHash;
+     }
+     
+-    int iNonsense = AI_getStrategyRand();
++    //int iNonsense = AI_getStrategyRand();
+     
+ 	int iMetCount = GET_TEAM(getTeam()).getHasMetCivCount(true);
+     
+@@ -18690,11 +18685,14 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 			iAverageEnemyUnit = 0;
+ 		else
+ 			iAverageEnemyUnit = iTotalWeightedValue / iTotalPower;
++		// A bit of random variation...
++		iAverageEnemyUnit *= (91+AI_getStrategyRand(1)%20);
++		iAverageEnemyUnit /= 100;
+ 	}
+ 
+ 	//if (iAttackUnitCount <= 1)
+ 	if (iAttackUnitCount <= 1 ||
+-		(iAverageEnemyUnit > 3*iTypicalAttack/2 && iAverageEnemyUnit > 3*iTypicalDefence/2))
++		(100*iAverageEnemyUnit > 140*iTypicalAttack && 100*iAverageEnemyUnit > 140*iTypicalDefence))
+ 	{
+ 		m_iStrategyHash |= AI_STRATEGY_GET_BETTER_UNITS;
+ 	}
+@@ -18709,7 +18707,7 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 	}
+ 	if (iNukeCount > 0)
+ 	{
+-		if ((GC.getLeaderHeadInfo(getPersonalityType()).getBuildUnitProb() + iNonsense % 15) >= (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 37 : 43))
++		if ((GC.getLeaderHeadInfo(getPersonalityType()).getBuildUnitProb() + AI_getStrategyRand(7) % 15) >= (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 37 : 43))
+ 		{
+ 			m_iStrategyHash |= AI_STRATEGY_OWABWNW;
+ 		}
+@@ -18722,7 +18720,7 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 		}
+ 		else
+ 		{
+-			if ((iNonsense % 2) == 0)
++			if ((AI_getStrategyRand(8) % 2) == 0)
+ 			{
+ 				m_iStrategyHash |= AI_STRATEGY_AIR_BLITZ;
+ 				m_iStrategyHash &= ~AI_STRATEGY_LAND_BLITZ;				
+@@ -18787,7 +18785,7 @@ int CvPlayerAI::AI_getStrategyHash() const
+                     }
+                 }
+                 
+-                iMissionary += (iNonsense % 7) * 3;
++                iMissionary += (AI_getStrategyRand(9) % 7) * 3;
+                 
+                 if (iMissionary > 100)
+                 {
+@@ -18820,7 +18818,7 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 		
+ 		iTempValue += (100 - AI_getEspionageWeight()) / 10;
+ 		
+-		iTempValue += iNonsense % 12;
++		iTempValue += AI_getStrategyRand(10) % 12;
+ 	
+ 		if (iTempValue > 10)
+ 		{
+@@ -18998,7 +18996,7 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 
+ 	// Economic focus (K-Mod) - Note: this strategy is a gambit. The goal is catch up in tech by avoiding building units.
+ 	if (GET_TEAM(getTeam()).getAnyWarPlanCount(true) == 0 &&
+-		(iAverageEnemyUnit >= 5*iTypicalAttack/3 && iAverageEnemyUnit >= 2*iTypicalDefence))
++		(100*iAverageEnemyUnit >= 150*iTypicalAttack && 100*iAverageEnemyUnit >= 180*iTypicalDefence))
+ 	{
+ 		m_iStrategyHash |= AI_STRATEGY_ECONOMY_FOCUS;
+ 	}
+@@ -19030,11 +19028,11 @@ int CvPlayerAI::AI_getStrategyHash() const
+     //dagger
+ 	if( !(AI_isDoVictoryStrategy(AI_VICTORY_CULTURE2)) 
+ 	 && !(m_iStrategyHash & AI_STRATEGY_MISSIONARY)
+-     && (iCurrentEra <= (2+(iNonsense%2))) && (iCloseTargets > 0) )
++     && (iCurrentEra <= (2+(AI_getStrategyRand(11)%2))) && (iCloseTargets > 0) )
+     {	    
+ 	    int iDagger = 0;
+ 	    iDagger += 12000 / std::max(100, (50 + GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand()));
+-	    iDagger *= (iNonsense % 11);
++	    iDagger *= (AI_getStrategyRand(12) % 11);
+ 	    iDagger /= 10;
+ 	    iDagger += 5 * std::min(8, AI_getFlavorValue(AI_FLAVOR_MILITARY));
+ 	    
+@@ -19178,7 +19176,7 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 		// A leader dependant value. (MaxWarRand is roughly between 50 and 200. Gandi is 400.)
+ 		//iCrushValue += (iNonsense % 3000) / (400+GC.getLeaderHeadInfo(getPersonalityType()).getMaxWarRand());
+ 	// On second thought, lets try this
+-		iCrushValue += iNonsense % (4 + AI_getFlavorValue(AI_FLAVOR_MILITARY)/2);
++		iCrushValue += AI_getStrategyRand(13) % (4 + AI_getFlavorValue(AI_FLAVOR_MILITARY)/2);
+ 		// note: flavor military is between 0 and 10
+ 		
+ 		if (m_iStrategyHash & AI_STRATEGY_DAGGER)
+@@ -19216,7 +19214,7 @@ int CvPlayerAI::AI_getStrategyHash() const
+ 					}
+ 
+ 					// K-Mod
+-					if (iTypicalAttack >= 3 * GET_TEAM(getTeam()).getTypicalUnitValue(UNITAI_CITY_DEFENSE) / 2)
++					if (100*iTypicalAttack >= 110 * GET_TEAM(getTeam()).getTypicalUnitValue(UNITAI_CITY_DEFENSE))
+ 					{
+ 						iCrushValue += 2;
+ 					}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 8914dc319..aeeb28478 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -239,6 +239,7 @@ public:
+ 
+ 	EspionageMissionTypes AI_bestPlotEspionage(CvPlot* pSpyPlot, PlayerTypes& eTargetPlayer, CvPlot*& pPlot, int& iData) const;
+ 	int AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes eMission, CvPlot* pPlot, int iData) const;
++	bool isMaliciousEspionageTarget(PlayerTypes eTarget) const; // K-Mod
+ 
+ 	int AI_getPeaceWeight() const;
+ 	void AI_setPeaceWeight(int iNewValue);
+@@ -322,7 +323,7 @@ public:
+ 	bool AI_isDoVictoryStrategyLevel3() const;
+ 	void AI_forceUpdateVictoryStrategies();
+ 	int AI_getVictoryStrategyHash() const;
+-	int AI_getStrategyRand() const;
++	int AI_getStrategyRand(int iShift) const;
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 249c08838..2e37e7db2 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5191,21 +5191,36 @@ void CvUnitAI::AI_spyMove()
+ 			break;
+ 
+ 		case ATTITUDE_CAUTIOUS:
+-			iEspionageChance = (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 30 : 10);
++			//iEspionageChance = (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 30 : 10);
++			iEspionageChance = (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 30 : 16);
+ 			break;
+ 
+ 		case ATTITUDE_PLEASED:
+-			iEspionageChance = (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 20 : 0);
++			//iEspionageChance = (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 20 : 0);
++			iEspionageChance = (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 20 : 8);
+ 			break;
+ 
+ 		case ATTITUDE_FRIENDLY:
+-			iEspionageChance = 0;
++			//iEspionageChance = 0;
++			iEspionageChance = (GC.getGameINLINE().isOption(GAMEOPTION_AGGRESSIVE_AI) ? 10 : 4);
+ 			break;
+ 
+ 		default:
+ 			FAssert(false);
+ 			break;
+ 		}
++		// K-Mod
++		{
++			int iRatio = 100;
++
++			iRatio *= kTeam.getEspionagePointsAgainstTeam(plot()->getTeam());
++			iRatio /= std::max(GET_TEAM(plot()->getTeam()).getEspionagePointsAgainstTeam(getTeam()), 1);
++
++			iEspionageChance *= std::min(800, 3*iRatio+100);
++			iEspionageChance /= 400;
++			// ie. a factor between 2 and 1/4.
++		}
++
+ 		
+ 		WarPlanTypes eWarPlan = kTeam.AI_getWarPlan(plot()->getTeam());
+ 		if (eWarPlan != NO_WARPLAN)
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=62315

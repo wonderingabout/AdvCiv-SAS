@@ -1,0 +1,147 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4724
+# Commit: f0497a4f77e42c52fb059bc11510e23f48234227
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 266d7590cb4db0b29d344a4e12fb92acd796bb6a
+# Title: remove global inversions, move to per-aggregate attributes inversion ( import of newer chatgpt code ;( ) this is so moving to realize chatgpt had understood...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	13	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+36	0	Assets/Python/Contrib/Sevopedia/SevoPediaLeader_to_imprt_from_and_fix.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index efb410d4e..597f72124 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -197,12 +197,13 @@ AI_ATTRIBUTE_CATEGORIES = {
+ # Aggregate personality categories (each combines multiple traits).
+ # Format: (Category Label, [(traitFuncName, invertFlag), ...])
+ # The invertFlag is preserved from old code but actual inversion is controlled by AI_INVERTED_TRAITS.
++# <!-- custom: True = Inverted, False = Not inverted -->
+ REVISED_AI_AGGREGATES = [
+     # === WAR / CONFLICT BEHAVIOR ===
+     ("Aggressive", [
+-        ("getMaxWarRand", False),
+-        ("getLimitedWarRand", False),
+-        ("getDogpileWarRand", False),
++        ("getMaxWarRand", True),
++        ("getLimitedWarRand", True),
++        ("getDogpileWarRand", True),
+         ("getBuildUnitProb", False),
+         ("getBaseAttackOddsChange", False),
+         ("getAttackOddsChangeRand", False),
+@@ -508,9 +509,12 @@ def cache_ai_attribute_data():
+                 raw_val = getattr(leaderInfo, funcName)()
+             except Exception:
+                 continue
+-            # Compute percentile, inverting if necessary
+-            inv = funcName in AI_INVERTED_TRAITS
+-            norm_val = get_percentile(raw_val, sorted_vals, inverse=inv)
++            # <!-- custom: old code comment from chatgpt deep search --> Compute percentile, inverting if necessary
++            # <!-- custom: old code comment from chatgpt deep search --> inv = funcName in AI_INVERTED_TRAITS
++			# Compute percentile, as for inverting we never invert raw trait
++			# values anymore. They are shown as-is in the raw categories.
++			# Only aggregates apply inversion.
++            norm_val = get_percentile(raw_val, sorted_vals, inverse=False)
+             leader_data[funcName] = {"raw": raw_val, "normalized": norm_val}
+         AI_ATTRIBUTE_DATA[iLeader] = leader_data
+ 
+@@ -529,7 +533,8 @@ def cache_ai_aggregate_scores():
+         for label, fields in REVISED_AI_AGGREGATES:
+             print("[DEBUG] Starting aggregate:", label)
+             percentiles = []
+-            for funcName, _ in fields:  # (use _ for invert flag from data; logic uses global AI_INVERTED_TRAITS)
++            # <!-- custom: from newer chatgpt, per-aggregate inversion logic -->
++            for funcName, invert in fields:  # old comment from deep search: (use _ for invert flag from data; logic uses global AI_INVERTED_TRAITS)
+                 try:
+                     raw_val = getattr(leaderInfo, funcName)()
+                 except Exception:
+@@ -538,13 +543,14 @@ def cache_ai_aggregate_scores():
+                 sorted_vals = AI_SORTED_VALUES.get(funcName, [])
+                 if not sorted_vals:
+                     continue
+-                #print("[DEBUG]      Trait %s | raw=%d | invert=%s" % (funcName, raw_val, invert))
+-                print("[DEBUG]      Trait %s | raw=%d" % (funcName, raw_val))
+-                inv = funcName in AI_INVERTED_TRAITS
+-                pct = get_percentile(raw_val, sorted_vals, inverse=inv)
++                print("[DEBUG]      Trait %s | raw=%d | invert=%s" % (funcName, raw_val, invert))
++                #print("[DEBUG]      Trait %s | raw=%d" % (funcName, raw_val))
++                #inv = funcName in AI_INVERTED_TRAITS
++                #pct = get_percentile(raw_val, sorted_vals, inverse=inv)
++                pct = get_percentile(raw_val, sorted_vals, inverse=invert)
+                 print("[DEBUG]      Percentile for %s: %d" % (funcName, pct))
+-                #print("[DEBUG]  - Leader %d | %s: raw=%d, pct=%d, invert=%s" % (iLeader, funcName, raw_val, pct, invert))
+-                print("[DEBUG]  - Leader %d | %s: raw=%d, pct=%d, inv=%s" % (iLeader, funcName, raw_val, pct, inv))
++                print("[DEBUG]  - Leader %d | %s: raw=%d, pct=%d, invert=%s" % (iLeader, funcName, raw_val, pct, invert))
++                #print("[DEBUG]  - Leader %d | %s: raw=%d, pct=%d, inv=%s" % (iLeader, funcName, raw_val, pct, inv))
+                 percentiles.append(pct)
+             if percentiles:
+                 # Average (mean) of percentiles
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader_to_imprt_from_and_fix.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader_to_imprt_from_and_fix.py
+index cd0942353..40dbfa799 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader_to_imprt_from_and_fix.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader_to_imprt_from_and_fix.py
+@@ -53,6 +53,37 @@ localText = CyTranslator()
+ # -->
+ 
+ 
++"""
++old invert logic to remove:
++AI_INVERTED_TRAITS = set([
++    # Attitude threshold traits (higher threshold = more reluctance or caution)
++    "getRefuseToTalkWarThreshold",
++    "getNoTechTradeThreshold",
++    "getOpenBordersRefuseAttitudeThreshold",
++    "getStopTradingRefuseAttitudeThreshold",
++    "getAdoptCivicRefuseAttitudeThreshold",
++    "getConvertReligionRefuseAttitudeThreshold",
++    "getDeclareWarRefuseAttitudeThreshold",
++    "getCityRefuseAttitudeThreshold",
++    "getMapRefuseAttitudeThreshold",
++    "getTechRefuseAttitudeThreshold",
++    "getHealthBonusRefuseAttitudeThreshold",
++    "getHappinessBonusRefuseAttitudeThreshold",
++    "getStrategicBonusRefuseAttitudeThreshold",
++    "getDeclareWarThemRefuseAttitudeThreshold",
++    "getStopTradingThemRefuseAttitudeThreshold",
++    "getVassalRefuseAttitudeThreshold",
++    # War decision traits where higher = more cautious (less aggressive)
++    "getMaxWarMinAdjacentLandPercent",
++    "getLimitedWarRand",
++    "getMaxWarRand",
++    "getDogpileWarRand",
++])
++
++
++getBasePeaceWeight": -1,          # Lower = more aggressive
++"""
++
+ 
+ # <!-- custom: performance improvement, store the all leaders calculation once
+ # then refer to the result directly here (cache according to ChatGPT this
+@@ -588,6 +619,11 @@ AGGREGATES_DETAILED = OrderedDict([
+ 
+ 
+ """
++		# UWAI-safe subset only!
++		# Deprecated under UWAI
++		#"getMaxWarNearbyPowerRatio": -1,
++		#"getLimitedWarPowerRatio": -1,
++		#"getMaxWarMinAdjacentLandPercent": -1,
+ ai aggregates v2-v3(?)
+ Always show details
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6177

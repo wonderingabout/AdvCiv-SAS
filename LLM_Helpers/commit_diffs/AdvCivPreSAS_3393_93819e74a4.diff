@@ -1,0 +1,116 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3393
+# Commit: 93819e74a4b6a4c9f2849ff736da86a8bdab8418
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: feac1d90847c877a9a5ebc5975671df867c37007
+# Title: Bugfix: AP owner sometimes not treated as full member
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	0	CvGameCoreDLL/ArithmeticTraits.cpp
+10	5	CvGameCoreDLL/ArithmeticTraits.h
+3	1	CvGameCoreDLL/EnumMap.h
+1	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+ create mode 100644 CvGameCoreDLL/ArithmeticTraits.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ArithmeticTraits.cpp b/CvGameCoreDLL/ArithmeticTraits.cpp
+new file mode 100644
+index 000000000..d48a28df3
+--- /dev/null
++++ b/CvGameCoreDLL/ArithmeticTraits.cpp
+@@ -0,0 +1,9 @@
++#include "CvGameCoreDLL.h"
++#include "ArithmeticTraits.h"
++
++// advc.enum: See comments in header file
++
++float const arithm_traits<float>::min = FLT_MIN;
++float const arithm_traits<float>::max = FLT_MAX;
++double const arithm_traits<double>::min = DBL_MIN;
++double const arithm_traits<double>::max = DBL_MAX;
+
+diff --git a/CvGameCoreDLL/ArithmeticTraits.h b/CvGameCoreDLL/ArithmeticTraits.h
+index 85d5a60dc..45277e260 100644
+--- a/CvGameCoreDLL/ArithmeticTraits.h
++++ b/CvGameCoreDLL/ArithmeticTraits.h
+@@ -22,6 +22,15 @@ struct arithm_traits<T, true, false, false>
+ 	static T const max = integer_limits<T>::max;
+ 	static bool const is_signed = integer_limits<T>::is_signed;
+ };
++// Not covered above (b/c integer_limits doesn't treat bool as is_integer)
++template<>
++struct arithm_traits<bool>
++{
++	static bool const is_arithmetic = false;
++	static bool const min = false;
++	static bool const max = true;
++	static bool const is_signed = false;
++};
+ template<class T>
+ struct arithm_traits<T, false, true, false>
+ {
+@@ -44,13 +53,11 @@ template<>
+ struct arithm_traits<float>
+ {
+ 	static bool const is_arithmetic = true;
++	// (Defined in implementation file b/c non-integral)
+ 	static float const min;
+ 	static float const max;
+ 	static bool const is_signed = true;
+ };
+-// (Can define only integral constants in-class)
+-float const arithm_traits<float>::min = FLT_MIN;
+-float const arithm_traits<float>::max = FLT_MAX;
+ template<>
+ struct arithm_traits<double>
+ {
+@@ -59,7 +66,5 @@ struct arithm_traits<double>
+ 	static double const max;
+ 	static bool const is_signed = true;
+ };
+-double const arithm_traits<double>::min = DBL_MIN;
+-double const arithm_traits<double>::max = DBL_MAX;
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 897c8f475..3a3d126b5 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -667,7 +667,9 @@ DEFINE_ENUM_MAP_BASE_VALUE_CONSTANT(V, defaultValue, vDEFAULT);
+ template<class Derived, typename E, class V, class CV, int iDEFAULT>
+ typename EnumMapBase<Derived,E,V,CV,iDEFAULT>::CompactV const
+ EnumMapBase<Derived,E,V,CV,iDEFAULT>::cvDEFAULT =
+-(typename EnumMapBase<Derived,E,V,CV,iDEFAULT>::CompactV)vDEFAULT;
++	(EnumMapBase<Derived,E,V,CV,iDEFAULT>::bBIT_BLOCKS && vDEFAULT != 0 ?
++	arithm_traits<CompactV>::max :
++	(typename EnumMapBase<Derived,E,V,CV,iDEFAULT>::CompactV)vDEFAULT);
+ 
+ /*	ListEnumMap: Keeps a list of key-value pairs whose values differ from the
+ 	default value. This allows for fast iteration over non-default data, wastes
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index 7c5435c12..0b2440442 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -40,6 +40,7 @@
+     <ClCompile Include="..\AgentIterator.cpp" />
+     <ClCompile Include="..\AgentIteratorTest.cpp" />
+     <ClCompile Include="..\AIStrengthMemoryMap.cpp" />
++    <ClCompile Include="..\ArithmeticTraits.cpp" />
+     <ClCompile Include="..\ArmamentForecast.cpp" />
+     <ClCompile Include="..\BarbarianWeightMap.cpp" />
+     <ClCompile Include="..\BBAILog.cpp" />
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3313

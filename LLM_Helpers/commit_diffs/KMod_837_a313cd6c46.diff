@@ -1,0 +1,155 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 837
+# Commit: a313cd6c46799b4e0bf9a99bcaea95034bfb2bde
+# History segment: K-Mod history
+# Parent used for diff: aedc58c2899ccbb3851ccae32ced094727ea1053
+# Title: Added UI option: Simple Selection, and changed the default behaviour.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	Assets/Config/BUG Main Interface.xml
+1	0	Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+8	0	Assets/xml/Text/BUG Main Interface Options.xml
+30	18	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index e6bd8452c..675b4c3b4 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -112,6 +112,10 @@
+ 			<!-- Rapid unit cycling, by karadoc -->
+ 			<option id="RapidUnitCycling" key="Rapid Unit Cycling"
+ 					type="boolean" default="False"/>
++
++			<!-- Simple selection, by karadoc -->
++			<option id="SimpleSelection" key="Simple Selection"
++					type="boolean" default="False"/>
+ 		</section>
+ 	</options>
+
+diff --git a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+index daf03120b..d9a0f090d 100644
+--- a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+@@ -94,3 +94,4 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addTextDropdown(screen, panel, panel, "MainInterface__BuildIconSize", True)
+ 		self.addCheckbox(screen, panel, "MainInterface__CityArrows")
+ 		self.addCheckbox(screen, panel, "MainInterface__RapidUnitCycling")
++		self.addCheckbox(screen, panel, "MainInterface__SimpleSelection")
+
+diff --git a/Assets/xml/Text/BUG Main Interface Options.xml b/Assets/xml/Text/BUG Main Interface Options.xml
+index bea79ed37..556572a06 100644
+--- a/Assets/xml/Text/BUG Main Interface Options.xml	
++++ b/Assets/xml/Text/BUG Main Interface Options.xml	
+@@ -346,4 +346,12 @@
+ 		<Italian>Quando � selezionato, la selezione automatica tra le unit� � istantanea anzich� con ritardo.</Italian>
+ 		<Spanish>When checked, automatic unit selection happens instantly rather than with a delay.</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SIMPLESELECTION_TEXT</Tag>
++		<English>Simple [Shift] Unit Selection</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SIMPLESELECTION_HOVER</Tag>
++		<English>When checked, selecting units with the [Shift] key will only ever add a single unit at a time.</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 9d562da8c..7e6205bff 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -30,15 +30,8 @@
+ #include "CvDLLEngineIFaceBase.h"
+ #include "CvDLLPythonIFaceBase.h"
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      10/02/09                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+-#include "BetterBTSAI.h"
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++#include "BetterBTSAI.h" // bbai
++#include "CvBugOptions.h" // K-Mod
+ 
+ // Public Functions...
+ 
+@@ -2432,14 +2425,25 @@ void CvGame::selectUnit(CvUnit* pUnit, bool bClear, bool bToggle, bool bSound) c
+ 		bSelectGroup = false;
+ 	} */
+ 	// K-Mod. Redesigned to make selection more sensible and predictable
++	// In 'simple mode', shift always groups and always targets a only a single unit.
++	bool bSimpleMode = getBugOptionBOOL("MainInterface__SimpleSelectionMode", false, "SIMPLE_SELECTION_MODE");
++
+ 	bool bExplicitDeselect = false;
+-	if (bToggle)
++
++	if (gDLL->getInterfaceIFace()->getHeadSelectedUnit() == NULL)
++		bSelectGroup = true;
++	else if (bToggle)
+ 	{
+-		bSelectGroup = false;
+-		bExplicitDeselect = pUnit->IsSelected();
++		if (pUnit->IsSelected())
++		{
++			bExplicitDeselect = true;
++			bSelectGroup = false;
++		}
++		else
++		{
++			bSelectGroup = bSimpleMode ? false : gDLL->getInterfaceIFace()->mirrorsSelectionGroup();
++		}
+ 	}
+-	else if (gDLL->getInterfaceIFace()->getHeadSelectedUnit() == NULL)
+-		bSelectGroup = true;
+ 	else
+ 	{
+ 		bSelectGroup = gDLL->getInterfaceIFace()->mirrorsSelectionGroup()
+@@ -2457,10 +2461,19 @@ void CvGame::selectUnit(CvUnit* pUnit, bool bClear, bool bToggle, bool bSound) c
+ 	}
+ 	else
+ 	{
++		//bGroup = gDLL->getInterfaceIFace()->mirrorsSelectionGroup();
++
++		// K-Mod. If there is only one unit selected, and it is it to be toggled, just degroup it rather than unselecting it.
++		if (bExplicitDeselect && gDLL->getInterfaceIFace()->getLengthSelectionList() == 1)
++		{
++			CvMessageControl::getInstance().sendJoinGroup(pUnit->getID(), FFreeList::INVALID_INDEX);
++			return; // that's all.
++		}
++
+ 		bGroup = gDLL->getInterfaceIFace()->mirrorsSelectionGroup();
+-		// K-Mod note: bGroup does not clear away unselected units of the group.
++		// Note: bGroup will not clear away unselected units of the group.
+ 		// so if we want to do that, we'll have to do it explicitly.
+-		if (!bGroup && bToggle)
++		if (!bGroup && bSimpleMode && bToggle)
+ 		{
+ 			// 'toggle' should be seen as explicitly adding / removing units from a group.
+ 			// so lets explicitly reform the group.
+@@ -2495,8 +2508,7 @@ void CvGame::selectUnit(CvUnit* pUnit, bool bClear, bool bToggle, bool bSound) c
+ 	}
+ 	else
+ 	{
+-		if (!bExplicitDeselect || gDLL->getInterfaceIFace()->getLengthSelectionList() > 1) // K-Mod. Don't deselect the last unit. (just ungroup it)
+-			gDLL->getInterfaceIFace()->insertIntoSelectionList(pUnit, false, bToggle, bGroup, bSound);
++		gDLL->getInterfaceIFace()->insertIntoSelectionList(pUnit, false, bToggle, bGroup, bSound);
+ 		// K-Mod. Unfortunately, removing units from the group is not correctly handled by the interface functions.
+ 		// so we need to do it explicitly.
+ 		if (bExplicitDeselect && bGroup)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5845

@@ -1,0 +1,303 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1055
+# Commit: cb00db8e6400d8e34c5f0850933aeee4f5fbe771
+# History segment: K-Mod history
+# Parent used for diff: e7ca1d4a6def16f6233be9f7eef5047b8c1aaf67
+# Title: Fixed another bug in the bbai danger cache, and made it more flexible.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	10	CvGameCoreDLL/CvMap.cpp
+2	1	CvGameCoreDLL/CvMap.h
+4	3	CvGameCoreDLL/CvPlayer.cpp
+29	4	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	CvGameCoreDLL/CvPlayerAI.h
+6	22	CvGameCoreDLL/CvPlot.cpp
+5	4	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 10a17f15f..3a166b4a7 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -1312,21 +1312,16 @@ int CvMap::calculatePathDistance(CvPlot *pSource, CvPlot *pDest)
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+ // Plot danger cache
+-void CvMap::invalidateIsActivePlayerNoDangerCache()
++void CvMap::invalidateActivePlayerSafeRangeCache()
+ {
+ 	PROFILE_FUNC();
+ 
+-	int iI;
+-	CvPlot* pLoopPlot;
+-
+-	for( iI = 0; iI < numPlotsINLINE(); iI++ )
++	for (int iI = 0; iI < numPlotsINLINE(); iI++)
+ 	{
+-		pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+ 
+-		if( pLoopPlot != NULL )
+-		{
+-			pLoopPlot->setActivePlayerNoDangerCache(false);
+-		}
++		if (pLoopPlot)
++			pLoopPlot->setActivePlayerSafeRangeCache(-1);
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index 8bb00a0fb..c35b2def2 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -268,7 +268,8 @@ public:
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+ 	// Plot danger cache
+-	void invalidateIsActivePlayerNoDangerCache();
++	//void invalidateIsActivePlayerNoDangerCache();
++	void invalidateActivePlayerSafeRangeCache(); // K-Mod version
+ 	void invalidateBorderDangerCache(TeamTypes eTeam);
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index e583ab00c..00b690146 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6107,7 +6107,8 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
+ 
+ 	eUnitClass = ((UnitClassTypes)(GC.getUnitInfo(eUnit).getUnitClassType()));
+ 
+-	FAssert(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(eUnitClass) == eUnit);
++	// K-Mod note. This assert can fail if team games when checking whether this city can upgrade a unit to one of our team member's UUs.
++	//FAssert(GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(eUnitClass) == eUnit);
+ 	if (GC.getCivilizationInfo(getCivilizationType()).getCivilizationUnits(eUnitClass) != eUnit)
+ 	{
+ 		return false;
+@@ -10958,7 +10959,7 @@ void CvPlayer::setTurnActiveForPbem(bool bActive)
+ 		// Plot danger cache
+ 		//if( GC.getGameINLINE().getNumGameTurnActive() != 1 )
+ 		{
+-			GC.getMapINLINE().invalidateIsActivePlayerNoDangerCache();
++			GC.getMapINLINE().invalidateActivePlayerSafeRangeCache();
+ 		}
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+@@ -11155,7 +11156,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 
+ 	gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+ 
+-	GC.getMapINLINE().invalidateIsActivePlayerNoDangerCache();
++	GC.getMapINLINE().invalidateActivePlayerSafeRangeCache();
+ }
+ 
+ // K-Mod. The body of this function use to be part of setTurnActive.
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index e37ea86c9..8bd38545c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4141,6 +4141,12 @@ bool CvPlayerAI::AI_isCommercePlot(CvPlot* pPlot) const
+ // K-Mod. The cache also needs to be reset when routes are destroyed, because distance 2 border danger only counts when there is a route.
+ // (Actually, the cache doesn't need to be cleared when war is declared; because false negatives have no impact with this cache.)
+ // (In general, I think this cache is a poorly planned idea. It's prone to subtle bugs if there are rule changes in seemingly independant parts of the games.)
++
++bool CvPlayerAI::isSafeRangeCacheValid() const
++{
++	return isTurnActive() && !GC.getGameINLINE().isMPOption(MPOPTION_SIMULTANEOUS_TURNS) && GC.getGameINLINE().getNumGameTurnActive() == 1;
++}
++
+ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves, bool bCheckBorder) const
+ {
+ 	PROFILE_FUNC();
+@@ -4150,13 +4156,17 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves,
+ 		iRange = DANGER_RANGE;
+ 	}
+ 
+-	if( bTestMoves && isTurnActive() )
++	/* bbai if( bTestMoves && isTurnActive() )
+ 	{
+ 		if( (iRange <= DANGER_RANGE) && pPlot->getActivePlayerNoDangerCache() )
+ 		{
+ 			return false;
+ 		}
+-	}
++	} */
++	// K-Mod
++	if (bTestMoves && isSafeRangeCacheValid() && iRange <= pPlot->getActivePlayerSafeRangeCache())
++		return false;
++	// K-Mod end
+ 
+ 	TeamTypes eTeam = getTeam();
+ 	//bool bCheckBorder = (!isHuman() && !pPlot->isCity());
+@@ -4296,6 +4306,7 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves,
+ 	// value being true is only assumed to mean that the plot is safe in the
+ 	// test moves case.
+ 	//if( bTestMoves )
++	/* bbai code
+ 	{
+ 		if( isTurnActive() )
+ 		{
+@@ -4304,7 +4315,12 @@ bool CvPlayerAI::AI_getAnyPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves,
+ 				pPlot->setActivePlayerNoDangerCache(true);
+ 			}
+ 		}
+-	}
++	} */
++	// K-Mod. The above bbai code is flawed in that it flags the plot as safe regardless
++	// of what iRange is and then reports that the plot is safe for any iRange <= DANGER_RANGE.
++	if (isSafeRangeCacheValid() && iRange < pPlot->getActivePlayerSafeRangeCache())
++		pPlot->setActivePlayerSafeRangeCache(iRange);
++	// K-Mod end
+ 
+ 	return false;
+ }
+@@ -4333,13 +4349,18 @@ int CvPlayerAI::AI_getPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves) con
+ 		iRange = DANGER_RANGE;
+ 	}
+ 
++	/* bbai
+ 	if( bTestMoves && isTurnActive() )
+ 	{
+ 		if( (iRange <= DANGER_RANGE) && pPlot->getActivePlayerNoDangerCache() )
+ 		{
+ 			return 0;
+ 		}
+-	}
++	} */
++	// K-Mod
++	if (bTestMoves && isSafeRangeCacheValid() && iRange <= pPlot->getActivePlayerSafeRangeCache())
++		return 0;
++	// K-Mod end
+ 
+ 	for (iDX = -(iRange); iDX <= iRange; iDX++)
+ 	{
+@@ -4411,6 +4432,10 @@ int CvPlayerAI::AI_getPlotDanger(CvPlot* pPlot, int iRange, bool bTestMoves) con
+ 			}
+ 		}
+ 	}
++	// K-Mod
++	if (iCount == 0 && isSafeRangeCacheValid() && iRange < pPlot->getActivePlayerSafeRangeCache())
++		pPlot->setActivePlayerSafeRangeCache(iRange);
++	// K-Mod end
+ 
+ 	if (iBorderDanger > 0)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index f70c1f472..538b2a213 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -109,6 +109,7 @@ public:
+ /*                                                                                              */
+ /*                                                                                              */
+ /************************************************************************************************/
++	bool isSafeRangeCacheValid() const; // K-Mod
+ 	bool AI_getAnyPlotDanger(CvPlot* pPlot, int iRange = -1, bool bTestMoves = true, bool bCheckBorder = true) const; // K-Mod added bCheckBorder
+ 	int AI_getPlotDanger(CvPlot* pPlot, int iRange = -1, bool bTestMoves = true) const;
+ 	//int AI_getUnitDanger(CvUnit* pUnit, int iRange = -1, bool bTestMoves = true, bool bAnyDanger = true) const;
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 66246ae17..2c589d39b 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -235,7 +235,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+ 	// Plot danger cache
+-	m_bActivePlayerNoDangerCache = false;
++	m_iActivePlayerSafeRangeCache = -1;
+ 
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+@@ -3147,23 +3147,8 @@ int CvPlot::calculatePathDistanceToPlot( TeamTypes eTeam, CvPlot* pTargetPlot )
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      08/21/09                                jdog5000      */
+-/*                                                                                              */
+-/* Efficiency                                                                                   */
+-/************************************************************************************************/
+-	// Plot danger cache
+-bool CvPlot::getActivePlayerNoDangerCache() const
+-{
+-	return m_bActivePlayerNoDangerCache;
+-}
+-
+-void CvPlot::setActivePlayerNoDangerCache( bool bNewValue )
+-{
+-	m_bActivePlayerNoDangerCache = bNewValue;
+-}
+-
+-// K-Mod. I've changed the purpose of this function - because this is the way it is always used...
++// K-Mod. (rewrite of a bbai function)
++// I've changed the purpose of this function - because this is the way it is always used.
+ void CvPlot::invalidateBorderDangerCache()
+ {
+ 	/* for( int iI = 0; iI < MAX_TEAMS; iI++ )
+@@ -3187,9 +3172,7 @@ void CvPlot::invalidateBorderDangerCache()
+ 	}
+ 	//
+ }
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
++// K-Mod end
+ 
+ PlayerTypes CvPlot::calculateCulturalOwner() const
+ {
+@@ -9047,9 +9030,10 @@ void CvPlot::read(FDataStreamBase* pStream)
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+ 	// Plot danger cache
+-	m_bActivePlayerNoDangerCache = false;
++	//m_iActivePlayerNoBorderDangerCache = false;
+ 	//invalidateBorderDangerCache();
+ 	// K-Mod. I've changed the purpose of invalidateBorderDangerCache. It is no longer appropriate for this.
++	m_iActivePlayerSafeRangeCache = -1;
+ 	for (int i = 0; i < MAX_TEAMS; i++)
+ 	{
+ 		m_abBorderDangerCache[i] = false;
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index b30bc16c1..7a92406bd 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -155,9 +155,9 @@ public:
+ /*                                                                                              */
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+-	// Plot danger cache (renamed and edited for K-Mod)
+-	bool getActivePlayerNoDangerCache() const;
+-	void setActivePlayerNoDangerCache( bool bNewValue );
++	// Plot danger cache (rewritten for K-Mod to fix bugs and improvement performance)
++	inline int getActivePlayerSafeRangeCache() const { return m_iActivePlayerSafeRangeCache; }
++	inline void setActivePlayerSafeRangeCache(int range) { m_iActivePlayerSafeRangeCache = range; }
+ 	inline bool getBorderDangerCache(TeamTypes eTeam) const { return m_abBorderDangerCache[eTeam]; }
+ 	inline void setBorderDangerCache(TeamTypes eTeam, bool bNewValue) { m_abBorderDangerCache[eTeam] = bNewValue; }
+ 	void invalidateBorderDangerCache();
+@@ -576,7 +576,8 @@ protected:
+ /* Efficiency                                                                                   */
+ /************************************************************************************************/
+ 	// Plot danger cache
+-	bool m_bActivePlayerNoDangerCache;
++	//bool m_bActivePlayerNoDangerCache;
++	int m_iActivePlayerSafeRangeCache; // K-Mod (the bbai implementation was flawed)
+ 	bool* m_abBorderDangerCache;
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=12362

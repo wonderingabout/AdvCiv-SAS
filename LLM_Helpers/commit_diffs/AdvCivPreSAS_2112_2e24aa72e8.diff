@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2112
+# Commit: 2e24aa72e8d04f257812828ef301e23457054613
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f2fbe86168944eb5511f0f13885cd571e268ebf2
+# Title: Update comment about TECH_COST_NOTRADE_MODIFIER
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	Assets/XML/GlobalDefines_advc.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 558e3e5ab..b92c9c2db 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -971,7 +971,9 @@
+ 
+ 	<!-- advc.550d: This modifier is applied to tech costs when playing
+ 		 with the "No Tech Trading" option. The effect of the modifier is
+-		 reduced in the early and late game. Recommended: -28. Use 0 for BtS
++		 reduced in the early and late game. Recommended: -28, meaning that
++		 tech costs are taken times 100% - 28% = 72%. This multiplier gets
++		 further adjusted to the tech era and map size. Use 0 for BtS
+ 		 behavior (tech costs unaffected by the "No Tech Trading" option). -->
+ 	<Define>
+ 		<DefineName>TECH_COST_NOTRADE_MODIFIER</DefineName>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=775

@@ -131,6 +131,8 @@ void CyGamePythonInterface()
 
 		.def("getAIAutoPlay", &CyGame::getAIAutoPlay)
 		.def("setAIAutoPlay", &CyGame::setAIAutoPlay)
+		// <!-- custom: Expose the AdvCiv-SAS cause-aware stop method used by AIAutoPlay.py; the legacy setter remains available for compatibility. See KI#203. (GPT-5.6-Sol) -->
+		.def("endAIAutoPlay", &CyGame::endAIAutoPlay)
 
 		.def("getGlobalWarmingIndex", &CyGame::getGlobalWarmingIndex)	// K-Mod
 		.def("getGlobalWarmingChances", &CyGame::getGlobalWarmingChances)	// K-Mod
@@ -157,6 +159,9 @@ void CyGamePythonInterface()
 		.def("isSimultaneousTeamTurns", &CyGame::isSimultaneousTeamTurns, "bool ()")
 
 		.def("isFinalInitialized", &CyGame::isFinalInitialized, "bool () - Returns whether or not the game initialization process has ended (game has started)")
+		// <!-- custom: expose the cached AI map heaviness classification to Python UI without duplicating map-name/start-area logic there. (GPT-5.5) -->
+		.def("isLandHeavyMapnameCached", &CyGame::isLandHeavyMapnameCached, "bool ()")
+		.def("isNavalHeavyMapnameCached", &CyGame::isNavalHeavyMapnameCached, "bool ()")
 		// advc.061:
 		.def("setScreenDimensions", &CyGame::setScreenDimensions, "void (int iWidth, int iHeight)")
 		.def("getActivePlayer", &CyGame::getActivePlayer, "returns index of the active player")

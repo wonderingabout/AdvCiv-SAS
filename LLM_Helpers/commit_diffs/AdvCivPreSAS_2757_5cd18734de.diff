@@ -1,0 +1,588 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2757
+# Commit: 5cd18734de4b12fa1e4e6162192ecb1a491d9c02
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9069271991ebde21734b8fcf82b400f17ead30c7
+# Title: BUG options for icons above city bars
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	1	Assets/Config/BUG Main Interface.xml
+16	4	Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+132	2	Assets/XML/Text/BUG Main Interface Options.xml
+2	2	Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
+5	5	Assets/XML/Text/Strategy Overlay Options.xml
+24	14	CvGameCoreDLL/CvCity.cpp
+2	1	CvGameCoreDLL/CvCity.h
+3	2	CvGameCoreDLL/CvDllTranslator.cpp
+1	2	CvGameCoreDLL/CvEnums.h
+95	11	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index 0649389ae..2a8692427 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -247,11 +247,29 @@
+ 				<choice id="Adjacent"/>
+ 				<choice id="CityCross"/>
+ 			</list>
+-			<!-- advc.002f -->
++
++			<!-- advc.002f: -->
+ 			<option id="CityNetworkIcon" key="City Network Icon" 
+ 					type="boolean" default="False" dirtyBit="CityInfo"/>
+ 			<option id="AirportIcon" key="Airport Icon" 
+ 					type="boolean" default="True" dirtyBit="CityInfo"/>
++			<option id="TopProductionIcon" key="Top Production Icon" 
++					type="boolean" default="False" dirtyBit="CityInfo"/>
++			<option id="TopGoldIcon" key="Top Gold Icon" 
++					type="boolean" default="False" dirtyBit="CityInfo"/>
++			<option id="TopResearchIcon" key="Top Research Icon" 
++					type="boolean" default="False" dirtyBit="CityInfo"/>
++			<option id="TopEspionageIcon" key="Top Espionage Icon" 
++					type="boolean" default="False" dirtyBit="CityInfo"/>
++			<option id="TopXPIcon" key="Top XP Icon" 
++					type="boolean" default="False" dirtyBit="CityInfo"/>
++			<option id="NextGPIcon" key="Next GP Icon" 
++					type="boolean" default="False" dirtyBit="CityInfo"/>
++			<option id="NoUnhappyIcon" key="No Unhappy Icon" 
++					type="boolean" default="False" dirtyBit="CityInfo"/>
++			<option id="NoBadHealthIcon" key="No Bad Health Icon" 
++					type="boolean" default="False" dirtyBit="CityInfo"/>
++
+ 			<!-- advc.095 (should perhaps be in 'BULL City Bar.xml' instead) -->
+ 			<option id="WideCityBars" key="Wide City Bars" 
+ 					type="boolean" default="False">
+
+diff --git a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+index a9b1486fc..76be7426d 100644
+--- a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+@@ -33,7 +33,7 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, left, "MainInterface__FoundingYields")
+ 		self.addTextDropdown(screen, left, left, "MainInterface__FoundingBorder")
+ 		# </advc.004h>
+-		self.addSpacer(screen, left, "Left1") # advc.004
++		self.addSpacer(screen, left, "SpacerLeft1") # advc.004
+ 		self.addLabel(screen, left, "StrategyOverlay", "Dot Map Overlay:")
+ 		self.addCheckbox(screen, left, "StrategyOverlay__Enabled")
+ 		# advc.004: Disabled; Ctrl+X should suffice.
+@@ -55,22 +55,34 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, center, "MainInterface__ListUnitsPerOwner")
+ 		#self.addCheckbox(screen, center, "MiscHover__LatLongCoords")
+ 		#self.addCheckbox(screen, center, "MiscHover__PartialBuilds")
++		self.addSpacer(screen, center, "SpacerCenter1") # advc.004
+ 		# <advc.002f>
+ 		self.addLabel(screen, center, "CityIcons", "City Billboards:")
+-		self.addCheckbox(screen, center, "MainInterface__CityNetworkIcon")
+-		self.addCheckbox(screen, center, "MainInterface__AirportIcon")
+-		# </advc.002f>
+ 		# advc.095:
+ 		self.addCheckbox(screen, center, "MainInterface__WideCityBars")
++		centerL, centerR = self.addTwoColumnLayout(screen, center, "CityIcons", False)
++		self.addCheckbox(screen, centerL, "MainInterface__CityNetworkIcon")
++		self.addCheckbox(screen, centerR, "MainInterface__AirportIcon")
++		self.addCheckbox(screen, centerL, "MainInterface__TopProductionIcon")
++		self.addCheckbox(screen, centerR, "MainInterface__TopGoldIcon")
++		self.addCheckbox(screen, centerL, "MainInterface__TopResearchIcon")
++		self.addCheckbox(screen, centerR, "MainInterface__TopEspionageIcon")
++		self.addCheckbox(screen, centerL, "MainInterface__TopXPIcon")
++		self.addCheckbox(screen, centerR, "MainInterface__NextGPIcon")
++		self.addCheckbox(screen, centerL, "MainInterface__NoUnhappyIcon")
++		self.addCheckbox(screen, centerR, "MainInterface__NoBadHealthIcon")
++		# </advc.002f>
+ 		self.addLabel(screen, right, "Camera", "Camera:") # advc.004m
+ 		self.addCheckbox(screen, right, "MainInterface__FieldOfView")
+ 		self.addCheckbox(screen, right, "MainInterface__FieldOfView_Remember", True)
+ 		# advc.004m:
+ 		self.addTextDropdown(screen, right, right, "MainInterface__DefaultCamDistance")
+ 		# <advc.002a>
++		self.addSpacer(screen, right, "SpacerRight1")
+ 		self.addLabel(screen, right, "Minimap", "Minimap:")
+ 		self.addTextDropdown(screen, right, right, "MainInterface__MinimapWaterColor")
+ 		self.addCheckbox(screen, right, "MainInterface__UnitsOnMinimap")
++		self.addSpacer(screen, right, "SpacerRight2")
+ 		# </advc.002a>
+ 		self.addLabel(screen, right, "Misc", "Misc:")
+ 		self.addCheckbox(screen, right, "EventSigns__Enabled")
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index daa6b94d5..5551ce15b 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -370,9 +370,11 @@
+ 		<Italian>Camera</Italian>
+ 		<Spanish>Camera</Spanish>
+ 	</TEXT>
++	<!-- Sadly has to be abbreviated in order to make room for advc.002f
++		 in the center column -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__DEFAULTCAMDISTANCE_TEXT</Tag>
+-		<English>Default Distance</English>
++		<English>Default Dist.</English>
+ 		<French>Default Distance</French>
+ 		<German>Standard-Abstand</German>
+ 		<Italian>Default Distance</Italian>
+@@ -866,7 +868,7 @@
+ 		<Spanish>Activa las marcas de recursos al inicio del juego.</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.002f -->
++	<!-- advc.002f: -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__CITYNETWORKICON_TEXT</Tag>
+ 		<English>Trade Network</English>
+@@ -902,6 +904,134 @@
+ 		<Italian>Quando � selezionato, aggiunge l'icona [ICON_AIRPORT] alle citt� che hanno un Aeroporto.</Italian>
+ 		<Spanish>Muestra el icono [ICON_AIRPORT] sobre las barras de ciudad que tengan un aeropuerto.</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPPRODUCTIONICON_TEXT</Tag>
++		<English>Top Production</English>
++		<French>Top Production</French>
++		<German>Top-Produktion</German>
++		<Italian>Top Production</Italian>
++		<Spanish>Top Production</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPPRODUCTIONICON_HOVER</Tag>
++		<English>When checked, the [ICON_PRODUCTION] icon is shown above the billboard of your city with the highest production rate if that city generates at least 10 [ICON_PRODUCTION] per turn.</English>
++		<French>When checked, the [ICON_PRODUCTION] icon is shown above the billboard of your city with the highest production rate if that city generates at least 10 [ICON_PRODUCTION] per turn.</French>
++		<German>Zeigt das [ICON_PRODUCTION]-Symbol �ber dem Namen ihrer Stadt mit der h�chsten Produktionsrate an - falls diese Stadt wenigstens 10 [ICON_PRODUCTION] pro Zug generiert.</German>
++		<Italian>When checked, the [ICON_PRODUCTION] icon is shown above the billboard of your city with the highest production rate if that city generates at least 10 [ICON_PRODUCTION] per turn.</Italian>
++		<Spanish>When checked, the [ICON_PRODUCTION] icon is shown above the billboard of your city with the highest production rate if that city generates at least 10 [ICON_PRODUCTION] per turn.</Spanish>
++	</TEXT>
++		<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPGOLDICON_TEXT</Tag>
++		<English>Top Gold</English>
++		<French>Top Gold</French>
++		<German>Top-Gold</German>
++		<Italian>Top Gold</Italian>
++		<Spanish>Top Gold</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPGOLDICON_HOVER</Tag>
++		<English>When checked, the [ICON_GOLD] icon is shown above the billboard of your city with the highest gold rate if that city generates at least 10 [ICON_GOLD] per turn.</English>
++		<French>When checked, the [ICON_GOLD] icon is shown above the billboard of your city with the highest gold rate if that city generates at least 10 [ICON_GOLD] per turn.</French>
++		<German>Zeigt das [ICON_GOLD]-Symbol �ber dem Namen ihrer Stadt mit der h�chsten Goldrate an - falls diese Stadt wenigstens 10 [ICON_GOLD] pro Zug generiert.</German>
++		<Italian>When checked, the [ICON_GOLD] icon is shown above the billboard of your city with the highest gold rate if that city generates at least 10 [ICON_GOLD] per turn.</Italian>
++		<Spanish>When checked, the [ICON_GOLD] icon is shown above the billboard of your city with the highest gold rate if that city generates at least 10 [ICON_GOLD] per turn.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPRESEARCHICON_TEXT</Tag>
++		<English>Top Research</English>
++		<French>Top Research</French>
++		<German>Top-Forschung</German>
++		<Italian>Top Research</Italian>
++		<Spanish>Top Research</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPRESEARCHICON_HOVER</Tag>
++		<English>When checked, the [ICON_RESEARCH] icon is shown above the billboard of your city with the highest research rate if that city generates at least 10 [ICON_RESEARCH] per turn.</English>
++		<French>When checked, the [ICON_RESEARCH] icon is shown above the billboard of your city with the highest research rate if that city generates at least 10 [ICON_RESEARCH] per turn.</French>
++		<German>Zeigt das [ICON_RESEARCH]-Symbol �ber dem Namen ihrer Stadt mit der h�chsten Forschungsrate an - falls diese Stadt wenigstens 10 [ICON_RESEARCH] pro Zug generiert.</German>
++		<Italian>When checked, the [ICON_RESEARCH] icon is shown above the billboard of your city with the highest research rate if that city generates at least 10 [ICON_RESEARCH] per turn.</Italian>
++		<Spanish>When checked, the [ICON_RESEARCH] icon is shown above the billboard of your city with the highest research rate if that city generates at least 10 [ICON_RESEARCH] per turn.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPESPIONAGEICON_TEXT</Tag>
++		<English>Top Espionage</English>
++		<French>Top Espionage</French>
++		<German>Top-Spionage</German>
++		<Italian>Top Espionage</Italian>
++		<Spanish>Top Espionage</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPESPIONAGEICON_HOVER</Tag>
++		<English>When checked, the [ICON_ESPIONAGE] icon is shown above the billboard of your city with the highest espionage rate if that city generates at least 10 [ICON_ESPIONAGE] per turn.</English>
++		<French>When checked, the [ICON_ESPIONAGE] icon is shown above the billboard of your city with the highest espionage rate if that city generates at least 10 [ICON_ESPIONAGE] per turn.</French>
++		<German>Zeigt das [ICON_ESPIONAGE]-Symbol �ber dem Namen ihrer Stadt mit der h�chsten Spionagerate an - falls diese Stadt wenigstens 10 [ICON_ESPIONAGE] pro Zug generiert.</German>
++		<Italian>When checked, the [ICON_ESPIONAGE] icon is shown above the billboard of your city with the highest espionage rate if that city generates at least 10 [ICON_ESPIONAGE] per turn.</Italian>
++		<Spanish>When checked, the [ICON_ESPIONAGE] icon is shown above the billboard of your city with the highest espionage rate if that city generates at least 10 [ICON_ESPIONAGE] per turn.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPXPICON_TEXT</Tag>
++		<English>Top Experience</English>
++		<French>Top Experience</French>
++		<German>Top-Erfahrung</German>
++		<Italian>Top Experience</Italian>
++		<Spanish>Top Experience</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TOPXPICON_HOVER</Tag>
++		<English>When checked, the [ICON_GREATGENERAL] icon is shown above the billboard of your city with the highest amount of free experience. Experience that doesn't apply to all military units is counted half in this context.</English>
++		<French>When checked, the [ICON_GREATGENERAL] icon is shown above the billboard of your city with the highest amount of free experience. Experience that doesn't apply to all military units is counted half in this context.</French>
++		<German>Zeigt das [ICON_GREATGENERAL]-Symbol �ber dem Namen Ihrer Stadt mit den h�chsten Zusatzerfahrungspunkten an. Erfahrungspunkte, die nicht allen Milit�reinheiten zukommen, z�hlen dabei nur halb.</German>
++		<Italian>When checked, the [ICON_GREATGENERAL] icon is shown above the billboard of your city with the highest amount of free experience. Experience that doesn't apply to all military units is counted half in this context.</Italian>
++		<Spanish>When checked, the [ICON_GREATGENERAL] icon is shown above the billboard of your city with the highest amount of free experience. Experience that doesn't apply to all military units is counted half in this context.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__NEXTGPICON_TEXT</Tag>
++		<English>Next GP</English>
++		<French>Next GP</French>
++		<German>N�chste GP</German>
++		<Italian>Next GP</Italian>
++		<Spanish>Next GP</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__NEXTGPICON_HOVER</Tag>
++		<English>When checked, the [ICON_GREATPEOPLE] icon is shown above the billboard of the city where your next Great Person will be born if the current [ICON_GREATPEOPLE] rates remain unchanged.</English>
++		<French>When checked, the [ICON_GREATPEOPLE] icon is shown above the billboard of the city where your next Great Person will be born if the current [ICON_GREATPEOPLE] rates remain unchanged.</French>
++		<German>Zeigt das [ICON_GREATPEOPLE]-Symbol �ber dem Namen der Stadt an, in der Ihre n�chste gro�e Pers�nlichkeit geboren werden wird, wenn die derzeitigen [ICON_GREATPEOPLE]-Raten beibehalten werden.</German>
++		<Italian>When checked, the [ICON_GREATPEOPLE] icon is shown above the billboard of the city where your next Great Person will be born if the current [ICON_GREATPEOPLE] rates remain unchanged.</Italian>
++		<Spanish>When checked, the [ICON_GREATPEOPLE] icon is shown above the billboard of the city where your next Great Person will be born if the current [ICON_GREATPEOPLE] rates remain unchanged.</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__NOUNHAPPYICON_TEXT</Tag>
++		<English>No Unhappiness</English>
++		<French>No Unhappiness</French>
++		<German>Nie unzufrieden</German>
++		<Italian>No Unhappiness</Italian>
++		<Spanish>No Unhappiness</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__NOUNHAPPYICON_HOVER</Tag>
++		<English>When checked, the [ICON_HAPPY] icon is shown above the billboard of cities that are immune to [ICON_UNHAPPY].</English>
++		<French>When checked, the [ICON_HAPPY] icon is shown above the billboard of cities that are immune to [ICON_UNHAPPY].</French>
++		<German>Zeigt das [ICON_HAPPY]-Symbol �ber den Namen von St�dten an, die gegen Unzufriedenheit immun sind.</German>
++		<Italian>When checked, the [ICON_HAPPY] icon is shown above the billboard of cities that are immune to [ICON_UNHAPPY].</Italian>
++		<Spanish>When checked, the [ICON_HAPPY] icon is shown above the billboard of cities that are immune to [ICON_UNHAPPY].</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__NOBADHEALTHICON_TEXT</Tag>
++		<English>No Bad Health</English>
++		<French>No Bad Health</French>
++		<German>Nie krank</German>
++		<Italian>No Bad Health</Italian>
++		<Spanish>No Bad Health</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__NOBADHEALTHICON_HOVER</Tag>
++		<English>When checked, the [ICON_HEALTHY] icon is shown above the billboard of cities that are immune to [ICON_UNHEALTHY] from population.</English>
++		<French>When checked, the [ICON_HEALTHY] icon is shown above the billboard of cities that are immune to [ICON_UNHEALTHY] from population.</French>
++		<German>Zeigt das [ICON_HEALTHY]-Symbol �ber den Namen von St�dten an, deren Bev�lkerung keine [ICON_UNHEALTHY]-Punkte generiert.</German>
++		<Italian>When checked, the [ICON_HEALTHY] icon is shown above the billboard of cities that are immune to [ICON_UNHEALTHY] from population.</Italian>
++		<Spanish>When checked, the [ICON_HEALTHY] icon is shown above the billboard of cities that are immune to [ICON_UNHEALTHY] from population.</Spanish>
++	</TEXT>
+ 
+ 	<!-- advc.095: -->
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml b/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
+index 3f481dfbd..0b9225a8d 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_OptionsScreen.xml
+@@ -773,7 +773,7 @@
+ 		<Italian>Mostra informazioni extra nella barra della citt&#224;</Italian>
+ 		<Spanish>Mostrar informaci&#243;n adicional en la barra de la ciudad.</Spanish>
+ 	</TEXT-->
+-	<!-- I'm disabling the annoying indicator icons. So, next version: -->
++	<!-- advc.002f: The annoying indicator icons are now handled by BUG. So, next version: -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO</Tag>
+ 		<English>Numbers on City Bar</English>
+@@ -784,7 +784,7 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PLAYER_OPTION_DETAILED_CITY_INFO_HELP</Tag>
+-		<English>On the main map, the production bar of each city shows the number of remaining production turns, and the food bar the number of turns until growth. (The icons highlighting the cities with the highest research, gold and production rate are always disabled in AdvCiv.)</English>
++		<English>On the main map, the production bar of each city shows the number of remaining production turns, and the food bar the number of turns until growth. (For the icons highlighting the cities with the highest research, gold and production rate, there are separate options on the "Map" tab of the BUG menu.)</English>
+ 		<French>Voir les informations d&#233;taill&#233;es de la barre des villes.</French>
+ 		<German>Auf der Hauptkarte wird in den Produktionsbalken ihrer St�dte jeweils die Anzahl der Z�ge bis zur Fertigstellung angezeigt, und auf den Nahrungsbalken die Anzahl der Z�ge bis zum Bev�lkerungszuwachs. (Die Markierungen f�r St�dte mit der h�chsten Forschungsrate, Goldrate und Produktionsrate sind in AdvCiv immer deaktiviert.)</German>
+ 		<Italian>Mostra informazioni extra nella barra della citt&#224;</Italian>
+
+diff --git a/Assets/XML/Text/Strategy Overlay Options.xml b/Assets/XML/Text/Strategy Overlay Options.xml
+index 39953cf46..6a0bc79af 100644
+--- a/Assets/XML/Text/Strategy Overlay Options.xml	
++++ b/Assets/XML/Text/Strategy Overlay Options.xml	
+@@ -80,12 +80,12 @@
+ 		<Spanish>N�mero del icono a colocar en el centro de los bordes de las ciudades planeadas.</Spanish>
+ 	</TEXT-->
+ 	
+-	<!-- advc.004: was "Brightness" -->
++	<!-- advc.004: Was "Brightness"; "Transparenz" in German -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPBRIGHTNESS_TEXT</Tag>
+ 		<English>Opacity</English>
+ 		<French>Brightness</French>
+-		<German>Transparenz</German>
++		<German>Opazit�t</German>
+ 		<Italian>Trasparenza</Italian>
+ 		<Spanish>Brillo</Spanish>
+ 	</TEXT>
+@@ -93,7 +93,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPBRIGHTNESS_HOVER</Tag>
+ 		<English>Sets the opacity of the overlay.</English>
+ 		<French>Determines the brightness of planned cities.</French>
+-		<German>Regelt die Transparenz (Alpha-Wert) des Overlays.</German>
++		<German>Regelt die Deckst�rke (Alpha-Wert) des Overlays.</German>
+ 		<Italian>Determina la trasparenza delle Citt� posizionate.</Italian>
+ 		<Spanish>Brillo con que se muestran las ciudades planeadas.</Spanish>
+ 	</TEXT>
+@@ -103,7 +103,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPHIGHLIGHTBRIGHTNESS_TEXT</Tag>
+ 		<English>Cursor Opacity</English>
+ 		<French>Highlight Brightness</French>
+-		<German>Cursor-Transp.</German>
++		<German>Cursor-Opazit�t.</German>
+ 		<Italian>Trasparenza di selezione</Italian>
+ 		<Spanish>Brillo Actual</Spanish>
+ 	</TEXT>
+@@ -112,7 +112,7 @@
+ 		<Tag>TXT_KEY_BUG_OPT_STRATEGYOVERLAY__DOTMAPHIGHLIGHTBRIGHTNESS_HOVER</Tag>
+ 		<English>Sets the opacity of the city cross shown at the cursor position when placing a city marker through Alt+X.</English>
+ 		<French>Determines the brightness of the highlighted city being placed.</French>
+-		<German>Regelt die Transparenz des Stadt-Kreuzes, das beim Platzieren einer Stadtmarkierung (Alt+X) an der Cursor-Position eingeblendet wird.</German>
++		<German>Regelt die Deckst�rke (Alpha-Wert) des Stadt-Kreuzes, das beim Platzieren einer Stadtmarkierung (Alt+X) an der Cursor-Position eingeblendet wird.</German>
+ 		<Italian>Determina la trasparenza della Citt� selezionata che viene posizionata.</Italian>
+ 		<Spanish>Determina el brillo de la ciudad siendo colocada.</Spanish>
+ 	</TEXT>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 89139736e..4003613e6 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1669,12 +1669,19 @@ bool CvCity::canContinueProduction(OrderData order)
+ }
+ 
+ 
+-int CvCity::getProductionExperience(UnitTypes eUnit) const
++int CvCity::getProductionExperience(UnitTypes eUnit, /* <advc.002f> */
++	bool bScore) const
+ {
++	FAssert(!bScore || eUnit == NO_UNIT); // </advc.002f>
++	CvPlayer const& kOwner = GET_PLAYER(getOwner());
+ 	int iExperience = getFreeExperience();
+-	iExperience += GET_PLAYER(getOwner()).getFreeExperience();
++	iExperience += kOwner.getFreeExperience();
+ 	iExperience += getSpecialistFreeExperience(); // K-Mod (moved from below)
+-
++	if (kOwner.getStateReligion() != NO_RELIGION)
++	{
++		if (isHasReligion(kOwner.getStateReligion()))
++			iExperience += kOwner.getStateReligionFreeExperience();
++	}
+ 	if (eUnit != NO_UNIT)
+ 	{
+ 		if (GC.getInfo(eUnit).getUnitCombatType() != NO_UNITCOMBAT)
+@@ -1685,13 +1692,16 @@ int CvCity::getProductionExperience(UnitTypes eUnit) const
+ 		iExperience += getDomainFreeExperience(GC.getInfo(eUnit).getDomainType());
+ 		//iExperience += getSpecialistFreeExperience();
+ 	}
+-	CvPlayer const& kOwner = GET_PLAYER(getOwner());
+-	if (kOwner.getStateReligion() != NO_RELIGION)
++	// <advc.002f> AI score for comparing cities wrt. their free XP
++	else if (bScore)
+ 	{
+-		if (isHasReligion(kOwner.getStateReligion()))
+-			iExperience += kOwner.getStateReligionFreeExperience();
+-	}
+-
++		int iNonGenericXP = 0;
++		FOR_EACH_ENUM(UnitCombat)
++			iNonGenericXP += getUnitCombatFreeExperience(eLoopUnitCombat);
++		FOR_EACH_ENUM(Domain)
++			iNonGenericXP += getDomainFreeExperience(eLoopDomain);
++		iExperience += iExperience + (iNonGenericXP + 1) / 2;
++	} // </advc.002f>
+ 	return std::max(0, iExperience);
+ }
+ 
+@@ -5202,12 +5212,12 @@ int CvCity::GPTurnsLeft() const
+ 	if(getGreatPeopleRate() <= 0)
+ 		return -1;
+ 	int iGPPLeft = GET_PLAYER(getOwner()).greatPeopleThreshold(false) - getGreatPeopleProgress();
+-	if(iGPPLeft <= 0)
++	if (iGPPLeft <= 0)
+ 		return 0;
+-	int r = iGPPLeft / getGreatPeopleRate();
+-	if(r * getGreatPeopleRate() <  iGPPLeft)
+-		r++;
+-	return r;
++	int iR = iGPPLeft / getGreatPeopleRate();
++	if (iR * getGreatPeopleRate() < iGPPLeft)
++		iR++;
++	return iR;
+ }
+ 
+ void CvCity::GPProjection(std::vector<std::pair<UnitTypes,int> >& r) const
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 89798b4da..e3c90003d 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -102,7 +102,8 @@ public:
+ 	bool isProductionProcess() const;																			// Exposed to Python
+ 
+ 	bool canContinueProduction(OrderData order);																// Exposed to Python
+-	int getProductionExperience(UnitTypes eUnit = NO_UNIT) const;												// Exposed to Python
++	int getProductionExperience(UnitTypes eUnit = NO_UNIT,														// Exposed to Python
++			bool bScore = false) const; // advc.002f
+ 	void addProductionExperience(CvUnit* pUnit, bool bConscript = false);										// Exposed to Python
+ 
+ 	UnitTypes getProductionUnit() const;																		// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvDllTranslator.cpp b/CvGameCoreDLL/CvDllTranslator.cpp
+index 76117a8fa..d2d470e9e 100644
+--- a/CvGameCoreDLL/CvDllTranslator.cpp
++++ b/CvGameCoreDLL/CvDllTranslator.cpp
+@@ -46,9 +46,10 @@ void CvDllTranslator::initializeTags(CvWString& szTagStartIcon, CvWString& szTag
+ 	aIconMap[L"[ICON_FOOD]"] = std::wstring(1, (wchar)GC.getInfo(YIELD_FOOD).getChar());
+ 	aIconMap[L"[ICON_PRODUCTION]"] = std::wstring(1, (wchar)GC.getInfo(YIELD_PRODUCTION).getChar());
+ 	aIconMap[L"[ICON_COMMERCE]"] = std::wstring(1, (wchar)GC.getInfo(YIELD_COMMERCE).getChar());
+-	// advc.002f:
++	// <advc.002f>
+ 	aIconMap[L"[ICON_AIRPORT]"] = std::wstring(1, (wchar)gDLL->getSymbolID(AIRPORT_CHAR));
+-
++	aIconMap[L"[ICON_GREATGENERAL]"] = std::wstring(1, (wchar)gDLL->getSymbolID(GREAT_GENERAL_CHAR));
++	// </advc.002f>
+ 	//create color map
+ 	aColorMap[L"[COLOR_REVERT]"] = CvWString(L"</color>");
+ 	for(int i=0; i < GC.getNumColorInfos(); i++)
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index f14e58c22..dc60cb71c 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1693,8 +1693,7 @@ enum FontSymbols
+ 	MAP_CHAR,
+ 	OCCUPATION_CHAR,
+ 	POWER_CHAR,
+-	/*  <advc.002f> From BULL. Only using AIRPORT_CHAR so far, but need all of them
+-		in order to be compatible with BULL's GameFont.tga */
++	// <advc.002f> from BULL
+ 	CITIZEN_CHAR,
+ 	GREAT_GENERAL_CHAR,
+ 	AIRPORT_CHAR, // </advc.002f>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index bb46b28b3..16bf60ad8 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -18636,18 +18636,102 @@ void CvGameTextMgr::buildCityBillboardIconString( CvWStringBuffer& szBuffer, CvC
+ 			szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(UNHEALTHY_CHAR)));
+ 		// advc.076: Disabled
+ 		/*if (gDLL->getGraphicOption(GRAPHICOPTION_CITY_DETAIL)) {
+-			if (GET_PLAYER(pCity->getOwner()).getNumCities() > 2) {
+-				if (pCity->findYieldRateRank(YIELD_PRODUCTION) == 1)
+-					szBuffer.append(CvWString::format(L"%c", GC.getInfo(YIELD_PRODUCTION).getChar()));
+-				if (pCity->findCommerceRateRank(COMMERCE_GOLD) == 1)
+-					szBuffer.append(CvWString::format(L"%c", GC.getInfo(COMMERCE_GOLD).getChar()));
+-				if (pCity->findCommerceRateRank(COMMERCE_RESEARCH) == 1)
+-					szBuffer.append(CvWString::format(L"%c", GC.getInfo(COMMERCE_RESEARCH).getChar()));
++			if (GET_PLAYER(pCity->getOwner()).getNumCities() > 2) {*/
++		// <advc.002f> Replacement
++		if (GET_PLAYER(pCity->getOwner()).getNumCities() > 1)
++		{
++			if (BUGOption::isEnabled("MainInterface__TopProductionIcon", false) &&
++				pCity->getYieldRate(YIELD_PRODUCTION) >= 10 &&
++				pCity->findYieldRateRank(YIELD_PRODUCTION) == 1)
++			{
++				szBuffer.append(CvWString::format(L"%c",
++						GC.getInfo(YIELD_PRODUCTION).getChar()));
+ 			}
+-		}*/
+-
+-		if (pCity->isConnectedToCapital()
+-			&& BUGOption::isEnabled("MainInterface__CityNetworkIcon", false)) // advc.002f
++			FOR_EACH_ENUM(Commerce)
++			{
++				bool bValid = true;
++				CvString szOptionId("MainInterface__Top");
++				switch(eLoopCommerce)
++				{
++				case COMMERCE_GOLD: szOptionId += "Gold"; break;
++				case COMMERCE_RESEARCH: szOptionId += "Research"; break;
++				case COMMERCE_ESPIONAGE: szOptionId += "Espionage"; break;
++				default:
++					bValid = false;
++				}
++				if (!bValid)
++					continue;
++				szOptionId += "Icon";
++				if (BUGOption::isEnabled(szOptionId.c_str(), false) &&
++					pCity->getCommerceRate(eLoopCommerce) >= 10 &&
++					pCity->findCommerceRateRank(eLoopCommerce) == 1)
++				{
++					szBuffer.append(CvWString::format(L"%c",
++							GC.getInfo(eLoopCommerce).getChar()));
++				}
++			}
++			if (BUGOption::isEnabled("MainInterface__TopXPIcon", false))
++			{
++				CvCity const* pMaxXPCity = NULL;
++				int iMaxXP = 0;
++				FOR_EACH_CITY(pLoopCity, GET_PLAYER(pCity->getOwner()))
++				{
++					int iXP = pLoopCity->getProductionExperience(NO_UNIT, true);
++					if (iXP > iMaxXP)
++					{
++						pMaxXPCity = pLoopCity;
++						iMaxXP = iXP;
++					}
++				}
++				if (iMaxXP > 0 && pMaxXPCity == pCity)
++				{
++					szBuffer.append(CvWString::format(L"%c",
++							gDLL->getSymbolID(GREAT_GENERAL_CHAR)));
++				}
++			}
++			if (BUGOption::isEnabled("MainInterface__NextGPIcon", false))
++			{
++				CvCity const* pNextGPCity = NULL;
++				int iMinTurns = MAX_INT;
++				/*	Break ties in favor of pCity - so that all cities receive the
++					icon when tied. Not consistent with the other icons, but seems
++					(more) important for usability. */
++				std::vector<CvCity const*> apCities;
++				apCities.push_back(pCity);
++				FOR_EACH_CITY(pLoopCity, GET_PLAYER(pCity->getOwner()))
++				{
++					if (pLoopCity != pCity)
++						apCities.push_back(pLoopCity);
++				}
++				for (size_t i = 0; i < apCities.size(); i++)
++				{
++					CvCity const* pLoopCity = apCities[i];
++					int iTurns = pLoopCity->GPTurnsLeft();
++					if (iTurns >= 0 && iTurns < iMinTurns)
++					{
++						pNextGPCity = pLoopCity;
++						iMinTurns = iTurns;
++					}
++				}
++				if (iMinTurns < MAX_INT && pNextGPCity == pCity)
++				{
++					szBuffer.append(CvWString::format(L"%c",
++							gDLL->getSymbolID(GREAT_PEOPLE_CHAR)));
++				}
++			}
++		}
++		if (pCity->isNoUnhappiness() &&
++			BUGOption::isEnabled("MainInterface__NoUnhappyIcon", false))
++		{
++			szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(HAPPY_CHAR)));
++		}
++		if (pCity->getUnhealthyPopulationModifier() <= -100 &&
++			BUGOption::isEnabled("MainInterface__NoBadHealthIcon", false))
++		{
++			szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(HEALTHY_CHAR)));
++		} // </advc.002f>
++		if (pCity->isConnectedToCapital() &&
++			BUGOption::isEnabled("MainInterface__CityNetworkIcon", false)) // advc.002f
+ 		{
+ 			if (GET_PLAYER(pCity->getOwner()).countNumCitiesConnectedToCapital() > 1)
+ 				szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(TRADE_CHAR)));
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=29405

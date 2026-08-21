@@ -1,0 +1,958 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5862
+# Commit: 37774e8137b721ca29cf615fa6bebcdbadc8f044
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4c2f880fadeb9dd574cf428c2a1fb07d798f2749
+# Title: add compare_handicap_infos.py, handicap_infos_compared.md, and related files
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+27	1	LLM_Helpers/README.md
+310	0	LLM_Helpers/compare_handicap_infos.py
+531	0	LLM_Helpers/examples/handicap_infos_compared.md
+2	0	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 LLM_Helpers/compare_handicap_infos.py
+ create mode 100644 LLM_Helpers/examples/handicap_infos_compared.md
+
+[PATCHES]
+
+diff --git a/LLM_Helpers/README.md b/LLM_Helpers/README.md
+index 66aae8c9b..7a239c5a2 100644
+--- a/LLM_Helpers/README.md
++++ b/LLM_Helpers/README.md
+@@ -34,7 +34,7 @@ python LLM_Helpers\collapse_multiline_brackets.py Assets\Python\Contrib\Sevopedi
+ 
+ ### ChatGPT single-line cleanup scripts
+ 
+-These were generated during a ChatGPT-5.5 Thinking cleanup of `CvMainInterface.py` to make the file easier for grep, VS Code review, and future LLM agents.
++These were generated during a GPT-5.5-Thinking cleanup of `CvMainInterface.py` to make the file easier for grep, VS Code review, and future LLM agents.
+ 
+ The generated scripts were staged working scripts, not polished repo utilities:
+ 
+@@ -169,6 +169,32 @@ python LLM_Helpers\autotune_speed_from_xml.py --speed slow --summary-steps 100 -
+ python LLM_Helpers\autotune_speed_from_xml.py --speed slow --autoloop --iterations 8000 --seed 1
+ ```
+ 
++## Game info comparison helpers
++
++### `compare_handicap_infos.py`
++
++- Report-only. Does not modify source files.
++- Compares one `CIV4HandicapInfo.xml` against another; pass both XML paths explicitly.
++- Compares handicap entries by XML order/index, so added/removed difficulties in other mods show with the missing side blank instead of relying on hardcoded difficulty names.
++- Missing/new fields on either side are also shown with the missing side blank.
++- Adds a separate entry table with each index's left/right `Type` and `Description`, then lists changed fields by index.
++- Flattens handicap XML by field path and writes an LLM-friendly Markdown table with flat numeric deltas and percentage deltas, computed as `(file 2 - file 1) / file 1` when both values are numeric and file 1 is nonzero.
++- Repeated XML collections such as `Goodies`, `FreeTechs`, and `AIFreeTechs` are compared as compact counted lists instead of noisy index-by-index rows.
++- Writes timestamped output to `LLM_Helpers\outputs\handicap_compare_<UTC-ISO>.md` by default; this folder is git-ignored.
++- `--example-output` writes to `LLM_Helpers\examples\handicap_infos_compared.md` instead, useful when publishing a stable hosted example URL.
++- The report includes its UTC run time, output path, and full input paths because XML assets can change between analysis runs.
++- The same Markdown file includes a tab-separated spreadsheet matrix: one row per field, and grouped file 1/file 2/delta columns for each handicap index. Empty cells mean that field/index has no shown change or no matching value on that side.
++- Optional `--file1-label`/`--file2-label` labels make published examples clearer while the defaults stay generic.
++- `--tsv-output` optionally writes the same matrix as a separate `.tsv` file too.
++- Created with GPT-5.5/Codex and reviewed with GPT-5.5-Thinking.
++
++```powershell
++python LLM_Helpers\compare_handicap_infos.py "..\AdvCiv\Assets\XML\GameInfo\CIV4HandicapInfo.xml" "Assets\XML\GameInfo\CIV4HandicapInfo.xml" --file1-label "Base AdvCiv 1.12" --file2-label "AdvCiv-SAS"
++python LLM_Helpers\compare_handicap_infos.py "..\AdvCiv\Assets\XML\GameInfo\CIV4HandicapInfo.xml" "Assets\XML\GameInfo\CIV4HandicapInfo.xml" --file1-label "Base AdvCiv 1.12" --file2-label "AdvCiv-SAS" --example-output
++python LLM_Helpers\compare_handicap_infos.py "..\SomeMod\Assets\XML\GameInfo\CIV4HandicapInfo.xml" "Assets\XML\GameInfo\CIV4HandicapInfo.xml" --file1-label SomeMod --file2-label AdvCiv-SAS --output C:\tmp\handicap_compare.md --tsv-output C:\tmp\handicap_compare.tsv
++python LLM_Helpers\compare_handicap_infos.py C:\tmp\file1.xml C:\tmp\file2.xml
++```
++
+ ## Static audit helpers
+ 
+ ### `audit_define_keys.py`
+
+diff --git a/LLM_Helpers/compare_handicap_infos.py b/LLM_Helpers/compare_handicap_infos.py
+new file mode 100644
+index 000000000..28c5437b9
+--- /dev/null
++++ b/LLM_Helpers/compare_handicap_infos.py
+@@ -0,0 +1,310 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++import argparse
++import csv
++import datetime
++import io
++import os
++import re
++import xml.etree.ElementTree as ET
++
++DEFAULT_OUTPUT_DIR = os.path.join("LLM_Helpers", "outputs")
++DEFAULT_EXAMPLE_DIR = os.path.join("LLM_Helpers", "examples")
++DEFAULT_LEFT_LABEL = "File 1"
++DEFAULT_RIGHT_LABEL = "File 2"
++
++NUMERIC_RE = re.compile(r"^[+-]?\d+(?:\.\d+)?$")
++
++def strip_ns(tag):
++    if "}" in tag:
++        return tag.rsplit("}", 1)[1]
++    return tag
++
++def text_value(node):
++    text = (node.text or "").strip()
++    if text:
++        return text
++    return ""
++
++def is_leaf(node):
++    return len(list(node)) == 0
++
++def compact_child_signature(node):
++    children = list(node)
++    if not children:
++        return text_value(node)
++    parts = []
++    for child in children:
++        if is_leaf(child):
++            parts.append("%s=%s" % (strip_ns(child.tag), text_value(child)))
++        else:
++            parts.append("%s={%s}" % (strip_ns(child.tag), compact_collection_value(child)))
++    return ",".join(parts)
++
++def compact_collection_value(node):
++    items = [compact_child_signature(child) for child in list(node)]
++    counts = {}
++    for item in items:
++        counts[item] = counts.get(item, 0) + 1
++    parts = []
++    for item in sorted(counts.keys()):
++        if counts[item] == 1:
++            parts.append(item)
++        else:
++            parts.append("%s x%d" % (item, counts[item]))
++    return "; ".join(parts)
++
++def is_repeated_collection(node):
++    children = list(node)
++    if not children:
++        return False
++    first = strip_ns(children[0].tag)
++    for child in children:
++        if strip_ns(child.tag) != first:
++            return False
++    return True
++
++def child_path(parent_path, child, sibling_counts, sibling_seen):
++    tag = strip_ns(child.tag)
++    if sibling_counts.get(tag, 0) <= 1:
++        return "%s/%s" % (parent_path, tag)
++    sibling_seen[tag] = sibling_seen.get(tag, 0) + 1
++    return "%s/%s[%d]" % (parent_path, tag, sibling_seen[tag])
++
++def flatten_node(node, parent_path, out):
++    children = list(node)
++    if not children:
++        out[parent_path] = text_value(node)
++        return
++    if parent_path and is_repeated_collection(node):
++        out[parent_path] = compact_collection_value(node)
++        return
++
++    sibling_counts = {}
++    for child in children:
++        tag = strip_ns(child.tag)
++        sibling_counts[tag] = sibling_counts.get(tag, 0) + 1
++
++    sibling_seen = {}
++    for child in children:
++        flatten_node(child, child_path(parent_path, child, sibling_counts, sibling_seen), out)
++
++def parse_handicaps(path):
++    tree = ET.parse(path)
++    root = tree.getroot()
++    result = []
++    for node in root.iter():
++        if strip_ns(node.tag) != "HandicapInfo":
++            continue
++        h_type = None
++        for child in list(node):
++            if strip_ns(child.tag) == "Type":
++                h_type = text_value(child)
++                break
++        if not h_type:
++            raise RuntimeError("HandicapInfo without Type in %s" % path)
++        flat = {}
++        flatten_node(node, "", flat)
++        result.append((h_type, flat))
++    return result
++
++def numeric_delta(base, compare):
++    if not (NUMERIC_RE.match(base or "") and NUMERIC_RE.match(compare or "")):
++        return ""
++    if "." in base or "." in compare:
++        delta = float(compare) - float(base)
++        if delta == 0:
++            return "0"
++        return "%+f" % delta
++    delta = int(compare) - int(base)
++    if delta == 0:
++        return "0"
++    return "%+d" % delta
++
++def numeric_delta_percent(base, compare):
++    if not (NUMERIC_RE.match(base or "") and NUMERIC_RE.match(compare or "")):
++        return ""
++    base_value = float(base)
++    if base_value == 0:
++        return ""
++    delta_pct = (float(compare) - base_value) * 100.0 / base_value
++    if delta_pct == 0:
++        return "0%"
++    return "%+.1f%%" % delta_pct
++
++def md_cell(value):
++    return str(value).replace("\\", "\\\\").replace("|", "\\|").replace("\r", " ").replace("\n", " ")
++
++def collect_diffs(left_data, right_data, include_unchanged):
++    rows = []
++    max_len = max(len(left_data), len(right_data))
++    for idx in range(max_len):
++        left_type, left_fields = ("", {})
++        right_type, right_fields = ("", {})
++        if idx < len(left_data):
++            left_type, left_fields = left_data[idx]
++        if idx < len(right_data):
++            right_type, right_fields = right_data[idx]
++        handicap = "#%02d" % idx
++        for field in sorted(set(left_fields.keys()) | set(right_fields.keys())):
++            left = left_fields.get(field, "")
++            right = right_fields.get(field, "")
++            if include_unchanged or left != right:
++                rows.append((handicap, field.lstrip("/"), left, right, numeric_delta(left, right), numeric_delta_percent(left, right)))
++    return rows
++
++def collect_diff_stats(left_data, right_data):
++    stats = {}
++    total_changed = 0
++    total_comparable = 0
++    max_len = max(len(left_data), len(right_data))
++    for idx in range(max_len):
++        left_type, left_fields = ("", {})
++        right_type, right_fields = ("", {})
++        if idx < len(left_data):
++            left_type, left_fields = left_data[idx]
++        if idx < len(right_data):
++            right_type, right_fields = right_data[idx]
++        handicap = "#%02d" % idx
++        field_count = 0
++        changed_count = 0
++        for field in set(left_fields.keys()) | set(right_fields.keys()):
++            field_count += 1
++            if left_fields.get(field, "") != right_fields.get(field, ""):
++                changed_count += 1
++        stats[handicap] = (changed_count, field_count)
++        total_changed += changed_count
++        total_comparable += field_count
++    return stats, total_changed, total_comparable
++
++def percentage_text(changed_count, total_count):
++    if total_count == 0:
++        return "0%"
++    return "%.1f%%" % (changed_count * 100.0 / total_count)
++
++def collect_entry_pairs(left_data, right_data):
++    rows = []
++    max_len = max(len(left_data), len(right_data))
++    for idx in range(max_len):
++        left_type, left_fields = ("", {})
++        right_type, right_fields = ("", {})
++        if idx < len(left_data):
++            left_type, left_fields = left_data[idx]
++        if idx < len(right_data):
++            right_type, right_fields = right_data[idx]
++        rows.append(("#%02d" % idx, left_type, left_fields.get("/Description", ""), right_type, right_fields.get("/Description", "")))
++    return rows
++
++def default_output_path(run_time):
++    return os.path.join(DEFAULT_OUTPUT_DIR, "handicap_compare_%s.md" % run_time.strftime("%Y%m%dT%H%M%SZ"))
++
++def example_output_path():
++    return os.path.join(DEFAULT_EXAMPLE_DIR, "handicap_infos_compared.md")
++
++def build_tsv_text(left_label, right_label, entry_pairs, rows, include_unchanged):
++    handicaps = [entry[0] for entry in entry_pairs]
++    fields = sorted(set(row[1] for row in rows if include_unchanged or row[2] != row[3]))
++    cell_data = {}
++    for handicap, field, left, right, delta, delta_pct in rows:
++        if include_unchanged or left != right:
++            cell_data[(field, handicap)] = (left, right, delta, delta_pct)
++    out = io.StringIO()
++    writer = csv.writer(out, dialect="excel-tab")
++    header = ["Field"]
++    for handicap in handicaps:
++        header.extend(["%s %s" % (handicap, left_label), "%s %s" % (handicap, right_label), "%s Delta" % handicap, "%s Delta %%" % handicap])
++    writer.writerow(header)
++    for field in fields:
++        row = [field]
++        for handicap in handicaps:
++            left, right, delta, delta_pct = cell_data.get((field, handicap), ("", "", "", ""))
++            row.extend([left, right, delta, delta_pct])
++        writer.writerow(row)
++    return out.getvalue()
++
++def write_markdown(path, left_path, right_path, left_label, right_label, entry_pairs, rows, include_unchanged, run_time, tsv_text, diff_stats, total_changed, total_comparable):
++    out_dir = os.path.dirname(path)
++    if out_dir:
++        os.makedirs(out_dir, exist_ok=True)
++    left_full_path = os.path.abspath(left_path)
++    right_full_path = os.path.abspath(right_path)
++    output_full_path = os.path.abspath(path)
++    with open(path, "w", encoding="utf-8", newline="\n") as f:
++        f.write("# Handicap Info comparison: %s vs %s\n\n" % (left_label, right_label))
++        f.write("Generated by `LLM_Helpers/compare_handicap_infos.py`.\n\n")
++        f.write("- Run time: `%s UTC`\n" % run_time.strftime("%Y-%m-%d %H:%M:%S"))
++        f.write("- Output path: `%s`\n" % output_full_path.replace("\\", "/"))
++        f.write("- %s path: `%s`\n" % (left_label, left_full_path.replace("\\", "/")))
++        f.write("- %s path: `%s`\n" % (right_label, right_full_path.replace("\\", "/")))
++        f.write("- Rows shown: %s\n" % ("all comparable fields" if include_unchanged else "changed fields only"))
++        f.write("- Match mode: XML order/index, so added/removed difficulties compare with the missing side blank\n")
++        f.write("- Missing fields on either side are shown as blank cells\n")
++        f.write("- Delta %% is computed as (%s - %s) / %s; blank when either value is non-numeric or %s is 0\n" % (right_label, left_label, left_label, left_label))
++        f.write("- Changed fields: %d/%d (%s)\n\n" % (total_changed, total_comparable, percentage_text(total_changed, total_comparable)))
++        f.write("## Compared Handicap Entries\n\n")
++        f.write("| Index | %s Type | %s Description | %s Type | %s Description |\n" % (left_label, left_label, right_label, right_label))
++        f.write("| --- | --- | --- | --- | --- |\n")
++        for index, left_type, left_description, right_type, right_description in entry_pairs:
++            f.write("| `%s` | `%s` | `%s` | `%s` | `%s` |\n" % (md_cell(index), md_cell(left_type), md_cell(left_description), md_cell(right_type), md_cell(right_description)))
++        f.write("\n")
++        f.write("## Changes by Handicap\n\n")
++        for handicap in sorted(diff_stats.keys()):
++            changed_count, total_count = diff_stats[handicap]
++            if changed_count:
++                f.write("- `%s`: %d/%d changed fields (%s)\n" % (handicap, changed_count, total_count, percentage_text(changed_count, total_count)))
++        f.write("\n")
++        f.write("## Changed Fields\n\n")
++        f.write("| Handicap | Field | %s | %s | Delta | Delta %% |\n" % (left_label, right_label))
++        f.write("| --- | --- | ---: | ---: | ---: | ---: |\n")
++        for handicap, field, left, right, delta, delta_pct in rows:
++            if not include_unchanged and left == right:
++                continue
++            f.write("| `%s` | `%s` | `%s` | `%s` | `%s` | `%s` |\n" % (md_cell(handicap), md_cell(field), md_cell(left), md_cell(right), md_cell(delta), md_cell(delta_pct)))
++        f.write("\n")
++        f.write("## Spreadsheet Matrix TSV\n\n")
++        f.write("Copy this tab-separated block into Excel, LibreOffice, or another spreadsheet tool. It uses one row per field and grouped %s/%s/delta columns for each handicap index.\n\n" % (left_label, right_label))
++        f.write("```tsv\n")
++        f.write(tsv_text)
++        if not tsv_text.endswith("\n"):
++            f.write("\n")
++        f.write("```\n")
++
++def write_tsv(path, tsv_text):
++    out_dir = os.path.dirname(path)
++    if out_dir:
++        os.makedirs(out_dir, exist_ok=True)
++    with open(path, "w", encoding="utf-8", newline="") as f:
++        f.write(tsv_text)
++
++def main():
++    parser = argparse.ArgumentParser(description="Compare two CIV4HandicapInfo.xml files by XML order/index for LLM review.")
++    parser.add_argument("left", help="Left CIV4HandicapInfo.xml path")
++    parser.add_argument("right", help="Right CIV4HandicapInfo.xml path")
++    # <!-- custom: Keep generic File 1/File 2 defaults for arbitrary XML comparisons, while allowing clearer labels for published examples. Credit: GPT-5.5-Thinking review. (GPT-5.5) -->
++    parser.add_argument("--left-label", "--file1-label", dest="left_label", default=DEFAULT_LEFT_LABEL, help="Display label for the left/file 1 XML")
++    parser.add_argument("--right-label", "--file2-label", dest="right_label", default=DEFAULT_RIGHT_LABEL, help="Display label for the right/file 2 XML")
++    parser.add_argument("--output", help="Markdown report output path")
++    parser.add_argument("--example-output", action="store_true", help="Write to the stable example Markdown path instead of a timestamped default path")
++    parser.add_argument("--tsv-output", help="Optional separate spreadsheet-friendly TSV matrix output path")
++    parser.add_argument("--include-unchanged", action="store_true", help="Include unchanged fields too")
++    args = parser.parse_args()
++
++    run_time = datetime.datetime.now(datetime.timezone.utc)
++    output_path = args.output or (example_output_path() if args.example_output else default_output_path(run_time))
++    left_data = parse_handicaps(args.left)
++    right_data = parse_handicaps(args.right)
++    rows = collect_diffs(left_data, right_data, args.include_unchanged)
++    diff_stats, total_changed, total_comparable = collect_diff_stats(left_data, right_data)
++    entry_pairs = collect_entry_pairs(left_data, right_data)
++    tsv_text = build_tsv_text(args.left_label, args.right_label, entry_pairs, rows, args.include_unchanged)
++    write_markdown(output_path, args.left, args.right, args.left_label, args.right_label, entry_pairs, rows, args.include_unchanged, run_time, tsv_text, diff_stats, total_changed, total_comparable)
++    print("Wrote %d changed field rows to %s" % (len(rows), output_path))
++    if args.tsv_output:
++        write_tsv(args.tsv_output, tsv_text)
++        print("Wrote spreadsheet matrix to %s" % args.tsv_output)
++
++if __name__ == "__main__":
++    main()
+
+diff --git a/LLM_Helpers/examples/handicap_infos_compared.md b/LLM_Helpers/examples/handicap_infos_compared.md
+new file mode 100644
+index 000000000..0766271b0
+--- /dev/null
++++ b/LLM_Helpers/examples/handicap_infos_compared.md
+@@ -0,0 +1,531 @@
++# Handicap Info comparison: Base AdvCiv 1.12 vs AdvCiv-SAS
++
++Generated by `LLM_Helpers/compare_handicap_infos.py`.
++
++- Run time: `2026-05-27 20:53:34 UTC`
++- Output path: `C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/LLM_Helpers/examples/handicap_infos_compared.md`
++- Base AdvCiv 1.12 path: `C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv/Assets/XML/GameInfo/CIV4HandicapInfo.xml`
++- AdvCiv-SAS path: `C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/Assets/XML/GameInfo/CIV4HandicapInfo.xml`
++- Rows shown: changed fields only
++- Match mode: XML order/index, so added/removed difficulties compare with the missing side blank
++- Missing fields on either side are shown as blank cells
++- Delta % is computed as (AdvCiv-SAS - Base AdvCiv 1.12) / Base AdvCiv 1.12; blank when either value is non-numeric or Base AdvCiv 1.12 is 0
++- Changed fields: 414/682 (60.7%)
++
++## Compared Handicap Entries
++
++| Index | Base AdvCiv 1.12 Type | Base AdvCiv 1.12 Description | AdvCiv-SAS Type | AdvCiv-SAS Description |
++| --- | --- | --- | --- | --- |
++| `#00` | `HANDICAP_SETTLER` | `TXT_KEY_HANDICAP_SETTLER` | `HANDICAP_SETTLER` | `TXT_KEY_HANDICAP_SETTLER` |
++| `#01` | `HANDICAP_CHIEFTAIN` | `TXT_KEY_HANDICAP_CHIEFTAIN` | `HANDICAP_CHIEFTAIN` | `TXT_KEY_HANDICAP_CHIEFTAIN` |
++| `#02` | `HANDICAP_WARLORD` | `TXT_KEY_HANDICAP_WARLORD` | `HANDICAP_WARLORD` | `TXT_KEY_HANDICAP_WARLORD` |
++| `#03` | `HANDICAP_NOBLE` | `TXT_KEY_HANDICAP_NOBLE` | `HANDICAP_NOBLE` | `TXT_KEY_HANDICAP_NOBLE` |
++| `#04` | `HANDICAP_PRINCE` | `TXT_KEY_HANDICAP_PRINCE` | `HANDICAP_PRINCE` | `TXT_KEY_HANDICAP_PRINCE` |
++| `#05` | `HANDICAP_MONARCH` | `TXT_KEY_HANDICAP_MONARCH` | `HANDICAP_MONARCH` | `TXT_KEY_HANDICAP_MONARCH` |
++| `#06` | `HANDICAP_EMPEROR` | `TXT_KEY_HANDICAP_EMPEROR` | `HANDICAP_EMPEROR` | `TXT_KEY_HANDICAP_EMPEROR` |
++| `#07` | `HANDICAP_IMMORTAL` | `TXT_KEY_HANDICAP_IMMORTAL` | `HANDICAP_IMMORTAL` | `TXT_KEY_HANDICAP_IMMORTAL` |
++| `#08` | `HANDICAP_DEITY` | `TXT_KEY_HANDICAP_DEITY` | `HANDICAP_DEITY` | `TXT_KEY_HANDICAP_DEITY` |
++
++## Changes by Handicap
++
++- `#00`: 53/75 changed fields (70.7%)
++- `#01`: 54/75 changed fields (72.0%)
++- `#02`: 45/75 changed fields (60.0%)
++- `#03`: 32/75 changed fields (42.7%)
++- `#04`: 39/76 changed fields (51.3%)
++- `#05`: 42/76 changed fields (55.3%)
++- `#06`: 49/76 changed fields (64.5%)
++- `#07`: 50/76 changed fields (65.8%)
++- `#08`: 50/78 changed fields (64.1%)
++
++## Changed Fields
++
++| Handicap | Field | Base AdvCiv 1.12 | AdvCiv-SAS | Delta | Delta % |
++| --- | --- | ---: | ---: | ---: | ---: |
++| `#00` | `FreeTechs` | `TechType=TECH_AGRICULTURE,bFreeTech=1; TechType=TECH_ALPHABET,bFreeTech=1; TechType=TECH_FEUDALISM,bFreeTech=1; TechType=TECH_GUNPOWDER,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_MINING,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_REFRIGERATION,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1; TechType=TECH_STEEL,bFreeTech=1; TechType=TECH_THE_WHEEL,bFreeTech=1` | `` | `` | `` |
++| `#00` | `Goodies` | `GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x4; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_SETTLER; GOODY_TECH x4; GOODY_WARRIOR x2; GOODY_WORKER x2` | `GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x4; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2` | `` | `` |
++| `#00` | `iAIAdvancedStartPercent` | `67` | `70` | `+3` | `+4.5%` |
++| `#00` | `iAIAnimalBonus` | `-25` | `-30` | `-5` | `+20.0%` |
++| `#00` | `iAIAttitudeChangePercent` | `30` | `10` | `-20` | `-66.7%` |
++| `#00` | `iAIBarbarianBonus` | `-25` | `-30` | `-5` | `+20.0%` |
++| `#00` | `iAICivicUpkeepPercent` | `100` | `118` | `+18` | `+18.0%` |
++| `#00` | `iAIConstructPercent` | `120` | `115` | `-5` | `-4.2%` |
++| `#00` | `iAICreatePercent` | `110` | `106` | `-4` | `-3.6%` |
++| `#00` | `iAIDeclareWarProb` | `25` | `80` | `+55` | `+220.0%` |
++| `#00` | `iAIGPThresholdPercent` | `125` | `124` | `-1` | `-0.8%` |
++| `#00` | `iAIGrowthPercent` | `125` | `115` | `-10` | `-8.0%` |
++| `#00` | `iAIInflationPercent` | `100` | `115` | `+15` | `+15.0%` |
++| `#00` | `iAIResearchPercent` | `90` | `118` | `+28` | `+31.1%` |
++| `#00` | `iAIStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#00` | `iAITrainPercent` | `125` | `115` | `-10` | `-8.0%` |
++| `#00` | `iAIUnitSupplyPercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#00` | `iAIUnitUpgradePercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#00` | `iAIWarWearinessPercent` | `100` | `118` | `+18` | `+18.0%` |
++| `#00` | `iAIWorldConstructPercent` | `125` | `100` | `-25` | `-20.0%` |
++| `#00` | `iAIWorldCreatePercent` | `125` | `100` | `-25` | `-20.0%` |
++| `#00` | `iAIWorldTrainPercent` | `125` | `100` | `-25` | `-20.0%` |
++| `#00` | `iAnimalAttackProb` | `30` | `10` | `-20` | `-66.7%` |
++| `#00` | `iAnimalBonus` | `-60` | `-30` | `+30` | `-50.0%` |
++| `#00` | `iAttitudeChange` | `3` | `2` | `-1` | `-33.3%` |
++| `#00` | `iBarbarianBonus` | `-40` | `-30` | `+10` | `-25.0%` |
++| `#00` | `iBarbarianCityCreationProb` | `4` | `5` | `+1` | `+25.0%` |
++| `#00` | `iBarbarianCityCreationTurnsElapsed` | `60` | `40` | `-20` | `-33.3%` |
++| `#00` | `iBarbarianCreationTurnsElapsed` | `48` | `34` | `-14` | `-29.2%` |
++| `#00` | `iBaseGrowthThresholdPercent` | `80` | `100` | `+20` | `+25.0%` |
++| `#00` | `iCivicUpkeepPercent` | `60` | `100` | `+40` | `+66.7%` |
++| `#00` | `iColonyMaintenancePercent` | `60` | `85` | `+25` | `+41.7%` |
++| `#00` | `iConstructPercent` | `85` | `100` | `+15` | `+17.6%` |
++| `#00` | `iCorporationMaintenancePercent` | `60` | `85` | `+25` | `+41.7%` |
++| `#00` | `iCreatePercent` | `70` | `100` | `+30` | `+42.9%` |
++| `#00` | `iDifficulty` | `0` | `10` | `+10` | `` |
++| `#00` | `iDistanceMaintenancePercent` | `50` | `60` | `+10` | `+20.0%` |
++| `#00` | `iForeignCultureStrength` | `10` | `11` | `+1` | `+10.0%` |
++| `#00` | `iFreeWinsVsBarbs` | `4` | `2` | `-2` | `-50.0%` |
++| `#00` | `iGPThresholdPercent` | `80` | `100` | `+20` | `+25.0%` |
++| `#00` | `iInflationPercent` | `60` | `100` | `+40` | `+66.7%` |
++| `#00` | `iNoTechTradeModifier` | `100` | `80` | `-20` | `-20.0%` |
++| `#00` | `iNumCitiesMaintenancePercent` | `45` | `60` | `+15` | `+33.3%` |
++| `#00` | `iResearchPercent` | `72` | `100` | `+28` | `+38.9%` |
++| `#00` | `iStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#00` | `iStartingLocPercent` | `10` | `11` | `+1` | `+10.0%` |
++| `#00` | `iTechTradeKnownModifier` | `-100` | `-30` | `+70` | `-70.0%` |
++| `#00` | `iTrainPercent` | `80` | `100` | `+20` | `+25.0%` |
++| `#00` | `iUnitCostPercent` | `36` | `100` | `+64` | `+177.8%` |
++| `#00` | `iUnownedTilesPerBarbarianCity` | `160` | `130` | `-30` | `-18.8%` |
++| `#00` | `iUnownedTilesPerBarbarianUnit` | `125` | `64` | `-61` | `-48.8%` |
++| `#00` | `iUnownedTilesPerGameAnimal` | `85` | `52` | `-33` | `-38.8%` |
++| `#00` | `iUnownedWaterTilesPerBarbarianUnit` | `750` | `475` | `-275` | `-36.7%` |
++| `#01` | `FreeTechs` | `TechType=TECH_AGRICULTURE,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1; TechType=TECH_THE_WHEEL,bFreeTech=1` | `` | `` | `` |
++| `#01` | `Goodies` | `GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_SETTLER; GOODY_TECH x4; GOODY_WARRIOR x2; GOODY_WORKER x2` | `GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2` | `` | `` |
++| `#01` | `iAIAdvancedStartPercent` | `75` | `80` | `+5` | `+6.7%` |
++| `#01` | `iAIAnimalBonus` | `-25` | `-15` | `+10` | `-40.0%` |
++| `#01` | `iAIAttitudeChangePercent` | `30` | `20` | `-10` | `-33.3%` |
++| `#01` | `iAIBarbarianBonus` | `-25` | `-15` | `+10` | `-40.0%` |
++| `#01` | `iAICivicUpkeepPercent` | `100` | `112` | `+12` | `+12.0%` |
++| `#01` | `iAIConstructPercent` | `115` | `110` | `-5` | `-4.3%` |
++| `#01` | `iAICreatePercent` | `105` | `104` | `-1` | `-1.0%` |
++| `#01` | `iAIDeclareWarProb` | `50` | `90` | `+40` | `+80.0%` |
++| `#01` | `iAIGPThresholdPercent` | `120` | `116` | `-4` | `-3.3%` |
++| `#01` | `iAIGrowthPercent` | `120` | `110` | `-10` | `-8.3%` |
++| `#01` | `iAIInflationPercent` | `90` | `110` | `+20` | `+22.2%` |
++| `#01` | `iAIResearchPercent` | `100` | `112` | `+12` | `+12.0%` |
++| `#01` | `iAIStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#01` | `iAITrainPercent` | `120` | `110` | `-10` | `-8.3%` |
++| `#01` | `iAIUnitSupplyPercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#01` | `iAIUnitUpgradePercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#01` | `iAIWarWearinessPercent` | `90` | `112` | `+22` | `+24.4%` |
++| `#01` | `iAIWorldConstructPercent` | `120` | `100` | `-20` | `-16.7%` |
++| `#01` | `iAIWorldCreatePercent` | `120` | `100` | `-20` | `-16.7%` |
++| `#01` | `iAIWorldTrainPercent` | `120` | `100` | `-20` | `-16.7%` |
++| `#01` | `iAnimalAttackProb` | `50` | `20` | `-30` | `-60.0%` |
++| `#01` | `iAnimalBonus` | `-45` | `-20` | `+25` | `-55.6%` |
++| `#01` | `iAttitudeChange` | `2` | `1` | `-1` | `-50.0%` |
++| `#01` | `iBarbarianBonus` | `-30` | `-15` | `+15` | `-50.0%` |
++| `#01` | `iBarbarianCityCreationProb` | `5` | `10` | `+5` | `+100.0%` |
++| `#01` | `iBarbarianCityCreationTurnsElapsed` | `55` | `39` | `-16` | `-29.1%` |
++| `#01` | `iBarbarianCreationTurnsElapsed` | `44` | `33` | `-11` | `-25.0%` |
++| `#01` | `iBaseGrowthThresholdPercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#01` | `iCivicUpkeepPercent` | `70` | `100` | `+30` | `+42.9%` |
++| `#01` | `iColonyMaintenancePercent` | `80` | `90` | `+10` | `+12.5%` |
++| `#01` | `iConstructPercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#01` | `iCorporationMaintenancePercent` | `80` | `90` | `+10` | `+12.5%` |
++| `#01` | `iCreatePercent` | `80` | `100` | `+20` | `+25.0%` |
++| `#01` | `iDifficulty` | `10` | `20` | `+10` | `+100.0%` |
++| `#01` | `iDistanceMaintenancePercent` | `60` | `65` | `+5` | `+8.3%` |
++| `#01` | `iForeignCultureStrength` | `15` | `14` | `-1` | `-6.7%` |
++| `#01` | `iFreeUnits` | `15` | `8` | `-7` | `-46.7%` |
++| `#01` | `iFreeWinsVsBarbs` | `3` | `1` | `-2` | `-66.7%` |
++| `#01` | `iGPThresholdPercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#01` | `iInflationPercent` | `70` | `100` | `+30` | `+42.9%` |
++| `#01` | `iNoTechTradeModifier` | `85` | `72` | `-13` | `-15.3%` |
++| `#01` | `iNumCitiesMaintenancePercent` | `55` | `65` | `+10` | `+18.2%` |
++| `#01` | `iResearchPercent` | `85` | `100` | `+15` | `+17.6%` |
++| `#01` | `iStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#01` | `iStartingLocPercent` | `20` | `22` | `+2` | `+10.0%` |
++| `#01` | `iTechTradeKnownModifier` | `-50` | `-20` | `+30` | `-60.0%` |
++| `#01` | `iTrainPercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#01` | `iUnitCostPercent` | `44` | `100` | `+56` | `+127.3%` |
++| `#01` | `iUnownedTilesPerBarbarianCity` | `150` | `125` | `-25` | `-16.7%` |
++| `#01` | `iUnownedTilesPerBarbarianUnit` | `80` | `61` | `-19` | `-23.8%` |
++| `#01` | `iUnownedTilesPerGameAnimal` | `70` | `49` | `-21` | `-30.0%` |
++| `#01` | `iUnownedWaterTilesPerBarbarianUnit` | `600` | `450` | `-150` | `-25.0%` |
++| `#02` | `FreeTechs` | `TechType=TECH_THE_WHEEL,bFreeTech=1` | `` | `` | `` |
++| `#02` | `Goodies` | `GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2; GOODY_WORKER` | `GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2` | `` | `` |
++| `#02` | `iAIAnimalBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#02` | `iAIBarbarianBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#02` | `iAICivicUpkeepPercent` | `100` | `106` | `+6` | `+6.0%` |
++| `#02` | `iAICreatePercent` | `100` | `102` | `+2` | `+2.0%` |
++| `#02` | `iAIDeclareWarProb` | `75` | `100` | `+25` | `+33.3%` |
++| `#02` | `iAIGPThresholdPercent` | `110` | `108` | `-2` | `-1.8%` |
++| `#02` | `iAIGrowthPercent` | `110` | `105` | `-5` | `-4.5%` |
++| `#02` | `iAIInflationPercent` | `80` | `105` | `+25` | `+31.2%` |
++| `#02` | `iAIResearchPercent` | `100` | `106` | `+6` | `+6.0%` |
++| `#02` | `iAIStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#02` | `iAITrainPercent` | `110` | `105` | `-5` | `-4.5%` |
++| `#02` | `iAIUnitSupplyPercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#02` | `iAIUnitUpgradePercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#02` | `iAIWarWearinessPercent` | `80` | `106` | `+26` | `+32.5%` |
++| `#02` | `iAIWorldConstructPercent` | `110` | `100` | `-10` | `-9.1%` |
++| `#02` | `iAIWorldCreatePercent` | `110` | `100` | `-10` | `-9.1%` |
++| `#02` | `iAIWorldTrainPercent` | `110` | `100` | `-10` | `-9.1%` |
++| `#02` | `iAnimalAttackProb` | `60` | `30` | `-30` | `-50.0%` |
++| `#02` | `iAnimalBonus` | `-30` | `-10` | `+20` | `-66.7%` |
++| `#02` | `iBarbarianBonus` | `-20` | `0` | `+20` | `-100.0%` |
++| `#02` | `iBarbarianCityCreationProb` | `5` | `15` | `+10` | `+200.0%` |
++| `#02` | `iBarbarianCityCreationTurnsElapsed` | `50` | `38` | `-12` | `-24.0%` |
++| `#02` | `iBarbarianCreationTurnsElapsed` | `40` | `32` | `-8` | `-20.0%` |
++| `#02` | `iCivicUpkeepPercent` | `80` | `100` | `+20` | `+25.0%` |
++| `#02` | `iColonyMaintenancePercent` | `90` | `95` | `+5` | `+5.6%` |
++| `#02` | `iCorporationMaintenancePercent` | `90` | `95` | `+5` | `+5.6%` |
++| `#02` | `iCreatePercent` | `90` | `100` | `+10` | `+11.1%` |
++| `#02` | `iDifficulty` | `20` | `30` | `+10` | `+50.0%` |
++| `#02` | `iForeignCultureStrength` | `20` | `17` | `-3` | `-15.0%` |
++| `#02` | `iFreeUnits` | `10` | `7` | `-3` | `-30.0%` |
++| `#02` | `iFreeWinsVsBarbs` | `2` | `0` | `-2` | `-100.0%` |
++| `#02` | `iInflationPercent` | `80` | `100` | `+20` | `+25.0%` |
++| `#02` | `iNoTechTradeModifier` | `75` | `66` | `-9` | `-12.0%` |
++| `#02` | `iNumCitiesMaintenancePercent` | `65` | `70` | `+5` | `+7.7%` |
++| `#02` | `iResearchPercent` | `90` | `100` | `+10` | `+11.1%` |
++| `#02` | `iStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#02` | `iStartingLocPercent` | `35` | `33` | `-2` | `-5.7%` |
++| `#02` | `iTechTradeKnownModifier` | `-25` | `-10` | `+15` | `-60.0%` |
++| `#02` | `iUnitCostPercent` | `52` | `100` | `+48` | `+92.3%` |
++| `#02` | `iUnownedTilesPerBarbarianCity` | `140` | `120` | `-20` | `-14.3%` |
++| `#02` | `iUnownedTilesPerBarbarianUnit` | `66` | `58` | `-8` | `-12.1%` |
++| `#02` | `iUnownedTilesPerGameAnimal` | `62` | `46` | `-16` | `-25.8%` |
++| `#02` | `iUnownedWaterTilesPerBarbarianUnit` | `550` | `425` | `-125` | `-22.7%` |
++| `#03` | `iAIAnimalBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#03` | `iAIAttitudeChangePercent` | `30` | `40` | `+10` | `+33.3%` |
++| `#03` | `iAIBarbarianBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#03` | `iAIDeclareWarProb` | `100` | `110` | `+10` | `+10.0%` |
++| `#03` | `iAIInflationPercent` | `80` | `100` | `+20` | `+25.0%` |
++| `#03` | `iAIStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#03` | `iAIUnitSupplyPercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#03` | `iAIUnitUpgradePercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#03` | `iAIWarWearinessPercent` | `80` | `100` | `+20` | `+25.0%` |
++| `#03` | `iAnimalAttackProb` | `70` | `40` | `-30` | `-42.9%` |
++| `#03` | `iAnimalBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#03` | `iBarbarianBonus` | `-10` | `0` | `+10` | `-100.0%` |
++| `#03` | `iBarbarianCityCreationProb` | `6` | `20` | `+14` | `+233.3%` |
++| `#03` | `iBarbarianCityCreationTurnsElapsed` | `45` | `37` | `-8` | `-17.8%` |
++| `#03` | `iBarbarianCreationTurnsElapsed` | `36` | `31` | `-5` | `-13.9%` |
++| `#03` | `iBarbarianDefenders` | `2` | `1` | `-1` | `-50.0%` |
++| `#03` | `iCivicUpkeepPercent` | `90` | `100` | `+10` | `+11.1%` |
++| `#03` | `iDifficulty` | `30` | `40` | `+10` | `+33.3%` |
++| `#03` | `iDistanceMaintenancePercent` | `80` | `75` | `-5` | `-6.2%` |
++| `#03` | `iForeignCultureStrength` | `25` | `20` | `-5` | `-20.0%` |
++| `#03` | `iFreeUnits` | `7` | `6` | `-1` | `-14.3%` |
++| `#03` | `iFreeWinsVsBarbs` | `1` | `0` | `-1` | `-100.0%` |
++| `#03` | `iInflationPercent` | `90` | `100` | `+10` | `+11.1%` |
++| `#03` | `iNoTechTradeModifier` | `64` | `60` | `-4` | `-6.2%` |
++| `#03` | `iResearchPercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#03` | `iStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#03` | `iStartingLocPercent` | `49` | `44` | `-5` | `-10.2%` |
++| `#03` | `iUnitCostPercent` | `60` | `100` | `+40` | `+66.7%` |
++| `#03` | `iUnownedTilesPerBarbarianCity` | `130` | `115` | `-15` | `-11.5%` |
++| `#03` | `iUnownedTilesPerBarbarianUnit` | `56` | `55` | `-1` | `-1.8%` |
++| `#03` | `iUnownedTilesPerGameAnimal` | `52` | `43` | `-9` | `-17.3%` |
++| `#03` | `iUnownedWaterTilesPerBarbarianUnit` | `500` | `400` | `-100` | `-20.0%` |
++| `#04` | `iAIAdvancedStartPercent` | `125` | `120` | `-5` | `-4.0%` |
++| `#04` | `iAIAnimalBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#04` | `iAIAttitudeChangePercent` | `40` | `50` | `+10` | `+25.0%` |
++| `#04` | `iAIBarbarianBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#04` | `iAICivicUpkeepPercent` | `95` | `94` | `-1` | `-1.1%` |
++| `#04` | `iAICreatePercent` | `95` | `97` | `+2` | `+2.1%` |
++| `#04` | `iAIDeclareWarProb` | `100` | `120` | `+20` | `+20.0%` |
++| `#04` | `iAIGPThresholdPercent` | `100` | `92` | `-8` | `-8.0%` |
++| `#04` | `iAIGrowthPercent` | `100` | `95` | `-5` | `-5.0%` |
++| `#04` | `iAIHandicapIncrementTurns` | `100` | `0` | `-100` | `-100.0%` |
++| `#04` | `iAIInflationPercent` | `80` | `95` | `+15` | `+18.8%` |
++| `#04` | `iAIResearchPercent` | `103` | `94` | `-9` | `-8.7%` |
++| `#04` | `iAIStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#04` | `iAIUnitCostPercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#04` | `iAIUnitSupplyPercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#04` | `iAIUnitUpgradePercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#04` | `iAIWarWearinessPercent` | `80` | `94` | `+14` | `+17.5%` |
++| `#04` | `iAIWorkRateModifier` | `5` | `0` | `-5` | `-100.0%` |
++| `#04` | `iAnimalAttackProb` | `70` | `50` | `-20` | `-28.6%` |
++| `#04` | `iAnimalBonus` | `-20` | `0` | `+20` | `-100.0%` |
++| `#04` | `iBarbarianBonus` | `-5` | `0` | `+5` | `-100.0%` |
++| `#04` | `iBarbarianCityAttackBonus` | `-20` | `0` | `+20` | `-100.0%` |
++| `#04` | `iBarbarianCityCreationProb` | `6` | `25` | `+19` | `+316.7%` |
++| `#04` | `iBarbarianCityCreationTurnsElapsed` | `40` | `36` | `-4` | `-10.0%` |
++| `#04` | `iBarbarianCreationTurnsElapsed` | `32` | `30` | `-2` | `-6.2%` |
++| `#04` | `iBarbarianDefenders` | `2` | `1` | `-1` | `-50.0%` |
++| `#04` | `iCivicUpkeepPercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#04` | `iDifficulty` | `40` | `50` | `+10` | `+25.0%` |
++| `#04` | `iDistanceMaintenancePercent` | `85` | `80` | `-5` | `-5.9%` |
++| `#04` | `iForeignCultureStrength` | `29` | `23` | `-6` | `-20.7%` |
++| `#04` | `iInflationPercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#04` | `iNoTechTradeModifier` | `56` | `54` | `-2` | `-3.6%` |
++| `#04` | `iResearchPercent` | `108` | `100` | `-8` | `-7.4%` |
++| `#04` | `iStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#04` | `iUnitCostPercent` | `68` | `100` | `+32` | `+47.1%` |
++| `#04` | `iUnownedTilesPerBarbarianCity` | `120` | `110` | `-10` | `-8.3%` |
++| `#04` | `iUnownedTilesPerBarbarianUnit` | `48` | `52` | `+4` | `+8.3%` |
++| `#04` | `iUnownedTilesPerGameAnimal` | `50` | `40` | `-10` | `-20.0%` |
++| `#04` | `iUnownedWaterTilesPerBarbarianUnit` | `450` | `375` | `-75` | `-16.7%` |
++| `#05` | `AIFreeTechs` | `TechType=TECH_ARCHERY,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1` | `` | `` | `` |
++| `#05` | `iAIAdvancedStartPercent` | `145` | `140` | `-5` | `-3.4%` |
++| `#05` | `iAIAnimalBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#05` | `iAIAttitudeChangePercent` | `50` | `60` | `+10` | `+20.0%` |
++| `#05` | `iAIBarbarianBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#05` | `iAICivicUpkeepPercent` | `90` | `88` | `-2` | `-2.2%` |
++| `#05` | `iAIConstructPercent` | `95` | `90` | `-5` | `-5.3%` |
++| `#05` | `iAICreatePercent` | `90` | `94` | `+4` | `+4.4%` |
++| `#05` | `iAIDeclareWarProb` | `100` | `130` | `+30` | `+30.0%` |
++| `#05` | `iAIGPThresholdPercent` | `95` | `84` | `-11` | `-11.6%` |
++| `#05` | `iAIGrowthPercent` | `95` | `90` | `-5` | `-5.3%` |
++| `#05` | `iAIHandicapIncrementTurns` | `50` | `0` | `-50` | `-100.0%` |
++| `#05` | `iAIInflationPercent` | `80` | `90` | `+10` | `+12.5%` |
++| `#05` | `iAIResearchPercent` | `110` | `88` | `-22` | `-20.0%` |
++| `#05` | `iAITrainPercent` | `95` | `90` | `-5` | `-5.3%` |
++| `#05` | `iAIUnitCostPercent` | `90` | `100` | `+10` | `+11.1%` |
++| `#05` | `iAIUnitSupplyPercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#05` | `iAIUnitUpgradePercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#05` | `iAIWarWearinessPercent` | `75` | `88` | `+13` | `+17.3%` |
++| `#05` | `iAIWorkRateModifier` | `10` | `0` | `-10` | `-100.0%` |
++| `#05` | `iAIWorldConstructPercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#05` | `iAIWorldCreatePercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#05` | `iAIWorldTrainPercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#05` | `iAnimalAttackProb` | `70` | `60` | `-10` | `-14.3%` |
++| `#05` | `iAnimalBonus` | `-15` | `0` | `+15` | `-100.0%` |
++| `#05` | `iBarbarianBonus` | `-5` | `0` | `+5` | `-100.0%` |
++| `#05` | `iBarbarianCityAttackBonus` | `-20` | `0` | `+20` | `-100.0%` |
++| `#05` | `iBarbarianCityCreationProb` | `7` | `30` | `+23` | `+328.6%` |
++| `#05` | `iBarbarianCreationTurnsElapsed` | `28` | `29` | `+1` | `+3.6%` |
++| `#05` | `iBarbarianDefenders` | `3` | `1` | `-2` | `-66.7%` |
++| `#05` | `iCultureLevelPercent` | `106` | `100` | `-6` | `-5.7%` |
++| `#05` | `iDifficulty` | `50` | `60` | `+10` | `+20.0%` |
++| `#05` | `iDistanceMaintenancePercent` | `90` | `85` | `-5` | `-5.6%` |
++| `#05` | `iForeignCultureStrength` | `32` | `26` | `-6` | `-18.8%` |
++| `#05` | `iResearchPercent` | `115` | `100` | `-15` | `-13.0%` |
++| `#05` | `iStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#05` | `iStartingLocPercent` | `65` | `66` | `+1` | `+1.5%` |
++| `#05` | `iUnitCostPercent` | `76` | `100` | `+24` | `+31.6%` |
++| `#05` | `iUnownedTilesPerBarbarianCity` | `110` | `105` | `-5` | `-4.5%` |
++| `#05` | `iUnownedTilesPerBarbarianUnit` | `42` | `49` | `+7` | `+16.7%` |
++| `#05` | `iUnownedTilesPerGameAnimal` | `44` | `37` | `-7` | `-15.9%` |
++| `#05` | `iUnownedWaterTilesPerBarbarianUnit` | `400` | `350` | `-50` | `-12.5%` |
++| `#06` | `AIFreeTechs` | `TechType=TECH_ARCHERY,bFreeTech=1; TechType=TECH_HUNTING,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1` | `` | `` | `` |
++| `#06` | `Goodies` | `GOODY_BARBARIANS_STRONG x2; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR` | `GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK x5; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR` | `` | `` |
++| `#06` | `iAIAdvancedStartPercent` | `175` | `160` | `-15` | `-8.6%` |
++| `#06` | `iAIAnimalBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#06` | `iAIAttitudeChangePercent` | `60` | `70` | `+10` | `+16.7%` |
++| `#06` | `iAIBarbarianBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#06` | `iAICivicUpkeepPercent` | `85` | `82` | `-3` | `-3.5%` |
++| `#06` | `iAIConstructPercent` | `90` | `85` | `-5` | `-5.6%` |
++| `#06` | `iAICreatePercent` | `85` | `91` | `+6` | `+7.1%` |
++| `#06` | `iAIDeclareWarProb` | `100` | `140` | `+40` | `+40.0%` |
++| `#06` | `iAIGPThresholdPercent` | `90` | `76` | `-14` | `-15.6%` |
++| `#06` | `iAIGrowthPercent` | `90` | `85` | `-5` | `-5.6%` |
++| `#06` | `iAIHandicapIncrementTurns` | `33` | `0` | `-33` | `-100.0%` |
++| `#06` | `iAIInflationPercent` | `80` | `85` | `+5` | `+6.2%` |
++| `#06` | `iAIResearchPercent` | `115` | `82` | `-33` | `-28.7%` |
++| `#06` | `iAIStartingDefenseUnits` | `2` | `1` | `-1` | `-50.0%` |
++| `#06` | `iAITrainPercent` | `95` | `85` | `-10` | `-10.5%` |
++| `#06` | `iAIUnitCostPercent` | `85` | `100` | `+15` | `+17.6%` |
++| `#06` | `iAIUnitSupplyPercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#06` | `iAIUnitUpgradePercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#06` | `iAIWarWearinessPercent` | `70` | `82` | `+12` | `+17.1%` |
++| `#06` | `iAIWorkRateModifier` | `15` | `0` | `-15` | `-100.0%` |
++| `#06` | `iAIWorldConstructPercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#06` | `iAIWorldCreatePercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#06` | `iAIWorldTrainPercent` | `95` | `100` | `+5` | `+5.3%` |
++| `#06` | `iAnimalBonus` | `-10` | `0` | `+10` | `-100.0%` |
++| `#06` | `iBarbarianBonus` | `-5` | `0` | `+5` | `-100.0%` |
++| `#06` | `iBarbarianCityAttackBonus` | `-20` | `0` | `+20` | `-100.0%` |
++| `#06` | `iBarbarianCityCreationProb` | `7` | `35` | `+28` | `+400.0%` |
++| `#06` | `iBarbarianCityCreationTurnsElapsed` | `30` | `34` | `+4` | `+13.3%` |
++| `#06` | `iBarbarianCreationTurnsElapsed` | `24` | `28` | `+4` | `+16.7%` |
++| `#06` | `iBarbarianDefenders` | `3` | `1` | `-2` | `-66.7%` |
++| `#06` | `iBaseGrowthThresholdPercent` | `110` | `100` | `-10` | `-9.1%` |
++| `#06` | `iBuildTimePercent` | `110` | `100` | `-10` | `-9.1%` |
++| `#06` | `iConstructPercent` | `105` | `100` | `-5` | `-4.8%` |
++| `#06` | `iCultureLevelPercent` | `112` | `100` | `-12` | `-10.7%` |
++| `#06` | `iDifficulty` | `60` | `70` | `+10` | `+16.7%` |
++| `#06` | `iDistanceMaintenancePercent` | `95` | `90` | `-5` | `-5.3%` |
++| `#06` | `iForeignCultureStrength` | `35` | `29` | `-6` | `-17.1%` |
++| `#06` | `iGPThresholdPercent` | `110` | `100` | `-10` | `-9.1%` |
++| `#06` | `iNoTechTradeModifier` | `40` | `42` | `+2` | `+5.0%` |
++| `#06` | `iResearchPercent` | `130` | `100` | `-30` | `-23.1%` |
++| `#06` | `iStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#06` | `iStartingLocPercent` | `75` | `77` | `+2` | `+2.7%` |
++| `#06` | `iTrainPercent` | `110` | `100` | `-10` | `-9.1%` |
++| `#06` | `iUnitCostPercent` | `84` | `100` | `+16` | `+19.0%` |
++| `#06` | `iUnownedTilesPerBarbarianUnit` | `38` | `46` | `+8` | `+21.1%` |
++| `#06` | `iUnownedTilesPerGameAnimal` | `40` | `34` | `-6` | `-15.0%` |
++| `#06` | `iUnownedWaterTilesPerBarbarianUnit` | `350` | `325` | `-25` | `-7.1%` |
++| `#07` | `AIFreeTechs` | `TechType=TECH_ARCHERY,bFreeTech=1; TechType=TECH_HUNTING,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1` | `` | `` | `` |
++| `#07` | `Goodies` | `GOODY_BARBARIANS_STRONG x3; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR` | `GOODY_BARBARIANS_STRONG x2; GOODY_BARBARIANS_WEAK x5; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR` | `` | `` |
++| `#07` | `iAIAdvancedStartPercent` | `210` | `180` | `-30` | `-14.3%` |
++| `#07` | `iAIAnimalBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#07` | `iAIAttitudeChangePercent` | `70` | `80` | `+10` | `+14.3%` |
++| `#07` | `iAIBarbarianBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#07` | `iAICivicUpkeepPercent` | `80` | `76` | `-4` | `-5.0%` |
++| `#07` | `iAICreatePercent` | `80` | `88` | `+8` | `+10.0%` |
++| `#07` | `iAIDeclareWarProb` | `100` | `150` | `+50` | `+50.0%` |
++| `#07` | `iAIGPThresholdPercent` | `85` | `68` | `-17` | `-20.0%` |
++| `#07` | `iAIGrowthPercent` | `85` | `80` | `-5` | `-5.9%` |
++| `#07` | `iAIHandicapIncrementTurns` | `25` | `0` | `-25` | `-100.0%` |
++| `#07` | `iAIResearchPercent` | `120` | `76` | `-44` | `-36.7%` |
++| `#07` | `iAIStartingDefenseUnits` | `2` | `1` | `-1` | `-50.0%` |
++| `#07` | `iAIStartingWorkerUnits` | `1` | `0` | `-1` | `-100.0%` |
++| `#07` | `iAITrainPercent` | `90` | `80` | `-10` | `-11.1%` |
++| `#07` | `iAIUnitCostPercent` | `80` | `100` | `+20` | `+25.0%` |
++| `#07` | `iAIUnitSupplyPercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#07` | `iAIUnitUpgradePercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#07` | `iAIWarWearinessPercent` | `60` | `76` | `+16` | `+26.7%` |
++| `#07` | `iAIWorkRateModifier` | `20` | `0` | `-20` | `-100.0%` |
++| `#07` | `iAIWorldConstructPercent` | `90` | `100` | `+10` | `+11.1%` |
++| `#07` | `iAIWorldCreatePercent` | `90` | `100` | `+10` | `+11.1%` |
++| `#07` | `iAIWorldTrainPercent` | `90` | `100` | `+10` | `+11.1%` |
++| `#07` | `iAnimalAttackProb` | `70` | `80` | `+10` | `+14.3%` |
++| `#07` | `iAnimalBonus` | `-5` | `0` | `+5` | `-100.0%` |
++| `#07` | `iBarbarianBonus` | `-5` | `0` | `+5` | `-100.0%` |
++| `#07` | `iBarbarianCityAttackBonus` | `-15` | `0` | `+15` | `-100.0%` |
++| `#07` | `iBarbarianCityCreationProb` | `8` | `40` | `+32` | `+400.0%` |
++| `#07` | `iBarbarianCityCreationTurnsElapsed` | `25` | `33` | `+8` | `+32.0%` |
++| `#07` | `iBarbarianCreationTurnsElapsed` | `20` | `27` | `+7` | `+35.0%` |
++| `#07` | `iBarbarianDefenders` | `3` | `1` | `-2` | `-66.7%` |
++| `#07` | `iBaseGrowthThresholdPercent` | `120` | `100` | `-20` | `-16.7%` |
++| `#07` | `iBuildTimePercent` | `115` | `100` | `-15` | `-13.0%` |
++| `#07` | `iConstructPercent` | `110` | `100` | `-10` | `-9.1%` |
++| `#07` | `iCreatePercent` | `110` | `100` | `-10` | `-9.1%` |
++| `#07` | `iCultureLevelPercent` | `118` | `100` | `-18` | `-15.3%` |
++| `#07` | `iDifficulty` | `70` | `80` | `+10` | `+14.3%` |
++| `#07` | `iDistanceMaintenancePercent` | `100` | `95` | `-5` | `-5.0%` |
++| `#07` | `iForeignCultureStrength` | `38` | `32` | `-6` | `-15.8%` |
++| `#07` | `iGPThresholdPercent` | `120` | `100` | `-20` | `-16.7%` |
++| `#07` | `iNoTechTradeModifier` | `32` | `36` | `+4` | `+12.5%` |
++| `#07` | `iResearchPercent` | `140` | `100` | `-40` | `-28.6%` |
++| `#07` | `iStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#07` | `iStartingLocPercent` | `85` | `88` | `+3` | `+3.5%` |
++| `#07` | `iTrainPercent` | `120` | `100` | `-20` | `-16.7%` |
++| `#07` | `iUnitCostPercent` | `92` | `100` | `+8` | `+8.7%` |
++| `#07` | `iUnownedTilesPerBarbarianCity` | `90` | `95` | `+5` | `+5.6%` |
++| `#07` | `iUnownedTilesPerBarbarianUnit` | `34` | `43` | `+9` | `+26.5%` |
++| `#07` | `iUnownedTilesPerGameAnimal` | `36` | `31` | `-5` | `-13.9%` |
++| `#08` | `AIFreeTechs` | `TechType=TECH_ARCHERY,bFreeTech=1; TechType=TECH_FEUDALISM,bFreeTech=1; TechType=TECH_GUNPOWDER,bFreeTech=1; TechType=TECH_HUNTING,bFreeTech=1; TechType=TECH_IRON_WORKING,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_REFRIGERATION,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1; TechType=TECH_STEEL,bFreeTech=1; TechType=TECH_THE_WHEEL,bFreeTech=1` | `` | `` | `` |
++| `#08` | `Goodies` | `GOODY_BARBARIANS_STRONG x4; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR` | `GOODY_BARBARIANS_STRONG x2; GOODY_BARBARIANS_WEAK x6; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR` | `` | `` |
++| `#08` | `iAIAdvancedStartPercent` | `270` | `200` | `-70` | `-25.9%` |
++| `#08` | `iAIAnimalBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#08` | `iAIBarbarianBonus` | `-25` | `0` | `+25` | `-100.0%` |
++| `#08` | `iAICivicUpkeepPercent` | `75` | `70` | `-5` | `-6.7%` |
++| `#08` | `iAICreatePercent` | `75` | `85` | `+10` | `+13.3%` |
++| `#08` | `iAIDeclareWarProb` | `100` | `160` | `+60` | `+60.0%` |
++| `#08` | `iAIGPThresholdPercent` | `80` | `60` | `-20` | `-25.0%` |
++| `#08` | `iAIGrowthPercent` | `80` | `75` | `-5` | `-6.2%` |
++| `#08` | `iAIHandicapIncrementTurns` | `20` | `0` | `-20` | `-100.0%` |
++| `#08` | `iAIInflationPercent` | `80` | `75` | `-5` | `-6.2%` |
++| `#08` | `iAIResearchPercent` | `124` | `70` | `-54` | `-43.5%` |
++| `#08` | `iAIStartingDefenseUnits` | `3` | `1` | `-2` | `-66.7%` |
++| `#08` | `iAIStartingExploreUnits` | `1` | `0` | `-1` | `-100.0%` |
++| `#08` | `iAIStartingWorkerUnits` | `1` | `0` | `-1` | `-100.0%` |
++| `#08` | `iAITrainPercent` | `85` | `75` | `-10` | `-11.8%` |
++| `#08` | `iAIUnitCostPercent` | `75` | `100` | `+25` | `+33.3%` |
++| `#08` | `iAIUnitSupplyPercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#08` | `iAIUnitUpgradePercent` | `50` | `100` | `+50` | `+100.0%` |
++| `#08` | `iAIWarWearinessPercent` | `50` | `70` | `+20` | `+40.0%` |
++| `#08` | `iAIWorkRateModifier` | `25` | `0` | `-25` | `-100.0%` |
++| `#08` | `iAIWorldConstructPercent` | `85` | `100` | `+15` | `+17.6%` |
++| `#08` | `iAIWorldCreatePercent` | `85` | `100` | `+15` | `+17.6%` |
++| `#08` | `iAIWorldTrainPercent` | `85` | `100` | `+15` | `+17.6%` |
++| `#08` | `iAnimalAttackProb` | `70` | `90` | `+20` | `+28.6%` |
++| `#08` | `iBarbarianCityAttackBonus` | `-10` | `0` | `+10` | `-100.0%` |
++| `#08` | `iBarbarianCityCreationProb` | `8` | `45` | `+37` | `+462.5%` |
++| `#08` | `iBarbarianCityCreationTurnsElapsed` | `25` | `32` | `+7` | `+28.0%` |
++| `#08` | `iBarbarianCreationTurnsElapsed` | `16` | `26` | `+10` | `+62.5%` |
++| `#08` | `iBarbarianDefenders` | `4` | `1` | `-3` | `-75.0%` |
++| `#08` | `iBaseGrowthThresholdPercent` | `130` | `100` | `-30` | `-23.1%` |
++| `#08` | `iBuildTimePercent` | `120` | `100` | `-20` | `-16.7%` |
++| `#08` | `iConstructPercent` | `115` | `100` | `-15` | `-13.0%` |
++| `#08` | `iCorporationMaintenancePercent` | `130` | `125` | `-5` | `-3.8%` |
++| `#08` | `iCreatePercent` | `120` | `100` | `-20` | `-16.7%` |
++| `#08` | `iCultureLevelPercent` | `129` | `100` | `-29` | `-22.5%` |
++| `#08` | `iDifficulty` | `85` | `90` | `+5` | `+5.9%` |
++| `#08` | `iForeignCultureStrength` | `40` | `35` | `-5` | `-12.5%` |
++| `#08` | `iGPThresholdPercent` | `130` | `100` | `-30` | `-23.1%` |
++| `#08` | `iNoTechTradeModifier` | `24` | `30` | `+6` | `+25.0%` |
++| `#08` | `iResearchPercent` | `150` | `100` | `-50` | `-33.3%` |
++| `#08` | `iSeaBarbarianBonus` | `-5` | `0` | `+5` | `-100.0%` |
++| `#08` | `iStartingDefenseUnits` | `0` | `1` | `+1` | `` |
++| `#08` | `iStartingLocPercent` | `95` | `99` | `+4` | `+4.2%` |
++| `#08` | `iTrainPercent` | `130` | `100` | `-30` | `-23.1%` |
++| `#08` | `iUnownedTilesPerBarbarianCity` | `80` | `90` | `+10` | `+12.5%` |
++| `#08` | `iUnownedTilesPerBarbarianUnit` | `30` | `40` | `+10` | `+33.3%` |
++| `#08` | `iUnownedTilesPerGameAnimal` | `32` | `28` | `-4` | `-12.5%` |
++| `#08` | `iUnownedWaterTilesPerBarbarianUnit` | `250` | `275` | `+25` | `+10.0%` |
++
++## Spreadsheet Matrix TSV
++
++Copy this tab-separated block into Excel, LibreOffice, or another spreadsheet tool. It uses one row per field and grouped Base AdvCiv 1.12/AdvCiv-SAS/delta columns for each handicap index.
++
++```tsv
++Field	#00 Base AdvCiv 1.12	#00 AdvCiv-SAS	#00 Delta	#00 Delta %	#01 Base AdvCiv 1.12	#01 AdvCiv-SAS	#01 Delta	#01 Delta %	#02 Base AdvCiv 1.12	#02 AdvCiv-SAS	#02 Delta	#02 Delta %	#03 Base AdvCiv 1.12	#03 AdvCiv-SAS	#03 Delta	#03 Delta %	#04 Base AdvCiv 1.12	#04 AdvCiv-SAS	#04 Delta	#04 Delta %	#05 Base AdvCiv 1.12	#05 AdvCiv-SAS	#05 Delta	#05 Delta %	#06 Base AdvCiv 1.12	#06 AdvCiv-SAS	#06 Delta	#06 Delta %	#07 Base AdvCiv 1.12	#07 AdvCiv-SAS	#07 Delta	#07 Delta %	#08 Base AdvCiv 1.12	#08 AdvCiv-SAS	#08 Delta	#08 Delta %
++AIFreeTechs																					TechType=TECH_ARCHERY,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1				TechType=TECH_ARCHERY,bFreeTech=1; TechType=TECH_HUNTING,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1				TechType=TECH_ARCHERY,bFreeTech=1; TechType=TECH_HUNTING,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1				TechType=TECH_ARCHERY,bFreeTech=1; TechType=TECH_FEUDALISM,bFreeTech=1; TechType=TECH_GUNPOWDER,bFreeTech=1; TechType=TECH_HUNTING,bFreeTech=1; TechType=TECH_IRON_WORKING,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_REFRIGERATION,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1; TechType=TECH_STEEL,bFreeTech=1; TechType=TECH_THE_WHEEL,bFreeTech=1			
++FreeTechs	TechType=TECH_AGRICULTURE,bFreeTech=1; TechType=TECH_ALPHABET,bFreeTech=1; TechType=TECH_FEUDALISM,bFreeTech=1; TechType=TECH_GUNPOWDER,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_MINING,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_REFRIGERATION,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1; TechType=TECH_STEEL,bFreeTech=1; TechType=TECH_THE_WHEEL,bFreeTech=1				TechType=TECH_AGRICULTURE,bFreeTech=1; TechType=TECH_MACHINERY,bFreeTech=1; TechType=TECH_MATHEMATICS,bFreeTech=1; TechType=TECH_PLASTICS,bFreeTech=1; TechType=TECH_PRINTING_PRESS,bFreeTech=1; TechType=TECH_STEAM_POWER,bFreeTech=1; TechType=TECH_THE_WHEEL,bFreeTech=1				TechType=TECH_THE_WHEEL,bFreeTech=1																											
++Goodies	GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x4; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_SETTLER; GOODY_TECH x4; GOODY_WARRIOR x2; GOODY_WORKER x2	GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x4; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2			GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_SETTLER; GOODY_TECH x4; GOODY_WARRIOR x2; GOODY_WORKER x2	GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2			GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2; GOODY_WORKER	GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_HIGH_GOLD x3; GOODY_LOW_GOLD x2; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x4; GOODY_WARRIOR x2															GOODY_BARBARIANS_STRONG x2; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR	GOODY_BARBARIANS_STRONG; GOODY_BARBARIANS_WEAK x5; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR			GOODY_BARBARIANS_STRONG x3; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR	GOODY_BARBARIANS_STRONG x2; GOODY_BARBARIANS_WEAK x5; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP x2; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR			GOODY_BARBARIANS_STRONG x4; GOODY_BARBARIANS_WEAK x3; GOODY_EXPERIENCE; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR	GOODY_BARBARIANS_STRONG x2; GOODY_BARBARIANS_WEAK x6; GOODY_EXPERIENCE x2; GOODY_HEALING; GOODY_LOW_GOLD x4; GOODY_MAP; GOODY_SCOUT; GOODY_TECH x3; GOODY_WARRIOR		
++iAIAdvancedStartPercent	67	70	+3	+4.5%	75	80	+5	+6.7%									125	120	-5	-4.0%	145	140	-5	-3.4%	175	160	-15	-8.6%	210	180	-30	-14.3%	270	200	-70	-25.9%
++iAIAnimalBonus	-25	-30	-5	+20.0%	-25	-15	+10	-40.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%
++iAIAttitudeChangePercent	30	10	-20	-66.7%	30	20	-10	-33.3%					30	40	+10	+33.3%	40	50	+10	+25.0%	50	60	+10	+20.0%	60	70	+10	+16.7%	70	80	+10	+14.3%				
++iAIBarbarianBonus	-25	-30	-5	+20.0%	-25	-15	+10	-40.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%	-25	0	+25	-100.0%
++iAICivicUpkeepPercent	100	118	+18	+18.0%	100	112	+12	+12.0%	100	106	+6	+6.0%					95	94	-1	-1.1%	90	88	-2	-2.2%	85	82	-3	-3.5%	80	76	-4	-5.0%	75	70	-5	-6.7%
++iAIConstructPercent	120	115	-5	-4.2%	115	110	-5	-4.3%													95	90	-5	-5.3%	90	85	-5	-5.6%								
++iAICreatePercent	110	106	-4	-3.6%	105	104	-1	-1.0%	100	102	+2	+2.0%					95	97	+2	+2.1%	90	94	+4	+4.4%	85	91	+6	+7.1%	80	88	+8	+10.0%	75	85	+10	+13.3%
++iAIDeclareWarProb	25	80	+55	+220.0%	50	90	+40	+80.0%	75	100	+25	+33.3%	100	110	+10	+10.0%	100	120	+20	+20.0%	100	130	+30	+30.0%	100	140	+40	+40.0%	100	150	+50	+50.0%	100	160	+60	+60.0%
++iAIGPThresholdPercent	125	124	-1	-0.8%	120	116	-4	-3.3%	110	108	-2	-1.8%					100	92	-8	-8.0%	95	84	-11	-11.6%	90	76	-14	-15.6%	85	68	-17	-20.0%	80	60	-20	-25.0%
++iAIGrowthPercent	125	115	-10	-8.0%	120	110	-10	-8.3%	110	105	-5	-4.5%					100	95	-5	-5.0%	95	90	-5	-5.3%	90	85	-5	-5.6%	85	80	-5	-5.9%	80	75	-5	-6.2%
++iAIHandicapIncrementTurns																	100	0	-100	-100.0%	50	0	-50	-100.0%	33	0	-33	-100.0%	25	0	-25	-100.0%	20	0	-20	-100.0%
++iAIInflationPercent	100	115	+15	+15.0%	90	110	+20	+22.2%	80	105	+25	+31.2%	80	100	+20	+25.0%	80	95	+15	+18.8%	80	90	+10	+12.5%	80	85	+5	+6.2%					80	75	-5	-6.2%
++iAIResearchPercent	90	118	+28	+31.1%	100	112	+12	+12.0%	100	106	+6	+6.0%					103	94	-9	-8.7%	110	88	-22	-20.0%	115	82	-33	-28.7%	120	76	-44	-36.7%	124	70	-54	-43.5%
++iAIStartingDefenseUnits	0	1	+1		0	1	+1		0	1	+1		0	1	+1		0	1	+1						2	1	-1	-50.0%	2	1	-1	-50.0%	3	1	-2	-66.7%
++iAIStartingExploreUnits																																	1	0	-1	-100.0%
++iAIStartingWorkerUnits																													1	0	-1	-100.0%	1	0	-1	-100.0%
++iAITrainPercent	125	115	-10	-8.0%	120	110	-10	-8.3%	110	105	-5	-4.5%									95	90	-5	-5.3%	95	85	-10	-10.5%	90	80	-10	-11.1%	85	75	-10	-11.8%
++iAIUnitCostPercent																	95	100	+5	+5.3%	90	100	+10	+11.1%	85	100	+15	+17.6%	80	100	+20	+25.0%	75	100	+25	+33.3%
++iAIUnitSupplyPercent	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%
++iAIUnitUpgradePercent	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%	50	100	+50	+100.0%
++iAIWarWearinessPercent	100	118	+18	+18.0%	90	112	+22	+24.4%	80	106	+26	+32.5%	80	100	+20	+25.0%	80	94	+14	+17.5%	75	88	+13	+17.3%	70	82	+12	+17.1%	60	76	+16	+26.7%	50	70	+20	+40.0%
++iAIWorkRateModifier																	5	0	-5	-100.0%	10	0	-10	-100.0%	15	0	-15	-100.0%	20	0	-20	-100.0%	25	0	-25	-100.0%
++iAIWorldConstructPercent	125	100	-25	-20.0%	120	100	-20	-16.7%	110	100	-10	-9.1%									95	100	+5	+5.3%	95	100	+5	+5.3%	90	100	+10	+11.1%	85	100	+15	+17.6%
++iAIWorldCreatePercent	125	100	-25	-20.0%	120	100	-20	-16.7%	110	100	-10	-9.1%									95	100	+5	+5.3%	95	100	+5	+5.3%	90	100	+10	+11.1%	85	100	+15	+17.6%
++iAIWorldTrainPercent	125	100	-25	-20.0%	120	100	-20	-16.7%	110	100	-10	-9.1%									95	100	+5	+5.3%	95	100	+5	+5.3%	90	100	+10	+11.1%	85	100	+15	+17.6%
++iAnimalAttackProb	30	10	-20	-66.7%	50	20	-30	-60.0%	60	30	-30	-50.0%	70	40	-30	-42.9%	70	50	-20	-28.6%	70	60	-10	-14.3%					70	80	+10	+14.3%	70	90	+20	+28.6%
++iAnimalBonus	-60	-30	+30	-50.0%	-45	-20	+25	-55.6%	-30	-10	+20	-66.7%	-25	0	+25	-100.0%	-20	0	+20	-100.0%	-15	0	+15	-100.0%	-10	0	+10	-100.0%	-5	0	+5	-100.0%				
++iAttitudeChange	3	2	-1	-33.3%	2	1	-1	-50.0%																												
++iBarbarianBonus	-40	-30	+10	-25.0%	-30	-15	+15	-50.0%	-20	0	+20	-100.0%	-10	0	+10	-100.0%	-5	0	+5	-100.0%	-5	0	+5	-100.0%	-5	0	+5	-100.0%	-5	0	+5	-100.0%				
++iBarbarianCityAttackBonus																	-20	0	+20	-100.0%	-20	0	+20	-100.0%	-20	0	+20	-100.0%	-15	0	+15	-100.0%	-10	0	+10	-100.0%
++iBarbarianCityCreationProb	4	5	+1	+25.0%	5	10	+5	+100.0%	5	15	+10	+200.0%	6	20	+14	+233.3%	6	25	+19	+316.7%	7	30	+23	+328.6%	7	35	+28	+400.0%	8	40	+32	+400.0%	8	45	+37	+462.5%
++iBarbarianCityCreationTurnsElapsed	60	40	-20	-33.3%	55	39	-16	-29.1%	50	38	-12	-24.0%	45	37	-8	-17.8%	40	36	-4	-10.0%					30	34	+4	+13.3%	25	33	+8	+32.0%	25	32	+7	+28.0%
++iBarbarianCreationTurnsElapsed	48	34	-14	-29.2%	44	33	-11	-25.0%	40	32	-8	-20.0%	36	31	-5	-13.9%	32	30	-2	-6.2%	28	29	+1	+3.6%	24	28	+4	+16.7%	20	27	+7	+35.0%	16	26	+10	+62.5%
++iBarbarianDefenders													2	1	-1	-50.0%	2	1	-1	-50.0%	3	1	-2	-66.7%	3	1	-2	-66.7%	3	1	-2	-66.7%	4	1	-3	-75.0%
++iBaseGrowthThresholdPercent	80	100	+20	+25.0%	95	100	+5	+5.3%																	110	100	-10	-9.1%	120	100	-20	-16.7%	130	100	-30	-23.1%
++iBuildTimePercent																									110	100	-10	-9.1%	115	100	-15	-13.0%	120	100	-20	-16.7%
++iCivicUpkeepPercent	60	100	+40	+66.7%	70	100	+30	+42.9%	80	100	+20	+25.0%	90	100	+10	+11.1%	95	100	+5	+5.3%																
++iColonyMaintenancePercent	60	85	+25	+41.7%	80	90	+10	+12.5%	90	95	+5	+5.6%																								
++iConstructPercent	85	100	+15	+17.6%	95	100	+5	+5.3%																	105	100	-5	-4.8%	110	100	-10	-9.1%	115	100	-15	-13.0%
++iCorporationMaintenancePercent	60	85	+25	+41.7%	80	90	+10	+12.5%	90	95	+5	+5.6%																					130	125	-5	-3.8%
++iCreatePercent	70	100	+30	+42.9%	80	100	+20	+25.0%	90	100	+10	+11.1%																	110	100	-10	-9.1%	120	100	-20	-16.7%
++iCultureLevelPercent																					106	100	-6	-5.7%	112	100	-12	-10.7%	118	100	-18	-15.3%	129	100	-29	-22.5%
++iDifficulty	0	10	+10		10	20	+10	+100.0%	20	30	+10	+50.0%	30	40	+10	+33.3%	40	50	+10	+25.0%	50	60	+10	+20.0%	60	70	+10	+16.7%	70	80	+10	+14.3%	85	90	+5	+5.9%
++iDistanceMaintenancePercent	50	60	+10	+20.0%	60	65	+5	+8.3%					80	75	-5	-6.2%	85	80	-5	-5.9%	90	85	-5	-5.6%	95	90	-5	-5.3%	100	95	-5	-5.0%				
++iForeignCultureStrength	10	11	+1	+10.0%	15	14	-1	-6.7%	20	17	-3	-15.0%	25	20	-5	-20.0%	29	23	-6	-20.7%	32	26	-6	-18.8%	35	29	-6	-17.1%	38	32	-6	-15.8%	40	35	-5	-12.5%
++iFreeUnits					15	8	-7	-46.7%	10	7	-3	-30.0%	7	6	-1	-14.3%																				
++iFreeWinsVsBarbs	4	2	-2	-50.0%	3	1	-2	-66.7%	2	0	-2	-100.0%	1	0	-1	-100.0%																				
++iGPThresholdPercent	80	100	+20	+25.0%	95	100	+5	+5.3%																	110	100	-10	-9.1%	120	100	-20	-16.7%	130	100	-30	-23.1%
++iInflationPercent	60	100	+40	+66.7%	70	100	+30	+42.9%	80	100	+20	+25.0%	90	100	+10	+11.1%	95	100	+5	+5.3%																
++iNoTechTradeModifier	100	80	-20	-20.0%	85	72	-13	-15.3%	75	66	-9	-12.0%	64	60	-4	-6.2%	56	54	-2	-3.6%					40	42	+2	+5.0%	32	36	+4	+12.5%	24	30	+6	+25.0%
++iNumCitiesMaintenancePercent	45	60	+15	+33.3%	55	65	+10	+18.2%	65	70	+5	+7.7%																								
++iResearchPercent	72	100	+28	+38.9%	85	100	+15	+17.6%	90	100	+10	+11.1%	95	100	+5	+5.3%	108	100	-8	-7.4%	115	100	-15	-13.0%	130	100	-30	-23.1%	140	100	-40	-28.6%	150	100	-50	-33.3%
++iSeaBarbarianBonus																																	-5	0	+5	-100.0%
++iStartingDefenseUnits	0	1	+1		0	1	+1		0	1	+1		0	1	+1		0	1	+1		0	1	+1		0	1	+1		0	1	+1		0	1	+1	
++iStartingLocPercent	10	11	+1	+10.0%	20	22	+2	+10.0%	35	33	-2	-5.7%	49	44	-5	-10.2%					65	66	+1	+1.5%	75	77	+2	+2.7%	85	88	+3	+3.5%	95	99	+4	+4.2%
++iTechTradeKnownModifier	-100	-30	+70	-70.0%	-50	-20	+30	-60.0%	-25	-10	+15	-60.0%																								
++iTrainPercent	80	100	+20	+25.0%	95	100	+5	+5.3%																	110	100	-10	-9.1%	120	100	-20	-16.7%	130	100	-30	-23.1%
++iUnitCostPercent	36	100	+64	+177.8%	44	100	+56	+127.3%	52	100	+48	+92.3%	60	100	+40	+66.7%	68	100	+32	+47.1%	76	100	+24	+31.6%	84	100	+16	+19.0%	92	100	+8	+8.7%				
++iUnownedTilesPerBarbarianCity	160	130	-30	-18.8%	150	125	-25	-16.7%	140	120	-20	-14.3%	130	115	-15	-11.5%	120	110	-10	-8.3%	110	105	-5	-4.5%					90	95	+5	+5.6%	80	90	+10	+12.5%
++iUnownedTilesPerBarbarianUnit	125	64	-61	-48.8%	80	61	-19	-23.8%	66	58	-8	-12.1%	56	55	-1	-1.8%	48	52	+4	+8.3%	42	49	+7	+16.7%	38	46	+8	+21.1%	34	43	+9	+26.5%	30	40	+10	+33.3%
++iUnownedTilesPerGameAnimal	85	52	-33	-38.8%	70	49	-21	-30.0%	62	46	-16	-25.8%	52	43	-9	-17.3%	50	40	-10	-20.0%	44	37	-7	-15.9%	40	34	-6	-15.0%	36	31	-5	-13.9%	32	28	-4	-12.5%
++iUnownedWaterTilesPerBarbarianUnit	750	475	-275	-36.7%	600	450	-150	-25.0%	550	425	-125	-22.7%	500	400	-100	-20.0%	450	375	-75	-16.7%	400	350	-50	-12.5%	350	325	-25	-7.1%					250	275	+25	+10.0%
++```
+
+diff --git a/README.md b/README.md
+index 6d79c47d2..616b191d7 100644
+--- a/README.md
++++ b/README.md
+@@ -874,6 +874,8 @@ This possibly theoretically could be used to open other external files in Civ4 m
+ 
+ For modders: i have made several scripts with AI assistance. We don't use them anymore in AdvCiv-SAS, but they can be found on the [python-scripts](https://github.com/wonderingabout/AdvCiv-SAS/tree/python-scripts) branch.
+ 
++Active helper scripts for LLM-assisted review and tuning live in [LLM_Helpers](/LLM_Helpers/). For example, [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py) compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, and can generate a stable Markdown example such as [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) with changed fields, numeric deltas, percentage deltas, and an embedded TSV matrix.
++
+ ## CuCuGS
+ 
+ Recently, i've successfully replicated f1rpo's original CuCuGS-PoC approach that adds a custom custom game screen that we can customize despite it being seemingly otherwise unaccessible via DLL or python modding.[Claude code (VS Code extension)](/README.md#claude-code-vs-code-extension) heavily helped achieving that.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 5c3a9cf96..3138ce9e3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -111,6 +111,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Fail-fast XML lookup hardening:** replaced almost all `getInfoTypeForString(...)` calls (terrain/features/bonuses and similar tags) with `getInfoTypeOrFail(...)` (in [SASUtils.py](/Assets/Python/SASUtils.py)), so **missing/renamed XML tags raise explicit errors** instead of silently using invalid `-1` values. Notably allowed to detect and fix incorrect `getInfoTypeOrFail("DIRECTION_NORTH")` instead of correct `DirectionTypes.DIRECTION_NORTH` (in Planet Generator map), or incorrect `getInfoTypeOrFail("PLOT_PEAK")` failing instead of correct `PlotTypes.PLOT_PEAK` (in Peirce map).
+ - **Static define-key audit:** added [`audit_define_keys.py`](/LLM_Helpers/audit_define_keys.py), which statically greps every literal `getDefine{BOOL,FLOAT,INT,STRING}("X")` call across Python and DLL and verifies `X` is declared in mod XML, base BTS XML, or vanilla Civ4 XML. Catches **per-key drift** (renamed/removed XML entries) before runtime. A runtime fail-loud wrapper isn't practical here because `getDefine*` returns `0`/`""` for both missing and legitimately zero/empty keys (unlike `getInfoTypeForString` which has a clean `-1` sentinel); a static grep is also **cheaper and simpler to maintain** than wrapping every call site. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - **Unused-text-key audit + cleanup:** added [`audit_unused_text_keys.py`](/LLM_Helpers/audit_unused_text_keys.py), which flags mod GameText `<Tag>TXT_KEY_*` entries referenced **nowhere** in the mod, base BTS, or vanilla Civ4 (Python + DLL + XML); dynamically-built (`"TXT_KEY_BUG_OPT_"+id`) and engine-derived (`_PEDIA/_HELP/...`) key families are routed to a separate review bucket to avoid false positives. Used it to **remove confirmed dead GameText entries** from [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml). See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
++- (Requires AdvCiv-SAS 5862+) **Handicap XML comparison helper:** added [`compare_handicap_infos.py`](/LLM_Helpers/compare_handicap_infos.py), a report-only, mod-agnostic helper that compares two explicit `CIV4HandicapInfo.xml` file paths, inside or outside this mod folder, by handicap index; shows missing fields as blanks, includes absolute/percentage numeric deltas, and embeds a spreadsheet-friendly TSV matrix. The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/examples/handicap_infos_compared.md) compares base AdvCiv 1.12 vs AdvCiv-SAS. See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - **Merged** the **old split/interdependent Foreign Advisor** implementation from the two-file setup (`CvForeignAdvisor.py` + `CvExoticForeignAdvisor.py`) into a **single unified** [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) with the **full tab set** (as of now Relations/Glance/Active/Bonus/Info/Tech/Cities). In our findings, **this was the only screen file** using that **interdependent split** pattern, so merging it into one file directly **fixes that inconsistency** and **reduces maintenance burden**; other major screen files such as [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py) are lengthy but unified files. By contrast, true alternatives use independent variants (for example BUG/non-BUG [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) / [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) paths), not interdependent split files.
+ - **Remove screen-dependent geometry computation** from `__init__` in advisors because this advisor object is created before a reliable screen context exists; doing layout in `interfaceScreen` **ensures correct values for the current resolution**. Keeping **only screen-independent edge constants** in `__init__` ensures **no redundant recomputation** is made again in `interfaceScreen`, and **catches loud screen-dependent errors** in `__init__`.
+ - **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=72866

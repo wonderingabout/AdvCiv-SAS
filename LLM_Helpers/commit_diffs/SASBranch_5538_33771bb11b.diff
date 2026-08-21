@@ -1,0 +1,173 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5538
+# Commit: 33771bb11b40dbbb0762a8acf43261c1c41348eb
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6ed16c42513489375a86ffbf0516409a1189ed1a
+# Title: upscale promotions and fixes - Fix "None" not being upscaled in sevopedia improvements weights table panel - add "None" in Leads To - fix base AdvCiv issue o...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	12	Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+2	1	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+11	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+index eff1f0acc..a91dbc3cc 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+@@ -19,12 +19,16 @@ from CvPythonExtensions import *
+ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
++import re
++import SASTextScale
+ 
+ from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+ localText = CyTranslator()
++SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)
++SAS_FONT_CLOSE_RE = re.compile(u"</font>", re.IGNORECASE)
+ 
+ 
+ 
+@@ -146,9 +150,17 @@ class SevoPediaPromotion:
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_LEADS_TO", ()), "", False, True, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
++		isButtonFound = False
+ 		for j in range(gc.getNumPromotionInfos()):
+-			if (gc.getPromotionInfo(j).getPrereqPromotion() == self.iPromotion or gc.getPromotionInfo(j).getPrereqOrPromotion1() == self.iPromotion or gc.getPromotionInfo(j).getPrereqOrPromotion2() == self.iPromotion):
++			# <!-- custom: include PrereqOrPromotion3 (K-Mod extra OR prereq) so Leads To lists all promotions that depend on this one; otherwise some valid upgrades are missing from this panel. (GPT-5.3-Codex) -->
++			if (gc.getPromotionInfo(j).getPrereqPromotion() == self.iPromotion or
++					gc.getPromotionInfo(j).getPrereqOrPromotion1() == self.iPromotion or
++					gc.getPromotionInfo(j).getPrereqOrPromotion2() == self.iPromotion or
++					gc.getPromotionInfo(j).getPrereqOrPromotion3() == self.iPromotion):
+ 				screen.attachImageButton(panelName, "", gc.getPromotionInfo(j).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, j, 1, False)
++				isButtonFound = True
++		if not isButtonFound:
++			inchart_show_no_content_text(screen, self.top, self.X_LEADS_TO, self.Y_LEADS_TO, self.W_LEADS_TO, self.H_LEADS_TO)
+ 
+ 
+ 
+@@ -193,11 +205,7 @@ class SevoPediaPromotion:
+ 				#iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			inchart_show_no_content_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -242,11 +250,7 @@ class SevoPediaPromotion:
+ 				#iButtonIndex += 1
+ 
+ 		if not isButtonFound:
+-			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
+-			textName = self.top.getNextWidgetName()
+-			szText = localText.getText(txtKeyNoButtonFound, ())
+-			yPanelCenter = yPanel + (hPanel / 2)
+-			screen.addMultilineText(textName, szText, xPanel + 7, yPanelCenter, wPanel - 14, hPanel - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			inchart_show_no_content_text(screen, self.top, xPanel, yPanel, wPanel, hPanel)
+ 
+ 
+ 
+@@ -256,6 +260,9 @@ class SevoPediaPromotion:
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, False, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+ 		listName = self.top.getNextWidgetName()
+ 		szSpecialText = CyGameTextMgr().getPromotionHelp(self.iPromotion, True)[1:]
++		szSpecialText = SAS_FONT_OPEN_RE.sub(u"", szSpecialText)
++		szSpecialText = SAS_FONT_CLOSE_RE.sub(u"", szSpecialText)
++		szSpecialText = SASTextScale.bodyText(szSpecialText)
+ 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL+5, self.Y_SPECIAL+30, self.W_SPECIAL-10, self.H_SPECIAL-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+@@ -272,7 +279,7 @@ class SevoPediaPromotion:
+ 				# <!-- custom: note: i had removed the `iRow = screen.appendTableRow(szTable)` line to fix ruff warning of variable being unused so cleaning this up, after having asked chatgpt this seemed fine and safe to do and we had no errors so maybe was solved as well (as in sevopedia unit ruff warning fix/cleanup as well), other sevopedia classes didn't seem to have a similar issue from quick glance at each file, although i had not investigated it in depth, was hopefully fine i thought, and if in doubt i could have checked ingame display to see if it matches xml info, in sevopedia. However: update: although the variable is not used, the line was needed to show all entries, else we only showed the first one, so remove the identifier rather while keeping the instruction, as chatgpt noticed as wel and poitned to me hehe thanks -->
+ 				# iRow = screen.appendTableRow(szTable)
+ 				screen.appendTableRow(szTable)
+-				screen.setTableText(szTable, 0, i, u"<font=2>" + gc.getUnitCombatInfo(iI).getDescription() + u"</font>", gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)
++				screen.setTableText(szTable, 0, i, SASTextScale.bodyText(gc.getUnitCombatInfo(iI).getDescription()), gc.getUnitCombatInfo(iI).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iI, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				i += 1
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index 05e42b3f9..1ebeffbb1 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -9,6 +9,7 @@ from CvPythonExtensions import *
+ import CvUtil
+ import re
+ from SASFontUtils import *
++import SASTextScale
+ 
+ 
+ 
+@@ -648,7 +649,7 @@ def inchart_show_no_content_text(screen, selfTop, panelX, panelY, panelW, panelH
+ 	szText = localText.getText(txtKey, ())
+ 	yPanelCenter = panelY + (panelH / 2)
+ 	screen.addMultilineText(
+-		textName, szText,
++		textName, SASTextScale.bodyText(szText),
+ 		panelX + 7, yPanelCenter,
+ 		panelW - 14, panelH - 20,
+ 		WidgetTypes.WIDGET_GENERAL, -1, -1,
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index a46a770ce..dedb0cc54 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -341,7 +341,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_UI_FONT_TITLE</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default). Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings) (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
++	<!-- custom: shared UI hover/tooltip font size for widget hover help text (building info, city name popup, etc). Keep in [1..4]. 0 disables (uses engine default). Applied in the DLL (CvDLLWidgetData::parseHelp) and Python (updateHelpStrings). The original hover text used FontTypes.SMALL_FONT in the setHelpTextArea() call, which corresponds to <font=2> in the tag system. So the old/default hover size was effectively 2. (Claude code Opus 4.6). Base Civ4 Font size: 2. -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_HOVER</DefineName>
+ 		<iDefineIntVal>4</iDefineIntVal>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index cee2b2364..7e46755b4 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -145,6 +145,7 @@ hopefully helpful, thanks thanks,
+ [109 - (Tremendously Improved) AI bonus trading: AI very inefficiently buying dominated or equivalent strategic bonuses (era and bonus-aware exclusions)](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#109---tremendously-improved-ai-bonus-trading-ai-very-inefficiently-buying-dominated-or-equivalent-strategic-bonuses-era-and-bonus-aware-exclusions)  
+ [110 - (AdvCiv-SAS music shuffle cleanup) Intermittent Python startup/MainInterface errors from early BUG path calls in Sevopedia music path helper](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#110---advciv-sas-music-shuffle-cleanup-intermittent-python-startupmaininterface-errors-from-early-bug-path-calls-in-sevopedia-music-path-helper)  
+ [111 - (Reverted this Patch) Sevopedia Index UnicodeDecodeError in build/sort/filter UnicodeDecodeError: 'ascii' codec can't decode byte 0xc8 in position 0](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#111---reverted-this-patch-sevopedia-index-unicodedecodeerror-in-buildsortfilter-unicodedecodeerror-ascii-codec-cant-decode-byte-0xc8-in-position-0)  
++[112 - (Seemingly Fixed) Base AdvCiv issue of missing getPrereqOrPromotion3 in sevopedia promotion](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#112---seemingly-fixed-base-advciv-issue-of-missing-getprereqorpromotion3-in-sevopedia-promotion)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -4356,3 +4357,13 @@ Update 2: findings so far:
+ ```
+ 
+ In short, takeaway seems to pay special attention to capitalization and making sure path or names are correct or such.
++
++## 112 - (Seemingly Fixed) Base AdvCiv issue of missing getPrereqOrPromotion3 in sevopedia promotion
++
++While doing the ui font upscaling, GPT-5.3-Codex noticed and fixed the base advciv issue of missing `gc.getPromotionInfo(j).getPrereqOrPromotion3` prereq check in sevopedia promotion, despite it being present in other parts of our code and seemingly being an extra K-Mod extra prereq.
++
++```py
++# <!-- custom: include PrereqOrPromotion3 (K-Mod extra OR prereq) so Leads To lists all promotions that depend on this one; otherwise some valid upgrades are missing from this panel. (GPT-5.3-Codex) -->
++```
++
++Not tested to see if it fixes a specific missing prereq, but as it seems to cause no issue, kept as such.
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=10105

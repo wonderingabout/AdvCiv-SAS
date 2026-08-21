@@ -1,0 +1,363 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1260
+# Commit: ccf5d7b95d5a7878f05f56e91ba8aac57a9599d2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0c3f38b7c28069235c400a36c8e4be2480741682
+# Title: v0.83: 1 serious bug fixed in AI city evacuation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+2	2	Assets/Python/Screens/CvInfoScreen.py
+1	1	Assets/{xml/buildings => XML/Buildings}/CIV4BuildingInfos.xml
+0	0	Assets/{xml/buildings => XML/Buildings}/CIV4BuildingsSchema.xml
+12	3	Assets/xml/Text/CIV4GameText_advc.xml
+1	1	CvGameCoreDLL/CvCity.cpp
+5	2	CvGameCoreDLL/CvPlayerAI.cpp
+3	3	CvGameCoreDLL/CvPlot.cpp
+7	4	CvGameCoreDLL/CvTeam.cpp
+27	5	CvGameCoreDLL/CvUnit.cpp
+30	18	CvGameCoreDLL/CvUnitAI.cpp
+4	2	CvGameCoreDLL/InvasionGraph.cpp
+-	-	manual_0.82.pdf
+-	-	manual_0.83.pdf
+ rename Assets/{xml/buildings => XML/Buildings}/CIV4BuildingInfos.xml (99%)
+ rename Assets/{xml/buildings => XML/Buildings}/CIV4BuildingsSchema.xml (100%)
+ delete mode 100644 manual_0.82.pdf
+ create mode 100644 manual_0.83.pdf
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index f4624ee42..839235577 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -1808,8 +1808,8 @@ class CvInfoScreen:
+ 					szTurnFounded = localText.getText("TXT_KEY_TIME_BC", (-iTurnYear,))#"%d %s" %(-iTurnYear, self.TEXT_BC)
+ 				else:
+ 					szTurnFounded = localText.getText("TXT_KEY_TIME_AD", (iTurnYear,))#"%d %s" %(iTurnYear, self.TEXT_AD)
+-
+-				if (pCity.isRevealed(gc.getGame().getActiveTeam()) or gc.getTeam(pPlayer.getTeam()).isHasMet(gc.getGame().getActiveTeam())):
++				# advc.001d: hasMet clause commented out
++				if (pCity.isRevealed(gc.getGame().getActiveTeam())):# or gc.getTeam(pPlayer.getTeam()).isHasMet(gc.getGame().getActiveTeam())):
+ 					self.szCityNames[iRankLoop] = pCity.getName().upper()
+ 					self.szCityDescs[iRankLoop] = ("%s, %s" %(pPlayer.getCivilizationAdjective(0), localText.getText("TXT_KEY_MISC_FOUNDED_IN", (szTurnFounded,))))
+ 				else:
+
+diff --git a/Assets/xml/buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+similarity index 99%
+rename from Assets/xml/buildings/CIV4BuildingInfos.xml
+rename to Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 0069c274f..b5fc5d21c 100644
+--- a/Assets/xml/buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -21822,7 +21822,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.310: was 300 in K-Mod, 200 in BtS -->
+-			<iCost>240</iCost>
++			<iCost>250</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/Assets/xml/buildings/CIV4BuildingsSchema.xml b/Assets/XML/Buildings/CIV4BuildingsSchema.xml
+similarity index 100%
+rename from Assets/xml/buildings/CIV4BuildingsSchema.xml
+rename to Assets/XML/Buildings/CIV4BuildingsSchema.xml
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index ff02f1913..19676429f 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -390,10 +390,19 @@
+ 	<TEXT>
+ 		<Tag>TXT_KEY_FROM_FEATURES</Tag>
+ 		<English> from Features</English>
+-		<French> en raison des Caract&#233;ristiques</French>
++		<French> en raison des caract&#233;ristiques</French>
+ 		<German> durch Gel&#228;nde</German>
+-		<Italian> dalle Caratteristiche</Italian>
+-		<Spanish> por Accidentes</Spanish>
++		<Italian> dalle caratteristiche</Italian>
++		<Spanish> por accidentes</Spanish>
++	</TEXT>
++	<!-- Based on TXT_KEY_PEDIA_TRAITS in Civ4GameTextInfos.xml. -->
++	<TEXT>
++		<Tag>TXT_KEY_FROM_TRAIT</Tag>
++		<English> from Traits</English>
++		<French> traits de caract&#232;re</French>
++		<German> durch Merkmale des Herrschers</German>
++		<Italian> dalle punti di forza</Italian>
++		<Spanish> por rasgos</Spanish>
+ 	</TEXT>
+ 	<!-- Home tile yield; based on TXT_KEY_PEDIA_YIELDS (Civ4GameTextInfos.xml).
+ 		-->
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 3bcede3ea..6132a6f45 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1145,7 +1145,7 @@ void CvCity::doRevolt() { PROFILE("CvCity::doRevolts()")
+ 	/*  Population loss if pCity should flip, but can't. We know at this point
+ 		that the current revolt doesn't flip the city; but can it ever flip? */
+ 	if((!canFlip || !canCultureFlip(eCulturalOwner, false)) &&
+-			getNumRevolts(eCulturalOwner) >= GC.getNUM_WARNING_REVOLTS() &&
++			getNumRevolts(eCulturalOwner) > GC.getNUM_WARNING_REVOLTS() &&
+ 			getPopulation() > 1) {
+ 		changePopulation(-1);
+ 		// Says "Citizens have been killed"
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9a511859c..5e6bd6cd9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -445,6 +445,8 @@ void CvPlayerAI::updateCacheData()
+ 		AI_updateAvailableIncome(); // K-Mod
+ 		checkDangerFromSubmarines(); // advc.651
+ 		// <advc.139>
++		if(isBarbarian())
++			return;
+ 		std::vector<double> cityValues; int i;
+ 		for(CvCity* c = firstCity(&i); c != NULL; c = nextCity(&i))
+ 			cityValues.push_back(c->AI_cityValue());
+@@ -10266,9 +10268,10 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer, const CLinkList<TradeDat
+ 					}
+ 				}
+ 			}
+-			/*  advc.001: If human asks for gold, then pGoldNode is NULL here,
++			/*  <advc.001> If human asks for gold, then pGoldNode is NULL here,
+ 				and the AI won't ask e.g. for a tech in exchange */
+-			else if(GET_PLAYER(ePlayer).isHuman()) bAddFinalItem = true;
++			else if(GET_PLAYER(ePlayer).isHuman() && iValueForThem > iValueForUs)
++				bAddFinalItem = true; // </advc.001>
+ 		}
+ 
+ 		if (iValueForThem > iValueForUs)
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 7bb97a3ef..9c1d1dce6 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -2734,8 +2734,8 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
+ 		pUnitNode = nextUnitNode(pUnitNode);
+ 
+ 		if ((eOwner == NO_PLAYER) || (pLoopUnit->getOwnerINLINE() == eOwner))
+-		{
+-			if ((eAttackingPlayer == NO_PLAYER) || !(pLoopUnit->isInvisible(GET_PLAYER(eAttackingPlayer).getTeam(), false)))
++		{	// advc.028: Invisibility handled by CvUnit::isBetterDefenderThan now
++			//if ((eAttackingPlayer == NO_PLAYER) || !(pLoopUnit->isInvisible(GET_PLAYER(eAttackingPlayer).getTeam(), false)))
+ 			{
+ 				if (!bTestAtWar || eAttackingPlayer == NO_PLAYER || pLoopUnit->isEnemy(GET_PLAYER(eAttackingPlayer).getTeam(), this) || (NULL != pAttacker && pAttacker->isEnemy(GET_PLAYER(pLoopUnit->getOwnerINLINE()).getTeam(), this)))
+ 				{
+@@ -2827,7 +2827,7 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding,
+ 	iModifier = GC.getTerrainInfo(getTerrainType()).getDefenseModifier();
+ 	// <advc.012>
+ 	if(getFeatureType() != NO_FEATURE && (eAttacker == NO_TEAM 
+-			|| getTeam() != eAttacker))
++				|| getTeam() != eAttacker))
+ 		iModifier += GC.getFeatureInfo(getFeatureType()).getDefenseModifier();
+ 	// </advc.012>
+ 	if (isHills())
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index cbb0968a7..047dc44be 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1498,7 +1498,7 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 	// K-Mod. Same functionality, but a bit cleaner and a bit faster.
+ 	for (PlayerTypes i = (PlayerTypes)0; i < MAX_PLAYERS; i = (PlayerTypes)(i+1))
+ 	{
+-		const CvPlayerAI& kPlayer_i = GET_PLAYER(i);
++		CvPlayerAI& kPlayer_i = GET_PLAYER(i); // advc.130o: const removed
+ 
+ 		if (!kPlayer_i.isAlive() || kPlayer_i.getTeam() != getID())
+ 			continue;
+@@ -1514,8 +1514,8 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 				continue;
+ 
+ 			// <advc.130o>
+-			if(kPlayer_i.isHuman() && !kPlayer_j.isHuman() && GET_TEAM(eTeam).
+-					AI_getMemoryCount(getID(), MEMORY_MADE_DEMAND) > 0 &&
++			if(bPrimaryDoW && kPlayer_i.isHuman() && !kPlayer_j.isHuman() &&
++					GET_TEAM(eTeam).AI_getMemoryCount(getID(), MEMORY_MADE_DEMAND) > 0 &&
+ 					TEAMREF(j).getMasterTeam() != getMasterTeam() &&
+ 					(kPlayer_j.getTeam() == eTeam ||
+ 					GET_TEAM(eTeam).isHasMet(kPlayer_j.getTeam()))) {
+@@ -1524,8 +1524,11 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 				int delta = GC.getDefineINT("WAR_DESPITE_TRIBUTE_MEMORY");
+ 				delta = std::max(mem, delta) - mem;
+ 				kPlayer_j.AI_changeMemoryCount(i, MEMORY_MADE_DEMAND_RECENT, delta);
++			}
++			if(bPrimaryDoW && i != j) {
++				int mem = kPlayer_i.AI_getMemoryCount(j, MEMORY_MADE_DEMAND);
++				kPlayer_i.AI_changeMemoryCount(j, MEMORY_MADE_DEMAND, -mem);
+ 			} // </advc.130o>
+-
+ 			if (kPlayer_j.getTeam() == eTeam)
+ 			{
+ 				if(bPrimaryDoW) // advc.130y
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index a661fa9cd..dc2ec1258 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2039,17 +2039,39 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
+ 	int iOurDefense;
+ 	int iTheirDefense;
+ 
+-	if (pDefender == NULL)
+-	{
+-		return true;
+-	}
+-
+ 	TeamTypes eAttackerTeam = NO_TEAM;
+ 	if (NULL != pAttacker)
+ 	{
+ 		eAttackerTeam = pAttacker->getTeam();
+ 	}
+ 
++	// <advc.028>
++	bool invisible = (eAttackerTeam != NO_TEAM && isInvisible(eAttackerTeam, false));
++	// Only pick invisible unit as defender once attack is underway ...
++	if(invisible && pAttacker->getAttackPlot() == NULL)
++		return false;
++	/*  and if there is some visible team unit that could get attacked otherwise
++		(better: check if our team has the best visible defender; tbd.): */
++	if(invisible) {
++		bool found = false;
++		CLLNode<IDInfo>* node = plot()->headUnitNode();
++		while(node != NULL) {
++			CvUnit* u = ::getUnit(node->m_data);
++			node = plot()->nextUnitNode(node);
++			if(u->getTeam() == getTeam() && !u->isInvisible(eAttackerTeam, false))
++				found = true;
++		}
++		if(!found)
++			return false;
++	}
++	// Moved down: // </advc.028>
++	if (pDefender == NULL)
++	{
++		return true;
++	}
++	// <advc.028>
++	if(pDefender->getTeam() != getTeam() && invisible)
++		return false; // </advc.028>
+ 	if (canCoexistWithEnemyUnit(eAttackerTeam))
+ 	{
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ca8d3582d..c5abcecad 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -6881,22 +6881,30 @@ void CvUnitAI::AI_attackSeaMove()
+ 			// City under blockade
+ 			// Attacker has low odds since anyAttack checks above passed, try to break if sufficient numbers
+ 
+-			int iAttackers = plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK_SEA, -1, NO_PLAYER, getTeam(), PUF_isGroupHead, -1, -1);
++			int iAttackers = plot()->plotCount(PUF_isUnitAIType, UNITAI_ATTACK_SEA, -1, NO_PLAYER, getTeam());
++			// advc.114a: Why count only group heads? Need to count all attackers!
++					//PUF_isGroupHead, -1, -1);
+ 			int iBlockaders = kOwner.AI_getWaterDanger(plot(), 4);
+-
+-			if( iAttackers > (iBlockaders + 2) )
++			//if( iAttackers > (iBlockaders + 2) )
++			// advc.114a: Replacing the above
++			if(2 * iAttackers >= 3 * iBlockaders && iBlockaders > 0)
+ 			{
+ 				if( iAttackers > GC.getGameINLINE().getSorenRandNum(2*iBlockaders + 1, "AI - Break blockade") )
+ 				{
+ 					// BBAI TODO: Make odds scale by # of blockaders vs number of attackers
+-					/* <advc.114a>: Exactly. If the blockaders aren't outnumbered
+-					   at least 2:1, use 32% as the threshold. In most cases,
+-					   the previous conditions already ensure 2:1, and then
+-					   it's 24%. At 3:1, 4:1 etc., the threshold
+-					   decreases in decrements of 8 all the way to 0
+-					   (attack regardless of individual odds). */
+-					int oddsThresh = 8 * (5 - iAttackers / iBlockaders);
+-					oddsThresh = std::max(oddsThresh, 0);
++					/*  <advc.114a>: Exactly. Attack regardless of odds when
++						outnumbering them 5:1; 1% at 3:1; 22% at 2:1; 33% at 1.5:1.
++						Those are chancy odds, but don't want CvCityAI to build any
++						more (outdated) ships than necessary; they won't have much
++						of a future use. Also, blockading units can't usually heal;
++						not imperative to destroy them in one turn. In fact, damaging
++						them may be enough to drive them off. */
++					double attackerRatio = iAttackers / (double)iBlockaders;
++					int oddsThresh = 0;
++					if(attackerRatio < 5 && attackerRatio >= 3)
++						oddsThresh = 1;
++					if(attackerRatio < 3)
++						oddsThresh = ::round(std::pow(5 - attackerRatio, 2.8));
+ 					if(AI_anyAttack(1, oddsThresh))
+ 					//if (AI_anyAttack(1, 15)) // </advc.114a>
+ 					{
+@@ -11576,9 +11584,8 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, int iFlags)
+ 
+ 
+ 	CvPlot* pPlot = plot();
+-	CvCity* pCity = pPlot->getPlotCity(); // advc.139
+-	if (pCity != NULL && pCity->getOwnerINLINE() == getOwnerINLINE()
+-			&& !pCity->isEvacuating()) // advc.139
++	CvCity* pCity = pPlot->getPlotCity(); // advc.003
++	if (pCity != NULL && pCity->getOwnerINLINE() == getOwnerINLINE())
+ 	{
+ 		int iExtra; // additional defenders needed.
+ 		if (bLeave && !pCity->AI_isDanger())
+@@ -16307,10 +16314,15 @@ bool CvUnitAI::AI_evacuateCity() {
+ 		AI_defensiveCollateral can still happen, but not when the threat ratio is
+ 		this high. */
+ 	if(m_pUnitInfo->getCombat() > 0 && !m_pUnitInfo->isNoDefensiveBonus()) {
+-		/*  This can be below 1 for injured units, but tends to be > 1 depending
+-			on def. modifiers, esp. remaining city defense. */
+-		prEvac = (100.0 * m_pUnitInfo->getCombat()) / currEffectiveStr(plot(), NULL);
+-		prEvac -= ((AI_getUnitAIType() == UNITAI_CITY_DEFENSE) ? 1 : 0.5);
++		if(AI_getUnitAIType() == UNITAI_CITY_DEFENSE)
++			prEvac = 0;
++		else {
++			prEvac = 1.8 - currHitPoints() / (maxHitPoints()+0.001);
++			int defenseMod = fortifyModifier() + plot()->defenseModifier(getTeam(),
++					GC.getGameINLINE().getCurrentEra() > 3) + cityDefenseModifier() +
++					(plot()->isHills() ? hillsDefenseModifier() : 0);
++			prEvac -= defenseMod / 100.0;
++		}
+ 	}
+ 	/*  retreatToCity isn't perfect for this; selects the city based on plot danger.
+ 		Hopefully sufficient most of the time. */
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 961e382f1..9a42a4ea9 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -1720,8 +1720,10 @@ void InvasionGraph::breakCycle(vector<Node*> const& cyc) {
+ 	            continue;
+ 			double baseThreat = ss->getThreat();
+ 			double thr = baseThreat * willingness(nodeMap[*it]->getId(), n.getId());
+-			report.log("Threat set to %d/%d percent (base/modified by willingness)",
+-					::round(100 * baseThreat), ::round(100 * thr));
++			if(std::abs(thr - baseThreat) > 0.005)
++				report.log("Threat set to %d/%d percent (base/modified by willingness)",
++						::round(100 * baseThreat), ::round(100 * thr));
++			else report.log("Threat set to %d percent", ::round(100 * thr));
+ 		    /* Whether power ratios or power values are used, makes no
+ 			   difference in this context. Ratios are convenient b/c there's
+ 			   a function for those anyway. */
+
+[PATCH OMITTED] file=a/manual_0.82.pdf b/manual_0.82.pdf reason=binary/generated-file changedLines=0 bytes=150
+
+[PATCH OMITTED] file=a/manual_0.83.pdf b/manual_0.83.pdf reason=binary/generated-file changedLines=0 bytes=146
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=11 omittedFiles=3 embeddedPatchBytes=14163

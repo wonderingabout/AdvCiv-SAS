@@ -1,0 +1,134 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1806
+# Commit: 7cb60afe142f754db54b2a9afc9d977f00fabae4
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 22f8796a5e910ee9209a1daf236d85a853c1c083
+# Title: Clear extra tile yields when regenerating the map
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+12	19	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLUtilityIFaceBase.h b/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+index 667b14130..7540488bb 100644
+--- a/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+@@ -130,7 +130,10 @@ public:
+ 
+ 	virtual CvWString getMapScriptName() = 0;
+ 	virtual bool getTransferredMap() = 0;
++	/*  advc (comment): Presumably checks if szFileName has a WBSave ending.
++		"Desc" probably refers to the WBSave language. */
+ 	virtual bool isDescFileName(const char * szFileName) = 0;
++	// advc (comment): Might call isDescFileName. Should probably use CvGame::isScenario (advc.052) instead.
+ 	virtual bool isWBMapScript() = 0;
+ 	virtual bool isWBMapNoPlayers() = 0;
+ 	virtual bool pythonMapExists(const char * szMapName) = 0;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 5cb92526c..461683b35 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -369,7 +369,7 @@ void CvGame::regenerateMap()
+ 		m.setRevealedPlots(((TeamTypes)iI), false);
+ 
+ 	gDLL->getEngineIFace()->clearSigns();
+-
++	m_aPlotExtraYields.clear(); // advc.004j
+ 	m.erasePlots();
+ 
+ 	CvMapGenerator::GetInstance().generateRandomMap();
+@@ -413,10 +413,10 @@ void CvGame::regenerateMap()
+ 	// <advc.004j>
+ 	if(bShowDawn)
+ 		showDawnOfMan(); // </advc.004j>
+-	if (NO_PLAYER != getActivePlayer())
++	if (getActivePlayer()!= NO_PLAYER)
+ 	{
+ 		CvPlot* pPlot = GET_PLAYER(getActivePlayer()).getStartingPlot();
+-		if (NULL != pPlot)
++		if (pPlot != NULL)
+ 		{
+ 			//gDLL->getInterfaceIFace()->lookAt(pPlot->getPoint(), CAMERALOOKAT_NORMAL);
+ 			/*  <advc.004j> ^Comment by EmperorFool (from BULL):
+@@ -9672,8 +9672,8 @@ int CvGame::getPlotExtraYield(int iX, int iY, YieldTypes eYield) const
+ void CvGame::setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iExtraYield)
+ {
+ 	bool bFound = false;
+-
+-	for (std::vector<PlotExtraYield>::iterator it = m_aPlotExtraYields.begin(); it != m_aPlotExtraYields.end(); ++it)
++	for (std::vector<PlotExtraYield>::iterator it = m_aPlotExtraYields.begin();
++		it != m_aPlotExtraYields.end(); ++it)
+ 	{
+ 		if (it->m_iX == iX && it->m_iY == iY)
+ 		{
+@@ -9682,7 +9682,6 @@ void CvGame::setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iExtraYiel
+ 			break;
+ 		}
+ 	}
+-
+ 	if (!bFound)
+ 	{
+ 		PlotExtraYield kExtraYield;
+@@ -9691,22 +9690,14 @@ void CvGame::setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iExtraYiel
+ 		for (int i = 0; i < NUM_YIELD_TYPES; ++i)
+ 		{
+ 			if (eYield == i)
+-			{
+ 				kExtraYield.m_aeExtraYield.push_back(iExtraYield);
+-			}
+-			else
+-			{
+-				kExtraYield.m_aeExtraYield.push_back(0);
+-			}
++			else kExtraYield.m_aeExtraYield.push_back(0);
+ 		}
+ 		m_aPlotExtraYields.push_back(kExtraYield);
+ 	}
+-
+ 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
+-	if (NULL != pPlot)
+-	{
++	if (pPlot != NULL)
+ 		pPlot->updateYield();
+-	}
+ }
+ 
+ void CvGame::removePlotExtraYield(int iX, int iY)
+@@ -9721,10 +9712,8 @@ void CvGame::removePlotExtraYield(int iX, int iY)
+ 	}
+ 
+ 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
+-	if (NULL != pPlot)
+-	{
++	if (pPlot != NULL)
+ 		pPlot->updateYield();
+-	}
+ }
+ 
+ int CvGame::getPlotExtraCost(int iX, int iY) const
+@@ -10868,6 +10857,10 @@ bool CvGame::isScenario() const
+ void CvGame::setScenario(bool b)
+ {
+ 	m_bScenario = b;
++	/*  These two apparently check the same thing, but both call the EXE ultimately,
++		so one can't be certain what they check and how long it might take. */
++	FAssert(m_bScenario == gDLL->isWBMapScript());
++	FAssert(m_bScenario == GC.getInitCore().getWBMapScript());
+ } // </advc.052>
+ 
+ // advc.250b:
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3555

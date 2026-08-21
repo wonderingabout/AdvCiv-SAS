@@ -1,0 +1,206 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6126
+# Commit: d24bbb2e55bffb97820d0de32a35b6c8641e25a3
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5f54e562ac775f5055514fe25f6bb0da12b9f8e7
+# Title: Fix Military Advisor leader-button vertical overflow on maps that are low width (e.g. Donut), when alive player count is high (e.g. SAS48 and all players are...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	.gitignore
+10	10	Assets/Python/Screens/CvMilitaryAdvisor.py
+23	15	Assets/XML/Buildings/CIV4BuildingInfos.xml
+
+[PATCHES]
+
+diff --git a/.gitignore b/.gitignore
+index 8846bc835..8e05415cf 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -28,5 +28,6 @@ __pycache__
+ /Logs/
+ /Assets/CvGameCoreDLL_d.dll
+ /LLM_Helpers/outputs/
+-# <!-- custom: current commit's changelog/notes, not needed to be uploaded but useful locally for cumulative change writing or LLM-assistance or such maybe too -->
++# <!-- custom: current commit's changelog/notes, not needed to be uploaded but useful locally for cumulative change writing or LLM-assistance or such maybe too, same for changelog example, only useful as a changelog for release example, not for actual history which other docs give or handle already. -->
+ /changes.md
++/_1_AdvCiv-SAS/Docs/Modding_Ressources/changelog_release_example_6020.txt
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 4f871271e..d506c5808 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -102,7 +102,7 @@ class CvMilitaryAdvisor:
+ 		# <!-- custom: keep the Map tab as the single spatial unit browser. A separate Map 2 tab with different minimap geometry had several tab-switch issues: stale dimensions, blank minimaps, or minimap bleed into other tabs depending on the attempted fix. The stable compromise is to widen the existing unit list and preserve the individual-units toggle. (GPT-5.5) -->
+ 		self.H_LEADERS = 380
+ 		self.LEADER_BUTTON_SIZE = 64
+-		self.LEADER_BUTTON_SIZE_OVERFLOW = self.LEADER_BUTTON_SIZE - 8
++		self.LEADER_BUTTON_SIZE_STEP = 8
+ 		self.LEADER_MARGIN = 12
+ 
+ 		self.bUnitDetails = False
+@@ -406,7 +406,6 @@ class CvMilitaryAdvisor:
+ 		self.X_TEXT = self.X_LEADERS + self.W_MAP_MINIMAP + iGap
+ 		self.W_LEADERS = self.W_MAP_MINIMAP
+ 		self.W_GREAT_GENERAL_BAR = self.W_MAP_MINIMAP
+-		self.LEADER_COLUMNS = max(1, int(self.W_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN)))
+ 
+ 		# <!-- custom: inline icon size is resolution-dependent (vertical room), so compute once in runtime layout and reuse during row rendering. (GPT-5.3-Codex) -->
+ 		self.iInlineIconSize = self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE
+@@ -2305,14 +2304,15 @@ class CvMilitaryAdvisor:
+ 				listLeaders.append(iLoopPlayer)
+ 
+ 		iNumLeaders = len(listLeaders)
+-		# <!-- custom: shrink leader icons only after all full-size rows allowed by H_LEADERS are filled; at 1080p with 5 rows, SAS48 needs only a mild size reduction (roughly 10 columns x 5 rows) rather than the old half-size icon. (GPT-5.5) -->
+-		iFullLeaderRows = max(1, int(self.H_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN)))
+-		if iNumLeaders > iFullLeaderRows * self.LEADER_COLUMNS:
+-			iButtonSize = self.LEADER_BUTTON_SIZE_OVERFLOW
+-		else:
+-			iButtonSize = self.LEADER_BUTTON_SIZE
+-
+-		iColumns = int(self.W_LEADERS / (iButtonSize + self.LEADER_MARGIN))
++		# <!-- custom: choose the largest 8-pixel leader-button size that makes the entire current roster fit inside the leader panel. Square/narrow map aspect ratios can make W_LEADERS much smaller than on ordinary wide maps, so a single fixed overflow size could still exceed H_LEADERS with SAS48; normal layouts keep the preferred 64-pixel size. (ChatGPT-5.6-Sol) -->
++		iButtonSize = self.LEADER_BUTTON_SIZE
++		while iButtonSize > self.LEADER_BUTTON_SIZE_STEP:
++			iColumns = max(1, int(self.W_LEADERS / (iButtonSize + self.LEADER_MARGIN)))
++			iRows = (iNumLeaders + iColumns - 1) / iColumns
++			if iRows * (iButtonSize + self.LEADER_MARGIN) <= self.H_LEADERS:
++				break
++			iButtonSize -= self.LEADER_BUTTON_SIZE_STEP
++		iColumns = max(1, int(self.W_LEADERS / (iButtonSize + self.LEADER_MARGIN)))
+ 
+ 		# loop through all players and display leaderheads
+ 		for iIndex in range(iNumLeaders):
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index a53695228..d5495cda4 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -24001,8 +24001,8 @@
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<!-- custom: was UNITCLASS_GREAT_ENGINEER -->
+-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
++			<!-- custom: Use Great Scientist for the Mathematics-era irrigation/horticultural knowledge represented by the Gardens and to strengthen the scarce early Scientist path; this was originally Great Engineer before the later Artist assignment; was UNITCLASS_GREAT_ENGINEER. (ChatGPT-5.6-Sol) -->
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
+ 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+@@ -24148,7 +24148,11 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>8</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -24600,8 +24604,8 @@
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<!-- custom: seems more consistent with its history, perhaps a bit stronger in terms of gameplay, was UNITCLASS_GREAT_ARTIST -->
+-			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
++			<!-- custom: Use Great Spy as an early state-power/administrative Great Person source and reduce the Classical Prophet concentration; Great Artist was the original assignment before the later Prophet experiment. (ChatGPT-5.6-Sol) -->
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
+ 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+@@ -24740,9 +24744,10 @@
+ 			<!-- custom: was flavor culture 5 growth 4 -->
+ 			<!-- advc.020: No flavor in BtS. Provides a fair amount of culture.
+ 				 GPP is a Culture and Growth thing. -->
++			<!-- custom: Keep Growth 8 as the dominant effect-driven flavor and replace only the small Religion 2 component with Espionage 2 to match the new Great Spy source. (ChatGPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_RELIGION</FlavorType>
++					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+ 					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+@@ -26595,7 +26600,8 @@
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
++			<!-- custom: Use Great Scientist for the Tower's engineering/scientific-experiment and communications history, while reducing the later-game concentration of Artist-producing Wonders (ChatGPT-5.6-Sol); helps rebalance mismatched GP slots late notably high Great Spy by shuffling them and changing thel. -->
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_SCIENTIST</GreatPeopleUnitClass>
+ 			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+@@ -26745,7 +26751,7 @@
+ 					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+ 					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+@@ -27734,7 +27740,8 @@
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>UNITCLASS_GREAT_SPY</GreatPeopleUnitClass>
++			<!-- custom: Use Great Engineer for the Pentagon's large technical/construction identity and reduce the Industrial-era concentration of Great Spy Wonders; keep its Military 10 flavor because its gameplay role remains explicitly military. (ChatGPT-5.6-Sol) -->
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
+ 			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+@@ -28249,8 +28256,8 @@
+ 			<!-- custom: was NONE -->
+ 			<FreePromotion>PROMOTION_MEDIC_AMBULATORY</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<!-- custom: was UNITCLASS_GREAT_MERCHANT -->
+-			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
++			<!-- custom: Restore Great Merchant after the later Great Prophet experiment: the Artemision also had a strong economic/sanctuary role, and this reduces unnecessary early Prophet concentration while strengthening the scarce early Merchant path. (ChatGPT-5.6-Sol) -->
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_MERCHANT</GreatPeopleUnitClass>
+ 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+@@ -28404,7 +28411,7 @@
+ 			<!-- custom: Remove Military 5 with the military-production modifier; the Medic promotion alone should not make military leaders prioritize this wonder over units. Earlier flavors before the wider rework were Gold 8 / Religion 5. (GPT-5.6-Sol) -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_RELIGION</FlavorType>
++					<FlavorType>FLAVOR_GOLD</FlavorType>
+ 					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+@@ -28876,8 +28883,8 @@
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<!-- custom: was UNITCLASS_GREAT_ARTIST -->
+-			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
++			<!-- custom: Restore Great Artist because the Statue is fundamentally a monumental sculptural masterpiece; this also offsets the Hanging Gardens moving away from Artist without creating another early Engineer source. (ChatGPT-5.6-Sol) -->
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_ARTIST</GreatPeopleUnitClass>
+ 			<iGreatPeopleRateChange>2</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+ 			<bBorderObstacle>0</bBorderObstacle>
+@@ -29667,7 +29674,8 @@
+ 			<FreeBuilding>NONE</FreeBuilding>
+ 			<FreePromotion>NONE</FreePromotion>
+ 			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>UNITCLASS_GREAT_PROPHET</GreatPeopleUnitClass>
++			<!-- custom: Use Great Engineer for the quarrying, transport and erection of the monumental statues, matching the Wonder's strong Production identity while removing another nonessential Prophet source. (ChatGPT-5.6-Sol) -->
++			<GreatPeopleUnitClass>UNITCLASS_GREAT_ENGINEER</GreatPeopleUnitClass>
+ 			<!-- custom: now a world wonder, increase effect..., was 1 -->
+ 			<iGreatPeopleRateChange>3</iGreatPeopleRateChange>
+ 			<iHurryAngerModifier>0</iHurryAngerModifier>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=10682

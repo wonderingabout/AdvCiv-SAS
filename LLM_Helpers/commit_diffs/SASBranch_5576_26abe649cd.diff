@@ -1,0 +1,212 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5576
+# Commit: 26abe649cd73947be350116cac7869c65e681d29
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 22bd4581e66e8c9de7a198c2b5190ba53690560d
+# Title: adjust commerce sliders in map view too - upscale era text in main interface - make era text default on - move city arrows to the left in city screen so they...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/Config/Not Just Another Game Clock.xml
+29	11	Assets/Python/Screens/CvMainInterface.py
+13	3	Assets/XML/GlobalDefines_advciv_sas.xml
+2	2	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Config/Not Just Another Game Clock.xml b/Assets/Config/Not Just Another Game Clock.xml
+index fab6d27f9..e6bdc7464 100644
+--- a/Assets/Config/Not Just Another Game Clock.xml	
++++ b/Assets/Config/Not Just Another Game Clock.xml	
+@@ -19,8 +19,9 @@
+ 					get="isEnabled" set="setEnabled" dirtyBit="GameData" 
+ 					label="Enable NJAGC" 
+ 					help="When checked, the game clock is displayed using TheLopez's NJAGC mod."/>
++			<!-- custom: default changed from False to True so era text is shown by default in this mod. (GPT-5.3-Codex) -->
+ 			<option id="ShowEra" key="Show Era" 
+-					type="boolean" default="False" 
++					type="boolean" default="True" 
+ 					get="isShowEra" set="setShowEra" dirtyBit="GameData" 
+ 					label="Display Era" 
+ 					help="When checked, the current era is displayed to the left of the research bar."/>
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 0f6ab593e..35bf31fa3 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -665,6 +665,7 @@ class CvMainInterface:
+ 		self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = None
+ 		# <!-- custom: optional top-left flag and left-side text spacing shift (e.g. treasury) for the main interface. (GPT-5.3-Codex (summarized)) -->
+ 		self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = None
++		self.bSASLastCommerceRectsCityScreen = None
+ 
+ 
+ 
+@@ -740,11 +741,11 @@ class CvMainInterface:
+ 		self.buildFilterAllBuildingsOff = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
+ 		self.buildFilterRegularBuildingsOn = ArtFileMgr.getInterfaceArtInfo("OVERLAY_ACTION_BUILD").getPath()
+ 		self.buildFilterRegularBuildingsOff = ArtFileMgr.getInterfaceArtInfo("OVERLAY_ACTION_BUILD").getPath()
+-		self.buildFilterNatWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_ON").getPath()
++		self.buildFilterNatWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_OFF").getPath()
+ 		self.buildFilterNatWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_OFF").getPath()
+-		self.buildFilterWorldWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_ON").getPath()
++		self.buildFilterWorldWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
+ 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
+-		# self.buildFilterProjectOn = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_ON").getPath()
++		# self.buildFilterProjectOn = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
+ 		# self.buildFilterProjectOff = ArtFileMgr.getInterfaceArtInfo("BUG_PROJECT_OFF").getPath()
+ 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
+ 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
+@@ -969,7 +970,7 @@ class CvMainInterface:
+ 		iLeftTopTextX = (gRect("TurnLogButton").x() * 2) / 3
+ 		bTopLeftFlagAndLeftSideTextShift = self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT
+ 		if bTopLeftFlagAndLeftSideTextShift is None:
+-			bTopLeftFlagAndLeftSideTextShift = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
++			bTopLeftFlagAndLeftSideTextShift = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT") > 0)
+ 		if bTopLeftFlagAndLeftSideTextShift:
+ 			# <!-- custom: when this define is off, no flag is drawn here, so the left text (e.g. treasury) keeps its base position (no extra room needed). (GPT-5.3-Codex) -->
+ 			iLeftTopTextX += HSPACE(18)
+@@ -979,6 +980,7 @@ class CvMainInterface:
+ 		gOffSetPoint("GoldText", "TopRightButtons",
+ 				-HSPACE(1), (4 * 24) / gRect("TopRightButtons").height())
+ 		self.setCommerceAdjustRects()
++		self.bSASLastCommerceRectsCityScreen = CyInterface().isCityScreenUp()
+ 
+ 		gSetPoint("EndTurnText", PointLayout(0, # (gets centered through text alignment)
+ 				max(
+@@ -1429,7 +1431,12 @@ class CvMainInterface:
+ 		iHSpacing = HSPACE(0)
+ 		iRowH = iBtnSize + iVSpacing
+ 		iColumnW = iBtnSize + iHSpacing
+-		iPercentTextX = gRect("InterfaceTopRight").x() + HSPACE(120)
++		if CyInterface().isCityScreenUp():
++			iRightCommerceBlockXOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET")
++		else:
++			iRightCommerceBlockXOffset = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET")
++		iPercentTextX = (gRect("InterfaceTopRight").x() +
++				HSPACE(iRightCommerceBlockXOffset))
+ 		iCommerceRowsTopOffset = VSPACE(12)
+ 		for i in range(iMaxRows):
+ 			gSetPoint("PercentText" + str(i), PointLayout(
+@@ -1609,7 +1616,7 @@ class CvMainInterface:
+ 		iCityArrowBtnSz = BTNSZ(32)
+ 		iCityArrowSpacing = HSPACE(-12)
+ 		iCityArrowRowW = 2 * iCityArrowBtnSz + iCityArrowSpacing
+-		iCityArrowRowX = gRect("CityTaskBtns").x() - iCityArrowRowW - HSPACE(2) + HSPACE(3)
++		iCityArrowRowX = gRect("CityTaskBtns").x() - iCityArrowRowW - HSPACE(6)
+ 		iCityArrowRowY = gRect("CityTaskBtns").y() - VSPACE(4)
+ 		gSetRect("CityScrollButtons", "Top",
+ 				iCityArrowRowX, iCityArrowRowY,
+@@ -1934,7 +1941,7 @@ class CvMainInterface:
+ 		if self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON is None:
+ 			self.IS_SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_UNIT_INFO_BUTTON") > 0)
+ 		if self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT is None:
+-			self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT") > 0)
++			self.IS_SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT") > 0)
+ 		lTop = gRect("Top")
+ 
+ 		self.setDefaultHelpTextArea()
+@@ -2557,7 +2564,13 @@ class CvMainInterface:
+ 		# City screen: show more build rows in production chooser
+ 		if self.iBarExtraRows > 0:
+ 			if CyInterface().isCityScreenUp():
+-				iTMargin += - (self.iBarExtraRows * iButtonSize) + self.iBarExtraRowsExtraManualAdjust # extend upward; keep bottom aligned
++				iManualAdjust = self.iBarExtraRowsExtraManualAdjust
++				# <!-- custom: scale manual pixel tweak across resolutions; keep sign, but scale magnitude like regular vertical spacing. (GPT-5.3-Codex) -->
++				if iManualAdjust < 0:
++					iManualAdjust = -VSPACE(-iManualAdjust)
++				else:
++					iManualAdjust = VSPACE(iManualAdjust)
++				iTMargin += - (self.iBarExtraRows * iButtonSize) + iManualAdjust # extend upward; keep bottom aligned
+ 		# End - City screen: show more build rows in production chooser
+ 
+ # BUG - Build/Action Icon Size - end
+@@ -3106,8 +3119,13 @@ class CvMainInterface:
+ 
+ 	def updateMiscButtons(self):
+ 		screen = self.screen
+-		self._applyCityScreenSideLift(CyInterface().isCityScreenUp())
+-		self._applyMapViewRightPanelNarrow(not CyInterface().isCityScreenUp())
++		bCityScreen = CyInterface().isCityScreenUp()
++		self._applyCityScreenSideLift(bCityScreen)
++		self._applyMapViewRightPanelNarrow(not bCityScreen)
++		if self.bSASLastCommerceRectsCityScreen is None or self.bSASLastCommerceRectsCityScreen != bCityScreen:
++			self.setCommerceAdjustRects()
++			self.bSASLastCommerceRectsCityScreen = bCityScreen
++			CyInterface().setDirty(InterfaceDirtyBits.PercentButtons_DIRTY_BIT, True)
+ # BUG - Great Person Bar - start
+ 		if (CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and
+ 				CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_MINIMAP_ONLY and
+@@ -4825,7 +4843,7 @@ class CvMainInterface:
+ 				iEraColor = ClockOpt.getEraColor(gc.getEraInfo(iEra).getType())
+ 				if iEraColor >= 0:
+ 					szText = localText.changeTextColor(szText, iEraColor)
+-			self.setLabel("EraText", "Background", szText,
++			self.setLabel("EraText", "Background", SAS_FONT_TAG_LABEL + szText + SAS_FONT_TAG_CLOSE,
+ 					CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3)
+ 			screen.show("EraText")
+ # BUG - NJAGC - end
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index e0945ec45..3df264223 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -412,10 +412,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS</DefineName>
+ 		<iDefineIntVal>2</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: extra adjustment (note: inactive if the above is set to 0 or a lower value, and allows pixel per pixel precise positioning of the things to build bar). Adjust as you see fit or leave as is if fine for you -->
++	<!-- custom: extra vertical adjustment for the city-screen things-to-build bar (inactive if SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS <= 0). Value is resolution-scaled and sign-preserving: < 0 moves the bar up, > 0 moves it down, 0 keeps base placement. Adjust as you see fit. (GPT-5.3-Codex (summarized)) -->
+ 	<Define>
+ 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST</DefineName>
+-		<iDefineIntVal>-17</iDefineIntVal>
++		<iDefineIntVal>-15</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: hide the unit bar ("PlotListPanel") (not needed and partially hidden by the production chooser's extra rows), with the help of ChatGPT-5.2 Thinking thanks -->
+ 	<Define>
+@@ -434,9 +434,19 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: enable compact top-left civ flag (hover/click) and matching left-text spacing shift (e.g. treasury); set to 0 to hide the flag and keep left text at base position. (GPT-5.3-Codex (summarized)) -->
+ 	<Define>
+-		<DefineName>SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_TREASURY_SHIFT</DefineName>
++		<DefineName>SAS_CV_MAIN_INTERFACE_TOP_LEFT_FLAG_AND_LEFT_SIDE_TEXT_SHIFT</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
++	<!-- custom: horizontal offset for the right-side commerce block anchor on the main interface (percent labels, slider buttons, and per-turn text) (GPT-5.3-Codex). Change this value to move more to the left or to the right the whole commerce slider group (e.g. science char 100% + - buttons (+225/Turn) for the first row). For example a value of -1500 moves the commerce sliders group back to left-side position -->
++	<Define>
++		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_X_OFFSET</DefineName>
++		<iDefineIntVal>120</iDefineIntVal>
++	</Define>
++	<!-- custom: horizontal offset for the same commerce block while city screen is open; lets map view and city screen use separate positions. (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_CV_MAIN_INTERFACE_RIGHT_COMMERCE_BLOCK_CITY_SCREEN_X_OFFSET</DefineName>
++		<iDefineIntVal>-1510</iDefineIntVal>
++	</Define>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 1206d1bac..85a6a1390 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -330,9 +330,9 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+-- **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**. See [Main interface rework](/README.md#main-interface-rework).
++- **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls). Make **Era text default ON** (as of now on top left). See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). And other changes. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+-- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**. (Requires AdvCiv-SAS 5514+) Optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls).
++- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**.
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#customizable-technology-advisor-width).
+ - **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=17606

@@ -1,0 +1,202 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6043
+# Commit: fbdef73e56e745f9d4edbe8af442ebbbf1e77d45
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 701f2bf4941eb53293c97bd454bb32d39c6743b6
+# Title: Fix Base AdvCiv active-World-Wonder exemption blocking unsustainable faraway captured-city razes (KI#186.2) - also confirmed increasing farway distance toler...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+7	1	Assets/XML/GlobalDefines_advciv_sas.xml
+13	6	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.h
+24	3	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index bbff145a1..126477aeb 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -758,7 +758,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: Tunable thresholds for whether an acquired city is likely to benefit its recipient long-term.
+ 	Intrinsic site quality fails only when both the very-bad-plot and net-low-food limits are exceeded.
+ 	On the same land area, excessive distance from our nearest city fails regardless of intrinsic quality because defending the outpost can exhaust units before a nearer rival captures its developed city and plots. Razing instead makes that rival spend its own Settler, development time, and defensive resources.
+-	The conquest caller force-razes a failing city subject to its exclusions, and the city-trade logic rejects transferring one to an AI recipient. Component logs keep the thresholds reviewable in autoplay tests. See KI#186. (GPT-5.6-Sol) -->
++	The conquest caller excludes Barbarians, holy cities, and previously owned cities before force-razing a failing city. Active World Wonders can protect intrinsic quality while a separate default-enabled option still applies the distance limit. The city-trade logic rejects transferring a failing city to an AI recipient. Component logs keep the thresholds reviewable in autoplay tests. See KI#186 and KI#186.2. (GPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_CITY_LONG_TERM_MAX_VERY_BAD_BFC_PLOTS</DefineName>
+ 		<iDefineIntVal>8</iDefineIntVal>
+@@ -767,10 +767,16 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_CITY_LONG_TERM_MAX_LOW_FOOD_SCORE</DefineName>
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Keep the default at 8. In save-file 453, population-17 Cordoba at distance 9 initially looked close enough to serve as a conquest bridgehead, but an A/B retest at 9 made Inca keep it and lose 10 advanced units across two immediate Ottoman captures, after which the Ottomans returned the developed city to Spain. A higher limit can therefore recreate the remote-city trap by splitting the army to defend an exposed capture. See KI#186.2. (GPT-5.6-Sol) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_CITY_LONG_TERM_MAX_NEAREST_OWN_CITY_DISTANCE_SAME_AREA</DefineName>
+ 		<iDefineIntVal>8</iDefineIntVal>
+ 	</Define>
++	<!-- custom: When enabled, an active World Wonder keeps Base AdvCiv's intrinsic-site protection but no longer bypasses the same-area distance limit. England otherwise kept remote Elephantine for its Eiffel Tower, committed 15 defenders, lost at least 7 there, and lost the city after 6 turns. Default enabled because permanently denying the Wonder is stronger than exhausting units to preserve it briefly for a nearer rival. See KI#186.2. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_AI_CITY_LONG_TERM_DISTANCE_OVERRIDE_ACTIVE_WORLD_WONDER_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Long_Comments_XML.txt #207 -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_BASE_VALUE_NOT_HOME_VERY_BAD_TILE_START</DefineName>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 3025f4681..3ce566902 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1860,15 +1860,18 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
+ 	}  // <advc.ctr>
+ 	// <!-- custom: store it once to avoid reuse -->
+ 	const bool bBarbarian = isBarbarian();
+-	// <!-- custom: Base AdvCiv's AI_isAwfulSite conquest override duplicated Settler-site evaluation with a cruder absolute veto. Replace it with the positive SAS long-term-benefit evaluation: force-raze cities unlikely to benefit us, while the broader normal raze valuation below still decides among the remaining cities. See KI#186. (GPT-5.6-Sol) -->
+-	if (!bBarbarian && !kCity.isHolyCity() && !bEverOwned && !kCity.hasActiveWorldWonder())
++	// <!-- custom: Base AdvCiv's AI_isAwfulSite conquest override duplicated Settler-site evaluation with a cruder absolute veto. Replace it with the positive SAS long-term-benefit evaluation: force-raze cities unlikely to benefit us, while the broader normal raze valuation below still decides among the remaining cities.
++	// Base AdvCiv's active-World-Wonder exemption protected the city from this force-raze gate. Keep that intrinsic-site protection, but let the default-enabled XML option make excessive same-area distance override it. England otherwise kept remote Elephantine for its Eiffel Tower, committed 15 defenders, lost at least 7 there, and lost the city after 6 turns. See KI#186.2. (GPT-5.6-Sol) -->
++	static bool const bDistanceOverrideActiveWorldWonder = GC.getDefineBOOL("SAS_AI_CITY_LONG_TERM_DISTANCE_OVERRIDE_ACTIVE_WORLD_WONDER_ENABLE");
++	bool const bActiveWorldWonder = kCity.hasActiveWorldWonder();
++	if (!bBarbarian && !kCity.isHolyCity() && !bEverOwned && (!bActiveWorldWonder || bDistanceOverrideActiveWorldWonder))
+ 	{
+ 		// bool const bShouldRazeBadCityLongTerm = AI_isAwfulSite(kCity, true)
+ 		bool const bShouldRazeBadCityLongTerm = !AI_isSASCityLikelyToBenefitUsLongTerm(kCity);
+ 		if (bShouldRazeBadCityLongTerm)
+ 		{
+ 			bRaze = true;
+-			if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_UNLIKELY_LONG_TERM_BENEFIT population=%d closeness=%d nearestOwnCityDistance=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, iNearestOwnCityDistance);
++			if (bLogRazeDecision) logBBAI("RAZE_FORCED_REASON turn=%d player=%d city=%S reason=SAS_UNLIKELY_LONG_TERM_BENEFIT population=%d closeness=%d nearestOwnCityDistance=%d activeWorldWonder=%d distanceOverrideActiveWorldWonder=%d", kGame.getGameTurn(), getID(), kCity.getName().GetCString(), kCity.getPopulation(), iCloseness, iNearestOwnCityDistance, bActiveWorldWonder, bDistanceOverrideActiveWorldWonder);
+ 		}
+ 	} // </advc.ctr>
+ 	// <!-- custom: we have an issue of AI not razing a bit or too far cities especially early, usually barbarian cities, that are detrimental to capture rather than simply raze. Make sure we always raze cities in such cases rather than keeping/capturing them, see known issue as of now 64 for details; also code provided by chatgpt 5, check if accurate -->
+@@ -30557,11 +30560,13 @@ bool CvPlayerAI::AI_isSASCityLikelyToBenefitUsLongTerm(CvCity const& kCity) cons
+ 	// Overlap and culture pressure are measured but do not erase intrinsic plot value.
+ 	// A same-area city beyond the tunable distance limit fails regardless of intrinsic quality because defending it can exhaust our units before a nearer rival captures the developed city.
+ 	// Razing makes that rival pay to settle and develop the site.
++	// The default-enabled World-Wonder option protects intrinsic quality but not excessive distance.
+ 	// Keep the thresholds XML-tunable and log both component results so later autoplay evidence can refine them. See KI#186. (GPT-5.6-Sol) -->
+ 	static int const iMinPotentialYieldScore = GC.getDefineINT("SAS_EVALUATE_MIN_ACCEPTABLE_NOT_HOME_PLOT_POTENTIAL_YIELD_SCORE");
+ 	static int const iMaxVeryBadPlots = GC.getDefineINT("SAS_AI_CITY_LONG_TERM_MAX_VERY_BAD_BFC_PLOTS");
+ 	static int const iMaxLowFoodScore = GC.getDefineINT("SAS_AI_CITY_LONG_TERM_MAX_LOW_FOOD_SCORE");
+ 	static int const iMaxNearestOwnCityDistanceSameArea = GC.getDefineINT("SAS_AI_CITY_LONG_TERM_MAX_NEAREST_OWN_CITY_DISTANCE_SAME_AREA");
++	static bool const bDistanceOverrideActiveWorldWonder = GC.getDefineBOOL("SAS_AI_CITY_LONG_TERM_DISTANCE_OVERRIDE_ACTIVE_WORLD_WONDER_ENABLE");
+ 	static int const iMinWaterSizeForOcean = GC.getDefineINT(CvGlobals::MIN_WATER_SIZE_FOR_OCEAN);
+ 	bool const bOceanCoastal = kCity.plot()->isCoastalLand(iMinWaterSizeForOcean);
+ 	int const iAssumedSeaPlotFoodChange = (bOceanCoastal ? CvPlot::SAS_getWaterFoodBuildingSeaPlotFoodChange(getID()) : 0);
+@@ -30608,13 +30613,15 @@ bool CvPlayerAI::AI_isSASCityLikelyToBenefitUsLongTerm(CvCity const& kCity) cons
+ 			}
+ 		}
+ 	}
+-	bool const bIntrinsicSiteLikelyToBenefit = !(iVeryBadPlots > iMaxVeryBadPlots && iLowFoodScore > iMaxLowFoodScore);
++	bool const bRawIntrinsicSiteLikelyToBenefit = !(iVeryBadPlots > iMaxVeryBadPlots && iLowFoodScore > iMaxLowFoodScore);
++	bool const bIntrinsicSiteProtectedByActiveWorldWonder = (bDistanceOverrideActiveWorldWonder && kCity.hasActiveWorldWonder());
++	bool const bIntrinsicSiteLikelyToBenefit = (bRawIntrinsicSiteLikelyToBenefit || bIntrinsicSiteProtectedByActiveWorldWonder);
+ 	CvCity const* pNearestOwnCitySameArea = GC.getMap().findCity(kCity.getX(), kCity.getY(), getID(), NO_TEAM, true, false, NO_TEAM, NO_DIRECTION, &kCity);
+ 	int const iNearestOwnCityDistanceSameArea = (pNearestOwnCitySameArea == NULL ? -1 : plotDistance(kCity.getX(), kCity.getY(), pNearestOwnCitySameArea->getX(), pNearestOwnCitySameArea->getY()));
+ 	bool const bSameAreaDistanceLikelyToBenefit = (pNearestOwnCitySameArea == NULL || iMaxNearestOwnCityDistanceSameArea <= 0 || iNearestOwnCityDistanceSameArea <= iMaxNearestOwnCityDistanceSameArea);
+ 	bool const bLikelyToBenefitUsLongTerm = (bIntrinsicSiteLikelyToBenefit && bSameAreaDistanceLikelyToBenefit);
+-	if (bLogLongTermCityEval) logBBAI("RAZE_LONG_TERM_CITY_EVAL turn=%d player=%d city=%S likelyToBenefit=%d intrinsicSiteLikelyToBenefit=%d sameAreaDistanceLikelyToBenefit=%d population=%d veryBadPlots=%d maxVeryBadPlots=%d lowFoodScore=%d maxLowFoodScore=%d foodSurplusPlots=%d foodDeficitPlots=%d bonusPlots=%d overlapPlots=%d impassablePlots=%d thirdPartyCulturePlots=%d thirdPartyCulturePercentSum=%d featureHealthPercent=%d assumedSeaPlotFoodChange=%d nearestOwnCitySameArea=%S nearestOwnCityDistanceSameArea=%d maxNearestOwnCityDistanceSameArea=%d",
+-		GC.getGame().getGameTurn(), getID(), kCity.getName().GetCString(), bLikelyToBenefitUsLongTerm, bIntrinsicSiteLikelyToBenefit, bSameAreaDistanceLikelyToBenefit, kCity.getPopulation(), iVeryBadPlots, iMaxVeryBadPlots, iLowFoodScore, iMaxLowFoodScore, iFoodSurplusPlots, iFoodDeficitPlots, iBonusPlots, iOverlapPlots, iImpassablePlots, iThirdPartyCulturePlots, iThirdPartyCulturePercentSum, iFeatureHealthPercent, iAssumedSeaPlotFoodChange, (pNearestOwnCitySameArea == NULL ? L"-" : pNearestOwnCitySameArea->getName().GetCString()), iNearestOwnCityDistanceSameArea, iMaxNearestOwnCityDistanceSameArea);
++	if (bLogLongTermCityEval) logBBAI("RAZE_LONG_TERM_CITY_EVAL turn=%d player=%d city=%S likelyToBenefit=%d intrinsicSiteLikelyToBenefit=%d rawIntrinsicSiteLikelyToBenefit=%d intrinsicSiteProtectedByActiveWorldWonder=%d sameAreaDistanceLikelyToBenefit=%d population=%d veryBadPlots=%d maxVeryBadPlots=%d lowFoodScore=%d maxLowFoodScore=%d foodSurplusPlots=%d foodDeficitPlots=%d bonusPlots=%d overlapPlots=%d impassablePlots=%d thirdPartyCulturePlots=%d thirdPartyCulturePercentSum=%d featureHealthPercent=%d assumedSeaPlotFoodChange=%d nearestOwnCitySameArea=%S nearestOwnCityDistanceSameArea=%d maxNearestOwnCityDistanceSameArea=%d",
++		GC.getGame().getGameTurn(), getID(), kCity.getName().GetCString(), bLikelyToBenefitUsLongTerm, bIntrinsicSiteLikelyToBenefit, bRawIntrinsicSiteLikelyToBenefit, bIntrinsicSiteProtectedByActiveWorldWonder, bSameAreaDistanceLikelyToBenefit, kCity.getPopulation(), iVeryBadPlots, iMaxVeryBadPlots, iLowFoodScore, iMaxLowFoodScore, iFoodSurplusPlots, iFoodDeficitPlots, iBonusPlots, iOverlapPlots, iImpassablePlots, iThirdPartyCulturePlots, iThirdPartyCulturePercentSum, iFeatureHealthPercent, iAssumedSeaPlotFoodChange, (pNearestOwnCitySameArea == NULL ? L"-" : pNearestOwnCitySameArea->getName().GetCString()), iNearestOwnCityDistanceSameArea, iMaxNearestOwnCityDistanceSameArea);
+ 	return bLikelyToBenefitUsLongTerm;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 60a901794..0dc388445 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -539,7 +539,7 @@ public:
+ 	CvPlot& AI_getCitySite(int iIndex) const;
+ 	// advc.117, advc.121:
+ 	bool AI_isAdjacentCitySite(CvPlot const& p, bool bCheckCenter) const;
+-	// <!-- custom: Replace Base AdvCiv's negative terrain-veto predicate with a positive SAS evaluation of intrinsic city-site quality and sustainable same-area distance. See KI#186. (GPT-5.6-Sol) -->
++	// <!-- custom: Replace Base AdvCiv's negative terrain-veto predicate with a positive SAS evaluation of intrinsic city-site quality and sustainable same-area distance; active World Wonders can protect intrinsic quality without bypassing excessive distance. See KI#186 and KI#186.2. (GPT-5.6-Sol) -->
+ 	// bool AI_isAwfulSite(CvCity const& kCity, bool bConquest = false) const; // advc.ctr
+ 	bool AI_isSASCityLikelyToBenefitUsLongTerm(CvCity const& kCity) const;
+ 	bool AI_deduceCitySite(CvCity const& pCity) const; // K-Mod
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index ba59f34c0..16ab95142 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -226,6 +226,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [184.2 - (Fixed/Improved) UWAI Space victory-denial could still start too late when stage-3 Space leaders already had many spaceship parts before countdown](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1842---fixedimproved-uwai-space-victory-denial-could-still-start-too-late-when-stage-3-space-leaders-already-had-many-spaceship-parts-before-countdown)\
+ [185 - (Fixed/Improved) Base AdvCiv issue: post-capital AI Settlers could ignore promising fogged nearby city-site alternatives and then follow stale cached targets after scouting](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#185---fixedimproved-base-advciv-issue-post-capital-ai-settlers-could-ignore-promising-fogged-nearby-city-site-alternatives-and-then-follow-stale-cached-targets-after-scouting)\
+ [186 - (Fixed/Improved) Base AdvCiv `AI_isAwfulSite` could cause economically wasteful captured-city raze/resettle cycles and destroy valuable population and buildings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#186---fixedimproved-base-advciv-ai_isawfulsite-could-cause-economically-wasteful-captured-city-razeresettle-cycles-and-destroy-valuable-population-and-buildings)\
++[186.2 - (Fixed/Improved) Base AdvCiv active-World-Wonder exemption could make the AI retain remote captured cities, exhaust defenders, and return the preserved Wonder to a nearer rival](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1862---fixedimproved-base-advciv-active-world-wonder-exemption-could-make-the-ai-retain-remote-captured-cities-exhaust-defenders-and-return-the-preserved-wonder-to-a-nearer-rival)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -6930,9 +6931,9 @@ The old function has been disabled and retained in comments for Base AdvCiv refe
+ - A site fails intrinsic quality only when it exceeds both the tunable very-bad-BFC-plot limit and the tunable net-low-food limit. This lets strong food sources such as Flood Plains and improved bonuses support otherwise weak plots.
+ - On the same land area, a city beyond the tunable distance from the recipient's nearest city fails regardless of intrinsic quality. This represents the defensive and economic risk of an isolated developed outpost. If the recipient has no city on that land area, this specific distance gate does not decide the result; broader colony and captured-city logic still applies.
+ - Overlap, culture pressure, feature health, bonuses, and food-surplus/deficit plot counts remain logged for evidence, but culture pressure and overlap are not hard intrinsic blockers.
+-- The conquest caller still excludes Barbarians, holy cities, cities the player previously owned, and cities with active World Wonders before running this evaluation. Normal captured-city valuation still decides among cities that pass. The city-trade path then continues to `AI_cityTradeVal` for the developed city's broader acquisition value.
++- The conquest caller still excludes Barbarians, holy cities, and cities the player previously owned before running this evaluation. Normal captured-city valuation still decides among cities that pass. The city-trade path then continues to `AI_cityTradeVal` for the developed city's broader acquisition value. The active-World-Wonder follow-up is documented separately in KI#186.2.
+ 
+-The thresholds are XML-tunable through `SAS_AI_CITY_LONG_TERM_MAX_VERY_BAD_BFC_PLOTS`, `SAS_AI_CITY_LONG_TERM_MAX_LOW_FOOD_SCORE`, and `SAS_AI_CITY_LONG_TERM_MAX_NEAREST_OWN_CITY_DISTANCE_SAME_AREA`. `RAZE_LONG_TERM_CITY_EVAL` logs both component results, and `RAZE_FORCED_REASON reason=SAS_UNLIKELY_LONG_TERM_BENEFIT` identifies conquests where this replacement actually forced the raze. This complements KI#64's earlier early-game remote-city protection: KI#64 addresses especially costly early expansion, while this predicate evaluates long-term site quality and same-area distance at any era, subject to the conquest exclusions.
++The thresholds are XML-tunable through `SAS_AI_CITY_LONG_TERM_MAX_VERY_BAD_BFC_PLOTS`, `SAS_AI_CITY_LONG_TERM_MAX_LOW_FOOD_SCORE`, and `SAS_AI_CITY_LONG_TERM_MAX_NEAREST_OWN_CITY_DISTANCE_SAME_AREA`; KI#186.2 covers the separate World-Wonder option. `RAZE_LONG_TERM_CITY_EVAL` logs the raw and protected intrinsic results plus the distance result, and `RAZE_FORCED_REASON reason=SAS_UNLIKELY_LONG_TERM_BENEFIT` identifies conquests where this replacement actually forced the raze. This complements KI#64's earlier early-game remote-city protection: KI#64 addresses especially costly early expansion, while this predicate evaluates long-term site quality and same-area distance at any era, subject to the conquest exclusions.
+ 
+ The first therapeutic retest in `BBAI_20260715T161347Z_load1.log` and `SASGameSummary_20260715T161347Z_load1.log` fixed the exact `(38,50)` failure. HRE captured Ur at turn 130 with population 3. The new evaluation reported `veryBadPlots=8`, `lowFoodScore=23`, and `intrinsicSiteLikelyToBenefit=1`: eight very bad plots were permitted by the configured maximum, so the site was not rejected merely because its low-food score exceeded the other limit. HRE kept Ur. It subsequently reached population 13, built `BUILDING_CORPORATION_5`, generated a Great Engineer, and still had population 11 at turn 300. This confirmed that the formerly razed site could produce durable value when allowed to grow.
+ 
+@@ -6942,6 +6943,26 @@ The same run's new distance razes also looked strategically justified:
+ - Yue-Chi was razed at same-area distance 17 on turn 180, and nobody founded within three plots through turn 300.
+ - Orleans was razed at same-area distance 10 on turn 257 despite population 13, but France had lost it to Maya on turn 254 and Maya lost it to Persia only three turns later. Persia owned only the city-center plot, all 20 surrounding plots had third-party culture, and nobody founded within three plots during the remaining 43 turns. The history supported the conclusion that this developed city was exposed and unlikely to provide Persia durable value.
+ 
+-No city in this first retest failed intrinsic quality alone. Ur was the closest boundary case, and its later success supports keeping the strict combined threshold rather than reviving a broad terrain veto. Further autoplay logs can still refine the XML values, but the observed repeated raze/resettle waste was fixed and the new forced razes did not recreate it.
++The next run in `BBAI_20260715T195321Z_load1.log` and `SASGameSummary_20260715T195321Z_load1.log` reinforced the intrinsic-versus-distance split. Egypt kept Lakamha at same-area distance 4, grew it from population 7 to 17, built the Forbidden Palace and a spaceship part, and generated a Great Person; distant England later razed it at distance 13. Japan kept Giza at distance 4, while England later razed it at distance 11 after repeated conquests. Korea razed population-18 Walata at distance 22. Conversely, Egypt kept isolated Scythian because it had no existing Egyptian city on that land area; it grew from population 5 to 7, confirming that the same-area gate does not automatically reject an overseas foothold.
++
++No city in either retest failed intrinsic quality alone. Ur was the closest boundary case, and its later success supports keeping the strict combined threshold rather than reviving a broad terrain veto. Further autoplay logs can still refine the XML values, but the observed repeated raze/resettle waste was fixed and the new forced razes did not recreate it.
++
++Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
++
++## 186.2 - (Fixed/Improved) Base AdvCiv active-World-Wonder exemption could make the AI retain remote captured cities, exhaust defenders, and return the preserved Wonder to a nearer rival
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1tiU9J53BJqL92RBCBZ0oIv9uM4zyA6Tv?usp=sharing).
++
++This exemption came from Base AdvCiv, not AdvCiv-SAS. Its conquest condition, introduced under `advc.122` and later kept under `advc.ctr`, required `!kCity.hasActiveWorldWonder() && AI_isAwfulSite(kCity, true)` before the awful-site gate could force a raze. It was authored by f1rpo in Base AdvCiv history years before the AdvCiv-SAS changes. The KI#186 replacement for `AI_isAwfulSite` initially preserved that inherited active-World-Wonder exemption for the new long-term city evaluation. This could make the Wonder dominate the decision even when the captured city was too far away to defend durably. Briefly keeping the Wonder was not useful if a nearer rival could recapture the developed city after our army had been weakened there.
++
++BBAI testing in `BBAI_20260715T195321Z_load1.log` / `SASGameSummary_20260715T195321Z_load1.log` reproduced that failure with England's capture of population-18 Elephantine at distance 15. Its active Eiffel Tower prevented the long-term evaluation. England committed 15 defenders there by turn 230; Egypt killed at least 7 logged English defenders on the city plot and recaptured Elephantine on turn 233, only 6 turns after England had taken it. England gained no durable city or Wonder benefit and instead exhausted units to preserve the Eiffel Tower briefly for nearby Egypt.
++
++The conquest logic now has the default-enabled `SAS_AI_CITY_LONG_TERM_DISTANCE_OVERRIDE_ACTIVE_WORLD_WONDER_ENABLE`. An active World Wonder still protects the city's intrinsic site quality, but it no longer bypasses excessive same-area distance. This keeps a nearby Wonder city eligible for normal captured-city valuation while allowing a truly remote one to be razed, permanently denying the Wonder instead of donating it back after a costly defense. Barbarian, holy-city, and previously-owned-city exclusions remain unchanged.
++
++Save-file 453 provided the direct confirmation in `BBAI_20260716T082233Z_new1.log` / `SASGameSummary_20260716T082233Z_new1.log`. Inca captured population-17 Madrid with an active Statue of Zeus at same-area distance 13. The log reported `intrinsicSiteProtectedByActiveWorldWonder=1`, `distanceOverrideActiveWorldWonder=1`, `sameAreaDistanceLikelyToBenefit=0`, and `RAZE_DECISION ... action=RAZE`. The active Wonder therefore protected intrinsic quality exactly as intended but did not override the unsustainable distance result.
++
++The same save also tested whether the distance limit should be increased from 8 to 9. Population-17 Cordoba at distance 9 and `closeness=16` initially looked like an attractive bridgehead for conquering the nearby Spanish cities, so 9 seemed plausible. The limit-9 A/B retest in `BBAI_20260716T083454Z_load1.log` / `SASGameSummary_20260716T083454Z_load1.log` showed the opposite. Inca kept Cordoba with normal `finalValue=-89`; the Ottomans captured it immediately and killed 2 Incan Robotic Infantry. Inca recaptured it on turn 247, but the Ottomans captured it again on turn 248 and killed 5 Robotic Tanks, 2 more Robotic Infantry, and 1 Gunship. They then transferred the still-developed city back to Spain. Inca lost 10 advanced units defending and recapturing the apparent bridgehead without securing it, reproducing the exact remote-city trap that the distance gate is meant to prevent.
++
++The default distance limit therefore remains 8. It should not be raised merely because a distance-9 city looks valuable or could theoretically anchor further conquest: the slightly larger allowance was enough to split a powerful army around an exposed capture and give the developed city back to a nearer rival. The limit remains XML-tunable for other maps and rulesets, but the tested default favors durable military concentration over speculative bridgeheads.
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d39b952a6..3830d127d 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -386,7 +386,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **City attack oscillation — pre-check vs strong targets (possible mitigation)**: In `CvUnitAI::AI_attackCityMove`, add a sanity check to **skip marching to/attacking a city** when the **defending stack is too strong**. Goal: prevent the inefficient **advance → abort → backtrack** loop and reduce the risk of being caught without time to retreat. **Note:** in the test sample, this behavior also resolved without the change by running ~2+ autoplay turns in a row instead of 1 turn only from a slightly older save file rather; treat this as a **possible fix/sanity check** (not (at least not yet) broadly tested). See [KI#63](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but).
+ - **Early-game razing — distance-aware captures**: Updated conquer/raze logic so that, for roughly the first **~120 turns** (scaled by game speed), the AI **razes captured cities** that aren’t **close enough** to justify early investment, in `CvPlayerAI::AI_conquerCity`. This addresses the base AdvCiv pattern where forces overextend (most troops sit in a faraway capture while **core cities** thin out) and also preserves scarce early economy (city maintenance, low pop, time to build improvements/culture). Indirect effect: less fog-busting far from us → **more barbarians** there, which tends to pressure rivals. Net: a **stronger, more focused** early AI (fewer "split in two" empires). See [KI#64](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity).
+ - (Requires AdvCiv-SAS 6042+) **Captured-city razing avoids destroy-then-resettle waste:** BBAI testing in save file 450 showed AIs repeatedly destroy a city and then soon spend a Settler to rebuild on the exact same `(38,50)` plot: Ur was razed, Tours was founded there and razed, then HRE founded Augsburg there only four turns later and eventually razed it too. This wasted population, buildings, Settlers, regrowth, and military effort. The cause was Base AdvCiv's `AI_isAwfulSite`, which misevaluated and judged existing cities through a separate crude terrain veto that could conflict with how Settlers valued the same site. AdvCiv-SAS replaces it with `AI_isSASCityLikelyToBenefitUsLongTerm`, whose intrinsic-quality component reuses the shared SAS low-food and potential-yield helpers: close cities with enough long-term food or workable potential can be kept even without standout bonuses. In the confirming run, HRE kept Ur when it captured the city at population 3; Ur later reached population 13, built a corporation building, and generated a Great Engineer, supporting a stronger AI outcome instead of another wasteful raze/resettle cycle. See [KI#186](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#186---fixedimproved-base-advciv-ai_isawfulsite-could-cause-economically-wasteful-captured-city-razeresettle-cycles-and-destroy-valuable-population-and-buildings).
+-- (Requires AdvCiv-SAS 6042+) **Excessively faraway captured cities are rejected regardless of intrinsic site quality:** the same BBAI investigation exposed a separate strategic problem: a city can have excellent food, bonuses, population, and developed plots yet still be a poor long-term acquisition when it is too far from our nearest city on the same land area. Defending it can exhaust units and split the army from the core; if a nearer rival then captures it, that rival receives an already-developed city without paying for its Settler or initial growth. As for us, we lose diverted investments and end up thinner and weaker. `AI_isSASCityLikelyToBenefitUsLongTerm` therefore applies a tunable same-area distance limit independently of intrinsic quality. Razing such an outpost gives immediate gold gain, avoids its ongoing maintenance and defensive commitment, preserves more military flexibility, and forces rivals to spend their own Settler and development time. In the confirming run, Yue-Chi at same-area distance 17 and repeatedly conquered Orleans at distance 10 were razed, and neither location was resettled nearby through turn 300. See [KI#186](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#186---fixedimproved-base-advciv-ai_isawfulsite-could-cause-economically-wasteful-captured-city-razeresettle-cycles-and-destroy-valuable-population-and-buildings).
++- (Requires AdvCiv-SAS 6042+) **Excessively faraway captured cities are rejected regardless of intrinsic site quality:** the same BBAI investigation exposed a separate strategic problem: a city can have excellent food, bonuses, population, and developed plots yet still be a poor long-term acquisition when it is too far from our nearest city on the same land area. Defending it can exhaust units and split the army from the core; if a nearer rival then captures it, that rival receives an already-developed city without paying for its Settler or initial growth. As for us, we lose diverted investments and end up thinner and weaker. `AI_isSASCityLikelyToBenefitUsLongTerm` therefore applies a tunable same-area distance limit independently of intrinsic quality. Razing such an outpost lets the AI take the conquest gold and move on, avoiding its ongoing maintenance and defensive commitment, preserving more military flexibility, and forcing rivals to spend their own Settler and development time. In the confirming run, Yue-Chi at same-area distance 17 and repeatedly conquered Orleans at distance 10 were razed, and neither location was resettled nearby through turn 300. Save-file 453 also confirmed that even an attractive, seemingly moderate-distance capture can be a trap: temporarily raising the tunable limit from 8 to 9 made Inca keep population-17 Cordoba as a possible bridgehead, but two immediate Ottoman captures killed 10 advanced Incan units and left the developed city transferred back to Spain, so the tested default as of now remains 8. See [KI#186](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#186---fixedimproved-base-advciv-ai_isawfulsite-could-cause-economically-wasteful-captured-city-razeresettle-cycles-and-destroy-valuable-population-and-buildings) and [KI#186.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1862---fixedimproved-base-advciv-active-world-wonder-exemption-could-make-the-ai-retain-remote-captured-cities-exhaust-defenders-and-return-the-preserved-wonder-to-a-nearer-rival).
++- (Requires AdvCiv-SAS 6043+) **Active-World-Wonder exemption no longer protects unsustainable faraway captured cities:** BBAI logging in a follow-up save-file 450 run showed the concrete failure. England captured the faraway, population-18 city of Elephantine, but an inherited Base AdvCiv rule automatically protected captured cities containing active World Wonders from being razed, even though the city was too far away to benefit its new owner long-term: England committed 15 defenders, but eventually lost at least 7 of them there plus lost Elephantine back to nearby Egypt after only 6 turns anyway. So the AI now optionally disables this Wonder-based protection for faraway cities while preserving it for captures close enough to be sustainable (default because likely stronger and as testing showed too). Razing lets the AI take the conquest gold, permanently deny the Wonder to rivals, and avoid the city's maintenance and defensive commitments and potential future losses and risks, instead of exhausting its army to preserve the Wonder briefly for the nearer rival likely to retake it. Save file 450's run diverged so it could not be reproduced after fix, but Save-file 453 directly confirmed the new path when Inca razed population-17 Madrid at distance 13 despite its active Statue of Zeus. See [KI#186.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1862---fixedimproved-base-advciv-active-world-wonder-exemption-could-make-the-ai-retain-remote-captured-cities-exhaust-defenders-and-return-the-preserved-wonder-to-a-nearer-rival).
+ - **Early defender overbuild → switch to versatile offense (AI)**: Heuristic in `CvCityAI::AI_chooseUnit` reduces **early-game overproduction of pure defenders** (especially Longbowmen) by swapping the build to a more **offensive/versatile** unit when defense is already sufficient — e.g., Spearmen, Axemen, Camel Archers, with a preference for civ-specific units like War Chariots when available. Also caps/avoids siege (esp. Trebuchets) when they’re inefficient defensively; production can drop **down to zero** if conditions warrant. If no good replacement exists, the AI can **reflag** the chosen defender to an **attack/attack_city/counter** `UnitAI` instead. In testing, this produced **fewer pure defenders** and **more varied stacks** (e.g., a run where Hatshepsut shifted from ~30 Longbowmen at T130 to ~32 War Chariots, plus Camel Archers). See [KI#53.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#532---fixed-and-enhanced-joao-ai-building-way-too-many-defenders-36-longbowmen-at-turn-130-almost-all-with-unitai_city_defense-or-similar-while-being-boxed-in-with-only-3-cities-instead-of-making-about-half-of-these-offense-units-or-versatile-ones-to-punish-overextending-thin-neighbour-fixed-by-having-an-early-phase-we-have-expectedly-too-few-cities-at-this-stage-of-the-game-no-need-to-overbuild-anymore-denders-at-this-stage-of-the-game-switch-to-offense-or-versatile-unitai-rather-and-our-military-composition-has-way-too-many-defender-unitais-switch-to-offense-or-versatile-unitais-which-seemingly-fix-the-issue) and [KI#53.2.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#5322-seemingly-greatly-enhanced-ai-overproducing-defenders-early-on-especially-longbowmen-but-not-only-replaced-with-an-early-produce-more-versatile-units-especially-civ-specific-ones-when-defended-enough-at-least-in-theory-in-cvcityaiai_chooseunit).
+ - **Siege production — conditional minimization (trebuchets especially)**: In `CvCityAI::AI_chooseUnit`, added targeted checks to keep **siege output** as low as needed—**up to none at all** when conditions say they’re poor value (e.g., when the AI is **weaker** or not preparing **city assaults**). Rationale: **trebuchets** are very **hammer-inefficient** outside direct city attacks; **catapults/cannons** also aren’t versatile enough (and are often misused) for defense. Current tuning intentionally leans **low** versus before (but not permanently zero when other conditions are met). Result: **more varied offensive stacks** and **stronger defense** when behind. See [KI#53.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#533-tremendously-improved-ai-overbuilding-siege-units-in-particular-trebuchets-but-not-only-where-they-are-detrimental-to-do-build-in-particular-when-weaker-but-not-only). **Update:** Thresholds have been **slightly relaxed pre-Renaissance**; **extra-relaxed when holding key strategic bonuses** (**Iron**, **Copper**, **Horse**, **Camel**, **Elephants**) to enable offense windows (e.g., longbow + siege); and **heavily relaxed from Renaissance onward** so **Cannons** can serve as a defensive pivot and the AI avoids over-producing Pikemen into Cuirassiers, and more generally since later sieges units are stronger and more effective, to also have a more varied and effective military composition.
+ - **City-counter role pruning (e.g. Macemen)**: Removed `UNITAI_CITY_COUNTER` from **non-versatile** units (e.g., `UNIT_MACEMAN`). For example for macemen, as city defenders they’re too easy to punish—knights counter them hard, and even crossbow stacks can beat defending macemen—so they’re better assigned to **offensive** `UnitAI` roles. While macemen beat pikemen, pikes seldom assault cities efficiently, so the city-counter slot isn’t warranted. The same adjustment applies to any other units with this mismatch.
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=37221

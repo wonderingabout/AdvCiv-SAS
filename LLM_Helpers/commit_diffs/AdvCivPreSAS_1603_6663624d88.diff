@@ -1,0 +1,123 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1603
+# Commit: 6663624d886ee32b6d6c21fb8abab5d4d4739e20
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: aef1469368beaf90e79cefc8b3e3a22b1051bd51
+# Title: Removed unused CVGAMECOREDLL_EXPORTS from project files
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	8	CvGameCoreDLL/Project/AdvCiv.vcxproj
+2	1	CvGameCoreDLL/Project/Makefile
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index ae26e42eb..699a4a4d0 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -371,7 +371,7 @@ nmake fastdep /NOLOGO
+ nmake dll /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Debug
+ nmake clean  /NOLOGO</NMakeCleanCommandLine>
+-    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /D_DEBUG /DUSE_DATA_DIR /D_CODE_EDITOR</AdditionalOptions>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /D_DEBUG /DUSE_DATA_DIR /D_CODE_EDITOR</AdditionalOptions>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMem|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+@@ -386,7 +386,7 @@ nmake fastdep /NOLOGO
+ nmake dll /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=DebugMem
+ nmake clean  /NOLOGO</NMakeCleanCommandLine>
+-    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR /DFASSERT_ENABLE /D_CODE_EDITOR</AdditionalOptions>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR /DFASSERT_ENABLE /D_CODE_EDITOR</AdditionalOptions>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+@@ -401,7 +401,7 @@ nmake fastdep /NOLOGO
+ nmake dll /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Profile
+ nmake clean  /NOLOGO</NMakeCleanCommandLine>
+-    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+@@ -416,7 +416,7 @@ nmake fastdep /NOLOGO
+ nmake dll /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Release
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+-    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Assert|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+@@ -431,7 +431,7 @@ nmake fastdep /NOLOGO
+ nmake dll /NOLOGO</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Assert
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+-    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DFASSERT_ENABLE /D_CODE_EDITOR /DUSE_DATA_DIR</AdditionalOptions>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DFASSERT_ENABLE /D_CODE_EDITOR /DUSE_DATA_DIR</AdditionalOptions>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-fast|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+@@ -448,7 +448,7 @@ nmake precompile  /NOLOGO
+ bin\jom build</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Release
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+-    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Assert-fast|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+@@ -465,7 +465,7 @@ nmake precompile  /NOLOGO
+ bin\jom build</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Assert
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+-    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DFASSERT_ENABLE /D_CODE_EDITOR /DUSE_DATA_DIR</AdditionalOptions>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DFASSERT_ENABLE /D_CODE_EDITOR /DUSE_DATA_DIR</AdditionalOptions>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Final_Release-fast|Win32'">
+     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+@@ -482,7 +482,7 @@ nmake precompile  /NOLOGO
+ bin\jom build</NMakeReBuildCommandLine>
+     <NMakeCleanCommandLine>set TARGET=Final_Release
+ nmake clean /NOLOGO</NMakeCleanCommandLine>
+-    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
++    <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR</AdditionalOptions>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <LocalDebuggerEnvironment>_NO_DEBUG_HEAP=1</LocalDebuggerEnvironment>
+
+diff --git a/CvGameCoreDLL/Project/Makefile b/CvGameCoreDLL/Project/Makefile
+index cc8acaf69..676686a71 100644
+--- a/CvGameCoreDLL/Project/Makefile
++++ b/CvGameCoreDLL/Project/Makefile
+@@ -14,6 +14,7 @@
+ # YOURMOD2 and YOURLOGS (see under "Paths").
+ # Internal profiler enabled (FP_PROFILE_ENABLE, USE_INTERNAL_PROFILER).
+ # CvGameCoreDLL.rc used only for final release.
++# Removed unused /DCVGAMECOREDLL_EXPORTS from Debug_DEFINES
+ # devolution (Erik) has added the target 'Final_Release' with additional optimizations.
+ 
+ ## User setup
+@@ -70,7 +71,7 @@ FD="bin\fastdep.exe"
+ # BLACKLIST=CvTextScreens
+ 
+ #### DEFINES ####
+-Debug_DEFINES=/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /D_DEBUG
++Debug_DEFINES=/DWIN32 /D_WINDOWS /D_USRDLL /D_DEBUG
+ Release_DEFINES=/DWIN32 /D_WINDOWS /D_USRDLL /DCVGAMECOREDLL_EXPORTS /DNDEBUG /DFINAL_RELEASE
+ ## Optional: Copy the flags above into "Additional options" in NMAKE properties (Configuration Properties)
+ ## to make VC++ aware of what is defined and what isn't, which affects the help popup and red lines.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6557
